@@ -198,7 +198,7 @@ def triggerSummaryCfg(flags, hypos):
                     stepChains[chain] = hypoOutputKeys
         allChains.update( stepChains )
 
-    from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
+    from TriggerMenuMT.HLT.Menu.TriggerConfigHLT import TriggerConfigHLT
     from HLTSeeding.HLTSeedingConfig import mapThresholdToL1DecisionCollection
     if len(TriggerConfigHLT.dicts()) == 0:
         __log.warning("No HLT menu, chains w/o algorithms are not handled")
@@ -263,6 +263,19 @@ def triggerMonitoringCfg(flags, hypos, filters, hltSeeding):
         mon.DecisionCollectorTools += [ dcEventTool ]
         mon.FeatureCollectorTools  += [ dcFeatureTool ]
 
+    # Configure additional chain error monitoring for athenaHLT/online:
+    if flags.Trigger.Online.isPartition:
+        from TrigServices.TrigServicesConfig import TrigServicesCfg
+        onlineServicesAcc = TrigServicesCfg(flags)
+        hltEventLoopMgr = onlineServicesAcc.getPrimary()
+
+        hltEventLoopMgr.TrigErrorMonTool.AlgToChainTool = CompFactory.TrigCompositeUtils.AlgToChainTool()
+        hltEventLoopMgr.TrigErrorMonTool.MonTool.defineHistogram(
+            'ErrorChainName,ErrorCode', path='EXPERT', type='TH2I',
+            title='Error StatusCodes per chain;Chain name;StatusCode',
+            xbins=1, xmin=0, xmax=1, ybins=1, ymin=0, ymax=1)
+
+        acc.merge(onlineServicesAcc)
 
     mon.L1Decisions  = getProp( hltSeeding, 'HLTSeedingSummaryKey' )
 
@@ -429,12 +442,12 @@ def triggerPOOLOutputCfg(flags):
 
     # Produce trigger bits
     bitsmaker = CompFactory.TriggerBitsMakerTool()
-    decmaker = CompFactory.getComp("TrigDec::TrigDecisionMakerMT")("TrigDecMakerMT", BitsMakerTool = bitsmaker)
+    decmaker = CompFactory.TrigDec.TrigDecisionMakerMT("TrigDecMakerMT", BitsMakerTool = bitsmaker)
     acc.addEventAlgo( decmaker )
 
     # Produce trigger metadata
-    menuwriter = CompFactory.getComp("TrigConf::xAODMenuWriterMT")()
-    menuwriter.KeyWriterTool = CompFactory.getComp('TrigConf::KeyWriterTool')('KeyWriterToolOffline')
+    menuwriter = CompFactory.TrigConf.xAODMenuWriterMT()
+    menuwriter.KeyWriterTool = CompFactory.TrigConf.KeyWriterTool('KeyWriterToolOffline')
     acc.addEventAlgo( menuwriter )
 
     # Schedule the insertion of L1 prescales into the conditions store
@@ -622,7 +635,7 @@ def triggerRunCfg( flags, menu=None ):
         endOfEventAlg = conf2toConfigurable(EndOfEventROIConfirmerAlgCfg('EndOfEventROIConfirmerAlg'))
         acc.addEventAlgo( endOfEventAlg, sequenceName="HLTFinalizeSeq" )
         if flags.Trigger.endOfEventProcessing.doLArNoiseBurst:
-            from TriggerMenuMT.HLTMenuConfig.CalibCosmicMon.CalibChainConfiguration import getLArNoiseBurstEndOfEvent
+            from TriggerMenuMT.HLT.CalibCosmicMon.CalibChainConfiguration import getLArNoiseBurstEndOfEvent
             recoSeq, LArNBRoIs = getLArNoiseBurstEndOfEvent()
             endOfEventAlg.RoIs = [LArNBRoIs]
             acc.addSequence( parOR("acceptedEventSeq"), parentName="HLTFinalizeSeq" )

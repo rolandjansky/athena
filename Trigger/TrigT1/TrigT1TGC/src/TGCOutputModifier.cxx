@@ -28,6 +28,7 @@ namespace LVL1TGCTrigger {
   {
     ATH_MSG_INFO( "=======================================" );
     ATH_MSG_INFO( "Initialisation for TGCOutputModifier"  );
+    ATH_MSG_INFO( "NSWVetoMode="<<m_nswVetoMode.value());
     ATH_MSG_INFO( "EmulateA="<<m_emulateA.value());
     ATH_MSG_INFO( "EmulateC="<<m_emulateC.value());
     ATH_MSG_INFO( "DeltaEtaCut="<<m_deltaEtaCut.value() );
@@ -41,7 +42,7 @@ namespace LVL1TGCTrigger {
     ATH_CHECK(m_inputKey.initialize());
     ATH_CHECK(m_outputKey.initialize());
     ATH_CHECK(m_recTGCRoiTool.retrieve());
-    ATH_CHECK(m_musegKey.initialize());
+    ATH_CHECK(m_musegKey.initialize(m_nswVetoMode.value()));
     return StatusCode::SUCCESS;
   }
 
@@ -56,27 +57,29 @@ namespace LVL1TGCTrigger {
     const LVL1MUONIF::Lvl1MuCTPIInputPhase1* inTgc2Muctpi = rh_muctpiTgc.cptr();
 
     SG::ReadHandle<xAOD::MuonSegmentContainer> rh_museg(m_musegKey, eventContext);
-    if(!rh_museg.isValid()){
+    if(!rh_museg.isValid() && m_nswVetoMode.value()){
       ATH_MSG_ERROR("Cannot retrieve xAOD::MuonSegmentContainer");
       return StatusCode::FAILURE;
     }
-    const xAOD::MuonSegmentContainer* muSegContainer = rh_museg.cptr();
     std::vector<MuSegData> muSegDataColl;
-    for(auto seg : *muSegContainer){
-      if(
-	 seg->chamberIndex() != Muon::MuonStationIndex::EIS &&
-	 seg->chamberIndex() != Muon::MuonStationIndex::EIL &&
-	 seg->chamberIndex() != Muon::MuonStationIndex::CSS &&
-	 seg->chamberIndex() != Muon::MuonStationIndex::CSL   )continue;
-      MuSegData data;
-      data.pos.SetXYZ(seg->x(),seg->y(),seg->z());
-      data.vec.SetXYZ(seg->px(),seg->py(),seg->pz());
-      muSegDataColl.push_back(data);
-      ATH_MSG_DEBUG(" found a muon segment:"
-		    << " segEta=" << data.pos.Eta()
-		    << " segPhi=" << data.pos.Phi()
-		    << " segEtaVec=" << data.vec.Eta()
-		    << " segPhiVec=" << data.vec.Phi());
+    if(m_nswVetoMode.value()){
+      const xAOD::MuonSegmentContainer* muSegContainer = rh_museg.cptr();
+      for(auto seg : *muSegContainer){
+	if(
+	   seg->chamberIndex() != Muon::MuonStationIndex::EIS &&
+	   seg->chamberIndex() != Muon::MuonStationIndex::EIL &&
+	   seg->chamberIndex() != Muon::MuonStationIndex::CSS &&
+	   seg->chamberIndex() != Muon::MuonStationIndex::CSL   )continue;
+	MuSegData data;
+	data.pos.SetXYZ(seg->x(),seg->y(),seg->z());
+	data.vec.SetXYZ(seg->px(),seg->py(),seg->pz());
+	muSegDataColl.push_back(data);
+	ATH_MSG_DEBUG(" found a muon segment:"
+		      << " segEta=" << data.pos.Eta()
+		      << " segPhi=" << data.pos.Phi()
+		      << " segEtaVec=" << data.vec.Eta()
+		      << " segPhiVec=" << data.vec.Phi());
+      }
     }
 
     SG::WriteHandle<LVL1MUONIF::Lvl1MuCTPIInputPhase1> wh_muctpiTgc(m_outputKey, eventContext);
@@ -176,7 +179,7 @@ namespace LVL1TGCTrigger {
       ATH_MSG_DEBUG("RoI pT=" << sldata.pt(icand)
 		    << " roiEta=" << roiPos.Eta()
 		    << " roiPhi=" << roiPos.Phi() );
-      bool matched = false;
+      bool matched = !m_nswVetoMode.value();
       for(auto muSegData : muSegDataColl){
 	if(matched)break;
 	float deltaEta = std::abs( muSegData.pos.Eta() - roiPos.Eta() );

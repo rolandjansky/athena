@@ -17,16 +17,19 @@ set( _jobOPath "${_jobOPath}:$ENV{JOBOPTSEARCHPATH}" )
 atlas_add_test(test_HGTD_RDO
            SOURCES test/test_HGTD_RDO.cxx
            INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-           LINK_LIBRARIES ${Boost_LIBRARIES} HGTD_RawData)
+           LINK_LIBRARIES ${Boost_LIBRARIES} HGTD_RawData
+           POST_EXEC_SCRIPT nopost.sh)
 
 atlas_add_test(test_HGTD_RDOColl
           SOURCES test/test_HGTD_RDOColl.cxx
           INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-          LINK_LIBRARIES ${Boost_LIBRARIES} HGTD_RawData)
+          LINK_LIBRARIES ${Boost_LIBRARIES} HGTD_RawData
+          POST_EXEC_SCRIPT nopost.sh)
 
 atlas_add_test(test_HGTD_RDOCont
           SOURCES test/test_HGTD_RDOCont.cxx
           INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
           LINK_LIBRARIES ${Boost_LIBRARIES} HGTD_RawData TestTools SGTools
           GaudiKernel StoreGateLib
-          ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}")
+          ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}"
+          POST_EXEC_SCRIPT nopost.sh)

@@ -657,7 +657,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(Muon::MdtPrepDataContainer
         // We can make the MdtPrepData, but only if our collection is being used (ie not nullptr)
         if (collectionToBeUpdated) {
             MdtPrepData* newPrepData =
-                new MdtPrepData(channelId, hashId, driftRadius, std::move(cov), descriptor, newDigit->tdc(), newDigit->adc(), digitStatus);
+                new MdtPrepData(channelId, hashId, driftRadius, cov, descriptor, newDigit->tdc(), newDigit->adc(), digitStatus);
 
             newPrepData->setHashAndIndex(collectionToBeUpdated->identifyHash(), collectionToBeUpdated->size());
             collectionToBeUpdated->push_back(newPrepData);
@@ -919,7 +919,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(Muon::MdtPrepDataConta
 
                 // Create new PrepData
                 MdtPrepData* newPrepData =
-                    new MdtPrepData(channelId, mdtHashId, driftRadius, std::move(cov), descriptor, digit->tdc(), digit->adc(), digitStatus);
+                    new MdtPrepData(channelId, mdtHashId, driftRadius, cov, descriptor, digit->tdc(), digit->adc(), digitStatus);
 
                 newPrepData->setHashAndIndex(driftCircleColl->identifyHash(), driftCircleColl->size());
                 driftCircleColl->push_back(newPrepData);
@@ -998,7 +998,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(Muon::MdtPrepDataConta
                     MdtTwinPrepData* twin_newPrepData =
                         new MdtTwinPrepData(promptHit_channelId,
                                             // promptHit_channelHash,
-                                            mdtHashId, driftRadiusZTwin, std::move(cov), descriptor, promptHit_Digit->tdc(),
+                                            mdtHashId, driftRadiusZTwin, cov, descriptor, promptHit_Digit->tdc(),
                                             promptHit_Digit->adc(), twinHit_Digit->tdc(), twinHit_Digit->adc(), digitStatus);
 
                     ATH_MSG_DEBUG(
@@ -1034,7 +1034,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(Muon::MdtPrepDataConta
                     (cov)(0, 0) = errRadius * errRadius;
 
                     MdtPrepData* twin_newPrepData =
-                        new MdtPrepData(promptHit_channelId, promptHit_channelHash, driftRadius, std::move(cov), descriptor,
+                        new MdtPrepData(promptHit_channelId, promptHit_channelHash, driftRadius, cov, descriptor,
                                         promptHit_Digit->tdc(), promptHit_Digit->adc(), digitStatus);
 
                     ATH_MSG_DEBUG(
@@ -1093,7 +1093,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(Muon::MdtPrepDataConta
 
                 // Create new PrepData
                 MdtPrepData* newPrepData =
-                    new MdtPrepData(channelId, mdtHashId, driftRadius, std::move(cov), descriptor, digit->tdc(), digit->adc(), digitStatus);
+                    new MdtPrepData(channelId, mdtHashId, driftRadius, cov, descriptor, digit->tdc(), digit->adc(), digitStatus);
 
                 newPrepData->setHashAndIndex(driftCircleColl->identifyHash(), driftCircleColl->size());
                 driftCircleColl->push_back(newPrepData);
@@ -1179,7 +1179,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(Muon::MdtPrepDataConta
 
                 // Create new PrepData
                 MdtPrepData* newPrepData =
-                    new MdtPrepData(channelId, mdtHashId, driftRadius, std::move(cov), descriptor, digit->tdc(), digit->adc(), digitStatus);
+                    new MdtPrepData(channelId, mdtHashId, driftRadius, cov, descriptor, digit->tdc(), digit->adc(), digitStatus);
 
                 newPrepData->setHashAndIndex(driftCircleColl->identifyHash(), driftCircleColl->size());
                 driftCircleColl->push_back(newPrepData);
@@ -1187,7 +1187,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(Muon::MdtPrepDataConta
                 // second_digit
                 // Create new PrepData
                 MdtPrepData* second_newPrepData =
-                    new MdtPrepData(second_channelId, mdtHashId, second_driftRadius, std::move(cov2), second_descriptor,
+                    new MdtPrepData(second_channelId, mdtHashId, second_driftRadius, cov2, second_descriptor,
                                     second_digit->tdc(), second_digit->adc(), second_digitStatus);
 
                 second_newPrepData->setHashAndIndex(driftCircleColl->identifyHash(), driftCircleColl->size());

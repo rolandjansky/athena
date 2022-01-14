@@ -53,7 +53,7 @@ MsgStream& operator << ( MsgStream& sl, const MdtAmtHit& data)
     << ", leading=" << data.leading()
     << ", isMasked=" <<  data.isMasked()
     << ", dataWords=[";
-    if (0!=data.dataWords()) {
+    if (nullptr!=data.dataWords()) {
         for( unsigned i=0; i<data.dataWords()->size(); i++ ) {
             sl << (*data.dataWords() )[i] << ",";
         }
@@ -76,7 +76,7 @@ std::ostream& operator << ( std::ostream& sl, const MdtAmtHit& data)
     << ", leading=" << data.leading()
     << ", isMasked=" <<  data.isMasked()
     << ", dataWords=[";
-    if (0!=data.dataWords()) {
+    if (nullptr!=data.dataWords()) {
         for( unsigned i=0; i<data.dataWords()->size(); i++ ) {
             sl << (*data.dataWords() )[i] << ",";
         }

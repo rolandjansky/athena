@@ -220,7 +220,7 @@ MdtVsTgcRawDataValAlg::MatchMDTSegments(std::vector<const Muon::MuonSegment*> (&
         // If matches found add to matchedSegments and disqualify all segments in array
         if(nStationMatch>1){
           //HasMatchedTrack=true;
-          const Muon::MuonSegment *segmArray[4] = {0,0,0,0};
+          const Muon::MuonSegment *segmArray[4] = {nullptr,nullptr,nullptr,nullptr};
           for(int jMDT2=0;jMDT2<4;jMDT2++){
             if(stationMatchFound[jMDT2]){
               segmArray[jMDT2]=matchingSegments[jMDT2].at(0);

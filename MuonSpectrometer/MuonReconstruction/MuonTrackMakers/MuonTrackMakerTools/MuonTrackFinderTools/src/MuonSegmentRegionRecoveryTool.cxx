@@ -83,15 +83,21 @@ namespace Muon {
         if (m_idHelperSvc->recoCSC()){
             ATH_CHECK(m_regsel_csc.retrieve());
         } else m_regsel_csc.disable();
-        if (m_idHelperSvc->recosTgc()){
+        
+        
+        if (m_idHelperSvc->recosTgc() && m_recoverSTGC){
             ATH_CHECK(m_regsel_stgc.retrieve());
-        } else m_regsel_stgc.disable();
-        if (m_idHelperSvc->recoMM()){
+        } else {
+            m_regsel_stgc.disable();
+            m_recoverSTGC = false;
+        }
+        if (m_idHelperSvc->recoMM() && m_recoverMM){
             ATH_CHECK(m_regsel_mm.retrieve());
         } else {
             m_regsel_mm.disable();
+            m_recoverMM = false;
         }
-        if (!m_condKey.empty()) ATH_CHECK(m_condKey.initialize());
+        ATH_CHECK(m_condKey.initialize(!m_condKey.empty()));
 
         return StatusCode::SUCCESS;
     }
@@ -299,8 +305,8 @@ namespace Muon {
         if (m_idHelperSvc->hasRPC() && (m_idHelperSvc->rpcIdHelper().isInitialized())) addHashes(RPC, roi, data.rpc, data.rpcTrack);
         if (m_idHelperSvc->hasTGC() && (m_idHelperSvc->tgcIdHelper().isInitialized())) addHashes(TGC, roi, data.tgc, data.tgcTrack);
         if (m_idHelperSvc->recoCSC()) addHashes(CSC, roi, data.csc, data.cscTrack);
-        if (m_idHelperSvc->recosTgc()) addHashes(STGC, roi, data.stgc, data.stgcTrack);
-        if (m_idHelperSvc->recoMM()) addHashes(MM, roi, data.mm, data.mmTrack);
+        if (m_recoverSTGC) addHashes(STGC, roi, data.stgc, data.stgcTrack);
+        if (m_recoverMM) addHashes(MM, roi, data.mm, data.mmTrack);
 
         std::set<IdentifierHash>::iterator hsit = data.mdt.begin();
         std::set<IdentifierHash>::iterator hsit_end = data.mdt.end();
@@ -732,7 +738,7 @@ namespace Muon {
             for (const auto& chit : data.mdtPerStation) {
                 ATH_MSG_VERBOSE("Region " << MuonStationIndex::chName(chit.first) << " size  " << chit.second.size());
                 std::vector<const MdtPrepDataCollection*> cols;
-                m_seededSegmentFinder->extractMdtPrdCols(chit.second, cols);
+                m_seededSegmentFinder->extractMdtPrdCols(ctx, chit.second, cols);
                 std::map<int, std::vector<const MdtPrepData*>> mdtPrds;
                 std::unique_ptr<const Trk::TrackParameters> exParsFirst;
                 for (const MdtPrepDataCollection* mit : cols) {
@@ -768,7 +774,7 @@ namespace Muon {
                     }
                 }
                 if (prds && exParsFirst) {
-                    std::unique_ptr<Trk::SegmentCollection> segments = m_seededSegmentFinder->find(*exParsFirst, *prds);
+                    std::unique_ptr<Trk::SegmentCollection> segments = m_seededSegmentFinder->find(ctx, *exParsFirst, *prds);
                     if (segments) {
                         if (!segments->empty()) ATH_MSG_DEBUG("found segments " << segments->size());
 
@@ -779,7 +785,7 @@ namespace Muon {
 
                             if (m_trackSegmentMatchingTool.empty())
                                 ATH_MSG_VERBOSE("No track/segment matching");
-                            else if (!m_trackSegmentMatchingTool->match(track, *mseg, true)) {
+                            else if (!m_trackSegmentMatchingTool->match(ctx, track, *mseg, true)) {
                                 ATH_MSG_DEBUG(" Segment does not match with track ");
                                 continue;
                             } else {
@@ -825,7 +831,7 @@ namespace Muon {
         } else {
             unsigned int nstates = states.size();
             {
-                m_seededSegmentFinder->extractRpcPrdCols(data.rpc, data.rpcCols);
+                m_seededSegmentFinder->extractRpcPrdCols(ctx, data.rpc, data.rpcCols);
                 std::vector<const RpcPrepDataCollection*> newtcols;
                 for (const RpcPrepDataCollection* rit : data.rpcCols) {
                     std::unique_ptr<const Trk::TrackParameters> exPars{reachableDetEl(ctx, track, *(rit)->front()->detectorElement())};
@@ -843,7 +849,7 @@ namespace Muon {
                 data.rpcCols = std::move(newtcols);
             }
             {
-                m_seededSegmentFinder->extractTgcPrdCols(data.tgc, data.tgcCols);
+                m_seededSegmentFinder->extractTgcPrdCols(ctx, data.tgc, data.tgcCols);
                 std::vector<const TgcPrepDataCollection*> newtcols;
                 for (const TgcPrepDataCollection* tgcit : data.tgcCols) {
                     std::unique_ptr<const Trk::TrackParameters> exPars{reachableDetEl(ctx, track, *(tgcit)->front()->detectorElement())};
@@ -860,7 +866,7 @@ namespace Muon {
                 }
                 data.tgcCols = std::move(newtcols);
             }
-            if (m_idHelperSvc->hasCSC() && m_idHelperSvc->cscIdHelper().isInitialized()) {
+            if (m_idHelperSvc->recoCSC()) {
                 m_seededSegmentFinder->extractCscPrdCols(data.csc, data.cscCols);
                 std::vector<const CscPrepDataCollection*> newccols;
                 for (const CscPrepDataCollection* cit : data.cscCols) {
@@ -880,8 +886,8 @@ namespace Muon {
             }
 
             nstates = states.size();
-            if (m_idHelperSvc->hasSTgc() && m_idHelperSvc->stgcIdHelper().isInitialized()) {
-                m_seededSegmentFinder->extractsTgcPrdCols(data.stgc, data.stgcCols);
+            if (m_recoverSTGC) {
+                m_seededSegmentFinder->extractsTgcPrdCols(ctx, data.stgc, data.stgcCols);
                 std::vector<const sTgcPrepDataCollection*> newstcols;
                 ATH_MSG_DEBUG(" extractsTgcPrdCols data.stgcCols.size() " << data.stgcCols.size());
                 for (const sTgcPrepDataCollection* stgcit : data.stgcCols) {
@@ -901,7 +907,7 @@ namespace Muon {
                 data.stgcCols = std::move(newstcols);
             }
 
-            if (m_idHelperSvc->hasMM() && m_idHelperSvc->mmIdHelper().isInitialized()) {
+            if (m_recoverMM) {
                 m_seededSegmentFinder->extractMMPrdCols(data.mm, data.mmCols);
                 ATH_MSG_DEBUG(" extractMMPrdCols data.mmCols.size() " << data.mmCols.size());
                 std::vector<const MMPrepDataCollection*> newmcols;
@@ -934,7 +940,7 @@ namespace Muon {
             ATH_MSG_DEBUG("Copying old TSOSs " << oldStates->size());
             for (const Trk::TrackStateOnSurface* tsit : *oldStates) states.emplace_back(tsit->clone());
 
-            std::stable_sort(states.begin(), states.end(), SortTSOSs(&*m_edmHelperSvc, &*m_idHelperSvc));
+            std::stable_sort(states.begin(), states.end(), SortTSOSs(m_edmHelperSvc.get(), m_idHelperSvc.get()));
             ATH_MSG_DEBUG("Filling DataVector with TSOSs " << states.size());
             auto trackStateOnSurfaces = DataVector<const Trk::TrackStateOnSurface>();
             trackStateOnSurfaces.reserve(states.size());

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file  AthenaServices/test/DelayedConditionsCleanerSvc_test.cxx
@@ -303,6 +303,7 @@ public:
   {
   }
 };
+// cppcheck-suppress unknownMacro
 DECLARE_COMPONENT( DummyIncidentSvc )
 
 

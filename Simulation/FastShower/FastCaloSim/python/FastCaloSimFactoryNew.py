@@ -1,35 +1,12 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-
-
-# PROPAGATORS
-def RungeKuttaPropagatorCfg(flags, name="AtlasRungeKuttaPropagator", **kwargs):
-    mlog = logging.getLogger(name)
-    mlog.debug("Start configuration")
-    result = ComponentAccumulator()
-    result.setPrivateTools(CompFactory.Trk.RungeKuttaPropagator(name, **kwargs))
-    return result
-
-def STEP_PropagatorCfg(flags, name="AtlasSTEP_Propagator", **kwargs):
-    mlog = logging.getLogger(name)
-    mlog.debug("Start configuration")
-    result = ComponentAccumulator()
-    kwargs.setdefault("MaterialEffects", False)
-    result.setPrivateTools(CompFactory.Trk.STEP_Propagator(name, **kwargs))
-    return result
+import TrkConfig.AtlasExtrapolatorToolsConfig as TC
 
 
 # UPDATORS
-def MaterialEffectsUpdatorCfg(flags, name="MaterialEffectsUpdator", **kwargs):
-    mlog = logging.getLogger(name)
-    mlog.debug("Start configuration")
-    result = ComponentAccumulator()
-    result.setPrivateTools(CompFactory.Trk.MaterialEffectsUpdator(name, **kwargs))
-    return result
-
 def NIMatEffUpdatorCfg(flags, name="NIMatEffUpdator", **kwargs):
     mlog = logging.getLogger(name)
     mlog.debug("Start configuration")
@@ -40,26 +17,21 @@ def NIMatEffUpdatorCfg(flags, name="NIMatEffUpdator", **kwargs):
 
 # NAVIGATOR
 def AtlasNavigatorCfg(flags, name="AtlasNavigator", **kwargs):
-    mlog = logging.getLogger(name)
-    mlog.debug("Start configuration")
-    result = ComponentAccumulator()
-    if not flags.Sim.ISF.UseTrackingGeometryCond:
+    if flags.Sim.ISF.UseTrackingGeometryCond:
+        return TC.AtlasNavigatorCfg(flags, name, **kwargs)
+    else:
+        mlog = logging.getLogger(name)
+        mlog.debug("Start configuration")
+        result = ComponentAccumulator()
         if 'TrackingGeometrySvc' not in kwargs:
             from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
             acc = TrackingGeometrySvcCfg(flags)
-            kwargs.setdefault("TrackingGeometrySvc", acc.getPrimary())
+            kwargs.setdefault("TrackingGeometrySvc", acc.getPrimary().name)
             kwargs.setdefault("TrackingGeometryKey", '')
             result.merge(acc)
-    else:
-        if 'TrackingGeometryKey' not in kwargs:
-            from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
-            acc = TrackingGeometryCondAlgCfg(flags)
-            geom_cond_key = acc.getPrimary().TrackingGeometryWriteKey
-            result.merge(acc)
-            kwargs.setdefault("TrackingGeometryKey", geom_cond_key)
 
-    result.setPrivateTools(CompFactory.Trk.Navigator(name, **kwargs))
-    return result
+        result.setPrivateTools(CompFactory.Trk.Navigator(name, **kwargs))
+        return result
 
 
 # EXTRAPOLATOR
@@ -84,17 +56,17 @@ def NITimedExtrapolatorCfg(flags, name="ISF_NITimedExtrapolator", **kwargs):
     kwargs.setdefault("Navigator", Navigator)
 
     # PROPAGATORS
-    AtlasRungeKuttaPropagator = result.popToolsAndMerge(RungeKuttaPropagatorCfg(flags))
+    AtlasRungeKuttaPropagator = result.popToolsAndMerge(TC.AtlasRKPropagatorCfg(flags))
     result.addPublicTool(AtlasRungeKuttaPropagator)
     TimedPropagators  += [AtlasRungeKuttaPropagator]
 
-    AtlasSTEP_Propagator = result.popToolsAndMerge(STEP_PropagatorCfg(flags))
+    AtlasSTEP_Propagator = result.popToolsAndMerge(TC.AtlasNoMatSTEP_PropagatorCfg(flags))
     result.addPublicTool(AtlasSTEP_Propagator)
     TimedPropagators += [AtlasSTEP_Propagator]
-    kwargs.setdefault("STEP_Propagator", result.getPublicTool(AtlasSTEP_Propagator.name))
+    kwargs.setdefault("STEP_Propagator", AtlasSTEP_Propagator)
 
     # UPDATORS
-    MaterialEffectsUpdator = result.popToolsAndMerge(MaterialEffectsUpdatorCfg(flags))
+    MaterialEffectsUpdator = result.popToolsAndMerge(TC.AtlasMaterialEffectsUpdatorCfg(flags))
     result.addPublicTool(MaterialEffectsUpdator)
 
     NIMatEffUpdator = result.popToolsAndMerge(NIMatEffUpdatorCfg(flags))
@@ -132,12 +104,17 @@ def NITimedExtrapolatorCfg(flags, name="ISF_NITimedExtrapolator", **kwargs):
     # default for Cavern is (Rk,Mat)
     TimedSubPropagators += [ AtlasRungeKuttaPropagator.name ]
     TimedSubUpdators    += [ MaterialEffectsUpdator.name ]
+
+    from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasEnergyLossUpdatorCfg
+    AtlasELossUpdator = result.popToolsAndMerge(AtlasEnergyLossUpdatorCfg(flags))
+
     # ----------------------------------------------------------------------------------------------------------       
 
     kwargs.setdefault("MaterialEffectsUpdators",  TimedUpdators)
     kwargs.setdefault("Propagators", TimedPropagators)
     kwargs.setdefault("SubPropagators", TimedSubPropagators)
     kwargs.setdefault("SubMEUpdators",  TimedSubUpdators)
+    kwargs.setdefault("EnergyLossUpdators", [AtlasELossUpdator])
 
     result.setPrivateTools(CompFactory.Trk.TimedExtrapolator(name, **kwargs))
     return result

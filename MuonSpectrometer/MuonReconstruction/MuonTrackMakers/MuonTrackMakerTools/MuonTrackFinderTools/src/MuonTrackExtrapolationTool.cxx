@@ -37,7 +37,7 @@ namespace Muon {
         if (!m_trackingGeometryReadKey.empty()) {
             ATH_CHECK(m_trackingGeometryReadKey.initialize());
         } else {
-            ATH_CHECK(m_trackingGeometrySvc.retrieve());
+            ATH_MSG_ERROR("Could not retrieve a valid tracking geometry");
         }
         ATH_CHECK(m_fieldCacheCondObjInputKey.initialize());
 
@@ -46,7 +46,7 @@ namespace Muon {
         return StatusCode::SUCCESS;
     }
 
-    const Trk::TrackParameters *MuonTrackExtrapolationTool::extrapolateToMuonEntryRecord(const EventContext& ctx ,const Trk::TrackParameters &pars,
+    const Trk::TrackParameters *MuonTrackExtrapolationTool::extrapolateToMuonEntryRecord(const EventContext& ctx, const Trk::TrackParameters &pars,
                                                                                          Trk::ParticleHypothesis particleHypo) const {
         if (m_muonExtrapolator.empty()) return nullptr;
         const Trk::TrackingVolume *msEntrance = getVolume(m_msEntranceName, ctx);

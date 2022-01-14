@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SUSYTools/SUSYObjDef_xAOD.h"
@@ -46,7 +46,6 @@ using namespace ST;
 #include "TauAnalysisTools/ITauSmearingTool.h"
 #include "TauAnalysisTools/ITauTruthMatchingTool.h"
 #include "TauAnalysisTools/ITauEfficiencyCorrectionsTool.h"
-#include "TauAnalysisTools/ITauOverlappingElectronLLHDecorator.h"
 #include "tauRecTools/ITauToolBase.h"
 
 #include "IsolationSelection/IIsolationSelectionTool.h"
@@ -88,7 +87,7 @@ using namespace ST;
 #define CONFIG_EG_EFF_TOOL_KEY( TOOLHANDLE, TOOLNAME, KEYNAME, KEY )        \
   if( !TOOLHANDLE.isUserConfigured() ) {                                \
     TOOLHANDLE.setTypeAndName("AsgElectronEfficiencyCorrectionTool/"+TOOLNAME); \
-    std::cout << "Will now set key \"" << KEYNAME << "\" to value \"" << KEY << "\" when configuring an AsgElectronEfficiencyCorrectionTool" << std::endl; \
+    ATH_MSG_INFO( "Will now set key \"" << KEYNAME << "\" to value \"" << KEY << "\" when configuring an AsgElectronEfficiencyCorrectionTool" ); \
     ATH_CHECK( TOOLHANDLE.setProperty(KEYNAME, KEY) );                  \
     if(!isData())                                                        \
       ATH_CHECK (TOOLHANDLE.setProperty("ForceDataType", (int) data_type) ); \
@@ -1403,7 +1402,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
         auto tau_trigSF = m_tauTrigEffTool.emplace(m_tauTrigEffTool.end(), "TauAnalysisTools::TauEfficiencyCorrectionsTool/"+toolName);
         ATH_CHECK( tau_trigSF->setProperty("EfficiencyCorrectionTypes", std::vector<int>({TauAnalysisTools::SFTriggerHadTau})) );
         ATH_CHECK( tau_trigSF->setProperty("TriggerName", trigger.first) );
-        ATH_CHECK( tau_trigSF->setProperty("IDLevel", iTauID) );
+        ATH_CHECK( tau_trigSF->setProperty("JetIDLevel", iTauID) );
         ATH_CHECK( tau_trigSF->setProperty("PileupReweightingTool", m_prwTool.getHandle()) );
         ATH_CHECK( tau_trigSF->setProperty("OutputLevel", this->msg().level()) );
         //disable -- not there ATH_CHECK( tau_trigSF->setProperty("isAFII", isAtlfast()) );
@@ -1417,7 +1416,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   
     if (!m_tauSmearingTool.isUserConfigured()) {
       m_tauSmearingTool.setTypeAndName("TauAnalysisTools::TauSmearingTool/TauSmearingTool");
-      ATH_MSG_INFO("'TauMVACalibration' is the default procedure in R21");
       ATH_CHECK( m_tauSmearingTool.setProperty("OutputLevel", this->msg().level()) );
       ATH_CHECK( m_tauSmearingTool.retrieve() );
     } else ATH_CHECK( m_tauSmearingTool.retrieve() );
@@ -1435,14 +1433,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     } else if (m_tauTruthMatch.isUserConfigured()) ATH_CHECK( m_tauTruthMatch.retrieve() );
 
 
-//disable  ///////////////////////////////////////////////////////////////////////////////////////////
-//disable  // Initialise TauOverlappingElectronLLHDecorator tool
-//disable  
-//disable    if (!m_tauElORdecorator.isUserConfigured()) {
-//disable      m_tauElORdecorator.setTypeAndName("TauAnalysisTools::TauOverlappingElectronLLHDecorator/TauEleORDecorator");
-//disable      ATH_CHECK( m_tauElORdecorator.setProperty("OutputLevel", this->msg().level()) );
-//disable      ATH_CHECK( m_tauElORdecorator.retrieve() );
-//disable    } else  ATH_CHECK( m_tauElORdecorator.retrieve() );
   }
 
 

@@ -116,7 +116,7 @@ namespace Trk {
       //      std::cout << "Warning in VxClusteringTable: requested highest compatibility to an empty probability table" << std::endl;
       //GP 02-04-2007 Too verbose... happens too often...
       probability=0;
-      return PairOfVxVertexOnJetAxis();
+      return {};
     }
     
     std::map<float,PairOfVxVertexOnJetAxis>::const_reverse_iterator pairHighest=
@@ -135,7 +135,7 @@ namespace Trk {
     std::map<float,PairOfVxVertexOnJetAxis>::const_reverse_iterator pairHighest=revIteratorEnd;
     
     bool found(false);
-    for ( ; revIterator!=m_compatibilityPairOfVertices.rend() ; revIterator++)
+    for ( ; revIterator!=m_compatibilityPairOfVertices.rend() ; ++revIterator)
     {
       
       const PairOfVxVertexOnJetAxis & myVxVertex=(*revIterator).second;
@@ -156,7 +156,7 @@ namespace Trk {
     if (!found)
     {
       probability=0;
-      return PairOfVxVertexOnJetAxis();
+      return {};
     }
  
     probability=(*pairHighest).first;

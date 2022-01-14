@@ -38,7 +38,7 @@ StatusCode MuonPatternCombinationDetailedTrackTruthMaker::execute() {
     // Retrieve prep raw data truth
     std::vector<const PRD_MultiTruthCollection *> prdCollectionVector;
     for (std::vector<std::string>::const_iterator ikey = m_PRD_TruthNames.begin(); ikey != m_PRD_TruthNames.end(); ikey++) {
-        prdCollectionVector.push_back(0);
+        prdCollectionVector.push_back(nullptr);
         sc = evtStore()->retrieve(*prdCollectionVector.rbegin(), *ikey);
         if (!sc.isSuccess()) {
             ATH_MSG_WARNING("PRD_MultiTruthCollection " << *ikey << " NOT found");
@@ -50,7 +50,7 @@ StatusCode MuonPatternCombinationDetailedTrackTruthMaker::execute() {
     //----------------------------------------------------------------
     // Retrieve track collections
 
-    const TrackCollection *tracks = 0;
+    const TrackCollection *tracks = nullptr;
     if (evtStore()->contains<TrackCollection>(m_trackCollectionName) && evtStore()->retrieve(tracks, m_trackCollectionName).isSuccess()) {
         ATH_MSG_DEBUG("Got TrackCollection " << m_trackCollectionName);
     } else {
@@ -58,7 +58,7 @@ StatusCode MuonPatternCombinationDetailedTrackTruthMaker::execute() {
         return StatusCode::FAILURE;
     }
 
-    const MuonPatternCombinationCollection *muPatternCombinations = 0;
+    const MuonPatternCombinationCollection *muPatternCombinations = nullptr;
     if (evtStore()->contains<MuonPatternCombinationCollection>(m_collection) &&
         evtStore()->retrieve(muPatternCombinations, m_collection).isSuccess()) {
         ATH_MSG_DEBUG("Got MuonPatternCombinationCollection " << m_collection);

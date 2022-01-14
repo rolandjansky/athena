@@ -32,7 +32,7 @@ namespace Trk {
   template<int DIM, class T>
   ParametersBase<DIM, T>::ParametersBase(
     const AmgVector(DIM) parameters,
-    std::optional<AmgSymMatrix(DIM)> covariance,
+    std::optional<AmgSymMatrix(DIM)>&& covariance,
     const T chargeDef)
     : m_parameters(parameters)
     , m_covariance(std::move(covariance))
@@ -42,7 +42,7 @@ namespace Trk {
   // Helper protected ctor
   template<int DIM, class T>
   ParametersBase<DIM, T>::ParametersBase(
-    std::optional<AmgSymMatrix(DIM)> covariance)
+    std::optional<AmgSymMatrix(DIM)>&& covariance)
     : m_parameters()
     , m_covariance(std::move(covariance))
     , m_chargeDef{}
@@ -51,7 +51,7 @@ namespace Trk {
   template<int DIM, class T>
   ParametersBase<DIM, T>::ParametersBase(
     const AmgVector(DIM) & parameters,
-    std::optional<AmgSymMatrix(DIM)> covariance)
+    std::optional<AmgSymMatrix(DIM)>&& covariance)
     : m_parameters(parameters)
     , m_covariance(std::move(covariance))
     , m_chargeDef{}

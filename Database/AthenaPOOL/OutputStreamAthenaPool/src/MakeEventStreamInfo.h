@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MAKEEVENTSTREAMINFO_H
@@ -47,16 +47,18 @@ public:
    virtual StatusCode finalize() override;
 
 private:
+   /// Name of DataHeader key
+   StringProperty m_dataHeaderKey{this, "DataHeaderKey", "", "name of the data header key"};
    /// Key, the StoreGate key for the EventStreamInfo object.
-   StringProperty m_key;
+   StringProperty m_key{this, "Key", "", "name of the EventStreamInfo object"};
 
    /// Key, the StoreGate key for the xAOD::EventInfo object.
-   StringProperty m_eventInfoKey;
+   StringProperty m_eventInfoKey{this, "EventInfoKey", "EventInfo", "name of the xAOD::EventInfo"};
    /// Key, the StoreGate key for the old EventInfo object, ix there is no xAOD::EventInfo.
-   StringProperty m_oEventInfoKey;
+   StringProperty m_oEventInfoKey{this, "OldEventInfoKey", "McEventInfo", "name of the legacy EventInfo"};
 
    /// Pointer to the data stores
-   ServiceHandle<IMetaDataSvc>  m_metaDataSvc;
-   ServiceHandle<StoreGateSvc>  m_eventStore;
+   ServiceHandle<IMetaDataSvc> m_metaDataSvc{this, "MetaDataSvc", "MetaDataSvc"};
+   ServiceHandle<StoreGateSvc> m_eventStore{this, "StoreGateSvc", "StoreGateSvc"};
 };
 #endif

@@ -22,7 +22,7 @@ namespace Muon{
  
 class MuonHitResidualPlots: public PlotBase {
     public:
-      MuonHitResidualPlots(PlotBase *pParent, std::string sDir, std::string sType="");
+      MuonHitResidualPlots(PlotBase *pParent, const std::string& sDir, std::string sType="");
       void fill(const Trk::ResidualPull& resPull, int stationPhi );
       
       Trk::HitResidualPlots m_oResidualPlots;      

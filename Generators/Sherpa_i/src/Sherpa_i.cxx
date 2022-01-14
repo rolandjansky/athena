@@ -60,7 +60,7 @@ namespace SHERPA {
     HepMC3_Interface       * p_hepmc3;
 #endif
 
-    void DrawLogo(const int mode);  
+    void DrawLogo(const int mode);
 
     void PrepareTerminate();
 
@@ -92,15 +92,15 @@ namespace SHERPA {
     const ATOOLS::Blob_List &GetBlobList() const;
 
     double GetMEWeight(const ATOOLS::Cluster_Amplitude &ampl,const int mode=0) const;
-    
-    inline Initialization_Handler * GetInitHandler() const 
+
+    inline Initialization_Handler * GetInitHandler() const
     { return p_inithandler; }
-    inline Event_Handler * GetEventHandler() const 
+    inline Event_Handler * GetEventHandler() const
     { return p_eventhandler; }
-    
+
   };
 }
-#endif 
+#endif
  /*End of content of Sherpa.H */
 #include "SHERPA/Initialization/Initialization_Handler.H"
 #include "SHERPA/Tools/Variations.H"
@@ -116,7 +116,7 @@ namespace SHERPA {
 
 CLHEP::HepRandomEngine* p_rndEngine;
 
-Sherpa_i::Sherpa_i(const std::string& name, ISvcLocator* pSvcLocator) 
+Sherpa_i::Sherpa_i(const std::string& name, ISvcLocator* pSvcLocator)
   : GenModule(name, pSvcLocator), p_sherpa(NULL)
 {
   declareProperty("RunCard", m_runcard = "");
@@ -139,7 +139,7 @@ StatusCode Sherpa_i::genInitialize(){
     compilePlugin(m_plugincode);
     m_params.push_back("SHERPA_LDADD=Sherpa_iPlugin");
   }
-  
+
   ATH_MSG_INFO("Sherpa initialising...");
 
   p_rndEngine = atRndmGenSvc().GetEngine("SHERPA");
@@ -193,7 +193,7 @@ StatusCode Sherpa_i::genInitialize(){
   m_runinfo = std::make_shared<HepMC3::GenRunInfo>();
   /// Here one can fill extra information, e.g. the used tools in a format generator name, version string, comment.
   struct HepMC3::GenRunInfo::ToolInfo generator={std::string("SHERPA"), std::string(SHERPA_VERSION)+ "." + std::string(SHERPA_SUBVERSION), std::string("Used generator")};
-  m_runinfo->tools().push_back(generator);  
+  m_runinfo->tools().push_back(generator);
 #endif
   return StatusCode::SUCCESS;
 }
@@ -205,7 +205,7 @@ StatusCode Sherpa_i::callGenerator() {
   do {
     ATH_MSG_DEBUG("Trying to generate event with Sherpa");
   } while (p_sherpa->GenerateOneEvent()==false);
-  
+
   if (ATOOLS::rpa->gen.NumberOfGeneratedEvents()%1000==0) {
     ATH_MSG_INFO("Passed "<<ATOOLS::rpa->gen.NumberOfGeneratedEvents()<<" events.");
   }
@@ -220,13 +220,29 @@ StatusCode Sherpa_i::fillEvt(HepMC::GenEvent* event) {
 #endif
   p_sherpa->FillHepMCEvent(*event);
 
+
+#ifdef HEPMC3
+//Weight, MEWeight, WeightNormalisation, NTrials
   if (event->weights().size()>2) {
-    //double weight_normalisation = event->weights()[2];
+    double nominal = event->weight("Weight");
+    for (auto name: event->weight_names()) {
+      if (name  == "WeightNormalisation") continue;
+      if (name  == "NTrials") continue;
+      if (name  == "Weight") continue;
+      if (name  == "NTrials") continue;
+      if (std::abs(event->weight(name)) > m_variation_weight_cap*std::abs(nominal)) {
+        ATH_MSG_INFO("Capping variation" << name << " = " << event->weight(name)/nominal << "*nominal");
+        event->weight(name) *= m_variation_weight_cap*std::abs(nominal)/std::abs(event->weight(name));
+      }
+      ATH_MSG_DEBUG("Sherpa WEIGHT " << name << " value="<< event->weight(name));
+    }
+  }
+#else
+  if (event->weights().size()>2) {
     for (size_t i=0; i<event->weights().size(); ++i) {
-      //if (i==0 || i>3) event->weights()[i] /= weight_normalisation;
       if (i>3) { // cap variation weights
         // cap variation weights at m_variation_weight_cap*nominal to avoid spikes from numerical instability
-        if (fabs(event->weights()[i]) > m_variation_weight_cap*fabs(event->weights()[0])) {
+        if (std::abs(event->weights()[i]) > m_variation_weight_cap*std::abs(event->weights()[0])) {
           ATH_MSG_INFO("Capping variation" << i << " = " << event->weights()[i]/event->weights()[0] << "*nominal");
           event->weights()[i] *= m_variation_weight_cap*std::abs(event->weights()[0])/std::abs(event->weights()[i]);
         }
@@ -234,20 +250,15 @@ StatusCode Sherpa_i::fillEvt(HepMC::GenEvent* event) {
       ATH_MSG_DEBUG("Sherpa WEIGHT " << i << " value="<< event->weights()[i]);
     }
   }
+#endif
 
 #ifdef HEPMC3
-// units correction
-      event->set_units(HepMC3::Units::GEV, HepMC3::Units::MM);
-  GeVToMeV(event);
-//uncomment to list HepMC3 events
-//    std::cout << " print::listing Sherpa " << std::endl;
-//    HepMC3::Print::listing(std::cout, *event);
+  event->set_units(HepMC3::Units::MEV, HepMC3::Units::MM);
 #else
   GeVToMeV(event); //unit check
-//    std::cout << " print::printing Sherpa " << std::endl;
-//    event->print();
 #endif
-  
+
+
   return StatusCode::SUCCESS;
 }
 
@@ -258,7 +269,7 @@ StatusCode Sherpa_i::genFinalize() {
   std::cout << "MetaData: generator = Sherpa" << SHERPA_VERSION << "." << SHERPA_SUBVERSION << std::endl;
   std::cout << "MetaData: cross-section (nb)= " << p_sherpa->TotalXS()/1000.0 << std::endl;
   if (m_xsscale!=1.0) {
-    std::cout << "MetaData: cross-section*CrossSectionScaleFactor (nb)= " 
+    std::cout << "MetaData: cross-section*CrossSectionScaleFactor (nb)= "
               << p_sherpa->TotalXS()/1000.0*m_xsscale << std::endl;
     std::cout << "MetaData: CrossSectionScaleFactor = " << m_xsscale << std::endl;
   }
@@ -275,7 +286,7 @@ StatusCode Sherpa_i::genFinalize() {
     ATH_MSG_INFO("Deleting left-over files from working directory.");
     system("rm -rf Results.db Process MIG_*.db MPI_*.dat libSherpa*.so libProc*.so");
   }
-  
+
   return StatusCode::SUCCESS;
 }
 
@@ -307,7 +318,7 @@ void Sherpa_i::getParameters(int &argc, char** &argv) {
 
   // disregard manual RUNDATA setting if run card given in JO
   if (m_runcard != "") m_params.push_back("RUNDATA=Run.dat");
-  
+
   // allow to overwrite all parameters from JO file
   params.insert(params.begin()+params.size(), m_params.begin(), m_params.end());
 

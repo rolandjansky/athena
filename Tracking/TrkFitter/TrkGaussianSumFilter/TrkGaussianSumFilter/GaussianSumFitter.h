@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -23,10 +23,8 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
-#include "TrkMultiComponentStateOnSurface/MultiComponentStateOnSurface.h"
 //
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "AthContainers/DataVectorWithAlloc.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ToolHandle.h"
 //
@@ -43,10 +41,6 @@ class GaussianSumFitter
   , public AthAlgTool
 {
 public:
-  using MCSOSContainer = DataVector<const Trk::MultiComponentStateOnSurface>;
-  using SmoothedTrajectoryProt = DataVectorWithAlloc<MCSOSContainer>;
-  using SmoothedTrajectoryProtPtr = SmoothedTrajectoryProt::ContainerUniquePtr;
-
   /** Constructor with parameters to be passed to AlgTool */
   GaussianSumFitter(const std::string&, const std::string&, const IInterface*);
 
@@ -58,8 +52,6 @@ public:
 
   /** AlgTool finalise method */
   virtual StatusCode finalize() override final;
-
-  using ITrackFitter::fit;
 
   /** Refit a track using the Gaussian Sum Filter */
   virtual std::unique_ptr<Track> fit(
@@ -117,15 +109,14 @@ public:
 
 private:
   /** Produces a perigee from a smoothed trajectory */
-  Trk::GaussianSumFitter::SmoothedTrajectoryProt::Ptr
-  makePerigee(
+  const MultiComponentStateOnSurface* makePerigee(
     const EventContext& ctx,
     Trk::IMultiStateExtrapolator::Cache&,
-    SmoothedTrajectoryProt&,
+    const SmoothedTrajectory&,
     const ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** Gsf smoothe trajectory*/
-  SmoothedTrajectoryProtPtr fit(
+  SmoothedTrajectory fit(
     const EventContext& ctx,
     Trk::IMultiStateExtrapolator::Cache&,
     const ForwardTrajectory&,
@@ -142,7 +133,7 @@ private:
     const EventContext& ctx,
     const Trk::TrackStateOnSurface* currentState,
     const Trk::CaloCluster_OnTrack* ccot,
-    SmoothedTrajectoryProt& smoothedTrajectory) const;
+    Trk::SmoothedTrajectory& smoothedTrajectory) const;
 
   /** Forward GSF fit using PrepRawData */
   ForwardTrajectory fitPRD(
@@ -192,14 +183,6 @@ private:
     "Maximum number of components"
   };
 
-  Gaudi::Property<bool> m_StoreMCSOS{
-    this,
-    "StoreMCSOS",
-    true,
-    "Store Multicomponent State (preferred if we slim later on) or Single "
-    "state in final trajectory"
-  };
-
   Gaudi::Property<bool> m_reintegrateOutliers{ this,
                                                "ReintegrateOutliers",
                                                true,
@@ -227,8 +210,6 @@ private:
     "Combine with forwards state during Smoothing"
   };
 
-  // Measurement updator
-  GsfMeasurementUpdator m_updator;
 
   PropDirection m_directionToPerigee;
 

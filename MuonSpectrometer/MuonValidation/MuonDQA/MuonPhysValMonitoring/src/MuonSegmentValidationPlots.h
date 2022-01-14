@@ -10,7 +10,7 @@
 
 class MuonSegmentValidationPlots: public PlotBase {
   public:
-    MuonSegmentValidationPlots(PlotBase* pParent, std::string sDir, bool isData);
+    MuonSegmentValidationPlots(PlotBase* pParent, const std::string& sDir, bool isData);
     ~MuonSegmentValidationPlots();
     
     // Reco only information

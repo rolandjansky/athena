@@ -349,7 +349,7 @@ AthenaHiveEventLoopMgr::setupPreSelectTools(Gaudi::Details::PropertyBase&) {
     tool_iterator firstTool = m_tools.begin();
     tool_iterator lastTool  = m_tools.end();
     unsigned int toolCtr = 0;
-    for ( ; firstTool != lastTool; firstTool++ )
+    for ( ; firstTool != lastTool; ++firstTool )
       {
 	// reset statistics
 	m_toolInvoke[toolCtr] = 0;
@@ -410,7 +410,7 @@ StatusCode AthenaHiveEventLoopMgr::finalize()
     info() << "Summary of AthenaEvtLoopPreSelectTool invocation: (invoked/success/failure)" << endmsg;
     info() << "-----------------------------------------------------" << endmsg;
 
-    for ( ; firstTool != lastTool; firstTool++ ) {
+    for ( ; firstTool != lastTool; ++firstTool ) {
       info() << std::setw(2)     << std::setiosflags(std::ios_base::right)
              << toolCtr+1 << ".) " << std::resetiosflags(std::ios_base::right)
              << std::setw(48) << std::setfill('.')
@@ -590,8 +590,8 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent( EventContext &&ctx )
         toolsPassed = (*theTool)->passEvent(ctx.eventID());
 	m_toolInvoke[toolCtr]++;
         {toolsPassed ? m_toolAccept[toolCtr]++ : m_toolReject[toolCtr]++;}
-        toolCtr++;
-        theTool++;
+        ++toolCtr;
+        ++theTool;
       }
   }
 

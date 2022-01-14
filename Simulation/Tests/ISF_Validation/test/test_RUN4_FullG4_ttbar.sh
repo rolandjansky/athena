@@ -23,6 +23,6 @@ Sim_tf.py \
 --imf False
 
 rc=$?
-echo "art-result: $rc simulation"
+echo "art-result: $rc simCA"
 
 exit $rc

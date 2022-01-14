@@ -535,7 +535,7 @@ StatusCode MdtVsRpcRawDataValAlg::bookHistogramsRecurrent()
 }
 /*----------------------------------------------------------------------------------*/
 //input hardware name as produced from convertChamberName()
-void MdtVsRpcRawDataValAlg::bookMDTvsRPCHistograms(std::string hardware_name, std::string layer_name, int binz, int binminz, int binmaxz, int binx, int binminx, int binmaxx )
+void MdtVsRpcRawDataValAlg::bookMDTvsRPCHistograms(const std::string& hardware_name, const std::string& layer_name, int binz, int binminz, int binmaxz, int binx, int binminx, int binmaxx )
 { 
 
   StatusCode sc = StatusCode::SUCCESS;  
@@ -649,7 +649,7 @@ void MdtVsRpcRawDataValAlg::bookMDTvsRPCHistograms(std::string hardware_name, st
 }
 
 /*----------------------------------------------------------------------------------*/
-void MdtVsRpcRawDataValAlg::bookMDTvsRPCsectorHistograms(std::string sector_name, std::string layer_name, float stripzmin, float stripzmax,float wirezmin, float wirezmax )
+void MdtVsRpcRawDataValAlg::bookMDTvsRPCsectorHistograms(const std::string& sector_name, const std::string& layer_name, float stripzmin, float stripzmax,float wirezmin, float wirezmax )
 { 
  
   StatusCode sc = StatusCode::SUCCESS;   

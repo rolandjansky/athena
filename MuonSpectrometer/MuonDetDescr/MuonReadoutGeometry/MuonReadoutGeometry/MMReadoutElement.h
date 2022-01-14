@@ -22,7 +22,7 @@ namespace MuonGM {
     class MMReadoutElement final : public MuonClusterReadoutElement {
     public:
         /** constructor */
-        MMReadoutElement(GeoVFullPhysVol* pv, std::string stName, int zi, int fi, int mL, bool is_mirrored, MuonDetectorManager* mgr);
+        MMReadoutElement(GeoVFullPhysVol* pv, const std::string& stName, int zi, int fi, int mL, bool is_mirrored, MuonDetectorManager* mgr);
 
         /** destructor */
         ~MMReadoutElement();

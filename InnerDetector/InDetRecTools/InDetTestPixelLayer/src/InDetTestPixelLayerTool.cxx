@@ -22,7 +22,6 @@
 #include "IdDictDetDescr/IdDictManager.h"
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/PixelID.h"
-#include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkTrackSummary/TrackSummary.h"
 
 #include <iostream>
@@ -48,8 +47,6 @@ InDetTestPixelLayerTool::InDetTestPixelLayerTool(const std::string& name,
   declareProperty("EtaRegionSize", m_etaRegionSize = 3.);
   declareProperty("GoodFracCut", m_goodFracCut = 0.5);
 }
-
-InDetTestPixelLayerTool::~InDetTestPixelLayerTool() {}
 
 StatusCode
 InDetTestPixelLayerTool::initialize()
@@ -97,13 +94,6 @@ InDetTestPixelLayerTool::initialize()
 
   msg(MSG::VERBOSE) << " Initialization of InDetTestPixelLayerTool succesfull"
                     << endmsg;
-  return StatusCode::SUCCESS;
-}
-
-StatusCode
-InDetTestPixelLayerTool::finalize()
-{
-  ATH_MSG_DEBUG("Finalization of InDetTestPixelLayerTool succesfull");
   return StatusCode::SUCCESS;
 }
 

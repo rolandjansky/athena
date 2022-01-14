@@ -57,6 +57,7 @@ namespace xAOD {
       uint8_t iEta() const;  /// getter for integer eta index (0-63) 
       void    setEta( uint8_t value); /// setter for the above 
       unsigned int unpackEtaIndex( ) const; /// retrieves the Eta index from the 32-bit word
+      float eta() const; /// Floating point 
       float etaMin() const; /// Floating point 
       float etaMax() const; /// Floating point 
 
@@ -64,16 +65,17 @@ namespace xAOD {
       uint8_t iPhi() const; /// Getter for integer phi index (0-32) --> check numbers for gFEX
       void  setPhi( uint8_t value); /// Setter for the above
       unsigned int unpackPhiIndex( ) const; /// retrieves the phi index from the 32-bit word
-      float phiMin() const; /// Minimum value of phi corresponding to phi index. Range is always 0.2
-      float phiMax() const; /// Minimum value of phi corresponding to phi index. Range is always 0.2
+      float phi() const; /// Central value of phi corresponding to phi index.
+      float phiMin() const; /// Minimum value of phi corresponding to phi index.
+      float phiMax() const; /// Minimum value of phi corresponding to phi index.
 
       /// TOB status: set to 1 if TOB Et exceeds TOB threshold (gBlocks & gJets). Status is set to 1 if Rho calculation is valid
-      char status() const;
-      void setStatus( char value ) ; 
+      uint8_t status() const;
+      void setStatus( uint8_t value ) ; 
       unsigned int unpackStatus( ) const; /// retrieves the Status info from the 32-bit word
       /// Energy saturation: if any gTower is saturated within gBlock and gJet, this bit is set. Always 0 for Rho.
-      char saturated() const;
-      void setSaturated( char value ) ; 
+      uint8_t saturated() const;
+      void setSaturated( uint8_t value ) ; 
       unsigned int unpackSaturated( ) const; /// retrieves the Saturated info from the 32-bit word
 
       int gFexType () const;
@@ -95,10 +97,13 @@ namespace xAOD {
 
 
       /// Constants used in converting to ATLAS units
-      static const float s_tobEtScale;
+      static const float s_gRhotobEtScale;
+      static const float s_gJtobEtScale;
+      static const float s_gLJtobEtScale;
       static const float s_centralPhiWidth;
       static const float s_forwardPhiWidth;
-      static const std::vector<float> s_EtaPosition; 
+      static const std::vector<float> s_EtaEdge; 
+      static const std::vector<float> s_EtaCenter;
 
 
       /** Constants used in decoding TOB words

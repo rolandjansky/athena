@@ -27,15 +27,10 @@ def ITkDetailedTrackTruthMakerCfg(flags, Tracks, DetailedTruth, name='Maker',**k
 def ITkTruthMatchToolCfg(flags, name='ITkTruthMatchTool', **kwargs) :
     acc = ComponentAccumulator()
 
-    if flags.ITk.truthMatchStrategy == 'TruthMatchRatio':
-        ITkTruthMatchTool = CompFactory.Trk.TruthMatchRatio
-    elif flags.ITk.truthMatchStrategy == 'TruthMatchTanimoto':
-        ITkTruthMatchTool = CompFactory.Trk.TruthMatchTanimoto
-
     kwargs.setdefault("WeightPixel", 10.)
     kwargs.setdefault("WeightSCT", 5.)
 
-    ITkTruthMatchSimilarityTool = ITkTruthMatchTool(name = name, **kwargs)
+    ITkTruthMatchSimilarityTool = CompFactory.Trk.TruthMatchRatio(name = name, **kwargs)
     acc.setPrivateTools(ITkTruthMatchSimilarityTool)
     return acc
 

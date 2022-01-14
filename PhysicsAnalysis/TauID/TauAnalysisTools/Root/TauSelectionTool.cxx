@@ -14,6 +14,8 @@
 #include "TEnv.h"
 #include "THashList.h"
 
+// System include(s)
+#include <atomic>
 
 using namespace TauAnalysisTools;
 
@@ -22,7 +24,7 @@ using namespace TauAnalysisTools;
 TauSelectionTool::TauSelectionTool( const std::string& name )
   : asg::AsgMetadataTool( name )
   , m_sJetIDWP("JETIDNONE")
-  , m_sEleBDTWP("ELEIDNONE")
+  , m_sEleRNNWP("ELEIDNONE")
   , m_fOutFile(0)
   , m_sElectronContainerName("Electrons")
   , m_sMuonContainerName("Muons")
@@ -46,34 +48,22 @@ TauSelectionTool::TauSelectionTool( const std::string& name )
   declareProperty( "AbsCharge",     m_iAbsCharge     = NAN);
   declareProperty( "NTracks",       m_vNTracks       = {});
   declareProperty( "NTrack",        m_iNTrack        = NAN);
-  declareProperty( "JetBDTRegion",  m_vJetBDTRegion  = {});
-  declareProperty( "JetBDTMin",     m_dJetBDTMin     = NAN);
-  declareProperty( "JetBDTMax",     m_dJetBDTMax     = NAN);
-  declareProperty( "JetBDTSigTransRegion", m_vJetBDTSigTransRegion  = {});
-  declareProperty( "JetBDTSigTransMin", m_dJetBDTSigTransMin = NAN);
-  declareProperty( "JetBDTSigTransMax", m_dJetBDTSigTransMax = NAN);
   declareProperty( "JetRNNSigTransRegion", m_vJetRNNSigTransRegion  = {});
   declareProperty( "JetRNNSigTransMin", m_dJetRNNSigTransMin = NAN);
   declareProperty( "JetRNNSigTransMax", m_dJetRNNSigTransMax = NAN);
   declareProperty( "JetIDWP",       m_iJetIDWP       = 0);
-  declareProperty( "EleBDTRegion",  m_vEleBDTRegion  = {});
-  declareProperty( "EleBDTMin",     m_dEleBDTMin     = NAN);
-  declareProperty( "EleBDTMax",     m_dEleBDTMax     = NAN);
-  declareProperty( "EleBDTWP",      m_iEleBDTWP      = 0);
-  declareProperty( "EleOLR",        m_bEleOLR        = false);
-  declareProperty( "MuonVeto",      m_bMuonVeto      = false);
+  declareProperty( "EleRNNRegion",  m_vEleRNNRegion  = {});
+  declareProperty( "EleRNNMin",     m_dEleRNNMin     = NAN);
+  declareProperty( "EleRNNMax",     m_dEleRNNMax     = NAN);
+  declareProperty( "EleRNNWP",      m_iEleRNNWP      = 0);
   declareProperty( "MuonOLR",       m_bMuonOLR       = false);
 
   m_sConfigPath = "TauAnalysisTools/"+std::string(sSharedFilesVersion)+"/Selection/recommended_selection_mc15.conf";
-  m_sEleOLRFilePath = "TauAnalysisTools/"+std::string(sSharedFilesVersion)+"/Selection/eveto_cutvals.root";
 
   declareProperty( "ConfigPath",            m_sConfigPath);
-  declareProperty( "EleOLRFilePath",        m_sEleOLRFilePath);
   declareProperty( "ElectronContainerName", m_sElectronContainerName);
   declareProperty( "MuonContainerName",     m_sMuonContainerName);
 
-  declareProperty( "IgnoreAODFixCheck", m_bIgnoreAODFixCheck = false);
-  declareProperty( "RecalcEleOLR",      m_bRecalcEleOLR = false);
 }
 
 //______________________________________________________________________________
@@ -97,22 +87,14 @@ StatusCode TauSelectionTool::initialize()
   if (!bConfigViaProperties and m_iAbsCharge == m_iAbsCharge) bConfigViaProperties = true;
   if (!bConfigViaProperties and !m_vNTracks.empty())          bConfigViaProperties = true;
   if (!bConfigViaProperties and m_iNTrack == m_iNTrack)       bConfigViaProperties = true;
-  if (!bConfigViaProperties and !m_vJetBDTRegion.empty())     bConfigViaProperties = true;
-  if (!bConfigViaProperties and m_dJetBDTMin == m_dJetBDTMin) bConfigViaProperties = true;
-  if (!bConfigViaProperties and m_dJetBDTMax == m_dJetBDTMax) bConfigViaProperties = true;
-  if (!bConfigViaProperties and !m_vJetBDTSigTransRegion.empty())         bConfigViaProperties = true;
-  if (!bConfigViaProperties and m_dJetBDTSigTransMin == m_dJetBDTSigTransMin) bConfigViaProperties = true;
-  if (!bConfigViaProperties and m_dJetBDTSigTransMax == m_dJetBDTSigTransMax) bConfigViaProperties = true;
   if (!bConfigViaProperties and !m_vJetRNNSigTransRegion.empty())         bConfigViaProperties = true;
   if (!bConfigViaProperties and m_dJetRNNSigTransMin == m_dJetRNNSigTransMin) bConfigViaProperties = true;
   if (!bConfigViaProperties and m_dJetRNNSigTransMax == m_dJetRNNSigTransMax) bConfigViaProperties = true;
   if (!bConfigViaProperties and m_iJetIDWP != 0)              bConfigViaProperties = true;
-  if (!bConfigViaProperties and !m_vEleBDTRegion.empty())     bConfigViaProperties = true;
-  if (!bConfigViaProperties and m_dEleBDTMin == m_dEleBDTMin) bConfigViaProperties = true;
-  if (!bConfigViaProperties and m_dEleBDTMax == m_dEleBDTMax) bConfigViaProperties = true;
-  if (!bConfigViaProperties and m_iEleBDTWP != 0)             bConfigViaProperties = true;
-  if (!bConfigViaProperties and m_bEleOLR == true)            bConfigViaProperties = true;
-  if (!bConfigViaProperties and m_bMuonVeto == true)          bConfigViaProperties = true;
+  if (!bConfigViaProperties and !m_vEleRNNRegion.empty())     bConfigViaProperties = true;
+  if (!bConfigViaProperties and m_dEleRNNMin == m_dEleRNNMin) bConfigViaProperties = true;
+  if (!bConfigViaProperties and m_dEleRNNMax == m_dEleRNNMax) bConfigViaProperties = true;
+  if (!bConfigViaProperties and m_iEleRNNWP != 0)             bConfigViaProperties = true;
   if (!bConfigViaProperties and m_bMuonOLR == true)           bConfigViaProperties = true;
 
   if (bConfigViaConfigFile and bConfigViaProperties)
@@ -217,42 +199,6 @@ StatusCode TauSelectionTool::initialize()
         if (m_iNTrack != m_iNTrack)
           m_iNTrack = rEnv.GetValue("NTrack",NAN);
       }
-      else if (sCut == "JetBDTRegion")
-      {
-        iSelectionCuts = iSelectionCuts | CutJetBDTScore;
-        if (m_vJetBDTRegion.size() == 0)
-          TauAnalysisTools::split(rEnv,"JetBDTRegion", ';', m_vJetBDTRegion);
-      }
-      else if (sCut == "JetBDTMin")
-      {
-        iSelectionCuts = iSelectionCuts | CutJetBDTScore;
-        if (m_dJetBDTMin != m_dJetBDTMin)
-          m_dJetBDTMin = rEnv.GetValue("JetBDTMin",NAN);
-      }
-      else if (sCut == "JetBDTMax")
-      {
-        iSelectionCuts = iSelectionCuts | CutJetBDTScore;
-        if (m_dJetBDTMax != m_dJetBDTMax)
-          m_dJetBDTMax = rEnv.GetValue("JetBDTMax",NAN);
-      }
-      else if (sCut == "JetBDTSigTransRegion")
-      {
-        iSelectionCuts = iSelectionCuts | CutJetBDTScoreSigTrans;
-        if (m_vJetBDTSigTransRegion.size() == 0)
-          TauAnalysisTools::split(rEnv,"JetBDTSigTransRegion", ';', m_vJetBDTSigTransRegion);
-      }
-      else if (sCut == "JetBDTSigTransMin")
-      {
-        iSelectionCuts = iSelectionCuts | CutJetBDTScoreSigTrans;
-        if (m_dJetBDTSigTransMin != m_dJetBDTSigTransMin)
-          m_dJetBDTSigTransMin = rEnv.GetValue("JetBDTSigTransMin",NAN);
-      }
-      else if (sCut == "JetBDTSigTransMax")
-      {
-        iSelectionCuts = iSelectionCuts | CutJetBDTScoreSigTrans;
-        if (m_dJetBDTSigTransMax != m_dJetBDTSigTransMax)
-          m_dJetBDTSigTransMax = rEnv.GetValue("JetBDTSigTransMax",NAN);
-      }
       else if (sCut == "JetRNNSigTransRegion")
       {
         iSelectionCuts = iSelectionCuts | CutJetRNNScoreSigTrans;
@@ -271,23 +217,23 @@ StatusCode TauSelectionTool::initialize()
         if (m_dJetRNNSigTransMax != m_dJetRNNSigTransMax)
           m_dJetRNNSigTransMax = rEnv.GetValue("JetRNNSigTransMax",NAN);
       }
-      else if (sCut == "EleBDTRegion")
+      else if (sCut == "EleRNNRegion")
       {
-        iSelectionCuts = iSelectionCuts | CutEleBDTScore;
-        if (m_vEleBDTRegion.size() == 0)
-          TauAnalysisTools::split(rEnv,"EleBDTRegion", ';', m_vEleBDTRegion);
+        iSelectionCuts = iSelectionCuts | CutEleRNNScore;
+        if (m_vEleRNNRegion.size() == 0)
+          TauAnalysisTools::split(rEnv,"EleRNNRegion", ';', m_vEleRNNRegion);
       }
-      else if (sCut == "EleBDTMin")
+      else if (sCut == "EleRNNMin")
       {
-        iSelectionCuts = iSelectionCuts | CutEleBDTScore;
-        if (m_dEleBDTMin != m_dEleBDTMin)
-          m_dEleBDTMin = rEnv.GetValue("EleBDTMin",NAN);
+        iSelectionCuts = iSelectionCuts | CutEleRNNScore;
+        if (m_dEleRNNMin != m_dEleRNNMin)
+          m_dEleRNNMin = rEnv.GetValue("EleRNNMin",NAN);
       }
-      else if (sCut == "EleBDTMax")
+      else if (sCut == "EleRNNMax")
       {
-        iSelectionCuts = iSelectionCuts | CutEleBDTScore;
-        if (m_dEleBDTMax != m_dEleBDTMax)
-          m_dEleBDTMax = rEnv.GetValue("EleBDTMax",NAN);
+        iSelectionCuts = iSelectionCuts | CutEleRNNScore;
+        if (m_dEleRNNMax != m_dEleRNNMax)
+          m_dEleRNNMax = rEnv.GetValue("EleRNNMax",NAN);
       }
       else if (sCut == "JetIDWP")
       {
@@ -295,23 +241,11 @@ StatusCode TauSelectionTool::initialize()
         if (m_iJetIDWP == JETIDNONEUNCONFIGURED)
           m_iJetIDWP = convertStrToJetIDWP(rEnv.GetValue("JetIDWP","JETIDNONE"));
       }
-      else if (sCut == "EleBDTWP")
+      else if (sCut == "EleRNNWP")
       {
-        iSelectionCuts = iSelectionCuts | CutEleBDTWP;
-        if (m_iEleBDTWP == ELEIDNONEUNCONFIGURED)
-          m_iEleBDTWP = convertStrToEleBDTWP(rEnv.GetValue("EleBDTWP","ELEIDNONE"));
-      }
-      else if (sCut == "EleOLR")
-      {
-        iSelectionCuts = iSelectionCuts | CutEleOLR;
-        if (m_bEleOLR == false)
-          m_bEleOLR = rEnv.GetValue("EleOLR",false);
-      }
-      else if (sCut == "MuonVeto")
-      {
-        iSelectionCuts = iSelectionCuts | CutMuonVeto;
-        if (m_bMuonVeto == false)
-          m_bMuonVeto = rEnv.GetValue("MuonVeto",false);
+        iSelectionCuts = iSelectionCuts | CutEleRNNWP;
+        if (m_iEleRNNWP == ELEIDNONEUNCONFIGURED)
+          m_iEleRNNWP = convertStrToEleRNNWP(rEnv.GetValue("EleRNNWP","ELEIDNONE"));
       }
       else if (sCut == "MuonOLR")
       {
@@ -327,7 +261,7 @@ StatusCode TauSelectionTool::initialize()
   }
 
   m_sJetIDWP = convertJetIDWPToStr(m_iJetIDWP);
-  m_sEleBDTWP = convertEleBDTWPToStr(m_iEleBDTWP);
+  m_sEleRNNWP = convertEleRNNWPToStr(m_iEleRNNWP);
 
   // specify all available cut descriptions
   using map_type  = std::map<SelectionCuts, std::unique_ptr<TauAnalysisTools::SelectionCut>>;
@@ -339,14 +273,10 @@ StatusCode TauSelectionTool::initialize()
    {CutAbsEta, std::make_unique<TauAnalysisTools::SelectionCutAbsEta>(this)},
    {CutAbsCharge, std::make_unique<TauAnalysisTools::SelectionCutAbsCharge>(this)},
    {CutNTrack, std::make_unique<TauAnalysisTools::SelectionCutNTracks>(this)},
-   {CutJetBDTScore, std::make_unique<TauAnalysisTools::SelectionCutBDTJetScore>(this)},
-   {CutJetBDTScoreSigTrans, std::make_unique<TauAnalysisTools::SelectionCutBDTJetScoreSigTrans>(this)},
    {CutJetRNNScoreSigTrans, std::make_unique<TauAnalysisTools::SelectionCutRNNJetScoreSigTrans>(this)},
    {CutJetIDWP, std::make_unique<TauAnalysisTools::SelectionCutJetIDWP>(this)},
-   {CutEleBDTScore, std::make_unique<TauAnalysisTools::SelectionCutBDTEleScore>(this)},
-   {CutEleBDTWP, std::make_unique<TauAnalysisTools::SelectionCutEleBDTWP>(this)},
-   {CutEleOLR, std::make_unique<TauAnalysisTools::SelectionCutEleOLR>(this)},
-   {CutMuonVeto, std::make_unique<TauAnalysisTools::SelectionCutMuonVeto>(this)},
+   {CutEleRNNScore, std::make_unique<TauAnalysisTools::SelectionCutRNNEleScore>(this)},
+   {CutEleRNNWP, std::make_unique<TauAnalysisTools::SelectionCutEleRNNWP>(this)},
    {CutMuonOLR, std::make_unique<TauAnalysisTools::SelectionCutMuonOLR>(this)}
   };
   
@@ -355,10 +285,8 @@ StatusCode TauSelectionTool::initialize()
   ATH_MSG_INFO( "Initializing TauSelectionTool" );
   FillRegionVector(m_vPtRegion, m_dPtMin, m_dPtMax);
   FillRegionVector(m_vAbsEtaRegion, m_dAbsEtaMin, m_dAbsEtaMax);
-  FillRegionVector(m_vJetBDTRegion, m_dJetBDTMin, m_dJetBDTMax );
-  FillRegionVector(m_vJetBDTSigTransRegion, m_dJetBDTSigTransMin, m_dJetBDTSigTransMax );
   FillRegionVector(m_vJetRNNSigTransRegion, m_dJetRNNSigTransMin, m_dJetRNNSigTransMax );
-  FillRegionVector(m_vEleBDTRegion, m_dEleBDTMin, m_dEleBDTMax );
+  FillRegionVector(m_vEleRNNRegion, m_dEleRNNMin, m_dEleRNNMax );
   FillValueVector(m_vAbsCharges, m_iAbsCharge );
   FillValueVector(m_vNTracks, m_iNTrack );
 
@@ -367,16 +295,12 @@ StatusCode TauSelectionTool::initialize()
   PrintConfigRegion ("AbsEta",      m_vAbsEtaRegion);
   PrintConfigValue  ("AbsCharge",   m_vAbsCharges);
   PrintConfigValue  ("NTrack",      m_vNTracks);
-  PrintConfigRegion ("BDTJetScore", m_vJetBDTRegion);
-  PrintConfigRegion ("BDTJetScoreSigTrans", m_vJetBDTSigTransRegion);
   PrintConfigRegion ("RNNJetScoreSigTrans", m_vJetRNNSigTransRegion);
-  PrintConfigRegion ("BDTEleScore", m_vEleBDTRegion);
+  PrintConfigRegion ("RNNEleScore", m_vEleRNNRegion);
   PrintConfigValue  ("JetIDWP",     m_sJetIDWP);
   PrintConfigValue  ("JetIDWP ENUM",m_iJetIDWP);
-  PrintConfigValue  ("EleBDTDWP",   m_sEleBDTWP);
-  PrintConfigValue  ("EleBDTDWP ENUM",m_iEleBDTWP);
-  PrintConfigValue  ("EleOLR",      m_bEleOLR);
-  PrintConfigValue  ("MuonVeto",    m_bMuonVeto);
+  PrintConfigValue  ("EleRNNDWP",   m_sEleRNNWP);
+  PrintConfigValue  ("EleRNNDWP ENUM",m_iEleRNNWP);
   PrintConfigValue  ("MuonOLR",    m_bMuonOLR);
 
   std::string sCuts = "";
@@ -384,19 +308,10 @@ StatusCode TauSelectionTool::initialize()
   if (m_iSelectionCuts & CutAbsEta) sCuts+= "AbsEta ";
   if (m_iSelectionCuts & CutAbsCharge) sCuts+= "AbsCharge ";
   if (m_iSelectionCuts & CutNTrack) sCuts+= "NTrack ";
-  if (m_iSelectionCuts & CutJetBDTScore) {
-    sCuts+= "JetBDTScore "; 
-    ATH_MSG_WARNING("Cutting on raw JetBDT score is deprecated. Please use properties JetBDTSigTransRegion, JetBDTSigTransMin or JetBDTSigTransMax instead");
-    ATH_MSG_WARNING("For further details please refer to the documentation:");
-    ATH_MSG_WARNING("https://gitlab.cern.ch/atlas/athena/blob/master/PhysicsAnalysis/TauID/TauAnalysisTools/doc/README-TauSelectionTool.rst");
-  }
-  if (m_iSelectionCuts & CutJetBDTScoreSigTrans) sCuts+= "JetBDTScoreSigTrans ";
   if (m_iSelectionCuts & CutJetRNNScoreSigTrans) sCuts+= "JetRNNScoreSigTrans ";
   if (m_iSelectionCuts & CutJetIDWP) sCuts+= "JetIDWP ";
-  if (m_iSelectionCuts & CutEleBDTScore) sCuts+= "EleBDTScore ";
-  if (m_iSelectionCuts & CutEleBDTWP) sCuts+= "EleBDTWP ";
-  if (m_iSelectionCuts & CutEleOLR) sCuts+= "EleOLR ";
-  if (m_iSelectionCuts & CutMuonVeto) sCuts+= "MuonVeto ";
+  if (m_iSelectionCuts & CutEleRNNScore) sCuts+= "EleRNNScore ";
+  if (m_iSelectionCuts & CutEleRNNWP) sCuts+= "EleRNNWP ";
   if (m_iSelectionCuts & CutMuonOLR) sCuts+= "MuonOLR ";
 
   ATH_MSG_DEBUG( "cuts: " << sCuts);
@@ -487,7 +402,19 @@ TauSelectionTool::accept( const xAOD::TauJet& xTau ) const
   }
   catch (const std::runtime_error& error)
   {
-    ATH_MSG_ERROR(error.what());
+    // LEGACY: In practical terms this should probably just throw, not
+    // print a warning/error and then continue on.  However, I leave
+    // that to the experts who probably had a reason not to let the
+    // exception escape.  For now I just downgraded it from error to
+    // warning and limited the number of warnings (04 Jan 22).
+    static std::atomic<uint64_t> warning_count (0u);
+    auto mycount = ++ warning_count;
+    if (mycount < 10u)
+    {
+      ATH_MSG_WARNING(error.what());
+      if (mycount == 9u)
+        ATH_MSG_WARNING ("this is your last warning");
+    }
   }
 
   // fill main distributions after all cuts
@@ -607,17 +534,6 @@ void TauSelectionTool::PrintConfigValue(const std::string& sCutName, T& tVal)
 int TauSelectionTool::convertStrToJetIDWP(const std::string& sJetIDWP)
 {
   if (sJetIDWP == "JETIDNONE") return int(JETIDNONE);
-  else if (sJetIDWP == "JETIDBDTVERYLOOSE") return int(JETIDBDTVERYLOOSE); // new in rel21 
-  else if (sJetIDWP == "JETIDBDTLOOSE") return int(JETIDBDTLOOSE);
-  else if (sJetIDWP == "JETIDBDTMEDIUM") return int(JETIDBDTMEDIUM);
-  else if (sJetIDWP == "JETIDBDTTIGHT") return int(JETIDBDTTIGHT);
-  else if (sJetIDWP == "JETIDBDTLOOSENOTMEDIUM") return int(JETIDBDTLOOSENOTMEDIUM);
-  else if (sJetIDWP == "JETIDBDTLOOSENOTTIGHT") return int(JETIDBDTLOOSENOTTIGHT);
-  else if (sJetIDWP == "JETIDBDTMEDIUMNOTTIGHT") return int(JETIDBDTMEDIUMNOTTIGHT);
-  else if (sJetIDWP == "JETIDBDTNOTLOOSE") return int(JETIDBDTNOTLOOSE);
-  else if (sJetIDWP == "JETBDTBKGLOOSE") return int(JETBDTBKGLOOSE); // new in rel21
-  else if (sJetIDWP == "JETBDTBKGMEDIUM") return int(JETBDTBKGMEDIUM); // new in rel21
-  else if (sJetIDWP == "JETBDTBKGTIGHT") return int(JETBDTBKGTIGHT); // new in rel21
   else if (sJetIDWP == "JETIDRNNVERYLOOSE") return int(JETIDRNNVERYLOOSE);
   else if (sJetIDWP == "JETIDRNNLOOSE") return int(JETIDRNNLOOSE);
   else if (sJetIDWP == "JETIDRNNMEDIUM") return int(JETIDRNNMEDIUM);
@@ -628,16 +544,14 @@ int TauSelectionTool::convertStrToJetIDWP(const std::string& sJetIDWP)
 }
 
 //______________________________________________________________________________
-int TauSelectionTool::convertStrToEleBDTWP(const std::string& sEleBDTWP)
+int TauSelectionTool::convertStrToEleRNNWP(const std::string& sEleRNNWP)
 {
-  if (sEleBDTWP == "ELEIDNONE") return int(ELEIDNONE);
-  else if (sEleBDTWP == "ELEIDBDTLOOSE") return int(ELEIDBDTLOOSE);
-  else if (sEleBDTWP == "ELEIDBDTMEDIUM") return int(ELEIDBDTMEDIUM);
-  else if (sEleBDTWP == "ELEIDBDTTIGHT") return int(ELEIDBDTTIGHT);
-  else if (sEleBDTWP == "ELEIDBDTOLDLOOSE") return int(ELEIDBDTOLDLOOSE);
-  else if (sEleBDTWP == "ELEIDBDTOLDMEDIUM") return int(ELEIDBDTOLDMEDIUM);
+  if (sEleRNNWP == "ELEIDNONE") return int(ELEIDNONE);
+  else if (sEleRNNWP == "ELEIDRNNLOOSE") return int(ELEIDRNNLOOSE);
+  else if (sEleRNNWP == "ELEIDRNNMEDIUM") return int(ELEIDRNNMEDIUM);
+  else if (sEleRNNWP == "ELEIDRNNTIGHT") return int(ELEIDRNNTIGHT);
 
-  ATH_MSG_ERROR( "electron ID working point "<<sEleBDTWP<<" is unknown, the cut EleBDTWP will not accept any tau!" );
+  ATH_MSG_ERROR( "electron ID working point "<<sEleRNNWP<<" is unknown, the cut EleRNNWP will not accept any tau!" );
   return -1;
 }
 
@@ -651,39 +565,6 @@ std::string TauSelectionTool::convertJetIDWPToStr(int iJetIDWP)
     break;
   case JETIDNONE:
     return "JETIDNONE";
-    break;
-  case JETIDBDTLOOSE:
-    return "JETIDBDTLOOSE";
-    break;
-  case JETIDBDTVERYLOOSE:
-    return "JETIDBDTVERYLOOSE";
-    break;
-  case JETIDBDTMEDIUM:
-    return "JETIDBDTMEDIUM";
-    break;
-  case JETIDBDTTIGHT:
-    return "JETIDBDTTIGHT";
-    break;
-  case JETIDBDTLOOSENOTMEDIUM:
-    return "JETIDBDTLOOSENOTMEDIUM";
-    break;
-  case JETIDBDTLOOSENOTTIGHT:
-    return "JETIDBDTLOOSENOTTIGHT";
-    break;
-  case JETIDBDTMEDIUMNOTTIGHT:
-    return "JETIDBDTMEDIUMNOTTIGHT";
-    break;
-  case JETIDBDTNOTLOOSE:
-    return "JETIDBDTNOTLOOSE";
-    break;
-  case JETBDTBKGLOOSE:
-    return "JETBDTBKGLOOSE";
-    break;
-  case JETBDTBKGMEDIUM:
-    return "JETBDTBKGMEDIUM";
-    break;
-  case JETBDTBKGTIGHT:
-    return "JETBDTBKGTIGHT";
     break;
   case JETIDRNNVERYLOOSE:
     return "JETIDRNNVERYLOOSE";
@@ -705,9 +586,9 @@ std::string TauSelectionTool::convertJetIDWPToStr(int iJetIDWP)
 }
 
 //______________________________________________________________________________
-std::string TauSelectionTool::convertEleBDTWPToStr(int iEleBDTWP)
+std::string TauSelectionTool::convertEleRNNWPToStr(int iEleRNNWP)
 {
-  switch (iEleBDTWP)
+  switch (iEleRNNWP)
   {
   case ELEIDNONEUNCONFIGURED:
     return "ELEIDNONE";
@@ -715,23 +596,17 @@ std::string TauSelectionTool::convertEleBDTWPToStr(int iEleBDTWP)
   case ELEIDNONE:
     return "ELEIDNONE";
     break;
-  case ELEIDBDTLOOSE:
-    return "ELEIDBDTLOOSE";
+  case ELEIDRNNLOOSE:
+    return "ELEIDRNNLOOSE";
     break;
-  case ELEIDBDTMEDIUM:
-    return "ELEIDBDTMEDIUM";
+  case ELEIDRNNMEDIUM:
+    return "ELEIDRNNMEDIUM";
     break;
-  case ELEIDBDTTIGHT:
-    return "ELEIDBDTTIGHT";
-    break;
-  case ELEIDBDTOLDLOOSE:
-    return "ELEIDBDTOLDLOOSE";
-    break;
-  case ELEIDBDTOLDMEDIUM:
-    return "ELEIDBDTOLDMEDIUM";
+  case ELEIDRNNTIGHT:
+    return "ELEIDRNNTIGHT";
     break;
   default:
-    ATH_MSG_ERROR( "ID working point with enum "<<iEleBDTWP<<" is unknown, the cut EleBDTWP will not accept any tau!" );
+    ATH_MSG_ERROR( "ID working point with enum "<<iEleRNNWP<<" is unknown, the cut EleRNNWP will not accept any tau!" );
     break;
   }
 

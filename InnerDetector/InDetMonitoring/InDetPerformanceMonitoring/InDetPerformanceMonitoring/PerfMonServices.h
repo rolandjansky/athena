@@ -1,11 +1,10 @@
 /*
- * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+ * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef IDPERFMON_SERVICES_H
 #define IDPERFMON_SERVICES_H
 
-#include "AthenaKernel/IAtRndmGenSvc.h"
 #include "GaudiKernel/INTupleSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/Algorithm.h"
@@ -28,7 +27,6 @@ class PerfMonServices
   static StoreGateSvc*   s_pxStoreGateSvc ATLAS_THREAD_SAFE;
   static INTupleSvc*     s_pxNtupleSvc    ATLAS_THREAD_SAFE;
   static ITHistSvc*      s_pxTHistSvc     ATLAS_THREAD_SAFE;
-  static IAtRndmGenSvc*  s_pxAtRndmGenSvc ATLAS_THREAD_SAFE;
 
   // One off initialise function.
   static StatusCode     InitialiseServices( ISvcLocator* pxSvcLocator );
@@ -38,7 +36,6 @@ class PerfMonServices
   static IMessageSvc*   getMessagingService () { return s_pxMessageSvc;   }
   static INTupleSvc*    getRootTupleService () { return s_pxNtupleSvc;    }
   static ITHistSvc*     getHistogramService () { return s_pxTHistSvc;     }
-  //static IAtRndmGenSvc* getRandomNumberService() { return s_pxAtRndmGenSvc; }
 
   enum CONTAINERS
   {
@@ -105,14 +102,12 @@ class PerfMonServices
   // static StoreGateSvc*   s_pxStoreGateSvc;
   // static INTupleSvc*     s_pxNtupleSvc;
   // static ITHistSvc*      s_pxTHistSvc;
-  // static IAtRndmGenSvc*  s_pxAtRndmGenSvc;
 
   // Internal initialisers used by the main InitialiseServices function.
   static bool InitialiseMessaging();
   static bool InitialiseStoreGate();
   static bool InitialiseRootTuple();
   static bool InitialiseHistograms();
-  static bool InitialiseRandom();
 
   static bool CheckServiceInit( const StatusCode& xSC, bool bNullPointer /*, const std::string& sType */ );
 

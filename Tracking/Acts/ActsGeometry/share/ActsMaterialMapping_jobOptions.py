@@ -69,7 +69,8 @@ if "__main__" == __name__:
   ConfigFlags.Detector.GeometryCalo  = True
   ConfigFlags.Detector.GeometryMuon  = False
   ConfigFlags.Detector.GeometryTRT   = True
-  ConfigFlags.TrackingGeometry.MaterialSource = "geometry-maps.json"
+  ConfigFlags.Acts.TrackingGeometry.MaterialSource = "geometry-maps.json"
+  ConfigFlags.Acts.TrackingGeometry.buildAllAvailableSubDetectors = True
   ConfigFlags.Concurrency.NumThreads = 1
   ConfigFlags.Concurrency.NumConcurrentEvents = 1
 

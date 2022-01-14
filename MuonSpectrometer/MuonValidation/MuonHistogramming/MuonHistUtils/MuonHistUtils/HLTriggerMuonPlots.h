@@ -24,7 +24,7 @@
 
 class HLTriggerMuonPlots:public PlotBase {
     public:
-      HLTriggerMuonPlots(PlotBase* pParent, std::string sDir);
+      HLTriggerMuonPlots(PlotBase* pParent, const std::string& sDir);
       void fill(const xAOD::Muon& Trigmu);
       void fill(const xAOD::Muon& mu,const xAOD::Muon& Trigmu);
       void fill(const xAOD::L2StandAloneMuon& L2SAmu);

@@ -12,7 +12,7 @@
 class SlowMuonValidationPlots:public PlotBase
 {
  public:
-  SlowMuonValidationPlots(PlotBase* pParent, std::string sDir, bool isData);
+  SlowMuonValidationPlots(PlotBase* pParent, const std::string& sDir, bool isData);
 
   virtual ~SlowMuonValidationPlots();
   void fill(const xAOD::SlowMuon& smu, const xAOD::Muon& mu, float weight=1.0);

@@ -13,15 +13,15 @@ def ActsTrackingGeometrySvcCfg(configFlags, name = "ActsTrackingGeometrySvc", **
     result.merge(BeamPipeGeometryCfg(configFlags))
   if configFlags.Detector.GeometryPixel:
     subDetectors += ["Pixel"]
-  if configFlags.Detector.GeometrySCT:
+  if configFlags.Detector.GeometrySCT and configFlags.Acts.TrackingGeometry.buildAllAvailableSubDetectors:
     subDetectors += ["SCT"]
-  if configFlags.Detector.GeometryTRT:
+  if configFlags.Detector.GeometryTRT and configFlags.Acts.TrackingGeometry.buildAllAvailableSubDetectors:
     # Commented out because TRT is not production ready yet and we don't 
     # want to turn it on even if the global flag is set
     #  subDetectors += ["TRT"]
     pass
 
-  if configFlags.Detector.GeometryCalo:
+  if configFlags.Detector.GeometryCalo and configFlags.Acts.TrackingGeometry.buildAllAvailableSubDetectors:
     # Commented out because Calo is not production ready yet and we don't 
     # want to turn it on even if the global flag is set
     #  subDetectors += ["Calo"]
@@ -61,12 +61,12 @@ def ActsTrackingGeometrySvcCfg(configFlags, name = "ActsTrackingGeometrySvc", **
                                                          **kwargs)
 
 
-  if configFlags.TrackingGeometry.MaterialSource == "Input":
+  if configFlags.Acts.TrackingGeometry.MaterialSource == "Input":
     actsTrackingGeometrySvc.UseMaterialMap = True
     actsTrackingGeometrySvc.MaterialMapInputFile = "material-maps.json"
-  if configFlags.TrackingGeometry.MaterialSource.find(".json") != -1:  
+  if configFlags.Acts.TrackingGeometry.MaterialSource.find(".json") != -1:  
     actsTrackingGeometrySvc.UseMaterialMap = True
-    actsTrackingGeometrySvc.MaterialMapInputFile = configFlags.TrackingGeometry.MaterialSource
+    actsTrackingGeometrySvc.MaterialMapInputFile = configFlags.Acts.TrackingGeometry.MaterialSource
   result.addService(actsTrackingGeometrySvc)
   return result
 

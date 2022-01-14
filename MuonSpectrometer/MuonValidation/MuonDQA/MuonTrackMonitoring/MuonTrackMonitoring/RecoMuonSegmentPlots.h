@@ -17,12 +17,12 @@
 
 class RecoMuonSegmentPlots:public PlotBase {
  public:
-      RecoMuonSegmentPlots(PlotBase* pParent, std::string sDir, bool detail=false);
+      RecoMuonSegmentPlots(PlotBase* pParent, const std::string& sDir, bool detail=false);
 
       //fill methods
       void fill(const xAOD::MuonContainer& muContainer);
       void fill(const xAOD::Muon& mu);
-      void fill(const std::vector<ElementLink<DataVector<xAOD::MuonSegment_v1>>> Mu_Segments);
+      void fill(const std::vector<ElementLink<DataVector<xAOD::MuonSegment_v1>>>& Mu_Segments);
       void fill(const xAOD::MuonSegment& muonSeg);
 
       //generic plots from MuonHistUtils

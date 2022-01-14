@@ -16,5 +16,5 @@ atlas_add_component( TrigT1TGC
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
-atlas_install_joboptions( share/TrigT1TGCJobOptions.py share/TrigT1TGC_jobOptions.py )
+atlas_install_joboptions( share/TrigT1TGC_jobOptions.py )
 atlas_install_runtime( share/TrigT1TGCMaskedChannel*.db )

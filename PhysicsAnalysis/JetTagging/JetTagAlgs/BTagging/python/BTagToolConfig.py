@@ -27,11 +27,33 @@ def BTagToolCfg(ConfigFlags, TaggerList, PrimaryVertexCollectionName="", scheme 
           from JetTagTools.IP2DTagConfig import IP2DTagCfg
           ip2dtool = acc.popToolsAndMerge(IP2DTagCfg(ConfigFlags, 'IP2DTag', scheme))
           tagToolList.append(ip2dtool)
+ 
+      # Setup for Neg/Flip version of IP2(3)D taggers. 'FlipOption' default value is "STANDARD". Set this value only if want to 'flip' the tagger
+      # Naming of the flip options follows ENUMS here: https://gitlab.cern.ch/atlas/athena/-/blob/master/PhysicsAnalysis/JetTagging/FlavorTagDiscriminants/Root/FlipTagEnums.cxx
+      if 'IP2DNeg' in TaggerList:
+          from JetTagTools.IP2DTagConfig import IP2DTagCfg
+          ip2dnegtool = acc.popToolsAndMerge(IP2DTagCfg(ConfigFlags, 'IP2DNegTag' ,scheme,FlipOption='NEGATIVE_IP_ONLY'))
+          tagToolList.append(ip2dnegtool)
+
+      if 'IP2DFlip' in TaggerList:
+          from JetTagTools.IP2DTagConfig import IP2DTagCfg
+          ip2dfliptool = acc.popToolsAndMerge(IP2DTagCfg(ConfigFlags, 'IP2DFlipTag' ,scheme,FlipOption='FLIP_SIGN'))
+          tagToolList.append(ip2dfliptool)
 
       if 'IP3D' in TaggerList:
           from JetTagTools.IP3DTagConfig import IP3DTagCfg
           ip3dtool = acc.popToolsAndMerge(IP3DTagCfg(ConfigFlags, 'IP3DTag', PrimaryVertexCollectionName, scheme))
           tagToolList.append(ip3dtool)
+
+      if 'IP3DNeg' in TaggerList:
+          from JetTagTools.IP3DTagConfig import IP3DTagCfg
+          ip3dnegtool = acc.popToolsAndMerge(IP3DTagCfg(ConfigFlags, 'IP3DNegTag', PrimaryVertexCollectionName, scheme,FlipOption='NEGATIVE_IP_ONLY'))
+          tagToolList.append(ip3dnegtool)
+
+      if 'IP3DFlip' in TaggerList:
+          from JetTagTools.IP3DTagConfig import IP3DTagCfg
+          ip3dfliptool = acc.popToolsAndMerge(IP3DTagCfg(ConfigFlags, 'IP3DFlipTag', PrimaryVertexCollectionName, scheme,FlipOption='FLIP_SIGN'))
+          tagToolList.append(ip3dfliptool)
 
       if 'SV1' in TaggerList:
           from JetTagTools.SV1TagConfig import SV1TagCfg
@@ -42,7 +64,7 @@ def BTagToolCfg(ConfigFlags, TaggerList, PrimaryVertexCollectionName="", scheme 
           from JetTagTools.JetFitterTagConfig import JetFitterTagCfg
           jetfitterNNtool = acc.popToolsAndMerge(JetFitterTagCfg(ConfigFlags, 'JetFitterTagNN', scheme, runNN=ConfigFlags.BTagging.RunJetFitterNN))
           tagToolList.append(jetfitterNNtool)
-      
+
       if 'SoftMu' in TaggerList:
           from JetTagTools.SoftMuonTagConfig import SoftMuonTagCfg
           softmutool = acc.popToolsAndMerge(SoftMuonTagCfg(ConfigFlags, 'SoftMuonTag', scheme))
@@ -82,5 +104,5 @@ def BTagToolCfg(ConfigFlags, TaggerList, PrimaryVertexCollectionName="", scheme 
       options['name'] = 'btag'
       btagtool = Analysis__BTagTool(**options)
       acc.setPrivateTools(btagtool)
- 
+
       return acc

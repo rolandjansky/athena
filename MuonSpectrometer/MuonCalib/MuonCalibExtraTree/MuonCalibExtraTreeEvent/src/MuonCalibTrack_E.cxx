@@ -5,6 +5,7 @@
 #include "MuonCalibExtraTreeEvent/MuonCalibTrack_E.h"
 
 #include <algorithm>
+#include <utility>
 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoPrimitives/GeoPrimitivesHelpers.h"
@@ -27,7 +28,7 @@ namespace MuonCalib {
     const MuonCalibTrack_E::SegmentVector& MuonCalibTrack_E::segmetnsOnTrack() const { return m_segments_on_track; }
     MuonCalibTrack_E::SegmentVector& MuonCalibTrack_E::segmetnsOnTrack() { return m_segments_on_track; }
 
-    void MuonCalibTrack_E::addSegmentOnTrack(CalibSegPtr s) { m_segments_on_track.emplace_back(s); }
+    void MuonCalibTrack_E::addSegmentOnTrack(const CalibSegPtr& s) { m_segments_on_track.emplace_back(s); }
 
     const Amg::Vector3D& MuonCalibTrack_E::position() const { return m_pos; }
     const Amg::Vector3D& MuonCalibTrack_E::direction() const { return m_dir; }
@@ -56,15 +57,15 @@ namespace MuonCalib {
     void MuonCalibTrack_E::setQOverP(float qOverP) { m_params.qOverP = qOverP; }
     void MuonCalibTrack_E::setAuthor(int author) { m_params.author = author; }
 
-    MuonCalibTrack_E::MuonCalibTrack_E(defineParams pars) : m_params{pars}, m_pos{x0(), y0(), z0()} {
+    MuonCalibTrack_E::MuonCalibTrack_E(defineParams pars) : m_params{std::move(pars)}, m_pos{x0(), y0(), z0()} {
         Amg::setThetaPhi(m_dir, theta(), phi());
     }
 
-    void MuonCalibTrack_E::addHit(CalibHitPtr hit) {
+    void MuonCalibTrack_E::addHit(const CalibHitPtr& hit) {
         if (hit) m_hits.emplace_back(hit);
     }
 
-    void MuonCalibTrack_E::addHole(CalibHolePtr hole) {
+    void MuonCalibTrack_E::addHole(const CalibHolePtr& hole) {
         if (hole) m_holes.emplace_back(hole);
     }
 

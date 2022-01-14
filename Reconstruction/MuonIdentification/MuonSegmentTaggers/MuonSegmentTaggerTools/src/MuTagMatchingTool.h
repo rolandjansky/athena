@@ -19,7 +19,6 @@
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentHitSummaryTool.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentSelectionTool.h"
 #include "MuonSegmentTaggerToolInterfaces/IMuTagMatchingTool.h"
-#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkGeometry/TrackingGeometry.h"
@@ -159,9 +158,6 @@ private:
         "Key of input MuonDetectorManager condition data",
     };
 
-    ServiceHandle<Trk::ITrackingGeometrySvc> m_trackingGeometrySvc{this, "TrackingGeometrySvc",
-                                                                   "TrackingGeometrySvc/AtlasTrackingGeometrySvc"};
-
     SG::ReadCondHandleKey<Trk::TrackingGeometry> m_trackingGeometryReadKey{this, "TrackingGeometryReadKey", "",
                                                                            "Key of input TrackingGeometry"};
 
@@ -193,8 +189,6 @@ private:
     double m_combinedPullCut;
 
     inline const Trk::TrackingVolume* getVolume(const EventContext& ctx, const std::string&& vol_name) const {
-        /// Good old way of retrieving the volume via the geometry service
-        if (m_trackingGeometryReadKey.empty()) { return m_trackingGeometrySvc->trackingGeometry()->trackingVolume(vol_name); }
         SG::ReadCondHandle<Trk::TrackingGeometry> handle(m_trackingGeometryReadKey, ctx);
         if (!handle.isValid()) {
             ATH_MSG_WARNING("Could not retrieve a valid tracking geometry");

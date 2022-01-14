@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -45,11 +45,12 @@ private:
 public:
     // constructors
     // default constructor
-    Rt_relation(void) {
-        m_nb_pairs = 0;
-        m_rt_type = 0;
-        m_rtstep = 0.;
-        m_rtname = "";
+    Rt_relation(void)
+      : m_nb_pairs (0),
+        m_rt_type (0),
+        m_rtstep (0),
+        m_rtname ("")
+    {
         for (unsigned int i = 0; i < 600; i++) {
             m_r_drift[i] = 0.0;
             m_t_drift[i] = 0.0;
@@ -115,7 +116,7 @@ public:
     inline void set_rt_format(const int &rt_format);
 
     // set the rt-relation name
-    inline void set_name(const std::string name) { m_rtname = name; };
+    inline void set_name(const std::string& name) { m_rtname = name; };
 
     // set the number of pairs to n_pairs, a call to this
     // routine removes a stored r-t relation, n_pairs <= 600

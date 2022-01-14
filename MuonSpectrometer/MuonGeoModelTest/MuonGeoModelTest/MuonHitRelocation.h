@@ -28,7 +28,7 @@ public:
     ~MuonHitRelocation();
     StatusCode initialize();
     StatusCode execute();
-    long getIntStName(std::string stName) const;
+    long getIntStName(const std::string& stName) const;
 
 private:
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s):
@@ -46,7 +46,6 @@
 #include "TauAnalysisTools/ITauSmearingTool.h"
 #include "TauAnalysisTools/ITauTruthMatchingTool.h"
 #include "TauAnalysisTools/ITauEfficiencyCorrectionsTool.h"
-#include "TauAnalysisTools/ITauOverlappingElectronLLHDecorator.h"
 #include "tauRecTools/ITauToolBase.h"
 
 #include "IsolationSelection/IIsolationSelectionTool.h"
@@ -356,7 +355,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_tauSmearingTool(""),
     m_tauTruthMatch(""),
     m_tauEffTool(""),
-    m_tauElORdecorator(""),
     //
     m_btagEffTool(""),
     m_btagSelTool(""),
@@ -677,7 +675,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   m_tauSmearingTool.declarePropertyFor( this, "TauSmearingTool", "The TauSmearingTool" );
   m_tauTruthMatch.declarePropertyFor( this, "TauTruthMatch", "The TTMT" );
   m_tauEffTool.declarePropertyFor( this, "TauEfficiencyCorrectionsTool", "The TauEfficiencyCorrectionsTool" );
-  m_tauElORdecorator.declarePropertyFor( this, "TauOverlappingElectronLLHDecorator", "The TauOverlappingElectronLLHDecorator tool" );
   //
   m_btagEffTool.declarePropertyFor( this, "BTaggingEfficiencyTool", "The BTaggingEfficiencyTool" );
   m_btagSelTool.declarePropertyFor( this, "BTaggingSelectionTool", "The main BTaggingSelectionTool" );
@@ -748,7 +745,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   };
 
   // Construct electron fallback WPs for SFs
-  for (auto x : m_el_iso_support) { m_el_iso_fallback[x] = x; } // all current WPs
+  for (auto& x : m_el_iso_support) { m_el_iso_fallback[x] = x; } // all current WPs
   m_el_iso_fallback["Tight_VarRad"] = "FCTight";                // plus actual fallback
   m_el_iso_fallback["Loose_VarRad"] = "FCLoose";
   m_el_iso_fallback["HighPtCaloOnly"] = "FCHighPtCaloOnly";
@@ -850,14 +847,14 @@ StatusCode SUSYObjDef_xAOD::initialize() {
     return StatusCode::FAILURE;
   }
 
-  if (m_inputMETSuffix==""){
+  if (m_inputMETSuffix.empty()){
     m_inputMETSuffix = "AntiKt4" + xAOD::JetInput::typeName(xAOD::JetInput::Type(m_jetInputType));
   }
   m_defaultJets = "AntiKt4" + xAOD::JetInput::typeName(xAOD::JetInput::Type(m_jetInputType)) + "Jets";
   ATH_MSG_INFO( "Configured for jet collection: " << m_defaultJets );
 
   m_defaultTruthJets = "AntiKt4TruthJets";
-  const xAOD::FileMetaData* fmd = 0;
+  const xAOD::FileMetaData* fmd = nullptr;
   std::string dataType;
   if ( inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData") && inputMetaStore()->retrieve(fmd,"FileMetaData").isSuccess() )
      fmd->value(xAOD::FileMetaData::dataType, dataType);
@@ -916,20 +913,20 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfile
     std::string amiTag("");
     std::string mcCampaignMD("");
     std::string simType = (isAtlfast() ? "AFII" : "FS");
-    const xAOD::FileMetaData* fmd = 0;
+    const xAOD::FileMetaData* fmd = nullptr;
 
     // configure PRW rtag options from m_autoconfigPRWRtags string
     // e.g. "mc16a:r9364_r11505_r11285,mc16c:r9781,mc16d:r10201_r11506_r11279,mc16e:r10724_r11507_r11249,mc16ans:r10740_r10832_r10847_r11008_r11036,mc16dns:r10739_r10833_r10848_r11009_r11037,mc16ens:r10790_r11038_r11265"
     std::map<std::string,std::vector<std::string>> PRWRtags = {};
     std::string allcampaigns = "mc16a.mc16c.mc16d.mc16e.mc20a.mc20d.mc20e.mc16ans.mc16dns.mc16ens";
     bool standard_like = true;
-    for ( auto campaign_rtags : split( m_autoconfigPRWRtags, "," ) ) {                                          // split string by ","
+    for ( auto& campaign_rtags : split( m_autoconfigPRWRtags, "," ) ) {                                          // split string by ","
        std::string icampaign = campaign_rtags.substr(0, campaign_rtags.find(":"));                              // first field = campaign, split by ":"
        std::vector<std::string> irtags = split( campaign_rtags.substr(campaign_rtags.find(":")+1), "_" );       // remaining fields = rtags, split by "_"
        PRWRtags[icampaign] = irtags;
        ATH_MSG_DEBUG( "PRW autoconfigure considering rtags " <<  campaign_rtags.substr(campaign_rtags.find("_")+1) << " for campaign " << icampaign );
     }
-    for ( auto x : PRWRtags ) {
+    for ( auto& x : PRWRtags ) {
        if ( allcampaigns.find(x.first)==string::npos ) {
           ATH_MSG_ERROR("m_autoconfigPRWRtags contains invalid campaign: " << x.first << " (" << m_autoconfigPRWRtags << ")");
           ATH_MSG_ERROR("use any of " << allcampaigns);
@@ -943,8 +940,8 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfile
       fmd->value(xAOD::FileMetaData::amiTag, amiTag);
       bool found = false;
       while ( mcCampaignMD.empty() ) {
-         for ( auto campaign_rtags : PRWRtags ) {                                 // consider all campaigns
-            for ( auto rtag: campaign_rtags.second ) {                            // consider all rtags
+         for ( auto& campaign_rtags : PRWRtags ) {                                 // consider all campaigns
+            for ( auto& rtag: campaign_rtags.second ) {                            // consider all rtags
                if (found) continue;
                if (amiTag.find(rtag)!=string::npos) {                             // find matching tag
                   mcCampaignMD = campaign_rtags.first.substr(0,5);                // save campaign
@@ -985,7 +982,7 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfile
 	} else {
 	  // OK, this is a fall-back option without using MetaData but one has to manually set 'mcCampaign' property
 	  ATH_MSG_WARNING( "autoconfigurePileupRWTool(): access to FileMetaData failed -> getting the mc channel number (DSID) from the event store." );
-	  const xAOD::EventInfo* evtInfo = 0;
+	  const xAOD::EventInfo* evtInfo = nullptr;
 	  ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
 	  dsid = evtInfo->mcChannelNumber();
 
@@ -1191,7 +1188,6 @@ void SUSYObjDef_xAOD::configFromFile(std::string& property, const std::string& p
 
 StatusCode SUSYObjDef_xAOD::readConfig()
 {
-
   ATH_MSG_INFO( "*****     *****     *****     *****" );
   ATH_MSG_INFO( "Configuring from file " << m_configFile );
 
@@ -1638,9 +1634,9 @@ const std::vector<std::string> SUSYObjDef_xAOD::split(const std::string& s, cons
   return retval;
 }
 
-void SUSYObjDef_xAOD::getTauConfig(const std::string tauConfigPath, std::vector<float>& pT_window, std::vector<float>& eta_window, bool &eleOLR, bool &muVeto, bool &muOLR) const {
+void SUSYObjDef_xAOD::getTauConfig(const std::string& tauConfigPath, std::vector<float>& pT_window, std::vector<float>& eta_window, bool &eleOLR, bool &muVeto, bool &muOLR) const {
 
-  if(tauConfigPath == "") return;
+  if(tauConfigPath.empty()) return;
 
   TEnv rEnv;
   auto filename = PathResolverFindCalibFile(tauConfigPath);
@@ -1672,7 +1668,7 @@ void SUSYObjDef_xAOD::getTauConfig(const std::string tauConfigPath, std::vector<
   float pT_max = -99.0;
   float eta_min = -99.0;
   float eta_max = -99.0;
-  for (auto cut : cuts) {
+  for (auto& cut : cuts) {
     if(cut == "PtRegion") {
       _pT_window = split(rEnv.GetValue("PtRegion", ""), ";");
       std::transform(std::begin(_pT_window),
@@ -1831,7 +1827,7 @@ StatusCode SUSYObjDef_xAOD::validConfig(bool strict) const {
   bool muVeto=false;
   bool muOLR=false;
 
-  if(m_tauConfigPathBaseline != "") { //baseline taus
+  if(!m_tauConfigPathBaseline.empty()) { //baseline taus
 
     std::string theConfig = m_tauConfigPathBaseline;
     if( m_tauConfigPathBaseline=="default" ){
@@ -1861,7 +1857,7 @@ StatusCode SUSYObjDef_xAOD::validConfig(bool strict) const {
     }
   }
 
-  if(m_tauConfigPath != "") { //signal taus
+  if(!m_tauConfigPath.empty()) { //signal taus
 
     std::string theConfig = m_tauConfigPath;
     if( m_tauConfigPath=="default" ){
@@ -2333,7 +2329,6 @@ std::vector<ST::SystInfo> SUSYObjDef_xAOD::getSystInfoList() const {
   infodef.affectsType = Unknown;
   infodef.affectedWeights.clear();
   sysInfoList.push_back(infodef);
-
   
 
   // add all recommended systematics
@@ -2347,8 +2342,7 @@ std::vector<ST::SystInfo> SUSYObjDef_xAOD::getSystInfoList() const {
 	  CP::SystematicVariation sys_JER(JER_systematicName);
 	  sysInfoList.push_back(getSystInfo(sys_JER));
 	}
-    }
-    
+    }    
 
   }
 
@@ -2700,7 +2694,7 @@ float SUSYObjDef_xAOD::getSherpaVjetsNjetsWeight(const std::string& jetContainer
 
 
 const xAOD::Vertex* SUSYObjDef_xAOD::GetPrimVtx() const {
-  const xAOD::VertexContainer* vertices(0);
+  const xAOD::VertexContainer* vertices = nullptr;
   if ( evtStore()->retrieve( vertices, "PrimaryVertices" ).isSuccess() ) {
     for ( const auto& vx : *vertices ) {
       if (vx->vertexType() == xAOD::VxType::PriVtx) {
@@ -2709,9 +2703,9 @@ const xAOD::Vertex* SUSYObjDef_xAOD::GetPrimVtx() const {
       }
     }
   } else {
-    ATH_MSG_WARNING("Failed to retrieve VertexContainer \"PrimaryVertices\", returning NULL");
+    ATH_MSG_WARNING("Failed to retrieve VertexContainer \"PrimaryVertices\", returning nullptr");
   }
-  return NULL;
+  return nullptr;
 }
 
 
@@ -2764,7 +2758,7 @@ StatusCode SUSYObjDef_xAOD::NearbyLeptonCorrections(xAOD::ElectronContainer *ele
 
 float SUSYObjDef_xAOD::GetPileupWeight() {
 
-  const xAOD::EventInfo* evtInfo = 0;
+  const xAOD::EventInfo* evtInfo = nullptr;
   ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
 
   float pu_weight = m_prwTool->getCombinedWeight(*evtInfo);
@@ -2781,7 +2775,7 @@ float SUSYObjDef_xAOD::GetPileupWeightPrescaledTrigger(const std::string & trigg
      https://twiki.cern.ch/twiki/bin/view/AtlasProtected/ExtendedPileupReweighting#Prescaling%20MC
   */
 
-  const xAOD::EventInfo* evtInfo = 0;
+  const xAOD::EventInfo* evtInfo = nullptr;
   ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
 
   float pu_weight = m_prwTool->getCombinedWeight(*evtInfo,trigger_expr);
@@ -2792,25 +2786,25 @@ float SUSYObjDef_xAOD::GetPileupWeightPrescaledTrigger(const std::string & trigg
 }
 
 ULong64_t SUSYObjDef_xAOD::GetPileupWeightHash() {
-  const xAOD::EventInfo* evtInfo = 0;
+  const xAOD::EventInfo* evtInfo = nullptr;
   ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
   return m_prwTool->getPRWHash( *evtInfo );
 }
 
 float SUSYObjDef_xAOD::GetDataWeight(const std::string& trig) {
-  const xAOD::EventInfo* evtInfo = 0;
+  const xAOD::EventInfo* evtInfo = nullptr;
   ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
   return m_prwTool->getDataWeight( *evtInfo, trig );
 }
 
 float SUSYObjDef_xAOD::GetCorrectedAverageInteractionsPerCrossing(bool includeDataSF) {
-  const xAOD::EventInfo* evtInfo = 0;
+  const xAOD::EventInfo* evtInfo = nullptr;
   ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
   return m_prwTool->getCorrectedAverageInteractionsPerCrossing( *evtInfo, includeDataSF );
 }
 
 float SUSYObjDef_xAOD::GetCorrectedActualInteractionsPerCrossing(bool includeDataSF) {
-  const xAOD::EventInfo* evtInfo = 0;
+  const xAOD::EventInfo* evtInfo = nullptr;
   ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
   return m_prwTool->getCorrectedActualInteractionsPerCrossing( *evtInfo, includeDataSF );
 }
@@ -2821,7 +2815,7 @@ double SUSYObjDef_xAOD::GetSumOfWeights(int channel) {
 
 unsigned int SUSYObjDef_xAOD::GetRandomRunNumber(bool muDependentRRN) {
 
-  const xAOD::EventInfo* evtInfo = 0;
+  const xAOD::EventInfo* evtInfo = nullptr;
   ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
   if (randomrunnumber.isAvailable(*(evtInfo)) && muDependentRRN) {
     return randomrunnumber(*(evtInfo));
@@ -2836,7 +2830,7 @@ unsigned int SUSYObjDef_xAOD::GetRandomRunNumber(bool muDependentRRN) {
 
 StatusCode SUSYObjDef_xAOD::ApplyPRWTool(bool muDependentRRN) {
 
-  const xAOD::EventInfo* evtInfo = 0;
+  const xAOD::EventInfo* evtInfo = nullptr;
   ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
   if(!evtInfo->isAvailable<unsigned int>("RandomRunNumber"))
     ATH_CHECK( m_prwTool->apply( *evtInfo, muDependentRRN ) );
@@ -2845,7 +2839,7 @@ StatusCode SUSYObjDef_xAOD::ApplyPRWTool(bool muDependentRRN) {
 
 unsigned int SUSYObjDef_xAOD::GetRunNumber() const {
 
-  const xAOD::EventInfo* evtInfo = 0;
+  const xAOD::EventInfo* evtInfo = nullptr;
   ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
 
   // For data, we can just directly use the run number

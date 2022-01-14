@@ -208,7 +208,7 @@ bool CurvedPatRec::fit(MuonCalibSegment &r_segment, HitSelection r_selection, Cu
     // UPDATE HIT RESIDUALS //
     //////////////////////////
 
-    for (MdtHitPtr hit : r_segment.mdtHOT()) {
+    for (const MdtHitPtr& hit : r_segment.mdtHOT()) {
         Amg::Vector3D pos(0.0, hit->localPosition().y(), hit->localPosition().z());
         MTStraightLine aux_line(pos, xhat, null, null);
 

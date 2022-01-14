@@ -9,8 +9,12 @@ simFlags.RunNumber = 330000
 simFlags.TRTRangeCut = 30.0
 simFlags.TightMuonStepping = True
 
+from ISF_Config.ISF_jobProperties import ISF_Flags
 from AthenaCommon.Resilience import protectedInclude
 protectedInclude("SimulationJobOptions/preInclude.BeamPipeKill.py")
-#protectedInclude("SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py") # Not tuned yet for G4 10.6
+if "FullG4" in ISF_Flags.Simulator():
+    # Not tuned yet for G4 10.6
+    # protectedInclude("SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py")
+    pass
 # enable G4 optimisations
 protectedInclude("SimulationJobOptions/preInclude.G4Optimizations.py")

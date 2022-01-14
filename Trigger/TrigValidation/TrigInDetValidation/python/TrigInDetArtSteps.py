@@ -113,7 +113,6 @@ class TrigInDetReco(ExecStep):
                 chains += "'HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI',"
                 flags += 'doEgammaSlice=True;'
             if (i=='tau') :
-                chains +=  "'HLT_tau25_idperf_tracktwo_L1TAU12IM',"
                 chains +=  "'HLT_tau25_idperf_tracktwoMVA_L1TAU12IM',"
                 flags += 'doTauSlice=True;'
             if (i=='bjet') :
@@ -128,7 +127,7 @@ class TrigInDetReco(ExecStep):
                 flags  += 'doBeamspotSlice=True;'
             if (i=='minbias') :
                 chains += "'HLT_mb_sptrk_L1RD0_FILLED',"
-                flags  += "doMinBiasSlice=True;setMenu='LS2_v1';"
+                flags  += "doMinBiasSlice=True;setMenu='Dev_pp_run3_v1';"
             if (i=='cosmic') :
                 chains += "'HLT_mu4_cosmic_L1MU3V'"
                 flags  += "doMuonSlice=True;doCosmics=True;setMenu='Cosmic_run3_v1';"
@@ -142,6 +141,8 @@ class TrigInDetReco(ExecStep):
         chains += ']'
         self.preexec_trig = 'doEmptyMenu=True;'+flags+'selectChains='+chains
 
+        # disable CPS which may otherwise conflict with the selectChains option (ATR-24744)
+        self.preexec_trig += ';from AthenaConfiguration.AllConfigFlags import ConfigFlags;ConfigFlags.Trigger.disableCPS=True'
         
         AVERSION = ""
         # temporary hack until we get to the bottom of why the tests are really failing

@@ -26,7 +26,7 @@ namespace MuonGM {
       m_includeCutoutsBog(0), m_includeCtbBis(0), m_controlAlines(0)
     {
         for (unsigned int i = 0; i < NTgcReadouts; i++) {
-            m_tgcReadout[i] = NULL;
+            m_tgcReadout[i] = nullptr;
         }
     }
 
@@ -80,7 +80,7 @@ namespace MuonGM {
             }
             return it->second;
         } else {
-            return 0;
+            return nullptr;
         }
     }
 
@@ -96,7 +96,7 @@ namespace MuonGM {
             }
             return it->second;
         } else {
-            return 0;
+            return nullptr;
         }
     }
 
@@ -109,7 +109,7 @@ namespace MuonGM {
         int subtype = allocPosFindSubtype(nameType, fi, zi);
         std::string stname = nameType + MuonGM::buildString(subtype, 0);
         const Station *st = GetStation(stname);
-        if (st != NULL) {
+        if (st != nullptr) {
             if (log.level() <= MSG::VERBOSE) {
                 log << MSG::VERBOSE << " found in Station " << st->GetName();
             }
@@ -133,14 +133,14 @@ namespace MuonGM {
         if (it != m_tgcReadouts.end()) {
             return it->second;
         } else
-            return NULL;
+            return nullptr;
     }
 
     TgcReadoutParams *MYSQL::GetTgcRPars(int jsta) const {
         if (jsta - 1 < 0 || jsta >= NTgcReadouts) {
             MsgStream log(Athena::getMessageSvc(), "MuonGeoModel.MYSQL");
             log << MSG::ERROR << "MYSQL::GetTgcRPars jsta = " << jsta << " out of range (0," << NTgcReadouts - 1 << ")" << endmsg;
-            return NULL;
+            return nullptr;
         }
         return m_tgcReadout[jsta - 1];
     }

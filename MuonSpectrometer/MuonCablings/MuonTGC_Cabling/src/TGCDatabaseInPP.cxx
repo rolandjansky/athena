@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTGC_Cabling/TGCDatabaseInPP.h"
@@ -20,7 +20,7 @@ TGCDatabaseInPP::TGCDatabaseInPP(const std::string& filename,
   }
 
   // read out ascii file and fill database
-  if(m_database.size()==0) readDB();
+  readDB();
 }
 
 TGCDatabaseInPP::TGCDatabaseInPP(const TGCDatabaseInPP& right)
@@ -74,12 +74,10 @@ int  TGCDatabaseInPP::find(const std::vector<int>& channel) const
   return index;
 }
 
-int TGCDatabaseInPP::getIndexDBIn(int* indexIn) 
+int TGCDatabaseInPP::getIndexDBIn(int* indexIn) const
 {
   if(!indexIn) return -1;
 
-  if(m_database.size()==0) readDB();
-  
   int converted = convertIndexDBIn(indexIn);
   if(converted<0 || converted>=m_NIndexDBIn) return -1;
   

@@ -69,8 +69,8 @@ MuonHitRelocation::Clockwork::Clockwork() : nt(nullptr)
 /////////////////////////////////////////////////////////////////////////////
 
 MuonHitRelocation::MuonHitRelocation(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),m_c(new Clockwork()), m_rmuonHelper(0), m_mmuonHelper(0),
-  m_tmuonHelper(0), m_cmuonHelper(0), m_stmuonHelper(0), m_mmmuonHelper(0)
+  AthAlgorithm(name, pSvcLocator),m_c(new Clockwork()), m_rmuonHelper(nullptr), m_mmuonHelper(nullptr),
+  m_tmuonHelper(nullptr), m_cmuonHelper(nullptr), m_stmuonHelper(nullptr), m_mmmuonHelper(nullptr)
 {
     declareProperty("checkMdt", m_checkMdt = true );
     declareProperty("checkRpc", m_checkRpc = true );
@@ -562,7 +562,7 @@ StatusCode MuonHitRelocation::execute() {
   return StatusCode::SUCCESS;
 }
 
-long MuonHitRelocation::getIntStName(std::string stName) const
+long MuonHitRelocation::getIntStName(const std::string& stName) const
 {
     if (stName == "BIL")       return 0;
     else if (stName == "BIS" ) return 1;

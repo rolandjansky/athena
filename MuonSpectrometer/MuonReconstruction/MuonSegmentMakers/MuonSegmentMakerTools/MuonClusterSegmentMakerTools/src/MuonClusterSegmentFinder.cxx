@@ -393,7 +393,7 @@ namespace Muon {
 
             if (fakeCounter != 0) truthSeed = false;
             std::sort(vec2.begin(), vec2.end(), sortfunctionMB);
-            Trk::TrackParameters* startpar = 0;
+            Trk::TrackParameters* startpar = nullptr;
             Amg::Vector3D gp(sit.front().x(), sit.front().y(), sit.front().z());
             Amg::Vector3D gd(sit.back().x() - sit.front().x(), sit.back().y() - sit.front().y(), sit.back().z() - sit.front().z());
             Amg::Vector3D perpos = gp + -10 * (gd.unit());

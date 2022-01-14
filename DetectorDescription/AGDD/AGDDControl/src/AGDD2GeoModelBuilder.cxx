@@ -80,7 +80,7 @@ AGDD2GeoModelBuilder::AGDD2GeoModelBuilder(AGDDDetectorStore& ds,
 {
 }
 
-GeoElement* AGDD2GeoModelBuilder::CreateElement(const std::string& name) const
+GeoElement* AGDD2GeoModelBuilder::CreateElement(const std::string& name)
 {
 	AGDDElement *el=m_ms.GetElement(name);
 	if (el)
@@ -98,7 +98,7 @@ GeoElement* AGDD2GeoModelBuilder::CreateElement(const std::string& name) const
 	else
 		return nullptr;
 }
-const GeoMaterial* AGDD2GeoModelBuilder::CreateMaterial(const std::string& name) const
+const GeoMaterial* AGDD2GeoModelBuilder::CreateMaterial(const std::string& name)
 {
 
 //  give priority to GeoModel's Material Manager in retrieving materials
@@ -185,7 +185,7 @@ const GeoMaterial* AGDD2GeoModelBuilder::CreateMaterial(const std::string& name)
 	else
 		return nullptr;
 }
-void AGDD2GeoModelBuilder::CreateElements() const
+void AGDD2GeoModelBuilder::CreateElements()
 {
 	ElementIterator it;
 	for (it=m_ms.ElementBegin();it!=m_ms.ElementEnd();++it)
@@ -193,7 +193,7 @@ void AGDD2GeoModelBuilder::CreateElements() const
 		CreateElement((*it).second->GetName());
 	}
 }
-void AGDD2GeoModelBuilder::CreateMaterial() const
+void AGDD2GeoModelBuilder::CreateMaterial()
 {
 	MaterialIterator it;
 	for (it=m_ms.MaterialBegin();it!=m_ms.MaterialEnd();++it)
@@ -466,7 +466,7 @@ void AGDD2GeoModelBuilder::CreatePgon(AGDDPgon* v) const
 }
 
 
-void AGDD2GeoModelBuilder::CreateComposition(AGDDComposition *v) const
+void AGDD2GeoModelBuilder::CreateComposition(AGDDComposition *v)
 {
 	static const GeoMaterial * const ether = GetMMMaterial("special::Ether");
         static const ConstLink<GeoShape> fakeVol = new GeoTubs(0.,500.,1000.,0.,4*std::asin(1.));
@@ -535,7 +535,7 @@ void AGDD2GeoModelBuilder::CreateComposition(AGDDComposition *v) const
 	}
 }
 
-void AGDD2GeoModelBuilder::CreateVolume(AGDDVolume* v) const
+void AGDD2GeoModelBuilder::CreateVolume(AGDDVolume* v)
 {
         std::string alias = m_as.Alias(v->GetMaterial());
 	const GeoMaterial *mat=CreateMaterial(alias);
@@ -558,7 +558,7 @@ void AGDD2GeoModelBuilder::CreateVolume(AGDDVolume* v) const
 	}
 }
 
-void AGDD2GeoModelBuilder::BuildAllVolumes() const
+void AGDD2GeoModelBuilder::BuildAllVolumes()
 {
   AGDDVolumeMap::const_iterator it;
   GeoTrf::Transform3D trf = GeoTrf::Transform3D::Identity();
@@ -591,7 +591,7 @@ void AGDD2GeoModelBuilder::BuildAllVolumes() const
   }
 }
 
-void AGDD2GeoModelBuilder::BuildFromSection(const std::string& s) const
+void AGDD2GeoModelBuilder::BuildFromSection(const std::string& s)
 {
   GeoTrf::Transform3D trf = GeoTrf::Transform3D::Identity();
 
@@ -663,7 +663,7 @@ void AGDD2GeoModelBuilder::BuildFromSection(const std::string& s) const
     log<<MSG::WARNING<<"BuildFromSection() - This section is flagged as not to be built!"<<endmsg;
   }
 }
-void AGDD2GeoModelBuilder::BuildFromVolume(const std::string& s) const
+void AGDD2GeoModelBuilder::BuildFromVolume(const std::string& s)
 {
     GeoTrf::Transform3D trf = GeoTrf::Transform3D::Identity();
   

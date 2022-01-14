@@ -96,7 +96,7 @@ GeoVPhysVol* GeoPixelIBLFwdSvcCADModel::Build()
   double delta = 18.;
   double deltaJunction = 0.;
   double lgFwdSvc[4]={511., 561., 560., 706. };
-  double devLgFwdSvc[4]={512., 562., 562., 707. };
+  //double devLgFwdSvc[4]={512., 562., 562., 707. };
   double devTotalLength = 2460.188;
   double pi = Gaudi::Units::pi;
 
@@ -113,8 +113,6 @@ GeoVPhysVol* GeoPixelIBLFwdSvcCADModel::Build()
   // IPT clip starting position
   double zpos0 = 903.;
   double zpos = 0.;
-  double zposRing = 0.;
-  double totalLength=0.;
   double hermJunction = .4;
   double breakAngle = 11.*Gaudi::Units::deg;
 
@@ -125,8 +123,6 @@ GeoVPhysVol* GeoPixelIBLFwdSvcCADModel::Build()
   const GeoShape * gblShapeCoolingC = nullptr;
   for(int i=0; i<4; i++)
     {
-      totalLength+=devLgFwdSvc[i];
-
       double initHalfLength = lgFwdSvc[i]*.5;
       zpos += initHalfLength;
       double corHalfLength = initHalfLength-deltaJunction;
@@ -149,7 +145,6 @@ GeoVPhysVol* GeoPixelIBLFwdSvcCADModel::Build()
 	gblShapeCoolingC = addShape(gblShapeCoolingC, tubeShape_cooling, trfC );
       }
 
-      zposRing += 2.*initHalfLength;
       //      std::cout<<"Torus radius : "<<radius<<"   "<<perimeter*(2.*theta)/(2.*pi)+2*deltaJunction<<" / "<<devLgFwdSvc[i]<<std::endl; 
 
       double rtor = radius;

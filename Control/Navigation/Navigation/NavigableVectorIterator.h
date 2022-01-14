@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef NAVIGATION_NAVIGABLEVECTORITERATOR_H
@@ -115,11 +115,11 @@ class NavigableVectorIterator
     }
 
   // comparisons and finding
-  bool operator==(const NavigableVectorIterator& anIter)
+  bool operator==(const NavigableVectorIterator& anIter) const
     {
       return m_actualIter == anIter.m_actualIter;
     }
-  bool operator!=(const NavigableVectorIterator& anIter)
+  bool operator!=(const NavigableVectorIterator& anIter) const
     {
       return m_actualIter != anIter.m_actualIter;
     }

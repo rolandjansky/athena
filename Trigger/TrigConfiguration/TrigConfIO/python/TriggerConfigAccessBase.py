@@ -66,6 +66,20 @@ class ConfigFileLoader(ConfigLoader):
             outfn = outfn.rsplit('.',1)[0]
         return outfn + ".out.json"
 
+class ConfigDirectLoader(ConfigLoader):
+    """Class to load from json string"""
+    def __init__(self, configType,  jsonString):
+        super(ConfigDirectLoader,self).__init__(configType) 
+        self.jsonString = jsonString
+    def load(self):
+        config = json.loads(self.jsonString, object_pairs_hook = odict)
+        self.confirmConfigType(config)
+        return config
+    def setQuery(self, query):
+        pass
+    def getWriteFilename(self):
+        pass
+
 class ConfigDBLoader(ConfigLoader):
     def __init__(self, configType, dbalias, dbkey):
         super(ConfigDBLoader,self).__init__(configType)
@@ -132,7 +146,8 @@ class ConfigDBLoader(ConfigLoader):
                     from cx_Oracle import connect
                     [tns,schema] = connSvc.split("/")[-2:]
                     cursor = connect(userpw["user"], userpw["password"], tns, threaded=False).cursor()
-                elif connSvc.startswith("frontier:"):
+                    return cursor, schema
+                if connSvc.startswith("frontier:"):
                     import re, os
                     pattern = r"frontier://ATLF/\(\)/(.*)"
                     m = re.match(pattern,connSvc)
@@ -143,9 +158,9 @@ class ConfigDBLoader(ConfigLoader):
                     from TrigConfigSvc.TrigConfFrontier import getFrontierCursor
                     cursor = getFrontierCursor(urls = os.getenv('FRONTIER_SERVER', None), schema = schema, loglevel=2)
                     cursor.encoding = "latin-1"
-                elif connSvc.startswith("sqlite_file:"):
+                    return cursor, schema
+                if connSvc.startswith("sqlite_file:"):
                     raise NotImplementedError("Python-loading of trigger configuration from sqlite has not yet been implemented")
-                return cursor, schema
             except Exception as e:
                 raise RuntimeError(e)
 
@@ -186,18 +201,20 @@ class TriggerConfigAccess(object):
     base class to hold the configuration (OrderedDict) 
     and provides basic functions to access and print
     """
-    def __init__(self, configType, mainkey, filename = None, dbalias = None, dbkey = None):
-        self._getLoader(configType = configType, filename = filename, dbalias = dbalias, dbkey = dbkey)
+    def __init__(self, configType, mainkey, filename = None, jsonString=None, dbalias = None, dbkey = None):
+        self._getLoader(configType = configType, filename = filename, jsonString=jsonString, dbalias = dbalias, dbkey = dbkey)
         self._mainkey = mainkey
         self._config = None
 
-    def _getLoader(self, configType, filename = None, dbalias = None, dbkey = None ):
+    def _getLoader(self, configType, filename = None, jsonString=None, dbalias = None, dbkey = None ):
         if filename:
             self.loader = ConfigFileLoader( configType, filename )
         elif dbalias and dbkey:
             self.loader = ConfigDBLoader( configType, dbalias, dbkey )
+        elif jsonString:
+            self.loader = ConfigDirectLoader( configType, jsonString )
         else:
-            raise RuntimeError("Neither input file nor db alias and key provided")
+            raise RuntimeError("Neither input file, nor JSON nor db alias and key provided")
 
     def load(self):
         self._config = self.loader.load()

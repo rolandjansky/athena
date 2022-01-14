@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGDECISIONTOOL_DECISIONUNPACKERSTANDALONE_H
@@ -15,7 +15,6 @@
 // Local include(s):
 #include "TrigDecisionTool/IDecisionUnpacker.h"
 #include "TrigDecisionTool/Logger.h"
-#include "TrigDecisionTool/EventPtrDef.h"
 
 // xAOD include(s):
 #include "xAODTrigger/TrigDecision.h"

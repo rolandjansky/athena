@@ -280,8 +280,8 @@ namespace MuonGM {
         std::array<int, maxwpl> m_nwires_per_plane{0};
         std::array<int, maxwpl> m_nwiregangs_per_plane{0};
 
-        std::array<double, maxwpl> m_wireoffset;
-        std::array<double, maxwpl> m_wireplanez;
+        std::array<double, maxwpl> m_wireoffset{};
+        std::array<double, maxwpl> m_wireplanez{};
 
         int m_readout_type{-1};
         std::string m_readout_name;

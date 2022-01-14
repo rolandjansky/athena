@@ -138,7 +138,7 @@ Trk::MaterialEffectsUpdator::initialize()
 
 std::unique_ptr<Trk::TrackParameters>
 Trk::MaterialEffectsUpdator::updateImpl(
-  Cache& cache,
+  ICache& cache,
   const TrackParameters* parm,
   const Layer& lay,
   PropDirection dir,
@@ -184,7 +184,7 @@ Trk::MaterialEffectsUpdator::updateImpl(
 
 std::unique_ptr<Trk::TrackParameters>
 Trk::MaterialEffectsUpdator::updateImpl(
-  Cache& cache,
+  ICache& cache,
   const TrackParameters* parm,
   const MaterialEffectsOnTrack& meff,
   ParticleHypothesis particle,
@@ -367,7 +367,7 @@ Trk::MaterialEffectsUpdator::updateImpl(
 
 std::unique_ptr<Trk::TrackParameters>
 Trk::MaterialEffectsUpdator::preUpdateImpl(
-  Cache& cache,
+  ICache& cache,
   const TrackParameters* parm,
   const Layer& lay,
   PropDirection dir,
@@ -421,7 +421,7 @@ Trk::MaterialEffectsUpdator::preUpdateImpl(
 
 std::unique_ptr<Trk::TrackParameters>
 Trk::MaterialEffectsUpdator::postUpdateImpl(
-  Cache& cache,
+  ICache& cache,
   const TrackParameters& parm,
   const Layer& lay,
   PropDirection dir,
@@ -477,7 +477,7 @@ Trk::MaterialEffectsUpdator::postUpdateImpl(
 // actual update method - manipulation
 std::unique_ptr<Trk::TrackParameters>
 Trk::MaterialEffectsUpdator::updateImpl(
-  Cache& cache,
+  ICache& cache,
   const TrackParameters* parm,
   const MaterialProperties& matprop,
   double pathcorrection,
@@ -654,7 +654,7 @@ Trk::MaterialEffectsUpdator::updateImpl(
 // actual update method
 std::unique_ptr<Trk::TrackParameters>
 Trk::MaterialEffectsUpdator::updateImpl(
-  Cache& cache,
+  ICache& cache,
   const TrackParameters& parm,
   const MaterialProperties& matprop,
   double pathcorrection,
@@ -819,7 +819,7 @@ Trk::MaterialEffectsUpdator::updateImpl(
 }
 
 void
-Trk::MaterialEffectsUpdator::validationActionImpl(Cache& cache) 
+Trk::MaterialEffectsUpdator::validationActionImpl(ICache& cache) 
 {
   cache.validationEta = 0.;
   cache.validationPhi = 0.;
@@ -827,7 +827,7 @@ Trk::MaterialEffectsUpdator::validationActionImpl(Cache& cache)
 }
 
 void
-Trk::MaterialEffectsUpdator::modelActionImpl(Cache& cache, const Trk::TrackParameters* /*parm*/) 
+Trk::MaterialEffectsUpdator::modelActionImpl(ICache& cache, const Trk::TrackParameters* /*parm*/) 
 {
   cache.accumulatedElossSigma = 0;
 }

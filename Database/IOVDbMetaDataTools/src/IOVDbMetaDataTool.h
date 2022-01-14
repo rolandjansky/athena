@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IOVDBMETADATATOOLS_IOVDBMETADATATOOL_H
@@ -107,8 +107,8 @@ private:
 
     /// Modify a Payload for a particular folder - replaces one of the
     /// internal attributes
-    StatusCode  modifyPayload ATLAS_NOT_THREAD_SAFE(const std::string& folderName, 
-                                                    CondAttrListCollection*& payload) const;
+    StatusCode  modifyPayload (const std::string& folderName, 
+                               CondAttrListCollection*& payload) const;
 
     /// Add input objects to MetaCont
     StatusCode fillMetaCont(const std::string& sid
@@ -151,7 +151,7 @@ private:
     bool                 m_modifyFolders;
 
     // mutex for R/W locking of the entire tool (and supposedly all metadata objects it works with)
-    mutable std::shared_mutex    m_mutex  ATLAS_THREAD_SAFE;
+    mutable std::shared_mutex    m_mutex;
 };
 
 #endif // IOVDBMETADATATOOLS_IOVDBMETADATATOOL_H

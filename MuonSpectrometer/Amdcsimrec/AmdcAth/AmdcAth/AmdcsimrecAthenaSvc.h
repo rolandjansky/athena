@@ -103,7 +103,7 @@ private:
    StatusCode initializeAscii();
 
    /**Set location of the Ascii file */
-   StatusCode SetLocation(std::string NameFile, std::string& FileLocation);
+   StatusCode SetLocation(const std::string& NameFile, std::string& FileLocation);
 
    /**Initialize from GeoModel */
    StatusCode initializeFromGeomodel();

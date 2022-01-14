@@ -12,7 +12,7 @@
 
 InDetPerfPlot_nTracks::InDetPerfPlot_nTracks(InDetPlotBase* pParent, const std::string& sDir) : InDetPlotBase(pParent,
                                                                                                               sDir),
-  m_counters{0} {
+  m_counters{nullptr} {
   // nop
 }
 
@@ -32,6 +32,7 @@ InDetPerfPlot_nTracks::initializePlots() {
 
   book(m_ntracks_vs_mu,"ntracks_vs_mu");
   book(m_ntracks_vs_nvertices,"ntracks_vs_nvertices");
+
 }
 
 void

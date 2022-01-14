@@ -15,7 +15,7 @@ from .ConfiguredMuonRec import ConfiguredMuonRec
 
 from .MuonRecUtils import ExtraFlags
 
-from AthenaCommon.CfgGetter import getPublicTool,getPublicToolClone
+from AthenaCommon.CfgGetter import getPublicTool,getPrivateTool,getPublicToolClone
 from RecExConfig.ObjKeyStore                  import cfgKeyStore
 
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
@@ -216,13 +216,13 @@ class MuonStandalone(ConfiguredMuonRec):
         # add the algorithm (which uses the MuonTrackSteering)
         # 
         TrackBuilder = CfgMgr.MuPatTrackBuilder("MuPatTrackBuilder", 
-                                                TrackSteering=getPublicTool("MuonTrackSteering"), 
+                                                TrackSteering=getPrivateTool("MuonTrackSteering"), 
                                                 SpectrometerTrackOutputLocation="MuonSpectrometerTracks", 
                                                 MuonSegmentCollection="TrackMuonSegments")
 
         self.addAlg( TrackBuilder )
         #### Add a segment collection only containing only EM and EO hits
-        if reco_cscs or reco_stgc:
+        if reco_mircomegas or reco_stgc:
             self.addAlg(MuonSegmentFilterAlg(FilteredCollectionName="TrackMuonSegmentsEMEO"))
   
             chamberRecovery_EMEO = getPublicToolClone("MuonChamberRecovery_EMEO", "MuonChamberHoleRecoveryTool", 

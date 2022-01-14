@@ -241,10 +241,17 @@ StatusCode Trk::ReFitTrack::execute()
          // for ( ; measIter != measIterEnd; ++measIter)
          //    vec.push_back((*measIter));
          // refit with the beamspot / vertex
-         newtrack.reset((trtonly ? m_ITrackFitterTRT : m_ITrackFitter)->fit(vec, *origPerigee, m_runOutlier,hypo));
+         newtrack = ((trtonly ? m_ITrackFitterTRT : m_ITrackFitter)
+                       ->fit(Gaudi::Hive::currentContext(),
+                             vec,
+                             *origPerigee,
+                             m_runOutlier,
+                             hypo));
          // now delete the vsvx
       } else {
-         newtrack.reset((trtonly ? m_ITrackFitterTRT : m_ITrackFitter)->fit(**itr,m_runOutlier,hypo));
+        newtrack =
+          ((trtonly ? m_ITrackFitterTRT : m_ITrackFitter)
+             ->fit(Gaudi::Hive::currentContext(), **itr, m_runOutlier, hypo));
       }
     } // passed selection
 

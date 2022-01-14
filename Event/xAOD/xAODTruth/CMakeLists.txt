@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name.
 atlas_subdir( xAODTruth )
@@ -38,5 +38,6 @@ atlas_add_test( ut_xaodtruth_particle_test
 
 if( XAOD_STANDALONE )
    atlas_add_test( ut_xaodtruth_helpers_test
-      SCRIPT test/ut_xaodtruth_helpers_test.py )
+      SCRIPT test/ut_xaodtruth_helpers_test.py
+      POST_EXEC_SCRIPT nopost.sh )
 endif()

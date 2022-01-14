@@ -83,7 +83,7 @@ StatusCode Muon::TgcPrepDataReplicationToolAllBCto3BC::convertAllBCto3BC() const
 
       Identifier channelId = (*tgcAllColItr)->identify();
       Identifier elementId = m_idHelperSvc->tgcIdHelper().elementID(channelId);
-      std::array<Muon::TgcPrepDataCollection*, BC_ALL> collections;
+      std::array<Muon::TgcPrepDataCollection*, BC_ALL> collections{};
       for (int ibc = 0; ibc < BC_ALL; ibc++) {
         collections[ibc] = Muon::IDC_Helper::getCollection<TgcPrepDataContainer, TgcIdHelper>
                             (elementId, tgc3BCHandles[ibc].ptr(), m_idHelperSvc->tgcIdHelper(), msg());
@@ -113,7 +113,7 @@ Muon::TgcPrepDataReplicationToolAllBCto3BC::makeTgcPrepData(Muon::TgcPrepDataCol
   auto newErrHitPos = Amg::MatrixX(*errHitPos);
 
   Muon::TgcPrepData* newPrepData = new TgcPrepData(channelId, tgcHashId, (*itr)->localPosition(),
-                                                   identifierList, std::move(newErrHitPos), descriptor);
+                                                   identifierList, newErrHitPos, descriptor);
   newPrepData->setBcBitMap(bcBitMap);
 
   return newPrepData;

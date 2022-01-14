@@ -65,7 +65,7 @@ StatusCode RpcLv1RawDataValAlg::initialize()
   StatusCode sc;
  
   // Initialize the IdHelper
-  StoreGateSvc* detStore = 0;
+  StoreGateSvc* detStore = nullptr;
   sc = service("DetectorStore", detStore);
   if (sc.isFailure()) {
     ATH_MSG_FATAL ( "DetectorStore service not found !" );
@@ -1515,7 +1515,7 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 
 
 
-StatusCode RpcLv1RawDataValAlg::bookRPCLV1cmatimevschHistograms(std::string sectorlogic_name, std::string tower_name, std::string cma_name)
+StatusCode RpcLv1RawDataValAlg::bookRPCLV1cmatimevschHistograms(const std::string& sectorlogic_name, const std::string& tower_name, const std::string& cma_name)
 {
  
   StatusCode sc = StatusCode::SUCCESS;
@@ -1571,7 +1571,7 @@ StatusCode RpcLv1RawDataValAlg::bookRPCLV1cmatimevschHistograms(std::string sect
     
 }
  
-StatusCode  RpcLv1RawDataValAlg::bookRPCLV1TriggerRoadHistograms(std::string sectorlogic_name, std::string tower_name, std::string cma_name, std::string thr_name)
+StatusCode  RpcLv1RawDataValAlg::bookRPCLV1TriggerRoadHistograms(const std::string& sectorlogic_name, const std::string& tower_name, const std::string& cma_name, const std::string& thr_name)
 
 {  
   // Trigger Road LowPt vs ijk channel   
@@ -1607,7 +1607,7 @@ StatusCode  RpcLv1RawDataValAlg::bookRPCLV1TriggerRoadHistograms(std::string sec
 
 ///  profile cabling 
 //void RpcLv1RawDataValAlg::bookRPCLV1ProfilesHistograms(int m_i_sector, std::string sectorlogic_name, int m_i_cmaId, std::string cma_name, int m_i_ijk, std::string m_ijk_name) 
-StatusCode RpcLv1RawDataValAlg::bookRPCLV1ProfilesHistograms(int i_sector, std::string sectorlogic_name, std::string cma_name, int i_ijk, std::string ijk_name) 
+StatusCode RpcLv1RawDataValAlg::bookRPCLV1ProfilesHistograms(int i_sector, const std::string& sectorlogic_name, const std::string& cma_name, int i_ijk, const std::string& ijk_name) 
 {  
   // book profiles histograms
   
@@ -1670,7 +1670,7 @@ StatusCode RpcLv1RawDataValAlg::bookRPCLV1ProfilesHistograms(int i_sector, std::
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 void RpcLv1RawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const_iterator & iter, int isec, int idblPhi,
-					      std::string layer ) 
+					      const std::string& layer ) 
 {
   StatusCode sc = StatusCode::SUCCESS ;
   

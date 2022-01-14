@@ -37,7 +37,7 @@ private:
 ///////////////////////////////////
 
    /**Base Production of sql files */
-   void DoSql(const std::string& TagFileName,const std::string& NameOfTheSet,std::string tag, IRDBAccessSvc* pIRDBAccessSvc);
+   void DoSql(const std::string& TagFileName,const std::string& NameOfTheSet,const std::string& tag, IRDBAccessSvc* pIRDBAccessSvc);
 
    int m_AsNewTableOn ; //!< Control swl file prod 
    int m_UseKeysOn    ; //!< Control swl file prod 

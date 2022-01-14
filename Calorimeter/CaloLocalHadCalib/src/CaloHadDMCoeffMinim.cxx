@@ -235,11 +235,6 @@ CaloLocalHadCoeff * CaloHadDMCoeffMinim::process(CaloHadDMCoeffData *myData, Cal
 
     if(m_data->m_engClusSumCalib <=0.0) continue;
 
-    double engDmTrueSum = 0.0;
-    for(int i_cls=0; i_cls<m_data->m_ncls; i_cls++){ // loop over clusters
-      engDmTrueSum += (*m_data->m_cls_dmener)[i_cls][m_area_index];
-    }
-
     for(int i_cls=0; i_cls<m_data->m_ncls; i_cls++){ // loop over clusters
       if( (*m_data->m_cls_ener_unw)[i_cls] < m_engClusMin
 	  || (*m_data->m_cls_engcalib)[i_cls] < 20.0*MeV 

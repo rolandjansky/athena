@@ -29,8 +29,8 @@ def LArNoiseCfg(flags):
     from LArCellRec.LArCollisionTimeConfig import LArCollisionTimeCfg
     result.merge(LArCollisionTimeCfg(flags))
 
-    from TrigDecisionTool.TrigDecisionToolConfig import getTrigDecisionTool
-    result.merge(getTrigDecisionTool(flags))
+    from TrigDecisionTool.TrigDecisionToolConfig import TrigDecisionToolCfg
+    result.merge(TrigDecisionToolCfg(flags))
 
     noiseAlg=CompFactory.LArNoiseBursts("LArNoiseBursts")
     noiseAlg.SigmaCut = flags.LArNoise.SigmaCut
@@ -92,8 +92,8 @@ def LArNoiseFromRawCfg(flags):
        result.merge(LArTimeVetoAlgCfg(flags))
 
        if (flags.LArNoise.outHistLAr == ""):
-          from TrigDecisionTool.TrigDecisionToolConfig import getTrigDecisionTool
-          result.merge(getTrigDecisionTool(flags))
+          from TrigDecisionTool.TrigDecisionToolConfig import TrigDecisionToolCfg
+          result.merge(TrigDecisionToolCfg(flags))
 
 
     if (flags.LArNoise.outNtupLAr != ""):

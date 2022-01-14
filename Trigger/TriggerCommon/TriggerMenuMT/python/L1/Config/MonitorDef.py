@@ -78,7 +78,7 @@ class MonitorDef:
                     'BPTX0', 'BPTX1', 
                     'LUCID_A', 'LUCID_C', 
                     'J20', 'MU3V', 'TE50', 'XE35', 'XE50',
-                    'ZDC_A', 'ZDC_C', 'ZDC_AND',
+                    'ZDC_0', 'ZDC_1', 'ZDC_2',
                     'MBTS_A', 'MBTS_C',
                     'MBTS_A0', 'MBTS_A1', 'MBTS_A2',  'MBTS_A3',  'MBTS_A4',  'MBTS_A5',  'MBTS_A6',  'MBTS_A7',
                     'MBTS_A8', 'MBTS_A9', 'MBTS_A10', 'MBTS_A11', 'MBTS_A12', 'MBTS_A13', 'MBTS_A14', 'MBTS_A15',

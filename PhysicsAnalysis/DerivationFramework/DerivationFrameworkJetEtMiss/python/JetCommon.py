@@ -30,8 +30,6 @@ def defineEDAlg(R=0.4, inputtype="LCTopo"):
     from EventShapeTools.EventDensityConfig import configEventDensityTool, EventDensityAthAlg
     from AthenaCommon.AppMgr import ToolSvc
     from JetRec.JetRecStandard import jtm
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()
 
     # map a getter to the input argument
     inputgetter = { "LCTopo" : jtm.lcget,
@@ -43,9 +41,6 @@ def defineEDAlg(R=0.4, inputtype="LCTopo"):
                     "EMPFlowNeut": jtm.empflowneutget,
                     "PFlowCustomVtx": jtm.pflowcustomvtxget
                     }[inputtype]
-
-    if not hasattr(topSequence, inputgetter.name()):
-        topSequence += inputgetter
 
     t=configEventDensityTool("EDTool"+str(int(R*10))+inputtype,
                              inputgetter.Label,
@@ -535,9 +530,18 @@ def addStandardVRTrackJets(jetalg, vrMassScale, maxR, minR, inputtype, ptmin=0.,
         return DFJetAlgs[algname]
 
     if VRJetName not in jtm.tools:
-
         mods = []
+        # add VR track jet overlap decorator tool to list of jet modifiers
+        vrODT = None
+        from AthenaCommon.AppMgr import ToolSvc
+        if hasattr(ToolSvc,"VRJetOverlapDecoratorTool"):
+            vrODT = getattr(ToolSvc,"VRJetOverlapDecoratorTool")
+        else:
+            vrODT = CfgMgr.FlavorTagDiscriminants__VRJetOverlapDecoratorTool("VRJetOverlapDecoratorTool")
+            ToolSvc += vrODT
+        mods += [vrODT]
 
+        # Cone matching for B, C and tau truth for VR track jets.
         if jetFlags.useTruth and jtm.haveParticleJetTools and inputtype == 'PV0Track':
             mods += [jtm.trackjetdrlabeler, jtm.ghostlabeler]
 

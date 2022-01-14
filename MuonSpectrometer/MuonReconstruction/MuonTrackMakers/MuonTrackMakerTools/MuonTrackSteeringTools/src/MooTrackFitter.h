@@ -51,7 +51,6 @@ namespace Muon {
     class MuPatTrack;
 }
 
-static const InterfaceID IID_MooTrackFitter("Muon::MooTrackFitter", 1, 0);
 
 namespace Muon {
 
@@ -154,7 +153,10 @@ namespace Muon {
         StatusCode finalize();
 
         /** @brief access to tool interface */
-        static const InterfaceID& interfaceID() { return IID_MooTrackFitter; }
+        static const InterfaceID& interfaceID() { 
+            static const InterfaceID IID_MooTrackFitter("Muon::MooTrackFitter", 1, 0);
+            return IID_MooTrackFitter; 
+        }
 
         /** @brief fit the hits of two MuPatCandidateBase
             @param firstEntry  the first entry
@@ -162,35 +164,35 @@ namespace Muon {
             @param externalPhiHits if provided, the external phi hits will be used instead of the phi hits on the segment
             @return a pointer to the resulting track, will return zero if the fit failed.
         */
-        std::unique_ptr<Trk::Track> fit(const MuPatCandidateBase& firstEntry, const MuPatCandidateBase& secondEntry,
+        std::unique_ptr<Trk::Track> fit(const EventContext& ctx, const MuPatCandidateBase& firstEntry, const MuPatCandidateBase& secondEntry,
                                         const PrepVec* externalPhiHits) const;
 
         /** refit a MuPatTrack */
-        std::unique_ptr<Trk::Track> refit(const MuPatTrack& trkCan) const;
+        std::unique_ptr<Trk::Track> refit(const EventContext& ctx, const MuPatTrack& trkCan) const;
 
         /** refit a track */
-        std::unique_ptr<Trk::Track> refit(const Trk::Track& track) const;
+        std::unique_ptr<Trk::Track> refit(const EventContext& ctx, const Trk::Track& track) const;
 
         /** impose upper and lower bound on momentum */
         double restrictedMomentum(double momentum) const;
 
         /** create perigee parameter to initialize fit */
-        Trk::Perigee* createPerigee(const Trk::TrackParameters& firstPars, const Trk::MeasurementBase& firstMeas) const;
+        Trk::Perigee* createPerigee(const EventContext& ctx, const Trk::TrackParameters& firstPars, const Trk::MeasurementBase& firstMeas) const;
 
         /** fit track */
-        std::unique_ptr<Trk::Track> fit(const Trk::Perigee& startPars, MeasVec& hits, GarbageContainer& garbage,
-                                        Trk::ParticleHypothesis partHypo = Trk::muon, bool prefit = false) const;
+        std::unique_ptr<Trk::Track> fit(const EventContext& ctx, const Trk::Perigee& startPars, MeasVec& hits, GarbageContainer& garbage,
+                                        Trk::ParticleHypothesis partHypo, bool prefit) const;
 
         /** fit track, refit if needed */
-        std::unique_ptr<Trk::Track> fitWithRefit(const Trk::Perigee& startPars, MeasVec& hits) const;
+        std::unique_ptr<Trk::Track> fitWithRefit(const EventContext& ctx, const Trk::Perigee& startPars, MeasVec& hits) const;
 
         /** split given track if it crosses the calorimeter volume, code assumes that the track was already extrapolated to the
             muon entry record using the MuonTrackExtrapolationTool. It uses the double perigee to spot the tracks to be split.
         */
-        std::pair<std::unique_ptr<Trk::Track>, std::unique_ptr<Trk::Track> > splitTrack(const Trk::Track& track) const;
+        std::pair<std::unique_ptr<Trk::Track>, std::unique_ptr<Trk::Track> > splitTrack(const EventContext& ctx, const Trk::Track& track) const;
 
         /** construct a track from a list of TSOS and a start parameters */
-        std::unique_ptr<Trk::Track> fitSplitTrack(const Trk::TrackParameters& startPars,
+        std::unique_ptr<Trk::Track> fitSplitTrack(const EventContext& ctx, const Trk::TrackParameters& startPars,
                                                   const std::vector<const Trk::TrackStateOnSurface*>& tsos,
                                                   GarbageContainer& garbage) const;
 
@@ -198,17 +200,17 @@ namespace Muon {
         /** clean and evaluate the track,
             @return 0 if Track does not forfill criteria, a unique_ptr otherwise (could be to a track which is the same as the current)
         */
-        std::unique_ptr<Trk::Track> cleanAndEvaluateTrack(Trk::Track& track, const std::set<Identifier>& excludedChambers) const;
+        std::unique_ptr<Trk::Track> cleanAndEvaluateTrack(const EventContext& ctx, Trk::Track& track, const std::set<Identifier>& excludedChambers) const;
 
         /** extract all information needed for the fit from the track */
-        bool extractData(const MuPatCandidateBase& entry1, const MuPatCandidateBase& entry2, FitterData& fitterData,
+        bool extractData(const EventContext& ctx, const MuPatCandidateBase& entry1, const MuPatCandidateBase& entry2, FitterData& fitterData,
                          GarbageContainer& garbage) const;
 
         /** extract all information from the HitList of a FitterData object */
         bool extractData(FitterData& fitterData, bool usePreciseHits) const;
 
         /** check fitterData, add fake phi hits if needed. If provided the reference parameter will be used to calcualte the fake hits */
-        bool addFakePhiHits(FitterData& fitterData, const Trk::TrackParameters* referenceParameter, GarbageContainer& garbage) const;
+        bool addFakePhiHits(const EventContext& ctx, FitterData& fitterData, const Trk::TrackParameters* referenceParameter, GarbageContainer& garbage) const;
 
         /** sanity check for entries */
         bool corruptEntry(const MuPatCandidateBase& entry) const;
@@ -217,10 +219,10 @@ namespace Muon {
         bool getMaterial(const Trk::TrackParameters& pars, FitterData& fitterData) const;
 
         /** create a perigee parameter give the input data */
-        Trk::Perigee* createStartParameters(FitterData& inputData, GarbageContainer& garbage) const;
+        Trk::Perigee* createStartParameters(const EventContext& ctx, FitterData& inputData, GarbageContainer& garbage) const;
 
         /** get segment from entry */
-        const MuonSegment* segmentFromEntry(const MuPatCandidateBase& entry, GarbageContainer& garbage) const;
+        const MuonSegment* segmentFromEntry(const EventContext& ctx, const MuPatCandidateBase& entry, GarbageContainer& garbage) const;
 
         /** check whether data has sufficient phi constraints */
         unsigned int hasPhiConstrain(FitterData& inputData) const;
@@ -236,17 +238,17 @@ namespace Muon {
         double qOverPFromEntry(const MuPatCandidateBase& entry) const;
 
         /** get q/p using angle + position of the two entries */
-        double qOverPFromEntries(const MuPatCandidateBase& firstEntry, const MuPatCandidateBase& secondEntry,
+        double qOverPFromEntries(const EventContext& ctx, const MuPatCandidateBase& firstEntry, const MuPatCandidateBase& secondEntry,
                                  GarbageContainer& garbage) const;
 
         /** calculate phi used to for seeding the fit */
-        double phiSeeding(FitterData& fitterData) const;
+        double phiSeeding(const EventContext& ctx, FitterData& fitterData) const;
 
         /** calculate theta used for seeding the fit */
         double thetaSeeding(const MuPatCandidateBase& entry, MeasVec& etaHits) const;
 
         /** clean phi hits, returns true if anything happened during the cleaning */
-        bool cleanPhiHits(double momentum, FitterData& phiHits, const PrepVec* patternPhiHits, GarbageContainer& garbage) const;
+        bool cleanPhiHits(const EventContext& ctx, double momentum, FitterData& phiHits, const PrepVec* patternPhiHits, GarbageContainer& garbage) const;
 
         /** check whether mometum of start parameter is ok */
         bool validMomentum(const Trk::TrackParameters& pars) const;

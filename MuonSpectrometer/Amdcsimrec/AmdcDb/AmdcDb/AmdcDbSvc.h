@@ -27,7 +27,7 @@ class AmdcDbSvc{
 
   IRDBRecordset_ptr getRecordset(const std::string& NameOfTheSet) const;
 
-  void addIRDBRecordset(std::string NameOfTheSet
+  void addIRDBRecordset(const std::string& NameOfTheSet
 			, IRDBRecordset* pIRDBRecordset);
   
  private:

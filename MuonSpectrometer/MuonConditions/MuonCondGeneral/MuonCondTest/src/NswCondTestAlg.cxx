@@ -45,18 +45,18 @@ NswCondTestAlg::execute(const EventContext& ctx) const {
 	ATH_MSG_INFO("Calling execute");
 
 	// setup parameters
-	std::chrono::duration<double> retrieving_MM_TDO_A;
-	std::chrono::duration<double> retrieving_MM_TDO_C;
-	std::chrono::duration<double> retrieving_MM_PDO_A;
-	std::chrono::duration<double> retrieving_MM_PDO_C;
-	std::chrono::duration<double> retrieving_MM_VMM_A;
-	std::chrono::duration<double> retrieving_MM_VMM_C;
-	std::chrono::duration<double> retrieving_STGC_TDO_A;
-	std::chrono::duration<double> retrieving_STGC_TDO_C;
-	std::chrono::duration<double> retrieving_STGC_PDO_A;
-	std::chrono::duration<double> retrieving_STGC_PDO_C;
-	std::chrono::duration<double> retrieving_STGC_VMM_A;
-	std::chrono::duration<double> retrieving_STGC_VMM_C;
+	std::chrono::duration<double> retrieving_MM_TDO_A{};
+	std::chrono::duration<double> retrieving_MM_TDO_C{};
+	std::chrono::duration<double> retrieving_MM_PDO_A{};
+	std::chrono::duration<double> retrieving_MM_PDO_C{};
+	std::chrono::duration<double> retrieving_MM_VMM_A{};
+	std::chrono::duration<double> retrieving_MM_VMM_C{};
+	std::chrono::duration<double> retrieving_STGC_TDO_A{};
+	std::chrono::duration<double> retrieving_STGC_TDO_C{};
+	std::chrono::duration<double> retrieving_STGC_PDO_A{};
+	std::chrono::duration<double> retrieving_STGC_PDO_C{};
+	std::chrono::duration<double> retrieving_STGC_VMM_A{};
+	std::chrono::duration<double> retrieving_STGC_VMM_C{};
 
 	// retrieve all folders
 	if(!retrieveTdoPdo(ctx, "TDO", "MM"  , "A", retrieving_MM_TDO_A  ).isSuccess()) return StatusCode::FAILURE;
@@ -100,7 +100,7 @@ NswCondTestAlg::finalize(){
 
 // retrieveTdoPdo
 StatusCode
-NswCondTestAlg::retrieveTdoPdo(const EventContext& ctx, std::string data, std::string tech, std::string side, std::chrono::duration<double>& timer) const {
+NswCondTestAlg::retrieveTdoPdo(const EventContext& ctx, const std::string& data, const std::string& tech, const std::string& side, std::chrono::duration<double>& timer) const {
 
 	ATH_MSG_INFO("Starting with "<<data<<" data for "<<tech<<" and "<<side<<" at "<<timestamp());
 	auto start1 = std::chrono::high_resolution_clock::now();
@@ -112,7 +112,7 @@ NswCondTestAlg::retrieveTdoPdo(const EventContext& ctx, std::string data, std::s
     SG::ReadCondHandle<NswCalibDbTimeChargeData> readHandle{m_readKey_tdopdo, ctx};
     const NswCalibDbTimeChargeData* readCdo{*readHandle}; 
 //	std::unique_ptr<NswCalibDbTimeChargeData> writeCdo{std::make_unique<NswCalibDbTimeChargeData>(m_idHelperSvc->mmIdHelper())};
-    if(readCdo==0){
+    if(readCdo==nullptr){
       ATH_MSG_ERROR("Null pointer to the read conditions object");
       return StatusCode::FAILURE; 
     } 
@@ -152,7 +152,7 @@ NswCondTestAlg::retrieveTdoPdo(const EventContext& ctx, std::string data, std::s
 
 // retrieveVmm
 StatusCode
-NswCondTestAlg::retrieveVmm(const EventContext& ctx, std::string tech, std::string side, std::chrono::duration<double>& timer) const {
+NswCondTestAlg::retrieveVmm(const EventContext& ctx, const std::string& tech, const std::string& side, std::chrono::duration<double>& timer) const {
 
 	ATH_MSG_INFO("Starting with VMM data for "<<tech<<" and "<<side<<" at "<<timestamp());
 	auto start1 = std::chrono::high_resolution_clock::now();
@@ -163,7 +163,7 @@ NswCondTestAlg::retrieveVmm(const EventContext& ctx, std::string tech, std::stri
 	// Retrieve Data Object
     SG::ReadCondHandle<NswCalibDbThresholdData> readHandle{m_readKey_vmm, ctx};
     const NswCalibDbThresholdData* readCdo{*readHandle}; 
-    if(readCdo==0){
+    if(readCdo==nullptr){
       ATH_MSG_ERROR("Null pointer to the read conditions object");
       return StatusCode::FAILURE; 
     } 

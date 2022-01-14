@@ -23,7 +23,7 @@ namespace MuonGM {
             //          <<" is already stored; saving memory "<<m_nreused<<std::endl;
             return m_Detectors[name];
         } else
-            return 0;
+            return nullptr;
     }
 
     void FPVMAP::StoreDetector(GeoVPhysVol *s, const std::string& name) {

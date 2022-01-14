@@ -55,17 +55,17 @@ then
         --ignore-leaves index_ref \
             RecoTimingObj_p1_HITStoRDO_timings.timings \
             RecoTimingObj_p1_EVNTtoHITS_timings.timings \
-            xAOD::EventAuxInfo_v2_EventInfoAuxDyn.subEventIndex \
-            xAOD::EventAuxInfo_v2_EventInfoAuxDyn.subEventTime \
-            xAOD::EventAuxInfo_v2_EventInfoAuxDyn.subEventType \
-            xAOD::EventAuxInfo_v2_EventInfoAux.detectorMask0 \
-            xAOD::EventAuxInfo_v2_EventInfoAux.detectorMask1 \
-            xAOD::EventAuxInfo_v2_EventInfoAux.detectorMask2 \
-            xAOD::EventAuxInfo_v2_EventInfoAux.detectorMask3 \
-            xAOD::EventAuxInfo_v2_EventInfoAuxDyn.actualInteractionsPerCrossing \
-            xAOD::EventAuxInfo_v2_EventInfoAuxDyn.averageInteractionsPerCrossing \
-            xAOD::EventAuxInfo_v2_EventInfoAuxDyn.pileUpMixtureIDLowBits \
-            xAOD::EventAuxInfo_v2_EventInfoAuxDyn.pileUpMixtureIDHighBits
+            xAOD::EventAuxInfo_v3_EventInfoAuxDyn.subEventIndex \
+            xAOD::EventAuxInfo_v3_EventInfoAuxDyn.subEventTime \
+            xAOD::EventAuxInfo_v3_EventInfoAuxDyn.subEventType \
+            xAOD::EventAuxInfo_v3_EventInfoAux.detectorMask0 \
+            xAOD::EventAuxInfo_v3_EventInfoAux.detectorMask1 \
+            xAOD::EventAuxInfo_v3_EventInfoAux.detectorMask2 \
+            xAOD::EventAuxInfo_v3_EventInfoAux.detectorMask3 \
+            xAOD::EventAuxInfo_v3_EventInfoAuxDyn.actualInteractionsPerCrossing \
+            xAOD::EventAuxInfo_v3_EventInfoAuxDyn.averageInteractionsPerCrossing \
+            xAOD::EventAuxInfo_v3_EventInfoAuxDyn.pileUpMixtureIDLowBits \
+            xAOD::EventAuxInfo_v3_EventInfoAuxDyn.pileUpMixtureIDHighBits
     rc3=$?
     status=$rc3
 fi

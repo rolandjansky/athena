@@ -106,7 +106,7 @@ Trk::PerigeeSurface::localToGlobal(const Trk::LocalParameters& locpars) const
                              locpars[Trk::z0]);
     return Amg::Vector3D(transform() * loc3Dframe);
   }
-  return Amg::Vector3D(0., 0., locpars[Trk::z0] + (center().z()));
+  return {0., 0., locpars[Trk::z0] + (center().z())};
 }
 
 #if defined(FLATTEN) && defined(__GNUC__)
@@ -154,7 +154,7 @@ Trk::PerigeeSurface::localToGlobal(const Trk::LocalParameters& locpars,
   double x = -locpars[Trk::d0] * sin(phi) + center().x();
   double y = locpars[Trk::d0] * cos(phi) + center().y();
   double z = locpars[Trk::z0] + center().z();
-  return Amg::Vector3D(x, y, z);
+  return {x, y, z};
 }
 
 // true global to local method
@@ -200,10 +200,10 @@ Trk::PerigeeSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos, cons
   double D = dir.dot(S);
   double A = (1. - D) * (1. + D);
   if (A == 0.) {
-    return Trk::DistanceSolution(1, pos.perp(), false, 0.);
+    return {1, pos.perp(), false, 0.};
   }
   double sol = (pos - C).dot(D * S - dir) / A;
-  return Trk::DistanceSolution(1, pos.perp(), false, sol);
+  return {1, pos.perp(), false, sol};
 }
 
 Trk::DistanceSolution
@@ -218,9 +218,9 @@ Trk::PerigeeSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos, cons
   // Step to surface
   //
   if (A > 0.) {
-    return Trk::DistanceSolution(1, 0., false, -(dir[0] * dx + dir[1] * dy) / A);
+    return {1, 0., false, -(dir[0] * dx + dir[1] * dy) / A};
   }
-  return Trk::DistanceSolution(1, 0., false, 0.);
+  return {1, 0., false, 0.};
 }
 
 // overload of ostream operator

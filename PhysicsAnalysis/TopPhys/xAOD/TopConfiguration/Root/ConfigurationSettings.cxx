@@ -1,6 +1,6 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
- */
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+*/
 
 #include "TopConfiguration/ConfigurationSettings.h"
 
@@ -296,23 +296,23 @@ namespace top {
                       "Default 25 GeV.",
                       "25000");
     registerParameter("TauEtaRegions",
-					            "Eta regions used for both tight and loose taus."
-					            "Default vetoing crack region [0., 1.37, 1.52, 2.5]",
-					            "[0., 1.37, 1.52, 2.5]");
+		      "Eta regions used for both tight and loose taus."
+		      "Default vetoing crack region [0., 1.37, 1.52, 2.5]",
+		      "[0., 1.37, 1.52, 2.5]");
     registerParameter("TauJetIDWP",
-                      "Tau jet IDWP (None, Loose, Medium, Tight, LooseNotMedium, LooseNotTight, MediumNotTight, NotLoose, RNNLoose, RNNMedium, RNNTight)."
+                      "Tau jet IDWP (None, RNNLoose, RNNMedium, RNNTight)."
                       "Default RNNMedium.",
                       "RNNMedium");
     registerParameter("TauJetIDWPLoose",
-                      "Loose Tau jet IDWP (None, Loose, Medium, Tight, LooseNotMedium, LooseNotTight, MediumNotTight, NotLoose)."
+                      "Loose Tau jet IDWP (None, RNNLoose, RNNMedium, RNNTight)."
                       "Default RNNLoose.",
                       "RNNLoose");
-    registerParameter("TauEleBDTWP",
-                      "Tau electron BDT WP (None, Loose, Medium, Tight, OldLoose, OldMedium)."
+    registerParameter("TauEleRNNWP",
+                      "Tau electron BDT WP (None, Loose, Medium, Tight)."
                       "Default Loose.",
                       "Loose");
-    registerParameter("TauEleBDTWPLoose",
-                      "Loose Tau electron BDT WP (None, Loose, Medium, Tight, OldLoose, OldMedium)."
+    registerParameter("TauEleRNNWPLoose",
+                      "Loose Tau electron BDT WP (None, Loose, Medium, Tight)."
                       "Default Loose.",
                       "Loose");
     registerParameter("TauMuOLR",

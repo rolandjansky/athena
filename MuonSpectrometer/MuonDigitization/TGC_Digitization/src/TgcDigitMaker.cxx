@@ -1309,7 +1309,7 @@ float TgcDigitMaker::getASDpropTimeOffset(const Identifier elemId,
   return asdpropTimeOffset;
 }
 
-float TgcDigitMaker::getStripPosition(const std::string stationName, int stationEta, int channel) const {
+float TgcDigitMaker::getStripPosition(const std::string& stationName, int stationEta, int channel) const {
   // Convert std::string stationName to int iStationName from 41 to 48                              
   int iStationName = getIStationName(stationName);
 

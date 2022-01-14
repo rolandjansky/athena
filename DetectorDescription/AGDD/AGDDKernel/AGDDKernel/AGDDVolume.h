@@ -23,7 +23,7 @@ public:
 	const std::string& GetName() const {return m_name;}
 	void SetMaterial(const std::string& n) {m_material=n;}
         virtual void CreateSolid (const AGDDBuilder& /*builder*/) {}
-        virtual void CreateVolume (const AGDDBuilder& /*builder*/) {}
+        virtual void CreateVolume (AGDDBuilder& /*builder*/) {}
 	void AddDaughter(AGDDPositioner* v);
 	AGDDPositioner* GetDaughter(int i) {return m_theDaughters[i];}
 	int NrOfDaughter() const {return m_theDaughters.size();}

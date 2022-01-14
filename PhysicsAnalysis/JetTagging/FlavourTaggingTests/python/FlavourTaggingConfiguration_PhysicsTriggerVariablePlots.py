@@ -22,8 +22,8 @@ def getPhysicsTriggerVariablePlotsCfg():
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     output = ComponentAccumulator()
 
-    from AthenaMonitoring.TriggerInterface import getTrigDecisionTool
-    output.merge(getTrigDecisionTool(ConfigFlags))
+    from AthenaMonitoring.TriggerInterface import TrigDecisionToolCfg
+    output.merge(TrigDecisionToolCfg(ConfigFlags))
 
     options = {}
     options['name'] = 'PhysicsTriggerVariablePlotsAlg'

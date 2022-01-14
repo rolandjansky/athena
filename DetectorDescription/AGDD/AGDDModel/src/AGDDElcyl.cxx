@@ -10,7 +10,7 @@ void AGDDElcyl::CreateSolid (const AGDDBuilder& builder)
 {
 	builder.CreateElcyl(this);
 }
-void AGDDElcyl::CreateVolume (const AGDDBuilder& builder)
+void AGDDElcyl::CreateVolume (AGDDBuilder& builder)
 {
 	CreateSolid (builder);
 	builder.CreateVolume(this);

@@ -134,7 +134,7 @@ TGC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
             rhoStations.insert(dEl->getStationName());
         }
     }
-    std::vector<const Muon::MuonSegment*>* pMuonSegs = NULL;
+    std::vector<const Muon::MuonSegment*>* pMuonSegs = nullptr;
     double                                 dChi2     = 0.0;
     int                                    nDegf     = 0;
     double                                 zCov[2][2], phiCov[2][2];
@@ -205,7 +205,7 @@ TGC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
         const Trk::Surface& surface = pReadoutElement->surface();
 
         const Muon::TgcClusterOnTrack* pTgcCOT = dynamic_cast<const Muon::TgcClusterOnTrack*>(rios.front());
-        if (pTgcCOT == NULL) {
+        if (pTgcCOT == nullptr) {
             ATH_MSG_WARNING("Cannot convert Muon::TgcClusterOnTrack to Muon::TgcClusterOnTrack");
             goto done;
         }
@@ -216,7 +216,7 @@ TGC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
             ATH_MSG_DEBUG("Surface at " << point2String(surface.center()));
         }
         const Trk::PlaneSurface* pSurface = dynamic_cast<const Trk::PlaneSurface*>(&surface);
-        if (pSurface == NULL) {
+        if (pSurface == nullptr) {
             ATH_MSG_WARNING("Cannot get a PlaneSurface from TgcClusterOnTrack");
             goto done;
         }

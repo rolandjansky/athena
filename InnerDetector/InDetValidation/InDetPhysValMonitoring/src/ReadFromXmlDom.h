@@ -42,8 +42,8 @@ private:
   std::vector <SingleHistogramDefinition> m_vectorOfDefinitions;
   std::string m_source;
   const std::string m_format;
-  SingleHistogramDefinition parseTextLine(const std::string& line);
-  SingleHistogramDefinition parseTProfileText(const std::string& line);
-  SingleHistogramDefinition parseXmlElement(const xercesc::DOMElement* element);
+  static SingleHistogramDefinition parseTextLine(const std::string& line);
+  static SingleHistogramDefinition parseTProfileText(const std::string& line);
+  static SingleHistogramDefinition parseXmlElement(const xercesc::DOMElement* element);
 };
 #endif /* ReadFromXmlDom_h */

@@ -23,12 +23,12 @@ atlas_add_component( G4AtlasServices
 #test G4AtlasFieldServices
 atlas_add_test( G4AtlasFieldServices_test
                 SCRIPT test/G4AtlasFieldServices_test.py
-                PROPERTIES TIMEOUT 300 )
+                POST_EXEC_SCRIPT nopost.sh )
 
 #test G4AtlasServicesConfig
 atlas_add_test( G4AtlasServicesConfig_test
                 SCRIPT test/G4AtlasServicesConfig_test.py
-                PROPERTIES TIMEOUT 300 )
+                POST_EXEC_SCRIPT nopost.sh )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py

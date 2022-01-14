@@ -10,7 +10,7 @@ void AGDDCons::CreateSolid (const AGDDBuilder& builder)
 {
 	builder.CreateCons(this);
 }
-void AGDDCons::CreateVolume (const AGDDBuilder& builder)
+void AGDDCons::CreateVolume (AGDDBuilder& builder)
 {
 	CreateSolid (builder);
  	builder.CreateVolume(this);

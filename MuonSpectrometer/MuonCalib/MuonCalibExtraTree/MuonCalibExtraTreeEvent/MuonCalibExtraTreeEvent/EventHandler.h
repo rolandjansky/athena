@@ -128,7 +128,7 @@ namespace MuonCalib {
         /// Spltis the truth hit container into a map having the barcode of the particle as key
         template <typename T> void split_along_barcode(const std::vector<T>& container, std::map<int, std::set<T>>& barcode_map);
 
-        std::shared_ptr<MuonCalibTrack_E> transform_to_trk(const TruthPtr truth_part, const std::map<int, std::set<TruthMdtPtr>>& mdt_hits,
+        std::shared_ptr<MuonCalibTrack_E> transform_to_trk(const TruthPtr& truth_part, const std::map<int, std::set<TruthMdtPtr>>& mdt_hits,
                                                            const std::map<int, std::set<TruthCscPtr>>& csc_hits,
                                                            const std::map<int, std::set<TruthRpcPtr>>& rpc_hits,
                                                            const std::map<int, std::set<TruthTgcPtr>>& tgc_hits);

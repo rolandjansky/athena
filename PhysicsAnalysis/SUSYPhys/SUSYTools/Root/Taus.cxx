@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // This source file implements all of the functions related to TauJets
@@ -16,7 +16,6 @@
 #include "TauAnalysisTools/ITauEfficiencyCorrectionsTool.h"
 #include "TauAnalysisTools/ITauSmearingTool.h"
 #include "TauAnalysisTools/ITauTruthMatchingTool.h"
-//disable #include "TauAnalysisTools/ITauOverlappingElectronLLHDecorator.h"
 #include "tauRecTools/ITauToolBase.h"
 #include "TriggerMatchingTool/IMatchingTool.h"
 #include <boost/algorithm/string.hpp>
@@ -36,8 +35,8 @@ StatusCode SUSYObjDef_xAOD::GetTaus(xAOD::TauJetContainer*& copy, xAOD::ShallowA
     return StatusCode::FAILURE;
   }
   
-  const xAOD::TauJetContainer* taus(0);
-  if (copy==NULL) { // empty container provided
+  const xAOD::TauJetContainer* taus = nullptr;
+  if (copy==nullptr) { // empty container provided
     if (containerToBeCopied != nullptr) {
       taus = containerToBeCopied;
     }
@@ -74,21 +73,18 @@ StatusCode SUSYObjDef_xAOD::FillTau(xAOD::TauJet& input) {
   ATH_MSG_VERBOSE( "Starting FillTau on tau with pT = " << input.pt()/1000 << " GeV" );
   ATH_MSG_VERBOSE( "TAU pT before smearing " << input.pt()/1000 << " GeV");
 
-  // If the MVA calibration is being used, be sure to apply the calibration to data as well
-  if (fabs(input.eta()) <= 2.5 && input.nTracks() > 0) {
+  // do truth matching first (required unless already done in AOD->DAOD and truth matching info kept in DAOD)
+  if(m_tauDoTTM && !isData()) m_tauTruthMatch->getTruth(input);
+  ATH_MSG_VERBOSE("Tau truth matching done");
 
-    if(m_tauDoTTM && !isData()) m_tauTruthMatch->getTruth(input);  // do truth matching first if required (e.g. for running on primary xAOD)
-    ATH_MSG_VERBOSE("Tau truth matching done");
-                                                                        
+  // apply the calibration to data as well (not needed in R22, unless MVA TES gets updated)
+  if (std::abs(input.eta()) <= 2.5 && input.nTracks() > 0) {
     if (m_tauSmearingTool->applyCorrection(input) != CP::CorrectionCode::Ok) {
       ATH_MSG_ERROR(" Tau smearing failed " );
     } else { ATH_MSG_VERBOSE("Tau smearing done"); }
   }
   
   ATH_MSG_VERBOSE( "TAU pt after smearing " << input.pt()/1000. );
-
-//disable  // decorate tau with electron llh score
-//disable  ATH_CHECK( m_tauElORdecorator->decorate( input ));
 
   // if tauPrePtCut set, apply min pT cut here before calling tau selection tool 
   // (avoid exceptions when running on derivations with removed tracks for low-pT taus, e.g. HIGG4D2)
@@ -101,7 +97,7 @@ StatusCode SUSYObjDef_xAOD::FillTau(xAOD::TauJet& input) {
   if(acc_baseline(input)) dec_selected(input) = 2;
   else                    dec_selected(input) = 0;
 
-  if (dec_baseline(input)) ATH_MSG_VERBOSE("FillTau: passed baseline selection");
+  if (acc_baseline(input)) ATH_MSG_VERBOSE("FillTau: passed baseline selection");
   else ATH_MSG_VERBOSE("FillTau: failed baseline selection");
   return StatusCode::SUCCESS;
 }
@@ -111,11 +107,11 @@ bool SUSYObjDef_xAOD::IsSignalTau(const xAOD::TauJet& input, float ptcut, float 
 
   dec_signal(input) = false;
 
-  if ( !dec_baseline(input) ) return false;
+  if ( !acc_baseline(input) ) return false;
 
   if (input.pt() <= ptcut) return false;
 
-  if (fabs(input.eta()) >= etacut) return false;
+  if (std::abs(input.eta()) >= etacut) return false;
 
   if (!m_tauSelTool->accept( input )) return false;
 
@@ -130,11 +126,10 @@ double SUSYObjDef_xAOD::GetSignalTauSF(const xAOD::TauJet& tau,
                                       const bool triggerSF, 
                                       const std::string& trigExpr)
 {
-
   double sf(1.);
 
   if(idSF){
-    if (dec_baseline(tau)) {
+    if (acc_baseline(tau)) {
       if (m_tauEffTool->getEfficiencyScaleFactor(tau, sf) != CP::CorrectionCode::Ok) {
         ATH_MSG_WARNING("Failed to retrieve tau efficiency scale factor.");
       }
@@ -232,7 +227,7 @@ double SUSYObjDef_xAOD::GetTotalTauSF(const xAOD::TauJetContainer& taus, const b
   for (const xAOD::TauJet* tau : taus) {
     // Call this for all taus, which will add the decoration
     double tmpSF = GetSignalTauSF(*tau, idSF, triggerSF, trigExpr);
-    if (dec_signal(*tau) && dec_passOR(*tau)) {
+    if (acc_signal(*tau) && acc_passOR(*tau)) {
       sf *= tmpSF;
     }
   }
@@ -266,6 +261,5 @@ double SUSYObjDef_xAOD::GetTotalTauSFsys(const xAOD::TauJetContainer& taus, cons
 
   return sf;
 }
-
 
 }

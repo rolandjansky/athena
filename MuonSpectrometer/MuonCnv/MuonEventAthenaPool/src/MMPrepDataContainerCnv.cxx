@@ -41,7 +41,7 @@ Muon::MMPrepDataContainer* MMPrepDataContainerCnv::createTransient() {
     MsgStream log(msgSvc(), "MMPrepDataContainerCnv" );
     static pool::Guid   p1_guid("5E5C97E2-8D7C-11E2-9FCB-001517648C14"); 
     if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): main converter"<<endmsg;
-    Muon::MMPrepDataContainer* p_collection(0);
+    Muon::MMPrepDataContainer* p_collection(nullptr);
     if( compareClassGuid(p1_guid) ) {
         if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 2 detected"<<endmsg;
         std::unique_ptr< Muon::MMPrepDataContainer_p1 >  p_coll( poolReadObject< Muon::MMPrepDataContainer_p1 >() );

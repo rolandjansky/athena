@@ -523,7 +523,7 @@ StatusCode MuonRdoToMuonDigitTool::decodeRpc (const RpcPad& rdoColl,
                         if (!coll) {
                           coll = std::make_unique<RpcDigitCollection> (elementId, coll_hash);
                         }
-                        coll->push_back (std::move (newDigit));
+                        coll->push_back (newDigit);
                     }
                 }
             }

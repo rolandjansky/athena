@@ -103,14 +103,14 @@ public:
 protected:
 
 	double m_yCutout;
-	double m_stripPitch;
-	double m_wirePitch;
-	double m_stripWidth;
-	double m_yCutoutCathode;
+	double m_stripPitch = 0.0;
+	double m_wirePitch = 0.0;
+	double m_stripWidth = 0.0;
+	double m_yCutoutCathode = 0.0;
 
-	double m_xFrame;
-	double m_ysFrame;
-	double m_ylFrame;
+	double m_xFrame = 0.0;
+	double m_ysFrame = 0.0;
+	double m_ylFrame = 0.0;
 
         AGDDDetectorStore& m_ds;
 

@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator,ConfigurationError
@@ -121,7 +120,7 @@ def LArElecCalibDBRun2Cfg(ConfigFlags,condObjs):
 def LArElecCalibDBRun1Cfg(ConfigFlags,condObjs):
 
     _larCondDBFoldersDataR1 = {"Ramp":("/LAR/ElecCalibOnl/Ramp","LAR_ONL","LArRampComplete",None),
-                               "DAC2uA":("/LAR/ElecCalibOfl/DAC2uA","LAR_ONL","LArDAC2uAMC",LArDAC2uASymAlg),
+                               "DAC2uA":("/LAR/ElecCalibOnl/DAC2uA","LAR_ONL","LArDAC2uAMC",LArDAC2uASymAlg),
                                "Pedestal":("/LAR/ElecCalibOnl/Pedestal<key>LArPedestal</key>","LAR_ONL","LArPedestalComplete",None),
                                "uA2MeV":("/LAR/ElecCalibOfl/uA2MeV/Symmetry","LAR_OFL", "LAruA2MeVMC",LAruA2MeVSymAlg),
                                "MphysOverMcal":("/LAR/ElecCalibOfl/MphysOverMcal/RTM","LAR_OFL","LArMphysOverMcalComplete",None),
@@ -141,7 +140,9 @@ def LArElecCalibDBRun1Cfg(ConfigFlags,condObjs):
             raise ConfigurationError("No conditions data %s found for Run-1 data" % condData)
         folderlist.append((folder,db,obj))
         if (calg):
-            result.addCondAlgo(calg(ReadKey="LAr"+obj,WriteKey="LAr"+obj+"Sym"))
+            if obj.endswith ('MC'):
+                obj = obj[:-2]
+            result.addCondAlgo(calg(ReadKey=obj,WriteKey=obj+"Sym"))
     result.merge(addFolderList(ConfigFlags,folderlist))
                      
     return result

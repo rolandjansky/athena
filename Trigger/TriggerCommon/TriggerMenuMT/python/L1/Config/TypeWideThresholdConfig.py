@@ -328,12 +328,12 @@ def getConfig_jTAU():
 
 def getConfig_jJ():
     confObj = odict()
-    confObj["ptMinToTopo1"] = 15 # PLACEHOLDER
-    confObj["ptMinToTopo2"] = 15 # PLACEHOLDER
-    confObj["ptMinToTopo3"] = 15 # PLACEHOLDER
-    confObj["ptMinxTOB1"] = 15 # PLACEHOLDER
-    confObj["ptMinxTOB2"] = 15 # PLACEHOLDER
-    confObj["ptMinxTOB3"] = 15 # PLACEHOLDER
+    confObj["ptMinToTopo1"] = 5 # PLACEHOLDER
+    confObj["ptMinToTopo2"] = 5 # PLACEHOLDER
+    confObj["ptMinToTopo3"] = 5 # PLACEHOLDER
+    confObj["ptMinxTOB1"] = 5 # PLACEHOLDER
+    confObj["ptMinxTOB2"] = 5 # PLACEHOLDER
+    confObj["ptMinxTOB3"] = 5 # PLACEHOLDER
     confObj["resolutionMeV"] = 200  
     return confObj
 

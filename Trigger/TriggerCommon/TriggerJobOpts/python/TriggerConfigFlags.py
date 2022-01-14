@@ -118,8 +118,9 @@ def createTriggerFlags():
     # True if we have at least one input file, it is a POOL file, it has a metadata store, and the store has xAOD trigger configuration data
     # in either the run-2 or run-3 formats.
     def __trigConfMeta(flags):
+        hasInput = any(flags.Input.Files) and '_ATHENA_GENERIC_INPUTFILE_NAME_' not in flags.Input.Files
         from AthenaConfiguration.AutoConfigFlags import GetFileMD
-        md = GetFileMD(flags.Input.Files) if any(flags.Input.Files) else {}
+        md = GetFileMD(flags.Input.Files) if hasInput else {}
         return ("metadata_items" in md and any(('TriggerMenu' in key) for key in md["metadata_items"].keys()))
 
     # Flag to sense if trigger configuration POOL metadata is available on the job's input
@@ -166,7 +167,7 @@ def createTriggerFlags():
     flags.addFlag('Trigger.ExtraEDMList', [])
 
     # tag to be used for condutions used by HLT code
-    flags.addFlag('Trigger.OnlineCondTag', 'CONDBR2-HLTP-2018-02')
+    flags.addFlag('Trigger.OnlineCondTag', 'CONDBR2-HLTP-2018-03')
 
     # geometry version used by HLT online
     flags.addFlag('Trigger.OnlineGeoTag', 'ATLAS-R2-2016-01-00-01')
@@ -182,7 +183,7 @@ def createTriggerFlags():
         # RAW: check if keys are in COOL
         elif flags.Input.Format=="BS":
             from TrigConfigSvc.TriggerConfigAccess import getKeysFromCool
-            keys = getKeysFromCool(flags.Input.RunNumber[0])  # currently only checking first file
+            keys = getKeysFromCool(flags.Input.RunNumber[0], lbNr = 1)  # currently only checking first file
             return ( (['L1'] if 'L1PSK' in keys else []) +
                      (['HLT'] if 'HLTPSK' in keys else []) )
         # POOL: metadata (do not distinguish L1/HLT yet, see discussions on GitLab commit f83ae2bc)
@@ -194,16 +195,19 @@ def createTriggerFlags():
 
     # the configuration source
     # see https://twiki.cern.ch/twiki/bin/view/Atlas/TriggerConfigFlag
-    flags.addFlag('Trigger.triggerConfig', 'FILE')
+    flags.addFlag('Trigger.triggerConfig', lambda flags: 'INFILE' if flags.Trigger.InputContainsConfigMetadata else 'FILE')
 
     # name of the trigger menu
-    flags.addFlag('Trigger.triggerMenuSetup', 'LS2_v1_BulkMCProd_prescale')
+    flags.addFlag('Trigger.triggerMenuSetup', 'Dev_pp_run3_v1_BulkMCProd_prescale')
 
     # modify the slection of chains that are run (default run all), see more in GenerateMenuMT_newJO
     flags.addFlag('Trigger.triggerMenuModifier', ['all'])
 
     # name of the trigger menu
     flags.addFlag('Trigger.generateMenuDiagnostics', False)
+
+    # disable Consistent Prescale Sets, for testing only, useful when using selectChains (ATR-24744)
+    flags.addFlag('Trigger.disableCPS', False)
 
     # Switch whether end-of-event sequence running extra algorithms for accepted events should be added
     flags.addFlag('Trigger.endOfEventProcessing.Enabled', True)
@@ -258,8 +262,8 @@ def createTriggerFlags():
     flags.addFlagsCategory('Trigger.Offline.Tau', createTrigTauConfigFlags)
     #TODO come back and use systematically the same 
 
-    from TrigInDetConfig.TrigTrackingCutFlags import createTrigTrackingFlags
-    flags.addFlagsCategory( 'Trigger.InDetTracking', createTrigTrackingFlags )
+    from TrigInDetConfig.TrigTrackingPassFlags import createTrigTrackingPassFlags
+    flags.addFlagsCategory( 'Trigger.InDetTracking', createTrigTrackingPassFlags )
 
     # NB: Longer term it may be worth moving these into a PF set of config flags, but right now the only ones that exist do not seem to be used in the HLT.
     # When we use component accumulators for this in the HLT maybe we should revisit this

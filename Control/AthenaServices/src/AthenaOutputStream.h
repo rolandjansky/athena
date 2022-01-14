@@ -85,6 +85,8 @@ protected:
    IClassIDSvc_t m_pCLIDSvc;
    ServiceHandle<OutputStreamSequencerSvc>  m_outSeqSvc;
   
+   /// Stream name (defaults to algorithm name)
+   StringProperty           m_streamName{this, "StreamName", "", "name of the output stream"};
    /// Vector of item names
    StringArrayProperty      m_itemList{this,"ItemList",{},"List of items to write","OrderedSet<std::string>"};
    /// Vector of item names
@@ -225,7 +227,7 @@ private:
    bool matchKey(const std::vector<std::string>& key, const SG::DataProxy* proxy) const;
 
    /// Write MetaData for this stream (by default) or for a substream outputFN (in ES mode)
-   void writeMetaData( const std::string outputFN="" );
+   void writeMetaData( const std::string& outputFN="" );
 
    /// Helper function for building the compression lists
    std::set<std::string> buildCompressionSet (const ToolHandle<SG::IFolder>& handle,

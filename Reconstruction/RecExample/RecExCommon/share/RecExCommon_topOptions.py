@@ -61,6 +61,8 @@ excludeTracePattern.append("*/TrigEDMConfig/TriggerEDM.py")
 excludeTracePattern.append("*AthFile/impl.py")
 excludeTracePattern.append("*/AthenaConfiguration/*")
 excludeTracePattern.append("*ROOT/_facade.py")
+excludeTracePattern.append("*/GaudiConfig2/*")
+
 #####################
 # Flags (separated) #
 #####################
@@ -69,7 +71,7 @@ include ( "RecExCond/RecExCommon_flags.py" )
 from AthenaCommon.DetFlags import DetFlags   # this import has to be after RecExCommon_flags.py !
 
 if (jobproperties.ConcurrencyFlags.NumThreads() > 0):
-    logRecExCommon_topOptions.info("MT mode: Not scheduling RecoTiming")    
+    logRecExCommon_topOptions.info("MT mode: Not scheduling RecoTiming")
     rec.doRecoTiming.set_Value_and_Lock(False)
 
 if (rec.doRecoTiming() and rec.OutputFileNameForRecoStep() in ('RAWtoESD','ESDtoAOD','RAWtoALL')):
@@ -135,26 +137,9 @@ svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"beam_type": jobproperties.Beam.bea
                                             "project_name": str(rec.projectName()),
                                             "AtlasRelease_" + rec.OutputFileNameForRecoStep(): rec.AtlasReleaseVersion()
                                             })
-# Build amitag list
-amitag = ""
-from PyUtils.MetaReaderPeeker import metadata
-try:
-    amitag = metadata['AMITag']
-    # In some cases AMITag can be a list, just take the last one
-    if type(amitag) == list:
-        amitag=amitag[-1]
-except Exception:
-    logRecExCommon_topOptions.info("Cannot access TagInfo/AMITag")
-
-# append new tag if previous exists and is not the same otherwise take the new alone 
-if amitag != "" and amitag != rec.AMITag():
-    svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag" : amitag + "_" + rec.AMITag()})
-    print ("Adding AMITag ", amitag, " _ ", rec.AMITag())
-else:
-    svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag" : rec.AMITag()})
-    print ("Adding AMITag ", rec.AMITag())
-
-
+# Set AMITag in /TagInfo
+from PyUtils import AMITagHelper
+AMITagHelper.SetAMITag(outputTag=rec.AMITag())
 
 AODFix.AODFix_addMetaData()
 RecoFix.RecoFix_addMetaData()
@@ -548,6 +533,13 @@ if rec.readRDO():
         LumiBlockMuWriterDefault()
 
 #
+# Write beamspot information into xAOD::EventInfo.
+#
+if globalflags.InputFormat.is_bytestream():
+    topSequence += CfgMgr.xAODMaker__EventInfoBeamSpotDecoratorAlg()
+    pass
+
+#
 # System Reconstruction
 #
 include ("RecExCommon/SystemRec_config.py")
@@ -597,7 +589,7 @@ if rec.doESD() and not rec.readESD() and rec.doBeamBackgroundFiller():
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         from RecBackgroundAlgs.BackgroundAlgsConfig import BackgroundAlgsCfg
         ca=BackgroundAlgsCfg(ConfigFlags)
-    
+
         for el in ca._allSequences:
             el.name = "TopAlg"
 
@@ -814,6 +806,9 @@ if rec.doFileMetaData():
         # EventFormat tool
         ToolSvc += CfgMgr.xAODMaker__EventFormatMetaDataTool( "EventFormatMetaDataTool" )
         svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.EventFormatMetaDataTool ]
+        # FileMetaData tool
+        ToolSvc += CfgMgr.xAODMaker__FileMetaDataTool( "FileMetaDataTool" )
+        svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.FileMetaDataTool ]
 
     else:
         # Create LumiBlock meta data containers *before* creating the output StreamESD/AOD
@@ -822,7 +817,7 @@ if rec.doFileMetaData():
 
     try:
         # ByteStreamMetadata
-        from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamMetadataTool        
+        from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamMetadataTool
         if not hasattr (svcMgr.ToolSvc, 'ByteStreamMetadataTool'):
             ToolSvc += ByteStreamMetadataTool()
         svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.ByteStreamMetadataTool ]
@@ -1115,7 +1110,7 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
                         addClusterToCaloCellAOD(egammaKeys.EgammaLargeClustersKey())
                 else:
                     addClusterToCaloCellAOD(egammaKeys.EgammaLargeClustersKey())
-                
+
             from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
             if ( rec.readESD() or muonCombinedRecFlags.doMuonClusters() ) and rec.doMuon:
                 addClusterToCaloCellAOD("MuonClusterCollection")
@@ -1168,7 +1163,7 @@ if rec.doWriteAOD():
                                                                   doTau = rec.doTau(),
                                                                   doMuon = rec.doMuonCombined())
             topSequence += thinTRTStandaloneTrackAlg
-        
+
         if rec.doEgamma() and (AODFlags.Photon or AODFlags.Electron):
             if AODFlags.egammaTrackSlimmer:
                 from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
@@ -1187,7 +1182,7 @@ if rec.doWriteAOD():
 
         if rec.doCalo and AODFlags.ThinNegativeEnergyCaloClusters:
             from ThinningUtils.ThinNegativeEnergyCaloClusters import ThinNegativeEnergyCaloClusters
-            ThinNegativeEnergyCaloClusters()            
+            ThinNegativeEnergyCaloClusters()
         if rec.doCalo and AODFlags.ThinNegativeEnergyNeutralPFOs:
             from ThinningUtils.ThinNegativeEnergyNeutralPFOs import ThinNegativeEnergyNeutralPFOs
             ThinNegativeEnergyNeutralPFOs()
@@ -1200,10 +1195,10 @@ if rec.doWriteAOD():
             ThinInDetForwardTrackParticles()
 
         #Thin Trk::Tracks for Electons and Muons (GSF/Combined)
-        if  (AODFlags.AddEgammaMuonTracksInAOD and not rec.doTruth()) or (AODFlags.AddEgammaTracksInMCAOD and rec.doTruth()): 
+        if  (AODFlags.AddEgammaMuonTracksInAOD and not rec.doTruth()) or (AODFlags.AddEgammaTracksInMCAOD and rec.doTruth()):
             from ThinningUtils.ThinTrkTrack import ThinTrkTrack
             ThinTrkTrack()
-            
+
 
     pdr.flag_domain('output')
     # Create output StreamAOD
@@ -1235,7 +1230,7 @@ if rec.doWriteAOD():
         # Metadata declared by the sub-systems:
         StreamAOD_Augmented.AddMetaDataItem( objKeyStore._store.metaData() )
         pass
-        
+
     ## This line provides the 'old' StreamAOD (which is the Event Stream only)
     ## for backward compatibility
     StreamAOD=StreamAOD_Augmented.GetEventStream()

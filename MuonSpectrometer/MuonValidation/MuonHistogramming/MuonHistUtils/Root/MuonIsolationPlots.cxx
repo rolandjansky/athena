@@ -2,19 +2,17 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <utility>
+
 #include "MuonHistUtils/MuonIsolationPlots.h"
 
 namespace Muon{
 
-MuonIsolationPlots::MuonIsolationPlots(PlotBase* pParent, std::string sDir):PlotBase(pParent, sDir),
+MuonIsolationPlots::MuonIsolationPlots(PlotBase* pParent, const std::string& sDir):PlotBase(pParent, sDir),
 //iso variables
 m_oPtCone20(this,"", "ptcone20"),
 m_oPtCone30(this,"", "ptcone30"),
 m_oPtCone40(this,"", "ptcone40"),
-									    
-m_oEtCone20(this,"", "etcone20"),
-m_oEtCone30(this,"", "etcone30"),
-m_oEtCone40(this,"", "etcone40"),
 
 m_oTopoEtCone20(this,"", "topoetcone20"),
 m_oTopoEtCone30(this,"", "topoetcone30"),
@@ -30,10 +28,8 @@ m_oPtVarCone40(this,"", "ptvarcone40")
 
 #ifndef XAOD_ANALYSIS
   //iso corrections
-, m_oEtCone_coreCone(this,"","etcone_coreCone")
 , m_oTopoEtCone_coreCone(this,"","topoetcone_coreCone")
 , m_oNEFlowIso_coreCone(this,"","neflowisol_coreCone")
-, m_oEtCone_coreMuon(this,"","etcone_coreMuon")
 #endif // not XAOD_ANALYSIS
 {}	
 
@@ -42,10 +38,6 @@ m_oPtVarCone40(this,"", "ptvarcone40")
   m_oPtCone20.fill(muon, xAOD::Iso::ptcone20, weight);
   m_oPtCone30.fill(muon, xAOD::Iso::ptcone30, weight);
   m_oPtCone40.fill(muon, xAOD::Iso::ptcone40, weight);
-
-  m_oEtCone20.fill(muon, xAOD::Iso::etcone20, weight);
-  m_oEtCone30.fill(muon, xAOD::Iso::etcone30, weight);
-  m_oEtCone40.fill(muon, xAOD::Iso::etcone40, weight);
 
   m_oTopoEtCone20.fill(muon, xAOD::Iso::topoetcone20, weight);
   m_oTopoEtCone30.fill(muon, xAOD::Iso::topoetcone30, weight);
@@ -59,17 +51,15 @@ m_oPtVarCone40(this,"", "ptvarcone40")
   m_oPtVarCone30.fill(muon, xAOD::Iso::ptvarcone30, weight);
   m_oPtVarCone40.fill(muon, xAOD::Iso::ptvarcone40, weight);
 
-  m_oEtCone_coreCone.fill(muon, xAOD::Iso::etcone20, xAOD::Iso::etcone30, xAOD::Iso::etcone40, xAOD::Iso::etcone, xAOD::Iso::coreCone, xAOD::Iso::coreEnergy, weight);
   m_oTopoEtCone_coreCone.fill(muon, xAOD::Iso::topoetcone20, xAOD::Iso::topoetcone30, xAOD::Iso::topoetcone40, xAOD::Iso::topoetcone, xAOD::Iso::coreCone, xAOD::Iso::coreEnergy, weight);
   m_oNEFlowIso_coreCone.fill(muon, xAOD::Iso::neflowisol20, xAOD::Iso::neflowisol30, xAOD::Iso::neflowisol40, xAOD::Iso::neflowisol, xAOD::Iso::coreCone, xAOD::Iso::coreEnergy, weight);
-  m_oEtCone_coreMuon.fill(muon, xAOD::Iso::etcone20, xAOD::Iso::etcone30, xAOD::Iso::etcone40, xAOD::Iso::etcone, xAOD::Iso::coreMuon, xAOD::Iso::coreEnergy, weight);
 #endif // not XAOD_ANALYSIS
 
 }
 
   
-IsoPlots::IsoPlots(PlotBase* pParent, std::string sDir, std::string sConeSize):PlotBase(pParent, sDir),
-m_sConeSize(sConeSize), cone(NULL), conerel(NULL)
+IsoPlots::IsoPlots(PlotBase* pParent, const std::string& sDir, std::string sConeSize):PlotBase(pParent, sDir),
+m_sConeSize(std::move(sConeSize)), cone(nullptr), conerel(nullptr)
 {}
 
 void IsoPlots::initializePlots()
@@ -97,8 +87,8 @@ void IsoPlots::initializePlots()
 
 
 #ifndef XAOD_ANALYSIS
-IsoCorrPlots::IsoCorrPlots(PlotBase* pParent, std::string sDir, std::string sCorrType):PlotBase(pParent, sDir),
-m_sCorrType(sCorrType), isocorr(NULL), isocorr_relPt(NULL), isocorr_relIsocone20(NULL), isocorr_relIsocone30(NULL), isocorr_relIsocone40(NULL)
+IsoCorrPlots::IsoCorrPlots(PlotBase* pParent, const std::string& sDir, std::string sCorrType):PlotBase(pParent, sDir),
+m_sCorrType(std::move(sCorrType)), isocorr(nullptr), isocorr_relPt(nullptr), isocorr_relIsocone20(nullptr), isocorr_relIsocone30(nullptr), isocorr_relIsocone40(nullptr)
 {}
 
 void IsoCorrPlots::initializePlots()

@@ -24,7 +24,7 @@ namespace ClusterSeg {
   bool sortfunctionRPC (Cluster* i, Cluster* j)  { return (i->rCyl() < j->rCyl()); }
   
   ClusterAnalysis::ClusterAnalysis() : 
-    m_tree(NULL), 
+    m_tree(nullptr), 
     m_ncalls(-1),
     m_writeOut(false),
     m_ang_cut(0.5),
@@ -233,7 +233,7 @@ namespace ClusterSeg {
     }
   }
 
-  std::vector<std::vector<SpacePoint>> ClusterAnalysis::analyse(std::vector<Cluster*> clust){
+  std::vector<std::vector<SpacePoint>> ClusterAnalysis::analyse(const std::vector<Cluster*>& clust){
     std::vector<std::vector<SpacePoint>> sPoints;
     std::vector<SpacePoint> thePoints = createSpacePoints(clust);
     if(thePoints.empty()) return sPoints;
@@ -242,7 +242,7 @@ namespace ClusterSeg {
     return seeds;  
   }
 
-  std::vector<std::vector<SpacePoint>> ClusterAnalysis::createTGCSeeds( std::vector<SpacePoint> points){
+  std::vector<std::vector<SpacePoint>> ClusterAnalysis::createTGCSeeds( const std::vector<SpacePoint>& points){
 
     std::vector<SpacePoint> layer1Points;
     std::vector<SpacePoint> layer2Points;
@@ -288,7 +288,7 @@ namespace ClusterSeg {
     return seeds;
   }
 
-  std::vector<std::vector<SpacePoint>> ClusterAnalysis::createRPCSeeds( std::vector<SpacePoint> points){
+  std::vector<std::vector<SpacePoint>> ClusterAnalysis::createRPCSeeds( const std::vector<SpacePoint>& points){
 
     std::vector<SpacePoint> layer1Points;
     std::vector<SpacePoint> layer2Points;
@@ -322,9 +322,9 @@ namespace ClusterSeg {
   }
 
 
-  void ClusterAnalysis::createSeedsAllLayers(std::vector<SpacePoint> layer1Points,
-                                             std::vector<SpacePoint> layer2Points,
-                                             std::vector<SpacePoint> layer3Points,
+  void ClusterAnalysis::createSeedsAllLayers(const std::vector<SpacePoint>& layer1Points,
+                                             const std::vector<SpacePoint>& layer2Points,
+                                             const std::vector<SpacePoint>& layer3Points,
                                              std::vector<std::vector<SpacePoint>>& seeds){
 
     if(!layer1Points.empty() && !layer3Points.empty()){
@@ -388,7 +388,7 @@ namespace ClusterSeg {
     }//end if statement
   }
 
-  void ClusterAnalysis::createSeedsTwoLayers(std::vector<SpacePoint> layer1Points,std::vector<SpacePoint> layer2Points,
+  void ClusterAnalysis::createSeedsTwoLayers(const std::vector<SpacePoint>& layer1Points,const std::vector<SpacePoint>& layer2Points,
                                              std::vector<std::vector<SpacePoint>>& seeds){
     for(auto &it1: layer1Points){
           for(auto &it3: layer2Points){
@@ -420,7 +420,7 @@ namespace ClusterSeg {
         } //layer1Points
   }
 
-  std::vector<SpacePoint> ClusterAnalysis::createSpacePoints( std::vector<Cluster*> clust) {
+  std::vector<SpacePoint> ClusterAnalysis::createSpacePoints( const std::vector<Cluster*>& clust) {
 
     std::vector<std::pair<Cluster*,int>> phiClusters;
     std::vector<std::pair<Cluster*,int>> etaClusters;

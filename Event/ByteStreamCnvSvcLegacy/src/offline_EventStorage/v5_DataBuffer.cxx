@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -52,7 +52,7 @@ public:
   void * handle()
   { return m_buffer; }
 
-  uint32_t buffersize()
+  uint32_t buffersize() const
   { return m_buffersize; }
 
 private:

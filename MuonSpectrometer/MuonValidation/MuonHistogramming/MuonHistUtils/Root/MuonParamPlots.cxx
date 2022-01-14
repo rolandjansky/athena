@@ -7,19 +7,17 @@
 
 namespace Muon{
 
-MuonParamPlots::MuonParamPlots(PlotBase *pParent, std::string sDir):PlotBase(pParent, sDir)
-								   ,msInnerMatchChi2(NULL)
-								   ,msOuterMatchChi2(NULL)
-								   ,ELoss(NULL)
-								   ,ELossSigma(NULL)
-								   ,paramELoss(NULL)
-								   ,measELoss(NULL)
+MuonParamPlots::MuonParamPlots(PlotBase *pParent, const std::string& sDir):PlotBase(pParent, sDir)
+								   ,msInnerMatchChi2(nullptr)
+								   ,ELoss(nullptr)
+								   ,ELossSigma(nullptr)
+								   ,paramELoss(nullptr)
+								   ,measELoss(nullptr)
 {}
 
 void MuonParamPlots::initializePlots()
 {
   msInnerMatchChi2 = Book1D("msInnerMatchChi2","inner match #chi^{2};inner match #chi^{2};;Entries",100,0.,100.);
-  msOuterMatchChi2 = Book1D("msOuterMatchChi2","outer match #chi^{2};outer match #chi^{2};;Entries",100,0.,100.);
     
   ELoss = Book1D("ELoss","ELoss;ELoss [GeV];Entries",100,0,20);
   ELossSigma = Book1D("ELossSigma","ELossSigma;ELossSgima [GeV];Entries",50,0,5);
@@ -32,7 +30,6 @@ void MuonParamPlots::initializePlots()
   void MuonParamPlots::fill(const xAOD::Muon& mu, float weight)
 {
   FillPlot(msInnerMatchChi2,mu,xAOD::Muon::msInnerMatchChi2, weight);
-  FillPlot(msOuterMatchChi2,mu,xAOD::Muon::msOuterMatchChi2, weight);
 #ifndef XAOD_ANALYSIS
   FillPlot(ELoss,mu,xAOD::Muon::EnergyLoss,0.001, weight);
   FillPlot(measELoss,mu,xAOD::Muon::MeasEnergyLoss,0.001, weight);  

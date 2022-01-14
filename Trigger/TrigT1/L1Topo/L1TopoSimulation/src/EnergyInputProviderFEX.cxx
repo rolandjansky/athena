@@ -104,7 +104,7 @@ EnergyInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) cons
     int jFexNumber = jFEXMet->jFexNumber();
     int fpgaNumber = jFEXMet->fpgaNumber();  
 
-    if( fpgaNumber==0 || fpgaNumber==3)
+    if( fpgaNumber==0 || fpgaNumber==2)
       {
 	global_et_x+=et_x;
 	global_et_y+=et_y;

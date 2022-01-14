@@ -6,7 +6,7 @@
 
 //Function converting from ATHENA identifier int StationName, std::string ChamberType 
 //to the corresponding ATHENA identifier std::string StationName
-std::string convertIntToStrName(int ChamberNameInt, std::string ChamberType) {
+std::string convertIntToStrName(int ChamberNameInt, const std::string& ChamberType) {
 
   //Input values
   int Name_int = ChamberNameInt;
@@ -15,7 +15,7 @@ std::string convertIntToStrName(int ChamberNameInt, std::string ChamberType) {
   //"MDT","CSC","TGC" go in the same loop while
   //"RPC" go to a different loop due to the same
   //naming with "MDT"
-  std::string Type=ChamberType;
+  const std::string& Type=ChamberType;
 
 
   //Set string variables

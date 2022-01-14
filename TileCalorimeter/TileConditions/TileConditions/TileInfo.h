@@ -53,7 +53,7 @@ class TileInfo {
 
   typedef std::vector<const TileCalibDrawerFlt*> DrawerVecFlt;
 
-  TileInfo(ISvcLocator *svcLocator);
+  TileInfo();
   ~TileInfo();
 
 
@@ -259,10 +259,10 @@ class TileInfo {
   //==================================================================
 
   /** Return pointer to TilePulseShapes*/
-  TilePulseShapesStruct * getPulseShapes() const {return m_pulseShapes->TilePSstruct();}
+  const TilePulseShapesStruct * getPulseShapes() const {return m_pulseShapes->TilePSstruct();}
 
   /** Return pointer to TileWienerFilterWeights */
-  TileWienerFilterWeightsStruct * getWienerFilterWeights() const {return m_WienerFilterWeights->TileWFstruct();}
+  const TileWienerFilterWeightsStruct * getWienerFilterWeights() const {return m_WienerFilterWeights->TileWFstruct();}
 
   //==================================================================
   //==
@@ -293,9 +293,6 @@ class TileInfo {
 
   /** Initialization of the TileInfo object. */
   StatusCode initialize();
-
-  /** Pointer to ServiceLocator */
-  ISvcLocator *m_svcLocator;
 
   /** Returns a handle to the MessageSvc */
   IMessageSvc* msgSvc() const;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -157,7 +157,6 @@ namespace G4UA
 
         const G4double*   atVector = mat->GetVecNbOfAtomsPerVolume();
         double totalFrac           = 0.;
-        double totalFracChar       = 0.;
 
         for (size_t iel = 0; iel < elNumber; ++iel) {
 
@@ -180,7 +179,6 @@ namespace G4UA
           // smaller components than 0.5 % are automatically ignored
           totalFrac     += relNbAtoms;
           if (relNbAtomsChar) {
-            totalFracChar += double(relNbAtomsChar)/double(1.*UCHAR_MAX);
             fractions.push_back(relNbAtomsChar);
             // record composition
             if (m_recordComposition && !m_elementTable->contains(Zint)){

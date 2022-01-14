@@ -12,7 +12,7 @@
 namespace MuonTGC_Cabling {
 
 // Constructor & Destructor
-TGCCableSSWToROD::TGCCableSSWToROD(std::string filename)
+TGCCableSSWToROD::TGCCableSSWToROD(const std::string& filename)
   : TGCCable(TGCCable::SSWToROD)
 {
   m_database = new TGCDatabaseSLBToROD(filename,"SSW ALL");
@@ -20,17 +20,17 @@ TGCCableSSWToROD::TGCCableSSWToROD(std::string filename)
 
 TGCCableSSWToROD::TGCCableSSWToROD (void)
   : TGCCable(TGCCable::SSWToROD),
-    m_database(0)
+    m_database(nullptr)
 {
 }
 
 TGCCableSSWToROD::TGCCableSSWToROD (const TGCCableSSWToROD& right)
   : TGCCable(TGCCable::SSWToROD),
-    m_database(0)
+    m_database(nullptr)
 {
   TGCDatabaseSLBToROD* mypointer = dynamic_cast<TGCDatabaseSLBToROD*>(right.m_database);
   if(mypointer) m_database = new TGCDatabaseSLBToROD(*mypointer);
-  else m_database = 0;
+  else m_database = nullptr;
 }
 
 TGCCableSSWToROD& TGCCableSSWToROD::operator=(const TGCCableSSWToROD& right)
@@ -39,7 +39,7 @@ TGCCableSSWToROD& TGCCableSSWToROD::operator=(const TGCCableSSWToROD& right)
     delete m_database;
     TGCDatabaseSLBToROD* mypointer = dynamic_cast<TGCDatabaseSLBToROD*>(right.m_database);
     if(mypointer) m_database = new TGCDatabaseSLBToROD(*mypointer);
-    else m_database = 0;
+    else m_database = nullptr;
   }
   return *this;
 }
@@ -57,16 +57,16 @@ TGCModuleMap* TGCCableSSWToROD::getModule(const TGCModuleId* moduleId) const {
     if(moduleId->getModuleIdType()==TGCModuleId::ROD)
       return getModuleIn(moduleId);
   }
-  return 0;
+  return nullptr;
 }
 
 TGCModuleMap* TGCCableSSWToROD::getModuleIn(const TGCModuleId* rod) const {
-  if(!rod->isValid()) return 0;
+  if(!rod->isValid()) return nullptr;
 
   const TGCIdBase::SideType rodSideType = rod->getSideType(); 
   const int rodReadoutSector = rod->getReadoutSector();
 
-  TGCModuleMap* mapId = 0;
+  TGCModuleMap* mapId = nullptr;
   const int MaxEntry = m_database->getMaxEntry();
   for(int i=0; i<MaxEntry; i++){
     int id = m_database->getEntry(i,0);
@@ -74,18 +74,18 @@ TGCModuleMap* TGCCableSSWToROD::getModuleIn(const TGCModuleId* rod) const {
     TGCModuleSSW* ssw = new TGCModuleSSW(rodSideType,
 					 rodReadoutSector,
 					 id);
-    if(mapId==0) mapId = new TGCModuleMap();
+    if(mapId==nullptr) mapId = new TGCModuleMap();
     mapId->insert(block,ssw); 
   }
   return mapId;
 }
   
 TGCModuleMap* TGCCableSSWToROD::getModuleOut(const TGCModuleId* ssw) const {
-  if(!ssw->isValid()) return 0;
+  if(!ssw->isValid()) return nullptr;
 
   const int sswId = ssw->getId();
 
-  TGCModuleMap* mapId = 0;
+  TGCModuleMap* mapId = nullptr;
   const int MaxEntry = m_database->getMaxEntry();
   for(int i=0; i<MaxEntry; i++){
     if(m_database->getEntry(i,0)==sswId){

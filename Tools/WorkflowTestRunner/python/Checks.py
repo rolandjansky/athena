@@ -5,28 +5,58 @@ import subprocess
 from .Helpers import warnings_count
 from .Inputs import references_CVMFS_path, references_EOS_path
 from .References import references_map
-from .Test import TestSetup, WorkflowCheck, WorkflowTest
+from .Test import TestSetup, WorkflowCheck, WorkflowTest, WorkflowType
 
 
 class FailedOrPassedCheck(WorkflowCheck):
     """Was the q test successful? To check simply count the number of lines containing the string "successful run"."""
 
     def run(self, test: WorkflowTest) -> bool:
-        self.logger.info("-----------------------------------------------------"  )
         result = True
         for step in test.steps:
+            self.logger.info("-----------------------------------------------------")
             log = test.validation_path / f"log.{step}"
             counter = 0
-            with log.open() as file:
-                for line in file:
-                    if '"successful run"' in line:
-                        counter += 1
+            warnings = []
+            errors = []
+            if log.exists():
+                with log.open() as file:
+                    for line in file:
+                        if ("ERROR" in line and "| ERROR |" not in line) or ("FATAL" in line and "| FATAL |" not in line):
+                            errors.append(line[9:].strip())
+                        elif "WARNING" in line and "| WARNING |" not in line:
+                            warnings.append(line[9:].strip())
+                        elif '"successful run"' in line:
+                            counter += 1
+
+            if warnings:
+                self.logger.info(f"{step} validation test step WARNINGS")
+                warnings = list(dict.fromkeys(warnings))
+                for w in warnings:
+                    self.logger.info(f"  {w}")
+                self.logger.info("-----------------------------------------------------")
+
+            if errors:
+
+                self.logger.info(f"{step} validation test step ERRORS")
+                errors = list(dict.fromkeys(errors))
+                for e in errors:
+                    self.logger.info(f"  {e}")
+                self.logger.info("-----------------------------------------------------")
 
             if counter:
-                self.logger.info(f"{step} Validation test successful")
-            else :
-                self.logger.error(f"{step} Validation test failed")
+                self.logger.info(f"{step} validation test step successful")
+            else:
                 result = False
+                if log.exists():
+                    self.logger.error(f"{step} validation test step failed")
+                    self.logger.error(f"Full {step} step log:")
+                    with log.open() as file:
+                        for line in file:
+                            print(f"  {line.strip()}")
+                    self.logger.info("-----------------------------------------------------")
+                else:
+                    self.logger.error(f"{step} validation test step did not run")
 
             if self.setup.validation_only:
                 continue  # Skip checking reference test because in this mode the clean tests have not been run
@@ -39,9 +69,9 @@ class FailedOrPassedCheck(WorkflowCheck):
                         counter += 1
 
             if counter:
-                self.logger.info(f"{step} Reference test successful")
-            else :
-                self.logger.error(f"{step} Reference test failed")
+                self.logger.info(f"{step} reference test step successful")
+            else:
+                self.logger.error(f"{step} reference test step failed")
                 result = False
 
         if result:
@@ -53,7 +83,7 @@ class FailedOrPassedCheck(WorkflowCheck):
 
 
 class FrozenTier0PolicyCheck(WorkflowCheck):
-    """Run Frozen Tier0 Policy Test."""
+    """Run Frozen Tier0 Policy Check."""
 
     def __init__(self, setup: TestSetup, input_format: str, max_events: int) -> None:
         super().__init__(setup)
@@ -61,8 +91,8 @@ class FrozenTier0PolicyCheck(WorkflowCheck):
         self.max_events = str(max_events)
 
     def run(self, test: WorkflowTest) -> bool:
-        self.logger.info("---------------------------------------------------------------------------------------" )
-        self.logger.info(f"Running {test.ID} Frozen Tier0 Policy Test on {self.format} for {self.max_events} events" )
+        self.logger.info("---------------------------------------------------------------------------------------")
+        self.logger.info(f"Running {test.ID} Frozen Tier0 Policy Check on {self.format} for {self.max_events} events")
 
         reference_path: Path = test.reference_path
         diff_rules_file: Path = self.setup.diff_rules_path
@@ -72,19 +102,19 @@ class FrozenTier0PolicyCheck(WorkflowCheck):
             # Resolve the subfolder first. Results are stored like: main_folder/q-test/branch/version/.
             # This should work both in standalone and CI
             # Use EOS if mounted, otherwise CVMFS
-            reference_revision = references_map[f"{test.ID}-{self.setup.release_ID}"]
+            reference_revision = references_map[f"{test.ID}"]
             eos_path = Path(references_EOS_path)
-            reference_path = eos_path / test.ID / self.setup.release_ID / reference_revision
-            diff_rules_file = eos_path / test.ID / self.setup.release_ID
+            reference_path = eos_path / self.setup.release_ID / test.ID / reference_revision
+            diff_rules_file = eos_path / self.setup.release_ID / test.ID
             if reference_path.exists():
                 self.logger.info("EOS is mounted, going to read the reference files from there instead of CVMFS")
             else:
                 self.logger.info("EOS is not mounted, going to read the reference files from CVMFS")
                 cvmfs_path = Path(references_CVMFS_path)
-                reference_path = cvmfs_path / test.ID / self.setup.release_ID / reference_revision
-                diff_rules_file = cvmfs_path / test.ID / self.setup.release_ID
+                reference_path = cvmfs_path / self.setup.release_ID / test.ID / reference_revision
+                diff_rules_file = cvmfs_path / self.setup.release_ID / test.ID
 
-        diff_rules_file /= f"{test.ID}_{self.format}_diff-exclusion-list.txt"
+        diff_rules_file /= f"{self.format}_diff-exclusion-list.txt"
 
         self.logger.info(f"Reading the reference file from location {reference_path}")
 
@@ -102,11 +132,11 @@ class FrozenTier0PolicyCheck(WorkflowCheck):
         reference_file = reference_path / file_name
         validation_file = test.validation_path / file_name
         log_file = test.validation_path / f"diff-root-{test.ID}.{self.format}.log"
-        exclusion_list = ' '.join(exclusion_list)
+        exclusion_list = " ".join(exclusion_list)
 
         comparison_command = f"acmd.py diff-root {reference_file} {validation_file} --nan-equal --error-mode resilient --ignore-leaves {exclusion_list} --entries {self.max_events} > {log_file} 2>&1"
-        output, error = subprocess.Popen(['/bin/bash', '-c', comparison_command], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
-        output, error = output.decode('utf-8'), error.decode('utf-8')
+        output, error = subprocess.Popen(["/bin/bash", "-c", comparison_command], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+        output, error = output.decode("utf-8"), error.decode("utf-8")
 
         # We want to catch/print both container additions/subtractions as well as
         # changes in these containers.  `allGood_return_code` is meant to catch
@@ -116,10 +146,10 @@ class FrozenTier0PolicyCheck(WorkflowCheck):
         with log_file.open() as file:
             for line in file:
                 if "WARNING" in line:  # Catches container addition/subtractions
-                    self.logger.error(line)
+                    self.logger.error(line.strip())
                     passed_frozen_tier0_test = False
                 if "leaves differ" in line:  # Catches changes in branches
-                    self.logger.error(line)
+                    self.logger.error(line.strip())
                     passed_frozen_tier0_test = False
                 if "INFO all good." in line:
                     all_good = True
@@ -132,13 +162,160 @@ class FrozenTier0PolicyCheck(WorkflowCheck):
             print(f"ATLAS-CI-ADD-LABEL: {test.run.value}-{test.type.value}-output-changed")
             print()
 
-            self.logger.error(f"Your tag breaks the frozen tier0 policy in test {test.ID}. See {log_file} file for more information.\n")
+            self.logger.error(f"Your change breaks the frozen tier0 policy in test {test.ID}.")
+            self.logger.error("Please make sure this has been discussed in the correct meeting (RIG or Simulation) meeting and approved by the relevant experts.")
+            with log_file.open() as file:
+                for line in file:
+                    self.logger.info(f"  {line.strip()}")
+                self.logger.info("-----------------------------------------------------\n")
+
+        return result
+
+
+class AODContentCheck(WorkflowCheck):
+    """Run AOD Content Check."""
+
+    def run(self, test: WorkflowTest) -> bool:
+        self.logger.info("---------------------------------------------------------------------------------------")
+        self.logger.info(f"Running {test.ID} AOD content check")
+
+        file_name = "myAOD.pool.root"
+        output_name = "AOD_content.txt"
+
+        validation_file = test.validation_path / file_name
+        validation_output = test.validation_path / output_name
+        validation_command = f"acmd.py chk-file {validation_file} | awk '/---/{{flag=1;next}}/===/{{flag=0}}flag' | awk '{{print $10}}' | sort > {validation_output}"
+
+        output_val, error_val = subprocess.Popen(["/bin/bash", "-c", validation_command], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+        output_val, error_val = output_val.decode("utf-8"), error_val.decode("utf-8")
+        if error_val:
+            self.logger.error(f"Something went wrong with retrieving the content for test {test.ID}:")
+            self.logger.error(error_val)
+
+        # Read references
+        if self.setup.validation_only:
+            # try to get the reference
+            reference_path = test.validation_path
+            reference_output_name = f"{self.setup.release_ID}_{test.ID}_AOD_content.ref"
+            reference_output = reference_path / reference_output_name
+            subprocess.Popen(["/bin/bash", "-c", f"cd {reference_path}; get_files -remove -data {reference_output_name}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+            if not reference_output.exists():
+                self.logger.info(f"No reference file '{reference_output_name}' to compare the content with.")
+                return True
+        else:
+            reference_path = test.reference_path
+            reference_output = reference_path / output_name
+            reference_file = reference_path / file_name
+
+            reference_command = f"acmd.py chk-file {reference_file} | awk '/---/{{flag=1;next}}/===/{{flag=0}}flag' | awk '{{print $10}}' | sort > {reference_output}"
+            subprocess.Popen(["/bin/bash", "-c", reference_command], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+
+        # Remove HLT containers in some cases
+        extra_diff_args = ""
+        if test.type == WorkflowType.MCReco or test.type == WorkflowType.MCPileUpReco:
+            extra_diff_args = "-I '^HLT' -I '^LVL1' -I '^L1'"
+
+        # Compute the diff
+        diff_output, diff_error = subprocess.Popen(["/bin/bash", "-c", f"diff {extra_diff_args} {reference_output} {validation_output}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+        diff_output, diff_error = diff_output.decode("utf-8"), diff_error.decode("utf-8")
+
+        result = False
+        if not diff_output and not diff_error:
+            self.logger.info("Passed!\n")
+            result = True
+        else:
+            # print CI helper directly to avoid logger decorations
+            print(f"ATLAS-CI-ADD-LABEL: {test.run.value}-{test.type.value}-output-changed")
+            print()
+
+            self.logger.error(f"Your change breaks the frozen tier0 policy in test {test.ID}.")
+            self.logger.error("Please make sure this has been discussed in the correct meeting (RIG or Simulation) meeting and approved by the relevant experts.")
+            self.logger.error("The output (>) differs from the reference (<):")
+            if diff_output:
+                print()
+                print(diff_output)
+            if diff_error:
+                print(diff_error)
+            self.logger.info("-----------------------------------------------------\n")
+
+        return result
+
+
+class AODDigestCheck(WorkflowCheck):
+    """Run AOD Digest Check."""
+
+    def __init__(self, setup: TestSetup, max_events: int = -1) -> None:
+        super().__init__(setup)
+        self.max_events = str(max_events)
+
+    def run(self, test: WorkflowTest) -> bool:
+        self.logger.info("---------------------------------------------------------------------------------------")
+        self.logger.info(f"Running {test.ID} AOD digest")
+
+        file_name = "myAOD.pool.root"
+        output_name = "AOD_digest.txt"
+
+        validation_file = test.validation_path / file_name
+        validation_output = test.validation_path / output_name
+        validation_log_file = test.validation_path / f"AODdigest-{test.ID}.log"
+        validation_command = f"xAODDigest.py {validation_file} {validation_output} > {validation_log_file} 2>&1"
+
+        output_val, error_val = subprocess.Popen(["/bin/bash", "-c", validation_command], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+        output_val, error_val = output_val.decode("utf-8"), error_val.decode("utf-8")
+        if error_val:
+            self.logger.error(f"Something went wrong with the digest calculation for test {test.ID}:")
+            self.logger.error(error_val)
+
+        # Read references
+        if self.setup.validation_only:
+            # try to get the reference
+            reference_path = test.validation_path
+            reference_output_name = f"{self.setup.release_ID}_{test.ID}_AOD_digest.ref"
+            reference_output = reference_path / reference_output_name
+            subprocess.Popen(["/bin/bash", "-c", f"cd {reference_path}; get_files -remove -data {reference_output_name}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+            if not reference_output.exists():
+                self.logger.info(f"No reference file '{reference_output_name}' to compare the digest with. Printing the full digest:")
+                with validation_output.open() as f:
+                    for line in f:
+                        print(f"    {line.strip()}")
+                return True
+        else:
+            reference_path = test.reference_path
+            reference_output = reference_path / output_name
+            reference_file = reference_path / file_name
+            reference_log_file = test.reference_path / f"AODdigest-{test.ID}.log"
+
+            reference_command = f"xAODDigest.py {reference_file} {reference_output} > {reference_log_file} 2>&1"
+            subprocess.Popen(["/bin/bash", "-c", reference_command], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+
+        # Compute the diff
+        diff_output, diff_error = subprocess.Popen(["/bin/bash", "-c", f"diff {reference_output} {validation_output}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+        diff_output, diff_error = diff_output.decode("utf-8"), diff_error.decode("utf-8")
+
+        result = False
+        if not diff_output and not diff_error:
+            self.logger.info("Passed!\n")
+            result = True
+        else:
+            # print CI helper directly to avoid logger decorations
+            print(f"ATLAS-CI-ADD-LABEL: {test.run.value}-{test.type.value}-output-changed")
+            print()
+
+            self.logger.error(f"Your change breaks the frozen tier0 policy in test {test.ID}.")
+            self.logger.error("Please make sure this has been discussed in the correct meeting (RIG or Simulation) meeting and approved by the relevant experts.")
+            self.logger.error("The output (>) differs from the reference (<):")
+            if diff_output:
+                print()
+                print(diff_output)
+            if diff_error:
+                print(diff_error)
+            self.logger.info("-----------------------------------------------------\n")
 
         return result
 
 
 class SimpleCheck(WorkflowCheck):
-    """Run A Very Simple Test."""
+    """Run A Very Simple Check."""
 
     def __init__(self, setup: TestSetup, name: str, quantity: str, unit: str, field: int, threshold: float):
         super().__init__(setup)
@@ -150,7 +327,7 @@ class SimpleCheck(WorkflowCheck):
 
     def run(self, test: WorkflowTest) -> bool:
         self.logger.info("-----------------------------------------------------")
-        self.logger.info(f"Running {test.ID} {self.name} Test"                      )
+        self.logger.info(f"Running {test.ID} {self.name} Check")
 
         result = True
         for step in test.steps:
@@ -212,12 +389,12 @@ class SimpleCheck(WorkflowCheck):
         return result
 
 
-class WarningsCheck(WorkflowCheck):
-    """Run WARNINGS test."""
+class WarningsComparisonCheck(WorkflowCheck):
+    """Run WARNINGS check."""
 
     def run(self, test: WorkflowTest):
         self.logger.info("-----------------------------------------------------")
-        self.logger.info(f"Running {test.ID} WARNINGS Test\n")
+        self.logger.info(f"Running {test.ID} WARNINGS Check\n")
 
         result = True
         for step in test.steps:
@@ -258,6 +435,43 @@ class WarningsCheck(WorkflowCheck):
         if result:
             self.logger.info("Passed!\n")
         else :
+            self.logger.error("Failed!\n")
+
+        return result
+
+
+class FPECheck(WorkflowCheck):
+    """Run FPE check."""
+
+    def run(self, test: WorkflowTest):
+        self.logger.info("-----------------------------------------------------")
+        self.logger.info(f"Running {test.ID} FPE Check")
+
+        result = True
+        for step in test.steps:
+            log = test.validation_path / f"log.{step}"
+            fpes = {}
+            with log.open() as file:
+                for line in file:
+                    if "WARNING FPE" in line:
+                        fpe = line.split()[10].replace("[", "").replace("]", "")
+                        if fpe in fpes:
+                            fpes[fpe] += 1
+                        else:
+                            fpes[fpe] = 1
+            if fpes.keys():
+                result = False
+                self.logger.error(f" {step} validation test step FPEs")
+                for fpe, count in sorted(fpes.items(), key=lambda item: item[1]):
+                    self.logger.error(f"{count:>5}  {fpe}")
+
+        if result:
+            self.logger.info("Passed!\n")
+        elif test.type in [WorkflowType.FullSim, WorkflowType.DataOverlay, WorkflowType.MCOverlay]:
+            self.logger.warning("Failed!")
+            self.logger.warning("Check disabled due to irreproducibilities!\n")
+            result = True
+        else:
             self.logger.error("Failed!\n")
 
         return result

@@ -503,7 +503,9 @@ StatusCode MSConstraintTracksProvider::trackCollection(const TrackCollection*& o
               std::move(trackStateOnSurfaces),
               nullptr);
 
-            Trk::Track* MSConstraintFittedTrack = m_trackFitter->fit(*tmpTrack, m_runOutlierRemoval, Trk::muon);
+            Trk::Track* MSConstraintFittedTrack = (m_trackFitter->fit(Gaudi::Hive::currentContext(),
+                                                                     *tmpTrack, m_runOutlierRemoval, 
+                                                                     Trk::muon)).release();
 
             if(!MSConstraintFittedTrack){
               ++m_nCBMuonsFailedRefit;

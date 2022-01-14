@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @file HLTMinBiasMonTool.cxx
@@ -1337,9 +1337,6 @@ StatusCode HLTMinBiasMonTool::fillHLTMbtsInfo()
 	
 	// Energy Time
 	
-	unsigned int triggerWord = 0;
-	unsigned int timeWord = 0;
-	
 	std::vector<float> mbtsHitEnergies; // energy (in pC) of signal in a counter (relative to IP), vector for all counters
 	std::vector<float> mbtsHitTimes; // time of signal in counter (relative to IP), vector for all counters        
 	
@@ -1387,7 +1384,6 @@ StatusCode HLTMinBiasMonTool::fillHLTMbtsInfo()
 			//The energy-dependent bitmask is produced below
 			for (std::size_t k = 0; k < mbtsHitEnergies.size() && k < 32; k++)
 				if (mbtsHitEnergies.at(k) > m_energyCut) {
-					triggerWord += (1 << k);
 					// Online distributions
 					const char* cell_name = (m_moduleLabel[k]).data();
 					if (k < 16) { // A side
@@ -1427,9 +1423,6 @@ StatusCode HLTMinBiasMonTool::fillHLTMbtsInfo()
 			//The time-dependent bitmask is produced for the case
 			//of time-dependent L2 trigger
 			for (std::size_t k = 0; k < mbtsHitTimes.size() && k < 32; k++) {
-				if (fabs(mbtsHitTimes.at(k)) < m_timeCut || m_timeCut <= 0.0)
-					timeWord += (1 << k);
-	
 				// Online distributions
 				//const char* cell_name = (m_moduleLabel[k]).data();
 	

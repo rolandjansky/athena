@@ -6,14 +6,14 @@
 
 namespace Muon{
   
-RecoMuonTrackPlotOrganizer::RecoMuonTrackPlotOrganizer(PlotBase* pParent, std::string sDir, std::vector<int> *selPlots):
+RecoMuonTrackPlotOrganizer::RecoMuonTrackPlotOrganizer(PlotBase* pParent, const std::string& sDir, std::vector<int> *selPlots):
   PlotBase(pParent, sDir)
   // Reco plots
-  , m_oTrkParamPlots(NULL)
-  , m_oTrkRecoInfoPlots(NULL)
-  , m_oImpactPlots(NULL)
-  , m_oMSHitPlots(NULL)
-  , m_oIDHitPlots(NULL)
+  , m_oTrkParamPlots(nullptr)
+  , m_oTrkRecoInfoPlots(nullptr)
+  , m_oImpactPlots(nullptr)
+  , m_oMSHitPlots(nullptr)
+  , m_oIDHitPlots(nullptr)
 {
   
   if (!selPlots) {
@@ -25,11 +25,11 @@ RecoMuonTrackPlotOrganizer::RecoMuonTrackPlotOrganizer(PlotBase* pParent, std::s
   for (auto p: m_selPlots) {
     switch (p) {
     case TRK_PARAM:
-      m_oTrkParamPlots = new Trk::ParamPlots(this, "/kinematics/", "Reco Muon");
+      m_oTrkParamPlots = new Trk::ParamPlots(this, "/kinematics/", "RecoMuon");
       m_allPlots.push_back(m_oTrkParamPlots);
       break;
     case TRK_RECOINFO:
-      m_oTrkRecoInfoPlots = new Trk::RecoInfoPlots(this, "/parameters/", "Reco Muon");
+      m_oTrkRecoInfoPlots = new Trk::RecoInfoPlots(this, "/parameters/", "RecoMuon");
       m_allPlots.push_back(m_oTrkParamPlots);
       break;      
     case TRK_IMPACT:

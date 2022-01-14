@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MUFASTTRACKEXTRAPOLATOR_H
@@ -32,7 +32,7 @@ namespace TrigL2MuonSA {
     double getMuFastRes(std::vector<double> vec, const double pt, const int add, const double eta, const double phi) const;
 
   private:
-    ToolHandle<ITrigMuonBackExtrapolator>* m_backExtrapolatorTool {nullptr};
+    const ToolHandle<ITrigMuonBackExtrapolator>* m_backExtrapolatorTool {nullptr};
 
     std::vector<double> m_muFastRes_barrel;
     std::vector<double> m_muFastRes_endcap1;

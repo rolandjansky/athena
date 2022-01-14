@@ -43,6 +43,9 @@ class DynamicallyLoadMetadata:
     def __repr__(self):
         return repr(self.metadata)
 
+    def keys(self):
+        return self.metadata.keys()
+
 def GetFileMD(filenames):
     if isinstance(filenames, str):
         filenames = [filenames]
@@ -103,7 +106,7 @@ def getDefaultDetectors(geoTag):
     detectors = set()
     detectors.add('Bpipe')
 
-    if DetDescrInfo(geoTag)['Common']['Run'] == 'RUN4':
+    if DetDescrInfo(geoTag)['Common']['Run'] not in ['RUN1', 'RUN2', 'RUN3']: # RUN4 and beyond
         detectors.add('ITkPixel')
         detectors.add('ITkStrip')
         if DetDescrInfo(geoTag)['Luminosity']['BCMPrime']:
@@ -121,7 +124,7 @@ def getDefaultDetectors(geoTag):
     if DetDescrInfo(geoTag)['Common']['Run'] in ['RUN1', 'RUN2', 'RUN3'] and DetDescrInfo(geoTag)['Pixel']['DBM']:
         detectors.add('DBM')
 
-    if DetDescrInfo(geoTag)['Common']['Run'] == 'RUN4':
+    if DetDescrInfo(geoTag)['Common']['Run'] not in ['RUN1', 'RUN2', 'RUN3']: # RUN4 and beyond
         detectors.add('HGTD')
 
     detectors.add('LAr')

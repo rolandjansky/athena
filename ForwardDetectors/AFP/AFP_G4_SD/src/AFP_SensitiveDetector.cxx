@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Class header
@@ -17,6 +17,7 @@
 #include "G4ThreeVector.hh"
 #include "G4Poisson.hh"
 #include "G4VSolid.hh"
+#include "G4VProcess.hh"
 #include "G4ReflectedSolid.hh"
 #include "G4Material.hh"
 #include "G4MaterialPropertyVector.hh"
@@ -32,19 +33,22 @@ AFP_SensitiveDetector::AFP_SensitiveDetector(const std::string& name, const std:
   , m_nEventNumber(0)
   , m_nNumberOfTDSimHits(0)
   , m_nNumberOfSIDSimHits(0)
-  , m_delta_pixel_x(0.050)
-  , m_delta_pixel_y(0.250)
   , m_pTDSimHitCollection(TDhitCollectionName)
   , m_pSIDSimHitCollection(SIDhitCollectionName)
 {
+  AFP_CONSTANTS AfpConstants;
+  
+  m_delta_pixel_x = AfpConstants.SiT_Pixel_length_x;
+  m_delta_pixel_y = AfpConstants.SiT_Pixel_length_y;
+
   for( int i=0; i < 4; i++){
     m_nNOfSIDSimHits[i] = 0;
     for( int j=0; j < 32; j++){
       m_nNOfTDSimHits[i][j] = 0;
     }
     for( int j=0; j < 10; j++){
-      m_death_edge[i][j] = SID_DEATH_EDGE; //in mm, it is left edge as the movement is horizontal
-      m_lower_edge[i][j] = SID_LOWER_EDGE; //in mm,
+      m_death_edge[i][j] = AfpConstants.SiT_DeathEdge; //in mm, it is left edge as the movement is horizontal
+      m_lower_edge[i][j] = AfpConstants.SiT_LowerEdge; //in mm,
     }
   }
 }
@@ -134,14 +138,10 @@ bool AFP_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
   G4VPhysicalVolume* volume = touch1->GetVolume();
   G4String VolumeName = volume->GetName();
 
-  //G4ThreeVector ph0 = pStep->GetDeltaPosition().unit();
-  //if (fKineticEnergy<10000. && ph0.y()>.2) pTrack->SetTrackStatus(fKillTrackAndSecondaries);
-  //if (VolumeName.contains("TDQuarticBar")) return 1;
-
     if(verboseLevel>5)
     {
       G4cout << "hit volume name is " << VolumeName << G4endl;
-
+      G4cout << "particle code is " << nParticleEncoding << "kinetic energy " << fKineticEnergy << G4endl;
       G4cout << "global, x_pre:  " << fPreStepX  << ", y_pre:  " << fPreStepY  << ", z_pre:  " << fPreStepZ << G4endl;
       G4cout << "global, x_post: " << fPostStepX << ", y_post: " << fPostStepY << ", z_post: " << fPostStepZ << G4endl;
     }
@@ -164,56 +164,19 @@ bool AFP_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
 
   m_nHitID++;
 
-  /*
-    if (VolumeName.contains("TDSensor") || (bRes=VolumeName.contains("TDQuarticBar["))){
-    nQuarticID=szbuff[7]-0x30;
 
-    if(VolumeName.contains("TDSensor") && pStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName()!="OpAbsorption" )
-    {
-    //hit in TD sensor but with no OpAbsorption (transportation)
-    }
-    else{
-
-    fWaveLength = 2.*M_PI*CLHEP::hbarc/(CLHEP::MeV*CLHEP::nm)/fKineticEnergy;
-
-    if (fWaveLength > 800. || fWaveLength < 200.) return 1; // 200-800 nm cut
-    AFP_TDSimHit* pHit = new AFP_TDSimHit();
-    pHit->m_nHitID=m_nHitID;
-    pHit->m_nTrackID=nTrackID;
-    pHit->m_nParticleEncoding=nParticleEncoding;
-    pHit->m_fKineticEnergy=fKineticEnergy;
-    pHit->m_fEnergyDeposit=fEnergyDeposit;
-    pHit->m_fWaveLength=fWaveLength;
-    pHit->m_fPreStepX=fPreStepX;
-    pHit->m_fPreStepY=fPreStepY;
-    pHit->m_fPreStepZ=fPreStepZ;
-    pHit->m_fPostStepX=fPostStepX;
-    pHit->m_fPostStepY=fPostStepY;
-    pHit->m_fPostStepZ=fPostStepZ;
-    pHit->m_fGlobalTime=fGlobalTime;
-
-    pHit->m_nStationID=nStationID;
-    pHit->m_nDetectorID=nDetectorID;
-    pHit->m_nSensitiveElementID=(bRes? 2:1)+2*nQuarticID;//Q1: 1-2, Q2: 3-4
-
-    m_pTDSimHitCollection->Insert(*pHit);
-    m_nNumberOfTDSimHits++;
-    }
-    }
-  */
-
-  if ( (VolumeName.contains("TDQuarticBarVacBorder")) && pParticleDefinition->GetPDGCharge() !=0 )
+  if (  (VolumeName.contains("TDSensor")) )
     {
       nQuarticID=szbuff[7]-0x30;
-      /*
+      if ( pStep->GetPostStepPoint()->GetProcessDefinedStep() == 0 ) return 1;
+      if ( (pStep->GetPostStepPoint()->GetProcessDefinedStep())->GetProcessName()!="OpAbsorption" ) return 1;
+      fWaveLength = 2.*M_PI*CLHEP::hbarc/(CLHEP::MeV*CLHEP::nm)/fKineticEnergy;
+      if (fWaveLength > 800. || fWaveLength < 200.) return 1; // 200-800 nm cut
+      
       m_pTDSimHitCollection->Emplace(m_nHitID,nTrackID,nParticleEncoding,fKineticEnergy,fEnergyDeposit,
                                      fWaveLength,fPreStepX,fPreStepY,fPreStepZ,fPostStepX,fPostStepY,
-                                     fPostStepZ,fGlobalTime,nStationID,nDetectorID,(2+2*nQuarticID));//Q1: 1-2, Q2: 3-4
-      // m_pTDSimHitCollection->Emplace(m_nHitID,nTrackID,nParticleEncoding,fKineticEnergy,fEnergyDeposit,
-      //                                fWaveLength,fPreStepX,fPreStepY,fPreStepZ,fPostStepX,fPostStepY,
-      //                                fPostStepZ,fGlobalTime,nStationID,nDetectorID,((bRes? 2:1)+2*nQuarticID));//Q1: 1-2, Q2: 3-4
+                                     fPostStepZ,fGlobalTime,nStationID,nDetectorID,(1+2*nQuarticID));//Q1: 1-2, Q2: 3-4
       m_nNumberOfTDSimHits++;
-      */
     }
 
   //////////////// Fast Cherenkov ///////////////////
@@ -244,17 +207,6 @@ bool AFP_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
       G4ThreeVector normnY( 0.,-1., 0.);
       G4ThreeVector normpZ( 0., 0., 1.);
       G4ThreeVector normnZ( 0., 0.,-1.);
-
-      //G4double BarpX = ((G4ReflectedSolid *)(myTouch->GetSolid()))->DistanceToOut(PreStepPointPos2, normpX);
-      //G4double BarnX = ((G4ReflectedSolid *)(myTouch->GetSolid()))->DistanceToOut(PreStepPointPos2, normnX);
-      //G4double BarpY = ((G4ReflectedSolid *)(myTouch->GetSolid()))->DistanceToOut(PreStepPointPos2, normpY);
-      //G4double BarnY = ((G4ReflectedSolid *)(myTouch->GetSolid()))->DistanceToOut(PreStepPointPos2, normnY);
-      //G4double BarpZ = ((G4ReflectedSolid *)(myTouch->GetSolid()))->DistanceToOut(PreStepPointPos2, normpZ);
-      //G4double BarnZ = ((G4ReflectedSolid *)(myTouch->GetSolid()))->DistanceToOut(PreStepPointPos2, normnZ);
-
-      //G4double BarHalfX = .5 * (BarpX+BarnX);
-      //G4double BarHalfY = .5 * (BarpY+BarnY);
-      //G4double BarHalfZ = .5 * (BarpZ+BarnZ);
 
       G4double PreProtonX =  PreStepPointPos2.x();
       G4double PreProtonY =  PreStepPointPos2.y();
@@ -330,7 +282,7 @@ bool AFP_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
         // Calculate x,y,z coordinates of photon momentum
         // in coordinate system with primary particle direction aligned with the z-axis
         // + Rotate momentum direction back to the global coordinate system
-        G4double sinTheta = sqrt(sin2Theta);
+        G4double sinTheta = std::sqrt(sin2Theta);
         G4double px = sinTheta*cosPhi;
         G4double py = sinTheta*sinPhi;
         G4double pz = cosTheta;
@@ -342,12 +294,12 @@ bool AFP_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
         G4double PZ = photonMomentum.getZ();
 
         // calculate projections coordinates
-        //G4double PXp = PX/sqrt(PX*PX+PY*PY+PZ*PZ);
-        G4double PYp = PY/sqrt(PX*PX+PY*PY+PZ*PZ);
-        G4double PZp = PZ/sqrt(PX*PX+PY*PY+PZ*PZ);
+        //G4double PXp = PX/std::sqrt(PX*PX+PY*PY+PZ*PZ);
+        G4double PYp = PY/std::sqrt(PX*PX+PY*PY+PZ*PZ);
+        G4double PZp = PZ/std::sqrt(PX*PX+PY*PY+PZ*PZ);
 
-        G4double PYt = PY/sqrt(PY*PY+PZ*PZ);
-        G4double PZt = PZ/sqrt(PY*PY+PZ*PZ);
+        G4double PYt = PY/std::sqrt(PY*PY+PZ*PZ);
+        G4double PZt = PZ/std::sqrt(PY*PY+PZ*PZ);
 
         // Cosines (alpha, delta)
         cosPhi = (PYp*PYt + PZp*PZt);
@@ -355,9 +307,9 @@ bool AFP_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
         else                    cosTheta = ( -PYt*sin(48.*CLHEP::deg) - PZt*cos(48.*CLHEP::deg) );
 
         // Total internal reflection conditions
-        G4double cosThetaC = sqrt(1.-1./sampledRI/sampledRI);
-        if (sqrt(1.-cosPhi*cosPhi)>cosThetaC) continue;
-        if (sqrt(1.-cosTheta*cosTheta)*cosPhi>cosThetaC) continue;
+        G4double cosThetaC = std::sqrt(1.-1./sampledRI/sampledRI);
+        if (std::sqrt(1.-cosPhi*cosPhi)>cosThetaC) continue;
+        if (std::sqrt(1.-cosTheta*cosTheta)*cosPhi>cosThetaC) continue;
 
         // Parametric equation of line where photons are generated
         rand = G4UniformRand();
@@ -365,7 +317,7 @@ bool AFP_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
         G4double PhotonY = PreProtonY + (PostProtonY-PreProtonY)*rand;
         G4double PhotonZ = PreProtonZ + (PostProtonZ-PreProtonZ)*rand;
         G4ThreeVector PhotonPos(PhotonX,PhotonY,PhotonZ);
-        G4double PhotonR = sqrt( (PreProtonX-PhotonX)*(PreProtonX-PhotonX) + (PreProtonY-PhotonY)*(PreProtonY-PhotonY) + (PreProtonZ-PhotonZ)*(PreProtonZ-PhotonZ) );
+        G4double PhotonR = std::sqrt( (PreProtonX-PhotonX)*(PreProtonX-PhotonX) + (PreProtonY-PhotonY)*(PreProtonY-PhotonY) + (PreProtonZ-PhotonZ)*(PreProtonZ-PhotonZ) );
 
         G4double Y0;
         // including the scattering from the top edge of the bar (perfect absorber now)
@@ -377,8 +329,6 @@ bool AFP_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
         else
           {
             continue;
-            //Y0 = 2.*((G4ReflectedSolid *)(myTouch->GetSolid()))->DistanceToOut(PhotonPos, normpY) + ((G4ReflectedSolid *)(myTouch->GetSolid()))->DistanceToOut(PhotonPos, normnY);
-            //Y0 = -Y0/cosTheta/cosPhi;
           }
 
         // absorption of photons inside the crystal
@@ -399,9 +349,8 @@ bool AFP_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
 
         // for group velocity of light: Edn/dE
         float EdndE;
-        //if (sampledEnergy > (Pmin+.5*dp)) EdndE = (sampledRI - Rind->GetProperty(sampledEnergy-0.0001*CLHEP::eV))/0.0001*sampledEnergy/CLHEP::eV;
+
         if (sampledEnergy > (Pmin+.5*dp)) EdndE = (sampledRI - Rind->Value(sampledEnergy-0.0001*CLHEP::eV))/0.0001*sampledEnergy/CLHEP::eV;
-        //else                            EdndE = (Rind->GetProperty(sampledEnergy+0.0001*CLHEP::eV) - sampledRI)/0.0001*sampledEnergy/CLHEP::eV;
         else                              EdndE = (Rind->Value(sampledEnergy+0.0001*CLHEP::eV) - sampledRI)/0.0001*sampledEnergy/CLHEP::eV;
         fGlobalTime2 += ( (sampledRI + EdndE)* Y0 * BetaInverse / CLHEP::c_light )/CLHEP::picosecond;
 
@@ -451,10 +400,6 @@ bool AFP_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
             m_pSIDSimHitCollection->Emplace(m_nHitID,nTrackID,nParticleEncoding,fKineticEnergy,fEnergyDeposit,
                                             fPreStepX,fPreStepY,fPreStepZ,fPostStepX,fPostStepY,fPostStepZ,
                                             fGlobalTime,nStationID,nDetectorID,bIsSIDAuxVSID,-1,-1);
-            // G4cout << "pixel["<< act_pixel_x - n_death_pixels <<"]["<< act_pixel_y - n_lower_pixels
-            //        << "] will be stored, with energy "<< fEnergyDeposit*(pixel_track_length_XY/track_length_XY)
-            //        << G4endl;
-            // m_nNumberOfSIDSimHits++;
           }
         else
           {
@@ -470,7 +415,7 @@ bool AFP_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
             const G4AffineTransform transformation = myTouch->GetHistory()->GetTopTransform();
             G4ThreeVector localPosition_pre  = transformation.TransformPoint(PreStepPointPos);
             G4ThreeVector localPosition_post = transformation.TransformPoint(PostStepPointPos);
-
+            
             G4ThreeVector normpX( 1., 0., 0.);
             G4ThreeVector normnX(-1., 0., 0.);
             G4ThreeVector normpY( 0., 1., 0.);
@@ -499,13 +444,11 @@ bool AFP_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
             G4double y_det_post = BarHalfY + localPosition_post.y(); //- lower_edge[nStationID][nDetectorID];
             G4double z_det_post = BarHalfZ + localPosition_post.z();
 
-            //G4double track_length_XY = sqrt(pow(fPostStepX-fPreStepX,2)+pow(fPostStepY-fPreStepY,2));
-            G4double track_length_XY = sqrt(pow(x_det_post-x_det,2)+pow(y_det_post-y_det,2));
+            G4double track_length_XY = std::sqrt(pow(x_det_post-x_det,2)+pow(y_det_post-y_det,2));
 
             G4double angle_phi_global = atan2(fPostStepY-fPreStepY,fPostStepX-fPreStepX);
             G4double angle_phi = atan2(y_det_post-y_det,x_det_post-x_det);
 
-            //G4double tan_phi_global = (fPostStepY-fPreStepY)/(fPostStepX-fPreStepX);
             G4double tan_phi = (y_det_post-y_det)/(x_det_post-x_det);
 
             if(verboseLevel>5)
@@ -569,9 +512,6 @@ bool AFP_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
 
             int act_pixel_x = pre_pixel_x;
             int act_pixel_y = pre_pixel_y;
-
-            //G4double act_pos_x = x_det;
-            //G4double act_pos_y = y_det;
 
             if(verboseLevel>5)
               {
@@ -720,7 +660,7 @@ bool AFP_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
 
                         if (( act_pixel_y - n_lower_pixels <= 80) && (act_pixel_x -n_death_pixels <= 336) && ( act_pixel_y - n_lower_pixels > 0) && (act_pixel_x - n_death_pixels > 0))
                           {
-                            pixel_track_length_XY = sqrt(pow(x_border-x_det,2)+pow(y_border-y_det,2));
+                            pixel_track_length_XY = std::sqrt(pow(x_border-x_det,2)+pow(y_border-y_det,2));
 
                             if(verboseLevel>5)
                               {
@@ -769,7 +709,7 @@ bool AFP_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
 
                         if (( act_pixel_y - n_lower_pixels <= 80) && (act_pixel_x -n_death_pixels <= 336) && ( act_pixel_y - n_lower_pixels >= 0) && (act_pixel_x - n_death_pixels >= 0))
                           {
-                            pixel_track_length_XY = sqrt(pow(x_border-x_det,2)+pow(y_border-y_det,2));
+                            pixel_track_length_XY = std::sqrt(pow(x_border-x_det,2)+pow(y_border-y_det,2));
 
                             if(verboseLevel>5)
                               {

@@ -256,8 +256,7 @@ namespace Trk {
   //_______________________________________________________________________
   void MatrixTool::prepareBinaryFiles(int)
   {
-    return;
-  }
+     }
 
   //_______________________________________________________________________
   int MatrixTool::solveROOT()
@@ -975,7 +974,7 @@ namespace Trk {
    
     int numberOfReadErrors = 0; 
    
-    struct rusage myusage;
+    struct rusage myusage{};
     int itworked =  getrusage(RUSAGE_SELF,&myusage);
     if(itworked)//note: rusage returns zero if it succeeds!
 		  ATH_MSG_DEBUG("ItWorked");
@@ -1573,26 +1572,22 @@ namespace Trk {
   //_______________________________________________________________________
   void MatrixTool::addFirstDerivatives(AlVec* )
   {
-    return;
-  }
+     }
 
   //_______________________________________________________________________
   void MatrixTool::addSecondDerivatives(AlSymMatBase* )
   {
-    return;
-  }
+     }
 
   //________________________________________________________________________
   void MatrixTool::addFirstDerivatives(std::list<int,double>& )
   {
-    return;
-  }
+     }
 
   //________________________________________________________________________
   void MatrixTool::addSecondDerivatives(std::list<std::pair<int,int>,double >&)
   {
-    return;
-  }
+     }
 
   //________________________________________________________________________
   void MatrixTool::addFirstDerivative(int irow, double firstderiv)
@@ -1713,7 +1708,7 @@ namespace Trk {
     DataVector<AlignPar> * alignPars = m_alignModuleTool->getAlignPars(module);
     int thisNDoF = alignPars->size();
 
-    if(alignPars->size()==0)
+    if(alignPars->empty())
       os << "No active parameters" << std::endl;
     else
     {

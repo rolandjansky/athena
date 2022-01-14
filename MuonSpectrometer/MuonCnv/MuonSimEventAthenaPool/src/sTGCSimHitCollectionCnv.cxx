@@ -37,7 +37,7 @@ sTGCSimHitCollection* sTGCSimHitCollectionCnv::createTransient() {
     static pool::Guid   p2_guid("b9521cc6-6e3b-11e8-adbb-02163e01bddd");
 
     ATH_MSG_DEBUG("createTransient(): main converter");
-    sTGCSimHitCollection* p_collection(0);
+    sTGCSimHitCollection* p_collection(nullptr);
     if( compareClassGuid(p2_guid) ) {
       ATH_MSG_DEBUG("createTransient(): T/P version 2 detected");
       std::unique_ptr< Muon::sTGCSimHitCollection_p2 >   col_vect( this->poolReadObject< Muon::sTGCSimHitCollection_p2 >() );

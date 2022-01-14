@@ -68,7 +68,7 @@ public:
   /// Overrride configured booking path
   void setPath( const std::string& newPath ) { m_histoPath = newPath; }
 
-  virtual const ServiceHandle<ITHistSvc>& histogramService() { return m_histSvc; }
+  virtual const ServiceHandle<ITHistSvc>& histogramService() const { return m_histSvc; }
   virtual uint32_t runNumber();
   virtual uint32_t lumiBlock();
 

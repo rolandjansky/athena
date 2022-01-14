@@ -2,10 +2,12 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <utility>
+
 #include "MuonCalibExtraTreeEvent/MuonCalibHit_E.h"
 
 namespace MuonCalib {
-    MuonCalibHit_E::MuonCalibHit_E(const MuonFixedId& id, definePars pars) : m_id{id}, m_pars{pars} {}
+    MuonCalibHit_E::MuonCalibHit_E(const MuonFixedId& id, definePars pars) : m_id{id}, m_pars{std::move(pars)} {}
 
     const MuonFixedId& MuonCalibHit_E::identify() const { return m_id; }
     const Amg::Vector3D& MuonCalibHit_E::position() const { return m_pars.pos; }

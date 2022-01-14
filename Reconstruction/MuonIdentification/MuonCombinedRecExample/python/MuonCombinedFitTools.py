@@ -14,7 +14,7 @@
 from MuonRecExample.MuonRecFlags import muonRecFlags
 from MuonRecExample.MuonStandaloneFlags import muonStandaloneFlags
 from AthenaCommon import CfgMgr
-from AthenaCommon.CfgGetter import getPrivateTool, getPrivateToolClone, getPublicTool, getPublicToolClone, getService
+from AthenaCommon.CfgGetter import getPrivateTool, getPrivateToolClone, getPublicTool, getPublicToolClone
 from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
 from AthenaCommon.DetFlags import DetFlags 
@@ -35,7 +35,6 @@ def MuidMaterialAllocator( name='MuidMaterialAllocator', **kwargs):
     kwargs.setdefault("AggregateMaterial",True)
     kwargs.setdefault("AllowReordering",False)
     kwargs.setdefault("Extrapolator", getPublicTool('AtlasExtrapolator') )
-    kwargs.setdefault("TrackingGeometrySvc", getService("AtlasTrackingGeometrySvc") )
 
     cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
     kwargs.setdefault("TrackingGeometryReadKey",cond_alg.TrackingGeometryWriteKey)
@@ -87,8 +86,8 @@ def MuidTrackCleaner( name='MuidTrackCleaner', **kwargs ):
         kwargs.setdefault("Iterate", False)
         kwargs.setdefault("RecoverOutliers", False)
 
-    kwargs.setdefault("Fitter"      , getPublicTool("iPatFitter") )
-    kwargs.setdefault("SLFitter"    , getPublicTool("iPatSLFitter") )
+    kwargs.setdefault("Fitter"      , getPrivateTool("iPatFitter") )
+    kwargs.setdefault("SLFitter"    , getPrivateTool("iPatSLFitter") )
     return CfgMgr.Muon__MuonTrackCleaner(name,**kwargs)
 
     
@@ -218,7 +217,20 @@ def MuidSegmentRegionRecoveryTool( name ='MuidSegmentRegionRecoveryTool', **kwar
     else:
         kwargs.setdefault("MMRegionSelector", "")
 
+    kwargs.setdefault( "ChamberHoleRecoveryTool", getPublicTool("MuonChamberHoleRecoveryTool"))
     return CfgMgr.Muon__MuonSegmentRegionRecoveryTool(name,**kwargs)
+
+
+####
+def MuonSegmentRegionRecoveryTool_EMEO(name = "MuonSegmentRegionRecoveryTool_EMEO"):
+    return MuidSegmentRegionRecoveryTool(name = name , 
+                                        ChamberHoleRecoveryTool = getPublicTool("MuonChamberRecovery_EMEO"),
+                                        Builder = getPublicTool("CombinedTrackBuilderFit_EMEO"),
+                                        STGCRegionSelector = "",
+                                        MMRegionSelector = "",
+                                        RecoverMM = False,
+                                        RecoverSTGC = False)
+
 
 def MuonCaloEnergyTool(name = "MuonCaloEnergyTool", **kwargs):
     from TrackToCalo.TrackToCaloConf import Rec__MuonCaloEnergyTool
@@ -273,11 +285,12 @@ def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
     kwargs.setdefault("Vertex3DSigmaRPhi"             , 6.*mm )
     kwargs.setdefault("Vertex3DSigmaZ"                , 60.*mm)
     kwargs.setdefault("UseCaloTG"                     , False )
-    #kwargs.setdefault("CaloMaterialProvider"          , getPublicTool("MuonMaterialProviderTool"))
     kwargs.setdefault("TrackQuery"                    , getPrivateTool("MuonTrackQuery") )
 
 
     reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
+    reco_mircomegas = muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()
+
     if ConfigFlags.Muon.MuonTrigger:
         kwargs.setdefault("MuonHoleRecovery"              , "" )
         trigTrackSummary = getPublicToolClone("TrigMuonTrackSummary", "MuonTrackSummaryTool")
@@ -304,14 +317,15 @@ def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
     else:
         import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401 (import side-effects)
         kwargs.setdefault("TrackSummaryTool"              , ToolSvc.CombinedMuonTrackSummary )
-        kwargs.setdefault("Propagator"                    , getPublicTool("MuonCombinedPropagator") )
-        kwargs.setdefault("SLPropagator"                  , getPublicTool("MuonCombinedPropagator") )
-        kwargs.setdefault("Fitter"                        , getPublicTool("iPatFitter") )
-        kwargs.setdefault("SLFitter"                      , getPublicTool("iPatSLFitter") )
-        kwargs.setdefault("CscRotCreator"                 , (getPublicTool("CscClusterOnTrackCreator") if reco_cscs else "") )
+        kwargs.setdefault("Propagator"                    , getPrivateTool("MuonCombinedPropagator") )
+        kwargs.setdefault("SLPropagator"                  , getPrivateTool("MuonCombinedPropagator") )
+        kwargs.setdefault("Fitter"                        , getPrivateTool("iPatFitter") )
+        kwargs.setdefault("SLFitter"                      , getPrivateTool("iPatSLFitter") )
+        kwargs.setdefault("CscRotCreator"                 , getPrivateTool("CscClusterOnTrackCreator") if reco_cscs else "")
+        kwargs.setdefault("MMRotCreator"                  , getPrivateTool("MMClusterOnTrackCreator") if reco_mircomegas else "" )
         kwargs.setdefault("Cleaner"                       , getPrivateTool("MuidTrackCleaner") )
-        kwargs.setdefault("MuonErrorOptimizer", getPublicTool('MuidErrorOptimisationTool'))
-        kwargs.setdefault("MuonHoleRecovery"              , getPublicTool("MuonChamberHoleRecoveryTool") ) 
+        kwargs.setdefault("MuonErrorOptimizer"            , getPrivateTool('MuidErrorOptimisationTool'))
+        kwargs.setdefault("MuonHoleRecovery"              , getPrivateTool("MuonChamberHoleRecoveryTool") ) 
 
 
     if beamFlags.beamType() == 'cosmics':
@@ -325,20 +339,27 @@ def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
     if muonRecFlags.doSegmentT0Fit():
         kwargs.setdefault("MdtRotCreator"                 , "" )
 
-    getPublicTool("MuonCaloParticleCreator")
     cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
     kwargs.setdefault('TrackingGeometryReadKey', cond_alg.TrackingGeometryWriteKey)
     
     return CfgMgr.Rec__CombinedMuonTrackBuilder(name,**kwargs)
 
+def CombinedTrackBuilderFit_EMEO(name = "CombinedTrackBuilderFit_EMEO", **kwargs):
+    return CombinedMuonTrackBuilderFit(name = name,
+                                       MuonHoleRecovery = getPublicTool("MuonChamberRecovery_EMEO") if not ConfigFlags.Muon.MuonTrigger else "",
+                                       MMRotCreator = "")
+    
+
 def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
     from AthenaCommon.AppMgr import ToolSvc
     reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
+    reco_mircomegas = muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()
 
     kwargs.setdefault("CaloEnergyParam"               , getPublicTool("MuidCaloEnergyToolParam") )
     kwargs.setdefault("CaloTSOS"                      , getPublicTool("MuidCaloTrackStateOnSurface") )
     kwargs.setdefault("MaterialAllocator"             , getPublicTool("MuidMaterialAllocator") )
     kwargs.setdefault("MdtRotCreator"                 , getPublicTool("MdtDriftCircleOnTrackCreator") )
+    
     kwargs.setdefault("CleanCombined"                 , True )
     kwargs.setdefault("CleanStandalone"               , True )
     kwargs.setdefault("BadFitChi2"                    , 2.5 )
@@ -377,6 +398,7 @@ def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
         kwargs.setdefault("SLFitter"                      , getPublicToolClone("TrigiPatSLFitter_"+suffix, "iPatSLFitter", TrackSummaryTool=trackSummary) )
         kwargs.setdefault("MuonErrorOptimizer", "")
         kwargs.setdefault("CscRotCreator"                 , "" )
+        kwargs.setdefault("MMRotCreator"                  , "" )
         kwargs.setdefault("Cleaner"                       , getPrivateToolClone("TrigMuidTrackCleaner_"+suffix, "MuidTrackCleaner", Fitter=getPublicToolClone("TrigiPatFitterClean_"+suffix, "iPatFitter", TrackSummaryTool=trackSummary, MaxIterations=4)))
     else:
         import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401 (import side-effects)
@@ -386,7 +408,8 @@ def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
         kwargs.setdefault("SLPropagator"                  , getPublicTool("MuonCombinedPropagator") )
         kwargs.setdefault("Fitter"                        , getPublicTool("iPatFitter") )
         kwargs.setdefault("SLFitter"                      , getPublicTool("iPatSLFitter") )
-        kwargs.setdefault("CscRotCreator"                 , (getPublicTool("CscClusterOnTrackCreator") if reco_cscs else "") )
+        kwargs.setdefault("CscRotCreator"                 , getPublicTool("CscClusterOnTrackCreator") if reco_cscs else "")
+        kwargs.setdefault("MMRotCreator"                  , getPublicTool("MMClusterOnTrackCreator") if reco_mircomegas else "" )
         kwargs.setdefault("Cleaner"                       , getPrivateTool("MuidTrackCleaner") )
 
 
@@ -405,12 +428,17 @@ def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
 
     if muonRecFlags.doSegmentT0Fit():
         kwargs.setdefault("MdtRotCreator"                 , "" )
-    getPublicTool("MuonCaloParticleCreator")
-
+  
     cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
     kwargs.setdefault('TrackingGeometryReadKey', cond_alg.TrackingGeometryWriteKey)
        
     return CfgMgr.Rec__CombinedMuonTrackBuilder(name,**kwargs)
+
+def CombinedMuonTrackBuilder_EMEO(name = "MuonCombinedTrackBuilder_EMEO"):
+    return CombinedMuonTrackBuilder(name = name,
+                                    MuonHoleRecovery = getPublicTool("MuonSegmentRegionRecoveryTool_EMEO"),
+                                    MMRotCreator = "")
+
 
 def MuidErrorOptimisationTool(name='MuidErrorOptimisationTool', **kwargs):
     useAlignErrs = True
@@ -437,7 +465,6 @@ def MuonCombinedTrackFitter( name="MuonCombinedTrackFitter", **kwargs ):
     kwargs.setdefault("PropagatorTool"        , getPublicTool("MuonCombinedPropagator") )
     kwargs.setdefault("RotCreatorTool"        , getPublicTool("MuonRotCreator") )
     kwargs.setdefault("MeasurementUpdateTool" , getPublicTool("MuonMeasUpdator") )
-    kwargs.setdefault("TrackingGeometrySvc"   , getService("AtlasTrackingGeometrySvc") )
     kwargs.setdefault("ExtrapolatorMaterial"  , True )
     kwargs.setdefault("MuidTool"              , getPublicTool("MuidMaterialEffectsOnTrackProvider") )
     kwargs.setdefault("MuidToolParam"         , None )
@@ -453,7 +480,6 @@ def MuonCombinedTrackFitter( name="MuonCombinedTrackFitter", **kwargs ):
 
 def CombinedMuonTagTestTool( name='CombinedMuonTagTestTool', **kwargs ):
     kwargs.setdefault("ExtrapolatorTool",getPublicTool("AtlasExtrapolator") )
-    kwargs.setdefault("TrackingGeometrySvc",  getService("AtlasTrackingGeometrySvc") )
     kwargs.setdefault("Chi2Cut",50000.)
     cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
     kwargs.setdefault("TrackingGeometryReadKey",cond_alg.TrackingGeometryWriteKey)

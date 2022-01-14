@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGGER_DECISION_TOOL_FeatureCollectStandalone_H
@@ -38,11 +38,11 @@
 #include "xAODTrigger/RoiDescriptorStore.h"
 
 #include "TrigDecisionTool/TypelessFeature.h"
-#include "TrigDecisionTool/EventPtrDef.h"
 
 #include "TrigNavStructure/TrigNavStructure.h"
 
 #include "AsgMessaging/Check.h"
+#include "AsgTools/EventStoreType.h"
 
 #include "TrigNavStructure/TypedHolder.h"
 
@@ -66,7 +66,7 @@ namespace Trig {
     
 
     template<typename REQUESTED,typename STORED, typename CONTAINER>
-    std::vector<Trig::Feature<REQUESTED> > typedGet(const std::vector<TypelessFeature>& features, HLT::TrigNavStructure* navigation, EventPtr_t store,const std::string& container_name = ClassID_traits<CONTAINER>::typeName());
+    std::vector<Trig::Feature<REQUESTED> > typedGet(const std::vector<TypelessFeature>& features, HLT::TrigNavStructure* navigation, const asg::EventStoreType* store,const std::string& container_name = ClassID_traits<CONTAINER>::typeName());
 
 
     //////////////////////////////////////////////////////////
@@ -127,7 +127,7 @@ namespace Trig {
     }
 
     template<typename REQUESTED,typename STORED, typename CONTAINER>
-    std::vector<Trig::Feature<REQUESTED> > typedGet(const std::vector<TypelessFeature>& features, HLT::TrigNavStructure* navigation, EventPtr_t store, const std::string& container_name) {
+    std::vector<Trig::Feature<REQUESTED> > typedGet(const std::vector<TypelessFeature>& features, HLT::TrigNavStructure* navigation, const asg::EventStoreType* store, const std::string& container_name) {
       std::vector<Trig::Feature<REQUESTED> > typedvec;
 
       for(auto feature : features){
@@ -188,7 +188,7 @@ namespace HLT{
   template<>
   class TypedHolder<TrigRoiDescriptor,TrigRoiDescriptorCollection> : public TypelessHolder, public asg::AsgMessaging {
   public:
-    TypedHolder(const BaseHolder& baseholder, EventPtr store, const std::string& /*container_name*/ = "") 
+    TypedHolder(const BaseHolder& baseholder, const asg::EventStoreType* store, const std::string& /*container_name*/ = "")
       : TypelessHolder(baseholder.typeClid(),baseholder.label(),baseholder.subTypeIndex()), 
 	asg::AsgMessaging("TypedHolder"),
 	m_store(store){
@@ -231,7 +231,7 @@ namespace HLT{
       return StatusCode::SUCCESS;    
     }
   private:
-    EventPtr m_store;
+    const asg::EventStoreType* m_store;
   };
 }
 

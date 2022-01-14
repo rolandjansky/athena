@@ -41,7 +41,7 @@ class BCM_RawDataProviderTool : public AthAlgTool
   StatusCode convert(std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs, BCM_RDO_Container* rdoCont) const;
 
 private:
-  mutable std::atomic<int> m_DecodeErrCount;
+  mutable std::atomic<int> m_DecodeErrCount{};
   ToolHandle<BCM_RodDecoder>  m_decoder;
 };
 

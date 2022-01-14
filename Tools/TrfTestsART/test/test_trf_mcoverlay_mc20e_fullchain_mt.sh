@@ -3,6 +3,8 @@
 # art-description: MC+MC Overlay chain for MC20e, ttbar, full reco chain, 1000 events, AthenaMT
 # art-type: grid
 # art-include: master/Athena/x86_64-centos7-gcc11-opt
+# art-include: master/Athena/x86_64-centos7-clang13-opt
+# art-include: 22.0-mc20/Athena
 # art-athena-mt: 8
 
 events=1000
@@ -21,12 +23,17 @@ Reco_tf.py \
 --postInclude "default:PyJobTransforms/UseFrontier.py" \
 --runNumber 410470 \
 --steering "doOverlay" "doRDO_TRIG" "doTRIGtoALL" \
---triggerConfig "RDOtoRDOTrigger=MCRECO:DBF:TRIGGERDBMC:2233,87,314" --asetup "RDOtoRDOTrigger:Athena,21.0.131" \
+--triggerConfig "RDOtoRDOTrigger=MCRECO:DBF:TRIGGERDBMC:2233,87,314" --asetup "RDOtoRDOTrigger:Athena,21.0,latest" \
 --outputAODFile MC_plus_MC.AOD.pool.root \
+--postExec 'FPEAuditor.NStacktracesOnFPE=10' \
 --imf False
 
-rc=$?
-status=$rc
-echo "art-result: $rc Reco_tf_overlay_fullchain_mt"
+rc1=$?
+echo "art-result: ${rc1} Reco_tf_overlay_fullchain_mt"
 
-exit $status
+# Check for FPEs in the logiles
+test_trf_check_fpe.sh
+fpeStat=$?
+
+echo "art-result: ${fpeStat} FPEs in logfiles"
+exit $rc1

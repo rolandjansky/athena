@@ -52,11 +52,11 @@ namespace LVL1 {
     /** Clear and resize Identifier value vector */
     void clear_scIDs();
 
-    /** Add to ET of a specified cell in MeV */
+    /** Add ET in MeV, layer refers to EM or HAD (Tile) */
     void addET(float et, int layer);
 
-    /** Add to ET of a specified cell */
-    void recordMD_ET(float et);
+    /** Add to ET  */
+    // void recordMD_ET(float et);
 
     /** Get unique ID of tower */
     int getID() const;
@@ -86,7 +86,7 @@ namespace LVL1 {
     /** Get ET in MeV from HAD calo FLOAT VERSION */
     int getET_HAD_float() const;
 
-    void setET(float et, int layer);
+    void setET();
 
     /** Set supercell position ID **/
     void setSCID(Identifier ID);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -32,7 +32,7 @@ const Result Root::TPhotonEfficiencyCorrectionTool::calculate( const PATCore::Pa
                                   const unsigned int runnumber,
                                   const double cluster_eta,
                                   const double et /* in MeV */
-                                  ){
+                                  ) const {
 
     size_t CorrIndex{0},MCToysIndex{0} ;// The Photons for now do not break down those
     std::vector<double> result;

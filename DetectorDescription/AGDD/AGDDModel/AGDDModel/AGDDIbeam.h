@@ -17,7 +17,7 @@ public:
                  AGDDSectionStore& ss)
           : AGDDVolume(s,vs,ss),m_width(0),m_smallWidth(0),m_height(0),
 								m_smallHeight(0),m_z(0) {}
-        virtual void CreateVolume (const AGDDBuilder& builder) override;
+        virtual void CreateVolume (AGDDBuilder& builder) override;
 	virtual void CreateSolid (const AGDDBuilder& builder) override;
 	
 	void SetWidth(double l) {m_width=l;}

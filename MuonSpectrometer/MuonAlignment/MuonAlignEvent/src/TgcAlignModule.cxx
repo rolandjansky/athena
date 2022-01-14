@@ -10,14 +10,14 @@
 namespace Muon {
     //________________________________________________________________________
     TgcAlignModule::TgcAlignModule(MsgStream* log, const Amg::Transform3D& transform) :
-        CombinedMuonAlignModule(log, transform), m_rootfile(0), m_stripPositionTree(0), m_wirePositionTree(0), m_log(new MsgStream(*log)) {}
+        CombinedMuonAlignModule(log, transform), m_rootfile(nullptr), m_stripPositionTree(nullptr), m_wirePositionTree(nullptr), m_log(new MsgStream(*log)) {}
 
     //________________________________________________________________________
     TgcAlignModule::TgcAlignModule(const AlgTool* algtool, const Amg::Transform3D& transform) :
         CombinedMuonAlignModule(algtool, transform),
-        m_rootfile(0),
-        m_stripPositionTree(0),
-        m_wirePositionTree(0),
+        m_rootfile(nullptr),
+        m_stripPositionTree(nullptr),
+        m_wirePositionTree(nullptr),
         m_log(new MsgStream(algtool->msgSvc(), "TgcAlignModule")) {
         const AthAlgTool* athAlgTool = dynamic_cast<const AthAlgTool*>(algtool);
         if (athAlgTool) { m_log->setLevel(athAlgTool->msg().level()); }

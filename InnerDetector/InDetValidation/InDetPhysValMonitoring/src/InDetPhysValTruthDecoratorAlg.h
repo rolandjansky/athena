@@ -20,6 +20,7 @@
 #include "StoreGate/WriteDecorHandle.h"
 #include "BeamSpotConditionsData/BeamSpotData.h"
 #include "AthContainers/AuxElement.h"
+#include "xAODTracking/TrackMeasurementValidationContainer.h"
 #include "GaudiKernel/EventContext.h"
 #include "InDetPhysValMonitoring/IAthSelectionTool.h"
 #include "InDetPhysValMonitoring/CutFlow.h"
@@ -43,7 +44,7 @@ private:
   bool decorateTruth(const xAOD::TruthParticle& particle,
                      std::vector< std::pair<SG::WriteDecorHandle<xAOD::TruthParticleContainer,float>,
                                             bool > > &float_decor,
-                     const Amg::Vector3D& beamPos) const;
+                     const Amg::Vector3D& beamPos, std::map<int, float> pixelMap, std::map<int, float> sctMap) const;
 
   PublicToolHandle<Trk::IExtrapolator> m_extrapolator
      {this,"Extrapolator","Trk::Extrapolator/AtlasExtrapolator",""};
@@ -63,7 +64,14 @@ private:
 
   Gaudi::Property<std::string> m_prefix
     {this, "Prefix", "", "Decoration prefix to avoid clashes."};
-
+  
+  ///TruthPixelClusterContainer and TruthSCTClusterContainer needed for truth silicon hit cut
+  SG::ReadHandleKey<xAOD::TrackMeasurementValidationContainer> m_truthPixelClusterName
+    {this, "PixelClusterContainerName",  "PixelClusters", ""};
+  
+  SG::ReadHandleKey<xAOD::TrackMeasurementValidationContainer> m_truthSCTClusterName
+    {this, "SCTClusterContainerName",  "SCT_Clusters", ""};
+   
   // decoration helper
   enum EDecorations {
     kDecorD0,
@@ -74,6 +82,7 @@ private:
     kDecorQOverP,
     kDecorProdR,
     kDecorProdZ,
+    kDecorNSilHits,
     kNDecorators
   };
   std::vector< std::pair<SG::WriteDecorHandleKey<xAOD::TruthParticleContainer>,SG::AuxElement::ConstAccessor<float> > > m_decor;

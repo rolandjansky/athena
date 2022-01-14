@@ -558,7 +558,7 @@ def TrigMuonEFMSonlyHypoToolFromName(chainDict):
     #in the chain to get the counting correct. 
     thresholds=[]
     chainName = chainDict["chainName"]
-    hltChainName = chainName[:chainName.index("_L1")]
+    hltChainName = chainName.rsplit("_L1",1)[0]
     cparts = hltChainName.split("_")
 
     if 'HLT' in hltChainName:
@@ -668,7 +668,7 @@ def TrigMuonEFCombinerHypoToolFromName(chainDict):
     #Can probably improve this once serial merging is officially implemented
     thresholds=[]
     chainName = chainDict["chainName"]
-    hltChainName = chainName[:chainName.index("_L1")]
+    hltChainName = chainName.rsplit("_L1",1)[0]
     cparts = hltChainName.split("_")
     if 'HLT' in hltChainName:
         cparts.remove('HLT')
@@ -863,7 +863,7 @@ if __name__ == '__main__':
                      'HLT_mu20_ivarmedium_L1MU20',
                      'HLT_2mu6_L12MU6']
 
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
+    from TriggerMenuMT.HLT.Menu.DictFromChainName import dictFromChainName
 
     for c in configToTest:
         log.info("testing config %s", c)

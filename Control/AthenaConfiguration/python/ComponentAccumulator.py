@@ -274,12 +274,8 @@ class ComponentAccumulator(object):
             return io
 
         ret = []
-        import itertools
-        for c in itertools.chain(self._publicTools,
-                                self._privateTools if self._privateTools else [],
-                                self._algorithms.values(),
-                                self._conditionsAlgs):
-            ret.extend(__getHandles(c))
+        for comp in self._allComponents():
+            ret.extend(__getHandles(comp))
         return ret
 
 
@@ -707,9 +703,26 @@ class ComponentAccumulator(object):
         """
         self._wasMerged=True
 
+    def _allComponents(self):
+        """ returns iterable over all components """
+        import itertools
+        return itertools.chain(self._publicTools,
+                               self._privateTools if self._privateTools else [],
+                               self._algorithms.values(),
+                               self._conditionsAlgs)
 
-    def store(self,outfile):
+
+    def store(self,outfile, withDefaultHandles=False):
+        """
+        Saves CA in pickle form
+
+        when withDefaultHandles is True, also the handles that are not set are saved
+        """
         self.wasMerged()
+        if withDefaultHandles:
+            from AthenaConfiguration.Utils import loadDefaultComps, exposeHandles
+            loadDefaultComps(self._allComponents())
+            exposeHandles(self._allComponents())
         import pickle
         pickle.dump(self,outfile)
         return
@@ -1146,8 +1159,13 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
                                 indent, type(pvalue), type(existingVal) )
                     __areSettingsSame( existingVal, pvalue, indent)
             else:
-                if isinstance(pvalue,(GaudiConfig2.semantics._ListHelper,GaudiConfig2.semantics._DictHelper)):
-                    pvalue=pvalue.data
+                if isinstance(pvalue, (GaudiConfig2.semantics._ListHelper, GaudiConfig2.semantics._DictHelper)):
+                    pvalue = pvalue.data
+                if isinstance(pvalue, list):
+                    pvalue = [item.data
+                              if isinstance(item, (GaudiConfig2.semantics._ListHelper, GaudiConfig2.semantics._DictHelper))
+                              else item
+                              for item in pvalue]
 
                 if pname not in alreadySetProperties:
                     _log.debug( "%sAdding property: %s for %s", indent, pname, newConf2Instance.getName() )

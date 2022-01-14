@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SiSPSeededTrackFinderData/SiTrajectoryElement_xk.h"
@@ -891,9 +891,8 @@ bool InDet::SiTrajectoryElement_xk::addNextClusterF
 // TrackStateOnSurface production 
 ///////////////////////////////////////////////////////////////////
 
-Trk::TrackStateOnSurfaceProtContainer::Ptr
-InDet::SiTrajectoryElement_xk::trackStateOnSurface (Trk::TrackStateOnSurfaceProtContainer& c,
-                                                    bool change,bool cov,bool multi,int Q)
+Trk::TrackStateOnSurface*  
+InDet::SiTrajectoryElement_xk::trackStateOnSurface (bool change,bool cov,bool multi,int Q)
 {
   std::unique_ptr<Trk::TrackParameters> tp = nullptr;
   if (!change) {
@@ -934,9 +933,11 @@ InDet::SiTrajectoryElement_xk::trackStateOnSurface (Trk::TrackStateOnSurfaceProt
     m_radlengthN, std::move(sa), tp->associatedSurface());
 
   pat.set(Trk::TrackStateOnSurface::Scatterer);
-  m_tsos[0] = 
-    std::make_unique<Trk::TrackStateOnSurface>(std::move(ro), std::move(tp), std::move(fq), meTemplate->uniqueClone(), pat);
+  Trk::TrackStateOnSurface* sos =
+    new Trk::TrackStateOnSurface(std::move(ro), std::move(tp), std::move(fq), meTemplate->uniqueClone(), pat);
 
+  m_tsos[0] = sos;
+  m_utsos[0] = true;
   m_ntsos = 1;
 
   if (multi && m_cluster && m_ndf == 2 && m_nlinksBackward > 1) {
@@ -953,21 +954,22 @@ InDet::SiTrajectoryElement_xk::trackStateOnSurface (Trk::TrackStateOnSurfaceProt
       }
       auto fqn = std::make_unique<const Trk::FitQualityOnSurface>(m_linkBackward[i].xi2(),m_ndf);
       std::unique_ptr<const Trk::MeasurementBase> ron(m_riotool->correct(
-        *m_linkBackward[i].cluster(), *(m_tsos[0]->trackParameters())) );
-      m_tsos [m_ntsos] = std::make_unique<Trk::TrackStateOnSurface>(std::move(ron),std::move(tpn),std::move(fqn),meTemplate->uniqueClone(),pat);    
+        *m_linkBackward[i].cluster(), *(sos->trackParameters())) );
+      m_tsos [m_ntsos] = new Trk::TrackStateOnSurface(std::move(ron),std::move(tpn),std::move(fqn),meTemplate->uniqueClone(),pat);    
+      m_utsos[m_ntsos] = false;
       if(++m_ntsos == 3) break;
     }
   }
-  return c.allocate (*m_tsos[0]);
+  return sos;
 }
 
 ///////////////////////////////////////////////////////////////////
 // TrackStateOnSurface production for simple track
 ///////////////////////////////////////////////////////////////////
 
-Trk::TrackStateOnSurfaceProtContainer::Ptr
+Trk::TrackStateOnSurface*  
 InDet::SiTrajectoryElement_xk::trackSimpleStateOnSurface 
-(Trk::TrackStateOnSurfaceProtContainer& c, bool change,bool cov,int Q)
+(bool change,bool cov,int Q)
 {
   std::unique_ptr<Trk::TrackParameters> tp = nullptr;
 
@@ -1015,15 +1017,15 @@ InDet::SiTrajectoryElement_xk::trackSimpleStateOnSurface
       ro.reset(new InDet::PixelClusterOnTrack(
         pc, locp, cv, iH, pc->globalPosition(), pc->gangedPixel()));
   }
-  return c.allocate(std::move(ro), std::move(tp), std::move(fq), nullptr, pat);
+  return new Trk::TrackStateOnSurface(std::move(ro), std::move(tp), std::move(fq), nullptr, pat);
 }
 
 ///////////////////////////////////////////////////////////////////
 // TrackStateOnSurface production for perigee
 ///////////////////////////////////////////////////////////////////
 
-Trk::TrackStateOnSurfaceProtContainer::Ptr
-InDet::SiTrajectoryElement_xk::trackPerigeeStateOnSurface (Trk::TrackStateOnSurfaceProtContainer& c)
+Trk::TrackStateOnSurface*  
+InDet::SiTrajectoryElement_xk::trackPerigeeStateOnSurface ()
 {
   if(&m_parametersUpdatedBackward.associatedSurface()!=m_surface) return nullptr;
   
@@ -1033,12 +1035,13 @@ InDet::SiTrajectoryElement_xk::trackPerigeeStateOnSurface (Trk::TrackStateOnSurf
   Trk::PerigeeSurface per;
 
   bool Q = m_proptool->propagate
-	(m_parametersUpdatedBackward,per,Tp,Trk::anyDirection,m_tools->fieldTool(),step,Trk::pion);
+	(Gaudi::Hive::currentContext(),
+   m_parametersUpdatedBackward, per,Tp,Trk::anyDirection,m_tools->fieldTool(),step,Trk::pion);
 
   if(Q) {
     std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>  typePattern;
     typePattern.set(Trk::TrackStateOnSurface::Perigee);
-    return c.allocate(nullptr,Tp.convert(true),nullptr,nullptr,typePattern);
+    return new Trk::TrackStateOnSurface(nullptr,Tp.convert(true),nullptr,nullptr,typePattern);
   }
   return nullptr;
 }
@@ -1927,13 +1930,15 @@ InDet::SiTrajectoryElement_xk::SiTrajectoryElement_xk()
   m_npixelsBackward   = 0 ;
   m_stereo      = false   ;
   m_fieldMode   = false   ;
+
+  m_tsos[0]=m_tsos[1]=m_tsos[2]=nullptr; 
 }
 
 InDet::SiTrajectoryElement_xk::SiTrajectoryElement_xk(const SiTrajectoryElement_xk& E)
 {
   *this          = E;
 }
-
+  
 InDet::SiTrajectoryElement_xk& InDet::SiTrajectoryElement_xk::operator = 
 (const InDet::SiTrajectoryElement_xk& E) 
 {
@@ -1988,12 +1993,8 @@ InDet::SiTrajectoryElement_xk& InDet::SiTrajectoryElement_xk::operator =
   m_position                  = E.m_position    ;
   for(int i=0; i!=m_nlinksForward; ++i) {m_linkForward[i]=E.m_linkForward[i];}
   for(int i=0; i!=m_nlinksBackward; ++i) {m_linkBackward[i]=E.m_linkBackward[i];}
-  for(int i=0; i!=m_ntsos  ; ++i) {
-    if (E.m_tsos[i])
-      m_tsos [i]=std::make_unique<Trk::TrackStateOnSurface>(*E.m_tsos [i]);
-    else
-      m_tsos[i] = nullptr;
-  }
+  for(int i=0; i!=m_ntsos  ; ++i) {m_tsos [i]=E.m_tsos [i];}
+  for(int i=0; i!=m_ntsos  ; ++i) {m_utsos[i]=E.m_utsos [i];}
   return(*this);
 }
 
@@ -2264,12 +2265,16 @@ void InDet::SiTrajectoryElement_xk::lastActive()
   m_detstatus = 2;
 }
 
-Trk::TrackStateOnSurfaceProtContainer::Ptr
-InDet::SiTrajectoryElement_xk::tsos (Trk::TrackStateOnSurfaceProtContainer& c, int i) 
+Trk::TrackStateOnSurface* InDet::SiTrajectoryElement_xk::tsos (int i) 
 {
   if(i<0 || i>2) return nullptr;
 
-  return c.allocate (*m_tsos[i]);
+  bool us = m_utsos[i]; 
+  m_utsos[i] = true;
+
+  if(us) return new Trk::TrackStateOnSurface(*m_tsos[i]);
+
+  return m_tsos[i];  
 }
 
 ///////////////////////////////////////////////////////////////////

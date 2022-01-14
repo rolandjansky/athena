@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// McMaterialEffectsUpdator.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef ISF_FATRASTOOLS_TRACKONLAYERUPDATOR_H
 #define ISF_FATRASTOOLS_TRACKONLAYERUPDATOR_H
@@ -23,6 +19,7 @@
 #include "TrkExUtils/MaterialUpdateMode.h"
 #include "TrkDetDescrUtils/LayerIndexSampleMap.h"
 #include "TrkDetDescrUtils/GeometrySignature.h" 
+#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 #include "TrkEventPrimitives/PdgToParticleHypothesis.h"
 #include "TrkGeometry/TrackingGeometry.h"
 
@@ -57,6 +54,13 @@ namespace ISF {
 
 namespace iFatras {
   
+  /** Exception to be thrown when TrackingGeometry not found */
+  class McMaterialEffectsUpdatorException : public std::exception
+  {
+     const char* what() const throw()
+     { return "Problem with TrackingGeometry loading"; }
+  };
+
   class IProcessSamplingTool;
   class IPhysicsValidationTool;
   class IHadronicInteractionProcessor;
@@ -187,6 +191,10 @@ namespace iFatras {
      //!< retrieve or provide the layerIndexSampleMap */
      const Trk::LayerIndexSampleMap*  layerIndexSampleMap() const;
    
+    //!< return the TrackingGeometry used
+    virtual const Trk::TrackingGeometry* trackingGeometry(
+                                                          const EventContext& ctx) const;
+
     
      
      /** IEnergyLossUpdator */
@@ -248,9 +256,22 @@ namespace iFatras {
      bool                                         m_recordEnergyDeposition;             //!< for deposition methods
      std::string                                  m_layerIndexCaloSampleMapName;        //!< name to record it
      mutable const Trk::LayerIndexSampleMap*      m_layerIndexCaloSampleMap;            //!< the map for the calo-layer index map
-                  
-       SG::ReadCondHandleKey<Trk::TrackingGeometry>      m_trackingGeometryReadKey{this, "TrackingGeometryReadKey", "ISF_FatrasTrackingGeometry", "Key of input TrackingGeometry"};
-     
+
+    // ---------------------------- Tracking Geometry ---------------------------
+    bool m_useConditions{};
+    SG::ReadCondHandleKey<Trk::TrackingGeometry>      m_trackingGeometryReadKey{
+      this,
+        "TrackingGeometryReadKey",
+        "ISF_FatrasTrackingGeometry",
+        "Key of input TrackingGeometry"
+        };
+
+    /// ToolHandle to the TrackingGeometrySvc
+    ServiceHandle<Trk::ITrackingGeometrySvc> m_trackingGeometrySvc{this, "TrackingGeometrySvc", "ISF_FatrasTrackingGeometrySvc", ""};
+    /// Name of the TrackingGeometry as given in Detector Store
+    std::string m_trackingGeometryName{"ISF_FatrasTrackingGeometry"};
+    // --------------------------------------------------------------------------
+
      /** projection factor for the non-parametric scattering */
      double                                      m_projectionFactor;
 

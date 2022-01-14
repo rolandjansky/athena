@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AGDDController_H
@@ -55,7 +55,7 @@ public:
         AGDDMaterialStore& GetMaterialStore();
         AGDDParameterStore& GetParameterStore();
         AliasStore& GetAliasStore();
-        ExpressionEvaluator& Evaluator();
+        AGDD::ExpressionEvaluator& Evaluator();
 
         //static void PrintVolumeHierarchy(const std::string&, int);
 	
@@ -92,7 +92,7 @@ private:
         AGDDParameterStore m_prs;
         XMLHandlerStore m_xs;
         AliasStore m_as;
-        ExpressionEvaluator m_eval;
+        AGDD::ExpressionEvaluator m_eval;
 };
 
 #endif

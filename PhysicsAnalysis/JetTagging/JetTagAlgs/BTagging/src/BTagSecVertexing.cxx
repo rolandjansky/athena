@@ -218,7 +218,7 @@ namespace Analysis {
           newBTag->setVariable<std::vector<ElementLink<xAOD::VertexContainer> > >(basename, "vertices", SVertexLinks);
           newBTag->setDynVxELName(basename, "vertices");
 	}
-	else if("JetFitter" == basename) {
+	else if("JetFitter" == basename ||"JetFitterFlip" == basename  ) {
           std::vector< ElementLink< xAOD::TrackParticleContainer > > tracksAtPVlinks;
           newBTag->setVariable<std::vector< ElementLink< xAOD::TrackParticleContainer > > >(basename, "tracksAtPVlinks", tracksAtPVlinks);  
           newBTag->setDynTPELName(basename, "tracksAtPVlinks");
@@ -400,7 +400,7 @@ namespace Analysis {
      const std::vector< const xAOD::Vertex*> vecTwoTrkVtx =  TwoTrkVtxInJet->getTwoTrackVertice();
 
      int N2TrkVtx = vecTwoTrkVtx.size();
-     if("JetFitter" == basename){
+     if("JetFitter" == basename || "JetFitterFlip" == basename ){
         newBTag->setTaggerInfo(N2TrkVtx, xAOD::BTagInfo::JetFitter_N2Tpair);
      }
      else{
@@ -735,7 +735,7 @@ namespace Analysis {
             (*btagIter)->setVariable<std::vector<ElementLink<xAOD::VertexContainer> > >(basename, "vertices", SVertexLinks);
             (*btagIter)->setDynVxELName(basename, "vertices");
 	  }
-	  else if("JetFitter" == basename) {
+	  else if("JetFitter" == basename || "JetFitterFlip" == basename) {
             std::vector< ElementLink< xAOD::TrackParticleContainer > > tracksAtPVlinks;
             (*btagIter)->setVariable<std::vector< ElementLink< xAOD::TrackParticleContainer > > >(basename, "tracksAtPVlinks", tracksAtPVlinks);  
             (*btagIter)->setDynTPELName(basename, "tracksAtPVlinks");

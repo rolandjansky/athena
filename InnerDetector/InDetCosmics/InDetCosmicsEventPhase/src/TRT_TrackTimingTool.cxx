@@ -101,7 +101,8 @@ const {
 
   Trk::Track* newtrack = 0;
   if (nMissingTrackParameters) { // need to re-fit the track to get the track parameters
-    newtrack = m_ITrackFitter->fit(track, false, track.info().particleHypothesis());
+    newtrack = (m_ITrackFitter->fit(Gaudi::Hive::currentContext(),track, 
+                                    false, track.info().particleHypothesis())).release();
 
     if (newtrack == 0) {
       ATH_MSG_INFO("fit to unslim track has failed, giving up.");

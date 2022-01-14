@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHV2Ntuple.h"
@@ -23,7 +23,6 @@
 #include "LArHV/EMECPresamplerHVModule.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetectorElements.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
@@ -63,6 +62,7 @@
     ATH_CHECK( service("THistSvc",m_thistSvc) );
 
     ATH_CHECK( m_cablingKey.initialize() );
+    ATH_CHECK( m_caloMgrKey.initialize() );
 
   m_tree = new TTree("mytree","Calo Noise ntuple");
   m_tree->Branch("bec",&m_bec,"bec/I");
@@ -82,7 +82,6 @@
      m_tree->Branch("channel",&m_channel,"channel/I");
      ATH_CHECK( detStore()->retrieve(m_caloId, "CaloCell_ID") );
      ATH_CHECK( detStore()->retrieve(m_onlId, "LArOnlineID") );
-     ATH_CHECK( detStore()->retrieve(m_calodetdescrmgr) );
   }
 
   ATH_CHECK( m_hvCablingKey.initialize() );
@@ -108,7 +107,7 @@
       attrLists.push_back (*attrList);
     }
     
-    const LArHVManager *manager = NULL;
+    const LArHVManager *manager = nullptr;
     ATH_CHECK( detStore()->retrieve(manager) );
 
     const EMBHVManager& hvManager_EMB=manager->getEMBHVManager();
@@ -140,6 +139,10 @@
         ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key());
         return StatusCode::FAILURE;
       }
+
+      SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey, ctx};
+      ATH_CHECK(caloMgrHandle.isValid());
+      const CaloDetDescrManager* calodetdescrmgr=*caloMgrHandle;
       std::vector<Identifier>::const_iterator cell_b=m_caloId->cell_begin();
       std::vector<Identifier>::const_iterator cell_e=m_caloId->cell_end();
       for(;cell_b!=cell_e; ++cell_b) {
@@ -152,7 +155,8 @@
                                                hvdata_EMECPS,
                                                hvdata_HEC,
                                                hvdata_FCAL,
-                                               *cell_b);
+                                               *cell_b,
+					       calodetdescrmgr);
         for(unsigned i=0; i<hvlines.size(); ++i ) {
           if(m_hvonlId_map.find(hvlines[i]) == m_hvonlId_map.end()) { // new key
             std::vector<HWIdentifier> vec;
@@ -463,14 +467,15 @@ std::vector<int> LArHV2Ntuple::GetHVLines (const EMBHVManager::EMBHVData& hvdata
                                            const EMECPresamplerHVManager::EMECPresamplerHVData& hvdata_EMECPS,
                                            const HECHVManager::HECHVData& hvdata_HEC,
                                            const FCALHVManager::FCALHVData& hvdata_FCAL,
-                                           const Identifier& id) {
+                                           const Identifier& id,
+					   const CaloDetDescrManager* calodetdescrmgr) {
 
    std::set<int> hv;
  
    // LAr EMB
    if (m_caloId->is_em(id) && m_caloId->sampling(id)>0) {
      if (abs(m_caloId->em_idHelper()->barrel_ec(id))==1) {
-       const EMBDetectorElement* embElement = dynamic_cast<const EMBDetectorElement*>(m_calodetdescrmgr->get_element(id));
+       const EMBDetectorElement* embElement = dynamic_cast<const EMBDetectorElement*>(calodetdescrmgr->get_element(id));
        if (!embElement) std::abort();
        const EMBCellConstLink cell = embElement->getEMBCell();
        unsigned int nelec = cell->getNumElectrodes();
@@ -479,7 +484,7 @@ std::vector<int> LArHV2Ntuple::GetHVLines (const EMBHVManager::EMBHVData& hvdata
          for (unsigned int igap=0;igap<2;igap++) hv.insert(hvdata_EMB.hvLineNo(electrode, igap));
        }
      } else { // LAr EMEC
-       const EMECDetectorElement* emecElement = dynamic_cast<const EMECDetectorElement*>(m_calodetdescrmgr->get_element(id));
+       const EMECDetectorElement* emecElement = dynamic_cast<const EMECDetectorElement*>(calodetdescrmgr->get_element(id));
        if (!emecElement) std::abort();
        const EMECCellConstLink cell = emecElement->getEMECCell();
        unsigned int nelec = cell->getNumElectrodes();
@@ -494,7 +499,7 @@ std::vector<int> LArHV2Ntuple::GetHVLines (const EMBHVManager::EMBHVData& hvdata
        }
      }
    } else if (m_caloId->is_hec(id)) { // LAr HEC
-     const HECDetectorElement* hecElement = dynamic_cast<const HECDetectorElement*>(m_calodetdescrmgr->get_element(id));
+     const HECDetectorElement* hecElement = dynamic_cast<const HECDetectorElement*>(calodetdescrmgr->get_element(id));
      if (!hecElement) std::abort();
      const HECCellConstLink cell = hecElement->getHECCell();
      unsigned int nsubgaps = cell->getNumSubgaps();
@@ -503,7 +508,7 @@ std::vector<int> LArHV2Ntuple::GetHVLines (const EMBHVManager::EMBHVData& hvdata
        hv.insert(hvdata_HEC.hvLineNo (subgap));
      }
    } else if (m_caloId->is_fcal(id)) { // LAr FCAL
-     const FCALDetectorElement* fcalElement = dynamic_cast<const FCALDetectorElement*>(m_calodetdescrmgr->get_element(id));
+     const FCALDetectorElement* fcalElement = dynamic_cast<const FCALDetectorElement*>(calodetdescrmgr->get_element(id));
      if (!fcalElement) std::abort();
      const FCALTile* tile = fcalElement->getFCALTile();
      unsigned int nlines = tile->getNumHVLines();
@@ -513,13 +518,13 @@ std::vector<int> LArHV2Ntuple::GetHVLines (const EMBHVManager::EMBHVData& hvdata
      }
    } else if (m_caloId->is_em(id) && m_caloId->sampling(id)==0) { // Presamplers
      if (abs(m_caloId->em_idHelper()->barrel_ec(id))==1) {
-       const EMBDetectorElement* embElement = dynamic_cast<const EMBDetectorElement*>(m_calodetdescrmgr->get_element(id));
+       const EMBDetectorElement* embElement = dynamic_cast<const EMBDetectorElement*>(calodetdescrmgr->get_element(id));
        if (!embElement) std::abort();
        const EMBCellConstLink cell = embElement->getEMBCell();
        const EMBPresamplerHVModule& hvmodule = cell->getPresamplerHVModule();
        for (unsigned int igap=0;igap<2;igap++) hv.insert(hvdata_EMBPS.hvLineNo (hvmodule, igap));
      } else {
-       const EMECDetectorElement* emecElement = dynamic_cast<const EMECDetectorElement*>(m_calodetdescrmgr->get_element(id));
+       const EMECDetectorElement* emecElement = dynamic_cast<const EMECDetectorElement*>(calodetdescrmgr->get_element(id));
        if (!emecElement) std::abort();
        const EMECCellConstLink cell = emecElement->getEMECCell();
        const EMECPresamplerHVModule& hvmodule = cell->getPresamplerHVModule ();

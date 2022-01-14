@@ -112,7 +112,7 @@ NswCalibDbAlg::loadDataCalibStgc(const EventContext& ctx) const {
 
 // loadThresholdData
 StatusCode
-NswCalibDbAlg::loadThresholdData(const EventContext& ctx, readKey_t readKey) const {
+NswCalibDbAlg::loadThresholdData(const EventContext& ctx, const readKey_t& readKey) const {
 
 	// set up write handle
 	SG::WriteCondHandle<NswCalibDbThresholdData> writeHandle{m_writeKey_vmm, ctx};
@@ -127,7 +127,7 @@ NswCalibDbAlg::loadThresholdData(const EventContext& ctx, readKey_t readKey) con
 	// set up read handle
 	SG::ReadCondHandle<CondAttrListCollection> readHandle{readKey, ctx};
 	const CondAttrListCollection* readCdo{*readHandle}; 
-	if(readCdo==0){
+	if(readCdo==nullptr){
 	  ATH_MSG_ERROR("Null pointer to the read conditions object");
 	  return StatusCode::FAILURE; 
 	} 
@@ -197,7 +197,7 @@ NswCalibDbAlg::loadThresholdData(const EventContext& ctx, readKey_t readKey) con
 
 // loadTimeChargeData
 StatusCode
-NswCalibDbAlg::loadTimeChargeData(const EventContext& ctx, readKey_t readKey, const std::string type) const {
+NswCalibDbAlg::loadTimeChargeData(const EventContext& ctx, const readKey_t& readKey, const std::string& type) const {
 
 	// set up write handle
 	SG::WriteCondHandle<NswCalibDbTimeChargeData> writeHandle{m_writeKey_tdopdo, ctx};
@@ -212,7 +212,7 @@ NswCalibDbAlg::loadTimeChargeData(const EventContext& ctx, readKey_t readKey, co
 	// set up read handle
 	SG::ReadCondHandle<CondAttrListCollection> readHandle{readKey, ctx};
 	const CondAttrListCollection* readCdo{*readHandle}; 
-	if(readCdo==0){
+	if(readCdo==nullptr){
 	  ATH_MSG_ERROR("Null pointer to the read conditions object");
 	  return StatusCode::FAILURE; 
 	} 

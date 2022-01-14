@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MM_DIGITIZATION_MM_DIGITTOOLOUTPUT_H
@@ -24,7 +24,11 @@ Class to store output produced by MDT_Digitization tools:
 
 class MM_DigitToolOutput {
  public:
-    MM_DigitToolOutput(bool hitWasEff, std::vector <int> strpos, std::vector<float> time, std::vector<float> charge, int strTrig, float strTimeTrig )
+    MM_DigitToolOutput(bool hitWasEff,
+                       const std::vector <int>& strpos,
+                       const std::vector<float>& time,
+                       const std::vector<float>& charge,
+                       int strTrig, float strTimeTrig )
      :  m_hitWasEff(hitWasEff),
         m_strpos(strpos),
         m_time(time),

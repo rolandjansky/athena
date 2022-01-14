@@ -15,7 +15,7 @@ namespace Muon{
   
 class MuonResolutionPlots:public PlotBase {
  public:
-  MuonResolutionPlots(PlotBase* pParent, std::string sDir, std::string sType="", bool doBinnedResolutions=false);
+  MuonResolutionPlots(PlotBase* pParent, const std::string& sDir, const std::string& sType="", bool doBinnedResolutions=false);
   void fill(const xAOD::TrackParticle& muontp, const xAOD::TruthParticle& truthprt, float weight=1.0);
 
   Trk::ResolutionPlots m_oResolutionPlots;

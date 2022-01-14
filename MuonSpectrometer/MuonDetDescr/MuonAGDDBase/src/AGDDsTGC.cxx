@@ -45,7 +45,7 @@ void AGDDsTGC::CreateSolid (const AGDDBuilder& /*builder*/)
 
 }
 
-void AGDDsTGC::CreateVolume (const AGDDBuilder& builder)
+void AGDDsTGC::CreateVolume (AGDDBuilder& builder)
 {
 	
 	MuonGM::sTGCComponent *stgc_comp=new MuonGM::sTGCComponent;

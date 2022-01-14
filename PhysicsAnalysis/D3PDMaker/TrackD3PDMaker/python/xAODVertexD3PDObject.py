@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import TrackD3PDMaker
 import D3PDMakerCoreComps
@@ -8,6 +8,7 @@ from D3PDMakerCoreComps.SimpleAssociation import SimpleAssociation
 from D3PDMakerCoreComps.ContainedVectorMultiAssociation import ContainedVectorMultiAssociation
 from D3PDMakerConfig.D3PDMakerFlags import D3PDMakerFlags
 from TrackD3PDMaker.TrackD3PDMakerFlags import TrackD3PDFlags
+from InDetRecExample.TrackingCommon import getInDetTrackToVertexTool
 
 
 def DefinexAODVertexD3PDObject(object,
@@ -78,7 +79,8 @@ def DefinexAODVertexD3PDObject(object,
 
     PerigeeAssoc = SimpleAssociation \
                    (TrackAssoc,
-                    TrackD3PDMaker.TrackParticlePerigeeAtPVAssociationTool)
+                    TrackD3PDMaker.TrackParticlePerigeeAtPVAssociationTool,
+                    TrackToVertexTool = getInDetTrackToVertexTool())
     PerigeeAssoc.defineBlock (flagTestLOD ('storeVertexTrackAssociation or storeVertexTrackIndexAssociation', flags),
                               'Trk',
                               TrackD3PDMaker.PerigeeFillerTool)

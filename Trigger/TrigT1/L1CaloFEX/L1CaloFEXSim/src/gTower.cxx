@@ -70,15 +70,18 @@ namespace LVL1 {
 
   }
 
-  void gTower::setET(float et, int layer)
+  void gTower::setET()
   {
 
-    addET(et, layer);
+    // addET(et, layer);
 
     //multi linear digitisation encoding
-    unsigned int ecode = gFEXCompression::compress(m_et_float);
-    int outET = gFEXCompression::expand(ecode);
+    unsigned int gcode = gFEXCompression::compress(m_et_float_perlayer[0]);//Only decode EM energy
+    int emET = gFEXCompression::expand(gcode);
+    int outET = emET + m_et_float_perlayer[1];//Sum EM and HAD energy 
 
+    outET = outET/200.;//Convert to gFEX digit scale (200 MeV tbc)
+    
     //noise cut
     const bool SCpass = noiseCut(outET);
     if (SCpass){ m_et = outET; }

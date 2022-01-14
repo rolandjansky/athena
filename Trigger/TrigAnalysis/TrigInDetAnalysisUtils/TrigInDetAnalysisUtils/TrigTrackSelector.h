@@ -67,7 +67,8 @@ public:
   /// use a radius of 47 mm corresponding to the Run 1 pixel inner radius
   /// For the IBL it should be 32 mm, but this was kept as 47 mm for consistency 
   /// of the definition. this should be changed to 32 mm for Run 3
-  TrigTrackSelector( TrackFilter* selector, double radius=47 );
+
+  TrigTrackSelector( TrackFilter* selector, double radius=47, int selectPdgId=0, int selectParentPdgId=0 );
 
   ~TrigTrackSelector() { clear(); }
 
@@ -154,6 +155,8 @@ public:
 			  double  theta, double  phi );
 
   
+  //private:
+  const xAOD::TruthParticle * fromParent( const int pdg_id,  const xAOD::TruthParticle *p) const;
 
 private:
 
@@ -166,6 +169,9 @@ private:
   bool   m_correctTrkTracks;
 
   double m_radius;
+
+  int m_selectPdgId;
+  int m_selectParentPdgId;
 
 };
 

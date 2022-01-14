@@ -55,6 +55,7 @@ jetlog.info( myname + "jetFlags.useCaloQualityTool: " + str(jetFlags.useCaloQual
 jetlog.info( myname + "jetFlags.additionalTopoGetters: " + str(jetFlags.additionalTopoGetters()) )
 jetlog.info( myname + "jetFlags.truthFlavorTags: " + str(jetFlags.truthFlavorTags()) )
 jetlog.info( myname + "jetFlags.skipTools: " + str(jetFlags.skipTools()) )
+jetlog.info( myname + "jetFlags.useTrackVertexTool: " + str(jetFlags.useTrackVertexTool()) )
 
 #########################################################
 # Create standard tool manager.

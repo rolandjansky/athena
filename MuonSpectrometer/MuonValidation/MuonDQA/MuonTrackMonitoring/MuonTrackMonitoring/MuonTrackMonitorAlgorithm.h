@@ -35,7 +35,7 @@ class MuonTrackMonitorAlgorithm : public AthMonitorAlgorithm
     /// std::string sIdentifier = "CB","ZBoson","JPsi": String which is used to match the histogramming
     ///    variables that are defined by the Python script
     /// std::vector<const xAOD::Muon*>	&vecMuons: Vector of muons for which performance plots should be created
-    StatusCode	FillMuonInformation(std::string sIdentifier, std::vector<const xAOD::Muon*>	&vecMuons) const;
+    StatusCode	FillMuonInformation(const std::string& sIdentifier, std::vector<const xAOD::Muon*>	&vecMuons) const;
 
     /// Function to create performance plots for muon standalone tracks with some detailed informatiom
     StatusCode analyseLowLevelMuonFeatures(const xAOD::MuonContainer& Muons, uint32_t lumiBlockID) const;
@@ -47,7 +47,7 @@ class MuonTrackMonitorAlgorithm : public AthMonitorAlgorithm
     StatusCode analyseResonanceCandidates(const xAOD::MuonContainer& Muons, uint32_t lumiBlockID) const;
 
     /// Function to create performance plots for all combined muons that lead to a JPsi Meson Candidate event
-    StatusCode plotResonanceCandidates(std::string resonanceName, std::vector<const xAOD::Muon*>& muonCandidates, uint32_t lumiBlockID) const;
+    StatusCode plotResonanceCandidates(const std::string& resonanceName, std::vector<const xAOD::Muon*>& muonCandidates, uint32_t lumiBlockID) const;
 
     Gaudi::Property< std::vector<std::string> > m_hltchainList{ this, "HLTTriggerList", {"HLT_2mu14", "HLT_mu26_ivarmedium"}, "High-level triggers used" };
 

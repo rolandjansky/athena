@@ -12,7 +12,7 @@ void AGDDIntersection::CreateSolid (const AGDDBuilder& builder)
 }
 
 
-void AGDDIntersection::CreateVolume (const AGDDBuilder& builder)
+void AGDDIntersection::CreateVolume (AGDDBuilder& builder)
 {
 	CreateSolid (builder);
  	builder.CreateVolume(this);

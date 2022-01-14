@@ -29,25 +29,25 @@ namespace Muon {
         virtual StatusCode initialize() override;
 
         /**IMuonLayerAmbiguitySolverTool interface: find */
-        virtual void resolveOverlaps(const std::vector<Muon::MuonLayerRecoData>& allLayers,
+        virtual void resolveOverlaps(const EventContext& ctx, const std::vector<Muon::MuonLayerRecoData>& allLayers,
                                      std::vector<MuonCandidate>& resolvedCandidates) const override;
 
     private:
-        void buildLayerVec(const std::vector<MuonLayerRecoData>& allLayers,
+        void buildLayerVec(const EventContext& ctx, const std::vector<MuonLayerRecoData>& allLayers,
                            std::vector<std::vector<MuonLayerIntersection> >& muonLayerDataHashVec) const;
 
         bool getNextSeed(const std::vector<std::vector<MuonLayerIntersection> >& muonLayerDataHashVec,
                          std::set<const MuonSegment*>& usedSegments, std::vector<MuonStationIndex::StIndex>& inverseSeedLayerOrder,
                          MuonLayerIntersection& layerIntersection) const;
 
-        bool extendCandidatesWithLayers(std::vector<MuonCandidate>& candidates,
+        bool extendCandidatesWithLayers(const EventContext& ctx, std::vector<MuonCandidate>& candidates,
                                         const std::vector<std::vector<MuonLayerIntersection> >& muonLayerRecoDataHashVec,
                                         const std::vector<MuonStationIndex::StIndex>& inverseSeedLayerOrder) const;
 
-        void resolveSmallLargeOverlaps(std::vector<MuonLayerIntersection>& existingLayerIntersections,
+        void resolveSmallLargeOverlaps(const EventContext& ctx, std::vector<MuonLayerIntersection>& existingLayerIntersections,
                                        const std::vector<MuonLayerIntersection>& newLayerIntersections) const;
 
-        bool match(const MuonCandidate& candidate, const MuonLayerIntersection& layerIntersection) const;
+        bool match(const EventContext& ctx, const MuonCandidate& candidate, const MuonLayerIntersection& layerIntersection) const;
 
         ToolHandle<IMuonSegmentSelectionTool> m_segmentSelector{this, "MuonSegmentSelectionTool",
                                                                 "Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool"};

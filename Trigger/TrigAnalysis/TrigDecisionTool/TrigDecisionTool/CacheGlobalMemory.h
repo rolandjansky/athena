@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGGER_DECISION_TOOL_CACHE_GLOBAL_MEMORY_H
@@ -37,6 +37,7 @@
 #include "TrigDecisionTool/Logger.h"
 
 #include "AsgDataHandles/ReadHandleKey.h"
+#include "AsgTools/EventStoreType.h"
 
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "xAODTrigger/TrigDecision.h"
@@ -56,8 +57,6 @@ namespace LVL1CTP {
   class Lvl1Result;
 }
 
-
-#include "TrigDecisionTool/EventPtrDef.h"
 
 namespace Trig {
 
@@ -132,9 +131,9 @@ namespace Trig {
     Trig::IDecisionUnpacker* unpacker(){ return m_unpacker.get(); }
 
     /// Set the event store to be used by the object
-    void setStore( EventPtr_t store ) { m_store = store; }
+    void setStore( asg::EventStoreType* store ) { m_store = store; }
     /// Get the event store that the object is using
-    EventPtr_t store() const { return m_store; }
+    const asg::EventStoreType* store() const { return m_store; }
 
     void setDecisionKeyPtr(SG::ReadHandleKey<xAOD::TrigDecision>* k) { m_decisionKeyPtr = k; }
     void setRun2NavigationKeyPtr(SG::ReadHandleKey<xAOD::TrigNavigation>* k) { m_run2NavigationKeyPtr = k; }
@@ -177,7 +176,7 @@ namespace Trig {
     //
 
     /// Pointer to the event store in use
-    EventPtr_t m_store{nullptr};
+    const asg::EventStoreType* m_store{nullptr};
 
     /// Trigger decision unpacker helper
     std::unique_ptr<IDecisionUnpacker> m_unpacker;

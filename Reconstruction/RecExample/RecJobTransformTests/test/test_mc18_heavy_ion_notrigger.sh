@@ -21,5 +21,4 @@ export TRF_ECHO=True; Reco_tf.py \
 
 RES=$?
 echo "art-result: $RES Reco"
-return $RES
 

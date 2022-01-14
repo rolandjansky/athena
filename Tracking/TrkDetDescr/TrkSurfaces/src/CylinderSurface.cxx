@@ -268,7 +268,7 @@ Trk::CylinderSurface::straightLineIntersection(const Amg::Vector3D& pos,
       t1 = (pquad.first - point1.x()) * idirx;
       t2 = (pquad.second - point1.x()) * idirx;
     } else // bail out if no solution exists
-      return Trk::Intersection(pos, 0., false);
+      return {pos, 0., false};
   } else if (direction.y()) {
     // x value is the one of point1
     // x^2 + y^2 = R^2
@@ -277,14 +277,14 @@ Trk::CylinderSurface::straightLineIntersection(const Amg::Vector3D& pos,
     double r2mx2 = R * R - x * x;
     // bail out if no solution
     if (r2mx2 < 0.)
-      return Trk::Intersection(pos, 0., false);
+      return {pos, 0., false};
     double y = sqrt(r2mx2);
     // assign parameters and solutions
     double idiry = 1. / direction.y();
     t1 = (y - point1.y()) * idiry;
     t2 = (-y - point1.y()) * idiry;
   } else {
-    return Trk::Intersection(pos, 0., false);
+    return {pos, 0., false};
   }
   Amg::Vector3D sol1raw(point1 + t1 * direction);
   Amg::Vector3D sol2raw(point1 + t2 * direction);
@@ -363,10 +363,10 @@ Trk::CylinderSurface::straightLineDistanceEstimate(
 
   if (A == 0.) { // direction parallel to cylinder axis
     if (fabs(currDist) < tol) {
-      return Trk::DistanceSolution(1, 0., true, 0.); // solution at surface
+      return {1, 0., true, 0.}; // solution at surface
     }
-    return Trk::DistanceSolution(
-      0, currDist, true, 0.); // point of closest approach without intersection
+    return {
+      0, currDist, true, 0.}; // point of closest approach without intersection
   }
 
   // minimal distance to cylinder axis
@@ -379,16 +379,16 @@ Trk::CylinderSurface::straightLineDistanceEstimate(
 
   if (rmin > radius) { // no intersection
     double first = B / A;
-    return Trk::DistanceSolution(
+    return {
       0,
       currDist,
       true,
-      first); // point of closest approach without intersection
+      first}; // point of closest approach without intersection
   }
   if (fabs(rmin - radius) <
       tol) { // tangential 'intersection' - return double solution
     double first = B / A;
-    return Trk::DistanceSolution(2, currDist, true, first, first);
+    return {2, currDist, true, first, first};
   }
   // The [[maybe_unused]] declaration here suppresses redundant division
   // checking. We don't want to rewrite how this is evaluated due to
@@ -398,12 +398,12 @@ Trk::CylinderSurface::straightLineDistanceEstimate(
   double first = b_a - x;
   double second = b_a + x;
   if (first >= 0.) {
-    return Trk::DistanceSolution(2, currDist, true, first, second);
+    return {2, currDist, true, first, second};
   }
   if (second <= 0.) {
-    return Trk::DistanceSolution(2, currDist, true, second, first);
+    return {2, currDist, true, second, first};
   } // inside cylinder
-  return Trk::DistanceSolution(2, currDist, true, second, first);
+  return {2, currDist, true, second, first};
 }
 
 Trk::DistanceSolution
@@ -482,7 +482,7 @@ Trk::CylinderSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos,
   }
   double sr = r - R;
   if (!bound)
-    return Trk::DistanceSolution(ns, fabs(sr), true, s1, s2);
+    return {ns, fabs(sr), true, s1, s2};
 
   // Min distance to surface
   //
@@ -496,5 +496,5 @@ Trk::CylinderSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos,
   if (d > 0.)
     dist += ((d * d) * (sr / R + 1.));
 
-  return Trk::DistanceSolution(ns, sqrt(dist), true, s1, s2);
+  return {ns, sqrt(dist), true, s1, s2};
 }

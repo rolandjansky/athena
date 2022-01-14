@@ -14,7 +14,7 @@
 
 class MuonTrackValidationPlots:public PlotBase {
   public:
-    MuonTrackValidationPlots(PlotBase* pParent, std::string sDir, std::string sTrackType, bool isData=false);
+    MuonTrackValidationPlots(PlotBase* pParent, const std::string& sDir, const std::string& sTrackType, bool isData=false);
     ~MuonTrackValidationPlots();
 
     // Reco only information

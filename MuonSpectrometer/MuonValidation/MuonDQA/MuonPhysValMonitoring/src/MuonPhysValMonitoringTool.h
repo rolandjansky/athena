@@ -113,7 +113,7 @@ class MuonPhysValMonitoringTool
   std::vector<std::string> m_L1Seed;
   int m_SelectedAuthor;
 
-  TH1F* findHistogram(std::vector<HistData> hists,std::string hnameTag,std::string hdirTag,std::string hNewName);
+  TH1F* findHistogram(const std::vector<HistData>& hists,const std::string& hnameTag,const std::string& hdirTag,const std::string& hNewName);
   void modifyHistogram(TH1* hist);
 
   Gaudi::Property<std::string> m_tracksName{this,"TrackContainerName","InDetTrackParticles"};
@@ -131,8 +131,8 @@ class MuonPhysValMonitoringTool
   Gaudi::Property<std::string> m_muonL2CBName{this,"L2CBMuonContainerName","HLT_xAOD__L2CombinedMuonContainer_MuonL2CBInfo"};
   Gaudi::Property<std::string> m_muonEFCombTrigName{this,"EFCombTrigMuonContainerName","HLT_xAOD__MuonContainer_MuonEFInfo"};
 
-  Gaudi::Property<std::vector<int>> m_selectMuonWPs{this,"SelectMuonWorkingPoints",{xAOD::Muon::Loose,xAOD::Muon::Medium}};
-  Gaudi::Property<std::vector<unsigned int>> m_selectMuonAuthors{this,"SelectMuonAuthors",{xAOD::Muon::MuidCo,xAOD::Muon::MuTagIMO,xAOD::Muon::MuidSA,xAOD::Muon::MuGirl,xAOD::Muon::CaloTag,xAOD::Muon::CaloLikelihood}};
+  Gaudi::Property<std::vector<int>> m_selectMuonWPs{this,"SelectMuonWorkingPoints",{xAOD::Muon::Loose,xAOD::Muon::Medium,xAOD::Muon::Tight}};
+  Gaudi::Property<std::vector<unsigned int>> m_selectMuonAuthors{this,"SelectMuonAuthors",{xAOD::Muon::MuidCo,xAOD::Muon::MuTagIMO,xAOD::Muon::MuidSA,xAOD::Muon::MuGirl,xAOD::Muon::CaloTag,xAOD::Muon::CaloScore}};
   Gaudi::Property<std::vector<std::vector<std::string>>> m_selectHLTMuonItems{this,"SelectHLTMuonItems",{}};
   Gaudi::Property<std::vector<std::string>> m_L1MuonItems{this,"SelectL1MuonItems",{}};
   Gaudi::Property<std::vector<unsigned int>> m_selectMuonCategories{this,"SelectMuonCategories",{MUCATEGORY::ALL,MUCATEGORY::PROMPT,MUCATEGORY::INFLIGHT,MUCATEGORY::NONISO,MUCATEGORY::REST}};
@@ -161,7 +161,7 @@ class MuonPhysValMonitoringTool
   MuonPhysValMonitoringTool::MUCATEGORY getMuonTruthCategory(const xAOD::Muon* prt);
   bool passesAcceptanceCuts(const xAOD::IParticle* prt);
   float deltaR(const xAOD::IParticle* prt1, const xAOD::IParticle* prt2);
-  void SplitString(TString x, TString delim, std::vector<TString> &v);
+  void SplitString(TString x, const TString& delim, std::vector<TString> &v);
   
   // Hists
   std::vector<MuonValidationPlots*> m_muonValidationPlots;

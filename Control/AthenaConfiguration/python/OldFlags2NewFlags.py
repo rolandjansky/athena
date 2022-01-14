@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 def getNewConfigFlags():
     """Create new ConfigFlags from old-style jobproperties. Usage:
@@ -80,10 +80,19 @@ def getNewConfigFlags():
     ConfigFlags.InDet.doTIDE_Ambi = InDetFlags.doTIDE_Ambi()
     ConfigFlags.InDet.useDCS = InDetFlags.useDCS()
 
+    from LArConditionsCommon.LArCondFlags import larCondFlags 
+    ConfigFlags.LAr.OFCShapeFolder = larCondFlags.OFCShapeFolder()
+
+    # data overlay
+    from AthenaCommon.GlobalFlags import globalflags
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    ConfigFlags.Overlay.DataOverlay = globalflags.isOverlay() and overlayFlags.isDataOverlay()
+
     if rec.doDPD():
         # flags for Physics Validation (ATLASRECTS-6636)
         ConfigFlags.BTagging.SaveSV1Probabilities = True
         ConfigFlags.BTagging.RunJetFitterNN = True
+        ConfigFlags.BTagging.RunFlipTaggers = True
 
     return ConfigFlags
 

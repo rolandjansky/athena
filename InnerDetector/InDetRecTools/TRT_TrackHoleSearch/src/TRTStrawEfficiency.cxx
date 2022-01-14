@@ -236,7 +236,7 @@ StatusCode TRTStrawEfficiency::execute() {
 			}
 		}
 
-		auto holes = m_trt_hole_finder->getHolesOnTrack(*track);
+		const DataVector<const Trk::TrackStateOnSurface>* holes = m_trt_hole_finder->getHolesOnTrack(*track);
 		if (!holes) {
 			ATH_MSG_WARNING( "  TRTTrackHoleSearchTool returned null results." );
 			continue;
@@ -244,7 +244,7 @@ StatusCode TRTStrawEfficiency::execute() {
 			m_n_pixel_holes = 0;
 			m_n_sct_holes = 0;
 			m_n_trt_holes = 0;
-			for (const Trk::TrackStateOnSurface* hole : *holes) {
+			for (const auto *hole : *holes) {
 				if (hole->type(Trk::TrackStateOnSurface::Hole)) {
 					int hole_det = fill_hole_data(*hole);
 					switch (hole_det) {
@@ -264,6 +264,7 @@ StatusCode TRTStrawEfficiency::execute() {
 					ATH_MSG_WARNING("  hole finder returned a TrackStateOnSurface not of type Hole.");
 				}
 			}
+			delete holes;
 		}
 
 		//------- added by dan -------

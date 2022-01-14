@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "EMExtrapolationTools.h"
@@ -20,8 +20,6 @@
 //
 #include "FourMomUtils/P4Helpers.h"
 #include "GaudiKernel/EventContext.h"
-#include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
-#include "TrkParametersIdentificationHelpers/TrackParametersIdentificationHelper.h"
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
 //
@@ -56,31 +54,13 @@ getRescaledPerigee(const xAOD::TrackParticle& trkPB,
    * Then replace the q/p with q/cluster->e()
    * e.g create a new Perigee with q/cluster->e() rather than track->p()
    */
-  return Trk::Perigee(
-    trkPB.d0(),
-    trkPB.z0(),
-    trkPB.phi0(),
-    trkPB.theta(),
-    trkPB.charge() / cluster.e(),
-    Trk::PerigeeSurface(Amg::Vector3D(trkPB.vx(), trkPB.vy(), trkPB.vz())));
-}
-/*
- * Helper to get the Eta/Phi intersections per Layer
- */
-CaloExtensionHelpers::EtaPhiPerLayerVector
-getIntersections(const Trk::CaloExtension& extension,
-                 const xAOD::CaloCluster& cluster)
-{
-  // Layers to calculate intersections
-  CaloExtensionHelpers::EtaPhiPerLayerVector intersections;
-  if (xAOD::EgammaHelpers::isBarrel(&cluster)) {
-    CaloExtensionHelpers::midPointEtaPhiPerLayerVector(
-      extension, intersections, &barrelLayers);
-  } else {
-    CaloExtensionHelpers::midPointEtaPhiPerLayerVector(
-      extension, intersections, &endCapLayers);
-  }
-  return intersections;
+  return { trkPB.d0(),
+           trkPB.z0(),
+           trkPB.phi0(),
+           trkPB.theta(),
+           trkPB.charge() / cluster.e(),
+           Trk::PerigeeSurface(
+             Amg::Vector3D(trkPB.vx(), trkPB.vy(), trkPB.vz())) };
 }
 } // end of anonymous namespace
 
@@ -101,8 +81,7 @@ EMExtrapolationTools::initialize()
 
   ATH_MSG_DEBUG("Initializing " << name() << "...");
   // Retrieve tools
-  ATH_CHECK(m_lastParticleCaloExtensionTool.retrieve());
-  ATH_CHECK(m_perigeeParticleCaloExtensionTool.retrieve());
+  ATH_CHECK(m_ParticleCaloExtensionTool.retrieve());
   ATH_CHECK(m_extrapolator.retrieve());
 
   // retrieve TRT-ID helper
@@ -117,18 +96,77 @@ EMExtrapolationTools::initialize()
   } else {
     ATH_MSG_DEBUG("Could not get TRT_ID helper !");
   }
-
-  // Retrieve input where applicable
-  ATH_CHECK(m_PerigeeCacheKey.initialize(m_usePerigeeCaching));
-  ATH_CHECK(m_LastCacheKey.initialize(m_useLastCaching));
-
   return StatusCode::SUCCESS;
 }
 
-StatusCode
-EMExtrapolationTools::finalize()
+std::pair<std::vector<CaloSampling::CaloSample>,
+          std::vector<std::unique_ptr<Trk::Surface>>>
+EMExtrapolationTools::getClusterLayerSurfaces(
+  const xAOD::CaloCluster& cluster,
+  const CaloDetDescrManager& caloDD) const
 {
-  return StatusCode::SUCCESS;
+  // figure which layer we need
+  // based on the where most of the energy of the cluster
+  // is we might want to do EM barrel, EM endCap
+  // or forward calo layers/samplings
+  constexpr std::array<CaloSampling::CaloSample, 4> barrelLayers = {
+    CaloSampling::PreSamplerB,
+    CaloSampling::EMB1,
+    CaloSampling::EMB2,
+    CaloSampling::EMB3
+  };
+  constexpr std::array<CaloSampling::CaloSample, 4> endcapLayers = {
+    CaloSampling::PreSamplerE,
+    CaloSampling::EME1,
+    CaloSampling::EME2,
+    CaloSampling::EME3
+  };
+  constexpr std::array<CaloSampling::CaloSample, 1> forwardLayers = {
+    CaloSampling::FCAL0,
+  };
+
+  // figure which layers we  want to shoot at
+  bool isBarrel = false;
+  if (cluster.inBarrel() && cluster.inEndcap()) {
+    isBarrel = cluster.eSample(CaloSampling::EMB2) >=
+               cluster.eSample(CaloSampling::EME2);
+  } else if (cluster.inBarrel()) {
+    isBarrel = true;
+  }
+
+  bool isEMEC = false;
+  if (!isBarrel && cluster.eSample(CaloSampling::EME2) >
+                     cluster.eSample(CaloSampling::FCAL0)) {
+    isEMEC = true;
+  }
+
+  std::vector<CaloSampling::CaloSample> clusterLayers;
+  clusterLayers.reserve(4);
+  if (isBarrel) {
+    for (const CaloSampling::CaloSample lay : barrelLayers) {
+      if (cluster.hasSampling(lay)) {
+        clusterLayers.emplace_back(lay);
+      }
+    }
+  } else if (isEMEC) {
+    for (const CaloSampling::CaloSample lay : endcapLayers) {
+      if (cluster.hasSampling(lay)) {
+        clusterLayers.emplace_back(lay);
+      }
+    }
+  } else {
+    for (const CaloSampling::CaloSample lay : forwardLayers) {
+      if (cluster.hasSampling(lay)) {
+        clusterLayers.emplace_back(lay);
+      }
+    }
+  }
+
+  std::vector<std::unique_ptr<Trk::Surface>> caloSurfaces =
+    m_ParticleCaloExtensionTool->caloSurfacesFromLayers(
+      clusterLayers, cluster.eta(), caloDD);
+
+  return { std::move(clusterLayers), std::move(caloSurfaces) };
 }
 
 /*
@@ -136,23 +174,26 @@ EMExtrapolationTools::finalize()
  * electrons extrapolations. Handles multipe extrapolation modes.
  */
 StatusCode
-EMExtrapolationTools::getMatchAtCalo(const EventContext& ctx,
-                                     const xAOD::CaloCluster& cluster,
-                                     const xAOD::TrackParticle& trkPB,
-                                     Trk::PropDirection,
-                                     std::array<double, 4>& eta,
-                                     std::array<double, 4>& phi,
-                                     std::array<double, 4>& deltaEta,
-                                     std::array<double, 4>& deltaPhi,
-                                     unsigned int extrapFrom,
-                                     Cache* cache) const
+EMExtrapolationTools::getMatchAtCalo(
+  const EventContext& ctx,
+  const xAOD::CaloCluster& cluster,
+  const xAOD::TrackParticle& trkPB,
+  const std::vector<CaloSampling::CaloSample>& samples,
+  const std::vector<std::unique_ptr<Trk::Surface>>& surfaces,
+  std::array<double, 4>& eta,
+  std::array<double, 4>& phi,
+  std::array<double, 4>& deltaEta,
+  std::array<double, 4>& deltaPhi,
+  unsigned int extrapFrom) const
 {
   /* Extrapolate track to calo and return
    * the extrapolated eta/phi and
    * the deta/dphi between cluster and track
    * We allow different ways to extrapolate:
    * 1) from the last measurement  track parameters (this is always the case for
-   * TRT standalone) 2) from the perigee track parameters 3) from the perigee
+   * TRT standalone)
+   * 2) from the perigee track parameters
+   * 3) from the perigee
    * with the track momentum rescaled by the cluster energy
    */
   if (cluster.e() < 10 && trkPB.pt() < 10) { // This is 10 MeV
@@ -164,87 +205,46 @@ EMExtrapolationTools::getMatchAtCalo(const EventContext& ctx,
   bool didExtension = false;
   CaloExtensionHelpers::EtaPhiPerLayerVector intersections;
   switch (extrapFrom) {
-    /*
-     * Rescaled Perigee does not have a cache
-     */
     case fromPerigeeRescaled: {
       Trk::Perigee trkPar = getRescaledPerigee(trkPB, cluster);
-      const auto extension =
-        m_perigeeParticleCaloExtensionTool->egammaCaloExtension(
-          ctx, trkPar, cluster);
+      const auto extension = m_ParticleCaloExtensionTool->surfaceCaloExtension(
+        ctx, trkPar, samples, surfaces, Trk::nonInteracting);
       didExtension = !extension.empty();
       for (const auto& i : extension) {
         intersections.emplace_back(
           i.first, i.second->position().eta(), i.second->position().phi());
       }
     } break;
-      /* For the other cases
-       * See if there is a collection cache
-       * else if there is an in algorithm cache passed to us
-       * else do it without a caching
-       */
+
     case fromPerigee: {
-      if (m_usePerigeeCaching) {
-        SG::ReadHandle<CaloExtensionCollection> PerigeeCache(m_PerigeeCacheKey,
-                                                             ctx);
-
-        if (!PerigeeCache.isValid()) {
-          ATH_MSG_ERROR("Could not retrieve Perigee Cache "
-                        << PerigeeCache.key());
-          return StatusCode::FAILURE;
-        }
-
-        const Trk::CaloExtension* extension =
-          m_perigeeParticleCaloExtensionTool->caloExtension(trkPB,
-                                                            *PerigeeCache);
-
-        didExtension = extension != nullptr;
-        if (didExtension) {
-          intersections = getIntersections(*extension, cluster);
-        }
-      } else if (cache) {
-        const Trk::CaloExtension* extension =
-          m_perigeeParticleCaloExtensionTool->caloExtension(ctx, trkPB, *cache);
-        didExtension = extension != nullptr;
-        if (didExtension) {
-          intersections = getIntersections(*extension, cluster);
-        }
-      } else {
-        std::unique_ptr<Trk::CaloExtension> extension =
-          m_perigeeParticleCaloExtensionTool->caloExtension(ctx, trkPB);
-        didExtension = extension != nullptr;
-        if (didExtension) {
-          intersections = getIntersections(*extension, cluster);
-        }
+      const auto extension = m_ParticleCaloExtensionTool->surfaceCaloExtension(
+        ctx, trkPB.perigeeParameters(), samples, surfaces, Trk::nonInteracting);
+      didExtension = !extension.empty();
+      for (const auto& i : extension) {
+        intersections.emplace_back(
+          i.first, i.second->position().eta(), i.second->position().phi());
       }
     } break;
 
     case fromLastMeasurement: {
-      if (m_useLastCaching) {
-        SG::ReadHandle<CaloExtensionCollection> LastCache(m_LastCacheKey, ctx);
-        if (!LastCache.isValid()) {
-          ATH_MSG_ERROR("Could not retrieve Last Cache " << LastCache.key());
-          return StatusCode::FAILURE;
-        }
-        const Trk::CaloExtension* extension =
-          m_lastParticleCaloExtensionTool->caloExtension(trkPB, *LastCache);
-        didExtension = extension != nullptr;
-        if (didExtension) {
-          intersections = getIntersections(*extension, cluster);
-        }
-      } else if (cache) {
-        const Trk::CaloExtension* extension =
-          m_lastParticleCaloExtensionTool->caloExtension(ctx, trkPB, *cache);
-        didExtension = extension != nullptr;
-        if (didExtension) {
-          intersections = getIntersections(*extension, cluster);
-        }
-      } else {
-        std::unique_ptr<Trk::CaloExtension> extension =
-          m_lastParticleCaloExtensionTool->caloExtension(ctx, trkPB);
-        didExtension = extension != nullptr;
-        if (didExtension) {
-          intersections = getIntersections(*extension, cluster);
+      unsigned int index(0);
+      if (trkPB.indexOfParameterAtPosition(index, xAOD::LastMeasurement)) {
+        const Trk::CurvilinearParameters& lastParams =
+          trkPB.curvilinearParameters(index);
+        const Amg::Vector3D& position = lastParams.position();
+        // Calo entry around z EME1 3750  and r  EMB1 1550
+        if (position.perp() > 1550. || std::abs(position.z()) > 3750.) {
+          ATH_MSG_WARNING("Probematic last parameters : " << lastParams);
+          didExtension = false;
+        } else {
+          const auto extension =
+            m_ParticleCaloExtensionTool->surfaceCaloExtension(
+              ctx, lastParams, samples, surfaces, Trk::nonInteracting);
+          didExtension = !extension.empty();
+          for (const auto& i : extension) {
+            intersections.emplace_back(
+              i.first, i.second->position().eta(), i.second->position().phi());
+          }
         }
       }
     } break;
@@ -389,7 +389,7 @@ EMExtrapolationTools::getEtaPhiAtCalo(const EventContext& ctx,
   }
 
   std::unique_ptr<Trk::CaloExtension> extension = nullptr;
-  extension = m_perigeeParticleCaloExtensionTool->caloExtension(
+  extension = m_ParticleCaloExtensionTool->caloExtension(
     ctx, *trkPar, Trk::alongMomentum, Trk::muon);
   if (!extension) {
     ATH_MSG_WARNING("Could not create an extension from geEtaPhiAtCalo ");
@@ -487,7 +487,7 @@ EMExtrapolationTools::getMomentumAtVertex(const EventContext& ctx,
       accPz.isAvailable(vertex)) {
     // Already decorated with parameters at vertex
     ATH_MSG_DEBUG("getMomentumAtVertex : getting from auxdata");
-    return Amg::Vector3D(accPx(vertex), accPy(vertex), accPz(vertex));
+    return { accPx(vertex), accPy(vertex), accPz(vertex) };
   }
   for (unsigned int i = 0; i < vertex.nTrackParticles(); ++i) {
     momentum += getMomentumAtVertex(ctx, vertex, i);

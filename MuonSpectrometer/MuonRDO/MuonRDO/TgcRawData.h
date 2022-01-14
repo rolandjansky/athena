@@ -314,17 +314,17 @@ private:
      */
 
     // BC tag (Central, Next, Previous)
-    uint16_t m_bcTag;
+    uint16_t m_bcTag = 0U;
 
     // online Identifiers
-    uint16_t m_subDetectorId;
-    uint16_t m_rodId;
-    uint16_t m_sswId;
-    uint16_t m_slbId;
+    uint16_t m_subDetectorId = 0U;
+    uint16_t m_rodId = 0U;
+    uint16_t m_sswId = 0U;
+    uint16_t m_slbId = 0U;
 
     // BCID and L1ID on SLB
-    uint16_t m_l1Id;
-    uint16_t m_bcId;
+    uint16_t m_l1Id = 0U;
+    uint16_t m_bcId = 0U;
 
     SlbType m_slbType;
 
@@ -332,45 +332,45 @@ private:
      */
 
     // bitmap position [40..199]
-    uint16_t m_bitpos;
+    uint16_t m_bitpos = 0U;
 
     // Index of assocaitated coincidence (if any) [0..63]
-    uint16_t m_tracklet;
+    uint16_t m_tracklet = 0U;
 
-    bool m_adjacent;
+    bool m_adjacent = false;
 
     /********** Coincidence attributes
      */
 
     //  Coincidence type (L-Pt, H-Pt, SL)
     DataType m_type;
-    bool m_forward;
+    bool m_forward = false;
 
     // Coincidence index
-    uint16_t m_index;
+    uint16_t m_index = 0U;
 
     // Coincidence Data
-    uint16_t m_pos;
-    int16_t m_delta;
-    uint16_t m_segment;
-    uint16_t m_subMatrix;
+    uint16_t m_pos = 0U;
+    int16_t m_delta = 0;
+    uint16_t m_segment = 0U;
+    uint16_t m_subMatrix = 0U;
 
     // HipT data
-    uint16_t m_sector;
-    uint16_t m_chip;
-    bool m_hipt;
-    uint16_t m_hitId;
-    uint16_t m_hsub;
-    bool m_strip;
-    uint16_t m_inner;
+    uint16_t m_sector = 0U;
+    uint16_t m_chip = 0U;
+    bool m_hipt = false;
+    uint16_t m_hitId = 0U;
+    uint16_t m_hsub = 0U;
+    bool m_strip = false;
+    uint16_t m_inner = 0U;
 
     // Sector Logic
-    bool m_cand3plus;
-    bool m_muplus;
-    uint16_t m_threshold;
-    bool m_overlap;
-    bool m_veto;
-    uint16_t m_roi;
+    bool m_cand3plus = false;
+    bool m_muplus = false;
+    uint16_t m_threshold = 0U;
+    bool m_overlap = false;
+    bool m_veto = false;
+    uint16_t m_roi = 0U;
 
 };
 

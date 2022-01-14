@@ -4,7 +4,7 @@
 
 #include "MuonTrackMonitoring/PlotMuons.h"
 
-PlotMuons::PlotMuons(PlotBase* pParent, std::string sDir):PlotBase(pParent, sDir),
+PlotMuons::PlotMuons(PlotBase* pParent, const std::string& sDir):PlotBase(pParent, sDir),
     m_plots_All(this, "/", "Plot Muons"),
     m_plots_RecoInfo(this, "/"),
     m_plots_MomentumPull(this, "/"),

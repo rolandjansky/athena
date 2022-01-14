@@ -31,5 +31,6 @@ foreach( name
                     SOURCES test/${name}.cxx
                     LINK_LIBRARIES ISF_FatrasToolsLib TestTools
                     ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
+                    POST_EXEC_SCRIPT nopost.sh
                     PROPERTIES TIMEOUT 300 )
 endforeach()

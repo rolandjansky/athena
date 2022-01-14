@@ -16,13 +16,13 @@
 class RecoLumiPlots:public PlotBase {
 
       public:
-            RecoLumiPlots(PlotBase* pParent, std::string sDir, std::string recObj);
+            RecoLumiPlots(PlotBase* pParent, const std::string& sDir, std::string recObj);
 
             void fill(const xAOD::MuonSegmentContainer* MuonSegments, int current_lb, float inst_lumi_bcid, float inst_lumi_lb);
             void fill(const xAOD::TrackParticleContainer* MSTracks, int current_lb, float inst_lumi_bcid, float inst_lumi_lb);
             void fill_CB(const xAOD::MuonContainer* Muons, int current_lb, float inst_lumi_bcid, float inst_lumi_lb);
             void fill_Other(const xAOD::MuonContainer* Muons, int current_lb, float inst_lumi_bcid, float inst_lumi_lb);
-            void fill(std::vector<std::pair<const xAOD::Muon*, const xAOD::Muon*> > resonances, int current_lb, float inst_lumi_bcid, float inst_lumi_lb);
+            void fill(const std::vector<std::pair<const xAOD::Muon*, const xAOD::Muon*> >& resonances, int current_lb, float inst_lumi_bcid, float inst_lumi_lb);
 
             TH1* m_hNSegment_LB_1D;
             TH1* m_hNMuonTrack_LB_1D;
@@ -34,7 +34,7 @@ class RecoLumiPlots:public PlotBase {
             TH2* m_hNMuon_LB;
             TH2* m_hNResonance_LB;
 
-            int n_lbs;
+            int n_lbs = 0;
 
             //for locating Z and Jpsi
             std::string type;

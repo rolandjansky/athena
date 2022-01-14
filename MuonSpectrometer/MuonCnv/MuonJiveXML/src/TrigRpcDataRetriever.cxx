@@ -64,7 +64,7 @@ namespace JiveXML {
     }
 
     int ndata=0;
-    const DataHandle<RpcPad> rdoColl(firstRdoColl);
+    const DataHandle<RpcPad>& rdoColl(firstRdoColl);
     for (; rdoColl!=lastRdoColl; ++rdoColl){
       ndata+= rdoColl->size();
     }
@@ -95,7 +95,7 @@ namespace JiveXML {
     SG::ReadCondHandle<RpcCablingCondData> readHandle{m_rpcCab, Gaudi::Hive::currentContext()};
     const RpcCablingCondData* rpcCabling{*readHandle};
 
-    const DataHandle<RpcPad> itColl(firstRdoColl);
+    const DataHandle<RpcPad>& itColl(firstRdoColl);
     for (; itColl!=lastRdoColl; ++itColl){
       if ( itColl->size() == 0 ) continue;
 

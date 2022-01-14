@@ -4,7 +4,7 @@
  **     @author  mark sutton
  **     @date    Fri 12 Oct 2012 13:39:05 BST 
  **
- **     Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  **/
 
 
@@ -219,6 +219,7 @@ public:
   bands() { } 
 
   bands( const bands& b ) = default;
+  bands& operator= ( const bands& b ) = default;
 
   bands( const std::vector<double>& limits, const std::vector<std::string>& labels ) 
   : m_limits(limits), m_labels(labels)

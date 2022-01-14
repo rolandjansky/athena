@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import TrackD3PDMaker
 import D3PDMakerCoreComps
@@ -7,6 +7,7 @@ from D3PDMakerCoreComps.D3PDObject import make_SGDataVector_D3PDObject
 from D3PDMakerCoreComps.IndexAssociation import IndexAssociation
 from TrackD3PDMaker.PerigeeAssociation import PerigeeAssociation
 from TrackD3PDMaker.TrackD3PDMakerFlags import TrackD3PDFlags
+from InDetRecExample.TrackingCommon import getInDetTrackToVertexTool
 
 
 def xAODTrackD3PDObject(_label='trkTrack',
@@ -57,14 +58,16 @@ def xAODTrackD3PDObject(_label='trkTrack',
                         TrackD3PDMaker.TrackParticlePerigeeAtPVAssociationTool,
                         "PerigeeAtPV",
                         suffix='_wrtPV',
-                        levelName = 'trackParametersAtPrimaryVertexLevelOfDetails')
+                        levelName = 'trackParametersAtPrimaryVertexLevelOfDetails',
+                        TrackToVertexTool = getInDetTrackToVertexTool())
 
     # perigee at Beam Spot
     PerigeeAtBSAssoc = PerigeeAssociation(object,  # noqa: F841
                         TrackD3PDMaker.TrackParticlePerigeeAtBSAssociationTool,
                         "PerigeeAtBS",
                         suffix='_wrtBS', 
-                        levelName = 'trackParametersAtBeamSpotLevelOfDetails')
+                        levelName = 'trackParametersAtBeamSpotLevelOfDetails',
+                        TrackToVertexTool = getInDetTrackToVertexTool())
 
     object.defineBlock(flagTestLOD('storeTrackFitQuality', flags),
                        _prefix+'FitQuality',

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,8 @@
 #include "GaudiKernel/Incident.h"
 #include "InDetSimData/InDetSimData.h"
 #include "AtlasHepMC/GenParticle.h"
+#include "AthenaKernel/RNGWrapper.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "TrkEventPrimitives/ParamDefs.h"
 
@@ -49,7 +51,7 @@ namespace InDet {
   
     // get the random stream
     ATH_MSG_DEBUG ( "Getting random number engine : <" << m_rndmEngineName << ">" );
-    m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
+    m_rndmEngine = m_rndmSvc->getEngine(this, m_rndmEngineName);
     if (!m_rndmEngine) {
       ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName);
       return StatusCode::FAILURE;
@@ -68,6 +70,13 @@ namespace InDet {
 
   std::vector<double> TruthClusterizationFactory::estimateNumberOfParticles(const InDet::PixelCluster& pCluster) const
   {
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+    if (ctx.evt() != m_rndmEngine->evtSeeded()) {
+       ATHRNG::RNGWrapper* wrapper ATLAS_THREAD_SAFE = m_rndmEngine;
+       wrapper->setSeed (this->name(), ctx);
+    }
+    CLHEP::HepRandomEngine* engine = m_rndmEngine->getEngine (ctx);
+    
     std::vector<double> probabilities(3,0.);
     const auto &rdos = pCluster.rdoList();
     unsigned int nPartContributing = 0;
@@ -116,14 +125,14 @@ namespace InDet {
     //If two unique truth particles found in cluster
     else if (nPartContributing==2) {
       //90% chance NN returns high probability of there being 2 particles
-      if (CLHEP::RandFlat::shoot( m_rndmEngine, 0, 1 ) < 0.9) probabilities[1] = 1.0;
+      if (CLHEP::RandFlat::shoot( engine, 0, 1 ) < 0.9) probabilities[1] = 1.0;
       //Other 10% NN returns high probability of there being 1 particle
       else probabilities[0] = 1.0;
     }
     //If greater than 2 unique truth particles in cluster
     else if (nPartContributing>2) {
       //90% chance NN returns high probability of there being >2 particles
-      if (CLHEP::RandFlat::shoot( m_rndmEngine, 0, 1 ) < 0.9) probabilities[2] = 1.0;
+      if (CLHEP::RandFlat::shoot( engine, 0, 1 ) < 0.9) probabilities[2] = 1.0;
       //Other 10% NN returns high probability of there being 1 particle
       else probabilities[0] = 1.0;
     }

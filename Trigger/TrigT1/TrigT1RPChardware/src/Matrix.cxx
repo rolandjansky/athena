@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include <cmath>
+#include <array>
 #include "TrigT1RPChardware/Matrix.h"
 #include "TrigT1RPChardware/CMAVERSION.h"
 
@@ -32,6 +33,24 @@ const sbit16 Matrix::s_timeGroupA=16;
 const sbit16 Matrix::s_timeGroupB=8;
  // number of bits for a CMAword word
 const sbit16 Matrix::s_wordlen=32;
+//----------------------------------------------------------------------------//
+namespace {
+  /**
+   * @param[in] channel: CMA channel address
+   * @return 2-element array i:
+   *         i[0] is the address of the 32-bit word to be considered
+   *         i[1] is the bit number of word with address i[0] corresponding to channel of CMA
+   */
+  constexpr std::array<ubit16,2> inds(ubit16 channel) {
+    // static cast back to ubit16 because arithmetic operators implicitly cast to int (don't accept smaller types)
+    return {static_cast<ubit16>(channel/Matrix::s_wordlen), static_cast<ubit16>(channel%Matrix::s_wordlen)};
+  }
+  constexpr ubit16 bitstatus(const CMAword* p, ubit16 channel)  {
+    CMAword j{1};
+    std::array<ubit16,2> id = inds(channel);
+    return *(p+id[0]) & j<<id[1] ? 1 : 0 ;
+  }
+}
 //----------------------------------------------------------------------------//
 Matrix::Matrix(int run, int event, CMAword debug,
                int subsys, int proj, int sect, 
@@ -1905,11 +1924,8 @@ return m_BunchOffset;
 }//end-of-ubit16-getBunchOffset
 //------------------------------------------------------------------------//
 void Matrix::set_to_1(CMAword *p, sbit16 channel) const {
-ubit16 i[2];
-CMAword j;
-i[0]=0; i[1]=0;
-j=1;
-inds(&i[0],channel);
+CMAword j{1};
+std::array<ubit16,2> i = inds(channel);
 if(!(channel<0)) {
  *(p+i[0]) = *(p+i[0]) | j<<i[1];
 } else {
@@ -1918,24 +1934,15 @@ if(!(channel<0)) {
 }//end-of-Matrix::set_to_1
 //----------------------------------------------------------------------//
 void Matrix::set_to_0(CMAword *p, sbit16 channel) const {
-ubit16 i[2];
-CMAword j;
-j=1;
-inds(&i[0],channel);
+CMAword j{1};
+std::array<ubit16,2> i = inds(channel);
 if(!(channel<0)) {
  *(p+i[0]) = *(p+i[0]) & ~(j<<i[1]);
 } else {
  throw std::out_of_range("Matrix::set_to_1: channel is negative; channel="+std::to_string(channel));
 }//end-of-if(!(channel<0
 }//end-of-Matrix::set_to_1
-//----------------------------------------------------------------------//
-ubit16 Matrix::bitstatus(const CMAword *p,ubit16 channel) const {
-ubit16 id[2];
-CMAword j;
-j=1;
-inds(&id[0],channel);
-return *(p+id[0])& j<<id[1] ? 1 : 0 ;
-}//end-of-Matrix::bitstatus
+
 //----------------------------------------------------------------------//
 void Matrix::wind () const {
 sbit16 i, j;
@@ -2181,18 +2188,7 @@ strdisp<<"   00000000001111111111222222222233"<<endl
 //
 cout << strdisp.str() << endl;
 }//end-of-dispWind
-//------------------------------------------------------------------------//
-void Matrix::inds(ubit16 *i, ubit16 channel) const{
-//
-// input channel: CMA channel address
-//
-// output i[0] is the address of the 32-bit word to be considered
-//        i[1] is the bit number of word with address i[0] corresponding 
-//             to channel of CMA
-//
-*(i+0) = channel/s_wordlen; 
-*(i+1) = channel%s_wordlen;
-}//end-of-Matrix::inds
+
 //----------------------------------------------------------------------------//
  ubit16 Matrix::char2int(const char *str, CMAword the32[2]) {
  ubit16 outflag=0;

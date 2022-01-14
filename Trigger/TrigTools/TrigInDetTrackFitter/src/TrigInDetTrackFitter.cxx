@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -159,7 +159,7 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
     double V[3],P[3],M[3][3],D[4],Jm[7][7],
       J1[5][7],gB[3],gBi[3],gBf[3],dBds[3],Buf[5][7],DVx,DVy,DVz;
     int nStep,nStepMax;
-    double sl,ds,path=0.0;
+    double sl,ds;
 
     double sint,cost,sinf,cosf;
     sint=sin(pTS->getTrackState(3));cosf=cos(pTS->getTrackState(2));
@@ -262,7 +262,7 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
 	dBds[i]=(gBf[i]-gBi[i])/sl;
 	gB[i]=gBi[i];
       }
-    nStep=nStepMax;path=0.0;
+    nStep=nStepMax;
     while(nStep>0)
       {
 	c=D[0]*gP[0]+D[1]*gP[1]+D[2]*gP[2]+D[3];
@@ -291,7 +291,7 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
 	  sl = (-b+signb*sqrt(descr))/(2*a);
 	}
 
-	ds=sl/nStep;path+=ds;
+	ds=sl/nStep;
 	Av=ds*CQ;
 	Ac=0.5*ds*Av;
 	DVx=gV[1]*gB[2]-gV[2]*gB[1];

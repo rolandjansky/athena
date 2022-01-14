@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ItemListSvc.h 
@@ -45,7 +45,7 @@ namespace item {
     private:
       std::string m_value;
     public:
-      value_equals(const std::string v) : m_value(v) {}
+      value_equals(const std::string& v) : m_value(v) {}
     bool operator() (std::pair<const std::string, std::string> elem) {
       return elem.second == m_value;
     }

@@ -26,7 +26,7 @@ class HitFracTypePlots:public PlotBase {
     
 class IDHitSummaryPlots:public PlotBase {
  public:
-  IDHitSummaryPlots(PlotBase* pParent, std::string sDir);
+  IDHitSummaryPlots(PlotBase* pParent, const std::string& sDir);
   void fill(const xAOD::TrackParticle& trk,float weight=1.0);
 
   Trk::HitTypePlots nBLayerHitsIfExpected;

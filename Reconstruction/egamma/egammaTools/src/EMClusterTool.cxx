@@ -100,25 +100,19 @@ EMClusterTool::setNewCluster(
     return;
   }
   using ClusterLink_t = ElementLink<xAOD::CaloClusterContainer>;
-  xAOD::CaloCluster* cluster = makeNewSuperCluster(*(eg->caloCluster()), eg);
-
+  //create new cluster
+  xAOD::CaloCluster* cluster = new xAOD::CaloCluster();
+  //store owns it
   outputClusterContainer->push_back(cluster);
-
+  //copy over 
+  (*cluster)=*(eg->caloCluster());
+  //and do final calibration
+  if (m_MVACalibSvc->execute(*cluster, *eg).isFailure()) {
+    ATH_MSG_ERROR("Problem executing MVA cluster tool");
+  }
   // Set the link to the new cluster
   ClusterLink_t clusterLink(cluster, *outputClusterContainer, ctx);
   const std::vector<ClusterLink_t> clusterLinks{ clusterLink };
   eg->setCaloClusterLinks(clusterLinks);
 }
 
-xAOD::CaloCluster*
-EMClusterTool::makeNewSuperCluster(const xAOD::CaloCluster& cluster,
-                                   xAOD::Egamma* eg) const
-{
-  //
-  xAOD::CaloCluster* newClus = new xAOD::CaloCluster(cluster);
-  if (newClus && m_MVACalibSvc->execute(*newClus, *eg).isFailure()) {
-    ATH_MSG_ERROR("Problem executing MVA cluster tool");
-  }
-
-  return newClus;
-}

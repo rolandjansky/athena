@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // EnhancedBiasWeighter includes
@@ -29,10 +29,7 @@ EnhancedBiasWeighter::EnhancedBiasWeighter( const std::string& name )
   : asg::AsgTool( name ),
   m_deadtime(1.),
   m_pairedBunches(0),
-  m_mcModifiedCrossSection(0.),
-  m_lumiAverageNum(0),
-  m_muAverageNum(0),
-  m_averageDenom(0)
+  m_mcModifiedCrossSection(0.)
 {}
 
 StatusCode EnhancedBiasWeighter::initialize() 
@@ -469,19 +466,15 @@ double EnhancedBiasWeighter::getEBWeight(const EventContext& context) const
 
 StatusCode EnhancedBiasWeighter::trackAverages(const EventContext& context) const 
 {
-  std::lock_guard<std::mutex> scopeLock(m_mutex);
-  m_lumiAverageNum += getLBLumi(context);
-  ++m_averageDenom;
+  m_lumiAverage += getLBLumi(context);
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode EnhancedBiasWeighter::trackAverages(const xAOD::EventInfo* eventInfo) const 
 {
-  std::lock_guard<std::mutex> scopeLock(m_mutex);
-  m_muAverageNum   += std::ceil( eventInfo->actualInteractionsPerCrossing() );
-  m_lumiAverageNum += getLBLumi(eventInfo);
-  ++m_averageDenom;
+  m_muAverage += std::ceil( eventInfo->actualInteractionsPerCrossing() );
+  m_lumiAverage += getLBLumi(eventInfo);
   return StatusCode::SUCCESS;
 }
 
@@ -799,16 +792,12 @@ StatusCode EnhancedBiasWeighter::getDistanceIntoTrain(const xAOD::EventInfo* eve
 
 double EnhancedBiasWeighter::getAverageLumi() const
 {
-  std::lock_guard<std::mutex> scopeLock(m_mutex);
-  if (m_averageDenom == 0) return 0;
-  return m_lumiAverageNum / (double)m_averageDenom;
+  return m_lumiAverage.mean();
 }
 
 double EnhancedBiasWeighter::getAverageMu() const 
 {
-  std::lock_guard<std::mutex> scopeLock(m_mutex);
-  if (m_averageDenom == 0) return 0;
-  return m_muAverageNum / (double)m_averageDenom;
+  return m_muAverage.mean();
 }
 
 

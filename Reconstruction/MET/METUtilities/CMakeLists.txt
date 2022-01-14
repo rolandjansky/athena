@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 801725 2017-03-28 19:23:28Z khoo $
 ################################################################################
 # Package: METUtilities
 ################################################################################
@@ -83,7 +82,8 @@ if( XAOD_ANALYSIS )
           SOURCES test/${test}.cxx
           INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
           LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} ${readLib}
-                AsgTools xAODBase xAODMissingET METUtilitiesLib )
+                AsgTools xAODBase xAODMissingET METUtilitiesLib
+          POST_EXEC_SCRIPT nopost.sh )
   endforeach()
 endif()
 

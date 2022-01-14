@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -21,5 +21,9 @@
 #include "xAODForward/AFPSiHitsClusterAuxContainer.h"
 #include "xAODForward/AFPTrackContainer.h"
 #include "xAODForward/AFPTrackAuxContainer.h"
+#include "xAODForward/AFPToFTrackContainer.h"
+#include "xAODForward/AFPToFTrackAuxContainer.h"
 #include "xAODForward/AFPProtonContainer.h"
 #include "xAODForward/AFPProtonAuxContainer.h"
+#include "xAODForward/AFPVertexContainer.h"
+#include "xAODForward/AFPVertexAuxContainer.h"

@@ -34,6 +34,8 @@ namespace HLT { namespace MET {
   }
 
   float METComponent::phi() const {
+    if (mpy == 0 && mpx == 0)
+      return 0;
     return std::atan2(mpy, mpx);
   }
 

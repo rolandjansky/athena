@@ -63,7 +63,7 @@ DblQ00Wsup::DblQ00Wsup(AmdcDb* wsup) :
   if (m_nObj == 0) std::cerr<<"NO Wsup banks in the AmdcDbRecord"<<std::endl;
 
   const AmdcDbRecord* pAmdcDbRecord = dynamic_cast<const AmdcDbRecord*>((*it));
-  if (pAmdcDbRecord == 0){
+  if (pAmdcDbRecord == nullptr){
     std::cerr << "No way to cast in AmdcDbRecord for " << getObjName() << std::endl;
     return;
   }
@@ -78,7 +78,7 @@ DblQ00Wsup::DblQ00Wsup(AmdcDb* wsup) :
   it = pIRDBRecordset->begin();
   for( ; it<pIRDBRecordset->end(); ++it){
      pAmdcDbRecord = dynamic_cast<const AmdcDbRecord*>((*it));
-     if(pAmdcDbRecord == 0){
+     if(pAmdcDbRecord == nullptr){
        std::cerr << "No way to cast in AmdcDbRecord for " << getObjName() << std::endl;
        return;
      }

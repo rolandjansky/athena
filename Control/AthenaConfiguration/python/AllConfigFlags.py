@@ -54,7 +54,7 @@ def _createCfgFlags():
         return collections
 
     def _typedInputCollections(inputFile):
-        if not inputFile:
+        if not inputFile or inputFile==["_ATHENA_GENERIC_INPUTFILE_NAME_"]:
             return []
 
         collections = ['%s#%s' % type_key for type_key in GetFileMD(inputFile).get("itemList",[])]
@@ -67,12 +67,35 @@ def _createCfgFlags():
     acf.addFlag('Concurrency.NumProcs', 0)
     acf.addFlag('Concurrency.NumThreads', 0 )
     acf.addFlag('Concurrency.NumConcurrentEvents', lambda prevFlags : prevFlags.Concurrency.NumThreads)
+    acf.addFlag('Concurrency.DebugWorkers', False )
 
     acf.addFlag('Scheduler.CheckDependencies', True)
     acf.addFlag('Scheduler.ShowDataDeps', True)
     acf.addFlag('Scheduler.ShowDataFlow', True)
     acf.addFlag('Scheduler.ShowControlFlow', True)
     acf.addFlag('Scheduler.EnableVerboseViews', True)
+
+    acf.addFlag('MP.WorkerTopDir', 'athenaMP_workers')
+    acf.addFlag('MP.OutputReportFile', 'AthenaMPOutputs')
+    acf.addFlag('MP.Strategy', 'SharedQueue')
+    acf.addFlag('MP.CollectSubprocessLogs', False)
+    acf.addFlag('MP.PollingInterval', 100)
+    acf.addFlag('MP.EventsBeforeFork', 0)
+    acf.addFlag('MP.EventRangeChannel', 'EventService_EventRanges')
+    acf.addFlag('MP.EvtRangeScattererCaching', False)
+    acf.addFlag('MP.MemSamplingInterval', 0)
+    """ Size of event chunks in the shared queue
+        if chunk_size==-1, chunk size is set to auto_flush for files compressed with LZMA
+        if chunk_size==-2, chunk size is set to auto_flush for files compressed with LZMA or ZLIB
+        if chunk_size==-3, chunk size is set to auto_flush for files compressed with LZMA, ZLIB, or LZ4
+        if chunk_size<=-4, chunk size is set to auto_flush
+    """
+    acf.addFlag('MP.ChunkSize', -1)
+    acf.addFlag('MP.ReadEventOrders', False)
+    acf.addFlag('MP.EventOrdersFile', 'athenamp_eventorders.txt')
+    acf.addFlag('MP.UseSharedReader', False)
+    acf.addFlag('MP.UseSharedWriter', False)
+    acf.addFlag('MP.UseParallelCompression', True)
 
     acf.addFlag('Common.MsgSourceLength',50) #Length of the source-field in the format str of MessageSvc
     acf.addFlag('Common.isOnline', False ) #  Job runs in an online environment (access only to resources available at P1) # former global.isOnline
@@ -170,6 +193,9 @@ def _createCfgFlags():
     acf.addFlag("IOVDb.RunToTimestampDict", lambda prevFlags: getRunToTimestampDict())
     acf.addFlag("IOVDb.DBConnection", lambda prevFlags : "sqlite://;schema=mycool.db;dbname=" + prevFlags.IOVDb.DatabaseInstance)
 
+#PoolSvc Flags:
+    acf.addFlag("PoolSvc.MaxFilesOpen", lambda prevFlags : 2 if prevFlags.MP.UseSharedReader else 0)
+
 
     def __bfield():
         from MagFieldConfig.BFieldConfigFlags import createBFieldConfigFlags
@@ -210,6 +236,11 @@ def _createCfgFlags():
         return createITkConfigFlags()
     _addFlagsCategory(acf, "ITk", __itk, 'InDetConfig' )
 
+    def __acts():
+        from ActsInterop.ActsConfigFlags import createActsConfigFlags
+        return createActsConfigFlags()
+    _addFlagsCategory(acf, "Acts", __acts, 'ActsInterop')
+
     def __hgtd():
         from HGTD_Config.HGTD_ConfigFlags import createHGTD_ConfigFlags
         return createHGTD_ConfigFlags()
@@ -235,6 +266,11 @@ def _createCfgFlags():
         return createMETConfigFlags()
     _addFlagsCategory(acf,"MET",__met, 'METReconstruction')
 
+    def __jet():
+        from JetRecConfig.JetConfigFlags import createJetConfigFlags
+        return createJetConfigFlags()
+    _addFlagsCategory(acf,"Jet",__jet, 'JetRecConfig')
+
     def __tau():
         from tauRec.TauConfigFlags import createTauConfigFlags
         return createTauConfigFlags()
@@ -253,7 +289,7 @@ def _createCfgFlags():
     def __hi():
         from HIRecConfig.HIRecConfigFlags import createHIRecConfigFlags
         return createHIRecConfigFlags()
-    _addFlagsCategory(acf, "HIRec", __hi, "HIRecConfig")
+    _addFlagsCategory(acf, "HeavyIon", __hi, "HIRecConfig")
 
     def __dq():
         from AthenaMonitoring.DQConfigFlags import createDQConfigFlags

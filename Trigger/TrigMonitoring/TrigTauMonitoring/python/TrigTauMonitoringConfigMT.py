@@ -110,6 +110,9 @@ class TrigTauMonAlgBuilder:
       def isRNN(self):
         return True if "RNN" in self.chain() else False
 
+      def isDiTau(self):
+        return True if ( self.chain().count('tau') == 2 and '03dRAB' in self.chain()) else False
+
     return TrigTauInfo(trigger)
 
 
@@ -160,12 +163,11 @@ class TrigTauMonAlgBuilder:
   
     # if mon groups not found fall back to hard-coded trigger monitoring list
     if len(monitoring_tau) == 0:
-       monitoring_tau = [
+      monitoring_tau = [
        # tau0
        'HLT_tau0_ptonly_L1TAU8',
        'HLT_tau0_ptonly_L1TAU60',
        # tau25
-       'HLT_tau25_ptonly_L1TAU12IM',
        'HLT_tau25_idperf_tracktwoMVA_L1TAU12IM',
        'HLT_tau25_idperf_tracktwoMVABDT_L1TAU12IM',
        'HLT_tau25_perf_tracktwoMVA_L1TAU12IM',
@@ -177,7 +179,6 @@ class TrigTauMonAlgBuilder:
        'HLT_tau25_tightRNN_tracktwoMVA_L1TAU12IM',
        'HLT_tau25_tightRNN_tracktwoMVABDT_L1TAU12IM',
        # tau35
-       'HLT_tau35_ptonly_L1TAU20IM',
        'HLT_tau35_idperf_tracktwoMVA_L1TAU20IM',
        'HLT_tau35_idperf_tracktwoMVABDT_L1TAU20IM',
        'HLT_tau35_perf_tracktwoMVA_L1TAU20IM',
@@ -188,6 +189,10 @@ class TrigTauMonAlgBuilder:
        'HLT_tau35_mediumRNN_tracktwoMVABDT_L1TAU20IM',
        'HLT_tau35_tightRNN_tracktwoMVA_L1TAU20IM',
        'HLT_tau35_tightRNN_tracktwoMVABDT_L1TAU20IM',
+       # tau60
+       'HLT_tau60_mediumRNN_tracktwoMVABDT_L1TAU40',
+       # tau80
+       'HLT_tau80_mediumRNN_tracktwoMVABDT_L1TAU60', 
        # tau160
        'HLT_tau160_ptonly_L1TAU100',
        'HLT_tau160_idperf_tracktwoMVA_L1TAU100',
@@ -200,7 +205,6 @@ class TrigTauMonAlgBuilder:
        'HLT_tau180_mediumRNN_tracktwoLLP_L1TAU100',
        'HLT_tau180_tightRNN_tracktwoLLP_L1TAU100',
        # tau200
-       'HLT_tau200_ptonly_L1TAU100',
        'HLT_tau200_mediumRNN_tracktwoMVA_L1TAU100',
        'HLT_tau200_mediumRNN_tracktwoMVABDT_L1TAU100',
        'HLT_tau200_mediumRNN_tracktwoLLP_L1TAU100',
@@ -208,10 +212,10 @@ class TrigTauMonAlgBuilder:
        # ditau
        'HLT_tau80_mediumRNN_tracktwoMVA_tau60_mediumRNN_tracktwoMVA_03dRAB_L1TAU60_2TAU40',
        'HLT_tau80_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA_03dRAB30_L1TAU60_DR-TAU20ITAU12I',
-       'HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1DR-TAU20ITAU12I-J25',
+       'HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_03dRAB30_L1DR-TAU20ITAU12I-J25',
        'HLT_tau80_mediumRNN_tracktwoMVABDT_tau60_mediumRNN_tracktwoMVABDT_03dRAB_L1TAU60_2TAU40',
        'HLT_tau80_mediumRNN_tracktwoMVABDT_tau35_mediumRNN_tracktwoMVABDT_03dRAB30_L1TAU60_DR-TAU20ITAU12I',
-       'HLT_tau35_mediumRNN_tracktwoMVABDT_tau25_mediumRNN_tracktwoMVABDT_L1DR-TAU20ITAU12I-J25',
+       'HLT_tau35_mediumRNN_tracktwoMVABDT_tau25_mediumRNN_tracktwoMVABDT_03dRAB30_L1DR-TAU20ITAU12I-J25',
        'HLT_tau80_mediumRNN_tracktwoLLP_tau60_mediumRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40',
        'HLT_tau80_mediumRNN_tracktwoLLP_tau60_tightRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40',
        'HLT_tau80_tightRNN_tracktwoLLP_tau60_tightRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40',
@@ -225,7 +229,7 @@ class TrigTauMonAlgBuilder:
        'HLT_tau25_mediumRNN_tracktwoMVABDT_L1eTAU12M',
        'HLT_tau35_mediumRNN_tracktwoMVABDT_L1eTAU20',
        'HLT_tau160_mediumRNN_tracktwoMVABDT_L1eTAU100'
-       ]
+    ]
 
     self.tauList = monitoring_tau
 
@@ -280,6 +284,10 @@ class TrigTauMonAlgBuilder:
       self.bookRNNTrack( monAlg, trigger, online=False )
       self.bookRNNCluster( monAlg, trigger, online=False )
 
+      if(info.isDiTau()):
+        self.bookDiTauVars(monAlg, trigger)   
+        self.bookDiTauHLTEffHistograms(monAlg, trigger)
+
     #remove duplicated from L1 seed list
     l1seeds = list(dict.fromkeys(l1seeds))
     for l1seed in l1seeds:
@@ -312,6 +320,29 @@ class TrigTauMonAlgBuilder:
     defineEachStepHistograms('tauPt', 'p_{T} [GeV]', 60, 0.0, 300.)
     defineEachStepHistograms('tauEta','#eta', 13, -2.6, 2.6)
     defineEachStepHistograms('tauPhi','#phi', 16, -3.2, 3.2) 
+    defineEachStepHistograms('averageMu', 'average pileup', 10, 0., 80.)
+
+  #
+  # Booking DiTau efficiencies
+  #
+
+  def bookDiTauHLTEffHistograms(self, monAlg, trigger):
+  
+    monGroupName = trigger+'_DiTauHLT_Efficiency'
+    monGroupPath = 'DiTauHLT_Efficiency/'+trigger+'/DiTauHLT_Efficiency'
+
+    monGroup = self.helper.addGroup( monAlg, monGroupName,
+                              self.basePath+'/'+monGroupPath )
+
+    def defineEachStepHistograms(xvariable, xlabel, xbins, xmin, xmax):
+
+       monGroup.defineHistogram(monGroupName+'_DiTauHLTpass,'+monGroupName+'_'+xvariable+';EffDiTauHLT_'+xvariable+'_wrt_Offline',
+                                title='DiTau HLT Efficiency ' +trigger+';'+xlabel+';Efficiency',
+                                type='TEfficiency',xbins=xbins,xmin=xmin,xmax=xmax)
+
+    defineEachStepHistograms('dR',' dR(#tau,#tau)',40,0,4)
+    defineEachStepHistograms('dEta',' dEta(#tau,#tau)',40,0,4)
+    defineEachStepHistograms('dPhi',' dPhi(#tau,#tau)',16, -3.2, 3.2)
     defineEachStepHistograms('averageMu', 'average pileup', 10, 0., 80.)
 
   #
@@ -426,7 +457,7 @@ class TrigTauMonAlgBuilder:
     monGroup.defineHistogram('cluster_SECOND_R_log10',title='cluster_SECOND_R_log10; cluster_SECOND_R_log10;Events',xbins=50,xmin=-3,xmax=7)
     monGroup.defineHistogram('cluster_SECOND_LAMBDA_log10',title='cluster_SECOND_LAMBDA_log10; cluster_SECOND_LAMBDA_log10;Events',xbins=50,xmin=-3,xmax=7)
     monGroup.defineHistogram('cluster_CENTER_LAMBDA_log10',title='cluster_CENTER_LAMBDA_log10; cluster_CENTER_LAMBDA_log10;Events',xbins=50,xmin=-2,xmax=5)
-    
+
   def bookbasicVars( self, monAlg, trigger, nProng, online ):
   
     monGroupName = trigger+('HLT' if online else 'Offline')+'_basicVars_'+nProng
@@ -468,4 +499,24 @@ class TrigTauMonAlgBuilder:
 
     monGroup.defineHistogram('hRNNScore', title='EF RNN score; RNN score;Nevents',xbins=20,xmin=0,xmax=1)
     monGroup.defineHistogram('hRNNScoreSigTrans', title='EF RNN trans score; RNN Trans score;Nevents',xbins=20,xmin=0,xmax=1)
+
+  def bookDiTauVars(self, monAlg, trigger):
+    
+    monGroupName = trigger+"_DiTauVars"
+    monGroupPath = 'DiTauVars/'+trigger
+
+    monGroup = self.helper.addGroup( monAlg, monGroupName,
+                              self.basePath+'/'+monGroupPath )    
+
+    monGroup.defineHistogram('hleadEFEt,hsubleadEFEt', type='TH2F', title='lead Et vs sublead Et; lead E_{T} [GeV] ; sublead E_{T} [GeV]',
+                               xbins=50,xmin=0,xmax=250,ybins=50,ymin=0,ymax=250)
+    monGroup.defineHistogram('hleadEFEta,hsubleadEFEta', type='TH2F', title='lead Eta vs sublead Eta; lead #eta ; sublead #eta',
+                               xbins=26,xmin=-2.6,xmax=2.6,ybins=26,ymin=-2.6,ymax=2.6)
+    monGroup.defineHistogram('hleadEFPhi,hsubleadEFPhi', type='TH2F', title='lead Phi vs sublead Phi; lead #phi ; sublead #phi',
+                               xbins=16,xmin=-3.2,xmax=3.2,ybins=16,ymin=-3.2,ymax=3.2) 
+    monGroup.defineHistogram('hdR', title='EF dR(#tau,#tau);dR(#tau,#tau);Nevents',xbins=40,xmin=0,xmax=4)
+    monGroup.defineHistogram('hdEta', title='EF dEta(#tau,#tau);dEta(#tau,#tau);Nevents',xbins=40,xmin=0,xmax=4)
+    monGroup.defineHistogram('hdPhi', title='EF dPhi(#tau,#tau);dPhi(#tau,#tau);Nevents',xbins=16,xmin=-3.2,xmax=3.2)
+
+
 

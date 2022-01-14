@@ -108,13 +108,13 @@ namespace MuonCalib {
         // an Athena Identifier
         int eta, phi, ml;
         std::string stnName(region, 0, 3);
-        std::string::size_type separator1 = region.find_first_of("_");
-        std::string::size_type separator2 = region.find_last_of("_");
+        std::string::size_type separator1 = region.find_first_of('_');
+        std::string::size_type separator2 = region.find_last_of('_');
         if ((separator1 == std::string::npos) || (separator2 == std::string::npos) || (separator1 == separator2)) {
             ATH_MSG_WARNING("IdToFixedIdTool::regionKeyToId : invalid region key " << region);
             return Identifier();
         }
-        std::string::size_type separator3 = region.find("_", separator1 + 1);
+        std::string::size_type separator3 = region.find('_', separator1 + 1);
         if (separator3 != separator2) {
             // format STN_ETA_PHI_ML
             std::string stnPhi(region, separator1 + 1, separator2 - separator1 - 1);

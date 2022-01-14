@@ -79,8 +79,8 @@ namespace MuonCalib{
             float getParameter(RpcCondParType parType) const;
 
         private:
-            int m_id;
-            float m_eff, m_errEff, m_res1, m_res2, m_resX, m_errRes1, m_errRes2, m_errResX, m_time, m_errTime, m_noise, m_errNoise, m_noiseC, m_errNoiseC, m_cs, m_errCs;
+            int m_id = 0;
+            float m_eff = 0.0F, m_errEff = 0.0F, m_res1 = 0.0F, m_res2 = 0.0F, m_resX = 0.0F, m_errRes1 = 0.0F, m_errRes2 = 0.0F, m_errResX = 0.0F, m_time = 0.0F, m_errTime = 0.0F, m_noise = 0.0F, m_errNoise = 0.0F, m_noiseC = 0.0F, m_errNoiseC = 0.0F, m_cs = 0.0F, m_errCs = 0.0F;
 
     };
 

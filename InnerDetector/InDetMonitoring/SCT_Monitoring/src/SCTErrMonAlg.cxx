@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCTErrMonAlg.h"
@@ -72,7 +72,7 @@ StatusCode SCTErrMonAlg::fillHistograms(const EventContext& ctx) const {
   // Check wafers with many fired strips (event dependent) using SCT_FlaggedConditionTool.
   std::array<int, N_REGIONS_INC_GENERAL> flaggedWafersIndices
     {ENDCAP_C_INDEX, BARREL_INDEX, ENDCAP_A_INDEX, GENERAL_INDEX};
-  std::array<int, N_REGIONS_INC_GENERAL> nFlaggedWafers;
+  std::array<int, N_REGIONS_INC_GENERAL> nFlaggedWafers{};
   nFlaggedWafers.fill(0);
   const unsigned int wafer_hash_max{static_cast<unsigned int>(m_pSCTHelper->wafer_hash_max())};
   for (unsigned int iHash{0}; iHash<wafer_hash_max; iHash++) {
@@ -231,11 +231,10 @@ SCTErrMonAlg::fillByteStreamErrors(const EventContext& ctx) const {
   }
 
   categoryErrorMap_t categoryErrorMap;
-  int total_errors{0};
-  std::array<int, N_REGIONS_INC_GENERAL> nMaskedLinks;
+  std::array<int, N_REGIONS_INC_GENERAL> nMaskedLinks{};
   nMaskedLinks.fill(0);
   for (int errType{0}; errType < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++errType) {
-    total_errors += fillByteStreamErrorsHelper(m_byteStreamErrTool->getErrorSet(errType, ctx), errType, categoryErrorMap, nMaskedLinks);
+    fillByteStreamErrorsHelper(m_byteStreamErrTool->getErrorSet(errType, ctx), errType, categoryErrorMap, nMaskedLinks);
   }
   for (int reg{0}; reg<N_REGIONS_INC_GENERAL; reg++) {
     m_nMaskedLinks[reg] = nMaskedLinks[reg];
@@ -360,7 +359,7 @@ SCTErrMonAlg::fillByteStreamErrorsHelper(const std::set<IdentifierHash>& errors,
                                          categoryErrorMap_t& categoryErrorMap,
                                          std::array<int, N_REGIONS_INC_GENERAL>& nMaskedLinks) const {
   //--- Check categories of the BS error
-  std::array<bool, CategoryErrors::N_ERRCATEGORY> b_category;
+  std::array<bool, CategoryErrors::N_ERRCATEGORY> b_category{};
   b_category.fill(false);
 
   b_category[CategoryErrors::MASKEDLINKALL] =

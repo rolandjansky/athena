@@ -29,7 +29,6 @@ tool1.PrimitiveTauSelectionTool.SelectionCuts \
     = int(SelectionCuts.CutAbsEta | SelectionCuts.CutAbsCharge | SelectionCuts.CutNTrack)
 tool1.PrimitiveTauSelectionTool.PtMin = 0.0
 tool1.PrimitiveTauSelectionTool.JetIDWP = TauAnalysisTools.JETIDNONE
-tool1.PrimitiveTauSelectionTool.EleOLR = False
 tool1.PrimitiveTauSelectionTool.NTracks = (0, 1, 2, 3, 4, 5)
 tool1.PrimitiveTauSelectionTool.AbsCharges = (0, 1, 2, 3)
 tool1.PrimitiveTauSelectionTool.AbsEtaRegion = (0.0, 10.0)
@@ -40,7 +39,6 @@ tool1.NominalTauSelectionTool.SelectionCuts \
     = int(SelectionCuts.CutPt | SelectionCuts.CutAbsEta | SelectionCuts.CutAbsCharge | SelectionCuts.CutNTrack)
 tool1.NominalTauSelectionTool.PtMin = 20.0
 tool1.NominalTauSelectionTool.JetIDWP = TauAnalysisTools.JETIDNONE
-tool1.NominalTauSelectionTool.EleOLR = False
 tool1.NominalTauSelectionTool.NTracks = (0, 1, 2, 3, 4, 5)
 tool1.NominalTauSelectionTool.AbsCharges = (0, 1, 2, 3)
 tool1.NominalTauSelectionTool.AbsEtaRegion = (0.0, 1.37, 1.52, 2.5)

@@ -174,6 +174,13 @@ namespace HLT
         // will do this by default unless you force it to evaluate an expression by
         // binding it to a vector matrix type. Therefore we use 'auto' to store the
         // individual expression pieces, rather than forcing an early evaluation.
+        if (pileupCovariance.determinant() == 0)
+        {
+          // In very rare circumstances the pileup covariance can be 0. This essentially means that
+          // there is nothing interpreted as pileup. The calculation will fail in this case so we
+          // cannot run the fit. Just return the expectations
+          return towerExpectations;
+        }
         auto constants =
             // Constant part derived from the uniformity constraint
             towerExpectations.cwiseQuotient(towerVariances) -

@@ -34,11 +34,11 @@ namespace Muon {
         return StatusCode::SUCCESS;
     }
 
-    void MuonLayerAmbiguitySolverTool::resolveOverlaps(const std::vector<MuonLayerRecoData>& allLayers,
+    void MuonLayerAmbiguitySolverTool::resolveOverlaps(const EventContext& ctx, const std::vector<MuonLayerRecoData>& allLayers,
                                                        std::vector<MuonCandidate>& resolvedCandidates) const {
         // re-organise data to allow hash based access, resolve small large overlaps
         std::vector<std::vector<MuonLayerIntersection> > muonLayerDataHashVec;
-        buildLayerVec(allLayers, muonLayerDataHashVec);
+        buildLayerVec(ctx, allLayers, muonLayerDataHashVec);
 
         // build candidate by selecting seeds and extending them
         unsigned int nseeds = 0;                    // counter for number of seeds up to now
@@ -57,7 +57,7 @@ namespace Muon {
             // create first candidate from seed and extend it
             std::vector<MuonLayerIntersection> layerIntersections = {layerIntersection};
             std::vector<MuonCandidate> candidates = {MuonCandidate(std::move(layerIntersections))};
-            if (extendCandidatesWithLayers(candidates, muonLayerDataHashVec, inverseSeedLayerOrder)) {
+            if (extendCandidatesWithLayers(ctx, candidates, muonLayerDataHashVec, inverseSeedLayerOrder)) {
                 // add candidates to output list
                 ATH_MSG_DEBUG(" Completed seed extension " << candidates.size());
                 if (msgLvl(MSG::VERBOSE)) {
@@ -84,7 +84,8 @@ namespace Muon {
     }
 
     bool MuonLayerAmbiguitySolverTool::extendCandidatesWithLayers(
-        std::vector<MuonCandidate>& candidates, const std::vector<std::vector<MuonLayerIntersection> >& muonLayerDataHashVec,
+        const EventContext& ctx, std::vector<MuonCandidate>& candidates, 
+        const std::vector<std::vector<MuonLayerIntersection> >& muonLayerDataHashVec,
         const std::vector<MuonStationIndex::StIndex>& inverseSeedLayerOrder) const {
         // break recursive call chain once we processed all layers
         if (inverseSeedLayerOrder.empty()) return true;
@@ -106,7 +107,7 @@ namespace Muon {
                 // loop over data in layer
                 for (const auto& layerIntersection : layerIntersections) {
                     // match segment to candidate
-                    if (match(candidate, layerIntersection)) {
+                    if (match(ctx, candidate, layerIntersection)) {
                         // if first add to existing candidate, else create a new candidate
                         if (selectedSegmentsInLayer == 0) {
                             candidate.layerIntersections.push_back(layerIntersection);
@@ -131,13 +132,13 @@ namespace Muon {
         // remove the current layer and call extendCandidatesWithLayers for the next layer
         std::vector<MuonStationIndex::StIndex> newInverseSeedLayerOrder = inverseSeedLayerOrder;
         newInverseSeedLayerOrder.pop_back();
-        return extendCandidatesWithLayers(candidates, muonLayerDataHashVec, newInverseSeedLayerOrder);
+        return extendCandidatesWithLayers(ctx, candidates, muonLayerDataHashVec, newInverseSeedLayerOrder);
     }
 
-    bool MuonLayerAmbiguitySolverTool::match(const MuonCandidate& candidate, const MuonLayerIntersection& layerIntersection) const {
+    bool MuonLayerAmbiguitySolverTool::match(const EventContext& ctx, const MuonCandidate& candidate, const MuonLayerIntersection& layerIntersection) const {
         // loop over layers and match each segment to the new one, if any fails, fail the combination
         for (const auto& layer : candidate.layerIntersections) {
-            if (!m_segmentMatchingTool->match(*layer.segment, *layerIntersection.segment)) return false;
+            if (!m_segmentMatchingTool->match(ctx, *layer.segment, *layerIntersection.segment)) return false;
         }
         return true;
     }
@@ -173,7 +174,7 @@ namespace Muon {
         return false;
     }
 
-    void MuonLayerAmbiguitySolverTool::buildLayerVec(const std::vector<MuonLayerRecoData>& allLayers,
+    void MuonLayerAmbiguitySolverTool::buildLayerVec(const EventContext& ctx, const std::vector<MuonLayerRecoData>& allLayers,
                                                      std::vector<std::vector<MuonLayerIntersection> >& muonLayerDataHashVec) const {
         // clear and resize hash vector, initialize with null_ptr
         muonLayerDataHashVec.clear();
@@ -199,7 +200,7 @@ namespace Muon {
                 muonLayerDataHashVec[stIndex] = std::move(layerIntersections);
             } else {
                 // there are already segment, try resolving small/large overlaps
-                resolveSmallLargeOverlaps(muonLayerDataHashVec[stIndex], layerIntersections);
+                resolveSmallLargeOverlaps(ctx, muonLayerDataHashVec[stIndex], layerIntersections);
             }
 
             // finally sort the segments
@@ -216,7 +217,7 @@ namespace Muon {
         }
     }
 
-    void MuonLayerAmbiguitySolverTool::resolveSmallLargeOverlaps(std::vector<MuonLayerIntersection>& existingLayerIntersections,
+    void MuonLayerAmbiguitySolverTool::resolveSmallLargeOverlaps(const EventContext& ctx, std::vector<MuonLayerIntersection>& existingLayerIntersections,
                                                                  const std::vector<MuonLayerIntersection>& newLayerIntersections) const {
         ATH_MSG_VERBOSE(" resolveSmallLargeOverlaps: existing " << existingLayerIntersections.size() << " new "
                                                                 << newLayerIntersections.size());
@@ -239,11 +240,11 @@ namespace Muon {
                 if (quality1 < m_seedQualityThreshold && quality2 < m_seedQualityThreshold) continue;
 
                 // match segments
-                if (!m_segmentMatchingTool->match(*layerIntersection1.segment, *layerIntersection2.segment)) continue;
+                if (!m_segmentMatchingTool->match(ctx, *layerIntersection1.segment, *layerIntersection2.segment)) continue;
 
                 // build new segment
                 std::shared_ptr<const MuonSegment> newseg{
-                    m_muonTrackBuilder->combineToSegment(*layerIntersection1.segment, *layerIntersection2.segment)};
+                    m_muonTrackBuilder->combineToSegment(ctx, *layerIntersection1.segment, *layerIntersection2.segment, nullptr)};
                 if (!newseg) {
                     ATH_MSG_DEBUG(" Fit of combination of segments failed ");
                     continue;

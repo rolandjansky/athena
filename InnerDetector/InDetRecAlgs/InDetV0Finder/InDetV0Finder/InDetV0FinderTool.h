@@ -165,12 +165,12 @@ namespace InDet
     double        m_vert_a0xy_cut;            //!< V0 |a0xy| wrt a vertex (<3.)
     double        m_vert_a0z_cut;             //!< V0 |a0z| wrt a vertex (<15.)
 
-    mutable std::atomic<unsigned int>  m_events_processed;
-    mutable std::atomic<unsigned int>  m_V0s_stored;
-    mutable std::atomic<unsigned int>  m_Kshort_stored;
-    mutable std::atomic<unsigned int>  m_Lambda_stored;
-    mutable std::atomic<unsigned int>  m_Lambdabar_stored;
-    mutable std::atomic<unsigned int>  m_Gamma_stored;
+    mutable std::atomic<unsigned int>  m_events_processed{};
+    mutable std::atomic<unsigned int>  m_V0s_stored{};
+    mutable std::atomic<unsigned int>  m_Kshort_stored{};
+    mutable std::atomic<unsigned int>  m_Lambda_stored{};
+    mutable std::atomic<unsigned int>  m_Lambdabar_stored{};
+    mutable std::atomic<unsigned int>  m_Gamma_stored{};
 
 
     void SGError(const std::string& errService) const;
@@ -190,7 +190,7 @@ namespace InDet
 
     xAOD::Vertex* massFit(int pdgID, const std::vector<const xAOD::TrackParticle*> &pairV0, const Amg::Vector3D &vertex) const;
 
-    const Trk::TrkV0VertexFitter* m_concreteVertexFitter;
+    const Trk::TrkV0VertexFitter* m_concreteVertexFitter = nullptr;
 
     SG::ReadHandleKey<xAOD::VertexContainer> m_vertexKey { this, "VertexContainer", "PrimaryVertices",
 	                                                   "primary vertex container" };

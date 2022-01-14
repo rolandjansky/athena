@@ -19,17 +19,17 @@ private:
     static const char s_value_descriptions[4][15];
 
 private:
-    bool m_fail;
+    bool m_fail = false;
 
 private:
-    unsigned int m_code;
+    unsigned int m_code = 0U;
 
-    int m_strip_type;
-    int m_logic_sector;
-    int m_lvl1_station;
-    int m_rpc_layer;
-    int m_rpc_z_index;
-    int m_strip_number;
+    int m_strip_type = 0;
+    int m_logic_sector = 0;
+    int m_lvl1_station = 0;
+    int m_rpc_layer = 0;
+    int m_rpc_z_index = 0;
+    int m_strip_number = 0;
 
     void reset(void);
     void reset_status(void);

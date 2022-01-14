@@ -25,4 +25,11 @@ timeout 64800 Reco_tf.py \
   --conditionsTag 'all:CONDBR2-BLKPA-RUN2-09' --geometryVersion='default:ATLAS-R2-2016-01-00-01' \
   --runNumber='357750' --steering='doRAWtoALL' --maxEvents='-1'
 
-echo "art-result: $? Reco_tf_data18_rucio_mt"
+rc1=$?
+echo "art-result: ${rc1} Reco_tf_data18_rucio_mt"
+
+# Check for FPEs in the logiles
+test_trf_check_fpe.sh
+fpeStat=$?
+
+echo "art-result: ${fpeStat} FPEs in logfiles"

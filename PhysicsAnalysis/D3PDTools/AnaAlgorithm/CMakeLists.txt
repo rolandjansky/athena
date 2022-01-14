@@ -44,11 +44,14 @@ endif()
 if( XAOD_STANDALONE )
    atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
    atlas_add_test( AnaAlgorithmConfigUnitTests
-      SCRIPT python -m unittest AnaAlgorithm.AnaAlgorithmConfig )
+      SCRIPT python -m unittest AnaAlgorithm.AnaAlgorithmConfig
+      POST_EXEC_SCRIPT nopost.sh )
    atlas_add_test( AnaAlgSequenceUnitTests
-      SCRIPT python -m unittest AnaAlgorithm.AnaAlgSequence )
+      SCRIPT python -m unittest AnaAlgorithm.AnaAlgSequence
+      POST_EXEC_SCRIPT nopost.sh )
    atlas_add_test( AlgSequenceUnitTests
-      SCRIPT python -m unittest AnaAlgorithm.AlgSequence )
+      SCRIPT python -m unittest AnaAlgorithm.AlgSequence
+      POST_EXEC_SCRIPT nopost.sh )
 else()
    atlas_install_python_modules( python/__init__.py python/DualUseConfig.py
       python/AlgSequence.py python/AnaAlgSequence.py python/AnaAlgorithmMeta.py python/Logging.py

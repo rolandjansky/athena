@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AtlasPhysListFactory_h
@@ -14,7 +14,7 @@ public:
 
   AtlasPhysListFactory();
 
-  ~AtlasPhysListFactory();
+  ~AtlasPhysListFactory()=default;
 
   G4VModularPhysicsList* GetReferencePhysList(const G4String&);
   // instantiate PhysList by name
@@ -34,7 +34,6 @@ private:
 
   G4String m_defName;  
   std::vector<G4String> m_listnames;
-  size_t m_nlists;
   G4int m_verbose;
 };
 

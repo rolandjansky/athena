@@ -82,7 +82,7 @@ public:
   virtual BoundsType type() const override { return SurfaceBounds::RotatedTrapezoid; }
 
   /**Equality operator*/
-  virtual bool operator==(const SurfaceBounds& trabo) const override;
+  virtual bool operator==(const SurfaceBounds& trabo) const override final;
 
   /**This method returns the minimal halflength in X (first coordinate of local surface frame)*/
   double halflengthX() const;
@@ -121,29 +121,29 @@ public:
    where <br>
     @f$ \kappa_{I} = - \kappa_{II} = \frac{y_{max}-y_{min}}{x_{H}} @f$ <br>
     @f$ \delta_{I} = \frac{1}{2}\cdot (y_{max} + y_{min} ) @f$ <br>*/
-  virtual bool inside(const Amg::Vector2D& locpo, double tol1 = 0., double tol2 = 0.) const override;
-  virtual bool inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk) const override;
+  virtual bool inside(const Amg::Vector2D& locpo, double tol1 = 0., double tol2 = 0.) const override final;
+  virtual bool inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk) const override final;
 
   /** This method checks inside bounds in loc1
   - loc1/loc2 correspond to the natural coordinates of the surface
   - As loc1/loc2 are correlated the single check doesn't make sense :
      -> check is done on enclosing Rectangle !*/
-  virtual bool insideLoc1(const Amg::Vector2D& locpo, double tol1 = 0.) const override;
+  virtual bool insideLoc1(const Amg::Vector2D& locpo, double tol1 = 0.) const override final;
 
   /** This method checks inside bounds in loc2
   - loc1/loc2 correspond to the natural coordinates of the surface
   - As loc1/loc2 are correlated the single check doesn't make sense :
      -> check is done on enclosing Rectangle !*/
-  virtual bool insideLoc2(const Amg::Vector2D& locpo, double tol2 = 0.) const override;
+  virtual bool insideLoc2(const Amg::Vector2D& locpo, double tol2 = 0.) const override final;
 
   /** Minimal distance to boundary ( > 0 if outside and <=0 if inside) */
-  virtual double minDistance(const Amg::Vector2D& pos) const override;
+  virtual double minDistance(const Amg::Vector2D& pos) const override final;
 
   /** Output Method for MsgStream*/
-  virtual MsgStream& dump(MsgStream& sl) const override;
+  virtual MsgStream& dump(MsgStream& sl) const override final; 
 
   /** Output Method for std::ostream */
-  virtual std::ostream& dump(std::ostream& sl) const override;
+  virtual std::ostream& dump(std::ostream& sl) const override final;
 
 private:
   friend class ::RotatedTrapezoidBoundsCnv_p1;
@@ -152,7 +152,7 @@ private:
   bool isBelow(double locX, double fabsLocY, double tol1, double tol2) const;
 
   /** Helper function for angle parameter initialization */
-  virtual void initCache() override;
+  virtual void initCache() override final;
 
   /** The internal storage of the bounds can be float/double*/
   std::vector<TDD_real_t> m_boundValues;

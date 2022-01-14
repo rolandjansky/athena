@@ -33,8 +33,8 @@ public:
 	virtual StatusCode finalize() override;
    
 private:
-	StatusCode retrieveTdoPdo(const EventContext&, std::string, std::string, std::string, std::chrono::duration<double>&) const;
-	StatusCode retrieveVmm(const EventContext&, std::string, std::string, std::chrono::duration<double>&) const;
+	StatusCode retrieveTdoPdo(const EventContext&, const std::string&, const std::string&, const std::string&, std::chrono::duration<double>&) const;
+	StatusCode retrieveVmm(const EventContext&, const std::string&, const std::string&, std::chrono::duration<double>&) const;
 	std::string timestamp() const; 
 
  	SG::ReadCondHandleKey<NswCalibDbTimeChargeData> m_readKey_tdopdo{this, "ReadKey_tdopdo", "NswCalibDbTimeChargeData", "Key of NswCalibDbTimeChargeData object containing calibration data (TDOs and PDOs)"  };

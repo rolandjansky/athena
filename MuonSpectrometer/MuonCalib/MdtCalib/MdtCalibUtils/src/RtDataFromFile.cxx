@@ -22,12 +22,12 @@ namespace MuonCalib {
         is >> version >> rts_str;
 
         unsigned long int pos = 0;
-        std::string::size_type start = rts_str.find_first_not_of(" ", pos);
+        std::string::size_type start = rts_str.find_first_not_of(' ', pos);
         if (start == std::string::npos)
             throw std::runtime_error(
                 Form("File: %s, Line: %d\nRtDataFromFile::read() - problems extracting m_rts, exiting", __FILE__, __LINE__));
 
-        std::string::size_type stop = rts_str.find_first_of(" ", start + 1);
+        std::string::size_type stop = rts_str.find_first_of(' ', start + 1);
         if (stop == std::string::npos) stop = rts_str.size();
         m_rts = std::stoi(rts_str.substr(start, stop - start), nullptr);
 

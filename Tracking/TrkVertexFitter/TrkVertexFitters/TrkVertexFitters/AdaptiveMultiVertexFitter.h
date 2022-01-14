@@ -13,7 +13,13 @@
 //xAOD includes
 #include "xAODTracking/Vertex.h"
 #include <vector>
-
+//
+#include "TrkVertexFitterInterfaces/IImpactPoint3dEstimator.h"
+#include "TrkVertexFitterInterfaces/IVertexAnnealingMaker.h"
+#include "TrkVertexFitterInterfaces/IVertexLinearizedTrackFactory.h"
+#include "TrkVertexFitterInterfaces/IVertexSmoother.h"
+#include "TrkVertexFitterInterfaces/IVertexTrackCompatibilityEstimator.h"
+#include "TrkVertexFitterInterfaces/IVertexUpdator.h"
 /**
  * @class Trk::AdaptiveMultiVertexFitter
  *
@@ -97,12 +103,6 @@ namespace Trk
   //  class MeasuredPerigee;
   class Track;
   class VxTrackAtVertex;
-  class IVertexLinearizedTrackFactory;
-  class IImpactPoint3dEstimator;
-  class IVertexTrackCompatibilityEstimator;
-  class IVertexUpdator;
-  class IVertexSmoother;
-  class IVertexAnnealingMaker;
 
   class TrackToVtxLink;
 
@@ -256,14 +256,37 @@ namespace Trk
 
     double 
     m_maxRelativeShift;
-    
-    ToolHandle< Trk::IVertexLinearizedTrackFactory      > m_LinearizedTrackFactory;
-    ToolHandle< Trk::IVertexTrackCompatibilityEstimator > m_TrackCompatibilityEstimator;
-    ToolHandle< Trk::IImpactPoint3dEstimator            > m_ImpactPoint3dEstimator;
-    ToolHandle< Trk::IVertexUpdator                     > m_VertexUpdator;
-    ToolHandle< Trk::IVertexSmoother                    > m_VertexSmoother;
-    ToolHandle< Trk::IVertexAnnealingMaker              > m_AnnealingMaker;
-    
+
+    ToolHandle<Trk::IVertexLinearizedTrackFactory> m_LinearizedTrackFactory{
+      this,
+      "LinearizedTrackFactory",
+      "Trk::FullLinearizedTrackFactory"
+    };
+    ToolHandle<Trk::IVertexTrackCompatibilityEstimator>
+      m_TrackCompatibilityEstimator{ this,
+                                     "TrackCompatibilityEstimator",
+                                     "Trk::Chi2TrackCompatibilityEstimator" };
+    ToolHandle<Trk::IImpactPoint3dEstimator> m_ImpactPoint3dEstimator{
+      this,
+      "ImpactPoint3dEstimator",
+      "Trk::ImpactPoint3dEstimator/ImpactPoint3dEstimator"
+    };
+
+    ToolHandle<Trk::IVertexUpdator> m_VertexUpdator{
+      this,
+      "VertexUpdator",
+      "Trk::KalmanVertexUpdator"
+    };
+    ToolHandle<Trk::IVertexSmoother> m_VertexSmoother{
+      this,
+      "VertexSmoother",
+      "Trk::SequentialVertexSmoother"
+    };
+    ToolHandle<Trk::IVertexAnnealingMaker> m_AnnealingMaker{
+      this,
+      "AnnealingMaker",
+      "Trk::DetAnnealingMaker"
+    };
   };
 }
 

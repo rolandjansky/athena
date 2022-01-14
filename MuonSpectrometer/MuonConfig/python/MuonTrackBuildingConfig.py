@@ -1,8 +1,9 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MuonSTEP_PropagatorCfg, MuonTrackCleanerCfg, MuonSegmentMomentumFromFieldCfg, MuonSeededSegmentFinderCfg, MuonEDMPrinterTool
+from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MuonTrackCleanerCfg, MuonSegmentMomentumFromFieldCfg, MuonSeededSegmentFinderCfg, MuonEDMPrinterTool
+from TrkConfig.AtlasExtrapolatorToolsConfig import MuonSTEP_PropagatorCfg
 from MuonConfig.MuonSegmentFindingConfig import MuonSegmentFittingToolCfg 
 
 def MooTrackFitterCfg(flags, name = 'MooTrackFitter', **kwargs):
@@ -94,14 +95,12 @@ def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", **kwargs):
     # ignoring all the name_prefix stuff for the moment, since I'm not sure it's necessary any more.
     result=MooTrackFitterCfg(flags)
     moo_track_fitter = result.getPrimary()
-    result.addPublicTool(moo_track_fitter)
     kwargs.setdefault("Fitter", moo_track_fitter)
     
     # Now setup SL fitter (MooSLTrackFitter as defined here:
     # https://gitlab.cern.ch/atlas/athena/blob/release/22.0.3/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonRecExampleConfigDb.py#L203)
     acc = MCTBFitterCfg(flags, name='MCTBSLFitter', StraightLine=True)
     mctbslfitter = acc.getPrimary()
-    result.addPublicTool(mctbslfitter)
     result.merge(acc)
     
     # Just take the default configuration, as per https://gitlab.cern.ch/atlas/athena/blob/release/22.0.3/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonRecExampleConfigDb.py#L56
@@ -111,7 +110,6 @@ def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", **kwargs):
     
     acc = MooTrackFitterCfg( flags, name="MooSLTrackFitter", Fitter = mctbslfitter, Propagator=prop, ReducedChi2Cut=10.0,  SLFit=True)
     moo_sl_track_fitter = acc.getPrimary()
-    result.addPublicTool(moo_sl_track_fitter)
     result.merge(acc)
     
     kwargs.setdefault("SLFitter", moo_sl_track_fitter)
@@ -119,7 +117,6 @@ def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", **kwargs):
     
     acc = MuonSeededSegmentFinderCfg(flags)
     muon_seeded_segment_finder = acc.getPrimary()
-    result.addPublicTool(muon_seeded_segment_finder)
     result.merge(acc)
     kwargs.setdefault("SeededSegmentFinder", muon_seeded_segment_finder)
 
@@ -140,7 +137,6 @@ def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", **kwargs):
     
     acc = MuonChamberHoleRecoveryToolCfg(flags)
     hole_recovery_tool =  acc.getPrimary()
-    result.addPublicTool(hole_recovery_tool)
     result.merge(acc)
     kwargs.setdefault("ChamberHoleRecoveryTool", hole_recovery_tool) 
 
@@ -246,7 +242,8 @@ def MooCandidateMatchingToolCfg(flags, name="MooCandidateMatchingTool", doSegmen
 
 def MuonSegmentRegionRecoveryToolCfg(flags, name="MuonSegmentRegionRecoveryTool", **kwargs):
     Muon__MuonSegmentRegionRecoveryTool=CompFactory.Muon.MuonSegmentRegionRecoveryTool
-    from MuonConfig.MuonRecToolsConfig import MuonExtrapolatorCfg, MuonStationIntersectSvcCfg, MuonTrackSummaryToolCfg
+    from TrkConfig.AtlasExtrapolatorConfig import MuonExtrapolatorCfg
+    from MuonConfig.MuonRecToolsConfig import MuonStationIntersectSvcCfg, MuonTrackSummaryToolCfg
     # Based on https://gitlab.cern.ch/atlas/athena/blob/release/22.0.3/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MooreTools.py#L426
     
     result = MuonSeededSegmentFinderCfg(flags)
@@ -354,7 +351,7 @@ def MuonChamberHoleRecoveryToolCfg(flags, name="MuonChamberHoleRecoveryTool", **
     result=ComponentAccumulator()
     # Not setting explicitly MuonStationIntersectSvc
 
-    from MuonConfig.MuonRecToolsConfig import MuonExtrapolatorCfg
+    from TrkConfig.AtlasExtrapolatorConfig import MuonExtrapolatorCfg
     acc = MuonExtrapolatorCfg(flags)
     kwargs.setdefault("Extrapolator", result.popToolsAndMerge(acc))
 
@@ -381,7 +378,7 @@ def MuonChamberHoleRecoveryToolCfg(flags, name="MuonChamberHoleRecoveryTool", **
     if not flags.Detector.GeometryMM:
         kwargs.setdefault("MMPrepDataContainer","")
     
-    kwargs.setdefault('TgcPrepDataContainer', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC and not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')    
+    kwargs.setdefault('TgcPrepDataContainer', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')    
     if flags.Common.isOnline:
         kwargs.setdefault("MdtCondKey","")
 
@@ -496,6 +493,31 @@ def MuonTrackSelector(flags, name = "MuonTrackSelectorTool", **kwargs):
         kwargs.setdefault("CountMDTOutlierAsHoles", True)
     
     return Muon__MuonTrackSelectorTool(name, **kwargs)
+
+def MuonStandaloneTrackParticleCnvAlgCfg(flags, name = "MuonStandaloneTrackParticleCnvAlg", **kwargs):
+    from InDetConfig.TrackRecoConfig import TrackCollectionCnvToolCfg, TrackParticleCnvAlgCfg, TrackParticleCreatorToolCfg
+    from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryToolCfg
+
+    result = MuonTrackSummaryToolCfg(flags)
+    muon_particle_creator_tool = result.getPrimaryAndMerge( TrackParticleCreatorToolCfg(flags, name="MuonParticleCreatorTool", 
+                                                                    TrackSummaryTool=result.getPrimary(), KeepAllPerigee=True,
+                                                                    MuonSummaryTool= CompFactory.Muon.MuonHitSummaryTool("MuonHitSummaryTool"),
+                                                                    PerigeeExpression="Origin"  ) )
+    track_collection_cnv_tool = result.popToolsAndMerge(TrackCollectionCnvToolCfg(flags, name = "MuonTrackCollectionCnvTool", TrackParticleCreator = muon_particle_creator_tool))
+    kwargs.setdefault("TrackParticleCreator",  muon_particle_creator_tool)
+    kwargs.setdefault("RecTrackParticleContainerCnvTool", CompFactory.xAODMaker.RecTrackParticleContainerCnvTool(name = "MuonRecTrackParticleContainerCnvTool", TrackParticleCreator = muon_particle_creator_tool))
+    kwargs.setdefault("TrackCollectionCnvTool", track_collection_cnv_tool)
+    kwargs.setdefault("TrackContainerName", "MuonSpectrometerTracks")
+    kwargs.setdefault("xAODTrackParticlesFromTracksContainerName", "MuonSpectrometerTrackParticles")
+    kwargs.setdefault("AODContainerName", "")
+    kwargs.setdefault("AODTruthContainerName", "")
+    kwargs.setdefault("xAODTruthLinkVector",  "")
+    kwargs.setdefault("ConvertTrackParticles", False)
+    kwargs.setdefault("ConvertTracks", True)
+    kwargs.setdefault("AddTruthLink", False)
+
+    result.merge( TrackParticleCnvAlgCfg(flags, name,**kwargs) )
+    return result
 
 def MuonTrackBuildingCfg(flags, name = "MuPatTrackBuilder", **kwargs):
     MuPatTrackBuilder=CompFactory.MuPatTrackBuilder

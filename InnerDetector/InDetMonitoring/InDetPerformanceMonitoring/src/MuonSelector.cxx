@@ -289,7 +289,7 @@ bool MuonSelector::passPtCuts()
   const xAOD::TrackParticle* pxMuonMS = m_pxMuon->trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle);
   const xAOD::TrackParticle* pxMuonCB = m_pxMuon->trackParticle(xAOD::Muon::CombinedTrackParticle);
 
-  double pt, ptID, ptMS,ptCB;
+  double pt = 0, ptID, ptMS,ptCB;
 
   if ( !(pxMuonID || pxMuonMS || pxMuonCB)){
          if(m_doDebug) std::cout << "    * MuonSelector::passPtCuts * NO inDetTrackParticle && muonSpectrometerTrackParticle && CombinedTrackParticle: " << std::endl;

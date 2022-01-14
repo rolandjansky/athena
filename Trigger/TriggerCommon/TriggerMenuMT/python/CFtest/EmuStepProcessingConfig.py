@@ -2,8 +2,9 @@
 
 from AthenaCommon.AlgScheduler import AlgScheduler
 from AthenaCommon.Logging import logging
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from HLTSeeding.HLTSeedingConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import EmptyMenuSequence
+from TriggerMenuMT.HLT.Menu.MenuComponents import EmptyMenuSequence
 log = logging.getLogger('EmuStepProcessingConfig')
 
 ###########################################################################    
@@ -40,16 +41,16 @@ def generateEmuMenu():
      set Emu menu and reproduce generateMT
     """
     log.info("generateEmuMenu")  
-    from TriggerMenuMT.HLTMenuConfig.Menu import LS2_v1
-    from TriggerMenuMT.HLTMenuConfig.Menu import LS2_emu_v1 
-    from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
+    from TriggerMenuMT.HLT.Menu import Dev_pp_run3_v1
+    from TriggerMenuMT.HLT.Menu import Dev_pp_run3_emu_v1 
+    from TriggerMenuMT.HLT.Menu.GenerateMenuMT import GenerateMenuMT
 
-    # overwrite LS2_v1
-    LS2_v1.setupMenu = LS2_emu_v1.setupMenu
+    # overwrite Dev_pp_run3_v1
+    Dev_pp_run3_v1.setupMenu = Dev_pp_run3_emu_v1.setupMenu
 
     # Generate the menu
     menu = GenerateMenuMT()
-    menu.generateAllChainConfigs()
+    menu.generateAllChainConfigs(ConfigFlags)
     #menu.generateMT()
 
 
@@ -108,7 +109,7 @@ def generateEmuEvents():
                              HLT_2TestChain6_muEmpty1_L12MU6 \
                              HLT_TestChain6_muv1_TestChain10_muv1_L12MU6 \
                              HLT_2TestChain4_muv1_dr_L12MU6 HLT_e5_e8_L12EM3 \
-                             HLT_TestChain5_ev1_TestChain8_ev1_2TestChain6_muv1_L1EM3_L1EM3_L12MU6 \
+                             HLT_TestChain5_ev1_TestChain8_ev1_2TestChain6_muv1_L1EM3_EM3_2MU6 \
                              HLT_TestChain10_muEmpty1_TestChain6_muEmpty1_L12MU6 \
                              HLT_TestChain10_muv1_TestChain6_muEmpty1_L1MU6 \
                              HLT_TestChain5_ev1_TestChain8_ev1_merge_L12EM3 \
@@ -276,7 +277,7 @@ def generateChainsManually():
                 makeChainStep("Step1_2emAs",   [el11, el11], multiplicity=[1,1]),
                 makeChainStep("Step2_2emAs",   [el21, el21], multiplicity=[1,1]) ]),
                 
-            makeChain(name='HLT_TestChain5_ev1_TestChain8_ev1_2TestChain6_muv1_L1EM3_L1EM3_L12MU6',   L1Thresholds=["EM3","EM3","MU6"], ChainSteps=[
+            makeChain(name='HLT_TestChain5_ev1_TestChain8_ev1_2TestChain6_muv1_L1EM3_EM3_2MU6',   L1Thresholds=["EM3","EM3","MU6"], ChainSteps=[
                 makeChainStep("Step1_2em_2mu",   [el11,el11,mu11], multiplicity=[1,1,2]),
                 makeChainStep("Step2_2em_2mu",   [el21,el21,mu21], multiplicity=[1,1,2]) ]),
 

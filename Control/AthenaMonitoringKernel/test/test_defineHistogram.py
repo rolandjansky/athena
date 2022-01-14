@@ -90,6 +90,32 @@ class Test( unittest.TestCase ):
       true = '{"alias": "var", "allvars": ["var"], "convention": "", "merge": "weightedAverage", "path": "EXPERT", "title": "title", "treeDef": "", "type": "TH1F", "weight": "", "cutMask": "", "xarray": [], "xbins": 10, "xlabels": [], "xmax": 10.0, "xmin": 0.0, "xvar": "var", "yarray": [], "ybins": 0.0, "ylabels": [], "ymax": 0.0, "ymin": 0.0, "yvar": "", "zbins": 0, "zlabels": [], "zmax": 0.0, "zmin": 0.0, "zvar": "", "Sumw2": false, "kLBNHistoryDepth": 0, "kAddBinsDynamically": false, "kRebinAxes": false, "kCanRebin": false, "kVec": false, "kVecUO": false, "kCumulative": false, "kLive": false, "kAlwaysCreate": false}'
       self.assertEqual(json.loads(check), json.loads(true))
 
+   def test_optString( self ):
+      check = defineHistogram('var', opt='Sumw2,kLBNHistoryDepth=9')
+      true = '{"alias": "var", "allvars": ["var"], "convention": "", "merge": "", "path": "", "title": "var", "treeDef": "", "type": "TH1F", "weight": "", "cutMask": "", "xarray": [], "xbins": 100, "xlabels": [], "xmax": 1, "xmin": 0, "xvar": "var", "yarray": [], "ybins": 0.0, "ylabels": [], "ymax": 0.0, "ymin": 0.0, "yvar": "", "zbins": 0.0, "zlabels": [], "zmax": 0.0, "zmin": 0.0, "zvar": "", "Sumw2": true, "kLBNHistoryDepth": 9, "kAddBinsDynamically": false, "kRebinAxes": false, "kCanRebin": false, "kVec": false, "kVecUO": false, "kCumulative": false, "kLive": 0, "kAlwaysCreate": false}'
+      self.assertEqual(json.loads(check), json.loads(true))
+      with self.assertRaises(SystemExit):
+         defineHistogram('var', opt='Sumw2,kLBNHistoryDepth=False')
+      with self.assertRaises(SystemExit):
+         defineHistogram('var', opt='Sumw2,kLBNHistoryDepth=xxx')
+      with self.assertRaises(SystemExit):
+         defineHistogram('var', opt='Sumw2=1,kLBNHistoryDepth=1')
+      with self.assertRaises(AssertionError):
+         defineHistogram('var', opt='xxx=0')
+
+   def test_optDict( self ):
+      check = defineHistogram('var', opt={'Sumw2':True,'kLBNHistoryDepth':9})
+      true = '{"alias": "var", "allvars": ["var"], "convention": "", "merge": "", "path": "", "title": "var", "treeDef": "", "type": "TH1F", "weight": "", "cutMask": "", "xarray": [], "xbins": 100, "xlabels": [], "xmax": 1, "xmin": 0, "xvar": "var", "yarray": [], "ybins": 0.0, "ylabels": [], "ymax": 0.0, "ymin": 0.0, "yvar": "", "zbins": 0.0, "zlabels": [], "zmax": 0.0, "zmin": 0.0, "zvar": "", "Sumw2": true, "kLBNHistoryDepth": 9, "kAddBinsDynamically": false, "kRebinAxes": false, "kCanRebin": false, "kVec": false, "kVecUO": false, "kCumulative": false, "kLive": 0, "kAlwaysCreate": false}'
+      self.assertEqual(json.loads(check), json.loads(true))
+      with self.assertRaises(AssertionError): # wrong type for kLBNHistoryDepth (expected int, given bool)
+         defineHistogram('var', opt={'Sumw2':True,'kLBNHistoryDepth':False})
+      with self.assertRaises(AssertionError): # wrong type for kLBNHistoryDepth (expected int, given string)
+         defineHistogram('var', opt={'Sumw2':True,'kLBNHistoryDepth':'xxx'})
+      with self.assertRaises(AssertionError): # wrong type for Sumw2 (expected bool, given int)
+         print(defineHistogram('var', opt={'Sumw2':1,'kLBNHistoryDepth':9}))
+      with self.assertRaises(AssertionError): # incorrect key
+         defineHistogram('var', opt={'xxx':1})
+
    def test_live( self ):
       from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
       athenaCommonFlags.isOnline = True

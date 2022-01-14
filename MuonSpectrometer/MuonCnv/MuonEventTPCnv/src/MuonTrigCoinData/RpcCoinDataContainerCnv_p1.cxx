@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /* Takashi Kubota - June 30, 2008 */
@@ -91,7 +91,6 @@ void Muon::RpcCoinDataContainerCnv_p1::transToPers(const RpcCoinDataContainerCnv
         unsigned int pcollIndex; // index to the persistent collection we're filling
         unsigned int pcollBegin = 0; // index to start of persistent collection we're filling, in long list of persistent PRDs
         unsigned int pcollEnd = 0; // index to end 
-        unsigned int idHashLast = 0; // Used to calculate deltaHashId.
         int numColl = transCont->numberOfCollections();
         persCont->m_collections.resize(numColl);
         log << MSG::DEBUG  << " Preparing " << persCont->m_collections.size() << "Collections" << endmsg;
@@ -104,7 +103,6 @@ void Muon::RpcCoinDataContainerCnv_p1::transToPers(const RpcCoinDataContainerCnv
             pcollEnd   += collection.size();
             
             pcollection.m_hashId = collection.identifyHash(); 
-            idHashLast += pcollection.m_hashId;
             pcollection.m_id = collection.identify().get_identifier32().get_compact();
             pcollection.m_size = collection.size();
             

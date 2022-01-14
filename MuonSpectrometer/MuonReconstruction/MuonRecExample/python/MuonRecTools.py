@@ -187,9 +187,6 @@ def MuonHoughPatternFinderTool(name="MuonHoughPatternFinderTool",**kwargs):
 #--------------------------------------------------------------------------------
 
 # combined tracking geometry service
-def AtlasTrackingGeometrySvc(name="AtlasTrackingGeometrySvc",**kwargs):
-    from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
-    return AtlasTrackingGeometrySvc
 
 def TrackingVolumesSvc(name="TrackingVolumesSvc",**kwargs):
     from TrkDetDescrSvc.TrkDetDescrSvcConf import Trk__TrackingVolumesSvc
@@ -301,7 +298,6 @@ def MuonChi2TrackFitter(name='MuonChi2TrackFitter',**kwargs):
     
     cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
     kwargs.setdefault("TrackingGeometryReadKey",cond_alg.TrackingGeometryWriteKey)
-    kwargs.setdefault("TrackingGeometrySvc", '')
     return Trk__GlobalChi2Fitter(name,**kwargs)
 
 

@@ -39,7 +39,7 @@ TGCSimHitCollection* TGCSimHitCollectionCnv::createTransient() {
     static pool::Guid   p3_guid("BACD19A8-4737-4857-A22D-B9DF833A0A80");
     static pool::Guid   p4_guid("F8F77562-BBD9-45DB-A276-6A21018EA7FA");
     log<<MSG::DEBUG<<"createTransient(): main converter"<<endmsg;
-    TGCSimHitCollection* p_collection(0);
+    TGCSimHitCollection* p_collection(nullptr);
     if(compareClassGuid(p4_guid) ) {
       log<<MSG::DEBUG<<"createTransient(): T/P version 4 detected"<<endmsg;
       std::unique_ptr< Muon::TGCSimHitCollection_p4 >   col_vect( this->poolReadObject< Muon::TGCSimHitCollection_p4 >() );

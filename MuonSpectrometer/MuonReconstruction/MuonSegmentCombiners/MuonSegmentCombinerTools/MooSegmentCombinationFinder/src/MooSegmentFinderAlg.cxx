@@ -94,7 +94,7 @@ StatusCode MooSegmentFinderAlg::execute(const EventContext& ctx) const {
             rpcTruthColl = rpcTruth.cptr();
         }
         SG::ReadHandle<Muon::MdtPrepDataContainer> mdth(m_keyMdt, ctx);
-        m_clusterSegMaker->getClusterSegments(mdth.cptr(), m_doTGCClust ? &tgcCols : 0, m_doRPCClust ? &rpcCols : 0, tgcTruthColl,
+        m_clusterSegMaker->getClusterSegments(mdth.cptr(), m_doTGCClust ? &tgcCols : nullptr, m_doRPCClust ? &rpcCols : nullptr, tgcTruthColl,
                                               rpcTruthColl, segHandle.ptr());
     }
 

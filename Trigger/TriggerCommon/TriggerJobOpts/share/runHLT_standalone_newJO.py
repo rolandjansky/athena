@@ -50,7 +50,7 @@ flags.Calo.ClusterCorrection.defaultSource = [CALOCORR_POOL, CALOCORR_JO] # temp
 
 flags.Exec.MaxEvents = 50
 # TODO this two should be resolved in a smarter way (i.e. required passing the tag from the driver test, however now, parsing of string with - fails)
-flags.IOVDb.GlobalTag = lambda f: 'OFLCOND-MC16-SDR-25-02' if f.Input.isMC else "CONDBR2-HLTP-2018-02"
+flags.IOVDb.GlobalTag = lambda f: 'OFLCOND-MC16-SDR-25-02' if f.Input.isMC else "CONDBR2-HLTP-2018-03"
 flags.Common.isOnline = lambda f: not f.Input.isMC
 flags.Common.MsgSourceLength=70
 flags.Trigger.doLVL1=True # run L1 sim also on data
@@ -94,12 +94,15 @@ else:
 from TriggerJobOpts.TriggerHistSvcConfig import TriggerHistSvcConfig
 acc.merge(TriggerHistSvcConfig(flags))
 
-from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT_newJO import generateMenu as generateHLTMenu
+from TriggerMenuMT.HLT.Menu.GenerateMenuMT_newJO import generateMenu as generateHLTMenu
 from TriggerJobOpts.TriggerConfig import triggerRunCfg
 menu = triggerRunCfg(flags, menu=generateHLTMenu)
 # uncomment to obtain printout of menu (and associated components)
 # menu.printConfig(withDetails=True, summariseProps=True)
 acc.merge(menu)
+
+from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
+acc.merge(LumiBlockMuWriterCfg(flags), sequenceName="HLTBeginSeq")
 
 if flags.Trigger.doTransientByteStream and flags.Trigger.doCalo:
     from TriggerJobOpts.TriggerTransBSConfig import triggerTransBSCfg_Calo

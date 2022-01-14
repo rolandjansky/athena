@@ -83,8 +83,8 @@ namespace MuonGM {
 
     GeoVPhysVol *SpacerBeam::build(const StoredMaterialManager& matManager,
                                    int /*cutoutson*/, bool is_barrel) {
-        GeoPhysVol *pvol = 0;
-        GeoLogVol *lvol = 0;
+        GeoPhysVol *pvol = nullptr;
+        GeoLogVol *lvol = nullptr;
         const GeoMaterial *mat = matManager.getMaterial("std::Aluminium");
         if (name.compare(0, 3, "CHV") == 0 || name.compare(0, 3, "CRO") == 0 || name.compare(0, 3, "CMI") == 0) {
             double sinexc = 0.;
@@ -133,7 +133,7 @@ namespace MuonGM {
             return pvol;
 
         } else {
-            return NULL;
+            return nullptr;
         }
     }
 

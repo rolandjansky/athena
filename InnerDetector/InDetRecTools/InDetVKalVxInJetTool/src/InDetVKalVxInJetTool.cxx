@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 // Author: Vadim Kostyukhin (vadim.kostyukhin@cern.ch)
 
 // Header include
 #include "InDetVKalVxInJetTool/InDetVKalVxInJetTool.h"
+#include "InDetVKalVxInJetTool/InDetMaterialVeto.h"
 #include "VxSecVertex/VxSecVertexInfo.h"
 #include "VxSecVertex/VxSecVKalVertexInfo.h"
 #include  "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
@@ -33,7 +34,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     m_cutPixelHits(1),
     m_cutSiHits(7),
     m_cutBLayHits(0),
-    m_cutSharedHits(1),
+    m_cutSharedHits(1000), // Dummy configurable cut
     m_cutPt(700.),
     m_cutZVrt(15.),
     m_cutA0(5.),
@@ -72,7 +73,10 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     m_vertexMergeCut(3.),
     m_trackDetachCut(6.),
     m_fitterSvc("Trk::TrkVKalVrtFitter/VertexFitterTool",this),
-    m_trackClassificator("InDet::InDetTrkInJetType",this)
+    m_trackClassificator("InDet::InDetTrkInJetType",this),
+    m_useITkMaterialRejection(false),
+    m_beamPipeMgr(nullptr),
+    m_pixelManager(nullptr)
    {
 //
 // Declare additional interface
@@ -135,9 +139,9 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 
     declareProperty("VertexFitterTool",  m_fitterSvc);
     declareProperty("TrackClassTool",  m_trackClassificator);
-//    declareProperty("MaterialMap", m_materialMap);
-//    declareProperty("TrkVKalVrtFitter", m_fitSvc);
-//
+
+    declareProperty("useITkMaterialRejection", m_useITkMaterialRejection, "Reject vertices from hadronic interactions in detector material using ITk layout");
+
     m_iflag=0;
     m_massPi  = 139.5702 ;
     m_massP   = 938.272  ;
@@ -166,6 +170,15 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
         return StatusCode::SUCCESS;
      }
  
+     m_useEtaDependentCuts = !(m_etaDependentCutsSvc.name().empty());
+     if (m_useEtaDependentCuts){
+       ATH_CHECK(m_etaDependentCutsSvc.retrieve());
+       ATH_MSG_INFO("Using InDetEtaDependentCutsSvc. Individual inclusive track selections from config not used");
+     }
+     else{
+       ATH_MSG_INFO("Using individual inclusive track selections from config");
+     }
+
      if (m_fitterSvc.retrieve().isFailure()) {
         if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Could not find Trk::TrkVKalVrtFitter" << endmsg;
         return StatusCode::SUCCESS;
@@ -177,17 +190,11 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
         if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" No implemented Trk::ITrkVKalVrtFitter interface" << endmsg;
         return StatusCode::SUCCESS;
      }
-     //if (m_materialMap.retrieve().isFailure()) {
-     //   if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Could not find InDetMaterialRejTool."
-     //                                      << "Use radial rejection"<< endmsg;
-     //} else {
-     //   if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "InDetMaterialRejTool found" << endmsg;
-     //}
 
-//------------------------------------------
+
      if(msgLvl(MSG::DEBUG)) ATH_CHECK(service("ChronoStatSvc", m_timingProfile));
-//------------------------------------------
-// Chose whether IBL is installed
+     //------------------------------------------
+     // Chose whether IBL is installed
      if(m_existIBL){ // 4-layer pixel detector
        if( m_beampipeR==0.)  m_beampipeR=24.0;    
        if( m_rLayerB  ==0.)  m_rLayerB  =34.0;
@@ -200,9 +207,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
        if( m_rLayer1  ==0.)  m_rLayer1  =90.0;
        if( m_rLayer2  ==0.)  m_rLayer2  =122.5;
      }       
-       
-//
-//
+
      ITHistSvc*     hist_root=nullptr;
      if(m_fillHist){
 
@@ -387,6 +392,17 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 
      if(m_RobustFit>7)m_RobustFit=7;
      if(m_RobustFit<0)m_RobustFit=0;
+
+     if(m_useITkMaterialRejection){
+
+       ATH_CHECK(detStore()->retrieve(m_beamPipeMgr, "BeamPipe"));
+       ATH_CHECK(detStore()->retrieve(m_pixelManager, "ITkPixel"));
+
+       InDetMaterialVeto matVeto(m_beamPipeMgr, m_pixelManager);
+
+       m_ITkPixMaterialMap = matVeto.ITkPixMaterialMap();
+
+     }
 
      return StatusCode::SUCCESS;
 

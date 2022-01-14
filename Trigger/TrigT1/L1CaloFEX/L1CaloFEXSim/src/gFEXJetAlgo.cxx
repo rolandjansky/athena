@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //***************************************************************************
 //    gFEXJetAlgo - JetFinder algorithm for gFEX
@@ -38,7 +38,9 @@ StatusCode gFEXJetAlgo::initialize(){
 std::vector<std::unique_ptr<gFEXJetTOB>> gFEXJetAlgo::largeRfinder(
                                gTowersCentral Atwr, gTowersCentral Btwr,
                                gTowersForward CNtwr, gTowersForward CPtwr,
-                               int pucA, int pucB, int seedThreshold, int jetThreshold,
+                               int pucA, int pucB, int gLJ_seedThrA, int gLJ_seedThrB, 
+                               int gJ_ptMinToTopoCounts1, int gJ_ptMinToTopoCounts2,
+                               int jetThreshold, int gLJ_ptMinToTopoCounts1, int gLJ_ptMinToTopoCounts2,
                                std::array<uint32_t, 7> & ATOB1_dat, std::array<uint32_t, 7> & ATOB2_dat,
                                std::array<uint32_t, 7> & BTOB1_dat, std::array<uint32_t, 7> & BTOB2_dat) {
 
@@ -140,8 +142,8 @@ std::vector<std::unique_ptr<gFEXJetTOB>> gFEXJetAlgo::largeRfinder(
   // Apply gBlock trheshold to jet array
   // DMS check this!
 
-  gBlockVetoAB(AjetsRestricted, gBLKA, seedThreshold);
-  gBlockVetoAB(BjetsRestricted, gBLKB, seedThreshold);
+  gBlockVetoAB(AjetsRestricted, gBLKA, gLJ_seedThrA);
+  gBlockVetoAB(BjetsRestricted, gBLKB, gLJ_seedThrB);
 
   std::array<int, 32> AjetOutL;
   std::array<int, 32> AetaIndL;
@@ -149,14 +151,14 @@ std::vector<std::unique_ptr<gFEXJetTOB>> gFEXJetAlgo::largeRfinder(
   std::array<int, 32> AetaIndR;
 
 
-  jetOutAB(AjetsRestricted, gBLKA, seedThreshold, AjetOutL, AetaIndL, AjetOutR, AetaIndR);
+  jetOutAB(AjetsRestricted, gBLKA, gLJ_seedThrA, AjetOutL, AetaIndL, AjetOutR, AetaIndR);
 
   std::array<int, 32> BjetOutL;
   std::array<int, 32> BetaIndL;
   std::array<int, 32> BjetOutR;
   std::array<int, 32> BetaIndR;
 
-  jetOutAB(BjetsRestricted, gBLKB, seedThreshold,  BjetOutL, BetaIndL, BjetOutR, BetaIndR);
+  jetOutAB(BjetsRestricted, gBLKB, gLJ_seedThrB,  BjetOutL, BetaIndL, BjetOutR, BetaIndR);
 
   gJetTOBgen(AjetOutL, AetaIndL, 0, jetThreshold, gJetTOBs, gJetTOBv, gJetTOBeta, gJetTOBphi);
   gJetTOBgen(AjetOutR, AetaIndR, 1, jetThreshold, gJetTOBs, gJetTOBv, gJetTOBeta, gJetTOBphi);
@@ -195,7 +197,7 @@ std::vector<std::unique_ptr<gFEXJetTOB>> gFEXJetAlgo::largeRfinder(
   // leading gBlocks  (available first and go in first TOB value)
   // TOBs 2-5 are leading gBlocks
   ATOB1_dat[1] =  0x00000001; //set the TOB ID in the corresponding slot (LSB)
-  if(  gBlockTOBv[0][0] > seedThreshold )  ATOB1_dat[1] = ATOB1_dat[1] | 0x00000080;//status
+  if(  gBlockTOBv[0][0] > gJ_ptMinToTopoCounts2 )  ATOB1_dat[1] = ATOB1_dat[1] | 0x00000080;//status
   ATOB1_dat[1] =  ATOB1_dat[1] | ( ( gBlockTOBv[0][0]   & 0x00000FFF ) << 8);
   ATOB1_dat[1] =  ATOB1_dat[1] | ( ( gBlockTOBeta[0][0] & 0x0000003F ) <<20);
   ATOB1_dat[1] =  ATOB1_dat[1] | ( ( gBlockTOBphi[0][0] & 0x0000001F ) <<26);
@@ -206,11 +208,11 @@ std::vector<std::unique_ptr<gFEXJetTOB>> gFEXJetAlgo::largeRfinder(
   tobs_v[2]->setEta(gBlockTOBeta[0][0]);
   tobs_v[2]->setPhi(gBlockTOBphi[0][0]);
   tobs_v[2]->setTobID(1);
-  if(  gBlockTOBv[0][0] > seedThreshold ) tobs_v[2]->setStatus(1);
+  if(  gBlockTOBv[0][0] > gJ_ptMinToTopoCounts2 ) tobs_v[2]->setStatus(1);
   else tobs_v[2]->setStatus(0);
 
   ATOB2_dat[1] =  0x00000002;
-  if(  gBlockTOBv[1][0] > seedThreshold ) ATOB2_dat[1] =  ATOB2_dat[1] | 0x00000080;
+  if(  gBlockTOBv[1][0] > gJ_ptMinToTopoCounts1 ) ATOB2_dat[1] =  ATOB2_dat[1] | 0x00000080;
   ATOB2_dat[1] =  ATOB2_dat[1] | ( ( gBlockTOBv[1][0]   & 0x00000FFF ) << 8);
   ATOB2_dat[1] =  ATOB2_dat[1] | ( ( gBlockTOBeta[1][0] & 0x0000003F ) <<20);
   ATOB2_dat[1] =  ATOB2_dat[1] | ( ( gBlockTOBphi[1][0] & 0x0000001F ) <<26);
@@ -221,12 +223,12 @@ std::vector<std::unique_ptr<gFEXJetTOB>> gFEXJetAlgo::largeRfinder(
   tobs_v[3]->setEta(gBlockTOBeta[1][0]);
   tobs_v[3]->setPhi(gBlockTOBphi[1][0]);
   tobs_v[3]->setTobID(2);
-  if(  gBlockTOBv[1][0] > seedThreshold ) tobs_v[3]->setStatus(1);
+  if(  gBlockTOBv[1][0] > gJ_ptMinToTopoCounts1 ) tobs_v[3]->setStatus(1);
   else tobs_v[3]->setStatus(0);
 
 
   BTOB1_dat[1] =  0x00000001;
-  if(  gBlockTOBv[2][0] > seedThreshold ) BTOB1_dat[1] = BTOB1_dat[1] | 0x00000080;
+  if(  gBlockTOBv[2][0] > gJ_ptMinToTopoCounts1 ) BTOB1_dat[1] = BTOB1_dat[1] | 0x00000080;
   BTOB1_dat[1] =  BTOB1_dat[1] | ( ( gBlockTOBv[2][0]   & 0x00000FFF ) << 8);
   BTOB1_dat[1] =  BTOB1_dat[1] | ( ( gBlockTOBeta[2][0] & 0x0000003F ) <<20);
   BTOB1_dat[1] =  BTOB1_dat[1] | ( ( gBlockTOBphi[2][0] & 0x0000001F) <<26);
@@ -237,12 +239,12 @@ std::vector<std::unique_ptr<gFEXJetTOB>> gFEXJetAlgo::largeRfinder(
   tobs_v[4]->setEta(gBlockTOBeta[2][0]);
   tobs_v[4]->setPhi(gBlockTOBphi[2][0]);
   tobs_v[4]->setTobID(1);
-  if(  gBlockTOBv[2][0] > seedThreshold ) tobs_v[4]->setStatus(1);
+  if(  gBlockTOBv[2][0] > gJ_ptMinToTopoCounts1 ) tobs_v[4]->setStatus(1);
   else tobs_v[4]->setStatus(0);
 
 
   BTOB2_dat[1] =  0x00000002;
-  if(  gBlockTOBv[3][0] > seedThreshold ) BTOB2_dat[1] = BTOB2_dat[1] | 0x00000080;
+  if(  gBlockTOBv[3][0] > gJ_ptMinToTopoCounts2 ) BTOB2_dat[1] = BTOB2_dat[1] | 0x00000080;
   BTOB2_dat[1] =  BTOB2_dat[1] | ( ( gBlockTOBv[3][0]   & 0x00000FFF ) << 8);
   BTOB2_dat[1] =  BTOB2_dat[1] | ( ( gBlockTOBeta[3][0] & 0x0000003F ) <<20);
   BTOB2_dat[1] =  BTOB2_dat[1] | ( ( gBlockTOBphi[3][0] & 0x0000001F ) <<26);
@@ -253,14 +255,14 @@ std::vector<std::unique_ptr<gFEXJetTOB>> gFEXJetAlgo::largeRfinder(
   tobs_v[5]->setEta(gBlockTOBeta[3][0]);
   tobs_v[5]->setPhi(gBlockTOBphi[3][0]);
   tobs_v[5]->setTobID(2);
-  if(  gBlockTOBv[3][0] > seedThreshold ) tobs_v[5]->setStatus(1);
+  if(  gBlockTOBv[3][0] > gJ_ptMinToTopoCounts2 ) tobs_v[5]->setStatus(1);
   else tobs_v[5]->setStatus(0);
 
 
   // subleading gBlocks
   // TOBs 6-9 are subleading gBlocks
   ATOB1_dat[2] =  0x00000003;
-  if(  gBlockTOBv[0][1] > seedThreshold ) ATOB1_dat[2] = ATOB1_dat[2] | 0x00000080;
+  if(  gBlockTOBv[0][1] > gJ_ptMinToTopoCounts2 ) ATOB1_dat[2] = ATOB1_dat[2] | 0x00000080;
   ATOB1_dat[2] =  ATOB1_dat[2] | ( ( gBlockTOBv[0][1]   & 0x00000FFF ) << 8);
   ATOB1_dat[2] =  ATOB1_dat[2] | ( ( gBlockTOBeta[0][1] & 0x0000003F ) <<20);
   ATOB1_dat[2] =  ATOB1_dat[2] | ( ( gBlockTOBphi[0][1] & 0x0000001F ) <<26);
@@ -271,12 +273,12 @@ std::vector<std::unique_ptr<gFEXJetTOB>> gFEXJetAlgo::largeRfinder(
   tobs_v[6]->setEta(gBlockTOBeta[0][1]);
   tobs_v[6]->setPhi(gBlockTOBphi[0][1]);
   tobs_v[6]->setTobID(3);
-  if(  gBlockTOBv[0][1] > seedThreshold ) tobs_v[6]->setStatus(1);
+  if(  gBlockTOBv[0][1] > gJ_ptMinToTopoCounts2 ) tobs_v[6]->setStatus(1);
   else tobs_v[6]->setStatus(0);
 
 
   ATOB2_dat[2] =  0x00000004;
-  if(  gBlockTOBv[1][1] > seedThreshold ) ATOB2_dat[2] =  ATOB2_dat[2] | 0x00000080;
+  if(  gBlockTOBv[1][1] > gJ_ptMinToTopoCounts1 ) ATOB2_dat[2] =  ATOB2_dat[2] | 0x00000080;
   ATOB2_dat[2] =  ATOB2_dat[2] | ( ( gBlockTOBv[1][1]   & 0x00000FFF ) << 8);
   ATOB2_dat[2] =  ATOB2_dat[2] | ( ( gBlockTOBeta[1][1] & 0x0000003F ) <<20);
   ATOB2_dat[2] =  ATOB2_dat[2] | ( ( gBlockTOBphi[1][1] & 0x0000001F ) <<26);
@@ -287,12 +289,12 @@ std::vector<std::unique_ptr<gFEXJetTOB>> gFEXJetAlgo::largeRfinder(
   tobs_v[7]->setEta(gBlockTOBeta[1][1]);
   tobs_v[7]->setPhi(gBlockTOBphi[1][1]);
   tobs_v[7]->setTobID(4);
-  if(  gBlockTOBv[1][1] > seedThreshold ) tobs_v[7]->setStatus(1);
+  if(  gBlockTOBv[1][1] > gJ_ptMinToTopoCounts1 ) tobs_v[7]->setStatus(1);
   else tobs_v[7]->setStatus(0);
 
 
   BTOB1_dat[2] =  0x00000003;
-  if(  gBlockTOBv[2][1] > seedThreshold ) BTOB1_dat[2] = BTOB1_dat[2] | 0x00000080;
+  if(  gBlockTOBv[2][1] > gJ_ptMinToTopoCounts1 ) BTOB1_dat[2] = BTOB1_dat[2] | 0x00000080;
   BTOB1_dat[2] =  BTOB1_dat[2] | ( ( gBlockTOBv[2][1]   & 0x00000FFF ) << 8);
   BTOB1_dat[2] =  BTOB1_dat[2] | ( ( gBlockTOBeta[2][1] & 0x0000003F ) <<20);
   BTOB1_dat[2] =  BTOB1_dat[2] | ( ( gBlockTOBphi[2][1] & 0x0000001F ) <<26);
@@ -303,12 +305,12 @@ std::vector<std::unique_ptr<gFEXJetTOB>> gFEXJetAlgo::largeRfinder(
   tobs_v[8]->setEta(gBlockTOBeta[2][1]);
   tobs_v[8]->setPhi(gBlockTOBphi[2][1]);
   tobs_v[8]->setTobID(3);
-  if(  gBlockTOBv[2][1] > seedThreshold ) tobs_v[8]->setStatus(1);
+  if(  gBlockTOBv[2][1] > gJ_ptMinToTopoCounts1 ) tobs_v[8]->setStatus(1);
   else tobs_v[8]->setStatus(0);
 
 
   BTOB2_dat[2] =  0x00000004;
-  if(  gBlockTOBv[3][1] > seedThreshold ) BTOB2_dat[2] = BTOB2_dat[2] | 0x00000080;
+  if(  gBlockTOBv[3][1] > gJ_ptMinToTopoCounts2 ) BTOB2_dat[2] = BTOB2_dat[2] | 0x00000080;
   BTOB2_dat[2] =  BTOB2_dat[2] | ( ( gBlockTOBv[3][1]   & 0x00000FFF ) << 8);
   BTOB2_dat[2] =  BTOB2_dat[2] | ( ( gBlockTOBeta[3][1] & 0x0000003F ) <<20);
   BTOB2_dat[2] =  BTOB2_dat[2] | ( ( gBlockTOBphi[3][1] & 0x0000001F ) <<26);
@@ -319,20 +321,21 @@ std::vector<std::unique_ptr<gFEXJetTOB>> gFEXJetAlgo::largeRfinder(
   tobs_v[9]->setEta(gBlockTOBeta[3][1]);
   tobs_v[9]->setPhi(gBlockTOBphi[3][1]);
   tobs_v[9]->setTobID(4);
-  if(  gBlockTOBv[3][1] > seedThreshold ) tobs_v[9]->setStatus(1);
+  if(  gBlockTOBv[3][1] > gJ_ptMinToTopoCounts2 ) tobs_v[9]->setStatus(1);
   else tobs_v[9]->setStatus(0);
 
   // finally the main event -- lead gJET
   // according the specification https://docs.google.com/spreadsheets/d/15YVVtGofhXMtV7jXRFzWO0FVUtUAjS-X-aQjh3FKE_w/edit#gid=523371660
   // we should have an lsb of 3.2 GeV -- so ignore lower 4 bits.
 
-  // TOBs 10-13 are sleading gJets
-  int tobvShift = 4;
-  int tobvMask   = 0x0000FFF0;
+  // TOBs 10-13 are leading gJets
+  // shift is done before sorting as in firmware!
+  int tobvShift = 8;
+  int tobvMask   = 0x00000FFF;
 
 
   ATOB1_dat[3] =  0x00000005;
-  if(  gJetTOBv[0] > jetThreshold ) ATOB1_dat[3] = ATOB1_dat[3] | 0x00000080;
+  if(  gJetTOBv[0] > gLJ_ptMinToTopoCounts2 ) ATOB1_dat[3] = ATOB1_dat[3] | 0x00000080;
   ATOB1_dat[3] =  ATOB1_dat[3] | ( ( gJetTOBv[0]   & tobvMask) << tobvShift);
   ATOB1_dat[3] =  ATOB1_dat[3] | ( ( gJetTOBeta[0] & 0x0000003F ) <<20);
   ATOB1_dat[3] =  ATOB1_dat[3] | ( ( gJetTOBphi[0] & 0x0000001F ) <<26);
@@ -343,12 +346,12 @@ std::vector<std::unique_ptr<gFEXJetTOB>> gFEXJetAlgo::largeRfinder(
   tobs_v[10]->setEta(gJetTOBeta[0]);
   tobs_v[10]->setPhi(gJetTOBphi[0]);
   tobs_v[10]->setTobID(5);
-  if(gJetTOBv[0] > jetThreshold ) tobs_v[10]->setStatus(1);
+  if(gJetTOBv[0] > gLJ_ptMinToTopoCounts2 ) tobs_v[10]->setStatus(1);
   else tobs_v[10]->setStatus(0);
 
 
   ATOB2_dat[3] =  0x00000006;
-  if(  gJetTOBv[1] > jetThreshold )  ATOB2_dat[3] = ATOB2_dat[3] | 0x00000080;
+  if(  gJetTOBv[1] > gLJ_ptMinToTopoCounts1 )  ATOB2_dat[3] = ATOB2_dat[3] | 0x00000080;
   ATOB2_dat[3] =  ATOB2_dat[3] | ( ( gJetTOBv[1]   & tobvMask ) << tobvShift);
   ATOB2_dat[3] =  ATOB2_dat[3] | ( ( gJetTOBeta[1] & 0x0000003F ) <<20);
   ATOB2_dat[3] =  ATOB2_dat[3] | ( ( gJetTOBphi[1] & 0x0000001F ) <<26);
@@ -359,12 +362,12 @@ std::vector<std::unique_ptr<gFEXJetTOB>> gFEXJetAlgo::largeRfinder(
   tobs_v[11]->setEta(gJetTOBeta[1]);
   tobs_v[11]->setPhi(gJetTOBphi[1]);
   tobs_v[11]->setTobID(6);
-  if(  gJetTOBv[1] > jetThreshold ) tobs_v[11]->setStatus(1);
+  if(  gJetTOBv[1] > gLJ_ptMinToTopoCounts1 ) tobs_v[11]->setStatus(1);
   else tobs_v[11]->setStatus(0);
 
 
   BTOB1_dat[3] =  0x00000005;
-  if(  gJetTOBv[2] > jetThreshold ) BTOB1_dat[3] = BTOB1_dat[3] | 0x00000080;
+  if(  gJetTOBv[2] > gLJ_ptMinToTopoCounts1 ) BTOB1_dat[3] = BTOB1_dat[3] | 0x00000080;
   BTOB1_dat[3] =  BTOB1_dat[3] | ( ( gJetTOBv[2]   & tobvMask) << tobvShift);
   BTOB1_dat[3] =  BTOB1_dat[3] | ( ( gJetTOBeta[2] & 0x0000003F ) <<20);
   BTOB1_dat[3] =  BTOB1_dat[3] | ( ( gJetTOBphi[2] & 0x0000001F ) <<26);
@@ -375,12 +378,12 @@ std::vector<std::unique_ptr<gFEXJetTOB>> gFEXJetAlgo::largeRfinder(
   tobs_v[12]->setEta(gJetTOBeta[2]);
   tobs_v[12]->setPhi(gJetTOBphi[2]);
   tobs_v[12]->setTobID(5);
-  if(  gJetTOBv[2] > jetThreshold ) tobs_v[12]->setStatus(1);
+  if(  gJetTOBv[2] > gLJ_ptMinToTopoCounts1 ) tobs_v[12]->setStatus(1);
   else tobs_v[12]->setStatus(0);
 
 
   BTOB2_dat[3] =  0x00000006;
-  if(  gJetTOBv[3] > jetThreshold ) BTOB2_dat[3] = BTOB2_dat[3] | 0x00000080;
+  if(  gJetTOBv[3] > gLJ_ptMinToTopoCounts2 ) BTOB2_dat[3] = BTOB2_dat[3] | 0x00000080;
   BTOB2_dat[3] =  BTOB2_dat[3] | ( ( gJetTOBv[3]   & tobvMask   ) << tobvShift);
   BTOB2_dat[3] =  BTOB2_dat[3] | ( ( gJetTOBeta[3] & 0x0000003F ) <<20);
   BTOB2_dat[3] =  BTOB2_dat[3] | ( ( gJetTOBphi[3] & 0x0000001F ) <<26);
@@ -391,7 +394,7 @@ std::vector<std::unique_ptr<gFEXJetTOB>> gFEXJetAlgo::largeRfinder(
   tobs_v[13]->setEta(gJetTOBeta[3]);
   tobs_v[13]->setPhi(gJetTOBphi[3]);
   tobs_v[13]->setTobID(6);
-  if(  gJetTOBv[3] > jetThreshold ) tobs_v[13]->setStatus(1);
+  if(  gJetTOBv[3] > gLJ_ptMinToTopoCounts2 ) tobs_v[13]->setStatus(1);
   else tobs_v[13]->setStatus(0);
 
    return tobs_v;
@@ -560,7 +563,6 @@ void gFEXJetAlgo::gBlockAB(gTowersCentral twrs, gTowersCentral & gBlkSum){
 
   int rows = twrs.size();
   int cols = twrs[0].size();
-
   for( int irow = 0; irow < rows; irow++ ){
     for(int jcolumn = 0; jcolumn<cols; jcolumn++){
       // zero jet sum here
@@ -584,6 +586,16 @@ void gFEXJetAlgo::gBlockAB(gTowersCentral twrs, gTowersCentral & gBlkSum){
           twrs[irow][jcolumn-1] + twrs[krowUp][jcolumn-1] + twrs[krowDn][jcolumn-1] +
           twrs[irow][jcolumn+1] + twrs[krowUp][jcolumn+1] + twrs[krowDn][jcolumn+1];
         }
+        // switch to 800 MeV LSB 
+        gBlkSum[irow][jcolumn] =  gBlkSum[irow][jcolumn]/4;
+        // limit result to an unsigned integer of 12 bits ( 2376 GeV) 
+        if ( gBlkSum[irow][jcolumn] < 0 ){
+          gBlkSum[irow][jcolumn] = 0;
+        }
+        if ( gBlkSum[irow][jcolumn] > 4091 ){
+          gBlkSum[irow][jcolumn] = 4091;
+        }  
+
     }
   }
 
@@ -860,6 +872,10 @@ void gFEXJetAlgo::jetOutAB(gTowersCentral jets, gTowersCentral blocks, int seedT
         etaIndL[ieng] = localEta;
       }
     }
+    // Turncate to 15 bits as in firmware
+    if( jetOutL[ieng] >  (1<<16) - 1 )  jetOutL[ieng] = 0x00007FFF;
+    // reduce by 3 bits prior to sorting done here
+    jetOutL[ieng] = jetOutL[ieng]/8; 
   }
   // loop over right engines
   for(int ieng=0; ieng<FEXAlgoSpaceDefs::ABCrows; ieng++){
@@ -871,6 +887,11 @@ void gFEXJetAlgo::jetOutAB(gTowersCentral jets, gTowersCentral blocks, int seedT
        etaIndR[ieng] = localEta;
       }
     }
+    // Turncate to 15 bits as in firmware 
+    if( jetOutR[ieng] >  (1<<16) - 1 )  jetOutR[ieng] = 0x00007FFF;
+    // reduce by 3 bits prior to sorting done here
+    jetOutR[ieng] = jetOutR[ieng]/8; 
+
   }
 
 }
@@ -881,6 +902,18 @@ void gFEXJetAlgo::gJetTOBgen(std::array<int, FEXAlgoSpaceDefs::ABCrows>  jetOut,
                              std::array<int, FEXAlgoSpaceDefs::gJetTOBfib> & gJetTOBv,
                              std::array<int, FEXAlgoSpaceDefs::gJetTOBfib> & gJetTOBeta,
                              std::array<int, FEXAlgoSpaceDefs::gJetTOBfib> & gJetTOBphi ){
+
+  int jetOutZS[FEXAlgoSpaceDefs::ABCrows]; 
+  // apply the tobthreshold to the values 
+  //note that jetThreshold is not a configurable parameter in firmware, it is used to check that jet values are positive
+  for( int irow =0; irow<FEXAlgoSpaceDefs::ABCrows; irow++){
+    if(  jetOut[irow] > jetThreshold ) {
+      jetOutZS[irow] = jetOut[irow];
+    } else {
+      jetOutZS[irow] = 0 ; 
+    }
+  }
+
 
   // offset of TOBs according to official format
   int etaOff[4] = {8,14,20,26};
@@ -901,15 +934,15 @@ void gFEXJetAlgo::gJetTOBgen(std::array<int, FEXAlgoSpaceDefs::ABCrows>  jetOut,
   int l4mv[2];
   int l4met[2];
   int l4mphi[2];
-
+  
 
   for(int i=0; i<16; i++){
-    if( jetOut[2*i + 1] > jetOut[2*i] ){
-      l1mv[i]   = jetOut[2*i + 1];
+    if( jetOut[2*i + 1] > jetOutZS[2*i] ){
+      l1mv[i]   = jetOutZS[2*i + 1];
       l1met[i]  = etaInd[2*i + 1];
       l1mphi[i] =        2*i + 1;
     } else {
-      l1mv[i]   = jetOut[2*i ];
+      l1mv[i]   = jetOutZS[2*i ];
       l1met[i]  = etaInd[2*i ];
       l1mphi[i] =        2*i ;
     }

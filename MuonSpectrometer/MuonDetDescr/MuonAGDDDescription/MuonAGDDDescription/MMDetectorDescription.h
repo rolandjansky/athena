@@ -67,9 +67,9 @@ public:
 	MMReadoutParameters& GetReadoutParameters() {return roParameters;}
 
 protected:
-	double m_xFrame;
-	double m_ysFrame;
-	double m_ylFrame;
+	double m_xFrame = 0.0;
+	double m_ysFrame = 0.0;
+	double m_ylFrame = 0.0;
 
         AGDDDetectorStore& m_ds;
 

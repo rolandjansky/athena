@@ -20,7 +20,7 @@ class TGCCableHPBToSL : public TGCCable
 {
 public:
   // Constructor & Destructor
-  TGCCableHPBToSL(std::string filename);
+  TGCCableHPBToSL(const std::string& filename);
 
   virtual ~TGCCableHPBToSL(void);
   
@@ -30,7 +30,7 @@ private:
   TGCCableHPBToSL(void) {}
   virtual TGCModuleMap* getModuleIn(const TGCModuleId* sl) const;
   virtual TGCModuleMap* getModuleOut(const TGCModuleId* hpt) const;
-  TGCDatabase* m_database[TGCIdBase::MaxRegionType][TGCIdBase::MaxSignalType];
+  TGCDatabase* m_database[TGCIdBase::MaxRegionType][TGCIdBase::MaxSignalType]{};
 };
   
 } // end of namespace

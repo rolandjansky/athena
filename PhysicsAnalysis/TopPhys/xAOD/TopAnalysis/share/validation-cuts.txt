@@ -87,8 +87,8 @@ MuonDoSmearing2stationHighPt True
 TauPt 25000
 TauJetIDWP RNNMedium
 TauJetIDWPLoose RNNLoose
-TauEleBDTWP Loose
-TauEleBDTWPLoose Loose
+TauEleRNNWP None
+TauEleRNNWPLoose None
 
 # DoTight/DoLoose to activate the loose and tight trees
 # each should be one in: Data, MC, Both, False

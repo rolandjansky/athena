@@ -605,7 +605,7 @@ def TrackingGeometryCondAlgCfg(flags, name='AtlasTrackingGeometryCondAlg', doMat
 
         Trk__TrackingVolumeHelper = CompFactory.Trk.TrackingVolumeHelper
         trackingVolumeHelper = Trk__TrackingVolumeHelper(
-            name=namePrefix+'TrackingVolumeHelper'+nameSuffix)
+            name=namePrefix+'TrackingVolumeHelper')
         result.addPublicTool(trackingVolumeHelper)
 
         caloTrackingGeometryBuilder = _getCaloTrackingGeometryBuilder(

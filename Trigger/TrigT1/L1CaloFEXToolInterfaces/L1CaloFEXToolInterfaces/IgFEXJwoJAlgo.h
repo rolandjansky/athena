@@ -27,7 +27,7 @@ Interface definition for gFEXJwoJAlgo
 
     virtual void setAlgoConstant(unsigned int aFPGA_A, unsigned int bFPGA_A,
                                  unsigned int aFPGA_B, unsigned int bFPGA_B,
-                                 int gblockThreshold) = 0;
+                                 int gXE_seedThrA, int gXE_seedThrB) = 0;
 
     virtual std::vector<std::unique_ptr<gFEXJwoJTOB>> jwojAlgo(gTowersCentral Atwr, gTowersCentral Btwr,
                                                                             std::array<uint32_t, 4> & outTOB) = 0;

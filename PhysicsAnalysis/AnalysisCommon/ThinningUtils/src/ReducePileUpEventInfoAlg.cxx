@@ -82,7 +82,7 @@ StatusCode ReducePileUpEventInfoAlg::execute()
   if ( evtStore()->contains< PileUpEventInfo >( "" ) )
     {
       // Get the EventInfo object
-      const PileUpEventInfo* oldEventInfo(NULL);
+      const PileUpEventInfo* oldEventInfo(nullptr);
       ATH_CHECK( evtStore()->retrieve( oldEventInfo ) );
 
       // Create a new EventInfo object and register it into StoreGate

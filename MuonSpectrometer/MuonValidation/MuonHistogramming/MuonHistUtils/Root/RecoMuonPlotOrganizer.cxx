@@ -6,19 +6,19 @@
 
 namespace Muon{
   
-  RecoMuonPlotOrganizer::RecoMuonPlotOrganizer(PlotBase* pParent, std::string sDir, std::vector<int> *selPlots):
+  RecoMuonPlotOrganizer::RecoMuonPlotOrganizer(PlotBase* pParent, const std::string& sDir, std::vector<int> *selPlots):
   PlotBase(pParent, sDir)
   // Reco plots
-  , m_oIDHitPlots(NULL)
-  , m_oTrkParamPlots(NULL)
-  , m_oImpactPlots(NULL)
-  , m_oMuonParamPlots(NULL)
-  , m_oMuRecoInfoPlots(NULL)
-  , m_oMomentumPullPlots(NULL)
-  , m_oMuonHitSummaryPlots(NULL)
-  , m_oMuonIsolationPlots(NULL)
-  , m_oChargeParamPlotsLowPt(NULL)
-  , m_oChargeParamPlotsHighPt(NULL)
+  , m_oIDHitPlots(nullptr)
+  , m_oTrkParamPlots(nullptr)
+  , m_oImpactPlots(nullptr)
+  , m_oMuonParamPlots(nullptr)
+  , m_oMuRecoInfoPlots(nullptr)
+  , m_oMomentumPullPlots(nullptr)
+  , m_oMuonHitSummaryPlots(nullptr)
+  , m_oMuonIsolationPlots(nullptr)
+  , m_oChargeParamPlotsLowPt(nullptr)
+  , m_oChargeParamPlotsHighPt(nullptr)
 {
   
   if (!selPlots) {
@@ -30,7 +30,7 @@ namespace Muon{
   for (auto p: m_selPlots) {
     switch (p) {
     case MUON_TRKPARAM:
-      m_oTrkParamPlots = new Trk::ParamPlots(this, "/kinematics/", "Reco Muon");
+      m_oTrkParamPlots = new Trk::ParamPlots(this, "/kinematics/", "RecoMuon");
       m_allPlots.push_back(m_oTrkParamPlots);
       break;
     case MUON_PARAM:
@@ -77,8 +77,8 @@ RecoMuonPlotOrganizer::~RecoMuonPlotOrganizer()
   m_allPlots.clear();
 }
   
-  void RecoMuonPlotOrganizer::fill(const xAOD::Muon& mu, float weight) {
-    if (m_oIDHitPlots && (mu.inDetTrackParticleLink().isValid())) m_oIDHitPlots->fill(*mu.trackParticle(xAOD::Muon::InnerDetectorTrackParticle), weight);
+void RecoMuonPlotOrganizer::fill(const xAOD::Muon& mu, float weight) {
+  if (m_oIDHitPlots && (mu.inDetTrackParticleLink().isValid())) m_oIDHitPlots->fill(*mu.trackParticle(xAOD::Muon::InnerDetectorTrackParticle), weight);
   if (m_oTrkParamPlots) m_oTrkParamPlots->fill(mu,weight);
   if (m_oMuonParamPlots) m_oMuonParamPlots->fill(mu,weight);
   if (m_oMuRecoInfoPlots) m_oMuRecoInfoPlots->fill(mu,weight);

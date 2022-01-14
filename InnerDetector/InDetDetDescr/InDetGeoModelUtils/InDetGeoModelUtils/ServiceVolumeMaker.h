@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ServiceVolumeMaker_H 
@@ -119,7 +119,7 @@ namespace InDetDD {
     std::string shapeType(int index) const;
     std::string volName(int index) const;
     std::string materialName(int index) const;
-    std::vector<double> readLayerShift() const;
+    std::vector<double> readLayerShift();
     
     unsigned int numElements() const;
 

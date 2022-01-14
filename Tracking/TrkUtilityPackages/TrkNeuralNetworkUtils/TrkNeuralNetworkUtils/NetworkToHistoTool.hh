@@ -22,12 +22,12 @@ public:
 
   ~NetworkToHistoTool() {};
 
-  std::map<std::string,TH1*> histsFromNetwork(const TTrainedNetwork*) const;
-  TTrainedNetwork* networkFromHists(const std::map<std::string,const TH1*>&) const;
+  static std::map<std::string,TH1*> histsFromNetwork(const TTrainedNetwork*) ;
+  static TTrainedNetwork* networkFromHists(const std::map<std::string,const TH1*>&) ;
 
-  std::vector<TH1*> fromTrainedNetworkToHisto(const TTrainedNetwork*) const;
-  TTrainedNetwork* fromHistoToTrainedNetwork(const std::vector<TH1*>&) const; 
-  TTrainedNetwork* fromHistoToTrainedNetwork(const std::vector<const TH1*>&) const; 
+  static std::vector<TH1*> fromTrainedNetworkToHisto(const TTrainedNetwork*) ;
+  static TTrainedNetwork* fromHistoToTrainedNetwork(const std::vector<TH1*>&) ; 
+  static TTrainedNetwork* fromHistoToTrainedNetwork(const std::vector<const TH1*>&) ; 
 
 private:
   

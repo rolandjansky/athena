@@ -168,7 +168,7 @@ namespace Muon {
         return StatusCode::SUCCESS;
     }
 
-    bool MooCandidateMatchingTool::match(const MuPatSegment& entry1, const MuPatSegment& entry2, bool useTightCuts) const {
+    bool MooCandidateMatchingTool::match(const EventContext& ctx, const MuPatSegment& entry1, const MuPatSegment& entry2, bool useTightCuts) const {
         ++m_segmentMatches;
 
         // same segments should never be matched!
@@ -226,9 +226,9 @@ namespace Muon {
         // call segment matching tool
         bool match = true;
         if (useTightCuts) {
-            match = m_segmentMatchingToolTight->match(*entry1.segment, *entry2.segment);
+            match = m_segmentMatchingToolTight->match(ctx, *entry1.segment, *entry2.segment);
         } else {
-            match = m_segmentMatchingTool->match(*entry1.segment, *entry2.segment);
+            match = m_segmentMatchingTool->match(ctx, *entry1.segment, *entry2.segment);
         }
         if (match) {
             ++m_goodSegmentMatches;
@@ -238,7 +238,7 @@ namespace Muon {
         return match;
     }
 
-    bool MooCandidateMatchingTool::match(const Trk::Track& track, const MuonSegment& segment, bool useTightCuts) const {
+    bool MooCandidateMatchingTool::match(const EventContext& ctx, const Trk::Track& track, const MuonSegment& segment, bool useTightCuts) const {
         GarbageContainer trash_bin;
 
         ATH_MSG_DEBUG("Match track/segment: useTightCuts " << useTightCuts);
@@ -249,22 +249,20 @@ namespace Muon {
             ATH_MSG_VERBOSE("Failed to create track candidate");
             return false;
         }
-
-        std::unique_ptr<MuPatSegment> segInfo(m_candidateTool->createSegInfo(segment, trash_bin));
+        std::unique_ptr<MuPatSegment> segInfo(m_candidateTool->createSegInfo(ctx, segment, trash_bin));
         if (!segInfo) {
             ATH_MSG_VERBOSE("Failed to create segment candidate");
             return false;
         }
 
         // call match
-        bool ok = match(*candidate, *segInfo, useTightCuts);
+        const bool ok = match(ctx, *candidate, *segInfo, useTightCuts);
         ATH_MSG_DEBUG("Match track/segment: result " << ok);
-
         // return result
         return ok;
     }
 
-    bool MooCandidateMatchingTool::match(const MuPatTrack& entry1, const MuPatSegment& entry2, bool useTightCuts) const {
+    bool MooCandidateMatchingTool::match(const EventContext& ctx, const MuPatTrack& entry1, const MuPatSegment& entry2, bool useTightCuts) const {
         ++m_segmentTrackMatches;
         if (useTightCuts) ++m_segmentTrackMatchesTight;
 
@@ -286,9 +284,8 @@ namespace Muon {
             bool haveAllMatch = true;
             bool haveAnyMatch = false;
             const std::vector<MuPatSegment*>& segments = entry1.segments();
-            std::vector<MuPatSegment*>::const_iterator it = segments.begin(), it_end = segments.end();
-            for (; it != it_end; ++it) {
-                if (!match(**it, entry2)) {
+            for (const MuPatSegment* segment : segments) {
+                if (!match(ctx, *segment, entry2, false)) {
                     haveAllMatch = false;
                 } else {
                     haveAnyMatch = true;
@@ -310,9 +307,9 @@ namespace Muon {
 
         if (m_doTrackSegmentMatching) {
             MooTrackSegmentMatchResult info;
-            calculateTrackSegmentMatchResult(entry1, entry2, info);
+            calculateTrackSegmentMatchResult(ctx, entry1, entry2, info);
             TrackSegmentMatchCuts cuts = getMatchingCuts(entry1, entry2, useTightCuts);
-            haveMatch = applyTrackSegmentCuts(info, cuts);
+            haveMatch = applyTrackSegmentCuts(ctx, info, cuts);
             // update counters
             if (haveMatch) {
                 ++m_reasonsForMatchOk[info.reason];
@@ -383,7 +380,7 @@ namespace Muon {
         return cuts;
     }
 
-    bool MooCandidateMatchingTool::applyTrackSegmentCuts(MooTrackSegmentMatchResult& info, const TrackSegmentMatchCuts& cuts) const {
+    bool MooCandidateMatchingTool::applyTrackSegmentCuts(const EventContext& ctx, MooTrackSegmentMatchResult& info, const TrackSegmentMatchCuts& cuts) const {
         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << MSG::DEBUG << "track segment match:";
 
         if (info.reason == TrackSegmentMatchResult::NoMomentumWithMagField) {
@@ -409,9 +406,9 @@ namespace Muon {
             } else {  // closestSegment
                 // call segment matching tool
                 if (cuts.useTightCuts) {
-                    info.matchOK = m_segmentMatchingToolTight->match(*(closestSegment->segment), *(info.segment));
+                    info.matchOK = m_segmentMatchingToolTight->match(ctx, *(closestSegment->segment), *(info.segment));
                 } else {
-                    info.matchOK = m_segmentMatchingTool->match(*(closestSegment->segment), *(info.segment));
+                    info.matchOK = m_segmentMatchingTool->match(ctx, *(closestSegment->segment), *(info.segment));
                 }
                 if (msgLvl(MSG::DEBUG)) {
                     if (info.matchOK) {
@@ -683,7 +680,7 @@ namespace Muon {
         return info.matchOK;
     }  // applyTrackSegmentCuts()
 
-    void MooCandidateMatchingTool::calculateTrackSegmentMatchResult(const MuPatTrack& entry1, const MuPatSegment& entry2,
+    void MooCandidateMatchingTool::calculateTrackSegmentMatchResult(const EventContext& ctx, const MuPatTrack& entry1, const MuPatSegment& entry2,
                                                                     MooTrackSegmentMatchResult& info) const {
         info.clear();
         info.MCTBTrack = &entry1;
@@ -712,7 +709,6 @@ namespace Muon {
 
         MagField::AtlasFieldCache fieldCache;
         // Get field cache object
-        EventContext ctx = Gaudi::Hive::currentContext();
         SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
         const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
 
@@ -1284,12 +1280,12 @@ namespace Muon {
         return accepted;
     }
 
-    bool MooCandidateMatchingTool::match(const MuPatCandidateBase& entry1, const MuPatSegment& entry2, bool useTightCuts) const {
+    bool MooCandidateMatchingTool::match(const EventContext& ctx, const MuPatCandidateBase& entry1, const MuPatSegment& entry2, bool useTightCuts) const {
         const MuPatSegment* seg = dynamic_cast<const MuPatSegment*>(&entry1);
-        if (seg) return match(*seg, entry2, useTightCuts);
+        if (seg) return match(ctx, *seg, entry2, useTightCuts);
 
         const MuPatTrack* track = dynamic_cast<const MuPatTrack*>(&entry1);
-        if (track) return match(*track, entry2, useTightCuts);
+        if (track) return match(ctx, *track, entry2, useTightCuts);
 
         return false;
     }
@@ -1398,22 +1394,18 @@ namespace Muon {
                 }
             } else {
                 // the exceptions: use geometrical information
-                const std::set<const MuonGM::MuonReadoutElement*>& roEls1 = m_candidateTool->readoutElements(seg1);
-                const std::set<const MuonGM::MuonReadoutElement*>& roEls2 = m_candidateTool->readoutElements(seg2);
-                std::set<const MuonGM::MuonReadoutElement*>::const_iterator it1 = roEls1.begin();
-                std::set<const MuonGM::MuonReadoutElement*>::const_iterator it1_end = roEls1.end();
-                std::set<const MuonGM::MuonReadoutElement*>::const_iterator it2 = roEls2.begin();
-                std::set<const MuonGM::MuonReadoutElement*>::const_iterator it2_end = roEls2.end();
-                for (; it1 != it1_end; ++it1) {
-                    for (; it2 != it2_end; ++it2) {
-                        double distZ = std::abs((*it1)->center().z() - (*it2)->center().z());
+                const std::set<const MuonGM::MuonReadoutElement*> roEls1 = m_candidateTool->readoutElements(seg1);
+                const std::set<const MuonGM::MuonReadoutElement*> roEls2 = m_candidateTool->readoutElements(seg2);
+                for (const MuonGM::MuonReadoutElement* read_ele1 : roEls1) {
+                    for (const MuonGM::MuonReadoutElement* read_ele2 : roEls2) {
+                        double distZ = std::abs(read_ele1->center().z() - read_ele2->center().z());
                         // subtract sizes
-                        distZ -= 0.5 * ((*it1)->getZsize() + (*it2)->getZsize());
+                        distZ -= 0.5 * (read_ele1->getZsize() + read_ele2->getZsize());
                         if (msgLvl(MSG::VERBOSE)) {
                             msg(MSG::VERBOSE) << std::endl
-                                              << (*it1)->getStationType() << ": z=" << (*it1)->center().z() << "+-"
-                                              << 0.5 * (*it1)->getZsize() << "  " << (*it2)->getStationType()
-                                              << ": z=" << (*it2)->center().z() << "+-" << 0.5 * (*it2)->getZsize() << "  "
+                                              << read_ele1->getStationType() << ": z=" << read_ele1->center().z() << "+-"
+                                              << 0.5 * read_ele1->getZsize() << "  " << read_ele2->getStationType()
+                                              << ": z=" << read_ele2->center().z() << "+-" << 0.5 * read_ele2->getZsize() << "  "
                                               << "distZ=" << distZ;
                         }
                         // allow some distance
@@ -1426,11 +1418,11 @@ namespace Muon {
             }
         } else {
             // don't mix barrel/endcap
-            if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "endcap/barrel mix" << endmsg;
+            ATH_MSG_VERBOSE(__FILE__<<":"<<__LINE__<< "endcap/barrel mix");
             return false;
         }
 
-        if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " Yes!" << endmsg;
+        ATH_MSG_VERBOSE(__FILE__<<":"<<__LINE__<< " Yes!");
         return true;
     }
 }  // namespace Muon

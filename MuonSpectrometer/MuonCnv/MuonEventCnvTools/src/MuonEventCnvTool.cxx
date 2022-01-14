@@ -86,8 +86,8 @@ std::pair<const Trk::TrkDetElementBase*, const Trk::PrepRawData*>
     using namespace Trk;
     using namespace MuonGM;
 
-    const TrkDetElementBase* detEl = 0;
-    const PrepRawData*       prd   = 0;
+    const TrkDetElementBase* detEl = nullptr;
+    const PrepRawData*       prd   = nullptr;
     const Identifier& id           = rioOnTrack.identify();
 
     if (m_muonMgr) {
@@ -248,7 +248,7 @@ const Trk::PrepRawData*
   
   if (!handle.isValid()){
       ATH_MSG_ERROR("PRD container not found at "<<prdKey);
-      return 0;
+      return nullptr;
   }
   else{
       ATH_MSG_DEBUG("PRD Cluster container found at "<<prdKey);
@@ -267,7 +267,7 @@ const Trk::PrepRawData*
       }
   }
   ATH_MSG_DEBUG("No matching PRD found");
-  return 0;
+  return nullptr;
 }
 
 const Trk::PrepRawData* 

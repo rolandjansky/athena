@@ -110,7 +110,7 @@ namespace Muon {
         return false;
     }
 
-    std::unique_ptr<Trk::Track> MooTrackFitter::refit(const MuPatTrack& trkCan) const {
+    std::unique_ptr<Trk::Track> MooTrackFitter::refit(const EventContext& ctx, const MuPatTrack& trkCan) const {
         GarbageContainer localGarbage;
 
         // internal representation of the track in fitter
@@ -127,12 +127,12 @@ namespace Muon {
         if (!pp) return nullptr;
 
         // fit track
-        std::unique_ptr<Trk::Track> track = fit(*pp, fitterData.measurements, localGarbage);
+        std::unique_ptr<Trk::Track> track = fit(ctx, *pp, fitterData.measurements, localGarbage, Trk::muon, false);
 
         if (track) {
             // clean and evaluate track
             std::set<Identifier> excludedChambers;
-            std::unique_ptr<Trk::Track> cleanTrack = cleanAndEvaluateTrack(*track, excludedChambers);
+            std::unique_ptr<Trk::Track> cleanTrack = cleanAndEvaluateTrack(ctx, *track, excludedChambers);
             if (cleanTrack && !(*cleanTrack->perigeeParameters() == *track->perigeeParameters())) track.swap(cleanTrack);
         } else {
             ATH_MSG_DEBUG(" Fit failed ");
@@ -141,7 +141,7 @@ namespace Muon {
         return track;
     }
 
-    std::unique_ptr<Trk::Track> MooTrackFitter::refit(const Trk::Track& track) const {
+    std::unique_ptr<Trk::Track> MooTrackFitter::refit(const EventContext& ctx, const Trk::Track& track) const {
         if (msgLvl(MSG::DEBUG)) {
             const Trk::TrackStates* states = track.trackStateOnSurfaces();
             int nStates = 0;
@@ -151,12 +151,12 @@ namespace Muon {
             msg(MSG::DEBUG) << endmsg;
         }
         // fit track
-        std::unique_ptr<Trk::Track> newTrack(m_trackFitter->fit(track, false, m_ParticleHypothesis));
+        std::unique_ptr<Trk::Track> newTrack = m_trackFitter->fit(ctx,track, false, m_ParticleHypothesis);
 
         if (newTrack) {
             // clean and evaluate track
             std::set<Identifier> excludedChambers;
-            std::unique_ptr<Trk::Track> cleanTrack = cleanAndEvaluateTrack(*newTrack, excludedChambers);
+            std::unique_ptr<Trk::Track> cleanTrack = cleanAndEvaluateTrack(ctx, *newTrack, excludedChambers);
 
             if (cleanTrack) {
                 // check whether cleaner returned same track, if not delete old track
@@ -172,7 +172,7 @@ namespace Muon {
         return newTrack;
     }
 
-    std::unique_ptr<Trk::Track> MooTrackFitter::fit(const MuPatCandidateBase& entry1, const MuPatCandidateBase& entry2,
+    std::unique_ptr<Trk::Track> MooTrackFitter::fit(const EventContext& ctx, const MuPatCandidateBase& entry1, const MuPatCandidateBase& entry2,
                                                     const PrepVec* externalPhiHits) const {
         GarbageContainer localGarbage;
 
@@ -182,7 +182,7 @@ namespace Muon {
         FitterData fitterData;
 
         // extract hits and geometrical information
-        if (!extractData(entry1, entry2, fitterData, localGarbage)) {
+        if (!extractData(ctx, entry1, entry2, fitterData, localGarbage)) {
             ATH_MSG_DEBUG(" Failed to extract data for initial fit");
             return nullptr;
         }
@@ -197,7 +197,7 @@ namespace Muon {
         ++m_nfailedMinMaxPhi;
 
         // create start parameters
-        Trk::Perigee* startPars = createStartParameters(fitterData, localGarbage);
+        Trk::Perigee* startPars = createStartParameters(ctx, fitterData, localGarbage);
         if (!startPars) {
             ATH_MSG_DEBUG(" Creation of start parameters failed ");
             return nullptr;
@@ -205,7 +205,7 @@ namespace Muon {
         ++m_nfailedParsInital;
 
         // clean phi hits and reevaluate hits. Do not run for cosmics
-        bool hasCleaned = m_cleanPhiHits ? cleanPhiHits(startPars->momentum().mag(), fitterData, externalPhiHits, localGarbage) : true;
+        bool hasCleaned = m_cleanPhiHits ? cleanPhiHits(ctx, startPars->momentum().mag(), fitterData, externalPhiHits, localGarbage) : true;
         if (hasCleaned) {
             ATH_MSG_DEBUG(" Cleaned phi hits, re-extracting hits");
             bool usePrecise = m_usePreciseHits ? true : (fitterData.firstHasMomentum || fitterData.secondHasMomentum);
@@ -217,7 +217,7 @@ namespace Muon {
         ++m_nfailedExtractCleaning;
 
         // check whether there are enough phi constraints, if not add fake phi hits
-        if (!addFakePhiHits(fitterData, startPars, localGarbage)) {
+        if (!addFakePhiHits(ctx, fitterData, startPars, localGarbage)) {
             ATH_MSG_DEBUG(" Failed to add fake phi hits for precise fit");
             return nullptr;
         }
@@ -230,7 +230,7 @@ namespace Muon {
         if (fitterData.firstHasMomentum || fitterData.secondHasMomentum) doPreFit = false;
         if (!doPreFit) particleType = Trk::muon;
 
-        std::unique_ptr<Trk::Track> track = fit(*startPars, fitterData.measurements, localGarbage, particleType, doPreFit);
+        std::unique_ptr<Trk::Track> track = fit(ctx, *startPars, fitterData.measurements, localGarbage, particleType, doPreFit);
 
         if (!track) {
             ATH_MSG_DEBUG(" Fit failed ");
@@ -278,14 +278,14 @@ namespace Muon {
             ++m_nfailedExtractPrecise;
 
             // check whether there are enough phi constraints, if not add fake phi hits
-            if (!addFakePhiHits(fitterDataRefit, startPars, localGarbage)) {
+            if (!addFakePhiHits(ctx, fitterDataRefit, startPars, localGarbage)) {
                 ATH_MSG_DEBUG(" Failed to add fake phi hits for precise fit");
                 return nullptr;
             }
             ++m_nfailedFakePrecise;
 
             // fit track
-            std::unique_ptr<Trk::Track> newTrack = fit(*pp, fitterDataRefit.measurements, localGarbage);
+            std::unique_ptr<Trk::Track> newTrack = fit(ctx, *pp, fitterDataRefit.measurements, localGarbage, Trk::muon, false);
             if (newTrack)
                 track.swap(newTrack);
             else if (!m_allowFirstFit) {
@@ -308,7 +308,7 @@ namespace Muon {
                 ATH_MSG_VERBOSE(" Using exclusion list of first entry for cleaning");
             }
             if (!excludedChambers.empty()) { ATH_MSG_DEBUG(" Using exclusion list for cleaning"); }
-            std::unique_ptr<Trk::Track> cleanTrack = cleanAndEvaluateTrack(*track, excludedChambers);
+            std::unique_ptr<Trk::Track> cleanTrack = cleanAndEvaluateTrack(ctx, *track, excludedChambers);
             if (cleanTrack) {
                 if (!(*cleanTrack->perigeeParameters() == *track->perigeeParameters())) track.swap(cleanTrack);
             } else
@@ -321,7 +321,7 @@ namespace Muon {
         return track;
     }
 
-    bool MooTrackFitter::extractData(const MuPatCandidateBase& entry1, const MuPatCandidateBase& entry2,
+    bool MooTrackFitter::extractData(const EventContext& ctx, const MuPatCandidateBase& entry1, const MuPatCandidateBase& entry2,
                                      MooTrackFitter::FitterData& fitterData, GarbageContainer& garbage) const {
         // sanity checks on the entries
         if (corruptEntry(entry1)) {
@@ -366,7 +366,7 @@ namespace Muon {
         copyHitList(entry1.hitList(), fitterData.copyHitList1, garbage);
         copyHitList(entry2.hitList(), fitterData.copyHitList2, garbage);
 
-        if (!m_hitHandler->merge(fitterData.copyHitList1, fitterData.copyHitList2, hitList)) return false;
+        if (!m_hitHandler->merge(ctx, fitterData.copyHitList1, fitterData.copyHitList2, hitList)) return false;
 
         bool usePrecise = m_usePreciseHits ? true : (fitterData.firstHasMomentum || fitterData.secondHasMomentum);
         if (msgLvl(MSG::DEBUG)) {
@@ -536,8 +536,9 @@ namespace Muon {
         return true;
     }
 
-    bool MooTrackFitter::addFakePhiHits(MooTrackFitter::FitterData& fitterData, const Trk::TrackParameters* startpar,
+    bool MooTrackFitter::addFakePhiHits(const EventContext& ctx, MooTrackFitter::FitterData& fitterData, const Trk::TrackParameters* startpar,
                                         GarbageContainer& garbage) const {
+
         // check whether we have enough phi constraints
         unsigned nphiConstraints = hasPhiConstrain(fitterData);
 
@@ -612,7 +613,7 @@ namespace Muon {
                 ATH_MSG_VERBOSE(" Special treatment for tracks with one station, a SL overlap and no phi hits ");
 
                 IMuonSegmentInOverlapResolvingTool::SegmentMatchResult result =
-                    m_overlapResolver->matchResult(*segInfo1->segment, *segInfo2->segment);
+                    m_overlapResolver->matchResult(ctx, *segInfo1->segment, *segInfo2->segment);
 
                 if (!result.goodMatch()) {
                     ATH_MSG_VERBOSE(" Match failed ");
@@ -625,7 +626,8 @@ namespace Muon {
                 Trk::AtaPlane segPars1(locx1, locy1, result.phiResult.segmentDirection1.phi(), result.phiResult.segmentDirection1.theta(),
                                        0., segInfo1->segment->associatedSurface());
                 // ownership retained, original code deleted exPars1
-                auto exPars1 = m_propagator->propagate(segPars1, fitterData.measurements.front()->associatedSurface(), Trk::anyDirection,
+                auto exPars1 = m_propagator->propagate(ctx,
+                                                       segPars1, fitterData.measurements.front()->associatedSurface(), Trk::anyDirection,
                                                        false, m_magFieldProperties);
                 if (exPars1) {
                     Amg::Vector3D position = exPars1->position();
@@ -647,7 +649,8 @@ namespace Muon {
                 Trk::AtaPlane segPars2(locx2, locy2, result.phiResult.segmentDirection2.phi(), result.phiResult.segmentDirection2.theta(),
                                        0., segInfo2->segment->associatedSurface());
                 // ownership retained
-                auto exPars2 = m_propagator->propagate(segPars2, fitterData.measurements.back()->associatedSurface(), Trk::anyDirection,
+                auto exPars2 = m_propagator->propagate(ctx,
+                                                       segPars2, fitterData.measurements.back()->associatedSurface(), Trk::anyDirection,
                                                        false, m_magFieldProperties);
                 if (exPars2) {
                     Amg::Vector3D position = exPars2->position();
@@ -806,7 +809,7 @@ namespace Muon {
                         mdtpar.reset(lastmdtpar->clone());
                     else
                         mdtpar =
-                            m_propagator->propagateParameters(*startpar, *lastmdtsurf, Trk::alongMomentum, false, m_magFieldProperties);
+                            m_propagator->propagateParameters(ctx,*startpar, *lastmdtsurf, Trk::alongMomentum, false, m_magFieldProperties);
                     if (mdtpar) {
                         Amg::MatrixX cov(1, 1);
                         cov(0, 0) = 100.;
@@ -831,7 +834,7 @@ namespace Muon {
                 if (phifromextrapolation) {
                     // lifetime of mdtpar managed here
                     auto mdtpar =
-                        m_propagator->propagateParameters(*startpar, *firstmdtsurf, Trk::oppositeMomentum, false, m_magFieldProperties);
+                        m_propagator->propagateParameters(ctx,*startpar, *firstmdtsurf, Trk::oppositeMomentum, false, m_magFieldProperties);
                     if (mdtpar) {
                         Amg::MatrixX cov(1, 1);
                         cov(0, 0) = 100.;
@@ -1359,11 +1362,11 @@ namespace Muon {
         return true;
     }
 
-    const MuonSegment* MooTrackFitter::segmentFromEntry(const MuPatCandidateBase& entry, GarbageContainer& garbage) const {
+    const MuonSegment* MooTrackFitter::segmentFromEntry(const EventContext& ctx, const MuPatCandidateBase& entry, GarbageContainer& garbage) const {
         // if track entry use first segment
         const MuPatTrack* trkEntry = dynamic_cast<const MuPatTrack*>(&entry);
         if (trkEntry) {
-            const MuonSegment* seg = m_trackToSegmentTool->convert(trkEntry->track());
+            const MuonSegment* seg = m_trackToSegmentTool->convert(ctx, trkEntry->track());
             garbage.push_back(seg);
             return seg;
         }
@@ -1379,7 +1382,7 @@ namespace Muon {
         return entry.entryPars().charge() / entry.entryPars().momentum().mag();
     }
 
-    double MooTrackFitter::qOverPFromEntries(const MuPatCandidateBase& firstEntry, const MuPatCandidateBase& secondEntry,
+    double MooTrackFitter::qOverPFromEntries(const EventContext& ctx, const MuPatCandidateBase& firstEntry, const MuPatCandidateBase& secondEntry,
                                              GarbageContainer& garbage) const {
         if (m_slFit) return 0;
 
@@ -1391,13 +1394,13 @@ namespace Muon {
             return qOverPFromEntry(secondEntry);
 
         // no momentum yet, estimate from segments
-        const MuonSegment* segFirst = segmentFromEntry(firstEntry, garbage);
+        const MuonSegment* segFirst = segmentFromEntry(ctx, firstEntry, garbage);
         if (!segFirst) {
             ATH_MSG_WARNING(" failed to get segment for first entry, this should not happen ");
             return qOverP;
         }
 
-        const MuonSegment* segSecond = segmentFromEntry(secondEntry, garbage);
+        const MuonSegment* segSecond = segmentFromEntry(ctx, secondEntry, garbage);
         if (!segSecond) {
             ATH_MSG_WARNING(" failed to get segment for second entry, this should not happen ");
             return qOverP;
@@ -1408,7 +1411,7 @@ namespace Muon {
         segments.push_back(segSecond);
 
         double momentum = 1.;
-        m_momentumEstimator->fitMomentumVectorSegments(segments, momentum);
+        m_momentumEstimator->fitMomentumVectorSegments(ctx, segments, momentum);
         // momentum = restrictedMomentum(momentum);
 
         if (momentum == 0.) return 0.;
@@ -1417,7 +1420,7 @@ namespace Muon {
         return qOverP;
     }
 
-    double MooTrackFitter::phiSeeding(MooTrackFitter::FitterData& fitterData) const {
+    double MooTrackFitter::phiSeeding(const EventContext& ctx, MooTrackFitter::FitterData& fitterData) const {
         if (m_cosmics) {
             // check whether the first entry is a track, if not consider the second entry for phi seeding
             if (!dynamic_cast<const MuPatTrack*>(fitterData.firstEntry)) {
@@ -1436,7 +1439,7 @@ namespace Muon {
                 Identifier chId = m_edmHelperSvc->chamberId(*segInfo1->segment);
                 if (m_idHelperSvc->isMdt(chId)) {
                     IMuonSegmentInOverlapResolvingTool::SegmentMatchResult result =
-                        m_overlapResolver->matchResult(*segInfo1->segment, *segInfo2->segment);
+                        m_overlapResolver->matchResult(ctx, *segInfo1->segment, *segInfo2->segment);
 
                     if (!result.goodMatch()) {
                         ATH_MSG_VERBOSE(" Match failed ");
@@ -1555,9 +1558,9 @@ namespace Muon {
         return theta;
     }
 
-    Trk::Perigee* MooTrackFitter::createStartParameters(MooTrackFitter::FitterData& fitterData, GarbageContainer& garbage) const {
+    Trk::Perigee* MooTrackFitter::createStartParameters(const EventContext& ctx, MooTrackFitter::FitterData& fitterData, GarbageContainer& garbage) const {
         // get momentum + charge from entry if available, else use MuonSegmentMomentum to estimate the momentum
-        double qOverP = qOverPFromEntries(*fitterData.firstEntry, *fitterData.secondEntry, garbage);
+        double qOverP = qOverPFromEntries(ctx, *fitterData.firstEntry, *fitterData.secondEntry, garbage);
         Trk::Perigee *perigee = nullptr, *startPars = nullptr;
         const MuPatCandidateBase *entry1 = fitterData.firstEntry, *entry2 = fitterData.secondEntry;
 
@@ -1675,7 +1678,7 @@ namespace Muon {
         return perigee;
     }
 
-    Trk::Perigee* MooTrackFitter::createPerigee(const Trk::TrackParameters& firstPars, const Trk::MeasurementBase& firstMeas) const {
+    Trk::Perigee* MooTrackFitter::createPerigee(const EventContext& ctx, const Trk::TrackParameters& firstPars, const Trk::MeasurementBase& firstMeas) const {
         // const Amg::Vector3D& firstPos = firstMeas.globalPosition();
 
         Amg::Vector3D perpos(0., 0., 0.);
@@ -1686,7 +1689,7 @@ namespace Muon {
         if (m_seedAtStartOfTrack) {
             // not sure whats going on with ownership here, so let this code take care of it
             exPars =
-                m_propagator->propagate(firstPars, firstMeas.associatedSurface(), Trk::anyDirection, false, m_magFieldProperties).release();
+                m_propagator->propagate(ctx, firstPars, firstMeas.associatedSurface(), Trk::anyDirection, false, m_magFieldProperties).release();
             if (!exPars) {
                 ATH_MSG_DEBUG(" Propagation failed in createPerigee!! ");
                 return nullptr;
@@ -1742,9 +1745,8 @@ namespace Muon {
         return momentum;
     }
 
-    std::unique_ptr<Trk::Track> MooTrackFitter::fit(const Trk::Perigee& startPars, MooTrackFitter::MeasVec& hits, GarbageContainer& garbage,
+    std::unique_ptr<Trk::Track> MooTrackFitter::fit(const EventContext& ctx, const Trk::Perigee& startPars, MooTrackFitter::MeasVec& hits, GarbageContainer& garbage,
                                                     Trk::ParticleHypothesis partHypo, bool prefit) const {
-        const EventContext& ctx = Gaudi::Hive::currentContext();
         if (hits.empty()) return nullptr;
 
         ATH_MSG_VERBOSE(std::setprecision(5) << " track start parameter: phi " << startPars.momentum().phi() << " theta "
@@ -1761,7 +1763,7 @@ namespace Muon {
 
             if (dist < 0.) {
                 ATH_MSG_DEBUG(" start parameters after first hit, shifting them.... ");
-                Trk::Perigee* perigee = createPerigee(startPars, *hits.front());
+                Trk::Perigee* perigee = createPerigee(ctx, startPars, *hits.front());
                 if (perigee) {
                     garbage.push_back(perigee);
                     pars = perigee;
@@ -1783,10 +1785,9 @@ namespace Muon {
         return track;
     }
 
-    std::unique_ptr<Trk::Track> MooTrackFitter::fitWithRefit(const Trk::Perigee& startPars, MooTrackFitter::MeasVec& hits) const {
+    std::unique_ptr<Trk::Track> MooTrackFitter::fitWithRefit(const EventContext& ctx, const Trk::Perigee& startPars, MooTrackFitter::MeasVec& hits) const {
         GarbageContainer localGarbage;
-        const EventContext& ctx = Gaudi::Hive::currentContext();
-        std::unique_ptr<Trk::Track> track = fit(startPars, hits, localGarbage);
+        std::unique_ptr<Trk::Track> track = fit(ctx, startPars, hits, localGarbage, Trk::muon, false);
 
         // exceptions that are not refitted
         if (m_slFit) return track;
@@ -1820,7 +1821,7 @@ namespace Muon {
         return track;
     }
 
-    bool MooTrackFitter::cleanPhiHits(double momentum, MooTrackFitter::FitterData& fitterData,
+    bool MooTrackFitter::cleanPhiHits(const EventContext& ctx, double momentum, MooTrackFitter::FitterData& fitterData,
                                       const std::vector<const Trk::PrepRawData*>* patternPhiHits, GarbageContainer& garbage) const {
         ATH_MSG_VERBOSE(" cleaning phi hits ");
 
@@ -1981,8 +1982,8 @@ namespace Muon {
         if (!measurementsToBeAdded.empty()) {
             ATH_MSG_VERBOSE(" adding measurements ");
             MuPatHitList newHitList;
-            m_hitHandler->create(fitterData.firstEntry->entryPars(), measurementsToBeAdded, newHitList, garbage);
-            m_hitHandler->merge(newHitList, fitterData.hitList);
+            m_hitHandler->create(ctx, fitterData.firstEntry->entryPars(), measurementsToBeAdded, newHitList, garbage);
+            m_hitHandler->merge(ctx, newHitList, fitterData.hitList);
         }
 
         ATH_MSG_VERBOSE(" done cleaning ");
@@ -1990,9 +1991,8 @@ namespace Muon {
         return true;
     }
 
-    std::unique_ptr<Trk::Track> MooTrackFitter::cleanAndEvaluateTrack(Trk::Track& track,
+    std::unique_ptr<Trk::Track> MooTrackFitter::cleanAndEvaluateTrack(const EventContext& ctx, Trk::Track& track,
                                                                       const std::set<Identifier>& excludedChambers) const {
-        const EventContext& ctx = Gaudi::Hive::currentContext();
         // preselection to get ride of really bad tracks
         if (!m_edmHelperSvc->goodTrack(track, m_preCleanChi2Cut)) {
             ATH_MSG_DEBUG(" Track rejected due to large chi2" << std::endl << m_printer->print(track));
@@ -2167,7 +2167,7 @@ namespace Muon {
         }
     }
 
-    std::pair<std::unique_ptr<Trk::Track>, std::unique_ptr<Trk::Track>> MooTrackFitter::splitTrack(const Trk::Track& track) const {
+    std::pair<std::unique_ptr<Trk::Track>, std::unique_ptr<Trk::Track>> MooTrackFitter::splitTrack(const EventContext& ctx, const Trk::Track& track) const {
         GarbageContainer localGarbage;
 
         // access TSOS of track
@@ -2296,11 +2296,11 @@ namespace Muon {
             (secondTrack.firstParameters && secondTrack.stations.size() > 1)) {
             ATH_MSG_DEBUG(" track candidate can be split, trying to fit split tracks ");
             // fit the two tracks
-            firstTrack.track = fitSplitTrack(*firstTrack.firstParameters, firstTrack.tsos, localGarbage);
+            firstTrack.track = fitSplitTrack(ctx, *firstTrack.firstParameters, firstTrack.tsos, localGarbage);
             if (firstTrack.track) {
                 ATH_MSG_DEBUG(" fitted first track, trying second ");
 
-                secondTrack.track = fitSplitTrack(*secondTrack.firstParameters, secondTrack.tsos, localGarbage);
+                secondTrack.track = fitSplitTrack(ctx, *secondTrack.firstParameters, secondTrack.tsos, localGarbage);
 
                 if (secondTrack.track) {
                     ATH_MSG_DEBUG(" fitted second track ");
@@ -2318,7 +2318,7 @@ namespace Muon {
                                                                                         std::move(secondTrack.track));
     }
 
-    std::unique_ptr<Trk::Track> MooTrackFitter::fitSplitTrack(const Trk::TrackParameters& startPars,
+    std::unique_ptr<Trk::Track> MooTrackFitter::fitSplitTrack(const EventContext& ctx, const Trk::TrackParameters& startPars,
                                                               const std::vector<const Trk::TrackStateOnSurface*>& tsos,
                                                               GarbageContainer& garbage) const {
         // first create track out of the constituent
@@ -2465,7 +2465,7 @@ namespace Muon {
         }
 
         // refit track
-        std::unique_ptr<Trk::Track> refittedTrack = refit(*track);
+        std::unique_ptr<Trk::Track> refittedTrack = refit(ctx, *track);
         if (refittedTrack) refittedTrack->info().setPatternRecognitionInfo(m_patRecInfo);
 
         return refittedTrack;

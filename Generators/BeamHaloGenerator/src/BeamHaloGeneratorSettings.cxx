@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BeamHaloGenerator/BeamHaloGeneratorSettings.h"
@@ -23,7 +23,7 @@ const std::string BeamHaloGeneratorSettings::m_limitNames[ENUM_LIMITS_SIZE] = {"
 
 //---------------------------------------------------------------------
 
-BeamHaloGeneratorSettings::BeamHaloGeneratorSettings(std::vector<std::string> settings): 
+BeamHaloGeneratorSettings::BeamHaloGeneratorSettings(const std::vector<std::string>& settings): 
   m_generatorSettings(settings),
   m_allowedPdgIds(),
   m_limits(),
@@ -67,13 +67,13 @@ int BeamHaloGeneratorSettings::parseSettings() {
     col_itr_end = strVector.end();
     
     if((*col_itr) == "allowedPdgId") {
-      col_itr++;
+      ++col_itr;
       for(;col_itr!=col_itr_end;++col_itr) {
 	m_allowedPdgIds.push_back(AsciiInput::strToLong(*col_itr));
       }
     }
     else if((*col_itr) == "shape") {
-      col_itr++;
+      ++col_itr;
       if((*col_itr) == "cylinder") {
         m_shapeRequirement = CYLINDER;
       }
@@ -111,7 +111,7 @@ int BeamHaloGeneratorSettings::parseLimitSetting(std::vector<std::string> *comma
   }
 
   // Look for the lower limit
-  itr++;
+  ++itr;
   if(itr==itr_end) {
     std::cerr << "Warning: " << m_limitNames[i] << " was not followed by a lower or upper limit." << std::endl;
     return 0;
@@ -122,7 +122,7 @@ int BeamHaloGeneratorSettings::parseLimitSetting(std::vector<std::string> *comma
   m_limitsEnabled[i] = std::make_pair(true,false);
 
   // Look for the upper limit
-  itr++;
+  ++itr;
   if(itr==itr_end) { // no upper limit.
     return 0;
   }

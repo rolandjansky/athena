@@ -119,6 +119,8 @@ namespace Trk
                                         ParticleHypothesis particleHypothesis,
                                         FitParameters& fitParameters,
                                         Garbage_t& garbage) const {
+
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     // nothing to do if starting with vertex measurement
     if (measurements.front()->isVertex()) {
       return;
@@ -381,7 +383,8 @@ namespace Trk
           if (leadingScatterers++ || !firstMeasurementSurface) {
             if (m_useStepPropagator == 99) {
               const TrackSurfaceIntersection* newIntersectionSTEP =
-                m_stepPropagator->intersectSurface((**r).trackParameters()->associatedSurface(),
+                m_stepPropagator->intersectSurface(ctx,
+                                                   (**r).trackParameters()->associatedSurface(),
                                                    intersection,
                                                    qOverP,
                                                    Trk::MagneticFieldProperties(Trk::FullField),
@@ -395,7 +398,8 @@ namespace Trk
               }
             } else {
               intersection = m_useStepPropagator >= 1 ?
-                             m_stepPropagator->intersectSurface((**r).trackParameters()->associatedSurface(),
+                             m_stepPropagator->intersectSurface(ctx,
+                                                                (**r).trackParameters()->associatedSurface(),
                                                                 intersection,
                                                                 qOverP,
                                                                 m_stepField,
@@ -468,7 +472,8 @@ namespace Trk
       if (leadingMeas) {
         if (m_useStepPropagator == 99) {
           const TrackSurfaceIntersection* newIntersectionSTEP =
-            m_stepPropagator->intersectSurface(perigee->associatedSurface(),
+            m_stepPropagator->intersectSurface(ctx,
+                                               perigee->associatedSurface(),
                                                intersection,
                                                qOverP,
                                                Trk::MagneticFieldProperties(Trk::FullField),
@@ -481,7 +486,8 @@ namespace Trk
           }
         } else {
           intersection = m_useStepPropagator >= 1 ?
-                         m_stepPropagator->intersectSurface(perigee->associatedSurface(),
+                         m_stepPropagator->intersectSurface(ctx,
+                                                            perigee->associatedSurface(),
                                                             intersection,
                                                             qOverP,
                                                             m_stepField,
@@ -1086,6 +1092,7 @@ namespace Trk
                                    ParticleHypothesis particleHypothesis,
                                    const TrackParameters& startParameters,
                                    Garbage_t& garbage) const {
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     // gather material between first and last measurements inside indet volume
     // allow a few mm radial tolerance around first&last measurements for their associated material
     double tolerance = 10. * Gaudi::Units::mm / startParameters.momentum().unit().perp();
@@ -1123,7 +1130,8 @@ namespace Trk
 
           if (m_useStepPropagator == 99) {
             const TrackSurfaceIntersection* newIntersectionSTEP =
-              m_stepPropagator->intersectSurface(plane,
+              m_stepPropagator->intersectSurface(ctx,
+                                                 plane,
                                                  intersection,
                                                  qOverP,
                                                  Trk::MagneticFieldProperties(Trk::FullField),
@@ -1141,7 +1149,8 @@ namespace Trk
             }
           } else {
             intersection = m_useStepPropagator >= 1 ?
-                           m_stepPropagator->intersectSurface(plane,
+                           m_stepPropagator->intersectSurface(ctx,
+                                                              plane,
                                                               intersection,
                                                               qOverP,
                                                               m_stepField,
@@ -1474,10 +1483,6 @@ namespace Trk
     bool haveAggregation = false;
 //     bool makeAggregation		= false;
 //     double maxDistance			= 0.;
-    double totalDistance = 0.;
-    double totalDistanceSq = 0.;
-    double totalEnergyDeposit = 0.;
-    double totalThickness = 0.;
     for (std::vector<const TrackStateOnSurface*>::const_reverse_iterator tsos = material.rbegin();
          tsos != material.rend();
          ++tsos) {
@@ -1485,16 +1490,7 @@ namespace Trk
       ++adjacentScatterers;
       if (!referencePosition) referencePosition = new Amg::Vector3D((**tsos).trackParameters()->position());
       double distance = ((**tsos).trackParameters()->position() - *referencePosition).mag();
-      double energyDeposit = 0.;
-      const MaterialEffectsOnTrack* meot =
-        dynamic_cast<const MaterialEffectsOnTrack*>((**tsos).materialEffectsOnTrack());
-      if (meot) energyDeposit = -meot->energyLoss()->deltaE();
-
       double weight = (**tsos).materialEffectsOnTrack()->thicknessInX0();
-      totalDistance += weight * distance;
-      totalDistanceSq += weight * distance * distance;
-      totalEnergyDeposit += energyDeposit;
-      totalThickness += weight;
 
       ATH_MSG_INFO(" material position " << (**tsos).trackParameters()->position()
                                          << "   distance " << distance << "   thickness " << 100. * weight);
@@ -1502,173 +1498,6 @@ namespace Trk
 
     // if 2 or less selected TSOS: just set scatterers on TSOS
     if (adjacentScatterers < 3) {
-//  for (std::vector<const TrackStateOnSurface*>::const_reverse_iterator tsos = material.rbegin();
-//       tsos != material.rend();
-//       ++tsos)
-//  {
-//      if (! (**tsos).trackParameters() || ! (**tsos).materialEffectsOnTrack()) continue;
-//      double energyDeposit= 0.;
-//      const MaterialEffectsOnTrack* meot	=
-//      dynamic_cast<const MaterialEffectsOnTrack*>((**tsos).materialEffectsOnTrack());
-//      if (meot) energyDeposit	= -meot->energyLoss()->deltaE();
-//      if (measurement2)
-//      {
-//      measurement1 =
-//          new FitMeasurement((**tsos).materialEffectsOnTrack()->thicknessInX0(),
-//                     energyDeposit,
-//                     particleMass,
-//                     (**tsos).trackParameters()->position(),
-//                     (**tsos).trackParameters()->momentum().unit(),
-//                     (**tsos).trackParameters()->parameters()[Trk::qOverP]);
-//      ATH_MSG_INFO( " created measurement1 " );
-//      }
-//      else
-//      {
-//      measurement2 =
-//          new FitMeasurement((**tsos).materialEffectsOnTrack()->thicknessInX0(),
-//                     energyDeposit,
-//                     particleMass,
-//                     (**tsos).trackParameters()->position(),
-//                     (**tsos).trackParameters()->momentum().unit(),
-//                     (**tsos).trackParameters()->parameters()[Trk::qOverP]);
-//      ATH_MSG_INFO( " created measurement2 " );
-//      }
-//  }
-//     }
-
-//     // otherwise aggregate to 1 or 2 average scatterers
-//     else
-//     {
-//  double meanDistance	= totalDistance/totalThickness;
-//  double rmsDistance	= 0.;
-//  double meanSquare	= totalDistanceSq/totalThickness - meanDistance*meanDistance;
-//  if (meanSquare > 0.) rmsDistance = std::sqrt(meanSquare);
-//  double gap		= 2.*rmsDistance;
-//  if (adjacentScatterers > 2 || gap < m_scattererMinGap)
-//  {
-//      double distance1	= meanDistance - rmsDistance;
-//      double distance2	= meanDistance + rmsDistance;
-//      if (gap < m_scattererMinGap) distance2 = meanDistance;
-
-//      ATH_MSG_INFO( "distance1 " << distance1 << "   distance2 " << distance2
-//            << "  thickness " << 100.*totalThickness );
-//  }
-
-      //        double distance		=  ((**m).intersection(FittedTrajectory).position() -
-//                      referencePosition).mag();
-//      if (distance2 > distance || distance1 < 0.)
-//      {
-//          //          msg() << "  distance out of bounds: range " << distance
-//          //             << " to " << 0. << endmsg;
-//      }
-//      else
-//      {
-//          FitMeasurement* after	= 0;
-//          FitMeasurement* before	= *start;
-//          double previousDistance	= 0.;
-//          haveAggregation		= true;
-
-//          for (std::vector<Trk::FitMeasurement*>::reverse_iterator s = start;
-//           s != measurements.rend();
-//           ++s)
-//          {
-//          Amg::Vector3D position = (**s).intersection(FittedTrajectory).position();
-//          double distance	=  ((**s).intersection(FittedTrajectory).position() -
-//                      referencePosition).mag();
-//          if (! measurement1 && distance > distance1 && gap > m_scattererMinGap)
-//          {
-//              after			= *s;
-//              double separation		= distance - previousDistance;
-//              double fractionAfter	= (distance1 - previousDistance)/separation;
-//              double fractionBefore	= (distance - distance1)/separation;
-//              Amg::Vector3D position	=
-//              fractionBefore*before->intersection(FittedTrajectory).position() +
-//              fractionAfter*after->intersection(FittedTrajectory).position();
-//              Amg::Vector3D direction	=
-//              fractionBefore*before->intersection(FittedTrajectory).direction() +
-//              fractionAfter*after->intersection(FittedTrajectory).direction();
-//              double qOverP		= fractionBefore*before->qOverP() +
-//                            fractionAfter*after->qOverP();
-//              measurement1		= new FitMeasurement(0.5*totalThickness,
-//                                       0.5*totalEnergyDeposit,
-//                                       particleMass,
-//                                       position,
-//                                       direction,
-//                                       qOverP);
-//          }
-
-//          if (distance > distance2)
-//          {
-//              after			= *s;
-//              double separation		= distance - previousDistance;
-//              double fractionAfter	= (distance2 - previousDistance)/separation;
-//              double fractionBefore	= (distance - distance2)/separation;
-//              Amg::Vector3D position	=
-//              fractionBefore*before->intersection(FittedTrajectory).position() +
-//              fractionAfter*after->intersection(FittedTrajectory).position();
-//              Amg::Vector3D direction	=
-//              fractionBefore*before->intersection(FittedTrajectory).direction() +
-//              fractionAfter*after->intersection(FittedTrajectory).direction();
-//              double qOverP		= fractionBefore*before->qOverP() +
-//                            fractionAfter*after->qOverP();
-//              if (measurement1)
-//              {
-//              measurement2	= new FitMeasurement(0.5*totalThickness,
-//                                   0.5*totalEnergyDeposit,
-//                                   particleMass,
-//                                   position,
-//                                   direction,
-//                                   qOverP);
-//              }
-//              else
-//              {
-//              measurement2	= new FitMeasurement(totalThickness,
-//                                   totalEnergyDeposit,
-//                                   particleMass,
-//                                   position,
-//                                   direction,
-//                                   qOverP);
-//              }
-//              if ((**m).isScatterer()) aggregateScatterers.pop_back();
-//              while (adjacentScatterers--)
-//              {
-//              aggregateScatterers.back()->setOutlier();
-//              aggregateScatterers.pop_back();
-//              }
-//              if (measurement1) aggregateScatterers.push_back(measurement1);
-//              aggregateScatterers.push_back(measurement2);
-//              if ((**m).isScatterer()) aggregateScatterers.push_back(*m);
-//              measurement1	= 0;
-//              measurement2	= 0;
-//              break;
-//          }
-//          before			= *s;
-//          previousDistance	= distance;
-//          }
-//		    }
-//	    }
-//      adjacentScatterers	= 0;
-//      makeAggregation	= false;
-//  }
-
-//  // new candidate for merging
-//  if ((**m).isScatterer()
-//      && ! adjacentScatterers
-//      && ! m_calorimeterVolume->inside((**m).position()))
-//  {
-//      adjacentScatterers	= 1;
-//      double weight	= (**m).radiationThickness();
-//      referencePosition	= (**previous).intersection(FittedTrajectory).position();
-//      double distance	= ((**m).intersection(FittedTrajectory).position() -
-//                 referencePosition).mag();
-//      maxDistance		= distance + 2.*Gaudi::Units::meter;
-//      start		= m;
-//      totalDistance	= weight*distance;
-//      totalDistanceSq	= weight*distance*distance;
-//      totalEnergyDeposit	= (**m).energyLoss();
-//      totalThickness	= weight;
-//  }
-//  previous = m;
     }
 
     // in case of aggregation: insert aggregateScatterers onto track

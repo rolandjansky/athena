@@ -28,7 +28,7 @@ StatusCode MuonAlignErrorExampleAlg::initialize() {
 
 StatusCode MuonAlignErrorExampleAlg::execute() {
     StatusCode sc;
-    const ::TrackCollection* tracks = 0;
+    const ::TrackCollection* tracks = nullptr;
     sc = sgSvc()->retrieve(tracks, "MuonSpectrometerTracks");  // for example, should be a job option
     if (sc.isFailure()) return sc;
 

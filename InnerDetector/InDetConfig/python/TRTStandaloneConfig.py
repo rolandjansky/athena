@@ -9,9 +9,7 @@ def InDetTrtTrackScoringToolCfg(flags, name ='InDetTRT_StandaloneScoringTool', e
     #
     # --- set up special Scoring Tool for standalone TRT tracks
     #
-    InDetTrackSummaryTool = acc.getPrimaryAndMerge(TC.InDetTrackSummaryToolCfg(flags))
-
-    InDetTRTDriftCircleCut = TC.InDetTRTDriftCircleCutForPatternRecoCfg(flags)
+    InDetTRTDriftCircleCut = acc.popToolsAndMerge(TC.InDetTRTDriftCircleCutForPatternRecoCfg(flags))
     acc.addPublicTool(InDetTRTDriftCircleCut)
 
     #
@@ -24,7 +22,6 @@ def InDetTrtTrackScoringToolCfg(flags, name ='InDetTRT_StandaloneScoringTool', e
         # TRT standalone
         pTmin = flags.InDet.Tracking.minTRTonlyPt # new cut parameter to make it flexible...
 
-    kwargs.setdefault("SummaryTool", InDetTrackSummaryTool)
     kwargs.setdefault("DriftCircleCutTool", InDetTRTDriftCircleCut)
     kwargs.setdefault("useAmbigFcn", True)
     kwargs.setdefault("useSigmaChi2", False)
@@ -34,20 +31,23 @@ def InDetTrtTrackScoringToolCfg(flags, name ='InDetTRT_StandaloneScoringTool', e
     kwargs.setdefault("UseParameterization", flags.InDet.Tracking.useTRTonlyParamCuts)
     kwargs.setdefault("OldTransitionLogic", flags.InDet.Tracking.useTRTonlyOldLogic)
     kwargs.setdefault("minTRTPrecisionFraction", flags.InDet.Tracking.minSecondaryTRTPrecFrac)
+    kwargs.setdefault("TRTTrksEtaBins", flags.InDet.Tracking.TrkSel.TRTTrksEtaBins)
+    kwargs.setdefault("TRTTrksMinTRTHitsThresholds", flags.InDet.Tracking.TrkSel.TRTTrksMinTRTHitsThresholds)
+    kwargs.setdefault("TRTTrksMinTRTHitsMuDependencies", flags.InDet.Tracking.TrkSel.TRTTrksMinTRTHitsMuDependencies)
 
-    InDetTRT_StandaloneScoringTool = CompFactory.InDet.InDetTrtTrackScoringTool(name = name, **kwargs)
-    acc.setPrivateTools(InDetTRT_StandaloneScoringTool)
+    acc.setPrivateTools(CompFactory.InDet.InDetTrtTrackScoringTool(name, **kwargs))
     return acc
 
 def TRT_SegmentToTrackToolCfg(flags, name ='InDetTRT_SegmentToTrackTool', extension = "", usePrdAssociationTool = True, **kwargs):
-    acc = ComponentAccumulator()
+    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+    acc = MagneticFieldSvcCfg(flags)
+
     #
     # set up TRT_SegmentToTrackTool
     #
 
     if usePrdAssociationTool:
         asso_tool = acc.popToolsAndMerge( TC.InDetPRDtoTrackMapToolGangedPixelsCfg(flags) )
-        acc.addPublicTool(asso_tool)
     else:
         asso_tool = None
 

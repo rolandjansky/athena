@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSimEvent/TgcHitIdHelper.h"
 
-#include <iomanip> // for std::array
+#include <iomanip>
+#include <array>
 
 TgcHitIdHelper* TgcHitIdHelper::m_help = nullptr;
 
@@ -75,7 +76,7 @@ int TgcHitIdHelper::GetGasGap(const int& hid) const
 }
 
 //packing method
-int TgcHitIdHelper::BuildTgcHitId(const std::string statName, const int statPhi,
+int TgcHitIdHelper::BuildTgcHitId(const std::string& statName, const int statPhi,
                                   const int statEta, const int gasG) const
 {
   int theID(0);

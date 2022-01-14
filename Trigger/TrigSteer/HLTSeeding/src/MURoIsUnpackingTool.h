@@ -27,28 +27,19 @@ class MURoIsUnpackingTool : public RoIsUnpackingToolBase {
   virtual StatusCode initialize() override;
   virtual StatusCode start() override;
 
+  using RoIsUnpackingToolBase::unpack;
   virtual StatusCode unpack(const EventContext& ctx,
                             const ROIB::RoIBResult& roib,
-                            const HLT::IDSet& activeChains) const override;
-  virtual StatusCode unpack(const EventContext& ctx,
-                            const xAOD::TrigComposite& l1TriggerResult,
                             const HLT::IDSet& activeChains) const override;
 private:
   /// @name Data dependencies
   /// @{
   SG::WriteHandleKey< DataVector<LVL1::RecMuonRoI> > m_recRoIsKey{
     this, "OutputRecRoIs", "HLT_RecMURoIs", "Name of the RoIs object produced by the unpacker"};
-
-  SG::ReadDecorHandleKey<xAOD::MuonRoIContainer> m_thresholdPatternsKey {
-    this, "MuRoIThresholdPatternsKey", "LVL1MuonRoIs.thresholdPatterns",
-    "Name of the muon RoI container decoration for the threshold patterns"};
   /// @}
 
   /// @name Properties
   /// @{
-  Gaudi::Property<std::string> m_muRoILinkName {
-    this, "MuRoILinkName", "LVL1MuonRoIs", "Name of the link to read from L1TriggerResult for muon RoI container"};
-
   Gaudi::Property<float> m_roIWidth{
     this, "RoIWidth", 0.1, "Size of RoI in eta/ phi"};
   /// @}

@@ -363,7 +363,7 @@ private:
     //!< return helper for parameters and boundary
     ParametersNextVolume m_parametersAtBoundary;
     //!< Caches per MaterialUpdator
-    std::vector<std::unique_ptr<Trk::IMaterialEffectsUpdator::ICache>> m_MaterialUpCache;
+    std::vector<Trk::IMaterialEffectsUpdator::ICache> m_MaterialUpCache;
     //!<  internal switch for resolved configuration
     bool m_dense = false;
     //!< Flag the recall solution

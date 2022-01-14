@@ -1,6 +1,7 @@
 #include "egammaLayerRecalibTool/corr_pileupShift.h"
 #include <iostream>
 #include <string>
+#include <utility>
 
 #include "PathResolver/PathResolver.h"
 
@@ -42,7 +43,7 @@ float corr_pileupShift::getCorr(int layer, int run, float mu, float eta) const
    if (aeta> 2.5) return 0.;
    if (aeta>2.37) aeta=2.37;
 
-   int ibin = m_haverage[layer]->FindBin(aeta);
+   int ibin = std::as_const(*m_haverage[layer]).GetXaxis()->FindFixBin(aeta);
    float corr = mu * m_haverage[layer]->GetBinContent(ibin);
 
    return corr;

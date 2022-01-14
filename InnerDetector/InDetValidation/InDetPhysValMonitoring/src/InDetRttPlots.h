@@ -154,7 +154,7 @@ public:
   };
 
 private:
-
+  
   /// configuration object
   InDetRttPlotConfig m_config; 
 

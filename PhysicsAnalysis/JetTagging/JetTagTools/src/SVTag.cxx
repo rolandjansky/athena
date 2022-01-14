@@ -538,7 +538,7 @@ namespace Analysis
     meanCovariance.setZero();
     sumWeights.computeInverseWithCheck(meanCovariance, invertible); 
     if (! invertible) { 
-       ATH_MSG_ERROR("#BTAG# Could not invert sum of sec vtx matrices"); 
+       ATH_MSG_WARNING("#BTAG# Could not invert sum of sec vtx matrices");
     return 0.; 
     } 
 

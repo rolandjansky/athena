@@ -202,18 +202,21 @@ void Trk::ExtrapolatorTest::runTest( const Trk::Perigee& initialPerigee ) {
 
        const Trk::Surface* destinationSurface = (*surfaceTripleIter)[refSurface];
        
-       auto destParameters = m_useExtrapolator ?
+       const auto *destParameters = m_useExtrapolator ?
 	 m_extrapolator->extrapolate(initialPerigee,
 				     *destinationSurface, 
 				     propagationDirection,
 				     false,
 				     (Trk::ParticleHypothesis)m_particleType) :
-	 m_propagator->propagate(initialPerigee,
-				 *destinationSurface, 
-				 propagationDirection,
-				 false,
-				 *m_magFieldProperties,
-				 (Trk::ParticleHypothesis)m_particleType).release();
+   
+   m_propagator->propagate(
+     Gaudi::Hive::currentContext(), 
+     initialPerigee,
+     *destinationSurface, 
+     propagationDirection,
+     false,
+     *m_magFieldProperties,
+     (Trk::ParticleHypothesis)m_particleType).release();
 
        if (destParameters) {
            // global position parameter

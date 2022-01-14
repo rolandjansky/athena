@@ -20,4 +20,3 @@ export TRF_ECHO=True; Reco_tf.py \
 --preExec  'r2a:from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.cutLevel.set_Value_and_Lock(4);from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags;InDetGeometryFlags.useDynamicAlignFolders.set_Value_and_Lock(True);jobproperties.Beam.bunchSpacing.set_Value_and_Lock(100);rec.doTrigger.set_Value_and_Lock(False);rec.doHeavyIon.set_Value_and_Lock(True);rec.doDPD.set_Value_and_Lock(True);from AthenaMonitoring.DQMonFlags import jobproperties; jobproperties.DQMonFlagsCont.doHIMon.set_Value_and_Lock(False);rec.doZdc.set_Value_and_Lock(False);'
 RES=$?
 echo "art-result: $RES Reco"
-return $RES

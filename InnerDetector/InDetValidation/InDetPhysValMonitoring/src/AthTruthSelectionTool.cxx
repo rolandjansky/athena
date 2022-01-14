@@ -53,6 +53,7 @@ AthTruthSelectionTool::AthTruthSelectionTool(const std::string& type, const std:
   declareProperty("maxBarcode", m_maxBarcode = 200e3);
   declareProperty("requireCharged", m_requireCharged = true);
   declareProperty("requireStatus1", m_requireStatus1 = true);
+  declareProperty("requireSiHit", m_requireSiHit = 0);
   declareProperty("maxProdVertRadius", m_maxProdVertRadius = 110.);
   declareProperty("pdgId", m_pdgId = -1);
   declareProperty("hasNoGrandparent", m_grandparent = false);
@@ -69,8 +70,8 @@ AthTruthSelectionTool::AthTruthSelectionTool(const std::string& type, const std:
 StatusCode
 AthTruthSelectionTool::initialize() {
   // can set cut properties now
-  typedef xAOD::TruthParticle P_t;
-  typedef Accept<P_t> Accept_t;
+  using P_t = xAOD::TruthParticle;
+  using Accept_t = Accept<P_t>;
   //
   const std::vector<Accept_t> filters = {
     // if p.pt=0, TVector3 generates an error when querying p.eta(); a limit of 1e-7 was not found to be enough to
@@ -95,6 +96,13 @@ AthTruthSelectionTool::initialize() {
     m_cutList.add(Accept_t([&m_maxPt = std::as_const(m_maxPt)](const P_t& p) {
       return(p.pt() < m_maxPt);
     }, "max_pt"));
+  }
+  if (m_requireSiHit > 0) {
+    m_cutList.add(Accept_t([&m_requireSiHit = std::as_const(m_requireSiHit)](const P_t& p) {
+      static const SG::AuxElement::ConstAccessor< float > nSilHitsAcc("nSilHits");
+      if (nSilHitsAcc.isAvailable(p)) return (nSilHitsAcc(p) >= m_requireSiHit);
+      else return false;
+    }, "siHit"));
   }
   if (m_maxBarcode > -1) {
     m_cutList.add(Accept_t([&m_maxBarcode = std::as_const(m_maxBarcode)](const P_t& p) {
@@ -146,7 +154,7 @@ AthTruthSelectionTool::initialize() {
           ATH_MSG_VERBOSE("Checking particle for intersection with cylinder of radius " << m_radiusCylinder);
           //create surface we extrapolate to and cache it
           const xAOD::TruthVertex* ptruthVertex = p.prodVtx();
-          if (ptruthVertex == 0) {
+          if (ptruthVertex == nullptr) {
             //cannot derive production vertex, reject track
             ATH_MSG_VERBOSE("Rejecting particle without production vertex.");
             return false;
@@ -185,7 +193,7 @@ AthTruthSelectionTool::initialize() {
           ATH_MSG_VERBOSE("Checking particle for intersection with discs of |z| " << m_zDisc);
           //create surface we extrapolate to and cache it
           const xAOD::TruthVertex* ptruthVertex = p.prodVtx();
-          if (ptruthVertex == 0) {
+          if (ptruthVertex == nullptr) {
             //cannot derive production vertex, reject track
             ATH_MSG_VERBOSE("Rejecting particle without production vertex.");
             return false;

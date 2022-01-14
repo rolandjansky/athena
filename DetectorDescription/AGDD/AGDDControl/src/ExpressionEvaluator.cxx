@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDControl/ExpressionEvaluator.h"
@@ -11,6 +11,8 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
+
+using namespace AGDD;
 
 ExpressionEvaluator::ExpressionEvaluator()
 {

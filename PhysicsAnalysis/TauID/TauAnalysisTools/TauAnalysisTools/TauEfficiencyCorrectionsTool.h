@@ -1,11 +1,9 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUANALYSISTOOLS_TAUEFFICIENCYTOOL_H
-#define TAUANALYSISTOOLS_TAUEFFICIENCYTOOL_H
+#ifndef TAUANALYSISTOOLS_TAUEFFICIENCYCORRECTIONSTOOL_H
+#define TAUANALYSISTOOLS_TAUEFFICIENCYCORRECTIONSTOOL_H
 
 /*
   author: Dirk Duschinger
@@ -41,10 +39,6 @@ public:
   /// Create a constructor for standalone usage
   TauEfficiencyCorrectionsTool( const std::string& sName );
 
-  /// Create a constructor for standalone usage with preconfiguration for scale
-  /// factors types depending on applied cuts from TauSelection Tool
-  TauEfficiencyCorrectionsTool( const std::string& sName, TauSelectionTool* tTauSelectionTool )  __attribute__ ((deprecated("This function is deprecated. Please pass the TauSelectionTool as a ToolHandle via the property \"TauSelectionTool\". The function will be removed in the future without further notice.\nFor further information please refer to the README:\nhttps://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauEfficiencyCorrectionsTool.rst")));
-
   ~TauEfficiencyCorrectionsTool();
 
   /// Function initialising the tool
@@ -53,16 +47,17 @@ public:
   virtual StatusCode beginInputFile();
 
   /// Print tool configuration
-  virtual void printConfig(bool bAlways = true);
+  virtual void printConfig() const;
 
-  /// Get the "tau efficiency" as a return value
+  /// Get the tau efficiency scale factor
   virtual CP::CorrectionCode getEfficiencyScaleFactor( const xAOD::TauJet& xTau,
       double& eff, unsigned int iRunNumber = 0, unsigned int iMu = 0);
-  /// Decorate the tau with its efficiency
+
+  /// Decorate the tau with its efficiency scale factor
   virtual CP::CorrectionCode applyEfficiencyScaleFactor( const xAOD::TauJet& xTau,
       unsigned int iRunNumber = 0, unsigned int iMu = 0);
 
-  /// returns: whether this tool is affected by the given systematis
+  /// returns: whether this tool is affected by the given systematics
   virtual bool isAffectedBySystematic( const CP::SystematicVariation& systematic ) const;
 
   /// returns: the list of all systematics this tool can be affected by
@@ -73,24 +68,25 @@ public:
 
   virtual StatusCode applySystematicVariation( const CP::SystematicSet& systConfig );
 
-  virtual bool isSupportedRunNumber( int iRunNumber )
+  virtual bool isSupportedRunNumber( int /*iRunNumber*/ ) const
   {
-    (void) iRunNumber;
     return true;
   };
 
 private:
   StatusCode beginEvent();
 
-  std::string ConvertJetIDToString(const int& iLevel);
-  std::string ConvertEleOLRToString(const int& iLevel);
-  std::string ConvertTriggerIDToString(const int& iLevel);
-  std::string GetTriggerSFMeasrementString();
+  std::string ConvertJetIDToString(const int iLevel) const;
 
-  StatusCode initializeWithTauSelectionTool();
+  std::string ConvertEleIDToString(const int iLevel) const;
+
+  std::string ConvertTriggerIDToString(const int iLevel) const;
+
+  std::string GetTriggerSFMeasurementString() const;
+
+  StatusCode initializeWithTauSelectionTool(TauSelectionTool* tauSelectionTool);
 
   StatusCode initializeTools_2019_summer();
-
 
   StatusCode readRandomRunNumber();
 
@@ -100,41 +96,30 @@ private:
   std::vector< asg::AnaToolHandle<ITauEfficiencyCorrectionsTool>* > m_vCommonEfficiencyTools;
   std::vector< asg::AnaToolHandle<ITauEfficiencyCorrectionsTool>* > m_vTriggerEfficiencyTools;
   std::string m_sInputFilePathRecoHadTau;
-  std::string m_sInputFilePathEleOLRHadTau;
-  std::string m_sInputFilePathEleOLRElectron;
-  std::string m_sInputFilePathEleBDTElectron;
   std::string m_sInputFilePathJetIDHadTau;
-  std::string m_sInputFilePathContJetIDHadTau;
-  std::string m_sInputFilePathEleIDHadTau;
   std::string m_sInputFilePathDecayModeHadTau;
+  std::string m_sInputFilePathEleIDHadTau;
+  std::string m_sInputFilePathEleIDElectron;
   std::string m_sInputFilePathTriggerHadTau;
   std::string m_sVarNameBase;
   std::string m_sVarNameRecoHadTau;
-  std::string m_sVarNameEleOLRHadTau;
-  std::string m_sVarNameEleOLRElectron;
+  std::string m_sVarNameEleIDHadTau;
+  std::string m_sVarNameEleIDElectron;
   std::string m_sVarNameJetIDHadTau;
   std::string m_sVarNameDecayModeHadTau;
-  std::string m_sVarNameContJetIDHadTau;
-  std::string m_sVarNameEleIDHadTau;
   std::string m_sVarNameTriggerHadTau;
   std::string m_sRecommendationTag;
   std::string m_sTriggerName;
   std::string m_sTriggerYear;
   std::string m_sTriggerSFMeasurement;
   bool m_bSkipTruthMatchCheck;
-  //bool m_bNoMultiprong;
   bool m_bUseTauSubstructure;
-  bool m_bUseIDExclusiveSF;
-  bool m_bUseInclusiveEta;
-  bool m_bUseTriggerInclusiveEta;
-  bool m_bUsePtBinnedSF;
   bool m_bUseHighPtUncert;
   bool m_bIsData;
   bool m_bIsConfigured;
   bool m_bReadRandomRunNumber;
-  int m_iIDLevel;
-  int m_iOLRLevel;
-  int m_iContSysType;
+  int m_iJetIDLevel;
+  int m_iEleIDLevel;
   int m_iTriggerPeriodBinning;
   std::string m_sMCCampaign;
   bool m_sAFII;
@@ -144,11 +129,9 @@ private:
 
   ToolHandle<TauAnalysisTools::ITauSelectionTool> m_tTauSelectionToolHandle;
   ToolHandle<CP::IPileupReweightingTool> m_tPRWTool;
-  TauSelectionTool* m_tTauSelectionTool;
 
-  std::string m_sEventInfoName;
 }; // class TauEfficiencyCorrectionsTool
 
 } // namespace TauAnalysisTools
 
-#endif // TAUANALYSISTOOLS_TAUEFFICIENCYTOOL_H
+#endif // TAUANALYSISTOOLS_TAUEFFICIENCYCORRECTIONSTOOL_H

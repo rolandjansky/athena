@@ -257,7 +257,7 @@ class L1MenuConfig(object):
         Menu.defineMenu() defines the menu via L1MenuFlags "items", "thresholds", 
         """
 
-        # we apply a hack here. menu group is working on LS2_v1, until ready we will use MC_pp_v8
+        # we apply a hack here. menu group is working on Dev_pp_run3_v1, until ready we will use MC_pp_run3_v1
         log.info("Reading TriggerMenuMT.Menu.Menu_%s", self.menuFilesToLoad[0])
         menumodule = __import__('TriggerMenuMT.L1.Menu.Menu_%s' % self.menuFilesToLoad[0], globals(), locals(), ['defineMenu'], 0)
         menumodule.defineMenu()
@@ -694,6 +694,8 @@ class L1MenuConfig(object):
         # check that performance thresholds are not used in the physics L1 menu
         self.l1menu.checkPerfThresholds()
 
+        # check that the minimum thresholds of the TOBs sent to TOPO are below the min thresholds used in menu (ATR-15450)
+        self.l1menu.checkPtMinToTopo()
 
     def mapThresholds(self):
         """

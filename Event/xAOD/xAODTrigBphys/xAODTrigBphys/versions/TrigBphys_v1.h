@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TrigBphys_v1.h 696633 2015-09-24 14:59:50Z jwalder $
@@ -239,6 +239,7 @@ namespace xAOD {
         const xAOD::IParticle* particle( size_t i ) const;
         void addParticleLink(const ElementLink<xAOD::IParticleContainer>& particle);
         
+        TrigBphys_v1& operator=(const TrigBphys_v1 & rhs) = default;
     private:
         //** Copy constructor */
         TrigBphys_v1(const TrigBphys_v1 & rhs) = delete;

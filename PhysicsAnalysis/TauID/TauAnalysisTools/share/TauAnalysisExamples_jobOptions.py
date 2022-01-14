@@ -13,7 +13,6 @@ theJob = AlgSequence()
 from TauAnalysisTools.TauAnalysisToolsConf import TauAnalysisTools__TauAnalysisToolsExampleAthena
 TauSelTool = TauAnalysisTools__TauSelectionTool()
 TauSelTool.PtMin = 20
-TauSelTool.SelectionCuts = 1
 TauSelTool.OutputLevel = DEBUG
 theJob += TauSelTool
 

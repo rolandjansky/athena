@@ -97,9 +97,6 @@ def L1CaloLegacySimCfg(flags):
     from TileConditions.TileEMScaleConfig import TileEMScaleCondAlgCfg
     acc.merge( TileEMScaleCondAlgCfg(flags) )
 
-    from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
-    acc.merge(LumiBlockMuWriterCfg(flags))
-
     from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
     acc.merge(L1ConfigSvcCfg(flags))
 

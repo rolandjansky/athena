@@ -1,7 +1,5 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUANALYSISTOOLS_ITAUSMEARINGTOOL_H
@@ -12,9 +10,7 @@
   mail: dirk.duschinger@cern.ch
   documentation in: ../README.rst
                     or
-                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-<tag>/README.rst
-		    or
-                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/README.rst
+                    https://gitlab.cern.ch/atlas/athena/-/blob/master/PhysicsAnalysis/TauID/TauAnalysisTools/README.rst
 */
 
 // Framework include(s):
@@ -39,10 +35,11 @@ class ITauSmearingTool
 public:
 
   /// Apply the correction on a modifyable object
-  virtual CP::CorrectionCode applyCorrection( xAOD::TauJet& xTau ) = 0;
+  virtual CP::CorrectionCode applyCorrection( xAOD::TauJet& xTau ) const = 0;
+
   /// Create a corrected copy from a constant tau
   virtual CP::CorrectionCode correctedCopy( const xAOD::TauJet& input,
-      xAOD::TauJet*& output ) = 0;
+      xAOD::TauJet*& output ) const = 0;
 
 }; // class ITauSmearingTool
 

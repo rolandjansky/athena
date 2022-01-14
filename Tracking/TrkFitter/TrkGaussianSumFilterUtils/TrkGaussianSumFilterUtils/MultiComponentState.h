@@ -31,25 +31,20 @@ typedef std::vector<ComponentParameters> MultiComponentState;
 
 namespace MultiComponentStateHelpers {
 
-/** Create a unique_ptr from input, moves the TrackParameters
- */
-std::unique_ptr<MultiComponentState>
-toPtr(MultiComponentState&& in);
-
 /** Clone TrackParameters method */
-std::unique_ptr<MultiComponentState>
+MultiComponentState
 clone(const MultiComponentState& in);
 
-/** Create a unique_ptr from input with covariance matrix components scaled by individual
-   factors.
+/** Scale the  covariance matrix components  by
+   individual factors.
 */
-std::unique_ptr<MultiComponentState>
-toPtrWithScaledError(MultiComponentState&& in,
-                     double errorScaleLocX,
-                     double errorScaleLocY,
-                     double errorScalePhi,
-                     double errorScaleTheta,
-                     double errorScaleQoverP);
+MultiComponentState
+WithScaledError(MultiComponentState&& in,
+                double errorScaleLocX,
+                double errorScaleLocY,
+                double errorScalePhi,
+                double errorScaleTheta,
+                double errorScaleQoverP);
 
 /** Check to see if all components in the state have measured track parameters
  */

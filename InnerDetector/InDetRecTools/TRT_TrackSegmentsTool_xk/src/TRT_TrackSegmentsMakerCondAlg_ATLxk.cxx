@@ -276,7 +276,7 @@ StatusCode InDet::TRT_TrackSegmentsMakerCondAlg_ATLxk::execute(const EventContex
       std::atan2(1., double(writeCdo->m_dzdr[r])),
       pinv,
       std::nullopt);
-    m_propTool->globalPositions(
+    m_propTool->globalPositions(ctx,
       G[r], *trackPar, m_fieldprop, CB, 5., Trk::pion);
   } 
   

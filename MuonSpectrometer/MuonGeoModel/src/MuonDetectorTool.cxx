@@ -31,7 +31,7 @@ MuonDetectorTool::MuonDetectorTool(const std::string &type, const std::string &n
     : GeoModelTool(type, name, parent), m_layout("R.08"), m_accessCondDb(1), m_asciiCondData(0), m_includeCutouts(0), m_includeCutoutsBog(0), m_includeCtbBis(0),
       m_fillCache_initTime(0), m_dumpMemoryBreakDown(false), m_enableFineClashFixing(0), m_hasCSC(true), m_hasSTgc(true), m_hasMM(true), m_stationSelection(0),
       m_controlAlines(111111), m_dumpAlines(false), m_altAsztFile(""), m_minimalGeoFlag(false), m_useCscIntAlines(false), m_controlCscIntAlines(0), m_dumpCscIntAlines(false),
-      m_useCscIntAlinesFromGM(true), m_altCscIntAlinesFile(""), m_enableMdtDeformations(0), m_enableMdtAsBuiltParameters(0), m_altMdtAsBuiltFile(""), m_manager(0) {
+      m_useCscIntAlinesFromGM(true), m_altCscIntAlinesFile(""), m_enableMdtDeformations(0), m_enableMdtAsBuiltParameters(0), m_altMdtAsBuiltFile(""), m_manager(nullptr) {
     declareInterface<IGeoModelTool>(this);
     declareProperty("LayoutName", m_layout);
     declareProperty("UseConditionDb", m_accessCondDb);
@@ -92,9 +92,9 @@ MuonDetectorTool::MuonDetectorTool(const std::string &type, const std::string &n
 MuonDetectorTool::~MuonDetectorTool() {
     // This will need to be modified once we register the Muon DetectorNode in
     // the Transient Detector Store
-    if (0 != m_detector) {
+    if (nullptr != m_detector) {
         delete m_detector;
-        m_detector = 0;
+        m_detector = nullptr;
     }
 }
 
@@ -117,7 +117,7 @@ StatusCode MuonDetectorTool::create() {
     if (createFactory(theFactory).isFailure())
         return StatusCode::FAILURE;
 
-    if (0 == m_detector) {
+    if (nullptr == m_detector) {
         ATH_CHECK(detStore()->record(theFactory.getDetectorManager(), theFactory.getDetectorManager()->getName()));
 
         GeoModelExperiment *theExpt = nullptr;
@@ -281,8 +281,8 @@ StatusCode MuonDetectorTool::createFactory(MuonDetectorFactory001 &theFactory) c
         cpu = ucpu;
     }
 
-    if (0 == m_detector) {
-        IRDBAccessSvc *access = 0;
+    if (nullptr == m_detector) {
+        IRDBAccessSvc *access = nullptr;
         if (m_amdcDb)
             ATH_CHECK(service("AmdcDb", access));
         else
@@ -384,7 +384,7 @@ StatusCode MuonDetectorTool::clear() {
     SG::DataProxy *proxy = detStore()->proxy(ClassID_traits<MuonGM::MuonDetectorManager>::ID(), m_manager->getName());
     if (proxy) {
         proxy->reset();
-        m_manager = 0;
+        m_manager = nullptr;
     }
     return StatusCode::SUCCESS;
 }

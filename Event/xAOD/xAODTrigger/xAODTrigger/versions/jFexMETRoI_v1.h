@@ -65,10 +65,10 @@ namespace xAOD {
       static const float s_tobEtScale;
 
       // Data locations within word
-      static const int s_Ex_Bit   = 17;
-      static const int s_SatBit   = 16;
-      static const int s_Ey_Bit   = 1; 
-      static const int s_ResBit   = 0; 
+      static const int s_ResBit   = 31;
+      static const int s_Ex_Bit   = 16;
+      static const int s_SatBit   = 15;
+      static const int s_Ey_Bit   = 0; 
       static const int s_signed_E = 14;
 
       //Data masks

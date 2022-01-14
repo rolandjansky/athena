@@ -39,22 +39,22 @@ private:
   GeoNodePtr<GeoSimplePolygonBrep> m_staveEnvelopShape;
   GeoNodePtr<GeoSimplePolygonBrep> m_basicStaveEnvelopShape;
 
-  GeoPhysVol* m_endblockAPhysVol;
-  GeoPhysVol* m_endblockCPhysVol;
-  double m_endblockZpos, m_endblockLength, m_serviceZpos;
-  double m_endblockSrvLength;
-  GeoPhysVol* m_endblockFlexPhysVol;
+  GeoPhysVol* m_endblockAPhysVol = nullptr;
+  GeoPhysVol* m_endblockCPhysVol = nullptr;
+  double m_endblockZpos = 0.0, m_endblockLength = 0.0, m_serviceZpos = 0.0;
+  double m_endblockSrvLength = 0.0;
+  GeoPhysVol* m_endblockFlexPhysVol = nullptr;
   GeoNodePtr<GeoTransform> m_endblockFlexTrf;
-  GeoPhysVol* m_serviceCoolPipePhysVol;
+  GeoPhysVol* m_serviceCoolPipePhysVol = nullptr;
   GeoNodePtr<GeoTransform> m_serviceCoolPipeTrfA;
   GeoNodePtr<GeoTransform> m_serviceCoolPipeTrfC;
 
   GeoTrf::Transform3D m_transform;
-  double m_thicknessP;
-  double m_thicknessN;
-  double m_thicknessN_svc;
-  double m_width_svc;
-  double m_SafetyMargin;
+  double m_thicknessP = 0.0;
+  double m_thicknessN = 0.0;
+  double m_thicknessN_svc = 0.0;
+  double m_width_svc = 0.0;
+  double m_SafetyMargin = 0.0;
   bool m_bVerbose;
 
   void RemoveCoincidentAndColinearPointsFromShape(std::vector<double> &xPoint, std::vector<double>&yPoint);
@@ -62,18 +62,18 @@ private:
 				 std::vector<int> iExcept = std::vector<int>());
   void AddSurroundingXYMargin(double vMarginX, double vMarginY, std::vector<double> &xPoint, std::vector<double>&yPoint);
 
-  int m_PlanarModuleNumber, m_3DModuleNumber;
+  int m_PlanarModuleNumber = 0, m_3DModuleNumber = 0;
 
-  double m_StaveLength;
-  double m_FoamEdgePointX;
-  double m_FoamEdgePointY;
-  double m_FoamMiddleThick;
-  double m_OmegaEndStaveThick;
-  double m_OmegaEndStavePointX;
-  double m_OmegaEndStavePointY;
-  double m_OmegaMidStaveThick;
-  double m_MidStaveSidePointX;
-  double m_MidStaveSidePointY;
+  double m_StaveLength = 0.0;
+  double m_FoamEdgePointX = 0.0;
+  double m_FoamEdgePointY = 0.0;
+  double m_FoamMiddleThick = 0.0;
+  double m_OmegaEndStaveThick = 0.0;
+  double m_OmegaEndStavePointX = 0.0;
+  double m_OmegaEndStavePointY = 0.0;
+  double m_OmegaMidStaveThick = 0.0;
+  double m_MidStaveSidePointX = 0.0;
+  double m_MidStaveSidePointY = 0.0;
 
   void ComputeStaveExternalShape();
   GeoTrf::Vector3D IntersectionPoint(double Ax,double Ay,double Bx,double By,double Cx,double Cy,double Dx,double Dy);

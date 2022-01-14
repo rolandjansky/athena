@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeometryDBSvc.h"
@@ -234,7 +234,7 @@ GeometryDBSvc::getString(const std::string & recordSetName, const std::string & 
     return tmpPar;
   } else  {
     msg(MSG::ERROR) << "Parameter " << parameterKey(recordSetName,name,index) << " not found." << endmsg; 
-    return 0;
+    return "";
   } 
 }
 

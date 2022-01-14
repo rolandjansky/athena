@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGT1CALOCALIBCONDITIONS_L1CALODERIVEDRUNPARS_H
 #define TRIGT1CALOCALIBCONDITIONS_L1CALODERIVEDRUNPARS_H
@@ -30,8 +30,8 @@ public:
 
 private:
   unsigned int m_channelId = 0;
-  std::string m_timingRegime = 0;
-  std::string m_tierZeroTag = 0;
+  std::string m_timingRegime;
+  std::string m_tierZeroTag;
 };
 
 #endif // TRIGT1CALOCALIBCONDITIONS_L1CALODERIVEDRUNPARS_H

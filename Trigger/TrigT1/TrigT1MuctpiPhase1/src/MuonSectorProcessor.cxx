@@ -79,7 +79,7 @@ namespace LVL1MUCTPIPHASE1 {
       return prefix;
     }
     
-    std::string make_pair(std::string lhs, std::string rhs){
+    std::string make_pair(std::string lhs, std::string rhs) const {
       return lhs + ":" + rhs;
     }
 
@@ -96,24 +96,24 @@ namespace LVL1MUCTPIPHASE1 {
       }
     }
     
-    std::vector<std::string> get_lhs_keys(std::string dettype, int roi, int sector){
+    std::vector<std::string> get_lhs_keys(std::string dettype, int roi, int sector) const {
       std::vector<std::string>  r;
       r.push_back(dettype + std::to_string(sector) + "_" + std::to_string(roi));
       return r;   
     }
     
-    std::vector<std::string> get_rhs_keys(std::string dettype, int roi, int sector){
+    std::vector<std::string> get_rhs_keys(std::string dettype, int roi, int sector) const {
       std::vector<std::string>  r;
       r.push_back(dettype + std::to_string(sector) + "_" + std::to_string(roi));
       return r;   
     }
     
-    std::vector<std::string> relevant_regions(int side, const std::string& dettype, int roi, int sector){
+    std::vector<std::string> relevant_regions(int side, const std::string& dettype, int roi, int sector) const {
       std::vector<std::string>  r;
       for(auto key : get_lhs_keys(dettype,roi,sector)){
 	auto x = lhs_index[side].find(key);
 	if(x != lhs_index[side].end()){
-	  for(auto rr : lhs_index[side][key]){
+	  for(auto rr : x->second){
 	    r.push_back(make_pair(key,rr));
 	  }
 	}
@@ -121,7 +121,7 @@ namespace LVL1MUCTPIPHASE1 {
       for(auto key : get_rhs_keys(dettype,roi,sector)){
 	auto x = rhs_index[side].find(key);
 	if(x != rhs_index[side].end()){
-	  for(auto rr : rhs_index[side][key]){
+	  for(auto rr : x->second){
 	    r.push_back(make_pair(rr,key));
 	  }
 	}

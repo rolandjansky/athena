@@ -407,7 +407,7 @@ StatusCode Trk::ExtrapolationValidation::execute()
                                                                      (Trk::ParticleHypothesis)m_particleType);
 
       // get the last one and clone it  
-      if (collectedMaterial && collectedMaterial->size()){
+      if (collectedMaterial && !collectedMaterial->empty()){
         // get the last track state on surface & clone the destination parameters
         const Trk::TrackStateOnSurface* destinationState = collectedMaterial->back();
         destParameters = destinationState->trackParameters() ? destinationState->trackParameters()->clone() : nullptr;
@@ -480,7 +480,7 @@ StatusCode Trk::ExtrapolationValidation::execute()
                                                                      false,
                                                                      (Trk::ParticleHypothesis)m_particleType);
             // get the last one and clone it  
-            if (collectedBackMaterial && collectedBackMaterial->size()){
+            if (collectedBackMaterial && !collectedBackMaterial->empty()){
                 // get the last track state on surface & clone the destination parameters
                 const Trk::TrackStateOnSurface* startState = collectedBackMaterial->back();
                 // assign the last ones of the call

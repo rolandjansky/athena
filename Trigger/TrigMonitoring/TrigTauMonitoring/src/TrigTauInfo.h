@@ -17,4 +17,5 @@ typedef struct _trigtauinfo
   float HLTthr; // HLT Et threshold
   float L1thr; // L1 Et threshold
   bool trigIsEmulation;
+  bool isDiTau; // is DiTau chain
 } TrigInfo;

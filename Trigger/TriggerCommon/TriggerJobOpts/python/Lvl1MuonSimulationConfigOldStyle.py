@@ -238,7 +238,8 @@ def TGCModifierConfig(flags):
                                                                 InputMuctpiLocation = "L1MuctpiStoreTGCint",
                                                                 OutputMuctpiLocation = "L1MuctpiStoreTGC",
                                                                 EmulateA = flags.Trigger.L1MuonSim.EmulateNSWA,
-                                                                EmulateC = flags.Trigger.L1MuonSim.EmulateNSWC )
+                                                                EmulateC = flags.Trigger.L1MuonSim.EmulateNSWC,
+                                                                NSWVetoMode = flags.Trigger.L1MuonSim.NSWVetoMode )
     return tgcModifier
 
 def Lvl1EndcapMuonSequence(flags):
@@ -246,10 +247,14 @@ def Lvl1EndcapMuonSequence(flags):
     tgc = TGCTriggerConfig(flags)
     from AthenaCommon.CFElements import seqAND
     if flags.Trigger.L1MuonSim.EmulateNSWA or flags.Trigger.L1MuonSim.EmulateNSWC:
-        rdo2prd = MuonRdo2PrdSequence(flags)
-        recoSegment = RecoMuonSegmentSequence(flags)
-        tgcmod = TGCModifierConfig(flags)
-        l1MuEndcapSim = seqAND("L1MuonEndcapSim", [tmdb,tgc,rdo2prd,recoSegment,tgcmod] )
+        if flags.Trigger.L1MuonSim.NSWVetoMode:
+            rdo2prd = MuonRdo2PrdSequence(flags)
+            recoSegment = RecoMuonSegmentSequence(flags)
+            tgcmod = TGCModifierConfig(flags)
+            l1MuEndcapSim = seqAND("L1MuonEndcapSim", [tmdb,tgc,rdo2prd,recoSegment,tgcmod] )
+        else:
+            tgcmod = TGCModifierConfig(flags)
+            l1MuEndcapSim = seqAND("L1MuonEndcapSim", [tmdb,tgc,tgcmod] )
     else:
         from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
         if (MuonGeometryFlags.hasSTGC() or MuonGeometryFlags.hasMM()) and flags.Input.isMC:

@@ -26,7 +26,7 @@ namespace Muon
   
   class RecoMuonPlotOrganizer:public PlotBase {
   public:
-    RecoMuonPlotOrganizer(PlotBase* pParent, std::string sDir, std::vector<int> *selPlots=0);
+    RecoMuonPlotOrganizer(PlotBase* pParent, const std::string& sDir, std::vector<int> *selPlots=0);
     ~RecoMuonPlotOrganizer();
     
     std::vector<PlotBase*> m_allPlots;

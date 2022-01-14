@@ -15,12 +15,14 @@ from egammaMVACalib.egammaMVACalibConfig import egammaMVASvcCfg
 
 def electronSuperClusterBuilderCfg(flags,
                                    name='electronSuperClusterBuilder',
+                                   sequenceName = None,
                                    **kwargs):
 
     mlog = logging.getLogger(name)
     mlog.debug('Start configuration')
 
-    acc = ComponentAccumulator()
+    seqkw = {'sequence': sequenceName} if sequenceName else {}
+    acc = ComponentAccumulator (**seqkw)
 
     if "TrackMatchBuilderTool" not in kwargs:
         emtrkmatch = EMTrackMatchBuilderCfg(flags)
@@ -53,9 +55,12 @@ def electronSuperClusterBuilderCfg(flags,
 def photonSuperClusterBuilderCfg(
         flags,
         name='photonSuperClusterBuilder',
+        sequenceName = None,
         **kwargs):
 
-    acc = ComponentAccumulator()
+    seqkw = {'sequence': sequenceName} if sequenceName else {}
+    acc = ComponentAccumulator (**seqkw)
+
     photonSuperClusterBuilder = CompFactory.photonSuperClusterBuilder
     egammaCheckEnergyDepositTool = CompFactory.egammaCheckEnergyDepositTool
 

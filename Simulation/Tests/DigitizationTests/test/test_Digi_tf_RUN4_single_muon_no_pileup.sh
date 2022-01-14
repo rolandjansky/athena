@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # art-description: Run 4 digitization of a single muon sample without pile-up
 # art-type: grid

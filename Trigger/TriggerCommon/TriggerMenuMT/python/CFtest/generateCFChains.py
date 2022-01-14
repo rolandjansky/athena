@@ -11,21 +11,23 @@
 
 
 def generateCFChains(opt):
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool
-    from TriggerMenuMT.HLTMenuConfig.Menu.SignatureDicts import ChainStore
-    from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
+    from TriggerMenuMT.HLT.Menu.MenuComponents import RecoFragmentsPool
+    from TriggerMenuMT.HLT.Menu.SignatureDicts import ChainStore
+    from TriggerMenuMT.HLT.Menu.GenerateMenuMT import GenerateMenuMT
     from DecisionHandling.TestUtils import makeChain, makeChainStep
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
+    ConfigFlags.lock()
     menu = GenerateMenuMT()
     menu.chainsInMenu = ChainStore()
     ##################################################################
     # egamma chains
     ##################################################################
     if opt.doEgammaSlice is True:
-        from TriggerMenuMT.HLTMenuConfig.Electron.ElectronChainConfiguration import electronFastCaloCfg, fastElectronSequenceCfg, precisionCaloSequenceCfg
-        fastCaloSeq = RecoFragmentsPool.retrieve( electronFastCaloCfg, None )
-        electronSeq = RecoFragmentsPool.retrieve( fastElectronSequenceCfg, None )
-        precisionCaloSeq = RecoFragmentsPool.retrieve( precisionCaloSequenceCfg, None )
+        from TriggerMenuMT.HLT.Electron.ElectronChainConfiguration import electronFastCaloCfg, fastElectronSequenceCfg, precisionCaloSequenceCfg
+        fastCaloSeq = RecoFragmentsPool.retrieve( electronFastCaloCfg, ConfigFlags )
+        electronSeq = RecoFragmentsPool.retrieve( fastElectronSequenceCfg, ConfigFlags )
+        precisionCaloSeq = RecoFragmentsPool.retrieve( precisionCaloSequenceCfg, ConfigFlags )
         
         FastCaloStep      = makeChainStep("ElectronFastCaloStep", [fastCaloSeq])
         FastElectronStep  = makeChainStep("ElectronFastTrackStep", [electronSeq])
@@ -39,10 +41,10 @@ def generateCFChains(opt):
             ]
         menu.chainsInMenu['Egamma'] += electronChains
 
-        from TriggerMenuMT.HLTMenuConfig.Photon.PhotonChainConfiguration import fastPhotonCaloSequenceCfg, fastPhotonSequenceCfg, precisionPhotonCaloSequenceCfg
-        fastCaloSeq            = RecoFragmentsPool.retrieve( fastPhotonCaloSequenceCfg, None )
-        fastPhotonSeq          = RecoFragmentsPool.retrieve( fastPhotonSequenceCfg, None )
-        precisionCaloPhotonSeq = RecoFragmentsPool.retrieve( precisionPhotonCaloSequenceCfg, None)
+        from TriggerMenuMT.HLT.Photon.PhotonChainConfiguration import fastPhotonCaloSequenceCfg, fastPhotonSequenceCfg, precisionPhotonCaloSequenceCfg
+        fastCaloSeq            = RecoFragmentsPool.retrieve( fastPhotonCaloSequenceCfg, ConfigFlags )
+        fastPhotonSeq          = RecoFragmentsPool.retrieve( fastPhotonSequenceCfg, ConfigFlags )
+        precisionCaloPhotonSeq = RecoFragmentsPool.retrieve( precisionPhotonCaloSequenceCfg, ConfigFlags)
         
         FastCaloStep            = makeChainStep("PhotonFastCaloStep", [fastCaloSeq])
         fastPhotonStep          = makeChainStep("PhotonStep2", [fastPhotonSeq])
@@ -57,7 +59,7 @@ def generateCFChains(opt):
     # muon chains
     ##################################################################
     if opt.doMuonSlice is True:
-        from TriggerMenuMT.HLTMenuConfig.Muon.MuonMenuSequences import muFastSequence, muCombSequence, muEFSASequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence
+        from TriggerMenuMT.HLT.Muon.MuonMenuSequences import muFastSequence, muCombSequence, muEFSASequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence
 
         MuonChains  = []
         # step1
@@ -111,21 +113,20 @@ def generateCFChains(opt):
     # jet chains
     ##################################################################
 
-    from TriggerMenuMT.HLTMenuConfig.Jet.JetRecoConfiguration import jetRecoDictFromString
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from TriggerMenuMT.HLT.Jet.JetRecoConfiguration import jetRecoDictFromString
     def jetCaloHypoMenuSequenceFromString(jet_def_str):
         jetRecoDict = jetRecoDictFromString(jet_def_str)
-        from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetCaloHypoMenuSequence
+        from TriggerMenuMT.HLT.Jet.JetMenuSequences import jetCaloHypoMenuSequence
         return jetCaloHypoMenuSequence(ConfigFlags, isPerf=False, **jetRecoDict)
 
     def jetCaloPreselMenuSequenceFromString(jet_def_str):
         jetRecoDict = jetRecoDictFromString(jet_def_str)
-        from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetCaloPreselMenuSequence
+        from TriggerMenuMT.HLT.Jet.JetMenuSequences import jetCaloPreselMenuSequence
         return jetCaloPreselMenuSequence(ConfigFlags, **jetRecoDict)
 
     def jetTrackingHypoMenuSequenceFromString(jet_def_str,clustersKey):
         jetRecoDict = jetRecoDictFromString(jet_def_str)
-        from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetFSTrackingHypoMenuSequence
+        from TriggerMenuMT.HLT.Jet.JetMenuSequences import jetFSTrackingHypoMenuSequence
         return jetFSTrackingHypoMenuSequence(ConfigFlags, clustersKey=clustersKey, isPerf=False, **jetRecoDict)
 
     if opt.doJetSlice is True:
@@ -168,7 +169,7 @@ def generateCFChains(opt):
     # bjet chains
     ##################################################################
     if opt.doBjetSlice is True:
-        from TriggerMenuMT.HLTMenuConfig.Bjet.BjetMenuSequences import getBJetSequence
+        from TriggerMenuMT.HLT.Bjet.BjetMenuSequences import getBJetSequence
 
         jetSeq_a4_tc_em_presel, jetDef, emclusters = jetCaloPreselMenuSequenceFromString("a4_tc_em_subjesIS")
         jetSeq_a4_tc_em_gsc_ftf, jetDef = jetTrackingHypoMenuSequenceFromString("a4_tc_em_subjesgscIS_ftf",emclusters)
@@ -176,12 +177,11 @@ def generateCFChains(opt):
         
         step1 = makeChainStep("Step_jet_a4_tc_em_presel", [jetSeq_a4_tc_em_presel])
         step2 = makeChainStep("Step_jet_a4_tc_em_gsc_ftf", [jetSeq_a4_tc_em_gsc_ftf])
-        step3 = makeChainStep("Step3_bjet", [getBJetSequence(jc_name)])
+        step3 = makeChainStep("Step3_bjet", [getBJetSequence(ConfigFlags, jc_name)])
         
         menu.chainsInMenu['Bjet']  = [
-            makeChain(name='HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20' , L1Thresholds=["FSNOSEED"], ChainSteps=[step1,step2,step3] ),
-            makeChain(name='HLT_j45_ftf_subjesgscIS_bmv2c1070_split_L1J20', L1Thresholds=["FSNOSEED"], ChainSteps=[step1,step2,step3] ),
-            makeChain(name='HLT_j45_ftf_subjesgscIS_bmv2c1070_L1J20'      , L1Thresholds=["FSNOSEED"], ChainSteps=[step1,step2,step3] )
+            makeChain(name='HLT_j45_ftf_subjesgscIS_boffperf_L1J20', L1Thresholds=["FSNOSEED"], ChainSteps=[step1,step2,step3] ),
+            makeChain(name='HLT_j45_ftf_subjesgscIS_bdl1r70_L1J20',  L1Thresholds=["FSNOSEED"], ChainSteps=[step1,step2,step3] ),
             ]
 
    
@@ -189,7 +189,7 @@ def generateCFChains(opt):
     # tau chains
     ##################################################################
     if opt.doTauSlice is True and False:  # not working at the moment
-        from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import getTauSequence
+        from TriggerMenuMT.HLT.Tau.TauMenuSequences import getTauSequence
 
         step1=makeChainStep("Step1_tau", [getTauSequence('calo')])
         step1MVA=makeChainStep("Step1MVA_tau", [getTauSequence('calo_mva')])
@@ -211,8 +211,8 @@ def generateCFChains(opt):
     # MET chains
     ##################################################################
     if opt.doMETSlice is True:
-        from TriggerMenuMT.HLTMenuConfig.MET.METChainConfiguration import extractMETRecoDict
-        from TriggerMenuMT.HLTMenuConfig.MET.ConfigHelpers import AlgConfig
+        from TriggerMenuMT.HLT.MET.METChainConfiguration import extractMETRecoDict
+        from TriggerMenuMT.HLT.MET.ConfigHelpers import AlgConfig
 
         cellRecoDict = extractMETRecoDict({'EFrecoAlg': "cell"})
         metCellConf = AlgConfig.fromRecoDict(**cellRecoDict)
@@ -237,7 +237,7 @@ def generateCFChains(opt):
     # B-physics and light states chains
     ##################################################################
     if opt.doBphysicsSlice is True:
-        from TriggerMenuMT.HLTMenuConfig.Muon.MuonMenuSequences import muFastSequence, muCombSequence, muEFSASequence, muEFCBSequence
+        from TriggerMenuMT.HLT.Muon.MuonMenuSequences import muFastSequence, muCombSequence, muEFSASequence, muEFCBSequence
         from TrigBphysHypo.TrigMultiTrkComboHypoConfig import StreamerDimuL2ComboHypoCfg, DimuEFComboHypoCfg
         
         step1_dimufast=makeChainStep("Step1_dimuFast", [muFastSequence()], multiplicity=[2])
@@ -258,10 +258,10 @@ def generateCFChains(opt):
     # combined chains
     ##################################################################
     if opt.doCombinedSlice is True:
-        from TriggerMenuMT.HLTMenuConfig.Electron.ElectronChainConfiguration import electronFastCaloCfg
-        fastCaloSeq = RecoFragmentsPool.retrieve( electronFastCaloCfg, None )
+        from TriggerMenuMT.HLT.Electron.ElectronChainConfiguration import electronFastCaloCfg
+        fastCaloSeq = RecoFragmentsPool.retrieve( electronFastCaloCfg, ConfigFlags )
         
-        from TriggerMenuMT.HLTMenuConfig.Muon.MuonMenuSequences import muFastSequence
+        from TriggerMenuMT.HLT.Muon.MuonMenuSequences import muFastSequence
         
         comboStep_et_mufast           = makeChainStep("Step1_et_mufast", [fastCaloSeq, muFastSequence()], multiplicity=[1,1])
 

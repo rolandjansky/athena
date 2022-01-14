@@ -77,23 +77,23 @@ namespace Muon {
         virtual StatusCode finalize() override;
 
         /** @brief match two segment entries */
-        bool match(const MuPatSegment& entry1, const MuPatSegment& entry2, bool useTightCuts = false) const;
+        bool match(const EventContext& ctx, const MuPatSegment& entry1, const MuPatSegment& entry2, bool useTightCuts ) const;
 
         /** @brief match a segment entry with a track entry */
-        bool match(const MuPatTrack& entry1, const MuPatSegment& entry2, bool useTightCuts = false) const;
+        bool match(const EventContext& ctx, const MuPatTrack& entry1, const MuPatSegment& entry2, bool useTightCuts) const;
 
         /** @brief match a segment entry with a base entry */
-        bool match(const MuPatCandidateBase& entry1, const MuPatSegment& entry2, bool useTightCuts = false) const;
+        bool match(const EventContext& ctx, const MuPatCandidateBase& entry1, const MuPatSegment& entry2, bool useTightCuts) const;
 
-        /** @brief match a track with a segment */
-        virtual bool match(const Trk::Track& track, const MuonSegment& segment, bool useTightCuts) const override;
+        /** @brief match a track with a segment */        
+        virtual bool match(const EventContext& ctx, const Trk::Track& track, const MuonSegment& segment, bool useTightCuts) const override;
 
         /** @brief calculate the info needed for the matching decision */
-        void calculateTrackSegmentMatchResult(const MuPatTrack& entry1, const MuPatSegment& entry2, MooTrackSegmentMatchResult& info) const;
+        void calculateTrackSegmentMatchResult(const EventContext& ctx, const MuPatTrack& entry1, const MuPatSegment& entry2, MooTrackSegmentMatchResult& info) const;
 
         TrackSegmentMatchCuts getMatchingCuts(const MuPatTrack& entry1, const MuPatSegment& entry2, bool useTightCuts) const;
 
-        bool applyTrackSegmentCuts(MooTrackSegmentMatchResult& info, const TrackSegmentMatchCuts& cuts) const;
+        bool applyTrackSegmentCuts(const EventContext& ctx, MooTrackSegmentMatchResult& info, const TrackSegmentMatchCuts& cuts) const;
 
         /** @brief check whether two segments are on the same side of the point of
            closest approach to the perigee of the connecting track, or on the same
@@ -212,8 +212,8 @@ namespace Muon {
         mutable std::atomic_ulong m_otherSideOfPerigeeTrk{0};
         mutable std::atomic_ulong m_segmentTrackMatches{0};
         mutable std::atomic_ulong m_segmentTrackMatchesTight{0};
-        mutable std::atomic_ulong m_reasonsForMatchOk[TrackSegmentMatchResult::NumberOfReasons] = {0};
-        mutable std::atomic_ulong m_reasonsForMatchNotOk[TrackSegmentMatchResult::NumberOfReasons] = {0};
+        mutable std::atomic_ulong m_reasonsForMatchOk[TrackSegmentMatchResult::NumberOfReasons] {0};
+        mutable std::atomic_ulong m_reasonsForMatchNotOk[TrackSegmentMatchResult::NumberOfReasons] {0};
 
         double m_caloMatchZ;  //!< Z position of calo end-cap disks. Used to determine
                               //!< if segments are on same side of Calo

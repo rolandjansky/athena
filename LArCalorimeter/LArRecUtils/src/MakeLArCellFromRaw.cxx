@@ -44,6 +44,7 @@ MakeLArCellFromRaw::~MakeLArCellFromRaw()
 
 void MakeLArCellFromRaw::initialize ( const LArRoIMap& roiMap,
                                       const LArOnOffIdMapping& onOffMap,
+                                      const CaloDetDescrManager& man,
 	const std::vector<const CaloCellCorrection*>* pCorr, unsigned int poolMaxSize )
 {
   const EventContext& ctx = Gaudi::Hive::currentContext();
@@ -74,13 +75,7 @@ void MakeLArCellFromRaw::initialize ( const LArRoIMap& roiMap,
     return;
   }
 
-  const CaloDetDescrManager* man = nullptr;
-  if ( detStore->retrieve (man, "CaloMgr").isFailure() ) {
-    log << MSG::ERROR << "MakeLArCellFromRaw ERROR cannot retrieve CaloMgr " << endmsg;
-    return;
-  }
-
-
+  
   // create DataPool if requested
   if (poolMaxSize!=0) {
     log << MSG::INFO << "MakeLArCellFromRaw Creating DataPool<LArCell> of size " << poolMaxSize << endmsg ;
@@ -89,7 +84,7 @@ void MakeLArCellFromRaw::initialize ( const LArRoIMap& roiMap,
   }
 
 
-  const CaloCell_ID* calo_id = man->getCaloCell_ID();
+  const CaloCell_ID* calo_id = man.getCaloCell_ID();
   const LArEM_ID& em_id = *calo_id->em_idHelper();
   const LArHEC_ID& hec_id = *calo_id->hec_idHelper();
   const LArFCAL_ID& fcal_id = *calo_id->fcal_idHelper();
@@ -146,7 +141,7 @@ void MakeLArCellFromRaw::initialize ( const LArRoIMap& roiMap,
 
       cell.tt  = roiMap.trigTowerID(sigId); 
 
-      const CaloDetDescrElement* caloDDE =man->get_element( chan_id);
+      const CaloDetDescrElement* caloDDE =man.get_element( chan_id);
 
       cell.id  =  chan_id ; 
       cell.eta =  caloDDE->eta();
@@ -189,7 +184,7 @@ void MakeLArCellFromRaw::initialize ( const LArRoIMap& roiMap,
 
       cell.tt  = roiMap.trigTowerID(sigId); 
 
-      const CaloDetDescrElement* caloDDE =man->get_element( chan_id);
+      const CaloDetDescrElement* caloDDE =man.get_element( chan_id);
 
       cell.id  =  chan_id ; 
       cell.eta =  caloDDE->eta();
@@ -229,7 +224,7 @@ void MakeLArCellFromRaw::initialize ( const LArRoIMap& roiMap,
 
       cell.tt  = roiMap.trigTowerID(sigId); 
 
-      const CaloDetDescrElement* caloDDE =man->get_element( chan_id);
+      const CaloDetDescrElement* caloDDE =man.get_element( chan_id);
 
       cell.id  =  chan_id ; 
       cell.eta =  caloDDE->eta();

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUANALYSISTOOLS_UT_TAUANALYSISTOOLS_TEST_H
@@ -22,7 +22,6 @@
 #include "TauAnalysisTools/TauSmearingTool.h"
 #include "TauAnalysisTools/TauTruthMatchingTool.h"
 #include "TauAnalysisTools/TauTruthTrackMatchingTool.h"
-#include "TauAnalysisTools/TauOverlappingElectronLLHDecorator.h"
 
 // EDM include(s):
 #include "xAODTau/TauJetContainer.h"
@@ -65,7 +64,7 @@ int main( int argc, char* argv[] )
     TauAnalysisTools::CutNTrack |
     TauAnalysisTools::CutJetIDWP 
   )));
-  ANA_CHECK(AthAnalysisHelper::setProperty( TauSelTool, "JetIDWP", int(TauAnalysisTools::JETIDRNNVERYLOOSE))); 
+  ANA_CHECK(AthAnalysisHelper::setProperty( TauSelTool, "JetIDWP", int(TauAnalysisTools::JETIDRNNLOOSE))); 
   ANA_CHECK(TauSelTool.retrieve()); //this will cause the tool to be created and initialized
 
   // ===========================================================================
@@ -96,7 +95,7 @@ int main( int argc, char* argv[] )
   ANA_CHECK(T3MT.retrieve());
 
   // defining needed Container
-  const xAOD::TauJetContainer* xTauJetContainer = 0;
+  const xAOD::TauJetContainer* xTauJetContainer = nullptr;
 
   //loop over input file with POOL
   POOL::TEvent evt;
@@ -169,7 +168,7 @@ int main( int argc, char* argv[] )
       ANA_CHECK(TauEffCorrTool->applyEfficiencyScaleFactor(*xTau));
 
       // test the TauSmearingTool
-      xAOD::TauJet* xTauCopy = 0;
+      xAOD::TauJet* xTauCopy = nullptr;
       ANA_CHECK(TauSmeTool->correctedCopy(*xTau, xTauCopy));
     }
   }

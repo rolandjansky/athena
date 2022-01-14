@@ -7,7 +7,7 @@ __doc__ = """
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from egammaTrackTools.egammaTrackToolsConfig import (
-    EMExtrapolationToolsLRTCommonCacheCfg, EMExtrapolationToolsLRTCacheCfg)
+    EMExtrapolationToolsCfg)
 
 
 def egammaLRTReconstructionCfg(flags, name="egammaLRTReconstruction"):
@@ -21,14 +21,14 @@ def egammaLRTReconstructionCfg(flags, name="egammaLRTReconstruction"):
     if flags.Egamma.doTracking:
         from egammaAlgs.egammaSelectedTrackCopyConfig import (
             egammaSelectedTrackCopyCfg)
-        emextLRTCommonCache = acc.popToolsAndMerge(
-            EMExtrapolationToolsLRTCommonCacheCfg(flags))
+        emextLRT = acc.popToolsAndMerge(
+            EMExtrapolationToolsCfg(flags))
         acc.merge(egammaSelectedTrackCopyCfg(
             flags,
             name="LRTegammaSelectedTrackCopy",
             TrackParticleContainerName="InDetLargeD0TrackParticles",
             OutputTrkPartContainerName="LRTegammaSelectedTrackParticles",
-            ExtrapolationToolCommonCache=emextLRTCommonCache)
+            ExtrapolationTool=emextLRT)
         )
 
         from egammaAlgs.EMBremCollectionBuilderConfig import (
@@ -42,29 +42,19 @@ def egammaLRTReconstructionCfg(flags, name="egammaLRTReconstruction"):
             OutputTrackContainerName='LRT'+flags.Egamma.Keys.Output.GSFTracks)
         )
 
-        from egammaAlgs.EMGSFCaloExtensionBuilderConfig import (
-            EMGSFCaloExtensionBuilderCfg)
-        acc.merge(EMGSFCaloExtensionBuilderCfg(
-            flags,
-            name='LRTEMGSFCaloExtensionBuilder',
-            GSFPerigeeCache='LRTGSFPerigeeCaloExtension',
-            GSFLastCache='LRTGSFLastCaloExtension',
-            GFFTrkPartContainerName='LRT'+flags.Egamma.Keys.Output.GSFTrackParticles)
-        )
-
     # Add calo seeded central algorithms
     if flags.Egamma.doCentral:
         from egammaAlgs.egammaRecBuilderConfig import (
             egammaRecBuilderCfg)
         from egammaTools.EMTrackMatchBuilderConfig import (
             EMTrackMatchBuilderCfg)
-        emextLRTCache = acc.popToolsAndMerge(
-            EMExtrapolationToolsLRTCacheCfg(flags))
+        emextLRT = acc.popToolsAndMerge(
+            EMExtrapolationToolsCfg(flags))
         lrtemtrackmatch = acc.popToolsAndMerge(EMTrackMatchBuilderCfg(
             flags,
             name='LRTEMTrackMatchBuilder',
             TrackParticlesName='LRT'+flags.Egamma.Keys.Output.GSFTrackParticles,
-            ExtrapolationTool=emextLRTCache)
+            ExtrapolationTool=emextLRT)
         )
         acc.merge(egammaRecBuilderCfg(
             flags,

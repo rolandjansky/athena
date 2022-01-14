@@ -35,7 +35,7 @@ namespace Trk
 
 
 
-  class Trk2DDistanceFinder : public extends<AthAlgTool, ITrkDistanceFinder>
+  class Trk2DDistanceFinder final: public extends<AthAlgTool, ITrkDistanceFinder>
   {
   public:
     //default constructor due to Athena interface
@@ -50,16 +50,16 @@ namespace Trk
     /** method to do the calculation starting from two MeasuredPerigees*/
     /** If successful, returns the points on the two tracks at minimum distance. */
     virtual std::optional<TwoPoints>
-    CalculateMinimumDistance(const Trk::Perigee &, const Trk::Perigee &) const override;
+    CalculateMinimumDistance(const Trk::Perigee &, const Trk::Perigee &) const override final;
     
     /** method to do the calculation starting from two tracks */
     virtual std::optional<TwoPoints>
-    CalculateMinimumDistance(const  Trk::Track &, const Trk::Track &) const override;
+    CalculateMinimumDistance(const  Trk::Track &, const Trk::Track &) const override final;
 
     /** method to do the calculation starting from two track particles */
     virtual std::optional<TwoPoints>
     CalculateMinimumDistance(const  Trk::TrackParticleBase &,
-                             const  Trk::TrackParticleBase &) const override;
+                             const  Trk::TrackParticleBase &) const override final;
 
 
   private:

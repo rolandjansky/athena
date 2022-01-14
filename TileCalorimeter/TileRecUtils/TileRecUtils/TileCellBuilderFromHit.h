@@ -140,7 +140,6 @@ class TileCellBuilderFromHit
     const TileInfo* m_tileInfo; //!< Pointer to TileInfo
     const TileCablingService* m_cabling; //!< Pointer to TileCabling
 
-    ATHRNG::RNGWrapper* m_pHRengine;    //!< Random number generator engine to use
     ServiceHandle<IAthRNGSvc> m_rndmSvc  //!< Random number service to use
       { this, "RndmSvc", "AthRNGSvc", "Random Number Service used in TileCellBuildetFromHit" };
 

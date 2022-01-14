@@ -4,12 +4,18 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 
-def DL2ToolCfg(ConfigFlags, NNFile = '', **options):
+def DL2ToolCfg(ConfigFlags, NNFile = '', FlipConfig='STANDARD' , **options):
     acc = ComponentAccumulator()
 
     options['nnFile'] = NNFile
     options['name'] = "decorator"
-
+    
+    # default is "STANDARD" in case of a setup of the standard b-taggers. "NEGATIVE_IP_ONLY" [and "FLIP_SIGN"] if want to set up the flip taggers
+    # naming convention, see here: https://gitlab.cern.ch/atlas/athena/-/blob/master/PhysicsAnalysis/JetTagging/FlavorTagDiscriminants/Root/FlipTagEnums.cxx
+    
+    options['flipTagConfig'] = FlipConfig 
+    
+    
     # This is a hack to accomodate the older b-tagging training with
     # old names for variables. We should be able to remove it when we
     # move over to the 2020 / 2021 retraining.
@@ -39,14 +45,14 @@ def GNNToolCfg(ConfigFlags, NNFile = '', **options):
     return acc
 
 
-def HighLevelBTagAlgCfg(ConfigFlags, BTaggingCollection, TrackCollection, NNFile = "", **options):
+def HighLevelBTagAlgCfg(ConfigFlags, BTaggingCollection, TrackCollection, NNFile = "", FlipConfig="STANDARD" , **options):
 
     acc = ComponentAccumulator()
 
     NNFile_extension = NNFile.split(".")[-1]
     if NNFile_extension == "json":
         nn_name = NNFile.replace("/", "_").replace("_network.json", "")
-        decorator = acc.popToolsAndMerge(DL2ToolCfg(ConfigFlags, NNFile, **options))
+        decorator = acc.popToolsAndMerge(DL2ToolCfg(ConfigFlags, NNFile,FlipConfig=FlipConfig ,**options))
     elif NNFile_extension == "onnx":
         nn_name = NNFile.replace("/", "_").replace(".onnx", "")
         decorator = acc.popToolsAndMerge(GNNToolCfg(ConfigFlags, NNFile, **options))
@@ -54,6 +60,11 @@ def HighLevelBTagAlgCfg(ConfigFlags, BTaggingCollection, TrackCollection, NNFile
         raise ValueError("HighLevelBTagAlgCfg: Wrong NNFile extension. Please check the NNFile argument")
 
     name = '_'.join([nn_name.lower(), BTaggingCollection])
+
+    # Ensure different names for standard and flip taggers
+    if FlipConfig != "STANDARD":
+        FlipConfig_name = FlipConfig
+        name = name + FlipConfig_name
 
     # some things should not be declared as date dependencies: it will
     # make the trigger sad.

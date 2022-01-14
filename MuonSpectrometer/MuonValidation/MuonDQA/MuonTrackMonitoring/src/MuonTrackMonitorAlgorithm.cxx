@@ -17,7 +17,7 @@ StatusCode MuonTrackMonitorAlgorithm::initialize()
 	return StatusCode::SUCCESS;
 }
 
-StatusCode MuonTrackMonitorAlgorithm::FillMuonInformation(std::string sIdentifier, std::vector<const xAOD::Muon*>	&vecMuons) const 
+StatusCode MuonTrackMonitorAlgorithm::FillMuonInformation(const std::string& sIdentifier, std::vector<const xAOD::Muon*>	&vecMuons) const 
 {
 	/// Declaring all variables that are initialized via Python will be plotted
 	using namespace Monitored;
@@ -323,7 +323,7 @@ StatusCode	MuonTrackMonitorAlgorithm::analyseCombinedTracks(const xAOD::MuonCont
 
 
 //========================================================================================================
-StatusCode	MuonTrackMonitorAlgorithm::plotResonanceCandidates(std::string resonanceName, std::vector<const xAOD::Muon*>& muonCandidates, uint32_t lumiBlockID) const {
+StatusCode	MuonTrackMonitorAlgorithm::plotResonanceCandidates(const std::string& resonanceName, std::vector<const xAOD::Muon*>& muonCandidates, uint32_t lumiBlockID) const {
 	using namespace Monitored;
 
 	/// Declaring all variables that are initialized via Python will be plotted

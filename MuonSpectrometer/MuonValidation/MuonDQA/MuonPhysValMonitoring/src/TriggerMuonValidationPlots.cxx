@@ -2,10 +2,12 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <utility>
+
 #include "TriggerMuonValidationPlots.h"
 #include "MuonHistUtils/MuonEnumDefs.h"
-TriggerMuonValidationPlots::TriggerMuonValidationPlots(PlotBase* pParent, std::string sDir,std::vector<unsigned int> authors, bool /*isData*/, bool doTrigMuonL1Validation, bool doTrigMuonL2Validation, bool doTrigMuonEFValidation, std::vector<std::vector<std::string>> ChainSeed, std::vector<std::string> L1MuonItems):
-  PlotBase(pParent, sDir),  m_selectedAuthors(authors), m_oL1TriggerMuonPlots(NULL), m_doTrigMuonL1Validation(doTrigMuonL1Validation), m_doTrigMuonL2Validation(doTrigMuonL2Validation), m_doTrigMuonEFValidation(doTrigMuonEFValidation), m_ChainSeed(ChainSeed), m_L1MuonItems(L1MuonItems)
+TriggerMuonValidationPlots::TriggerMuonValidationPlots(PlotBase* pParent, const std::string& sDir,std::vector<unsigned int> authors, bool /*isData*/, bool doTrigMuonL1Validation, bool doTrigMuonL2Validation, bool doTrigMuonEFValidation, std::vector<std::vector<std::string>> ChainSeed, std::vector<std::string> L1MuonItems):
+  PlotBase(pParent, sDir),  m_selectedAuthors(std::move(authors)), m_oL1TriggerMuonPlots(nullptr), m_doTrigMuonL1Validation(doTrigMuonL1Validation), m_doTrigMuonL2Validation(doTrigMuonL2Validation), m_doTrigMuonEFValidation(doTrigMuonEFValidation), m_ChainSeed(std::move(ChainSeed)), m_L1MuonItems(std::move(L1MuonItems))
 {
   for (unsigned int i=0; i<m_ChainSeed.size(); i++){
     m_chains.push_back(m_ChainSeed[i][0]);
@@ -59,96 +61,96 @@ TriggerMuonValidationPlots::~TriggerMuonValidationPlots()
   if (m_doTrigMuonL1Validation) {
        L1TriggerMuonPlots* L1TriggerMuonPlot = m_oL1TriggerMuonPlots;  
        delete L1TriggerMuonPlot;
-       L1TriggerMuonPlot=0;
+       L1TriggerMuonPlot=nullptr;
   }
 
   if (m_doTrigMuonL2Validation) {
     for (unsigned int i=0; i<m_oL2TriggerMuonPlots.size(); i++) { 
        HLTriggerMuonPlots* L2TriggerMuonPlots = m_oL2TriggerMuonPlots[i];  
        delete L2TriggerMuonPlots;
-       L2TriggerMuonPlots=0;
+       L2TriggerMuonPlots=nullptr;
     }
     for (unsigned int i=0; i<m_oL2TriggerMuonBarrelResolutionPlots.size(); i++) {  
       Muon::ResoTriggerMuonPlots *L2TriggerMuonResoMuonPlots = m_oL2TriggerMuonBarrelResolutionPlots[i];
       delete L2TriggerMuonResoMuonPlots;
-      L2TriggerMuonResoMuonPlots=0;
+      L2TriggerMuonResoMuonPlots=nullptr;
     }
     for (unsigned int i=0; i<m_oL2TriggerMuonEndcapsResolutionPlots.size(); i++) {  
       Muon::ResoTriggerMuonPlots *L2TriggerMuonResoMuonPlots = m_oL2TriggerMuonEndcapsResolutionPlots[i];
       delete L2TriggerMuonResoMuonPlots;
-      L2TriggerMuonResoMuonPlots=0;
+      L2TriggerMuonResoMuonPlots=nullptr;
     }
     for (unsigned int i=0; i<m_oL2TriggerMuonResolutionPlots.size(); i++) {  
       Muon::ResoTriggerMuonPlots *L2TriggerMuonResoMuonPlots = m_oL2TriggerMuonResolutionPlots[i];
       delete L2TriggerMuonResoMuonPlots;
-      L2TriggerMuonResoMuonPlots=0;
+      L2TriggerMuonResoMuonPlots=nullptr;
     }
   }
   if (m_doTrigMuonEFValidation) {
     for (unsigned int i=0; i<m_oEFTriggerMuonPlots.size(); i++) {  
       HLTriggerMuonPlots *trigMuonPlots = m_oEFTriggerMuonPlots[i];
       delete trigMuonPlots;
-      trigMuonPlots=0;
+      trigMuonPlots=nullptr;
     }
     for (unsigned int i=0; i<m_oEFTriggerMuonResolutionPlots.size(); i++) {  
       Muon::ResoTriggerMuonPlots *EFTriggerMuonResoMuonPlots = m_oEFTriggerMuonResolutionPlots[i];
       delete EFTriggerMuonResoMuonPlots;
-      EFTriggerMuonResoMuonPlots=0;
+      EFTriggerMuonResoMuonPlots=nullptr;
     }
     for (unsigned int i=0; i<m_oEFTriggerMuonBarrelResolutionPlots.size(); i++) {  
       Muon::ResoTriggerMuonPlots *EFTriggerMuonResoMuonPlots = m_oEFTriggerMuonBarrelResolutionPlots[i];
       delete EFTriggerMuonResoMuonPlots;
-      EFTriggerMuonResoMuonPlots=0;
+      EFTriggerMuonResoMuonPlots=nullptr;
     }
     for (unsigned int i=0; i<m_oEFTriggerMuonEndcapsResolutionPlots.size(); i++) {  
       Muon::ResoTriggerMuonPlots *EFTriggerMuonResoMuonPlots = m_oEFTriggerMuonEndcapsResolutionPlots[i];
       delete EFTriggerMuonResoMuonPlots;
-      EFTriggerMuonResoMuonPlots=0;
+      EFTriggerMuonResoMuonPlots=nullptr;
     }
     for (unsigned int i=0; i<m_oL1TriggerChainEfficiencyPlots.size(); i++) {  
       TriggerEfficiencyPlots* L1TriggerChainEfficiencyPlots = m_oL1TriggerChainEfficiencyPlots[i];
       delete L1TriggerChainEfficiencyPlots;
-      L1TriggerChainEfficiencyPlots=0;
+      L1TriggerChainEfficiencyPlots=nullptr;
     }
     for (unsigned int i=0; i<m_oL1TriggerChainBarrelEfficiencyPlots.size(); i++) {  
       TriggerEfficiencyPlots* L1TriggerChainEfficiencyPlots = m_oL1TriggerChainBarrelEfficiencyPlots[i];
       delete L1TriggerChainEfficiencyPlots;
-      L1TriggerChainEfficiencyPlots=0;
+      L1TriggerChainEfficiencyPlots=nullptr;
     }
     for (unsigned int i=0; i<m_oL1TriggerChainEndcapsEfficiencyPlots.size(); i++) {  
       TriggerEfficiencyPlots* L1TriggerChainEfficiencyPlots = m_oL1TriggerChainEndcapsEfficiencyPlots[i];
       delete L1TriggerChainEfficiencyPlots;
-      L1TriggerChainEfficiencyPlots=0;
+      L1TriggerChainEfficiencyPlots=nullptr;
     }
     for (unsigned int i=0; i<m_oEFTriggerChainEfficiencyPlots.size(); i++) {  
       TriggerEfficiencyPlots* EFTriggerChainEfficiencyPlots = m_oEFTriggerChainEfficiencyPlots[i];
       delete EFTriggerChainEfficiencyPlots;
-      EFTriggerChainEfficiencyPlots=0;
+      EFTriggerChainEfficiencyPlots=nullptr;
     }
     for (unsigned int i=0; i<m_oEFTriggerChainBarrelEfficiencyPlots.size(); i++) {  
       TriggerEfficiencyPlots* EFTriggerChainEfficiencyPlots = m_oEFTriggerChainBarrelEfficiencyPlots[i];
       delete EFTriggerChainEfficiencyPlots;
-      EFTriggerChainEfficiencyPlots=0;
+      EFTriggerChainEfficiencyPlots=nullptr;
     }
     for (unsigned int i=0; i<m_oEFTriggerChainEndcapsEfficiencyPlots.size(); i++) {  
       TriggerEfficiencyPlots* EFTriggerChainEfficiencyPlots = m_oEFTriggerChainEndcapsEfficiencyPlots[i];
       delete EFTriggerChainEfficiencyPlots;
-      EFTriggerChainEfficiencyPlots=0;
+      EFTriggerChainEfficiencyPlots=nullptr;
     }
     for (unsigned int i=0; i<m_oEFTriggerChainRELEfficiencyPlots.size(); i++) {  
       TriggerEfficiencyPlots* EFTriggerChainRELEfficiencyPlots = m_oEFTriggerChainRELEfficiencyPlots[i];
       delete EFTriggerChainRELEfficiencyPlots;
-      EFTriggerChainRELEfficiencyPlots=0;
+      EFTriggerChainRELEfficiencyPlots=nullptr;
     }
     for (unsigned int i=0; i<m_oEFTriggerChainBarrelRELEfficiencyPlots.size(); i++) {  
       TriggerEfficiencyPlots* EFTriggerChainRELEfficiencyPlots = m_oEFTriggerChainBarrelRELEfficiencyPlots[i];
       delete EFTriggerChainRELEfficiencyPlots;
-      EFTriggerChainRELEfficiencyPlots=0;
+      EFTriggerChainRELEfficiencyPlots=nullptr;
     }
     for (unsigned int i=0; i<m_oEFTriggerChainEndcapsRELEfficiencyPlots.size(); i++) {  
       TriggerEfficiencyPlots* EFTriggerChainRELEfficiencyPlots = m_oEFTriggerChainEndcapsRELEfficiencyPlots[i];
       delete EFTriggerChainRELEfficiencyPlots;
-      EFTriggerChainRELEfficiencyPlots=0;
+      EFTriggerChainRELEfficiencyPlots=nullptr;
     }
 
 
@@ -235,7 +237,7 @@ void TriggerMuonValidationPlots::fill(const xAOD::L2CombinedMuon& L2CBmu) {
 
 
 
-void TriggerMuonValidationPlots::fillNumEff(const xAOD::Muon& mu, std::string selectedChain) {
+void TriggerMuonValidationPlots::fillNumEff(const xAOD::Muon& mu, const std::string& selectedChain) {
   float PlateauTreshold = findTrigTreshold(selectedChain);
   PlateauTreshold =PlateauTreshold*1000.*1.05;
   for (unsigned int i=0; i<m_chains.size(); i++) {
@@ -247,7 +249,7 @@ void TriggerMuonValidationPlots::fillNumEff(const xAOD::Muon& mu, std::string se
   }
 }
 
-void TriggerMuonValidationPlots::fillDenEff(const xAOD::Muon& mu, std::string selectedChain) {
+void TriggerMuonValidationPlots::fillDenEff(const xAOD::Muon& mu, const std::string& selectedChain) {
   float PlateauTreshold = findTrigTreshold(selectedChain);
   PlateauTreshold =PlateauTreshold*1000.*1.05;
   for (unsigned int i=0; i<m_chains.size(); i++) {
@@ -259,7 +261,7 @@ void TriggerMuonValidationPlots::fillDenEff(const xAOD::Muon& mu, std::string se
   }
 }
 
-void TriggerMuonValidationPlots::fillFeatPlots(const xAOD::Muon& mu, std::string selectedChain) {
+void TriggerMuonValidationPlots::fillFeatPlots(const xAOD::Muon& mu, const std::string& selectedChain) {
   float PlateauTreshold = findTrigTreshold(selectedChain);
   PlateauTreshold =PlateauTreshold*1000.*1.05;
   for (unsigned int i=0; i<m_chains.size(); i++) {
@@ -271,7 +273,7 @@ void TriggerMuonValidationPlots::fillFeatPlots(const xAOD::Muon& mu, std::string
   }
 }
 
-void TriggerMuonValidationPlots::fillNumL1Eff(const xAOD::Muon& mu, std::string selectedL1MuonItem) {
+void TriggerMuonValidationPlots::fillNumL1Eff(const xAOD::Muon& mu, const std::string& selectedL1MuonItem) {
   float PlateauTreshold = findTrigTreshold(selectedL1MuonItem);
   PlateauTreshold =PlateauTreshold*1000.*1.05;
   for (unsigned int i=0; i<m_L1MuonItems.size(); i++) {
@@ -283,7 +285,7 @@ void TriggerMuonValidationPlots::fillNumL1Eff(const xAOD::Muon& mu, std::string 
   }
 }
 
-void TriggerMuonValidationPlots::fillDenL1Eff(const xAOD::Muon& mu, std::string selectedL1MuonItem) {
+void TriggerMuonValidationPlots::fillDenL1Eff(const xAOD::Muon& mu, const std::string& selectedL1MuonItem) {
   float PlateauTreshold = findTrigTreshold(selectedL1MuonItem);
   PlateauTreshold =PlateauTreshold*1000.*1.05;
   for (unsigned int i=0; i<m_L1MuonItems.size(); i++) {
@@ -294,7 +296,7 @@ void TriggerMuonValidationPlots::fillDenL1Eff(const xAOD::Muon& mu, std::string 
     }
   }
 }
-void TriggerMuonValidationPlots::fillFeatPlots(const xAOD::MuonRoI& TrigL1mu, std::string selectedL1MuonItem) {
+void TriggerMuonValidationPlots::fillFeatPlots(const xAOD::MuonRoI& TrigL1mu, const std::string& selectedL1MuonItem) {
   float PlateauTreshold = findTrigTreshold(selectedL1MuonItem);
   PlateauTreshold =PlateauTreshold*1000.*1.05;
   xAOD::MuonContainer* ROIinMuons = new xAOD::MuonContainer;
@@ -315,7 +317,7 @@ void TriggerMuonValidationPlots::fillFeatPlots(const xAOD::MuonRoI& TrigL1mu, st
   delete ROIinMuonsAux;
 }
 
-void TriggerMuonValidationPlots::fillDenRELEff(const xAOD::Muon& mu, std::string selectedChain ) {
+void TriggerMuonValidationPlots::fillDenRELEff(const xAOD::Muon& mu, const std::string& selectedChain ) {
   float PlateauTreshold = findTrigTreshold(selectedChain);
   PlateauTreshold =PlateauTreshold*1000.*1.05;
   for (unsigned int i=0; i<m_chains.size(); i++) {
@@ -327,7 +329,7 @@ void TriggerMuonValidationPlots::fillDenRELEff(const xAOD::Muon& mu, std::string
   }
 }
 
-void TriggerMuonValidationPlots::fillNumRELEff(const xAOD::Muon& mu, std::string selectedChain ) {
+void TriggerMuonValidationPlots::fillNumRELEff(const xAOD::Muon& mu, const std::string& selectedChain ) {
   float PlateauTreshold = findTrigTreshold(selectedChain);
   PlateauTreshold =PlateauTreshold*1000.*1.05;
   for (unsigned int i=0; i<m_chains.size(); i++) {
@@ -339,7 +341,7 @@ void TriggerMuonValidationPlots::fillNumRELEff(const xAOD::Muon& mu, std::string
   }
 }
 
-float TriggerMuonValidationPlots::findTrigTreshold(TString chain){
+float TriggerMuonValidationPlots::findTrigTreshold(const TString& chain){
   float PlateauTreshold;
   std::string str(chain);
   TString temp;

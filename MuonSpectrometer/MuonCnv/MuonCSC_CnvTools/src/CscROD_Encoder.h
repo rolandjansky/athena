@@ -45,7 +45,7 @@ public:
 
 private:
     const CscRawDataCollection* m_cscRdo;
-    const CscIdHelper* m_cscIdHelper;
+    const CscIdHelper* m_cscIdHelper = nullptr;
 };
 
 #endif

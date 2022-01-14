@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AFP_GeoModelTool_H
@@ -27,13 +27,14 @@ class AFP_GeoModelTool final : public GeoModelTool
     AFP_Geometry* m_pGeometry;
     AFP_GeoModelFactory* m_pAFPDetectorFactory;
     ServiceHandle< IIOVDbSvc > m_iovSvc;
+    AFP_SIDCONFIGURATION m_defsidcfg;
     std::vector<double> m_vecAFP00XStaggering, m_vecAFP00YStaggering;
     std::vector<double> m_vecAFP01XStaggering, m_vecAFP01YStaggering;
     std::vector<double> m_vecAFP02XStaggering, m_vecAFP02YStaggering;
     std::vector<double> m_vecAFP03XStaggering, m_vecAFP03YStaggering;
     
  private:
-    StatusCode CheckPropertiesSettings();
+    StatusCode checkPropertiesSettings();
     //virtual StatusCode registerCallback(StoreGateSvc* detStore);
     //virtual StatusCode align(IOVSVC_CALLBACK_ARGS);
 };

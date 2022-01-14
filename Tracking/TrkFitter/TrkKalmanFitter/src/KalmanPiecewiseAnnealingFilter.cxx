@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -387,11 +387,10 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
           predDiffPar = std::make_unique<AmgVector(5)>(  start_predPar->parameters()
                                                - start->referenceParameters()->parameters() );
         } else {
-          predDiffPar.reset(  start->checkoutParametersDifference() );
+          predDiffPar = start->checkoutParametersDifference() ;
           predPar = CREATE_PARAMETERS(*start->referenceParameters(),
                                       (start->referenceParameters()->parameters() + (*predDiffPar)),
                                       AmgSymMatrix(5)(*start->parametersCovariance()));
-          delete start->checkoutParametersCovariance();
         }
       } else {
         if (start_predPar) predPar     = start_predPar->uniqueClone();
@@ -494,9 +493,9 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
       }
       // if (input_it->jacobian()) m_trajPiece.back().checkinTransportJacobian(new Trk::TransportJacobian(*input_it->jacobian()));
       if (input_it->jacobian()) m_trajPiece.back().checkinTransportJacobian(input_it->jacobian(),false);
-      m_trajPiece.back().checkinReferenceParameters(input_it->referenceParameters(),false);
-      m_trajPiece.back().checkinParametersDifference(predDiffPar.release() );
-      m_trajPiece.back().checkinParametersCovariance(new AmgSymMatrix(5)(*predPar->covariance()));
+      m_trajPiece.back().checkinReferenceParameters(input_it->referenceParameters());
+      m_trajPiece.back().checkinParametersDifference(std::move(predDiffPar));
+      m_trajPiece.back().checkinParametersCovariance(std::make_unique<const AmgSymMatrix(5)>(*predPar->covariance()));
     }
 
     if (input_it->isOutlier() || !m_trajPiece.back().measurement() ) {
@@ -710,7 +709,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
 	    itForKF->replaceMeasurement(compROT->rioOnTrack(compROT->indexOfMaxAssignProb()).clone());
 	    decision = "drift circle (max prob)";
 	  }
-	} else if (fabs(predictedLocalR) < 2.10) {
+	} else if (std::abs(predictedLocalR) < 2.10) {
 	  const Trk::RIO_OnTrack* recalibratedROT =
 	    m_recalibrator->makeBroadMeasurement(*compROT,*it->smoothedTrackParameters());
 	  itForKF->replaceMeasurement(recalibratedROT); itForKF->isOutlier(false);

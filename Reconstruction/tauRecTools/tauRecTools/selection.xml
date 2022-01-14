@@ -1,4 +1,4 @@
-<!-- Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration -->
+<!-- Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration -->
 <lcgdict>
 
    <class name="TauVertexedClusterDecorator" />
@@ -9,8 +9,6 @@
    <class name="ITauToolBase" />
    <class name="MvaTESVariableDecorator" />
    <class name="MvaTESEvaluator" />
-   <class name="tauRecTools::TauTrackClassifier" />
-   <class name="tauRecTools::TrackMVABDT" />
    <class name="tauRecTools::TrackRNN" />
    <class name="tauRecTools::TauTrackRNNClassifier" />
    <class name="TauCombinedTES" />

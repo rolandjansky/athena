@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PYKERNEL_PYREVERSEPROXY_H
@@ -18,8 +18,10 @@
 # undef _XOPEN_SOURCE
 #endif
 #include "Python.h"
-#include <map>
+#include <unordered_map>
 #include <string>
+#include "RootUtils/PyAthenaGILStateEnsure.h"
+#include "CxxUtils/checker_macros.h"
 
 
 struct PyReverseProxy
@@ -27,12 +29,14 @@ struct PyReverseProxy
   /// destructor
   ~PyReverseProxy()
   {
-    m_proxyMap.erase(m_key);
+    RootUtils::PyGILStateEnsure gil;
+    s_proxyMap.erase(m_key);
   }
 
   /// setter
   void setFunc (PyObject * func)
   {
+    RootUtils::PyGILStateEnsure gil;
     Py_DECREF(m_func); 
     m_func = func;
     Py_INCREF(m_func); 
@@ -46,6 +50,7 @@ struct PyReverseProxy
 
   PyObject * toPyObj (void * obj)
   {
+    RootUtils::PyGILStateEnsure gil;
     m_obj = obj;
     return PyObject_CallObject(m_func,NULL);
   }
@@ -53,9 +58,12 @@ struct PyReverseProxy
   /// factory method
   static PyReverseProxy * getProxy(const std::string & key)
   {
-    if (m_proxyMap.count(key) == 0)
-      m_proxyMap[key] = new PyReverseProxy(key);
-    return m_proxyMap[key];
+    RootUtils::PyGILStateEnsure gil;
+    PyReverseProxy* & prox = s_proxyMap[key];
+    if (!prox) {
+      prox = new PyReverseProxy(key);
+    }
+    return prox;
   }
 
 private:
@@ -78,7 +86,8 @@ private:
   PyObject * m_func;
 
   /// proxy map
-  static std::map<std::string, PyReverseProxy *> m_proxyMap;
+  /// protected by the python GIL.
+  static std::unordered_map<std::string, PyReverseProxy *> s_proxyMap ATLAS_THREAD_SAFE;
 };
 
 #endif

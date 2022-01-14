@@ -71,6 +71,7 @@ class opt:
 
 ################################################################################
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaConfiguration.AccumulatorCache import AccumulatorDecorator
 from AthenaCommon.AppMgr import theApp, ServiceMgr as svcMgr
 from AthenaCommon.Include import include
 from AthenaCommon.Logging import logging
@@ -152,6 +153,7 @@ else:   # athenaHLT
     globalflags.DataSource = 'data' if not opt.setupForMC else 'data'
     ConfigFlags.Input.isMC = False
     ConfigFlags.Input.Collections = []
+    ConfigFlags.Input.TypedCollections = []
     TriggerJobOpts.Modifiers._run_number = globals().get('_run_number')  # set by athenaHLT
     TriggerJobOpts.Modifiers._lb_number = globals().get('_lb_number')  # set by athenaHLT
     if '_run_number' in globals():
@@ -472,17 +474,21 @@ else:
 # ---------------------------------------------------------------
 # Add LumiBlockMuWriter creating xAOD::EventInfo decorations for pileup values
 # ---------------------------------------------------------------
-from LumiBlockComps.LumiBlockMuWriterDefault import LumiBlockMuWriterDefault
-LumiBlockMuWriterDefault(sequence=hltBeginSeq)
+from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
+CAtoGlobalWrapper(LumiBlockMuWriterCfg, ConfigFlags, seqName="HLTBeginSeq")
+
 
 # ---------------------------------------------------------------
 # Level 1 simulation
 # ---------------------------------------------------------------
 if opt.doL1Sim:
-    from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
-    hltBeginSeq += Lvl1SimulationSequence(ConfigFlags)
-    #from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationCfg
-    #CAtoGlobalWrapper(Lvl1SimulationCfg, ConfigFlags, seqName="HLTBeginSeq")
+    if ConfigFlags.Detector.GeometrysTGC and ConfigFlags.Detector.GeometryMM and ConfigFlags.Input.isMC:
+        from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
+        hltBeginSeq += Lvl1SimulationSequence(ConfigFlags)
+    else:
+        from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationCfg
+        CAtoGlobalWrapper(Lvl1SimulationCfg, ConfigFlags, seqName="HLTBeginSeq")
+
 
 # ---------------------------------------------------------------
 # Add HLTSeeding providing inputs to HLT
@@ -500,7 +506,7 @@ if opt.doL1Unpacking:
 # ---------------------------------------------------------------
 if not opt.createHLTMenuExternally:
 
-    from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
+    from TriggerMenuMT.HLT.Menu.GenerateMenuMT import GenerateMenuMT
     menu = GenerateMenuMT()
 
     def chainsToGenerate(signame, chain):
@@ -511,7 +517,7 @@ if not opt.createHLTMenuExternally:
 
     # generating the HLT structure requires
     # the HLTSeeding to be defined in the topSequence
-    menu.generateMT()
+    menu.generateMT(ConfigFlags)
     # Note this will also create the requested HLTPrescale JSON
     # - the default file (with all prescales set to 1) is not really needed.
     # - If no file is provided all chains are either enabled or disabled,
@@ -648,3 +654,8 @@ for mod in modifierList:
 #-------------------------------------------------------------
 from AthenaCommon.AlgSequence import dumpSequence
 dumpSequence(topSequence)
+
+#-------------------------------------------------------------
+# Print caching statistics
+#-------------------------------------------------------------
+AccumulatorDecorator.printStats()

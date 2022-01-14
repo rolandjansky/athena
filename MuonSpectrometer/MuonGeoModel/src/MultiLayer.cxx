@@ -55,8 +55,8 @@ namespace {
 
 namespace MuonGM {
 
-    MultiLayer::MultiLayer(const MYSQL& mysql, std::string n)
-        : DetectorElement(std::move(n)), nrOfLayers(0), nrOfTubes(0), tubePitch(0.), width(0.), length(0.), thickness(0.), mdtthickness(0.), longWidth(0.), nrOfSteps(0), cutoutNsteps(0),
+    MultiLayer::MultiLayer(const MYSQL& mysql, const std::string& n)
+        : DetectorElement(n), nrOfLayers(0), nrOfTubes(0), tubePitch(0.), width(0.), length(0.), thickness(0.), mdtthickness(0.), longWidth(0.), nrOfSteps(0), cutoutNsteps(0),
           cutoutAtAngle(false), m_nonCutoutXSteps(), m_nonCutoutYSteps() {
         MsgStream log(Athena::getMessageSvc(), "MultiLayer::MultiLayer");
 
@@ -518,7 +518,7 @@ namespace MuonGM {
         if (cutoutNsteps < -10000 && cutoutNsteps > -40000) {
 
             bool internalCutoutBMG[3] = {false, true, false};
-            std::array<std::array<int, 3>, 4> NtubesBMG;
+            std::array<std::array<int, 3>, 4> NtubesBMG{};
 
             if (cutoutNsteps == -11112) { // BMG1A12 - ML1
                 NtubesBMG = {{{{23, 7, 24}}, {{24, 7, 23}}, {{24, 7, 23}}, {{25, 7, 22}}}};

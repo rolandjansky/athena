@@ -101,7 +101,7 @@ void CaloSwEtaoff_v3::makeTheCorrection (const Context& myctx,
  * @returns The region index, or -1 if @c aeta is outside the table range.
  */
 int CaloSwEtaoff_v3::find_region (const CxxUtils::Array<2>& regions,
-                                  float aeta) const
+                                  float aeta) 
 {
   // ??? Would a binary search be better here?
   //     The table shouldn't be very large, so I'll leave it like
@@ -267,7 +267,7 @@ void poly_eval (float aeta,
  */
 float CaloSwEtaoff_v3::Builder::calc0 (float aeta,
                                        float u,
-                                       const CaloRec::Array<2>& coef) const
+                                       const CaloRec::Array<2>& coef) 
 {
   const unsigned int NPAR = 5;
   double pars[NPAR];
@@ -285,7 +285,7 @@ float CaloSwEtaoff_v3::Builder::calc0 (float aeta,
  */
 float CaloSwEtaoff_v3::Builder::calc3 (float aeta,
                                        float u,
-                                       const CaloRec::Array<2>& coef) const
+                                       const CaloRec::Array<2>& coef) 
 {
   const unsigned int NPAR = 4;
   double pars[NPAR];
@@ -305,7 +305,7 @@ float CaloSwEtaoff_v3::Builder::calc3 (float aeta,
  */
 float CaloSwEtaoff_v3::Builder::calc4 (float aeta,
                                        float u,
-                                       const CaloRec::Array<2>& coef) const
+                                       const CaloRec::Array<2>& coef) 
 {
   const unsigned int NPAR = 3;
   double pars[NPAR];
@@ -327,7 +327,7 @@ float CaloSwEtaoff_v3::Builder::calc4 (float aeta,
  */
 float CaloSwEtaoff_v3::Builder::calc5 (float aeta,
                                        float /*u*/,
-                                       const CaloRec::Array<2>& coef) const
+                                       const CaloRec::Array<2>& coef) 
 {
   const unsigned int NPAR = 1;
   double pars[NPAR];
@@ -344,7 +344,7 @@ float CaloSwEtaoff_v3::Builder::calc5 (float aeta,
  */
 float CaloSwEtaoff_v3::Builder::calc10 (float aeta,
                                         float u,
-                                        const CaloRec::Array<2>& coef) const
+                                        const CaloRec::Array<2>& coef) 
 {
   const unsigned int NPAR = 7;
   double pars[NPAR];
@@ -375,7 +375,7 @@ float CaloSwEtaoff_v3::Builder::calc10 (float aeta,
  */
 float CaloSwEtaoff_v3::Builder::calc11 (float aeta,
                                         float u,
-                                        const CaloRec::Array<2>& coef) const
+                                        const CaloRec::Array<2>& coef) 
 {
   const unsigned int NPAR = 8;
   double pars[NPAR];
@@ -396,7 +396,7 @@ float CaloSwEtaoff_v3::Builder::calc13 (float aeta,
                                         float /*u*/,
                                         const CaloRec::Array<2>& coef,
                                         float xlo,
-                                        float xhi) const
+                                        float xhi) 
 {
   const unsigned int NPAR = 1;
   double pars[NPAR];

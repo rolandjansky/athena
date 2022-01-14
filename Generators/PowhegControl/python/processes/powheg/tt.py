@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import Logging
 from ...parameters import powheg_atlas_common
@@ -165,5 +165,5 @@ class tt(PowhegV2):
         # Calculate appropriate decay mode numbers
         __decay_mode_lookup = {"t t~ > all": "22222", "t t~ > b j j b~ j j": "00022", "t t~ > b l+ vl b~ l- vl~": "22200", "t t~ > b emu+ vemu b~ emu- vemu~": "22000", "t t~ > semileptonic": "11111", "t t~ > undecayed": "00000"}
         list(self.parameters_by_keyword("topdecaymode"))[0].value = __decay_mode_lookup[self.decay_mode]
-        if self.decay_mode == "semileptonic":
+        if self.decay_mode == "t t~ > semileptonic":
             list(self.parameters_by_keyword("semileptonic"))[0].value = 1

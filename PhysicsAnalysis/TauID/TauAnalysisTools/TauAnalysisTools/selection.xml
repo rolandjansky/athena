@@ -7,7 +7,6 @@
   <class name="TauAnalysisTools::BuildTruthTaus" />
   <class name="TauAnalysisTools::TauTruthMatchingTool" />
   <class name="TauAnalysisTools::TauTruthTrackMatchingTool" />
-  <class name="TauAnalysisTools::TauOverlappingElectronLLHDecorator" />
   <class name="TauAnalysisTools::CommonDiTauEfficiencyTool" />
   <class name="TauAnalysisTools::DiTauEfficiencyCorrectionsTool" />
   <class name="TauAnalysisTools::DiTauTruthMatchingTool" />

@@ -25,10 +25,6 @@ def egammaReconstructionCfg(flags, name="egammaReconstruction"):
             EMBremCollectionBuilderCfg)
         acc.merge(EMBremCollectionBuilderCfg(flags))
 
-        from egammaAlgs.EMGSFCaloExtensionBuilderConfig import (
-            EMGSFCaloExtensionBuilderCfg)
-        acc.merge(EMGSFCaloExtensionBuilderCfg(flags))
-
     # Add e/gamma conversion finding
     if flags.Egamma.doConversionBuilding:
         from egammaAlgs.EMVertexBuilderConfig import (
