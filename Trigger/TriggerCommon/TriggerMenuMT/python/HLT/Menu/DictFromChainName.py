@@ -585,6 +585,9 @@ def dictFromChainName(chainInfo):
     chainDict = analyseChainName(chainName,  l1Thresholds, L1item)
     log.debug('ChainProperties: %s', chainDict)
 
+    from TriggerMenuMT.HLT.CommonSequences.EventBuildingSequences import isRoIBasedPEB
+    _isRoIBasedPEB = isRoIBasedPEB(chainDict['eventBuildType'])
+
     for chainPart in chainDict['chainParts']:
         # fill the sigFolder and subSigs folder
         for sf in chainPart['sigFolder']:
@@ -626,7 +629,8 @@ def dictFromChainName(chainInfo):
                 #incorrectL1=True
 
         if thisChainPartName in ['noalg']:
-            if 'FSNOSEED' not in thisL1:
+            # All streamers should be unseeded except RoI-based PEB streamers which need a real RoI for PEB
+            if 'FSNOSEED' not in thisL1 and not _isRoIBasedPEB:
                 log.error("noalg chains should be seeded from FSNOSEED. Check %s seeded from %s (defined L1: %s),  signature %s",chainDict['chainName'],thisL1,l1Thresholds,thisSignature)
                 #incorrectL1=True
 
