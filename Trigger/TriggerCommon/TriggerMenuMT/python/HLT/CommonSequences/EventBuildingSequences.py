@@ -189,9 +189,9 @@ def pebInputMaker(chain, eventBuildType):
 
     # Check if we are configuring RoI-based PEB
     _tmpTool = pebInfoWriterTool('tmpTool_'+eventBuildType, eventBuildType)
-    isRoIBasedPEB = isinstance(_tmpTool, CompFactory.RoIPEBInfoWriterTool)
-    isStaticPEB = isinstance(_tmpTool, CompFactory.StaticPEBInfoWriterTool)
-    if not isRoIBasedPEB and not isStaticPEB:
+    _isRoIBasedPEB = isinstance(_tmpTool, CompFactory.RoIPEBInfoWriterTool)
+    _isStaticPEB = isinstance(_tmpTool, CompFactory.StaticPEBInfoWriterTool)
+    if not _isRoIBasedPEB and not _isStaticPEB:
         raise RuntimeError('Cannot determine whether ' + eventBuildType +
                            ' is static or RoI-based PEB from a tool of type ' + type(_tmpTool))
     del _tmpTool
@@ -200,13 +200,13 @@ def pebInputMaker(chain, eventBuildType):
     maker = CompFactory.InputMakerForRoI("IMpeb_"+eventBuildType)
     maker.RoIs = "pebInputRoI_" + eventBuildType
     # Allow more than one feature per input RoI if we care about RoIs
-    maker.mergeUsingFeature = isRoIBasedPEB
+    maker.mergeUsingFeature = _isRoIBasedPEB
 
     # Configure the InputMaker RoI tool
-    if len(chain.steps) == 0 or isStaticPEB:
+    if len(chain.steps) == 0 or _isStaticPEB:
         # Streamers or static PEB: use initial RoI
         maker.RoITool = CompFactory.ViewCreatorInitialROITool()
-    elif isFullscan and isRoIBasedPEB:
+    elif isFullscan and _isRoIBasedPEB:
         # Full-scan chains with RoI-based PEB: create RoI around feature IParticle
         maker.RoITool = CompFactory.ViewCreatorCentredOnIParticleROITool()
         maker.RoITool.RoisWriteHandleKey = recordable("HLT_Roi_" + eventBuildType)
@@ -269,6 +269,16 @@ def alignEventBuildingSteps(chain_configs, chain_dicts):
             numStepsNeeded = maxPebStepPosition[ebt] - pebStepPosition
             log.debug('Aligning PEB step for chain %s by adding %d empty steps', chainName, numStepsNeeded)
             chainConfig.insertEmptySteps('EmptyPEBAlign', numStepsNeeded, pebStepPosition-1)
+
+
+def isRoIBasedPEB(eventBuildType):
+    '''Helper function to determine if eventBuildType corresponds to RoI-based PEB'''
+    if not eventBuildType:
+        return False
+    _tmpTool = pebInfoWriterTool('tmpTool_'+eventBuildType, eventBuildType)
+    result = isinstance(_tmpTool, CompFactory.RoIPEBInfoWriterTool)
+    del _tmpTool
+    return result
 
 
 # Unit test
