@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s):
@@ -745,7 +745,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   };
 
   // Construct electron fallback WPs for SFs
-  for (auto& x : m_el_iso_support) { m_el_iso_fallback[x] = x; } // all current WPs
+  for (const auto& x : m_el_iso_support) { m_el_iso_fallback[x] = x; } // all current WPs
   m_el_iso_fallback["Tight_VarRad"] = "FCTight";                // plus actual fallback
   m_el_iso_fallback["Loose_VarRad"] = "FCLoose";
   m_el_iso_fallback["HighPtCaloOnly"] = "FCHighPtCaloOnly";
@@ -920,13 +920,13 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfile
     std::map<std::string,std::vector<std::string>> PRWRtags = {};
     std::string allcampaigns = "mc16a.mc16c.mc16d.mc16e.mc20a.mc20d.mc20e.mc16ans.mc16dns.mc16ens";
     bool standard_like = true;
-    for ( auto& campaign_rtags : split( m_autoconfigPRWRtags, "," ) ) {                                          // split string by ","
+    for ( const auto& campaign_rtags : split( m_autoconfigPRWRtags, "," ) ) {                                          // split string by ","
        std::string icampaign = campaign_rtags.substr(0, campaign_rtags.find(":"));                              // first field = campaign, split by ":"
        std::vector<std::string> irtags = split( campaign_rtags.substr(campaign_rtags.find(":")+1), "_" );       // remaining fields = rtags, split by "_"
        PRWRtags[icampaign] = irtags;
        ATH_MSG_DEBUG( "PRW autoconfigure considering rtags " <<  campaign_rtags.substr(campaign_rtags.find("_")+1) << " for campaign " << icampaign );
     }
-    for ( auto& x : PRWRtags ) {
+    for ( const auto& x : PRWRtags ) {
        if ( allcampaigns.find(x.first)==string::npos ) {
           ATH_MSG_ERROR("m_autoconfigPRWRtags contains invalid campaign: " << x.first << " (" << m_autoconfigPRWRtags << ")");
           ATH_MSG_ERROR("use any of " << allcampaigns);
@@ -940,8 +940,8 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfile
       fmd->value(xAOD::FileMetaData::amiTag, amiTag);
       bool found = false;
       while ( mcCampaignMD.empty() ) {
-         for ( auto& campaign_rtags : PRWRtags ) {                                 // consider all campaigns
-            for ( auto& rtag: campaign_rtags.second ) {                            // consider all rtags
+         for ( const auto& campaign_rtags : PRWRtags ) {                                 // consider all campaigns
+            for ( const auto& rtag: campaign_rtags.second ) {                            // consider all rtags
                if (found) continue;
                if (amiTag.find(rtag)!=string::npos) {                             // find matching tag
                   mcCampaignMD = campaign_rtags.first.substr(0,5);                // save campaign
@@ -1668,7 +1668,7 @@ void SUSYObjDef_xAOD::getTauConfig(const std::string& tauConfigPath, std::vector
   float pT_max = -99.0;
   float eta_min = -99.0;
   float eta_max = -99.0;
-  for (auto& cut : cuts) {
+  for (const auto& cut : cuts) {
     if(cut == "PtRegion") {
       _pT_window = split(rEnv.GetValue("PtRegion", ""), ";");
       std::transform(std::begin(_pT_window),
@@ -1705,7 +1705,7 @@ void SUSYObjDef_xAOD::getTauConfig(const std::string& tauConfigPath, std::vector
     }
   }
 
-  if(pT_window.size() == 0) {
+  if(pT_window.empty()) {
     if(pT_min == pT_min) {
       // fails on NaN
       pT_window.push_back(pT_min);
@@ -1721,7 +1721,7 @@ void SUSYObjDef_xAOD::getTauConfig(const std::string& tauConfigPath, std::vector
     }
   }
 
-  if(eta_window.size() == 0) {
+  if(eta_window.empty()) {
     if(eta_min == eta_min) {
       // fails on NaN
       eta_window.push_back(eta_min);
@@ -2601,7 +2601,7 @@ ST::SystInfo SUSYObjDef_xAOD::getSystInfo(const CP::SystematicVariation& sys) co
       sysInfo.affectedWeights.insert(ST::Weights::Tau::Reconstruction);
     }
   }
-  for(auto &tool : m_tauTrigEffTool) {
+  for(const auto &tool : m_tauTrigEffTool) {
     if(tool->isAffectedBySystematic(sys)) {
       sysInfo.affectsWeights = true;
       sysInfo.affectsType = SystObjType::Tau;
