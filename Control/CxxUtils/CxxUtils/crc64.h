@@ -155,7 +155,7 @@ uint64_t crc64 (const std::string& s);
  * @param x The integer to add.
  * @return The new CRC.
  */
-uint64_t crc64addint (uint64_t crc, uint64_t x);
+uint64_t crc64addint (uint64_t crc, unsigned int x);
 
 
 /**

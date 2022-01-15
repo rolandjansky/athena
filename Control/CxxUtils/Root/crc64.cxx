@@ -729,7 +729,7 @@ uint64_t crc64 (const std::string& s)
  * @param x The integer to add.
  * @return The new CRC.
  */
-uint64_t crc64addint (uint64_t crc, uint64_t x)
+uint64_t crc64addint (uint64_t crc, unsigned int x)
 {
   while (x > 0) {
     crc = defaultCRCTable.m_table[(crc ^ x) & 0xff] ^ (crc >> 8);
