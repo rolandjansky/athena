@@ -77,7 +77,7 @@ def getNewConfigFlags():
 
     # miscellaneous settings
     from InDetRecExample.InDetJobProperties import InDetFlags
-    ConfigFlags.InDet.doTIDE_Ambi = InDetFlags.doTIDE_Ambi()
+    ConfigFlags.InDet.Tracking.doTIDE_Ambi = InDetFlags.doTIDE_Ambi()
     ConfigFlags.InDet.useDCS = InDetFlags.useDCS()
 
     from LArConditionsCommon.LArCondFlags import larCondFlags 

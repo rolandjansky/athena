@@ -415,7 +415,7 @@ def MuonCombinedReconstructionCfg(flags):
     result.merge( MuonCombinedInDetCandidateAlgCfg(flags) )
     result.merge( MuonCombinedMuonCandidateAlgCfg(flags) )
 
-    if flags.Detector.GeometryID and flags.InDet.doR3LargeD0:
+    if flags.Detector.GeometryID and flags.InDet.Tracking.doR3LargeD0:
         result.merge( MuonCombinedInDetCandidateAlg_LRTCfg(flags) )
 
     if flags.MuonCombined.doStatisticalCombination or flags.MuonCombined.doCombinedFit:
@@ -428,7 +428,7 @@ def MuonCombinedReconstructionCfg(flags):
         result.merge(MuonInsideOutRecoAlgCfg(flags, name="MuonInsideOutRecoAlg") ) 
         if flags.MuonCombined.doMuGirlLowBeta:
             result.merge(MuGirlStauAlgCfg)
-        if flags.Detector.GeometryID and flags.InDet.doR3LargeD0: 
+        if flags.Detector.GeometryID and flags.InDet.Tracking.doR3LargeD0:
             result.merge( MuGirlAlg_LRTCfg(flags) )
 
     if flags.MuonCombined.doCaloTrkMuId:
@@ -470,7 +470,7 @@ if __name__=="__main__":
     ConfigFlags.Concurrency.NumConcurrentEvents=args.threads # Might change this later, but good enough for the moment.
 
     ConfigFlags.Output.ESDFileName=args.output
-    ConfigFlags.InDet.doR3LargeD0 = False # Not working with this input. FIXME
+    ConfigFlags.InDet.Tracking.doR3LargeD0 = False # Not working with this input
     if args.debug:
         from AthenaCommon.Debugging import DbgStage
         if args.debug not in DbgStage.allowed_values:

@@ -61,7 +61,7 @@ if __name__ == "__main__":
 
     ConfigFlags.Detector.GeometryPixel   = True 
     ConfigFlags.Detector.GeometrySCT   = True
-    ConfigFlags.InDet.doPixelClusterSplitting = True
+    ConfigFlags.InDet.Tracking.doPixelClusterSplitting = True
 
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.RDO
