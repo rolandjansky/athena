@@ -52,12 +52,6 @@ atlas_add_test( RNGWrapper_test
    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
    LINK_LIBRARIES ${CLHEP_LIBRARIES} ${TBB_LIBRARIES} AthenaKernel AtlasCLHEP_RandomGenerators TestTools )
 
-atlas_add_test( RNGSeeding_test
-   SOURCES test/RNGSeeding_test.cxx
-   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${TBB_LIBRARIES} AthenaKernel AtlasCLHEP_RandomGenerators TestTools )
-
-
 atlas_add_test( RandomServices_test
                 SCRIPT test/RandomServices_test.py )
 
