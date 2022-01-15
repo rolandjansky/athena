@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -1230,7 +1230,7 @@ defParName(std::string algo, std::string nameHisto, int i)
 	  if (i==5) {
 	    return par5_name;
 	  } else
-	    return 0;
+	    return "";
 	}
       }
     }
