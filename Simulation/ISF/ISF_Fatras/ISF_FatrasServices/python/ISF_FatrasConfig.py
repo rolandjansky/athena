@@ -404,10 +404,8 @@ def fatrasMaterialUpdatorCfg(flags, name="ISF_FatrasMaterialUpdator", **kwargs):
     if not flags.Sim.ISF.UseTrackingGeometryCond:
         if 'TrackingGeometrySvc' not in kwargs:
             from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-            acc = TrackingGeometrySvcCfg(flags)
-            kwargs.setdefault("TrackingGeometrySvc", acc.getPrimary())
+            kwargs.setdefault("TrackingGeometrySvc", result.getPrimaryAndMerge(TrackingGeometrySvcCfg(flags)).name)
             kwargs.setdefault("TrackingGeometryReadKey", '')
-            result.merge(acc)
     else:
         if 'TrackingGeometryReadKey' not in kwargs:
             from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
