@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -178,7 +178,7 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fit(Trk::Trajectory&              tra
                                           const Trk::KalmanMatEffectsController& kalMec) const
 {
   ATH_MSG_VERBOSE ("--> enter KalmanSmoother::fit");
-
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   // protection against being unconfigured
   if (!m_updator) {
     ATH_MSG_ERROR ("need to first configure with updator");
@@ -305,7 +305,8 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fit(Trk::Trajectory&              tra
 
       // now propagate updated TrkParameters to surface of ROT
       if (!m_useExEngine)
-        predPar.reset(  m_extrapolator->extrapolate(*updatedPar, sf,
+        predPar.reset(  m_extrapolator->extrapolate(ctx,
+                                                    *updatedPar, sf,
                                                     Trk::oppositeMomentum, // reverse filtering
                                                     false,                 // no boundary check
                                                     kalMec.particleType()) );

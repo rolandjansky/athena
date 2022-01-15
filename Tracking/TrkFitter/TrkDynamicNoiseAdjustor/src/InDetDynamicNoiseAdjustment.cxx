@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -580,7 +580,7 @@ Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
 
     auto testPredPars =
       std::unique_ptr<const Trk::TrackParameters>(m_extrapolator->extrapolate(
-        *updatedPar, surf, direction, false, matEff.particleType()));
+        state.eventContext, *updatedPar, surf, direction, false, matEff.particleType()));
     if (testPredPars == nullptr) {
       ATH_MSG_WARNING(
         "extrapolation for adjusted cov fails - should never happen!");

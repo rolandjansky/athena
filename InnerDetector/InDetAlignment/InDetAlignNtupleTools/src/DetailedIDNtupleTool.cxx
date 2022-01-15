@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TrkEventPrimitives/FitQuality.h"
@@ -107,7 +107,7 @@ namespace InDet {
   void DetailedIDNtupleTool::dumpTrack(int itrk, const Trk::AlignTrack* alignTrack) {
     ATH_MSG_DEBUG("In dumpTrack()");
     Trk::AlignTrack::AlignTrackType type = alignTrack->type();
-
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     // if hope to dump all the tracks, should set:
     // m_storeNormalRefittedOnly = false, m_storeConstrainedOnly=false
     if ((m_storeNormalRefittedOnly && (type != Trk::AlignTrack::NormalRefitted)) ||
@@ -162,7 +162,7 @@ namespace InDet {
     m_original_theta = invalidParameterValue;
     m_original_qoverp = invalidParameterValue;
     m_original_pt =invalidParameterValue;
-                                                                                               m_original_eta = -999.;
+    m_original_eta = -999.;
     m_original_chi2 = invalidChiSq;
     m_original_chi2prob = invalidChiSq;
     m_original_ndof = invalidDegreesOfFreedom;
@@ -298,7 +298,7 @@ namespace InDet {
 
       const Trk::PerigeeSurface persf(refPoint);
       const Trk::Perigee* originalPerigeeAtRef =
-        dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolate(*originalTrack, persf));
+        dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolate(ctx, *originalTrack, persf));
       if (!originalPerigeeAtRef) {
         const Trk::Perigee* originalTrackPerigee = originalTrack->perigeeParameters();
         if (originalTrackPerigee && ((originalTrackPerigee->associatedSurface())) == persf) {
@@ -317,7 +317,7 @@ namespace InDet {
       }
 
       const Trk::Perigee* PerigeeAtRef =
-        dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolate(*alignTrack, persf));
+        dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolate(ctx, *alignTrack, persf));
       if (!PerigeeAtRef) {
         const Trk::Perigee* alignTrackPerigee = alignTrack->perigeeParameters();
         if (alignTrackPerigee && ((alignTrackPerigee->associatedSurface())) == persf) {

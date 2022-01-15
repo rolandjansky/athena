@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetMultipleVertexSeedFinderUtils/InDetTrackClusterCleaningTool.h"
@@ -43,6 +43,7 @@ namespace InDet
                                                                            clusterAndOutliers(const std::vector<const Trk::Track*>& cluster,
                                                                                                           const Trk::Vertex * reference )const
  {
+  const EventContext& ctx =  Gaudi::Hive::currentContext();
   std::vector<const Trk::Track*> clusterSeed(0);
   std::vector<const Trk::Track*> outliers(0);
   double z_center = 0;
@@ -57,9 +58,10 @@ namespace InDet
   {
    const Trk::TrackParameters * perigee(nullptr);
    if(!reference) perigee = (*i)->perigeeParameters();
-   else perigee = m_extrapolator->extrapolate(**i,perigeeSurface,
-					      Trk::anyDirection,true, 
-					      Trk::pion); 
+   else perigee = m_extrapolator->extrapolate(ctx,
+                                              **i,perigeeSurface,
+                                              Trk::anyDirection,true, 
+                                              Trk::pion); 
    
    if(perigee)
    { 
@@ -83,12 +85,11 @@ namespace InDet
    if(!reference) measPerigee=(*i)->perigeeParameters();
    else{
      
-     //here we want to make an extrapolation    
-     measPerigee = m_extrapolator->extrapolate(**i,
-					       perigeeSurface,Trk::anyDirection,
-					       true, Trk::pion); 
+     //here we want to make an extrapolation
+     measPerigee = m_extrapolator->extrapolate(
+       ctx, **i, perigeeSurface, Trk::anyDirection, true, Trk::pion);
    }
-   
+
    if(measPerigee)
      {
        double z0 = measPerigee->parameters()[Trk::z0];
@@ -116,6 +117,7 @@ namespace InDet
   InDetTrackClusterCleaningTool::clusterAndOutliers(const std::vector<const Trk::TrackParticleBase*>& cluster,
 						    const Trk::Vertex * reference)const
  {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   std::vector<const Trk::TrackParticleBase*> clusterSeed(0);
   std::vector<const Trk::TrackParticleBase*> outliers(0);
  
@@ -135,7 +137,8 @@ namespace InDet
   {
    const Trk::TrackParameters * perigee(nullptr);
    if(!reference) perigee = &((*i)->definingParameters());
-   else perigee = m_extrapolator->extrapolate((*i)->definingParameters(),perigeeSurface,Trk::anyDirection,true, Trk::pion);
+   else perigee = m_extrapolator->extrapolate(ctx,
+                                              (*i)->definingParameters(),perigeeSurface,Trk::anyDirection,true, Trk::pion);
    
    if(perigee)
    { 
@@ -158,7 +161,8 @@ namespace InDet
   {
    const Trk::TrackParameters * measPerigee(nullptr);
    if(!reference) measPerigee = &((*i)->definingParameters());
-   else  measPerigee = m_extrapolator->extrapolate((*i)->definingParameters(),perigeeSurface,Trk::anyDirection,true, Trk::pion);
+   else  measPerigee = m_extrapolator->extrapolate(ctx,
+                                                   (*i)->definingParameters(),perigeeSurface,Trk::anyDirection,true, Trk::pion);
   
    if(nullptr!=measPerigee)
    {
@@ -189,7 +193,7 @@ namespace InDet
  std::pair<std::vector<const Trk::TrackParameters *>, 
 	   std::vector<const xAOD::TrackParticle *> >  InDetTrackClusterCleaningTool::clusterAndOutliers(std::vector<const xAOD::TrackParticle *> cluster, const xAOD::Vertex * reference) const
 	   {
-	     
+	     const EventContext& ctx = Gaudi::Hive::currentContext(); 
 	     std::vector<const Trk::TrackParameters*> clusterSeed(0);
 	     std::vector<const xAOD::TrackParticle*> outliers(0);
 	     
@@ -209,7 +213,8 @@ namespace InDet
 	       {
 		 const Trk::TrackParameters * perigee(nullptr);
 		 
-		 perigee = m_extrapolator->extrapolate(**i,perigeeSurface,Trk::anyDirection,true, Trk::pion);
+		 perigee = m_extrapolator->extrapolate(ctx,
+                                           **i,perigeeSurface,Trk::anyDirection,true, Trk::pion);
 		 
 		 if(perigee)
 		   { 
@@ -231,7 +236,8 @@ namespace InDet
 	     for(std::vector<const xAOD::TrackParticle*>::const_iterator i = inb; i != ine; ++i)
 	       {
 		 const Trk::TrackParameters * measPerigee(nullptr);
-		 measPerigee = m_extrapolator->extrapolate(**i,perigeeSurface,Trk::anyDirection,true, Trk::pion);
+		 measPerigee = m_extrapolator->extrapolate(ctx,
+                                               **i,perigeeSurface,Trk::anyDirection,true, Trk::pion);
 		 
 		 if(nullptr!=measPerigee)
 		   {

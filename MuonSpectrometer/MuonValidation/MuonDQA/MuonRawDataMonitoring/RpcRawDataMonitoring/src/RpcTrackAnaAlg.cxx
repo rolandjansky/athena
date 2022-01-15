@@ -536,6 +536,7 @@ StatusCode RpcTrackAnaAlg::computeTrackIntersectionWithGasGap(ExResult &        
                                                             const xAOD::TrackParticle* track_particle,
                                                             const std::shared_ptr<GasGapData>         &gap) const
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext(); 
   /*
     This function:  
     - constructs Identifier for specific gasgap
@@ -553,18 +554,20 @@ StatusCode RpcTrackAnaAlg::computeTrackIntersectionWithGasGap(ExResult &        
   const Trk::TrackParameters *detParameters = nullptr;
 
   if(m_useAODParticle) {
-    detParameters = m_extrapolator->extrapolate(*track_particle,
-                                                  gapSurface,
-                                                  result.direction,
-                                                  false,
-                                                  Trk::muon);
+    detParameters = m_extrapolator->extrapolate(ctx,
+                                                *track_particle,
+                                                gapSurface,
+                                                result.direction,
+                                                false,
+                                                Trk::muon);
   }
   else if (track_particle->track()) {
-    detParameters = m_extrapolator->extrapolate(*(track_particle->track()),
-                                                  gapSurface,
-                                                  result.direction,
-                                                  true,
-                                                  Trk::muon);
+    detParameters = m_extrapolator->extrapolate(ctx,
+                                                *(track_particle->track()),
+                                                gapSurface,
+                                                result.direction,
+                                                true,
+                                                Trk::muon);
   }
   else {
     return StatusCode::FAILURE;

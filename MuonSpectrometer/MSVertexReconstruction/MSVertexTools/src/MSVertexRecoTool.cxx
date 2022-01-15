@@ -542,7 +542,8 @@ namespace Muon {
                 Trk::CylinderSurface cyl(surfaceTransformMatrix, rpos, 10000.);  // create the surface
                 // extrapolate to the surface
                 std::unique_ptr<const Trk::TrackParameters> extrap_par(
-                    m_extrapolator->extrapolate(*TracksForVertexing[k].at(i), cyl, Trk::anyDirection, boundaryCheck, Trk::muon));
+                    m_extrapolator->extrapolate(ctx,
+                                                *TracksForVertexing[k].at(i), cyl, Trk::anyDirection, boundaryCheck, Trk::muon));
 
                 const Trk::AtaCylinder* extrap = dynamic_cast<const Trk::AtaCylinder*>(extrap_par.get());
 
@@ -574,7 +575,8 @@ namespace Muon {
                         srfTransMat2.setIdentity();
                         Trk::CylinderSurface cyl2(srfTransMat2, rpos, 10000.);
                         std::unique_ptr<const Trk::TrackParameters> extrap_par2(
-                            m_extrapolator->extrapolate(*TracksForErrors[k].at(i), cyl, Trk::anyDirection, boundaryCheck, Trk::muon));
+                            m_extrapolator->extrapolate(ctx,
+                                                        *TracksForErrors[k].at(i), cyl, Trk::anyDirection, boundaryCheck, Trk::muon));
                         const Trk::AtaCylinder* extrap2 = dynamic_cast<const Trk::AtaCylinder*>(extrap_par2.get());
 
                         if (extrap2) {

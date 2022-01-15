@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "TrkFitterUtils/TrackFitInputPreparator.h"
 #include "TrkGlobalChi2Fitter/GlobalChi2Fitter.h"
@@ -838,6 +838,7 @@ namespace Trk {
       }
       
       lastidpar.reset(m_extrapolator->extrapolateToVolume(
+        ctx,
         *firstidpar,
         *cache.m_caloEntrance,
         alongMomentum, 
@@ -1092,6 +1093,7 @@ namespace Trk {
         idscatpar = firstscatpar.get();
 
         startPar.reset(m_extrapolator->extrapolateToVolume(
+          ctx,
           *idscatpar,
           *cache.m_caloEntrance,
           oppositeMomentum,
@@ -1115,6 +1117,7 @@ namespace Trk {
           PlaneSurface curvlinsurf(trans);
           
           const TrackParameters *curvlinpar = m_extrapolator->extrapolateDirectly(
+            ctx,
             *startPar, 
             curvlinsurf,
             Trk::oppositeMomentum,
@@ -1304,6 +1307,7 @@ namespace Trk {
     std::unique_ptr<const TrackParameters> lastidpar = nullptr;
     if ((firstidpar != nullptr) && (cache.m_caloEntrance != nullptr))
       lastidpar.reset(m_extrapolator->extrapolateToVolume(
+        ctx,
         *firstidpar,
         *cache.m_caloEntrance,
         alongMomentum, 
@@ -3771,6 +3775,7 @@ namespace Trk {
           if (cache.m_acceleration) {
             if (tp == nullptr) {
               tp = m_extrapolator->extrapolate(
+                ctx,
                 *refpar2, 
                 *state->surface(),
                 alongMomentum, 
@@ -3926,6 +3931,7 @@ namespace Trk {
             ATH_MSG_ERROR("calo entrance not available");
           } else {
             tmppar.reset(m_extrapolator->extrapolateToVolume(
+              ctx,
               *startmatpar1,
               *cache.m_caloEntrance,
               oppositeMomentum,
@@ -3939,7 +3945,11 @@ namespace Trk {
         }
 
         if (matvec_used) cache.m_matTempStore.push_back( std::move(matvec) );
-        matvec.reset( m_extrapolator->extrapolateM(*startmatpar1, *destsurf, oppositeMomentum, false, matEffects) );
+        matvec.reset( m_extrapolator->extrapolateM(ctx,
+                                                   *startmatpar1, 
+                                                   *destsurf, 
+                                                   oppositeMomentum, 
+                                                   false, matEffects) );
         matvec_used=false;
 
         if (matvec && !matvec->empty()) {
@@ -3991,6 +4001,7 @@ namespace Trk {
             ATH_MSG_ERROR("calo entrance not available");
           } else {
             tmppar.reset(m_extrapolator->extrapolateToVolume(
+              ctx,
               *startmatpar2,
               *cache.m_caloEntrance,
               Trk::alongMomentum,
@@ -4041,8 +4052,9 @@ namespace Trk {
         }
 
         if (matvec_used) cache.m_matTempStore.push_back( std::move(matvec) );
-        matvec.reset( m_extrapolator->extrapolateM(*startmatpar2, *destsurf, alongMomentum, false, matEffects) );
-        matvec_used=false;
+        matvec.reset(m_extrapolator->extrapolateM(
+          ctx, *startmatpar2, *destsurf, alongMomentum, false, matEffects));
+        matvec_used = false;
 
         if (matvec && !matvec->empty()) {
           for (const auto & i : *matvec) {
@@ -4233,6 +4245,7 @@ namespace Trk {
           ATH_MSG_ERROR("MS entrance not available");
         } else if (cache.m_msEntrance->inside(lastcalopar->position())) {
           muonpar1.reset(m_extrapolator->extrapolateToVolume(
+            ctx,
             *lastcalopar,
             *cache.m_msEntrance,
             Trk::alongMomentum,
@@ -4254,6 +4267,7 @@ namespace Trk {
             PlaneSurface curvlinsurf(trans);
 
             std::unique_ptr<const TrackParameters> curvlinpar(m_extrapolator->extrapolateDirectly(
+              ctx,
               *muonpar1, 
               curvlinsurf,
               Trk::alongMomentum,
@@ -4332,8 +4346,13 @@ namespace Trk {
         const TrackParameters *prevtp = muonpar1.get();
         ATH_MSG_DEBUG("Obtaining downstream layers from Extrapolator");
         if (matvec_used) cache.m_matTempStore.push_back( std::move(matvec) );
-        matvec.reset( m_extrapolator->extrapolateM(*prevtp, *states.back()->surface(), alongMomentum, false, Trk::nonInteractingMuon));
-        matvec_used=false;
+        matvec.reset(m_extrapolator->extrapolateM(ctx,
+                                                  *prevtp,
+                                                  *states.back()->surface(),
+                                                  alongMomentum,
+                                                  false,
+                                                  Trk::nonInteractingMuon));
+        matvec_used = false;
 
         if (matvec && matvec->size() > 1000 && m_rejectLargeNScat) {
           ATH_MSG_DEBUG("too many scatterers: " << matvec->size());
@@ -4391,6 +4410,7 @@ namespace Trk {
           ATH_MSG_ERROR("MS entrance not available");
         } else if (cache.m_msEntrance->inside(firstcalopar->position())) {
           muonpar1.reset(m_extrapolator->extrapolateToVolume(
+            ctx,
             *firstcalopar,
             *cache.m_msEntrance,
             Trk::oppositeMomentum,
@@ -4412,6 +4432,7 @@ namespace Trk {
             PlaneSurface curvlinsurf(trans);
 
             std::unique_ptr<const TrackParameters> curvlinpar(m_extrapolator->extrapolateDirectly(
+              ctx,
               *muonpar1, 
               curvlinsurf,
               Trk::oppositeMomentum,
@@ -4444,7 +4465,8 @@ namespace Trk {
         const TrackParameters *prevtp = muonpar1.get();
         ATH_MSG_DEBUG("Collecting upstream muon material from extrapolator");
         if (matvec_used) cache.m_matTempStore.push_back( std::move(matvec) );
-        matvec.reset(m_extrapolator->extrapolateM(*prevtp,
+        matvec.reset(m_extrapolator->extrapolateM(ctx,
+                                                  *prevtp,
                                                   *states[0]->surface(),
                                                   oppositeMomentum,
                                                   false,
@@ -4607,10 +4629,9 @@ namespace Trk {
     }
     
     PerigeeSurface tmppersf;
-    std::unique_ptr<const TrackParameters> per(
-      m_extrapolator->extrapolate(param, tmppersf, oppositeMomentum, false, matEffects)
-    );
-    
+    std::unique_ptr<const TrackParameters> per(m_extrapolator->extrapolate(
+      Gaudi::Hive::currentContext(),param, tmppersf, oppositeMomentum, false, matEffects));
+
     if (per == nullptr) {
       ATH_MSG_DEBUG("Cannot make Perigee with starting parameters");
       return nullptr;
@@ -6943,6 +6964,7 @@ namespace Trk {
     } else if (cache.m_acceleration && (firstmeasstate->trackParameters() != nullptr)) {
       per.reset(
         m_extrapolator->extrapolate(
+          ctx,
           *firstmeasstate->trackParameters(),
           PerigeeSurface(Amg::Vector3D(0, 0, 0)),
           oppositeMomentum,
@@ -7272,6 +7294,7 @@ namespace Trk {
        * to ensure that the hole counts are updated.
        */
       std::vector<std::unique_ptr<const Trk::TrackParameters>> bl = m_extrapolator->extrapolateBlindly(
+        ctx,
         *last.trackParameters(),
         Trk::alongMomentum,
         false,

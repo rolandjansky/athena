@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////
@@ -325,7 +325,7 @@ Trk::TrackScore InDet::InDetNNScoringTool::simpleScore( const Trk::Track& track,
   // uses perigee on track or extrapolates, no material in any case, we cut on impacts
   // add back extrapolation without errors
   {
-  std::unique_ptr<const Trk::TrackParameters> parm( m_extrapolator->extrapolateDirectly(*input, perigeeSurface) );
+  std::unique_ptr<const Trk::TrackParameters> parm( m_extrapolator->extrapolateDirectly(ctx, *input, perigeeSurface) );
 
   const Trk::Perigee*extrapolatedPerigee = dynamic_cast<const Trk::Perigee*> (parm.get());
   if (!extrapolatedPerigee) {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MooCandidateMatchingTool.h"
@@ -693,7 +693,6 @@ namespace Muon {
             info.reason = TrackSegmentMatchResult::NoSegmentPointer;
             return;
         }
-
         int sector2 = m_idHelperSvc->sector(info.segmentChamberId);
         bool hasStereoAngle = false;
 
@@ -856,12 +855,12 @@ namespace Muon {
                     // Check sector-
 
                     if (straightLineMatch && !entry1.hasMomentum()) {
-                        exPars.reset(m_atlasExtrapolator->extrapolateDirectly(*tmpPars, entry2.segment->associatedSurface(),
+                        exPars.reset(m_atlasExtrapolator->extrapolateDirectly(ctx, *tmpPars, entry2.segment->associatedSurface(),
                                                                               Trk::anyDirection, false, Trk::muon));
                     } else {
                         ATH_MSG_VERBOSE(" Extrapolating to other segment " << m_printer->print(*tmpPars) << std::endl
                                                                            << Amg::toString(*tmpPars->covariance(), 10));
-                        exPars.reset(m_atlasExtrapolator->extrapolate(*tmpPars, entry2.segment->associatedSurface(), Trk::anyDirection,
+                        exPars.reset(m_atlasExtrapolator->extrapolate(ctx, *tmpPars, entry2.segment->associatedSurface(), Trk::anyDirection,
                                                                       false, Trk::muon));
                     }
                 }
@@ -889,10 +888,10 @@ namespace Muon {
                 // no closest measured parameters, take closest parameters
 
                 if (straightLineMatch && !entry1.hasMomentum()) {
-                    exPars.reset(m_atlasExtrapolator->extrapolateDirectly(*closestPars, entry2.segment->associatedSurface(),
+                    exPars.reset(m_atlasExtrapolator->extrapolateDirectly(ctx, *closestPars, entry2.segment->associatedSurface(),
                                                                           Trk::anyDirection, false, Trk::muon));
                 } else {
-                    exPars.reset(m_atlasExtrapolator->extrapolate(*closestPars, entry2.segment->associatedSurface(), Trk::anyDirection,
+                    exPars.reset(m_atlasExtrapolator->extrapolate(ctx, *closestPars, entry2.segment->associatedSurface(), Trk::anyDirection,
                                                                   false, Trk::muon));
                 }
                 if (!exPars) {

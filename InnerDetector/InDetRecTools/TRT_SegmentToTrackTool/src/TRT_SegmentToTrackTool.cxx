@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_SegmentToTrackTool/TRT_SegmentToTrackTool.h"
@@ -200,7 +200,7 @@ namespace InDet {
       Trk::PerigeeSurface perigeeSurface(perigeePosition);
       // --- turn parameters into perigee...
       auto perParm = std::unique_ptr<const Trk::Perigee>(dynamic_cast<const Trk::Perigee*>(
-       m_extrapolator->extrapolate(*segPar, perigeeSurface)));
+       m_extrapolator->extrapolate(ctx, *segPar, perigeeSurface)));
       if (perParm) {
         ATH_MSG_VERBOSE("Perigee version of Parameters : " << (*segPar));
       } else {
@@ -363,7 +363,7 @@ namespace InDet {
         Trk::PerigeeSurface perigeeSurface(perigeePosition);
         // -- get perigee
         const Trk::Perigee* tempper = dynamic_cast<const Trk::Perigee*>(
-          m_extrapolator->extrapolateDirectly(*segPar, perigeeSurface));
+          m_extrapolator->extrapolateDirectly(ctx, *segPar, perigeeSurface));
         if (!tempper) {
           ATH_MSG_DEBUG("Could not produce perigee");
           delete segPar;
@@ -551,7 +551,7 @@ namespace InDet {
                                      *surfforpar);
         Trk::PerigeeSurface persurf;
         const Trk::TrackParameters* extrappar =
-          m_extrapolator->extrapolateDirectly(ataline, persurf);
+          m_extrapolator->extrapolateDirectly(ctx, ataline, persurf);
 
         // now get parameters
         if (extrappar) {
@@ -681,7 +681,9 @@ namespace InDet {
               std::move(fcovmat)).release();
 
           // now take parameters at first measurement and exptrapolate to perigee
-	  const Trk::TrackParameters *newperpar   = m_extrapolator->extrapolate(*updatedPars,perTrack->associatedSurface(),
+	  const Trk::TrackParameters *newperpar   = m_extrapolator->extrapolate(ctx,
+                                                                          *updatedPars,
+                                                                          perTrack->associatedSurface(),
 										Trk::anyDirection,false,Trk::nonInteracting);
 	  delete updatedPars; updatedPars = nullptr;
 

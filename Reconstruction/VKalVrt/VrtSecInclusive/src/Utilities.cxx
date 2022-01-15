@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -1098,9 +1098,10 @@ namespace VKalVrtAthena {
   VrtSecInclusive::ExtrapolatedPattern* VrtSecInclusive::extrapolatedPattern( const xAOD::TrackParticle* trk, enum Trk::PropDirection direction ) {
     
     auto* pattern = new ExtrapolatedPattern;
-    
-    std::vector<std::unique_ptr<const Trk::TrackParameters>> paramsVector = m_extrapolator->extrapolateBlindly( trk->perigeeParameters(), direction );
-    
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+    std::vector<std::unique_ptr<const Trk::TrackParameters>> paramsVector =
+      m_extrapolator->extrapolateBlindly(ctx, trk->perigeeParameters(), direction);
+
     TVector3 prevPos( AlgConsts::invalidFloat, AlgConsts::invalidFloat, AlgConsts::invalidFloat );
     
     auto nDisabled = 0;

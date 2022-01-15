@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkTruthToTrack/TruthTrackRecordToTrack.h"
@@ -212,11 +212,13 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makePerigeeParameters(
       
       // Extrapolate the TrackParameters object to the perigee. Direct extrapolation,
       // no material effects.
-      generatedTrackPerigee = m_extrapolator->extrapolateDirectly( *productionVertexTrackParams,
-								   Trk::PerigeeSurface(),
-								   Trk::anyDirection,
-								   false,
-								   Trk::nonInteracting );
+      generatedTrackPerigee =
+        m_extrapolator->extrapolateDirectly(Gaudi::Hive::currentContext(),
+                                            *productionVertexTrackParams,
+                                            Trk::PerigeeSurface(),
+                                            Trk::anyDirection,
+                                            false,
+                                            Trk::nonInteracting);
     }
   }
 
@@ -236,11 +238,13 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makePerigeeParameters(
       
       // Extrapolate the TrackParameters object to the perigee. Direct extrapolation,
       // no material effects.
-      generatedTrackPerigee = m_extrapolator->extrapolateDirectly( *productionVertexTrackParams,
-								   Trk::PerigeeSurface(),
-								   Trk::anyDirection,
-								   false,
-								   Trk::nonInteracting );
+      generatedTrackPerigee =
+        m_extrapolator->extrapolateDirectly(Gaudi::Hive::currentContext(),
+                                            *productionVertexTrackParams,
+                                            Trk::PerigeeSurface(),
+                                            Trk::anyDirection,
+                                            false,
+                                            Trk::nonInteracting);
     }
   }
 

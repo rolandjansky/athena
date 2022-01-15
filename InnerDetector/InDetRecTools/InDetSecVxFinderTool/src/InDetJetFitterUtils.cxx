@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -470,7 +470,7 @@ namespace InDet
   std::pair<double,double> InDetJetFitterUtils::getD0andZ0IP(const Trk::TrackParameters & trackPerigee,
                                                              const Trk::Vertex & vertexToExtrapolateTo) const
   {
-    
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     if (!m_linearizedTrackFactoryIsAvailable)
     {
       msg(MSG::ERROR) << "Cannot perform requested extrapolation. No extrapolator defined...Returning 0 compatibility..." << endmsg;
@@ -479,7 +479,9 @@ namespace InDet
     
 
     Trk::PerigeeSurface mySurface(vertexToExtrapolateTo.position());
-    const Trk::TrackParameters* newMeasPerigee= m_extrapolator->extrapolateDirectly(trackPerigee,mySurface);
+    const Trk::TrackParameters* newMeasPerigee= m_extrapolator->extrapolateDirectly(ctx,
+                                                                                    trackPerigee,
+                                                                                    mySurface);
     if (newMeasPerigee==nullptr)
     {
       msg(MSG::WARNING) <<  " Extrapolation failed. Wrong d0 and z0 returned " << endmsg;

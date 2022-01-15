@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -365,6 +365,7 @@ Trk::ForwardKalmanFitter::predict
  const int                      filterCounter,
  const int                      tjPositionCounter) const
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   if (msgLvl(MSG::DEBUG) && filterCounter == 1)
     printGlobalParams( (tjPositionCounter-1), "  init", updatedPar.get() );
 
@@ -383,9 +384,12 @@ Trk::ForwardKalmanFitter::predict
     } else {
       ATH_MSG_VERBOSE ("-Fp get filter onto 1st surface by direct extrapolation.");
       if (!m_useExEngine)
-	predPar.reset(m_extrapolator->extrapolateDirectly(*updatedPar, destinationSurface,
-						      Trk::anyDirection,
-						      false, Trk::nonInteracting));
+        predPar.reset(m_extrapolator->extrapolateDirectly(ctx,
+                                                          *updatedPar,
+                                                          destinationSurface,
+                                                          Trk::anyDirection,
+                                                          false,
+                                                          Trk::nonInteracting));
 
       else {
         ATH_MSG_INFO ("Forward Kalman Fitter --> starting extrapolation engine");
@@ -402,7 +406,6 @@ Trk::ForwardKalmanFitter::predict
           predPar.reset();
         }
       }
-
     }
 
     /* possible difficulty here
@@ -430,7 +433,7 @@ Trk::ForwardKalmanFitter::predict
     ////////////////////////////////////////////////////////////////////////////
     // --- 2nd case covers filter loop: extrapolate to next surface with full matEffects
     if (!m_useExEngine)
-      predPar.reset(m_extrapolator->extrapolate(*updatedPar,destinationSurface,
+      predPar.reset(m_extrapolator->extrapolate(ctx,*updatedPar,destinationSurface,
 					    Trk::alongMomentum,false,
 					    controlledMatEffects.particleType()));
     else {
@@ -769,10 +772,12 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::enterSeedIntoTrajectory
   } else {
     ATH_MSG_VERBOSE ("-Fe get filter onto 1st surface by direct extrapolation.");
     if (!m_useExEngine)
-      inputParAtStartSurface = m_extrapolator->extrapolateDirectly(inputPar,
-								   startSurface,
-								   Trk::anyDirection,
-								   false, Trk::nonInteracting);
+      inputParAtStartSurface = m_extrapolator->extrapolateDirectly(
+        Gaudi::Hive::currentContext(),
+        inputPar,
+        startSurface,
+        Trk::anyDirection,
+        false, Trk::nonInteracting);
     else {
       ATH_MSG_DEBUG ("Forward Kalman Fitter --> starting extrapolation engine");
       Trk::ExtrapolationCell <Trk::TrackParameters> ecc(inputPar, Trk::anyDirection);

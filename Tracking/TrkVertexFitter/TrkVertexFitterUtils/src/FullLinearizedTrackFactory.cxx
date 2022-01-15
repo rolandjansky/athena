@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************
@@ -68,7 +68,10 @@ namespace Trk
                               Trk::removeNoise             ; // parameters downstream of vertex -> go back
 
     const TrackParameters* parsAtVertex = 
-      m_extrapolator->extrapolate(*trackPars, perigeeSurface, Trk::anyDirection, true, Trk::pion, mode);
+      m_extrapolator->extrapolate(
+        Gaudi::Hive::currentContext(),
+        *trackPars, 
+        perigeeSurface, Trk::anyDirection, true, Trk::pion, mode);
 
     if (dynamic_cast<const Trk::Perigee*>(parsAtVertex)==nullptr ||
         parsAtVertex->covariance()==nullptr ) {
@@ -242,7 +245,8 @@ namespace Trk
                                Trk::removeNoise             ; // parameters downstream of vertex -> go back
     */
     const NeutralParameters* parsAtVertex =
-      m_extrapolator->extrapolate(*neutralPars, perigeeSurface, Trk::anyDirection, true);
+      m_extrapolator->extrapolate(*neutralPars, 
+                                  perigeeSurface, Trk::anyDirection, true);
 
     if (dynamic_cast<const Trk::NeutralPerigee*>(parsAtVertex)==nullptr ||
         parsAtVertex->covariance()==nullptr ) {

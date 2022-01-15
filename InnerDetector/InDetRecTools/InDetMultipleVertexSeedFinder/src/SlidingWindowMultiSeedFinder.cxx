@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetMultipleVertexSeedFinder/SlidingWindowMultiSeedFinder.h"
@@ -87,11 +87,12 @@ namespace InDet
 
  std::vector< std::vector<const Trk::Track *> > SlidingWindowMultiSeedFinder::seeds(const std::vector<const Trk::Track*>& tracks )const
  {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   std::vector<const Trk::Track*> preselectedTracks(0);
   std::vector<const Trk::Track*>::const_iterator tr = tracks.begin();
   std::vector<const Trk::Track*>::const_iterator tre = tracks.end(); 
   
-  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
   Trk::RecVertex  beamRecVertex(beamSpotHandle->beamVtx());
   for(;tr!=tre;++tr) if(m_trkFilter->decision(**tr,&beamRecVertex)) preselectedTracks.push_back(*tr);
   if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Beam spot position is: "<< beamRecVertex.position()<<endmsg;
@@ -124,7 +125,7 @@ namespace InDet
 
    const Trk::TrackParameters * exPerigee = nullptr;
    if (!indexOfSorted.empty()) exPerigee = 
-				 m_extrapolator->extrapolate(*preselectedTracks[indexOfSorted[0]],perigeeSurface,Trk::anyDirection,true, Trk::pion);
+				 m_extrapolator->extrapolate(ctx, *preselectedTracks[indexOfSorted[0]],perigeeSurface,Trk::anyDirection,true, Trk::pion);
          
    float lastTrackZ0  = -999.;
    if(exPerigee) { lastTrackZ0 = exPerigee->parameters()[Trk::z0]; delete exPerigee; }
@@ -143,7 +144,7 @@ namespace InDet
    if(m_useMaxInCluster) addingDistance = 0.;
    for(unsigned int i=0;i<indexOfSorted.size();++i)
    {
-    const  Trk::TrackParameters * lexPerigee = m_extrapolator->extrapolate(*preselectedTracks[indexOfSorted[i]],
+    const  Trk::TrackParameters * lexPerigee = m_extrapolator->extrapolate(ctx, *preselectedTracks[indexOfSorted[i]],
 									   perigeeSurface,Trk::anyDirection,true, Trk::pion); 
     float currentTrackZ0 = lexPerigee->parameters()[Trk::z0];
     delete lexPerigee;
@@ -189,6 +190,7 @@ namespace InDet
  
  std::vector< std::vector<const Trk::TrackParticleBase *> > SlidingWindowMultiSeedFinder::seeds(const std::vector<const Trk::TrackParticleBase*>& tracks )const
  {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   std::vector<const Trk::TrackParticleBase*> preselectedTracks(0);
   std::vector<const Trk::TrackParticleBase*>::const_iterator tr = tracks.begin();
   std::vector<const Trk::TrackParticleBase*>::const_iterator tre = tracks.end(); 
@@ -234,7 +236,7 @@ namespace InDet
    const Trk::TrackParameters * exPerigee(nullptr);
    Trk::PerigeeSurface perigeeSurface(beamVertex->position());
 
-   exPerigee = m_extrapolator->extrapolate(preselectedTracks[indexOfSorted[0]]->definingParameters(),
+   exPerigee = m_extrapolator->extrapolate(ctx,preselectedTracks[indexOfSorted[0]]->definingParameters(),
 					   perigeeSurface,Trk::anyDirection,true, Trk::pion);
   
    float lastTrackZ0  = -999.;
@@ -258,7 +260,7 @@ namespace InDet
    for(unsigned int i=0;i<indexOfSorted.size();++i)
    {
    
-     const  Trk::TrackParameters * lexPerigee = m_extrapolator->extrapolate(preselectedTracks[indexOfSorted[i]]->definingParameters(),
+     const  Trk::TrackParameters * lexPerigee = m_extrapolator->extrapolate(ctx,preselectedTracks[indexOfSorted[i]]->definingParameters(),
 									    perigeeSurface,Trk::anyDirection,true, Trk::pion); 
     float currentTrackZ0 = lexPerigee->parameters()[Trk::z0];
     delete lexPerigee;
@@ -307,7 +309,7 @@ namespace InDet
 
 std::vector< std::vector<const Trk::TrackParameters *> > SlidingWindowMultiSeedFinder::seeds(const std::vector<const xAOD::TrackParticle*>& tracks )const
   {
- 
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     //step 1: preselection 
     std::vector<const xAOD::TrackParticle*> preselectedTracks(0);
     
@@ -365,7 +367,7 @@ std::vector< std::vector<const Trk::TrackParameters *> > SlidingWindowMultiSeedF
 	const Trk::TrackParameters * exPerigee(nullptr);
 	Trk::PerigeeSurface perigeeSurface(beamposition->position());
 	
-	exPerigee = m_extrapolator->extrapolate(*preselectedTracks[indexOfSorted[0]],
+	exPerigee = m_extrapolator->extrapolate(ctx, *preselectedTracks[indexOfSorted[0]],
 						perigeeSurface,Trk::anyDirection,true, Trk::pion);
 	
 	float lastTrackZ0  = -999.;
@@ -390,7 +392,7 @@ std::vector< std::vector<const Trk::TrackParameters *> > SlidingWindowMultiSeedF
 	for(unsigned int i=0;i<indexOfSorted.size();++i)
 	  {
 	    
-	    const  Trk::TrackParameters * lexPerigee = m_extrapolator->extrapolate(*preselectedTracks[indexOfSorted[i]],
+	    const  Trk::TrackParameters * lexPerigee = m_extrapolator->extrapolate(ctx, *preselectedTracks[indexOfSorted[i]],
 										   perigeeSurface,Trk::anyDirection,true, Trk::pion); 
 	    float currentTrackZ0 = lexPerigee->parameters()[Trk::z0];
 	    delete lexPerigee;

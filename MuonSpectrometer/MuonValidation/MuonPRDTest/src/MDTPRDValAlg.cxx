@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MDTPRDValAlg.h"
@@ -716,7 +716,7 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
   // fill event data
   /** get EventInfo, used to obtain run and event number */
   const xAOD::EventInfo* pevt;
-		
+	const EventContext& ctx = Gaudi::Hive::currentContext();	
 	
   if (evtStore()->retrieve(pevt).isFailure()) {
     ATH_MSG_WARNING("Could not find event");
@@ -878,7 +878,7 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
 
       const Trk::SaggedLineSurface& sagSurf = detEl->surface(id);
 	
-      const Trk::TrackParameters* expar = m_extrapolator->extrapolateDirectly(muonPerigee,sagSurf,
+      const Trk::TrackParameters* expar = m_extrapolator->extrapolateDirectly(ctx,muonPerigee,sagSurf,
 								  Trk::alongMomentum,false);
       if( !expar ){
 	ATH_MSG_DEBUG(" extrapolation failed ");
@@ -901,7 +901,7 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
 //
 //  Perform a full extrapolation including material and Eloss
 //
-      const Trk::TrackParameters* exparEloss = m_extrapolator->extrapolate(muonPerigee,sagSurf,Trk::alongMomentum,false);
+      const Trk::TrackParameters* exparEloss = m_extrapolator->extrapolate(ctx,muonPerigee,sagSurf,Trk::alongMomentum,false);
       if( !exparEloss ){
 	ATH_MSG_DEBUG(" extrapolation failed ");
 	delete expar;
@@ -922,7 +922,7 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
 	delete exparEloss;
 	continue;
       }
-      const Trk::TrackParameters* exparSag = m_extrapolator->extrapolateDirectly(muonPerigee,*saggedSurface,
+      const Trk::TrackParameters* exparSag = m_extrapolator->extrapolateDirectly(ctx, muonPerigee,*saggedSurface,
 								     Trk::alongMomentum,false);
       if( !exparSag ){
 	ATH_MSG_DEBUG(" extrapolation failed ");
@@ -957,7 +957,7 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
 	continue;
       }
      
-      const Trk::TrackParameters* exparSagRot = m_extrapolator->extrapolateDirectly(muonPerigee,rot->associatedSurface(),
+      const Trk::TrackParameters* exparSagRot = m_extrapolator->extrapolateDirectly(ctx,muonPerigee,rot->associatedSurface(),
 									Trk::alongMomentum,false);
       if( !exparSagRot ){
 	ATH_MSG_DEBUG(" extrapolation failed ");

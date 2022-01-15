@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 //////////////////////////////////////////////////////////////////////////
@@ -198,7 +198,8 @@ StatusCode InDetAlignFillTrack::FillTrack() {
   ATH_MSG_DEBUG("In FillTrack()");
   ATH_MSG_DEBUG(" event " << m_events);
   StatusCode sc;
-
+  
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   const TrackCollection* tracks;// = new TrackCollection;
   const TrackCollection* Uptracks;// = new TrackCollection;
   const TrackCollection* Lowtracks;// = new TrackCollection;
@@ -448,7 +449,8 @@ StatusCode InDetAlignFillTrack::FillTrack() {
                     ATH_MSG_DEBUG("Distance between perigee and generated vertex exceeds tolerance ("
                                   << 1.e-4 << " mm)... Extrapolating!");
 
-                    generatedTrackPerigee = m_extrapolator->extrapolateDirectly(*productionVertexTrackParams,
+                    generatedTrackPerigee = m_extrapolator->extrapolateDirectly(ctx,
+                                                                                *productionVertexTrackParams,
                                                                                 perigeeSurface,
                                                                                 Trk::anyDirection,
                                                                                 false,
