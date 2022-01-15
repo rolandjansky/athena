@@ -136,10 +136,9 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
 
         } //end particle loop
       } //end truth container loop (should be only 1 container per event)
-      const EventInfo* pevt = 0;
-      ATH_CHECK( m_evtStore->retrieve(pevt) );
+      auto ctx = Gaudi::Hive::currentContext();
+      int event = ctx.eventID().event_number();
 
-      int event = pevt->event_ID()->event_number();
       int TruthParticle_n = j;
       evFit_entry fit;
       fit.athena_event=event;

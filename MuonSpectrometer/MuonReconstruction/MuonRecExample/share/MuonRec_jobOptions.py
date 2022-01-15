@@ -107,8 +107,6 @@ if rec.doTruth() and DetFlags.makeRIO.Muon_on():
    from MuonTruthAlgs.MuonTruthAlgsConf import MuonPRD_MultiTruthMaker
    topSequence+=MuonPRD_MultiTruthMaker()
 
-   from AthenaCommon.CfgGetter import getService
-   getService("AtlasTrackingGeometrySvc")
    from MuonTruthAlgs.MuonTruthAlgsConf import Muon__MuonTruthDecorationAlg
    topSequence += Muon__MuonTruthDecorationAlg("MuonTruthDecorationAlg")
    from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifier

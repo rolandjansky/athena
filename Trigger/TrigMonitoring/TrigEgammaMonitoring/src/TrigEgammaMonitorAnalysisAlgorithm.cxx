@@ -356,7 +356,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillDistributions( const std::vector< s
   {
     //  Fill L1 features
     std::vector<const xAOD::EmTauRoI*> l1_vec;
-    auto initRois =  tdt()->features<TrigRoiDescriptorCollection>(trigger,condition,"",TrigDefs::allFeaturesOfType,"initialRoI");       
+    auto initRois =  tdt()->features<TrigRoiDescriptorCollection>(trigger,TrigDefs::includeFailedDecisions,"",TrigDefs::allFeaturesOfType,"initialRoI");       
     for( auto &initRoi: initRois ){               
       if( !initRoi.link.isValid() ) continue;      
       const auto *feat = match()->getL1Feature( initRoi.source );

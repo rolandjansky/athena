@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkAlignGenTools/BeamspotVertexPreProcessor.h"
@@ -403,6 +403,7 @@ const xAOD::Vertex* BeamspotVertexPreProcessor::findVertexCandidate(const Track*
 
 const VertexOnTrack* BeamspotVertexPreProcessor::provideVotFromVertex(const Track* track, const xAOD::Vertex* &vtx) const {
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   const VertexOnTrack * vot       = nullptr;
   const xAOD::Vertex* tmpVtx      = nullptr;
   const xAOD::Vertex* updatedVtx  = nullptr;
@@ -438,7 +439,7 @@ const VertexOnTrack* BeamspotVertexPreProcessor::provideVotFromVertex(const Trac
       const PerigeeSurface* surface = new PerigeeSurface(globPos);
 
 
-      const Perigee *  perigee = dynamic_cast<const Perigee*>(m_extrapolator->extrapolate(*track, *surface));
+      const Perigee *  perigee = dynamic_cast<const Perigee*>(m_extrapolator->extrapolate(ctx,*track, *surface));
       if (!perigee) {
         const Perigee * trackPerigee = track->perigeeParameters();
         if ( trackPerigee && trackPerigee->associatedSurface() == *surface )
@@ -514,8 +515,9 @@ const VertexOnTrack* BeamspotVertexPreProcessor::provideVotFromVertex(const Trac
 
 const VertexOnTrack* BeamspotVertexPreProcessor::provideVotFromBeamspot(const Track* track) const{
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   const VertexOnTrack * vot = nullptr;
-  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey }; 
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx }; 
   Amg::Vector3D  bpos = beamSpotHandle->beamPos();
   ATH_MSG_DEBUG("beam spot: "<<bpos);
   float beamSpotX = bpos.x();
@@ -556,7 +558,7 @@ const VertexOnTrack* BeamspotVertexPreProcessor::provideVotFromBeamspot(const Tr
     beamSpotParameters = LocalParameters(Par0);
 
     // calculate perigee parameters wrt. beam-spot
-    const Perigee * perigee = dynamic_cast<const Perigee*>(m_extrapolator->extrapolate(*track, *surface));
+    const Perigee * perigee = dynamic_cast<const Perigee*>(m_extrapolator->extrapolate(ctx, *track, *surface));
     if (!perigee) {
       const Perigee * trackPerigee = track->perigeeParameters();
       if ( trackPerigee && trackPerigee->associatedSurface() == *surface )
@@ -626,9 +628,14 @@ void BeamspotVertexPreProcessor::provideVtxBeamspot(const AlignVertex* b, AmgSym
   ATH_MSG_DEBUG("VTX constraint size  (x,y,z) = ( "<< beamSigmaX <<" , "<< beamSigmaY <<" , "<< beamSigmaZ <<" )");
 }
 
-
-const Track* BeamspotVertexPreProcessor::doConstraintRefit(ToolHandle<Trk::IGlobalTrackFitter>& fitter, const Track* track,  const VertexOnTrack* vot, const ParticleHypothesis& particleHypothesis) const{
-
+const Track*
+BeamspotVertexPreProcessor::doConstraintRefit(
+  ToolHandle<Trk::IGlobalTrackFitter>& fitter,
+  const Track* track,
+  const VertexOnTrack* vot,
+  const ParticleHypothesis& particleHypothesis) const
+{
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   const Track* newTrack = nullptr;
 
   if(vot){
@@ -644,14 +651,14 @@ const Track* BeamspotVertexPreProcessor::doConstraintRefit(ToolHandle<Trk::IGlob
       // get track parameters at the vertex:
       const PerigeeSurface&         surface=vot->associatedSurface();
       ATH_MSG_DEBUG(" Track reference surface will be:  " << surface);
-      const TrackParameters* parsATvertex=m_extrapolator->extrapolate(*track, surface);
+      const TrackParameters* parsATvertex=m_extrapolator->extrapolate(ctx, *track, surface);
 
       ATH_MSG_DEBUG(" Track will be refitted at this surface  ");
-      newTrack = (fitter->fit(Gaudi::Hive::currentContext(),measurementCollection, 
+      newTrack = (fitter->fit(ctx, measurementCollection, 
                              *parsATvertex, m_runOutlierRemoval, particleHypothesis)).release();
       delete parsATvertex;
     } else {
-      newTrack = (fitter->fit(Gaudi::Hive::currentContext(),
+      newTrack = (fitter->fit(ctx,
                              measurementCollection, *(track->trackParameters()->front()), 
                              m_runOutlierRemoval, particleHypothesis)).release();
     }
@@ -660,7 +667,6 @@ const Track* BeamspotVertexPreProcessor::doConstraintRefit(ToolHandle<Trk::IGlob
 
   return newTrack;
 }
-
 
 bool BeamspotVertexPreProcessor::doBeamspotConstraintTrackSelection(const Track* track) {
 

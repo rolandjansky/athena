@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import Logging
 from ..powheg_V2 import PowhegV2
@@ -90,6 +90,7 @@ class Wjj(PowhegV2):
         self.add_keyword("minlo", 1)
         self.add_keyword("mintupbratlim")
         self.add_keyword("mintupbxless")
+        self.add_keyword("mjjminsuppfact")
         self.add_keyword("mllmin", 2.5)
         self.add_keyword("ncall1", 600000)
         self.add_keyword("ncall1rm")

@@ -595,6 +595,27 @@ protected:
 
 
 
+  template<class Collection>
+  bool selectTracksNotEmpty( TrigTrackSelector* selector, const std::string& key ) {
+    const Collection* collection = nullptr;
+    if ( key.empty() ) return false;
+    if ( !m_provider->evtStore()->template contains<Collection>( key ) ) return false;
+
+    StatusCode sc = m_provider->evtStore()->retrieve( collection, key );
+    m_provider->msg(MSG::DEBUG) << "SG Collection->size() " << collection->size() << " (" << key << ")" << endmsg;
+
+    if ( !( sc.isSuccess() && collection ) ) return false;
+  
+    // added to fix muon samples bug
+    if ( collection->size() == 0 ) {
+      m_provider->msg(MSG::WARNING) << "no particles in collection" << endmsg;
+      return false;
+    }	   	  	    	
+         		             		        	  
+      selector->selectTracks( collection );
+      return true;   
+    }
+
 
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTrkMuIdTools/TrackDepositInCaloTool.h"
@@ -26,6 +26,7 @@
 #include "TrkCaloExtension/CaloExtension.h"
 #include "TrkCaloExtension/CaloExtensionCollection.h"
 #include "TrkCaloExtension/CaloExtensionHelpers.h"
+#include "AthenaKernel/SlotSpecificObj.h"
 // --- ROOT ---
 #include <cmath>
 
@@ -52,7 +53,6 @@ TrackDepositInCaloTool::TrackDepositInCaloTool(const std::string& type, const st
 StatusCode TrackDepositInCaloTool::initialize() {
     ATH_CHECK(detStore()->retrieve(m_tileDDM));
     if (!m_tileDDM) { return StatusCode::FAILURE; }
-    ATH_CHECK(service("THistSvc", m_histSvc));
     if (m_doHist) { ATH_CHECK(bookHistos()); }
 
     ATH_CHECK(m_extrapolator.retrieve());
@@ -609,8 +609,9 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::deposits(const Trk::TrackPara
         ATH_MSG_DEBUG("Sample: " << sample << "\tEnergyDeposit: " << energyDeposit << "\tEnergyLoss: " << energyLoss);
 
         if (m_doHist) {
-            m_hParELossEta->Fill(energyLoss, itP->eta());
-            m_hParELossSample->Fill(energyLoss, sample);
+            Hists& h = getHists();
+            h.m_hParELossEta->Fill(energyLoss, itP->eta());
+            h.m_hParELossSample->Fill(energyLoss, sample);
         }
 
         // itP++;
@@ -772,8 +773,9 @@ StatusCode TrackDepositInCaloTool::getTraversedLayers(const CaloDetDescrManager*
         double deltaR_solLast = std::abs(parAtSolenoid->position().perp() - par->position().perp());
         double deltaEta_solLast = std::abs(parAtSolenoid->position().eta() - par->position().eta());
         if (m_doHist) {
-            m_hDeltaEtaLastPar->Fill(deltaEta_solLast);
-            m_hDeltaRadiusLastPar->Fill(deltaR_solLast);
+            Hists& h = getHists();
+            h.m_hDeltaEtaLastPar->Fill(deltaEta_solLast);
+            h.m_hDeltaRadiusLastPar->Fill(deltaR_solLast);
         }
 
         const Amg::Vector3D positionAtSolenoid = parAtSolenoid->position();
@@ -1000,8 +1002,19 @@ TrackDepositInCaloTool::getClosestCellTile(
 ///////////////////////////////////////////////////////////////////////////////
 StatusCode TrackDepositInCaloTool::bookHistos() {
     ATH_MSG_DEBUG("Booking the ROOT Histos");
-    StatusCode sc;
+    if (SG::getNSlots() > 1) {
+      ATH_MSG_FATAL("Filling histograms not supported in MT jobs.");
+      return StatusCode::FAILURE;
+    }
+    ATH_CHECK(service("THistSvc", m_histSvc));
+    if (!m_histSvc) return StatusCode::FAILURE;
+    m_h = std::make_unique<Hists>();
+    ATH_CHECK( m_h->book (*m_histSvc) );
+    return StatusCode::SUCCESS;
+}
 
+StatusCode TrackDepositInCaloTool::Hists::book (ITHistSvc& histSvc)
+{
     m_hDepositLayer12 = new TH1F("hDepositLayer12", "hDepositLayer12", 40, 0, 4000);
     m_hDepositLayer13 = new TH1F("hDepositLayer13", "hDepositLayer13", 40, 0, 4000);
     m_hDepositLayer14 = new TH1F("hDepositLayer14", "hDepositLayer14", 40, 0, 4000);
@@ -1021,31 +1034,42 @@ StatusCode TrackDepositInCaloTool::bookHistos() {
     m_hEMB2vsdEta = new TH2F("hEMB2vsdEta", "hEMB2vsdEta", 50, -M_PI, M_PI, 50, 0, 500);
     m_hEMB3vsdEta = new TH2F("hEMB3vsdEta", "hEMB3vsdEta", 50, -M_PI, M_PI, 50, 0, 500);
 
-    if (m_histSvc) {
-        sc = m_histSvc->regHist("/AANT/CaloTrkMuId/hDepositLayer12", m_hDepositLayer12);
-        sc = m_histSvc->regHist("/AANT/CaloTrkMuId/hDepositLayer13", m_hDepositLayer13);
-        sc = m_histSvc->regHist("/AANT/CaloTrkMuId/hDepositLayer14", m_hDepositLayer14);
-        sc = m_histSvc->regHist("/AANT/CaloTrkMuId/hParELossSample", m_hParELossSample);
-        sc = m_histSvc->regHist("/AANT/CaloTrkMuId/hParELossEta", m_hParELossEta);
-        sc = m_histSvc->regHist("/AANT/DetStore/hDeltaEtaLastPar", m_hDeltaEtaLastPar);
-        sc = m_histSvc->regHist("/AANT/DetStore/hDeltaRadiusLastPar", m_hDeltaRadiusLastPar);
-        sc = m_histSvc->regHist("/AANT/DetStore/hDepositsInCore", m_hDepositsInCore);
-        sc = m_histSvc->regHist("/AANT/DetStore/hDepositsInCone", m_hDepositsInCone);
-        sc = m_histSvc->regHist("/AANT/DetStore/hDistDepositsTile", m_hDistDepositsTile);
-        sc = m_histSvc->regHist("/AANT/DetStore/hDistDepositsHEC", m_hDistDepositsHEC);
+#define H_CHECK(X) if((X).isFailure()) return StatusCode::FAILURE
+    H_CHECK( histSvc.regHist("/AANT/CaloTrkMuId/hDepositLayer12", m_hDepositLayer12) );
+    H_CHECK( histSvc.regHist("/AANT/CaloTrkMuId/hDepositLayer13", m_hDepositLayer13) );
+    H_CHECK( histSvc.regHist("/AANT/CaloTrkMuId/hDepositLayer14", m_hDepositLayer14) );
+    H_CHECK( histSvc.regHist("/AANT/CaloTrkMuId/hParELossSample", m_hParELossSample) );
+    H_CHECK( histSvc.regHist("/AANT/CaloTrkMuId/hParELossEta", m_hParELossEta) );
+    H_CHECK( histSvc.regHist("/AANT/DetStore/hDeltaEtaLastPar", m_hDeltaEtaLastPar) );
+    H_CHECK( histSvc.regHist("/AANT/DetStore/hDeltaRadiusLastPar", m_hDeltaRadiusLastPar) );
+    H_CHECK( histSvc.regHist("/AANT/DetStore/hDepositsInCore", m_hDepositsInCore) );
+    H_CHECK( histSvc.regHist("/AANT/DetStore/hDepositsInCone", m_hDepositsInCone) );
+    H_CHECK( histSvc.regHist("/AANT/DetStore/hDistDepositsTile", m_hDistDepositsTile) );
+    H_CHECK( histSvc.regHist("/AANT/DetStore/hDistDepositsHEC", m_hDistDepositsHEC) );
+    
+    H_CHECK( histSvc.regHist("/AANT/DetStore/hEMB1vsdPhi", m_hEMB1vsdPhi) );
+    H_CHECK( histSvc.regHist("/AANT/DetStore/hEMB2vsdPhi", m_hEMB2vsdPhi) );
+    H_CHECK( histSvc.regHist("/AANT/DetStore/hEMB3vsdPhi", m_hEMB3vsdPhi) );
+    H_CHECK( histSvc.regHist("/AANT/DetStore/hEMB1vsdEta", m_hEMB1vsdEta) );
+    H_CHECK( histSvc.regHist("/AANT/DetStore/hEMB2vsdEta", m_hEMB2vsdEta) );
+    H_CHECK( histSvc.regHist("/AANT/DetStore/hEMB3vsdEta", m_hEMB3vsdEta) );
+#undef H_CHECK
 
-        sc = m_histSvc->regHist("/AANT/DetStore/hEMB1vsdPhi", m_hEMB1vsdPhi);
-        sc = m_histSvc->regHist("/AANT/DetStore/hEMB2vsdPhi", m_hEMB2vsdPhi);
-        sc = m_histSvc->regHist("/AANT/DetStore/hEMB3vsdPhi", m_hEMB3vsdPhi);
-        sc = m_histSvc->regHist("/AANT/DetStore/hEMB1vsdEta", m_hEMB1vsdEta);
-        sc = m_histSvc->regHist("/AANT/DetStore/hEMB2vsdEta", m_hEMB2vsdEta);
-        sc = m_histSvc->regHist("/AANT/DetStore/hEMB3vsdEta", m_hEMB3vsdEta);
-    } else {
-        return StatusCode::FAILURE;
-    }
-
-    return sc;
+    return StatusCode::SUCCESS;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// Get reference to histograms.
+///////////////////////////////////////////////////////////////////////////////
+
+TrackDepositInCaloTool::Hists&
+TrackDepositInCaloTool::getHists() const
+{
+  // We earlier checked that no more than one thread is being used.
+  Hists* h ATLAS_THREAD_SAFE = m_h.get();
+  return *h;
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Functions below are under development, these are not used yet.

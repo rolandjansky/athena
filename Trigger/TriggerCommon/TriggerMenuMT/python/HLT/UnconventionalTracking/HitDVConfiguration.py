@@ -16,7 +16,7 @@ def UTTJetRecoSequence():
         from TrigStreamerHypo.TrigStreamerHypoConfig import StreamerHypoToolGenerator
 
         from ..Jet.JetRecoSequences     import jetRecoSequence
-        from ..Jet.JetRecoConfiguration import extractRecoDict
+        from ..Jet.JetRecoCommon import extractRecoDict
         from ..Menu.SignatureDicts      import JetChainParts_Default
         
         jetRecoDict = extractRecoDict([JetChainParts_Default])

@@ -13,6 +13,16 @@ from ISF_Services.ISF_ServicesConfigNew import (
 from ISF_Geant4Tools.ISF_Geant4ToolsConfigNew import G4RunManagerHelperCfg
 from RngComps.RandomServices import dSFMT
 
+def TrkExRndSvcCfg(flags):
+    seed = 'TrkExRnd OFFSET 0 12412330 37849324'
+    return dSFMT(seed)
+
+
+def FatrasRndSvcCfg(flags):
+    seed = 'FatrasRnd OFFSET 0 81234740 23474923'
+    return dSFMT(seed)
+
+
 ################################################################################
 # HIT CREATION SECTION
 ################################################################################
@@ -36,8 +46,7 @@ def fatrasHitCreatorPixelCfg(flags, name="ISF_FatrasHitCreatorPixel", **kwargs):
                                                        merger_input_property,
                                                        region)
 
-    seed = 'FatrasRnd OFFSET 123 81234740 23474923'
-    result.merge(dSFMT(seed))
+    result.merge(FatrasRndSvcCfg(flags))
     kwargs.setdefault("RandomNumberService", result.getService("AtDSFMTGenSvc"))
     kwargs.setdefault("RandomStreamName", flags.Sim.Fatras.RandomStreamName)
     kwargs.setdefault("IdHelperName", 'PixelID')
@@ -65,8 +74,7 @@ def fatrasHitCreatorSCTCfg(flags, name="ISF_FatrasHitCreatorSCT", **kwargs):
                                                        merger_input_property,
                                                        region)
 
-    seed = 'FatrasRnd OFFSET 123 81234740 23474923'
-    result.merge(dSFMT(seed))
+    result.merge(FatrasRndSvcCfg(flags))
     kwargs.setdefault("RandomNumberService", result.getService("AtDSFMTGenSvc"))
     kwargs.setdefault("RandomStreamName", flags.Sim.Fatras.RandomStreamName)
     kwargs.setdefault("IdHelperName", 'SCT_ID')
@@ -94,8 +102,7 @@ def fatrasHitCreatorTRTCfg(flags, name="ISF_FatrasHitCreatorTRT", **kwargs):
                                                        merger_input_property,
                                                        region)
 
-    seed = 'FatrasRnd OFFSET 123 81234740 23474923'
-    result.merge(dSFMT(seed))
+    result.merge(FatrasRndSvcCfg(flags))
     kwargs.setdefault("RandomNumberService", result.getService("AtDSFMTGenSvc"))
     kwargs.setdefault("RandomStreamName", flags.Sim.Fatras.RandomStreamName)
     kwargs.setdefault("CollectionName", hits_collection_name)
@@ -223,8 +230,7 @@ def fatrasSimHitCreatorMSCfg(flags, name="ISF_FatrasSimHitCreatorMS", **kwargs):
                                                                region)
     result.merge(csc_result)
 
-    seed = 'FatrasRnd OFFSET 123 81234740 23474923'
-    result.merge(dSFMT(seed))
+    result.merge(FatrasRndSvcCfg(flags))
     kwargs.setdefault("RandomNumberService", result.getService("AtDSFMTGenSvc"))
     kwargs.setdefault("RandomStreamName", flags.Sim.Fatras.RandomStreamName)
 
@@ -347,8 +353,7 @@ def fatrasEnergyLossUpdatorCfg(flags, name="ISF_FatrasEnergyLossUpdator", **kwar
 
     result = ComponentAccumulator()
 
-    seed = 'FatrasRnd OFFSET 123 81234740 23474923'
-    result.merge(dSFMT(seed))
+    result.merge(FatrasRndSvcCfg(flags))
     kwargs.setdefault("RandomNumberService", result.getService("AtDSFMTGenSvc"))
     kwargs.setdefault("RandomStreamName", flags.Sim.Fatras.RandomStreamName)
 
@@ -369,8 +374,7 @@ def fatrasMultipleScatteringUpdatorCfg(flags, name="ISF_FatrasMultipleScattering
 
     result = ComponentAccumulator()
 
-    seed = 'FatrasRnd OFFSET 123 81234740 23474923'
-    result.merge(dSFMT(seed))
+    result.merge(TrkExRndSvcCfg(flags))
     kwargs.setdefault("RandomNumberService", result.getService("AtDSFMTGenSvc"))
     kwargs.setdefault("RandomStreamName", flags.Sim.Fatras.TrkExRandomStreamName)
     kwargs.setdefault("GaussianMixtureModel", flags.Sim.Fatras.GaussianMixtureModel)
@@ -387,8 +391,7 @@ def fatrasMaterialUpdatorCfg(flags, name="ISF_FatrasMaterialUpdator", **kwargs):
 
     result = ComponentAccumulator()
 
-    seed = 'FatrasRnd OFFSET 123 81234740 23474923'
-    result.merge(dSFMT(seed))
+    result.merge(FatrasRndSvcCfg(flags))
     kwargs.setdefault("RandomNumberService", result.getService("AtDSFMTGenSvc"))
     kwargs.setdefault("RandomStreamName", flags.Sim.Fatras.RandomStreamName)
     if "ParticleBroker" not in kwargs:
@@ -398,13 +401,18 @@ def fatrasMaterialUpdatorCfg(flags, name="ISF_FatrasMaterialUpdator", **kwargs):
         kwargs.setdefault("TruthRecordSvc", result.getPrimaryAndMerge(TruthServiceCfg(flags)).name)
 
     # @TODO retire once migration to TrackingGeometry conditions data is complete
-    if flags.Sim.ISF.UseTrackingGeometryCond:
+    if not flags.Sim.ISF.UseTrackingGeometryCond:
+        if 'TrackingGeometrySvc' not in kwargs:
+            from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+            kwargs.setdefault("TrackingGeometrySvc", result.getPrimaryAndMerge(TrackingGeometrySvcCfg(flags)).name)
+            kwargs.setdefault("TrackingGeometryReadKey", '')
+    else:
         if 'TrackingGeometryReadKey' not in kwargs:
             from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
             acc = TrackingGeometryCondAlgCfg(flags)
             geom_cond_key = acc.getPrimary().TrackingGeometryWriteKey
             result.merge(acc)
-            kwargs.setdefault("TrackingGeometryKey", geom_cond_key)
+            kwargs.setdefault("TrackingGeometryReadKey", geom_cond_key)
 
     # hadronic interactions
     kwargs.setdefault("HadronicInteraction", True)
@@ -546,8 +554,7 @@ def fatrasConversionCreatorCfg(flags, name="ISF_FatrasConversionCreator", **kwar
 
     result = ComponentAccumulator()
 
-    seed = 'FatrasRnd OFFSET 123 81234740 23474923'
-    result.merge(dSFMT(seed))
+    result.merge(FatrasRndSvcCfg(flags))
     kwargs.setdefault("RandomNumberService", result.getService("AtDSFMTGenSvc"))
     kwargs.setdefault("RandomStreamName", flags.Sim.Fatras.RandomStreamName)
 
@@ -575,8 +582,7 @@ def fatrasG4HadIntProcessorCfg(flags, name="ISF_FatrasG4HadIntProcessor", **kwar
 
     result = ComponentAccumulator()
 
-    seed = 'FatrasRnd OFFSET 123 81234740 23474923'
-    result.merge(dSFMT(seed))
+    result.merge(FatrasRndSvcCfg(flags))
     kwargs.setdefault("RandomNumberService", result.getService("AtDSFMTGenSvc"))
     kwargs.setdefault("RandomStreamName", flags.Sim.Fatras.RandomStreamName)
 
@@ -609,8 +615,7 @@ def fatrasParametricHadIntProcessorCfg(flags, name="ISF_FatrasParametricHadIntPr
 
     result = ComponentAccumulator()
 
-    seed = 'FatrasRnd OFFSET 123 81234740 23474923'
-    result.merge(dSFMT(seed))
+    result.merge(FatrasRndSvcCfg(flags))
     kwargs.setdefault("RandomNumberService", result.getService("AtDSFMTGenSvc"))
     kwargs.setdefault("RandomStreamName", flags.Sim.Fatras.RandomStreamName)
 
@@ -642,8 +647,7 @@ def fatrasProcessSamplingToolCfg(flags, name="ISF_FatrasProcessSamplingTool", **
 
     result = ComponentAccumulator()
 
-    seed = 'FatrasRnd OFFSET 123 81234740 23474923'
-    result.merge(dSFMT(seed))
+    result.merge(FatrasRndSvcCfg(flags))
     kwargs.setdefault("RandomNumberService", result.getService("AtDSFMTGenSvc"))
 
     # truth record
@@ -722,8 +726,7 @@ def fatrasTransportToolCfg(flags, name="ISF_FatrasSimTool", **kwargs):
     kwargs.setdefault("OutputLevel", flags.Exec.OutputLevel)
     kwargs.setdefault("ValidationOutput", flags.Sim.ISF.ValidationMode)
 
-    seed = 'FatrasRnd OFFSET 123 81234740 23474923'
-    result.merge(dSFMT(seed))
+    result.merge(FatrasRndSvcCfg(flags))
     kwargs.setdefault("RandomNumberService", result.getService("AtDSFMTGenSvc"))
 
     iFatras__TransportTool = CompFactory.iFatras.TransportTool
@@ -795,7 +798,7 @@ def fatrasSimServiceIDCfg(flags, name="ISF_FatrasSimSvc", **kwargs):
     result.addPublicTool(simulator_tool_cfg)
     kwargs.setdefault("SimulatorTool", result.getPublicTool(simulator_tool_cfg.name))
 
-    result.addService(CompFactory.ISF.LegacySimSvc(name, **kwargs))
+    result.addService(CompFactory.ISF.LegacySimSvc(name, **kwargs), primary = True)
     return result
 
 
@@ -803,14 +806,14 @@ def fatrasPileupSimServiceIDCfg(flags, name="ISF_FatrasPileupSimSvc", **kwargs):
     mlog = logging.getLogger(name)
     mlog.debug('Start configuration')
 
-    result = ComponentAccumulator()
+    toolAcc = ComponentAccumulator()
 
-    pu_sim_tool_cfg = result.popToolsAndMerge(fatrasPileupSimulatorToolSTCfg(flags))
-    result.addPublicTool(pu_sim_tool_cfg)
-    kwargs.setdefault("SimulatorTool", result.getPublicTool(pu_sim_tool_cfg.name))
+    pu_sim_tool_cfg = toolAcc.popToolsAndMerge(fatrasPileupSimulatorToolSTCfg(flags))
+    toolAcc.addPublicTool(pu_sim_tool_cfg)
+    kwargs.setdefault("SimulatorTool", toolAcc.getPublicTool(pu_sim_tool_cfg.name))
 
-    acc = fatrasSimServiceIDCfg(flags, name, **kwargs)
-    result.merge(acc)
+    result = fatrasSimServiceIDCfg(flags, name, **kwargs)
+    result.merge(toolAcc)
     return result
 
 

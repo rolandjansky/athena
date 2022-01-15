@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaTrkRefitterTool.h"
@@ -296,7 +296,7 @@ egammaTrkRefitterTool::provideVotFromBeamspot(const EventContext& ctx,
   // calculate perigee parameters wrt. beam-spot
   const Trk::Perigee* perigee = nullptr;
   const Trk::TrackParameters* tmp =
-    m_extrapolator->extrapolate(*track, surface);
+    m_extrapolator->extrapolate(ctx, *track, surface);
   if (tmp->associatedSurface().type() == Trk::SurfaceType::Perigee) {
     perigee = static_cast<const Trk::Perigee*>(tmp);
   }

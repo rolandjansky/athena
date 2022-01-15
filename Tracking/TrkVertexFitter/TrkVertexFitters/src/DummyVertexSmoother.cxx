@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************
@@ -77,14 +77,16 @@ namespace Trk
           {
             //Either we should return non-const parameters from the extrapolator
             //as the owner here has to delete them
-            //Or we need to clone  
-            auto extrapolatedPerigee = std::unique_ptr<const Trk::TrackParameters>(m_extrapolator->extrapolate(*initPar,perigeeSurface));
-            if(extrapolatedPerigee != nullptr)
-            {
+            //Or we need to clone
+            auto extrapolatedPerigee =
+              std::unique_ptr<const Trk::TrackParameters>(m_extrapolator->extrapolate(Gaudi::Hive::currentContext(), 
+                                                                                      *initPar, 
+                                                                                      perigeeSurface));
+            if (extrapolatedPerigee != nullptr) {
               (*t_it).setPerigeeAtVertex(extrapolatedPerigee->clone());
             } else {
               msg(MSG::ERROR)  << " Extrapolation failed; VxTrackAtertex will not be updated" << endmsg;
-            }//end of successfull extrapolation check
+            } // end of successfull extrapolation check
           } else {
             msg(MSG::WARNING) << " The VxTrackAtVertex passed has no initial Parameters? This track will not be refitted" << endmsg;
           }//end of initial parameters protection check

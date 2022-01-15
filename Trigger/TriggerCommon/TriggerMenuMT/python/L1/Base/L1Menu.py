@@ -246,6 +246,13 @@ class L1Menu(object):
             if L1MenuFlags.ApplyCTPLimits():
                 raise RuntimeError("Both the numbers of inputs and outputs need to be not greater than 512 in a physics menu!")
 
+    # Avoid that L1 item is defined only for BGRP0 as this include also the CALREQ BGRP2 (ATR-24781)
+    def checkBGRP(self):
+        for item in self.items:
+            if len(item.bunchGroups)==1 and item.bunchGroups[0]=='BGRP0':
+               raise RuntimeError("L1 item %s is defined with only BGRP0, ie it can trigger also in the CALREQ BGRP2 bunches. Please add another bunch group (ATR-24781)" % item.name) 
+
+
     def checkPtMinToTopo(self):
         # check that the ptMinToTopo for all types of thresholds is lower than the minimum Et cuts applied in multiplicity and decision algorithms
 

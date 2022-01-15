@@ -171,7 +171,7 @@ if __name__ == "__main__":
     from LArCalibProcessing.LArCalibConfigFlags import addLArCalibFlags
     addLArCalibFlags(ConfigFlags)
 
-
+    ConfigFlags.Input.TypedCollections=[]
     ConfigFlags.LArCalib.Input.Dir = "/scratch/wlampl/calib21/Aug27"
     ConfigFlags.LArCalib.Input.Type="calibration_LArElec-Delay"
     ConfigFlags.LArCalib.Input.RunNumbers=[400268,]
@@ -190,6 +190,7 @@ if __name__ == "__main__":
     for f in ConfigFlags.Input.Files:
         print (f)
 
+    ConfigFlags.lock()
     cfg=MainServicesCfg(ConfigFlags)
     cfg.merge(LArDelay_OFCCaliCfg(ConfigFlags))
     print("Start running...")

@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSimEvent/sTgcHitIdHelper.h"
 
 #include <iostream>
-#include <iomanip> // for std::array
+#include <iomanip>
+#include <array>
 
 sTgcHitIdHelper* sTgcHitIdHelper::m_help = nullptr;
 

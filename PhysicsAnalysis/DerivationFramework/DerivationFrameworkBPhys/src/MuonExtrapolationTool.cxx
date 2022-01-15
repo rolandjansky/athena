@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 // MuonExtrapolationTool.cxx
 #include "DerivationFrameworkBPhys/MuonExtrapolationTool.h"
@@ -115,6 +115,7 @@ StatusCode MuonExtrapolationTool::addBranches() const
 const Trk::TrackParameters* MuonExtrapolationTool::extrapolateToTriggerPivotPlane(const xAOD::TrackParticle& track) const
 {
   // BARREL
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   const Trk::Perigee& perigee = track.perigeeParameters();
   
   // create the barrel as a cylinder surface centered at 0,0,0
@@ -132,11 +133,8 @@ const Trk::TrackParameters* MuonExtrapolationTool::extrapolateToTriggerPivotPlan
   // and then attempt to extrapolate our track to this surface, checking for the boundaries of the barrel
   bool boundaryCheck = true;
   const Trk::Surface* surface = cylinder;
-  const Trk::TrackParameters* p = m_extrapolator->extrapolate(perigee,
-							      *surface,
-							      Trk::alongMomentum,
-							      boundaryCheck,
-							      Trk::muon);
+  const Trk::TrackParameters* p = m_extrapolator->extrapolate(
+    ctx, perigee, *surface, Trk::alongMomentum, boundaryCheck, Trk::muon);
   delete cylinder;
   // if the extrapolation worked out (so we are in the barrel) we are done and can return the 
   // track parameters at this surface. 
@@ -167,12 +165,9 @@ const Trk::TrackParameters* MuonExtrapolationTool::extrapolateToTriggerPivotPlan
   // for the endcap, we turn off the boundary check, extending the EC infinitely to catch stuff heading for the transition region
   boundaryCheck = false;
   surface = disc;
-  p = m_extrapolator->extrapolate(perigee,
-				  *surface,
-				  Trk::alongMomentum,
-				  boundaryCheck,
-				  Trk::muon);
-  delete disc; 
+  p = m_extrapolator->extrapolate(
+    ctx, perigee, *surface, Trk::alongMomentum, boundaryCheck, Trk::muon);
+  delete disc;
   return p;
 }
 }

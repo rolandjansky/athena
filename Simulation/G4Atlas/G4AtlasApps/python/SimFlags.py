@@ -324,6 +324,8 @@ class SimLayout(JobProperty):
                      'ATLAS-R2-2015-03-01-00', # Used in MC15a
                      'ATLAS-R2-2016-00-00-00', # Testing for MC16
                      'ATLAS-R2-2016-01-00-01', # Final (?) MC16
+                     'ATLAS-R2-2016-01-02-01', # Run2 Best Knowledge
+                     'ATLAS-R3S-2021-02-00-00', # Testing for MC21
                      'ATLAS-P2-ITK-03-00-00',  # Phase 2 upgrade testing
                      'ctbh8_combined',
                      'ctbh8_photon',

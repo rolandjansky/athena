@@ -594,7 +594,7 @@ namespace MuonCombined {
                 ATH_MSG_DEBUG("number of accepted tracks " << m_naccepted << " segmentsInfo size " << segmentsInfo.size());
 
                 std::vector<MuonCombined::MuonSegmentInfo> segmentsInfoSolved =
-                    m_MuTagAmbiguitySolverTool->selectBestMuTaggedSegments(segmentsInfo);
+                    m_MuTagAmbiguitySolverTool->selectBestMuTaggedSegments(ctx, segmentsInfo);
                 segmentsInfoSelected.reserve(segmentsInfoSolved.size());
                 for (const auto& x : segmentsInfoSolved) segmentsInfoSelected.push_back(x);
                 ATH_MSG_DEBUG("segmentsInfoSelected size " << segmentsInfoSelected.size());
@@ -603,7 +603,7 @@ namespace MuonCombined {
         }  // end loop over tracks
 
         ATH_MSG_DEBUG("segmentsInfoSelected size after track loop " << segmentsInfoSelected.size());
-        std::vector<MuonCombined::MuonSegmentInfo> segmentsInfoFinal = m_MuTagAmbiguitySolverTool->solveAmbiguities(segmentsInfoSelected);
+        std::vector<MuonCombined::MuonSegmentInfo> segmentsInfoFinal = m_MuTagAmbiguitySolverTool->solveAmbiguities(ctx, segmentsInfoSelected);
         ATH_MSG_DEBUG("segmentsInfoFinal size " << segmentsInfoFinal.size());
 
         if (msgLevel(MSG::DEBUG)) {

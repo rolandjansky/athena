@@ -204,19 +204,6 @@ void Trk::ProtoTrajectoryUtility::clearFitResultsAfterOutlier(Trk::Trajectory& T
   int c=1;
   for (Trk::Trajectory::iterator it=T.begin(); it!=T.end(); ++it, ++c) {
     // MBase pointer: never touch during outlier iterations.
-/*
-    if (it->dnaMaterialEffects()) {
-      // clear all dna after outlier and backward-dna also before outlier
-      if ( ! it->dnaMaterialEffects()->foundByForwardFilter()
-           || (c>=firststate) ) delete it->checkoutDNA_MaterialEffects();
-    }*/
-    //if (it->smoothedTrackParameters()) delete it->checkoutSmoothedPar();
-    if (c>=firststate) {
-      //if (it->forwardTrackParameters()) delete it->checkoutForwardPar();
-      if (it->parametersDifference())   delete it->checkoutParametersDifference();
-      if (it->parametersCovariance())   delete it->checkoutParametersCovariance();
-    }
-    //if (it->fitQuality()) delete it->checkoutFitQuality();
     if (c>=firststate) it->setForwardStateFitQuality(0.0, 0.0);
     it->backwardStateChiSquared(0.0);
   }
@@ -233,21 +220,11 @@ void Trk::ProtoTrajectoryUtility::clearFitResultsAndReference(Trk::Trajectory& T
   int c=1;
   for (Trk::Trajectory::iterator it=T.begin(); it!=T.end(); ++it, ++c) {
     // MBase pointer: never touch during outlier iterations.
-/**
-    if (it->dnaMaterialEffects()) {
-      // clear all dna after outlier and backward-dna also before outlier
-      if ( ! it->dnaMaterialEffects()->foundByForwardFilter()
-           || (c>=firststate) ) delete it->checkoutDNA_MaterialEffects();
-    }**/
+
     if (c>=firststate) {
-      //if (it->forwardTrackParameters()) delete it->checkoutForwardPar();
-      if (it->parametersDifference())   delete it->checkoutParametersDifference();
-      if (it->parametersCovariance())   delete it->checkoutParametersCovariance();
       if (it->referenceParameters())    delete it->checkoutReferenceParameters();
       if (it->jacobian())               delete it->checkoutTransportJacobian();
     }
-    //if (it->smoothedTrackParameters()) delete it->checkoutSmoothedPar();
-    //if (it->fitQuality()) delete it->checkoutFitQuality();
     if (c>=firststate) it->setForwardStateFitQuality(0.0, 0.0);
     it->backwardStateChiSquared(0.0);
   }

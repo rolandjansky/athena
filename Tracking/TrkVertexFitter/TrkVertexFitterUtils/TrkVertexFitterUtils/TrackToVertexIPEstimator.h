@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKVERTEXFITTERUTILS_TRACKTOVERTEXIPESTIMATOR_H
@@ -13,14 +13,15 @@
 #include "xAODTracking/VertexFwd.h"
 #include "CLHEP/Vector/ThreeVector.h"
 
+#include "TrkExInterfaces/IExtrapolator.h"
+#include "TrkVertexFitterInterfaces/IVertexLinearizedTrackFactory.h"
+#include "TrkVertexFitterInterfaces/IVertexUpdator.h"
+
 namespace Trk
 {
 
  class Track;
  class TrackParticleBase;
- class IExtrapolator;
- class IVertexUpdator;
- class IVertexLinearizedTrackFactory;
 
 
  
@@ -146,9 +147,9 @@ namespace Trk
  */
    const ImpactParametersAndSigma  * calculate(const TrackParameters * track, const xAOD::Vertex& vtx) const;
 
-   ToolHandle< Trk::IExtrapolator >  m_extrapolator; 
-   ToolHandle< Trk::IVertexUpdator > m_Updator;
-   ToolHandle< Trk::IVertexLinearizedTrackFactory > m_linFactory;
+   ToolHandle< Trk::IExtrapolator >  m_extrapolator { this, "Extrapolator", "Trk::Extrapolator" }; 
+   ToolHandle< Trk::IVertexUpdator > m_Updator {this, "VertexUpdator", "Trk::KalmanVertexUpdator"};
+   ToolHandle< Trk::IVertexLinearizedTrackFactory > m_linFactory {this, "LinearizedTrackFactory", "Trk::FullLinearizedTrackFactory"};
 
  };//end of class definitions
 

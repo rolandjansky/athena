@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -10,7 +10,7 @@
  * Implementation of the gain formalist for Kalman filters
  * allowing updating of parameters.
  *
- * Started from /based on KalmanUpdatorAmg
+ * Started from/based on KalmanUpdatorAmg
  */
 
 #ifndef TRK_KALMANPARAMETERUPDATOR_H
@@ -24,27 +24,27 @@
 
 namespace Trk {
 
-class KalmanParameterUpdator
-{
-public:
-  /// calling the appropriate implementation for this rank of the measurement
-  /// perform a filter step.
-  /// Updates (in place) the current TrackParameters and FitQualityOnSurface
-  /// to represent the predicted state containing
-  /// the measurement LocalParameters and covariance.
-  /// For prediction sign should be 1 for smoothing -1.
-  bool filterStep(TrackParameters& trackParameters,
-                  FitQualityOnSurface& fitQos,
-                  const LocalParameters& measurement,
-                  const Amg::MatrixX& measCovariance,
-                  const int sign) const;
+namespace KalmanParameterUpdator {
+/// calling the appropriate implementation for this rank of the measurement
+/// perform a filter step.
+/// Updates (in place) the current TrackParameters and FitQualityOnSurface
+/// to represent the predicted state containing
+/// the measurement LocalParameters and covariance.
+/// For prediction sign should be 1 for smoothing -1.
+bool
+filterStep(TrackParameters& trackParameters,
+           FitQualityOnSurface& fitQos,
+           const LocalParameters& measurement,
+           const Amg::MatrixX& measCovariance,
+           const int sign);
 
-  bool stateFitQuality(FitQualityOnSurface& updatedFitQoS,
-                       const TrackParameters& trkPar,
-                       const LocalParameters& position,
-                       const Amg::MatrixX& covariance,
-                       int predFull) const;
-};
+bool
+stateFitQuality(FitQualityOnSurface& updatedFitQoS,
+                const TrackParameters& trkPar,
+                const LocalParameters& position,
+                const Amg::MatrixX& covariance,
+                int predFull);
+} // end of namespace KalmanParameterUpdator
 
 } // end of namespace Trk
 

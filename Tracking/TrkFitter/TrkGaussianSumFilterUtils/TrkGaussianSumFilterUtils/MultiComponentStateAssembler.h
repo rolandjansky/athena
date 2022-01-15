@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -69,24 +69,11 @@ addMultiState(
   MultiComponentStateAssembler::Cache& cache,
   Trk::MultiComponentState&& multiComponentState);
 
-/** Method to include the weights of states that are invalid */
-bool
-addInvalidComponentWeight(
-  MultiComponentStateAssembler::Cache& cache,
-  const double invalidComponentWeight);
-
 /** Method to return the cached state object -
  * it performs a reweighting before returning the object based on the
  * valid and invaid weights */
 MultiComponentState
 assembledState(MultiComponentStateAssembler::Cache&& cache);
-
-/** Method to return the cached state object -
- * it performs a reweighting based on the input parameter  */
-MultiComponentState
-assembledState(
-  MultiComponentStateAssembler::Cache&& cache,
-  const double newWeight);
 
 } // End MultiComponentStateAssembler namespace
 

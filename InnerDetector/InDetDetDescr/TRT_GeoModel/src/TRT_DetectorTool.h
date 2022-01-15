@@ -17,7 +17,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class IGeoDbTagSvc;
-class IRDBAccessSvc;
 class IGeometryDBSvc;
 
 namespace InDetDD {
@@ -53,7 +52,6 @@ public:
     bool m_alignable;
 
     ServiceHandle< IGeoDbTagSvc > m_geoDbTagSvc;
-    ServiceHandle< IRDBAccessSvc > m_rdbAccessSvc;
     ServiceHandle< IGeometryDBSvc > m_geometryDBSvc;
     ToolHandle<ITRT_StrawStatusSummaryTool> m_sumTool; // added for Argon
  

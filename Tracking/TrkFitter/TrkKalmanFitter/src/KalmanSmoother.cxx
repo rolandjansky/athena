@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -178,7 +178,7 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fit(Trk::Trajectory&              tra
                                           const Trk::KalmanMatEffectsController& kalMec) const
 {
   ATH_MSG_VERBOSE ("--> enter KalmanSmoother::fit");
-
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   // protection against being unconfigured
   if (!m_updator) {
     ATH_MSG_ERROR ("need to first configure with updator");
@@ -305,7 +305,8 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fit(Trk::Trajectory&              tra
 
       // now propagate updated TrkParameters to surface of ROT
       if (!m_useExEngine)
-        predPar.reset(  m_extrapolator->extrapolate(*updatedPar, sf,
+        predPar.reset(  m_extrapolator->extrapolate(ctx,
+                                                    *updatedPar, sf,
                                                     Trk::oppositeMomentum, // reverse filtering
                                                     false,                 // no boundary check
                                                     kalMec.particleType()) );
@@ -349,19 +350,17 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fit(Trk::Trajectory&              tra
       Trk::Trajectory::reverse_iterator stateWithNoise
         = Trk::ProtoTrajectoryUtility::previousFittableState(trajectory, rit);
       if (kalMec.doDNA() && stateWithNoise!=trajectory.rend()) {
-        const TrackParameters *predPar_temp=predPar.release();
-        const TrackParameters *updatedPar_temp=updatedPar.release();
+
         Trk::IDynamicNoiseAdjustor::State state{};
         detectedMomentumNoise.reset( m_dynamicNoiseAdjustor->DNA_Adjust(
           state,
-          predPar_temp,        // change according to where meas is
-          updatedPar_temp,     // previous state's pars (start)
+          predPar,        // change according to where meas is
+          updatedPar,     // previous state's pars (start)
           fittableMeasurement, // the meas't
           kalMec,
           Trk::oppositeMomentum,
           stateWithNoise->dnaMaterialEffects()));
-        predPar.reset(predPar_temp);
-        updatedPar.reset(updatedPar_temp);
+
       }
       if (msgLvl(MSG::DEBUG))
         printGlobalParams(rit->positionOnTrajectory(), "  pred", predPar.get(),

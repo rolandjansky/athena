@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -38,6 +38,8 @@ StatusCode
 InDetPhysValTruthDecoratorAlg::initialize() {
   ATH_CHECK(m_extrapolator.retrieve());
   ATH_CHECK(m_beamSpotKey.initialize());
+  ATH_CHECK( m_truthPixelClusterName.initialize() );
+  ATH_CHECK( m_truthSCTClusterName.initialize() );
   ATH_CHECK( m_truthSelectionTool.retrieve( EnableTool { not m_truthSelectionTool.name().empty() } ) );
   if (not m_truthSelectionTool.name().empty() ) {
     m_cutFlow = CutFlow(m_truthSelectionTool->nCuts() );
@@ -54,6 +56,7 @@ InDetPhysValTruthDecoratorAlg::initialize() {
   decor_names[kDecorQOverP]="qOverP";
   decor_names[kDecorProdR]="prodR";
   decor_names[kDecorProdZ]="prodZ";
+  decor_names[kDecorNSilHits]="nSilHits";
 
   IDPVM::createDecoratorKeysAndAccessor(*this, m_truthParticleName,m_prefix.value(),decor_names, m_decor);
   assert( m_decor.size() == kNDecorators);
@@ -79,6 +82,43 @@ InDetPhysValTruthDecoratorAlg::execute(const EventContext &ctx) const {
   std::vector< IDPVM::OptionalDecoration<xAOD::TruthParticleContainer,float> >
      float_decor( IDPVM::createDecoratorsIfNeeded(*ptruth, m_decor, ctx, msgLvl(MSG::DEBUG)) );
 
+  ///truthbarcode-cluster maps to be pre-stored at event level
+  std::map< int, float> barcodeSCTclustercount;
+  std::map< int, float> barcodePIXclustercount;
+  
+  //Loop over the pixel and sct clusters to fill the truth barcode - cluster count maps
+  SG::ReadHandle<xAOD::TrackMeasurementValidationContainer> sctClusters(m_truthSCTClusterName, ctx); 
+  SG::ReadHandle<xAOD::TrackMeasurementValidationContainer> pixelClusters(m_truthPixelClusterName, ctx); 
+  //only decorate the truth particles with truth silicon hits if both containers are available 
+  if (sctClusters.isValid() && pixelClusters.isValid()) {
+    for (const auto& sct : *sctClusters) {
+      const xAOD::TrackMeasurementValidation* sctCluster = sct;
+      std::vector<int> truth_barcode;
+      static const SG::AuxElement::ConstAccessor< std::vector<int> > barcodeAcc("truth_barcode");
+      if (barcodeAcc.isAvailable(*sctCluster)) {
+        truth_barcode = barcodeAcc(*sctCluster);
+        std::map<int, float>::iterator it;
+        for (auto barcode = truth_barcode.begin(); barcode != truth_barcode.end();  ++barcode) {
+          auto result = barcodeSCTclustercount.emplace( std::pair<int, float>(*barcode, 0.0) ); 
+          if (!result.second) ++(result.first->second); 
+        }
+      }
+    } // Loop over SCT clusters
+   
+    for (const auto& pix : *pixelClusters) {
+      const xAOD::TrackMeasurementValidation* pixCluster = pix;
+      std::vector<int> truth_barcode;
+      static const SG::AuxElement::ConstAccessor< std::vector<int> > barcodeAcc("truth_barcode");
+      if (barcodeAcc.isAvailable(*pixCluster)) {
+        truth_barcode = barcodeAcc(*pixCluster);
+        std::map<int, float>::iterator it;
+        for (auto barcode = truth_barcode.begin(); barcode != truth_barcode.end();  ++barcode) {
+          auto result = barcodePIXclustercount.emplace( std::pair<int, float>(*barcode, 0.0) ); 
+          if (!result.second) ++(result.first->second); 
+        }
+      }
+    } // Loop over PIX clusters
+  }
   if (not float_decor.empty()) {
      SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
      ATH_CHECK(beamSpotHandle.isValid());
@@ -90,14 +130,14 @@ InDetPhysValTruthDecoratorAlg::execute(const EventContext &ctx) const {
            auto passed = m_truthSelectionTool->accept(truth_particle);
            tmp_cut_flow.update( passed.missingCuts() );
            if (not passed) continue;
-           decorateTruth(*truth_particle, float_decor, beamPos);
+           decorateTruth(*truth_particle, float_decor, beamPos, barcodePIXclustercount, barcodeSCTclustercount);
         }
         std::lock_guard<std::mutex> lock(m_mutex);
         m_cutFlow.merge(std::move(tmp_cut_flow));
      }
      else {
         for (const xAOD::TruthParticle *truth_particle : *ptruth) {
-           decorateTruth(*truth_particle, float_decor, beamPos);
+           decorateTruth(*truth_particle, float_decor, beamPos, barcodePIXclustercount, barcodeSCTclustercount);
         }
      }
   }
@@ -109,11 +149,12 @@ InDetPhysValTruthDecoratorAlg::execute(const EventContext &ctx) const {
 bool
 InDetPhysValTruthDecoratorAlg::decorateTruth(const xAOD::TruthParticle& particle,
                                              std::vector<IDPVM::OptionalDecoration<xAOD::TruthParticleContainer, float> > &float_decor,
-                                             const Amg::Vector3D& beamPos) const {
+                                             const Amg::Vector3D& beamPos, std::map<int, float> pixelMap, std::map<int, float> sctMap) const {
   ATH_MSG_VERBOSE("Decorate truth with d0 etc");
   if (particle.isNeutral()) {
     return false;
   }
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   const Amg::Vector3D momentum(particle.px(), particle.py(), particle.pz());
   const int pid(particle.pdgId());
   double charge = particle.charge();
@@ -122,6 +163,16 @@ InDetPhysValTruthDecoratorAlg::decorateTruth(const xAOD::TruthParticle& particle
     ATH_MSG_DEBUG("charge not found on particle with pid " << pid);
     return false;
   }
+   
+  //Retrieve the cluster count from the pre-filled maps   
+  std::map<int, float>::iterator it1, it2;
+  it1 =pixelMap.find(particle.barcode());
+  it2 =sctMap.find(particle.barcode());
+  float nSiHits = 0;
+  if (it1 !=pixelMap.end()) nSiHits += (*it1).second; 
+  if (it2 !=sctMap.end()) nSiHits += (*it2).second; 
+ 
+  IDPVM::decorateOrRejectQuietly(particle,float_decor[kDecorNSilHits], nSiHits);
 
   const xAOD::TruthVertex* ptruthVertex(nullptr);
   try{
@@ -147,7 +198,9 @@ InDetPhysValTruthDecoratorAlg::decorateTruth(const xAOD::TruthParticle& particle
 
   Trk::PerigeeSurface persf(beamPos);
 
-  std::unique_ptr<const Trk::TrackParameters> tP ( m_extrapolator->extrapolate(cParameters, persf, Trk::anyDirection, false) );
+  std::unique_ptr<const Trk::TrackParameters> tP ( m_extrapolator->extrapolate(ctx,
+                                                                               cParameters, 
+                                                                               persf, Trk::anyDirection, false) );
   if (tP) {
     float d0_truth = tP->parameters()[Trk::d0];
     float theta_truth = tP->parameters()[Trk::theta];

@@ -61,6 +61,8 @@ excludeTracePattern.append("*/TrigEDMConfig/TriggerEDM.py")
 excludeTracePattern.append("*AthFile/impl.py")
 excludeTracePattern.append("*/AthenaConfiguration/*")
 excludeTracePattern.append("*ROOT/_facade.py")
+excludeTracePattern.append("*/GaudiConfig2/*")
+
 #####################
 # Flags (separated) #
 #####################
@@ -804,6 +806,9 @@ if rec.doFileMetaData():
         # EventFormat tool
         ToolSvc += CfgMgr.xAODMaker__EventFormatMetaDataTool( "EventFormatMetaDataTool" )
         svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.EventFormatMetaDataTool ]
+        # FileMetaData tool
+        ToolSvc += CfgMgr.xAODMaker__FileMetaDataTool( "FileMetaDataTool" )
+        svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.FileMetaDataTool ]
 
     else:
         # Create LumiBlock meta data containers *before* creating the output StreamESD/AOD

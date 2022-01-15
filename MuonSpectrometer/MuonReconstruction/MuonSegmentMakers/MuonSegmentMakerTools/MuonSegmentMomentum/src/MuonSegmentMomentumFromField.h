@@ -31,14 +31,14 @@ class MuonSegmentMomentumFromField : public AthAlgTool, virtual public Muon::IMu
   virtual StatusCode initialize(); 
 
   /** fits a momentum to 2 segments */
-  virtual void fitMomentum2Segments( const Muon::MuonSegment* segment1, const Muon::MuonSegment* segment2, double & signedMomentum ) const;
-  virtual void fitMomentum2Segments_old( const Muon::MuonSegment* segment1, const Muon::MuonSegment* segment2, double & signedMomentum ) const;
+  virtual void fitMomentum2Segments( const EventContext& ctx, const Muon::MuonSegment* segment1, const Muon::MuonSegment* segment2, double & signedMomentum ) const;
+  virtual void fitMomentum2Segments_old( const EventContext& ctx, const Muon::MuonSegment* segment1, const Muon::MuonSegment* segment2, double & signedMomentum ) const;
 
   /** fits a momentum to a vector of segments */
-  virtual void fitMomentumVectorSegments( const std::vector <const Muon::MuonSegment*>, double & signedMomentum ) const;
+  virtual void fitMomentumVectorSegments( const EventContext&, const std::vector <const Muon::MuonSegment*>, double & signedMomentum ) const;
  private:
-  double fieldIntegralEstimate(const Muon::MuonSegment* segment1, const Muon::MuonSegment* segment2) const;
-  double fieldIntegralEstimate_old(const Muon::MuonSegment* segment1, const Muon::MuonSegment* segment2) const;
+  double fieldIntegralEstimate(const EventContext& ctx, const Muon::MuonSegment* segment1, const Muon::MuonSegment* segment2) const;
+  double fieldIntegralEstimate_old(const EventContext& ctx, const Muon::MuonSegment* segment1, const Muon::MuonSegment* segment2) const;
   
   ToolHandle<Trk::IPropagator>          m_propagator{this, "PropagatorTool", 
                                           "Trk::STEP_Propagator/MuonPropagator"};  

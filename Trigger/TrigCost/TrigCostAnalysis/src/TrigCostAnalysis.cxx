@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #define BOOST_BIND_GLOBAL_PLACEHOLDERS // silence Boost pragma message (fixed in Boost 1.76)
 #include <boost/property_tree/json_parser.hpp>
 
 #include "GaudiKernel/ThreadLocalContext.h"
-#include "TrigConfHLTData/HLTUtils.h"
+#include "TrigConfHLTUtils/HLTUtils.h"
 
 #include "PathResolver/PathResolver.h"
 
@@ -165,7 +165,7 @@ float TrigCostAnalysis::getWeight(const EventContext& context) {
 }
 
 
-TH1* TrigCostAnalysis::bookGetPointer(TH1* hist, const std::string& tDir) {
+TH1* TrigCostAnalysis::bookGetPointer(TH1* hist, const std::string& tDir) const {
   std::string histName(hist->GetName());
   std::string bookingString = "/COSTSTREAM/" + tDir + "/" + histName;
 

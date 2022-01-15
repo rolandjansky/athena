@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //***************************************************************************
 //              jFEXForwardJetsAlgo - Algorithm for small R jet Algorithm in jFEX
@@ -46,6 +46,7 @@ namespace LVL1 {
     //virtual int realValue(int ID, int eta) override;
     virtual float globalPhi(int TTID)  override;
     virtual float globalEta(int TTID)  override;   
+    virtual std::array<float,2> globalEtaPhi(int) override;
     virtual unsigned int localPhi(int TTID)  override;
     virtual unsigned int localEta(int TTID)  override;
     virtual unsigned int getTTowerET(int TTID) override; 

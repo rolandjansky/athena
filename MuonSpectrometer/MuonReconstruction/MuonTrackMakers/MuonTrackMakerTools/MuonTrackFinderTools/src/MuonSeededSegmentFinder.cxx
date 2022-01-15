@@ -54,7 +54,7 @@ namespace Muon {
         }
 
         // find segments
-        return find(pars, mdtPrds);
+        return find(ctx, pars, mdtPrds);
     }
 
     std::unique_ptr<Trk::SegmentCollection> MuonSeededSegmentFinder::find(const EventContext& ctx, const Trk::TrackParameters& pars,
@@ -68,10 +68,10 @@ namespace Muon {
         }
 
         // find segments
-        return find(pars, mdtPrds);
+        return find(ctx, pars, mdtPrds);
     }
 
-    std::unique_ptr<Trk::SegmentCollection> MuonSeededSegmentFinder::find(const Trk::TrackParameters& pars,
+    std::unique_ptr<Trk::SegmentCollection> MuonSeededSegmentFinder::find(const EventContext& ctx, const Trk::TrackParameters& pars,
                                                                           const std::vector<const MdtPrepData*>& mdtPrds) const {
         // are we close to the chamber edge?
         bool doHoleSearch = true;
@@ -79,7 +79,7 @@ namespace Muon {
         // select and calibrate the MdtPrepData
         std::vector<const MdtDriftCircleOnTrack*> mdtROTs;
         mdtROTs.reserve(mdtPrds.size());
-        selectAndCalibrate(pars, mdtPrds, mdtROTs, doHoleSearch);
+        selectAndCalibrate(ctx, pars, mdtPrds, mdtROTs, doHoleSearch);
 
         if (mdtROTs.empty()) {
             ATH_MSG_DEBUG(" no MdtDriftCircles selected ");
@@ -355,7 +355,7 @@ namespace Muon {
         }
     }
 
-    void MuonSeededSegmentFinder::selectAndCalibrate(const Trk::TrackParameters& pars, const std::vector<const MdtPrepData*>& mdtPrdCols,
+    void MuonSeededSegmentFinder::selectAndCalibrate(const EventContext& ctx, const Trk::TrackParameters& pars, const std::vector<const MdtPrepData*>& mdtPrdCols,
                                                      std::vector<const MdtDriftCircleOnTrack*>& mdtROTs, bool& doHoleSearch) const {
         ATH_MSG_VERBOSE(" in selectAndCalibrate, get PRDs  " << mdtPrdCols.size());
 
@@ -365,7 +365,7 @@ namespace Muon {
         for (; mit != mit_end; ++mit) {
             if ((*mit)->status() != 1) continue;
             // calibrate MDT
-            const MdtDriftCircleOnTrack* mdt = handleMdtPrd(pars, **mit, doHoleSearch);
+            const MdtDriftCircleOnTrack* mdt = handleMdtPrd(ctx, pars, **mit, doHoleSearch);
 
             // not selected
             if (!mdt) continue;
@@ -375,7 +375,7 @@ namespace Muon {
         ATH_MSG_VERBOSE(" calibrated " << mdtROTs.size() << " prds out of " << mdtPrdCols.size());
     }
 
-    const MdtDriftCircleOnTrack* MuonSeededSegmentFinder::handleMdtPrd(const Trk::TrackParameters& pars, const MdtPrepData& mdtPrd,
+    const MdtDriftCircleOnTrack* MuonSeededSegmentFinder::handleMdtPrd(const EventContext& ctx, const Trk::TrackParameters& pars, const MdtPrepData& mdtPrd,
                                                                        bool& doHoleSearch) const {
         // skip noise hits
         if (mdtPrd.adc() < m_adcCut) return nullptr;
@@ -387,8 +387,7 @@ namespace Muon {
 
         // propagate segment parameters to first measurement
         // retain ownership; this code deleted the exPars before
-        auto exPars = m_propagator->propagate(Gaudi::Hive::currentContext(),
-                                              pars, surf, Trk::anyDirection, false, m_magFieldProperties);
+        auto exPars = m_propagator->propagate(ctx, pars, surf, Trk::anyDirection, false, m_magFieldProperties);
         if (!exPars) {
             ATH_MSG_DEBUG(" Propagation failed!! ");
             return nullptr;

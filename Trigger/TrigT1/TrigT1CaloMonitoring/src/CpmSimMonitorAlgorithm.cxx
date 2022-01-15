@@ -1836,7 +1836,7 @@ void CpmSimMonitorAlgorithm::simulate(const CpmTowerMap *towers, const CpmTowerM
   std::unique_ptr<xAOD::CPMTowerAuxContainer> tempCollAux = std::make_unique<xAOD::CPMTowerAuxContainer>();
 
   tempColl.get()->setStore(tempCollAux.get());
-  for (const auto iter : *towers) {
+  for (const auto& iter : *towers) {
     CpmTowerMap::mapped_type tt = ttCheck(iter.second, tempColl.get());
     const LVL1::Coordinate coord(tt->phi(), tt->eta());
     const int crate = converter.cpCrate(coord);
@@ -1845,7 +1845,7 @@ void CpmSimMonitorAlgorithm::simulate(const CpmTowerMap *towers, const CpmTowerM
     crateMaps[crate].insert(std::make_pair(iter.first, tt));
   }
   // If overlap data not present take from core data
-  for (const auto iter : ((m_overlapPresent) ? *towersOv : *towers)) {
+  for (const auto& iter : ((m_overlapPresent) ? *towersOv : *towers)) {
     CpmTowerMap::mapped_type tt = ttCheck(iter.second, tempColl.get());
     const LVL1::Coordinate coord(tt->phi(), tt->eta());
     const int crate = converter.cpCrateOverlap(coord);

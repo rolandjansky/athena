@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -183,14 +183,6 @@ private:
     "Maximum number of components"
   };
 
-  Gaudi::Property<bool> m_StoreMCSOS{
-    this,
-    "StoreMCSOS",
-    true,
-    "Store Multicomponent State (preferred if we slim later on) or Single "
-    "state in final trajectory"
-  };
-
   Gaudi::Property<bool> m_reintegrateOutliers{ this,
                                                "ReintegrateOutliers",
                                                true,
@@ -218,8 +210,6 @@ private:
     "Combine with forwards state during Smoothing"
   };
 
-  // Measurement updator
-  GsfMeasurementUpdator m_updator;
 
   PropDirection m_directionToPerigee;
 

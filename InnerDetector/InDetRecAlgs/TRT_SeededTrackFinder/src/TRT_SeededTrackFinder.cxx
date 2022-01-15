@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -308,7 +308,9 @@ InDet::TRT_SeededTrackFinder::execute_r (const EventContext& ctx) const{
               Trk::PerigeeSurface perigeeSurface(beamSpotPosition);
 
               // uses perigee on track or extrapolates, no material in any case, we cut on impacts
-              const Trk::TrackParameters* parm = m_extrapolator->extrapolateDirectly(*input, perigeeSurface);
+              const Trk::TrackParameters* parm = m_extrapolator->extrapolateDirectly(ctx, 
+                                                                                     *input, 
+                                                                                     perigeeSurface);
               const Trk::Perigee* extrapolatedPerigee = dynamic_cast<const Trk::Perigee*> (parm );
               if (!extrapolatedPerigee) {
                 ATH_MSG_WARNING("Extrapolation of perigee failed, this should never happen" );

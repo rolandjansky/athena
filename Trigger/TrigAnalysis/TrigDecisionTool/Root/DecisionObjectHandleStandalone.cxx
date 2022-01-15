@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s):
@@ -21,52 +21,45 @@ namespace Trig {
 
    DecisionObjectHandleStandalone::DecisionObjectHandleStandalone( SG::ReadHandleKey<xAOD::TrigDecision>* deckey,
                                                                    SG::ReadHandleKey<xAOD::TrigNavigation>* navikey )
-     : m_deckey( deckey ), m_navikey( navikey ),
-     m_decision( nullptr ), m_navigation( nullptr ) {
+     : m_deckey( deckey ), m_navikey( navikey ) {
 
    }
 
    void DecisionObjectHandleStandalone::reset(bool) {
 
-      m_decision = nullptr;
-      m_navigation = nullptr;
       invalidate();
-
-      return;
    }
 
    const xAOD::TrigDecision*
    DecisionObjectHandleStandalone::getDecision() const {
 
-      if( ! m_decision && !m_deckey->empty() ) {
-         const EventContext& ctx = Gaudi::Hive::currentContext();
-         SG::ReadHandle<xAOD::TrigDecision> decisionReadHandle = SG::makeHandle(*m_deckey, ctx);
-         if( ! decisionReadHandle.isValid() ) {
-            [[maybe_unused]] static std::atomic<bool> warningPrinted =
-               [&]() { ATH_MSG_WARNING( "xAOD::TrigDecision is not available on the input" );
-                       return true; }();
-            return nullptr;
-         }
-         m_decision = decisionReadHandle.ptr();
+      if( m_deckey->empty() ) return nullptr;
+
+      const EventContext& ctx = Gaudi::Hive::currentContext();
+      SG::ReadHandle<xAOD::TrigDecision> decisionReadHandle = SG::makeHandle(*m_deckey, ctx);
+      if( ! decisionReadHandle.isValid() ) {
+        [[maybe_unused]] static std::atomic<bool> warningPrinted =
+          [&]() { ATH_MSG_WARNING( "xAOD::TrigDecision is not available on the input" );
+          return true; }();
+        return nullptr;
       }
-      return m_decision;
+      return decisionReadHandle.ptr();
    }
 
    const xAOD::TrigNavigation*
    DecisionObjectHandleStandalone::getNavigation() const {
 
-      if( ! m_navigation && !m_navikey->empty() ) {
-         const EventContext& ctx = Gaudi::Hive::currentContext();
-         SG::ReadHandle<xAOD::TrigNavigation> navReadHandle = SG::makeHandle(*m_navikey, ctx);
-         if( ! navReadHandle.isValid() ) {
-            [[maybe_unused]] static std::atomic<bool> warningPrinted =
-               [&]() { ATH_MSG_WARNING( "xAOD::TrigNavigation is not available on the input" );
-                       return true; }();
-            return nullptr;
-         }
-         m_navigation = navReadHandle.ptr();
+      if( m_navikey->empty() ) return nullptr;
+
+      const EventContext& ctx = Gaudi::Hive::currentContext();
+      SG::ReadHandle<xAOD::TrigNavigation> navReadHandle = SG::makeHandle(*m_navikey, ctx);
+      if( ! navReadHandle.isValid() ) {
+        [[maybe_unused]] static std::atomic<bool> warningPrinted =
+          [&]() { ATH_MSG_WARNING( "xAOD::TrigNavigation is not available on the input" );
+          return true; }();
+        return nullptr;
       }
-      return m_navigation;
+      return navReadHandle.ptr();
    }
 
 } // namespace Trig

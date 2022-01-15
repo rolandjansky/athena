@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************
@@ -144,8 +144,10 @@ namespace Trk
       }*/
 
       Trk::PerigeeSurface perigeeSurface(*theVertex);
-      thePerigee=dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolateDirectly(*trackPerigee,
-                                                                                       perigeeSurface));
+      thePerigee=dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolateDirectly(
+          Gaudi::Hive::currentContext(),
+          *trackPerigee,
+          perigeeSurface));
       if (thePerigee == nullptr) return nullptr;
     }
 
@@ -332,7 +334,10 @@ namespace Trk
     ATH_MSG_VERBOSE( "Original perigee was: " << *(vtxTrack.initialPerigee())  );
     ATH_MSG_VERBOSE( "The resulting surface is: " << *theSurfaceAtIP  );
 #endif
-   const auto *pTrackPar = m_extrapolator->extrapolate(*(vtxTrack.initialPerigee()),*theSurfaceAtIP);
+   const auto *pTrackPar = m_extrapolator->extrapolate(
+     Gaudi::Hive::currentContext(),
+     *(vtxTrack.initialPerigee()),
+     *theSurfaceAtIP);
    if (const Trk::AtaPlane* res = dynamic_cast<const Trk::AtaPlane *>(pTrackPar); res){
      return res;
    }

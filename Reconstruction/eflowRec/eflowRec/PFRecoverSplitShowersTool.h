@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PFRECOVERSPLITSHOWERSTOOL_H
@@ -47,13 +47,13 @@ class PFRecoverSplitShowersTool : public extends<AthAlgTool, IPFSubtractionTool>
     std::vector<eflowRecTrack*> tracksToRecover;
   };
 
-  void fillClustersToConsider(eflowData&) const;
+  static void fillClustersToConsider(eflowData&) ;
   void fillTracksToRecover(eflowData&) const;
 
   unsigned int matchAndCreateEflowCaloObj(eflowData&) const;
   void performRecovery(unsigned int const nOriginalObj, eflowData&) const;
   void subtractTrackFromClusters(const eflowTrackCaloPoints& trackCalo, eflowRingSubtractionManager& ranking, eflowRecTrack* efRecTrack, std::vector<xAOD::CaloCluster*> clusterSubtractionList) const;
-  double getSumEnergy(const std::vector<std::pair<xAOD::CaloCluster*, bool> >& clusters) const;
+  static double getSumEnergy(const std::vector<std::pair<xAOD::CaloCluster*, bool> >& clusters) ;
 
   void printClusterList(std::vector<xAOD::CaloCluster*>& clusters, std::string prefix) const;
   void performSubtraction(eflowCaloObject* thisEflowCaloObject) const;

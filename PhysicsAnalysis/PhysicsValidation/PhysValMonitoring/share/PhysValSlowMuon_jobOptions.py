@@ -30,6 +30,10 @@ tool1.SelectMuonAuthors = [ 0 ] # only one author is defined in this case... no 
 #tool1.SelectMuonCategories = [ 0, 1, 2, 3, 4 ] # all possible categories
 tool1.SelectMuonCategories = [ 0, 1 ] # lighter version, good for official validation tasks; overriden when in data mode
 
+from IsolationSelection.IsolationSelectionConf import CP__IsolationSelectionTool
+IsolationTool = CP__IsolationSelectionTool( "IsolationSelectionTool",
+                                            MuonWP = "PflowTight_FixedRad")
+ToolSvc += IsolationTool
 tool1.IsoTool = IsolationTool
 tool1.EnableLumi = False
 tool1.OutputLevel = ERROR

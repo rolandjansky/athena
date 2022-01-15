@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MUONROAD_H
@@ -50,6 +50,7 @@ namespace TrigL2MuonSA {
 	  r_ftf[i][j]   = 0;
 	  z_ftf[i][j]   = 0;
 	  phi[i][j]  = 0;
+          ext_ftf_flag[i][j] = 0;
 	}
       }
       stationList.clear();

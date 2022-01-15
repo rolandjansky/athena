@@ -776,7 +776,7 @@ void Muon::MuonCurvedSegmentCombiner::muonCurvedSegmentCombinations(
         if (info.nLayTrig > 0) miscorrect = 2;
         if (info.nLayTrig > 2) miscorrect = 3;
         missedHits[i] = info.nMissedHits - miscorrect;
-        if (missedHits[i] < 0) missedHits[i];
+        if (missedHits[i] < 0) missedHits[i] = 0;
         missedLay[i] = (int)info.layMissed;
         nHots[i] = info.nHots;
         double invc = info.invcurvature;

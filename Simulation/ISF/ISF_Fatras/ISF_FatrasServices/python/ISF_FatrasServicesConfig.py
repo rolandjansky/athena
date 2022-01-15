@@ -425,11 +425,24 @@ def getFatrasMaterialUpdator(name="ISF_FatrasMaterialUpdator", **kwargs):
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
 
-    if not hasattr (condSeq, 'AtlasTrackingGeometryCondAlg'):
-      from InDetCondFolders import InDetAlignFolders_FATRAS  # noqa: F401
-      from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg
-      TrkGeoCondAlg = ConfiguredTrackingGeometryCondAlg('AtlasTrackingGeometryCondAlg')
-      condSeq+= TrkGeoCondAlg
+    # Decide if we want to use the Tracking Geometry
+    # from conditions or not
+    if (ISF_Flags.UseTrackingGeometryCond
+            and 'TrackingGeometryReadKey' not in kwargs):
+        if not hasattr(condSeq, 'AtlasTrackingGeometryCondAlg'):
+            from InDetCondFolders import InDetAlignFolders_FATRAS  # noqa: F401
+            from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import (
+                ConfiguredTrackingGeometryCondAlg)
+            TrkGeoCondAlg = ConfiguredTrackingGeometryCondAlg(
+                'AtlasTrackingGeometryCondAlg')
+            condSeq += TrkGeoCondAlg
+
+        kwargs.setdefault('TrackingGeometryReadKey',
+                          condSeq.AtlasTrackingGeometryCondAlg.TrackingGeometryWriteKey)
+    elif 'TrackingGeometrySvc' not in kwargs:
+        from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
+        kwargs.setdefault('TrackingGeometrySvc', AtlasTrackingGeometrySvc)
+        kwargs.setdefault('TrackingGeometryReadKey', '')
 
     kwargs.setdefault("RandomNumberService" , simFlags.RandomSvc() )
     kwargs.setdefault("RandomStreamName"    , ISF_FatrasFlags.RandomStreamName())

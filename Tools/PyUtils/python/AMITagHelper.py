@@ -119,9 +119,12 @@ def SetAMITag(outputTag=None, inputTags=None, runArgs=None):
             tags = inputTags + [outputTag]
         tags = [tag for tag in tags if amitagRegex.match(tag)]
         amitag = '_'.join(tags)
-        ServiceMgr.TagInfoMgr.ExtraTagValuePairs.update(
-                {'AMITag': amitag})
-        log.info("Output AMITag in in-file metadata set to {}".format(amitag))
+        if amitag:
+            ServiceMgr.TagInfoMgr.ExtraTagValuePairs.update(
+                    {'AMITag': amitag})
+            log.info("Output AMITag in in-file metadata set to {}".format(amitag))
+        else:
+            log.debug("Not adding empty AMITag to /TagInfo")
     except NameError:
         log.warning("TagInfoMgr not available to set output AMITag")
     except TypeError:

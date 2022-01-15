@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 """
 Class to obtain the chain configuration dictionary from the short or long name
@@ -429,7 +429,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
         if overlaps:
             #log.error("[analyseChainName] The following string(s) is/are already defined as defaults, please remove: %s", overlaps)
             #raise RuntimeError("[analyseChainname] Default config appearing in chain name, please remove: %s", overlaps)
-            log.warning("[analyseChainName] The following string(s) is/are already defined as defaults, please remove: %s", overlaps)
+            log.warning("[analyseChainName] The following chainpart %s contains the string(s) %s which is/are already defined as defaults, please remove!", chainparts, overlaps)
 
         # ---- check remaining parts for complete matches in allowedPropertiesAndValues Dict ----
         # ---- unmatched = list of tokens that are not found in the allowed values as a whole ----
@@ -585,7 +585,17 @@ def dictFromChainName(chainInfo):
     chainDict = analyseChainName(chainName,  l1Thresholds, L1item)
     log.debug('ChainProperties: %s', chainDict)
 
+    from TriggerMenuMT.HLT.CommonSequences.EventBuildingSequences import isRoIBasedPEB
+    _isRoIBasedPEB = isRoIBasedPEB(chainDict['eventBuildType'])
+
     for chainPart in chainDict['chainParts']:
+        # fill the sigFolder and subSigs folder
+        for sf in chainPart['sigFolder']:
+            chainDict['sigDicts'].update({sf:chainPart['subSigs']})
+            if sf == 'Bjet':
+                chainDict['sigDicts'].update({'Jet':['Jet']})
+                
+
         thisSignature = chainPart['signature']
         thisAlignGroup = chainPart['alignmentGroup']
         thisExtra = chainPart['extra']
@@ -619,7 +629,8 @@ def dictFromChainName(chainInfo):
                 #incorrectL1=True
 
         if thisChainPartName in ['noalg']:
-            if 'FSNOSEED' not in thisL1:
+            # All streamers should be unseeded except RoI-based PEB streamers which need a real RoI for PEB
+            if 'FSNOSEED' not in thisL1 and not _isRoIBasedPEB:
                 log.error("noalg chains should be seeded from FSNOSEED. Check %s seeded from %s (defined L1: %s),  signature %s",chainDict['chainName'],thisL1,l1Thresholds,thisSignature)
                 #incorrectL1=True
 

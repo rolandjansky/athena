@@ -63,10 +63,6 @@ class MuonIsolationPlots:public PlotBase {
      IsoPlots m_oPtCone30;
      IsoPlots m_oPtCone40;
 
-     IsoPlots m_oEtCone20;
-     IsoPlots m_oEtCone30;
-     IsoPlots m_oEtCone40;
-
      IsoPlots m_oTopoEtCone20;
      IsoPlots m_oTopoEtCone30;
      IsoPlots m_oTopoEtCone40;
@@ -80,10 +76,8 @@ class MuonIsolationPlots:public PlotBase {
      IsoPlots m_oPtVarCone40;
 
 #ifndef XAOD_ANALYSIS
-     IsoCorrPlots m_oEtCone_coreCone;
      IsoCorrPlots m_oTopoEtCone_coreCone;
      IsoCorrPlots m_oNEFlowIso_coreCone;
-     IsoCorrPlots m_oEtCone_coreMuon;
 #endif // not XAOD_ANALYSIS
 	  
 };

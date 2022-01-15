@@ -2,7 +2,6 @@
 
 # specifies CaloCell-> CaloTower combined 
 from AthenaCommon.Logging import logging
-from AthenaCommon.JobProperties import jobproperties as jp
 from AthenaCommon.SystemOfUnits import MeV
 import traceback
 
@@ -22,8 +21,8 @@ class CaloTowerCmbGetter ( Configured )  :
         # handle tile
 
         # handle LAr
-        theCaloCellGetter = self.getInputGetter\
-                            (jp.CaloRecFlags.clusterCellGetterName())
+        #theCaloCellGetter = self.getInputGetter\
+        #                    (jp.CaloRecFlags.clusterCellGetterName())
                 
 
         # now configure the algorithm, part of this could be done in a separate class
@@ -71,13 +70,13 @@ class CaloTowerCmbGetter ( Configured )  :
         theCaloTowerAlgorithm.EtaMin=-5.0
         theCaloTowerAlgorithm.EtaMax=5.0
 
-        theLArTowerBuilderTool.CellContainerName=theCaloCellGetter.outputKey()
+        theLArTowerBuilderTool.CellContainerName="AllCalo"
         theLArTowerBuilderTool.IncludedCalos = [ "LAREM","LARHEC" ]
 
-        theLArFCalTowerBuilderTool.CellContainerName=theCaloCellGetter.outputKey()        
+        theLArFCalTowerBuilderTool.CellContainerName="AllCalo"
         theLArFCalTowerBuilderTool.MinimumEt = 0 * MeV
         
-        theTileTowerBuilderTool.CellContainerName=theCaloCellGetter.outputKey()        
+        theTileTowerBuilderTool.CellContainerName="AllCalo"
 
 
         # add tool to alg . From now on theCaloClusterBuilderSW will point

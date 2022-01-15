@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTrackPerformance/MuonRecoValidationTool.h"
@@ -306,6 +306,7 @@ namespace Muon {
     }
 
     bool MuonRecoValidationTool::add(const MuonSystemExtension::Intersection& intersection, const MuonSegment& segment, int stage) const {
+        const EventContext& ctx = Gaudi::Hive::currentContext();
         m_ntuple.segmentBlock.stage->push_back(stage);
 
         Identifier id = m_edmHelperSvc->chamberId(segment);
@@ -348,7 +349,7 @@ namespace Muon {
 
         // extrapolate and create an intersection @ the segment surface.
         std::shared_ptr<const Trk::TrackParameters> exPars(
-            m_extrapolator->extrapolate(*intersection.trackParameters, segment.associatedSurface(), Trk::anyDirection, false, Trk::muon));
+            m_extrapolator->extrapolate(ctx, *intersection.trackParameters, segment.associatedSurface(), Trk::anyDirection, false, Trk::muon));
         if (!exPars) {
             ATH_MSG_VERBOSE(" extrapolation failed ");
             m_ntuple.segmentBlock.quality->push_back(-2);

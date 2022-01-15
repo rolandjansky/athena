@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkGaussianSumFilterUtils/KalmanParameterUpdator.h"
@@ -348,7 +348,7 @@ Trk::KalmanParameterUpdator::filterStep(TrackParameters& trackParameters,
                                         Trk::FitQualityOnSurface& fitQos,
                                         const LocalParameters& measurement,
                                         const Amg::MatrixX& measCovariance,
-                                        const int sign) const
+                                        const int sign)
 {
 
   const AmgSymMatrix(5)* trkCov = trackParameters.covariance();
@@ -418,7 +418,7 @@ Trk::KalmanParameterUpdator::stateFitQuality(
   const TrackParameters& trkPar,
   const LocalParameters& position,
   const Amg::MatrixX& covariance,
-  int predFull) const
+  int predFull)
 {
   if (!trkPar.covariance()) {
     return false;

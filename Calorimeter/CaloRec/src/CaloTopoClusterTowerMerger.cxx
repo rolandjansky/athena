@@ -159,8 +159,17 @@ StatusCode CaloTopoClusterTowerMerger::execute(const EventContext& ctx) const
   return StatusCode::SUCCESS;
 }
 
-bool CaloTopoClusterTowerMerger::makeDeepCopy(const xAOD::CaloCluster& rClus,xAOD::CaloClusterContainer* pClusCont) 
-{ pClusCont->push_back(new xAOD::CaloCluster(rClus)); return true; }
+bool
+CaloTopoClusterTowerMerger::makeDeepCopy(const xAOD::CaloCluster& rClus,
+                                         xAOD::CaloClusterContainer* pClusCont)
+{
+  auto* copyClus = new xAOD::CaloCluster();
+  // pass ownership
+  pClusCont->push_back(copyClus);
+  // then assign to
+  (*copyClus) = rClus;
+  return true;
+}
 
 StatusCode CaloTopoClusterTowerMerger::addContainerWriteHandle(whandle_t& signalHandle) const
 { return CaloClusterStoreHelper::AddContainerWriteHandle(&(*evtStore()),signalHandle,msg()); }

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from .powheg_base import PowhegBase
 import glob
@@ -48,7 +48,6 @@ class PowhegRES(PowhegBase):
             "mint*.top",
             "parameters.ol",
             "pwg*.top",
-            "pwg*stat.dat",
             "pwgboundviolations*.dat",
             "pwgcounters*.dat",
             "pwgseeds.dat",
@@ -56,6 +55,19 @@ class PowhegRES(PowhegBase):
             "sigreal_btl0_equiv",
             "sigregular_equiv",
             "sigvirtual_equiv"
+        ]
+
+
+    @property
+    def integration_file_names(self):
+        """! Wildcarded list of integration files that might be created by this process."""
+        return [
+            "pwg*upb*.dat",
+            "pwg*xgrid*.dat",
+            "pwgfullgrid*.dat",
+            "pwggrid*.dat",
+            "pwgubound*.dat"
+            "pwg*stat.dat",
         ]
 
     @property

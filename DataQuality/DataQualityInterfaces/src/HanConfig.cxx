@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -1304,7 +1304,7 @@ ChangeOutputDir( TFile* file, const std::string& path, DirMap_t& directories )
       std::string dirName;
       std::string::size_type k = subPath.find_last_of('/');
       dirName = (k != std::string::npos) ? std::string( subPath, k+1, std::string::npos ) : subPath;
-      TDirectory* dir;
+      TDirectory* dir = nullptr;
       if (!parDir->FindKey(dirName.c_str())) {
 	dir = parDir->mkdir( dirName.c_str() );
       }

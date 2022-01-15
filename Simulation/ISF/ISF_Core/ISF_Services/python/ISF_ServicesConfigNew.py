@@ -17,7 +17,7 @@ from ISF_HepMC_Tools.ISF_HepMC_ToolsConfigNew import (
     TruthStrategyGroupIDCfg,
     TruthStrategyGroupIDHadIntCfg,
     TruthStrategyGroupCaloMuBremCfg,
-    ParticleSimWhiteListCfg,
+    ParticleSimWhiteList_ExtraParticlesCfg,
 )
 from BarcodeServices.BarcodeServicesConfigNew import BarcodeSvcCfg
 from ISF_Geant4CommonTools.ISF_Geant4CommonToolsConfigNew import (
@@ -66,7 +66,7 @@ def InputConverterCfg(ConfigFlags, name="ISF_InputConverter", **kwargs):
 def LongLivedInputConverterCfg(ConfigFlags, name="ISF_LongLivedInputConverter", **kwargs):
     result = ComponentAccumulator()
     gpfilt = [
-        result.popToolsAndMerge(ParticleSimWhiteListCfg(ConfigFlags)),
+        result.popToolsAndMerge(ParticleSimWhiteList_ExtraParticlesCfg(ConfigFlags)),
         result.popToolsAndMerge(ParticlePositionFilterDynamicCfg(ConfigFlags)),
         result.popToolsAndMerge(EtaPhiFilterCfg(ConfigFlags)),
         result.popToolsAndMerge(GenParticleInteractingFilterCfg(ConfigFlags)),

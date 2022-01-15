@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 import importlib
 import string
@@ -70,6 +70,8 @@ class GenerateMenuMT(object, metaclass=Singleton):
         self.availableSignatures = []
         self.signaturesToGenerate = []
 
+        self.sigDicts = {}
+
         self.chainDefModule = {}   # Generate[SIG]ChainDefs module for each SIGnature
 
     def setChainFilter(self, f):
@@ -93,7 +95,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
             """Check if chain is assigned to the correct signature"""
             reqd = GenerateMenuMT.getRequiredSignatures(currentSig)
             isValid = chainSig.issubset( reqd )
-            log.info("Chain signatures: %s, required signatures: %s",chainSig,reqd)
+            log.debug("Chain signatures: %s, required signatures: %s",chainSig,reqd)
             if not isValid:
                 log.error("Chain signatures %s not a subset of required signatures %s",set(chainSig),reqd)
             return isValid
@@ -102,11 +104,20 @@ class GenerateMenuMT(object, metaclass=Singleton):
         invalid = False
         for sig, chains in self.chainsInMenu.items():
             for chain in chains:
-                log.debug("Now processing chain: %s ", chain)
+                log.debug("Now processing chain: %s from signature %s", chain, sig)
                 chainCounter += 1
                 chainDict = dictFromChainName(chain)
                 chainDict['chainCounter'] = chainCounter
                 chainDict['prescale'] = 1  # set default chain prescale
+
+                # Pick out the folder and subsignature directories to import
+                for sigfo, subsig in chainDict['sigDicts'].items():
+                    if sigfo not in self.sigDicts:
+                        self.sigDicts[sigfo] = subsig
+                    else:
+                        for ss in subsig:
+                            if ss not in self.sigDicts[sigfo]:
+                                self.sigDicts[sigfo].append(ss)
 
                 self.chainDicts.append(chainDict)
 
@@ -120,49 +131,10 @@ class GenerateMenuMT(object, metaclass=Singleton):
     def importSignaturesToGenerate(self):
         """check if all the signature files can be imported and then import them"""
 
-        # List of all non-empty signatures
-        self.signaturesToGenerate = [s for s,chains in self.chainsInMenu.items()
-                                     if len(chains)>0]
-
-        log.info("Enabled signature(s): %s", self.signaturesToGenerate)
-
-        # Extend the list to satisfy certain requirements
-        extendedSignatureToGenerate = set(self.signaturesToGenerate + GenerateMenuMT.defaultSigs)
-
-        # Combined chains themselves are created by merging
-        # If we activate combined chains, we need all of the (legal) sub-signatures
-        if "Combined" in extendedSignatureToGenerate:
-            log.info("Combined chains requested -- activate other necessary signatures")
-            extendedSignatureToGenerate.remove("Combined")
-            extendedSignatureToGenerate.update(GenerateMenuMT.combinedSigs)
-
-        # Electron and Photon chains both have Egamma as the top-level folder
-        # but have separate chain configuration modules
-        if "Egamma" in extendedSignatureToGenerate:
-            log.info("Egamma chains requested -- activate other necessary signatures")
-            extendedSignatureToGenerate.remove("Egamma")
-            extendedSignatureToGenerate.update(["Electron","Photon"])
-
-        for sig in extendedSignatureToGenerate:
-            log.debug("[getSignaturesInMenu] sig: %s", sig)
-            
-            if sig not in self.availableSignatures:
-                self.availableSignatures.append(sig)
-
+        for sig, subSigs in self.sigDicts.items():
             try:
-                if sig in ['Electron', 'Photon']:
-                    sigFolder = 'Egamma'
-                    subSigs = [sig]
-                elif sig in GenerateMenuMT.calibCosmicMonSigs:
-                    sigFolder = 'CalibCosmicMon'
-                     #only import the CalibCosmicMon signatures that we need, not all of them!
-                    subSigs = [sig]
-                else:
-                    sigFolder = sig
-                    subSigs = [sig]
                 for ss in subSigs:
-                    # import the relevant signature module
-                    import_module = 'TriggerMenuMT.HLT.' + sigFolder +'.Generate' + ss + 'ChainDefs'
+                    import_module = 'TriggerMenuMT.HLT.' + sig +'.Generate' + ss + 'ChainDefs'
                     self.chainDefModule[ss] = importlib.import_module(import_module)
 
                     if ss not in self.availableSignatures:
@@ -174,6 +146,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
                 traceback.print_exc()
 
         log.debug('Available signature(s) for chain generation: %s', self.availableSignatures)
+
         return
 
     def generateChains(self):

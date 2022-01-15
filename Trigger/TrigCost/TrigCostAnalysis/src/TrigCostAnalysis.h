@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCOSTANALYSIS_TRIGCOSTALYSIS_H
@@ -72,7 +72,7 @@ class TrigCostAnalysis: public ::AthAlgorithm {
      * @param[in] tDir Histogram name & directory.
      * @return Cached pointer to histogram. Used to fill histogram without having to perform THishSvc lookup. 
      */
-    TH1* bookGetPointer(TH1* hist, const std::string& tDir = "");
+    TH1* bookGetPointer(TH1* hist, const std::string& tDir = "") const;
 
     ServiceHandle<ITHistSvc> m_histSvc{ this, "THistSvc", "THistSvc/THistSvc", "Histogramming svc" };
 

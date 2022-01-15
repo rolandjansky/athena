@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "eflowRec/PFRecoverSplitShowersTool.h"
@@ -75,7 +75,7 @@ StatusCode PFRecoverSplitShowersTool::finalize(){
 
 }
 
-void PFRecoverSplitShowersTool::fillClustersToConsider(eflowData& data) const {
+void PFRecoverSplitShowersTool::fillClustersToConsider(eflowData& data) {
 
   data.clustersToConsider.clear();
 
@@ -190,7 +190,7 @@ unsigned int PFRecoverSplitShowersTool::matchAndCreateEflowCaloObj(eflowData& da
   eflowCaloObjectMaker makeCaloObject;
   std::vector<eflowRecCluster*> v_clustersToConsider(data.clustersToConsider.begin(),data.clustersToConsider.end());
   std::sort(v_clustersToConsider.begin(),v_clustersToConsider.end(),eflowRecCluster::SortDescendingPt());
-  unsigned int nCaloObjects = makeCaloObject.makeTrkCluCaloObjects(data.tracksToRecover, v_clustersToConsider,
+  unsigned int nCaloObjects = eflowCaloObjectMaker::makeTrkCluCaloObjects(data.tracksToRecover, v_clustersToConsider,
 								   data.caloObjects);
   ATH_MSG_DEBUG("PFRecoverSplitShowersTool created " << nCaloObjects << " CaloObjects");
 
@@ -300,7 +300,7 @@ void PFRecoverSplitShowersTool::performRecovery(unsigned int const nOriginalObj,
 
 }
 
-double PFRecoverSplitShowersTool::getSumEnergy(const std::vector<std::pair<xAOD::CaloCluster*, bool> >& clusters) const {
+double PFRecoverSplitShowersTool::getSumEnergy(const std::vector<std::pair<xAOD::CaloCluster*, bool> >& clusters) {
   double result = 0.0;
   for (auto thisPair : clusters) result += (thisPair.first)->e();
   return result;

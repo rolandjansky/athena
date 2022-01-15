@@ -23,7 +23,6 @@ atlas_install_scripts( scripts/generateL1MenuRun3.py
 
 # Shell scripts without flake8 checking:
 atlas_install_scripts( scripts/test_HLTmenu.sh
-                       scripts/test_slice_independence.sh
                        scripts/test_manual_menu_cf.sh
                        scripts/test_emu_step_menu_processing_cf.sh
                        scripts/test_emu_step_processing_cf.sh )

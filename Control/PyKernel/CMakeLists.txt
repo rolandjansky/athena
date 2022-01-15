@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( PyKernel )
@@ -13,7 +13,7 @@ atlas_add_library( PyKernel
                    PUBLIC_HEADERS PyKernel
                    INCLUDE_DIRS ${Python_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Python_LIBRARIES}
+                   LINK_LIBRARIES ${Python_LIBRARIES} CxxUtils RootUtils
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( PyKernelDict

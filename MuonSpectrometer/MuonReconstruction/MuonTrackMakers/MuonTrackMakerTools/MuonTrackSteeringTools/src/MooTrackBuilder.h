@@ -227,7 +227,7 @@ namespace Muon {
         std::pair<std::unique_ptr<Trk::Track>, std::unique_ptr<Trk::Track> > splitTrack(const EventContext& ctx, const Trk::Track& track) const;
 
         /** @brief identify whether two track are split */
-        bool isSplitTrack(const Trk::Track& track1, const Trk::Track& track2) const;
+        bool isSplitTrack(const EventContext& ctx, const Trk::Track& track1, const Trk::Track& track2) const;
 
         /** @brief look for split tracks in collection and merge them */
         TrackCollection* mergeSplitTracks(const EventContext& ctx, const TrackCollection& tracks, GarbageContainer& trash_bin) const;

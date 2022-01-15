@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 """ Egamma slice specific flags  """
 
@@ -9,7 +9,7 @@ __author__  = 'Joao Victor Pinto'
 __version__="$$"
 __doc__="Egamma slice specific flags  "
 
-log = logging.getLogger( 'TriggerMenu.TrigEgammaSliceFlags' )
+log = logging.getLogger( __name__ )
 _flags = [] 
 
 

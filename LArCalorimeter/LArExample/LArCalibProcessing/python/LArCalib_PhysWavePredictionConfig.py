@@ -150,7 +150,7 @@ if __name__ == "__main__":
     addLArCalibFlags(ConfigFlags)
 
 
-
+    ConfigFlags.Input.TypedCollections=[]
     ConfigFlags.LArCalib.Input.RunNumbers=[401351,]
     ConfigFlags.LArCalib.Input.Database="/home/wlampl/calibTest/00400939_00400943_00400945_Barrel-EMB-EMEC_HIGH_40_21.0.20_1/poolFiles/myDB200_00400939_00400943_00400945_EB-EMBA_one.db_Delay"
     ConfigFlags.LArCalib.Input.SubDet="EM"
@@ -162,6 +162,7 @@ if __name__ == "__main__":
     ConfigFlags.IOVDb.GlobalTag="LARCALIB-RUN2-02"
     #ConfigFlags.Exec.OutputLevel=1
 
+    ConfigFlags.lock()
     cfg=MainServicesCfg(ConfigFlags)
     cfg.merge(LArPhysWavePredictionCfg(ConfigFlags))
 

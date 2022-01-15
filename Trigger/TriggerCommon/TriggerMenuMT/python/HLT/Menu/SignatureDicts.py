@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
 log.info("Importing %s",__name__)
@@ -63,7 +63,8 @@ ChainDictTemplate = {
     'EBstep'        : '',
     'chainParts'   : [],
     'topoStartFrom' : False,
-    'sigFolder'     : '',
+    'sigDicts' : {},
+    'sigFolder'     : [],
     'subSigs'        : [],
     'extraComboHypos' : []
 }
@@ -82,7 +83,7 @@ TestChainParts = {
     'trigType'       : ['TestChain'],
     'threshold'      : '',
     'addInfo'        : [''],
-    'sigFolder'     : 'Test',
+    'sigFolder'     : ['Test'],
     'subSigs'       : ['Test'],
     'chainPartIndex': list(range(0,10))
 }
@@ -96,7 +97,7 @@ TestChainParts_Default = {
     'trigType'       : '',
     'threshold'      : '',
     'addInfo'        : [],
-    'sigFolder'     : 'Test',
+    'sigFolder'     : ['Test'],
     'subSigs'       : ['Test'],
     'chainPartIndex': 0
 }
@@ -118,7 +119,7 @@ JetChainParts = {
     'topo'          : AllowedTopos_jet,
     'extra'        : [],
     'addInfo'      : ['perf'],
-    'sigFolder'     : 'Jet',
+    'sigFolder'     : ['Jet'],
     'subSigs'       : ['Jet'],
     'chainPartIndex': list(range(0,10)),
     # Information unique to the jet slice
@@ -247,13 +248,13 @@ JetChainParts = {
                       'HT50XX10ptXX0eta320' # HT selection with explicit jet et/eta cuts
                       ],
 
-    'exotHypo' : ['emergingPTF0p2dR1p2', 'emergingPTF0p1dR1p2', 'emergingPTF0p09dR1p2', 'emergingPTF0p08dR1p2', 'emergingPTF0p0dR1p2', 
-                  'emergingPTF0p2dR0p4', 'emergingPTF0p1dR0p4', 'emergingPTF0p09dR0p4', 'emergingPTF0p08dR0p4', 'emergingPTF0p0dR0p4', 
+    'exotHypo' : ['emergingPTF0p2dR1p2', 'emergingPTF0p1dR1p2', 'emergingPTF0p09dR1p2', 'emergingPTF0p08dR1p2', 'emergingPTF0p075dR1p2', 'emergingPTF0p07dR1p2', 'emergingPTF0p0dR1p2', 
+                  'emergingPTF0p2dR0p4', 'emergingPTF0p1dR0p4', 'emergingPTF0p09dR0p4', 'emergingPTF0p08dR0p4', 'emergingPTF0p075dR0p4', 'emergingPTF0p07dR0p4', 'emergingPTF0p0dR0p4', 
                   'tracklessdR1p2',      'tracklessdR0p4'],
 
     # Simple hypo configuration. Single property cuts defined as MINvarMAX
     'etaRange'      :
-      ['0eta320', '320eta490', '0eta240', '0eta290', '0eta490', '0eta200', '0eta180'],
+      ['0eta320', '320eta490', '0eta240', '0eta290', '0eta490', '0eta200', '0eta180', '0eta160'],
     'jvt'           : # Jet Vertex Tagger pileup discriminant
       ['010jvt', '011jvt', '015jvt', '020jvt', '050jvt', '059jvt'],
     'momCuts'       : # Generic moment cut on single jets
@@ -289,7 +290,7 @@ JetChainParts_Default = {
     'topo'          : [],
     'extra'         : '',
     'addInfo'       : [],
-    'sigFolder'     : 'Jet',
+    'sigFolder'     : ['Jet'],
     'subSigs'       : ['Jet'],
     'chainPartIndex': 0,
     #
@@ -322,6 +323,9 @@ JetChainParts_Default = {
 # ---- bJet Dictionary of default Values that are different to the ones for normal jet chains ----
 bJetChainParts_Default = {
     'etaRange' : '0eta290',
+    'sigFolder'     : ['Bjet'],
+    'subSigs'       : ['Bjet'],
+
 }
 
 #==========================================================
@@ -353,7 +357,7 @@ MuonChainParts = {
     'addInfo'        : ['idperf','LRT','3layersEC','cosmic',"muonqual","nscan"],
     'topo'           : AllowedTopos_mu,
     'flavour'        : [],
-    'sigFolder'     : 'Muon',
+    'sigFolder'     : ['Muon'],
     'subSigs'       : ['Muon'],
     'chainPartIndex': list(range(0,10))
 }
@@ -377,7 +381,7 @@ MuonChainParts_Default = {
     'msonlyInfo'     : [],
     'topo'           : [],
     'flavour'        : '',
-    'sigFolder'     : 'Muon',
+    'sigFolder'     : ['Muon'],
     'subSigs'       : ['Muon'],
     'chainPartIndex': 0
 }
@@ -404,14 +408,14 @@ AllAllowedTopos_Bphysics = AllowedTopos_Bphysics_topoVariant+AllowedTopos_Bphysi
 # ---- Bphysics Dictionary of all allowed Values ----
 BphysicsChainParts = deepcopy(MuonChainParts)
 BphysicsChainParts['signature'] = ['Bphysics']
-BphysicsChainParts['subFolder'] = 'Bphysics'
+BphysicsChainParts['sigFolder'] = ['Bphysics']
 BphysicsChainParts['subSigs'] = ['Bphysics']
 BphysicsChainParts['topo'] = AllowedTopos_Bphysics
 
 # ---- Bphysics Dictionary of default Values ----
 BphysicsChainParts_Default = deepcopy(MuonChainParts_Default)
 BphysicsChainParts_Default['signature'] = ['Bphysics']
-BphysicsChainParts_Default['subFolder'] = 'Bphysics'
+BphysicsChainParts_Default['sigFolder'] = ['Bphysics']
 BphysicsChainParts_Default['subSigs'] = ['Bphysics']
 BphysicsChainParts_Default['topo'] = []
 
@@ -440,7 +444,7 @@ TauChainParts = {
     'calib'         : '',
     'addInfo'       : ['IdTest'],
     'topo'          : AllowedTopos_tau,
-    'sigFolder'     : 'Tau',
+    'sigFolder'     : ['Tau'],
     'subSigs'       : ['Tau'],
     'chainPartIndex': list(range(0,10))
 }
@@ -461,7 +465,7 @@ TauChainParts_Default = {
     'calib'         : '',
     'addInfo'       :  '',
     'topo'          : [],
-    'sigFolder'     : 'Tau',
+    'sigFolder'     : ['Tau'],
     'subSigs'       : ['Tau'],
     'chainPartIndex': 0
 }
@@ -489,7 +493,7 @@ METChainParts = {
     'L2muonCorr'     : [],
     'EFmuonCorr'     : [],
     'addInfo'        : ['FStracks'],
-    'sigFolder'      : 'MET',
+    'sigFolder'      : ['MET'],
     'subSigs'        : ['MET'],
     'constitmod'     : ['cssk', 'vssk'],
     'chainPartIndex': list(range(0,10))
@@ -511,7 +515,7 @@ METChainParts_Default = {
     'addInfo'        : '',
     'constitType'    : 'tc',
     'constitmod'     : '',
-    'sigFolder'     : 'MET',
+    'sigFolder'     : ['MET'],
     'subSigs'       : ['MET'],
     'chainPartIndex': 0
 }
@@ -567,8 +571,8 @@ ElectronChainParts = {
     'lhInfo'         : ['nod0', 'nopix'],
     'L2IDAlg'        : ['noringer'],
     'addInfo'        : [ 'etcut', 'etcut1step',"fwd"],
-    'sigFolder'     : 'Egamma',
-    'subSigs'       : ['Electron','Photon'],
+    'sigFolder'     : ['Egamma'],
+    'subSigs'       : ['Electron'],
     'topo'          : AllowedTopos_e,
     'chainPartIndex': list(range(0,10))
 }
@@ -598,8 +602,8 @@ ElectronChainParts_Default = {
     'recoAlg'        : '',
     'FSinfo'         : '',
     'addInfo'        : [],
-    'sigFolder'     : 'Egamma',
-    'subSigs'       : ['Electron','Photon'],
+    'sigFolder'     : ['Egamma'],
+    'subSigs'       : ['Electron'],
     'topo'          : [],
     'chainPartIndex': 0
 }
@@ -627,8 +631,8 @@ PhotonChainParts = {
     'recoAlg'        : [],
     'FSinfo'         : [],
     'addInfo'        : ['etcut',],
-    'sigFolder'     : 'Egamma',
-    'subSigs'       : ['Electron','Photon'],
+    'sigFolder'     : ['Egamma'],
+    'subSigs'       : ['Photon'],
     'topo'          : AllowedTopos_g,
     'chainPartIndex': list(range(0,10)),
     }
@@ -651,8 +655,8 @@ PhotonChainParts_Default = {
     'recoAlg'        : '',
     'FSinfo'         : '',
     'addInfo'        : [],
-    'sigFolder'     : 'Egamma',
-    'subSigs'       : ['Electron','Photon'],
+    'sigFolder'     : ['Egamma'],
+    'subSigs'       : ['Photon'],
     'topo'          : [],
     'chainPartIndex': 0
     }
@@ -686,7 +690,7 @@ MinBiasChainParts = {
     'hypoSumEtInfo'  : ['sumet40', 'sumet50', 'sumet60', 'sumet70', 'sumet80', 'sumet90', 'sumet110', 'sumet150',],
     'recoAlg'        : ['mbts', 'sptrk', 'sp', 'noalg', 'perf', 'hmt', 'hmtperf', 'idperf', 'zdcperf', 'alfaperf', 'afprec', 'afptof', 'excl'],
     'addInfo'        : ['peb'],
-    'sigFolder'     : 'MinBias',
+    'sigFolder'     : ['MinBias'],
     'subSigs'       : ['MinBias'],
     'chainPartIndex': list(range(0,10))
     }
@@ -710,7 +714,7 @@ MinBiasChainParts_Default = {
     'hypoSumEtInfo': '',
     'recoAlg'        : [],
     'addInfo'        : [],
-    'sigFolder'     : 'MinBias',
+    'sigFolder'     : ['MinBias'],
     'subSigs'       : ['MinBias'],
     'chainPartIndex': 0
     }
@@ -739,7 +743,7 @@ HeavyIonChainParts = {
     'recoAlg'        : [],
     'addInfo'        : [],
     'gap'            : [],
-    'sigFolder'     : 'HeavyIon',
+    'sigFolder'     : ['HeavyIon'],
     'subSigs'       : ['HeavyIon'],
     'chainPartIndex': list(range(0,10))
     }
@@ -765,7 +769,7 @@ HeavyIonChainParts_Default = {
     'recoAlg'        : [],
     'addInfo'        : [],
     'gap'            : '',
-    'sigFolder'     : 'HeavyIon',
+    'sigFolder'     : ['HeavyIon'],
     'subSigs'       : ['HeavyIon'],
     'chainPartIndex': 0
     }
@@ -790,7 +794,7 @@ CosmicChainParts = {
     'multiplicity'   : '',
     'trigType'       : 'cosmic',
     'extra'          : '',
-    'sigFolder'     : 'CalibCosmicMon',
+    'sigFolder'     : ['CalibCosmicMon'],
     'subSigs'       : ['Cosmic'],
     'chainPartIndex': list(range(0,10))
     }
@@ -809,7 +813,7 @@ CosmicChainParts_Default = {
     'multiplicity'   : '',
     'trigType'       : '',
     'extra'          : '',
-    'sigFolder'     : 'CalibCosmicMon',
+    'sigFolder'     : ['CalibCosmicMon'],
     'subSigs'       : ['Cosmic'],
     'chainPartIndex': 0
     }
@@ -836,7 +840,7 @@ StreamingChainParts = {
     'extra'          : '',
     'streamType'     : AllowedStreamingChainIdentifiers,
     'algo' : ['NoAlg'],
-    'sigFolder'     : 'CalibCosmicMon',
+    'sigFolder'     : ['CalibCosmicMon'],
     'subSigs'       : ['Streaming'],
     'chainPartIndex': list(range(0,10))
     }
@@ -854,7 +858,7 @@ StreamingChainParts_Default = {
     'extra'          : '',
     'streamType'     : '',
     'algo' : [],
-    'sigFolder'     : 'CalibCosmicMon',
+    'sigFolder'     : ['CalibCosmicMon'],
     'subSigs'       : ['Streaming'],
     'chainPartIndex': 0
     }
@@ -887,7 +891,7 @@ CalibChainParts = {
     'multiplicity'   : '',
     'trigType'       : ['trk'],
     'extra'          : ['bs',''],
-    'sigFolder'     : 'CalibCosmicMon',
+    'sigFolder'     : ['CalibCosmicMon'],
     'subSigs'       : ['Calib'],
     'chainPartIndex': list(range(0,10))
     }
@@ -909,7 +913,7 @@ CalibChainParts_Default = {
     'location'   : '',
     'trigType'       : '',
     'extra'          : '',
-    'sigFolder'     : 'CalibCosmicMon',
+    'sigFolder'     : ['CalibCosmicMon'],
     'subSigs'       : ['Calib'],
     'chainPartIndex': 0
     }
@@ -937,7 +941,7 @@ MonitorChainParts = {
     'isLegacyL1'     : ['legacy'],
     'trigType'       : 'mon',
     'extra'          : '',
-    'sigFolder'     : 'CalibCosmicMon',
+    'sigFolder'     : ['CalibCosmicMon'],
     'subSigs'       : ['Monitor'],
     'chainPartIndex': list(range(0,10))
     }
@@ -955,7 +959,7 @@ MonitorChainParts_Default = {
     'isLegacyL1'     : [],
     'trigType'       : '',
     'extra'          : '',
-    'sigFolder'     : 'CalibCosmicMon',
+    'sigFolder'     : ['CalibCosmicMon'],
     'subSigs'       : ['Monitor'],
     'chainPartIndex': 0
     }
@@ -976,7 +980,7 @@ EnhancedBiasChainParts = {
     'multiplicity'   : '',
     'trigType'       : '',
     'extra'          : '',
-    'sigFolder'     : 'CalibCosmicMon',
+    'sigFolder'     : ['CalibCosmicMon'],
     'subSigs'       : ['EnhancedBias'],
     'chainPartIndex': list(range(0,10))
     }
@@ -992,7 +996,7 @@ EnhancedBiasChainParts_Default = {
     'multiplicity'   : '',
     'trigType'       : '',
     'extra'          : '',
-    'sigFolder'     : 'CalibCosmicMon',
+    'sigFolder'     : ['CalibCosmicMon'],
     'subSigs'       : ['EnhancedBias'],
     'chainPartIndex': 0
     }
@@ -1015,7 +1019,7 @@ BeamspotChainParts = {
     'multiplicity'   : '',
     'trigType'       : 'beamspot',
     'extra'          : '',
-    'sigFolder'     : 'CalibCosmicMon',
+    'sigFolder'     : ['CalibCosmicMon'],
     'subSigs'       : ['Beamspot'],
     'chainPartIndex': list(range(0,10))
     }
@@ -1035,7 +1039,7 @@ BeamspotChainParts_Default = {
     'location'       : 'vtx',
     'trigType'       : 'beamspot',
     'extra'          : '',
-    'sigFolder'     : 'CalibCosmicMon',
+    'sigFolder'     : ['CalibCosmicMon'],
     'subSigs'       : ['Beamspot'],
     'chainPartIndex': 0
     }
@@ -1056,7 +1060,7 @@ UnconventionalTrackingChainParts = {
     'isoInfo'        : ['iaggrmedium','iaggrloose','imedium','iloose'],
     'extra'          : ["isohpttrack", "fslrt", "dedx", "hitdv", "distrk"],
     'addInfo'        : [],
-    'sigFolder'     : 'UnconventionalTracking',
+    'sigFolder'     : ['UnconventionalTracking'],
     'subSigs'       : ['UnconventionalTracking'],
     'chainPartIndex': list(range(0,10))
 }
@@ -1073,7 +1077,7 @@ UnconventionalTrackingChainParts_Default = {
     'threshold'      : '',
     'extra'          : '',
     'addInfo'        : [],
-    'sigFolder'     : 'UnconventionalTracking',
+    'sigFolder'     : ['UnconventionalTracking'],
     'subSigs'       : ['UnconventionalTracking'],
     'chainPartIndex': 0
 }

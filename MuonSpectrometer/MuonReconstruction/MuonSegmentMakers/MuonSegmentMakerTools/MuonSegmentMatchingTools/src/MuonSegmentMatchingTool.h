@@ -45,7 +45,7 @@ class MuonSegmentMatchingTool : virtual public IMuonSegmentMatchingTool, public 
     StatusCode finalize();
 
     /** @brief match two segments */
-    bool match(const MuonSegment& seg1, const MuonSegment& seg2) const;
+    bool match(const EventContext& ctx, const MuonSegment& seg1, const MuonSegment& seg2) const;
 
   private:
     /** @brief perform straight line matching using SL extrapolation */
@@ -55,7 +55,7 @@ class MuonSegmentMatchingTool : virtual public IMuonSegmentMatchingTool, public 
     bool curvedMatch(const MuonSegment& seg1, const MuonSegment& seg2) const;
 
     /** @brief perform overlap matching */
-    bool overlapMatch(const MuonSegment& seg1, const MuonSegment& seg2) const;
+    bool overlapMatch(const EventContext& ctx, const MuonSegment& seg1, const MuonSegment& seg2) const;
 
     /** @brief setup field */
     bool initializeField() const;

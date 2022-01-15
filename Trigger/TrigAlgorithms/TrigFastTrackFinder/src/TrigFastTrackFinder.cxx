@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -2928,7 +2928,10 @@ const Trk::Perigee* TrigFastTrackFinder::extrapolateDisTrackToBS(Trk::Track* t,
    Trk::PerigeeSurface persf(gp);
    const Trk::Perigee* vertexPerigee   = 0;
    const Trk::Perigee* trackparPerigee = t->perigeeParameters();
-   vertexPerigee = dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolateDirectly((*trackparPerigee),persf));
+   vertexPerigee = dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolateDirectly(
+       Gaudi::Hive::currentContext(),
+       (*trackparPerigee),
+       persf));
 
    return vertexPerigee;
 }
