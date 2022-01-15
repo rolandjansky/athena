@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EventContainers/InternalOnline.h"
 #include <algorithm>
 #include "EventContainers/IDC_WriteHandleBase.h"
 #include "CxxUtils/AthUnlikelyMacros.h"
+#include "CxxUtils/checker_macros.h"
 #include "EventContainers/IdentifiableCacheBase.h"
 
 using namespace EventContainers;
@@ -48,7 +49,8 @@ void InternalOnline::wait() const {
     const void* ABORTstate = reinterpret_cast<const void*>(IdentifiableCacheBase::ABORTEDflag);
     while(!m_waitlist.empty()) {
         IdentifierHash hash = m_waitlist.back();
-        const void* ptr = m_cacheLink->waitFor(hash);
+        EventContainers::IdentifiableCacheBase* cacheLink ATLAS_THREAD_SAFE = m_cacheLink;
+        const void* ptr = cacheLink->waitFor(hash);
         if(ptr == ABORTstate) {
           m_mask[hash] = false;
         }
@@ -131,7 +133,10 @@ bool InternalOnline::insert(IdentifierHash hashId, const void* ptr) {
 }
 
 const void* InternalOnline::findIndexPtr(IdentifierHash hashId) const noexcept {
-    if(hashId < m_mask.size() and m_mask[hashId]) return m_cacheLink->findWait(hashId);
+    if(hashId < m_mask.size() and m_mask[hashId]) {
+      EventContainers::IdentifiableCacheBase* cacheLink ATLAS_THREAD_SAFE = m_cacheLink;
+      return cacheLink->findWait(hashId);
+    }
     return nullptr;
 }
 
