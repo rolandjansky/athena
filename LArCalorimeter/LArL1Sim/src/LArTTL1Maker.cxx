@@ -336,7 +336,8 @@ StatusCode LArTTL1Maker::execute()
 
   // Prepare RNG Service
   ATHRNG::RNGWrapper* rngWrapper = m_RandomSvc->getEngine(this, m_randomStreamName);
-  rngWrapper->setSeedLegacy( m_randomStreamName, Gaudi::Hive::currentContext(), m_randomSeedOffset, m_useLegacyRandomSeeds );
+  ATHRNG::RNGWrapper::SeedingOptionType seedingmode=m_useLegacyRandomSeeds ? ATHRNG::RNGWrapper::MC16Seeding : ATHRNG::RNGWrapper::SeedingDefault;
+  rngWrapper->setSeed( m_randomStreamName, Gaudi::Hive::currentContext(), m_randomSeedOffset, seedingmode );
   CLHEP::HepRandomEngine* rndmEngine = *rngWrapper;
 
   //
