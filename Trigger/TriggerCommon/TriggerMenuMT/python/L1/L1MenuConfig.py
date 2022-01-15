@@ -681,6 +681,9 @@ class L1MenuConfig(object):
 
         self.l1menu.check()
 
+        # check that no L1 items are defined with BGRP0 only
+        self.l1menu.checkBGRP()
+
         # check that only the minimal set of legacy and detector thresholds is used
         self.l1menu.checkLegacyThresholds()   
 

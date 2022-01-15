@@ -125,7 +125,7 @@ class MonitorDef:
                 #"L1_MBTS_4_A", "L1_MBTS_4_C", "L1_MBTS_1_A", "L1_MBTS_1_C", "L1_MBTS_1", "L1_MBTS_2", "L1_MBTS_1_1",
                 #"L1_ALFA_ANY", "L1_ALFA_B7L1U", "L1_ALFA_B7L1L", "L1_ALFA_A7L1U", "L1_ALFA_A7L1L", "L1_ALFA_A7R1U", "L1_ALFA_A7R1L", "L1_ALFA_B7R1U", "L1_ALFA_B7R1L",
                 "L1_ZDC_A", "L1_ZDC_C", "L1_ZDC_AND",
-                #"L1_BPTX0_BGRP0","L1_BPTX1_BGRP0",
+                #"L1_BPTX0_BGRP12","L1_BPTX1_BGRP12",
                 "L1_CALREQ2",
                 "L1_TGC_BURST",
                 "L1_EM20VH_3J20", "L1_EM15VH_MU8F", "L1_EM15VHI_2TAU12IM", "L1_EM15VHI_2TAU12IM_J25_3J12", "L1_EM15VHI_2TAU12IM_XE35",
@@ -142,15 +142,15 @@ class MonitorDef:
                 #"L1_MBTS_4_A", "L1_MBTS_4_C", "L1_MBTS_1_A", "L1_MBTS_1_C", "L1_MBTS_1", "L1_MBTS_2", "L1_MBTS_1_1",
                 #"L1_ALFA_ANY", "L1_ALFA_B7L1U", "L1_ALFA_B7L1L", "L1_ALFA_A7L1U", "L1_ALFA_A7L1L", "L1_ALFA_A7R1U", "L1_ALFA_A7R1L", "L1_ALFA_B7R1U", "L1_ALFA_B7R1L",
                 #"L1_ZDC_A", "L1_ZDC_C", "L1_ZDC_AND",
-                #"L1_BPTX0_BGRP0","L1_BPTX1_BGRP0",
+                #"L1_BPTX0_BGRP12","L1_BPTX1_BGRP12",
                 "L1_CALREQ2",
                 "L1_TGC_BURST",
                 "L1_MU8VF_2MU5VF",
                 ]
 
         monItemsHF[TBP|TAP|TAV] = [
-            "L1_BCM_Wide_BGRP0",
-            "L1_BCM_AC_CA_BGRP0",
+            "L1_BCM_Wide_BGRP12",
+            "L1_BCM_AC_CA_BGRP12",
             "L1_BCM_AC_UNPAIRED_ISO",
             "L1_BCM_CA_UNPAIRED_ISO",
             "L1_J12",

@@ -11745,25 +11745,25 @@ HLT_noalg_L1AFP_A_AND_C_TOF_T0T1_J50:
   eventCount: 0
 HLT_noalg_L1AFP_A_AND_C_TOF_T0T1_J75:
   eventCount: 0
-HLT_noalg_L1AFP_FSA_BGRP0:
+HLT_noalg_L1AFP_FSA_BGRP12:
   eventCount: 0
-HLT_noalg_L1AFP_FSA_TOF_T0_BGRP0:
+HLT_noalg_L1AFP_FSA_TOF_T0_BGRP12:
   eventCount: 0
-HLT_noalg_L1AFP_FSA_TOF_T1_BGRP0:
+HLT_noalg_L1AFP_FSA_TOF_T1_BGRP12:
   eventCount: 0
-HLT_noalg_L1AFP_FSA_TOF_T2_BGRP0:
+HLT_noalg_L1AFP_FSA_TOF_T2_BGRP12:
   eventCount: 0
-HLT_noalg_L1AFP_FSA_TOF_T3_BGRP0:
+HLT_noalg_L1AFP_FSA_TOF_T3_BGRP12:
   eventCount: 0
-HLT_noalg_L1AFP_FSC_BGRP0:
+HLT_noalg_L1AFP_FSC_BGRP12:
   eventCount: 0
-HLT_noalg_L1AFP_FSC_TOF_T0_BGRP0:
+HLT_noalg_L1AFP_FSC_TOF_T0_BGRP12:
   eventCount: 0
-HLT_noalg_L1AFP_FSC_TOF_T1_BGRP0:
+HLT_noalg_L1AFP_FSC_TOF_T1_BGRP12:
   eventCount: 0
-HLT_noalg_L1AFP_FSC_TOF_T2_BGRP0:
+HLT_noalg_L1AFP_FSC_TOF_T2_BGRP12:
   eventCount: 0
-HLT_noalg_L1AFP_FSC_TOF_T3_BGRP0:
+HLT_noalg_L1AFP_FSC_TOF_T3_BGRP12:
   eventCount: 0
 HLT_noalg_L1All:
   eventCount: 20
