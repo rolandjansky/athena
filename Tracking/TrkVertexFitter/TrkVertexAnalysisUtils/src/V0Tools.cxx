@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************
@@ -2260,7 +2260,10 @@ namespace Trk
       if (masses[it] >= 0.) {
         const xAOD::TrackParticle* TP = origTrack(vxCandidate,it);
         if (TP == nullptr) return -999999.;
-        const Trk::TrackParameters* extrPer = m_extrapolator->extrapolate(*TP, perigeeSurface);
+        const Trk::TrackParameters* extrPer = m_extrapolator->extrapolate(
+          Gaudi::Hive::currentContext(),
+          *TP, 
+          perigeeSurface);
         if (extrPer == nullptr) return -999999.;
         px += extrPer->momentum().x();
         py += extrPer->momentum().y();
@@ -2294,7 +2297,10 @@ namespace Trk
       if (masses[it] >= 0.) {
         const xAOD::TrackParticle* TP = origTrack(vxCandidate,it);
         if (TP == nullptr) return -999999.;
-        const Trk::TrackParameters* extrPer = m_extrapolator->extrapolate(*TP, perigeeSurface);
+        const Trk::TrackParameters* extrPer = m_extrapolator->extrapolate(
+          Gaudi::Hive::currentContext(),
+          *TP, 
+          perigeeSurface);
         if (extrPer == nullptr) return -999999.;
         px += extrPer->momentum().x();
         py += extrPer->momentum().y();
@@ -2422,7 +2428,10 @@ namespace Trk
       if (masses[it] >= 0.) {
         const xAOD::TrackParticle* TP = origTrack(vxCandidate,it);
         if (TP == nullptr) return -999999.;
-        const Trk::TrackParameters* extrPer = m_extrapolator->extrapolate(*TP, perigeeSurface);
+        const Trk::TrackParameters* extrPer = m_extrapolator->extrapolate(
+          Gaudi::Hive::currentContext(),
+          *TP, 
+          perigeeSurface);
         if (extrPer == nullptr) return -999999.;
         const AmgSymMatrix(5)* cov_tmp = extrPer->covariance();
         V0_cor(5*it+2,5*it+2) = (*cov_tmp)(2,2);

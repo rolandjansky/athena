@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -410,10 +410,12 @@ Trk::FitterStatusCode Trk::ForwardRefTrackKalmanFitter::enterSeedIntoTrajectory
     ATH_MSG_VERBOSE ("-Fe start params already expressed at 1st meas't - do no extrapolate.");
   } else {
     ATH_MSG_VERBOSE ("-Fe get filter onto 1st surface by direct extrapolation.");
-    inputParAtStartSurface = m_extrapolator->extrapolateDirectly(inputPar,
-                                                                 startSurface,
-                                                                 Trk::anyDirection,
-                                                                 false, Trk::nonInteracting);
+    inputParAtStartSurface = m_extrapolator->extrapolateDirectly(
+      Gaudi::Hive::currentContext(),
+      inputPar,
+      startSurface,
+      Trk::anyDirection,
+      false, Trk::nonInteracting);
     if (inputParAtStartSurface == nullptr) {
       ATH_MSG_WARNING ("-Fe can not transport input param to first measurement => extrap problem or bad input");
       ATH_MSG_INFO ("-Fe parameters R="<< inputPar.position().perp() << ", z="<<

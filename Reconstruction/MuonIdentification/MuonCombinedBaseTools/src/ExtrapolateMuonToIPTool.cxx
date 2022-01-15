@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ExtrapolateMuonToIPTool.h"
@@ -61,8 +61,12 @@ std::unique_ptr<TrackCollection> ExtrapolateMuonToIPTool::extrapolate(const Trac
     return extrapolateTracks;
 }
 
-std::unique_ptr<Trk::Track> ExtrapolateMuonToIPTool::extrapolate(const Trk::Track& track, const EventContext& ctx) const {
-    const Trk::TrackInfo& trackInfo = track.info();
+std::unique_ptr<Trk::Track>
+ExtrapolateMuonToIPTool::extrapolate(const Trk::Track& track,
+                                     const EventContext& ctx) const
+{
+
+  const Trk::TrackInfo& trackInfo = track.info();
     auto particleType = trackInfo.trackProperties(Trk::TrackInfo::StraightTrack) ? Trk::nonInteracting : Trk::muon;
     const Trk::TrackParameters* closestPars = findMeasuredParametersClosestToIP(track);
     ATH_MSG_DEBUG("Extrapolating track " << m_printer->print(track) << " type " << particleType << std::endl
@@ -103,7 +107,7 @@ std::unique_ptr<Trk::Track> ExtrapolateMuonToIPTool::extrapolate(const Trk::Trac
     if (!ipPars) {
         // if extrapolation failed go in other direction
         propDir = (propDir == Trk::alongMomentum) ? Trk::oppositeMomentum : Trk::alongMomentum;
-        ipPars.reset(m_extrapolator->extrapolate(*closestPars, perigeeSurface, propDir, false, particleType));
+        ipPars.reset(m_extrapolator->extrapolate(ctx,*closestPars, perigeeSurface, propDir, false, particleType));
 
         if (propDir == Trk::alongMomentum) {
             ATH_MSG_DEBUG(" retrying opposite momentum extrapolating "

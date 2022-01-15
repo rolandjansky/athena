@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <utility>
@@ -389,7 +389,8 @@ const Trk::TrackParameters* MuonMatchingTool :: extTrackToTGC( const xAOD::Track
   std::unique_ptr<Trk::DiscSurface> disc(new Trk::DiscSurface( matrix, 0., 15000.));
   const bool boundaryCheck = true;
 
-  const Trk::TrackParameters* param = m_extrapolator->extrapolate(*trk,
+  const Trk::TrackParameters* param = m_extrapolator->extrapolate(Gaudi::Hive::currentContext(),
+                                                                  *trk,
                                                                   *disc,
                                                                   Trk::anyDirection,
                                                                   boundaryCheck,
@@ -409,7 +410,8 @@ const Trk::TrackParameters* MuonMatchingTool :: extTrackToRPC( const xAOD::Track
   std::unique_ptr<Trk::CylinderSurface> barrel(new Trk::CylinderSurface(  7478., 15000. ));
   const bool boundaryCheck = true;
 
-  const Trk::TrackParameters* param = m_extrapolator->extrapolate(*trk,
+  const Trk::TrackParameters* param = m_extrapolator->extrapolate(Gaudi::Hive::currentContext(),
+                                                                  *trk,
                                                                   *barrel,
                                                                   Trk::anyDirection,
                                                                   boundaryCheck,

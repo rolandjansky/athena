@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -133,7 +133,7 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
                                                        const int fitIteration) const
 {
   ATH_MSG_VERBOSE ("-O- entered KalmanOutlierRecovery_InDet::flagNewOutliers()");
-
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   // count number of hits and outliers
   int numberOfRejections = 0;
   bool failureRecoveryNeedsRefit = false;
@@ -175,9 +175,10 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
           Trk::Trajectory::iterator restartState = Trk::ProtoTrajectoryUtility::nextFittableState(T,it);
           const Trk::TrackParameters* smoothedParAtOutlier =
 	    (restartState != T.end() ?
-	     m_extrapolator->extrapolate(*restartState->smoothedTrackParameters(),
-					 it->measurement()->associatedSurface(), Trk::oppositeMomentum,
-					 false, Trk::nonInteracting) :
+	     m_extrapolator->extrapolate(ctx,
+                                   *restartState->smoothedTrackParameters(),
+                                   it->measurement()->associatedSurface(), Trk::oppositeMomentum,
+                                   false, Trk::nonInteracting) :
 	     nullptr );
           if (!smoothedParAtOutlier) continue;
 
@@ -236,7 +237,8 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
         if (it->measurementType() == SCT) lastSctState = it;
 
       const Trk::TrackParameters* sctExitTemp =
-        m_extrapolator->extrapolate(*filterInputPar,
+        m_extrapolator->extrapolate(ctx,
+                                    *filterInputPar,
                                     lastSctState->measurement()->associatedSurface(),
                                     Trk::alongMomentum,
                                     false, Trk::nonInteracting);
@@ -288,10 +290,11 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
         if ( rit->measurementType() == SCT) {
           const Trk::TrackParameters* predPar =
 	    (sctFitResult!=nullptr ?
-	     m_extrapolator->extrapolate(*sctFitResult,
-					 rit->measurement()->associatedSurface(),
-					 Trk::oppositeMomentum,
-					 false, Trk::muon) :
+	     m_extrapolator->extrapolate(ctx,
+                                   *sctFitResult,
+                                   rit->measurement()->associatedSurface(),
+                                   Trk::oppositeMomentum,
+                                   false, Trk::muon) :
 	     nullptr);
           delete sctFitResult;
           if (!predPar) {
@@ -319,11 +322,12 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
       for( ; rit!=T.rend(); ++rit) {
         const Trk::TrackParameters* filteredPar =
 	  ( updatedPar != nullptr ?
-	    m_extrapolator->extrapolate(*updatedPar,
-					rit->measurement()->associatedSurface(),
-					Trk::oppositeMomentum,
-					false, Trk::muon) :
-	    nullptr );
+	    m_extrapolator->extrapolate(ctx,
+                                  *updatedPar,
+                                  rit->measurement()->associatedSurface(),
+                                  Trk::oppositeMomentum,
+                                  false, Trk::muon) :
+      nullptr );
         delete updatedPar;
         const Trk::FitQualityOnSurface* testQuality = (filteredPar==nullptr)? nullptr :
           m_updator->predictedStateFitQuality(*filteredPar,

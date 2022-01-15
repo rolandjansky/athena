@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetMultipleVertexSeedFinderUtils/InDetTrackZ0SortingTool.h"
@@ -45,6 +45,7 @@ namespace InDet
 
  std::vector<int> InDetTrackZ0SortingTool::sortedIndex(const std::vector<const Trk::Track*>& tracks, const Trk::Vertex * reference )const
  {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   std::map<double, int> mapOfZ0;
   std::vector<const Trk::Track*>::const_iterator tb = tracks.begin();
   std::vector<const Trk::Track*>::const_iterator te = tracks.end();
@@ -58,7 +59,9 @@ namespace InDet
  
 //here we want to make an extrapolation    
      Trk::PerigeeSurface perigeeSurface(reference->position());
-     perigee = m_extrapolator->extrapolate(**tb,perigeeSurface,
+     perigee = m_extrapolator->extrapolate(
+             ctx,
+             **tb,perigeeSurface,
 					   Trk::anyDirection,true, 
 					   Trk::pion);
    }//end of extrapolation block
@@ -89,6 +92,7 @@ namespace InDet
 
   std::vector<int> InDetTrackZ0SortingTool::sortedIndex(const std::vector<const Trk::TrackParticleBase*>& tracks, const Trk::Vertex * reference  )const
  {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
  // std::vector<int> no_perigee(0);
   std::map<double, int> mapOfZ0;
 
@@ -105,9 +109,11 @@ namespace InDet
    {
      //here we want to make an extrapolation    
      Trk::PerigeeSurface perigeeSurface(reference->position());
-     perigee = m_extrapolator->extrapolate((*tb)->definingParameters(),
-					   perigeeSurface,
-					   Trk::anyDirection,true, Trk::pion);  
+     perigee = m_extrapolator->extrapolate(
+       ctx,
+       (*tb)->definingParameters(),
+       perigeeSurface,
+       Trk::anyDirection,true, Trk::pion);  
    }//end of extrapolation block
    
    if(perigee)
@@ -143,7 +149,7 @@ namespace InDet
 
   std::vector<int> InDetTrackZ0SortingTool::sortedIndex(const std::vector<const xAOD::TrackParticle*>& tracks,const xAOD::Vertex * reference) const
   {
-    
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     // std::vector<int> no_perigee(0);
     std::map<double, int> mapOfZ0; 
     std::vector<const xAOD::TrackParticle*>::const_iterator tb = tracks.begin();
@@ -157,9 +163,11 @@ namespace InDet
 	
 	//here we want to make an extrapolation    
 	Trk::PerigeeSurface perigeeSurface(reference->position());
-	perigee = m_extrapolator->extrapolate(**tb,
-					      perigeeSurface,
-					      Trk::anyDirection,true, Trk::pion);  
+	perigee = m_extrapolator->extrapolate(
+    ctx,
+    **tb,
+    perigeeSurface,
+    Trk::anyDirection,true, Trk::pion);  
 	
 	if(perigee)
 	  {

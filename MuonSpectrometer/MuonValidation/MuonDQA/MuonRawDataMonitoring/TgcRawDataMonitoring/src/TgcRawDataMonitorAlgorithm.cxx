@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TgcRawDataMonitorAlgorithm.h"
@@ -1715,7 +1715,9 @@ std::unique_ptr<const Trk::TrackParameters> TgcRawDataMonitorAlgorithm::extrapol
     distance[0] = trackZ;
     distance[1] = std::abs(trackZ - targetZ);
     const bool boundaryCheck = true;
-    auto param = std::unique_ptr<const Trk::TrackParameters>(m_extrapolator->extrapolate(*track, *disc, Trk::anyDirection, boundaryCheck, Trk::muon));
+    auto param = std::unique_ptr<const Trk::TrackParameters>(m_extrapolator->extrapolate(
+        Gaudi::Hive::currentContext(),
+        *track, *disc, Trk::anyDirection, boundaryCheck, Trk::muon));
     if (!param) {
         return nullptr;
     }
@@ -1743,7 +1745,9 @@ std::unique_ptr<const Trk::TrackParameters> TgcRawDataMonitorAlgorithm::extrapol
     distance[0] = trackRadius;
     distance[1] = trackRadius - radius;
     const bool boundaryCheck = true;
-    auto param = std::unique_ptr<const Trk::TrackParameters>(m_extrapolator->extrapolate(*track, *cylinder, Trk::anyDirection, boundaryCheck, Trk::muon));
+    auto param = std::unique_ptr<const Trk::TrackParameters>(m_extrapolator->extrapolate(
+        Gaudi::Hive::currentContext(),
+        *track, *cylinder, Trk::anyDirection, boundaryCheck, Trk::muon));
 
     if (!param) {
         return nullptr;

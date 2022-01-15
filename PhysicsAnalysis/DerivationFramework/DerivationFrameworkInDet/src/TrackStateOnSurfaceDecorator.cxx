@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -349,21 +349,52 @@ namespace DerivationFramework {
 
       if ( trkTrack->perigeeParameters() ){
         // Track extrapolation
-        std::unique_ptr<const Trk::TrackParameters> perigee( m_extrapolator->extrapolate(*trkTrack,
-                                                                                        (trkTrack->perigeeParameters())->associatedSurface(),
-                                                                                        Trk::oppositeMomentum,
-                                                                                        true,
-                                                                                        Trk::pion,
-                                                                                        Trk::addNoise));
+        std::unique_ptr<const Trk::TrackParameters> perigee(
+          m_extrapolator->extrapolate(
+            ctx,
+            *trkTrack,
+            (trkTrack->perigeeParameters())->associatedSurface(),
+            Trk::oppositeMomentum,
+            true,
+            Trk::pion,
+            Trk::addNoise));
 
-        Trk::CylinderSurface cylSurfIBL(29.5,3000.0);
-        Trk::CylinderSurface cylSurfBL(50.5,3000.0);
-        Trk::CylinderSurface cylSurfL1(88.5,3000.0);
-        Trk::CylinderSurface cylSurfL2(122.5,3000.0);
-        std::unique_ptr<const Trk::TrackParameters> outputParamsIBL(m_extrapolator->extrapolate(*perigee,cylSurfIBL,Trk::alongMomentum,true,Trk::pion,Trk::removeNoise));
-        std::unique_ptr<const Trk::TrackParameters> outputParamsBL(m_extrapolator->extrapolate(*perigee,cylSurfBL,Trk::alongMomentum,true,Trk::pion,Trk::removeNoise));
-        std::unique_ptr<const Trk::TrackParameters> outputParamsL1(m_extrapolator->extrapolate(*perigee,cylSurfL1,Trk::alongMomentum,true,Trk::pion,Trk::removeNoise));
-        std::unique_ptr<const Trk::TrackParameters> outputParamsL2(m_extrapolator->extrapolate(*perigee,cylSurfL2,Trk::alongMomentum,true,Trk::pion,Trk::removeNoise));
+        Trk::CylinderSurface cylSurfIBL(29.5, 3000.0);
+        Trk::CylinderSurface cylSurfBL(50.5, 3000.0);
+        Trk::CylinderSurface cylSurfL1(88.5, 3000.0);
+        Trk::CylinderSurface cylSurfL2(122.5, 3000.0);
+        std::unique_ptr<const Trk::TrackParameters> outputParamsIBL(
+          m_extrapolator->extrapolate(ctx,
+                                      *perigee,
+                                      cylSurfIBL,
+                                      Trk::alongMomentum,
+                                      true,
+                                      Trk::pion,
+                                      Trk::removeNoise));
+        std::unique_ptr<const Trk::TrackParameters> outputParamsBL(
+          m_extrapolator->extrapolate(ctx,
+                                      *perigee,
+                                      cylSurfBL,
+                                      Trk::alongMomentum,
+                                      true,
+                                      Trk::pion,
+                                      Trk::removeNoise));
+        std::unique_ptr<const Trk::TrackParameters> outputParamsL1(
+          m_extrapolator->extrapolate(ctx,
+                                      *perigee,
+                                      cylSurfL1,
+                                      Trk::alongMomentum,
+                                      true,
+                                      Trk::pion,
+                                      Trk::removeNoise));
+        std::unique_ptr<const Trk::TrackParameters> outputParamsL2(
+          m_extrapolator->extrapolate(ctx,
+                                      *perigee,
+                                      cylSurfL2,
+                                      Trk::alongMomentum,
+                                      true,
+                                      Trk::pion,
+                                      Trk::removeNoise));
 
         if (outputParamsIBL.get()) {
           trackPixFloatDecorators[kTrkIBLXDecor](*track) = outputParamsIBL->position().x();
@@ -594,15 +625,7 @@ namespace DerivationFramework {
 
 
         // Track extrapolation
-        std::unique_ptr<const Trk::TrackParameters> extrap( m_extrapolator->extrapolate(*trkTrack,trackState->surface()) );
-//        const Trk::TrackParameters* extrap = m_extrapolator->extrapolate(*trkTrack,trackState->surface(),Trk::PropDirection::anyDirection,false);
-//        const Trk::TrackParameters* extrap = m_extrapolator->extrapolate(*trkTrack,trackState->surface(),Trk::PropDirection::anyDirection,true,Trk::ParticleHypothesis::pion,Trk::MaterialUpdateMode::removeNoise);
-//        const Trk::TrackParameters* extrap = m_extrapolator->extrapolate(*trkTrack,trackState->surface(),Trk::PropDirection::anyDirection,true,Trk::ParticleHypothesis::nonInteractingMuon,Trk::MaterialUpdateMode::addNoise);
-
-//        Amg::Transform3D *newDetElem = new Amg::Transform3D();
-//        *newDetElem = trackState->surface().transform();
-//        Trk::PerigeeSurface newSurface(newDetElem);
-//        const Trk::TrackParameters* extrap = m_extrapolator->extrapolateDirectly(track->perigeeParameters(),newSurface);
+        std::unique_ptr<const Trk::TrackParameters> extrap( m_extrapolator->extrapolate(ctx,*trkTrack,trackState->surface()) );
 
         // Set local positions on the surface
         if (tp) { 

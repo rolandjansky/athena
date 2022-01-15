@@ -356,6 +356,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
  const ParticleHypothesis&   particleType) const
 {
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   if (msgLvl(MSG::DEBUG)) {
     msg(MSG::DEBUG) << "entering filterTrajectoryPiece() with annealing scheme";
     for (unsigned int annealer=0; annealer < m_option_annealingScheme.size(); ++annealer)
@@ -399,7 +400,9 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
     } else {
       if (!input_it->referenceParameters()) {
         // filter using extrapolator
-        predPar.reset((m_extrapolator->extrapolate(*updatedPar,
+        predPar.reset((m_extrapolator->extrapolate(
+              ctx,
+              *updatedPar,
 					      *input_it->surface(),
 					      Trk::alongMomentum,
 					      false, particleType)));
@@ -542,11 +545,6 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
         ATH_MSG_WARNING ("Programming error - lost seed");
         m_utility->dumpTrajectory(m_trajPiece, name());
       }
-	/* old code for lost seed:
-          const TrackParameters* newPredPar =
-	  m_extrapolator->extrapolate(*start_predPar,
-				      ffs->measurement()->associatedSurface(),
-				      Trk::alongMomentum, false, particleType); */
       ATH_MSG_DEBUG ("entering FKF at annealing factor " <<beta);
       FitterStatusCode fitStatus = m_forwardFitter->fit(m_trajPiece,
                                                         *start->forwardTrackParameters(), // no check needed: void in refKF
@@ -773,10 +771,13 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
   } else { // ## case 2: DAF on a subset of trajectory
 
     if (m_forwardFitter->needsReferenceTrajectory()) ATH_MSG_ERROR("Code missing!");
-    start_predPar.reset(
-      m_extrapolator->extrapolate(*lastStateOnPiece->smoothedTrackParameters(),
-				  resumeKfState->measurement()->associatedSurface(),
-				  Trk::alongMomentum, false, particleType));
+    start_predPar.reset(m_extrapolator->extrapolate(
+      ctx,
+      *lastStateOnPiece->smoothedTrackParameters(),
+      resumeKfState->measurement()->associatedSurface(),
+      Trk::alongMomentum,
+      false,
+      particleType));
     if (!start_predPar) {
       ATH_MSG_INFO ("final extrapolation to finish off piecewise filter failed!" <<
 		    " input or internal sorting problem?" );

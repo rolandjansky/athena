@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -223,11 +223,14 @@ StatusCode Trk::ExtrapolatorComparisonTest::execute(const EventContext& ctx) con
       ATH_MSG_VERBOSE("Starting extrapolation " << n_extraps << " from : "       << *atlPerigee << " to : " << *destinationSurface);
       
       auto start_fwd = xclock::now();
-      const Trk::TrackParameters* destParameters = m_atlasExtrapolator->extrapolate(*atlPerigee,
-                                                                                    *destinationSurface, 
-                                                                                    Trk::alongMomentum,
-                                                                                    true,
-                                                                                    (Trk::ParticleHypothesis)m_particleType);
+      const Trk::TrackParameters* destParameters =
+        m_atlasExtrapolator->extrapolate(
+          ctx,
+          *atlPerigee,
+          *destinationSurface,
+          Trk::alongMomentum,
+          true,
+          (Trk::ParticleHypothesis)m_particleType);
       auto end_fwd = xclock::now();
       float ms_fwd = std::chrono::duration_cast<std::chrono::milliseconds>(end_fwd-start_fwd).count();
       
@@ -239,11 +242,14 @@ StatusCode Trk::ExtrapolatorComparisonTest::execute(const EventContext& ctx) con
         
         // now try backward extrapolation
         auto start_bkw = xclock::now();
-        const Trk::TrackParameters* finalperigee = m_atlasExtrapolator->extrapolate(*destParameters,
-                                                                                    atlPerigee->associatedSurface(), 
-                                                                                    Trk::oppositeMomentum,
-                                                                                    true,
-                                                                                    (Trk::ParticleHypothesis)m_particleType);
+        const Trk::TrackParameters* finalperigee =
+          m_atlasExtrapolator->extrapolate(
+            ctx,
+            *destParameters,
+            atlPerigee->associatedSurface(),
+            Trk::oppositeMomentum,
+            true,
+            (Trk::ParticleHypothesis)m_particleType);
         auto end_bkw = xclock::now();
         float ms_bkw = std::chrono::duration_cast<std::chrono::milliseconds>(end_bkw-start_bkw).count();
         

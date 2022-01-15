@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ***************************************************************************
@@ -442,9 +442,11 @@ TBExtrapolTrackToCaloTool::extrapolate(const Trk::TrackParameters* parm,
       << (*surf));
 
   // for the moment use nonInteracting to avoid the navigation   
-  param = m_extrapolator->extrapolate( *parm, *surf,
-				       Trk::alongMomentum,
-				       true, Trk::nonInteracting);
+  param = m_extrapolator->extrapolate( 
+    Gaudi::Hive::currentContext(),
+    *parm, *surf,
+    Trk::alongMomentum,
+    true, Trk::nonInteracting);
   
   if (param)
     ATH_MSG_DEBUG ("Propagation successful ");
@@ -475,9 +477,11 @@ TBExtrapolTrackToCaloTool::extrapolate(const Trk::Track* trk,
 
   ATH_MSG_DEBUG ("Trying to propagate to Surface ... " << (*surf) );
   
-  param = m_extrapolator->extrapolate( *trk, *surf,
-				       Trk::alongMomentum,
-				       true, Trk::nonInteracting);
+  param = m_extrapolator->extrapolate( 
+    Gaudi::Hive::currentContext(),
+    *trk, *surf,
+    Trk::alongMomentum,
+    true, Trk::nonInteracting);
   
   // the other way to do it:
   //
@@ -498,6 +502,7 @@ TBExtrapolTrackToCaloTool::extrapolate(const Trk::Track* trk,
 
 Amg::Vector3D TBExtrapolTrackToCaloTool::getMomentumAtVertex(const xAOD::Vertex& vertex, bool /*reuse*/) const
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   Amg::Vector3D momentum(0., 0., 0.);  
   if (vertex.vxTrackAtVertexAvailable())
   {
@@ -538,7 +543,7 @@ Amg::Vector3D TBExtrapolTrackToCaloTool::getMomentumAtVertex(const xAOD::Vertex&
         ATH_MSG_WARNING("NULL pointer to TrackParticle in vertex");
         continue;
       }
-      const Trk::TrackParameters* params = m_extrapolator->extrapolate(*tp, *surface, Trk::alongMomentum);
+      const Trk::TrackParameters* params = m_extrapolator->extrapolate(ctx, *tp, *surface, Trk::alongMomentum);
       if (!params)
         ATH_MSG_DEBUG("Extrapolation to vertex (perigee) failed");
       else
