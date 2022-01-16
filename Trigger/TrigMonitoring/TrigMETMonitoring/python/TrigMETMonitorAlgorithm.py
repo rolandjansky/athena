@@ -143,7 +143,7 @@ def TrigMETMonConfig(inputFlags):
       HLTChains[12] = "HLT_xe110_pfsum_cssk_L1XE50"
       HLTChains[13] = "HLT_xe110_pfsum_vssk_L1XE50"
     ## mon group test
-    size = len (metChains)
+    # size = len (metChains)
     # if size > 0:
     #   HLTChains[13] = metChains[0]
     if len(metChains) > 0:
