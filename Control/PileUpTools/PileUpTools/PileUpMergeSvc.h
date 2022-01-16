@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file PileUpMergeSvc.h
@@ -29,6 +29,7 @@
 #include "AthenaKernel/SlotSpecificObj.h"
 
 #include "PileUpTools/IPileUpXingFolder.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <cassert>
 
@@ -127,7 +128,7 @@ private:
 
   // Protect against multiple threads trying to make EventInfo
   // for the same slot.
-  mutable SG::SlotSpecificObj<std::mutex> m_slotMutex;
+  mutable SG::SlotSpecificObj<std::mutex> m_slotMutex ATLAS_THREAD_SAFE;
 
   template <typename DATA, typename KEY>
   bool isLive(const KEY& key, int iXing);   ///< is iXing live for DATA/key?

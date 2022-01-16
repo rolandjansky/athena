@@ -53,6 +53,7 @@ AthTruthSelectionTool::AthTruthSelectionTool(const std::string& type, const std:
   declareProperty("maxBarcode", m_maxBarcode = 200e3);
   declareProperty("requireCharged", m_requireCharged = true);
   declareProperty("requireStatus1", m_requireStatus1 = true);
+  declareProperty("requireSiHit", m_requireSiHit = 0);
   declareProperty("maxProdVertRadius", m_maxProdVertRadius = 110.);
   declareProperty("pdgId", m_pdgId = -1);
   declareProperty("hasNoGrandparent", m_grandparent = false);
@@ -95,6 +96,13 @@ AthTruthSelectionTool::initialize() {
     m_cutList.add(Accept_t([&m_maxPt = std::as_const(m_maxPt)](const P_t& p) {
       return(p.pt() < m_maxPt);
     }, "max_pt"));
+  }
+  if (m_requireSiHit > 0) {
+    m_cutList.add(Accept_t([&m_requireSiHit = std::as_const(m_requireSiHit)](const P_t& p) {
+      static const SG::AuxElement::ConstAccessor< float > nSilHitsAcc("nSilHits");
+      if (nSilHitsAcc.isAvailable(p)) return (nSilHitsAcc(p) >= m_requireSiHit);
+      else return false;
+    }, "siHit"));
   }
   if (m_maxBarcode > -1) {
     m_cutList.add(Accept_t([&m_maxBarcode = std::as_const(m_maxBarcode)](const P_t& p) {
@@ -157,7 +165,10 @@ AthTruthSelectionTool::initialize() {
           const Amg::Vector3D position(xPos, yPos, z_truth);
           const Amg::Vector3D momentum(p.px(), p.py(), p.pz());
           const Trk::CurvilinearParameters cParameters(position, momentum, p.charge());
-          const Trk::TrackParameters *exParameters = m_extrapolator->extrapolate(cParameters, *m_cylinder, Trk::anyDirection, false, Trk::pion);
+          const Trk::TrackParameters *exParameters = m_extrapolator->extrapolate(Gaudi::Hive::currentContext(),
+                                                                                 cParameters, 
+                                                                                 *m_cylinder, 
+                                                                                 Trk::anyDirection, false, Trk::pion);
           if (!exParameters) {
             ATH_MSG_VERBOSE("Failed extrapolation. Rejecting track.");
             return false;
@@ -196,7 +207,9 @@ AthTruthSelectionTool::initialize() {
           const Amg::Vector3D position(xPos, yPos, z_truth);
           const Amg::Vector3D momentum(p.px(), p.py(), p.pz());
           const Trk::CurvilinearParameters cParameters(position, momentum, p.charge());
-          const Trk::TrackParameters *exParameters = m_extrapolator->extrapolate(cParameters, *m_disc1, Trk::anyDirection, true, Trk::pion);
+          const Trk::TrackParameters *exParameters = m_extrapolator->extrapolate(Gaudi::Hive::currentContext(),
+                                                                                 cParameters, 
+                                                                                 *m_disc1, Trk::anyDirection, true, Trk::pion);
           if (exParameters) {
             //since boundary check is true, should be enough to say we've hit the disk..
             ATH_MSG_VERBOSE("Successfully extrapolated track to disk at +" << m_zDisc << ": " << *exParameters);
@@ -209,7 +222,7 @@ AthTruthSelectionTool::initialize() {
             //else...
             ATH_MSG_VERBOSE("Strange, extrapolation succeeded but extrapolated position not within disc radius! Test next disc");
           }
-          exParameters = m_extrapolator->extrapolate(cParameters, *m_disc2, Trk::anyDirection, true, Trk::pion);
+          exParameters = m_extrapolator->extrapolate(Gaudi::Hive::currentContext(),cParameters, *m_disc2, Trk::anyDirection, true, Trk::pion);
           if (exParameters) {
             //since boundary check is true, should be enough to say we've hit the disk..
             ATH_MSG_VERBOSE("Successfully extrapolated track to disk at -" << m_zDisc << ": " << *exParameters);

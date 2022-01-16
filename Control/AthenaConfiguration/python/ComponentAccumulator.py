@@ -1159,8 +1159,13 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
                                 indent, type(pvalue), type(existingVal) )
                     __areSettingsSame( existingVal, pvalue, indent)
             else:
-                if isinstance(pvalue,(GaudiConfig2.semantics._ListHelper,GaudiConfig2.semantics._DictHelper)):
-                    pvalue=pvalue.data
+                if isinstance(pvalue, (GaudiConfig2.semantics._ListHelper, GaudiConfig2.semantics._DictHelper)):
+                    pvalue = pvalue.data
+                if isinstance(pvalue, list):
+                    pvalue = [item.data
+                              if isinstance(item, (GaudiConfig2.semantics._ListHelper, GaudiConfig2.semantics._DictHelper))
+                              else item
+                              for item in pvalue]
 
                 if pname not in alreadySetProperties:
                     _log.debug( "%sAdding property: %s for %s", indent, pname, newConf2Instance.getName() )

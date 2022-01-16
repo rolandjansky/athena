@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 ///
 ///    @author Vadim Kostyukhin <vadim.kostyukhin@cern.ch>
@@ -303,7 +303,8 @@ namespace Rec{
   }
 
   double NewVrtSecInclusiveTool::distToMatLayerSignificance(Vrt2Tr & Vrt) const
-  {
+  { 
+    const EventContext& ctx = Gaudi::Hive::currentContext();
      if(Vrt.fitVertex.perp()<20.) return 1.e9;
      double normP=1./Vrt.momentum.P();
      Amg::Vector3D momentumP(Vrt.momentum.Px()*normP,Vrt.momentum.Py()*normP,Vrt.momentum.Pz()*normP);
@@ -329,9 +330,9 @@ namespace Rec{
 
      const Trk::TrackParameters * extrapParP=0; //along momentum
      const Trk::TrackParameters * extrapParN=0; //backward
-     if(nextLayerP){ extrapParP = m_extrapolator->extrapolate(pseudoVrtPart,
+     if(nextLayerP){ extrapParP = m_extrapolator->extrapolate(ctx, pseudoVrtPart,
                      nextLayerP->surfaceRepresentation(), Trk::anyDirection, false, Trk::nonInteractingMuon) ;}
-     if(nextLayerN){ extrapParN = m_extrapolator->extrapolate(pseudoVrtPart,
+     if(nextLayerN){ extrapParN = m_extrapolator->extrapolate(ctx, pseudoVrtPart,
                      nextLayerN->surfaceRepresentation(), Trk::anyDirection, false, Trk::nonInteractingMuon) ;}
 
      float distanceP=1.e9, distanceN=1.e9;

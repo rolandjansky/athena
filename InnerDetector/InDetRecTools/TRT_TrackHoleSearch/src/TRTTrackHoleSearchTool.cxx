@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // TRTTrackHoleSearchTool.cxx
@@ -257,7 +257,10 @@ int TRTTrackHoleSearchTool::extrapolateBetweenHits(const Trk::TrackParameters* s
 
 	// look for holes
 	std::vector<std::unique_ptr<const Trk::TrackParameters> > steps =
-          m_extrapolator->extrapolateStepwise(*start_parameters, end_surf, Trk::alongMomentum, m_bcheck, partHyp);
+          m_extrapolator->extrapolateStepwise(Gaudi::Hive::currentContext(),
+                                              *start_parameters, 
+                                              end_surf, 
+                                              Trk::alongMomentum, m_bcheck, partHyp);
 
 	if(steps.empty()) {
 		ATH_MSG_DEBUG("extrapolateBetweenHits: extrapolateStepwise returned null");

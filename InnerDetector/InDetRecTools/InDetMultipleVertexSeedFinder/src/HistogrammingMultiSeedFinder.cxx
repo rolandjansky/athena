@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetMultipleVertexSeedFinder/HistogrammingMultiSeedFinder.h"
@@ -82,14 +82,14 @@ namespace InDet
 
  std::vector< std::vector<const Trk::Track *> > HistogrammingMultiSeedFinder::seeds(const std::vector<const Trk::Track*>& tracks )const
  {
- 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
  //step 1: preselection 
   std::vector<const Trk::Track*> preselectedTracks(0);
   std::vector<const Trk::Track*>::const_iterator tr = tracks.begin();
   std::vector<const Trk::Track*>::const_iterator tre = tracks.end(); 
   
 //beamposition
-  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
 
   Trk::RecVertex beamrecposition(beamSpotHandle->beamVtx());  
   if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Beam spot position is: "<< beamrecposition.position()<<endmsg;
@@ -125,7 +125,7 @@ namespace InDet
   
    for(;p_tr != p_tre; ++p_tr)
    {
-    const  Trk::TrackParameters * lexPerigee = m_extrapolator->extrapolate(**p_tr,perigeeSurface,Trk::anyDirection,true, Trk::pion); 
+    const  Trk::TrackParameters * lexPerigee = m_extrapolator->extrapolate(ctx, **p_tr,perigeeSurface,Trk::anyDirection,true, Trk::pion); 
  
     double currentTrackZ0 = lexPerigee->parameters()[Trk::z0];
     delete lexPerigee;
@@ -244,14 +244,14 @@ namespace InDet
  
  std::vector< std::vector<const Trk::TrackParticleBase *> > HistogrammingMultiSeedFinder::seeds(const std::vector<const Trk::TrackParticleBase*>& tracks )const
  {
-   
+  const EventContext& ctx = Gaudi::Hive::currentContext(); 
 //step 1: preselection 
   std::vector<const Trk::TrackParticleBase*> preselectedTracks(0);
   std::vector<const Trk::TrackParticleBase*>::const_iterator tr = tracks.begin();
   std::vector<const Trk::TrackParticleBase*>::const_iterator tre = tracks.end();
   
 //beamposition
-  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey,ctx };
   Trk::RecVertex beamrecposition(beamSpotHandle->beamVtx());    
   for(;tr!=tre;++tr) if(m_trkFilter->decision(**tr, &beamrecposition)) preselectedTracks.push_back(*tr);
   if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Beam spot position is: "<< beamrecposition.position()<<endmsg;
@@ -297,7 +297,7 @@ namespace InDet
    for(;p_tr != p_tre; ++p_tr)
    {
 
-     const  Trk::TrackParameters * lexPerigee = m_extrapolator->extrapolate((*p_tr)->definingParameters(),
+     const  Trk::TrackParameters * lexPerigee = m_extrapolator->extrapolate(ctx, (*p_tr)->definingParameters(),
 									    perigeeSurface,Trk::anyDirection,true, Trk::pion); 
     double currentTrackZ0 = lexPerigee->parameters()[Trk::z0];
     delete lexPerigee;
@@ -408,7 +408,7 @@ namespace InDet
   std::vector< std::vector<const Trk::TrackParameters *> > HistogrammingMultiSeedFinder::seeds(const std::vector<const xAOD::TrackParticle*>& tracks )const
   {
    // std::cout<<"Number of tracks received: "<<tracks.size()<<std::endl;
-  
+   const EventContext& ctx = Gaudi::Hive::currentContext();
   //step 1: preselection 
   std::vector<const xAOD::TrackParticle*> preselectedTracks(0);
   
@@ -416,7 +416,7 @@ namespace InDet
 
 
   xAOD::Vertex * beamposition = new xAOD::Vertex();
-  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey,ctx };
 
   beamposition->setPosition(beamSpotHandle->beamVtx().position());
   beamposition->setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
@@ -474,7 +474,7 @@ namespace InDet
 	for(;p_tr != p_tre; ++p_tr)
 	  {
 	    
-	    const  Trk::TrackParameters * lexPerigee = m_extrapolator->extrapolate(**p_tr,
+	    const  Trk::TrackParameters * lexPerigee = m_extrapolator->extrapolate(ctx, **p_tr,
 										   perigeeSurface,Trk::anyDirection,true, Trk::pion); 
 	    double currentTrackZ0 = lexPerigee->parameters()[Trk::z0];
 	    delete lexPerigee;

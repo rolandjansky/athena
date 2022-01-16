@@ -8,8 +8,9 @@ You can also use it to output a single PRW config file containing just your data
 Example: checkPRW.py --outPRWFile=my.prw.root --inDsTxt=my.datasets.txt  path/to/prwConfigs/*.root
 
 """
-import os
 import argparse
+import os
+import re
 
 def main():
     from argparse import RawTextHelpFormatter
@@ -48,22 +49,47 @@ def main():
       if dataset.startswith("#"): continue
       dataset = dataset.rsplit(":")[-1].strip()
       if len(dataset)==0: continue
-      
+
       print "Doing %s" % dataset
       prov = atlasAPI.get_dataset_prov(client, dataset )
       if 'node' not in prov:
-          print "ERROR: Could not determine provenance of %s, skipping!" % dataset
-          continue
+        print "ERROR: Could not determine provenance of %s, skipping!" % dataset
+        continue
+
       theParent=""
+      singleTagName=""
       for ds in prov['node']:
         if ds[u'dataType']!=u'AOD': continue
+        dsName = ds[u'logicalDatasetName']
         if 'recon.AOD' not in ds[u'logicalDatasetName']: continue
-        theParent = str(ds[u'logicalDatasetName'])
+        etags = re.findall('e[0-9]+_', dsName)
+        if len(etags) == 2:
+          print "INFO: Found a double e-tag container %s!" % dsName
+          singleTagName = dsName.replace(etags[1], "")
+          continue
+        theParent = str(dsName)
         theParentSize = int(ds[u'events'])
         break
-      if theParent=="":
+
+      if theParent == "":
+        if singleTagName == "":
           print "ERROR: Could not determine provenance of %s, skipping!" % dataset
           continue
+        else:
+          print "INFO: Trying with single-tag containers manually %s!" % singleTagName
+          prov = atlasAPI.get_dataset_prov(client, singleTagName)
+          if 'node' in prov:
+            for ds in prov['node']:
+              if ds[u'logicalDatasetName'] == singleTagName:
+                theParent = singleTagName
+                theParentSize = int(ds[u'events'])
+            if theParent == "":
+              print "ERROR: Could not determine provenance of %s, skipping!" % dataset
+              continue
+          else:
+            print "ERROR: Could not determine provenance of %s, skipping!" % dataset
+            continue
+
       #extract the dsid ...
       theParent = theParent.split(".")[1]
       

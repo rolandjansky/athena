@@ -97,8 +97,8 @@ class SCT_SurfaceChargesGenerator : public extends<AthAlgTool, ISurfaceChargesGe
   virtual void setFixedTime(float fixedTime) override                {m_tfix = fixedTime;}
 
   /** create a list of surface charges from a hit */
-  virtual void process(const InDetDD::SiDetectorElement* element, const TimedHitPtr<SiHit>& phit, const ISiSurfaceChargesInserter& inserter, CLHEP::HepRandomEngine * rndmEngine, const EventContext& ctx) const override;
-  void processSiHit(const InDetDD::SiDetectorElement* element, const SiHit& phit, const ISiSurfaceChargesInserter& inserter, float eventTime, unsigned short eventID, CLHEP::HepRandomEngine * rndmEngine, const EventContext& ctx) const;
+  virtual void process(const InDetDD::SiDetectorElement* element, const TimedHitPtr<SiHit>& phit, ISiSurfaceChargesInserter& inserter, CLHEP::HepRandomEngine * rndmEngine, const EventContext& ctx) override;
+  void processSiHit(const InDetDD::SiDetectorElement* element, const SiHit& phit, ISiSurfaceChargesInserter& inserter, float eventTime, unsigned short eventID, CLHEP::HepRandomEngine * rndmEngine, const EventContext& ctx);
   
   // some diagnostics methods are needed here too
   float driftTime(float zhit, const InDetDD::SiDetectorElement* element, const EventContext& ctx) const; //!< calculate drift time perpandicular to the surface for a charge at distance zhit from mid gap
@@ -108,7 +108,7 @@ class SCT_SurfaceChargesGenerator : public extends<AthAlgTool, ISurfaceChargesGe
   float maxDiffusionSigma(const InDetDD::SiDetectorElement* element, const EventContext& ctx) const; //!< max sigma diffusion
 
   // trap_pos and drift_time are updated based on spess.
-  bool chargeIsTrapped(double spess, const InDetDD::SiDetectorElement* element, double& trap_pos, double& drift_time) const;
+  bool chargeIsTrapped(double spess, const InDetDD::SiDetectorElement* element, double& trap_pos, double& drift_time);
 
   IntegerProperty m_numberOfCharges{this, "NumberOfCharges", 1, "number of charges"};
   FloatProperty m_smallStepLength{this, "SmallStepLength", 5 * CLHEP::micrometer, "max internal step along the larger G4 step"};

@@ -39,6 +39,21 @@ namespace ActsTrk {
     ATH_MSG_INFO( "   " << m_radLengthPerSeed );
     ATH_MSG_INFO( "   " << m_minPt );
     ATH_MSG_INFO( "   " << m_impactMax );
+    ATH_MSG_INFO( "   " << m_numPhiNeighbors );
+
+    if (m_zBinEdges.size() - 1 != 
+	m_zBinNeighborsTop.size() and
+	not m_zBinNeighborsTop.empty()) {
+      ATH_MSG_ERROR("Inconsistent config zBinNeighborsTop");
+      return StatusCode::FAILURE;
+    }
+
+    if (m_zBinEdges.size() - 1 !=
+	m_zBinNeighborsBottom.size() and
+	not m_zBinNeighborsBottom.empty()) {
+      ATH_MSG_ERROR("Inconsistent config zBinNeighborsBottom");
+      return StatusCode::FAILURE;
+    }
     
     return StatusCode::SUCCESS;
   }
@@ -56,7 +71,7 @@ namespace ActsTrk {
 		   spContainer.end(),
 		   beamSpotData,
 		   magFieldContext );
-    
+
     // Store seeds
     seedContainer.reserve(groupSeeds.size());
     for (unsigned int i(0);i<groupSeeds.size();i++) {
@@ -110,9 +125,9 @@ namespace ActsTrk {
     };
 
     std::shared_ptr< Acts::BinFinder< external_spacepoint_t > > bottomBinFinder =
-      std::make_shared< Acts::BinFinder< external_spacepoint_t > >(m_zBinNeighborsBottom, 1);
+      std::make_shared< Acts::BinFinder< external_spacepoint_t > >(m_zBinNeighborsBottom, m_numPhiNeighbors);
     std::shared_ptr< Acts::BinFinder< external_spacepoint_t > > topBinFinder =
-      std::make_shared< Acts::BinFinder< external_spacepoint_t > >(m_zBinNeighborsTop, 1);
+      std::make_shared< Acts::BinFinder< external_spacepoint_t > >(m_zBinNeighborsTop, m_numPhiNeighbors);
     
     std::unique_ptr< Acts::SpacePointGrid< external_spacepoint_t > > grid = 
       Acts::SpacePointGridCreator::createGrid< external_spacepoint_t >(gridCfg);
@@ -121,9 +136,8 @@ namespace ActsTrk {
     
     Acts::Seedfinder< external_spacepoint_t > finder(finderCfg);
     
-    
     static thread_local typename decltype(finder)::State state;
-    
+
     auto group = spacePointsGrouping.begin();
     auto groupEnd = spacePointsGrouping.end();
     for (; group != groupEnd; ++group) {
@@ -152,6 +166,9 @@ namespace ActsTrk {
     gridCfg.deltaRMax = m_deltaRMax;
     gridCfg.cotThetaMax = m_cotThetaMax;
     gridCfg.bFieldInZ = bField[2];
+    gridCfg.impactMax = m_impactMax;
+    gridCfg.numPhiNeighbors = m_numPhiNeighbors;
+    gridCfg.zBinEdges = m_zBinEdges;
 
     // Configuration for Acts::Seedfinder
     // These values will not be changed during execution

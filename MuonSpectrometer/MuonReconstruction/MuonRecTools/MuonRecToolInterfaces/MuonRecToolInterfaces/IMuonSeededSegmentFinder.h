@@ -44,7 +44,7 @@ namespace Muon {
                                                              const std::set<IdentifierHash>& chIdHs) const = 0;
 
         /** @brief find segments in a set of MdtPrepData starting from seeding TrackParameters */
-        virtual std::unique_ptr<Trk::SegmentCollection> find(const Trk::TrackParameters& pars,
+        virtual std::unique_ptr<Trk::SegmentCollection> find(const EventContext& ctx, const Trk::TrackParameters& pars,
                                                              const std::vector<const MdtPrepData*>& mdtPrds) const = 0;
 
         /** @brief retrieve MDT PRD collections for the given hashes */

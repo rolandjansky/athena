@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # art-description: Run MC16e pile-up pre-mixing with 2018 geometry and conditions, 25ns pile-up, MT output containers
 # art-type: grid
@@ -26,14 +26,14 @@ Digi_tf.py \
 --jobNumber 1 \
 --maxEvents 25 \
 --outputRDOFile ${DigiOutFileName} \
---digiSteeringConf "StandardSignalOnlyTruth" \
+--digiSteeringConf 'StandardSignalOnlyTruth' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
 --preInclude 'HITtoRDO:Campaigns/PileUpPresamplingMC16e.py' \
 --skipEvents 0
 
 rc=$?
 status=$rc
-echo  "art-result: $rc Digi_tf.py"
+echo "art-result: $rc Digi_tf.py"
 rc1=-9999
 rc2=-9999
 rc3=-9999
@@ -41,44 +41,39 @@ rc4=-9999
 
 # get reference directory
 source DigitizationCheckReferenceLocation.sh
-echo "Reference set being used: " ${DigitizationTestsVersion}
+echo "Reference set being used: ${DigitizationTestsVersion}"
 
-if [ $rc -eq 0 ]
+if [[ $rc -eq 0 ]]
 then
     # Do reference comparisons
-    art-diff.py ./$DigiOutFileName   /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/ReferenceFiles/$DigitizationTestsVersion/$CMTCONFIG/$DigiOutFileName
+    art-diff.py "$DigiOutFileName" "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/ReferenceFiles/$DigitizationTestsVersion/$CMTCONFIG/$DigiOutFileName"
     rc1=$?
     status=$rc1
 fi
-echo  "art-result: $rc1 diff-pool"
-#
-#
-#
-if [ $rc -eq 0 ]
+echo "art-result: $rc1 diff-pool"
+
+if [[ $rc -eq 0 ]]
 then
-    art-diff.py ./$DigiOutFileName /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/ReferenceFiles/$DigitizationTestsVersion/$CMTCONFIG/$DigiOutFileName --diff-type=diff-root --mode=semi-detailed
+    art-diff.py "$DigiOutFileName" "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/ReferenceFiles/$DigitizationTestsVersion/$CMTCONFIG/$DigiOutFileName" --diff-type=diff-root --mode=semi-detailed
     rc2=$?
     status=$rc2
 fi
-echo  "art-result: $rc2 diff-root"
-#
-if [ $rc -eq 0 ]
+echo "art-result: $rc2 diff-root"
+
+if [[ $rc -eq 0 ]]
 then
-    checkFile ./$DigiOutFileName
+    checkFile "$DigiOutFileName"
     rc3=$?
     status=$rc3
 fi
 echo "art-result: $rc3 checkFile"
-#
-#
-if [ $rc -eq 0 ]
+
+if [[ $rc -eq 0 ]]
 then
-    ArtPackage=$1
-    ArtJobName=$2
-    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=semi-detailed
+    art.py compare grid --entries 10 "$1" "$2" --mode=semi-detailed
     rc4=$?
     status=$rc4
 fi
-echo  "art-result: $rc4 art-compare"
+echo "art-result: $rc4 regression"
 
 exit $status

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigDecisionTool_DecisionObjectHandleStandalone_h
@@ -16,7 +16,6 @@
 
 // Local include(s):
 #include "TrigDecisionTool/DecisionObjectHandle.h"
-#include "TrigDecisionTool/EventPtrDef.h"
 
 #include "AsgDataHandles/ReadHandleKey.h"
 
@@ -46,10 +45,6 @@ namespace Trig {
       SG::ReadHandleKey<xAOD::TrigDecision>* m_deckey;
       /// Key of the trigger navigation object in the event
       SG::ReadHandleKey<xAOD::TrigNavigation>* m_navikey;
-      /// Cached pointer to the trigger decision object
-      mutable xAOD::TrigDecision const * m_decision;
-      /// Cached pointer to the trigger navigation object
-      mutable xAOD::TrigNavigation const * m_navigation;
 
    }; // class DecisionObjectHandleStandalone
 

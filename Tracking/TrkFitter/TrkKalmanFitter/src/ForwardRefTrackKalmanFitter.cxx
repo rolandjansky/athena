@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -42,6 +42,8 @@
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 #include "TrkFitterInterfaces/IDynamicNoiseAdjustor.h"
 #include "TrkFitterInterfaces/IMeasurementRecalibrator.h"
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -180,12 +182,6 @@ Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory& trajectory,
     // set iterator to *before* new outlier, because we didn't keep the update from there.
     it = trajectory.begin();
     it += (filterStartState-2);
-//     Trk::Trajectory::iterator testIt = m_utility->firstFittableState(trajectory);
-//     while (testIt != trajectory.end() &&
-//            testIt->positionOnTrajectory()<filterStartState) {
-//       it = testIt;
-//       testIt = m_utility->nextFittableState(trajectory,it);
-//     }
   }
   ATH_MSG_VERBOSE ("-F- start FwFilter with parameters from "<<
                    (filterStartState>2 ? "before this new Outlier state":"the seed")
@@ -202,17 +198,17 @@ Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory& trajectory,
   //////////////////////////////////////////////////////////////////////////////////////////
   // the regular filter loop after finding the correct initialisation
   for( ; it!=trajectory.end(); ++it) {
-
-    const AmgVector(5)* predDiffPar = nullptr;
-    const AmgSymMatrix(5)* predDiffCov = nullptr;
+    std::unique_ptr<const AmgVector(5)> predDiffPar;
+    std::unique_ptr<const AmgSymMatrix(5)> predDiffCov;
     if (jacobian==nullptr) {
       ATH_MSG_DEBUG ("-F- beginning of trajectory, have already predPar");
-      predDiffPar = it->parametersDifference();
-      predDiffCov = it->parametersCovariance();
+      //copy to create new object which we own
+      predDiffPar = std::make_unique<const AmgVector(5)>(*(it->parametersDifference()));
+      predDiffCov = std::make_unique<const AmgSymMatrix(5)>(*(it->parametersCovariance()));
     } else {
       // extrapolate from previous state
       const TransportJacobian& jac = *jacobian;
-      predDiffPar = new AmgVector(5)(jac*(updatedDifference->first));
+      predDiffPar = std::make_unique<const AmgVector(5)>(jac*(updatedDifference->first));
       AmgSymMatrix(5)* C = new AmgSymMatrix(5) (jac*(updatedDifference->second)*jac.transpose());
       // add uncertainties from material effects:
       if (it->materialEffects()) {
@@ -227,15 +223,14 @@ Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory& trajectory,
         ATH_MSG_VERBOSE ("mass=" << mass << ", qOverP_ref="<< std::scientific << it->referenceParameters()->parameters()[Trk::qOverP]
                 << ", qOverP_diff=" << (*predDiffPar)(Trk::qOverP)
                 << ", sigmaDeltaE=" << it->materialEffects()->sigmaDeltaE()
-                << ", sigmaDeltaQoverP=" << sqrt(sigmaDeltaQoverPsquared) << std::fixed);//std::defaultfloat);
+                << ", sigmaDeltaQoverP=" << std::sqrt(sigmaDeltaQoverPsquared) << std::fixed);//std::defaultfloat);
         ATH_MSG_VERBOSE ("Added material effects.");
       }
-      predDiffCov = C; // to solve constness problem
+      predDiffCov.reset(C); // to solve constness problem
       // back into trajectory
-      it->checkinParametersDifference(predDiffPar);
-      it->checkinParametersCovariance(predDiffCov);
+      it->checkinParametersDifference(std::move(predDiffPar));
+      it->checkinParametersCovariance(std::move(predDiffCov));
       updatedDifference.reset();
-      // delete updatedDiffCov; updatedDiffCov=0;
     }
     if (msgLvl(MSG::DEBUG))
       printGlobalParams( it->positionOnTrajectory(), " extrp",
@@ -415,10 +410,12 @@ Trk::FitterStatusCode Trk::ForwardRefTrackKalmanFitter::enterSeedIntoTrajectory
     ATH_MSG_VERBOSE ("-Fe start params already expressed at 1st meas't - do no extrapolate.");
   } else {
     ATH_MSG_VERBOSE ("-Fe get filter onto 1st surface by direct extrapolation.");
-    inputParAtStartSurface = m_extrapolator->extrapolateDirectly(inputPar,
-                                                                 startSurface,
-                                                                 Trk::anyDirection,
-                                                                 false, Trk::nonInteracting);
+    inputParAtStartSurface = m_extrapolator->extrapolateDirectly(
+      Gaudi::Hive::currentContext(),
+      inputPar,
+      startSurface,
+      Trk::anyDirection,
+      false, Trk::nonInteracting);
     if (inputParAtStartSurface == nullptr) {
       ATH_MSG_WARNING ("-Fe can not transport input param to first measurement => extrap problem or bad input");
       ATH_MSG_INFO ("-Fe parameters R="<< inputPar.position().perp() << ", z="<<
@@ -432,20 +429,28 @@ Trk::FitterStatusCode Trk::ForwardRefTrackKalmanFitter::enterSeedIntoTrajectory
   }
 
   // make first seed for filtering
-  AmgVector(5)* diffPar = nullptr;
+  std::unique_ptr< const AmgVector(5)> diffPar;
+  //use this as a default zeroed vector for further down
+  AmgVector(5) zeroVec; zeroVec.setZero();
+  
   if (ffs->referenceParameters())
-    diffPar = new AmgVector(5)(inputParAtStartSurface->parameters()
+    diffPar = std::make_unique<const AmgVector(5)>(inputParAtStartSurface->parameters()
                                -ffs->referenceParameters()->parameters());
   else {
-    diffPar = new AmgVector(5)(); diffPar->setZero();
+    //would like to std::make_unique<const AmgVector(5)>(0.,0.,0.,0.,0.)
+    //but it doesn't compile, so use a predefined (non-const) zeroed vector
+    diffPar = std::make_unique<const AmgVector(5)>(zeroVec);
   }
-  ffs->checkinParametersDifference(diffPar);
-  AmgSymMatrix(5)* cov = new AmgSymMatrix(5)(); cov->setZero();
-  for (int i=0; i<5; ++i) (*cov)(i,i) = cov0[i];
-  ffs->checkinParametersCovariance(const_cast<const AmgSymMatrix(5)*>(cov));
+  ffs->checkinParametersDifference(std::move(diffPar));
+  //set intialiser matrix for construction of const matrix
+  AmgSymMatrix(5) initCov;
+  initCov.setZero();
+  for (int i=0; i<5; ++i) initCov(i,i) = cov0[i];
+  //
+  auto cov = std::make_unique<const AmgSymMatrix(5)>(initCov); 
+  
+  ffs->checkinParametersCovariance(std::move(cov));
 
-  // const Trk::TrackParameters* seedPar = CREATE_PARAMETERS((*inputParAtStartSurface),par, cov);
-  // ffs->checkinForwardPar(seedPar);
   ATH_MSG_VERBOSE ("-Fe prepared trajectory with seed parameters on state "<<ffs->positionOnTrajectory());
 
   if (createReferenceTrajectory) {
@@ -482,10 +487,9 @@ Trk::FitterStatusCode Trk::ForwardRefTrackKalmanFitter::enterSeedIntoTrajectory
                         inputParAtStartSurface->parameters(), std::nullopt); // remove covariance
     for (auto it=Trk::ProtoTrajectoryUtility::firstFittableState ( trajectory ); it!=trajectory.end(); ++it) {
       if (!it->referenceParameters()) {
-        //gives up ownership by default, ProtoTrackStateOnSurface takes care of deletion
-        it->checkinReferenceParameters (lastPropagatedPar.release());
+        //gives up ownership, ProtoTrackStateOnSurface takes care of deletion
+        it->checkinReferenceParameters (std::move(lastPropagatedPar));
       } else {
-        //delete lastPropagatedPar; lastPropagatedPar=nullptr;
         // FIXME study this further, whether cov really not needed and how close in param
         // space the old and new references are.
         ATH_MSG_VERBOSE("At state T"<<it->positionOnTrajectory()<<" have already reference.");

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -122,6 +122,7 @@ namespace Trk
                                         const xAOD::Vertex* pointingVertex,
                                         const Amg::Vector3D& firstStartingPoint) const
   {
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     std::vector<const Trk::TrackParameters*> measuredPerigees;
     std::vector<const Trk::TrackParameters*> measuredPerigees_delete;
     for (const xAOD::TrackParticle* p : vectorTrk)
@@ -140,14 +141,26 @@ namespace Trk
           const Trk::TrackParameters* chargeParameters = &p->perigeeParameters();
           MaterialUpdateMode mode = Trk::removeNoise;
           const Trk::TrackParameters* extrapolatedPerigee(nullptr);
-          extrapolatedPerigee = m_extrapolator->extrapolate(*chargeParameters, estimationCylinder, Trk::alongMomentum, true, Trk::pion, mode);
-          if (extrapolatedPerigee!=nullptr) {
+          extrapolatedPerigee = m_extrapolator->extrapolate(ctx,
+                                                            *chargeParameters,
+                                                            estimationCylinder,
+                                                            Trk::alongMomentum,
+                                                            true,
+                                                            Trk::pion,
+                                                            mode);
+          if (extrapolatedPerigee != nullptr) {
             msg(MSG::DEBUG) << "extrapolated to first measurement" << endmsg;
             measuredPerigees.push_back (extrapolatedPerigee);
             measuredPerigees_delete.push_back (extrapolatedPerigee);
           } else {
-            extrapolatedPerigee = m_extrapolator->extrapolateDirectly(*chargeParameters, estimationCylinder, Trk::alongMomentum, true, Trk::pion);
-            if (extrapolatedPerigee!=nullptr) {
+            extrapolatedPerigee =
+              m_extrapolator->extrapolateDirectly(ctx,
+                                                  *chargeParameters,
+                                                  estimationCylinder,
+                                                  Trk::alongMomentum,
+                                                  true,
+                                                  Trk::pion);
+            if (extrapolatedPerigee != nullptr) {
               msg(MSG::DEBUG) << "extrapolated (direct) to first measurement" << endmsg;
               measuredPerigees.push_back (extrapolatedPerigee);
               measuredPerigees_delete.push_back (extrapolatedPerigee);
@@ -217,7 +230,7 @@ namespace Trk
                                         const xAOD::Vertex* pointingVertex,
                                         const Amg::Vector3D& firstStartingPoint) const
   {
-
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     if ( originalPerigees.empty() )
     {
       ATH_MSG_DEBUG("No tracks to fit in this event.");
@@ -354,7 +367,8 @@ namespace Trk
         MaterialUpdateMode mode = Trk::removeNoise;
         if(extrapolationDirection > 0) mode = Trk::addNoise;
         const Trk::Perigee* extrapolatedPerigee(nullptr);
-        extrapolatedPerigee = dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolate(*chargeParameters, perigeeSurface, Trk::anyDirection, true, Trk::pion, mode));
+        extrapolatedPerigee = dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolate(
+            ctx, *chargeParameters, perigeeSurface, Trk::anyDirection, true, Trk::pion, mode));
         if (extrapolatedPerigee==nullptr)
         {
           ATH_MSG_DEBUG("Perigee was not extrapolated! Taking original one!");
@@ -789,7 +803,8 @@ namespace Trk
             MaterialUpdateMode mode = Trk::removeNoise;
             if(extrapolationDirection > 0) mode = Trk::addNoise;
             const Trk::Perigee* extrapolatedPerigee(nullptr);
-            extrapolatedPerigee = dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolate(*chargeParameters, perigeeSurfaceItr, Trk::anyDirection, true, Trk::pion, mode));
+            extrapolatedPerigee = dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolate(
+                ctx, *chargeParameters, perigeeSurfaceItr, Trk::anyDirection, true, Trk::pion, mode));
             if (extrapolatedPerigee==nullptr)
             {
               ATH_MSG_DEBUG("Perigee was not extrapolated! Taking original one!");

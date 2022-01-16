@@ -1,3 +1,4 @@
+
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory 
@@ -116,7 +117,7 @@ if __name__ == "__main__":
     addLArCalibFlags(ConfigFlags)
 
 
-
+    ConfigFlags.Input.TypedCollections=[]
     ConfigFlags.LArCalib.Input.RunNumbers=[400939,]
     ConfigFlags.LArCalib.Input.Database="/home/wlampl/calibTest/00400939_00400943_00400945_Barrel-EMB-EMEC_HIGH_40_21.0.20_1/poolFiles/myDB200_00400939_00400943_00400945_EB-EMBA_one.db_Delay"
     ConfigFlags.LArCalib.Input.SubDet="EM"
@@ -129,6 +130,8 @@ if __name__ == "__main__":
     #ConfigFlags.Exec.OutputLevel=1
     ConfigFlags.LArCalib.OFC.Ncoll=20
     ConfigFlags.LArCalib.OFC.Nsamples=5
+    ConfigFlags.lock()
+
     cfg=MainServicesCfg(ConfigFlags)
     cfg.merge(LArPileUpAutoCorrCfg(ConfigFlags))
 

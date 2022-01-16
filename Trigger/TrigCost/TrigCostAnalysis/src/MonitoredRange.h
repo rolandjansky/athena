@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCOSTANALYSIS_MONITOREDRANGE_H
@@ -67,7 +67,7 @@ class MonitoredRange{
      * @brief Return cached non-owning ptr to this Monitor's parent TrigCostAnalysis Athena algorithm.
      * @return Cached pointer to parent TrigCostAnalysis algorithm.
      */
-    TrigCostAnalysis* getParent() const;
+    const TrigCostAnalysis* getParent() const;
 
     /**
      * @brief Appends Range's name (to histogram path) and forwards histogram book request to parent Athena algorithm.

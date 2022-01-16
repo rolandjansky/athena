@@ -11,11 +11,11 @@ def defineMenu():
 
     L1MenuFlags.ThresholdMap = {
         # Do not use for L1Topo decision threshold!
-        'jXEPerf50' :'',
+        'jXEPerf100' :'',
     }
 
     L1MenuFlags.ItemMap = {
-        'L1_jXEPerf50':'', 
+        'L1_jXEPerf100':'', 
     } 
 
     #----------------------------------------------

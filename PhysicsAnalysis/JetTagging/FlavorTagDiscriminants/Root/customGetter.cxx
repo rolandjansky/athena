@@ -174,21 +174,21 @@ namespace {
     if (name == "phiUncertainty") {
       return [](const Jet&, const Tracks& t) {
         std::vector<double> tracks;
-        for (auto* trk: t) tracks.push_back(trk->definingParametersCovMatrixDiagVec().at(2));
+        for (auto* trk: t) tracks.push_back(std::sqrt(trk->definingParametersCovMatrixDiagVec().at(2)));
         return tracks;
       };
     }
     if (name == "thetaUncertainty") {
       return [](const Jet&, const Tracks& t) {
         std::vector<double> tracks;
-        for (auto* trk: t) tracks.push_back(trk->definingParametersCovMatrixDiagVec().at(3));
+        for (auto* trk: t) tracks.push_back(std::sqrt(trk->definingParametersCovMatrixDiagVec().at(3)));
         return tracks;
       };
     }
     if (name == "qOverPUncertainty") {
       return [](const Jet&, const Tracks& t) {
         std::vector<double> tracks;
-        for (auto* trk: t) tracks.push_back(trk->definingParametersCovMatrixDiagVec().at(4));
+        for (auto* trk: t) tracks.push_back(std::sqrt(trk->definingParametersCovMatrixDiagVec().at(4)));
         return tracks;
       };
     }

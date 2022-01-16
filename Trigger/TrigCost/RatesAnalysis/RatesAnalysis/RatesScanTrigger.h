@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RATESANALYSIS_RATESSCANTRIGGER_H
@@ -25,7 +25,7 @@ class RatesScanTrigger : public RatesTrigger {
   /**
    * @brief Construct new RatesScanTrigger to enumerate the rate for a single L1 or HLT trigger as a function of some threshold
    * @param name Name of the trigger
-   * @param log Reference to message service
+   * @param msgSvc Reference to message service
    * @param thresholdMin The lower threshold of this trigger, rates will not be available below this threshold
    * @param thresholdMax The upper threshold of this trigger, rates will not be available above this threshold
    * @param thresholdBins Granularity 
@@ -36,7 +36,7 @@ class RatesScanTrigger : public RatesTrigger {
    * @param extrapolation The luminosity extrapolation strategy to be applied to this trigger
    */
   RatesScanTrigger(const std::string& name,
-    const MsgStream& log,
+    IMessageSvc* msgSvc,
     const double thresholdMin,
     const double thresholdMax,
     const uint32_t thresholdBins = 100,
@@ -58,7 +58,7 @@ class RatesScanTrigger : public RatesTrigger {
    * @param extrapolation The luminosity extrapolation strategy to be applied to this trigger
    */
   RatesScanTrigger(const std::string& name,
-    const MsgStream& log,
+    IMessageSvc* msgSvc,
     const std::vector<double>& thresholdBinEdges,
     const TriggerBehaviour_t behaviour = kTriggerBelowThreshold,
     const double prescale = 1.,

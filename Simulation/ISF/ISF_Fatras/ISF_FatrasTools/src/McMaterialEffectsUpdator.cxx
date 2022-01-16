@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// McMaterialEffectsUpdator.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 // class header
 #include "McMaterialEffectsUpdator.h"
@@ -235,9 +231,24 @@ StatusCode iFatras::McMaterialEffectsUpdator::initialize()
         return StatusCode::FAILURE;
     }
 
+    //We can use conditions when the key is not empty
+    m_useConditions=!m_trackingGeometryReadKey.key().empty();
+
+    // get the TrackingGeometrySvc
+    if (!m_useConditions) {
+      if (m_trackingGeometrySvc.retrieve().isSuccess()) {
+        ATH_MSG_DEBUG("Successfully retrieved " << m_trackingGeometrySvc);
+        m_trackingGeometryName = m_trackingGeometrySvc->trackingGeometryName();
+      } else {
+        ATH_MSG_WARNING("Couldn't retrieve " << m_trackingGeometrySvc << ". ");
+        ATH_MSG_WARNING(" -> Trying to retrieve default '"
+                        << m_trackingGeometryName << "' from DetectorStore.");
+      }
+    }
+
     // get the tracking geometry for layer lookup
     // init the TrackingGeometryReadKey
-    ATH_CHECK(m_trackingGeometryReadKey.initialize());
+    ATH_CHECK(m_trackingGeometryReadKey.initialize(m_useConditions));
 
     // Particle decayer
     if (m_particleDecayer.retrieve().isFailure()){
@@ -1112,20 +1123,14 @@ const Trk::TrackParameters*  iFatras::McMaterialEffectsUpdator::update( double /
     if (m_recordEnergyDeposition){
 
        ATH_MSG_VERBOSE( "  [+] try to record deposited energy (if mapped with a calo sample) " );
-
-       // need to identify the layer first
-       SG::ReadCondHandle<Trk::TrackingGeometry> readHandle{m_trackingGeometryReadKey};
-       if (!readHandle.isValid() || *readHandle == nullptr) {
-	 ATH_MSG_WARNING( "Could not retrieve TrackingGeometry '" << m_trackingGeometryReadKey << "'     from DetectorStore." );
-       }
-       else {
-
-       const Trk::TrackingGeometry* trackingGeometry = *readHandle;
-        const Trk::LayerIndexSampleMap* lism     = layerIndexSampleMap();
+       const EventContext& ctx = Gaudi::Hive::currentContext(); // FIXME This is slow, but can't change the interface.
+       const Trk::TrackingGeometry* pTrackingGeometry = trackingGeometry(ctx);
+       if (pTrackingGeometry) {
+         const Trk::LayerIndexSampleMap* lism     = layerIndexSampleMap();
 
         if (lism){
           // get the Volume and then get the layer
-          const Trk::TrackingVolume* currentVolume = trackingGeometry->lowestTrackingVolume(parm->position());
+          const Trk::TrackingVolume* currentVolume = pTrackingGeometry->lowestTrackingVolume(parm->position());
           const Trk::Layer* associatedLayer = currentVolume ? currentVolume->associatedLayer(parm->position()) : nullptr;
 
            // only go on if you have found an associated Layer && the guy has an index
@@ -1989,5 +1994,28 @@ ISF::ISFParticleVector  iFatras::McMaterialEffectsUpdator::interactLay(const ISF
   }
 
   return childVector;
+}
+
+const Trk::TrackingGeometry*
+iFatras::McMaterialEffectsUpdator::trackingGeometry(const EventContext& ctx) const
+{
+  if (m_useConditions) {
+    SG::ReadCondHandle<Trk::TrackingGeometry> handle(m_trackingGeometryReadKey, ctx);
+    if (!handle.isValid()) {
+      ATH_MSG_FATAL(
+        "Could not retrieve TrackingGeometry from Conditions Store.");
+      throw iFatras::McMaterialEffectsUpdatorException();
+    }
+    return handle.cptr();
+  } else {
+    const Trk::TrackingGeometry* trackingGeometry = nullptr;
+    if (detStore()
+          ->retrieve(trackingGeometry, m_trackingGeometryName)
+          .isFailure()) {
+      ATH_MSG_FATAL("Could not retrieve TrackingGeometry from DetectorStore.");
+      throw iFatras::McMaterialEffectsUpdatorException();
+    }
+    return trackingGeometry;
+  }
 }
 

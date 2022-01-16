@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef ANALYSISTOP_TOPCONFIGURATION_TOPCONFIG_H
@@ -1479,12 +1479,12 @@ namespace top {
       if (!m_configFixed) m_tau_configuration_loose.jetIDWP = s;
     }
 
-    inline virtual void tauEleRNNWP(const std::string& s) {
-      if (!m_configFixed) m_tau_configuration.eleRNNWP = s;
+    inline virtual void tauEleIDWP(const std::string& s) {
+      if (!m_configFixed) m_tau_configuration.eleIDWP = s;
     }
 
-    inline virtual void tauEleRNNWPLoose(const std::string& s) {
-      if (!m_configFixed) m_tau_configuration_loose.eleRNNWP = s;
+    inline virtual void tauEleIDWPLoose(const std::string& s) {
+      if (!m_configFixed) m_tau_configuration_loose.eleIDWP = s;
     }
 
     inline virtual void tauMuOLR(bool do_tau_ele_olr) {
@@ -1493,14 +1493,6 @@ namespace top {
 
     inline virtual void tauMuOLRLoose(bool do_tau_ele_olr) {
       if (!m_configFixed) m_tau_configuration_loose.muOLR = do_tau_ele_olr;
-    }
-
-    inline virtual void tauSFDoRNNID(bool do_tau_rnn_id) {
-      if (!m_configFixed) m_tau_configuration.doRNNID = do_tau_rnn_id;
-    }
-
-    inline virtual void tauSFDoBDTID(bool do_tau_bdt_id) {
-      if (!m_configFixed) m_tau_configuration.doBDTID = do_tau_bdt_id;
     }
 
     inline virtual void tauJetConfigFile(const std::string& s) {
@@ -1536,12 +1528,12 @@ namespace top {
       return m_tau_configuration_loose.jetIDWP;
     }
 
-    inline const std::string& tauEleRNNWP() const {
-      return m_tau_configuration.eleRNNWP;
+    inline const std::string& tauEleIDWP() const {
+      return m_tau_configuration.eleIDWP;
     }
 
-    inline const std::string& tauEleRNNWPLoose() const {
-      return m_tau_configuration_loose.eleRNNWP;
+    inline const std::string& tauEleIDWPLoose() const {
+      return m_tau_configuration_loose.eleIDWP;
     }
 
     inline virtual bool tauMuOLR() {
@@ -1571,14 +1563,6 @@ namespace top {
     // Applying new tau energy calibration
     inline bool applyTauMVATES() {
       return true;
-    }
-
-    inline bool tauSFDoRNNID() const {
-      return m_tau_configuration.doRNNID;
-    }
-
-    inline bool tauSFDoBDTID() const {
-      return m_tau_configuration.doBDTID;
     }
 
     // photon getters
@@ -2403,15 +2387,12 @@ namespace top {
       // filename to load tau configuration from.
       // If this is an empty string then take the 'default'
       std::string fileName = "Default";
-      // The jetIDWP in CamelCase
-      // see
-      // https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauSelectionTool.rst
-      // for supported WPs
+      // The jetIDWP
+      // Usefull reference: PhysicsAnalysis/TauID/TauAnalysisTools/TauAnalysisTools/Enums.h
       std::string jetIDWP = "RNNMedium";
       bool doRNNID = true;
-      bool doBDTID = false;
-      // the electron BDTWP
-      std::string eleRNNWP = "Medium";
+      // the electron ID WP (currently there's only eleRNN ID)
+      std::string eleIDWP = "RNNMedium";
       bool substructureSF = false;
       // Whether to perform muon overlap removal
       bool muOLR = true;

@@ -19,7 +19,6 @@
 #include "StoreGate/WriteDecorHandleKey.h"
 #include "StoreGate/WriteDecorHandle.h"
 #include "StoreGate/ReadHandleKey.h"
-
 #include "MCTruthClassifier/IMCTruthClassifier.h"
 #include "InDetPhysValMonitoring/IAthSelectionTool.h"
 
@@ -46,7 +45,7 @@ private:
   ///TruthParticle container's name needed to create decorators
   SG::ReadHandleKey<xAOD::TruthParticleContainer> m_truthParticleName
     {this, "TruthParticleContainerName",  "TruthParticles", ""};
-
+  
   Gaudi::Property<std::string> m_prefix
     {this, "Prefix", "", "Decoration prefix to avoid clashes."};
 

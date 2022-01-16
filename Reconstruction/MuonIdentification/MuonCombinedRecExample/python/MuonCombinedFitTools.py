@@ -14,7 +14,7 @@
 from MuonRecExample.MuonRecFlags import muonRecFlags
 from MuonRecExample.MuonStandaloneFlags import muonStandaloneFlags
 from AthenaCommon import CfgMgr
-from AthenaCommon.CfgGetter import getPrivateTool, getPrivateToolClone, getPublicTool, getPublicToolClone, getService
+from AthenaCommon.CfgGetter import getPrivateTool, getPrivateToolClone, getPublicTool, getPublicToolClone
 from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
 from AthenaCommon.DetFlags import DetFlags 
@@ -35,7 +35,6 @@ def MuidMaterialAllocator( name='MuidMaterialAllocator', **kwargs):
     kwargs.setdefault("AggregateMaterial",True)
     kwargs.setdefault("AllowReordering",False)
     kwargs.setdefault("Extrapolator", getPublicTool('AtlasExtrapolator') )
-    kwargs.setdefault("TrackingGeometrySvc", getService("AtlasTrackingGeometrySvc") )
 
     cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
     kwargs.setdefault("TrackingGeometryReadKey",cond_alg.TrackingGeometryWriteKey)
@@ -466,7 +465,6 @@ def MuonCombinedTrackFitter( name="MuonCombinedTrackFitter", **kwargs ):
     kwargs.setdefault("PropagatorTool"        , getPublicTool("MuonCombinedPropagator") )
     kwargs.setdefault("RotCreatorTool"        , getPublicTool("MuonRotCreator") )
     kwargs.setdefault("MeasurementUpdateTool" , getPublicTool("MuonMeasUpdator") )
-    kwargs.setdefault("TrackingGeometrySvc"   , getService("AtlasTrackingGeometrySvc") )
     kwargs.setdefault("ExtrapolatorMaterial"  , True )
     kwargs.setdefault("MuidTool"              , getPublicTool("MuidMaterialEffectsOnTrackProvider") )
     kwargs.setdefault("MuidToolParam"         , None )
@@ -482,7 +480,6 @@ def MuonCombinedTrackFitter( name="MuonCombinedTrackFitter", **kwargs ):
 
 def CombinedMuonTagTestTool( name='CombinedMuonTagTestTool', **kwargs ):
     kwargs.setdefault("ExtrapolatorTool",getPublicTool("AtlasExtrapolator") )
-    kwargs.setdefault("TrackingGeometrySvc",  getService("AtlasTrackingGeometrySvc") )
     kwargs.setdefault("Chi2Cut",50000.)
     cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
     kwargs.setdefault("TrackingGeometryReadKey",cond_alg.TrackingGeometryWriteKey)

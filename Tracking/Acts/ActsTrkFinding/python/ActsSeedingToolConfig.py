@@ -65,6 +65,10 @@ def ActsSeedingToolBaseCfg(ConfigFlags,
     options.setdefault('radLengthPerSeed', 0.5)
     options.setdefault('minPt', 500. * UnitConstants.MeV)
     options.setdefault('impactMax', 3 * UnitConstants.mm)
+    options.setdefault('numPhiNeighbors', 1)
+    options.setdefault('zBinEdges', [])
+    options.setdefault('zBinNeighborsTop', [])
+    options.setdefault('zBinNeighborsBottom', [])
     
     ActsTrk__ActsSeedingTool = CompFactory.getComp("ActsTrk::ActsSeedingTool")
     acc.setPrivateTools(ActsTrk__ActsSeedingTool(**options))

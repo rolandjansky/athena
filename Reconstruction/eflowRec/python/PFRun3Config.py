@@ -2,50 +2,6 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-def getOfflinePFAlgorithm(inputFlags):
-    result=ComponentAccumulator()
-
-    PFAlgorithm=CompFactory.PFAlgorithm
-    PFAlgorithm = PFAlgorithm("PFAlgorithm")
-
-    from eflowRec.PFCfg import getPFClusterSelectorTool
-
-    topoClustersName="CaloTopoClusters"
-
-    PFAlgorithm.PFClusterSelectorTool = getPFClusterSelectorTool(topoClustersName,"CaloCalTopoClusters","PFClusterSelectorTool")    
-
-    from eflowRec.PFCfg import getPFCellLevelSubtractionTool
-    PFAlgorithm.SubtractionToolList = [getPFCellLevelSubtractionTool(inputFlags,"PFCellLevelSubtractionTool")]
-
-    if(False is inputFlags.PF.EOverPMode):
-        from eflowRec.PFCfg import getPFRecoverSplitShowersTool
-        PFAlgorithm.SubtractionToolList += [getPFRecoverSplitShowersTool(inputFlags,"PFRecoverSplitShowersTool")]
-
-    from eflowRec.PFCfg import getPFMomentCalculatorTool
-    PFMomentCalculatorTools=result.popToolsAndMerge(getPFMomentCalculatorTool(inputFlags,[]))
-    PFAlgorithm.BaseToolList = [PFMomentCalculatorTools]
-    from eflowRec.PFCfg import getPFLCCalibTool
-    PFAlgorithm.BaseToolList += [getPFLCCalibTool(inputFlags)]
-    result.addEventAlgo(PFAlgorithm)
-    return result
-
-def PFTauFlowElementLinkingCfg(inputFlags,neutral_FE_cont_name="",charged_FE_cont_name="",AODTest=False):
-    result=ComponentAccumulator()
-
-    from eflowRec.PFCfg import getTauFlowElementAssocAlgorithm
-    result.addEventAlgo(getTauFlowElementAssocAlgorithm(inputFlags,neutral_FE_cont_name,charged_FE_cont_name,AODTest))
-
-    # the following is needed to reliably determine whether we're really being steered from an old-style job option
-    # assume we're running CPython
-    #Snippet provided by Carlo Varni
-    import inspect
-    stack = inspect.stack()
-    if len(stack) >= 2 and stack[1].function == 'CAtoGlobalWrapper':
-      for el in result._allSequences:
-        el.name = "TopAlg"
-
-    return result
-
 #This configures pflow + everything it needs
 def PFFullCfg(inputFlags,**kwargs):
   
@@ -65,10 +21,6 @@ def PFFullCfg(inputFlags,**kwargs):
     #Configure topocluster algorithmsm, and associated conditions
     from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
     result.merge(CaloTopoClusterCfg(inputFlags))
-
-
-    #from CaloRec.CaloTopoClusterConfig import caloTopoCoolFolderCfg
-    #result.merge(caloTopoCoolFolderCfg(inputFlags))
 
     from CaloTools.CaloNoiseCondAlgConfig import CaloNoiseCondAlgCfg
     result.merge(CaloNoiseCondAlgCfg(inputFlags,"totalNoise"))
@@ -92,7 +44,7 @@ def PFFullCfg(inputFlags,**kwargs):
     result.merge(addToESD(inputFlags, toESDAndAOD))
     result.merge(addToAOD(inputFlags, toESDAndAOD))
 
-    result.merge(PFCfg(cfgFlags))
+    result.merge(PFCfg(inputFlags))
     return result
 
 #Configures only the pflow algorithms and tools - to be used from RecExCommon to avoid
@@ -115,6 +67,7 @@ def PFCfg(inputFlags,**kwargs):
         useCaching = False
     result.merge(PFTrackSelectorAlgCfg(inputFlags,"PFTrackSelector",useCaching))
 
+    from eflowRec.PFCfg import getOfflinePFAlgorithm
     result.merge(getOfflinePFAlgorithm(inputFlags))
 
     # old PFO algorithm, keep gated behind a joboption but expect this is deprecated.    
@@ -128,17 +81,19 @@ def PFCfg(inputFlags,**kwargs):
     result.addEventAlgo(getNeutralFlowElementCreatorAlgorithm(inputFlags,""))
     result.addEventAlgo(getLCNeutralFlowElementCreatorAlgorithm(inputFlags,""))
 
-    #Currently we do not have egamma reco in the run 3 config and hence there are no electrons/photons if not running from ESD or AOD
-    #So in new config only schedule from ESD/AOD, in old config always schedule it if requested
-    if (inputFlags.PF.useElPhotLinks and (inputFlags.Input.Format == "POOL" or inputFlags.PF.useRecExCommon)):
-        from eflowRec.PFCfg import getEGamFlowElementAssocAlgorithm        
-        result.addEventAlgo(getEGamFlowElementAssocAlgorithm(inputFlags))
+    #Only do linking if not in eoverp mode
+    if (not inputFlags.PF.EOverPMode):
+      #Currently we do not have egamma reco in the run 3 config and hence there are no electrons/photons if not running from ESD or AOD
+      #So in new config only schedule from ESD/AOD, in old config always schedule it if requested
+      if (inputFlags.PF.useElPhotLinks and (inputFlags.Input.Format == "POOL" or inputFlags.PF.useRecExCommon)):
+          from eflowRec.PFCfg import getEGamFlowElementAssocAlgorithm        
+          result.addEventAlgo(getEGamFlowElementAssocAlgorithm(inputFlags))
     
-    #Currently we do not have muon reco in the run 3 config and hence there are no muons if not running from ESD or AOD
-    #So in new config only schedule from ESD/AOD, in old config always schedule it if requested it
-    if (inputFlags.PF.useMuLinks and ((inputFlags.Input.Format == "POOL" and not ('StreamRDO' in inputFlags.Input.ProcessingTags or 'OutputStreamRDO' in inputFlags.Input.ProcessingTags)) or inputFlags.PF.useRecExCommon)):
-        from eflowRec.PFCfg import getMuonFlowElementAssocAlgorithm
-        result.addEventAlgo(getMuonFlowElementAssocAlgorithm(inputFlags))
+      #Currently we do not have muon reco in the run 3 config and hence there are no muons if not running from ESD or AOD
+      #So in new config only schedule from ESD/AOD, in old config always schedule it if requested it
+      if (inputFlags.PF.useMuLinks and ((inputFlags.Input.Format == "POOL" and not ('StreamRDO' in inputFlags.Input.ProcessingTags or 'OutputStreamRDO' in inputFlags.Input.ProcessingTags)) or inputFlags.PF.useRecExCommon)):
+          from eflowRec.PFCfg import getMuonFlowElementAssocAlgorithm
+          result.addEventAlgo(getMuonFlowElementAssocAlgorithm(inputFlags))
 
     from OutputStreamAthenaPool.OutputStreamConfig import addToAOD, addToESD
     toESDAndAOD = ""

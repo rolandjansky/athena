@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackSelectorTool/InDetTrackSelectorTool.h"
@@ -145,7 +145,10 @@ bool InDetTrackSelectorTool::decision(const Trk::TrackParameters * track, const 
     perigee = dynamic_cast<const Trk::Perigee *>(track);
   else {
     Trk::PerigeeSurface perigeeSurface(vertex->position());
-    perigee = dynamic_cast<const Trk::Perigee *>(m_extrapolator->extrapolate(*track,perigeeSurface,Trk::anyDirection,true,hyp));
+    perigee = dynamic_cast<const Trk::Perigee *>(m_extrapolator->extrapolate(Gaudi::Hive::currentContext(),
+                                                                             *track,
+                                                                             perigeeSurface,
+                                                                             Trk::anyDirection,true,hyp));
   }
 
   if(nullptr == perigee || !perigee->covariance() ) {

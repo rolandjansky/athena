@@ -5,26 +5,28 @@
 #ifndef MUONPHYSVALMONITORING_TRIGGERMUONVALIDATIONPLOTS_H
 #define MUONPHYSVALMONITORING_TRIGGERMUONVALIDATIONPLOTS_H
 
+#include "MuonHistUtils/HLTriggerMuonPlots.h"
+#include "MuonHistUtils/L1TriggerMuonPlots.h"
 #include "ResoTriggerMuonPlots.h"
 #include "TriggerEfficiencyPlots.h"
-#include "MuonHistUtils/L1TriggerMuonPlots.h"
-#include "MuonHistUtils/HLTriggerMuonPlots.h"
-#include "xAODTrigMuon/L2StandAloneMuon.h"
-#include "xAODTrigMuon/L2CombinedMuon.h"
 #include "xAODMuon/Muon.h"
-#include "xAODMuon/MuonContainer.h"
-#include "xAODTrigger/MuonRoI.h"
 #include "xAODMuon/MuonAuxContainer.h"
+#include "xAODMuon/MuonContainer.h"
+#include "xAODTrigMuon/L2CombinedMuon.h"
+#include "xAODTrigMuon/L2StandAloneMuon.h"
+#include "xAODTrigger/MuonRoI.h"
 
-class TriggerMuonValidationPlots:public PlotBase {
-  public:
-  TriggerMuonValidationPlots(PlotBase* pParent, const std::string& sDir, std::vector<unsigned int> authors, bool isData, bool doTrigMuonL1Validation, bool doTrigMuonL2Validation, bool doTrigMuonEFValidation, std::vector<std::vector<std::string>> ChainSeed,std::vector<std::string> L1MuonItems);
+class TriggerMuonValidationPlots : public PlotBase {
+public:
+    TriggerMuonValidationPlots(PlotBase* pParent, const std::string& sDir, std::vector<unsigned int> authors, bool isData,
+                               bool doTrigMuonL1Validation, bool doTrigMuonL2Validation, bool doTrigMuonEFValidation,
+                               std::vector<std::vector<std::string>> ChainSeed, std::vector<std::string> L1MuonItems);
 
     float PlateauTreshold;
     virtual ~TriggerMuonValidationPlots();
-    void fill(const xAOD::MuonRoI &TrigL1mu);
-    void fill(const xAOD::L2StandAloneMuon &L2SAmu);
-    void fill(const xAOD::L2CombinedMuon &L2CBmu);
+    void fill(const xAOD::MuonRoI& TrigL1mu);
+    void fill(const xAOD::L2StandAloneMuon& L2SAmu);
+    void fill(const xAOD::L2CombinedMuon& L2CBmu);
     void fill(const xAOD::Muon& Trigmu);
     void fill(const xAOD::Muon& Trigmu, const xAOD::Muon& Recomu);
     void fill(const xAOD::L2StandAloneMuon& L2SAmu, const xAOD::Muon& Recomu);
@@ -41,7 +43,7 @@ class TriggerMuonValidationPlots:public PlotBase {
     std::vector<unsigned int> m_selectedAuthors;
     std::vector<std::string> m_chains;
     std::vector<std::string> m_seeds;
-    L1TriggerMuonPlots* m_oL1TriggerMuonPlots;    
+    L1TriggerMuonPlots* m_oL1TriggerMuonPlots;
     std::vector<HLTriggerMuonPlots*> m_oEFTriggerMuonPlots;
     std::vector<HLTriggerMuonPlots*> m_oL2TriggerMuonPlots;
     std::vector<Muon::ResoTriggerMuonPlots*> m_oEFTriggerMuonBarrelResolutionPlots;
@@ -60,11 +62,11 @@ class TriggerMuonValidationPlots:public PlotBase {
     std::vector<TriggerEfficiencyPlots*> m_oEFTriggerChainBarrelRELEfficiencyPlots;
     std::vector<TriggerEfficiencyPlots*> m_oEFTriggerChainEndcapsRELEfficiencyPlots;
 
- private:
+private:
     void fillTriggerMuonPlots(const xAOD::Muon& Trigmu);
     void fillTriggerMuonPlots(const xAOD::Muon& Trigmu, const xAOD::Muon& Recomu);
-    void fillTriggerMuonPlots(const xAOD::L2StandAloneMuon &L2SAmu, const xAOD::Muon &Recomu);
-    void fillTriggerMuonPlots(const xAOD::L2CombinedMuon &L2CBmu, const xAOD::Muon &Recomu);
+    void fillTriggerMuonPlots(const xAOD::L2StandAloneMuon& L2SAmu, const xAOD::Muon& Recomu);
+    void fillTriggerMuonPlots(const xAOD::L2CombinedMuon& L2CBmu, const xAOD::Muon& Recomu);
     void fillTriggerMuonPlots(const xAOD::MuonRoI& TrigL1mu);
     void fillTriggerMuonPlots(const xAOD::L2StandAloneMuon& L2SAmu);
     void fillTriggerMuonPlots(const xAOD::L2CombinedMuon& L2CBmu);
@@ -75,8 +77,6 @@ class TriggerMuonValidationPlots:public PlotBase {
     bool m_doTrigMuonEFValidation;
     std::vector<std::vector<std::string>> m_ChainSeed;
     std::vector<std::string> m_L1MuonItems;
-
-
 };
 
 #endif

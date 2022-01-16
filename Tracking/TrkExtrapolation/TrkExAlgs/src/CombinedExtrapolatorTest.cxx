@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -91,7 +91,7 @@ StatusCode Trk::CombinedExtrapolatorTest::finalize()
 StatusCode Trk::CombinedExtrapolatorTest::execute()
 {
   msg(MSG::INFO) << " execute()" << endmsg;
-
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   // retrieve outer boundary
   if (!m_outerBoundary) {
     m_trackingGeometry = m_extrapolator->trackingGeometry();
@@ -122,10 +122,12 @@ StatusCode Trk::CombinedExtrapolatorTest::execute()
 
   const Trk::PerigeeSurface pSf = initialPerigee.associatedSurface();
   
-  const Trk::TrackParameters* destParameters = m_extrapolator->extrapolateToVolume(*seed,
-										   *m_outerBoundary, 
-										   Trk::alongMomentum,
-										   (Trk::ParticleHypothesis)m_particleType);
+  const Trk::TrackParameters* destParameters = m_extrapolator->extrapolateToVolume(
+    ctx, 
+    *seed,
+    *m_outerBoundary, 
+    Trk::alongMomentum,
+    (Trk::ParticleHypothesis)m_particleType);
 
   if (!destParameters || !m_extrapolator->trackingGeometry()->atVolumeBoundary(destParameters->position(),m_outerBoundary,0.001) ) {
     msg(MSG::ERROR) << " extrapolation to outer boundary failed for input parameters: " << initialPerigee.parameters() << endmsg;
@@ -135,11 +137,13 @@ StatusCode Trk::CombinedExtrapolatorTest::execute()
     msg(MSG::INFO) << " outer boundary reached at: " << destParameters->position().perp() <<","<<destParameters->position().z() << endmsg;
      msg(MSG::INFO) << "cov matrix:"<< destParameters->covariance() << endmsg;
  
-    const Trk::TrackParameters* peri = m_extrapolator->extrapolate(*destParameters,
-								   pSf, 
-								   Trk::oppositeMomentum,
-								   false,
-								   (Trk::ParticleHypothesis)m_particleType);
+    const Trk::TrackParameters* peri = m_extrapolator->extrapolate(
+      ctx, 
+      *destParameters,
+      pSf, 
+      Trk::oppositeMomentum,
+      false,
+      (Trk::ParticleHypothesis)m_particleType);
     if ( peri) {
       msg(MSG::INFO) << " extrapolation to perigee:input: " << initialPerigee.parameters() << endmsg;
       msg(MSG::INFO) << " extrapolation to perigee:output: " << peri->parameters() << endmsg;

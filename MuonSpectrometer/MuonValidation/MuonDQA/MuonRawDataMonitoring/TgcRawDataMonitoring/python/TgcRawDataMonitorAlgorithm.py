@@ -729,8 +729,6 @@ if __name__=='__main__':
     cfg.merge(MagneticFieldSvcCfg(ConfigFlags))
     from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
     cfg.merge(AtlasGeometryCfg(ConfigFlags))
-    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-    cfg.merge(TrackingGeometrySvcCfg(ConfigFlags))
     from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg,generateL1Menu
     cfg.merge(L1ConfigSvcCfg(ConfigFlags))
     generateL1Menu(ConfigFlags)

@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkGaussianSumFilterUtils/KLGaussianMixtureReduction.h"
 #include "TrkGaussianSumFilterUtils/AlignedDynArray.h"
 #include "TrkGaussianSumFilterUtils/GsfConstants.h"
 //
+#include "CxxUtils/assume_aligned.h"
 #include "CxxUtils/features.h"
 #include "CxxUtils/restrict.h"
 #include "CxxUtils/vec.h"
@@ -17,16 +18,6 @@
 #include <utility>
 #include <vector>
 
-#if !defined(__GNUC__)
-#define __builtin_assume_aligned(X, N) X
-#else
-#if defined(__clang__)
-#if !__has_builtin(__builtin_assume_aligned)
-#define __builtin_assume_aligned(X, N) X
-#endif
-#endif
-#endif
-
 ATH_ENABLE_VECTORIZATION;
 /**
  * @file  KLGaussianMixtureReduction.cxx
@@ -35,7 +26,20 @@ ATH_ENABLE_VECTORIZATION;
  *
  * Implementation of KLGaussianMixtureReduction
  */
+
 namespace {
+
+/**
+ * The methods in the anonymous namespace
+ * are used once in the findMerges.
+ * Typically they are getting inlined.
+ * But we want to enforce that
+ * as much we can.
+ * As this also ensures that the 
+ * multiversioning is 
+ * applined to them
+ */
+
 using namespace GSFUtils;
 
 /**
@@ -47,18 +51,6 @@ struct triangularToIJ
   int8_t I = -1;
   int8_t J = -1;
 };
-
-/*
- * these are q/P ,
- * mean = 1e9 means P=1e-9 MeV
- * 1e-3 ev
- * we want to approximate a delta function
- * at some impossible q/P with a normal.
- */
-constexpr double largeMean = 1e9;
-constexpr double tinySigma = 1e-15;
-constexpr double invertTinySigma = 1e15;
-
 /**
  * @brief Helper method to precalucate
  * the mapping of an triangular array index
@@ -78,7 +70,6 @@ createToIJMaxRowCols()
   }
   return indexMap;
 }
-
 /**
  * @brief we need one tringular to IJ map for the full job
  * so precalculate it here, const and static since inside
@@ -91,11 +82,29 @@ const std::vector<triangularToIJ> convert = createToIJMaxRowCols();
  * return the number pairwise distance
  * padding so as to be a multiple of 8
  */
-int32_t
+#if (defined(__GNUC__) || defined(__clang__))
+[[gnu::always_inline]]
+#endif
+inline int32_t
 numDistances8(const int32_t n)
 {
   const int32_t nn = n * (n - 1) / 2;
   const int32_t nn2 = (nn & 7) == 0 ? nn : nn + (8 - (nn & 7));
+  return nn2;
+}
+
+#if (defined(__GNUC__) || defined(__clang__))
+[[gnu::always_inline]]
+#endif
+inline int32_t
+numDistances8(const int32_t n, float* distancesIn)
+{
+  const int32_t nn = n * (n - 1) / 2;
+  const int32_t nn2 = (nn & 7) == 0 ? nn : nn + (8 - (nn & 7));
+  // Make sure the extra elements are set to max
+  // set the loop for the minimum can not find them
+  std::fill(
+    distancesIn + nn, distancesIn + nn2, std::numeric_limits<float>::max());
   return nn2;
 }
 
@@ -109,7 +118,10 @@ numDistances8(const int32_t n)
  * but not accounting for weights
  * covI * invCovJ + covJ * invCovI + (mean1-mean2) (invcov+invcov) (mean1-mean2)
  */
-float
+#if (defined(__GNUC__) || defined(__clang__))
+[[gnu::always_inline]]
+#endif
+inline float
 symmetricKL(const Component1D& ATH_RESTRICT componentI,
             const Component1D& ATH_RESTRICT componentJ)
 {
@@ -128,7 +140,10 @@ symmetricKL(const Component1D& ATH_RESTRICT componentI,
  * Kullback-Leibler approach to Gaussian mixture reduction
  * equations (2),(3),(4)
  */
-void
+#if (defined(__GNUC__) || defined(__clang__))
+[[gnu::always_inline]]
+#endif
+inline void
 combine(GSFUtils::Component1D& ATH_RESTRICT updated,
         GSFUtils::Component1D& ATH_RESTRICT removed)
 {
@@ -149,13 +164,6 @@ combine(GSFUtils::Component1D& ATH_RESTRICT updated,
   updated.cov = sumVariance;
   updated.invCov = 1. / sumVariance;
   updated.weight = sumWeight;
-  // approximate a delta function
-  // as a Gaussian  with large mean a small sigma
-  // the KL distance to it will always be large
-  removed.mean = largeMean;
-  removed.cov = tinySigma;
-  removed.invCov = invertTinySigma;
-  removed.weight = -1;
 }
 
 /**
@@ -172,7 +180,10 @@ combine(GSFUtils::Component1D& ATH_RESTRICT updated,
  * After this the remaining components are n-1
  * which we return
  */
-int32_t
+#if (defined(__GNUC__) || defined(__clang__))
+[[gnu::always_inline]]
+#endif
+inline int32_t
 resetDistances(
   Component1D* ATH_RESTRICT componentsIn,
   std::array<int8_t, GSFConstants::maxComponentsAfterConvolution>& mergingIndex,
@@ -180,11 +191,11 @@ resetDistances(
   const int32_t minj,
   const int32_t n)
 {
-  float* distances = static_cast<float*>(
-    __builtin_assume_aligned(distancesIn, GSFConstants::alignment));
+  float* distances =
+    CxxUtils::assume_aligned<GSFConstants::alignment>(distancesIn);
 
-  Component1D* components = static_cast<Component1D*>(
-    __builtin_assume_aligned(componentsIn, GSFConstants::alignment));
+  Component1D* components =
+    CxxUtils::assume_aligned<GSFConstants::alignment>(componentsIn);
 
   const int32_t j = minj;
   const int32_t last = (n - 1);
@@ -196,7 +207,6 @@ resetDistances(
 
   // Rows
   for (int32_t i = 0; i < j; ++i, ++movedElements) {
-    distances[indexOffsetJ + i] = std::numeric_limits<float>::max();
     std::swap(distances[indexOffsetJ + i],
               distances[indexOffsetLast + movedElements]);
   }
@@ -206,15 +216,12 @@ resetDistances(
   // Also if minj is the last the element does not exist
   // as we do not keep distance to self
   if (j != last) {
-    const int32_t index = indexOffsetLast + j;
-    distances[index] = std::numeric_limits<float>::max();
     ++movedElements;
   }
 
   // The columns
   for (int32_t i = j + 1; i < last; ++i, ++movedElements) {
     const int32_t index = (i - 1) * i / 2 + j;
-    distances[index] = std::numeric_limits<float>::max();
     std::swap(distances[index], distances[indexOffsetLast + movedElements]);
   }
   // And now swap the components
@@ -230,17 +237,20 @@ resetDistances(
  * @c mini is the index of the element we merged to (keep)
  * @c n is the components before the removal
  */
-void
+#if (defined(__GNUC__) || defined(__clang__))
+[[gnu::always_inline]]
+#endif
+inline void
 recalculateDistances(const Component1D* componentsIn,
                      float* distancesIn,
                      const int32_t mini,
                      const int32_t n)
 {
-  const Component1D* components = static_cast<const Component1D*>(
-    __builtin_assume_aligned(componentsIn, GSFConstants::alignment));
+  const Component1D* components =
+    CxxUtils::assume_aligned<GSFConstants::alignment>(componentsIn);
 
-  float* distances = static_cast<float*>(
-    __builtin_assume_aligned(distancesIn, GSFConstants::alignment));
+  float* distances =
+    CxxUtils::assume_aligned<GSFConstants::alignment>(distancesIn);
 
   const int32_t j = mini;
   const int32_t indexConst = (j - 1) * j / 2;
@@ -273,17 +283,20 @@ recalculateDistances(const Component1D* componentsIn,
  * We need this once in the beginning to initialize
  * the distance map.
  */
-void
+#if (defined(__GNUC__) || defined(__clang__))
+[[gnu::always_inline]]
+#endif
+inline void
 calculateAllDistances(const Component1D* componentsIn,
                       float* distancesIn,
                       const int32_t n)
 {
 
-  const Component1D* components = static_cast<const Component1D*>(
-    __builtin_assume_aligned(componentsIn, GSFConstants::alignment));
+  const Component1D* components =
+    CxxUtils::assume_aligned<GSFConstants::alignment>(componentsIn);
 
-  float* distances = static_cast<float*>(
-    __builtin_assume_aligned(distancesIn, GSFConstants::alignment));
+  float* distances =
+    CxxUtils::assume_aligned<GSFConstants::alignment>(distancesIn);
 
   for (int32_t i = 1; i < n; ++i) {
     const int32_t indexConst = (i - 1) * i / 2;
@@ -295,99 +308,30 @@ calculateAllDistances(const Component1D* componentsIn,
   }
 }
 
-} // anonymous namespace
-namespace GSFUtils {
-
-/**
- * Merge the componentsIn and return
- * which componets got merged.
- */
-MergeArray
-findMerges(const Component1DArray& componentsIn, const int8_t reducedSize)
-{
-
-  const int32_t n = componentsIn.numComponents;
-  // Sanity check. Function  throw on invalid inputs
-  if (n < 0 || n > GSFConstants::maxComponentsAfterConvolution ||
-      reducedSize > n) {
-    throw std::runtime_error("findMerges :Invalid InputSize or reducedSize");
-  }
-  // copy the array for internal use
-  Component1DArray copyComponents(componentsIn);
-  Component1D* components = static_cast<Component1D*>(__builtin_assume_aligned(
-    copyComponents.components.data(), GSFConstants::alignment));
-  // Based on the inputSize n allocate enough space for the pairwise distances
-  int32_t nn2 = numDistances8(n);
-  AlignedDynArray<float, GSFConstants::alignment> distances(
-    nn2, std::numeric_limits<float>::max());
-  // initial distance calculation
-  calculateAllDistances(components, distances.buffer(), n);
-  // As we merge keep track where things moved
-  std::array<int8_t, GSFConstants::maxComponentsAfterConvolution> mergingIndex;
-  std::iota(mergingIndex.begin(), mergingIndex.end(), 0);
-  // Result to be returned
-  MergeArray result{};
-  int32_t numberOfComponentsLeft = n;
-  // merge loop
-  while (numberOfComponentsLeft > reducedSize) {
-    // find pair with minimum distance
-    const int32_t minIndex = findMinimumIndex(distances.buffer(), nn2);
-    const triangularToIJ conversion = convert[minIndex];
-    int8_t mini = conversion.I;
-    int8_t minj = conversion.J;
-    // This is the convention we had so retained.
-    if (mergingIndex[mini] < mergingIndex[minj]) {
-      std::swap(mini, minj);
-    }
-    // prepare what to return
-    const int8_t miniToreturn = mergingIndex[mini];
-    const int8_t minjToreturn = mergingIndex[minj];
-    result.merges[result.numMerges] = { miniToreturn, minjToreturn };
-    ++result.numMerges;
-    // do all operation before we reset.
-    // Reset will move things around
-    combine(components[mini], components[minj]);
-    recalculateDistances(
-      components, distances.buffer(), mini, numberOfComponentsLeft);
-    // Call reset this also reduces the number of components left
-    numberOfComponentsLeft = resetDistances(components,
-                                            mergingIndex,
-                                            distances.buffer(),
-                                            minj,
-                                            numberOfComponentsLeft);
-
-    // number of remaining distances dividable by 8
-    nn2 = numDistances8(numberOfComponentsLeft);
-  } // end of merge while
-  return result;
-}
-
 /**
  * findMinimumIndex
  * Assume that the number of elements is a multiple
  * of 8 and is to be used for sizeable inputs.
  *
  * It uses the CxxUtils:vec class which provides
- * a degree of portability.
+ * a degree of portability instead of using
+ * directly the intrinsics.
  *
  * SSE4.1 gives us efficient blend
  * so we employ function multiversioning
- * An AVX version could gives us directly
- * lanes 8 float wide
  *
  * For non-sizeable inputs
  * std::distance(array, std::min_element(array, array + n))
  * can be good enough instead of calling this function.
  */
-#if HAVE_FUNCTION_MULTIVERSIONING
-#if defined(__x86_64__)
-__attribute__((target("sse4.1")))
-int32_t
+#if (defined(__GNUC__) || defined(__clang__))
+[[gnu::always_inline]]
+#endif
+inline int32_t
 findMinimumIndex(const float* distancesIn, const int n)
 {
   using namespace CxxUtils;
-  float* array = static_cast<float*>(
-    __builtin_assume_aligned(distancesIn, GSFConstants::alignment));
+  const float* array = assume_aligned<GSFConstants::alignment>(distancesIn);
   // Do 2 vectors of 4 elements , so 8 at time
   const vec<int, 4> increment = { 8, 8, 8, 8 };
   vec<int, 4> indices1 = { 0, 1, 2, 3 };
@@ -433,58 +377,79 @@ findMinimumIndex(const float* distancesIn, const int n)
   }
   return minIndex;
 }
+
+} // anonymous namespace
+
+namespace GSFUtils {
+
+/**
+ * Merge the componentsIn and return
+ * which componets got merged.
+ */
+#if HAVE_TARGET_CLONES
+#if defined(__x86_64__)
+[[gnu::target_clones("sse4.2", "default")]]
 #endif // end of x86_64 versions
-__attribute__((target("default")))
-#endif // HAVE_FUNCTION_MULTIVERSIONING
-int32_t
-findMinimumIndex(const float* distancesIn, const int n)
+#endif // HAVE_TARGET_CLONES
+MergeArray
+findMerges(const Component1DArray& componentsIn, const int8_t reducedSize)
 {
-  using namespace CxxUtils;
-  float* array = static_cast<float*>(
-    __builtin_assume_aligned(distancesIn, GSFConstants::alignment));
-  const vec<int, 4> increment = { 8, 8, 8, 8 };
-  vec<int, 4> indices1 = { 0, 1, 2, 3 };
-  vec<int, 4> indices2 = { 4, 5, 6, 7 };
-  vec<int, 4> minindices1 = indices1;
-  vec<int, 4> minindices2 = indices2;
-  vec<float, 4> minvalues1;
-  vec<float, 4> minvalues2;
-  vload(minvalues1, array);
-  vload(minvalues2, array + 4);
-  vec<float, 4> values1;
-  vec<float, 4> values2;
-  for (int i = 8; i < n; i += 8) {
-    // Load 8 elements at a time
-    vload(values1, array + i);     // first 4
-    vload(values2, array + i + 4); // second 4
-    // 1
-    indices1 = indices1 + increment;
-    vec<int, 4> lt1 = values1 < minvalues1;
-    vselect(minindices1, indices1, minindices1, lt1);
-    vmin(minvalues1, values1, minvalues1);
-    // 2
-    indices2 = indices2 + increment;
-    vec<int, 4> lt2 = values2 < minvalues2;
-    vselect(minindices2, indices2, minindices2, lt2);
-    vmin(minvalues2, values2, minvalues2);
+
+  const int32_t n = componentsIn.numComponents;
+  // Sanity check. Function  throw on invalid inputs
+  if (n < 0 || n > GSFConstants::maxComponentsAfterConvolution ||
+      reducedSize > n) {
+    throw std::runtime_error("findMerges :Invalid InputSize or reducedSize");
   }
-  // Compare //1 with //2
-  vec<int, 4> lt = minvalues1 < minvalues2;
-  vselect(minindices1, minindices1, minindices2, lt);
-  vmin(minvalues1, minvalues1, minvalues2);
-  /*
-   * Do the final calculation scalar way
-   */
-  size_t minIndex = minindices1[0];
-  float minvalue = minvalues1[0];
-  for (size_t i = 1; i < 4; ++i) {
-    const float value = minvalues1[i];
-    if (value < minvalue) {
-      minvalue = value;
-      minIndex = minindices1[i];
+  // copy the array for internal use
+  Component1DArray copyComponents(componentsIn);
+  Component1D* components = CxxUtils::assume_aligned<GSFConstants::alignment>(
+    copyComponents.components.data());
+  // Based on the inputSize n allocate enough space for the pairwise distances
+  int32_t nn2 = numDistances8(n);
+  AlignedDynArray<float, GSFConstants::alignment> distances(
+    nn2, std::numeric_limits<float>::max());
+  // initial distance calculation
+  calculateAllDistances(components, distances.buffer(), n);
+  // As we merge keep track where things moved
+  std::array<int8_t, GSFConstants::maxComponentsAfterConvolution>
+    mergingIndex{};
+  std::iota(mergingIndex.begin(), mergingIndex.end(), 0);
+  // Result to be returned
+  MergeArray result{};
+  int32_t numberOfComponentsLeft = n;
+  // merge loop
+  while (numberOfComponentsLeft > reducedSize) {
+    // find pair with minimum distance
+    const int32_t minIndex = findMinimumIndex(distances.buffer(), nn2);
+    const triangularToIJ conversion = convert[minIndex];
+    int8_t mini = conversion.I;
+    int8_t minj = conversion.J;
+    // This is the convention we had so retained.
+    if (mergingIndex[mini] < mergingIndex[minj]) {
+      std::swap(mini, minj);
     }
-  }
-  return minIndex;
+    // prepare what to return
+    const int8_t miniToreturn = mergingIndex[mini];
+    const int8_t minjToreturn = mergingIndex[minj];
+    result.merges[result.numMerges] = { miniToreturn, minjToreturn };
+    ++result.numMerges;
+    // do all operation before we reset.
+    // Reset will move things around
+    combine(components[mini], components[minj]);
+    recalculateDistances(
+      components, distances.buffer(), mini, numberOfComponentsLeft);
+    // Call reset this also reduces the number of components left
+    numberOfComponentsLeft = resetDistances(components,
+                                            mergingIndex,
+                                            distances.buffer(),
+                                            minj,
+                                            numberOfComponentsLeft);
+
+    // number of remaining distances dividable by 8
+    nn2 = numDistances8(numberOfComponentsLeft, distances.buffer());
+  } // end of merge while
+  return result;
 }
 
 } // end namespace GSFUtils

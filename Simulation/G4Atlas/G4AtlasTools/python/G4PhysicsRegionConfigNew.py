@@ -122,8 +122,7 @@ def HGTDPhysicsRegionToolCfg(ConfigFlags, name='HGTDPhysicsRegionTool', **kwargs
     return RegionCreator(name, **kwargs)
 
 def TRTPhysicsRegionToolCfg(ConfigFlags, name='TRTPhysicsRegionTool', **kwargs):
-    #rangeCut = simFlags.TRTRangeCut._Value()
-    rangeCut = 30.0
+    rangeCut = ConfigFlags.Sim.TRTRangeCut
     kwargs.setdefault("RegionName", 'TRT')
     volumeList = ['TRT::Gas', 'TRT::GasMA']
     kwargs.setdefault("VolumeList",  volumeList)

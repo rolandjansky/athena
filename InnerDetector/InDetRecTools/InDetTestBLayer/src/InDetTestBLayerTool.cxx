@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "InDetTestBLayer/InDetTestBLayerTool.h"
 
@@ -321,10 +321,12 @@ InDet::InDetTestBLayerTool::getTrackStateOnPixelLayerInfo(
     startParameters = track->perigeeParameters()->clone();
   } else if (track->trackParameters()->front()) {
     startParameters =
-      m_extrapolator->extrapolate(*(track->trackParameters()->front()),
-                                  Trk::PerigeeSurface(),
-                                  Trk::anyDirection,
-                                  false);
+      m_extrapolator->extrapolate(
+        Gaudi::Hive::currentContext(),
+        *(track->trackParameters()->front()),
+        Trk::PerigeeSurface(),
+        Trk::anyDirection,
+        false);
   }
 
   if (!startParameters) {

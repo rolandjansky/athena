@@ -88,8 +88,8 @@ private:
   virtual void setFixedTime(float fixedTime) override { m_tfix.setValue(fixedTime); }
 
   /** create a list of surface charges from a hit */
-  virtual void process(const InDetDD::SiDetectorElement* element, const TimedHitPtr<SiHit>& phit, const ISiSurfaceChargesInserter& inserter, CLHEP::HepRandomEngine * rndmEngine, const EventContext& ctx) const override;
-  void processSiHit(const InDetDD::SiDetectorElement* element, const SiHit& phit, const ISiSurfaceChargesInserter& inserter, const float eventTime, const unsigned short eventID, CLHEP::HepRandomEngine * rndmEngine, const EventContext& ctx) const;
+  virtual void process(const InDetDD::SiDetectorElement* element, const TimedHitPtr<SiHit>& phit, ISiSurfaceChargesInserter& inserter, CLHEP::HepRandomEngine * rndmEngine, const EventContext& ctx) override;
+  void processSiHit(const InDetDD::SiDetectorElement* element, const SiHit& phit, ISiSurfaceChargesInserter& inserter, const float eventTime, const unsigned short eventID, CLHEP::HepRandomEngine * rndmEngine, const EventContext& ctx);
 
   // some diagnostics methods are needed here too
   float DriftTime(float zhit, const InDetDD::SiDetectorElement* element, const EventContext& ctx) const; //!< calculate drift time perpandicular to the surface for a charge at distance zhit from mid gap
@@ -109,13 +109,13 @@ private:
   void EField(double x, double y, double& Ex, double& Ey) const;
   double induced (int istrip, double x, double y) const;
   bool electron(double x_e, double y_e, double& vx_e, double& vy_e, double& D_e) const;
-  bool hole( double x_h, double y_h, double& vx_h, double& vy_h, double& D_h) const;
+  bool hole( double x_h, double y_h, double& vx_h, double& vy_h, double& D_h);
   double mud_e(double E) const;
   double mud_h(double E) const;
   double ExValue150(int ix, int iy) const;
   double EyValue150(int ix, int iy) const;
   double GetPotentialValue(int ix, int iy) const;
-  void holeTransport(double& x0, double& y0, double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2, CLHEP::HepRandomEngine * rndmEngine) const;
+  void holeTransport(double& x0, double& y0, double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2, CLHEP::HepRandomEngine * rndmEngine);
   void electronTransport(double& x0, double& y0, double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2, CLHEP::HepRandomEngine * rndmEngine) const;
   double inducedCharge(int& istrip, double& x, double& y, double& t) const;
 

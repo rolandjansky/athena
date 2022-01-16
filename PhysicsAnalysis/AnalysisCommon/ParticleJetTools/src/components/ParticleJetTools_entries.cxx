@@ -2,7 +2,6 @@
 #include "ParticleJetTools/JetQuarkLabel.h"
 #include "ParticleJetTools/JetConeLabeling.h"
 //#include "ParticleJetTools/JetQGPartonLabel.h"
-#include "ParticleJetTools/ParticleToJetAssociator.h"
 //#include "ParticleJetTools/FindLeptonTruth.h"
 #include "ParticleJetTools/CopyFlavorLabelTruthParticles.h"
 #include "ParticleJetTools/CopyBosonTopLabelTruthParticles.h"
@@ -22,7 +21,6 @@ DECLARE_COMPONENT( Analysis::JetQuarkLabel )
 DECLARE_COMPONENT( Analysis::JetConeLabeling )
 DECLARE_COMPONENT( Analysis::JetPartonTruthLabel )
 /* DECLARE_COMPONENT( Analysis::JetQGPartonLabel ) */
-DECLARE_COMPONENT( Analysis::ParticleToJetAssociator )
 /* DECLARE_COMPONENT( Analysis::FindLeptonTruth ) */
 /// @todo Convert to namespace, tool, etc?
 DECLARE_COMPONENT( CopyFlavorLabelTruthParticles )

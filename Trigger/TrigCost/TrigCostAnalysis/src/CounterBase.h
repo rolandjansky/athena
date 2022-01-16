@@ -7,7 +7,7 @@
 
 #include "GaudiKernel/StatusCode.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
-#include "TrigConfHLTData/HLTUtils.h"
+#include "TrigConfHLTUtils/HLTUtils.h"
 
 #include "CostData.h"
 #include "Variable.h"

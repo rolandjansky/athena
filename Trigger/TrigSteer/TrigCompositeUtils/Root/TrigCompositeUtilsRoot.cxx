@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // See similar workaround the lack of CLID in standalone releases in TrigComposite_v1.h
@@ -237,7 +237,7 @@ namespace TrigCompositeUtils {
     return nullptr;
   }
 
-  std::vector<const Decision*> getRejectedDecisionNodes(asg::EventStoreType* eventStore,
+  std::vector<const Decision*> getRejectedDecisionNodes(const asg::EventStoreType* eventStore,
     const std::string& summaryCollectionKey,
     const DecisionIDContainer& ids,
     const std::set<std::string>& keysToIgnore) {

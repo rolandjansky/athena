@@ -169,8 +169,7 @@ def RemoveValidItemFromList(item,aList):
 
 ##-------------------------------------------------------------------------
 def ItemInListStartsWith(item_starts, aList):
-    found = False
     for item in aList:
         if item.startswith(item_starts):
-            found = True
-    return found
+            return True
+    return False

@@ -8,7 +8,7 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 from TriggerMenuMT.HLT.Menu.ChainConfigurationBase import ChainConfigurationBase
 from TriggerMenuMT.HLT.Menu.MenuComponents import ChainStep, RecoFragmentsPool
-from .JetRecoConfiguration import jetRecoDictToString
+from . import JetRecoCommon
 
 import copy
 
@@ -79,8 +79,7 @@ class JetChainConfiguration(ChainConfigurationBase):
                     log.error("Likely inconsistency encountered in preselection specification for %s",self.chainName)
                     raise RuntimeError("Preselection %s specified earlier than in the last chainPart!",p["trkpresel"])
 
-        from TriggerMenuMT.HLT.Jet.JetRecoConfiguration import extractRecoDict
-        self.recoDict = extractRecoDict(jChainParts)
+        self.recoDict = JetRecoCommon.extractRecoDict(jChainParts)
 
         self._setJetName()
 
@@ -90,7 +89,6 @@ class JetChainConfiguration(ChainConfigurationBase):
     # ----------------------
     def _setJetName(self):
         from ..Menu.ChainDictTools import splitChainDict
-        from .JetRecoSequences import JetRecoConfiguration
         from JetRecConfig.JetDefinition import buildJetAlgName, xAODType
         subJetChainDict = {}
         for subChainDict in splitChainDict(self.dict):
@@ -100,14 +98,14 @@ class JetChainConfiguration(ChainConfigurationBase):
                     break
         if not subJetChainDict:
             raise ValueError("sub Jet Chain dictionary is empty. Cannot define jet collection name on empty dictionary")
-        jetRecoDict = JetRecoConfiguration.extractRecoDict(subJetChainDict["chainParts"])
-        clustersKey = JetRecoConfiguration.getClustersKey(jetRecoDict)
-        prefix = JetRecoConfiguration.getHLTPrefix()
+        jetRecoDict = JetRecoCommon.extractRecoDict(subJetChainDict["chainParts"])
+        clustersKey = JetRecoCommon.getClustersKey(jetRecoDict)
+        prefix = JetRecoCommon.getHLTPrefix()
         suffix = "_"+jetRecoDict["jetCalib"]
-        if JetRecoConfiguration.jetDefNeedsTracks(jetRecoDict):
+        if JetRecoCommon.jetDefNeedsTracks(jetRecoDict):
             suffix += "_{}".format(jetRecoDict["trkopt"])
-        inputDef = JetRecoConfiguration.defineJetConstit(jetRecoDict, clustersKey = clustersKey, pfoPrefix=prefix+jetRecoDict["trkopt"])
-        jetalg, jetradius, jetextra = JetRecoConfiguration.interpretRecoAlg(jetRecoDict["recoAlg"])
+        inputDef = JetRecoCommon.defineJetConstit(jetRecoDict, clustersKey = clustersKey, pfoPrefix=prefix+jetRecoDict["trkopt"])
+        jetalg, jetradius, jetextra = JetRecoCommon.interpretRecoAlg(jetRecoDict["recoAlg"])
         actualradius = float(jetradius)/10
         self.jetName = prefix+buildJetAlgName("AntiKt", actualradius)+inputDef.label+"Jets"+suffix
         if inputDef.basetype == xAODType.CaloCluster:
@@ -173,7 +171,7 @@ class JetChainConfiguration(ChainConfigurationBase):
     # Configuration of steps
     # --------------------
     def getJetCaloHypoChainStep(self):
-        jetDefStr = jetRecoDictToString(self.recoDict)
+        jetDefStr = JetRecoCommon.jetRecoDictToString(self.recoDict)
 
         stepName = "MainStep_jet_"+jetDefStr
         from TriggerMenuMT.HLT.Jet.JetMenuSequences import jetCaloHypoMenuSequence
@@ -193,7 +191,7 @@ class JetChainConfiguration(ChainConfigurationBase):
         return jetCollectionName, jetDef ,ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
 
     def getJetRoITrackingHypoChainStep(self, jetsInKey):
-        jetDefStr = jetRecoDictToString(self.recoDict)
+        jetDefStr = JetRecoCommon.jetRecoDictToString(self.recoDict)
 
         stepName = "RoIFTFStep_jet_"+jetDefStr
         from TriggerMenuMT.HLT.Jet.JetMenuSequences import jetRoITrackingHypoMenuSequence
@@ -202,7 +200,7 @@ class JetChainConfiguration(ChainConfigurationBase):
         return ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
 
     def getJetFSTrackingHypoChainStep(self, clustersKey):
-        jetDefStr = jetRecoDictToString(self.recoDict)
+        jetDefStr = JetRecoCommon.jetRecoDictToString(self.recoDict)
 
         stepName = "MainStep_jet_"+jetDefStr
         from TriggerMenuMT.HLT.Jet.JetMenuSequences import jetFSTrackingHypoMenuSequence
@@ -243,8 +241,8 @@ class JetChainConfiguration(ChainConfigurationBase):
         if preselRecoDict['recoAlg']=='a10': #Setting LC calibrations for large-R jets
             preselRecoDict['clusterCalib']='lcw'
         '''
-        from .JetRecoConfiguration import interpretJetCalibDefault
-        preselRecoDict.update({'jetCalib':interpretJetCalibDefault(preselRecoDict) if preselRecoDict['recoAlg']=='a4' else 'nojcalib'}) #Adding default calibration for corresponding chain
+        from .JetRecoCommon import getJetCalibDefaultString
+        preselRecoDict.update({'jetCalib':getJetCalibDefaultString(preselRecoDict) if preselRecoDict['recoAlg']=='a4' else 'nojcalib'}) #Adding default calibration for corresponding chain
         from ..Menu.SignatureDicts import JetChainParts_Default
         preselCommonJetParts = dict(JetChainParts_Default)
         preselCommonJetParts.update(preselRecoDict)
@@ -307,7 +305,7 @@ class JetChainConfiguration(ChainConfigurationBase):
             preselChainDict['chainParts'][-1]['tboundary']=''
 
         assert(len(preselChainDict['chainParts'])==len(self.chainPart))
-        jetDefStr = jetRecoDictToString(preselRecoDict)
+        jetDefStr = JetRecoCommon.jetRecoDictToString(preselRecoDict)
 
         stepName = "PreselStep_jet_"+jetDefStr
         from TriggerMenuMT.HLT.Jet.JetMenuSequences import jetCaloPreselMenuSequence

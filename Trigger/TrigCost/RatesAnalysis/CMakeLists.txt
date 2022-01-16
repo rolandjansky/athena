@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( RatesAnalysis )
@@ -11,8 +11,8 @@ atlas_add_library( RatesAnalysisLib
                    src/Rates*.cxx
                    PUBLIC_HEADERS RatesAnalysis
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthAnalysisBaseCompsLib TrigDecisionToolLib EnhancedBiasWeighterLib
-                   PRIVATE_LINK_LIBRARIES AthenaBaseComps EventInfo TrigConfL1Data xAODEventInfo )
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthAnalysisBaseCompsLib AthenaBaseComps TrigDecisionToolLib EnhancedBiasWeighterLib
+                   PRIVATE_LINK_LIBRARIES EventInfo TrigConfData TrigConfL1Data xAODEgamma xAODEventInfo )
 
 # Component(s) in the package:
 atlas_add_component( RatesAnalysis

@@ -69,6 +69,7 @@ StatusCode  ISF::TrkExtrapolator::finalize()
 /** Extrapolate the given ISFParticle to the given TrackingVolume name */
 ISF::ISFParticle* ISF::TrkExtrapolator::extrapolate( const ISF::ISFParticle &particle ) const {
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   if( m_extrapolator.empty() ) {
     ATH_MSG_ERROR( "Problem with extrapolator!" );
     return 0;
@@ -103,7 +104,11 @@ ISF::ISFParticle* ISF::TrkExtrapolator::extrapolate( const ISF::ISFParticle &par
   if ( absPdg == 999 ) particleHypo = Trk::geantino;
   
   // extrapolate to calorimeter entry
-  const Trk::TrackParameters* extrapolatedPars = m_extrapolator->extrapolateToVolume(par,*m_trackingVolume,Trk::alongMomentum,particleHypo);
+  const Trk::TrackParameters* extrapolatedPars = m_extrapolator->extrapolateToVolume(ctx,
+                                                                                     par,
+                                                                                     *m_trackingVolume,
+                                                                                     Trk::alongMomentum,
+                                                                                     particleHypo);
   
   // create a new ISF particle representing the given particle at the extrapolated position
   ISFParticle *extrapolatedParticle = new ISFParticle( extrapolatedPars->position(),

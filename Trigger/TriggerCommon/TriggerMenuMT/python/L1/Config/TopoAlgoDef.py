@@ -1202,11 +1202,11 @@ class TopoAlgoDef:
             alg.addgeneric('MaxTob2', d.nleading2)
             alg.addgeneric('NumResultBits',  len(toponames))
             alg.addgeneric('ApplyEtaCut', 1)
-            alg.addvariable('MinEta1',  0*_eta_conversion)
-            alg.addvariable('MaxEta1', 49*_eta_conversion)
-            alg.addvariable('MinEta2', 23*_eta_conversion)
-            alg.addvariable('MaxEta2', 49*_eta_conversion)
             for bitid,minDphi in enumerate(d.minDphiList):
+                alg.addvariable('MinEta1',  0*_eta_conversion, bitid)
+                alg.addvariable('MaxEta1', 49*_eta_conversion, bitid)
+                alg.addvariable('MinEta2', 23*_eta_conversion, bitid)
+                alg.addvariable('MaxEta2', 49*_eta_conversion, bitid)
                 alg.addvariable('MinET1',  d.ocut1*_et_conversion, bitid)
                 alg.addvariable('MinET2',  d.ocut2*_et_conversion, bitid)
                 alg.addvariable('MinMSqr', d.minInvm*d.minInvm*_et_conversion*_et_conversion, bitid)
@@ -1360,6 +1360,6 @@ class TopoAlgoDef:
             alg.addgeneric('NumResultBits',  len(toponames)) # noqa: F821
             for bitid,minET in enumerate(d.minETlist):  # noqa: F821
                 alg.addvariable('MinET1', minET, bitid)# noqa: F821
-            alg.addvariable('MinXi', 13000.0*0.02, bitid) # noqa: F821
-            alg.addvariable('MaxXi', 13000.0*0.05, bitid) # noqa: F821
+                alg.addvariable('MinXi', 13000.0*0.02, bitid) # noqa: F821
+                alg.addvariable('MaxXi', 13000.0*0.05, bitid) # noqa: F821
             tm.registerTopoAlgo(alg)

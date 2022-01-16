@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -12,9 +12,7 @@
 #define TrigDecisionTool_DecisionObjectHandleEventInfo_h
 
 #include <string>
-#include "StoreGate/DataHandle.h"
 
-#include "TrigDecisionTool/EventPtrDef.h"
 #include "TrigDecisionTool/DecisionObjectHandle.h"
 #include "EventInfo/EventInfo.h"
 
@@ -27,17 +25,15 @@ namespace Trig {
   /**
    * @brief Decision invalidator for EventInfo (really doing the job)
    **/
-  class DecisionObjectHandleEventInfo : public DecisionObjectHandle<TriggerInfo,void>, 
-					public DataHandle<EventInfo>
+  class DecisionObjectHandleEventInfo : public DecisionObjectHandle<TriggerInfo,void>
   {
   public:
     DecisionObjectHandleEventInfo( SG::ReadHandleKey<EventInfo>* oldEventInfoKey );
-    virtual void reset (bool hard = false) override;
+    virtual void reset (bool hard = false);
     virtual TriggerInfo const * getDecision() const override;
     virtual void const * getNavigation() const override; 
   private:
     SG::ReadHandleKey<EventInfo>* m_oldEventInfoKey;
-    mutable EventInfo const * m_object;
   };
 }
 
