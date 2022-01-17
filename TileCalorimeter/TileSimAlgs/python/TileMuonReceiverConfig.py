@@ -31,9 +31,8 @@ def TilePulseForTileMuonReceiverCfg(flags, **kwargs):
     acc.merge(TileCablingSvcCfg(flags))
 
     if 'RndmSvc' not in kwargs:
-        from RngComps.RandomServices import RNG
-        acc.merge( RNG(flags.Random.Engine) )
-        kwargs['RndmSvc'] = acc.getService('AthRNGSvc')
+        from RngComps.RandomServices import AthRNGSvcCfg
+        kwargs['RndmSvc'] = acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name
 
     if 'TileCondToolNoiseSample' not in kwargs:
         from TileConditions.TileSampleNoiseConfig import TileCondToolNoiseSampleCfg

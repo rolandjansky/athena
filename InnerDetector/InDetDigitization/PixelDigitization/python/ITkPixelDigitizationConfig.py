@@ -134,6 +134,8 @@ def ITkPixelDigitizationBasicToolCfg(flags, name="ITkPixelDigitizationBasicTool"
     if flags.Digitization.DoXingByXingPileUp:
         kwargs.setdefault("FirstXing", ITkPixel_FirstXing(flags))
         kwargs.setdefault("LastXing", ITkPixel_LastXing(flags))
+    from RngComps.RandomServices import AthRNGSvcCfg
+    kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
 
     PixelDigitizationTool = CompFactory.PixelDigitizationTool
     acc.setPrivateTools(PixelDigitizationTool(name, **kwargs))

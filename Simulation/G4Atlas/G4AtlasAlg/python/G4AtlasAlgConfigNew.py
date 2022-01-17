@@ -36,9 +36,9 @@ def G4AtlasAlgBasicCfg(ConfigFlags, name="G4AtlasAlg", **kwargs):
     ## default true
     kwargs.setdefault("KillAbortedEvents", ConfigFlags.Sim.KillAbortedEvents)
 
-    from RngComps.RandomServices import RNG
-    result.merge(RNG(ConfigFlags.Random.Engine, name="AthRNGSvc"))
-    kwargs.setdefault("AtRndmGenSvc", result.getService("AthRNGSvc"))
+    from RngComps.RandomServices import AthRNGSvcCfg
+    kwargs.setdefault("AtRndmGenSvc",
+                      result.getPrimaryAndMerge(AthRNGSvcCfg(ConfigFlags)).name)
 
     kwargs.setdefault("RandomGenerator", "athena")
 

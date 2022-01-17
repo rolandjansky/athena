@@ -22,10 +22,13 @@ def AddNoiseCellBuilderToolCfg (configFlags):
     from CaloTools.CaloNoiseCondAlgConfig import CaloNoiseCondAlgCfg
     result.merge (CaloNoiseCondAlgCfg (configFlags, 'electronicNoise'))
 
+    from RngComps.RandomServices import AthRNGSvcCfg
     AddNoiseCellBuilderTool=CompFactory.AddNoiseCellBuilderTool
     tool = AddNoiseCellBuilderTool ('AddNoiseCellBuilderTool',
                                     NoiseKey = 'electronicNoise',
-                                    CaloEstimatedGainTool = estimatedGainTool)
+                                    CaloEstimatedGainTool = estimatedGainTool,
+                                    RandomSvc = result.getPrimaryAndMerge(AthRNGSvcCfg(configFlags)).name)
+
     result.setPrivateTools (tool)
 
     return result

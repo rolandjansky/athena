@@ -72,9 +72,8 @@ def TileDigitsMakerCfg(flags, **kwargs):
 
     if tileNoise or tileCoherNoise or kwargs['RndmEvtOverlay']:
         if 'RndmSvc' not in kwargs:
-            from RngComps.RandomServices import RNG
-            acc.merge( RNG(flags.Random.Engine) )
-            kwargs['RndmSvc'] = acc.getService('AthRNGSvc')
+            from RngComps.RandomServices import AthRNGSvcCfg
+            kwargs['RndmSvc'] = acc.getPrimaryAndMerge( AthRNGSvcCfg(flags) ).name
     else:
         kwargs['RndmSvc'] = None
 

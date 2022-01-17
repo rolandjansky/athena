@@ -4,7 +4,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from RngComps.RandomServices import RNG
+from RngComps.RandomServices import AthRNGSvcCfg
 from ISF_Services.ISF_ServicesConfigNew import TruthServiceCfg
 
 ###################################################################################################
@@ -270,8 +270,7 @@ def FastCaloSimV2ToolCfg(flags, name="ISF_FastCaloSimV2Tool", **kwargs):
                                                       acc.getPublicTool(FastHit.name)])
     kwargs.setdefault("FastCaloSimCaloExtrapolation", acc.getPublicTool(Extrapolator.name))
     kwargs.setdefault("ParamSvc", acc.getPrimaryAndMerge(FastCaloSimV2ParamSvcCfg(flags)).name)
-    acc.merge(RNG(flags.Random.Engine))
-    kwargs.setdefault("RandomSvc", acc.getService("AthRNGSvc").name) #FIXME
+    kwargs.setdefault("RandomSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
     kwargs.setdefault("RandomStream", "FastCaloSimRnd")
     PT_tool = acc.popToolsAndMerge(PunchThroughToolCfg(flags))
     kwargs.setdefault("PunchThroughTool", PT_tool)
@@ -399,7 +398,7 @@ def DNNCaloSimSvcCfg(flags, name="ISF_DNNCaloSimSvc", **kwargs):
     kwargs.setdefault("ParamsInputFilename", flags.Sim.FastCalo.ParamsInputFilename)
     kwargs.setdefault("FastCaloSimCaloExtrapolation", acc.getPublicTool(Extrapolator.name))
     kwargs.setdefault("RandomStream", "FastCaloSimRnd")
-    acc.merge(RNG(flags.Random.Engine))
-    kwargs.setdefault("RandomSvc", acc.getService("AthRNGSvc").name)
+    kwargs.setdefault("RandomSvc",
+                      acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
     acc.addService(CompFactory.ISF.DNNCaloSimSvc(name, **kwargs), primary = True)
     return acc

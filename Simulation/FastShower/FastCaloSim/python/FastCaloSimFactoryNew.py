@@ -123,18 +123,18 @@ def NITimedExtrapolatorCfg(flags, name="ISF_NITimedExtrapolator", **kwargs):
 # FastShowerCellBuilderTool
 def FastShowerCellBuilderToolBaseCfg(flags, name="ISF_FastShowerCellBuilderTool", **kwargs):
 
-    from RngComps.RandomServices import RNG
+    from RngComps.RandomServices import AthRNGSvcCfg
     from IOVDbSvc.IOVDbSvcConfig import addFolders
     from ISF_FastCaloSimServices.ISF_FastCaloSimHelpers import AdditionalParticleParametrizationFileNames
 
-    acc = RNG(flags.Random.Engine)
+    acc = ComponentAccumulator()
     acc.merge(addFolders(flags, "/GLOBAL/AtlfastII/FastCaloSimParam", "GLOBAL_OFL", tag="FastCaloSim_v2"))
 
     localFileNameList = AdditionalParticleParametrizationFileNames()
     localFileNameList.insert(0, "L1_L2_egamma_corr.config20.root")
 
     kwargs.setdefault("AdditionalParticleParametrizationFileNames", localFileNameList)
-    kwargs.setdefault("RandomService", acc.getService("AthRNGSvc"))
+    kwargs.setdefault("RandomService", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
     kwargs.setdefault("RandomStreamName", "FastCaloSimRnd")
     kwargs.setdefault("DoSimulWithInnerDetectorTruthOnly", True)
     kwargs.setdefault("ID_cut_off_r", [1150])
