@@ -40,6 +40,7 @@ StatusCode LVL1::gFEXNtupleWriter::initialize () {
   CHECK( histSvc->regTree("/ANALYSIS/data",m_myTree) );
 
   ATH_CHECK( m_gTowerContainerSGKey.initialize() );
+
   ATH_CHECK( m_gFexRhoOutKey.initialize() );
   ATH_CHECK( m_gFexBlockOutKey.initialize() );
   ATH_CHECK( m_gFexJetOutKey.initialize() );
@@ -50,6 +51,8 @@ StatusCode LVL1::gFEXNtupleWriter::initialize () {
   ATH_CHECK( m_gMSTComponentsJwojOutKey.initialize() );
 
   ATH_CHECK( m_scellsCollectionSGKey.initialize() );
+
+  ATH_CHECK( m_gFEXOutputCollectionSGKey.initialize() );
   
   m_valiTree = new TTree("valiTree","valiTree");
   CHECK( histSvc->regTree("/ANALYSIS/valiTree",m_valiTree) );
@@ -90,15 +93,13 @@ StatusCode LVL1::gFEXNtupleWriter::initialize () {
   m_valiTree->Branch ("gGlobal_MSTx", &m_gGlobal_MSTx);  
   m_valiTree->Branch ("gGlobal_MSTy", &m_gGlobal_MSTy);  
 
-
-  ATH_CHECK( m_gFEXOutputCollectionSGKey.initialize() );
-
-  m_load_truth_jet = false;
+  
+  m_load_truth_jet = true;
 
   if (m_load_truth_jet){
-    m_myTree->Branch ("truth_jet_eta",  &m_truth_jet_eta);
-    m_myTree->Branch ("truth_jet_phi",  &m_truth_jet_phi);
-    m_myTree->Branch ("truth_jet_ET",  &m_truth_jet_ET);
+    m_valiTree->Branch ("truth_jet_eta",  &m_truth_jet_eta);
+    m_valiTree->Branch ("truth_jet_phi",  &m_truth_jet_phi);
+    m_valiTree->Branch ("truth_jet_ET",  &m_truth_jet_ET);
   }
 
   m_myTree->Branch ("jet_TOB", &m_jet_TOB);
@@ -201,6 +202,10 @@ StatusCode LVL1::gFEXNtupleWriter::execute () {
   m_gSJ_phi.clear();
   m_gSJ_et.clear();
 
+  m_gLJ_eta.clear();
+  m_gLJ_phi.clear();
+  m_gLJ_et.clear();
+
   m_gGlobal_MET.clear();
   m_gGlobal_SumET.clear();
   m_gGlobal_METx.clear();
@@ -267,10 +272,6 @@ StatusCode LVL1::gFEXNtupleWriter::execute () {
     m_gGlobal_MSTy.push_back(gMST->quantityTwo());
   }
 
-  m_valiTree->Fill();
-
-  
-
   SG::ReadHandle<LVL1::gFEXOutputCollection> gFEXOutputCollectionobj = SG::ReadHandle<LVL1::gFEXOutputCollection>(m_gFEXOutputCollectionSGKey);
     if(!gFEXOutputCollectionobj.isValid()){
       ATH_MSG_FATAL("Could not retrieve gFEXOutputCollection " << m_gFEXOutputCollectionSGKey.key());
@@ -288,6 +289,7 @@ StatusCode LVL1::gFEXNtupleWriter::execute () {
 
   CHECK(loadGlobalAlgoVariables(gFEXOutputCollectionobj));
 
+  m_valiTree->Fill();
   m_myTree->Fill();
   return StatusCode::SUCCESS;
 }
