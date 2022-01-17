@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -154,6 +154,7 @@ InDetPhysValTruthDecoratorAlg::decorateTruth(const xAOD::TruthParticle& particle
   if (particle.isNeutral()) {
     return false;
   }
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   const Amg::Vector3D momentum(particle.px(), particle.py(), particle.pz());
   const int pid(particle.pdgId());
   double charge = particle.charge();
@@ -197,7 +198,9 @@ InDetPhysValTruthDecoratorAlg::decorateTruth(const xAOD::TruthParticle& particle
 
   Trk::PerigeeSurface persf(beamPos);
 
-  std::unique_ptr<const Trk::TrackParameters> tP ( m_extrapolator->extrapolate(cParameters, persf, Trk::anyDirection, false) );
+  std::unique_ptr<const Trk::TrackParameters> tP ( m_extrapolator->extrapolate(ctx,
+                                                                               cParameters, 
+                                                                               persf, Trk::anyDirection, false) );
   if (tP) {
     float d0_truth = tP->parameters()[Trk::d0];
     float theta_truth = tP->parameters()[Trk::theta];

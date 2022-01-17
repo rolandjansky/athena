@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -141,9 +141,9 @@ def ITkTrackParticleCreatorToolCfg(flags, name="ITkTrackParticleCreatorTool", **
         from InDetConfig.ITkTrackingCommonConfig import ITkTrackSummaryToolSharedHitsCfg
         TrackSummaryTool = result.getPrimaryAndMerge(ITkTrackSummaryToolSharedHitsCfg(flags))
         kwargs["TrackSummaryTool"] = TrackSummaryTool
-    kwargs.setdefault("BadClusterID", flags.ITk.pixelClusterBadClusterID)
+    kwargs.setdefault("BadClusterID", 3) # Select the mode to identify suspicous pixel cluster
     kwargs.setdefault("KeepParameters", True)
-    kwargs.setdefault("KeepFirstParameters", flags.ITk.Tracking.KeepFirstParameters)
+    kwargs.setdefault("KeepFirstParameters", False)
     # need to treat Vertex specifically because at the time of
     # the track particle creation the primary vertex does not yet exist.
     # The problem is solved by first creating track particles wrt. the beam line
@@ -224,37 +224,55 @@ def ITkTrackRecoCfg(flags):
     result.merge(ITkRecPreProcessingSiliconCfg(flags))
 
     if flags.ITk.Tracking.doFastTracking:
-        flags = flags.cloneAndReplace("ITk.Tracking.Pass", "ITk.Tracking.FastPass")
+        flags = flags.cloneAndReplace("ITk.Tracking.ActivePass", "ITk.Tracking.FastPass")
 
     from InDetConfig.ITkTrackingSiPatternConfig import ITkTrackingSiPatternCfg
-    result.merge(ITkTrackingSiPatternCfg(flags, [], "ResolvedTracks", "SiSPSeededTracks"))
+    result.merge(ITkTrackingSiPatternCfg(flags,
+                                         InputCollections = [],
+                                         ResolvedTrackCollectionKey = "ResolvedTracks",
+                                         SiSPSeededTrackCollectionKey = "SiSPSeededTracks"))
     InputCombinedITkTracks = ["ResolvedTracks"]
+    ClusterSplitProbContainer = "ITkAmbiguityProcessorSplitProb"
 
     # LRT
     if flags.ITk.Tracking.doLargeD0:
-        flagsLRT = flags.cloneAndReplace("ITk.Tracking.Pass", "ITk.Tracking.LargeD0Pass")
+        flagsLRT = flags.cloneAndReplace("ITk.Tracking.ActivePass", "ITk.Tracking.LargeD0Pass")
         if flags.ITk.Tracking.doFastTracking:
-            flagsLRT = flags.cloneAndReplace("ITk.Tracking.Pass", "ITk.Tracking.LargeD0FastPass")
-        result.merge(ITkTrackingSiPatternCfg(flagsLRT, InputCombinedITkTracks, "ResolvedLargeD0Tracks", "SiSpSeededLargeD0Tracks"))
+            flagsLRT = flags.cloneAndReplace("ITk.Tracking.ActivePass", "ITk.Tracking.LargeD0FastPass")
+
+        LRTTrackContainer = "ResolvedLargeD0Tracks"
+        result.merge(ITkTrackingSiPatternCfg(flagsLRT,
+                                             InputCollections = InputCombinedITkTracks,
+                                             ResolvedTrackCollectionKey = LRTTrackContainer,
+                                             SiSPSeededTrackCollectionKey = "SiSpSeededLargeD0Tracks",
+                                             ClusterSplitProbContainer = ClusterSplitProbContainer))
+        ClusterSplitProbContainerLargeD0 = "ITkAmbiguityProcessorSplitProb" + flagsLRT.ITk.Tracking.ActivePass.extension
+
         if flags.ITk.Tracking.storeSeparateLargeD0Container:
             if flags.ITk.Tracking.doTruth:
                 from InDetConfig.TrackTruthConfig import InDetTrackTruthCfg
                 result.merge(InDetTrackTruthCfg(flagsLRT,
-                                                Tracks="ExtendedLargeD0Tracks",
-                                                DetailedTruth="ExtendedLargeD0TracksDetailedTruth",
-                                                TracksTruth="ExtendedLargeD0TracksTruthCollection"))
+                                                Tracks = LRTTrackContainer,
+                                                DetailedTruth = LRTTrackContainer+"DetailedTruth",
+                                                TracksTruth = LRTTrackContainer+"TruthCollection"))
             result.merge(ITkTrackParticleCnvAlgCfg(flagsLRT,
                                                    name="LargeD0TrackParticleCnvAlg",
-                                                   TrackContainerName="ResolvedLargeD0Tracks",
+                                                   TrackContainerName=LRTTrackContainer,
                                                    OutputTrackParticleContainer="InDetLargeD0TrackParticles"))
         else:
+            ClusterSplitProbContainer = ClusterSplitProbContainerLargeD0
             InputCombinedITkTracks += ["ResolvedLargeD0Tracks"]
 
     # Photon conversion tracking reco
     if flags.Detector.EnableCalo and flags.ITk.Tracking.doConversionFinding:
-        flagsConv = flags.cloneAndReplace("ITk.Tracking.Pass", "ITk.Tracking.ConversionFindingPass")
-        result.merge(ITkTrackingSiPatternCfg(flagsConv, InputCombinedITkTracks, "ResolvedROIConvTracks", "SiSpSeededROIConvTracks"))
+        flagsConv = flags.cloneAndReplace("ITk.Tracking.ActivePass", "ITk.Tracking.ConversionFindingPass")
+        result.merge(ITkTrackingSiPatternCfg(flagsConv,
+                                             InputCollections = InputCombinedITkTracks,
+                                             ResolvedTrackCollectionKey = "ResolvedROIConvTracks",
+                                             SiSPSeededTrackCollectionKey = "SiSpSeededROIConvTracks",
+                                             ClusterSplitProbContainer = ClusterSplitProbContainer))
         InputCombinedITkTracks += ["ResolvedROIConvTracks"]
+        ClusterSplitProbContainer = "ITkAmbiguityProcessorSplitProb"+flagsConv.ITk.Tracking.ActivePass.extension
 
     result.merge(ITkTrackCollectionMergerAlgCfg(flags, InputCombinedTracks=InputCombinedITkTracks))
 

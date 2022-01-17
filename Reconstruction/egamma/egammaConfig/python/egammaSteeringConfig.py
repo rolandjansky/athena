@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """
           Instantiate the
@@ -45,7 +45,7 @@ def EGammaSteeringCfg(flags,
         acc.merge(egammaxAODThinningCfg(flags))
 
     # LRT Reconstruction
-    if flags.Detector.GeometryID and flags.InDet.doR3LargeD0:
+    if flags.Detector.GeometryID and flags.InDet.Tracking.doR3LargeD0:
         from egammaConfig.egammaLRTReconstructionConfig import (
             egammaLRTReconstructionCfg)
         acc.merge(egammaLRTReconstructionCfg(flags))

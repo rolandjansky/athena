@@ -3,7 +3,6 @@
 Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
-from AthenaConfiguration.AutoConfigFlags import GetFileMD
 from AthenaConfiguration.Enums import ProductionStep
 
 
@@ -49,9 +48,6 @@ def createDigitizationCfgFlags():
     flags.addFlag("Digitization.HighGainEMECIW", True)
     # Do global pileup digitization
     flags.addFlag("Digitization.PileUp", False)
-    # TRT Range cut used in simulation in mm. Should be 0.05 or 30.
-    flags.addFlag("Digitization.TRTRangeCut",
-                  lambda prevFlags: float(GetFileMD(prevFlags.Input.Files).get('TRTRangeCut', 30.0)))
     # Temporary TGC flag
     flags.addFlag("Digitization.UseUpdatedTGCConditions", False)
     # Write out truth information?

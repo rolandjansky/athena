@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -173,11 +173,13 @@ namespace D3PD {
     // Extrapolate to surface
     typedef std::vector<const Trk::TrackStateOnSurface*> tsos_vec_t;
     std::unique_ptr<const tsos_vec_t> v
-      (m_extrapolator->extrapolateM (parameters,
-                                     *surface,
-                                     Trk::alongMomentum,
-                                     true,
-                                     Trk::muon));
+      (m_extrapolator->extrapolateM (
+          Gaudi::Hive::currentContext(),
+          parameters,
+          *surface,
+          Trk::alongMomentum,
+          true,
+          Trk::muon));
     if (!v)
     {
       ATH_MSG_DEBUG("Extrapolation failed");

@@ -73,52 +73,43 @@ namespace top {
 
     //============================================================
     // Convert tau jet IDWP string to int
-    // see: [http://cern.ch/go/z6cq]
     // Updated: using enums from TauAnalysisTools package
     //============================================================
 
     auto tau_JetIDWP_to_enum = [](const std::string& s) {
-                                 if (s == "None") return TauAnalysisTools::JETIDNONE;
-
-                                 if (s == "RNNLoose") return TauAnalysisTools::JETIDRNNLOOSE;
-
-                                 if (s == "RNNMedium") return TauAnalysisTools::JETIDRNNMEDIUM;
-
-                                 if (s == "RNNTight") return TauAnalysisTools::JETIDRNNTIGHT;
-
-                                 // If we haven't found the correct WP, then return 0
-                                 return TauAnalysisTools::JETIDNONEUNCONFIGURED;
-                               };
+      if (s == "None") return TauAnalysisTools::JETIDNONE;
+      if (s == "RNNLoose") return TauAnalysisTools::JETIDRNNLOOSE;
+      if (s == "RNNMedium") return TauAnalysisTools::JETIDRNNMEDIUM;
+      if (s == "RNNTight") return TauAnalysisTools::JETIDRNNTIGHT;
+      // If we haven't found the correct WP, then return 0
+      return TauAnalysisTools::JETIDNONEUNCONFIGURED;
+    };
 
     // convert taujetIDWP from string to int and check it's valid
-    int tauJetIDWP = tau_JetIDWP_to_enum(m_config->tauJetIDWP());
+    const int tauJetIDWP = tau_JetIDWP_to_enum(m_config->tauJetIDWP());
 
-    top::check(tauJetIDWP >= 0, m_config->tauJetIDWP() + " is not a valid tau WP");
+    top::check(tauJetIDWP > 0, m_config->tauJetIDWP() + " is not a supported tau Jet ID WP");
 
     // convert taujetIDWPLoose from string to int and check it's valid
-    int tauJetIDWPLoose = tau_JetIDWP_to_enum(m_config->tauJetIDWPLoose());
-    top::check(tauJetIDWPLoose >= 0, m_config->tauJetIDWPLoose() + " is not a valid tau WP");
+    const int tauJetIDWPLoose = tau_JetIDWP_to_enum(m_config->tauJetIDWPLoose());
+    top::check(tauJetIDWPLoose > 0, m_config->tauJetIDWPLoose() + " is not a supported tau Jet ID WP");
 
-    auto tau_EleRNNWP_to_enum = [](const std::string& s) {
-                                  if (s == "None") return TauAnalysisTools::ELEIDNONE;
+    auto tau_EleIDWP_to_enum = [](const std::string& s) {
+      if (s == "None") return TauAnalysisTools::ELEIDNONE;
+      if (s == "RNNLoose") return TauAnalysisTools::ELEIDRNNLOOSE;
+      if (s == "RNNMedium") return TauAnalysisTools::ELEIDRNNMEDIUM;
+      if (s == "RNNTight") return TauAnalysisTools::ELEIDRNNTIGHT;
+      // If we haven't found the correct WP, then return 0
+      return TauAnalysisTools::ELEIDNONEUNCONFIGURED;
+    };
 
-                                  if (s == "Loose") return TauAnalysisTools::ELEIDRNNLOOSE;
+    // convert tauEleIDWP from string to int and check it's valid
+    const int tauEleIDWP = tau_EleIDWP_to_enum(m_config->tauEleIDWP());
+    top::check(tauEleIDWP > 0, m_config->tauEleIDWP() + " is not a supported tau electron ID WP");
 
-                                  if (s == "Medium") return TauAnalysisTools::ELEIDRNNMEDIUM;
-
-                                  if (s == "Tight") return TauAnalysisTools::ELEIDRNNTIGHT;
-
-                                  // If we haven't found the correct WP, then return 0
-                                  return TauAnalysisTools::ELEIDNONEUNCONFIGURED;
-                                };
-
-    // convert tauEleRNNWP from string to int and check it's valid
-    int tauEleRNNWP = tau_EleRNNWP_to_enum(m_config->tauEleRNNWP());
-    top::check(tauEleRNNWP >= 0, m_config->tauEleRNNWP() + " is not a valid tau WP");
-
-    // convert tauEleRNNWPLoose from string to int and check it's valid
-    int tauEleRNNWPLoose = tau_EleRNNWP_to_enum(m_config->tauEleRNNWPLoose());
-    top::check(tauEleRNNWPLoose >= 0, m_config->tauEleRNNWPLoose() + " is not a valid tau WP");
+    // convert tauEleIDWPLoose from string to int and check it's valid
+    const int tauEleIDWPLoose = tau_EleIDWP_to_enum(m_config->tauEleIDWPLoose());
+    top::check(tauEleIDWPLoose > 0, m_config->tauEleIDWPLoose() + " is not a supported tau electron ID WP");
 
     const double absCharge = 1.;
     const std::vector<size_t> nTracks = {
@@ -131,11 +122,15 @@ namespace top {
     //============================================================
 
     std::string tauJetConfigFile = m_config->tauJetConfigFile();
-    if (tauJetConfigFile != "Default") tauJetConfigFile = PathResolverFindCalibFile(tauJetConfigFile);
-    else tauJetConfigFile.clear();
+    if (tauJetConfigFile != "Default")
+      tauJetConfigFile = PathResolverFindCalibFile(tauJetConfigFile);
+    else
+      tauJetConfigFile.clear();
     std::string tauJetConfigFileLoose = m_config->tauJetConfigFileLoose();
-    if (tauJetConfigFileLoose != "Default") tauJetConfigFileLoose = PathResolverFindCalibFile(tauJetConfigFileLoose);
-    else tauJetConfigFileLoose.clear();
+    if (tauJetConfigFileLoose != "Default")
+      tauJetConfigFileLoose = PathResolverFindCalibFile(tauJetConfigFileLoose);
+    else
+      tauJetConfigFileLoose.clear();
 
     // bitmap in case not using the config files
     //WARNING: if we add more configurable cuts, they need to be added in this list
@@ -158,9 +153,16 @@ namespace top {
     // Alias long tool names
     using ITauSelTool = TauAnalysisTools::ITauSelectionTool;
     using ITauEffCorrTool = TauAnalysisTools::ITauEfficiencyCorrectionsTool;
+    using ITauSmearTool = TauAnalysisTools::ITauSmearingTool;
+    using ITauTruthMatchTool = TauAnalysisTools::ITauTruthMatchingTool;
+    using TauSelTool = TauAnalysisTools::TauSelectionTool;
+    using TauEffCorrTool = TauAnalysisTools::TauEfficiencyCorrectionsTool;
+    using TauSmearTool = TauAnalysisTools::TauSmearingTool;
+    using TauTruthMatchTool = TauAnalysisTools::TauTruthMatchingTool;
+
     // Names of tools here for a little clarity
-    std::string tauSelName = "TauAnalysisTools::TauSelectionTool";
-    std::string tauEffCorrName = "TauAnalysisTools::TauEfficiencyCorrectionsTool";
+    const std::string tauSelName = "TauAnalysisTools::TauSelectionTool";
+    const std::string tauEffCorrName = "TauAnalysisTools::TauEfficiencyCorrectionsTool";
 
     ///-- Setup the tau selection tool --///
     if (asg::ToolStore::contains<ITauSelTool>(tauSelName)) {
@@ -170,13 +172,13 @@ namespace top {
       if (!tauJetConfigFile.empty()) {
         top::check(asg::setProperty(tauSelectionTool, "ConfigPath", tauJetConfigFile),
                    "Failed to set tau selection tool configuration path");
-        top::check(asg::setProperty(tauSelectionTool, "OutputLevel", MSG::DEBUG),
+        top::check(asg::setProperty(tauSelectionTool, "OutputLevel", MSG::INFO),
                    "Failed to set tau OutputLevel");
       } else {
         // set the ConfigPath to empty value is no file was provided (otherwise it creates conflicts)
         top::check(asg::setProperty(tauSelectionTool, "ConfigPath", ""),
                    "Failed to set tau selection tool configuration path");
-        top::check(asg::setProperty(tauSelectionTool, "OutputLevel", MSG::DEBUG),
+        top::check(asg::setProperty(tauSelectionTool, "OutputLevel", MSG::INFO),
                    "Failed to set tau OutputLevel");
         //WARNING: if we add more configurable cuts, they need to be added in the iSelectionCuts (see above)
         top::check(asg::setProperty(tauSelectionTool, "SelectionCuts", iSelectionCuts),
@@ -191,7 +193,7 @@ namespace top {
                    "Failed to set tau NTracks");
         top::check(asg::setProperty(tauSelectionTool, "JetIDWP", tauJetIDWP),
                    "Failed to set tau JetIDWP");
-        top::check(asg::setProperty(tauSelectionTool, "EleRNNWP", tauEleRNNWP),
+        top::check(asg::setProperty(tauSelectionTool, "EleRNNWP", tauEleIDWP),
                   "Failed to set tau EleRNNWP");
         top::check(asg::setProperty(tauSelectionTool, "MuonOLR", m_config->tauMuOLR()),
                    "Failed to set tau MuonOLR");
@@ -207,8 +209,7 @@ namespace top {
           = std::make_unique<TauAnalysisTools::TauEfficiencyCorrectionsTool>(tauEffCorrName);
         if (m_config->isMC()) {
 
-
-	  if(!m_config->isDataOverlay()){
+          if(!m_config->isDataOverlay()){
               top::check(m_pileupReweightingTool.retrieve(), "Failed to retireve pileup reweighting tool");
               top::check(asg::setProperty(tauEffCorrTool, "PileupReweightingTool", m_pileupReweightingTool),
                      "Failed to set PileupReweightingTool for " + tauEffCorrName);
@@ -218,10 +219,12 @@ namespace top {
                      "Failed to set UseTauSubstructure for " + tauEffCorrName);
 
           top::check(asg::setProperty(tauEffCorrTool, "isAFII", m_config->isAFII()),
-                               "Failed to set isAFII for " + tauEffCorrName);
+                     "Failed to set isAFII for " + tauEffCorrName);
         }
+
         top::check(asg::setProperty(tauEffCorrTool, "TauSelectionTool", m_tauSelectionTool),
                    "Failed to set TauSelectionTool for " + tauEffCorrName);
+
         top::check(tauEffCorrTool->initialize(), "Failed to initialize");
         m_tauEffCorrTool = tauEffCorrTool.release();
       }
@@ -232,24 +235,24 @@ namespace top {
     //============================================================
 
     ///-- Names of tools here for a little clarity --///
-    std::string tauSelNameLoose = "TauAnalysisTools::TauSelectionToolLoose";
-    std::string tauEffCorrNameLoose = "TauAnalysisTools::TauEfficiencyCorrectionsToolLoose";
+    const std::string tauSelNameLoose = "TauAnalysisTools::TauSelectionToolLoose";
+    const std::string tauEffCorrNameLoose = "TauAnalysisTools::TauEfficiencyCorrectionsToolLoose";
 
     ///-- Setup the tau selection tool --///
     if (asg::ToolStore::contains<ITauSelTool>(tauSelNameLoose)) {
       m_tauSelectionToolLoose = asg::ToolStore::get<ITauSelTool>(tauSelNameLoose);
     } else {
-      std::unique_ptr<ITauSelTool> tauSelectionTool = std::make_unique<TauAnalysisTools::TauSelectionTool>(tauSelNameLoose);
+      std::unique_ptr<ITauSelTool> tauSelectionTool = std::make_unique<TauSelTool>(tauSelNameLoose);
       if (!tauJetConfigFileLoose.empty()) {
         top::check(asg::setProperty(tauSelectionTool, "ConfigPath", tauJetConfigFileLoose),
                    "Failed to set tau selection tool configuration path");
-        top::check(asg::setProperty(tauSelectionTool, "OutputLevel", MSG::DEBUG),
+        top::check(asg::setProperty(tauSelectionTool, "OutputLevel", MSG::INFO),
                    "Failed to set tau OutputLevel");
       } else {
         // set the ConfigPath to empty value is no file was provided (otherwise it creates conflicts)
         top::check(asg::setProperty(tauSelectionTool, "ConfigPath", ""),
                    "Failed to set tau selection tool configuration path");
-        top::check(asg::setProperty(tauSelectionTool, "OutputLevel", MSG::DEBUG),
+        top::check(asg::setProperty(tauSelectionTool, "OutputLevel", MSG::INFO),
                    "Failed to set tau OutputLevel");
         //WARNING: if we add more configurable cuts, they need to be added in the iSelectionCuts (see above)
         top::check(asg::setProperty(tauSelectionTool, "SelectionCuts", iSelectionCutsLoose),
@@ -264,7 +267,7 @@ namespace top {
                    "Failed to set loose tau NTracks");
         top::check(asg::setProperty(tauSelectionTool, "JetIDWP", tauJetIDWPLoose),
                    "Failed to set loose tau JetIDWP");
-        top::check(asg::setProperty(tauSelectionTool, "EleRNNWP", tauEleRNNWPLoose),
+        top::check(asg::setProperty(tauSelectionTool, "EleRNNWP", tauEleIDWPLoose),
                   "Failed to set loose tau EleRNNWP");
         top::check(asg::setProperty(tauSelectionTool, "MuonOLR", m_config->tauMuOLRLoose()),
                    "Failed to set tau MuonOLR");
@@ -277,14 +280,14 @@ namespace top {
         m_tauEffCorrTool = asg::ToolStore::get<ITauEffCorrTool>(tauEffCorrNameLoose);
       } else {
         std::unique_ptr<ITauEffCorrTool> tauEffCorrTool
-          = std::make_unique<TauAnalysisTools::TauEfficiencyCorrectionsTool>(tauEffCorrNameLoose);
+          = std::make_unique<TauEffCorrTool>(tauEffCorrNameLoose);
         if (m_config->isMC()) {
 
-	  if(!m_config->isDataOverlay()){
+          if(!m_config->isDataOverlay()) {
              top::check(m_pileupReweightingTool.retrieve(), "Failed to retireve pileup reweighting tool");
              top::check(asg::setProperty(tauEffCorrTool, "PileupReweightingTool", m_pileupReweightingTool),
                        "Failed to set PileupReweightingTool for " + tauEffCorrNameLoose);
-	  }
+          }
 
           top::check(asg::setProperty(tauEffCorrTool, "UseTauSubstructure", m_config->tauSubstructureSFLoose()),
                      "Failed to set UseTauSubstructure for " + tauEffCorrNameLoose);
@@ -292,6 +295,7 @@ namespace top {
           top::check(asg::setProperty(tauEffCorrTool, "isAFII", m_config->isAFII()),
                   "Failed to set isAFII for " + tauEffCorrNameLoose);
         }
+
         top::check(asg::setProperty(tauEffCorrTool, "TauSelectionTool", m_tauSelectionToolLoose),
                    "Failed to set TauSelectionTool for " + tauEffCorrNameLoose);
 
@@ -302,10 +306,10 @@ namespace top {
 
     ///-- Calibration and smearing --///
     static const std::string tauSmearName = "TauSmearingTool";
-    if (asg::ToolStore::contains<TauAnalysisTools::ITauSmearingTool>(tauSmearName)) {
-      m_tauSmearingTool = asg::ToolStore::get<TauAnalysisTools::ITauSmearingTool>(tauSmearName);
+    if (asg::ToolStore::contains<ITauSmearTool>(tauSmearName)) {
+      m_tauSmearingTool = asg::ToolStore::get<ITauSmearTool>(tauSmearName);
     } else {
-      std::unique_ptr<TauAnalysisTools::TauSmearingTool> tauSmearingTool = std::make_unique<TauAnalysisTools::TauSmearingTool>(tauSmearName);
+      std::unique_ptr<TauSmearTool> tauSmearingTool = std::make_unique<TauSmearTool>(tauSmearName);
       top::check(asg::setProperty(tauSmearingTool, "isAFII", m_config->isAFII()),
                  "Failed to set TauSmearingTools isAFII property");
       top::check(tauSmearingTool->initialize(), "Failed to initialize");
@@ -315,10 +319,10 @@ namespace top {
     ///-- Truth matching --///
     if (m_config->isMC()) {
       static const std::string tauTruthMatchingName = "TauAnalysisTools::TauTruthMatchingTool";
-      if (asg::ToolStore::contains<TauAnalysisTools::ITauTruthMatchingTool>(tauTruthMatchingName)) {
-        m_truthMatchingTool = asg::ToolStore::get<TauAnalysisTools::ITauTruthMatchingTool>(tauTruthMatchingName);
+      if (asg::ToolStore::contains<ITauTruthMatchTool>(tauTruthMatchingName)) {
+        m_truthMatchingTool = asg::ToolStore::get<ITauTruthMatchTool>(tauTruthMatchingName);
       } else {
-        std::unique_ptr<TauAnalysisTools::TauTruthMatchingTool> tauMatchingTool = std::make_unique<TauAnalysisTools::TauTruthMatchingTool>(tauTruthMatchingName);
+        std::unique_ptr<TauTruthMatchTool> tauMatchingTool = std::make_unique<TauTruthMatchTool>(tauTruthMatchingName);
         top::check(tauMatchingTool->setProperty("TruthJetContainerName", "AntiKt4TruthDressedWZJets"), "Failed to set truth collection for tau truth matching tool");
         top::check(tauMatchingTool->initialize(), "Failed to initialize");
         m_truthMatchingTool = tauMatchingTool.release();

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EFLOWCELLSUBTRACTIONMANAGER_H
@@ -52,8 +52,8 @@ class eflowRingSubtractionManager {
  private:
 
   void setParameters(const eflowFirstIntParameters& param, const std::vector<double>& ringThickness);
-  double ringMeanRank(const std::vector<double>& p, double rMin, double rMax) const;
-  std::vector<eflowCaloENUM> orderedLayersByShowerParam(const eflowFirstIntParameters& param, unsigned int whichParam=0);
+  static double ringMeanRank(const std::vector<double>& p, double rMin, double rMax) ;
+  static std::vector<eflowCaloENUM> orderedLayersByShowerParam(const eflowFirstIntParameters& param, unsigned int whichParam=0);
 
  private:
 

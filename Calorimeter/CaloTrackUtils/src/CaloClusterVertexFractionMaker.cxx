@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // in contrary to CaloClusterVertexFractionMakerAthAlg this is a CaloClusterCollectionProcessor and not an Athena Algorithm
@@ -88,7 +88,7 @@ StatusCode CaloClusterVertexFractionMaker::initialize()
 }
 
 StatusCode
-CaloClusterVertexFractionMaker::execute(const EventContext& /*ctx*/,
+CaloClusterVertexFractionMaker::execute(const EventContext& ctx,
                                         xAOD::CaloClusterContainer* caloClusterContainer) const
 {
   const VxContainer* primcontainer(nullptr);
@@ -128,20 +128,42 @@ CaloClusterVertexFractionMaker::execute(const EventContext& /*ctx*/,
           else lastTrackParametersInID = trackParametersVector.at(0); // the perigee
 
           // very simplified way for now to decide to extrapolate a track to barrel or endcap
-          if (theTrackParticle->eta() > 1.35) // track most likely in endcap A, extrapolate track to a disc at ID exist in positive z direction
+          if (theTrackParticle->eta() >
+              1.35) // track most likely in endcap A, extrapolate track to a
+                    // disc at ID exist in positive z direction
           {
-            trackParameters_atCaloEntrance = dynamic_cast<const Trk::AtaDisc*>(m_extrapolator->extrapolate(*lastTrackParametersInID, *m_discSurface_atCaloEntrance_positiveZ, Trk::alongMomentum, true, Trk::pion));
-//             std::cout << "CaloClusterVertexFractionMaker " << theTrackParticle->eta() << " extrapolate to endcap A " << trackParameters_atCaloEntrance << std::endl;
-          } else if (theTrackParticle->eta() < -1.35) // track most likely in endcap C, extrapolate track to a disc at ID exist in negative z direction
+            trackParameters_atCaloEntrance =
+              dynamic_cast<const Trk::AtaDisc*>(m_extrapolator->extrapolate(
+                ctx,
+                *lastTrackParametersInID,
+                *m_discSurface_atCaloEntrance_positiveZ,
+                Trk::alongMomentum,
+                true,
+                Trk::pion));
+          } else if (theTrackParticle->eta() <
+                     -1.35) // track most likely in endcap C, extrapolate track
+                            // to a disc at ID exist in negative z direction
           {
-            trackParameters_atCaloEntrance = dynamic_cast<const Trk::AtaDisc*>(m_extrapolator->extrapolate(*lastTrackParametersInID, *m_discSurface_atCaloEntrance_negativeZ, Trk::alongMomentum, true, Trk::pion));
-//             std::cout << "CaloClusterVertexFractionMaker " << theTrackParticle->eta() << " extrapolate to endcap C " << trackParameters_atCaloEntrance << std::endl;
+            trackParameters_atCaloEntrance =
+              dynamic_cast<const Trk::AtaDisc*>(m_extrapolator->extrapolate(
+                ctx,
+                *lastTrackParametersInID,
+                *m_discSurface_atCaloEntrance_negativeZ,
+                Trk::alongMomentum,
+                true,
+                Trk::pion));
           } else // track is in barrel, extrapolate to cylinder at ID exit
           {
-            trackParameters_atCaloEntrance = dynamic_cast<const Trk::AtaCylinder*>(m_extrapolator->extrapolate(*lastTrackParametersInID, *m_cylinderSurface_atCaloEntrance, Trk::alongMomentum, true, Trk::pion));
-//             std::cout << "CaloClusterVertexFractionMaker " << theTrackParticle->eta() << " extrapolate to barrel " << trackParameters_atCaloEntrance << std::endl;
+            trackParameters_atCaloEntrance =
+              dynamic_cast<const Trk::AtaCylinder*>(
+                m_extrapolator->extrapolate(ctx,
+                                            *lastTrackParametersInID,
+                                            *m_cylinderSurface_atCaloEntrance,
+                                            Trk::alongMomentum,
+                                            true,
+                                            Trk::pion));
           }
-          if (trackParameters_atCaloEntrance!=nullptr) {
+          if (trackParameters_atCaloEntrance != nullptr) {
             m_trkParticleEta_atCaloEntrance->push_back(trackParameters_atCaloEntrance->position().eta());
             m_trkParticlePhi_atCaloEntrance->push_back(trackParameters_atCaloEntrance->position().phi());
             ATH_MSG_DEBUG( "At calo entrance R(1150mm) " << *trackParameters_atCaloEntrance  );

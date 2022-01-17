@@ -15,8 +15,8 @@ log = logging.getLogger(__name__)
 
 def jetRecoDictForMET(**recoDict):
     """ Get a jet reco dict that's usable for the MET slice """
-    from ..Jet.JetRecoConfiguration import interpretJetCalibDefault
-    from ..Jet.JetRecoConfiguration import recoKeys as jetRecoKeys
+    from ..Jet.JetRecoCommon import getJetCalibDefaultString
+    from ..Jet.JetRecoCommon import recoKeys as jetRecoKeys
     from ..Menu.SignatureDicts import JetChainParts_Default
 
     jrd = {
@@ -38,7 +38,7 @@ def jetRecoDictForMET(**recoDict):
         if recoDict["EFrecoAlg"] == "mhtpufit":
             jrd["jetCalib"] = "subjesgscIS"
         else:
-            jrd["jetCalib"] = interpretJetCalibDefault(jrd)
+            jrd["jetCalib"] = getJetCalibDefaultString(jrd)
     return jrd
 
 
@@ -85,7 +85,7 @@ class ClusterInputConfig(AlgInputConfig):
             caloClusterRecoSequence,
             LCCaloClusterRecoSequence,
         )
-        from ..Jet.JetRecoConfiguration import defineJetConstit
+        from ..Jet.JetRecoCommon import defineJetConstit
         from JetRecConfig.JetRecConfig import getConstitModAlg_nojetdef
 
         calib = recoDict["calib"]
@@ -117,7 +117,7 @@ class ClusterInputConfig(AlgInputConfig):
     def create_accumulator(self, flags, inputs, RoIs, recoDict):
         from ..CommonSequences.CaloConfig import CaloClusterCfg
         from ..CommonSequences.FullScanDefs import em_clusters, lc_clusters
-        from ..Jet.JetRecoConfiguration import defineJetConstit
+        from ..Jet.JetRecoCommon import defineJetConstit
         from JetRecConfig.JetRecConfig import getConstitModAlg_nojetdef
 
         if recoDict["calib"] == "em":
@@ -227,7 +227,7 @@ class PFOInputConfig(AlgInputConfig):
 
     def create_sequence(self, inputs, RoIs, recoDict):
         from eflowRec.PFHLTSequence import PFHLTSequence
-        from ..Jet.JetRecoConfiguration import defineJetConstit
+        from ..Jet.JetRecoCommon import defineJetConstit
         from JetRecConfig.JetRecConfig import getConstitModAlg_nojetdef
 
         pfSeq, pfoPrefix = RecoFragmentsPool.retrieve(
@@ -265,7 +265,7 @@ class PFOInputConfig(AlgInputConfig):
 
     def create_accumulator(self, flags, inputs, RoIs, recoDict):
         from eflowRec.PFHLTConfig import PFCfg
-        from ..Jet.JetRecoConfiguration import defineJetConstit
+        from ..Jet.JetRecoCommon import defineJetConstit
         from JetRecConfig.JetRecConfig import getConstitModAlg_nojetdef
 
         acc = PFCfg(
@@ -482,7 +482,8 @@ class JetInputConfig(AlgInputConfig):
         return deps
 
     def create_sequence(self, inputs, RoIs, recoDict):
-        from ..Jet.JetRecoSequences import jetRecoSequence, getTrkColls
+        from ..Jet.JetRecoSequences import jetRecoSequence
+        from ..Jet.JetRecoCommon import getTrkColls
 
         trkopt = "ftf" if self._use_tracks(recoDict) else "notrk"
         recoDict = {k: v for k, v in recoDict.items() if k != "forceTracks"}
@@ -503,8 +504,8 @@ class JetInputConfig(AlgInputConfig):
         return [jetSeq], {"Jets": jetName, "JetDef": jetDef}
 
     def create_accumulator(self, flags, inputs, RoIs, recoDict):
-        from ..Jet.JetRecoConfig import JetRecoCfg
-        from ..Jet.JetRecoSequences import getTrkColls
+        from ..Jet.JetRecoSequencesConfig import JetRecoCfg
+        from ..Jet.JetRecoCommon import getTrkColls
 
         trkopt = "ftf" if self._use_tracks(recoDict) else "notrk"
         recoDict = {k: v for k, v in recoDict.items() if k != "forceTracks"}

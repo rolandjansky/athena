@@ -135,7 +135,10 @@ namespace Trk
   //estrapolating to the  perigee of the reconstructed vertex  
   const Amg::Vector3D & lp = vtx.position();
   PerigeeSurface perigeeSurface(lp);
-  const  Trk::Perigee * extrapolatedParameters =dynamic_cast<const Trk::Perigee *>(m_extrapolator->extrapolate(*track,perigeeSurface));
+  const  Trk::Perigee * extrapolatedParameters =dynamic_cast<const Trk::Perigee *>(m_extrapolator->extrapolate(
+      Gaudi::Hive::currentContext(),
+      *track,
+      perigeeSurface));
   if (extrapolatedParameters && extrapolatedParameters->covariance()) {
   
     //actual calculation of d0 and sigma.  
@@ -244,7 +247,10 @@ namespace Trk
     const Amg::Vector3D & lp = primaryVertex.position();
     PerigeeSurface perigeeSurface(lp);
     
-    const  Trk::TrackParameters * extrapolatedParameters = m_extrapolator->extrapolate(track,perigeeSurface);
+    const  Trk::TrackParameters * extrapolatedParameters = m_extrapolator->extrapolate(
+      Gaudi::Hive::currentContext(),
+      track,
+      perigeeSurface);
     
     if (!extrapolatedParameters) return 0.;
 
@@ -275,7 +281,10 @@ namespace Trk
     const Amg::Vector3D & lp = primaryVertex.position();
     PerigeeSurface perigeeSurface(lp);
     
-    const  Trk::TrackParameters * extrapolatedParameters =  m_extrapolator->extrapolate(track,perigeeSurface);
+    const  Trk::TrackParameters * extrapolatedParameters =  m_extrapolator->extrapolate(
+      Gaudi::Hive::currentContext(),
+      track,
+      perigeeSurface);
     
     if (!extrapolatedParameters) return 0.;
 
@@ -306,7 +315,9 @@ namespace Trk
     const Amg::Vector3D & lp = primaryVertex.position();
     PerigeeSurface perigeeSurface(lp);
     
-    const  Trk::TrackParameters * extrapolatedParameters = m_extrapolator->extrapolate(track,perigeeSurface);
+    const  Trk::TrackParameters * extrapolatedParameters = m_extrapolator->extrapolate(Gaudi::Hive::currentContext(),
+                                                                                       track,
+                                                                                       perigeeSurface);
     
     if (!extrapolatedParameters) return 0.;
 

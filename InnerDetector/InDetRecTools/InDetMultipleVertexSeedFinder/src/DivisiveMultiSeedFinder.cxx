@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetMultipleVertexSeedFinder/DivisiveMultiSeedFinder.h"
@@ -93,12 +93,13 @@ namespace InDet
 
  std::vector< std::vector<const Trk::Track *> > DivisiveMultiSeedFinder::seeds(const std::vector<const Trk::Track*>& tracks )const
  {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
 //step 1: preselection 
   std::vector<const Trk::Track*> preselectedTracks(0);
   std::vector<const Trk::Track*>::const_iterator tr = tracks.begin();
   std::vector<const Trk::Track*>::const_iterator tre = tracks.end(); 
   
-  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx};
   Trk::RecVertex beamrecposition(beamSpotHandle->beamVtx());  
   for(;tr!=tre;++tr) if(m_trkFilter->decision(**tr,&beamrecposition)) preselectedTracks.push_back(*tr);
   if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Beam spot position is: "<< beamrecposition.position()<<endmsg;
@@ -129,7 +130,7 @@ namespace InDet
    
    Trk::PerigeeSurface perigeeSurface(beamposition->position());
 
-   const Trk::TrackParameters * exPerigee = m_extrapolator->extrapolate(*preselectedTracks[indexOfSorted[0]],
+   const Trk::TrackParameters * exPerigee = m_extrapolator->extrapolate(ctx, *preselectedTracks[indexOfSorted[0]],
 									perigeeSurface,Trk::anyDirection,true, Trk::pion);
          
    double lastTrackZ0  = -999.;
@@ -144,7 +145,7 @@ namespace InDet
 //looping over container
    for(unsigned int i=0;i<indexOfSorted.size();++i)
    { 
-     const  Trk::TrackParameters * lexPerigee = m_extrapolator->extrapolate(*preselectedTracks[indexOfSorted[i]],
+     const  Trk::TrackParameters * lexPerigee = m_extrapolator->extrapolate(ctx,*preselectedTracks[indexOfSorted[i]],
 									    perigeeSurface,Trk::anyDirection,true, Trk::pion); 
 					   
     double currentTrackZ0 = lexPerigee->parameters()[Trk::z0];
@@ -246,7 +247,7 @@ namespace InDet
  
  std::vector< std::vector<const Trk::TrackParticleBase *> > DivisiveMultiSeedFinder::seeds(const std::vector<const Trk::TrackParticleBase*>& tracks )const
  {
- 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
  // std::cout<<"Number of tracks received: "<<tracks.size()<<std::endl;
   
   //step 1: preselection 
@@ -255,7 +256,7 @@ namespace InDet
   std::vector<const Trk::TrackParticleBase*>::const_iterator tre = tracks.end(); 
   
 //selecting with respect to the beam spot
-  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
   Trk::RecVertex beamrecposition(beamSpotHandle->beamVtx());    
   for(;tr!=tre;++tr) if(m_trkFilter->decision(**tr, &beamrecposition)) preselectedTracks.push_back(*tr);
   if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Beam spot position is: "<< beamrecposition.position()<<endmsg;
@@ -297,7 +298,7 @@ namespace InDet
    std::vector<const Trk::TrackParticleBase *> tmp_cluster(0); 
    
    Trk::PerigeeSurface perigeeSurface(beamposition->position());
-   const Trk::TrackParameters * exPerigee = m_extrapolator->extrapolate(preselectedTracks[indexOfSorted[0]]->definingParameters(),
+   const Trk::TrackParameters * exPerigee = m_extrapolator->extrapolate(ctx,preselectedTracks[indexOfSorted[0]]->definingParameters(),
 									perigeeSurface,Trk::anyDirection,true, Trk::pion);
          
    double lastTrackZ0  = -999.;
@@ -312,7 +313,7 @@ namespace InDet
 //looping over container
    for(unsigned int i=0;i<indexOfSorted.size();++i)
    { 
-     const  Trk::TrackParameters * lexPerigee = m_extrapolator->extrapolate(preselectedTracks[indexOfSorted[i]]->definingParameters(),
+     const  Trk::TrackParameters * lexPerigee = m_extrapolator->extrapolate(ctx, preselectedTracks[indexOfSorted[i]]->definingParameters(),
 									    perigeeSurface,Trk::anyDirection,true, Trk::pion); 
 					   
     double currentTrackZ0 = lexPerigee->parameters()[Trk::z0];
@@ -424,6 +425,7 @@ namespace InDet
  
   std::vector< std::vector<const Trk::TrackParameters *> > DivisiveMultiSeedFinder::seeds(const std::vector<const xAOD::TrackParticle*>& tracks )const
   {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   // std::cout<<"Number of tracks received: "<<tracks.size()<<std::endl;
   
   //step 1: preselection 
@@ -433,7 +435,7 @@ namespace InDet
 
 
   xAOD::Vertex * beamposition = new xAOD::Vertex();
-  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey,ctx };
   beamposition->setPosition(beamSpotHandle->beamVtx().position());
   beamposition->setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
 
@@ -484,7 +486,7 @@ namespace InDet
    std::vector<const xAOD::TrackParticle *> tmp_cluster(0); 
    
    Trk::PerigeeSurface perigeeSurface(beamposition->position());
-   const Trk::TrackParameters * exPerigee = m_extrapolator->extrapolate(*preselectedTracks[indexOfSorted[0]],
+   const Trk::TrackParameters * exPerigee = m_extrapolator->extrapolate(ctx,*preselectedTracks[indexOfSorted[0]],
    perigeeSurface,Trk::anyDirection,true, Trk::pion);
    
    double lastTrackZ0  = -999.;
@@ -502,7 +504,7 @@ namespace InDet
    //looping over container
    for(unsigned int i=0;i<indexOfSorted.size();++i)
      { 
-       const Trk::TrackParameters * lexPerigee = m_extrapolator->extrapolate(*preselectedTracks[indexOfSorted[i]],
+       const Trk::TrackParameters * lexPerigee = m_extrapolator->extrapolate(ctx,*preselectedTracks[indexOfSorted[i]],
 									     perigeeSurface,Trk::anyDirection,true, Trk::pion);
    
        

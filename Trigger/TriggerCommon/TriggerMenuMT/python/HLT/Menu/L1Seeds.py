@@ -42,7 +42,7 @@ def Lvl1ItemByTriggerType(l1object, triggertype_pattern, triggertype_bitmask):
 ##############################
 def getL1BackgroundSeed(menul1items, menu_name):
     l1bgditems = [
-        'L1_BCM_AC_CA_BGRP0',
+        'L1_BCM_AC_CA_BGRP12',
         'L1_BCM_Wide_EMPTY', 'L1_BCM_Wide_UNPAIRED_ISO', 'L1_BCM_Wide_UNPAIRED_NONISO',
         'L1_J30p31ETA49_UNPAIRED_ISO',
         'L1_J12_UNPAIRED_ISO', 'L1_J12_UNPAIRED_NONISO', 'L1_J12_ABORTGAPNOTCALIB',
@@ -58,19 +58,7 @@ def getL1BackgroundSeed(menul1items, menu_name):
         'L1_BCM_AC_UNPAIREDB1', 'L1_BCM_CA_UNPAIREDB2',
         'L1_J12_UNPAIREDB1', 'L1_J12_UNPAIREDB2',
         ]
-    
-    if menu_name == 'LS1_v1':
-        l1bgditems = [
-            'L1_BCM_AC_CA_BGRP0','L1_BCM_AC_CA_UNPAIRED_ISO',
-            'L1_BCM_Wide_EMPTY','L1_BCM_Wide_UNPAIRED_ISO','L1_BCM_Wide_UNPAIRED_NONISO',
-            'L1_EM3_UNPAIRED_ISO','L1_FJ30_UNPAIRED_ISO',
-            'L1_J10_UNPAIRED_ISO','L1_J10_UNPAIRED_NONISO',
-            'L1_LUCID_A_C_EMPTY','L1_LUCID_A_C_UNPAIRED_ISO','L1_LUCID_A_C_UNPAIRED_NONISO',
-            'L1_LUCID_EMPTY','L1_LUCID_UNPAIRED_ISO',
-            'L1_MU3V_UNPAIRED_ISO',
-            'L1_LUCID_COMM_UNPAIRED_ISO','L1_LUCID_COMM_EMPTY'
-        ]
-        
+            
     # check if all the l1 background seeds given are in the current L1 menu
     for item in l1bgditems:
         if item not in menul1items:
@@ -577,10 +565,7 @@ def getInputTEfromL1Item(l1item, menu_name):
         'L1_TAU100'              : ['HA100'],
         }
 
-    if menu_name == 'LS1_v1':
-        L1Map['L1_CALREQ2']=['NIM30']
-    else:
-        L1Map['L1_CALREQ2']=['CAL2']
+    L1Map['L1_CALREQ2']=['CAL2']
         
     if l1item in L1Map:
         TE = L1Map[l1item]

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration 
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration 
 */
 #include "InDetSecVxFinderTool/JetFitterTrackSelectorTool.h"
 #include <cassert>
@@ -115,7 +115,9 @@ using namespace InDet;
 
       // Recomputing Perigee w.r.t PV
       Trk::PerigeeSurface mySurface( primaryVertex.position() );
-      std::unique_ptr<const Trk::TrackParameters>  myMeasuredPerigee(m_extrapolator->extrapolate( track,mySurface ));
+      std::unique_ptr<const Trk::TrackParameters>  myMeasuredPerigee(m_extrapolator->extrapolate(
+          Gaudi::Hive::currentContext(),track,mySurface ));
+
       if ( !myMeasuredPerigee) {
         ATH_MSG_DEBUG( " Extrapolation to primary vertex failed. Skipping track " );
         compatibilityDecorator ( track ) = 0.;

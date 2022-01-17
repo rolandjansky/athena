@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -229,7 +229,7 @@ void Trk::GeantFollowerMSHelper::beginEvent() const
 
 void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G4ThreeVector& mom, int pdg, double charge, float t, float X0) const
 {
-
+   const EventContext& ctx = Gaudi::Hive::currentContext();
 // as the MS starts at 6736 in R.07 the cut is just before
 
     double zMuonEntry = 6735.;
@@ -347,17 +347,25 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
     const Trk::PlaneSurface& destinationSurface = g4Parameters->associatedSurface();
     // extrapolate to the destination surface
     const Trk::TrackParameters* trkParameters = m_extrapolateDirectly&&m_crossedMuonEntry ?
-        m_extrapolator->extrapolateDirectly(*m_parameterCache,destinationSurface,Trk::alongMomentum,false,Trk::muon) :
-        m_extrapolator->extrapolate(*m_parameterCache,destinationSurface,Trk::alongMomentum,false,Trk::muon);
+        m_extrapolator->extrapolateDirectly(ctx,*m_parameterCache,destinationSurface,Trk::alongMomentum,false,Trk::muon) :
+        m_extrapolator->extrapolate(ctx,*m_parameterCache,destinationSurface,Trk::alongMomentum,false,Trk::muon);
     if(m_treeData->m_g4_stepsMS==0) {
         ATH_MSG_DEBUG( " Extrapolate m_parameterCacheCov with covMatrix ");
         extrapolationCache->reset();
         trkParameters = m_extrapolateDirectly&&m_crossedMuonEntry ?
-        m_extrapolator->extrapolateDirectly(*m_parameterCacheCov,destinationSurface,Trk::alongMomentum,false,Trk::muon) :
-        m_extrapolator->extrapolate(*m_parameterCacheCov,destinationSurface,Trk::alongMomentum,false,Trk::muon,Trk::addNoise,extrapolationCache);
+        m_extrapolator->extrapolateDirectly(ctx,*m_parameterCacheCov,destinationSurface,Trk::alongMomentum,false,Trk::muon) :
+        m_extrapolator->extrapolate(ctx,*m_parameterCacheCov,destinationSurface,Trk::alongMomentum,false,Trk::muon,Trk::addNoise,extrapolationCache);
 
-        ATH_MSG_DEBUG(" G4 extrapolate to Muon Entry system " << " X0 " << extrapolationCache->x0tot() << " Eloss deltaE " <<   extrapolationCache->eloss()->deltaE()  << " Eloss sigma " << extrapolationCache->eloss()->sigmaDeltaE() << " meanIoni " << extrapolationCache->eloss()->meanIoni()  << " sigmaIoni " << extrapolationCache->eloss()->sigmaIoni() << " meanRad " <<  extrapolationCache->eloss()->meanRad() << " sigmaRad " << extrapolationCache->eloss()->sigmaRad()  << " depth " << extrapolationCache->eloss()->length());
-
+        ATH_MSG_DEBUG(
+          " G4 extrapolate to Muon Entry system "
+          << " X0 " << extrapolationCache->x0tot() << " Eloss deltaE "
+          << extrapolationCache->eloss()->deltaE() << " Eloss sigma "
+          << extrapolationCache->eloss()->sigmaDeltaE() << " meanIoni "
+          << extrapolationCache->eloss()->meanIoni() << " sigmaIoni "
+          << extrapolationCache->eloss()->sigmaIoni() << " meanRad "
+          << extrapolationCache->eloss()->meanRad() << " sigmaRad "
+          << extrapolationCache->eloss()->sigmaRad() << " depth "
+          << extrapolationCache->eloss()->length());
 
         ATH_MSG_DEBUG( " Extrapolation OK ");
     }
@@ -382,20 +390,20 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
 // Get extrapolatio with errors
       extrapolationCache->reset();
       trkParameters = m_extrapolateDirectly&&m_crossedMuonEntry ?
-      m_extrapolator->extrapolateDirectly(*m_parameterCacheMSCov,destinationSurface,Trk::alongMomentum,false,Trk::muon) :
-      m_extrapolator->extrapolate(*m_parameterCacheMSCov,destinationSurface,Trk::alongMomentum,false,Trk::muon,Trk::addNoise,extrapolationCache);
+      m_extrapolator->extrapolateDirectly(ctx,*m_parameterCacheMSCov,destinationSurface,Trk::alongMomentum,false,Trk::muon) :
+      m_extrapolator->extrapolate(ctx,*m_parameterCacheMSCov,destinationSurface,Trk::alongMomentum,false,Trk::muon,Trk::addNoise,extrapolationCache);
 // Forward from ME to Exit
       const Trk::TrackParameters* trkParameters_FW = m_extrapolateDirectly ?
-        m_extrapolator->extrapolateDirectly(*m_parameterCacheMS,destinationSurface,Trk::alongMomentum,false,Trk::muon) :
-        m_extrapolator->extrapolate(*m_parameterCacheMS,destinationSurface,Trk::alongMomentum,false,Trk::muon);
+        m_extrapolator->extrapolateDirectly(ctx,*m_parameterCacheMS,destinationSurface,Trk::alongMomentum,false,Trk::muon) :
+        m_extrapolator->extrapolate(ctx,*m_parameterCacheMS,destinationSurface,Trk::alongMomentum,false,Trk::muon);
 // Backwards from Exit to ME
       if(trkParameters_FW) {
        ATH_MSG_DEBUG (" forward extrapolation succeeded ");
        bool doBackWard = false;
        if(doBackWard) {
         const Trk::TrackParameters* trkParameters_BACK = m_extrapolateDirectly ?
-          m_extrapolator->extrapolateDirectly(*trkParameters_FW,*m_destinationSurface,Trk::oppositeMomentum,false,Trk::muon) :
-          m_extrapolator->extrapolate(*trkParameters_FW,*m_destinationSurface,Trk::oppositeMomentum,false,Trk::muon);
+          m_extrapolator->extrapolateDirectly(ctx,*trkParameters_FW,*m_destinationSurface,Trk::oppositeMomentum,false,Trk::muon) :
+          m_extrapolator->extrapolate(ctx,*trkParameters_FW,*m_destinationSurface,Trk::oppositeMomentum,false,Trk::muon);
 //        if(m_usePropagator) {
 //          std::cout << " Use Propagator " << std::endl;
 //          trkParameters_BACK = m_propagator->propagate(*trkParameters,*m_destinationSurface,Trk::oppositeMomentum,false,*m_magFieldProperties);
@@ -414,7 +422,11 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
           if(fabs(m_treeData->m_m_p-m_treeData->m_b_p)>10.) ATH_MSG_DEBUG (" Back extrapolation to Muon Entry finds different momentum  difference MeV " << m_treeData->m_m_p-m_treeData->m_b_p);
           delete trkParameters_BACK;
           extrapolationCache->reset();
-          const std::vector<const Trk::TrackStateOnSurface*> *matvec_BACK = m_extrapolator->extrapolateM(*trkParameters_FW,*m_destinationSurface,Trk::oppositeMomentum,false,Trk::muon,extrapolationCache);
+          const std::vector<const Trk::TrackStateOnSurface*> *matvec_BACK = m_extrapolator->extrapolateM(ctx,
+                                                                                                         *trkParameters_FW,
+                                                                                                         *m_destinationSurface,
+                                                                                                         Trk::oppositeMomentum,
+                                                                                                         false,Trk::muon,extrapolationCache);
           double Eloss = 0.;
           double x0 = 0.;
 
@@ -484,8 +496,8 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
     }
 
     extrapolationCache->reset();
-    const std::vector<const Trk::TrackStateOnSurface*> *matvec = m_extrapolator->extrapolateM(*m_parameterCache,destinationSurface,Trk::alongMomentum,false,Trk::muon,extrapolationCache);
-    if(m_treeData->m_g4_stepsMS==0) matvec = m_extrapolator->extrapolateM(*m_parameterCacheCov,destinationSurface,Trk::alongMomentum,false,Trk::muon,extrapolationCache);
+    const std::vector<const Trk::TrackStateOnSurface*> *matvec = m_extrapolator->extrapolateM(ctx,*m_parameterCache,destinationSurface,Trk::alongMomentum,false,Trk::muon,extrapolationCache);
+    if(m_treeData->m_g4_stepsMS==0) matvec = m_extrapolator->extrapolateM(ctx,*m_parameterCacheCov,destinationSurface,Trk::alongMomentum,false,Trk::muon,extrapolationCache);
 
     if(m_treeData->m_g4_stepsMS==0) ATH_MSG_DEBUG(" G4 extrapolateM to Muon Entry " << " X0 " << extrapolationCache->x0tot() << " Eloss deltaE " <<   extrapolationCache->eloss()->deltaE()  << " Eloss sigma " << extrapolationCache->eloss()->sigmaDeltaE() << " meanIoni " << extrapolationCache->eloss()->meanIoni()  << " sigmaIoni " << extrapolationCache->eloss()->sigmaIoni() << " meanRad " <<  extrapolationCache->eloss()->meanRad() << " sigmaRad " << extrapolationCache->eloss()->sigmaRad());
 //    if(m_treeData->m_trk_status[m_treeData->m_g4_steps] == 1000) matvec = m_extrapolator->extrapolateM(*m_parameterCache,destinationSurface,Trk::alongMomentum,false,Trk::muon);

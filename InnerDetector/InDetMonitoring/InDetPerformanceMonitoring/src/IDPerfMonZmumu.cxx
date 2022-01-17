@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //==================================================================================
@@ -1665,7 +1665,6 @@ StatusCode IDPerfMonZmumu::FillRecParameters(const Trk::Track* track, const xAOD
     ATH_MSG_DEBUG("* FillRecParameters * Empty Track: trackp_for_unbias. Skipping.");
     return StatusCode::FAILURE;
   }
-
   const Trk::Perigee* trkPerigee = track->perigeeParameters();
   const Trk::Perigee* trk_for_unbiasPerigee = &(trackp_for_unbias->perigeeParameters());
 
@@ -1803,6 +1802,9 @@ StatusCode IDPerfMonZmumu::FillRecParameters(const Trk::Track* track, const xAOD
 //==================================================================================
 StatusCode IDPerfMonZmumu::FillTruthParameters(const xAOD::TrackParticle* trackParticle)
 {
+
+
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   if (!trackParticle ){//|| !trackParticle->vertex()){
     ATH_MSG_WARNING("-- FillTruthParameters -- Empty Trackparticle. Skipping.");
     return StatusCode::FAILURE;
@@ -1873,7 +1875,8 @@ StatusCode IDPerfMonZmumu::FillTruthParameters(const xAOD::TrackParticle* trackP
   SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
   Trk::PerigeeSurface persf( beamSpotHandle->beamPos() );
 
-  const Trk::TrackParameters* tP = m_extrapolator->extrapolate(cParameters,persf, Trk::anyDirection, false);
+  const Trk::TrackParameters* tP = m_extrapolator->extrapolate(ctx,
+                                                               cParameters,persf, Trk::anyDirection, false);
 
 
   double px = 0;

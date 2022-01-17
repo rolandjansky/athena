@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Run2ToRun3TrigNavConverter.h"
@@ -9,7 +9,7 @@
 #include "TrigNavStructure/TriggerElement.h"
 #include "xAODTrigger/TriggerMenu.h"
 #include "xAODTrigger/TriggerMenuContainer.h"
-#include "TrigConfHLTData/HLTUtils.h"
+#include "TrigConfHLTUtils/HLTUtils.h"
 #include "AthAnalysisBaseComps/AthAnalysisAlgorithm.h"
 #include <AsgTools/AsgMetadataTool.h>
 #include "TrigNavStructure/StandaloneNavigation.h"

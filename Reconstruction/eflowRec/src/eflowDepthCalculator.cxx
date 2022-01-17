@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -106,7 +106,7 @@ eflowDepthLayerENUM eflowDepthCalculator::depthIndex(eflowCaloENUM layer)
 
 // returns the length of a track at a given theta trough a box in (r, z)
 
-double eflowDepthCalculator::lengthThroughBox(double theta, double zMin, double zMax, double rMin, double rMax) const
+double eflowDepthCalculator::lengthThroughBox(double theta, double zMin, double zMax, double rMin, double rMax) 
 {
   double thetaTopLeft, thetaBottomLeft, thetaTopRight, thetaBottomRight;
 
