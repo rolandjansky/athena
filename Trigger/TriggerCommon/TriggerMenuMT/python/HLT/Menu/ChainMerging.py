@@ -143,20 +143,8 @@ def getEmptySeqName(stepName, chain_index, step_number, alignGroup):
     seqName = 'Empty'+ alignGroup +'Seq'+str(step_number)+ '_'+ stepName
     return seqName
 
-
 def getEmptyMenuSequence(flags, name):
     return EmptyMenuSequence(name)
-
-def getMultiplicityPerLeg(multiplicities):
-    mult_per_leg = []
-    for mult in multiplicities:
-        if mult == 1: 
-            mult_per_leg += ['1']
-        elif mult > 1: 
-            mult_per_leg += ['N']
-        else: 
-            raise Exception("[serial_zip] multiplicity not an expected value: %s",mult) 
-    return mult_per_leg
 
 def isFullScanRoI(inputL1Nav):
     fsRoIList = ['HLTNav_L1FSNOSEED','HLTNav_L1MET','HLTNav_L1J']
@@ -252,7 +240,6 @@ def serial_zip(allSteps, chainName, chainDefList, legOrdering):
                     if chain_index2 == chain_index:
                         log.error("chain_index2 = chain_index, but the stepList still has none!")
                         raise Exception("[serial_zip] duplicating existing leg, why has this happened??")
-                    mult_per_leg = getMultiplicityPerLeg(chainDefList[stepPlacement2].steps[0].multiplicity)
 
                     #this WILL NOT work for jets!
                     step_mult = []
@@ -262,7 +249,7 @@ def serial_zip(allSteps, chainName, chainDefList, legOrdering):
                     else:
                         emptyChainDicts = allSteps[chain_index2][0].stepDicts
 
-                    log.debug("[serial_zip] nLegs: %s, mult_per_leg: %s, len(emptyChainDicts): %s, len(L1decisions): %s", nLegs,mult_per_leg, len(emptyChainDicts), len(chainDefList[stepPlacement2].L1decisions))
+                    log.debug("[serial_zip] nLegs: %s, len(emptyChainDicts): %s, len(L1decisions): %s", nLegs, len(emptyChainDicts), len(chainDefList[stepPlacement2].L1decisions))
                     sigNames = []
                     for ileg,(emptyChainDict,_) in enumerate(zip(emptyChainDicts,chainDefList[stepPlacement2].L1decisions)):
                         if isFullScanRoI(chainDefList[stepPlacement2].L1decisions[ileg]):
@@ -270,7 +257,7 @@ def serial_zip(allSteps, chainName, chainDefList, legOrdering):
                         else:
                             sigNames +=[emptyChainDict['chainParts'][0]['signature']]
 
-                    seqMultName = '_'.join([mult+sigName for mult, sigName in zip(mult_per_leg,sigNames)])
+                    seqMultName = '_'.join([sigName for sigName in sigNames])
                     currentAG = ''
                     
                     #now we need to know what alignment group this step is in to properly name the empty sequence
