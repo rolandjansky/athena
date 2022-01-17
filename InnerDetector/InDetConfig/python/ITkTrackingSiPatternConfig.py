@@ -141,7 +141,6 @@ def ITkSiTrackMaker_xkCfg(flags, name="ITkSiTrackMaker", InputCollections = None
     kwargs.setdefault("pTBins", flags.ITk.Tracking.ActivePass.minPT)
     kwargs.setdefault("pTmin", flags.ITk.Tracking.ActivePass.minPT[0])
     kwargs.setdefault("pTminBrem", flags.ITk.Tracking.ActivePass.minPTBrem[0])
-    kwargs.setdefault("pTminSSS", flags.ITk.Tracking.ActivePass.pT_SSScut)
     kwargs.setdefault("nClustersMin", min(flags.ITk.Tracking.ActivePass.minClusters))
     kwargs.setdefault("nHolesMax", flags.ITk.Tracking.ActivePass.nHolesMax[0])
     kwargs.setdefault("nHolesGapMax", flags.ITk.Tracking.ActivePass.nHolesGapMax[0])

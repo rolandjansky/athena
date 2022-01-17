@@ -74,7 +74,7 @@ def ITkPixelClusterOnTrackToolBaseCfg(flags, name="ITkPixelClusterOnTrackTool", 
         kwargs.setdefault("PositionStrategy", 0)
 
     kwargs.setdefault("applyNNcorrection", False )
-    split_cluster_map_extension = flags.ITk.Tracking.ActivePass.extension if flags.ITk.Tracking.ActivePass.useTIDE_Ambi else ""
+    split_cluster_map_extension = flags.ITk.Tracking.ActivePass.extension
     kwargs.setdefault("SplitClusterAmbiguityMap", f"SplitClusterAmbiguityMap{split_cluster_map_extension}")
     kwargs.setdefault("RunningTIDE_Ambi", True )
 
@@ -717,8 +717,8 @@ def ITkAmbiScoringToolBaseCfg(flags, name='ITkAmbiScoringTool', **kwargs) :
     kwargs.setdefault("useAmbigFcn", True )
     kwargs.setdefault("useTRT_AmbigFcn", False )
     kwargs.setdefault("maxEta", flags.ITk.Tracking.ActivePass.maxEta )
-    kwargs.setdefault("usePixel", flags.ITk.Tracking.ActivePass.usePixel )
-    kwargs.setdefault("useSCT", flags.ITk.Tracking.ActivePass.useSCT )
+    kwargs.setdefault("usePixel", flags.ITk.Tracking.ActivePass.useITkPixel )
+    kwargs.setdefault("useSCT", flags.ITk.Tracking.ActivePass.useITkStrip )
     kwargs.setdefault("doEmCaloSeed", have_calo_rois )
     kwargs.setdefault("useITkAmbigFcn", True )
     kwargs.setdefault("minTRTonTrk", 0 )
