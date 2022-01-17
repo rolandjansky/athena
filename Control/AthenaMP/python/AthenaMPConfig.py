@@ -149,7 +149,7 @@ def getChunkSize(configFlags) -> int:
     if configFlags.MP.ChunkSize > 0:
         chunk_size = configFlags.MP.ChunkSize
         msg.info('Chunk size set to %i', chunk_size)
-    elif configFlags.Input.Files != ["_ATHENA_GENERIC_INPUTFILE_NAME_"]:
+    else:
         md = GetFileMD(configFlags.Input.Files)
         #Don't use auto flush for shared reader
         if configFlags.MP.UseSharedReader:

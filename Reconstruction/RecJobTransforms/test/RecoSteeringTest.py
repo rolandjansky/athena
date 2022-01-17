@@ -22,7 +22,7 @@ def _run(input):
     args = flags.fillFromArgs(parser=parser)
 
     # test inputs
-    if flags.Input.Files == []:
+    if not flags.Input.Files:
         from AthenaConfiguration.TestDefaults import defaultTestFiles
         if input == "RAW":
             flags.Input.Files = defaultTestFiles.RAW

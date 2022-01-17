@@ -84,7 +84,7 @@ def fromRunArgs(runArgs):
         # Common cases
         # 3a) ParticleGun
         # 3b) CosmicGenerator
-        ConfigFlags.Input.Files = ''
+        ConfigFlags.Input.Files = []
         ConfigFlags.Input.isMC = True
         log.info('No inputEVNTFile provided. Assuming that you are running a generator on the fly.')
         if ConfigFlags.Beam.Type == 'cosmics':

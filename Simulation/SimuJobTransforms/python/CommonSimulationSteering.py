@@ -33,7 +33,7 @@ def specialConfigPostInclude(ConfigFlags, cfg):
 
 def CommonSimulationCfg(ConfigFlags, log):
     # Configure main services and input reading (if required)
-    if ConfigFlags.Input.Files == '':
+    if not ConfigFlags.Input.Files:
         # Cases 3a, 3b
         from AthenaConfiguration.MainServicesConfig import MainEvgenServicesCfg
         cfg = MainEvgenServicesCfg(ConfigFlags)
