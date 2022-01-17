@@ -14,7 +14,6 @@ if __name__ == '__main__':
     # Set the necessary configuration flags
     # Process 100 events in 1 thread/slot and do full monitoring
     ConfigFlags.Exec.MaxEvents = 100
-    ConfigFlags.Concurrency.NumProcs = 1
     ConfigFlags.Concurrency.NumThreads = 1
     ConfigFlags.PerfMon.doFullMonMT = True
     ConfigFlags.PerfMon.OutputJSON = 'perfmonmt_test.json'
