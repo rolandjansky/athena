@@ -490,6 +490,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
 
   declareProperty( "JetJMSCalib",  m_JMScalib );
   declareProperty( "JetLargeRcollection",  m_fatJets );
+  declareProperty( "TruthJetsCollection",  m_defaultTruthJets);
   //BTAGGING
   declareProperty( "BtagTagger", m_BtagTagger);
   declareProperty( "BtagWPOR", m_orBtagWP); //the one used in the Overlap Removal
@@ -872,12 +873,14 @@ StatusCode SUSYObjDef_xAOD::initialize() {
   m_defaultJets = "AntiKt4" + xAOD::JetInput::typeName(xAOD::JetInput::Type(m_jetInputType)) + "Jets";
   ATH_MSG_INFO( "Configured for jet collection: " << m_defaultJets );
 
-  m_defaultTruthJets = "AntiKt4TruthJets";
   const xAOD::FileMetaData* fmd = 0;
   std::string dataType;
   if ( inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData") && inputMetaStore()->retrieve(fmd,"FileMetaData").isSuccess() )
      fmd->value(xAOD::FileMetaData::dataType, dataType);
-  if ( dataType.compare("StreamDAOD_PHYS")==0 || dataType.compare("StreamDAOD_PHYSLITE")==0 ) m_defaultTruthJets = "AntiKt4TruthDressedWZJets";
+  if ( dataType.compare("StreamDAOD_PHYS")==0 || dataType.compare("StreamDAOD_PHYSLITE")==0 || dataType.compare("StreamDAOD_SUSY20")==0 ){
+    ATH_MSG_WARNING( "AntiKt4TruthDressedWZJets set as truth jet collection");
+    m_defaultTruthJets = "AntiKt4TruthDressedWZJets";
+  }
   ATH_MSG_INFO( "Configured for truth jet collection: " << m_defaultTruthJets );
 
   m_inputMETCore = "MET_Core_" + m_inputMETSuffix;
@@ -1424,6 +1427,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_jesCalibSeq, "Jet.CalibSeq", rEnv, "JetArea_Residual_EtaJES_GSC_Insitu");
   configFromFile(m_jesCalibSeqJMS, "Jet.CalibSeqJMS", rEnv, "JetArea_Residual_EtaJES_GSC");
   configFromFile(m_jesCalibSeqFat, "Jet.CalibSeqFat", rEnv, "EtaJES_JMS");
+  configFromFile(m_defaultTruthJets, "Jet.TruthJetsCollection", rEnv, "AntiKt4TruthJets");
+
   //
   configFromFile(m_defaultTrackJets, "TrackJet.Coll", rEnv, "AntiKtVR30Rmax4Rmin02TrackJets");
   configFromFile(m_trkJetPt, "TrackJet.Pt", rEnv, 20000.);
