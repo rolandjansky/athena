@@ -41,10 +41,7 @@ class ChainConfigurationBase(metaclass=abc.ABCMeta):
         self.chainPartNameNoMultwL1 += "_"+self.chainL1Item
 
     def getStep(self, stepID, stepPartName, sequenceCfgArray, comboHypoCfg=ComboHypoCfg, comboTools=[], flags=ConfigFlags, **stepArgs):
-        stepName = 'Step%d'%stepID + '_%d'%self.mult + stepPartName
-
-        if self.mult >1 :
-            stepName = 'Step%d'%stepID + '_N' + stepPartName
+        stepName = 'Step%d'%stepID + '_' + stepPartName
         log.debug("Configuring step %s", stepName)
         seqArray = []
         for sequenceCfg in sequenceCfgArray:
@@ -52,7 +49,7 @@ class ChainConfigurationBase(metaclass=abc.ABCMeta):
         return ChainStep(stepName, seqArray, [self.mult], [self.dict], comboHypoCfg=comboHypoCfg, comboToolConfs=comboTools)
 
     def getEmptyStep(self, stepID, stepPartName):
-        stepName = 'Step%d'%stepID + '_%d'%self.mult + stepPartName
+        stepName = 'Step%d'%stepID + '_' + stepPartName
         log.debug("Configuring empty step %s", stepName)
         return ChainStep(stepName, Sequences=[], multiplicity=[] ,chainDicts=[self.dict])
  
