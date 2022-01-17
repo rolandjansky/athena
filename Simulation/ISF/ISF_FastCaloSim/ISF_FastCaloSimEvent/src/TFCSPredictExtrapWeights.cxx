@@ -143,7 +143,6 @@ bool TFCSPredictExtrapWeights::getNormInputs(std::string etaBin, std::string Fas
 
 // prepareInputs()
 // Prepare input variables to the Neural Network
-//std::map<std::string,double> TFCSPredictExtrapWeights::prepareInputs(const int pid, TFCSSimulationState& simulstate, const float truthE) const
 std::map<std::string,double> TFCSPredictExtrapWeights::prepareInputs(TFCSSimulationState& simulstate, const float truthE) const
 {
   std::map<std::string, double> inputVariables;
@@ -164,9 +163,6 @@ std::map<std::string,double> TFCSPredictExtrapWeights::prepareInputs(TFCSSimulat
   auto itr  = std::find(m_normLayers->begin(), m_normLayers->end(), -1);
   int index = std::distance(m_normLayers->begin(), itr);
   inputVariables["etrue"] = ( truthE - (*m_normMeans).at(index) ) / (*m_normStdDevs).at(index);
-  // Temporary
-  //if(is_match_pdgid(211) || is_match_pdgid(-211)){
-  //  inputVariables["pdgId"] = 2; // one hot enconding
   if(is_match_pdgid(22)){
     inputVariables["pdgId"] = 1; // one hot enconding
   } else if(is_match_pdgid(11) || is_match_pdgid(-11)){
@@ -182,10 +178,7 @@ FCSReturnCode TFCSPredictExtrapWeights::simulate(TFCSSimulationState& simulstate
 {
   (void)extrapol; // avoid unused variable warning
 
-  //const int pid = truth->pdgid();
-
   // Get inputs to Neural Network
-  //std::map<std::string,double> inputVariables = prepareInputs(pid, simulstate, truth->E()*0.001);
   std::map<std::string,double> inputVariables = prepareInputs(simulstate, truth->E()*0.001);
 
   // Get predicted extrapolation weights
@@ -389,7 +382,6 @@ void TFCSPredictExtrapWeights::unit_test(TFCSSimulationState* simulstate,const T
   // Get extrapWeights and save them as AuxInfo in simulstate
 
   // Get inputs to Neural Network
-  //std::map<std::string,double> inputVariables = NN.prepareInputs(pid, *simulstate, truth->E()*0.001);
   std::map<std::string,double> inputVariables = NN.prepareInputs(*simulstate, truth->E()*0.001);
 
   // Get predicted extrapolation weights
