@@ -322,10 +322,6 @@ def createTrackingPassFlags():
     icf.addFlag("useSCT"        		  , lambda pcf : pcf.Detector.EnableSCT )
     icf.addFlag("useSCTSeeding"        	  	  , True )
 
-    icf.addFlag("useITkPixel"       		  , lambda pcf : pcf.Detector.EnableITkPixel )
-    icf.addFlag("useITkStrip"        		  , lambda pcf : pcf.Detector.EnableITkStrip )
-    icf.addFlag("useITkStripSeeding"        	  , True )
-
     # --------------------------------------
     # --- TRT Only TRACKING cuts
     # --------------------------------------
@@ -363,47 +359,59 @@ def createRobustRecoTrackingPassFlags():
 
 ### ITk mode ####################
 def createITkTrackingPassFlags():
-    icf = createTrackingPassFlags()   
-    icf.extension               = ""
 
-    # --- ITk flags
+    # Set ITk flags from scratch to avoid relying on InDet flags through lambda functions
+    from AthenaConfiguration.AthConfigFlags import AthConfigFlags
+    icf = AthConfigFlags()
+
+    icf.addFlag("extension", "" ) ### for extension
+
+    icf.addFlag("useITkPixel"       		  , lambda pcf : pcf.Detector.EnableITkPixel )
+    icf.addFlag("useITkStrip"        		  , lambda pcf : pcf.Detector.EnableITkStrip )
+    icf.addFlag("useITkStripSeeding"        	  , True )
+
+    icf.addFlag("usePrdAssociationTool"     , False)
+    icf.addFlag("doZBoundary"               , True)
+
     icf.addFlag("useEtaDepCuts"             , True)
     icf.addFlag("etaBins"                   , [-1.0, 2.0, 2.6, 4.0])
+    icf.addFlag("maxEta"                    , 4.0)
+    icf.addFlag("minPT"                     , [0.9 * Units.GeV, 0.4 * Units.GeV, 0.4 * Units.GeV])
+
     icf.addFlag("minPTSeed"                 , 0.9 * Units.GeV)
     icf.addFlag("maxPrimaryImpactSeed"      , 2.0 * Units.mm)
     icf.addFlag("maxZImpactSeed"            , 200.0 * Units.mm)
-
-    icf.maxEta                  = 4.0
-    icf.minPT                   = [0.9 * Units.GeV, 0.4 * Units.GeV, 0.4 * Units.GeV]
+    icf.addFlag("seedFilterLevel"           , 2)
 
     # --- cluster cuts
-    icf.minClusters             = [9, 8, 7]
-    icf.minSiNotShared          = [7, 6, 5]
-    icf.maxShared               = [2]
-    icf.minPixel                = [1]
-    icf.maxHoles                = [2]
-    icf.maxPixelHoles           = [2]
-    icf.maxSctHoles             = [2]
-    icf.maxDoubleHoles          = [1]
-    icf.maxPrimaryImpact        = [2.0 * Units.mm, 2.0 * Units.mm, 10.0 * Units.mm]
-    icf.maxZImpact              = [200.0 * Units.mm]
+    icf.addFlag("minClusters"             , [9, 8, 7])
+    icf.addFlag("minSiNotShared"          , [7, 6, 5])
+    icf.addFlag("maxShared"               , [2])
+    icf.addFlag("minPixel"                , [1])
+    icf.addFlag("maxHoles"                , [2])
+    icf.addFlag("maxPixelHoles"           , [2])
+    icf.addFlag("maxSctHoles"             , [2])
+    icf.addFlag("maxDoubleHoles"          , [1])
+    icf.addFlag("maxPrimaryImpact"        , [2.0 * Units.mm, 2.0 * Units.mm, 10.0 * Units.mm])
+    icf.addFlag("maxZImpact"              , [200.0 * Units.mm])
 
     # --- general pattern cuts for NewTracking
-    icf.nHolesMax               = icf.maxHoles
-    icf.nHolesGapMax            = icf.maxHoles
+    icf.addFlag("roadWidth"               , 20.)
+    icf.addFlag("nHolesMax"               , icf.maxHoles)
+    icf.addFlag("nHolesGapMax"            , icf.maxHoles)
 
-    icf.Xi2max                  = [9.0]
-    icf.Xi2maxNoAdd             = [25.0]
-    icf.nWeightedClustersMin    = [6]
+    icf.addFlag("Xi2max"                  , [9.0])
+    icf.addFlag("Xi2maxNoAdd"             , [25.0])
+    icf.addFlag("nWeightedClustersMin"    , [6])
 
     # --- seeding
-    icf.maxdImpactSSSSeeds      = [20.0 * Units.mm]
-    icf.radMax                  = 1100. * Units.mm
+    icf.addFlag("maxdImpactSSSSeeds"      , [20.0 * Units.mm])
+    icf.addFlag("radMax"                  , 1100. * Units.mm)
 
     # --- min pt cut for brem
-    icf.minPTBrem               = [1000.0 * Units.mm]
-    icf.phiWidthBrem            = [0.3]
-    icf.etaWidthBrem            = [0.2]
+    icf.addFlag("minPTBrem"               , [1000.0 * Units.mm])
+    icf.addFlag("phiWidthBrem"            , [0.3])
+    icf.addFlag("etaWidthBrem"            , [0.2])
 
     return icf
 
@@ -427,18 +435,15 @@ def createITkFastTrackingPassFlags():
 def createITkLargeD0TrackingPassFlags():
 
     icf = createITkTrackingPassFlags()
-    icf.extension               = "LargeD0"
+    icf.extension             = "LargeD0"
     icf.usePrdAssociationTool = True
 
     icf.useEtaDepCuts      = True
-    icf.maxPT              = [1.0 * Units.TeV]
     icf.minPT              = [1000 * Units.MeV]
     icf.maxEta             = 4.0
     icf.etaBins            = [-1.0, 4.0]
     icf.maxPrimaryImpact   = [300 * Units.mm]
     icf.maxZImpact         = [500 * Units.mm]
-    icf.maxSecondaryImpact = [300.0 * Units.mm]
-    icf.minSecondaryPt     = [1000 * Units.MeV]
     icf.minClusters        = [8]
     icf.minSiNotShared     = [6]
     icf.maxShared          = [2]
@@ -447,21 +452,21 @@ def createITkLargeD0TrackingPassFlags():
     icf.maxPixelHoles      = [1]
     icf.maxSctHoles        = [1]
     icf.maxDoubleHoles     = [0]
+
     icf.maxZImpactSeed     = 500.0 * Units.mm
     icf.maxPrimaryImpactSeed = 300.0 * Units.mm
     icf.minPTSeed          = 1000 * Units.MeV
+    icf.addFlag("maxZSpacePointsPPPSeeds" , 500 * Units.mm)
+    icf.addFlag("maxZSpacePointsSSSSeeds" , 2700 * Units.mm) # Off
+
     icf.radMax             = 1100. * Units.mm
     icf.nHolesMax          = icf.maxHoles
     icf.nHolesGapMax       = icf.maxHoles
     icf.seedFilterLevel    = 1
-    icf.maxTracksPerSharedPRD = 2
-
     icf.roadWidth          = 5
-    icf.doZBoundary        = True
 
     # --- seeding
     icf.maxdImpactSSSSeeds       = [300.0 * Units.mm]
-    icf.maxZSpacePointsPPPSeeds  = 500 * Units.mm
 
     # --- min pt cut for brem
     icf.minPTBrem                = [1000.0 * Units.mm]
@@ -480,12 +485,10 @@ def createITkLargeD0FastTrackingPassFlags():
 
     icf.maxEta             = 2.4
     icf.etaBins            = [-1.0, 2.4]
-    icf.minSecondaryPt     = [5.0 * Units.GeV]
     icf.minPT              = [5.0 * Units.GeV]
     icf.minPTSeed          = 5.0 * Units.GeV
     icf.nWeightedClustersMin = [8]
     icf.maxPrimaryImpact   = [150 * Units.mm]
-    icf.maxSecondaryImpact = [150 * Units.mm]
     icf.maxPrimaryImpactSeed = 150. * Units.mm
     icf.maxdImpactSSSSeeds = [150.0 * Units.mm]
     icf.maxZImpact         = [200 * Units.mm]
@@ -643,7 +646,7 @@ def createLowPtTrackingPassFlags():
 def createITkConversionFindingTrackingPassFlags(): #To be updated
     icf = createITkTrackingPassFlags()
     icf.extension               = "ConversionFinding"
-    icf.usePrdAssociationTool = True
+    icf.usePrdAssociationTool   = True
 
     icf.useEtaDepCuts           = True
     icf.etaBins                 = [-1.0,4.0]
