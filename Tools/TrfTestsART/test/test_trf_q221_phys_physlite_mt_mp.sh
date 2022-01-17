@@ -15,7 +15,7 @@ Reco_tf.py \
   --reductionConf PHYS PHYSLITE \
   --athenaopts "HITtoRDO:--threads=${ATHENA_CORE_NUMBER} --nprocs=0" "RDOtoRDOTrigger:--threads=${ATHENA_CORE_NUMBER} --nprocs=0" "RAWtoALL:--threads=${ATHENA_CORE_NUMBER} --nprocs=0" "AODtoDAOD:--threads=0 --nprocs=${ATHENA_CORE_NUMBER}" \
   --postExec "from AthenaAuditors.AthenaAuditorsConf import FPEAuditor;FPEAuditor.NStacktracesOnFPE=10" \
-  --maxEvents 1000
+  --maxEvents -1
 
 rc1=$?
 echo "art-result: ${rc1} Reco_tf_q221_phys_physlite_mt_mp" 
