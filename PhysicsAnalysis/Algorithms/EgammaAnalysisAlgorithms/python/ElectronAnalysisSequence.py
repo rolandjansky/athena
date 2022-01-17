@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # AnaAlgorithm import(s):
+from AsgAnalysisAlgorithms.AnalysisObjectSharedSequence import makeSharedObjectSequence
 from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 
@@ -51,17 +52,6 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
         postfix = '_' + postfix
         pass
 
-    # Make sure selection options make sense
-    if deepCopyOutput and shallowViewOutput:
-        raise ValueError ("deepCopyOutput and shallowViewOutput can't both be true!")
-
-    splitWP = workingPoint.split ('.')
-    if len (splitWP) != 2 :
-        raise ValueError ('working point should be of format "likelihood.isolation", not ' + workingPoint)
-
-    likelihoodWP = splitWP[0]
-    isolationWP = splitWP[1]
-
     # Create the analysis algorithm sequence object:
     seq = AnaAlgSequence( "ElectronAnalysisSequence" + postfix )
 
@@ -69,6 +59,52 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
     seq.addMetaConfigDefault ("selectionDecorNames", [])
     seq.addMetaConfigDefault ("selectionDecorNamesOutput", [])
     seq.addMetaConfigDefault ("selectionDecorCount", [])
+
+    makeElectronCalibrationSequence (seq, dataType, postfix=postfix,
+                                     crackVeto = crackVeto,
+                                     ptSelectionOutput = ptSelectionOutput,
+                                     isolationCorrection = isolationCorrection)
+    makeElectronWorkingPointSequence (seq, dataType, workingPoint, postfix=postfix,
+                                      recomputeLikelihood = recomputeLikelihood,
+                                      chargeIDSelection = chargeIDSelection)
+    makeSharedObjectSequence (seq, deepCopyOutput = deepCopyOutput,
+                              shallowViewOutput = shallowViewOutput,
+                              postfix = '_Electron' + postfix,
+                              enableCutflow = enableCutflow,
+                              enableKinematicHistograms = enableKinematicHistograms )
+
+    # Return the sequence:
+    return seq
+
+
+
+
+
+def makeElectronCalibrationSequence( seq, dataType, postfix = '',
+                                     crackVeto = False,
+                                     ptSelectionOutput = False,
+                                     isolationCorrection = False):
+    """Create electron calibration analysis algorithms
+
+    This makes all the algorithms that need to be run first befor
+    all working point specific algorithms and that can be shared
+    between the working points.
+
+    Keyword arguments:
+      dataType -- The data type to run on ("data", "mc" or "afii")
+      workingPoint -- The working point to use
+      postfix -- a postfix to apply to decorations and algorithm
+                 names.  this is mostly used/needed when using this
+                 sequence with multiple working points to ensure all
+                 names are unique.
+      isolationCorrection -- Whether or not to perform isolation correction
+      ptSelectionOutput -- Whether or not to apply pt selection when creating
+                           output containers.
+    """
+
+    # Make sure we received a valid data type.
+    if dataType not in [ 'data', 'mc', 'afii' ]:
+        raise ValueError( 'Invalid data type: %s' % dataType )
 
     # Set up the eta-cut on all electrons prior to everything else
     alg = createAlgorithm( 'CP::AsgSelectionAlg', 'ElectronEtaCutAlg' + postfix )
@@ -98,42 +134,6 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
                 metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
                               'selectionDecorNamesOutput' : [alg.selectionDecoration],
                               'selectionDecorCount' : [3]},
-                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
-
-    if 'LH' in likelihoodWP:
-        # Set up the likelihood ID selection algorithm
-        # It is safe to do this before calibration, as the cluster E is used
-        alg = createAlgorithm( 'CP::AsgSelectionAlg', 'ElectronLikelihoodAlg' + postfix )
-        alg.selectionDecoration = 'selectLikelihood' + postfix + ',as_bits'
-        if recomputeLikelihood:
-            # Rerun the likelihood ID
-            addPrivateTool( alg, 'selectionTool', 'AsgElectronLikelihoodTool' )
-            alg.selectionTool.primaryVertexContainer = 'PrimaryVertices'
-            alg.selectionTool.WorkingPoint = likelihoodWP
-            algDecorCount = 7
-        else:
-            # Select from Derivation Framework flags
-            addPrivateTool( alg, 'selectionTool', 'CP::AsgFlagSelectionTool' )
-            dfFlag = "DFCommonElectronsLH" + likelihoodWP.split('LH')[0]
-            alg.selectionTool.selectionFlags = [dfFlag]
-            algDecorCount = 1
-    else:
-        # Set up the DNN ID selection algorithm
-        alg = createAlgorithm( 'CP::AsgSelectionAlg', 'ElectronDNNAlg' + postfix )
-        alg.selectionDecoration = 'selectDNN' + postfix + ',as_bits'
-        if recomputeLikelihood:
-            # Rerun the DNN ID
-            addPrivateTool( alg, 'selectionTool', 'AsgElectronSelectorTool' )
-            alg.selectionTool.WorkingPoint = likelihoodWP
-            algDecorCount = 6
-        else:
-            # Select from Derivation Framework flags
-            raise ValueError ( "DNN working points are not available in derivations yet.")
-    seq.append( alg, inputPropName = 'particles',
-                stageName = 'selection',
-                metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
-                              'selectionDecorNamesOutput' : [alg.selectionDecoration],
-                              'selectionDecorCount' : [algDecorCount]},
                 dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
 
     # Select electrons only with good object quality.
@@ -191,6 +191,74 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
                     stageName = 'calibration',
                     dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
 
+
+
+
+
+def makeElectronWorkingPointSequence( seq, dataType, workingPoint,
+                                      postfix = '',
+                                      recomputeLikelihood = False,
+                                      chargeIDSelection = False ):
+    """Create electron analysis algorithms for a single working point
+
+    Keyword arguments:
+      dataType -- The data type to run on ("data", "mc" or "afii")
+      workingPoint -- The working point to use
+      postfix -- a postfix to apply to decorations and algorithm
+                 names.  this is mostly used/needed when using this
+                 sequence with multiple working points to ensure all
+                 names are unique.
+      recomputeLikelihood -- Whether to rerun the LH. If not, use derivation flags
+      chargeIDSelection -- Whether or not to perform charge ID/flip selection
+    """
+
+    # Make sure we received a valid data type.
+    if dataType not in [ 'data', 'mc', 'afii' ]:
+        raise ValueError( 'Invalid data type: %s' % dataType )
+
+    splitWP = workingPoint.split ('.')
+    if len (splitWP) != 2 :
+        raise ValueError ('working point should be of format "likelihood.isolation", not ' + workingPoint)
+
+    likelihoodWP = splitWP[0]
+    isolationWP = splitWP[1]
+
+    if 'LH' in likelihoodWP:
+        # Set up the likelihood ID selection algorithm
+        # It is safe to do this before calibration, as the cluster E is used
+        alg = createAlgorithm( 'CP::AsgSelectionAlg', 'ElectronLikelihoodAlg' + postfix )
+        alg.selectionDecoration = 'selectLikelihood' + postfix + ',as_bits'
+        if recomputeLikelihood:
+            # Rerun the likelihood ID
+            addPrivateTool( alg, 'selectionTool', 'AsgElectronLikelihoodTool' )
+            alg.selectionTool.primaryVertexContainer = 'PrimaryVertices'
+            alg.selectionTool.WorkingPoint = likelihoodWP
+            algDecorCount = 7
+        else:
+            # Select from Derivation Framework flags
+            addPrivateTool( alg, 'selectionTool', 'CP::AsgFlagSelectionTool' )
+            dfFlag = "DFCommonElectronsLH" + likelihoodWP.split('LH')[0]
+            alg.selectionTool.selectionFlags = [dfFlag]
+            algDecorCount = 1
+    else:
+        # Set up the DNN ID selection algorithm
+        alg = createAlgorithm( 'CP::AsgSelectionAlg', 'ElectronDNNAlg' + postfix )
+        alg.selectionDecoration = 'selectDNN' + postfix + ',as_bits'
+        if recomputeLikelihood:
+            # Rerun the DNN ID
+            addPrivateTool( alg, 'selectionTool', 'AsgElectronSelectorTool' )
+            alg.selectionTool.WorkingPoint = likelihoodWP
+            algDecorCount = 6
+        else:
+            # Select from Derivation Framework flags
+            raise ValueError ( "DNN working points are not available in derivations yet.")
+    seq.append( alg, inputPropName = 'particles',
+                stageName = 'selection',
+                metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
+                              'selectionDecorNamesOutput' : [alg.selectionDecoration],
+                              'selectionDecorCount' : [algDecorCount]},
+                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
+
     # Set up the isolation selection algorithm:
     if isolationWP != 'NonIso' :
         alg = createAlgorithm( 'CP::EgammaIsolationSelectionAlg',
@@ -233,31 +301,6 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
                 stageName = 'selection',
                 dynConfig = {'selectionTool.selectionFlags' : lambda meta : meta["selectionDecorNames"] [ : ]} )
 
-    # Set up an algorithm used to create electron selection cutflow:
-    if enableCutflow:
-        alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'ElectronCutFlowDumperAlg' + postfix )
-        alg.histPattern = 'electron_cflow_%SYS%' + postfix
-        seq.append( alg, inputPropName = 'input', stageName = 'selection',
-                    dynConfig = {'selection' : lambda meta : meta["selectionDecorNames"][:],
-                                 'selectionNCuts' : lambda meta : meta["selectionDecorCount"][:]} )
-
-    # Set up an algorithm dumping the kinematic properties of the electrons:
-    if enableKinematicHistograms:
-        alg = createAlgorithm( 'CP::KinematicHistAlg', 'ElectronKinematicDumperAlg' + postfix )
-        alg.histPattern = 'electron_%VAR%_%SYS%' + postfix
-        seq.append( alg, inputPropName = 'input', stageName = 'selection',
-                    dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
-
-    # Set up an algorithm that makes a view container using the selections
-    # performed previously:
-    if shallowViewOutput:
-        alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
-                               'ElectronViewFromSelectionAlg' + postfix )
-        seq.append( alg, inputPropName = 'input', outputPropName = 'output',
-                    stageName = 'selection',
-                    dynConfig = {'selection' : lambda meta : meta["selectionDecorNamesOutput"][:]} )
-        pass
-
     # Set up the electron efficiency correction algorithm:
     alg = createAlgorithm( 'CP::ElectronEfficiencyCorrectionAlg',
                            'ElectronEfficiencyCorrectionAlg' + postfix )
@@ -280,16 +323,3 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
                     stageName = 'efficiency',
                     dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
         pass
-
-    # Set up a final deep copy making algorithm if requested:
-    if deepCopyOutput:
-        alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
-                               'ElectronDeepCopyMaker' + postfix )
-        alg.deepCopy = True
-        seq.append( alg, inputPropName = 'input', outputPropName = 'output',
-                    stageName = 'selection',
-                    dynConfig = {'selection' : lambda meta : meta["selectionDecorNamesOutput"][:]} )
-        pass
-
-    # Return the sequence:
-    return seq
