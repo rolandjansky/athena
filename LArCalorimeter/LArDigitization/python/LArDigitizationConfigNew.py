@@ -260,9 +260,9 @@ def LArSCL1MakerCfg(flags, **kwargs):
     acc.merge(LArAutoCorrNoiseCondSCAlgCfg(flags))
     kwargs.setdefault("LArAutoCorrKey", "ConditionStore+LArAutoCorrNoiseSC") # Provided by LArAutoCorrNoiseCondAlg/LArAutoCorrNoiseSCCondAlg
     kwargs.setdefault("NSamples", flags.LAr.ROD.nSamples + 2)  # For consistency with LArAutoCorrNoiseSC - see ATLASSIM-5483
-    from RngComps.RandomServices import RNG
-    acc.merge(RNG(flags.Random.Engine))
-    kwargs.setdefault("RndmSvc", "AthRNGSvc")
+    from RngComps.RandomServices import AthRNGSvcCfg
+    kwargs.setdefault("RndmSvc",
+                      acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
     kwargs.setdefault("SCL1ContainerName","LArDigitSCL2") # Output - why L2??
     acc.addEventAlgo(CompFactory.LArSCL1Maker(**kwargs))
     return acc

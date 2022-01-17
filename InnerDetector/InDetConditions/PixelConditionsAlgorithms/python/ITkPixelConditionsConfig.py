@@ -136,6 +136,8 @@ def ITkPixelDistortionAlgCfg(flags, name="ITkPixelDistortionAlg", **kwargs):
     kwargs.setdefault("PixelModuleData", "ITkPixelModuleData")
     kwargs.setdefault("ReadKey", "/Indet/PixelDist")
     kwargs.setdefault("WriteKey", "ITkPixelDistortionData")
+    from RngComps.RandomServices import AthRNGSvcCfg
+    kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
     acc.addCondAlgo(CompFactory.PixelDistortionAlg(name, **kwargs))
     return acc
 
