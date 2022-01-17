@@ -143,9 +143,15 @@ def TrigMETMonConfig(inputFlags):
       HLTChains[12] = "HLT_xe110_pfsum_cssk_L1XE50"
       HLTChains[13] = "HLT_xe110_pfsum_vssk_L1XE50"
     ## mon group test
-    size = len (metChains)
-    if size > 0:
-      HLTChains[13] = metChains[0]
+    # size = len (metChains)
+    # if size > 0:
+    #   HLTChains[13] = metChains[0]
+    if len(metChains) > 0:
+        HLTChains = metChains
+    for i,chain in enumerate(HLTChains):
+        index = str(i+1) if i > 8 else '0' + str(i+1)
+        setattr(TrigMETMonAlg, 'HLTChain' + index, chain)
+      
     ### these are default chains ######
       #TrigMETMonAlg.L1Chain02 = 'L1_XE50'
       #TrigMETMonAlg.L1Chain02 = 'L1_jXENC50'
@@ -175,20 +181,20 @@ def TrigMETMonConfig(inputFlags):
     TrigMETMonAlg.L1Chain05 = L1Chains[4]
     TrigMETMonAlg.L1Chain06 = L1Chains[5]
     TrigMETMonAlg.L1Chain07 = L1Chains[6]
-    TrigMETMonAlg.HLTChain01 = HLTChains[0]
-    TrigMETMonAlg.HLTChain02 = HLTChains[1]
-    TrigMETMonAlg.HLTChain03 = HLTChains[2]
-    TrigMETMonAlg.HLTChain04 = HLTChains[3]
-    TrigMETMonAlg.HLTChain05 = HLTChains[4]
-    TrigMETMonAlg.HLTChain06 = HLTChains[5]
-    TrigMETMonAlg.HLTChain07 = HLTChains[6]
-    TrigMETMonAlg.HLTChain08 = HLTChains[7]
-    TrigMETMonAlg.HLTChain09 = HLTChains[8]
-    TrigMETMonAlg.HLTChain10 = HLTChains[9]
-    TrigMETMonAlg.HLTChain11 = HLTChains[10]
-    TrigMETMonAlg.HLTChain12 = HLTChains[11]
-    TrigMETMonAlg.HLTChain13 = HLTChains[12]
-    TrigMETMonAlg.HLTChain14 = HLTChains[13]
+    # TrigMETMonAlg.HLTChain01 = HLTChains[0]
+    # TrigMETMonAlg.HLTChain02 = HLTChains[1]
+    # TrigMETMonAlg.HLTChain03 = HLTChains[2]
+    # TrigMETMonAlg.HLTChain04 = HLTChains[3]
+    # TrigMETMonAlg.HLTChain05 = HLTChains[4]
+    # TrigMETMonAlg.HLTChain06 = HLTChains[5]
+    # TrigMETMonAlg.HLTChain07 = HLTChains[6]
+    # TrigMETMonAlg.HLTChain08 = HLTChains[7]
+    # TrigMETMonAlg.HLTChain09 = HLTChains[8]
+    # TrigMETMonAlg.HLTChain10 = HLTChains[9]
+    # TrigMETMonAlg.HLTChain11 = HLTChains[10]
+    # TrigMETMonAlg.HLTChain12 = HLTChains[11]
+    # TrigMETMonAlg.HLTChain13 = HLTChains[12]
+    # TrigMETMonAlg.HLTChain14 = HLTChains[13]    
 
 
     ### STEP 4 ###
@@ -332,12 +338,22 @@ def TrigMETMonConfig(inputFlags):
                              path='Shifter/eff',xbins=eff_bins,xmin=eff_min,xmax=eff_max)
       ii +=1
     ## HLT efficiency
-    jj = 0
-    effHLT = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14"]
-    for eff in effHLT:
-      metGroup.defineHistogram('offline_Et,pass_HLT{a};{b}_eff'.format(a=eff,b=HLTChains[jj]), type='TProfile',title='HLT{} efficiency;offline E_{{T}} [GeV];Efficiency'.format(eff),
-                             path='Shifter/eff',xbins=eff_bins,xmin=eff_min,xmax=eff_max)
-      jj +=1
+    # jj = 0
+    # # effHLT = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14"]
+    # for eff in effHLT:
+    #   metGroup.defineHistogram('offline_Et,pass_HLT{a};{b}_eff'.format(a=eff,b=HLTChains[jj]), type='TProfile',title='HLT{} efficiency;offline E_{{T}} [GeV];Efficiency'.format(eff),
+    #                          path='Shifter/eff',xbins=eff_bins,xmin=eff_min,xmax=eff_max)
+    #   jj +=1
+    for i,chain in enumerate(HLTChains):
+        index = str(i+1) if i > 8 else '0' + str(i+1)
+        metGroup.defineHistogram('offline_Et,pass_HLT{a};{b}_eff'.format(a=index,b=chain),
+                                 type='TProfile',
+                                 title='HLT{} efficiency;offline E_{{T}} [GeV];Efficiency'.format(index),
+                                 path='Shifter/eff',
+                                 xbins=eff_bins,
+                                 xmin=eff_min,
+                                 xmax=eff_max)
+    
     ## HLT cell component
     comp_names = ["PreSamplB", "EMB1", "EMB2", "EMB3", # LAr barrel
                   "PreSamplE", "EME1", "EME2", "EME3", # LAr EM endcap
