@@ -114,7 +114,7 @@ StatusCode RatesAnalysisAlg::newTrigger(const std::string& name,
   const Method_t method,
   const ExtrapStrat_t extrapolation) {
 
-  if (m_eventCounter > 0) { // All triggers must be defined before we start looping over the sample
+  if (m_eventCounter > 1) { // All triggers must be defined before we start looping over the sample
     ATH_MSG_FATAL("Too late to call newTrigger. All emulated triggers must be registered during ratesInitialize().");
     return StatusCode::FAILURE;
   }
@@ -711,7 +711,7 @@ StatusCode RatesAnalysisAlg::finalize() {
 }
 
 void RatesAnalysisAlg::setTargetLumiMu(const double lumi, const double mu) {
-  if (m_eventCounter > 0) { // All settings must be defined before we start looping over the sample
+  if (m_eventCounter > 1) { // All settings must be defined before we start looping over the sample
     ATH_MSG_WARNING("Too late to call setTargetLumiMu. Do this during ratesInitialize().");
     return;
   }
@@ -731,7 +731,7 @@ void RatesAnalysisAlg::setTargetLumiMu(const double lumi, const double mu) {
 }
 
 void RatesAnalysisAlg::setTargetLumiBunches(const double lumi, const int32_t bunches) {
-  if (m_eventCounter > 0) { // All settings must be defined before we start looping over the sample
+  if (m_eventCounter > 1) { // All settings must be defined before we start looping over the sample
     ATH_MSG_WARNING("Too late to call setTargetLumiBunches. Do this during ratesInitialize().");
     return;
   }
@@ -748,7 +748,7 @@ void RatesAnalysisAlg::setTargetLumiBunches(const double lumi, const int32_t bun
 
 
 void RatesAnalysisAlg::setTargetMuBunches(const double mu, const int32_t bunches) {
-  if (m_eventCounter > 0) { // All settings must be defined before we start looping over the sample
+  if (m_eventCounter > 1) { // All settings must be defined before we start looping over the sample
     ATH_MSG_WARNING("Too late to call setTargetMuBunches. Do this during ratesInitialize().");
     return;
   }
