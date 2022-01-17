@@ -35,9 +35,9 @@ namespace {
  * Typically they are getting inlined.
  * But we want to enforce that
  * as much we can.
- * As this also ensures that the 
- * multiversioning is 
- * applined to them
+ * As this also ensures that the
+ * multiversioning is
+ * applied to them
  */
 
 using namespace GSFUtils;
@@ -77,6 +77,16 @@ createToIJMaxRowCols()
  */
 const std::vector<triangularToIJ> convert = createToIJMaxRowCols();
 
+#if (defined(__GNUC__) || defined(__clang__))
+[[gnu::always_inline]]
+#endif
+inline int32_t
+extraElements16(const int32_t nn)
+{
+  const int32_t remainder16 = (nn & 15);
+  return remainder16 == 0 ? 0 : (16 - remainder16);
+}
+
 /**
  * @brief given a number of components n
  * return the number pairwise distance
@@ -86,10 +96,10 @@ const std::vector<triangularToIJ> convert = createToIJMaxRowCols();
 [[gnu::always_inline]]
 #endif
 inline int32_t
-numDistances8(const int32_t n)
+numDistances16(const int32_t n)
 {
   const int32_t nn = n * (n - 1) / 2;
-  const int32_t nn2 = (nn & 7) == 0 ? nn : nn + (8 - (nn & 7));
+  const int32_t nn2 = nn + extraElements16(nn);
   return nn2;
 }
 
@@ -97,10 +107,10 @@ numDistances8(const int32_t n)
 [[gnu::always_inline]]
 #endif
 inline int32_t
-numDistances8(const int32_t n, float* distancesIn)
+numDistances16(const int32_t n, float* distancesIn)
 {
   const int32_t nn = n * (n - 1) / 2;
-  const int32_t nn2 = (nn & 7) == 0 ? nn : nn + (8 - (nn & 7));
+  const int32_t nn2 = nn + extraElements16(nn);
   // Make sure the extra elements are set to max
   // set the loop for the minimum can not find them
   std::fill(
@@ -311,14 +321,12 @@ calculateAllDistances(const Component1D* componentsIn,
 /**
  * findMinimumIndex
  * Assume that the number of elements is a multiple
- * of 8 and is to be used for sizeable inputs.
+ * of 16.
  *
  * It uses the CxxUtils:vec class which provides
  * a degree of portability instead of using
- * directly the intrinsics.
- *
- * SSE4.1 gives us efficient blend
- * so we employ function multiversioning
+ * directly the intrinsics. SSE4.1 gives us efficient blend, so
+ * we use function multiversioning.
  *
  * For non-sizeable inputs
  * std::distance(array, std::min_element(array, array + n))
@@ -332,40 +340,74 @@ findMinimumIndex(const float* distancesIn, const int n)
 {
   using namespace CxxUtils;
   const float* array = assume_aligned<GSFConstants::alignment>(distancesIn);
-  // Do 2 vectors of 4 elements , so 8 at time
-  const vec<int, 4> increment = { 8, 8, 8, 8 };
+  // Do 4 vectors of 4 elements , so 16 at time
+  const vec<int, 4> increment = { 16, 16, 16, 16 };
+  // setup indices
   vec<int, 4> indices1 = { 0, 1, 2, 3 };
   vec<int, 4> indices2 = { 4, 5, 6, 7 };
+  vec<int, 4> indices3 = { 8, 9, 10, 11 };
+  vec<int, 4> indices4 = { 12, 13, 14, 15 };
+  // initial min indices
   vec<int, 4> minindices1 = indices1;
   vec<int, 4> minindices2 = indices2;
+  vec<int, 4> minindices3 = indices3;
+  vec<int, 4> minindices4 = indices4;
+  // initial minvalue
   vec<float, 4> minvalues1;
   vec<float, 4> minvalues2;
+  vec<float, 4> minvalues3;
+  vec<float, 4> minvalues4;
   vload(minvalues1, array);
   vload(minvalues2, array + 4);
+  vload(minvalues3, array + 8);
+  vload(minvalues4, array + 12);
+  // values
   vec<float, 4> values1;
   vec<float, 4> values2;
-  for (int i = 8; i < n; i += 8) {
-    // Load 8 elements at a time
-    vload(values1, array + i);     // first 4
-    vload(values2, array + i + 4); // second 4
+  vec<float, 4> values3;
+  vec<float, 4> values4;
+  // Main loop 16 elements at a time
+  // using vec/for SIMD
+  for (int i = 16; i < n; i += 16) {
     // 1
+    vload(values1, array + i);      // 0-3
     indices1 = indices1 + increment;
     vec<int, 4> lt1 = values1 < minvalues1;
     vselect(minindices1, indices1, minindices1, lt1);
     vmin(minvalues1, values1, minvalues1);
     // 2
+    vload(values2, array + i + 4);  // 4-7
     indices2 = indices2 + increment;
     vec<int, 4> lt2 = values2 < minvalues2;
     vselect(minindices2, indices2, minindices2, lt2);
     vmin(minvalues2, values2, minvalues2);
+    // 3
+    vload(values3, array + i + 8);  // 8-11
+    indices3 = indices3 + increment;
+    vec<int, 4> lt3 = values3 < minvalues3;
+    vselect(minindices3, indices3, minindices3, lt3);
+    vmin(minvalues3, values3, minvalues3);
+    // 4
+    vload(values4, array + i + 12); // 12-15
+    indices4 = indices4 + increment;
+    vec<int, 4> lt4 = values4 < minvalues4;
+    vselect(minindices4, indices4, minindices4, lt4);
+    vmin(minvalues4, values4, minvalues4);
   }
-  // Compare //1 with //2
-  vec<int, 4> lt = minvalues1 < minvalues2;
-  vselect(minindices1, minindices1, minindices2, lt);
+  // SIMD compare 1 with 2 , minimum becomes 1
+  vec<int, 4> lt12 = minvalues1 < minvalues2;
+  vselect(minindices1, minindices1, minindices2, lt12);
   vmin(minvalues1, minvalues1, minvalues2);
-  /*
-   * Do the final calculation scalar way
-   */
+  // SIMD compare 3 with 4 minimum becomes 3
+  vec<int, 4> lt34 = minvalues3 < minvalues4;
+  vselect(minindices3, minindices3, minindices4, lt34);
+  vmin(minvalues3, minvalues3, minvalues4);
+  // SIMD compare 1 with 3 minimum becomes 1
+  vec<int, 4> lt = minvalues1 < minvalues3;
+  vselect(minindices1, minindices1, minindices3, lt);
+  vmin(minvalues1, minvalues1, minvalues3);
+
+  // Do the final calculation scalar way
   size_t minIndex = minindices1[0];
   float minvalue = minvalues1[0];
   for (size_t i = 1; i < 4; ++i) {
@@ -406,7 +448,7 @@ findMerges(const Component1DArray& componentsIn, const int8_t reducedSize)
   Component1D* components = CxxUtils::assume_aligned<GSFConstants::alignment>(
     copyComponents.components.data());
   // Based on the inputSize n allocate enough space for the pairwise distances
-  int32_t nn2 = numDistances8(n);
+  int32_t nn2 = numDistances16(n);
   AlignedDynArray<float, GSFConstants::alignment> distances(
     nn2, std::numeric_limits<float>::max());
   // initial distance calculation
@@ -447,7 +489,7 @@ findMerges(const Component1DArray& componentsIn, const int8_t reducedSize)
                                             numberOfComponentsLeft);
 
     // number of remaining distances dividable by 8
-    nn2 = numDistances8(numberOfComponentsLeft, distances.buffer());
+    nn2 = numDistances16(numberOfComponentsLeft, distances.buffer());
   } // end of merge while
   return result;
 }
