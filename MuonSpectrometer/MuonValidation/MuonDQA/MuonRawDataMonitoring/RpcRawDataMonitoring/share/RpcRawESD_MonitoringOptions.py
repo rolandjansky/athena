@@ -8,41 +8,6 @@ if not 'MuonDQAFlags' in dir():
     printfunc ("MuonDQAFlags.py: MuonDQAFlags not yet imported - I import them now")
     from MuonDQAMonFlags.MuonDQAFlags import MuonDQAFlags as MuonDQAFlags
 
-
-#################### RPCStandaloneTracksMon #######################
-
-rpcTrackMonMan = AthenaMonManager(name="RpcTrackMonManager",
-                                FileKey             = DQMonFlags.monManFileKey(),
-                                Environment         = DQMonFlags.monManEnvironment(),
-                                OutputLevel         = muonOutputLevel)
-
-from RpcRawDataMonitoring.RpcRawDataMonitoringConf import RPCStandaloneTracksMon
-from StoreGate.StoreGateConf import StoreGateSvc
-if not hasattr(topSequence,"RpcClusterBuilderPRD"):
-    from RpcClusterization.RpcClusterizationConf import RpcClusterBuilderPRD
-    topSequence += RpcClusterBuilderPRD(ClusterTimeSpread = 10000,
-                                        OutputLevel = FATAL)
-
-OutputMessageLevel = WARNING
-
-RPCStandaloneTracksMon = RPCStandaloneTracksMon(name='RPCStandaloneTracksMon',
-                                                       RpcFile               = False,
-                                                       DoRpcEsd              = True,
-                                                       RpcChamberHist        = False,
-                                                       RPCStandaloneTracks   = True,
-                                                       RpcReduceNbins        = 8,
-                                                       RpcReduceNbinsStrip   = 8,
-						       rpc_readout_window    = 0.2, ## micro sec
-                                                       doRadiography         = False,
-						       doCoolDB              = False,
-                                                       ClusterContainer      = "rpcClusters")
-if globalflags.DataSource() != 'data':
-    RPCStandaloneTracksMon.isMC = True
-#ToolSvc += RPCStandaloneTracksMon
-rpcTrackMonMan.AthenaMonTools += [ RPCStandaloneTracksMon ]
-topSequence += rpcTrackMonMan
-printfunc (rpcTrackMonMan)
-
 ############################ rpcLv1RawEfficiencyMonManager ######################################
 rpcLv1RawEfficiencyMonMan = AthenaMonManager(name="rpcLv1RawEfficiencyMonManager",
                                FileKey             = DQMonFlags.monManFileKey(),
