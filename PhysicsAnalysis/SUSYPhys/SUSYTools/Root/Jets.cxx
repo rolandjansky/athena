@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// This source file implements all of the functions related to <OBJECT>
+// This source file implements all of the functions related to Jets
 // in the SUSYObjDef_xAOD class
 
 // Local include(s):
@@ -631,10 +631,10 @@ namespace ST {
       input.getAttribute(xAOD::JetAttribute::AverageLArQF, AverageLArQF);
 
       float sumpttrk;
-      if (sumpttrk_vec.size() > 0 && this->GetPrimVtx()) {
+      if (!sumpttrk_vec.empty() && this->GetPrimVtx()) {
         sumpttrk = sumpttrk_vec[this->GetPrimVtx()->index()];
       } else {
-        sumpttrk = 0;
+        sumpttrk = 0.;
       }
 
       ATH_MSG_INFO( "JET pt: " << input.pt() );
