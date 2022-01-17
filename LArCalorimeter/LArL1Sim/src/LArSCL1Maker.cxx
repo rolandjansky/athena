@@ -252,7 +252,7 @@ StatusCode LArSCL1Maker::execute(const EventContext& context) const
 
 
   SG::WriteHandle<LArDigitContainer> scContainerHandle( m_sLArDigitsContainerKey, context);
-  auto scContainer = std::make_unique<LArDigitContainer> (SG::VIEW_ELEMENTS);
+  auto scContainer = std::make_unique<LArDigitContainer> ();
 
   unsigned int nbSC = (unsigned int)m_scHelper->calo_cell_hash_max() ;
   scContainer->reserve(nbSC);
