@@ -20,13 +20,6 @@ container, the TruthTau container must be kept. For more information on how to
 achieve this, please refer to the `tau pre-recommendations TWiki
 <https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/TauPreRecommendations2015#Accessing_Tau_Truth_Information>`_
 
-**IMPORTANT: If you used TauTruthMatchingTool-00-01-06 or older, for example
-within the derivation, the variable** ``truthParticleLink`` **is bugged. This
-can be fixed by rerunning the truth matching with a newer tag, i.e. before
-applying the correction you have to call for each tau**::
-
-  xAOD::TruthParticle* TauTruthMatchingTool::getTruth(const xAOD::TauJet& xTau)
-
 For more information on truth matching please refer to `TauTruthMatchingTool
 <README-TauTruthMatchingTool.rst>`_.
 
@@ -70,22 +63,6 @@ The tool can be configured to use a specific set of systematic variations callin
 
   TauSmeTool.applySystematicVariation(customSystematicSet);
 
-------------------------
-MVA TES and Combined TES
-------------------------
-
-By default TauSmearingTool applies MVA TES. This is applied on data and simulation. 
-First a quality check is performed to veto unreasonably low resolution values. If this check, 
-was successful the tau 4-momentum values are overwritten with the values from MVA TES. 
-
-The MVA TES and the quality check can be disabled by the following options (meant only for testing purposes)::
-
-  TauSmeTool.setProperty("ApplyMVATES", false );
-  TauSmeTool.setProperty("ApplyMVATESQualityCheck", false );
-
-The combined TES can be applied with the following option::
-
-  TauSmeTool.setProperty("ApplyCombinedTES", true );
 
 --------------------
 Available properties
@@ -108,8 +85,8 @@ The tool can be used to apply tau pt smearing for a specific
 
    * - ``RecommendationTag``
      - ``std::string``
-     - ``"2017-moriond"``
-     - ``"2016-ichep"``, ``"mc15-moriond"``, ``"mc15-pre-recommendations"``, ``"mc12-final"``, ``"mc11-final"``
+     - ``"2019-summer"``
+     - ``""``
 
 The following table lists other properties for further configurations:
 
@@ -123,27 +100,11 @@ The following table lists other properties for further configurations:
      - default value
      - comment
 
-   * - ``ApplyMVATES``
-     - ``bool``
-     - ``true``
-     - apply new MVA based TES, see section `MVA TES and Combined TES`_
-
-   * - ``ApplyCombinedTES``
-     - ``bool``
-     - ``false``
-     - apply new combined MVA TES, see section `MVA TES and Combined TES`_
-
    * - ``ApplyMVATESQualityCheck``
      - ``bool``
-     - ``true``
-     - apply a check on MVA TES results. For taus that do not pass the test calo based TES is used. 
-
-   * - ``IsData``
-     - ``bool``
      - ``false``
-     - only for ``RecommendationTags`` ``"mc12-final"``, ``"mc11-final"``, if
-       set to ``true`` the tool applies a pT smearing aimed to correct for
-       differences in DATA vs. MC pT
+     - apply a compatibility check between calo TES and MVA TES. For taus that do not pass the test calo based TES is used. 
+
 
 Notes for run 1 tau pt smearing
 ===============================
@@ -249,8 +210,6 @@ Navigation
   * `TauSmearingTool <README-TauSmearingTool.rst>`_
   * `TauEfficiencyCorrectionsTool <README-TauEfficiencyCorrectionsTool.rst>`_
 
-    * `mc12 recommendations <README-TauEfficiencyCorrectionsTool-mc12.rst>`_
-    * `mc15 pre-recommendations <README-TauEfficiencyCorrectionsTool-mc15_pre-recommendations.rst>`_
     * `TauEfficiencyCorrectionsTool Trigger <README-TauEfficiencyCorrectionsTool_Trigger.rst>`_
 
   * `TauTruthMatchingTool <README-TauTruthMatchingTool.rst>`_

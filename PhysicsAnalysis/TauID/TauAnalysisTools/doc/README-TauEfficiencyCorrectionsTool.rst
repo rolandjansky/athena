@@ -129,17 +129,17 @@ are available for tool steering:
    * - ``EfficiencyCorrectionTypes``
      - ``std::vector<int>``
      - ``{SFRecoHadTau, SFJetIDHadTau}``
-     - ``std::vector<int>({SFEleOLRHadTau, SFEleOLRElectron, SFTriggerHadTau, SFDecayMode})``
+     - ``std::vector<int>({SFEleIDHadTau, SFEleIDElectron, SFTriggerHadTau, SFDecayModeHadTau})``
 
-   * - ``IDLevel``
+   * - ``JetIDLevel``
      - ``int``
-     - ``JETIDRNNTIGHT``
-     - ``JETIDRNNLOOSE``, ``JETIDRNNMEDIUM``
+     - ``JETIDNONE``
+     - ``JETIDRNNLOOSE``, ``JETIDRNNMEDIUM``, ``JETIDRNNTIGHT``
 
-   * - ``OLRLevel``
+   * - ``EleIDLevel``
      - ``int``
-     - ``OLRNONE``
-     - ``ELEBDTLOOSE``, ``ELEBDTMEDIUM``, ``ELEBDTTIGHT``
+     - ``ELEIDNONE``
+     - ``ELEIDRNNLOOSE``, ``ELEIDRNNMEDIUM``, ``ELEIDRNNTIGHT``
 
    * - ``UseTauSubstructure``
      - ``bool``
@@ -151,11 +151,6 @@ are available for tool steering:
      - ``""``
      - ``"HLT_tau125_medium1_tracktwo"``, ``"HLT_tau160_medium1_tracktwo"``, ``"HLT_tau25_medium1_tracktwo"``, ``"HLT_tau35_medium1_tracktwo"``, ``"HLT_tau50_medium1_tracktwo_L1TAU12"``, ``"HLT_tau80_medium1_tracktwo"``, ``"HLT_tau80_medium1_tracktwo_L1TAU60"``
 
-   * - ``TriggerYear``
-     - ``std::string``
-     - ``"2016"``
-     - ``"2015"``, ``"2017"``
-     
    * - ``TriggerSFMeasurement``
      - ``std::string``
      - ``"combined"``
@@ -183,10 +178,6 @@ In addition the following properties are available for further configurations:
      - ``std::string``
      - ``"TauAnalysisTools/"+ <SharedFilesVersion> +"EfficiencyCorrections/Reco_TrueHadTau_mc16-prerec.root"``
 
-   * - ``InputFilePathEleRNNElectron``
-     - ``std::string``
-     - ``"TauAnalysisTools/"+ <SharedFilesVersion> +"EfficiencyCorrections/EleBDT_TrueElectron_2018-summer.root"``
-
    * - ``InputFilePathJetIDHadTau``
      - ``std::string``
      - ``"TauAnalysisTools/"+ <SharedFilesVersion> +"EfficiencyCorrections/JetID_TrueHadTau_2018-summer.root"``
@@ -195,13 +186,13 @@ In addition the following properties are available for further configurations:
      - ``std::string``
      - ``"TauScaleFactorReconstructionHadTau"``
 
-   * - ``VarNameEleOLRHadTau``
+   * - ``VarNameEleIDHadTau``
      - ``std::string``
-     - ``"TauScaleFactorEleOLRHadTau"``
+     - ``"TauScaleFactorEleIDHadTau"``
 
-   * - ``VarNameEleOLRElectron``
+   * - ``VarNameEleIDElectron``
      - ``std::string``
-     - ``"TauScaleFactorEleOLRElectron"``
+     - ``"TauScaleFactorEleIDElectron"``
 
    * - ``VarNameJetIDHadTau``
      - ``std::string``
@@ -224,10 +215,10 @@ The following enums for the property
 factors:
 
 * SFRecoHadTau: scale factors for tau reconstruction of true hadronic tau decays
-* SFEleOLRHadTau: scale factors for tau electron overlap removal of true hadronic tau decays
-* SFEleOLRElectron: scale factors for tau electron overlap removal of true electrons faking hadronic taus
+* SFEleIDHadTau: scale factors for tau electron overlap removal of true hadronic tau decays
+* SFEleIDElectron: scale factors for tau electron overlap removal of true electrons faking hadronic taus
 * SFJetIDHadTau: scale factors for tau jet identification of true hadronic tau decays
-* SFDecayMode: scale factors for each true hadronic tau decay mode
+* SFDecayModeHadTau: scale factors for each true hadronic tau decay mode
 
 The InputFilePath* strings are predefined to load the files in
 /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/ using PathResolver, but own
@@ -264,7 +255,7 @@ These can be accessed, for example via::
 
   TauEffTool.setProperty("IDLevel", (int)JETIDRNNLOOSE);
 
-SFEleOLRElectron
+SFEleIDElectron
 ----------------
 
 Electron overlap removal scale factors are provided for a couple of working
@@ -278,21 +269,21 @@ points:
      - description
 
    * - ``ELERNNLOOSE``
-     - electron BDT loose working point
+     - electron RNN loose working point
 
    * - ``ELERNNMEDIUM``
-     - electron BDT medium working point
+     - electron RNN medium working point
 
    * - ``ELERNNTIGHT``
-     - electron BDT medium working point
+     - electron RNN medium working point
 
 These can be accessed, for example via::
 
-  TauEffTool.setProperty("OLRLevel", (int)OLRLevel);
+  TauEffTool.setProperty("EleIDLevel", (int)ELEIDRNNLOOSE);
 
-Recommendations for RNN based Electron identification are currently not avaiable in release 22
+Recommendations for RNN based Electron identification are currently not available in release 22.
 
-SFDecayMode
+SFDecayModeHadTau
 ----------------
 
 Only available since recommendations tag ``"2019-summer"``. ``UseTauSubstructure`` must be set to true. 
@@ -301,15 +292,8 @@ Only available since recommendations tag ``"2019-summer"``. ``UseTauSubstructure
 Special notes on decay mode recommendations
 --------------------------------------
 
-Set the ``"UseTauSubstructure"`` property to true in order to get the decay mode classification recommendations. This will provide alternative ID scale factors (SFJetIDHadTau), and also additional decay mode scale factors (SFDecayMode).
+Set the ``"UseTauSubstructure"`` property to true in order to get the decay mode classification recommendations. This will provide alternative ID scale factors (SFJetIDHadTau), and also additional decay mode scale factors (SFDecayModeHadTau).
 
-
---------------------------------------
-Special notes on older recommendations
---------------------------------------
-
-* mc12-final and mc11-final: `README-TauEfficiencyCorrectionsTool-mc12 <README-TauEfficiencyCorrectionsTool-mc12.rst>`_
-* mc15-prerecommendations: `README-TauEfficiencyCorrectionsTool-mc15_pre-recommendations <README-TauEfficiencyCorrectionsTool-mc15_pre-recommendations.rst>`_
 
 ---
 FAQ
@@ -395,8 +379,6 @@ Navigation
   * `TauSmearingTool <README-TauSmearingTool.rst>`_
   * `TauEfficiencyCorrectionsTool <README-TauEfficiencyCorrectionsTool.rst>`_
 
-    * `mc12 recommendations <README-TauEfficiencyCorrectionsTool-mc12.rst>`_ 
-    * `mc15 pre-recommendations <README-TauEfficiencyCorrectionsTool-mc15_pre-recommendations.rst>`_
     * `TauEfficiencyCorrectionsTool Trigger <README-TauEfficiencyCorrectionsTool_Trigger.rst>`_
   
   * `TauTruthMatchingTool <README-TauTruthMatchingTool.rst>`_

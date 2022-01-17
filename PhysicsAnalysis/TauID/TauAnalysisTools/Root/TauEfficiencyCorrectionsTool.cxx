@@ -42,7 +42,6 @@ TauEfficiencyCorrectionsTool::TauEfficiencyCorrectionsTool( const std::string& s
   declareProperty( "VarNameTriggerHadTau",         m_sVarNameTriggerHadTau         = "" );
   declareProperty( "RecommendationTag",            m_sRecommendationTag            = "2019-summer" );
   declareProperty( "TriggerName",                  m_sTriggerName                  = "" );
-  declareProperty( "TriggerYear",                  m_sTriggerYear                  = "" );
   declareProperty( "AutoTriggerYear",              m_bReadRandomRunNumber          = false );
   declareProperty( "TriggerSFMeasurement",         m_sTriggerSFMeasurement         = "combined" ); // "combined", "Ztautau" or "ttbar"
   declareProperty( "UseTauSubstructure",           m_bUseTauSubstructure           = false );
@@ -274,7 +273,6 @@ void TauEfficiencyCorrectionsTool::printConfig() const
   ATH_MSG_DEBUG( "  VarNameTriggerHadTau " << m_sVarNameTriggerHadTau );
   ATH_MSG_DEBUG( "  RecommendationTag " << m_sRecommendationTag );
   ATH_MSG_DEBUG( "  TriggerName " << m_sTriggerName );
-  ATH_MSG_DEBUG( "  TriggerYear " << m_sTriggerYear );
   ATH_MSG_DEBUG( "  UseTauSubstructure " << m_bUseTauSubstructure );
   ATH_MSG_DEBUG( "  UseHighPtUncert " << m_bUseHighPtUncert );
   ATH_MSG_DEBUG( "  JetIDLevel " << m_iJetIDLevel );
