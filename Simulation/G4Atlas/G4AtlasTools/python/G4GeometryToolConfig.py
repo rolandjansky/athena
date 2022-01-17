@@ -234,7 +234,7 @@ def ITKEnvelopeCfg(ConfigFlags, name="ITK", **kwargs):
     result = ComponentAccumulator()
 
     kwargs.setdefault("DetectorName", "ITK")
-    kwargs.setdefault("InnerRadius", 32.15*mm)
+    kwargs.setdefault("InnerRadius", 28.8*mm)
     kwargs.setdefault("OuterRadius", 1.148*m)
     if ConfigFlags.GeoModel.Run not in ["RUN1", "RUN2", "RUN3"]:
         # ITk should include the HGTD (3420 mm < |z| < 3545 mm) for now
