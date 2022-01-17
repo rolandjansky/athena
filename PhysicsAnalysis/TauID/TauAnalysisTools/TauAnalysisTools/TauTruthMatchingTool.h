@@ -1,7 +1,5 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TAUANALYSISTOOLS_TAUTRUTHMATCHINGTOOL_H
@@ -55,26 +53,26 @@ public:                         // Wrapper functions
   
   // wrapper function to get truth tau visible TLorentzvector
   virtual TLorentzVector getTruthTauP4Vis(const xAOD::TauJet& xTau) override final;
-  virtual TLorentzVector getTruthTauP4Vis(const xAOD::TruthParticle& xTruthTau) override final;
+  virtual TLorentzVector getTruthTauP4Vis(const xAOD::TruthParticle& xTruthTau) const override final;
 
   // wrapper function to get truth tau prompt TLorentzvector
   virtual TLorentzVector getTruthTauP4Prompt(const xAOD::TauJet& xTau) override final;
-  virtual TLorentzVector getTruthTauP4Prompt(const xAOD::TruthParticle& xTruthTau) override final;
+  virtual TLorentzVector getTruthTauP4Prompt(const xAOD::TruthParticle& xTruthTau) const override final;
 
   // wrapper function to get truth tau invisible TLorentzvector
   virtual TLorentzVector getTruthTauP4Invis(const xAOD::TauJet& xTau) override final;
-  virtual TLorentzVector getTruthTauP4Invis(const xAOD::TruthParticle& xTruthTau) override final;
+  virtual TLorentzVector getTruthTauP4Invis(const xAOD::TruthParticle& xTruthTau) const override final;
 
   // get type of truth match particle (hadronic tau, leptonic tau, electron, muon, jet)
   virtual TauAnalysisTools::TruthMatchedParticleType getTruthParticleType(const xAOD::TauJet& xTau) override final;
 
   // wrapper function to count number of decay particles of given pdg id
   virtual int getNTauDecayParticles(const xAOD::TauJet& xTau, int iPdgId, bool bCompareAbsoluteValues = false) override final;
-  virtual int getNTauDecayParticles(const xAOD::TruthParticle& xTruthTau, int iPdgId, bool bCompareAbsoluteValues = false) override final;
+  virtual int getNTauDecayParticles(const xAOD::TruthParticle& xTruthTau, int iPdgId, bool bCompareAbsoluteValues = false) const override final;
 
   // wrapper function to obtain truth verion of xAOD::TauJetParameters::DecayMode
   virtual xAOD::TauJetParameters::DecayMode getDecayMode(const xAOD::TauJet& xTau) override final;
-  virtual xAOD::TauJetParameters::DecayMode getDecayMode(const xAOD::TruthParticle& xTruthTau) override final;
+  virtual xAOD::TauJetParameters::DecayMode getDecayMode(const xAOD::TruthParticle& xTruthTau) const override final;
 
 private:                        // private helper functions
 
