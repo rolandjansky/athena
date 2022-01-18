@@ -100,6 +100,8 @@ def ITkStripGeoDetectorToolCfg(ConfigFlags, name='ITkStrip', **kwargs):
 def HGTDGeoDetectorToolCfg(ConfigFlags, name='HGTD', **kwargs):
     #set up geometry
     from HGTD_GeoModel.HGTD_GeoModelConfig import HGTD_SimulationGeometryCfg
+    # TODO: for running GMX implementation
+    # from HGTD_GeoModelXml.HGTD_GeoModelConfig import HGTD_SimulationGeometryCfg
     result = HGTD_SimulationGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "HGTD")
     #add the GeometryNotifierSvc
