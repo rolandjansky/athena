@@ -83,7 +83,8 @@ const Muon::MuonClusterOnTrack* Muon::MMClusterOnTrackCreator::correct(const Trk
 }
 
 const Muon::MuonClusterOnTrack* Muon::MMClusterOnTrackCreator::calibratedCluster(const Trk::PrepRawData& RIO,
-                                                                                 const Amg::Vector3D& GP) const {
+                                                                                 const Amg::Vector3D& GP,
+                                                                                 const Amg::Vector3D& GD) const {
     MuonClusterOnTrack* cluster = nullptr;
 
     if (!m_idHelperSvc->isMM(RIO.identify())) {

@@ -921,6 +921,10 @@ namespace Muon {
         std::vector<const Muon::MuonClusterOnTrack*>& clusters, std::pair<Amg::Vector3D, Amg::Vector3D>& seed) const {
         std::vector<const Muon::MuonClusterOnTrack*> calibratedClusters;
 
+        std::cout << "seed global position " << seed.first << " seed direction " << seed.second.unit() << std::endl;
+        std::cout << "seed global position theta " << seed.first.theta() << " seed direction theta " << seed.second.theta() << std::endl;
+        std::cout << "seed global position phi " << seed.first.phi() << " seed direction phi " << seed.second.phi() << std::endl;
+
         /// loop on the segment clusters and use the phi of the seed to correct them
         for (const Muon::MuonClusterOnTrack* clus : clusters) {
             const Muon::MuonClusterOnTrack* newClus = nullptr;
@@ -934,7 +938,7 @@ namespace Muon {
                 Identifier clus_id = clus->identify();
                 if (m_idHelperSvc->isMM(clus_id)) {
                     /// build a  new MM cluster on track with correct position
-                    newClus = m_mmClusterCreator->calibratedCluster(*(clus->prepRawData()), posOnSurf);
+                    newClus = m_mmClusterCreator->calibratedCluster(*(clus->prepRawData()), posOnSurf,seed.second);
                     // newClus = clus;
                     ATH_MSG_VERBOSE("Position before correction: " << clus->globalPosition().x() << " " << clus->globalPosition().y() << " "
                                                                    << clus->globalPosition().z());
