@@ -80,10 +80,6 @@ StatusCode LVL1::gFEXNtupleWriter::initialize () {
   m_valiTree->Branch ("gLJ_phi", &m_gLJ_phi);
   m_valiTree->Branch ("gLJ_et", &m_gLJ_et);
 
-  m_valiTree->Branch ("gLJ_eta", &m_gLJ_eta);  
-  m_valiTree->Branch ("gLJ_phi", &m_gLJ_phi);
-  m_valiTree->Branch ("gLJ_et", &m_gLJ_et);
-
   m_valiTree->Branch ("gGlobal_MET", &m_gGlobal_MET);  
   m_valiTree->Branch ("gGlobal_SumET", &m_gGlobal_SumET);  
   m_valiTree->Branch ("gGlobal_METx", &m_gGlobal_METx);  
