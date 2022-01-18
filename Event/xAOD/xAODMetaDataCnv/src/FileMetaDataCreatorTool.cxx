@@ -157,9 +157,30 @@ StatusCode
             // Processing data not generated events
             ATH_MSG_DEBUG("Failed to set " << xAOD::FileMetaData::mcProcID);
           }
+
+          try {
+            ATH_MSG_DEBUG("Accessing run number from " << m_eventInfoKey);
+
+            std::string type = "runNumbers";
+            std::vector<uint32_t> value;
+            if (m_info->value(type, value)) {
+              ATH_MSG_DEBUG("retrieved existing list of run numbers");
+            } else {
+              ATH_MSG_DEBUG("generating new list of run numbers");
+            }
+            value.push_back(eventInfo->runNumber());
+
+            if (m_info->setValue(type, value))
+              ATH_MSG_DEBUG("set " << type);
+            else
+              ATH_MSG_DEBUG("error setting " << type);
+          } catch (std::exception&) {
+            // Processing generated events not data
+            ATH_MSG_DEBUG("Failed to set run number");
+          }
         } else {
           ATH_MSG_DEBUG("Failed to retrieve " << m_eventInfoKey << " => cannot set "
-                        << xAOD::FileMetaData::mcProcID);
+                        << xAOD::FileMetaData::mcProcID << " and/or RunNumber");
         }
       }
 
