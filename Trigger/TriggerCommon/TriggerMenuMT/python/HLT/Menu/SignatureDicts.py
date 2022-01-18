@@ -247,7 +247,9 @@ JetChainParts = {
 
     'exotHypo' : ['emergingPTF0p2dR1p2', 'emergingPTF0p1dR1p2', 'emergingPTF0p09dR1p2', 'emergingPTF0p08dR1p2', 'emergingPTF0p075dR1p2', 'emergingPTF0p07dR1p2', 'emergingPTF0p0dR1p2', 
                   'emergingPTF0p2dR0p4', 'emergingPTF0p1dR0p4', 'emergingPTF0p09dR0p4', 'emergingPTF0p08dR0p4', 'emergingPTF0p075dR0p4', 'emergingPTF0p07dR0p4', 'emergingPTF0p0dR0p4', 
-                  'tracklessdR1p2',      'tracklessdR0p4'],
+                  'tracklessdR1p2',      'tracklessdR0p4',
+                  'calratio','calratiormbib' # Exotics CalRatio jets (trackless and low-EMF, with option to clean out BIB)
+              ],
 
     # Simple hypo configuration. Single property cuts defined as MINvarMAX
     'etaRange'      :

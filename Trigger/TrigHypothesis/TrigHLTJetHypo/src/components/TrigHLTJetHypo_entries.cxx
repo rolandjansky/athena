@@ -34,6 +34,8 @@
 #include "../TrigBtagTLATool.h"
 #include "../TrigJetEJsHypoAlg.h"
 #include "../TrigJetEJsHypoTool.h"
+#include "../TrigJetCRHypoAlg.h"
+#include "../TrigJetCRHypoTool.h"
 
 DECLARE_COMPONENT(TrigJetHypoToolConfig_fastreduction)
 DECLARE_COMPONENT(TrigJetHypoToolConfig_conditionfilter)
@@ -66,3 +68,5 @@ DECLARE_COMPONENT(TrigJetHypoToolHelperNoGrouper)
 
 DECLARE_COMPONENT(TrigJetEJsHypoAlg)
 DECLARE_COMPONENT(TrigJetEJsHypoTool)
+DECLARE_COMPONENT(TrigJetCRHypoAlg)
+DECLARE_COMPONENT(TrigJetCRHypoTool)
