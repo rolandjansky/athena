@@ -72,8 +72,12 @@ def GetRunNumber():
         try:
             runNb = metadata['runNumbers'][0]
         except Exception:
-            from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-            if not athenaCommonFlags.isOnline(): logAutoConfiguration.error("No RunNumber stored in InputFile!")
+            try:
+                runNb = metadata['FileMetaData']['runNumbers'][0]
+            except (KeyError, IndexError):
+                from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+                if not athenaCommonFlags.isOnline():
+                    logAutoConfiguration.error("No RunNumber stored in InputFile!")
     else:
         runNb=rec.RunNumber()
     logAutoConfiguration.debug("RunNumber is: %s",runNb)
@@ -86,16 +90,14 @@ def GetLBNumber():
     if metadata['nentries'] == 0:
         return None
 
-    lbs=[0,]
+    lb = None
     try:
         lbs = metadata['lumiBlockNumbers']
-
-    except Exception:
-        logAutoConfiguration.error("No LumiBlock number stored in InputFile! Use 0")
-        
-    if len(lbs)>1:
-        logAutoConfiguration.warning("Data from more than one lumi-block in the same file. Use first lumi-block number.")
-    lb=lbs[0]
+        if len(lbs)>1:
+            logAutoConfiguration.warning("Data from more than one lumi-block in the same file. Use first lumi-block number.")
+        lb = lbs[0]
+    except (KeyError, IndexError, TypeError,):
+        logAutoConfiguration.warning("No LumiBlock number stored in InputFile! Use 0")
     logAutoConfiguration.debug("LumiBlock Number is: %i",lb)
     return lb
 
