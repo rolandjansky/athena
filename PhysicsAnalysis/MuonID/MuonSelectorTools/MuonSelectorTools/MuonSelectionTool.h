@@ -105,6 +105,9 @@ namespace CP {
         /// Returns true if the muon passed additional calo-tag quality cuts
         virtual bool passedCaloTagQuality(const xAOD::Muon& mu) const override;
 
+        /// Returns true if the muon passed the CaloScore calo-tag working point
+        virtual bool passedCaloScore(const xAOD::Muon& mu) const override;
+
         /// Returns an integer corresponding to categorization of muons with different resolutions
         virtual int getResolutionCategory(const xAOD::Muon&) const override;
         /// @}
@@ -140,6 +143,7 @@ namespace CP {
         bool m_use2stationMuonsHighPt;
         bool m_useMVALowPt;
 	bool m_useSegmentTaggedLowPt;
+	bool m_useCaloScore;
         bool m_doBadMuonVetoMimic;
 
         SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this, "EventInfoContName", "EventInfo", "event info key"};
