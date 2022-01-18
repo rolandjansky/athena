@@ -130,7 +130,7 @@ def getFastFlavourTagging( flags, inputJets, inputVertex, inputTracks):
     nnFile = 'BTagging/20210517/dipsLoose/antikt4empflow/network.json'
     variableRemapping = {
         'BTagTrackToJetAssociator': tracksOnJetDecoratorName,
-        **{f'dipsLoose20210517_p{x}': f'dipsOnJet_p{x}' for x in 'cub'},
+        **{f'dipsLoose20210517_p{x}': f'fastDips_p{x}' for x in 'cub'},
         'btagIp_': simpleTrackIpPrefix,
     }
     # not all the keys that the NN requests are declaired. This will
