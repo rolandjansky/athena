@@ -79,6 +79,15 @@ namespace MuonGM {
         */
         void spacePointPosition(const Amg::Vector2D& phiPos, const Amg::Vector2D& etaPos, Amg::Vector2D& pos) const;
 
+        /** space point position indended to correct the position of 1D clusters
+            locXpos:  position along the radial (precision) direction in the layer ref. frame (e.g. cluster position).
+            locYseed: position along the transverse (phi) direction (e.g. track-segment seed).
+            in the case of nominal geometry, locXpos is corrected only for stereo strips by locYseed*tan(sAngle).
+            if as-built conditions are enabled locXpos is corrected also for as-built conditions
+            the output pos is a 3D vector, since we have 3D as-built deformations 
+        */
+        void spacePointPosition(const Identifier& layerId, double locXpos, double locYseed, Amg::Vector3D& pos) const;
+
         /** simHit local (SD) To Global position - to be used by MuonGeoAdaprors only
          */
         Amg::Vector3D localToGlobalCoords(const Amg::Vector3D& locPos, const Identifier& id) const;
@@ -201,6 +210,7 @@ namespace MuonGM {
     }
 
     inline int MMReadoutElement::stripNumber(const Amg::Vector2D& pos, const Identifier& id) const {
+        // returns the position of the strip at pos, assuming the nominal geometry (no as-built conditions)
         const MuonChannelDesign* design = getDesign(id);
         if (!design) return -1;
         return design->channelNumber(pos);
@@ -295,6 +305,59 @@ namespace MuonGM {
     inline void MMReadoutElement::spacePointPosition(const Amg::Vector2D& phiPos, const Amg::Vector2D& etaPos, Amg::Vector2D& pos) const {
         pos[0] = phiPos.x();
         pos[1] = etaPos.x();
+    }
+
+    inline void MMReadoutElement::spacePointPosition(const Identifier& layerId, double locXpos, double locYseed, Amg::Vector3D& pos) const {
+
+        // locXpos:  position along the precision direction in the layer reference frame (e.g. a cluster position).
+        // locYseed: position along the transverse direction (e.g. a track-segment seed).
+        // stereo strips:  locXpos is corrected by locYseed*tan(sAngle).
+        // eta and stereo: locXpos is also corrected for as-built conditions (3D) if they are active
+
+        const MuonChannelDesign* design = getDesign(layerId);
+        if (!design) return;
+
+// Since MuonNswAsBuilt is not included in AthSimulation
+#ifndef SIMULATIONBASE
+        const NswAsBuilt::StripCalculator* sc = manager()->getMMAsBuiltCalculator();
+        if (sc) {
+            // case as-built conditions are enabled
+
+            // nearest strip to locXpos
+            Amg::Vector2D lpos(locXpos, 0.);
+            int istrip = stripNumber(lpos, layerId);          
+
+            // setup the strip calculator
+            NswAsBuilt::stripIdentifier_t strip_id;
+            strip_id.quadruplet = { (largeSector() ? NswAsBuilt::quadrupletIdentifier_t::MML : NswAsBuilt::quadrupletIdentifier_t::MMS), getStationEta(), getStationPhi(), m_ml };
+            strip_id.ilayer     = manager()->mmIdHelper()->gasGap(layerId);
+            strip_id.istrip     = istrip;
+
+            // length of the eta strip with index "istrip", even for the case ofstereo strips, 
+            // since NswAsBuilt handles the conversion to stereo as an internal transformation 
+            // (formula copied from MuonChannelDesign.h)
+            double ylength = design->inputLength + ((design->maxYSize - design->minYSize)*(istrip - design->nMissedBottomEta + 0.5)*design->inputPitch / design->xSize);
+            double sx      = design->distanceToChannel(lpos, istrip)/design->inputPitch; // in [-0.5, 0.5]
+            double sy      = 2*locYseed/ylength; // in [-1, 1]
+
+            // get the position coordinates, in the multilayer frame, from NswAsBuilt.
+            // 2.75mm correction along the layer normal, since NswAsBuilt places the layer 
+            // on the readout strips, whereas Athena places it at the middle of the drift gap
+            NswAsBuilt::StripCalculator::position_t calcPos = sc->getPositionAlongStrip(NswAsBuilt::Element::ParameterClass::CORRECTION, strip_id, sy, sx);
+            pos     = calcPos.pos;
+            pos[0] += strip_id.ilayer%2 ? -2.75 : 2.75;
+
+            // transform from multilayer to layer frame of reference
+            auto LayerToMultilayer = m_Xlg[strip_id.ilayer - 1] * Amg::Translation3D(0., 0., m_offset) * Amg::AngleAxis3D(-90. * CLHEP::deg, Amg::Vector3D(0., 1., 0.));
+            pos = LayerToMultilayer.inverse()*pos;
+            return;                    
+        }
+#endif 
+
+        // nominal case; just correct x for the stereo angle
+        pos[0] = locXpos + locYseed*tan(design->sAngle);
+        pos[1] = locYseed;
+        pos[2] = 0.;
     }
 
 }  // namespace MuonGM
