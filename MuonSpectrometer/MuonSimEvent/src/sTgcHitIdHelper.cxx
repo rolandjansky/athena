@@ -11,10 +11,10 @@
 sTgcHitIdHelper* sTgcHitIdHelper::m_help = nullptr;
 
 namespace {
-    const static std::array<char, 1> v1 = {'T'};
+    const static std::array<char, 1> v1 = {'Q'};
     const static std::array<char, 2> v2 = {'S','L'};
     const static std::array<char, 5> v3 = {'0','1','2','3','4'};
-    const static std::array<char, 2> v4 = {'1','2'};
+    const static std::array<char, 2> v4 = {'P','C'};
 }
 
 //private constructor
