@@ -195,10 +195,9 @@ namespace top {
     int data_type = 0; // Data
     if (m_config->isMC()) {
       if (af2) {
-        ATH_MSG_WARNING("PhotonEfficiencies - Currently there are no recommendations for FastSimulation photons");
-        ATH_MSG_WARNING("PhotonEfficiencies - Therefore we are advised to treat FastSim as FullSim for configuration");
-        //data_type = 3; // AF2
-        data_type = 1; // AF2 masquerading as full sim
+	ATH_MSG_WARNING("PhotonEfficiencies - Currently there are only recommendations for FastSimulation ID of photons");
+	ATH_MSG_WARNING("PhotonEfficiencies - Therefore we are advised to treat FastSim as FullSim for ISO configuration");
+        data_type = 3; // AF2
       } else {
         data_type = 1; // Full sim
       }
