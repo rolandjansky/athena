@@ -85,15 +85,12 @@ void RD53SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
     InDetDD::PixelDiodeType type = m_pixelReadout->getDiodeType(diodeID);
 
     // Apply analogu threshold, timing simulation
-    double th0 = calibData->getAnalogThreshold((int) moduleHash, circ, type);
-
+    const int th0 = calibData->getAnalogThreshold(static_cast<int>(moduleHash), circ, type);
+    const int sigma = calibData->getAnalogThresholdSigma(static_cast<int>(moduleHash), circ, type);
+    const int noise = calibData->getAnalogThresholdNoise(static_cast<int>(moduleHash), circ, type); 
     double threshold = th0 +
-                       calibData->getAnalogThresholdSigma((int) moduleHash, circ,
-                                                          type) * CLHEP::RandGaussZiggurat::shoot(rndmEngine) +
-                       calibData->getAnalogThresholdNoise((int) moduleHash, circ,
-                                                          type)
-                       *
-                       CLHEP::RandGaussZiggurat::shoot(rndmEngine); // This noise check is unaffected by digitizationFlags.doInDetNoise in 21.0 - see PixelCellDiscriminator.cxx in that branch
+                       sigma * CLHEP::RandGaussZiggurat::shoot(rndmEngine) +
+                       noise * CLHEP::RandGaussZiggurat::shoot(rndmEngine); // This noise check is unaffected by digitizationFlags.doInDetNoise in 21.0 - see PixelCellDiscriminator.cxx in that branch
 
     if (charge > threshold) {
       int bunchSim = 0;
