@@ -595,7 +595,7 @@ bool ZDCPulseAnalyzer::LoadAndAnalyzeData(const std::vector<float>& ADCSamplesHG
       m_fixPrePulse = true; // new 2020/01/27
     }
   }
-  if (m_firstHGOverFlowSample >= (int) (2 * m_Nsample - 3 )) {
+  if (m_firstHGOverFlowSample >= int(2 * m_Nsample - 3 )   ) {
     m_maxSampleEvt = m_firstHGOverFlowSample - 1;
     m_HGOverflow = false;
     m_adjTimeRangeEvent = true;
@@ -725,7 +725,7 @@ bool ZDCPulseAnalyzer::AnalyzeData(size_t nSamples, size_t preSampleIdx,
   m_usedPresampIdx = preSampleIdx;
 
   if (m_adjTimeRangeEvent) {
-    m_usedPresampIdx = m_minSampleEvt; /// BAC -- why +1 here? Answer: should be no +1 -- removed
+    m_usedPresampIdx = m_minSampleEvt; 
   }
 
   m_preSample = samples[m_usedPresampIdx];
@@ -874,7 +874,7 @@ bool ZDCPulseAnalyzer::AnalyzeData(size_t nSamples, size_t preSampleIdx,
   // To check for exponential tail, test the slope determined by the minimum ADC value (and pre-sample)
   // **beware** this can cause trouble in 2015 data where the pulses had overshoot due to the transformers
   //
-  float expSlopeTest = m_minADCValue / std::max((float) m_maxADCValue - m_minADCValue, (float) 1.0);
+  float expSlopeTest = m_minADCValue / std::max( float( m_maxADCValue - m_minADCValue ), float( 1.0 ));
   if (expSlopeTest < -0.05) {
     m_preExpTail = true;
   }
@@ -946,7 +946,7 @@ bool ZDCPulseAnalyzer::AnalyzeData(size_t nSamples, size_t preSampleIdx,
     float minSamplePre = *minSamplePreIter;
     int minSamplePreIndex = std::distance(m_samplesSub.cbegin(), minSamplePreIter);
 
-    float avgSlopePre = (m_samplesSub[minSamplePreIndex] - m_samplesSub[m_minSampleEvt]) / ((float) (minSamplePreIndex - m_minSampleEvt + 1e-3));
+    float avgSlopePre = (m_samplesSub[minSamplePreIndex] - m_samplesSub[m_minSampleEvt]) / (float(minSamplePreIndex - m_minSampleEvt + 1e-3) );
 
     if (!m_preExpTail || !(expSlopeTest / minPreDeriv2nd > 0.25 || avgSlopePre / minPreDeriv2nd > 0.75)) {
       m_initialPrePulseT0 = m_deltaTSample * (minPreDeriv2ndIndex + 1);
