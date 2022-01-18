@@ -11,11 +11,10 @@ from AthenaCommon.Configurable import ConfigurableRun3Behavior
 from TrigInDetConfig.InDetTrigVertices import makeInDetTrigVertices
 from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTracking
-from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 
+# this code uses CA internally, needs to be in this context manager,
+# at least until ATLASRECTS-6635 is closed
 with ConfigurableRun3Behavior():
-    # this code uses CA internally, needs to be in this context
-    # manager, at least until ATLASRECTS-6635 is closed
     from ..Bjet.BjetFlavourTaggingConfiguration import getFastFlavourTagging
 
 from AthenaConfiguration.AccumulatorCache import AccumulatorCache
