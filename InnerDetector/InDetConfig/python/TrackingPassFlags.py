@@ -373,6 +373,7 @@ def createITkTrackingPassFlags():
     icf.addFlag("useITkStripSeeding"        	  , True )
 
     icf.addFlag("usePrdAssociationTool"     , False)
+    icf.addFlag("storeSeparateContainer"    , False)
     icf.addFlag("doZBoundary"               , True)
 
     icf.addFlag("useEtaDepCuts"             , True)
