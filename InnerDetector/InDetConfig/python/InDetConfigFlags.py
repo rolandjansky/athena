@@ -98,7 +98,7 @@ def createInDetConfigFlags():
   icf.addFlagsCategory ("InDet.Tracking.LowPtLargeD0Pass", createLowPtLargeD0TrackingPassFlags, prefix=True)
   icf.addFlagsCategory ("InDet.Tracking.LowPtPass", createLowPtTrackingPassFlags, prefix=True)
   icf.addFlagsCategory ("InDet.Tracking.VeryLowPtPass", createVeryLowPtTrackingPassFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.Tracking.ForwardTracksPass", createForwardTracksTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.Tracking.ForwardPass", createForwardTracksTrackingPassFlags, prefix=True)
   icf.addFlagsCategory ("InDet.Tracking.BeamGasPass", createBeamGasTrackingPassFlags, prefix=True)
   icf.addFlagsCategory ("InDet.Tracking.VtxLumiPass", createVtxLumiTrackingPassFlags, prefix=True)
   icf.addFlagsCategory ("InDet.Tracking.VtxBeamSpotPass", createVtxBeamSpotTrackingPassFlags, prefix=True)
