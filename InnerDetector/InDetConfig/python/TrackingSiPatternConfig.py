@@ -33,7 +33,7 @@ def SiSpacePointsSeedMakerCfg(flags, name="InDetSpSeedsMaker", InputCollections 
     kwargs.setdefault("RapidityCut",  flags.InDet.Tracking.ActivePass.maxEta )
 
     if not flags.Reco.EnableHI \
-       and (flags.InDet.Tracking.ActivePass.extension=="" or flags.InDet.Tracking.ActivePass.extension=="ForwardTracks" or flags.InDet.Tracking.ActivePass.extension=="BLS"):
+       and (flags.InDet.Tracking.ActivePass.extension=="" or flags.InDet.Tracking.ActivePass.extension=="Forward" or flags.InDet.Tracking.ActivePass.extension=="BLS"):
         kwargs.setdefault("maxdImpactPPS", flags.InDet.Tracking.ActivePass.maxdImpactPPSSeeds)
         kwargs.setdefault("maxdImpactSSS", flags.InDet.Tracking.ActivePass.maxdImpactSSSSeeds)
         kwargs.setdefault("maxSeedsForSpacePointStrips", flags.InDet.Tracking.ActivePass.maxSeedsPerSP_Strips)
@@ -70,7 +70,7 @@ def SiSpacePointsSeedMakerCfg(flags, name="InDetSpSeedsMaker", InputCollections 
         kwargs.setdefault("alwaysKeepConfirmedStripSeeds", flags.InDet.Tracking.ActivePass.keepAllConfirmedStripSeeds)
         kwargs.setdefault("maxdRadius", 150)
         kwargs.setdefault("seedScoreBonusConfirmationSeed", -2000)
-    elif flags.InDet.Tracking.ActivePass.extension == "ForwardTracks":
+    elif flags.InDet.Tracking.ActivePass.extension == "Forward":
         kwargs.setdefault("checkEta", True)
         kwargs.setdefault("etaMin", flags.InDet.Tracking.ActivePass.minEta)
         kwargs.setdefault("etaMax", flags.InDet.Tracking.ActivePass.maxEta)
@@ -239,7 +239,7 @@ def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None,
     elif flags.InDet.Tracking.ActivePass.extension == "BeamGas":
         kwargs.setdefault("TrackPatternRecoInfo", 'SiSpacePointsSeedMaker_BeamGas')
 
-    elif flags.InDet.Tracking.ActivePass.extension == "ForwardTracks":
+    elif flags.InDet.Tracking.ActivePass.extension == "Forward":
         kwargs.setdefault("TrackPatternRecoInfo", 'SiSpacePointsSeedMaker_ForwardTracks')
 
     elif flags.InDet.Tracking.ActivePass.extension == "LargeD0" or flags.InDet.Tracking.ActivePass.extension == "R3LargeD0" or flags.InDet.Tracking.ActivePass.extension == "LowPtLargeD0":
@@ -277,7 +277,7 @@ def SiSPSeededTrackFinderCfg(flags, name="InDetSiSpTrackFinder", InputCollection
         # not all classes have that property !!!
         kwargs.setdefault("PRDtoTrackMap", 'InDetPRDtoTrackMap'+ flags.InDet.Tracking.ActivePass.extension)
 
-    if flags.InDet.Tracking.ActivePass.extension == "ForwardTracks":
+    if flags.InDet.Tracking.ActivePass.extension == "Forward":
         kwargs.setdefault("useZvertexTool", flags.Reco.EnableHI) # For heavy-ion
         kwargs.setdefault("useZBoundFinding", False)
     elif flags.InDet.Tracking.ActivePass.extension == "DBM":
