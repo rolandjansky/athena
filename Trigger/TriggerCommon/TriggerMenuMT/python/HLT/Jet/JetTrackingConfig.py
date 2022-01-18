@@ -9,6 +9,14 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, conf2toConfigurable, appendCAtoAthena
 from AthenaCommon.Configurable import ConfigurableRun3Behavior
 from TrigInDetConfig.InDetTrigVertices import makeInDetTrigVertices
+from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTracking
+from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+
+with ConfigurableRun3Behavior():
+    # this code uses CA internally, needs to be in this context
+    # manager, at least until ATLASRECTS-6635 is closed
+    from ..Bjet.BjetFlavourTaggingConfiguration import getFastFlavourTagging
 
 from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
@@ -86,19 +94,15 @@ def JetFSTrackingSequence(dummyFlags,trkopt,RoIs):
 
 def JetRoITrackingSequence(dummyFlags,jetsIn,trkopt,RoIs):
 
-    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
     IDTrigConfig = getInDetTrigConfig( 'jetSuper' )
 
-    from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTracking
     viewAlgs, viewVerify = makeInDetTrigFastTracking( config = IDTrigConfig, rois=RoIs)
     viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs ),( 'xAOD::JetContainer' , 'StoreGateSvc+%s' % jetsIn)]
 
-    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
     IDTrigConfig = getInDetTrigConfig('jetSuper')
     tracksIn = IDTrigConfig.tracks_FTF()
 
     with ConfigurableRun3Behavior():
-        from ..Bjet.BjetFlavourTaggingConfiguration import getFastFlavourTagging # NB must import here, within Run3Behaviour
         ca_ft_algs = getFastFlavourTagging( dummyFlags, jetsIn, "", tracksIn)
 
     # Conversion of flavour-tagging algorithms from new to old-style

@@ -10,6 +10,7 @@ from ..CommonSequences.FullScanDefs import caloFSRoI, trkFSRoI
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from .JetRecoCommon import jetRecoDictToString
 from .JetRecoSequences import jetClusterSequence, jetCaloRecoSequences, jetTrackingRecoSequences, jetHICaloRecoSequences
+from .JetTrackingConfig import JetRoITrackingSequence
 
 from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 
@@ -186,24 +187,14 @@ def jetFSTrackingHypoMenuSequence(configFlags, clustersKey, isPerf, **jetRecoDic
 
 def jetRoITrackingHypoMenuSequence(configFlags, jetsIn, **jetRecoDict):
     InputMakerAlg = getTrackingInputMaker(jetRecoDict['trkopt'])
-    
+
     # Get the track reconstruction sequence
-    from .JetTrackingConfig import JetRoITrackingSequence
     jetTrkSeq = RecoFragmentsPool.retrieve(
         JetRoITrackingSequence, configFlags, jetsIn=jetsIn,trkopt=jetRecoDict["trkopt"], RoIs=InputMakerAlg.InViewRoIs)
 
     InputMakerAlg.ViewNodeName = jetTrkSeq.name()
 
     jetDefString = jetRecoDictToString(jetRecoDict)
-
-    #Marco: adding decoration part
-    # DipzTool = CompFactory.DipsFTTool('DipsFTTool', JetContainer=jetsIn)
-
-    # jetDecAlg = conf2toConfigurable(CompFactory.JetDecorationAlg(
-    #                                 f'JetDec_{jetDefString}', 
-    #                                 JetContainer=jetsIn,
-    #                                 Decorators=[DipzTool],
-    #                                 ))
 
     log.debug("Generating jet tracking hypo menu sequence for reco %s",jetDefString)
 
