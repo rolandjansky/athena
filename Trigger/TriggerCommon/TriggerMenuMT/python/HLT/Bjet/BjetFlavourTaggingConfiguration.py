@@ -11,6 +11,7 @@ from BTagging.JetBTaggingAlgConfig import JetBTaggingAlgCfg
 from BTagging.BTagTrackAugmenterAlgConfig import BTagTrackAugmenterAlgCfg
 from BTagging.BTagHighLevelAugmenterAlgConfig import BTagHighLevelAugmenterAlgCfg
 from BTagging.HighLevelBTagAlgConfig import HighLevelBTagAlgCfg
+from BTagging.HighLevelBTagAlgConfig import getStaticTrackVars
 from JetTagCalibration.JetTagCalibConfig import JetTagCalibCfg
 
 def getFlavourTagging( inputJets, inputVertex, inputTracks, BTagName,
@@ -100,7 +101,12 @@ def getFastFlavourTagging( flags, inputJets, inputVertex, inputTracks):
     simpleTrackIpPrefix = 'simpleIp_'
     ca.addEventAlgo(
         CompFactory.FlavorTagDiscriminants.PoorMansIpAugmenterAlg(
-            'SimpleTrackAugmenter',
+            name='_'.join([
+                'SimpleTrackAugmenter',
+                trackContainer,
+                primaryVertexContainer,
+                simpleTrackIpPrefix,
+            ]),
             trackContainer=trackContainer,
             primaryVertexContainer=primaryVertexContainer,
             prefix=simpleTrackIpPrefix,
@@ -127,13 +133,31 @@ def getFastFlavourTagging( flags, inputJets, inputVertex, inputTracks):
         **{f'dipsLoose20210517_p{x}': f'dipsOnJet_p{x}' for x in 'cub'},
         'btagIp_': simpleTrackIpPrefix,
     }
+    # not all the keys that the NN requests are declaired. This will
+    # cause an algorithm stall if we don't explicetly tell it that it
+    # can ignore some of them.
+    missingKeys = getStaticTrackVars(trackContainer)
+    # The 'jetLink' is a special special hack: it won't be used
+    # because we're tagging the jet directly here, but DL2 still
+    # reports it as a dependency.
+    missingKeys += [f'{jet_name}.jetLink']
+    nnAlgoKey = nnFile.replace('/','_').split('.')[0]
     ca.addEventAlgo(
         CompFactory.FlavorTagDiscriminants.JetTagDecoratorAlg(
-            'simpleJetTagAlg',
+            name='_'.join([
+                'simpleJetTagAlg',
+                jet_name,
+                trackContainer,
+                nnAlgoKey,
+            ]),
             container=jet_name,
             constituentContainer=trackContainer,
+            undeclaredReadDecorKeys=missingKeys,
             decorator=CompFactory.FlavorTagDiscriminants.DL2Tool(
-                'simpleDipsToJet',
+                name='_'.join([
+                    'simpleDipsToJet',
+                    nnAlgoKey,
+                ]),
                 nnFile=nnFile,
                 variableRemapping=variableRemapping,
                 # note that the tracks are associated to the jet as
