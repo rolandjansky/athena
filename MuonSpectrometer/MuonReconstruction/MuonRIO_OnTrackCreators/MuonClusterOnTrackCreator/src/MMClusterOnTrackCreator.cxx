@@ -145,7 +145,7 @@ const Muon::MuonClusterOnTrack* Muon::MMClusterOnTrackCreator::calibratedCluster
     localposition[Trk::locY] = 0.0;
 
     /// calibrate the cluster position along the precision coordinate
-    sc = m_clusterBuilderTool->getCalibratedClusterPosition(MClus, calibratedStrips, localposition, loce);
+    sc = m_clusterBuilderTool->getCalibratedClusterPosition(MClus, calibratedStrips, GD.theta(), localposition, loce);
     if (sc != StatusCode::SUCCESS) {
         ATH_MSG_WARNING("Could not calibrate the MM Cluster in the RIO on track creator");
         return cluster;

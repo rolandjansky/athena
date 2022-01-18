@@ -37,11 +37,39 @@ StatusCode Muon::ClusterTimeProjectionMMClusterBuilderTool::getClusters(
         if (prdsOfLayer.size() < 2) continue;  // require at least two strips per layer
         std::vector<std::vector<uint>> idxClusters;  // index of strips in cluster
         StatusCode sc = clusterLayer(prdsOfLayer, idxClusters);
+
+
         if (sc.isFailure()) continue;
         for (uint i_cluster = 0; i_cluster < idxClusters.size(); i_cluster++) {
             double clusterPosition, clusterPositionErrorSq;
-            sc = getClusterPositionPRD(prdsOfLayer, idxClusters.at(i_cluster),
-				       clusterPosition, clusterPositionErrorSq);
+            std::vector<Identifier> rdoList;
+            std::vector<int> stripCharges;
+            std::vector<float> stripPos;
+            std::vector<float> stripDriftDists;
+            std::vector<Amg::MatrixX> stripDriftDistErrors;
+
+            rdoList.reserve(idxClusters.at(i_cluster).size());
+            stripCharges.reserve(idxClusters.at(i_cluster).size());
+            stripPos.reserve(idxClusters.at(i_cluster).size());
+            
+            stripDriftDists.reserve(idxClusters.at(i_cluster).size());
+            stripDriftDistErrors.reserve(idxClusters.at(i_cluster).size());
+
+            float thetaEstimate = 0;
+        
+            for(auto idx:idxClusters.at(i_cluster)){
+                Identifier id = prdsOfLayer.at(idx).identify();
+                rdoList.push_back(id);
+                stripCharges.push_back(prdsOfLayer.at(idx).charge());
+                stripPos.push_back(prdsOfLayer.at(idx).localPosition().x());              
+                thetaEstimate += std::atan(prdsOfLayer.at(idx).globalPosition().perp() / std::abs(prdsOfLayer.at(idx).globalPosition().z())) * prdsOfLayer.at(idx).charge();
+                stripDriftDists.push_back(prdsOfLayer.at(idx).driftDist());
+                stripDriftDistErrors.push_back(prdsOfLayer.at(idx).localCovariance());                     
+            }
+            thetaEstimate /= std::accumulate(stripCharges.begin(),stripCharges.end(),0.0);
+
+            sc = getClusterPositionPRD(rdoList, stripPos, stripDriftDists, stripDriftDistErrors, stripCharges, thetaEstimate , clusterPosition, clusterPositionErrorSq);
+
             if (sc.isFailure()) continue;
             sc = writeClusterPrd(prdsOfLayer, idxClusters.at(i_cluster),
                                  clusterPosition, clusterPositionErrorSq, clustersVec);
@@ -111,42 +139,37 @@ StatusCode Muon::ClusterTimeProjectionMMClusterBuilderTool::clusterLayer(
     return StatusCode::SUCCESS;
 }  // end of cluster layer
 
-StatusCode Muon::ClusterTimeProjectionMMClusterBuilderTool::getClusterPositionPRD(const std::vector<Muon::MMPrepData> &MMPrdsOfLayer,
-										  const std::vector<uint> &idxCluster, 
+StatusCode Muon::ClusterTimeProjectionMMClusterBuilderTool::getClusterPositionPRD(const std::vector<Identifier>& ids,
+                                          const std::vector<float>& stripsPos, const std::vector<float>& driftDists, 
+                                          const std::vector<Amg::MatrixX> driftDistErrors, const std::vector<int> &charges, const float thetaEstimate, 
 										  double &clusterPosition,
 										  double &clusterPositionErrorSq) const {
-  if (idxCluster.empty()) return StatusCode::FAILURE;
-  double qtot = 0;
-    double meanTheta = 0;
+    if (ids.empty()) return StatusCode::FAILURE;
+    double qtot = 0;
     double meanDriftDist = 0;
     double meanDriftDistError = 0;
     double meanPosX = 0;
     double meanPosXError = 0;
-    for (auto idx : idxCluster) {
-        double driftDist = MMPrdsOfLayer.at(idx).driftDist();
-        double charge = MMPrdsOfLayer.at(idx).charge()*Gaudi::Units::perThousand; //  divide by 1000 to avoid overflow of variables
+    for (uint i_strip=0;i_strip<ids.size(); i_strip++) {
+        double driftDist = driftDists.at(i_strip);
+        double charge = charges.at(i_strip)*Gaudi::Units::perThousand; //  divide by 1000 to avoid overflow of variables
         qtot += charge;
-        meanPosX += MMPrdsOfLayer.at(idx).localPosition().x()*charge;
-        meanPosXError += MMPrdsOfLayer.at(idx).localCovariance()(1, 1)*charge*charge;
+        meanPosX += stripsPos.at(i_strip)*charge;
+        meanPosXError += driftDistErrors.at(i_strip)(1, 1)*charge*charge;
         meanDriftDist += driftDist*charge;
-        meanDriftDistError += MMPrdsOfLayer.at(idx).localCovariance()(0, 0)*charge*charge;
+        meanDriftDistError += driftDistErrors.at(i_strip)(0, 0)*charge*charge;
         ATH_MSG_VERBOSE("Strip:"
                         <<" drift dist " << driftDist
-                        <<" +- "<<  std::sqrt(MMPrdsOfLayer.at(idx).localCovariance()(0,0))
-                        <<" xpos " << MMPrdsOfLayer.at(idx).localPosition().x()
-                        << " +- "<< std::sqrt(MMPrdsOfLayer.at(idx).localCovariance()(1,1))
+                        <<" +- "<<  std::sqrt(driftDistErrors.at(i_strip)(0,0))
+                        <<" xpos " << stripsPos.at(i_strip)
+                        << " +- "<< std::sqrt(driftDistErrors.at(i_strip)(1,1))
                         <<" xMeanPos " << meanPosX / qtot
                         <<" +- " << std::sqrt(meanPosXError) / qtot
                         << " meanPosXError " << meanPosXError
                         <<" meanDriftDist " << meanDriftDist/qtot
                         <<" meanDriftDist Error " <<  std::sqrt(meanDriftDistError)/qtot
                         <<" charge " << charge << " qtot " << qtot
-                        << " theta " << std::atan(MMPrdsOfLayer.at(idx).globalPosition().perp() /
-                        std::abs(MMPrdsOfLayer.at(idx).globalPosition().z()))
-                        << " meanTheta " << meanTheta / qtot);
-
-        meanTheta += std::abs(std::atan(MMPrdsOfLayer.at(idx).globalPosition().perp() /
-                        std::abs(MMPrdsOfLayer.at(idx).globalPosition().z())))*charge;
+                        );
     }
     meanPosX /= qtot;
     double meanPosXErrorSq = meanPosXError/(qtot*qtot);
@@ -155,20 +178,19 @@ StatusCode Muon::ClusterTimeProjectionMMClusterBuilderTool::getClusterPositionPR
                     << "qtot*qtot" << qtot*qtot);
     meanDriftDist /= qtot;
     double meanDriftDistErrorSq = meanDriftDistError/(qtot*qtot);
-    meanTheta /= qtot;
     ATH_MSG_VERBOSE("Cluster: "<< "xmean" << meanPosX);
     ATH_MSG_VERBOSE("Cluster: " << "meanPosXErrorSq" << meanPosXErrorSq
                     << " sqrt "<< sqrt(meanPosXErrorSq));
     ATH_MSG_VERBOSE("Cluster: "<< " meanDriftDist" << meanDriftDist);
     ATH_MSG_VERBOSE("Cluster: "<< " meanDriftDistErrorSq " << meanDriftDistErrorSq
                                << " sqrt " << std::sqrt(meanDriftDistErrorSq));
-    ATH_MSG_VERBOSE("Cluster " << " meanTheta " << meanTheta);
+    ATH_MSG_VERBOSE("Cluster " << " thetaEstimate " << thetaEstimate);
 
-    double correction = std::tan(meanTheta)*(meanDriftDist-halfGapWidth);
-    if (m_idHelperSvc->mmIdHelper().gasGap(MMPrdsOfLayer.at(0).identify())%2 == 0) {
+    double correction = std::tan(thetaEstimate)*(meanDriftDist-halfGapWidth);
+    if (m_idHelperSvc->mmIdHelper().gasGap(ids.at(0))%2 == 0) {
      correction = -1. * correction;  // take care of inverted drif direction for even gaps
     }
-    double correctionErrorSq = std::tan(meanTheta)*std::tan(meanTheta)*meanDriftDistErrorSq;
+    double correctionErrorSq = std::tan(thetaEstimate)*std::tan(thetaEstimate)*meanDriftDistErrorSq;
 
 
     clusterPosition = meanPosX + correction;
@@ -201,9 +223,9 @@ StatusCode Muon::ClusterTimeProjectionMMClusterBuilderTool::writeClusterPrd(
     std::vector<Amg::MatrixX> stripDriftDistErrors;
 
     rdoList.reserve(idxCluster.size());
+    stripCharges.reserve(idxCluster.size());
+    stripTimes.reserve(idxCluster.size());
     if(m_writeStripProperties) {
-        stripCharges.reserve(idxCluster.size());
-        stripTimes.reserve(idxCluster.size());
         stripNumbers.reserve(idxCluster.size());
     }
     stripDriftDists.reserve(idxCluster.size());
@@ -213,10 +235,10 @@ StatusCode Muon::ClusterTimeProjectionMMClusterBuilderTool::writeClusterPrd(
         Identifier id = MMPrdsOfLayer.at(idx).identify();
         rdoList.push_back(id);
         if(m_writeStripProperties) {
-            stripCharges.push_back(MMPrdsOfLayer.at(idx).charge());
-            stripTimes.push_back(MMPrdsOfLayer.at(idx).time());
             stripNumbers.push_back(channel(id));
         }
+        stripTimes.push_back(MMPrdsOfLayer.at(idx).time());
+        stripCharges.push_back(MMPrdsOfLayer.at(idx).charge());
         stripDriftDists.push_back(MMPrdsOfLayer.at(idx).driftDist());
         stripDriftDistErrors.push_back(MMPrdsOfLayer.at(idx).localCovariance());
     }
@@ -242,3 +264,41 @@ StatusCode Muon::ClusterTimeProjectionMMClusterBuilderTool::writeClusterPrd(
     clustersVec.push_back(std::move(prdN));
     return StatusCode::SUCCESS;
 }
+
+StatusCode Muon::ClusterTimeProjectionMMClusterBuilderTool::getCalibratedClusterPosition (const Muon::MMPrepData* cluster, std::vector<NSWCalib::CalibratedStrip>& strips,
+        const float theta, Amg::Vector2D& clusterLocalPosition, Amg::MatrixX& covMatrix) const {
+    
+    std::vector<Identifier> ids;
+    std::vector<float> stripsPos;
+    std::vector<float> driftDists;
+    std::vector<Amg::MatrixX> driftDistErrors;
+
+    for (const NSWCalib::CalibratedStrip &strip : strips)  {
+            ids.push_back(strip.identifier);
+            stripsPos.push_back(strip.locPos.x());
+            driftDists.push_back(strip.distDrift);
+
+            Amg::MatrixX cov(2,2);
+            cov.setIdentity();
+            cov(0,0) = strip.resTransDistDrift;  
+            cov(1,1) = strip.resLongDistDrift; 
+            driftDistErrors.push_back(cov);    
+    }
+
+    double localClusterPosition=-9999;
+    double sigmaLocalClusterPosition=0;
+
+    StatusCode sc = getClusterPositionPRD(ids, stripsPos, driftDists, driftDistErrors, cluster->stripCharges() , theta, localClusterPosition, sigmaLocalClusterPosition);
+
+    if(sc==StatusCode::FAILURE) return sc;
+
+    clusterLocalPosition[Trk::locX] =  localClusterPosition;
+    
+    Amg::MatrixX covN (1,1);
+    covN.coeffRef(0,0)=sigmaLocalClusterPosition;
+    covMatrix=covN;
+
+    return StatusCode::SUCCESS;
+
+
+    }

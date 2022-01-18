@@ -139,9 +139,9 @@ StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepD
             stripsOfCluster.reserve(idx_goodStrips.size());
             if (m_writeStripProperties) {
                 stripsOfClusterChannels.reserve(idx_goodStrips.size());
-                stripsOfClusterTimes.reserve(idx_goodStrips.size());
-                stripsOfClusterCharges.reserve(idx_goodStrips.size());
             }
+            stripsOfClusterTimes.reserve(idx_goodStrips.size());
+            stripsOfClusterCharges.reserve(idx_goodStrips.size());
             stripsOfClusterDriftDists.reserve(idx_goodStrips.size());
             stripsOfClusterDriftDistErrors.reserve(idx_goodStrips.size());
             stripsOfClusterLocalPos.reserve(idx_goodStrips.size());
@@ -460,8 +460,9 @@ StatusCode Muon::UTPCMMClusterBuilderTool::finalFit(const std::vector<Identifier
 }
 
 StatusCode Muon::UTPCMMClusterBuilderTool::getCalibratedClusterPosition(const Muon::MMPrepData* cluster, std::vector<NSWCalib::CalibratedStrip>& strips, 
-					    Amg::Vector2D& clusterLocalPosition, Amg::MatrixX& covMatrix) const {
-
+					   const float theta, Amg::Vector2D& clusterLocalPosition, Amg::MatrixX& covMatrix) const {
+    (void) cluster;
+    (void) theta; // avoid unused parameter warning
     std::vector<Identifier> ids;
     std::vector<float> stripsPos;
     std::vector<float> driftDists;

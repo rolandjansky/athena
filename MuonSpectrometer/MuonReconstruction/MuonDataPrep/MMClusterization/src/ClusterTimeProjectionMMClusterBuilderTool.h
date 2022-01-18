@@ -28,6 +28,9 @@ class ClusterTimeProjectionMMClusterBuilderTool :
   StatusCode getClusters(std::vector<Muon::MMPrepData>& MMprds,
       std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVec) const override;
 
+  StatusCode getCalibratedClusterPosition(const Muon::MMPrepData* cluster, std::vector<NSWCalib::CalibratedStrip>&, 
+	   const float theta, Amg::Vector2D& clusterLocalPosition, Amg::MatrixX& covMatrix) const;
+
  private:
     /// Muon Detector Descriptor
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
@@ -43,10 +46,11 @@ class ClusterTimeProjectionMMClusterBuilderTool :
                             std::vector<std::vector<uint>> &idxClusters) const;
 
 
-    StatusCode getClusterPositionPRD(const std::vector<Muon::MMPrepData> &MMPrdsOfLayer,
-				     const std::vector<uint> &idxCluster,
-				     double &clustersPosition,
-				     double &clustersPositionErrorSq) const;
+    StatusCode getClusterPositionPRD(const std::vector<Identifier>& ids, 
+                                const std::vector<float>& stripsPos, const std::vector<float>& driftDists, 
+                                const std::vector<Amg::MatrixX> driftDistErrors, const std::vector<int> &charges, const float thetaEstimate, 
+								double &clusterPosition,
+								double &clusterPositionErrorSq) const;
 
     StatusCode writeClusterPrd(const std::vector<Muon::MMPrepData> &MMPrdsOfLayer,
                                const std::vector<uint> &idxCluster,

@@ -263,10 +263,10 @@ const{
     uint nStrips = idxCluster.size();
 
     stripsOfCluster.reserve(nStrips);
+    stripsOfClusterCharges.reserve(nStrips);
+    stripsOfClusterTimes.reserve(nStrips);
 
     if (m_writeStripProperties) {
-        stripsOfClusterCharges.reserve(nStrips);
-        stripsOfClusterTimes.reserve(nStrips);
         stripsOfClusterChannels.reserve(nStrips);
     }
     stripDriftDists.reserve(nStrips);
@@ -283,9 +283,9 @@ const{
         fitFunc.addPoint(x,y,xerror,yerror);
 
         stripsOfCluster.push_back(prdPerLayer.at(idxCluster.at(i_strip)).identify());
+        stripsOfClusterCharges.push_back(prdPerLayer.at(idxCluster.at(i_strip)).charge());
+        stripsOfClusterTimes.push_back(prdPerLayer.at(idxCluster.at(i_strip)).time());
         if (m_writeStripProperties) {
-            stripsOfClusterCharges.push_back(prdPerLayer.at(idxCluster.at(i_strip)).charge());
-            stripsOfClusterTimes.push_back(prdPerLayer.at(idxCluster.at(i_strip)).time());
             stripsOfClusterChannels.push_back(m_idHelperSvc->mmIdHelper().channel(prdPerLayer.at(idxCluster.at(i_strip)).identify()));
         }
         stripDriftDists.push_back(prdPerLayer.at(i_strip).driftDist());
