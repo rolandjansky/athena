@@ -121,7 +121,7 @@ def defineMenu():
         'L1_EM20VH_3J20',
 
         # combined mu - jet 
-        'L1_MU3V_J15', 'L1_BTAG-MU3VjJ40', 'L1_BTAG-MU5VFjJ50', 
+        'L1_MU3V_J12', 'L1_MU3V_J15', 'L1_MU5VF_J40', 'L1_BTAG-MU3VjJ40', 'L1_BTAG-MU5VFjJ50', 'L1_BTAG-MU5VFjJ90',
 
         #ATR-13743 
         'L1_MU8F_2J20','L1_MU8F_3J20', 'L1_MU8F_2J15_J20',
@@ -153,8 +153,7 @@ def defineMenu():
         'L1_4jJ40', 'L1_3jJ90', 'L1_4jJ50', 'L1_4jJ40p0ETA25', 'L1_5jJ40p0ETA25', 
         'L1_3jJ70p0ETA23', 'L1_jJ140_3jJ60', 
         'L1_jJ80p0ETA25_2jJ55_jJ50p31ETA49', 'L1_jJ55p0ETA23_2jJ40p31ETA49', 'L1_jJ85p0ETA21_3jJ40p0ETA25', 
-        'L1_MU3V_jJ40', 
-
+        'L1_MU3V_jJ30', 'L1_MU3V_jJ40', 'L1_MU5VF_jJ90',  #L1_MU3V_jJ30 added temporarily 
   
         # jLJ
         'L1_jLJ80', 'L1_jLJ100', 'L1_jLJ140', 'L1_jLJ160', 
