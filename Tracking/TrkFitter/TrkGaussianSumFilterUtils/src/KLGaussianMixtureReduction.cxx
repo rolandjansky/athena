@@ -207,36 +207,29 @@ resetDistances(
   Component1D* components =
     CxxUtils::assume_aligned<GSFConstants::alignment>(componentsIn);
 
-  const int32_t j = minj;
   const int32_t last = (n - 1);
   // Look at KLGaussianMixtureReduction.h
   // for how things are indexed for triangular arrays
-  const int32_t indexOffsetJ = (j - 1) * j / 2;
+  const int32_t indexOffsetJ = (minj - 1) * minj / 2;
   const int32_t indexOffsetLast = (last - 1) * last / 2;
-  int32_t movedElements = 0;
 
-  // Rows
-  for (int32_t i = 0; i < j; ++i, ++movedElements) {
-    std::swap(distances[indexOffsetJ + i],
-              distances[indexOffsetLast + movedElements]);
+  // we do no need to swap the last with itself
+  if (minj != last) {
+    // Rows
+    for (int32_t i = 0; i < minj; ++i) {
+      std::swap(distances[indexOffsetJ + i], distances[indexOffsetLast + i]);
+    }
+    // The columns
+    // Note that we skip swapping distance
+    // corresponding to (last,minj)
+    for (int32_t i = minj + 1; i < last; ++i) {
+      const int32_t index = (i - 1) * i / 2 + minj;
+      std::swap(distances[index], distances[indexOffsetLast + i]);
+    }
+    // And now swap the components
+    std::swap(components[minj], components[last]);
+    std::swap(mergingIndex[minj], mergingIndex[last]);
   }
-
-  // This is for  the distance of the minj
-  // with the last so we do not need swap
-  // Also if minj is the last the element does not exist
-  // as we do not keep distance to self
-  if (j != last) {
-    ++movedElements;
-  }
-
-  // The columns
-  for (int32_t i = j + 1; i < last; ++i, ++movedElements) {
-    const int32_t index = (i - 1) * i / 2 + j;
-    std::swap(distances[index], distances[indexOffsetLast + movedElements]);
-  }
-  // And now swap the components
-  std::swap(components[minj], components[last]);
-  std::swap(mergingIndex[minj], mergingIndex[last]);
   return last;
 }
 
@@ -262,24 +255,23 @@ recalculateDistances(const Component1D* componentsIn,
   float* distances =
     CxxUtils::assume_aligned<GSFConstants::alignment>(distancesIn);
 
-  const int32_t j = mini;
-  const int32_t indexConst = (j - 1) * j / 2;
+  const int32_t indexConst = (mini - 1) * mini / 2;
   // This is the component that has been updated
   // so we calculate distances wrt.
-  const Component1D componentJ = components[j];
+  const Component1D componentJ = components[mini];
 
   // Rows
-  for (int32_t i = 0; i < j; ++i) {
+  for (int32_t i = 0; i < mini; ++i) {
     // only change for non-merged components
     const Component1D componentI = components[i];
     const int32_t index = indexConst + i;
     distances[index] = symmetricKL(componentI, componentJ);
   }
   // Columns
-  for (int32_t i = j + 1; i < n; ++i) {
+  for (int32_t i = mini + 1; i < n; ++i) {
     // only change for non-merged components
     const Component1D componentI = components[i];
-    const int32_t index = (i - 1) * i / 2 + j;
+    const int32_t index = (i - 1) * i / 2 + mini;
     distances[index] = symmetricKL(componentI, componentJ);
   }
 }
@@ -370,19 +362,19 @@ findMinimumIndex(const float* distancesIn, const int n)
   // using vec/for SIMD
   for (int i = 16; i < n; i += 16) {
     // 1
-    vload(values1, array + i);      // 0-3
+    vload(values1, array + i); // 0-3
     indices1 = indices1 + increment;
     vec<int, 4> lt1 = values1 < minvalues1;
     vselect(minindices1, indices1, minindices1, lt1);
     vmin(minvalues1, values1, minvalues1);
     // 2
-    vload(values2, array + i + 4);  // 4-7
+    vload(values2, array + i + 4); // 4-7
     indices2 = indices2 + increment;
     vec<int, 4> lt2 = values2 < minvalues2;
     vselect(minindices2, indices2, minindices2, lt2);
     vmin(minvalues2, values2, minvalues2);
     // 3
-    vload(values3, array + i + 8);  // 8-11
+    vload(values3, array + i + 8); // 8-11
     indices3 = indices3 + increment;
     vec<int, 4> lt3 = values3 < minvalues3;
     vselect(minindices3, indices3, minindices3, lt3);
