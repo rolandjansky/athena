@@ -145,7 +145,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
                 import traceback
                 traceback.print_exc()
 
-        log.debug('Available signature(s) for chain generation: %s', self.availableSignatures)
+        log.info('Available signature(s) for chain generation: %s', self.availableSignatures)
 
         return
 
