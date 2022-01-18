@@ -88,8 +88,7 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks, BTagName,
 
 def getFastFlavourTagging( flags, inputJets, inputVertex, inputTracks):
     """
-    This example tags jets directly: there is no intermediate
-    b-tagging object
+    This function tags jets directly: there is no  b-tagging object
     """
 
     ca = ComponentAccumulator()
@@ -97,7 +96,7 @@ def getFastFlavourTagging( flags, inputJets, inputVertex, inputTracks):
     # first add the track augmentation to define peragee coordinates
     jet_name = inputJets
     trackContainer = inputTracks
-    primaryVertexContainer = ''
+    primaryVertexContainer = '' # don't use a primary vertex container
     simpleTrackIpPrefix = 'simpleIp_'
     ca.addEventAlgo(
         CompFactory.FlavorTagDiscriminants.PoorMansIpAugmenterAlg(
