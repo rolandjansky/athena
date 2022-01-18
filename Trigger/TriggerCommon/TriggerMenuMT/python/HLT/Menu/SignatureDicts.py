@@ -1058,7 +1058,7 @@ UnconventionalTrackingChainParts = {
     'threshold'      : '',
     'IDinfo'         : ['loose','medium','tight'],
     'isoInfo'        : ['iaggrmedium','iaggrloose','imedium','iloose'],
-    'extra'          : ["isohpttrack", "fslrt", "dedx", "hitdv", "distrk"],
+    'extra'          : ["isohpttrack", "fslrt", "dedx", "hitdv", "distrk", "dispj"],
     'addInfo'        : [],
     'sigFolder'     : ['UnconventionalTracking'],
     'subSigs'       : ['UnconventionalTracking'],

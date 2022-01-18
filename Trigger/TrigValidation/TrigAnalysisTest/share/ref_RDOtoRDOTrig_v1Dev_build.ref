@@ -13667,6 +13667,16 @@ HLT_tau80_tightRNN_tracktwoLLP_tau60_tightRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40:
     4: 5
 HLT_timeburner_L1All:
   eventCount: 0
+HLT_unconvtrk0_dispj_L1J100:
+  eventCount: 0
+  stepCounts:
+    0: 5
+    1: 5
+    2: 2
+  stepFeatures:
+    0: 5
+    1: 5
+    2: 6
 HLT_unconvtrk0_fslrt_L14J15:
   eventCount: 13
   stepCounts:
