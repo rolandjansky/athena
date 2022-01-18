@@ -7,6 +7,7 @@
 #include <TString.h>  // for Form
 
 #include <utility>
+#include <fstream>
 
 #include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
@@ -1561,6 +1562,27 @@ namespace MuonGM {
             return nullptr;
         }
         return &iter->second;
+    }
+
+    void MuonDetectorManager::setMMAsBuiltCalculator(const std::string& jsonPath) {
+#ifndef SIMULATIONBASE
+        // for the moment we can only read as-built conditions from an external json file
+        m_MMAsBuiltCalculator.reset(); // unset any previous instance
+        if (jsonPath.empty()) return;
+
+        std::ifstream json_in(jsonPath.c_str());
+        if (!json_in.is_open()) {
+            MsgStream log(Athena::getMessageSvc(), "MGM::MuonDetectorManager");
+            log << MSG::WARNING << "Unable to open Json file " << jsonPath << "for NswAsBuilt::StripCalculator" << endmsg;
+        }
+
+        m_MMAsBuiltCalculator = std::make_unique<NswAsBuilt::StripCalculator>(); 
+        m_MMAsBuiltCalculator->parseJSON(json_in);
+        json_in.close();
+#else
+        // just to silence the warning about an unused parameter
+        (void)jsonPath;
+#endif
     }
 
     const MdtReadoutElement* MuonDetectorManager::getMdtReadoutElement(IdentifierHash id) const {
