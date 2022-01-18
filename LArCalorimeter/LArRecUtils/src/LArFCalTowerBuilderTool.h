@@ -32,8 +32,6 @@ class CaloDetDescrManager;
 
 class LArFCAL_ID;
 
-//class LArMiniCellContainer;
-
 class LArFCalTowerBuilderTool : public CaloTowerBuilderToolBase
 {
  public:
@@ -64,8 +62,6 @@ class LArFCalTowerBuilderTool : public CaloTowerBuilderToolBase
                               CaloTowerContainer* theContainer) override;
 
 
-  virtual void handle(const Incident&) override;
-
 private:
 
   double m_minEt;
@@ -87,15 +83,8 @@ private:
   /**
    * @brief Rebuild the cell lookup table.
    */
-  StatusCode rebuildLookup();
+  StatusCode rebuildLookup(const EventContext& ctx);
 
-
-  /**
-   * @brief Mark that cached data are invalid.
-   *
-   * Called when calibrations are updated.
-   */
-  virtual StatusCode invalidateCache() override;
 
   // FCal only
   static const CaloCell_ID::SUBCALO m_caloIndex;
@@ -104,5 +93,8 @@ private:
   const LArFCAL_ID* m_larFCalId;
 
   LArFCalTowerStore m_cellStore;
+  mutable std::mutex m_cellStoreMutex;
+  mutable std::atomic_bool m_cellStoreInit{false};
+
 };
 #endif
