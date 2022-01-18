@@ -168,9 +168,17 @@ CaloTowerBuilderTool::execute(const EventContext& ctx,
                               const CaloCellContainer* theCells /*= 0*/,
                               const CaloTowerSeg::SubSeg* subseg /*= 0*/) const
 {
-  if (m_cellStore.size() == 0) {
-    ATH_MSG_ERROR("Cell store not initialized.");
-    return StatusCode::FAILURE;
+
+
+  //Init internal structure m_cellStore on first invocation
+  //Alignment updates are not taken into account! 
+  if (m_cellStoreInit.load() == false) {
+    //Aquire mutex before writing to m_cellStore
+      std::scoped_lock guard(m_cellStoreMutex);
+      //cast alway const-ness, acceptable since this is protected by a mutex
+      CaloTowerBuilderTool* thisNC ATLAS_THREAD_SAFE = const_cast<CaloTowerBuilderTool*>(this);
+      ATH_CHECK( thisNC->rebuildLookup(ctx) );
+      m_cellStoreInit.store(true);
   }
 
   // CaloCellContainer
@@ -222,7 +230,7 @@ StatusCode CaloTowerBuilderTool::execute (const EventContext& ctx,
 {
   if (m_cellStore.size() == 0) {
     setTowerSeg (theContainer->towerseg());
-    ATH_CHECK( rebuildLookup() );
+    ATH_CHECK( rebuildLookup(ctx) );
   }
 
   return execute (ctx, theContainer, nullptr, nullptr);
@@ -258,16 +266,12 @@ void CaloTowerBuilderTool::setCalos(const std::vector<CaloCell_ID::SUBCALO>& v)
 {
   if (m_caloIndices != v) {
     if (m_cellStore.size() > 0) {
-      if (rebuildLookup().isFailure()) {
+      if (rebuildLookup(Gaudi::Hive::currentContext()).isFailure()) {
         ATH_MSG_ERROR("rebuildLookup failed.");
       }
     }
     m_caloIndices = v;
   }
-}
-
-void CaloTowerBuilderTool::handle(const Incident&) {
-  ATH_MSG_DEBUG("In Incident-handle");
 }
 
 
@@ -301,38 +305,15 @@ CaloTowerBuilderTool::parseCalos
 /**
  * @brief Rebuild the cell lookup table.
  */
-StatusCode CaloTowerBuilderTool::rebuildLookup()
-{
+StatusCode CaloTowerBuilderTool::rebuildLookup(const EventContext& ctx){
   if (towerSeg().neta() != 0 && towerSeg().nphi() != 0) {
-
-    // Cannot do this in initialize: see ATLASRECTS-5012
-    const CaloDetDescrManager* caloDDM = nullptr;
-    ATH_CHECK( detStore()->retrieve (caloDDM, "CaloMgr") );
-
+    ATH_MSG_DEBUG("Building lookup table");
+    SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle(m_caloMgrKey,ctx);
+    const CaloDetDescrManager* caloDDM=*caloMgrHandle;
     if (m_cellStore.buildLookUp(*caloDDM, towerSeg(), m_caloIndices)) {
       return StatusCode::SUCCESS;
     }
   }
   return StatusCode::FAILURE;
-}
-
-
-/**
- * @brief Mark that cached data are invalid.
- *
- * Called when calibrations are updated.
- */
-StatusCode CaloTowerBuilderTool::invalidateCache()
-{
-  // FIXME: We don't currently handle changing alignments during a run.
-  //        This could be done if caloDD is updated to the new alignment
-  //        scheme.  Otherwise, it's incompatible with MT.
-  if (m_cellStore.size() > 0) {
-    ATH_MSG_ERROR("Cell store already filled.  FIXME: changing alignments is not handled.");
-    return StatusCode::FAILURE;
-  }
-
-  ATH_CHECK( rebuildLookup() );
-  return StatusCode::SUCCESS;
 }
 

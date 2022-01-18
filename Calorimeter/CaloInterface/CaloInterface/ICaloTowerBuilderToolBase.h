@@ -68,8 +68,6 @@ class ICaloTowerBuilderToolBase : virtual public IAlgTool
 
   virtual void setTowerSeg(const CaloTowerSeg& theTowerSeg) = 0;
 
-  virtual StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS) = 0;
-
   static const InterfaceID& interfaceID() {
     static const InterfaceID IID("ICaloTowerBuilderToolBase", 1 , 0);
     return IID;
