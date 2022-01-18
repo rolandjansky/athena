@@ -1,6 +1,7 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
+from AthenaConfiguration.Enums import LHCPeriod
 
 Run1Grades = [ "Good", "BlaShared", "PixShared", "SctShared", "0HitBLayer" ]
 Run2Grades = [ "0HitIn0HitNInExp2","0HitIn0HitNInExpIn","0HitIn0HitNInExpNIn","0HitIn0HitNIn",
@@ -14,9 +15,9 @@ Run4Grades = [ "A01","A02","A03","A04","A05","A06","A07","A08","A14_1","A14_2","
                "C01","C02030405","C06","C07","C08","C14_1","C14_2","C14_3","C14_4" ]
 
 def getGrades(flags):
-    if flags.GeoModel.Run=='RUN1':
+    if flags.GeoModel.Run is LHCPeriod.Run1:
         return Run1Grades
-    elif flags.GeoModel.Run in ['RUN2','RUN3']:
+    elif flags.GeoModel.Run in [LHCPeriod.Run2, LHCPeriod.Run3]:
         return Run2Grades
     else:
         return Run4Grades

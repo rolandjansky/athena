@@ -1,5 +1,5 @@
 #
-#Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration                                                                                           
+#Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration                                                                                           
 #
 
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -810,7 +810,6 @@ if __name__=='__main__':
     #ConfigFlags.IOVDb.DatabaseInstance=""
     #ConfigFlags.GeoModel.AtlasVersion = "ATLAS-R2-2016-01-00-01  "
 
-    #ConfigFlags.GeoModel.Run = "RUN3"
     ConfigFlags.Muon.doCSCs = False
     ConfigFlags.Muon.doRPCs = False
     ConfigFlags.Muon.doTGCs = False

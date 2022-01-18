@@ -141,10 +141,9 @@ def ITkBroadPixelClusterOnTrackToolCfg(flags, name='ITkBroadPixelClusterOnTrackT
 def ITk_RIO_OnTrackErrorScalingCondAlgCfg(flags, name='ITk_RIO_OnTrackErrorScalingCondAlg', **kwargs):
     acc = ComponentAccumulator()
 
-    # From Run 2 and 3
+    # TODO: confirm for Run 4
     error_scaling_type   = ["PixelRIO_OnTrackErrorScaling"]
     error_scaling_outkey = ["/Indet/TrkErrorScalingPixel"]
-    # TODO: cover Run 4 and beyond
 
     error_scaling_type      += ["SCTRIO_OnTrackErrorScaling"]
     error_scaling_outkey    += ["/Indet/TrkErrorScalingSCT"]

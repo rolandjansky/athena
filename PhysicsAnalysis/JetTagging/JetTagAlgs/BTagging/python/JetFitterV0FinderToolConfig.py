@@ -2,12 +2,11 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import LHCPeriod
 
 from BTagging.InDetJetFitterUtilsConfig import InDetJetFitterUtilsCfg
 from BTagging.JetFitterMode3dTo1dFinderConfig import JetFitterMode3dTo1dFinderCfg
 
-# import the InDetDetailedTrackSelectorTool configurable
-InDet__JetFitterV0FinderTool=CompFactory.InDet.JetFitterV0FinderTool
 
 def JetFitterV0FinderToolCfg(flags, name, suffix="", useBTagFlagsDefaults = True, **options):
     """Sets up a JetFitterV0FinderTool tool and returns it. 
@@ -79,13 +78,13 @@ def JetFitterV0FinderToolCfg(flags, name, suffix="", useBTagFlagsDefaults = True
                      'cutPtSingleTrackForBSecondSelection' : 750,
                      'InDetJetFitterUtils' : inDetJetFitterUtils,
                      'Mode3dFinder' : jetFitterMode3dTo1dFinder,
-                     'useITkMaterialRejection' : flags.GeoModel.Run not in ['RUN1', 'RUN2', 'RUN3'] }
+                     'useITkMaterialRejection' : flags.GeoModel.Run not in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3] }
         for option in defaults:
             options.setdefault(option, defaults[option])
 
 
     options['name'] = name
-    acc.setPrivateTools( InDet__JetFitterV0FinderTool(**options) )
+    acc.setPrivateTools(CompFactory.InDet.JetFitterV0FinderTool(**options))
     return acc
 
 

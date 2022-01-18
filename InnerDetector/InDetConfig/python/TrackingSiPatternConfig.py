@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory     import CompFactory
+from AthenaConfiguration.Enums                import LHCPeriod
 import InDetConfig.TrackingCommonConfig         as   TC
 
 def SiSpacePointsSeedMakerCfg(flags, name="InDetSpSeedsMaker", InputCollections = None, **kwargs) :
@@ -335,7 +336,7 @@ def InDetAmbiTrackSelectionToolCfg(flags, name="InDetAmbiTrackSelectionTool", **
     if flags.InDet.Tracking.ActivePass.useTIDE_Ambi:
         kwargs.setdefault("sharedProbCut"             , flags.InDet.Tracking.pixelClusterSplitProb1)
         kwargs.setdefault("sharedProbCut2"            , flags.InDet.Tracking.pixelClusterSplitProb2)
-        kwargs.setdefault("minSiHitsToAllowSplitting" , 8 if flags.GeoModel.Run == "Run1" else 9)
+        kwargs.setdefault("minSiHitsToAllowSplitting" , 8 if flags.GeoModel.Run is LHCPeriod.Run1 else 9)
         kwargs.setdefault("minUniqueSCTHits"          , 4)
         kwargs.setdefault("minTrackChi2ForSharedHits" , 3)
         kwargs.setdefault("minPtSplit"                , 1000)       #Only allow split clusters on track withe pt greater than this MeV

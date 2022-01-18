@@ -1,6 +1,7 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import LHCPeriod
 
 RegionCreator=CompFactory.RegionCreator
 
@@ -8,11 +9,11 @@ RegionCreator=CompFactory.RegionCreator
 def BeampipeFwdCutPhysicsRegionToolCfg(ConfigFlags, name='BeampipeFwdCutPhysicsRegionTool', **kwargs):
     kwargs.setdefault("RegionName", 'BeampipeFwdCut')
     volumeList = []
-    if ConfigFlags.GeoModel.Run in ["RUN1"]:
+    if ConfigFlags.GeoModel.Run is LHCPeriod.Run1:
         volumeList = ['BeamPipe::SectionF47', 'BeamPipe::SectionF48', 'BeamPipe::SectionF61']
     else:
         volumeList = ['BeamPipe::SectionF198', 'BeamPipe::SectionF199', 'BeamPipe::SectionF200']
-        if ConfigFlags.GeoModel.Run not in ["RUN2", "RUN3", "RUN4"]:
+        if ConfigFlags.GeoModel.Run not in [LHCPeriod.Run2, LHCPeriod.Run3, LHCPeriod.Run4]:
             print('BeampipeFwdCutPhysicsRegionToolCfg: WARNING check that RUN2 beampipe volume names are correct for this geometry tag')
     kwargs.setdefault("VolumeList",  volumeList)
 
@@ -40,11 +41,11 @@ def BeampipeFwdCutPhysicsRegionToolCfg(ConfigFlags, name='BeampipeFwdCutPhysicsR
 
 def FWDBeamLinePhysicsRegionToolCfg(ConfigFlags, name='FWDBeamLinePhysicsRegionTool', **kwargs):
     kwargs.setdefault("RegionName", 'FWDBeamLine')
-    if ConfigFlags.GeoModel.Run in ["RUN1"]:
+    if ConfigFlags.GeoModel.Run is LHCPeriod.Run1:
         volumeList = ['BeamPipe::SectionF46']
     else:
         volumeList = ['BeamPipe::SectionF197']
-        if ConfigFlags.GeoModel.Run not in ["RUN2", "RUN3", "RUN4"]:
+        if ConfigFlags.GeoModel.Run not in [LHCPeriod.Run2, LHCPeriod.Run3, LHCPeriod.Run4]:
             print('FWDBeamLinePhysicsRegionToolCfg: WARNING check that RUN2 beampipe volume names are correct for this geometry tag')
     kwargs.setdefault("VolumeList",  volumeList)
     return RegionCreator(name, **kwargs)
@@ -63,9 +64,8 @@ def FwdRegionPhysicsRegionToolCfg(ConfigFlags, name='FwdRegionPhysicsRegionTool'
 def PixelPhysicsRegionToolCfg(ConfigFlags, name='PixelPhysicsRegionTool', **kwargs):
     kwargs.setdefault("RegionName", 'Pixel')
     volumeList = ['Pixel::siLog', 'Pixel::siBLayLog']
-    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
-    from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
-    if (ConfigFlags.GeoModel.Run in ["RUN2", "RUN3"]) or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isIBL()):
+    if ConfigFlags.GeoModel.Run in [LHCPeriod.Run2, LHCPeriod.Run3]:
+        # TODO: should we support old geometry tags with Run == "UNDEFINED" and ConfigFlags.GeoModel.IBLLayout not in ["noIBL", "UNDEFINED"]?
         volumeList += ['Pixel::dbmDiamondLog']
     kwargs.setdefault("VolumeList",  volumeList)
     # The range cuts used here are directly linked to the minimum energy of delta rays.
@@ -237,12 +237,12 @@ def DeadMaterialPhysicsRegionToolCfg(ConfigFlags, name='DeadMaterialPhysicsRegio
     kwargs.setdefault("RegionName", 'DeadMaterial')
     volumeList = []
     sectionList = []
-    if ConfigFlags.GeoModel.Run in ["RUN1"]:
+    if ConfigFlags.GeoModel.Run is LHCPeriod.Run1:
         sectionList = list(range(16,49)) # does not include 49
         sectionList += [ 51, 52, 53, 54 ]
     else:
         sectionList = list(range(191,200)) # does not include 200
-        if ConfigFlags.GeoModel.Run not in ["RUN2", "RUN3", "RUN4"]:
+        if ConfigFlags.GeoModel.Run not in [LHCPeriod.Run2, LHCPeriod.Run3, LHCPeriod.Run4]:
             print('DeadMaterialPhysicsRegionToolCfg: WARNING check that RUN2 beampipe volume names are correct for this geometry tag')
     for section in sectionList:
         volumeList += ['BeamPipe::SectionF'+str(section)]
@@ -287,7 +287,7 @@ def MuonSystemFastPhysicsRegionToolCfg(ConfigFlags, name='MuonSystemFastPhysicsR
     kwargs.setdefault("RegionName", 'MuonSystemFastRegion')
     volumeList = []
     if ConfigFlags.Sim.CavernBG  == 'World':
-        if ConfigFlags.GeoModel.Run in ['RUN1', 'RUN2', 'RUN3']:
+        if ConfigFlags.GeoModel.Run in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3]:
             volumeList += ['BeamPipe::BeamPipe', 'IDET::IDET']
         else:
             volumeList += ['BeamPipe::BeamPipe', 'ITK::ITK']

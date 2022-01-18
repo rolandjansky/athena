@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Based on : https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonCnv/MuonCnvExample/python/MuonCalibConfig.py
 
@@ -6,6 +6,7 @@ from MuonConfig.MuonCondAlgConfig import CscCondDbAlgCfg
 from MuonConfig.MuonGeometryConfig import MuonDetectorCondAlgCfg
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.Enums import LHCPeriod
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
 
@@ -56,7 +57,7 @@ def _setupMdtCondDB(flags):
     offline_folders = ['/MDT/RT' + mdt_folder_name_appendix, '/MDT/T0' + mdt_folder_name_appendix]
 
     if flags.Muon.Calib.mdtCalibrationSource=="MDT":
-        if flags.GeoModel.Run == 'RUN4':
+        if flags.GeoModel.Run is LHCPeriod.Run4:
             # TODO: temporary conditions override until we get a global tag
             from IOVDbSvc.IOVDbSvcConfig import addFolders
             result.merge(addFolders(flags, '/MDT/RT' + mdt_folder_name_appendix, 'MDT_OFL', className='CondAttrListCollection', tag='MDTRT_Sim-Run4-01', db="OFLP200"))
