@@ -22,10 +22,10 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks, BTagName,
     inputJetsPrefix = inputJets.replace("bJets","b")  # because Cfg functions internally re-append the 'Jets' string
 
     #Particle to Jet Association
-    acc.merge(JetParticleAssociationAlgCfg(ConfigFlags, inputJetsPrefix, inputTracks, "TracksForBTagging"))
+    acc.merge(JetParticleAssociationAlgCfg(ConfigFlags, inputJets, inputTracks, "TracksForBTagging"))
 
     if inputMuons:
-        acc.merge(JetParticleAssociationAlgCfg(ConfigFlags, inputJetsPrefix, inputMuons, "MuonsForBTagging"))
+        acc.merge(JetParticleAssociationAlgCfg(ConfigFlags, inputJets, inputMuons, "MuonsForBTagging"))
         Muons = "MuonsForBTagging"
     else:
         Muons = ""
