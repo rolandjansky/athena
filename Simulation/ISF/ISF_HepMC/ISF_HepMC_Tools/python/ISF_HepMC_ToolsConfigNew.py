@@ -1,6 +1,6 @@
 """ComponentAccumulator HepMC tools configurations for ISF
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -26,7 +26,16 @@ def ParticleSimWhiteListCfg(ConfigFlags, name="ISF_ParticleSimWhiteList", **kwar
 
 def ParticleSimWhiteList_ExtraParticlesCfg(ConfigFlags, name="ISF_ParticleSimWhiteList_ExtraParticles", **kwargs):
     result = ComponentAccumulator()
-    kwargs.setdefault("WhiteLists" , ["G4particle_whitelist.txt", "G4particle_whitelist_ExtraParticles.txt"] )
+    whiteLists = ["G4particle_whitelist.txt"]
+    # Basically a copy of code from ExtraParticles.ExtraParticlesConfigNew for now.
+    from ExtraParticles import PDGHelpers
+    if PDGHelpers.getPDGTABLE('PDGTABLE.MeV'):
+        parser = PDGHelpers.PDGParser('PDGTABLE.MeV', '111-556,1112-9090226')
+        parser.createList() # NB ignore output here
+        whiteLists += ["G4particle_whitelist_ExtraParticles.txt"]
+    else:
+        print ('ERROR Failed to find PDGTABLE.MeV file')
+    kwargs.setdefault("WhiteLists" , whiteLists )
     result.setPrivateTools(CompFactory.ISF.GenParticleSimWhiteList(name, **kwargs))
     return result
 
