@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file SCT_ClusteringTool.h
@@ -12,9 +12,13 @@
 /// Athena
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "Identifier/Identifier.h"
+#include "InDetIdentifier/SCT_ID.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "InDetCondTools/ISiLorentzAngleTool.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "InDetReadoutGeometry/SiDetectorElementStatus.h"
+#include "SCT_ReadoutGeometry/SCT_ChipUtils.h"
+
 #include "SiClusterizationTool/ISCT_ClusteringTool.h"
 #include "SiClusterizationTool/ClusterMakerTool.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -27,7 +31,6 @@
 #include <string>
 #include <vector>
 
-class SCT_ID;
 class SCT_ChannelStatusAlg;
 class StatusCode;
 
@@ -61,12 +64,14 @@ namespace InDet {
     /// Clusterize method the SCT RDOs. This method is the main one of this class.
     virtual SCT_ClusterCollection*
     clusterize(const InDetRawDataCollection<SCT_RDORawData>& RDOs,
-               const SCT_ID& idHelper) const;
+               const SCT_ID& idHelper,
+               const InDet::SiDetectorElementStatus *sctDetElementStatus) const;
 
     /// A new fast method originally implemented for ITk. Can be internally used in clusterize with m_doFastClustering=true.
     virtual SCT_ClusterCollection*
       fastClusterize(const InDetRawDataCollection<SCT_RDORawData>& RDOs,
-                     const SCT_ID& idHelper) const;
+                     const SCT_ID& idHelper,
+                     const InDet::SiDetectorElementStatus *sctDetElementStatus) const;
     
   private:
     typedef std::vector<Identifier> IdVec_t;
@@ -100,20 +105,29 @@ namespace InDet {
     //@{
     SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT. Necessary for alignment"};
     //@}
+    /** @brief Optional read handle to get status data to test whether a SCT detector element is good.
+     * If set to e.g. SCTDetectorElementStatus the event data will be used instead of the SCT conditions summary tool.
+     */
+    SG::ReadHandleKey<InDet::SiDetectorElementStatus> m_sctDetElStatus
+       {this, "SCTDetElStatus", "", "Key of SiDetectorElementStatus for SCT"};
+
+    const SCT_ID* m_sctID{nullptr};
 
     /// Time bin bits for timing requirement. Set by decodeTimeBins() in initialize().
     int m_timeBinBits[3]{-1, -1, -1};
 
     /// Add strips to a cluster vector without checking for bad strips
     void addStripsToCluster(const Identifier& firstStripId, unsigned int nStrips, IdVec_t& clusterVector, const SCT_ID& idHelper) const;
-                                  
+
     /// Add strips to a cluster vector checking for bad strips
     void addStripsToClusterWithChecks(const Identifier& firstStripId, unsigned int nStrips, IdVec_t& clusterVector,
-				      std::vector<IdVec_t>& idGroups, const SCT_ID& idHelper) const;
+				      std::vector<IdVec_t>& idGroups, const SCT_ID& idHelper,
+                                      const InDet::SiDetectorElementStatus *det_el_status) const;
 
     /// Add strips to a cluster vector including row variable for ITk
     void addStripsToClusterInclRows(const Identifier& firstStripId, unsigned int nStrips, IdVec_t& clusterVector,
-                                    std::vector<IdVec_t>& idGroups, const SCT_ID& idHelper) const;
+                                    std::vector<IdVec_t>& idGroups, const SCT_ID& idHelper,
+                                    const InDet::SiDetectorElementStatus *det_el_status) const;
 
     /**
      * Recluster the current vector, splitting on bad strips, and insert those new groups to the idGroups vector.
@@ -121,7 +135,7 @@ namespace InDet {
      **/
     IdVec_t recluster(IdVec_t& clusterVector, std::vector<IdVec_t>& idGroups) const;
 
-    /// In-class struct to store the centre and width of a cluster                                
+    /// In-class struct to store the centre and width of a cluster
     struct DimensionAndPosition {
       InDetDD::SiLocalPosition centre;
       double width;
@@ -137,7 +151,7 @@ namespace InDet {
                                                   const InDetDD::SiDetectorElement* element, const InDetDD::SCT_ModuleSideDesign* design) const;
   
     /// In-class facade on the 'isGood' method for a strip identifier
-    bool isBad(const Identifier& stripId) const;
+    bool isBad(const InDet::SiDetectorElementStatus *sctDetElStatus, const SCT_ID& sctID, const IdentifierHash &waferHash, const Identifier& stripId) const;
 
     /// Convert time bin string to array of 3 bits
     StatusCode decodeTimeBins();
@@ -156,8 +170,15 @@ namespace InDet {
   // Inline methods
   ///////////////////////////////////////////////////////////////////
 
-  inline bool SCT_ClusteringTool::isBad(const Identifier& stripId) const {
-    return (not m_conditionsTool->isGood(stripId, InDetConditions::SCT_STRIP));
+  inline bool SCT_ClusteringTool::isBad(const InDet::SiDetectorElementStatus *sctDetElStatus, const SCT_ID& sctID, const IdentifierHash &waferHash, const Identifier& stripId) const {
+     if (sctDetElStatus) {
+        const int strip_i{sctID.strip(stripId)};
+        VALIDATE_STATUS_ARRAY(sctDetElStatus,sctDetElStatus->isCellGood(waferHash.value(), strip_i), m_conditionsTool->isGood(stripId, InDetConditions::SCT_STRIP));
+        return !sctDetElStatus->isCellGood(waferHash.value(), strip_i) ;
+     }
+     else {
+        return (not m_conditionsTool->isGood(stripId, InDetConditions::SCT_STRIP));
+     }
   }
   
   inline bool SCT_ClusteringTool::testTimeBinsN(const std::bitset<3>& timePattern) const {
@@ -170,5 +191,6 @@ namespace InDet {
     if (m_timeBinBits[2] != -1 and timePattern.test(0) != static_cast<bool>(m_timeBinBits[2])) return false;
     return true;
   }
+
 }//end of namespace
 #endif // SiClusterizationTool_SCT_ClusteringTool_H

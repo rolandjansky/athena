@@ -73,6 +73,11 @@ def SCTClusterizationCfg(flags, name="InDetSCT_Clusterization", **kwargs):
     from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_ConditionsSummaryToolCfg
     InDetSCT_ConditionsSummaryToolWithoutFlagged = acc.popToolsAndMerge(SCT_ConditionsSummaryToolCfg(flags, withFlaggedCondTool=False))
 
+    if "SCTDetElStatus" not in kwargs :
+        from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConfig  import SCT_DetectorElementStatusAlgWithoutFlaggedCfg
+        acc.merge( SCT_DetectorElementStatusAlgWithoutFlaggedCfg(flags) )
+        kwargs.setdefault("SCTDetElStatus", "SCTDetectorElementStatusWithoutFlagged" )
+
     from InDetConfig.SiClusterizationToolConfig import SCT_ClusteringToolCfg
     InDetSCT_ClusteringTool = acc.popToolsAndMerge(SCT_ClusteringToolCfg(flags))
 

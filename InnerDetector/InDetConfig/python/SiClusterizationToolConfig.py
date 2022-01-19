@@ -189,6 +189,7 @@ def SCT_ClusteringToolCfg(flags, name="InDetSCT_ClusteringTool", **kwargs):
     SCTLorentzAngleTool = acc.popToolsAndMerge(SCT_LorentzAngleToolCfg(flags))
 
     kwargs.setdefault("conditionsTool", InDetSCT_ConditionsSummaryToolWithoutFlagged)
+    kwargs.setdefault("SCTDetElStatus","SCTDetectorElementStatusWithoutFlagged")
     kwargs.setdefault("globalPosAlg", InDetClusterMakerTool)
     kwargs.setdefault("LorentzAngleTool", SCTLorentzAngleTool)
     if flags.InDet.selectSCTIntimeHits :
