@@ -49,5 +49,3 @@ DECLARE_COMPONENT( ViewCreatorCentredOnClusterROITool )
 DECLARE_COMPONENT( ViewCreatorCentredOnJetWithPVConstraintROITool )
 DECLARE_COMPONENT( ViewCreatorJetSuperROITool )
 
-
-

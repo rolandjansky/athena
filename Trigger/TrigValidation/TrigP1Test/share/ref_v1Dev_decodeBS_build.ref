@@ -6110,6 +6110,8 @@ HLT_tau80_tightRNN_tracktwoLLP_tau60_tightRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40:
     3: 3
 HLT_timeburner_L1All:
   eventCount: 0
+HLT_unconvtrk0_dispj_L1J100:
+  eventCount: 0
 HLT_unconvtrk0_fslrt_L14J15:
   eventCount: 0
 HLT_unconvtrk0_fslrt_L1J100:
