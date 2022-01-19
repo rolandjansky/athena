@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file PixelConditionsTools/PixelConditionsSummaryTool.h
@@ -16,7 +16,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "Gaudi/Property.h"
-#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
+#include "InDetConditionsSummaryService/IExtendedInDetConditionsTool.h"
 #include "AthenaKernel/SlotSpecificObj.h"
 
 #include "InDetByteStreamErrors/IDCInDetBSErrContainer.h"
@@ -33,7 +33,7 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 
-class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool{
+class PixelConditionsSummaryTool: public AthAlgTool, public IExtendedInDetConditionsTool {
   public:
     static InterfaceID& interfaceID();
 
@@ -61,6 +61,8 @@ class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool
     virtual bool isGood(const IdentifierHash& moduleHash, const Identifier& elementId, const EventContext& ctx) const override final;
     virtual double goodFraction(const IdentifierHash & moduleHash, const Identifier & idStart, const Identifier & idEnd, const EventContext& ctx) const override final;
 
+    virtual std::unique_ptr<InDet::SiDetectorElementStatus> getDetectorElementStatus(const EventContext& ctx, bool active_only) const override;
+
     virtual bool hasBSError(const IdentifierHash& moduleHash) const override final;
     virtual bool hasBSError(const IdentifierHash& moduleHash, Identifier pixid) const override final;
     virtual bool hasBSError(const IdentifierHash& moduleHash, const EventContext& ctx) const override final;
@@ -79,6 +81,8 @@ class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool
     std::vector<std::string> m_isActiveStates;
     std::vector<int> m_activeState;
     std::vector<int> m_activeStatus;
+    unsigned int m_activeStateMask;  ///< mask in which each state is represented by a bit and for states which are cnsidered active the corresponding bit is set;
+    unsigned int m_activeStatusMask; ///< mask in which each status is represented by a bit and for status values which are cnsidered active the corresponding bit is set;
 
     Gaudi::Property<bool> m_useByteStreamFEI4
     {this, "UseByteStreamFEI4", false, "Switch of the ByteStream error for FEI4"};

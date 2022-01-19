@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -10,11 +10,13 @@
 
 /// header file for this class.
 #include "SCT_ByteStreamErrorsTool.h"
+#include "SCT_DetectorElementStatus.h"
 
 ///Athena includes
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "StoreGate/ReadHandle.h"
+#include "SCT_ReadoutGeometry/SCT_ChipUtils.h"
 
 /** Constructor */
 SCT_ByteStreamErrorsTool::SCT_ByteStreamErrorsTool(const std::string& type, const std::string& name, const IInterface* parent) :
@@ -33,6 +35,13 @@ SCT_ByteStreamErrorsTool::initialize() {
   // Read (Cond)Handle Keys
   ATH_CHECK(m_bsIDCErrContainerName.initialize());
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
+  m_badErrorMask=0;
+  for (auto badError : SCT_ByteStreamErrors::BadErrors) {
+     if (badError>=63) {
+        ATH_MSG_FATAL("Logic error: Error code too large and cannot represented as a bit.");
+     }
+     m_badErrorMask |= (1<<badError);
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -102,6 +111,7 @@ SCT_ByteStreamErrorsTool::IDCCacheEntry* SCT_ByteStreamErrorsTool::getCacheEntry
 bool
 SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash, const EventContext& ctx) const {
   {
+
     std::scoped_lock<std::mutex> lock{*m_cacheMutex.get(ctx)};
     ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool isGood called for " << elementIdHash);
     const auto *idcCachePtr{getCacheEntry(ctx)->IDCCache};
@@ -138,6 +148,79 @@ SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash, const Even
   }
   return !allChipsBad;
 }
+
+namespace {
+   unsigned int getValueOrZero(const std::unordered_map<size_t, unsigned int>  &map, size_t key) {
+      std::unordered_map<size_t, unsigned int>::const_iterator iter = map.find(key);
+      return iter != map.end() ? iter->second : 0;
+   }
+}
+
+
+void
+SCT_ByteStreamErrorsTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status) const {
+   std::scoped_lock<std::mutex> lock{*m_cacheMutex.get(ctx)};
+
+   const auto *idcCachePtr{getCacheEntry(ctx)};
+   if (idcCachePtr == nullptr || !idcCachePtr->IDCCache) {
+      ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool No cache! ");
+      return;
+   }
+
+   if (fillData(ctx).isFailure()) {
+      return; // @TODO what is the correct way to handle this ?  set status to false for all ?
+   }
+
+   std::vector<bool> &status = element_status.getElementStatus();
+   std::vector<InDet::ChipFlags_t> &chip_status = element_status.getElementChipStatus();
+   if (status.empty()) {
+      status.resize(idcCachePtr->IDCCache->rawReadAccess().size(),true);
+   }
+   constexpr InDet::ChipFlags_t all_flags_set = static_cast<InDet::ChipFlags_t>((1ul<<(N_CHIPS_PER_SIDE*N_SIDES)) - 1ul);
+   static_assert( (1ul<<(N_CHIPS_PER_SIDE*N_SIDES)) - 1ul <= std::numeric_limits<InDet::ChipFlags_t>::max());
+   if (chip_status.empty()) {
+      chip_status.resize(status.size(), all_flags_set);
+   }
+   unsigned int element_i=0;
+   for ( const auto &val : idcCachePtr->IDCCache->rawReadAccess()) {
+      uint64_t error_code = val;
+      bool is_bad=error_code<63 && ((1<<error_code) &  m_badErrorMask);
+      status.at(element_i) = status.at(element_i) & not is_bad;
+      if ( is_bad ) {
+         ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool Bad Error " << error_code  << " for ID " << element_i);
+      }
+      else {
+         constexpr InDet::ChipFlags_t side0 = static_cast<InDet::ChipFlags_t>((1ul<<(N_CHIPS_PER_SIDE)) - 1ul);
+         constexpr InDet::ChipFlags_t side1 = all_flags_set & (~side0);
+         IdentifierHash hash(element_i);
+         const Identifier wafer_id{m_sct_id->wafer_id(hash)};
+         const Identifier module_id{m_sct_id->module_id(wafer_id)};
+         size_t modhash =  static_cast<size_t>(module_id.get_compact());
+
+         unsigned int badChips{m_config->badChips(module_id, ctx)}; // @todo only call once for all
+         unsigned int v_abcdErrorChips{ getValueOrZero( idcCachePtr->abcdErrorChips, modhash) };
+         unsigned int v_tempMaskedChips{ getValueOrZero( idcCachePtr->tempMaskedChips, modhash) };
+         const int side{m_sct_id->side(wafer_id)};
+         bool allChipsBad{true};
+         const int chipMax{static_cast<short>(side==0 ? N_CHIPS_PER_SIDE : N_CHIPS_PER_SIDE*N_SIDES)};
+         InDet::ChipFlags_t bad_chip_flags = 0; 
+         int module_chip_offset = 0; // chipMax-N_CHIPS_PER_SIDE;
+         for (int chip{chipMax-N_CHIPS_PER_SIDE}; chip<chipMax; chip++) {
+            bool issueABCDError{((v_abcdErrorChips >> chip) & 0x1) != 0};
+            bool isBadChip{((badChips >> chip) & 0x1) != 0};
+            bool isTempMaskedChip{((v_tempMaskedChips >> chip) & 0x1) != 0};
+            bool isBad = (issueABCDError or isBadChip or isTempMaskedChip);
+            bad_chip_flags |= static_cast<InDet::ChipFlags_t>(isBad) << (chip-module_chip_offset);
+            allChipsBad &= isBad;
+         }
+         status.at(element_i) =  status.at(element_i) & not allChipsBad;
+         chip_status.at(element_i) &= (~bad_chip_flags) & (side==0 ? side0 : side1);
+      }
+
+      ++element_i;
+   }
+}
+
 
 bool
 SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash) const {
@@ -220,35 +303,7 @@ SCT_ByteStreamErrorsTool::getChip(const Identifier& stripId, const EventContext&
     ATH_MSG_DEBUG ("InDetDD::SiDetectorElement is not obtained from stripId " << stripId);
     return -1;
   }
-
-  // Get strip number
-  const int strip{m_sct_id->strip(stripId)};
-  if (strip<0 or strip>=N_STRIPS_PER_SIDE) {
-    // This check assumes present SCT.
-    ATH_MSG_WARNING("strip number is invalid: " << strip);
-    return -1;
-  }
-
-  // Conversion from strip to chip (specific for present SCT)
-  int chip{strip/N_STRIPS_PER_CHIP}; // One ABCD chip reads 128 strips
-  // Relation between chip and offline strip is determined by the swapPhiReadoutDirection method.
-  // If swap is false
-  //  offline strip:   0            767
-  //  chip on side 0:  0  1  2  3  4  5
-  //  chip on side 1: 11 10  9  8  7  6
-  // If swap is true
-  //  offline strip:   0            767
-  //  chip on side 0:  5  4  3  2  1  0
-  //  chip on side 1:  6  7  8  9 10 11
-  const bool swap{siElement->swapPhiReadoutDirection()};
-  const int side{m_sct_id->side(stripId)};
-  if (side==0) {
-    chip = swap ? (N_CHIPS_PER_SIDE        -1) - chip :                    chip;
-  } else {
-    chip = swap ? (N_CHIPS_PER_SIDE*N_SIDES-1) - chip : N_CHIPS_PER_SIDE + chip;
-  }
-
-  return chip;
+  return SCT::getChip(*m_sct_id, *siElement, stripId);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

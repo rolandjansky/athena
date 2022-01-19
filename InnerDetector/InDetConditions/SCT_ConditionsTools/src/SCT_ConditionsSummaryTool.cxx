@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -9,15 +9,16 @@
  **/
 
 #include "SCT_ConditionsSummaryTool.h"
+#include "SCT_DetectorElementStatus.h"
 #include "SCT_ConditionsTools/ISCT_ConditionsTool.h"
 
 #include "GaudiKernel/EventContext.h"
+#include "InDetIdentifier/SCT_ID.h"
 
 // Constructor
 SCT_ConditionsSummaryTool::SCT_ConditionsSummaryTool(const std::string& type, const std::string& name, const IInterface* parent) :
-  base_class(type, name, parent),
-  m_toolHandles{this} {
-  declareProperty("ConditionsTools", m_toolHandles);
+  base_class(type, name, parent)
+{
 }
 
 //Initialize
@@ -28,7 +29,9 @@ SCT_ConditionsSummaryTool::initialize() {
     ATH_MSG_ERROR("Retrieval of ToolHandleArray<ISCT_ConditionsTool> failed.");
     return sc;
   }
-
+  ATH_CHECK( m_SCTDetEleCollKey.initialize() );
+  // Get SCT helper
+  ATH_CHECK(detStore()->retrieve(m_id_sct, "SCT_ID"));
   m_noReports = m_toolHandles.empty();
   return sc;
 }
@@ -78,7 +81,9 @@ SCT_ConditionsSummaryTool::isGood(const Identifier& elementId, const InDetCondit
   if (not m_noReports) {
     const EventContext& ctx{Gaudi::Hive::currentContext()};
     for (const ToolHandle<ISCT_ConditionsTool>& tool: m_toolHandles) {
-      if (tool->canReportAbout(h) and (not tool->isGood(elementId, ctx, h))) return false;
+       if (tool->canReportAbout(h) and (not tool->isGood(elementId, ctx, h))) {
+          return false;
+       }
     }
   }
   return true;
@@ -132,6 +137,23 @@ SCT_ConditionsSummaryTool::isGood(const IdentifierHash& elementHash, const Event
     }    
   }
   return true;
+}
+
+std::unique_ptr<InDet::SiDetectorElementStatus> SCT_ConditionsSummaryTool::getDetectorElementStatus(const EventContext& ctx,
+                                                                                                [[maybe_unused]] bool active_only) const {
+   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_SCTDetEleCollKey, ctx};
+   std::unique_ptr<InDet::SiDetectorElementStatus> element_status( new InDet::SCT_DetectorElementStatus(*(condData.cptr())) );
+   if (not m_noReports) {
+      for (const ToolHandle<ISCT_ConditionsTool>& tool: m_toolHandles) {
+         // @TODO also check if it can report about chips ?
+         if ((tool->canReportAbout(InDetConditions::SCT_SIDE) or
+              tool->canReportAbout(InDetConditions::SCT_MODULE) or
+              tool->canReportAbout(InDetConditions::SCT_STRIP))) {
+            tool->getDetectorElementStatus(ctx,*element_status);
+         }
+      }
+   }
+   return element_status;
 }
 
 bool 

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file SCT_ReadCalibDataTool.h Header file for SCT_ReadCalibDataTool.
@@ -53,6 +53,7 @@ class SCT_ReadCalibDataTool: public extends<AthAlgTool, ISCT_ReadCalibDataTool> 
   ///same thing with id hash, introduced by shaun with dummy method for now
   virtual bool isGood(const IdentifierHash& /*hashId*/) const override { return true; }
   virtual bool isGood(const IdentifierHash& hashId, const EventContext& /*ctx*/) const override { return isGood(hashId); }
+  virtual void getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status) const override;
   //@}
   
   // Methods to return calibration defect type and summary

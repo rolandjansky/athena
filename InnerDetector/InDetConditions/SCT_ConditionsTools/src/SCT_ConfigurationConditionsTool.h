@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -58,6 +58,8 @@ class SCT_ConfigurationConditionsTool: public extends<AthAlgTool, ISCT_Configura
   /**Is it good?, using wafer hash*/
   virtual bool                          isGood(const IdentifierHash& hashId) const override;
   virtual bool                          isGood(const IdentifierHash& hashId, const EventContext& ctx) const override;
+
+  virtual void                          getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status) const override;
 
   /**List of bad modules*/
   virtual const std::set<Identifier>*   badModules(const EventContext& ctx) const override;

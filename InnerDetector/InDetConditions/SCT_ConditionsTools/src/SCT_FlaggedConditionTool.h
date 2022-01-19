@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -49,6 +49,7 @@ public:
   virtual bool isGood(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   virtual bool isGood(const IdentifierHash& hashId) const override;
   virtual bool isGood(const IdentifierHash& hashId, const EventContext& ctx) const override;
+  virtual void getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status) const override;
 
   /**Get the reason why the wafer is bad (by Identifier)*/ 
   virtual const std::string& details(const Identifier& id) const override;

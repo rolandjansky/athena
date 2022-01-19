@@ -9,6 +9,8 @@
  **/
 
 #include "SCT_RODVetoTool.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "SCT_DetectorElementStatus.h"
 
 //Athena includes
 #include "Identifier/IdentifierHash.h"
@@ -84,6 +86,29 @@ SCT_RODVetoTool::isGood(const IdentifierHash& hashId) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
 
   return isGood(hashId, ctx);
+}
+
+void
+SCT_RODVetoTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status) const  {
+  const IdentifierSet* badIds{getCondData(ctx)};
+  if (badIds==nullptr) {
+    ATH_MSG_ERROR("IdentifierSet cannot be retrieved in isGood. true is returned.");
+    return;
+  }
+  std::vector<bool> &status = element_status.getElementStatus();
+  if (status.empty()) {
+     status.resize(m_pHelper->wafer_hash_max(),true);
+  }
+  for (const Identifier &module_id: *badIds) {
+     for (int side_i=0; side_i<2; ++side_i) {
+        Identifier wafer_id( m_pHelper->wafer_id(  m_pHelper->barrel_ec(module_id),
+                                                   m_pHelper->layer_disk(module_id),
+                                                   m_pHelper->phi_module(module_id),
+                                                   m_pHelper->eta_module(module_id),
+                                                   side_i));
+        status.at( m_pHelper->wafer_hash(wafer_id) ) = false;
+     }
+  }
 }
 
 const IdentifierSet*

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -12,7 +12,9 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
-#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
+#include "InDetConditionsSummaryService/IExtendedInDetConditionsTool.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 //Gaudi Includes
 #include "GaudiKernel/ToolHandle.h"
@@ -24,11 +26,14 @@
 //forward declarations
 class ISCT_ConditionsTool;
 
+class SCT_ID;
+
+
 /**
  * @class SCT_ConditionsSummaryTool
  * Interface class for tool providing summary of status of an SCT detector element
 **/
-class SCT_ConditionsSummaryTool: public extends<AthAlgTool, IInDetConditionsTool> {
+class SCT_ConditionsSummaryTool: public extends<AthAlgTool, IExtendedInDetConditionsTool> {
 
 public:
   SCT_ConditionsSummaryTool(const std::string& type, const std::string& name, const IInterface* parent); //!< Tool constructor
@@ -59,6 +64,7 @@ public:
   virtual bool isGood(const IdentifierHash& elementHash, const EventContext& ctx) const override;
   virtual bool isGood(const IdentifierHash& elementHash, const Identifier& elementId, const EventContext& ctx) const override;
   virtual double goodFraction(const IdentifierHash& elementHash, const Identifier& idStart, const Identifier& idEnd, const EventContext& ctx) const override;
+  virtual std::unique_ptr<InDet::SiDetectorElementStatus> getDetectorElementStatus(const EventContext& ctx, bool active_only) const override;
 
   virtual bool hasBSError(const IdentifierHash& elementHash) const override;
   virtual bool hasBSError(const IdentifierHash& elementHash, Identifier elementId) const override;
@@ -69,8 +75,12 @@ public:
   virtual uint64_t getBSErrorWord(const IdentifierHash& moduleHash, const int index, const EventContext& ctx) const  override;
   //@}
 private:
-  StringArrayProperty m_reportingTools; //!< list of tools to be used
-  ToolHandleArray<ISCT_ConditionsTool> m_toolHandles;
+  ToolHandleArray<ISCT_ConditionsTool> m_toolHandles
+     {this, "ConditionsTools", {},""};
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey
+     {this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
+  const SCT_ID* m_id_sct{nullptr}; //!< Handle to SCT ID helper
+
   bool m_noReports{true};
 };
 

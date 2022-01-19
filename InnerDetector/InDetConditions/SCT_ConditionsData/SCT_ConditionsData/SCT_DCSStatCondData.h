@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -28,6 +28,7 @@
  **/
 class SCT_DCSStatCondData {
 public:
+  typedef std::map<CondAttrListCollection::ChanNum, std::vector<std::string> > DCSConditions;
   /// Constructor
   SCT_DCSStatCondData();
 
@@ -44,9 +45,9 @@ public:
   /// Return the number of defects
   int output(const CondAttrListCollection::ChanNum & chanNum) const;
   //@}
-  
+  const DCSConditions &badChannelsMap() const { return m_bad_channels; }
+
 private:
-  typedef std::map<CondAttrListCollection::ChanNum, std::vector<std::string> > DCSConditions;
   DCSConditions m_bad_channels;
 };
 

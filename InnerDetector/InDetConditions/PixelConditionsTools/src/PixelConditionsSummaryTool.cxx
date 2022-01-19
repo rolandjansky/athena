@@ -5,6 +5,8 @@
 #include "PixelConditionsSummaryTool.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
+#include "PixelDetectorElementStatus.h"
+#include "PixelReadoutGeometry/PixelFEUtils.h"
 
 PixelConditionsSummaryTool::PixelConditionsSummaryTool(const std::string& type, const std::string& name, const IInterface* parent)
   :AthAlgTool(type, name, parent),
@@ -32,7 +34,8 @@ StatusCode PixelConditionsSummaryTool::initialize(){
   ATH_CHECK(m_condDeadMapKey.initialize());
   ATH_CHECK(m_pixelReadout.retrieve());
   ATH_CHECK(m_pixelDetEleCollKey.initialize());
- 
+
+  m_activeStateMask=0;
   for (unsigned int istate=0; istate<m_isActiveStates.size(); istate++) {
     if      (m_isActiveStates[istate]=="READY")      { m_activeState.push_back(PixelDCSStateData::DCSModuleState::READY); }
     else if (m_isActiveStates[istate]=="ON")         { m_activeState.push_back(PixelDCSStateData::DCSModuleState::ON); }
@@ -44,8 +47,14 @@ StatusCode PixelConditionsSummaryTool::initialize(){
       ATH_MSG_ERROR("No matching DCS state " << m_isActiveStates[istate] << " in DCSModuleState");
       return StatusCode::FAILURE;
     }
+    if (m_activeState.back()<0 || m_activeState.back()>31) {
+      ATH_MSG_FATAL("Logic error: state id too large. Cannot be represented by a bit");
+      return StatusCode::FAILURE;
+    }
+    m_activeStateMask |= (1<<m_activeState.back());
   }
 
+  m_activeStatusMask=0;
   for (unsigned int istatus=0; istatus<m_isActiveStatus.size(); istatus++) {
     if      (m_isActiveStatus[istatus]=="OK")       { m_activeStatus.push_back(PixelDCSStatusData::DCSModuleStatus::OK); }
     else if (m_isActiveStatus[istatus]=="WARNING")  { m_activeStatus.push_back(PixelDCSStatusData::DCSModuleStatus::WARNING); }
@@ -56,6 +65,11 @@ StatusCode PixelConditionsSummaryTool::initialize(){
       ATH_MSG_ERROR("No matching DCS status " << m_isActiveStatus[istatus] << " in DCSModuleStatus");
       return StatusCode::FAILURE;
     }
+    if (m_activeStatus.back()<0 || m_activeStatus.back()>31) {
+      ATH_MSG_FATAL("Logic error: status id too large. Cannot be represented by a bit");
+      return StatusCode::FAILURE;
+    }
+    m_activeStatusMask |= (1<<m_activeStatus.back());
   }
 
   return StatusCode::SUCCESS;
@@ -303,6 +317,157 @@ bool PixelConditionsSummaryTool::isGood(const Identifier& elementId, const InDet
   }
 
   return true;
+}
+
+namespace {
+   inline void setStatus(const std::unordered_map<int, int> &status_map, unsigned int status_mask, std::vector<bool> &module_status) {
+      for (const std::pair<const int, int> &elm : status_map ) {
+         // set modules good if the module status passes the mask.
+         module_status.at(elm.first)  = module_status.at(elm.first) || (status_mask & (1<<elm.second));
+      }
+   }
+
+   inline void andStatus(const std::unordered_map<int, int> &status_map, unsigned int status_mask, std::vector<bool> &module_status) {
+      for (const std::pair<const int, int> &elm : status_map ) {
+         // set modules good if the module status passes the mask.
+         module_status.at(elm.first) = module_status.at(elm.first) && (status_mask & (1<<elm.second));
+      }
+   }
+   inline void andNotStatus(const std::unordered_map<int, int> &status_map, std::vector<bool> &module_status) {
+      for (const std::pair<const int, int> &elm : status_map ) {
+         // set modules good if the module status passes the mask.
+         module_status.at(elm.first) = module_status.at(elm.first) && (elm.second==0);
+      }
+   }
+   bool isBSError(uint64_t error, uint64_t max_error, uint64_t mask) {
+      return error<max_error && (error & mask);
+   }
+}
+
+std::unique_ptr<InDet::SiDetectorElementStatus> PixelConditionsSummaryTool::getDetectorElementStatus(const EventContext& ctx, bool active_only) const {
+   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey, ctx);
+   const InDetDD::SiDetectorElementCollection* elements(*pixelDetEleHandle);
+   std::unique_ptr<InDet::SiDetectorElementStatus> element_status( new InDet::PixelDetectorElementStatus(*elements) );
+   std::vector<bool> &status=element_status->getElementStatus();
+   status.resize(m_pixelID->wafer_hash_max(),
+                    ((1<<0) & m_activeStateMask)     // default value of PixelDCSStateData  is 0
+                 );
+   std::vector<InDet::ChipFlags_t> &chip_status=element_status->getElementChipStatus();
+   chip_status.resize(status.size(),0);
+
+   // module state
+   setStatus(SG::ReadCondHandle<PixelDCSStateData>(m_condDCSStateKey, ctx)->moduleStatusMap(),   m_activeStateMask,  status);
+   if (!active_only) andStatus(SG::ReadCondHandle<PixelDCSStatusData>(m_condDCSStatusKey, ctx)->moduleStatusMap(), m_activeStatusMask, status);
+   if (!m_condTDAQKey.empty()) {
+      andNotStatus(SG::ReadCondHandle<PixelTDAQData>(m_condTDAQKey,ctx)->moduleStatusMap(), status);
+   }
+   {
+      SG::ReadCondHandle<PixelDeadMapCondData> dead_map_handle(m_condDeadMapKey, ctx);
+      andNotStatus(dead_map_handle->moduleStatusMap(), status);
+      if (elements) {
+         const PixelDeadMapCondData *dead_map = dead_map_handle.cptr();
+         unsigned int element_i=0;
+         for (const InDetDD::SiDetectorElement *element : *elements) {
+            if (status[element_i]) {
+               const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+               InDetDD::PixelReadoutTechnology readout_technology = p_design->getReadoutTechnology();
+               unsigned int number_of_chips = readout_technology == InDetDD::PixelReadoutTechnology::FEI3  ? 2*p_design->numberOfCircuits() : p_design->numberOfCircuits();
+               InDet::ChipFlags_t  chip_mask = (1ul<<number_of_chips)-1ul;
+               assert( chip_mask != 0 );
+               std::bitset<16> dead_chip_mask(dead_map->getChipStatus(element_i));
+               chip_status[element_i]  =   chip_mask & (~static_cast<InDet::ChipFlags_t>(dead_chip_mask.to_ulong()));
+            }
+            ++element_i;
+         }
+      }
+   }
+
+
+   static_assert( static_cast<unsigned int>(InDetDD::PixelReadoutTechnology::FEI4) < 32u) ;
+   static_assert( static_cast<unsigned int>(InDetDD::PixelReadoutTechnology::FEI3) < 32u) ;
+   static_assert( static_cast<unsigned int>(InDetDD::PixelReadoutTechnology::RD53) < 32u) ;
+   unsigned int readout_technology_mask=  Pixel::makeReadoutTechnologyBit(InDetDD::PixelReadoutTechnology::FEI4, 1 && m_useByteStreamFEI4 )
+      | Pixel::makeReadoutTechnologyBit(InDetDD::PixelReadoutTechnology::FEI3, 1 && m_useByteStreamFEI3 )
+      | Pixel::makeReadoutTechnologyBit(InDetDD::PixelReadoutTechnology::RD53, 1 && m_useByteStreamRD53 );
+   if (elements && readout_technology_mask) {
+      std::scoped_lock<std::mutex> lock{*m_cacheMutex.get(ctx)};
+      const IDCInDetBSErrContainer_Cache *idcCachePtr = nullptr;
+      idcCachePtr = getCacheEntry(ctx)->IDCCache;
+      if (idcCachePtr==nullptr) {
+         ATH_MSG_ERROR("PixelConditionsSummaryTool No cache! " );
+      }
+      else {
+
+         if (not pixelDetEleHandle.isValid() or elements==nullptr) {
+            ATH_MSG_WARNING(m_pixelDetEleCollKey.fullKey() << " is not available.");
+         }
+
+         constexpr uint64_t error_mask = PixelByteStreamErrors::makeError(PixelByteStreamErrors::TruncatedROB)
+            | PixelByteStreamErrors::makeError(PixelByteStreamErrors::MaskedROB)
+            | PixelByteStreamErrors::makeError(PixelByteStreamErrors::Preamble)
+            | PixelByteStreamErrors::makeError(PixelByteStreamErrors::TimeOut)
+            | PixelByteStreamErrors::makeError(PixelByteStreamErrors::LVL1ID)
+            | PixelByteStreamErrors::makeError(PixelByteStreamErrors::BCID)
+            | PixelByteStreamErrors::makeError(PixelByteStreamErrors::Trailer)
+            | PixelByteStreamErrors::makeError(PixelByteStreamErrors::MCCLVL1IDEoECheck)
+            | PixelByteStreamErrors::makeError(PixelByteStreamErrors::MCCBCIDEoECheck)
+            | PixelByteStreamErrors::makeError(PixelByteStreamErrors::MCCLVL1IDCheck)
+            | PixelByteStreamErrors::makeError(PixelByteStreamErrors::MCCEoEOverflow)
+            | PixelByteStreamErrors::makeError(PixelByteStreamErrors::MCCHitOverflow);
+
+         constexpr uint64_t chip_error_mask = PixelByteStreamErrors::makeError(PixelByteStreamErrors::Preamble)
+            | PixelByteStreamErrors::makeError(PixelByteStreamErrors::TimeOut)
+            | PixelByteStreamErrors::makeError(PixelByteStreamErrors::LVL1ID)
+            | PixelByteStreamErrors::makeError(PixelByteStreamErrors::BCID)
+            | PixelByteStreamErrors::makeError(PixelByteStreamErrors::Trailer)
+            | PixelByteStreamErrors::makeError(PixelByteStreamErrors::MCCLVL1IDEoECheck)
+            | PixelByteStreamErrors::makeError(PixelByteStreamErrors::MCCBCIDEoECheck)
+            | PixelByteStreamErrors::makeError(PixelByteStreamErrors::MCCLVL1IDCheck)
+            | PixelByteStreamErrors::makeError(PixelByteStreamErrors::MCCEoEOverflow)
+            | PixelByteStreamErrors::makeError(PixelByteStreamErrors::MCCHitOverflow);
+
+         // The index array is defined in PixelRawDataProviderTool::SizeOfIDCInDetBSErrContainer()
+         // Here, 52736 is a separator beween error flags and isActive flags.
+         unsigned int element_offset_i = (active_only ? 52736 : 0);
+
+         unsigned int element_i=0;
+         unsigned int maxHash = m_pixelID->wafer_hash_max();
+         for (const InDetDD::SiDetectorElement *element : *elements) {
+            const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+            InDetDD::PixelReadoutTechnology readout_technology = p_design->getReadoutTechnology();
+            unsigned int readout_technology_flags = readout_technology_mask & Pixel::makeReadoutTechnologyBit(readout_technology);
+
+            // set to false if has one of the considered errors and the readout technology is considered.
+            status.at(element_i) = status.at(element_i) &  not (   readout_technology_flags
+                                                                &&  ( !active_only
+                                                                     ?  isBSError(static_cast<uint64_t>(idcCachePtr->retrieve(element_i)), m_missingErrorInfo, error_mask)
+                                                                      : idcCachePtr->retrieve(element_i+element_offset_i)!=1 ));
+
+            // compute the status for the individual front-ends
+            if (status[element_i]) {
+               unsigned int number_of_chips = readout_technology == InDetDD::PixelReadoutTechnology::FEI3  ? 2*p_design->numberOfCircuits() : p_design->numberOfCircuits();
+               InDet::ChipFlags_t  chip_mask = status[element_i] ? (1ul<<number_of_chips)-1ul : 0;
+               assert( chip_mask != 0 );
+               InDet::ChipFlags_t bs_status_flags = active_only ? chip_mask : 0;
+               if (!active_only) {
+                  for (unsigned int chip_i =0; chip_i < number_of_chips; ++chip_i) {
+                     // get bytestream error for chip
+                     unsigned int indexFE = (1+chip_i)*maxHash + element_i;    // (FE_channel+1)*2048 + moduleHash
+                     InDet::ChipFlags_t chip_flag =not (    readout_technology_flags
+                                                        && (isBSError(static_cast<uint64_t>(idcCachePtr->retrieve(indexFE)), m_missingErrorInfo, chip_error_mask)));
+                     bs_status_flags |= (chip_flag << chip_i);
+                  }
+               }
+               chip_status[element_i] &=  (bs_status_flags & chip_mask);
+            }
+            else {
+               chip_status[element_i] = 0;
+            }
+            ++element_i;
+         }
+      }
+   }
+   return element_status;
 }
 
 bool PixelConditionsSummaryTool::isGood(const IdentifierHash& moduleHash, const EventContext& ctx) const {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -9,6 +9,8 @@
 **/
 
 #include "SCT_TdaqEnabledTool.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "SCT_DetectorElementStatus.h"
 
 #include "InDetIdentifier/SCT_ID.h"
 #include "StoreGate/ReadCondHandle.h"
@@ -71,6 +73,30 @@ SCT_TdaqEnabledTool::isGood(const IdentifierHash& hashId) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
 
   return isGood(hashId, ctx);
+}
+
+void
+SCT_TdaqEnabledTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status) const {
+  const SCT_TdaqEnabledCondData* condData{getCondData(ctx)};
+  if (condData==nullptr) {
+    ATH_MSG_ERROR("Invalid TdaqEnabledCondData. Return true.");
+    return ;
+  }
+  std::vector<bool> &status = element_status.getElementStatus();
+  if (status.empty()) {
+     status.resize(m_pHelper->wafer_hash_max(),true);
+  }
+  if (not condData->isNoneBad()) {
+     std::vector<bool> tdaq_enabled;
+     tdaq_enabled.resize(m_pHelper->wafer_hash_max(),false);
+     for (const IdentifierHash &id_hash :  condData->goodIdHashes() ) {
+        tdaq_enabled.at(id_hash.value())=true;
+     }
+     for (unsigned int status_i=0; status_i<status.size(); ++status_i) {
+        status[status_i] = status[status_i] & tdaq_enabled.at(status_i);
+     }
+  }
+
 }
 
 const SCT_TdaqEnabledCondData*

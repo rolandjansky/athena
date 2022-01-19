@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file SCT_ReadCalibDataTool.cxx Implementation file for SCT_ReadCalibDataTool.
@@ -11,6 +11,9 @@
 // Include Athena stuff
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "SCT_ReadoutGeometry/SCT_ChipUtils.h"
+#include "SCT_DetectorElementStatus.h"
+#include "InDetIdentifier/SCT_ID.h"
 
 // Include STL
 #include <cstdint>
@@ -108,6 +111,54 @@ bool SCT_ReadCalibDataTool::isGood(const Identifier& elementId, InDetConditions:
   const EventContext& ctx{Gaudi::Hive::currentContext()};
 
   return isGood(elementId, ctx, h);
+}
+
+
+
+
+void SCT_ReadCalibDataTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status) const {
+   const SCT_AllGoodStripInfo* condDataInfo{getCondDataInfo(ctx)};
+
+   const std::vector<bool> &status = element_status.getElementStatus();
+   const std::vector<InDet::ChipFlags_t> &chip_status = element_status.getElementChipStatus();
+
+   std::vector<std::vector<unsigned short> >  &bad_strips = element_status.getBadCells();
+   if (bad_strips.empty()) {
+      bad_strips.resize(condDataInfo->size());
+   }
+   unsigned int element_i=0;
+   for( const std::array<bool, SCT_ConditionsData::STRIPS_PER_WAFER> &good_strips : *condDataInfo) {
+      IdentifierHash moduleHash(element_i);
+      Identifier module_id(m_id_sct->wafer_id(moduleHash));
+      if (status.empty() || status.at(element_i)) {
+         const InDetDD::SiDetectorElement *detector_element = element_status.getDetectorElement(moduleHash);
+         std::vector<unsigned short>  &bad_module_strips = bad_strips[element_i];
+         Identifier first_chip_strip_id;
+         for (unsigned int strip_i=0; strip_i<good_strips.size(); ++strip_i) {
+            if (strip_i % SCT::N_STRIPS_PER_CHIP == 0) {
+               first_chip_strip_id = m_id_sct->strip_id(m_id_sct->barrel_ec(module_id),
+                                                        m_id_sct->layer_disk(module_id),
+                                                        m_id_sct->phi_module(module_id),
+                                                        m_id_sct->eta_module(module_id),
+                                                        m_id_sct->side(module_id),
+                                                        strip_i,
+                                                        true);
+               unsigned int the_chip=SCT::getChip(*m_id_sct, *detector_element, first_chip_strip_id);
+               if (!chip_status.empty() && !(chip_status.at(element_i) & static_cast<InDet::ChipFlags_t>(1ul<<the_chip))) {
+                  strip_i += (SCT::N_STRIPS_PER_CHIP-1);
+                  continue;
+               }
+            }
+            if (!good_strips[strip_i]) {
+               std::vector<unsigned short>::const_iterator iter = std::lower_bound(bad_module_strips.begin(),bad_module_strips.end(),strip_i);
+               if (iter == bad_module_strips.end() || *iter != strip_i) {
+                  bad_module_strips.insert( iter, strip_i);
+               }
+            }
+         }
+      }
+      ++element_i;
+   }
 }
 
 //----------------------------------------------------------------------
