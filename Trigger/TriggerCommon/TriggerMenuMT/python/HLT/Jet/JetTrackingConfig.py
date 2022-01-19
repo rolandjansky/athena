@@ -102,6 +102,10 @@ def JetRoITrackingSequence(dummyFlags,jetsIn,trkopt,RoIs):
     viewAlgs, viewVerify = makeInDetTrigFastTracking( config = IDTrigConfig, rois=RoIs)
     viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs ),( 'xAOD::JetContainer' , 'StoreGateSvc+%s' % jetsIn)]
 
+    # quit here if we're working with cosmics
+    if dummyFlags.Beam.Type == 'cosmics':
+        return viewAlgs
+
     IDTrigConfig = getInDetTrigConfig('jetSuper')
     tracksIn = IDTrigConfig.tracks_FTF()
 
