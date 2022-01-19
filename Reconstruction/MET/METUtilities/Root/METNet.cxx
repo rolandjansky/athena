@@ -48,8 +48,8 @@ namespace met {
   using xAOD::JetContainer;
   using xAOD::VertexContainer;
 
-  static const SG::AuxElement::ConstAccessor<float> acc_jvt("Jvt");
-  static const SG::AuxElement::ConstAccessor<float> acc_fjvt("fJvt");
+  static const SG::AuxElement::ConstAccessor<std::string> acc_name("name");
+  static const SG::AuxElement::ConstAccessor<MissingETBase::Types::bitmask_t> acc_source("source");
 
   typedef ElementLink<xAOD::IParticleContainer> iplink_t;
   static const SG::AuxElement::ConstAccessor< std::vector<iplink_t > > acc_constitObjLinks("ConstitObjectLinks");
@@ -64,11 +64,17 @@ namespace met {
   //////////////////////////////////////////////////////////////////////////////
 
   METNet::METNet(const std::string& name)
-  : AsgTool(name) {
+  : AsgTool(name),
+  m_acc_jvt(nullptr),
+  m_acc_fjvt(nullptr),
+  m_acc_fjvtCut(nullptr)
+  {
     declareProperty( "NetworkLocation", m_NetLocation = "METUtilities/run2_13TeV/METNet/dummy_network.onnx" );
     declareProperty( "JetCollection", m_JetCollection = "AntiKt4EMPFlow" );
     declareProperty( "PVContainer", m_PVContainer = "PrimaryVertices" );
-    declareProperty( "FJVTFlag", m_fjvtflag = "passFJVT" );
+    declareProperty( "JetJvtMomentName", m_jetJvtMomentName = "Jvt" );
+    declareProperty( "JetFwdJvtMomentName", m_jetFwdJvtMomentName = "fJvt" );
+    declareProperty( "JetFwdJvtCutName", m_jetFwdJvtCutName = "passFJVT" );
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -89,36 +95,47 @@ namespace met {
 
     bool DoPFlow = ( m_JetCollection == "AntiKt4EMPFlow" );
 
+    // Configurable jet decoration accessors
+    m_acc_jvt.reset(new SG::AuxElement::ConstAccessor<float>(m_jetJvtMomentName));
+    m_acc_fjvt.reset(new SG::AuxElement::ConstAccessor<float>(m_jetFwdJvtMomentName));
+    m_acc_fjvtCut.reset(new SG::AuxElement::ConstAccessor<char>(m_jetFwdJvtCutName));
+
     // Tool initialisations
     ATH_MSG_INFO("Initialising the METNet ONNX environment using the file " + m_NetLocation);
     m_metnethandler = std::make_unique<METNetHandler>( m_NetLocation );
     ATH_CHECK( m_metnethandler->initialize() );
 
     m_metmaker_tight.setTypeAndName( "met::METMaker/metmaker_tight" );
-    ATH_CHECK( m_metmaker_tight.setProperty( "DoPFlow",      DoPFlow ) );
+    ATH_CHECK( m_metmaker_tight.setProperty( "DoPFlow", DoPFlow ) );
     ATH_CHECK( m_metmaker_tight.setProperty( "JetSelection", "Tight" ) );
+    ATH_CHECK( m_metmaker_tight.setProperty( "jetJvtMomentName", m_jetJvtMomentName ) );
     ATH_CHECK( m_metmaker_tight.retrieve() );
 
     m_metmaker_loose.setTypeAndName( "met::METMaker/metmaker_loose" );
-    ATH_CHECK( m_metmaker_loose.setProperty( "DoPFlow",      DoPFlow ) );
+    ATH_CHECK( m_metmaker_loose.setProperty( "DoPFlow", DoPFlow ) );
     ATH_CHECK( m_metmaker_loose.setProperty( "JetSelection", "Loose" ) );
+    ATH_CHECK( m_metmaker_loose.setProperty( "jetJvtMomentName", m_jetJvtMomentName ) );
     ATH_CHECK( m_metmaker_loose.retrieve() );
 
     m_metmaker_tghtr.setTypeAndName( "met::METMaker/metmaker_tghtr" );
-    ATH_CHECK( m_metmaker_tghtr.setProperty( "DoPFlow",      DoPFlow    ) );
+    ATH_CHECK( m_metmaker_tghtr.setProperty( "DoPFlow", DoPFlow ) );
     ATH_CHECK( m_metmaker_tghtr.setProperty( "JetSelection", "Tighter" ) );
+    ATH_CHECK( m_metmaker_tghtr.setProperty( "jetJvtMomentName", m_jetJvtMomentName ) );
     ATH_CHECK( m_metmaker_tghtr.retrieve() );
 
     m_metmaker_fjvt.setTypeAndName( "met::METMaker/metmaker_fjvt" );
-    ATH_CHECK( m_metmaker_fjvt.setProperty( "DoPFlow",      DoPFlow ) );
+    ATH_CHECK( m_metmaker_fjvt.setProperty( "DoPFlow", DoPFlow ) );
     ATH_CHECK( m_metmaker_fjvt.setProperty( "JetSelection", "Tight" ) );
-    ATH_CHECK( m_metmaker_fjvt.setProperty( "JetRejectionDec", m_fjvtflag ) );
+    ATH_CHECK( m_metmaker_fjvt.setProperty( "jetJvtMomentName", m_jetJvtMomentName ) );
+    ATH_CHECK( m_metmaker_fjvt.setProperty( "JetRejectionDec", m_jetFwdJvtCutName ) );
     ATH_CHECK( m_metmaker_fjvt.retrieve() );
 
     m_metsigtool.setTypeAndName( "met::METSignificance/metsigtool" );
     ATH_CHECK( m_metsigtool.setProperty( "JetCollection", m_JetCollection ) );
     ANA_CHECK( m_metsigtool.setProperty( "TreatPUJets", true ) );
     ANA_CHECK( m_metsigtool.setProperty( "DoPhiReso", true ) );
+    ATH_CHECK( m_metsigtool.setProperty( "jetJvtMomentName", m_jetJvtMomentName ) );
+    ATH_CHECK( m_metsigtool.setProperty( "JetFwdJvtMomentName", m_jetFwdJvtMomentName ) );
     ATH_CHECK( m_metsigtool.retrieve() );
 
     return StatusCode::SUCCESS;
@@ -137,7 +154,8 @@ namespace met {
   }
 
   StatusCode METNet::rebuildJetMET( const std::string& metJetKey,
-                                    const std::string& metSoftKey,
+                                    const std::string& softClusKey,
+                                    const std::string& softTrkKey,
                                     xAOD::MissingETContainer* metCont,
                                     const xAOD::JetContainer* jets,
                                     const xAOD::MissingETContainer* metCoreCont,
@@ -146,10 +164,20 @@ namespace met {
   {
 
     // First we need to check that the jet container has the appropriate decorations
-    ATH_MSG_VERBOSE( "Checking jet container decorations" );
     for ( const auto& jet : *jets ) {
-      if ( !(jet->isAvailable<char>(m_fjvtflag)) || !(jet->isAvailable<float>("Jvt")) ){
-        ATH_MSG_ERROR( "Could not find jet (f)jvt decorations! Check that the tools were run and that the FJVTFlag is correct!" );
+      ATH_MSG_VERBOSE( "Checking that the jets are decorated with their JVT values" );
+      if ( !m_acc_jvt->isAvailable(*jet) ){
+        ATH_MSG_ERROR( "Could not find JVT values on the jets using given flag: " + m_jetJvtMomentName );
+        return StatusCode::FAILURE;
+      }
+      ATH_MSG_VERBOSE( "Checking that the jets are decorated with their FJVT values" );
+      if ( !m_acc_fjvt->isAvailable(*jet) ){
+        ATH_MSG_ERROR( "Could not find FJVT values on the jets using given flag: " + m_jetFwdJvtMomentName );
+        return StatusCode::FAILURE;
+      }
+      ATH_MSG_VERBOSE( "Checking that the jets are decorated with their passFJVT values" );
+      if ( !m_acc_fjvtCut->isAvailable(*jet) ){
+        ATH_MSG_ERROR( "Could not find cut on FJVT values on the jets using given flag: " + m_jetFwdJvtCutName );
         return StatusCode::FAILURE;
       }
     }
@@ -283,8 +311,9 @@ namespace met {
       // Calculating the weighted jet PU probability of all jets
       current_PU_val = (*jet_link)->pt() * GetPUProb( (*jet_link)->eta(),
                                                       (*jet_link)->pt() * 1e-3,
-                                                      acc_jvt(*(*jet_link)),
-                                                      acc_fjvt(*(*jet_link)), avgmu );
+                                                      (*m_acc_jvt)(**jet_link),
+                                                      (*m_acc_fjvt)(**jet_link),
+                                                      avgmu );
       sum_jet_PU_prob += current_PU_val * current_PU_val;
 
       // Variables for forward jets
@@ -315,7 +344,7 @@ namespace met {
     // We have to run the base container through METMaker to ensure that it has jet+soft terms (wont be used)
     // Frameworks (like SUSYTools) may try to dereference it either as a test, or to calibrate it
     // This will cause a segmentation fault if it isnt there
-    ATH_CHECK( m_metmaker_tight->rebuildJetMET( metJetKey, metSoftKey, metCont, jets, metCoreCont, map, doJetJVT ) );
+    ATH_CHECK(m_metmaker_tight->rebuildJetMET(metJetKey, softClusKey, softTrkKey, metCont, jets, metCoreCont, map, doJetJVT ) );
 
     return StatusCode::SUCCESS;
   }
@@ -386,7 +415,7 @@ namespace met {
                                  std::vector<float>& val_vec )
   {
     // Build the name of the term from the WP and the Object type from the container
-    std::string tname = WP_name + "_" + met->auxdata<string>("name");
+    std::string tname = WP_name + "_" + acc_name(*met);
 
     // Add the MET magnitude, components, and SumET
     ATH_CHECK( addInputValue( tname+"_ET",    met->met(),   name_vec, val_vec ) );
@@ -423,8 +452,8 @@ namespace met {
 
     for ( const auto& old_met : *old_container ) {
       blank_met = nullptr;                                                  // Resetting the null pointer
-      name = old_met->auxdata<string>("name");                              // Getting the name from the original container
-      source = old_met->auxdata<MissingETBase::Types::bitmask_t>("source"); // Getting the particle type from the original container
+      name = acc_name(*old_met);                                            // Getting the name from the original container
+      source = acc_source(*old_met);                                        // Getting the particle type from the original container
       if ( (excl_gama) && (source==gamma_src) ) continue;                   // Skip the photon term if specified (for track met)
       ATH_CHECK( fillMET( blank_met, new_container, name, source ) );       // Initialising the blank met with the new name in the new container
       *(*new_container)[name] = *(*old_container)[name];                    // Copying over the contents from one container to another
@@ -443,7 +472,16 @@ namespace met {
                                  const xAOD::MissingETAssociationMap*,
                                  MissingETBase::UsageHandler::Policy )
   {
-    ATH_MSG_ERROR( "Please dont use this version of METNet::rebuildMET!" );
+    ATH_MSG_ERROR( "METNet has not overloaded this version of rebuildMET from IMETMaker!\n"
+                   "Please only use this method:\n"
+                   "StatusCode METMaker::rebuildMET("
+                      "const std::string& metKey,\n"
+                      "xAOD::Type::ObjectType metType,\n"
+                      "xAOD::MissingETContainer* metCont,\n"
+                      "const xAOD::IParticleContainer* collection,\n"
+                      "const xAOD::MissingETAssociationMap* map,\n"
+                      "MissingETBase::UsageHandler::Policy objScale\n"
+                    ")" );
     return StatusCode::FAILURE;
   }
 
@@ -455,21 +493,28 @@ namespace met {
                                  MissingETBase::UsageHandler::Policy )
 
   {
-    ATH_MSG_ERROR( "Please dont use this version of METNet::rebuildMET!" );
+    ATH_MSG_ERROR( "METNet has not overloaded this version of rebuildMET from IMETMaker!\n"
+                   "Please only use this method:\n"
+                   "StatusCode METMaker::rebuildMET("
+                      "const std::string& metKey,\n"
+                      "xAOD::Type::ObjectType metType,\n"
+                      "xAOD::MissingETContainer* metCont,\n"
+                      "const xAOD::IParticleContainer* collection,\n"
+                      "const xAOD::MissingETAssociationMap* map,\n"
+                      "MissingETBase::UsageHandler::Policy objScale\n"
+                    ")" );
     return StatusCode::FAILURE;
   }
 
-  StatusCode METNet::rebuildJetMET( const std::string&,
-                                    const std::string&,
-                                    const std::string&,
-                                    xAOD::MissingETContainer*,
-                                    const xAOD::JetContainer*,
-                                    const xAOD::MissingETContainer*,
-                                    const xAOD::MissingETAssociationMap*,
-                                    bool )
+  StatusCode METNet::rebuildJetMET(const std::string& metJetKey,
+                                   const std::string& /*metSoftKey*/,
+                                   xAOD::MissingETContainer* metCont,
+                                   const xAOD::JetContainer* jets,
+                                   const xAOD::MissingETContainer* metCoreCont,
+                                   const xAOD::MissingETAssociationMap* map,
+                                   bool doJetJVT)
   {
-    ATH_MSG_ERROR( "Please dont use this version of METNet::rebuildJetMET!" );
-    return StatusCode::FAILURE;
+    return rebuildJetMET(metJetKey, "SoftClus", "PVSoftTrk", metCont, jets, metCoreCont, map, doJetJVT);
   }
 
   StatusCode METNet::rebuildJetMET( xAOD::MissingET*,
@@ -483,7 +528,18 @@ namespace met {
                                     bool,
                                     std::vector<const xAOD::IParticle*>* )
   {
-    ATH_MSG_ERROR( "Please dont use this version of METNet::rebuildJetMET!" );
+    ATH_MSG_ERROR( "METNet has not overloaded this version of rebuildJetMET from IMETMaker!\n"
+                   "Please use the method with the following arguments:\n"
+                   "StatusCode METNet::rebuildJetMET(\n"
+                      "const std::string& metJetKey,\n"
+                      "const std::string& softKey1,\n"
+                      "const std::string& softKey2 (optional),\n"
+                      "xAOD::MissingETContainer* metCont,\n"
+                      "const xAOD::JetContainer* jets,\n"
+                      "const xAOD::MissingETContainer* metCoreCont,\n"
+                      "const xAOD::MissingETAssociationMap* map,\n"
+                      "bool doJetJVT\n"
+                    ")" );
     return StatusCode::FAILURE;
   }
 
@@ -495,7 +551,7 @@ namespace met {
                                       const xAOD::MissingETAssociationMap*,
                                       bool )
   {
-    ATH_MSG_ERROR( "Please dont use the method METNet::rebuildTrackMET! "
+    ATH_MSG_ERROR( "Please dont use the method METNet::rebuildTrackMET!\n"
                    "It has no use in METNet and is a holdover from it's inheritance from IMETMaker." );
     return StatusCode::FAILURE;
   }
@@ -507,7 +563,7 @@ namespace met {
                                       const xAOD::MissingET*,
                                       bool )
   {
-    ATH_MSG_ERROR( "Please dont use the method METNet::rebuildTrackMET! "
+    ATH_MSG_ERROR( "Please dont use the method METNet::rebuildTrackMET!\n"
                    "It has no use in METNet and is a holdover from it's inheritance from IMETMaker." );
     return StatusCode::FAILURE;
   }
@@ -516,13 +572,13 @@ namespace met {
                                     const xAOD::MissingETAssociationMap*,
                                     xAOD::MissingETContainer* )
   {
-    ATH_MSG_ERROR( "Please dont use the method METNet::markInvisible! "
+    ATH_MSG_ERROR( "Please dont use the method METNet::markInvisible!\n"
                    "It has no use in METNet and is a holdover from it's inheritance from IMETMaker.");
     return StatusCode::FAILURE;
   }
 
   // The jet Pile Up probability table for both Topo and PFlow jets
-  // Function is a copy of the private method in METSignificance.cxx
+  // Function is a copy of the private method in METSignificance.cxx (dropping phi dummy)
   // I am not editing any of this mess!
   double METNet::GetPUProb( double jet_eta, double jet_pt,
                             double jet_jvt, double jet_fjvt,

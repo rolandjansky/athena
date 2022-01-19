@@ -199,6 +199,12 @@ namespace met {
     TH2F *h_phi_reso_pt50;
     TH2F *h_phi_reso_pt100;
 
+    // Configurable accessors
+    std::string m_jetJvtMomentName;
+    std::string m_jetFwdJvtMomentName;
+    std::unique_ptr<SG::AuxElement::ConstAccessor<float > > m_acc_jvt;
+    std::unique_ptr<SG::AuxElement::ConstAccessor<float > > m_acc_fjvt;
+
     std::string m_configPrefix;
     std::string m_configJetPhiResoFile;
     std::string m_JetResoAux;

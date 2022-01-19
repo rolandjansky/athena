@@ -71,8 +71,6 @@ namespace met {
     static const SG::AuxElement::ConstAccessor<float> acc_varX("varX");
     static const SG::AuxElement::ConstAccessor<float> acc_varY("varY");
     static const SG::AuxElement::ConstAccessor<float> acc_covXY("covXY");
-    static const SG::AuxElement::ConstAccessor<float> acc_jvt("Jvt");
-    static const SG::AuxElement::ConstAccessor<float> acc_fjvt("fJvt");
     static const SG::AuxElement::ConstAccessor<float> acc_fjvt_der("DFCommonJets_fJvt");
 
     static const SG::AuxElement::ConstAccessor< std::vector<iplink_t > > dec_constitObjLinks("ConstitObjectLinks");
@@ -112,12 +110,16 @@ namespace met {
       m_file(0),
       h_phi_reso_pt20(0),
       h_phi_reso_pt50(0),
-      h_phi_reso_pt100(0)
+      h_phi_reso_pt100(0),
+      m_acc_jvt(nullptr),
+      m_acc_fjvt(nullptr)
     {
       //
       // Property declaration
       //
-      declareProperty("SoftTermParam",        m_softTermParam = met::Random );
+      declareProperty("JetJvtMomentName",     m_jetJvtMomentName = "Jvt"     );
+      declareProperty("JetFwdJvtMomentName",  m_jetFwdJvtMomentName = "fJvt" );
+      declareProperty("SoftTermParam",        m_softTermParam = met::Random  );
       declareProperty("SoftTermReso",         m_softTermReso  = 10.0         );
       declareProperty("TreatPUJets",          m_treatPUJets   = true         );
       declareProperty("TreatPUJetsOld",       m_treatPUJetsOld= false        );
@@ -165,6 +167,10 @@ namespace met {
     StatusCode METSignificance::initialize()
     {
         ATH_MSG_INFO ("Initializing " << name() << "...");
+
+    // Configurable jet decoration accessors
+    m_acc_jvt.reset(new SG::AuxElement::ConstAccessor<float>(m_jetJvtMomentName));
+    m_acc_fjvt.reset(new SG::AuxElement::ConstAccessor<float>(m_jetFwdJvtMomentName));
 
 	ATH_MSG_INFO("Set up JER tools");
 	std::string toolName;
@@ -623,8 +629,8 @@ namespace met {
     //
     if(m_treatPUJets){
       double jet_pu_unc  = 0.;
-      if (acc_fjvt.isAvailable(*jet)) jet_pu_unc = GetPUProb(jet->eta(), jet->phi(),jet->pt()/m_GeV, acc_jvt(*jet), acc_fjvt(*jet), avgmu);
-      else if (acc_fjvt_der.isAvailable(*jet)) jet_pu_unc = GetPUProb(jet->eta(), jet->phi(),jet->pt()/m_GeV, acc_jvt(*jet), acc_fjvt_der(*jet), avgmu);
+      if (m_acc_fjvt->isAvailable(*jet)) jet_pu_unc = GetPUProb(jet->eta(), jet->phi(),jet->pt()/m_GeV, (*m_acc_jvt)(*jet), (*m_acc_fjvt)(*jet), avgmu);
+      else if (acc_fjvt_der.isAvailable(*jet)) jet_pu_unc = GetPUProb(jet->eta(), jet->phi(),jet->pt()/m_GeV, (*m_acc_jvt)(*jet), acc_fjvt_der(*jet), avgmu);
       else {
         ATH_MSG_ERROR("No fJVT decoration available - must have treat pileup jets set to off or provide fJVT!");
         return StatusCode::FAILURE;
