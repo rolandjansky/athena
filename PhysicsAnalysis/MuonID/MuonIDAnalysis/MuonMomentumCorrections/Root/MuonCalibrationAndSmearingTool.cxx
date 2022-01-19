@@ -300,7 +300,7 @@ namespace CP {
     }
 
     if(m_useStatComb){
-      ATH_MSG_INFO("Using statistical combination abovbe "<<m_StatCombPtThreshold<<" GeV");
+      ATH_MSG_INFO("Using statistical combination above "<<m_StatCombPtThreshold<<" GeV");
     }
 
     if(m_doSagittaCorrection){
@@ -354,7 +354,8 @@ namespace CP {
         m_SagittaIterations.push_back(0); m_SagittaIterations.push_back(0); m_SagittaIterations.push_back(0);
       }
 
-      if(m_sgIetrsManual){
+      if(m_sgIetrsManual)
+      {
         ATH_MSG_INFO("Number of sagitta iterations set to manual CB "<<m_sgItersCB<<" ID "<<m_sgItersID<<" "<<m_sgItersME);
         m_SagittaIterations.clear();
         m_SagittaIterations.push_back(m_sgItersCB);
@@ -362,8 +363,24 @@ namespace CP {
         m_SagittaIterations.push_back(m_sgItersME);
       }
 
+      // If the input type is single, check that that sagitta release version is supported in this tool config
+      static const std::array<std::string, 4> supportedSingleHistRelease = {"sagittaBiasDataAll_SingleHistMethod_B_07_04_2021", "sagittaBiasDataAll_SingleHistMethod_B_17_06_2021", "sagittaBiasDataAll_SingleHistMethod_B_17_06_2021_v2", "sagittaBiasDataAll_15_09_2021"};
+      const bool supportedSingleHist = std::find_if(supportedSingleHistRelease.begin(), supportedSingleHistRelease.end(),
+            [this](const std::string& sup_rel){return m_SagittaRelease.find(sup_rel)!= std::string::npos;}) != supportedSingleHistRelease.end();
+      if(!supportedSingleHist && m_saggitaMapsInputType == MCAST::SagittaInputHistType::SINGLE)
+      {
+        ATH_MSG_ERROR("Misconfigured tool setting. User has setup a SagittaRelease that is not supported with sagittaMapsInputType = SINGLE");
+        return StatusCode::FAILURE;
+      }
+      if(supportedSingleHist && m_saggitaMapsInputType != MCAST::SagittaInputHistType::SINGLE)
+      {
+        ATH_MSG_ERROR("Misconfigured tool setting. User has setup a SagittaRelease that is not supported with sagittaMapsInputType = NOMINAL");
+        return StatusCode::FAILURE;
+      }
 
-      if (m_saggitaMapsInputType == MCAST::SagittaInputHistType::SINGLE){
+
+      if (m_saggitaMapsInputType == MCAST::SagittaInputHistType::SINGLE)
+      {
 	      ATH_MSG_INFO("Setting up the tool for sinlge histogram input for sagitta bias corrections");
 	      m_SagittaIterations.clear();
         m_SagittaIterations={1,1,1};
