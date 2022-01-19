@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -425,11 +425,6 @@ void TRTDetectorFactory_Lite::create(GeoPhysVol *)
 				      &m_data->strawYPosition[iABC][0]+m_data->barrelNumberOfStrawsInModule[iABC]);
       TRANSFUNCTION tx1 = Pow(Xx,fx)*Pow(Xy,fy);
 
-      //Functions for straw with large dead regions
-      GENFUNCTION  fxDead = ArrayFunction(&m_data->strawXPosition[iABC][0], &m_data->strawXPosition[iABC][0+nStrawsWithLargeDeadRegion]);
-      GENFUNCTION  fyDead = ArrayFunction(&m_data->strawYPosition[iABC][0], &m_data->strawYPosition[iABC][0+nStrawsWithLargeDeadRegion]);
-      TRANSFUNCTION tx1Dead = Pow(Xx,fxDead)*Pow(Xy,fyDead);
-
       //TK: Quick fix, might waste a few KB of memory.
       //TK: only use when iABC==0
       GENFUNCTION  fxAll = ArrayFunction(&m_data->strawXPosition[iABC][0], &m_data->strawXPosition[iABC][0]+m_data->barrelNumberOfStrawsInModule[iABC]);
@@ -467,7 +462,6 @@ void TRTDetectorFactory_Lite::create(GeoPhysVol *)
 
       //Why not use radiator instead of shell?
       TRANSFUNCTION tx2=shellPosition.inverse()*absStrawXForm*tx1;
-      TRANSFUNCTION tx2Dead=shellPosition.inverse()*absStrawXForm*tx1Dead;
       TRANSFUNCTION tx2All=shellPosition.inverse()*absStrawXForm*tx1All;
       if (iABC==0) {
 	//TK: move rest of ...All stuff here?
