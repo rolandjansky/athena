@@ -119,7 +119,8 @@ if InDetFlags.doPRDFormation():
       #
       from SiClusterizationTool.SiClusterizationToolConf import InDet__MergedPixelsTool
       InDetMergedPixelsTool = InDet__MergedPixelsTool(name                    = "InDetMergedPixelsTool", 
-                                                      globalPosAlg            = InDetClusterMakerTool)
+                                                      globalPosAlg            = InDetClusterMakerTool,
+                                                      PixelDetElStatus          = "PixelDetectorElementStatus")
       # Enable duplcated RDO check for data15 because duplication mechanism was used.
       from RecExConfig.RecFlags import rec
       if len(rec.projectName())>=6 and rec.projectName()[:6]=="data15":

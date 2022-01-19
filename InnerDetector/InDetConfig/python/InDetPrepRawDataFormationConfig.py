@@ -36,8 +36,8 @@ def TrigPixelClusterizationCfg(flags, name="InDetPixelClusterization", roisKey="
     # Region selector tools for Pixel
     from RegionSelector.RegSelToolConfig import regSelTool_Pixel_Cfg
     RegSelTool_Pixel = acc.popToolsAndMerge(regSelTool_Pixel_Cfg(flags))
-    from InDetConfig.SiClusterizationToolConfig import MergedPixelsToolCfg, PixelGangedAmbiguitiesFinderCfg
-    merged_pixels_tool = acc.popToolsAndMerge(MergedPixelsToolCfg(flags))
+    from InDetConfig.SiClusterizationToolConfig import TrigMergedPixelsToolCfg, PixelGangedAmbiguitiesFinderCfg
+    merged_pixels_tool = acc.popToolsAndMerge(TrigMergedPixelsToolCfg(flags))
     ambi_finder = acc.popToolsAndMerge(PixelGangedAmbiguitiesFinderCfg(flags))
 
     kwargs.setdefault("clusteringTool", merged_pixels_tool)
