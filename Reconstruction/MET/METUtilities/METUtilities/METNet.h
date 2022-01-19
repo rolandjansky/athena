@@ -142,7 +142,14 @@ namespace met {
     std::string m_NetLocation;
     std::string m_JetCollection;
     std::string m_PVContainer;
-    std::string m_fjvtflag;
+    std::string m_jetJvtMomentName;
+    std::string m_jetFwdJvtMomentName;
+    std::string m_jetFwdJvtCutName;
+
+    // Configurable accessors
+    std::unique_ptr<SG::AuxElement::ConstAccessor<float > > m_acc_jvt;
+    std::unique_ptr<SG::AuxElement::ConstAccessor<float > > m_acc_fjvt;
+    std::unique_ptr<SG::AuxElement::ConstAccessor<char > > m_acc_fjvtCut;
 
     // Default constructor
     METNet();
