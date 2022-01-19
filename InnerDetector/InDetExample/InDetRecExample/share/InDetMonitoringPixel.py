@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -65,6 +65,8 @@ if doHitMonAlg:
   pixelAthMonAlgHitMonAlg = helper.addAlgorithm(PixelAthHitMonAlg, 'PixelAthHitMonAlg')
   for k, v in kwargsHitMonAlg.items():
     setattr(pixelAthMonAlgHitMonAlg, k, v)
+  pixelAthMonAlgHitMonAlg.PixelDetElStatus                      = 'PixelDetectorElementStatus'
+  pixelAthMonAlgHitMonAlg.PixelDetElStatusActiveOnly            = 'PixelDetectorElementStatusActiveOnly'
   PixelAthHitMonAlgCfg(helper, pixelAthMonAlgHitMonAlg, **kwargsHitMonAlg)
 
 if doClusterMonAlg:
@@ -79,14 +81,22 @@ if doClusterMonAlg:
   pixelAthClusterMonAlg.TrackSelectionTool.maxZ0            = 150
   pixelAthClusterMonAlg.TrackSelectionTool.TrackSummaryTool = TrackingCommon.getInDetTrackSummaryTool()
   pixelAthClusterMonAlg.TrackSelectionTool.Extrapolator     = TrackingCommon.getInDetExtrapolator()
-  
-  #print getattr(pixelAthClusterMonAlg, 'onTrack') 
+  pixelAthClusterMonAlg.PixelDetElStatus                      = 'PixelDetectorElementStatus'
+  pixelAthClusterMonAlg.PixelDetElStatusActiveOnly            = 'PixelDetectorElementStatusActiveOnly'
   PixelAthClusterMonAlgCfg(helper, pixelAthClusterMonAlg, **kwargsClusMonAlg)
 
 if doErrorMonAlg:
   pixelAthMonAlgErrorMonAlg = helper.addAlgorithm(PixelAthErrorMonAlg, 'PixelAthErrorMonAlg')
+  from AthenaCommon.GlobalFlags import globalflags
+  isData = (globalflags.DataSource == 'data')
+
+  kwargsErrMonAlg.setdefault(  'PixelByteStreamErrs', 'PixelByteStreamErrs')
+  kwargsErrMonAlg.setdefault(  'UseByteStreamFEI4', isData)
+  kwargsErrMonAlg.setdefault(  'UseByteStreamFEI3', isData)
+  kwargsErrMonAlg.setdefault(  'UseByteStreamRD53', False)
   for k, v in kwargsErrMonAlg.items():
     setattr(pixelAthMonAlgErrorMonAlg, k, v)
+  pixelAthMonAlgErrorMonAlg.PixelDetElStatusActiveOnly            = 'PixelDetectorElementStatusActiveOnly'
   PixelAthErrorMonAlgCfg(helper, pixelAthMonAlgErrorMonAlg, **kwargsErrMonAlg)
 
 if doMVAMonAlg:

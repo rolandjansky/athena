@@ -54,6 +54,8 @@ def PixelMonitoringConfig(flags):
         if doHitMonAlg:
             from PixelMonitoring.PixelAthHitMonAlgCfg import PixelAthHitMonAlgCfg
             pixelAthHitMonAlg = helper.addAlgorithm(CompFactory.PixelAthHitMonAlg, 'PixelAthHitMonAlg')
+            kwargsHitMonAlg.setdefault(  'PixelDetElStatus',           'PixelDetectorElementStatus' )
+            kwargsHitMonAlg.setdefault(  'PixelDetElStatusActiveOnly', 'PixelDetectorElementStatusActiveOnly')
             for k, v in kwargsHitMonAlg.items():
                 setattr(pixelAthHitMonAlg, k, v)
             PixelAthHitMonAlgCfg(helper, pixelAthHitMonAlg, **kwargsHitMonAlg)
@@ -61,6 +63,8 @@ def PixelMonitoringConfig(flags):
         if doClusterMonAlg:
             from PixelMonitoring.PixelAthClusterMonAlgCfg import PixelAthClusterMonAlgCfg
             pixelAthClusterMonAlg = helper.addAlgorithm(CompFactory.PixelAthClusterMonAlg, 'PixelAthClusterMonAlg')
+            kwargsClusMonAlg.setdefault(  'PixelDetElStatus',           'PixelDetectorElementStatus' )
+            kwargsClusMonAlg.setdefault(  'PixelDetElStatusActiveOnly', 'PixelDetectorElementStatusActiveOnly')
             for k, v in kwargsClusMonAlg.items():
                 setattr(pixelAthClusterMonAlg, k, v)
             pixelAthClusterMonAlg.TrackSelectionTool = CompFactory.InDet.InDetTrackSelectionTool('PixelAthClusterMonAlg_TrackSelectionTool')
@@ -78,6 +82,12 @@ def PixelMonitoringConfig(flags):
         if doErrorMonAlg:
             from PixelMonitoring.PixelAthErrorMonAlgCfg import PixelAthErrorMonAlgCfg
             pixelAthMonAlgErrorMonAlg = helper.addAlgorithm(CompFactory.PixelAthErrorMonAlg, 'PixelAthErrorMonAlg')
+            kwargsErrMonAlg.setdefault(  'PixelDetElStatusActiveOnly', 'PixelDetectorElementStatusActiveOnly')
+            kwargsErrMonAlg.setdefault(  'PixelDetElStatusActiveOnly', 'PixelDetectorElementStatusActiveOnly')
+            kwargsErrMonAlg.setdefault(  'PixelByteStreamErrs', 'PixelByteStreamErrs')
+            kwargsErrMonAlg.setdefault(  'UseByteStreamFEI4', not flags.Input.isMC)
+            kwargsErrMonAlg.setdefault(  'UseByteStreamFEI3', not flags.Input.isMC)
+            kwargsErrMonAlg.setdefault(  'UseByteStreamRD53', False)
             for k, v in kwargsErrMonAlg.items():
                 setattr(pixelAthMonAlgErrorMonAlg, k, v)
             PixelAthErrorMonAlgCfg(helper, pixelAthMonAlgErrorMonAlg, **kwargsErrMonAlg)

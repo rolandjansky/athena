@@ -10,8 +10,8 @@
 #include <stdexcept>
 
 PixelAthHitMonAlg::PixelAthHitMonAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthMonitorAlgorithm(name, pSvcLocator),
-  m_pixelid(nullptr) {
+  AthMonitorAlgorithm(name, pSvcLocator)
+{
   //jo flags
   declareProperty("doOnline", m_doOnline = false);
   declareProperty("doLumiBlock", m_doLumiBlock = false);
@@ -22,12 +22,10 @@ PixelAthHitMonAlg::PixelAthHitMonAlg(const std::string& name, ISvcLocator* pSvcL
 }
 
 StatusCode PixelAthHitMonAlg::initialize() {
-  ATH_CHECK(detStore()->retrieve(m_pixelid, "PixelID"));
-  ATH_CHECK(m_pixelCondSummaryTool.retrieve());
-  ATH_CHECK(m_pixelReadout.retrieve());
+  ATH_CHECK( PixelAthMonitoringBase::initialize());
   ATH_CHECK(m_pixelRDOName.initialize());
 
-  return AthMonitorAlgorithm::initialize();
+  return StatusCode::SUCCESS;
 }
 
 StatusCode PixelAthHitMonAlg::fillHistograms(const EventContext& ctx) const {
@@ -59,13 +57,15 @@ StatusCode PixelAthHitMonAlg::fillHistograms(const EventContext& ctx) const {
   bool copyFEval(false);
 
   AccumulatorArrays hitsPerEventArray = {{{0}}, {{0}}, {{0}}, {{0}}, {{0}}, {{0}}};
+  SG::ReadHandle<InDet::SiDetectorElementStatus> pixel_status = getPixelDetElStatus(m_pixelDetElStatus, ctx);
+  SG::ReadHandle<InDet::SiDetectorElementStatus> pixel_active = getPixelDetElStatus(m_pixelDetElStatusActiveOnly, ctx);
   // for inactive or bad modules init corresponding arrays entries to -1
   for (auto idIt = m_pixelid->wafer_begin(); idIt != m_pixelid->wafer_end(); ++idIt) {
     Identifier waferID = *idIt;
     IdentifierHash id_hash = m_pixelid->wafer_hash(waferID);
     int pixlayer = getPixLayersID(m_pixelid->barrel_ec(waferID), m_pixelid->layer_disk(waferID));
     if (pixlayer == 99) continue;
-    if (m_pixelCondSummaryTool->isActive(id_hash) == false) {
+    if (isActive( !m_pixelDetElStatusActiveOnly.empty() ? pixel_active.cptr() : nullptr, id_hash) == false) {
       getPhiEtaMod(m_pixelid, waferID, phiMod, etaMod, copyFEval);
       switch (pixlayer) {
       case PixLayers::kECA:
@@ -120,13 +120,13 @@ StatusCode PixelAthHitMonAlg::fillHistograms(const EventContext& ctx) const {
     int pixlayer = getPixLayersID(m_pixelid->barrel_ec(waferID), m_pixelid->layer_disk(waferID));
     if (pixlayer == 99) continue;
 
-    if (m_pixelCondSummaryTool->isActive(id_hash) == true) {
+    if (isActive( !m_pixelDetElStatusActiveOnly.empty() ? pixel_active.cptr() : nullptr, id_hash) == true) {
       if (pixlayer == PixLayers::kIBL) {
 	if (m_pixelid->eta_module(waferID) > -7 &&
 	    m_pixelid->eta_module(waferID) < 6) nActive_layer[PixLayers::kIBL2D] += 2;
 	else nActive_layer[PixLayers::kIBL3D]++;
       } else nActive_layer[pixlayer]++;
-      if (m_pixelCondSummaryTool->isGood(id_hash) == true) {
+      if (isGood( !m_pixelDetElStatus.empty() ? pixel_status.cptr() : nullptr, id_hash) == true) {
         if (pixlayer == PixLayers::kIBL) {
 	  if (m_pixelid->eta_module(waferID) > -7 &&
 	      m_pixelid->eta_module(waferID) < 6) nGood_layer[PixLayers::kIBL2D] += 2;
