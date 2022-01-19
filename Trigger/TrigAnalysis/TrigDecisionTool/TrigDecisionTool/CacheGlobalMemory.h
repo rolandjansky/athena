@@ -100,10 +100,10 @@ namespace Trig {
     const TrigConf::HLTChain* config_chain(const std::string& name) const;   //!< HLT config chain from given name
 
     const HLT::TrigNavStructure* navigation() const {   //!< gives back pointer to navigation object (unpacking if necessary)
-      if(!m_unpacker->unpacked_navigation()){
+      if(!m_navigationUnpacked){
         if(const_cast<CacheGlobalMemory*>(this)->unpackNavigation().isFailure()){
           ATH_MSG_WARNING("unpack Navigation failed");
-	      }
+        }
       }
       return m_navigation;
     }
@@ -122,13 +122,17 @@ namespace Trig {
     const xAOD::TrigCompositeContainer* expressStreamContainer() const;
 
     /**
-     * @brief cheks if new event arrived with the decision
-     * Need tu use before any call to CacheGlobalMemory.
+     * @brief checks if new event arrived with the decision
+     * Need to use before any call to CacheGlobalMemory.
      * @return true if all went fine about decision, false otherwise
      **/
     bool assert_decision();
 
-    Trig::IDecisionUnpacker* unpacker(){ return m_unpacker.get(); }
+    /**
+     * @brief invalidate previously unpacked decision
+     * Needs to be called at the start of a new event.
+     */
+    void reset_decision();
 
     /// Set the event store to be used by the object
     void setStore( asg::EventStoreType* store ) { m_store = store; }
@@ -160,7 +164,7 @@ namespace Trig {
     /**
      * @brief unpacks whole trigger decision for the event
      */
-    StatusCode unpackDecision();
+    StatusCode unpackDecision(const EventContext& ctx);
     /**
      * @brief unpacks HLT navigation structure (object access)
      */
@@ -181,7 +185,10 @@ namespace Trig {
     /// Trigger decision unpacker helper
     std::unique_ptr<IDecisionUnpacker> m_unpacker;
 
-    // Navigation owned by CGM
+    bool m_decisionUnpacked{false};   //!< Was decision unpacked for this event?
+    bool m_navigationUnpacked{false}; //!< Was navigation unpacked for this event?
+
+    /// Navigation owned by CGM
     HLT::TrigNavStructure* m_navigation{nullptr};
 
     // chain groups

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -190,14 +190,9 @@ StatusCode Trig::TrigDecisionTool::beginEvent() {
 #endif // End Full Athena only
 #endif // End AthAnalysis or Full Athena
 
-  //invalidate handle so that we read a new decision object
-  if(cgm()->unpacker()){
-    ATH_MSG_VERBOSE("beginEvent: invalidating unpacker() handle");
-    cgm()->unpacker()->invalidate_handle();
-  } else {
-    ATH_MSG_VERBOSE("No cgm()->unpacker() yet (first event?)");
-  }
-
+  // inform the CGM that we are on a new event
+  ATH_MSG_VERBOSE("beginEvent: invalidating CacheGlobalMemory");
+  cgmPtr->reset_decision();
 
 #ifndef XAOD_STANDALONE // AthAnalysis or full Athena
   if(m_configSvc.empty()) {
