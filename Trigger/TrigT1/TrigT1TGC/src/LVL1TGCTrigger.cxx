@@ -330,13 +330,17 @@ namespace LVL1TGCTrigger {
     for (int bc=TgcDigit::BC_PREVIOUS; bc<=TgcDigit::BC_NEXT; bc++){ 
       sc = StatusCode::SUCCESS; 
     
-      // Use TileMu only if BC_CURRENT
-      if (doTileMu && bc==m_CurrentBunchTag) { 
-        sc = fillTMDB();
-        if (sc.isFailure()) {
-          m_log << MSG::WARNING << "Cannot retrieve Tile Mu Data " << endmsg;
-          return sc;
-        }
+      if (doTileMu) {
+	// Use TileMu only if BC_CURRENT
+	if (bc==m_CurrentBunchTag) {
+	  sc = fillTMDB();
+	  if (sc.isFailure()) {
+	    m_log << MSG::WARNING << "Cannot retrieve Tile Mu Data " << endmsg;
+	    return sc;
+	  }
+	}else{
+	  m_system->getTMDB()->eraseOutput();
+	}
       }
 
       if (m_ProcessAllBunches || bc==m_CurrentBunchTag){ 
