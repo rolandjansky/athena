@@ -10,6 +10,7 @@
 
 // System include(s):
 #include <string>
+#include <vector>
 
 // EDM include(s):
 #include "xAODCore/AuxInfoBase.h"
@@ -38,6 +39,8 @@ namespace xAOD {
       std::string productionRelease;
       /// Type of the data that's in the file
       std::string dataType;
+      /// run numbers in the file
+      std::vector<uint32_t> runNumbers;
 
    }; // class FileMetaDataAuxInfo_v1
 

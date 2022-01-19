@@ -15,6 +15,7 @@ namespace xAOD {
       // Declare the auxiliary variables of the class:
       AUX_VARIABLE( productionRelease );
       AUX_VARIABLE( dataType );
+      AUX_VARIABLE( runNumbers );
    }
 
 } // namespace xAOD
