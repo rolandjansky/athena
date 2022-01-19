@@ -16,7 +16,7 @@ parser.add_option('-m', '--maxEvts', dest = 'maxEvts', type = 'int', default = 5
 parser.add_option('-p', '--ptag', dest = 'ptag', default = 'p4237', help = 'ptag' )
 ( options, args ) = parser.parse_args()
 print "Configured input data ptag: %s"%(options.ptag)
-ptageqdata = {'p4016':'p4017','p4095':'p4096','p4237':'p4238'}
+ptageqdata = {'p4016':'p4017','p4095':'p4096','p4237':'p4238','p4927':'p4928'}
 if 'data' in options.type and options.ptag in ptageqdata: 
    options.ptag = ptageqdata[options.ptag]
    print "Overriding ptag to equivalent data ptag: -> %s"%(options.ptag)
@@ -45,6 +45,8 @@ inputFiles['mc16a']      = 'DAOD_PHYSVAL.mc16_13TeV.410470.FS_mc16a_%s.PHYSVAL.p
 inputFiles['mc16d']      = 'DAOD_PHYSVAL.mc16_13TeV.410470.FS_mc16d_%s.PHYSVAL.pool.root'%(options.ptag)
 inputFiles['mc16e']      = 'DAOD_PHYSVAL.mc16_13TeV.410470.FS_mc16e_%s.PHYSVAL.pool.root'%(options.ptag)
 inputFiles['data18']     = 'DAOD_PHYSVAL.data18_13TeV.348403.data18_%s.PHYSVAL.pool.root'%(options.ptag)
+# inputFiles['data18']     = 'DAOD_PHYSVAL.data18_13TeV.356250.data18_%s.PHYSVAL.pool.root'%(options.ptag) # New PHYSVAL data file
+
 if options.daod == 0 and not '%s%s'%(options.type,'_AFII' if options.AFII else '') in inputFiles: sys.exit('No input file configured for type %s%s. Exiting.'%(options.type,'_AFII' if options.AFII else ''))
 
 inputDir = ''

@@ -1679,9 +1679,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       if (m_jetInputType == xAOD::JetInput::EMPFlow) {
         ATH_CHECK( m_metSystTool.setProperty("ConfigSoftTrkFile", "TrackSoftTerms-pflow.config") );
       }
-      if (isAtlfast()) {
-        ATH_CHECK( m_metSystTool.setProperty("ConfigSoftTrkFile", "TrackSoftTerms_AFII.config") );
-      }
     }
 
     if (m_caloMETsyst) {

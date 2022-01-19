@@ -31,6 +31,7 @@ def writeConfig(myConfig):
 ##################################################
 # SUSYTools configuration file
 ##################################################
+
 EleBaseline.Pt: 10000.
 EleBaseline.Eta: 2.47
 EleBaseline.Id: ${ELE_ID_Base}
@@ -40,7 +41,7 @@ Ele.Et: 25000.
 Ele.Eta: 2.47
 Ele.CrackVeto: false
 Ele.Iso: ${ELE_ISO}
-Ele.IsoHighPt: FCHighPtCaloOnly # tight iso required for electrons pt > 400 GeV
+Ele.IsoHighPt: HighPtCaloOnly # tight iso required for electrons pt > 400 GeV
 Ele.Id: ${ELE_ID}
 Ele.d0sig: 5.
 Ele.z0: 0.5
@@ -93,18 +94,21 @@ Jet.JMSCalib: None
 # Large R Taggers
 Jet.WtaggerConfig: SmoothedInclWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_SUSYOpt_MC16_20210129.dat # set to None to turn this off
 Jet.ZtaggerConfig: SmoothedInclZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_SUSYOpt_MC16_20210129.dat # set to None to turn this off
-Jet.ToptaggerConfig: JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkInclusive_MC16d_20190405_80Eff.dat # set to None to turn this off
+Jet.ToptaggerConfig: JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkInclusive_MC16_20201216_80Eff.dat # set to None to turn this off
 #
 BadJet.Cut: LooseBad
 #
 #master switch for btagging use in ST. If false, btagging is not used neither for jets decorations nor for OR (regardless of the options below)
 Btag.enable: true
 #
-Btag.Tagger: MV2c10
+Btag.Tagger: DL1r
 Btag.WP: ${BTAG_WP}
+Btag.TimeStamp: 201903 
 Btag.MinPt: 20000.
 #
 BtagTrkJet.MinPt: 10000.
+BtagTrkJet.TimeStamp: 201810 
+BtagTrkJet.Tagger: DL1
 #
 # set the -999. to positive number to override default
 OR.DoBoostedElectron: true
@@ -149,7 +153,7 @@ MET.DoMuonEloss: false
 MET.DoTrkSyst: 1
 MET.DoCaloSyst: 0
 #
-METSys.ConfigPrefix: METUtilities/data17_13TeV/prerec_Jan16
+METSys.ConfigPrefix: METUtilities/run2_13TeV
 #
 # Trigger SFs configuration
 Ele.TriggerSFStringSingle: SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2018_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0
@@ -178,7 +182,7 @@ class TestSUSYTools(unittest.TestCase):
     #Files and commands
     theConfig = 'mySTdefs_conf.tmp'
 
-    theSample = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/DAOD_PHYSVAL.mc16_13TeV.410470.FS_mc16e_p4237.PHYSVAL.pool.root'
+    theSample = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/DAOD_PHYSVAL.mc16_13TeV.410470.FS_mc16e_p4927.PHYSVAL.pool.root'
 
     theTest = 'SUSYToolsTester %s maxEvents=10 isData=0 isAtlfast=0 Debug=0 NoSyst=0 ConfigFile=%s ' % (theSample, theConfig)
 
@@ -189,22 +193,22 @@ class TestSUSYTools(unittest.TestCase):
     theTest += ' ilumicalcFile=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data18_13TeV/20190318/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-010.root'
 
     #Working points
-    EL_ID_WP  = ['LooseAndBLayerLLH', 'MediumLLH', 'TightLLH']
-    EL_ISO_WP = ['FCHighPtCaloOnly','FCLoose','FCTight']
+    EL_ID_WP  = ['MediumLLH', 'TightLLH']
+    EL_ISO_WP = ['Loose_VarRad','Tight_VarRad']
     MU_ID_WP  = ['1']
-    MU_ISO_WP = ['Loose_VarRad']
+    MU_ISO_WP = ['PflowTight_VarRad','PflowLoose_VarRad']
     PH_ID_WP  = ['Loose','Tight']
     PH_ISO_WP = ['FixedCutTight','FixedCutLoose']
     BTAG_WP   = ['FixedCutBEff_77']
     #...
 
     #default settings
-    defaults_dict = {'el_id_base' : 'LooseAndBLayerLLH',
+    defaults_dict = {'el_id_base' : 'MediumLLH',
                      'el_id'      : 'TightLLH',
-                     'el_iso'     : 'FCLoose',
+                     'el_iso'     : 'Loose_VarRad',
                      'mu_id_base' : '1',
                      'mu_id'      : '1',
-                     'mu_iso'     : 'Loose_VarRad',
+                     'mu_iso'     : 'PflowLoose_VarRad',
                      'ph_id_base' : 'Tight',
                      'ph_id'      : 'Tight',
                      'ph_iso'     : 'FixedCutTight',

@@ -1411,12 +1411,12 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_jetUncertaintiesCalibArea, "Jet.UncertCalibArea", rEnv, "default"); // Defaults to default area set by tool
   configFromFile(m_jetUncertaintiesPDsmearing, "Jet.UncertPDsmearing", rEnv, false); // for non "SimpleJER" config, run the PDSmear systematics. This are labelled with an __2 if they are being used, but otherwise will have the same tree name as the JET_JER systematic trees.
   configFromFile(m_fatJets, "Jet.LargeRcollection", rEnv, "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"); // set to "None" to turn off large jets 
-  configFromFile(m_fatJetUncConfig, "Jet.LargeRuncConfig", rEnv, "rel21/Spring2019/R10_GlobalReduction.config"); // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Moriond2018LargeR
+  configFromFile(m_fatJetUncConfig, "Jet.LargeRuncConfig", rEnv, "rel21/Winter2021/R10_CategoryJES_FullJER_FullJMS.config"); // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21ConsolidatedLargeRScaleRes
   configFromFile(m_fatJetUncVars, "Jet.LargeRuncVars", rEnv, "default"); // do all if not specified
-  configFromFile(m_WtagConfig, "Jet.WtaggerConfig", rEnv, "SmoothedInclWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_SUSYOpt_MC16_20210129.dat");
-  configFromFile(m_ZtagConfig, "Jet.ZtaggerConfig", rEnv, "SmoothedContainedZTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_3Var_MC16d_20190410.dat");
+  configFromFile(m_WtagConfig, "Jet.WtaggerConfig", rEnv, "SmoothedInclWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_SUSYOpt_MC16_20210129.dat"); // https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/BoostedJetTaggingRecommendationFullRun2
+  configFromFile(m_ZtagConfig, "Jet.ZtaggerConfig", rEnv, "SmoothedInclZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_SUSYOpt_MC16_20210129.dat"); // https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/BoostedJetTaggingRecommendationFullRun2
   configFromFile(m_WZTaggerCalibArea, "Jet.WZTaggerCalibArea", rEnv, "SmoothedWZTaggers/Rel21/");
-  configFromFile(m_ToptagConfig, "Jet.ToptaggerConfig", rEnv, "JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkInclusive_MC16d_20190405_80Eff.dat");
+  configFromFile(m_ToptagConfig, "Jet.ToptaggerConfig", rEnv, "JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkInclusive_MC16_20201216_80Eff.dat"); // https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/BoostedJetTaggingRecommendationFullRun2
   configFromFile(m_TopTaggerCalibArea, "Jet.TopTaggerCalibArea", rEnv, "JSSWTopTaggerDNN/Rel21/");
   configFromFile(m_jesConfig, "Jet.JESConfig", rEnv, "JES_MC16Recommendation_Consolidated_EMTopo_Apr2019_Rel21.config");
   configFromFile(m_jesConfigAFII, "Jet.JESConfigAFII", rEnv, "JES_MC16Recommendation_AFII_EMTopo_Apr2019_Rel21.config");
@@ -1444,18 +1444,18 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_JMScalib, "Jet.JMSCalib", rEnv, false);
   //
   configFromFile(m_useBtagging, "Btag.enable", rEnv, true);
-  configFromFile(m_BtagTagger, "Btag.Tagger", rEnv, "DL1");
+  configFromFile(m_BtagTagger, "Btag.Tagger", rEnv, "DL1r");
   configFromFile(m_BtagWP, "Btag.WP", rEnv, "FixedCutBEff_77");
   configFromFile(m_BtagMinPt, "Btag.MinPt", rEnv, -1.); // Not calibrated below 20
-  configFromFile(m_BtagTimeStamp, "Btag.TimeStamp", rEnv, "201810", true);
+  configFromFile(m_BtagTimeStamp, "Btag.TimeStamp", rEnv, "201903", true);
   configFromFile(m_bTaggingCalibrationFilePath, "Btag.CalibPath", rEnv, "xAODBTaggingEfficiency/13TeV/2020-21-13TeV-MC16-CDI-2021-04-16_v1.root");
   configFromFile(m_BtagSystStrategy, "Btag.SystStrategy", rEnv, "Envelope");
 
   configFromFile(m_useBtagging_trkJet, "BtagTrkJet.enable", rEnv, true);
-  configFromFile(m_BtagTagger_trkJet, "BtagTrkJet.Tagger", rEnv, "MV2c10");
+  configFromFile(m_BtagTagger_trkJet, "BtagTrkJet.Tagger", rEnv, "DL1"); //The recommended timestamp is DL1r. Please check if this is available in your derivation!
   configFromFile(m_BtagWP_trkJet, "BtagTrkJet.WP", rEnv, "FixedCutBEff_77");
   configFromFile(m_BtagMinPt_trkJet, "BtagTrkJet.MinPt", rEnv, -1.); // Not calibrated below 10
-  configFromFile(m_BtagTimeStamp_trkJet, "BtagTrkJet.TimeStamp", rEnv, "201810", true);
+  configFromFile(m_BtagTimeStamp_trkJet, "BtagTrkJet.TimeStamp", rEnv, "201810", true); // The recommended timestamp is 201903 (Container available only with SUSY1,SUSY11,PHYS derivation). Please check if your timestamp is available in your derivation!
   configFromFile(m_BtagKeyOverride, "Btag.KeyOverride", rEnv, "", true);
   //
   configFromFile(m_orDoBoostedElectron, "OR.DoBoostedElectron", rEnv, true);
@@ -1524,7 +1524,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_trkMETsyst, "MET.DoTrkSyst", rEnv, true);
   configFromFile(m_caloMETsyst, "MET.DoCaloSyst", rEnv, false);
   configFromFile(m_trkJetsyst, "MET.DoTrkJetSyst", rEnv, false);
-  configFromFile(m_metsysConfigPrefix, "METSys.ConfigPrefix", rEnv, "METUtilities/data17_13TeV/prerec_Jan16");
+  configFromFile(m_metsysConfigPrefix, "METSys.ConfigPrefix", rEnv, "METUtilities/run2_13TeV");
   configFromFile(m_metJetSelection, "MET.JetSelection", rEnv, "Tight"); // Loose, Tight (default), Tighter, Tenacious
   configFromFile(m_softTermParam, "METSig.SoftTermParam", rEnv, met::Random);
   configFromFile(m_treatPUJets, "METSig.TreatPUJets", rEnv, true);
