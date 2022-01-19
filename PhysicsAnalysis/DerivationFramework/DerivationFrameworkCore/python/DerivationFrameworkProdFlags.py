@@ -11,6 +11,8 @@ derivationFlags = jobproperties.DerivationFrameworkProdFlags
 listAODtoDPD=[]
 listAllKnownDPD=[]  
 
+print("check DerivationFramewoekProdFlags is being used")
+
 ####################################
 # Defined for physics validation
 ####################################
@@ -57,6 +59,19 @@ class WriteDAOD_PHYS2Stream(JobProperty):
     pass
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_PHYS2Stream)
 listAODtoDPD.append(WriteDAOD_PHYS2Stream.StreamName)
+
+class WriteDAOD_PHYS3Stream(JobProperty):
+    """ DAOD_PHYS3 - prototype format for Run 3 """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+    StreamName   = "StreamDAOD_PHYS3"
+    FileName     = ""
+    isVirtual      = False
+    DPDMakerScript = "DerivationFrameworkPhys/PHYS3.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_PHYS3Stream)
+listAODtoDPD.append(WriteDAOD_PHYS3Stream.StreamName)
 
 class WriteDAOD_PHYSLITEStream(JobProperty):
     """ DAOD_PHYSLITE - prototype format for Run 3 """

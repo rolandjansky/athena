@@ -131,6 +131,7 @@ namespace DerivationFramework {
 
     double m_electronEtCut;
     double m_muonPtCut;
+    double m_electronPtCut;
     double m_tightElectronEtCut;
     double m_tightMuonPtCut;
     double m_vertexingElectronEtCut;
@@ -152,6 +153,11 @@ namespace DerivationFramework {
     double m_photonEtaCut;
 
     double m_invariantMassCut;
+    double m_invariantMassa0LowCut;
+    double m_invariantMassa0UpCut; 
+    double m_invariantMassHLowCut;
+    double m_invariantMassZLowCut; 
+    double m_invariantMassZUpCut;
     double m_invariantMassJpsiLowCut;
     double m_invariantMassJpsiUpCut;
     double m_invariantMassUpsilonLowCut;
@@ -168,6 +174,7 @@ namespace DerivationFramework {
     double m_invariantMassD0UpCut;
     double m_invariantMassWLowCut;
     double m_leadingElectronEtCut;
+    double m_leadingElectronPtCut;
     double m_leadingMuonPtCut;
     double m_diMuonPtCut;
 
@@ -201,6 +208,7 @@ namespace DerivationFramework {
     bool check4L(const bool onlyVertexing=false) const;
     bool checkTP() const;
     bool check2L2Q() const;
+    bool check2L2TRK() const;
     bool checkJPSI() const;
     bool checkPHI() const;
     bool checkRHO() const;

@@ -64,7 +64,7 @@ DerivationFramework::SkimmingToolHDBS2::SkimmingToolHDBS2(const std::string& t,
   declareProperty("NumberOfTracks", m_nTracks=0);
 
   declareProperty("ElectronQuality", m_electronQual="any");
-  declareProperty("MuonQuality", m_muonQual="inMS");
+  declareProperty("MuonQuality", m_muonQual="any");
   declareProperty("TightElectronQuality", m_tightElectronQual="DFCommonElectronsLHLoose");
   declareProperty("TightMuonQuality", m_tightMuonQual="DFCommonGoodMuon");
   declareProperty("VertexingElectronQuality", m_vertexingElectronQual="any");
@@ -87,6 +87,7 @@ DerivationFramework::SkimmingToolHDBS2::SkimmingToolHDBS2(const std::string& t,
   declareProperty("TriggerWPIGAMMA", m_triggerWPIGAMMA=std::vector<std::string>()); 
 
   declareProperty("ElectronEtCut", m_electronEtCut=10.*CLHEP::GeV); 
+  declareProperty("ElectronPtCut", m_electronPtCut=6.*CLHEP::GeV); 
   declareProperty("MuonPtCut", m_muonPtCut=10.*CLHEP::GeV); 
   declareProperty("TightElectronEtCut", m_tightElectronEtCut=15.*CLHEP::GeV); 
   declareProperty("TightMuonPtCut", m_tightMuonPtCut=15.*CLHEP::GeV); 
@@ -97,7 +98,7 @@ DerivationFramework::SkimmingToolHDBS2::SkimmingToolHDBS2(const std::string& t,
   declareProperty("MergedJetPtCut1", m_mergedJetPtCut[1]=150.*CLHEP::GeV); 
   declareProperty("MergedJetPtCut2", m_mergedJetPtCut[2]=150.*CLHEP::GeV); 
   declareProperty("PhotonPtCut", m_photonPtCut=15.*CLHEP::GeV); 
-  declareProperty("TrackPtCut", m_trackPtCut=20.*CLHEP::GeV); 
+  declareProperty("TrackPtCut", m_trackPtCut=20.0*CLHEP::GeV); 
   declareProperty("TrackPtCutLoose", m_trackPtCutLoose=10.*CLHEP::GeV); 
   declareProperty("DiTrackPtCut", m_diTrackPtCut=20.*CLHEP::GeV); 
   declareProperty("TrackPtForWCut", m_trackPtForWCut=30.*CLHEP::GeV); 
@@ -113,6 +114,11 @@ DerivationFramework::SkimmingToolHDBS2::SkimmingToolHDBS2(const std::string& t,
   declareProperty("PhotonEtaCut", m_photonEtaCut=2.5); 
 
   declareProperty("InvariantMassCut", m_invariantMassCut=0.*CLHEP::GeV); 
+  declareProperty("InvariantMassa0LowCut", m_invariantMassa0LowCut=0.0*CLHEP::GeV); 
+  declareProperty("InvariantMassa0UpCut", m_invariantMassa0UpCut=1.5*CLHEP::GeV); 
+  declareProperty("InvariantMassHLowCut", m_invariantMassHLowCut=100*CLHEP::GeV); 
+  declareProperty("InvariantMassZLowCut", m_invariantMassZLowCut=71*CLHEP::GeV);
+  declareProperty("InvariantMassZUpCut", m_invariantMassZUpCut=111*CLHEP::GeV); 
   declareProperty("InvariantMassJpsiLowCut", m_invariantMassJpsiLowCut=2.0*CLHEP::GeV); 
   declareProperty("InvariantMassJpsiUpCut", m_invariantMassJpsiUpCut=4.3*CLHEP::GeV); 
   declareProperty("InvariantMassUpsilonLowCut",m_invariantMassUpsilonLowCut=8.0*CLHEP::GeV); 
@@ -130,6 +136,7 @@ DerivationFramework::SkimmingToolHDBS2::SkimmingToolHDBS2(const std::string& t,
   declareProperty("InvariantMassWLowCut",      m_invariantMassWLowCut=50.*CLHEP::GeV);
 
   declareProperty("LeadingElectronEtCut", m_leadingElectronEtCut=0.*CLHEP::GeV); 
+  declareProperty("LeadingElectronPtCut", m_leadingElectronPtCut=0.*CLHEP::GeV);
   declareProperty("LeadingMuonPtCut", m_leadingMuonPtCut=0.*CLHEP::GeV); 
   declareProperty("DiMuonPtCut", m_diMuonPtCut=20.*CLHEP::GeV); 
 
@@ -237,8 +244,10 @@ bool DerivationFramework::SkimmingToolHDBS2::eventPassesFilter() const
   } else if(m_filterType=="JPSI") {
     if(this->checkJPSI() or this->checkPHI() or this->checkRHO() 
        or this->checkWPIGAMMA()) acceptEvent = true;
+  } else if(m_filterType=="2L2TRK") { 
+    if(this->check2L2TRK()) acceptEvent = true;
   }
-
+  
   if(acceptEvent) m_npass++;
 
   return acceptEvent; 
@@ -550,7 +559,6 @@ bool DerivationFramework::SkimmingToolHDBS2::checkTrackQualityForW(const xAOD::T
 
   return true;
 }
-
 bool DerivationFramework::SkimmingToolHDBS2::check2L(const bool onlyVertexing) const 
 {
   if(not onlyVertexing) {
@@ -818,6 +826,109 @@ bool DerivationFramework::SkimmingToolHDBS2::check2L2Q() const
   }
 
   return false;
+}
+
+bool DerivationFramework::SkimmingToolHDBS2::check2L2TRK() const
+{
+  // check if there are candidates 
+  if(not (m_nElectrons>0 and m_goodElectrons.size() >= m_nElectrons) and not (m_nMuons>0 and m_goodMuons.size() >= m_nMuons)) return false;
+  if(not (m_nTracks>0 and m_goodTracks.size()>=m_nTracks)) return false;
+
+  std::vector<TLorentzVector> v_electrons;
+  std::vector<int> eleCharge;
+  std::vector<TLorentzVector> v_muons;
+  std::vector<int> muCharge;
+  
+  for(unsigned int el_i(0); el_i<m_goodElectrons.size(); el_i++) {
+    const xAOD::Electron *el(m_goodElectrons.at(el_i));
+    if (el->pt() < m_electronPtCut ) continue;
+    TLorentzVector tlv(this->electronFourMomentum(el));
+    v_electrons.push_back(tlv);
+    eleCharge.push_back(el->charge());
+  }
+  
+  for(unsigned int mu_i(0); mu_i<m_goodMuons.size(); mu_i++) {
+    const xAOD::Muon *mu(m_goodMuons.at(mu_i));
+    if (mu->pt() < m_muonPtCut ) continue;
+    TLorentzVector tlv(this->muonFourMomentum(mu));
+    v_muons.push_back(tlv);
+    muCharge.push_back(mu->charge());
+  }
+
+  // Get 4-momentum of tracks (=charged pions)
+  std::vector<TLorentzVector> v_tlv_trk;
+  for(auto trk: m_goodTracks) {
+    TLorentzVector tlv1;
+    tlv1.SetPtEtaPhiM(trk->pt(), trk->eta(), trk->phi(), s_MPiplus); // Pion is assumed. 
+    if(trk->pt() < m_trackPtCut) continue;
+    v_tlv_trk.push_back(tlv1);
+  }
+
+  bool muons_pass_lead_pt=false;
+  bool muons_pass_Z=false;
+  bool electrons_pass_Z=false;
+  bool electrons_pass_lead_pt=false;
+  bool tracks_pass_a0=false;
+  bool H_pass_mass=false;
+  std::vector<TLorentzVector> v_muonsPass;
+  std::vector<TLorentzVector> v_electronsPass;
+  std::vector<TLorentzVector> v_ditracksPass;
+
+  for(unsigned int t0(0); t0< v_tlv_trk.size(); t0++) {
+    for(unsigned int t1(t0+1); t1<v_tlv_trk.size(); t1++) {
+      TLorentzVector tlv_2trk(v_tlv_trk.at(t0) + v_tlv_trk.at(t1));
+      if(tlv_2trk.M()<m_invariantMassa0LowCut or tlv_2trk.M()>m_invariantMassa0UpCut) continue;
+      tracks_pass_a0=true;
+      v_ditracksPass.push_back(tlv_2trk);
+    }
+  }
+
+  for(unsigned int i0(0); i0<v_electrons.size(); i0++) {
+    v_electronsPass.push_back(v_electrons.at(i0));
+    for(unsigned int i1(i0+1); i1<v_electrons.size(); i1++) {
+      if(v_electrons.at(i1).Pt() < m_leadingElectronPtCut and v_electrons.at(i0).Pt() < m_leadingElectronPtCut) continue;
+      electrons_pass_lead_pt=true;
+      if(eleCharge.at(i0)*eleCharge.at(i1)>0) continue;
+      TLorentzVector tlv_2ele(v_electrons.at(i0) + v_electrons.at(i1));
+      if(tlv_2ele.M() < m_invariantMassZLowCut or tlv_2ele.M() > m_invariantMassZUpCut) continue;
+      electrons_pass_Z=true;
+      for(unsigned int t0(0); t0<v_ditracksPass.size(); t0++) {
+        TLorentzVector v_H(v_ditracksPass.at(t0) + v_electrons.at(i0) + v_electrons.at(i1));
+        if (v_H.M() < m_invariantMassHLowCut) continue; 
+        H_pass_mass = true;
+      }
+    }
+  }
+
+  for(unsigned int i0(0); i0<v_muons.size(); i0++) {
+    v_muonsPass.push_back(v_muons.at(i0));
+    for(unsigned int i1(i0+1); i1<v_muons.size(); i1++) {
+      if(v_muons.at(i1).Pt() < m_leadingMuonPtCut and v_muons.at(i0).Pt() < m_leadingMuonPtCut) continue;
+      muons_pass_lead_pt=true;
+      if(muCharge.at(i0)*muCharge.at(i1)>0) continue;
+      TLorentzVector tlv_2mu(v_muons.at(i0) + v_muons.at(i1));
+      if(tlv_2mu.M() < m_invariantMassZLowCut or tlv_2mu.M() > m_invariantMassZUpCut) continue;
+      muons_pass_Z=true;
+      for(unsigned int t0(0); t0<v_ditracksPass.size(); t0++) {
+        TLorentzVector v_H(v_ditracksPass.at(t0) + v_muons.at(i0) + v_muons.at(i1));
+        if (v_H.M() < m_invariantMassHLowCut)  continue;
+        H_pass_mass = true;
+      }
+    }
+  }
+
+  bool acceptEvent = false;
+  bool electrons_pass=false;
+  bool muons_pass=false;
+  if(electrons_pass_lead_pt and electrons_pass_Z) electrons_pass=true;
+  if(muons_pass_lead_pt and muons_pass_Z) muons_pass=true;
+
+  bool tracks_pass=false;
+  if(v_ditracksPass.size() > 0 and tracks_pass_a0) tracks_pass=true; 
+
+  if((electrons_pass or muons_pass) and tracks_pass and H_pass_mass) {acceptEvent=true;}    
+
+  return acceptEvent;
 }
 
 bool DerivationFramework::SkimmingToolHDBS2::checkJPSI() const 

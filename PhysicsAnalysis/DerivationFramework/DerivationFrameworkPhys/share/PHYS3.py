@@ -1,0 +1,407 @@
+#====================================================================
+# DAOD_PHYS3.py
+# This defines DAOD_PHYS3, a skimmed DAOD format for Run 3.
+# It contains the variables and objects needed for the HZa Z->2l, 
+# a->2trk physics analysis in ATLAS.
+# It requires the reductionConf flag PHYS3 in Reco_tf.py   
+#====================================================================
+
+from DerivationFrameworkCore.DerivationFrameworkMaster import *
+from DerivationFrameworkInDet.InDetCommon import *
+from DerivationFrameworkJetEtMiss.JetCommon import *
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
+from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkEGamma.EGammaCommon import *
+from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
+from DerivationFrameworkMuons.MuonsCommon import *
+from DerivationFrameworkCore.WeightMetadata import *
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+from DerivationFrameworkFlavourTag.HbbCommon import *
+from TriggerMenu.api.TriggerAPI import TriggerAPI
+from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
+from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelper
+
+#====================================================================
+# SET UP STREAM   
+#====================================================================
+streamName = derivationFlags.WriteDAOD_PHYS3Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_PHYS3Stream )
+PHYS3Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+PHYS3Stream.AcceptAlgs(["PHYS3VertexToolKernel"]) 
+
+### Thinning and augmentation tools lists
+from DerivationFrameworkCore.ThinningHelper import ThinningHelper
+PHYS3ThinningHelper = ThinningHelper( "PHYS3ThinningHelper" )
+PHYS3ThinningHelper.AppendToStream( PHYS3Stream )
+thinningTools       = []
+AugmentationTools   = []
+
+# Special sequence 
+SeqPHYS = CfgMgr.AthSequencer("SeqPHYS")
+
+#====================================================================
+# Truth collections
+#====================================================================
+if DerivationFrameworkHasTruth:
+   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addMiniTruthCollectionLinks,addHFAndDownstreamParticles,addPVCollection
+   import DerivationFrameworkHiggs.TruthCategories
+   # Add HF particles
+   addHFAndDownstreamParticles(SeqPHYS)
+   # Add standard truth
+   addStandardTruthContents(SeqPHYS,prefix='PHYS_')
+   # Update to include charm quarks and HF particles - require a separate instance to be train safe
+   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthNavigationDecorator
+   PHYSTruthNavigationDecorator = DerivationFramework__TruthNavigationDecorator( name="PHYSTruthNavigationDecorator",
+          InputCollections=["TruthElectrons", "TruthMuons", "TruthPhotons", "TruthTaus", "TruthNeutrinos", "TruthBSM", "TruthBottom", "TruthTop", "TruthBoson","TruthHFWithDecayParticles"])
+   ToolSvc += PHYSTruthNavigationDecorator
+   SeqPHYS.PHYS_MCTruthNavigationDecoratorKernel.AugmentationTools = [PHYSTruthNavigationDecorator]
+   # Re-point links on reco objects
+   addMiniTruthCollectionLinks(SeqPHYS)
+   addPVCollection(SeqPHYS)
+   # Add sumOfWeights metadata for LHE3 multiweights =======
+from DerivationFrameworkCore.LHE3WeightMetadata import *
+
+#====================================================================
+# TRIGGER CONTENT   
+#====================================================================
+# See https://twiki.cern.ch/twiki/bin/view/Atlas/TriggerAPI
+# Get single and multi mu, e, photon triggers
+# Jet, tau, multi-object triggers not available in the matching code
+allperiods = TriggerPeriod.y2015 | TriggerPeriod.y2016 | TriggerPeriod.y2017 | TriggerPeriod.y2018 | TriggerPeriod.future2e34
+trig_el  = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el,  livefraction=0.8)
+trig_mu  = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.mu,  livefraction=0.8)
+trig_g   = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.g,   livefraction=0.8)
+trig_tau = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.tau, livefraction=0.8)
+# Add cross-triggers for some sets
+trig_em = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el, additionalTriggerType=TriggerType.mu,  livefraction=0.8)
+trig_et = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el, additionalTriggerType=TriggerType.tau, livefraction=0.8)
+trig_mt = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.mu, additionalTriggerType=TriggerType.tau, livefraction=0.8)
+# Note that this seems to pick up both isolated and non-isolated triggers already, so no need for extra grabs
+trig_txe = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.tau, additionalTriggerType=TriggerType.xe, livefraction=0.8)
+
+# Merge and remove duplicates
+trigger_names_full_notau = list(set(trig_el+trig_mu+trig_g+trig_em+trig_et+trig_mt))
+trigger_names_full_tau = list(set(trig_tau+trig_txe))
+
+# Now reduce the list...
+from RecExConfig.InputFilePeeker import inputFileSummary
+trigger_names_notau = []
+trigger_names_tau = []
+for trig_item in inputFileSummary['metadata']['/TRIGGER/HLT/Menu']:
+    if not 'ChainName' in trig_item: continue
+    if trig_item['ChainName'] in trigger_names_full_notau: trigger_names_notau += [ trig_item['ChainName'] ]
+    if trig_item['ChainName'] in trigger_names_full_tau:   trigger_names_tau   += [ trig_item['ChainName'] ]
+
+# Create trigger matching decorations
+trigmatching_helper_notau = TriggerMatchingHelper(name='PHYSTriggerMatchingToolNoTau',
+        trigger_list = trigger_names_notau, add_to_df_job=True)
+trigmatching_helper_tau = TriggerMatchingHelper(name='PHYSTriggerMatchingToolTau',
+        trigger_list = trigger_names_tau, add_to_df_job=True, DRThreshold=0.2)
+
+#====================================================================
+# INNER DETECTOR TRACK THINNING
+#====================================================================
+# See recommedations here: 
+# https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/DaodRecommendations
+
+# Special sequence for vertex tool
+SeqPHYS3VertexTool = CfgMgr.AthSequencer("SeqPHYS3VertexTool")
+
+#### Inner detector group recommendations for indet tracks in analysis
+PHYS3_thinning_expression = "InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV)*sin(InDetTrackParticles.theta) < 3.0*mm && (InDetTrackParticles.pt > 0.5*GeV)" 
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+PHYS3TrackParticleThinningTool = DerivationFramework__TrackParticleThinning(name                    = "PHYS3TrackParticleThinningTool",
+                                                                           ThinningService         = PHYS3ThinningHelper.ThinningSvc(),
+                                                                           SelectionString         = PHYS3_thinning_expression,
+                                                                           InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                           ApplyAnd                = True) 
+
+ToolSvc += PHYS3TrackParticleThinningTool
+thinningTools.append(PHYS3TrackParticleThinningTool)
+
+#### Tracks associated with Muons
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
+PHYS3MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                   = "PHYS3MuonTPThinningTool",
+                                                                           ThinningService        = PHYS3ThinningHelper.ThinningSvc(),
+                                                                           MuonKey                = "Muons",
+                                                                           InDetTrackParticlesKey = "InDetTrackParticles")
+ToolSvc += PHYS3MuonTPThinningTool
+thinningTools.append(PHYS3MuonTPThinningTool)
+
+####Tracks associated with Electrons
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
+PHYS3ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                   = "PHYS3ElectronTPThinningTool",
+                                                                                 ThinningService        = PHYS3ThinningHelper.ThinningSvc(),
+                                                                                 SGKey                  = "Electrons",
+                                                                                 InDetTrackParticlesKey = "InDetTrackParticles",
+                                                                                 BestMatchOnly          = False)
+ToolSvc += PHYS3ElectronTPThinningTool
+thinningTools.append(PHYS3ElectronTPThinningTool)
+
+#====================================================================
+# Add our sequence to the top sequence
+#====================================================================
+# Ideally, this should come at the end of the job, but the tau additions
+# below make it such that we need it here
+DerivationFrameworkJob += SeqPHYS
+
+#====================================================================
+# SKIMMING 
+#====================================================================
+# COMA integrated luminosities in parentheses
+Trigger2L=[
+"HLT_mu20_iloose_L1MU15", 
+"HLT_mu40",
+"HLT_mu26_ivarmedium", #(149,548,085 nb-1)
+"HLT_mu50", #(153,445,525 nb-1)
+"HLT_mu60_0eta105_msonly", #(153,309,492 nb-1)
+"HLT_2mu14", #(152,811,768 nb-1 )
+"HLT_mu22_mu8noL1", #(153,249,171 nb-1)
+"HLT_mu22_mu8noL1_calotag_0eta010", #(49,341,412 nb-1)
+"HLT_e24_lhmedium_L1EM20VH",
+"HLT_e26_lhtight_nod0_ivarloose", #(150,196,728 nb-1)
+"HLT_e26_lhtight_nod0", #(63,087,620 nb-1)
+"HLT_e60_lhmedium_nod0", #(154,256,313 nb-1)
+"HLT_e120_lhloose",
+"HLT_e140_lhloose_nod0", #(154,249,178 nb-1)
+"HLT_e300_etcut", #(150,205,568 nb-1)
+"HLT_2e17_lhvloose_nod0_L12EM15VHI", #(111,647,684 nb-1) [2017-2018]
+"HLT_2e24_lhvloose_nod0", #(112,460,241 nb-1)[2017-2018]
+"HLT_2e15_lhvloose_nod0_L12EM13VH", # (17,770,345 nb-1 ) [2015-2016]
+"HLT_2e17_lhvloose_nod0" #(44,207,014 nb-1) mostly 2015-2016 a bit later
+]
+
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
+PHYS3TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(name = "PHYS3TriggerSkimmingTool",
+                                                                    TriggerListOR = Trigger2L)
+                                                                                                              
+ToolSvc += PHYS3TriggerSkimmingTool
+
+from DerivationFrameworkHDBS.DerivationFrameworkHDBSConf import DerivationFramework__SkimmingToolHDBS2
+SelectionSkimmingTool = DerivationFramework__SkimmingToolHDBS2(name                       = "SkimmingToolHDBS2",
+                                                             SkipTriggerRequirement     = True,
+                                                             FilterType                 = "2L2TRK", 
+                                                             NumberOfLeptons            = 2,
+                                                             NumberOfElectrons          = 2,
+                                                             NumberOfMuons              = 2,
+                                                             NumberOfJets               = 0,
+                                                             NumberOfPhotons            = 0,
+                                                             NumberOfTracks             = 2,
+                                                             MuonQuality                = "inMS", 
+                                                             ElectronQuality            = "DFCommonElectronsLHVeryLoose", 
+                                                             Trigger2L                  = Trigger2L,
+                                                             MuonPtCut                  =  4.0*Units.GeV, 
+                                                             LeadingMuonPtCut           = 21.0*Units.GeV, 
+                                                             ElectronPtCut              =  6.0*Units.GeV,
+                                                             LeadingElectronPtCut       = 25.0*Units.GeV,
+                                                             TrackPtCut                 = 0.5*Units.GeV, 
+                                                             InvariantMassa0LowCut      =  0.0*Units.GeV,
+                                                             InvariantMassa0UpCut       =  2.0*Units.GeV, 
+                                                             InvariantMassHLowCut       =  98.0*Units.GeV,
+                                                             InvariantMassZLowCut       =  69.0*Units.GeV,
+                                                             InvariantMassZUpCut        =  103.0*Units.GeV)
+ToolSvc += SelectionSkimmingTool
+
+#====================================================================
+# CREATE THE DERIVATION KERNEL ALGORITHM   
+#====================================================================
+# Add the kernel for thinning (requires the objects be defined)
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
+SeqPHYS3VertexTool += CfgMgr.DerivationFramework__DerivationKernel("PHYS3Kernel",
+                                                        SkimmingTools = [SelectionSkimmingTool, PHYS3TriggerSkimmingTool], 
+                                                        ThinningTools = thinningTools)
+
+#====================================================================
+# AUGMENTATION TOOLS
+#====================================================================
+
+## 1/ setup vertexing tools and services
+include("JpsiUpsilonTools/configureServices.py")
+
+PHYS3TrkVKalVrtFitter = Trk__TrkVKalVrtFitter(
+                                         name                = "PHYS3TrkVKalVrtFitter",
+                                         Extrapolator        = InDetExtrapolator,
+                                         FirstMeasuredPoint  = False,
+                                         MakeExtendedVertex  = True)
+ToolSvc += PHYS3TrkVKalVrtFitter
+
+
+include("DerivationFrameworkHDBS/configure_a0Finder.py")
+PHYS3_Tools = HDBSa0FinderTools("PHYS3")
+
+#--------------------------------------------------------------------
+# Configure the a0 finder
+#--------------------------------------------------------------------
+from DerivationFrameworkHDBS.DerivationFrameworkHDBSConf import DerivationFramework__HDBSa0Finder
+PHYS3Zmumua0Finder   = DerivationFramework__HDBSa0Finder(
+    OutputLevel = INFO, #DEBUG
+    name = "PHYS3Zmumua0Finder",
+    TrkVertexFitterTool = PHYS3TrkVKalVrtFitter,
+    VertexEstimator = PHYS3_Tools.InDetSecVtxPointEstimator,
+    InputTrackParticleContainerName = "InDetTrackParticles",
+    HCandidateContainerName = "PHYS3HZmumuCandidates",
+    PassFlagsToCheck  = [], 
+    TrackPtMin = 500.0,
+    deltaz0PVsinthetaMax =  3.0,
+    deltaz0PVsignificanceMax =  3.0,
+    DitrackMassMax = 1600.0, 
+    ZisMuons = True, 
+    ZisElectrons = False,
+    #d0significanceMax = 2.0, 
+    HcandidateMassMin = 98000.0,
+    Chi2cut = 50.0, 
+    trkZDeltaZ = 0.5,
+    nHitPix = 1, 
+    nHitSct = 0, 
+    onlyTightPTrk = True,
+    onlyLoosePTrk = False,
+    onlyLooseTrk = False,
+    ZMassMin = 70000.0,
+    ZMassMax = 112000.0,
+    TrackSelectorTool = InDetTrackSelectorTool,
+    muonCollectionKey = "Muons", 
+    MuonThresholdPt = 4.0, 
+    LeptonTrackThresholdPt = 1.0, 
+    ZmumuChi2Cut = 200.0,
+    DitrackPtMin = 4000.0, 
+    LeadingTrackPt = 2000.0, 
+    DeltaPhiTracks = 0.2, 
+    DeltaRTracks = 0.2,
+    ChiSqProbMin = 1e-6) 
+
+ToolSvc += PHYS3Zmumua0Finder
+print(PHYS3Zmumua0Finder)
+
+PHYS3Zeea0Finder   = DerivationFramework__HDBSa0Finder(
+    OutputLevel = INFO, #DEBUG
+    name = "PHYS3Zeea0Finder",
+    TrkVertexFitterTool = PHYS3TrkVKalVrtFitter, 
+    VertexEstimator = PHYS3_Tools.InDetSecVtxPointEstimator,
+    InputTrackParticleContainerName = "InDetTrackParticles",
+    HCandidateContainerName = "PHYS3HZeeCandidates",
+    PassFlagsToCheck  = [],
+    TrackPtMin = 500.0, 
+    deltaz0PVsinthetaMax = 3.0,
+    deltaz0PVsignificanceMax = 3.0, 
+    DitrackMassMax = 1600.0, 
+    ZisMuons = False, 
+    ZisElectrons = True,
+    #d0significanceMax = 2.0, 
+    HcandidateMassMin = 98000.0, 
+    Chi2cut =  50.0, 
+    trkZDeltaZ =  0.5,
+    nHitPix = 1, 
+    nHitSct = 0, 
+    onlyTightPTrk = True, 
+    onlyLoosePTrk = False,
+    onlyLooseTrk = False,
+    UseGSFTrackIndices = [0,1],
+    electronCollectionKey = "Electrons", 
+    TrackSelectorTool = InDetTrackSelectorTool,
+    ElectronThresholdPt = 6.0, 
+    LeptonTrackThresholdPt = 1.0, 
+    ZMassMin = 70000.0, 
+    ZMassMax = 112000.0, 
+    ZeeChi2Cut = 200.0,
+    DitrackPtMin = 4000.0, 
+    LeadingTrackPt = 2000.0,
+    DeltaPhiTracks = 0.2, 
+    DeltaRTracks = 0.2,
+    ChiSqProbMin = 1e-6) 
+
+ToolSvc += PHYS3Zeea0Finder
+print(PHYS3Zeea0Finder)
+
+StaticContent = [] 
+
+StaticContent += ["xAOD::VertexContainer#%s"        % "PHYS3HZmumuCandidates"]
+StaticContent += ["xAOD::VertexAuxContainer#%sAux." % "PHYS3HZmumuCandidates"]
+# we have to disable vxTrackAtVertex branch since it is not xAOD compatible
+StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % "PHYS3HZmumuCandidates"]
+
+StaticContent += ["xAOD::VertexContainer#%s"        % "PHYS3HZeeCandidates"]
+StaticContent += ["xAOD::VertexAuxContainer#%sAux." % "PHYS3HZeeCandidates"]
+## we have to disable vxTrackAtVertex branch since it is not xAOD compatible
+StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % "PHYS3HZeeCandidates"]
+
+SeqPHYS3VertexTool += CfgMgr.DerivationFramework__DerivationKernel("PHYS3VertexToolKernel", AugmentationTools = [PHYS3Zmumua0Finder, PHYS3Zeea0Finder])
+DerivationFrameworkJob += SeqPHYS3VertexTool
+
+#====================================================================
+# CONTENTS   
+#====================================================================
+from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
+PHYS3SlimmingHelper = SlimmingHelper("PHYS3SlimmingHelper")
+
+PHYS3SlimmingHelper.SmartCollections = ["Electrons",
+                                       "Photons",
+                                       "Muons",
+                                       "PrimaryVertices",
+                                       "InDetTrackParticles",
+                                       "AntiKt4EMTopoJets",
+                                       "AntiKt4EMPFlowJets"
+                                      ]
+
+PHYS3SlimmingHelper.StaticContent = StaticContent
+
+# Trigger content
+PHYS3SlimmingHelper.IncludeTriggerNavigation = True
+PHYS3SlimmingHelper.IncludeJetTriggerContent = False
+PHYS3SlimmingHelper.IncludeMuonTriggerContent = True
+PHYS3SlimmingHelper.IncludeEGammaTriggerContent = True
+PHYS3SlimmingHelper.IncludeJetTauEtMissTriggerContent = False
+PHYS3SlimmingHelper.IncludeTauTriggerContent = False
+PHYS3SlimmingHelper.IncludeEtMissTriggerContent = False
+PHYS3SlimmingHelper.IncludeBJetTriggerContent = False
+PHYS3SlimmingHelper.IncludeBPhysTriggerContent = False
+PHYS3SlimmingHelper.IncludeMinBiasTriggerContent = False
+
+# # Add the jet containers to the stream (defined in JetCommon if import needed)
+# addJetOutputs(PHYSSlimmingHelper,["PHYS"])
+
+# Truth containers
+if DerivationFrameworkHasTruth:
+   PHYS3SlimmingHelper.AppendToDictionary = {'TruthEvents':'xAOD::TruthEventContainer','TruthEventsAux':'xAOD::TruthEventAuxContainer',
+                                            'MET_Truth':'xAOD::MissingETContainer','MET_TruthAux':'xAOD::MissingETAuxContainer',
+                                            'TruthElectrons':'xAOD::TruthParticleContainer','TruthElectronsAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthMuons':'xAOD::TruthParticleContainer','TruthMuonsAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthPhotons':'xAOD::TruthParticleContainer','TruthPhotonsAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthTaus':'xAOD::TruthParticleContainer','TruthTausAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthNeutrinos':'xAOD::TruthParticleContainer','TruthNeutrinosAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthForwardProtons':'xAOD::TruthParticleContainer','TruthForwardProtonsAux':'xAOD::TruthParticleAuxContainer',
+                                            'BornLeptons':'xAOD::TruthParticleContainer','BornLeptonsAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthBosonsWithDecayParticles':'xAOD::TruthParticleContainer','TruthBosonsWithDecayParticlesAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthBosonsWithDecayVertices':'xAOD::TruthVertexContainer','TruthBosonsWithDecayVerticesAux':'xAOD::TruthVertexAuxContainer',
+                                            'TruthBSMWithDecayParticles':'xAOD::TruthParticleContainer','TruthBSMWithDecayParticlesAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthBSMWithDecayVertices':'xAOD::TruthVertexContainer','TruthBSMWithDecayVerticesAux':'xAOD::TruthVertexAuxContainer',
+                                            'HardScatterParticles':'xAOD::TruthParticleContainer','HardScatterParticlesAux':'xAOD::TruthParticleAuxContainer',
+                                            'HardScatterVertices':'xAOD::TruthVertexContainer','HardScatterVerticesAux':'xAOD::TruthVertexAuxContainer',
+                                            'TruthHFWithDecayParticles':'xAOD::TruthParticleContainer','TruthHFWithDecayParticlesAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthHFWithDecayVertices':'xAOD::TruthVertexContainer','TruthHFWithDecayVerticesAux':'xAOD::TruthVertexAuxContainer',
+                                            'TruthPrimaryVertices':'xAOD::TruthVertexContainer','TruthPrimaryVerticesAux':'xAOD::TruthVertexAuxContainer'
+                                           }
+
+   from DerivationFrameworkMCTruth.MCTruthCommon import addTruth3ContentToSlimmerTool
+   addTruth3ContentToSlimmerTool(PHYS3SlimmingHelper)
+   PHYS3SlimmingHelper.AllVariables += ['TruthHFWithDecayParticles','TruthHFWithDecayVertices']
+
+PHYS3SlimmingHelper.ExtraVariables += [
+                                      "Electrons.TruthLink",
+                                      "Muons.TruthLink",
+                                      "Photons.TruthLink",
+                                      "InDetTrackParticles.TruthLink",    
+                                      "TruthPrimaryVertices.t.x.y.z", 
+                                      "PrimaryVertices.nTrackParticles",
+                                      "PrimaryVertices.chiSquared", 
+                                      "PrimaryVertices.numberDoF"]
+
+# Add trigger matching
+trigmatching_helper_notau.add_to_slimming(PHYS3SlimmingHelper)
+trigmatching_helper_tau.add_to_slimming(PHYS3SlimmingHelper)
+
+# Final construction of output stream
+PHYS3SlimmingHelper.AppendContentToStream(PHYS3Stream)
+

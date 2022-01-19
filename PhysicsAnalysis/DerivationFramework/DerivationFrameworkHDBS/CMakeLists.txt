@@ -17,15 +17,19 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODTracking
    Event/xAOD/xAODTruth
    Event/xAOD/FourMomUtils
+   InnerDetector/InDetRecTools/InDetConversionFinderTools
+   InnerDetector/InDetRecTools/InDetTrackSelectionTool
    PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
    Tracking/TrkVertexFitter/TrkVKalVrtFitter
    Tracking/TrkVertexFitter/TrkVertexFitterInterfaces
    Tracking/TrkVertexFitter/TrkVertexAnalysisUtils
    Trigger/TrigAnalysis/TrigDecisionTool
+   PhysicsAnalysis/BPhys/BPhysTools
    PRIVATE
    GaudiKernel
    Tracking/TrkEvent/VxVertex
    Event/xAOD/xAODTrigger
+   Event/xAOD/xAODBPhys
    Control/AthContainers
    Generators/GenInterfaces
    Generators/TruthRivetTools
@@ -46,7 +50,7 @@ atlas_add_component( DerivationFrameworkHDBS
   DerivationFrameworkHDBS/*.h src/*.cxx src/components/*.cxx
    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps
-   xAODEgamma xAODJet xAODMuon xAODTracking xAODTruth FourMomUtils TrkVKalVrtFitterLib
+   xAODEgamma xAODJet xAODMuon xAODTracking xAODTruth xAODBPhysLib FourMomUtils TrkVKalVrtFitterLib InDetConversionFinderToolsLib
    TrkVertexFitterInterfaces TrkVertexAnalysisUtilsLib TrigDecisionToolLib xAODEventInfo
    GaudiKernel VxVertex xAODTrigger PhotonVertexSelection GammaORToolsLib AthContainers
    TruthConvertersLib TruthRivetToolsLib TruthUtils PathResolver EgammaAnalysisInterfacesLib ElectronPhotonSelectorToolsLib)
