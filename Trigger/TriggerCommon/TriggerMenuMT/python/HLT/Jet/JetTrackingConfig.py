@@ -10,7 +10,6 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, conf2
 from AthenaCommon.Configurable import ConfigurableRun3Behavior
 from TrigInDetConfig.InDetTrigVertices import makeInDetTrigVertices
 from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
-from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTracking
 
 # this code uses CA internally, needs to be in this context manager,
 # at least until ATLASRECTS-6635 is closed
@@ -95,6 +94,11 @@ def JetRoITrackingSequence(dummyFlags,jetsIn,trkopt,RoIs):
 
     IDTrigConfig = getInDetTrigConfig( 'jetSuper' )
 
+    # Note: import here is required because this isn't safe for "new"
+    # job options: it uses `include`. Apparently the new job options
+    # import this file but don't use this function, so we can hide
+    # imports here.
+    from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTracking
     viewAlgs, viewVerify = makeInDetTrigFastTracking( config = IDTrigConfig, rois=RoIs)
     viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs ),( 'xAOD::JetContainer' , 'StoreGateSvc+%s' % jetsIn)]
 
