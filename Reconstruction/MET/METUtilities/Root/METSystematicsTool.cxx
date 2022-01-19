@@ -280,7 +280,7 @@ namespace met {
 	return CP::CorrectionCode::Error;
     }
 
-    if(! getDefaultEventInfo()->eventType( xAOD::EventInfo::IS_SIMULATION ) ){
+    if(! getDefaultEventInfo()->eventType( xAOD::EventInfo::IS_SIMULATION ) &&  ! getDefaultEventInfo()->hasMCEventWeights() ){
       ATH_MSG_WARNING("This tool should be applied to MC only.  Return without changing the input MET object");
       return CP::CorrectionCode::Error;
     }
@@ -329,7 +329,7 @@ namespace met {
       return CP::CorrectionCode::Error;
     }
 
-    if(! getDefaultEventInfo()->eventType( xAOD::EventInfo::IS_SIMULATION ) ){
+    if(! getDefaultEventInfo()->eventType( xAOD::EventInfo::IS_SIMULATION ) && ! getDefaultEventInfo()-> hasMCEventWeights() ){
       ATH_MSG_WARNING("This tool should be applied to MC only.  Return without changing the input MET object");
       outputmet = nullptr;
       return CP::CorrectionCode::Error;
