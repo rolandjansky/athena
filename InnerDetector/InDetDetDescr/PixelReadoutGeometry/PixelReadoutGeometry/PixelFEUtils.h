@@ -23,14 +23,14 @@ namespace Pixel {
    }
 
    /**  Get The fraction of good chips the pixel of a pixel array is connected to.
-    * @param pixelDetElInfo helper class which provides the front-end module status information.
+    * @param pixelDetElStatus helper class which provides the front-end module status information.
     * @param pixelReadout the pixel readout manager needed to determine the front-end chip of a pixel.
     * @param moduleId the identifier of the corresponding module.
     * @param moduleIdHash the identifier hash of the corresponding module.
     * @param startId the identifier of one corner of the pixel array.
     * @param endId the identifier of the opposing corner of the pixel array which must be on the same pixel module.
     */
-   inline double getGoodFraction(const InDet::SiDetectorElementStatus &pixelDetElInfo,
+   inline double getGoodFraction(const InDet::SiDetectorElementStatus &pixelDetElStatus,
                                  const InDetDD::IPixelReadoutManager &pixelReadout,
                                  const PixelID &pixelID,
                                  const Identifier &moduleId,
@@ -46,7 +46,7 @@ namespace Pixel {
       for (int i=phiStart; i<=phiEnd; i++) {
          for (int j=etaStart; j<=etaEnd; j++) {
             int chFE = pixelReadout.getFE(pixelID.pixel_id(moduleId,i,j), moduleId);
-            if (pixelDetElInfo.isChipGood(moudlIdHash,chFE)) {++nGood;}
+            if (pixelDetElStatus.isChipGood(moudlIdHash,chFE)) {++nGood;}
          }
       }
       return nGood/nTotal;

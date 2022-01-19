@@ -38,6 +38,19 @@ def SCT_ConditionsParameterCfg(flags, name="SCT_ConditionsParameter", **kwargs):
 
     return acc
 
+def SCT_ConditionsSummaryToolFlaggedOnlyCfg(flags, name="InDetSCT_ConditionsSummaryToolFlaggedOnly", **kwargs):
+    acc = ComponentAccumulator()
+
+    if "ConditionsTools" not in kwargs :
+        kwargs.setdefault("ConditionsTools", [ acc.popToolsAndMerge(SCT_FlaggedConditionToolCfg(flags)) ] )
+
+
+    # @TODO what shall be done if SCTDetEleCollKey is overridden ?
+    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConfig import SCT_DetectorElementCondAlgCfg
+    acc.merge(SCT_DetectorElementCondAlgCfg(flags))
+
+    acc.setPrivateTools(CompFactory.SCT_ConditionsSummaryTool(name, **kwargs))
+    return acc
 
 def SCT_ConditionsSummaryToolCfg(flags, name="InDetSCT_ConditionsSummaryTool", **kwargs):
     acc = ComponentAccumulator()
@@ -78,8 +91,10 @@ def SCT_ConditionsSummaryToolCfg(flags, name="InDetSCT_ConditionsSummaryTool", *
         ConditionsTools += [ acc.popToolsAndMerge(SCT_ModuleVetoCfg(flags)) ]
 
     kwargs.setdefault("ConditionsTools", ConditionsTools)
-    acc.setPrivateTools(CompFactory.SCT_ConditionsSummaryTool(name, **kwargs))
+
+    acc.setPrivateTools( acc.popToolsAndMerge( SCT_ConditionsSummaryToolFlaggedOnlyCfg( flags, name, **kwargs) ) )
     return acc
+
 
 
 def SCT_ConfigurationConditionsToolCfg(flags, name="InDetSCT_ConfigurationConditionsTool", **kwargs):

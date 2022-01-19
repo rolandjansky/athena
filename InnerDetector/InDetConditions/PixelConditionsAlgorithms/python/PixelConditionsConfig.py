@@ -315,6 +315,20 @@ def PixelRadSimFluenceMapAlgCfg(flags, name="PixelRadSimFluenceMapAlg", **kwargs
     acc.addCondAlgo(CompFactory.PixelRadSimFluenceMapAlg(name, **kwargs))
     return acc
 
+def PixelDetectorElementStatusAlgCfg(flags, name = "PixelDetectorElementStatusAlg", **kwargs) :
+    acc = ComponentAccumulator()
+    if 'ConditionsSummaryTool' not in kwargs :
+        from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
+        kwargs.setdefault("ConditionsSummaryTool", acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags)) )
+    kwargs.setdefault("WriteKey", "PixelDetectorElementStatus")
+    # not a conditions algorithm since it combines conditions data and data from the bytestream
+    acc.addEventAlgo( CompFactory.InDet.SiDetectorElementStatusAlg(name, **kwargs) )
+    return acc
+
+def PixelDetectorElementStatusAlgActiveOnlyCfg(flags, name = "PixelDetectorElementStatusAlgActiveOnly", **kwargs) :
+    kwargs.setdefault("WriteKey", "PixelDetectorElementStatusActiveOnly")
+    kwargs.setdefault("ActiveOnly", True )
+    return PixelDetectorElementStatusAlgCfg(flags, **kwargs)
 
 if __name__ == '__main__':
     from AthenaCommon.Configurable import Configurable

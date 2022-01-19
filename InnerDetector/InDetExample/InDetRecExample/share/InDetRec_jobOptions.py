@@ -9,7 +9,7 @@
 from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon.BeamFlags import jobproperties
 from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
-
+from InDetRecExample import TrackingCommon
 
 # check (for robustness) if ID is on at all!
 if not DetFlags.detdescr.ID_on():
@@ -165,7 +165,17 @@ else:
     #
     # ------------------------------------------------------------
     # --- silicon
+    if DetFlags.haveRIO.pixel_on():
+      topSequence += TrackingCommon.getPixelDetectorElementStatusAlg()
+      topSequence += TrackingCommon.getPixelDetectorElementStatusAlgActiveOnly()
+
+    if DetFlags.haveRIO.SCT_on():
+      topSequence += TrackingCommon.getSCTDetectorElementStatusAlgWithoutFlagged()
+
     include ("InDetRecExample/InDetRecPreProcessingSilicon.py")
+
+    if DetFlags.haveRIO.SCT_on():
+      topSequence += TrackingCommon.getSCTDetectorElementStatusAlg()
 
     # --- TRT, no drift information if cosmics, do not use extrenal phase in any case
     if not InDetFlags.doDBMstandalone():
@@ -202,6 +212,7 @@ else:
     #
     # --- Pixel track segment finding
     #
+
     ClusterSplitProbContainer=''
     if InDetFlags.doTrackSegmentsPixel():
 

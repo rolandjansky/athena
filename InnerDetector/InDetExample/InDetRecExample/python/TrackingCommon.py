@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.Logging import logging
@@ -898,10 +898,72 @@ def getInDetTrackToVertexTool(name='TrackToVertex', **kwargs) :
     from TrackToVertex.TrackToVertexConf import Reco__TrackToVertex
     return Reco__TrackToVertex(the_name,**kwargs)
 
+def getPixelDetectorElementStatusAlg(name = "PixelDetectorElementStatusAlg", **kwargs) :
+    the_name = makeName(name, kwargs)
+    if 'ConditionsSummaryTool' not in kwargs :
+       kwargs = setDefaults( kwargs, ConditionsSummaryTool   = getInDetPixelConditionsSummaryTool())
+    kwargs = setDefaults( kwargs, WriteKey = "PixelDetectorElementStatus")
+
+    from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__SiDetectorElementStatusAlg
+    return InDet__SiDetectorElementStatusAlg(the_name, **kwargs)
+
+def getPixelDetectorElementStatusAlgActiveOnly(name = "PixelDetectorElementStatusAlgActiveOnly", **kwargs) :
+    return getPixelDetectorElementStatusAlg( name       = name,
+                                           WriteKey   = "PixelDetectorElementStatusActiveOnly",
+                                           ActiveOnly = True)
+
+
 # @TODO move configuration of InDetSCT_ConditionsSummaryTool to a function
+def_InDetSCT_ConditionsSummaryToolWithoutFlagged=None
+def getInDetSCT_ConditionsSummaryToolWithoutFlagged() :
+    return def_InDetSCT_ConditionsSummaryToolWithoutFlagged
+
 def_InDetSCT_ConditionsSummaryTool=None
 def getInDetSCT_ConditionsSummaryTool() :
     return def_InDetSCT_ConditionsSummaryTool
+
+def getInDetSCT_FlaggedConditionTool(name='InDetSCT_FlaggedConditionTool', **kwargs) :
+    the_name = makeName(name, kwargs)
+    kwargs = setDefaults(kwargs, SCT_FlaggedCondData = "SCT_FlaggedCondData" )
+
+    from SCT_ConditionsTools.SCT_ConditionsToolsConf import  SCT_FlaggedConditionTool
+    return SCT_FlaggedConditionTool(the_name, **kwargs)
+
+# to be used by the SCTDetectorElementStatusAlgW algorithm to add the SCT_FlaggedCondData to the status info without this data
+def getInDetSCT_ConditionsSummaryToolFlaggedOnly(name = 'InDetSCT_ConditionsSummaryToolFlaggedOnly', **kwargs) :
+    the_name = makeName(name, kwargs)
+    from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConditionsSummaryTool
+
+    if "ConditionsTools" not in kwargs :
+        kwargs = setDefaults(kwargs, ConditionsTools = [getInDetSCT_FlaggedConditionTool()])
+
+    # @RODO should make sure that conditions algorithm is configured
+    kwargs = setDefaults(kwargs, SCTDetEleCollKey = "SCT_DetectorElementCollection" )
+    return SCT_ConditionsSummaryTool(the_name, **kwargs)
+
+# SCTDetectorElementStatusAlg which creates the status data to be used in the SCT_Clusterization
+def getSCTDetectorElementStatusAlgWithoutFlagged(name="SCTDetectorElementStatusAlgWithoutFlagged",**kwargs) :
+    the_name = makeName(name, kwargs)
+    if 'ConditionsSummaryTool' not in kwargs :
+        kwargs = setDefaults( kwargs, ConditionsSummaryTool   = getInDetSCT_ConditionsSummaryToolWithoutFlagged() )
+    kwargs = setDefaults( kwargs, WriteKey = "SCTDetectorElementStatusWithoutFlagged")
+
+    from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__SiDetectorElementStatusAlg
+    return InDet__SiDetectorElementStatusAlg(the_name, **kwargs)
+
+# SCTDetectorElementStatusAlg which creates the status data to be used everywhere but the SCT_Clusterization
+def getSCTDetectorElementStatusAlg(name = "SCTDetectorElementStatusAlg", **kwargs) :
+    the_name = makeName(name, kwargs)
+    if 'ConditionsSummaryTool' not in kwargs :
+        kwargs = setDefaults( kwargs,
+                              ConditionsSummaryTool   = getInDetSCT_ConditionsSummaryToolFlaggedOnly(),
+                              ReadKey                 = "SCTDetectorElementStatusWithoutFlagged"
+                             )
+    kwargs = setDefaults( kwargs, WriteKey = "SCTDetectorElementStatus")
+
+    from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__SiDetectorElementStatusAlg
+    return InDet__SiDetectorElementStatusAlg(the_name, **kwargs)
+
 
 @makePublicTool
 def getInDetBoundaryCheckTool(name="InDetBoundarySearchTool", **kwargs):

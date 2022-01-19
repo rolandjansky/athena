@@ -346,9 +346,6 @@ if DetFlags.haveRIO.SCT_on():
     if InDetFlags.doSCTModuleVeto():
         InDetSCT_ConditionsSummaryTool.ConditionsTools += [ InDetSCT_ModuleVetoTool ]
 
-    # @TODO fix this temporary hack to make the configguration of the InDetSCT_ConditionsSummaryTool accessible to TrackingCommon
-    import InDetRecExample.TrackingCommon as TrackingCommon
-    TrackingCommon.def_InDetSCT_ConditionsSummaryTool=InDetSCT_ConditionsSummaryTool
 
     if (InDetFlags.doPrintConfigurables()):
         printfunc (InDetSCT_ConditionsSummaryTool)
@@ -364,6 +361,11 @@ if DetFlags.haveRIO.SCT_on():
             if condTool != InDetSCT_FlaggedConditionTool:
                 condTools.append(condTool)
     InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools = condTools
+
+    # @TODO fix this temporary hack to make the configguration of the InDetSCT_ConditionsSummaryTool accessible to TrackingCommon
+    import InDetRecExample.TrackingCommon as TrackingCommon
+    TrackingCommon.def_InDetSCT_ConditionsSummaryTool=InDetSCT_ConditionsSummaryTool
+    TrackingCommon.def_InDetSCT_ConditionsSummaryToolWithoutFlagged=InDetSCT_ConditionsSummaryToolWithoutFlagged
 
     # Setup Lorentz angle tool.
     from SiLorentzAngleTool.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
