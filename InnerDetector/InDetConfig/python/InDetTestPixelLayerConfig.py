@@ -9,6 +9,11 @@ def InDetTestPixelLayerToolCfg(flags, name = "InDetTestPixelLayerTool", **kwargs
     from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
     kwargs.setdefault("PixelSummaryTool", result.popToolsAndMerge(PixelConditionsSummaryCfg(flags)))
 
+  if "PixelDetElStatus" not in kwargs and not flags.Common.isOnline:
+    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDetectorElementStatusAlgCfg
+    result.merge( PixelDetectorElementStatusAlgCfg(flags) )
+    kwargs.setdefault("PixelDetElStatus", "PixelDetectorElementStatus")
+
   if 'Extrapolator' not in kwargs :
     from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     InDetExtrapolator = result.popToolsAndMerge(InDetExtrapolatorCfg(flags))

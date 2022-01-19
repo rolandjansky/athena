@@ -831,11 +831,17 @@ def getInDetTestPixelLayerTool(name = "InDetTestPixelLayerTool", **kwargs) :
     kwargs = setDefaults( kwargs,
                           CheckActiveAreas = InDetFlags.checkDeadElementsOnTrack(),
                           CheckDeadRegions = InDetFlags.checkDeadElementsOnTrack(),
-                          CheckDisabledFEs = InDetFlags.checkDeadElementsOnTrack())
+                          CheckDisabledFEs = InDetFlags.checkDeadElementsOnTrack()
+                          ,PixelDetElStatus   = "PixelDetectorElementStatus"
+                          ,PixelReadoutManager = "PixelReadoutManager"
+                           )  # @TODO Should use method here
+
 
     from InDetTestPixelLayer.InDetTestPixelLayerConf import InDet__InDetTestPixelLayerTool
     return InDet__InDetTestPixelLayerTool(name = the_name, **kwargs)
 
+def getInDetTrigTestPixelLayerTool(name = "InDetTrigTestPixelLayerTool", **kwargs) :
+    return getInDetTestPixelLayerTool(name, **setDefaults( kwargs, PixelDetElStatus   = "") )
 
 # # set up the propagator for outside ID (A.S. needed as a fix for 14.5.0 )
 # @makePublicTool
@@ -1026,8 +1032,17 @@ def getInDetRecTestBLayerTool(name='InDetRecTestBLayerTool', **kwargs) :
     if 'PixelSummaryTool' not in kwargs :
         kwargs = setDefaults( kwargs, PixelSummaryTool = getInDetPixelConditionsSummaryTool())
 
+    kwargs = setDefaults( kwargs
+                          ,PixelDetElStatus   = "PixelDetectorElementStatus"
+                          ,PixelReadoutManager = "PixelReadoutManager")
+
     from InDetTestBLayer.InDetTestBLayerConf import InDet__InDetTestBLayerTool
     return InDet__InDetTestBLayerTool(name=the_name, **kwargs)
+
+def getInDetTrigRecTestBLayerTool(name='InDetTrigRecTestBLayerTool', **kwargs) :
+    kwargs = setDefaults(kwargs,
+                         PixelDetElStatus = "")
+    return getInDetRecTestBLayerTool(name, **kwargs)
 
 @makePublicTool
 def getInDetTRTStrawStatusSummaryTool(name = "InDetTRT_StrawStatusSummaryTool", **kwargs) :
