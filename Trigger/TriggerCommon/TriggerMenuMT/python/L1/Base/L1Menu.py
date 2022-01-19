@@ -170,6 +170,12 @@ class L1Menu(object):
                      raise RuntimeError("Algorithm %s in board %s with input %s not allowed" % (algo.name, boardName, algoInput ))
 
 
+    def checkCTPINconnectors(self):
+        for conn in self.connectors:
+            if conn.ctype == CType.CTPIN:
+               if len(conn.triggerLines)>31:
+                   raise RuntimeError("Too many CTP inputs in %s: %i but a max of 31 are allowed" %(conn.name,len(conn.triggerLines)))
+
     def checkCountCTPInputsOutput(self):
         from collections import namedtuple
         ctpInput = namedtuple('ctpInput',"name, conn, nbit")
