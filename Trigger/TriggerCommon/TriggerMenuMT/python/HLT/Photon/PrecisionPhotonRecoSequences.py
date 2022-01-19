@@ -36,7 +36,8 @@ def precisionPhotonRecoSequence(RoIs, ion=False):
     ViewVerify.DataObjects = [( 'xAOD::CaloClusterContainer' , 'StoreGateSvc+%s' % caloClusters ),
                               ( 'xAOD::CaloClusterContainer' , 'StoreGateSvc+%s' % TrigEgammaKeys.precisionTopoClusterContainer), # this is for the calo isolation tool 
                               ( 'EgammaRecContainer', 'StoreGateSvc+%s' % TrigEgammaKeys.precisionPhotonSuperClusterCollection),
-                              ( 'CaloCellContainer' , 'StoreGateSvc+CaloCells' )]
+                              ( 'CaloCellContainer' , 'StoreGateSvc+CaloCells' ),
+                              ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
                               
     if ion is True: ViewVerify.DataObjects.append(( 'CaloCellContainer' , 'StoreGateSvc+CorrectedRoICaloCells' ))
 

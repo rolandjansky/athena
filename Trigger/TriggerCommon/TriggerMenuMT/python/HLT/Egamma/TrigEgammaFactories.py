@@ -246,7 +246,7 @@ TrigCaloIsolationToolHI = ToolFactory(xAOD__CaloIsolationTool,name = "TrigCaloIs
                                 ClustersInConeTool              = TrigCaloClustersInConeToolHI,
                                 FlowElementsInConeTool          = None,
                                 ParticleCaloExtensionTool       = None,
-                                IsoLeakCorrectionTool           = None,
+                                IsoLeakCorrectionTool           = IsoCorrectionTool,
                                 ParticleCaloCellAssociationTool = None,
                                 saveOnlyRequestedCorrections    = True,
                                 EMCaloNums                      = [SUBCALO.LAREM],
@@ -255,7 +255,7 @@ TrigCaloIsolationToolHI = ToolFactory(xAOD__CaloIsolationTool,name = "TrigCaloIs
 from AthenaCommon import CfgMgr
 """ Configure the HLT CaloIsoTool """
 H_ClIT_HI = CfgMgr.xAOD__CaloIsolationTool('TrigCaloIsolationToolHI')                                
-H_ClIT_HI.doEnergyDensityCorrection=False
+H_ClIT_HI.doEnergyDensityCorrection=True
 H_ClIT_HI.InitializeReadHandles=False
 H_ClIT_HI.UseEMScale=True
 
@@ -265,7 +265,7 @@ TrigCaloIsolationTool = ToolFactory(xAOD__CaloIsolationTool,name = "TrigCaloIsol
                                 ClustersInConeTool              = TrigCaloClustersInConeTool,
                                 FlowElementsInConeTool          = None,
                                 ParticleCaloExtensionTool       = None,
-                                IsoLeakCorrectionTool           = None,
+                                IsoLeakCorrectionTool           = IsoCorrectionTool,
                                 ParticleCaloCellAssociationTool = None,
                                 saveOnlyRequestedCorrections    = True,
                                 EMCaloNums                      = [SUBCALO.LAREM],
@@ -274,7 +274,7 @@ TrigCaloIsolationTool = ToolFactory(xAOD__CaloIsolationTool,name = "TrigCaloIsol
 from AthenaCommon import CfgMgr
 """ Configure the HLT CaloIsoTool """
 H_ClIT = CfgMgr.xAOD__CaloIsolationTool('TrigCaloIsolationTool')                                
-H_ClIT.doEnergyDensityCorrection=False
+H_ClIT.doEnergyDensityCorrection=True
 H_ClIT.InitializeReadHandles=False
 H_ClIT.UseEMScale=True
 
