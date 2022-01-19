@@ -127,7 +127,7 @@ class TrigInDetReco(ExecStep):
                 flags  += 'doBeamspotSlice=True;'
             if (i=='minbias') :
                 chains += "'HLT_mb_sptrk_L1RD0_FILLED',"
-                flags  += "doMinBiasSlice=True;setMenu='Dev_pp_run3_v1';"
+                flags  += "doMinBiasSlice=True;setMenu='PhysicsP1_pp_lowMu_run3_v1';"
             if (i=='cosmic') :
                 chains += "'HLT_mu4_cosmic_L1MU3V'"
                 flags  += "doMuonSlice=True;doCosmics=True;setMenu='Cosmic_run3_v1';"
