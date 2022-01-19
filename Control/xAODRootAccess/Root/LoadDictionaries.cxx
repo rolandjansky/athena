@@ -35,6 +35,7 @@ namespace xAOD {
       LOAD_TYPE( "xAOD::Muon_v1" );
       LOAD_TYPE( "xAOD::Jet_v1" );
       LOAD_TYPE( "xAOD::TauJet_v1" );
+      LOAD_TYPE( "xAOD::TauJet_v3" );
       LOAD_TYPE( "xAOD::PFO_v1" );
       LOAD_TYPE( "xAOD::TrigElectron_v1" );
       LOAD_TYPE( "xAOD::L2CombinedMuon_v1" );
