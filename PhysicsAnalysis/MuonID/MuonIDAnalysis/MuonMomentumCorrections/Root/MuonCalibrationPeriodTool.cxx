@@ -165,7 +165,7 @@ namespace CP {
         m_do2StationsHighPt(false),
         m_doExtraSmearing(false),
 
-        m_calib_mode(CalibMode::notCorrectData_IDMS),
+        m_calib_mode(CalibMode::noOption),
         
         m_MCperiods1516(),
         m_MCperiods17(),
