@@ -13,9 +13,19 @@ def InDetBoundaryCheckToolCfg(flags, name='InDetBoundarySearchTool', **kwargs):
     else:
       kwargs.setdefault("SctSummaryTool", None)
 
-  if 'PixelLayerTool' not in kwargs :
-    from InDetConfig.InDetTestPixelLayerConfig import InDetTestPixelLayerToolCfg
-    kwargs.setdefault("PixelLayerTool", result.popToolsAndMerge(InDetTestPixelLayerToolCfg(flags)))
+  if flags.Detector.EnableSCT:
+    if "SCTDetElStatus" not in kwargs and not flags.Common.isOnline :
+      from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConfig  import SCT_DetectorElementStatusAlgCfg
+      result.merge( SCT_DetectorElementStatusAlgCfg(flags) )
+      kwargs.setdefault("SCTDetElStatus", "SCTDetectorElementStatus" )
+
+  if flags.Detector.EnablePixel :
+    if 'PixelLayerTool' not in kwargs :
+      from InDetConfig.InDetTestPixelLayerConfig import InDetTestPixelLayerToolCfg
+      kwargs.setdefault("PixelLayerTool", result.popToolsAndMerge(InDetTestPixelLayerToolCfg(flags)))
+  else :
+    kwargs.setdefault("PixelLayerTool", "")
+
 
   kwargs.setdefault("UsePixel", flags.Detector.EnablePixel)
   kwargs.setdefault("UseSCT", flags.Detector.EnableSCT)

@@ -986,6 +986,7 @@ def getInDetBoundaryCheckTool(name="InDetBoundarySearchTool", **kwargs):
         kwargs,
         UsePixel=DetFlags.haveRIO.pixel_on(),
         UseSCT=DetFlags.haveRIO.SCT_on(),
+        SCTDetElStatus="SCTDetectorElementStatus"
     )
 
     from InDetBoundaryCheckTool.InDetBoundaryCheckToolConf import InDet__InDetBoundaryCheckTool
