@@ -29,8 +29,8 @@ namespace DerivationFramework {
     m_iVertexFitter("Trk::TrkVKalVrtFitter", this),
     m_vertexEstimator("InDet::VertexPointEstimator"),
     m_TrackSelectionToolTightP("InDet::InDetTrackSelectionTool/TrackTightP"), 
-    m_TrackSelectionToolLoose("InDet::InDetTrackSelectionTool/TrackLoose"),
     m_TrackSelectionToolLooseP("InDet::InDetTrackSelectionTool/TrackLooseP"),
+    m_TrackSelectionToolLoose("InDet::InDetTrackSelectionTool/TrackLoose"),
     m_inputTrackParticleContainerName("InDetTrackParticles"),
     m_TrkParticleGSFCollection("GSFTrackParticles"),
     m_HCandidateContainerName("PHYSHCandidates"),
@@ -48,8 +48,8 @@ namespace DerivationFramework {
     m_onlyTightPTrk(false),
     m_onlyLoosePTrk(false),
     m_onlyLooseTrk(true),
-    m_electronCollectionKey("Electrons"),
     m_trkSelector("InDet::TrackSelectorTool"),
+    m_electronCollectionKey("Electrons"),
     m_eleThresholdPt(6000.0),
     m_leptonTrkThresholdPt(1000.0),
     m_muThresholdPt(4000.0),
@@ -430,7 +430,6 @@ namespace DerivationFramework {
 
         // skip tracks from Z vertex
         for ( std::vector<const xAOD::Vertex*>::const_iterator vtxItr = dileptonVertices.begin(); vtxItr != dileptonVertices.end(); ++vtxItr ) {
-          const xAOD::Vertex* diLeptonVertex = (*vtxItr);
           const xAOD::TrackParticle* lepton_trk1 = (*vtxItr)->trackParticle(0);
           const xAOD::TrackParticle* lepton_trk2 = (*vtxItr)->trackParticle(1);
           if(m_trkZDeltaZ>0 && fabs(track->z0() + track->vz() - (*vtxItr)->z()) > m_trkZDeltaZ ) continue;
@@ -530,7 +529,6 @@ namespace DerivationFramework {
     int itr = 0;
     for ( std::vector<const xAOD::Vertex*>::const_iterator vtxItr = dileptonVertices.begin(); vtxItr != dileptonVertices.end(); ++vtxItr ) {
 
-      const xAOD::Vertex* diLeptonVertex = (*vtxItr);
       const xAOD::TrackParticle* lepton_trk1 = (*vtxItr)->trackParticle(0);
       const xAOD::TrackParticle* lepton_trk2 = (*vtxItr)->trackParticle(1);
       TLorentzVector lepton1, lepton2;
