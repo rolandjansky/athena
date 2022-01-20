@@ -25,7 +25,7 @@ The tool at least needs to be created and initialized like::
   
 This creates the tool with the recommended cuts, which are defined in the
 default config file
-/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/TauAnalysisTools/00-00-30/Selection/recommended_selection_mc15.conf
+/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/TauAnalysisTools/00-04-00/Selection/recommended_selection_r22.conf
 (or in newer versions).
 
 ------------------
@@ -34,13 +34,14 @@ Tool configuration
 
 The default config file looks like this::
 
-  SelectionCuts: PtMin AbsEtaRegion AbsCharge NTracks JetIDWP
+  SelectionCuts: PtMin AbsEtaRegion AbsCharge NTracks JetIDWP EleIDWP
 
   PtMin: 20
   AbsEtaRegion: 0; 1.37; 1.52; 2.5
   AbsCharge: 1
   NTracks: 1; 3
   JetIDWP: JETIDRNNMEDIUM
+  EleIDWP: ELEIDRNNLOOSE
 
 The top line lists the cuts to be applied. Below are the configurations on the
 cuts, like the pt threshold of 20 GeV. If there is a cut specified, e.g. `PtMin:
@@ -167,8 +168,8 @@ setup:
      - accepting taus with a electron RNN score below an upper bound
      - if ``EleRNNMax`` is configured, ``EleRNNRegion`` configuration wont be considered
 
-   * - ``CutEleRNNWP``
-     - ``EleRNNWP``
+   * - ``CutEleIDWP``
+     - ``EleIDWP``
      - ``int``
      - accepting taus passing the given working point
      - 
@@ -203,7 +204,7 @@ Currently implemented working points for ``CutJetIDWP`` are:
      - passing RNN tight working point, ID efficiency 60% (45%) for 1-prong (3-prong)
      
 
-and for ``CutEleRNNWP``:
+and for ``CutEleIDWP``:
 
 .. list-table::
    :header-rows: 1
@@ -226,7 +227,7 @@ If one wants to use a different setup one has three options:
 1. Using an own config file
 ===========================
 
-One needs to create a new file like the recommended_selection_mc15.conf and
+One needs to create a new file like the recommended_selection_r22.conf and
 modify it as needed. You then have to tell the tool where it can find your
 configuration file via::
 

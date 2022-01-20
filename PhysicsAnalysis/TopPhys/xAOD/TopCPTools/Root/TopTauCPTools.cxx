@@ -141,7 +141,7 @@ namespace top {
     iSelectionCuts |= TauAnalysisTools::CutAbsCharge;
     iSelectionCuts |= TauAnalysisTools::CutNTrack;
     iSelectionCuts |= TauAnalysisTools::CutJetIDWP;
-    iSelectionCuts |= TauAnalysisTools::CutEleRNNWP;
+    iSelectionCuts |= TauAnalysisTools::CutEleIDWP;
 
     int iSelectionCutsLoose = iSelectionCuts;
 
@@ -193,8 +193,8 @@ namespace top {
                    "Failed to set tau NTracks");
         top::check(asg::setProperty(tauSelectionTool, "JetIDWP", tauJetIDWP),
                    "Failed to set tau JetIDWP");
-        top::check(asg::setProperty(tauSelectionTool, "EleRNNWP", tauEleIDWP),
-                  "Failed to set tau EleRNNWP");
+        top::check(asg::setProperty(tauSelectionTool, "EleIDWP", tauEleIDWP),
+		   "Failed to set tau EleIDWP");
         top::check(asg::setProperty(tauSelectionTool, "MuonOLR", m_config->tauMuOLR()),
                    "Failed to set tau MuonOLR");
       }
@@ -267,8 +267,8 @@ namespace top {
                    "Failed to set loose tau NTracks");
         top::check(asg::setProperty(tauSelectionTool, "JetIDWP", tauJetIDWPLoose),
                    "Failed to set loose tau JetIDWP");
-        top::check(asg::setProperty(tauSelectionTool, "EleRNNWP", tauEleIDWPLoose),
-                  "Failed to set loose tau EleRNNWP");
+        top::check(asg::setProperty(tauSelectionTool, "EleIDWP", tauEleIDWPLoose),
+		   "Failed to set loose tau EleIDWP");
         top::check(asg::setProperty(tauSelectionTool, "MuonOLR", m_config->tauMuOLRLoose()),
                    "Failed to set tau MuonOLR");
       }
