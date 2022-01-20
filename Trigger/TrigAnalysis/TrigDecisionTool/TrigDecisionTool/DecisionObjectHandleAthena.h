@@ -15,6 +15,7 @@
 #include "TrigDecisionTool/DecisionObjectHandle.h"
 #include "TrigDecisionEvent/TrigDecision.h"
 
+#include "StoreGate/DataHandle.h"
 #include "StoreGate/ReadHandleKey.h"
 
 #include <string>
@@ -27,15 +28,17 @@ namespace Trig {
   /**
    * @brief Decision invalidator for Athena (really doing the job)
    **/
-  class DecisionObjectHandleAthena : public DecisionObjectHandle<TrigDec::TrigDecision,TrigDec::TrigDecision>
+  class DecisionObjectHandleAthena : public DecisionObjectHandle<TrigDec::TrigDecision,TrigDec::TrigDecision>, 
+				     public DataHandle<TrigDec::TrigDecision>
   {
   public:
     DecisionObjectHandleAthena( SG::ReadHandleKey<TrigDec::TrigDecision>* olddeckey );
-    virtual void reset (bool hard = false);
+    virtual void reset (bool hard = false) override;
     virtual TrigDec::TrigDecision const * getDecision() const override;
     virtual TrigDec::TrigDecision const * getNavigation() const override;
   private:
-    SG::ReadHandleKey<TrigDec::TrigDecision>* m_oldDecKey;
+      SG::ReadHandleKey<TrigDec::TrigDecision>* m_oldDecKey;
+    mutable TrigDec::TrigDecision const * m_object;
   };
 }
 #endif // TrigDecisionTool_DecisionObjectHandle_h

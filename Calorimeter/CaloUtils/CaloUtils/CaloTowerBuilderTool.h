@@ -19,6 +19,8 @@
 #include "CaloUtils/CaloTowerBuilderToolBase.h"
 #include "CaloUtils/CaloTowerStore.h"
 
+
+
 #include <string>
 #include <vector>
 
@@ -76,9 +78,7 @@ public:
   virtual void setCalos( const std::vector<CaloCell_ID::SUBCALO>& v);
 
   virtual StatusCode initializeTool() override;
-
-  virtual void handle(const Incident&) override;
-
+  
 
 protected:
   /**
@@ -108,6 +108,8 @@ private:
   /////////////////////////////
 
   CaloTowerStore m_cellStore;
+  mutable std::mutex m_cellStoreMutex;
+  mutable std::atomic_bool m_cellStoreInit{false};
 
   virtual StatusCode checkSetup(MsgStream& log);
   static void addTower (const CaloTowerStore::tower_iterator tower_it,
@@ -123,14 +125,7 @@ private:
   /**
    * @brief Rebuild the cell lookup table.
    */
-  StatusCode rebuildLookup();
+  StatusCode rebuildLookup(const EventContext& ctx);
 
-
-  /**
-   * @brief Mark that cached data are invalid.
-   *
-   * Called when calibrations are updated.
-   */
-  virtual StatusCode invalidateCache() override;
 };
 #endif

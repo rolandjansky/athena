@@ -370,16 +370,18 @@ bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
  }
  if (m_addBC) m_badChanWord=0;
  bool connected=false;
-
- if(m_isSC) {
-   SG::ReadCondHandle<CaloSuperCellDetDescrManager> caloSuperCellMgrHandle{m_caloSuperCellMgrKey};
-   m_dd_man = *caloSuperCellMgrHandle;
+ 
+  const CaloDetDescrManager_Base* dd_man = nullptr;
+ if (m_realgeom) {
+   if(m_isSC) {
+     SG::ReadCondHandle<CaloSuperCellDetDescrManager> caloSuperCellMgrHandle{m_caloSuperCellMgrKey};
+     dd_man = *caloSuperCellMgrHandle;
+   }
+   else {
+     SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+     dd_man = *caloMgrHandle;
+   }
  }
- else {
-   SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
-   m_dd_man = *caloMgrHandle;
- }
-
  try {
    if (cabling->isOnlineConnected(hwid)) {
      Identifier id=cabling->cnvToIdentifier(hwid);
@@ -387,8 +389,8 @@ bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
        m_oflChanId = id.get_identifier32().get_compact();
        if (m_addHash) m_oflHash=m_caloId->calo_cell_hash(id);
 
-       if (m_realgeom) {
-          const CaloDetDescrElement *elem = m_dd_man->get_element(id);
+       if (dd_man) {
+          const CaloDetDescrElement *elem = dd_man->get_element(id);
           if(!elem) {
              ATH_MSG_WARNING("Do not have CDDE for "<<id.getString());
           } else {

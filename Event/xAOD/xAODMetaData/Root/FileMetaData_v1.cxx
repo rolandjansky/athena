@@ -362,6 +362,35 @@ namespace xAOD {
       return true;
    }
 
+   bool FileMetaData_v1::value(const std::string& type,
+                               std::vector< uint32_t >& val) const {
+     // Create an accessor object:
+     const Accessor<std::vector<uint32_t> > acc(type);
+
+     // Check if this variable is available:
+     if (!acc.isAvailable(*this)) {
+       return false;
+     }
+
+     // Read the value:
+     val = acc(*this);
+
+     // We were successful:
+     return true;
+   }
+
+   bool FileMetaData_v1::setValue(const std::string& type,
+                                  const std::vector< uint32_t >& val) {
+     // Create the accessor object:
+     const Accessor<std::vector<uint32_t> > acc(type);
+
+     // Set the value:
+     acc(*this) = val;
+
+     // We were successful:
+     return true;
+   }
+
 /// Helper macro used to print MetaDataType values
 #define PRINT_TYPE( TYPE )                      \
    case xAOD::FileMetaData_v1::TYPE:            \

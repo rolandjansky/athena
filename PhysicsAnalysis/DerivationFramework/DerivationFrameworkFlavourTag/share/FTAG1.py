@@ -76,11 +76,13 @@ FTAG1SlimmingHelper.AllVariables = [
                                        "EventInfo",
                                        "PrimaryVertices",
                                        "InDetTrackParticles",
+                                       "InDetLargeD0TrackParticles",
                                        "BTagging_AntiKt4EMPFlow",
                                        "BTagging_AntiKtVR30Rmax4Rmin02Track",
                                        "BTagging_AntiKt4EMPFlowJFVtx",
                                        "BTagging_AntiKt4EMPFlowSecVtx",
                                        "TruthParticles",
+                                       "TruthVertices",
                                         "TruthBottom", "TruthElectrons","TruthMuons","TruthTaus",
                                         ]
 if flag_pseudotrack == 1:

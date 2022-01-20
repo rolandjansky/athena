@@ -755,6 +755,7 @@ def _extract_fields_fmd(interface=None, aux=None):
     metaContent = {
         "productionRelease": ROOT.std.string(),
         "dataType": ROOT.std.string(),
+        "runNumbers": ROOT.std.vector('unsigned int')(),
     }
     # Note: using this for dynamic attributes retruns empty content
     for k, v in metaContent.items():
@@ -763,7 +764,9 @@ def _extract_fields_fmd(interface=None, aux=None):
         except AttributeError:
             interface.value(k, v)
     # Now return python objects
-    return {k: str(v) for k, v in metaContent.items()}
+    result = {k: str(v) for k, v in metaContent.items() if type(v) is ROOT.std.string}
+    result.update({k: list(v) for k, v in metaContent.items() if type(v) is ROOT.std.vector('unsigned int')})
+    return result
 
 """ Note: Deprecated. Legacy support for Run 2 AODs produced in release 21 or in release 22 prior to April 2021
 """

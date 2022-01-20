@@ -10,7 +10,7 @@ atlas_subdir( MuonReadoutGeometry )
 # Extra dependencies, based on the environment (no MuonCondSvc needed in AthSimulation):
 set( extra_libs )
 if( NOT SIMULATIONBASE )
-  set( extra_libs MuonCondSvcLib )
+  set( extra_libs MuonCondSvcLib MuonNSWAsBuilt  )
 endif()
 
 # External dependencies:
@@ -22,7 +22,7 @@ atlas_add_library( MuonReadoutGeometry
                    PUBLIC_HEADERS MuonReadoutGeometry
                    INCLUDE_DIRS ${GEOMODEL_INCLUDE_DIRS}
                    LINK_LIBRARIES ${GEOMODEL_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives Identifier GaudiKernel MuonAlignmentData TrkDetElementBase TrkDistortedSurfaces TrkSurfaces MuonIdHelpersLib StoreGateLib GeoModelUtilities CxxUtils ${extra_libs}
-                   PRIVATE_LINK_LIBRARIES AGDDModel MuonAGDDDescription )
+                   PRIVATE_LINK_LIBRARIES AGDDModel MuonAGDDDescription)
 
 
 # Code in this file makes heavy use of eigen and runs orders of magnitude

@@ -288,6 +288,7 @@ def defineInputsMenu():
                     TopoMenuDef( '0DR28-eTAU20ab-eTAU12ab',                  outputbits = 7 ), 
                     TopoMenuDef( '2DISAMB-jJ25ab-0DR28-eTAU20abm-eTAU12abm', outputbits = 8 ),
                     TopoMenuDef( '0DR28-eTAU20abm-eTAU12abm',                outputbits = 9 ), 
+                    TopoMenuDef( '0DR04-MU5VFab-CjJ50ab',                    outputbits = 10), #Bjet, TODO: not a primary
                 ]
             },
             

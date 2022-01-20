@@ -27,6 +27,10 @@
 #include "MuonReadoutGeometry/GenericRPCCache.h"
 #include "MuonReadoutGeometry/GenericTGCCache.h"
 
+#ifndef SIMULATIONBASE
+#include "MuonNSWAsBuilt/StripCalculator.h"
+#endif
+
 typedef ALineMapContainer::const_iterator ciALineMap;
 typedef BLineMapContainer::const_iterator ciBLineMap;
 typedef CscInternalAlignmentMapContainer::const_iterator ciCscInternalAlignmentMap;
@@ -80,8 +84,8 @@ namespace MuonGM {
         void addRpcReadoutElement(RpcReadoutElement*, Identifier);    //!< store the RpcReadoutElement using as "key" the identifier
         void addTgcReadoutElement(TgcReadoutElement*, Identifier);    //!< store the TgcReadoutElement using as "key" the identifier
         void addCscReadoutElement(CscReadoutElement*, Identifier);    //!< store the CscReadoutElement using as "key" the identifier
-        void addsTgcReadoutElement(sTgcReadoutElement*, Identifier);  //!< store the CscReadoutElement using as "key" the identifier
-        void addMMReadoutElement(MMReadoutElement*, Identifier);      //!< store the CscReadoutElement using as "key" the identifier
+        void addsTgcReadoutElement(sTgcReadoutElement*, Identifier);  //!< store the sTGCReadoutElement using as "key" the identifier
+        void addMMReadoutElement(MMReadoutElement*, Identifier);      //!< store the MMReadoutElement using as "key" the identifier
         void addsTgcReadoutElement_withIdFields(sTgcReadoutElement*, int isSmall, int stEta, int stPhi,
                                                 int ml);  //!< store the sTgcReadoutElement using as "key" the identifier
         void addMMReadoutElement_withIdFields(MMReadoutElement*, int isSmall, int stEta, int stPhi,
@@ -203,23 +207,23 @@ namespace MuonGM {
         inline void setNSWABLinesAsciiSideC(const std::string& str);
 
         inline void setMinimalGeoFlag(int flag);
-        inline int MinimalGeoFlag() const;
+        inline int  MinimalGeoFlag() const;
         inline void setCutoutsFlag(int flag);
-        inline int IncludeCutoutsFlag() const;
+        inline int  IncludeCutoutsFlag() const;
         inline void setCutoutsBogFlag(int flag);
-        inline int IncludeCutoutsBogFlag() const;
+        inline int  IncludeCutoutsBogFlag() const;
         inline void setMdtDeformationFlag(int flag) { m_applyMdtDeformations = flag; }
-        inline int mdtDeformationFlag() const { return m_applyMdtDeformations; }
+        inline int  mdtDeformationFlag() const { return m_applyMdtDeformations; }
         inline void setMdtAsBuiltParamsFlag(int flag) { m_applyMdtAsBuiltParams = flag; }
-        inline int mdtAsBuiltParamsFlag() const { return m_applyMdtAsBuiltParams; }
+        inline int  mdtAsBuiltParamsFlag() const { return m_applyMdtAsBuiltParams; }
         inline void setControlAlinesFlag(int flag) { m_controlAlines = flag; }
-        inline int controlAlinesFlag() const { return m_controlAlines; }
+        inline int  controlAlinesFlag() const { return m_controlAlines; }
         inline void setApplyCscIntAlignment(bool x) { m_useCscIntAlign = x; }
         inline bool applyMdtDeformations() const { return (bool)m_applyMdtDeformations; }
         inline bool applyMdtAsBuiltParams() const { return (bool)m_applyMdtAsBuiltParams; }
         inline bool applyCscIntAlignment() const { return m_useCscIntAlign; }
         inline void setCscIlinesFlag(int flag) { m_controlCscIlines = flag; }
-        inline int CscIlinesFlag() const { return m_controlCscIlines; }
+        inline int  CscIlinesFlag() const { return m_controlCscIlines; }
         inline void setCscFromGM(bool x) { m_useCscIlinesFromGM = x; }
         inline bool CscFromGM() const { return m_useCscIlinesFromGM; }
 
@@ -327,17 +331,20 @@ namespace MuonGM {
         StatusCode updateAsBuiltParams(const MdtAsBuiltMapContainer& a);
         StatusCode initCSCInternalAlignmentMap();
         StatusCode updateCSCInternalAlignmentMap(const CscInternalAlignmentMapContainer& cscIntAline);
-        void initABlineContainers();
+
+        void   initABlineContainers();
+        void   setMMAsBuiltCalculator(const std::string& jsonPath);
+        void   setMMPassivationCorrection(double corr) { m_MM_passivationCorr = corr; } // temporary way for passing MM passivation
+#ifndef SIMULATIONBASE
+        const  NswAsBuilt::StripCalculator* getMMAsBuiltCalculator() const { return m_MMAsBuiltCalculator.get(); }
+#endif
+        double getMMPassivationCorrection() const { return m_MM_passivationCorr; } // temporary way for passing MM passivation
 
         // get Mdt AsBuilt parameters for chamber specified by Identifier
         const MdtAsBuiltPar* getMdtAsBuiltParams(Identifier id) const;
 
-        int rpcStationName(const int stationIndex) const;
         // map the RPC station indices (0-NRpcStatType) back to the RpcIdHelper stationNames
-
-        // temporary way to pass MM correction for passivation
-        void setMMPassivationCorrection(double corr) { m_MM_passivationCorr = corr; }
-        double getMMPassivationCorrection() const { return m_MM_passivationCorr; }
+        int rpcStationName(const int stationIndex) const;
 
     private:
         unsigned int rpcStationTypeIdx(const int stationName) const;  // map the RPC stationNames from the RpcIdHelper to 0-NRpcStatType
@@ -446,6 +453,9 @@ namespace MuonGM {
         std::map<int, int> m_rpcStatToIdx;
         std::map<int, int> m_rpcIdxToStat;
 
+#ifndef SIMULATIONBASE
+        std::unique_ptr<NswAsBuilt::StripCalculator> m_MMAsBuiltCalculator;
+#endif
         // temporary way to pass MM correction for passivation
         double m_MM_passivationCorr{0.};
     };
@@ -552,7 +562,6 @@ namespace MuonGM {
     int MuonDetectorManager::cachingFlag() const { return m_cachingFlag; }
     void MuonDetectorManager::setNSWABLinesAsciiSideA(const std::string& str) { m_NSWABLinesAsciiSideA = str; }
     void MuonDetectorManager::setNSWABLinesAsciiSideC(const std::string& str) { m_NSWABLinesAsciiSideC = str; }
-
 }  // namespace MuonGM
 
 #ifndef GAUDI_NEUTRAL

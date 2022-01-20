@@ -47,7 +47,6 @@ MuonDetectorTool::MuonDetectorTool(const std::string &type, const std::string &n
     declareProperty("HasCSC", m_hasCSC);
     declareProperty("HasSTgc", m_hasSTgc);
     declareProperty("HasMM", m_hasMM);
-    declareProperty("passivationWidthMM", m_testPassivationWidthMM = 0); // temporary to test the effect MM passivation
     //
     declareProperty("StationSelection", m_stationSelection = 0);
     declareProperty("SelectedStations", m_selectedStations);
@@ -70,6 +69,7 @@ MuonDetectorTool::MuonDetectorTool(const std::string &type, const std::string &n
     declareProperty("EnableMdtAsBuiltParameters", m_enableMdtAsBuiltParameters = 0);
     declareProperty("AlternateAsBuiltParamAlignFile", m_altMdtAsBuiltFile);
     //
+    declareProperty("passivationWidthMM", m_testPassivationWidthMM = 0); // temporary to test the effect MM passivation
     // THESE ALLOW TO RESET THE MUON SWITCHES IN THE oracle TABLES:
     // to reset (for example) BUILDBARRELTOROID use ForceSwitchOnOff_BUILDBARRELTOROID = 1001/1000 to have/not have the BARRELTOROID
     // i.e  you must set 1000 to force resetting + 1/0 (enable/disable)
@@ -301,6 +301,7 @@ StatusCode MuonDetectorTool::createFactory(MuonDetectorFactory001 &theFactory) c
         theFactory.setDBnode(detectorNode);
         theFactory.setABLinesAsciiSideA(m_NSWABLinesAsciiSideA);
         theFactory.setABLinesAsciiSideC(m_NSWABLinesAsciiSideC);
+        theFactory.setMMAsBuiltJsonPath(m_MMAsBuiltJsonPath);
         theFactory.setAmdcDb(isAmdcDb);
         theFactory.setLayout(tempLayout);
         theFactory.setCutoutsFlag(m_includeCutouts);
@@ -356,7 +357,7 @@ StatusCode MuonDetectorTool::createFactory(MuonDetectorFactory001 &theFactory) c
         if ((theManager->initCSCInternalAlignmentMap()).isFailure())
             return StatusCode::FAILURE; // does nothing other then checking the size (map is built while reading data from the primary source)
 
-        // temporary way to pass MM correction for passivation
+        // temporary MM passivation width (for tests)
         theManager->setMMPassivationCorrection(m_testPassivationWidthMM);
 
         if (m_fillCache_initTime) {

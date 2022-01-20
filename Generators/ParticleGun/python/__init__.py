@@ -83,7 +83,7 @@ class ParticleGun(EvgenAlg):
             particles = s.shoot()
             for p in particles:
                 ## Debug printout of particle properties
-                #print DEBUG0, p.pid, p.mom.E(), p.mom.Pt(), p.mom.M()
+                #print("DEBUG0 ", p.pid, p.mom.E(), p.mom.Pt(), p.mom.M())
                 #print "DEBUG1 (px,py,pz,E) = (%0.2e, %0.2e, %0.2e, %0.2e)" % (p.mom.Px(), p.mom.Py(), p.mom.Pz(), p.mom.E())
                 #print "DEBUG2 (eta,phi,pt,m) = (%0.2e, %0.2e, %0.2e, %0.2e)" % (p.mom.Eta(), p.mom.Phi(), p.mom.Pt(), p.mom.M())
                 #print "DEBUG3 (x,y,z,t) = (%0.2e, %0.2e, %0.2e, %0.2e)" % (p.pos.X(), p.pos.Y(), p.pos.Z(), p.pos.T())
@@ -94,6 +94,7 @@ class ParticleGun(EvgenAlg):
                 gv = HepMC.GenVertex(pos)
                 ROOT.SetOwnership(gv, False)
                 evt.add_vertex(gv)
+                evt.set_units(HepMC.Units.MEV, HepMC.Units.MM)
 
                 ## Make particle with status == 1
                 mom = HepMC.FourVector(p.mom.Px(), p.mom.Py(), p.mom.Pz(), p.mom.E())

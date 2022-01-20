@@ -906,6 +906,11 @@ TriggerHLTListRun3 = [
     #
     ('xAOD::TrigCompositeContainer#HLTNav_R2ToR3Summary',   'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Steer'),
     ('xAOD::TrigCompositeAuxContainer#HLTNav_R2ToR3SummaryAux.',   'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Steer'),
+
+    #displaced jet
+    ('TrigRoiDescriptorCollection#HLT_Roi_DJ',                   'BS ESD AODFULL', 'Jet'),
+    ('xAOD::TrackParticleContainer#HLT_IDTrack_DJLRT_FTF',          'BS ESD AODFULL', 'Jet', 'inViews:DJRoIViews'),
+    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_DJLRT_FTFAux.',   'BS ESD AODFULL', 'Jet'),
 ]
 
 

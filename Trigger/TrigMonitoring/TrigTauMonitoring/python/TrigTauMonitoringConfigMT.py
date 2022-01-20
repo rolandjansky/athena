@@ -340,9 +340,9 @@ class TrigTauMonAlgBuilder:
                                 title='DiTau HLT Efficiency ' +trigger+';'+xlabel+';Efficiency',
                                 type='TEfficiency',xbins=xbins,xmin=xmin,xmax=xmax)
 
-    defineEachStepHistograms('dR',' dR(#tau,#tau)',40,0,4)
-    defineEachStepHistograms('dEta',' dEta(#tau,#tau)',40,0,4)
-    defineEachStepHistograms('dPhi',' dPhi(#tau,#tau)',16, -3.2, 3.2)
+    defineEachStepHistograms('dR',' dR(#tau,#tau)',20,0,4)
+    defineEachStepHistograms('dEta',' dEta(#tau,#tau)',20,0,4)
+    defineEachStepHistograms('dPhi',' dPhi(#tau,#tau)',8, -3.2, 3.2)
     defineEachStepHistograms('averageMu', 'average pileup', 10, 0., 80.)
 
   #

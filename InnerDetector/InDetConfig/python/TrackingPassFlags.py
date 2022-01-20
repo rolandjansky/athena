@@ -204,6 +204,8 @@ def createTrackingPassFlags():
     icf.addFlag("usePrdAssociationTool", False)
     icf.addFlag("isLowPt", False)
     icf.addFlag("useTIDE_Ambi", lambda pcf: pcf.InDet.Tracking.doTIDE_Ambi)
+    icf.addFlag("useTRTExtension", lambda pcf: pcf.InDet.Tracking.doTRTExtension)
+    icf.addFlag("storeSeparateContainer", False)
 
     icf.addFlag("minPT", minPT_ranges )
     icf.addFlag("minSecondaryPt", minSecondaryPT_ranges ) #Pt cut for back tracking + segment finding for these
@@ -371,6 +373,7 @@ def createITkTrackingPassFlags():
     icf.addFlag("useITkStripSeeding"        	  , True )
 
     icf.addFlag("usePrdAssociationTool"     , False)
+    icf.addFlag("storeSeparateContainer"    , False)
     icf.addFlag("doZBoundary"               , True)
 
     icf.addFlag("useEtaDepCuts"             , True)
@@ -437,6 +440,7 @@ def createITkLargeD0TrackingPassFlags():
     icf = createITkTrackingPassFlags()
     icf.extension             = "LargeD0"
     icf.usePrdAssociationTool = True
+    icf.storeSeparateContainer = lambda pcf : pcf.ITk.Tracking.storeSeparateLargeD0Container
 
     icf.useEtaDepCuts      = True
     icf.minPT              = [1000 * Units.MeV]
@@ -530,6 +534,7 @@ def createLargeD0TrackingPassFlags():
     icf = createTrackingPassFlags()
     icf.extension          = "LargeD0"
     icf.usePrdAssociationTool = True
+    icf.storeSeparateContainer = lambda pcf : pcf.InDet.Tracking.storeSeparateLargeD0Container
     icf.maxPT              = 1.0 * Units.TeV
     icf.minPT              = 900 * Units.MeV
     icf.maxEta             = 5
@@ -559,6 +564,7 @@ def createR3LargeD0TrackingPassFlags():
     icf = createTrackingPassFlags()
     icf.extension          = "R3LargeD0"
     icf.usePrdAssociationTool = True
+    icf.storeSeparateContainer = lambda pcf : pcf.InDet.Tracking.storeSeparateLargeD0Container
     icf.maxPT              = 1.0 * Units.TeV
     icf.minPT              = 1.0 * Units.GeV                                                                                    
     icf.maxEta             = 3                                                                                                        
@@ -596,6 +602,7 @@ def createLowPtLargeD0TrackingPassFlags():
     icf = createTrackingPassFlags()
     icf.extension          = "LowPtLargeD0"
     icf.usePrdAssociationTool = True
+    icf.storeSeparateContainer = lambda pcf : pcf.InDet.Tracking.storeSeparateLargeD0Container
     icf.maxPT              = 1.0 * Units.TeV
     icf.minPT              = 100 * Units.MeV
     icf.maxEta             = 5
@@ -683,6 +690,7 @@ def createVeryLowPtTrackingPassFlags():
     icf.extension        = "VeryLowPt"
     icf.usePrdAssociationTool = True
     icf.isLowPt          = True
+    icf.useTRTExtension  = False
     icf.maxPT            = lambda pcf : (1e6 if pcf.InDet.Tracking.doMinBias  else  pcf.InDet.Tracking.ActivePass.minPT + 0.3) * Units.GeV # some overlap
     icf.minPT            = 0.050 * Units.GeV
     icf.minClusters      = 3
@@ -702,9 +710,11 @@ def createVeryLowPtTrackingPassFlags():
 ## ForwardTracks mode ########################
 def createForwardTracksTrackingPassFlags():
     icf = createTrackingPassFlags()
-    icf.extension        = "ForwardTracks"
+    icf.extension        = "Forward"
     icf.usePrdAssociationTool = True
     icf.useTIDE_Ambi     = False
+    icf.useTRTExtension  = False
+    icf.storeSeparateContainer = True
     icf.minEta           = 2.4 # restrict to minimal eta
     icf.maxEta           = 2.7
     icf.minPT            = 2 * Units.GeV
@@ -897,6 +907,7 @@ def createDisappearingTrackingPassFlags():
     icf = createTrackingPassFlags()
     icf.extension        = "Disappearing"
     icf.usePrdAssociationTool = True
+    icf.storeSeparateContainer = True
     icf.minPT            = 5 * Units.GeV
     icf.minClusters      = 4
     icf.maxHoles         = 0
@@ -972,6 +983,8 @@ def createTRTTrackingPassFlags():
 ########## TRT standalone tracklet cuts  ##########
 def createTRTStandaloneTrackingPassFlags():
     icf = createTrackingPassFlags()
+    icf.extension              = "TRTStandalone"
+
     icf.minSecondaryTRTPrecFrac = 0.15
     # Mu- and eta- dependent cuts on nTRT
     icf.TrkSel.TRTTrksEtaBins                  = [ 0.7,   0.8,   0.9,  1.2,  1.3,  1.6,  1.7,  1.8,  1.9,  999]  # eta bins (10) for eta-dep cuts on TRT conversion tracks
