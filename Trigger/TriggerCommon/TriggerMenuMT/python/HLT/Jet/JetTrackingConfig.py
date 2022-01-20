@@ -1,13 +1,20 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
-from AthenaCommon.CFElements import parOR
+from AthenaCommon.CFElements import parOR, findAllAlgorithms
 
 from JetRecTools import JetRecToolsConfig as jrtcfg
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, conf2toConfigurable
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, conf2toConfigurable, appendCAtoAthena
+from AthenaCommon.Configurable import ConfigurableRun3Behavior
 from TrigInDetConfig.InDetTrigVertices import makeInDetTrigVertices
+from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+
+# this code uses CA internally, needs to be in this context manager,
+# at least until ATLASRECTS-6635 is closed
+with ConfigurableRun3Behavior():
+    from ..Bjet.BjetFlavourTaggingConfiguration import getFastFlavourTagging
 
 from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
@@ -82,16 +89,47 @@ def JetFSTrackingSequence(dummyFlags,trkopt,RoIs):
 
     return jetTrkSeq, trackcollmap
 
-def JetRoITrackingSequence(dummyFlags,trkopt,RoIs):
 
-    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+def JetRoITrackingSequence(dummyFlags,jetsIn,trkopt,RoIs):
+
     IDTrigConfig = getInDetTrigConfig( 'jetSuper' )
 
+    # Note: import here is required because this isn't safe for "new"
+    # job options: it uses `include`. Apparently the new job options
+    # import this file but don't use this function, so we can hide
+    # imports here.
     from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTracking
     viewAlgs, viewVerify = makeInDetTrigFastTracking( config = IDTrigConfig, rois=RoIs)
-    viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs )]
+    viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs ),( 'xAOD::JetContainer' , 'StoreGateSvc+%s' % jetsIn)]
 
-    jetTrkSeq = parOR( "JetRoITrackingSeq_"+trkopt, viewAlgs)
+    # quit here if we're working with data, I can't get the beamspot working.
+    if not dummyFlags.Input.isMC:
+        return parOR( "JetRoITrackingSeq_"+trkopt, viewAlgs)
+
+    IDTrigConfig = getInDetTrigConfig('jetSuper')
+    tracksIn = IDTrigConfig.tracks_FTF()
+
+    with ConfigurableRun3Behavior():
+        ca_ft_algs = getFastFlavourTagging( dummyFlags, jetsIn, "", tracksIn)
+
+    # Conversion of flavour-tagging algorithms from new to old-style
+    # 1) We need to do the algorithms manually and then remove them from the CA
+    #
+    # Please see the discussion on
+    # https://gitlab.cern.ch/atlas/athena/-/merge_requests/46951#note_4854474
+    # and the description in that merge request.
+    ft_algs = [conf2toConfigurable(alg) for alg in findAllAlgorithms(ca_ft_algs._sequence)]
+
+    jetTrkSeq = parOR( "JetRoITrackingSeq_"+trkopt, viewAlgs + ft_algs)
+
+    # you can't use accumulator.wasMerged() here because the above
+    # code only merged the algorithms. Instead we rely on this hacky
+    # looking construct.
+    ca_ft_algs._sequence = []
+    # 2) the rest is done by the generic helper
+    # this part is needed to accomodate parts of flavor tagging that
+    # aren't algorithms, e.g. JetTagCalibration.
+    appendCAtoAthena(ca_ft_algs)
 
     return jetTrkSeq
 

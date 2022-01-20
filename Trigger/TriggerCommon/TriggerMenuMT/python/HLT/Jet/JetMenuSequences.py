@@ -10,6 +10,7 @@ from ..CommonSequences.FullScanDefs import caloFSRoI, trkFSRoI
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from .JetRecoCommon import jetRecoDictToString
 from .JetRecoSequences import jetClusterSequence, jetCaloRecoSequences, jetTrackingRecoSequences, jetHICaloRecoSequences
+from .JetTrackingConfig import JetRoITrackingSequence
 
 from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 
@@ -186,17 +187,20 @@ def jetFSTrackingHypoMenuSequence(configFlags, clustersKey, isPerf, **jetRecoDic
 
 def jetRoITrackingHypoMenuSequence(configFlags, jetsIn, **jetRecoDict):
     InputMakerAlg = getTrackingInputMaker(jetRecoDict['trkopt'])
-    
+
     # Get the track reconstruction sequence
-    from .JetTrackingConfig import JetRoITrackingSequence
     jetTrkSeq = RecoFragmentsPool.retrieve(
-        JetRoITrackingSequence, configFlags, trkopt=jetRecoDict["trkopt"], RoIs=InputMakerAlg.InViewRoIs)
+        JetRoITrackingSequence, configFlags, jetsIn=jetsIn,trkopt=jetRecoDict["trkopt"], RoIs=InputMakerAlg.InViewRoIs)
 
     InputMakerAlg.ViewNodeName = jetTrkSeq.name()
 
     jetDefString = jetRecoDictToString(jetRecoDict)
+
     log.debug("Generating jet tracking hypo menu sequence for reco %s",jetDefString)
-    jetAthSeq = seqAND("jetSeqTrkHypo_"+jetDefString,[InputMakerAlg]+[jetTrkSeq])
+
+    jetAthSeq = seqAND("jetSeqTrkHypo_"+jetDefString,
+                       [InputMakerAlg]+[jetTrkSeq])
+
 
     # Needs track-to-jet association here, maybe with dR decorator
     hypoType = JetHypoAlgType.STANDARD
