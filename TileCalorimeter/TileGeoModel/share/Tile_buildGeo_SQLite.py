@@ -41,8 +41,6 @@ svcMgr += StoreGateConf.StoreGateSvc("ConditionStore")
 from AthenaCommon.AlgSequence import AlgSequence
 topSeq = AlgSequence()
 
-
-
 # Detector flags
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.ID_setOff()
@@ -53,17 +51,13 @@ DetFlags.Lucid_setOff()
 DetFlags.Print()
 
 # GeoModel
-globalflags.DetDescrVersion = "ATLAS-R2-2016-01-00-01"
-from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
 from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
 GeoModelSvc = GeoModelSvc()
 
 # Build from standalone GeoModel SQLite files, if uncommented
 #GeoModelSvc.SQLiteDB = "geometry-ATLAS-R2-2016-01-00-01.db"
-GeoModelSvc.SQLiteDB = "tile_v4.db"
-
-
+GeoModelSvc.SQLiteDB = "tile.db"
 
 # add the VP1 algorithm for visualization
 from VP1Algs.VP1AlgsConf import VP1Alg
