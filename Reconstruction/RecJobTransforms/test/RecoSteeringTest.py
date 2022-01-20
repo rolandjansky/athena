@@ -31,6 +31,9 @@ def _run(input):
         if input == "RDO":
             flags.Input.Files = defaultTestFiles.RDO
 
+    # Enable PerfMon
+    flags.PerfMon.doFullMonMT = True
+    flags.PerfMon.OutputJSON = f"perfmonmt_{input}.json"
 
     flags.lock()
     log.info("Configuring according to flag values listed below")

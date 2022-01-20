@@ -140,6 +140,12 @@ def RecoSteering(flags):
             "OutputStreamAOD").ItemList)
         log.info("---------- Configured AOD writing")
 
+    # Set up PerfMon
+    if flags.PerfMon.doFastMonMT or flags.PerfMon.doFullMonMT:
+        from PerfMonComps.PerfMonCompsConfig import PerfMonMTSvcCfg
+        acc.merge(PerfMonMTSvcCfg(flags))
+        log.info("---------- Configured PerfMon")
+
     return acc
 
 
