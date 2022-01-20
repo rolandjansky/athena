@@ -1,9 +1,9 @@
 #====================================================================
-# DAOD_PHYS3.py
-# This defines DAOD_PHYS3, a skimmed DAOD format for Run 3.
+# DAOD_HDBS4.py
+# This defines DAOD_HDBS4, a skimmed DAOD format for Run 3.
 # It contains the variables and objects needed for the HZa Z->2l, 
 # a->2trk physics analysis in ATLAS.
-# It requires the reductionConf flag PHYS3 in Reco_tf.py   
+# It requires the reductionConf flag HDBS4 in Reco_tf.py   
 #====================================================================
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
@@ -24,15 +24,15 @@ from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelp
 #====================================================================
 # SET UP STREAM   
 #====================================================================
-streamName = derivationFlags.WriteDAOD_PHYS3Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_PHYS3Stream )
-PHYS3Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-PHYS3Stream.AcceptAlgs(["PHYS3VertexToolKernel"]) 
+streamName = derivationFlags.WriteDAOD_HDBS4Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_HDBS4Stream )
+HDBS4Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+HDBS4Stream.AcceptAlgs(["HDBS4VertexToolKernel"]) 
 
 ### Thinning and augmentation tools lists
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
-PHYS3ThinningHelper = ThinningHelper( "PHYS3ThinningHelper" )
-PHYS3ThinningHelper.AppendToStream( PHYS3Stream )
+HDBS4ThinningHelper = ThinningHelper( "HDBS4ThinningHelper" )
+HDBS4ThinningHelper.AppendToStream( HDBS4Stream )
 thinningTools       = []
 AugmentationTools   = []
 
@@ -51,10 +51,10 @@ if DerivationFrameworkHasTruth:
    addStandardTruthContents(SeqPHYS,prefix='PHYS_')
    # Update to include charm quarks and HF particles - require a separate instance to be train safe
    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthNavigationDecorator
-   PHYSTruthNavigationDecorator = DerivationFramework__TruthNavigationDecorator( name="PHYSTruthNavigationDecorator",
+   HDBS4TruthNavigationDecorator = DerivationFramework__TruthNavigationDecorator( name="HDBS4TruthNavigationDecorator",
           InputCollections=["TruthElectrons", "TruthMuons", "TruthPhotons", "TruthTaus", "TruthNeutrinos", "TruthBSM", "TruthBottom", "TruthTop", "TruthBoson","TruthHFWithDecayParticles"])
-   ToolSvc += PHYSTruthNavigationDecorator
-   SeqPHYS.PHYS_MCTruthNavigationDecoratorKernel.AugmentationTools = [PHYSTruthNavigationDecorator]
+   ToolSvc += HDBS4TruthNavigationDecorator
+   SeqPHYS.PHYS_MCTruthNavigationDecoratorKernel.AugmentationTools = [HDBS4TruthNavigationDecorator]
    # Re-point links on reco objects
    addMiniTruthCollectionLinks(SeqPHYS)
    addPVCollection(SeqPHYS)
@@ -105,38 +105,38 @@ trigmatching_helper_tau = TriggerMatchingHelper(name='PHYSTriggerMatchingToolTau
 # https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/DaodRecommendations
 
 # Special sequence for vertex tool
-SeqPHYS3VertexTool = CfgMgr.AthSequencer("SeqPHYS3VertexTool")
+SeqHDBS4VertexTool = CfgMgr.AthSequencer("SeqHDBS4VertexTool")
 
 #### Inner detector group recommendations for indet tracks in analysis
-PHYS3_thinning_expression = "InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV)*sin(InDetTrackParticles.theta) < 3.0*mm && (InDetTrackParticles.pt > 0.5*GeV)" 
+HDBS4_thinning_expression = "InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV)*sin(InDetTrackParticles.theta) < 3.0*mm && (InDetTrackParticles.pt > 0.5*GeV)" 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-PHYS3TrackParticleThinningTool = DerivationFramework__TrackParticleThinning(name                    = "PHYS3TrackParticleThinningTool",
-                                                                           ThinningService         = PHYS3ThinningHelper.ThinningSvc(),
-                                                                           SelectionString         = PHYS3_thinning_expression,
+HDBS4TrackParticleThinningTool = DerivationFramework__TrackParticleThinning(name                    = "HDBS4TrackParticleThinningTool",
+                                                                           ThinningService         = HDBS4ThinningHelper.ThinningSvc(),
+                                                                           SelectionString         = HDBS4_thinning_expression,
                                                                            InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                            ApplyAnd                = True) 
 
-ToolSvc += PHYS3TrackParticleThinningTool
-thinningTools.append(PHYS3TrackParticleThinningTool)
+ToolSvc += HDBS4TrackParticleThinningTool
+thinningTools.append(HDBS4TrackParticleThinningTool)
 
 #### Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
-PHYS3MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                   = "PHYS3MuonTPThinningTool",
-                                                                           ThinningService        = PHYS3ThinningHelper.ThinningSvc(),
+HDBS4MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                   = "HDBS4MuonTPThinningTool",
+                                                                           ThinningService        = HDBS4ThinningHelper.ThinningSvc(),
                                                                            MuonKey                = "Muons",
                                                                            InDetTrackParticlesKey = "InDetTrackParticles")
-ToolSvc += PHYS3MuonTPThinningTool
-thinningTools.append(PHYS3MuonTPThinningTool)
+ToolSvc += HDBS4MuonTPThinningTool
+thinningTools.append(HDBS4MuonTPThinningTool)
 
 ####Tracks associated with Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
-PHYS3ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                   = "PHYS3ElectronTPThinningTool",
-                                                                                 ThinningService        = PHYS3ThinningHelper.ThinningSvc(),
+HDBS4ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                   = "HDBS4ElectronTPThinningTool",
+                                                                                 ThinningService        = HDBS4ThinningHelper.ThinningSvc(),
                                                                                  SGKey                  = "Electrons",
                                                                                  InDetTrackParticlesKey = "InDetTrackParticles",
                                                                                  BestMatchOnly          = False)
-ToolSvc += PHYS3ElectronTPThinningTool
-thinningTools.append(PHYS3ElectronTPThinningTool)
+ToolSvc += HDBS4ElectronTPThinningTool
+thinningTools.append(HDBS4ElectronTPThinningTool)
 
 #====================================================================
 # Add our sequence to the top sequence
@@ -172,10 +172,10 @@ Trigger2L=[
 ]
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
-PHYS3TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(name = "PHYS3TriggerSkimmingTool",
+HDBS4TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(name = "HDBS4TriggerSkimmingTool",
                                                                     TriggerListOR = Trigger2L)
                                                                                                               
-ToolSvc += PHYS3TriggerSkimmingTool
+ToolSvc += HDBS4TriggerSkimmingTool
 
 from DerivationFrameworkHDBS.DerivationFrameworkHDBSConf import DerivationFramework__SkimmingToolHDBS2
 SelectionSkimmingTool = DerivationFramework__SkimmingToolHDBS2(name                       = "SkimmingToolHDBS2",
@@ -207,8 +207,8 @@ ToolSvc += SelectionSkimmingTool
 #====================================================================
 # Add the kernel for thinning (requires the objects be defined)
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-SeqPHYS3VertexTool += CfgMgr.DerivationFramework__DerivationKernel("PHYS3Kernel",
-                                                        SkimmingTools = [SelectionSkimmingTool, PHYS3TriggerSkimmingTool], 
+SeqHDBS4VertexTool += CfgMgr.DerivationFramework__DerivationKernel("HDBS4Kernel",
+                                                        SkimmingTools = [SelectionSkimmingTool, HDBS4TriggerSkimmingTool],
                                                         ThinningTools = thinningTools)
 
 #====================================================================
@@ -218,28 +218,28 @@ SeqPHYS3VertexTool += CfgMgr.DerivationFramework__DerivationKernel("PHYS3Kernel"
 ## 1/ setup vertexing tools and services
 include("JpsiUpsilonTools/configureServices.py")
 
-PHYS3TrkVKalVrtFitter = Trk__TrkVKalVrtFitter(
-                                         name                = "PHYS3TrkVKalVrtFitter",
+HDBS4TrkVKalVrtFitter = Trk__TrkVKalVrtFitter(
+                                         name                = "HDBS4TrkVKalVrtFitter",
                                          Extrapolator        = InDetExtrapolator,
                                          FirstMeasuredPoint  = False,
                                          MakeExtendedVertex  = True)
-ToolSvc += PHYS3TrkVKalVrtFitter
+ToolSvc += HDBS4TrkVKalVrtFitter
 
 
 include("DerivationFrameworkHDBS/configure_a0Finder.py")
-PHYS3_Tools = HDBSa0FinderTools("PHYS3")
+HDBS4_Tools = HDBSa0FinderTools("HDBS4")
 
 #--------------------------------------------------------------------
 # Configure the a0 finder
 #--------------------------------------------------------------------
 from DerivationFrameworkHDBS.DerivationFrameworkHDBSConf import DerivationFramework__HDBSa0Finder
-PHYS3Zmumua0Finder   = DerivationFramework__HDBSa0Finder(
+HDBS4Zmumua0Finder   = DerivationFramework__HDBSa0Finder(
     OutputLevel = INFO, #DEBUG
-    name = "PHYS3Zmumua0Finder",
-    TrkVertexFitterTool = PHYS3TrkVKalVrtFitter,
-    VertexEstimator = PHYS3_Tools.InDetSecVtxPointEstimator,
+    name = "HDBS4Zmumua0Finder",
+    TrkVertexFitterTool = HDBS4TrkVKalVrtFitter,
+    VertexEstimator = HDBS4_Tools.InDetSecVtxPointEstimator,
     InputTrackParticleContainerName = "InDetTrackParticles",
-    HCandidateContainerName = "PHYS3HZmumuCandidates",
+    HCandidateContainerName = "HDBS4HZmumuCandidates",
     PassFlagsToCheck  = [], 
     TrackPtMin = 500.0,
     deltaz0PVsinthetaMax =  3.0,
@@ -250,7 +250,7 @@ PHYS3Zmumua0Finder   = DerivationFramework__HDBSa0Finder(
     #d0significanceMax = 2.0, 
     HcandidateMassMin = 98000.0,
     Chi2cut = 50.0, 
-    trkZDeltaZ = 0.5,
+    trkZDeltaZ = 0.5, 
     nHitPix = 1, 
     nHitSct = 0, 
     onlyTightPTrk = True,
@@ -267,18 +267,18 @@ PHYS3Zmumua0Finder   = DerivationFramework__HDBSa0Finder(
     LeadingTrackPt = 2000.0, 
     DeltaPhiTracks = 0.2, 
     DeltaRTracks = 0.2,
-    ChiSqProbMin = 1e-6) 
+    ChiSqProbMin = 1e-6)
 
-ToolSvc += PHYS3Zmumua0Finder
-print(PHYS3Zmumua0Finder)
+ToolSvc += HDBS4Zmumua0Finder
+print(HDBS4Zmumua0Finder)
 
-PHYS3Zeea0Finder   = DerivationFramework__HDBSa0Finder(
+HDBS4Zeea0Finder   = DerivationFramework__HDBSa0Finder(
     OutputLevel = INFO, #DEBUG
-    name = "PHYS3Zeea0Finder",
-    TrkVertexFitterTool = PHYS3TrkVKalVrtFitter, 
-    VertexEstimator = PHYS3_Tools.InDetSecVtxPointEstimator,
+    name = "HDBS4Zeea0Finder",
+    TrkVertexFitterTool = HDBS4TrkVKalVrtFitter, 
+    VertexEstimator = HDBS4_Tools.InDetSecVtxPointEstimator,
     InputTrackParticleContainerName = "InDetTrackParticles",
-    HCandidateContainerName = "PHYS3HZeeCandidates",
+    HCandidateContainerName = "HDBS4HZeeCandidates",
     PassFlagsToCheck  = [],
     TrackPtMin = 500.0, 
     deltaz0PVsinthetaMax = 3.0,
@@ -307,33 +307,33 @@ PHYS3Zeea0Finder   = DerivationFramework__HDBSa0Finder(
     LeadingTrackPt = 2000.0,
     DeltaPhiTracks = 0.2, 
     DeltaRTracks = 0.2,
-    ChiSqProbMin = 1e-6) 
+    ChiSqProbMin = 1e-6)
 
-ToolSvc += PHYS3Zeea0Finder
-print(PHYS3Zeea0Finder)
+ToolSvc += HDBS4Zeea0Finder
+print(HDBS4Zeea0Finder)
 
 StaticContent = [] 
 
-StaticContent += ["xAOD::VertexContainer#%s"        % "PHYS3HZmumuCandidates"]
-StaticContent += ["xAOD::VertexAuxContainer#%sAux." % "PHYS3HZmumuCandidates"]
+StaticContent += ["xAOD::VertexContainer#%s"        % "HDBS4HZmumuCandidates"]
+StaticContent += ["xAOD::VertexAuxContainer#%sAux." % "HDBS4HZmumuCandidates"]
 # we have to disable vxTrackAtVertex branch since it is not xAOD compatible
-StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % "PHYS3HZmumuCandidates"]
+StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % "HDBS4HZmumuCandidates"]
 
-StaticContent += ["xAOD::VertexContainer#%s"        % "PHYS3HZeeCandidates"]
-StaticContent += ["xAOD::VertexAuxContainer#%sAux." % "PHYS3HZeeCandidates"]
+StaticContent += ["xAOD::VertexContainer#%s"        % "HDBS4HZeeCandidates"]
+StaticContent += ["xAOD::VertexAuxContainer#%sAux." % "HDBS4HZeeCandidates"]
 ## we have to disable vxTrackAtVertex branch since it is not xAOD compatible
-StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % "PHYS3HZeeCandidates"]
+StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % "HDBS4HZeeCandidates"]
 
-SeqPHYS3VertexTool += CfgMgr.DerivationFramework__DerivationKernel("PHYS3VertexToolKernel", AugmentationTools = [PHYS3Zmumua0Finder, PHYS3Zeea0Finder])
-DerivationFrameworkJob += SeqPHYS3VertexTool
+SeqHDBS4VertexTool += CfgMgr.DerivationFramework__DerivationKernel("HDBS4VertexToolKernel", AugmentationTools = [HDBS4Zmumua0Finder, HDBS4Zeea0Finder])
+DerivationFrameworkJob += SeqHDBS4VertexTool
 
 #====================================================================
 # CONTENTS   
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
-PHYS3SlimmingHelper = SlimmingHelper("PHYS3SlimmingHelper")
+HDBS4SlimmingHelper = SlimmingHelper("HDBS4SlimmingHelper")
 
-PHYS3SlimmingHelper.SmartCollections = ["Electrons",
+HDBS4SlimmingHelper.SmartCollections = ["Electrons",
                                        "Photons",
                                        "Muons",
                                        "PrimaryVertices",
@@ -342,26 +342,26 @@ PHYS3SlimmingHelper.SmartCollections = ["Electrons",
                                        "AntiKt4EMPFlowJets"
                                       ]
 
-PHYS3SlimmingHelper.StaticContent = StaticContent
+HDBS4SlimmingHelper.StaticContent = StaticContent
 
 # Trigger content
-PHYS3SlimmingHelper.IncludeTriggerNavigation = True
-PHYS3SlimmingHelper.IncludeJetTriggerContent = False
-PHYS3SlimmingHelper.IncludeMuonTriggerContent = True
-PHYS3SlimmingHelper.IncludeEGammaTriggerContent = True
-PHYS3SlimmingHelper.IncludeJetTauEtMissTriggerContent = False
-PHYS3SlimmingHelper.IncludeTauTriggerContent = False
-PHYS3SlimmingHelper.IncludeEtMissTriggerContent = False
-PHYS3SlimmingHelper.IncludeBJetTriggerContent = False
-PHYS3SlimmingHelper.IncludeBPhysTriggerContent = False
-PHYS3SlimmingHelper.IncludeMinBiasTriggerContent = False
+HDBS4SlimmingHelper.IncludeTriggerNavigation = True
+HDBS4SlimmingHelper.IncludeJetTriggerContent = False
+HDBS4SlimmingHelper.IncludeMuonTriggerContent = True
+HDBS4SlimmingHelper.IncludeEGammaTriggerContent = True
+HDBS4SlimmingHelper.IncludeJetTauEtMissTriggerContent = False
+HDBS4SlimmingHelper.IncludeTauTriggerContent = False
+HDBS4SlimmingHelper.IncludeEtMissTriggerContent = False
+HDBS4SlimmingHelper.IncludeBJetTriggerContent = False
+HDBS4SlimmingHelper.IncludeBPhysTriggerContent = False
+HDBS4SlimmingHelper.IncludeMinBiasTriggerContent = False
 
 # # Add the jet containers to the stream (defined in JetCommon if import needed)
 # addJetOutputs(PHYSSlimmingHelper,["PHYS"])
 
 # Truth containers
 if DerivationFrameworkHasTruth:
-   PHYS3SlimmingHelper.AppendToDictionary = {'TruthEvents':'xAOD::TruthEventContainer','TruthEventsAux':'xAOD::TruthEventAuxContainer',
+   HDBS4SlimmingHelper.AppendToDictionary = {'TruthEvents':'xAOD::TruthEventContainer','TruthEventsAux':'xAOD::TruthEventAuxContainer',
                                             'MET_Truth':'xAOD::MissingETContainer','MET_TruthAux':'xAOD::MissingETAuxContainer',
                                             'TruthElectrons':'xAOD::TruthParticleContainer','TruthElectronsAux':'xAOD::TruthParticleAuxContainer',
                                             'TruthMuons':'xAOD::TruthParticleContainer','TruthMuonsAux':'xAOD::TruthParticleAuxContainer',
@@ -385,10 +385,10 @@ if DerivationFrameworkHasTruth:
                                            }
 
    from DerivationFrameworkMCTruth.MCTruthCommon import addTruth3ContentToSlimmerTool
-   addTruth3ContentToSlimmerTool(PHYS3SlimmingHelper)
-   PHYS3SlimmingHelper.AllVariables += ['TruthHFWithDecayParticles','TruthHFWithDecayVertices']
+   addTruth3ContentToSlimmerTool(HDBS4SlimmingHelper)
+   HDBS4SlimmingHelper.AllVariables += ['TruthHFWithDecayParticles','TruthHFWithDecayVertices']
 
-PHYS3SlimmingHelper.ExtraVariables += [
+HDBS4SlimmingHelper.ExtraVariables += [
                                       "Electrons.TruthLink",
                                       "Muons.TruthLink",
                                       "Photons.TruthLink",
@@ -399,9 +399,9 @@ PHYS3SlimmingHelper.ExtraVariables += [
                                       "PrimaryVertices.numberDoF"]
 
 # Add trigger matching
-trigmatching_helper_notau.add_to_slimming(PHYS3SlimmingHelper)
-trigmatching_helper_tau.add_to_slimming(PHYS3SlimmingHelper)
+trigmatching_helper_notau.add_to_slimming(HDBS4SlimmingHelper)
+trigmatching_helper_tau.add_to_slimming(HDBS4SlimmingHelper)
 
 # Final construction of output stream
-PHYS3SlimmingHelper.AppendContentToStream(PHYS3Stream)
+HDBS4SlimmingHelper.AppendContentToStream(HDBS4Stream)
 

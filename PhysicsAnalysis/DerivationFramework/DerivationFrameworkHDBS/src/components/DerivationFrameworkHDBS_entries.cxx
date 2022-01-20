@@ -11,5 +11,3 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkHDBS ) {
    DECLARE_TOOL( SkimmingToolHDBS2 )
    DECLARE_TOOL( HDBSa0Finder )
 }
-
-
