@@ -31,7 +31,6 @@ class LArFCAL_ID;
 class LArHEC_ID;
 class TileID;
 class LArOnlineID;
-class CaloDetDescrManager ; 
 class Identifier;
 
 class CaloSuperCellDetDescrManager;
