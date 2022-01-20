@@ -92,9 +92,12 @@ def getL1MenuAccess( flags = None ):
             raise RuntimeError("Cannot read trigger configuration (L1 menu) from input type %s", flags.Input.Format )            
         from AthenaConfiguration.AutoConfigFlags import GetFileMD
         metadata = GetFileMD(flags.Input.Files)
-        if 'TriggerMenuJson_L1' not in metadata:
+        menu_json = metadata.get ('TriggerMenuJson_L1', None)
+        if menu_json is None:
+            menu_json = metadata.get ('DataVector<xAOD::TriggerMenuJson_v1>_TriggerMenuJson_L1', None)
+        if menu_json is None:
             raise RuntimeError("Cannot read trigger configuration (TriggerMenuJson_L1) from input file metadata" )
-        cfg = L1MenuAccess(jsonString=metadata['TriggerMenuJson_L1'])
+        cfg = L1MenuAccess(jsonString=menu_json)
     else:
         raise RuntimeError("Unknown source of trigger configuration: %s" % tc["SOURCE"])
     return cfg
@@ -116,9 +119,12 @@ def getL1PrescalesSetAccess( flags = None ):
             raise RuntimeError("Cannot read trigger configuration (L1 prescales) from input type %s", flags.Input.Format )
         from AthenaConfiguration.AutoConfigFlags import GetFileMD
         metadata = GetFileMD(flags.Input.Files)
-        if 'TriggerMenuJson_L1PS' not in metadata:
+        menu_json = metadata.get ('TriggerMenuJson_L1PS', None)
+        if menu_json is None:
+            menu_json = metadata.get ('DataVector<xAOD::TriggerMenuJson_v1>_TriggerMenuJson_L1PS', None)
+        if menu_json is None:
             raise RuntimeError("Cannot read trigger configuration (TriggerMenuJson_L1PS) from input file metadata" )
-        cfg = L1PrescalesSetAccess(jsonString=metadata['TriggerMenuJson_L1PS'])
+        cfg = L1PrescalesSetAccess(jsonString=menu_json)
     else:
         raise RuntimeError("Unknown source of trigger configuration: %s" % tc["SOURCE"])
     return cfg
@@ -194,9 +200,12 @@ def getHLTPrescalesSetAccess( flags = None ):
             raise RuntimeError("Cannot read trigger configuration (HLT prescales) from input type %s", flags.Input.Format )            
         from AthenaConfiguration.AutoConfigFlags import GetFileMD
         metadata = GetFileMD(flags.Input.Files)
-        if 'TriggerMenuJson_HLTPS' not in metadata:
+        menu_json = metadata.get ('TriggerMenuJson_HLTPS', None)
+        if menu_json is None:
+            menu_json = metadata.get ('DataVector<xAOD::TriggerMenuJson_v1>_TriggerMenuJson_HLTPS', None)
+        if menu_json is None:
             raise RuntimeError("Cannot read trigger configuration (TriggerMenuJson_HLTPS) from input file metadata" )
-        cfg = HLTPrescalesSetAccess(jsonString=metadata['TriggerMenuJson_HLTPS'])
+        cfg = HLTPrescalesSetAccess(jsonString=menu_json)
     else:
         raise RuntimeError("Unknown source of trigger configuration: %s" % tc["SOURCE"])
     return cfg
