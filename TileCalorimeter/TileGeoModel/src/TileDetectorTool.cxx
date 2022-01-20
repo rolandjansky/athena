@@ -1,6 +1,12 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
+
+/*
+ * Updates:
+ * - 2021, Riccardo Maria BIANCHI <riccardo.maria.bianchi@cern.ch>
+ *         * Added TileDetectorFactoryLite to load the Tile geomnetry from SQLite
+ */
 
 #include "TileGeoModel/TileDetectorTool.h"
 #include "TileDetectorFactory.h"
@@ -117,7 +123,6 @@ StatusCode TileDetectorTool::create()
 
     // Get the SQLite reader, if specified in the jobOption
     GeoModelIO::ReadGeoModel* sqliteReader = geoDbTag->getSqliteReader();
-    std::cout << "sqliteReader: "  << sqliteReader << std::endl;
     if (0==dbManager->GetNumberOfEnv() && m_useNewFactory) {
       ATH_MSG_WARNING("New TileAtlasFactory can not be used because TileGlobals do not exist in Database");
       ATH_MSG_WARNING("Use old TileDetectorFactory instead");
@@ -149,23 +154,6 @@ StatusCode TileDetectorTool::create()
     } 
     // build the geometry from the Oracle-based GeometryDB
     else {
-        /*
-        if(m_testBeam)
-        {
-            TileTBFactory theTileTBFactory(detStore().operator->(),m_manager,m_addPlates,m_uShape,m_glue,m_csTube,&log);
-            theTileTBFactory.create(world);
-        }
-        else if (m_useNewFactory)
-        {
-            TileAtlasFactory theTileFactory(detStore().operator->(),m_manager,m_addPlates,m_uShape,m_glue,m_csTube,&log,m_geometryConfig=="FULL");
-            theTileFactory.create(world);
-        }
-        else
-        {
-            TileDetectorFactory theTileFactory(detStore().operator->(),m_manager,m_addPlates,m_uShape,m_glue,m_csTube,&log);
-            theTileFactory.create(world);
-        }
-        */
         if(m_switches.testBeam)
         {
             TileTBFactory theTileTBFactory(detStore().operator->(),m_manager,m_switches,&log);
