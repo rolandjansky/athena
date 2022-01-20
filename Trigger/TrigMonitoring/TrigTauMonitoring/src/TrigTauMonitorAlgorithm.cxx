@@ -359,8 +359,13 @@ void TrigTauMonitorAlgorithm::fillL1Distributions(const EventContext& ctx, const
 
     }    
 
+     
+    fillL1(trigL1Item, legacyL1rois, phase1L1rois);
+
     fillL1Efficiencies(ctx, offline_for_l1_tau_vec_1p, "1P", trigL1Item, legacyL1rois, phase1L1rois);
     fillL1Efficiencies(ctx, offline_for_l1_tau_vec_mp, "MP", trigL1Item, legacyL1rois, phase1L1rois);
+  
+   
 
     offline_for_l1_tau_vec_1p.clear();
     offline_for_l1_tau_vec_mp.clear();
@@ -473,15 +478,13 @@ void TrigTauMonitorAlgorithm::fillL1Efficiencies( const EventContext& ctx , cons
     
        fill(monGroup, tauPt, tauEta, tauPhi, averageMu, L1_match);
   }
-
-  fillL1(trigL1Item, legacyL1rois, phase1L1rois, nProng);
 } 
 
-void TrigTauMonitorAlgorithm::fillL1(const std::string& trigL1Item, const std::vector<const xAOD::EmTauRoI*>& legacyL1rois, const std::vector<const xAOD::eFexTauRoI*>& phase1L1rois, const std::string& nProng)  const
+void TrigTauMonitorAlgorithm::fillL1(const std::string& trigL1Item, const std::vector<const xAOD::EmTauRoI*>& legacyL1rois, const std::vector<const xAOD::eFexTauRoI*>& phase1L1rois)  const
 {
    ATH_MSG_DEBUG("Fill L1: " << trigL1Item);
 
-   std::string monGroupName = trigL1Item+"_L1_"+nProng;
+   std::string monGroupName = trigL1Item+"_L1";
     
    auto monGroup = getGroup(monGroupName);
 
