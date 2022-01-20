@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/InDetServMatManager.h"
@@ -17,8 +17,6 @@ InDetServMatManager::InDetServMatManager( )
 
 InDetServMatManager::~InDetServMatManager()
 {
-  for(unsigned int i=0; i<m_volume.size(); i++)
-    m_volume[i]->unref();
 }
 
 
@@ -36,9 +34,8 @@ InDetServMatManager::getTreeTop(unsigned int i) const
 }
 
 void 
-InDetServMatManager::addTreeTop(PVLink vol){
+InDetServMatManager::addTreeTop(PVConstLink vol){
   m_volume.push_back(vol);
-  vol->ref();
 }
 
 
