@@ -51,11 +51,10 @@ namespace MuonPhysValMonitoring {
         virtual ~MuonPhysValMonitoringTool() = default;
 
         // Athena algtool's Hooks
-        virtual StatusCode initialize();
-        virtual StatusCode finalize();
-        virtual StatusCode bookHistograms();
-        virtual StatusCode fillHistograms();
-        virtual StatusCode procHistograms();
+        virtual StatusCode initialize() override;       
+        virtual StatusCode bookHistograms() override;
+        virtual StatusCode fillHistograms() override;
+        virtual StatusCode procHistograms() override;
 
         ///////////////////////////////////////////////////////////////////
         // Const methods:
@@ -69,10 +68,7 @@ namespace MuonPhysValMonitoring {
         // Private data:
         ///////////////////////////////////////////////////////////////////
     private:
-        /// Default constructor:
-        MuonPhysValMonitoringTool();
-
-        enum MUCATEGORY { ALL = 0, PROMPT, INFLIGHT, NONISO, REST };
+        enum MUCATEGORY { ALL = 0, PROMPT = 1, INFLIGHT = 1<<1, NONISO = 1<<2, REST = 1<<3};
 
         void handleMuon(const xAOD::Muon* mu, const xAOD::SlowMuon* smu = nullptr, float weight = 1.0);
         void handleSlowMuon(const xAOD::SlowMuon* smu, float weight = 1.0);
@@ -101,11 +97,11 @@ namespace MuonPhysValMonitoring {
         const xAOD::MuonSegment* findRecoMuonSegment(const xAOD::MuonSegment* truthMuSeg);
         std::unique_ptr<xAOD::Muon> getCorrectedMuon(const xAOD::Muon& mu);
 
-        const xAOD::TrackParticleContainer* m_MSTracks;
+        const xAOD::TrackParticleContainer* m_MSTracks{nullptr};
         std::map<std::string, int> m_counterBits;
         std::vector<std::string> m_muonItems;
         std::vector<std::string> m_L1Seed;
-        int m_SelectedAuthor;
+        int m_SelectedAuthor{0};
 
         TH1F* findHistogram(const std::vector<HistData>& hists, const std::string& hnameTag, const std::string& hdirTag,
                             const std::string& hNewName);
@@ -164,36 +160,34 @@ namespace MuonPhysValMonitoring {
         MuonPhysValMonitoringTool::MUCATEGORY getMuonSegmentTruthCategory(const xAOD::MuonSegment* truthMuSeg,
                                                                           const xAOD::TruthParticleContainer* muonTruthContainer);
         MuonPhysValMonitoringTool::MUCATEGORY getMuonTruthCategory(const xAOD::IParticle* prt);
-        MuonPhysValMonitoringTool::MUCATEGORY getMuonTruthCategory(const xAOD::Muon* prt);
         bool passesAcceptanceCuts(const xAOD::IParticle* prt);
-        float deltaR(const xAOD::IParticle* prt1, const xAOD::IParticle* prt2);
         void SplitString(TString x, const TString& delim, std::vector<TString>& v);
 
         // Hists
-        std::vector<MuonValidationPlots*> m_muonValidationPlots;
-        std::vector<TriggerMuonValidationPlots*> m_TriggerMuonValidationPlots;
-        std::vector<MuonTrackValidationPlots*> m_muonMSTrackValidationPlots;
-        std::vector<MuonTrackValidationPlots*> m_muonMETrackValidationPlots;
-        std::vector<MuonTrackValidationPlots*> m_muonMSOnlyMETrackValidationPlots;
-        std::vector<MuonTrackValidationPlots*> m_muonIDTrackValidationPlots;
-        std::vector<MuonTrackValidationPlots*> m_muonIDSelectedTrackValidationPlots;
-        std::vector<MuonTrackValidationPlots*> m_muonIDForwardTrackValidationPlots;
-        std::vector<MuonSegmentValidationPlots*> m_muonSegmentValidationPlots;
-        Muon::RecoMuonPlotOrganizer* m_oUnmatchedRecoMuonPlots;
-        Muon::TruthMuonPlotOrganizer* m_oUnmatchedTruthMuonPlots;
-        Muon::RecoMuonTrackPlotOrganizer* m_oUnmatchedRecoMuonTrackPlots;
-        Muon::MuonSegmentPlots* m_oUnmatchedRecoMuonSegmentPlots;
+        std::vector<std::unique_ptr<MuonValidationPlots>> m_muonValidationPlots;
+        std::vector<std::unique_ptr<TriggerMuonValidationPlots>> m_TriggerMuonValidationPlots;
+        std::vector<std::unique_ptr<MuonTrackValidationPlots>> m_muonMSTrackValidationPlots;
+        std::vector<std::unique_ptr<MuonTrackValidationPlots>> m_muonMETrackValidationPlots;
+        std::vector<std::unique_ptr<MuonTrackValidationPlots>> m_muonMSOnlyMETrackValidationPlots;
+        std::vector<std::unique_ptr<MuonTrackValidationPlots>> m_muonIDTrackValidationPlots;
+        std::vector<std::unique_ptr<MuonTrackValidationPlots>> m_muonIDSelectedTrackValidationPlots;
+        std::vector<std::unique_ptr<MuonTrackValidationPlots>> m_muonIDForwardTrackValidationPlots;
+        std::vector<std::unique_ptr<MuonSegmentValidationPlots>> m_muonSegmentValidationPlots;
+        std::unique_ptr<Muon::RecoMuonPlotOrganizer> m_oUnmatchedRecoMuonPlots;
+        std::unique_ptr<Muon::TruthMuonPlotOrganizer> m_oUnmatchedTruthMuonPlots;
+        std::unique_ptr<Muon::RecoMuonTrackPlotOrganizer> m_oUnmatchedRecoMuonTrackPlots;
+        std::unique_ptr<Muon::MuonSegmentPlots> m_oUnmatchedRecoMuonSegmentPlots;
 
-        std::vector<SlowMuonValidationPlots*> m_slowMuonValidationPlots;
+        std::vector<std::unique_ptr<SlowMuonValidationPlots>> m_slowMuonValidationPlots;
 
         // overview hists
         std::vector<TH1F*> m_h_overview_nObjects;
-        TH1F* m_h_overview_reco_category;
+        TH1F* m_h_overview_reco_category{nullptr};
         std::vector<TH1F*> m_h_overview_reco_authors;
 
-        TH1F* m_h_overview_Z_mass;
-        TH1F* m_h_overview_Z_mass_ME;
-        TH1F* m_h_overview_Z_mass_ID;
+        TH1F* m_h_overview_Z_mass{nullptr};
+        TH1F* m_h_overview_Z_mass_ME{nullptr};
+        TH1F* m_h_overview_Z_mass_ID{nullptr};
 
         std::vector<const xAOD::TruthParticle*> m_vMatchedTruthMuons;
         std::vector<const xAOD::Muon*> m_vMatchedMuons;

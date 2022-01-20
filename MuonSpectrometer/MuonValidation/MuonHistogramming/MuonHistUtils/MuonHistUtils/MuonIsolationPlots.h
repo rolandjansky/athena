@@ -26,11 +26,11 @@ class IsoCorrPlots:public PlotBase {
       void fill(float fIso20, float fIso30, float fIso40, float fPt, float fIsoCorr, float weight=1.0);
       std::string m_sCorrType;
       
-      TH1* isocorr;
-      TH1* isocorr_relPt;
-      TH1* isocorr_relIsocone20;
-      TH1* isocorr_relIsocone30;
-      TH1* isocorr_relIsocone40;
+      TH1* isocorr{nullptr};
+      TH1* isocorr_relPt{nullptr};
+      TH1* isocorr_relIsocone20{nullptr};
+      TH1* isocorr_relIsocone30{nullptr};
+      TH1* isocorr_relIsocone40{nullptr};
       
  private:
       void initializePlots();

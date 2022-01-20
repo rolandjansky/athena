@@ -11,7 +11,7 @@ namespace Muon{
 
     /////////// 
 HitFracTypePlots::HitFracTypePlots(PlotBase* pParent,std::string sHitType, std::string sHitLabel):
-  PlotBase(pParent, ""), fracHits(nullptr), fracHitsVsEta(nullptr) , m_sHitType(std::move(sHitType)), m_sHitLabel(std::move(sHitLabel))
+  PlotBase(pParent, ""), m_sHitType(std::move(sHitType)), m_sHitLabel(std::move(sHitLabel))
 {}  
 void HitFracTypePlots::initializePlots()
 {

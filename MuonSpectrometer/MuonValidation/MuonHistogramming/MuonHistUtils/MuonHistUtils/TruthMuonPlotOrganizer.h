@@ -20,19 +20,19 @@ namespace Muon
   
   class TruthMuonPlotOrganizer:public PlotBase {
   public:
-    TruthMuonPlotOrganizer(PlotBase* pParent, const std::string& sDir,std::vector<int> *selPlots=0);
+    TruthMuonPlotOrganizer(PlotBase* pParent, const std::string& sDir,std::vector<int> selPlots = {});
     ~TruthMuonPlotOrganizer();
     
-    std::vector<PlotBase*> m_allPlots;
+  
     std::vector<int> m_selPlots;  
     
     void fill(const xAOD::TruthParticle& truthMu, float weight=1.0);
     
     // Truth plots
-    Trk::ParamPlots                 *m_oTruthPlots;
-    Trk::TruthInfoPlots             *m_oTruthInfoPlots;
-    Trk::TruthTrkExtrapolationPlots *m_oTruthTrkExtrapolationPlots;
-    Trk::MSHitPlots                 *m_oTruthMSHitPlots;
+    std::unique_ptr<Trk::ParamPlots>                  m_oTruthPlots{};
+    std::unique_ptr<Trk::TruthInfoPlots>              m_oTruthInfoPlots{};
+    std::unique_ptr<Trk::TruthTrkExtrapolationPlots>  m_oTruthTrkExtrapolationPlots{};
+    std::unique_ptr<Trk::MSHitPlots>                  m_oTruthMSHitPlots{};
   };
  
 }

@@ -13,7 +13,6 @@ TriggerMuonValidationPlots::TriggerMuonValidationPlots(PlotBase* pParent, const 
                                                        std::vector<std::string> L1MuonItems) :
     PlotBase(pParent, sDir),
     m_selectedAuthors(std::move(authors)),
-    m_oL1TriggerMuonPlots(nullptr),
     m_doTrigMuonL1Validation(doTrigMuonL1Validation),
     m_doTrigMuonL2Validation(doTrigMuonL2Validation),
     m_doTrigMuonEFValidation(doTrigMuonEFValidation),
@@ -24,170 +23,74 @@ TriggerMuonValidationPlots::TriggerMuonValidationPlots(PlotBase* pParent, const 
         m_seeds.push_back(m_ChainSeed[i][1]);
     }
 
-    if (m_doTrigMuonL1Validation) m_oL1TriggerMuonPlots = new L1TriggerMuonPlots(this, "trigger/L1");
+    if (m_doTrigMuonL1Validation) m_oL1TriggerMuonPlots = std::make_unique<L1TriggerMuonPlots>(this, "trigger/L1");
     if (m_doTrigMuonL2Validation) {
-        m_oL2TriggerMuonPlots.push_back(new HLTriggerMuonPlots(this, "trigger/L2/StandAlone"));
-        m_oL2TriggerMuonPlots.push_back(new HLTriggerMuonPlots(this, "trigger/L2/Combined"));
+        m_oL2TriggerMuonPlots.push_back(std::make_unique<HLTriggerMuonPlots>(this, "trigger/L2/StandAlone"));
+        m_oL2TriggerMuonPlots.push_back(std::make_unique<HLTriggerMuonPlots>(this, "trigger/L2/Combined"));
         m_oL2TriggerMuonBarrelResolutionPlots.push_back(
-            new Muon::ResoTriggerMuonPlots(this, "trigger/L2/StandAlone/Resolution/BARREL/", ""));
-        m_oL2TriggerMuonBarrelResolutionPlots.push_back(new Muon::ResoTriggerMuonPlots(this, "trigger/L2/Combined/Resolution/BARREL/", ""));
+            std::make_unique<ResoTriggerMuonPlots>(this, "trigger/L2/StandAlone/Resolution/BARREL/", ""));
+        m_oL2TriggerMuonBarrelResolutionPlots.push_back(std::make_unique<ResoTriggerMuonPlots>(this, "trigger/L2/Combined/Resolution/BARREL/", ""));
         m_oL2TriggerMuonEndcapsResolutionPlots.push_back(
-            new Muon::ResoTriggerMuonPlots(this, "trigger/L2/StandAlone/Resolution/ENDCAPS/", ""));
+            std::make_unique<ResoTriggerMuonPlots>(this, "trigger/L2/StandAlone/Resolution/ENDCAPS/", ""));
         m_oL2TriggerMuonEndcapsResolutionPlots.push_back(
-            new Muon::ResoTriggerMuonPlots(this, "trigger/L2/Combined/Resolution/ENDCAPS/", ""));
+            std::make_unique<ResoTriggerMuonPlots>(this, "trigger/L2/Combined/Resolution/ENDCAPS/", ""));
         m_oL2TriggerMuonResolutionPlots.push_back(
-            new Muon::ResoTriggerMuonPlots(this, "trigger/L2/StandAlone/Resolution/WHOLE_DETECT/", ""));
-        m_oL2TriggerMuonResolutionPlots.push_back(new Muon::ResoTriggerMuonPlots(this, "trigger/L2/Combined/Resolution/WHOLE_DETECT/", ""));
+            std::make_unique<ResoTriggerMuonPlots>(this, "trigger/L2/StandAlone/Resolution/WHOLE_DETECT/", ""));
+        m_oL2TriggerMuonResolutionPlots.push_back(std::make_unique<ResoTriggerMuonPlots>(this, "trigger/L2/Combined/Resolution/WHOLE_DETECT/", ""));
     }
 
     // define a histogram class for each of the selected muon authors
     for (unsigned int i = 0; i < m_selectedAuthors.size(); i++) {
         std::string sAuthor = Muon::EnumDefs::toString((xAOD::Muon::Author)m_selectedAuthors[i]);
-        if (m_doTrigMuonEFValidation) m_oEFTriggerMuonPlots.push_back(new HLTriggerMuonPlots(this, "trigger/EF/" + sAuthor));
+        if (m_doTrigMuonEFValidation) m_oEFTriggerMuonPlots.push_back(std::make_unique<HLTriggerMuonPlots>(this, "trigger/EF/" + sAuthor));
         if (m_doTrigMuonEFValidation)
             m_oEFTriggerMuonBarrelResolutionPlots.push_back(
-                new Muon::ResoTriggerMuonPlots(this, "trigger/EF/" + sAuthor + "/Resolution/BARREL/", ""));
+                std::make_unique<ResoTriggerMuonPlots>(this, "trigger/EF/" + sAuthor + "/Resolution/BARREL/", ""));
         if (m_doTrigMuonEFValidation)
             m_oEFTriggerMuonEndcapsResolutionPlots.push_back(
-                new Muon::ResoTriggerMuonPlots(this, "trigger/EF/" + sAuthor + "/Resolution/ENDCAPS/", ""));
+                std::make_unique<ResoTriggerMuonPlots>(this, "trigger/EF/" + sAuthor + "/Resolution/ENDCAPS/", ""));
         if (m_doTrigMuonEFValidation)
             m_oEFTriggerMuonResolutionPlots.push_back(
-                new Muon::ResoTriggerMuonPlots(this, "trigger/EF/" + sAuthor + "/Resolution/WHOLE_DETECT/", ""));
+                std::make_unique<ResoTriggerMuonPlots>(this, "trigger/EF/" + sAuthor + "/Resolution/WHOLE_DETECT/", ""));
     }
 
     for (unsigned int i = 0; i < m_L1MuonItems.size(); i++) {
         if (m_doTrigMuonEFValidation)
             m_oL1TriggerChainBarrelEfficiencyPlots.push_back(
-                new TriggerEfficiencyPlots(this, "trigger/" + m_L1MuonItems[i] + "_Efficiency/BARREL/"));
+                std::make_unique<TriggerEfficiencyPlots>(this, "trigger/" + m_L1MuonItems[i] + "_Efficiency/BARREL/"));
         if (m_doTrigMuonEFValidation)
             m_oL1TriggerChainEndcapsEfficiencyPlots.push_back(
-                new TriggerEfficiencyPlots(this, "trigger/" + m_L1MuonItems[i] + "_Efficiency/ENDCAPS/"));
+                std::make_unique<TriggerEfficiencyPlots>(this, "trigger/" + m_L1MuonItems[i] + "_Efficiency/ENDCAPS/"));
         if (m_doTrigMuonEFValidation)
             m_oL1TriggerChainEfficiencyPlots.push_back(
-                new TriggerEfficiencyPlots(this, "trigger/" + m_L1MuonItems[i] + "_Efficiency/WHOLE_DETECT/"));
+                std::make_unique<TriggerEfficiencyPlots>(this, "trigger/" + m_L1MuonItems[i] + "_Efficiency/WHOLE_DETECT/"));
     }
     for (unsigned int i = 0; i < m_chains.size(); i++) {
         if (m_doTrigMuonEFValidation)
             m_oEFTriggerChainBarrelEfficiencyPlots.push_back(
-                new TriggerEfficiencyPlots(this, "trigger/" + m_chains[i] + "_Efficiency/BARREL/"));
+                std::make_unique<TriggerEfficiencyPlots>(this, "trigger/" + m_chains[i] + "_Efficiency/BARREL/"));
         if (m_doTrigMuonEFValidation)
             m_oEFTriggerChainEndcapsEfficiencyPlots.push_back(
-                new TriggerEfficiencyPlots(this, "trigger/" + m_chains[i] + "_Efficiency/ENDCAPS/"));
+                std::make_unique<TriggerEfficiencyPlots>(this, "trigger/" + m_chains[i] + "_Efficiency/ENDCAPS/"));
         if (m_doTrigMuonEFValidation)
             m_oEFTriggerChainEfficiencyPlots.push_back(
-                new TriggerEfficiencyPlots(this, "trigger/" + m_chains[i] + "_Efficiency/WHOLE_DETECT/"));
+                std::make_unique<TriggerEfficiencyPlots>(this, "trigger/" + m_chains[i] + "_Efficiency/WHOLE_DETECT/"));
     }
     for (unsigned int i = 0; i < m_chains.size(); i++) {
         if (m_doTrigMuonEFValidation)
             m_oEFTriggerChainBarrelRELEfficiencyPlots.push_back(
-                new TriggerEfficiencyPlots(this, "trigger/" + m_chains[i] + "_wrt_" + m_seeds[i] + "_Efficiency/BARREL/"));
+                std::make_unique<TriggerEfficiencyPlots>(this, "trigger/" + m_chains[i] + "_wrt_" + m_seeds[i] + "_Efficiency/BARREL/"));
         if (m_doTrigMuonEFValidation)
             m_oEFTriggerChainEndcapsRELEfficiencyPlots.push_back(
-                new TriggerEfficiencyPlots(this, "trigger/" + m_chains[i] + "_wrt_" + m_seeds[i] + "_Efficiency/ENDCAPS/"));
+                std::make_unique<TriggerEfficiencyPlots>(this, "trigger/" + m_chains[i] + "_wrt_" + m_seeds[i] + "_Efficiency/ENDCAPS/"));
         if (m_doTrigMuonEFValidation)
             m_oEFTriggerChainRELEfficiencyPlots.push_back(
-                new TriggerEfficiencyPlots(this, "trigger/" + m_chains[i] + "_wrt_" + m_seeds[i] + "_Efficiency/WHOLE_DETECT/"));
+                std::make_unique<TriggerEfficiencyPlots>(this, "trigger/" + m_chains[i] + "_wrt_" + m_seeds[i] + "_Efficiency/WHOLE_DETECT/"));
     }
     PlateauTreshold = 0.;
 }
 
-TriggerMuonValidationPlots::~TriggerMuonValidationPlots() {
-    if (m_doTrigMuonL1Validation) {
-        L1TriggerMuonPlots* L1TriggerMuonPlot = m_oL1TriggerMuonPlots;
-        delete L1TriggerMuonPlot;
-        L1TriggerMuonPlot = nullptr;
-    }
-
-    if (m_doTrigMuonL2Validation) {
-        for (unsigned int i = 0; i < m_oL2TriggerMuonPlots.size(); i++) {
-            HLTriggerMuonPlots* L2TriggerMuonPlots = m_oL2TriggerMuonPlots[i];
-            delete L2TriggerMuonPlots;
-            L2TriggerMuonPlots = nullptr;
-        }
-        for (unsigned int i = 0; i < m_oL2TriggerMuonBarrelResolutionPlots.size(); i++) {
-            Muon::ResoTriggerMuonPlots* L2TriggerMuonResoMuonPlots = m_oL2TriggerMuonBarrelResolutionPlots[i];
-            delete L2TriggerMuonResoMuonPlots;
-            L2TriggerMuonResoMuonPlots = nullptr;
-        }
-        for (unsigned int i = 0; i < m_oL2TriggerMuonEndcapsResolutionPlots.size(); i++) {
-            Muon::ResoTriggerMuonPlots* L2TriggerMuonResoMuonPlots = m_oL2TriggerMuonEndcapsResolutionPlots[i];
-            delete L2TriggerMuonResoMuonPlots;
-            L2TriggerMuonResoMuonPlots = nullptr;
-        }
-        for (unsigned int i = 0; i < m_oL2TriggerMuonResolutionPlots.size(); i++) {
-            Muon::ResoTriggerMuonPlots* L2TriggerMuonResoMuonPlots = m_oL2TriggerMuonResolutionPlots[i];
-            delete L2TriggerMuonResoMuonPlots;
-            L2TriggerMuonResoMuonPlots = nullptr;
-        }
-    }
-    if (m_doTrigMuonEFValidation) {
-        for (unsigned int i = 0; i < m_oEFTriggerMuonPlots.size(); i++) {
-            HLTriggerMuonPlots* trigMuonPlots = m_oEFTriggerMuonPlots[i];
-            delete trigMuonPlots;
-            trigMuonPlots = nullptr;
-        }
-        for (unsigned int i = 0; i < m_oEFTriggerMuonResolutionPlots.size(); i++) {
-            Muon::ResoTriggerMuonPlots* EFTriggerMuonResoMuonPlots = m_oEFTriggerMuonResolutionPlots[i];
-            delete EFTriggerMuonResoMuonPlots;
-            EFTriggerMuonResoMuonPlots = nullptr;
-        }
-        for (unsigned int i = 0; i < m_oEFTriggerMuonBarrelResolutionPlots.size(); i++) {
-            Muon::ResoTriggerMuonPlots* EFTriggerMuonResoMuonPlots = m_oEFTriggerMuonBarrelResolutionPlots[i];
-            delete EFTriggerMuonResoMuonPlots;
-            EFTriggerMuonResoMuonPlots = nullptr;
-        }
-        for (unsigned int i = 0; i < m_oEFTriggerMuonEndcapsResolutionPlots.size(); i++) {
-            Muon::ResoTriggerMuonPlots* EFTriggerMuonResoMuonPlots = m_oEFTriggerMuonEndcapsResolutionPlots[i];
-            delete EFTriggerMuonResoMuonPlots;
-            EFTriggerMuonResoMuonPlots = nullptr;
-        }
-        for (unsigned int i = 0; i < m_oL1TriggerChainEfficiencyPlots.size(); i++) {
-            TriggerEfficiencyPlots* L1TriggerChainEfficiencyPlots = m_oL1TriggerChainEfficiencyPlots[i];
-            delete L1TriggerChainEfficiencyPlots;
-            L1TriggerChainEfficiencyPlots = nullptr;
-        }
-        for (unsigned int i = 0; i < m_oL1TriggerChainBarrelEfficiencyPlots.size(); i++) {
-            TriggerEfficiencyPlots* L1TriggerChainEfficiencyPlots = m_oL1TriggerChainBarrelEfficiencyPlots[i];
-            delete L1TriggerChainEfficiencyPlots;
-            L1TriggerChainEfficiencyPlots = nullptr;
-        }
-        for (unsigned int i = 0; i < m_oL1TriggerChainEndcapsEfficiencyPlots.size(); i++) {
-            TriggerEfficiencyPlots* L1TriggerChainEfficiencyPlots = m_oL1TriggerChainEndcapsEfficiencyPlots[i];
-            delete L1TriggerChainEfficiencyPlots;
-            L1TriggerChainEfficiencyPlots = nullptr;
-        }
-        for (unsigned int i = 0; i < m_oEFTriggerChainEfficiencyPlots.size(); i++) {
-            TriggerEfficiencyPlots* EFTriggerChainEfficiencyPlots = m_oEFTriggerChainEfficiencyPlots[i];
-            delete EFTriggerChainEfficiencyPlots;
-            EFTriggerChainEfficiencyPlots = nullptr;
-        }
-        for (unsigned int i = 0; i < m_oEFTriggerChainBarrelEfficiencyPlots.size(); i++) {
-            TriggerEfficiencyPlots* EFTriggerChainEfficiencyPlots = m_oEFTriggerChainBarrelEfficiencyPlots[i];
-            delete EFTriggerChainEfficiencyPlots;
-            EFTriggerChainEfficiencyPlots = nullptr;
-        }
-        for (unsigned int i = 0; i < m_oEFTriggerChainEndcapsEfficiencyPlots.size(); i++) {
-            TriggerEfficiencyPlots* EFTriggerChainEfficiencyPlots = m_oEFTriggerChainEndcapsEfficiencyPlots[i];
-            delete EFTriggerChainEfficiencyPlots;
-            EFTriggerChainEfficiencyPlots = nullptr;
-        }
-        for (unsigned int i = 0; i < m_oEFTriggerChainRELEfficiencyPlots.size(); i++) {
-            TriggerEfficiencyPlots* EFTriggerChainRELEfficiencyPlots = m_oEFTriggerChainRELEfficiencyPlots[i];
-            delete EFTriggerChainRELEfficiencyPlots;
-            EFTriggerChainRELEfficiencyPlots = nullptr;
-        }
-        for (unsigned int i = 0; i < m_oEFTriggerChainBarrelRELEfficiencyPlots.size(); i++) {
-            TriggerEfficiencyPlots* EFTriggerChainRELEfficiencyPlots = m_oEFTriggerChainBarrelRELEfficiencyPlots[i];
-            delete EFTriggerChainRELEfficiencyPlots;
-            EFTriggerChainRELEfficiencyPlots = nullptr;
-        }
-        for (unsigned int i = 0; i < m_oEFTriggerChainEndcapsRELEfficiencyPlots.size(); i++) {
-            TriggerEfficiencyPlots* EFTriggerChainRELEfficiencyPlots = m_oEFTriggerChainEndcapsRELEfficiencyPlots[i];
-            delete EFTriggerChainRELEfficiencyPlots;
-            EFTriggerChainRELEfficiencyPlots = nullptr;
-        }
-    }
-}
+TriggerMuonValidationPlots::~TriggerMuonValidationPlots() = default;
 
 void TriggerMuonValidationPlots::fillTriggerMuonPlots(const xAOD::MuonRoI& TrigL1mu) { m_oL1TriggerMuonPlots->fill(TrigL1mu); }
 

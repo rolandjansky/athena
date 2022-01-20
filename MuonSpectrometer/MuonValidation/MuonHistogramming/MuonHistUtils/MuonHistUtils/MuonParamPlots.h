@@ -17,13 +17,13 @@ class MuonParamPlots: public PlotBase
   MuonParamPlots(PlotBase *pParent, const std::string& sDir);
   void fill(const xAOD::Muon& mu, float weight=1.0);
   
-  TH1* msInnerMatchChi2;
-  TH1* msOuterMatchChi2;
+  TH1* msInnerMatchChi2{nullptr};
+  TH1* msOuterMatchChi2{nullptr};
 
-  TH1* ELoss;
-  TH1* ELossSigma;
-  TH1* paramELoss;
-  TH1* measELoss;
+  TH1* ELoss{nullptr};
+  TH1* ELossSigma{nullptr};
+  TH1* paramELoss{nullptr};
+  TH1* measELoss{nullptr};
 
   
  private:

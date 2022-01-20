@@ -29,32 +29,32 @@ MuonValidationPlots::MuonValidationPlots(PlotBase* pParent, const std::string& s
 
         // histogram classes for all muons
         for (const auto& truthSelection : m_truthSelections) {
-            m_oTruthMuonPlots.push_back(new Muon::TruthMuonPlotOrganizer(this, "truth/" + truthSelection));
+            m_oTruthMuonPlots.emplace_back(new Muon::TruthMuonPlotOrganizer(this, "truth/" + truthSelection));
         }
-        m_oTruthRelatedMuonPlots =
-            new Muon::TruthRelatedMuonPlotOrganizer(this, "matched/AllMuons", doBinnedResolutionPlots);  //, doMuonTree);
+        m_oTruthRelatedMuonPlots.reset(
+            new Muon::TruthRelatedMuonPlotOrganizer(this, "matched/AllMuons", doBinnedResolutionPlots));  
     }
 
     std::vector<int> allPlotCategories(0);
     std::vector<int> selectedPlotCategories(0);
     for (unsigned int i = 0; i < Muon::MAX_RECOPLOTCLASS; i++) {
-        allPlotCategories.push_back(i);
-        if (i != Muon::MUON_CHARGEPARAM) selectedPlotCategories.push_back(i);
+        allPlotCategories.emplace_back(i);
+        if (i != Muon::MUON_CHARGEPARAM) selectedPlotCategories.emplace_back(i);
     }
 
     // histogram classes for all muons
-    m_oRecoMuonPlots = new Muon::RecoMuonPlotOrganizer(this, "reco/AllMuons", &allPlotCategories);
+    m_oRecoMuonPlots.reset(new Muon::RecoMuonPlotOrganizer(this, "reco/AllMuons", allPlotCategories));
 
     // define a histogram class for each of the selected muon qualities
     for (unsigned int i = 0; i < m_selectedWPs.size(); i++) {
         std::string sQuality = Muon::EnumDefs::toString((xAOD::Muon::Quality)m_selectedWPs[i]);
-        m_oRecoMuonPlots_perQuality.push_back(new Muon::RecoMuonPlotOrganizer(
-            this, "reco/" + sQuality, (sQuality == "Medium" || sQuality == "Tight") ? &allPlotCategories : &selectedPlotCategories));
+        m_oRecoMuonPlots_perQuality.emplace_back(new Muon::RecoMuonPlotOrganizer(
+            this, "reco/" + sQuality, (sQuality == "Medium" || sQuality == "Tight") ? allPlotCategories : selectedPlotCategories));
 
         if (!m_isData) {
             bool doBinnedPlots = false;
             if (sQuality == "Medium") doBinnedPlots = true;
-            m_oTruthRelatedMuonPlots_perQuality.push_back(
+            m_oTruthRelatedMuonPlots_perQuality.emplace_back(
                 new Muon::TruthRelatedMuonPlotOrganizer(this, "matched/" + sQuality, doBinnedPlots));
         }
     }
@@ -63,78 +63,35 @@ MuonValidationPlots::MuonValidationPlots(PlotBase* pParent, const std::string& s
     for (unsigned int i = 0; i < m_selectedAuthors.size(); i++) {
         std::string sAuthor = Muon::EnumDefs::toString((xAOD::Muon::Author)m_selectedAuthors[i]);
         if (sAuthor == "CaloTag") sAuthor = "CaloTagTight";
-        m_oRecoMuonPlots_perAuthor.push_back(
-            new Muon::RecoMuonPlotOrganizer(this, "reco/" + sAuthor, (sAuthor == "MuidCo") ? &allPlotCategories : &selectedPlotCategories));
+        m_oRecoMuonPlots_perAuthor.emplace_back(
+            new Muon::RecoMuonPlotOrganizer(this, "reco/" + sAuthor, (sAuthor == "MuidCo") ? allPlotCategories : selectedPlotCategories));
         if (!m_isData)
-            m_oTruthRelatedMuonPlots_perAuthor.push_back(
+            m_oTruthRelatedMuonPlots_perAuthor.emplace_back(
                 new Muon::TruthRelatedMuonPlotOrganizer(this, "matched/" + sAuthor, doBinnedResolutionPlots));
     }
 
     // define histogram class for loose CaloTag and append to author plots, not very nice workaround though
     for (unsigned int i = 0; i < m_selectedAuthors.size(); i++) {
         if ((xAOD::Muon::Author)m_selectedAuthors[i] == xAOD::Muon::CaloTag) {  // found CaloTag in list, also do CaloTagLoose
-            m_oRecoMuonPlots_perAuthor.push_back(new Muon::RecoMuonPlotOrganizer(this, "reco/CaloTagLoose", &selectedPlotCategories));
+            m_oRecoMuonPlots_perAuthor.emplace_back(new Muon::RecoMuonPlotOrganizer(this, "reco/CaloTagLoose", selectedPlotCategories));
             if (!m_isData)
-                m_oTruthRelatedMuonPlots_perAuthor.push_back(
+                m_oTruthRelatedMuonPlots_perAuthor.emplace_back(
                     new Muon::TruthRelatedMuonPlotOrganizer(this, "matched/CaloTagLoose", doBinnedResolutionPlots));
         }
     }
 
     // define histogram class for SiliconAssociatedForwardMuons
     if (m_doSeparateSAFMuons) {
-        m_oRecoMuonPlots_SiAssocFwrdMu.push_back(new Muon::RecoMuonPlotOrganizer(this, "reco/SiAssocForward", &selectedPlotCategories));
+        m_oRecoMuonPlots_SiAssocFwrdMu.emplace_back(new Muon::RecoMuonPlotOrganizer(this, "reco/SiAssocForward", selectedPlotCategories));
         if (!m_isData)
-            m_oTruthRelatedMuonPlots_SiAssocFwrdMu.push_back(
+            m_oTruthRelatedMuonPlots_SiAssocFwrdMu.emplace_back(
                 new Muon::TruthRelatedMuonPlotOrganizer(this, "matched/SiAssocForward", doBinnedResolutionPlots));
     }
 
-    if (doMuonTree) m_MuonTree = new Muon::MuonTree(this, "", !m_isData);
+    if (doMuonTree) m_MuonTree.reset(new Muon::MuonTree(this, "", !m_isData));
 }
 
-MuonValidationPlots::~MuonValidationPlots() {
-    if (!m_isData) {
-        delete m_oTruthRelatedMuonPlots;
-        m_oTruthRelatedMuonPlots = nullptr;
-
-        for (unsigned int i = 0; i < m_oTruthRelatedMuonPlots_perQuality.size(); i++) {
-            Muon::TruthRelatedMuonPlotOrganizer* truthRelatedMuonPlots = m_oTruthRelatedMuonPlots_perQuality[i];
-            delete truthRelatedMuonPlots;
-            truthRelatedMuonPlots = nullptr;
-        }
-        for (unsigned int i = 0; i < m_oTruthRelatedMuonPlots_perAuthor.size(); i++) {
-            Muon::TruthRelatedMuonPlotOrganizer* truthRelatedMuonPlots = m_oTruthRelatedMuonPlots_perAuthor[i];
-            delete truthRelatedMuonPlots;
-            truthRelatedMuonPlots = nullptr;
-        }
-    }
-
-    for (unsigned int i = 0; i < m_oRecoMuonPlots_perQuality.size(); i++) {
-        Muon::RecoMuonPlotOrganizer* recoMuonPlots = m_oRecoMuonPlots_perQuality[i];
-        delete recoMuonPlots;
-        recoMuonPlots = nullptr;
-    }
-    for (unsigned int i = 0; i < m_oRecoMuonPlots_perAuthor.size(); i++) {
-        Muon::RecoMuonPlotOrganizer* recoMuonPlots = m_oRecoMuonPlots_perAuthor[i];
-        delete recoMuonPlots;
-        recoMuonPlots = nullptr;
-    }
-
-    for (unsigned int i = 0; i < m_oRecoMuonPlots_SiAssocFwrdMu.size(); i++) {
-        Muon::RecoMuonPlotOrganizer* recoMuonPlots = m_oRecoMuonPlots_SiAssocFwrdMu[i];
-        delete recoMuonPlots;
-        recoMuonPlots = nullptr;
-    }
-    for (unsigned int i = 0; i < m_oTruthRelatedMuonPlots_SiAssocFwrdMu.size(); i++) {
-        Muon::TruthRelatedMuonPlotOrganizer* truthRelatedMuonPlots = m_oTruthRelatedMuonPlots_SiAssocFwrdMu[i];
-        delete truthRelatedMuonPlots;
-        truthRelatedMuonPlots = nullptr;
-    }
-
-    if (m_MuonTree) {
-        delete m_MuonTree;
-        m_MuonTree = nullptr;
-    }
-}
+MuonValidationPlots::~MuonValidationPlots() =default;
 
 void MuonValidationPlots::fillRecoMuonPlots(const xAOD::Muon& mu, float weight) {
     // fill hists for all muons
@@ -225,7 +182,7 @@ void MuonValidationPlots::fill(const xAOD::TruthParticle* truthMu, const xAOD::M
     }
 }
 
-Muon::MuonTree* MuonValidationPlots::getMuonTree() { return m_MuonTree; }
+Muon::MuonTree* MuonValidationPlots::getMuonTree() { return m_MuonTree.get(); }
 
 void MuonValidationPlots::fillTreeBranches(const xAOD::Muon& mu) {
     if (m_MuonTree) m_MuonTree->fillRecoMuonBranches(mu);
@@ -252,7 +209,7 @@ void MuonValidationPlots::fillTree(const xAOD::EventInfo* eventInfo, bool isData
 }
 
 bool MuonValidationPlots::isGoodTruthTrack(const xAOD::TruthParticle& truthMu) {
-    std::string hitTypes[6] = {"innerSmallHits",  "innerLargeHits", "middleSmallHits",
+    static const std::array<std::string,6> hitTypes{"innerSmallHits",  "innerLargeHits", "middleSmallHits",
                                "middleLargeHits", "outerSmallHits", "outerLargeHits"};  // MDT + CSC
     int minPrecHits = 5;
 

@@ -17,8 +17,8 @@ public:
     void fill(const xAOD::SlowMuon& smu, const xAOD::Muon& mu, float weight = 1.0);
     void fill(const xAOD::TruthParticle* truthMu, const xAOD::SlowMuon* smu, const xAOD::Muon* mu, float weight = 1.0);
 
-    Muon::SlowMuonParamPlots* m_oSlowMuonRecoPlots;
-    Muon::SlowMuonParamPlots* m_oSlowMuonMatchedPlots;
+    std::unique_ptr<Muon::SlowMuonParamPlots> m_oSlowMuonRecoPlots{};
+    std::unique_ptr<Muon::SlowMuonParamPlots> m_oSlowMuonMatchedPlots{};
 
 private:
     void fillRecoMuonPlots(const xAOD::SlowMuon& smu, const xAOD::Muon& mu, float weight = 1.0);

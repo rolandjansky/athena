@@ -26,8 +26,8 @@ class MuonHitResidualPlots: public PlotBase {
       void fill(const Trk::ResidualPull& resPull, int stationPhi );
       
       Trk::HitResidualPlots m_oResidualPlots;      
-      TH2* pulls_vs_sectorPhi;
-      TProfile* pullsRMS_vs_sectorPhi;
+      TH2* pulls_vs_sectorPhi{nullptr};
+      TProfile* pullsRMS_vs_sectorPhi{nullptr};
       
     private:
       void init();
