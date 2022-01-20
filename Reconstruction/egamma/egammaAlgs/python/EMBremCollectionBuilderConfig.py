@@ -56,7 +56,7 @@ def GSFTrackSummaryToolCfg(flags,
                 TRT_ElectronPidToolCfg(
                     flags,
                     name="GSFBuildTRT_ElectronPidTool",
-                    CalculateNNPid=False,
+                    CalculateNNPid=(flags.GeoModel.Run == "RUN3"),
                     MinimumTrackPtForNNPid=0.))
         else:
             kwargs["TRT_ElectronPidTool"] = None
