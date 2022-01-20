@@ -394,7 +394,7 @@ StatusCode TrigFastTrackFinder::execute(const EventContext& ctx) const {
           bool isOnlineBeamspot = ((beamSpotBitMap & 0x4) == 0x4);
 
           if ((isOnlineBeamspot && (beamSpotBitMap & 0x3) == 0x3) || !isOnlineBeamspot){ //converged or MC event, if the original RoI has a zed > 3 sig + 10 then set it to 3 sig + 10.
-              TrigRoiDescriptor originRoI = **roiCollection->begin();
+              RoiDescriptor originRoI = **roiCollection->begin();
               double beamSpot_zsig = beamSpotHandle->beamSigma(2);
               Amg::Vector3D vertex = beamSpotHandle->beamPos();
               double zVTX = vertex.z();
@@ -409,17 +409,17 @@ StatusCode TrigFastTrackFinder::execute(const EventContext& ctx) const {
 
               if (origin_zedPlus > new_zedPlus && origin_zedMinus < new_zedMinus){
                   ATH_MSG_DEBUG("Updated RoI with zed = "<<new_zedRange<<" * sig + "<<new_zedMargin);
+                  double origin_eta      = originRoI.eta();    //!< gets eta at zMinus
                   double origin_etaPlus  = originRoI.etaPlus() ;    //!< gets eta at zedPlus
                   double origin_etaMinus = originRoI.etaMinus();    //!< gets eta at zMinus
+
+                  double origin_phi      = originRoI.phi() ;     //!< gets phiPlus
                   double origin_phiPlus  = originRoI.phiPlus() ;     //!< gets phiPlus
                   double origin_phiMinus = originRoI.phiMinus();    //!< gets phiMinus
-                  double origin_eta      = originRoI.eta();    //!< gets eta at zMinus
-                  double origin_phi      = originRoI.phi() ;     //!< gets phiPlus
-                  unsigned int origin_roiId   = originRoI.roiId() ;
-                  unsigned int origin_l1Id    = originRoI.l1Id() ;
-                  unsigned int origin_roiWord = originRoI.roiWord();
-                  internalRoI = TrigRoiDescriptor(origin_roiWord, origin_l1Id, origin_roiId, origin_eta, origin_etaMinus, origin_etaPlus, origin_phi, origin_phiMinus, origin_phiPlus, zVTX, new_zedMinus, new_zedPlus);
-                  if (originRoI.isFullscan()) internalRoI.setFullscan(true);
+
+                  internalRoI = TrigRoiDescriptor( origin_eta, origin_etaMinus, origin_etaPlus, 
+						   origin_phi, origin_phiMinus, origin_phiPlus, 
+						   zVTX, new_zedMinus, new_zedPlus );
               }
               else internalRoI = **roiCollection->begin(); // we have a more narrow zed range in RoI, no need to update.
           }else{ //Not converged, set to the fullScan RoI
