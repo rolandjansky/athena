@@ -12,8 +12,8 @@
 #include <TauAnalysisTools/ITauEfficiencyCorrectionsTool.h>
 #include <SelectionHelpers/OutOfValidityHelper.h>
 #include <SelectionHelpers/SelectionReadHandle.h>
-#include <SystematicsHandles/SysCopyHandle.h>
-#include <SystematicsHandles/SysDecorationHandle.h>
+#include <SystematicsHandles/SysReadHandle.h>
+#include <SystematicsHandles/SysWriteDecorHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <SystematicsHandles/SysReadHandle.h>
 #include <xAODTau/TauJetContainer.h>
@@ -48,7 +48,7 @@ namespace CP
 
     /// \brief the tau collection we run on
   private:
-    SysCopyHandle<xAOD::TauJetContainer> m_tauHandle {
+    SysReadHandle<xAOD::TauJetContainer> m_tauHandle {
       this, "taus", "TauJets", "the tau collection to run on"};
 
     /// \brief the preselection we apply to our input
@@ -62,7 +62,7 @@ namespace CP
 
     /// \brief the decoration for the tau scale factor
   private:
-    SysDecorationHandle<float> m_scaleFactorDecoration {
+    SysWriteDecorHandle<float> m_scaleFactorDecoration {
       this, "scaleFactorDecoration", "", "the decoration for the tau efficiency scale factor"};
   };
 }

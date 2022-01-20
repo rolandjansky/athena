@@ -42,12 +42,14 @@ public:
    */
   enum struct Position{
     SF=0,
-    Total=1,
-    Stat=2,
-    NSys=3,
-    UnCorr=4,
-    GlobalBinNumber=5,
-    End=6
+    TotalUp=1,
+    TotalDn=2,
+    Stat=3,
+    Asymm=4,
+    NSys=5,
+    UnCorr=6,
+    GlobalBinNumber=7,
+    End=8
   };
 
   /** Standard constructor */

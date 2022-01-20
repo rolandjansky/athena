@@ -70,18 +70,21 @@ namespace top {
   }
 
   void EventCleaningSelection::setEventSelections(const std::vector<top::SelectionConfigurationData>& selections) {
-    std::unordered_set<std::string> tmpAllTriggers_Tight;
-    std::unordered_set<std::string> tmpAllTriggers_Loose;
+    std::set<std::pair<std::string, int> > tmpAllTriggers_Tight;
+    std::set<std::pair<std::string, int> > tmpAllTriggers_Loose;
 
     // get full list of global triggers
-    std::vector<std::string> globalTriggers_Tight;
-    std::vector<std::string> globalTriggers_Loose;
-    std::vector<std::string> globalElectronTriggers_Tight;
-    std::vector<std::string> globalElectronTriggers_Loose;
-    std::vector<std::string> globalMuonTriggers_Tight;
-    std::vector<std::string> globalMuonTriggers_Loose;
+    std::vector<std::pair<std::string, int> > globalTriggers_Tight;
+    std::vector<std::pair<std::string, int> > globalTriggers_Loose;
+    std::vector<std::pair<std::string, int> > globalElectronTriggers_Tight;
+    std::vector<std::pair<std::string, int> > globalElectronTriggers_Loose;
+    std::vector<std::pair<std::string, int> > globalMuonTriggers_Tight;
+    std::vector<std::pair<std::string, int> > globalMuonTriggers_Loose;
+    std::vector<std::pair<std::string, int> > globalPhotonTriggers_Tight;
+    std::vector<std::pair<std::string, int> > globalPhotonTriggers_Loose;
+
     if (m_config->useGlobalTrigger()) {
-      std::set<std::string> tmp;
+      std::set<std::pair<std::string, int> > tmp;
       for (auto const& triggermap : {m_config->getGlobalTriggers()}) {
         for (auto const& pair : triggermap) {
           auto const& triggers = getIndividualFromGlobalTriggers(pair.second);
@@ -89,9 +92,10 @@ namespace top {
         }
       }
       globalTriggers_Tight.assign(tmp.begin(), tmp.end());
-      for (std::string const& trigger : globalTriggers_Tight) {
-        if (isElectronTrigger(trigger)) globalElectronTriggers_Tight.push_back(trigger);
-        if (isMuonTrigger(trigger)) globalMuonTriggers_Tight.push_back(trigger);
+      for (std::pair<std::string, int> const& trigger : globalTriggers_Tight) {
+        if (isElectronTrigger(trigger.first)) globalElectronTriggers_Tight.push_back(trigger);
+        if (isMuonTrigger(trigger.first)) globalMuonTriggers_Tight.push_back(trigger);
+        if (isPhotonTrigger(trigger.first)) globalPhotonTriggers_Tight.push_back(trigger);
       }
       tmp.clear();
       // and the usual copy-paste-s/Tight/Loose/g story:
@@ -102,9 +106,10 @@ namespace top {
         }
       }
       globalTriggers_Loose.assign(tmp.begin(), tmp.end());
-      for (std::string const& trigger : globalTriggers_Loose) {
-        if (isElectronTrigger(trigger)) globalElectronTriggers_Loose.push_back(trigger);
-        if (isMuonTrigger(trigger)) globalMuonTriggers_Loose.push_back(trigger);
+      for (std::pair<std::string, int> const& trigger : globalTriggers_Loose) {
+        if (isElectronTrigger(trigger.first)) globalElectronTriggers_Loose.push_back(trigger);
+        if (isMuonTrigger(trigger.first)) globalMuonTriggers_Loose.push_back(trigger);
+        if (isPhotonTrigger(trigger.first)) globalPhotonTriggers_Loose.push_back(trigger);
       }
     }
 
@@ -112,28 +117,24 @@ namespace top {
     m_electronTriggers_Tight.clear();
     m_muonTriggers_Tight.clear();
     m_tauTriggers_Tight.clear();
+    m_photonTriggers_Tight.clear();
     m_allTriggers_Loose.clear();
     m_electronTriggers_Loose.clear();
     m_muonTriggers_Loose.clear();
     m_tauTriggers_Loose.clear();
+    m_photonTriggers_Loose.clear();
 
     // Trigger maps for TopConfig - to be used by individual selectors
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > allTriggers_perSelector_Tight
-      (new std::unordered_map<std::string, std::vector<std::string> > );
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > electronTriggers_perSelector_Tight
-      (new std::unordered_map<std::string, std::vector<std::string> > );
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > muonTriggers_perSelector_Tight
-      (new std::unordered_map<std::string, std::vector<std::string> > );
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > tauTriggers_perSelector_Tight
-      (new std::unordered_map<std::string, std::vector<std::string> > );
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > allTriggers_perSelector_Loose
-      (new std::unordered_map<std::string, std::vector<std::string> > );
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > electronTriggers_perSelector_Loose
-      (new std::unordered_map<std::string, std::vector<std::string> > );
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > muonTriggers_perSelector_Loose
-      (new std::unordered_map<std::string, std::vector<std::string> > );
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > tauTriggers_perSelector_Loose
-      (new std::unordered_map<std::string, std::vector<std::string> > );
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > allTriggers_perSelector_Tight(new std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > );
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > electronTriggers_perSelector_Tight(new std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > );
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > muonTriggers_perSelector_Tight(new std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > );
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > tauTriggers_perSelector_Tight(new std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > );
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > photonTriggers_perSelector_Tight(new std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > );
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > allTriggers_perSelector_Loose(new std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > );
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > electronTriggers_perSelector_Loose(new std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > );
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > muonTriggers_perSelector_Loose(new std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > );
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > tauTriggers_perSelector_Loose(new std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > );
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > photonTriggers_perSelector_Loose(new std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > );
 
 
     // Loop over all selections
@@ -142,16 +143,18 @@ namespace top {
     m_vetoEventsGoodCalo = true;
 
     for (auto sel : selections) {
-      std::list<std::string> listAllTriggers_thisSelector_Tight;
-      std::vector<std::string> allTriggers_thisSelector_Tight;
-      std::vector<std::string> electronTriggers_thisSelector_Tight;
-      std::vector<std::string> muonTriggers_thisSelector_Tight;
-      std::vector<std::string> tauTriggers_thisSelector_Tight;
-      std::list<std::string> listAllTriggers_thisSelector_Loose;
-      std::vector<std::string> allTriggers_thisSelector_Loose;
-      std::vector<std::string> electronTriggers_thisSelector_Loose;
-      std::vector<std::string> muonTriggers_thisSelector_Loose;
-      std::vector<std::string> tauTriggers_thisSelector_Loose;
+      std::list<std::pair<std::string, int> > listAllTriggers_thisSelector_Tight;
+      std::vector<std::pair<std::string, int> > allTriggers_thisSelector_Tight;
+      std::vector<std::pair<std::string, int> > electronTriggers_thisSelector_Tight;
+      std::vector<std::pair<std::string, int> > muonTriggers_thisSelector_Tight;
+      std::vector<std::pair<std::string, int> > tauTriggers_thisSelector_Tight;
+      std::vector<std::pair<std::string, int> > photonTriggers_thisSelector_Tight;
+      std::list<std::pair<std::string, int> > listAllTriggers_thisSelector_Loose;
+      std::vector<std::pair<std::string, int> > allTriggers_thisSelector_Loose;
+      std::vector<std::pair<std::string, int> > electronTriggers_thisSelector_Loose;
+      std::vector<std::pair<std::string, int> > muonTriggers_thisSelector_Loose;
+      std::vector<std::pair<std::string, int> > tauTriggers_thisSelector_Loose;
+      std::vector<std::pair<std::string, int> > photonTriggers_thisSelector_Loose;
 
       // Loop over cut names and look for TRIGDEC, GRL, GOODCALO, PRIVTX
       bool selectionHasTriggerCut(false);
@@ -181,26 +184,45 @@ namespace top {
           }
           selectionHasTriggerCut = true;
           allTriggers_perSelector_Tight->insert(std::make_pair(sel.m_name,
-                                                               std::vector<std::string>(globalTriggers_Tight.begin(),
-                                                                                        globalTriggers_Tight.end())));
+                                                               std::vector<std::pair<std::string, int> >(globalTriggers_Tight.begin(),
+                                                                                                         globalTriggers_Tight.end())));
           allTriggers_perSelector_Loose->insert(std::make_pair(sel.m_name,
-                                                               std::vector<std::string>(globalTriggers_Loose.begin(),
-                                                                                        globalTriggers_Loose.end())));
+                                                               std::vector<std::pair<std::string, int> >(globalTriggers_Loose.begin(),
+                                                                                                         globalTriggers_Loose.end())));
           electronTriggers_perSelector_Tight->insert(std::make_pair(sel.m_name,
-                                                                    std::vector<std::string>(
+                                                                    std::vector<std::pair<std::string, int> >(
                                                                       globalElectronTriggers_Tight.begin(),
                                                                       globalElectronTriggers_Tight.end())));
           electronTriggers_perSelector_Loose->insert(std::make_pair(sel.m_name,
-                                                                    std::vector<std::string>(
+                                                                    std::vector<std::pair<std::string, int> >(
                                                                       globalElectronTriggers_Loose.begin(),
                                                                       globalElectronTriggers_Loose.end())));
           muonTriggers_perSelector_Tight->insert(std::make_pair(sel.m_name,
-                                                                std::vector<std::string>(globalMuonTriggers_Tight.begin(),
+                                                                std::vector<std::pair<std::string, int> >(globalMuonTriggers_Tight.begin(),
                                                                                          globalMuonTriggers_Tight.end())));
           muonTriggers_perSelector_Loose->insert(std::make_pair(sel.m_name,
-                                                                std::vector<std::string>(globalMuonTriggers_Loose.begin(),
+                                                                std::vector<std::pair<std::string, int> >(globalMuonTriggers_Loose.begin(),
                                                                                          globalMuonTriggers_Loose.end())));
+          photonTriggers_perSelector_Tight->insert(std::make_pair(sel.m_name,
+                                                                  std::vector<std::pair<std::string, int> >(globalPhotonTriggers_Tight.begin(),
+                                                                                           globalPhotonTriggers_Tight.end())));
+          photonTriggers_perSelector_Loose->insert(std::make_pair(sel.m_name,
+                                                                  std::vector<std::pair<std::string, int> >(globalPhotonTriggers_Loose.begin(),
+                                                                                           globalPhotonTriggers_Loose.end())));
         }
+
+        // function to split the trigger name of type "2@NAME" to std::pair<string, int> of NAME,2
+        auto splitTrigger = [](std::string trig) {
+          char delim = '@';
+          auto position = trig.find(delim);
+          int n(1);
+          if (position != std::string::npos) {
+            n = std::stoi(trig.substr(0, position));
+            trig = trig.substr(position+1, trig.size());
+          }
+          std::pair<std::string, int> result = std::make_pair(trig, n);
+          return result;
+        };
 
         if (starts_with(cut, "TRIGDEC_TIGHT ")) {
           if (selectionHasTriggerCut_Tight) {
@@ -220,8 +242,9 @@ namespace top {
           char delim = ' ';
           while (std::getline(ss, item, delim)) {
             if (item.size() > 0 && item.find("TRIGDEC_TIGHT") == std::string::npos) {
-              tmpAllTriggers_Tight.insert(item);
-              listAllTriggers_thisSelector_Tight.push_back(item);
+              const std::pair<std::string, int> tmp = splitTrigger(item);
+              tmpAllTriggers_Tight.insert(tmp);
+              listAllTriggers_thisSelector_Tight.push_back(tmp);
             }
           }
           listAllTriggers_thisSelector_Tight.sort();
@@ -234,14 +257,17 @@ namespace top {
 
           // Split triggers into electron, muon and tau
           for (const auto& trigger : allTriggers_thisSelector_Tight) {
-            if (isElectronTrigger(trigger)) {
+            if (isElectronTrigger(trigger.first)) {
               electronTriggers_thisSelector_Tight.push_back(trigger);
             }
-            if (isMuonTrigger(trigger)) {
+            if (isMuonTrigger(trigger.first)) {
               muonTriggers_thisSelector_Tight.push_back(trigger);
             }
-            if ((trigger.find("_tau") != std::string::npos)) {
+            if ((trigger.first.find("_tau") != std::string::npos)) {
               tauTriggers_thisSelector_Tight.push_back(trigger);
+            }
+            if (isPhotonTrigger(trigger.first)) {
+              photonTriggers_thisSelector_Tight.push_back(trigger);
             }
           }
 
@@ -249,6 +275,7 @@ namespace top {
           electronTriggers_perSelector_Tight->insert(std::make_pair(sel.m_name, electronTriggers_thisSelector_Tight));
           muonTriggers_perSelector_Tight->insert(std::make_pair(sel.m_name, muonTriggers_thisSelector_Tight));
           tauTriggers_perSelector_Tight->insert(std::make_pair(sel.m_name, tauTriggers_thisSelector_Tight));
+          photonTriggers_perSelector_Tight->insert(std::make_pair(sel.m_name, photonTriggers_thisSelector_Tight));
         } // Cut requested is TRIGDEC_TIGHT
         else if (starts_with(cut, "TRIGDEC_LOOSE ")) {
           if (selectionHasTriggerCut_Loose) {
@@ -268,8 +295,9 @@ namespace top {
           char delim = ' ';
           while (std::getline(ss, item, delim)) {
             if (item.size() > 0 && item.find("TRIGDEC_LOOSE") == std::string::npos) {
-              tmpAllTriggers_Loose.insert(item);
-              listAllTriggers_thisSelector_Loose.push_back(item);
+              const std::pair<std::string, int> tmp = splitTrigger(item);
+              tmpAllTriggers_Loose.insert(tmp);
+              listAllTriggers_thisSelector_Loose.push_back(tmp);
             }
           }
           listAllTriggers_thisSelector_Loose.sort();
@@ -282,14 +310,17 @@ namespace top {
 
           // Split triggers into electron, muon and tau
           for (const auto& trigger : allTriggers_thisSelector_Loose) {
-            if (isElectronTrigger(trigger)) {
+            if (isElectronTrigger(trigger.first)) {
               electronTriggers_thisSelector_Loose.push_back(trigger);
             }
-            if (isMuonTrigger(trigger)) {
+            if (isMuonTrigger(trigger.first)) {
               muonTriggers_thisSelector_Loose.push_back(trigger);
             }
-            if ((trigger.find("_tau") != std::string::npos)) {
+            if ((trigger.first.find("_tau") != std::string::npos)) {
               tauTriggers_thisSelector_Loose.push_back(trigger);
+            }
+            if (isPhotonTrigger(trigger.first)) {
+              photonTriggers_thisSelector_Loose.push_back(trigger);
             }
           }
 
@@ -297,6 +328,7 @@ namespace top {
           electronTriggers_perSelector_Loose->insert(std::make_pair(sel.m_name, electronTriggers_thisSelector_Loose));
           muonTriggers_perSelector_Loose->insert(std::make_pair(sel.m_name, muonTriggers_thisSelector_Loose));
           tauTriggers_perSelector_Loose->insert(std::make_pair(sel.m_name, tauTriggers_thisSelector_Loose));
+          photonTriggers_perSelector_Loose->insert(std::make_pair(sel.m_name, photonTriggers_thisSelector_Loose));
         } // Cut requested is TRIGDEC_LOOSE
         else if (starts_with(cut, "TRIGDEC ")) {
           if (selectionHasTriggerCut) {
@@ -320,10 +352,11 @@ namespace top {
           char delim = ' ';
           while (std::getline(ss, item, delim)) {
             if (item.size() > 0 && item.find("TRIGDEC") == std::string::npos) {
-              tmpAllTriggers_Tight.insert(item);
-              listAllTriggers_thisSelector_Tight.push_back(item);
-              tmpAllTriggers_Loose.insert(item);
-              listAllTriggers_thisSelector_Loose.push_back(item);
+              const std::pair<std::string, int> tmp = splitTrigger(item);
+              tmpAllTriggers_Tight.insert(tmp);
+              listAllTriggers_thisSelector_Tight.push_back(tmp);
+              tmpAllTriggers_Loose.insert(tmp);
+              listAllTriggers_thisSelector_Loose.push_back(tmp);
             }
           }
           listAllTriggers_thisSelector_Tight.sort();
@@ -340,26 +373,32 @@ namespace top {
           }
           // Split triggers into electron, muon and tau
           for (const auto& trigger : allTriggers_thisSelector_Tight) {
-            if (isElectronTrigger(trigger)) {
+            if (isElectronTrigger(trigger.first)) {
               electronTriggers_thisSelector_Tight.push_back(trigger);
             }
-            if (isMuonTrigger(trigger)) {
+            if (isMuonTrigger(trigger.first)) {
               muonTriggers_thisSelector_Tight.push_back(trigger);
             }
-            if ((trigger.find("_tau") != std::string::npos)) {
+            if ((trigger.first.find("_tau") != std::string::npos)) {
               tauTriggers_thisSelector_Tight.push_back(trigger);
+            }
+            if (isPhotonTrigger(trigger.first)) {
+              photonTriggers_thisSelector_Tight.push_back(trigger);
             }
           }
 
           for (const auto& trigger : allTriggers_thisSelector_Loose) {
-            if (isElectronTrigger(trigger)) {
+            if (isElectronTrigger(trigger.first)) {
               electronTriggers_thisSelector_Loose.push_back(trigger);
             }
-            if (isMuonTrigger(trigger)) {
+            if (isMuonTrigger(trigger.first)) {
               muonTriggers_thisSelector_Loose.push_back(trigger);
             }
-            if ((trigger.find("_tau") != std::string::npos)) {
+            if ((trigger.first.find("_tau") != std::string::npos)) {
               tauTriggers_thisSelector_Loose.push_back(trigger);
+            }
+            if (isPhotonTrigger(trigger.first)) {
+              photonTriggers_thisSelector_Loose.push_back(trigger);
             }
           }
 
@@ -367,11 +406,13 @@ namespace top {
           electronTriggers_perSelector_Tight->insert(std::make_pair(sel.m_name, electronTriggers_thisSelector_Tight));
           muonTriggers_perSelector_Tight->insert(std::make_pair(sel.m_name, muonTriggers_thisSelector_Tight));
           tauTriggers_perSelector_Tight->insert(std::make_pair(sel.m_name, tauTriggers_thisSelector_Tight));
+          photonTriggers_perSelector_Tight->insert(std::make_pair(sel.m_name, photonTriggers_thisSelector_Tight));
 
           allTriggers_perSelector_Loose->insert(std::make_pair(sel.m_name, allTriggers_thisSelector_Loose));
           electronTriggers_perSelector_Loose->insert(std::make_pair(sel.m_name, electronTriggers_thisSelector_Loose));
           muonTriggers_perSelector_Loose->insert(std::make_pair(sel.m_name, muonTriggers_thisSelector_Loose));
           tauTriggers_perSelector_Loose->insert(std::make_pair(sel.m_name, tauTriggers_thisSelector_Loose));
+          photonTriggers_perSelector_Loose->insert(std::make_pair(sel.m_name, photonTriggers_thisSelector_Loose));
         } // Cut requested is TRIGDEC
       } // Loop over all cuts
 
@@ -395,7 +436,7 @@ namespace top {
 
     // Turn list into vector
     {
-      std::vector<std::string> tmp;
+      std::vector<std::pair<std::string, int> > tmp;
       tmp.assign(tmpAllTriggers_Tight.begin(), tmpAllTriggers_Tight.end());
       std::sort(tmp.begin(), tmp.end());
       m_allTriggers_Tight.swap(tmp);
@@ -407,11 +448,11 @@ namespace top {
 
     ATH_MSG_INFO("All requested Tight triggers are:");
     for (const auto& trigger : m_allTriggers_Tight) {
-      ATH_MSG_INFO("  " << trigger);
+      ATH_MSG_INFO("  " << trigger.first);
     }
     ATH_MSG_INFO("All requested Loose triggers are:");
     for (const auto& trigger : m_allTriggers_Loose) {
-      ATH_MSG_INFO("  " << trigger);
+      ATH_MSG_INFO("  " << trigger.first);
     }
 
     std::string outputInfoString("True");
@@ -422,26 +463,32 @@ namespace top {
 
     // Split triggers into electron, muon and tau
     for (const auto& trigger : m_allTriggers_Tight) {
-      if (isElectronTrigger(trigger)) {
+      if (isElectronTrigger(trigger.first)) {
         m_electronTriggers_Tight.push_back(trigger);
       }
-      if (isMuonTrigger(trigger)) {
+      if (isMuonTrigger(trigger.first)) {
         m_muonTriggers_Tight.push_back(trigger);
       }
-      if ((trigger.find("_tau") != std::string::npos)) {
+      if ((trigger.first.find("_tau") != std::string::npos)) {
         m_tauTriggers_Tight.push_back(trigger);
+      }
+      if (isPhotonTrigger(trigger.first)) {
+        m_photonTriggers_Tight.push_back(trigger);
       }
     }
     // Split triggers into electron, muon and tau
     for (const auto& trigger : m_allTriggers_Loose) {
-      if (isElectronTrigger(trigger)) {
+      if (isElectronTrigger(trigger.first)) {
         m_electronTriggers_Loose.push_back(trigger);
       }
-      if (isMuonTrigger(trigger)) {
+      if (isMuonTrigger(trigger.first)) {
         m_muonTriggers_Loose.push_back(trigger);
       }
-      if ((trigger.find("_tau") != std::string::npos)) {
+      if ((trigger.first.find("_tau") != std::string::npos)) {
         m_tauTriggers_Loose.push_back(trigger);
+      }
+      if (isPhotonTrigger(trigger.first)) {
+        m_photonTriggers_Loose.push_back(trigger);
       }
     }
 
@@ -450,10 +497,12 @@ namespace top {
     m_config->electronTriggers_Tight(electronTriggers_perSelector_Tight);
     m_config->muonTriggers_Tight(muonTriggers_perSelector_Tight);
     m_config->tauTriggers_Tight(tauTriggers_perSelector_Tight);
+    m_config->photonTriggers_Tight(photonTriggers_perSelector_Tight);
     m_config->allTriggers_Loose(allTriggers_perSelector_Loose);
     m_config->electronTriggers_Loose(electronTriggers_perSelector_Loose);
     m_config->muonTriggers_Loose(muonTriggers_perSelector_Loose);
     m_config->tauTriggers_Loose(tauTriggers_perSelector_Loose);
+    m_config->photonTriggers_Loose(photonTriggers_perSelector_Loose);
 
     // If the user has requested that all events are saved, then we'd better turn off the vetos
     if (!m_config->saveOnlySelectedEvents()) {
@@ -584,21 +633,21 @@ namespace top {
     top::check(evtStore()->retrieve(eventInfo, m_config->sgKeyEventInfo()), "Failed to retrieve EventInfo");
 
     bool orOfAllTriggers(false);
-    std::unordered_set<std::string> triggers;
+    std::set<std::pair<std::string, int> > triggers;
     triggers.insert(m_allTriggers_Tight.begin(), m_allTriggers_Tight.end());
     triggers.insert(m_allTriggers_Loose.begin(), m_allTriggers_Loose.end());
     for (const auto& trigger : triggers) {
       //decorating event with trigger decision
-      bool passThisTrigger = m_trigDecisionTool->isPassed(trigger);
+      bool passThisTrigger = m_trigDecisionTool->isPassed(trigger.first);
       char decoration = passThisTrigger ? 1 : 0;
-      eventInfo->auxdecor<char>("TRIGDEC_" + trigger) = decoration;
+      eventInfo->auxdecor<char>("TRIGDEC_" + trigger.first) = decoration;
       orOfAllTriggers |= passThisTrigger;
 
       //decorating event with trigger prescale (on Data)
       if (!m_config->isMC()) {
-        auto cg = m_trigDecisionTool->getChainGroup(trigger);
+        auto cg = m_trigDecisionTool->getChainGroup(trigger.first);
         float prescale = cg->getPrescale();
-        eventInfo->auxdecor<float>("TRIGPS_" + trigger) = prescale;
+        eventInfo->auxdecor<float>("TRIGPS_" + trigger.first) = prescale;
       }
     }
 
@@ -606,6 +655,7 @@ namespace top {
     if (m_config->useElectrons()) matchElectrons();
     if (m_config->useMuons()) matchMuons();
     if (m_config->useTaus()) matchTaus();
+    if (m_config->usePhotons()) matchPhotons();
 
     // Do we veto events? Only if ALL selectors request TRIGDEC and no trigger passes
     if (m_vetoEventsTrigger) {
@@ -626,7 +676,7 @@ namespace top {
     if(m_config->useElectrons()) top::check(evtStore()->retrieve(electrons, m_config->sgKeyElectrons()), "Failed to retrieve electrons");
 
     // Loop over electrons
-    std::unordered_set<std::string> triggers;
+    std::set<std::pair<std::string, int> > triggers;
     triggers.insert(m_electronTriggers_Tight.begin(), m_electronTriggers_Tight.end());
     triggers.insert(m_electronTriggers_Loose.begin(), m_electronTriggers_Loose.end());
     for (const auto* el : *electrons) {
@@ -634,13 +684,13 @@ namespace top {
       for (const auto& trigger : triggers) {
         bool match(false);
         // Match even if event fails trigger decistion - it's important in case of pre-scaled menus
-        if (!m_config->useGlobalTrigger() && el->isAvailable<char>(m_config->getDerivationStream() + "_" + trigger)) {
-          match = el->auxdataConst<char>(m_config->getDerivationStream() + "_" + trigger);
+        if (!m_config->useGlobalTrigger() && el->isAvailable<char>(m_config->getDerivationStream() + "_" + trigger.first)) {
+          match = el->auxdataConst<char>(m_config->getDerivationStream() + "_" + trigger.first);
         } else {
-          match = m_trigMatchTool->match(*el, trigger);
+          match = m_trigMatchTool->match(*el, trigger.first);
         }
         char decoration = match ? 1 : 0;
-        el->auxdecor<char>("TRIGMATCH_" + trigger) = decoration;
+        el->auxdecor<char>("TRIGMATCH_" + trigger.first) = decoration;
       }
     }
   }
@@ -655,7 +705,7 @@ namespace top {
     if(m_config->useMuons()) top::check(evtStore()->retrieve(muons, m_config->sgKeyMuons()), "Failed to retrieve muons in EventCleaningSelection::matchMuons() ");
 
     // Loop over muons
-    std::unordered_set<std::string> triggers;
+    std::set<std::pair<std::string, int> > triggers;
     triggers.insert(m_muonTriggers_Tight.begin(), m_muonTriggers_Tight.end());
     triggers.insert(m_muonTriggers_Loose.begin(), m_muonTriggers_Loose.end());
     for (const auto* mu : *muons) {
@@ -663,13 +713,13 @@ namespace top {
       for (const auto& trigger : triggers) {
         bool match(false);
         // Match even if event fails trigger decistion - it's important in case of pre-scaled menus
-        if (!m_config->useGlobalTrigger() && mu->isAvailable<char>(m_config->getDerivationStream() + "_" + trigger)) {
-          match = mu->auxdataConst<char>(m_config->getDerivationStream() + "_" + trigger);
+        if (!m_config->useGlobalTrigger() && mu->isAvailable<char>(m_config->getDerivationStream() + "_" + trigger.first)) {
+          match = mu->auxdataConst<char>(m_config->getDerivationStream() + "_" + trigger.first);
         } else {
-          match = m_trigMatchTool->match(*mu, trigger);
+          match = m_trigMatchTool->match(*mu, trigger.first);
         }
         char decoration = match ? 1 : 0;
-        mu->auxdecor<char>("TRIGMATCH_" + trigger) = decoration;
+        mu->auxdecor<char>("TRIGMATCH_" + trigger.first) = decoration;
       }
     }
   }
@@ -692,40 +742,72 @@ namespace top {
       for (const auto& trigger : m_tauTriggers_Tight) {
         bool match(false);
         // Match even if event fails trigger decistion - it's important in case of pre-scaled menus
-        match = m_trigMatchTauTool->match(tau, trigger);
-        if (tau->isAvailable<char>(m_config->getDerivationStream() + "_" + trigger)) {
-          match = tau->auxdataConst<char>(m_config->getDerivationStream() + "_" + trigger);
+        match = m_trigMatchTauTool->match(tau, trigger.first);
+        if (tau->isAvailable<char>(m_config->getDerivationStream() + "_" + trigger.first)) {
+          match = tau->auxdataConst<char>(m_config->getDerivationStream() + "_" + trigger.first);
         } else {
-          match = m_trigMatchTool->match(*tau, trigger);
+          match = m_trigMatchTool->match(*tau, trigger.first);
         }
         char decoration = match ? 1 : 0;
-        tau->auxdecor<char>("TRIGMATCH_" + trigger) = decoration;
+        tau->auxdecor<char>("TRIGMATCH_" + trigger.first) = decoration;
       }
       // Loop over tau triggers
       for (const auto& trigger : m_tauTriggers_Loose) {
         // let's make sure this isn't done twice
-        if (tau->isAvailable<char>("TRIGMATCH_" + trigger)) continue;
+        if (tau->isAvailable<char>("TRIGMATCH_" + trigger.first)) continue;
         bool match(false);
         // Match even if event fails trigger decistion - it's important in case of pre-scaled menus
-        match = m_trigMatchTauTool->match(tau, trigger);
-        if (tau->isAvailable<char>(m_config->getDerivationStream() + "_" + trigger)) {
-          match = tau->auxdataConst<char>(m_config->getDerivationStream() + "_" + trigger);
+        match = m_trigMatchTauTool->match(tau, trigger.first);
+        if (tau->isAvailable<char>(m_config->getDerivationStream() + "_" + trigger.first)) {
+          match = tau->auxdataConst<char>(m_config->getDerivationStream() + "_" + trigger.first);
         } else {
-          match = m_trigMatchTool->match(*tau, trigger);
+          match = m_trigMatchTool->match(*tau, trigger.first);
         }
         char decoration = match ? 1 : 0;
-        tau->auxdecor<char>("TRIGMATCH_" + trigger) = decoration;
+        tau->auxdecor<char>("TRIGMATCH_" + trigger.first) = decoration;
+      }
+    }
+  }
+
+  void EventCleaningSelection::matchPhotons() {
+    const xAOD::EventInfo* eventInfo(nullptr);
+
+    top::check(evtStore()->retrieve(eventInfo, m_config->sgKeyEventInfo()),
+               "Failed to retrieve EventInfo");
+
+    // Take photons from input file.
+    // Decorate these before doing any calibration/shallow copies
+    const xAOD::PhotonContainer* photons(nullptr);
+    top::check(evtStore()->retrieve(photons, m_config->sgKeyPhotons()),
+               "Failed to retrieve photons");
+
+    // Loop over photons
+    std::set<std::pair<std::string, int> > triggers;
+    triggers.insert(m_photonTriggers_Tight.begin(), m_photonTriggers_Tight.end());
+    triggers.insert(m_photonTriggers_Loose.begin(), m_photonTriggers_Loose.end());
+    for (const auto* photon : *photons) {
+      // Loop over photon triggers
+      for (const auto& trigger : triggers) {
+        bool match(false);
+        // Match even if event fails trigger decision - it's important in case of pre-scaled menus
+        if (photon->isAvailable<char>(m_config->getDerivationStream() + "_" + trigger.first)) {
+          match = photon->auxdataConst<char>(m_config->getDerivationStream() + "_" + trigger.first);
+        } else {
+          match = m_trigMatchTool->match(*photon, trigger.first);
+        }
+        char decoration = match ? 1 : 0;
+        photon->auxdecor<char>("TRIGMATCH_" + trigger.first) = decoration;
       }
     }
   }
 
   void EventCleaningSelection::addExtraBranches(std::vector<std::string>& extraBranchList) {
     for (const auto& trigger : m_allTriggers_Tight)
-      extraBranchList.push_back("TRIGDEC_" + trigger);
+      extraBranchList.push_back("TRIGDEC_" + trigger.first);
     for (const auto& trigger : m_allTriggers_Loose) {
       if (std::find(extraBranchList.begin(), extraBranchList.end(),
-                    std::string {"TRIGDEC_"} +trigger) == extraBranchList.end()) { // to not add them twice
-        extraBranchList.push_back("TRIGDEC_" + trigger);
+                    std::string {"TRIGDEC_"} +trigger.first) == extraBranchList.end()) { // to not add them twice
+        extraBranchList.push_back("TRIGDEC_" + trigger.first);
       }
     }
   }
@@ -736,16 +818,16 @@ namespace top {
     m_trigConfTool->chainList()->print("", 10);
   }
 
-  std::vector<std::string> EventCleaningSelection::getIndividualFromGlobalTriggers(
-    std::vector<std::string> const& triggers) {
-    std::vector<std::string> result;
+  std::vector<std::pair<std::string, int> > EventCleaningSelection::getIndividualFromGlobalTriggers(
+    std::vector<std::pair<std::string, int> > const& triggers) {
+    std::vector<std::pair<std::string, int> > result;
     std::string const delim("_OR_");
-    for (std::string const& trigger : triggers) {
+    for (std::pair<std::string, int> const& trigger : triggers) {
       size_t cur = 0;
       while (true) {
-        size_t next = trigger.find(delim, cur);
+        size_t next = trigger.first.find(delim, cur);
         bool last = (next == std::string::npos);
-        result.emplace_back(std::string("HLT_") + trigger.substr(cur, (last ? std::string::npos : next - cur)));
+        result.emplace_back(std::string("HLT_") + trigger.first.substr(cur, (last ? std::string::npos : next - cur)), 1);
         if (last) break;
         cur = next + delim.size();
       }
@@ -763,5 +845,16 @@ namespace top {
     top::check(trigger.find("HLT_") == 0, "Expected trigger name to start with `HLT_'");
     bool success;
     return(TrigGlobEffCorr::ImportData::associatedLeptonFlavour(trigger.substr(4), success) == xAOD::Type::Muon);
+  }
+  
+  bool EventCleaningSelection::isPhotonTrigger(std::string const& trigger) const {
+    // this is really not the best way to do it, but TrigGlobEffCorr doesnt seem to be able to identify photon triggers
+    if (trigger.find("_1g") != std::string::npos) return true;
+    if (trigger.find("_2g") != std::string::npos) return true;
+
+    top::check(trigger.find("HLT_") == 0, "Expected trigger name to start with `HLT_'");
+    bool success;
+    return(TrigGlobEffCorr::ImportData::associatedLeptonFlavour(trigger.substr(4), success) == xAOD::Type::Photon);
+
   }
 }

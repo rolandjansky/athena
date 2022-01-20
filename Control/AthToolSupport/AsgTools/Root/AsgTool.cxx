@@ -91,16 +91,6 @@ namespace asg {
       return &m_event;
    }
 
-   PropertyMgr* AsgTool::getPropertyMgr() {
-
-     return m_properties;
-   }
-
-   const PropertyMgr* AsgTool::getPropertyMgr() const {
-
-     return m_properties;
-   }
-
    void AsgTool::setName( const std::string& name ) {
 
       m_name = name;

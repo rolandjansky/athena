@@ -59,6 +59,7 @@ int main( int argc, char* argv[] ) {
     CHECK( ElEffCorrectionTool.setProperty("OutputLevel", mylevel ));
     CHECK( ElEffCorrectionTool.setProperty("CorrelationModel", "FULL" )); 
     CHECK( ElEffCorrectionTool.setProperty("UseRandomRunNumber", false ));
+    CHECK( ElEffCorrectionTool.setProperty("DefaultRandomRunNumber", 340000 )); // use a 2017 run 
     CHECK( ElEffCorrectionTool.initialize());  
     
     //Then open the file(s)

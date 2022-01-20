@@ -9,7 +9,6 @@
 #include "TopEvent/EventTools.h"
 #include "TopEvent/SystematicEvent.h"
 
-
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODMuon/MuonContainer.h"
@@ -32,10 +31,12 @@ namespace top {
     m_MET_core("setMe"),
     m_MET_map("setMe"),
     m_met_maker("met::METMaker"),
-    m_met_systematics("met::METSystematicsTool") {
+    m_met_systematics("met::METSystematicsTool"),
+    m_metSignif("metSignificance"){
     declareProperty("config", m_config);
     declareProperty("METMaker", m_met_maker);
     declareProperty("met_systematics", m_met_systematics);
+    declareProperty("metSignificance", m_metSignif);
   }
 
   StatusCode MissingETObjectCollectionMaker::initialize() {
@@ -43,6 +44,7 @@ namespace top {
 
     top::check(m_met_maker.retrieve(), "Failed to retrieve met maker tool");
     top::check(m_met_systematics.retrieve(), "Failed to retrieve met systematic tool");
+    top::check(m_metSignif.retrieve(),       "Failed to retrieve metSignificance!");
 
     std::string jet_collection = m_config->sgKeyJetsType();
     jet_collection.erase(jet_collection.length() - 4); //erase "Jets" from jet collection name
@@ -295,6 +297,23 @@ namespace top {
 
     top::check(m_met_maker->buildMETSum("FinalTrk", new_met_container, MissingETBase::Source::Track),
                "Failed to rebuild Final Track MET");
+
+    if(m_config->METSignificance()){
+      const xAOD::EventInfo* eventInfo(nullptr);
+      top::check(evtStore()->retrieve(eventInfo, m_config->sgKeyEventInfo()), "failded to retrieve event info obj");
+      // met significance
+      top::check(m_metSignif->varianceMET(new_met_container, eventInfo->averageInteractionsPerCrossing(), "RefJet", "PVSoftTrk","FinalTrk"), "Failed to execute MetSignificance::varianceMET!");
+
+      for (auto mets : *new_met_container){
+        mets->auxdecor<float>("metSigET") = m_metSignif->GetMETOverSqrtSumET();
+        mets->auxdecor<float>("metSigHT") = m_metSignif->GetMETOverSqrtHT();
+        mets->auxdecor<float>("metSig") = m_metSignif->GetSignificance();
+        mets->auxdecor<float>("metSigRho") = m_metSignif->GetRho();
+        mets->auxdecor<float>("metSigVarL") = m_metSignif->GetVarL();
+        mets->auxdecor<float>("metSigVarT") = m_metSignif->GetVarT();
+      }
+    }
+    
 
     /************************************************************
        // We are only going to build a single MET Sum now for clarity. The final argument is the soft term we

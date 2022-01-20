@@ -25,6 +25,7 @@ parser.add_option( '-u', '--unit-test', dest='unit_test',
 import ROOT
 ROOT.xAOD.Init().ignore()
 ROOT.xAOD.LoadDictionaries().ignore()
+ROOT.xAOD.JetContainer ()
 
 # ideally we'd run over all of them, but we don't have a mechanism to
 # configure per-sample right now
@@ -61,10 +62,8 @@ job.outputAdd( ROOT.EL.OutputStream( 'ANALYSIS' ) )
 
 from MetAnalysisAlgorithms.MetAnalysisAlgorithmsTest import makeSequence
 algSeq = makeSequence (dataType)
-print algSeq # For debugging
-for alg in algSeq:
-    job.algsAdd( alg )
-    pass
+print (algSeq) # For debugging
+algSeq.addSelfToJob( job )
 
 # Find the right output directory:
 submitDir = options.submission_dir

@@ -57,7 +57,8 @@ ComponentHelper::ComponentHelper(TEnv& settings, const TString& compPrefix, cons
     TAMassDef   = settings.GetValue(compPrefix+"TAMassDef","");
     truthLabelStr = settings.GetValue(compPrefix+"TruthLabels","");
     LargeRJetTruthLabelName = settings.GetValue(compPrefix+"LargeRJetTruthLabelName","R10TruthLabel_R21Consolidated");
-    LargeRJetTruthLabelStr = settings.GetValue(compPrefix+"FatjetTruthLabels","");
+    TString LargeRJetTruthLabelStrOld = settings.GetValue(compPrefix+"FatjetTruthLabels","");
+    TString LargeRJetTruthLabelStrNew = settings.GetValue(compPrefix+"LargeRJetTruthLabels","");
     LargeRJetTruthLabelsForSFstr = settings.GetValue(compPrefix+"LargeRJetTruthLabelForSF","");
     RegionForSFstr = settings.GetValue(compPrefix+"RegionForSF","");
     ResultName = settings.GetValue(compPrefix+"ResultName","");
@@ -76,6 +77,13 @@ ComponentHelper::ComponentHelper(TEnv& settings, const TString& compPrefix, cons
     uncNames        = utils::vectorize<TString>(uncNameList,", ");
     subComps        = utils::vectorize<TString>(subCompList,", ");
     truthLabels     = utils::vectorize<int>(truthLabelStr,", ");
+    if (LargeRJetTruthLabelStrOld != "" && LargeRJetTruthLabelStrNew != "")
+        throw std::runtime_error("ERROR: double-specification of the LargeRJetTruthLabels/FatjetTruthLabels property");
+    else if (LargeRJetTruthLabelStrNew != "")
+        LargeRJetTruthLabelStr = LargeRJetTruthLabelStrNew;
+    else
+        LargeRJetTruthLabelStr = LargeRJetTruthLabelStrOld;
+    
     LargeRJetTruthLabelStrs = utils::vectorize<TString>(LargeRJetTruthLabelStr,",");
     for (const TString& aVal : LargeRJetTruthLabelStrs)
     {

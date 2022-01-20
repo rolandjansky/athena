@@ -20,6 +20,22 @@ from DerivationFrameworkFlavourTag.HbbCommon import *
 from TriggerMenu.api.TriggerAPI import TriggerAPI
 from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
 from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelper
+from PathResolver import PathResolver
+
+def read_trig_list_file(fname):
+   """Read a text file containing a list of triggers
+   
+   Returns the list of triggers held in the file
+   """
+   triggers = []
+   with open(PathResolver.FindCalibFile(fname)) as fp:
+      for line in fp:
+         line = line.strip()
+         if line == "" or line.startswith("#"):
+            continue
+         triggers.append(line)
+   return triggers
+
 
 #====================================================================
 # SET UP STREAM   
@@ -91,9 +107,13 @@ trig_mt = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=Trigg
 # Note that this seems to pick up both isolated and non-isolated triggers already, so no need for extra grabs
 trig_txe = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.tau, additionalTriggerType=TriggerType.xe, livefraction=0.8)
 
+# Read extra triggers from text files
+extra_notau = read_trig_list_file("DerivationFrameworkPhys/run2ExtraMatchingTriggers.txt")
+extra_tau = read_trig_list_file("DerivationFrameworkPhys/run2ExtraMatchingTauTriggers.txt")
+
 # Merge and remove duplicates
-trigger_names_full_notau = list(set(trig_el+trig_mu+trig_g+trig_em+trig_et+trig_mt))
-trigger_names_full_tau = list(set(trig_tau+trig_txe))
+trigger_names_full_notau = list(set(trig_el+trig_mu+trig_g+trig_em+trig_et+trig_mt+extra_notau))
+trigger_names_full_tau = list(set(trig_tau+trig_txe+extra_tau))
 
 # Now reduce the list...
 from RecExConfig.InputFilePeeker import inputFileSummary
@@ -190,9 +210,6 @@ addDefaultUFOSoftDropJets(SeqPHYS,"PHYS",dotruth=add_largeR_truth_SD_jets)
 # Add large-R jet truth labeling
 if (DerivationFrameworkHasTruth):
    addJetTruthLabel(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=SeqPHYS,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Consolidated")
-
-addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=SeqPHYS,algname="QGTaggerToolAlg")
-addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqPHYS,algname="QGTaggerToolPFAlg")
 
 # fJVT
 getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqPHYS, algname='PHYSJetForwardPFlowJvtToolAlg')
@@ -369,12 +386,14 @@ if DerivationFrameworkHasTruth:
 
 PHYSSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.Tau1_wta.Tau2_wta.Tau3_wta.D2.GhostBHadronsFinalCount",
                                       "AntiKt10TruthSoftDropBeta100Zcut10Jets.Tau1_wta.Tau2_wta.Tau3_wta.D2.GhostBHadronsFinalCount",
-                                      "Electrons.TruthLink",
+                                      "Electrons.TruthLink.DFCommonElectronsLHVeryLoose_v14.DFCommonElectronsLHLoose_v14.DFCommonElectronsLHLooseBL_v14.DFCommonElectronsLHMedium_v14.DFCommonElectronsLHTight_v14.DFCommonElectronsLHVeryLoose_v14IsEMValue.DFCommonElectronsLHLoose_v14IsEMValue.DFCommonElectronsLHLooseBL_v14IsEMValue.DFCommonElectronsLHMedium_v14IsEMValue.DFCommonElectronsLHTight_v14IsEMValue",
                                       "Muons.TruthLink",
                                       "Photons.TruthLink",
                                       "AntiKt2PV0TrackJets.pt.eta.phi.m",
-                                      "AntiKt4EMTopoJets.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.PartonTruthLabelID",
-                                      "AntiKt4EMPFlowJets.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.PartonTruthLabelID.DFCommonJets_fJvt",
+                                      "AntiKt4EMTopoJets.PartonTruthLabelID.ConeExclBHadronsFinal.ConeExclCHadronsFinal.GhostBHadronsFinal.GhostCHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostBHadronsFinal.GhostCHadronsFinal",
+                                      "AntiKt4EMPFlowJets.PartonTruthLabelID.DFCommonJets_fJvt.ConeExclBHadronsFinal.ConeExclCHadronsFinal.GhostBHadronsFinal.GhostCHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostBHadronsFinal.GhostCHadronsFinal",
+                                      "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903.GhostBHadronsFinal.GhostCHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostTausFinal.GhostTausFinalCount",
+                                      "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810.GhostBHadronsFinal.GhostCHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostTausFinal.GhostTausFinalCount",
                                       "TruthPrimaryVertices.t.x.y.z"]
 
 # Saves the BDT output scores for the PLV algorithms.

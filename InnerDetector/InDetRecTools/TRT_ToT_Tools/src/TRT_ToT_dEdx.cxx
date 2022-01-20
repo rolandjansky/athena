@@ -210,11 +210,14 @@ StatusCode TRT_ToT_dEdx::update(int& /*i*/ , std::list<std::string>& /*l*/)
 
 			for (; first_channel != last_channel; ++first_channel) {
 				if (current_channel != first_channel->first){
-					result_dict[dict_names[current_channel]] = current_array_values;
+					// protection for longer vectors present in newer DB tags
+					if (current_channel < dict_names.size()) {
+						result_dict[dict_names[current_channel]] = current_array_values;
+					}
 					current_channel = first_channel->first;      
 					current_array_values.clear();
 				}
-				current_array_values.push_back(first_channel->second["array_value"].data<float>());		
+				current_array_values.push_back(first_channel->second["array_value"].data<float>());
 			}
 			
 			result_dict[dict_names[current_channel]] = current_array_values;

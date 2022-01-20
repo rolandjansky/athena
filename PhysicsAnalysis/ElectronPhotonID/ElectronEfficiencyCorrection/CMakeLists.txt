@@ -97,6 +97,12 @@ if( XAOD_STANDALONE )
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODEgamma
       xAODCore ElectronPhotonSelectorToolsLib ElectronEfficiencyCorrectionLib )
    
+   atlas_add_executable( EgEfficiencyCorr_dumpNPs
+      util/dumpNPs.cxx util/CreateDummyEl.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODEgamma
+      xAODCore ElectronEfficiencyCorrectionLib )
+
    atlas_install_python_modules(util/*.py)
    #Tests
    atlas_add_test(ut_RunOnASGAOD

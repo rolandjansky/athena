@@ -23,7 +23,11 @@ namespace top {
     virtual ~CalcThqPartonHistory() {}
 
     struct tH_values {
+      
       //Higgs
+
+      int TestVar;
+      
       TLorentzVector Higgs_p4;
       TLorentzVector decay1_p4;
       TLorentzVector decay2_p4;
@@ -31,6 +35,12 @@ namespace top {
       int decay2_pdgId;
       int tau_decay1_isHadronic;
       int tau_decay2_isHadronic;
+      TLorentzVector tau_decay1_p4;
+      TLorentzVector tau_decay2_p4;
+      TLorentzVector tauvis_decay1_p4;
+      TLorentzVector tauvis_decay2_p4;    
+
+      
       TLorentzVector decay1_from_decay1_p4;
       TLorentzVector decay2_from_decay1_p4;
       int decay1_from_decay1_pdgId;
@@ -39,10 +49,24 @@ namespace top {
       TLorentzVector decay2_from_decay2_p4;
       int decay1_from_decay2_pdgId;
       int decay2_from_decay2_pdgId;
+      
       int tau_decay1_from_decay1_isHadronic;
       int tau_decay2_from_decay1_isHadronic;
       int tau_decay1_from_decay2_isHadronic;
       int tau_decay2_from_decay2_isHadronic;
+      
+      TLorentzVector tau_decay1_from_decay1_p4;
+      TLorentzVector tau_decay2_from_decay1_p4;
+      TLorentzVector tau_decay1_from_decay2_p4;
+      TLorentzVector tau_decay2_from_decay2_p4;
+
+      TLorentzVector tauvis_decay1_from_decay1_p4;
+      TLorentzVector tauvis_decay2_from_decay1_p4;
+      TLorentzVector tauvis_decay1_from_decay2_p4;
+      TLorentzVector tauvis_decay2_from_decay2_p4;
+
+
+      
     } tH;
     //Storing parton history for ttbar resonance analysis
     CalcThqPartonHistory(const CalcThqPartonHistory& rhs) = delete;
@@ -53,6 +77,16 @@ namespace top {
 
     ///Store the four-momentum of several particles in the Higgs decay chain
     bool HiggsAndDecay(const xAOD::TruthParticleContainer* truthParticles);
+
+    //Store spetator quark information
+    bool spectatorquark(const xAOD::TruthParticleContainer* truthParticles, TLorentzVector& spectatorquark_beforeFSR,
+			TLorentzVector& spectatorquark_afterFSR, int& spectatorquark_pdgId, int& spectatorquark_status);
+    
+
+    // Store b-quark from gluon spliting information
+    bool secondb(const xAOD::TruthParticleContainer* truthParticles, int start,
+		 TLorentzVector& secondb_beforeFSR_p4, int& secondb_beforeFSR_pdgId,
+		 TLorentzVector& secondb_afterFSR_p4, int& secondb_afterFSR_pdgId);
 
     virtual StatusCode execute();
   };

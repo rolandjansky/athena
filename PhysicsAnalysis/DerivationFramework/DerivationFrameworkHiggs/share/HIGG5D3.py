@@ -325,7 +325,7 @@ higg5d3Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
 addDefaultTrimmedJets(higg5d3Seq,"HIGG5D3Jets");
 # Also add Hbb Tagger
 addVRJets(higg5d3Seq)
-addHbbTagger(higg5d3Seq, ToolSvc)
+
 # QGTaggerTool ###
 addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=higg5d3Seq, algname="QGTaggerToolAlg",truthjetalg="AntiKt4TruthJets")
 addQGTaggerTool(jetalg="AntiKt4EMPFlow", sequence=higg5d3Seq, algname="QGTaggerToolAlg",truthjetalg="AntiKt4TruthJets")

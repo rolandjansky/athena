@@ -40,6 +40,7 @@ EventCleaningTool::EventCleaningTool(const std::string& name)
   : asg::AsgTool(name)
   , m_pt()
   , m_eta()
+  , m_njets()
   , m_jvt()
   , m_or()
   , m_prefix()
@@ -50,6 +51,7 @@ EventCleaningTool::EventCleaningTool(const std::string& name)
 {
   declareProperty( "PtCut" , m_pt = 20000.0 );
   declareProperty( "EtaCut" , m_eta = 4.5 );
+  declareProperty( "NJets" , m_njets = -1 );
   declareProperty( "JvtDecorator" , m_jvt = "passJvt" );
   declareProperty( "OrDecorator" , m_or = "passOR" );
   declareProperty( "JetCleanPrefix", m_prefix = "" );
@@ -103,8 +105,13 @@ bool EventCleaningTool::acceptEvent(const xAOD::JetContainer* jets) const
 	bool isThisJetGood = 0;
 	bool isEventAllGood = 1;
 	ATH_MSG_DEBUG("m_or: " << m_or << ", m_jvt: " << m_jvt);
-
+  
+  int n_currentJet = 0;
 	for (auto thisJet : *jets){  //loop over decorated jet collection
+    n_currentJet++;
+    if (m_njets > 0 && n_currentJet > m_njets){ //bail out if the number of jets to be considered was already reached
+      break;
+    }
 		pass_pt = thisJet->pt() > m_pt;
 		pass_eta = fabs(thisJet->eta()) < m_eta;
 		pass_accept = keepJet(*thisJet);

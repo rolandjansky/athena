@@ -150,7 +150,7 @@ int main( int argc, char* argv[] ) {
 
   std::unique_ptr<JetUncertaintiesTool> m_jetUncToolSF(new JetUncertaintiesTool(("JetUncProvider_SF")));
   m_jetUncToolSF->setProperty("JetDefinition", "AntiKt10LCTopoTrimmedPtFrac5SmallR20");
-  m_jetUncToolSF->setProperty("ConfigFile", "/afs/cern.ch/user/t/tnobe/workDir/testBJT_consol/run/configs/R10_SF_LCTopo_TopTagContained_SigEff80.config");
+  m_jetUncToolSF->setProperty("ConfigFile", "rel21/Fall2020/R10_SF_LCTopo_TopTagContained_SigEff80.config");
   m_jetUncToolSF->setProperty("MCType", "MC16");
   m_jetUncToolSF->initialize();
 
@@ -262,7 +262,7 @@ int main( int argc, char* argv[] ) {
         }
       }
     }
-
+    
     Info( APP_NAME, "===>>>  done processing event #%i, run #%i %i events processed so far  <<<===", static_cast< int >( evtInfo->eventNumber() ), static_cast< int >( evtInfo->runNumber() ), static_cast< int >( entry + 1 ) );
   }
 

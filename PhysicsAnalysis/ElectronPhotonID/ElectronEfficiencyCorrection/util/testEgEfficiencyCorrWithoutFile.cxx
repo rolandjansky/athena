@@ -105,8 +105,8 @@ int main( int argc, char* argv[] ) {
     CHECK( xAOD::Init( APP_NAME ) );
 
     //Initialize the store
-    static  xAOD::TEvent event( xAOD::TEvent::kClassAccess );  
-    static xAOD::TStore store;   
+    xAOD::TEvent event( xAOD::TEvent::kClassAccess );  
+    xAOD::TStore store;   
 
     //Configure the tool based on the inputs
     AsgElectronEfficiencyCorrectionTool ElEffCorrectionTool ("ElEffCorrectionTool");   

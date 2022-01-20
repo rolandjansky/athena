@@ -58,7 +58,7 @@ AsgElectronEfficiencyCorrectionTool::AsgElectronEfficiencyCorrectionTool(std::st
         // Declare the needed properties
         declareProperty("CorrectionFileNameList", m_corrFileNameList,
                 "List of file names that store the correction factors for simulation.");
-        declareProperty("MapFilePath", m_mapFile = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/map3.txt" ,
+        declareProperty("MapFilePath", m_mapFile = "ElectronEfficiencyCorrection/2015_2018/rel21.2/Precision_Summer2020_v1/map1.txt" ,
                 "Full path to the map file");
         declareProperty("RecoKey", m_recoKey = "" ,
                 "Key associated with reconstruction");
@@ -348,13 +348,13 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Electr
         if (appliedSystematics().matchSystematic(CP::SystematicVariation("EL_EFF_" + m_sysSubstring +
                         m_correlation_model_name + "_" +
                         "1NPCOR_PLUS_UNCOR" ,1))) {
-            sys = result[static_cast<size_t>(Root::TElectronEfficiencyCorrectionTool::Position::Total)];
+            sys = result[static_cast<size_t>(Root::TElectronEfficiencyCorrectionTool::Position::TotalUp)];
             func(efficiencyScaleFactor, sys);
         }
         if (appliedSystematics().matchSystematic(CP::SystematicVariation("EL_EFF_" + m_sysSubstring +
                         m_correlation_model_name + "_" +
                         "1NPCOR_PLUS_UNCOR" ,-1))) {
-            sys =  -1*result[static_cast<size_t> (Root::TElectronEfficiencyCorrectionTool::Position::Total)];
+            sys =  -1*result[static_cast<size_t> (Root::TElectronEfficiencyCorrectionTool::Position::TotalDn)];
             func(efficiencyScaleFactor, sys);
         }
     }
@@ -362,16 +362,16 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Electr
     else if (m_nCorrSyst == 0) {
         if (appliedSystematics().matchSystematic(CP::SystematicVariation("EL_EFF_" + m_sysSubstring + "CorrUncertainty",1))) {
 
-            sys = sqrt(result[static_cast<size_t> (Root::TElectronEfficiencyCorrectionTool::Position::Total)] * 
-                    result[static_cast<size_t> (Root::TElectronEfficiencyCorrectionTool::Position::Total)]
+            sys = sqrt(result[static_cast<size_t> (Root::TElectronEfficiencyCorrectionTool::Position::TotalUp)] * 
+                    result[static_cast<size_t> (Root::TElectronEfficiencyCorrectionTool::Position::TotalUp)]
                     -    result[static_cast<size_t>(Root::TElectronEfficiencyCorrectionTool::Position::UnCorr)] * 
                     result[static_cast<size_t> (Root::TElectronEfficiencyCorrectionTool::Position::UnCorr)]); // total -stat
             func(efficiencyScaleFactor, sys);
         }
         if (appliedSystematics().matchSystematic(CP::SystematicVariation("EL_EFF_" + m_sysSubstring + "CorrUncertainty" ,-1))) {
 
-            sys = -1* sqrt(result[static_cast<size_t> (Root::TElectronEfficiencyCorrectionTool::Position::Total)] * 
-                    result[static_cast<size_t> (Root::TElectronEfficiencyCorrectionTool::Position::Total)]
+            sys = -1* sqrt(result[static_cast<size_t> (Root::TElectronEfficiencyCorrectionTool::Position::TotalDn)] * 
+                    result[static_cast<size_t> (Root::TElectronEfficiencyCorrectionTool::Position::TotalDn)]
                     - result[static_cast<size_t> (Root::TElectronEfficiencyCorrectionTool::Position::UnCorr)] * 
                     result[static_cast<size_t> (Root::TElectronEfficiencyCorrectionTool::Position::UnCorr)]); // total -stat
             func(efficiencyScaleFactor, sys);
@@ -423,6 +423,27 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Electr
 
     //If it has not returned so far , it means we wants to do the correlated for the full models
     for (int i = 0; i < m_nCorrSyst; ++i) {/// number of correlated sources
+
+        // add the asymmetric uncertainty (if any) to the last (the largest) systematic
+        // the T-tool doesn't support more refined correlations at the moment
+        if ( i==(m_nCorrSyst-1) ) {
+	  sys = result[CorrIndex+i];
+	  const double sysasymm = \
+	    result[static_cast<size_t> (Root::TElectronEfficiencyCorrectionTool::Position::Asymm)];
+	  // apply the asymm one-sided
+	  // dn if: asymm is <0 and sys is >0, or: asymm is >0 and sys is <0
+	  // up if: asymm is <0 and sys is <0, or: asymm is >0 and sys is >0
+	  // --> the direction is sign_asymm*sign_sys
+	  const int sign_sys   = (double(0) < sys     ) - (sys      < double(0));
+	  const int sign_asymm = (double(0) < sysasymm) - (sysasymm < double(0));
+	  if ( sign_asymm // i.e. it's != 0 
+	       && appliedSystematics().matchSystematic(CP::SystematicVariation("EL_EFF_" + 
+		m_sysSubstring + Form("CorrUncertaintyNP%d", i), sign_asymm*sign_sys)) ) { 
+	    sys = sign_sys*sign_asymm*( sqrt( sys*sys + sysasymm*sysasymm ) - sys );
+	    func(efficiencyScaleFactor, sys); 
+	  }
+	} 
+	// all other corr uncertainties 
         if (appliedSystematics().matchSystematic(CP::SystematicVariation("EL_EFF_" + m_sysSubstring +
                         Form("CorrUncertaintyNP%d", i),1))) {
             sys = result[CorrIndex+i];

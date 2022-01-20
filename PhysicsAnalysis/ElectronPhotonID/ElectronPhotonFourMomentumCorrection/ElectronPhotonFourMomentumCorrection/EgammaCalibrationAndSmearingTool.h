@@ -79,7 +79,7 @@ namespace CP {
 
 class EgammaCalibrationAndSmearingTool : virtual public IEgammaCalibrationAndSmearingTool, public asg::AsgMetadataTool {
   // Create a proper constructor for Athena
-  ASG_TOOL_CLASS2( EgammaCalibrationAndSmearingTool, IEgammaCalibrationAndSmearingTool, CP::ISystematicsTool)
+  ASG_TOOL_CLASS3( EgammaCalibrationAndSmearingTool, IEgammaCalibrationAndSmearingTool, CP::ISystematicsTool, CP::IReentrantSystematicsTool)
 
 public:
 

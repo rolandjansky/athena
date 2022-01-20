@@ -192,9 +192,9 @@ int main(int argc, char* argv[])
             int t = photon->auxdata<int>("truthType");
             if(t!=14) continue;
             /// photon must be above trigger threshold for the softest leg:
-            if(pt < 26e3f) continue;
+            if(pt < 30e3f) continue;
             myTriggeringPhotons.push_back(photon);
-			if(pt > 36e3f) ++n36; /// also counting those suitable for the highest-pT leg
+			if(pt > 40e3f) ++n36; /// also counting those suitable for the highest-pT leg
         }
 
         /// Events must contain enough photons to trigger

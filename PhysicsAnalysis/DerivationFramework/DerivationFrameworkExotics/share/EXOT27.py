@@ -76,22 +76,24 @@ EXOT27ExtraVariables = defaultdict(set)
 # their own way of doing this so anything EXOT27Jets is treated differently)
 EXOT27SmartContainers = [
   "Electrons", "Photons", "AntiKt4EMTopoJets", "TauJets", "Muons",
-    "PrimaryVertices", "AntiKt4EMTopoJets_BTagging201810", "BTagging_AntiKt4EMTopo_201810", "MET_Reference_AntiKt4EMTopo",
-    "AntiKt4EMPFlowJets", "AntiKt4EMPFlowJets_BTagging201810","AntiKt4EMPFlowJets_BTagging201903", "MET_Reference_AntiKt4EMPFlow",
-  "AntiKt2LCTopoJets","InDetTrackParticles"
+  "PrimaryVertices", "AntiKt4EMTopoJets_BTagging201810", "BTagging_AntiKt4EMTopo_201810", "MET_Reference_AntiKt4EMTopo",
+  "AntiKt4EMPFlowJets", "AntiKt4EMPFlowJets_BTagging201810", "AntiKt4EMPFlowJets_BTagging201903", "MET_Reference_AntiKt4EMPFlow",
+  "AntiKt2LCTopoJets", "InDetTrackParticles"
   ]
 EXOT27AllVariables = [
   ]
 # Note which small-r jets are used in this list, will be useful later (doing it
 # here as it is close to the EXOT27SmartContainers declaration which is what
 # ensures that they will be added to the output).
-OutputSmallRJets = ["AntiKt4EMTopoJets", "AntiKt4EMPFlowJets","AntiKt4EMPFlowJets_BTagging201903","AntiKt4EMPFlowJets_BTagging201810"]
+OutputSmallRJets = ["AntiKt4EMTopoJets", "AntiKt4EMPFlowJets", "AntiKt4EMPFlowJets_BTagging201903", "AntiKt4EMPFlowJets_BTagging201810"]
 
 
 if DerivationFrameworkHasTruth:
   EXOT27AllVariables += [
     "TruthParticles",
     "TruthVertices",
+    # adding truth taus to allow for Tau CP tools working in AT
+    "TruthTaus",
     "MET_Truth",
     ]
 
@@ -253,10 +255,6 @@ HbbCommon.addRecommendedXbbTaggers(EXOT27Seq, ToolSvc, logger=logger)
 for extra in HbbCommon.xbbTaggerExtraVariables:
   partition = extra.partition('.')
   EXOT27ExtraVariables[partition[0]].update(partition[2].split('.') )
-
-# Augment AntiKt4 jets with QG tagging variables
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
-addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=EXOT27Seq,algname="QGTaggerToolPFAlg")
 
 ################################################################################
 # Setup augmentation (add new decorations to objects)
@@ -622,9 +620,6 @@ JetCommon.addJetOutputs(
 EXOT27SlimmingHelper.ExtraVariables += [
   "{0}.{1}".format(k, '.'.join(v) ) for k, v in EXOT27ExtraVariables.iteritems()
 ]
-
-EXOT27SlimmingHelper.ExtraVariables  += ["AntiKt4EMPFlowJets.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_eta"]
-
 
 matching_helper.add_to_slimming(EXOT27SlimmingHelper)
 

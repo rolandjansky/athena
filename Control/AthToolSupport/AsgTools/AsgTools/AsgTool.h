@@ -57,16 +57,6 @@ namespace asg {
       /// Stand-alone, StoreGate-like accessor to the event store
       SgTEvent* evtStore() const;
 
-      /// @name Property management functions
-      /// @{
-
-      /// Get a non-constant pointer to the property manager
-      PropertyMgr* getPropertyMgr();
-      /// Get a constant pointer to the property manager
-      const PropertyMgr* getPropertyMgr() const;
-
-      /// @}
-
       /// @name Tool name handling functions
       /// @{
 

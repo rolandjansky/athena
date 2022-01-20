@@ -212,6 +212,8 @@ def get_type(ldn):
    if match: return match.group(0)[1:-1]
    match = re.search("\.DAOD_[A-Z]+[0-9]+\.", ldn)
    if match: return match.group(0)[1:-1]
+   match = re.search("\.DAOD_[A-Z]+[0-9]+[A-Z]+[0-9]+\.", ldn)
+   if match: return match.group(0)[1:-1]
    # If none of the above, raise exception.
    raise ldn_decypher_error
 

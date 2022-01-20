@@ -36,34 +36,11 @@ class AnaAlgSequence( AlgSequence ):
 
         # Set up the sequence's member variables:
         self._algorithmMeta = []
-        self._outputAffectingSystematics = None
         self._metaConfigDefault = {}
 
         return
 
-    def affectingSystematics( self, label = "default" ):
-        """Get the systematic variations for (one of) the output container(s)
-
-        In order to more easily chain together analysis algorithm sequences,
-        where one sequence's output would be used as the input for another one,
-        this function can be used to get the systematic variation regular
-        expression that should be fed to the sequence takig the output of this
-        one as input.
-
-        Keyword arguments:
-           label -- The output container label, for sequences with multiple
-                    outputs
-        """
-
-        # A security check:
-        if not self._outputAffectingSystematics:
-           raise RuntimeError( 'You have to call configure(...) before calling '
-                               'affectingSystematics(...)' )
-
-        # Return the requested value:
-        return self._outputAffectingSystematics[ label ]
-
-    def configure( self, inputName, outputName, affectingSystematics = None,
+    def configure( self, inputName, outputName,
                    hiddenLayerPrefix = "" ):
         """Perform a post-configuration on the analysis algorithm sequence
 
@@ -84,9 +61,6 @@ class AnaAlgSequence( AlgSequence ):
                         process
           outputName -- The name(s) of the output object(s)/container(s) to
                         produce
-          affectingSystematics -- Regular expression(s) describing which
-                                  systematic variation(s) are already affecting
-                                  the input object(s)/container(s)
           hiddenLayerPrefix -- Possible unique string prefix for
                                object(s)/container(s) in "hidden layers" of the
                                algorithm sequence. To avoid name clashes when
@@ -137,11 +111,6 @@ class AnaAlgSequence( AlgSequence ):
 
         # Iterate over the algorithms:
         currentInputs = copy.deepcopy( inputNameDict )
-        if not affectingSystematics:
-            affectingSystematics = {}
-        elif not isinstance( affectingSystematics, dict ):
-            affectingSystematics = { "default" : affectingSystematics }
-            pass
         tmpIndex = {}
         systematicsUsed = False
         for alg, meta in zip( self, self._algorithmMeta ):
@@ -156,22 +125,10 @@ class AnaAlgSequence( AlgSequence ):
                 if not inputLabel in currentInputs.keys():
                     continue
                 setattr( alg, inputPropName, currentInputs[ inputLabel ] )
-                if inputLabel not in affectingSystematics.keys():
-                    affectingSystematics[ inputLabel ] = '(^$)'
-                    pass
-                setattr( alg, inputPropName + 'Regex',
-                         affectingSystematics[ inputLabel ] )
                 pass
 
             # Set up the output name(s):
             if meta.outputPropName:
-
-                # Make a temporary deep copy of the affectingSystematics
-                # dictionary, which we'll be able to use in the following
-                # loop. Without using a copy, the logic would get messed up
-                # for multi input / multi output algorithms.
-                currentAffectingSystematics = \
-                  copy.deepcopy( affectingSystematics )
 
                 # Loop over the outputs of the algorithm.
                 for outputLabel, outputPropName in meta.outputPropName.iteritems():
@@ -191,49 +148,7 @@ class AnaAlgSequence( AlgSequence ):
                     tmpIndex[ outputLabel ] += 1
                     setattr( alg, outputPropName, currentInputs[ outputLabel ] )
 
-                    # Make sure that this (possibly intermediate) label is known
-                    # in the regex dictionary.
-                    if outputLabel not in affectingSystematics.keys():
-                        affectingSystematics[ outputLabel ] = '(^$)'
-                        pass
-
-                    # Assume that the variation on *all* of the inputs affect
-                    # all of the outputs.
-                    for label in meta.inputPropName.keys():
-                        # Don't do a self-check.
-                        if label == outputLabel:
-                            continue
-                        if label in currentAffectingSystematics.keys():
-                            # If it starts with '(^$)' (it should), then remove
-                            # that for the following operations.
-                            pattern = currentAffectingSystematics[ label ]
-                            if pattern.find( '(^$)|' ) == 0:
-                                pattern = pattern[ 5 : ]
-                                pass
-                            # Check that we don't have this already in the
-                            # regular expression.
-                            if affectingSystematics[ outputLabel ].find( pattern ) == -1:
-                                # If we don't, then let's add it now.
-                                affectingSystematics[ outputLabel ] += \
-                                  '|%s' % pattern
-                                pass
-                            pass
-                        pass
-
-                    # And of course variations applied by this algorithm itself
-                    # do affect all outputs.
-                    if meta.affectingSystematics and outputLabel in meta.affectingSystematics.keys():
-                        affectingSystematics[ outputLabel ] += \
-                          '|%s' % meta.affectingSystematics[ outputLabel ]
-                        pass
-
                     pass
-                pass
-
-            # Set up the systematic behaviour of the algorithm:
-            if meta.affectingSystematics:
-                alg.systematicsRegex = '|'.join( meta.affectingSystematics.values() )
-                systematicsUsed = True
                 pass
 
             pass
@@ -268,13 +183,10 @@ class AnaAlgSequence( AlgSequence ):
 
             pass
 
-        # Store the affecting systematics for further queries:
-        self._outputAffectingSystematics = affectingSystematics
-
         return
 
     def append( self, alg, inputPropName, outputPropName = None,
-                affectingSystematics = None, stageName = 'undefined',
+                stageName = 'undefined',
                 metaConfig = {},
                 dynConfig = {}):
         """Add one analysis algorithm to the sequence
@@ -289,19 +201,16 @@ class AnaAlgSequence( AlgSequence ):
                            object/container name for the algorithm
           outputPropName -- The name of the property setting the output
                             object/container name for the algorithm [optional]
-          affectingSystematics -- Regular expression describing which systematic
-                                  variations would affect this algorithm's
-                                  behaviour [optional]
           stageName -- name of the current processing stage [optional]
         """
 
-        meta = AnaAlgorithmMeta( stageName=stageName, affectingSystematics=affectingSystematics, inputPropName=inputPropName, outputPropName=outputPropName, metaConfig=metaConfig, dynConfig=dynConfig )
+        meta = AnaAlgorithmMeta( stageName=stageName, inputPropName=inputPropName, outputPropName=outputPropName, metaConfig=metaConfig, dynConfig=dynConfig )
         self += alg
         self._algorithmMeta.append( meta )
         return self
 
     def insert( self, index, alg, inputPropName, outputPropName = None,
-                affectingSystematics = None, stageName = 'undefined',
+                stageName = 'undefined',
                 metaConfig = {},
                 dynConfig = {} ):
         """Insert one analysis algorithm into the sequence
@@ -318,13 +227,10 @@ class AnaAlgSequence( AlgSequence ):
                            object/container name for the algorithm
           outputPropName -- The name of the property setting the output
                             object/container name for the algorithm [optional]
-          affectingSystematics -- Regular expression describing which systematic
-                                  variations would affect this algorithm's
-                                  behaviour [optional]
           stageName -- name of the current processing stage [optional]
         """
 
-        meta = AnaAlgorithmMeta( stageName=stageName, affectingSystematics=affectingSystematics, inputPropName=inputPropName, outputPropName=outputPropName, metaConfig=metaConfig, dynConfig=dynConfig )
+        meta = AnaAlgorithmMeta( stageName=stageName, inputPropName=inputPropName, outputPropName=outputPropName, metaConfig=metaConfig, dynConfig=dynConfig )
         super( AnaAlgSequence, self ).insert( index, alg )
         self._algorithmMeta.insert( index, meta )
         return self
@@ -474,12 +380,10 @@ class TestAnaAlgSeqSingleContainer( unittest.TestCase ):
         alg = createAlgorithm( 'CalibrationAlg', 'Calibration' )
         self.seq.append( alg, inputPropName = 'electrons',
                          outputPropName = 'electronsOut',
-                         affectingSystematics = '(^EL_.*)',
                          stageName = 'calibration' )
         alg = createAlgorithm( 'EfficiencyAlg', 'Efficiency' )
         self.seq.append( alg, inputPropName = 'egammas',
                          outputPropName = 'egammasOut',
-                         affectingSystematics = '(^EG_.*)',
                          stageName = 'efficiency' )
         alg = createAlgorithm( 'SelectionAlg', 'Selection' )
         self.seq.insert( 1, alg, inputPropName = 'particles',
@@ -504,29 +408,6 @@ class TestAnaAlgSeqSingleContainer( unittest.TestCase ):
                           'AnalysisElectrons_%SYS%' )
         return
 
-    ## Test the various regular expressions set up for the algorithms of the
-    ## sequence.
-    def test_regularExpressions( self ):
-        self.assertEqual( self.seq.Calibration.electronsRegex, '(^$)' )
-        self.assertEqual( self.seq.Calibration.systematicsRegex, '(^EL_.*)' )
-        self.assertEqual( self.seq.Selection.particlesRegex, '(^$)|(^EL_.*)' )
-        self.assertEqual( self.seq.Efficiency.systematicsRegex, '(^EG_.*)' )
-        return
-
-    ## Test that the correct value is returned for the users for the affecting
-    ## systematics.
-    def test_affectingSystematics( self ):
-        self.assertEqual( self.seq.affectingSystematics(),
-                          '(^$)|(^EL_.*)|(^EG_.*)' )
-        with self.assertRaises( KeyError ):
-            self.seq.affectingSystematics( 'invalidLabel' )
-            pass
-        emptySeq = AnaAlgSequence( 'EmptySequence' )
-        with self.assertRaises( RuntimeError ):
-            emptySeq.affectingSystematics()
-            pass
-        return
-
     pass
 
 ## Test case for a sequence receiving multiple containers, and producing just
@@ -538,13 +419,10 @@ class TestAnaAlgSeqMultiInputContainer( unittest.TestCase ):
         self.seq = AnaAlgSequence( 'MultiInputContainerSeq' )
         alg = createAlgorithm( 'SelectionAlg', 'ElectronSelection' )
         self.seq.append( alg, inputPropName = { 'electrons' : 'particles' },
-                         outputPropName = { 'electrons' : 'particlesOut' },
-                         affectingSystematics = { 'electrons' :
-                                                  '(^EL_.*)|(^EG_.*)' } )
+                         outputPropName = { 'electrons' : 'particlesOut' } )
         alg = createAlgorithm( 'SelectionAlg', 'MuonSelection' )
         self.seq.append( alg, inputPropName = { 'muons' : 'particles' },
-                         outputPropName = { 'muons' : 'particlesOut' },
-                         affectingSystematics = { 'muons' : '(^MU_.*)' } )
+                         outputPropName = { 'muons' : 'particlesOut' } )
         alg = createAlgorithm( 'ZCreatorAlg', 'ElectronZCreator' )
         self.seq.append( alg, inputPropName = { 'electrons' : 'particles' },
                          outputPropName = { 'electronZs' : 'zCandidates' } )
@@ -573,30 +451,6 @@ class TestAnaAlgSeqMultiInputContainer( unittest.TestCase ):
                           'ZCandidates_%SYS%' )
         return
 
-    ## Test the various regular expressions set up for the algorithms of the
-    ## sequence.
-    def test_regularExpressions( self ):
-        self.assertEqual( self.seq.ElectronSelection.particlesRegex, '(^$)' )
-        self.assertEqual( self.seq.MuonSelection.particlesRegex, '(^$)' )
-        self.assertEqual( self.seq.ElectronZCreator.particlesRegex,
-                          '(^$)|(^EL_.*)|(^EG_.*)' )
-        self.assertEqual( self.seq.MuonZCreator.particlesRegex,
-                          '(^$)|(^MU_.*)' )
-        self.assertEqual( self.seq.ZCombiner.container1Regex,
-                          '(^$)|(^EL_.*)|(^EG_.*)' )
-        self.assertEqual( self.seq.ZCombiner.container2Regex,
-                          '(^$)|(^MU_.*)' )
-        self.assertEqual( self.seq.ZCalibrator.inputRegex,
-                          '(^$)|(^MU_.*)|(^EL_.*)|(^EG_.*)' )
-        return
-
-    ## Test that the correct value is returned for the users for the affecting
-    ## systematics.
-    def test_affectingSystematics( self ):
-        self.assertEqual( self.seq.affectingSystematics(),
-                          '(^$)|(^MU_.*)|(^EL_.*)|(^EG_.*)' )
-        return
-
 ## Test case for a sequence starting from a single container, producing
 ## multiple ones.
 class TestAnaAlgSeqMultiOutputContainer( unittest.TestCase ):
@@ -606,14 +460,11 @@ class TestAnaAlgSeqMultiOutputContainer( unittest.TestCase ):
         self.seq = AnaAlgSequence( 'MultiOutputContainerSeq' )
         alg = createAlgorithm( 'CalibrationAlg', 'Calibration' )
         self.seq.append( alg, inputPropName = 'particles',
-                         outputPropName = 'particlesOut',
-                         affectingSystematics = '(^EL_.*)' )
+                         outputPropName = 'particlesOut' )
         alg = createAlgorithm( 'ParticleSplitterAlg', 'ParticleSplitter' )
         self.seq.append( alg, inputPropName = 'particles',
                          outputPropName = { 'goodObjects' : 'goodParticles',
-                                            'badObjects' : 'badParticles' },
-                         affectingSystematics = { 'goodObjects' : '(^FOO_.*)',
-                                                  'badObjects' : '(^BAR_.*)' } )
+                                            'badObjects' : 'badParticles' } )
         alg = createAlgorithm( 'ParticleTrimmerAlg', 'GoodParticleTrimmer' )
         self.seq.append( alg, inputPropName = { 'goodObjects' : 'particles' },
                          outputPropName = { 'goodObjects' : 'particlesOut' } )
@@ -634,27 +485,6 @@ class TestAnaAlgSeqMultiOutputContainer( unittest.TestCase ):
                           'BadElectrons_%SYS%' )
         return
 
-    ## Test the various regular expressions set up for the algorithms of the
-    ## sequence.
-    def test_regularExpressions( self ):
-        self.assertEqual( self.seq.Calibration.particlesRegex, '(^$)' )
-        self.assertEqual( self.seq.ParticleSplitter.particlesRegex,
-                          '(^$)|(^EL_.*)' )
-        self.assertEqual( self.seq.GoodParticleTrimmer.particlesRegex,
-                          '(^$)|(^EL_.*)|(^FOO_.*)' )
-        self.assertEqual( self.seq.BadParticleTrimmer.particlesRegex,
-                          '(^$)|(^EL_.*)|(^BAR_.*)' )
-        return
-
-    ## Test that the correct value is returned for the users for the affecting
-    ## systematics.
-    def test_affectingSystematics( self ):
-        self.assertEqual( self.seq.affectingSystematics( 'goodObjects' ),
-                          '(^$)|(^EL_.*)|(^FOO_.*)' )
-        self.assertEqual( self.seq.affectingSystematics( 'badObjects' ),
-                          '(^$)|(^EL_.*)|(^BAR_.*)' )
-        return
-
 ## Test case for a sequence starting from multiple containers, and producing
 ## multiple new ones.
 class TestAnaAlgSeqMultiInputOutputContainer( unittest.TestCase ):
@@ -664,12 +494,10 @@ class TestAnaAlgSeqMultiInputOutputContainer( unittest.TestCase ):
         self.seq = AnaAlgSequence( 'MultiInputOutputContainerSeq' )
         alg = createAlgorithm( 'ElectronSelectionAlg', 'ElectronSelection' )
         self.seq.append( alg, inputPropName = { 'electrons' : 'particles' },
-                         outputPropName = { 'electrons' : 'particlesOut' },
-                         affectingSystematics = { 'electrons' : '(^EL_.*)' } )
+                         outputPropName = { 'electrons' : 'particlesOut' } )
         alg = createAlgorithm( 'MuonSelectionAlg', 'MuonSelection' )
         self.seq.append( alg, inputPropName = { 'muons' : 'particles' },
-                         outputPropName = { 'muons' : 'particlesOut' },
-                         affectingSystematics = { 'muons' : '(^MU_.*)' } )
+                         outputPropName = { 'muons' : 'particlesOut' } )
         alg = createAlgorithm( 'OverlapRemovalAlg', 'OverlapRemoval' )
         self.seq.append( alg, inputPropName = { 'electrons' : 'electrons',
                                                 'muons' : 'muons' },
@@ -691,23 +519,4 @@ class TestAnaAlgSeqMultiInputOutputContainer( unittest.TestCase ):
                           'FinalElectrons_%SYS%' )
         self.assertEqual( self.seq.OverlapRemoval.muonsOut,
                           'FinalMuons_%SYS%' )
-        return
-
-    ## Test the various regular expressions set up for the algorithms of the
-    ## sequence.
-    def test_regularExpressions( self ):
-        self.assertEqual( self.seq.ElectronSelection.particlesRegex, '(^$)' )
-        self.assertEqual( self.seq.MuonSelection.particlesRegex, '(^$)' )
-        self.assertEqual( self.seq.OverlapRemoval.electronsRegex,
-                          '(^$)|(^EL_.*)' )
-        self.assertEqual( self.seq.OverlapRemoval.muonsRegex, '(^$)|(^MU_.*)' )
-        return
-
-    ## Test that the correct value is returned for the users for the affecting
-    ## systematics.
-    def test_affectingSystematics( self ):
-        self.assertEqual( self.seq.affectingSystematics( 'electrons' ),
-                          '(^$)|(^EL_.*)|(^MU_.*)' )
-        self.assertEqual( self.seq.affectingSystematics( 'muons' ),
-                          '(^$)|(^MU_.*)|(^EL_.*)' )
         return

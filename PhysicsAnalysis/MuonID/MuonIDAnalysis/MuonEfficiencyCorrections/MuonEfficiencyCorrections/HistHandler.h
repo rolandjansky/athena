@@ -224,11 +224,20 @@ namespace CP {
             
             CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value) const override;
             virtual ~dRJetAxisHandler() = default;
+            
+            //this method must be called only before any object creation, since it sets the static variable s_close_jet_decor, that is used only to initialize the m_acc member variable, and for nothing else; using it after object creation will not change the behaviour of the class
             static void set_close_jet_decorator(const std::string& decor_name);
+            //this method must be called only before any object creation, since it sets the static variable s_use_2D_sf, that is used only to initialize the m_use_2D_sf member variable, and for nothing else; using it after object creation will not change the behaviour of the class
+            static void set_use_2D_sf(const bool);
             
         private:
-            static std::string m_close_jet_decor;
+            //this static variable is safe because it is only used during object creation (to set the value of m_acc) and avoiding it would require a significant rewrite
+            static std::string s_close_jet_decor;
+            //this static variable is safe because it is only used during object creation (to set the value of m_use_2D_sf) and avoiding it would require a significant rewrite
+            static bool s_use_2D_sf;
+            
             SG::AuxElement::ConstAccessor<float> m_acc;
+            bool m_use_2D_sf;
     };
     class UndefinedAxisHandler: public AxisHandler {
         public:

@@ -36,8 +36,9 @@ namespace top {
 
     void tChannelSingleTopHistorySaver(const xAOD::TruthParticleContainer* truthParticles, xAOD::PartonHistory* tChannelSingleTopPartonHistory);
 
-    bool spectatorquark(const xAOD::TruthParticleContainer* truthParticles, TLorentzVector& spectatorquark_beforeFSR,
-              TLorentzVector& spectatorquark_afterFSR, int& spectatorquark_pdgId, int& spectatorquark_status);
+    bool spectatorquark(const xAOD::TruthParticleContainer* truthParticles, TLorentzVector& top_quark, TLorentzVector& spectatorquark_beforeFSR,
+              TLorentzVector& spectatorquark_afterFSR, int& spectatorquark_pdgId, int& spectatorquark_status, TLorentzVector& spectatorquark_method2_beforeFSR,
+              TLorentzVector& spectatorquark_method2_afterFSR, int& spectatorquark_method2_pdgId, int& spectatorquark_method2_status);
 
     virtual StatusCode execute() override;
 

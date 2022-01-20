@@ -37,19 +37,20 @@ namespace MCAST {
 
   namespace DataType { enum { Data10 = 1, Data11 = 2, Data12 = 3, Data15 = 4, Data16=5, Data17=6, Data18=7}; }
   namespace AlgoType { enum { Muid = 1, Staco = 2, Muons = 3 }; }
-  namespace Release { enum { Rel16_6 = 1, Rel17 = 2, Rel17_2 = 3, Rel17_2_Repro = 4, Rel17_2_Sum13 = 5, PreRec = 6, PreRec_2015_06_22  = 7, PreRec_2015_08_06  = 8, Rec_2015_11_15 = 9, Rec_2016_01_13 = 10, Rec_2016_01_19 = 11, PreRec_2016_05_23 = 12 , Recs2016_08_07=13 , Recs2016_15_07=14, Recs2017_08_02=15, Recs2019_05_30=16, Recs2019_10_12=17, Recs2020_03_03=18}; }
+  namespace Release { enum { Rel16_6 = 1, Rel17 = 2, Rel17_2 = 3, Rel17_2_Repro = 4, Rel17_2_Sum13 = 5, PreRec = 6, PreRec_2015_06_22  = 7, PreRec_2015_08_06  = 8, Rec_2015_11_15 = 9, Rec_2016_01_13 = 10, Rec_2016_01_19 = 11, PreRec_2016_05_23 = 12 , Recs2016_08_07=13 , Recs2016_15_07=14, Recs2017_08_02=15, Recs2019_05_30=16, Recs2019_10_12=17, Recs2020_03_03=18, Recs2021_07_01=19}; }
   namespace SmearingType { enum { Pt = 1, QoverPt = 2 }; }
   namespace DetectorType { enum { MS = 1, ID = 2, CB = 3 }; }
   namespace SystVariation { enum { Default = 0, Down = -1, Up = 1 }; }
   namespace SagittaCorType { enum { CB=0, ID=1, ME=2, WEIGHTS=3, AUTO=4}; }
-  namespace SagittaSysType { enum { NOMINAL=0, RHO=1, BIAS=2}; }
+  namespace SagittaSysType { enum { NOMINAL=0, RHO=1, BIAS=2, DATASTAT=3}; }
   namespace MST_Categories { enum { Undefined = -1, Zero = 0, One = 1, Two = 2, Three = 3, Four = 4, Total = 5 }; }
+  namespace SagittaInputHistType { enum {NOMINAL=0,SINGLE=1 };   } 
 }
 
 class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearingTool, public virtual ISystematicsTool, public asg::AsgTool {
 
   // Create a proper constructor for Athena
-  ASG_TOOL_CLASS2( MuonCalibrationAndSmearingTool, CP::IMuonCalibrationAndSmearingTool, CP::ISystematicsTool )
+  ASG_TOOL_CLASS3( MuonCalibrationAndSmearingTool, CP::IMuonCalibrationAndSmearingTool, CP::ISystematicsTool, CP::IReentrantSystematicsTool )
 
   public:
     // Interface methods that must be defined
@@ -79,6 +80,9 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
       double ptcb = 0;
       double eta = 0;
       double phi = 0;
+      double sagitta_calibrated_ptcb=0;
+      double sagitta_calibrated_ptid=0;
+      double sagitta_calibrated_ptms=0;
       double g0;
       double g1;
       double g2;
@@ -95,7 +99,11 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
       double smearDeltaID = 0;
       double smearDeltaCB = 0;
       double smearDeltaCBOnly = 0;
+      double smearDeltaCBDirect = 0;
       int    sel_category = -1;
+      double uncorrected_ptcb = 0;
+      double uncorrected_ptid = 0;
+      double uncorrected_ptms = 0;
     };
 
   public:
@@ -117,8 +125,8 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     // Expert method to apply the MC correction on a modifyable trackParticle for ID- or MS-only corrections
     virtual CorrectionCode applyCorrectionTrkOnly( xAOD::TrackParticle& inTrk, const int DetType ) const;
 
-    virtual CorrectionCode applyStatCombination( const ElementLink< xAOD::TrackParticleContainer >& inDetTrackParticle,
-                                                 const ElementLink< xAOD::TrackParticleContainer >& extrTrackParticle ,
+    virtual CorrectionCode applyStatCombination( AmgVector(5) parsID, AmgSymMatrix(5) covID,
+                                                 AmgVector(5) parsMS, AmgSymMatrix(5) covMS,
                                                  int charge,
                                                  AmgVector(5)& parsCB,
                                                  AmgSymMatrix(5)& covCB,
@@ -126,7 +134,7 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     virtual CorrectionCode applyStatCombination( xAOD::Muon& mu, InfoHelper& muonInfo ) const;
     virtual CorrectionCode applySagittaBiasCorrectionAuto(const int DetType, xAOD::Muon& mu, bool isMC, const unsigned int SystCase, InfoHelper& muonInfo) const;
     virtual CorrectionCode CorrectForCharge(double p2, double& pt, int q, bool isMC, double p2Kin=0) const;
-    virtual CorrectionCode applySagittaBiasCorrection(const unsigned int SgCorrType, xAOD::Muon& mu, unsigned int iter, bool stop, bool isMC, InfoHelper& muonInfo) const;
+    virtual CorrectionCode applySagittaBiasCorrection(const unsigned int SgCorrType, xAOD::Muon& mu, unsigned int iter, bool stop, bool isMC, InfoHelper& muonInfo, const unsigned int SystCase=0) const;
 
 
   protected:
@@ -138,11 +146,11 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     float        GetRegionInnerEta( const int r_i ) const; //Return Eta closer to the origin
     std::string  GetRegionName( const int r_i ) const;
     std::string  GetRegionName( const double eta, const double phi ) const;
-    double GetSmearing( int DetType, InfoHelper& muonInfo ) const;
-    double GetSystVariation( int DetType, double var, InfoHelper& muonInfo ) const;
+    double GetSmearing( int DetType, InfoHelper& muonInfo, bool doDirectCB ) const;
+    double GetSystVariation( int DetType, double var, InfoHelper& muonInfo, bool doDirectCB ) const;
     StatusCode SetInfoHelperCorConsts(InfoHelper& inMuonInfo) const;
     void CalcCBWeights( xAOD::Muon&, InfoHelper& muonInfo ) const;
-    double CalculatePt( const int DetType, const double inSmearID, const double inSmearMS, const double scaleVar, InfoHelper& muonInfo ) const;
+    double CalculatePt( const int DetType, const double inSmearID, const double inSmearMS, const double scaleVarID, const double scaleMS_scale, const double scaleMS_egLoss, const double scaleCB_scale, const double scaleCB_egLoss, InfoHelper& muonInfo ) const;
     StatusCode FillValues();
     void Clean();
     double ScaleApply( const double pt, double S, const double S_EnLoss, InfoHelper& muonInfo ) const;
@@ -162,6 +170,7 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
 
     virtual void ConvertToSagittaBias(TH2F *h,float mean=1);
     virtual TProfile2D* GetHist(std::string fname="", std::string hname="inclusive",double GlobalScale=MZPDG);
+    virtual TProfile2D* GetHistSingleMethod(std::string fname="", std::string hname="");
     virtual bool isBadMuon( const xAOD::Muon& mu, InfoHelper& muonInfo ) const;
     int ConvertToMacroCategory( const int raw_mst_category ) const;
     //private:
@@ -171,16 +180,26 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     struct ParameterSet {
       double SmearTypeID;
       double SmearTypeMS;
-      double Scale;
+      double SmearTypeCB;
+      double ScaleID;
+      double ScaleMS_scale;
+      double ScaleMS_egLoss;
+      double ScaleCB_scale;
+      double ScaleCB_egLoss;
       double SagittaRho;
       double SagittaBias;
+      double SagittaDataStat;
+      double SagittaEtaSlice;
     };
+
+    bool m_expertMode;
+    bool m_expertMode_isData;
 
     bool  m_useExternalSeed;
     int   m_externalSeed;
 
     std::string m_year, m_algo, m_type, m_release;
-    std::string m_FilesPath;
+    std::string m_FilesPath, m_sysScheme;
     bool m_extra_highpt_smearing;
     bool m_2stations_highpt_smearing;
     bool m_extra_decorations;
@@ -189,7 +208,10 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     int m_Tdata;
     int m_Trel;
     int m_Talgo;
+    double m_extraRebiasSys;
     double m_useNsigmaForICombine;
+    bool m_doDirectCBCalib;
+    bool m_doEtaSagittaSys;
     std::vector<double> m_scale_ID, m_enLoss_MS, m_scale_MS, m_scale_CB;
 
     //sys variations (stat error added in quadrature), one if it's simmetrized, 2 if Up != Dw.
@@ -207,6 +229,14 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     std::vector<double> m_SUp_p1_ID, m_SUp_p2_ID, m_SUp_p2_ID_TAN, m_SUp_p0_MS, m_SUp_p1_MS, m_SUp_p2_MS;
     std::vector<double> m_SDw_p1_ID, m_SDw_p2_ID, m_SDw_p2_ID_TAN, m_SDw_p0_MS, m_SDw_p1_MS, m_SDw_p2_MS;
     std::vector<double> m_MC_p1_ID, m_MC_p2_ID, m_MC_p2_ID_TAN, m_MC_p0_MS, m_MC_p1_MS, m_MC_p2_MS;
+
+
+    std::vector<double> m_S_0_CB, m_SUp_0_CB, m_SDw_0_CB;
+    std::vector<double> m_S_1_CB, m_SUp_1_CB, m_SDw_1_CB;
+    std::vector<double> m_R_0_CB, m_RUp_0_CB, m_RDw_0_CB;
+    std::vector<double> m_R_1_CB, m_RUp_1_CB, m_RDw_1_CB;
+    std::vector<double> m_R_2_CB, m_RUp_2_CB, m_RDw_2_CB;
+
     // Special "p2" systematics and corrections for non-three-station muons
     // Maps have two keys: detector region and category
     std::map<std::pair<int, int>, std::pair<double, double> > m_extra_p1_p2_MS_AlignedOnly, m_extra_p1_p2_MS_AlignedAndCorrected, m_extra_p1_p2_MS_Misaligned;
@@ -234,7 +264,8 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     bool m_sgIetrsManual;
     double m_fixedRho;
     bool m_useFixedRho;
-
+    double m_sagittaMapUnitConversion;
+  
     std::vector < std::unique_ptr<TProfile2D> > m_sagittasCB;
     std::vector < std::unique_ptr<TProfile2D> > m_sagittasID;
     std::vector < std::unique_ptr<TProfile2D> > m_sagittasME;
@@ -252,7 +283,8 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     std::string m_SagittaRelease;
     std::vector <unsigned int > m_SagittaIterations;
     std::vector <double> m_GlobalZScales;
-
+    unsigned int m_saggitaMapsInputType;
+  
     asg::AnaToolHandle<CP::IMuonSelectionTool> m_MuonSelectionTool;
 
   }; // class MuonCalibrationAndSmearingTool

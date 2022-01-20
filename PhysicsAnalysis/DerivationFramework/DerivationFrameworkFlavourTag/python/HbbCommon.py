@@ -632,15 +632,12 @@ def addHbbTagger(
             tagger_alg_name, jet_collection))
 
 def addRecommendedXbbTaggers(sequence, ToolSvc, logger=None):
-    addHbbTagger(sequence, ToolSvc, logger)
-    addHbbTagger(
-        sequence, ToolSvc,
-        nn_file_name="BoostedJetTaggers/HbbTagger/Summer2018/MulticlassNetwork.json",
-        nn_config_file="BoostedJetTaggers/HbbTaggerDNN/MulticlassConfigJune2018.json")
+    if logger is None:
+        logger = Logging.logging.getLogger('addRecXbbLog')
+    logger.warning('addRecommendedXbbTaggers decorates a deprecated XbbScore variable. This decoration will be skipped.')
+    return
 
-xbbTaggerExtraVariables = [
-    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.HbbScore",
-    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.XbbScoreHiggs.XbbScoreTop.XbbScoreQCD"]
+xbbTaggerExtraVariables = []
 
 #====================================================================
 # Large-R RC jets w/ ExKt 2 & 3 subjets

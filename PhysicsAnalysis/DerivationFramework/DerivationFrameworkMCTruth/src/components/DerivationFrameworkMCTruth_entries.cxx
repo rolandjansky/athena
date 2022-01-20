@@ -14,6 +14,7 @@
 #include "DerivationFrameworkMCTruth/HadronOriginDecorator.h"
 #include "DerivationFrameworkMCTruth/HadronOriginClassifier.h"
 #include "DerivationFrameworkMCTruth/TruthQGDecorationTool.h"
+#include "DerivationFrameworkMCTruth/TruthJetDecorationTool.h"
 #include "DerivationFrameworkMCTruth/TruthD2Decorator.h"
 #include "DerivationFrameworkMCTruth/TruthHSDecorator.h"
 #include "../GenFilterTool.h"
@@ -40,6 +41,7 @@ DECLARE_TOOL_FACTORY( HardTruthThinning )
 DECLARE_TOOL_FACTORY( HadronOriginDecorator )
 DECLARE_TOOL_FACTORY( HadronOriginClassifier )
 DECLARE_TOOL_FACTORY( TruthQGDecorationTool )
+DECLARE_TOOL_FACTORY( TruthJetDecorationTool )
 DECLARE_TOOL_FACTORY( GenFilterTool )
 DECLARE_TOOL_FACTORY( HardScatterCollectionMaker )
 DECLARE_TOOL_FACTORY( TruthNavigationDecorator )
@@ -65,6 +67,7 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkMCTruth) {
    DECLARE_TOOL( HadronOriginDecorator )
    DECLARE_TOOL( HadronOriginClassifier )
    DECLARE_TOOL( TruthQGDecorationTool )
+   DECLARE_TOOL( TruthJetDecorationTool )
    DECLARE_TOOL( GenFilterTool )
    DECLARE_TOOL( HardScatterCollectionMaker )
    DECLARE_TOOL( TruthNavigationDecorator )

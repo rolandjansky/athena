@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETCALIBTOOLS_ETAJESCORRECTION_H
@@ -14,6 +14,9 @@
 
 #include <TEnv.h>
 #include <TAxis.h>
+#include "TH1.h"
+#include "TString.h"
+#include "TList.h"
 
 #include "JetCalibTools/IJetCalibrationTool.h"
 #include "JetCalibTools/JetCalibrationToolBase.h"
@@ -44,6 +47,9 @@ class EtaJESCorrection
   double getMassCorr(double E_corr, double eta_det) const;
   double getLogPolN(const double *factors, double x) const;
   double getLogPolNSlope(const double *factors, double x) const;
+  double getSplineCorr(const int etaBin, double E) const;
+  double getSplineSlope(const int ieta, const double minE) const;
+  void loadSplineHists(const TString & fileName, const std::string &etajes_name = "etaJes");
   int getEtaBin(double eta_det) const;
 
  private:
@@ -53,6 +59,7 @@ class EtaJESCorrection
   bool m_mass;
   bool m_dev;
   bool m_freezeJESatHighE;
+  bool m_isSpline;
 
   TString m_jesDesc;
   double m_minPt_JES, m_minPt_EtaCorr, m_maxE_EtaCorr;
@@ -80,6 +87,12 @@ class EtaJESCorrection
   double m_etaCorrFactors[s_nEtaBins][s_nParMax];
   double m_JMSFactors[s_nEtaBins][s_nParMax];
   double m_energyFreezeJES[s_nEtaBins];
+
+  // When using p-splines, the calibrations are stored as a finely binned TH1 for simplicity.
+  // This avoids importing new packages into Athena.
+  std::vector<std::unique_ptr<TH1> > m_etajesFactors;
+
+
 
 };
 

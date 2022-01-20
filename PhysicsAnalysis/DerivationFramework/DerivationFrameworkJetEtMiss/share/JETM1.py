@@ -130,6 +130,16 @@ JETM1TrackSelectionTool.TrackSelectionTool.CutLevel = "Loose"
 ToolSvc += JETM1TrackSelectionTool
 augmentationTools.append(JETM1TrackSelectionTool)
 
+#================================================
+# DECORATE TRUTH JETS WITH SOME TRUTH PROPERTIES
+#================================================
+if DerivationFrameworkHasTruth:
+    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthJetDecorationTool
+    DFCommonTruthJetsDecorationTool = DerivationFramework__TruthJetDecorationTool(name="DFCommonTruthJetsDecorationTool",
+                                                              JetCollection = "AntiKt4TruthJets")
+    ToolSvc += DFCommonTruthJetsDecorationTool
+    augmentationTools.append(DFCommonTruthJetsDecorationTool)
+
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM
@@ -148,7 +158,7 @@ addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=jetm1Seq,algname="QGTaggerToolAl
 addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=jetm1Seq,algname="QGTaggerToolPFAlg")
 
 # Add alternative rho definitions
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addCHSPFlowObjects
+from DerivationFrameworkJetEtMiss.JetCommon import addCHSPFlowObjects
 addCHSPFlowObjects()
 from DerivationFrameworkJetEtMiss.JetCommon import defineEDAlg
 jetm1Seq += defineEDAlg(R=0.4, inputtype="EMPFlowNeut")
@@ -271,7 +281,7 @@ JETM1SlimmingHelper.ExtraVariables += ["AntiKt10UFOCSSKTrimmedPtFrac5SmallR20Jet
                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.zg.rg",
                                        "AntiKt10UFOCSSKJets.NumTrkPt1000.TrackWidthPt1000.GhostMuonSegmentCount.EnergyPerSampling.GhostTrack"]
 
-JETM1SlimmingHelper.AllVariables = [ "MuonSegments", "TruthVertices", "TruthEvents"
+JETM1SlimmingHelper.AllVariables = [ "MuonSegments", "TruthVertices", "TruthEvents", "AntiKt4TruthJets",
                                      "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape","Kt4EMPFlowPUSBEventShape","Kt4EMPFlowNeutEventShape"]
 
 # Trigger content

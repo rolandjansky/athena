@@ -6,8 +6,9 @@
 #define TOPCPTOOLS_TOPTRIGGERCPTOOLS_H_
 
 // Include what you use
-#include <vector>
+#include <unordered_map>
 #include <string>
+#include <vector>
 
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
@@ -23,6 +24,7 @@
 #include "TriggerAnalysisInterfaces/ITrigGlobalEfficiencyCorrectionTool.h"
 // Need to have these tools held in the class
 #include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonEfficiencyCorrectionTool.h"
 #include "MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h"
 
 namespace top {
@@ -45,12 +47,18 @@ namespace top {
     ToolHandle<ITrigGlobalEfficiencyCorrectionTool> m_globalTriggerEffToolLoose;
     StatusCode initialiseGlobalTriggerEff();
     std::string mapWorkingPoints(const std::string& type);
+    // check of the trigger names are one of the supported
+    std::string PhotonKeys(const std::unordered_map<std::string, std::vector<std::pair<std::string, int> > >& map) const;
+    // check if the photon isolation is supported by the global triggers
+    StatusCode CheckPhotonIsolation(const std::string& isol) const;
 
     // Tool handles for the CP tools, need to be members here, or inaccessible to global trigger tool
     asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> m_muonTool;
     asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> m_muonToolLoose;
     std::vector<asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool> > m_electronToolsFactory;
     std::vector<asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool> > m_electronToolsFactoryLoose;
+    std::vector<asg::AnaToolHandle<IAsgPhotonEfficiencyCorrectionTool> > m_photonToolsFactory;
+    std::vector<asg::AnaToolHandle<IAsgPhotonEfficiencyCorrectionTool> > m_photonToolsFactoryLoose;
   };
 }  // namespace top
 

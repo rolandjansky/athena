@@ -12,6 +12,12 @@ ToolHandleArray< T >::ToolHandleArray()
 }
 
 template< class T >
+ToolHandleArray< T >::ToolHandleArray( INamedInterface * /*parent*/ )
+   : std::vector< ToolHandle< T > >() {
+
+}
+
+template< class T >
 ToolHandleArray< T >::
 ToolHandleArray( const std::initializer_list< ToolHandle< T > >& l )
    : std::vector< ToolHandle< T > >( l ) {

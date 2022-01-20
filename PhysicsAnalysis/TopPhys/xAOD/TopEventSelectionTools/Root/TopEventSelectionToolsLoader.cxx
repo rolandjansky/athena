@@ -36,6 +36,8 @@
 #include "TopEventSelectionTools/NFwdElectronTightSelector.h"
 #include "TopEventSelectionTools/NJetSelector.h"
 #include "TopEventSelectionTools/NJetBtagSelector.h"
+#include "TopEventSelectionTools/NJetElectronSelector.h"
+#include "TopEventSelectionTools/NTruthTopWSelector.h"
 #include "TopEventSelectionTools/NMuonSelector.h"
 #include "TopEventSelectionTools/NSoftMuonSelector.h"
 #include "TopEventSelectionTools/NoBadMuonSelector.h"
@@ -85,6 +87,8 @@ namespace top {
     else if (toolname == "JET_N_BTAG") return new top::NJetBtagSelector(param, config, false);
     else if (toolname == "TJET_N_BTAG") return new top::NJetBtagSelector(param, config, true);
     else if (toolname == "LJET_N") return new top::NLargeJetSelector(param);
+    else if (toolname == "JET_EL_N") return new top::NJetElectronSelector(param, config);
+    else if (toolname == "N_Top_W") return new top::NTruthTopWSelector(param);
     else if (toolname == "RCJET_N") return new top::NRCJetSelector(param);
     else if (toolname == "VRCJET_N") {
       std::istringstream is(param);

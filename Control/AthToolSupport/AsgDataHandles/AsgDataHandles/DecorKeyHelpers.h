@@ -2,12 +2,16 @@
  * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
  */
 
+
+// WARNING! WARNING! WARNING!
+//
+// This version of the file has been modified for use in 21.2 and
+// should not be swept into master.
+
+
 #ifndef ASG_DATA_HANDLES_DECOR_KEY_HELPERS_H
 #define ASG_DATA_HANDLES_DECOR_KEY_HELPERS_H
 
-#ifndef XAOD_STANDALONE
-#include <StoreGate/DecorKeyHelpers.h>
-#else
 
 #include <stdexcept>
 #include <string>
@@ -30,7 +34,5 @@ inline std::string decorKeyFromKey (const std::string& key)
   return key.substr (split + 1);
 }
 }
-
-#endif
 
 #endif

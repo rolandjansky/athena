@@ -12,6 +12,7 @@
 #include "DerivationFrameworkBPhys/VertexCaloIsolation.h"
 #include "DerivationFrameworkBPhys/VertexTrackIsolation.h"
 #include "DerivationFrameworkBPhys/BPhysMetadataBase.h"
+#include "DerivationFrameworkBPhys/BdKstarMuMu_metadata.h"
 #include "DerivationFrameworkBPhys/Bmumu_metadata.h"
 #include "DerivationFrameworkBPhys/CfAthAlgTool.h"
 #include "DerivationFrameworkBPhys/Bmumu_reco_mumu.h"
@@ -37,7 +38,8 @@
 #include "DerivationFrameworkBPhys/ReVertex.h"
 #include "DerivationFrameworkBPhys/BPhysConversionFinder.h"
 #include "DerivationFrameworkBPhys/Cascade3Plus1.h"
-
+#include "DerivationFrameworkBPhys/MuPlusDsCascade.h"
+#include "DerivationFrameworkBPhys/MuPlusDpstCascade.h"
 using namespace DerivationFramework;
 
 DECLARE_TOOL_FACTORY( Reco_mumu )
@@ -53,6 +55,7 @@ DECLARE_TOOL_FACTORY( BPhysPVThinningTool )
 DECLARE_TOOL_FACTORY( VertexCaloIsolation )
 DECLARE_TOOL_FACTORY( VertexTrackIsolation )
 DECLARE_TOOL_FACTORY( BPhysMetadataBase )
+DECLARE_TOOL_FACTORY( BdKstarMuMu_metadata )
 DECLARE_TOOL_FACTORY( Bmumu_metadata )
 DECLARE_TOOL_FACTORY( CfAthAlgTool )
 DECLARE_TOOL_FACTORY( Bmumu_reco_mumu )
@@ -78,6 +81,8 @@ DECLARE_TOOL_FACTORY( JpsiPlusDs1Cascade )
 DECLARE_TOOL_FACTORY( ReVertex )
 DECLARE_TOOL_FACTORY( BPhysConversionFinder )
 DECLARE_TOOL_FACTORY( Cascade3Plus1 )
+DECLARE_TOOL_FACTORY( MuPlusDsCascade )
+DECLARE_TOOL_FACTORY( MuPlusDpstCascade )
 
 DECLARE_FACTORY_ENTRIES( DerivationFrameworkBPhys ) {
    DECLARE_TOOL( Reco_mumu )
@@ -93,6 +98,7 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkBPhys ) {
    DECLARE_TOOL( VertexCaloIsolation )
    DECLARE_TOOL( VertexTrackIsolation )
    DECLARE_TOOL( BPhysMetaDataBase)
+   DECLARE_TOOL( BdKstarMuMu_metadata )
    DECLARE_TOOL( Bmumu_metadata )
    DECLARE_TOOL( CfAthAlgTool )
    DECLARE_TOOL( Bmumu_reco_mumu )
@@ -118,4 +124,6 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkBPhys ) {
    DECLARE_TOOL( ReVertex )
    DECLARE_TOOL( BPhysConversionFinder )
    DECLARE_TOOL( Cascade3Plus1 )
+   DECLARE_TOOL( MuPlusDsCascade )
+   DECLARE_TOOL( MuPlusDpstCascade )
 }

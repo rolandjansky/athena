@@ -17,7 +17,7 @@
 
 #include <EventLoop/Worker.h>
 
-#include <EventLoop/Algorithm.h>
+#include <AnaAlgorithm/IAlgorithmWrapper.h>
 #include <EventLoop/AlgorithmStateModule.h>
 #include <EventLoop/BatchJob.h>
 #include <EventLoop/BatchSample.h>
@@ -67,7 +67,6 @@ namespace EL
     for (std::size_t iter = 0, end = m_algs.size(); iter != end; ++ iter)
     {
       RCU_INVARIANT (m_algs[iter].m_algorithm != nullptr);
-      RCU_INVARIANT (m_algs[iter]->wk() == this);
     }
   }
 
@@ -283,7 +282,7 @@ namespace EL
     for (auto& alg : m_algs)
     {
       if (alg->hasName (name))
-	return alg.m_algorithm.get();
+	return alg.m_algorithm->getLegacyAlg();
     }
     return 0;
   }
@@ -320,6 +319,8 @@ namespace EL
   Worker ::
   Worker ()
   {
+    m_worker = this;
+
     RCU_NEW_INVARIANT (this);
   }
 
@@ -360,9 +361,9 @@ namespace EL
   setJobConfig (JobConfig&& jobConfig)
   {
     RCU_CHANGE_INVARIANT (this);
-    for (std::unique_ptr<Algorithm>& alg : jobConfig.extractAlgorithms())
+    for (std::unique_ptr<IAlgorithmWrapper>& alg : jobConfig.extractAlgorithms())
     {
-      alg->m_wk = this;
+      // alg->m_wk = this;
       m_algs.push_back (std::move (alg));
     }
   }
@@ -643,7 +644,7 @@ namespace EL
         iter->m_executeCount += 1;
         if (iter->m_algorithm->execute() == StatusCode::FAILURE)
         {
-          ANA_MSG_ERROR ("while calling execute() on algorithm " << iter->m_algorithm->GetName());
+          ANA_MSG_ERROR ("while calling execute() on algorithm " << iter->m_algorithm->getName());
           return ::StatusCode::FAILURE;
         }
 
@@ -656,7 +657,7 @@ namespace EL
     } catch (...)
     {
       Detail::report_exception ();
-      ANA_MSG_ERROR ("while calling execute() on algorithm " << iter->m_algorithm->GetName());
+      ANA_MSG_ERROR ("while calling execute() on algorithm " << iter->m_algorithm->getName());
       return ::StatusCode::FAILURE;
     }
 
@@ -669,14 +670,14 @@ namespace EL
       {
         if (jter->m_algorithm->postExecute() == StatusCode::FAILURE)
         {
-          ANA_MSG_ERROR ("while calling postExecute() on algorithm " << iter->m_algorithm->GetName());
+          ANA_MSG_ERROR ("while calling postExecute() on algorithm " << iter->m_algorithm->getName());
           return ::StatusCode::FAILURE;
         }
       }
     } catch (...)
     {
       Detail::report_exception ();
-      ANA_MSG_ERROR ("while calling postExecute() on algorithm " << iter->m_algorithm->GetName());
+      ANA_MSG_ERROR ("while calling postExecute() on algorithm " << iter->m_algorithm->getName());
       return ::StatusCode::FAILURE;
     }
 

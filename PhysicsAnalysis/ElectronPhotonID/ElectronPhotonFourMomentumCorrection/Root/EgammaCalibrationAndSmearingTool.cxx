@@ -666,7 +666,7 @@ StatusCode EgammaCalibrationAndSmearingTool::beginEvent() {
     //determine MC/Data from evtInfo ... this will work for both athena and eventloop
     const xAOD::EventInfo* evtInfo = 0;
     ATH_CHECK(evtStore()->retrieve(evtInfo, "EventInfo"));
-    if (evtInfo->eventType(xAOD::EventInfo::IS_SIMULATION)) {
+    if (evtInfo->eventType(xAOD::EventInfo::IS_SIMULATION) or evtInfo->hasMCEventWeights() ) {
         if (m_use_AFII == 1) { m_simulation = PATCore::ParticleDataType::Fast; }
         else if (m_use_AFII == 0) { m_simulation = PATCore::ParticleDataType::Full; }
         else { //AUTO
@@ -773,9 +773,9 @@ CP::CorrectionCode EgammaCalibrationAndSmearingTool::applyCorrection(xAOD::Egamm
    * Here we check for each event the kind of data DATA vs FullSim
    * The m_simulation flavour has already be determined from metadata
    */
-  PATCore::ParticleDataType::DataType dataType = (event_info.eventType(xAOD::EventInfo::IS_SIMULATION)) ? m_simulation : PATCore::ParticleDataType::Data;
+  PATCore::ParticleDataType::DataType dataType = (event_info.eventType(xAOD::EventInfo::IS_SIMULATION) or event_info.hasMCEventWeights()) ? m_simulation : PATCore::ParticleDataType::Data;
 
-  if (event_info.eventType(xAOD::EventInfo::IS_SIMULATION) and m_auto_reseed) {
+  if ((event_info.eventType(xAOD::EventInfo::IS_SIMULATION) or event_info.hasMCEventWeights()) and m_auto_reseed) {
     setRandomSeed(m_set_seed_function(*this, input, event_info));
   }
 
@@ -911,19 +911,19 @@ double EgammaCalibrationAndSmearingTool::getEnergy(xAOD::Egamma* p, const xAOD::
 
 egEnergyCorr::Scale::Variation EgammaCalibrationAndSmearingTool::oldtool_scale_flag_this_event(const xAOD::Egamma& p, const xAOD::EventInfo& event_info) const
 {
-  if (!event_info.eventType(xAOD::EventInfo::IS_SIMULATION)) return m_currentScaleVariation_data;
+  if (!event_info.eventType(xAOD::EventInfo::IS_SIMULATION) and !event_info.hasMCEventWeights()) return m_currentScaleVariation_data;
   if (m_currentScalePredicate(p)) return m_currentScaleVariation_MC;
   else return egEnergyCorr::Scale::None;
 }
 
 egEnergyCorr::Resolution::Variation EgammaCalibrationAndSmearingTool::oldtool_resolution_flag_this_event(const xAOD::Egamma&, const xAOD::EventInfo& event_info) const
 {
-  return event_info.eventType(xAOD::EventInfo::IS_SIMULATION) ? m_currentResolutionVariation_MC : m_currentResolutionVariation_data;
+  return (event_info.eventType(xAOD::EventInfo::IS_SIMULATION) or event_info.hasMCEventWeights()) ? m_currentResolutionVariation_MC : m_currentResolutionVariation_data;
 }
 
 double EgammaCalibrationAndSmearingTool::getElectronMomentum(const xAOD::Electron *el, const xAOD::EventInfo* event_info)
 {
-  PATCore::ParticleDataType::DataType dataType = (event_info->eventType(xAOD::EventInfo::IS_SIMULATION)) ? m_simulation : PATCore::ParticleDataType::Data;
+  PATCore::ParticleDataType::DataType dataType = (event_info->eventType(xAOD::EventInfo::IS_SIMULATION) or event_info->hasMCEventWeights()) ? m_simulation : PATCore::ParticleDataType::Data;
 
   const xAOD::TrackParticle* eTrack = el->trackParticle();
 

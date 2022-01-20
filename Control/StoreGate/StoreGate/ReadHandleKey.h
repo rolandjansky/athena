@@ -53,6 +53,26 @@ public:
 
 
   /**
+   * @brief Auto-declaring Property constructor.
+   * @param owner Owning component.
+   * @param name Name of the Property.
+   * @param key  Default StoreGate key for the object.
+   * @param doc Documentation string.
+   *
+   * Will associate the named Property with this RHK via declareProperty.
+   *
+   * The provided key may actually start with the name of the store,
+   * separated by a "+":  "MyStore+Obj".  If no "+" is present
+   * the store named by @c storeName is used.
+   */
+  template <class OWNER, class K>
+  ReadHandleKey( OWNER* owner,
+                 const std::string& name,
+                 const K& key = {},
+                 const std::string& doc = "");
+
+
+  /**
    * @brief Change the key of the object to which we're referring.
    * @param sgkey The StoreGate key for the object.
    * 

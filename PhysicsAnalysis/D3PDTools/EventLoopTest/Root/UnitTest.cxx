@@ -159,8 +159,7 @@ namespace EL
       if (!cleanup)
 	ANA_MSG_INFO ("placing temporary files in: " << submitDir);
       job.options()->setString (Job::optSubmitDirMode, "unique");
-      std::string output;
-      driver.submit (job, submitDir.Data(), output);
+      std::string output = driver.submit (job, submitDir.Data());
 
       for (std::size_t iter = 0, end = samples.size(); iter != end; ++ iter)
       {

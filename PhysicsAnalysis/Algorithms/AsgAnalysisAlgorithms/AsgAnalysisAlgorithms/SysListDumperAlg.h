@@ -9,6 +9,7 @@
 #define ASG_ANALYSIS_ALGORITHMS__SYS_LIST_DUMPER_ALG_H
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
+#include <AsgServices/ServiceHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 
 namespace CP
@@ -32,14 +33,21 @@ namespace CP
   public:
     virtual ::StatusCode execute () override;
 
-
-    /// \brief the systematics list we run
+    /// \brief make the systematics vector using a regex
   private:
-    SysListHandle m_systematicsList {this};
+    std::vector<CP::SystematicSet> makeSystematicsVector (const std::string &regex) const;
+
+    /// \brief the handle for the systematics service
+  private:
+    ServiceHandle<ISystematicsSvc> m_systematicsService {"SystematicsSvc", ""};
+
+    /// \brief the regex
+  private:
+    std::string m_regex {};
 
     /// \brief the name of the histogram to use
   private:
-    std::string m_histogramName {sysListDefaultName()};
+    std::string m_histogramName {"systematics"};
 
     /// \brief whether the next event will be the first event
   private:

@@ -9,8 +9,8 @@
 // includes
 //
 
+#include <regex>
 #include <AsgAnalysisAlgorithms/SysListDumperAlg.h>
-#include <SystematicsHandles/Helpers.h>
 #include <TH1.h>
 
 //
@@ -24,6 +24,8 @@ namespace CP
                     ISvcLocator* pSvcLocator)
     : AnaAlgorithm (name, pSvcLocator)
   {
+    declareProperty ("systematicsService", m_systematicsService, "systematics service");
+    declareProperty ("systematicsRegex", m_regex, "systematics regex");
     declareProperty ("histogramName", m_histogramName, "the name of the output histogram");
   }
 
@@ -38,7 +40,7 @@ namespace CP
       return StatusCode::FAILURE;
     }
 
-    ANA_CHECK (m_systematicsList.initialize());
+    ANA_CHECK (m_systematicsService.retrieve());
 
     return StatusCode::SUCCESS;
   }
@@ -55,22 +57,45 @@ namespace CP
 
     m_firstEvent = false;
 
-    const std::unordered_set<CP::SystematicSet> systematics = m_systematicsList.systematicsVector();
+    const std::vector<CP::SystematicSet> systematics = makeSystematicsVector (m_regex);
 
     ANA_CHECK (book (TH1F (m_histogramName.c_str(), "systematics", systematics.size(), 0, systematics.size())));
     TH1 *histogram = hist (m_histogramName);
 
     int i = 1;
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode
+    for (const auto& sys : systematics)
     {
-      std::string name = sys.name();
-      if (name.empty())
-        name = nominalSystematicsName();
+      std::string name;
+      ANA_CHECK (m_systematicsService->makeSystematicsName (name, "%SYS%", sys));
 
       histogram->GetXaxis()->SetBinLabel(i, name.c_str());
       i++;
+    }
 
-      return StatusCode::SUCCESS;
-    });
+    return StatusCode::SUCCESS;
   }
+
+
+
+  std::vector<CP::SystematicSet> SysListDumperAlg ::
+  makeSystematicsVector (const std::string &regex) const
+  {
+    std::vector<CP::SystematicSet> inputVector = m_systematicsService->makeSystematicsVector ();
+    if (regex.empty())
+    {
+      return inputVector;
+    }
+
+    std::vector<CP::SystematicSet> systematicsVector;
+    std::regex expr (regex);
+    for (const CP::SystematicSet& sys : inputVector)
+    {
+      if (regex_match (sys.name(), expr))
+      {
+        systematicsVector.push_back (sys);
+      }
+    }
+    return systematicsVector;
+  }
+
 }

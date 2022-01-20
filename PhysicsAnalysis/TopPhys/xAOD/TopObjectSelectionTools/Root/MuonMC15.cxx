@@ -10,15 +10,21 @@
 using namespace TopObjectSelectionTools;
 
 namespace top {
-  MuonMC15::MuonMC15(const double ptcut, IsolationBase* isolation, const bool applyTTVACut) :
+  MuonMC15::MuonMC15(const double ptcut, IsolationBase* isolation, const double d0SigCut, const double delta_z0, const bool applyTTVACut) :
     m_ptcut(ptcut),
+    m_d0SigCut(d0SigCut),
+    m_delta_z0(delta_z0),
     m_muonSelectionTool("CP::MuonSelectionTool"),
     m_muonSelectionToolLoose("CP::MuonSelectionToolLoose"),
     m_isolation(isolation),
-    m_applyTTVACut(applyTTVACut) {
+    m_applyTTVACut(applyTTVACut)
+  {
     top::check(m_muonSelectionTool.retrieve(), "Failed to retrieve muonSelectionTool");
     top::check(m_muonSelectionToolLoose.retrieve(), "Failed to retrieve muonSelectionToolLoose");
   }
+
+  MuonMC15::MuonMC15(const double ptcut, IsolationBase* isolation, const bool applyTTVACut) :
+    MuonMC15::MuonMC15(ptcut, isolation, 3.0, 0.5, applyTTVACut) {}
 
   bool MuonMC15::passSelection(const xAOD::Muon& mu) const {
     if (mu.pt() < m_ptcut) return false;
@@ -64,7 +70,7 @@ namespace top {
     }
 
     float d0sig = mu.auxdataConst<float>("d0sig");
-    if (std::abs(d0sig) >= 3) return false;
+    if (std::abs(d0sig) >= m_d0SigCut) return false;
 
     if (!mu.isAvailable<float>("delta_z0_sintheta")) {
       ATH_MSG_WARNING("delta z0*sin(theta) not found for muon. "
@@ -73,7 +79,7 @@ namespace top {
     }
 
     float delta_z0_sintheta = mu.auxdataConst<float>("delta_z0_sintheta");
-    if (std::abs(delta_z0_sintheta) >= 0.5) return false;
+    if (std::abs(delta_z0_sintheta) >= m_delta_z0) return false;
 
     return true;
   }

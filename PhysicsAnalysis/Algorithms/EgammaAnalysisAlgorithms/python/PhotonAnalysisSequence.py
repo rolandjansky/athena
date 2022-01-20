@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Framework import(s):
 import ROOT
@@ -89,7 +89,6 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
     addPrivateTool( alg, 'selectionTool', 'CP::EgammaIsGoodOQSelectionTool' )
     alg.selectionTool.Mask = ROOT.xAOD.EgammaParameters.BADCLUSPHOTON
     seq.append( alg, inputPropName = 'particles',
-                outputPropName = 'particlesOut',
                 stageName = 'calibration',
                 metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
                               'selectionDecorCount' : [1]},
@@ -117,7 +116,6 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
         alg.calibrationAndSmearingTool.useAFII = 0
         pass
     seq.append( alg, inputPropName = 'egammas', outputPropName = 'egammasOut',
-                affectingSystematics = '(^EG_RESOLUTION_.*)|(^EG_SCALE_.*)',
                 stageName = 'calibration' )
 
     # should this be applied to data?  or to AFII?
@@ -125,9 +123,9 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
                            'PhotonShowerShapeFudgeAlg' + postfix )
     addPrivateTool( alg, 'showerShapeFudgeTool',
                     'ElectronPhotonShowerShapeFudgeTool' )
-    alg.showerShapeFudgeTool.Preselection = 21 # 21 = MC15
+    alg.showerShapeFudgeTool.Preselection = 22 # Rel 21
     alg.showerShapeFudgeTool.FFCalibFile = \
-        'ElectronPhotonShowerShapeFudgeTool/v1/PhotonFudgeFactors.root' #only for rel21
+        'ElectronPhotonShowerShapeFudgeTool/v2/PhotonFudgeFactors.root' #only for rel21
     seq.append( alg, inputPropName = 'photons', outputPropName = 'photonsOut',
                 stageName = 'calibration' )
 
@@ -150,7 +148,7 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
     alg.selectionDecoration = 'isolated' + postfix
     addPrivateTool( alg, 'selectionTool', 'CP::IsolationSelectionTool' )
     alg.selectionTool.PhotonWP = isolationWP
-    seq.append( alg, inputPropName = 'egammas', outputPropName = 'egammasOut',
+    seq.append( alg, inputPropName = 'egammas',
                 stageName = 'selection',
                 metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
                               'selectionDecorCount' : [1]} )
@@ -175,7 +173,6 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
     if dataType != 'data':
         seq.append( alg, inputPropName = 'photons',
                     outputPropName = 'photonsOut',
-                    affectingSystematics = '(^PH_EFF_.*)',
                     stageName = 'efficiency',
                     metaConfig = {'selectionDecorNames' : [alg.outOfValidityDeco],
                                   'selectionDecorCount' : [1]} )

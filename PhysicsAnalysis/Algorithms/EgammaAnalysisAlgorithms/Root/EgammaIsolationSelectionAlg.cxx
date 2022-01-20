@@ -41,7 +41,7 @@ namespace CP
     ANA_CHECK (makeSelectionAccessor (m_selectionDecoration, m_selectionAccessor));
     ANA_CHECK (m_selectionTool.retrieve());
       
-    m_systematicsList.addHandle (m_egammasHandle);
+    ANA_CHECK (m_egammasHandle.initialize (m_systematicsList));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
 
@@ -59,20 +59,21 @@ namespace CP
   StatusCode EgammaIsolationSelectionAlg ::
   execute ()
   {
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
-        xAOD::EgammaContainer *egammas = nullptr;
-        ANA_CHECK (m_egammasHandle.getCopy (egammas, sys));
-        for (xAOD::Egamma *egamma : *egammas)
+    for (const auto& sys : m_systematicsList.systematicsVector())
+    {
+      const xAOD::EgammaContainer *egammas = nullptr;
+      ANA_CHECK (m_egammasHandle.retrieve (egammas, sys));
+      for (const xAOD::Egamma *egamma : *egammas)
+      {
+        if (m_preselection.getBool (*egamma))
         {
-          if (m_preselection.getBool (*egamma))
-          {
-            m_selectionAccessor->setBits
-              (*egamma, selectionFromAccept (m_selectionTool->accept (*egamma)));
-          } else {
-            m_selectionAccessor->setBits (*egamma, m_setOnFail);
-          }
+          m_selectionAccessor->setBits
+            (*egamma, selectionFromAccept (m_selectionTool->accept (*egamma)));
+        } else {
+          m_selectionAccessor->setBits (*egamma, m_setOnFail);
         }
-        return StatusCode::SUCCESS;
-      });
+      }
+    }
+    return StatusCode::SUCCESS;
   }
 }

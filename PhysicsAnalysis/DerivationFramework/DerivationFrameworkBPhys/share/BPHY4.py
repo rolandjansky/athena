@@ -74,6 +74,12 @@ BPHY4ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(n
 ToolSvc += BPHY4ElectronTPThinningTool
 BPHY4ThinningTools += [BPHY4ElectronTPThinningTool]
 
+# Skim events accepted by the muon selection
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+BPHY4_SelectEvent = DerivationFramework__xAODStringSkimmingTool(name = 'BPHY4_SelectEvent',
+                      expression = '(count(Muons.BPHY4MuonIndex>=0)>0)')
+ToolSvc += BPHY4_SelectEvent
+
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
 #====================================================================
@@ -82,7 +88,8 @@ BPHY4ThinningTools += [BPHY4ElectronTPThinningTool]
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel(
   "BPHY4Kernel",
-   SkimmingTools     = [BPHY4_Reco_4mu],
+   AugmentationTools = [BPHY4_Reco_4mu],
+   SkimmingTools     = [BPHY4_SelectEvent],
    ThinningTools     = BPHY4ThinningTools
    )
 

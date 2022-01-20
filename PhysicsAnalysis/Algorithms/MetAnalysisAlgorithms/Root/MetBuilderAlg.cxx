@@ -35,7 +35,7 @@ namespace CP
   StatusCode MetBuilderAlg ::
   initialize ()
   {
-    m_systematicsList.addHandle (m_metHandle);
+    ANA_CHECK (m_metHandle.initialize (m_systematicsList));
     ANA_CHECK (m_systematicsList.initialize());
     return StatusCode::SUCCESS;
   }
@@ -45,19 +45,20 @@ namespace CP
   StatusCode MetBuilderAlg ::
   execute ()
   {
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
-        xAOD::MissingETContainer *met {};
-        ANA_CHECK (m_metHandle.getCopy (met, sys));
+    for (const auto& sys : m_systematicsList.systematicsVector())
+    {
+      xAOD::MissingETContainer *met {};
+      ANA_CHECK (m_metHandle.getCopy (met, sys));
 
-        xAOD::MissingET *softTerm = (*met)[m_softTerm];
-        if (softTerm == nullptr)
-        {
-          ANA_MSG_ERROR ("could not find MET soft-term: " << m_softTerm);
-          return StatusCode::FAILURE;
-        }
-        ATH_CHECK (met::buildMETSum (m_finalKey, met, softTerm->source()));
+      xAOD::MissingET *softTerm = (*met)[m_softTerm];
+      if (softTerm == nullptr)
+      {
+        ANA_MSG_ERROR ("could not find MET soft-term: " << m_softTerm);
+        return StatusCode::FAILURE;
+      }
+      ATH_CHECK (met::buildMETSum (m_finalKey, met, softTerm->source()));
+    }
 
-        return StatusCode::SUCCESS;
-      });
+    return StatusCode::SUCCESS;
   }
 }

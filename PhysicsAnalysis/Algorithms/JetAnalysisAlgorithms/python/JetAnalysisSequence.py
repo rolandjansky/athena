@@ -18,32 +18,6 @@ import re
 # JVT recommendations
 # https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JVTCalibrationRel21
 
-# Keep the different possible sets of systematics here.
-# All possible large-R jet systematics
-largeRSysts = "|".join([
-    "(^JET_Rtrk_.*)",
-    "(^JET_TAM_.*)",
-    "(^JET_MassRes_.*)",
-    "(^JET_Comb_.*_mass.*)"])
-smallRSysts = "|".join([
-    "(^JET_BJES_Response$)",
-    "(^JET_EtaIntercalibration_.*)",
-    "(^JET_Flavor_.*)",
-    "(^JET_Gjet_.*)",
-    "(^JET_JER_.*)",
-    "(^JET_MJB_.*)",
-    "(^JET_Pileup_.*)",
-    "(^JET_PunchThrough_.*)",
-    "(^JET_RelativeNonClosure_.*)",
-    "(^JET_SingleParticle_HighPt$)",
-    "(^JET_Zjet_.*)",
-    "(^JET_EffectiveNP_.*)",
-    "(^JET_GroupedNP_.*)"])
-jvtSysts = "|".join([
-    "(^JET_JvtEfficiency$)"])
-fjvtSysts = "|".join([
-    "(^JET_fJvtEfficiency$)"])
-
 def makeJetAnalysisSequence( dataType, jetCollection, postfix = '',
                              deepCopyOutput = False,
                              shallowViewOutput = True,
@@ -66,6 +40,7 @@ def makeJetAnalysisSequence( dataType, jetCollection, postfix = '',
         enableKinematicHistograms -- Whether or not to dump the kinematic histograms
         Other keyword arguments are forwarded to the other functions.
     """
+
     if dataType not in ["data", "mc", "afii"]:
         raise ValueError ("invalid data type: " + dataType )
 
@@ -253,7 +228,7 @@ def makeSmallRJetAnalysisSequence( seq, dataType, jetCollection,
     alg.uncertaintiesTool.MCType = "AFII" if dataType == "afii" else "MC16"
     alg.uncertaintiesTool.IsData = (dataType == 'data')
     seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut',
-                affectingSystematics = smallRSysts, stageName = 'calibration' )
+                stageName = 'calibration' )
 
     # Set up the JVT update algorithm:
     if runJvtUpdate :
@@ -279,7 +254,7 @@ def makeSmallRJetAnalysisSequence( seq, dataType, jetCollection,
         alg = createAlgorithm( 'CP::JvtEfficiencyAlg', 'JvtEfficiencyAlg'+postfix )
         addPrivateTool( alg, 'efficiencyTool', 'CP::JetJvtEfficiency' )
         if jetInput == 'EMPFlow':
-            alg.efficiencyTool.SFFile = 'JetJvtEfficiency/Moriond2018/JvtSFFile_EMPFlow.root'
+            alg.efficiencyTool.SFFile = 'JetJvtEfficiency/Moriond2018/JvtSFFile_EMPFlowJets.root'
             alg.efficiencyTool.MaxPtForJvt = 60e3
         else:
             alg.efficiencyTool.SFFile = 'JetJvtEfficiency/Moriond2018/JvtSFFile_EMTopoJets.root'
@@ -287,7 +262,6 @@ def makeSmallRJetAnalysisSequence( seq, dataType, jetCollection,
         alg.efficiencyTool.WorkingPoint = 'Tight' if jetInput == 'EMPFlow' else 'Medium'
         alg.selection = 'jvt_selection'
         alg.scaleFactorDecoration = 'jvt_effSF_%SYS%'
-        alg.scaleFactorDecorationRegex = jvtSysts
         # Disable scale factor decorations if running on data
         # We still want to run the JVT selection
         if not runJvtEfficiency or dataType == 'data':
@@ -297,18 +271,21 @@ def makeSmallRJetAnalysisSequence( seq, dataType, jetCollection,
         alg.outOfValidityDeco = 'no_jvt'
         alg.skipBadEfficiency = 0
         seq.append( alg, inputPropName = 'jets',
-                    affectingSystematics = jvtSysts, stageName = 'selection' )
+                    stageName = 'selection' )
 
     if runFJvtSelection :
         alg = createAlgorithm( 'CP::JvtEfficiencyAlg', 'ForwardJvtEfficiencyAlg' )
         addPrivateTool( alg, 'efficiencyTool', 'CP::JetJvtEfficiency' )
-        alg.efficiencyTool.SFFile = 'JetJvtEfficiency/Moriond2018/fJvtSFFile.root'
+        if jetInput == 'EMPFlow':
+            alg.efficiencyTool.SFFile = 'JetJvtEfficiency/May2020/fJvtSFFile.EMPFlow.root'
+        else:
+            alg.efficiencyTool.SFFile = 'JetJvtEfficiency/May2020/fJvtSFFile.EMtopo.root'
         alg.efficiencyTool.WorkingPoint = 'Tight'
+        alg.efficiencyTool.UseMuSFFormat = True
         alg.dofJVT = True
         alg.fJVTStatus = 'passFJVT,as_char'
         alg.selection = 'fjvt_selection'
         alg.scaleFactorDecoration = 'fjvt_effSF_%SYS%'
-        alg.scaleFactorDecorationRegex = fjvtSysts
         # Disable scale factor decorations if running on data
         # We still want to run the JVT selection
         if not runFJvtEfficiency or dataType == 'data':
@@ -318,7 +295,7 @@ def makeSmallRJetAnalysisSequence( seq, dataType, jetCollection,
         alg.outOfValidityDeco = 'no_fjvt'
         alg.skipBadEfficiency = 0
         seq.append( alg, inputPropName = 'jets',
-                    affectingSystematics = fjvtSysts, stageName = 'selection')
+                    stageName = 'selection')
 
     # Return the sequence:
     return seq
@@ -411,7 +388,6 @@ def makeLargeRJetAnalysisSequence( seq, dataType, jetCollection,
         alg.uncertaintiesTool.MCType = "MC16a"
         alg.uncertaintiesTool.IsData = (dataType == "data")
         seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut',
-                    affectingSystematics = largeRSysts, stageName = 'calibration',
                     metaConfig = {'selectionDecorNames' : ['outOfValidity'],
                                   'selectionDecorCount' : [1]} )
 

@@ -82,7 +82,7 @@ namespace CP
 
     /// \brief check the correction code and do the proper thing
   public:
-    ::StatusCode check (xAOD::IParticle& particle,
+    ::StatusCode check (const xAOD::IParticle& particle,
                         const CP::CorrectionCode& code,
                         const char *context) const;
 

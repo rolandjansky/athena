@@ -30,7 +30,7 @@ atlas_add_root_dictionary( AsgExampleToolsLib AsgExampleToolsCintDict
 atlas_add_library( AsgExampleToolsLib
    AsgExampleTools/*.h Root/*.cxx ${AsgExampleToolsCintDict}
    PUBLIC_HEADERS AsgExampleTools
-   LINK_LIBRARIES AsgTools AsgDataHandlesLib AsgTestingLib ${extra_lib} )
+   LINK_LIBRARIES AsgTools AsgServicesLib AsgDataHandlesLib AsgTestingLib ${extra_lib} )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( AsgExampleTools
@@ -68,6 +68,12 @@ atlas_add_test( gt_AsgToolConfig
    LINK_LIBRARIES AsgTools AsgExampleToolsLib AsgTestingLib )
 set_tests_properties (AsgExampleTools_gt_AsgToolConfig_ctest PROPERTIES LABELS "AsgTools;AsgExampleTools" )
 
+atlas_add_test( gt_AsgServiceConfig
+   SOURCES test/gt_AsgServiceConfig.cxx
+   INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
+   LINK_LIBRARIES ${GTEST_LIBRARIES} AsgExampleToolsLib AsgTestingLib )
+set_tests_properties (AsgExampleTools_gt_AsgServiceConfig_ctest PROPERTIES LABELS "AsgServices;AsgExampleTools" )
+
 
 if( XAOD_STANDALONE )
 
@@ -98,13 +104,12 @@ if( XAOD_STANDALONE )
 
 endif()
 
-if (XAOD_STANDALONE)
-#if (NOT SIMULATIONBASE)
-#   if (NOT XAOD_STANDALONE)
-#     set (extra_libs POOLRootAccessLib)
-#   else()
-#     set (extra_libs )
-#   endif()
+if (NOT SIMULATIONBASE)
+   if (NOT XAOD_STANDALONE)
+     set (extra_libs POOLRootAccessLib)
+   else()
+     set (extra_libs )
+   endif()
 
    atlas_add_test( gt_DataHandlesTest
       SOURCES test/gt_DataHandlesTest.cxx

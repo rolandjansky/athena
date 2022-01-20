@@ -55,5 +55,12 @@ atlas_add_dictionary( FourMomUtilsDict
    FourMomUtils/selection.xml
    LINK_LIBRARIES FourMomUtils )
 
+if( NOT XAOD_STANDALONE AND NOT XAOD_ANALYSIS )
+  atlas_add_dictionary( FourMomUtilsAthenaDict
+     FourMomUtils/FourMomUtilsAthenaDict.h
+     FourMomUtils/selection_athena.xml
+     LINK_LIBRARIES FourMomUtils )
+endif()
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

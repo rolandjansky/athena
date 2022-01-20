@@ -12,13 +12,14 @@
  */
 
 
+// WARNING! WARNING! WARNING!
+//
+// This version of the file has been modified for use in 21.2 and
+// should not be swept into master.
+
+
 #ifndef ASG_DATA_HANDLES_WRITE_DECOR_HANDLE_KEY_H
 #define ASG_DATA_HANDLES_WRITE_DECOR_HANDLE_KEY_H
-
-#ifndef XAOD_STANDALONE
-#include <StoreGate/WriteDecorHandleKey.h>
-#else
-
 
 #include "AsgDataHandles/DecorKeyHelpers.h"
 #include "AsgDataHandles/WriteHandleKey.h"
@@ -150,7 +151,5 @@ public:
 
 
 #include "AsgDataHandles/WriteDecorHandleKey.icc"
-
-#endif
 
 #endif

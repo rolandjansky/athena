@@ -1,6 +1,6 @@
 #====================================================================
 #
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #   
 # @file   BPHY8.py
 #
@@ -95,7 +95,7 @@ print "BPHY8: release 21 or up: %s" % BPHY8cf.isRelease21
 # MC dataset categories (lists of dataset numbers)
 #====================================================================
 BPHY8cf.mcBsmumu          = [300203,300306,300307,300308,300309,300402,300426,300430,300446,300447]
-BPHY8cf.mcBplusJpsiKplus  = [300203,300306,300307,300308,300309,300997,300999,300404,300405,300406,300437,300756,300757]
+BPHY8cf.mcBplusJpsiKplus  = [300203,300306,300307,300308,300309,300997,300999,300404,300405,300406,300437,300756,300757,300758,300759]
 BPHY8cf.mcBsJpsiPhi       = [300203,300306,300307,300308,300309,300401,300438,300448,300449,300761]
 BPHY8cf.mcBplusJpsiPiplus = [300406,300437,300758,300759]
 BPHY8cf.mcBhh             = [300431,300432,300433,300434,300760,300762,300763,300764,300765]
@@ -230,93 +230,56 @@ BPHY8cf.useCalibratedMuons = 3
 #
 # Note: (2020-03-31)
 # Now updated to new release 21 recommendations for full run 2 / setup 1
-# Page reivision r37 (as of 2020-03-23)
+# Page revision r37 (as of 2020-03-23)
 # https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MCPAnalysisGuidelinesMC16#Momentum_corrections
 #
+# Note: (2022-01-14)
+# Now adjusted to the new setup of the MuonCalibrationAndSmearingTool
+# with the new precision rel recommendations.
+# Page revision r62 (as of 2022-01-13)
+# https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/MCPAnalysisGuidelinesMC16#Momentum_corrections_Precision_R
+#
+#
+# Global settings
+BPHY8cf.McstRelease         = "_READ_"
+BPHY8cf.McstSagittaCorr     = True
+BPHY8cf.McstDoDirectCBCalib = True
 # MC
 if BPHY8cf.isSimulation:
 #
 # for MC16a
     if BPHY8cf.mcCampaign == "mc16a":
         BPHY8cf.McstYear                  = "Data16"
-        BPHY8cf.McstRelease               = "Recs2020_03_03"
-        BPHY8cf.McstStatComb              = False
-        BPHY8cf.McstSagittaCorr           = True
-        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_03_02_19_Data16"
-        BPHY8cf.McstDoSagittaMCDistortion = False
-        BPHY8cf.McstSagittaCorrPhaseSpace = True
 #
 # for MC16d
     elif BPHY8cf.mcCampaign == "mc16d":
         BPHY8cf.McstYear                  = "Data17"
-        BPHY8cf.McstRelease               = "Recs2020_03_03"
-        BPHY8cf.McstStatComb              = False
-        BPHY8cf.McstSagittaCorr           = True
-        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_03_02_19_Data17"
-        BPHY8cf.McstDoSagittaMCDistortion = False
-        BPHY8cf.McstSagittaCorrPhaseSpace = True
 #
 # for MC16e
     elif BPHY8cf.mcCampaign == "mc16e":
         BPHY8cf.McstYear                  = "Data18"
-        BPHY8cf.McstRelease               = "Recs2020_03_03"
-        BPHY8cf.McstStatComb              = False
-        BPHY8cf.McstSagittaCorr           = True
-        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_03_02_19_Data18"
-        BPHY8cf.McstDoSagittaMCDistortion = False
-        BPHY8cf.McstSagittaCorrPhaseSpace = True
 #
 # default (like for mc16a)
     else:
         BPHY8cf.McstYear                  = "Data16"
-        BPHY8cf.McstRelease               = "Recs2020_03_03"
-        BPHY8cf.McstStatComb              = False
-        BPHY8cf.McstSagittaCorr           = True
-        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_03_02_19_Data16"
-        BPHY8cf.McstDoSagittaMCDistortion = False
-        BPHY8cf.McstSagittaCorrPhaseSpace = True
 #
 # data 15
 else:
     # Note: The recommendation page sets McstYear to 'Data16'
     if BPHY8cf.projectTag.startswith("data15"):
         BPHY8cf.McstYear                  = "Data16"
-        BPHY8cf.McstRelease               = "Recs2020_03_03"
-        BPHY8cf.McstStatComb              = False
-        BPHY8cf.McstSagittaCorr           = True
-        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_03_02_19_Data16"
-        BPHY8cf.McstDoSagittaMCDistortion = False
-        BPHY8cf.McstSagittaCorrPhaseSpace = True
 #
 # data 16
     if BPHY8cf.projectTag.startswith("data16"):
         BPHY8cf.McstYear                  = "Data16"
-        BPHY8cf.McstRelease               = "Recs2020_03_03"
-        BPHY8cf.McstStatComb              = False
-        BPHY8cf.McstSagittaCorr           = True
-        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_03_02_19_Data16"
-        BPHY8cf.McstDoSagittaMCDistortion = False
-        BPHY8cf.McstSagittaCorrPhaseSpace = True
 #
 # data 17
     if BPHY8cf.projectTag.startswith("data17"):
         BPHY8cf.McstYear                  = "Data17"
-        BPHY8cf.McstRelease               = "Recs2020_03_03"
-        BPHY8cf.McstStatComb              = False
-        BPHY8cf.McstSagittaCorr           = True
-        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_03_02_19_Data17"
-        BPHY8cf.McstDoSagittaMCDistortion = False
-        BPHY8cf.McstSagittaCorrPhaseSpace = True
 #
 # data 18
     if BPHY8cf.projectTag.startswith("data18"):
         BPHY8cf.McstYear                  = "Data18";
-        BPHY8cf.McstRelease               = "Recs2020_03_03"
-        BPHY8cf.McstStatComb              = False
-        BPHY8cf.McstSagittaCorr           = True
-        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_03_02_19_Data18"
-        BPHY8cf.McstDoSagittaMCDistortion = False
-        BPHY8cf.McstSagittaCorrPhaseSpace = True
 
 # wide mumu mass range?
 BPHY8cf.doUseWideMuMuMassRange = False
@@ -878,23 +841,22 @@ if BPHY8cf.useCalibratedMuons > 0:
     if BPHY8cf.McstYear != "_READ_":
         BPHY8_MuonCalTool.Year = BPHY8cf.McstYear
     if BPHY8cf.McstRelease != "_READ_":
-        BPHY8_MuonCalTool.Release = BPHY8cf.McstRelease
-    # read back string values
-    BPHY8cf.McstYear           = getPropertyValue(BPHY8_MuonCalTool, "Year")
-    BPHY8cf.McstRelease        = getPropertyValue(BPHY8_MuonCalTool, "Release")
+        BPHY8_MuonCalTool.Release     = BPHY8cf.McstRelease
+    BPHY8_MuonCalTool.SagittaCorr     = BPHY8cf.McstSagittaCorr
+    BPHY8_MuonCalTool.doDirectCBCalib = BPHY8cf.McstDoDirectCBCalib
     # additional options for MuonMomentumCorrections-01-00-64 and up
     # Don't decorate with Eigen (from MuonMomentumCorrections-01-00-62
     # onwards, see ATLASG-1126)
-    BPHY8_MuonCalTool.noEigenDecor          = True
-    BPHY8_MuonCalTool.StatComb              = BPHY8cf.McstStatComb
-    BPHY8_MuonCalTool.SagittaCorr           = BPHY8cf.McstSagittaCorr
-    BPHY8_MuonCalTool.doSagittaMCDistortion = BPHY8cf.McstDoSagittaMCDistortion
-    BPHY8_MuonCalTool.SagittaCorrPhaseSpace = BPHY8cf.McstSagittaCorrPhaseSpace
-    if BPHY8cf.McstSagittaRelease != "_READ_":
-        BPHY8_MuonCalTool.SagittaRelease = BPHY8cf.McstSagittaRelease
-    # read back string value
-    BPHY8cf.McstSagittaRelease = getPropertyValue(BPHY8_MuonCalTool,
-                                                  "SagittaRelease")
+    BPHY8_MuonCalTool.noEigenDecor    = True
+    # read back actual values
+    BPHY8cf.McstYear                  = getPropertyValue(BPHY8_MuonCalTool, "Year")
+    BPHY8cf.McstRelease               = getPropertyValue(BPHY8_MuonCalTool, "Release")
+    BPHY8cf.McstStatComb              = getPropertyValue(BPHY8_MuonCalTool, "StatComb")
+    BPHY8cf.McstDoSagittaMCDistortion = getPropertyValue(BPHY8_MuonCalTool, "doSagittaMCDistortion")
+    BPHY8cf.McstSagittaCorrPhaseSpace = getPropertyValue(BPHY8_MuonCalTool, "SagittaCorrPhaseSpace")
+    BPHY8cf.McstSagittaRelease        = getPropertyValue(BPHY8_MuonCalTool, "SagittaRelease")
+    BPHY8cf.McstSagittaCorr           = getPropertyValue(BPHY8_MuonCalTool, "SagittaCorr")
+    BPHY8cf.McstDoDirectCBCalib       = getPropertyValue(BPHY8_MuonCalTool, "doDirectCBCalib")
     ToolSvc +=  BPHY8_MuonCalTool
     print BPHY8_MuonCalTool
     pprint(BPHY8_MuonCalTool.properties())
@@ -1660,8 +1622,8 @@ if "Bsmumu" in BPHY8cf.doChannels:
         BlindOnlyAllMuonsTight = BPHY8cf.blindOnlyAllMuonsTight,
         UseMuCalcMass          = BPHY8cf.useMuCalcMass,
         OutputLevel            = WARNING)
-# b) for BJpsiK and BsJpsiPhi retain the Jpsi
-if [i for i in BPHY8cf.doChannels if i in ["BJpsiK", "BsJpsiPhi"]]:
+# b) for BJpsiK, BsJpsiPhi and BJpsiPi retain the Jpsi
+if [i for i in BPHY8cf.doChannels if i in ["BJpsiK", "BsJpsiPhi", "BJpsiPi"]]:
     BPHY8_SelectTools["Jpsimumu"] = DerivationFramework__Select_Bmumu(
         name                   = "BPHY8_Select_Jpsimumu",
         HypothesisName         = "Jpsimumu",

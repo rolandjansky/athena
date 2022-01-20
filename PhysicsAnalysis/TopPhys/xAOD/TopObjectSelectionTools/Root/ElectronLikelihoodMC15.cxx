@@ -15,8 +15,12 @@ namespace top {
   ElectronLikelihoodMC15::ElectronLikelihoodMC15(const double ptcut, const bool vetoCrack,
                                                  const std::string& operatingPoint,
                                                  const std::string& operatingPointLoose, StandardIsolation* isolation,
+                                                 const double d0SigCut, const double delta_z0,
                                                  const bool applyTTVACut, const bool applyChargeIDCut) :
+						 
     m_ptcut(ptcut),
+    m_d0SigCut(d0SigCut),
+    m_delta_z0(delta_z0),
     m_vetoCrack(vetoCrack),
     m_operatingPoint("SetMe"),
     m_operatingPointLoose("SetMe"),
@@ -69,7 +73,30 @@ namespace top {
     m_operatingPointLoose_DF = egammaNamesAreNotConsistantAnywhereLoose;
     m_operatingPoint = operatingPoint;
     m_operatingPointLoose = operatingPointLoose;
+
+    m_deadHVTool.setTypeAndName("AsgDeadHVCellRemovalTool/deadHVTool");
+    top::check(m_deadHVTool.retrieve(), "Failed to setup Egamma DeadHVCellRemovalTool");
   }
+
+  ElectronLikelihoodMC15::ElectronLikelihoodMC15(const double ptcut, const bool vetoCrack,
+                                                 const std::string& operatingPoint,
+                                                 const std::string& operatingPointLoose, StandardIsolation* isolation,
+                                                 const bool applyTTVACut, const bool applyChargeIDCut) :
+    ElectronLikelihoodMC15::ElectronLikelihoodMC15(ptcut, vetoCrack, operatingPoint,
+                                                   operatingPointLoose, isolation, 5.0, 0.5, applyTTVACut, applyChargeIDCut) {}
+
+  ElectronLikelihoodMC15::ElectronLikelihoodMC15(const bool,
+                                                 const double ptcut,
+                                                 const bool vetoCrack,
+                                                 const std::string& operatingPoint,
+                                                 const std::string& operatingPointLoose,
+                                                 StandardIsolation* isolation,
+                                                 const double d0SigCut,
+                                                 const double delta_z0, 
+                                                 const bool applyTTVACut,
+                                                 const bool applyChargeIDCut) :
+    ElectronLikelihoodMC15::ElectronLikelihoodMC15(ptcut, vetoCrack, operatingPoint,
+                                                   operatingPointLoose, isolation, d0SigCut, delta_z0, applyTTVACut, applyChargeIDCut) {}
 
   ElectronLikelihoodMC15::ElectronLikelihoodMC15(const bool,
                                                  const double ptcut, const bool vetoCrack,
@@ -77,7 +104,7 @@ namespace top {
                                                  const std::string& operatingPointLoose, StandardIsolation* isolation,
                                                  const bool applyTTVACut, const bool applyChargeIDCut) :
     ElectronLikelihoodMC15::ElectronLikelihoodMC15(ptcut, vetoCrack, operatingPoint,
-                                                   operatingPointLoose, isolation, applyTTVACut, applyChargeIDCut) {}
+                                                   operatingPointLoose, isolation, 5.0, 0.5, applyTTVACut, applyChargeIDCut) {}
 
   bool ElectronLikelihoodMC15::passSelection(const xAOD::Electron& el) const {
     if (!passSelectionNoIsolation(el, m_operatingPoint_DF, m_operatingPoint)) return false;
@@ -158,6 +185,11 @@ namespace top {
       if (!passTTVACuts(el)) return false;
     }
 
+    // removing electron cluster in EMEC bad HV regions
+    // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EGammaIdentificationRun2#Removal_of_Electron_Photon_clust
+    if (!m_deadHVTool->accept(el)) return false;  
+
+
     // Electron Charge ID Selector Tool
     // apply decoration only
     if (m_applyChargeIDCut && !passChargeIDCut(el)) el.auxdecor<char>("passChargeID") = 0;
@@ -181,7 +213,7 @@ namespace top {
     }
 
     float d0sig = el.auxdataConst<float>("d0sig");
-    if (std::abs(d0sig) >= 5) return false;
+    if (std::abs(d0sig) >= m_d0SigCut) return false;
 
     if (!el.isAvailable<float>("delta_z0_sintheta")) {
       ATH_MSG_WARNING("delta z0*sin(theta) not found for electron. Maybe no primary vertex? Won't accept.");
@@ -189,7 +221,7 @@ namespace top {
     }
 
     float delta_z0_sintheta = el.auxdataConst<float>("delta_z0_sintheta");
-    if (std::abs(delta_z0_sintheta) >= 0.5) return false;
+    if (std::abs(delta_z0_sintheta) >= m_delta_z0) return false;
 
     return true;
   }

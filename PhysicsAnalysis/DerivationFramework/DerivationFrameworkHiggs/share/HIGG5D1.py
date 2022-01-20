@@ -252,6 +252,12 @@ addVRJets(higg5d1Seq, largeRColls=largeRJetCollections, do_ghost=True, training=
 #HIGG5Common.addVRSmallJets(higg5d1Seq, training='201903')
 # Also add Hbb Tagger
 addRecommendedXbbTaggers(higg5d1Seq, ToolSvc)
+# Add TruthLabel to large-R jets
+if DerivationFrameworkHasTruth:
+  for coll in largeRJetCollections:
+    alg = coll.replace('Jets', '')
+    addJetTruthLabel(jetalg=alg, sequence=higg5d1Seq, algname="JetTruthLabelingAlg", labelname="R10TruthLabel_R21Consolidated")
+    addJetTruthLabel(jetalg=alg, sequence=higg5d1Seq, algname="JetTruthLabelingAlg", labelname="R10TruthLabel_R21Precision")
 
 #===================================================================
 # Run b-tagging

@@ -46,8 +46,9 @@ namespace CP
     }
 
     ANA_CHECK (m_efficiencyTool.retrieve());
-    m_systematicsList.addHandle (m_jetHandle);
-    ANA_CHECK (m_systematicsList.addAffectingSystematics (m_efficiencyTool->affectingSystematics()));
+    ANA_CHECK (m_jetHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_scaleFactorDecoration.initialize (m_systematicsList, m_jetHandle, SG::AllowEmpty));
+    ANA_CHECK (m_systematicsList.addSystematics (*m_efficiencyTool));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
     ANA_CHECK (m_outOfValidity.initialize());
@@ -66,49 +67,49 @@ namespace CP
   StatusCode JvtEfficiencyAlg ::
   execute ()
   {
-    ANA_CHECK (m_scaleFactorDecoration.preExecute (m_systematicsList));
+    for (const auto& sys : m_systematicsList.systematicsVector())
+    {
+      ANA_CHECK (m_efficiencyTool->applySystematicVariation (sys));
+      const xAOD::JetContainer *jets = nullptr;
+      ANA_CHECK (m_jetHandle.retrieve (jets, sys));
 
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
-        ANA_CHECK (m_efficiencyTool->applySystematicVariation (sys));
-        xAOD::JetContainer *jets = nullptr;
-        ANA_CHECK (m_jetHandle.getCopy (jets, sys));
+      const xAOD::JetContainer *truthjets = nullptr;
+      if(!m_truthJetsName.empty()) {
+        ANA_CHECK(evtStore()->retrieve(truthjets,m_truthJetsName));
+        ANA_CHECK(m_efficiencyTool->tagTruth(jets,truthjets));
+      }
 
-        const xAOD::JetContainer *truthjets = nullptr;
-	if(!m_truthJetsName.empty()) {
-	  ANA_CHECK(evtStore()->retrieve(truthjets,m_truthJetsName));
-	  ANA_CHECK(m_efficiencyTool->tagTruth(jets,truthjets));
-	}
-
-        for (xAOD::Jet *jet : *jets)
+      for (const xAOD::Jet *jet : *jets)
+      {
+        if (m_preselection.getBool (*jet))
         {
-          if (m_preselection.getBool (*jet))
+          bool goodJet = true;
+          if (m_selectionAccessor || m_skipBadEfficiency)
           {
-            bool goodJet = true;
-            if (m_selectionAccessor || m_skipBadEfficiency)
-            {
-              goodJet = m_dofJVT ? m_fJVTStatusAccessor->getBool (*jet) : m_efficiencyTool->passesJvtCut (*jet);
-              if (m_selectionAccessor)
-                m_selectionAccessor->setBool (*jet, goodJet);
-            }
-            if (m_scaleFactorDecoration)
-            {
-              float sf = 1;
-              if (goodJet) {
-                ANA_CHECK_CORRECTION (m_outOfValidity, *jet, m_efficiencyTool->getEfficiencyScaleFactor (*jet, sf));
-              } else if (!m_skipBadEfficiency) {
-                ANA_CHECK_CORRECTION (m_outOfValidity, *jet, m_efficiencyTool->getInefficiencyScaleFactor (*jet, sf));
-              }
-              m_scaleFactorDecoration.set (*jet, sf, sys);
-            }
-          } else {
+            goodJet = m_dofJVT ? m_fJVTStatusAccessor->getBool (*jet) : m_efficiencyTool->passesJvtCut (*jet);
             if (m_selectionAccessor)
-              m_selectionAccessor->setBool (*jet, false);
-
-            if (m_scaleFactorDecoration)
-              m_scaleFactorDecoration.set (*jet, invalidScaleFactor(), sys);
+              m_selectionAccessor->setBool (*jet, goodJet);
           }
+          if (m_scaleFactorDecoration)
+          {
+            float sf = 1;
+            if (goodJet) {
+              ANA_CHECK_CORRECTION (m_outOfValidity, *jet, m_efficiencyTool->getEfficiencyScaleFactor (*jet, sf));
+            } else if (!m_skipBadEfficiency) {
+              ANA_CHECK_CORRECTION (m_outOfValidity, *jet, m_efficiencyTool->getInefficiencyScaleFactor (*jet, sf));
+            }
+            m_scaleFactorDecoration.set (*jet, sf, sys);
+          }
+        } else {
+          if (m_selectionAccessor)
+            m_selectionAccessor->setBool (*jet, false);
+
+          if (m_scaleFactorDecoration)
+            m_scaleFactorDecoration.set (*jet, invalidScaleFactor(), sys);
         }
-        return StatusCode::SUCCESS;
-      });
+      }
+    }
+
+    return StatusCode::SUCCESS;
   }
 }

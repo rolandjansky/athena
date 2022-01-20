@@ -9,7 +9,6 @@
 //
 
 #include <AsgAnalysisAlgorithms/AsgCutBookkeeperAlg.h>
-#include <SystematicsHandles/Helpers.h>
 
 #include <RootCoreUtils/StringUtil.h>
 #include <TH1.h>
@@ -38,6 +37,7 @@ namespace CP
     declareProperty ("histPattern", m_histPattern, "the pattern for histogram names");
     declareProperty ("truthWeightTool", m_truthWeightTool, "the truth weight tool");
     declareProperty ("enableSystematics", m_enableSystematics, "enable systematics");
+    declareProperty ("systematics", m_systematics, "systematics service");
   }
 
 
@@ -168,6 +168,8 @@ namespace CP
       m_enableSystematics = false;
     }
 
+    ANA_CHECK (m_systematics.retrieve());
+
     return StatusCode::SUCCESS;
   }
 
@@ -191,7 +193,7 @@ namespace CP
     {
       std::string name = RCU::substitute(m_histPattern, "%DSID%", std::to_string(m_mcChannelNumber));
       name = RCU::substitute(name, "%RUN%", std::to_string(m_runNumber));
-      name = makeSystematicsName (name, sys);
+      ANA_CHECK (m_systematics->makeSystematicsName (name, name, sys));
 
       ANA_CHECK (book(TH1F(name.c_str(), "CutBookkeeper Information", 3, 0.5, 3.5)));
       TH1 *h = hist(name);

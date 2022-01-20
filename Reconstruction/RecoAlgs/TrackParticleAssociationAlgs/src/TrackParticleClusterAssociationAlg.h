@@ -40,6 +40,7 @@ class TrackParticleClusterAssociationAlg : public AthAlgorithm
   std::string m_outputPostFix;
   std::string m_caloClusters;
   std::string m_vertexContname;
+  bool m_useDetectorEta;
 };
 
 

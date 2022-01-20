@@ -12,7 +12,6 @@
 // Core include(s):
 #include "AthContainers/normalizedTypeinfoName.h"
 #include "EventLoop/Worker.h"
-#include "SystematicsHandles/Helpers.h"
 
 // Local include(s):
 #include "StandaloneAnalysisAlgorithms/xAODWriterAlg.h"
@@ -147,7 +146,8 @@ namespace CP {
          for( const auto& sys : sysVector ) {
 
             // Event store key for the object under consideration.
-            const std::string key = makeSystematicsName( itemMatch[ 2 ], sys );
+            std::string key;
+            ANA_CHECK (m_systematicsList.service().makeSystematicsName( key, itemMatch[ 2 ], sys ));
 
             // Whether or not the object will be available, as long as
             // variable selection rules were set up for it, let xAOD::TEvent

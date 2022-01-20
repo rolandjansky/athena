@@ -24,9 +24,16 @@ namespace top {
      * @param isolation The isolation the user wants to apply.  Don't want any
      * isolation to be applied?  Then leave this as a nullptr.
      */
-    MuonMC15(const double ptcut,
-             IsolationBase* isolation,
-             const bool applyTTVACut = true);
+    explicit MuonMC15(const double ptcut,
+                      IsolationBase* isolation,
+                      const double d0SigCut,
+                      const double delta_z0,
+                      const bool applyTTVACut = true);
+
+    // For backward compatibility
+    explicit MuonMC15(const double ptcut,
+                      IsolationBase* isolation,
+                      const bool applyTTVACut = true);
 
     // Does nothing.
     virtual ~MuonMC15() {}
@@ -60,6 +67,10 @@ namespace top {
   protected:
     // Lower pT threshold to apply to object selection.
     double m_ptcut;
+
+    // TTVA cuts
+    double m_d0SigCut;
+    double m_delta_z0;
 
     // Proper tool to select muons.
     ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;

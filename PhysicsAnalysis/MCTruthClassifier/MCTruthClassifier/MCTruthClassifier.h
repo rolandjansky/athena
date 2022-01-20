@@ -28,6 +28,7 @@ Documentation: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/MonteCarl
 #ifndef XAOD_ANALYSIS
 #include "GaudiKernel/ToolHandle.h"
 #include "ParticlesInConeTools/ITruthParticlesInConeTool.h"
+
 namespace HepMC {
  class GenParticle;
 }
@@ -66,7 +67,11 @@ class MCTruthClassifier : virtual public IMCTruthClassifier , public asg::AsgToo
   virtual std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(const xAOD::CaloCluster* ) override;
   virtual std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(const xAOD::Jet*, bool DR ) override;
 
-  virtual unsigned int classify(const xAOD::TruthParticle  *) override; 
+  virtual unsigned int classify(const xAOD::TruthParticle  *) override;
+
+  virtual const xAOD::TruthParticle* getParentHadron(const xAOD::TruthParticle*)  override;
+
+  virtual int getParentHadronID(const xAOD::TruthParticle* ) override;
 
   enum MCTC_bits { HadTau=0, Tau, hadron, frombsm, uncat, isbsm, isgeant, stable, totalBits };
 
@@ -88,7 +93,6 @@ class MCTruthClassifier : virtual public IMCTruthClassifier , public asg::AsgToo
     if (fromPromptTau) return int(allow_prompt_tau_decays);
     return !res.test(MCTC_bits::hadron);
     }
-
 
   virtual MCTruthPartClassifier::ParticleOutCome getParticleOutCome() override{return  m_ParticleOutCome;}
 
@@ -149,8 +153,8 @@ class MCTruthClassifier : virtual public IMCTruthClassifier , public asg::AsgToo
    MCTruthPartClassifier::ParticleOutCome defOutComeOfPhoton(const xAOD::TruthParticle*);
    //
    MCTruthPartClassifier::ParticleOrigin  defOrigOfNeutrino(const xAOD::TruthParticleContainer* m_xTruthParticleContainer ,const xAOD::TruthParticle*) ;
-   //MCTruthPartClassifier::ParticleOrigin
-   virtual unsigned int defOrigOfParticle(const xAOD::TruthParticle*) override;
+   //
+   virtual std::tuple<unsigned int, const xAOD::TruthParticle*> defOrigOfParticle(const xAOD::TruthParticle*);
    //
    MCTruthPartClassifier::ParticleOrigin  defHadronType(long);
    bool isHadron(const xAOD::TruthParticle*);

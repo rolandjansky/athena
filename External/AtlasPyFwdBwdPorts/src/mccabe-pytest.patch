@@ -1,0 +1,10 @@
+--- mccabe-0.6.1/setup.py-orig	2021-03-18 17:18:33.056523552 +0100
++++ mccabe-0.6.1/setup.py	2021-03-18 17:18:39.871531995 +0100
+@@ -33,7 +33,6 @@
+     license='Expat license',
+     py_modules=['mccabe'],
+     zip_safe=False,
+-    setup_requires=['pytest-runner'],
+     tests_require=['pytest'],
+     entry_points={
+         'flake8.extension': [

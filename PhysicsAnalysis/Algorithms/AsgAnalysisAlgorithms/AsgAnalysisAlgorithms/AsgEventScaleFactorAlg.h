@@ -11,8 +11,9 @@
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <SelectionHelpers/ISelectionAccessor.h>
 #include <SelectionHelpers/SelectionReadHandle.h>
-#include <SystematicsHandles/SysCopyHandle.h>
-#include <SystematicsHandles/SysDecorationHandle.h>
+#include <SystematicsHandles/SysReadHandle.h>
+#include <SystematicsHandles/SysReadDecorHandle.h>
+#include <SystematicsHandles/SysWriteDecorHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <xAODBase/IParticleContainer.h>
 #include <xAODEventInfo/EventInfo.h>
@@ -42,12 +43,12 @@ namespace CP
 
     /// \brief the event info we run on (empty by default)
   private:
-    SysCopyHandle<xAOD::EventInfo> m_eventInfoHandle {
+    SysReadHandle<xAOD::EventInfo> m_eventInfoHandle {
       this, "eventInfo", "EventInfo", "the event info object to run on"};
 
     /// \brief the jet collection we run on
   private:
-    SysCopyHandle<xAOD::IParticleContainer> m_particleHandle {
+    SysReadHandle<xAOD::IParticleContainer> m_particleHandle {
       this, "particles", "", "the particle collection to run on"};
 
     /// \brief the preselection we apply to our input
@@ -55,14 +56,19 @@ namespace CP
     SelectionReadHandle m_preselection {
       this, "preselection", "", "the preselection to apply"};
 
+    /// \brief the decoration for reading systematically aware preselection
+  private:
+    SysReadDecorHandle<char> m_inputSelectionDecoration {
+      this, "inputSelectionDecoration", "", "the decoration for the input selection flag"};
+
     /// \brief the decoration for reading the scale factor
   private:
-    SysDecorationHandle<float> m_scaleFactorInputDecoration {
+    SysReadDecorHandle<float> m_scaleFactorInputDecoration {
       this, "scaleFactorInputDecoration", "", "the decoration for the input efficiency scale factor"};
 
     /// \brief the decoration for writing the scale factor
   private:
-    SysDecorationHandle<float> m_scaleFactorOutputDecoration {
+    SysWriteDecorHandle<float> m_scaleFactorOutputDecoration {
       this, "scaleFactorOutputDecoration", "", "the decoration for the output efficiency scale factor"};
   };
 }
