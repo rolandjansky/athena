@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 import os
 
@@ -211,8 +211,6 @@ def createTriggerFlags():
 
     # Switch whether end-of-event sequence running extra algorithms for accepted events should be added
     flags.addFlag('Trigger.endOfEventProcessing.Enabled', True)
-    # Run the LArNoiseBurst algorithms in the end-of-event sequence
-    flags.addFlag('Trigger.endOfEventProcessing.doLArNoiseBurst', True)
 
     # trigger reconstruction
 
