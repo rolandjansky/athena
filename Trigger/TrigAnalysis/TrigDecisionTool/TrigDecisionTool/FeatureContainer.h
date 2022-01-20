@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGGER_DECISION_TOOL_FeatureContainer_H
@@ -21,8 +21,6 @@
  * @author Joerg Stelzer   <Joerg.Stelzer@cern.ch>  - DESY
  *
  ***********************************************************************************/
-#include "boost/type_traits/is_same.hpp"
-#include "boost/type_traits/is_base_of.hpp"
 #include "boost/range/adaptor/reversed.hpp"
 
 #include "TrigDecisionTool/Combination.h"
@@ -35,14 +33,10 @@
 
 #include "TrigNavStructure/TrigNavStructure.h"
 
-
-
+#include <unordered_set>
 #include <vector>
-#include <map>
 
 namespace Trig {
-
-  
 
   class FeatureContainer
   {
@@ -51,7 +45,7 @@ namespace Trig {
     typedef std::vector<Combination>::const_iterator combination_const_iterator;
       
     /// constructors, destructor
-    FeatureContainer(const CacheGlobalMemory* cgm = 0): m_combinations_unique(true), m_cgm(cgm) {}
+    FeatureContainer(const CacheGlobalMemory* cgm = 0): m_cgm(cgm) {}
     
     /**
      * @brief returns flattened vector of Features of given type
@@ -112,27 +106,26 @@ namespace Trig {
 #endif
       
     /**
-     * @brief gives back reference to combinations collected though append
+     * @brief gives back reference to combinations collected through append
      **/
-    const std::vector<Trig::Combination>& getCombinations() const;
-      
+    const std::vector<Trig::Combination>& getCombinations() const { return m_combinations; }
      
     /**
      * @brief add new combination to the container checking for overlap
      **/    
-    bool addWithChecking(const Combination& newComb);
+    void addWithChecking(const Combination& newComb);
     void append(const FeatureContainer& other);
 
   private:
-    const Trig::CacheGlobalMemory* cgm() const { return m_cgm; }
 
     HLT::TrigNavStructure* navigation() const;
 
-    // data
-    mutable std::vector<Trig::Combination> m_combinations;
-    std::vector<Trig::Combination>         m_nonunique_combinations;
-    mutable bool                           m_combinations_unique;
-    const Trig::CacheGlobalMemory*         m_cgm;
+    /// container preserving insertion order
+    std::vector<Trig::Combination> m_combinations;
+    /// set for ensuring uniqueness in the above container
+    std::unordered_set<Trig::Combination> m_combinations_unique;
+
+    const Trig::CacheGlobalMemory*         m_cgm{nullptr};
 
     // helper class to support ordered set of features
     //      class ordering_by_objects_attached {
@@ -167,9 +160,6 @@ Trig::FeatureContainer::get(const std::string& label, unsigned int condition, co
   if ( condition != TrigDefs::Physics && condition != TrigDefs::alsoDeactivateTEs ) {
     throw std::runtime_error("Only two flags can be supplied to features");
   }
-
-  // uniquify combinations first
-  getCombinations();
 
   //std::cout << " in FC::get, after call to getCombinations(), now looping over them" << std::endl;
 
