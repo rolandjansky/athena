@@ -46,18 +46,12 @@ def _createCfgFlags():
     acf.addFlag('Input.SpecialConfiguration', lambda prevFlags : getSpecialConfigurationMetadata(prevFlags.Input.Files, prevFlags.Input.SecondaryFiles))  # special Configuration options read from input file metadata
 
     def _inputCollections(inputFile):
-        if not inputFile:
-            return []
-
-        rawCollections = [type_key[1] for type_key in GetFileMD(inputFile).get("itemList",[])]
-        collections = [col for col in rawCollections if not col.endswith('Aux.') ]
+        rawCollections = [type_key[1] for type_key in GetFileMD(inputFile).get("itemList", [])]
+        collections = [col for col in rawCollections if not col.endswith('Aux.')]
         return collections
 
     def _typedInputCollections(inputFile):
-        if not inputFile or inputFile==["_ATHENA_GENERIC_INPUTFILE_NAME_"]:
-            return []
-
-        collections = ['%s#%s' % type_key for type_key in GetFileMD(inputFile).get("itemList",[])]
+        collections = ['%s#%s' % type_key for type_key in GetFileMD(inputFile).get("itemList", [])]
         return collections
 
     acf.addFlag('Input.Collections', lambda prevFlags : _inputCollections(prevFlags.Input.Files) )

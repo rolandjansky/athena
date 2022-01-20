@@ -123,8 +123,8 @@ def getHLTPrescaleFolderName():
 
 def _doMenuConversion(flags):
     """Do JSON menu conversion for Run-1&2 data"""
-    return ('_ATHENA_GENERIC_INPUTFILE_NAME_' not in flags.Input.Files and
-            flags.Trigger.EDMVersion in [1,2] and not flags.Input.isMC)
+    return flags.Input.Files and flags.Trigger.EDMVersion in [1, 2] and not flags.Input.isMC
+
 
 def _getMenuFileName(flags):
     """Return base name for menu files"""

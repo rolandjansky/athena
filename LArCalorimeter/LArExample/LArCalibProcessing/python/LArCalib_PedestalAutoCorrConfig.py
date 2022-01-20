@@ -164,8 +164,6 @@ if __name__ == "__main__":
     from LArCalibProcessing.LArCalibConfigFlags import addLArCalibFlags
     addLArCalibFlags(ConfigFlags)
 
-    ConfigFlags.Input.TypedCollections=[]
-
     ConfigFlags.LArCalib.Input.Dir = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/LArCalibProcessing"
     ConfigFlags.LArCalib.Input.Type="calibration_LArElec-Pedestal"
     ConfigFlags.LArCalib.Input.RunNumbers=[174585,]

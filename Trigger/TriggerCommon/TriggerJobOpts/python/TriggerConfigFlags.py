@@ -118,9 +118,8 @@ def createTriggerFlags():
     # True if we have at least one input file, it is a POOL file, it has a metadata store, and the store has xAOD trigger configuration data
     # in either the run-2 or run-3 formats.
     def __trigConfMeta(flags):
-        hasInput = any(flags.Input.Files) and '_ATHENA_GENERIC_INPUTFILE_NAME_' not in flags.Input.Files
         from AthenaConfiguration.AutoConfigFlags import GetFileMD
-        md = GetFileMD(flags.Input.Files) if hasInput else {}
+        md = GetFileMD(flags.Input.Files)
         return ("metadata_items" in md and any(('TriggerMenu' in key) for key in md["metadata_items"].keys()))
 
     # Flag to sense if trigger configuration POOL metadata is available on the job's input

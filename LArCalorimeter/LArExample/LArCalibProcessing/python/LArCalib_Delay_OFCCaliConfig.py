@@ -171,14 +171,13 @@ if __name__ == "__main__":
     from LArCalibProcessing.LArCalibConfigFlags import addLArCalibFlags
     addLArCalibFlags(ConfigFlags)
 
-    ConfigFlags.Input.TypedCollections=[]
     ConfigFlags.LArCalib.Input.Dir = "/scratch/wlampl/calib21/Aug27"
     ConfigFlags.LArCalib.Input.Type="calibration_LArElec-Delay"
     ConfigFlags.LArCalib.Input.RunNumbers=[400268,]
     ConfigFlags.LArCalib.Input.Database="db.sqlite"
-    ConfigFlags.Input.Files=ConfigFlags.LArCalib.Input.Files
     ConfigFlags.LArCalib.Preselection.BEC=[1]
     ConfigFlags.LArCalib.Preselection.Side=[0]
+    ConfigFlags.Input.Files=ConfigFlags.LArCalib.Input.Files
 
 
     ConfigFlags.LArCalib.Output.ROOTFile="ofccali.root"
