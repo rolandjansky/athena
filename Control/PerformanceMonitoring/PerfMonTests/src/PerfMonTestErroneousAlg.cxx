@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // PerfMonTestErroneousAlg.cxx 
@@ -121,7 +121,7 @@ bool ErroneousAlg::mismatchedFree()
   ATH_MSG_INFO ( "Found, that last element contains " << invalidReadPointer[maximum-1] ) ;
   
   // and delete
-  delete invalidReadPointer;
+  delete [] invalidReadPointer;
   
   return true;
 }
