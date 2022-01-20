@@ -1,7 +1,5 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -9,16 +7,19 @@
 #include "TauAnalysisTools/SelectionCuts.h"
 #include "TauAnalysisTools/TauSelectionTool.h"
 
-// ROOT include(s)
-#include "TFile.h"
+// framework include(s)
+#include "AsgDataHandles/ReadHandle.h"
+
+// EDM include(s)
+#include "xAODMuon/MuonContainer.h"
 
 using namespace TauAnalysisTools;
 
 //______________________________________________________________________________
 SelectionCut::SelectionCut(const std::string& sName, TauAnalysisTools::TauSelectionTool* tTST)
   : m_sName(sName)
-  , m_hHistCutPre(0)
-  , m_hHistCut(0)
+  , m_hHistCutPre(nullptr)
+  , m_hHistCut(nullptr)
   , m_tTST(tTST)
 {
 }
@@ -26,6 +27,7 @@ SelectionCut::SelectionCut(const std::string& sName, TauAnalysisTools::TauSelect
 //______________________________________________________________________________
 SelectionCut::~SelectionCut()
 {
+  // FIXME: could use unique_ptr
   delete m_hHistCutPre;
   delete m_hHistCut;
 }
@@ -40,7 +42,6 @@ void SelectionCut::writeControlHistograms()
 //______________________________________________________________________________
 TH1F* SelectionCut::CreateControlPlot(const char* sName, const char* sTitle, int iBins, double dXLow, double dXUp)
 {
-  // hHist.SetDirectory(0);
   if (m_tTST->m_bCreateControlPlots)
   {
     TH1F* hHist = new TH1F(sName, sTitle, iBins, dXLow, dXUp);
@@ -48,7 +49,7 @@ TH1F* SelectionCut::CreateControlPlot(const char* sName, const char* sTitle, int
     return hHist;
   }
 
-  return NULL;
+  return nullptr;
 }
 
 //______________________________________________________________________________
@@ -101,7 +102,7 @@ SelectionCutPt::SelectionCutPt(TauSelectionTool* tTST)
 }
 
 //______________________________________________________________________________
-void SelectionCutPt::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist)
+void SelectionCutPt::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) const
 {
   hHist.Fill(xTau.pt()/1000.);
 }
@@ -150,7 +151,7 @@ SelectionCutAbsEta::SelectionCutAbsEta(TauSelectionTool* tTST)
 }
 
 //______________________________________________________________________________
-void SelectionCutAbsEta::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist)
+void SelectionCutAbsEta::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) const
 {
   hHist.Fill(xTau.eta());
 }
@@ -189,7 +190,7 @@ SelectionCutAbsCharge::SelectionCutAbsCharge(TauSelectionTool* tTST)
 }
 
 //______________________________________________________________________________
-void SelectionCutAbsCharge::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist)
+void SelectionCutAbsCharge::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) const
 {
   hHist.Fill(xTau.charge());
 }
@@ -208,7 +209,8 @@ bool SelectionCutAbsCharge::accept(const xAOD::TauJet& xTau,
   for( unsigned int iCharge = 0; iCharge < m_tTST->m_vAbsCharges.size(); iCharge++ )
   {
     if ( std::abs( xTau.charge() ) == m_tTST->m_vAbsCharges.at(iCharge) )
-    {acceptData.setCutResult( "AbsCharge", true );
+    {
+      acceptData.setCutResult( "AbsCharge", true );
       return true;
     }
   }
@@ -226,7 +228,7 @@ SelectionCutNTracks::SelectionCutNTracks(TauSelectionTool* tTST)
 }
 
 //______________________________________________________________________________
-void SelectionCutNTracks::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist)
+void SelectionCutNTracks::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) const
 {
   hHist.Fill(xTau.nTracks());
 }
@@ -263,7 +265,7 @@ SelectionCutRNNJetScoreSigTrans::SelectionCutRNNJetScoreSigTrans(TauSelectionToo
   m_hHistCut = CreateControlPlot("hJetRNNSigTrans_cut","JetRNNSigTrans_cut;RNNJetSigTransScore; events",100,0,1);
 }
 //______________________________________________________________________________
-void SelectionCutRNNJetScoreSigTrans::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist)
+void SelectionCutRNNJetScoreSigTrans::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) const
 {
   hHist.Fill(xTau.discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans));
 }
@@ -317,7 +319,7 @@ SelectionCutJetIDWP::SelectionCutJetIDWP(TauSelectionTool* tTST)
 }
 
 //______________________________________________________________________________
-void SelectionCutJetIDWP::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist)
+void SelectionCutJetIDWP::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) const
 {
   hHist.Fill(xTau.isTau(xAOD::TauJetParameters::JetRNNSigLoose));
   hHist.Fill(xTau.isTau(xAOD::TauJetParameters::JetRNNSigMedium)+2);
@@ -357,7 +359,7 @@ bool SelectionCutJetIDWP::accept(const xAOD::TauJet& xTau,
     if (xTau.isTau(xAOD::TauJetParameters::JetRNNSigTight)) bPass = true;
     break;
   default:
-    m_tTST->msg() << MSG::WARNING << "The jet ID working point with the enum "<<m_tTST->m_iJetIDWP<<" is not available" << endmsg;
+    m_tTST->msg() << MSG::WARNING << "The jet ID working point with the enum " << m_tTST->m_iJetIDWP << " is not available" << endmsg;
     break;
   }
   if (bPass)
@@ -365,7 +367,7 @@ bool SelectionCutJetIDWP::accept(const xAOD::TauJet& xTau,
     acceptData.setCutResult( "JetIDWP", true );
     return true;
   }
-  m_tTST->msg() << MSG::VERBOSE << "Tau failed JetRNNWP requirement, tau transformed RNN score: " << xTau.discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans) << endmsg;
+  m_tTST->msg() << MSG::VERBOSE << "Tau failed JetIDWP requirement, tau transformed RNN score: " << xTau.discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans) << endmsg;
   return false;
 }
 
@@ -379,7 +381,7 @@ SelectionCutRNNEleScore::SelectionCutRNNEleScore(TauSelectionTool* tTST)
 }
 
 //______________________________________________________________________________
-void SelectionCutRNNEleScore::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist)
+void SelectionCutRNNEleScore::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) const
 {
  hHist.Fill(xTau.discriminant(xAOD::TauJetParameters::RNNEleScoreSigTrans));
 }
@@ -408,13 +410,13 @@ bool SelectionCutRNNEleScore::accept(const xAOD::TauJet& xTau,
   return false;
 }
 
-//____________________________SelectionCutEleRNNWP______________________________
+//____________________________SelectionCutEleIDWP______________________________
 //______________________________________________________________________________
-SelectionCutEleRNNWP::SelectionCutEleRNNWP(TauSelectionTool* tTST)
-  : SelectionCut("CutEleRNNWP", tTST)
+SelectionCutEleIDWP::SelectionCutEleIDWP(TauSelectionTool* tTST)
+  : SelectionCut("CutEleIDWP", tTST)
 {
-  m_hHistCutPre = CreateControlPlot("hEleRNNWP_pre","EleRNNWP_pre;; events",6,-.5,5.5);
-  m_hHistCut = CreateControlPlot("hEleRNNWP_cut","EleRNNWP_cut;; events",6,-.5,5.5);
+  m_hHistCutPre = CreateControlPlot("hEleIDWP_pre","EleIDWP_pre;; events",6,-.5,5.5);
+  m_hHistCut = CreateControlPlot("hEleIDWP_cut","EleIDWP_cut;; events",6,-.5,5.5);
   // only proceed if histograms are defined
   if (!m_hHistCutPre or !m_hHistCut)
     return;
@@ -433,7 +435,7 @@ SelectionCutEleRNNWP::SelectionCutEleRNNWP(TauSelectionTool* tTST)
 }
 
 //______________________________________________________________________________
-void SelectionCutEleRNNWP::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist)
+void SelectionCutEleIDWP::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) const
 {
   hHist.Fill(xTau.isTau(xAOD::TauJetParameters::EleRNNLoose));
   hHist.Fill(xTau.isTau(xAOD::TauJetParameters::EleRNNMedium)+2);
@@ -441,18 +443,18 @@ void SelectionCutEleRNNWP::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist)
 }
 
 //______________________________________________________________________________
-void SelectionCutEleRNNWP::setAcceptInfo(asg::AcceptInfo& info) const
+void SelectionCutEleIDWP::setAcceptInfo(asg::AcceptInfo& info) const
 {
-  info.addCut( "EleRNNWP",
-               "Selection of taus according to their EleRNNScore" );
+  info.addCut( "EleIDWP",
+               "Selection of taus according to their EleID working point" );
 }
 //______________________________________________________________________________
-bool SelectionCutEleRNNWP::accept(const xAOD::TauJet& xTau,
-                                  asg::AcceptData& acceptData)
+bool SelectionCutEleIDWP::accept(const xAOD::TauJet& xTau,
+				 asg::AcceptData& acceptData)
 {
-  // check EleRNNscore, if tau passes EleRNN working point then return true; false otherwise
+  // check EleID WP, if tau passes EleID working point then return true; false otherwise
   bool bPass = false;
-  switch (m_tTST->m_iEleRNNWP)
+  switch (m_tTST->m_iEleIDWP)
   {
   case ELEIDNONE:
     bPass = true;
@@ -470,16 +472,16 @@ bool SelectionCutEleRNNWP::accept(const xAOD::TauJet& xTau,
     if (xTau.isTau(xAOD::TauJetParameters::EleRNNTight)) bPass = true;
     break;
   default:
-    m_tTST->msg() << MSG::WARNING << "The electron ID working point with the enum "<<m_tTST->m_iEleRNNWP<<" is not available" << endmsg;
+    m_tTST->msg() << MSG::WARNING << "The electron ID working point with the enum " << m_tTST->m_iEleIDWP << " is not available" << endmsg;
     break;
   }
     
   if (bPass)
   {
-    acceptData.setCutResult( "EleRNNWP", true );
+    acceptData.setCutResult( "EleIDWP", true );
     return true;
   }
-  m_tTST->msg() << MSG::VERBOSE << "Tau failed EleRNN requirement, tau EleRNNScore: " << xTau.discriminant(xAOD::TauJetParameters::RNNEleScoreSigTrans) << endmsg;
+  m_tTST->msg() << MSG::VERBOSE << "Tau failed EleID WP requirement, tau EleRNNScore: " << xTau.discriminant(xAOD::TauJetParameters::RNNEleScoreSigTrans) << endmsg;
   return false;
 }
 
@@ -489,9 +491,7 @@ bool SelectionCutEleRNNWP::accept(const xAOD::TauJet& xTau,
 SelectionCutMuonOLR::SelectionCutMuonOLR(TauSelectionTool* tTST)
   : SelectionCut("CutMuonOLR", tTST)
   , m_bTauMuonOLR(true)
-  , m_xMuonContainer(0)
 {
-  //ATH_MSG_INFO("Construct SelectionCutMuonOLR");
   m_hHistCutPre = CreateControlPlot("hMuonOLR_pre","MuonOLR_pre;; events",2,-.5,1.5);
   m_hHistCut = CreateControlPlot("hMuonOLR_cut","MuonOLR_cut;; events",2,-.5,1.5);
   // only proceed if histograms are defined
@@ -504,9 +504,8 @@ SelectionCutMuonOLR::SelectionCutMuonOLR(TauSelectionTool* tTST)
 }
 
 //______________________________________________________________________________
-void SelectionCutMuonOLR::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist)
+void SelectionCutMuonOLR::fillHistogram(const xAOD::TauJet& /*xTau*/, TH1F& hHist) const
 {
-  (void)xTau;
   hHist.Fill(m_bTauMuonOLR);
 }
 
@@ -525,24 +524,26 @@ bool SelectionCutMuonOLR::accept(const xAOD::TauJet& xTau,
     acceptData.setCutResult( "MuonOLR", true );
     return true;
   }
+
   // MuonOLR : removing tau overlapped with muon satisfying pt>2GeV and not calo-tagged
   m_bTauMuonOLR = true;
-  if(!m_tTST->evtStore()->contains<xAOD::MuonContainer>(m_tTST->m_sMuonContainerName))
-    m_tTST->msg() << MSG::FATAL << "Muon container with name " << m_tTST->m_sMuonContainerName << " is not available" << endmsg;
-  else if(m_tTST->evtStore()->retrieve(m_xMuonContainer,m_tTST->m_sMuonContainerName).isFailure())
-    m_tTST->msg() << MSG::FATAL << "Muon container with name " << m_tTST->m_sMuonContainerName << " could not be retrieved from event store" << endmsg;
-  if(!m_xMuonContainer)
-    return false;
 
-  for( auto xMuon : *(m_xMuonContainer) )
+  SG::ReadHandle<xAOD::MuonContainer> muonContainerHandle( m_tTST->m_muonContainerKey );
+  if (!muonContainerHandle.isValid()) {
+    m_tTST->msg() << MSG::ERROR << "Could not retrieve xAOD::MuonContainer with key " << muonContainerHandle.key() << endmsg;
+    return false;
+  }
+  const xAOD::MuonContainer* muonContainer = muonContainerHandle.cptr();
+
+  for( auto xMuon : *muonContainer )
   {
-    if(xMuon->pt() < 2000.) continue;// pt > 2GeV
+    if(xMuon->pt() < 2000.) continue; // pt > 2 GeV
     if(xMuon->muonType() == xAOD::Muon::CaloTagged) continue; // not calo-tagged
-    if(xMuon->p4().DeltaR( xTau.p4() ) > 0.2 ) continue; //delta R < 0.2
-    m_bTauMuonOLR = false;// muon-tau overlapped
+    if(xMuon->p4().DeltaR( xTau.p4() ) > 0.2 ) continue; // delta R < 0.2
+    m_bTauMuonOLR = false; // muon-tau overlapped
     break;
   }
-  if(m_bTauMuonOLR == true)
+  if(m_bTauMuonOLR)
   {
     acceptData.setCutResult( "MuonOLR", true );
     return true;
@@ -551,5 +552,3 @@ bool SelectionCutMuonOLR::accept(const xAOD::TauJet& xTau,
   m_tTST->msg() << MSG::VERBOSE << "Tau failed MuonOLR requirement" << endmsg;
   return false;
 }
-
-

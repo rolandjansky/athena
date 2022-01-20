@@ -62,9 +62,11 @@ int main( int argc, char* argv[] )
     TauAnalysisTools::CutAbsEta |
     TauAnalysisTools::CutAbsCharge |
     TauAnalysisTools::CutNTrack |
-    TauAnalysisTools::CutJetIDWP 
+    TauAnalysisTools::CutJetIDWP |
+    TauAnalysisTools::CutMuonOLR
   )));
   ANA_CHECK(AthAnalysisHelper::setProperty( TauSelTool, "JetIDWP", int(TauAnalysisTools::JETIDRNNLOOSE))); 
+  ANA_CHECK(AthAnalysisHelper::setProperty( TauSelTool, "MuonOLR", true));
   ANA_CHECK(TauSelTool.retrieve()); //this will cause the tool to be created and initialized
 
   // ===========================================================================

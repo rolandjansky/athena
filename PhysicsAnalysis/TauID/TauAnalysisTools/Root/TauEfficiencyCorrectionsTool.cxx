@@ -89,8 +89,8 @@ StatusCode TauEfficiencyCorrectionsTool::initializeWithTauSelectionTool(TauSelec
   }
   
   // use electron veto scale factors if TauSelectionTool applies electron veto
-  if (tauSelectionTool->m_iSelectionCuts & CutEleRNNWP) {
-    m_iEleIDLevel = tauSelectionTool->m_iEleRNNWP;
+  if (tauSelectionTool->m_iSelectionCuts & CutEleIDWP) {
+    m_iEleIDLevel = tauSelectionTool->m_iEleIDWP;
 
     // force m_iEleIDLevel to ELEIDNONE until RNN eVeto SFs are available  
     if (m_iEleIDLevel != ELEIDNONE) {
