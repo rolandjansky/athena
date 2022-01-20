@@ -26,19 +26,20 @@ namespace Muon
       virtual ~TgcPrepDataReplicationToolAllBCto3BC()=default;
 
       virtual StatusCode initialize() override;
-      virtual StatusCode replicate() const override;
-      StatusCode convertAllBCto3BC() const;
+      virtual StatusCode replicate(const EventContext& ctx) const override;
       
 /** Make new TgcPrepData */ //Static to avoid code duplication with sister class
-      static TgcPrepData* makeTgcPrepData(TgcPrepDataCollection::const_iterator itr, uint16_t bcBitMap);
+      static TgcPrepData* makeTgcPrepData(const TgcPrepData* to_copy, uint16_t bcBitMap);
 
     private:
+      StatusCode convertAllBCto3BC(const EventContext& ctx) const;
+    
       enum {BC_PREVIOUS=0, BC_CURRENT, BC_NEXT, BC_ALL, BC_NUM};
 
       ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-      SG::WriteHandleKeyArray<TgcPrepDataContainer> m_3BCKeys;
-      SG::ReadHandleKey<TgcPrepDataContainer> m_AllBCKey;
+      SG::WriteHandleKeyArray<TgcPrepDataContainer> m_3BCKeys{this, "BC3Keys", {"dummy","dummy","dummy"}};
+      SG::ReadHandleKey<TgcPrepDataContainer> m_AllBCKey{this, "AllBCKey", "TGC_MeasurementsAllBCs"};
 
       
       
