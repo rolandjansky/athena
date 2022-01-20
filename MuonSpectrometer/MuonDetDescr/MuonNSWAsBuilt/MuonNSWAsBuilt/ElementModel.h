@@ -36,6 +36,8 @@ namespace NswAsBuilt {
       using VectorSet = Eigen::Matrix<double, 3, Eigen::Dynamic, Eigen::ColMajor|Eigen::AutoAlign, 3, 5>;
       using VectorSetRef = Eigen::Ref<VectorSet>;
 
+      virtual ~ElementModel() = default;
+
      /* The ParameterVector: a wrapper around a std::vector<double> containing
       * the actual model parameters.
       * In addition, this struct may save the cache-able rigid component of the
