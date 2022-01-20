@@ -549,28 +549,31 @@ private:
 
   /** Actual heavy lifting implementation for
    * 4) <b>Configured AlgTool extrapolation method</b>):*/
-  TrackParameters* extrapolateDirectlyImpl(const EventContext& ctx,
-                                           const IPropagator& prop,
-                                           const TrackParameters& parm,
-                                           const Surface& sf,
-                                           PropDirection dir = anyDirection,
-                                           const BoundaryCheck& bcheck = true,
-                                           ParticleHypothesis particle = pion) const;
+  std::unique_ptr<TrackParameters> extrapolateDirectlyImpl(
+    const EventContext& ctx,
+    const IPropagator& prop,
+    const TrackParameters& parm,
+    const Surface& sf,
+    PropDirection dir = anyDirection,
+    const BoundaryCheck& bcheck = true,
+    ParticleHypothesis particle = pion) const;
 
   /** Actual heavy lifting implementation for
    * 5) <b>Configured AlgTool extrapolation method</b>):*/
-  Trk::TrackParametersUVector extrapolateBlindlyImpl(const EventContext& ctx,
-                                                     Cache& cache,
-                                                     const IPropagator& prop,
-                                                     TrackParmPtr parm,
-                                                     PropDirection dir = anyDirection,
-                                                     const BoundaryCheck& bcheck = true,
-                                                     ParticleHypothesis particle = pion,
-                                                     const Volume* boundaryVol = nullptr) const;
+  Trk::TrackParametersUVector extrapolateBlindlyImpl(
+    const EventContext& ctx,
+    Cache& cache,
+    const IPropagator& prop,
+    TrackParmPtr parm,
+    PropDirection dir = anyDirection,
+    const BoundaryCheck& bcheck = true,
+    ParticleHypothesis particle = pion,
+    const Volume* boundaryVol = nullptr) const;
 
   /** Actual heavy lifting implementation for
    * 6) <b>Configured AlgTool extrapolation method</b>):*/
-  std::pair<const TrackParameters*, const Layer*> extrapolateToNextActiveLayerImpl(
+  std::pair<std::unique_ptr<const TrackParameters>, const Layer*>
+  extrapolateToNextActiveLayerImpl(
     const EventContext& ctx,
     const IPropagator& prop,
     const TrackParameters& parm,
@@ -582,7 +585,8 @@ private:
   /** Actual heavy lifting implementation for
    * 7) <b>Configured AlgTool extrapolation method</b>
    */
-  std::pair<const TrackParameters*, const Layer*> extrapolateToNextActiveLayerMImpl(
+  std::pair<std::unique_ptr<const TrackParameters>, const Layer*>
+  extrapolateToNextActiveLayerMImpl(
     const EventContext& ctx,
     const IPropagator& prop,
     const TrackParameters& parm,
@@ -595,12 +599,13 @@ private:
   /** Actual heavy lifting implementation for
    * 8) <b>Configured AlgTool extrapolation method</b>
    */
-  const TrackParameters* extrapolateToVolumeImpl(const EventContext& ctx,
-                                                 const IPropagator& prop,
-                                                 const TrackParameters& parm,
-                                                 const Trk::TrackingVolume& vol,
-                                                 PropDirection dir = anyDirection,
-                                                 ParticleHypothesis particle = pion) const;
+  std::unique_ptr<const TrackParameters> extrapolateToVolumeImpl(
+    const EventContext& ctx,
+    const IPropagator& prop,
+    const TrackParameters& parm,
+    const Trk::TrackingVolume& vol,
+    PropDirection dir = anyDirection,
+    ParticleHypothesis particle = pion) const;
 
   /** Private method for extrapolation in final volume to destination surface
     - Parameters are: IPropagator& prop            ... propagator to be used
