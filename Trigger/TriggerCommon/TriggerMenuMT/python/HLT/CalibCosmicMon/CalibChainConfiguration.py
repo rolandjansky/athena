@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 from ..CommonSequences.FullScanDefs import caloFSRoI
@@ -8,8 +8,11 @@ log = logging.getLogger(__name__)
 from TriggerMenuMT.HLT.Menu.ChainConfigurationBase import ChainConfigurationBase
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 from TriggerMenuMT.HLT.Menu.MenuComponents import MenuSequence, RecoFragmentsPool # ChainStep,
 from TrigT2CaloCommon.CaloDef import fastCaloRecoSequence
+from TrigGenericAlgs.TrigGenericAlgsConfig import TimeBurnerCfg, TimeBurnerHypoToolGen
+from DecisionHandling.DecisionHandlingConf import InputMakerForRoI, ViewCreatorInitialROITool
 from AthenaCommon.CFElements import seqAND
 
 
@@ -32,7 +35,6 @@ def getLArNoiseBurst(self):
     hypoAlg = CompFactory.TrigLArNoiseBurstAlg("NoiseBurstAlg")
     from TrigCaloHypo.TrigCaloHypoConfig import TrigLArNoiseBurstHypoToolGen
     from TrigT2CaloCommon.CaloDef import clusterFSInputMaker
-    from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
     from TriggerMenuMT.HLT.CommonSequences.CaloSequences import cellRecoSequence
     noiseBurstInputMakerAlg= conf2toConfigurable(clusterFSInputMaker())
 
@@ -126,7 +128,9 @@ class CalibChainConfiguration(ChainConfigurationBase):
 
         stepDictionary = self.getStepDictionary()
                 
-        if self.chainPart['purpose'][0] == 'larnoiseburst':
+        if 'acceptedevts' in self.chainPart['purpose']:
+            steps=stepDictionary['AcceptedEvents']
+        elif self.chainPart['purpose'][0] == 'larnoiseburst':
             steps=stepDictionary['LArNoiseBurst']
         elif self.chainPart['purpose'][0] == 'larpsallem':
             steps=stepDictionary['LArPSAllEM']
@@ -147,6 +151,7 @@ class CalibChainConfiguration(ChainConfigurationBase):
         # define here the names of the steps and obtain the chainStep configuration 
         # --------------------
         stepDictionary = {
+            "AcceptedEvents": ['getAcceptedEventsStep'],
             "LArNoiseBurst": ['getAllTEStep'],
             "LArPSAllEM" : ['getCaloAllEMStep'],
             "LArPSAll" : ['getCaloAllStep'],
@@ -154,6 +159,9 @@ class CalibChainConfiguration(ChainConfigurationBase):
         }
         return stepDictionary
 
+
+    def getAcceptedEventsStep(self, i):
+        return self.getStep(1, 'AcceptedEvents', [acceptedEventsSequence])
 
     def getAllTEStep(self, i):
         return self.getStep(1, 'LArNoiseBurst', [getLArNoiseBurst])
@@ -242,3 +250,28 @@ def IDCalibFTFCfg(flags):
                          HypoToolGen = StreamerHypoToolGenerator )
 
 #----------------------------------------------------------------
+
+# --------------------
+# HLT step for the AcceptedEvents chains
+# --------------------
+def acceptedEventsSequence(flags):
+    '''
+    Return MenuSequence for an HLT step used by the AcceptedEvents chains. This step is a trivial
+    always-reject hypo with no reco. The step itself should be noop as only the HLTSeeding and the
+    end-of-event sequence parts of AcceptedEvents chains are actually used.
+    '''
+    # Implementation identical to the timeburner chain but with zero sleep time
+    inputMaker = InputMakerForRoI("IM_AcceptedEvents")
+    inputMaker.RoITool = ViewCreatorInitialROITool()
+    inputMaker.RoIs="AcceptedEventsRoIs"
+    inputMakerSeq = seqAND("AcceptedEventsSequence", [inputMaker])
+
+    # TimeBurner alg works as a reject-all hypo
+    hypoAlg = conf2toConfigurable(TimeBurnerCfg(name="AcceptedEventsHypo"))
+    hypoAlg.SleepTimeMillisec = 0
+
+    return MenuSequence(
+        Sequence    = inputMakerSeq,
+        Maker       = inputMaker,
+        Hypo        = hypoAlg,
+        HypoToolGen = TimeBurnerHypoToolGen)

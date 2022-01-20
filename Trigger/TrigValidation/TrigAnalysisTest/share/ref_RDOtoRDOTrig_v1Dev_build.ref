@@ -2390,6 +2390,8 @@ HLT_7j45_pf_ftf_presel7j30_L14jJ40:
   stepFeatures:
     0: 5
     1: 7
+HLT_acceptedevts_larnoiseburst_L1All:
+  eventCount: 0
 HLT_beamspot_allTE_trkfast_BeamSpotPEB_L1J15:
   eventCount: 0
 HLT_beamspot_trkFS_trkfast_BeamSpotPEB_L1J15:

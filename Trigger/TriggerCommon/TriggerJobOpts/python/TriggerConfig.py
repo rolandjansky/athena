@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from collections import OrderedDict
 from builtins import str
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator,conf2toConfigurable
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.CFElements import seqAND, seqOR, parOR, flatAlgorithmSequences, getSequenceChildren, isSequence, hasProp, getProp
 from AthenaCommon.Logging import logging
@@ -627,19 +627,7 @@ def triggerRunCfg( flags, menu=None ):
     summaryAcc, summaryAlg = triggerSummaryCfg( flags, hypos )
     acc.merge( summaryAcc, sequenceName="HLTFinalizeSeq" )
     acc.addEventAlgo( summaryAlg, sequenceName="HLTFinalizeSeq" )
-
-    # to be updated when reco code is ready to be used by new JO
-    from AthenaCommon.Configurable import Configurable
-    if Configurable.configurableRun3Behavior == 0 and flags.Trigger.endOfEventProcessing.Enabled:
-        from TrigGenericAlgs.TrigGenericAlgsConfig import EndOfEventROIConfirmerAlgCfg
-        endOfEventAlg = conf2toConfigurable(EndOfEventROIConfirmerAlgCfg('EndOfEventROIConfirmerAlg'))
-        acc.addEventAlgo( endOfEventAlg, sequenceName="HLTFinalizeSeq" )
-        if flags.Trigger.endOfEventProcessing.doLArNoiseBurst:
-            from TriggerMenuMT.HLT.CalibCosmicMon.CalibChainConfiguration import getLArNoiseBurstEndOfEvent
-            recoSeq, LArNBRoIs = getLArNoiseBurstEndOfEvent()
-            endOfEventAlg.RoIs = [LArNBRoIs]
-            acc.addSequence( parOR("acceptedEventSeq"), parentName="HLTFinalizeSeq" )
-            acc.merge( recoSeq, sequenceName="acceptedEventSeq" )
+    # TODO: Add end-of-event sequences here (port from HLTCFConfig.py)
 
     #once menu is included we should configure monitoring here as below
     hltSeedingAlg = hltSeedingAcc.getEventAlgo("HLTSeeding")

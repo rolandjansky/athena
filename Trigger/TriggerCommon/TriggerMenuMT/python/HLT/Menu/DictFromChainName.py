@@ -289,6 +289,10 @@ def analyseChainName(chainName, L1thresholds, L1item):
             multichainindex.append(hltChainNameShort.index(cpart))
             buildDict( 'Streaming', 'streamer')
             break # stop loop here so that further parts like noalg_idmon are discarded, this allows have copies with different output streams and prescales. Caveat: all noalg chains go into the Streaming slice
+        elif cpart =='acceptedevts':
+            multichainindex.append(hltChainNameShort.index(cpart))
+            buildDict( 'Calib', 'calib')
+            break # stop loop here so that further parts like acceptedevts_larnoiseburst are discarded. They are only used to define different prescales
         else:
             for chainCategory in [(['mb'], 'MinBias', 'mb'),
                                   (['hi'], 'HeavyIon', 'mb'),
