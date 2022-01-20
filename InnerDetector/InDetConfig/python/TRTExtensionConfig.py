@@ -75,7 +75,7 @@ def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackColle
             InDetExtensionFitter = acc.popToolsAndMerge(TC.InDetTrackFitterCfg(flags, 'InDetTrackFitter_TRTExtension'+flags.InDet.Tracking.ActivePass.extension, **fitter_args))
             acc.addPublicTool(InDetExtensionFitter)
         else:
-            InDetExtensionFitter = acc.popToolsAndMerge(TC.InDetTrackFitterLowPt(flags, 'InDetTrackFitter_TRTExtension'+flags.InDet.Tracking.ActivePass.extension, **fitter_args))
+            InDetExtensionFitter = acc.popToolsAndMerge(TC.InDetTrackFitterLowPtCfg(flags, 'InDetTrackFitter_TRTExtension'+flags.InDet.Tracking.ActivePass.extension, **fitter_args))
             acc.addPublicTool(InDetExtensionFitter)
     #
     # --- load scoring for extension

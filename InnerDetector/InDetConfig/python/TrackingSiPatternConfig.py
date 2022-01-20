@@ -407,7 +407,7 @@ def DenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags, name="InDetAmbiguityS
     return acc
 
 
-def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name="InDetAmbiguityProcessor", ClusterSplitProbContainer="", **kwargs):
+def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name="InDetAmbiguityProcessor", **kwargs):
     acc = ComponentAccumulator()
     
     # --- set up different Scoring Tool for collisions and cosmics
@@ -421,8 +421,6 @@ def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name="InDetAmbiguityProces
     kwargs.setdefault("ScoringTool", InDetAmbiScoringTool)
 
     fitter_args = {}
-    fitter_args.setdefault("nameSuffix", 'Ambi'+flags.InDet.Tracking.ActivePass.extension)
-    fitter_args.setdefault("ClusterSplitProbabilityName", 'InDetAmbiguityProcessorSplitProb'+flags.InDet.Tracking.ActivePass.extension)
 
     if flags.InDet.Tracking.holeSearchInGX2Fit:
         fitter_args.setdefault("DoHoleSearch", True)
@@ -433,10 +431,14 @@ def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name="InDetAmbiguityProces
     fitter_list=[]
 
     if flags.InDet.Tracking.ActivePass.isLowPt:
-        InDetTrackFitterLowPt = acc.popToolsAndMerge(TC.InDetTrackFitterLowPt(flags, name='InDetTrackFitterLowPt'+flags.InDet.Tracking.ActivePass.extension, **fitter_args))
+        InDetTrackFitterLowPt = acc.popToolsAndMerge(TC.InDetTrackFitterLowPtAmbiCfg(flags,
+                                                                                     name='InDetTrackFitterLowPt'+flags.InDet.Tracking.ActivePass.extension,
+                                                                                     **fitter_args))
         fitter_list.append(InDetTrackFitterLowPt)
     else:
-        InDetTrackFitterAmbi = acc.popToolsAndMerge(TC.InDetTrackFitterCfg(flags, name='InDetTrackFitterAmbi'+flags.InDet.Tracking.ActivePass.extension, **fitter_args))
+        InDetTrackFitterAmbi = acc.popToolsAndMerge(TC.InDetTrackFitterAmbiCfg(flags,
+                                                                           name='InDetTrackFitterAmbi'+flags.InDet.Tracking.ActivePass.extension,
+                                                                           **fitter_args))
         fitter_list.append(InDetTrackFitterAmbi)
 
     if flags.InDet.Tracking.doRefitInvalidCov:
@@ -455,10 +457,8 @@ def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name="InDetAmbiguityProces
 
     InDetPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge(TC.InDetPRDtoTrackMapToolGangedPixelsCfg(flags))
 
-    ambi_track_summary_tool = acc.getPrimaryAndMerge(TC.InDetTrackSummaryToolCfg( flags,
-                                                                                  namePrefix                  = 'InDetAmbiguityProcessorSplitProb',
-                                                                                  nameSuffix                  = flags.InDet.Tracking.ActivePass.extension,
-                                                                                  ClusterSplitProbabilityName = 'InDetAmbiguityProcessorSplitProb'+flags.InDet.Tracking.ActivePass.extension))
+    ambi_track_summary_tool = acc.getPrimaryAndMerge(TC.InDetTrackSummaryToolAmbiCfg(flags,
+                                                                                     name = "InDetAmbiguityProcessorSplitProbTrackSummaryTool" + flags.InDet.Tracking.ActivePass.extension))
 
     InDetAmbiTrackSelectionTool = acc.popToolsAndMerge(InDetAmbiTrackSelectionToolCfg(flags))
 
@@ -501,10 +501,8 @@ def SimpleAmbiguityProcessorToolCfg(flags, name = "InDetAmbiguityProcessor", Clu
 
     InDetPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge(TC.InDetPRDtoTrackMapToolGangedPixelsCfg(flags))
 
-    ambi_track_summary_tool = acc.getPrimaryAndMerge(TC.InDetTrackSummaryToolCfg( flags,
-                                                                                namePrefix                  = 'InDetAmbiguityProcessorSplitProb',
-                                                                                nameSuffix                  = flags.InDet.Tracking.ActivePass.extension,
-                                                                                ClusterSplitProbabilityName = 'InDetAmbiguityProcessorSplitProb'+flags.InDet.Tracking.ActivePass.extension))
+    ambi_track_summary_tool = acc.getPrimaryAndMerge(TC.InDetTrackSummaryToolAmbiCfg(flags,
+                                                                                 name = "InDetAmbiguityProcessorSplitProbTrackSummaryTool" + flags.InDet.Tracking.ActivePass.extension))
 
     InDetAmbiTrackSelectionTool = acc.popToolsAndMerge(InDetAmbiTrackSelectionToolCfg(flags))
 
@@ -529,7 +527,7 @@ def SimpleAmbiguityProcessorToolCfg(flags, name = "InDetAmbiguityProcessor", Clu
     acc.setPrivateTools(InDetAmbiguityProcessor)
     return acc
 
-def TrkAmbiguityScoreCfg(flags, name="InDetAmbiguityScore", SiSPSeededTrackCollectionKey = None, **kwargs) :
+def TrkAmbiguityScoreCfg(flags, name="InDetAmbiguityScore", SiSPSeededTrackCollectionKey = None, ClusterSplitProbContainer='', **kwargs) :
     acc = ComponentAccumulator()
     #
     # --- set input and output collection
@@ -537,7 +535,7 @@ def TrkAmbiguityScoreCfg(flags, name="InDetAmbiguityScore", SiSPSeededTrackColle
     InputTrackCollection = SiSPSeededTrackCollectionKey
 
     if flags.InDet.Tracking.ActivePass.useTIDE_Ambi:
-        InDetAmbiguityScoreProcessor = acc.popToolsAndMerge(DenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags))
+        InDetAmbiguityScoreProcessor = acc.popToolsAndMerge(DenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags, ClusterSplitProbContainer=ClusterSplitProbContainer))
     else:
         InDetAmbiguityScoreProcessor = None
 
@@ -557,7 +555,7 @@ def TrkAmbiguitySolverCfg(flags, name="InDetAmbiguitySolver", ResolvedTrackColle
     SiTrackCollection = ResolvedTrackCollectionKey
 
     if flags.InDet.Tracking.ActivePass.useTIDE_Ambi:
-        InDetAmbiguityProcessor = acc.popToolsAndMerge(DenseEnvironmentsAmbiguityProcessorToolCfg(flags, ClusterSplitProbContainer=ClusterSplitProbContainer))
+        InDetAmbiguityProcessor = acc.popToolsAndMerge(DenseEnvironmentsAmbiguityProcessorToolCfg(flags))
     else:
         InDetAmbiguityProcessor = acc.popToolsAndMerge(SimpleAmbiguityProcessorToolCfg(flags, ClusterSplitProbContainer=ClusterSplitProbContainer))
 
@@ -583,8 +581,8 @@ def TrackingSiPatternCfg(flags, InputCollections = None, ResolvedTrackCollection
     # --- get list of already associated hits (always do this, even if no other tracking ran before)
     #
     if (len(InputCollections) > 0) and flags.InDet.Tracking.ActivePass.usePrdAssociationTool:
-        acc.merge(TC.InDetTrackPRD_AssociationCfg(flags,namePrefix = 'InDet',
-                                                  nameSuffix = flags.InDet.Tracking.ActivePass.extension,
+        acc.merge(TC.InDetTrackPRD_AssociationCfg(flags,
+                                                  name = 'InDetTrackPRD_Association' + flags.InDet.Tracking.ActivePass.extension,
                                                   TracksName = list(InputCollections)))
 
     # ------------------------------------------------------------
@@ -604,7 +602,8 @@ def TrackingSiPatternCfg(flags, InputCollections = None, ResolvedTrackCollection
     # ------------------------------------------------------------
 
     acc.merge(TrkAmbiguityScoreCfg( flags,
-                                    SiSPSeededTrackCollectionKey = SiSPSeededTrackCollectionKey))
+                                    SiSPSeededTrackCollectionKey = SiSPSeededTrackCollectionKey,
+                                    ClusterSplitProbContainer = ClusterSplitProbContainer))
 
     acc.merge(TrkAmbiguitySolverCfg(flags,
                                     ResolvedTrackCollectionKey = ResolvedTrackCollectionKey,

@@ -163,9 +163,10 @@ def TRTStandaloneCfg( flags, extension = '', InputCollections = None, BarrelSegm
     if usePrdAssociationTool and extension != "_TRT" :
         prefix='InDetTRTonly_'
         prd_to_track_map = prefix+'PRDtoTrackMap'+extension
-        acc.merge(TC.InDetTrackPRD_AssociationCfg(flags, namePrefix = prefix,
-                                                         nameSuffix = extension,
-                                                         TracksName = list(InputCollections)))
+        acc.merge(TC.InDetTrackPRD_AssociationCfg(flags,
+                                                  name = prefix + 'TrackPRD_Association' + extension,
+                                                  AssociationMapName = prd_to_track_map,
+                                                  TracksName = list(InputCollections)))
     
     if not flags.Beam.Type == "cosmics":
         #

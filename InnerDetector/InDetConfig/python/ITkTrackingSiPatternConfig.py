@@ -351,7 +351,7 @@ def ITkDenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags, name = "ITkAmbigui
     acc.setPrivateTools(ITkAmbiguityScoreProcessor)
     return acc
 
-def ITkDenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "ITkAmbiguityProcessor", ClusterSplitProbContainer='', **kwargs) :
+def ITkDenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "ITkAmbiguityProcessor", **kwargs) :
     acc = ComponentAccumulator()
 
     #
@@ -363,24 +363,21 @@ def ITkDenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "ITkAmbiguityPro
         ITkAmbiScoringTool = acc.popToolsAndMerge(TC.ITkAmbiScoringToolCfg(flags))
 
     fitter_args = {}
-    fitter_args.setdefault("nameSuffix", 'Ambi'+flags.ITk.Tracking.ActivePass.extension)
-    fitter_args.setdefault("ClusterSplitProbabilityName", 'ITkAmbiguityProcessorSplitProb'+flags.ITk.Tracking.ActivePass.extension)
-
     fitter_args.setdefault("DoHoleSearch", True)
 
     ITkBoundaryCheckTool = acc.popToolsAndMerge(ITkBoundaryCheckToolCfg(flags))
     fitter_args.setdefault("BoundaryCheckTool", ITkBoundaryCheckTool)
 
     fitter_list=[]
-    ITkTrackFitterAmbi = acc.getPrimaryAndMerge(TC.ITkTrackFitterCfg(flags, name='ITkTrackFitter'+'Ambi'+flags.ITk.Tracking.ActivePass.extension, **fitter_args))
+    ITkTrackFitterAmbi = acc.popToolsAndMerge(TC.ITkTrackFitterAmbiCfg(flags,
+                                                                   name='ITkTrackFitterAmbi'+flags.ITk.Tracking.ActivePass.extension,
+                                                                   **fitter_args))
     fitter_list.append(ITkTrackFitterAmbi)
 
     ITkPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge(TC.ITkPRDtoTrackMapToolGangedPixelsCfg(flags))
 
     ambi_track_summary_tool = acc.getPrimaryAndMerge(TC.ITkTrackSummaryToolCfg( flags,
-                                                                                namePrefix                  = 'ITkAmbiguityProcessorSplitProb',
-                                                                                nameSuffix                  = flags.ITk.Tracking.ActivePass.extension,
-                                                                                ClusterSplitProbabilityName = 'ITkAmbiguityProcessorSplitProb'+flags.ITk.Tracking.ActivePass.extension))
+                                                                                name = "ITkAmbiguityProcessorSplitProbTrackSummaryTool" + flags.ITk.Tracking.ActivePass.extension))
 
     ITkAmbiTrackSelectionTool = acc.popToolsAndMerge(ITkAmbiTrackSelectionToolCfg(flags))
 
@@ -406,14 +403,14 @@ def ITkDenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "ITkAmbiguityPro
     acc.setPrivateTools(ITkAmbiguityProcessor)
     return acc
 
-def ITkTrkAmbiguityScoreCfg(flags, name="ITkAmbiguityScore", SiSPSeededTrackCollectionKey = None, **kwargs) :
+def ITkTrkAmbiguityScoreCfg(flags, name="ITkAmbiguityScore", SiSPSeededTrackCollectionKey = None, ClusterSplitProbContainer='', **kwargs) :
     acc = ComponentAccumulator()
     #
     # --- set input and output collection
     #
     InputTrackCollection = SiSPSeededTrackCollectionKey
 
-    ITkAmbiguityScoreProcessor = acc.popToolsAndMerge(ITkDenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags))
+    ITkAmbiguityScoreProcessor = acc.popToolsAndMerge(ITkDenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags, ClusterSplitProbContainer=ClusterSplitProbContainer))
 
     #
     # --- configure Ambiguity (score) solver
@@ -427,13 +424,12 @@ def ITkTrkAmbiguityScoreCfg(flags, name="ITkAmbiguityScore", SiSPSeededTrackColl
     return acc
 
 
-def ITkTrkAmbiguitySolverCfg(flags, name="ITkAmbiguitySolver", ResolvedTrackCollectionKey = None, ClusterSplitProbContainer='', **kwargs):
+def ITkTrkAmbiguitySolverCfg(flags, name="ITkAmbiguitySolver", ResolvedTrackCollectionKey = None, **kwargs):
     acc = ComponentAccumulator()
     SiTrackCollection = ResolvedTrackCollectionKey
 
     # DenseEnvironmentsAmbiguityProcessorTool
-    ITkAmbiguityProcessor = acc.popToolsAndMerge(ITkDenseEnvironmentsAmbiguityProcessorToolCfg( flags,
-                                                                                                ClusterSplitProbContainer=ClusterSplitProbContainer))
+    ITkAmbiguityProcessor = acc.popToolsAndMerge(ITkDenseEnvironmentsAmbiguityProcessorToolCfg(flags))
 
     #
     # --- configure Ambiguity solver
@@ -457,8 +453,8 @@ def ITkTrackingSiPatternCfg(flags, InputCollections = None, ResolvedTrackCollect
     # --- get list of already associated hits (always do this, even if no other tracking ran before)
     #
     if (len(InputCollections) > 0) and flags.ITk.Tracking.ActivePass.usePrdAssociationTool:
-        acc.merge(TC.ITkTrackPRD_AssociationCfg(flags,namePrefix = 'ITk',
-                                                nameSuffix = flags.ITk.Tracking.ActivePass.extension,
+        acc.merge(TC.ITkTrackPRD_AssociationCfg(flags,
+                                                name = 'ITkTrackPRD_Association' + flags.ITk.Tracking.ActivePass.extension,
                                                 TracksName = list(InputCollections)))
 
     # ------------------------------------------------------------
@@ -486,11 +482,11 @@ def ITkTrackingSiPatternCfg(flags, InputCollections = None, ResolvedTrackCollect
 
     else:
         acc.merge(ITkTrkAmbiguityScoreCfg( flags,
-                                           SiSPSeededTrackCollectionKey = SiSPSeededTrackCollectionKey))
+                                           SiSPSeededTrackCollectionKey = SiSPSeededTrackCollectionKey,
+                                           ClusterSplitProbContainer = ClusterSplitProbContainer))
 
         acc.merge(ITkTrkAmbiguitySolverCfg(flags,
-                                           ResolvedTrackCollectionKey = ResolvedTrackCollectionKey,
-                                           ClusterSplitProbContainer = ClusterSplitProbContainer))
+                                           ResolvedTrackCollectionKey = ResolvedTrackCollectionKey))
 
     return acc
 
