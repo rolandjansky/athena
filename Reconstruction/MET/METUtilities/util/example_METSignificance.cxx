@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -88,13 +88,13 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
     }
   }
 
-  std::string config = "JES_data2017_2016_2015_Recommendation_Aug2018_rel21.config";
+  std::string config = "JES_MC16Recommendation_Consolidated_EMTopo_Apr2019_Rel21.config";
   std::string calibSeq = "JetArea_Residual_EtaJES_GSC";
-  std::string calibArea = "00-04-81";
+  std::string calibArea = "00-04-82";
   if(jetType=="AntiKt4EMPFlow"){
-    config = "JES_data2017_2016_2015_Recommendation_PFlow_Aug2018_rel21.config";
+    config = "JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config";
     calibSeq = "JetArea_Residual_EtaJES_GSC";
-    calibArea = "00-04-81";	    
+    calibArea = "00-04-82";
   }
 
   asg::AnaToolHandle<IJetCalibrationTool> jetCalibrationTool;

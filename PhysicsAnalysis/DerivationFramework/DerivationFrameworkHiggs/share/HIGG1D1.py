@@ -396,6 +396,13 @@ HIGG1D1SlimmingHelper.AppendContentToStream(HIGG1D1Stream)
 HIGG1D1Stream.AddItem("xAOD::VertexContainer#ZeeRefittedPrimaryVertices")
 HIGG1D1Stream.AddItem("xAOD::VertexAuxContainer#ZeeRefittedPrimaryVerticesAux.-vxTrackAtVertex")
 
+# Add AFP information
+HIGG1D1Stream.AddItem("xAOD::AFPSiHitContainer#AFPSiHitContainer")
+HIGG1D1Stream.AddItem("xAOD::AFPSiHitAuxContainer#AFPSiHitContainerAux.")
+HIGG1D1Stream.AddItem("xAOD::AFPToFHitContainer#AFPToFHitContainer")
+HIGG1D1Stream.AddItem("xAOD::AFPToFHitAuxContainer#AFPToFHitContainerAux.")
+
+
 # Put the truth density computation (done in EGammaCommon) after jetalg (to have the truth jet input particles prepared)
 index = topSequence.getSequence().index('JetAlgorithm/jetalg') 
 for a in ['EDTruthCentralAlg','EDTruthForwardAlg']: 

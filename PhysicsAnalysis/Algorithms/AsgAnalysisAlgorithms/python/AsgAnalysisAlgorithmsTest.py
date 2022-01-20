@@ -4,7 +4,7 @@
 # @author Tadej Novak
 
 from AnaAlgorithm.AlgSequence import AlgSequence
-from AnaAlgorithm.DualUseConfig import createAlgorithm
+from AnaAlgorithm.DualUseConfig import createAlgorithm, createService
 
 def makeOverlapSequence (dataType) :
     algSeq = AlgSequence()
@@ -15,15 +15,21 @@ def makeOverlapSequence (dataType) :
     algSeq.PrimaryVertexSelectorAlg.VertexContainer = 'PrimaryVertices'
     algSeq.PrimaryVertexSelectorAlg.MinVertices = 1
 
-    # Set up the systematics loader/handler algorithm:
-    algSeq += createAlgorithm( 'CP::SysListLoaderAlg', 'SysLoaderAlg' )
-    algSeq.SysLoaderAlg.sigmaRecommended = 1
+    # Set up the systematics loader/handler service:
+    sysService = createService( 'CP::SystematicsSvc', 'SystematicsSvc', sequence = algSeq )
+    sysService.sigmaRecommended = 1
 
     # Include, and then set up the pileup analysis sequence:
+    prwfiles, lumicalcfiles = pileupConfigFiles(dataType)
+    
     from AsgAnalysisAlgorithms.PileupAnalysisSequence import \
         makePileupAnalysisSequence
-    pileupSequence = makePileupAnalysisSequence( dataType )
-    pileupSequence.configure( inputName = 'EventInfo', outputName = 'EventInfo_%SYS%' )
+    pileupSequence = makePileupAnalysisSequence(
+        dataType,
+        userPileupConfigs=prwfiles,
+        userLumicalcFiles=lumicalcfiles,
+    )
+    pileupSequence.configure( inputName = {}, outputName = {} )
     algSeq += pileupSequence
 
     # Include, and then set up the electron analysis sequence:
@@ -81,13 +87,7 @@ def makeOverlapSequence (dataType) :
             'photons'   : 'AnalysisPhotonsOR_%SYS%',
             'muons'     : 'AnalysisMuonsOR_%SYS%',
             'jets'      : 'AnalysisJetsOR_%SYS%',
-            'taus'      : 'AnalysisTauJetsOR_%SYS%' },
-        affectingSystematics = {
-            'electrons' : electronSequence.affectingSystematics(),
-            'photons'   : photonSequence.affectingSystematics(),
-            'muons'     : muonSequence.affectingSystematics(),
-            'jets'      : jetSequence.affectingSystematics(),
-            'taus'      : tauSequence.affectingSystematics() } )
+            'taus'      : 'AnalysisTauJetsOR_%SYS%' } )
     algSeq += overlapSequence
 
     # Set up an ntuple to check the job with:
@@ -129,7 +129,6 @@ def makeOverlapSequence (dataType) :
         'AnalysisTauJetsOR_%SYS%.eta -> tau_OR_%SYS%_eta',
         'AnalysisTauJetsOR_%SYS%.phi -> tau_OR_%SYS%_phi',
         'AnalysisTauJetsOR_%SYS%.pt  -> tau_OR_%SYS%_pt' ]
-    ntupleMaker.systematicsRegex = '.*'
     algSeq += ntupleMaker
     treeFiller = createAlgorithm( 'CP::TreeFillerAlg', 'TreeFiller' )
     treeFiller.TreeName = 'particles'
@@ -145,9 +144,9 @@ def makeEventAlgorithmsSequence (dataType) :
 
     algSeq = AlgSequence()
 
-    # Set up the systematics loader/handler algorithm:
-    algSeq += createAlgorithm( 'CP::SysListLoaderAlg', 'SysLoaderAlg' )
-    algSeq.SysLoaderAlg.sigmaRecommended = 1
+    # Set up the systematics loader/handler service:
+    sysService = createService( 'CP::SystematicsSvc', 'SystematicsSvc', sequence = algSeq )
+    sysService.sigmaRecommended = 1
 
     # Include, and then set up the pileup analysis sequence:
     from AsgAnalysisAlgorithms.EventSelectionAnalysisSequence import \
@@ -166,7 +165,6 @@ def makeEventAlgorithmsSequence (dataType) :
         'EventInfo.runNumber   -> runNumber',
         'EventInfo.eventNumber -> eventNumber',
         ]
-    ntupleMaker.systematicsRegex = '.*'
     algSeq += ntupleMaker
     treeFiller = createAlgorithm( 'CP::TreeFillerAlg', 'TreeFiller' )
     treeFiller.TreeName = 'events'
@@ -179,22 +177,35 @@ def makeGeneratorAlgorithmsSequence (dataType) :
 
     algSeq = AlgSequence()
 
-    # Set up the systematics loader/handler algorithm:
-    algSeq += createAlgorithm( 'CP::SysListLoaderAlg', 'SysLoaderAlg' )
-    algSeq.SysLoaderAlg.sigmaRecommended = 1
+    # Set up the systematics loader/handler service:
+    sysService = createService( 'CP::SystematicsSvc', 'SystematicsSvc', sequence = algSeq )
+    sysService.sigmaRecommended = 1
 
     # Include, and then set up the pileup analysis sequence (to make a copy):
+    if dataType == "data":
+        prwfiles = []
+        lumicalcfiles = []
+    else:
+        lumicalcfiles = [
+            "GoodRunsLists/data15_13TeV/20170619/PHYS_StandardGRL_All_Good_25ns_276262-284484_OflLumi-13TeV-008.root",
+            "GoodRunsLists/data16_13TeV/20180129/PHYS_StandardGRL_All_Good_25ns_297730-311481_OflLumi-13TeV-009.root",
+        ]
+        prwfiles = ["/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc16_13TeV/pileup_mc16a_dsid410501_FS.root"]
+
     from AsgAnalysisAlgorithms.PileupAnalysisSequence import \
         makePileupAnalysisSequence
-    pileupSequence = makePileupAnalysisSequence( dataType )
-    pileupSequence.configure( inputName = 'EventInfo', outputName = 'EventInfo_%SYS%' )
+    pileupSequence = makePileupAnalysisSequence(
+        dataType,
+        userPileupConfigs=prwfiles,
+        userLumicalcFiles=lumicalcfiles,
+    )
+    pileupSequence.configure( inputName = {}, outputName = {} )
     algSeq += pileupSequence
 
     # Include, and then set up the generator analysis sequence:
     from AsgAnalysisAlgorithms.GeneratorAnalysisSequence import \
         makeGeneratorAnalysisSequence
     generatorSequence = makeGeneratorAnalysisSequence( dataType, saveCutBookkeepers=True, runNumber=284500, cutBookkeepersSystematics=True )
-    generatorSequence.configure( inputName = 'EventInfo_%SYS%', outputName = {} )
     algSeq += generatorSequence
 
     # Set up an ntuple to check the job with:
@@ -204,11 +215,69 @@ def makeGeneratorAlgorithmsSequence (dataType) :
     ntupleMaker = createAlgorithm( 'CP::AsgxAODNTupleMakerAlg', 'NTupleMaker' )
     ntupleMaker.TreeName = 'events'
     ntupleMaker.Branches = [
-        'EventInfo_NOSYS.runNumber   -> runNumber',
-        'EventInfo_NOSYS.eventNumber -> eventNumber',
-        'EventInfo_NOSYS.generatorWeight_%SYS% -> generatorWeight_%SYS%',
+        'EventInfo.runNumber   -> runNumber',
+        'EventInfo.eventNumber -> eventNumber',
+        'EventInfo.generatorWeight_%SYS% -> generatorWeight_%SYS%',
     ]
-    ntupleMaker.systematicsRegex = '.*'
+    algSeq += ntupleMaker
+    treeFiller = createAlgorithm( 'CP::TreeFillerAlg', 'TreeFiller' )
+    treeFiller.TreeName = 'events'
+    algSeq += treeFiller
+
+    return algSeq
+
+def pileupConfigFiles(dataType):
+    """Return the PRW config files and lumicalc files for tests"""
+    if dataType == "data":
+        prwfiles = []
+        lumicalcfiles = []
+    else:
+        lumicalcfiles = [
+            "GoodRunsLists/data15_13TeV/20170619/PHYS_StandardGRL_All_Good_25ns_276262-284484_OflLumi-13TeV-008.root",
+            "GoodRunsLists/data16_13TeV/20180129/PHYS_StandardGRL_All_Good_25ns_297730-311481_OflLumi-13TeV-009.root",
+        ]
+        if dataType == "mc":
+            prwfiles = ["/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc16_13TeV/pileup_mc16a_dsid410501_FS.root"]
+        else:
+            # We don't have a PRW file that works properly for the AFII file so we don't apply it in
+            # this case
+            prwfiles = []
+    return prwfiles, lumicalcfiles
+
+def makePileupSequence () :
+    # NB: test only run for MC
+
+    algSeq = AlgSequence()
+
+    # Set up the systematics loader/handler service:
+    sysService = createService( 'CP::SystematicsSvc', 'SystematicsSvc', sequence = algSeq )
+    sysService.sigmaRecommended = 1
+
+    # Include, and then set up the pileup analysis sequence:
+    prwfiles, lumicalcfiles = pileupConfigFiles("mc")
+
+    from AsgAnalysisAlgorithms.PileupAnalysisSequence import \
+        makePileupAnalysisSequence
+    pileupSequence = makePileupAnalysisSequence(
+        "mc",
+        userPileupConfigs=prwfiles,
+        userLumicalcFiles=lumicalcfiles,
+    )
+    pileupSequence.configure( inputName = {}, outputName = {} )
+    algSeq += pileupSequence
+
+
+    # Set up an ntuple to check the job with:
+    treeMaker = createAlgorithm( 'CP::TreeMakerAlg', 'TreeMaker' )
+    treeMaker.TreeName = 'events'
+    algSeq += treeMaker
+    ntupleMaker = createAlgorithm( 'CP::AsgxAODNTupleMakerAlg', 'NTupleMaker' )
+    ntupleMaker.TreeName = 'events'
+    ntupleMaker.Branches = [
+        'EventInfo.runNumber   -> runNumber',
+        'EventInfo.eventNumber -> eventNumber',
+        'EventInfo.PileupWeight_%SYS% -> pileupWeight_%SYS%',
+    ]
     algSeq += ntupleMaker
     treeFiller = createAlgorithm( 'CP::TreeFillerAlg', 'TreeFiller' )
     treeFiller.TreeName = 'events'

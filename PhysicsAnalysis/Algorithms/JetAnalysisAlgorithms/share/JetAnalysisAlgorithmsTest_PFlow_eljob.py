@@ -56,10 +56,8 @@ job.options().setDouble( ROOT.EL.Job.optMaxEvents, 500 )
 
 from JetAnalysisAlgorithms.JetAnalysisAlgorithmsTest import makeSequence
 algSeq = makeSequence (dataType, jetContainer)
-print algSeq # For debugging
-for alg in algSeq:
-    job.algsAdd( alg )
-    pass
+print (algSeq) # For debugging
+algSeq.addSelfToJob( job )
 
 # Set up an output file for the job:
 job.outputAdd( ROOT.EL.OutputStream( 'ANALYSIS' ) )

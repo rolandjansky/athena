@@ -4,6 +4,12 @@
 from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 
+try:
+    from AthenaCommon.Logging import logging
+except ImportError:
+    import logging
+prwlog = logging.getLogger('makePileupAnalysisSequence')
+
 def makePileupAnalysisSequence( dataType, userPileupConfigs=[], userLumicalcFiles=[] , autoConfig=False ):
     """Create a PRW analysis algorithm sequence
 
@@ -24,8 +30,6 @@ def makePileupAnalysisSequence( dataType, userPileupConfigs=[], userLumicalcFile
         if len(muMcFiles)==0:
             muMcFiles = getMCMuFiles()
         else:
-            from AthenaCommon import Logging
-            prwlog = Logging.logging.getLogger('makePileupAnalysisSequence')
             prwlog.warning('Sent autoconfig and userPileupConfigs='+str(userPileupConfigs))
             prwlog.warning('Ignoring autoconfig and keeping user-specified files')
 
@@ -41,11 +45,13 @@ def makePileupAnalysisSequence( dataType, userPileupConfigs=[], userLumicalcFile
     alg = createAlgorithm( 'CP::PileupReweightingAlg', 'PileupReweightingAlg' )
     addPrivateTool( alg, 'pileupReweightingTool', 'CP::PileupReweightingTool' )
     alg.pileupReweightingTool.ConfigFiles = muMcFiles
+    if not muMcFiles and dataType != "data":
+        prwlog.info("No PRW config files provided. Disabling reweighting")
+        # Setting the weight decoration to the empty string disables the reweighting
+        alg.pileupWeightDecoration = ""
     alg.pileupReweightingTool.LumiCalcFiles = muDataFiles
 
-    seq.append( alg, inputPropName = 'eventInfo',
-                outputPropName = 'eventInfoOut',
-                affectingSystematics = '(^PRW_.*)' )
+    seq.append( alg, inputPropName = {} )
 
     # Return the sequence:
     return seq

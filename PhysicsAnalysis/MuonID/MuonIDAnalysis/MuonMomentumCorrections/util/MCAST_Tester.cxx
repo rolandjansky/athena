@@ -6,6 +6,7 @@
 #include <memory>
 #include <cstdlib>
 #include <string>
+#include <map>
 #include "boost/unordered_map.hpp"
 
 // ROOT include(s):
@@ -36,6 +37,8 @@
 #include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "AsgMessaging/MessageCheck.h"
+
+
 
 ANA_MSG_HEADER(msgMMC)
 
@@ -123,33 +126,44 @@ int main( int argc, char* argv[] ) {
   //::: create the tool handle
   asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool> corrTool; //!
   corrTool.setTypeAndName("CP::MuonCalibrationAndSmearingTool/MuonCorrectionTool");
-    //::: set the properties
-  corrTool.setProperty("Year",                  "Data17" );
-  //   corrTool.setProperty("Algo",                  "muons" );
-  //   corrTool.setProperty("SmearingType",          "q_pT" );
-  //corrTool.setProperty("Release",               "Recs2017_08_02" );
-  corrTool.setProperty("Release",               "Recs2018_05_20" );     
-  //   corrTool.setProperty("ToroidOff",             false );
-  //   corrTool.setProperty("FilesPath",             "" );
-  corrTool.setProperty("StatComb",              false);
-  //   corrTool.setProperty("MinCombPt",             300.0);
-  corrTool.setProperty("SagittaCorr",           false);
-  corrTool.setProperty("SagittaRelease",        "sagittaBiasDataAll_30_07_18");
-  corrTool.setProperty("doSagittaMCDistortion", true);
-  corrTool.setProperty("SagittaCorrPhaseSpace", true);
-  //   corrTool.setProperty("sgItersCB",             11);
-  //   corrTool.setProperty("sgItersID",             11);
-  //   corrTool.setProperty("sgItersME",             11);
-  //   corrTool.setProperty("sgIetrsMamual",         false);
-  corrTool.setProperty("fixedRho",              0.0);
-  corrTool.setProperty("useFixedRho",           true);
-  corrTool.setProperty("noEigenDecor" ,         false);
-  //   corrTool.setProperty("useExternalSeed" ,      false);
-  //   corrTool.setProperty("externalSeed" ,         0);
-  
+  // New tool settings
+  corrTool.setProperty("Year",                      "Data16" );
+  corrTool.setProperty("Release",                   "Recs2021_11_04" );
+  corrTool.setProperty("SagittaCorr",               false );
+  corrTool.setProperty("SagittaRelease",            "sagittaBiasDataAll_15_09_2021" );
+  corrTool.setProperty("doSagittaMCDistortion",     true );
+  corrTool.setProperty("SagittaIterWeight",         1 );
+  corrTool.setProperty("useFixedRho",               true );
+  corrTool.setProperty("sagittaMapsInputType",      1 );
+  corrTool.setProperty("sagittaMapUnitConversion",  1 );
+  corrTool.setProperty("extraRebiasSys",            0.00002 );
+  corrTool.setProperty("systematicCorrelationScheme", "Corr_Scale");
+  corrTool.setProperty("doDirectCBCalib",           false  );
+
+
+  // Old calibration
+  // corrTool.setProperty("Year",                      "Data16" );
+  // corrTool.setProperty("Release",                   "Recs2020_03_03" );
+  // corrTool.setProperty("SagittaCorr",               false );
+  // corrTool.setProperty("SagittaRelease",            "sagittaBiasDataAll_03_02_19_Data16" );
+  // corrTool.setProperty("doSagittaMCDistortion",     true );
+  // corrTool.setProperty("SagittaIterWeight",         0.5 );
+  // corrTool.setProperty("useFixedRho",               false );
+  // corrTool.setProperty("sagittaMapsInputType",      10);
+  // corrTool.setProperty("sagittaMapUnitConversion",  1e-3 );
+  // corrTool.setProperty("extraRebiasSys",            0 );
+  // corrTool.setProperty("systematicCorrelationScheme", "Corr_Scale");
+  // corrTool.setProperty("doDirectCBCalib",           false  );
+
+  bool isDebug = false;
+  if(nEvents >= 0 || Ievent >= 0) isDebug = true;
+
+  if(isDebug) corrTool.setProperty( "OutputLevel", MSG::VERBOSE);
+
   //::: retrieve the tool
   corrTool.retrieve();
 
+  
   ////////////////////////////////////////////////////
   //::: MuonSelectionTool
   // setup the tool handle as per the
@@ -160,9 +174,9 @@ int main( int argc, char* argv[] ) {
   selTool.setTypeAndName("CP::MuonSelectionTool/MuonSelectionTool");
 
   //::: set the properties
-//   selTool.setProperty( "MaxEta",              2.5 );
-//   selTool.setProperty( "MuQuality",           1 );   //corresponds to 0=Tight, 1=Medium, 2=Loose, 3=VeryLoose, 4=HighPt, 5=LowPtEfficiency
-//   selTool.setProperty( "ToroidOff",           false );
+  selTool.setProperty( "MaxEta",              2.5 );
+  selTool.setProperty( "MuQuality",           (int)xAOD::Muon::Loose );   //corresponds to 0=Tight, 1=Medium, 2=Loose, 3=VeryLoose, 4=HighPt, 5=LowPtEfficiency
+  // selTool.setProperty( "ToroidOff",           false );
 //   selTool.setProperty( "TurnOffMomCorr",      false );
 //   selTool.setProperty( "CalibrationRelease",  "PreRec2016_2016-04-13" );
 //   selTool.setProperty( "ExpertDevelopMode",   false );
@@ -197,9 +211,11 @@ int main( int argc, char* argv[] ) {
 
   // branches to be stored
   Float_t InitPtCB( 0. ), InitPtID( 0. ), InitPtMS( 0. );
+  Float_t NomPtCB( 0. ), NomPtID( 0. ), NomPtMS( 0. );
   Float_t CorrPtCB( 0. ), CorrPtID( 0. ), CorrPtMS( 0. );
   Float_t Eta( 0. ), Phi( 0. ), Charge( 0. );
   Float_t ExpResoCB( 0. ), ExpResoID( 0. ), ExpResoMS( 0. );
+  long long unsigned int eventNum (0);
 
   // output file
   TFile* outputFile = TFile::Open( "output.root", "recreate" );
@@ -219,12 +235,17 @@ int main( int argc, char* argv[] ) {
     sysTree->Branch( "CorrPtCB", &CorrPtCB, "CorrPtCB/F" );
     sysTree->Branch( "CorrPtID", &CorrPtID, "CorrPtID/F" );
     sysTree->Branch( "CorrPtMS", &CorrPtMS, "CorrPtMS/F" );
+    sysTree->Branch(  "NomPtCB",  &NomPtCB,  "NomPtCB/F" );
+    sysTree->Branch(  "NomPtID",  &NomPtID,  "NomPtID/F" );
+    sysTree->Branch(  "NomPtMS",  &NomPtMS,  "NomPtMS/F" );
+
     sysTree->Branch( "Eta", &Eta, "Eta/F" );
     sysTree->Branch( "Phi", &Phi, "Phi/F" );
     sysTree->Branch( "Charge", &Charge, "Charge/F" );
     sysTree->Branch( "ExpResoCB", &ExpResoCB, "ExpResoCB/F" );
     sysTree->Branch( "ExpResoID", &ExpResoID, "ExpResoID/F" );
     sysTree->Branch( "ExpResoMS", &ExpResoMS, "ExpResoMS/F" );
+    sysTree->Branch( "eventNum", &eventNum );
 
     sysTreeMap[ *sysListItr ] = sysTree;
   }
@@ -247,37 +268,45 @@ int main( int argc, char* argv[] ) {
       continue;
     }
 
+    eventNum = evtInfo->eventNumber();
+
     //::: Get the Muons from the event:
     const xAOD::MuonContainer* muons = 0;
     if( event.retrieve( muons, "Muons" ) != StatusCode::SUCCESS)
       continue ;
 
     //Info( APP_NAME, "Number of muons: %i", static_cast< int >( muons->size() ) );
-
-    // create a shallow copy of the muons container
-    std::pair< xAOD::MuonContainer*, xAOD::ShallowAuxContainer* > muons_shallowCopy = xAOD::shallowCopyContainer( *muons );
-
-    xAOD::MuonContainer* muonsCorr = muons_shallowCopy.first;
-
+    std::map<int, float> cbpt, idpt, mspt;
     //::: Loop over systematics
-    for( sysListItr = sysList.begin(); sysListItr != sysList.end(); ++sysListItr ) {
+    for( sysListItr = sysList.begin(); sysListItr != sysList.end(); ++sysListItr ) 
+    {
+      // create a shallow copy of the muons container
+      std::pair< xAOD::MuonContainer*, xAOD::ShallowAuxContainer* > muons_shallowCopy = xAOD::shallowCopyContainer( *muons );
 
-      Info( APP_NAME, "Looking at %s systematic", ( sysListItr->name() ).c_str() );
+      xAOD::MuonContainer* muonsCorr = muons_shallowCopy.first;
+
+      if(isDebug)
+      {
+        Info( APP_NAME, "-----------------------------------------------------------");
+        Info( APP_NAME, "Looking at %s systematic", ( sysListItr->name() ).c_str() );
+      }
 
       //::: Check if systematic is applicable to the correction tool
       if( corrTool->applySystematicVariation( *sysListItr ) != CP::SystematicCode::Ok ) {
         Error( APP_NAME, "Cannot configure muon calibration tool for systematic" );
       }
 
+      int counter = 0;
+
       //for( int i=-0; i<1e3 ; i++) {
       //::: Loop over muon container
-      for( auto muon: *muonsCorr ) {
-
+      for( auto muon: *muonsCorr ) 
+      {
         //::: Select "good" muons:
-        // if( ! selTool.passedIDCuts( **mu_itr ) ) {
-        //   Info( APP_NAME, "This muon doesn't pass the ID hits quality cuts");
-        //   continue;
-        // }
+        if( ! selTool->accept( *muon ) ) {
+          if(isDebug) Info( APP_NAME, "This muon doesn't pass the ID hits quality cuts");
+          continue;
+        }
 
         //::: Should be using correctedCopy here, testing behaviour of applyCorrection though
         InitPtCB = muon->pt();
@@ -297,7 +326,7 @@ int main( int argc, char* argv[] ) {
         Charge = muon->charge();
 
         //::: Print some info about the selected muon:
-        //Info( APP_NAME, "Selected muon: eta = %g, phi = %g, pt = %g", muon->eta(), muon->phi(), muon->pt()/1e3 );
+        if(isDebug) Info( APP_NAME, "Selected muon: eta = %g, phi = %g, pt = %g", muon->eta(), muon->phi(), muon->pt()/1e3 );
 
         float ptCB = 0 ;
         if(muon->primaryTrackParticleLink().isValid()){
@@ -305,7 +334,7 @@ int main( int argc, char* argv[] ) {
           ptCB = (!cb_track) ? 0:(*cb_track)->pt();
         }
         else {
-          Info( APP_NAME, "Missing primary track particle link for --> CB %g, author: %d, type: %d",ptCB,muon->author(),muon->muonType());
+          if(isDebug) Info( APP_NAME, "Missing primary track particle link for --> CB %g, author: %d, type: %d",ptCB,muon->author(),muon->muonType());
         }
         float ptID = 0;
         if(muon->inDetTrackParticleLink().isValid()){
@@ -318,8 +347,8 @@ int main( int argc, char* argv[] ) {
           ptME = (!ms_track) ? 0:(*ms_track)->pt();
         }
 
-        //if(entry %  1000 ==0 )
-        Info( APP_NAME, "--> CB %g, ID %g, ME %g, author: %d, type: %d",ptCB,ptID,ptME,muon->author(),muon->muonType());
+
+        if(isDebug) Info( APP_NAME, "--> CB %g, ID %g, ME %g, author: %d, type: %d",ptCB/1e3,ptID/1e3,ptME/1e3,muon->author(),muon->muonType());
 
         // either use the correctedCopy call or correct the muon object itself
         if( useCorrectedCopy ) {
@@ -332,7 +361,18 @@ int main( int argc, char* argv[] ) {
           CorrPtCB = mu->pt();
           CorrPtID = mu->auxdata< float >( "InnerDetectorPt" );
           CorrPtMS = mu->auxdata< float >( "MuonSpectrometerPt" );
-          Info( APP_NAME, "Calibrated muon: eta = %g, phi = %g, pt(CB) = %g, pt(ID) = %g, pt(MS) = %g", mu->eta(), mu->phi(), mu->pt(), mu->auxdata< float >( "InnerDetectorPt" ), mu->auxdata< float >( "MuonSpectrometerPt" ) );
+
+          if(sysListItr->name().size()==0)
+          {
+            cbpt[counter] = mu->pt();
+            idpt[counter] = mu->auxdata< float >( "InnerDetectorPt" );
+            mspt[counter] = mu->auxdata< float >( "MuonSpectrometerPt" );           
+          }
+          NomPtCB = cbpt[counter];
+          NomPtID = idpt[counter];
+          NomPtMS = mspt[counter];
+
+          if(isDebug) Info( APP_NAME, "Calibrated muon: eta = %g, phi = %g, pt(CB) = %g, pt(ID) = %g, pt(MS) = %g", mu->eta(), mu->phi(), mu->pt()/1e3, mu->auxdata< float >( "InnerDetectorPt" )/1e3, mu->auxdata< float >( "MuonSpectrometerPt" )/1e3 );
           sysTreeMap[ *sysListItr ]->Fill();
           //::: Delete the calibrated muon:
           delete mu;
@@ -348,17 +388,32 @@ int main( int argc, char* argv[] ) {
           ExpResoCB = corrTool->expectedResolution( "CB", *muon, true );
           ExpResoID = corrTool->expectedResolution( "ID", *muon, true );
           ExpResoMS = corrTool->expectedResolution( "MS", *muon, true );
-          Info( APP_NAME, "Calibrated muon: eta = %g, phi = %g, pt(CB) = %g, pt(ID) = %g, pt(MS) = %g", muon->eta(), muon->phi(), muon->pt()/1e3,CorrPtID,CorrPtMS);
-          Info( APP_NAME, " expReso : ExpResoCB = %g , ExpResoID = %g , ExpResoMS = %g", ExpResoCB, ExpResoID, ExpResoMS);
+
+          if(sysListItr->name().size()==0)
+          {
+            cbpt[counter] = muon->pt();
+            idpt[counter] = muon->auxdata< float >( "InnerDetectorPt" );
+            mspt[counter] = muon->auxdata< float >( "MuonSpectrometerPt" );           
+          }
+          NomPtCB = cbpt[counter];
+          NomPtID = idpt[counter];
+          NomPtMS = mspt[counter];
+
+          if(isDebug) Info( APP_NAME, "Calibrated muon: eta = %g, phi = %g, pt(CB) = %g, pt(ID) = %g, pt(MS) = %g", muon->eta(), muon->phi(), muon->pt()/1e3,CorrPtID/1e3,CorrPtMS/1e3);
+          if(isDebug) Info( APP_NAME, " expReso : ExpResoCB = %g , ExpResoID = %g , ExpResoMS = %g", ExpResoCB, ExpResoID, ExpResoMS);
           sysTreeMap[ *sysListItr ]->Fill();
         }
+        counter++;
+        // break;
       }
-      //}
+      if(isDebug) Info( APP_NAME, "-----------------------------------------------------------");
+
+      delete muons_shallowCopy.first;
+      delete muons_shallowCopy.second;
     }
 
     //::: Close with a message:
-    //if(entry %  1000 ==0 )
-      Info( APP_NAME, "===>>>  done processing event #%i, run #%i %i events processed so far  <<<===", static_cast< int >( evtInfo->eventNumber() ), static_cast< int >( evtInfo->runNumber() ), static_cast< int >( entry + 1 ) );
+    if(entry %  1000 ==0 ) Info( APP_NAME, "===>>>  done processing event #%i, run #%i %i events processed so far  <<<===", static_cast< int >( evtInfo->eventNumber() ), static_cast< int >( evtInfo->runNumber() ), static_cast< int >( entry + 1 ) );
   }
 
   for( sysListItr = sysList.begin(); sysListItr != sysList.end(); ++sysListItr ) {

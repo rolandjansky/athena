@@ -1,6 +1,8 @@
 <lcgdict>
 
    <class name="CP::ISelectionAccessor" />
-   <class name="CP::OutOfValidityAction" />
+   <enum name="CP::OutOfValidityAction" />
+
+   <class name="std::tuple<CP::ISelectionAccessor*,std::default_delete<CP::ISelectionAccessor> >" />
 
 </lcgdict>

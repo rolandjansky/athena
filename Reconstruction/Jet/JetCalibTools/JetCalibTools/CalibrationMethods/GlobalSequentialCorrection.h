@@ -100,6 +100,7 @@ class GlobalSequentialCorrection
   bool m_caloBased;
   bool m_pTResponseRequirementOff;
   bool m_nTrkwTrk_4PFlow;
+  bool m_TileGap3_4PFlow;
   double m_turnOffStartingpT, m_turnOffEndpT;
 
 };

@@ -8,19 +8,20 @@
 #ifndef SYSTEMATICS_HANDLES__SYS_LIST_HANDLE_H
 #define SYSTEMATICS_HANDLES__SYS_LIST_HANDLE_H
 
-#include <AnaAlgorithm/AnaAlgorithm.h>
-#include <AsgTools/AsgMessagingForward.h>
+#include <AsgMessaging/AsgMessagingForward.h>
+#include <AsgServices/ServiceHandle.h>
 #include <PATInterfaces/SystematicSet.h>
+#include <SystematicsHandles/ISystematicsSvc.h>
 #include <SystematicsHandles/SysListType.h>
 #include <functional>
 #include <string>
 #include <vector>
-#include <unordered_set>
 
 class StatusCode;
 
 namespace CP
 {
+  class IReentrantSystematicsTool;
   class ISysHandleBase;
   class SystematicSet;
 
@@ -36,8 +37,8 @@ namespace CP
     /// \brief standard constructor
   public:
     template<typename T>
-    SysListHandle (T *owner, const std::string& propertyName = "systematics",
-                   const std::string& propertyDescription = "list of systematics to evaluate");
+    SysListHandle (T *owner, const std::string& propertyName = "systematicsService",
+                   const std::string& propertyDescription = "systematics to evaluate");
 
 
     /// \brief register an input handle we are using
@@ -48,7 +49,7 @@ namespace CP
     ///
     /// \pre !isInitialized()
   public:
-    void addHandle (ISysHandleBase& handle);
+    StatusCode addHandle (ISysHandleBase& handle);
 
 
     /// \brief register a set of affecting variables for the current
@@ -59,9 +60,12 @@ namespace CP
     /// handling (or at least as a cross check of those).
     ///
     /// \pre !isInitialized()
+    /// \{
   public:
-    StatusCode addAffectingSystematics
-      (const CP::SystematicSet& affectingSystematics);
+    StatusCode addSystematics (const CP::SystematicSet& recommended,
+                               const CP::SystematicSet& affecting);
+    StatusCode addSystematics (const IReentrantSystematicsTool& tool);
+    /// \}
 
 
     /// \brief intialize this property
@@ -77,9 +81,27 @@ namespace CP
     bool isInitialized () const noexcept;
 
 
-    /// \brief the list of systematics to loop over
+    /// \brief the service we use
   public:
-    std::unordered_set<CP::SystematicSet> systematicsVector ();
+    const ISystematicsSvc& service () const;
+
+
+    /// \brief the list of systematics to loop over
+    ///
+    /// The way used should use this is as:
+    /// ```
+    ///   for (const auto& sys : m_systematicsList.systematicsVector())
+    ///   {
+    ///     ...
+    ///   }
+    /// ```
+    ///
+    /// The important part is to use `const auto&` instead of `const
+    /// CP::SystematicSet&` here, as in the future this may be updated
+    /// to be a vector of something other than a `CP::SystematicSet`
+    /// (still convertible to `const CP::SystematicSet&` though).
+  public:
+    const std::vector<CP::SystematicSet>& systematicsVector () const;
 
 
     /// \brief run the function for each systematic
@@ -100,9 +122,14 @@ namespace CP
     /// \par Failures
     ///   function failures
     /// \pre isInitialized()
+    ///
+    /// \warn This is deprecated in favor of just calling \ref
+    /// systematicsVector directly (mostly to make code easier to
+    /// understand for new users).
   public:
+    [[deprecated("please use systematicsVector() instead")]]
     StatusCode foreach
-      (const std::function<StatusCode(const CP::SystematicSet&)>& func);
+      (const std::function<StatusCode(const CP::SystematicSet&)>& func) const;
 
 
 
@@ -110,49 +137,28 @@ namespace CP
     // private interface
     //
 
-    /// \brief the name under which the systematics list is stored in
-    /// the event store
+    /// \brief the handle for the systematics service
   private:
-    std::string m_systematicsListName {"systematics"};
-
-    /// \brief the regular expression for affecting systematics
-  private:
-    std::string m_affectingRegex {"^$"};
-
-    /// \brief the full affecting systematics including the inputs
-  private:
-    std::string m_fullAffecting;
-
-    /// \brief the cache of affecting filtered systematics
-  private:
-    std::unordered_map<CP::SystematicSet,CP::SystematicSet> m_affectingCache;
+    ServiceHandle<ISystematicsSvc> m_systematicsService {"SystematicsSvc", ""};
 
     /// \brief the list of systematics handles we have
   private:
     std::vector<ISysHandleBase*> m_sysHandles;
 
+    /// \brief this set of affecting systematics
+  private:
+    CP::SystematicSet m_affecting;
+
+    /// \brief the value of \ref systematicsVector
+  private:
+    std::vector<CP::SystematicSet> m_systematicsVector;
+
     /// \brief the value of \ref isInitialized
   private:
     bool m_isInitialized = false;
 
-
-    /// \brief the type of the event store we use
   private:
-    typedef std::decay<decltype(*((EL::AnaAlgorithm*)0)->evtStore())>::type StoreType;
-
-    /// \brief the event store we use
-  private:
-    mutable StoreType *m_evtStore = nullptr;
-
-    /// \brief the function to retrieve the event store
-    ///
-    /// This is an std::function to allow the parent to be either a
-    /// tool or an algorithm.  Though we are not really supporting
-    /// tools as parents when using \ref SysListHandle, so in
-    /// principle this could be replaced with a pointer to the
-    /// algorithm instead.
-  private:
-    std::function<StoreType*()> m_evtStoreGetter;
+    StatusCode fillSystematicsVector ();
   };
 }
 

@@ -100,7 +100,8 @@ namespace CP
 
     /// \brief the type of the event store we use
   private:
-    typedef std::decay<decltype(*((EL::AnaAlgorithm*)0)->evtStore())>::type StoreType;
+    typedef std::decay<decltype(
+      *(std::declval<EL::AnaAlgorithm>().evtStore()))>::type StoreType;
 
     /// \brief the event store we use
   private:

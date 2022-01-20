@@ -9,6 +9,11 @@
 // Author: S.Binet<binet@cern.ch>
 /////////////////////////////////////////////////////////////////// 
 
+// WARNING: This specifically disables warnings in 21.2 that we do not
+// intend to fix anymore.  It should not be swept to any other
+// branches.
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 // PerfMonEvent includes
 #include "PerfMonEvent/MemStatsHooks.h"
 

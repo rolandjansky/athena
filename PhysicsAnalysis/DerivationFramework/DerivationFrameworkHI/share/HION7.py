@@ -153,7 +153,7 @@ SlimmingHelper.SmartCollections = [ "InDetTrackParticles",
                                     "Photons",
                                     "PrimaryVertices"]
 ##AllVariables
-AllVarContent=["AntiKt4HITrackJets","BTagging_"+MainJetCollection+"AntiKt4HI"]
+AllVarContent=["AntiKt4HITrackJets","BTagging_"+MainJetCollection+"AntiKt4HI",MainJetCollection+"AntiKt4HIJets" ]
 if HIDerivationFlags.isPP() and (HasCollection("BTagging_AntiKt4HI") and jobproperties.HIRecExampleFlags.doHIAODFix) : AllVarContent+=["BTagging_AntiKt4HI"]
 AllVarContent+=HIGlobalVars
 if HIDerivationFlags.isSimulation() : 
@@ -173,7 +173,15 @@ for collection in CollectionList :
         for j in HISeedBranches: 
             ExtraVars.append(collection+'.'+j)
 
-ExtraVars.append("InDetTrackParticles.truthMatchProbability")
+ExtraVars.append("InDetTrackParticles.truthMatchProbability.x.y.z.vx.vy.vz")
+ExtraVars.append("InDetTrackParticles.numberOfInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSharedHits")
+ExtraVars.append("InDetTrackParticles.numberOfPixelSplitHits.numberOfInnermostPixelLayerSharedHits.numberOfContribPixelLayers.hitPattern.radiusOfFirstHit")
+ExtraVars.append("InDetTrackParticles.is_selected.is_associated.is_svtrk_final.pt_wrtSV.eta_wrtSV.phi_wrtSV.d0_wrtSV.z0_wrtSV.errP_wrtSV.errd0_wrtSV.errz0_wrtSV.chi2_toSV")
+ExtraVars.append("PrimaryVertices.neutralWeights.numberDoF.sumPt2.chiSquared.covariance.trackWeights")
+ExtraVars.append("PrimaryVertices.x.y.trackParticleLinks.vertexType.neutralParticleLinks")
+ExtraVars.append("ExtrapolatedMuonTrackParticles.vx.vy.vz")
+ExtraVars.append("MuonSpectrometerTrackParticles.vx.vy.vz")
+ExtraVars.append("CombinedMuonTrackParticles.vx.vy.vz")
 ExtraVars.append("Muons.EnergyLoss.energyLossType")
 SlimmingHelper.ExtraVariables=ExtraVars
 for v in HIClusterVars : SlimmingHelper.ExtraVariables.append(v)

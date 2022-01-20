@@ -137,23 +137,23 @@ def addTruthJets(kernel=None, decorationDressing=None):
         # WZ Dressed Truth Jets - handle dressed case
         from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets
         addStandardJets("AntiKt", 0.4, "TruthDressedWZ", ptmin=threshold, mods="truth_ungroomed", algseq=kernel, outputGroup="DFCommonMCTruthJets")
-    if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt2TruthChargedJets"):
-        # R=0.2 truth charged jets
-        from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets
-        addStandardJets("AntiKt", 0.2, "TruthCharged", 5000, mods=truth_modifiers, algseq=kernel, outputGroup="DFCommonMCTruthJets")
+    if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKtVR30Rmax4Rmin02TruthChargedJets"):
+        # VR truth jets
+        from DerivationFrameworkJetEtMiss.JetCommon import addStandardVRJets
+        addStandardVRJets("TruthCharged", 5000, 0, 30000, 0.02, 0.4, mods=truth_modifiers, algseq=kernel, outputGroup="DFCommonMCTruthJets")
     if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt10TruthJets") and not hasattr(kernel,'jetalgAntiKt10Truth'):
         # AntiKt2 truth charged jets ghost association
         from JetRec.JetRecConf import PseudoJetGetter
-        if not 'gakt2truthchargedget' in jtm.tools:
-            jtm += PseudoJetGetter("gakt2truthchargedget", # give a unique name
-                                    InputContainer = "AntiKt2TruthChargedJets", # SG key
-                                    Label = "GhostAntiKt2TruthChargedJets",   # this is the name you'll use to retrieve associated ghosts
-                                    OutputContainer = "PseudoJetGhostAntiKt2TruthChargedJet",
+        if not 'gaktvrtruthchargedget' in jtm.tools:
+            jtm += PseudoJetGetter("gaktvrtruthchargedget", # give a unique name
+                                    InputContainer = "AntiKtVR30Rmax4Rmin02TruthChargedJets", # SG key
+                                    Label = "GhostAntiKtVR30Rmax4Rmin02TruthChargedJets",   # this is the name you'll use to retrieve associated ghosts
+                                    OutputContainer = "PseudoJetGhostAntiKtVR30Rmax4Rmin02TruthChargedJet",
                                     SkipNegativeEnergy = True,
                                     GhostScale = 1.e-20,   # This makes the PseudoJet Ghosts, and thus the reco flow will treat them as so.
                                    )
         trackjetgetters = []
-        trackjetgetters += [jtm.gakt2truthchargedget]
+        trackjetgetters += [jtm.gaktvrtruthchargedget]
         truthgetters = [jtm.truthget]
         truthgetters += trackjetgetters
         flavorgetters = []

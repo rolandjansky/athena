@@ -21,8 +21,8 @@ namespace InDet {
   
   class InDetTrackSystematicsTool : public virtual CP::ISystematicsTool, public asg::AsgTool {
 
-    ASG_TOOL_CLASS( InDetTrackSystematicsTool,
-		    CP::ISystematicsTool )
+    ASG_TOOL_CLASS2( InDetTrackSystematicsTool,
+                     CP::ISystematicsTool, CP::IReentrantSystematicsTool )
   public:
     InDetTrackSystematicsTool( const std::string& );
     virtual ~InDetTrackSystematicsTool() = default;

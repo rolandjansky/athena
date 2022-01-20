@@ -589,7 +589,23 @@ namespace DerivationFramework {
                   continue;
               }
            }
-           selectedDxCandidates.push_back(*vxcItr);
+           
+           // L.G., 26.03.21: Check there are no previous D+/- combinations with inverse pion positions
+           if(m_Dx_pid==411 && selectedDxCandidates.size()>0) {
+	   
+               bool Dpmcopy(false);
+
+	       for(auto dxItr=selectedDxCandidates.cbegin(); dxItr!=selectedDxCandidates.cend(); ++dxItr) {
+               if((*vxcItr)->trackParticle(2)->charge()>0) { // D+
+	            if ( (*vxcItr)->trackParticle(2) == (*dxItr)->trackParticle(0) && (*vxcItr)->trackParticle(0) == (*dxItr)->trackParticle(2) && (*vxcItr)->trackParticle(1) == (*dxItr)->trackParticle(1) ) Dpmcopy = true;
+			} else { // D-
+	            if ( (*vxcItr)->trackParticle(2) == (*dxItr)->trackParticle(1) && (*vxcItr)->trackParticle(1) == (*dxItr)->trackParticle(2) && (*vxcItr)->trackParticle(0) == (*dxItr)->trackParticle(0) ) Dpmcopy = true;
+			} 
+	       }
+	       if (Dpmcopy) continue;
+	   }
+       
+       selectedDxCandidates.push_back(*vxcItr);
         }
         if(selectedDxCandidates.size()<1) return StatusCode::SUCCESS;
 

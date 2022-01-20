@@ -386,12 +386,18 @@ ULong64_t PileupReweightingTool::getPRWHash( const xAOD::EventInfo& eventInfo ) 
 }
 
 /// Return combined pileup weight
-float PileupReweightingTool::getCombinedWeight( const xAOD::EventInfo& eventInfo ) {
-   return m_activeTool->GetCombinedWeight(   eventInfo.runNumber(), eventInfo.mcChannelNumber(), eventInfo.averageInteractionsPerCrossing() );
+float PileupReweightingTool::getCombinedWeight( const xAOD::EventInfo& eventInfo, bool correctUnrepresented ) {
+   float weight = m_activeTool->GetCombinedWeight(   eventInfo.runNumber(), eventInfo.mcChannelNumber(), eventInfo.averageInteractionsPerCrossing() );
+   if(correctUnrepresented && m_unrepresentedDataAction==2) 
+      weight *= getUnrepresentedDataWeight( eventInfo );
+   return weight;
 }
 
-float PileupReweightingTool::getCombinedWeight( const xAOD::EventInfo& eventInfo, Double_t x, Double_t y ) {
-   return m_activeTool->GetCombinedWeight(   eventInfo.runNumber(), eventInfo.mcChannelNumber(), x, y );
+float PileupReweightingTool::getCombinedWeight( const xAOD::EventInfo& eventInfo, Double_t x, Double_t y, bool correctUnrepresented ) {
+   float weight = m_activeTool->GetCombinedWeight(   eventInfo.runNumber(), eventInfo.mcChannelNumber(), x, y );
+   if(correctUnrepresented && m_unrepresentedDataAction==2) 
+      weight *= getUnrepresentedDataWeight( eventInfo );
+   return weight;
 }
 
 /// When using UnrepresentedDataAction=2, you may want to apply this additional weight to ensure sum of weights are preserved
@@ -437,7 +443,6 @@ int PileupReweightingTool::fill( const xAOD::EventInfo& eventInfo, Double_t x, D
 }
 
 StatusCode PileupReweightingTool::apply(const xAOD::EventInfo& eventInfo, bool mu_dependent) {
-
    if (eventInfo.isAvailable<unsigned int>(m_prefix+"RandomRunNumber")){
      ATH_MSG_WARNING("Attempting to run pileup reweighting, but it has already been run with prefix \"" << m_prefix << "\" - returning");
      return StatusCode::SUCCESS;
@@ -457,11 +462,10 @@ StatusCode PileupReweightingTool::apply(const xAOD::EventInfo& eventInfo, bool m
    eventInfo.auxdecor<float>(m_prefix+"corrected_averageInteractionsPerCrossing") = eventInfo.averageInteractionsPerCrossing();
 
    //decorate with standard PileupWeight 
-   if(!m_noWeightsMode) {
-      double weight =  /*m_tool->*/getCombinedWeight( eventInfo );
-      if(m_unrepresentedDataAction==2) weight *= getUnrepresentedDataWeight( eventInfo );
-      eventInfo.auxdecor<float>(m_prefix+"PileupWeight") = weight;
-   }
+
+   if(!m_noWeightsMode)
+      eventInfo.auxdecor<float>(m_prefix+"PileupWeight") = getCombinedWeight(eventInfo, true);
+      
    //decorate with random run number etc
    unsigned int rrn = getRandomRunNumber( eventInfo, mu_dependent );
    eventInfo.auxdecor<unsigned int>(m_prefix+"RandomRunNumber") = (rrn==0) ? getRandomRunNumber(eventInfo, false) : rrn;
@@ -493,8 +497,8 @@ float PileupReweightingTool::getDataWeight(const xAOD::EventInfo& eventInfo, con
 
 }
 
-float PileupReweightingTool::getCombinedWeight( const xAOD::EventInfo& eventInfo , const TString& trigger, bool mu_dependent ) {
-   float out = getCombinedWeight(eventInfo);
+float PileupReweightingTool::getCombinedWeight( const xAOD::EventInfo& eventInfo , const TString& trigger, bool mu_dependent, bool correctUnrepresented ) {
+   float out = getCombinedWeight(eventInfo, correctUnrepresented);
    if(!out) return out; //don't try to evaluate DataWeight if our PRW is 0 ... means there is no data available at that mu anyway
 
    //need to use the random run number ... only used to pick the subperiod, but in run2 so far we only have one subperiod

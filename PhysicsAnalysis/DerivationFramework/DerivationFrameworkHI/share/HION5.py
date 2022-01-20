@@ -79,6 +79,9 @@ else:
     triggers += ['HLT_g35_loose_L1EM15']    
 
 
+#Thinning threshods dictionary for jets is applied only in data
+JetThinningThreshold = {'AntiKt2HIJets': 15, 'AntiKt4HIJets': 15,'DFAntiKt2HIJets': 15, 'DFAntiKt4HIJets': 15} #in GeV
+
 #==========================================================
 #Event Selection
 #==========================================================
@@ -108,6 +111,7 @@ ToolSvc+=HION5SkimmingLeptonsAndPhotonsTool
 #====================================================================
 streamName = derivationFlags.WriteDAOD_HION5Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_HION5Stream )
+derivationName=streamName.split('_')[-1]
 HION5Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 HION5Stream.AcceptAlgs(["HION5Kernel"])
 
@@ -123,6 +127,13 @@ BookDFJetCollection = (jobproperties.HIRecExampleFlags.doHIAODFix or HasCollecti
 MainJetCollection = ""
 if BookDFJetCollection : MainJetCollection = "DF"
 thinningTools.append(addJetClusterThinningTool(MainJetCollection+'AntiKt4HIJets','HION5',20))
+
+
+#b-tagging
+BtaggedCollectionList=['BTagging_'+ MainJetCollection +'AntiKt4HI']
+if ( HasCollection("BTagging_AntiKt4HI") and jobproperties.HIRecExampleFlags.doHIAODFix): BtaggedCollectionList.append('BTagging_AntiKt4HI')
+
+for collection in BtaggedCollectionList :thinningTools.append(addBtaggThinningTool(collection, collection.split("_",1)[1]+"Jets", derivationName, JetThinningThreshold[collection.split("_",1)[1]+"Jets"]))
 
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 HION5ThinningHelper = ThinningHelper( "HION5ThinningHelper" )
@@ -181,7 +192,23 @@ if HIDerivationFlags.isSimulation() :
     thinningTools.append(HION5TruthGenTool)
 
 
-JetCollectionList = ['AntiKt2HIJets', 'AntiKt4HIJets', 'DFAntiKt2HIJets', 'DFAntiKt4HIJets', 'DFAntiKt8HIJets', 'AntiKt10HIJets','DFAntiKt10HIJets', 'AntiKt2HIJets_Seed1']
+JetCollectionList = ['AntiKt2HIJets', 'AntiKt4HIJets', 'DFAntiKt2HIJets', 'DFAntiKt4HIJets', 'DFAntiKt6HIJets', 'DFAntiKt8HIJets', 'AntiKt10HIJets', 'DFAntiKt10HIJets', 'AntiKt2HIJets_Seed1', 'AntiKt6TruthJets', 'AntiKt8TruthJets', 'AntiKt10TruthJets']
+
+#b-tagging
+extra_Bjets=[]
+if jobproperties.HIRecExampleFlags.doHIAODFix: extra_Bjets=['BTagging_DFAntiKt4HI']
+
+from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
+HION5SlimmingHelper = SlimmingHelper("HION5SlimmingHelper")
+
+for item in JetCollectionList :  
+    if not HION5SlimmingHelper.AppendToDictionary.has_key(item):
+        HION5SlimmingHelper.AppendToDictionary[item]='xAOD::JetContainer'
+        HION5SlimmingHelper.AppendToDictionary[item+"Aux"]='xAOD::JetAuxContainer'
+for item in extra_Bjets :  
+    if not HION5SlimmingHelper.AppendToDictionary.has_key(item):
+        HION5SlimmingHelper.AppendToDictionary[item]='xAOD::BTaggingContainer'
+        HION5SlimmingHelper.AppendToDictionary[item+"Aux"]='xAOD::BTaggingAuxContainer'
 
 ###############Augmentation#############
 HIGlobalAugmentationTool = addHIGlobalAugmentationTool('HION5',3,500)
@@ -203,9 +230,7 @@ configTrackMET(DerivationFrameworkJob,met_ptCutList)
 #====================================================================
 # CONTENT LIST
 #====================================================================
-# Add the required contents (offline)
-from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
-HION5SlimmingHelper = SlimmingHelper("HION5SlimmingHelper")
+# Add the remaning contents (offline)
 
 for item in JetCollectionList :  
     if not HION5SlimmingHelper.AppendToDictionary.has_key(item):
@@ -242,10 +267,23 @@ HION5SlimmingHelper.ExtraVariables += GSFTracksCPDetailedContent
 from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
 HION5SlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
 
+#b-tagging
+HION5SlimmingHelper.ExtraVariables.append("InDetTrackParticles.truthMatchProbability.x.y.z.vx.vy.vz")
+HION5SlimmingHelper.ExtraVariables.append("InDetTrackParticles.numberOfInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSharedHits")
+HION5SlimmingHelper.ExtraVariables.append("InDetTrackParticles.numberOfPixelSplitHits.numberOfInnermostPixelLayerSharedHits.numberOfContribPixelLayers.hitPattern.radiusOfFirstHit")
+HION5SlimmingHelper.ExtraVariables.append("InDetTrackParticles.is_selected.is_associated.is_svtrk_final.pt_wrtSV.eta_wrtSV.phi_wrtSV.d0_wrtSV.z0_wrtSV.errP_wrtSV.errd0_wrtSV.errz0_wrtSV.chi2_toSV")
+HION5SlimmingHelper.ExtraVariables.append("PrimaryVertices.neutralWeights.numberDoF.sumPt2.chiSquared.covariance.trackWeights")
+HION5SlimmingHelper.ExtraVariables.append("PrimaryVertices.x.y.trackParticleLinks.vertexType.neutralParticleLinks")
+HION5SlimmingHelper.ExtraVariables.append("ExtrapolatedMuonTrackParticles.vx.vy.vz")
+HION5SlimmingHelper.ExtraVariables.append("MuonSpectrometerTrackParticles.vx.vy.vz")
+HION5SlimmingHelper.ExtraVariables.append("CombinedMuonTrackParticles.vx.vy.vz")
+HION5SlimmingHelper.ExtraVariables.append("Muons.EnergyLoss.energyLossType")
+
 
 addMETOutputs(HION5SlimmingHelper,met_ptCutList)
 #HION5SlimmingHelper.AllVariables = ["AntiKt2HIJets","AntiKt4HIJets","AntiKt4HITrackJets","HIClusters"]
-HION5SlimmingHelper.AllVariables += ["AntiKt4HITrackJets"]
+HION5SlimmingHelper.AllVariables += ["AntiKt4HITrackJets","BTagging_"+MainJetCollection+"AntiKt4HI",MainJetCollection+"AntiKt4HIJets"]
+if (HasCollection("BTagging_AntiKt4HI") and jobproperties.HIRecExampleFlags.doHIAODFix) : HION5SlimmingHelper.AllVariables+=["BTagging_AntiKt4HI"]
 HION5SlimmingHelper.AllVariables += HIGlobalVars
 if HIDerivationFlags.isPPb(): HION5SlimmingHelper.AllVariables += ["HIEventShape", "ForwardElectrons", "ForwardElectronClusters"]
 if HIDerivationFlags.isSimulation() : HION5SlimmingHelper.AllVariables += ["AntiKt2TruthJets","AntiKt4TruthJets","AntiKt8TruthJets","AntiKt10TruthJets","egammaTruthParticles","TruthEvents","TruthVertices","TruthParticles"]
@@ -260,7 +298,7 @@ HION5SlimmingHelper.AppendContentToStream(HION5Stream)
 OtherContent = [
     'xAOD::EnergySumRoI#*',
     'xAOD::EnergySumRoIAuxInfo#*'
- ]
+]
 
 for item in OtherContent:
     HION5Stream.AddItem(item)

@@ -23,6 +23,13 @@ addJetRecoToAlgSequence(DerivationFrameworkJob,eventShapeTools=None)
 
 DFJetAlgs = {}
 
+from RecExConfig.ObjKeyStore import objKeyStore
+usingEVNT = False
+if objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ) or\
+   objKeyStore.isInInput( "McEventCollection", "TruthEvent"):
+    # We are running on either EVNT or HITS, and so should not run reco-related quantities
+    usingEVNT = True
+
 ##################################################################
 #                  Definitions of helper functions 
 ##################################################################
@@ -383,7 +390,89 @@ def addBottomUpSoftDropJets(jetalg, rsize, inputtype, beta=0, zcut=0.1, mods="gr
 
 
 ##################################################################
+def addStandardVRJets(inputtype, ptmin=0., ptminFilter=0.,
+                          VRMassScale=30000, VRmin=0.02, VRmax=0.4,
+                          mods="default", calibOpt="none", ghostArea=0.01,
+                          algseq=None, namesuffix="",
+                          outputGroup="CustomJets", customGetters=None, pretools = [], constmods = [],
+                          overwrite=False):
+    jetnamebase = "AntiKtVR{0}Rmax{1}Rmin0{2}{3}{4}".format(int(VRMassScale/1000), int(VRmax*10), int(VRmin*100),inputtype,namesuffix)
+    jetname = jetnamebase+"Jets"
+    algname = "jetalg"+jetnamebase
+    OutputJets.setdefault(outputGroup , [] ).append(jetname)
 
+    # return if the alg is already scheduled here :
+    from RecExConfig.AutoConfiguration import IsInInputFile
+    if algseq is None:
+        dfjetlog.warning( "No algsequence passed! Will not schedule "+algname )
+        return
+    elif IsInInputFile("xAOD::JetContainer",jetname) and not overwrite:
+        dfjetlog.warning( "Collection  "+jetname+" is already in input AOD!" )
+        return
+    elif algname in DFJetAlgs:
+        if hasattr(algseq,algname):
+            dfjetlog.warning( "Algsequence "+algseq.name()+" already has an instance of "+algname )
+        else:
+            dfjetlog.info( "Added "+algname+" to sequence "+algseq.name() )
+            algseq += DFJetAlgs[algname]
+        return DFJetAlgs[algname]
+
+    from JetRec.JetRecStandard import jtm
+    if not jetname in jtm.tools:
+        # no container exist. simply build a new one.
+        # Set default for the arguments to be passed to addJetFinder
+        defaultmods = {"EMTopo":"emtopo_ungroomed",
+                       "LCTopo":"lctopo_ungroomed",
+                       "EMPFlow":"pflow_ungroomed",
+                       "EMCPFlow":"pflow_ungroomed",
+                       "PFlowCustomVtx":"pflow_ungroomed",
+                       "Truth":"truth_ungroomed",
+                       "TruthWZ":"truth_ungroomed",
+                       "PV0Track":"track_ungroomed",
+                       "TrackCaloCluster":"tcc_ungroomed",
+                       "UFOCSSK":"tcc_ungroomed",
+                       "UFOCHS":"tcc_ungroomed",
+                       }
+        if mods=="default":
+            mods = defaultmods[inputtype] if inputtype in defaultmods else []
+        finderArgs = dict( modifiersin= mods, consumers = [])
+        finderArgs['ptmin'] = ptmin
+        finderArgs['ptminFilter'] = ptminFilter
+        finderArgs['ghostArea'] = ghostArea
+        finderArgs['variableRMinRadius'] = VRmin
+        finderArgs['variableRMassScale'] = VRMassScale
+        finderArgs['modifiersin'] = mods
+        finderArgs['calibOpt'] = calibOpt
+        dfjetlog.info("mods in:"+ str(finderArgs['modifiersin']))
+        if overwrite:
+            dfjetlog.info("Will overwrite AOD version of "+jetname)
+            finderArgs['overwrite']=True
+
+        #finderArgs.pop('modifiersin') # leave the default modifiers.
+    
+        # map the input to the jtm code for PseudoJetGetter
+        getterMap = dict( LCTopo = 'lctopo', EMTopo = 'emtopo', EMPFlow = 'empflow', EMCPFlow = 'emcpflow',
+                          Truth = 'truth',  TruthWZ = 'truthwz', TruthDressedWZ = 'truthdressedwz', TruthCharged = 'truthcharged', 
+                          PV0Track = 'pv0track', TrackCaloCluster = 'tcc', UFOCSSK = 'ufocssk', UFOCHS = 'ufochs' )
+
+        # set input pseudojet getter -- allows for custom getters
+        if customGetters is None:
+            inGetter = getterMap[inputtype]
+        else:
+            inGetter = customGetters
+
+        # create the finder for the temporary collection
+        finderTool = jtm.addJetFinder(jetname, "AntiKt", VRmax, inGetter, constmods=constmods,
+                                      **finderArgs   # pass the prepared arguments
+                                      )
+
+        from JetRec.JetRecConf import JetAlgorithm
+        alg = JetAlgorithm(algname, Tools = pretools+[finderTool])
+        dfjetlog.info( "Added "+algname+" to sequence "+algseq.name() )
+        algseq += alg
+        DFJetAlgs[algname] = alg;
+
+##################################################################
 def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
                     mods="default", calibOpt="none", ghostArea=0.01,
                     algseq=None, namesuffix="",
@@ -401,7 +490,7 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
         return
     elif IsInInputFile("xAOD::JetContainer",jetname) and not overwrite:
         dfjetlog.warning( "Collection  "+jetname+" is already in input AOD!" )
-        return        
+        return
     elif algname in DFJetAlgs:
         if hasattr(algseq,algname):
             dfjetlog.warning( "Algsequence "+algseq.name()+" already has an instance of "+algname )
@@ -413,7 +502,7 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
     from JetRec.JetRecStandard import jtm
     if not jetname in jtm.tools:
         # no container exist. simply build a new one.
-        # Set default for the arguments to be passd to addJetFinder
+        # Set default for the arguments to be passed to addJetFinder
         defaultmods = {"EMTopo":"emtopo_ungroomed",
                        "LCTopo":"lctopo_ungroomed",
                        "EMPFlow":"pflow_ungroomed",
@@ -488,11 +577,11 @@ def addBadBatmanFlag(sequence=DerivationFrameworkJob):
             if not batmanaugtool in batmanaug.AugmentationTools:
                 batmanaug.AugmentationTools.append(batmanaugtool)
         else:
-            if not objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
+            if not usingEVNT:
                 dfjetlog.warning('Could not schedule BadBatmanAugmentation (fine if running on EVNT)')
 
 # Run it by default if we are not running on EVNT
-if not objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
+if not usingEVNT:
     addBadBatmanFlag(DerivationFrameworkJob)
 ##################################################################
 
@@ -530,13 +619,37 @@ def addDistanceInTrain(sequence=DerivationFrameworkJob):
             distanceintrainaug.AugmentationTools.append(distanceintrainaugtool)
 
 # Run it by default if we are not running on EVNT
-if not objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
+if not usingEVNT:
     addDistanceInTrain(DerivationFrameworkJob)
 ##################################################################
 
+##################################################################
+# Helper to manually schedule PFO constituent modifications
+# Only use this while the automatic addition in JetAlgorithm.py
+# is disabled
+##################################################################
+def addCHSPFlowObjects():
+    # Only act if the collection does not already exist
+    from RecExConfig.AutoConfiguration import IsInInputFile
+    if not IsInInputFile("xAOD::PFOContainer","CHSParticleFlowObjects"):
+        # Check that an alg doing this has not already been inserted
+        from AthenaCommon.AlgSequence import AlgSequence
+        job = AlgSequence()
+        from JetRec.JetRecStandard import jtm
+        if not hasattr(job,"jetalgCHSPFlow") and not hasattr(jtm,"jetconstitCHSPFlow"):
+            from JetRec.JetRecConf import JetToolRunner
+            jtm += JetToolRunner("jetconstitCHSPFlow",
+                                 EventShapeTools=[],
+                                 Tools=[jtm.JetConstitSeq_PFlowCHS])
+            # Add this tool runner to the JetAlgorithm instance "jetalg"
+            # which runs all preparatory tools
+            # This was added by JetCommon
+            job.jetalg.Tools.append(jtm.jetconstitCHSPFlow)
+            dfjetlog.info("Added CHS PFlow sequence to \'jetalg\'")
+            dfjetlog.info(job.jetalg.Tools)
+
 # If we are not running on EVNT then add PFlow Rho for precision recommendations
-if not objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
-    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addCHSPFlowObjects
+if not usingEVNT:
     addCHSPFlowObjects()
     DerivationFrameworkJob += defineEDAlg(R=0.4, inputtype="EMPFlowPUSB")
 

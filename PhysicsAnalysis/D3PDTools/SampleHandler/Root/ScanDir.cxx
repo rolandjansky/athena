@@ -35,6 +35,7 @@ namespace SH
     : m_relSampleDepth (-2), m_absSampleDepth (0),
       m_minDepth (0), m_maxDepth (-1),
       m_filePattern (RCU::glob_to_regexp ("*.root*")),
+      m_directoryPattern (RCU::glob_to_regexp ("*")),
       m_samplePattern (RCU::glob_to_regexp ("*")),
       m_samplePostfix (RCU::glob_to_regexp ("")),
       m_samplePostfixEmpty (true),
@@ -103,6 +104,24 @@ namespace SH
   fileRegex (const std::string& val_fileRegex)
   {
     m_filePattern = val_fileRegex;
+    return *this;
+  }
+
+
+
+  ScanDir& ScanDir ::
+  directoryPattern (const std::string& val_directoryPattern)
+  {
+    m_directoryPattern = RCU::glob_to_regexp (val_directoryPattern);
+    return *this;
+  }
+
+
+
+  ScanDir& ScanDir ::
+  directoryRegex (const std::string& val_directoryRegex)
+  {
+    m_directoryPattern = val_directoryRegex;
     return *this;
   }
 
@@ -201,16 +220,19 @@ namespace SH
 
       if (sublist.get() != 0)
       {
-	if (hierarchy.size() <= m_maxDepth)
+	if (!RCU::match_expr (m_directoryPattern, list.fileName()))
+        {
+          ANA_MSG_DEBUG ("directory does not match pattern, skipping directory " << list.path());
+        } else if (hierarchy.size() > m_maxDepth)
+        {
+          ANA_MSG_DEBUG ("maxDepth exceeded, skipping directory " << list.path());
+        } else
 	{
           ANA_MSG_DEBUG ("descending into directory " << list.path());
 	  std::vector<std::string> subhierarchy = hierarchy;
 	  subhierarchy.push_back (list.fileName());
 	  recurse (samples, *sublist, subhierarchy);
-	} else
-        {
-          ANA_MSG_DEBUG ("maxDepth exceeded, skipping directory " << list.path());
-        }
+	}
       } else
       {
 	if (hierarchy.size() > m_minDepth &&

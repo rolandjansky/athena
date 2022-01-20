@@ -8,4 +8,8 @@
    <class name="asg::AsgComponentConfig" />
    <class name="asg::AsgToolConfig" />
 
+   <class name="tuple<asg::AsgToolConfig,string>" />
+   <class name="std::map<std::string,std::tuple<asg::AsgToolConfig,std::string>>" />
+   <class name="std::map<std::string,std::vector<std::string>>" />
+
 </lcgdict>

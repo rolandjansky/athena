@@ -87,44 +87,21 @@ namespace EL
 
 
 
-  void Driver ::
+  std::string Driver ::
   submit (const Job& job, const std::string& location) const
   {
     // no invariant used
 
-    std::string actualLocation;
-    submit (job, location, actualLocation);
-  }
-
-
-
-  void Driver ::
-  submit (const Job& job, const std::string& location,
-          std::string& actualLocation) const
-  {
-    // no invariant used
-
-    submitOnly (job, location, actualLocation);
+    std::string actualLocation = submitOnly (job, location);
     ANA_MSG_DEBUG ("wait on: " << actualLocation);
     wait (actualLocation);
+    return actualLocation;
   }
 
 
 
-  void Driver ::
+  std::string Driver ::
   submitOnly (const Job& job, const std::string& location) const
-  {
-    // no invariant used
-
-    std::string actualLocation;
-    submitOnly (job, location, actualLocation);
-  }
-
-
-
-  void Driver ::
-  submitOnly (const Job& job, const std::string& location,
-              std::string& actualLocation) const
   {
     RCU_READ_INVARIANT (this);
 
@@ -140,7 +117,7 @@ namespace EL
     data.job = &myjob;
     if (data.run().isFailure())
       throw std::runtime_error ("failed to submit job");
-    actualLocation = data.submitDir;
+    return data.submitDir;
   }
 
 

@@ -82,72 +82,31 @@ namespace CP {
             return StatusCode::FAILURE;
         }
         if (m_useRndRun) ATH_MSG_INFO("The assignment of the calibration tools will be based on the random run number. Please make sure to call the pileup-tool before applying this tool");
-        bool statComb1516(false), sagittaCorr1516(false),sagittaMCDistortion1516(false), sagittaCorrPhaseSpace1516(false), do2StationsHighPt1516(m_do2StationsHighPt), doExtraSmearing1516(m_doExtraSmearing);
-        bool statComb17(false), sagittaCorr17(false), sagittaMCDistortion17(false), sagittaCorrPhaseSpace17(false), do2StationsHighPt17(m_do2StationsHighPt), doExtraSmearing17(m_doExtraSmearing);
-        bool statComb18(false), sagittaCorr18(false), sagittaMCDistortion18(false), sagittaCorrPhaseSpace18(false), do2StationsHighPt18(m_do2StationsHighPt), doExtraSmearing18(m_doExtraSmearing);
-        float SagittaIterWeight1516(m_SagittaIterWeight), SagittaIterWeight17(m_SagittaIterWeight), SagittaIterWeight18(m_SagittaIterWeight);
         
-        if (m_calib_mode == MuonCalibrationPeriodTool::correctData){
-            ATH_MSG_INFO("Data will be corrected for sagitta bias which (recommended setup 1)");
-            statComb1516 = false;
-            sagittaCorr1516 = true;
-            sagittaMCDistortion1516 = false;
-            sagittaCorrPhaseSpace1516 = true;
-            
-            statComb17 = false;
-            sagittaCorr17 = true;
-            sagittaMCDistortion17 = false;
-            sagittaCorrPhaseSpace17 = true;
-            
-            statComb18 = false;
-            sagittaCorr18 = true;
-            sagittaMCDistortion18 = false;
-            sagittaCorrPhaseSpace18 = true;
-        }  else if (m_calib_mode == MuonCalibrationPeriodTool::additionalMCsys){
-            ATH_MSG_INFO("Data will be untouched. Instead an additional systematic will be added (recommended setup 2)");
-            statComb1516 = false;
-            sagittaCorr1516 = false;
-            sagittaMCDistortion1516 = true;
-            sagittaCorrPhaseSpace1516 = false;
-            
-            statComb17 = false;
-            sagittaCorr17 = false;
-            sagittaMCDistortion17 = true;
-            sagittaCorrPhaseSpace17 = false;
-            
-            statComb18 = false;
-            sagittaCorr18 = false;
-            sagittaMCDistortion18 = true;
-            sagittaCorrPhaseSpace18 = false; 
-        } else if (m_calib_mode == MuonCalibrationPeriodTool::expert){
-          ATH_MSG_INFO("You've choosen the expert mode and overwrite each property for yourself.");
-            statComb1516 = m_StatComb1516;
-            sagittaCorr1516 = m_SagittaCorr1516;
-            sagittaMCDistortion1516 = m_SagittaMCDistortion1516;
-            sagittaCorrPhaseSpace1516 = m_SagittaCorrPhaseSpace1516;
-            do2StationsHighPt1516 = m_do2StationsHighPt1516;
-            doExtraSmearing1516 = m_doExtraSmearing1516;
-            SagittaIterWeight1516 = m_SagittaIterWeight1516;
-            
-            statComb17 = m_StatComb17;
-            sagittaCorr17 = m_SagittaCorr17;
-            sagittaMCDistortion17 = m_SagittaMCDistortion17;
-            sagittaCorrPhaseSpace17 = m_SagittaCorrPhaseSpace17;
-            do2StationsHighPt17 = m_do2StationsHighPt17;
-            doExtraSmearing17 = m_doExtraSmearing17;
-            SagittaIterWeight17 = m_SagittaIterWeight17;
-            
-            statComb18 = m_StatComb18;
-            sagittaCorr18 = m_SagittaCorr18;
-            sagittaMCDistortion18 = m_SagittaMCDistortion18;
-            sagittaCorrPhaseSpace18 = m_SagittaCorrPhaseSpace18;
-            do2StationsHighPt18 = m_do2StationsHighPt18;
-            doExtraSmearing18 = m_doExtraSmearing18;
-            SagittaIterWeight18 = m_SagittaIterWeight18;
-        
-        } else{
-            ATH_MSG_FATAL("Invalid  calibration mode: "<<m_calib_mode<<" Allowed modes are correctData("<<MuonCalibrationPeriodTool::correctData
-                            <<") additionalMCsys ("<<MuonCalibrationPeriodTool::additionalMCsys<<") or expert ("<<MuonCalibrationPeriodTool::expert<<")");
+        bool doDirectCBCalib(false);
+        bool SagittaCorr(false);
+        bool doSagittaMCDistortion(false);
+
+
+        if (m_calib_mode == MuonCalibrationPeriodTool::correctData_CB){
+            ATH_MSG_INFO("Data will be corrected for sagitta bias with CB calibration");
+            doDirectCBCalib = true;
+            SagittaCorr     = true;
+
+        }  else if (m_calib_mode == MuonCalibrationPeriodTool::correctData_IDMS){
+            ATH_MSG_INFO("Data will be corrected for sagitta bias with ID+MS calibration");
+            doDirectCBCalib = false;
+            SagittaCorr     = true;
+        } 
+        else if (m_calib_mode == MuonCalibrationPeriodTool::notCorrectData_IDMS){
+            ATH_MSG_INFO("Data will be untouched. Instead an additional systematic will be added with ID+MS calibration");
+            doDirectCBCalib = false;
+            SagittaCorr     = false;
+            doSagittaMCDistortion = true;
+        }
+        else{
+            ATH_MSG_FATAL("Invalid  calibration mode: "<<m_calib_mode<<" Allowed modes are correctData_CB("<<MuonCalibrationPeriodTool::correctData_CB
+                            <<") correctData_IDMS ("<<MuonCalibrationPeriodTool::correctData_IDMS<<") or notCorrectData_IDMS ("<<MuonCalibrationPeriodTool::notCorrectData_IDMS<<")");
             return StatusCode::FAILURE;
         }
         
@@ -156,42 +115,36 @@ namespace CP {
             m_calibTool_1516.setTypeAndName("CP::MuonCalibrationAndSmearingTool/"+name()+"_1516");
             ATH_CHECK(m_calibTool_1516.setProperty("Year", "Data16"));
             ATH_CHECK(m_calibTool_1516.setProperty("Release", m_release));
-            ATH_CHECK(m_calibTool_1516.setProperty("SagittaRelease", m_sagittaRelease1516));
-            ATH_CHECK(m_calibTool_1516.setProperty("StatComb", statComb1516));
-            ATH_CHECK(m_calibTool_1516.setProperty("SagittaCorr", sagittaCorr1516));
-            ATH_CHECK(m_calibTool_1516.setProperty("doSagittaMCDistortion", sagittaMCDistortion1516));
-            ATH_CHECK(m_calibTool_1516.setProperty("SagittaCorrPhaseSpace", sagittaCorrPhaseSpace1516));
-            ATH_CHECK(m_calibTool_1516.setProperty("do2StationsHighPt", do2StationsHighPt1516));
-            ATH_CHECK(m_calibTool_1516.setProperty("doExtraSmearing", doExtraSmearing1516));
-            ATH_CHECK(m_calibTool_1516.setProperty("SagittaIterWeight", SagittaIterWeight1516));
+            ATH_CHECK(m_calibTool_1516.setProperty("SagittaRelease", m_sagittaRelease));
+            ATH_CHECK(m_calibTool_1516.setProperty("do2StationsHighPt", m_do2StationsHighPt));
+            ATH_CHECK(m_calibTool_1516.setProperty("doExtraSmearing", m_doExtraSmearing));
+            ATH_CHECK(m_calibTool_1516.setProperty("doDirectCBCalib", doDirectCBCalib));
+            ATH_CHECK(m_calibTool_1516.setProperty("SagittaCorr", SagittaCorr));
+            ATH_CHECK(m_calibTool_1516.setProperty("doSagittaMCDistortion", doSagittaMCDistortion));
         }
         if (!m_calibTool_17.isUserConfigured()){
             ATH_MSG_INFO("Setup the MuonMomentum calibration tool for 2017 & mc16c/d");
             m_calibTool_17.setTypeAndName("CP::MuonCalibrationAndSmearingTool/"+name()+"_17");
             ATH_CHECK(m_calibTool_17.setProperty("Year", "Data17"));
             ATH_CHECK(m_calibTool_17.setProperty("Release", m_release));
-            ATH_CHECK(m_calibTool_17.setProperty("SagittaRelease", m_sagittaRelease17));
-            ATH_CHECK(m_calibTool_17.setProperty("StatComb", statComb17));
-            ATH_CHECK(m_calibTool_17.setProperty("SagittaCorr", sagittaCorr17));
-            ATH_CHECK(m_calibTool_17.setProperty("doSagittaMCDistortion", sagittaMCDistortion17));
-            ATH_CHECK(m_calibTool_17.setProperty("SagittaCorrPhaseSpace", sagittaCorrPhaseSpace17));
-            ATH_CHECK(m_calibTool_17.setProperty("do2StationsHighPt", do2StationsHighPt17));
-            ATH_CHECK(m_calibTool_17.setProperty("doExtraSmearing", doExtraSmearing17));
-            ATH_CHECK(m_calibTool_17.setProperty("SagittaIterWeight", SagittaIterWeight17));
+            ATH_CHECK(m_calibTool_17.setProperty("SagittaRelease", m_sagittaRelease));
+            ATH_CHECK(m_calibTool_17.setProperty("do2StationsHighPt", m_do2StationsHighPt));
+            ATH_CHECK(m_calibTool_17.setProperty("doExtraSmearing", m_doExtraSmearing));
+            ATH_CHECK(m_calibTool_17.setProperty("doDirectCBCalib", doDirectCBCalib));
+            ATH_CHECK(m_calibTool_17.setProperty("SagittaCorr", SagittaCorr));
+            ATH_CHECK(m_calibTool_17.setProperty("doSagittaMCDistortion", doSagittaMCDistortion));
         }
         if (!m_calibTool_18.isUserConfigured()){
             ATH_MSG_INFO("Setup the MuonMomentum calibration tool for 2018 & mc16e");
             m_calibTool_18.setTypeAndName("CP::MuonCalibrationAndSmearingTool/"+name()+"_18");
             ATH_CHECK(m_calibTool_18.setProperty("Year", "Data18"));
             ATH_CHECK(m_calibTool_18.setProperty("Release", m_release));
-            ATH_CHECK(m_calibTool_18.setProperty("SagittaRelease", m_sagittaRelease18));
-            ATH_CHECK(m_calibTool_18.setProperty("StatComb", statComb18));
-            ATH_CHECK(m_calibTool_18.setProperty("SagittaCorr", sagittaCorr18));
-            ATH_CHECK(m_calibTool_18.setProperty("doSagittaMCDistortion", sagittaMCDistortion18));
-            ATH_CHECK(m_calibTool_18.setProperty("SagittaCorrPhaseSpace", sagittaCorrPhaseSpace18));
-            ATH_CHECK(m_calibTool_18.setProperty("do2StationsHighPt", do2StationsHighPt18));
-            ATH_CHECK(m_calibTool_18.setProperty("doExtraSmearing", doExtraSmearing18));
-            ATH_CHECK(m_calibTool_18.setProperty("SagittaIterWeight", SagittaIterWeight18));
+            ATH_CHECK(m_calibTool_18.setProperty("SagittaRelease", m_sagittaRelease));
+            ATH_CHECK(m_calibTool_18.setProperty("do2StationsHighPt", m_do2StationsHighPt));
+            ATH_CHECK(m_calibTool_18.setProperty("doExtraSmearing", m_doExtraSmearing));
+            ATH_CHECK(m_calibTool_18.setProperty("doDirectCBCalib", doDirectCBCalib));
+            ATH_CHECK(m_calibTool_18.setProperty("SagittaCorr", SagittaCorr));
+            ATH_CHECK(m_calibTool_18.setProperty("doSagittaMCDistortion", doSagittaMCDistortion));
         }
         
         ATH_CHECK(m_calibTool_1516.retrieve());
@@ -207,39 +160,12 @@ namespace CP {
         m_calibTool_18(),
         m_activeTool(nullptr),
         m_evInfo(nullptr),
-        m_sagittaRelease1516("sagittaBiasDataAll_03_02_19_Data16"),
-        m_sagittaRelease17("sagittaBiasDataAll_03_02_19_Data17"),
-        m_sagittaRelease18("sagittaBiasDataAll_03_02_19_Data18"),
-        m_release("Recs2020_03_03"),
+        m_sagittaRelease("sagittaBiasDataAll_15_09_2021"),
+        m_release("Recs2021_12_11"),
         m_do2StationsHighPt(false),
         m_doExtraSmearing(false),
-        m_SagittaIterWeight(0.5),
 
-        m_calib_mode(CalibMode::additionalMCsys),
-        m_StatComb1516(false),
-        m_SagittaCorr1516(true),
-        m_SagittaMCDistortion1516(false),
-        m_SagittaCorrPhaseSpace1516(true),
-        m_do2StationsHighPt1516(false),
-        m_doExtraSmearing1516(false),
-        m_SagittaIterWeight1516(0.5),
-
-        
-        m_StatComb17(false),
-        m_SagittaCorr17(true),
-        m_SagittaMCDistortion17(false),
-        m_SagittaCorrPhaseSpace17(true),        
-        m_do2StationsHighPt17(false),
-        m_doExtraSmearing17(false),
-        m_SagittaIterWeight17(0.5),
-        
-        m_StatComb18(false),
-        m_SagittaCorr18(false),
-        m_SagittaMCDistortion18(true),
-        m_SagittaCorrPhaseSpace18(true),
-        m_do2StationsHighPt18(false),
-        m_doExtraSmearing18(false),
-        m_SagittaIterWeight18(0.5),
+        m_calib_mode(CalibMode::noOption),
         
         m_MCperiods1516(),
         m_MCperiods17(),
@@ -252,37 +178,11 @@ namespace CP {
         declareProperty("calibrationMode", m_calib_mode);
         
         // Properties to configure the subtools -- expert only
-        declareProperty("SagittaRelease1516", m_sagittaRelease1516);
-        declareProperty("SagittaRelease17", m_sagittaRelease17);
-        declareProperty("SagittaRelease18", m_sagittaRelease18);
+        declareProperty("SagittaRelease", m_sagittaRelease);
         declareProperty("Release", m_release);
         declareProperty("do2StationsHighPt", m_do2StationsHighPt);
         declareProperty("doExtraSmearing", m_doExtraSmearing);
-        declareProperty("SagittaIterWeight", m_SagittaIterWeight);
 
-        declareProperty("StatComb1516", m_StatComb1516);
-        declareProperty("SagittaCorr1516", m_SagittaCorr1516);
-        declareProperty("doSagittaMCDistortion1516", m_SagittaMCDistortion1516);
-        declareProperty("SagittaCorrPhaseSpace1516", m_SagittaCorrPhaseSpace1516);
-        declareProperty("do2StationsHighPt1516", m_do2StationsHighPt1516);
-        declareProperty("doExtraSmearing1516", m_doExtraSmearing1516);
-        declareProperty("SagittaIterWeight1516", m_SagittaIterWeight1516);
-
-        declareProperty("StatComb17", m_StatComb17);
-        declareProperty("SagittaCorr17", m_SagittaCorr17);
-        declareProperty("doSagittaMCDistortion17", m_SagittaMCDistortion17);
-        declareProperty("SagittaCorrPhaseSpace17", m_SagittaCorrPhaseSpace17);
-        declareProperty("do2StationsHighPt17", m_do2StationsHighPt17);
-        declareProperty("doExtraSmearing17", m_doExtraSmearing17);
-        declareProperty("SagittaIterWeight17", m_SagittaIterWeight17);
-        
-        declareProperty("StatComb18", m_StatComb18);
-        declareProperty("SagittaCorr18", m_SagittaCorr18);
-        declareProperty("doSagittaMCDistortion18", m_SagittaMCDistortion18);
-        declareProperty("SagittaCorrPhaseSpace18", m_SagittaCorrPhaseSpace18);
-        declareProperty("do2StationsHighPt18", m_do2StationsHighPt18);
-        declareProperty("doExtraSmearing18", m_doExtraSmearing18);
-        declareProperty("SagittaIterWeight18", m_SagittaIterWeight18);
         
         declareProperty("MCperiods1516", m_MCperiods1516 = {284500});
         declareProperty("MCperiods17", m_MCperiods17 = {300000, 304000, 305000});

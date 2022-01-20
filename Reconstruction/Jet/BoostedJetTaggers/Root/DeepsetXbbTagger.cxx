@@ -609,7 +609,7 @@ namespace Dexter {
         track_ip3d_signed_z0_significance(*track) = m_track_augmenter->get_signed_ip(*track, subjet).ip3d_signed_z0_significance;
         track_deltaEta(*track) = std::abs(track->p4().Eta() - subjet.p4().Eta());
         track_deltaPhi(*track) = std::abs(track->p4().DeltaPhi(subjet.p4())); 
-        track_pTfrac(*track) = track->pt()/jet.pt();
+        track_pTfrac(*track) = std::log(track->pt()/jet.pt());
       }
 
       tracks.insert(tracks.end(), temp_tracks.begin(), temp_tracks.end());

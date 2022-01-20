@@ -42,23 +42,6 @@ STDM11ThinningHelper = ThinningHelper( "STDM11ThinningHelper" )
 STDM11ThinningHelper.TriggerChains = 'HLT_j.*|HLT_ht.*'
 STDM11ThinningHelper.AppendToStream( STDM11Stream )
 
-
-#====================================================================
-# Thin TruthParticles for truth jet constituents
-#====================================================================
-
-
-if DerivationFrameworkHasTruth:
-  from DerivationFrameworkJetEtMiss.DerivationFrameworkJetEtMissConf import DerivationFramework__ViewContainerThinning
-  STDM11TruthJetInputThin = DerivationFramework__ViewContainerThinning( name = "STDM11ViewContThinning",
-                                                                        ThinningService        = STDM11ThinningHelper.ThinningSvc(),
-                                                                        SourceContainer = "TruthParticles",
-                                                                        ViewContainer = "JetInputTruthParticles",
-                                                                        ParticleType = 201, # truthParticles
-                                                                        ApplyAnd = False)
-
-  ToolSvc += STDM11TruthJetInputThin
-  thinningTools.append(STDM11TruthJetInputThin)
   
 #########################################
 # Tracks associated with jets
@@ -109,7 +92,7 @@ thinningTools.append(STDM11Akt4PFlowJetTPThinningTool)
 #====================================================================
 # SKIMMING TOOL 
 #====================================================================
-triggers = ["HLT_noalg_mb_L1J12","HLT_mb_sptrk","HLT_j0_perf_L1RD0_FILLED","HLT_j15","HLT_j25","HLT_j35","HLT_j45","HLT_j55","HLT_j60","HLT_j85","HLT_j100","HLT_j110","HLT_j150","HLT_j175","HLT_j200","HLT_j260","HLT_j300","HLT_j320","HLT_j360","HLT_j380","HLT_j400","HLT_j420","HLT_j440","HLT_j450","HLT_j460","HLT_j420_320eta490","HLT_j400_320eta490","HLT_j380_320eta490","HLT_j260_320eta490","HLT_j200_320eta490","HLT_j175_320eta490","HLT_j150_320eta490","HLT_j110_320eta490","HLT_j85_320eta490","HLT_j60_320eta490","HLT_j55_320eta490","HLT_j45_320eta490","HLT_j35_320eta490","HLT_j25_320eta490","HLT_j15_320eta490"]
+triggers = ["HLT_noalg_mb_L1J12","HLT_mb_sptrk","HLT_j0_perf_L1RD0_FILLED","HLT_j45_L1RD0FILLED","HLT_j60_L1RD0FILLED","HLT_j15","HLT_j25","HLT_j35","HLT_j45","HLT_j55","HLT_j60","HLT_j85","HLT_j100","HLT_j110","HLT_j150","HLT_j175","HLT_j200","HLT_j260","HLT_j300","HLT_j320","HLT_j360","HLT_j380","HLT_j400","HLT_j420","HLT_j440","HLT_j450","HLT_j460","HLT_j420_320eta490","HLT_j400_320eta490","HLT_j380_320eta490","HLT_j260_320eta490","HLT_j200_320eta490","HLT_j175_320eta490","HLT_j150_320eta490","HLT_j110_320eta490","HLT_j85_320eta490","HLT_j60_320eta490","HLT_j55_320eta490","HLT_j45_320eta490","HLT_j35_320eta490","HLT_j25_320eta490","HLT_j15_320eta490"]
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
@@ -177,7 +160,9 @@ STDM11SlimmingHelper.ExtraVariables += ["InDetTrackParticles.truthMatchProbabili
 
 #STDM11SlimmingHelper.ExtraVariables += ["TruthParticles.px.py.pz.e.m.phi.pdgId.status.barcode"]
 
-STDM11SlimmingHelper.AllVariables = ["TruthEvents", "TruthParticles"]
+STDM11SlimmingHelper.AllVariables = [ "AFPSiHitContainer", "AFPToFHitContainer"]
+
+STDM11SlimmingHelper.AllVariables += ["TruthEvents", "TruthParticles"]
 
 
 addJetOutputs(STDM11SlimmingHelper,["STDM11","STDM11Jets"])

@@ -76,6 +76,7 @@ namespace Rec {
     std::string m_caloEntryMapName;
     double      m_coneSize;
     bool        m_useCovariance;
+    bool        m_useDetectorEta;
 
   };
 

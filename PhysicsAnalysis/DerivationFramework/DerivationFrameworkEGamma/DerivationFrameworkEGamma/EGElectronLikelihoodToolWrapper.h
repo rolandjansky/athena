@@ -6,8 +6,8 @@
 // EGLikelihoodToolWrapper.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 // Author: Giovanni Marchiori (giovanni.marchiori@cern.ch)
-// Note: while EGSelectionToolWrapper permits to only store the boolean 
-// accept and the isEM-like mask (works for both isEM and likelihood selectors), 
+// Note: while EGSelectionToolWrapper permits to only store the boolean
+// accept and the isEM-like mask (works for both isEM and likelihood selectors),
 // this tool (EGElectronLikelihoodToolWrapper) allows also to store
 // the double TResult output (i.e. the value of the likelihood or the ECIDS BDT)
 // if StoreTResult is set to true. Otherwise one can simply use the other tool.
@@ -28,7 +28,7 @@
 namespace DerivationFramework {
 
   class EGElectronLikelihoodToolWrapper : public AthAlgTool, public IAugmentationTool {
-    public: 
+    public:
       EGElectronLikelihoodToolWrapper(const std::string& t, const std::string& n, const IInterface* p);
 
       StatusCode initialize();
@@ -42,7 +42,8 @@ namespace DerivationFramework {
       std::string m_sgName;
       std::string m_containerName;
       bool m_storeTResult;
-  }; 
+      std::vector<std::string> m_sgMultipleNames;
+  };
 }
 
 #endif // DERIVATIONFRAMEWORK_EGELECTRONLIKELIHOODTOOLWRAPPER_H

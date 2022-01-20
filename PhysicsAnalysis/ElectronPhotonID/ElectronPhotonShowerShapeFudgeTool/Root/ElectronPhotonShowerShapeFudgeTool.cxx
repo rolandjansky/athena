@@ -66,7 +66,8 @@ StatusCode ElectronPhotonShowerShapeFudgeTool::initialize()
     return StatusCode::FAILURE ;
   }
   std::string configFile = PathResolverFindCalibFile(m_configFile);
-  TEnv env(configFile.c_str());
+  TEnv env;
+  env.ReadFile(configFile.c_str(), kEnvLocal);
 
   m_el_rootTool->Shifts[ElePIDNames::Var::DeltaPoverP] = GetFloatVector("shift_DeltaPoverP", env);
   m_el_rootTool->Shifts[ElePIDNames::Var::TRTHighTOutliersRatio] = GetFloatVector("shift_TRTHighTOutliersRatio", env);

@@ -9,6 +9,7 @@
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
 #include "FlavorTagDiscriminants/BTagTrackAugmenter.h"
+#include "ParticleJetTools/ParticleJetLabelCommon.h"
 
 
 namespace DerivationFramework {
@@ -44,7 +45,10 @@ ExKtbbAugmentation::ExKtbbAugmentation(const std::string& t, const std::string& 
   jet_dexter_pbb_negtrksflip_svmassflip("ExKtbb_dexter_pbb_negtrksflip_svmassflip"),
   jet_dexter_pb_negtrksflip_svmassflip("ExKtbb_dexter_pb_negtrksflip_svmassflip"),
   jet_dexter_pl_negtrksflip_svmassflip("ExKtbb_dexter_pl_negtrksflip_svmassflip"),
-  smalljet_largeJetLabel("LargeJetLabel")
+  smalljet_largeJetLabel("LargeJetLabel"),
+  jet_dexter_ghostBhadronCount("dexter_GhostBHadronsCount"),
+  jet_dexter_ghostChadronCount("dexter_GhostCHadronsCount"),
+  jet_dexter_TruthLabel("dexter_TruthLabel")
 {
 
     declareInterface<DerivationFramework::IAugmentationTool>(this);
@@ -81,6 +85,33 @@ StatusCode ExKtbbAugmentation::finalize(){
 
   return StatusCode::SUCCESS;
 
+}
+
+int ExKtbbAugmentation::getDeXTerLabel(const int ghostBFinalCount,const int ghostCFinalCount) const
+{
+
+  int jet_flavor = 0;
+  // jet flavor label
+  // 55 - bb: nb >= 2               bb bbb bbc bbl...
+  // 54 - bc: nb = 1 && nc >= 1      bc bcc bcl
+  // 5  - b : nb = 1 && nc = 0      b bl bll
+  // 44 - cc: nb = 0 && nc >= 2     cc ccc ccl...
+  // 4  - c : nb = 0 && nc = 1      c cl cll
+  // 0  - l : nb = 0 && nc = 0      light
+  if (ghostBFinalCount >= 2)
+    jet_flavor = 55;
+  else if (ghostBFinalCount == 1 && ghostCFinalCount >= 1)
+    jet_flavor = 54;
+  else if (ghostBFinalCount == 1 && ghostCFinalCount == 0)
+    jet_flavor = 5;
+  else if (ghostBFinalCount == 0 && ghostCFinalCount >= 2)
+    jet_flavor = 44;
+  else if (ghostBFinalCount == 0 && ghostCFinalCount == 1)
+    jet_flavor = 4;
+  else if (ghostBFinalCount == 0 && ghostCFinalCount == 0)
+    jet_flavor = 0;
+
+  return jet_flavor;
 }
 
 
@@ -129,6 +160,9 @@ StatusCode ExKtbbAugmentation::addBranches() const{
 
   for (const auto jet : *jets) {
 
+    std::vector<const xAOD::TruthParticle *> jetlabelpartsb;
+    std::vector<const xAOD::TruthParticle *> jetlabelpartsc;    
+
     auto constVector = jet->constituentLinks();
     for (auto constituent : constVector)
       smalljet_largeJetLabel(*smalljets->at(constituent.index())) = jet->index();
@@ -149,6 +183,24 @@ StatusCode ExKtbbAugmentation::addBranches() const{
           ATH_MSG_ERROR("Empty pointer to track subjet! You will crash soon...");
 	  return StatusCode::FAILURE;
         } else {
+          // Add Truth hadron labeling to jets
+          if(m_isMC){
+            const auto& b_links = subjet->auxdata<std::vector<ElementLink<xAOD::IParticleContainer> > >("GhostBHadronsFinal");
+            const auto& c_links = subjet->auxdata<std::vector<ElementLink<xAOD::IParticleContainer> > >("GhostCHadronsFinal");
+            for (const auto &b_el : b_links)
+            {
+              const auto *bhadron = dynamic_cast<const xAOD::TruthParticle *>(*b_el);
+              if (bhadron->p4().DeltaR(subjet->p4()) < 0.3)
+                jetlabelpartsb.push_back(bhadron);
+            }
+            for (const auto &c_el : c_links)
+            {
+              const auto *chadron = dynamic_cast<const xAOD::TruthParticle *>(*c_el);
+              if (chadron->p4().DeltaR(subjet->p4()) < 0.3)
+                jetlabelpartsc.push_back(chadron);
+            }
+          }
+          // For track sd0      
 	  auto constVector = subjet->getConstituents();
 	  std::vector<double> sd0;
 	  for (const auto constituent : constVector) {
@@ -185,6 +237,19 @@ StatusCode ExKtbbAugmentation::addBranches() const{
           ExKtSubjets.push_back(subjet);
         }
       }
+    }
+    if(m_isMC){
+      using ParticleJetTools::childrenRemoved;
+      childrenRemoved(jetlabelpartsb, jetlabelpartsb);
+      childrenRemoved(jetlabelpartsb, jetlabelpartsc);
+      childrenRemoved(jetlabelpartsc, jetlabelpartsc);    
+      int ghostBTotalCount = jetlabelpartsb.size();
+      int ghostCTotalCount = jetlabelpartsc.size();
+
+      jet_dexter_ghostBhadronCount(*jet) = ghostBTotalCount;
+      jet_dexter_ghostChadronCount(*jet) = ghostCTotalCount;
+
+      jet_dexter_TruthLabel(*jet) = getDeXTerLabel(ghostBTotalCount, ghostCTotalCount);
     }
 
     ATH_MSG_VERBOSE("Adding DexTer scores to AntiKt8 jets");

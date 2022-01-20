@@ -27,6 +27,7 @@
 
 // CP Tool include(s):
 #include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonEfficiencyCorrectionTool.h"
 #include "MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h"
 #include "TriggerAnalysisInterfaces/ITrigGlobalEfficiencyCorrectionTool.h"
 
@@ -61,6 +62,7 @@ namespace top {
 
     std::vector<ToolHandle<IAsgElectronEfficiencyCorrectionTool> > m_electronTools;
     std::vector<ToolHandle<CP::IMuonTriggerScaleFactors> > m_muonTools;
+    std::vector<ToolHandle<IAsgPhotonEfficiencyCorrectionTool> > m_photonTools;
 
     std::string m_decor_triggerSF;
   };

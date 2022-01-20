@@ -163,7 +163,7 @@ from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorat
 EGAM2_GainDecoratorTool = GainDecorator()
 ToolSvc += EGAM2_GainDecoratorTool
 
-cluster_sizes = (3,5), (5,7), (7,7), (7,11)
+cluster_sizes = (3,7), (5,5), (7,11)
 EGAM2_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(neta, nphi)() for neta, nphi in cluster_sizes]
 
 

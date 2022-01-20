@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef TOPCPTOOLS_TOPJETMETCPTOOLS_H_
@@ -19,6 +19,7 @@
 // Jet include(s):
 #include "JetCalibTools/IJetCalibrationTool.h"
 #include "JetCPInterfaces/ICPJetUncertaintiesTool.h"
+#include "JetCPInterfaces/ICPJetCorrectionTool.h"
 #include "JetInterface/IJetUpdateJvt.h"
 #include "JetInterface/IJetSelector.h"
 #include "JetInterface/IJetModifier.h"
@@ -28,6 +29,8 @@
 // MET include(s):
 #include "METInterface/IMETMaker.h"
 #include "METInterface/IMETSystematicsTool.h"
+#include "METInterface/IMETSignificance.h"
+
 
 namespace top {
   class TopConfig;
@@ -50,25 +53,43 @@ namespace top {
     std::string m_jetAntiKt4_MCFS_ConfigFile;
     std::string m_jetAntiKt4_MCFS_CalibSequence;
 
+    // small-R calibration with jet mass calibration included
+    std::string m_jetAntiKt4_Data_JMS_ConfigFile;
+    std::string m_jetAntiKt4_Data_JMS_CalibSequence;
+
+    // only for fullsim, AFII not supported
+    std::string m_jetAntiKt4_MCFS_JMS_ConfigFile;
+    std::string m_jetAntiKt4_MCFS_JMS_CalibSequence;
+
     std::string m_jetAntiKt4_MCAFII_ConfigFile;
     std::string m_jetAntiKt4_MCAFII_CalibSequence;
 
     std::string m_jetAntiKt4_MCAFII_PFlow_ConfigFile;
     std::string m_jetAntiKt4_MCAFII_PFlow_CalibSequence;
 
+    std::string m_jetAntiKt4_Data_PFlow_ConfigFile;
+    std::string m_jetAntiKt4_Data_PFlow_CalibSequence;
+
     std::string m_jetAntiKt4_PFlow_MCFS_ConfigFile;
     std::string m_jetAntiKt4_PFlow_MCFS_CalibSequence;
 
-    std::string m_jetAntiKt4_Data_PFlow_ConfigFile;
-    std::string m_jetAntiKt4_Data_PFlow_CalibSequence;
+    // small-R calibration with jet mass calibration included
+    std::string m_jetAntiKt4_Data_PFlow_JMS_ConfigFile;
+    std::string m_jetAntiKt4_Data_PFlow_JMS_CalibSequence;
+
+    // only for fullsim, AFII not supported
+    std::string m_jetAntiKt4_PFlow_MCFS_JMS_ConfigFile;
+    std::string m_jetAntiKt4_PFlow_MCFS_JMS_CalibSequence;
 
     ToolHandle<IJetCalibrationTool> m_jetCalibrationTool;
     ToolHandle<IJetCalibrationTool> m_jetCalibrationToolLargeR;
 
     ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolLargeR;
+    ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolLargeRPseudoData;
 
     ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesTool;
-    ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolFrozenJMS;
+    ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolPseudoData;
+    ToolHandle<ICPJetCorrectionTool> m_FFJetSmearingTool;
     ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolReducedNPScenario1;
     ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolReducedNPScenario2;
     ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolReducedNPScenario3;
@@ -89,13 +110,16 @@ namespace top {
 
     ToolHandle<IMETMaker> m_met_maker;
     ToolHandle<IMETSystematicsTool> m_met_systematics;
-
-
+    ToolHandle<IMETSignificance> m_metSignif;
 
     StatusCode setupJetsCalibration();
     StatusCode setupLargeRJetsCalibration();
     StatusCode setupJetsScaleFactors();
     StatusCode setupMET();
+
+
+    ICPJetCorrectionTool * setupFFJetSmearingTool(const std::string& mass_def,const std::string& config);
+
 
     ICPJetUncertaintiesTool*
     setupJetUncertaintiesTool(const std::string& name,

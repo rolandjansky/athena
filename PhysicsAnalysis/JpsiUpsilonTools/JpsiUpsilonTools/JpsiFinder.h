@@ -113,6 +113,8 @@ namespace Analysis {
         ToolHandle < InDet::VertexPointEstimator > m_vertexEstimator;
         bool m_mcpCuts;
         bool m_doTagAndProbe;
+        bool m_forceTagAndProbe;
+
     };
 } // end of namespace
 #endif

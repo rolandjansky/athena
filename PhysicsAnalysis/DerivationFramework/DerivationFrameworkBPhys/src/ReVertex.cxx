@@ -90,6 +90,11 @@ StatusCode ReVertex::initialize() {
         ATH_MSG_FATAL("No Indices provided");
         return StatusCode::FAILURE;
     }
+    ATH_CHECK(m_iVertexFitter.retrieve());
+    ATH_CHECK(m_v0Tools.retrieve());
+    ATH_CHECK(m_pvRefitter.retrieve());
+    ATH_CHECK(m_vertexEstimator.retrieve());
+    ATH_CHECK(m_beamSpotSvc.retrieve());
     m_VKVFitter = dynamic_cast<Trk::TrkVKalVrtFitter*>(&(*m_iVertexFitter));
     return StatusCode::SUCCESS;
 }
@@ -206,7 +211,7 @@ void ReVertex::fitAndStore(xAOD::VertexContainer* vtxContainer,
 				    const xAOD::TrackParticleContainer* importedTrackCollection,
 				    const xAOD::VertexContainer* pvContainer) const
 {
-   std::unique_ptr<xAOD::Vertex> ptr(fit(inputTracks, nullptr));
+   std::unique_ptr<xAOD::Vertex> ptr(fit(inputTracks, importedTrackCollection, nullptr));
    if(!ptr)return;
 
    double chi2DOF = ptr->chiSquared()/ptr->numberDoF();
@@ -226,9 +231,10 @@ void ReVertex::fitAndStore(xAOD::VertexContainer* vtxContainer,
    std::vector<const xAOD::Vertex*> thePreceding;
    thePreceding.push_back(v);
    if(m_vertexFittingWithPV){
-      const xAOD::Vertex* closestPV = Analysis::JpsiUpsilonCommon::ClosestPV(bHelper, pvContainer);
-      if (!closestPV) return;
-      std::unique_ptr<xAOD::Vertex> ptrPV(fit(inputTracks, closestPV));
+      //
+      Analysis::CleanUpVertex closestRefPV = Analysis::JpsiUpsilonCommon::ClosestRefPV(bHelper, pvContainer, &(*m_pvRefitter));
+      if (!closestRefPV.get()) return;
+      std::unique_ptr<xAOD::Vertex> ptrPV(fit(inputTracks, importedTrackCollection, closestRefPV.get()));
       if(!ptrPV) return;
 
       double chi2DOFPV = ptrPV->chiSquared()/ptrPV->numberDoF();
@@ -259,7 +265,8 @@ void ReVertex::fitAndStore(xAOD::VertexContainer* vtxContainer,
     // ---------------------------------------------------------------------------------
     
 xAOD::Vertex* ReVertex::fit(const std::vector<const xAOD::TrackParticle*> &inputTracks,
-				     const xAOD::Vertex* pv) const
+			    const xAOD::TrackParticleContainer* importedTrackCollection,
+			    const xAOD::Vertex* pv) const
 {
    m_VKVFitter->setDefault();
 
@@ -291,5 +298,18 @@ xAOD::Vertex* ReVertex::fit(const std::vector<const xAOD::TrackParticle*> &input
    if (errorcode != 0) {startingPoint(0) = 0.0; startingPoint(1) = 0.0; startingPoint(2) = 0.0;}
    xAOD::Vertex* theResult = m_VKVFitter->fit(inputTracks, startingPoint);
 
+   // Added by ASC
+   if(theResult != 0){
+      std::vector<ElementLink<DataVector<xAOD::TrackParticle> > > newLinkVector;
+      for(unsigned int i=0; i< theResult->trackParticleLinks().size(); i++)
+	{
+	   ElementLink<DataVector<xAOD::TrackParticle> > mylink=theResult->trackParticleLinks()[i]; //makes a copy (non-const)
+	   mylink.setStorableObject( *importedTrackCollection, true);
+	   newLinkVector.push_back( mylink );
+	}
+      theResult->clearTracks();
+      theResult->setTrackParticleLinks( newLinkVector );
+   }
+   
    return theResult;
 }

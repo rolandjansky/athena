@@ -451,7 +451,8 @@ SUSY15SlimmingHelper.ExtraVariables = [ "BTagging_AntiKt4EMTopo_201810.MV1_discr
                                         "MET_LocHadTopo.source.name.mpx.mpy.sumet",
                                         "MET_Track.source.name.mpx.mpy.sumet",
                                         "MuonSegments.x.y.z.chamberIndex.sector.etaIndex.nPhiLayers.nTrigEtaLayers.nPrecisionHits.t0.clusterTime",
-                                        "Electrons.Reta.Rphi.Rhad1.Rhad.weta2.Eratio.f3.deltaEta1.deltaPhiRescaled2.wtots1.LHLoose.ptcone30.ptcone20",
+                                        "Photons.Loose",
+                                        "Electrons.Reta.Rphi.Rhad1.Rhad.weta2.Eratio.f3.deltaEta1.deltaPhiRescaled2.wtots1.LHLoose.Loose.ptcone30.ptcone20",
 ]
 
 # Include dvtrack variables from re-running of VSI 

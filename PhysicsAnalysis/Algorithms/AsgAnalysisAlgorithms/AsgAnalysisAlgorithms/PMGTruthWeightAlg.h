@@ -8,12 +8,12 @@
 #ifndef ASG_ANALYSIS_ALGORITHMS__PMG_TRUTH_WEIGHT_ALG_H
 #define ASG_ANALYSIS_ALGORITHMS__PMG_TRUTH_WEIGHT_ALG_H
 
-#include <xAODEventInfo/EventInfo.h>
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <PMGAnalysisInterfaces/IPMGTruthWeightTool.h>
-#include <SystematicsHandles/SysCopyHandle.h>
-#include <SystematicsHandles/SysDecorationHandle.h>
+#include <SystematicsHandles/SysReadHandle.h>
+#include <SystematicsHandles/SysWriteDecorHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
+#include <xAODEventInfo/EventInfo.h>
 
 namespace CP
 {
@@ -42,12 +42,12 @@ namespace CP
 
     /// \brief the event info we decorate
   private:
-    SysCopyHandle<xAOD::EventInfo> m_eventInfoHandle {
+    SysReadHandle<xAOD::EventInfo> m_eventInfoHandle {
       this, "eventInfo", "EventInfo", "the event info object to run on"};
 
     /// \brief the decoration for the truth weights
   private:
-    SysDecorationHandle<float> m_decoration {
+    SysWriteDecorHandle<float> m_decoration {
       this, "decoration", "", "the decoration for the truth weights"};
   };
 }

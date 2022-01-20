@@ -12,6 +12,7 @@
 #include <xAODEventInfo/EventInfo.h>
 #include <xAODTruth/TruthParticleContainer.h>
 #include <xAODTruth/TruthVertexContainer.h>
+#include "xAODEgamma/ElectronxAODHelpers.h"
 
 #include "TH1D.h"
 #include "TNtuple.h"
@@ -37,11 +38,15 @@ namespace VKalVrtAthena {
   bool isAssociatedToVertices( const xAOD::TrackParticle *trk, const xAOD::VertexContainer* vertices ) {
     
       bool is_pv_associated = false;
-      
+      const xAOD::TrackParticle *trk_from_gsf;
+      // get ID track matched to GSF track
+      trk_from_gsf = xAOD::EgammaHelpers::getOriginalTrackParticleFromGSF(trk);
       for( auto* vtx : *vertices ) {
         for( size_t iv = 0; iv < vtx->nTrackParticles(); iv++ ) {
           auto* pvtrk = vtx->trackParticle( iv );
-          if( trk == pvtrk ) {
+          if (pvtrk == nullptr) continue;
+          // when using lepton-only selection, also need to check if the ID track matched to the GSF track is associated to the PV
+           if ( (trk_from_gsf == pvtrk) or (trk == pvtrk) ) {
             is_pv_associated = true;
             break;
           }

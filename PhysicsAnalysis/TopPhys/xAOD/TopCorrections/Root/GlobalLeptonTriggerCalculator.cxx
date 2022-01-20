@@ -41,6 +41,7 @@ namespace top {
     // Retrieve the systematic names we stored
     for (auto& s : m_config->getGlobalTriggerElectronSystematics()) ATH_MSG_DEBUG(" - Electron systematics : " << s);
     for (auto& s : m_config->getGlobalTriggerMuonSystematics()) ATH_MSG_DEBUG(" - Muon systematics : " << s);
+    for (auto& s : m_config->getGlobalTriggerPhotonSystematics()) ATH_MSG_DEBUG(" - Photon systematics : " << s);
 
     {
       std::vector<ToolHandle<IAsgElectronEfficiencyCorrectionTool> > tools;
@@ -62,6 +63,17 @@ namespace top {
       }
       m_muonTools.swap(tools);
     }
+    {
+      std::vector<ToolHandle<IAsgPhotonEfficiencyCorrectionTool> > tools;
+      tools.reserve(m_config->getGlobalTriggerPhotonTools().size());
+      for (auto const& s : m_config->getGlobalTriggerPhotonTools()) {
+        ATH_MSG_DEBUG(" - Photon tools : " << s);
+        tools.emplace_back(s);
+        top::check(tools.back().retrieve(), "Failed to retrieve photon tool");
+      }
+      m_photonTools.swap(tools);
+    }
+
 
     return StatusCode::SUCCESS;
   }
@@ -105,8 +117,10 @@ namespace top {
     // Retrieve nominal muons, retrieve nominal electrons
     const xAOD::MuonContainer* muons(nullptr);
     const xAOD::ElectronContainer* electrons(nullptr);
+    const xAOD::PhotonContainer* photons(nullptr);
     std::vector<const xAOD::Muon*> selectedMuons;
     std::vector<const xAOD::Electron*> selectedElectrons;
+    std::vector<const xAOD::Photon*> selectedPhotons;
     
     if (m_config->useMuons()) top::check(evtStore()->retrieve(muons, m_config->sgKeyMuons(hash)), "Failed to retrieve muons");
     
@@ -119,6 +133,12 @@ namespace top {
     // Put into a vector
     for (size_t index : systEvent->goodElectrons()) {
       selectedElectrons.push_back(electrons->at(index));
+    }
+
+    if (m_config->usePhotons()) top::check(evtStore()->retrieve(photons, m_config->sgKeyPhotons(hash)), "Failed to retrieve photons");
+    // Put into a vector
+    for (size_t index : systEvent->goodPhotons()) {
+      selectedPhotons.push_back(photons->at(index));
     }
 
     // manage current electron trigger SF variation
@@ -145,26 +165,40 @@ namespace top {
                                      }
                                    };
 
+    // manage current photon trigger SF variation
+    CP::SystematicSet photonSystSet;
+    auto setCurrentPhotonVariation = [this, &photonSystSet](std::string const& parameterName, int value) {
+                                       photonSystSet.clear();
+                                       if (!parameterName.empty()) photonSystSet.insert(CP::SystematicVariation(
+                                                                                        parameterName, value));
+                                       for (auto&& tool : m_photonTools) {
+                                         top::check(tool->applySystematicVariation(
+                                                      photonSystSet), "Failed to apply systematic");
+                                       }
+                                     };
+
     // compute and store trigger SF for current variation
     auto&& globalTriggerTool = (isLoose ? m_globalTriggerSFLoose : m_globalTriggerSF);
     auto decorateEventForCurrentVariation = [&]() {
                                               double sf;
 
-                                              if (selectedElectrons.empty() && selectedMuons.empty()) {
+                                              if (selectedElectrons.empty() && selectedMuons.empty() && selectedPhotons.empty()) {
                                                 sf = 1.;
                                               } else {
                                                 sf = NAN;
                                                 top::check(globalTriggerTool->getEfficiencyScaleFactor(
                                                              selectedElectrons,
                                                              selectedMuons,
+                                                             selectedPhotons,
                                                              sf), "Failed to get global trigger SF");
                                               }
                                               std::string auxname(m_decor_triggerSF);
                                               auxname += "_";
-                                              if (!(electronSystSet.empty() && muonSystSet.empty())) {
+                                              if (!(electronSystSet.empty() && muonSystSet.empty() && photonSystSet.empty())) {
                                                 CP::SystematicSet systSet;
                                                 systSet.insert(electronSystSet);
                                                 systSet.insert(muonSystSet);
+                                                systSet.insert(photonSystSet);
                                                 auxname += systSet.name();
                                               }
                                               ATH_MSG_DEBUG("Adding decoration " << auxname << " = " << sf);
@@ -174,6 +208,7 @@ namespace top {
     ///-- Set the nominal --///
     setCurrentElectronVariation("", 0);
     setCurrentMuonVariation("", 0);
+    setCurrentPhotonVariation("", 0);
     decorateEventForCurrentVariation();
 
     ///-- Apply and calculate variations on nominal --///
@@ -196,6 +231,14 @@ namespace top {
         }
       }
       setCurrentMuonVariation("", 0);
+
+      for (auto& s : m_config->getGlobalTriggerPhotonSystematics()) {
+        for (int val : {1, -1}) {
+          setCurrentPhotonVariation(s, val);
+          decorateEventForCurrentVariation();
+        }
+      }
+      setCurrentPhotonVariation("", 0);
     }
   }
 }

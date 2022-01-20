@@ -61,6 +61,11 @@ namespace ST {
   const static SG::AuxElement::Decorator<char> dec_passDRcut("passDRcut");
   const static SG::AuxElement::ConstAccessor<char> acc_passDRcut("passDRcut");
 
+  const static SG::AuxElement::Decorator<int> dec_wtagged("wtagged");
+  const static SG::AuxElement::Decorator<int> dec_ztagged("ztagged");
+  const static SG::AuxElement::Decorator<int> dec_toptagged("toptagged");
+  
+
   StatusCode SUSYObjDef_xAOD::GetJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, bool recordSG, const std::string& jetkey, const xAOD::JetContainer* containerToBeCopied)
   {
     if (!m_tool_init) {
@@ -290,19 +295,8 @@ namespace ST {
       // Truth Labeling (MC only)
       if (!isData()) m_jetTruthLabelingTool->modifyJet(*jet);
       //
-      ATH_CHECK( this->FillJet(*jet, true, true, true) );
+      ATH_CHECK( this->FillJet(*jet, true, true, doLargeRdecorations) );
       //...
-      const static SG::AuxElement::Decorator<int> dec_wtagged("wtagged");
-      const static SG::AuxElement::Decorator<int> dec_ztagged("ztagged");
-      const static SG::AuxElement::Decorator<int> dec_toptagged("toptagged");
-      dec_wtagged(*jet) = -1;
-      dec_ztagged(*jet) = -1;
-      dec_toptagged(*jet) = -1;
-      if ( doLargeRdecorations) {
-        if (!m_WtagConfig.empty()) dec_wtagged(*jet) = m_WTaggerTool->tag(*jet);
-        if (!m_ZtagConfig.empty()) dec_ztagged(*jet) = m_ZTaggerTool->tag(*jet);
-        if (!m_ToptagConfig.empty()) dec_toptagged(*jet) = m_TopTaggerTool->tag(*jet);
-      }
       //  For OR, selected if it passed cuts
       if ( acc_baseline(*jet) ){
         dec_selected(*jet) = 1;
@@ -385,7 +379,7 @@ namespace ST {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode SUSYObjDef_xAOD::FillJet(xAOD::Jet& input, bool doCalib, bool isFat, bool isTCC) {
+  StatusCode SUSYObjDef_xAOD::FillJet(xAOD::Jet& input, bool doCalib, bool isFat, bool doLargeRdecorations) {
 
     ATH_MSG_VERBOSE( "Starting FillJet on jet with pt=" << input.pt() );
     ATH_MSG_VERBOSE(  "jet (pt,eta,phi) before calibration " << input.pt() << " " << input.eta() << " " << input.phi() );
@@ -405,8 +399,72 @@ namespace ST {
         dec_bjet_jetunc(input) = false;
         dec_btag_weight(input) = -999.;
 
-        // If a user hasn't specified an uncertainty config, then this tool will be empty
+	dec_wtagged(input) = -1;
+	dec_ztagged(input) = -1;
+	dec_toptagged(input) = -1;
+	if (doLargeRdecorations) {
+	  if (!m_WtagConfig.empty()) dec_wtagged(input) = m_WTaggerTool->tag(input);
+	  if (!m_ZtagConfig.empty()) dec_ztagged(input) = m_ZTaggerTool->tag(input);
+	  if (!m_ToptagConfig.empty()) dec_toptagged(input) = m_TopTaggerTool->tag(input);
+	}
+	
+
+        // If a user hasn't specified an uncertainty config, then the below tools will be empty
         // for large R jets
+	
+        if (!m_WTagjetUncertaintiesTool.empty() && !m_WTagUncConfig.empty() && !m_WtagConfig.empty() && doLargeRdecorations){
+	  CP::CorrectionCode result = m_WTagjetUncertaintiesTool->applyCorrection(input);
+	  switch (result) {
+	  case CP::CorrectionCode::Error:
+	    ATH_MSG_ERROR( "Failed to apply largeR W-tag jet scale uncertainties.");
+	    return StatusCode::FAILURE;
+	    //break;
+           case CP::CorrectionCode::OutOfValidityRange:
+             ATH_MSG_VERBOSE( "No valid pt/eta/m range for largeR W-tag jet scale uncertainties. ");
+             break;
+	  default:
+	    break;
+	  }
+	} else {
+	  ATH_MSG_DEBUG( "No valid large-R W-tagged fat jet uncertainty, but FillJet called with a fat jet. Skipping uncertainties." );
+	}
+	
+	if (!m_ZTagjetUncertaintiesTool.empty() && !m_ZTagUncConfig.empty() && !m_ZtagConfig.empty() && doLargeRdecorations){
+	  CP::CorrectionCode result = m_ZTagjetUncertaintiesTool->applyCorrection(input);
+	  switch (result) {
+	  case CP::CorrectionCode::Error:
+	    ATH_MSG_ERROR( "Failed to apply largeR Z-tag jet scale uncertainties.");
+	    return StatusCode::FAILURE;
+	    //break;
+	  case CP::CorrectionCode::OutOfValidityRange:
+	    ATH_MSG_VERBOSE( "No valid pt/eta/m range for largeR Z-tag jet scale uncertainties. ");
+	    break;
+	  default:
+	    break;
+	  }
+	} else {
+	  ATH_MSG_DEBUG( "No valid large-R Z-tagged fat jet uncertainty, but FillJet called with a fat jet. Skipping uncertainties." );
+	}
+	
+	
+	if (!m_TopTagjetUncertaintiesTool.empty() && !m_TopTagUncConfig.empty() && !m_ToptagConfig.empty() && doLargeRdecorations){
+	  CP::CorrectionCode result = m_TopTagjetUncertaintiesTool->applyCorrection(input);
+	  switch (result) {
+	  case CP::CorrectionCode::Error:
+	    ATH_MSG_ERROR( "Failed to apply largeR Top-tag jet scale uncertainties.");
+	    return StatusCode::FAILURE;
+	    //break;
+	  case CP::CorrectionCode::OutOfValidityRange:
+	    ATH_MSG_VERBOSE( "No valid pt/eta/m range for largeR Top-tag jet scale uncertainties. ");
+	    break;
+	  default:
+	    break;
+	  }
+	} else {
+	  ATH_MSG_DEBUG( "No valid large-R Top-tagged fat jet uncertainty, but FillJet called with a fat jet. Skipping uncertainties." );
+	}
+	
+
         if (!m_fatjetUncertaintiesTool.empty()){
           CP::CorrectionCode result = m_fatjetUncertaintiesTool->applyCorrection(input);
           switch (result) {
@@ -423,27 +481,11 @@ namespace ST {
         } else {
           ATH_MSG_DEBUG( "No valid fat jet uncertainty, but FillJet called with a fat jet. Skipping uncertainties." );
         }
-
-        // for TCC jets
-        if (!m_TCCjetUncertaintiesTool.empty() && isTCC){
-          CP::CorrectionCode result = m_TCCjetUncertaintiesTool->applyCorrection(input);
-          switch (result) {
-          case CP::CorrectionCode::Error:
-            ATH_MSG_ERROR( "Failed to apply TCC jet scale uncertainties.");
-            return StatusCode::FAILURE;
-            //break;
-          case CP::CorrectionCode::OutOfValidityRange:
-            ATH_MSG_VERBOSE( "No valid pt/eta/m range for TCC jet scale uncertainties. ");
-            break;
-          default:
-            break;
-          }
-        } else {
-          ATH_MSG_DEBUG( "No valid TCC jet uncertainty, but FillJet called with a TCC jet. Skipping uncertainties." );
-        }
-
-        return StatusCode::SUCCESS;
+      
+	return StatusCode::SUCCESS;
+	
       }
+    
       ATH_MSG_VERBOSE(  "jet (pt,eta,phi) after calibration " << input.pt() << " " << input.eta() << " " << input.phi() );
 
       //central jvt
@@ -479,7 +521,7 @@ namespace ST {
         }
       }
     }
-
+    
     if(m_jetUncertaintiesPDsmearing){
       if ( (input.pt() > m_jetPt) || (input.pt() > 15e3) ) {
         if(!isFat && m_currentSyst.name().find("__2") != std::string::npos){
@@ -537,7 +579,7 @@ namespace ST {
 
     return StatusCode::SUCCESS;
   }
-
+  
   StatusCode SUSYObjDef_xAOD::FillTrackJet(xAOD::Jet& input) {
 
     ATH_MSG_VERBOSE( "Starting FillTrackJet on jet with pt=" << input.pt() );

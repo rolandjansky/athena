@@ -27,6 +27,7 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("PHYSVALK
 OutputJets["PHYSVAL"] = ["AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810",
                          "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
                          "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                         "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
                          "AntiKt4EMTopoLowPtJets",
                          "AntiKt4LCTopoLowPtJets",
                          "AntiKt4EMPFlowLowPtJets"]
@@ -38,6 +39,7 @@ reducedJetList = [ "AntiKt10PV0TrackJets",
 
 if DerivationFrameworkHasTruth:
    OutputJets["PHYSVAL"].append("AntiKt10TruthTrimmedPtFrac5SmallR20Jets")
+   OutputJets["PHYSVAL"].append("AntiKt10TruthSoftDropBeta100Zcut10Jets")
    reducedJetList.append("AntiKt4TruthWZJets")
    reducedJetList.append("AntiKt10TruthJets")
    reducedJetList.append("AntiKt10TruthWZJets")
@@ -55,6 +57,12 @@ addAntiKt4LowPtJets(DerivationFrameworkJob,"PHYSVAL")
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
 
 addDefaultTrimmedJets(DerivationFrameworkJob,"PHYSVAL",dotruth=True)
+
+addDefaultUFOJets(DerivationFrameworkJob,"PHYSVAL")
+addSoftDropJets("AntiKt", 1.0, "UFOCSSK", beta=1.0, zcut=0.1, algseq=DerivationFrameworkJob, outputGroup="PHYSVAL", writeUngroomed=False, mods="tcc_groomed")
+if DerivationFrameworkHasTruth:
+  addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed", algseq=DerivationFrameworkJob, outputGroup="PHYSVAL", writeUngroomed=False) 
+
 
 #===================================================================
 # Variable Radius (VR) Jets 
@@ -100,7 +108,7 @@ PHYSVALSlimmingHelper.AllVariables = [ "Electrons", "ForwardElectrons", "Photons
                                        "AntiKt4EMTopoLowPtJets","AntiKt4LCTopoLowPtJets","AntiKt4EMPFlowLowPtJets",
                                        "JetETMissNeutralParticleFlowObjects", "JetETMissChargedParticleFlowObjects",
                                        "Kt4EMPFlowEventShape","Kt4LCTopoOriginEventShape","Kt4EMTopoOriginEventShape","Kt4EMPFlowPUSBEventShape",
-                                       "LCOriginTopoClusters","EMOriginTopoClusters","CaloCalTopoClusters",
+                                       "LCOriginTopoClusters","EMOriginTopoClusters","CaloCalTopoClusters","UFOCSSK",
                                        "BTagging_AntiKt4EMTopoJFVtx",
                                        "BTagging_AntiKt4EMTopo",
                                        "BTagging_AntiKtVR30Rmax4Rmin02Track_201810JFVtx",
@@ -191,6 +199,10 @@ PHYSVALSlimmingHelper.AppendToDictionary = {
   "AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsAux":   "xAOD::JetAuxContainer"     ,
   "AntiKt10TruthTrimmedPtFrac5SmallR20Jets"    :   "xAOD::JetContainer"        ,
   "AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux" :   "xAOD::JetAuxContainer"     ,
+  "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets"   :   "xAOD::JetContainer"        ,
+  "AntiKt10UFOCSSKSoftDropBeta100Zcut10JetsAux":   "xAOD::JetAuxContainer"     ,
+  "AntiKt10TruthSoftDropBeta100Zcut10Jets"    :   "xAOD::JetContainer"        ,
+  "AntiKt10TruthSoftDropBeta100Zcut10JetsAux" :   "xAOD::JetAuxContainer"     ,
   "BTagging_AntiKtVR30Rmax4Rmin02Track_201810JFVtx"   :   "xAOD::BTaggingContainer"   ,
   "BTagging_AntiKtVR30Rmax4Rmin02Track_201810JFVtxAux":   "xAOD::BTaggingAuxContainer",
   "BTagging_AntiKtVR30Rmax4Rmin02Track_201810SecVtx"  :   "xAOD::VertexContainer"     ,
@@ -233,6 +245,8 @@ PHYSVALSlimmingHelper.AppendToDictionary = {
   "TruthTopAux"                                :   "xAOD::TruthParticleAuxContainer",
   "AntiKt4TruthDressedWZJets"                  :   "xAOD::JetContainer",
   "AntiKt4TruthDressedWZJetsAux"               :   "xAOD::JetAuxContainer",
+  "UFOCSSK"   : "xAOD::TrackCaloClusterContainer",
+  "UFOCSSKAux": "xAOD::TrackCaloClusterAuxContainer",
   }
 #----------------------------------------------------------------------
 

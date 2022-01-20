@@ -55,8 +55,10 @@ triggers.append("HLT_mu4_j15_gsc35_boffperf_split_dr05_dz02")
 triggers.append("HLT_mu4_j25_boffperf_split_dr05_dz02")
 triggers.append("HLT_mu4_j35_boffperf_split_dr05_dz02")
 triggers.append("HLT_mu4_j35_gsc55_boffperf_split_dr05_dz02")
+triggers.append("HLT_mu4_j45_gsc55_boffperf_split_dr05_dz02")
 triggers.append("HLT_mu6_j60_gsc110_boffperf_split_dr05_dz02")
 triggers.append("HLT_mu6_j60_gsc85_boffperf_split_dr05_dz02")
+triggers.append("HLT_mu6_j85_gsc110_boffperf_split_dr05_dz02")
 triggers.append("HLT_mu6_j110_gsc150_boffperf_split_dr05_dz02") 
 triggers.append("HLT_mu6_j110_gsc150_bperf_split_dr05_dz02")
 triggers.append("HLT_mu6_j150_gsc175_boffperf_split_dr05_dz02")
@@ -92,7 +94,7 @@ if globalflags.DataSource()!='data':
 # Basic Jet Collections 
 #====================================================================
 
-OutputJets["FTAG3"] = ["AntiKt4EMTopoJets"]
+OutputJets["FTAG3"] = ["AntiKt4EMTopoJets", "AntiKt4EMPFlowJets"]
 
 reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4PV0TrackJets",
@@ -108,7 +110,7 @@ addDefaultTrimmedJets(FTAG3Seq,"FTAG3",dotruth=True)
 # Tag custom or pre-built jet collections 
 #===================================================================
 
-FlavorTagInit(JetCollections  = ['AntiKt4EMTopoJets'],Sequencer = FTAG3Seq)
+FlavorTagInit(JetCollections  = ['AntiKt4EMTopoJets', 'AntiKt4EMPFlowJets'],Sequencer = FTAG3Seq)
 
 #====================================================================
 # Add sequence (with all kernels needed) to DerivationFrameworkJob 
@@ -135,13 +137,23 @@ FTAG3SlimmingHelper.SmartCollections = ["Electrons","Muons",
                                         "PrimaryVertices",
                                         "AntiKt4EMTopoJets",
                                         "AntiKt4EMPFlowJets",
-                                        "MET_Reference_AntiKt4EMTopo",]
+					"AntiKt4EMTopoJets_BTagging201810",
+					"AntiKt4EMPFlowJets_BTagging201810",
+					"AntiKt4EMPFlowJets_BTagging201903",
+                                        "MET_Reference_AntiKt4EMTopo",
+                                        "MET_Reference_AntiKt4EMPFlow",]
 
 FTAG3SlimmingHelper.AllVariables =  ["AntiKt10TruthWZJets",
                                      "BTagging_AntiKt2Track",
                                      "BTagging_AntiKt2TrackJFVtx", 
                                      "BTagging_AntiKt10TruthWZ",
                                      "BTagging_AntiKt10TruthWZJFVtx",
+				     "BTagging_AntiKt4EMPFlow_201810",
+				     "BTagging_AntiKt4EMPFlow_201903",
+				     "BTagging_AntiKt4EMTopo_201810",
+				     "AntiKt4EMTopoJets_BTagging201810",
+				     "AntiKt4EMPFlowJets_BTagging201810",
+				     "AntiKt4EMPFlowJets_BTagging201903",
                                      "TruthEvents",
                                      "TruthVertices",
                                      "TruthParticles",
@@ -157,25 +169,8 @@ FTAG3SlimmingHelper.AllVariables =  ["AntiKt10TruthWZJets",
                                       ]
 
 FTAG3SlimmingHelper.ExtraVariables += ["BTagging_AntiKt2TrackSecVtx.-vxTrackAtVertex",
-                                       "BTagging_AntiKt10TruthSecVtx.-vxTrackAtVertex"]
-
-
-if BTaggingFlags.Do2019Retraining:
-    FTAG3SlimmingHelper.SmartCollections += \
-            ["AntiKt4EMTopoJets_BTagging201810"]
-
-    FTAG3SlimmingHelper.AllVariables += \
-            ["BTagging_AntiKt4EMTopo_201810",
-                    "AntiKt4EMTopoJets_BTagging201810"]
-    FTAG3SlimmingHelper.ExtraVariables += ["BTagging_AntiKt4EMTopo_201810SecVtx.-vxTrackAtVertex"]
-else:
-    FTAG3SlimmingHelper.SmartCollections += \
-            ["AntiKt4EMTopoJets"]
-    FTAG3SlimmingHelper.AllVariables += \
-            ["BTagging_AntiKt4EMTopo",
-             "AntiKt4EMTopoJets"]
-    FTAG3SlimmingHelper.ExtraVariables += ["BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex"]
-
+                                       "BTagging_AntiKt10TruthSecVtx.-vxTrackAtVertex",
+				       "BTagging_AntiKt4EMTopo_201810SecVtx.-vxTrackAtVertex"]
 
 #----------------------------------------------------------------------
 # Add needed dictionary stuff

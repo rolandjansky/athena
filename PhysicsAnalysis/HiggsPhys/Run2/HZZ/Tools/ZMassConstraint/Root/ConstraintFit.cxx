@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////
@@ -28,12 +28,18 @@ namespace ZMassConstraint
         m_conWidth(2495.2),
         m_resolution(0.01),
         m_ignoreInputChecks(false),
+        m_decorationName("qpSF"),
+        m_doCalibCov(false),
+        m_stepForLikelihoodFit(400),
         m_parameters(3)
     {
         declareProperty( "Z_pdg_mass",                     m_conMass);
         declareProperty( "Z_pdg_width",                    m_conWidth);
         declareProperty( "hasWidth",                       m_conHasWidth);
         declareProperty( "ignoreInputChecks",              m_ignoreInputChecks);
+        declareProperty( "covCalibSFName",                 m_decorationName);
+        declareProperty( "doCovCalibration",               m_doCalibCov);
+        declareProperty( "nStepsForFitScan",               m_stepForLikelihoodFit);
         declareProperty( "EgammaCalibAndSmearingTool",     m_energyRescaler = ToolHandle<CP::IEgammaCalibrationAndSmearingTool>("CP::EgammaCalibrationAndSmearingTool"));
         declareProperty( "MuonCalibrationAndSmearingTool", m_mu_resolSFTool = ToolHandle<CP::IMuonCalibrationAndSmearingTool>("CP::MuonCalibrationAndSmearingTool"));
     }
@@ -205,9 +211,9 @@ namespace ZMassConstraint
         ATH_MSG_DEBUG ("addParticle: *** 4vecMu: " << mu4vec.Pt() << "/" << mu4vec.Eta() << "/" << mu4vec.Phi());
 
 
-        float muSF = 1;
-        int   type = -1;      
-
+        // float muSF = 1;
+        // int   type = -1;  
+        // static SG::AuxElement::Accessor<float> muonSpectrometerPt ("MuonSpectrometerPt");
         // Comment out use of MuonCalibrationAndSmearingTool until the SF is implemented by Giacomo
         
         // if (m_mu_resolSFTool) {
@@ -248,6 +254,20 @@ namespace ZMassConstraint
         //     ATH_MSG_ERROR( "addParticle: - MuonResSFTool is NOT set. Please call setMuonResSFTool with MuonResolutionAndMomentumScaleFactors tool.");
         // }
 
+        float qpSF = 1;
+        if(m_doCalibCov)
+        {
+            static SG::AuxElement::Accessor<float>  calibSFDecoration(m_decorationName);
+            if(calibSFDecoration.isAvailable(mu))
+            {
+                qpSF = calibSFDecoration(mu);
+            }
+            else
+            { 
+                ATH_MSG_ERROR( "addParticle: - calibration of Cov requested, but no input decoration with information found. Setting SF to 1");
+            }
+        }
+
         
         AmgMatrix(5,5) covmatrix;
         covmatrix.setZero();
@@ -255,35 +275,35 @@ namespace ZMassConstraint
         covmatrix(z0,z0)         = track->definingParametersCovMatrix()(z0,z0);
         covmatrix(phi0,phi0)     = track->definingParametersCovMatrix()(phi0,phi0);
         covmatrix(theta,theta)   = track->definingParametersCovMatrix()(theta,theta);
-        covmatrix(qOverP,qOverP) = track->definingParametersCovMatrix()(qOverP,qOverP)*muSF*muSF;
+        covmatrix(qOverP,qOverP) = track->definingParametersCovMatrix()(qOverP,qOverP)*qpSF*qpSF;
         covmatrix(d0,z0)         = track->definingParametersCovMatrix()(d0,z0);
         covmatrix(d0,phi0)       = track->definingParametersCovMatrix()(d0,phi0);
         covmatrix(d0,theta)      = track->definingParametersCovMatrix()(d0,theta);
-        covmatrix(d0,qOverP)     = track->definingParametersCovMatrix()(d0,qOverP)*muSF;
+        covmatrix(d0,qOverP)     = track->definingParametersCovMatrix()(d0,qOverP)*qpSF;
         covmatrix(z0,phi0)       = track->definingParametersCovMatrix()(z0,phi0);
         covmatrix(z0,theta)      = track->definingParametersCovMatrix()(z0,theta);
-        covmatrix(z0,qOverP)     = track->definingParametersCovMatrix()(z0,qOverP)*muSF;
+        covmatrix(z0,qOverP)     = track->definingParametersCovMatrix()(z0,qOverP)*qpSF;
         covmatrix(phi0,theta)    = track->definingParametersCovMatrix()(phi0,theta);
-        covmatrix(phi0,qOverP)   = track->definingParametersCovMatrix()(phi0,qOverP)*muSF;
-        covmatrix(theta,qOverP)  = track->definingParametersCovMatrix()(theta,qOverP)*muSF;
+        covmatrix(phi0,qOverP)   = track->definingParametersCovMatrix()(phi0,qOverP)*qpSF;
+        covmatrix(theta,qOverP)  = track->definingParametersCovMatrix()(theta,qOverP)*qpSF;
 
-        ATH_MSG_DEBUG ("addParticle: type,errSF,mu p,cov  " << type << " " << muSF
+        ATH_MSG_DEBUG ("addParticle: errSF,mu p,cov  " << qpSF
                        << " " << mu4vec.E()
                        << " " << track->definingParametersCovMatrix()(d0,    d0)
                        << " " << track->definingParametersCovMatrix()(z0,    z0)
                        << " " << track->definingParametersCovMatrix()(phi0,  phi0)
                        << " " << track->definingParametersCovMatrix()(theta, theta)
-                       << " " << track->definingParametersCovMatrix()(qOverP,qOverP)*muSF*muSF
+                       << " " << track->definingParametersCovMatrix()(qOverP,qOverP)*qpSF*qpSF
                        << " " << track->definingParametersCovMatrix()(d0,    z0)
                        << " " << track->definingParametersCovMatrix()(d0,    phi0)
                        << " " << track->definingParametersCovMatrix()(d0,    theta)
-                       << " " << track->definingParametersCovMatrix()(d0,qOverP)*muSF
+                       << " " << track->definingParametersCovMatrix()(d0,qOverP)*qpSF
                        << " " << track->definingParametersCovMatrix()(z0,    phi0)
                        << " " << track->definingParametersCovMatrix()(z0,    theta)
-                       << " " << track->definingParametersCovMatrix()(z0,qOverP)*muSF
+                       << " " << track->definingParametersCovMatrix()(z0,qOverP)*qpSF
                        << " " << track->definingParametersCovMatrix()(phi0,  theta)
-                       << " " << track->definingParametersCovMatrix()(phi0,qOverP)*muSF
-                       << " " << track->definingParametersCovMatrix()(theta,qOverP)*muSF);
+                       << " " << track->definingParametersCovMatrix()(phi0,qOverP)*qpSF
+                       << " " << track->definingParametersCovMatrix()(theta,qOverP)*qpSF);
 
         for (int ii = 0; ii < 5; ii++)
             for (int jj = ii+1; jj < 5; jj++)
@@ -568,8 +588,8 @@ namespace ZMassConstraint
         double max = -(maxmass - initMass) * (maxmass - initMass) / 2. / MassResol / MassResol 
             - log((maxmass * maxmass - m_conMass * m_conMass) * (maxmass * maxmass - m_conMass * m_conMass) + m_conMass * m_conMass * m_conWidth * m_conWidth);
 
-        for (int i = 1; i < 401; i++) {
-            double ytest = initMass + (m_conMass - initMass) / 400 * i;
+        for (int i = 1; i < m_stepForLikelihoodFit + 1; i++) {
+            double ytest = initMass + (m_conMass - initMass) / m_stepForLikelihoodFit * i;
 
             double val = -(ytest - initMass) * (ytest - initMass) / 2. / MassResol / MassResol 
                 - log((ytest * ytest - m_conMass * m_conMass) * (ytest * ytest - m_conMass * m_conMass) + m_conMass * m_conMass * m_conWidth * m_conWidth);

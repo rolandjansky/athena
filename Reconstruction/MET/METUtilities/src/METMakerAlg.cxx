@@ -255,7 +255,7 @@ namespace met {
     	  metMuons.push_back(mu);
     	}
       }
-      
+
       if(m_doTruthLep) objScale = MissingETBase::UsageHandler::OnlyTrack;
       if( m_metmaker->rebuildMET("Muons", xAOD::Type::Muon, newMet,
     				 metMuons.asDataVector(),

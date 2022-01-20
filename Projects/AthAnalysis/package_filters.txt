@@ -51,7 +51,6 @@
 - PhysicsAnalysis/Algorithms/StandaloneAnalysisAlgorithms
 + PhysicsAnalysis/Algorithms/.*
 + PhysicsAnalysis/AnalysisCommon/AssociationUtils
-+ PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples
 + PhysicsAnalysis/AnalysisCommon/EventUtils
 + PhysicsAnalysis/AnalysisCommon/FakeBkgTools
 + PhysicsAnalysis/AnalysisCommon/FsrUtils

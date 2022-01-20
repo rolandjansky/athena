@@ -53,7 +53,9 @@ namespace FlavorTagDiscriminants {
       {"^(DL1|DL1r|DL1rmu)$"_r, "$1Flip"},
       {"pt|abs_eta"_r, "$&"},
       {"(minimum|maximum|average)TrackRelativeEta"_r, "$&Flip"},
-      {"softMuon.*|smt.*"_r, "$&"}
+      {"softMuon.*|smt.*"_r, "$&"},
+      {"dips.*"_r, "$&"},
+      {"DL1d.*"_r, "$&"}
     };
 
     // some sequences also need to be sign-flipped. We apply this by
@@ -80,7 +82,8 @@ namespace FlavorTagDiscriminants {
       // current flavor tagging developments and AFT-438.
       {"IP[23]D(Neg)?_[pbc](b|c|u|tau)"_r, floattype},
       {"SV1(Flip)?_[pbc](b|c|u|tau)"_r, floattype},
-      {"(rnnip|iprnn)(flip)?_p(b|c|u|tau)"_r, floattype},
+      {"(rnnip|iprnn|dips[^_]*)(flip)?_p(b|c|u|tau)"_r, floattype},
+      {"dips.*"_r, floattype},
       {"(minimum|maximum|average)TrackRelativeEta(Flip)?"_r, EDMType::FLOAT},
       {"(JetFitter|SV1|JetFitterSecondaryVertex)(Flip)?_[Nn].*"_r, EDMType::INT},
       {"(JetFitter|SV1|JetFitterSecondaryVertex).*"_r, EDMType::FLOAT},
@@ -102,6 +105,7 @@ namespace FlavorTagDiscriminants {
       {"JetFitterSecondaryVertexFlip_.*"_r, "JetFitterSecondaryVertexFlip_isDefaults"},
       {".*TrackRelativeEta(Flip)?"_r, ""},
       {"rnnip_.*"_r, "rnnip_isDefaults"},
+      {"dips.*"_r, ""},
       {"rnnipflip_.*"_r, "rnnipflip_isDefaults"},
       {"iprnn_.*"_r, ""},
       {"smt_.*"_r, "softMuon_isDefaults"},
@@ -137,6 +141,7 @@ namespace FlavorTagDiscriminants {
 
     TypeRegexes trk_type_regexes {
       {"numberOf.*"_r, EDMType::UCHAR},
+      {"btagIp_(d|z)0.*"_r, EDMType::FLOAT},
       {".*_(d|z)0.*"_r, EDMType::CUSTOM_GETTER},
       {"(log_)?(ptfrac|dr).*"_r, EDMType::CUSTOM_GETTER}
     };
@@ -153,6 +158,7 @@ namespace FlavorTagDiscriminants {
     TrkSelRegexes trk_select_regexes {
       {".*_ip3d_.*"_r, TrackSelection::IP3D_2018},
       {".*_all_.*"_r, TrackSelection::ALL},
+      {".*_dipsLoose202102_.*"_r, TrackSelection::DIPS_LOOSE_202102},
     };
     std::vector<DL2TrackSequenceConfig> trk_config = get_track_input_config(
       trk_names, trk_type_regexes, trk_sort_regexes, trk_select_regexes);

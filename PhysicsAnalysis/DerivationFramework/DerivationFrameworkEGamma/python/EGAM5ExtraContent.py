@@ -1,12 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #Content included in addition to the Smart Slimming Content
 
 ExtraContentMuons=[
-#    "Muons.DFCommonGoodMuon",
-#    "Muons.DFCommonMuonsLoose",
-#    "Muons.DFCommonMuonsMedium",
-#    "Muons.DFCommonMuonsTight",
     "Muons.DFCommonMuonsPreselection",
     "Muons.ptcone20",
     "Muons.ptcone30",
@@ -42,48 +38,39 @@ ExtraPhotonsTruth=[
 ]
 
 ExtraContentGSFConversionVertices=[
-	"GSFConversionVertices.x",
-	"GSFConversionVertices.y",
-	"GSFConversionVertices.z",
-	"GSFConversionVertices.px",
-	"GSFConversionVertices.py",
-	"GSFConversionVertices.pz",
-	"GSFConversionVertices.pt1",
-	"GSFConversionVertices.pt2",
-	"GSFConversionVertices.etaAtCalo",
-	"GSFConversionVertices.phiAtCalo",
-	"GSFConversionVertices.trackParticleLinks"
+    "GSFConversionVertices.x",
+    "GSFConversionVertices.y",
+    "GSFConversionVertices.z",
+    "GSFConversionVertices.px",
+    "GSFConversionVertices.py",
+    "GSFConversionVertices.pz",
+    "GSFConversionVertices.pt1",
+    "GSFConversionVertices.pt2",
+    "GSFConversionVertices.etaAtCalo",
+    "GSFConversionVertices.phiAtCalo",
+    "GSFConversionVertices.trackParticleLinks"
 ]
 
-#cells = ("Cells5x5","Cells3x5","Cells3x7","Cells7x11")
-#layers_gains =  (	"_Lr0", "_Lr1", "_Lr2", "_Lr3",
-#					"_Lr0_LwG", "_Lr1_LwG", "_Lr2_LwG", "_Lr3_LwG",
-#					"_Lr0_LwG", "_Lr1_MdG", "_Lr2_MdG", "_Lr3_MdG",
-#					"_Lr0_LwG", "_Lr1_HiG", "_Lr2_HiG", "_Lr3_HiG" )
-#
-#for cell in cells:
-#	ExtraContentPhotons.append("Photons."+cell)
-#	for layer in layers_gains:
-#		ExtraContentPhotons.append("Photons."+cell+layer)
-#
-#for cell in cells:
-#	ExtraContentElectrons.append("Electrons."+cell)
-#	for layer in layers_gains:
-#		ExtraContentElectrons.append("Electrons."+cell+layer)
-#
+# for use of low mu hadronic recoil package within TagAndProbe framework
+ExtraContentPFO = [
+  "JetETMissChargedParticleFlowObjects.pt.eta.phi.m.DFCommonPFlow_PVMatched.DFCommonPFlow_CaloCorrectedPt",
+  "JetETMissNeutralParticleFlowObjects.pt.eta.phi.m.centerMag.ptEM.mEM"]
+
+
+
 from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations
 GainDecoratorTool = GainDecorator()
 ExtraContentPhotons.extend( getGainDecorations(GainDecoratorTool) )
 ExtraContentElectrons.extend( getGainDecorations(GainDecoratorTool) )
 
-ExtraContentAll=ExtraContentElectrons+ExtraContentMuons+ExtraContentPhotons+ExtraContentGSFConversionVertices+ExtraContentPrimaryVertices
+ExtraContentAll=ExtraContentElectrons+ExtraContentMuons+ExtraContentPhotons+ExtraContentGSFConversionVertices+ExtraContentPrimaryVertices+ExtraContentPFO
 ExtraContentAllTruth=ExtraMuonsTruth+ExtraPhotonsTruth
 
 ExtraContainersTruth=["TruthEvents", 
                       "TruthParticles",
                       "TruthVertices",
                       "AntiKt4TruthJets",
-		      "egammaTruthParticles"
+                      "egammaTruthParticles"
                       #,"BTagging_AntiKt4TruthWZ"
                       #,"AntiKt4TruthWZJets"
                       ]
@@ -95,32 +82,32 @@ ExtraContainersElectrons=["Electrons",
 
 # for trigger studies
 ExtraContainersTrigger=[
-	"HLT_xAOD__ElectronContainer_egamma_Electrons",
-	"HLT_xAOD__ElectronContainer_egamma_ElectronsAux.",
-	"HLT_xAOD__PhotonContainer_egamma_Photons",
-	"HLT_xAOD__PhotonContainer_egamma_PhotonsAux.",
-	"HLT_xAOD__TrigElectronContainer_L2ElectronFex",
-	"HLT_xAOD__TrigElectronContainer_L2ElectronFexAux.",
-	"HLT_xAOD__TrigPhotonContainer_L2PhotonFex",
-	"HLT_xAOD__TrigPhotonContainer_L2PhotonFexAux.",
-	"HLT_xAOD__CaloClusterContainer_TrigEFCaloCalibFex",
-	"HLT_xAOD__CaloClusterContainer_TrigEFCaloCalibFexAux.",
-	"HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Electron_EFID",
-	"HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Electron_EFIDAux.",
-	"LVL1EmTauRoIs",
-	"LVL1EmTauRoIsAux.",
-	"HLT_TrigPassBitsCollection_passbits",
-	"HLT_TrigPassBitsCollection_passbitsAux.",
-	"HLT_TrigPassFlagsCollection_passflags",
-	"HLT_TrigPassFlagsCollection_passflagsAux.",
-	"HLT_TrigRoiDescriptorCollection_initialRoI",
-	"HLT_TrigRoiDescriptorCollection_initialRoIAux."
-	]
+    "HLT_xAOD__ElectronContainer_egamma_Electrons",
+    "HLT_xAOD__ElectronContainer_egamma_ElectronsAux.",
+    "HLT_xAOD__PhotonContainer_egamma_Photons",
+    "HLT_xAOD__PhotonContainer_egamma_PhotonsAux.",
+    "HLT_xAOD__TrigElectronContainer_L2ElectronFex",
+    "HLT_xAOD__TrigElectronContainer_L2ElectronFexAux.",
+    "HLT_xAOD__TrigPhotonContainer_L2PhotonFex",
+    "HLT_xAOD__TrigPhotonContainer_L2PhotonFexAux.",
+    "HLT_xAOD__CaloClusterContainer_TrigEFCaloCalibFex",
+    "HLT_xAOD__CaloClusterContainer_TrigEFCaloCalibFexAux.",
+    "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Electron_EFID",
+    "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Electron_EFIDAux.",
+    "LVL1EmTauRoIs",
+    "LVL1EmTauRoIsAux.",
+    "HLT_TrigPassBitsCollection_passbits",
+    "HLT_TrigPassBitsCollection_passbitsAux.",
+    "HLT_TrigPassFlagsCollection_passflags",
+    "HLT_TrigPassFlagsCollection_passflagsAux.",
+    "HLT_TrigRoiDescriptorCollection_initialRoI",
+    "HLT_TrigRoiDescriptorCollection_initialRoIAux."
+    ]
 
 ExtraContainersTriggerDataOnly=[
-	"HLT_xAOD__TrigEMClusterContainer_TrigT2CaloEgamma",
-	"HLT_xAOD__TrigEMClusterContainer_TrigT2CaloEgammaAux."
-	]
+    "HLT_xAOD__TrigEMClusterContainer_TrigT2CaloEgamma",
+    "HLT_xAOD__TrigEMClusterContainer_TrigT2CaloEgammaAux."
+    ]
 
 #should probably slim electron/fwdelectrons/cluster collections and keep only relevant subset of variables..
 # no ForwardElectrons, InDetTrackParticlesForward, ForwardElectronClusters, CaloCalTopoCluster

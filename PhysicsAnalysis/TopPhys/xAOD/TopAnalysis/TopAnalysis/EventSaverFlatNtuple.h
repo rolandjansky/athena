@@ -326,15 +326,70 @@ namespace top {
     float m_weight_leptonSF_MU_SF_ID_STAT_LOWPT_DOWN;
     float m_weight_leptonSF_MU_SF_ID_SYST_LOWPT_UP;
     float m_weight_leptonSF_MU_SF_ID_SYST_LOWPT_DOWN;
+    float m_weight_leptonSF_MU_SF_ID_BKG_FRACTION_UP;
+    float m_weight_leptonSF_MU_SF_ID_BKG_FRACTION_DOWN;
+    float m_weight_leptonSF_MU_SF_ID_FIT_MODEL_LOWPT_UP;
+    float m_weight_leptonSF_MU_SF_ID_FIT_MODEL_LOWPT_DOWN;
+    float m_weight_leptonSF_MU_SF_ID_LUMI_UNCERT_UP;
+    float m_weight_leptonSF_MU_SF_ID_LUMI_UNCERT_DOWN;
+    float m_weight_leptonSF_MU_SF_ID_MATCHING_UP;
+    float m_weight_leptonSF_MU_SF_ID_MATCHING_DOWN;
+    float m_weight_leptonSF_MU_SF_ID_MATCHING_LOWPT_UP;
+    float m_weight_leptonSF_MU_SF_ID_MATCHING_LOWPT_DOWN;
+    float m_weight_leptonSF_MU_SF_ID_MC_XSEC_UP;
+    float m_weight_leptonSF_MU_SF_ID_MC_XSEC_DOWN;
+    float m_weight_leptonSF_MU_SF_ID_PT_DEPENDENCY_UP;
+    float m_weight_leptonSF_MU_SF_ID_PT_DEPENDENCY_DOWN;
+    float m_weight_leptonSF_MU_SF_ID_QCD_TEMPLATE_UP;
+    float m_weight_leptonSF_MU_SF_ID_QCD_TEMPLATE_DOWN;
+    float m_weight_leptonSF_MU_SF_ID_SUPRESSION_SCALE_UP;
+    float m_weight_leptonSF_MU_SF_ID_SUPRESSION_SCALE_DOWN;
+    float m_weight_leptonSF_MU_SF_ID_SYS_UP;
+    float m_weight_leptonSF_MU_SF_ID_SYS_DOWN;
+    float m_weight_leptonSF_MU_SF_ID_TRUTH_UP;
+    float m_weight_leptonSF_MU_SF_ID_TRUTH_DOWN;
+    float m_weight_leptonSF_MU_SF_ID_TRUTH_LOWPT_UP;
+    float m_weight_leptonSF_MU_SF_ID_TRUTH_LOWPT_DOWN;
+    float m_weight_leptonSF_MU_SF_ID_BAD_MUON_VETO_UP;
+    float m_weight_leptonSF_MU_SF_ID_BAD_MUON_VETO_DOWN;
     // Muon isolation SF systematics
     float m_weight_leptonSF_MU_SF_Isol_STAT_UP;
     float m_weight_leptonSF_MU_SF_Isol_STAT_DOWN;
     float m_weight_leptonSF_MU_SF_Isol_SYST_UP;
     float m_weight_leptonSF_MU_SF_Isol_SYST_DOWN;
+    float m_weight_leptonSF_MU_SF_Isol_BKG_FRACTION_UP;
+    float m_weight_leptonSF_MU_SF_Isol_BKG_FRACTION_DOWN;
+    float m_weight_leptonSF_MU_SF_Isol_LUMI_UNCERT_UP;
+    float m_weight_leptonSF_MU_SF_Isol_LUMI_UNCERT_DOWN;
+    float m_weight_leptonSF_MU_SF_Isol_MC_XSEC_UP;
+    float m_weight_leptonSF_MU_SF_Isol_MC_XSEC_DOWN;
+    float m_weight_leptonSF_MU_SF_Isol_QCD_TEMPLATE_UP;
+    float m_weight_leptonSF_MU_SF_Isol_QCD_TEMPLATE_DOWN;
+    float m_weight_leptonSF_MU_SF_Isol_SUPRESSION_SCALE_UP;
+    float m_weight_leptonSF_MU_SF_Isol_SUPRESSION_SCALE_DOWN;
+    float m_weight_leptonSF_MU_SF_Isol_MLLWINDOW_UP;
+    float m_weight_leptonSF_MU_SF_Isol_MLLWINDOW_DOWN;
+    float m_weight_leptonSF_MU_SF_Isol_DRMUJ_UP;
+    float m_weight_leptonSF_MU_SF_Isol_DRMUJ_DOWN;
+    float m_weight_leptonSF_MU_SF_Isol_PROBEQ_UP;
+    float m_weight_leptonSF_MU_SF_Isol_PROBEQ_DOWN;
+    float m_weight_leptonSF_MU_SF_Isol_SHERPA_POWHEG_UP;
+    float m_weight_leptonSF_MU_SF_Isol_SHERPA_POWHEG_DOWN;
+    //Muon TTVA SF systematics
     float m_weight_leptonSF_MU_SF_TTVA_STAT_UP;
     float m_weight_leptonSF_MU_SF_TTVA_STAT_DOWN;
     float m_weight_leptonSF_MU_SF_TTVA_SYST_UP;
     float m_weight_leptonSF_MU_SF_TTVA_SYST_DOWN;
+    float m_weight_leptonSF_MU_SF_TTVA_BKG_FRACTION_UP;
+    float m_weight_leptonSF_MU_SF_TTVA_BKG_FRACTION_DOWN;
+    float m_weight_leptonSF_MU_SF_TTVA_LUMI_UNCERT_UP;
+    float m_weight_leptonSF_MU_SF_TTVA_LUMI_UNCERT_DOWN;
+    float m_weight_leptonSF_MU_SF_TTVA_MC_XSEC_UP;
+    float m_weight_leptonSF_MU_SF_TTVA_MC_XSEC_DOWN;
+    float m_weight_leptonSF_MU_SF_TTVA_QCD_TEMPLATE_UP;
+    float m_weight_leptonSF_MU_SF_TTVA_QCD_TEMPLATE_DOWN;
+    float m_weight_leptonSF_MU_SF_TTVA_SUPRESSION_SCALE_UP;
+    float m_weight_leptonSF_MU_SF_TTVA_SUPRESSION_SCALE_DOWN;
     // Additional global event calculated trigger SF + systematics
     float m_weight_globalLeptonTriggerSF;
     float m_weight_globalLeptonTriggerSF_EL_Trigger_UP;
@@ -403,6 +458,8 @@ namespace top {
     float m_weight_photonSF_ID_DOWN = 0.;
     float m_weight_photonSF_effIso_UP = 0.;
     float m_weight_photonSF_effIso_DOWN = 0.;
+    float m_weight_photonSF_Trigger_UNCERT_UP = 0.;
+    float m_weight_photonSF_Trigger_UNCERT_DOWN = 0.;
 
     // nominal b-tagging SF [WP]
     std::unordered_map<std::string, float> m_weight_bTagSF;
@@ -525,6 +582,7 @@ namespace top {
     std::vector<char>  m_el_true_isChargeFl;
     std::vector<char>  m_el_ECIDS;
     std::vector<double>  m_el_ECIDSResult;
+    std::vector<float> m_el_emfrac;//EM frac when using jet-electrons
 
     //forward electrons
     std::vector<float> m_fwdel_pt;
@@ -557,6 +615,7 @@ namespace top {
     std::vector<float>  m_mu_prodVtx_z;
     std::vector<float>  m_mu_prodVtx_perp;
     std::vector<float>  m_mu_prodVtx_phi;
+    std::vector<char> m_mu_passOR;
 
     //soft muons
     std::vector<float> m_softmu_pt;
@@ -623,6 +682,7 @@ namespace top {
     std::vector<float> m_ph_true_origin;
     std::vector<float> m_ph_faketype;
     std::vector<float> m_ph_iso;
+    std::unordered_map<std::string, std::vector<char> > m_ph_trigMatched;
 
     //taus
     std::vector<float> m_tau_pt;
@@ -649,6 +709,7 @@ namespace top {
     std::unordered_map<std::string, std::vector<char> >  m_jet_isbtagged;//one vector per jet per WP
     std::unordered_map<std::string, std::vector<int> >   m_jet_tagWeightBin;// one vector per jet per tag-weight bin in
                                                                             // case Continuous WP is used
+    std::vector<float> m_jet_emfrac;//EM frac when using jet-electrons
 
     // ghost tracks
     std::vector<std::vector<float> > m_jet_ghostTrack_pt;
@@ -788,6 +849,12 @@ namespace top {
     //met
     float m_met_met;
     float m_met_phi;
+    float m_met_sig;
+    float m_met_sigHT;
+    float m_met_sigET;
+    float m_met_sigRho;
+    float m_met_sigVarL;
+    float m_met_sigVarT;
     //these are for specific studies on the met, turned off by default, and turned on with the WriteMETBuiltWithLooseObjects option
     float m_met_met_withLooseObjects;
     float m_met_phi_withLooseObjects;
@@ -809,6 +876,10 @@ namespace top {
     std::vector<unsigned int> m_klfitter_parameters_size;
     std::vector<std::vector<double> > m_klfitter_parameters;
     std::vector<std::vector<double> > m_klfitter_parameterErrors;
+
+    //Only for singleT option
+    std::vector<float> m_klfitter_logLikelihood_t1;
+    std::vector<float> m_klfitter_logLikelihood_t2;
 
     /// Model
     std::vector<float> m_klfitter_model_bhad_pt;
@@ -1439,6 +1510,9 @@ namespace top {
     const std::vector<unsigned int>& klfitter_parameters_size() const {return m_klfitter_parameters_size;}
     const std::vector<std::vector<double> >& klfitter_parameters() const {return m_klfitter_parameters;}
     const std::vector<std::vector<double> >& klfitter_parameterErrors() const {return m_klfitter_parameterErrors;}
+    //Only for SingleT option
+    const std::vector<float>& klfitter_logLikelihood_t1() const {return m_klfitter_logLikelihood_t1;}
+    const std::vector<float>& klfitter_logLikelihood_t2() const {return m_klfitter_logLikelihood_t2;}
     /// Model
     const std::vector<float>& klfitter_model_bhad_pt() const {return m_klfitter_model_bhad_pt;}
     const std::vector<float>& klfitter_model_bhad_eta() const {return m_klfitter_model_bhad_eta;}

@@ -248,7 +248,7 @@ jetm15Seq += CfgMgr.DerivationFramework__DerivationKernel(	name = "JETM15TrigSki
 #====================================================================
 
 # Add alternative rho definitions
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addCHSPFlowObjects
+from DerivationFrameworkJetEtMiss.JetCommon import addCHSPFlowObjects
 addCHSPFlowObjects()
 
 from DerivationFrameworkJetEtMiss.JetCommon import defineEDAlg

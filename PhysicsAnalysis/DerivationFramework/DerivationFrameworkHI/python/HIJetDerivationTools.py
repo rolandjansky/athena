@@ -213,8 +213,9 @@ from JetRec.JetRecConf import JetAlgorithm
 from JetRec.JetRecFlags import jetFlags
 from DerivationFrameworkHI.HIDerivationFlags import HIDerivationFlags
 if HIDerivationFlags.isSimulation() : jetFlags.useTruth.set_Value_and_Lock(True)
-#topo_upc_mods = jtm.modifiersMap["calib_topo_ungroomed"]
-#print topo_upc_mods
+emtopo_upc_mods = jtm.modifiersMap["emtopo_ungroomed"]
+lctopo_upc_mods = jtm.modifiersMap["lctopo_ungroomed"]
+pflow_upc_mods = jtm.modifiersMap["pflow_ungroomed"]
 #if jetFlags.useTruth():
 #    truth_upc_mods = jtm.modifiersMap["truth_ungroomed"]
 #    print truth_upc_mods
@@ -223,7 +224,9 @@ if HIDerivationFlags.isSimulation() : jetFlags.useTruth.set_Value_and_Lock(True)
 #    print "remove", mod
 #    topo_upc_mods.remove(jtm.tools[mod])
 #    if jetFlags.useTruth(): truth_upc_mods.remove(jtm.tools[mod])
-#jtm.modifiersMap["topo_upc"] = topo_upc_mods
+jtm.modifiersMap["emtopo_upc"] = emtopo_upc_mods
+jtm.modifiersMap["lctopo_upc"] = lctopo_upc_mods
+jtm.modifiersMap["pflow_upc"] = pflow_upc_mods
 #if jetFlags.useTruth(): jtm.modifiersMap["truth_upc"] = truth_upc_mods
 
 OutputJetsUPC = {}
@@ -265,7 +268,14 @@ def addUPCJets(jetalg,radius,inputtype,sequence,outputlist):
         if inputtype == "Truth": 
             addStandardJetsUPC(jetalg, radius, "Truth", mods="truth_upc", ptmin=5000, algseq=sequence, outputGroup=outputlist)
         else:
-            addStandardJetsUPC(jetalg, radius, inputtype, mods="topo_upc",
+          if inputtype == "LCTopo":
+            addStandardJetsUPC(jetalg, radius, inputtype, mods="lctopo_upc",
+                               ghostArea=0.01, ptmin=2000, ptminFilter=5000, calibOpt="o", algseq=sequence, outputGroup=outputlist)
+          elif inputtype == "EMPFlow":
+            addStandardJetsUPC(jetalg, radius, inputtype, mods="pflow_upc",
+                               ghostArea=0.01, ptmin=2000, ptminFilter=5000, calibOpt="o", algseq=sequence, outputGroup=outputlist)
+          else:
+            addStandardJetsUPC(jetalg, radius, inputtype, mods="emtopo_upc",
                                ghostArea=0.01, ptmin=2000, ptminFilter=5000, calibOpt="o", algseq=sequence, outputGroup=outputlist)
 
 #2015 PbPb 99% trigger efficiency points

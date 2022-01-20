@@ -7,7 +7,8 @@
 
 #include "TopObjectSelectionTools/ElectronSelectionBase.h"
 #include "TopObjectSelectionTools/IsolationTools.h"
-
+#include "EgammaAnalysisInterfaces/IAsgDeadHVCellRemovalTool.h"
+#include "AsgTools/AnaToolHandle.h"
 #include <memory>
 
 namespace top {
@@ -20,6 +21,8 @@ namespace top {
      * @brief Cut on likelihood electrons
      *
      * @param ptcut The minimum pT electrons should have
+     * @param d0SigCut The maximum d0 significance electrons should have
+     * @param delta_z0 The maximum delta_z0 electrons should have 
      * @param vetoCrack Do you want to veto 1.37 < |cluster_eta| < 1.52?
      * @param operatingPoint Likelihood operating point for the main object
      * definition
@@ -28,14 +31,31 @@ namespace top {
      * @param isolation The isolation tool the user wants to use.  If you don't
      * want any isolation cuts to be applied then leave this as a nullptr.
      */
-    ElectronLikelihoodMC15(const double ptcut, const bool vetoCrack, const std::string& operatingPoint,
-                           const std::string& operatingPointLoose, StandardIsolation* isolation,
-                           const bool applyTTVACut = true, const bool applyChargeIDCut = false);
+    explicit ElectronLikelihoodMC15(const double ptcut, const bool vetoCrack, const std::string& operatingPoint,
+                                    const std::string& operatingPointLoose, StandardIsolation* isolation,
+                                    const double d0SigCut, const double delta_z0,
+                                    const bool applyTTVACut = true, const bool applyChargeIDCut = false);
     // this constructor is kept for backward compatibility - isPrimaryxAOD is not needed anymore
-    ElectronLikelihoodMC15(const bool,
-                           const double ptcut, const bool vetoCrack, const std::string& operatingPoint,
-                           const std::string& operatingPointLoose, StandardIsolation* isolation,
-                           const bool applyTTVACut = true, const bool applyChargeIDCut = false);
+    explicit ElectronLikelihoodMC15(const double ptcut, const bool vetoCrack, const std::string& operatingPoint,
+                                    const std::string& operatingPointLoose, StandardIsolation* isolation,
+                                    const bool applyTTVACut = true, const bool applyChargeIDCut = false);
+
+    explicit ElectronLikelihoodMC15(const bool,
+                                    const double ptcut,
+                                    const bool vetoCrack,
+                                    const std::string& operatingPoint,
+                                    const std::string& operatingPointLoose,
+                                    StandardIsolation* isolation,
+                                    const double d0SigCut = 5.,
+                                    const double delta_z0 = 0.5,
+                                    const bool applyTTVACut = true,
+                                    const bool applyChargeIDCut = false);
+
+    explicit ElectronLikelihoodMC15(const bool,
+                                    const double ptcut, const bool vetoCrack, const std::string& operatingPoint,
+                                    const std::string& operatingPointLoose, StandardIsolation* isolation,
+                                    const bool applyTTVACut = true, const bool applyChargeIDCut = false);
+
     virtual ~ElectronLikelihoodMC15() {}
     /**
      * @brief Selection for the main analysis (i.e. tight object definitions).
@@ -100,6 +120,10 @@ namespace top {
     ///Minimum pT that electrons should have
     double m_ptcut;
 
+    /// TTVA cuts
+    double m_d0SigCut;
+    double m_delta_z0;
+
     ///Veto the crack region?
     bool m_vetoCrack;
 
@@ -116,6 +140,10 @@ namespace top {
 
     /// decide to apply the charge ID selector tool
     bool m_applyChargeIDCut;
+
+    // Removing electron clusters from EMEC bad HV regions
+    // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EGammaIdentificationRun2#Removal_of_Electron_Photon_clust
+    asg::AnaToolHandle<IAsgDeadHVCellRemovalTool> m_deadHVTool;
   };
 }
 

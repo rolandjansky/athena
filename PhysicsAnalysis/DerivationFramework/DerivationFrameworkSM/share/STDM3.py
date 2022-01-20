@@ -23,6 +23,7 @@ from DerivationFrameworkCore.LHE3WeightMetadata import *
 # Add Truth MetaData
 if DerivationFrameworkHasTruth:
     from DerivationFrameworkMCTruth.MCTruthCommon import *
+    addStandardTruthContents()
 
 #====================================================================
 # SET UP STREAM
@@ -271,6 +272,44 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import applyMVfJvtAugmentati
 applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=STDM3Sequence, algname='JetForwardJvtToolBDTAlg')
 # PFlow fJvt #
 getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=STDM3Sequence, algname='JetForwardPFlowJvtToolAlg')
+
+
+# Add of VR truthcharged jets
+if DerivationFrameworkHasTruth:
+    from JetRec.JetRecStandardToolManager import jtm
+
+    if not hasattr(jtm,'truthpartcharged'):
+        from ParticleJetTools.ParticleJetToolsConf import CopyTruthJetParticles
+        barCodeFromMetadata=2
+        if objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
+            barCodeFromMetadata=0
+
+        if not 'truthpartcharged' in jtm.tools:
+            jtm += CopyTruthJetParticles("truthpartcharged", OutputName="JetInputTruthParticlesCharged",
+                                         MCTruthClassifier=jtm.JetMCTruthClassifier,
+                                         ChargedParticlesOnly=True,
+                                         BarCodeFromMetadata=barCodeFromMetadata
+                                        )
+            # Add a jet tool runner for this thing
+            from JetRec.JetRecConf import JetToolRunner,JetAlgorithm,PseudoJetGetter
+            jtm += JetToolRunner("jetchargedrun", EventShapeTools=[], Tools=[jtm.truthpartcharged], Timer=jetFlags.timeJetToolRunner() )
+            # And an algorithm to run in
+            STDM3Sequence += JetAlgorithm("jetchargedalg")
+            jetchargedalg = STDM3Sequence.jetchargedalg
+            jetchargedalg.Tools = [ jtm.jetchargedrun ]
+            jtm += PseudoJetGetter("truthchargedget",
+                                   Label = "TruthCharged",
+                                   InputContainer = jtm.truthpartcharged.OutputName,
+                                   OutputContainer = "PseudoJetTruthCharged",
+                                   GhostScale = 0.0,
+                                   SkipNegativeEnergy = True
+                                  )
+            jtm.gettersMap['truthcharged'] = [jtm.truthchargedget]
+
+    truth_modifiers = [jtm.truthpartondr, jtm.partontruthlabel, jtm.jetdrlabeler, jtm.trackjetdrlabeler]
+
+    addStandardVRJets("TruthCharged", 5000,0, 30000, 0.02, 0.4, mods=truth_modifiers, algseq=STDM3Sequence, outputGroup="STDM3Jets")
+
 
 #====================================================================
 # Add the containers to the output stream - slimming done here

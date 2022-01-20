@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# art-include: 21.2/AthDerivation
+# art-include: master/Athena
 # art-description: DAOD building PHYSLITE data18
 # art-type: grid
 # art-output: *.pool.root

@@ -36,7 +36,8 @@ namespace top {
     m_electronIsolation("SetMe"),
     m_electronIsolationLoose("SetMe"),
     m_useElectronChargeIDSelection(false),
-    m_useEgammaLeakageCorrection(true),
+    m_useEgammaLeakageCorrection(false),
+    m_useEgammaPileupCorrection(true),
     m_enablePromptLeptonImprovedVetoStudies(false),
 
     m_fwdElectronID("SetMe"),
@@ -81,10 +82,12 @@ namespace top {
     m_electronTriggers_Tight(),
     m_muonTriggers_Tight(),
     m_tauTriggers_Tight(),
+    m_photonTriggers_Tight(),
 
     m_allTriggers_Loose(),
     m_electronTriggers_Loose(),
     m_muonTriggers_Loose(),
-    m_tauTriggers_Loose()
+    m_tauTriggers_Loose(),
+    m_photonTriggers_Loose()
   {}
 }

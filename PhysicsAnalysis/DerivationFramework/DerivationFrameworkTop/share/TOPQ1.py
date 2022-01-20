@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #====================================================================
 # TOPQ1
@@ -209,6 +209,10 @@ from DerivationFrameworkFlavourTag.SoftBtagCommon import applySoftBtagging
 include("InDetRecExample/PixelConditionsAccess.py") # include all pixel condtions avaliable in AOD /DT
 include("InDetRecExample/SCTConditionsAccess.py")
 applySoftBtagging("softBtag", TOPQ1Sequence)
+
+# augment the soft secondary vertices with the decay length variables
+from DerivationFrameworkTop.TOPQAugTools import TOPQSoftSVCommonAugmentation
+TOPQ1Sequence += TOPQSoftSVCommonAugmentation
 
 # Then apply thinning
 #AugmentationTool for TOPQDERIV-69

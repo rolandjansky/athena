@@ -72,6 +72,7 @@ const Root::TResult& Root::TPhotonEfficiencyCorrectionTool::calculate( const PAT
      *  The underlying tool always fills these 2. If invalid return this will be SF=-999, Total 1
      */
     m_result.setResult(0, result[static_cast<size_t>(Root::TElectronEfficiencyCorrectionTool::Position::SF)]);
-    m_result.setResult(1, result[static_cast<size_t>(Root::TElectronEfficiencyCorrectionTool::Position::Total)]);
+    // Assume symmetric uncertainties and return up variation
+    m_result.setResult(1, result[static_cast<size_t>(Root::TElectronEfficiencyCorrectionTool::Position::TotalUp)]);
     return m_result;
 }

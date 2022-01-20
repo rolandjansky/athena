@@ -59,6 +59,22 @@ namespace asg
 
 
 
+  PropertyMgr *AsgComponent ::
+  getPropertyMgr () noexcept
+  {
+     return m_properties;
+  }
+
+
+
+  const PropertyMgr *AsgComponent ::
+  getPropertyMgr() const noexcept
+  {
+    return m_properties;
+  }
+
+
+
   const std::string& AsgComponent ::
   name () const
   {

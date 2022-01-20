@@ -12,7 +12,6 @@
 namespace EL
 {
   class Algorithm;
-  class AnaAlgorithmWrapper;
   class BatchDriver;
   struct BatchJob;
   struct BatchSample;

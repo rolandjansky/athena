@@ -58,6 +58,7 @@ class EventCleaningTool : public virtual IEventCleaningTool,
   private:
     double m_pt; 
     double m_eta; 
+    int m_njets;
     std::string m_jvt; 
     std::string m_or; 
     std::string m_prefix; 

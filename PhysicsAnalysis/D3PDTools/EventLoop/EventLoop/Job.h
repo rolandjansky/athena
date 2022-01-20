@@ -29,8 +29,16 @@
 #include <SampleHandler/SampleHandler.h>
 #include <SampleHandler/MetaObject.h>
 
+namespace asg
+{
+  class AsgServiceConfig;
+}
+
 namespace EL
 {
+  class PythonConfigBase;
+
+
   /// effects: standard swap
   /// guarantee: no-fail
   void swap (Job& a, Job& b);
@@ -89,9 +97,13 @@ namespace EL
     /// failures: out of memory II
     /// invariant: alg != 0
   public:
+    void algsAdd (std::unique_ptr<IAlgorithmWrapper> val_algorithm);
     void algsAdd (std::unique_ptr<Algorithm> val_algorithm);
     void algsAdd (Algorithm *alg_swallow);
     void algsAdd (const AnaAlgorithmConfig& config);
+    void algsAdd (const AnaReentrantAlgorithmConfig& config);
+    void algsAdd (const asg::AsgServiceConfig& config);
+    void algsAdd (const EL::PythonConfigBase& config);
 
 
     /// \brief add a clone of the given algorithm
@@ -378,6 +390,16 @@ namespace EL
   public:
     static const std::string optLocalNoUnsetup;
 
+    /// \brief the option to specify the number of parallel jobs in
+    /// \ref LocalDriver (0 = number of hardware cores) (default=1)
+    ///
+    /// As an intermediate between running a single job locally and
+    /// running in batch, this allows to run multiple processes in
+    /// parallel locally.  It is still recommended to just run in
+    /// batch instead, but sometimes this is more practical.
+  public:
+    static const std::string optNumParallelProcs;
+
 
     /// \brief the option to do processing in a background process in PROOF
   public:
@@ -426,6 +448,10 @@ namespace EL
     static const std::string optRetriesWait;
 
     /// \}
+
+
+    /// a list of files that need to be available within the worker job
+    static const std::string optUserFiles;
 
 
 

@@ -17,6 +17,9 @@ from DerivationFrameworkEGamma.EGAM7ExtraContent import *
 from DerivationFrameworkEGamma.egammaDFFlags import jobproperties
 jobproperties.egammaDFFlags.print_JobProperties("full")
 
+# additional settings for this derivation
+thinCells = False
+
 # check if we run on data or MC (DataSource = geant4)
 from AthenaCommon.GlobalFlags import globalflags
 print "EGAM7 globalflags.DataSource(): ", globalflags.DataSource()
@@ -156,7 +159,7 @@ from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorat
 EGAM7_GainDecoratorTool = GainDecorator()
 ToolSvc += EGAM7_GainDecoratorTool
 
-cluster_sizes = (3,5), (5,7), (7,7), (7,11)
+cluster_sizes = (3,7), (5,5), (7,11)
 EGAM7_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(neta, nphi)() for neta, nphi in cluster_sizes]
 
 
@@ -328,9 +331,10 @@ replaceAODReducedJets(reducedJetList,egam7Seq,"EGAM7")
 #============ Create Derivation EGAM7 cell collection ==================
 
 # Keep only calo cells associated with the egammaClusters collection
-from DerivationFrameworkCalo.CaloCellDFGetter import CaloCellDFGetter
-theCaloCellDFGetter = CaloCellDFGetter(inputClusterKeys=["egammaClusters"],
-                                       outputCellKey="DFEGAMCellContainer")
+if thinCells:
+	from DerivationFrameworkCalo.CaloCellDFGetter import CaloCellDFGetter
+	theCaloCellDFGetter = CaloCellDFGetter(inputClusterKeys=["egammaClusters"],
+										   outputCellKey="DFEGAMCellContainer")
 #========================================================================
 
 
@@ -391,8 +395,12 @@ EGAM7SlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
 # This line must come after we have finished configuring EGAM7SlimmingHelper
 EGAM7SlimmingHelper.AppendContentToStream(EGAM7Stream)
 
-#Add full CellContainer
-EGAM7Stream.AddItem("CaloCellContainer#AODCellContainer")
+# Add full CellContainer
+if thinCells:
+	EGAM7Stream.AddItem("CaloCellContainer#DFEGAMCellContainer")
+else:
+	EGAM7Stream.AddItem("CaloCellContainer#AODCellContainer")
+# Add the cluster->cells links
 EGAM7Stream.AddItem("CaloClusterCellLinkContainer#egammaClusters_links")
 
 

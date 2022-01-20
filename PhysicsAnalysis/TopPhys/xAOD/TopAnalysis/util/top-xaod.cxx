@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include <iostream>
@@ -60,6 +60,7 @@
 #include "TopPartons/CalcTtbarGammaPartonHistory.h"
 #include "TopPartons/CalcThqPartonHistory.h"
 #include "TopPartons/CalcTzqPartonHistory.h"
+#include "TopPartons/CalcTtttPartonHistory.h"
 
 #include "TopParticleLevel/ParticleLevelLoader.h"
 
@@ -125,6 +126,9 @@ int main(int argc, char** argv) {
   auto* const settings = top::ConfigurationSettings::get();
   settings->loadFromFile(settingsFilename);
   ATH_MSG_INFO("Configuration:\n" << *settings << "\n");
+
+  // only after printing full configuration check if there are issues and inform user and crash if necessary
+  settings->checkSettings();
 
   const std::string libraryNames = settings->value("LibraryNames");
   top::loadLibraries(libraryNames);
@@ -408,6 +412,11 @@ int main(int argc, char** argv) {
       std::unique_ptr<top::CalcTopPartonHistory>(new top::CalcTzqPartonHistory("top::CalcTzqPartonHistory"));
     top::check(topPartonHistory->setProperty("config", topConfig),
                "Failed to setProperty of top::CalcTzqPartonHistory");
+  } else if (settings->value("TopPartonHistory") == "tttt") {
+    topPartonHistory =
+      std::unique_ptr<top::CalcTopPartonHistory>(new top::CalcTtttPartonHistory("top::CalcTtttPartonHistory"));
+    top::check(topPartonHistory->setProperty("config", topConfig),
+               "Failed to setProperty of top::CalcTtttPartonHistory");
   }
 
 
@@ -495,6 +504,13 @@ int main(int argc, char** argv) {
   std::vector<float> totalEventsWeighted_LHE3;
   std::vector<double> totalEventsWeighted_LHE3_temp;// having doubles is necessary in case of re-calculation of the sum
                                                     // of weights on the fly
+  bool saveSumWeightsSquared=true;
+  float processedEventsWeightedSquared = 0;
+  double processedEventsWeightedSquared_temp = 0;
+  float processedEventsWeighted = 0;
+  double processedEventsWeighted_temp = 0;
+  ULong64_t processedEvents = 0;
+
   std::vector<std::string> names_LHE3;
   bool recalc_LHE3 = false;
   bool recalculateNominalWeightSum = false;
@@ -516,6 +532,11 @@ int main(int argc, char** argv) {
     sumWeights->Branch("names_mc_generator_weights", &names_LHE3);
   }
   sumWeights->Branch("totalEvents", &totalEvents, "totalEvents/l");
+  if(saveSumWeightsSquared) {
+    sumWeights->Branch("processedEvents",&processedEvents);
+    sumWeights->Branch("processedEventsWeighted",&processedEventsWeighted);
+    sumWeights->Branch("processedEventsWeightedSquared",&processedEventsWeightedSquared);
+  }
 
   for(auto& it : boostedTaggersSFSysNames) {
     sumWeights->Branch(("sysNames_"+it.first).c_str(),&it.second);
@@ -672,6 +693,22 @@ int main(int argc, char** argv) {
           << "       YOU MANY NOT BE USING THE LATEST BTAGGING RECOMMENDATIONS         \n"
           << "*************************************************************************\n\n");
     }
+    if (topConfig->printEgammaCalibModelWarning()) {
+      ATH_MSG_WARNING(
+              "\n*************************************************************************\n"
+                      << "          YOU HAVE CHANGED DEFAULT EGAMMA CALIBRATION MODEL             \n"
+                      << " TO USE DEFAULT MODEL, REMOVE 'EGammaCalibrationModel' FROM CONFIG FILE \n"
+                      << "*************************************************************************\n\n");
+    }
+    if (topConfig->printEIDFileWarning()) {
+      ATH_MSG_WARNING(
+          "\n*************************************************************************\n"
+          << "       YOU ARE USING THIS CUSTOM PATH TO THE ELECTRON ID SF FILE:        \n\n"
+          << topConfig->electronIDSFFilePath() << "\n\n" 
+          << "               INSTEAD OF THE MOST RECENT RECOMMENDED MAP                \n"
+          << "       YOU MANY NOT BE USING THE LATEST ELECTRON ID RECOMMENDATIONS      \n"
+          << "*************************************************************************\n\n");
+    }
 
     const unsigned int entries = xaodEvent.getEntries();
     totalEventsInFiles += entries;
@@ -782,6 +819,13 @@ int main(int argc, char** argv) {
           totalEventsWeighted_temp += ei->mcEventWeights().at(nominalWeightIndex);
           totalEvents++;
         }
+
+	if(saveSumWeightsSquared) {
+	  processedEvents++;
+	  const size_t nominalWeightIndex = topConfig->nominalWeightIndex();
+	  processedEventsWeighted_temp += ei->mcEventWeights().at(nominalWeightIndex);
+	  processedEventsWeightedSquared_temp += pow(ei->mcEventWeights().at(nominalWeightIndex),2);
+	}
 
         if(topConfig->doMCGeneratorWeights())
         {
@@ -937,7 +981,6 @@ int main(int argc, char** argv) {
           // check if we are using actual mu for mc16d or mc16e
           if (isFirst && topConfig->isMC()) {
             const int runNumber = topEvent.m_info->runNumber();
-            ATH_MSG_INFO("RunNumber: " << runNumber);
             if (runNumber >= 300000) {
               if ((!topConfig->isAFII() && topConfig->PileupActualMu_FS().size() == 0) ||
                 (topConfig->isAFII() && topConfig->PileupActualMu_AF().size() == 0)) {
@@ -1090,6 +1133,10 @@ int main(int argc, char** argv) {
   if(recalculateNominalWeightSum)
   {
     totalEventsWeighted=totalEventsWeighted_temp;
+  }
+  if(saveSumWeightsSquared) {
+    processedEventsWeighted=processedEventsWeighted_temp;
+    processedEventsWeightedSquared=processedEventsWeightedSquared_temp;
   }
   sumWeights->Fill();
   outputFile->cd();

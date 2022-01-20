@@ -1,0 +1,145 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
+/// @author Nils Krumnack
+
+
+//
+// includes
+//
+
+#include <AsgMessaging/MessageCheck.h>
+#include <AsgMessaging/StatusCode.h>
+
+#include <regex>
+
+//
+// method implementations
+//
+
+namespace CP
+{
+  template<typename T> template<typename T2> SysWriteDecorHandle<T> ::
+  SysWriteDecorHandle (T2 *owner, const std::string& propertyName,
+                 const std::string& propertyValue,
+                 const std::string& propertyDescription)
+    : AsgMessagingForward (owner), m_decorName (propertyValue)
+  {
+    owner->declareProperty (propertyName, m_decorName, propertyDescription);
+  }
+
+
+
+  template<typename T> bool SysWriteDecorHandle<T> ::
+  empty () const noexcept
+  {
+    return m_decorName.empty();
+  }
+
+
+
+  template<typename T> SysWriteDecorHandle<T> ::
+  operator bool () const noexcept
+  {
+    return !m_decorName.empty();
+  }
+
+
+
+  template<typename T> std::string SysWriteDecorHandle<T> ::
+  getNamePattern () const
+  {
+    // So far it is undefined what to return here, it could either be
+    // "decorName" or "objectName.decorName".  I'll fill this in once
+    // there is a reason for it to be one or the other.
+    return "";
+  }
+
+
+
+  template<typename T> StatusCode SysWriteDecorHandle<T> ::
+  initialize (SysListHandle& sysListHandle, const ISysHandleBase& objectHandle)
+  {
+    if (m_objectHandle != nullptr)
+    {
+      ANA_MSG_ERROR ("trying to initialize handle twice");
+      return StatusCode::FAILURE;
+    }
+    m_objectHandle = &objectHandle;
+    return sysListHandle.addHandle (*this);
+  }
+
+
+
+  template<typename T> StatusCode SysWriteDecorHandle<T> ::
+  initialize (SysListHandle& sysListHandle, const ISysHandleBase& objectHandle, SG::AllowEmptyEnum)
+  {
+    if (!empty())
+      return initialize (sysListHandle, objectHandle);
+    else
+      return StatusCode::SUCCESS;
+  }
+
+
+
+  template<typename T> const std::string& SysWriteDecorHandle<T> ::
+  getName (const CP::SystematicSet& sys) const
+  {
+    const auto& data = getData (sys);
+    return std::get<0> (data);
+  }
+
+
+
+  template<typename T> void SysWriteDecorHandle<T> ::
+  set (const SG::AuxElement& object, const T& value,
+       const CP::SystematicSet& sys) const
+  {
+    const auto& data = getData (sys);
+    std::get<1> (data) (object) = value;
+  }
+
+
+
+  template<typename T> CP::SystematicSet SysWriteDecorHandle<T> ::
+  getInputAffecting (const ISystematicsSvc& /*svc*/) const
+  {
+    return CP::SystematicSet ();
+  }
+
+
+
+  template<typename T> StatusCode SysWriteDecorHandle<T> ::
+  fillSystematics (const ISystematicsSvc& svc,
+                   const CP::SystematicSet& fullAffecting,
+                   const std::vector<CP::SystematicSet>& sysList)
+  {
+    for (auto& sys : sysList)
+    {
+      std::string newName;
+      ANA_CHECK (svc.makeSystematicsName (newName, m_decorName, sys));
+      ANA_MSG_DEBUG ("SysWriteDecorHandle: " << newName << " (" << sys.name() << ")");
+      m_dataCache.emplace (sys, std::make_tuple (newName, newName));
+    }
+    ANA_CHECK (svc.setDecorSystematics (m_objectHandle->getNamePattern(), m_decorName, fullAffecting));
+    return StatusCode::SUCCESS;
+  }
+
+
+
+  template<typename T> const auto&
+  SysWriteDecorHandle<T> ::
+  getData (const CP::SystematicSet& sys) const
+  {
+    auto cache = m_dataCache.find (sys);
+    if (cache == m_dataCache.end())
+    {
+      if (m_dataCache.empty())
+        throw std::logic_error ("uninitialized SysWriteDecorHandle (" + m_decorName + ")");
+      else
+        throw std::logic_error ("unsupported systematic in SysWriteDecorHandle (" + m_decorName + "): (" + sys.name() + ")");
+    }
+    return cache->second;
+  }
+}

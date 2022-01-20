@@ -1,6 +1,6 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
- */
+    Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 
 #ifndef __TTBARELECTRONJETOVERLAP_H__
 #define __TTBARELECTRONJETOVERLAP_H__
@@ -9,63 +9,45 @@
 #include <set>
 #include <utility>
 #include "TLorentzVector.h"
-
 #include "xAODJet/JetContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 
 class TTBarElectronJetOverlap {
-private:
-  std::vector<TLorentzVector> fJetTLVs;
-  std::vector<float> fJetJVFs;
-  std::vector<float> fJetD3PDTrkPtPVSums;
-  std::vector<float> fJetD3PDTrkPtSums;
+    private:
+        std::vector<TLorentzVector> fJetTLVs; // all jet 4-vectors
+        std::vector<TLorentzVector> fOrigJetTLVs; // original jet 4-vectors
+        std::vector<bool> fGoodJets; // flags for jets passing overlap removal
+        std::vector<int> fSubJets; // flags for jets that undergo subtraction
+        std::vector<std::set<int> > fJetAssocElCls; // for each jet, filled with associated electron indexes (even more than one, -1 if no associated electron)
 
-  std::vector<bool> fGoodJets;
-  std::vector<int> fSubJets;
-  std::vector<std::set<int> > fJetAssocElCls;
+        std::vector<TLorentzVector> fElTLVs; // all electron 4-vectors (track-based direction)
+        std::vector<TLorentzVector> fElClTLVs; // all electron 4-vectors (calo-based direction)
+        std::vector<bool> fElGood; // this registers if the electron passed the object definition (before this overlap removal)
+        std::vector<bool> fGoodEls; // flags for electrons passing overalp removal
+        std::vector<int> fElClAssocJet; // for each electron, filled with associated jet index (-1 otherwise)
 
-  std::vector<TLorentzVector> fElTLVs;
-  std::vector<TLorentzVector> fOrigJetTLVs;
-  std::vector<TLorentzVector> fElClTLVs;
-  std::vector<bool> fElGood; // this registers if the electron passed the object definition
+        void FindAssocEls();
+        void SubtractEls();
+        void FindGoodObjects(float pt_cut_value, float pt_bias_value);
 
-  std::vector<bool> fGoodEls;
-  std::vector<int> fElClAssocJet;
-
-  bool fDebug;
-
-  void FindAssocEls();
-  void SubtractEls();
-  void FindGoodObjects();
-  void RecalcJVF();
+        xAOD::JetContainer *m_jets; //!
+        xAOD::ElectronContainer *m_electrons; //!
 
 
-  xAOD::JetContainer* m_jets; //!
-  xAOD::ElectronContainer* m_electrons; //!
-public:
-  TTBarElectronJetOverlap() : fDebug(false), m_jets(nullptr), m_electrons(nullptr) {
-  }
+    public:
+        TTBarElectronJetOverlap() : m_jets(nullptr), m_electrons(nullptr)
+        {
+        }
 
-  ~TTBarElectronJetOverlap() { }
+        ~TTBarElectronJetOverlap() {
+        }
 
-  void AnalyzeEvent(const std::string& leptonDef);
+        void AnalyzeEvent(float pt_cut_value, float pt_bias_value, const std::string &leptonDef);
 
-  // sets the debug level (info will print if set true).
-  void SetDebug(bool db) {
-    fDebug = db;
-  }
+        // Load all jets in the event (with variables corresponding to the *corrected* jet quantities)
+        // Load selected electrons (only *selected* electrons - i.e. pass ID and isolation cuts)
+        void Load(xAOD::JetContainer *jets, xAOD::ElectronContainer *electrons, const std::string &leptonDef);
 
-  bool GetDebug() {
-    return fDebug;
-  }
-
-  // load all anti-kt 0.4 LCTopo jets in the event.
-  // these variables should correspond to the *corrected* jet
-  // quantities. Every jet in the D3PD should be passed.
-  // load selected electrons.
-  // these variables should only be filled for /selected/
-  // electrons (i.e. pass ID and isolation cuts).
-  void Load(xAOD::JetContainer* jets, xAOD::ElectronContainer* electrons, const std::string& leptonDef);
 };
 
 #endif

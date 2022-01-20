@@ -12,6 +12,7 @@
 #include <AssociationUtils/ToolBox.h>
 #include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
+#include <SystematicsHandles/SysWriteDecorHandle.h>
 
 namespace CP
 {
@@ -55,6 +56,30 @@ namespace CP
       this, "photons", "", "the photons container to use"};
     SysCopyHandle<xAOD::JetContainer> m_fatJetsHandle {
       this, "fatJets", "", "the fat jets container to use"};
+
+    /// \brief the decoration for the overlap removal status
+  private:
+    SysWriteDecorHandle<char> m_electronsDecoration {
+      this, "electronsDecoration", "", "the decoration for the electron overlap removal selection"};
+    SysWriteDecorHandle<char> m_muonsDecoration {
+      this, "muonsDecoration", "", "the decoration for the muon overlap removal selection"};
+    SysWriteDecorHandle<char> m_jetsDecoration {
+      this, "jetsDecoration", "", "the decoration for the jet overlap removal selection"};
+    SysWriteDecorHandle<char> m_tausDecoration {
+      this, "tausDecoration", "", "the decoration for the tau overlap removal selection"};
+    SysWriteDecorHandle<char> m_photonsDecoration {
+      this, "photonsDecoration", "", "the decoration for the photon overlap removal selection"};
+    SysWriteDecorHandle<char> m_fatJetsDecoration {
+      this, "fatJetsDecoration", "", "the decoration for the fat jet overlap removal selection"};
+
+    /// \brief the tool output decoration for the overlap removal status
+  private:
+    std::string m_overlapRemovalDecoration;
+
+    /// \brief the accessor for \ref m_overlapRemovalDecoration
+  private:
+    std::unique_ptr<const SG::AuxElement::Accessor<char> > m_overlapRemovalAccessor;
+
   };
 }
 

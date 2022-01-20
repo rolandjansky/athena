@@ -41,8 +41,8 @@ namespace CP
     m_scaleFactorAccessor = std::make_unique<SG::AuxElement::Accessor<float> > (m_scaleFactorDecoration);
 
     ANA_CHECK (m_efficiencyCorrectionTool.retrieve());
-    m_systematicsList.addHandle (m_photonHandle);
-    ANA_CHECK (m_systematicsList.addAffectingSystematics (m_efficiencyCorrectionTool->affectingSystematics()));
+    ANA_CHECK (m_photonHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_systematicsList.addSystematics (*m_efficiencyCorrectionTool));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
     ANA_CHECK (m_outOfValidity.initialize());
@@ -54,20 +54,21 @@ namespace CP
   StatusCode PhotonEfficiencyCorrectionAlg ::
   execute ()
   {
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
-        ANA_CHECK (m_efficiencyCorrectionTool->applySystematicVariation (sys));
-        xAOD::PhotonContainer *photons = nullptr;
-        ANA_CHECK (m_photonHandle.getCopy (photons, sys));
-        for (xAOD::Photon *photon : *photons)
+    for (const auto& sys : m_systematicsList.systematicsVector())
+    {
+      ANA_CHECK (m_efficiencyCorrectionTool->applySystematicVariation (sys));
+      xAOD::PhotonContainer *photons = nullptr;
+      ANA_CHECK (m_photonHandle.getCopy (photons, sys));
+      for (xAOD::Photon *photon : *photons)
+      {
+        if (m_preselection.getBool (*photon))
         {
-          if (m_preselection.getBool (*photon))
-          {
-            double sf = 0;
-            ANA_CHECK_CORRECTION (m_outOfValidity, *photon, m_efficiencyCorrectionTool->getEfficiencyScaleFactor (*photon, sf));
-            (*m_scaleFactorAccessor) (*photon) = sf;
-          }
+          double sf = 0;
+          ANA_CHECK_CORRECTION (m_outOfValidity, *photon, m_efficiencyCorrectionTool->getEfficiencyScaleFactor (*photon, sf));
+          (*m_scaleFactorAccessor) (*photon) = sf;
         }
-        return StatusCode::SUCCESS;
-      });
+      }
+    }
+    return StatusCode::SUCCESS;
   }
 }

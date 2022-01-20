@@ -21,17 +21,18 @@ namespace CP {
 class MuonCalibrationPeriodTool : public virtual IMuonCalibrationAndSmearingTool, public virtual ISystematicsTool, public asg::AsgMetadataTool {
   
   // Create a proper constructor for Athena
-  ASG_TOOL_CLASS2( MuonCalibrationPeriodTool, CP::IMuonCalibrationAndSmearingTool, CP::ISystematicsTool )
+  ASG_TOOL_CLASS3( MuonCalibrationPeriodTool, CP::IMuonCalibrationAndSmearingTool, CP::ISystematicsTool, CP::IReentrantSystematicsTool )
   
   public:
-     // There are two recommended options by MCP to setup the tool (https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/MCPAnalysisConsolidationMC16)
-     //  1) Correct data for the sagitta bias -- if no statistical limits
-     //  2) Add extra systematic for MC and keep data untouched
-     //  The calibration mode can be set via the property 'calibrationMode'
+     // There are a few recommended options by MCP to setup the tool (https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MCPAnalysisGuidelinesMC16)
+     //  1) Correct data for the sagitta bias with CB calibration    - for most precision analyses
+     //  2) Correct data for the sagitta bias with ID+MS calibration - for analyses limited by resolution systematics or unblinded high pT analyses
+     //  3) Do not correct data for the sagitta bias with ID+MS calibration  - for blinded high_pt analyses 
      enum CalibMode{
-        correctData =0,
-        additionalMCsys = 1, // <--- default
-        expert =2
+        noOption = -1, // <--- default
+        correctData_CB = 0,
+        correctData_IDMS = 1, 
+        notCorrectData_IDMS = 2
      };
      /// Apply the correction on a modifyable object
     virtual CorrectionCode applyCorrection( xAOD::Muon& mu ) const override;
@@ -79,42 +80,14 @@ class MuonCalibrationPeriodTool : public virtual IMuonCalibrationAndSmearingTool
         mutable const CP::IMuonCalibrationAndSmearingTool* m_activeTool;
         const xAOD::EventInfo* m_evInfo;
         
-        // Sagitta and calibration releases which are parsed to
-        // the three instances of the tool
-        std::string m_sagittaRelease1516;
-        std::string m_sagittaRelease17;
-        std::string m_sagittaRelease18;
+        std::string m_sagittaRelease;
         std::string m_release;
         bool m_do2StationsHighPt;
         bool m_doExtraSmearing;
-        float m_SagittaIterWeight;
+
 
         int m_calib_mode;
-        
-        bool m_StatComb1516;
-        bool m_SagittaCorr1516;
-        bool m_SagittaMCDistortion1516;
-        bool m_SagittaCorrPhaseSpace1516;
-        bool m_do2StationsHighPt1516;
-        bool m_doExtraSmearing1516;
-        float m_SagittaIterWeight1516;
-        
-        bool m_StatComb17;
-        bool m_SagittaCorr17;
-        bool m_SagittaMCDistortion17;
-        bool m_SagittaCorrPhaseSpace17;
-        bool m_do2StationsHighPt17;
-        bool m_doExtraSmearing17;
-        float m_SagittaIterWeight17;
-        
-        bool m_StatComb18;
-        bool m_SagittaCorr18;
-        bool m_SagittaMCDistortion18;
-        bool m_SagittaCorrPhaseSpace18;
-        bool m_do2StationsHighPt18;
-        bool m_doExtraSmearing18;
-        float m_SagittaIterWeight18;
-        
+     
         
         
         // Monte Carlo runNumbers correspond to different production campaigns
