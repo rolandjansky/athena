@@ -90,7 +90,7 @@ StatusCode jSuperCellTowerMapper::AssignTriggerTowerMapper(std::unique_ptr<jTowe
                     ATH_MSG_WARNING("\n==== jSuperCellTowerMapper ============ Hadronic layer energy filled more than once - it will be ignored. (Needs investigation).  Please report this!");
                 }
                 
-                targetTower->setET(1, int(eachTower->jepET()) * 1000.); // cf 1000.0
+                targetTower->set_TileCal_Et(1, int(eachTower->jepET()) * 1000.); // cf 1000.0
             } else {
                 ATH_MSG_WARNING("\n==== jSuperCellTowerMapper ============ Tower ID is officially unknown - it will be ignored. (Needs investigation).  Please report this!");
             }
@@ -295,17 +295,23 @@ void jSuperCellTowerMapper::reset(){
         FindAndConnectTower(my_jTowerContainerRaw,sample,region,layer,pos_neg,eta_index,phi_index,ID,et,prov,doPrint, eta_min, eta_max, eta0, phi_min, phi_max, phi0);
 
     }
+    
+    //multi linear digitisation encoding after filling all TT with the corresponding SC
+    for(auto tmpTower : *my_jTowerContainerRaw){
+        tmpTower->Do_LAr_encoding();
+    }
 
+     
     return StatusCode::SUCCESS;
 
 }
 
 
-void jSuperCellTowerMapper::ConnectSuperCellToTower(std::unique_ptr<jTowerContainer> & my_jTowerContainerRaw,int iJTower, Identifier ID, int iCell, float et, int layer, bool doenergysplit){
+void jSuperCellTowerMapper::ConnectSuperCellToTower(std::unique_ptr<jTowerContainer> & my_jTowerContainerRaw,int iJTower, Identifier ID, int iCell, float et, int layer){
 
   LVL1::jTower * tmpTower = my_jTowerContainerRaw->findTower(iJTower);
   if(tmpTower){
-    tmpTower->setSCID(ID,iCell,et,layer,doenergysplit);
+    tmpTower->set_LAr_Et(ID,iCell,et,layer);
   }
 
 }
@@ -1084,7 +1090,7 @@ int jSuperCellTowerMapper::FindAndConnectTower(std::unique_ptr<jTowerContainer> 
         if(doPrint) {
             PrintCellSpec(sample, layer, region, eta_index, phi_index, pos_neg, iJTower, iCell, prov, ID, doenergysplit, eta_min, eta_max, eta0, phi_min, phi_max, phi0);
         }
-        ConnectSuperCellToTower( my_jTowerContainerRaw, iJTower, ID, iCell, et, layer, doenergysplit);
+        ConnectSuperCellToTower( my_jTowerContainerRaw, iJTower, ID, iCell, et, layer);
 
 
     }
