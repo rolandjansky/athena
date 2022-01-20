@@ -131,9 +131,13 @@ if DetFlags.pixel_on():
     #####################
     # Calibration Setup #
     #####################
+    from Digitization.DigitizationFlags import digitizationFlags
     if commonGeoFlags.Run()=="RUN3" and 'UseOldIBLCond' not in digitizationFlags.experimentalDigi():
         if not conddb.folderRequested("/PIXEL/ChargeCalibration"):
             conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/ChargeCalibration", "/PIXEL/ChargeCalibration", className="CondAttrListCollection")
+        if athenaCommonFlags.isOnline():
+            conddb.addOverride("/PIXEL/Onl/ChargeCalibration", "ChargeCalibration-20211220")
+            
         if not hasattr(condSeq, 'PixelChargeLUTCalibCondAlg'):
             from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeLUTCalibCondAlg
             condSeq += PixelChargeLUTCalibCondAlg(name="PixelChargeLUTCalibCondAlg", ReadKey="/PIXEL/ChargeCalibration")
