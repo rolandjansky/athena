@@ -17,15 +17,17 @@ def AtlasTrackSummaryToolCfg(flags, name="AtlasTrackSummaryTool", **kwargs):
 
     # Setup Association Tool
     from InDetConfig.InDetRecToolConfig import InDetPrdAssociationToolCfg
-    atlasPrdAssociationTool = result.getPrimaryAndMerge(InDetPrdAssociationToolCfg(flags,
-                                                                              name='AtlasPrdAssociationTool'))
+    atlasPrdAssociationTool = result.popToolsAndMerge(InDetPrdAssociationToolCfg(flags,
+                                                                                 name='AtlasPrdAssociationTool'))
     atlasPrdAssociationTool.addTRToutliers = False
+    result.addPublicTool(atlasPrdAssociationTool)
 
     # Loading Configurable HoleSearchTool
     from InDetConfig.InDetRecToolConfig import InDetTrackHoleSearchToolCfg
-    atlasHoleSearchTool = result.getPrimaryAndMerge(InDetTrackHoleSearchToolCfg(flags,
-                                                                           name="AtlasHoleSearchTool",
-                                                                           Extrapolator=extrapolator))
+    atlasHoleSearchTool = result.popToolsAndMerge(InDetTrackHoleSearchToolCfg(flags,
+                                                                              name="AtlasHoleSearchTool",
+                                                                              Extrapolator=extrapolator))
+    result.addPublicTool(atlasHoleSearchTool)
 
     # FIXME - need InDet to provide configuration for PixelConditionsSummaryTool
     # Also assuming we don't use DetailedPixelHoleSearch (since it seems to be off in standard workflows)

@@ -175,9 +175,10 @@ def TRTSegmentFindingCfg(flags, extension = "", InputCollections = None, BarrelS
     prefix = 'InDetSegment'
     suffix = extension
     if usePrdAssociationTool:
-        acc.merge(TC.InDetTrackPRD_AssociationCfg(flags, namePrefix = prefix,
-                                                         nameSuffix = suffix,
-                                                         TracksName = list(InputCollections)))
+        acc.merge(TC.InDetTrackPRD_AssociationCfg(flags,
+                                                  name = prefix + 'TrackPRD_Association' + suffix,
+                                                  AssociationMapName = prefix + 'PRDtoTrackMap' + suffix,
+                                                  TracksName = list(InputCollections)))
     #
     # --- TRT track reconstruction
     #
