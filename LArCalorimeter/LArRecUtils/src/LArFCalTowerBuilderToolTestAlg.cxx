@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file  LArRecUtils/src/LArFCalTowerBuilderToolTestAlg.cxx
@@ -14,7 +14,6 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloTowerContainer.h"
 #include "CaloInterface/ICaloTowerBuilderToolBase.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "AthenaKernel/errorcheck.h"
 #include "TestTools/random.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -62,7 +61,8 @@ StatusCode LArFCalTowerBuilderToolTestAlg::initialize()
 {
   m_calos.push_back (CaloCell_ID::LARFCAL);
 
-  CHECK( m_builder.retrieve() );
+  ATH_CHECK( m_builder.retrieve() );
+  ATH_CHECK( m_caloMgrKey.initialize() );
 
   m_seg = CaloTowerSeg (100, 64, -5.0, 5.0);
   m_builder->setTowerSeg (m_seg);
@@ -74,9 +74,10 @@ CaloCellContainer*
 LArFCalTowerBuilderToolTestAlg::make_cells()
 {
   CaloCellContainer* cells = new CaloCellContainer;
-  const CaloDetDescrManager* ddman = 0;
-  if ( detStore()->retrieve (ddman, "CaloMgr").isFailure() )
-    std::abort();
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+  if(!caloMgrHandle.isValid()) std::abort();
+  const CaloDetDescrManager* ddman = *caloMgrHandle;
+
   for (CaloCell_ID::SUBCALO subcalo : m_calos) {
     for (const CaloDetDescrElement* dde :
            ddman->element_range (subcalo))
