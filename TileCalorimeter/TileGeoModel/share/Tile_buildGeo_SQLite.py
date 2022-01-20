@@ -46,12 +46,6 @@ topSeq = AlgSequence()
 # Detector flags
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.ID_setOff()
-DetFlags.BCM_setOff()
-DetFlags.DBM_setOff()
-DetFlags.bpipe_setOff()
-DetFlags.pixel_setOff()
-DetFlags.SCT_setOff()
-DetFlags.TRT_setOff()
 DetFlags.Calo_setOff()  # LAr
 DetFlags.Tile_setOn()   # Tile
 DetFlags.Muon_setOff()
