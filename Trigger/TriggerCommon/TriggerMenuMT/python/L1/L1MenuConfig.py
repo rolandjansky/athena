@@ -685,7 +685,8 @@ class L1MenuConfig(object):
         self.l1menu.checkBGRP()
 
         # check that only the minimal set of legacy and detector thresholds is used
-        self.l1menu.checkLegacyThresholds()   
+        if 'pp' in self.l1menu.menuName:
+           self.l1menu.checkLegacyThresholds()   
 
         # check for the topo multiplicity algorithms and CTP inputs
         # TOPO1
@@ -693,6 +694,9 @@ class L1MenuConfig(object):
 
         # check #number of CTP inputs and outputs <=512
         self.l1menu.checkCountCTPInputsOutput()
+
+        # check #number of inputs on the CTPIN connectors
+        self.l1menu.checkCTPINconnectors()
 
         # check that performance thresholds are not used in the physics L1 menu
         self.l1menu.checkPerfThresholds()
