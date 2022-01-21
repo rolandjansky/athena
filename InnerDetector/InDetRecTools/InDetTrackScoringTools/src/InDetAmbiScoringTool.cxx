@@ -143,11 +143,13 @@ StatusCode InDet::InDetAmbiScoringTool::initialize()
   
   // Get segment selector tool
   //
-  if(m_selectortool.retrieve().isFailure()) {
-    msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_selectortool <<endreq;
-    return StatusCode::FAILURE;
-  } else {
-    msg(MSG::DEBUG) << "Retrieved tool " << m_selectortool << endreq;
+  if (! m_useITkAmbigFcn) {
+    if(m_selectortool.retrieve().isFailure()) {
+      msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_selectortool <<endreq;
+      return StatusCode::FAILURE;
+    } else {
+      msg(MSG::DEBUG) << "Retrieved tool " << m_selectortool << endreq;
+    }
   }
 
   sc = m_iBeamCondSvc.retrieve();
