@@ -128,8 +128,12 @@ def tauMonitoringPrecisionMVA():
    monTool.defineHistogram('vertex_x', path='EXPERT', type='TH1F', title="EF RoI Vertex x; Vertex x; nRoIS", xbins=100, xmin=-1, xmax=1)
    monTool.defineHistogram('vertex_y', path='EXPERT', type='TH1F', title="EF RoI Vertex y; Vertex y; nRoIS", xbins=100, xmin=-2, xmax=0)
    monTool.defineHistogram('vertex_z', path='EXPERT', type='TH1F', title="EF RoI Vertex z; Vertex z; nRoIS", xbins=120, xmin=-120, xmax=120)
-   monTool.defineHistogram('RNNJetScore', path='EXPERT', type='TH1F', title="EF RNN score; RNN score; nTaus", xbins=40, xmin=0, xmax=1) 
-   monTool.defineHistogram('RNNJetScoreSigTrans', path='EXPERT', type='TH1F', title="EF RNN score; RNN score sig trans; nTaus", xbins=40, xmin=0, xmax=1)
+   monTool.defineHistogram('RNNJetScore_0p', path='EXPERT', type='TH1F', title="EF RNN score for 0 prong taus; RNN score; nTaus", xbins=40, xmin=0, xmax=1) 
+   monTool.defineHistogram('RNNJetScoreSigTrans_0p', path='EXPERT', type='TH1F', title="EF RNN score for 0 prong taus; RNN score sig trans; nTaus", xbins=40, xmin=0, xmax=1)
+   monTool.defineHistogram('RNNJetScore_1p', path='EXPERT', type='TH1F', title="EF RNN score for 1 prong taus; RNN score; nTaus", xbins=40, xmin=0, xmax=1)
+   monTool.defineHistogram('RNNJetScoreSigTrans_1p', path='EXPERT', type='TH1F', title="EF RNN score for 1 prong taus; RNN score sig trans; nTaus", xbins=40, xmin=0, xmax=1)
+   monTool.defineHistogram('RNNJetScore_mp', path='EXPERT', type='TH1F', title="EF RNN score for multi prong taus; RNN score; nTaus", xbins=40, xmin=0, xmax=1)
+   monTool.defineHistogram('RNNJetScoreSigTrans_mp', path='EXPERT', type='TH1F', title="EF RNN score for multi prong taus; RNN score sig trans; nTaus", xbins=40, xmin=0, xmax=1)
    monTool.defineHistogram('EtFinal, EtaEF', path='EXPERT', type='TH2F', title="Eta EF vs Et Final; Et Final; Eta EF",
                                                            xbins=100 , xmin=0, xmax=1000,
                                                            ybins=100, ymin=-2.6, ymax=2.6)

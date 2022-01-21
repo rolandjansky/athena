@@ -84,9 +84,14 @@ bool TrigEFTauMVHypoTool::decide(const ITrigEFTauMVHypoTool::TauJetInfo& input )
   auto nTrackAccepted	   = Monitored::Scalar<int>( "nTrackAccepted", -1);
   auto nWideTrackAccepted  = Monitored::Scalar<int>( "nWideTrackAccepted", -1);
   auto ninputTaus          = Monitored::Scalar<int>( "nInputTaus", -1);
-  auto RNNJetScore         = Monitored::Scalar<float>( "RNNJetScoreAccepted", -1);
-  auto RNNJetScoreSigTrans = Monitored::Scalar<float>( "RNNJetScoreSigTransAccepted", -1);
-  auto monitorIt           = Monitored::Group(m_monTool, PassedCuts, ptAccepted,  nTrackAccepted, nWideTrackAccepted, ninputTaus, RNNJetScore, RNNJetScoreSigTrans);
+  auto RNNJetScore_0p         = Monitored::Scalar<float>( "RNNJetScoreAccepted_0p", -1);
+  auto RNNJetScoreSigTrans_0p = Monitored::Scalar<float>( "RNNJetScoreSigTransAccepted_0p", -1);
+  auto RNNJetScore_1p         = Monitored::Scalar<float>( "RNNJetScoreAccepted_1p", -1);
+  auto RNNJetScoreSigTrans_1p = Monitored::Scalar<float>( "RNNJetScoreSigTransAccepted_1p", -1);
+  auto RNNJetScore_mp         = Monitored::Scalar<float>( "RNNJetScoreAccepted_mp", -1);
+  auto RNNJetScoreSigTrans_mp = Monitored::Scalar<float>( "RNNJetScoreSigTransAccepted_mp", -1);  
+
+  auto monitorIt = Monitored::Group(m_monTool, PassedCuts, ptAccepted,  nTrackAccepted, nWideTrackAccepted, ninputTaus, RNNJetScore_0p, RNNJetScoreSigTrans_0p, RNNJetScore_1p, RNNJetScoreSigTrans_1p, RNNJetScore_mp, RNNJetScoreSigTrans_mp );
 
   // general reset
   PassedCuts = 0;
@@ -188,9 +193,17 @@ bool TrigEFTauMVHypoTool::decide(const ITrigEFTauMVHypoTool::TauJetInfo& input )
          continue;
 
       PassedCuts++;
-      RNNJetScore = Tau->discriminant(xAOD::TauJetParameters::RNNJetScore);
-      RNNJetScoreSigTrans = Tau->discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans);
 
+      if(Tau->nTracks() == 0){
+         RNNJetScore_0p = Tau->discriminant(xAOD::TauJetParameters::RNNJetScore);
+         RNNJetScoreSigTrans_0p = Tau->discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans);
+      } else if ( Tau->nTracks() == 1 ) {
+         RNNJetScore_1p = Tau->discriminant(xAOD::TauJetParameters::RNNJetScore);
+         RNNJetScoreSigTrans_1p = Tau->discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans);
+      } else {
+         RNNJetScore_mp = Tau->discriminant(xAOD::TauJetParameters::RNNJetScore);
+         RNNJetScoreSigTrans_mp = Tau->discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans);
+      }
     }
     else
     {
