@@ -114,6 +114,7 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
                            'MuonCalibrationAndSmearingAlg' + postfix )
     addPrivateTool( alg, 'calibrationAndSmearingTool',
                     'CP::MuonCalibrationPeriodTool' )
+    alg.calibrationAndSmearingTool.calibrationMode = 2 # choose ID+MS with no sagitta bias
     seq.append( alg, inputPropName = 'muons', outputPropName = 'muonsOut',
                 stageName = 'calibration',
                 dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])})
