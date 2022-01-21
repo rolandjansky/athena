@@ -165,7 +165,7 @@ private:
       Acts::MultiTrajectory::TrackStateProxy trackState, Acts::NavigationDirection direction, Acts::LoggerWrapper logger);
 
   static Acts::Result<void> gainMatrixSmoother(const Acts::GeometryContext& gctx,
-      Acts::MultiTrajectory trajectory, size_t entryIndex, Acts::LoggerWrapper logger);
+      Acts::MultiTrajectory& trajectory, size_t entryIndex, Acts::LoggerWrapper logger);
 
   // Create a track from the fitter result
   std::unique_ptr<Trk::Track> makeTrack(const EventContext& ctx, Acts::GeometryContext& tgContext, TrackFitterResult& fitResult) const;

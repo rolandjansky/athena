@@ -466,8 +466,8 @@ ActsKalmanFitter::makeTrack(const EventContext& ctx, Acts::GeometryContext& tgCo
               }
             typePattern.set(Trk::TrackStateOnSurface::Hole);
           }
-          // The state was tagged as an outlier, use filtered parameters
-          else if (flag[Acts::TrackStateFlag::OutlierFlag] == true){
+          // The state was tagged as an outlier or was missed in the reverse filtering, use filtered parameters
+          else if (flag[Acts::TrackStateFlag::OutlierFlag] == true || ( fitOutput.reversed && std::find(fitOutput.passedAgainSurfaces.begin(), fitOutput.passedAgainSurfaces.end(), state.referenceSurface().getSharedPtr().get()) == fitOutput.passedAgainSurfaces.end())){
             const Acts::BoundTrackParameters actsParam(state.referenceSurface().getSharedPtr(),
                                                        state.filtered(),
                                                        state.filteredCovariance());
@@ -537,7 +537,7 @@ Acts::Result<void> ActsKalmanFitter::gainMatrixUpdate(const Acts::GeometryContex
 }
 
 Acts::Result<void> ActsKalmanFitter::gainMatrixSmoother(const Acts::GeometryContext& gctx,
-    Acts::MultiTrajectory trajectory, size_t entryIndex, Acts::LoggerWrapper logger) {
+    Acts::MultiTrajectory& trajectory, size_t entryIndex, Acts::LoggerWrapper logger) {
   Acts::GainMatrixSmoother smoother;
   return smoother(gctx, trajectory, entryIndex, logger);
 }
