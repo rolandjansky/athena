@@ -119,7 +119,8 @@ void SCT_ConfigurationConditionsTool::getDetectorElementStatus(const EventContex
                                                          m_pHelper->eta_module(a_bad_module.first),
                                                          side_i)};
                  IdentifierHash hash = m_pHelper->wafer_hash(wafer_id);
-                 chip_status.at(hash.value()) &= static_cast<InDet::ChipFlags_t>( ~(a_bad_module.second) );
+                 unsigned int bad_chip_flags = SCT::getGeometricalFromPhysicalChipFlags(*m_pHelper, *element_status.getDetectorElement(hash),a_bad_module.second );
+                 chip_status.at(hash.value()) &= static_cast<InDet::ChipFlags_t>( ~(bad_chip_flags) );
               }
            }
         }
@@ -134,6 +135,7 @@ void SCT_ConfigurationConditionsTool::getDetectorElementStatus(const EventContex
            // skip bad modules and chips
            if (!status.at(hash)) continue;
            int strip_i = m_pHelper->strip(bad_strip);
+
            std::vector<unsigned short> &bad_module_strips_combined = bad_strips.at(hash);
            std::vector<unsigned short>::const_iterator iter = std::lower_bound(bad_module_strips_combined.begin(),bad_module_strips_combined.end(),strip_i);
            if (iter == bad_module_strips_combined.end() || *iter != strip_i) {

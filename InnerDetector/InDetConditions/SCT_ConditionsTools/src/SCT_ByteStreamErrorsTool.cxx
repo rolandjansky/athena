@@ -176,7 +176,14 @@ SCT_ByteStreamErrorsTool::getDetectorElementStatus(const EventContext& ctx, InDe
    if (status.empty()) {
       status.resize(idcCachePtr->IDCCache->rawReadAccess().size(),true);
    }
-   constexpr InDet::ChipFlags_t all_flags_set = static_cast<InDet::ChipFlags_t>((1ul<<(N_CHIPS_PER_SIDE*N_SIDES)) - 1ul);
+   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> si_element_list{m_SCTDetEleCollKey, ctx};
+   if (not si_element_list.isValid()) {
+      std::stringstream msg;
+      msg << "Failed to get SCT detector element collection with key " << m_SCTDetEleCollKey.key();
+      throw std::runtime_error(msg.str());
+   }
+
+   constexpr InDet::ChipFlags_t all_flags_set = static_cast<InDet::ChipFlags_t>((1ul<<(N_CHIPS_PER_SIDE)) - 1ul);
    static_assert( (1ul<<(N_CHIPS_PER_SIDE*N_SIDES)) - 1ul <= std::numeric_limits<InDet::ChipFlags_t>::max());
    if (chip_status.empty()) {
       chip_status.resize(status.size(), all_flags_set);
@@ -190,9 +197,8 @@ SCT_ByteStreamErrorsTool::getDetectorElementStatus(const EventContext& ctx, InDe
          ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool Bad Error " << error_code  << " for ID " << element_i);
       }
       else {
-         constexpr InDet::ChipFlags_t side0 = static_cast<InDet::ChipFlags_t>((1ul<<(N_CHIPS_PER_SIDE)) - 1ul);
-         constexpr InDet::ChipFlags_t side1 = all_flags_set & (~side0);
          IdentifierHash hash(element_i);
+         const InDetDD::SiDetectorElement *siElement = si_element_list->getDetectorElement(hash);
          const Identifier wafer_id{m_sct_id->wafer_id(hash)};
          const Identifier module_id{m_sct_id->module_id(wafer_id)};
          size_t modhash =  static_cast<size_t>(module_id.get_compact());
@@ -204,17 +210,16 @@ SCT_ByteStreamErrorsTool::getDetectorElementStatus(const EventContext& ctx, InDe
          bool allChipsBad{true};
          const int chipMax{static_cast<short>(side==0 ? N_CHIPS_PER_SIDE : N_CHIPS_PER_SIDE*N_SIDES)};
          InDet::ChipFlags_t bad_chip_flags = 0; 
-         int module_chip_offset = 0; // chipMax-N_CHIPS_PER_SIDE;
          for (int chip{chipMax-N_CHIPS_PER_SIDE}; chip<chipMax; chip++) {
             bool issueABCDError{((v_abcdErrorChips >> chip) & 0x1) != 0};
             bool isBadChip{((badChips >> chip) & 0x1) != 0};
             bool isTempMaskedChip{((v_tempMaskedChips >> chip) & 0x1) != 0};
             bool isBad = (issueABCDError or isBadChip or isTempMaskedChip);
-            bad_chip_flags |= static_cast<InDet::ChipFlags_t>(isBad) << (chip-module_chip_offset);
+            bad_chip_flags |= static_cast<InDet::ChipFlags_t>(isBad) << SCT::getGeometricalFromPhysicalChipID(side, siElement->swapPhiReadoutDirection(), chip);
             allChipsBad &= isBad;
          }
          status.at(element_i) =  status.at(element_i) & not allChipsBad;
-         chip_status.at(element_i) &= (~bad_chip_flags) & (side==0 ? side0 : side1);
+         chip_status.at(element_i) &= (~bad_chip_flags) & all_flags_set;
       }
 
       ++element_i;

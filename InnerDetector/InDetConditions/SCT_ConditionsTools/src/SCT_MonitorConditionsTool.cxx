@@ -158,9 +158,8 @@ void SCT_MonitorConditionsTool::getDetectorElementStatus(const EventContext& ctx
         IdentifierHash moduleHash(module_hash);
         Identifier module_id(m_pHelper->wafer_id(moduleHash));
 
-        const InDetDD::SiDetectorElement *detector_element = element_status.getDetectorElement(moduleHash);
         std::vector<unsigned short> &bad_module_strips_out = bad_strips.at(module_hash);
-        std::array<unsigned int, SCT::N_CHIPS_PER_SIDE*SCT::N_SIDES> bad_strip_counts{};
+        std::array<unsigned int, SCT::N_CHIPS_PER_SIDE> bad_strip_counts{};
 
         const std::array<std::bitset<SCT_ConditionsData::STRIPS_PER_CHIP>,
                          SCT_ConditionsData::CHIPS_PER_SIDE>
@@ -171,19 +170,12 @@ void SCT_MonitorConditionsTool::getDetectorElementStatus(const EventContext& ctx
         tmp_bad_strips.reserve(bad_module_strips_in.size()*SCT_ConditionsData::STRIPS_PER_CHIP);
 
         for (unsigned int chip_i=0; chip_i < bad_module_strips_in.size(); ++chip_i) {
-           Identifier strip_id(m_pHelper->strip_id(m_pHelper->barrel_ec(module_id),
-                                                   m_pHelper->layer_disk(module_id),
-                                                   m_pHelper->phi_module(module_id),
-                                                   m_pHelper->eta_module(module_id),
-                                                   m_pHelper->side(module_id),
-                                                   strip_i,
-                                                   true));
-           unsigned int the_chip=SCT::getChip(*m_pHelper, *detector_element, strip_id);
+           unsigned int geoemtrical_chip_id = SCT::getGeometricalChipID(strip_i);
 
            for (unsigned int strip_per_chip_i=0; strip_per_chip_i<bad_module_strips_in[chip_i].size(); ++strip_per_chip_i) {
               if (bad_module_strips_in[chip_i].test(strip_per_chip_i)) {
-                 tmp_bad_strips.push_back(std::make_pair(the_chip,strip_i));
-                 ++bad_strip_counts[the_chip];
+                 tmp_bad_strips.push_back(std::make_pair(geoemtrical_chip_id,strip_i));
+                 ++bad_strip_counts.at(geoemtrical_chip_id);
               }
               ++strip_i;
            }

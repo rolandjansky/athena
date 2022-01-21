@@ -131,20 +131,13 @@ void SCT_ReadCalibDataTool::getDetectorElementStatus(const EventContext& ctx, In
       IdentifierHash moduleHash(element_i);
       Identifier module_id(m_id_sct->wafer_id(moduleHash));
       if (status.empty() || status.at(element_i)) {
-         const InDetDD::SiDetectorElement *detector_element = element_status.getDetectorElement(moduleHash);
          std::vector<unsigned short>  &bad_module_strips = bad_strips[element_i];
-         Identifier first_chip_strip_id;
+         unsigned int last_geoemtrical_chip_id=SCT::N_CHIPS_PER_SIDE;
          for (unsigned int strip_i=0; strip_i<good_strips.size(); ++strip_i) {
-            if (strip_i % SCT::N_STRIPS_PER_CHIP == 0) {
-               first_chip_strip_id = m_id_sct->strip_id(m_id_sct->barrel_ec(module_id),
-                                                        m_id_sct->layer_disk(module_id),
-                                                        m_id_sct->phi_module(module_id),
-                                                        m_id_sct->eta_module(module_id),
-                                                        m_id_sct->side(module_id),
-                                                        strip_i,
-                                                        true);
-               unsigned int the_chip=SCT::getChip(*m_id_sct, *detector_element, first_chip_strip_id);
-               if (!chip_status.empty() && !(chip_status.at(element_i) & static_cast<InDet::ChipFlags_t>(1ul<<the_chip))) {
+            unsigned int geoemtrical_chip_id = SCT::getGeometricalChipID(strip_i);
+            if (geoemtrical_chip_id != last_geoemtrical_chip_id) {
+               last_geoemtrical_chip_id=geoemtrical_chip_id;
+               if (!chip_status.empty() && !(chip_status.at(element_i) & static_cast<InDet::ChipFlags_t>(1ul<<geoemtrical_chip_id))) {
                   strip_i += (SCT::N_STRIPS_PER_CHIP-1);
                   continue;
                }

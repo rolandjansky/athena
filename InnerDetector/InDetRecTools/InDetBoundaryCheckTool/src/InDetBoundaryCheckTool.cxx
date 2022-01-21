@@ -276,10 +276,9 @@ bool InDet::InDetBoundaryCheckTool::isBadSCTChipStrip(
 
     {
        if (sctDetElStatus) {
-          unsigned int chip_i=SCT::getChip(*m_sctID, siElement, stripIdentifier);
+          unsigned int chip_i=SCT::getGeometricalChipID(*m_sctID, stripIdentifier);
 
           VALIDATE_STATUS_ARRAY(sctDetElStatus,sctDetElStatus->isChipGood(siElement.identifyHash(), chip_i) && sctDetElStatus->isCellGood(siElement.identifyHash(), m_sctID->strip(stripIdentifier) ),m_sctCondSummaryTool->isGood(stripIdentifier, InDetConditions::SCT_CHIP) && m_sctCondSummaryTool->isGood(stripIdentifier, InDetConditions::SCT_STRIP));
-
           if (!sctDetElStatus->isChipGood(siElement.identifyHash(), chip_i)) return true;
 
           return !sctDetElStatus->isCellGood(siElement.identifyHash(), m_sctID->strip(stripIdentifier) );
