@@ -127,18 +127,13 @@ namespace Trig {
 
     const Trig::CacheGlobalMemory*         m_cgm{nullptr};
 
-    // helper class to support ordered set of features
-    //      class ordering_by_objects_attached {
-    //      public:
-    //        bool operator()(const HLT::TriggerElement* a, const HLT::TriggerElement* b);
-    //      };
-
-    // helper function for
-    class ordering_by_objects_attached2 {
+    /// helper class to support ordered set of features
+    class ordering_by_objects_attached {
     public:
       template<class T>
-      bool operator()(Feature<T> a, Feature<T> b) const;
-      bool weakOrder(const HLT::TriggerElement* te_a, const HLT::TriggerElement* te_b, void* obj_a, void* obj_b) const;
+      bool operator()(const Feature<T>& a, const Feature<T>& b) const;
+      bool weakOrder(const HLT::TriggerElement* te_a, const HLT::TriggerElement* te_b,
+                     const void* obj_a, const void* obj_b) const;
     };
 
   };
@@ -148,10 +143,8 @@ namespace Trig {
 
 template<class T> 
 bool
-Trig::FeatureContainer::ordering_by_objects_attached2::operator()(Feature<T> a, Feature<T> b) const {
-  bool ret = weakOrder(a.te(), b.te(), (void*) a.cptr(), (void*) b.cptr());
-  //std::cout << " ==> " << (ret?"TRUE":"FALSE") << std::endl;
-  return ret;
+Trig::FeatureContainer::ordering_by_objects_attached::operator()(const Feature<T>& a, const Feature<T>& b) const {
+  return weakOrder(a.te(), b.te(), a.cptr(), b.cptr());
 }
 
 template<class T> const std::vector<Trig::Feature<T> >
@@ -163,7 +156,7 @@ Trig::FeatureContainer::get(const std::string& label, unsigned int condition, co
 
   //std::cout << " in FC::get, after call to getCombinations(), now looping over them" << std::endl;
 
-  std::set<Trig::Feature<T>, Trig::FeatureContainer::ordering_by_objects_attached2 > uniqnessHelper;
+  std::set<Trig::Feature<T>, Trig::FeatureContainer::ordering_by_objects_attached > uniqnessHelper;
 
   
   for(const Trig::Combination& comb : m_combinations ) {
