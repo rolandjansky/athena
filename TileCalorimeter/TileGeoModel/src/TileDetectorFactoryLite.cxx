@@ -1,6 +1,10 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
+
+/*
+ * Riccardo Maria BIANCHI <riccardo.maria.bianchi@cern.ch> , Aug 2021
+ */
 
 #include "TileDetectorFactoryLite.h"
 #include "TileGeoSectionBuilder.h"
@@ -36,7 +40,8 @@ TileDetectorFactoryLite::TileDetectorFactoryLite(StoreGateSvc *pDetStore,
       : m_detectorStore(pDetStore)
       , m_detectorManager(manager)
       , m_sqliteReader(sqliteReader)
-      , m_log(log) 
+      , m_log(log)
+      , m_switches(switches)
       //, m_addPlatesToCellVolume(addPlates)
       //, m_uShape(ushape)
       //, m_glue(glue)
