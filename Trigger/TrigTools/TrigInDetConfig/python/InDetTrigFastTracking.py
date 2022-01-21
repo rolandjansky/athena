@@ -359,6 +359,9 @@ def makeInDetTrigFastTracking( config = None, rois = 'EMViewRoIs', doFTF = True,
                                         conditionsTool = InDetSCT_ConditionsSummaryToolWithoutFlagged )
         theFTF.RoIs           = rois
 
+        if LRTInputCollection is not None:
+          theFTF.inputTracksName = LRTInputCollection
+
         viewAlgs.append(theFTF)
 
       if not config.doZFinderOnly: 

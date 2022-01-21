@@ -33,11 +33,11 @@ def DJPromptStep():
     #run at the event level
     from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
     from AthenaConfiguration.ComponentFactory import CompFactory
-    DummyInputMakerAlg = conf2toConfigurable(CompFactory.InputMakerForRoI( "IM_DJTRIG_PromptDummy" ))
-    DummyInputMakerAlg.RoITool = conf2toConfigurable(CompFactory.ViewCreatorInitialROITool())
+    im_alg = conf2toConfigurable(CompFactory.InputMakerForRoI( "IM_DJTRIG_Prompt" ))
+    im_alg.RoITool = conf2toConfigurable(CompFactory.ViewCreatorInitialROITool())
 
-    return MenuSequence( Sequence    = seqAND("DJTrigPromptEmptyStep",[DummyInputMakerAlg]),
-                         Maker       = DummyInputMakerAlg,
+    return MenuSequence( Sequence    = seqAND("DJTrigPromptEmptyStep",[im_alg]),
+                         Maker       = im_alg,
                          Hypo        = hypo_alg,
                          HypoToolGen = TrigDJHypoPromptToolFromDict,
                      )
@@ -51,11 +51,12 @@ def DJEDStep():
     #run at the event level
     from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
     from AthenaConfiguration.ComponentFactory import CompFactory
-    DummyInputMakerAlg = conf2toConfigurable(CompFactory.InputMakerForRoI( "IM_DJTRRIG_EDDummy" ))
-    DummyInputMakerAlg.RoITool = conf2toConfigurable(CompFactory.ViewCreatorInitialROITool())
+    im_alg = conf2toConfigurable(CompFactory.InputMakerForRoI( "IM_DJTRRIG_ED" ))
+    im_alg.RoITool = conf2toConfigurable(CompFactory.ViewCreatorInitialROITool())
+    im_alg.mergeUsingFeature = True #need to merge using the jet feature which is attached not the roi which is the same
 
-    return MenuSequence( Sequence    = seqAND("DJTrigEDEmptyStep",[DummyInputMakerAlg]),
-                         Maker       = DummyInputMakerAlg,
+    return MenuSequence( Sequence    = seqAND("DJTrigEDEmptyStep",[im_alg]),
+                         Maker       = im_alg,
                          Hypo        = hypo_alg,
                          HypoToolGen = TrigDJHypoEDToolFromDict,
                      )
