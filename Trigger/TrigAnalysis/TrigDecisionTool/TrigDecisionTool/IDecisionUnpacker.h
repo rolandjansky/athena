@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -15,6 +15,8 @@
 
 #include "TrigSteeringEvent/Chain.h"
 #include "TrigSteeringEvent/Lvl1Item.h"
+
+class EventContext;
 
 namespace HLT {
   class TrigNavStructure;
@@ -31,7 +33,8 @@ namespace Trig{
     typedef unsigned CHAIN_COUNTER;
     IDecisionUnpacker() = default;
     virtual ~IDecisionUnpacker() = default;
-    virtual StatusCode unpackDecision(std::unordered_map<std::string, const LVL1CTP::Lvl1Item*>&,
+    virtual StatusCode unpackDecision(const EventContext&,
+                                      std::unordered_map<std::string, const LVL1CTP::Lvl1Item*>&,
                                       std::map<CTPID, LVL1CTP::Lvl1Item>& itemsCache,
                                       std::unordered_map<std::string, const HLT::Chain*>&,
                                       std::map<CHAIN_COUNTER, HLT::Chain>&,
@@ -39,21 +42,8 @@ namespace Trig{
                                       std::map<CHAIN_COUNTER, HLT::Chain>&,
                                       char&,
                                       bool
-                                      ) = 0;
-    virtual StatusCode unpackNavigation(HLT::TrigNavStructure*) = 0;
-    bool unpacked_decision() const { return m_unpackedDecision;}
-    void unpacked_decision(bool state) {  m_unpackedDecision = state;}
-
-    bool unpacked_navigation() const {return m_unpackedNavigation;}
-    void unpacked_navigation(bool state) { m_unpackedNavigation = state;}
-
-    virtual bool assert_handle() = 0;
-    virtual void validate_handle() = 0;
-    virtual void invalidate_handle() = 0;
-
-  private:
-    bool m_unpackedDecision{false};
-    bool m_unpackedNavigation{false};
+                                      ) const = 0;
+    virtual StatusCode unpackNavigation(const EventContext&, HLT::TrigNavStructure*) const = 0;
   };
 } //end of Trig namespace
 

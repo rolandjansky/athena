@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -304,6 +304,7 @@ bool Trig::CacheGlobalMemory::assert_decision() {
   bool contains_old_event_info = false;
 #endif
 
+  const EventContext& context = Gaudi::Hive::currentContext();
   if(!m_unpacker){
     ATH_MSG_INFO("decision not set on first (?) assert. deciding how to unpack");
 
@@ -312,7 +313,6 @@ bool Trig::CacheGlobalMemory::assert_decision() {
     //so we could in the future use the ones set by the python configuration
     //we're hardcoding in order not to require python configuration changes
 
-    const EventContext& context = Gaudi::Hive::currentContext();
     if (!m_decisionKeyPtr->empty()) {
        SG::ReadHandle<xAOD::TrigDecision> decisionReadHandle = SG::makeHandle(*m_decisionKeyPtr, context);
       contains_xAOD_decision = decisionReadHandle.isValid();
@@ -381,27 +381,32 @@ bool Trig::CacheGlobalMemory::assert_decision() {
     throw std::runtime_error("Trig::CacheGlobalMemory::assert_decision(): No source of Trigger Decision in file.");
   }
 
-  if( m_unpacker->assert_handle() ) {
-    ATH_MSG_VERBOSE("asserted handle");
-
-    if( unpackDecision().isFailure() ) {
+  if( !m_decisionUnpacked ) {
+    if( unpackDecision(context).isFailure() ) {
       ATH_MSG_WARNING( "TrigDecion object incorrect (for chains)" );
     }
     else{
       ATH_MSG_VERBOSE("unpacked decision");
     }
-    m_unpacker->validate_handle();
   }
+
   return true;
 }
 
-StatusCode Trig::CacheGlobalMemory::unpackDecision() {
-  ATH_MSG_DEBUG("Unpacking TrigDecision ");
-  ATH_MSG_DEBUG("clearing the delete-end-of-event store");
+void Trig::CacheGlobalMemory::reset_decision() {
+  m_decisionUnpacked = false;
+  m_navigationUnpacked = false;
+}
+
+StatusCode Trig::CacheGlobalMemory::unpackDecision(const EventContext& ctx) {
+  // locked already through assert_decision
+
+  ATH_MSG_DEBUG("Unpacking TrigDecision");
+  m_decisionUnpacked = true;
   m_deleteAtEndOfEvent.clear();
 
   bool unpackHLT = ( m_confChains != nullptr );
-  ATH_CHECK( m_unpacker->unpackDecision( m_itemsByName, m_itemsCache,
+  ATH_CHECK( m_unpacker->unpackDecision( ctx, m_itemsByName, m_itemsCache,
           m_l2chainsByName, m_l2chainsCache,
           m_efchainsByName, m_efchainsCache,
           m_bgCode, unpackHLT ) );
@@ -411,6 +416,9 @@ StatusCode Trig::CacheGlobalMemory::unpackDecision() {
 
 StatusCode Trig::CacheGlobalMemory::unpackNavigation() {
   std::lock_guard<std::recursive_mutex> lock(m_cgmMutex);
+
+  m_navigationUnpacked = true;
+
   // Navigation
   // protect from unpacking in case HLT was not run
   // (i.e. configuration chains are 0)
@@ -420,7 +428,8 @@ StatusCode Trig::CacheGlobalMemory::unpackNavigation() {
 
   // Failing to unpack the navigation is not a failure, as it may be missing
   // from the xAOD file:
-  if( ! m_unpacker->unpackNavigation( m_navigation ).isSuccess() ) {
+  const EventContext& context = Gaudi::Hive::currentContext();
+  if( ! m_unpacker->unpackNavigation( context, m_navigation ).isSuccess() ) {
     [[maybe_unused]] static std::atomic<bool> warningPrinted =
       [&]() { ATH_MSG_WARNING( "TrigNavigation unpacking failed" );
               return true; }();
