@@ -6,17 +6,12 @@
 # It requires the reductionConf flag HDBS4 in Reco_tf.py   
 #====================================================================
 
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
-from DerivationFrameworkInDet.InDetCommon import *
-from DerivationFrameworkJetEtMiss.JetCommon import *
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
-from DerivationFrameworkJetEtMiss.METCommon import *
-from DerivationFrameworkEGamma.EGammaCommon import *
-from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
-from DerivationFrameworkMuons.MuonsCommon import *
-from DerivationFrameworkCore.WeightMetadata import *
-from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
-from DerivationFrameworkFlavourTag.HbbCommon import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import buildFileName, DerivationFrameworkJob, DerivationFrameworkHasTruth
+from DerivationFrameworkCore.DerivationFrameworkProdFlags import derivationFlags
+from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
+from AthenaCommon import CfgMgr 
+from AthenaCommon.AppMgr import ToolSvc
+from DerivationFrameworkInDet.InDetCommon import DFCommonTrackSelection
 from TriggerMenu.api.TriggerAPI import TriggerAPI
 from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
 from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelper
@@ -58,8 +53,6 @@ if DerivationFrameworkHasTruth:
    # Re-point links on reco objects
    addMiniTruthCollectionLinks(SeqPHYS)
    addPVCollection(SeqPHYS)
-   # Add sumOfWeights metadata for LHE3 multiweights =======
-from DerivationFrameworkCore.LHE3WeightMetadata import *
 
 #====================================================================
 # TRIGGER CONTENT   
@@ -269,7 +262,6 @@ HDBS4Zmumua0Finder   = DerivationFramework__HDBSa0Finder(
     ChiSqProbMin = 1e-6)
 
 ToolSvc += HDBS4Zmumua0Finder
-print(HDBS4Zmumua0Finder)
 
 HDBS4Zeea0Finder   = DerivationFramework__HDBSa0Finder(
     OutputLevel = INFO, #DEBUG
@@ -308,7 +300,6 @@ HDBS4Zeea0Finder   = DerivationFramework__HDBSa0Finder(
     ChiSqProbMin = 1e-6)
 
 ToolSvc += HDBS4Zeea0Finder
-print(HDBS4Zeea0Finder)
 
 StaticContent = [] 
 

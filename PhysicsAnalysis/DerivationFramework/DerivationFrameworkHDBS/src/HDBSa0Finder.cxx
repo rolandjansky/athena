@@ -212,8 +212,8 @@ namespace DerivationFramework {
           if ( elTrk==NULL) continue;
           const xAOD::Vertex* vx = 0;
           if ( !m_trkSelector->decision(*elTrk, vx) ) continue; // all ID tracks must pass basic tracking cuts
-          if ( fabs(elTrk->pt())<m_leptonTrkThresholdPt ) continue; 
-          if ( fabs((*elItr)->pt())<m_eleThresholdPt ) continue;
+          if ( std::abs(elTrk->pt())<m_leptonTrkThresholdPt ) continue; 
+          if ( std::abs((*elItr)->pt())<m_eleThresholdPt ) continue;
           if( (*elItr)->charge() > 0.0) {
               elePos.push_back(*elItr);
             } else {
@@ -316,7 +316,7 @@ namespace DerivationFramework {
           if ( muTrk==NULL) continue;
           const xAOD::Vertex* vx = 0;
           if ( !m_trkSelector->decision(*muTrk, vx) ) continue; // all ID tracks must pass basic tracking cuts
-          if ( fabs(muTrk->pt())<m_leptonTrkThresholdPt ) continue; 
+          if ( std::abs(muTrk->pt())<m_leptonTrkThresholdPt ) continue; 
           if ( (*muItr)->pt()<m_muThresholdPt ) continue;
           if ((*muItr)->muonType() == xAOD::Muon::SiliconAssociatedForwardMuon) continue;
           if( (*muItr)->charge() > 0.0) {
@@ -431,7 +431,7 @@ namespace DerivationFramework {
         for ( std::vector<const xAOD::Vertex*>::const_iterator vtxItr = dileptonVertices.begin(); vtxItr != dileptonVertices.end(); ++vtxItr ) {
           const xAOD::TrackParticle* lepton_trk1 = (*vtxItr)->trackParticle(0);
           const xAOD::TrackParticle* lepton_trk2 = (*vtxItr)->trackParticle(1);
-          if(m_trkZDeltaZ>0 && fabs(track->z0() + track->vz() - (*vtxItr)->z()) > m_trkZDeltaZ ) continue;
+          if(m_trkZDeltaZ>0 && std::abs(track->z0() + track->vz() - (*vtxItr)->z()) > m_trkZDeltaZ ) continue;
           if(track == lepton_trk1 or track == lepton_trk2) continue; 
         }
           uint8_t nSCT(0);
@@ -445,7 +445,7 @@ namespace DerivationFramework {
           if (nSCT < m_nHitSct ) continue;
           if (track->pt() < m_trackPtMin) continue;
           
-          double d0significance = fabs(track->d0()) / sqrt(track->definingParametersCovMatrix()(0,0));
+          double d0significance = std::abs(track->d0()) / sqrt(track->definingParametersCovMatrix()(0,0));
           if (d0significance > m_d0significanceMax) continue;
           if(!priVtx) {
             bool trk_TightP = m_TrackSelectionToolTightP->accept(*track);
@@ -458,11 +458,11 @@ namespace DerivationFramework {
           }
           if(priVtx){
             double z0value  = track->z0() + track->vz() - priVtx->z();
-            if(fabs(z0value*sin(track->theta())) > m_deltaz0PVsinthetaMax) continue;
+            if(std::abs(z0value*sin(track->theta())) > m_deltaz0PVsinthetaMax) continue;
             double sigma_z0 = sqrt(track->definingParametersCovMatrix()(1,1));
             if (sigma_z0<=0.) continue;
             double z0significance = 999;
-            if (sigma_z0>0.) z0significance = fabs(z0value/sigma_z0);
+            if (sigma_z0>0.) z0significance = std::abs(z0value/sigma_z0);
             if(z0significance > m_deltaz0PVsignificanceMax) continue;
             bool trk_PV_TightP = m_TrackSelectionToolTightP->accept(*track, priVtx); 
             bool trk_PV_LooseP = m_TrackSelectionToolLooseP->accept(*track, priVtx); 
