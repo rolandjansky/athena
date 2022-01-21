@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -224,7 +224,7 @@ transformGlobalToPlane(const Amg::Transform3D& T,
   const double* Ax = T.matrix().col(0).data(); // Oth column
   const double* Ay = T.matrix().col(1).data(); // 1st column
 
-  double d[3] = { P[0] - T(0, 3), P[1] - T(1, 3), P[2] - T(2, 3) };
+  const double d[3] = { P[0] - T(0, 3), P[1] - T(1, 3), P[2] - T(2, 3) };
 
   par[0] = d[0] * Ax[0] + d[1] * Ax[1] + d[2] * Ax[2];
   par[1] = d[0] * Ay[0] + d[1] * Ay[1] + d[2] * Ay[2];
@@ -654,11 +654,11 @@ void
 jacobianTransformCurvilinearToPlane(double* ATH_RESTRICT P,
                                     double* ATH_RESTRICT Jac)
 {
-  double* At = &P[4];
+  const double* At = &P[4];
   double* Au = &P[7];
   double* Av = &P[10];
-  double* Ax = &P[13];
-  double* Ay = &P[16];
+  const double* Ax = &P[13];
+  const double* Ay = &P[16];
   double* S = &P[19];
 
   double A = At[0] * S[0] + At[1] * S[1] + At[2] * S[2];
@@ -1079,11 +1079,11 @@ Trk::RungeKuttaUtils::stepEstimatorToCylinder(double* ATH_RESTRICT S,
   double dz = r[2] - S[2];
   double B = dx * S[3] + dy * S[4] + dz * S[5];
   double C = a[0] * S[3] + a[1] * S[4] + a[2] * S[5];
-  double ax = a[0] - S[3] * C;
+  const double ax = a[0] - S[3] * C;
   dx -= (B * S[3]);
-  double ay = a[1] - S[4] * C;
+  const double ay = a[1] - S[4] * C;
   dy -= (B * S[4]);
-  double az = a[2] - S[5] * C;
+  const double az = a[2] - S[5] * C;
   dz -= (B * S[5]);
   double A = 2. * (ax * ax + ay * ay + az * az);
   if (A == 0.) {
@@ -1194,8 +1194,8 @@ Trk::RungeKuttaUtils::stepEstimatorToCone(double* ATH_RESTRICT S,
   const double C = a[0] * dx + a[1] * dy + a[2] * dz;
   const double k = S[6];
 
-  double KB = 1. - k * B * B;
-  double KABC = k * A * B - C;
+  const double KB = 1. - k * B * B;
+  const double KABC = k * A * B - C;
   double Smin, Smax;
 
   if (KB != 0.) {
@@ -1306,7 +1306,7 @@ Trk::RungeKuttaUtils::stepEstimator(
   W = std::fabs(W);
   next = false;
   int N = -1;
-  double D[3] = { Pout[0] - Pinp[0], Pout[1] - Pinp[1], Pout[2] - Pinp[2] };
+  const double D[3] = { Pout[0] - Pinp[0], Pout[1] - Pinp[1], Pout[2] - Pinp[2] };
   double Smax = std::sqrt(D[0] * D[0] + D[1] * D[1] + D[2] * D[2]);
   double Sign = D[0] * Pinp[3] + D[1] * Pinp[4] + D[2] * Pinp[5];
   // The magnitude of the vector is essentially 0. No
@@ -1315,8 +1315,8 @@ Trk::RungeKuttaUtils::stepEstimator(
     next = true;
     return std::make_pair(0., -1);
   }
-  Amg::Vector3D pos(Pinp[0], Pinp[1], Pinp[2]);
-  Amg::Vector3D dir(D[0] / Smax, D[1] / Smax, D[2] / Smax);
+  const Amg::Vector3D pos(Pinp[0], Pinp[1], Pinp[2]);
+  const Amg::Vector3D dir(D[0] / Smax, D[1] / Smax, D[2] / Smax);
 
   double Smin = 2. * Smax;
 
@@ -1367,8 +1367,8 @@ Trk::RungeKuttaUtils::stepEstimator(
   if (Smin < So || (Smax - Smin) > 2. * So)
     return std::make_pair(Sm, N);
 
-  Amg::Vector3D posn(Pout[0], Pout[1], Pout[2]);
-  Amg::Vector3D dirn(Pout[3], Pout[4], Pout[5]);
+  const Amg::Vector3D posn(Pout[0], Pout[1], Pout[2]);
+  const Amg::Vector3D dirn(Pout[3], Pout[4], Pout[5]);
 
   Trk::DistanceSolution ds =
     SU[N].first->straightLineDistanceEstimate(posn, dirn, SU[N].second);
@@ -1814,8 +1814,8 @@ Trk::RungeKuttaUtils::fillDistancesMap(
   int Ns = -1;
   DN.erase(DN.begin(), DN.end());
 
-  Amg::Vector3D pos(Pinp[0], Pinp[1], Pinp[2]);
-  Amg::Vector3D dir(Pinp[3], Pinp[4], Pinp[5]);
+  const Amg::Vector3D pos(Pinp[0], Pinp[1], Pinp[2]);
+  const Amg::Vector3D dir(Pinp[3], Pinp[4], Pinp[5]);
 
   Step[0] = -1.e+20;
   Step[1] = 1.e+20;
