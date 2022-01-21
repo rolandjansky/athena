@@ -54,6 +54,7 @@ addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_G4FastCaloDNN",          "ISF_
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFAST3MT",         "ISF_Kernel_ATLFAST3MT")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFAST3MT_QS",         "ISF_Kernel_ATLFAST3MT_QS")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFAST3MTEnergyOrdered", "ISF_Kernel_ATLFAST3MTEnergyOrdered")
+addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFAST3F_G4MS",     "ISF_Kernel_ATLFAST3F_G4MS")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_Fatras_newExtrapolation","ISF_Kernel_Fatras_newExtrapolation")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_Fatras_newExtrapolation_IDOnly","ISF_Kernel_Fatras_newExtrapolation_IDOnly")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_FastOnly",            "ISF_Kernel_FastOnly")
