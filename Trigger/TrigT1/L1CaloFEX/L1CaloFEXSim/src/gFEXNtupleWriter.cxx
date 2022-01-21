@@ -40,11 +40,19 @@ StatusCode LVL1::gFEXNtupleWriter::initialize () {
   CHECK( histSvc->regTree("/ANALYSIS/data",m_myTree) );
 
   ATH_CHECK( m_gTowerContainerSGKey.initialize() );
+
   ATH_CHECK( m_gFexRhoOutKey.initialize() );
   ATH_CHECK( m_gFexBlockOutKey.initialize() );
   ATH_CHECK( m_gFexJetOutKey.initialize() );
-  ATH_CHECK( m_gFexJetOutKey.initialize() );
+
+  ATH_CHECK( m_gScalarEJwojOutKey.initialize() );
+  ATH_CHECK( m_gMETComponentsJwojOutKey.initialize() );
+  ATH_CHECK( m_gMHTComponentsJwojOutKey.initialize() );
+  ATH_CHECK( m_gMSTComponentsJwojOutKey.initialize() );
+
   ATH_CHECK( m_scellsCollectionSGKey.initialize() );
+
+  ATH_CHECK( m_gFEXOutputCollectionSGKey.initialize() );
   
   m_valiTree = new TTree("valiTree","valiTree");
   CHECK( histSvc->regTree("/ANALYSIS/valiTree",m_valiTree) );
@@ -72,16 +80,22 @@ StatusCode LVL1::gFEXNtupleWriter::initialize () {
   m_valiTree->Branch ("gLJ_phi", &m_gLJ_phi);
   m_valiTree->Branch ("gLJ_et", &m_gLJ_et);
 
+  m_valiTree->Branch ("gGlobal_MET", &m_gGlobal_MET);  
+  m_valiTree->Branch ("gGlobal_SumET", &m_gGlobal_SumET);  
+  m_valiTree->Branch ("gGlobal_METx", &m_gGlobal_METx);  
+  m_valiTree->Branch ("gGlobal_METy", &m_gGlobal_METy);  
+  m_valiTree->Branch ("gGlobal_MHTx", &m_gGlobal_MHTx);  
+  m_valiTree->Branch ("gGlobal_MHTy", &m_gGlobal_MHTy);  
+  m_valiTree->Branch ("gGlobal_MSTx", &m_gGlobal_MSTx);  
+  m_valiTree->Branch ("gGlobal_MSTy", &m_gGlobal_MSTy);  
 
-
-  ATH_CHECK( m_gFEXOutputCollectionSGKey.initialize() );
-
-  m_load_truth_jet = false;
+  
+  m_load_truth_jet = true;
 
   if (m_load_truth_jet){
-    m_myTree->Branch ("truth_jet_eta",  &m_truth_jet_eta);
-    m_myTree->Branch ("truth_jet_phi",  &m_truth_jet_phi);
-    m_myTree->Branch ("truth_jet_ET",  &m_truth_jet_ET);
+    m_valiTree->Branch ("truth_jet_eta",  &m_truth_jet_eta);
+    m_valiTree->Branch ("truth_jet_phi",  &m_truth_jet_phi);
+    m_valiTree->Branch ("truth_jet_ET",  &m_truth_jet_ET);
   }
 
   m_myTree->Branch ("jet_TOB", &m_jet_TOB);
@@ -106,13 +120,20 @@ StatusCode LVL1::gFEXNtupleWriter::initialize () {
 
 StatusCode LVL1::gFEXNtupleWriter::execute () { 
 
+  SG::ReadHandle<CaloCellContainer> SCCollection =SG::ReadHandle<CaloCellContainer>(m_scellsCollectionSGKey);
+  if(!SCCollection.isValid()){
+    ATH_MSG_FATAL("Could not retrieve SCCollection " << m_scellsCollectionSGKey.key() );
+    return StatusCode::FAILURE;
+  }
+
   SG::ReadHandle<LVL1::gTowerContainer> gTowersHandle = SG::ReadHandle<LVL1::gTowerContainer>(m_gTowerContainerSGKey);
     if(!gTowersHandle.isValid()){
       ATH_MSG_FATAL("Could not retrieve gTowerContainer " << m_gTowerContainerSGKey.key());
       return StatusCode::FAILURE;
   }
-
-   SG::ReadHandle<xAOD::gFexJetRoIContainer> gRhoHandle = SG::ReadHandle<xAOD::gFexJetRoIContainer>(m_gFexRhoOutKey);
+   
+  //Read objects from gFEX JetContainer
+  SG::ReadHandle<xAOD::gFexJetRoIContainer> gRhoHandle = SG::ReadHandle<xAOD::gFexJetRoIContainer>(m_gFexRhoOutKey);
     if(!gRhoHandle.isValid()){
       ATH_MSG_FATAL("Could not retrieve gRhoContainer " << m_gFexRhoOutKey.key());
       return StatusCode::FAILURE;
@@ -130,11 +151,32 @@ StatusCode LVL1::gFEXNtupleWriter::execute () {
       return StatusCode::FAILURE;
   }
 
-  SG::ReadHandle<CaloCellContainer> SCCollection =SG::ReadHandle<CaloCellContainer>(m_scellsCollectionSGKey);
-  if(!SCCollection.isValid()){
-    ATH_MSG_FATAL("Could not retrieve SCCollection " << m_scellsCollectionSGKey.key() );
-    return StatusCode::FAILURE;
+  //Read objects from gFEX GlobalContainer
+  SG::ReadHandle<xAOD::gFexGlobalRoIContainer> gScalarEHandle = SG::ReadHandle<xAOD::gFexGlobalRoIContainer>(m_gScalarEJwojOutKey);
+    if(!gScalarEHandle.isValid()){
+      ATH_MSG_FATAL("Could not retrieve gBlockContainer " << m_gScalarEJwojOutKey.key());
+      return StatusCode::FAILURE;
   }
+
+  SG::ReadHandle<xAOD::gFexGlobalRoIContainer> gMETHandle = SG::ReadHandle<xAOD::gFexGlobalRoIContainer>(m_gMETComponentsJwojOutKey);
+    if(!gMETHandle.isValid()){
+      ATH_MSG_FATAL("Could not retrieve gBlockContainer " << m_gMETComponentsJwojOutKey.key());
+      return StatusCode::FAILURE;
+  }
+
+  SG::ReadHandle<xAOD::gFexGlobalRoIContainer> gMHTHandle = SG::ReadHandle<xAOD::gFexGlobalRoIContainer>(m_gMHTComponentsJwojOutKey);
+    if(!gMHTHandle.isValid()){
+      ATH_MSG_FATAL("Could not retrieve gBlockContainer " << m_gMHTComponentsJwojOutKey.key());
+      return StatusCode::FAILURE;
+  }
+
+  SG::ReadHandle<xAOD::gFexGlobalRoIContainer> gMSTHandle = SG::ReadHandle<xAOD::gFexGlobalRoIContainer>(m_gMSTComponentsJwojOutKey);
+    if(!gMSTHandle.isValid()){
+      ATH_MSG_FATAL("Could not retrieve gBlockContainer " << m_gMSTComponentsJwojOutKey.key());
+      return StatusCode::FAILURE;
+  }
+
+  
 
   m_SC_eta.clear();
   m_SC_phi.clear();
@@ -159,6 +201,16 @@ StatusCode LVL1::gFEXNtupleWriter::execute () {
   m_gLJ_eta.clear();
   m_gLJ_phi.clear();
   m_gLJ_et.clear();
+
+  m_gGlobal_MET.clear();
+  m_gGlobal_SumET.clear();
+  m_gGlobal_METx.clear();
+  m_gGlobal_METy.clear();
+  m_gGlobal_MHTx.clear();
+  m_gGlobal_MHTy.clear();
+  m_gGlobal_MSTx.clear();
+  m_gGlobal_MSTy.clear();
+  
 
 
   for (const auto& cell : * SCCollection){
@@ -195,9 +247,26 @@ StatusCode LVL1::gFEXNtupleWriter::execute () {
     m_gLJ_phi.push_back(gLJ->iPhi());
     m_gLJ_et.push_back(gLJ->tobEt());
   }
-  m_valiTree->Fill();
 
-  
+  for (auto const gScalarE : *gScalarEHandle) {
+    m_gGlobal_MET.push_back(gScalarE->quantityOne());
+    m_gGlobal_SumET.push_back(gScalarE->quantityTwo());
+  }
+
+  for (auto const gMET : *gMETHandle) {
+    m_gGlobal_METx.push_back(gMET->quantityOne());
+    m_gGlobal_METy.push_back(gMET->quantityTwo());
+  }
+
+  for (auto const gMHT : *gMETHandle) {
+    m_gGlobal_MHTx.push_back(gMHT->quantityOne());
+    m_gGlobal_MHTy.push_back(gMHT->quantityTwo());
+  }
+
+  for (auto const gMST : *gMSTHandle) {
+    m_gGlobal_MSTx.push_back(gMST->quantityOne());
+    m_gGlobal_MSTy.push_back(gMST->quantityTwo());
+  }
 
   SG::ReadHandle<LVL1::gFEXOutputCollection> gFEXOutputCollectionobj = SG::ReadHandle<LVL1::gFEXOutputCollection>(m_gFEXOutputCollectionSGKey);
     if(!gFEXOutputCollectionobj.isValid()){
@@ -216,6 +285,7 @@ StatusCode LVL1::gFEXNtupleWriter::execute () {
 
   CHECK(loadGlobalAlgoVariables(gFEXOutputCollectionobj));
 
+  m_valiTree->Fill();
   m_myTree->Fill();
   return StatusCode::SUCCESS;
 }
