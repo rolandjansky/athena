@@ -19,17 +19,13 @@ ServiceMgr.MessageSvc.OutputLevel = DEBUG
 ## Detector flags
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.ID_setOff()
-DetFlags.Calo_setOff()
-DetFlags.Tile_setOn()
+DetFlags.Calo_setOff() # LAr
+DetFlags.Tile_setOn()  # Tile
 DetFlags.Muon_setOff()
-#DetFlags.Lucid_setOn()
+DetFlags.Lucid_setOff()
 DetFlags.Truth_setOff()
+DetFlags.Print()
 
-#### Turn off these too:
-#DetFlags.BCM_setOff()
-#DetFlags.TRT_setOn()
-#DetFlags.bpipe_setOn()
-####
 
 from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
 GeoModelSvc = GeoModelSvc()
