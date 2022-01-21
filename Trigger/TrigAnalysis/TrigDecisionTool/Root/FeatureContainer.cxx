@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -16,51 +16,14 @@
 #include "TrigDecisionTool/Combination.h"
     
 
-class is_not_already_in {
-public:
-  is_not_already_in() {}
-  bool operator() ( const Trig::Combination& c) {
-    return  !uset.insert(c).second; // set<>::insert().second returns true if element was inserted (was not there before)
-  }
-  std::set<Trig::Combination> uset;
-};
-
-const std::vector<Trig::Combination>& Trig::FeatureContainer::getCombinations() const{ 
-  //std::cout << "FC::getCombinations" << std::endl;
-  if ( ! m_combinations_unique ) {    
-    //std::cout << "   updating" << std::endl;
-    //std::cout << "   non-unique combos " << m_nonunique_combinations.size() << std::endl;
-    //sort(m_combinations.begin(), m_combinations.end());
-    //std::vector<Trig::Combination>::iterator new_end =  unique(m_combinations.begin(), m_combinations.end());
-    //
-    // above is not good because it breaks ordering (i.e. regression tests are not reproducible anymore)
-    // we need stable uniqe algorithm
-
-    // small optimization
-    if ( m_nonunique_combinations.size() <= 1) {
-      m_combinations = m_nonunique_combinations;
-    } else {
-      
-      m_combinations.reserve(m_nonunique_combinations.size());
-      std::back_insert_iterator<std::vector<Trig::Combination> > into_combinations(m_combinations);
-      remove_copy_if(m_nonunique_combinations.begin(), m_nonunique_combinations.end(), 
-		     into_combinations, 
-		     is_not_already_in());
-    }
-    m_combinations_unique = true;
-    //std::cout << "   combos " << m_combinations.size() << std::endl;
-  } else {
-    //std::cout << "   not updating" << std::endl;
-    //std::cout << "   combos " << m_combinations.size() << std::endl;
-  }
-  return m_combinations; 
-}
-
-bool Trig::FeatureContainer::addWithChecking(const Combination& newComb)
+void Trig::FeatureContainer::addWithChecking(const Combination& newComb)
 {
-  m_combinations_unique = false;
-  m_nonunique_combinations.push_back(newComb);
-  return true;
+  /* Keep unique combinations and preserve insertion order to guarantee
+     reproducibility. We achieve this by an additional set (faster than doing
+     a linear search in the vector each time). */
+  if (m_combinations_unique.insert(newComb).second) { // true if element was inserted (not known yet)
+    m_combinations.push_back(newComb);
+  }
 }
 
 void Trig::FeatureContainer::append(const FeatureContainer& other)
@@ -130,11 +93,9 @@ const std::vector<Trig::TypelessFeature> Trig::FeatureContainer::typelessGet(HLT
   if ( condition != TrigDefs::Physics && condition != TrigDefs::alsoDeactivateTEs ) {
     throw std::runtime_error("Only two flags can be supplied to features");
   }
-  // uniquify combinations first
-  getCombinations();
 
   std::set<Trig::TypelessFeature,::order_by_clid_and_index> uniqnessHelper;
-  for(auto& comb :   m_combinations ) {
+  for(auto& comb : m_combinations ) {
     if (condition == TrigDefs::Physics) {
       if (!comb.active()) continue;
     }

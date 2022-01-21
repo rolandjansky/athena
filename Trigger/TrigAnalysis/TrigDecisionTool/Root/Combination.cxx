@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -15,11 +15,8 @@
 
 #include "TrigDecisionTool/Combination.h"
 #include "TrigDecisionTool/CacheGlobalMemory.h"
-
 #include "TrigDecisionTool/FeatureCollectStandalone.h"
 
-Trig::Combination::Combination() 
-: m_cgm(0) {}
 
 Trig::Combination::Combination(const std::vector<HLT::TriggerElement*>& tes, const Trig::CacheGlobalMemory* cgm)
   : m_cgm(cgm)
@@ -50,16 +47,6 @@ const std::vector<Trig::TypelessFeature> Trig::Combination::typelessGet(HLT::cla
   return features;
 }
 
-
-bool Trig::Combination::operator==(const Trig::Combination& other) const {
-  return m_tes == other.m_tes;
-}
-
-bool Trig::Combination::operator<(const Trig::Combination& other) const {
-  return m_tes < other.m_tes;
-}
-
-    
 MsgStream& operator<< ( MsgStream& m, const Trig::Combination& c ) {
    m << "TEs: " << c.size();
    for ( std::vector<const HLT::TriggerElement*>::const_iterator i = c.tes().begin();
