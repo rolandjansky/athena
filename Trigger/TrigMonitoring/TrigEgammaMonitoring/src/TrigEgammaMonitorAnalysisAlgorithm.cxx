@@ -380,7 +380,9 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillDistributions( const std::vector< s
   }
   // EFCalo
   {
-    std::string key = info.lrt? match()->key("PrecisionCalo_LRT") : match()->key("PrecisionCalo");
+    std::string key = match()->key("PrecisionCalo_Electron");
+    if(info.signature == "Photon") key = match()->key("PrecisionCalo_Photon");
+    if(info.lrt) key = match()->key("PrecisionCalo_LRT");
     
     std::vector<const xAOD::CaloCluster* > clus_vec;
     auto vec =  tdt()->features<xAOD::CaloClusterContainer>(trigger,condition,key);      

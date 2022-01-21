@@ -38,20 +38,23 @@ StatusCode TrigEgammaMatchingToolMT::initialize()
   ATH_CHECK( m_ringerKey.initialize() );
 
 
-  m_keys[ "Electrons"]         = "HLT_egamma_Electrons" ;
-  m_keys[ "Electrons_GSF"]     = "HLT_egamma_Electrons_GSF" ; // gsf
-  m_keys[ "Electrons_LRT"]     = "HLT_egamma_Electrons_LRT" ; // lrt
-  m_keys[ "Photons"]           = "HLT_egamma_Photons" ;
+  m_keys[ "Electrons"]                = "HLT_egamma_Electrons" ;
+  m_keys[ "Electrons_GSF"]            = "HLT_egamma_Electrons_GSF" ; // gsf
+  m_keys[ "Electrons_LRT"]            = "HLT_egamma_Electrons_LRT" ; // lrt
+  m_keys[ "Photons"]                  = "HLT_egamma_Photons" ;
+
   // intermediate steps
-  m_keys[ "PrecisionCalo"]     = "HLT_CaloEMClusters" ;
-  m_keys[ "PrecisionCalo_LRT"] = "HLT_CaloEMClusters_LRT" ; // lrt
+  m_keys[ "PrecisionCalo_Electron"]   = "HLT_CaloEMClusters_Electron";
+  m_keys[ "PrecisionCalo_Photon"]     = "HLT_CaloEMClusters_Photon";
+  m_keys[ "PrecisionCalo_LRT"]        = "HLT_CaloEMClusters_LRT" ; // lrt
+
   // Fast steps
-  m_keys[ "FastElectrons"]     = "HLT_FastElectrons" ;
-  m_keys[ "FastElectrons_LRT"] = "HLT_FastElectrons_LRT" ; // lrt
-  m_keys[ "FastPhotons"]       = "HLT_FastPhotons" ;
-  m_keys[ "FastCalo"]          = "HLT_FastCaloEMClusters" ;
+  m_keys[ "FastElectrons"]            = "HLT_FastElectrons" ;
+  m_keys[ "FastElectrons_LRT"]        = "HLT_FastElectrons_LRT" ; // lrt
+  m_keys[ "FastPhotons"]              = "HLT_FastPhotons" ;
+  m_keys[ "FastCalo"]                 = "HLT_FastCaloEMClusters" ;
   // L1
-  m_keys[ "L1Calo"]            = "LVL1EmTauRoIs" ;
+  m_keys[ "L1Calo"]                   = "LVL1EmTauRoIs" ;
 
   return StatusCode::SUCCESS;
 }
@@ -149,11 +152,19 @@ bool TrigEgammaMatchingToolMT::matchHLTElectron(const xAOD::Electron *eg,const s
 
 bool TrigEgammaMatchingToolMT::matchHLTCalo(const xAOD::Egamma *eg,const std::string &trigger, const TrigCompositeUtils::Decision *&dec, unsigned int condition ) const
 { 
-  ATH_MSG_DEBUG("Match HLT Calo");
+  ATH_MSG_DEBUG("Match HLT PrecisionCalo");
   if(boost::contains(trigger,"lrt")){
+    ATH_MSG_DEBUG("Matched HLT PrecisionCalo LRT");
     return closestObject<xAOD::CaloClusterContainer>( eg, dec, trigger, key("PrecisionCalo_LRT"), condition );
+  }else if(xAOD::EgammaHelpers::isElectron(eg)){
+    ATH_MSG_DEBUG("Matched HLT PrecisionCalo Electron");
+    return closestObject<xAOD::CaloClusterContainer>( eg, dec, trigger, key("PrecisionCalo_Electron"), condition );
+  }else if(xAOD::EgammaHelpers::isPhoton(eg)){
+    ATH_MSG_DEBUG("Matched HLT PrecisionCalo Photon");
+    return closestObject<xAOD::CaloClusterContainer>( eg, dec, trigger, key("PrecisionCalo_Photon"), condition );
   }else{
-    return closestObject<xAOD::CaloClusterContainer>( eg, dec, trigger, key("PrecisionCalo"), condition );
+    ATH_MSG_DEBUG("Match HLT PrecisionCalo failed!");
+    return false;
   }
 }
 
