@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONPHYSVALMONITORING_MUONVALIDATIONPLOTS_H
@@ -34,16 +34,16 @@ public:
     std::vector<unsigned int> m_selectedAuthors;
     std::vector<std::string> m_truthSelections;
 
-    Muon::RecoMuonPlotOrganizer* m_oRecoMuonPlots;
-    Muon::TruthRelatedMuonPlotOrganizer* m_oTruthRelatedMuonPlots;
-    std::vector<Muon::RecoMuonPlotOrganizer*> m_oRecoMuonPlots_perQuality;
-    std::vector<Muon::RecoMuonPlotOrganizer*> m_oRecoMuonPlots_perAuthor;
-    std::vector<Muon::TruthRelatedMuonPlotOrganizer*> m_oTruthRelatedMuonPlots_perQuality;
-    std::vector<Muon::TruthRelatedMuonPlotOrganizer*> m_oTruthRelatedMuonPlots_perAuthor;
-    std::vector<Muon::TruthMuonPlotOrganizer*> m_oTruthMuonPlots;
+    std::unique_ptr<Muon::RecoMuonPlotOrganizer> m_oRecoMuonPlots;
+    std::unique_ptr<Muon::TruthRelatedMuonPlotOrganizer> m_oTruthRelatedMuonPlots;
+    std::vector<std::unique_ptr<Muon::RecoMuonPlotOrganizer>> m_oRecoMuonPlots_perQuality;
+    std::vector<std::unique_ptr<Muon::RecoMuonPlotOrganizer>> m_oRecoMuonPlots_perAuthor;
+    std::vector<std::unique_ptr<Muon::TruthRelatedMuonPlotOrganizer>> m_oTruthRelatedMuonPlots_perQuality;
+    std::vector<std::unique_ptr<Muon::TruthRelatedMuonPlotOrganizer>> m_oTruthRelatedMuonPlots_perAuthor;
+    std::vector<std::unique_ptr<Muon::TruthMuonPlotOrganizer>> m_oTruthMuonPlots;
 
-    std::vector<Muon::TruthRelatedMuonPlotOrganizer*> m_oTruthRelatedMuonPlots_SiAssocFwrdMu;
-    std::vector<Muon::RecoMuonPlotOrganizer*> m_oRecoMuonPlots_SiAssocFwrdMu;
+    std::vector<std::unique_ptr<Muon::TruthRelatedMuonPlotOrganizer>> m_oTruthRelatedMuonPlots_SiAssocFwrdMu;
+    std::vector<std::unique_ptr<Muon::RecoMuonPlotOrganizer>> m_oRecoMuonPlots_SiAssocFwrdMu;
 
 private:
     void fillRecoMuonPlots(const xAOD::Muon& mu, float weight = 1.0);
@@ -52,7 +52,7 @@ private:
     bool m_isData;
     bool m_doSeparateSAFMuons;
 
-    Muon::MuonTree* m_MuonTree;
+    std::unique_ptr<Muon::MuonTree> m_MuonTree;
 };
 
 #endif

@@ -26,27 +26,27 @@ namespace Muon
   
   class TruthRelatedMuonPlotOrganizer:public PlotBase {
   public:
-    TruthRelatedMuonPlotOrganizer(PlotBase* pParent, const std::string& sDir,bool doBinnedResolutionPlots, std::vector<int> *selPlots=0);
+    TruthRelatedMuonPlotOrganizer(PlotBase* pParent, const std::string& sDir,bool doBinnedResolutionPlots, std::vector<int> selPlots = {});
     ~TruthRelatedMuonPlotOrganizer();
 
     
-    std::vector<PlotBase*> m_allPlots;
+
     std::vector<int> m_selPlots;  
     
     void fill(const xAOD::TruthParticle& truthMu, const xAOD::Muon& mu, const xAOD::TrackParticleContainer* MSTracks, float weight=1.0);
     void fill(const xAOD::TruthParticle& truthMu, const xAOD::TrackParticle& mu, float weight=1.0);
     
     // Truth related plots
-    Trk::ParamPlots                 *m_oMatchedPlots;
-    Trk::ParamPlots                 *m_oMatchedRecoPlots;
-    Trk::MSHitDiffPlots             *m_oMSHitDiffPlots;
-    Muon::MuonHitDiffSummaryPlots   *m_oMuonHitDiffSummaryPlots;
-    Muon::MuonTruthHitPlots         *m_oMuonTruthHitPlots;
-    Muon::MuonResolutionPlots       *m_oMuonResolutionPlots;
-    Trk::DefParamPullPlots          *m_oDefParamPullPlots;
-    Muon::MomentumTruthPullPlots    *m_oMomentumTruthPullPlots_Tail;
-    Muon::MomentumTruthPullPlots    *m_oMomentumTruthPullPlots_NoTail;
-    Muon::MuonParamElossPlots       *m_oMatchedRecoElossPlots;
+    std::unique_ptr<Trk::ParamPlots>                 m_oMatchedPlots{};
+    std::unique_ptr<Trk::ParamPlots>                 m_oMatchedRecoPlots{};
+    std::unique_ptr<Trk::MSHitDiffPlots>             m_oMSHitDiffPlots{};
+    std::unique_ptr<Muon::MuonHitDiffSummaryPlots>   m_oMuonHitDiffSummaryPlots{};
+    std::unique_ptr<Muon::MuonTruthHitPlots>         m_oMuonTruthHitPlots{};
+    std::unique_ptr<Muon::MuonResolutionPlots>       m_oMuonResolutionPlots{};
+    std::unique_ptr<Trk::DefParamPullPlots>          m_oDefParamPullPlots{};
+    std::unique_ptr<Muon::MomentumTruthPullPlots>    m_oMomentumTruthPullPlots_Tail{};
+    std::unique_ptr<Muon::MomentumTruthPullPlots>    m_oMomentumTruthPullPlots_NoTail{};
+    std::unique_ptr<Muon::MuonParamElossPlots>       m_oMatchedRecoElossPlots{};
 
   };
  

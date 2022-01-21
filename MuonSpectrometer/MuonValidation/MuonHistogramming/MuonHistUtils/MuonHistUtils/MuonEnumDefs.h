@@ -49,6 +49,7 @@ namespace Muon {
       case xAOD::Muon::CaloLikelihood: return "CaloLikelihood";
       case xAOD::Muon::ExtrapolateMuonToIP: return "ExtrMuonToIP";
       case xAOD::Muon::CaloScore: return "CaloScore";
+      case xAOD::Muon::Commissioning: return "Comissioning chain";
       default: return "UnknownAuthor";
       }
     }

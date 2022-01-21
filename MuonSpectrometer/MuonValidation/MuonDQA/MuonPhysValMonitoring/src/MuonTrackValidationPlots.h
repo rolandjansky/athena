@@ -17,9 +17,9 @@ public:
     ~MuonTrackValidationPlots();
 
     // Reco only information
-    Muon::RecoMuonTrackPlotOrganizer* m_oRecoMuonTrackPlots;
+    std::unique_ptr<Muon::RecoMuonTrackPlotOrganizer> m_oRecoMuonTrackPlots{};
     // Truth related plots
-    Muon::TruthRelatedMuonPlotOrganizer* m_oMatchedMuonTrackPlots;
+    std::unique_ptr<Muon::TruthRelatedMuonPlotOrganizer> m_oMatchedMuonTrackPlots{};
 
     void fill(const xAOD::TrackParticle& muTP, float weight = 1.0);
     void fill(const xAOD::TruthParticle* truthMu, const xAOD::TrackParticle* muTP, float weight = 1.0);

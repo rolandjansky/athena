@@ -38,12 +38,11 @@ MuonSegmentTruthRelatedPlots::~MuonSegmentTruthRelatedPlots()
 
   float muSegEta = 0;
   float muSegPhi = 0;
-  Amg::Vector3D globalPos(0,0,0);
-  Amg::Vector3D truthGlobalPos(0,0,0);
+  Amg::Vector3D globalPos{muSeg.x(),muSeg.y(),muSeg.z()};
+  Amg::Vector3D truthGlobalPos{truthMuSeg.x(),truthMuSeg.y(),truthMuSeg.z()};
 
-  if ( (muSeg.x()) && (muSeg.y()) && (muSeg.z()) && muSeg.x()!=0 && muSeg.y()!=0 && muSeg.z()!=0 ) {
+  if (globalPos.mag()) {
     //protect against cases with no hit information!
-    globalPos = Amg::Vector3D(muSeg.x(),muSeg.y(),muSeg.z());    
     muSegEta = globalPos.eta();
     muSegPhi = globalPos.phi();
   }
@@ -56,18 +55,12 @@ MuonSegmentTruthRelatedPlots::~MuonSegmentTruthRelatedPlots()
   //// resolution plots
 
   //protect against cases with no hit information!
-  if ( !( (muSeg.x()) && (muSeg.y()) && (muSeg.z()) && muSeg.x()!=0 && muSeg.y()!=0 && muSeg.z()!=0) ) return;
-  if ( !( (truthMuSeg.x()) && (truthMuSeg.y()) && (truthMuSeg.z()) && truthMuSeg.x()!=0 && truthMuSeg.y()!=0 && truthMuSeg.z()!=0) ) return; 
-  if ( !( (muSeg.px()) && (muSeg.py()) && (muSeg.pz()) && muSeg.px()!=0 && muSeg.py()!=0 && muSeg.pz()!=0) ) return;
-  if ( !( (truthMuSeg.px()) && (truthMuSeg.py()) && (truthMuSeg.pz()) && truthMuSeg.px()!=0 && truthMuSeg.py()!=0 && truthMuSeg.pz()!=0) ) return; 
-
+  if (globalPos.mag() < DBL_EPSILON || truthGlobalPos.mag() < DBL_EPSILON ) return;
 
   dxpos->Fill(muSeg.x()-truthMuSeg.x(), weight);
   dypos->Fill(muSeg.y()-truthMuSeg.y(), weight);
   dzpos->Fill(muSeg.z()-truthMuSeg.z(), weight);
-  
-  truthGlobalPos = Amg::Vector3D(truthMuSeg.x(),truthMuSeg.y(),truthMuSeg.z());
-
+ 
   detapos->Fill(globalPos.eta()-truthGlobalPos.eta(), weight);
   dphipos->Fill(globalPos.deltaPhi(truthGlobalPos), weight);
 
