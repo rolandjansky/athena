@@ -81,10 +81,15 @@ StatusCode DisplacedJetDispHypoAlg::execute(const EventContext& context) const
     const xAOD::TrackParticleContainer* lrtTracks = lrtHandle.get();
 
     //get the linked jet feature
-    const TrigCompositeUtils::LinkInfo<xAOD::JetContainer> jet_feature_link = TrigCompositeUtils::findLink<xAOD::JetContainer>(previousDecision, TrigCompositeUtils::featureString());
+    std::vector<TrigCompositeUtils::LinkInfo<xAOD::JetContainer>> jet_feature_links = TrigCompositeUtils::findLinks<xAOD::JetContainer>(previousDecision, TrigCompositeUtils::featureString());
+    ATH_CHECK(jet_feature_links.size() == 1); //ensure we only have 1 link
+    const TrigCompositeUtils::LinkInfo<xAOD::JetContainer> jet_feature_link = jet_feature_links.at(0);
     //verify if the feature link is valid
     ATH_CHECK(jet_feature_link.isValid());
     const xAOD::Jet* jet = *(jet_feature_link.link);
+
+    //reattach jet feature link
+    d->setObjectLink(featureString(), jet_feature_link.link);
 
 
     //count the number of tracks in the RoI (at this point it is running in RoI mode)

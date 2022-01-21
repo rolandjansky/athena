@@ -59,10 +59,16 @@ StatusCode DisplacedJetEventDecisionHypoAlg::execute(const EventContext& context
     TrigCompositeUtils::decisionIDs( previousDecision, prev );
 
     //get the linked jet feature
-    const TrigCompositeUtils::LinkInfo<xAOD::JetContainer> jet_feature_link = TrigCompositeUtils::findLink<xAOD::JetContainer>(previousDecision, TrigCompositeUtils::featureString());
+    //for safety check that I have 1 jet by getting all links
+    std::vector<TrigCompositeUtils::LinkInfo<xAOD::JetContainer>> jet_feature_links = TrigCompositeUtils::findLinks<xAOD::JetContainer>(previousDecision, TrigCompositeUtils::featureString());
+    ATH_CHECK(jet_feature_links.size() == 1); //ensure we only have 1 link
+    const TrigCompositeUtils::LinkInfo<xAOD::JetContainer> jet_feature_link = jet_feature_links.at(0);
     //verify if the feature link is valid
     ATH_CHECK(jet_feature_link.isValid());
     const xAOD::Jet* jet = *(jet_feature_link.link);
+
+    //reattach jet feature link
+    d->setObjectLink(featureString(), jet_feature_link.link);
 
     //make a tuple for this jet
     DisplacedJetEventDecisionHypoTool::DecisionTuple t{d, prev, jet};
