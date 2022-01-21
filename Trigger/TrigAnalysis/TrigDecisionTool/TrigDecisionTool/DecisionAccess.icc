@@ -8,7 +8,7 @@ const Trig::Feature<T> Trig::DecisionAccess::ancestor(const HLT::TriggerElement*
 
   for( Feature<T>& f : data ) {
     if ( f.owned() ) {
-      cgm()->deleteAtTheEndOfEvent( const_cast<T*>( f.cptr() ) );
+      cgm()->deleteAtTheEndOfEvent( f.cptr() );
     }
   }
 
@@ -24,7 +24,7 @@ const std::vector<Trig::Feature<T> > Trig::DecisionAccess::ancestors(const HLT::
   FeatureAccessImpl::collect<T>(te, data, label, condition, teName, const_cast<HLT::TrigNavStructure*>(cgm()->navigation()));
   for( Feature<T>& f : data ) {
     if ( f.owned() ) {
-      cgm()->deleteAtTheEndOfEvent(const_cast<T*>( f.cptr() ));
+      cgm()->deleteAtTheEndOfEvent( f.cptr() );
     }
   }
   return data;

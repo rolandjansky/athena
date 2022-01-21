@@ -36,6 +36,7 @@
 #include "TrigDecisionTool/IDecisionUnpacker.h"
 #include "TrigDecisionTool/Logger.h"
 
+#include "CxxUtils/checker_macros.h"
 #include "AsgDataHandles/ReadHandleKey.h"
 #include "AsgTools/EventStoreType.h"
 
@@ -237,7 +238,7 @@ namespace Trig {
 
       struct iholder {
         virtual ~iholder() {}
-        virtual void* ptr() const { return 0;}
+        virtual const void* ptr() const { return nullptr;}
       };
 
       struct holder_comp {
@@ -251,7 +252,7 @@ namespace Trig {
         virtual ~holder() {
           delete m_held;
           m_held = 0; }
-        virtual void* ptr() const { return (void*)m_held;}
+        virtual const void* ptr() const { return m_held;}
       private:
         T m_held;
       };
@@ -272,7 +273,8 @@ namespace Trig {
       std::set< iholder*, holder_comp > m_todel;
     };  // end of deleter
 
-    mutable AnyTypeDeleter m_deleteAtEndOfEvent;
+    // Thread-safe because CacheGlobalMemory is slot-specific
+    mutable AnyTypeDeleter m_deleteAtEndOfEvent ATLAS_THREAD_SAFE;
 
     mutable std::recursive_mutex m_cgmMutex; //!< R3 MT protection only against --threads > 1. Needs refacotring...
 

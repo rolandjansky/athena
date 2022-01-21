@@ -176,7 +176,7 @@ const std::vector<Trig::Feature<T> > Trig::Combination::get(const std::string& l
     FeatureAccessImpl::collect<T>(te, data, label, condition, teName, navigation());
   for( Feature<T>& f : data ) {
     if ( f.owned() ) {
-      m_cgm->deleteAtTheEndOfEvent( const_cast<T*>( f.cptr() ) );
+      m_cgm->deleteAtTheEndOfEvent( f.cptr() );
     }
   }  
 #else
