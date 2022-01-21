@@ -28,9 +28,6 @@ namespace DerivationFramework {
     m_v0Tools("Trk::V0Tools"),
     m_iVertexFitter("Trk::TrkVKalVrtFitter", this),
     m_vertexEstimator("InDet::VertexPointEstimator"),
-    m_TrackSelectionToolTightP("InDet::InDetTrackSelectionTool/TrackTightP"), 
-    m_TrackSelectionToolLooseP("InDet::InDetTrackSelectionTool/TrackLooseP"),
-    m_TrackSelectionToolLoose("InDet::InDetTrackSelectionTool/TrackLoose"),
     m_inputTrackParticleContainerName("InDetTrackParticles"),
     m_TrkParticleGSFCollection("GSFTrackParticles"),
     m_HCandidateContainerName("PHYSHCandidates"),
@@ -42,14 +39,15 @@ namespace DerivationFramework {
     m_ZisMuons(true),
     m_ZisElectrons(false),
     m_d0significanceMax(99999.0),
-    m_chi2cut(20.0),
+    m_HcandidateMassMin(98000.0),
+    m_chi2cut(50.0),
     m_nHitPix(1),
-    m_nHitSct(6),
-    m_onlyTightPTrk(false),
+    m_nHitSct(0),
+    m_onlyTightPTrk(true),
     m_onlyLoosePTrk(false),
-    m_onlyLooseTrk(true),
-    m_trkSelector("InDet::TrackSelectorTool"),
+    m_onlyLooseTrk(false),
     m_electronCollectionKey("Electrons"),
+    m_trkSelector("InDet::TrackSelectorTool"),
     m_eleThresholdPt(6000.0),
     m_leptonTrkThresholdPt(1000.0),
     m_muThresholdPt(4000.0),
@@ -62,35 +60,35 @@ namespace DerivationFramework {
     m_leadingTrackPt(1000.0),
     m_deltaPhiTracks(99999.0),
     m_deltaRTracks(99999.0),
-    m_chiSqProbMin(-1.0)
+    m_chiSqProbMin(-1.0),
+    m_TrackSelectionToolTightP("InDet::InDetTrackSelectionTool/TrackTightP"), 
+    m_TrackSelectionToolLooseP("InDet::InDetTrackSelectionTool/TrackLooseP"),
+    m_TrackSelectionToolLoose("InDet::InDetTrackSelectionTool/TrackLoose")
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
 
     // Declare user-defined properties
-    declareProperty("DiLeptonVertexContainer", m_diLeptonCollectionToCheck);
-    declareProperty("PassFlagsToCheck", m_passFlagsToCheck);
     declareProperty("V0Tools", m_v0Tools);
     declareProperty("TrkVertexFitterTool",m_iVertexFitter);
     declareProperty("VertexEstimator", m_vertexEstimator);
     declareProperty("InputTrackParticleContainerName", m_inputTrackParticleContainerName);
     declareProperty("GSFCollection", m_TrkParticleGSFCollection);
     declareProperty("HCandidateContainerName", m_HCandidateContainerName);
-    declareProperty("TrackPtMin", m_trackPtMin = 400.0); 
-    declareProperty("deltaz0PVsinthetaMax", m_deltaz0PVsinthetaMax = 99999.0); 
-    declareProperty("deltaz0PVsignificanceMax", m_deltaz0PVsignificanceMax = 99999.0); 
-    declareProperty("trkZDeltaZ", m_trkZDeltaZ = -1.0);
-    declareProperty("DitrackMassMax", m_ditrackMassMax = 1600.0);
-    declareProperty("ZisMuons", m_ZisMuons = true); 
-    declareProperty("ZisElectrons", m_ZisElectrons = false); 
-    declareProperty("d0significanceMax", m_d0significanceMax = 99999.0); 
-    declareProperty("HcandidateMassMin", m_HcandidateMassMin = 98000.0);  
-    declareProperty("Chi2cut", m_chi2cut = 50.0);  
-    declareProperty("nHitPix", m_nHitPix = 1); 
-    declareProperty("nHitSct", m_nHitSct = 0);
-    declareProperty("onlyTightPTrk", m_onlyTightPTrk = true);
-    declareProperty("onlyLoosePTrk", m_onlyLoosePTrk = false);
-    declareProperty("onlyLooseTrk", m_onlyLooseTrk = false);
-    declareProperty("UseGSFTrackIndices", m_useGSFTrackIndices); 
+    declareProperty("TrackPtMin", m_trackPtMin); 
+    declareProperty("deltaz0PVsinthetaMax", m_deltaz0PVsinthetaMax); 
+    declareProperty("deltaz0PVsignificanceMax", m_deltaz0PVsignificanceMax); 
+    declareProperty("trkZDeltaZ", m_trkZDeltaZ);
+    declareProperty("DitrackMassMax", m_ditrackMassMax);
+    declareProperty("ZisMuons", m_ZisMuons); 
+    declareProperty("ZisElectrons", m_ZisElectrons); 
+    declareProperty("d0significanceMax", m_d0significanceMax); 
+    declareProperty("HcandidateMassMin", m_HcandidateMassMin);  
+    declareProperty("Chi2cut", m_chi2cut);  
+    declareProperty("nHitPix", m_nHitPix); 
+    declareProperty("nHitSct", m_nHitSct);
+    declareProperty("onlyTightPTrk", m_onlyTightPTrk);
+    declareProperty("onlyLoosePTrk", m_onlyLoosePTrk);
+    declareProperty("onlyLooseTrk", m_onlyLooseTrk);
     declareProperty("electronCollectionKey", m_electronCollectionKey);
     declareProperty("TrackSelectorTool",m_trkSelector); 
     declareProperty("ElectronThresholdPt",m_eleThresholdPt); 
@@ -106,6 +104,7 @@ namespace DerivationFramework {
     declareProperty("DeltaPhiTracks", m_deltaPhiTracks);
     declareProperty("DeltaRTracks", m_deltaRTracks); 
     declareProperty("ChiSqProbMin", m_chiSqProbMin);
+    declareProperty("UseGSFTrackIndices", m_useGSFTrackIndices); 
   }
 
   // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

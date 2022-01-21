@@ -55,22 +55,12 @@ class HDBSa0Finder : public AthAlgTool, public IAugmentationTool {
 
     private:
 
-        std::string m_diLeptonCollectionToCheck;
-        std::vector<std::string> m_passFlagsToCheck;
-
         ToolHandle <Trk::V0Tools> m_v0Tools;
         ToolHandle <Trk::IVertexFitter> m_iVertexFitter;
         ToolHandle <InDet::VertexPointEstimator> m_vertexEstimator;
-        ToolHandle <InDet::IInDetTrackSelectionTool> m_TrackSelectionToolTightP;
-        ToolHandle <InDet::IInDetTrackSelectionTool> m_TrackSelectionToolLooseP;
-        ToolHandle <InDet::IInDetTrackSelectionTool> m_TrackSelectionToolLoose;
-        ToolHandle <Trk::ITrackSelectorTool> m_trkSelector;
-        Trk::TrkVKalVrtFitter* m_VKVFitter;
-
         std::string m_inputTrackParticleContainerName;
         std::string m_TrkParticleGSFCollection;
         std::string m_HCandidateContainerName;
-
         double m_trackPtMin;
         double m_deltaz0PVsinthetaMax;
         double m_deltaz0PVsignificanceMax;
@@ -86,9 +76,8 @@ class HDBSa0Finder : public AthAlgTool, public IAugmentationTool {
         bool m_onlyTightPTrk;
         bool m_onlyLoosePTrk;
         bool m_onlyLooseTrk;
-        std::vector<int> m_useGSFTrackIndices;
-        std::bitset<4> m_useGSFTrack;
         std::string m_electronCollectionKey;
+        ToolHandle <Trk::ITrackSelectorTool> m_trkSelector;
         double m_eleThresholdPt;
         double m_leptonTrkThresholdPt;
         double m_muThresholdPt;
@@ -102,8 +91,14 @@ class HDBSa0Finder : public AthAlgTool, public IAugmentationTool {
         double m_deltaPhiTracks;
         double m_deltaRTracks;
         double m_chiSqProbMin;
-
+        std::vector<int> m_useGSFTrackIndices;
         
+        ToolHandle <InDet::IInDetTrackSelectionTool> m_TrackSelectionToolTightP;
+        ToolHandle <InDet::IInDetTrackSelectionTool> m_TrackSelectionToolLooseP;
+        ToolHandle <InDet::IInDetTrackSelectionTool> m_TrackSelectionToolLoose;
+        Trk::TrkVKalVrtFitter* m_VKVFitter;
+               
+        std::bitset<4> m_useGSFTrack;
         double mass_pion = 139.570; //MeV
         double mass_muon = 105.658; //MeV
         double mass_electron = 0.5109989461; //MeV
@@ -111,7 +106,6 @@ class HDBSa0Finder : public AthAlgTool, public IAugmentationTool {
         const xAOD::TrackParticle* trackParticle2{nullptr};
         const xAOD::Electron* el1{nullptr};
         const xAOD::Electron* el2{nullptr};
-
 
         static bool sortDitrackPt (std::tuple<const xAOD::TrackParticle*, const xAOD::TrackParticle*, double> i, std::tuple<const xAOD::TrackParticle*, const xAOD::TrackParticle*, double> j) { 
         double ditrackpt_i = std::get<2>(i);
