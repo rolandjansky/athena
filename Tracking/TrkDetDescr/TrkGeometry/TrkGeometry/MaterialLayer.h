@@ -33,8 +33,9 @@ class LayerMaterialProperties;
 
  */
 
-class MaterialLayer final: public Layer {
- public:
+class MaterialLayer final : public Layer
+{
+public:
   /** Constructor with already existing boundary surface
     - the surface representation is the according boundary surface */
   MaterialLayer(const Surface& sf, const LayerMaterialProperties& mlprop);

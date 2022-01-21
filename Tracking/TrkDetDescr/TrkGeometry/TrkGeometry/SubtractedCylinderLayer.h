@@ -30,9 +30,11 @@ class OverlapDescriptor;
  @author Sarka.Todorova@cern.ch
 */
 
-class SubtractedCylinderLayer final : virtual public SubtractedCylinderSurface,
-                                      public Layer {
- public:
+class SubtractedCylinderLayer final
+  : public SubtractedCylinderSurface
+  , public Layer
+{
+public:
   /**Default Constructor*/
   SubtractedCylinderLayer() {}
 
@@ -85,7 +87,6 @@ class SubtractedCylinderLayer final : virtual public SubtractedCylinderSurface,
   virtual void resizeAndRepositionLayer(const VolumeBounds&,
                                         const Amg::Vector3D&,
                                         double) override final {}
-
 };
 
 }  // namespace Trk

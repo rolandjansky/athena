@@ -37,8 +37,11 @@ class OverlapDescriptor;
  @author Andreas.Salzburger@cern.ch
 */
 
-class CylinderLayer final : public CylinderSurface, public Layer {
- public:
+class CylinderLayer final
+  : public CylinderSurface
+  , public Layer
+{
+public:
   /**Default Constructor*/
   CylinderLayer() {}
 
