@@ -34,8 +34,11 @@ class LayerMaterialProperties;
  @author Andreas.Salzburger@cern.ch
  */
 
-class PlaneLayer final : virtual public PlaneSurface, public Layer {
- public:
+class PlaneLayer final
+  : public PlaneSurface
+  , public Layer
+{
+public:
   /**Default Constructor*/
   PlaneLayer() {}
 

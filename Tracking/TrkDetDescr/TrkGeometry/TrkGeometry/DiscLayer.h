@@ -39,10 +39,13 @@ class OverlapDescriptor;
  @author Andreas.Salzburger@cern.ch
  */
 
-class DiscLayer final: virtual public DiscSurface, public Layer {
+class DiscLayer final
+  : public DiscSurface
+  , public Layer
+{
   friend class TrackingVolume;
 
- public:
+public:
   /**Default Constructor*/
   DiscLayer() = default;
 
