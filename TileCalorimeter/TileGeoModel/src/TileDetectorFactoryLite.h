@@ -67,6 +67,9 @@ private:
   /** Pointer to an instance of the GeoModel I/O class */
   GeoModelIO::ReadGeoModel* m_sqliteReader;
 
+  /** all switches */
+  TileSwitches m_switches;
+  
   /** Get message SVC */
   MsgStream                 *m_log;
 
@@ -88,9 +91,6 @@ private:
   /** Flag for activation verbose level for debugging */
   bool                       m_verbose;
 
-  /** all switches */
-  TileSwitches m_switches;
-  
   /** Geometry configuration: FULL, RECO */
   bool                       m_fullGeo;
 };
