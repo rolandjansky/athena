@@ -199,7 +199,6 @@ StatusCode AFP_PileUpTool::recoSiHits()
 }
 
 
-
 int AFP_PileUpTool::charge2tot(int ch) const{
     int i = 0;
     do{
@@ -231,7 +230,8 @@ void  AFP_PileUpTool::newXAODHitSi (xAOD::AFPSiHitContainer* siHitContainer, con
         tot = tot<16 ? tot : 16;
         xAODSiHit->setTimeOverThreshold( tot );
     }
-    ATH_MSG_DEBUG("AFP_PileUpTool:  Filled xAOD::AFPSiHit");    
+
+    ATH_MSG_DEBUG("AFP_PileUpTool:  Filled xAOD::AFPSiHit");
 }
 
 
@@ -632,6 +632,7 @@ double AFP_PileUpTool::getTDC(const TH1F & hSignal) const
 }
 
 
+
 double AFP_PileUpTool::getADC(const TH1F & hSignal, const double threshold) const
 {
     int first = hSignal.FindFirstBinAbove(threshold);
@@ -677,6 +678,7 @@ double AFP_PileUpTool::generateSiCCE() const{
     eff = eff<0?0:eff;
     return eff;
 }
+
 
 
 void AFP_PileUpTool::createSiDigi(int Station, int Detector, int PixelRow, int PixelCol, float PreStepX, float PreStepY, float PreStepZ, float PostStepX, float PostStepY, float PostStepZ, float DepEnergy)
