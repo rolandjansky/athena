@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 # File: LumiBlockComps/python/LumiBlockMuWriterConfig.py
 # Created: May 2020, sss
@@ -36,6 +36,7 @@ if __name__ == "__main__":
     Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
+    ConfigFlags.Input.Files = []
     ConfigFlags.loadAllDynamicFlags()
 
     print ('--- collisions')

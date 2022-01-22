@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 '''
 @file TileDigiNoiseMonitorAlgorithm.py
@@ -45,7 +45,8 @@ def TileDigiNoiseMonitoringConfig(flags, **kwargs):
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(flags,'TileDigiNoiseMonitoring')
 
-    if flags.Input.Format.lower() == 'pool':
+    from AthenaConfiguration.Enums import Format
+    if flags.Input.Format is Format.POOL:
         kwargs.setdefault('TileDigitsContainer', 'TileDigitsFlt')
 
     # Adding an TileCellMonitorAlgorithm algorithm to the helper

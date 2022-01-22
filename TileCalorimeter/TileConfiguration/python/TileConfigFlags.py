@@ -1,6 +1,8 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
+from AthenaConfiguration.Enums import Format
+
 
 def createTileConfigFlags():
 
@@ -115,7 +117,7 @@ def _correctPedestalDifference(prevFlags):
 
 
 def _correctTimeJumps(prevFlags):
-     if not (prevFlags.Input.isMC or prevFlags.Overlay.DataOverlay) and prevFlags.Input.Format == 'BS':
+     if not (prevFlags.Input.isMC or prevFlags.Overlay.DataOverlay) and prevFlags.Input.Format is Format.BS:
           return True
      else:
           return False
@@ -160,7 +162,7 @@ def _getRawChannelContainer(prevFlags):
      if prevFlags.Tile.doOpt2:
           rawChannelContainer = 'TileRawChannelOpt2'
      if prevFlags.Tile.doOptATLAS:
-          if not (prevFlags.Input.isMC or prevFlags.Overlay.DataOverlay) and prevFlags.Input.Format == 'BS':
+          if not (prevFlags.Input.isMC or prevFlags.Overlay.DataOverlay) and prevFlags.Input.Format is Format.BS:
                rawChannelContainer = 'TileRawChannelFixed'                                                   
           else:                               
                rawChannelContainer = 'TileRawChannelCnt'

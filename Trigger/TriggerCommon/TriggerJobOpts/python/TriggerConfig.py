@@ -4,6 +4,7 @@ from collections import OrderedDict
 from builtins import str
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import Format
 from AthenaCommon.CFElements import seqAND, seqOR, parOR, flatAlgorithmSequences, getSequenceChildren, isSequence, hasProp, getProp
 from AthenaCommon.Logging import logging
 __log = logging.getLogger('TriggerConfig')
@@ -398,7 +399,7 @@ def triggerBSOutputCfg(flags, hypos, offline=False):
         hltResultMakerAlg.ResultMaker = hltResultMakerTool
 
         # Provide ByteStreamMetaData from input, required by the result maker tool
-        if flags.Input.Format == 'BS':
+        if flags.Input.Format is Format.BS:
             from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
             readBSAcc = ByteStreamReadCfg(flags)
             readBSAcc.getEventAlgo('SGInputLoader').Load += [

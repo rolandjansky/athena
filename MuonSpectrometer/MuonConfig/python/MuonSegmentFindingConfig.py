@@ -15,6 +15,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 
 # Core
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.Enums import Format
 
 # Muon
 # Csc2dSegmentMaker, Csc4dSegmentMaker=CompFactory.getComps("Csc2dSegmentMaker","Csc4dSegmentMaker",)
@@ -782,11 +783,11 @@ def MuonSegmentFindingCfg(flags, cardinality=1):
     muon_edm_helper_svc = Muon__MuonEDMHelperSvc("MuonEDMHelperSvc")
     result.addService( muon_edm_helper_svc )
     
-    if flags.Input.Format == 'BS':
+    if flags.Input.Format is Format.BS:
         from MuonConfig.MuonBytestreamDecodeConfig import MuonByteStreamDecodersCfg
         result.merge( MuonByteStreamDecodersCfg(flags) )
 
-    if flags.Input.Format == 'BS' or 'StreamRDO' in flags.Input.ProcessingTags or 'OutputStreamRDO' in flags.Input.ProcessingTags:
+    if flags.Input.Format is Format.BS or 'StreamRDO' in flags.Input.ProcessingTags:
         from MuonConfig.MuonRdoDecodeConfig import MuonRDOtoPRDConvertorsCfg
         result.merge( MuonRDOtoPRDConvertorsCfg(flags) )
 

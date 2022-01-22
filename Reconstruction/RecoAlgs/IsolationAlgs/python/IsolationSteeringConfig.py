@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """
           Instantiate the isolation
@@ -16,7 +16,7 @@ def IsolationSteeringCfg(flags, name = 'IsolationSteering'):
 
     from IsolationAlgs.IsoDensityConfig import (
         EMTopoInputAlgCfg, NFlowInputAlgCfg, DensityForIsoAlgCfg)
-    if flags.Reco.EnableEgamma or flags.Reco.Reco.EnableCombinedMuon:
+    if flags.Reco.EnableEgamma or flags.Reco.EnableCombinedMuon:
         if flags.Detector.EnableCalo:
             acc.merge(EMTopoInputAlgCfg(flags))
             acc.merge(DensityForIsoAlgCfg(flags))

@@ -1,9 +1,10 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, conf2toConfigurable
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import Format
 from AthenaCommon.CFElements import seqOR, parOR
 from AthenaCommon.Logging import logging
 log = logging.getLogger('MTCalibPebConfig.py')
@@ -111,7 +112,7 @@ default_options = MTCalibPebHypoOptions()
 
 def set_flags(flags, options=default_options):
     flags.Common.isOnline = True
-    flags.Input.Format = 'BS'
+    flags.Input.Format = Format.BS
     flags.Input.isMC = False
     flags.IOVDb.DatabaseInstance = 'CONDBR2'
     flags.IOVDb.GlobalTag = flags.Trigger.OnlineCondTag

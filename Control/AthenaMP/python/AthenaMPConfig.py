@@ -1,10 +1,10 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaConfiguration.AllConfigFlags import ConfigFlags, GetFileMD
-from AthenaConfiguration.Enums import ProductionStep
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import Format, ProductionStep
+from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 
 from AthenaCommon.Logging import log as msg
 
@@ -54,7 +54,7 @@ def AthenaMPCfg(configFlags):
         if use_shared_reader:
             AthenaSharedMemoryTool = CompFactory.AthenaSharedMemoryTool
 
-            if configFlags.Input.Format == 'BS':
+            if configFlags.Input.Format is Format.BS:
                 evSel=CompFactory.EventSelectorByteStream("EventSelector")
 
                 from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg

@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
@@ -87,7 +87,8 @@ def getEnvironment(flags):
         return 'online'
     else:
         # this could use being rethought to properly encode input and output types perhaps ...
-        if flags.Input.Format == 'BS':
+        from AthenaConfiguration.Enums import Format
+        if flags.Input.Format is Format.BS:
             if flags.Output.AODFileName:
                 return 'tier0'
             else:

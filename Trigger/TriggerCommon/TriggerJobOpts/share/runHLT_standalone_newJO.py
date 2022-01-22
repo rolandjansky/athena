@@ -1,12 +1,13 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 from AthenaCommon.Logging import logging
 log = logging.getLogger('runHLT_standalone_newJO')
 
-from AthenaConfiguration.ComponentAccumulator import CompFactory
-from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+from AthenaConfiguration.ComponentAccumulator import CompFactory
+from AthenaConfiguration.Enums import Format
+from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 
 from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior = 1
@@ -83,7 +84,7 @@ acc.getService('AvalancheSchedulerSvc').VerboseSubSlots = True
 # this delcares to the scheduler that EventInfo object comes from the input
 loadFromSG = [('xAOD::EventInfo', 'StoreGateSvc+EventInfo')]
 
-if flags.Input.Format == 'BS':
+if flags.Input.Format is Format.BS:
     from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
     acc.merge(ByteStreamReadCfg(flags))
 else:

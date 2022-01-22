@@ -3,6 +3,7 @@
 import os
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
+from AthenaConfiguration.Enums import Format
 from AthenaCommon.SystemOfUnits import GeV
 from AthenaCommon.Logging import logging
 from TrigEDMConfig.Utils import getEDMVersionFromBS
@@ -69,7 +70,7 @@ def createTriggerFlags():
 
         default_version = -1     # intentionally invalid default value, ATR-22856
 
-        if flags.Input.Format=="BS":
+        if flags.Input.Format is Format.BS:
             _log.debug("Input format is ByteStream")
 
             if not any(flags.Input.Files) and flags.Common.isOnline:
@@ -154,7 +155,7 @@ def createTriggerFlags():
     flags.addFlag('Trigger.writeBS', False)
 
     # Write transient BS before executing HLT algorithms (for running on MC RDO with clients which require BS inputs)
-    flags.addFlag('Trigger.doTransientByteStream', lambda prevFlags: True if  prevFlags.Input.Format=='POOL' and prevFlags.Trigger.doCalo else False)
+    flags.addFlag('Trigger.doTransientByteStream', lambda prevFlags: True if prevFlags.Input.Format is Format.POOL and prevFlags.Trigger.doCalo else False)
 
     # list of EDM objects to be written to AOD
     flags.addFlag('Trigger.AODEDMSet', lambda flags: 'AODSLIM' if flags.Input.isMC else 'AODFULL')
@@ -180,7 +181,7 @@ def createTriggerFlags():
         elif flags.Trigger.doHLT:
             raise RuntimeError('Trigger.availableRecoMetadata is ill-defined if Trigger.doHLT==True')
         # RAW: check if keys are in COOL
-        elif flags.Input.Format=="BS":
+        elif flags.Input.Format is Format.BS:
             from TrigConfigSvc.TriggerConfigAccess import getKeysFromCool
             keys = getKeysFromCool(flags.Input.RunNumber[0], lbNr = 1)  # currently only checking first file
             return ( (['L1'] if 'L1PSK' in keys else []) +

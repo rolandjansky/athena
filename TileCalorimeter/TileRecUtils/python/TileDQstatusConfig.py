@@ -4,7 +4,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import ProductionStep
+from AthenaConfiguration.Enums import Format, ProductionStep
 
 
 def TileDQstatusToolCfg(flags, **kwargs):
@@ -51,7 +51,7 @@ def TileDQstatusAlgCfg(flags, **kwargs):
     name = kwargs['TileDQstatus'] + 'Alg'
     kwargs.setdefault('name', name)
 
-    if not (flags.Input.isMC or flags.Overlay.DataOverlay or flags.Input.Format.lower() == 'pool'):
+    if not (flags.Input.isMC or flags.Overlay.DataOverlay or flags.Input.Format is Format.POOL):
         if flags.Tile.RunType == 'PHY' or flags.Tile.TimingType == 'GAP/LAS':
             beamElemContainer = ""
         else:
