@@ -97,6 +97,9 @@ class AFP_PileUpTool: public PileUpToolBase {
   void createSiDigi(int Station, int Detector, int PixelRow, int PixelCol, float PreStepX, float PreStepY, float PreStepZ, float PostStepX, float PostStepY, float PostStepZ, float DepEnergy);
   void StoreSiDigi(void); 
 
+  void setupQuantumEff();
+  void setupTDCOffsets();
+  
   /// @brief Function that provides random noise (in charge units)
   double generateSiNoise() const;
   /// @brief Function that provides charge collection efficiency
@@ -117,6 +120,8 @@ class AFP_PileUpTool: public PileUpToolBase {
   void addPhotoconvTimeSmear(double &, CLHEP::HepRandomEngine*) const;
   /// @brief Returns the TDC determined from the signal shape passed as an argument
   double getTDC(const TH1F &) const;
+  /// @brief Returns the ADC determined from the signal shape passed as an (1st) argument; 2nd arg is peak value
+  double getADC(const TH1F &, const double) const;
   
   double SignalFun(double Time, double RiseTime, double FallTime, double offset = 0.0) const;
 //  double SiSignalFun(double Time, double RiseTime, double FallTime);
@@ -164,7 +169,7 @@ class AFP_PileUpTool: public PileUpToolBase {
   xAOD::AFPToFHitContainer *m_TDHitCollection;
   xAOD::AFPSiHitContainer *m_SiHitCollection;
 
-  double m_QuantumEff_PMT[7];
+  double m_QuantumEff_PMT[82];
   double m_TDC_offsets[4][4][4]; // station, train, bar
   int m_ChargeVsTot_LUT[16]; // look-up table for charge2tot conversion, 16 = n. of bits
 

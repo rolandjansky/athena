@@ -38,8 +38,8 @@ AFP_PileUpTool::AFP_PileUpTool(const std::string& type,
     m_ConversionSpr(40.0),      // Photon-Electron conversion spread in ps
     m_RiseTime(400.),           // Pulse rise time in ps
     m_FallTime(1200.),          // Pulse fall time in ps 
-    m_TofSignalTimeRangeLength(2000.), // in ps
-    m_TimeOffset(105500.),      // Offset reflecting time that proton travels from IP to AFP
+    m_TofSignalTimeRangeLength(4000.), // in ps
+    m_TimeOffset(104500.),      // Offset reflecting time that proton travels from IP to AFP
     m_CfSignalDelay(200.),      // Pulse delay for const. frac. discrimination
     m_CfdThr(0.5),              // Constant fraction threshold
     m_SiT_ChargeCollEff(0.55),   // CCE, adjusted to describe data
@@ -53,14 +53,8 @@ AFP_PileUpTool::AFP_PileUpTool(const std::string& type,
     declareInterface<AFP_PileUpTool>(this); //Temporary for back-compatibility with 17.3.X.Y
     //declareInterface<IPileUpTool>(this); //Temporary for back-compatibility with 17.3.X.Y
 
-    // Quantum efficincy of PMT in 100 nm steps int(WeaveLength-100)/100
-    m_QuantumEff_PMT[0] = 0.00;
-    m_QuantumEff_PMT[1] = 0.15;
-    m_QuantumEff_PMT[2] = 0.20;
-    m_QuantumEff_PMT[3] = 0.15;
-    m_QuantumEff_PMT[4] = 0.05;
-    m_QuantumEff_PMT[5] = 0.01;
-    m_QuantumEff_PMT[6] = 0.00;
+    // Setting up quantum efficincy of PMT (in 5 nm steps)
+    setupQuantumEff();
     
     // Offsets for TOF TDC (to have the average TDC consistent between all trains and bars)
     for(int i=0; i<4; ++i){
@@ -70,38 +64,7 @@ AFP_PileUpTool::AFP_PileUpTool(const std::string& type,
             }
         }
     }
-    m_TDC_offsets[0][0][0] = -54.246796;
-    m_TDC_offsets[0][0][1] = -62.727692;
-    m_TDC_offsets[0][0][2] = -72.272064;
-    m_TDC_offsets[0][0][3] = -70.434174;
-    m_TDC_offsets[0][1][0] = 27.556335;
-    m_TDC_offsets[0][1][1] = 27.173157;
-    m_TDC_offsets[0][1][2] = 15.687866;
-    m_TDC_offsets[0][1][3] = 1.523438;
-    m_TDC_offsets[0][2][0] = 52.387573;
-    m_TDC_offsets[0][2][1] = 55.950256;
-    m_TDC_offsets[0][2][2] = 58.279297;
-    m_TDC_offsets[0][2][3] = 52.943115;
-    m_TDC_offsets[0][3][0] = 102.818848;
-    m_TDC_offsets[0][3][1] = 100.652344;
-    m_TDC_offsets[0][3][2] = 95.852905;
-    m_TDC_offsets[0][3][3] = 89.628296;
-    m_TDC_offsets[3][0][0] = -1.629608;
-    m_TDC_offsets[3][0][1] = -1.427582;
-    m_TDC_offsets[3][0][2] = -8.480835;
-    m_TDC_offsets[3][0][3] = -17.730377;
-    m_TDC_offsets[3][1][0] = 41.865295;
-    m_TDC_offsets[3][1][1] = 50.760559;
-    m_TDC_offsets[3][1][2] = 62.929993;
-    m_TDC_offsets[3][1][3] = 58.732971;
-    m_TDC_offsets[3][2][0] = 67.860107;
-    m_TDC_offsets[3][2][1] = 66.973755;
-    m_TDC_offsets[3][2][2] = 67.798340;
-    m_TDC_offsets[3][2][3] = 68.117615;
-    m_TDC_offsets[3][3][0] = 106.085693;
-    m_TDC_offsets[3][3][1] = 102.385132;
-    m_TDC_offsets[3][3][2] = 99.008240;
-    m_TDC_offsets[3][3][3] = 89.424988;
+    setupTDCOffsets();
     
     for(int i=0; i<16; ++i)
         m_ChargeVsTot_LUT[i] = m_totToChargeTransformation.Eval(i);
@@ -669,6 +632,16 @@ double AFP_PileUpTool::getTDC(const TH1F & hSignal) const
 }
 
 
+double AFP_PileUpTool::getADC(const TH1F & hSignal, const double threshold) const
+{
+    int first = hSignal.FindFirstBinAbove(threshold);
+    int last = first;
+    while( hSignal.GetBinContent(++last) > threshold && last < hSignal.GetNbinsX() );
+    double ADC = last-first;
+    return ADC;
+}
+
+
 void AFP_PileUpTool::StoreTDDigi(void)
 {
     for( int i=0; i<4; i++) {
@@ -676,13 +649,14 @@ void AFP_PileUpTool::StoreTDDigi(void)
             for( int k=0; k<4; k++){
                 
                 const TH1F & hSignal = m_SignalHist[i][j][k];
-                const double ADC = hSignal.GetBinContent( hSignal.GetMaximumBin() );
+                const double peakVal = hSignal.GetBinContent( hSignal.GetMaximumBin() );
                 
-                if( ADC > 0 ){
+                if( peakVal > 2 /*signal from more than two photoel.*/ ){
 
                     const double TDC = getTDC( hSignal );
+                    const double ADC = getADC( hSignal, 0.5*peakVal );
                     
-                    AFP_TDDigi* tddigi = new AFP_TDDigi ();
+                    AFP_TDDigi* tddigi = new AFP_TDDigi();
                     tddigi->m_nStationID=i;
                     tddigi->m_nDetectorID=10*(j+1)+k+1; // restoring original numeration of bars and trains
                     tddigi->m_nSensitiveElementID=-1; // this variable is currently redundant
@@ -814,8 +788,8 @@ void AFP_PileUpTool::addSignalFunc(TH1F & h, double x) const
 
 
 double AFP_PileUpTool::getQE(double lambda) const{
-    int id = (static_cast<int>(lambda)-100)/100;
-    if(id > 6 || id < 0) return 0;
+    int id = (static_cast<int>(lambda)-200)/5;
+    if(id > 81 || id < 0) return 0;
     return m_QuantumEff_PMT[id];
 }
 
@@ -836,4 +810,212 @@ StatusCode AFP_PileUpTool::recordSiCollection(ServiceHandle<StoreGateSvc>& evtSt
 
     return sc;
     //return StatusCode::SUCCESS;
+}
+
+
+void AFP_PileUpTool::setupTDCOffsets()
+{
+    m_TDC_offsets[0][0][0] = -65.125366;
+    m_TDC_offsets[0][0][1] = -78.942017;
+    m_TDC_offsets[0][0][2] = -92.000610;
+    m_TDC_offsets[0][0][3] = -87.115967;
+    m_TDC_offsets[0][1][0] = 21.883667;
+    m_TDC_offsets[0][1][1] = 10.356201;
+    m_TDC_offsets[0][1][2] = 2.336792;
+    m_TDC_offsets[0][1][3] = -9.625732;
+    m_TDC_offsets[0][2][0] = 46.980957;
+    m_TDC_offsets[0][2][1] = 45.204224;
+    m_TDC_offsets[0][2][2] = 53.081421;
+    m_TDC_offsets[0][2][3] = 43.045776;
+    m_TDC_offsets[0][3][0] = 90.227905;
+    m_TDC_offsets[0][3][1] = 84.472900;
+    m_TDC_offsets[0][3][2] = 81.739990;
+    m_TDC_offsets[0][3][3] = 74.882812;
+    m_TDC_offsets[3][0][0] = -23.122681;
+    m_TDC_offsets[3][0][1] = -16.655273;
+    m_TDC_offsets[3][0][2] = -35.254150;
+    m_TDC_offsets[3][0][3] = -27.525635;
+    m_TDC_offsets[3][1][0] = 45.818359;
+    m_TDC_offsets[3][1][1] = 46.052856;
+    m_TDC_offsets[3][1][2] = 58.809570;
+    m_TDC_offsets[3][1][3] = 49.068848;
+    m_TDC_offsets[3][2][0] = 67.897339;
+    m_TDC_offsets[3][2][1] = 78.327393;
+    m_TDC_offsets[3][2][2] = 72.782471;
+    m_TDC_offsets[3][2][3] = 69.975464;
+    m_TDC_offsets[3][3][0] = 96.650635;
+    m_TDC_offsets[3][3][1] = 97.994019;
+    m_TDC_offsets[3][3][2] = 88.561279;
+    m_TDC_offsets[3][3][3] = 79.530396;
+}
+
+
+void AFP_PileUpTool::setupQuantumEff()
+{
+    // QE ver. 1
+    m_QuantumEff_PMT[0]=0.035;
+    m_QuantumEff_PMT[1]=0.047;
+    m_QuantumEff_PMT[3]=0.064;
+    m_QuantumEff_PMT[4]=0.084;
+    m_QuantumEff_PMT[5]=0.101;
+    m_QuantumEff_PMT[6]=0.114;
+    m_QuantumEff_PMT[7]=0.122;
+    m_QuantumEff_PMT[8]=0.128;
+    m_QuantumEff_PMT[9]=0.132;
+    m_QuantumEff_PMT[10]=0.134;
+    m_QuantumEff_PMT[11]=0.135;
+    m_QuantumEff_PMT[12]=0.138;
+    m_QuantumEff_PMT[13]=0.142;
+    m_QuantumEff_PMT[14]=0.146;
+    m_QuantumEff_PMT[15]=0.151;
+    m_QuantumEff_PMT[16]=0.158;
+    m_QuantumEff_PMT[17]=0.164;
+    m_QuantumEff_PMT[18]=0.171;
+    m_QuantumEff_PMT[19]=0.178;
+    m_QuantumEff_PMT[20]=0.185;
+    m_QuantumEff_PMT[21]=0.194;
+    m_QuantumEff_PMT[22]=0.203;
+    m_QuantumEff_PMT[23]=0.211;
+    m_QuantumEff_PMT[24]=0.217;
+    m_QuantumEff_PMT[25]=0.224;
+    m_QuantumEff_PMT[26]=0.229;
+    m_QuantumEff_PMT[27]=0.232;
+    m_QuantumEff_PMT[28]=0.235;
+    m_QuantumEff_PMT[29]=0.237;
+    m_QuantumEff_PMT[30]=0.240;
+    m_QuantumEff_PMT[31]=0.242;
+    m_QuantumEff_PMT[32]=0.244;
+    m_QuantumEff_PMT[33]=0.248;
+    m_QuantumEff_PMT[34]=0.250;
+    m_QuantumEff_PMT[35]=0.253;
+    m_QuantumEff_PMT[36]=0.256;
+    m_QuantumEff_PMT[37]=0.258;
+    m_QuantumEff_PMT[38]=0.260;
+    m_QuantumEff_PMT[39]=0.262;
+    m_QuantumEff_PMT[40]=0.262;
+    m_QuantumEff_PMT[41]=0.261;
+    m_QuantumEff_PMT[42]=0.257;
+    m_QuantumEff_PMT[43]=0.253;
+    m_QuantumEff_PMT[44]=0.250;
+    m_QuantumEff_PMT[45]=0.245;
+    m_QuantumEff_PMT[46]=0.240;
+    m_QuantumEff_PMT[47]=0.235;
+    m_QuantumEff_PMT[48]=0.230;
+    m_QuantumEff_PMT[49]=0.225;
+    m_QuantumEff_PMT[50]=0.221;
+    m_QuantumEff_PMT[51]=0.213;
+    m_QuantumEff_PMT[52]=0.203;
+    m_QuantumEff_PMT[53]=0.191;
+    m_QuantumEff_PMT[54]=0.179;
+    m_QuantumEff_PMT[55]=0.169;
+    m_QuantumEff_PMT[56]=0.161;
+    m_QuantumEff_PMT[57]=0.154;
+    m_QuantumEff_PMT[58]=0.147;
+    m_QuantumEff_PMT[59]=0.141;
+    m_QuantumEff_PMT[60]=0.138;
+    m_QuantumEff_PMT[61]=0.134;
+    m_QuantumEff_PMT[62]=0.129;
+    m_QuantumEff_PMT[63]=0.119;
+    m_QuantumEff_PMT[64]=0.103;
+    m_QuantumEff_PMT[65]=0.086;
+    m_QuantumEff_PMT[66]=0.072;
+    m_QuantumEff_PMT[67]=0.062;
+    m_QuantumEff_PMT[68]=0.055;
+    m_QuantumEff_PMT[69]=0.049;
+    m_QuantumEff_PMT[70]=0.045;
+    m_QuantumEff_PMT[71]=0.041;
+    m_QuantumEff_PMT[72]=0.037;
+    m_QuantumEff_PMT[73]=0.034;
+    m_QuantumEff_PMT[74]=0.031;
+    m_QuantumEff_PMT[75]=0.028;
+    m_QuantumEff_PMT[76]=0.025;
+    m_QuantumEff_PMT[77]=0.022;
+    m_QuantumEff_PMT[78]=0.020;
+    m_QuantumEff_PMT[79]=0.017;
+    m_QuantumEff_PMT[80]=0.015;
+    m_QuantumEff_PMT[81]=0.013;
+    // QE ver. 2 
+    /*
+    m_QuantumEff_PMT[0]=0.042;
+    m_QuantumEff_PMT[1]=0.056;
+    m_QuantumEff_PMT[3]=0.075;
+    m_QuantumEff_PMT[4]=0.095;
+    m_QuantumEff_PMT[5]=0.110;
+    m_QuantumEff_PMT[6]=0.119;
+    m_QuantumEff_PMT[7]=0.123;
+    m_QuantumEff_PMT[8]=0.125;
+    m_QuantumEff_PMT[9]=0.126;
+    m_QuantumEff_PMT[10]=0.125;
+    m_QuantumEff_PMT[11]=0.125;
+    m_QuantumEff_PMT[12]=0.126;
+    m_QuantumEff_PMT[13]=0.130;
+    m_QuantumEff_PMT[14]=0.133;
+    m_QuantumEff_PMT[15]=0.137;
+    m_QuantumEff_PMT[16]=0.143;
+    m_QuantumEff_PMT[17]=0.148;
+    m_QuantumEff_PMT[18]=0.153;
+    m_QuantumEff_PMT[19]=0.159;
+    m_QuantumEff_PMT[20]=0.163;
+    m_QuantumEff_PMT[21]=0.170;
+    m_QuantumEff_PMT[22]=0.179;
+    m_QuantumEff_PMT[23]=0.187;
+    m_QuantumEff_PMT[24]=0.196;
+    m_QuantumEff_PMT[25]=0.204;
+    m_QuantumEff_PMT[26]=0.210;
+    m_QuantumEff_PMT[27]=0.215;
+    m_QuantumEff_PMT[28]=0.220;
+    m_QuantumEff_PMT[29]=0.225;
+    m_QuantumEff_PMT[30]=0.229;
+    m_QuantumEff_PMT[31]=0.232;
+    m_QuantumEff_PMT[32]=0.235;
+    m_QuantumEff_PMT[33]=0.239;
+    m_QuantumEff_PMT[34]=0.243;
+    m_QuantumEff_PMT[35]=0.247;
+    m_QuantumEff_PMT[36]=0.251;
+    m_QuantumEff_PMT[37]=0.252;
+    m_QuantumEff_PMT[38]=0.255;
+    m_QuantumEff_PMT[39]=0.257;
+    m_QuantumEff_PMT[40]=0.259;
+    m_QuantumEff_PMT[41]=0.260;
+    m_QuantumEff_PMT[42]=0.260;
+    m_QuantumEff_PMT[43]=0.261;
+    m_QuantumEff_PMT[44]=0.261;
+    m_QuantumEff_PMT[45]=0.260;
+    m_QuantumEff_PMT[46]=0.258;
+    m_QuantumEff_PMT[47]=0.256;
+    m_QuantumEff_PMT[48]=0.252;
+    m_QuantumEff_PMT[49]=0.249;
+    m_QuantumEff_PMT[50]=0.245;
+    m_QuantumEff_PMT[51]=0.241;
+    m_QuantumEff_PMT[52]=0.236;
+    m_QuantumEff_PMT[53]=0.229;
+    m_QuantumEff_PMT[54]=0.222;
+    m_QuantumEff_PMT[55]=0.213;
+    m_QuantumEff_PMT[56]=0.206;
+    m_QuantumEff_PMT[57]=0.199;
+    m_QuantumEff_PMT[58]=0.193;
+    m_QuantumEff_PMT[59]=0.186;
+    m_QuantumEff_PMT[60]=0.181;
+    m_QuantumEff_PMT[61]=0.177;
+    m_QuantumEff_PMT[62]=0.173;
+    m_QuantumEff_PMT[63]=0.165;
+    m_QuantumEff_PMT[64]=0.150;
+    m_QuantumEff_PMT[65]=0.129;
+    m_QuantumEff_PMT[66]=0.108;
+    m_QuantumEff_PMT[67]=0.092;
+    m_QuantumEff_PMT[68]=0.081;
+    m_QuantumEff_PMT[69]=0.073;
+    m_QuantumEff_PMT[70]=0.066;
+    m_QuantumEff_PMT[71]=0.060;
+    m_QuantumEff_PMT[72]=0.055;
+    m_QuantumEff_PMT[73]=0.050;
+    m_QuantumEff_PMT[74]=0.046;
+    m_QuantumEff_PMT[75]=0.041;
+    m_QuantumEff_PMT[76]=0.037;
+    m_QuantumEff_PMT[77]=0.033;
+    m_QuantumEff_PMT[78]=0.029;
+    m_QuantumEff_PMT[79]=0.025;
+    m_QuantumEff_PMT[80]=0.022;
+    m_QuantumEff_PMT[81]=0.019;
+    */
 }
