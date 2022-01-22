@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_FwdModuleConnector.h"
@@ -26,7 +26,7 @@ SCT_FwdModuleConnector::SCT_FwdModuleConnector(const std::string & name, int rin
     m_ringType(ringType)
 {
   getParameters();
-  m_physVolume = build();
+  m_physVolume = SCT_FwdModuleConnector::build();
 }
 
 
