@@ -206,8 +206,7 @@ if __name__ == "__main__":
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    flags.Input.Files=defaultTestFiles.RDO
-
+    flags.Input.Files=defaultTestFiles.RDO_RUN2
 
     numThreads=1
     flags.Concurrency.NumThreads=numThreads

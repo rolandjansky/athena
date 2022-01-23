@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """
           Instantiate egammaRecBuilder with default configuration
@@ -48,7 +48,7 @@ if __name__ == "__main__":
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     from AthenaConfiguration.ComponentAccumulator import printProperties
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
-    flags.Input.Files = defaultTestFiles.RDO
+    flags.Input.Files = defaultTestFiles.RDO_RUN2
     flags.lock()
 
     acc = MainServicesCfg(flags)

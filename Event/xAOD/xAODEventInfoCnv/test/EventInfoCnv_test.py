@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Run tests for old EventInfo to xAOD::EventInfo conversion
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 import sys
 
@@ -34,7 +34,7 @@ parser.add_argument("-d", "--debug", default='', type=str,
 args = parser.parse_args()
 
 # Configure
-ConfigFlags.Input.Files = defaultTestFiles.HITS
+ConfigFlags.Input.Files = defaultTestFiles.HITS_RUN2
 ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
 ConfigFlags.Output.HITSFileName = "myHITS.pool.root"
 

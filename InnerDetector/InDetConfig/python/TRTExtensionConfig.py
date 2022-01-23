@@ -163,7 +163,7 @@ if __name__ == "__main__":
     ConfigFlags.InDet.Tracking.holeSearchInGX2Fit = True
 
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.Input.Files = defaultTestFiles.RDO
+    ConfigFlags.Input.Files = defaultTestFiles.RDO_RUN2
     ConfigFlags.lock()
     ConfigFlags.dump()
 
