@@ -74,8 +74,11 @@ StatusCode DisplacedJetDispHypoTool::decide(  Info& info )  const {
 			nother += 1;
 		}
 	}
-
-	double nother_frac = nother*1.0/(nother + ndisp + nprompt);
+	double nother_frac = 0.0;
+	//ensure divide by zero does not occur
+	if((nother + ndisp + nprompt) > 0){
+		nother_frac = nother*1.0/(nother + ndisp + nprompt);
+	}
 
 	unsigned int jet_class = 0;
 
