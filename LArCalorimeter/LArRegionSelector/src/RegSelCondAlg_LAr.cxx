@@ -48,6 +48,7 @@ StatusCode RegSelCondAlg_LAr::initialize() {
   ATH_MSG_DEBUG("RegSelCondAlg_LAr::initialize() ");
   ATH_CHECK(m_tableKey.initialize());
   ATH_CHECK(m_roiMapKey.initialize());
+  ATH_CHECK(m_caloMgrKey.initialize());
   ATH_MSG_INFO("RegSelCondAlg_LAr::initialize() " << m_tableKey );
   return StatusCode::SUCCESS;
 }
@@ -133,7 +134,7 @@ std::unique_ptr<RegSelectorHashMap> RegSelCondAlg_LAr::createTable (const LArRoI
 
   IToolSvc* toolSvc = nullptr;
   if ( service( "ToolSvc", toolSvc).isFailure() ) { 
-    ATH_MSG_ERROR( " Successfully retrieved ToolSvc ");
+    ATH_MSG_ERROR( "Failed to retrieve ToolSvc ");
     return lut;
   }
 
