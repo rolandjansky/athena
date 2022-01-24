@@ -394,7 +394,9 @@ PHYSSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.T
                                       "AntiKt4EMPFlowJets.PartonTruthLabelID.DFCommonJets_fJvt.ConeExclBHadronsFinal.ConeExclCHadronsFinal.GhostBHadronsFinal.GhostCHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostBHadronsFinal.GhostCHadronsFinal",
                                       "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903.GhostBHadronsFinal.GhostCHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostTausFinal.GhostTausFinalCount",
                                       "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810.GhostBHadronsFinal.GhostCHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostTausFinal.GhostTausFinalCount",
-                                      "TruthPrimaryVertices.t.x.y.z"]
+                                      "TruthPrimaryVertices.t.x.y.z",
+                                      "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET.ex.ey",
+                                      "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht.ex.ey"]
 
 # Saves the BDT output scores for the PLV algorithms.
 # Can specify just electrons or just muons by adding 'name="Electrons"' or 'name="Muons"' as the argument.
