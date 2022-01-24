@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Run a test on Tile conditions algorithms configuration on MC online
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 
 if __name__ == "__main__":
@@ -17,7 +17,7 @@ if __name__ == "__main__":
     # test setup
     log.setLevel(DEBUG)
 
-    ConfigFlags.Input.Files = defaultTestFiles.RDO
+    ConfigFlags.Input.Files = defaultTestFiles.RDO_RUN2
     ConfigFlags.Tile.RunType = 'PHY'
     ConfigFlags.Common.isOnline = True
     ConfigFlags.lock()

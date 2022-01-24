@@ -77,7 +77,7 @@ if __name__ == "__main__":
 
     Configurable.configurableRun3Behavior = True
 
-    ConfigFlags.Input.Files = defaultTestFiles.RDO
+    ConfigFlags.Input.Files = defaultTestFiles.RDO_RUN2
     ConfigFlags.fillFromArgs()
     ConfigFlags.lock()
     ConfigFlags.dump()

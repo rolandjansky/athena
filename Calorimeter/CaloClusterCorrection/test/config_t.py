@@ -218,7 +218,7 @@ def test2 (flags_in):
     flags = flags_in.clone()
     flags.Input.isMC = True
     flags.IOVDb.GlobalTag = 'OFLCOND-RUN12-SDR-31'
-    flags.Input.Files = defaultTestFiles.RDO
+    flags.Input.Files = defaultTestFiles.RDO_RUN2
     flags.lock()
 
     ca = make_CaloSwCorrectionsCfg (flags, version = '@GLOBAL',

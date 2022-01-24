@@ -817,7 +817,7 @@ if __name__ == "__main__":
     log.setLevel(DEBUG)
 
     ConfigFlags.Input.isMC = True
-    ConfigFlags.Input.Files = defaultTestFiles.HITS
+    ConfigFlags.Input.Files = defaultTestFiles.HITS_RUN2
     ConfigFlags.Exec.MaxEvents = 3
     ConfigFlags.fillFromArgs()
     ConfigFlags.lock()

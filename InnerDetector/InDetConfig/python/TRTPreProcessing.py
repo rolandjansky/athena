@@ -280,7 +280,7 @@ if __name__ == "__main__":
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.Input.Files=defaultTestFiles.RDO
+    ConfigFlags.Input.Files=defaultTestFiles.RDO_RUN2
 
     # TODO: TRT only?
 

@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -398,10 +398,6 @@ if __name__=="__main__":
 
         print ("file input.txt does not exist")
         print ("WIll use files: \n", file_list)
-
-
-    # from AthenaConfiguration.TestDefaults import defaultTestFiles
-    # ConfigFlags.Input.Files = defaultTestFiles.ESD
 
     ConfigFlags.Input.Files = file_list
 
