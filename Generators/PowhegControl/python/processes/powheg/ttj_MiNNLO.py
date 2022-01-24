@@ -45,7 +45,7 @@ class ttj_MiNNLO(PowhegV2):
         warnings = super(ttj_MiNNLO, self).hoppet_warning()
         infos = super(ttj_MiNNLO, self).hoppet_info()
         
-        super(ttj_MiNNLO, self).__init__(base_directory, "ttJ_MiNNLOPS_v1.0_beta1", powheg_executable="pwhg_main-gnu", warning_output=warnings, info_output=infos, error_output=errors, **kwargs)
+        super(ttj_MiNNLO, self).__init__(base_directory, "ttJ_MiNNLO", powheg_executable="pwhg_main-gnu", warning_output=warnings, info_output=infos, error_output=errors, **kwargs)
 
         # defining ttjMiNNLOPATH environment variable to bypass file path problems in fortran code
         # this is definitly a hack, see discussion in AGENE-2055

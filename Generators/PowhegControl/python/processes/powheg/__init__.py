@@ -9,6 +9,7 @@ from chi1chi1 import chi1chi1
 from DMGG import DMGG
 from DMS_tloop import DMS_tloop
 from DMV import DMV
+from fourtops import fourtops
 from ggF_H import ggF_H
 from ggF_HH import ggF_HH
 from ggF_HZ import ggF_HZ
