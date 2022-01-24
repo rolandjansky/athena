@@ -43,6 +43,7 @@
 
 #include "AsgMessaging/Check.h"
 #include "AsgTools/EventStoreType.h"
+#include "AthContainers/ConstDataVector.h"
 
 #include "TrigNavStructure/TypedHolder.h"
 
@@ -107,16 +108,15 @@ namespace Trig {
         std::cerr << "WARNING: bits size and owned size" << std::endl;
         return original;
       }
-      STORED* f = new STORED;
-      f->clear(SG::VIEW_ELEMENTS);
+      auto f = new ConstDataVector<STORED>(SG::VIEW_ELEMENTS);
   
       for(auto obj : *original){
-	if(HLT::isPassing(bits,obj,original.get())){
-	  f->push_back(const_cast<typename STORED::value_type>(obj));
-	}
+        if(HLT::isPassing(bits,obj,original.get())){
+          f->push_back(obj);
+        }
       }
       //manage the memory
-      std::shared_ptr<const STORED> filtered(f);
+      std::shared_ptr<const STORED> filtered(f->asDataVector());
       return filtered;
     }
 

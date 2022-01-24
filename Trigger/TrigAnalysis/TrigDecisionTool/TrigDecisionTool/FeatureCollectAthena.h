@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS // Full Athena only
@@ -25,6 +25,8 @@
 #include "boost/type_traits/is_same.hpp"
 #include "boost/shared_ptr.hpp"
 #include "boost/lexical_cast.hpp"
+
+#include "AthContainers/ConstDataVector.h"
 
 #include "TrigNavigation/NavigationCore.h"
 #include "TrigNavigation/NavigationCore.icc"
@@ -104,20 +106,16 @@ namespace Trig {
 
       const TrigPassBits* bits(0);
       if ( condition == TrigDefs::Physics ) {// only passing objects
-	bits = getBits(source->size(), te, label , navigation);
+        bits = getBits(source->size(), te, label , navigation);
       }
       if ( bits ) { // the actual filtering
-	T* destination = new T();      
-	destination->clear(SG::VIEW_ELEMENTS);
-	//      std::string name = "TDT_temporary_"+label+"_"+boost::lexical_cast<std::string>( (void*) destination);
-	//navigation->getAccessProxy()->record(destination, name);
+        auto destination = new ConstDataVector<T>(SG::VIEW_ELEMENTS);
 
-      
-	for(const typename T::base_value_type *obj : *source) {	
-	  if ( HLT::isPassing(bits, obj, source)  ) // if bits are missing or obj is realy marked as passing
-	    destination->push_back(const_cast<typename T::value_type>(obj));
-	}
-	return destination;
+        for(const typename T::base_value_type *obj : *source) {
+          if ( HLT::isPassing(bits, obj, source)  ) // if bits are missing or obj is realy marked as passing
+            destination->push_back(obj);
+        }
+        return destination->asDataVector();
       }
       // else
       return source;
