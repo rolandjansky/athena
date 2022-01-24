@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -12,6 +12,7 @@
 def TgcRawDataMonitoringConfig(inputFlags):
     from AthenaConfiguration.ComponentFactory import CompFactory
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    from AthenaConfiguration.Enums import Format
     result = ComponentAccumulator()
 
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
@@ -70,8 +71,7 @@ def TgcRawDataMonitoringConfig(inputFlags):
     if not inputFlags.DQ.triggerDataAvailable:
         tgcRawDataMonAlg.MuonRoIContainerName = ''
 
-    isBS = (inputFlags.Input.Format == 'BS')
-    if isBS or 'TGC_MeasurementsAllBCs' in inputFlags.Input.Collections:
+    if inputFlags.Input.Format is Format.BS or 'TGC_MeasurementsAllBCs' in inputFlags.Input.Collections:
         tgcRawDataMonAlg.AnaTgcPrd=True
     
     mainDir = 'Muon/MuonRawDataMonitoring/TGC/'

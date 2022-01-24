@@ -1,6 +1,8 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import Format
+
 
 #This configures pflow + everything it needs
 def PFFullCfg(inputFlags,**kwargs):
@@ -63,7 +65,7 @@ def PFCfg(inputFlags,**kwargs):
     from eflowRec.PFCfg import PFTrackSelectorAlgCfg
     useCaching = True
     #If reading ESD/AOD do not make use of caching of track extrapolations.
-    if (inputFlags.Input.Format == "POOL" and not ('StreamRDO' in inputFlags.Input.ProcessingTags or 'OutputStreamRDO' in inputFlags.Input.ProcessingTags)):
+    if inputFlags.Input.Format is Format.POOL and "StreamRDO" not in inputFlags.Input.ProcessingTags:
         useCaching = False
     result.merge(PFTrackSelectorAlgCfg(inputFlags,"PFTrackSelector",useCaching))
 
@@ -82,16 +84,12 @@ def PFCfg(inputFlags,**kwargs):
     result.addEventAlgo(getLCNeutralFlowElementCreatorAlgorithm(inputFlags,""))
 
     #Only do linking if not in eoverp mode
-    if (not inputFlags.PF.EOverPMode):
-      #Currently we do not have egamma reco in the run 3 config and hence there are no electrons/photons if not running from ESD or AOD
-      #So in new config only schedule from ESD/AOD, in old config always schedule it if requested
-      if (inputFlags.PF.useElPhotLinks and (inputFlags.Input.Format == "POOL" or inputFlags.PF.useRecExCommon)):
+    if not inputFlags.PF.EOverPMode:
+      if inputFlags.PF.useElPhotLinks:
           from eflowRec.PFCfg import getEGamFlowElementAssocAlgorithm        
           result.addEventAlgo(getEGamFlowElementAssocAlgorithm(inputFlags))
-    
-      #Currently we do not have muon reco in the run 3 config and hence there are no muons if not running from ESD or AOD
-      #So in new config only schedule from ESD/AOD, in old config always schedule it if requested it
-      if (inputFlags.PF.useMuLinks and ((inputFlags.Input.Format == "POOL" and not ('StreamRDO' in inputFlags.Input.ProcessingTags or 'OutputStreamRDO' in inputFlags.Input.ProcessingTags)) or inputFlags.PF.useRecExCommon)):
+
+      if inputFlags.PF.useMuLinks:
           from eflowRec.PFCfg import getMuonFlowElementAssocAlgorithm
           result.addEventAlgo(getMuonFlowElementAssocAlgorithm(inputFlags))
 

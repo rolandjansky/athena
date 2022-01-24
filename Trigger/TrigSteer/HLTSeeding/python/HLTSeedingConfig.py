@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 import math
@@ -320,7 +320,8 @@ def HLTSeedingCfg(flags, seqName = None):
     decoderAlg.ctpUnpacker = CompFactory.CTPUnpackingTool( ForceEnableAllChains = flags.Trigger.HLTSeeding.forceEnableAllChains,
                                                            MonTool = CTPUnpackingMonitoring(512, 200) )
     #Transient bytestream
-    if flags.Input.Format == "POOL":
+    from AthenaConfiguration.Enums import Format
+    if flags.Input.Format is Format.POOL:
         transTypeKey = ("TransientBSOutType","StoreGateSvc+TransientBSOutKey")
         decoderAlg.ExtraInputs += [transTypeKey]
 
@@ -350,7 +351,7 @@ def HLTSeedingCfg(flags, seqName = None):
     decoderAlg.DoCostMonitoring = flags.Trigger.CostMonitoring.doCostMonitoring
     decoderAlg.CostMonitoringChain = flags.Trigger.CostMonitoring.chain
 
-    if flags.Input.Format == "BS" and not flags.Trigger.doLVL1:
+    if flags.Input.Format is Format.BS and not flags.Trigger.doLVL1:
         # Add the algorithm decoding ByteStream into xAOD (Run-3 L1) and/or RoIBResult (legacy L1)
         from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1TriggerByteStreamDecoderCfg
         acc.merge( L1TriggerByteStreamDecoderCfg(flags), sequenceName = seqName )

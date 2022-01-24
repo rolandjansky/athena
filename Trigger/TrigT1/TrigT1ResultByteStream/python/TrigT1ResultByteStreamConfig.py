@@ -1,9 +1,10 @@
 #
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
-from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, CAtoGlobalWrapper
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, CAtoGlobalWrapper
+from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import Format
 from libpyeformat_helper import SourceIdentifier, SubDetector
 
 #Muon RecRoiTools
@@ -168,7 +169,7 @@ def L1TriggerByteStreamEncoderCfg(flags):
     acc.addPublicTool(roibResultTool)
     # Special - in BS->BS job without L1Sim, need to decode extra data from input
     # for encoding the CTP information back to BS
-    if flags.Input.Format == 'BS' and not flags.Trigger.doLVL1 and roibResultTool.CTPModuleId != 0xFF:
+    if flags.Input.Format is Format.BS and not flags.Trigger.doLVL1 and roibResultTool.CTPModuleId != 0xFF:
       from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
       acc.merge(ByteStreamReadCfg(flags, type_names=['CTP_RDO/CTP_RDO']))
 

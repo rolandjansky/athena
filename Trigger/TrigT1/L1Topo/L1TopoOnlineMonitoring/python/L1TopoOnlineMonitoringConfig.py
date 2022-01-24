@@ -1,8 +1,9 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+from AthenaConfiguration.Enums import Format
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulationOldStyleCfg, RoiB2TopoInputDataCnv
 from TrigConfigSvc.TriggerConfigAccess import getL1MenuAccess
@@ -55,7 +56,7 @@ def getL1TopoLegacyOnlineMonitor(flags):
     # that all names start with HLT_ which doesn't make sense for L1TopoErrorFlags
     # alg.ErrorFlagsKey = recordable(str(getAlgProp('ErrorFlagsKey')))
 
-    if getAlgProp('PrescaleDAQROBAccess') >= 1 and flags.Input.Format == 'BS':
+    if getAlgProp('PrescaleDAQROBAccess') >= 1 and flags.Input.Format is Format.BS:
         # Add BS converter for DAQ L1Topo RDO collection
         from L1TopoByteStream.L1TopoByteStreamConfig import L1TopoRDOCollectionBSCnvCfg
         CAtoGlobalWrapper(L1TopoRDOCollectionBSCnvCfg, ConfigFlags)

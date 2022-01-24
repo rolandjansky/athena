@@ -1,13 +1,14 @@
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import Format
+
 
 def CaloRecoCfg(configFlags, clustersname=None):
-
     result = ComponentAccumulator()
-    if configFlags.Input.Format == 'BS':
+    if configFlags.Input.Format is Format.BS:
         #Data-case: Schedule ByteStream reading for LAr & Tile
         from LArByteStream.LArRawDataReadingConfig import LArRawDataReadingCfg
         result.merge(LArRawDataReadingCfg(configFlags))

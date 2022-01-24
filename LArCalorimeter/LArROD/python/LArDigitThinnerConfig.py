@@ -1,9 +1,10 @@
 """Configuration for the LAr Digit Thinner algorithm
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import Format
 from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg
 
 
@@ -12,13 +13,11 @@ def LArDigitThinnerCfg(flags, **kwargs):
     # based on DefaultLArDigitThinner
     acc = ComponentAccumulator()
 
-
-    if (not flags.Input.isMC) and (not flags.Overlay.DataOverlay):
+    if not flags.Input.isMC and not flags.Overlay.DataOverlay:
         kwargs.setdefault("InputContainerName","FREE")
-        if flags.Input.Format == "BS":
+        if flags.Input.Format is Format.BS:
             from LArByteStream.LArRawDataReadingConfig import LArRawDataReadingCfg
             acc.merge(LArRawDataReadingCfg(flags,LArDigitKey="FREE"))
-    
 
     acc.merge(LArOnOffIdMappingCfg(flags))
 

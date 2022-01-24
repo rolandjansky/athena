@@ -2,6 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import Format
 
 ##------------------------------------------------------------------------------
 def BCM_ZeroSuppressionCfg(flags, name="InDetBCM_ZeroSuppression", **kwargs):
@@ -330,7 +331,7 @@ def InDetTrackRecoCfg(flags):
     """Configures complete ID tracking """
     result = ComponentAccumulator()
 
-    if flags.Input.Format == "BS":
+    if flags.Input.Format is Format.BS:
         from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConfig import PixelRawDataProviderAlgCfg
         result.merge(PixelRawDataProviderAlgCfg(flags))
         from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConfig import SCTRawDataProviderCfg, SCTEventFlagWriterCfg

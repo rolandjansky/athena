@@ -2,6 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import Format
 
 ##------------------------------------------------------------------------------
 def ITk_BCM_ZeroSuppressionCfg(flags, name="ITk_BCM_ZeroSuppression", **kwargs):
@@ -239,7 +240,7 @@ def ITkTrackRecoCfg(flags):
     """Configures complete ID tracking """
     result = ComponentAccumulator()
 
-    if flags.Input.Format == "BS":
+    if flags.Input.Format is Format.BS:
         # TODO: ITk BS providers
         raise RuntimeError("BS imputs not supported")
 

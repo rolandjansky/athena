@@ -88,7 +88,8 @@ def getL1MenuAccess( flags = None ):
     elif tc["SOURCE"] == "DB":
         cfg = L1MenuAccess( dbalias = tc["dbconn"], smkey = tc["smk"] )
     elif tc["SOURCE"] == "INFILE":
-        if flags.Input.Format != 'POOL':
+        from AthenaConfiguration.Enums import Format
+        if flags.Input.Format is not Format.POOL:
             raise RuntimeError("Cannot read trigger configuration (L1 menu) from input type %s", flags.Input.Format )            
         from AthenaConfiguration.AutoConfigFlags import GetFileMD
         metadata = GetFileMD(flags.Input.Files)
@@ -115,7 +116,8 @@ def getL1PrescalesSetAccess( flags = None ):
     elif tc["SOURCE"] == "DB":
         cfg = L1PrescalesSetAccess( dbalias = tc["dbconn"], l1pskey = tc["l1psk"] )
     elif tc["SOURCE"] == "INFILE":
-        if flags.Input.Format != 'POOL':
+        from AthenaConfiguration.Enums import Format
+        if flags.Input.Format is not Format.POOL:
             raise RuntimeError("Cannot read trigger configuration (L1 prescales) from input type %s", flags.Input.Format )
         from AthenaConfiguration.AutoConfigFlags import GetFileMD
         metadata = GetFileMD(flags.Input.Files)
@@ -169,7 +171,8 @@ def getHLTMenuAccess( flags = None ):
     elif tc["SOURCE"] == "DB":
         cfg = HLTMenuAccess( dbalias = tc["dbconn"], smkey = tc["smk"] )
     elif tc["SOURCE"] == "INFILE":
-        if flags.Input.Format != 'POOL':
+        from AthenaConfiguration.Enums import Format
+        if flags.Input.Format is not Format.POOL:
             raise RuntimeError("Cannot read trigger configuration (HLT menu) from input type %s", flags.Input.Format )            
         from AthenaConfiguration.AutoConfigFlags import GetFileMD
         metadata = GetFileMD(flags.Input.Files)
@@ -196,7 +199,8 @@ def getHLTPrescalesSetAccess( flags = None ):
     elif tc["SOURCE"] == "DB":
         cfg = HLTPrescalesSetAccess( dbalias = tc["dbconn"], l1pskey = tc["hltpsk"] )
     elif tc["SOURCE"] == "INFILE":
-        if flags.Input.Format != 'POOL':
+        from AthenaConfiguration.Enums import Format
+        if flags.Input.Format is not Format.POOL:
             raise RuntimeError("Cannot read trigger configuration (HLT prescales) from input type %s", flags.Input.Format )            
         from AthenaConfiguration.AutoConfigFlags import GetFileMD
         metadata = GetFileMD(flags.Input.Files)
