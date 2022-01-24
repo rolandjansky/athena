@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCOOLConditions/LArMinBiasAverageSC.h"
@@ -7,19 +7,22 @@
 
 //const float LArMinBiasAverageSC::errorcode=ILArMinBiasAverage::ERRORCODE;
 
-LArMinBiasAverageSC::LArMinBiasAverageSC() {}
+LArMinBiasAverageSC::LArMinBiasAverageSC()
+  : LArCondSuperCellBase ("LArMinBiasAverageSC")
+{}
 
 LArMinBiasAverageSC::~LArMinBiasAverageSC() {}
 
 
-LArMinBiasAverageSC::LArMinBiasAverageSC(const CondAttrListCollection* attrList) {
-  StatusCode sc=initializeBase("LArMinBiasAverageSC");
-  if (sc.isFailure()) return;
+LArMinBiasAverageSC::LArMinBiasAverageSC(const CondAttrListCollection* attrList)
+  : LArCondSuperCellBase ("LArMinBiasAverageSC")
+{
+  if (initializeBase().isFailure()) return;
  
-   readBlob(attrList,"MinBiasAverage",*m_log);
+  readBlob(attrList,"MinBiasAverage",msg());
 
   if (m_pValues.size()!=1) {
-    (*m_log) << MSG::ERROR << "Found unexpected number of gains (" << m_pValues.size() <<"). Expected exactly one gain." << endmsg;
+    ATH_MSG_ERROR( "Found unexpected number of gains (" << m_pValues.size() <<"). Expected exactly one gain." );
   }
 
   return;
