@@ -16,6 +16,7 @@ namespace xAOD {
       AUX_VARIABLE( productionRelease );
       AUX_VARIABLE( dataType );
       AUX_VARIABLE( runNumbers );
+      AUX_VARIABLE( lumiBlocks );
    }
 
 } // namespace xAOD
