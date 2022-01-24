@@ -51,10 +51,10 @@ from pprint import pprint
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__BdKstarMuMu_metadata
 BPHY12_MetaData = DerivationFramework__BdKstarMuMu_metadata( name              = "BPHY12_Metadata",
                                                              DerivationName    = "BPHY12",
-                                                             version           = "v0.8", # derivation version (update with every update of the derivation)
+                                                             version           = "v0.9", # derivation version (update with every update of the derivation)
                                                              OutputLevel       = WARNING,
                                                              verbose           = 1,      # TODO: verbose output (currently by default)
-                                                             looseCuts         = False,  # apply loose cuts (debugging only)
+                                                             looseCuts         = False,  # TODO: apply loose cuts (debugging only)
                                                              skimTrig          = False,  # skim data by selected triggers
                                                              skimData          = True,   # skim data by passed B-candidates
                                                              thinData          = True,   # thin ID tracks, muons and PVs
@@ -202,6 +202,8 @@ BPHY12_Finder_DiMuon = Analysis__JpsiFinder( name                        = "BPHY
                                              muAndTrack                  = False,
                                              TrackAndTrack               = False,
                                              assumeDiMuons               = True,
+                                             muonThresholdPt             = 3000.,
+                                             higherPt                    = 3500.,
                                              invMassUpper                = 7000.,
                                              invMassLower                = 1.,
                                              Chi2Cut                     = 30.,
@@ -295,7 +297,7 @@ BPHY12_Finder_BdKstarKpiMuMu = Analysis__JpsiPlus2Tracks( name                  
                                                           BMassUpper              = 6500,   # after vertexing
                                                           BMassLower              = 3000.,  # after vertexing
                                                           BThresholdPt            = 1000.,  # after vertexing
-                                                          Chi2Cut                 = 15.,    # after vertexing (cut on chi2/NDF)
+                                                          Chi2Cut                 = 30./5., # after vertexing (cut on chi2/NDF)
                                                           JpsiContainerKey        = "BPHY12_DiMuon_Candidates",
                                                           TrackParticleCollection = "InDetTrackParticles",
                                                           ExcludeCrossJpsiTracks  = False,
