@@ -120,8 +120,6 @@ namespace Trig {
     std::map<std::string, std::vector<std::string> > getStreams() {return m_streams;};
     std::map<std::string, std::vector<std::string> > getStreams() const {return m_streams;};
 
-    const xAOD::TrigCompositeContainer* expressStreamContainer() const;
-
     /**
      * @brief checks if new event arrived with the decision
      * Need to use before any call to CacheGlobalMemory.
@@ -215,7 +213,6 @@ namespace Trig {
 
     const TrigConf::ItemContainer* m_confItems{nullptr};             //!< items configuration
     const TrigConf::HLTChainList*  m_confChains{nullptr};            //!< all chains configuration
-    mutable const xAOD::TrigCompositeContainer* m_expressStreamContainer{nullptr};
 
     SG::ReadHandleKey<xAOD::TrigDecision>* m_decisionKeyPtr{nullptr}; //!< Parent TDT's read handle key
 
