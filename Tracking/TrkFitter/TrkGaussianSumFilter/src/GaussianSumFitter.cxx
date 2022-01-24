@@ -776,7 +776,7 @@ Trk::GaussianSumFitter::fitPRD(
 
   // Loop over all PrepRawData measurements
   prepRawData = prepRawDataSet.begin();
-
+  forwardTrajectory.reserve(prepRawDataSet.size());
   for (; prepRawData != prepRawDataSet.end(); ++prepRawData) {
 
     // Every valid step the ForwardTrajectory object passed to the
@@ -841,7 +841,7 @@ Trk::GaussianSumFitter::fitMeasurements(
 
   // Loop over all MeasurementBase objects in set
   Trk::MeasurementSet::const_iterator measurement = inputMeasurementSet.begin();
-
+  forwardTrajectory.reserve(inputMeasurementSet.size());
   for (; measurement != inputMeasurementSet.end(); ++measurement) {
 
     bool stepIsValid = stepForwardFit(ctx,
@@ -930,10 +930,10 @@ Trk::GaussianSumFitter::stepForwardFit(
   auto fitQuality = std::make_unique<Trk::FitQualityOnSurface>();
   // Here we need to clone as the extrapolated state can be used
   // afterwards
-  updatedState =
-    Trk::GsfMeasurementUpdator::update(MultiComponentStateHelpers::clone(extrapolatedState),
-                     *measurement,
-                     *fitQuality);
+  updatedState = Trk::GsfMeasurementUpdator::update(
+    MultiComponentStateHelpers::clone(extrapolatedState),
+    *measurement,
+    *fitQuality);
   if (updatedState.empty()) {
     return false;
   }
@@ -996,6 +996,7 @@ Trk::GaussianSumFitter::fit(
 
   // Loop over TrackStateOnSurface objects in the forward
   // trajectory to find the first measurement (i.e. not an outlier)
+  smoothedTrajectory.reserve(forwardTrajectory.size());
   Trk::ForwardTrajectory::const_reverse_iterator trackStateOnSurface =
     forwardTrajectory.rbegin();
   for (; trackStateOnSurface != forwardTrajectory.rend();
@@ -1055,8 +1056,8 @@ Trk::GaussianSumFitter::fit(
   }
   Trk::MultiComponentState firstSmoothedState =
     Trk::GsfMeasurementUpdator::update(std::move(smootherPredictionMultiState),
-                     *firstSmootherMeasurementOnTrack,
-                     fitQuality);
+                                       *firstSmootherMeasurementOnTrack,
+                                       fitQuality);
 
   if (firstSmoothedState.empty()) {
     return Trk::SmoothedTrajectory();
@@ -1096,9 +1097,9 @@ Trk::GaussianSumFitter::fit(
       std::move(firstSmoothedState), 15., 5., 15., 5., 15.);
 
   // Perform a measurement update on this new state before loop
-  Trk::MultiComponentState updatedState =
-    Trk::GsfMeasurementUpdator::update(std::move(smoothedStateWithScaledError),
-                     *(updatedFirstStateOnSurface->measurementOnTrack()));
+  Trk::MultiComponentState updatedState = Trk::GsfMeasurementUpdator::update(
+    std::move(smoothedStateWithScaledError),
+    *(updatedFirstStateOnSurface->measurementOnTrack()));
 
   if (updatedState.empty()) {
     ATH_MSG_WARNING(
@@ -1177,8 +1178,8 @@ Trk::GaussianSumFitter::fit(
       continue;
     }
 
-    (*loopUpdatedState) =
-      Trk::GsfMeasurementUpdator::update(std::move(extrapolatedState), *measurement, fitQuality);
+    (*loopUpdatedState) = Trk::GsfMeasurementUpdator::update(
+      std::move(extrapolatedState), *measurement, fitQuality);
     if (loopUpdatedState->empty()) {
       ATH_MSG_WARNING(
         "Could not update the multi-component state... rejecting track!");
@@ -1425,8 +1426,8 @@ Trk::GaussianSumFitter::addCCOT(
   }
   // Update newly extrapolated state with MeasurementBase measurement
   Trk::FitQualityOnSurface fitQuality;
-  Trk::MultiComponentState updatedState =
-    Trk::GsfMeasurementUpdator::update(std::move(extrapolatedState), *ccot, fitQuality);
+  Trk::MultiComponentState updatedState = Trk::GsfMeasurementUpdator::update(
+    std::move(extrapolatedState), *ccot, fitQuality);
 
   if (updatedState.empty()) {
     return {};
