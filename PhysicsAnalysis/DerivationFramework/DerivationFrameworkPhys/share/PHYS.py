@@ -218,7 +218,9 @@ PHYSSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.T
                                       "TruthPrimaryVertices.t.x.y.z",
                                       "InDetTrackParticles.TTVA_AMVFVertices.TTVA_AMVFWeights.eProbabilityHT.numberOfTRTHits.numberOfTRTOutliers",
                                       "EventInfo.hardScatterVertexLink.timeStampNSOffset",
-                                      "TauJets.dRmax.etOverPtLeadTrk"]
+                                      "TauJets.dRmax.etOverPtLeadTrk",
+                                      "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET.ex.ey",
+                                      "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht.ex.ey"]
 
 # Add trigger matching
 PhysCommonTrigger.trigmatching_helper_notau.add_to_slimming(PHYSSlimmingHelper)
