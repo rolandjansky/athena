@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file EventCommonD3PDMaker/src/ChargeFillerTool.cxx
  * @author Serhan Mete, scott snyder <snyder@bnl.gov>
@@ -30,7 +28,7 @@ ChargeFillerTool::ChargeFillerTool (const std::string& type,
 				    const IInterface* parent)
   : BlockFillerTool<IParticle> (type, name, parent)
 {
-  book().ignore(); // Avoid coverity warnings.
+  ChargeFillerTool::book().ignore(); // Avoid coverity warnings.
 }
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -23,7 +23,7 @@ CountingConnector::CountingConnector(const string & name,
 {}
 
 CountingConnector::~CountingConnector() {
-   clearOutput();
+   CountingConnector::clearOutput();
 }
 
 // TO-DO: Add function to return the counts, but format? 
