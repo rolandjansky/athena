@@ -3,6 +3,7 @@
 #
 
 + AsgExternal/Asg_Test
++ AtlasTest/CITest
 + AtlasTest/TestTools
 + Calorimeter/CaloConditions
 + Calorimeter/CaloCondBlobObjs

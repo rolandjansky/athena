@@ -3,6 +3,7 @@
 # Package filtering rules for the DetCommon project build.
 #
 
++ AtlasTest/CITest
 + AtlasTest/TestTools
 + Control/CxxUtils
 + Database/ConnectionManagement/AtlasAuthentication
