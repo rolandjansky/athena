@@ -19,7 +19,9 @@ namespace NSWL1 {
 
     virtual StatusCode initialize() override;
 
-    StatusCode mergeRDO(const Muon::NSW_PadTriggerDataContainer* padTriggerContainer, Muon::NSW_TrigRawDataContainer* trigRdoContainer);
+    StatusCode mergeRDO(const Muon::NSW_PadTriggerDataContainer* padTriggerContainer,
+                        const Muon::NSW_TrigRawDataContainer* MMTriggerContainer,
+                        Muon::NSW_TrigRawDataContainer* trigRdoContainer);
 
   private:
 
