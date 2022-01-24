@@ -78,6 +78,7 @@ bool ErroneousAlg::jumpOnUninitializedValue()
   unsigned int yesNo[] = { 0, 0};
   
   for ( unsigned int i=0; i<64*maximum; ++i )
+    // cppcheck-suppress uninitvar; this is meant to be uninitialized
     if ( this->shouldIJump(someConditions[i]) )
       yesNo[0]++;
     else
