@@ -30,8 +30,10 @@
 
 #include "TrkTrack/TrackStateOnSurface.h"
 
-#include <unordered_set>
 #include <utility>
+
+#include <boost/container/flat_set.hpp>
+#include <boost/container/small_vector.hpp>
 
 namespace {
 const bool useBoundaryMaterialUpdate(true);
@@ -907,7 +909,12 @@ Trk::GsfExtrapolator::extrapolateFromLayerToLayer(
   const Trk::Layer* nextLayer =
     currentLayer->nextLayer(currentPosition, currentDirection);
 
-  std::unordered_set<const Trk::Layer*> layersHit;
+  using LayerSet = boost::container::flat_set<
+    const Trk::Layer*,
+    std::less<const Trk::Layer*>,
+    boost::container::small_vector<const Trk::Layer*, 8>>;
+  LayerSet layersHit;
+
   layersHit.insert(currentLayer);
 
   // Begin while loop over all intermediate layers
