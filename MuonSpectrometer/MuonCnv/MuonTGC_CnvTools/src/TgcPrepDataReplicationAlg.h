@@ -18,8 +18,8 @@ namespace Muon
   public:
     TgcPrepDataReplicationAlg(const std::string& name, ISvcLocator* pSvcLocator); // Constructor
     
-    StatusCode initialize() override;
-    StatusCode execute(const EventContext& ctx) const;
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute(const EventContext& ctx) const override;
     
   private:
     /** ITgcPrepDataReplicationTool.h */
