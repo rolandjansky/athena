@@ -11,7 +11,7 @@ ATLAS_EXT_PROJECT_NAME="AthSimulationExternals"
 ATLAS_BUILDTYPE="RelWithDebInfo"
 ATLAS_EXTRA_CMAKE_ARGS=(-DLCG_VERSION_NUMBER=101
                         -DLCG_VERSION_POSTFIX="_ATLAS_8"
-                        -DATLAS_GAUDI_TAG="v36r3.000"
+                        -DATLAS_GAUDI_TAG="v36r4.000"
                         -DATLAS_COOL_TAG="COOL_3_3_9"
                         -DATLAS_GEOMODEL_TAG="ad59da70"
                         -DATLAS_GDB_SOURCE="http://cern.ch/atlas-software-dist-eos/externals/Gdb/gdb-11.1.tar.xz"
