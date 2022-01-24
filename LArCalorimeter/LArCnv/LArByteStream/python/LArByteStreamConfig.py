@@ -51,7 +51,8 @@ def LArRawDataContByteStreamToolCfg (flags,
          extraOutputs = [
             ('CaloNoise', 'ConditionStore+totalNoise'),
             ('LArOnOffIdMapping', 'ConditionStore+LArOnOffIdMap'),
-            ('LArFebRodMapping', 'ConditionStore+LArFebRodMap')
+            ('LArFebRodMapping', 'ConditionStore+LArFebRodMap'),
+            ('CaloDetDescrManager', 'ConditionStore+CaloDetDescrManager')
          ]
 
       return acc, extraOutputs
