@@ -67,6 +67,7 @@ public:
   StatusCode book();
   /// Overrride configured booking path
   void setPath( const std::string& newPath ) { m_histoPath = newPath; }
+  const std::string getPath() const          { return m_histoPath; }
 
   virtual const ServiceHandle<ITHistSvc>& histogramService() const { return m_histSvc; }
   virtual uint32_t runNumber();
