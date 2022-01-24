@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthCnvSvc.cxx 
@@ -56,7 +56,7 @@ AthCnvSvc::AthCnvSvc (const std::string& name,
   // Property declaration
   // 
   //declareProperty( "Property", m_nProperty );
-  setAddressCreator(this).ignore();
+  AthCnvSvc::setAddressCreator(this).ignore();
 
   m_cnvSvc = this;
 }
