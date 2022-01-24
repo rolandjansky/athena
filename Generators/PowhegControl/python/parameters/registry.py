@@ -108,6 +108,7 @@ class Registry(object):
         self.add_default("dec3", -1, hidden=True, description="Weakino decay 3. UNUSED")
         self.add_default("dec4", -1, hidden=True, description="Weakino decay 4. UNUSED")
         self.add_default("decaymode", 0, description="Dark matter decay mode")
+        self.add_default("decay_signature", "0", description="4tops decay signature")
         self.add_default("delg1_g", 0, description="Delta_g1(Gamma)")
         self.add_default("delg1_z", 0, description="Delta_g1(Z)")
         self.add_default("delk_g", 0, description="Delta_K(Gamma)")
