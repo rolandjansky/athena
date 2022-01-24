@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCOOLConditions/LArNoiseSC.h"
@@ -7,16 +7,19 @@
 
 //const float LArNoiseSC::errorcode=ILArNoise::ERRORCODE;
 
-LArNoiseSC::LArNoiseSC() {}
+LArNoiseSC::LArNoiseSC()
+  : LArCondSuperCellBase ("LArNoiseSC")
+{}
 
 LArNoiseSC::~LArNoiseSC() {}
 
 
-LArNoiseSC::LArNoiseSC(const CondAttrListCollection* attrList) {
-  StatusCode sc=initializeBase("LArNoiseSC");
-  if (sc.isFailure()) return;
+LArNoiseSC::LArNoiseSC(const CondAttrListCollection* attrList)
+  : LArCondSuperCellBase ("LArNoiseSC")
+{
+  if (initializeBase().isFailure()) return;
  
-  readBlob(attrList,"Noise",*m_log);
+  readBlob(attrList,"Noise",msg());
 
   return;
 }
