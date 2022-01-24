@@ -264,7 +264,7 @@ StatusCode EventViewCreatorAlgorithm::placeMuonInView( const xAOD::Muon* theObje
   muonCandidate->clear( SG::VIEW_ELEMENTS );
   auto msLink = theObject->muonSpectrometerTrackParticleLink();
   auto extTrackLink = theObject->extrapolatedMuonSpectrometerTrackParticleLink();
-  if(msLink.isValid() && extTrackLink.isValid()) muonCandidate->push_back( new MuonCombined::MuonCandidate(msLink, (*extTrackLink)->trackLink()) );
+  if(msLink.isValid() && extTrackLink.isValid()) muonCandidate->push_back( new MuonCombined::MuonCandidate(msLink, (*extTrackLink)->trackLink(), (*extTrackLink)->index()) );
 
   //store both in the view
   auto handleMuon = SG::makeHandle( m_inViewMuons,context );

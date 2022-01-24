@@ -9,22 +9,16 @@
 
 namespace MuonCombined {
 
-    MuonCandidate::MuonCandidate(const Trk::Track& msTrack) : m_muonSpectrometerTrack(&msTrack) {}
-
-    MuonCandidate::MuonCandidate(const Trk::Track& msTrack, std::unique_ptr<Trk::Track> extrapolatedTrack) :
-        m_extrapolatedTrack(std::move(extrapolatedTrack)), m_muonSpectrometerTrack(&msTrack) {}
-
+    MuonCandidate::MuonCandidate(const ElementLink<xAOD::TrackParticleContainer>& trackLink) :
+         m_muonSpectrometerTrackLink(trackLink),
+          m_muonSpectrometerTrack((*m_muonSpectrometerTrackLink)->track()){}
     MuonCandidate::MuonCandidate(const ElementLink<xAOD::TrackParticleContainer>& trackLink,
-                                 std::unique_ptr<Trk::Track> extrapolatedTrack) :
-        m_muonSpectrometerTrackLink(trackLink),
-        m_extrapolatedTrack(std::move(extrapolatedTrack)),
-        m_muonSpectrometerTrack((*m_muonSpectrometerTrackLink)->track()) {}
-
-    MuonCandidate::MuonCandidate(const ElementLink<xAOD::TrackParticleContainer>& trackLink,
-                                 const ElementLink<TrackCollection>& saTrackLink) :
+                                 const ElementLink<TrackCollection>& saTrackLink,
+                                 size_t container_idx) :
         m_muonSpectrometerTrackLink(trackLink),
         m_extrapolatedTrackLink(saTrackLink),
-        m_muonSpectrometerTrack((*m_muonSpectrometerTrackLink)->track()) {}
+        m_muonSpectrometerTrack((*m_muonSpectrometerTrackLink)->track()),
+        m_extContIdx(container_idx) {}
 
     MuonCandidate::~MuonCandidate() = default;
 
@@ -36,7 +30,7 @@ namespace MuonCombined {
             sout << " Track has no perigee parameters!";
         else
             sout << " pt " << perigee->momentum().perp() << " eta " << perigee->momentum().eta() << " phi " << perigee->momentum().phi();
-        sout << " hasExtrapolatedTrack " << (m_extrapolatedTrack ? "yes" : "no") << std::endl;
+        sout << " hasExtrapolatedTrack " << (extrapolatedTrack() ? "yes" : "no") << std::endl;
         return sout.str();
     }
 
@@ -45,13 +39,7 @@ namespace MuonCombined {
     const ElementLink<xAOD::TrackParticleContainer>& MuonCandidate::muonSpectrometerTrackLink() const {
         return m_muonSpectrometerTrackLink;
     }
-
-    void MuonCandidate::updateExtrapolatedTrack(std::unique_ptr<Trk::Track> extrapolatedTrack) {
-        m_extrapolatedTrack = std::move(extrapolatedTrack);
-    }
-
     const Trk::Track* MuonCandidate::extrapolatedTrack() const {
-        if (m_extrapolatedTrack) return m_extrapolatedTrack.get();
         return m_extrapolatedTrackLink.isValid() ? *m_extrapolatedTrackLink : nullptr;
     }
     const Trk::Track* MuonCandidate::primaryTrack() const {
@@ -59,10 +47,8 @@ namespace MuonCombined {
         return ext_trk ? ext_trk : &muonSpectrometerTrack();
     }
 
-    std::unique_ptr<Trk::Track> MuonCandidate::releaseExtrapolatedTrack() { return std::move(m_extrapolatedTrack); }
-
     const ElementLink<TrackCollection>& MuonCandidate::extrapolatedTrackLink() const { return m_extrapolatedTrackLink; }
-
+    size_t MuonCandidate::extrapolatedElementID() const {return m_extrapolatedTrackLink.isValid() ? m_extContIdx : -1;}
     void MuonCandidate::setComissioning(bool b) { m_isComissioning = b; }
     bool MuonCandidate::isComissioning() const { return m_isComissioning; }
 
