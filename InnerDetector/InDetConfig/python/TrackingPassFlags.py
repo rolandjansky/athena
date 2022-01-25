@@ -973,6 +973,8 @@ def createSCTTrackingPassFlags():
 def createTRTTrackingPassFlags():
     icf = createTrackingPassFlags()
     icf.extension               = "TRT"
+    icf.useTIDE_Ambi            = False
+    icf.usePrdAssociationTool   = True
     icf.minPT                   = 0.4 * Units.GeV
     icf.minTRTonly              = 15
     icf.maxTRTonlyShared        = 0.7
@@ -984,6 +986,8 @@ def createTRTTrackingPassFlags():
 def createTRTStandaloneTrackingPassFlags():
     icf = createTrackingPassFlags()
     icf.extension              = "TRTStandalone"
+    icf.useTIDE_Ambi           = False
+    icf.usePrdAssociationTool  = True
 
     icf.minSecondaryTRTPrecFrac = 0.15
     # Mu- and eta- dependent cuts on nTRT
