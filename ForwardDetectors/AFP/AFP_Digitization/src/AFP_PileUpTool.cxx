@@ -731,10 +731,10 @@ void AFP_PileUpTool::StoreSiDigi(void)
             ATH_MSG_DEBUG ( " total # of pairs from dep_energy (with all effects included) " << m_deposited_charge[index]);
             ATH_MSG_DEBUG ( " total # of pairs from dep_energy (true value)" << m_SiT_Energy2ChargeFactor*m_deposited_energy[index]);
             
-            int station  = (int)(index/(80*336*6)); 
-            int detector = (int)((index-station*80*336*6)/(80*336)); 
-            int column   = (int)((index-station*80*336*6-detector*80*336)/80);
-            int row      = (int)(index-station*80*336*6-detector*80*336-column*80);
+            int station  = static_cast<int>(index/(80*336*6)); 
+            int detector = static_cast<int>((index-station*80*336*6)/(80*336)); 
+            int column   = static_cast<int>((index-station*80*336*6-detector*80*336)/80);
+            int row      = static_cast<int>(index-station*80*336*6-detector*80*336-column*80);
             
             ATH_MSG_DEBUG ( " reversed mapping, station " << station << ", detector " << detector << ", pixel_col " << column << ", pixel_row " << row ); 
             
