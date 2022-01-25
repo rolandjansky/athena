@@ -38,7 +38,7 @@ Muon::NSW_TrigRawDataSegment::NSW_TrigRawDataSegment(const Muon::NSW_TrigRawData
   m_deltaTheta = segment.m_deltaTheta;
   m_phiIndex = segment.m_phiIndex;
   m_rIndex = segment.m_rIndex;
-  m_spare = segment.m_rIndex;
+  m_spare = segment.m_spare;
   m_lowRes = segment.m_lowRes;
   m_phiRes = segment.m_phiRes;
   m_monitor = segment.m_monitor;
