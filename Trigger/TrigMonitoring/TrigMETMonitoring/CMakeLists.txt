@@ -11,7 +11,7 @@ find_package( ROOT COMPONENTS Core Hist )
 atlas_add_component( TrigMETMonitoring
                      src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES} AthenaMonitoringKernelLib AthenaMonitoringLib GaudiKernel MissingETEvent StoreGateLib TrigConfL1Data TrigDecisionInterface TrigHLTMonitoringLib TrigMissingEtEvent xAODCaloEvent xAODEgamma xAODEventInfo xAODMissingET xAODMuon xAODTrigMissingET xAODTrigger )
+					 LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES} AthenaMonitoringKernelLib AthenaMonitoringLib GaudiKernel MissingETEvent StoreGateLib TrigConfL1Data TrigDecisionInterface TrigHLTMonitoringLib TrigMissingEtEvent xAODCaloEvent xAODEgamma xAODEventInfo xAODMissingET xAODMuon xAODTrigMissingET xAODTrigger xAODTracking )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

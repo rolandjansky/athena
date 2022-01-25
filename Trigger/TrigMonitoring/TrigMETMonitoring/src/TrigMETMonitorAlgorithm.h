@@ -17,7 +17,14 @@
 #include "xAODMuon/Muon.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/Electron.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
+#include "xAODCaloEvent/CaloCluster.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/TrackParticle.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/Vertex.h"
 
+#include "xAODEventInfo/EventInfo.h"
 
 #include "TrigDecisionInterface/ITrigDecisionTool.h"
 
@@ -31,9 +38,16 @@ class TrigMETMonitorAlgorithm : public AthMonitorAlgorithm {
  private:
   double signed_log(double e, double epsilon) const;
 
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventinfo_key;
+
   SG::ReadHandleKey<xAOD::MissingETContainer> m_offline_met_key;
+  
   SG::ReadHandleKey<xAOD::ElectronContainer> m_hlt_electron_key;
   SG::ReadHandleKey<xAOD::MuonContainer> m_hlt_muon_key;
+
+  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_topoclusters_key;
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_tracks_key;
+  SG::ReadHandleKey<xAOD::VertexContainer> m_vertex_key;
 
   SG::ReadHandleKey<xAOD::EnergySumRoI> m_lvl1_roi_key;
   SG::ReadHandleKey<xAOD::EnergySumRoI> m_lvl1_jnc_key;
@@ -57,26 +71,26 @@ class TrigMETMonitorAlgorithm : public AthMonitorAlgorithm {
   SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_mhtpufit_pf_met_key;
   SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_mhtpufit_em_met_key;
 
-  std::string m_L1Chain01;
-  std::string m_L1Chain02;
-  std::string m_L1Chain03;
-  std::string m_L1Chain04;
-  std::string m_L1Chain05;
-  std::string m_L1Chain06;
-  std::string m_L1Chain07;
-  std::string m_HLTChain01;
-  std::string m_HLTChain02;
-  std::string m_HLTChain03;
-  std::string m_HLTChain04;
-  std::string m_HLTChain05;
-  std::string m_HLTChain06;
-  std::string m_HLTChain07;
-  std::string m_HLTChain08;
-  std::string m_HLTChain09;
-  std::string m_HLTChain10;
-  std::string m_HLTChain11;
-  std::string m_HLTChain12;
-  std::string m_HLTChain13;
-  std::string m_HLTChain14;
+  std::string m_L1ChainA;
+  std::string m_L1ChainB;
+  std::string m_L1ChainC;
+  std::string m_L1ChainD;
+  std::string m_L1ChainE;
+  std::string m_L1ChainF;
+  std::string m_L1ChainG;
+  std::string m_HLTChainA;
+  std::string m_HLTChainB;
+  std::string m_HLTChainC;
+  std::string m_HLTChainD;
+  std::string m_HLTChainE;
+  std::string m_HLTChainF;
+  std::string m_HLTChainG;
+  std::string m_HLTChainH;
+  std::string m_HLTChainI;
+  std::string m_HLTChainJ;
+  std::string m_HLTChainK;
+  std::string m_HLTChainL;
+  std::string m_HLTChainM;
+  std::string m_HLTChainN;
 };
 #endif
