@@ -242,7 +242,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
     
     def buildDict(signature, sigToken ):
         groupdict = {'signature': signature, 'threshold': '', 'multiplicity': '',
-                     'trigType': sigToken,'tnpInfo': '','extra': ''}
+                     'trigType': sigToken, 'extra': ''}
         mdicts.append( groupdict )
 
     for cpart in cparts:
@@ -277,11 +277,6 @@ def analyseChainName(chainName, L1thresholds, L1item):
             
             groupdict['signature'] = sName
             log.debug("groupdict['signature']: %s",groupdict['signature'])
-            
-            if "tnpInfo" in groupdict.keys() and groupdict['tnpInfo'] != "":
-                groupdict['alignmentGroup'] = getAlignmentGroupFromPattern(sName, groupdict['tnpInfo'])
-            else:
-                groupdict['alignmentGroup'] = getAlignmentGroupFromPattern(sName, groupdict['extra'])
        
             mdicts.append(groupdict)
 
