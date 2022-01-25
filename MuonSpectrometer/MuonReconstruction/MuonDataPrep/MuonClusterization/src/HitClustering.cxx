@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonClusterization/HitClustering.h"
@@ -7,7 +7,9 @@
 
 namespace Muon {
 
-  bool HitClusteringObj::cluster( const std::vector<const MuonCluster*>& col ){    
+  bool HitClusteringObj::cluster( const std::vector<const MuonCluster*>& col,
+                                  std::vector<ClusterObj>& clustersEta,
+                                  std::vector<ClusterObj>& clustersPhi) const {
     if( col.empty() ) return false;
 
     std::vector<const MuonCluster*>::const_iterator cit_begin = col.begin();
@@ -20,15 +22,16 @@ namespace Muon {
     const MuonGM::MuonClusterReadoutElement*  detEl = prd_first->detectorElement();
     const Identifier& id_first = prd_first->identify();
     if( !detEl ) return false;
-    ngasgaps = detEl->numberOfLayers(detEl->measuresPhi(id_first));
+    int ngasgaps = detEl->numberOfLayers(detEl->measuresPhi(id_first));
 
-    if( debug ) std::cout << " performing clustering " << col.size() << " gasgaps " << ngasgaps << std::endl;
+    if( m_debug ) std::cout << " performing clustering " << col.size() << " gasgaps " << ngasgaps << std::endl;
+
+    std::vector<Triplet>      channelsEta;
+    std::vector<Triplet>      channelsPhi;
 
     clustersEta.clear();
     clustersPhi.clear();
-    channelsEta.clear();
-    channelsPhi.clear();
-    
+
     //    std::cout << "channel check " << m_muonIdHelper->channelMax(id_first) << std::endl;
     channelsEta.resize(1340);//m_muonIdHelper->channelMax(id_first)+2); // Need better way to find max number of channels
     channelsPhi.resize(1340);//m_muonIdHelper->channelMax(id_first)+2);
@@ -54,7 +57,7 @@ namespace Muon {
       // first treat the case of a second hit in the same tube
       int channelClusterNumber = gasgap==1 ? triplet.first : (gasgap==2 ? triplet.second : triplet.third );
       if( channelClusterNumber != -1 ){
-	if( debug ){
+	if( m_debug ){
 	  std::cout << " secondary hit " << channel << "  " << gasgap;
 	  if( measuresPhi ) std::cout << " phi " << channelClusterNumber << std::endl;
 	  else              std::cout << " eta " << channelClusterNumber << std::endl;
@@ -67,7 +70,7 @@ namespace Muon {
 	if( channel != 0 )                         neighbours.emplace_back(gasgap,channel-1 );
 	if( channel < (int)channelsPtr->size()-1 ) neighbours.emplace_back(gasgap,channel+1 );
 
-	if( combinedGasGaps ){
+	if( m_combinedGasGaps ){
 	  if( gasgap != 1 ){
 	    neighbours.emplace_back(1,channel );
 	    if( channel != 0 )                         neighbours.emplace_back(1,channel-1 );
@@ -87,7 +90,7 @@ namespace Muon {
 	  }
 	}
 
-	if( debug ) {
+	if( m_debug ) {
 	  std::cout << " new hit " << channel << "  " << gasgap;
 	  if( measuresPhi ) std::cout << " phi " << " neighbours " << neighbours.size() << std::endl;
 	  else              std::cout << " eta " << " neighbours " << neighbours.size() << std::endl;
@@ -102,7 +105,7 @@ namespace Muon {
 	  
 	  int clusterNumber = nit->gp==1 ? trip.first : nit->gp==2 ? trip.second : trip.third;
 	  if( clusterNumber == -1 ) continue;
-	  if( debug ) std::cout << "    new neighbour " << nit->gp << "  " << nit->ch << " clusterid " << clusterNumber;
+	  if( m_debug ) std::cout << "    new neighbour " << nit->gp << "  " << nit->ch << " clusterid " << clusterNumber;
 	  
 	  ClusterObj& cluster = clusters[clusterNumber];
 	  
@@ -114,7 +117,7 @@ namespace Muon {
 	    else if( gasgap==2 ) triplet.second = clusterNumber;
 	    else                 triplet.third  = clusterNumber;
 	    currentClusterId = clusterNumber;
-	    if( debug ) std::cout << " adding hit " << std::endl;
+	    if( m_debug ) std::cout << " adding hit " << std::endl;
 	  }else if( clusterNumber != currentClusterId ){
 	    // the hit is already assigned to a cluster, merge the two clusters
 	    // first update hitPattern
@@ -129,15 +132,15 @@ namespace Muon {
 	      else if( gp==2 ) trip.second = currentClusterId;
 	      else             trip.third  = currentClusterId;
 	    }
-	    if( debug ) std::cout << " cluster overlap, merging clusters " << std::endl;
+	    if( m_debug ) std::cout << " cluster overlap, merging clusters " << std::endl;
 	    currentCluster->merge(cluster);
 	  }else{
-	    if( debug ) std::cout << " cluster overlap, same cluster " << std::endl;
+	    if( m_debug ) std::cout << " cluster overlap, same cluster " << std::endl;
 	  }
 	}
 	// now check whether the hit was already assigned to a cluster, if not create a new cluster
 	if( currentCluster == nullptr ){
-	  if( debug ) std::cout << " no neighbouring hits, creating new cluster " << clusters.size() << std::endl;
+	  if( m_debug ) std::cout << " no neighbouring hits, creating new cluster " << clusters.size() << std::endl;
 	  ClusterObj cl;
 	  cl.add(prd,gasgap);
 	  Triplet& trip = (*channelsPtr)[channel];
@@ -148,39 +151,15 @@ namespace Muon {
 	}
       }
     }
-    findBest();
-    if( debug ) dump();
+    findBest(clustersEta, clustersPhi);
+    if( m_debug ) dump(clustersEta, clustersPhi);
     return true;
   }
 
 
-  void HitClusteringObj::dump() const {
+  void HitClusteringObj::dump(const std::vector<ClusterObj>& clustersEta,
+                              const std::vector<ClusterObj>& clustersPhi) const {
 
- //    std::cout << " dumping eta chamber hit map: number of gasgaps " << ngasgaps << std::endl << std::endl; 
-//     if( ngasgaps == 3 )
-//       for( unsigned int nl=0;nl<channelsEta.size();++nl) 
-// 	if( channelsEta[nl].third == -1 ) std::cout << " .";
-// 	else std::cout << " " << std::setw(2) << channelsEta[nl].third; 
-
-//     for( unsigned int nl=0;nl<channelsEta.size();++nl) 
-//       if( channelsEta[nl].second == -1 ) std::cout << " .";
-//       else std::cout << " " << std::setw(2) << channelsEta[nl].second; 
-
-//     std::cout << std::endl << std::endl; 
-//     for( unsigned int nl=0;nl<channelsEta.size();++nl) 
-//       if( channelsEta[nl].first == -1 ) std::cout << " .";
-//       else std::cout << " " << std::setw(2) << channelsEta[nl].first; 
-//     std::cout << std::endl << std::endl; 
- 
-//     std::cout << " dumping phi chamber hit map " << std::endl << std::endl; 
-//     for( unsigned int nl=0;nl<channelsPhi.size();++nl) 
-//       if( channelsPhi[nl].second == -1 ) std::cout << " .";
-//       else std::cout << " " << std::setw(2) << channelsPhi[nl].second; 
-//     std::cout << std::endl << std::endl; 
-//     for( unsigned int nl=0;nl<channelsPhi.size();++nl) 
-//       if( channelsPhi[nl].first == -1 ) std::cout << " .";
-//       else std::cout << " " << std::setw(2) << channelsPhi[nl].first; 
-//     std::cout << std::endl << std::endl; 
     int clid = -1;
     std::vector<ClusterObj>::const_iterator cit = clustersEta.begin();
     std::vector<ClusterObj>::const_iterator cit_end = clustersEta.end();
@@ -218,7 +197,8 @@ namespace Muon {
     }
   }
 
-  void HitClusteringObj::findBest() {
+  void HitClusteringObj::findBest(std::vector<ClusterObj>& clustersEta,
+                                  std::vector<ClusterObj>& clustersPhi) const {
     std::vector<ClusterObj>::iterator it = clustersEta.begin();
     std::vector<ClusterObj>::iterator it_end = clustersEta.end();
     std::stable_sort(it,it_end,SortClusterObjs());
@@ -227,42 +207,36 @@ namespace Muon {
     std::stable_sort(it,it_end,SortClusterObjs());
   }
 
-  bool HitClusteringObj::buildClusters3D() {
+  std::vector<ClusterObj3D>
+  HitClusteringObj::buildClusters3D(const std::vector<ClusterObj>& clustersEta,
+                                    const std::vector<ClusterObj>& clustersPhi) const {
     
-    clusters3D.clear();
+    std::vector<ClusterObj3D> clusters3D;
 
-    if( clustersPhi.empty() || clustersEta.empty() ) return false;
-    if( !bestEtaCluster() || !bestEtaCluster()->active() ) return false;
+    if( clustersPhi.empty() || clustersEta.empty() ) return clusters3D;
+    if( !bestCluster(clustersEta) || !bestCluster(clustersEta)->active() ) return clusters3D;
     
-    const MuonCluster* etaHit = bestEtaCluster()->hitList.front(); 
-    if( !etaHit ) return false;
+    const MuonCluster* etaHit = bestCluster(clustersEta)->hitList.front(); 
+    if( !etaHit ) return clusters3D;
 
     const MuonGM::TgcReadoutElement* detEl = dynamic_cast<const MuonGM::TgcReadoutElement*>(etaHit->detectorElement());
-    if( !detEl ) return false;
+    if( !detEl ) return clusters3D;
 
     // now loop over eta and phi clusters and form space points
-    if( debug ) std::cout << " eta clusters " << clustersEta.size() << " phi clusters " << clustersPhi.size() << std::endl;
-    std::vector< ClusterObj >::iterator eit = clustersEta.begin();
-    std::vector< ClusterObj >::iterator eit_end = clustersEta.end();
-    for( ;eit!=eit_end;++eit ){
-      
-      if( !eit->active() ) continue;
+    if( m_debug ) std::cout << " eta clusters " << clustersEta.size() << " phi clusters " << clustersPhi.size() << std::endl;
+    for (const ClusterObj& cl_eta : clustersEta) {
+      if( !cl_eta.active() ) continue;
 
-      const MuonCluster* firstEta = eit->hitList.front();
-      const MuonCluster* lastEta = eit->hitList.back();
-      
-      std::vector< ClusterObj >::iterator pit = clustersPhi.begin();
-      std::vector< ClusterObj >::iterator pit_end = clustersPhi.end();
-      for( ;pit!=pit_end;++pit ){
+      const MuonCluster* firstEta = cl_eta.hitList.front();
+      const MuonCluster* lastEta = cl_eta.hitList.back();
 
-	if( !pit->active() ) continue;
+      for (const ClusterObj& cl_phi : clustersPhi) {
+	if( !cl_phi.active() ) continue;
 
-	const MuonCluster* firstPhi = pit->hitList.front();
-	const MuonCluster* lastPhi = pit->hitList.back();
+	const MuonCluster* firstPhi = cl_phi.hitList.front();
+	const MuonCluster* lastPhi = cl_phi.hitList.back();
 
-	ClusterObj3D cl3D(*eit,*pit);
-// 	cl3D.etaCluster = &*eit;
-// 	cl3D.phiCluster = &*pit;
+	ClusterObj3D cl3D(cl_eta,cl_phi);
 	detEl->spacePointPosition( firstPhi->identify(),firstEta->identify(),cl3D.p11 );
 	if( lastPhi != firstPhi ) detEl->spacePointPosition( lastPhi->identify(),firstEta->identify(),cl3D.p12 );
 	else                      cl3D.p12 = cl3D.p11;
@@ -278,7 +252,7 @@ namespace Muon {
       }
     }
     
-    if( debug && !clusters3D.empty() ){
+    if( m_debug && !clusters3D.empty() ){
       std::cout << " 3D clusters " << clusters3D.size() << std::endl;
       std::vector<ClusterObj3D>::iterator it = clusters3D.begin();
       std::vector<ClusterObj3D>::iterator it_end = clusters3D.end();
@@ -290,7 +264,7 @@ namespace Muon {
       }
     }
 
-    return true;
+    return clusters3D;
   }
 
  
