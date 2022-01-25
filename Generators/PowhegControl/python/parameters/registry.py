@@ -467,6 +467,7 @@ class Registry(metaclass=Singleton):
         self.add_default("tdec/smass", powheg_atlas_common.mass.s, name="mass_s", description="s-quark mass in GeV")
         self.add_default("tdec/taumass", powheg_atlas_common.mass.tau, name="mass_tau", description="mass of tau in GeV")
         self.add_default("tdec/twidth", powheg_atlas_common.width.t, name="width_t", description="top quark width in GeV")
+        self.add_default("twidth_phsp", -1, description="top width for phase-space generation, should be the same as twidth [-1:use Powheg default]")
         self.add_default("tdec/umass", powheg_atlas_common.mass.u, name="mass_u", description="u-quark mass in GeV")
         self.add_default("tdec/wmass", powheg_atlas_common.mass.W, name="mass_W", description="W boson mass in GeV")
         self.add_default("tdec/wwidth", powheg_atlas_common.width.W, name="width_W", description="W boson width in GeV")
