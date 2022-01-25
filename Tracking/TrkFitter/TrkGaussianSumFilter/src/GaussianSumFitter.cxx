@@ -386,6 +386,7 @@ Trk::GaussianSumFitter::fit(
   // Find the CCOT if it exsists
   const Trk::CaloCluster_OnTrack* ccot(nullptr);
   Trk::MeasurementSet cleanedMeasurementSet;
+  cleanedMeasurementSet.reserve(measurementSet.size());
 
   MeasurementSet::const_iterator itSet = measurementSet.begin();
   MeasurementSet::const_iterator itSetEnd = measurementSet.end();
