@@ -159,6 +159,8 @@ class AFP_PileUpTool: public PileUpToolBase {
   double m_SiT_NoiseSigma;
   double m_SiT_Energy2ChargeFactor;
   int m_SiT_ToTThresholdForHit;
+  enum QEFF_VER { QE1, QE2, nQEffOpts };
+  QEFF_VER m_QEffVer;
 
   AFP_TDSimHitCollection *m_mergedTDSimHitList;
   AFP_TDDigiCollection *m_digitCollection;
