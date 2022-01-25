@@ -23,8 +23,12 @@ public:
     StatusCode execute(const EventContext& ctx) const override;
 
 private:
-    SG::WriteDecorHandleKey<xAOD::TruthParticleContainer> m_muonTruthParticleContainerName{
+   SG::ReadHandleKey<xAOD::TruthParticleContainer> m_muonTruthParticleContainerName{
         this, "MuonTruthParticleContainerName", "MuonTruthParticles",
+        "container name for muon truth particles; the full handle name, including the reco muon link auxdata, is set in initialize()"};
+   
+    SG::WriteDecorHandleKey<xAOD::TruthParticleContainer> m_muonTruthRecoLink{
+        this, "MuonTruthParticleRecoLink", "MuonTruthParticles",
         "container name for muon truth particles; the full handle name, including the reco muon link auxdata, is set in initialize()"};
     SG::WriteDecorHandleKey<xAOD::MuonContainer> m_muonTruthParticleLink{
         this, "MuonTruthParticleLink", "Muons.truthParticleLink",
@@ -65,6 +69,7 @@ private:
                               std::vector<unsigned int>& nprecHitsPerChamberLayer, std::vector<unsigned int>& nphiHitsPerChamberLayer,
                               std::vector<unsigned int>& ntrigEtaHitsPerChamberLayer) const;
     void clear_dummys(const std::vector<unsigned long long>& identifiers, std::vector<unsigned int>& vec) const;
+  
 };
 
 #endif  // TRUTHPARTICLEALGS_MUONTRUTHDECORATIONALG_H
