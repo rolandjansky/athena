@@ -376,18 +376,10 @@ StatusCode AFP_PileUpTool::prepareEvent(const unsigned int nInputEvents){
 
     ATH_MSG_DEBUG ( "AFP_PileUpTool::prepareEvent() called for " << nInputEvents << " input events" );
 
-    StatusCode sc = recordContainers(this->evtStore(), m_TDDigiCollectionName);
-
-    if (sc.isFailure()) { ATH_MSG_FATAL ( " Could not record the empty TiD digit container in StoreGate " ); return sc; }
-    else                { ATH_MSG_DEBUG ( " TiD digit container is recorded in StoreGate " ); }
-
+    ATH_CHECK( recordContainers(this->evtStore(), m_TDDigiCollectionName) );
     m_mergedTDSimHitList->clear();
 
-    sc = recordSiCollection(this->evtStore(), m_SiDigiCollectionName);
-
-    if (sc.isFailure()) { ATH_MSG_FATAL ( " Could not record the empty SiD digit container in StoreGate " ); return sc; }
-    else                { ATH_MSG_DEBUG ( " SiD digit container is recorded in StoreGate " ); }
-
+    ATH_CHECK( recordSiCollection(this->evtStore(), m_SiDigiCollectionName) );
     m_mergedSIDSimHitList->clear();
 
     return StatusCode::SUCCESS;
@@ -801,18 +793,18 @@ StatusCode AFP_PileUpTool::recordContainers(ServiceHandle<StoreGateSvc>& evtStor
 {
     m_digitCollection = new AFP_TDDigiCollection();
 
-    StatusCode sc = evtStore->record(m_digitCollection, key_digitCnt);
-    return sc;
+    ATH_CHECK( evtStore->record(m_digitCollection, key_digitCnt) );
+    
+    return StatusCode::SUCCESS;
 }
 
 StatusCode AFP_PileUpTool::recordSiCollection(ServiceHandle<StoreGateSvc>& evtStore, std::string key_SidigitCnt) 
 {
     m_SiDigiCollection = new AFP_SiDigiCollection();
 
-    StatusCode sc = evtStore->record(m_SiDigiCollection, key_SidigitCnt);
+    ATH_CHECK( evtStore->record(m_SiDigiCollection, key_SidigitCnt) );
 
-    return sc;
-    //return StatusCode::SUCCESS;
+    return StatusCode::SUCCESS;
 }
 
 
