@@ -49,7 +49,6 @@ namespace FlavorTagDiscriminants {
       trackLinkType = trackLinkTypeFromString(m_props.trackLinkType);
     }
 
-
     std::string fullPathToOnnxFile = PathResolverFindCalibFile(m_props.nnFile);
 
     m_onnxUtil = std::make_unique<OnnxUtil> (fullPathToOnnxFile);
@@ -62,22 +61,23 @@ namespace FlavorTagDiscriminants {
 
     m_config = lwt::parse_json_graph(gnn_config_stream);
 
-    std::tie(m_inputs, m_track_sequences, m_options) =
-      dataprep::createGetterConfig(
+    auto [inputs, track_sequences, options] = dataprep::createGetterConfig(
         m_config, flip_config, m_props.variableRemapping, trackLinkType);
 
-    std::tie(m_varsFromBTag, m_varsFromJet, m_dataDependencyNames) =
-      dataprep::createBvarGetters(m_inputs);
+    auto [vb, vj, ds] = dataprep::createBvarGetters(inputs);
+    m_varsFromBTag = vb;
+    m_varsFromJet = vj;
+    m_dataDependencyNames = ds;
 
-    FTagDataDependencyNames bTagInputsTrackGetter;
-    std::tie(m_trackSequenceBuilders, bTagInputsTrackGetter) =
-      dataprep::createTrackGetters(m_track_sequences, m_options, jetLinkName);
-    m_dataDependencyNames += bTagInputsTrackGetter;
+    auto [tsb, td] = dataprep::createTrackGetters(
+      track_sequences, options, jetLinkName);
+    m_trackSequenceBuilders = tsb;
+    m_dataDependencyNames += td;
 
-    FTagDataDependencyNames bTagOutputs;
-    std::tie(m_decorators, bTagOutputs) =
-      dataprep::createDecorators(m_config, m_options);
-    m_dataDependencyNames += bTagOutputs;
+    auto [decorators, dd] = dataprep::createDecorators(
+      m_config, options);
+    m_decorators = decorators;
+    m_dataDependencyNames += dd;
 
     return StatusCode::SUCCESS;
   }
@@ -98,7 +98,7 @@ namespace FlavorTagDiscriminants {
 
     using namespace internal;
 
-    std::map<std::string, std::vector<std::vector<float>>> gnn_input;
+    std::map<std::string, input_pair> gnn_input;
 
     std::vector<float> jet_feat;
     for (const auto& getter: m_varsFromBTag) {
@@ -107,12 +107,15 @@ namespace FlavorTagDiscriminants {
     for (const auto& getter: m_varsFromJet) {
       jet_feat.push_back(getter(jet).second);
     }
-    gnn_input.insert({"jet_features", {jet_feat}});
+    std::vector<int64_t> jet_feat_dim = {1, static_cast<int64_t>(jet_feat.size())};
+
+    input_pair jet_info (jet_feat, jet_feat_dim);
+    gnn_input.insert({"jet_features", jet_info});
 
     for (const auto& builder: m_trackSequenceBuilders) {
-
-      std::vector<std::vector<float>> track_feat; // (#tracks, #feats)
-      int num_track_vars= static_cast<int>(builder.sequencesFromTracks.size());
+      std::vector<float> track_feat; // (#tracks, #feats).flatten
+      int num_track_vars = static_cast<int>(builder.sequencesFromTracks.size());
+      int num_tracks = 0;
 
       Tracks sorted_tracks = builder.tracksFromJet(jet, btag);
       Tracks flipped_tracks = builder.flipFilter(sorted_tracks, jet);
@@ -122,15 +125,21 @@ namespace FlavorTagDiscriminants {
         auto double_vec = seq_builder(jet, flipped_tracks).second;
 
         if (track_var_idx==0){
-          track_feat.resize(double_vec.size(), std::vector<float>(num_track_vars));
+          num_tracks = static_cast<int>(double_vec.size());
+          track_feat.resize(num_tracks * num_track_vars);
         }
 
-        // need to transpose
-        for (int track_idx=0; track_idx<static_cast<int>(double_vec.size()); track_idx++){
-          track_feat.at(track_idx).at(track_var_idx) = double_vec.at(track_idx);
+        // need to transpose + flatten
+        for (unsigned int track_idx=0; track_idx<double_vec.size(); track_idx++){
+          track_feat.at(track_idx*num_track_vars + track_var_idx) 
+            = double_vec.at(track_idx);
         }
+        track_var_idx++;
       }
-      gnn_input.insert({"track_features", track_feat});
+      std::vector<int64_t> track_feat_dim = {num_tracks, num_track_vars};
+      
+      input_pair track_info (track_feat, track_feat_dim);
+      gnn_input.insert({"track_features", track_info});
     }
     
     std::map<std::string, float> outputs;
