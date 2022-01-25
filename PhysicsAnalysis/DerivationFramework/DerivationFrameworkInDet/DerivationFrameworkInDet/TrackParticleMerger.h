@@ -15,6 +15,7 @@
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 
 #include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/TrackParticleAuxContainer.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackStateValidationContainer.h"
 #include "ExpressionEvaluation/ExpressionParserUser.h"
@@ -47,6 +48,7 @@ namespace DerivationFramework {
       ///////////////////////////////////////////////////////////////////
       SG::ReadHandleKeyArray<xAOD::TrackParticleContainer>      m_trackParticleLocation; /** Vector of track collections to be merged. */
       SG::WriteHandleKey<xAOD::TrackParticleContainer>          m_outtrackParticleLocation  ;  /** Combined track collection.   */
+      SG::WriteHandleKey<xAOD::TrackParticleAuxContainer>       m_outtrackParticleAuxLocation  ;  /** Combined track collection.   */
 
       ///////////////////////////////////////////////////////////////////
       /** @brief Protected methods:                                    */
