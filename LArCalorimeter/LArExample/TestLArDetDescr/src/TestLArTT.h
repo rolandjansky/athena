@@ -15,6 +15,9 @@
 
 // INCLUDE HEADER FILES:
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "CxxUtils/CachedValue.h"
 
 class CaloTTDescrManager;
 
@@ -24,17 +27,18 @@ class TestLArTT : public AthAlgorithm
 
   // constructor 
   TestLArTT(const std::string& name, ISvcLocator* pSvcLocator);
-  // destructor 
-  virtual ~TestLArTT();
 
   virtual StatusCode initialize() override;
-  virtual StatusCode finalize() override;
   virtual StatusCode execute() override;
 
   void print_reg();
 
  protected:
-  const CaloTTDescrManager*  m_tt_man;
+  CxxUtils::CachedValue<const CaloTTDescrManager*> m_tt_man;
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+      , "CaloDetDescrManager"
+      , "CaloDetDescrManager"
+      , "SG Key for CaloDetDescrManager in the Condition Store" };
 };
 
 #endif
