@@ -238,7 +238,7 @@ void AFP_GeoModelFactory::addLBarSensorSeparationWindow(const char* pszStationNa
     sprintf(szlabel,"%s_Q%i_WindowSurface",pszStationName,nQuarticID);
     bsContainer->push_back(GeoBorderSurface(szlabel, pPhysWindow, pPhysMotherVolume, m_pOpticalSurface));
     
-    pPhysWindow=NULL;
+    pPhysWindow=nullptr;
 
 }
 
@@ -280,7 +280,7 @@ void AFP_GeoModelFactory::addSensor(const char* pszStationName, const int nQuart
 			sprintf(szlabel,"%s_Q%i_SensorSurface[%i]",pszStationName,nQuarticID,nPixelID);
 			bsContainer->push_back(GeoBorderSurface(szlabel, pPhysSensor, pPhysMotherVolume, m_pOpticalSurface));
 
-			pPhysSensor=NULL;
+			pPhysSensor=nullptr;
 		}
 	}
 }
