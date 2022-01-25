@@ -102,10 +102,6 @@ def JetRoITrackingSequence(dummyFlags,jetsIn,trkopt,RoIs):
     viewAlgs, viewVerify = makeInDetTrigFastTracking( config = IDTrigConfig, rois=RoIs)
     viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs ),( 'xAOD::JetContainer' , 'StoreGateSvc+%s' % jetsIn)]
 
-    # quit here if we're working with data, I can't get the beamspot working.
-    if not dummyFlags.Input.isMC:
-        return parOR( "JetRoITrackingSeq_"+trkopt, viewAlgs)
-
     IDTrigConfig = getInDetTrigConfig('jetSuper')
     tracksIn = IDTrigConfig.tracks_FTF()
 

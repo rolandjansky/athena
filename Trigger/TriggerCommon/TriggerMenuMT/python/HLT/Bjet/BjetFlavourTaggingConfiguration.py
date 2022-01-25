@@ -4,6 +4,8 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
+from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
+
 from BTagging.JetParticleAssociationAlgConfig import JetParticleAssociationAlgCfg
 from BTagging.JetSecVtxFindingAlgConfig import JetSecVtxFindingAlgCfg
 from BTagging.JetSecVertexingAlgConfig import JetSecVertexingAlgCfg
@@ -96,20 +98,13 @@ def getFastFlavourTagging( flags, inputJets, inputVertex, inputTracks):
 
     # first add the track augmentation to define peragee coordinates
     jet_name = inputJets
-    trackContainer = inputTracks
-    primaryVertexContainer = '' # don't use a primary vertex container
-    simpleTrackIpPrefix = 'simpleIp_'
-    ca.addEventAlgo(
-        CompFactory.FlavorTagDiscriminants.PoorMansIpAugmenterAlg(
-            name='_'.join([
-                'SimpleTrackAugmenter',
-                trackContainer,
-                primaryVertexContainer,
-                simpleTrackIpPrefix,
-            ]),
-            trackContainer=trackContainer,
-            primaryVertexContainer=primaryVertexContainer,
-            prefix=simpleTrackIpPrefix,
+    trackIpPrefix='simpleIp_'
+    ca.merge(
+        OnlineBeamspotIpAugmenterCfg(
+            flags,
+            tracks=inputTracks,
+            vertices=inputVertex,
+            trackIpPrefix=trackIpPrefix,
         )
     )
 
@@ -118,7 +113,7 @@ def getFastFlavourTagging( flags, inputJets, inputVertex, inputTracks):
     ca.merge(JetParticleAssociationAlgCfg(
         flags,
         JetCollection=jet_name,
-        InputParticleCollection=trackContainer,
+        InputParticleCollection=inputTracks,
         OutputParticleDecoration=tracksOnJetDecoratorName,
     ))
 
@@ -131,12 +126,12 @@ def getFastFlavourTagging( flags, inputJets, inputVertex, inputTracks):
     variableRemapping = {
         'BTagTrackToJetAssociator': tracksOnJetDecoratorName,
         **{f'dipsLoose20210517_p{x}': f'fastDips_p{x}' for x in 'cub'},
-        'btagIp_': simpleTrackIpPrefix,
+        'btagIp_': trackIpPrefix,
     }
     # not all the keys that the NN requests are declaired. This will
     # cause an algorithm stall if we don't explicetly tell it that it
     # can ignore some of them.
-    missingKeys = getStaticTrackVars(trackContainer)
+    missingKeys = getStaticTrackVars(inputTracks)
     # The 'jetLink' is a special special hack: it won't be used
     # because we're tagging the jet directly here, but DL2 still
     # reports it as a dependency.
@@ -147,11 +142,11 @@ def getFastFlavourTagging( flags, inputJets, inputVertex, inputTracks):
             name='_'.join([
                 'simpleJetTagAlg',
                 jet_name,
-                trackContainer,
+                inputTracks,
                 nnAlgoKey,
             ]),
             container=jet_name,
-            constituentContainer=trackContainer,
+            constituentContainer=inputTracks,
             undeclaredReadDecorKeys=missingKeys,
             decorator=CompFactory.FlavorTagDiscriminants.DL2Tool(
                 name='_'.join([
@@ -169,6 +164,52 @@ def getFastFlavourTagging( flags, inputJets, inputVertex, inputTracks):
     return ca
 
 
+def OnlineBeamspotIpAugmenterCfg(cfgFlags, tracks, vertices='',
+                                 trackIpPrefix='simpleIp_'):
+    ca = ComponentAccumulator()
 
+    pfx = 'online'
+    i = 'EventInfo'
+    x = f'{i}.{pfx}BeamPosX'
+    y = f'{i}.{pfx}BeamPosY'
+    z = f'{i}.{pfx}BeamPosZ'
+    sig_x = f'{i}.{pfx}BeamPosSigmaX'
+    sig_y = f'{i}.{pfx}BeamPosSigmaY'
+    sig_z = f'{i}.{pfx}BeamPosSigmaZ'
+    cov_xy = f'{i}.{pfx}BeamPosSigmaXY'
+    tilt_XZ = f'{i}.{pfx}BeamTiltXZ'
+    tilt_YZ = f'{i}.{pfx}BeamTiltYZ'
+    status = f'{i}.{pfx}BeamStatus'
 
+    ca.merge(BeamSpotCondAlgCfg(cfgFlags))
+    ca.addEventAlgo(CompFactory.xAODMaker.EventInfoBeamSpotDecoratorAlg(
+        beamPosXKey=x,
+        beamPosYKey=y,
+        beamPosZKey=z,
+        beamPosSigmaXKey=sig_x,
+        beamPosSigmaYKey=sig_y,
+        beamPosSigmaZKey=sig_z,
+        beamPosSigmaXYKey=cov_xy,
+        beamTiltXZKey=tilt_XZ,
+        beamTiltYZKey=tilt_YZ,
+        beamStatusKey=status,
+    ))
 
+    ca.addEventAlgo(
+        CompFactory.FlavorTagDiscriminants.PoorMansIpAugmenterAlg(
+            name='_'.join([
+                'SimpleTrackAugmenter',
+                tracks,
+                vertices,
+                trackIpPrefix,
+            ]).replace('__','_').rstrip('_'),
+            trackContainer=tracks,
+            primaryVertexContainer=vertices,
+            prefix=trackIpPrefix,
+            beamspotSigmaX=sig_x,
+            beamspotSigmaY=sig_y,
+            beamspotSigmaZ=sig_z,
+            beamspotCovarianceXY=cov_xy
+        )
+    )
+    return ca
