@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #
 # File: CaloClusterCorrection/test/config_t.py
@@ -347,8 +347,6 @@ def test3 (flags_in):
     flags.lock()
 
     from CaloClusterCorrection.CaloSwCorrections import layers, update, gap, calhits
-    from CaloClusterCorrection.constants import CALOCORR_JO, CALOCORR_POOL
-    from CaloClusterCorrection.poolfiles import poolfiles
     ca = make_CaloSwCorrectionsCfg (flags, key = 'gam35',
                                     corrlist = [[layers],
                                                 [update],
@@ -413,7 +411,6 @@ def test4 (flags_in):
     from CaloClusterCorrection.constants import CALOCORR_SW
     from CaloClusterCorrection.common import makecorr
     from CaloClusterCorrection.CaloSwGap import CaloSwGap_versions
-    from CaloClusterCorrection.CaloSwCorrections import CaloSwCorrections
 
     ca = makecorr (flags,
                    CaloSwGap_versions,
@@ -458,7 +455,6 @@ def test5 (flags_in):
     from CaloClusterCorrection.constants import CALOCORR_SW
     from CaloClusterCorrection.common import makecorr, CaloCorrectionConfigError
     from CaloClusterCorrection.CaloSwGap import CaloSwGap_versions
-    from CaloClusterCorrection.CaloSwCorrections import CaloSwCorrections
 
     try:
         makecorr (flags,
@@ -491,7 +487,6 @@ def test6 (flags_in):
     from CaloClusterCorrection.constants import CALOCORR_SW
     from CaloClusterCorrection.common import makecorr, CaloCorrectionConfigError
     from CaloClusterCorrection.CaloSwGap import CaloSwGap_versions
-    from CaloClusterCorrection.CaloSwCorrections import CaloSwCorrections
 
     try:
         makecorr (flags,
@@ -524,7 +519,6 @@ def test7 (flags_in):
     from CaloClusterCorrection.constants import CALOCORR_SW
     from CaloClusterCorrection.common import makecorr
     from CaloClusterCorrection.CaloSwGap import CaloSwGap_versions
-    from CaloClusterCorrection.CaloSwCorrections import CaloSwCorrections
 
     ca = makecorr (flags,
                    CaloSwGap_versions,
@@ -567,8 +561,6 @@ def test8 (flags_in):
 
     from CaloClusterCorrection.constants import CALOCORR_SW, CALOCORR_COOL
     from CaloClusterCorrection.common import makecorr
-    from CaloClusterCorrection.CaloSwGap import CaloSwGap_versions
-    from CaloClusterCorrection.CaloSwCorrections import CaloSwCorrections
 
     cls_v2 = CompFactory.CaloSwGap_v2  # CaloClusterCorrection
     ca = makecorr (flags,
@@ -610,10 +602,9 @@ def test9 (flags_in):
     flags = flags_in.clone()
     flags.lock()
 
-    from CaloClusterCorrection.constants import CALOCORR_SW, CALOCORR_COOL
+    from CaloClusterCorrection.constants import CALOCORR_SW
     from CaloClusterCorrection.common import makecorr
     from CaloClusterCorrection.CaloSwGap import CaloSwGap_versions
-    from CaloClusterCorrection.CaloSwCorrections import CaloSwCorrections
 
     ca = makecorr (flags,
                    CaloSwGap_versions,
@@ -642,8 +633,6 @@ def test10 (flags_in):
 
     from CaloClusterCorrection.constants import CALOCORR_SW, CALOCORR_NOPOOL, CALOCORR_TOPOOL
     from CaloClusterCorrection.common import makecorr
-    from CaloClusterCorrection.CaloSwGap import CaloSwGap_versions
-    from CaloClusterCorrection.CaloSwCorrections import CaloSwCorrections
 
     cls_v2 = CompFactory.CaloSwGap_v2  # CaloClusterCorrection
     ca = makecorr (flags,
@@ -674,7 +663,6 @@ def test11 (flags_in):
     from CaloClusterCorrection.constants import CALOCORR_SW, EMB1, EMB2, CALOCORR_COOL
     from CaloClusterCorrection.common import makecorr
     from CaloClusterCorrection.CaloSwGap import CaloSwGap_versions
-    from CaloClusterCorrection.CaloSwCorrections import CaloSwCorrections
 
     cls_v2 = CompFactory.CaloSwGap_v2  # CaloClusterCorrection
     cls_v3 = CompFactory.CaloSwGap_v3  # CaloClusterCorrection
@@ -726,10 +714,9 @@ def test12 (flags_in):
     flags = flags_in.clone()
     flags.lock()
 
-    from CaloClusterCorrection.constants import CALOCORR_SW, EMB1, EMB2, CALOCORR_JO
+    from CaloClusterCorrection.constants import CALOCORR_SW, EMB2, CALOCORR_JO
     from CaloClusterCorrection.common import makecorr
     from CaloClusterCorrection.CaloSwPhioff import CaloSwPhioff_versions
-    from CaloClusterCorrection.CaloSwCorrections import CaloSwCorrections
 
     ca = makecorr (flags,
                    CaloSwPhioff_versions,
@@ -770,10 +757,9 @@ def test13 (flags_in):
     flags = flags_in.clone()
     flags.lock()
 
-    from CaloClusterCorrection.constants import CALOCORR_SW, CALOCORR_EMTOPO, EMB1, EMB2, CALOCORR_JO
+    from CaloClusterCorrection.constants import CALOCORR_SW, CALOCORR_EMTOPO, EMB2, CALOCORR_JO
     from CaloClusterCorrection.common import makecorr
     from CaloClusterCorrection.CaloSwGap import CaloSwGap_versions
-    from CaloClusterCorrection.CaloSwCorrections import CaloSwCorrections
 
     ca = makecorr (flags,
                    CaloSwGap_versions,
@@ -914,9 +900,7 @@ def test17 (flags_in):
     flags.Calo.ClusterCorrection.caloSwWhichCorrection = 'v6_lwc'
     flags.lock()
 
-    from CaloClusterCorrection.CaloSwCorrections import layers, update, gap, calhits
-    from CaloClusterCorrection.constants import CALOCORR_JO, CALOCORR_POOL
-    from CaloClusterCorrection.poolfiles import poolfiles
+    from CaloClusterCorrection.CaloSwCorrections import gap
     ca = make_CaloSwCorrectionsCfg (flags, key = 'gam35',
                                     corrlist = [[gap]])
     tools = ca.popPrivateTools()
@@ -943,9 +927,8 @@ def test18 (flags_in):
     flags.Input.ProjectName = 'data18'
     flags.lock()
 
-    from CaloClusterCorrection.CaloSwCorrections import layers, update, gap, calhits
-    from CaloClusterCorrection.constants import CALOCORR_JO, CALOCORR_POOL, CALOCORR_COOL
-    from CaloClusterCorrection.poolfiles import poolfiles
+    from CaloClusterCorrection.CaloSwCorrections import gap
+    from CaloClusterCorrection.constants import CALOCORR_POOL
     ca = make_CaloSwCorrectionsCfg (flags, key = 'gam35',
                                     corrlist = [[gap]],
                                     version = 'v6_lwc',
@@ -977,9 +960,8 @@ def test19 (flags_in):
     flags.Calo.ClusterCorrection.caloSwGeneration = '00-02-01'
     flags.lock()
 
-    from CaloClusterCorrection.CaloSwCorrections import layers, update, gap, calhits
-    from CaloClusterCorrection.constants import CALOCORR_JO, CALOCORR_POOL, CALOCORR_COOL
-    from CaloClusterCorrection.poolfiles import poolfiles
+    from CaloClusterCorrection.CaloSwCorrections import gap
+    from CaloClusterCorrection.constants import CALOCORR_POOL, CALOCORR_COOL
     ca = make_CaloSwCorrectionsCfg (flags, key = 'gam35',
                                     corrlist = [[gap]],
                                     source = [CALOCORR_POOL, CALOCORR_COOL])
@@ -1000,7 +982,7 @@ def test20 (flags_in):
     flags = flags_in.clone()
     flags.lock()
 
-    from CaloClusterCorrection.CaloSwCorrections import CaloSwCorrections, layers, update, removebad
+    from CaloClusterCorrection.CaloSwCorrections import CaloSwCorrections
     from CaloClusterCorrection.constants import CALOCORR_SW
 
     vlist = CaloSwCorrections.lookup_version (flags, 'none', CALOCORR_SW)
@@ -1099,6 +1081,7 @@ Configurable.configurableRun3Behavior = 1
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 ConfigFlags.loadAllDynamicFlags()
 ConfigFlags.Input.Files = defaultTestFiles.RAW
+ConfigFlags.IOVDb.GlobalTag = "CONDBR2-BLKPA-2017-05"
 
 test1 (ConfigFlags)
 test2 (ConfigFlags)
