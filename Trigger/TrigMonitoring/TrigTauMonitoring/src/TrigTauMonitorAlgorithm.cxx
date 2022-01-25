@@ -26,6 +26,7 @@ StatusCode TrigTauMonitorAlgorithm::initialize() {
   ATH_CHECK( m_hltTauJetCaloMVAOnlyKey.initialize() );
   ATH_CHECK( m_hltSeedJetKey.initialize());
   ATH_CHECK( m_trigDecTool.retrieve() );
+  ATH_CHECK( m_truthParticleKey.initialize(m_isMC) );
 
   for(const auto& trigName:m_trigInputList)
   {
@@ -255,6 +256,42 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, const s
      fillDiTauHLTEfficiencies(ctx, trigger, offline_for_hlt_tau_vec_all, online_tau_vec_all);
   }
 
+  // true_taus
+  std::vector<const xAOD::TruthParticle*> true_taus;
+  if(m_isMC){
+    SG::ReadHandle<xAOD::TruthParticleContainer> truth_cont(m_truthParticleKey, ctx); 
+    if(!truth_cont.isValid())
+      {
+          ATH_MSG_WARNING("Failed to retrieve truth_cont");
+          return;
+      }
+    for(const auto xTruthParticle : *truth_cont)
+    {
+      if(xTruthParticle->isTau()){
+        ATH_MSG_DEBUG("Tau with status " << xTruthParticle->status() << " and charge " << xTruthParticle->charge());
+        xAOD::TruthParticle* xTruthTau = new xAOD::TruthParticle();
+        xTruthTau->makePrivateStore( *xTruthParticle );
+
+        if(examineTruthTau(*xTruthTau).isFailure()){
+          delete xTruthTau;
+          continue;
+        }
+
+        float pt  = xTruthTau->auxdata<double>("pt_vis");
+        ATH_MSG_DEBUG("True Tau visible pt: " << pt);
+        float eta = xTruthTau->auxdata<double>("eta_vis");
+        bool lep = xTruthTau->auxdata<char>("IsLeptonicTau");
+        if(pt < 20. || lep || fabs(eta) > 2.47 ) continue;        
+        true_taus.push_back(xTruthTau);
+      }
+    }
+  }
+
+  if(true_taus.size()>0){
+    fillTruthEfficiency(online_tau_vec_all, true_taus, trigger);
+    fillEFTauVsTruth(online_tau_vec_all, true_taus, trigger);
+  }
+  
   offline_for_hlt_tau_vec_all.clear();
   offline_for_hlt_tau_vec_1p.clear();
   offline_for_hlt_tau_vec_mp.clear();
@@ -262,6 +299,8 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, const s
   online_tau_vec_1p.clear();
   online_tau_vec_mp.clear();
   online_tau_vec_all.clear();
+  true_taus.clear();
+
 }
 
 void TrigTauMonitorAlgorithm::fillL1Distributions(const EventContext& ctx, const std::vector< std::pair< const xAOD::TauJet*, const TrigCompositeUtils::Decision * >>& pairObjs, const std::string& trigger,  const std::string& trigL1Item, float L1thr) const
@@ -880,3 +919,143 @@ void TrigTauMonitorAlgorithm::setTrigInfo(const std::string& trigger)
   m_trigInfo[trigger] = info;
 }
 
+StatusCode TrigTauMonitorAlgorithm::examineTruthTau(const xAOD::TruthParticle& xTruthTau) const
+{
+
+  if(!xTruthTau.hasDecayVtx()) return StatusCode::FAILURE;
+
+  xTruthTau.auxdecor<char>("IsLeptonicTau") = false;
+    
+  TLorentzVector VisSumTLV;
+  xTruthTau.auxdecor<double>("pt_vis") = 0;
+  xTruthTau.auxdecor<double>("eta_vis") = 0;
+  xTruthTau.auxdecor<double>("phi_vis") = 0;
+  xTruthTau.auxdecor<double>("mvis") = 0;
+  xTruthTau.auxdecor<int>("childChargeSum") = 0;
+  xTruthTau.auxdecor<int>("nTracks") = 0;
+  
+    
+  const xAOD::TruthVertex* decayvtx = xTruthTau.decayVtx();
+  if(decayvtx)
+    {
+      const std::size_t nChildren = decayvtx->nOutgoingParticles();
+      for ( std::size_t iChild = 0; iChild != nChildren; ++iChild )
+        {
+          const xAOD::TruthParticle * child = decayvtx->outgoingParticle(iChild);
+          if( ( abs(child->pdgId()) == 12 || 
+                abs(child->pdgId()) == 14 || 
+                abs(child->pdgId()) == 16 ) ) continue;
+          if(child->status()==3) continue;
+          ATH_MSG_DEBUG("child "<< child->pdgId() << ", status "<< child->status() << ", charge "<< child->charge());
+          if ( ( abs(child->pdgId()) == 11 || 
+                 abs(child->pdgId()) == 13 || 
+                 abs(child->pdgId()) == 15 ) ) xTruthTau.auxdecor<char>("IsLeptonicTau") = true;
+          VisSumTLV += child->p4();
+          xTruthTau.auxdecor<int>("childChargeSum") += child->charge();
+          xTruthTau.auxdecor<int>("nTracks") += abs(child->charge());
+        }
+    }
+
+  xTruthTau.auxdecor<double>("pt_vis")  = VisSumTLV.Pt();
+  xTruthTau.auxdecor<double>("eta_vis") = VisSumTLV.Eta();
+  xTruthTau.auxdecor<double>("phi_vis") = VisSumTLV.Phi();
+  xTruthTau.auxdecor<double>("mvis")   = VisSumTLV.M();
+
+  if(xTruthTau.auxdecor<int>("childChargeSum")!=xTruthTau.charge() || xTruthTau.auxdecor<int>("nTracks")%2==0)
+    { 
+      ATH_MSG_WARNING("Strange tau: charge " << xTruthTau.auxdecor<int>("childChargeSum") << " and " 
+                      << xTruthTau.auxdecor<int>("nTracks")  << " tracks");
+      const std::size_t nChildren = decayvtx->nOutgoingParticles();
+      for ( std::size_t iChild = 0; iChild != nChildren; ++iChild )
+        {
+          const xAOD::TruthParticle * child = decayvtx->outgoingParticle(iChild);
+          ATH_MSG_WARNING("child "<< child->pdgId() << ", status "<< child->status() << ", charge "<< child->charge());
+        }
+    }
+
+  return StatusCode::SUCCESS;
+}
+
+void TrigTauMonitorAlgorithm::fillEFTauVsTruth(const std::vector<const xAOD::TauJet*>& ef_taus,const std::vector<const xAOD::TruthParticle*>& true_taus, const std::string trigger) const
+{
+  ATH_MSG_DEBUG ("TrigTauMonitorAlgorithm::fillEFTauVsTruth");
+
+  std::string monGroupName = trigger+"EFVsTruth";
+  
+  auto monGroup = getGroup(monGroupName);
+
+  std::vector<float> ratio;
+  std::vector<float> ptvis;
+  std::vector<float> etavis;
+  std::vector<float> phivis;
+  std::vector<float> mvis;
+
+  auto Etratio = Monitored::Collection("Etratio",ratio);
+  auto pt_vis = Monitored::Collection("pt_vis",ptvis);
+  auto eta_vis = Monitored::Collection("eta_vis",etavis);
+  auto phi_vis = Monitored::Collection("phi_vis",phivis);
+  auto mass_vis = Monitored::Collection("mass_vis",mvis);
+
+  float tmpdR(0.2), matchedRatio(-999.);
+  float matchedptvis(-999.),matchedetavis(-999.),matchedphivis(-999.),matchedmvis(-999.);
+
+  //Visible-Truth Tau matching to EF(HLT Tau)
+  for(auto &aEFTau : ef_taus){
+     
+     for(auto &truthTau : true_taus){
+       TLorentzVector truthTau4V;
+       truthTau4V.SetPtEtaPhiM(truthTau->auxdata<double>("pt_vis"),truthTau->auxdata<double>("eta_vis"),truthTau->auxdata<double>("phi_vis"),truthTau->auxdata<double>("mvis"));
+       float dR = truthTau4V.DeltaR(aEFTau->p4());
+       if(dR < tmpdR){
+       matchedptvis = (truthTau->auxdata<double>("pt_vis")/1e3);
+       matchedetavis = truthTau->auxdata<double>("eta_vis");
+       matchedphivis = truthTau->auxdata<double>("phi_vis");
+       matchedmvis = truthTau->auxdata<double>("mvis");
+       matchedRatio = (aEFTau->p4().Pt()-truthTau->auxdata<double>("pt_vis"))/truthTau->auxdata<double>("pt_vis");
+       }
+     }
+      if(matchedptvis>0.){
+      ptvis.push_back(matchedptvis);
+      etavis.push_back(matchedetavis);
+      phivis.push_back(matchedphivis);
+      mvis.push_back(matchedmvis);
+      ratio.push_back(matchedRatio);      
+     }
+  }
+
+  fill(monGroup,pt_vis,eta_vis,phi_vis,mass_vis,Etratio);
+
+  ATH_MSG_DEBUG("After fillEFTauVsTruth ");
+
+}
+
+void TrigTauMonitorAlgorithm::fillTruthEfficiency(const std::vector<const xAOD::TauJet*> online_tau_vec,const std::vector<const xAOD::TruthParticle*> true_taus, const std::string trigger) const
+{
+
+  ATH_MSG_DEBUG("Truth Tau Matching to Offline and Online Taus for trigger");
+
+  std::string monGroupName = trigger+"Truth_Efficiency";
+
+  auto monGroup = getGroup(monGroupName);
+
+  // Truth Tau + HLT Tau / Truth Tau
+  
+  auto pt_vis = Monitored::Scalar<float>(monGroupName+"_pt_vis",0.0);
+  auto eta_vis = Monitored::Scalar<float>(monGroupName+"_eta_vis",0.0);
+  auto phi_vis = Monitored::Scalar<float>(monGroupName+"_phi_vis",0.0);
+  auto HLT_truth_match = Monitored::Scalar<bool>(monGroupName+"_HLTpass",false);  
+
+  bool hlt_fires = m_trigDecTool->isPassed(trigger, TrigDefs::Physics | TrigDefs::allowResurrectedDecision);
+  for(const auto &true_tau : true_taus){
+
+       pt_vis  = true_tau->auxdata<double>("pt_vis")/1e3;
+       eta_vis = true_tau->auxdata<double>("eta_vis");
+       phi_vis = true_tau->auxdata<double>("phi_vis");
+
+       HLT_truth_match = HLTTruthMatching(true_tau, online_tau_vec, 0.2) && hlt_fires;
+
+       fill(monGroup, pt_vis, eta_vis, phi_vis, HLT_truth_match);
+        
+  } 
+
+}
