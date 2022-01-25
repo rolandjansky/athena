@@ -68,7 +68,7 @@ namespace MuonPhysValMonitoring {
         // Private data:
         ///////////////////////////////////////////////////////////////////
     private:
-        enum MUCATEGORY { ALL = 0, PROMPT = 1, INFLIGHT = 1<<1, NONISO = 1<<2, REST = 1<<3};
+        enum MUCATEGORY { ALL = 0, PROMPT, INFLIGHT, NONISO, REST };
 
         void handleMuon(const xAOD::Muon* mu, const xAOD::SlowMuon* smu = nullptr, float weight = 1.0);
         void handleSlowMuon(const xAOD::SlowMuon* smu, float weight = 1.0);
