@@ -9,12 +9,27 @@ from ..external import ExternalMadSpin
 logger = Logging.logging.getLogger("PowhegControl")
 
 
-class tt(PowhegV2):
-    """! Default Powheg configuration for top-pair production.
+# Dictionary to convert the PowhegControl decay mode names to the appropriate
+# decay mode numbers understood by Powheg
+_decay_mode_lookup = {
+    "t t~ t t~ > all [MadSpin]" : "00000", # switch off decays in Powheg and let MadSpin handle them!
+    "t t~ t t~ > all": "44444", # all decays
+    "t t~ t t~ > 4l": "44400", # exactly 4 leptons
+    "t t~ t t~ > 3l4l": "4", # at least 3 leptons
+    "t t~ t t~ > 2lSS": "3", # exactly 2 leptons, same sign
+    "t t~ t t~ > 2lOS": "2", # exactly 2 leptons, opposite sign
+    "t t~ t t~ > 1l": "1", # exactly 1 lepton
+    "t t~ t t~ > allhad": "00044", # fully-hadronic
+    "t t~ t t~ > undecayed": "00000" # undecayed (e.g. to produce a lhe file)
+                        }
+_signature_lookup = [ "4", "3", "2", "1" ] # these values are for the 4tops-specific #decay_signature keyword
+
+class fourtops(PowhegV2):
+    """! Default Powheg configuration for 4 tops production.
 
     Create a configurable object with all applicable Powheg options.
 
-    @author James Robinson  <james.robinson@cern.ch>
+    @author James Robinson  <tpelzer@cern.ch>
     """
 
     def __init__(self, base_directory, **kwargs):
@@ -23,16 +38,17 @@ class tt(PowhegV2):
         @param base_directory: path to PowhegBox code.
         @param kwargs          dictionary of arguments from Generate_tf.
         """
-        super(tt, self).__init__(base_directory, "hvq", **kwargs)
+        super(fourtops, self).__init__(base_directory, "fourtops", **kwargs)
 
         # Add algorithms to the sequence
-        self.add_algorithm(ExternalMadSpin(process="generate p p > t t~ [QCD]"))
+        self.add_algorithm(ExternalMadSpin(process="generate p p > t t~ t t~ [QCD]"))
 
         # Add parameter validation functions
         self.validation_functions.append("validate_decays")
 
-        ## List of allowed decay modes
-        self.allowed_decay_modes = ["t t~ > all", "t t~ > b j j b~ j j", "t t~ > b l+ vl b~ l- vl~", "t t~ > b emu+ vemu b~ emu- vemu~", "t t~ > semileptonic", "t t~ > undecayed"]
+        # List of allowed decay modes
+        # (The sorting of the list is just to increase readability when it's printed)
+        self.allowed_decay_modes = sorted(_decay_mode_lookup.keys())
 
         # Add all keywords for this process, overriding defaults if required
         self.add_keyword("bmass_lhe")
@@ -57,6 +73,7 @@ class tt(PowhegV2):
         self.add_keyword("compress_lhe")
         self.add_keyword("compress_upb")
         self.add_keyword("compute_rwgt")
+        self.add_keyword("decay_signature", "0")
         self.add_keyword("doublefsr")
         self.add_keyword("evenmaxrat")
         self.add_keyword("facscfact", self.default_scales[0])
@@ -111,7 +128,7 @@ class tt(PowhegV2):
         self.add_keyword("pdfreweight")
         self.add_keyword("ptsqmin")
         self.add_keyword("ptsupp")
-        self.add_keyword("qmass", powheg_atlas_common.mass.t, name="mass_t", description="top quark mass in GeV")
+        self.add_keyword("tmass", powheg_atlas_common.mass.t, name="mass_t", description="top quark mass in GeV")
         self.add_keyword("radregion")
         self.add_keyword("rand1")
         self.add_keyword("rand2")
@@ -120,7 +137,6 @@ class tt(PowhegV2):
         self.add_keyword("rwl_file")
         self.add_keyword("rwl_format_rwgt")
         self.add_keyword("rwl_group_events")
-        self.add_keyword("semileptonic", hidden=True)
         self.add_keyword("skipextratests")
         self.add_keyword("smartsig")
         self.add_keyword("softtest")
@@ -142,7 +158,7 @@ class tt(PowhegV2):
         self.add_keyword("tdec/wwidth")
         self.add_keyword("testplots")
         self.add_keyword("testsuda")
-        self.add_keyword("topdecaymode", self.allowed_decay_modes[0], name="decay_mode")
+        self.add_keyword("topdecaymode", "t t~ > all", name="decay_mode")
         self.add_keyword("ubexcess_correct")
         self.add_keyword("ubsigmadetails")
         self.add_keyword("use-old-grid")
@@ -154,16 +170,25 @@ class tt(PowhegV2):
         self.add_keyword("xupbound", 10)
 
     def validate_decays(self):
-        """! Validate semileptonic and topdecaymode keywords."""
-        self.expose()  # convenience call to simplify syntax
+        """
+        Validate semileptonic and topdecaymode keywords and translate them from ATLAS input to Powheg input
+        """
+        self.expose() # convenience call to simplify syntax
         if self.decay_mode not in self.allowed_decay_modes:
-            logger.warning("Decay mode {} not recognised!".format(self.decay_mode))
-            raise ValueError("Decay mode {} not recognised!".format(self.decay_mode))
-        # Let MadSpin know whether tops have been decayed
-        if "undecayed" in self.decay_mode:
-            list(self.externals["MadSpin"].parameters_by_keyword("powheg_top_decays_enabled"))[0].value = False
-        # Calculate appropriate decay mode numbers
-        __decay_mode_lookup = {"t t~ > all": "22222", "t t~ > b j j b~ j j": "00022", "t t~ > b l+ vl b~ l- vl~": "22200", "t t~ > b emu+ vemu b~ emu- vemu~": "22000", "t t~ > semileptonic": "11111", "t t~ > undecayed": "00000"}
-        list(self.parameters_by_keyword("topdecaymode"))[0].value = __decay_mode_lookup[self.decay_mode]
-        if self.decay_mode == "t t~ > semileptonic":
-            list(self.parameters_by_keyword("semileptonic"))[0].value = 1
+            error_message = "Decay mode '{given}' not recognised, valid choices are: '{choices}'!".format(given=self.decay_mode, choices="', '".join(self.allowed_decay_modes))
+            logger.warning(error_message)
+            raise ValueError(error_message)
+
+        # Check if MadSpin decays are requested.
+        # Accordingly, MadSpin will run or not run.
+        if "MadSpin" in self.decay_mode:
+            self.externals["MadSpin"].parameters_by_keyword("powheg_top_decays_enabled")[0].value = False
+            self.externals["MadSpin"].parameters_by_keyword("MadSpin_model")[0].value = "loop_sm-no_b_mass"
+            self.externals["MadSpin"].parameters_by_keyword("MadSpin_nFlavours")[0].value = 5
+
+        if _decay_mode_lookup[self.decay_mode] in _signature_lookup: # special handling of decays with #decay_signature keyword
+            self.parameters_by_keyword("decay_signature")[0].value = _decay_mode_lookup[self.decay_mode]
+            self.parameters_by_keyword("topdecaymode")[0].value = "00000"
+        else: # usual handling of decays with #topdecaymode keyword
+            self.parameters_by_keyword("decay_signature")[0].value = "0"
+            self.parameters_by_keyword("topdecaymode")[0].value = _decay_mode_lookup[self.decay_mode]
