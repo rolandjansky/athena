@@ -200,44 +200,38 @@ namespace DerivationFramework {
         ATH_MSG_DEBUG("a0Finder: Found electron collections with key "<<m_electronCollectionKey);
       }
       ATH_MSG_DEBUG("a0Finder: Electron container size "<<importedElectronCollection->size());   
-
-      xAOD::ElectronContainer::const_iterator elItr; 
+ 
       std::vector<const xAOD::Electron*> elePos; elePos.clear();
       std::vector<const xAOD::Electron*> eleNeg; eleNeg.clear();
-      for (elItr=importedElectronCollection->begin(); elItr!=importedElectronCollection->end(); ++elItr) {
-        if ( *elItr == NULL ) continue;
-        if (!(*elItr)->trackParticleLink().isValid()) continue; // No electrons without ID tracks
+      for (auto elItr: *importedElectronCollection){
+        if ( elItr == nullptr ) continue;
+        if (!(elItr)->trackParticleLink().isValid()) continue; // No electrons without ID tracks
           const xAOD::TrackParticle* elTrk(0);
-          elTrk = (*elItr)->trackParticleLink().cachedElement();
-          if ( elTrk==NULL) continue;
+          elTrk = (elItr)->trackParticleLink().cachedElement();
+          if ( elTrk == nullptr) continue;
           const xAOD::Vertex* vx = 0;
           if ( !m_trkSelector->decision(*elTrk, vx) ) continue; // all ID tracks must pass basic tracking cuts
           if ( std::abs(elTrk->pt())<m_leptonTrkThresholdPt ) continue; 
-          if ( std::abs((*elItr)->pt())<m_eleThresholdPt ) continue;
-          if( (*elItr)->charge() > 0.0) {
-              elePos.push_back(*elItr);
+          if ( std::abs((elItr)->pt())<m_eleThresholdPt ) continue;
+          if( (elItr)->charge() > 0.0) {
+              elePos.push_back(elItr);
             } else {
-              eleNeg.push_back(*elItr);
+              eleNeg.push_back(elItr);
             }
         }
       ATH_MSG_DEBUG("a0Finder: " << elePos.size() + eleNeg.size() << " electrons pass pre-selection");
-      
-      std::vector<const xAOD::Electron*>::const_iterator eleIt1;
-      std::vector<const xAOD::Electron*>::const_iterator eleIt2;  
 
       std::vector<std::pair<const xAOD::Electron*, const xAOD::Electron*>> elePairs;
 
-      // Pos Loop
-      for(eleIt1 = elePos.begin(); eleIt1 != elePos.end(); ++eleIt1) {
+      for(auto eleIt1: elePos){ // Pos Loop
 
-        const xAOD::Electron* electron1 = (*eleIt1);
+        const xAOD::Electron* electron1 = eleIt1;
 
-        // Neg Loop
-        for(eleIt2 = eleNeg.begin(); eleIt2 != eleNeg.end(); ++eleIt2) {
+        for(auto eleIt2: eleNeg){ // Neg Loop
 
-          if (*eleIt1 == *eleIt2) continue;
+          if (eleIt1 == eleIt2) continue;
 
-          const xAOD::Electron* electron2 = (*eleIt2);
+          const xAOD::Electron* electron2 = eleIt2;
 
           TLorentzVector ele_vec1, ele_vec2;
           ele_vec1.SetPtEtaPhiM(electron1->pt(), electron1->eta(), electron1->phi(), mass_electron);
@@ -262,8 +256,8 @@ namespace DerivationFramework {
           ATH_MSG_DEBUG("a0Finder: Initial fit was a success! " << myVxCandidate);
           if(myVxCandidate != 0){
             std::vector<ElementLink<DataVector<xAOD::TrackParticle> > > newLinkVector;
-            for(unsigned int j=0; j< myVxCandidate->trackParticleLinks().size(); j++){ 
-                ElementLink<DataVector<xAOD::TrackParticle> > mylink=myVxCandidate->trackParticleLinks()[j]; //makes a copy (non-const) 
+            for(auto trklink: myVxCandidate->trackParticleLinks()){
+                ElementLink<DataVector<xAOD::TrackParticle> > mylink = trklink; //makes a copy (non-const) 
                 mylink.setStorableObject(*importedGSFTrackCollection, true); 
                 newLinkVector.push_back( mylink );
               }
@@ -305,44 +299,39 @@ namespace DerivationFramework {
       }
       ATH_MSG_DEBUG("Muon container size "<<importedMuonCollection->size());
 
-      xAOD::MuonContainer::const_iterator muItr; 
       std::vector<const xAOD::Muon*> muPos; muPos.clear();
       std::vector<const xAOD::Muon*> muNeg; muNeg.clear();
-      for (muItr=importedMuonCollection->begin(); muItr!=importedMuonCollection->end(); ++muItr) {
-        if ( *muItr == NULL ) continue;
-        if (!(*muItr)->inDetTrackParticleLink().isValid()) continue; // No muons without ID tracks
+
+      for (auto muItr: *importedMuonCollection){
+        if ( muItr == nullptr ) continue;
+        if (!(muItr)->inDetTrackParticleLink().isValid()) continue; // No muons without ID tracks
           const xAOD::TrackParticle* muTrk(0);
-          muTrk = (*muItr)->inDetTrackParticleLink().cachedElement();
-          if ( muTrk==NULL) continue;
+          muTrk = (muItr)->inDetTrackParticleLink().cachedElement();
+          if ( muTrk == nullptr) continue;
           const xAOD::Vertex* vx = 0;
           if ( !m_trkSelector->decision(*muTrk, vx) ) continue; // all ID tracks must pass basic tracking cuts
           if ( std::abs(muTrk->pt())<m_leptonTrkThresholdPt ) continue; 
-          if ( (*muItr)->pt()<m_muThresholdPt ) continue;
-          if ((*muItr)->muonType() == xAOD::Muon::SiliconAssociatedForwardMuon) continue;
-          if( (*muItr)->charge() > 0.0) {
-            muPos.push_back(*muItr);
+          if ( (muItr)->pt()<m_muThresholdPt ) continue;
+          if ((muItr)->muonType() == xAOD::Muon::SiliconAssociatedForwardMuon) continue;
+          if( (muItr)->charge() > 0.0) {
+            muPos.push_back(muItr);
             } else {
-            muNeg.push_back(*muItr);
+            muNeg.push_back(muItr);
             }
         }
         
       ATH_MSG_DEBUG("a0Finder: " << muPos.size() + muNeg.size() << " muons pass pre-selection");
-      
-      std::vector<const xAOD::Muon*>::const_iterator muIt1;
-      std::vector<const xAOD::Muon*>::const_iterator muIt2; 
 
-      // Pos Loop
-      for(muIt1 = muPos.begin(); muIt1 != muPos.end(); ++muIt1) {
+      for(auto muIt1: muPos){ // Pos Loop
 
-        const xAOD::Muon* muon1 = (*muIt1);
+        const xAOD::Muon* muon1 = (muIt1);
 
-        // Neg Loop
-        for(muIt2 = muNeg.begin(); muIt2 != muNeg.end(); ++muIt2) {
+        for(auto muIt2: muNeg){ // Neg Loop
 
-          if (*muIt1 == *muIt2) continue;
-          if ((*muIt1)->muonType() != xAOD::Muon::Combined and (*muIt2)->muonType() != xAOD::Muon::Combined) continue; // at least one combined muon
+          if (muIt1 == muIt2) continue;
+          if ((muIt1)->muonType() != xAOD::Muon::Combined and (muIt2)->muonType() != xAOD::Muon::Combined) continue; // at least one combined muon
 
-          const xAOD::Muon* muon2 = (*muIt2);
+          const xAOD::Muon* muon2 = (muIt2);
 
           TLorentzVector mu_vec1, mu_vec2;
           mu_vec1.SetPtEtaPhiM(muon1->pt(), muon1->eta(), muon1->phi(), mass_muon);
@@ -365,8 +354,8 @@ namespace DerivationFramework {
           ATH_MSG_DEBUG("a0Finder: Initial fit was a success! " << myVxCandidate);
           if(myVxCandidate != 0){
             std::vector<ElementLink<DataVector<xAOD::TrackParticle> > > newLinkVector;
-            for(unsigned int j=0; j< myVxCandidate->trackParticleLinks().size(); j++){ 
-                ElementLink<DataVector<xAOD::TrackParticle> > mylink=myVxCandidate->trackParticleLinks()[j]; //makes a copy (non-const) 
+            for(auto trklink: myVxCandidate->trackParticleLinks()){
+                ElementLink<DataVector<xAOD::TrackParticle> > mylink = trklink; //makes a copy (non-const) 
                 mylink.setStorableObject(*inputTrackParticles, true); 
                 newLinkVector.push_back( mylink );
               }
@@ -422,84 +411,76 @@ namespace DerivationFramework {
     std::vector<const xAOD::TrackParticle*> negTracks; negTracks.clear();
 
     if(dileptonVertices.size() != 0){
-      // Track Loop
-      for(xAOD::TrackParticleContainer::const_iterator trkItr = inputTrackParticles->begin(); trkItr != inputTrackParticles->end(); ++trkItr) {
+      for(auto trkItr: *inputTrackParticles){  // Track Loop
 
-          const xAOD::TrackParticle* track = (*trkItr);
+        const xAOD::TrackParticle* track = trkItr;
 
         // skip tracks from Z vertex
-        for ( std::vector<const xAOD::Vertex*>::const_iterator vtxItr = dileptonVertices.begin(); vtxItr != dileptonVertices.end(); ++vtxItr ) {
-          const xAOD::TrackParticle* lepton_trk1 = (*vtxItr)->trackParticle(0);
-          const xAOD::TrackParticle* lepton_trk2 = (*vtxItr)->trackParticle(1);
-          if(m_trkZDeltaZ>0 && std::abs(track->z0() + track->vz() - (*vtxItr)->z()) > m_trkZDeltaZ ) continue;
+        for(auto vtxItr: dileptonVertices){
+          const xAOD::TrackParticle* lepton_trk1 = (vtxItr)->trackParticle(0);
+          const xAOD::TrackParticle* lepton_trk2 = (vtxItr)->trackParticle(1);
+          if(m_trkZDeltaZ>0 && std::abs(track->z0() + track->vz() - (vtxItr)->z()) > m_trkZDeltaZ ) continue;
           if(track == lepton_trk1 or track == lepton_trk2) continue; 
         }
-          uint8_t nSCT(0);
-          uint8_t nPIX(0);
+        uint8_t nSCT(0);
+        uint8_t nPIX(0);
 
-          track->summaryValue(nPIX,xAOD::numberOfPixelHits);
-          track->summaryValue(nSCT,xAOD::numberOfSCTHits);
-          // Don't want TRT-only tracks
-          // Require Si hits on all tracks
-          if( nSCT + nPIX < m_nHitPix ) continue;
-          if (nSCT < m_nHitSct ) continue;
-          if (track->pt() < m_trackPtMin) continue;
-          
-          double d0significance = std::abs(track->d0()) / sqrt(track->definingParametersCovMatrix()(0,0));
-          if (d0significance > m_d0significanceMax) continue;
-          if(!priVtx) {
-            bool trk_TightP = m_TrackSelectionToolTightP->accept(*track);
-            bool trk_LooseP = m_TrackSelectionToolLooseP->accept(*track);
-            bool trk_Loose = m_TrackSelectionToolLoose->accept(*track);
-            if(m_onlyTightPTrk and !trk_TightP) continue;
-            if(m_onlyLoosePTrk and !trk_LooseP) continue;
-            if(m_onlyLooseTrk and !trk_Loose) continue;
-            ATH_MSG_DEBUG("a0Finder: no primary vertex found!");
+        track->summaryValue(nPIX,xAOD::numberOfPixelHits);
+        track->summaryValue(nSCT,xAOD::numberOfSCTHits);
+        // Don't want TRT-only tracks
+        // Require Si hits on all tracks
+        if( nSCT + nPIX < m_nHitPix ) continue;
+        if (nSCT < m_nHitSct ) continue;
+        if (track->pt() < m_trackPtMin) continue;
+        
+        double d0significance = std::abs(track->d0()) / sqrt(track->definingParametersCovMatrix()(0,0));
+        if (d0significance > m_d0significanceMax) continue;
+        if(!priVtx) {
+          bool trk_TightP = m_TrackSelectionToolTightP->accept(*track);
+          bool trk_LooseP = m_TrackSelectionToolLooseP->accept(*track);
+          bool trk_Loose = m_TrackSelectionToolLoose->accept(*track);
+          if(m_onlyTightPTrk and !trk_TightP) continue;
+          if(m_onlyLoosePTrk and !trk_LooseP) continue;
+          if(m_onlyLooseTrk and !trk_Loose) continue;
+          ATH_MSG_DEBUG("a0Finder: no primary vertex found!");
           }
-          if(priVtx){
-            double z0value  = track->z0() + track->vz() - priVtx->z();
-            if(std::abs(z0value*sin(track->theta())) > m_deltaz0PVsinthetaMax) continue;
-            double sigma_z0 = sqrt(track->definingParametersCovMatrix()(1,1));
-            if (sigma_z0<=0.) continue;
-            double z0significance = 999;
-            if (sigma_z0>0.) z0significance = std::abs(z0value/sigma_z0);
-            if(z0significance > m_deltaz0PVsignificanceMax) continue;
-            bool trk_PV_TightP = m_TrackSelectionToolTightP->accept(*track, priVtx); 
-            bool trk_PV_LooseP = m_TrackSelectionToolLooseP->accept(*track, priVtx); 
-            bool trk_PV_Loose = m_TrackSelectionToolLoose->accept(*track, priVtx); 
-            if(m_onlyTightPTrk and !trk_PV_TightP) continue;
-            if(m_onlyLoosePTrk and !trk_PV_LooseP) continue;
-            if(m_onlyLooseTrk and !trk_PV_Loose) continue;
+        if(priVtx){
+          double z0value  = track->z0() + track->vz() - priVtx->z();
+          if(std::abs(z0value*sin(track->theta())) > m_deltaz0PVsinthetaMax) continue;
+          double sigma_z0 = sqrt(track->definingParametersCovMatrix()(1,1));
+          if (sigma_z0<=0.) continue;
+          double z0significance = 999;
+          if (sigma_z0>0.) z0significance = std::abs(z0value/sigma_z0);
+          if(z0significance > m_deltaz0PVsignificanceMax) continue;
+          bool trk_PV_TightP = m_TrackSelectionToolTightP->accept(*track, priVtx); 
+          bool trk_PV_LooseP = m_TrackSelectionToolLooseP->accept(*track, priVtx); 
+          bool trk_PV_Loose = m_TrackSelectionToolLoose->accept(*track, priVtx); 
+          if(m_onlyTightPTrk and !trk_PV_TightP) continue;
+          if(m_onlyLoosePTrk and !trk_PV_LooseP) continue;
+          if(m_onlyLooseTrk and !trk_PV_Loose) continue;
           }
 
-          if( track->charge() > 0.0) {
-              posTracks.push_back(track);
+        if( track->charge() > 0.0) {
+          posTracks.push_back(track);
           } else {
-              negTracks.push_back(track);
+          negTracks.push_back(track);
           }
-
       } // Track Loop
     }
 
-
-    ATH_MSG_DEBUG("a0Finder: " << posTracks.size() + negTracks.size() << " tracks pass pre-selection");
-    
-    std::vector<const xAOD::TrackParticle*>::const_iterator tpIt1;
-    std::vector<const xAOD::TrackParticle*>::const_iterator tpIt2;  
+    ATH_MSG_DEBUG("a0Finder: " << posTracks.size() + negTracks.size() << " tracks pass pre-selection"); 
 
     std::vector<std::tuple<const xAOD::TrackParticle*, const xAOD::TrackParticle*, double>> trackPairs;
 
-    // Pos Track Loop
-    for(tpIt1 = posTracks.begin(); tpIt1 != posTracks.end(); ++tpIt1) {
+    for(auto tpIt1: posTracks){ // Pos Track Loop
 
-      const xAOD::TrackParticle* trackParticle1 = (*tpIt1);
+      const xAOD::TrackParticle* trackParticle1 = tpIt1;
 
-      // Neg Track Loop
-      for(tpIt2 = negTracks.begin(); tpIt2 != negTracks.end(); ++tpIt2) {
+      for(auto tpIt2: negTracks){ // Neg Track Loop
 
-        if (*tpIt1 == *tpIt2) continue;
+        if (tpIt1 == tpIt2) continue;
 
-        const xAOD::TrackParticle* trackParticle2 = (*tpIt2);
+        const xAOD::TrackParticle* trackParticle2 = tpIt2;
 
         nTrackPairs_Init++;
 
@@ -516,7 +497,6 @@ namespace DerivationFramework {
         double deltaPhi_tracks = track1.DeltaPhi(track2);
         if (deltaPhi_tracks > m_deltaPhiTracks) continue;
         
-
         trackPairs.push_back(std::make_tuple(trackParticle1, trackParticle2, ditrackPt));
 
       } // loop over negative tracks
@@ -526,10 +506,10 @@ namespace DerivationFramework {
     ATH_MSG_DEBUG("a0Finder: " << trackPairs.size() << " track pairs to test");
     
     int itr = 0;
-    for ( std::vector<const xAOD::Vertex*>::const_iterator vtxItr = dileptonVertices.begin(); vtxItr != dileptonVertices.end(); ++vtxItr ) {
+    for(auto vtxItr: dileptonVertices){
 
-      const xAOD::TrackParticle* lepton_trk1 = (*vtxItr)->trackParticle(0);
-      const xAOD::TrackParticle* lepton_trk2 = (*vtxItr)->trackParticle(1);
+      const xAOD::TrackParticle* lepton_trk1 = (vtxItr)->trackParticle(0);
+      const xAOD::TrackParticle* lepton_trk2 = (vtxItr)->trackParticle(1);
       TLorentzVector lepton1, lepton2;
       if(!m_ZisMuons){
         const xAOD::Electron* ele1 = std::get<0>(elePairs_vertex[itr]);
@@ -546,10 +526,10 @@ namespace DerivationFramework {
       itr++;
 
       int vertexPassed = 0;
-      for(unsigned int i=0;i<trackPairs.size();i++){
-        ATH_MSG_DEBUG("a0Finder: sanity check, ditrack pt: " << std::get<2>(trackPairs[i]));
-        const xAOD::TrackParticle* trackParticle1 = std::get<0>(trackPairs[i]);
-        const xAOD::TrackParticle* trackParticle2 = std::get<1>(trackPairs[i]);
+      for(auto trkp: trackPairs){
+        ATH_MSG_DEBUG("a0Finder: sanity check, ditrack pt: " << std::get<2>(trkp));
+        const xAOD::TrackParticle* trackParticle1 = std::get<0>(trkp);
+        const xAOD::TrackParticle* trackParticle2 = std::get<1>(trkp);
         ATH_MSG_DEBUG("a0Finder: got tracks from vector of tuples");
 
         TLorentzVector track1, track2;
@@ -578,7 +558,8 @@ namespace DerivationFramework {
         ATH_MSG_DEBUG("a0Finder: vertex estimator success");
         if (errorcode != 0) {
           ATH_MSG_DEBUG("a0Finder: vertex estimator error");
-          startingPoint(0) = 0.0; startingPoint(1) = 0.0; startingPoint(2) = 0.0;}
+          startingPoint(0) = 0.0; startingPoint(1) = 0.0; startingPoint(2) = 0.0;
+        }
         xAOD::Vertex* HVertex = m_VKVFitter->fit(QuadletTracks, startingPoint);
         ATH_MSG_DEBUG("a0Finder: vertex fitter success");
 
@@ -586,8 +567,8 @@ namespace DerivationFramework {
             std::vector<ElementLink<DataVector<xAOD::TrackParticle> > > newLinkVector;
             ATH_MSG_DEBUG("a0Finder: setting new track particle links");
             for(unsigned int j=0; j< HVertex->trackParticleLinks().size(); j++){
-              ElementLink<DataVector<xAOD::TrackParticle> > mylink=HVertex->trackParticleLinks()[j]; //makes a copy (non-const)
-              ATH_MSG_DEBUG("a0Finder: got link "<< j);
+              ElementLink<DataVector<xAOD::TrackParticle> > mylink = HVertex->trackParticleLinks()[j]; //makes a copy (non-const)
+              ATH_MSG_DEBUG("a0Finder: got link ");
               mylink.setStorableObject( m_useGSFTrack[j] ?  *importedGSFTrackCollection : *inputTrackParticles, true);
               newLinkVector.push_back( mylink );
             }
@@ -595,7 +576,7 @@ namespace DerivationFramework {
             HVertex->setTrackParticleLinks( newLinkVector);
         }
 
-        if(HVertex == 0){
+        else{
           delete HVertex;
           continue;
         } 
@@ -625,7 +606,7 @@ namespace DerivationFramework {
           ATH_MSG_DEBUG("a0Finder: vertex after fit failed chiSqProbMin: "<< m_chiSqProbMin);
           continue;
         }
-        double Zvtx_z = (*vtxItr)->z();
+        double Zvtx_z = (vtxItr)->z();
         HVertex->auxdata<double>("HVertex_chiSq_prob") = chiSq_prob;
         HVertex->auxdata<double>("Zvertex_z") = Zvtx_z;
         HCandidateContainer->push_back(HVertex);

@@ -544,6 +544,7 @@ bool DerivationFramework::SkimmingToolHDBS2::checkTrackQualityLoose(const xAOD::
 
   return true;
 }
+
 bool DerivationFramework::SkimmingToolHDBS2::checkTrackQuality(const xAOD::TrackParticle *trk) const 
 {
   if(!trk) return false;
@@ -552,6 +553,7 @@ bool DerivationFramework::SkimmingToolHDBS2::checkTrackQuality(const xAOD::Track
 
   return true;
 }
+
 bool DerivationFramework::SkimmingToolHDBS2::checkTrackQualityForW(const xAOD::TrackParticle *trk) const 
 {
   if(!trk) return false;
@@ -559,6 +561,7 @@ bool DerivationFramework::SkimmingToolHDBS2::checkTrackQualityForW(const xAOD::T
 
   return true;
 }
+
 bool DerivationFramework::SkimmingToolHDBS2::check2L(const bool onlyVertexing) const 
 {
   if(not onlyVertexing) {
@@ -839,16 +842,18 @@ bool DerivationFramework::SkimmingToolHDBS2::check2L2TRK() const
   std::vector<TLorentzVector> v_muons;
   std::vector<int> muCharge;
   
-  for(unsigned int el_i(0); el_i<m_goodElectrons.size(); el_i++) {
-    const xAOD::Electron *el(m_goodElectrons.at(el_i));
+  //for(unsigned int el_i(0); el_i<m_goodElectrons.size(); el_i++) {
+  for(auto el_i: m_goodElectrons){
+    const xAOD::Electron *el(el_i);
     if (el->pt() < m_electronPtCut ) continue;
     TLorentzVector tlv(this->electronFourMomentum(el));
     v_electrons.push_back(tlv);
     eleCharge.push_back(el->charge());
   }
   
-  for(unsigned int mu_i(0); mu_i<m_goodMuons.size(); mu_i++) {
-    const xAOD::Muon *mu(m_goodMuons.at(mu_i));
+  //for(unsigned int mu_i(0); mu_i<m_goodMuons.size(); mu_i++) {
+  for(auto mu_i: m_goodMuons){
+    const xAOD::Muon *mu(mu_i);
     if (mu->pt() < m_muonPtCut ) continue;
     TLorentzVector tlv(this->muonFourMomentum(mu));
     v_muons.push_back(tlv);
@@ -909,8 +914,9 @@ bool DerivationFramework::SkimmingToolHDBS2::check2L2TRK() const
       TLorentzVector tlv_2mu(v_muons.at(i0) + v_muons.at(i1));
       if(tlv_2mu.M() < m_invariantMassZLowCut or tlv_2mu.M() > m_invariantMassZUpCut) continue;
       muons_pass_Z=true;
-      for(unsigned int t0(0); t0<v_ditracksPass.size(); t0++) {
-        TLorentzVector v_H(v_ditracksPass.at(t0) + v_muons.at(i0) + v_muons.at(i1));
+      //for(unsigned int t0(0); t0<v_ditracksPass.size(); t0++) {
+      for(auto t0: v_ditracksPass){
+        TLorentzVector v_H(t0 + v_muons.at(i0) + v_muons.at(i1));
         if (v_H.M() < m_invariantMassHLowCut)  continue;
         H_pass_mass = true;
       }

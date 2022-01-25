@@ -15,6 +15,7 @@ from DerivationFrameworkInDet.InDetCommon import DFCommonTrackSelection
 from TriggerMenu.api.TriggerAPI import TriggerAPI
 from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
 from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelper
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import applyJetCalibration_xAODColl, updateJVT_xAODColl, applyOverlapRemoval, eventCleanLoose_xAODColl, eventCleanTight_xAODColl, eventCleanLooseLLP_xAODColl, eventCleanSuperLooseLLP_xAODColl, eventCleanVeryLooseLLP_xAODColl
 
 #====================================================================
 # SET UP STREAM   
