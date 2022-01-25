@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArROD/LArRawChannelBuilder.h"
@@ -200,7 +200,7 @@ StatusCode LArRawChannelBuilder::execute()
 
   //retrieve TDC
   if (m_useTDC) { //All this timing business is only necessary if the readout and the beam are not in phase (Testbeam)
-    const ILArGlobalTimeOffset* larGlobalTimeOffset;
+    const ILArGlobalTimeOffset* larGlobalTimeOffset = nullptr;
     SG::ReadHandle<TBPhase> theTBPhase (m_tbPhaseLocation, ctx);
 
     //Get Phase in nanoseconds

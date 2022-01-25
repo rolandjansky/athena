@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArROD/LArTimeChecker.h"
@@ -31,9 +31,9 @@ StatusCode LArTimeChecker::execute() {
   StatusCode sc;
   MsgStream log(msgSvc(), name());
   
-  const LArDigitContainer* larDigitContainer=NULL;
-  const ILArPedestal* larPedestal;
-  const ILArOFC* larOFC;
+  const LArDigitContainer* larDigitContainer = nullptr;
+  const ILArPedestal* larPedestal = nullptr;
+  const ILArOFC* larOFC = nullptr;
   
   std::vector<short> seed_samples;
   HWIdentifier seed_cell;
