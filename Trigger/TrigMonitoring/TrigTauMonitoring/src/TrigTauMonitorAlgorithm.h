@@ -10,6 +10,8 @@
 #include "xAODTau/TauxAODHelpers.h"
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTrigger/eFexTauRoIContainer.h"
+#include "xAODTruth/TruthVertex.h"
+#include "xAODTruth/TruthVertexContainer.h"
 
 #include "TrigTauInfo.h"
 
@@ -42,6 +44,7 @@ class TrigTauMonitorAlgorithm : public AthMonitorAlgorithm {
 
   /*! List of triggers from menu */
   Gaudi::Property<std::vector<std::string>> m_trigInputList{this, "TriggerList", {}};
+  Gaudi::Property<bool> m_isMC{this, "isMC", false};
 
   /*! navigation method called by executeNavigation */
   StatusCode executeNavigation(const EventContext& ctx, const std::string& trigItem,
@@ -58,7 +61,10 @@ class TrigTauMonitorAlgorithm : public AthMonitorAlgorithm {
   void fillHLTEfficiencies(const EventContext& ctx,const std::string& trigger, const std::vector<const xAOD::TauJet*>& offline_tau_vec, const std::vector<const xAOD::TauJet*>& online_tau_vec, const std::string& nProng) const;
   void fillDiTauHLTEfficiencies(const EventContext& ctx,const std::string& trigger, const std::vector<const xAOD::TauJet*>& offline_tau_vec, const std::vector<const xAOD::TauJet*>& online_tau_vec) const;
   void fillL1Efficiencies(const EventContext& ctx, const std::vector<const xAOD::TauJet*>& offline_tau_vec, const std::string& nProng, const std::string& trigL1Item, const std::vector<const xAOD::EmTauRoI*>& legacyL1rois, const std::vector<const xAOD::eFexTauRoI*>& phase1L1rois) const;
-   
+  void fillTruthEfficiency(const std::vector<const xAOD::TauJet*> online_tau_vec_all, const std::vector<const xAOD::TruthParticle*> true_taus, const std::string trigger) const;
+  
+  StatusCode examineTruthTau(const xAOD::TruthParticle& xTruthParticle) const;
+  void fillEFTauVsTruth(const std::vector<const xAOD::TauJet*>& tau_vec, const std::vector<const xAOD::TruthParticle*>& true_taus, const std::string trigger) const; 
 
   inline double dR(const double eta1, const double phi1, const double eta2, const double phi2) const
   {
@@ -77,8 +83,19 @@ class TrigTauMonitorAlgorithm : public AthMonitorAlgorithm {
     }
     return false;
   };
-
   
+  inline bool HLTTruthMatching(const xAOD::TruthParticle* true_taus, const std::vector<const xAOD::TauJet*> online_tau_vec, float threshold) const
+  {
+    for(auto online_tau: online_tau_vec){
+      float deltaR = dR(true_taus->eta(),true_taus->phi(), online_tau->eta(),online_tau->phi());
+      if(deltaR < threshold){
+          return true;
+      }
+    }
+    return false;
+  };
+
+
   inline bool legacyL1Matching(const xAOD::TauJet* offline_tau, const xAOD::EmTauRoI* l1roi, float threshold) const
   {
     float deltaR = dR(offline_tau->eta(),offline_tau->phi(), l1roi->eta(),l1roi->phi());
@@ -106,6 +123,7 @@ class TrigTauMonitorAlgorithm : public AthMonitorAlgorithm {
   SG::ReadHandleKey< xAOD::TauJetContainer> m_hltTauJetKey { this, "hltTauJetKey", "HLT_TrigTauRecMerged_MVA", "HLT taujet container key" };
   SG::ReadHandleKey< xAOD::TauJetContainer> m_hltTauJetCaloMVAOnlyKey { this, "hltTauJetCaloMVAOnlyKey", "HLT_TrigTauRecMerged_CaloMVAOnly", "HLT taujet container key" };
   SG::ReadHandleKey< xAOD::JetContainer> m_hltSeedJetKey { this, "hltSeedJetKey", "HLT_jet_seed", "HLT jet seed container key" };
+  SG::ReadHandleKey< xAOD::TruthParticleContainer> m_truthParticleKey { this, "truthParticleKey", "TruthParticles", "TruthParticleContainer key" };
 
 };
 #endif

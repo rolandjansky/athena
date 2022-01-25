@@ -2,9 +2,6 @@
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-if 'DQMonFlags' not in dir():
-    from AthenaMonitoring.DQMonFlags import DQMonFlags as dqflags
-
 class TrigTauMonAlgBuilder:
 
   _configured = False
@@ -36,7 +33,7 @@ class TrigTauMonAlgBuilder:
         if key in self.__acceptable_keys_list:
           setattr(self,key,value)
       self.configureMode()
-
+  
   def configureMode(self):
 
     self.__logger.info("TrigTauMonToolBuilder.configureMode()")
@@ -55,7 +52,7 @@ class TrigTauMonAlgBuilder:
       else:
         self.activate_tau=True
     else:
-        self.activate_tau=True
+        self.activate_tau=True 
 
     
   def configure(self):
@@ -119,7 +116,7 @@ class TrigTauMonAlgBuilder:
   def get_monitoring_mode(self):
 
     self.__logger.info("TrigTauMonToolBuilder.get_monitoring_mode()")
-    self.data_type = dqflags.monManDataType()
+    self.data_type = self.helper.inputFlags.DQ.DataType
     if self.data_type == 'monteCarlo': 
       self.mc_mode = True
       return True
@@ -243,7 +240,11 @@ class TrigTauMonAlgBuilder:
       self.__logger.info( "Creating the Tau monitor algorithm...")
       self.tauMonAlg = self.helper.addAlgorithm( CompFactory.TrigTauMonitorAlgorithm, "TrigTauMonAlg" )
       self.tauMonAlg.TriggerList=self.tauList    
-
+      isMC = False
+      self.data_type = self.helper.inputFlags.DQ.DataType
+      if self.data_type == 'monteCarlo':
+         isMC = True
+      self.tauMonAlg.isMC = isMC
 
 
   def configureHistograms(self):
@@ -273,6 +274,9 @@ class TrigTauMonAlgBuilder:
 
       self.bookHLTEffHistograms( monAlg, trigger,nProng='1P')
       self.bookHLTEffHistograms( monAlg, trigger,nProng='MP')
+
+      self.bookTruth( monAlg, trigger )
+      self.bookTruthEfficiency( monAlg, trigger )
 
       self.bookRNNInputVars( monAlg, trigger,nProng='0P', online=True ) 
       self.bookRNNInputVars( monAlg, trigger,nProng='1P', online=True )
@@ -517,5 +521,35 @@ class TrigTauMonAlgBuilder:
     monGroup.defineHistogram('hdEta', title='EF dEta(#tau,#tau);dEta(#tau,#tau);Nevents',xbins=40,xmin=0,xmax=4)
     monGroup.defineHistogram('hdPhi', title='EF dPhi(#tau,#tau);dPhi(#tau,#tau);Nevents',xbins=16,xmin=-3.2,xmax=3.2)
 
+  def bookTruth( self, monAlg, trigger):
 
+    monGroupName = trigger+'EFVsTruth'
+    monGroupPath = 'EFVsTruth/'+trigger 
+    monGroup = self.helper.addGroup( monAlg, monGroupName,
+                              self.basePath+'/'+monGroupPath )
+
+    monGroup.defineHistogram('pt_vis,Etratio',title='Etratiovis vs Pt_{vis}; Pt_{vis};(reco pt - truth vis pt)/truth vis pt ',type='TProfile',xbins=21,xmin=20,xmax=250)
+    monGroup.defineHistogram('eta_vis,Etratio',title='Etratiovis vs #eta_{vis}; #eta_{vis}; (reco pt - truth vis pt)/truth vis pt ', type='TProfile', xbins=21,xmin=-3,xmax=3)
+    monGroup.defineHistogram('phi_vis,Etratio',title='Etratiovis vs #phi_{vis}; #phi_{vis}; (reco pt - truth vis pt)/truth vis pt ', type='TProfile', xbins=21,xmin=-3,xmax=3)
+
+    monGroup.defineHistogram('pt_vis', title='Pt_vis Value; P_{tvis}; Nevents', xbins=50,xmin=0,xmax=250)
+    monGroup.defineHistogram('eta_vis', title='Eta_vis Value; #eta_{vis};Nevents', xbins=26,xmin=-2.6,xmax=2.6)
+    monGroup.defineHistogram('phi_vis', title='Phi_vis Value; #phi_{vis}; Nevents', xbins=16,xmin=-3.2,xmax=3.2)
+
+  def bookTruthEfficiency( self, monAlg, trigger):
+  
+    monGroupName = trigger+'Truth_Efficiency'
+    monGroupPath = 'Truth_Efficiency/'+trigger
+    monGroup = self.helper.addGroup( monAlg, monGroupName,
+                              self.basePath+'/'+monGroupPath )
+  
+    def defineEachStepHistograms(xvariable, xlabel, xbins, xmin, xmax):
+
+       monGroup.defineHistogram(monGroupName+'_HLTpass,'+monGroupName+'_'+xvariable+';EffHLT_'+xvariable+'_wrt_Truth',
+                                title='HLT Efficiency ' +trigger+' ;'+xlabel+';Efficiency',
+                                type='TEfficiency',xbins=xbins,xmin=xmin,xmax=xmax)
+
+    defineEachStepHistograms('pt_vis', 'Pt_{vis} [GeV]', 60, 0.0, 300.)
+    defineEachStepHistograms('eta_vis','#eta_{vis}', 13, -2.6, 2.6)
+    defineEachStepHistograms('phi_vis','#phi_{vis}', 16, -3.2, 3.2)
 
