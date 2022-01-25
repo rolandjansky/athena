@@ -101,7 +101,6 @@ StatusCode Muon::STGC_ROD_Decoder::fillCollection(const ROBFragment& robFrag, co
     for (auto channel : channels) {
        unsigned int channel_number = channel->channel_number();
        unsigned int channel_type   = channel->channel_type();
-       if (channel_type != Muon::nsw::OFFLINE_CHANNEL_TYPE_STRIP) continue; // TODO: decoder not ready for pads/wires     
        if (channel_number == 0) continue; // skip disconnected vmm channels
 
        Identifier channel_ID = m_stgcIdHelper->channelID(module_ID, multi_layer, gas_gap, channel_type, channel_number, true, &is_validID);
