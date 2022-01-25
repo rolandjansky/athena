@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ZDCANALYSIS_ZDCPulseAnalyzer_h
@@ -182,7 +182,6 @@ private:
   bool m_preExpTail;
 
   bool m_fixPrePulse;
-  bool m_fixPostPulse;
   bool m_fitMinAmp;
   bool m_repassPulse;
 
