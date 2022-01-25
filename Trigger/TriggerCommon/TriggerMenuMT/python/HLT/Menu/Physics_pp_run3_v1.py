@@ -881,9 +881,9 @@ def setupMenu():
         ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVABDT_L1TAU20IM", groups=SupportLegGroup+SingleTauGroup+['RATE:CPS_TAU20IM'], monGroups=['tauMon:t0']),
 
         #------ Phase-I
-        ChainProp(name="HLT_tau25_mediumRNN_tracktwoMVABDT_L1eTAU20",   groups=SupportPhIGroup+SingleTauGroup, monGroups=['tauMon:online','tauMon:t0']),
-        ChainProp(name="HLT_tau25_mediumRNN_tracktwoMVABDT_L1eTAU20M",  groups=SupportPhIGroup+SingleTauGroup, monGroups=['tauMon:online','tauMon:t0']),
-        ChainProp(name="HLT_tau160_mediumRNN_tracktwoMVABDT_L1eTAU140", stream=[PhysicsStream], groups=PrimaryPhIGroup+SingleTauGroup, monGroups=['tauMon:t0']),
+        ChainProp(name="HLT_tau25_mediumRNN_tracktwoMVABDT_L1eTAU20",   stream=[PhysicsStream,'express'], groups=SupportPhIGroup+SingleTauGroup, monGroups=['tauMon:online','tauMon:t0']),
+        ChainProp(name="HLT_tau25_mediumRNN_tracktwoMVABDT_L1eTAU20M",  stream=[PhysicsStream,'express'], groups=SupportPhIGroup+SingleTauGroup, monGroups=['tauMon:online','tauMon:t0']),
+        ChainProp(name="HLT_tau160_mediumRNN_tracktwoMVABDT_L1eTAU140", stream=[PhysicsStream,'express'], groups=PrimaryPhIGroup+SingleTauGroup, monGroups=['tauMon:t0']),
         ChainProp(name='HLT_tau180_mediumRNN_tracktwoLLP_L1eTAU140', stream=[PhysicsStream,'express'], groups=PrimaryPhIGroup+SingleTauGroup, monGroups=['tauMon:shifter']),
 
     ]
