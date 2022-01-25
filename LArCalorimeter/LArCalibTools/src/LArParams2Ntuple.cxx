@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArParams2Ntuple.h"
@@ -679,7 +679,7 @@ StatusCode LArParams2Ntuple::retrieveFromDetStore( const DATA*& data_object ) {
 
 
 inline StatusCode LArParams2Ntuple::retrieveAbstractInterface(const LArCaliPulseParamsComplete*& data_object) {
-  const ILArCaliPulseParams* abstract_object ;
+  const ILArCaliPulseParams* abstract_object = nullptr;
   StatusCode sc = m_detStore->retrieve(abstract_object) ;
   data_object = dynamic_cast<const LArCaliPulseParamsComplete*>(abstract_object) ;
   return sc ;
