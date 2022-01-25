@@ -460,7 +460,7 @@ AthSequencer::decodeNames( Gaudi::Property<std::vector<std::string>>& theNames,
       // Check whether the suppied name corresponds to an existing
       // Algorithm object.
       IAlgorithm* theIAlg;
-      Gaudi::Algorithm*  theAlgorithm;
+      Gaudi::Algorithm*  theAlgorithm = nullptr;
       StatusCode status = theAlgMgr->getAlgorithm( theName, theIAlg );
       if ( status.isSuccess( ) ) {
         theAlgorithm = dynamic_cast<Gaudi::Algorithm*>(theIAlg);
