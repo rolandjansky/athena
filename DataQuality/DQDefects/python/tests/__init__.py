@@ -1,10 +1,11 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 # -*- coding: utf-8 -*-
 # flake8: noqa
 #  unicode characters embedded below confuse flake8
 from os import unlink, environ
 from os.path import exists
 from nose import with_setup
+from nose.tools import raises
 
 from logging import getLogger; log = getLogger("DQDefects.tests")
 
@@ -188,6 +189,22 @@ def test_defect_insertion_retrieval_unicode():
     assert iov.comment == TEST_COMMENT
     assert ddb.all_defect_descriptions[TEST_DEFECT_NAME] == TEST_DEFECT_DESCRIPTION
     
+@raises(UnicodeEncodeError)
+@with_setup(create_database, teardown_database)
+def test_defect_failure_nonascii_name():
+    """
+    Check that we raise an error if the defect name is not ASCII
+    """
+    if six.PY3:
+        import ROOT
+        if ROOT.gROOT.GetVersionInt() < 62000:
+            # Passing str objects using multibyte encodings is broken
+            # with pyroot up to 6.18.  Should be fixed in 6.20?
+            return
+    ddb = DefectsDB(TEST_DATABASE, read_only=False)
+    
+    ddb.create_defect(u"DQD_TÉST_DÉFÉCT_0", "Test")
+
 @with_setup(create_database, teardown_database)
 def test_defect_empty_retrieval():
     ddb = DefectsDB(TEST_DATABASE, read_only=False)
@@ -228,6 +245,28 @@ def test_virtual_defect_creation():
     assert "DQD_TEST_VIRTUAL_DEFECT" in ddb.virtual_defect_names
 
 @with_setup(create_database, teardown_database)
+def test_defect_list_update_on_creation():
+    """
+    Check that the defect name list is updated when a defect is created
+    """
+    ddb = DefectsDB(TEST_DATABASE, read_only=False)
+    name = create_defect_type(ddb, 0)
+        
+    assert ddb.defect_names == set([name])
+
+@with_setup(create_database, teardown_database)
+def test_virtual_defect_list_update_on_creation():
+    """
+    Check that the virtual defect name list is updated when a defect is created
+    """
+    ddb = DefectsDB(TEST_DATABASE, read_only=False)
+    name = create_defect_type(ddb, 0)
+    ddb.new_virtual_defect("DQD_TEST_VIRTUAL_DEFECT", 
+                           "Comment", name)
+       
+    assert ddb.virtual_defect_names == set(["DQD_TEST_VIRTUAL_DEFECT"])
+
+@with_setup(create_database, teardown_database)
 def test_virtual_defect_creation_unicode():
     
     ddb = DefectsDB(TEST_DATABASE, read_only=False)
@@ -248,6 +287,24 @@ def test_virtual_defect_creation_unicode():
     ddb = DefectsDB(TEST_DATABASE)
     assert len(ddb.virtual_defect_ids) == 1
     assert "DQD_TEST_VIRTUAL_DEFECT" in ddb.virtual_defect_names
+
+@raises(UnicodeEncodeError)
+@with_setup(create_database, teardown_database)
+def test_virtual_defect_failure_nonascii_name():
+    """
+    Check that we raise an error if the virtual defect name is not ASCII
+    """
+    if six.PY3:
+        import ROOT
+        if ROOT.gROOT.GetVersionInt() < 62000:
+            # Passing str objects using multibyte encodings is broken
+            # with pyroot up to 6.18.  Should be fixed in 6.20?
+            return
+    ddb = DefectsDB(TEST_DATABASE, read_only=False)
+    
+    ddb.create_defect(u"DQD_TEST_DEFECT_0", "Test")
+    ddb.new_virtual_defect(u"DQD_TÉST_VIRTUAL_DÉFÉCT", 
+                           u"Comment", u"DQD_TEST_DEFECT_0")
 
 @with_setup(create_database, teardown_database)
 def test_nonpresent():
@@ -630,6 +687,8 @@ def test_independent_tags():
     
     ltag2 = ddb.new_logics_tag()
     
+    assert ltag1 != ltag2, f'{ltag1} and {ltag2} should be different'
+
     iovs = DefectsDB(TEST_DATABASE, tag=("HEAD", ltag1)).retrieve(channels=["DQD_TEST_VIRTUAL_DEFECT"])
     assert iov_ranges(iovs) == [(100, 200)], str(iov_ranges(iovs))
     
@@ -687,7 +746,7 @@ def test_virtual_defect_consistency():
     """
     Checking that virtual flags don't depend on non-existent flags
     """
-    DefectsDB('oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_GLOBAL;dbname=CONDBR2')._virtual_defect_consistency_check()
+    DefectsDB()._virtual_defect_consistency_check()
     
 @with_setup(create_database, teardown_database)
 def test_iov_tag_defects():
@@ -706,7 +765,7 @@ def test_iov_tag_defects():
     ddb.new_defects_tag("dqd-test", "New iov tag",
                         iovranges=[(0, 51),
                                    ((0,210), (0,306))])
-    ddb2 = DefectsDB(TEST_DATABASE, tag='DetStatusDEFECTS-dqd-test')
+    ddb2 = DefectsDB(TEST_DATABASE, tag=('DetStatusDEFECTS-dqd-test','HEAD'))
     iovs = ddb2.retrieve(nonpresent=True)
     assert len(iovs) == 2
     assert ((iovs[0].channel, iovs[0].since, iovs[0].until,
@@ -788,7 +847,45 @@ def test_reject_duplicate_names():
     except DefectExistsError:
         wasthrown = True
     assert wasthrown, 'Creation of duplicate defects should throw, even with different case'
-    
+
+    wasthrown = False
+    try:
+        ddb.create_defect('A_test_defect_2', 'A test defect 2')
+        ddb.rename_defect('A_test_defect_2', 'A_TEST_DEFECT')
+    except DefectExistsError:
+        wasthrown = True
+    assert wasthrown, 'Rename of defect to existing defect name should throw'
+
+    ddb.new_virtual_defect('TEST_VIRTUAL_DEFECT', 'Comment', 'A_TEST_DEFECT')
+    wasthrown = False
+    try:
+        ddb.new_virtual_defect('Test_Virtual_Defect', 'Comment', 'A_TEST_DEFECT')
+    except DefectExistsError:
+        wasthrown = True
+    assert wasthrown, 'Creation of duplicate virtual defects should throw'
+
+    ddb.new_virtual_defect('Test_Virtual_Defect_2', 'Comment', 'A_TEST_DEFECT')
+    wasthrown = False
+    try:
+        ddb.rename_defect('Test_Virtual_Defect_2', 'TEST_VIRTUAL_DEFECT')
+    except DefectExistsError:
+        wasthrown = True
+    assert wasthrown, 'Rename of virtual defect to existing virtual defect name should throw'
+
+    wasthrown = False
+    try:
+        ddb.rename_defect('Test_Virtual_Defect_2', 'A_TEST_DEFECT')
+    except DefectExistsError:
+        wasthrown = True
+    assert wasthrown, 'Rename of virtual defect to existing defect name should throw'
+
+    wasthrown = False
+    try:
+        ddb.rename_defect('A_TEST_DEFECT', 'TEST_VIRTUAL_DEFECT')
+    except DefectExistsError:
+        wasthrown = True
+    assert wasthrown, 'Rename of defect to existing virtual defect name should throw'
+   
 @with_setup(create_database, teardown_database)
 def test_get_intolerable_defects():
     '''
@@ -845,3 +942,57 @@ def test_noncontiguous_defectid_creation():
     assert m == {0: 'DQD_TEST_DEFECT_0', 1: 'DQD_TEST_DEFECT_1', 2: 'TEST_DEFECT_DQD_2', 3: 'DQD_TEST_DEFECT_3', 'DQD_TEST_DEFECT_3': 3, 'DQD_TEST_DEFECT_0': 0, 'DQD_TEST_DEFECT_1': 1, 'TEST_DEFECT_DQD_2': 2}, 'Primary defect problem'
     ids, names, m = ddb.get_virtual_channels()
     assert m == {2147483648: 'DQD_TEST_VIRTUAL_DEFECT', 2147483649: 'DQD_TEST_VIRTUAL_DEFECT_2', 'DQD_TEST_VIRTUAL_DEFECT': 2147483648, 'DQD_TEST_VIRTUAL_DEFECT_2': 2147483649}, 'Virtual defect problem'
+
+@with_setup(create_database, teardown_database)
+def test_return_types():
+    """
+    Test that return types are appropriate
+    """
+    ddb = DefectsDB(TEST_DATABASE, read_only=False)
+    
+    # Create a defect
+    create_defect_type(ddb, 0)
+    did = ddb.new_virtual_defect("DQD_TEST_VIRTUAL_DEFECT",
+                                 "Comment", "DQD_TEST_DEFECT_0")
+    assert type(did) == int
+    
+    ddb.insert("DQD_TEST_DEFECT_0",   0, 100, "", "")
+    
+    dtag = ddb.new_defects_tag("dqd-test", "New iov tag")
+    assert type(dtag) == str, f'{type(dtag)} instead of str'
+    ltag = ddb.new_logics_tag()
+    assert type(ltag) == str
+    htag = ddb.new_hierarchical_tag(dtag, ltag)
+    assert type(htag) == str
+
+    assert type(ddb.defects_tags) == list, f'{type(ddb.defects_tags)} instead of list'
+    assert type(ddb.defects_tags[0]) == str, f'{type(ddb.defects_tags[0])} instead of str'
+    assert type(ddb.logics_tags) == list, f'{type(ddb.logics_tags)} instead of list'
+    assert type(ddb.logics_tags[0]) == str, f'{type(ddb.logics_tags[0])} instead of str'
+    assert type(ddb.tags) == list, f'{type(ddb.tags)} instead of list'
+    assert type(ddb.tags[0]) == str, f'{type(ddb.tags[0])} instead of str'
+
+    ids, names, _ = ddb.get_channels()
+    ids = set(ids); names = set(names)  # Duplicate so we don't stomp on the underlying data
+    assert type(ids.pop()) == int
+    assert type(names.pop()) == str
+    ids, names, _ = ddb.get_virtual_channels()
+    ids = set(ids); names = set(names)
+    assert type(ids.pop()) == int
+    assert type(names.pop()) == str
+    
+    iov = ddb.retrieve()
+    assert type(iov[0].channel) == str
+    assert type(iov[0].comment) == str
+    assert type(iov[0].user) == str
+    assert type(iov[0].present) == bool
+    assert type(iov[0].recoverable) == bool
+
+    assert type(ddb.all_defect_descriptions["DQD_TEST_DEFECT_0"]) == str, str(ddb.all_defect_descriptions)
+    assert type(ddb.all_defect_descriptions["DQD_TEST_VIRTUAL_DEFECT"]) == str, str(ddb.all_defect_descriptions)
+
+    ddb2 = DefectsDB(TEST_DATABASE, read_only=False, tag=htag)
+    assert type(ddb2.defects_tag) == str
+    assert type(ddb2.logics_tag) == str
+    assert type(ddb2.tag.defects) == str
+    assert type(ddb2.tag.logic) == str
