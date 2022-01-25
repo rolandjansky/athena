@@ -6,6 +6,7 @@
 + AtlasGeometryCommon/BeamPipeGeoModel
 + AtlasGeometryCommon/GeoModelEnvelopes
 + AtlasGeometryCommon/SubDetectorEnvelopes
++ AtlasTest/CITest
 + AtlasTest/TestTools
 + Calorimeter/CaloAlignment/CaloAlignmentTools
 + Calorimeter/CaloCnv/CaloDetMgrDetDescrCnv

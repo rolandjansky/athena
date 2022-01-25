@@ -16,6 +16,11 @@ project( WorkDir )
 set( CMAKE_CUDA_ARCHITECTURES "52" CACHE STRING
    "CUDA architectures to build code for" )
 
+# Enable the CI tests in the CITest package in case the user wants to
+# run them locally:
+set( ATLAS_ENABLE_CI_TESTS TRUE CACHE BOOL
+   "Set up tests in CITest package" )
+
 # Let the user pick up updated AtlasCMake/AtlasLCG versions for testing.
 # Remember that it's not a problem if AtlasCMake is not found, that's why
 # we use the QUIET keyword.

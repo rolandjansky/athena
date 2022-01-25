@@ -22,6 +22,7 @@
 # intended for analysis.
 
 + AsgExternal/Asg_Test
++ AtlasTest/CITest
 + AtlasTest/TestTools
 + Calorimeter/CaloGeoHelpers
 + Control/AthContainers
