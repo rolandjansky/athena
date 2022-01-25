@@ -53,7 +53,7 @@ def TrigMETMonConfig(inputFlags):
     # TrigMETMonAlg.TriggerChain = 'HLT_xe30_cell_L1XE10'
     # without filters, all events are processed.
     if mt_chains:
-      TrigMETMonChain1Alg.TriggerChain = 'HLT_xe65_cell_L1XE50'
+      TrigMETMonChain1Alg.TriggerChain = 'HLT_xe80_cell_xe115_tcpufit_L1XE50'
     else:
       TrigMETMonChain1Alg.TriggerChain = 'HLT_xe110_pufit_xe65_L1XE50'
 
@@ -149,54 +149,18 @@ def TrigMETMonConfig(inputFlags):
     if len(metChains) > 0:
         HLTChains = metChains
     for i,chain in enumerate(HLTChains):
-        index = str(i+1) if i > 8 else '0' + str(i+1)
+        index = chr(i + 65)
         setattr(TrigMETMonAlg, 'HLTChain' + index, chain)
       
     ### these are default chains ######
-      #TrigMETMonAlg.L1Chain02 = 'L1_XE50'
-      #TrigMETMonAlg.L1Chain02 = 'L1_jXENC50'
-      #TrigMETMonAlg.L1Chain03 = 'L1_jXERHO50'
-      #TrigMETMonAlg.L1Chain04 = 'L1_gXENC50'
-      #TrigMETMonAlg.L1Chain05 = 'L1_gXERHO50'
-      #TrigMETMonAlg.L1Chain06 = 'L1_gXEJWOJ50'
-      #TrigMETMonAlg.L1Chain07 = 'L1_gXEPUFIT50'
-      #TrigMETMonAlg.HLTChain01 = 'HLT_xe65_cell_L1XE50'
-      #TrigMETMonAlg.HLTChain02 = 'HLT_xe100_mht_L1XE50'
-      #TrigMETMonAlg.HLTChain03 = 'HLT_xe100_tcpufit_L1XE50'
-      #TrigMETMonAlg.HLTChain04 = 'HLT_xe100_trkmht_L1XE50'
-      #TrigMETMonAlg.HLTChain05 = 'HLT_xe100_pfsum_L1XE50'
-      #TrigMETMonAlg.HLTChain06 = 'HLT_xe100_pfopufit_L1XE50'
-      #TrigMETMonAlg.HLTChain07 = 'HLT_xe100_cvfpufit_L1XE50'
-      #TrigMETMonAlg.HLTChain08 = 'HLT_xe100_mhtpufit_em_subjesgscIS_L1XE50'
-      #TrigMETMonAlg.HLTChain09 = 'HLT_xe100_mhtpufit_pf_subjesgscIS_L1XE50'
-      #TrigMETMonAlg.HLTChain10 = 'HLT_xe100_pfsum_cssk_L1XE50'
-      #TrigMETMonAlg.HLTChain11 = 'HLT_xe100_pfsum_vssk_L1XE50'
-      #TrigMETMonAlg.HLTChain12 = 'HLT_xe65_cell_xe110_tcpuft_L1XE50'
-      #TrigMETMonAlg.HLTChain13 = 'HLT_xe100_trkmht_xe85_tcpufit_xe65_cell_L1XE50'
-      #TrigMETMonAlg.HLTChain14 = 'HLT_xe95_trkmht_xe90_tcpufit_xe75_cell_L1XE50'
-    TrigMETMonAlg.L1Chain01 = L1Chains[0]
-    TrigMETMonAlg.L1Chain02 = L1Chains[1]
-    TrigMETMonAlg.L1Chain03 = L1Chains[2]
-    TrigMETMonAlg.L1Chain04 = L1Chains[3]
-    TrigMETMonAlg.L1Chain05 = L1Chains[4]
-    TrigMETMonAlg.L1Chain06 = L1Chains[5]
-    TrigMETMonAlg.L1Chain07 = L1Chains[6]
-    # TrigMETMonAlg.HLTChain01 = HLTChains[0]
-    # TrigMETMonAlg.HLTChain02 = HLTChains[1]
-    # TrigMETMonAlg.HLTChain03 = HLTChains[2]
-    # TrigMETMonAlg.HLTChain04 = HLTChains[3]
-    # TrigMETMonAlg.HLTChain05 = HLTChains[4]
-    # TrigMETMonAlg.HLTChain06 = HLTChains[5]
-    # TrigMETMonAlg.HLTChain07 = HLTChains[6]
-    # TrigMETMonAlg.HLTChain08 = HLTChains[7]
-    # TrigMETMonAlg.HLTChain09 = HLTChains[8]
-    # TrigMETMonAlg.HLTChain10 = HLTChains[9]
-    # TrigMETMonAlg.HLTChain11 = HLTChains[10]
-    # TrigMETMonAlg.HLTChain12 = HLTChains[11]
-    # TrigMETMonAlg.HLTChain13 = HLTChains[12]
-    # TrigMETMonAlg.HLTChain14 = HLTChains[13]    
-
-
+    TrigMETMonAlg.L1ChainA = L1Chains[0]
+    TrigMETMonAlg.L1ChainB = L1Chains[1]
+    TrigMETMonAlg.L1ChainC = L1Chains[2]
+    TrigMETMonAlg.L1ChainD = L1Chains[3]
+    TrigMETMonAlg.L1ChainE = L1Chains[4]
+    TrigMETMonAlg.L1ChainF = L1Chains[5]
+    TrigMETMonAlg.L1ChainG = L1Chains[6]
+ 
     ### STEP 4 ###
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the
     # standard one that is included with AthMonitorAlgorithm.
@@ -211,7 +175,7 @@ def TrigMETMonConfig(inputFlags):
     metGroup = helper.addGroup(TrigMETMonAlg,'TrigMETMonitor','HLT/METMon/')
 
     # Add a GMT for the other example monitor algorithm
-    metChain1Group = helper.addGroup(TrigMETMonChain1Alg,'TrigMETMonitor','HLT/METMon/HLT_xe65_cell_L1XE50/')
+    metChain1Group = helper.addGroup(TrigMETMonChain1Alg,'TrigMETMonitor','HLT/METMon/HLT_xe80_cell_xe115_tcpufit_L1XE50/')
 
     ### STEP 5 ###
     # Configure histograms
@@ -274,6 +238,22 @@ def TrigMETMonConfig(inputFlags):
                            path='Expert/HLT_ElMu',xbins=10,xmin=0,xmax=10)
     metGroup.defineHistogram('hlt_mu_pt',title='HLT Muon p_{T};p_{T} [GeV];Events',
                            path='Expert/HLT_ElMu',xbins=100,xmin=0,xmax=100)
+    ## Topoclusters
+    metGroup.defineHistogram('hlt_topoclusters_mult',title='HLT Topoclusters Multiplicity;Number of Clusters;Events',
+                           path='Expert/Topoclusters',xbins=120,xmin=0,xmax=1200)
+    metGroup.defineHistogram('hlt_topoclusters_pt',title='HLT Topoclusters p_{T};p_{T} [GeV];Events',
+                           path='Expert/Topoclusters',xbins=50,xmin=0,xmax=20)
+    ## Tracks 
+    metGroup.defineHistogram('hlt_tracks_mult',title='HLT Tracks Multiplicity;Number of Tracks;Events',
+                           path='Expert/Tracks',xbins=120,xmin=0,xmax=1200)
+    metGroup.defineHistogram('hlt_tracks_pt',title='HLT Tracks p_{T};p_{T} [GeV];Events',
+                           path='Expert/Tracks',xbins=50,xmin=0,xmax=20)
+    ## Vertices
+    metGroup.defineHistogram('hlt_vertex_mult',title='HLT Vertex Multiplicity;Number of Vertexs;Events',
+                           path='Expert/Vertex',xbins=50,xmin=0,xmax=50)
+    metGroup.defineHistogram('hlt_vertex_z',title='HLT Vertex Z;Vertex Z [mm];Events',
+                           path='Expert/Vertex',xbins=100,xmin=-200,xmax=200)
+    
     ## L1
     algsL1 = ["roi", "jnc", "jrho", "gnc", "grho", "gjwoj", "gpufit"]
     for alg in algsL1:
@@ -332,7 +312,7 @@ def TrigMETMonConfig(inputFlags):
                              xbins=eta_bins_2d,xmin=eta_min,xmax=eta_max,ybins=phi_bins_2d,ymin=phi_min,ymax=phi_max)
     ## L1 efficiency
     ii = 0
-    effL1 = ["01", "02", "03", "04", "05", "06", "07"]
+    effL1 = ["A", "B", "C", "D", "E", "F", "G"]
     for eff in effL1:
       metGroup.defineHistogram('offline_Et,pass_L1{a};{b}_eff'.format(a=eff,b=L1Chains[ii]), type='TProfile',title='L1{} efficiency;offline E_{{T}} [GeV];Efficiency'.format(eff),
                              path='Shifter/eff',xbins=eff_bins,xmin=eff_min,xmax=eff_max)
@@ -345,7 +325,7 @@ def TrigMETMonConfig(inputFlags):
     #                          path='Shifter/eff',xbins=eff_bins,xmin=eff_min,xmax=eff_max)
     #   jj +=1
     for i,chain in enumerate(HLTChains):
-        index = str(i+1) if i > 8 else '0' + str(i+1)
+        index = chr(i + 65)
         metGroup.defineHistogram('offline_Et,pass_HLT{a};{b}_eff'.format(a=index,b=chain),
                                  type='TProfile',
                                  title='HLT{} efficiency;offline E_{{T}} [GeV];Efficiency'.format(index),
@@ -397,10 +377,13 @@ def TrigMETMonConfig(inputFlags):
              "ObjInCrack",         # bit 30
              "GlobError"           # bit 31
              ]
+
+    metGroup.defineHistogram('act_IPBC', type='TH1F',title='Actual IPBC;Actual IPBC;Events',
+                             path='Shifter/Component',xbins=100,xmin=0,xmax=100)
     metGroup.defineHistogram('HLT_MET_status',type='TH1F',title='HLT MET Status;;',
                              weight='MET_status',
                              path='Shifter/Component',
-                             xbins=len(bit_names),xmin=-0.5,xmax=31.5, xlabels=bit_names)
+                             xbins=len(bit_names),xmin=-0.5,xmax=31.5, xlabels=bit_names)	  
     metGroup.defineHistogram('HLT_MET_component,component_Et;compN_compEt', type='TH2F', title='HLT Missing E_{T} VS component;;Missing E_{T} [GeV]',
                              path='Shifter/Component',
                              xbins=25,xmin=-0.5,xmax=24.5,ybins=et_bins,ymin=et_min,ymax=et_max,
