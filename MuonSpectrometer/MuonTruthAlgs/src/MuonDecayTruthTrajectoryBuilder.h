@@ -17,20 +17,20 @@ namespace Muon {
     public:
         MuonDecayTruthTrajectoryBuilder(const std::string& type, const std::string& name, const IInterface* parent);
 
-        virtual StatusCode initialize();
+       
 
-        void buildTruthTrajectory(TruthTrajectory* result, HepMC::ConstGenParticlePtr input) const;
+        void buildTruthTrajectory(TruthTrajectory* result, HepMC::ConstGenParticlePtr input) const override;
 
         /** Returns an umambiguous mother of the truth particle on a TruthTrajectory, or 0.
          * Implemented via truthTrajectoryCuts().
          */
-        HepMC::ConstGenParticlePtr getMother(HepMC::ConstGenParticlePtr particle) const;
+        HepMC::ConstGenParticlePtr getMother(HepMC::ConstGenParticlePtr particle) const override;
 
         /** Returns an umambiguous daughter of the truth particle on a TruthTrajectory, or 0.
          * This assumes no one mother can correspond to no more than one daughter.
          * Implemented via truthTrajectoryCuts().
          */
-        HepMC::ConstGenParticlePtr getDaughter(HepMC::ConstGenParticlePtr particle) const;
+        HepMC::ConstGenParticlePtr getDaughter(HepMC::ConstGenParticlePtr particle) const override;
 
     private:
         /** Return type for the next method */

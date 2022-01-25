@@ -24,10 +24,6 @@ namespace Muon {
     {
         declareInterface<Trk::ITruthTrajectoryBuilder>(this);
     }
-
-    //================================================================
-    StatusCode MuonDecayTruthTrajectoryBuilder::initialize() { return StatusCode::SUCCESS; }
-
     //================================================================
     void MuonDecayTruthTrajectoryBuilder::buildTruthTrajectory(TruthTrajectory* result, HepMC::ConstGenParticlePtr input) const {
         result->clear();
