@@ -112,12 +112,14 @@ default_options = MTCalibPebHypoOptions()
 
 def set_flags(flags, options=default_options):
     flags.Common.isOnline = True
+    flags.Input.Files = []
     flags.Input.Format = Format.BS
     flags.Input.isMC = False
     flags.IOVDb.DatabaseInstance = 'CONDBR2'
     flags.IOVDb.GlobalTag = flags.Trigger.OnlineCondTag
     flags.Trigger.doHLT = True
     flags.Trigger.EDMVersion = 3
+    flags.Trigger.Online.isPartition = True
     flags.Trigger.triggerMenuSetup = 'Dev_pp_run3_v1'
     flags.Trigger.enableL1MuonPhase1 = options.EnableL1MuonPhase1
     flags.Trigger.enableL1CaloPhase1 = options.EnableL1CaloPhase1
@@ -398,3 +400,18 @@ def write_dummy_menu_json(flags, chains, chain_to_streams):
         json.dump(hlt_ps_dict, json_file, indent=4, sort_keys=False)
 
     return _menu_file_name
+
+
+# unit test
+if __name__ == '__main__':
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior=1
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+    set_flags(flags)
+    flags.lock()
+
+    acc = l1_seq_cfg(flags)
+    acc.merge(hlt_seq_cfg(flags,num_chains=3))
+    acc.printConfig(withDetails=True)
+    with open("MTCalibPebConfigTest.pkl", "wb") as file:
+        acc.store(file)
