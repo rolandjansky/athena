@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHVIdMappingAlg.h"
@@ -51,13 +51,13 @@ StatusCode LArHVIdMappingAlg::execute() {
     ATH_MSG_WARNING( " Cannot find /LAR/IdentifierOfl/HVLineToElectrodeMap from database, Use ASCII file indeed !!!");
   }
 
-  const CaloCell_ID* calocellID;
+  const CaloCell_ID* calocellID = nullptr;
   ATH_CHECK(detStore()->retrieve(calocellID,"CaloCell_ID"));
 
-  const LArHVLineID* hvlineID;
+  const LArHVLineID* hvlineID = nullptr;
   ATH_CHECK(detStore()->retrieve(hvlineID,"LArHVLineID"));
   
-  const LArElectrodeID* electrodeID;
+  const LArElectrodeID* electrodeID = nullptr;
   ATH_CHECK(detStore()->retrieve(electrodeID,"LArElectrodeID"));
 
   std::unique_ptr<LArHVIdMapping> HVIdMap = std::make_unique<LArHVIdMapping>(calocellID, hvlineID, electrodeID);
