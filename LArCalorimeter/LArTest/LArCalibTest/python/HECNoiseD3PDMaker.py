@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #
 # D3PDMaker
@@ -53,8 +53,7 @@ class HECNoiseD3PDMaker(PyAthena.Alg):
         self.cond = PyAthena.py_svc('StoreGateSvc/ConditionStore')
         self.det = PyAthena.py_svc("StoreGateSve/DetectorStore")
         self.LArOID = self.det.retrieve("LArOnlineID","LArOnlineID")
-        self.cdd = PyAthena.CaloDetDescrManager.instance()
-        self.cid = self.cdd.getCaloCell_ID()
+        self.cid = self.det.retrieve("CaloCell_ID","CaloCell_ID")
         self.tdt = PyAthena.py_tool('Trig::TrigDecisionTool/TrigDecisionTool')
         self.ntfile =  ROOT.TFile(self.NtupleFileName,"RECREATE")
         self.hectree = ROOT.TTree("HECNoise","HECNoise")
@@ -133,6 +132,8 @@ class HECNoiseD3PDMaker(PyAthena.Alg):
         lcs=lcsCont.find(eid)
         pedCont = self.cond.retrieve("CondCont<ILArPedestal>","LArPedestal")
         ped=pedCont.find(eid)
+        cddCont = self.cond.retrieve("CondCont<CaloDetDescrManager>","CaloDetDescrManager")
+        cdd=cddCont.find(eid)
         # filter low gain cells
         passedTrigger = False
         foundLowCell = False
@@ -209,7 +210,7 @@ class HECNoiseD3PDMaker(PyAthena.Alg):
                             self.t[0] = rcell.time()
                             self.iQuality[0] = rcell.quality()
                             pass
-                        cdde = self.cdd.get_element(oid)
+                        cdde = cdd.get_element(oid)
                         self.eta[0] = cdde.eta()
                         self.phi[0] = cdde.phi()
                         self.z[0] = cdde.z()
