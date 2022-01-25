@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 from TriggerMenuMT.HLT.Menu.MenuComponents import MenuSequence
 from AthenaCommon.CFElements import parOR
@@ -73,10 +73,7 @@ def MbtsHypoToolGen(chainDict):
 def TrigZVertexHypoToolGen(chainDict):
     hypo = CompFactory.TrigZVertexHypoTool(chainDict["chainName"])
     if "pusup" in chainDict["chainName"]:
-        # TODO enable when we setup more chains and have the cuts available
-        # at the moment we require a vertex to be found
-        # hypo.minWeight = int(chainDict["chainParts"][0]["pileupInfo"].strip("pusup"))
-        hypo.minWeight = 1 
+        hypo.minWeight = int(chainDict["chainParts"][0]["pileupInfo"].strip("pusup"))
     else:
         raise RuntimeError("Chain {} w/o pileup suppression required to configure z vertex hypo".format(chainDict["chainName"]))
     return hypo
