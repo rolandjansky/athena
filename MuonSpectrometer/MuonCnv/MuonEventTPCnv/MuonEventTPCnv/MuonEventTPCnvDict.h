@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONEVENTTPCNV_MUONEVENTTPCNVDICT_H
@@ -38,6 +38,7 @@
 #include "MuonEventTPCnv/MuonDigitContainer/CscSimDataCollection_p1.h"
 #include "MuonEventTPCnv/MuonDigitContainer/CscSimDataCollection_p2.h"
 #include "MuonEventTPCnv/MuonRDO/STGC_RawDataContainer_p1.h"
+#include "MuonEventTPCnv/MuonRDO/STGC_RawDataContainer_p2.h"
 #include "MuonEventTPCnv/MuonRDO/MM_RawDataContainer_p1.h"
 #include "MuonEventTPCnv/MuonRDO/MM_RawDataContainer_p2.h"
 #include "MuonEventTPCnv/MuonRDO/NSW_PadTriggerDataContainer_p1.h"
