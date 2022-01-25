@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import Logging
 
@@ -150,7 +150,8 @@ class bblvlv(PowhegRES):
         self.add_keyword("testsuda")
         self.add_keyword("tmass_phsp")
         self.add_keyword("tmass")
-        self.add_keyword("twidth")
+        self.add_keyword("twidth",-1)
+        self.add_keyword("twidth_phsp",-1)
         self.add_keyword("ubexcess_correct")
         self.add_keyword("ubsigmadetails", -1)  # disable cross-section output to avoid Fortran crash
         self.add_keyword("use-old-grid")

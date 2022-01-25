@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation file for Athena-Rivet interface
@@ -26,6 +26,7 @@
 
 
 #include <cstdlib>
+#include <cstdio>
 #include <memory>
 #include <regex>
 
@@ -218,7 +219,23 @@ StatusCode Rivet_i::finalize() {
 
   // Write out YODA file (add .yoda suffix if missing)
   if (m_file.find(".yoda") == std::string::npos) m_file += ".yoda.gz";
-  m_analysisHandler->writeData(m_file);
+  auto pos = m_file.find(".gz.");
+  if (pos == std::string::npos) {
+    m_analysisHandler->writeData(m_file);
+  }
+  else {//filename is e.g. something.yoda.gz.1
+      //write to output file name without the ".1"
+      m_analysisHandler->writeData(m_file.substr(0, pos)+".gz");
+      // then rename it as the requested output filename
+      if (std::rename((m_file.substr(0, pos)+".gz").c_str(), m_file.c_str()) !=0) {
+	std::string error_msg = "Impossible to rename ";
+	error_msg += m_file.substr(0, pos)+".gz";
+ 	error_msg += " as ";
+	error_msg += m_file;
+	ATH_MSG_ERROR(error_msg.c_str());
+    	return StatusCode::FAILURE;
+    }
+  }
 
   return StatusCode::SUCCESS;
 }
