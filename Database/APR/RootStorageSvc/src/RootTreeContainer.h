@@ -138,7 +138,7 @@ namespace pool  {
     /// Parent Database handle
     DbDatabase         m_dbH;
     /// Root database file reference
-    RootDatabase*         m_rootDb;
+    RootDatabase*      m_rootDb;
     /// Branch name, if branch is specified by user.
     std::string        m_branchName;
     /// Number of bytes written/read during last operation. Set to -1 if it failed.
@@ -199,7 +199,7 @@ namespace pool  {
     virtual DbStatus open(DbDatabase& dbH, 
                           const std::string& nam, 
                           const DbTypeInfo* info,
-                          DbAccessMode mod);
+                          DbAccessMode mod) override;
 
     /// Access options
     /** @param opt      [IN]  Reference to option object.

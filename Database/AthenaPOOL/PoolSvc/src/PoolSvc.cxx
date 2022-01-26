@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file PoolSvc.cxx
@@ -49,6 +49,11 @@
 #include <cstring> 	// for strcmp()
 #include <sys/stat.h> 	// for struct stat
 #include <algorithm> 	// for STL find()
+#include <ctype.h>
+
+bool isNumber(const std::string& s) {
+   return !s.empty() and ( isdigit(s[0]) or s[0]=='+' or s[0]=='-' );
+}
 
 //__________________________________________________________________________
 StatusCode PoolSvc::initialize() {
@@ -836,7 +841,9 @@ StatusCode PoolSvc::setAttribute(const std::string& optName,
             return(StatusCode::FAILURE);
          }
       }
-      if (data[data.size() - 1] == 'L') {
+      if( !isNumber(data) ) {
+         retError = dbH->technologySpecificAttributes().setAttribute(optName, data.c_str(), objName);
+      } else if( data[data.size() - 1] == 'L' ) {
          retError = dbH->technologySpecificAttributes().setAttribute<long long int>(optName, atoll(data.c_str()), objName);
       } else {
          retError = dbH->technologySpecificAttributes().setAttribute<int>(optName, atoi(data.c_str()), objName);
