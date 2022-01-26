@@ -133,7 +133,7 @@ RootTreeContainer::RootTreeContainer()
 
 /// Standard destructor
 RootTreeContainer::~RootTreeContainer()   {
-  close();
+  RootTreeContainer::close();
 }
 
 /// Ask if a given shape is supported
@@ -235,12 +235,18 @@ DbStatus RootTreeContainer::writeObject( ActionList::value_type& action )
           break;
        case DbColumn::STRING:
        case DbColumn::LONG_STRING:
-          p.cptr                = p.string();
+          {
+            const char* s = p.string();
+            p.cptr        = s;
+          }
           break;
        case DbColumn::NTCHAR:
        case DbColumn::LONG_NTCHAR:
           //case DbColumn::TOKEN: PvG not sure wether we should pass *char[]
-          p.ptr                 = p.deref();
+          {
+            void *d = p.deref();
+            p.ptr   = d;
+          }
           break;
        default:
           break;
