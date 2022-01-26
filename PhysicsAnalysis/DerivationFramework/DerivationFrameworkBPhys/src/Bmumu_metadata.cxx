@@ -84,6 +84,9 @@ namespace DerivationFramework {
     // JpsiFinder: TrackThresholdPt
     recordPropertyD("JfTrackThresholdPt", 0.);
     
+    // keep all muons pt cut
+    recordPropertyD("KeepAllMuonsPtCut", -1.);
+
     // muon calibration and smearing tool configuration
     recordPropertyS("McstYear"                 , "Data16");
     recordPropertyS("McstRelease"              , "_NONE_");
@@ -93,7 +96,7 @@ namespace DerivationFramework {
     recordPropertyB("McstDoSagittaMCDistortion", false);
     recordPropertyB("McstSagittaCorrPhaseSpace", true);
     recordPropertyB("McstDoDirectCBCalib"      , false);
-    
+
     // muon collections
     recordPropertyS("MuonCollection"     , "Muons");
     recordPropertyS("CalMuonCollection"  , "Muons");

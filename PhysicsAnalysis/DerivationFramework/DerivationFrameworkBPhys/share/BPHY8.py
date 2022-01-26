@@ -181,6 +181,16 @@ BPHY8cf.doAddSoftBVertices = True
 # Muon collection
 BPHY8cf.MuonCollection = "Muons"
 #
+# Muon thinning pt cut
+#
+# < 0. : keeping of all muons disabled
+# = 0. : keep all muons (original & calibrated)
+# > 0. : keep all muons with a pt > cut value
+#
+# picked up from the environment ('BPHY8_KeepAllMuonsPtCut') if available
+# (for use in --preExec statements)
+BPHY8cf.KeepAllMuonsPtCut = vars().get('BPHY8_KeepAllMuonsPtCut', -1.)
+#
 # Apply MCP calibration to muons? (only for MC)
 #
 # Options:
@@ -239,11 +249,11 @@ BPHY8cf.useCalibratedMuons = 3
 # Page revision r62 (as of 2022-01-13)
 # https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/MCPAnalysisGuidelinesMC16#Momentum_corrections_Precision_R
 #
-#
 # Global settings
 BPHY8cf.McstRelease         = "_READ_"
 BPHY8cf.McstSagittaCorr     = True
 BPHY8cf.McstDoDirectCBCalib = True
+#
 # MC
 if BPHY8cf.isSimulation:
 #
@@ -1866,7 +1876,9 @@ if BPHY8cf.isSimulation:
     ## BPHY8cf.TruthDecayParents += [441, 10441, 100441, 443, 10443, 20443, 100443, 30443, 9000443, 9010443, 9020443, 445, 100445]
     # charmed baryons
     ## BPHY8cf.TruthDecayParents += [4122, 4222, 4212, 4112, 4224, 4214, 4114, 4232, 4132, 4322, 4312, 4324, 4314, 4332, 4334, 4412, 4422, 4414, 4424, 4432, 4434, 4444]
-
+    # Muons
+    if BPHY8cf.KeepAllMuonsPtCut >= 0.:
+        BPHY8cf.TruthDecayParents += [13]
     # compose ParticleSelectionString
     BPHY8_ParticleSelConds = []
     for BPHY8_pdgid in BPHY8cf.TruthDecayParents:
@@ -1957,6 +1969,10 @@ if BPHY8cf.thinLevel > 1:
         KeepMuonsForTracks         = True,
         KeepCalMuonsForTracks      = True,
         KeepCloseTracks            = True,
+        KeepMuons                  = (BPHY8cf.KeepAllMuonsPtCut >= 0.),
+        KeepCalMuons               = (BPHY8cf.KeepAllMuonsPtCut >= 0.),
+        MuonThresholdPt            = BPHY8cf.KeepAllMuonsPtCut,
+        CalMuonThresholdPt         = BPHY8cf.KeepAllMuonsPtCut,
         ThinMuons                  = (BPHY8cf.thinLevel < 5),
         CloseTrackBranchPrefixes   = BPHY8cf.BranchPrefixes,
         CloseTrackBranchBaseName   = BPHY8_IsoTools["TrackVtxCt"].BranchBaseName,
