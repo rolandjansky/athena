@@ -119,6 +119,18 @@ namespace DerivationFramework {
   /// <tr><td valign="top">KeepCalMuonsForTracks</td>
   ///     <td>Keep calibrated muons for selected tracks?
   ///         (default: false)</td></tr>
+  /// <tr><td valign="top">KeepMuons</td>
+  ///     <td>Keep (original) muons?
+  ///         (default: false)</td></tr>
+  /// <tr><td valign="top">KeepCalMuons</td>
+  ///     <td>Keep calibrated muons?
+  ///         (default: false)</td></tr>
+  /// <tr><td valign="top">MuonThresholdPt</td>
+  ///     <td>Threshold pt for (original) muons
+  ///         (default: 0.0)</td></tr>
+  /// <tr><td valign="top">CalMuonThresholdPt</td>
+  ///     <td>Threshold pt for calibrated muons
+  ///         (default: 0.0)</td></tr>
   /// <tr><td valign="top">ApplyAndForVertices</td>
   ///     <td>Apply AND for mask matching for vertices?
   ///         (default: false)</td></tr>
@@ -315,6 +327,19 @@ namespace DerivationFramework {
 				     const xAOD::MuonContainer* muCont,
 				     std::vector<bool>& muMask,
 				     std::string counterName) const;
+    ///
+    /// @brief Mark muons above pt threshold
+    ///
+    /// @param[in,out] muCont        pointer to MuonContainer
+    /// @param[in]     muMask        mask for muons
+    /// @param[in]     muThresholdPt minimum pt for muon to be kept
+    /// @param[in]     counterName   base name for counters
+    /// @returns       StatusCode
+    ///
+    StatusCode markMuonsByPtThreshold(const xAOD::MuonContainer* muCont,
+                                      std::vector<bool>& muMask,
+                                      double muThresholdPt,
+                                      std::string counterName) const;
     /// @}
     ///
 
@@ -411,6 +436,8 @@ namespace DerivationFramework {
     std::string                 m_calMuonContName;
     std::string                 m_ctBranchBaseName;
     std::vector<std::string>    m_ctBranchPrefixes;
+    double                      m_muonThresholdPt;
+    double                      m_calMuonThresholdPt;
     bool                        m_alignPassToVertexList;
     bool                        m_keepPVTracks;
     bool                        m_matchCalMuons;
@@ -422,6 +449,8 @@ namespace DerivationFramework {
     bool                        m_keepSelCalMuonTracks;
     bool                        m_keepSelTrackMuons;
     bool                        m_keepSelTrackCalMuons;
+    bool                        m_keepMuons;
+    bool                        m_keepCalMuons;
     bool                        m_allowFastMuonMaskSync;
     bool                        m_thinPVs;
     bool                        m_thinRefPVs;

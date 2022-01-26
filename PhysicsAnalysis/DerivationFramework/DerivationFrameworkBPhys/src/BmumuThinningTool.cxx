@@ -112,6 +112,14 @@ namespace DerivationFramework {
     declareProperty("KeepMuonsForTracks"      , m_keepSelTrackMuons = false);
     // keep calibrated muons for selected tracks
     declareProperty("KeepCalMuonsForTracks"   , m_keepSelTrackCalMuons = false);
+    // keep (original) muons
+    declareProperty("KeepMuons"               , m_keepMuons = false);
+    // keep calibrated muons
+    declareProperty("KeepCalMuons"            , m_keepCalMuons = false);
+    // (Original) muons threshold pt (for KeepMuons)
+    declareProperty("MuonThresholdPt"         , m_muonThresholdPt = 0.);
+    // Calibrated muons threshold pt (for KeepCalMuons)
+    declareProperty("CalMuonThresholdPt"      , m_calMuonThresholdPt = 0.);
     // apply AND for mask matching for vertices (default: false)
     declareProperty("ApplyAndForVertices"     , m_vertexAnd = false);
     // apply AND for mask matching for tracks (default: false)
@@ -298,6 +306,10 @@ namespace DerivationFramework {
     ATH_MSG_INFO("KeepTracksForCalMuons    : " << m_keepSelCalMuonTracks);
     ATH_MSG_INFO("KeepMuonsForTracks       : " << m_keepSelTrackMuons);
     ATH_MSG_INFO("KeepCalMuonsForTracks    : " << m_keepSelTrackCalMuons);
+    ATH_MSG_INFO("KeepMuons                : " << m_keepMuons);
+    ATH_MSG_INFO("KeepCalMuons             : " << m_keepCalMuons);
+    ATH_MSG_INFO("MuonThresholdPt          : " << m_muonThresholdPt);
+    ATH_MSG_INFO("CalMuonThresholdPt       : " << m_calMuonThresholdPt);
     ATH_MSG_INFO("ApplyAndForVertices      : " << m_vertexAnd);
     ATH_MSG_INFO("ApplyAndForTracks        : " << m_trackAnd);
     ATH_MSG_INFO("ApplyAndForMuons         : " << m_muonAnd);
@@ -375,6 +387,12 @@ namespace DerivationFramework {
       // default: keep no muon
       muonMask.assign(muonCont->size(), false);
     }
+
+    // keep all muons (above certain pt threshold)
+    if ( m_keepMuons ) {
+      CHECK( markMuonsByPtThreshold(muonCont, muonMask, m_muonThresholdPt,
+                                    "addMuonsByThresholdPt") );
+    }
     
     // retrieve container of calibrated muons
     const xAOD::MuonContainer* calMuonCont = nullptr;
@@ -384,7 +402,14 @@ namespace DerivationFramework {
       // default: keep no muon
       calMuonMask.assign(calMuonCont->size(), false);
     }
-    
+
+    // keep all calibrated muons (above certain pt threshold)
+    if ( m_keepCalMuons ) {
+      CHECK( markMuonsByPtThreshold(calMuonCont, calMuonMask,
+                                    m_calMuonThresholdPt,
+                                    "addCalMuonsByThresholdPt") );
+    }
+
     // retrieve vertex containers
     for (size_t ivcname=0; ivcname < m_vtxContNames.size(); ++ivcname) {
       auto &vtxContName = m_vtxContNames[ivcname];
@@ -747,8 +772,8 @@ namespace DerivationFramework {
     } // if m_doRefPVs
     
     // Apply the thinning service for (original) Muons based on muonMask
+    addToCounter(m_muonContName+"_allMuons", muonCont->size());
     if ( m_thinMuons && m_doMuons ) {
-      addToCounter(m_muonContName+"_allMuons", muonCont->size());
       addToCounter(m_muonContName+"_passedMuons",
                    std::accumulate(muonMask.begin(), muonMask.end(), 0));      
       CHECK( applyThinMask(muonCont, muonMask, m_muonAnd,
@@ -756,8 +781,8 @@ namespace DerivationFramework {
     } // if m_thinMuons && m_doMuons
     
     // Apply the thinning service for calibrated Muons based on calMuonMask
+    addToCounter(m_calMuonContName+"_allMuons", calMuonCont->size());
     if ( m_thinMuons && m_doCalMuons ) {
-      addToCounter(m_calMuonContName+"_allMuons", calMuonCont->size());
       addToCounter(m_calMuonContName+"_passedMuons",
                    std::accumulate(calMuonMask.begin(), calMuonMask.end(),
                                    0));      
@@ -1152,6 +1177,33 @@ namespace DerivationFramework {
     return StatusCode::SUCCESS;
   }
   
+  //--------------------------------------------------------------------------
+  // Mark muons above pt threshold
+  //--------------------------------------------------------------------------
+  StatusCode
+  BmumuThinningTool::markMuonsByPtThreshold(const xAOD::MuonContainer* muCont,
+                                            std::vector<bool>& muMask,
+                                            double muThresholdPt,
+                                            std::string counterName) const {
+
+    if ( muThresholdPt > 0. ) {
+      for (size_t imu=0; imu < muCont->size(); ++imu) {
+        const xAOD::Muon* muon = muCont->at(imu);
+        if ( muon == nullptr ) continue;
+        const xAOD::TrackParticle* muonTrk = *(muon->inDetTrackParticleLink());
+        if ( muonTrk == nullptr ) continue;
+        if ( std::abs(muonTrk->pt()) < muThresholdPt ) continue;
+        muMask[imu] = true;
+        addToCounter(counterName);
+      } // for imu
+    } else {
+      // mark all muons in container for keeping
+      muMask.assign(muCont->size(), true);
+      addToCounter(counterName, muCont->size());
+    }
+    return StatusCode::SUCCESS;
+  }
+
   //--------------------------------------------------------------------------
   // Check two masks for consistency
   //--------------------------------------------------------------------------
