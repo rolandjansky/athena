@@ -1,13 +1,13 @@
-#include "MuonJiveXML/CSCClusterRetriever.h"
-#include "MuonJiveXML/TgcPrepDataRetriever.h"
-#include "MuonJiveXML/CscPrepDataRetriever.h"
-#include "MuonJiveXML/MdtPrepDataRetriever.h"
-#include "MuonJiveXML/RpcPrepDataRetriever.h"
-//#include "MuonJiveXML/MuidTrackRetriever.h"
-#include "MuonJiveXML/TrigRpcDataRetriever.h"
-#include "MuonJiveXML/TrigMuonROIRetriever.h"
-#include "MuonJiveXML/sTgcPrepDataRetriever.h"
-#include "MuonJiveXML/MMPrepDataRetriever.h"
+#include "../CSCClusterRetriever.h"
+#include "../TgcPrepDataRetriever.h"
+#include "../CscPrepDataRetriever.h"
+#include "../MdtPrepDataRetriever.h"
+#include "../RpcPrepDataRetriever.h"
+//#include "MuidTrackRetriever.h"
+#include "../TrigRpcDataRetriever.h"
+#include "../TrigMuonROIRetriever.h"
+#include "../sTgcPrepDataRetriever.h"
+#include "../MMPrepDataRetriever.h"
 
 using namespace JiveXML;
 

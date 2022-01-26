@@ -2,9 +2,9 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonJiveXML/MMPrepDataRetriever.h"
+#include "MMPrepDataRetriever.h"
 
-#include "MuonJiveXML/MuonFullIDHelper.h"
+#include "MuonFullIDHelper.h"
 #include "MuonReadoutGeometry/MMReadoutElement.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonReadoutGeometry/MuonChannelDesign.h"
@@ -18,13 +18,11 @@ namespace JiveXML {
   //--------------------------------------------------------------------------
 
   MMPrepDataRetriever::MMPrepDataRetriever(const std::string& type,const std::string& name, const IInterface* parent):
-    AthAlgTool(type, name, parent),
-    m_typeName("MM")
+    AthAlgTool(type, name, parent)
   {
 
     declareInterface<IDataRetriever>(this);
     
-    declareProperty("StoreGateKey", m_sgKey = "MM_Measurements", "Storegate key for MM PredData container");
   }
  
   //--------------------------------------------------------------------------
@@ -32,6 +30,7 @@ namespace JiveXML {
   StatusCode MMPrepDataRetriever::initialize(){
     
     ATH_MSG_DEBUG("Initializing retriever for " << dataTypeName());
+    ATH_CHECK(m_sgKey.initialize());
 
     ATH_CHECK( m_idHelperSvc.retrieve() );
 
@@ -43,13 +42,9 @@ namespace JiveXML {
   StatusCode MMPrepDataRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     //be verbose
-    ATH_MSG_DEBUG("Retrieving " << dataTypeName());
+    ATH_MSG_VERBOSE("Retrieving " << dataTypeName());
 
-    const Muon::MMPrepDataContainer *mmContainer=nullptr;
-    if ( evtStore()->retrieve(mmContainer, m_sgKey).isFailure() ) {
-      ATH_MSG_DEBUG("Muon::MMPrepDataContainer '" << m_sgKey << "' was not retrieved.");
-      return StatusCode::SUCCESS;
-    }
+    SG::ReadHandle<Muon::MMPrepDataContainer> mmContainer(m_sgKey);
 
     int ndata = 0;
     for (const auto mmCollection : *mmContainer){
@@ -113,6 +108,6 @@ namespace JiveXML {
     // Atlantis can't deal with SGkey in xml output in CSCD (freezes)
     // So not output SGKey for now. jpt 20Aug09
     std::string emptyStr="";
-    return FormatTool->AddToEvent(dataTypeName(), emptyStr, &myDataMap);
+    return FormatTool->AddToEvent(dataTypeName(), m_sgKey.key(), &myDataMap);  
   }
 }
