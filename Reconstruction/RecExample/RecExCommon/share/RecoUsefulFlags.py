@@ -19,11 +19,6 @@ try:
 except Exception:
     printfunc ("WARNING could not load DQMonFlags")
     
-try:
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-except Exception:
-    printfunc ("WARNING could not load TriggerFlags")
-
 #      from InDetRecExample.InDetJobProperties import InDetFlags
 try:
     from LArConditionsCommon.LArCondFlags import larCondFlags
