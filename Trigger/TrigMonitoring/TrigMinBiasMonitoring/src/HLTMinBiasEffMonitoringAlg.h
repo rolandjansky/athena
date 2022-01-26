@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGMINBIASMONITORING_HLTEFFICIENCYMONITORINGALG_H
-#define TRIGMINBIASMONITORING_HLTEFFICIENCYMONITORINGALG_H
+#ifndef TRIGMINBIASMONITORING_HLTMINBIASEFFMONITORINGALG_H
+#define TRIGMINBIASMONITORING_HLTMINBIASEFFMONITORINGALG_H
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
 #include "AthenaMonitoringKernel/Monitored.h"
@@ -20,11 +20,11 @@
  * @class HLTEfficiencyMonitoringAlg
  * @brief 
  **/
-class HLTEfficiencyMonitoringAlg : public AthMonitorAlgorithm
+class HLTMinBiasEffMonitoringAlg : public AthMonitorAlgorithm
 {
 public:
-  HLTEfficiencyMonitoringAlg(const std::string &name, ISvcLocator *pSvcLocator);
-  virtual ~HLTEfficiencyMonitoringAlg() override;
+  HLTMinBiasEffMonitoringAlg(const std::string &name, ISvcLocator *pSvcLocator);
+  virtual ~HLTMinBiasEffMonitoringAlg() override;
 
   virtual StatusCode initialize() override;
   virtual StatusCode fillHistograms(const EventContext &context) const override;
@@ -44,4 +44,4 @@ private:
   
 };
 
-#endif // TRIGMINBIASMONITORING_HLTEFFICIENCYMONITORINGALG_H
+#endif // TRIGMINBIASMONITORING_HLTHLTMINBIASEFFMONITORINGALG_H

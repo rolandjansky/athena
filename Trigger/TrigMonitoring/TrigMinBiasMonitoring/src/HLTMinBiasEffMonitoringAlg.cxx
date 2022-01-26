@@ -1,14 +1,14 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "HLTEfficiencyMonitoringAlg.h"
+#include "HLTMinBiasEffMonitoringAlg.h"
 
-HLTEfficiencyMonitoringAlg::HLTEfficiencyMonitoringAlg(const std::string& name, ISvcLocator* pSvcLocator) : AthMonitorAlgorithm(name, pSvcLocator) {}
+HLTMinBiasEffMonitoringAlg::HLTMinBiasEffMonitoringAlg(const std::string& name, ISvcLocator* pSvcLocator) : AthMonitorAlgorithm(name, pSvcLocator) {}
 
-HLTEfficiencyMonitoringAlg::~HLTEfficiencyMonitoringAlg() {}
+HLTMinBiasEffMonitoringAlg::~HLTMinBiasEffMonitoringAlg() {}
 
-StatusCode HLTEfficiencyMonitoringAlg::initialize()
+StatusCode HLTMinBiasEffMonitoringAlg::initialize()
 {
   using namespace Monitored;
   ATH_CHECK(m_TrigT2MbtsBitsContainerKey.initialize());
@@ -23,12 +23,12 @@ StatusCode HLTEfficiencyMonitoringAlg::initialize()
   return AthMonitorAlgorithm::initialize();
 }
 
-StatusCode HLTEfficiencyMonitoringAlg::finalize()
+StatusCode HLTMinBiasEffMonitoringAlg::finalize()
 {
   return StatusCode::SUCCESS;
 }
 
-StatusCode HLTEfficiencyMonitoringAlg::fillHistograms(const EventContext& context) const
+StatusCode HLTMinBiasEffMonitoringAlg::fillHistograms(const EventContext& context) const
 {
   using namespace Monitored;
 
@@ -36,7 +36,9 @@ StatusCode HLTEfficiencyMonitoringAlg::fillHistograms(const EventContext& contex
 
   auto offlineTrkHandle = SG::makeHandle(m_offlineTrkKey, context);
   int countPassing = 0;
-  int countPassing_pt2 = 0; // count of tracks passing higher pt (here 2 GeV)
+  int countPassing_pt05 = 0; // count of tracks passing higher pt (here 0.5 GeV)
+  int countPassing_pt1 = 0; // count of tracks passing higher pt (here 1 GeV)
+  int countPassing_pt2 = 0; // ...
   int countPassing_pt4 = 0;
   int countPassing_pt6 = 0;
   int countPassing_pt8 = 0;
@@ -47,6 +49,10 @@ StatusCode HLTEfficiencyMonitoringAlg::fillHistograms(const EventContext& contex
       const double pt = std::fabs(trk->pt()) * 1e-3; // fabs used in case the charge is encoded in pt ( i.e. it is really q * pt)
 
       ++countPassing;
+      if (pt > 0.5)
+        ++countPassing_pt05;
+      if (pt > 1.)
+        ++countPassing_pt1;
       if (pt > 2.)
         ++countPassing_pt2;
       if (pt > 4.)
@@ -60,6 +66,8 @@ StatusCode HLTEfficiencyMonitoringAlg::fillHistograms(const EventContext& contex
   }
   ATH_MSG_DEBUG("::monitorTrkCounts countPassing = " << countPassing);
   auto nTrkOffline = Scalar("nTrkOffline", countPassing);
+  auto nTrkOffline_pt05 = Scalar("nTrkOffline_pt05", countPassing_pt05);
+  auto nTrkOffline_pt1 = Scalar("nTrkOffline_pt1", countPassing_pt1);
   auto nTrkOffline_pt2 = Scalar("nTrkOffline_pt2", countPassing_pt2);
   auto nTrkOffline_pt4 = Scalar("nTrkOffline_pt4", countPassing_pt4);
   auto nTrkOffline_pt6 = Scalar("nTrkOffline_pt6", countPassing_pt6);
@@ -77,7 +85,7 @@ StatusCode HLTEfficiencyMonitoringAlg::fillHistograms(const EventContext& contex
       if (!(passBits & TrigDefs::EF_prescaled)) {
         auto decision = ((passBits & TrigDefs::EF_passedRaw) != 0) ? 1 : 0;
         auto effPassed = Scalar<int>("EffPassed", decision);
-        fill(trig + ref, effPassed, nTrkOffline, nTrkOffline_pt2, nTrkOffline_pt4, nTrkOffline_pt6, nTrkOffline_pt8, leadingTrackPt);
+        fill(trig + ref, effPassed, nTrkOffline, nTrkOffline_pt05, nTrkOffline_pt1, nTrkOffline_pt2, nTrkOffline_pt4, nTrkOffline_pt6, nTrkOffline_pt8, leadingTrackPt);
       }
     }
   }

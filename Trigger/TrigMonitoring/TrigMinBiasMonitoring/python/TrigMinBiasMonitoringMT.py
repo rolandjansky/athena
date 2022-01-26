@@ -7,7 +7,7 @@
 """
 from TrigMinBiasMonitoring.TrigMBTSMonitoringMT import TrigMBTS
 from TrigMinBiasMonitoring.TrigSPTRKMonitoringMT import TrigSPTRK
-from TrigMinBiasMonitoring.TrigEffMonitoring import TrigMinBiasEff
+from TrigMinBiasMonitoring.TrigMinBiasEffMonitoring import TrigMinBiasEff
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 
