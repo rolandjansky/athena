@@ -30,7 +30,7 @@ def InDetTrtTrackScoringToolCfg(flags, name ='InDetTRT_StandaloneScoringTool', e
     acc.setPrivateTools(CompFactory.InDet.InDetTrtTrackScoringTool(name, **kwargs))
     return acc
 
-def TRT_SegmentToTrackToolCfg(flags, name ='InDetTRT_SegmentToTrackTool', extension = "", usePrdAssociationTool = True, **kwargs):
+def TRT_SegmentToTrackToolCfg(flags, name ='InDetTRT_SegmentToTrackTool', extension = "", **kwargs):
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     acc = MagneticFieldSvcCfg(flags)
 
@@ -38,7 +38,7 @@ def TRT_SegmentToTrackToolCfg(flags, name ='InDetTRT_SegmentToTrackTool', extens
     # set up TRT_SegmentToTrackTool
     #
 
-    if usePrdAssociationTool:
+    if flags.InDet.Tracking.ActivePass.usePrdAssociationTool:
         asso_tool = acc.popToolsAndMerge( TC.InDetPRDtoTrackMapToolGangedPixelsCfg(flags) )
     else:
         asso_tool = None
@@ -72,9 +72,6 @@ def TRT_SegmentToTrackToolCfg(flags, name ='InDetTRT_SegmentToTrackTool', extens
 def TRT_StandaloneTrackFinderCfg(flags, name ='InDetTRT_StandaloneTrackFinder', extension = "", BarrelSegments = None, prd_to_track_map = '', **kwargs):
     acc = ComponentAccumulator()
 
-    usePrdAssociationTool = True
-    #usePrdAssociationTool = True if len(InputCollections) > 0 else False
-
     if extension == "_TRT":
         TRTStandaloneTracks = 'StandaloneTRTTracks' # InDetKeys.TRTTracks
     else:
@@ -83,8 +80,7 @@ def TRT_StandaloneTrackFinderCfg(flags, name ='InDetTRT_StandaloneTrackFinder', 
     # set up TRT_SegmentToTrackTool
     #
     InDetTRT_SegmentToTrackTool = acc.popToolsAndMerge(TRT_SegmentToTrackToolCfg(flags, name='InDetTRT_SegmentToTrackTool'+ extension,
-                                                                                        extension=extension,
-                                                                                        usePrdAssociationTool = usePrdAssociationTool))
+                                                                                        extension=extension))
     acc.addPublicTool(InDetTRT_SegmentToTrackTool)
 
     kwargs.setdefault("MinNumDriftCircles", flags.InDet.Tracking.ActivePass.minTRTonly)
@@ -103,9 +99,6 @@ def TRT_StandaloneTrackFinderCfg(flags, name ='InDetTRT_StandaloneTrackFinder', 
 def TRT_SegmentsToTrackCfg( flags, name ='InDetTRT_SegmentsToTrack_Barrel', extension = "", BarrelSegments = None, prd_to_track_map = '', **kwargs):
     acc = ComponentAccumulator()
 
-    usePrdAssociationTool = True
-    #usePrdAssociationTool = True if len(InputCollections) > 0 else False
-
     if extension == "_TRT":
         TRTStandaloneTracks = 'StandaloneTRTTracks' # InDetKeys.TRTTracks
     else:
@@ -115,8 +108,7 @@ def TRT_SegmentsToTrackCfg( flags, name ='InDetTRT_SegmentsToTrack_Barrel', exte
     # set up TRT_SegmentToTrackTool
     #
     InDetTRT_SegmentToTrackTool = acc.popToolsAndMerge(TRT_SegmentToTrackToolCfg(flags, name='InDetTRT_SegmentToTrackTool'+ extension,
-                                                                                        extension=extension,
-                                                                                        usePrdAssociationTool = usePrdAssociationTool))
+                                                                                        extension=extension))
     acc.addPublicTool(InDetTRT_SegmentToTrackTool)
 
     #
@@ -151,16 +143,11 @@ def TRT_SegmentsToTrackCfg( flags, name ='InDetTRT_SegmentsToTrack_Barrel', exte
 # ------------------------------------------------------------------------------------
 def TRTStandaloneCfg( flags, extension = '', InputCollections = None, BarrelSegments = None, PRDtoTrackMap = ''):
     acc = ComponentAccumulator()
-    # --- Always use PRD association tool (even if only 1 collection) to remove TRT
-    #     segments with significant overlaping hits 
-    usePrdAssociationTool = True
-    #usePrdAssociationTool = True if len(InputCollections) > 0 else False
-
     #
     # --- get list of already associated hits (always do this, even if no other tracking ran before)
     #
     prd_to_track_map = PRDtoTrackMap
-    if usePrdAssociationTool and extension != "_TRT" :
+    if flags.InDet.Tracking.ActivePass.usePrdAssociationTool and extension != "_TRT" :
         prefix='InDetTRTonly_'
         prd_to_track_map = prefix+'PRDtoTrackMap'+extension
         acc.merge(TC.InDetTrackPRD_AssociationCfg(flags,
@@ -227,46 +214,10 @@ if __name__ == "__main__":
     top_acc.merge(MuonGeoModelCfg(ConfigFlags))
     top_acc.merge(MuonIdHelperSvcCfg(ConfigFlags))
 
-    from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
-    ###
-    ###
-    top_acc.merge(TC.PixelClusterNnCondAlgCfg(ConfigFlags))
-    top_acc.merge(TC.PixelClusterNnWithTrackCondAlgCfg(ConfigFlags))
-    ###
-    ###
-    top_acc.merge(addFoldersSplitOnline(ConfigFlags, "PIXEL", "/PIXEL/PixdEdx", "/PIXEL/PixdEdx", className='AthenaAttributeList'))
-
-    PixeldEdxAlg = CompFactory.PixeldEdxAlg(name="PixeldEdxAlg", ReadFromCOOL = True)
-    top_acc.addCondAlgo(PixeldEdxAlg)
-    ###
-
-    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTStrawCondAlgCfg, TRTToTCondAlg, TRTHTCondAlgCfg
-    top_acc.merge(TRTStrawCondAlgCfg(ConfigFlags))
-    top_acc.merge(TRTToTCondAlg(ConfigFlags))
-    top_acc.merge(TRTHTCondAlgCfg(ConfigFlags))
-
-    ###
-    ###
-    from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleTool, PixelLorentzAngleCfg
-    top_acc.addPublicTool(PixelLorentzAngleTool(ConfigFlags))
-    top_acc.addPublicTool(top_acc.popToolsAndMerge(PixelLorentzAngleCfg(ConfigFlags)))
-
-    from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
-    top_acc.addPublicTool(top_acc.popToolsAndMerge(SCT_LorentzAngleCfg(ConfigFlags)))
-    ###
-    ###
-    from PixelConditionsAlgorithms.PixelConditionsConfig import (PixelOfflineCalibCondAlgCfg, PixelDistortionAlgCfg)
-    top_acc.merge(PixelOfflineCalibCondAlgCfg(ConfigFlags))
-    top_acc.merge(PixelDistortionAlgCfg(ConfigFlags))
-    ###
-    ###
-    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTActiveCondAlgCfg
-    top_acc.merge(TRTActiveCondAlgCfg(ConfigFlags))
-    top_acc.merge(TC.TRT_DetElementsRoadCondAlgCfg())
     ############################# TRTPreProcessing configuration ############################
     if not ConfigFlags.InDet.Tracking.doDBMstandalone:
         from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
-        top_acc.merge(TRTPreProcessingCfg(ConfigFlags,(not ConfigFlags.InDet.doTRTPhaseCalculation or ConfigFlags.Beam.Type =="collisions"),False))
+        top_acc.merge(TRTPreProcessingCfg(ConfigFlags,(not ConfigFlags.InDet.Tracking.doTRTPhaseCalculation or ConfigFlags.Beam.Type =="collisions"),False))
     ########################### TRTSegmentFindingCfg configuration ##########################
     # NewTracking collection keys
     InputCombinedInDetTracks = []
