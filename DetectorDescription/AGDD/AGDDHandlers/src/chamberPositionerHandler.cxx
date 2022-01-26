@@ -49,7 +49,7 @@ void chamberPositionerHandler::ElementHandle(AGDDController& c,
 	int etaIndex=getAttributeAsInt(c, t, "etaIndex",0);
 	
 	double dPhi=360./iWedge;
-	if (iSectors.size()!= (unsigned int) iWedge) throw;
+	if (iSectors.size()!= (unsigned int) iWedge) std::abort();
 
  	for (int i=0;i<iWedge;i++)
  	{
