@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 # flake8: noqa
 
 from .bb import bb
@@ -10,6 +10,7 @@ from .chi1chi1 import chi1chi1
 from .DMGG import DMGG
 from .DMS_tloop import DMS_tloop
 from .DMV import DMV
+from .fourtops import fourtops
 from .ggF_H import ggF_H
 from .ggF_HH import ggF_HH
 from .ggF_HZ import ggF_HZ
