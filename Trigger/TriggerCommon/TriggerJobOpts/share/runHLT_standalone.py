@@ -144,7 +144,7 @@ if len(athenaCommonFlags.FilesInput())>0:
         if globalflags.DataSource=='data':
             opt.setGlobalTag = ConfigFlags.Trigger.OnlineCondTag if opt.isOnline else 'CONDBR2-BLKPA-2018-13'
         else:
-            opt.setGlobalTag = 'OFLCOND-MC16-SDR-25-02'
+            opt.setGlobalTag = 'OFLCOND-MC16-SDR-RUN2-08-02'
     TriggerJobOpts.Modifiers._run_number = ConfigFlags.Input.RunNumber[0]
     TriggerJobOpts.Modifiers._lb_number = ConfigFlags.Input.LumiBlockNumber[0]
 
