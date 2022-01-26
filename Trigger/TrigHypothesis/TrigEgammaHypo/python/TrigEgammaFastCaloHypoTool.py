@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 
 from AthenaCommon.SystemOfUnits import GeV
-from TriggerMenuMT.HLT.Egamma.TrigEgammaSliceFlags import TrigEgammaSliceFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -358,7 +358,7 @@ def createTrigEgammaFastCaloSelectors(ConfigFilePath=None):
     import collections
 
     if not ConfigFilePath:
-      ConfigFilePath = 'RingerSelectorTools/'+TrigEgammaSliceFlags.ringerVersion()
+      ConfigFilePath = ConfigFlags.Trigger.egamma.ringerVersion
 
   
     SelectorNames = collections.OrderedDict({
