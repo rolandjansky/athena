@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "ParticleCaloExtensionTool.h"
@@ -466,11 +466,16 @@ ParticleCaloExtensionTool::surfaceCaloExtension(
   // Go into steps from layer to layer
   size_t numSteps = caloSurfaces.size();
   for (size_t i = 0; i < numSteps; ++i) {
-    const auto* nextImpact = m_extrapolator->extrapolate(
-      ctx, *lastImpact, *(caloSurfaces[i]), alongMomentum, false, particleType);
+    std::unique_ptr<const Trk::TrackParameters> nextImpact =
+      m_extrapolator->extrapolate(ctx,
+                                  *lastImpact,
+                                  *(caloSurfaces[i]),
+                                  alongMomentum,
+                                  false,
+                                  particleType);
     if (nextImpact) {
-      caloParameters.emplace_back(clusterLayers[i], nextImpact);
-      lastImpact = nextImpact;
+      caloParameters.emplace_back(clusterLayers[i], std::move(nextImpact));
+      lastImpact = caloParameters.back().second.get();
     }
   }
   return caloParameters;

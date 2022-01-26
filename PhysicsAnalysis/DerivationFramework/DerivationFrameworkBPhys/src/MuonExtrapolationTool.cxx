@@ -134,7 +134,7 @@ const Trk::TrackParameters* MuonExtrapolationTool::extrapolateToTriggerPivotPlan
   bool boundaryCheck = true;
   const Trk::Surface* surface = cylinder;
   const Trk::TrackParameters* p = m_extrapolator->extrapolate(
-    ctx, perigee, *surface, Trk::alongMomentum, boundaryCheck, Trk::muon);
+    ctx, perigee, *surface, Trk::alongMomentum, boundaryCheck, Trk::muon).release();
   delete cylinder;
   // if the extrapolation worked out (so we are in the barrel) we are done and can return the 
   // track parameters at this surface. 
@@ -166,7 +166,7 @@ const Trk::TrackParameters* MuonExtrapolationTool::extrapolateToTriggerPivotPlan
   boundaryCheck = false;
   surface = disc;
   p = m_extrapolator->extrapolate(
-    ctx, perigee, *surface, Trk::alongMomentum, boundaryCheck, Trk::muon);
+    ctx, perigee, *surface, Trk::alongMomentum, boundaryCheck, Trk::muon).release();
   delete disc;
   return p;
 }

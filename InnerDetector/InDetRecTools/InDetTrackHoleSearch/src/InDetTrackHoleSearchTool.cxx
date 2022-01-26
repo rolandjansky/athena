@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -279,12 +279,8 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const EventContext& ctx,
 
     if (firstsipar) {
       //std::cout << "firstsipar: " << *firstsipar << " pos: " << firstsipar->position() << std::endl;
-      startParameters.reset(m_extrapolator->extrapolate(ctx,
-                                                        *firstsipar,
-                                                        *sctCylinder,
-                                                        Trk::oppositeMomentum,
-                                                        true,
-                                                        partHyp));
+      startParameters = m_extrapolator->extrapolate(
+        ctx, *firstsipar, *sctCylinder, Trk::oppositeMomentum, true, partHyp);
     }
 
     // if track can't be extrapolated to this cylinder (EC track!), extrapolate to disc outside TRT/SCT EC
@@ -310,12 +306,8 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const EventContext& ctx,
 
       if (trtDisc) {
         // extrapolate track to disk
-        startParameters.reset(m_extrapolator->extrapolate(ctx,
-                                                          *firstsipar,
-                                                          *trtDisc,
-                                                          Trk::oppositeMomentum,
-                                                          true,
-                                                          partHyp));
+        startParameters = m_extrapolator->extrapolate(
+          ctx, *firstsipar, *trtDisc, Trk::oppositeMomentum, true, partHyp);
       }
     }
   } else {  // no cosmics
@@ -325,11 +317,13 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const EventContext& ctx,
     } else if (track.trackParameters()->front()) {
       ATH_MSG_DEBUG("No perigee, extrapolate to 0,0,0");
       // go back to perigee
-      startParameters.reset( m_extrapolator->extrapolate(ctx,
-                                                         *(track.trackParameters()->front()),
-                                                         Trk::PerigeeSurface(),
-                                                         Trk::anyDirection,
-                                                         false, partHyp));
+      startParameters =
+        m_extrapolator->extrapolate(ctx,
+                                    *(track.trackParameters()->front()),
+                                    Trk::PerigeeSurface(),
+                                    Trk::anyDirection,
+                                    false,
+                                    partHyp);
     }
   }
 

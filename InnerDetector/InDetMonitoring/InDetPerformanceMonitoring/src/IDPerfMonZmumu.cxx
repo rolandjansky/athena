@@ -1876,7 +1876,7 @@ StatusCode IDPerfMonZmumu::FillTruthParameters(const xAOD::TrackParticle* trackP
   Trk::PerigeeSurface persf( beamSpotHandle->beamPos() );
 
   const Trk::TrackParameters* tP = m_extrapolator->extrapolate(ctx,
-                                                               cParameters,persf, Trk::anyDirection, false);
+                                                               cParameters,persf, Trk::anyDirection, false).release();
 
 
   double px = 0;

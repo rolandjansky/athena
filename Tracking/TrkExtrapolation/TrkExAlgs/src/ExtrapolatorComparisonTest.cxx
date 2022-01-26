@@ -230,7 +230,7 @@ StatusCode Trk::ExtrapolatorComparisonTest::execute(const EventContext& ctx) con
           *destinationSurface,
           Trk::alongMomentum,
           true,
-          (Trk::ParticleHypothesis)m_particleType);
+          (Trk::ParticleHypothesis)m_particleType).release();
       auto end_fwd = xclock::now();
       float ms_fwd = std::chrono::duration_cast<std::chrono::milliseconds>(end_fwd-start_fwd).count();
       
@@ -249,7 +249,7 @@ StatusCode Trk::ExtrapolatorComparisonTest::execute(const EventContext& ctx) con
             atlPerigee->associatedSurface(),
             Trk::oppositeMomentum,
             true,
-            (Trk::ParticleHypothesis)m_particleType);
+            (Trk::ParticleHypothesis)m_particleType).release();
         auto end_bkw = xclock::now();
         float ms_bkw = std::chrono::duration_cast<std::chrono::milliseconds>(end_bkw-start_bkw).count();
         

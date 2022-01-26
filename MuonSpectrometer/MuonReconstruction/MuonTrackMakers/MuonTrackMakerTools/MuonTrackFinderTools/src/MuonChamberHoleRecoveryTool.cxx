@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonChamberHoleRecoveryTool.h"
@@ -720,7 +720,7 @@ namespace Muon {
                 ATH_MSG_VERBOSE(" Same surface, cloning parameters ");
                 exPars = pars.uniqueClone();
             } else {
-                exPars.reset(m_extrapolator->extrapolateDirectly(ctx, pars, surf, Trk::anyDirection, false, Trk::muon));
+                exPars = m_extrapolator->extrapolateDirectly(ctx, pars, surf, Trk::anyDirection, false, Trk::muon);
                 if (!exPars) {
                     ATH_MSG_WARNING(" Propagation cluster PRD failed!! ");
                     continue;
@@ -804,7 +804,7 @@ namespace Muon {
                 ATH_MSG_DEBUG(" Same surface, cloning parameters ");
                 exPars = pars.uniqueClone();
             } else {
-                exPars.reset(m_extrapolator->extrapolateDirectly(ctx, pars, surf, Trk::anyDirection, false, Trk::muon));
+                exPars = m_extrapolator->extrapolateDirectly(ctx, pars, surf, Trk::anyDirection, false, Trk::muon);
                 if (!exPars) {
                     ATH_MSG_DEBUG(" Propagation cluster hole failed!! ");
                     continue;
@@ -890,7 +890,7 @@ namespace Muon {
                 if (pars.associatedSurface() == surf) {
                     exPars = pars.uniqueClone();
                 } else {
-                    exPars.reset(m_extrapolator->extrapolateDirectly(ctx, pars, surf, Trk::anyDirection, false, Trk::muon));
+                    exPars = m_extrapolator->extrapolateDirectly(ctx, pars, surf, Trk::anyDirection, false, Trk::muon);
                     if (!exPars) {
                         ATH_MSG_WARNING(" Propagation to MDT prd failed!! ");
                         continue;
@@ -926,7 +926,7 @@ namespace Muon {
 
                 // check whether MDT ROT has sagged wire surface, if so redo propagation
                 if (slSurf != &mdtPrd->detectorElement()->surface(id)) {
-                    exPars.reset(m_extrapolator->extrapolateDirectly(ctx, pars, *slSurf, Trk::anyDirection, false, Trk::muon));
+                    exPars = m_extrapolator->extrapolateDirectly(ctx, pars, *slSurf, Trk::anyDirection, false, Trk::muon);
                     if (!exPars) {
                         ATH_MSG_WARNING(" Propagation to sagged surface failed!! ");
                         continue;
@@ -1009,7 +1009,7 @@ namespace Muon {
                 if (pars.associatedSurface() == surf) {
                     exPars = pars.uniqueClone();
                 } else {
-                    exPars.reset(m_extrapolator->extrapolateDirectly(ctx, pars, surf, Trk::anyDirection, false, Trk::muon));
+                    exPars = m_extrapolator->extrapolateDirectly(ctx, pars, surf, Trk::anyDirection, false, Trk::muon);
                     if (!exPars) {
                         ATH_MSG_WARNING(" Propagation to MDT hole failed!! ");
                         continue;

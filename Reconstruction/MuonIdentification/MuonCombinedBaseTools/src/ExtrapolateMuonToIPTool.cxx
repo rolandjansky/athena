@@ -107,7 +107,7 @@ ExtrapolateMuonToIPTool::extrapolate(const Trk::Track& track,
     if (!ipPars) {
         // if extrapolation failed go in other direction
         propDir = (propDir == Trk::alongMomentum) ? Trk::oppositeMomentum : Trk::alongMomentum;
-        ipPars.reset(m_extrapolator->extrapolate(ctx,*closestPars, perigeeSurface, propDir, false, particleType));
+        ipPars = m_extrapolator->extrapolate(ctx,*closestPars, perigeeSurface, propDir, false, particleType);
 
         if (propDir == Trk::alongMomentum) {
             ATH_MSG_DEBUG(" retrying opposite momentum extrapolating "
@@ -227,7 +227,7 @@ std::unique_ptr<const Trk::Perigee> ExtrapolateMuonToIPTool::createPerigee(const
     std::unique_ptr<const Trk::Perigee> perigee;
     if (m_muonExtrapolator.empty()) { return perigee; }
     Trk::PerigeeSurface persurf(pars.position());
-    const Trk::TrackParameters* exPars = m_muonExtrapolator->extrapolateDirectly(ctx, pars, persurf);
+    const Trk::TrackParameters* exPars = m_muonExtrapolator->extrapolateDirectly(ctx, pars, persurf).release();
     const Trk::Perigee* pp = dynamic_cast<const Trk::Perigee*>(exPars);
     if (!pp) {
         ATH_MSG_WARNING(" Extrapolation to Perigee surface did not return a perigee!! ");

@@ -229,7 +229,7 @@ namespace InDet
                                                                                     perigeeSurface,
                                                                                     Trk::anyDirection,
                                                                                     true,
-                                                                                    track.info().particleHypothesis() ); 
+                                                                                    track.info().particleHypothesis() ).release(); 
     const Trk::Perigee* extrapolatedPerigee = extrapolatedParameters ? dynamic_cast<const Trk::Perigee*>(extrapolatedParameters) : nullptr; 
     if (!extrapolatedPerigee || !extrapolatedPerigee->covariance() ) {
       ATH_MSG_WARNING( "Track Selector failed to extrapolate track to the vertex: " << myVertex->position() );
@@ -411,7 +411,7 @@ namespace InDet
                                   *firstmeaspar,
                                   perigeeSurface,
                                   Trk::anyDirection,
-                                  true,Trk::pion ) : nullptr;
+                                  true,Trk::pion ).release() : nullptr;
     extrapolatedPerigee = extrapolatedParameters ? dynamic_cast<const Trk::Perigee*>(extrapolatedParameters) : nullptr; 
     if (extrapolatedPerigee==nullptr || !extrapolatedPerigee->covariance()) {
       ATH_MSG_WARNING( "Track Selector failed to extrapolate track to the vertex: " << myVertex->position() );
@@ -653,7 +653,7 @@ namespace InDet
     const Trk::TrackParameters* extrapolatedParameters= m_extrapolator->extrapolate(
       Gaudi::Hive::currentContext(),
       perigee,perigeeSurface,
-      Trk::anyDirection,true,Trk::pion);
+      Trk::anyDirection,true,Trk::pion).release();
     const Trk::Perigee* extrapolatedPerigee = extrapolatedParameters ? dynamic_cast<const Trk::Perigee*>(extrapolatedParameters) : nullptr; 
     if (extrapolatedPerigee==nullptr) {
       ATH_MSG_WARNING( "Extrapolation to the vertex failed: " << perigeeSurface << std::endl << perigee );

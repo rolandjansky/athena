@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -1554,7 +1554,7 @@ Trk::KalmanFitter::callValidation(const EventContext& ctx,
                                                Trk::anyDirection
                                                : Trk::oppositeMomentum,
                                              false,
-                                             matEffects);
+                                             matEffects).release();
         per = dynamic_cast<const Trk::Perigee*>(perPar);
     } else {
         ATH_MSG_WARNING("Perigee-making for validation failed: no useful parameters on track!" );

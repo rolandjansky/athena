@@ -41,13 +41,13 @@ StatusCode Trk::TruthToTrack::initialize() {
   if (sc.isFailure()) {
     ATH_MSG_ERROR("Could not initialize Particle Properties Service");
     return StatusCode::FAILURE;
-  }      
+  }
   m_particleDataTable = partPropSvc->PDT();
 
   if ( m_extrapolator.retrieve().isFailure() ) {
     ATH_MSG_FATAL("Failed to retrieve tool " << m_extrapolator);
     return StatusCode::FAILURE;
-  } 
+  }
     ATH_MSG_INFO("Retrieved tool " << m_extrapolator);
   return StatusCode::SUCCESS;
 }
@@ -62,11 +62,11 @@ const Trk::TrackParameters* Trk::TruthToTrack::makeProdVertexParameters(HepMC::C
     HepMC::FourVector tv = part->production_vertex()->position();
     Amg::Vector3D hv(tv.x(),tv.y(),tv.z());
     const Amg::Vector3D& globalPos = hv;
-    
+
     const HepMC::FourVector& fv = part->momentum();
     Amg::Vector3D hv2(fv.px(),fv.py(),fv.pz());
     const Amg::Vector3D& globalMom = hv2;
-      
+
     int id = part->pdg_id();
     // the table seems to lack antiparticles, thus the use of abs()
     const HepPDT::ParticleData* pd = m_particleDataTable->particle(std::abs(id));
@@ -75,7 +75,7 @@ const Trk::TrackParameters* Trk::TruthToTrack::makeProdVertexParameters(HepMC::C
       // pd could point to an antiparticle. recover the sign:
       double charge = (id>0) ? pd->charge() : -pd->charge();
       Amg::Translation3D tmpTransl(hv);
-      Amg::Transform3D tmpTransf = tmpTransl * Amg::RotationMatrix3D::Identity(); 
+      Amg::Transform3D tmpTransf = tmpTransl * Amg::RotationMatrix3D::Identity();
       const Trk::PlaneSurface surface(tmpTransf);
       result = new Trk::AtaPlane(globalPos, globalMom, charge, surface);
     }
@@ -95,10 +95,10 @@ const Trk::TrackParameters* Trk::TruthToTrack::makeProdVertexParameters(const xA
   if(part && part->hasProdVtx() && m_particleDataTable) {
     Amg::Vector3D hv(part->prodVtx()->x(),part->prodVtx()->y(),part->prodVtx()->z());
     const Amg::Vector3D& globalPos = hv;
-    
+
     Amg::Vector3D hv2(part->p4().Px(),part->p4().Py(),part->p4().Pz());
     const Amg::Vector3D& globalMom = hv2;
-      
+
     int id = part->pdgId();
     // the table seems to lack antiparticles, thus the use of abs()
     const HepPDT::ParticleData* pd = m_particleDataTable->particle(std::abs(id));
@@ -107,7 +107,7 @@ const Trk::TrackParameters* Trk::TruthToTrack::makeProdVertexParameters(const xA
       // pd could point to an antiparticle. recover the sign:
       double charge = (id>0) ? pd->charge() : -pd->charge();
       Amg::Translation3D tmpTransl(hv);
-      Amg::Transform3D tmpTransf = tmpTransl * Amg::RotationMatrix3D::Identity(); 
+      Amg::Transform3D tmpTransf = tmpTransl * Amg::RotationMatrix3D::Identity();
       const Trk::PlaneSurface surface(tmpTransf);
       result = new Trk::AtaPlane(globalPos, globalMom, charge, surface);
     }
@@ -129,16 +129,16 @@ const Trk::TrackParameters* Trk::TruthToTrack::makePerigeeParameters(HepMC::Cons
 
     std::unique_ptr<const Trk::TrackParameters> productionVertexTrackParams( makeProdVertexParameters(part) );
     if(productionVertexTrackParams) {
-      
+
       // Extrapolate the TrackParameters object to the perigee. Direct extrapolation,
       // no material effects.
-      generatedTrackPerigee = m_extrapolator->extrapolateDirectly( 
+      generatedTrackPerigee = m_extrapolator->extrapolateDirectly(
         Gaudi::Hive::currentContext(),
         *productionVertexTrackParams,
         Trk::PerigeeSurface(),
         Trk::anyDirection,
         false,
-        Trk::nonInteracting );
+        Trk::nonInteracting ).release();
     }
   }
 
@@ -155,16 +155,16 @@ const Trk::TrackParameters* Trk::TruthToTrack::makePerigeeParameters(const xAOD:
 
     std::unique_ptr<const Trk::TrackParameters> productionVertexTrackParams( makeProdVertexParameters(part) );
     if(productionVertexTrackParams) {
-      
+
       // Extrapolate the TrackParameters object to the perigee. Direct extrapolation,
       // no material effects.
-      generatedTrackPerigee = m_extrapolator->extrapolateDirectly( 
+      generatedTrackPerigee = m_extrapolator->extrapolateDirectly(
         Gaudi::Hive::currentContext(),
         *productionVertexTrackParams,
         Trk::PerigeeSurface(),
         Trk::anyDirection,
         false,
-        Trk::nonInteracting );
+        Trk::nonInteracting ).release();
     }
   }
 

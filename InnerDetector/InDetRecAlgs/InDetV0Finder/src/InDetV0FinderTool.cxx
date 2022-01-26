@@ -722,11 +722,11 @@ bool InDetV0FinderTool::doFit(const xAOD::TrackParticle* track1, const xAOD::Tra
     std::vector<std::unique_ptr<const Trk::TrackParameters> >  cleanup;
     const Trk::TrackParameters* extrapolatedPerigee1(nullptr);
     const Trk::TrackParameters* extrapolatedPerigee2(nullptr);
-    extrapolatedPerigee1 = m_extrapolator->extrapolate(ctx,track1->perigeeParameters(), perigeeSurface);
+    extrapolatedPerigee1 = m_extrapolator->extrapolate(ctx,track1->perigeeParameters(), perigeeSurface).release();
     if (extrapolatedPerigee1 == nullptr) extrapolatedPerigee1 = &track1->perigeeParameters();
     else cleanup.push_back(std::unique_ptr<const Trk::TrackParameters>(extrapolatedPerigee1));
 
-    extrapolatedPerigee2 = m_extrapolator->extrapolate(ctx,track2->perigeeParameters(), perigeeSurface);
+    extrapolatedPerigee2 = m_extrapolator->extrapolate(ctx,track2->perigeeParameters(), perigeeSurface).release();
     if (extrapolatedPerigee2 == nullptr) extrapolatedPerigee2 = &track2->perigeeParameters();
     else cleanup.push_back(std::unique_ptr<const Trk::TrackParameters>(extrapolatedPerigee2));
 

@@ -2926,13 +2926,13 @@ const Trk::Perigee* TrigFastTrackFinder::extrapolateDisTrackToBS(Trk::Track* t,
 
    Amg::Vector3D gp(vtx_x, vtx_y, vtx_z);
    Trk::PerigeeSurface persf(gp);
-   const Trk::Perigee* vertexPerigee   = 0;
+   const Trk::Perigee* vertexPerigee = nullptr;
    const Trk::Perigee* trackparPerigee = t->perigeeParameters();
-   vertexPerigee = dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolateDirectly(
-       Gaudi::Hive::currentContext(),
-       (*trackparPerigee),
-       persf));
-
+   std::unique_ptr<const Trk::TrackParameters> tmp =
+     m_extrapolator->extrapolateDirectly(Gaudi::Hive::currentContext(), (*trackparPerigee), persf);
+   if (tmp && tmp->associatedSurface().type() == Trk::SurfaceType::Perigee) {
+     vertexPerigee = static_cast<const Trk::Perigee*>(tmp.release());
+   }
    return vertexPerigee;
 }
 

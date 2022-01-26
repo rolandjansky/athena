@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -108,7 +108,7 @@ ISF::ISFParticle* ISF::TrkExtrapolator::extrapolate( const ISF::ISFParticle &par
                                                                                      par,
                                                                                      *m_trackingVolume,
                                                                                      Trk::alongMomentum,
-                                                                                     particleHypo);
+                                                                                     particleHypo).release();
   
   // create a new ISF particle representing the given particle at the extrapolated position
   ISFParticle *extrapolatedParticle = new ISFParticle( extrapolatedPars->position(),

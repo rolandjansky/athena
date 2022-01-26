@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "EMExtrapolationTools.h"
@@ -454,17 +454,14 @@ EMExtrapolationTools::getMomentumAtVertex(const EventContext& ctx,
     if (!tp) {
       ATH_MSG_WARNING("NULL pointer to TrackParticle in vertex");
     } else {
-      const Trk::PerigeeSurface* surface =
-        new Trk::PerigeeSurface(vertex.position());
-      const Trk::TrackParameters* params =
-        m_extrapolator->extrapolate(ctx, *tp, *surface, Trk::alongMomentum);
-      delete surface;
+      Trk::PerigeeSurface surface(vertex.position());
+      std::unique_ptr<const Trk::TrackParameters> params =
+        m_extrapolator->extrapolate(ctx, *tp, surface, Trk::alongMomentum);
       if (!params) {
         ATH_MSG_DEBUG("Extrapolation to vertex (perigee) failed");
       } else {
         momentum += params->momentum();
       }
-      delete params;
     }
   }
   return momentum;

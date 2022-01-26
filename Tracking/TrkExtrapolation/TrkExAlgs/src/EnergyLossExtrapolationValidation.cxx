@@ -350,7 +350,7 @@ StatusCode Trk::EnergyLossExtrapolationValidation::execute()
           *(m_theCylinders->at(0)),
           Trk::alongMomentum,
           true,
-          (Trk::ParticleHypothesis)m_particleType);
+          (Trk::ParticleHypothesis)m_particleType).release();
 
     } else { // material collection validation
 
@@ -405,7 +405,7 @@ StatusCode Trk::EnergyLossExtrapolationValidation::execute()
               *(m_theCylinders->at(lay)),
               Trk::alongMomentum,
               true,
-              (Trk::ParticleHypothesis)m_particleType);
+              (Trk::ParticleHypothesis)m_particleType).release();
 
         } else { // material collection validation
 
@@ -443,12 +443,14 @@ StatusCode Trk::EnergyLossExtrapolationValidation::execute()
 
             if (!m_materialCollectionValidation) {
 
-                newParameters = m_extrapolator->extrapolate(ctx,
-                                                            m_onion ? *lastParameters : startParameters,
-                                                            (m_parameterEta[0] < 0) ? *(m_theDiscs1->at(lay)) : *(m_theDiscs2->at(lay)),
-                                                            Trk::alongMomentum,
-                                                            true,
-                                                            (Trk::ParticleHypothesis)m_particleType);
+              newParameters = m_extrapolator->extrapolate(
+                ctx,
+                m_onion ? *lastParameters : startParameters,
+                (m_parameterEta[0] < 0) ? *(m_theDiscs1->at(lay))
+                                        : *(m_theDiscs2->at(lay)),
+                Trk::alongMomentum,
+                true,
+                (Trk::ParticleHypothesis)m_particleType).release();
 
             } else { // material collection validation
 

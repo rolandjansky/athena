@@ -230,10 +230,10 @@ namespace Trk {
         prtType = undefined;
         if (pmom.dot(step) > 0.) {
           endPer = m_extrapolator->extrapolateDirectly(ctx,
-            *inpPer, surfEnd, alongMomentum, true, pion);
+            *inpPer, surfEnd, alongMomentum, true, pion).release();
         } else {
           endPer = m_extrapolator->extrapolateDirectly(ctx,
-            *inpPer, surfEnd, oppositeMomentum, true, pion);
+            *inpPer, surfEnd, oppositeMomentum, true, pion).release();
         }
         return endPer;
       }
@@ -257,7 +257,7 @@ namespace Trk {
           dir = oppositeMomentum;
         }
         endPer = m_extrapolator->extrapolate(
-          ctx, *pntOnTrk, surfEnd, dir, true, prtType, addNoise);
+          ctx, *pntOnTrk, surfEnd, dir, true, prtType, addNoise).release();
         return endPer;
       }
       // 
@@ -271,7 +271,7 @@ namespace Trk {
           mmode = removeNoise;
         }
         endPer = m_extrapolator->extrapolate(
-          ctx, *pntOnTrk, surfEnd, dir, true, prtType, mmode);
+          ctx, *pntOnTrk, surfEnd, dir, true, prtType, mmode).release();
         return endPer;
       }
       //
@@ -285,7 +285,7 @@ namespace Trk {
         if ((*endPoint).perp() > Border && iniPoint.perp() > Border) {
           if (dirPositive) {
             endPer = m_extrapolator->extrapolate(
-              ctx, *pntOnTrk, surfEnd, alongMomentum, true, prtType, addNoise);
+              ctx, *pntOnTrk, surfEnd, alongMomentum, true, prtType, addNoise).release();
           } else {
             endPer = m_extrapolator->extrapolate(ctx,
                                                  *pntOnTrk,
@@ -293,7 +293,7 @@ namespace Trk {
                                                  oppositeMomentum,
                                                  true,
                                                  prtType,
-                                                 removeNoise);
+                                                 removeNoise).release();
           }
           return endPer;
         }
@@ -305,7 +305,7 @@ namespace Trk {
                                                  alongMomentum,
                                                  true,
                                                  prtType,
-                                                 removeNoise);
+                                                 removeNoise).release();
           } else {
             endPer = m_extrapolator->extrapolate(ctx,
                                                  *pntOnTrk,
@@ -313,7 +313,7 @@ namespace Trk {
                                                  oppositeMomentum,
                                                  true,
                                                  prtType,
-                                                 addNoise);
+                                                 addNoise).release();
           }
           return endPer;
         }
@@ -327,15 +327,15 @@ namespace Trk {
                                                alongMomentum,
                                                true,
                                                prtType,
-                                               removeNoise);
+                                               removeNoise).release();
           if (tmpPer == nullptr) {
             return nullptr;
           }
           endPer = m_extrapolator->extrapolate(
-            ctx, *tmpPer, surfEnd, alongMomentum, true, prtType, addNoise);
+            ctx, *tmpPer, surfEnd, alongMomentum, true, prtType, addNoise).release();
         } else {
           endPer = m_extrapolator->extrapolate(
-            ctx, *pntOnTrk, surfEnd, oppositeMomentum, true, prtType, addNoise);
+            ctx, *pntOnTrk, surfEnd, oppositeMomentum, true, prtType, addNoise).release();
           return endPer;
         }
         delete tmpPer;
@@ -395,8 +395,9 @@ namespace Trk {
 //
       if( Strategy == 0) {  
         PropDirection dir=alongMomentum; if(pmom.dot(step)<0) dir=oppositeMomentum;
-        endPer = m_extrapolator->extrapolate(ctx, *pntOnTrk, lineTarget, dir, true, prtType, addNoise);
-        if(!endPer)endPer = m_extrapolator->extrapolateDirectly(ctx,*pntOnTrk, lineTarget, dir, true, prtType);
+        endPer = m_extrapolator->extrapolate(ctx, *pntOnTrk, lineTarget, dir, true, prtType, addNoise).release();
+        if (!endPer)
+          endPer = m_extrapolator->extrapolateDirectly(ctx, *pntOnTrk, lineTarget, dir, true, prtType).release();
         return endPer;
       }
 // 
@@ -405,7 +406,7 @@ namespace Trk {
       if( Strategy == 1 || Strategy == 2) {  
          PropDirection dir=alongMomentum;  MaterialUpdateMode mmode=addNoise;
 	 if(pmom.dot(step)<0){ dir=oppositeMomentum; mmode=removeNoise;}
-         endPer = m_extrapolator->extrapolate(ctx, *pntOnTrk, lineTarget, dir, true, prtType, mmode);
+         endPer = m_extrapolator->extrapolate(ctx, *pntOnTrk, lineTarget, dir, true, prtType, mmode).release();
          return endPer; 
       }
       return endPer; 
@@ -420,7 +421,7 @@ namespace Trk {
       const Trk::NeutralParameters* endPer=nullptr;
 //End surface
       PerigeeSurface surfEnd( *endPoint );
-      endPer = m_extrapolator->extrapolate( *inpPer, surfEnd, anyDirection, true);
+      endPer = m_extrapolator->extrapolate( *inpPer, surfEnd, anyDirection, true).release();
       return endPer;
   }
 
@@ -447,20 +448,20 @@ namespace Trk {
                                       *mPer, 
                                       surfacePntOnTrk, 
                                       alongMomentum, 
-                                      true, prtType, removeNoise);
+                                      true, prtType, removeNoise).release();
 //std::cout<<" Radius="<<xprt->radiusOfFirstHit()<<" extrap="<<hitOnTrk<<'\n';
     if(hitOnTrk==nullptr)hitOnTrk=m_extrapolator->extrapolateDirectly(ctx, 
                                                                       *mPer, 
                                                                       surfacePntOnTrk, 
                                                                       alongMomentum, 
-                                                                      true, prtType);
+                                                                      true, prtType).release();
     if(hitOnTrk==nullptr)return nullptr;
 
     //convert result to Perigee 
     PerigeeSurface surfacePerigee( hitOnTrk->position() );
     const TrackParameters *hitOnTrkPerig = m_extrapolator->extrapolate(ctx,
                                                                        *hitOnTrk, 
-                                                                       surfacePerigee);
+                                                                       surfacePerigee).release();
     delete hitOnTrk;  // Delete temporary results
     if(hitOnTrkPerig==nullptr)return nullptr;
 //std::cout<<" perig="<<(*hitOnTrkPerig)<<'\n';

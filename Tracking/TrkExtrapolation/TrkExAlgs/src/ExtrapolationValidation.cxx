@@ -329,7 +329,7 @@ StatusCode Trk::ExtrapolationValidation::execute()
                                                                                           startParameters,
                                                                                           estimationCylinder,
                                                                                           Trk::alongMomentum,
-                                                                                          false);
+                                                                                          false).release();
    if (!estimationParameters) {
         ATH_MSG_VERBOSE( "Estimation of intersection did not work - skip event !" );
         return StatusCode::SUCCESS;
@@ -398,7 +398,7 @@ StatusCode Trk::ExtrapolationValidation::execute()
                                                     destinationSurface, 
                                                     Trk::alongMomentum,
                                                     false,
-                                                    (Trk::ParticleHypothesis)m_particleType,Trk::addNoise);
+                                                    (Trk::ParticleHypothesis)m_particleType,Trk::addNoise).release();
    else if(!m_direct){ // material collection validation
        // get the vector of TrackStateOnSurfaces back
       const std::vector<const Trk::TrackStateOnSurface*>* 
@@ -428,7 +428,7 @@ StatusCode Trk::ExtrapolationValidation::execute()
                                                           destinationSurface, 
                                                           Trk::alongMomentum,
                                                           false,
-                                                          (Trk::ParticleHypothesis)m_particleType);
+                                                          (Trk::ParticleHypothesis)m_particleType).release();
      
    }
    // ----------------------- check if forward call was successful and continue then
@@ -475,7 +475,7 @@ StatusCode Trk::ExtrapolationValidation::execute()
                                                          startSurface, 
                                                          Trk::oppositeMomentum,
                                                          false,
-                                                         (Trk::ParticleHypothesis)m_particleType,Trk::removeNoise);
+                                                         (Trk::ParticleHypothesis)m_particleType,Trk::removeNoise).release();
        else if(!m_direct){ // material collection validation
             // get the vector of TrackStateOnSurfaces back
             const std::vector<const Trk::TrackStateOnSurface*>* 
@@ -505,7 +505,7 @@ StatusCode Trk::ExtrapolationValidation::execute()
                                                         startSurface, 
                                                         Trk::oppositeMomentum,
                                                         false,
-                                                        (Trk::ParticleHypothesis)m_particleType);
+                                                        (Trk::ParticleHypothesis)m_particleType).release();
 
        }
       // ----------------------- check if backward call was successful and continue then

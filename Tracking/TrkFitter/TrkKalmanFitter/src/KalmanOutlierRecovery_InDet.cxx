@@ -174,13 +174,17 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
 
           Trk::Trajectory::iterator restartState = Trk::ProtoTrajectoryUtility::nextFittableState(T,it);
           const Trk::TrackParameters* smoothedParAtOutlier =
-	    (restartState != T.end() ?
-	     m_extrapolator->extrapolate(ctx,
-                                   *restartState->smoothedTrackParameters(),
-                                   it->measurement()->associatedSurface(), Trk::oppositeMomentum,
-                                   false, Trk::nonInteracting) :
-	     nullptr );
-          if (!smoothedParAtOutlier) continue;
+            (restartState != T.end()
+               ? m_extrapolator->extrapolate(
+                   ctx,
+                   *restartState->smoothedTrackParameters(),
+                   it->measurement()->associatedSurface(),
+                   Trk::oppositeMomentum,
+                   false,
+                   Trk::nonInteracting).release()
+               : nullptr);
+          if (!smoothedParAtOutlier)
+            continue;
 
           if ( (it->measurement()->localCovariance()(Trk::locX,Trk::locX) < 0.02*0.02)
                || (it->measurement()->localCovariance()(Trk::locY,Trk::locY) < 0.2*0.2) ) {
@@ -241,7 +245,7 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
                                     *filterInputPar,
                                     lastSctState->measurement()->associatedSurface(),
                                     Trk::alongMomentum,
-                                    false, Trk::nonInteracting);
+                                    false, Trk::nonInteracting).release();
       if (sctExitTemp == nullptr) {
         ATH_MSG_DEBUG ("-O- can not reproduce trajectory in SCT recovery!");
         for( Trk::Trajectory::iterator it = T.begin(); it!=T.end(); ++it)
@@ -289,13 +293,15 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
       for( ; rit!=T.rend(); ++rit) {
         if ( rit->measurementType() == SCT) {
           const Trk::TrackParameters* predPar =
-	    (sctFitResult!=nullptr ?
-	     m_extrapolator->extrapolate(ctx,
-                                   *sctFitResult,
-                                   rit->measurement()->associatedSurface(),
-                                   Trk::oppositeMomentum,
-                                   false, Trk::muon) :
-	     nullptr);
+            (sctFitResult != nullptr
+               ? m_extrapolator->extrapolate(
+                   ctx,
+                   *sctFitResult,
+                   rit->measurement()->associatedSurface(),
+                   Trk::oppositeMomentum,
+                   false,
+                   Trk::muon).release()
+               : nullptr);
           delete sctFitResult;
           if (!predPar) {
 	    ATH_MSG_DEBUG ("-O- internal mini-filter failed in SCT recovery!");
@@ -321,13 +327,16 @@ bool Trk::KalmanOutlierRecovery_InDet::flagNewOutliers(Trk::Trajectory& T,
       rit = firstSctState_r + 1; // now on last Pixel state!
       for( ; rit!=T.rend(); ++rit) {
         const Trk::TrackParameters* filteredPar =
-	  ( updatedPar != nullptr ?
-	    m_extrapolator->extrapolate(ctx,
-                                  *updatedPar,
-                                  rit->measurement()->associatedSurface(),
-                                  Trk::oppositeMomentum,
-                                  false, Trk::muon) :
-      nullptr );
+          (updatedPar != nullptr
+             ? m_extrapolator
+                 ->extrapolate(ctx,
+                               *updatedPar,
+                               rit->measurement()->associatedSurface(),
+                               Trk::oppositeMomentum,
+                               false,
+                               Trk::muon)
+                 .release()
+             : nullptr);
         delete updatedPar;
         const Trk::FitQualityOnSurface* testQuality = (filteredPar==nullptr)? nullptr :
           m_updator->predictedStateFitQuality(*filteredPar,

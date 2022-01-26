@@ -498,7 +498,7 @@ InDet::TRT_TrackExtensionToolCosmics::findBoundarySurface(const Trk::TrackParame
                                                                        *m_propagator,
                                                                        par,
                                                                        *event_data.m_trtcylinder,
-                                                                       dir,true,Trk::muon);
+                                                                       dir,true,Trk::muon).release();
   if(test){
     delete test;
     return event_data.m_trtcylinder;
@@ -507,7 +507,7 @@ InDet::TRT_TrackExtensionToolCosmics::findBoundarySurface(const Trk::TrackParame
   test=m_extrapolator->extrapolateDirectly(ctx,
                                            *m_propagator,
                                            par,
-                                           *event_data.m_trtdiscA,dir,true,Trk::muon);
+                                           *event_data.m_trtdiscA,dir,true,Trk::muon).release();
   if(test){
     delete test;
     return event_data.m_trtdiscA;
@@ -516,7 +516,7 @@ InDet::TRT_TrackExtensionToolCosmics::findBoundarySurface(const Trk::TrackParame
   test=m_extrapolator->extrapolateDirectly(ctx,*
                                            m_propagator,
                                            par,
-                                           *event_data.m_trtdiscC,dir,true,Trk::muon);
+                                           *event_data.m_trtdiscC,dir,true,Trk::muon).release();
   if(test){
     delete test;
     return event_data.m_trtdiscC;

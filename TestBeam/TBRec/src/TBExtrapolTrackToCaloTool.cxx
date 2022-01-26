@@ -446,7 +446,7 @@ TBExtrapolTrackToCaloTool::extrapolate(const Trk::TrackParameters* parm,
     Gaudi::Hive::currentContext(),
     *parm, *surf,
     Trk::alongMomentum,
-    true, Trk::nonInteracting);
+    true, Trk::nonInteracting).release();
   
   if (param)
     ATH_MSG_DEBUG ("Propagation successful ");
@@ -481,7 +481,7 @@ TBExtrapolTrackToCaloTool::extrapolate(const Trk::Track* trk,
     Gaudi::Hive::currentContext(),
     *trk, *surf,
     Trk::alongMomentum,
-    true, Trk::nonInteracting);
+    true, Trk::nonInteracting).release();
   
   // the other way to do it:
   //
@@ -543,7 +543,7 @@ Amg::Vector3D TBExtrapolTrackToCaloTool::getMomentumAtVertex(const xAOD::Vertex&
         ATH_MSG_WARNING("NULL pointer to TrackParticle in vertex");
         continue;
       }
-      const Trk::TrackParameters* params = m_extrapolator->extrapolate(ctx, *tp, *surface, Trk::alongMomentum);
+      const Trk::TrackParameters* params = m_extrapolator->extrapolate(ctx, *tp, *surface, Trk::alongMomentum).release();
       if (!params)
         ATH_MSG_DEBUG("Extrapolation to vertex (perigee) failed");
       else

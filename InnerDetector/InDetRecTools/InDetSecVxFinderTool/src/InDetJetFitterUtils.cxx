@@ -481,7 +481,7 @@ namespace InDet
     Trk::PerigeeSurface mySurface(vertexToExtrapolateTo.position());
     const Trk::TrackParameters* newMeasPerigee= m_extrapolator->extrapolateDirectly(ctx,
                                                                                     trackPerigee,
-                                                                                    mySurface);
+                                                                                    mySurface).release();
     if (newMeasPerigee==nullptr)
     {
       msg(MSG::WARNING) <<  " Extrapolation failed. Wrong d0 and z0 returned " << endmsg;

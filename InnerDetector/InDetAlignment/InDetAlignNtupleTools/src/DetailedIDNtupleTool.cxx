@@ -298,7 +298,7 @@ namespace InDet {
 
       const Trk::PerigeeSurface persf(refPoint);
       const Trk::Perigee* originalPerigeeAtRef =
-        dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolate(ctx, *originalTrack, persf));
+        dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolate(ctx, *originalTrack, persf).release());
       if (!originalPerigeeAtRef) {
         const Trk::Perigee* originalTrackPerigee = originalTrack->perigeeParameters();
         if (originalTrackPerigee && ((originalTrackPerigee->associatedSurface())) == persf) {
@@ -317,7 +317,7 @@ namespace InDet {
       }
 
       const Trk::Perigee* PerigeeAtRef =
-        dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolate(ctx, *alignTrack, persf));
+        dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolate(ctx, *alignTrack, persf).release());
       if (!PerigeeAtRef) {
         const Trk::Perigee* alignTrackPerigee = alignTrack->perigeeParameters();
         if (alignTrackPerigee && ((alignTrackPerigee->associatedSurface())) == persf) {

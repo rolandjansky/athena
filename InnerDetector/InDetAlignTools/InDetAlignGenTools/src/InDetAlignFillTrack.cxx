@@ -454,7 +454,7 @@ StatusCode InDetAlignFillTrack::FillTrack() {
                                                                                 perigeeSurface,
                                                                                 Trk::anyDirection,
                                                                                 false,
-                                                                                Trk::nonInteracting);
+                                                                                Trk::nonInteracting).release();
                     if (!generatedTrackPerigee) continue;
                   } else {
                     ATH_MSG_DEBUG("Distance between perigee and generated vertex is less than tolerance ("

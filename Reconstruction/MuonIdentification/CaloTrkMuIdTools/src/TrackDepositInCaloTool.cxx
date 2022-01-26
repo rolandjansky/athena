@@ -371,7 +371,7 @@ std::unique_ptr<const Trk::TrackParameters> TrackDepositInCaloTool::extrapolateT
         return nullptr;
     }
     // --- Try to extrapolate to entrance ---
-    paramEntrance.reset(m_extrapolator->extrapolate(ctx, *par, *surfEntrance, Trk::alongMomentum, !checkBoundary, muonHypo));
+    paramEntrance = m_extrapolator->extrapolate(ctx, *par, *surfEntrance, Trk::alongMomentum, !checkBoundary, muonHypo);
     if (!paramEntrance) {
         ATH_MSG_DEBUG("Extrapolation to entrance failed without boundary check.");
         return nullptr;
@@ -414,7 +414,7 @@ std::unique_ptr<const Trk::TrackParameters> TrackDepositInCaloTool::extrapolateT
         return nullptr;
     }
     // --- Try to extrapolate to exit of layer ---
-    paramExit.reset(m_extrapolator->extrapolate(ctx, *par, *surfExit, Trk::alongMomentum, checkBoundary, muonHypo));
+    paramExit = m_extrapolator->extrapolate(ctx, *par, *surfExit, Trk::alongMomentum, checkBoundary, muonHypo);
     if (paramExit) {
         ATH_MSG_VERBOSE("Extrapolated to exit. ");
         return paramExit;
@@ -422,7 +422,7 @@ std::unique_ptr<const Trk::TrackParameters> TrackDepositInCaloTool::extrapolateT
     // --- Try to extrapolate to side ---
     std::unique_ptr<Trk::Surface> surfOutside{createSurface(descr, Outside)};
     if (!surfOutside) { return nullptr; }
-    paramExit.reset(m_extrapolator->extrapolate(ctx, *par, *surfOutside, Trk::alongMomentum, checkBoundary, muonHypo));
+    paramExit = m_extrapolator->extrapolate(ctx, *par, *surfOutside, Trk::alongMomentum, checkBoundary, muonHypo);
     if (paramExit) {
         ATH_MSG_VERBOSE("Succesfully extrapolated to outer side of calo for sample " << descr->getSampling());
     } else {
@@ -454,12 +454,12 @@ std::unique_ptr<const Trk::TrackParameters> TrackDepositInCaloTool::extrapolateT
         double zTrans = par->eta() > 0 ? halfLengthOfCylinder : -halfLengthOfCylinder;
         Trk::DiscSurface disc(Amg::Transform3D(Amg::Translation3D(Amg::Vector3D(0., 0., zTrans))), 0, solenoidRadius);
 
-        parAtSolenoid.reset(m_extrapolator->extrapolate(ctx, *par, disc, direction, checkBoundary, muonHypo));
+        parAtSolenoid = m_extrapolator->extrapolate(ctx, *par, disc, direction, checkBoundary, muonHypo);
 
         if (!parAtSolenoid) {
             ATH_MSG_VERBOSE("extrapolateToSolenoid(): Extrapolation to cap of solenoid failed. Trying opposite side.");
             Trk::DiscSurface discOpp(Amg::Transform3D(Amg::Translation3D(Amg::Vector3D(0., 0., -zTrans))), 0, solenoidRadius);
-            parAtSolenoid.reset(m_extrapolator->extrapolate(ctx, *par, discOpp, direction, checkBoundary, muonHypo));
+            parAtSolenoid = m_extrapolator->extrapolate(ctx, *par, discOpp, direction, checkBoundary, muonHypo);
         }
 
         if (parAtSolenoid) { ATH_MSG_VERBOSE("extrapolateToSolenoid(): Extrapolation succeeded for disc-type surface."); }
@@ -571,7 +571,7 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::deposits(const Trk::TrackPara
                 std::unique_ptr<Trk::Surface> surfExit{createSurface(descr, Exit)};
                 std::unique_ptr<const Trk::TrackParameters> paramExit;
                 if (surfExit) {
-                    paramExit.reset(m_extrapolator->extrapolate(ctx, *paramMiddle, *surfExit, Trk::alongMomentum, checkBoundary, muonHypo));
+                    paramExit = m_extrapolator->extrapolate(ctx, *paramMiddle, *surfExit, Trk::alongMomentum, checkBoundary, muonHypo);
                     if (paramExit) {
                         ATH_MSG_VERBOSE("Extrapolated to exit. ");
                         energyExit = calcEnergy(paramExit.get(), muonHypo);
@@ -580,8 +580,8 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::deposits(const Trk::TrackPara
                         // Try to extrapolate to outside
                         std::unique_ptr<Trk::Surface> surfOutside{createSurface(descr, Outside)};
                         if (surfOutside) {
-                            paramExit.reset(
-                                m_extrapolator->extrapolate(ctx, *paramMiddle, *surfOutside, Trk::alongMomentum, checkBoundary, muonHypo));
+                            paramExit = 
+                                m_extrapolator->extrapolate(ctx, *paramMiddle, *surfOutside, Trk::alongMomentum, checkBoundary, muonHypo);
                             if (paramExit) {
                                 ATH_MSG_VERBOSE("Succesfully extrapolated to outer side of calo for sample " << sample);
                                 energyExit = calcEnergy(paramExit.get(), muonHypo);

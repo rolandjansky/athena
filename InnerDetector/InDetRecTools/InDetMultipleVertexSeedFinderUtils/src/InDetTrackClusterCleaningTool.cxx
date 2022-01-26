@@ -61,7 +61,7 @@ namespace InDet
    else perigee = m_extrapolator->extrapolate(ctx,
                                               **i,perigeeSurface,
                                               Trk::anyDirection,true, 
-                                              Trk::pion); 
+                                              Trk::pion).release(); 
    
    if(perigee)
    { 
@@ -87,7 +87,7 @@ namespace InDet
      
      //here we want to make an extrapolation
      measPerigee = m_extrapolator->extrapolate(
-       ctx, **i, perigeeSurface, Trk::anyDirection, true, Trk::pion);
+       ctx, **i, perigeeSurface, Trk::anyDirection, true, Trk::pion).release();
    }
 
    if(measPerigee)
@@ -137,9 +137,14 @@ namespace InDet
   {
    const Trk::TrackParameters * perigee(nullptr);
    if(!reference) perigee = &((*i)->definingParameters());
-   else perigee = m_extrapolator->extrapolate(ctx,
-                                              (*i)->definingParameters(),perigeeSurface,Trk::anyDirection,true, Trk::pion);
-   
+   else
+     perigee = m_extrapolator->extrapolate(ctx,
+                                           (*i)->definingParameters(),
+                                           perigeeSurface,
+                                           Trk::anyDirection,
+                                           true,
+                                           Trk::pion).release();
+
    if(perigee)
    { 
     z_center += perigee->parameters()[Trk::z0];
@@ -161,9 +166,14 @@ namespace InDet
   {
    const Trk::TrackParameters * measPerigee(nullptr);
    if(!reference) measPerigee = &((*i)->definingParameters());
-   else  measPerigee = m_extrapolator->extrapolate(ctx,
-                                                   (*i)->definingParameters(),perigeeSurface,Trk::anyDirection,true, Trk::pion);
-  
+   else
+     measPerigee = m_extrapolator->extrapolate(ctx,
+                                               (*i)->definingParameters(),
+                                               perigeeSurface,
+                                               Trk::anyDirection,
+                                               true,
+                                               Trk::pion).release();
+
    if(nullptr!=measPerigee)
    {
     double z0 = measPerigee->parameters()[Trk::z0];
@@ -211,10 +221,10 @@ namespace InDet
 	     //first getting the cluster center  
 	     for(std::vector<const xAOD::TrackParticle*>::const_iterator i = inb; i != ine; ++i)
 	       {
-		 const Trk::TrackParameters * perigee(nullptr);
+           const Trk::TrackParameters * perigee(nullptr);
 		 
 		 perigee = m_extrapolator->extrapolate(ctx,
-                                           **i,perigeeSurface,Trk::anyDirection,true, Trk::pion);
+                                           **i,perigeeSurface,Trk::anyDirection,true, Trk::pion).release();
 		 
 		 if(perigee)
 		   { 
@@ -237,7 +247,11 @@ namespace InDet
 	       {
 		 const Trk::TrackParameters * measPerigee(nullptr);
 		 measPerigee = m_extrapolator->extrapolate(ctx,
-                                               **i,perigeeSurface,Trk::anyDirection,true, Trk::pion);
+                                               **i,
+                                               perigeeSurface,
+                                               Trk::anyDirection,
+                                               true, 
+                                               Trk::pion).release();
 		 
 		 if(nullptr!=measPerigee)
 		   {

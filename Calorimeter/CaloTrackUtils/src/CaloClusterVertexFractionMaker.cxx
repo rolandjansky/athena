@@ -139,7 +139,7 @@ CaloClusterVertexFractionMaker::execute(const EventContext& ctx,
                 *m_discSurface_atCaloEntrance_positiveZ,
                 Trk::alongMomentum,
                 true,
-                Trk::pion));
+                Trk::pion).release());
           } else if (theTrackParticle->eta() <
                      -1.35) // track most likely in endcap C, extrapolate track
                             // to a disc at ID exist in negative z direction
@@ -151,7 +151,7 @@ CaloClusterVertexFractionMaker::execute(const EventContext& ctx,
                 *m_discSurface_atCaloEntrance_negativeZ,
                 Trk::alongMomentum,
                 true,
-                Trk::pion));
+                Trk::pion).release());
           } else // track is in barrel, extrapolate to cylinder at ID exit
           {
             trackParameters_atCaloEntrance =
@@ -161,7 +161,7 @@ CaloClusterVertexFractionMaker::execute(const EventContext& ctx,
                                             *m_cylinderSurface_atCaloEntrance,
                                             Trk::alongMomentum,
                                             true,
-                                            Trk::pion));
+                                            Trk::pion).release());
           }
           if (trackParameters_atCaloEntrance != nullptr) {
             m_trkParticleEta_atCaloEntrance->push_back(trackParameters_atCaloEntrance->position().eta());

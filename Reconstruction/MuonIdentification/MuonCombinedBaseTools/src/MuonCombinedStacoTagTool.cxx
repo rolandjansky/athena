@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -66,7 +66,7 @@ namespace MuonCombined {
             // check that the to perigee surfaces are the same
             if (idPer->associatedSurface() != msPer->associatedSurface()) {
                 // extrapolate to id surface
-                exPars.reset(m_extrapolator->extrapolate(ctx, *muonCandidate.extrapolatedTrack(), idPer->associatedSurface()));
+                exPars = m_extrapolator->extrapolate(ctx, *muonCandidate.extrapolatedTrack(), idPer->associatedSurface());
                 if (!exPars) {
                     ATH_MSG_DEBUG("The ID and MS candidates are not expressed at the same surface: id r "
                                     << idTP->indetTrackParticle().perigeeParameters().associatedSurface().center().perp() << " z "

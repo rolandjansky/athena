@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -168,7 +168,7 @@ AthTruthSelectionTool::initialize() {
           const Trk::TrackParameters *exParameters = m_extrapolator->extrapolate(Gaudi::Hive::currentContext(),
                                                                                  cParameters, 
                                                                                  *m_cylinder, 
-                                                                                 Trk::anyDirection, false, Trk::pion);
+                                                                                 Trk::anyDirection, false, Trk::pion).release();
           if (!exParameters) {
             ATH_MSG_VERBOSE("Failed extrapolation. Rejecting track.");
             return false;
@@ -209,7 +209,7 @@ AthTruthSelectionTool::initialize() {
           const Trk::CurvilinearParameters cParameters(position, momentum, p.charge());
           const Trk::TrackParameters *exParameters = m_extrapolator->extrapolate(Gaudi::Hive::currentContext(),
                                                                                  cParameters, 
-                                                                                 *m_disc1, Trk::anyDirection, true, Trk::pion);
+                                                                                 *m_disc1, Trk::anyDirection, true, Trk::pion).release();
           if (exParameters) {
             //since boundary check is true, should be enough to say we've hit the disk..
             ATH_MSG_VERBOSE("Successfully extrapolated track to disk at +" << m_zDisc << ": " << *exParameters);
@@ -222,7 +222,7 @@ AthTruthSelectionTool::initialize() {
             //else...
             ATH_MSG_VERBOSE("Strange, extrapolation succeeded but extrapolated position not within disc radius! Test next disc");
           }
-          exParameters = m_extrapolator->extrapolate(Gaudi::Hive::currentContext(),cParameters, *m_disc2, Trk::anyDirection, true, Trk::pion);
+          exParameters = m_extrapolator->extrapolate(Gaudi::Hive::currentContext(),cParameters, *m_disc2, Trk::anyDirection, true, Trk::pion).release();
           if (exParameters) {
             //since boundary check is true, should be enough to say we've hit the disk..
             ATH_MSG_VERBOSE("Successfully extrapolated track to disk at -" << m_zDisc << ": " << *exParameters);
@@ -286,97 +286,3 @@ AthTruthSelectionTool::testAllCuts(const xAOD::IParticle * particle, std::vector
   return m_cutList.testAllCuts(*pTruth,counter);
 }
 
-
-/*
-bool AthTruthSelectionTool::acceptExtrapolatedTPToSurface(const xAOD::TruthParticle& p) const
-{
-  if (m_radiusCylinder > 0) {
-    ATH_MSG_VERBOSE("Checking particle for intersection with m_cylinder of radius " << m_radiusCylinder);
-    //create surface we extrapolate to and cache it
-    if (m_cylinder == 0) {
-      Amg::Transform3D *trnsf = new Amg::Transform3D();
-      trnsf->setIdentity();
-      m_cylinder = new Trk::CylinderSurface( trnsf, m_radiusCylinder, 20000.);
-    }
-    const xAOD::TruthVertex* ptruthVertex = p.prodVtx();
-    if (ptruthVertex == 0) {
-      //cannot derive production vertex, reject track
-      ATH_MSG_VERBOSE("Rejecting particle without production vertex.");
-      return false;
-    }
-    const auto xPos = ptruthVertex->x();
-    const auto yPos = ptruthVertex->y();
-    const auto z_truth = ptruthVertex->z();
-    const Amg::Vector3D position(xPos, yPos, z_truth);
-    const Amg::Vector3D momentum(p.px(), p.py(), p.pz());
-    const Trk::CurvilinearParameters cParameters(position, momentum, p.charge());
-    const Trk::TrackParameters *exParameters = m_extrapolator->extrapolate(cParameters, *m_cylinder, Trk::anyDirection, false, Trk::pion);
-    if (!exParameters) {
-      ATH_MSG_VERBOSE("Failed extrapolation. Rejecting track.");
-      return false;
-    }
-    ATH_MSG_VERBOSE("Extrapolated parameters to m_cylinder: " << exParameters);
-    const float ex_abs_z = fabs(exParameters->parameters()[Trk::z0]);
-    if ( (ex_abs_z > m_minZCylinder) and (ex_abs_z < m_maxZCylinder) ) {
-      ATH_MSG_VERBOSE("Particle accepted.");
-      return true;
-    }
-    //else..
-    ATH_MSG_VERBOSE("Particle rejected");
-    return false;
-  } else if (m_zDisc > 0) {
-    ATH_MSG_VERBOSE("Checking particle for intersection with m_cylinder of radius " << m_radiusCylinder);
-    //create surface we extrapolate to and cache it
-    if (m_disc1 == 0) { //m_disc2 == 0 implied
-      Amg::Transform3D *trnsf_shiftZ = new Amg::Transform3D();
-      (*trnsf_shiftZ) = Amg::Translation3D(0.,0.,m_zDisc);
-      m_disc1 = new Trk::DiscSurface( trnsf_shiftZ, m_minRadiusDisc, m_maxRadiusDisc);
-      (*trnsf_shiftZ) = Amg::Translation3D(0.,0.,-m_zDisc);
-      m_disc2 = new Trk::DiscSurface( trnsf_shiftZ, m_minRadiusDisc, m_maxRadiusDisc);
-    }
-    const xAOD::TruthVertex* ptruthVertex = p.prodVtx();
-    if (ptruthVertex == 0) {
-      //cannot derive production vertex, reject track
-      ATH_MSG_VERBOSE("Rejecting particle without production vertex.");
-      return false;
-    }
-    const auto xPos = ptruthVertex->x();
-    const auto yPos = ptruthVertex->y();
-    const auto z_truth = ptruthVertex->z();
-    const Amg::Vector3D position(xPos, yPos, z_truth);
-    const Amg::Vector3D momentum(p.px(), p.py(), p.pz());
-    const Trk::CurvilinearParameters cParameters(position, momentum, p.charge());
-    const Trk::TrackParameters *exParameters = m_extrapolator->extrapolate(cParameters, *m_disc1, Trk::anyDirection, true, Trk::pion);
-    if (exParameters) {
-      //since boundary check is true, should be enough to say we've hit the disk..
-      ATH_MSG_VERBOSE("Successfully extrapolated track to disk at +" << m_zDisc);
-      float ex_radius = fabs(exParameters->parameters()[Trk::d0]);
-      ATH_MSG_VERBOSE("|loc1| (|d0|) parameter at surface: " << ex_radius);
-      if ((ex_radius > m_minRadiusDisc) and (ex_radius < m_maxRadiusDisc)) {
-        ATH_MSG_VERBOSE("Confirmed within the disk. Accepting particle");
-        return true;
-      }
-      //else...
-      ATH_MSG_VERBOSE("Strange, extrapolation succeeded but extrapolated position not within disc radius! Test next disc");
-    }
-    exParameters = m_extrapolator->extrapolate(cParameters, *m_disc2, Trk::anyDirection, true, Trk::pion);
-    if (exParameters) {
-      //since boundary check is true, should be enough to say we've hit the disk..
-      ATH_MSG_VERBOSE("Successfully extrapolated track to disk at -" << m_zDisc);
-      float ex_radius = fabs(exParameters->parameters()[Trk::d0]);
-      ATH_MSG_VERBOSE("|loc1| (|d0|) parameter at surface: " << ex_radius);
-      if ((ex_radius > m_minRadiusDisc) and (ex_radius < m_maxRadiusDisc)) {
-        ATH_MSG_VERBOSE("Confirmed within the disk. Accepting particle");
-        return true;
-      }
-      //else...
-      ATH_MSG_VERBOSE("Strange, extrapolation succeeded but extrapolated position not within disc radius! Rejecting");
-    }
-    //else..
-    ATH_MSG_VERBOSE("Particle rejected");
-    return false;
-  }
-  //if not cut enabled, returns OK
-  return true;
-}
-*/

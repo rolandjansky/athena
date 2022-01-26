@@ -315,10 +315,10 @@ InDet::InDetTestBLayerTool::getTrackStateOnPixelLayerInfo(
 {
   assert(layer >= 0 && layer <= 1);
 
-  const Trk::TrackParameters* startParameters = nullptr;
+  std::unique_ptr<const Trk::TrackParameters> startParameters = nullptr;
 
   if (track->perigeeParameters()) {
-    startParameters = track->perigeeParameters()->clone();
+    startParameters = track->perigeeParameters()->uniqueClone();
   } else if (track->trackParameters()->front()) {
     startParameters =
       m_extrapolator->extrapolate(
@@ -336,8 +336,7 @@ InDet::InDetTestBLayerTool::getTrackStateOnPixelLayerInfo(
   }
 
   bool succeed =
-    getTrackStateOnPixelLayerInfo(startParameters, infoList, layer);
-  delete startParameters;
+    getTrackStateOnPixelLayerInfo(startParameters.get(), infoList, layer);
   return succeed;
 }
 
