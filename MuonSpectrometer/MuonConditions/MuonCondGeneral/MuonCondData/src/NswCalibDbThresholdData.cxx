@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondData/NswCalibDbThresholdData.h"
@@ -37,10 +37,8 @@ std::vector<Identifier>
 NswCalibDbThresholdData::getChannelIds(const std::string tech, const std::string side) const {
 	std::vector<Identifier> chnls;
 	std::vector<Identifier> keys;
-	std::map<unsigned long long, std::vector<double> >::const_iterator it;
-	for(it=m_data.begin(); it!=m_data.end(); it++){
-		Identifier id(it->first);
-		keys.push_back(id);
+        for (const auto& p : m_data) {
+		keys.emplace_back(p.first);
 	}
 	if(tech=="" && side=="") return keys;
 	for(unsigned int i=0; i<keys.size(); ++i){

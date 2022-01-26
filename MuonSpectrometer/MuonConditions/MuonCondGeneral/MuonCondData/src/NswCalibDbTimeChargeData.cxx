@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondData/NswCalibDbTimeChargeData.h"
@@ -19,7 +19,7 @@ NswCalibDbTimeChargeData::NswCalibDbTimeChargeData(const MmIdHelper& mmIdHelper,
 
 // setData
 void
-NswCalibDbTimeChargeData::setData(const std::string type, const Identifier* chnlId, const double slope, const double slopeError, const double intercept, const double interceptError) {
+NswCalibDbTimeChargeData::setData(const std::string& type, const Identifier* chnlId, const double slope, const double slopeError, const double intercept, const double interceptError) {
 	if(type!="TDO" && type!="PDO") return;
 	if(m_data.find(type) == m_data.end()){
 		std::map<unsigned long long, std::vector<double> > empty;
@@ -41,15 +41,13 @@ NswCalibDbTimeChargeData::setData(const std::string type, const Identifier* chnl
 
 // getChannelIds
 std::vector<Identifier>
-NswCalibDbTimeChargeData::getChannelIds(const std::string type, const std::string tech, const std::string side) const {
+NswCalibDbTimeChargeData::getChannelIds(const std::string& type, const std::string tech, const std::string side) const {
 	std::vector<Identifier> chnls;
 	if(type!="TDO" && type!="PDO") return chnls;
 	if(m_data.find(type) == m_data.end()) return chnls;
 	std::vector<Identifier> keys;
-	std::map<unsigned long long, std::vector<double> >::const_iterator it;
-	for(it=m_data.at(type).begin(); it!=m_data.at(type).end(); it++){
-		Identifier id(it->first);
-		keys.push_back(id);
+        for (const auto& p : m_data.at(type)) {
+		keys.emplace_back(p.first);
 	}
 	if(tech=="" && side=="") return keys;
 	for(unsigned int i=0; i<keys.size(); ++i){
@@ -66,7 +64,7 @@ NswCalibDbTimeChargeData::getChannelIds(const std::string type, const std::strin
 
 // getSlope
 bool
-NswCalibDbTimeChargeData::getSlope(const std::string type, const Identifier* chnlId, double& slope) const {
+NswCalibDbTimeChargeData::getSlope(const std::string& type, const Identifier* chnlId, double& slope) const {
 	if(type!="TDO" && type!="PDO") return false;
 	if(m_data.find(type) == m_data.end()) return false;
 	unsigned long long channelId = chnlId->get_compact();
@@ -78,7 +76,7 @@ NswCalibDbTimeChargeData::getSlope(const std::string type, const Identifier* chn
 
 // getSlopeError
 bool
-NswCalibDbTimeChargeData::getSlopeError(const std::string type, const Identifier* chnlId, double& slopeError) const {
+NswCalibDbTimeChargeData::getSlopeError(const std::string& type, const Identifier* chnlId, double& slopeError) const {
 	if(type!="TDO" && type!="PDO") return false;
 	if(m_data.find(type) == m_data.end()) return false;
 	unsigned long long channelId = chnlId->get_compact();
@@ -90,7 +88,7 @@ NswCalibDbTimeChargeData::getSlopeError(const std::string type, const Identifier
 
 // getIntercept
 bool
-NswCalibDbTimeChargeData::getIntercept(const std::string type, const Identifier* chnlId, double& intercept) const {
+NswCalibDbTimeChargeData::getIntercept(const std::string& type, const Identifier* chnlId, double& intercept) const {
 	if(type!="TDO" && type!="PDO") return false;
 	if(m_data.find(type) == m_data.end()) return false;
 	unsigned long long channelId = chnlId->get_compact();
@@ -102,7 +100,7 @@ NswCalibDbTimeChargeData::getIntercept(const std::string type, const Identifier*
 
 // getInterceptError
 bool
-NswCalibDbTimeChargeData::getInterceptError(const std::string type, const Identifier* chnlId, double& interceptError) const {
+NswCalibDbTimeChargeData::getInterceptError(const std::string& type, const Identifier* chnlId, double& interceptError) const {
 	if(type!="TDO" && type!="PDO") return false;
 	if(m_data.find(type) == m_data.end()) return false;
 	unsigned long long channelId = chnlId->get_compact();

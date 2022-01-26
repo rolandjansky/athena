@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDDATA_NSWCALIBDBTIMECHARGEDATA_H
@@ -28,14 +28,14 @@ public:
     virtual ~NswCalibDbTimeChargeData() = default;
 
 	// setting functions
-	void setData   (const std::string, const Identifier*, const double, const double, const double, const double);
+	void setData   (const std::string&, const Identifier*, const double, const double, const double, const double);
 
 	// retrieval functions
-	std::vector<Identifier> getChannelIds    (const std::string, const std::string="", const std::string="") const;
-	bool                    getSlope         (const std::string, const Identifier*, double&) const;
-	bool                    getSlopeError    (const std::string, const Identifier*, double&) const;
-	bool                    getIntercept     (const std::string, const Identifier*, double&) const;
-	bool                    getInterceptError(const std::string, const Identifier*, double&) const;
+	std::vector<Identifier> getChannelIds    (const std::string&, const std::string="", const std::string="") const;
+	bool                    getSlope         (const std::string&, const Identifier*, double&) const;
+	bool                    getSlopeError    (const std::string&, const Identifier*, double&) const;
+	bool                    getIntercept     (const std::string&, const Identifier*, double&) const;
+	bool                    getInterceptError(const std::string&, const Identifier*, double&) const;
 
  
 private:
