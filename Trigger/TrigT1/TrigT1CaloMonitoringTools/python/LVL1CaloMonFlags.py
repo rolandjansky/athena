@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ## @package LVL1CaloMonFlags
 #
@@ -6,7 +6,7 @@
 #
 # @author Peter Faulkner
 #
-from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
+from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
 
 
 ###
@@ -17,11 +17,9 @@ class LVL1CaloMonFlagsCont(JobPropertyContainer):
 
     pass
 
-
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-TriggerFlags.add_Container(LVL1CaloMonFlagsCont)
-LVL1CaloMonFlags = TriggerFlags.LVL1CaloMonFlagsCont
-
+# add the LVL1CaloMonFlagsCont flags container to the top container and alias it:
+jobproperties.add_Container(LVL1CaloMonFlagsCont)
+LVL1CaloMonFlags = jobproperties.LVL1CaloMonFlagsCont
 
 ###
 ### flags
