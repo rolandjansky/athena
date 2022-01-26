@@ -222,7 +222,7 @@ class MuonStandalone(ConfiguredMuonRec):
 
         self.addAlg( TrackBuilder )
         #### Add a segment collection only containing only EM and EO hits
-        if reco_mircomegas or reco_stgc:
+        if muonRecFlags.runCommissioningChain():
             self.addAlg(MuonSegmentFilterAlg(FilteredCollectionName="TrackMuonSegmentsEMEO"))
   
             chamberRecovery_EMEO = getPublicToolClone("MuonChamberRecovery_EMEO", "MuonChamberHoleRecoveryTool", 

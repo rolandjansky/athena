@@ -770,6 +770,14 @@ def MuonSegmentFinderAlgCfg(flags, name="MuonSegmentMaker", **kwargs):
     result.addEventAlgo(the_alg)
     return result    
 
+def MuonSegmentFilterAlgCfg(flags, name="MuonSegmentFilterAlg", **kwargs):
+    result = ComponentAccumulator()
+    kwargs.setdefault("SegmentCollectionName", "TrackMuonSegments")
+    ## The output key of this alg os per default FilteredMuonSegments
+    kwargs.setdefault("FilteredCollectionName", "TrackMuonSegmentsEMEO")
+    the_alg =  CompFactory.MuonSegmentFilterAlg(name, **kwargs)
+    result.addEventAlgo(the_alg)
+    return result
 
 def MuonSegmentFindingCfg(flags, cardinality=1):
     # Set up some general stuff needed by muon reconstruction
@@ -800,6 +808,9 @@ def MuonSegmentFindingCfg(flags, cardinality=1):
     result.merge(MuonSegmentFinderAlgCfg(flags, name="MuonSegmentFinderAlg"))
   
     result.merge(MooSegmentFinderAlg_NCBCfg(flags, Cardinality=cardinality))
+    
+    if flags.Muon.runCommissioningChain:
+        result.merge(MuonSegmentFilterAlgCfg(flags))
 
     result.addEventAlgo(CompFactory.xAODMaker.MuonSegmentCnvAlg("MuonSegmentCnvAlg"))
 
