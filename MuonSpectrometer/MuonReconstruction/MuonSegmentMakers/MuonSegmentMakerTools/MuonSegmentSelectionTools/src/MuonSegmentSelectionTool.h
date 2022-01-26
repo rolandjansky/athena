@@ -63,7 +63,7 @@ class MuonSegmentSelectionTool : virtual public IMuonSegmentSelectionTool, publi
         this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
         "Handle to the service providing the IMuonEDMHelperSvc interface"};  //!< EDM Helper tool
 
-    ToolHandle<MuonEDMPrinterTool> m_printer{
+    PublicToolHandle<MuonEDMPrinterTool> m_printer{
         this,
         "Printer",
         "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",

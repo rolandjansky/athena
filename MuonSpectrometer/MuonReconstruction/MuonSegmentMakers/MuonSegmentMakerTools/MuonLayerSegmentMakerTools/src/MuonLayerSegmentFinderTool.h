@@ -82,7 +82,7 @@ class MuonLayerSegmentFinderTool : virtual public IMuonLayerSegmentFinderTool, p
         "Muon::MuonIdHelperSvc/MuonIdHelperSvc",
     };
 
-    ToolHandle<MuonEDMPrinterTool> m_printer{
+    PublicToolHandle<MuonEDMPrinterTool> m_printer{
         this,
         "MuonEDMPrinterTool",
         "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",

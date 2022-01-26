@@ -55,7 +55,7 @@ namespace Muon {
                                                                    "Muon::MuonSegmentMatchingTool/MuonSegmentMatchingToolTight"};
         ToolHandle<IMuonSegmentTrackBuilder> m_muonTrackBuilder{this, "MuonSegmentTrackBuilder",
                                                                 "Muon::MooTrackBuilder/MooMuonTrackBuilder"};
-        ToolHandle<MuonEDMPrinterTool> m_printer{this, "MuonEDMPrinterTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
+        PublicToolHandle<MuonEDMPrinterTool> m_printer{this, "MuonEDMPrinterTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
 
         Gaudi::Property<unsigned int> m_maxSeeds{this, "MaxSeeds", 30, "maximum number of seeds to be tried"};
         Gaudi::Property<int> m_seedQualityThreshold{this, "SeedQualityThreshold", 2, "seed quality threshold"};

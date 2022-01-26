@@ -72,7 +72,7 @@ namespace Muon {
             this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
             "Handle to the service providing the IMuonEDMHelperSvc interface"};  //<! multipurpose helper tool
 
-        ToolHandle<MuonEDMPrinterTool> m_printer{this, "EDMPrinter", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",
+        PublicToolHandle<MuonEDMPrinterTool> m_printer{this, "EDMPrinter", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",
                                                  "helper to nicely print out tracks"};
         ToolHandle<Trk::IPropagator> m_propagator{this, "Propagator", "Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator"};
 
