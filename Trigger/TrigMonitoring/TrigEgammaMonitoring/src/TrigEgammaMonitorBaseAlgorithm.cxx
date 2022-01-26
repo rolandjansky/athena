@@ -695,7 +695,7 @@ void TrigEgammaMonitorBaseAlgorithm::setTrigInfo(const std::string& trigger){
     ATH_MSG_INFO( "L1Seed      : " << l1seed << " (Is Legacy? " << (l1legacy?"Yes":"No") << ")");
     ATH_MSG_INFO("========================================================");
 
-    TrigInfo info{false,l1seed,trigger,signature,threshold,pidname,idperf,etcut,gsf,lrt,isolation, isolated};
+    TrigInfo info{l1legacy,l1seed,trigger,signature,threshold,pidname,idperf,etcut,gsf,lrt,isolation, isolated};
     m_trigInfo[trigger] = info;
 
 }
