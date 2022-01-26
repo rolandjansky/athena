@@ -1332,6 +1332,8 @@ TrigNavigation
 TrigNavigationAux.
 TriggerMenuJson_HLT
 TriggerMenuJson_HLTAux.
+TriggerMenuJson_HLTMonitoring
+TriggerMenuJson_HLTMonitoringAux.
 TriggerMenuJson_HLTPS
 TriggerMenuJson_HLTPSAux.
 TriggerMenuJson_L1

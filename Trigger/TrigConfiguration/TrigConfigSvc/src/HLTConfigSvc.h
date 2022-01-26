@@ -29,8 +29,14 @@ namespace TrigConf {
     Gaudi::Property<std::string> m_hltFileName{this, "JsonFileName", "HLTMenu.json",
       "file name of HLT json file, needed if InputType is FILE"};
 
+    Gaudi::Property<std::string> m_monitoringFileName{this, "MonitoringJsonFileName", "",
+      "file name of HLT monitoring json file, optional if InputType is FILE"};
+
     Gaudi::Property<std::string> m_dbConnection{this, "TriggerDB", "TRIGGERDB",
       "DB connection alias, needed if InputType is DB"};
+
+    Gaudi::Property<bool> m_monitoringOptional{this, "MonitoringJSONOptional", true,
+      "Flag to control if a JSON is required when MonitoringJsonFileName is supplied and InputType is FILE"};
 
     Gaudi::Property<unsigned int> m_smk{this, "SMK", 0,
       "DB smk, needed if InputType is DB (optional for file InputType)"};

@@ -135,6 +135,9 @@ namespace xAODMaker {
       std::string m_inputKeyJSON_HLT;
       std::string m_outputKeyJSON_HLT;
 
+      std::string m_inputKeyJSON_HLTMonitoring;
+      std::string m_outputKeyJSON_HLTMonitoring;
+
       std::string m_inputKeyJSON_L1;
       std::string m_outputKeyJSON_L1;
 
@@ -149,6 +152,9 @@ namespace xAODMaker {
 
       std::unique_ptr< xAOD::TriggerMenuJsonContainer > m_menuJSON_hlt;
       std::unique_ptr< xAOD::TriggerMenuJsonAuxContainer > m_menuJSON_hltAux;
+
+      std::unique_ptr< xAOD::TriggerMenuJsonContainer > m_menuJSON_hltmonitoring;
+      std::unique_ptr< xAOD::TriggerMenuJsonAuxContainer > m_menuJSON_hltmonitoringAux;
 
       std::unique_ptr< xAOD::TriggerMenuJsonContainer > m_menuJSON_l1;
       std::unique_ptr< xAOD::TriggerMenuJsonAuxContainer > m_menuJSON_l1Aux;
