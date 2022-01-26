@@ -218,7 +218,9 @@ def createTriggerFlags():
     flags.addFlag('Trigger.calo.doOffsetCorrection', True )
 
     # Particle ID tune
-    flags.addFlag('Trigger.egamma.pidVersion', 'ElectronPhotonSelectorTools/trigger/rel21_20170214/')
+    flags.addFlag('Trigger.egamma.pidVersion', 'ElectronPhotonSelectorTools/trigger/rel22_20210611/')
+    flags.addFlag('Trigger.egamma.dnnVersion', 'ElectronPhotonSelectorTools/trigger/rel21_20210928/')
+    flags.addFlag('Trigger.egamma.ringerVersion', 'RingerSelectorTools/TrigL2_20210702_r4/')
 
     # cluster correction version, allowed value is: None or v12phiflip_noecorrnogap
     flags.addFlag('Trigger.egamma.clusterCorrectionVersion', 'v12phiflip_noecorrnogap')
