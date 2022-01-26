@@ -25,7 +25,7 @@ def StandaloneMuonOutputCfg(flags):
 
     aod_items+=[ "xAOD::MuonSegmentContainer#NCB_MuonSegments" ]
     aod_items+=[ "xAOD::MuonSegmentAuxContainer#NCB_MuonSegmentsAux." ]
-    if flags.Detector.EnableMM or flags.Detector.EnablesTGC:
+    if flags.Muon.runCommissioningChain:
         aod_items+=[ "xAOD::TrackParticleContainer#EMEO_MuonSpectrometerTrackParticles" ]
         aod_items+=[ "xAOD::TrackParticleAuxContainer#EMEO_MuonSpectrometerTrackParticlesAux." ]
         
@@ -90,7 +90,7 @@ def StandaloneMuonOutputCfg(flags):
 
     # Tracks
     esd_items+=["TrackCollection#MuonSpectrometerTracks"] 
-    if flags.Detector.EnablesTGC or flags.Detector.EnableMM:
+    if flags.Muon.runCommissioningChain:
         esd_items+=["TrackCollection#EMEO_MuonSpectrometerTracks"] 
         
     # Truth

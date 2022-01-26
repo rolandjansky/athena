@@ -44,6 +44,7 @@ if muonRecFlags.doCSCs() and not MuonGeometryFlags.hasCSC(): muonRecFlags.doCSCs
 if muonRecFlags.dosTGCs() and not MuonGeometryFlags.hasSTGC(): muonRecFlags.dosTGCs = False
 if muonRecFlags.doMicromegas() and not MuonGeometryFlags.hasMM(): muonRecFlags.doMicromegas = False
 
+muonRecFlags.runCommissioningChain = muonRecFlags.doMicromegas() or muonRecFlags.dosTGCs()
 if muonRecFlags.doDigitization():
     include("MuonRecExample/MuonDigitization_jobOptions.py")
 

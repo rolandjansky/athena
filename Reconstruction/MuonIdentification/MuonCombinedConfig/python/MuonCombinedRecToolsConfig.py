@@ -246,7 +246,7 @@ def MuonCreatorToolCfg(flags, name="MuonCreatorTool", **kwargs):
     # Not explicitly setting up TrackSegmentAssociationTool 
 
     kwargs.setdefault("TrackQuery",   result.popToolsAndMerge(MuonTrackQueryCfg(flags)) )
-
+    ## runCommissioningChain
     if flags.Muon.SAMuonTrigger:
         from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryToolCfg
         acc = MuonTrackSummaryToolCfg(flags)
@@ -575,6 +575,42 @@ def MuidSegmentRegionRecoveryToolCfg(flags, name ='MuidSegmentRegionRecoveryTool
     return result
 
 
+
+def MuonSegmentRegionRecoveryTool_EMEO_Cfg(flags, name = "MuonSegmentRegionRecoveryTool_EMEO"):
+    result = ComponentAccumulator()
+    from MuonConfig.MuonTrackBuildingConfig import MuonChamberHoleRecoveryTool_EMEO_Cfg
+    acc = MuonChamberHoleRecoveryTool_EMEO_Cfg(flags)
+    chamber_recovery = acc.getPrimary()
+    result.merge(acc)
+   
+    acc = CombinedTrackBuilderFit_EMEO_Cfg(flags)
+    trk_builder = acc.getPrimary()
+    result.merge(acc)
+
+    tool = result.getPrimaryAndMerge(MuidSegmentRegionRecoveryToolCfg(flags, 
+                                           name = name,
+                                           ChamberHoleRecoveryTool = chamber_recovery,
+                                           Builder = trk_builder,
+                                           STGCRegionSelector = "" ,
+                                           MMRegionSelector = "" ,
+                                           RecoverMM = False,
+                                           RecoverSTGC = False))
+    result.setPrivateTools(tool)
+    return result
+
+def CombinedMuonTrackBuilder_EMEO_Cfg(flags, name = "MuonCombinedTrackBuilder_EMEO"):
+    result = ComponentAccumulator()
+    acc = MuonSegmentRegionRecoveryTool_EMEO_Cfg(flags, name)
+    recovery_tool = acc.getPrimary()
+    result.merge(acc)
+    acc = CombinedMuonTrackBuilderCfg(flags, name,
+                                      MMRotCreator = "",
+                                      MuonHoleRecovery = recovery_tool)
+    tool = result.getPrimaryAndMerge(acc) #Need to reset this to be the primary tool
+    result.setPrivateTools(tool)
+    return result
+
+
 def MuidErrorOptimisationToolCfg(flags, name='MuidErrorOptimisationToolFit', **kwargs ):
     from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryHelperToolCfg
     result = MuonTrackSummaryHelperToolCfg(flags)
@@ -743,6 +779,25 @@ def CombinedMuonTrackBuilderFitCfg(flags, name='CombinedMuonTrackBuilderFit', **
     result = MuidErrorOptimisationToolCfg(flags) #Pass in default
     kwargs.setdefault("MuonErrorOptimizer", result.popPrivateTools())
     acc = CombinedMuonTrackBuilderCfg(flags, name, **kwargs)
+    tool = acc.popPrivateTools() #Need to reset this to be the primary tool
+    result.merge(acc)
+    result.setPrivateTools(tool)
+    return result
+
+
+
+def CombinedTrackBuilderFit_EMEO_Cfg(flags, name = "CombinedTrackBuilderFit_EMEO", **kwargs):
+    result = ComponentAccumulator()
+    from MuonConfig.MuonTrackBuildingConfig import MuonChamberHoleRecoveryTool_EMEO_Cfg
+    if not flags.Muon.MuonTrigger:
+         acc = MuonChamberHoleRecoveryTool_EMEO_Cfg(flags)
+         trk_builder = acc.getPrimary()
+         result.merge(acc)
+         kwargs.setdefault("MuonHoleRecovery", trk_builder)
+    else:
+         kwargs.setdefault("MuonHoleRecovery", "")
+    kwargs.setdefault("MMRotCreator", "")
+    acc = CombinedMuonTrackBuilderFitCfg(flags,name, **kwargs)
     tool = acc.popPrivateTools() #Need to reset this to be the primary tool
     result.merge(acc)
     result.setPrivateTools(tool)

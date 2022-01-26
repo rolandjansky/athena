@@ -212,10 +212,6 @@ namespace MuonCombined {
         /// no ID track is available
         Gaudi::Property<bool> m_requireIDTracks{this, "RequireIDTrack", false};
 
-        //// Run comissioining reconstruction chain for EM / EO muons. Only on the
-        //// NSW layouts currently
-        Gaudi::Property<bool> m_runComissioningChain{this, "RunComissioning", false};
-
         Gaudi::Property<float> m_sigmaCaloNoiseCut{this, "SigmaCaloNoiseCut", 3.4};
 
         SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager", "CaloDetDescrManager"};
