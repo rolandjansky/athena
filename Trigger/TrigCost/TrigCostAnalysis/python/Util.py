@@ -10,46 +10,9 @@
 
 import ROOT
 from math import fabs
+from TrigCostAnalysis.CostMetadataUtil import createOverflowSummary
 from AthenaCommon.Logging import logging
 log = logging.getLogger('CostAnalysisPostProcessing')
-
-
-def saveMetadata(inputFile, userDetails, processingWarnings=[]):
-    import json
-
-    metatree = inputFile.Get("metadata")
-    if metatree is None:
-        return None
-
-    metatree.GetEntry(0)
-    metadata = []
-
-    metadata.append({'runNumber' : metatree.runNumber})
-    metadata.append({'AtlasProject' : str(metatree.AtlasProject)})
-    metadata.append({'AtlasVersion' : str(metatree.AtlasVersion)})
-
-    metadata.append({'ChainMonitor' : metatree.ChainMonitor})
-    metadata.append({'AlgorithmMonitor' : metatree.AlgorithmMonitor})
-    metadata.append({'AlgorithmClassMonitor' : metatree.AlgorithmClassMonitor})
-    metadata.append({'ROSMonitor' : metatree.ROSMonitor})
-    metadata.append({'GlobalsMonitor' : metatree.GlobalsMonitor})
-    metadata.append({'ThreadMonitor' : metatree.ThreadMonitor})
-
-    metadata.append({'AdditionalHashMap' : str(metatree.AdditionalHashMap)})
-    metadata.append({'DoEBWeighting' : metatree.DoEBWeighting})
-    metadata.append({'BaseEventWeight' : metatree.BaseEventWeight})
-
-    metadata.append({'HLTMenu' : json.loads(str(metatree.HLTMenu))})
-
-    metadata.append({'Details' : userDetails})
-
-    metadata.append({'Histogram under/overflows' : processingWarnings})
-
-    with open('metadata.json', 'w') as outMetaFile:
-        metafile = {}
-        metafile['text'] = 'metadata'
-        metafile['children'] = metadata
-        json.dump(obj=metafile, fp=outMetaFile, indent=2, sort_keys=True)
 
 
 def exploreTree(inputFile, dumpSummary=False, underflowThreshold=0.1, overflowThreshold=0.1):
@@ -117,35 +80,6 @@ def exploreTree(inputFile, dumpSummary=False, underflowThreshold=0.1, overflowTh
     return processingWarnings + [summary]
 
 
-def createOverflowSummary(warnings):
-    histogramStats = {}
-    for entry in warnings:
-        histFullName = entry.split(" ")[-1]
-        histType = histFullName.split("_")[-2] + "_" + histFullName.split("_")[-1]
-        summary = entry.split(" ")[-1].split("HLT")[0] + "HLT"
-
-        if "LumiBlock" in summary:
-            # format LumiBlock_000XX_SummaryName...
-            summary = summary.split('_', 1)[1]
-            summary = summary.split('_', 1)[1]
-        elif "All" in summary:
-            # format All_SummaryName...
-            summary = summary.split('_', 1)[1]
-
-        entryName = summary + "_" + histType
-        if entryName in histogramStats:
-            histogramStats[entryName] += 1
-        else:
-            histogramStats[entryName] = 1
-
-    histogramStatsStr = []
-    for name, value in histogramStats.items():
-        histogramStatsStr.append("{0}: {1} histograms with over/underflows".format(name, value))
-
-    return {"Summary": histogramStatsStr}
-
-
-
 def getWalltime(inputFile, rootName):
     ''' @brief Extract walltime value from histogram
     
@@ -182,6 +116,7 @@ def getAlgorithmTotalTime(inputFile, rootName):
         totalTime += hist.GetBinContent(i) * hist.GetXaxis().GetBinCenterLog(i)
 
     return totalTime * 1e-3
+
 
 def convert(entry):
     ''' @brief Save entry number in scientific notation'''
