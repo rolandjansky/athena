@@ -46,6 +46,9 @@ ConfigFlags.GeoModel.Align.Dynamic = False
 ConfigFlags.GeoModel.AtlasVersion = args.geometrytag
 ConfigFlags.Input.isMC = True
 ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC15c-SDR-14-05"
+ConfigFlags.Input.Files = []
+
+
 
 if args.localgeo:
     ConfigFlags.GeoModel.useLocalGeometry = True
