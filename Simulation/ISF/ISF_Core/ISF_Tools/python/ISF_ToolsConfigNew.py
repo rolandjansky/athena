@@ -101,25 +101,17 @@ def ValidationEntryLayerFilterCfg(flags, name="ISF_ValidationEntryLayerFilter", 
 
 
 def CosmicEventFilterToolCfg(flags, name="ISF_CosmicEventFilter", **kwargs):
-    volmap = {
-        "Muon": ["MuonExitLayer"],
-        "Calo": ["MuonEntryLayer"],
-        "InnerDetector": ["CaloEntryLayer"],
-        "TRT_Barrel": ["TRTBarrelEntryLayer"],
-        "TRT_EC": ["TRTECAEntryLayer", "TRTECBEntryLayer"],
-        "SCT_Barrel": ["SCTBarrelEntryLayer"],
-        "Pixel": ["PixelEntryLayer"],
-    }
-    volumeNames = []
-    for vol in flags.Sim.CosmicFilterVolumeNames:
-        volumeNames += volmap[name]
-
-    kwargs.setdefault("UseAndFilter", True)
-    kwargs.setdefault("VolumeNames", volumeNames)
-    kwargs.setdefault("PDG_ID", flags.Sim.CosmicFilterID)
-    kwargs.setdefault("ptMin", flags.Sim.CosmicFilterPTmin)
-    kwargs.setdefault("ptMax", flags.Sim.CosmicFilterPTmax)
+    from G4CosmicFilter.G4CosmicFilterConfigNew import configCosmicFilterVolumeNames
     acc = ComponentAccumulator()
+    volumeNames = configCosmicFilterVolumeNames(flags)
+    kwargs.setdefault("UseAndFilter", len(volumeNames)<3 )
+    kwargs.setdefault("VolumeNames", volumeNames)
+    if flags.Sim.CosmicFilterID:
+        kwargs.setdefault("PDG_ID", flags.Sim.CosmicFilterID)
+    if flags.Sim.CosmicFilterPTmin:
+        kwargs.setdefault("ptMin", flags.Sim.CosmicFilterPTmin)
+    if flags.Sim.CosmicFilterPTmax:
+        kwargs.setdefault("ptMax", flags.Sim.CosmicFilterPTmax)
     acc.setPrivateTools(CompFactory.ISF.CosmicEventFilterTool(name, **kwargs))
     return acc
 
