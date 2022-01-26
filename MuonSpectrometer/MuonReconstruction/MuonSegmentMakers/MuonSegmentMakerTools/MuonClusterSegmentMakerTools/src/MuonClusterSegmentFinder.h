@@ -117,7 +117,7 @@ namespace Muon {
             "Handle to the service providing the IMuonEDMHelperSvc interface",
         };  //<! Id helper tool
 
-        ToolHandle<MuonEDMPrinterTool> m_printer{
+        PublicToolHandle<MuonEDMPrinterTool> m_printer{
             this,
             "MuonEDMPrinterTool",
             "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",

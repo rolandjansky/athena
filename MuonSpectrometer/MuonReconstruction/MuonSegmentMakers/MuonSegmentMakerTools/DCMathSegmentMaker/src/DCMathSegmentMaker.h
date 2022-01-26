@@ -412,7 +412,7 @@ namespace Muon {
             "MuonCompetingClustersCreator",
             "Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator",
         };  //<! competing clusters rio ontrack creator
-        ToolHandle<MuonEDMPrinterTool> m_printer{
+        PublicToolHandle<MuonEDMPrinterTool> m_printer{
             this,
             "EDMPrinter",
             "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",

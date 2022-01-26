@@ -76,7 +76,7 @@ namespace Muon {
 
         /// Does not provide any method with EventContext yet
         ToolHandle<Trk::ITrkAlignmentDeviationTool> m_alignErrorTool{this, "AlignmentErrorTool", "MuonAlign::AlignmentErrorTool"};
-        ToolHandle<MuonEDMPrinterTool> m_printer{this, "Printer", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
+        PublicToolHandle<MuonEDMPrinterTool> m_printer{this, "Printer", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
 
         ToolHandle<Trk::ITrackFitter> m_trackFitter{this, "Fitter", "Trk::GlobalChi2Fitter/MCTBFitterMaterialFromTrack"};
         ToolHandle<Trk::IExtrapolator> m_muonExtrapolator{this, "MuonExtrapolator", "Trk::Extrapolator/MuonExtrapolator"};

@@ -264,7 +264,7 @@ namespace Muon {
         ToolHandle<Trk::IPropagator> m_propagator{this, "Propagator",
                                                   "Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator"};  //!< propagator
         ToolHandle<Trk::ITrackFitter> m_trackFitter{this, "Fitter", "Trk::GlobalChi2Fitter/MCTBFitter"};   //!< fitter
-        ToolHandle<MuPatHitTool> m_hitHandler{this, "HitTool", "Muon::MuPatHitTool/MuPatHitTool"};         //!< hit handler
+        PublicToolHandle<MuPatHitTool> m_hitHandler{this, "HitTool", "Muon::MuPatHitTool/MuPatHitTool"};         //!< hit handler
         ToolHandle<IMuonSegmentMomentumEstimator> m_momentumEstimator{
             this, "SegmentMomentum", "MuonSegmentMomentum/MuonSegmentMomentum"};  //!< tool to estimate track momentum
 

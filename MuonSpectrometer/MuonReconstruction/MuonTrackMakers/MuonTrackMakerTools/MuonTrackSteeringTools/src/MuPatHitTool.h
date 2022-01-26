@@ -181,7 +181,7 @@ namespace Muon {
             "ResidualPullCalculator",
             "Trk::ResidualPullCalculator/ResidualPullCalculator",
         };  //<! tool to calculate residuals and pulls
-        ToolHandle<MuonEDMPrinterTool> m_printer{
+        PublicToolHandle<MuonEDMPrinterTool> m_printer{
             this,
             "Printer",
             "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",
