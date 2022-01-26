@@ -208,9 +208,8 @@ StatusCode Rivet_i::finalize() {
 
   // Setting cross-section in Rivet
   // If no user-specified cross-section available,
-  // set AMI cross-section at plotting time
-  double custom_xs = m_crossSection != 0 ? m_crossSection : 1.0;
-  m_analysisHandler->setCrossSection({custom_xs, m_crossSection_uncert});
+  // take whatever is in the GenEvent
+  if (m_crossSection != 0)   m_analysisHandler->setCrossSection({m_crossSection, m_crossSection_uncert});
 
   // Call Rivet finalize
   m_analysisHandler->finalize();
