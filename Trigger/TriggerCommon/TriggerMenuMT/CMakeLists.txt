@@ -35,6 +35,7 @@ foreach(test manual_menu_cf emu_step_processing_cf emu_step_menu_processing_cf)
    atlas_add_test( ${test}
                    SCRIPT test_${test}.sh
                    LOG_SELECT_PATTERN "TrigSignatureMoni.*INFO HLT_.*|TrigSignatureMoni.*-- #[0-9]+ (Events|Features).*|TriggerSummaryStep.* chains passed:|TriggerSummaryStep.*+++ HLT_.*|TriggerSummaryStep.*+++ leg.*"
+                   PROPERTIES TIMEOUT 300
                    PRIVATE_WORKING_DIRECTORY )
 endforeach()
 
