@@ -187,9 +187,8 @@ def AddDecoratorCfg(flags,**kwargs):
     acc.merge(TrackDecoratorsCfg(flags))
   
     if flags.Input.isMC:
-        if flags.Detector.GeometryITk:
-            from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
-            acc.merge(BeamSpotCondAlgCfg(flags))
+        from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
+        acc.merge(BeamSpotCondAlgCfg(flags))
 
         acc.merge(InDetPhysValTruthDecoratorAlgCfg(flags))
 
