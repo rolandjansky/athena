@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONCLUSTERSEGMENTFINDER_H
@@ -174,9 +174,12 @@ namespace Muon {
         };
 
         bool m_doNtuple{false};
-        TFile* m_file{nullptr};
-        TTree* m_tree{nullptr};
-        ClusterSeg::ClusterNtuple* m_ntuple{nullptr};
+        struct Tree {
+          TFile* m_file{nullptr};
+          TTree* m_tree{nullptr};
+          ClusterSeg::ClusterNtuple* m_ntuple{nullptr};
+        };
+        std::unique_ptr<Tree> m_tree;
 
         bool matchTruth(const PRD_MultiTruthCollection& truthCol, const Identifier& id, int& barcode) const;
         Trk::Track* fit(const std::vector<const Trk::MeasurementBase*>& vec2, const Trk::TrackParameters& startpar) const;
@@ -191,6 +194,8 @@ namespace Muon {
         void getSegments(candEvent* theEvent, const Muon::MdtPrepDataContainer* mdtPrdCont, Trk::SegmentCollection* segColl) const;
         bool getLayerData(int sector, MuonStationIndex::DetectorRegionIndex regionIndex, MuonStationIndex::LayerIndex layerIndex,
                           const Muon::MdtPrepDataContainer* input, std::vector<const MdtPrepDataCollection*>& output) const;
+
+      Tree& getTree() const;
     };
 
 }  // namespace Muon
