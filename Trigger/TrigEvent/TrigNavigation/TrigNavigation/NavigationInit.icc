@@ -1,7 +1,7 @@
 // dear emacs this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -35,14 +35,14 @@ namespace HLT {
 
 template<class T> 
 struct FeatureLinkMethods {
-  typedef const T* (HLT::NavigationCore::*fl2o)( const TrigFeatureLink& ); 
-  typedef TrigFeatureLink (HLT::NavigationCore::*o2fl_1)(const HLT::TriggerElement*, const std::string&, const T*);
+  typedef const T* (HLT::NavigationCore::*fl2o)( const TrigFeatureLink& ) const;
+  typedef TrigFeatureLink (HLT::NavigationCore::*o2fl_1)(const HLT::TriggerElement*, const std::string&, const T*) const;
 };
 
 template<class T> 
 struct FeatureLinkMethods2 {
   typedef typename Container2Object<T>::type Contained;
-  typedef TrigFeatureLink (HLT::NavigationCore::*o2fl_2)(const HLT::TriggerElement*, const std::string&, const  Contained*, const T* );
+  typedef TrigFeatureLink (HLT::NavigationCore::*o2fl_2)(const HLT::TriggerElement*, const std::string&, const  Contained*, const T* ) const;
 };
 
 

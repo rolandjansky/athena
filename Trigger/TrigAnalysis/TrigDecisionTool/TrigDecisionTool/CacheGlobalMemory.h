@@ -102,7 +102,9 @@ namespace Trig {
 
     const HLT::TrigNavStructure* navigation() const {   //!< gives back pointer to navigation object (unpacking if necessary)
       if(!m_navigationUnpacked){
-        if(const_cast<CacheGlobalMemory*>(this)->unpackNavigation().isFailure()){
+        // CGM is slot-specific and unpackNavigation is locked
+        auto cgm ATLAS_THREAD_SAFE = const_cast<CacheGlobalMemory*>(this);
+        if(cgm->unpackNavigation().isFailure()){
           ATH_MSG_WARNING("unpack Navigation failed");
         }
       }
@@ -110,15 +112,14 @@ namespace Trig {
     }
     void navigation(HLT::TrigNavStructure* nav) { m_navigation = nav; }       //!< sets navigation object pointer
 
-    std::map< std::vector< std::string >, Trig::ChainGroup* >& getChainGroups() {return m_chainGroupsRef;};
+    const std::map< std::vector< std::string >, Trig::ChainGroup* >& getChainGroups() const {return m_chainGroupsRef;};
     //    std::map<unsigned, const LVL1CTP::Lvl1Item*>  getItems() {return m_items;};
     //    std::map<unsigned, const LVL1CTP::Lvl1Item*>  getItems() const {return m_items;};
     //    std::map<unsigned, const HLT::Chain*>         getL2chains() {return m_l2chains;};
     //    std::map<unsigned, const HLT::Chain*>         getL2chains() const {return m_l2chains;};
     //    std::map<unsigned, const HLT::Chain*>         getEFchains() {return m_efchains;};
     //    std::map<unsigned, const HLT::Chain*>         getEFchains() const {return m_efchains;};
-    std::map<std::string, std::vector<std::string> > getStreams() {return m_streams;};
-    std::map<std::string, std::vector<std::string> > getStreams() const {return m_streams;};
+    const std::map<std::string, std::vector<std::string> >& getStreams() const {return m_streams;};
 
     /**
      * @brief checks if new event arrived with the decision
@@ -141,14 +142,14 @@ namespace Trig {
     void setDecisionKeyPtr(SG::ReadHandleKey<xAOD::TrigDecision>* k) { m_decisionKeyPtr = k; }
     void setRun2NavigationKeyPtr(SG::ReadHandleKey<xAOD::TrigNavigation>* k) { m_run2NavigationKeyPtr = k; }
     void setRun3NavigationKeyPtr(SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer>* k) { m_run3NavigationKeyPtr = k; }
-    SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer>& getRun3NavigationKeyPtr() { return *m_run3NavigationKeyPtr; }
+    const SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer>& getRun3NavigationKey() const { return *m_run3NavigationKeyPtr; }
 
 #ifndef XAOD_ANALYSIS // Full Athena only
     void setOldDecisionKeyPtr(SG::ReadHandleKey<TrigDec::TrigDecision>* k) { m_oldDecisionKeyPtr = k; }
     void setOldEventInfoKeyPtr(SG::ReadHandleKey<EventInfo>* k) { m_oldEventInfoKeyPtr = k; }
 #endif
 
-    SG::ReadHandleKey<xAOD::TrigDecision>* xAODTrigDecisionKey() { return m_decisionKeyPtr; }
+    const SG::ReadHandleKey<xAOD::TrigDecision>* xAODTrigDecisionKey() const { return m_decisionKeyPtr; }
 
     //
     template<class T>

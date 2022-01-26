@@ -32,9 +32,9 @@ bool Trig::Combination::active() const {
   return true;
 }
 
-HLT::TrigNavStructure* Trig::Combination::navigation() const
+const HLT::TrigNavStructure* Trig::Combination::navigation() const
 {
-  return const_cast<HLT::TrigNavStructure*>(m_cgm->navigation());
+  return m_cgm->navigation();
 }
 
 std::vector<Trig::TypelessFeature> Trig::Combination::typelessGet(HLT::class_id_type clid, const std::string& label, unsigned int condition, const std::string & /*teName*/) const {

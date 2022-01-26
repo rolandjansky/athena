@@ -1,7 +1,7 @@
 // Emacs -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -120,7 +120,7 @@ bool HLT::NavigationCore::getFeature( const TriggerElement* te,
 /////////////////////////////////////////////////////////////////////////////
 template<class C, class T> 
 __attribute__((__used__))
-bool HLT::NavigationCore::getFeaturesLinks( const TriggerElement* te, ElementLinkVector<C>& links, const std::string& label) {
+bool HLT::NavigationCore::getFeaturesLinks( const TriggerElement* te, ElementLinkVector<C>& links, const std::string& label) const {
   
   class_id_type clid = ClassID_traits<T>::ID();
 
@@ -491,15 +491,15 @@ namespace HLT{
 
   template<class T, class C>
   struct get< T, C, false, false>{
-    static const T* do_it(const TrigFeatureLink&, HLT::NavigationCore* ){
+    static const T* do_it(const TrigFeatureLink&, const HLT::NavigationCore* ){
       return 0; // here compile time error shoudl be generated
     }
   };
 
   template<class T, class C>
   struct get< T,  C, false, true>{
-    static const T* do_it(const TrigFeatureLink&fl, HLT::NavigationCore* nav){
-      HLTNavDetails::Holder<T>* holder = nav->getHolder<T>(fl.subTypeIndex());
+    static const T* do_it(const TrigFeatureLink&fl, const HLT::NavigationCore* nav){
+      HLTNavDetails::Holder<T>* holder = const_cast<HLT::NavigationCore*>(nav)->getHolder<T>(fl.subTypeIndex());
       //std::cerr << " Holder acquired " << __LINE__ << std::endl;
       const T* ptr(0);
       holder->get(ptr, HLT::TriggerElement::ObjectIndex(fl.subTypeIndex(), fl.index(), fl.index()+1));
@@ -511,8 +511,8 @@ namespace HLT{
 
   template<class T, class C>
   struct get< T, C, true, false>{
-    static const T* do_it(const TrigFeatureLink&fl, HLT::NavigationCore* nav){
-      HLTNavDetails::Holder<C>* holder = nav->getHolder<C>(fl.subTypeIndex());
+    static const T* do_it(const TrigFeatureLink&fl, const HLT::NavigationCore* nav){
+      HLTNavDetails::Holder<C>* holder = const_cast<HLT::NavigationCore*>(nav)->getHolder<C>(fl.subTypeIndex());
       //std::cerr << " Holder acquired " << __LINE__ <<  " " << fl.clid() << " " << fl.subTypeIndex() << " " << holder << "  " <<  ClassID_traits<C>::ID() << std::endl;
       const C* ptr(0);
       holder->get(ptr, HLT::TriggerElement::ObjectIndex(fl.subTypeIndex(), fl.index(), fl.index()+1));
@@ -527,7 +527,7 @@ namespace HLT{
 
   template<class T, class C>
   struct get< T, C, true, true> {
-    static const T* do_it(const TrigFeatureLink&fl, HLT::NavigationCore* nav){
+    static const T* do_it(const TrigFeatureLink&fl, const HLT::NavigationCore* nav){
       if ( fl.clid() == ClassID_traits<C>::ID() ) {
 	return get<T,C, true, false>::do_it(fl, nav);
       } else if ( fl.clid() == ClassID_traits<T>::ID() ) {
@@ -540,7 +540,7 @@ namespace HLT{
 
 template<class T> 
 __attribute__((__used__))
-const T* HLT::NavigationCore::featureLink2Object( const TrigFeatureLink& fl) {
+const T* HLT::NavigationCore::featureLink2Object( const TrigFeatureLink& fl) const {
   if (! fl.isValid())
     return (const T*)0;
 
@@ -564,7 +564,7 @@ const T* HLT::NavigationCore::featureLink2Object( const TrigFeatureLink& fl) {
 template<class T> 
 __attribute__((__used__))
 TrigFeatureLink HLT::NavigationCore::object2FeatureLink(const TriggerElement* te, const std::string& label,
-							const T* obj) {
+							const T* obj) const {
 
   //typedef typename Features2Container<T>::type Container;
   if ( obj == 0 ) 
@@ -592,7 +592,7 @@ template<class C>
 __attribute__((__used__))
 TrigFeatureLink HLT::NavigationCore::object2FeatureLink(const TriggerElement* te, const std::string& label,
 							const typename Container2Object<C>::type* obj, 
-							const C* container) {
+							const C* container) const {
 
   TriggerElement::FeatureVec features_access_helpers;  
   std::string sourcelabel;

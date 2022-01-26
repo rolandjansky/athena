@@ -7,7 +7,7 @@
 
 template<class CONTAINER>
 std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::features(const asg::EventStoreType* eventStore,
-        SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer>& HLTSummaryKeyIn,
+        const SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer>& HLTSummaryKeyIn,
         unsigned int condition, const std::string& containerSGKey,
         const unsigned int featureCollectionMode, const std::string& navElementLinkKey,
         const int restrictToLegIndex) const {

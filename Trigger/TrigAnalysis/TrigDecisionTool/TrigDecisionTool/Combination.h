@@ -158,7 +158,7 @@ namespace Trig {
     // helper functionality for collect using traits class to determine how to access
     // the navigation
 
-    HLT::TrigNavStructure* navigation() const;
+    const HLT::TrigNavStructure* navigation() const;
 
     std::vector<const HLT::TriggerElement*> m_tes;
     const Trig::CacheGlobalMemory* m_cgm{nullptr};
