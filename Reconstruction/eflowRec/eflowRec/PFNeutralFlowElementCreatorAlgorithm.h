@@ -54,7 +54,7 @@ private:
   SG::WriteHandleKey<xAOD::FlowElementContainer>
     m_neutralFEContainerWriteHandleKey{
       this,
-      "FEOutputName",
+      "FlowElementOutputName",
       "JetETMissNeutralParticleFlowObjects",
       "WriteHandleKey for neutral FlowElements"
     };

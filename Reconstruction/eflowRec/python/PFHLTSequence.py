@@ -251,17 +251,32 @@ def getPFAlg(flags, clustersin, tracktype):
 
 # Convert internal eflowRec track/cluster objects into xAOD neutral/charged
 # particle flow objects
-def getPFOCreators(tracktype):
-    PFOChargedCreatorAlgorithm = eflowRecConf.PFOChargedCreatorAlgorithm(
-        "PFOChargedCreatorAlgorithm_" + tracktype,
-        PFOOutputName="HLT_{}ChargedParticleFlowObjects".format(tracktype),
-    )
+def getPFOCreators(flags,tracktype):
 
-    PFONeutralCreatorAlgorithm = eflowRecConf.PFONeutralCreatorAlgorithm(
-        "PFONeutralCreatorAlgorithm_" + tracktype,
-        PFOOutputName="HLT_{}NeutralParticleFlowObjects".format(tracktype),
-        DoClusterMoments=False,  # Only CENTER_MAG
-    )
+    # flag for ATR-24619 (to remove flag and use FlowElement after)
+    if flags.Trigger.usexAODFlowElements:
+        log.debug("Using eflowRec with xAODType FlowElement") # TODO Remove after ATR-24619 complete
+        PFOChargedCreatorAlgorithm = eflowRecConf.PFChargedFlowElementCreatorAlgorithm(
+            "PFChargedCreatorAlgorithm_" + tracktype,
+            FlowElementOutputName="HLT_{}ChargedParticleFlowObjects".format(tracktype),
+        )
+
+        PFONeutralCreatorAlgorithm = eflowRecConf.PFNeutralFlowElementCreatorAlgorithm(
+            "PFNeutralCreatorAlgorithm_" + tracktype,
+            FlowElementOutputName="HLT_{}NeutralParticleFlowObjects".format(tracktype),
+        )
+    else:
+        log.debug("Using eflowRec with xAODType ParticleFlow") # TODO Remove after ATR-24619 complete
+        PFOChargedCreatorAlgorithm = eflowRecConf.PFOChargedCreatorAlgorithm(
+            "PFOChargedCreatorAlgorithm_" + tracktype,
+            PFOOutputName="HLT_{}ChargedParticleFlowObjects".format(tracktype),
+        )
+
+        PFONeutralCreatorAlgorithm = eflowRecConf.PFONeutralCreatorAlgorithm(
+            "PFONeutralCreatorAlgorithm_" + tracktype,
+            PFOOutputName="HLT_{}NeutralParticleFlowObjects".format(tracktype),
+            DoClusterMoments=False,  # Only CENTER_MAG
+        )
     return PFOChargedCreatorAlgorithm, PFONeutralCreatorAlgorithm
 
 
@@ -290,7 +305,7 @@ def PFHLTSequence(flags, clustersin, tracktype, cellsin=None):
     
     PFTrkSel = getPFTrackSel(tracktype, extension, tracks)
     PFAlg = getPFAlg(flags,clustersin, tracktype)
-    PFCCreator, PFNCreator = getPFOCreators(tracktype)
+    PFCCreator, PFNCreator = getPFOCreators(flags,tracktype)
 
     # Create HLT "parallel OR" sequence holding the PF algs
     # Can be inserted into the jet building sequence
