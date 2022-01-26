@@ -95,6 +95,15 @@ namespace {
     std::vector< std::vector< ElementLink< xAOD::TauJetContainer_v2 > > > l34;
     std::vector< ElementLinkVector< xAOD::TauJetContainer_v2 > > l35;
 
+    xAOD::TauJetContainer_v3 c6;
+    DataLink< xAOD::TauJetContainer_v3 > l36;
+    ElementLink< xAOD::TauJetContainer_v3 > l37;
+    ElementLinkVector< xAOD::TauJetContainer_v3 > l38;
+    std::vector< DataLink< xAOD::TauJetContainer_v3 > > l39;
+    std::vector< ElementLink< xAOD::TauJetContainer_v3 > > l40;
+    std::vector< std::vector< ElementLink< xAOD::TauJetContainer_v3 > > > l41;
+    std::vector< ElementLinkVector< xAOD::TauJetContainer_v3 > > l42;
+
 
     // Instantiate the classes used by xAOD::TauJetAuxContainer, so that
     // Reflex would see them with their "correct type". Note that the
