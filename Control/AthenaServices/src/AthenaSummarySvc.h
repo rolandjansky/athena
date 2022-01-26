@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENASERVICES_ATHENASUMSVC_H
@@ -32,7 +32,7 @@
 #include <fstream>
 
 
-class ATLAS_CHECK_THREAD_SAFETY AthenaSummarySvc :
+class AthenaSummarySvc :
   public extends<AthService, IIncidentListener, IAthenaSummarySvc> {
 
 public:

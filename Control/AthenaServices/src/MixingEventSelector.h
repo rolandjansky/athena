@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENASERVICES_MIXINGEVENTSELECTOR_H
@@ -9,9 +9,11 @@
 /** @file MixingEventSelector.h
  *  @brief a stream of events read from different selectors.
  *
- * $Id: MixingEventSelector.h,v 1.4 2008-09-23 22:00:47 binet Exp $
  * @author Paolo Calafiura
  */
+
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // non-MT EventSelector
 
 #include <cassert>
 #include <ostream>
