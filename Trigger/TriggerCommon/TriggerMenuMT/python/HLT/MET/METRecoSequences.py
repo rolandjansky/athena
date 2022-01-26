@@ -318,8 +318,12 @@ class MergedPFOInputConfig(AlgInputConfig):
     @staticmethod
     def getPFOPrepAlg(flags, **inputs):
         '''Alg generator for RecoFragmentsPool. Need to unpack dict as not hashable'''
-        from TrigEFMissingET.TrigEFMissingETConf import HLT__MET__PFOPrepAlg
-        return HLT__MET__PFOPrepAlg(
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        if ConfigFlags.Trigger.usexAODFlowElements:
+            from TrigEFMissingET.TrigEFMissingETConf import HLT__MET__FlowElementPrepAlg as PrepAlg
+        else:
+          from TrigEFMissingET.TrigEFMissingETConf import HLT__MET__PFOPrepAlg as PrepAlg
+        return PrepAlg(
             f"{inputs['PFOPrefix']}METTrigPFOPrepAlg",
             InputNeutralKey=inputs["nPFOs"],
             InputChargedKey=inputs["cPFOs"],
@@ -344,7 +348,11 @@ class MergedPFOInputConfig(AlgInputConfig):
         from AthenaConfiguration.ComponentFactory import CompFactory
 
         acc = ComponentAccumulator()
-        alg = CompFactory.getComp("HLT::MET::PFOPrepAlg")(
+        if flags.Trigger.usexAODFlowElements:
+            prepAlgType = CompFactory.getComp("HLT::MET::FlowElementPrepAlg")
+        else:
+            prepAlgType = CompFactory.getComp("HLT::MET::PFOPrepAlg")
+        alg = prepAlgType(
             f"{inputs['PFOPrefix']}METTrigPFOPrepAlg",
             InputNeutralKey=inputs["nPFOs"],
             InputChargedKey=inputs["cPFOs"],

@@ -46,11 +46,11 @@ namespace HLT { namespace MET {
       }
 
     std::array<METComponent, 3> pfoSums;
-    for (const xAOD::PFO* ipfo : *neutral)
+    for (const xAOD::IParticle* ipfo : *neutral)
       // 0 is the 'NeutralPFOs' component
       pfoSums.at(0) += *ipfo;
     const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");
-    for (const xAOD::PFO* ipfo : *charged)
+    for (const xAOD::IParticle* ipfo : *charged)
       // 1 is the 'ChargedHSPFOs' component, 2 is the 'ChargedPUPFOs' component
       (PVMatchedAcc(*ipfo) ? pfoSums.at(1) : pfoSums.at(2) ) += *ipfo;
 

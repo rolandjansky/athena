@@ -167,9 +167,10 @@ def getNeutralPFOCreatorAlgorithm(inputFlags,neutralPFOOutputName,eflowObjectsIn
 
     return PFONeutralCreatorAlgorithm
 
-def getChargedFlowElementCreatorAlgorithm(inputFlags,chargedFlowElementOutputName):
+def getChargedFlowElementCreatorAlgorithm(inputFlags,chargedFlowElementOutputName,eflowCaloObjectContainerName="eflowCaloObjects"):
     FlowElementChargedCreatorAlgorithmFactory = CompFactory.PFChargedFlowElementCreatorAlgorithm
     FlowElementChargedCreatorAlgorithm = FlowElementChargedCreatorAlgorithmFactory("PFChargedFlowElementCreatorAlgorithm")
+    FlowElementChargedCreatorAlgorithm.eflowCaloObjectContainerName = eflowCaloObjectContainerName
     if chargedFlowElementOutputName:
         FlowElementChargedCreatorAlgorithm.FlowElementOutputName=chargedFlowElementOutputName
     if(inputFlags.PF.EOverPMode):
@@ -177,9 +178,10 @@ def getChargedFlowElementCreatorAlgorithm(inputFlags,chargedFlowElementOutputNam
 
     return FlowElementChargedCreatorAlgorithm
 
-def getNeutralFlowElementCreatorAlgorithm(inputFlags,neutralFlowElementOutputName):
+def getNeutralFlowElementCreatorAlgorithm(inputFlags,neutralFlowElementOutputName,eflowCaloObjectContainerName="eflowCaloObjects"):
     FlowElementNeutralCreatorAlgorithmFactory = CompFactory.PFNeutralFlowElementCreatorAlgorithm
     FlowElementNeutralCreatorAlgorithm = FlowElementNeutralCreatorAlgorithmFactory("PFNeutralFlowElementCreatorAlgorithm")
+    FlowElementNeutralCreatorAlgorithm.eflowCaloObjectContainerName = eflowCaloObjectContainerName
     if neutralFlowElementOutputName:
         FlowElementNeutralCreatorAlgorithm.FlowElementOutputName=neutralFlowElementOutputName
     if(inputFlags.PF.EOverPMode):
