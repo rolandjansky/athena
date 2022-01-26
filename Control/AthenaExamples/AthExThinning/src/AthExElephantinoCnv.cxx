@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ElephantinoCnv.cxx 
@@ -62,7 +62,7 @@ AthExElephantino* AthExElephantinoCnv::createTransient()
 
    AthExElephantino *transObj = 0;
 
-   static pool::Guid p1_guid("F90BE215-64AD-45E3-B5E4-6AD7DE35BDF9");
+   static const pool::Guid p1_guid("F90BE215-64AD-45E3-B5E4-6AD7DE35BDF9");
 
    if ( compareClassGuid(p1_guid) ) {
 
