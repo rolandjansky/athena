@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #
 # The file is obsolete and replaced by TriggerConfigFlags.py. Do not add any new flags!
@@ -78,10 +78,3 @@ del _flags
 
 ## make an alias for trigger flags which looks like old TriggerFlags class
 TriggerFlags = rec.Trigger
-
-def sync_Trigger2Reco():
-    from AthenaCommon.GlobalFlags  import globalflags
-
-    if globalflags.InputFormat() == 'bytestream':
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        ConfigFlags.Trigger.readBS = True
