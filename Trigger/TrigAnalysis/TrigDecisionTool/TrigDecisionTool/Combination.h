@@ -68,7 +68,7 @@ namespace Trig {
      * @param clid must be clid of type as stored. No flattening supported
      */
 
-    const std::vector<Trig::TypelessFeature> typelessGet(HLT::class_id_type clid, const std::string& label = "", unsigned int condition = TrigDefs::Physics, const std::string & teName = "" ) const;
+    std::vector<Trig::TypelessFeature> typelessGet(HLT::class_id_type clid, const std::string& label = "", unsigned int condition = TrigDefs::Physics, const std::string & teName = "" ) const;
 
     /**
      * @brief Method used to get objects. 
@@ -78,7 +78,7 @@ namespace Trig {
      * @param teName to get features from TEs of specific TEs (it is to be used in combination with switch alsoDeactivateTEs or composite triggers) super-expert usecase
      **/
      template<class T>
-     const std::vector<Trig::Feature<T> > get(const std::string& label = "", unsigned int condition=TrigDefs::Physics, const std::string& teName = "") const;
+     std::vector<Trig::Feature<T> > get(const std::string& label = "", unsigned int condition=TrigDefs::Physics, const std::string& teName = "") const;
 
     
     template<typename CONTAINER> using ELEMENT_OF = typename CONTAINER::base_value_type;
@@ -167,7 +167,7 @@ namespace Trig {
 
 
 template <class T>
-const std::vector<Trig::Feature<T> > Trig::Combination::get(const std::string& label, unsigned int condition, const std::string& teName) const
+std::vector<Trig::Feature<T> > Trig::Combination::get(const std::string& label, unsigned int condition, const std::string& teName) const
 {
   std::vector<Feature<T> > data;
 
@@ -176,7 +176,7 @@ const std::vector<Trig::Feature<T> > Trig::Combination::get(const std::string& l
     FeatureAccessImpl::collect<T>(te, data, label, condition, teName, navigation());
   for( Feature<T>& f : data ) {
     if ( f.owned() ) {
-      m_cgm->deleteAtTheEndOfEvent( const_cast<T*>( f.cptr() ) );
+      m_cgm->deleteAtTheEndOfEvent( f.cptr() );
     }
   }  
 #else

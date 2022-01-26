@@ -1,14 +1,14 @@
 #if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full athena
 
 template<class T> 
-const Trig::Feature<T> Trig::DecisionAccess::ancestor(const HLT::TriggerElement* te, std::string label) const {
+Trig::Feature<T> Trig::DecisionAccess::ancestor(const HLT::TriggerElement* te, std::string label) const {
   Trig::Feature<T> f;
   std::vector<Trig::Feature<T> > data;
   FeatureAccessImpl::collect<T>(te, data, label, TrigDefs::alsoDeactivateTEs, "", const_cast<HLT::TrigNavStructure*>(cgm()->navigation()));
 
   for( Feature<T>& f : data ) {
     if ( f.owned() ) {
-      cgm()->deleteAtTheEndOfEvent( const_cast<T*>( f.cptr() ) );
+      cgm()->deleteAtTheEndOfEvent( f.cptr() );
     }
   }
 
@@ -19,12 +19,12 @@ const Trig::Feature<T> Trig::DecisionAccess::ancestor(const HLT::TriggerElement*
 
 
 template<class T>
-const std::vector<Trig::Feature<T> > Trig::DecisionAccess::ancestors(const HLT::TriggerElement* te, std::string label, unsigned int condition, const std::string& teName) const {
+std::vector<Trig::Feature<T> > Trig::DecisionAccess::ancestors(const HLT::TriggerElement* te, std::string label, unsigned int condition, const std::string& teName) const {
   std::vector<Trig::Feature<T> > data;
   FeatureAccessImpl::collect<T>(te, data, label, condition, teName, const_cast<HLT::TrigNavStructure*>(cgm()->navigation()));
   for( Feature<T>& f : data ) {
     if ( f.owned() ) {
-      cgm()->deleteAtTheEndOfEvent(const_cast<T*>( f.cptr() ));
+      cgm()->deleteAtTheEndOfEvent( f.cptr() );
     }
   }
   return data;
@@ -33,13 +33,13 @@ const std::vector<Trig::Feature<T> > Trig::DecisionAccess::ancestors(const HLT::
 #else // AnalysisBase
 
 template<class T> 
-const Trig::Feature<T> Trig::DecisionAccess::ancestor(const HLT::TriggerElement* /*te*/, std::string /*label*/) const {
+Trig::Feature<T> Trig::DecisionAccess::ancestor(const HLT::TriggerElement* /*te*/, std::string /*label*/) const {
   ATH_MSG_WARNING("DecisionAccess::ancestor not implemented in Standalone mode, since it needs compile-time type information. Returning empty Feature");  
   return Trig::Feature<T>();
 }
 
 template<class T>
-const std::vector<Trig::Feature<T> > Trig::DecisionAccess::ancestors(const HLT::TriggerElement* /*te*/, std::string /*label*/, unsigned int /*condition*/, const std::string& /*teName*/) const {
+std::vector<Trig::Feature<T> > Trig::DecisionAccess::ancestors(const HLT::TriggerElement* /*te*/, std::string /*label*/, unsigned int /*condition*/, const std::string& /*teName*/) const {
   ATH_MSG_WARNING("DecisionAccess::ancestor not implemented in Standalone mode, since it needs compile-time type information. Returning empty vector");  
   return  std::vector<Trig::Feature<T> >();
 }

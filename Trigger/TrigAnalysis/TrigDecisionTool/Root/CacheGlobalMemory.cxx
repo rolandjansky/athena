@@ -281,16 +281,6 @@ const LVL1CTP::Lvl1Item* Trig::CacheGlobalMemory::item(const std::string& name) 
    return nullptr;
 }
 
-const xAOD::TrigCompositeContainer* Trig::CacheGlobalMemory::expressStreamContainer() const {
-  if(!m_expressStreamContainer){
-    StatusCode sc = store()->retrieve(m_expressStreamContainer, "HLT_Express_stream_HLT");
-    if(sc.isFailure()){
-      ATH_MSG_WARNING("could not retrieve express stream container");
-    }
-  }
-  return m_expressStreamContainer;
-}
-
 bool Trig::CacheGlobalMemory::assert_decision() {
   std::lock_guard<std::recursive_mutex> lock(m_cgmMutex);
   ATH_MSG_VERBOSE("asserting decision with unpacker " << m_unpacker.get());
