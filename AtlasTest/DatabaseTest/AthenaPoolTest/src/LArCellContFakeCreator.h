@@ -8,7 +8,7 @@
 /**
  * @file LArCellContFakeCreator.h
  *
- * @brief Create a LArCellContainer with LArCells for POOL I/O tests
+ * @brief Create a CaloCellContainer with LArCells for POOL I/O tests
  * algs
  *
  * @author RD Schaffer <R.D.Schaffer@cern.ch>
@@ -20,7 +20,7 @@
 /**
  * @class LArCellContFakeCreator
  *
- * @brief Create a LArCellContainer with LArCells for POOL I/O tests
+ * @brief Create a CaloCellContainer with LArCells for POOL I/O tests
  * algs
  *
  */
