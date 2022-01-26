@@ -166,17 +166,21 @@ const InDet::CompetingSCT_ClustersOnTrack* InDet::CompetingSCT_ClustersOnTrackTo
                 std::unique_ptr<const Trk::TrackParameters> trkParWithoutError{trkPar.clone()};
                 // extrapolate to RIO surface
                 ATH_MSG_VERBOSE("Try to propagate TrackParameters to compROT surface");
-                newTrackParameters.reset(m_extrapolator->extrapolateDirectly(ctx,
-                                                                             (trkParWithoutError ? *trkParWithoutError : trkPar),
-                                                                             *detElementSurface,
-                                                                             Trk::anyDirection, // propagate in any direction
-                                                                             false, //do noBoundaryCheck!
-                                                                             Trk::nonInteracting)); // without material interaction
-                if (!newTrackParameters){
-                    ATH_MSG_ERROR("TrackParameters could not be propagated to PrepRawData surface");
-                    return nullptr;
+                newTrackParameters = m_extrapolator->extrapolateDirectly(
+                  ctx,
+                  (trkParWithoutError ? *trkParWithoutError : trkPar),
+                  *detElementSurface,
+                  Trk::anyDirection,    // propagate in any direction
+                  false,                // do noBoundaryCheck!
+                  Trk::nonInteracting); // without material interaction
+                if (!newTrackParameters) {
+                  ATH_MSG_ERROR("TrackParameters could not be propagated to "
+                                "PrepRawData surface");
+                  return nullptr;
                 } // end if (extrapolation failed)
-                // const Trk::AtaStraightLine* trkParAtRIOsurface1 = new Trk::AtaStraightLine(trkPar.position(), trkPar.momentum(), trkPar.charge(), *RIOsurfacePointer);
+                // const Trk::AtaStraightLine* trkParAtRIOsurface1 = new
+                // Trk::AtaStraightLine(trkPar.position(), trkPar.momentum(),
+                // trkPar.charge(), *RIOsurfacePointer);
                 trkParAtRIOsurface = newTrackParameters.get();
                 ATH_MSG_VERBOSE("propagated TrackParameters on RIO surface: GP ("
                                         << trkParAtRIOsurface->position().x() << ", "
@@ -312,12 +316,13 @@ void InDet::CompetingSCT_ClustersOnTrackTool::updateCompetingROT(
         // clone TrkParameters without error to force the extrapolator to do propagation without error matrix
         std::unique_ptr<const Trk::TrackParameters> trkParWithoutError{trkPar.clone()};
         ATH_MSG_VERBOSE("Try to propagate TrackParameters to compROT surface");
-        newTrackParameters.reset(m_extrapolator->extrapolateDirectly(ctx,
-                                                                     (trkParWithoutError ? *trkParWithoutError : trkPar),
-                                                                     compROT->associatedSurface(),
-                                                                     Trk::anyDirection, // propagate in any direction
-                                                                     false, //do noBoundaryCheck!
-                                                                     Trk::nonInteracting)); // without material interaction
+        newTrackParameters = m_extrapolator->extrapolateDirectly(
+          ctx,
+          (trkParWithoutError ? *trkParWithoutError : trkPar),
+          compROT->associatedSurface(),
+          Trk::anyDirection,    // propagate in any direction
+          false,                // do noBoundaryCheck!
+          Trk::nonInteracting); // without material interaction
         if (!newTrackParameters){
             ATH_MSG_ERROR("TrackParameters could not be propagated to compROT surface:");
             ATH_MSG_ERROR("    CompetingSCT_ClustersOnTrack could not be updated!");

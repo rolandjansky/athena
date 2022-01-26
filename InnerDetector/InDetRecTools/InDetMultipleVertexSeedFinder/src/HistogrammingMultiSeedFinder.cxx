@@ -125,20 +125,24 @@ namespace InDet
   
    for(;p_tr != p_tre; ++p_tr)
    {
-    const  Trk::TrackParameters * lexPerigee = m_extrapolator->extrapolate(ctx, **p_tr,perigeeSurface,Trk::anyDirection,true, Trk::pion); 
- 
-    double currentTrackZ0 = lexPerigee->parameters()[Trk::z0];
-    delete lexPerigee;
-//    double currentTrackZ0 = (*p_tr)->perigeeParameters()->parameters()[Trk::z0];
-    unsigned int bin_number = int(floor((currentTrackZ0 + m_histoRange)/bin_size)) +1;
- 
-//now checking whether this bin entry already exists and adding track, if not, creating one.    
-    std::map<unsigned int, std::vector<const Trk::Track *> >::iterator map_pos = histo.find(bin_number);
-    if( map_pos != histo.end())
-    {
-    
-//this bin already exists, adding entry    
-      map_pos->second.push_back(*p_tr);
+     const Trk::TrackParameters* lexPerigee =
+       m_extrapolator->extrapolate(ctx, **p_tr, perigeeSurface, Trk::anyDirection, true, Trk::pion).release();
+
+     double currentTrackZ0 = lexPerigee->parameters()[Trk::z0];
+     delete lexPerigee;
+     //    double currentTrackZ0 =
+     //    (*p_tr)->perigeeParameters()->parameters()[Trk::z0];
+     unsigned int bin_number =
+       int(floor((currentTrackZ0 + m_histoRange) / bin_size)) + 1;
+
+     // now checking whether this bin entry already exists and adding track, if
+     // not, creating one.
+     std::map<unsigned int, std::vector<const Trk::Track*>>::iterator map_pos =
+       histo.find(bin_number);
+     if (map_pos != histo.end()) {
+
+       // this bin already exists, adding entry
+       map_pos->second.push_back(*p_tr);
     }else{
     
 //this bin is not their yet, adding bin  
@@ -297,21 +301,26 @@ namespace InDet
    for(;p_tr != p_tre; ++p_tr)
    {
 
-     const  Trk::TrackParameters * lexPerigee = m_extrapolator->extrapolate(ctx, (*p_tr)->definingParameters(),
-									    perigeeSurface,Trk::anyDirection,true, Trk::pion); 
-    double currentTrackZ0 = lexPerigee->parameters()[Trk::z0];
-    delete lexPerigee;
+     const Trk::TrackParameters* lexPerigee =
+       m_extrapolator
+         ->extrapolate(ctx, (*p_tr)->definingParameters(), perigeeSurface, Trk::anyDirection, true, Trk::pion)
+         .release();
+     double currentTrackZ0 = lexPerigee->parameters()[Trk::z0];
+     delete lexPerigee;
 
-//    double currentTrackZ0 = (*p_tr)->perigee()->parameters()[Trk::z0];
-    unsigned int bin_number = int(floor((currentTrackZ0 +m_histoRange)/bin_size)) +1;
- 
-//now checking whether this bin entry already exists and adding track, if not, creating one.    
-    std::map<unsigned int, std::vector<const Trk::TrackParticleBase *> >::iterator map_pos = histo.find(bin_number);
-    if( map_pos != histo.end())
-    {
-    
-//this bin already exists, adding entry    
-      map_pos->second.push_back(*p_tr);
+     //    double currentTrackZ0 = (*p_tr)->perigee()->parameters()[Trk::z0];
+     unsigned int bin_number =
+       int(floor((currentTrackZ0 + m_histoRange) / bin_size)) + 1;
+
+     // now checking whether this bin entry already exists and adding track, if
+     // not, creating one.
+     std::map<unsigned int,
+              std::vector<const Trk::TrackParticleBase*>>::iterator map_pos =
+       histo.find(bin_number);
+     if (map_pos != histo.end()) {
+
+       // this bin already exists, adding entry
+       map_pos->second.push_back(*p_tr);
     }else{
     
 //this bin is not their yet, adding bin  
@@ -473,22 +482,27 @@ namespace InDet
 	std::vector<const xAOD::TrackParticle*>::const_iterator p_tre = preselectedTracks.end();
 	for(;p_tr != p_tre; ++p_tr)
 	  {
-	    
-	    const  Trk::TrackParameters * lexPerigee = m_extrapolator->extrapolate(ctx, **p_tr,
-										   perigeeSurface,Trk::anyDirection,true, Trk::pion); 
-	    double currentTrackZ0 = lexPerigee->parameters()[Trk::z0];
-	    delete lexPerigee;
-	    
-	    //    double currentTrackZ0 = (*p_tr)->perigee()->parameters()[Trk::z0];
-	    unsigned int bin_number = int(floor((currentTrackZ0 +m_histoRange)/bin_size)) +1;
-	    
-	    //now checking whether this bin entry already exists and adding track, if not, creating one.    
-	    std::map<unsigned int, std::vector<const xAOD::TrackParticle *> >::iterator map_pos = histo.find(bin_number);
-	    if( map_pos != histo.end())
-	      {
-		
-		//this bin already exists, adding entry    
-		map_pos->second.push_back(*p_tr);
+
+          const Trk::TrackParameters* lexPerigee =
+            m_extrapolator->extrapolate(ctx, **p_tr, perigeeSurface, Trk::anyDirection, true, Trk::pion)
+              .release();
+          double currentTrackZ0 = lexPerigee->parameters()[Trk::z0];
+          delete lexPerigee;
+
+          //    double currentTrackZ0 =
+          //    (*p_tr)->perigee()->parameters()[Trk::z0];
+          unsigned int bin_number =
+            int(floor((currentTrackZ0 + m_histoRange) / bin_size)) + 1;
+
+          // now checking whether this bin entry already exists and adding
+          // track, if not, creating one.
+          std::map<unsigned int,
+                   std::vector<const xAOD::TrackParticle*>>::iterator map_pos =
+            histo.find(bin_number);
+          if (map_pos != histo.end()) {
+
+            // this bin already exists, adding entry
+            map_pos->second.push_back(*p_tr);
 	      }else{
 	      
 	      //this bin is not their yet, adding bin  
@@ -602,77 +616,4 @@ namespace InDet
     delete myVertex;
   return result;
   }
-  /*
-  std::pair<std::vector<const Trk::TrackParameters *>, 
-	    std::vector<const xAOD::TrackParticle *> > HistogrammingMultiSeedFinder::m_clusterAndOutliers(std::vector<const xAOD::TrackParticle *> cluster, xAOD::Vertex * reference) const
-	    {
-	      
-	      std::vector<const Trk::TrackParameters*> clusterSeed(0);
-	      std::vector<const xAOD::TrackParticle*> outliers(0);
-	      
-	      double z_center = 0;
-	      
-	      std::vector<const xAOD::TrackParticle*>::const_iterator inb = cluster.begin();
-	      std::vector<const xAOD::TrackParticle*>::const_iterator ine = cluster.end();
-	      
-	      unsigned int cluster_size = 0;
-	      
-	      msg(MSG::DEBUG)<<"Receiving a cluster of size: "<< cluster.size()<<endmsg;
-	      
-	      Trk::PerigeeSurface perigeeSurface(reference->position());
-	      
-	      //first getting the cluster center  
-	      for(std::vector<const xAOD::TrackParticle*>::const_iterator i = inb; i != ine; ++i)
-		{
-		  const Trk::TrackParameters * perigee(0);
-	  
-		  perigee = m_extrapolator->extrapolate(**i,perigeeSurface,Trk::anyDirection,true, Trk::pion);
-		  
-		  if(perigee)
-		    { 
-		      z_center += perigee->parameters()[Trk::z0];
-		      msg(MSG::DEBUG)<<"Adding parameters: "<<perigee->parameters()[Trk::z0] <<endmsg;
-		      ++cluster_size;
-		    }else{
-		    msg(MSG::WARNING)<<" The TrackParticleBase provided does not contain perigee parameters"<<endmsg;
-		  }//end of perigee security check
-		}//end of loop definig the center of a cluster
-	      msg(MSG::DEBUG)<<"Z center is: "<<z_center<<" for  tracks: "<<cluster_size<<endmsg;
-	      
-	      z_center = z_center/cluster_size;
-	      
-	      msg(MSG::DEBUG)<<"Looping over the cluster" <<endmsg;
-	      
-	      for(std::vector<const xAOD::TrackParticle*>::const_iterator i = inb; i != ine; ++i)
-		{
-		  const Trk::TrackParameters * measPerigee(0);
-		  measPerigee = m_extrapolator->extrapolate(**i,perigeeSurface,Trk::anyDirection,true, Trk::pion);
-		  
-		  if(0!=measPerigee)
-		    {
-		      double z0 = measPerigee->parameters()[Trk::z0];
-		      const AmgSymMatrix(5) * cov = measPerigee->covariance();    
-		      double sigma_z0 = Amg::error(*cov,Trk::z0);
-		      
-		      msg(MSG::DEBUG)<<"Perigee Z0 and corresponding sigma "<<z0<<" "<<sigma_z0<<endmsg;
-		      msg(MSG::DEBUG)<<"Center of the cluster "<<z_center<<endmsg;
-		      msg(MSG::DEBUG)<<"Offset "<<3.0<<endmsg;
-		      msg(MSG::DEBUG)<<"discriminant "<<fabs(z_center-z0)<<" "<< sigma_z0*3.0 <<endmsg;
-		      
-		      //if the track is closer than several standard deviations, keep it    
-		      if(fabs(z_center-z0)< sigma_z0*3.0) clusterSeed.push_back(&((*i)->perigeeParameters())); 
-		      
-		      //declare it an outlier otherwise
-		      else outliers.push_back(*i);
-		    }else{
-		    outliers.push_back(*i);
-		    msg(MSG::WARNING)  << "This track has no meas perigee. Regarded as outlyer" << endmsg;
-		  }//end of measured perigee check
-		}//end of separation loop
-	      
-	      std::pair<std::vector<const Trk::TrackParameters *>, 
-		std::vector<const xAOD::TrackParticle *> > result(clusterSeed, outliers);
-	      return result;
-	    }
-  */
 }//end of namespace definitions

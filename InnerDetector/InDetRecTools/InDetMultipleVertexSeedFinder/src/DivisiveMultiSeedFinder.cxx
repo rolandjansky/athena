@@ -130,9 +130,11 @@ namespace InDet
    
    Trk::PerigeeSurface perigeeSurface(beamposition->position());
 
-   const Trk::TrackParameters * exPerigee = m_extrapolator->extrapolate(ctx, *preselectedTracks[indexOfSorted[0]],
-									perigeeSurface,Trk::anyDirection,true, Trk::pion);
-         
+   const Trk::TrackParameters* exPerigee =
+     m_extrapolator
+       ->extrapolate(ctx, *preselectedTracks[indexOfSorted[0]], perigeeSurface, Trk::anyDirection, true, Trk::pion)
+       .release();
+
    double lastTrackZ0  = -999.;
    if(exPerigee) { lastTrackZ0 = exPerigee->parameters()[Trk::z0]; delete exPerigee; }
    else
@@ -144,19 +146,19 @@ namespace InDet
 
 //looping over container
    for(unsigned int i=0;i<indexOfSorted.size();++i)
-   { 
-     const  Trk::TrackParameters * lexPerigee = m_extrapolator->extrapolate(ctx,*preselectedTracks[indexOfSorted[i]],
-									    perigeeSurface,Trk::anyDirection,true, Trk::pion); 
-					   
-    double currentTrackZ0 = lexPerigee->parameters()[Trk::z0];
-    delete lexPerigee;
-  
-   
-    if(fabs(currentTrackZ0 - lastTrackZ0)<m_sepDistance)
-    {
-  
-//the distance is below separation, adding to the same cluster  
-     tmp_cluster.push_back(preselectedTracks[indexOfSorted[i]]);
+   {
+     const Trk::TrackParameters* lexPerigee =
+       m_extrapolator
+         ->extrapolate(ctx, *preselectedTracks[indexOfSorted[i]], perigeeSurface, Trk::anyDirection, true, Trk::pion)
+         .release();
+
+     double currentTrackZ0 = lexPerigee->parameters()[Trk::z0];
+     delete lexPerigee;
+
+     if (std::fabs(currentTrackZ0 - lastTrackZ0) < m_sepDistance) {
+
+       // the distance is below separation, adding to the same cluster
+       tmp_cluster.push_back(preselectedTracks[indexOfSorted[i]]);
     }else{
     
 //the distance is above separation, starting new cluster    
@@ -298,9 +300,14 @@ namespace InDet
    std::vector<const Trk::TrackParticleBase *> tmp_cluster(0); 
    
    Trk::PerigeeSurface perigeeSurface(beamposition->position());
-   const Trk::TrackParameters * exPerigee = m_extrapolator->extrapolate(ctx,preselectedTracks[indexOfSorted[0]]->definingParameters(),
-									perigeeSurface,Trk::anyDirection,true, Trk::pion);
-         
+   const Trk::TrackParameters* exPerigee = m_extrapolator
+                                             ->extrapolate(ctx,
+                                                           preselectedTracks[indexOfSorted[0]]->definingParameters(),
+                                                           perigeeSurface,
+                                                           Trk::anyDirection,
+                                                           true,
+                                                           Trk::pion).release();
+
    double lastTrackZ0  = -999.;
    if(exPerigee) { lastTrackZ0 = exPerigee->parameters()[Trk::z0]; delete exPerigee; }
    else
@@ -312,20 +319,24 @@ namespace InDet
     
 //looping over container
    for(unsigned int i=0;i<indexOfSorted.size();++i)
-   { 
-     const  Trk::TrackParameters * lexPerigee = m_extrapolator->extrapolate(ctx, preselectedTracks[indexOfSorted[i]]->definingParameters(),
-									    perigeeSurface,Trk::anyDirection,true, Trk::pion); 
-					   
-    double currentTrackZ0 = lexPerigee->parameters()[Trk::z0];
-    delete lexPerigee;
-   
-    if(fabs(currentTrackZ0 - lastTrackZ0)<m_sepDistance)
-    {
-  
-//the distance is below separation, adding to the same cluster  
-     tmp_cluster.push_back(preselectedTracks[indexOfSorted[i]]);
-     
-  //   std::cout<<"Adding to a cluster "<<std::endl;
+   {
+     const Trk::TrackParameters* lexPerigee =
+       m_extrapolator->extrapolate(ctx,
+                                   preselectedTracks[indexOfSorted[i]]->definingParameters(),
+                                   perigeeSurface,
+                                   Trk::anyDirection,
+                                   true,
+                                   Trk::pion).release();
+
+     double currentTrackZ0 = lexPerigee->parameters()[Trk::z0];
+     delete lexPerigee;
+
+     if (std::fabs(currentTrackZ0 - lastTrackZ0) < m_sepDistance) {
+
+       // the distance is below separation, adding to the same cluster
+       tmp_cluster.push_back(preselectedTracks[indexOfSorted[i]]);
+
+       //   std::cout<<"Adding to a cluster "<<std::endl;
     }else{
     
 //     std::cout<<"Breaking a cluster "<<std::endl;
@@ -486,9 +497,11 @@ namespace InDet
    std::vector<const xAOD::TrackParticle *> tmp_cluster(0); 
    
    Trk::PerigeeSurface perigeeSurface(beamposition->position());
-   const Trk::TrackParameters * exPerigee = m_extrapolator->extrapolate(ctx,*preselectedTracks[indexOfSorted[0]],
-   perigeeSurface,Trk::anyDirection,true, Trk::pion);
-   
+   const Trk::TrackParameters* exPerigee =
+     m_extrapolator
+       ->extrapolate(ctx, *preselectedTracks[indexOfSorted[0]], perigeeSurface, Trk::anyDirection, true, Trk::pion)
+       .release();
+
    double lastTrackZ0  = -999.;
    if(exPerigee) { 
      lastTrackZ0 = exPerigee->parameters()[Trk::z0];delete exPerigee;
@@ -503,21 +516,19 @@ namespace InDet
    
    //looping over container
    for(unsigned int i=0;i<indexOfSorted.size();++i)
-     { 
-       const Trk::TrackParameters * lexPerigee = m_extrapolator->extrapolate(ctx,*preselectedTracks[indexOfSorted[i]],
-									     perigeeSurface,Trk::anyDirection,true, Trk::pion);
-   
-       
-       double currentTrackZ0 = lexPerigee->parameters()[Trk::z0];
-       delete lexPerigee;
-	
-       if(fabs(currentTrackZ0 - lastTrackZ0)<m_sepDistance)
-	 {
-	   
-	   //the distance is below separation, adding to the same cluster  
-	   tmp_cluster.push_back(preselectedTracks[indexOfSorted[i]]);
-	   
-	   //   std::cout<<"Adding to a cluster "<<std::endl;
+     {
+     const Trk::TrackParameters* lexPerigee = m_extrapolator->extrapolate(
+       ctx, *preselectedTracks[indexOfSorted[i]], perigeeSurface, Trk::anyDirection, true, Trk::pion).release();
+
+     double currentTrackZ0 = lexPerigee->parameters()[Trk::z0];
+     delete lexPerigee;
+
+     if (std::fabs(currentTrackZ0 - lastTrackZ0) < m_sepDistance) {
+
+       // the distance is below separation, adding to the same cluster
+       tmp_cluster.push_back(preselectedTracks[indexOfSorted[i]]);
+
+       //   std::cout<<"Adding to a cluster "<<std::endl;
 	 }else{
 	 
 	 //     std::cout<<"Breaking a cluster "<<std::endl;

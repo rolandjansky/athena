@@ -384,12 +384,12 @@ Trk::ForwardKalmanFitter::predict
     } else {
       ATH_MSG_VERBOSE ("-Fp get filter onto 1st surface by direct extrapolation.");
       if (!m_useExEngine)
-        predPar.reset(m_extrapolator->extrapolateDirectly(ctx,
+        predPar= m_extrapolator->extrapolateDirectly(ctx,
                                                           *updatedPar,
                                                           destinationSurface,
                                                           Trk::anyDirection,
                                                           false,
-                                                          Trk::nonInteracting));
+                                                          Trk::nonInteracting);
 
       else {
         ATH_MSG_INFO ("Forward Kalman Fitter --> starting extrapolation engine");
@@ -433,9 +433,13 @@ Trk::ForwardKalmanFitter::predict
     ////////////////////////////////////////////////////////////////////////////
     // --- 2nd case covers filter loop: extrapolate to next surface with full matEffects
     if (!m_useExEngine)
-      predPar.reset(m_extrapolator->extrapolate(ctx,*updatedPar,destinationSurface,
-					    Trk::alongMomentum,false,
-					    controlledMatEffects.particleType()));
+      predPar =
+        m_extrapolator->extrapolate(ctx,
+                                    *updatedPar,
+                                    destinationSurface,
+                                    Trk::alongMomentum,
+                                    false,
+                                    controlledMatEffects.particleType());
     else {
       ATH_MSG_DEBUG ("Forward Kalman Fitter --> starting extrapolation engine");
       Trk::ExtrapolationCell <Trk::TrackParameters> ecc(*updatedPar, Trk::alongMomentum);
@@ -777,7 +781,7 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::enterSeedIntoTrajectory
         inputPar,
         startSurface,
         Trk::anyDirection,
-        false, Trk::nonInteracting);
+        false, Trk::nonInteracting).release();
     else {
       ATH_MSG_DEBUG ("Forward Kalman Fitter --> starting extrapolation engine");
       Trk::ExtrapolationCell <Trk::TrackParameters> ecc(inputPar, Trk::anyDirection);

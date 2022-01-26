@@ -2082,11 +2082,12 @@ namespace Trk
                                                                              *innerMeasurement,
                                                                              false));
       if (!innerParameters) innerParameters.reset(startParameters.clone());
-      entranceParameters.reset( m_extrapolator->extrapolateToVolume(ctx,
-                                                                    *innerParameters,
-                                                                    *spectrometerEntrance,
-                                                                    anyDirection,
-                                                                    Trk::nonInteracting));
+      entranceParameters =
+        m_extrapolator->extrapolateToVolume(ctx,
+                                            *innerParameters,
+                                            *spectrometerEntrance,
+                                            anyDirection,
+                                            Trk::nonInteracting);
       if (entranceParameters) {
         startDirection = entranceParameters->momentum().unit();
         startPosition = entranceParameters->position();
@@ -2126,13 +2127,14 @@ namespace Trk
    if (endParameters.get() == outerParameters.get()) throw std::logic_error("Extrapolator returned input parameters.");
 
    if (!endParameters) {
-     endParameters.reset(m_extrapolator->extrapolate(ctx,
-                                                     *outerParameters,
-                                                     endSurface,
-                                                     anyDirection,
-                                                     false,
-                                                     Trk::nonInteracting));
-     if (endParameters.get() == outerParameters.get()) throw std::logic_error("Extrapolator returned input parameters.");
+     endParameters = m_extrapolator->extrapolate(ctx,
+                                                 *outerParameters,
+                                                 endSurface,
+                                                 anyDirection,
+                                                 false,
+                                                 Trk::nonInteracting);
+     if (endParameters.get() == outerParameters.get())
+       throw std::logic_error("Extrapolator returned input parameters.");
 
      if (!endParameters) {
         // failed extrapolation

@@ -640,16 +640,10 @@ namespace Trk {
     }
 
     if ((tp_closestmuon != nullptr) && (cache.m_msEntrance != nullptr)) {
-      tmppar.reset(
-        m_extrapolator->extrapolateToVolume(ctx,
-          *tp_closestmuon,
-          *cache.m_msEntrance,
-          propdir,
-          nonInteracting
-        )
-      );
+      tmppar = m_extrapolator->extrapolateToVolume(
+        ctx, *tp_closestmuon, *cache.m_msEntrance, propdir, nonInteracting);
     }
-    
+
     std::unique_ptr<const std::vector<const TrackStateOnSurface *>> matvec;
     
     if (tmppar != nullptr) {
@@ -836,14 +830,9 @@ namespace Trk {
           newpar[0], newpar[1], newpar[2], newpar[3], newqoverpid, std::nullopt
         );
       }
-      
-      lastidpar.reset(m_extrapolator->extrapolateToVolume(
-        ctx,
-        *firstidpar,
-        *cache.m_caloEntrance,
-        alongMomentum, 
-        Trk::muon
-      ));
+
+      lastidpar = m_extrapolator->extrapolateToVolume(
+        ctx, *firstidpar, *cache.m_caloEntrance, alongMomentum, Trk::muon);
     }
 
     if (lastidpar == nullptr) {
@@ -1092,14 +1081,12 @@ namespace Trk {
         );
         idscatpar = firstscatpar.get();
 
-        startPar.reset(m_extrapolator->extrapolateToVolume(
-          ctx,
-          *idscatpar,
-          *cache.m_caloEntrance,
-          oppositeMomentum,
-          Trk::nonInteracting
-        ));
-        
+        startPar = m_extrapolator->extrapolateToVolume(ctx,
+                                                       *idscatpar,
+                                                       *cache.m_caloEntrance,
+                                                       oppositeMomentum,
+                                                       Trk::nonInteracting);
+
         if (startPar != nullptr) {
           Amg::Vector3D trackdir = startPar->momentum().unit();
           Amg::Vector3D curvZcrossT = -(trackdir.cross(Amg::Vector3D(0, 0, 1)));
@@ -1122,7 +1109,7 @@ namespace Trk {
             curvlinsurf,
             Trk::oppositeMomentum,
             Trk::nonInteracting != 0u
-          );
+          ).release();
           
           if (curvlinpar != nullptr) {
             startPar.reset(curvlinpar);
@@ -1306,14 +1293,9 @@ namespace Trk {
 
     std::unique_ptr<const TrackParameters> lastidpar = nullptr;
     if ((firstidpar != nullptr) && (cache.m_caloEntrance != nullptr))
-      lastidpar.reset(m_extrapolator->extrapolateToVolume(
-        ctx,
-        *firstidpar,
-        *cache.m_caloEntrance,
-        alongMomentum, 
-        Trk::muon
-      ));
-      
+      lastidpar = m_extrapolator->extrapolateToVolume(
+        ctx, *firstidpar, *cache.m_caloEntrance, alongMomentum, Trk::muon);
+
     if (lastidpar == nullptr) {
       lastidpar.reset(pParametersVector->back()->clone());
     }
@@ -3781,7 +3763,7 @@ namespace Trk {
                 alongMomentum, 
                 false, 
                 matEffects
-              );
+              ).release();
 
               if (tp == nullptr) {
                 return;
@@ -3930,14 +3912,12 @@ namespace Trk {
           if (cache.m_caloEntrance == nullptr) {
             ATH_MSG_ERROR("calo entrance not available");
           } else {
-            tmppar.reset(m_extrapolator->extrapolateToVolume(
-              ctx,
-              *startmatpar1,
-              *cache.m_caloEntrance,
-              oppositeMomentum,
-              Trk::nonInteracting
-            ));
-            
+            tmppar = m_extrapolator->extrapolateToVolume(ctx,
+                                                         *startmatpar1,
+                                                         *cache.m_caloEntrance,
+                                                         oppositeMomentum,
+                                                         Trk::nonInteracting);
+
             if (tmppar != nullptr) {
               destsurf = &tmppar->associatedSurface();
             }
@@ -4000,15 +3980,13 @@ namespace Trk {
           if (cache.m_caloEntrance == nullptr) {
             ATH_MSG_ERROR("calo entrance not available");
           } else {
-            tmppar.reset(m_extrapolator->extrapolateToVolume(
-              ctx,
-              *startmatpar2,
-              *cache.m_caloEntrance,
-              Trk::alongMomentum,
-              Trk::nonInteracting
-            ));
+            tmppar = m_extrapolator->extrapolateToVolume(ctx,
+                                                         *startmatpar2,
+                                                         *cache.m_caloEntrance,
+                                                         Trk::alongMomentum,
+                                                         Trk::nonInteracting);
           }
-          
+
           if (tmppar != nullptr) {
             const CylinderSurface *cylcalosurf = nullptr;
             
@@ -4244,13 +4222,11 @@ namespace Trk {
         if (cache.m_msEntrance == nullptr) {
           ATH_MSG_ERROR("MS entrance not available");
         } else if (cache.m_msEntrance->inside(lastcalopar->position())) {
-          muonpar1.reset(m_extrapolator->extrapolateToVolume(
-            ctx,
-            *lastcalopar,
-            *cache.m_msEntrance,
-            Trk::alongMomentum,
-            Trk::nonInteracting
-          ));
+          muonpar1 = m_extrapolator->extrapolateToVolume(ctx,
+                                                         *lastcalopar,
+                                                         *cache.m_msEntrance,
+                                                         Trk::alongMomentum,
+                                                         Trk::nonInteracting);
 
           if (muonpar1 != nullptr) {
             Amg::Vector3D trackdir = muonpar1->momentum().unit();
@@ -4409,14 +4385,12 @@ namespace Trk {
         if (cache.m_msEntrance == nullptr) {
           ATH_MSG_ERROR("MS entrance not available");
         } else if (cache.m_msEntrance->inside(firstcalopar->position())) {
-          muonpar1.reset(m_extrapolator->extrapolateToVolume(
-            ctx,
-            *firstcalopar,
-            *cache.m_msEntrance,
-            Trk::oppositeMomentum,
-            Trk::nonInteracting
-          ));
-          
+          muonpar1 = m_extrapolator->extrapolateToVolume(ctx,
+                                                         *firstcalopar,
+                                                         *cache.m_msEntrance,
+                                                         Trk::oppositeMomentum,
+                                                         Trk::nonInteracting);
+
           if (muonpar1 != nullptr) {
             Amg::Vector3D trackdir = muonpar1->momentum().unit();
             Amg::Vector3D curvZcrossT = -(trackdir.cross(Amg::Vector3D(0, 0, 1)));
@@ -6962,16 +6936,12 @@ namespace Trk {
         return nullptr;
       }
     } else if (cache.m_acceleration && (firstmeasstate->trackParameters() != nullptr)) {
-      per.reset(
-        m_extrapolator->extrapolate(
-          ctx,
-          *firstmeasstate->trackParameters(),
-          PerigeeSurface(Amg::Vector3D(0, 0, 0)),
-          oppositeMomentum,
-          false,
-          matEffects
-        )
-      );
+      per = m_extrapolator->extrapolate(ctx,
+                                        *firstmeasstate->trackParameters(),
+                                        PerigeeSurface(Amg::Vector3D(0, 0, 0)),
+                                        oppositeMomentum,
+                                        false,
+                                        matEffects);
     } else {
       per.reset(oldtrajectory.referenceParameters()->clone());
     }

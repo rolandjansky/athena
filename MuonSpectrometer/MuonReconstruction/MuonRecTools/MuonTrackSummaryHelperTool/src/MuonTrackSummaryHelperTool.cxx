@@ -489,7 +489,7 @@ void Muon::MuonTrackSummaryHelperTool::calculateRoadHits(Trk::MuonTrackSummary::
             exPars = extrapolator->extrapolateDirectly(ctx, 
                                                        pars, 
                                                        surf, 
-                                                       Trk::anyDirection, false, Trk::muon);
+                                                       Trk::anyDirection, false, Trk::muon).release();
             if (!exPars) {
                 if (isStraightLine) {
                     ATH_MSG_DEBUG(" Straight line propagation to prd " << m_idHelperSvc->toString(id) << " failed");

@@ -976,11 +976,13 @@ InDet::InDetTrackSelectionTool::accept( const Trk::Track& track,
   std::unique_ptr<const Trk::TrackParameters> paramsAtVertex;
   if (vertex) {
     Trk::PerigeeSurface perigeeSurface(vertex->position());
-    paramsAtVertex.reset(m_extrapolator->extrapolate(
-                 Gaudi::Hive::currentContext(),
-                 *perigee,perigeeSurface,
-						     Trk::anyDirection,true,
-						     track.info().particleHypothesis()) );
+    paramsAtVertex =
+      m_extrapolator->extrapolate(Gaudi::Hive::currentContext(),
+                                  *perigee,
+                                  perigeeSurface,
+                                  Trk::anyDirection,
+                                  true,
+                                  track.info().particleHypothesis());
     perigee = paramsAtVertex.get();
   }
 

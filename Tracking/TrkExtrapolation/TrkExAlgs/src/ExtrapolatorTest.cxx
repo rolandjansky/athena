@@ -210,7 +210,7 @@ void Trk::ExtrapolatorTest::runTest( const Trk::Perigee& initialPerigee ) {
                *destinationSurface,
                propagationDirection,
                false,
-               (Trk::ParticleHypothesis)m_particleType)
+               (Trk::ParticleHypothesis)m_particleType).release()
            :
 
            m_propagator

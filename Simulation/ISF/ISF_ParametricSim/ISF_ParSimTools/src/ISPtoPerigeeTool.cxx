@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -60,7 +60,7 @@ const Trk::TrackParameters* iParSim::ISPtoPerigeeTool::extractTrkParameters(cons
     const Trk::TrackParameters* tP = m_extrapolator->extrapolate(ctx,
                                                                  cParameters, 
                                                                  persf, 
-                                                                 Trk::anyDirection, false);
+                                                                 Trk::anyDirection, false).release();
     return tP;
 
 }

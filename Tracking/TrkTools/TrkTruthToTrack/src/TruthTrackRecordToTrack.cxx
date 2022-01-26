@@ -24,7 +24,7 @@
 Trk::TruthTrackRecordToTrack::TruthTrackRecordToTrack(const std::string& type, const std::string& name,
                                             const IInterface* parent)
   : AthAlgTool(type,name,parent),
-    m_particleDataTable(nullptr), 
+    m_particleDataTable(nullptr),
     m_extrapolator("Trk::Extrapolator/AtlasExtrapolator")
 {
   declareInterface<ITruthToTrack>(this);
@@ -42,15 +42,15 @@ StatusCode Trk::TruthTrackRecordToTrack::initialize() {
   if (sc.isFailure()) {
     ATH_MSG_ERROR ("Could not initialize Particle Properties Service");
     return StatusCode::FAILURE;
-  }      
+  }
   m_particleDataTable = partPropSvc->PDT();
 
   if ( m_extrapolator.retrieve().isFailure() ) {
     ATH_MSG_FATAL ("Failed to retrieve tool " << m_extrapolator );
     return StatusCode::FAILURE;
-  } 
+  }
     ATH_MSG_INFO("Retrieved tool " << m_extrapolator);
-  
+
 
   ATH_CHECK( m_reccollkey.initialize() );
 
@@ -72,7 +72,7 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParamete
 
 
   SG::ReadHandle<TrackRecordCollection> recordCollection(m_reccollkey);
-      
+
   if (recordCollection.isValid()) {
     ATH_MSG_ERROR ("Could not get track record!");
     return nullptr;
@@ -82,7 +82,7 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParamete
   if (recordCollection->empty()) ATH_MSG_WARNING ("action required but record size is 0");
 
   for (TrackRecordCollection::const_iterator record = recordCollection->begin();  record != recordCollection->end();++record){
-          
+
     if ( (*record).GetBarCode() == HepMC::barcode(part) ) {
 
       id = (*record).GetPDGCode();
@@ -103,7 +103,7 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParamete
 
       ATH_MSG_DEBUG("found barcode " << HepMC::barcode(part) << " with pdg ID " <<
                     id << ", momentum " << hv2 << " production " << globalPos);
-      
+
 
     } // if barcodes match
   }   // loop over G4 records
@@ -114,7 +114,7 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParamete
     Amg::Translation3D prodSurfaceCentre( prodVertexVector.x(),
 					  prodVertexVector.y(),
 					  prodVertexVector.z() );
-      
+
     Amg::Transform3D tmpTransf =  prodSurfaceCentre *  Amg::RotationMatrix3D::Identity();
 
     Trk::PlaneSurface planeSurface(tmpTransf, 5., 5. );
@@ -142,7 +142,7 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParamete
   const HepPDT::ParticleData* pd = nullptr;
 
    SG::ReadHandle<TrackRecordCollection> recordCollection(m_reccollkey);
-      
+
   if (recordCollection.isValid()) {
     ATH_MSG_ERROR ("Could not get track record!");
     return nullptr;
@@ -153,7 +153,7 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParamete
   if (recordCollection->empty()) ATH_MSG_WARNING ("action required but record size is 0");
 
   for (TrackRecordCollection::const_iterator record = recordCollection->begin();  record != recordCollection->end();++record){
-          
+
     if ( (*record).GetBarCode() == part->barcode() ) {
 
       id = (*record).GetPDGCode();
@@ -174,7 +174,7 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParamete
 
       ATH_MSG_DEBUG("found barcode " << part->barcode() << " with pdg ID " <<
                     id << ", momentum " << hv2 << " production " << globalPos);
-      
+
 
     } // if barcodes match
   }   // loop over G4 records
@@ -185,7 +185,7 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParamete
     Amg::Translation3D prodSurfaceCentre( prodVertexVector.x(),
 					  prodVertexVector.y(),
 					  prodVertexVector.z() );
-      
+
     Amg::Transform3D tmpTransf =  prodSurfaceCentre *  Amg::RotationMatrix3D::Identity();
 
     Trk::PlaneSurface planeSurface(tmpTransf, 5., 5. );
@@ -204,12 +204,12 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makePerigeeParameters(
   const Trk::TrackParameters* generatedTrackPerigee = nullptr;
 
   if(part && part->production_vertex() && m_particleDataTable && m_extrapolator) {
-    
+
     MsgStream log(msgSvc(), name());
-    
+
     std::unique_ptr<const Trk::TrackParameters> productionVertexTrackParams( makeProdVertexParameters(part) );
     if(productionVertexTrackParams) {
-      
+
       // Extrapolate the TrackParameters object to the perigee. Direct extrapolation,
       // no material effects.
       generatedTrackPerigee =
@@ -218,7 +218,7 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makePerigeeParameters(
                                             Trk::PerigeeSurface(),
                                             Trk::anyDirection,
                                             false,
-                                            Trk::nonInteracting);
+                                            Trk::nonInteracting).release();
     }
   }
 
@@ -230,12 +230,12 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makePerigeeParameters(
   const Trk::TrackParameters* generatedTrackPerigee = nullptr;
 
   if(part && part->hasProdVtx() && m_particleDataTable && m_extrapolator) {
-    
+
     MsgStream log(msgSvc(), name());
-    
+
     std::unique_ptr<const Trk::TrackParameters> productionVertexTrackParams( makeProdVertexParameters(part) );
     if(productionVertexTrackParams) {
-      
+
       // Extrapolate the TrackParameters object to the perigee. Direct extrapolation,
       // no material effects.
       generatedTrackPerigee =
@@ -244,7 +244,7 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makePerigeeParameters(
                                             Trk::PerigeeSurface(),
                                             Trk::anyDirection,
                                             false,
-                                            Trk::nonInteracting);
+                                            Trk::nonInteracting).release();
     }
   }
 

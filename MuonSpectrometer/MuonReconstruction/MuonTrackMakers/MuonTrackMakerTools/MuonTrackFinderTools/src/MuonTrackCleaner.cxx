@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "MuonTrackCleaner.h"
 
@@ -1143,7 +1143,7 @@ namespace Muon {
                 info.cleanedCompROT = std::move(updatedCompRot);
                 if (info.cleanedCompROT->associatedSurface() != meas->associatedSurface()) {
                     const Trk::TrackParameters* exPars = m_extrapolator->extrapolate(ctx, *pars, info.cleanedCompROT->associatedSurface(),
-                                                                                     Trk::anyDirection, false, Trk::muon);
+                                                                                     Trk::anyDirection, false, Trk::muon).release();
                     if (!exPars) {
                         ATH_MSG_WARNING("Update of comp rot parameters failed, keeping old ones");
                         info.cleanedCompROT.reset();

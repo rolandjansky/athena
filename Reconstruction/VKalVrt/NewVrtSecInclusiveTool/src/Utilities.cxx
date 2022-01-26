@@ -331,9 +331,9 @@ namespace Rec{
      const Trk::TrackParameters * extrapParP=0; //along momentum
      const Trk::TrackParameters * extrapParN=0; //backward
      if(nextLayerP){ extrapParP = m_extrapolator->extrapolate(ctx, pseudoVrtPart,
-                     nextLayerP->surfaceRepresentation(), Trk::anyDirection, false, Trk::nonInteractingMuon) ;}
+                     nextLayerP->surfaceRepresentation(), Trk::anyDirection, false, Trk::nonInteractingMuon).release();}
      if(nextLayerN){ extrapParN = m_extrapolator->extrapolate(ctx, pseudoVrtPart,
-                     nextLayerN->surfaceRepresentation(), Trk::anyDirection, false, Trk::nonInteractingMuon) ;}
+                     nextLayerN->surfaceRepresentation(), Trk::anyDirection, false, Trk::nonInteractingMuon).release();}
 
      float distanceP=1.e9, distanceN=1.e9;
      if(extrapParP)distanceP=PntPntDist(extrapParP->position(), Vrt.fitVertex);

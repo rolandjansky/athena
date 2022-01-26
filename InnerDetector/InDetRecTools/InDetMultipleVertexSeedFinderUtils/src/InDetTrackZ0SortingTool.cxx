@@ -63,7 +63,7 @@ namespace InDet
              ctx,
              **tb,perigeeSurface,
 					   Trk::anyDirection,true, 
-					   Trk::pion);
+					   Trk::pion).release();
    }//end of extrapolation block
    
    if(perigee)
@@ -113,7 +113,7 @@ namespace InDet
        ctx,
        (*tb)->definingParameters(),
        perigeeSurface,
-       Trk::anyDirection,true, Trk::pion);  
+       Trk::anyDirection,true, Trk::pion).release();  
    }//end of extrapolation block
    
    if(perigee)
@@ -167,7 +167,7 @@ namespace InDet
     ctx,
     **tb,
     perigeeSurface,
-    Trk::anyDirection,true, Trk::pion);  
+    Trk::anyDirection,true, Trk::pion).release();  
 	
 	if(perigee)
 	  {

@@ -394,7 +394,7 @@ const Trk::TrackParameters* MuonMatchingTool :: extTrackToTGC( const xAOD::Track
                                                                   *disc,
                                                                   Trk::anyDirection,
                                                                   boundaryCheck,
-                                                                  Trk::muon);
+                                                                  Trk::muon).release();
 
   ATH_MSG_DEBUG("param=" << param 
 		<< " eta=" << ((param) ? param->position().eta() : 0) 
@@ -415,7 +415,7 @@ const Trk::TrackParameters* MuonMatchingTool :: extTrackToRPC( const xAOD::Track
                                                                   *barrel,
                                                                   Trk::anyDirection,
                                                                   boundaryCheck,
-                                                                  Trk::muon);
+                                                                  Trk::muon).release();
   return param;
 }
 
