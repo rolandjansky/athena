@@ -146,6 +146,12 @@ def getHLTMenuFileName( flags ):
     hltMenuFileName = hltMenuFileName.replace("_newJO","")
     return hltMenuFileName
 
+# HLT Monitoring set json file name
+def getHLTMonitoringFileName( flags ):
+    hltMonitoringFileName = 'HLTMonitoring'+_getMenuFileName(flags)+'.json'
+    hltMonitoringFileName = hltMonitoringFileName.replace("_newJO","")
+    return hltMonitoringFileName
+
 # L1 Prescales set json file name
 def getL1PrescalesSetFileName( flags ):
     return 'L1PrescalesSet'+_getMenuFileName(flags)+'.json'
@@ -153,10 +159,6 @@ def getL1PrescalesSetFileName( flags ):
 # HLT Prescales set json file name
 def getHLTPrescalesSetFileName( flags ):
     return 'HLTPrescalesSet'+_getMenuFileName(flags)+'.json'
-
-# HLT Monitoring set json file name
-def getHLTMonitoringFileName( flags ):
-    return 'HLTMonitoring'+_getMenuFileName(flags)+'.json'
 
 # L1 Bunchgroups set json file name
 def getBunchGroupSetFileName( flags ):
@@ -253,7 +255,9 @@ def HLTConfigSvcCfg( flags ):
 
         hltConfigSvc.InputType = "FILE"
         hltConfigSvc.JsonFileName = getHLTMenuFileName( flags )
-        log.info( "Configured HLTConfigSvc with InputType='FILE' and JsonFileName=%s", hltConfigSvc.JsonFileName )
+        hltConfigSvc.MonitoringJsonFileName = getHLTMonitoringFileName( flags )
+        log.info( "Configured HLTConfigSvc with InputType='FILE', JsonFileName=%s and MonitoringJsonFileName=%s",
+          hltConfigSvc.JsonFileName, hltConfigSvc.MonitoringJsonFileName )
     elif cfg["SOURCE"] == "DB":
         hltConfigSvc.InputType = "DB"
         hltConfigSvc.JsonFileName = ""

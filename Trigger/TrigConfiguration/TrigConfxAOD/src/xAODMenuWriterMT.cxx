@@ -60,6 +60,8 @@ namespace TrigConf
 
       ATH_CHECK(m_HLTMenuKey.initialize());             // ReadHandleKey, but DetStore (so renounce)
       renounce(m_HLTMenuKey);
+      ATH_CHECK(m_HLTMonitoringKey.initialize());       // ReadHandleKey, but DetStore (so renounce)
+      renounce(m_HLTMonitoringKey);
       ATH_CHECK(m_HLTPrescaleSetInputKey.initialize()); // ReadCondHandleKey
 
       ATH_CHECK(m_L1MenuKey.initialize());             // ReadHandleKey, but DetStore (so renounce)
@@ -73,6 +75,14 @@ namespace TrigConf
 
       ATH_CHECK(m_metaStore->record(aux_hlt, m_metaNameJSON_hlt + "Aux."));
       ATH_CHECK(m_metaStore->record(m_menuJSON_hlt, m_metaNameJSON_hlt));
+
+      // HLT Monitoring JSON object - contains Monitoring groups for HLT menus
+      xAOD::TriggerMenuJsonAuxContainer *aux_hltmonitoring = new xAOD::TriggerMenuJsonAuxContainer();
+      m_menuJSON_hltmonitoring = new xAOD::TriggerMenuJsonContainer();
+      m_menuJSON_hltmonitoring->setStore(aux_hltmonitoring);
+
+      ATH_CHECK(m_metaStore->record(aux_hltmonitoring, m_metaNameJSON_hltmonitoring + "Aux."));
+      ATH_CHECK(m_metaStore->record(m_menuJSON_hltmonitoring, m_metaNameJSON_hltmonitoring));
 
       // L1 JSON object - contains L1 menus
       xAOD::TriggerMenuJsonAuxContainer *aux_l1 = new xAOD::TriggerMenuJsonAuxContainer();
@@ -127,7 +137,7 @@ namespace TrigConf
       if (!m_converted_smk.insert(ckeys.first).second) {
          ATH_MSG_VERBOSE("Already converted SMK: " << ckeys.first);
       } else {
-         ATH_MSG_DEBUG("Filling HLT information for SMK:" << ckeys.first);
+         ATH_MSG_DEBUG("Filling HLT Menu information for SMK:" << ckeys.first);
          SG::ReadHandle<TrigConf::HLTMenu> hltMenuHandle(m_HLTMenuKey, ctx);
          ATH_CHECK(hltMenuHandle.isValid());
          std::stringstream hltTriggerMenuJson;
@@ -137,6 +147,20 @@ namespace TrigConf
          hlt->setKey(ckeys.first);
          hlt->setName(hltMenuHandle->name());
          hlt->setPayload(hltTriggerMenuJson.str());
+         //////////////////////////////////////////////////////////////////////////////
+         ATH_MSG_DEBUG("Filling HLT Monitoring information for SMK:" << ckeys.first);
+         SG::ReadHandle<TrigConf::HLTMonitoring> hltMonitoringHandle(m_HLTMonitoringKey, ctx);
+         if (hltMonitoringHandle.isValid()) {
+            std::stringstream hltMonitoringJson;
+            hltMonitoringHandle->printRaw(hltMonitoringJson);
+            xAOD::TriggerMenuJson *hltmonitoring = new xAOD::TriggerMenuJson();
+            m_menuJSON_hltmonitoring->push_back(hltmonitoring); // Now owned by MetaDataStore
+            hltmonitoring->setKey(ckeys.first);
+            hltmonitoring->setName(hltMonitoringHandle->name());
+            hltmonitoring->setPayload(hltMonitoringJson.str());
+         } else {
+            ATH_MSG_DEBUG("No HLT Monitoring JSON available - skipping.");
+         }
          //////////////////////////////////////////////////////////////////////////////
          ATH_MSG_DEBUG("Filling L1 information for SMK:" << ckeys.first);
          SG::ReadHandle<TrigConf::L1Menu> l1MenuHandle = SG::makeHandle(m_L1MenuKey, ctx);

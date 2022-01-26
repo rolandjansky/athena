@@ -17,10 +17,10 @@ regexXAODEventFormat = re.compile(r'^xAOD::EventFormat(_v\d+)?$')
 regexXAODFileMetaData = re.compile(r'^xAOD::FileMetaData(_v\d+)?$')
 regexXAODFileMetaDataAux = re.compile(r'^xAOD::FileMetaDataAuxInfo(_v\d+)?$')
 regexXAODFileMetaDataAuxDyn = re.compile(r'^(xAOD::)?FileMetaData.*AuxDyn(\.[a-zA-Z0-9]+)?$')
-regexXAODTriggerMenu = re.compile(r'^DataVector<xAOD::TriggerMenu(_v\d+)?>$')
-regexXAODTriggerMenuAux = re.compile(r'^xAOD::TriggerMenuAuxContainer(_v\d+)?$')
-regexXAODTriggerMenuJson = re.compile(r'^DataVector<xAOD::TriggerMenuJson(_v\d+)?>$')
-regexXAODTriggerMenuJsonAux = re.compile(r'^xAOD::TriggerMenuJsonAuxContainer(_v\d+)?$')
+regexXAODTriggerMenu = re.compile(r'^DataVector<xAOD::TriggerMenu(_v\d+)?>$') # Run 2
+regexXAODTriggerMenuAux = re.compile(r'^xAOD::TriggerMenuAuxContainer(_v\d+)?$') # Run 2
+regexXAODTriggerMenuJson = re.compile(r'^DataVector<xAOD::TriggerMenuJson(_v\d+)?>$') # Run 3
+regexXAODTriggerMenuJsonAux = re.compile(r'^xAOD::TriggerMenuJsonAuxContainer(_v\d+)?$') # Run 3
 regex_cppname = re.compile(r'^([\w:]+)(<.*>)?$')
 # regex_persistent_class = re.compile(r'^([a-zA-Z]+_p\d+::)*[a-zA-Z]+_p\d+$')
 regex_persistent_class = re.compile(r'^([a-zA-Z]+(_[pv]\d+)?::)*[a-zA-Z]+_[pv]\d+$')
@@ -171,21 +171,25 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                         'xAOD::TriggerMenuAuxContainer_v1_TriggerMenuAux.': 'xAOD::TriggerMenuAuxContainer_v1',
                         'TriggerMenuJson_HLT': 'DataVector<xAOD::TriggerMenuJson_v1>', # R3 trigger metadata format AOD
                         'TriggerMenuJson_HLTAux.': 'xAOD::TriggerMenuJsonAuxContainer_v1',
+                        'TriggerMenuJson_HLTMonitoring': 'DataVector<xAOD::TriggerMenuJson_v1>', # R3 trigger metadata format AOD
+                        'TriggerMenuJson_HLTMonitoringAux.': 'xAOD::TriggerMenuJsonAuxContainer_v1',
                         'TriggerMenuJson_HLTPS': 'DataVector<xAOD::TriggerMenuJson_v1>', # R3 trigger metadata format AOD
                         'TriggerMenuJson_HLTPSAux.': 'xAOD::TriggerMenuJsonAuxContainer_v1',
-                        'TriggerMenuJson_L1': 'DataVector<xAOD::TriggerMenuJson_v1>',
+                        'TriggerMenuJson_L1': 'DataVector<xAOD::TriggerMenuJson_v1>', # R3 trigger metadata format AOD
                         'TriggerMenuJson_L1Aux.': 'xAOD::TriggerMenuJsonAuxContainer_v1',
-                        'TriggerMenuJson_L1PS': 'DataVector<xAOD::TriggerMenuJson_v1>',
+                        'TriggerMenuJson_L1PS': 'DataVector<xAOD::TriggerMenuJson_v1>', # R3 trigger metadata format AOD
                         'TriggerMenuJson_L1PSAux.': 'xAOD::TriggerMenuJsonAuxContainer_v1',
                         'FileMetaData': '*',
                         'FileMetaDataAux.': 'xAOD::FileMetaDataAuxInfo_v1',
                         'DataVector<xAOD::TriggerMenuJson_v1>_TriggerMenuJson_HLT': 'DataVector<xAOD::TriggerMenuJson_v1>', # R3 trigger metadata format ESD
                         'xAOD::TriggerMenuJsonAuxContainer_v1_TriggerMenuJson_HLTAux.': 'xAOD::TriggerMenuJsonAuxContainer_v1',
+                        'DataVector<xAOD::TriggerMenuJson_v1>_TriggerMenuJson_HLTMonitoring': 'DataVector<xAOD::TriggerMenuJson_v1>', # R3 trigger metadata format ESD
+                        'xAOD::TriggerMenuJsonAuxContainer_v1_TriggerMenuJson_HLTMonitoringAux.': 'xAOD::TriggerMenuJsonAuxContainer_v1',
                         'DataVector<xAOD::TriggerMenuJson_v1>_TriggerMenuJson_HLTPS': 'DataVector<xAOD::TriggerMenuJson_v1>', # R3 trigger metadata format ESD
                         'xAOD::TriggerMenuJsonAuxContainer_v1_TriggerMenuJson_HLTPSAux.': 'xAOD::TriggerMenuJsonAuxContainer_v1',
-                        'DataVector<xAOD::TriggerMenuJson_v1>_TriggerMenuJson_L1': 'DataVector<xAOD::TriggerMenuJson_v1>',
+                        'DataVector<xAOD::TriggerMenuJson_v1>_TriggerMenuJson_L1': 'DataVector<xAOD::TriggerMenuJson_v1>', # R3 trigger metadata format ESD
                         'xAOD::TriggerMenuJsonAuxContainer_v1_TriggerMenuJson_L1Aux.': 'xAOD::TriggerMenuJsonAuxContainer_v1',
-                        'DataVector<xAOD::TriggerMenuJson_v1>_TriggerMenuJson_L1PS': 'DataVector<xAOD::TriggerMenuJson_v1>',
+                        'DataVector<xAOD::TriggerMenuJson_v1>_TriggerMenuJson_L1PS': 'DataVector<xAOD::TriggerMenuJson_v1>', # R3 trigger metadata format ESD
                         'xAOD::TriggerMenuJsonAuxContainer_v1_TriggerMenuJson_L1PSAux.': 'xAOD::TriggerMenuJsonAuxContainer_v1',
                         '*': 'EventStreamInfo_p*'
                     }
@@ -814,6 +818,8 @@ def _extract_fields_triggermenujson(interface, aux):
             elif decoded['filetype'] == 'hltprescale':
                 return result
             elif decoded['filetype'] == 'l1prescale':
+                return result
+            elif decoded['filetype'] == 'hltmonitoringsummary':
                 return result
 
             else:

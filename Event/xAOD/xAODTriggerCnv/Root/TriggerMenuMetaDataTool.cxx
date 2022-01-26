@@ -36,6 +36,8 @@ namespace xAODMaker {
       declareProperty("OutputKey", m_outputKey = "TriggerMenu");
       declareProperty("InputKeyJSON_HLT", m_inputKeyJSON_HLT = "TriggerMenuJson_HLT");
       declareProperty("OutputKeyJSON_HLT", m_outputKeyJSON_HLT = "TriggerMenuJson_HLT");
+      declareProperty("InputKeyJSON_HLTMonitoring", m_inputKeyJSON_HLTMonitoring = "TriggerMenuJson_HLTMonitoring");
+      declareProperty("OutputKeyJSON_HLTMonitoring", m_outputKeyJSON_HLTMonitoring = "TriggerMenuJson_HLTMonitoring");
       declareProperty("InputKeyJSON_L1", m_inputKeyJSON_L1 = "TriggerMenuJson_L1");
       declareProperty("OutputKeyJSON_L1", m_outputKeyJSON_L1 = "TriggerMenuJson_L1");
       declareProperty("InputKeyJSON_HLTPS", m_inputKeyJSON_HLTPS = "TriggerMenuJson_HLTPS");
@@ -57,6 +59,8 @@ namespace xAODMaker {
       m_menuAux.reset();
       m_menuJSON_hlt.reset();
       m_menuJSON_hltAux.reset();
+      m_menuJSON_hltmonitoring.reset();
+      m_menuJSON_hltmonitoringAux.reset();
       m_menuJSON_l1.reset();
       m_menuJSON_l1Aux.reset();
       m_menuJSON_hltps.reset();
@@ -142,6 +146,7 @@ namespace xAODMaker {
 
    StatusCode TriggerMenuMetaDataTool::checkxAODTriggerMenuJson() {
       ATH_CHECK( checkCopyJson(m_inputKeyJSON_HLT, m_menuJSON_hlt, m_menuJSON_hltAux) );
+      ATH_CHECK( checkCopyJson(m_inputKeyJSON_HLTMonitoring, m_menuJSON_hltmonitoring, m_menuJSON_hltmonitoringAux) );
       ATH_CHECK( checkCopyJson(m_inputKeyJSON_L1, m_menuJSON_l1, m_menuJSON_l1Aux) );
       ATH_CHECK( checkCopyJson(m_inputKeyJSON_HLTPS, m_menuJSON_hltps, m_menuJSON_hltpsAux) );
       ATH_CHECK( checkCopyJson(m_inputKeyJSON_L1PS, m_menuJSON_l1ps, m_menuJSON_l1psAux) );
@@ -258,6 +263,7 @@ namespace xAODMaker {
 
    StatusCode TriggerMenuMetaDataTool::endxAODTriggerMenuJson() {
       ATH_CHECK( checkExportJson(m_outputKeyJSON_HLT, m_menuJSON_hlt, m_menuJSON_hltAux) );
+      ATH_CHECK( checkExportJson(m_outputKeyJSON_HLTMonitoring, m_menuJSON_hltmonitoring, m_menuJSON_hltmonitoringAux) );
       ATH_CHECK( checkExportJson(m_outputKeyJSON_L1, m_menuJSON_l1, m_menuJSON_l1Aux) );
       ATH_CHECK( checkExportJson(m_outputKeyJSON_HLTPS, m_menuJSON_hltps, m_menuJSON_hltpsAux) );
       ATH_CHECK( checkExportJson(m_outputKeyJSON_L1PS, m_menuJSON_l1ps, m_menuJSON_l1psAux) );
