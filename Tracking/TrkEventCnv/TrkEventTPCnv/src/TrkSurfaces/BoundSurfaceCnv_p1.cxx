@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -93,10 +93,7 @@ transToPers( const SURFACE *transObj, Trk::BoundSurface_p1 *persObj, MsgStream &
 }
 
 
-namespace {
-   DiscSurfaceCnv_p1		inst1;
-   CylinderSurfaceCnv_p1	inst2;
-   PlaneSurfaceCnv_p1		inst3;
-   StraightLineSurfaceCnv_p1	isnt4;
-}
-
+template class BoundSurfaceCnv_p1< Trk::DiscSurface, DiscBoundsCnv_p1 >;
+template class BoundSurfaceCnv_p1< Trk::CylinderSurface, CylinderBoundsCnv_p1 >;
+template class BoundSurfaceCnv_p1< Trk::StraightLineSurface, CylinderBoundsCnv_p1 >;
+template class BoundSurfaceCnv_p1< Trk::PlaneSurface >;
