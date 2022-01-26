@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: IDbContainer.h 726071 2016-02-25 09:23:05Z krasznaa $
@@ -58,6 +58,8 @@ namespace pool    {
     virtual void release() = 0;
     /// Access to container size
     virtual long long int size() = 0;
+    /// Get container name
+    virtual std::string name() const = 0;
     /// Ask if a given shape is supported
     virtual DbStatus isShapeSupported(const DbTypeInfo* typ) const = 0;
     /// Set options
@@ -79,6 +81,8 @@ namespace pool    {
 
     /// Number of next record in the container (=size if no delete is allowed)
     virtual long long int nextRecordId() = 0;
+    /// Suggest next Record ID for tbe next object written - used only with synced indexes
+    virtual void useNextRecordId(long long int) = 0;
 
     /// Close the container
     virtual DbStatus close() = 0;

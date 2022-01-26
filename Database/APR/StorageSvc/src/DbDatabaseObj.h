@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -72,6 +72,9 @@ namespace pool    {
     typedef std::map< Guid , const DbTypeInfo* >     ShapeMap;
     /// Definition of map with index elements
     typedef std::map< long long int , int >          IndexMap;
+    /// Base class convenience typdef
+    typedef DbAccessObj<std::string, DbContainerObj > Base;
+     
     /// Handle to domain
     DbDomain                      m_dom;
     /// Handle to link container
@@ -171,8 +174,8 @@ namespace pool    {
     /// Access local container token (if container exists)
     const Token* cntToken(const std::string& cntName);
     /// Allow access to all known containers
-    DbStatus containers(std::vector<const Token*>& conts,
-                      bool intern);
+    DbStatus containers(std::vector<const Token*>& conts, bool intern);
+    DbStatus containers(std::vector<IDbContainer*>& conts, bool intern);
     /// Allow access to all known associations between containers
     DbStatus associations(std::vector<const Token*>& conts);
     /// Allow access to all known shapes used by the database

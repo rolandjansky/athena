@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -65,6 +65,10 @@ namespace pool  {
     virtual Action state() const = 0;
     /// Access to the transaction type
     virtual Type type() const = 0;
+
+    /// Translate Action to string
+    static const char* actionAsString(Action action);
+ 
   };
 }       // End namespace pool
 #endif  // POOL_TRANSACTION_H
