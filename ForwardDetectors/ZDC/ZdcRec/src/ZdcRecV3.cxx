@@ -33,14 +33,11 @@ ZdcRecV3::ZdcRecV3(const std::string& name, ISvcLocator* pSvcLocator) :
 
 	AthAlgorithm(name, pSvcLocator),
 	//m_storeGate("StoreGateSvc", name),
-	m_ownPolicy(static_cast<int> (SG::OWN_ELEMENTS)),
+	m_ownPolicy(static_cast<int> (SG::OWN_ELEMENTS))
 	//m_ttContainerName("ZdcTriggerTowers"),
 	//m_zdcModuleContainerName("ZdcModules"),
 	//m_zdcModuleAuxContainerName("ZdcModulesAux."),
 	//m_ttContainer(0),
-	m_eventCount(0),
-	m_complainContain(1),
-	m_complainRetrieve(1)
 	//m_zdcTool("ZDC::ZdcAnalysisTool/ZdcAnalysisTool")
 {
 	declareProperty("OwnPolicy",m_ownPolicy) ;

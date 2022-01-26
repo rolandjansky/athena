@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ZdcAnalysis/ZdcAnalysisTool.h"
@@ -439,30 +439,30 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializePbPb2018()
     static constexpr float peak2ndDerivRepassHG = -10;
     static constexpr float peak2ndDerivRepassLG = -6;
 
-    ZDCDataAnalyzer::ZDCModuleFloatArray tau1Arr = {3.877, 3.998, 3.821, 3.858,
-                                                    4.296, 4.064, 3.497, 3.642
-                                                   };
+    ZDCDataAnalyzer::ZDCModuleFloatArray tau1Arr = {{{3.877, 3.998, 3.821, 3.858},
+                                                     {4.296, 4.064, 3.497, 3.642}
+                                                     }};
 
-    ZDCDataAnalyzer::ZDCModuleFloatArray tau2Arr = {24.40, 25.28, 25.66, 24.12,
-                                                    24.42, 24.99, 25.72, 25.29
-                                                   };
+    ZDCDataAnalyzer::ZDCModuleFloatArray tau2Arr = {{{24.40, 25.28, 25.66, 24.12},
+                                                     {24.42, 24.99, 25.72, 25.29}
+                                                     }};
 
-    ZDCDataAnalyzer::ZDCModuleFloatArray t0HG = {70.51, 70.57, 70.13, 69.98,
-                                                 74.18, 72.79, 71.77, 72.62
-                                                };
-    ZDCDataAnalyzer::ZDCModuleFloatArray t0LG = {70.70, 70.78, 70.76, 70.91,
-                                                 75.16, 73.71, 72.25, 73.61
-                                                };
+    ZDCDataAnalyzer::ZDCModuleFloatArray t0HG = {{{70.51, 70.57, 70.13, 69.98},
+                                                  {74.18, 72.79, 71.77, 72.62}
+                                                  }};
+    ZDCDataAnalyzer::ZDCModuleFloatArray t0LG = {{{70.70, 70.78, 70.76, 70.91},
+                                                  {75.16, 73.71, 72.25, 73.61}
+                                                  }};
 
-    ZDCDataAnalyzer::ZDCModuleFloatArray moduleAmpFractionLG = {0.2760, 0.3045, 0.2369, 0.1826,
-                                                                0.3216, 0.2593, 0.2511, 0.1680
-                                                               };
+    ZDCDataAnalyzer::ZDCModuleFloatArray moduleAmpFractionLG = {{{0.2760, 0.3045, 0.2369, 0.1826},
+                                                                 {0.3216, 0.2593, 0.2511, 0.1680}
+                                                                 }};
 
     // Delta T0 cut
-    ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowHG = { -6, -5, -5, -5, -5, -5, -5, -5};
-    ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutHighHG = {8, 8, 8, 11, 8, 10, 8, 12};
-    ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowLG = { -6, -5, -5, -5, -5, -5, -5, -5};
-    ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutHighLG = {8, 8, 8, 11, 8, 10, 8, 12};
+    ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowHG = {{{ -6, -5, -5, -5}, {-5, -5, -5, -5}}};
+    ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutHighHG = {{{8, 8, 8, 11}, {8, 10, 8, 12}}};
+    ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowLG = {{{ -6, -5, -5, -5}, {-5, -5, -5, -5}}};
+    ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutHighLG = {{{8, 8, 8, 11}, {8, 10, 8, 12}}};
 
     for (size_t side : {0, 1}) {
         for (size_t module : {0, 1, 2, 3}) {

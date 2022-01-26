@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -80,10 +80,6 @@ private:
 
 	/** Pointer to Zdc input "digits" data */
 	//const xAOD::TriggerTowerContainer* m_ttContainer;
-
-	int m_eventCount;
-	bool m_complainContain;
-	bool m_complainRetrieve;
 
 	SG::WriteHandleKey<xAOD::ZdcModuleContainer> m_zdcModuleContainerName
 	  { this, "ZdcModuleContainerName", "ZdcModules", "" };
