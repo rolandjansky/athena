@@ -192,7 +192,7 @@ for radius in [0.2, 0.6]:
 if DerivationFrameworkIsMonteCarlo:
     ###addMETTruthMap('AntiKt4EMTopo',"JETMX")
     ###addMETTruthMap('AntiKt4EMPFlow',"JETMX")
-    scheduleMETAssocAlg(jetm3Seq,"JETMX")
+    ##scheduleMETAssocAlg(jetm3Seq,"JETMX")
     ## Add GhostTruthAssociation information ##
     addJetPtAssociation(jetalg="AntiKt4EMTopo",  truthjetalg="AntiKt4TruthJets", sequence=DerivationFrameworkJob)
     addJetPtAssociation(jetalg="AntiKt4EMPFlow", truthjetalg="AntiKt4TruthJets", sequence=DerivationFrameworkJob)
