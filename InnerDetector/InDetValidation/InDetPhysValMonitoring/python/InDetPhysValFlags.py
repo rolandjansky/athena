@@ -22,6 +22,7 @@ def createIDPVMConfigFlags():
     icf.addFlag("IDPVM.doTruthOriginPlots", False )
     icf.addFlag("IDPVM.doPerAuthorPlots", False )
     icf.addFlag("IDPVM.doHitLevelPlots", False )
+    icf.addFlag("IDPVM.runDecoration", True )
     icf.addFlag("IDPVM.setTruthStrategy", "HardScatter" )
     icf.addFlag("IDPVM.validateExtraTrackCollections", [] ) # List of extra track collection names to be validated in addition to Tracks.
     icf.addFlag("IDPVM.ancestorIDs", [] )

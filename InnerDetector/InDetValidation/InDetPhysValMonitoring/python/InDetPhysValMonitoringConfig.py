@@ -35,10 +35,13 @@ def InDetRttTruthSelectionToolCfg(flags, name="InDetRttTruthSelectionTool", **kw
         kwargs.setdefault("maxEta", 2.5)
     kwargs.setdefault("minPt", 500.)
 
-    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
-    extrapolator = acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
-    acc.addPublicTool(extrapolator)  # TODO: migrate to private?
-    kwargs.setdefault("Extrapolator", extrapolator)
+    if "radiusCylinder" in kwargs or "zDisc" in kwargs:
+        from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+        extrapolator = acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
+        acc.addPublicTool(extrapolator)  # TODO: migrate to private?
+        kwargs.setdefault("Extrapolator", extrapolator)
+    else:
+        kwargs.setdefault("Extrapolator", None)
 
     tool = CompFactory.AthTruthSelectionTool(name = name, **kwargs)
     acc.setPrivateTools(tool)
@@ -95,7 +98,7 @@ def InDetPhysValMonitoringToolCfg(flags, **kwargs):
         kwargs.setdefault("doPerAuthorPlots",      flags.IDPVM.doPerAuthorPlots)
         kwargs.setdefault("doHitLevelPlots",       flags.IDPVM.doHitLevelPlots)
 
-        # adding the VeretxTruthMatchingTool
+        # adding the VertexTruthMatchingTool
         VertexTruthMatchTool = acc.popToolsAndMerge(InDetVertexTruthMatchToolCfg(flags))
         kwargs.setdefault("useVertexTruthMatchTool", True)
         kwargs.setdefault("VertexTruthMatchTool", VertexTruthMatchTool)
