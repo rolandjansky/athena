@@ -125,7 +125,7 @@ std::unique_ptr<RegSelSiLUT> RPC_RegSelCondAlg::createTable( const EventContext&
 
     for (int dbz=1; dbz<=ndbz; dbz++) {
         
-      const MuonGM::RpcReadoutElement* rpcold = NULL;
+      const MuonGM::RpcReadoutElement* rpcold = nullptr;
       int ndbp = Set.NPhimodules(dbz);
         
       for (int dbp=1; dbp<=ndbp; dbp++) {

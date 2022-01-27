@@ -251,7 +251,7 @@ namespace MuonCalib {
     
     ATH_MSG_DEBUG("About to create AttributeListSpecification");
     
-    coral::AttributeListSpecification* aspec=0;
+    coral::AttributeListSpecification* aspec=nullptr;
     aspec=new coral::AttributeListSpecification();
     aspec->extend("recEta","string");
     aspec->extend("detEta","string");

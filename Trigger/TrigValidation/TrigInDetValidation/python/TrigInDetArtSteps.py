@@ -40,8 +40,8 @@ class TrigInDetReco(ExecStep):
         self.preexec_reco =  ';'.join([
             'from RecExConfig.RecFlags import rec',
             'rec.doForwardDet=False',
-            'rec.doEgamma=False',
-            'rec.doMuonCombined=False',
+            'rec.doEgamma=True',
+            'rec.doMuonCombined=True',
             'rec.doJetMissingETTag=False',
             'rec.doTau=False'
         ])
@@ -113,7 +113,6 @@ class TrigInDetReco(ExecStep):
                 chains += "'HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI',"
                 flags += 'doEgammaSlice=True;'
             if (i=='tau') :
-                chains +=  "'HLT_tau25_idperf_tracktwo_L1TAU12IM',"
                 chains +=  "'HLT_tau25_idperf_tracktwoMVA_L1TAU12IM',"
                 flags += 'doTauSlice=True;'
             if (i=='bjet') :
@@ -128,7 +127,7 @@ class TrigInDetReco(ExecStep):
                 flags  += 'doBeamspotSlice=True;'
             if (i=='minbias') :
                 chains += "'HLT_mb_sptrk_L1RD0_FILLED',"
-                flags  += "doMinBiasSlice=True;setMenu='LS2_v1';"
+                flags  += "doMinBiasSlice=True;setMenu='PhysicsP1_pp_lowMu_run3_v1';"
             if (i=='cosmic') :
                 chains += "'HLT_mu4_cosmic_L1MU3V'"
                 flags  += "doMuonSlice=True;doCosmics=True;setMenu='Cosmic_run3_v1';"
@@ -142,6 +141,8 @@ class TrigInDetReco(ExecStep):
         chains += ']'
         self.preexec_trig = 'doEmptyMenu=True;'+flags+'selectChains='+chains
 
+        # disable CPS which may otherwise conflict with the selectChains option (ATR-24744)
+        self.preexec_trig += ';from AthenaConfiguration.AllConfigFlags import ConfigFlags;ConfigFlags.Trigger.disableCPS=True'
         
         AVERSION = ""
         # temporary hack until we get to the bottom of why the tests are really failing
@@ -256,6 +257,7 @@ class TrigInDetRdictStep(Step):
             os.system( 'get_files -data TIDAdata-run3-offline-vtx.dat &> /dev/null' )
             os.system( 'get_files -data TIDAdata-run3-minbias-offline.dat &> /dev/null' )
             os.system( 'get_files -data TIDAdata-run3-offline-TnP.dat &> /dev/null' )
+            os.system( 'get_files -data TIDAdata-run3-offline-cosmic.dat &> /dev/null' )
             os.system( 'get_files -data TIDAdata_cuts-offline.dat &> /dev/null' )
             os.system( 'get_files -data TIDAdata-chains-run3.dat &> /dev/null' )
         super(TrigInDetRdictStep, self).configure(test)

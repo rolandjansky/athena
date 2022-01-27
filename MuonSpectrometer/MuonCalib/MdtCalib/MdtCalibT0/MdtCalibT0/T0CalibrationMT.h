@@ -45,7 +45,7 @@ namespace MuonCalib {
          * @param[in] sorting criteria (TUBE, CHAMBER, MULTILAYER...) default is by TUBE
          */
 
-        T0CalibrationMT(std::string name, const T0MTSettings *settings, const std::vector<int> &sort_by,
+        T0CalibrationMT(const std::string& name, const T0MTSettings *settings, const std::vector<int> &sort_by,
                         const std::vector<int> &adc_sort_by);
 
         /** destructor */

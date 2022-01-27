@@ -128,8 +128,8 @@ def JetBTaggerSplitAlgsCfg(inputFlags, JetCollection="", TaggerList=[], SecVerte
     }
 
     #Track Association
-    result.merge(JetParticleAssociationAlgCfg(inputFlags, jet, "InDetTrackParticles", "TracksForBTagging", **kwargs))
-    result.merge(JetParticleAssociationAlgCfg(inputFlags, jet, "Muons", "MuonsForBTagging", **kwargs))
+    result.merge(JetParticleAssociationAlgCfg(inputFlags, jet+'Jets', "InDetTrackParticles", "TracksForBTagging", **kwargs))
+    result.merge(JetParticleAssociationAlgCfg(inputFlags, jet+'Jets', "Muons", "MuonsForBTagging", **kwargs))
 
     for sv in SecVertexers:
         result.merge(JetSecVtxFindingAlgCfg(inputFlags, jet, "PrimaryVertices", sv, "TracksForBTagging"))

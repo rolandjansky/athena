@@ -21,7 +21,7 @@ public:
   int GetChamberLayer(const int& hid) const;
   int GetWireLayer (const int& hid) const;
 
-  int BuildCscHitId (const std::string, const int, const int, const int,
+  int BuildCscHitId (const std::string&, const int, const int, const int,
                      const int) const;
 
 private:

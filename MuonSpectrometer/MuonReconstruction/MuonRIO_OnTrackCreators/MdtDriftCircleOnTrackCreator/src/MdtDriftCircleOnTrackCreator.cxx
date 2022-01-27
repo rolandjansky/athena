@@ -155,7 +155,7 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::createRIO_OnTra
                                                                                          const double beta,
                                                                                          const double tTrack ) const
 {
-  const MuonDriftCircleErrorStrategy* myStrategy = 0==strategy?&m_errorStrategy:strategy;
+  const MuonDriftCircleErrorStrategy* myStrategy = nullptr==strategy?&m_errorStrategy:strategy;
   
   const Identifier& iD = mdtPrd.identify();
   
@@ -163,7 +163,7 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::createRIO_OnTra
   if( m_discardMaskedHits && mdtPrd.status() == Muon::MdtStatusMasked ){
     ATH_MSG_VERBOSE( "Unable to calibrate Masked hit, returning zero: channel "
                     << m_idHelperSvc->toString(iD) );
-    return 0;
+    return nullptr;
   }
   
   // ************************
@@ -178,11 +178,11 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::createRIO_OnTra
   std::optional<Amg::Vector2D> tempLocOnWire = nominalSurf->Trk::Surface::globalToLocal(GP,m_globalToLocalTolerance);
   if( !tempLocOnWire ){
     ATH_MSG_WARNING( "globalToLocal failed! " );
-    return 0;
+    return nullptr;
   }
   
   // if wire sag is taken into account, cast the surface to StraightLineSurface so it can be added to the ROT
-  const Trk::StraightLineSurface* saggedSurf = 0;
+  const Trk::StraightLineSurface* saggedSurf = nullptr;
   if (myStrategy->creationParameter(MuonDriftCircleErrorStrategy::WireSagGeomCorrection)) {
     saggedSurf = nominalSurf->correctedSurface(*tempLocOnWire); // sagged surface
     if( !saggedSurf ){
@@ -194,7 +194,7 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::createRIO_OnTra
     std::optional<Amg::Vector2D> tempLocOnSaggedWire = saggedSurf->Trk::Surface::globalToLocal(GP,m_globalToLocalTolerance);
     if( !tempLocOnSaggedWire ){
       ATH_MSG_WARNING( "globalToLocal failed for sagged surface, not applying sagging! " );
-      return 0;
+      return nullptr;
     }else{
       // replace tempLocOnWire with tempLocOnSaggedWire
       tempLocOnWire = tempLocOnSaggedWire;
@@ -220,12 +220,12 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::createRIO_OnTra
   if( !calibOutput.calibOk && calibOutput.driftTime > 500. ){
     ATH_MSG_DEBUG("Unable to perform calibration ");
     delete saggedSurf;
-    return 0;
+    return nullptr;
   }
   
-  MdtDriftCircleOnTrack* rot =0;
+  MdtDriftCircleOnTrack* rot =nullptr;
   // we have to calculate sign, check whether direction is given
-  if( m_doMdt && GD!=0 ) {
+  if( m_doMdt && GD!=nullptr ) {
     // calculate sign using surface
     
     const Trk::StraightLineSurface& surf = saggedSurf ? *saggedSurf : *nominalSurf;
@@ -236,7 +236,7 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::createRIO_OnTra
       ATH_MSG_WARNING( "Unexpected globalToLocal failure, cannot create MDT ROT " );
       // clean up memory
       delete saggedSurf;
-      return 0;
+      return nullptr;
     }
     
     // calculate sign
@@ -320,7 +320,7 @@ Muon::MdtDriftCircleOnTrackCreator::getLocalMeasurement(const MdtPrepData& DC,
                                                         const double beta,
                                                         const double tTrack) const
 {
-  const MuonDriftCircleErrorStrategy* myStrategy = 0==strategy?&m_errorStrategy:strategy;
+  const MuonDriftCircleErrorStrategy* myStrategy = nullptr==strategy?&m_errorStrategy:strategy;
   
   ATH_MSG_VERBOSE( "getLocalMeasurement with m_doMdt="<<m_doMdt<<" and "<<(*myStrategy));
   // ATH_MSG_INFO( "Dumping PRD: "<<DC);
@@ -454,7 +454,7 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::correct(
   const MdtPrepData* mdtPrd = dynamic_cast<const MdtPrepData*>(&prd);
   if( !mdtPrd ){
     ATH_MSG_WARNING( " Incorrect hit type:  Trk::PrepRawData not a Muon::MdtPrepData!! No rot created " );
-    return 0;
+    return nullptr;
   }
 
   Amg::Vector3D momentum = tp.momentum();
@@ -470,7 +470,7 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::correct(
   const MdtPrepData* mdtPrd = dynamic_cast<const MdtPrepData*>(&prd);
   if( !mdtPrd ){
     ATH_MSG_WARNING( " Incorrect hit type:  Trk::PrepRawData not a Muon::MdtPrepData!! No rot created " );
-    return 0;
+    return nullptr;
   }
 
   Amg::Vector3D momentum = tp.momentum();
@@ -512,7 +512,7 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::updateError(
                                                                                    const Trk::TrackParameters* /**pars*/,
                                                                                    const MuonDriftCircleErrorStrategy* strategy ) const 
 {
-  const MuonDriftCircleErrorStrategy* myStrategy = (0==strategy)?&m_errorStrategy:strategy;
+  const MuonDriftCircleErrorStrategy* myStrategy = (nullptr==strategy)?&m_errorStrategy:strategy;
   
   // calculate error
   double sigmaR(1.);
@@ -521,7 +521,7 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::updateError(
   const MuonGM::MdtReadoutElement* detEl = DCT.detectorElement();
   if( !detEl ){
     ATH_MSG_WARNING("MdtDriftCircleOnTrack without MdtReadoutElement " << m_idHelperSvc->toString(DCT.identify()));
-    return 0;
+    return nullptr;
   }
   
   double radius=  DCT.driftRadius();
@@ -547,7 +547,7 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::updateError(
       if( sigmaR < 0.0001 || sigmaR*sigmaR < 0.0001 ){
         ATH_MSG_WARNING( "Bad obtained from calibration service: error " << m_idHelperSvc->toString(DCT.identify()) << " reso " << sigmaR << " sigma2 " << sigmaR*sigmaR
                         << " drift time " << t << " original " << DCT.driftTime() );
-        return 0;
+        return nullptr;
       } 
     }
     
@@ -584,7 +584,7 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::updateErrorExte
   const MuonGM::MdtReadoutElement* detEl = DCT.detectorElement();
   if( !detEl ){
     ATH_MSG_WARNING("MdtDriftCircleOnTrack without MdtReadoutElement!");
-    return 0;
+    return nullptr;
   }
   Identifier detElId = detEl->identify();
 
@@ -596,7 +596,7 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::updateErrorExte
     sigmaRT=0.;
     if(!errorlist) {
       ATH_MSG_WARNING("List of external errors also empty: Returning NULL pointer.");
-      return 0;
+      return nullptr;
     }
   }
 

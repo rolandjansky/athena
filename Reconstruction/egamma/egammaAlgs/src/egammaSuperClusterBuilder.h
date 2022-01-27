@@ -85,13 +85,14 @@ private:
     std::vector<bool>& isUsed) const;
 
   xAOD::EgammaParameters::EgammaType m_egTypeForCalibration;
+
+  
   /** @brief type to be assumed for calibration */
   Gaudi::Property<std::string> m_calibrationType{
     this,
     "CalibrationType",
     "electron",
-    " type to be assumed for calibration"
-    "electron , photon"
+    "type to be assumed for calibration: electron , photon"
   };
 
   /** @brief Key for input egammaRec container */

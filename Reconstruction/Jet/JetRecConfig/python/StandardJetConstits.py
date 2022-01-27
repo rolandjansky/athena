@@ -41,33 +41,45 @@ def standardReco(input):
     (where input is external to the jet domain).
     
     We group the definition of functions here rather than separately, so that we can change them 
-    automatically to a void function in case we're in an Analysis release.
+    automatically to a void function in case we're in an Analysis release and we can not import upstream packages.
     
     """
+
+    doNothingFunc = lambda *l:None # noqa: E731
     from .JetRecConfig import isAnalysisRelease 
     if isAnalysisRelease():
-        return lambda *l:None
+        return doNothingFunc
 
-    # TEMPORARY 
-    # don't try to invoke anything as long as we're invoked from a runII-style config
-    from AthenaCommon.Configurable import Configurable
-    if not Configurable.configurableRun3Behavior:
-        return lambda *l:None
     
     if input=='CaloClusters':
         def f(jetdef,spec):
             from CaloRec.CaloRecoConfig import CaloRecoCfg
-            return CaloRecoCfg(jetdef._cflags)
+            flags = jetdef._cflags
+            return CaloRecoCfg(flags) if flags.Jet.doUpstreamDependencies else None
     elif input=='Tracks':
         def f(jetdef,spec):
-            from InDetConfig.TrackRecoConfig import TrackRecoCfg
-            return TrackRecoCfg(jetdef._cflags)
+            from InDetConfig.TrackRecoConfig import InDetTrackRecoCfg
+            flags = jetdef._cflags
+            return InDetTrackRecoCfg(flags) if flags.Jet.doUpstreamDependencies else None
     elif input=="Muons":
         def f(jetdef,spec):
             from MuonConfig.MuonReconstructionConfig import MuonReconstructionCfg
-            return MuonReconstructionCfg(jetdef._cflags)
+            flags = jetdef._cflags
+            return MuonReconstructionCfg(flags) if flags.Jet.doUpstreamDependencies else None
+        
+    elif input=="PFlow":
+        def f(jetdef,spec):
+            from eflowRec.PFRun3Config import PFCfg
+            flags = jetdef._cflags
+            return PFCfg(flags) if flags.Jet.doUpstreamDependencies else None
 
+        
+    else:
+        f = doNothingFunc
+        
     return f
+
+
 
 ########################################################################
 ## List of standard input sources for jets.
@@ -82,20 +94,19 @@ _stdInputList = [
     JetInputExternal("CaloCalTopoClusters", xAODType.CaloCluster, algoBuilder= standardReco("CaloClusters") ),
 
     # *****************************
-    JetInputExternal("JetETMissParticleFlowObjects", xAODType.ParticleFlow, # no algobuilder available yet for PFlow
-                     prereqs = ["input:InDetTrackParticles"],
+    JetInputExternal("JetETMissParticleFlowObjects", xAODType.FlowElement, algoBuilder = standardReco("PFlow"),
+                     prereqs = ["input:InDetTrackParticles", "input:CaloCalTopoClusters"],
                      ),
 
     # *****************************
     JetInputExternal("InDetTrackParticles",   xAODType.TrackParticle,
                      algoBuilder = standardReco("Tracks"),
-                     filterfn = lambda flags : (not flags.InDet.disableTracking, "Tracking is disabled") ,
+                     filterfn = lambda flags : (flags.Reco.EnableTracking, "Tracking is disabled") ,
                      ),
 
     JetInputExternal("PrimaryVertices",   xAODType.Vertex,
                      prereqs = ["input:InDetTrackParticles"],
                      ),
-    
     
     JetInputExternal("JetSelectedTracks",     xAODType.TrackParticle,
                      prereqs= inputsFromContext("Tracks"), # in std context, this is InDetTrackParticles (see StandardJetContext)
@@ -124,6 +135,8 @@ _stdInputList = [
     # *****************************
     JetInputExternal("MuonSegments", "MuonSegment", algoBuilder=standardReco("Muons"),
                      prereqs = ["input:InDetTrackParticles"], # most likely wrong : what exactly do we need to build muon segments ?? (and not necessarily full muons ...)
+                     filterfn = lambda flags : (flags.Reco.EnableCombinedMuon, "Muon reco is disabled") ,
+
                      ),
 
 
@@ -181,7 +194,10 @@ _stdSeqList = [
     # see JetDefinition.py for details.
 
     # *****************************
-    # Cluster constituents 
+    # Cluster constituents : the first one is a relic used for isolation, and might disappear soon
+    JetInputConstitSeq("EMTopo", xAODType.CaloCluster, ["EM"],
+                       "CaloCalTopoClusters", "EMTopoClusters", jetinputtype="EMTopo",
+                       ),
     JetInputConstitSeq("EMTopoOrigin", xAODType.CaloCluster, ["EM","Origin"],
                        "CaloCalTopoClusters", "EMOriginTopoClusters", jetinputtype="EMTopo",
                        ),
@@ -277,7 +293,7 @@ _stdModList = [
     
     # Pileup suppression
     JetConstitModifier("Vor",    "VoronoiWeightTool", properties=dict(doSpread=False, nSigma=0) ),
-    JetConstitModifier("CS",     "ConstituentSubtractorTool", properties=dict(MaxEta=5. ) ),
+    JetConstitModifier("CS",     "ConstituentSubtractorTool", properties=dict(MaxEta=4.5 ) ),
     JetConstitModifier("SK",     "SoftKillerWeightTool",),
                            
 ]

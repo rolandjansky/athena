@@ -21,7 +21,7 @@ AmdcDumpGeoModel::AmdcDumpGeoModel(const std::string& name, ISvcLocator* pSvcLoc
   , p_AmdcsimrecAthenaSvc ( "AmdcsimrecAthenaSvc",name ) 
 {
   m_KountCallsDoIt   = 0 ;
-  p_MuonDetectorManager = 0 ; 
+  p_MuonDetectorManager = nullptr ; 
 
 // CheckTEC if 1 perform the comparison for TEC 
 // EpsLoTEC Min value on the position difference to output warning for TEC
@@ -248,7 +248,7 @@ StatusCode AmdcDumpGeoModel::DoIt()
 
 }
 
-int AmdcDumpGeoModel::AntiSelectedStation(std::string TheStationName){
+int AmdcDumpGeoModel::AntiSelectedStation(const std::string& TheStationName){
 
   int ToBeReturned = 1 ;
   if ( m_AntiStationSelection != 1) return ToBeReturned;
@@ -260,7 +260,7 @@ int AmdcDumpGeoModel::AntiSelectedStation(std::string TheStationName){
 
 }
 
-int AmdcDumpGeoModel::SelectedStation(std::string TheStationName){
+int AmdcDumpGeoModel::SelectedStation(const std::string& TheStationName){
 
   int ToBeReturned = 1 ;
   if ( m_StationSelection != 1) return ToBeReturned;
@@ -272,7 +272,7 @@ int AmdcDumpGeoModel::SelectedStation(std::string TheStationName){
   return ToBeReturned;
 
 }
-int AmdcDumpGeoModel::SelectedChamber(std::string TheStationName, int AmdcJzz, int AmdcJff){
+int AmdcDumpGeoModel::SelectedChamber(const std::string& TheStationName, int AmdcJzz, int AmdcJff){
 
   int ToBeReturned = 1 ;
   if ( m_ChamberSelection != 1) return ToBeReturned;
@@ -311,7 +311,7 @@ void AmdcDumpGeoModel::LoopMdtElements(std::ofstream&  OutFile) {
      	     					      seta_index,
      	     					      sphi_index,
      	     					      dbr_index);
-      if (pReadoutElement == NULL) continue;
+      if (pReadoutElement == nullptr) continue;
       Identifier idr = pReadoutElement->identify();
       Identifier idp = m_idHelperSvc->mdtIdHelper().parentID(idr);
       for ( int tl=1; tl<=pReadoutElement->getNLayers();) 
@@ -1204,7 +1204,7 @@ void AmdcDumpGeoModel::LoopTgcElements(std::ofstream&  OutFile){
          p_MuonDetectorManager->getTgcReadoutElement(sname_index,
      						     seta_index,
      						     sphi_index);
-     if (pReadoutElement == NULL) continue;
+     if (pReadoutElement == nullptr) continue;
      Identifier idr  = pReadoutElement->identify();
      Identifier idp  = m_idHelperSvc->tgcIdHelper().parentID(idr);
      Identifier idp1 = m_idHelperSvc->tgcIdHelper().elementID(m_idHelperSvc->tgcIdHelper().stationName(idp),
@@ -1577,7 +1577,7 @@ void AmdcDumpGeoModel::LoopCscElements(std::ofstream&  OutFile){
      	     					      seta_index,
      	     					      sphi_index,
      	     					      ml);
-      if (pReadoutElement == NULL) continue;
+      if (pReadoutElement == nullptr) continue;
 
       Identifier idr  = pReadoutElement->identify();
       Identifier idp  = m_idHelperSvc->cscIdHelper().parentID(idr);

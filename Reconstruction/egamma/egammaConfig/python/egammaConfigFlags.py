@@ -9,31 +9,39 @@ from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 def createEgammaConfigFlags():
     egcf = AthConfigFlags()
 
-    # enable/disable the full egamma
-    egcf.addFlag("Egamma.enabled", True)
-
     # do standard cluster-based egamma algorithm
-    egcf.addFlag("Egamma.doCaloSeeded",
+    egcf.addFlag("Egamma.doCentral",
                  lambda prevFlags: prevFlags.Detector.EnableCalo)
 
     # do forward egamma
-    egcf.addFlag("Egamma.doForwardSeeded",
+    egcf.addFlag("Egamma.doForward",
                  lambda prevFlags: prevFlags.Detector.EnableCalo)
 
-    # do egamma truth association when running on MC
-    egcf.addFlag("Egamma.doTruthAssociation",
-                 lambda prevFlags: prevFlags.Input.isMC)
-
-    # run the GSF refitting /egamma Tracking
-    egcf.addFlag("Egamma.doGSF", lambda prevFlags: prevFlags.Detector.EnableID)
+    # run the GSF refitting/egamma Tracking it is calo seeded
+    egcf.addFlag("Egamma.doTracking",
+                 lambda prevFlags: (
+                     prevFlags.Detector.EnableID
+                     or prevFlags.Detector.EnableITk)
+                 and prevFlags.Detector.EnableCalo)
 
     # build photon conversion vertices
     egcf.addFlag("Egamma.doConversionBuilding",
-                 lambda prevFlags: prevFlags.Detector.EnableID)
+                 lambda prevFlags: prevFlags.Egamma.doTracking)
+
+    # do egamma truth association when running on MC
+    egcf.addFlag("Egamma.doTruthAssociation",
+                 lambda prevFlags: prevFlags.Input.isMC or
+                 prevFlags.Overlay.DataOverlay)
 
     # Do e/gamma track thinning (Although we call the alg slimming...)
     egcf.addFlag("Egamma.doTrackThinning",
-                 lambda prevFlags: prevFlags.Output.doWriteAOD)
+                 lambda prevFlags: prevFlags.Output.doWriteAOD and
+                 prevFlags.Egamma.doTracking)
+
+    # Keep egamma Cells in AOD
+    egcf.addFlag("Egamma.keepCaloCellsAOD",
+                 lambda prevFlags: prevFlags.Egamma.doCentral or
+                 prevFlags.Egamma.doForward)
 
     # The cluster corrections/calib
     egcf.addFlag("Egamma.Calib.ClusterCorrectionVersion",
@@ -60,70 +68,81 @@ def createEgammaConfigFlags():
     egcf.addFlag("Egamma.Keys.Internal.ElectronSuperRecs",
                  'ElectronSuperRecCollection')
 
-    # These are the clusters that are used to determine
-    # which cells to write out to AOD
-    egcf.addFlag("Egamma.Keys.Output.EgammaLargeClusters", 'egamma711Clusters')
-    egcf.addFlag("Egamma.Keys.Output.EgammaLargeClustersSuppESD", '')
-    # don't define SuppAOD because the whole container is suppressed
-
     egcf.addFlag("Egamma.Keys.Output.ConversionVertices",
                  'GSFConversionVertices')
     egcf.addFlag("Egamma.Keys.Output.ConversionVerticesSuppESD",
                  '-vxTrackAtVertex')
     egcf.addFlag("Egamma.Keys.Output.ConversionVerticesSuppAOD",
-                 '-vxTrackAtVertex')
+                 lambda prevFlags: (
+                     prevFlags.Egamma.Keys.Output.ConversionVerticesSuppESD))
 
     egcf.addFlag("Egamma.Keys.Output.CaloClusters", 'egammaClusters')
     egcf.addFlag("Egamma.Keys.Output.CaloClustersSuppESD", '')
     egcf.addFlag("Egamma.Keys.Output.CaloClustersSuppAOD", '')
 
+    egcf.addFlag("Egamma.Keys.Output.EgammaSuppAOD",
+                 '-e033.-e011.-e333.-e335.-e337.-e377.'
+                 '-isEMLoose.-isEMTight.'
+                 '-ptconeCorrBitset.-ptconecoreTrackPtrCorrection.'
+                 '-topoetconeCorrBitset')
+
     egcf.addFlag("Egamma.Keys.Output.Electrons", 'Electrons')
     egcf.addFlag("Egamma.Keys.Output.ElectronsSuppESD", '')
     egcf.addFlag("Egamma.Keys.Output.ElectronsSuppAOD",
-                 "-e033.-e011.-e333.-e335.-e337.-e377."
-                 "-EgammaCovarianceMatrix."
-                 "-isEMLHLoose.-isEMLHTight.-isEMLHMedium."
-                 "-isEMLoose.-isEMMedium.-isEMTight")
+                 lambda prevFlags: (
+                     prevFlags.Egamma.Keys.Output.ElectronsSuppESD +
+                     prevFlags.Egamma.Keys.Output.EgammaSuppAOD + '.'
+                     "-EgammaCovarianceMatrix."
+                     "-isEMLHLoose.-isEMLHTight.-isEMLHMedium.-isEMMedium"))
 
     egcf.addFlag("Egamma.Keys.Input.ForwardTopoClusters",
                  'CaloCalTopoClusters')
     egcf.addFlag("Egamma.Keys.Output.ForwardElectrons", 'ForwardElectrons')
     egcf.addFlag("Egamma.Keys.Output.ForwardElectronsSuppESD", '')
     egcf.addFlag("Egamma.Keys.Output.ForwardElectronsSuppAOD",
-                 '-isEMTight.-isEMMedium.-isEMLoose')
+                 lambda prevFlags: (
+                     prevFlags.Egamma.Keys.Output.ForwardElectronsSuppESD +
+                     '-isEMTight.-isEMMedium.-isEMLoose'))
 
     egcf.addFlag("Egamma.Keys.Output.ForwardClusters",
                  'ForwardElectronClusters')
     egcf.addFlag("Egamma.Keys.Output.ForwardClustersSuppESD", '-SisterCluster')
     egcf.addFlag("Egamma.Keys.Output.ForwardClustersSuppAOD",
-                 '-SisterCluster')
-
-    # These are the clusters that are used to determine
-    # which cells to write out to AOD
-    egcf.addFlag("Egamma.Keys.Output.EgammaLargeFWDClusters",
-                 'egamma66FWDClusters')
-    egcf.addFlag("Egamma.Keys.Output.EgammaLargeFWDClustersSuppESD", '')
-    # don't define SuppAOD because the whole container is suppressed
+                 lambda prevFlags: (
+                     prevFlags.Egamma.Keys.Output.ForwardClustersSuppESD))
 
     egcf.addFlag("Egamma.Keys.Output.Photons", 'Photons')
     egcf.addFlag("Egamma.Keys.Output.PhotonsSuppESD", '')
     egcf.addFlag("Egamma.Keys.Output.PhotonsSuppAOD",
-                 '-e033.-e011.-e333.-e335.-e337.-e377.-isEMLoose.-isEMTight')
+                 lambda prevFlags: (
+                     prevFlags.Egamma.Keys.Output.PhotonsSuppESD +
+                     prevFlags.Egamma.Keys.Output.EgammaSuppAOD + '.'
+                     '-ptvarcone20.-ptvarcone30'))
 
     egcf.addFlag("Egamma.Keys.Output.GSFTrackParticles", 'GSFTrackParticles')
-    egcf.addFlag("Egamma.Keys.Output.GSFTrackParticlesSuppESD",
-                 "-caloExtension.-cellAssociation."
-                 "-perigeeExtrapEta.-perigeeExtrapPhi")
+    egcf.addFlag("Egamma.Keys.Output.GSFTrackParticlesSuppESD", '')
     egcf.addFlag("Egamma.Keys.Output.GSFTrackParticlesSuppAOD",
-                 '-caloExtension.-cellAssociation.'
-                 '-perigeeExtrapEta.-perigeeExtrapPhi')
+                 lambda prevFlags: (
+                     prevFlags.Egamma.Keys.Output.GSFTrackParticlesSuppESD))
+
+    egcf.addFlag("Egamma.Keys.Output.TruthParticles", 'egammaTruthParticles')
+    egcf.addFlag("Egamma.Keys.Output.TruthParticlesSuppESD", '')
+    egcf.addFlag("Egamma.Keys.Output.TruthParticlesSuppAOD",
+                 lambda prevFlags: (
+                     prevFlags.Egamma.Keys.Output.TruthParticlesSuppESD))
 
     # not xAOD
     egcf.addFlag("Egamma.Keys.Output.GSFTracks", 'GSFTracks')
 
-    egcf.addFlag("Egamma.Keys.Output.TruthParticles", 'egammaTruthParticles')
-    egcf.addFlag("Egamma.Keys.Output.TruthParticlesSuppESD", '-caloExtension')
-    egcf.addFlag("Egamma.Keys.Output.TruthParticlesSuppAOD", '-caloExtension')
+    # These are the clusters that are used to determine
+    # which cells to write out to AOD
+    # don't define SuppAOD because the whole container is suppressed
+    egcf.addFlag("Egamma.Keys.Output.EgammaLargeClusters", 'egamma711Clusters')
+    egcf.addFlag("Egamma.Keys.Output.EgammaLargeClustersSuppESD", '')
+
+    egcf.addFlag("Egamma.Keys.Output.EgammaLargeFWDClusters",
+                 'egamma66FWDClusters')
+    egcf.addFlag("Egamma.Keys.Output.EgammaLargeFWDClustersSuppESD", '')
 
     return egcf
 

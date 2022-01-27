@@ -141,7 +141,7 @@ class BuildCaloRingsFctor : public BuildCaloRingsFctorBase
     /**
      * @brief Write decorator handle
      **/
-    mutable decor_t* m_decor;
+    mutable decor_t* m_decor{nullptr};
 
   public:
     /**

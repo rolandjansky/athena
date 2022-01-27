@@ -15,8 +15,8 @@ from TrigCostAnalysis.TableConstructorBase import TableConstructorBase, Column
 class Thread_Occupancy_HLT_TableConstructor(TableConstructorBase):
     ''' @brief Class representing Thread_Occupancy_HLT table
     '''
-    def __init__(self, tableObj):
-        super(). __init__(tableObj) 
+    def __init__(self, tableObj, underflowThreshold, overflowThreshold):
+        super(). __init__(tableObj, underflowThreshold, overflowThreshold) 
         self.expectedHistograms = ["AlgCalls_perEvent", 
                                    "ThisAlgCalls_perEvent", 
                                    "OtherAlgCalls_perEvent",

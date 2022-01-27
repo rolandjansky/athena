@@ -17,6 +17,7 @@
 #include "AthenaKernel/CLASS_DEF.h"
 #include "CxxUtils/CachedUniquePtr.h"
 #include <memory>
+#include <utility>
 class MsgStream;
 
 namespace Trk {
@@ -86,7 +87,7 @@ namespace Trk {
     {
      if (m_center) return (*m_center);
      if (!m_center && m_transform){
-        m_center.set(std::make_unique<Amg::Vector3D>(m_transform->translation()));
+        m_center.set(std::make_unique<Amg::Vector3D>(std::as_const(*m_transform).translation()));
         return(*m_center);
       }
      return Trk::s_origin;

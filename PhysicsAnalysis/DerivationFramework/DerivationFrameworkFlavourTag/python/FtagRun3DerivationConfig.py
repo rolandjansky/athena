@@ -8,6 +8,8 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 from AthenaConfiguration.ComponentFactory import CompFactory
+from DerivationFrameworkFlavourTag.FtagCommon import flag_trackless
+from DerivationFrameworkFlavourTag.FtagCommon import flag_pseudotrack
 
 # for backward compatability
 def FtagJetCollection(jetcol, seq, pvCol='PrimaryVertices', OutputLevel=WARNING):
@@ -26,6 +28,14 @@ def FtagJetCollections(jetcols, seq, pvCols=[], OutputLevel=WARNING):
 
     taggerlist = ['IP2D', 'IP3D', 'SV1', 'JetFitterNN']
 
+    #Add the Flipped taggers
+    if cfgFlags.BTagging.RunFlipTaggers is True:
+        fliptaggerlist = ['IP2DNeg', 'IP3DNeg','IP2DFlip', 'IP3DFlip']
+        for ele in fliptaggerlist:
+            taggerlist.append(ele)
+
+
+    
     setupCondDb(cfgFlags, taggerlist)
 
     acc = ComponentAccumulator()
@@ -33,7 +43,12 @@ def FtagJetCollections(jetcols, seq, pvCols=[], OutputLevel=WARNING):
     if 'AntiKt4EMTopoJets' in jetcols:
         acc.merge(RenameInputContainerEmTopoHacksCfg('oldAODVersion'))
 
+    if 'AntiKt4EMPFlowJets' in jetcols and flag_trackless == 1:
+        acc.merge(RenameInputContainerEmPflowHacksCfg('tracklessAODVersion'))
+
     for jetcol,pvCol in zip(jetcols, pvCols):
+        if 'AntiKt4EMPFlowJets' in jetcols and flag_trackless == 1:
+            continue
         acc.merge(getFtagComponent(cfgFlags, jetcol, taggerlist, pvCol, OutputLevel))
 
     Configurable.configurableRun3Behavior=0
@@ -61,18 +76,25 @@ def getFtagComponent(cfgFlags, jetcol, taggerlist, pvCol='PrimaryVertices', Outp
     BTaggingCollection = cfgFlags.BTagging.OutputFiles.Prefix + jetcol_name_without_Jets
 
     track_collection = 'InDetTrackParticles'
+    if flag_pseudotrack == 1:
+        track_collection = 'InDetPseudoTrackParticles'
     muon_collection = 'Muons'
 
     acc = ComponentAccumulator()
 
-    acc.merge(JetParticleAssociationAlgCfg(cfgFlags, jetcol_name_without_Jets, track_collection, "TracksForBTagging"))
-    acc.merge(JetParticleAssociationAlgCfg(cfgFlags, jetcol_name_without_Jets, muon_collection, "MuonsForBTagging"))
+    acc.merge(JetParticleAssociationAlgCfg(cfgFlags, jetcol, track_collection, "TracksForBTagging"))
+    acc.merge(JetParticleAssociationAlgCfg(cfgFlags, jetcol, muon_collection, "MuonsForBTagging"))
 
-    SecVertexers = [ 'JetFitter' , 'SV1' ]
+    SecVertexers = [ 'JetFitter' , 'SV1']
+
+    if cfgFlags.BTagging.RunFlipTaggers is True:
+        SecVertexersFlip = ['JetFitterFlip']
+        for ele in SecVertexersFlip:
+            SecVertexers.append(ele)
 
     for sv in SecVertexers:
         acc.merge(JetSecVtxFindingAlgCfg(cfgFlags, jetcol_name_without_Jets, pvCol, sv, "TracksForBTagging"))
-        acc.merge(JetSecVertexingAlgCfg(cfgFlags, BTaggingCollection, jetcol_name_without_Jets, "InDetTrackParticles", pvCol, sv))
+        acc.merge(JetSecVertexingAlgCfg(cfgFlags, BTaggingCollection, jetcol_name_without_Jets, track_collection, pvCol, sv))
 
 
     acc.merge(JetBTaggingAlgCfg( \
@@ -120,8 +142,8 @@ def getFtagComponent(cfgFlags, jetcol, taggerlist, pvCol='PrimaryVertices', Outp
             'BTagging/20210824r22/dl1r/antikt4empflow/network.json',
         ],
         'AntiKtVR30Rmax4Rmin02Track': [
-            'BTagging/201903/rnnip/antikt4empflow/network.json',
-            'BTagging/201903/dl1r/antikt4empflow/network.json',
+            'BTagging/201903/rnnip/antiktvr30rmax4rmin02track/network.json', 
+            'BTagging/201903/dl1r/antiktvr30rmax4rmin02track/network.json',
             'BTagging/20210517/dipsLoose/antikt4empflow/network.json', #first r22 trainings
             'BTagging/20210517/dips/antikt4empflow/network.json',
             'BTagging/20210528r22/dl1d/antikt4empflow/network.json',
@@ -134,7 +156,7 @@ def getFtagComponent(cfgFlags, jetcol, taggerlist, pvCol='PrimaryVertices', Outp
         ]
     }
 
-    acc.merge(BTagTrackAugmenterAlgCfg(cfgFlags,  PrimaryVertexCollectionName = pvCol))
+    acc.merge(BTagTrackAugmenterAlgCfg(cfgFlags,  TrackCollection = track_collection, PrimaryVertexCollectionName = pvCol))
 
     acc.merge(BTagHighLevelAugmenterAlgCfg(
         cfgFlags,
@@ -143,9 +165,14 @@ def getFtagComponent(cfgFlags, jetcol, taggerlist, pvCol='PrimaryVertices', Outp
         TrackCollection=track_collection,
         Associator='BTagTrackToJetAssociator',
     ))
-
+    
     for jsonfile in postTagDL2JetToTrainingMap[jetcol_name_without_Jets]:
         acc.merge(HighLevelBTagAlgCfg(cfgFlags, BTaggingCollection=BTaggingCollection, TrackCollection=track_collection, NNFile=jsonfile) )
+        # Schedule NN-based IP 'flip' taggers (rnnipflip and dipsflip) - this should for the moment only run on the low-level taggers and not on 'dl1x'
+        # FlipConfig is "STANDARD" by default - for flip tagger set up with option "NEGATIVE_IP_ONLY" (flip sign of d0 and use only (flipped) positive d0 values)
+        if 'dips' in jsonfile or 'rnnip' in jsonfile:
+            if cfgFlags.BTagging.RunFlipTaggers is True and 'dl1' not in jsonfile:
+                acc.merge(HighLevelBTagAlgCfg(cfgFlags, BTaggingCollection=BTaggingCollection, TrackCollection=track_collection, NNFile=jsonfile,FlipConfig="NEGATIVE_IP_ONLY") )
 
     return acc
 
@@ -153,7 +180,7 @@ def getFtagComponent(cfgFlags, jetcol, taggerlist, pvCol='PrimaryVertices', Outp
 def setupCondDb(cfgFlags, taggerlist):
     from AthenaCommon.AppMgr import athCondSeq
     if not hasattr(athCondSeq,"JetTagCalibCondAlg"):
-        CalibrationChannelAliases = ["AntiKt4EMPFlow->AntiKt4EMPFlow,AntiKt4EMTopo","AntiKtVR30Rmax4Rmin02PV0Track->AntiKtVR30Rmax4Rmin02PV0Track,AntiKt4EMPFlow,AntiKt4EMTopo"]
+        CalibrationChannelAliases = ["AntiKt4EMPFlow->AntiKt4EMPFlow,AntiKt4EMTopo","AntiKtVR30Rmax4Rmin02PV0Track->AntiKtVR30Rmax4Rmin02PV0Track,AntiKt4EMPFlow,AntiKt4EMTopo","AntiKt4PFlowCustomVtx->AntiKt4EMTopo"]
         grades= cfgFlags.BTagging.Grades
         RNNIPConfig = {'rnnip':''}
 
@@ -194,6 +221,26 @@ def RenameInputContainerEmTopoHacksCfg(suffix):
     AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::VertexAuxContainer#BTagging_AntiKt4EMTopoSecVtxAux.->BTagging_AntiKt4EMTopoSecVtx_' + suffix+"Aux."]
     AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::BTagVertexContainer#BTagging_AntiKt4EMTopoJFVtx->BTagging_AntiKt4EMTopoJFVtx_' + suffix]
     AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::BTagVertexAuxContainer#BTagging_AntiKt4EMTopoJFVtxAux.->BTagging_AntiKt4EMTopoJFVtx_' + suffix+"Aux."]
+    acc.addService(AddressRemappingSvc)
+    acc.addService(ProxyProviderSvc(ProviderNames = [ "AddressRemappingSvc" ]))
+    return acc
+def RenameInputContainerEmPflowHacksCfg(suffix):
+
+    acc=ComponentAccumulator()
+
+    AddressRemappingSvc, ProxyProviderSvc=CompFactory.getComps("AddressRemappingSvc","ProxyProviderSvc",)
+    AddressRemappingSvc = AddressRemappingSvc("AddressRemappingSvc")
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::JetAuxContainer#AntiKt4EMPFlowJets.BTagTrackToJetAssociator->AntiKt4EMPFlowJets.BTagTrackToJetAssociator_' + suffix]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::JetAuxContainer#AntiKt4EMPFlowJets.JFVtx->AntiKt4EMPFlowJets.JFVtx_' + suffix]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::JetAuxContainer#AntiKt4EMPFlowJets.SecVtx->AntiKt4EMPFlowJets.SecVtx_' + suffix]
+
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::JetAuxContainer#AntiKt4EMPFlowJets.btaggingLink->AntiKt4EMPFlowJets.btaggingLink_' + suffix]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::BTaggingContainer#BTagging_AntiKt4EMPFlow->BTagging_AntiKt4EMPFlow_' + suffix]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::BTaggingAuxContainer#BTagging_AntiKt4EMPFlowAux.->BTagging_AntiKt4EMPFlow_' + suffix+"Aux."]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::VertexContainer#BTagging_AntiKt4EMPFlowSecVtx->BTagging_AntiKt4EMPFlowSecVtx_' + suffix]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::VertexAuxContainer#BTagging_AntiKt4EMPFlowSecVtxAux.->BTagging_AntiKt4EMPFlowSecVtx_' + suffix+"Aux."]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::BTagVertexContainer#BTagging_AntiKt4EMPFlowJFVtx->BTagging_AntiKt4EMPFlowJFVtx_' + suffix]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::BTagVertexAuxContainer#BTagging_AntiKt4EMPFlowJFVtxAux.->BTagging_AntiKt4EMPFlowJFVtx_' + suffix+"Aux."]
     acc.addService(AddressRemappingSvc)
     acc.addService(ProxyProviderSvc(ProviderNames = [ "AddressRemappingSvc" ]))
     return acc

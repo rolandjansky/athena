@@ -9,4 +9,3 @@ export TRF_ECHO=True; Reco_tf.py --athenaopts="--threads=8"  --inputBSFile=/cvmf
 
 RES=$?
 echo "art-result: $RES Reco"
-return $RES

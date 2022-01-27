@@ -130,6 +130,8 @@ private:
     double m_ootAmp; //!< Amplitude of out-of-time pulse
     double m_itOffset; //!< In-time pulse offset from nominal time
     double m_ootOffset; //!< Out-of-time pulse offset from nominal time
+    double m_ped_HG; //!< Pedestal value for HG if specific channel pedestal is not used
+    double m_ped_LG; //!< Pedestal value for LG if specific channel pedestal is not used
     bool m_gaussNoise; //!< Set to TRUE in order to create noise from double gaussian
     double m_GNAmpOne; //!< Amplitude of first gaussian of double gaussian noise.
     double m_GNSigmaOne; //!< Standard deviation of first gaussian of double gaussian noise.
@@ -157,7 +159,13 @@ private:
     int m_nPul;  //!< number of pileup pulses 
     int m_nPul_eff;  //Used for symetrization of PU in computation
     std::vector<float> m_PUAmp;
-    
+    bool m_PhaseII; //Use parameters of TilePhaseII if the option is set to true
+    bool m_bigain; //If true, save the two gains in the ntuples
+
+    bool m_simPUwPoisson; //If true, simulate PU overlapping amplitudes n times, with n being generated with a poissonian distribution 
+    int m_avgMuForPU; //Mean of the poissonian distribution to generate the number of interactions per bunch crossing for PU simulation
+    std::string m_pileupAmpDistFileName; //!< Filename for PU amplitude distribution histograms
+
     //Members for simulator
     TilePulseShape*      m_ps[2]; //!< Class for defining pulse. One element for lo gain and one for hi.
     TileSampleBuffer*    m_buf; //!< Buffer class to hold generated pulses
@@ -171,9 +179,12 @@ private:
     TH1F* m_ootOffsetDist; //!< Histogram to hold the distribution of out-of-time timing offsets
     TFile* m_ootOffsetFile; //!< File that holds the distribution of out-of-time timing offsets
     bool m_useOffsetHisto; //!< Internally used to keep track of wether a histogram has been opened or not
-    
+    TFile* m_pileup_AmpDistFile; //!< File containing amplitude histograms for PU pulses 
+    std::vector<std::vector<TH1F*>> m_pileup_AmpDists; //!< Matrix of PU amplitude distribution histograms (PU per partition and channel)
+
     //Internal methods
     bool makeDist(TFile*& file, TH1F*& hist, std::string fileName, std::string histName="h_Eopt_hi"); //!< Method to read distribution from file
+    bool makeDist(TFile*& file, std::vector<std::vector<TH1F*>>& hists, std::string fileName);
 
 };
 

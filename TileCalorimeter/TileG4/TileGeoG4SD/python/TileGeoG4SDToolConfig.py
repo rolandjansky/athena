@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -16,8 +16,7 @@ def TileGeoG4SDCfg(ConfigFlags, name="TileGeoG4SD", **kwargs):
     kwargs.setdefault("LogicalVolumeNames", ["Tile::Scintillator"])
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
 
-    result.merge(TileGeoG4SDCalcCfg(ConfigFlags))
-    kwargs.setdefault("TileCalculator", result.getService("TileGeoG4SDCalc") )
+    kwargs.setdefault("TileCalculator", result.getPrimaryAndMerge(TileGeoG4SDCalcCfg(ConfigFlags)).name )
 
     result.setPrivateTools( TileGeoG4SDTool(name, **kwargs)  )
     return result
@@ -27,8 +26,8 @@ def TileCTBGeoG4SDCfg(ConfigFlags, name="TileCTBGeoG4SD", **kwargs):
     kwargs.setdefault("LogicalVolumeNames", ["Tile::Scintillator"])
     kwargs.setdefault("OutputCollectionNames", ["TileHitVec"])
 
-    result = TileCTBGeoG4SDCalcCfg(ConfigFlags)
-    kwargs.setdefault("TileCalculator", result.getService("TileCTBGeoG4SDCalc") )
+    result = ComponentAccumulator()
+    kwargs.setdefault("TileCalculator", result.getPrimaryAndMerge(TileCTBGeoG4SDCalcCfg(ConfigFlags)).name )
 
     result.setPrivateTools( TileGeoG4SDTool(name, **kwargs) )
     return result
@@ -40,10 +39,9 @@ def TileGeoG4SDCalcCfg(ConfigFlags, name="TileGeoG4SDCalc", **kwargs):
     if ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.ReadTR:
         kwargs.setdefault("DeltaTHit", [1])
         kwargs.setdefault("DoTOFCorrection", False)
-    if ConfigFlags.Sim.ParticleID:
-        kwargs.setdefault("DoCalibHitParticleID", ConfigFlags.Sim.ParticleID )
+    kwargs.setdefault("DoCalibHitParticleID", ConfigFlags.Sim.ParticleID )
 
-    result.addService( TileGeoG4SDCalc(name, **kwargs) )
+    result.addService( TileGeoG4SDCalc(name, **kwargs), primary = True )
     return result
 
 
@@ -51,8 +49,7 @@ def TileCTBGeoG4SDCalcCfg(ConfigFlags, name="TileCTBGeoG4SDCalc", **kwargs):
     result = ComponentAccumulator()
 
     kwargs.setdefault("TileTB", True)
-    if ConfigFlags.Sim.ParticleID:
-        kwargs.setdefault("DoCalibHitParticleID", ConfigFlags.Sim.ParticleID )
+    kwargs.setdefault("DoCalibHitParticleID", ConfigFlags.Sim.ParticleID )
 
-    result.addService( TileGeoG4SDCalc(name, **kwargs) )
+    result.addService( TileGeoG4SDCalc(name, **kwargs), primary = True )
     return result

@@ -165,6 +165,18 @@ TrigConf::L1Threshold_jLJ::load()
 }
 
 void
+TrigConf::L1Threshold_gJ::load()
+{
+   m_etaDepThrValue.setOutsideRangeValue(getAttribute("maxValue", true, 14000000));
+}
+
+void
+TrigConf::L1Threshold_gLJ::load()
+{
+   m_etaDepThrValue.setOutsideRangeValue(getAttribute("maxValue", true, 14000000));
+}
+
+void
 TrigConf::L1Threshold_jXE::load()
 {}
 

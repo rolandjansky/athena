@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonDigitContainer/sTgcDigit.h"
@@ -90,7 +90,6 @@ void Muon::STGC_DigitContainerCnv_p1::transToPers(const sTgcDigitContainer* tran
   unsigned int pcollIndex = 0; // index to the persistent collection we're filling
   unsigned int pcollBegin = 0; // index to start of persistent collection we're filling, in long list of persistent DIGITs
   unsigned int pcollEnd = 0; // index to end 
-  unsigned int idHashLast = 0; // Used to calculate deltaHashId.
   int numColl = transCont->numberOfCollections();
   // persCont->m_collections.resize(numColl);
   persCont->m_collectionId.resize(numColl);
@@ -100,7 +99,7 @@ void Muon::STGC_DigitContainerCnv_p1::transToPers(const sTgcDigitContainer* tran
 
   // First loop to get size of digits
   unsigned int numOfDigits=0;
-  for (; it_Coll != it_CollEnd; it_Coll++)  {
+  for (; it_Coll != it_CollEnd; ++it_Coll)  {
     numOfDigits+=(*it_Coll)->size();
   }
   persCont->m_digits.resize(numOfDigits);
@@ -109,7 +108,7 @@ void Muon::STGC_DigitContainerCnv_p1::transToPers(const sTgcDigitContainer* tran
   if (log.level() <= MSG::DEBUG) 
     log << MSG::DEBUG<< " Preparing " << persCont->m_collectionId.size() << "collections and "<<numOfDigits<<" digits in total." <<endmsg;
   // std::cout<<"Preparing " << persCont->m_collections.size() << " collections" << std::endl;
-  for (it_Coll = transCont->begin(); it_Coll != it_CollEnd; ++pcollIndex, it_Coll++)  {  
+  for (it_Coll = transCont->begin(); it_Coll != it_CollEnd; ++pcollIndex, ++it_Coll)  {  
     const sTgcDigitCollection& collection = (**it_Coll);
     if (log.level() <= MSG::DEBUG) 
       log << MSG::DEBUG<<"Coll hash for "<<pcollIndex<<": "<<collection.identifierHash()<<endmsg;
@@ -120,7 +119,6 @@ void Muon::STGC_DigitContainerCnv_p1::transToPers(const sTgcDigitContainer* tran
     pcollEnd   += collection.size();
 
     persCont->m_collectionHashId[pcollIndex] = collection.identifierHash(); 
-    idHashLast += persCont->m_collectionHashId[pcollIndex];
     persCont->m_collectionId[pcollIndex] = collection.identify().get_identifier32().get_compact();
     persCont->m_size[pcollIndex] = collection.size();
     //        std::cout<<"Coll Index: "<<pcollIndex<<"\tCollId: "<<collection.identify().get_compact()<<"\tCollHash: "<<collection.identifierHash()<<"\tpCollId: "<<pcollection.m_id<<"\tpCollHash: "<<std::endl;

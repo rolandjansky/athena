@@ -78,16 +78,16 @@ class StreamSelector(Selector):
         runnrlist = [r.runNr for r in runlist]
 
         from CoolRunQuery.AtlRunQuerySFO import GetSFO_streamsAll,GetSFO_filesAll
-        with timer('GetSFO_streamsAll'):
+        with timer('GetSFO_streamsAll', disabled=True):
             streamsall = GetSFO_streamsAll( cursor, runnrlist )  # { runnr: [streams] }
-        with timer('GetSFO_filesAll'):
+        with timer('GetSFO_filesAll', disabled=True):
             filesall   = GetSFO_filesAll( cursor, runnrlist )    # [(COUNT(FILESIZE), SUM(FILESIZE), SUM(NREVENTS))]
 
         if ShowStreams:
             from CoolRunQuery.AtlRunQuerySFO import GetSFO_LBsAll,GetSFO_NeventsAll,GetSFO_overlapAll
-            with timer('GetSFO_LBsAll'):
+            with timer('GetSFO_LBsAll', disabled=True):
                 lbinfoall  = GetSFO_LBsAll( cursor, runnrlist )      # [(MIN(LUMIBLOCKNR), MAX(LUMIBLOCKNR), #LUMIBLOCKS)]
-            with timer('GetSFO_overlapAll'):
+            with timer('GetSFO_overlapAll', disabled=True):
                 overlapall = GetSFO_overlapAll( cursor, runnrlist )  # [(SUM(OVERLAP_EVENTS))]
             smallrunnrlist=[]
             for r in runnrlist: # go through old runlist and see
@@ -97,7 +97,7 @@ class StreamSelector(Selector):
                     if r in lbinfoall and s in lbinfoall[r] and lbinfoall[r][s][1]>0:
                         smallrunnrlist += [r]
                         break
-            with timer('GetSFO_NeventsAll'):
+            with timer('GetSFO_NeventsAll', disabled=True):
                 neventsall = GetSFO_NeventsAll( cursor, smallrunnrlist )  # [(LUMIBLOCKNR, NREVENTS)]
 
 

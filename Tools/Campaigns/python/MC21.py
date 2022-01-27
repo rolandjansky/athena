@@ -52,11 +52,14 @@ def MC21Simulation(flags):
     flags.Input.OverrideRunNumber = True
     flags.Input.LumiBlockNumber = [1] # dummy value
 
-    flags.Digitization.TRTRangeCut = 30.0
+    flags.Sim.TRTRangeCut = 30.0
     flags.Sim.TightMuonStepping = True
 
-    from SimuJobTransforms.SimulationHelpers import enableBeamPipeKill, enableFrozenShowersFCalOnly
+    from SimuJobTransforms.SimulationHelpers import enableBeamPipeKill #, enableFrozenShowersFCalOnly
     enableBeamPipeKill(flags)
-    enableFrozenShowersFCalOnly(flags)
+    if 'FullG4' in flags.Sim.ISF.Simulator:
+        # Not tuned yet for G4 10.6
+        # enableFrozenShowersFCalOnly(flags)
+        pass
     from SimuJobTransforms.G4Optimizations import enableG4Optimizations
     enableG4Optimizations(flags)

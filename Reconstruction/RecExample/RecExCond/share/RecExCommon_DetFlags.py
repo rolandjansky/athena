@@ -6,8 +6,8 @@ from AthenaCommon.Resilience import treatException
 if 'DetFlags' in dir():
    logRecExCommon_DetFlags.info("DetFlags already defined.by user : user should have fully configured it already! ")
 else:
-   
-   include ("RecExCond/RecExCommon_GlobalFlags.py")
+
+   from AthenaCommon.GlobalFlags import globalflags
 
    # include DetFlags
    # by default everything is off
@@ -72,22 +72,6 @@ else:
       DetFlags.readRDOPool.all_setOff()
       DetFlags.readRDOBS.all_setOff()
 
-
-   if 'readMuonDigit' in dir() and readMuonDigit:
-   # very special case for normal Rome production
-      DetFlags.readRDOPool.Muon_setOff()
-      DetFlags.readRIOPool.Muon_setOn()
-      if not ('doWriteRDO' in dir() and  doWriteRDO) :
-         DetFlags.makeRIO.Muon_setOn()
-
-   # switch off lucid stuff for now     
-   # DetFlags.Lucid_setOff()   
-
-   # switch off ZDC stuff for now     
-   # DetFlags.ZDC_setOff()   
-
-
-   #DetFlags.ALFA_setOff()   
    
 #synch muon flags to detflags
 try:

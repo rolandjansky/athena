@@ -33,59 +33,51 @@ namespace Trk {
 
 class IEnvelopeDefSvc;
 
-namespace HGTDet {
-  
-  class HGTD_TrackingGeometryBuilderCond : public AthAlgTool,
-                                       virtual public Trk::IGeometryBuilderCond {
-  
-  public:
-    /** Constructor */
-    HGTD_TrackingGeometryBuilderCond(const std::string&,const std::string&,const IInterface*);
-    
-    /** Destructor */
-    virtual ~HGTD_TrackingGeometryBuilderCond();
-      
-    /** AlgTool initailize method.*/
-    StatusCode initialize();
-    
-    /** AlgTool finalize method */
-    StatusCode finalize();
-    
-    /** TrackingGeometry Interface methode */
-    std::pair<EventIDRange, Trk::TrackingGeometry*> trackingGeometry
-    ATLAS_NOT_THREAD_SAFE(
-      const EventContext& ctx,
-      std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const;
-    
-    /** The unique signature */
-    Trk::GeometrySignature geometrySignature() const { return Trk::HGTD; }
-      
-  private:
-    /** Service to handle the envelope definition */
-    ServiceHandle<IEnvelopeDefSvc>                m_enclosingEnvelopeSvc;
-    /** Helper tools for the geometry building */
-    ToolHandle<Trk::ILayerBuilderCond>            m_layerBuilder;
-    /** Helper Tool to create TrackingVolumes */
-    ToolHandle<Trk::ITrackingVolumeCreator>       m_trackingVolumeCreator;   
-    
-    /** configurations for the layer builder */
-    /** forces robust indexing for layers */
-    bool                                           m_indexStaticLayers;         
-    /** create boundary layers */
-    bool                                           m_buildBoundaryLayers;       
-    /** run with replacement of all joint boundaries  */
-    bool                                           m_replaceJointBoundaries;    
-    /** binning type for layers */
-    int                                            m_layerBinningType;          
-    /** Color code for layers */
-    unsigned int                                   m_colorCodeConfig;          
-    
-  };                                       
-  
-  
-  
-} // end of namespace
+class HGTD_TrackingGeometryBuilderCond : public AthAlgTool,
+                                     virtual public Trk::IGeometryBuilderCond {
 
+public:
+  /** Constructor */
+  HGTD_TrackingGeometryBuilderCond(const std::string&,const std::string&,const IInterface*);
 
+  /** Destructor */
+  virtual ~HGTD_TrackingGeometryBuilderCond();
+
+  /** AlgTool initailize method.*/
+  StatusCode initialize();
+
+  /** AlgTool finalize method */
+  StatusCode finalize();
+
+  /** TrackingGeometry Interface methode */
+  std::pair<EventIDRange, Trk::TrackingGeometry*> trackingGeometry
+  ATLAS_NOT_THREAD_SAFE(
+    const EventContext& ctx,
+    std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const;
+
+  /** The unique signature */
+  Trk::GeometrySignature geometrySignature() const { return Trk::HGTD; }
+
+private:
+  /** Service to handle the envelope definition */
+  ServiceHandle<IEnvelopeDefSvc>                m_enclosingEnvelopeSvc;
+  /** Helper tools for the geometry building */
+  ToolHandle<Trk::ILayerBuilderCond>            m_layerBuilder;
+  /** Helper Tool to create TrackingVolumes */
+  ToolHandle<Trk::ITrackingVolumeCreator>       m_trackingVolumeCreator;
+
+  /** configurations for the layer builder */
+  /** forces robust indexing for layers */
+  bool                                           m_indexStaticLayers;
+  /** create boundary layers */
+  bool                                           m_buildBoundaryLayers;
+  /** run with replacement of all joint boundaries  */
+  bool                                           m_replaceJointBoundaries;
+  /** binning type for layers */
+  int                                            m_layerBinningType;
+  /** Color code for layers */
+  unsigned int                                   m_colorCodeConfig;
+
+};
 
 #endif // HGTD_TRACKINGGEOMETRY_HGTD_TRACKINGGEOMETRYBUILDERCOND_H

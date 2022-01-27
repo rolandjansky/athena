@@ -95,7 +95,7 @@ void col_vs_strip(int SaveOpt=0,int Phi=0) {
   for (Int_t i=0;i<12;i++) {
     c11->cd(i+1);
     if (i<4) sprintf(axisY,"column (Pixels) - [%d,%d]",0,PixelsPhi);
-    else if (i>3 || i<8) sprintf(axisY,"column (Pixels) - [%d,%d]",1,PixelsPhi);
+    else if (i>3 and i<8) sprintf(axisY,"column (Pixels) - [%d,%d]",1,PixelsPhi);
     else sprintf(axisY,"column (Pixels) - [%d,%d]",2,PixelsPhi);
 
     if (i==0 || i==4 || i==8) sprintf(axisX,"strip (SCT) - [%d,%d,%d]",0,Phi,0);

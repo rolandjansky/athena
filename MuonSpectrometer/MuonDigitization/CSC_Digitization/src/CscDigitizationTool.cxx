@@ -316,7 +316,8 @@ FillCollectionWithNewDigitEDM(csc_newmap& data_SampleMap,
                     );
 
     if (prevId != elementId) {
-      auto  it_coll = cscDigits->indexFindPtr(coll_hash);
+      CscDigitCollection*  it_coll=nullptr;
+      ATH_CHECK(cscDigits->naughtyRetrieve(coll_hash,it_coll));
       if (nullptr ==  it_coll) {
         CscDigitCollection * newCollection = new CscDigitCollection(elementId,coll_hash);
 
@@ -331,7 +332,7 @@ FillCollectionWithNewDigitEDM(csc_newmap& data_SampleMap,
         collection = newCollection;
 
       } else {
-        CscDigitCollection * existingCollection = const_cast<CscDigitCollection*>( it_coll );
+        CscDigitCollection * existingCollection =  it_coll;
         if (phaseToSet) existingCollection->set_samplingPhase();
 
         CscDigit * newDigit  = new CscDigit(digitId, samples);
@@ -429,7 +430,8 @@ FillCollectionWithOldDigitEDM(csc_map& data_map, std::map<IdentifierHash,deposit
     }
 
     if (prevId != elementId) {
-      auto it_coll = cscDigits->indexFindPtr(coll_hash);
+      CscDigitCollection* it_coll = nullptr;
+      ATH_CHECK(cscDigits->naughtyRetrieve(coll_hash,it_coll));
       if (nullptr ==  it_coll) {
         CscDigitCollection * newCollection = new CscDigitCollection(elementId,coll_hash);
         newCollection->push_back(newDigit);
@@ -439,7 +441,7 @@ FillCollectionWithOldDigitEDM(csc_map& data_map, std::map<IdentifierHash,deposit
           ATH_MSG_ERROR ( "Couldn't record CscDigitCollection with key=" << coll_hash
                           << " in StoreGate!" );
       } else {
-        CscDigitCollection * existingCollection = const_cast<CscDigitCollection*>( it_coll );
+        CscDigitCollection * existingCollection =it_coll;
         existingCollection->push_back(newDigit);
         collection = existingCollection;
       }

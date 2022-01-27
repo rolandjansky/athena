@@ -39,5 +39,5 @@ TCS::jTauTOB::clearHeap() {
 
 void
 TCS::jTauTOB::print(std::ostream &o) const {
-   o << "jet energy: " << Et() << ", eta: " << eta() << ", phi: " << phi();
+   o << "jTau energy: " << Et() << ", eta: " << eta() << ", phi: " << phi() << ", isolation: " << isolation() ;
 }

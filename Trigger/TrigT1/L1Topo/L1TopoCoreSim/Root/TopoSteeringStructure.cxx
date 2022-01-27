@@ -140,9 +140,10 @@ TCS::TopoSteeringStructure::setupFromMenu(const TrigConf::L1Menu& l1menu, bool l
 				  "jTauMultiplicity",
 				  "cTauMultiplicity",
 				  "jJetMultiplicity",
-				  "jLargeRJetMultiplicity",
+				  "jLJetMultiplicity",
 				  "gJetMultiplicity",
 				  "gLargeRJetMultiplicity",
+				  "XEMultiplicity",
 				  "EnergyThreshold" };
 
    for (const string & boardName : l1menu.boardNames() ){
@@ -237,11 +238,15 @@ TCS::TopoSteeringStructure::setupFromMenu(const TrigConf::L1Menu& l1menu, bool l
 	      const string & tlName = tl.name();
 	      auto & algo = l1menu.algorithmFromTriggerline(tlName);
 
-	      string *foundAlgo = std::find(std::begin(AvailableMultAlgs), std::end(AvailableMultAlgs), algo.klass());
+              string algo_klass = algo.klass();
+              if(algo_klass=="eEmVarMultiplicity") algo_klass="eEmMultiplicity"; // in sim, use the same multiplicity algo for fixed and variable thresholds
+
+	      string *foundAlgo = std::find(std::begin(AvailableMultAlgs), std::end(AvailableMultAlgs), algo_klass);
 	      if (foundAlgo == std::end(AvailableMultAlgs)) cout << "TopoSteeringStructure: No L1Topo algorithm matching the configured multiplicity algorithm in the menu!" << endl;
 
-		  if ( (algo.klass() != "eEmMultiplicity") && (algo.klass() != "eTauMultiplicity") && (algo.klass() != "jJetMultiplicity") ) continue; // Only available multiplicity algorithms so far
-            
+	      if ( (algo_klass != "eEmMultiplicity") && (algo_klass != "eTauMultiplicity") && (algo_klass != "jJetMultiplicity") 
+		   && (algo_klass != "jLJetMultiplicity") && (algo_klass != "cTauMultiplicity") && (algo_klass != "XEMultiplicity") ) continue; // Only available multiplicity algorithms so far
+
 	      auto it = find(storedConn.begin(), storedConn.end(), algo.name());
 	      if (it == storedConn.end()) { // Algorithm/Connector does not exist: create and store it
 
@@ -249,7 +254,7 @@ TCS::TopoSteeringStructure::setupFromMenu(const TrigConf::L1Menu& l1menu, bool l
 		if(debug)
 		  cout << "L1TopoSteering: Multiplicity algo( " << algo.name() << " ) has as input " << algo.inputs().at(0) << endl;
 		     
-		CountingConnector * conn = new CountingConnector(algo.name(), algo.inputs().at(0), algo.klass()+"/"+algo.name(), algo.outputs().at(0));
+		CountingConnector * conn = new CountingConnector(algo.name(), algo.inputs().at(0), algo_klass+"/"+algo.name(), algo.outputs().at(0));
 		conn->m_count.setNBits( tl.nbits() );
 		conn->m_count.setFirstBit( tl.startbit() );
 		
@@ -372,7 +377,8 @@ TCS::TopoSteeringStructure::setupFromMenu(const TrigConf::L1Menu& l1menu, bool l
 
       auto & l1algo = l1menu.algorithm(multAlgo, "MULTTOPO");
       
-      if ( (l1algo.klass() != "eEmMultiplicity") && (l1algo.klass() != "eTauMultiplicity") && (l1algo.klass() != "jJetMultiplicity") ) continue; // Only available multiplicities for now
+      if ( (l1algo.klass() != "eEmMultiplicity") && (l1algo.klass() != "eEmVarMultiplicity") && (l1algo.klass() != "eTauMultiplicity") 
+	   && (l1algo.klass() != "jJetMultiplicity") && (l1algo.klass() != "jLJetMultiplicity") && (l1algo.klass() != "cTauMultiplicity") && (l1algo.klass() != "XEMultiplicity") ) continue; // Only available multiplicities for now
 
       ConfigurableAlg * alg = AlgFactory::instance().algorithm(l1algo.name());
 

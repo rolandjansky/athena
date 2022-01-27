@@ -102,7 +102,7 @@ namespace dqutils {
         //std::cout << "lbn_range = " << lbn_range << std::endl;
         
         // Get EF/L2 status histograms for default Fex
-        for( std::vector<TString>::iterator itFex = met_fexs.begin(); itFex != met_fexs.end(); itFex++ ) {
+        for( std::vector<TString>::iterator itFex = met_fexs.begin(); itFex != met_fexs.end(); ++itFex ) {
           TString theL2Path = hlt_top + (*itFex) + met_l2dir;
           TString theEFPath = hlt_top + (*itFex) + met_efdir;
           TString theDQPath = hlt_top + (*itFex) + dqflag_dir;
@@ -123,7 +123,7 @@ namespace dqutils {
             return;
           }
           // loop over L2 hists and copy to DQFlags 
-          for(std::vector<TString>::iterator itHist =  met_l2hists.begin(); itHist != met_l2hists.end(); itHist++ ) {
+          for(std::vector<TString>::iterator itHist =  met_l2hists.begin(); itHist != met_l2hists.end(); ++itHist) {
             TString histL2 = (theL2Path + *itHist);
             TString histL2C = (theDQPath + *itHist);
             TH1 *hl2(0), *hl2c(0);
@@ -155,7 +155,7 @@ namespace dqutils {
           } // end loop over l2 hists
           
           // loop over EF hists and copy to DQFlags 
-          for(std::vector<TString>::iterator itHist =  met_efhists.begin(); itHist != met_efhists.end(); itHist++ ) {
+          for(std::vector<TString>::iterator itHist =  met_efhists.begin(); itHist != met_efhists.end(); ++itHist ) {
             TString histEF = (theEFPath + *itHist);
             TString histEFC = (theDQPath + *itHist);
             TH1 *hef(0), *hefc(0);
@@ -197,7 +197,7 @@ namespace dqutils {
               hlb->GetYaxis()->SetRangeUser(0,Double_t(lbn_range));
             }
             TH1I *hlbstat(0);
-            for(std::vector<TString>::iterator it = lbnDirs.begin(); it != lbnDirs.end(); it++, k++) {
+            for(std::vector<TString>::iterator it = lbnDirs.begin(); it != lbnDirs.end(); ++it, ++k) {
               if(k > nbinx) continue;
               TString histLBstat = run_dir + TString("/") + *it + TString("/HLT") + (*itFex) + "/lbnstatus/EF_MET_status";
               if(!f->Get(histLBstat)) { if(dbgLevel) std::cerr << "--> HLTMETDQFlagSummary: no histogram " << histLBstat << std::endl; continue; }

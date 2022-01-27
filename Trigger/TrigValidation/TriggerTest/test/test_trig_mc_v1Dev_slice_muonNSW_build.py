@@ -14,8 +14,7 @@ ex.type = 'athena'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'munsw'
 ex.threads = 1
-# LS2_v1 soon to be renamed to Dev_pp_run3_v1
-ex.args = '-c "setMenu=\'LS2_v1\';doEmptyMenu=True;doMuonSlice=True;doWriteBS=False;doWriteRDOTrigger=True;setDetDescr=\'ATLAS-R3-2021-01-00-02\';setGlobalTag=\'OFLCOND-MC16-SDR-RUN3-02\'"'
+ex.args = '-c "setMenu=\'Dev_pp_run3_v1\';doEmptyMenu=True;doMuonSlice=True;doWriteBS=False;doWriteRDOTrigger=True;setDetDescr=\'ATLAS-R3S-2021-01-00-02\';setGlobalTag=\'OFLCOND-MC16-SDR-RUN3-02\'"'
 
 test = Test.Test()
 test.art_type = 'build'

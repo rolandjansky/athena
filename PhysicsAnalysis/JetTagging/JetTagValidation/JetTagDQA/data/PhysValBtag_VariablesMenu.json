@@ -396,6 +396,21 @@
             "forData": "true"
         },
 
+        "DL1d": {
+            "_comment": "pb, pc, and pu",
+            "title": "DL1d",
+            "xtitle": "DL1d px",
+            "ytitle": "Jets",
+            "path":  {"ART": "bTagging", "PHYSVAL": "tagger"},
+            "xbins": 100,
+            "xmin": 0,
+            "xmax": 1,
+            "forEach": ["pb", "pc", "pu"],
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
         "DL1r": {
             "_comment": "pb, pc, and pu",
             "title": "DL1r",
@@ -515,8 +530,8 @@
             "ytitle": "Tracks",
             "path":  {"ART": "bTagging", "PHYSVAL": "tagger"},
             "xbins": 200,
-            "xmin": -0.5,
-            "xmax": 0.5,
+            "xmin": -2,
+            "xmax": 2,
             "forEachTruthType": ["U","B","C","DATA"],
             "type": "TH1D",
             "forData": "true"
@@ -529,8 +544,8 @@
             "ytitle": "Tracks",
             "path":  {"ART": "bTagging", "PHYSVAL": "tagger"},
             "xbins": 200,
-            "xmin": -5,
-            "xmax": 5,
+            "xmin": -50,
+            "xmax": 50,
             "forEachTruthType": ["U","B","C","DATA"],
             "type": "TH1D",
             "forData": "true"
@@ -543,8 +558,8 @@
             "ytitle": "Tracks",
             "path":  {"ART": "bTagging", "PHYSVAL": "tagger"},
             "xbins": 200,
-            "xmin": -5,
-            "xmax": 5,
+            "xmin": -50,
+            "xmax": 50,
             "forEachTruthType": ["U","B","C","DATA"],
             "type": "TH1D",
             "forData": "true"
@@ -814,68 +829,7 @@
             "xmax": 75,
             "type": "TH1D",
             "forData": "false"
-        },
-
-        "efficiency_vs_rejection": {
-            "_comment": "",
-            "title": "b-efficiency vs. rejection",
-            "xtitle": "efficiency",
-            "ytitle": "rejection",
-            "path":  {"PHYSVAL": "tagger"},
-            "xbins": 100,
-            "xmin": 0,
-            "xmax": 1,
-            "ymin": 0,
-            "ymax": 1000000,
-            "type": "TProfile",
-            "forData": "false"
-        },
-
-        "efficiency_vs_llr": {
-            "_comment": "",
-            "title": "efficiency vs. loglikelihoodratio",
-            "xtitle": "loglikelihoodratio",
-            "ytitle": "efficiency",
-            "path":  {"PHYSVAL": "tagger"},
-            "xbins": 250,
-            "xmin": -10,
-            "xmax": 40,
-            "ymin": 0,
-            "ymax": 1,
-            "type": "TProfile",
-            "forData": "false"
-        },
-
-        "efficiency_vs_llr_MV": {
-            "_comment": "has a different range",
-            "title": "efficiency vs. loglikelihoodratio",
-            "xtitle": "loglikelihoodratio",
-            "ytitle": "efficiency",
-            "path":  {"PHYSVAL": "tagger"},
-            "xbins": 250,
-            "xmin": -1,
-            "xmax": 1,
-            "ymin": 0,
-            "ymax": 1,
-            "type": "TProfile",
-            "forData": "false"
-        },
-
-        "efficiency_vs_pT": {
-            "_comment": "",
-            "title": "efficiency vs. p_{T}",
-            "xtitle": "p_{T} [GeV]",
-            "ytitle": "efficiency",
-            "path":  {"PHYSVAL": "tagger"},
-            "xbins": 100,
-            "xmin": 0,
-            "xmax": 1000,
-            "ymin": 0,
-            "ymax": 1,
-            "type": "TProfile",
-            "forData": "false"
         }
-
 
     },
 
@@ -1004,21 +958,6 @@
             "xmax": 75,
             "forEachTruthType": ["U", "B", "C", "DATA"],
             "type": "TH1D",
-            "forData": "true"
-        },
-
-        "numTracks_perJet_vs_pT": {
-            "_comment": "",
-            "title": "number of tracks per jet vs. jet pT",
-            "xtitle": "p_{T} [GeV]",
-            "ytitle": "Number of tracks",
-            "path":  {"PHYSVAL": "tracks"},
-            "xbins": 100,
-            "xmin": 0,
-            "xmax": 1000,
-            "ymin": 0,
-            "ymax": 75,
-            "type": "TProfile",
             "forData": "true"
         },
 
@@ -1401,84 +1340,6 @@
             "forData": "false"
         },
 
-        "MSV_nvsec": {
-            "_comment": "",
-            "title": "number of MSV vertices",
-            "xtitle": "number",
-            "ytitle": "Jets",
-            "path":  {"PHYSVAL": "SV"},
-            "xbins": 11,
-            "xmin": -0.5,
-            "xmax": 10.5,
-            "type": "TH1D",
-            "forData": "true"
-        },
-
-        "MSV_N2Tpair": {
-            "_comment": "",
-            "title": "MSV number of two-track vertices",
-            "xtitle": "number",
-            "ytitle": "Jets",
-            "path":  {"PHYSVAL": "SV"},
-            "xbins": 51,
-            "xmin": -0.5,
-            "xmax": 50.5,
-            "type": "TH1D",
-            "forData": "true"
-        },
-
-        "MSV_energyTrkInJet": {
-            "_comment": "",
-            "title": "ratio of track energies in MSV vertices to jet",
-            "xtitle": "energy [GeV]",
-            "ytitle": "Jets",
-            "path":  {"PHYSVAL": "SV"},
-            "xbins": 100,
-            "xmin": 1,
-            "xmax": 2000,
-            "type": "TH1D",
-            "forData": "true"
-        },
-
-        "MSV_normdist": {
-            "_comment": "",
-            "title": "MSV normdist",
-            "xtitle": "normdist",
-            "ytitle": "Jets",
-            "path":  {"PHYSVAL": "SV"},
-            "xbins": 50,
-            "xmin": 0,
-            "xmax": 100,
-            "type": "TH1D",
-            "forData": "true"
-        },
-
-        "MSV_purity": {
-            "_comment": "",
-            "title": "MSV average purity",
-            "xtitle": "purity",
-            "ytitle": "Jets",
-            "path":  {"PHYSVAL": "SV"},
-            "xbins": 10,
-            "xmin": -0.01,
-            "xmax": 1.01,
-            "type": "TH1D",
-            "forData": "false"
-        },
-
-        "MSV_vtx_mass": {
-            "_comment": "",
-            "title": "MSV average vertex mass",
-            "xtitle": "mass [GeV]",
-            "ytitle": "Jets",
-            "path":  {"PHYSVAL": "SV"},
-            "xbins": 50,
-            "xmin": 0,
-            "xmax": 8,
-            "type": "TH1D",
-            "forData": "false"
-        },
-
         "JetFitter_N2Tpair": {
             "_comment": "",
             "title": "JetFitter number of two-track vertices",
@@ -1588,127 +1449,8 @@
             "xmax": 1.01,
             "type": "TH1D",
             "forData": "false"
-        },
-
-        "SV1_masssvx_vs_pT": {
-            "_comment": "",
-            "title": "mass of the secondary vertex vs. jet p_{T}",
-            "xtitle": "p_{T} [GeV]",
-            "ytitle": "sv mass [GeV]",
-            "path":  {"PHYSVAL": "SV"},
-            "xbins": 100,
-            "xmin": 0,
-            "xmax": 1000,
-            "ymin": 0,
-            "ymax": 6,
-            "type": "TProfile",
-            "forData": "true"
-        },
-
-        "SV1_N2Tpair_vs_pT": {
-            "_comment": "",
-            "title": "number of two-track vertices vs. jet p_{T}",
-            "xtitle": "p_{T} [GeV]",
-            "ytitle": "number",
-            "path":  {"PHYSVAL": "SV"},
-            "xbins": 100,
-            "xmin": 0,
-            "xmax": 1000,
-            "ymin": 0,
-            "ymax": 25,
-            "type": "TProfile",
-            "forData": "true"
-        },
-
-        "SV1_efracsvx_vs_pT": {
-            "_comment": "",
-            "title": "ratio of track energies in SV to jet vs. jet p_{T}",
-            "xtitle": "p_{T} [GeV]",
-            "ytitle": "SV energy ratio",
-            "path":  {"PHYSVAL": "SV"},
-            "xbins": 100,
-            "xmin": 0,
-            "xmax": 1000,
-            "ymin": -0.01,
-            "ymax": 1.01,
-            "type": "TProfile",
-            "forData": "true"
-        },
-
-        "SV1_deltaR_vs_pT": {
-            "_comment": "",
-            "title": "#DeltaR(jet, SV-PV) vs. jet p_{T}",
-            "xtitle": "p_{T} [GeV]",
-            "ytitle": "#DeltaR(jet, SV-PV)",
-            "path":  {"PHYSVAL": "SV"},
-            "xbins": 100,
-            "xmin": 0,
-            "xmax": 1000,
-            "ymin": 0,
-            "ymax": 0.6,
-            "type": "TProfile",
-            "forData": "true"
-        },
-
-        "SV1_masssvx_vs_eta": {
-            "_comment": "",
-            "title": "mass of the secondary vertex vs. jet eta",
-            "xtitle": "#eta",
-            "ytitle": "sv mass [GeV]",
-            "path":  {"PHYSVAL": "SV"},
-            "xbins": 100,
-            "xmin": -5,
-            "xmax": 5,
-            "ymin": 0,
-            "ymax": 6,
-            "type": "TProfile",
-            "forData": "true"
-        },
-
-        "SV1_N2Tpair_vs_eta": {
-            "_comment": "",
-            "title": "number of two-track vertices vs. jet eta",
-            "xtitle": "#eta",
-            "ytitle": "number",
-            "path":  {"PHYSVAL": "SV"},
-            "xbins": 100,
-            "xmin": -5,
-            "xmax": 5,
-            "ymin": 0,
-            "ymax": 25,
-            "type": "TProfile",
-            "forData": "true"
-        },
-
-        "SV1_efracsvx_vs_eta": {
-            "_comment": "",
-            "title": "ratio of track energies in SV to jet vs. jet eta",
-            "xtitle": "#eta",
-            "ytitle": "SV energy ratio",
-            "path":  {"PHYSVAL": "SV"},
-            "xbins": 100,
-            "xmin": -5,
-            "xmax": 5,
-            "ymin": 0,
-            "ymax": 1,
-            "type": "TProfile",
-            "forData": "true"
-        },
-
-        "SV1_deltaR_vs_eta": {
-            "_comment": "",
-            "title": "#DeltaR(jet, SV-PV) vs. jet eta",
-            "xtitle": "p_{T} [GeV]",
-            "ytitle": "#DeltaR(jet, SV-PV)",
-            "path":  {"PHYSVAL": "SV"},
-            "xbins": 100,
-            "xmin": -5,
-            "xmax": 5,
-            "ymin": 0,
-            "ymax": 4,
-            "type": "TProfile",
-            "forData": "true"
         }
+
     },
 
 

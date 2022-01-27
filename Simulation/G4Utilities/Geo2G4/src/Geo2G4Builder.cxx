@@ -205,7 +205,7 @@ void Geo2G4Builder::BuildOpticalSurfaces(const GeoBorderSurfaceContainer* surfac
       volIt = optical_volumes->find(border_surface.getPV2());
       if(volIt == optical_volumes->end())
         {
-          ATH_MSG_WARNING("Unable to find " << border_surface.getPV1()->getLogVol()->getName() << " in Optical Volumes map");
+          ATH_MSG_WARNING("Unable to find " << border_surface.getPV2()->getLogVol()->getName() << " in Optical Volumes map");
           continue;
         }
       g4PV2 = volIt.operator->()->second;

@@ -527,7 +527,7 @@ if __name__=='__main__':
     #ConfigFlags.Input.isMC = False
 
     # AOD file to be run w/ MT access
-    file = '/afs/cern.ch/work/e/enagy/public/ARTfiles/MCtest230621.AOD.pool.root'
+    file = '/afs/cern.ch/work/e/enagy/public/ARTfiles/MCtest251021.AOD.pool.root'
 
     ConfigFlags.Input.Files = [file]
     ConfigFlags.Input.isMC = True
@@ -556,4 +556,5 @@ if __name__=='__main__':
     Nevents = 25
     #cfg.run(Nevents)
     cfg.run() #use cfg.run(20) to only run on first 20 events
+
 

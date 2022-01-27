@@ -15,7 +15,7 @@ namespace Muon {
 
   float mstau = 431000.;
 
-  void ResPlots::book( TString prefix ) {
+  void ResPlots::book( const TString& prefix ) {
     res = new TH1F(prefix+"res","res",100,-100.,100.);
     pull = new TH1F(prefix+"pull","pull",100,-10.,10.);
     exerr = new TH1F(prefix+"exerr","exerr",100,0,100.);
@@ -26,7 +26,7 @@ namespace Muon {
     exerr->Fill(exerr_);
   }
     
-  void ResPlotsPt::book( TString prefix ) {
+  void ResPlotsPt::book( const TString& prefix ) {
     res_p = new TH2F(prefix+"res_p","res_p",100,-100.,100.,100,0.,300.);
     pull_p = new TH2F(prefix+"pull_p","pull_p",100,-10.,10.,100,0.,300.);
     exerr_p  = new TH2F(prefix+"exerr_p","exerr_p",100,0.,100.,100,0.,300.);
@@ -37,7 +37,7 @@ namespace Muon {
     exerr_p->Fill(exerr_,p_);
   }
   
-  void ChamberResPlots::book( TDirectory* dir, TString prefix ) {
+  void ChamberResPlots::book( TDirectory* dir, const TString& prefix ) {
     TDirectory* ndir = dir->mkdir(prefix+"Chamber");
     ndir->cd();
     plots.resize(MuonStationIndex::ChIndexMax);
@@ -59,7 +59,7 @@ namespace Muon {
   }
 
 
-  void HitPlots::book( TDirectory* dir, TString prefix ) {
+  void HitPlots::book( TDirectory* dir, const TString& prefix ) {
     all.book(prefix);
     all_p.book(prefix);
     chamber.book(dir,prefix);
@@ -77,7 +77,7 @@ namespace Muon {
     chamber.fill(chIndex_,res_,pull_,exerr_,p_);
   }
 
-  void TimePlots::book( TDirectory*, TString prefix, int type ) {
+  void TimePlots::book( TDirectory*, const TString& prefix, int type ) {
     type = type % 1000; // truncate anything above 1000
     bool isMDT = (type == 1 || type == 10);
     float tmin = -15;
@@ -187,7 +187,7 @@ namespace Muon {
     }
   }
 
-  void HoughPlots::book( TDirectory* dir, TString prefix ) {
+  void HoughPlots::book( TDirectory* dir, const TString& prefix ) {
 
     max = new TH1F(prefix+"max","max",100,0.,30.);
     max_pull = new TH2F(prefix+"max_pull","max_pull",100,0.,30.,100,-10.,10.);
@@ -207,7 +207,7 @@ namespace Muon {
     chamber.fill(chIndex_,res_,pull_,exerr_,p_);
   }
 
-  void SegmentPlots::book( TDirectory* dir, TString prefix ){
+  void SegmentPlots::book( TDirectory* dir, const TString& prefix ){
     t0 = new TH1F(prefix+"t0","t0",100,-20.,50.);
     t0Trig = new TH1F(prefix+"t0Trig","t0Trig",100,-20.,50.);
     beta = new TH1F(prefix+"beta","beta",100,.0,2.);
@@ -292,7 +292,7 @@ namespace Muon {
     quality_sector->Fill(quality_,sector_);
   }
 
-  void BetaFitPlots::book( TDirectory* , TString prefix ) {
+  void BetaFitPlots::book( TDirectory* , const TString& prefix ) {
     beta = new TH1F(prefix+"beta","beta",100,0,1.5);
     chi2Ndof = new TH1F(prefix+"chi2Ndof","chi2Ndof",100,0,50.);
     ndof = new TH1F(prefix+"ndof","ndof",51,-0.5,50.5);
@@ -306,7 +306,7 @@ namespace Muon {
     res->Fill(beta_-betaTruth_);
   }
 
-  void BetaFitRegionPlots::book( TDirectory* dir, TString prefix, bool isBarrel ) {
+  void BetaFitRegionPlots::book( TDirectory* dir, const TString& prefix, bool isBarrel ) {
     mdt.book(dir,prefix+"mdt_");
     mdtt.book(dir,prefix+"mdtt_");
     mdtt_good.book(dir,prefix+"mdtt_good_");
@@ -320,7 +320,7 @@ namespace Muon {
   }
 
   /** candidate based plots */
-  void CandidatePlots::book( TDirectory* dir, TString prefix ) {
+  void CandidatePlots::book( TDirectory* dir, const TString& prefix ) {
     pt = new TH1F(prefix+"pt","pt",100,0,300.);
     eta = new TH1F(prefix+"eta","eta",100,-3,3);
     phi = new TH1F(prefix+"phi","phi",100,-3,3);
@@ -340,7 +340,7 @@ namespace Muon {
 
 
   /** candidates based plots */
-  void StageSummaryPlots::book( TDirectory* dir, TString prefix ) {
+  void StageSummaryPlots::book( TDirectory* dir, const TString& prefix ) {
     etaMissed = new TH1F(prefix+"etaMissed","etaMissed",100,-3,3);
     etaMissedCombined = new TH1F(prefix+"etaMissedCombined","etaMissedCombined",100,-3,3);
     etaBetaMissed = new TH2F(prefix+"etaBetaMissed","etaBetaMissed",100,-3,3,100,0.,1.);
@@ -353,7 +353,7 @@ namespace Muon {
     combinedCandidates.book(dir,prefix+"combinedCandidates_");
   }
 
-  void TrackPlots::book( TDirectory* dir, TString prefix ) {
+  void TrackPlots::book( TDirectory* dir, const TString& prefix ) {
     pt = new TH1F(prefix+"pt","pt",100,0,300.);
     eta = new TH1F(prefix+"eta","eta",100,-3,3);
     phi = new TH1F(prefix+"phi","phi",100,-3,3);
@@ -434,7 +434,7 @@ namespace Muon {
   }
 
   
-  void MuonInsideOutAnalysisPlots::book( TDirectory* dir, TString prefix ) {
+  void MuonInsideOutAnalysisPlots::book( TDirectory* dir, const TString& prefix ) {
     TDirectory* ndir = dir->mkdir("Muon");
     ndir->cd();
     muon.book(ndir,prefix);

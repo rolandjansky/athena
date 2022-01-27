@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 # File: LumiBlockComps/python/LumiBlockMuWriterConfig.py
 # Created: May 2020, sss
@@ -10,8 +10,8 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 
-def LumiBlockMuWriterCfg (configFlags, name = 'LumiBlockMuWriter'):
-    result = ComponentAccumulator()
+def LumiBlockMuWriterCfg (configFlags, name = 'LumiBlockMuWriter', seqName="AthAlgSeq"):
+    result = ComponentAccumulator(seqName)
 
     if (configFlags.Beam.Type == 'cosmics' or configFlags.Input.isMC):
         condkey = ''
@@ -22,7 +22,12 @@ def LumiBlockMuWriterCfg (configFlags, name = 'LumiBlockMuWriter'):
 
     LumiBlockMuWriter = CompFactory.LumiBlockMuWriter # LumiBlockComps
     alg = LumiBlockMuWriter (name, LumiDataKey = condkey)
-    result.addCondAlgo (alg)
+    #In the HLT we want to run LumiBlockMuWriter as a normal EventAlgo, but in a pre-event sequence (HLTBeginSeq)
+    if  configFlags.Trigger.doHLT:
+         result.addEventAlgo(alg)
+    #For offline and particularly serial athena, add LumiBlockMuWriter to AthCondSeq to ensure it runs first (ATR-24721)
+    else:
+         result.addCondAlgo(alg)
     return result
 
 
@@ -31,6 +36,7 @@ if __name__ == "__main__":
     Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
+    ConfigFlags.Input.Files = []
     ConfigFlags.loadAllDynamicFlags()
 
     print ('--- collisions')

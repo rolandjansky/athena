@@ -135,6 +135,8 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
                                                             StreamName = 'StreamAOD'))
     if not IsInInputFile("xAOD::FlowElementContainer","CHSParticleFlowObjects"):
       if not hasattr(job,"jetalgCHSPFlow"):
+        if jetFlags.useTrackVertexTool:
+          ctools += [jtm.ttvaassocNew]        
         ctools += [jtm.JetConstitSeq_PFlowCHS]
         if thinneg:
           from ThinningUtils.ThinningUtilsConf import ThinNegativeEnergyNeutralPFOsAlg

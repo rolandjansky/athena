@@ -180,8 +180,24 @@ class doPixelPlanarRadiationDamage(JobProperty):
     StoredValue=False
 
 #
+class doPixelPlanarRadiationDamageTemplate(JobProperty):
+    """ Include radiation damage simulation using the templates for pixel planar sensors where possible?
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+#
 class doPixel3DRadiationDamage(JobProperty):
     """ Include radiation damage simulation for pixel planar sensors where possible?
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+#
+class doPixel3DRadiationDamageTemplate(JobProperty):
+    """ Include radiation damage simulation using the templates for pixel planar sensors where possible?
     """
     statusOn=True
     allowedTypes=['bool']
@@ -838,7 +854,8 @@ jobproperties.add_Container(Digitization)
 
 
 # We want always the following flags in the container
-list_jobproperties=[doInDetNoise,doCaloNoise,doMuonNoise,doFwdNoise,doPixelPlanarRadiationDamage,doPixel3DRadiationDamage,\
+list_jobproperties=[doInDetNoise,doCaloNoise,doMuonNoise,doFwdNoise,\
+                    doPixelPlanarRadiationDamage,doPixel3DRadiationDamage,doPixelPlanarRadiationDamageTemplate,doPixel3DRadiationDamageTemplate,\
                     rndmSvc,rndmSeedList,rndmSeedOffset1,rndmSeedOffset2,readSeedsFromFile,\
                     rndmSeedInputFile,physicsList,overrideMetadata,doBichselSimulation,\
                     IOVDbGlobalTag,SimG4VersionUsed,numberOfCollisions,\

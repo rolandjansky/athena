@@ -1,0 +1,28 @@
+#!/usr/bin/bash
+#
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#
+# Post-processing script used for all CI tests
+#
+
+# check log file for errors:
+echo "----------------------------------------------------------"
+noerror.sh
+logStatus=$?
+
+# user-defined post-processing script:
+@CI_POST_EXEC_SCRIPT@
+postStatus=$?
+
+# return failure if any step failed:
+status=$(( ${ATLAS_CTEST_TESTSTATUS} || ${logStatus} || ${postStatus} ))
+
+echo "----------------------------------------------------------"
+echo "| ${ATLAS_CTEST_TESTNAME} test result: ${status}"
+echo "----------------------------------------------------------"
+echo "| CI test:            ${ATLAS_CTEST_TESTSTATUS}"
+echo "| CI log check:       ${logStatus}"
+echo "| CI post-processing: ${postStatus}"
+echo "----------------------------------------------------------"
+
+exit $status

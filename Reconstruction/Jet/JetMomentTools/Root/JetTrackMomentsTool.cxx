@@ -84,42 +84,45 @@ StatusCode JetTrackMomentsTool::decorate(const xAOD::JetContainer& jets) const {
   auto tva = handle_tva.cptr();
 
   for(const xAOD::Jet* jet : jets){
+    ATH_MSG_VERBOSE("On jet " << jet->index());
 
     // Retrieve the associated tracks.
     std::vector<const xAOD::TrackParticle*> tracks;
     bool havetracks = jet->getAssociatedObjects(m_assocTracksName, tracks);
     if(!havetracks) ATH_MSG_WARNING("Associated tracks not found");
-    ATH_MSG_DEBUG("Successfully retrieved track particles");
+    ATH_MSG_VERBOSE("Successfully retrieved track particles for jet " << jet->index());
 
-    // Check if this is a PFlow jet. If so, get the PFO tracks.
-    xAOD::Type::ObjectType ctype = jet->rawConstituent(0)->type();
     std::vector<const xAOD::TrackParticle*> pflowTracks;
     bool isPFlowJet = false;
-    if (ctype  == xAOD::Type::ParticleFlow) {
-      isPFlowJet = true;
-      size_t numConstit = jet->numConstituents();
-      for ( size_t i=0; i<numConstit; i++ ) {
-        const xAOD::PFO* constit = dynamic_cast<const xAOD::PFO*>(jet->rawConstituent(i));
-        if (constit->isCharged()){
-          const xAOD::TrackParticle *thisTrack = constit->track(0);//by construction xAOD::PFO can only have one track, in eflowRec usage
-          pflowTracks.push_back(thisTrack);
-        }// We have a charged PFO
-      }// Loop on jet constituents
-    }// This jet is made from xAOD::PFO, so we do calculate the pflow moments
-    else if (ctype  == xAOD::Type::FlowElement) {
-      size_t numConstit = jet->numConstituents();
-      for ( size_t i=0; i<numConstit; i++ ) {
-        const xAOD::FlowElement* constit = dynamic_cast<const xAOD::FlowElement*>(jet->rawConstituent(i));
-        if(constit != nullptr && (constit->signalType() & xAOD::FlowElement::PFlow)){
-          isPFlowJet = true;
+    if(m_doPFlowMoments) {
+      // Check if this is a PFlow jet. If so, get the PFO tracks.
+      xAOD::Type::ObjectType ctype = jet->rawConstituent(0)->type();
+      if (ctype  == xAOD::Type::ParticleFlow) {
+        isPFlowJet = true;
+        size_t numConstit = jet->numConstituents();
+        for ( size_t i=0; i<numConstit; i++ ) {
+          const xAOD::PFO* constit = dynamic_cast<const xAOD::PFO*>(jet->rawConstituent(i));
           if (constit->isCharged()){
-            const xAOD::TrackParticle *thisTrack = dynamic_cast<const xAOD::TrackParticle*>(constit->chargedObject(0));//PFO should have only 1 track
-            if(thisTrack != nullptr) pflowTracks.push_back(thisTrack);
-            else ATH_MSG_WARNING("Charged PFO had no associated TrackParticle");
+            const xAOD::TrackParticle *thisTrack = constit->track(0);//by construction xAOD::PFO can only have one track, in eflowRec usage
+            pflowTracks.push_back(thisTrack);
           }// We have a charged PFO
-        }// The FlowElement is a PFO
-      }// Loop on jet constituents
-    }// This jet is made from xAOD::FlowElement, so we calculate the pflow moments if they're PFOs
+        }// Loop on jet constituents
+      }// This jet is made from xAOD::PFO, so we do calculate the pflow moments
+      else if (ctype  == xAOD::Type::FlowElement) {
+        size_t numConstit = jet->numConstituents();
+        for ( size_t i=0; i<numConstit; i++ ) {
+          const xAOD::FlowElement* constit = dynamic_cast<const xAOD::FlowElement*>(jet->rawConstituent(i));
+          if(constit != nullptr && (constit->signalType() & xAOD::FlowElement::PFlow)){
+            isPFlowJet = true;
+            if (constit->isCharged()){
+              const xAOD::TrackParticle *thisTrack = dynamic_cast<const xAOD::TrackParticle*>(constit->chargedObject(0));//PFO should have only 1 track
+              if(thisTrack != nullptr) pflowTracks.push_back(thisTrack);
+              else ATH_MSG_WARNING("Charged PFO had no associated TrackParticle");
+            }// We have a charged PFO
+          }// The FlowElement is a PFO
+        }// Loop on jet constituents
+      }// This jet is made from xAOD::FlowElement, so we calculate the pflow moments if they're PFOs
+    }// We actually want to calculate the PFlow moments
 
     // For each track cut, compute and set the associated moments
     for (size_t iCut = 0; iCut < m_minTrackPt.size(); ++iCut) {
@@ -143,34 +146,34 @@ StatusCode JetTrackMomentsTool::decorate(const xAOD::JetContainer& jets) const {
       sumPtTrkHandle(*jet) = sumPtTrkVec;
       trkWidthHandle(*jet) = trackWidthVec;
 
-      if(!m_doPFlowMoments) continue;
+      if(m_doPFlowMoments) {
+        SG::WriteDecorHandle<xAOD::JetContainer, std::vector<int> > numCPFOHandle(m_keysNumCPFO.at(iCut));
+        SG::WriteDecorHandle<xAOD::JetContainer, std::vector<float> > sumPtCPFOHandle(m_keysSumPtCPFO.at(iCut));
+        SG::WriteDecorHandle<xAOD::JetContainer, std::vector<float> > cPFOWidthHandle(m_keysCPFOWidth.at(iCut));
+        if(isPFlowJet){
 
-      SG::WriteDecorHandle<xAOD::JetContainer, std::vector<int> > numCPFOHandle(m_keysNumCPFO.at(iCut));
-      SG::WriteDecorHandle<xAOD::JetContainer, std::vector<float> > sumPtCPFOHandle(m_keysSumPtCPFO.at(iCut));
-      SG::WriteDecorHandle<xAOD::JetContainer, std::vector<float> > cPFOWidthHandle(m_keysCPFOWidth.at(iCut));
+          const std::vector<TrackMomentStruct> pflowMoments = getTrackMoments(*jet,vertexContainer,minPt,pflowTracks,tva);
 
-      if(isPFlowJet){
-        const std::vector<TrackMomentStruct> pflowMoments = getTrackMoments(*jet,vertexContainer,minPt,pflowTracks,tva);
-
-        std::vector<int>   pflowNumTrkVec;       pflowNumTrkVec.resize(pflowMoments.size());
-        std::vector<float> pflowSumPtTrkVec;     pflowSumPtTrkVec.resize(pflowMoments.size());
-        std::vector<float> pflowTrackWidthVec;   pflowTrackWidthVec.resize(pflowMoments.size());
-        for ( size_t iVertex = 0; iVertex < pflowMoments.size(); ++iVertex ) {
-          pflowNumTrkVec[iVertex]     = pflowMoments.at(iVertex).numTrk;
-          pflowSumPtTrkVec[iVertex]   = pflowMoments.at(iVertex).sumPtTrk;
-          pflowTrackWidthVec[iVertex] = pflowMoments.at(iVertex).trackWidth;
+          std::vector<int>   pflowNumTrkVec;       pflowNumTrkVec.resize(pflowMoments.size());
+          std::vector<float> pflowSumPtTrkVec;     pflowSumPtTrkVec.resize(pflowMoments.size());
+          std::vector<float> pflowTrackWidthVec;   pflowTrackWidthVec.resize(pflowMoments.size());
+          for ( size_t iVertex = 0; iVertex < pflowMoments.size(); ++iVertex ) {
+            pflowNumTrkVec[iVertex]     = pflowMoments.at(iVertex).numTrk;
+            pflowSumPtTrkVec[iVertex]   = pflowMoments.at(iVertex).sumPtTrk;
+            pflowTrackWidthVec[iVertex] = pflowMoments.at(iVertex).trackWidth;
+          }
+          // Set moment decorations
+          numCPFOHandle(*jet) = pflowNumTrkVec;
+          sumPtCPFOHandle(*jet) = pflowSumPtTrkVec;
+          cPFOWidthHandle(*jet) = pflowTrackWidthVec;
         }
-        // Set moment decorations
-        numCPFOHandle(*jet) = pflowNumTrkVec;
-        sumPtCPFOHandle(*jet) = pflowSumPtTrkVec;
-        cPFOWidthHandle(*jet) = pflowTrackWidthVec;
-      }
-      else{
-        // User configured for PFO track moments but this isn't a PFlow jet. Set them to empty vectors.
-        numCPFOHandle(*jet) = std::vector<int>();
-        sumPtCPFOHandle(*jet) = std::vector<float>();
-        cPFOWidthHandle(*jet) = std::vector<float>();
-      }
+        else{
+          // User configured for PFO track moments but this isn't a PFlow jet. Set them to empty vectors.
+          numCPFOHandle(*jet) = std::vector<int>();
+          sumPtCPFOHandle(*jet) = std::vector<float>();
+          cPFOWidthHandle(*jet) = std::vector<float>();
+        } // Should find a more graceful way to complain?
+      }// do PF moments
     }
   }
 

@@ -1,10 +1,10 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from PyUtils.Decorators import memoize
+from functools import cache
 
 # Set up the event cleaning filter tool
 # Cache instances that are already created
-@memoize
+@cache
 def GetEventFlagFilterTool(name, doLAr=True, doTile=True, doSCT=True, doCore=True, alwaysReturnTrue=False):
     """
     Configure an instance of the bad LB filter tool.  If called twice with the same options, will return the same instance.

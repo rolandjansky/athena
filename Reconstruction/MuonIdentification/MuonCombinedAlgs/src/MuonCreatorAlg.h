@@ -7,8 +7,8 @@
 
 #include <string>
 
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -34,7 +34,6 @@ public:
 
     virtual StatusCode initialize() override;
     virtual StatusCode execute(const EventContext& ctx) const override;
-    
 
 private:
     ToolHandle<MuonCombined::IMuonCreatorTool> m_muonCreatorTool{this, "MuonCreatorTool", "MuonCombined::MuonCreatorTool/MuonCreatorTool",
@@ -56,8 +55,9 @@ private:
         this, "MSOnlyExtrapolatedTrackLocation", "MSOnlyExtrapolatedMuonTracks", "MS extrapolated muon tracks"};
     SG::ReadHandleKey<InDetCandidateCollection> m_indetCandidateCollectionName{this, "InDetCandidateLocation", "InDetCandidates",
                                                                                "ID candidates"};
-    SG::ReadHandleKey<MuonCandidateCollection> m_muonCandidateCollectionName{this, "MuonCandidateLocation", "MuonCandidates",
-                                                                             "Muon candidates"};
+
+    SG::ReadHandleKeyArray<MuonCandidateCollection> m_muonCandidateKeys{
+        this, "MuonCandidateLocation", {"MuonCandidates"}, "Muon candidates"};
     SG::ReadHandleKeyArray<MuonCombined::InDetCandidateToTagMap> m_tagMaps{
         this, "TagMaps", {"muidcoTagMap", "stacoTagMap", "muGirlTagMap", "caloTagMap", "segmentTagMap"}, "ID candidate to tag maps"};
     SG::ReadHandleKey<Trk::SegmentCollection> m_inputSegContainerName{this, "InputSegmentContainerName", "TrackMuonSegments",

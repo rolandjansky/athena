@@ -12,7 +12,6 @@
   <class name="DummyDetDescrElement"/>
   <class name="CaloDetDescriptor"/>
   <class name="CaloDepthTool"/>
-  <class name="CaloAlignTool"/>
   <class name="EMBDescriptor"/>
   <class name="EMECDescriptor"/>
   <class name="FCALDescriptor"/>

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """Define method to construct configured Tile Cell builder tool"""
 
@@ -52,19 +52,13 @@ def TileCellBuilderCfg(flags, **kwargs):
         from TileConditions.TileDCSConfig import TileDCSToolCfg
         kwargs['TileDCSTool'] = acc.popToolsAndMerge( TileDCSToolCfg(flags) )
 
-    if 'NoiseFilterTools' not in kwargs:
-        from TileRecUtils.TileRawChannelCorrectionConfig import TileRawChannelCorrectionToolsCfg
-        correctionTools = acc.popToolsAndMerge( TileRawChannelCorrectionToolsCfg(flags) )
-        kwargs['NoiseFilterTools'] = correctionTools
-
-    if len(kwargs['NoiseFilterTools']) > 0:
-        if not (flags.Input.isMC or flags.Overlay.DataOverlay) and 'TileDSPRawChannelContainer' not in kwargs:
-            from TileRecUtils.TileRawChannelCorrectionConfig import TileRawChannelCorrectionAlgCfg
-            corrAlgAcc = TileRawChannelCorrectionAlgCfg(flags)
-            tileRawChannelCorrectionAlg = corrAlgAcc.getPrimary()
-            tileRawChannelContainerDSP = tileRawChannelCorrectionAlg.OutputRawChannelContainer
-            kwargs['TileDSPRawChannelContainer'] = tileRawChannelContainerDSP
-            acc.merge( corrAlgAcc )
+    if not (flags.Input.isMC or flags.Overlay.DataOverlay) and 'TileDSPRawChannelContainer' not in kwargs:
+        from TileRecUtils.TileRawChannelCorrectionConfig import TileRawChannelCorrectionAlgCfg
+        corrAlgAcc = TileRawChannelCorrectionAlgCfg(flags)
+        tileRawChannelCorrectionAlg = corrAlgAcc.getPrimary()
+        tileRawChannelContainerDSP = tileRawChannelCorrectionAlg.OutputRawChannelContainer
+        kwargs['TileDSPRawChannelContainer'] = tileRawChannelContainerDSP
+        acc.merge( corrAlgAcc )
 
     TileCellBuilder=CompFactory.TileCellBuilder
     acc.setPrivateTools( TileCellBuilder(**kwargs) )

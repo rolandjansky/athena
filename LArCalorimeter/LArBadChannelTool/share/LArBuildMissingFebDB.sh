@@ -12,7 +12,7 @@ outputSqlite="MissingFEBs.db"
 outputSqliteOnl="MissingFEBsOnl.db"
 oldTextFile="mf_previous.txt"
 diffTextFile="mf_diff.txt"
-
+BaseTagName="LARBadChannelsOflMissingFEBs-RUN2-UPD3-01"
 
 if [ $1 == "-append" ]
 then
@@ -137,7 +137,7 @@ echo "Found $upd4TagName"
 
 
 echo "Running athena to read current database content..."
-athena.py -c "OutputFile=\"${oldTextFile}\"" LArBadChannelTool/LArMissingFebs2Ascii.py > oracle2ascii.log 2>&1
+athena.py -c "OutputFile=\"${oldTextFile}\";tag=\"${BaseTagName}\";" LArBadChannelTool/LArMissingFebs2Ascii.py > oracle2ascii.log 2>&1
 if [ $? -ne 0 ];  then
     echo "Athena reported an error reading back sqlite file ! Please check oracle2ascii.log!"
     exit
@@ -187,7 +187,7 @@ if [ $onerun -eq 1 ]; then
 else   
    pref=""
 fi
-pref="${pref}sqlite=\"${outputSqlite}\";OutputFile=\"${outputTextFile}\""
+pref="${pref}sqlite=\"${outputSqlite}\";OutputFile=\"${outputTextFile}\";tag=\"${BaseTagName}\";"
 echo "Running athena to test readback of sqlite database file"
 athena.py  -c ${pref} LArBadChannelTool/LArMissingFebs2Ascii.py > sqlite2ascii.log 2>&1
 
@@ -214,7 +214,7 @@ if [ $online -eq 1 ]; then
 fi
 
 echo "Copying UPD3 to UPD4 tag..."
-AtlCoolCopy "sqlite://;schema=${outputSqlite}.tmp;dbname=CONDBR2" "sqlite://;schema=${outputSqlite};dbname=CONDBR2" -f /LAR/BadChannelsOfl/MissingFEBs -t LARBadChannelsOflMissingFEBs-RUN2-UPD3-01 -ot LARBadChannelsOflMissingFEBs-RUN2-$upd4TagName  > AtlCoolCopy.upd4.log 2>&1
+AtlCoolCopy "sqlite://;schema=${outputSqlite}.tmp;dbname=CONDBR2" "sqlite://;schema=${outputSqlite};dbname=CONDBR2" -f /LAR/BadChannelsOfl/MissingFEBs -t LARBadChannelsOflMissingFEBs-RUN2-UPD3-01 -ot LARBadChannelsOflMissingFEBs-$upd4TagName  > AtlCoolCopy.upd4.log 2>&1
 
 if [ $? -ne 0 ];  then
     echo "AtlCoolCopy reported an error! Please check AtlCoolCopy.upd4.log!"

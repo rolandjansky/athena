@@ -85,13 +85,6 @@ TrigConf::L1TopoAlgorithm::load()
 
 }
 
-
-unsigned int
-TrigConf::L1TopoAlgorithm::algId() const
-{
-   return getAttribute<unsigned int>("algId");
-}
-
 TrigConf::L1TopoAlgorithm::AlgorithmType
 TrigConf::L1TopoAlgorithm::type() const
 {

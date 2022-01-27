@@ -278,7 +278,7 @@ StatusCode EventSelectorAthenaPool::reinit() {
       ATH_MSG_INFO("No Events found in any Input Collections");
       if (m_processMetadata.value()) {
 	 m_inputCollectionsIterator = m_inputCollectionsProp.value().end();
-	 if (!m_inputCollectionsProp.value().empty()) m_inputCollectionsIterator--;
+	 if (!m_inputCollectionsProp.value().empty()) --m_inputCollectionsIterator;
 	//NOTE (wb may 2016): this will make the FirstInputFile incident correspond to last file in the collection ... if want it to be first file then move iterator to begin and then move above two lines below this incident firing
          if (m_collectionType.value() == "ImplicitROOT" && !m_firedIncident && !m_inputCollectionsProp.value().empty()) {
             FileIncident firstInputFileIncident(name(), "FirstInputFile", *m_inputCollectionsIterator);
@@ -311,7 +311,7 @@ StatusCode EventSelectorAthenaPool::reinit() {
          m_poolCollectionConverter->disconnectDb().ignore();
          delete m_poolCollectionConverter; m_poolCollectionConverter = nullptr;
       }
-      m_inputCollectionsIterator++;
+      ++m_inputCollectionsIterator;
       m_poolCollectionConverter = getCollectionCnv();
       if (m_poolCollectionConverter != nullptr) {
          m_headerIterator = &m_poolCollectionConverter->executeQuery();
@@ -332,7 +332,7 @@ StatusCode EventSelectorAthenaPool::reinit() {
             m_poolCollectionConverter->disconnectDb().ignore();
             delete m_poolCollectionConverter; m_poolCollectionConverter = nullptr;
          }
-         m_inputCollectionsIterator++;
+         ++m_inputCollectionsIterator;
          m_poolCollectionConverter = getCollectionCnv();
          if (m_poolCollectionConverter != nullptr) {
             m_headerIterator = &m_poolCollectionConverter->selectAll();
@@ -378,7 +378,7 @@ StatusCode EventSelectorAthenaPool::start() {
       ATH_MSG_INFO("No Events found in any Input Collections");
       m_inputCollectionsIterator = m_inputCollectionsProp.value().end();
       if (!m_inputCollectionsProp.value().empty()) {
-         m_inputCollectionsIterator--; //leave iterator in state of last input file
+         --m_inputCollectionsIterator; //leave iterator in state of last input file
       }
    } else {
       m_headerIterator = &m_poolCollectionConverter->executeQuery(/*m_query.value()*/);
@@ -634,7 +634,7 @@ StatusCode EventSelectorAthenaPool::nextHandleFileTransition(IEvtSelector::Conte
       disconnectIfFinished( old_guid );
 
       // Open next file from inputCollections list.
-      m_inputCollectionsIterator++;
+      ++m_inputCollectionsIterator;
       // Create PoolCollectionConverter for input file
       m_poolCollectionConverter = getCollectionCnv(true);
       if (m_poolCollectionConverter == nullptr) {
@@ -670,6 +670,7 @@ StatusCode EventSelectorAthenaPool::nextHandleFileTransition(IEvtSelector::Conte
          disconnectIfFinished( old_guid );
       }
       m_guid = guid;
+      m_activeEventsPerSource[guid.toString()] = 0;
       // Fire BeginInputFile incident if current InputCollection is a payload file;
       // otherwise, ascertain whether the pointed-to file is reachable before firing any incidents and/or proceeding
       if (m_collectionType.value() == "ImplicitROOT") {
@@ -1050,7 +1051,7 @@ PoolCollectionConverter* EventSelectorAthenaPool::getCollectionCnv(bool throwInc
                m_incidentSvc->fireIncident(endInputFileIncident);
             }
             m_athenaPoolCnvSvc->getPoolSvc()->disconnectDb(*m_inputCollectionsIterator).ignore();
-            m_inputCollectionsIterator++;
+            ++m_inputCollectionsIterator;
          } else {
             return(pCollCnv);
          }
@@ -1187,7 +1188,10 @@ void EventSelectorAthenaPool::handle(const Incident& inc)
       ATH_MSG_WARNING("could not read event source ID from incident event context");
       return;
    }
-
+   if( m_activeEventsPerSource.find( fid ) == m_activeEventsPerSource.end()) {
+      ATH_MSG_DEBUG("Incident handler ignoring unknown input FID: " << fid );
+      return;
+   }
    ATH_MSG_DEBUG("**  MN Incident handler " << inc.type() << " Event source ID=" << fid );
    if( inc.type() == IncidentType::BeginProcessing ) {
       // increment the events-per-file counter for FID
@@ -1210,7 +1214,8 @@ void EventSelectorAthenaPool::handle(const Incident& inc)
 */
 bool EventSelectorAthenaPool::disconnectIfFinished( const SG::SourceID &fid ) const
 {
-   if( m_eventStreamingTool.empty() && m_activeEventsPerSource[fid] <= 0 && m_guid != fid ) {
+   if( m_eventStreamingTool.empty() && m_activeEventsPerSource.find(fid) != m_activeEventsPerSource.end() 
+           && m_activeEventsPerSource[fid] <= 0 && m_guid != fid ) {
       // Explicitly disconnect file corresponding to old FID to release memory
       if( !m_keepInputFilesOpen.value() ) {
          // Assume that the end of collection file indicates the end of payload file.

@@ -33,7 +33,7 @@ def specialConfigPostInclude(ConfigFlags, cfg):
 
 def CommonSimulationCfg(ConfigFlags, log):
     # Configure main services and input reading (if required)
-    if ConfigFlags.Input.Files == '':
+    if not ConfigFlags.Input.Files:
         # Cases 3a, 3b
         from AthenaConfiguration.MainServicesConfig import MainEvgenServicesCfg
         cfg = MainEvgenServicesCfg(ConfigFlags)
@@ -58,7 +58,7 @@ def CommonSimulationCfg(ConfigFlags, log):
         cfg = MainServicesCfg(ConfigFlags)
         from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
         cfg.merge(PoolReadCfg(ConfigFlags))
-        if ConfigFlags.Sim.ReadTR:
+        if ConfigFlags.Sim.ReadTR or ConfigFlags.Sim.CavernBG == "Read":
             # Cases 2a, 2b, 2c
             from TrackRecordGenerator.TrackRecordGeneratorConfigNew import Input_TrackRecordGeneratorCfg
             cfg.merge(Input_TrackRecordGeneratorCfg(ConfigFlags))

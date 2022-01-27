@@ -17,8 +17,6 @@
 #include <string>
 #include <vector>
 
-namespace HGTD {
-
 class HGTD_ClusterContainer_p1 {
 public:
   /// Default constructor
@@ -30,7 +28,5 @@ public:
 
   std::vector<HGTD_Cluster_p1> m_cluster_list;
 };
-
-} // namespace HGTD
 
 #endif

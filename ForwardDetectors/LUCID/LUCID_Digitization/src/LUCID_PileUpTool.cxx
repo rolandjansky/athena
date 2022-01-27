@@ -20,23 +20,26 @@ LUCID_PileUpTool::LUCID_PileUpTool(const std::string& type,
                                    const std::string& name,
                                    const IInterface* parent) :
   PileUpToolBase     (type, name, parent),
-  m_numTubes         (40),
-  m_qdcChannelsPerPE (15.0),
-  m_qdcPedestal      (150.0),
-  m_qdcFedNoiseFactor(3.0),
-  m_tdcPmtNoiseFactor(2.8),
-  m_tdcFedNoiseFactor(0.8),
-  m_TotalPMTgain     (1.25e6),
-  m_AmpFactor        (7.5),
-  m_Q1bin            (0.1e-12),
-  m_NoiseCharge      (541666),
-  m_numDyinodes      (10),
-  m_dynodeGammaFactor(1.356),
-  m_pmtSmearing      (1, 0.000001),
-  m_pmtScaling       (1, 0.000001),
-  m_gasScaling       (1, 0.000001),
-  m_npeThreshold     (15, 0.000001),
-  m_fillRootTree     (false)
+  LUCID_DigitizationToolBox(
+  40,//m_numTubes
+  15.0,//m_qdcChannelsPerPE
+  150.0,//m_qdcPedestal
+  3.0,//m_qdcFedNoiseFactor
+  2.8,//m_tdcPmtNoiseFactor
+  0.8,//m_tdcFedNoiseFactor
+  1.25e6,//m_TotalPMTgain
+  7.5,//m_AmpFactor
+  0.1e-12,//m_Q1bin
+  541666,//m_NoiseCharge
+  10,//m_numDyinodes
+  1.356,//m_dynodeGammaFactor
+  {0.000001}, //m_pmtSmearing
+  {0.000001}, //m_pmtScaling
+  {0.000001}, //m_gasScaling
+  {0.000001,0.000001,0.000001,0.000001,0.000001,
+   0.000001,0.000001,0.000001,0.000001,0.000001,
+   0.000001,0.000001,0.000001,0.000001,0.000001},//15 values m_npeThreshold
+  false) //m_fillRootTree
 {
 
   m_SimHitCollectionName = "LucidSimHitsVector";

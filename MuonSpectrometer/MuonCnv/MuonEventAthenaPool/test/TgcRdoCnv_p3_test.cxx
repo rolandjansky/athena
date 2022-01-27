@@ -138,7 +138,7 @@ void compare (const TgcRdo& p1,
 
 void testit (const TgcRdo& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   TgcRdoCnv_p3 cnv;
   TgcRdo_p3 pers;
   cnv.transToPers (&trans1, &pers, log);

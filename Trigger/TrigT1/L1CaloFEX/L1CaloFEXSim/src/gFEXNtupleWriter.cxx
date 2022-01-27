@@ -23,6 +23,8 @@
 #include <unordered_map>
 
 #include "xAODJet/JetContainer.h"
+#include "CaloIdentifier/CaloIdManager.h"
+#include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 
 
 LVL1::gFEXNtupleWriter::gFEXNtupleWriter(const std::string& name, ISvcLocator* pSvcLocator): AthAlgorithm(name, pSvcLocator) { }
@@ -37,14 +39,63 @@ StatusCode LVL1::gFEXNtupleWriter::initialize () {
   m_myTree = new TTree("data","data");
   CHECK( histSvc->regTree("/ANALYSIS/data",m_myTree) );
 
-  ATH_CHECK( m_gFEXOutputCollectionSGKey.initialize() );
+  ATH_CHECK( m_gTowerContainerSGKey.initialize() );
 
-  m_load_truth_jet = false;
+  ATH_CHECK( m_gFexRhoOutKey.initialize() );
+  ATH_CHECK( m_gFexBlockOutKey.initialize() );
+  ATH_CHECK( m_gFexJetOutKey.initialize() );
+
+  ATH_CHECK( m_gScalarEJwojOutKey.initialize() );
+  ATH_CHECK( m_gMETComponentsJwojOutKey.initialize() );
+  ATH_CHECK( m_gMHTComponentsJwojOutKey.initialize() );
+  ATH_CHECK( m_gMSTComponentsJwojOutKey.initialize() );
+
+  ATH_CHECK( m_scellsCollectionSGKey.initialize() );
+
+  ATH_CHECK( m_gFEXOutputCollectionSGKey.initialize() );
+  
+  m_valiTree = new TTree("valiTree","valiTree");
+  CHECK( histSvc->regTree("/ANALYSIS/valiTree",m_valiTree) );
+  m_valiTree->Branch ("SC_eta", &m_SC_eta);
+  m_valiTree->Branch ("SC_phi", &m_SC_phi);
+  m_valiTree->Branch ("SC_et", &m_SC_et);
+  m_valiTree->Branch ("gtower_eta", &m_gtower_eta);
+  m_valiTree->Branch ("gtower_phi", &m_gtower_phi);
+  m_valiTree->Branch ("gtower_et", &m_gtower_et);
+  m_valiTree->Branch ("gtower_etFloat", &m_gtower_etFloat);
+  m_valiTree->Branch ("gtower_etEMFloat", &m_gtower_etEMFloat);
+  m_valiTree->Branch ("gtower_etHADFloat", &m_gtower_etHADFloat);
+  m_valiTree->Branch ("gtower_ID", &m_gtower_ID);
+  m_valiTree->Branch ("gtower_posneg", &m_posneg); 
+
+  m_valiTree->Branch ("gRho_eta", &m_gRho_eta);  
+  m_valiTree->Branch ("gRho_phi", &m_gRho_phi);
+  m_valiTree->Branch ("gRho_et", &m_gRho_et);
+
+  m_valiTree->Branch ("gSJ_eta", &m_gSJ_eta);  
+  m_valiTree->Branch ("gSJ_phi", &m_gSJ_phi);
+  m_valiTree->Branch ("gSJ_et", &m_gSJ_et);
+
+  m_valiTree->Branch ("gLJ_eta", &m_gLJ_eta);  
+  m_valiTree->Branch ("gLJ_phi", &m_gLJ_phi);
+  m_valiTree->Branch ("gLJ_et", &m_gLJ_et);
+
+  m_valiTree->Branch ("gGlobal_MET", &m_gGlobal_MET);  
+  m_valiTree->Branch ("gGlobal_SumET", &m_gGlobal_SumET);  
+  m_valiTree->Branch ("gGlobal_METx", &m_gGlobal_METx);  
+  m_valiTree->Branch ("gGlobal_METy", &m_gGlobal_METy);  
+  m_valiTree->Branch ("gGlobal_MHTx", &m_gGlobal_MHTx);  
+  m_valiTree->Branch ("gGlobal_MHTy", &m_gGlobal_MHTy);  
+  m_valiTree->Branch ("gGlobal_MSTx", &m_gGlobal_MSTx);  
+  m_valiTree->Branch ("gGlobal_MSTy", &m_gGlobal_MSTy);  
+
+  
+  m_load_truth_jet = true;
 
   if (m_load_truth_jet){
-    m_myTree->Branch ("truth_jet_eta",  &m_truth_jet_eta);
-    m_myTree->Branch ("truth_jet_phi",  &m_truth_jet_phi);
-    m_myTree->Branch ("truth_jet_ET",  &m_truth_jet_ET);
+    m_valiTree->Branch ("truth_jet_eta",  &m_truth_jet_eta);
+    m_valiTree->Branch ("truth_jet_phi",  &m_truth_jet_phi);
+    m_valiTree->Branch ("truth_jet_ET",  &m_truth_jet_ET);
   }
 
   m_myTree->Branch ("jet_TOB", &m_jet_TOB);
@@ -67,7 +118,156 @@ StatusCode LVL1::gFEXNtupleWriter::initialize () {
   return StatusCode::SUCCESS;
 }
 
-StatusCode LVL1::gFEXNtupleWriter::execute () {  
+StatusCode LVL1::gFEXNtupleWriter::execute () { 
+
+  SG::ReadHandle<CaloCellContainer> SCCollection =SG::ReadHandle<CaloCellContainer>(m_scellsCollectionSGKey);
+  if(!SCCollection.isValid()){
+    ATH_MSG_FATAL("Could not retrieve SCCollection " << m_scellsCollectionSGKey.key() );
+    return StatusCode::FAILURE;
+  }
+
+  SG::ReadHandle<LVL1::gTowerContainer> gTowersHandle = SG::ReadHandle<LVL1::gTowerContainer>(m_gTowerContainerSGKey);
+    if(!gTowersHandle.isValid()){
+      ATH_MSG_FATAL("Could not retrieve gTowerContainer " << m_gTowerContainerSGKey.key());
+      return StatusCode::FAILURE;
+  }
+   
+  //Read objects from gFEX JetContainer
+  SG::ReadHandle<xAOD::gFexJetRoIContainer> gRhoHandle = SG::ReadHandle<xAOD::gFexJetRoIContainer>(m_gFexRhoOutKey);
+    if(!gRhoHandle.isValid()){
+      ATH_MSG_FATAL("Could not retrieve gRhoContainer " << m_gFexRhoOutKey.key());
+      return StatusCode::FAILURE;
+  }
+
+  SG::ReadHandle<xAOD::gFexJetRoIContainer> gBlockHandle = SG::ReadHandle<xAOD::gFexJetRoIContainer>(m_gFexBlockOutKey);
+    if(!gBlockHandle.isValid()){
+      ATH_MSG_FATAL("Could not retrieve gBlockContainer " << m_gFexBlockOutKey.key());
+      return StatusCode::FAILURE;
+  }
+  
+  SG::ReadHandle<xAOD::gFexJetRoIContainer> gJetHandle = SG::ReadHandle<xAOD::gFexJetRoIContainer>(m_gFexJetOutKey);
+    if(!gJetHandle.isValid()){
+      ATH_MSG_FATAL("Could not retrieve gBlockContainer " << m_gFexJetOutKey.key());
+      return StatusCode::FAILURE;
+  }
+
+  //Read objects from gFEX GlobalContainer
+  SG::ReadHandle<xAOD::gFexGlobalRoIContainer> gScalarEHandle = SG::ReadHandle<xAOD::gFexGlobalRoIContainer>(m_gScalarEJwojOutKey);
+    if(!gScalarEHandle.isValid()){
+      ATH_MSG_FATAL("Could not retrieve gBlockContainer " << m_gScalarEJwojOutKey.key());
+      return StatusCode::FAILURE;
+  }
+
+  SG::ReadHandle<xAOD::gFexGlobalRoIContainer> gMETHandle = SG::ReadHandle<xAOD::gFexGlobalRoIContainer>(m_gMETComponentsJwojOutKey);
+    if(!gMETHandle.isValid()){
+      ATH_MSG_FATAL("Could not retrieve gBlockContainer " << m_gMETComponentsJwojOutKey.key());
+      return StatusCode::FAILURE;
+  }
+
+  SG::ReadHandle<xAOD::gFexGlobalRoIContainer> gMHTHandle = SG::ReadHandle<xAOD::gFexGlobalRoIContainer>(m_gMHTComponentsJwojOutKey);
+    if(!gMHTHandle.isValid()){
+      ATH_MSG_FATAL("Could not retrieve gBlockContainer " << m_gMHTComponentsJwojOutKey.key());
+      return StatusCode::FAILURE;
+  }
+
+  SG::ReadHandle<xAOD::gFexGlobalRoIContainer> gMSTHandle = SG::ReadHandle<xAOD::gFexGlobalRoIContainer>(m_gMSTComponentsJwojOutKey);
+    if(!gMSTHandle.isValid()){
+      ATH_MSG_FATAL("Could not retrieve gBlockContainer " << m_gMSTComponentsJwojOutKey.key());
+      return StatusCode::FAILURE;
+  }
+
+  
+
+  m_SC_eta.clear();
+  m_SC_phi.clear();
+  m_SC_et.clear();
+  m_gtower_eta.clear();
+  m_gtower_phi.clear();
+  m_gtower_et.clear();
+  m_gtower_etFloat.clear();
+  m_gtower_etEMFloat.clear();
+  m_gtower_etHADFloat.clear();
+  m_gtower_ID.clear();
+  m_posneg.clear();
+
+  m_gRho_eta.clear();
+  m_gRho_phi.clear();
+  m_gRho_et.clear();
+
+  m_gSJ_eta.clear();
+  m_gSJ_phi.clear();
+  m_gSJ_et.clear();
+
+  m_gLJ_eta.clear();
+  m_gLJ_phi.clear();
+  m_gLJ_et.clear();
+
+  m_gGlobal_MET.clear();
+  m_gGlobal_SumET.clear();
+  m_gGlobal_METx.clear();
+  m_gGlobal_METy.clear();
+  m_gGlobal_MHTx.clear();
+  m_gGlobal_MHTy.clear();
+  m_gGlobal_MSTx.clear();
+  m_gGlobal_MSTy.clear();
+  
+
+
+  for (const auto& cell : * SCCollection){
+    m_SC_eta.push_back((cell)->eta());
+    m_SC_phi.push_back((cell)->phi());
+    m_SC_et.push_back((cell)->energy()/cosh((cell)->eta()));
+  }
+
+  for (auto const gTower : *gTowersHandle) {
+    m_gtower_eta.push_back(gTower->eta());
+    m_gtower_phi.push_back(gTower->phi());
+    m_gtower_et.push_back(gTower->getET());
+    m_gtower_etFloat.push_back(gTower->getET_float());
+    m_gtower_etEMFloat.push_back(gTower->getET_EM_float());
+    m_gtower_etHADFloat.push_back(gTower->getET_HAD_float());
+    m_gtower_ID.push_back(gTower->getID()); 
+    m_posneg.push_back(gTower->getPosNeg());
+  }
+
+  for (auto const gRho : *gRhoHandle) {
+    m_gRho_eta.push_back(gRho->iEta());
+    m_gRho_phi.push_back(gRho->iPhi());
+    m_gRho_et.push_back(gRho->tobEt());
+  }
+
+  for (auto const gSJ : *gBlockHandle) {
+    m_gSJ_eta.push_back(gSJ->iEta());
+    m_gSJ_phi.push_back(gSJ->iPhi());
+    m_gSJ_et.push_back(gSJ->tobEt());
+  }
+
+  for (auto const gLJ : *gJetHandle) {
+    m_gLJ_eta.push_back(gLJ->iEta());
+    m_gLJ_phi.push_back(gLJ->iPhi());
+    m_gLJ_et.push_back(gLJ->tobEt());
+  }
+
+  for (auto const gScalarE : *gScalarEHandle) {
+    m_gGlobal_MET.push_back(gScalarE->quantityOne());
+    m_gGlobal_SumET.push_back(gScalarE->quantityTwo());
+  }
+
+  for (auto const gMET : *gMETHandle) {
+    m_gGlobal_METx.push_back(gMET->quantityOne());
+    m_gGlobal_METy.push_back(gMET->quantityTwo());
+  }
+
+  for (auto const gMHT : *gMETHandle) {
+    m_gGlobal_MHTx.push_back(gMHT->quantityOne());
+    m_gGlobal_MHTy.push_back(gMHT->quantityTwo());
+  }
+
+  for (auto const gMST : *gMSTHandle) {
+    m_gGlobal_MSTx.push_back(gMST->quantityOne());
+    m_gGlobal_MSTy.push_back(gMST->quantityTwo());
+  }
+
   SG::ReadHandle<LVL1::gFEXOutputCollection> gFEXOutputCollectionobj = SG::ReadHandle<LVL1::gFEXOutputCollection>(m_gFEXOutputCollectionSGKey);
     if(!gFEXOutputCollectionobj.isValid()){
       ATH_MSG_FATAL("Could not retrieve gFEXOutputCollection " << m_gFEXOutputCollectionSGKey.key());
@@ -85,6 +285,7 @@ StatusCode LVL1::gFEXNtupleWriter::execute () {
 
   CHECK(loadGlobalAlgoVariables(gFEXOutputCollectionobj));
 
+  m_valiTree->Fill();
   m_myTree->Fill();
   return StatusCode::SUCCESS;
 }

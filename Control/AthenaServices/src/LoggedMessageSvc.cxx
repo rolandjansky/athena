@@ -570,7 +570,7 @@ void LoggedMessageSvc::reportMessage( const Message& msg, int outputLevel )    {
     while( first != last ) {
       std::ostream& stream = *( (*first).second.second );
       stream << *cmsg << std::endl;
-      first++;
+      ++first;
     }
   }
   else if ( key >= outputLevel )   {
@@ -634,7 +634,7 @@ void LoggedMessageSvc::reportMessage (const StatusCode& key,
       Message stat_code1( std::string{source}, msg.getType(), os1.str() );
       reportMessage( stat_code1 );
       reportMessage( msg );
-      first++;
+      ++first;
     }
   }
   else {

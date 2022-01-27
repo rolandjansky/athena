@@ -17,7 +17,7 @@ ATHENA_CORE_NUMBER=8 Reco_tf.py \
   --maxEvents -1 \
   --sharedWriter True \
   --multiprocess True \
-  --preExec 'from AthenaCommon.DetFlags import DetFlags; DetFlags.detdescr.all_setOff(); DetFlags.BField_setOn(); DetFlags.pileup.all_setOff(); DetFlags.overlay.all_setOff();'
+  --preExec 'from AthenaCommon.DetFlags import DetFlags; DetFlags.detdescr.all_setOff(); DetFlags.BField_setOn(); DetFlags.pileup.all_setOff(); DetFlags.overlay.all_setOff(); DetFlags.digitize.all_setOff();'
 
 echo "art-result: $? reco"
 

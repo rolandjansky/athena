@@ -392,25 +392,26 @@ StatusCode HitMapBuilder::execute() {
     return StatusCode::FAILURE;
   } ATH_MSG_DEBUG( "Pixel RDO container retrieved" );
   // loop in RDO container
-  for (PixelRDO_Container::const_iterator coll=pixelRDOs->begin(); coll!=pixelRDOs->end(); coll++) {
-
-    const InDetRawDataCollection<PixelRDORawData>* PixelRDOCollection(*coll);
-    if (PixelRDOCollection != 0) {
-      Identifier moduleID = PixelRDOCollection->identify();
+  for (const auto pPixelRDOCollection: *pixelRDOs) {
+    if (pPixelRDOCollection) {
+      Identifier moduleID = pPixelRDOCollection->identify();
       IdentifierHash modHash = m_pixelID->wafer_hash(moduleID);
       ATH_MSG_VERBOSE("moduleID, modHash = " << moduleID << " , " << modHash);
 
-      for (DataVector<PixelRDORawData>::const_iterator rdo=PixelRDOCollection->begin(); rdo!=PixelRDOCollection->end(); ++rdo) {
+      for (DataVector<PixelRDORawData>::const_iterator rdo=pPixelRDOCollection->begin(); rdo!=pPixelRDOCollection->end(); ++rdo) {
         Identifier rdoID = (*rdo)->identify();
+        int bec       = m_pixelID->barrel_ec(rdoID);
+        //
+        if (std::abs(bec) == 4) continue; // Skip DBM
+        //
         unsigned int pixel_eta = m_pixelID->eta_index(rdoID);
         unsigned int pixel_phi = m_pixelID->phi_index(rdoID);
-        int bec       = m_pixelID->barrel_ec(rdoID);
         int layer     = m_pixelID->layer_disk(rdoID);
         int modPhi    = m_pixelID->phi_module(rdoID);
         int modEta    = m_pixelID->eta_module(rdoID);
         const Identifier::size_type maxHash = m_pixelID->wafer_hash_max();
 
-        if (abs(bec) == 4) continue; // Skip DBM
+        
 
         int iblFeHash = -99;
         if (bec==0 && layer==0) { // IBL FE order: {0..3}: 3D C, {4..15}: 2D C, {16..27}: 2D A, {28..31}: 3D A

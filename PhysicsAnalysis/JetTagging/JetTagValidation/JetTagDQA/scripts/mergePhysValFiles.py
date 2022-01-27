@@ -23,6 +23,7 @@ categories = ['jet',
               'tagger_SV1',
               'tagger_JetFitter',
               'tagger_DL1',
+              'tagger_DL1d',
               'tagger_DL1r',
               'old_taggers',
               #'tagger_IP2D',
@@ -43,7 +44,7 @@ sub_categories_type_1 = [ '_incl',
                    '_muon',
                  ]
 
-categories_with_subcategories_type_2 = ['tagger_IP3D', 'tagger_RNNIP', 'tagger_SV1', 'tagger_JetFitter', 'tagger_DL1', 'tagger_DL1r']
+categories_with_subcategories_type_2 = ['tagger_IP3D', 'tagger_RNNIP', 'tagger_SV1', 'tagger_JetFitter', 'tagger_DL1', 'tagger_DL1d', 'tagger_DL1r']
 
 sub_categories_type_2 = [ '_pt_ttbar',
                    '_pt_Zprime',
@@ -60,17 +61,6 @@ sub_categories_type_3 = [ '_IP2D',
 categories_with_subcategories_type_4 = ['jet']
 
 sub_categories_type_4 = [ 'jet']
-
-TProfiles_name = 'TProfiles_do_not_use'
-sub_categories_TProfiles = ['IP3D',
-                   'SV1',
-                   'JetFitter',
-                   'DL1',
-                   'DL1r',
-                   'IP2D',
-                   'IP3DSV1',
-                   'MV2c10',
-                 ]
 
 # define the jet containers
 jetcontainers = ['AntiKt4EMTopoJets',
@@ -133,12 +123,6 @@ def mergeFolder(path):
             # create /restCategory
             print("Create directory " + path + "/other_histograms/histos")
             tagfolders[path+"/"+restCategory] = f.mkdir(path+"/other_histograms/histos")
-            # create /TProfiles
-            print("Create directory " + path + "/"+TProfiles_name)
-            tagfolders[path+"/"+TProfiles_name] = f.mkdir(path+"/"+TProfiles_name)
-            for sub_category in sub_categories_TProfiles:
-                tagfolders[path+"/"+TProfiles_name+"/"+sub_category] = f.mkdir(path+"/"+TProfiles_name+"/"+sub_category)
-            tagfolders[path+"/"+TProfiles_name+"/"+restCategory] = f.mkdir(path+"/"+TProfiles_name+"/"+restCategory)
             # create category folders
             for category in categories:
                 print("Create directory " + path + "/" + category)
@@ -180,24 +164,8 @@ def mergeFolder(path):
                 h1.Add(h2)
             if tagfolders:
                 for category in reversed(categories):
-                    # check for TProfiles first
-                    if not (obj.GetName()).startswith("BTag_"):
-                        subfolder = f.Get(hpath[hpath.find(":")+2:]+"/"+TProfiles_name)
-                        subfolder.cd()
-                        should_be_in_a_subcategory = True
-                        is_in_subcategory = False
-                        for sub_category in reversed(sub_categories_TProfiles):
-                            if(sub_category in obj.GetName()):
-                                is_in_subcategory = True
-                                subsubfolder = f.Get(hpath[hpath.find(":")+2:]+"/"+TProfiles_name+"/"+sub_category)
-                                subsubfolder.cd()
-                                break
-                        if should_be_in_a_subcategory and not is_in_subcategory:
-                            rest_subsubfolder = f.Get(hpath[hpath.find(":")+2:]+"/"+TProfiles_name+"/"+restCategory)
-                            rest_subsubfolder.cd()
-                        break
-                    # then for the categories
-                    elif ("_"+category+"_") in obj.GetName(): 
+                    # check for the categories
+                    if ("_"+category+"_") in obj.GetName(): 
                         print("Category: " + category)
                         subfolder = f.Get(hpath[hpath.find(":")+2:]+"/"+category)
                         subfolder.cd()

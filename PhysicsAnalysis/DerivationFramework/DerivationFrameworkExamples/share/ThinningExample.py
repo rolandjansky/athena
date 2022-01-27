@@ -2,52 +2,46 @@
 # ThinningExample.py
 # This an example job options script showing how to run thinning in 
 # the derivation framework using inner detector tracks as the example
-# For trigger navigation thinning see TriggerContentsExample (TEST10) 
-# It requires the reductionConf flag TEST8 in Reco_tf.py   
+# It requires the reductionConf flag TEST3 in Reco_tf.py   
 #====================================================================
 
 # Set up common services and job object. 
 # This should appear in ALL derivation job options
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob, buildFileName
 
 #====================================================================
 # SET UP STREAM   
 #====================================================================
-streamName = derivationFlags.WriteDAOD_TEST8Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_TEST8Stream )
-TEST8Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-TEST8Stream.AcceptAlgs(["TEST8Kernel"])
+streamName = derivationFlags.WriteDAOD_TEST3Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_TEST3Stream )
+TEST3Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+TEST3Stream.AcceptAlgs(["TEST3Kernel"])
 
 #====================================================================
 # THINNING  
 #====================================================================
 
-# Establish the thinning helper (which will set up the services behind the scenes)
-from DerivationFrameworkCore.ThinningHelper import ThinningHelper
-TEST8ThinningHelper = ThinningHelper( "TEST8ThinningHelper" )
-TEST8ThinningHelper.AppendToStream( TEST8Stream )
-
 # Set up your thinning tools (you can have as many as you need). 
 # Note how the thinning service (which must be passed to the tools) is accessed
 from DerivationFrameworkExamples.DerivationFrameworkExamplesConf import DerivationFramework__ThinningToolExample
-TEST8ThinningTool = DerivationFramework__ThinningToolExample( name                    = "TEST8ThinningTool",
+TEST3ThinningTool = DerivationFramework__ThinningToolExample( name                    = "TEST3ThinningTool",
                                                               StreamName              = streamName,
 							      TrackPtCut              = 20000.0)
-ToolSvc += TEST8ThinningTool
+ToolSvc += TEST3ThinningTool
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
 #====================================================================
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel(	"TEST8Kernel",
-									ThinningTools = [TEST8ThinningTool]
+DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel(	"TEST3Kernel",
+									ThinningTools = [TEST3ThinningTool]
                                                                       )
 
 #====================================================================
 # CONTENT LIST  
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
-TEST8SlimmingHelper = SlimmingHelper("TEST8SlimmingHelper")
-TEST8SlimmingHelper.SmartCollections = ["InDetTrackParticles"]
-TEST8SlimmingHelper.AppendContentToStream(TEST8Stream)
+TEST3SlimmingHelper = SlimmingHelper("TEST3SlimmingHelper")
+TEST3SlimmingHelper.SmartCollections = ["EventInfo","InDetTrackParticles"]
+TEST3SlimmingHelper.AppendContentToStream(TEST3Stream)

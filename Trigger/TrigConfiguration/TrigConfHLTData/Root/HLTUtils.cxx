@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -20,6 +20,7 @@
 #include "TrigConfHLTData/HLTSequence.h"
 #include "TrigConfHLTData/HLTTriggerElement.h"
 #include "TrigConfHLTData/HLTFrame.h"
+#include "TrigConfHLTUtils/HLTUtils.h"
 
 #include "TrigConfHLTData/HLTUtils.h"
 

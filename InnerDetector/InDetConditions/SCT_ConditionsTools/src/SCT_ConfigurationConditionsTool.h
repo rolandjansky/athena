@@ -92,7 +92,7 @@ class SCT_ConfigurationConditionsTool: public extends<AthAlgTool, ISCT_Configura
   BooleanProperty m_checkStripsInsideModules{this, "checkStripsInsideModule", true, " Do we want to check if a strip is bad because it is inside a bad module"};
 
   /** Is a strip within a bad module*/
-  bool                                  isStripInBadModule(const Identifier& stripId, const EventContext& ctx) const;
+  bool                                  isStripInBadModule(const Identifier& stripId, const SCT_ConfigurationCondData*) const;
   /** Is a wafer in a bad module*/
   bool                                  isWaferInBadModule(const Identifier& waferId, const EventContext& ctx) const;
   

@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 """Run tests on SCT_SiPropertiesConfig.py
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 from AthenaCommon.Logging import log
@@ -15,7 +14,8 @@ from SiPropertiesTool.PixelSiPropertiesConfig import PixelSiPropertiesCfg
 # test setup
 log.setLevel(DEBUG)
 Configurable.configurableRun3Behavior = True
-ConfigFlags.Input.Files = defaultTestFiles.HITS
+ConfigFlags.Input.Files = defaultTestFiles.HITS_RUN2
+ConfigFlags.lock()
 # test
 sct_acc = SCT_SiPropertiesCfg(ConfigFlags, name="SCT_SiPropertiesConfigTest")
 sct_acc.popPrivateTools()

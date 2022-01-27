@@ -4,8 +4,10 @@
 
 #include "TopPartons/CalcWlvPartonHistory.h"
 #include "TopConfiguration/TopConfig.h"
+#include "TopPartons/PartonHistoryUtils.h"
 
 namespace top {
+  using PartonHistoryUtils::decorateWithMPtPhi;
   CalcWlvPartonHistory::CalcWlvPartonHistory(const std::string& name) : CalcTopPartonHistory(name) {}
 
   void CalcWlvPartonHistory::WlvHistorySaver(const xAOD::TruthParticleContainer* truthParticles,
@@ -15,27 +17,20 @@ namespace top {
     TLorentzVector W;
     TLorentzVector WDecay1;
     TLorentzVector WDecay2;
-    int WDecay1_pdgId;
-    int WDecay2_pdgId;
+    int WDecay1_pdgId{};
+    int WDecay2_pdgId{};
     bool goodevent = CalcTopPartonHistory::Wlv(truthParticles, W, WDecay1, WDecay1_pdgId, WDecay2, WDecay2_pdgId);
 
 
     if (goodevent) {
-      wlvPartonHistory->auxdecor< float >("MC_W_m") = W.M();
-      wlvPartonHistory->auxdecor< float >("MC_W_pt") = W.Pt();
-      wlvPartonHistory->auxdecor< float >("MC_W_phi") = W.Phi();
+      decorateWithMPtPhi(wlvPartonHistory, "MC_W",W);
       fillEtaBranch(wlvPartonHistory, "MC_W_eta", W);
 
-
-      wlvPartonHistory->auxdecor< float >("MC_l_m") = WDecay1.M();
-      wlvPartonHistory->auxdecor< float >("MC_l_pt") = WDecay1.Pt();
-      wlvPartonHistory->auxdecor< float >("MC_l_phi") = WDecay1.Phi();
+      decorateWithMPtPhi(wlvPartonHistory, "MC_l",WDecay1);
       wlvPartonHistory->auxdecor< int >("MC_l_pdgId") = WDecay1_pdgId;
       fillEtaBranch(wlvPartonHistory, "MC_l_eta", WDecay1);
 
-      wlvPartonHistory->auxdecor< float >("MC_v_m") = WDecay2.M();
-      wlvPartonHistory->auxdecor< float >("MC_v_pt") = WDecay2.Pt();
-      wlvPartonHistory->auxdecor< float >("MC_v_phi") = WDecay2.Phi();
+      decorateWithMPtPhi(wlvPartonHistory, "MC_v",WDecay2);
       wlvPartonHistory->auxdecor< int >("MC_v_pdgId") = WDecay2_pdgId;
       fillEtaBranch(wlvPartonHistory, "MC_v_eta", WDecay2);
     }//if
@@ -48,10 +43,12 @@ namespace top {
     ATH_CHECK(evtStore()->retrieve(truthParticles, m_config->sgKeyMCParticle()));
 
     // Create the partonHistory xAOD object
+    //cppcheck-suppress uninitvar
     xAOD::PartonHistoryAuxContainer* partonAuxCont = new xAOD::PartonHistoryAuxContainer {};
+    //cppcheck-suppress uninitvar
     xAOD::PartonHistoryContainer* partonCont = new xAOD::PartonHistoryContainer {};
     partonCont->setStore(partonAuxCont);
-
+    //cppcheck-suppress uninitvar
     xAOD::PartonHistory* wlvPartonHistory = new xAOD::PartonHistory {};
     partonCont->push_back(wlvPartonHistory);
 

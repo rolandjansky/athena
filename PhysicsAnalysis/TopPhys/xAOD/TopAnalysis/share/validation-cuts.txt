@@ -22,9 +22,9 @@ ElectronCollectionName Electrons
 MuonCollectionName Muons
 JetCollectionName AntiKt4EMPFlowJets
 LargeJetCollectionName AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets 
-TauCollectionName None
+TauCollectionName TauJets
 PhotonCollectionName Photons
-TrackJetCollectionName None
+TrackJetCollectionName AntiKtVR30Rmax4Rmin02PV0TrackJets
 
 UseEgammaLeakageCorrection False
 
@@ -56,7 +56,9 @@ Systematics Nominal
 ### Electron configuration
 ElectronID TightLH
 ElectronIDLoose LooseAndBLayerLH
-ElectronIsolation None
+ElectronIsolationWPs HighPtCaloOnly TightTrackOnly_VarRad TightTrackOnly_FixedRad Tight_VarRad Loose_VarRad
+ElectronIsolation Tight_VarRad
+ElectronIsolationSF None
 ElectronIsolationLoose None
 
 ### Photon configuration
@@ -64,6 +66,7 @@ PhotonPt 25000
 PhotonEta 2.5
 PhotonID Tight
 PhotonIDLoose Loose
+PhotonIsolationWPs FixedCutTight FixedCutLoose FixedCutTightCaloOnly
 PhotonIsolation FixedCutTight
 PhotonIsolationLoose FixedCutLoose
 
@@ -71,7 +74,8 @@ PhotonIsolationLoose FixedCutLoose
 MuonQuality Medium
 MuonUseMVALowPt False
 MuonUse2stationHighPt True
-MuonIsolation None
+MuonIsolationWPs PflowTight_VarRad PflowTight_FixedRad PflowLoose_VarRad PflowLoose_FixedRad HighPtTrackOnly TightTrackOnly_VarRad TightTrackOnly_FixedRad
+MuonIsolation PflowTight_FixedRad
 MuonQualityLoose Medium
 MuonUseMVALowPtLoose False
 MuonUse2stationHighPtLoose True
@@ -83,8 +87,8 @@ MuonDoSmearing2stationHighPt True
 TauPt 25000
 TauJetIDWP RNNMedium
 TauJetIDWPLoose RNNLoose
-TauEleBDTWP Loose
-TauEleBDTWPLoose Loose
+TauEleIDWP RNNMedium
+TauEleIDWPLoose RNNLoose
 
 # DoTight/DoLoose to activate the loose and tight trees
 # each should be one in: Data, MC, Both, False
@@ -95,8 +99,8 @@ DoLoose Data
 #IsAFII False
 
 ### B-tagging configuration
-BTaggingCaloJetWP DL1:Continuous DL1r:FixedCutBEff_77
-BTaggingTrackJetWP DL1:Continuous DL1r:FixedCutBEff_77
+BTaggingCaloJetWP DL1r:FixedCutBEff_77 DL1r:Continuous
+BTaggingTrackJetWP DL1r:FixedCutBEff_77 DL1r:Continuous
 # Example of how to remove systematics from b-tag EV
 
 # Saving bootstrapping weights

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AmbiguityProcessorBase_h
@@ -15,6 +15,7 @@
 #include "TrkEventPrimitives/TrackScore.h"
 #include "TrkEventUtils/ClusterSplitProbabilityContainer.h"
 #include "TrkValInterfaces/ITrkObserverTool.h"
+#include "TrackScoringTool.h"
 #include "AmbiguityProcessorUtility.h"
 
 #include <vector>
@@ -26,7 +27,6 @@
 
 namespace Trk {
   //fwd declare
-  class ITrackScoringTool;
   class Track;
   class PRDtoTrackMap;
 
@@ -126,7 +126,7 @@ namespace Trk {
     /**Scoring tool
        This tool is used to 'score' the tracks, i.e. to quantify what a good track is.
        @todo The actual tool that is used should be configured through job options*/
-    ToolHandle<ITrackScoringTool> m_scoringTool;
+    ToolHandle<ITrackScoringTool> m_scoringTool{this, "ScoringTool", "", "track scoring tool"};
     /**Observer tool      This tool is used to observe the tracks and their 'score' */
     PublicToolHandle<Trk::ITrkObserverTool> m_observerTool{this, "TrackObserverTool", "", "track observer within ambiguity solver"};
     ToolHandle<Trk::IExtendedTrackSummaryTool> m_trackSummaryTool{this, "TrackSummaryTool", "InDetTrackSummaryToolNoHoleSearch"};

@@ -46,7 +46,7 @@ GetLCWeights::GetLCWeights(const std::string& name,
 			   ISvcLocator* pSvcLocator) 
   : AthAlgorithm(name, pSvcLocator),
     m_outputFile(nullptr),
-    m_clusterCollName("CaloTopoCluster"),
+    m_clusterCollName("CaloTopoClusters"),
     m_useInversionMethod(true),
     m_NormalizationType("Lin"),
     m_NormalizationTypeNumber(0),

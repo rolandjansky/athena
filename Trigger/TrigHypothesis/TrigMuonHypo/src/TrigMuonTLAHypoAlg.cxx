@@ -58,25 +58,32 @@ StatusCode TrigMuonTLAHypoAlg::execute(const EventContext &ctx) const
         const xAOD::Muon *muonPrev = nullptr;
         auto prevMuons = TrigCompositeUtils::findLinks<xAOD::MuonContainer>(previousDecision, TrigCompositeUtils::featureString(), TrigDefs::lastFeatureOfType);
         ATH_MSG_DEBUG("This decision has " << prevMuons.size() << " decisions");
-        //copy all muons into the new TLA collection
-        for (auto muon : prevMuons)
-        {
-            auto prevMuLink = muon.link;
-            ATH_CHECK(prevMuLink.isValid());
-            muonPrev = *prevMuLink;
 
-            xAOD::Muon *copiedMuon = new xAOD::Muon();            
-            h_TLAMuons->push_back(copiedMuon);
-            *copiedMuon = *muonPrev;
-
-            ATH_MSG_DEBUG("Copied muon with pT: " << copiedMuon->pt() << " from decision " << nDecision);
+        // verify that only one object is found per decision
+        if (prevMuons.size() != 1) {
+            ATH_MSG_DEBUG("Did not locate exactly one muon for this Decision Object, found " << prevMuons.size());
+            return StatusCode::FAILURE;
         }
+     
+
+        auto prevMuLink = prevMuons.at(0).link;
+        ATH_CHECK(prevMuLink.isValid());
+        muonPrev = *prevMuLink;
+
+        xAOD::Muon *copiedMuon = new xAOD::Muon();            
+        h_TLAMuons->push_back(copiedMuon);
+        *copiedMuon = *muonPrev;
 
         // now go on with the normal Hypo, linking new decision with previous one
         auto newDecision = newDecisionIn( outputDecisions, hypoAlgNodeName() );
         TrigCompositeUtils::linkToPrevious( newDecision, previousDecision, ctx );
-        // do we need to re-link the feature?
-        //newDecision->setObjectLink(featureString(), prevMuons);
+        newDecision->setObjectLink(featureString(), ElementLink<xAOD::MuonContainer>(*h_TLAMuons, h_TLAMuons->size() - 1, ctx));
+
+        ATH_MSG_DEBUG("Copied muon with pT: " << copiedMuon->pt() << " from decision " << nDecision);
+    
+
+      
+      
 
         HypoInputs.push_back( std::make_pair(newDecision, previousDecision) );
         nDecision++;
@@ -87,12 +94,6 @@ StatusCode TrigMuonTLAHypoAlg::execute(const EventContext &ctx) const
         TrigCompositeUtils::insertDecisionIDs(hypoPair.second, hypoPair.first);
     }
     
-    /* for (const auto &tool : m_hypoTools)
-    {
-        ATH_MSG_DEBUG("Now computing decision for HypoTool: " << tool->name());
-        ATH_CHECK(tool->decide(muonHypoInputs));
-    }
- */
     ATH_CHECK(hypoBaseOutputProcessing(outputHandle));
 
     return StatusCode::SUCCESS;

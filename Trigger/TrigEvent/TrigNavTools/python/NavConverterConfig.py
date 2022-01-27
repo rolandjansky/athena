@@ -21,8 +21,8 @@ def createNavConverterAlg():
 
 def NavConverterCfg(flags):
     acc = ComponentAccumulator()
-    from TrigDecisionTool.TrigDecisionToolConfig import getTrigDecisionTool
-    tdt_ca = getTrigDecisionTool(flags)
+    from TrigDecisionTool.TrigDecisionToolConfig import TrigDecisionToolCfg
+    tdt_ca = TrigDecisionToolCfg(flags)
     tdt = tdt_ca.getPrimary()
     acc.merge(tdt_ca)
 

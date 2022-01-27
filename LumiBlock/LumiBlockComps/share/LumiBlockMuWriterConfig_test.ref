@@ -12,9 +12,6 @@ Py:ComponentAccumulator    INFO  \__ OnlineLumiCalibrationCondAlg (cond alg)
 Py:ComponentAccumulator    INFO      * CalibrationFolderInputKey: /TDAQ/OLC/CALIBRATIONS
 Py:ComponentAccumulator    INFO      * LumiCalibOutputKey: OnlineLumiCalibrationCondData
 Py:ComponentAccumulator    INFO  \__ LuminosityCondAlg (cond alg)
-Py:ComponentAccumulator    INFO      * BunchGroupInputKey: 
-Py:ComponentAccumulator    INFO      * BunchLumisInputKey: 
-Py:ComponentAccumulator    INFO      * FillParamsInputKey: 
 Py:ComponentAccumulator    INFO      * LuminosityFolderInputKey: /TRIGGER/OFLLUMI/OflPrefLumi
 Py:ComponentAccumulator    INFO      * LuminosityOutputKey: LuminosityCondData
 Py:ComponentAccumulator    INFO      * OnlineLumiCalibrationInputKey: OnlineLumiCalibrationCondData
@@ -23,4 +20,3 @@ Py:ComponentAccumulator    INFO      * LumiDataKey: LuminosityCondData
 --- cosmics
 Py:ComponentAccumulator    INFO Condition Algorithms
 Py:ComponentAccumulator    INFO  \__ LumiBlockMuWriter (cond alg)
-Py:ComponentAccumulator    INFO      * LumiDataKey: 

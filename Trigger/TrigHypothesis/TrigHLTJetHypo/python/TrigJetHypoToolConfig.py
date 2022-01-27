@@ -2,7 +2,7 @@
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import NoHypoToolCreated
+from TriggerMenuMT.HLT.Menu.MenuComponents import NoHypoToolCreated
 from TrigHLTJetHypo.hypoConfigBuilder import hypotool_from_chaindict
 
 from AthenaCommon.Logging import logging
@@ -79,16 +79,16 @@ def  trigJetTLAHypoToolFromDict(chain_dict):
 def  trigJetEJsHypoToolFromDict(chain_dict):
     chain_name = chain_dict['chainName']
 
-    if 'Exotic' in chain_name:
+    if 'emerging' in chain_name:
         trackless = int(0)
         ptf = float(chain_name.split('PTF')[1].split('dR')[0].replace('p', '.'))
         dr  = float(chain_name.split('dR')[1].split('_')[0].replace('p', '.'))
-    elif 'Trackless' in chain_name:
+    elif 'trackless' in chain_name:
         trackless = int(1)
         ptf = 0.0
         dr = float(chain_name.split('dR')[1].split('_')[0].replace('p', '.'))
     else:
-        raise Exception("misconfiguration of Exotic jet chain")
+        raise Exception("misconfiguration of emerging jet chain")
 
     hypo = CompFactory.TrigJetEJsHypoTool(chain_name)
     hypo.PTF       = ptf
@@ -101,7 +101,7 @@ def  trigJetEJsHypoToolFromDict(chain_dict):
 import unittest
 class TestStringMethods(unittest.TestCase):
     def testValidConfigs(self):
-        from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import (
+        from TriggerMenuMT.HLT.Menu.DictFromChainName import (
             dictFromChainName,)
 
         chain_names = (

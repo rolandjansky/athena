@@ -385,6 +385,10 @@ class useNewConfig(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
+class runCommissioningChain(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
 ## The flags to steer muon reconstruction
 class MuonRec(JobPropertyContainer):
     ##set defaults of the flags depending on type of input (MC, data, cosmics etc.)
@@ -411,12 +415,12 @@ class MuonRec(JobPropertyContainer):
         setDefault(self.useWireSagCorrections,False)
         setDefault(self.enableErrorTuning,True)
         setDefault(self.useLooseErrorTuning,False)
-        setDefault(self.useAlignmentCorrections,DetFlags.detdescr.Muon_on() and rec.doMuon())
+        setDefault(self.runCommissioningChain, False)
+        setDefault(self.useAlignmentCorrections, DetFlags.detdescr.Muon_on() and rec.doMuon())
         setDefault(self.writeSDOs, rec.doWriteESD() and globalflags.DataSource != 'data')
         setDefault(self.useTGCPriorNextBC,True)
         setDefault(self.doMuonIso,True)
         setDefault(self.useNewConfig, False)
-
         if beamFlags.beamType == 'cosmics' or beamFlags.beamType == 'singlebeam':
             setDefault(self.doSegmentT0Fit,True)
         else:
@@ -616,6 +620,7 @@ class Enabled(SummaryJobProperty):
                     muonRecFlags.doMSVertex ]
 
 muonRecFlags.add_JobProperty(Enabled)
+muonRecFlags.add_JobProperty(runCommissioningChain)
 
 muonRecFlags.setDefaults()
 

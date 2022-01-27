@@ -8,6 +8,11 @@
 #include "xAODTruth/TruthParticleContainer.h"
 
 #include "TLorentzVector.h"
+#include <string>
+
+namespace xAOD{
+  class PartonHistory;
+}
 
 namespace top {
 namespace PartonHistoryUtils {
@@ -50,6 +55,10 @@ namespace PartonHistoryUtils {
   
   /// Check if tau decays hadronically or not
   bool TauIsHadronic(const xAOD::TruthParticle* tau, bool &isOk);
+  
+  /// Perform decoration M, Pt, Phi of the history from a TLorentzVector
+  void 
+  decorateWithMPtPhi(xAOD::PartonHistory* pHistory, const std::string & prefix, const TLorentzVector & vec );
 }
 }
 

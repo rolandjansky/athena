@@ -1,7 +1,6 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-from AthenaConfiguration.TestDefaults import defaultTestFiles
 from AthenaCommon.Logging import log
 from AthenaCommon.Constants import DEBUG
 from AthenaCommon.Configurable import Configurable
@@ -10,7 +9,7 @@ from PixelReadoutGeometry.PixelReadoutGeometryConfig import PixelReadoutManagerC
 # test setup
 log.setLevel(DEBUG)
 Configurable.configurableRun3Behavior = True
-ConfigFlags.Input.Files = defaultTestFiles.HITS
+ConfigFlags.Input.Files = []
 # test
 PixelReadoutManagerAcc = PixelReadoutManagerCfg(ConfigFlags, name="PixelReadoutManagerTest")
 # prevent raise on __del__

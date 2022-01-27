@@ -1,10 +1,11 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # Utilities used in athenaHLT.py
 #
-from PyUtils.Decorators import memoize
 from AthenaCommon.Logging import logging
 log = logging.getLogger('athenaHLT')
+
+from functools import cache
 
 class CondDB:
    _run2 = 236108
@@ -21,7 +22,7 @@ class CondDB:
       else:
          return '/TDAQ/RunCtrl/SOR_Params'
 
-@memoize
+@cache
 def get_sor_params(run_number):
    import pickle
    cool_cache = 'AthHLT.sor.pkl'
@@ -62,7 +63,7 @@ def get_sor_params(run_number):
    return d
 
 
-@memoize
+@cache
 def get_trigconf_keys(run_number):
    """Read HLT keys from COOL"""
 

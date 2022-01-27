@@ -1,8 +1,6 @@
 TagInfoMgr          DEBUG initialize()
 TagInfoMgr          DEBUG ExtraTagValuePairs 
-TagInfoMgr.IOVD...  DEBUG in initialize()
-TagInfoMgr.IOVD...  DEBUG initialize(): need to modify folders
-TagInfoMgr          DEBUG Adding private ToolHandle tool TagInfoMgr.IOVDbMetaDataTool (IOVDbMetaDataTool)
+TagInfoMgr          DEBUG Adding public ToolHandle tool ToolSvc.IOVDbMetaDataTool (IOVDbMetaDataTool)
 TagInfoMgr          DEBUG matched ITagInfoMgr
 TagInfoMgr          DEBUG addTag - adding name/value pairs: /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/Identifier/CalibIdMap
@@ -141,13 +139,6 @@ TagInfoMgr          DEBUG triggerStreamOfFile
 TagInfoMgr          DEBUG IOV minRange from IOVMetaData: {[195847,0] - [195848,0]}
 TagInfoMgr          DEBUG fillMetaData: run number is in previous IOVRange: 195847 {[195847,0] - [195848,0]}
 TagInfoMgr          DEBUG fillMetaData: start, stop: [195847,0] [195848,0]
-TagInfoMgr.IOVD...  DEBUG begin registerFolder 
-TagInfoMgr.IOVD...  DEBUG begin getMetaDataContainer 
-TagInfoMgr.IOVD...  DEBUG IOVMetaDataContainer already in MetaDataStore for folder /TagInfo
-TagInfoMgr.IOVD...  DEBUG IOVMetaDataContainer  for folder /TagInfo has been registered 
-TagInfoMgr.IOVD...  DEBUG begin addPayload 
-TagInfoMgr.IOVD...  DEBUG Retrieved IOVMetaDataContainer from MetaDataStore for folder /TagInfo
-TagInfoMgr.IOVD...  DEBUG Could not add new payload for folder /TagInfo (may be duplicate payload).
 TagInfoMgr          DEBUG updateTagInfo: Wrote TagInfo to MetaDataStore 
 TagInfoMgr          DEBUG handle: TagInfo successfully processed by IOVDbSvc to register callback
 TagInfoMgr          DEBUG updateAddress
@@ -272,12 +263,5 @@ TagInfoMgr          DEBUG specialConfiguration NONE
 TagInfoMgr          DEBUG triggerStreamOfFile 
 TagInfoMgr          DEBUG fillMetaData: run number is in previous IOVRange: 195847 {[195847,0] - [195848,0]}
 TagInfoMgr          DEBUG fillMetaData: start, stop: [195847,0] [195848,0]
-TagInfoMgr.IOVD...  DEBUG begin registerFolder 
-TagInfoMgr.IOVD...  DEBUG begin getMetaDataContainer 
-TagInfoMgr.IOVD...  DEBUG IOVMetaDataContainer already in MetaDataStore for folder /TagInfo
-TagInfoMgr.IOVD...  DEBUG IOVMetaDataContainer  for folder /TagInfo has been registered 
-TagInfoMgr.IOVD...  DEBUG begin addPayload 
-TagInfoMgr.IOVD...  DEBUG Retrieved IOVMetaDataContainer from MetaDataStore for folder /TagInfo
-TagInfoMgr.IOVD...  DEBUG Could not add new payload for folder /TagInfo (may be duplicate payload).
 TagInfoMgr          DEBUG updateTagInfo: Wrote TagInfo to MetaDataStore 
 TagInfoMgr          DEBUG finalize()

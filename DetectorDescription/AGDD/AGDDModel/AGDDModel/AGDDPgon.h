@@ -30,7 +30,7 @@ public:
 	double Z(int i) const {return m_z[i];}
 	double Phi0() const {return m_phi0;}
 	double Dphi() const {return m_dphi;}
-        virtual void CreateVolume (const AGDDBuilder& builder) override;
+        virtual void CreateVolume (AGDDBuilder& builder) override;
 	virtual void CreateSolid (const AGDDBuilder& builder) override;
 	std::vector<double> m_rin;
 	std::vector<double> m_rou;

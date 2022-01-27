@@ -134,28 +134,28 @@ Trk::SlidingCylinderSurface::straightLineDistanceEstimate(const Amg::Vector3D& p
   const double bOverA{B/A};
   if (A == 0.) { // direction parallel to cylinder axis
     if (std::abs(currDist) < tol) {
-      return Trk::DistanceSolution(1, 0., true, 0.); // solution at surface
+      return {1, 0., true, 0.}; // solution at surface
     }
-      return Trk::DistanceSolution(0, currDist, true, 0.); // point of closest approach without intersection
+      return {0, currDist, true, 0.}; // point of closest approach without intersection
 
   }
   // minimal distance to cylinder axis
   double rmin = C - B * bOverA < 0. ? 0. : std::sqrt(C - B * bOverA);
   if (rmin > radius) { // no intersection
-    return Trk::DistanceSolution(0, currDist, true, bOverA); // point of closest approach without intersection
+    return {0, currDist, true, bOverA}; // point of closest approach without intersection
   }
   if (std::abs(rmin - radius) < tol) { // tangential 'intersection' - return double solution
-    return Trk::DistanceSolution(2, currDist, true, bOverA, bOverA);
+    return {2, currDist, true, bOverA, bOverA};
   }
   const double sqrtTerm = std::sqrt((radius - rmin) * (radius + rmin)/A) ;
   double first = bOverA - sqrtTerm;
   double second = bOverA + sqrtTerm;
   if (first >= 0.) {
-    return Trk::DistanceSolution(2, currDist, true, first, second);
+    return {2, currDist, true, first, second};
   } if (second <= 0.) {
-    return Trk::DistanceSolution(2, currDist, true, second, first);
+    return {2, currDist, true, second, first};
   } // inside cylinder
-  return Trk::DistanceSolution(2, currDist, true, second, first);
+  return {2, currDist, true, second, first};
 }
 
 Trk::DistanceSolution

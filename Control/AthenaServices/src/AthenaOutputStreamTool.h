@@ -84,11 +84,13 @@ private:
 
 private:
    StringProperty  m_outputName{ this, "OutputFile", "", "name of the output db name"};
-   StringProperty  m_processTag{ this, "ProcessingTag", "", "tag of processing stage: default to SG key of DataHeader (Stream name)"};
+   StringProperty  m_dataHeaderKey{ this, "DataHeaderKey", "", "name of the data header key: defaults to tool name"};
+   StringProperty  m_processTag{ this, "ProcessingTag", "", "tag of processing stage: defaults to SG key of DataHeader (Stream name)"};
    StringProperty  m_outputCollection{ this, "OutputCollection", "", "custom container name prefix for DataHeader: default = "" (will result in \"POOLContainer_\")"};
    StringProperty  m_containerPrefix{ this, "PoolContainerPrefix", "", "prefix for top level POOL container: default = \"CollectionTree\""};
    StringProperty  m_containerNameHint{ this, "TopLevelContainerName", "0", "naming hint policy for top level POOL container: default = \"0\""};
    StringProperty  m_branchNameHint{ this, "SubLevelBranchName", "0", "naming hint policy for POOL branching: default = \"0\"" };
+   std::string  m_outputAttributes{""};
    SG::ReadHandleKey<AthenaAttributeList>  m_attrListKey{this, "AttributeListKey", "", "optional key for AttributeList to be written as part of the DataHeader: default = \"\""};
    //SG::WriteHandleKey<AthenaAttributeList>  m_attrListWrite{this, "AttributeListWrite", "", "optional key for AttributeList to be written as part of the DataHeader: default = <AttributeListKey>+\"Decisions\""};
    std::string  m_attrListWrite{""};
@@ -102,8 +104,6 @@ private:
    ServiceHandle<IDecisionSvc>   m_decSvc;
    /// Current DataHeader for streamed objects
    DataHeader*     m_dataHeader;
-   /// Name of DataHeader key
-   std::string     m_dataHeaderKey;
    /// Flag to tell whether connectOutput has been called
    bool            m_connectionOpen;
    /// Flag as to whether to extend provenance via the DataHeader

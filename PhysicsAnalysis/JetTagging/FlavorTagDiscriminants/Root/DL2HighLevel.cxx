@@ -3,7 +3,6 @@
 */
 
 #include "FlavorTagDiscriminants/DL2HighLevel.h"
-#include "FlavorTagDiscriminants/DL2HighLevelTools.h"
 #include "FlavorTagDiscriminants/DL2.h"
 
 #include "PathResolver/PathResolver.h"
@@ -19,13 +18,6 @@
 
 #include <fstream>
 
-namespace {
-  // define a regex literal operator
-  std::regex operator "" _r(const char* c, size_t /* length */) {
-    return std::regex(c);
-  }
-
-}
 
 namespace FlavorTagDiscriminants {
 
@@ -43,133 +35,12 @@ namespace FlavorTagDiscriminants {
     std::ifstream input_stream(nn_path);
     lwt::GraphConfig config = lwt::parse_json_graph(input_stream);
 
-    // __________________________________________________________________
-    // we rewrite the inputs if we're using flip taggers
-    //
-
-    StringRegexes flip_converters {
-      {"(IP[23]D)_(.*)"_r, "$1Neg_$2"},
-      {"rnnip_(.*)"_r, "rnnipflip_$1"},
-      {"(JetFitter|SV1|JetFitterSecondaryVertex)_(.*)"_r, "$1Flip_$2"},
-      {"rnnip"_r, "rnnipflip"},
-      {"^(DL1|DL1r|DL1rmu)$"_r, "$1Flip"},
-      {"pt|abs_eta"_r, "$&"},
-      {"softMuon.*|smt.*"_r, "$&"}
-    };
-
-    // some sequences also need to be sign-flipped. We apply this by
-    // changing the input scaling and normalizations
-    std::regex flip_sequences(".*signed_[dz]0.*");
-
-    if (flip_config != FlipTagConfig::STANDARD) {
-      rewriteFlipConfig(config, flip_converters);
-      flipSequenceSigns(config, flip_sequences);
-    }
-
-    // __________________________________________________________________
-    // build the standard inputs
-    //
-
-    // type and default value-finding regexes are hardcoded for now
-    TypeRegexes type_regexes = {
-      {".*_isDefaults"_r, EDMType::UCHAR},
-      // TODO: in the future we should migrate RNN and IPxD
-      // variables to floats. This is outside the scope of the
-      // current flavor tagging developments and AFT-438.
-      {"IP[23]D(Neg)?_[pbc](b|c|u|tau)"_r, EDMType::FLOAT},
-      {"SV1(Flip)?_[pbc](b|c|u|tau)"_r, EDMType::FLOAT},
-      {"(rnnip|iprnn|dips[^_]*)(flip)?_p(b|c|u|tau)"_r, EDMType::FLOAT},
-      {"(JetFitter|SV1|JetFitterSecondaryVertex)(Flip)?_[Nn].*"_r, EDMType::INT},
-      {"(JetFitter|SV1|JetFitterSecondaryVertex).*"_r, EDMType::FLOAT},
-      {"pt|abs_eta|eta"_r, EDMType::CUSTOM_GETTER},
-      {"softMuon_p[bcu]"_r, EDMType::FLOAT},
-      {"softMuon_.*"_r, EDMType::FLOAT},
-    };
-
-    StringRegexes default_flag_regexes{
-      {"IP2D_.*"_r, "IP2D_isDefaults"},
-      {"IP2DNeg_.*"_r, "IP2DNeg_isDefaults"},
-      {"IP3D_.*"_r, "IP3D_isDefaults"},
-      {"IP3DNeg_.*"_r, "IP3DNeg_isDefaults"},
-      {"SV1_.*"_r, "SV1_isDefaults"},
-      {"SV1Flip_.*"_r, "SV1Flip_isDefaults"},
-      {"JetFitter_.*"_r, "JetFitter_isDefaults"},
-      {"JetFitterFlip_.*"_r, "JetFitterFlip_isDefaults"},
-      {"JetFitterSecondaryVertex_.*"_r, "JetFitterSecondaryVertex_isDefaults"},
-      {"JetFitterSecondaryVertexFlip_.*"_r, "JetFitterSecondaryVertexFlip_isDefaults"},
-      {"rnnip_.*"_r, "rnnip_isDefaults"},
-      {"dips[^_]*_.*"_r, ""},
-      {"rnnipflip_.*"_r, "rnnipflip_isDefaults"},
-      {"iprnn_.*"_r, ""},
-      {"smt_.*"_r, "softMuon_isDefaults"},
-      {"softMuon_.*"_r, "softMuon_isDefaults"},
-      {"(pt|abs_eta|eta)"_r, ""}}; // no default required for custom cases
-
-    std::vector<DL2InputConfig> input_config;
-    if (config.inputs.size() == 1) {
-
-      // allow the user to remape some of the inputs
-      remap_inputs(config.inputs.at(0).variables, remap_scalar,
-                   config.inputs.at(0).defaults);
-
-      std::vector<std::string> input_names;
-      for (const auto& var: config.inputs.at(0).variables) {
-        input_names.push_back(var.name);
-      }
-
-      input_config = get_input_config(
-        input_names, type_regexes, default_flag_regexes);
-    } else if (config.inputs.size() > 1) {
+    if (config.inputs.size() > 1) {
       throw std::logic_error("DL2 doesn't support multiple inputs");
     }
 
-    // ___________________________________________________________________
-    // build the track inputs
-    //
-    std::vector<std::pair<std::string, std::vector<std::string> > > trk_names;
-    for (const auto& node: config.input_sequences) {
-      std::vector<std::string> names;
-      for (const auto& var: node.variables) {
-        names.push_back(var.name);
-      }
-      trk_names.emplace_back(node.name, names);
-    }
-
-    TypeRegexes trk_type_regexes {
-      {"numberOf.*"_r, EDMType::UCHAR},
-      {"btagIp_(d0|z0SinTheta)Uncertainty"_r, EDMType::FLOAT},
-      {".*_(d|z)0.*"_r, EDMType::CUSTOM_GETTER},
-      {"(log_)?(ptfrac|dr).*"_r, EDMType::CUSTOM_GETTER}
-    };
-    // We have a number of special naming conventions to sort and
-    // filter tracks. The track nodes should be named according to
-    //
-    // tracks_<selection>_<sort-order>
-    //
-    SortRegexes trk_sort_regexes {
-      {".*absSd0sort"_r, SortOrder::ABS_D0_SIGNIFICANCE_DESCENDING},
-      {".*sd0sort"_r, SortOrder::D0_SIGNIFICANCE_DESCENDING},
-      {".*ptsort"_r, SortOrder::PT_DESCENDING},
-    };
-    TrkSelRegexes trk_select_regexes {
-      {".*_ip3d_.*"_r, TrackSelection::IP3D_2018},
-      {".*_all_.*"_r, TrackSelection::ALL},
-      {".*_dipsLoose202102_.*"_r, TrackSelection::DIPS_LOOSE_202102},
-    };
-    std::vector<DL2TrackSequenceConfig> trk_config = get_track_input_config(
-      trk_names, trk_type_regexes, trk_sort_regexes, trk_select_regexes);
-
-    // some additional options
-    DL2Options options;
-    if (auto h = remap_scalar.extract(options.track_prefix)) {
-      options.track_prefix = h.mapped();
-    }
-    if (auto h = remap_scalar.extract(options.track_link_name)) {
-      options.track_link_name = h.mapped();
-    }
-    options.flip = flip_config;
-    options.remap_scalar = remap_scalar;
-    options.track_link_type = track_link_type;
+    auto [input_config, trk_config, options] = dataprep::createGetterConfig(
+      config, flip_config, remap_scalar, track_link_type);
 
     m_dl2.reset(
       new DL2(
@@ -189,8 +60,11 @@ namespace FlavorTagDiscriminants {
   void DL2HighLevel::decorate(const xAOD::Jet& jet) const {
     m_dl2->decorate(jet);
   }
+  void DL2HighLevel::decorateWithDefaults(const xAOD::Jet& jet) const {
+    m_dl2->decorateWithDefaults(jet);
+  }
 
-  DL2DataDependencyNames DL2HighLevel::getDataDependencyNames() const
+  FTagDataDependencyNames DL2HighLevel::getDataDependencyNames() const
   {
     return m_dl2->getDataDependencyNames();
   }

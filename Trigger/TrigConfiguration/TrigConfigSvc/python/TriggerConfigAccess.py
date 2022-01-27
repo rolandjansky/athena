@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from .TrigConfigSvcCfg import getTrigConfigFromFlag, getL1MenuFileName, getHLTMenuFileName, getL1PrescalesSetFileName, getHLTPrescalesSetFileName, getBunchGroupSetFileName, getHLTJobOptionsFileName, getHLTMonitoringFileName
 
@@ -70,6 +70,23 @@ def getKeysFromCool(runNr, lbNr = 0):
 
     return d
 
+"""
+Returns a string-serialised JSON object from the metadata store.
+Checks AOD syntax first, then fully-qualified ESD syntax
+"""
+def _getJSONFromMetadata(flags, key):
+    from AthenaConfiguration.Enums import Format
+    if flags.Input.Format != Format.POOL:
+        raise RuntimeError("Cannot read trigger configuration (%s) from input type %s", key, flags.Input.Format)
+    from AthenaConfiguration.AutoConfigFlags import GetFileMD
+    metadata = GetFileMD(flags.Input.Files)
+    menu_json = metadata.get(key, None)
+    if menu_json is None:
+        menu_json = metadata.get('DataVector<xAOD::TriggerMenuJson_v1>_%s' % key, None)
+    if menu_json is None:
+        raise RuntimeError("Cannot read trigger configuration (%s) from input file metadata" % key)
+    return menu_json
+
 
 """
 
@@ -88,10 +105,7 @@ def getL1MenuAccess( flags = None ):
     elif tc["SOURCE"] == "DB":
         cfg = L1MenuAccess( dbalias = tc["dbconn"], smkey = tc["smk"] )
     elif tc["SOURCE"] == "INFILE":
-        from RecExConfig.InputFilePeeker import inputFileSummary as inpSum
-        if inpSum["file_type"] != 'pool':
-            raise RuntimeError("Cannot read trigger configuration (L1 menu) from input type %s" % inpSum["file_type"])
-        raise NotImplementedError("Python access to the trigger configuration (L1 menu) from in-file metadata not yet implemented")
+        cfg = L1MenuAccess(jsonString=_getJSONFromMetadata(flags, key='TriggerMenuJson_L1'))
     else:
         raise RuntimeError("Unknown source of trigger configuration: %s" % tc["SOURCE"])
     return cfg
@@ -109,10 +123,7 @@ def getL1PrescalesSetAccess( flags = None ):
     elif tc["SOURCE"] == "DB":
         cfg = L1PrescalesSetAccess( dbalias = tc["dbconn"], l1pskey = tc["l1psk"] )
     elif tc["SOURCE"] == "INFILE":
-        from RecExConfig.InputFilePeeker import inputFileSummary as inpSum
-        if inpSum["file_type"] != 'pool':
-            raise RuntimeError("Cannot read trigger configuration (L1 prescales) from input type %s" % inpSum["file_type"])
-        raise NotImplementedError("Python access to the trigger configuration (L1 prescales) from in-file metadata not yet implemented")
+        cfg = L1PrescalesSetAccess(jsonString=_getJSONFromMetadata(flags, key='TriggerMenuJson_L1PS'))
     else:
         raise RuntimeError("Unknown source of trigger configuration: %s" % tc["SOURCE"])
     return cfg
@@ -132,8 +143,8 @@ def getBunchGroupSetAccess( flags = None ):
     elif tc["SOURCE"] == "INFILE":
         from RecExConfig.InputFilePeeker import inputFileSummary as inpSum
         if inpSum["file_type"] != 'pool':
-            raise RuntimeError("Cannot read trigger configuration (HLT prescales) from input type %s" % inpSum["file_type"])
-        raise NotImplementedError("Python access to the trigger configuration (HLT prescales) from in-file metadata not yet implemented")
+            raise RuntimeError("Cannot read trigger configuration (Bunchgroup Set) from input type %s" % inpSum["file_type"])
+        raise NotImplementedError("Python access to the trigger configuration (Bunchgroup Set) from in-file metadata not yet implemented")
     else:
         raise RuntimeError("Unknown source of trigger configuration: %s" % tc["SOURCE"])
     return cfg
@@ -157,10 +168,7 @@ def getHLTMenuAccess( flags = None ):
     elif tc["SOURCE"] == "DB":
         cfg = HLTMenuAccess( dbalias = tc["dbconn"], smkey = tc["smk"] )
     elif tc["SOURCE"] == "INFILE":
-        from RecExConfig.InputFilePeeker import inputFileSummary as inpSum
-        if inpSum["file_type"] != 'pool':
-            raise RuntimeError("Cannot read trigger configuration (HLT menu) from input type %s" % inpSum["file_type"])
-        raise NotImplementedError("Python access to the trigger configuration (HLT menu) from in-file metadata not yet implemented")
+        cfg = HLTMenuAccess(jsonString=_getJSONFromMetadata(flags, key='TriggerMenuJson_HLT'))
     else:
         raise RuntimeError("Unknown source of trigger configuration: %s" % tc["SOURCE"])
     return cfg
@@ -178,10 +186,7 @@ def getHLTPrescalesSetAccess( flags = None ):
     elif tc["SOURCE"] == "DB":
         cfg = HLTPrescalesSetAccess( dbalias = tc["dbconn"], l1pskey = tc["hltpsk"] )
     elif tc["SOURCE"] == "INFILE":
-        from RecExConfig.InputFilePeeker import inputFileSummary as inpSum
-        if inpSum["file_type"] != 'pool':
-            raise RuntimeError("Cannot read trigger configuration (HLT prescales) from input type %s" % inpSum["file_type"])
-        raise NotImplementedError("Python access to the trigger configuration (HLT prescales) from in-file metadata not yet implemented")
+        cfg = HLTPrescalesSetAccess(jsonString=_getJSONFromMetadata(flags, key='TriggerMenuJson_HLTPS'))
     else:
         raise RuntimeError("Unknown source of trigger configuration: %s" % tc["SOURCE"])
     return cfg
@@ -199,10 +204,7 @@ def getHLTJobOptionsAccess( flags = None ):
     elif tc["SOURCE"] == "DB":
         cfg = HLTJobOptionsAccess( dbalias = tc["dbconn"], smkey = tc["smk"] )
     elif tc["SOURCE"] == "INFILE":
-        from RecExConfig.InputFilePeeker import inputFileSummary as inpSum
-        if inpSum["file_type"] != 'pool':
-            raise RuntimeError("Cannot read trigger configuration (HLT menu) from input type %s" % inpSum["file_type"])
-        raise NotImplementedError("Python access to the trigger configuration (HLT menu) from in-file metadata not yet implemented")
+        raise NotImplementedError("Python access to the HLT Job Options configuration from in-file metadata is NOT SUPPORTED (this file is huge!)")
     else:
         raise RuntimeError("Unknown source of trigger configuration: %s" % tc["SOURCE"])
     return cfg
@@ -218,8 +220,7 @@ def getHLTMonitoringAccess( flags = None ):
         # TODO when database will be ready
         raise NotImplementedError("Python DB access to the HLT monitoring not yet implemented")
     elif tc["SOURCE"] == "INFILE":
-        # TODO when database will be ready
-        raise NotImplementedError("Python access to the trigger configuration (HLT menu) from in-file metadata not yet implemented")
+        cfg = HLTMonitoringAccess(jsonString=_getJSONFromMetadata(flags, key='TriggerMenuJson_HLTMonitoring'))
     else:
         raise RuntimeError("Unknown source of trigger configuration: %s" % tc["SOURCE"])
     return cfg

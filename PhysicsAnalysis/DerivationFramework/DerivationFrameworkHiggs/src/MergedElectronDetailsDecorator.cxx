@@ -61,11 +61,10 @@ namespace DerivationFramework {
     }
     ATH_MSG_INFO("Retrieved tool: " << m_V0Tools);
 
+    ATH_CHECK(m_eventInfoKey.initialize());
 
-    ATH_CHECK( m_eventInfoKey.initialize() );
-
-    ATH_CHECK( m_electronKey.initialize() );
-
+    ATH_CHECK(m_electronKey.initialize());
+    ATH_CHECK(m_caloMgrKey.initialize());
     return StatusCode::SUCCESS;
   }
 
@@ -76,14 +75,14 @@ namespace DerivationFramework {
   StatusCode MergedElectronDetailsDecorator::addBranches() const{
 
     const EventContext& ctx = Gaudi::Hive::currentContext();
-    
+
     // Retrieve the xAOD event info
     SG::ReadHandle<xAOD::ElectronContainer> electrons (m_electronKey, ctx);
 
     SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey, ctx);
-    
+
     bool isMC = false;
-    if( eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION) ) 
+    if( eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION) )
       isMC = true;
 
 
@@ -101,38 +100,40 @@ namespace DerivationFramework {
                                                                               const xAOD::TrackParticle* tp,
                                                                               const xAOD::CaloCluster* cluster) const{
 
-   trkMatchTrk.clear(); 
+   trkMatchTrk.clear();
    const xAOD::TruthParticle* truthPart = xAOD::TruthHelpers::getTruthParticle( *tp );
- 
+
    if( !truthPart || !truthPart->hasProdVtx() )
       return;
-    
+
    const auto *prodVtx = truthPart->prodVtx();
 
    Amg::Vector3D pos( prodVtx->x(), prodVtx->y(), prodVtx->z() );
    Amg::Vector3D mom( truthPart->px(), truthPart->py(), truthPart->pz() );
 
-   Trk::CurvilinearParameters  truthTP( pos, mom, truthPart->charge() ); 
+   Trk::CurvilinearParameters  truthTP( pos, mom, truthPart->charge() );
 
-   const EventContext& ctx = Gaudi::Hive::currentContext(); 
+   const EventContext& ctx = Gaudi::Hive::currentContext();
    float etaAtCalo, phiAtCalo;
    if( m_emExtrapolationTool->getEtaPhiAtCalo ( ctx,
-                                           &truthTP, 
+                                           &truthTP,
                                            &etaAtCalo,
                                            &phiAtCalo) ){
-     trkMatchTrk.push_back( cluster->etaBE(2) - etaAtCalo ); 
+     trkMatchTrk.push_back( cluster->etaBE(2) - etaAtCalo );
      trkMatchTrk.push_back( P4Helpers::deltaPhi(cluster->phiBE(2), phiAtCalo) );
-   } 
+   }
 
    return;
 
   }
- 
+
   void DerivationFramework::MergedElectronDetailsDecorator::fillMatchDetails( std::vector<float>& trkMatchTrk,
                                                                               const xAOD::TrackParticle* tp,
                                                                               const xAOD::CaloCluster* cluster) const {
 
-    
+    SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{ m_caloMgrKey };
+    const CaloDetDescrManager* caloDDMgr = *caloMgrHandle;
+
     //Reset values
     for(unsigned int i(0); i<trkMatchTrk.size(); ++i ){
       trkMatchTrk[i] = -999;
@@ -143,17 +144,24 @@ namespace DerivationFramework {
     std::array<double,4>  deltaEta = { -999.0, -999.0, -999.0, -999.0 };
     std::array<double,4>  deltaPhi = { -999.0, -999.0, -999.0, -999.0 };
 
-    const EventContext& ctx = Gaudi::Hive::currentContext(); 
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+    std::pair<std::vector<CaloSampling::CaloSample>,
+              std::vector<std::unique_ptr<Trk::Surface>>>
+      layersAndSurfaces =
+        m_emExtrapolationTool->getClusterLayerSurfaces(*cluster, *caloDDMgr);
 
-    if(m_emExtrapolationTool->getMatchAtCalo (ctx,
-                                           *cluster,
-                                           *tp,
-                                           Trk::alongMomentum,
-                                           eta,
-                                           phi,
-                                           deltaEta,
-                                           deltaPhi,
-                                           IEMExtrapolationTools::fromPerigee).isSuccess()) // Perigee
+    if (m_emExtrapolationTool
+          ->getMatchAtCalo(ctx,
+                           *cluster,
+                           *tp,
+                           layersAndSurfaces.first,
+                           layersAndSurfaces.second,
+                           eta,
+                           phi,
+                           deltaEta,
+                           deltaPhi,
+                           IEMExtrapolationTools::fromPerigee)
+          .isSuccess()) // Perigee
     {
       trkMatchTrk[0] = deltaEta[1];
       trkMatchTrk[1] = deltaEta[2];
@@ -161,15 +169,18 @@ namespace DerivationFramework {
       trkMatchTrk[3] = deltaPhi[2];
     }
 
-    if(m_emExtrapolationTool->getMatchAtCalo (  ctx,
-                                           *cluster,
-                                           *tp,
-                                           Trk::alongMomentum,
-                                           eta,
-                                           phi,
-                                           deltaEta,
-                                           deltaPhi,
-                                           IEMExtrapolationTools::fromLastMeasurement).isSuccess()) //Last Measurement
+    if (m_emExtrapolationTool
+          ->getMatchAtCalo(ctx,
+                           *cluster,
+                           *tp,
+                           layersAndSurfaces.first,
+                           layersAndSurfaces.second,
+                           eta,
+                           phi,
+                           deltaEta,
+                           deltaPhi,
+                           IEMExtrapolationTools::fromLastMeasurement)
+          .isSuccess()) // Last Measurement
     {
       trkMatchTrk[4] = deltaEta[1];
       trkMatchTrk[5] = deltaEta[2];
@@ -180,7 +191,8 @@ namespace DerivationFramework {
     if(m_emExtrapolationTool->getMatchAtCalo ( ctx,
                                            *cluster,
                                            *tp,
-                                           Trk::alongMomentum,
+                                           layersAndSurfaces.first,
+                                           layersAndSurfaces.second,
                                            eta,
                                            phi,
                                            deltaEta,
@@ -192,7 +204,7 @@ namespace DerivationFramework {
   }
 
 
-  int  DerivationFramework::MergedElectronDetailsDecorator::nSiHits( const xAOD::TrackParticle * tp ) 
+  int  DerivationFramework::MergedElectronDetailsDecorator::nSiHits( const xAOD::TrackParticle * tp )
   {
     uint8_t dummy(-1);
     int nPix = tp->summaryValue( dummy, xAOD::numberOfPixelHits )? dummy : 0;
@@ -234,7 +246,7 @@ namespace DerivationFramework {
           trkMatchTrkLM_dPhi1[i] = trkMatch[6];
           trkMatchTrkLM_dPhi2[i] = trkMatch[7];
           trkMatchTrkR_dPhi2[i]  = trkMatch[8];
-        
+
           if(isMC){
             fillTruthDetails( trkMatch, trackParticle, caloCluster );
             if( trkMatch.size() == 2 ){
@@ -259,7 +271,7 @@ namespace DerivationFramework {
     el->auxdecor<std::vector<float>>("TrackMatchingTrue_dPhi2") = trueMatch_dPhi2;
   }
 
-  void DerivationFramework::MergedElectronDetailsDecorator::fillClusterDetails(const xAOD::Electron* el) 
+  void DerivationFramework::MergedElectronDetailsDecorator::fillClusterDetails(const xAOD::Electron* el)
   {
     const auto *caloCluster =  el->caloCluster();
 
@@ -287,9 +299,9 @@ namespace DerivationFramework {
 
   void DerivationFramework::MergedElectronDetailsDecorator::fillVertexDetails(const xAOD::Electron* el) const
   {
-    const EventContext& ctx = Gaudi::Hive::currentContext(); 
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     const auto *caloCluster =  el->caloCluster();
-    
+
     float vtxR = -999;
     float vtxZ = -999;
     float vtxM = -999;
@@ -357,18 +369,18 @@ namespace DerivationFramework {
           std::vector<double> masses = { 0.511e-3, 0.511e-3 };
           vtxM    = m_V0Tools->invariantMass( myVertex.get(), masses);
           vtxMerr = m_V0Tools->invariantMassError( myVertex.get(), masses);
-          
+
           vtxP    = m_V0Tools->pT( myVertex.get() );
           vtxPerr = m_V0Tools->pTError( myVertex.get() );
-          
+
           vtxChi2 = myVertex->chiSquared();
           vtxNdof = myVertex->numberDoF();
 
           m_emExtrapolationTool->getEtaPhiAtCalo( ctx, myVertex.get(), &vtxdEta, &vtxdPhi);
-          
-          vtxdPhi  = P4Helpers::deltaPhi( vtxdPhi, caloCluster->phiBE(2) ); 
+
+          vtxdPhi  = P4Helpers::deltaPhi( vtxdPhi, caloCluster->phiBE(2) );
           vtxdEta -= caloCluster->etaBE(2);
-          
+
           xAOD::TrackParticle::FourMom_t vertex4P = m_V0Tools->V04Momentum(myVertex.get(), 0.511);
           vtxE = vertex4P.E();
           vtxPhi = vertex4P.Phi();
@@ -378,7 +390,7 @@ namespace DerivationFramework {
           const auto& perigeeParameters = trk1->perigeeParameters();
           Amg::Vector3D pos = perigeeParameters.position();
           Amg::Vector3D mom = perigeeParameters.momentum();
-          mom *= momentumScaleFactor; 
+          mom *= momentumScaleFactor;
           Trk::CurvilinearParameters  scaledTrk( pos, mom, trk1->charge() );
 
           float etaAtCalo, phiAtCalo;
@@ -393,7 +405,7 @@ namespace DerivationFramework {
           const auto& perigeeParameters2 = trk2->perigeeParameters();
           pos = perigeeParameters2.position();
           mom = perigeeParameters2.momentum();
-          mom *= momentumScaleFactor; 
+          mom *= momentumScaleFactor;
           scaledTrk = Trk::CurvilinearParameters( pos, mom, trk2->charge() );
 
           if( m_emExtrapolationTool->getEtaPhiAtCalo (ctx,

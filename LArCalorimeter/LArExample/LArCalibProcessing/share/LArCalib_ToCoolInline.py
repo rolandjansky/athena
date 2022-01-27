@@ -28,7 +28,11 @@ inputDB="sqlite://;schema="+sqliteIn+";dbname="+dbname
 outputDB="sqlite://;schema="+sqliteOut+";dbname="+dbname
 
 if 'foldertag' not in dir():
-  foldertag = '-UPD3-01'
+   if SuperCells:
+      foldertag = '-UPD3-01'
+   else:
+      foldertag = '-UPD3-00'
+
 if 'sqliteIn' not in dir():
   sqliteIn="freshConstants.db"
 
@@ -42,8 +46,11 @@ if "globalTag" not in dir():
 if "inputFolders" not in dir():
   inputFolders=[ (LArCalib_Flags.LArPedestalFolder, LArCalibFolderTag(LArCalib_Flags.LArPedestalFolder, foldertag), "LArPedestal"),
                  (LArCalib_Flags.LArRampFolder, LArCalibFolderTag(LArCalib_Flags.LArRampFolder, foldertag), "LArRamp"),
+                 #(LArCalib_Flags.LArMphysOverMcalFolder, LArCalibFolderTag(LArCalib_Flags.LArMphysOverMcalFolder, foldertag.replace("-01","-00")), "LArMphysOverMcal"),
                  (LArCalib_Flags.LArOFCCaliFolder, LArCalibFolderTag(LArCalib_Flags.LArOFCCaliFolder, foldertag), "LArOFCCali"),
+                 #(LArCalib_Flags.LArShapeRTMSamplesFolder, LArCalibFolderTag(LArCalib_Flags.LArShapeRTMSamplesFolder, foldertag.replace("-01","-00")), "LArShape"),
                ]
+
 
 if not 'online' in dir():
    online = True #False
@@ -85,7 +92,8 @@ theLArCompleteToFlat.FakeEMBPSLowGain=True
 theLArCompleteToFlat.isSC = SuperCells
 
 outTypes = []
-for (fldr,tag,key) in inputFolders:
+
+for (fldr,tag,key,classtype) in inputFolders:
   if "Pedestal" in fldr:
     outTypes.append("Pedestal")
     theLArCompleteToFlat.PedestalInput=key
@@ -99,11 +107,12 @@ for (fldr,tag,key) in inputFolders:
     outTypes.append("MphysOverMcal")
     theLArCompleteToFlat.MphysOverMcalInput=key
   elif "Shape" in fldr:
+    outTypes.append("Shape")
     theLArCompleteToFlat.ShapeInput=key
   if len(tag):
-     conddb.addFolder("","<db>"+inputDB+"</db>"+fldr+"<tag>"+tag+"</tag>")
+     conddb.addFolder("","<db>"+inputDB+"</db>"+fldr+"<tag>"+tag+"</tag>",className=classtype)
   else:
-    conddb.addFolder("","<db>"+inputDB+"</db>"+fldr)
+    conddb.addFolder("","<db>"+inputDB+"</db>"+fldr,className=classtype)
   pass
 
 topSequence+=theLArCompleteToFlat

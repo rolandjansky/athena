@@ -17,6 +17,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
@@ -57,10 +58,19 @@ namespace DerivationFramework {
 
     float m_minET;
 
-    SG::ReadHandleKey<xAOD::EventInfo> 
-      m_eventInfoKey { this, "EventInfoKey", "EventInfo", "" };
-    SG::ReadHandleKey<xAOD::ElectronContainer> 
-      m_electronKey { this, "ElectronKey", "Electrons", "" };
+    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{ this,
+                                                       "EventInfoKey",
+                                                       "EventInfo",
+                                                       "" };
+    SG::ReadHandleKey<xAOD::ElectronContainer> m_electronKey{ this,
+                                                              "ElectronKey",
+                                                              "Electrons",
+                                                              "" };
+    SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{
+      this,
+      "CaloDetDescrManager",
+      "CaloDetDescrManager"
+    };
 
   }; /// class
 

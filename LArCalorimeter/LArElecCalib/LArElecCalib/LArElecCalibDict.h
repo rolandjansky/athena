@@ -45,5 +45,6 @@
 #include "LArElecCalib/ILAruA2MeV.h"
 #include "LArElecCalib/ILArHVScaleCorr.h"
 #include "LArElecCalib/ILArFEBTempTool.h"
+#include "LArElecCalib/ILArOFCBin.h"
 
 #endif // LARELECCALIB_LARELECCALIBDICT_H

@@ -2,6 +2,8 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <utility>
+
 #include "MuonCalibEventBase/MuonCalibMdtTruthHit.h"
 
 namespace MuonCalib {
@@ -22,10 +24,10 @@ namespace MuonCalib {
     void MuonCalibMdtTruthHit::setgPositionY(double gpositionY) { m_pos[1] = gpositionY; }
     void MuonCalibMdtTruthHit::setgPositionZ(double gpositionZ) { m_pos[2] = gpositionZ; }
     void MuonCalibMdtTruthHit::setTime(double time) { m_time = time; }
-    void MuonCalibMdtTruthHit::setgPosition(Amg::Vector3D newPos) { m_pos = newPos; }
+    void MuonCalibMdtTruthHit::setgPosition(Amg::Vector3D newPos) { m_pos = std::move(newPos); }
     MuonCalibMdtTruthHit::MuonCalibMdtTruthHit(MuonFixedId id, int barCode, double driftRadius, double positionAlongTube,
                                                Amg::Vector3D globPos, double time) :
-        m_ID{id}, m_barCode{barCode}, m_driftRadius{driftRadius}, m_positionAlongTube{positionAlongTube}, m_pos{globPos}, m_time{time} {}
+        m_ID{id}, m_barCode{barCode}, m_driftRadius{driftRadius}, m_positionAlongTube{positionAlongTube}, m_pos{std::move(globPos)}, m_time{time} {}
 
     std::ostream &MuonCalibMdtTruthHit::dump(std::ostream &stream) const {
         stream << "MuonCalibMdtTruthHit: " << std::endl;

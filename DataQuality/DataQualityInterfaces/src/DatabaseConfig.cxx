@@ -10,16 +10,16 @@
 #include "CoolKernel/IDatabaseSvc.h"
 #include "CoolKernel/IObject.h"
 #include "CoolKernel/IFolder.h"
-#include "CoolKernel/IObject.h"
 
 #include "DataQualityInterfaces/DatabaseConfig.h"
 #include <array>
+#include <utility>
 
 namespace dqi {
 
 DatabaseConfig::
 DatabaseConfig(std::string connectionString, long runNumber)
-  : m_connectionString(connectionString)
+  : m_connectionString(std::move(connectionString))
   , m_runNumber((runNumber << 32) + 1)
   , m_dbConnected(false)
   , m_folderConnected(false)
@@ -62,7 +62,7 @@ Connect()
 
 nlohmann::json
 DatabaseConfig::
-GetPayload(std::string tag)
+GetPayload(const std::string& tag)
 {
   if(!m_dbConnected && !m_folderConnected) {
     Connect();
@@ -75,7 +75,7 @@ GetPayload(std::string tag)
 
 nlohmann::json
 DatabaseConfig::
-LoadPayload(std::string tag)
+LoadPayload(const std::string& tag)
 {
   nlohmann::json jsonData;
   if(m_dbConnected && m_folderConnected) {

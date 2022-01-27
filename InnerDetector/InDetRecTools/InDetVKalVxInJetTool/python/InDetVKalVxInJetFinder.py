@@ -31,15 +31,13 @@ class InDetVKalVxInJetFinder( InDet__InDetVKalVxInJetTool ):
           from TrkParticleCreator.TrkParticleCreatorConf     import Trk__TrackParticleCreatorTool
           if hasattr(ToolSvc,'InDetTrackSummaryTool'):
             SVParticleCreatorTool = Trk__TrackParticleCreatorTool(name="SVParticleCreatorTool",
-                                                                  TrackSummaryTool="InDetTrackSummaryTool",
-                                                                  UseTrackSummaryTool=False )
+                                                                  TrackSummaryTool="" )
           else:
             from TrkTrackSummaryTool.AtlasTrackSummaryTool import AtlasTrackSummaryTool
             SVTrackSummaryTool = AtlasTrackSummaryTool(name="SVTrackSummaryTool")
             ToolSvc += SVTrackSummaryTool
             SVParticleCreatorTool = Trk__TrackParticleCreatorTool(name="SVParticleCreatorTool",
-                                                                  TrackSummaryTool=SVTrackSummaryTool,
-                                                                  UseTrackSummaryTool=False )
+                                                                  TrackSummaryTool="" )
           ToolSvc += SVParticleCreatorTool
           InDet__InDetVKalVxInJetTool.__init__( self, name = name,
                                                 VertexFitterTool     = SVertexFitterTool,
@@ -70,8 +68,7 @@ class AtlasVKalVxInJetFinder( InDet__InDetVKalVxInJetTool ):
         #
         from TrkParticleCreator.TrkParticleCreatorConf     import Trk__TrackParticleCreatorTool
         SVParticleCreatorTool = Trk__TrackParticleCreatorTool(name="SVParticleCreatorTool",
-                                                              TrackSummaryTool=SVAtlasTrackSummaryTool,
-                                                              UseTrackSummaryTool=False
+                                                              TrackSummaryTool=""
                                                              )
         ToolSvc += SVParticleCreatorTool
         #----------------------

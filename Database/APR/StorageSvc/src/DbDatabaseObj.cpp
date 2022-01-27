@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -24,6 +24,7 @@
 #include "StorageSvc/DbReflex.h"
 #include "StorageSvc/DbColumn.h"
 #include "StorageSvc/DbTypeInfo.h"
+#include "StorageSvc/DbOption.h"
 #include "StorageSvc/IOODatabase.h"
 #include "StorageSvc/IDbDatabase.h"
 #include "StorageSvc/IDbContainer.h"
@@ -210,7 +211,9 @@ DbStatus DbDatabaseObj::makeLink(Token* pTok, Token::OID_t& refLnk) {
 const DbTypeInfo* DbDatabaseObj::objectShape(const Guid& id)  {
   if ( 0 == m_info ) open();
   ShapeMap::const_iterator i = m_shapeMap.find(id);
-  return (i == m_shapeMap.end()) ? 0 : (*i).second;
+  if( i != m_shapeMap.end() ) return (*i).second;
+  if( id == m_string_t->shapeID() ) return m_string_t;
+  return nullptr;
 }
 
 // Retrieve shape information for a specified object by reflection handle
@@ -829,13 +832,14 @@ DbStatus DbDatabaseObj::read(const Token& token, ShapeH shape, void** object)
       DbContainer cntH( type() );
       const DbTypeInfo* typ_info = objectShape( token.classID() );
       DbDatabase dbd (this);
+
       if( cntH.open( dbd, containerName, typ_info, token.technology(), mode() ).isSuccess() )  {
          if ( typ_info && typ_info == shape ) {
             return DbObjectAccessor::read(object, shape, cntH, oid, sectionN );
          }
          DbPrint log( name() );
-         log << DbPrintLvl::Error << " The object shape " << token.classID().toString()
-             << " is unknown for this container!" << DbPrint::endmsg;
+         log << DbPrintLvl::Error << "Token ClassID " << token.classID().toString()
+             << " is different from requested Shape " << shape->shapeID().toString() << DbPrint::endmsg;
       }
    }
    return Error;
@@ -859,6 +863,23 @@ DbStatus DbDatabaseObj::containers(vector<const Token*>& conts,bool with_interna
   }
   return Error;
 }
+
+/// Allow access to all known containers
+DbStatus DbDatabaseObj::containers(vector<IDbContainer*>& conts,bool with_internals)  {
+  conts.clear();
+  if ( 0 == m_info ) open();
+  if ( 0 != m_info )    {
+     for (iterator i=begin(); i != end(); ++i )    {
+        DbContainerObj* c = (*i).second;
+        if( c == m_links.ptr() || c == m_params.ptr() || c == m_shapes.ptr() )
+           if( not with_internals) continue;
+        if( c->info() ) conts.push_back( c->info() );
+     }
+     return Success;
+  }
+  return Error;
+}
+
 
 /// Access local container token (if container exists)
 const Token* DbDatabaseObj::cntToken(const string& cntName)  {

@@ -19,6 +19,7 @@
 #include "TrigConfHLTData/HLTSequenceList.h"
 // Run 3 structures
 #include "TrigConfData/HLTMenu.h"
+#include "TrigConfData/HLTMonitoring.h"
 #include "TrigConfData/L1Menu.h"
 #include "TrigConfData/HLTPrescalesSet.h"
 #include "TrigConfData/L1PrescalesSet.h"
@@ -33,6 +34,7 @@
 #include "xAODTrigger/TriggerMenuJsonContainer.h"
 
 #include "xAODTrigger/TrigConfKeys.h"
+#include "xAODTrigger/BunchConfKey.h"
 
 #include "AsgTools/CurrentContext.h"
 
@@ -112,6 +114,9 @@ namespace TrigConf {
       /// Returns the JSON configured HLTMenu ptree
       virtual const HLTMenu& hltMenu(const EventContext& ctx = Gaudi::Hive::currentContext()) const override;
 
+      /// Returns the JSON configured HLTMonitoring ptree
+      virtual const HLTMonitoring& hltMonitoring(const EventContext& ctx = Gaudi::Hive::currentContext()) const override;
+
       /// Returns the JSON configured L1 ptree
       virtual const L1Menu& l1Menu(const EventContext& ctx = Gaudi::Hive::currentContext()) const override;
 
@@ -140,7 +145,7 @@ namespace TrigConf {
       StatusCode beginEvent_Run2(const xAOD::TrigConfKeys* keys);
 
       /// Internal call to check / load from a file with Run3 metadata
-      StatusCode beginEvent_Run3(const xAOD::TrigConfKeys* keys);
+      StatusCode beginEvent_Run3(const xAOD::TrigConfKeys* keys, const xAOD::BunchConfKey* bgKey);
 
       /// @}
 
@@ -167,10 +172,13 @@ namespace TrigConf {
 
       /// Key for the event-level configuration identifier object
       std::string m_eventName;
+      /// Key for the event-level bunchgroup identification object, in the codebase since R2 but only being used since R3
+      std::string m_bgkeysName;
       /// Key for the trigger configuration metadata object (Run 2)
       std::string m_metaName_run2;
       /// Key for the trigger configuration metadata objects (Run 3)
       std::string m_metaNameJSON_hlt;
+      std::string m_metaNameJSON_hltmonitoring;
       std::string m_metaNameJSON_l1;
       std::string m_metaNameJSON_hltps;
       std::string m_metaNameJSON_l1ps;
@@ -180,6 +188,7 @@ namespace TrigConf {
       const xAOD::TriggerMenuContainer* m_tmc;
       /// The configuration object of the current input file (for Run3 AOD)
       const xAOD::TriggerMenuJsonContainer* m_hltJson;
+      const xAOD::TriggerMenuJsonContainer* m_hltmonitoringJson;
       const xAOD::TriggerMenuJsonContainer* m_l1Json;
       const xAOD::TriggerMenuJsonContainer* m_hltpsJson;
       const xAOD::TriggerMenuJsonContainer* m_l1psJson;
@@ -189,6 +198,7 @@ namespace TrigConf {
       const xAOD::TriggerMenu* m_menu;
       /// The active configuration for the current event (For Run3 AOD)
       const xAOD::TriggerMenuJson* m_currentHltJson;
+      const xAOD::TriggerMenuJson* m_currentHltmonitoringJson;
       const xAOD::TriggerMenuJson* m_currentL1Json;
       const xAOD::TriggerMenuJson* m_currentHltpsJson;
       const xAOD::TriggerMenuJson* m_currentL1psJson;

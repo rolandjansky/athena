@@ -7,6 +7,7 @@
 
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloEvent/CaloCluster.h"
+#include "CaloUtils/CaloCellList.h"
 #include "CaloUtils/CaloLayerCalculator.h"
 #include "xAODCaloEvent/CaloCluster.h"
 
@@ -18,7 +19,7 @@ egammaMiddleShape::execute(const xAOD::CaloCluster& cluster,
                            const CaloDetDescrManager& cmgr,
                            const CaloCellContainer& cell_container,
                            Info& info,
-                           bool doRetaOnly) 
+                           bool doRetaOnly)
 {
   //
   // Estimate shower shapes from 2nd compartment
@@ -77,62 +78,72 @@ egammaMiddleShape::execute(const xAOD::CaloCluster& cluster,
   deta = dde->deta();
   dphi = dde->dphi();
 
-  // search the hottest cell around the (eta,phi)
-  // (eta,phi) are defined as etaSample() and phiSample
-  // around this position a hot cell is searched for in a window
-  // (7*m_deta,7*m_dphi)
+  // Find the hottest cell
+  // in a 7x7 (7deta,7*dphi) window 
+  // opened in the eta/phi of the
+  // cluster in this sampling
   CaloLayerCalculator calc;
-
   sc = calc.fill(cmgr,
                  &cell_container,
                  cluster.etaSample(sam),
                  cluster.phiSample(sam),
-                 7.0 * deta,
-                 7.0 * dphi,
+                 7. * deta,
+                 7. * dphi,
                  (CaloSampling::CaloSample)sam);
   double etamax = calc.etarmax();
   double phimax = calc.phirmax();
 
-  // 3X7
-  sc = calc.fill(cmgr,
-                 &cell_container,
-                 etamax,
-                 phimax,
-                 3. * deta,
-                 7. * dphi,
-                 (CaloSampling::CaloSample)sam);
-  info.e237 = calc.em();
+  //select the widest cell list we will use
+  //i.e a 7x7 around the found hottest cell
+  CaloCellList cell_list(&cmgr, &cell_container);
+  cell_list.select(etamax,
+                   phimax,
+                   7. * deta,
+                   7. * dphi,
+                   (CaloSampling::CaloSample)sam);
+
+  // Using that list do the filling
+  // of all the sub windows.
+ 
   // 7x7
-  sc = calc.fill(cmgr,
-                 &cell_container,
-                 etamax,
-                 phimax,
-                 7. * deta,
-                 7. * dphi,
-                 (CaloSampling::CaloSample)sam);
+  calc.fill(cell_list.begin(),
+            cell_list.end(),
+            etamax,
+            phimax,
+            7. * deta,
+            7. * dphi,
+            (CaloSampling::CaloSample)sam);
   info.e277 = calc.em();
+  // 3X7
+  calc.fill(cell_list.begin(),
+            cell_list.end(),
+            etamax,
+            phimax,
+            3. * deta,
+            7. * dphi,
+            (CaloSampling::CaloSample)sam);
+  info.e237 = calc.em();
 
   if (!doRetaOnly) {
     // estimate the relevant quantities around the hottest cell
     // in the following eta X phi windows
     // 3X3
-    sc = calc.fill(cmgr,
-                   &cell_container,
-                   etamax,
-                   phimax,
-                   3. * deta,
-                   3. * dphi,
-                   (CaloSampling::CaloSample)sam);
+    calc.fill(cell_list.begin(),
+              cell_list.end(),
+              etamax,
+              phimax,
+              3. * deta,
+              3. * dphi,
+              (CaloSampling::CaloSample)sam);
     info.e233 = calc.em();
     // 3X5
-    sc = calc.fill(cmgr,
-                 &cell_container,
-                 etamax,
-                 phimax,
-                 3. * deta,
-                 5. * dphi,
-                 (CaloSampling::CaloSample)sam);
-
+    calc.fill(cell_list.begin(),
+              cell_list.end(),
+              etamax,
+              phimax,
+              3. * deta,
+              5. * dphi,
+              (CaloSampling::CaloSample)sam);
     info.e235 = calc.em();
     double etaw = calc.etas();
     info.phiw = calc.phis();
@@ -140,13 +151,13 @@ egammaMiddleShape::execute(const xAOD::CaloCluster& cluster,
     info.width = etaw;
     info.poscs2 = egammaqweta2c::RelPosition(eta, etacell);
     // 5X5
-    sc = calc.fill(cmgr,
-                   &cell_container,
-                   etamax,
-                   phimax,
-                   5. * deta,
-                   5. * dphi,
-                   (CaloSampling::CaloSample)sam);
+    calc.fill(cell_list.begin(),
+              cell_list.end(),
+              etamax,
+              phimax,
+              5. * deta,
+              5. * dphi,
+              (CaloSampling::CaloSample)sam);
     info.e255 = calc.em();
   }
   return sc;

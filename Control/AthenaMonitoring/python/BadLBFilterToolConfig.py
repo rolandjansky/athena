@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.AccumulatorCache import AccumulatorCache
@@ -74,7 +74,6 @@ def BadLBFilterToolCfg(inputFlags,name, defects, alwaysReturnTrue=False, ignoreR
     return result
 
 
-#@memoize - hash function on flags is deprecated, use AccumulatorCache instead
 @AccumulatorCache
 def LArDefectList(inputFlags,origDbTag=None):
     """

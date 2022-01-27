@@ -330,7 +330,8 @@ class JetInputExternal(object):
     def __init__(self, name, objtype, algoBuilder=None, specs=None, containername=None, filterfn= _condAlwaysPass, prereqs=[]):
         self.name = name
         self.basetype = objtype
-        self.algoBuilder = algoBuilder
+        
+        self.algoBuilder = algoBuilder if algoBuilder is not None else buildNothing # buildNothing returns None (see below)
 
         # In certain cases (EventShape) we need to configure the concrete
         # output container name based on the jetdef and specs, so can
@@ -428,6 +429,7 @@ class JetInputType(IntEnum):
         _xaodTojetinputMap = {
             xAODType.CaloCluster   : JetInputType.LCTopo,
             xAODType.ParticleFlow  : JetInputType.EMPFlow,
+            xAODType.FlowElement   : JetInputType.EMPFlow,
             xAODType.TrackParticle : JetInputType.Track,
             xAODType.TruthParticle : JetInputType.Truth,    
         }
@@ -587,3 +589,5 @@ class JetConstitModifier(object):
 
 
     
+def buildNothing(*l):
+    return None

@@ -79,7 +79,7 @@ def _ofcAlg(flags,postfix,folderSuffix,nPhases,dPhases,nDelays,nColl):
 def LArOFCPhysCfg(flags):
 
     #Get basic services and cond-algos
-    from LArCalibProcessing.LArCalibBaseConfig import LArCalibBaseCfg
+    from LArCalibProcessing.LArCalibBaseConfig import LArCalibBaseCfg,chanSelStr
     result=LArCalibBaseCfg(flags)
 
     nColl=flags.LArCalib.OFC.Ncoll
@@ -99,9 +99,9 @@ def LArOFCPhysCfg(flags):
     PhysCaliTdiffTag=rs.getFolderTag(flags.LArCalib.PhysCaliTdiff.Folder)
     del rs #Close database
 
-    result.merge(addFolders(flags,flags.LArCalib.PhysWave.Folder,detDb=flags.LArCalib.Input.Database, tag=PhysWaveTag))
-    result.merge(addFolders(flags,flags.LArCalib.AutoCorr.Folder,detDb=flags.LArCalib.Input.Database, tag=AutoCorrTag))
-    result.merge(addFolders(flags,flags.LArCalib.PhysAutoCorr.Folder,detDb=flags.LArCalib.Input.Database, tag=PhysAutoCorrTag))
+    result.merge(addFolders(flags,flags.LArCalib.PhysWave.Folder,detDb=flags.LArCalib.Input.Database, tag=PhysWaveTag, modifiers=chanSelStr(flags)))
+    result.merge(addFolders(flags,flags.LArCalib.AutoCorr.Folder,detDb=flags.LArCalib.Input.Database, tag=AutoCorrTag, modifiers=chanSelStr(flags)))
+    result.merge(addFolders(flags,flags.LArCalib.PhysAutoCorr.Folder,detDb=flags.LArCalib.Input.Database, tag=PhysAutoCorrTag,modifiers=chanSelStr(flags)))
 
     
     
@@ -161,6 +161,7 @@ if __name__ == "__main__":
     from LArCalibProcessing.LArCalibConfigFlags import addLArCalibFlags
     addLArCalibFlags(ConfigFlags)
 
+    ConfigFlags.Input.Files=[]
     ConfigFlags.LArCalib.Input.RunNumbers=[500000]
     ConfigFlags.LArCalib.Input.Database="/home/wlampl/calibTest/00403758_00403761_00403762_EndCap-EMB-EMEC_HIGH_40_21.0.20_1/poolFiles/myDB200_00403758_00403761_00403762_EB-EMECC_one.db"
     ConfigFlags.LArCalib.Input.SubDet="EM"
@@ -173,6 +174,7 @@ if __name__ == "__main__":
     ConfigFlags.IOVDb.GlobalTag="LARCALIB-RUN2-02"
     #ConfigFlags.Exec.OutputLevel=1
 
+    ConfigFlags.lock()
     cfg=MainServicesCfg(ConfigFlags)
     cfg.merge(LArOFCPhysCfg(ConfigFlags))
 

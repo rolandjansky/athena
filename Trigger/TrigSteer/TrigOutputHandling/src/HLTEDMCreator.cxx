@@ -275,7 +275,7 @@ StatusCode HLTEDMCreator::createIfMissing( const EventContext& context, const Co
     SG::WriteHandleKey<T> writeHandleKey = handles.out.at(i);
 
     // Special case. The slimmed navigation container is exceptionally created _after_ the HLTEDMCreator as it reads remapped navigation data.
-    if (writeHandleKey.key() == "HLTNav_Summary_OnlineSlimmed") {
+    if (std::find(m_keysToSkip.begin(), m_keysToSkip.end(), writeHandleKey.key()) != m_keysToSkip.end()) {
       continue;
     }
 

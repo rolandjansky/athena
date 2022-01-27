@@ -67,6 +67,12 @@ TrigConf::L1Threshold::createThreshold( const std::string & name, const std::str
    if( type == "jLJ" )
       return std::make_shared<L1Threshold_jLJ>( name, type, extraInfo, data );
 
+   if( type == "gJ" )
+      return std::make_shared<L1Threshold_gJ>( name, type, extraInfo, data );
+
+   if( type == "gLJ" )
+      return std::make_shared<L1Threshold_gLJ>( name, type, extraInfo, data );
+
    if( type == "jXE" )
       return std::make_shared<L1Threshold_jXE>( name, type, extraInfo, data );
 

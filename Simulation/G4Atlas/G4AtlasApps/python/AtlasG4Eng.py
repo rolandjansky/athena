@@ -15,7 +15,7 @@ __author__ = "A. Dell`Acqua, M. Gallas"
 from AthenaCommon import Logging
 from time import time
 import os, os.path, string, sys
-import ROOT,cppyy
+import cppyy
 
 # TODO: Rename to AppProfiler, to avoid class/variable confusion
 class _app_profiler(object):
@@ -109,8 +109,6 @@ class G4AtlasEngine:
 
         # pylcgdict default dictionaries
         self.load_Dict('AtlasSealCLHEPDict')
-        self.load_Dict('G4AtlasControlDict')
-        G4AtlasEngine._ctrl = ROOT.SimControl()
         self.init_status = 0
 
         self.useISF = useISF
@@ -133,7 +131,6 @@ class G4AtlasEngine:
             if G4AtlasEngine.log.level <= 30:
                 from SimFlags import simFlags
                 simFlags.G4Commands += ['/run/verbose 2'] # FIXME make configurable based on Athena message level?
-            #G4AtlasEngine._ctrl.initializeG4(is_hive)
             G4AtlasEngine.log.info(' G4AtlasEngine: _init_G4: init Geant4 ')
             self._InitList.append('init_G4')
             G4AtlasEngine._app_profiler('_init_G4: ')

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -48,7 +48,7 @@ Trk::GeantFollowerHelper::~GeantFollowerHelper()
 StatusCode Trk::GeantFollowerHelper::initialize()
 {
   m_treeData = std::make_unique<TreeData>();
-  
+
   if (m_extrapolator.retrieve().isFailure()){
     ATH_MSG_ERROR("Could not retrieve Extrapolator " << m_extrapolator << " . Abort.");
     return StatusCode::FAILURE;
@@ -167,9 +167,16 @@ void Trk::GeantFollowerHelper::trackParticle(const G4ThreeVector& pos,
   // destination surface
   const Trk::PlaneSurface& destinationSurface = g4Parameters->associatedSurface();
   // extrapolate to the destination surface
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   const Trk::TrackParameters* trkParameters = m_extrapolateDirectly ?
-    m_extrapolator->extrapolateDirectly(*m_parameterCache,destinationSurface,Trk::alongMomentum,false) :
-    m_extrapolator->extrapolate(*m_parameterCache,destinationSurface,Trk::alongMomentum,false);
+    m_extrapolator->extrapolateDirectly(ctx,
+                                        *m_parameterCache,
+                                        destinationSurface,
+                                        Trk::alongMomentum,false).release() :
+    m_extrapolator->extrapolate(ctx,
+                                *m_parameterCache,
+                                destinationSurface,
+                                Trk::alongMomentum,false).release();
   // fill the geant information and the trk information
   m_treeData->m_g4_p[m_treeData->m_g4_steps]       =  mom.mag();
   m_treeData->m_g4_eta[m_treeData->m_g4_steps]     =  mom.eta();

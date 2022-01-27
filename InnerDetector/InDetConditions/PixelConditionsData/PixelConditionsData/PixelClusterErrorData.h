@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -56,8 +56,8 @@ class PixelClusterErrorData {
     int getBarrelBin(double eta, int etaClusterSize, int phiClusterSize) const;
 
     // assuming phi and eta parametrizations have the same number of bins...
-    int getNumberOfBarrelBins(){ return m_barrelphierror.size(); }
-    int getNumberOfEndcapBins(){ return m_endcapphierror.size(); }
+    int getNumberOfBarrelBins() const { return m_barrelphierror.size(); }
+    int getNumberOfEndcapBins() const { return m_endcapphierror.size(); }
 
     void Print(const std::string& file) const;
     void Load(const std::string& file);

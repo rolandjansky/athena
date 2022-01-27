@@ -196,20 +196,6 @@ private:
     "Output GSF Trk::Tracks"
   };
 
-  // For P->T converters of ID tracks with Pixel
-  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection>
-    m_pixelDetEleCollKey{ this,
-                          "PixelDetEleCollKey",
-                          "PixelDetectorElementCollection",
-                          "Key of SiDetectorElementCollection for Pixel" };
-
-  // For P->T converters of ID tracks with SCT
-  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection>
-    m_SCTDetEleCollKey{ this,
-                        "SCTDetEleCollKey",
-                        "SCT_DetectorElementCollection",
-                        "Key of SiDetectorElementCollection for SCT" };
-
   // counters for final statistics
   mutable std::atomic_uint m_FailedFitTracks{ 0 };
   mutable std::atomic_uint m_RefittedTracks{ 0 };

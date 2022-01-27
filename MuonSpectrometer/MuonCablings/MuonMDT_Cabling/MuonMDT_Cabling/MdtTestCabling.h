@@ -11,7 +11,6 @@
  *
  * Testing algorithm for the Muon MDT mapping class
  *
- * @author Stefano Rosati Stefano.Rosati@roma1.infn.it
  *
  ***********************************************/
 

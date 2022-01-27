@@ -267,7 +267,6 @@ StatusCode IOVDbSvc::io_finalize() {
 
 StatusCode IOVDbSvc::finalize() {
   // summarise and delete folders, adding total read from COOL
-  unsigned long long nread=0;
   float readtime=0.;
   // accumulate a map of readtime by connection
   typedef std::map<IOVDbConn*,float> CTMap;
@@ -275,7 +274,6 @@ StatusCode IOVDbSvc::finalize() {
   for (const auto & namePtrPair : m_foldermap) {
     IOVDbFolder* folder=namePtrPair.second;
     folder->summary();
-    nread+=folder->bytesRead();
     const float& fread=folder->readTime();
     readtime+=fread;
     IOVDbConn* cptr=folder->conn();
@@ -537,7 +535,8 @@ StatusCode IOVDbSvc::updateAddress(StoreID::type storeID, SG::TransientAddress* 
     // reload cache for this folder (and all others sharing this DB connection)
     ATH_MSG_DEBUG( "Triggering cache load for folder " << folder->folderName());
     if (StatusCode::SUCCESS!=loadCaches(folder->conn())) {
-      ATH_MSG_ERROR( "Cache load failed for folder " <<  folder->folderName() );
+      ATH_MSG_ERROR( "Cache load failed for at least one folder from " << folder->conn()->name()
+                     << ". You may see errors from other folders sharing the same connection." );
       return StatusCode::FAILURE;
     }
   }
@@ -630,7 +629,8 @@ StatusCode IOVDbSvc::getRange( const CLID&        clid,
     // reload cache for this folder (and all others sharing this DB connection)
     ATH_MSG_DEBUG( "Triggering cache load for folder " << folder->folderName() );
     if (StatusCode::SUCCESS!=loadCaches(folder->conn(),&time)) {
-      ATH_MSG_ERROR( "Cache load failed for folder " <<  folder->folderName() );
+      ATH_MSG_ERROR( "Cache load failed for at least one folder from " << folder->conn()->name()
+                     << ". You may see errors from other folders sharing the same connection." );
       return StatusCode::FAILURE;
     }
   }

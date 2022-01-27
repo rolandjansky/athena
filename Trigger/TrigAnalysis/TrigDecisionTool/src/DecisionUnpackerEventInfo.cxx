@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -30,7 +30,7 @@ bool get32BitDecision( unsigned int index,
 
 namespace Trig {
   DecisionUnpackerEventInfo::DecisionUnpackerEventInfo(SG::ReadHandleKey<EventInfo>* oldEventInfoKey) :
-    m_handle(std::make_unique<DecisionObjectHandleEventInfo>(oldEventInfoKey)){
+    m_eventInfoKey(oldEventInfoKey){
   }
 
   DecisionUnpackerEventInfo::~DecisionUnpackerEventInfo(){
@@ -39,7 +39,7 @@ namespace Trig {
 
   StatusCode DecisionUnpackerEventInfo::unpackItems(const std::vector<uint32_t>& level1TriggerInfo,
                                                     std::map<unsigned, LVL1CTP::Lvl1Item>& itemsCache,
-                                                    std::unordered_map<std::string, const LVL1CTP::Lvl1Item*>& itemsByName) {
+                                                    std::unordered_map<std::string, const LVL1CTP::Lvl1Item*>& itemsByName) const {
     
     uint32_t L1SIZE = level1TriggerInfo.size()/3;
     std::vector<uint32_t>::const_iterator begin, end;
@@ -75,7 +75,7 @@ namespace Trig {
 
   StatusCode DecisionUnpackerEventInfo::unpackChains(const std::vector<uint32_t>& chainTriggerInfo,
 						     std::map<unsigned, HLT::Chain>& cache,
-						     std::unordered_map<std::string, const HLT::Chain*>& output) {
+						     std::unordered_map<std::string, const HLT::Chain*>& output) const {
     output.reserve( output.size() + cache.size() );
     for( auto& [cntr, chain] : cache){
       chain.reset();
@@ -108,20 +108,22 @@ namespace Trig {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode DecisionUnpackerEventInfo::unpackDecision(std::unordered_map<std::string, const LVL1CTP::Lvl1Item*>& itemsByName,
-						    std::map<CTPID, LVL1CTP::Lvl1Item>& itemsCache,
-						    std::unordered_map<std::string, const HLT::Chain*>& l2chainsByName,
-						    std::map<CHAIN_COUNTER, HLT::Chain>& l2chainsCache,
-						    std::unordered_map<std::string, const HLT::Chain*>& efchainsByName,
-						    std::map<CHAIN_COUNTER, HLT::Chain>& efchainsCache,
-                                                    char& /*bgCode*/,
-						    bool unpackHLT
-						    ){
+  StatusCode DecisionUnpackerEventInfo::unpackDecision(
+                            const EventContext& ctx,
+                            std::unordered_map<std::string, const LVL1CTP::Lvl1Item*>& itemsByName,
+                            std::map<CTPID, LVL1CTP::Lvl1Item>& itemsCache,
+                            std::unordered_map<std::string, const HLT::Chain*>& l2chainsByName,
+                            std::map<CHAIN_COUNTER, HLT::Chain>& l2chainsCache,
+                            std::unordered_map<std::string, const HLT::Chain*>& efchainsByName,
+                            std::map<CHAIN_COUNTER, HLT::Chain>& efchainsCache,
+                            char& /*bgCode*/,
+                            bool unpackHLT
+                            ) const {
     
     ATH_MSG_DEBUG("unpacking decision from EventInfo");
 
-
-    const TriggerInfo* dec = m_handle->getDecision();
+    SG::ReadHandle<EventInfo> eventInfo(*m_eventInfoKey, ctx);
+    const TriggerInfo* dec = eventInfo->trigger_info();
 
     // bgCode = dec->BGCode();
   
@@ -129,7 +131,7 @@ namespace Trig {
     itemsByName.clear();
     ATH_MSG_DEBUG("Unpacking of L1 items");
     if( unpackItems(dec->level1TriggerInfo(),itemsCache,itemsByName).isFailure() ) {
-      ATH_MSG_WARNING("Unpacking  of L1 items failed");
+      ATH_MSG_WARNING("Unpacking of L1 items failed");
     }
   
  
@@ -142,7 +144,7 @@ namespace Trig {
     const auto& level2TriggerInfo = dec->level2TriggerInfo();
 
     if ( unpackChains(level2TriggerInfo, l2chainsCache, l2chainsByName).isFailure() ) {
-      ATH_MSG_WARNING("Unpacking  of L2 chains failed");
+      ATH_MSG_WARNING("Unpacking of L2 chains failed");
     }
 
     // EF chains
@@ -150,44 +152,18 @@ namespace Trig {
     const auto& eventFilterInfo = dec->eventFilterInfo();
   
     if ( unpackChains(eventFilterInfo, efchainsCache, efchainsByName).isFailure() ) {
-      ATH_MSG_WARNING("Unpacking  of EF/HLT chains failed");    
+      ATH_MSG_WARNING("Unpacking of EF/HLT chains failed");
     }
     
-    this->unpacked_decision(true);
-
     return StatusCode::SUCCESS;
   }
 
-  StatusCode DecisionUnpackerEventInfo::unpackNavigation(HLT::TrigNavStructure* /*nav*/){
+  StatusCode DecisionUnpackerEventInfo::unpackNavigation(const EventContext&,
+                                                         HLT::TrigNavStructure*) const {
     ATH_MSG_WARNING("This is the EventInfo Unpacker, there is no Navigation available -- but someone seems to try to access features triggering a navi unpacking");
-    this->unpacked_navigation(true);
     return StatusCode::SUCCESS;
   }
 
-  bool DecisionUnpackerEventInfo::assert_handle(){
-    if (!m_handle) {
-      ATH_MSG_ERROR("Logic ERROR, no handle for TrigDecisionTool ");   
-      return false;
-    } 
-    if (m_handle->getDecision() == 0 ) {
-      ATH_MSG_INFO("No TrigDecision object accessible ");   
-      return false;
-    }
-    if(m_handle->valid()){
-      //in this case we do not want to mess with it.
-      return false;
-    }
-    return true;
-  }
-  
-  void DecisionUnpackerEventInfo::validate_handle(){
-    m_handle->validate();
-  }
-  void DecisionUnpackerEventInfo::invalidate_handle(){
-    m_handle->reset(); // This used to be invalidate(), but we now use a ReadHandle, so it has to be a full reset.
-    this->unpacked_navigation(false);
-    this->unpacked_decision(false);
-  }
 }
 
 #endif // full Athena env

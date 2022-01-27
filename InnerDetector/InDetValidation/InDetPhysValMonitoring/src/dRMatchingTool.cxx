@@ -107,7 +107,7 @@ dRMatchingTool::~dRMatchingTool() {
 
 StatusCode
 dRMatchingTool::initialize() {
-  if (AlgTool::initialize().isFailure()) {
+  if (asg::AsgTool::initialize().isFailure()) {
     return StatusCode::FAILURE;
   }
 
@@ -118,11 +118,11 @@ dRMatchingTool::initialize() {
 
   // Define cut names and descriptions.
   if (m_dRmax > -1) {
-    m_cuts.push_back(std::make_pair("dRmax", "Cut on maximal dR between track and truth particle."));
+    m_cuts.emplace_back("dRmax", "Cut on maximal dR between track and truth particle.");
   }
   if (m_pTResMax > -1) {
-    m_cuts.push_back(std::make_pair("pTResMax",
-                                    "Cut on maximal, relativ pT difference between track and truth particle."));
+    m_cuts.emplace_back("pTResMax",
+                                    "Cut on maximal, relativ pT difference between track and truth particle.");
   }
 
   // Add cuts to the AcceptOmfp.
@@ -186,8 +186,6 @@ dRMatchingTool::sortVectors(const T* container,
   std::sort(vec_pt.begin(), vec_pt.end(), sort_pt <U>);
   std::sort(vec_eta.begin(), vec_eta.end(), sort_eta<U>);
   std::sort(vec_phi.begin(), vec_phi.end(), sort_phi<U>);
-
-  return;
 }
 
 void
@@ -212,8 +210,6 @@ dRMatchingTool::checkCacheTrackParticles(const xAOD::TrackParticleContainer* tra
 
   // Store copy of base track container.
   ent->m_baseTrackContainer = *trackParticles;
-
-  return;
 }
 
 void
@@ -238,8 +234,6 @@ dRMatchingTool::checkCacheTruthParticles(const xAOD::TruthParticleContainer* tru
 
   // Store copy of base truth container.
   ent->m_baseTruthContainer = *truthParticles;
-
-  return;
 }
 
 template<class U, class V>

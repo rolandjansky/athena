@@ -57,7 +57,7 @@ void compare (const TgcRawData& p1,
 
 void testit (const TgcRawData& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   TgcRawDataCnv_p3 cnv;
   TgcRawData_p3 pers;
   cnv.transToPers (&trans1, &pers, log);

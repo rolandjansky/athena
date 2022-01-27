@@ -5,9 +5,6 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
-#include "TrigTauEmulation/Level1EmulationTool.h"
-#include "TrigTauEmulation/HltEmulationTool.h"
-
 #include "TProfile.h"
 #include "HLTTauMonTool.h"
 #include "AthenaKernel/Units.h"

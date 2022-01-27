@@ -136,12 +136,19 @@ class EventViewCreatorAlgorithm : public ::InputMakerBase
     /**
      * @brief Allow for the re-use of EventViews run in a previous Step in another EVCA instance configured
      * to spawn EventViews using the same reconstruction sequence (i.e. both algs should share a common ViewNodeName).
-     *
-     * NOTE: This is a potential future CPU saving feature. Nothing currently uses this.
      **/
     bool checkCache(const TrigCompositeUtils::DecisionContainer* cachedViews, 
       const TrigCompositeUtils::Decision* outputDecision, 
-      size_t& cachedIndex) const;
+      size_t& cachedIndex,
+      MatchingCache& matchingCache) const;
+
+    /**
+     * @brief We look for matching Decision Objects in a matchingCache.
+     * When we are trying in a PROBE InputMaker to match against the Decision Objects created prior in a TAG InputMaker
+     * then we need to pre-populate the cache with the data from the TAG InputMaker.
+     **/
+    StatusCode populateMatchingCacheWithCachedViews(const TrigCompositeUtils::DecisionContainer* cachedViews, MatchingCache& matchingCache) const;
+
 
 };
 

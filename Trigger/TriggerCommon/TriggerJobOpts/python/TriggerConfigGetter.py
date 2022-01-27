@@ -1,14 +1,10 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-from TrigConfigSvc.TrigConfigSvcUtils import interpretConnection
-
 from RecExConfig.RecFlags  import rec
 from RecExConfig.Configured import Configured
 
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.Logging import logging
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
 log = logging.getLogger( "TriggerConfigGetter.py" )
 
@@ -28,46 +24,6 @@ class TriggerConfigGetter(Configured):
         super(TriggerConfigGetter,self).__init__() # calls configure
 
 
-    def setConfigSvcConnParams(self,connectionParameters):
-        sl = []
-        if hasattr(svcMgr,'LVL1ConfigSvc'):
-            sl += [svcMgr.LVL1ConfigSvc]
-        if hasattr(svcMgr,'HLTConfigSvc'):
-            sl += [svcMgr.HLTConfigSvc]
-
-        if "alias" in connectionParameters:
-            for svc in sl:
-                svc.ConfigSource = 'DBLookUp'
-                svc.DBServer  = connectionParameters["alias"]
-                svc.DBUser = ""
-        else:
-            technology = connectionParameters["techno"]
-            for svc in sl:
-                svc.ConfigSource = technology
-
-            if technology == 'sqlite':
-                for svc in sl:
-                    svc.DBServer = connectionParameters["filename"]
-                    svc.DBUser = "dummy"
-
-            if technology == 'oracle':
-                for svc in sl:
-                    svc.DBServer  = connectionParameters["server"]
-                    svc.DBAccount = connectionParameters["schema"]
-                    svc.DBUser    = connectionParameters["user"  ]
-                    svc.DBPass    = connectionParameters["passwd"]
-
-        if hasattr(svcMgr,'LVL1ConfigSvc'):
-            svcMgr.LVL1ConfigSvc.DBSMKey     = TriggerFlags.triggerDbKeys()[0]
-            svcMgr.LVL1ConfigSvc.DBLVL1PSKey = TriggerFlags.triggerDbKeys()[1]
-            svcMgr.LVL1ConfigSvc.DBBGSKey    = TriggerFlags.triggerDbKeys()[3]
-            svcMgr.LVL1ConfigSvc.UseFrontier = TriggerFlags.triggerUseFrontier()
-        if hasattr(svcMgr,'HLTConfigSvc'):
-            svcMgr.HLTConfigSvc.DBSMKey      = TriggerFlags.triggerDbKeys()[0]
-            svcMgr.HLTConfigSvc.DBHLTPSKey   = TriggerFlags.triggerDbKeys()[2]
-            svcMgr.HLTConfigSvc.UseFrontier  = TriggerFlags.triggerUseFrontier()
-
-
     def configure(self):
 
         log.info("The following flags are set:")
@@ -76,10 +32,12 @@ class TriggerConfigGetter(Configured):
         log.info("rec.read.*                          : RDO: %s, ESD: %s, AOD: %s, TAG: %s", rec.readRDO(), rec.readESD(), rec.readAOD(), rec.readTAG())
         log.info("rec.doWrite.*                       : ESD: %s, AOD: %s, TAG: %s", rec.doWriteESD(), rec.doWriteAOD(), rec.doWriteTAG())
 
-        # first check the input (TODO: review these environments)
-        if self._environment not in ["HIT2RDO", "ReadPool", "WritePool"]:
+        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-            from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        # first check the input (TODO: review these environments)
+        if self._environment not in ["ReadPool", "WritePool"]:
+
             if not ConfigFlags.Trigger.availableRecoMetadata:
                 log.error("At least one run does not contain any trigger configuration data. "
                           "Turning off trigger [rec.doTrigger=False]")
@@ -89,12 +47,7 @@ class TriggerConfigGetter(Configured):
                 log.info("Aborting TriggerConfigGetter as the trigger flags were switched to false")
                 return True
 
-        self.readTriggerDB  = TriggerFlags.readMenuFromTriggerDb() and self.readRDO
-
         log.info('Creating the Trigger Configuration Services')
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-
         log.info("ConfigFlags.Trigger.EDMVersion: %i", ConfigFlags.Trigger.EDMVersion)
         if ConfigFlags.Trigger.EDMVersion >= 3:
             if ConfigFlags.Trigger.InputContainsConfigMetadata:
@@ -106,13 +59,6 @@ class TriggerConfigGetter(Configured):
                 from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
                 from TrigConfigSvc.TrigConfigSvcCfg import TrigConfigSvcCfg
                 CAtoGlobalWrapper(TrigConfigSvcCfg,ConfigFlags)
-
-        if self.readTriggerDB:
-            log.info( "Using TriggerDB connection '%s'", TriggerFlags.triggerDbConnection() )
-            self.trigDbConnectionParameters = interpretConnection(TriggerFlags.triggerDbConnection(), resolveAlias=False)
-            self.setConfigSvcConnParams(self.trigDbConnectionParameters)
-
-        log.info("TriggerFlags.triggerCoolDbConnection is '%s' [default: '']", TriggerFlags.triggerCoolDbConnection())
 
         if not ConfigFlags.Trigger.InputContainsConfigMetadata:
             self.setupxAODWriting()

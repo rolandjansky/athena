@@ -167,7 +167,7 @@ def Lvl1SimulationSequence( ConfigFlags ):
         ctp.jFexJetInput = ""
         ctp.jFexLJetInput = ""
         ctp.gFexJetInput = ""
-        ctp.gFexMETPufitInput = ""
+        ctp.gFexMETNCInput = ""
         ctp.gFexMETRhoInput = ""
         ctp.gFexMETJwoJInput = ""
         ctp.eFexClusterInput = ""
@@ -205,9 +205,11 @@ def Lvl1SimulationCfg(flags, seqName = None):
     from TrigT1CaloSim.TrigT1CaloSimRun2Config import L1CaloLegacySimCfg
     acc.merge(L1CaloLegacySimCfg(flags), sequenceName='L1CaloLegacySimSeq')
 
-    #acc.addSequence(seqAND('L1CaloSimSeq'), parentName='L1SimSeq')
-    #from TrigT1CaloSim.TrigT1CaloSimRun2Config import L1CaloSimCfg
-    #acc.merge(L1CaloSimCfg(flags), sequenceName='L1CaloSimSeq')
+    acc.addSequence(seqAND('L1CaloSimSeq'), parentName='L1SimSeq')
+
+    if flags.Trigger.enableL1CaloPhase1:
+        from L1CaloFEXSim.L1CaloFEXSimCfg import L1CaloFEXSimCfg
+        acc.merge(L1CaloFEXSimCfg(flags), sequenceName = 'L1CaloSimSeq')
 
     acc.addSequence(seqAND('L1MuonSimSeq'), parentName='L1SimSeq')
     from TriggerJobOpts.Lvl1MuonSimulationConfig import Lvl1MuonSimulationCfg
@@ -228,7 +230,8 @@ def Lvl1SimulationCfg(flags, seqName = None):
 
     return acc
 
-if __name__ == '__main__':    
+if __name__ == '__main__':
+    import sys
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior = 1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
@@ -241,7 +244,7 @@ if __name__ == '__main__':
     flags.Scheduler.CheckDependencies=True
     flags.Scheduler.ShowDataFlow=True
     flags.Trigger.enableL1MuonPhase1=True
-    flags.Trigger.triggerMenuSetup='LS2_v1'
+    flags.Trigger.triggerMenuSetup='Dev_pp_run3_v1'
     flags.lock()
 
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
@@ -249,6 +252,9 @@ if __name__ == '__main__':
 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     acc.merge(PoolReadCfg(flags))
+
+    from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu
+    generateL1Menu(flags)
 
     acc.merge(Lvl1SimulationCfg(flags))
     from AthenaCommon.Constants import DEBUG
@@ -259,8 +265,4 @@ if __name__ == '__main__':
         acc.store(p)
         p.close()
 
-    status = acc.run()
-    
-    if status.isFailure():
-        import sys
-        sys.exit(1)
+    sys.exit(acc.run().isFailure())

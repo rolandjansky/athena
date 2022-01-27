@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = "Instantiate EMTrackMatchBuilder with default configuration"
 
@@ -6,7 +6,7 @@ from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from egammaTrackTools.egammaTrackToolsConfig import (
-    EMExtrapolationToolsCacheCfg)
+    EMExtrapolationToolsCfg)
 
 
 def EMTrackMatchBuilderCfg(flags, name='EMTrackMatchBuilder', **kwargs):
@@ -17,8 +17,8 @@ def EMTrackMatchBuilderCfg(flags, name='EMTrackMatchBuilder', **kwargs):
     acc = ComponentAccumulator()
 
     if "ExtrapolationTool" not in kwargs:
-        extrapcache = EMExtrapolationToolsCacheCfg(flags)
-        kwargs["ExtrapolationTool"] = extrapcache.popToolsAndMerge(extrapcache)
+        extrap = EMExtrapolationToolsCfg(flags)
+        kwargs["ExtrapolationTool"] = acc.popToolsAndMerge(extrap)
 
     kwargs.setdefault("TrackParticlesName",
                       flags.Egamma.Keys.Output.GSFTrackParticles)
@@ -46,7 +46,7 @@ if __name__ == "__main__":
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     Configurable.configurableRun3Behavior = True
 
-    ConfigFlags.Input.Files = defaultTestFiles.RDO
+    ConfigFlags.Input.Files = defaultTestFiles.RDO_RUN2
     ConfigFlags.fillFromArgs()
     ConfigFlags.lock()
     ConfigFlags.dump()

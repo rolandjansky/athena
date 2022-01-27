@@ -427,7 +427,7 @@ asg::AcceptData BTaggingSelectionTool::accept(double pT, double eta, double tag_
     return acceptData;
   }
 
-  eta = std::fabs(eta);
+  eta = std::abs(eta);
 
   if (! checkRange(pT, eta,acceptData))
     return acceptData;
@@ -459,7 +459,7 @@ asg::AcceptData BTaggingSelectionTool::accept(double pT, double eta, double weig
     return acceptData;
   }
 
-  eta = std::fabs(eta);
+  eta = std::abs(eta);
 
   if (! checkRange(pT, eta,acceptData))
     return acceptData;
@@ -517,7 +517,7 @@ asg::AcceptData BTaggingSelectionTool::accept(double pT, double eta, double pb, 
      return acceptData;
    }
 
-   eta = std::fabs(eta);
+   eta = std::abs(eta);
 
    if (! checkRange(pT, eta,acceptData))
      return acceptData;
@@ -569,7 +569,7 @@ int BTaggingSelectionTool::getQuantile( const xAOD::IParticle* p ) const {
 
 int BTaggingSelectionTool::getQuantile( const xAOD::Jet& jet ) const{
   double pT = jet.pt();
-  double eta = std::fabs( jet.eta() );
+  double eta = std::abs( jet.eta() );
   // Retrieve the tagger weight which was assigned to the jet
   double weight_mv2(-10.);
   if (getTaggerWeight(jet, weight_mv2)==CorrectionCode::Error){
@@ -618,7 +618,7 @@ int BTaggingSelectionTool::getQuantile(double pT, double eta, double weight_mv2 
 bool BTaggingSelectionTool::checkRange(double pT, double eta,asg::AcceptData& acceptData) const
 {
   // Do the |eta| cut:
-  if( eta > m_maxEta ) {
+  if( std::abs(eta) > m_maxEta ) {
     return false;
   }
   acceptData.setCutResult( "Eta", true );

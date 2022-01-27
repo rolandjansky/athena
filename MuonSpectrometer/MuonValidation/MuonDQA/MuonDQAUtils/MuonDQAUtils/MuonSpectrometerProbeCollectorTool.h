@@ -67,7 +67,7 @@ namespace Muon
 		
     private:
 	
-      Rec::TrackParticleContainer * m_MSProbeTrackContainer;
+      Rec::TrackParticleContainer * m_MSProbeTrackContainer = nullptr;
 
       /// get a handle to the MuonSpectrometerProbeCollectorTool
       ToolHandle<IInsituTrackTools> m_InsituPerformanceTools;

@@ -1,18 +1,17 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigConfMuctpi )
 
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
-find_package( XercesC )
+find_package( Boost )
 
 # Component(s) in the package:
 atlas_add_library( TrigConfMuctpi
                    src/*.cxx
                    PUBLIC_HEADERS TrigConfMuctpi
-                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${XERCESC_LIBRARIES} )
+                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${Boost_LIBRARIES} TrigConfBase )
 
 atlas_add_executable( TrigConfReadWriteMuCTPiGeometry
                       src/test/ReadWriteMuCTPiGeometry.cxx

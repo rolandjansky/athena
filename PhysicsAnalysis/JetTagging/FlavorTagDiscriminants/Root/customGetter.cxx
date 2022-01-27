@@ -16,23 +16,23 @@ namespace {
   // this function is not at all optimized, but then it doesn't have
   // to be since it should only be called in the initialization stage.
   //
-  std::function<double(const SG::AuxElement&)> customGetter(
+  std::function<double(const xAOD::Jet&)> customGetter(
     const std::string& name)
   {
-    using JL = ElementLink<xAOD::JetContainer>;
-    SG::AuxElement::ConstAccessor<JL> jl("jetLink");
-    auto jg = [jl](const SG::AuxElement& btag) -> const xAOD::Jet& {
-      auto link = jl(btag);
-      if (!link.isValid()) {
-        throw std::runtime_error("invalid jetLink");
-      }
-      return **link;
-    };
     if (name == "pt") {
-      return [jg](const SG::AuxElement& b) {return jg(b).pt();};
+      return [](const xAOD::Jet& j) {return j.pt();};
+    }
+    if (name == "log_pt") {
+      return [](const xAOD::Jet& j) {return std::log(j.pt());};
     }
     if (name == "abs_eta") {
-      return [jg](const SG::AuxElement& b) {return std::abs(jg(b).eta());};
+      return [](const xAOD::Jet& j) {return std::abs(j.eta());};
+    }
+    if (name == "eta") {
+      return [](const xAOD::Jet& j) {return j.eta();};
+    }
+    if (name == "energy") {
+      return [](const xAOD::Jet& j) {return j.e();};
     }
     throw std::logic_error("no match for custom getter " + name);
   }
@@ -117,7 +117,6 @@ namespace {
       });
     }
     return std::nullopt;
-
   }
 
   std::optional<FlavorTagDiscriminants::SequenceFromTracks>
@@ -128,6 +127,11 @@ namespace {
     using Jet = xAOD::Jet;
     typedef std::vector<const xAOD::TrackParticle*> Tracks;
 
+    if (name == "log_pt") {
+      return TJGetter([](const Tp& t, const Jet&) {
+        return std::log(t.pt());
+      });
+    }
     if (name == "log_ptfrac") {
       return TJGetter([](const Tp& t, const Jet& j) {
         return std::log(t.pt() / j.pt());
@@ -167,6 +171,34 @@ namespace {
         return tracks;
       };
     }
+    if (name == "phiUncertainty") {
+      return [](const Jet&, const Tracks& t) {
+        std::vector<double> tracks;
+        for (auto* trk: t) tracks.push_back(std::sqrt(trk->definingParametersCovMatrixDiagVec().at(2)));
+        return tracks;
+      };
+    }
+    if (name == "thetaUncertainty") {
+      return [](const Jet&, const Tracks& t) {
+        std::vector<double> tracks;
+        for (auto* trk: t) tracks.push_back(std::sqrt(trk->definingParametersCovMatrixDiagVec().at(3)));
+        return tracks;
+      };
+    }
+    if (name == "qOverPUncertainty") {
+      return [](const Jet&, const Tracks& t) {
+        std::vector<double> tracks;
+        for (auto* trk: t) tracks.push_back(std::sqrt(trk->definingParametersCovMatrixDiagVec().at(4)));
+        return tracks;
+      };
+    }
+    if (name == "z0RelativeToBeamspot") {
+      return [](const Jet&, const Tracks& t) {
+        std::vector<double> tracks;
+        for (auto* trk: t) tracks.push_back(trk->z0());
+        return tracks;
+      };
+    }
     return std::nullopt;
   }
 
@@ -184,10 +216,10 @@ namespace FlavorTagDiscriminants {
     // which returns the pair we wanted.
     //
     // Case for jet variables
-    std::function<std::pair<std::string, double>(const SG::AuxElement&)>
+    std::function<std::pair<std::string, double>(const xAOD::Jet&)>
     customGetterAndName(const std::string& name) {
       auto getter = customGetter(name);
-      return [name, getter](const SG::AuxElement& j) {
+      return [name, getter](const xAOD::Jet& j) {
                return std::make_pair(name, getter(j));
              };
     }
@@ -231,3 +263,4 @@ namespace FlavorTagDiscriminants {
   }
 
 }
+

@@ -45,6 +45,10 @@
     <hist1D name="tgcGlobalR" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="tgcGlobalP" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="tgcGasGap" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="tgcChannel" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="tgcGlobalTime" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="tgcKineticEnergy" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="tgcDepositEnergy" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="mmGlobalX" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="mmGlobalY" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="mmGlobalZ" plotopts="" tests="KS,chi2" type="TH1F"/>

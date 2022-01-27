@@ -46,10 +46,10 @@ extern "C" double atl_epos_rndm_( int* )
 extern "C" 
 {
     // generator initialization
-  void crmc_set_f_(int &nEvents,int &iSeed,double &beamMomentum, double &targetMomentum, int &primaryParticle, int &targetParticle, int &model, int &itab, int &itypout, const char *paramFile);
+   void crmc_init_f_( double &m_degymx, int &iSeed, int &model, int &itab, int &itypout, const char *paramFile, const char *output , int &lout);
 
-  void crmc_init_f_();
-  //  void crmc_init_f_( int &iSeed, double &beamMomentum, double &targetMomentum, int &primaryParticle, int &targetParticle, int &model, const char *paramFile );
+   void crmc_set_f_( int &nEvents,double &beamMomentum, double &targetMomentum, int &primaryParticle, int &targetParticle);
+
     // event generation
   void crmc_f_( int &iout, int &ievent, int &nParticles, double &impactParam, int &partPdg, 
 		double &partPx, double &partPy, double &partPz, double &partEnergy, double &partMass, int &outstat );
@@ -185,8 +185,8 @@ Epos::Epos( const std::string &name, ISvcLocator *pSvcLocator ):
 {
   epos_rndm_stream = "EPOS_INIT";
   
-  declareProperty( "BeamMomentum",    m_beamMomentum    = -3500.0 );      // GeV
-  declareProperty( "TargetMomentum",  m_targetMomentum  = 3500.0 );
+  declareProperty( "BeamMomentum",    m_beamMomentum    = -6500.0 );      // GeV
+  declareProperty( "TargetMomentum",  m_targetMomentum  = 6500.0 );
   declareProperty( "Model",           m_model           = 7 );            // 0=EPOS 1.99 LHC, 1=EPOS 1.99
   declareProperty( "PrimaryParticle", m_primaryParticle = 1 );            // 1=p, 12=C, 120=pi+, 207=Pb 
   declareProperty( "TargetParticle",  m_targetParticle  = 1 );
@@ -195,12 +195,14 @@ Epos::Epos( const std::string &name, ISvcLocator *pSvcLocator ):
   declareProperty( "LheFile",         m_lheout       = "epos.lhe" );
   declareProperty( "TabCreate",       m_itab       = 0 );
   declareProperty( "nEvents",         m_nEvents    = 5500 );
+  declareProperty( "maxCMEnergy",     m_degymx     = 13000.0 ); // maximum center-of-mass energy which will be call in the run [GeV]
   
   m_events = 0; // current event number (counted by interface)
   m_ievent = 0;  // current event number counted by Epos
   m_iout = 0; // output type (output)
 
   // initialize internally used arrays
+  ATH_MSG_INFO( "max number of Particles  " << kMaxParticles );
   m_partID.resize (kMaxParticles);
   m_partPx.resize (kMaxParticles);
   m_partPy.resize (kMaxParticles);
@@ -240,16 +242,12 @@ StatusCode Epos::genInitialize()
   long int si2 = sip[1];
 
   int iSeed = si1%1000000000;     // FIXME ?
+  int lout = 50;     //lenght of the output string (useful only for LHE output)
+  // initialise Epos and set up initial values 
 
-  // set up initial values
+    crmc_init_f_( m_degymx, iSeed, m_model, m_itab, m_ilheout, (m_paramFile + " ").c_str(), m_lheout.c_str() , lout);
+    crmc_set_f_(m_nEvents,m_beamMomentum, m_targetMomentum, m_primaryParticle, m_targetParticle);
 
-  //   std::cout << "parameters " << m_nEvents << " " << iSeed << " " << m_beamMomentum << " " << m_targetMomentum << " " << m_primaryParticle << " " << m_targetParticle << " " << m_model << " " << m_itab << " " << m_ilheout << " " <<  m_lheout.c_str()<< " " <<  m_paramFile.c_str() << std::endl;
-
-    crmc_set_f_(m_nEvents, iSeed, m_beamMomentum, m_targetMomentum, m_primaryParticle, m_targetParticle, m_model, m_itab, m_ilheout, (m_paramFile + " ").c_str() );
-
-    // initialize Epos
-  //  crmc_init_f_( iSeed, m_beamMomentum, m_targetMomentum, m_primaryParticle, m_targetParticle, m_model, m_paramFile.c_str() );
-  crmc_init_f_();
 
     // ... and set them back to the stream for proper save
   p_AtRndmGenSvcEpos->CreateStream( si1, si2, epos_rndm_stream );
@@ -452,6 +450,18 @@ StatusCode Epos::fillEvt( HepMC::GenEvent* evt )
 
   HepMC::set_signal_process_id(evt,sig_id);
 
+  double xsigtot, xsigine, xsigela, xsigdd, xsigsd, xsloela, xsigtotaa, xsigineaa, xsigelaaa;
+  xsigtot = xsigine = xsigela = xsigdd = xsigsd = xsloela = xsigtotaa = xsigineaa = xsigelaaa = 0.0;
+  crmc_xsection_f_(xsigtot, xsigine, xsigela, xsigdd, xsigsd, xsloela, xsigtotaa, xsigineaa, xsigelaaa);
+  xsigtot *= 1000000;         // [mb] to [nb] conversion
+#ifdef HEPMC3
+  std::shared_ptr<HepMC3::GenCrossSection> xsec = std::make_shared<HepMC3::GenCrossSection>();
+  xsec->set_cross_section(xsigine, 0.0);
+#else
+  HepMC::GenCrossSection xsec;
+  xsec.set_cross_section(xsigine, 0.0);
+#endif
+  evt->set_cross_section(xsec);
 
  return StatusCode::SUCCESS;
 }

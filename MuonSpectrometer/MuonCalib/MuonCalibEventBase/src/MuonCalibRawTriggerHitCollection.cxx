@@ -24,7 +24,7 @@ namespace MuonCalib {
     }
     int MuonCalibRawTriggerHitCollection::numberOfMuonCalibRawRpcTriggerHits() const { return m_rawRpcTriggerHitVec.size(); }
 
-    void MuonCalibRawTriggerHitCollection::addMuonCalibRawTriggerHit(CalibRawRpcTriggerHitPtr rawTriggerHit) {
+    void MuonCalibRawTriggerHitCollection::addMuonCalibRawTriggerHit(const CalibRawRpcTriggerHitPtr& rawTriggerHit) {
         if (rawTriggerHit) {
             m_rawRpcTriggerHitVec.emplace_back(rawTriggerHit);
         } else {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -53,6 +53,7 @@ AthTruthSelectionTool::AthTruthSelectionTool(const std::string& type, const std:
   declareProperty("maxBarcode", m_maxBarcode = 200e3);
   declareProperty("requireCharged", m_requireCharged = true);
   declareProperty("requireStatus1", m_requireStatus1 = true);
+  declareProperty("requireSiHit", m_requireSiHit = 0);
   declareProperty("maxProdVertRadius", m_maxProdVertRadius = 110.);
   declareProperty("pdgId", m_pdgId = -1);
   declareProperty("hasNoGrandparent", m_grandparent = false);
@@ -69,8 +70,8 @@ AthTruthSelectionTool::AthTruthSelectionTool(const std::string& type, const std:
 StatusCode
 AthTruthSelectionTool::initialize() {
   // can set cut properties now
-  typedef xAOD::TruthParticle P_t;
-  typedef Accept<P_t> Accept_t;
+  using P_t = xAOD::TruthParticle;
+  using Accept_t = Accept<P_t>;
   //
   const std::vector<Accept_t> filters = {
     // if p.pt=0, TVector3 generates an error when querying p.eta(); a limit of 1e-7 was not found to be enough to
@@ -95,6 +96,13 @@ AthTruthSelectionTool::initialize() {
     m_cutList.add(Accept_t([&m_maxPt = std::as_const(m_maxPt)](const P_t& p) {
       return(p.pt() < m_maxPt);
     }, "max_pt"));
+  }
+  if (m_requireSiHit > 0) {
+    m_cutList.add(Accept_t([&m_requireSiHit = std::as_const(m_requireSiHit)](const P_t& p) {
+      static const SG::AuxElement::ConstAccessor< float > nSilHitsAcc("nSilHits");
+      if (nSilHitsAcc.isAvailable(p)) return (nSilHitsAcc(p) >= m_requireSiHit);
+      else return false;
+    }, "siHit"));
   }
   if (m_maxBarcode > -1) {
     m_cutList.add(Accept_t([&m_maxBarcode = std::as_const(m_maxBarcode)](const P_t& p) {
@@ -146,7 +154,7 @@ AthTruthSelectionTool::initialize() {
           ATH_MSG_VERBOSE("Checking particle for intersection with cylinder of radius " << m_radiusCylinder);
           //create surface we extrapolate to and cache it
           const xAOD::TruthVertex* ptruthVertex = p.prodVtx();
-          if (ptruthVertex == 0) {
+          if (ptruthVertex == nullptr) {
             //cannot derive production vertex, reject track
             ATH_MSG_VERBOSE("Rejecting particle without production vertex.");
             return false;
@@ -157,7 +165,10 @@ AthTruthSelectionTool::initialize() {
           const Amg::Vector3D position(xPos, yPos, z_truth);
           const Amg::Vector3D momentum(p.px(), p.py(), p.pz());
           const Trk::CurvilinearParameters cParameters(position, momentum, p.charge());
-          const Trk::TrackParameters *exParameters = m_extrapolator->extrapolate(cParameters, *m_cylinder, Trk::anyDirection, false, Trk::pion);
+          const Trk::TrackParameters *exParameters = m_extrapolator->extrapolate(Gaudi::Hive::currentContext(),
+                                                                                 cParameters, 
+                                                                                 *m_cylinder, 
+                                                                                 Trk::anyDirection, false, Trk::pion).release();
           if (!exParameters) {
             ATH_MSG_VERBOSE("Failed extrapolation. Rejecting track.");
             return false;
@@ -185,7 +196,7 @@ AthTruthSelectionTool::initialize() {
           ATH_MSG_VERBOSE("Checking particle for intersection with discs of |z| " << m_zDisc);
           //create surface we extrapolate to and cache it
           const xAOD::TruthVertex* ptruthVertex = p.prodVtx();
-          if (ptruthVertex == 0) {
+          if (ptruthVertex == nullptr) {
             //cannot derive production vertex, reject track
             ATH_MSG_VERBOSE("Rejecting particle without production vertex.");
             return false;
@@ -196,7 +207,9 @@ AthTruthSelectionTool::initialize() {
           const Amg::Vector3D position(xPos, yPos, z_truth);
           const Amg::Vector3D momentum(p.px(), p.py(), p.pz());
           const Trk::CurvilinearParameters cParameters(position, momentum, p.charge());
-          const Trk::TrackParameters *exParameters = m_extrapolator->extrapolate(cParameters, *m_disc1, Trk::anyDirection, true, Trk::pion);
+          const Trk::TrackParameters *exParameters = m_extrapolator->extrapolate(Gaudi::Hive::currentContext(),
+                                                                                 cParameters, 
+                                                                                 *m_disc1, Trk::anyDirection, true, Trk::pion).release();
           if (exParameters) {
             //since boundary check is true, should be enough to say we've hit the disk..
             ATH_MSG_VERBOSE("Successfully extrapolated track to disk at +" << m_zDisc << ": " << *exParameters);
@@ -209,7 +222,7 @@ AthTruthSelectionTool::initialize() {
             //else...
             ATH_MSG_VERBOSE("Strange, extrapolation succeeded but extrapolated position not within disc radius! Test next disc");
           }
-          exParameters = m_extrapolator->extrapolate(cParameters, *m_disc2, Trk::anyDirection, true, Trk::pion);
+          exParameters = m_extrapolator->extrapolate(Gaudi::Hive::currentContext(),cParameters, *m_disc2, Trk::anyDirection, true, Trk::pion).release();
           if (exParameters) {
             //since boundary check is true, should be enough to say we've hit the disk..
             ATH_MSG_VERBOSE("Successfully extrapolated track to disk at -" << m_zDisc << ": " << *exParameters);
@@ -273,97 +286,3 @@ AthTruthSelectionTool::testAllCuts(const xAOD::IParticle * particle, std::vector
   return m_cutList.testAllCuts(*pTruth,counter);
 }
 
-
-/*
-bool AthTruthSelectionTool::acceptExtrapolatedTPToSurface(const xAOD::TruthParticle& p) const
-{
-  if (m_radiusCylinder > 0) {
-    ATH_MSG_VERBOSE("Checking particle for intersection with m_cylinder of radius " << m_radiusCylinder);
-    //create surface we extrapolate to and cache it
-    if (m_cylinder == 0) {
-      Amg::Transform3D *trnsf = new Amg::Transform3D();
-      trnsf->setIdentity();
-      m_cylinder = new Trk::CylinderSurface( trnsf, m_radiusCylinder, 20000.);
-    }
-    const xAOD::TruthVertex* ptruthVertex = p.prodVtx();
-    if (ptruthVertex == 0) {
-      //cannot derive production vertex, reject track
-      ATH_MSG_VERBOSE("Rejecting particle without production vertex.");
-      return false;
-    }
-    const auto xPos = ptruthVertex->x();
-    const auto yPos = ptruthVertex->y();
-    const auto z_truth = ptruthVertex->z();
-    const Amg::Vector3D position(xPos, yPos, z_truth);
-    const Amg::Vector3D momentum(p.px(), p.py(), p.pz());
-    const Trk::CurvilinearParameters cParameters(position, momentum, p.charge());
-    const Trk::TrackParameters *exParameters = m_extrapolator->extrapolate(cParameters, *m_cylinder, Trk::anyDirection, false, Trk::pion);
-    if (!exParameters) {
-      ATH_MSG_VERBOSE("Failed extrapolation. Rejecting track.");
-      return false;
-    }
-    ATH_MSG_VERBOSE("Extrapolated parameters to m_cylinder: " << exParameters);
-    const float ex_abs_z = fabs(exParameters->parameters()[Trk::z0]);
-    if ( (ex_abs_z > m_minZCylinder) and (ex_abs_z < m_maxZCylinder) ) {
-      ATH_MSG_VERBOSE("Particle accepted.");
-      return true;
-    }
-    //else..
-    ATH_MSG_VERBOSE("Particle rejected");
-    return false;
-  } else if (m_zDisc > 0) {
-    ATH_MSG_VERBOSE("Checking particle for intersection with m_cylinder of radius " << m_radiusCylinder);
-    //create surface we extrapolate to and cache it
-    if (m_disc1 == 0) { //m_disc2 == 0 implied
-      Amg::Transform3D *trnsf_shiftZ = new Amg::Transform3D();
-      (*trnsf_shiftZ) = Amg::Translation3D(0.,0.,m_zDisc);
-      m_disc1 = new Trk::DiscSurface( trnsf_shiftZ, m_minRadiusDisc, m_maxRadiusDisc);
-      (*trnsf_shiftZ) = Amg::Translation3D(0.,0.,-m_zDisc);
-      m_disc2 = new Trk::DiscSurface( trnsf_shiftZ, m_minRadiusDisc, m_maxRadiusDisc);
-    }
-    const xAOD::TruthVertex* ptruthVertex = p.prodVtx();
-    if (ptruthVertex == 0) {
-      //cannot derive production vertex, reject track
-      ATH_MSG_VERBOSE("Rejecting particle without production vertex.");
-      return false;
-    }
-    const auto xPos = ptruthVertex->x();
-    const auto yPos = ptruthVertex->y();
-    const auto z_truth = ptruthVertex->z();
-    const Amg::Vector3D position(xPos, yPos, z_truth);
-    const Amg::Vector3D momentum(p.px(), p.py(), p.pz());
-    const Trk::CurvilinearParameters cParameters(position, momentum, p.charge());
-    const Trk::TrackParameters *exParameters = m_extrapolator->extrapolate(cParameters, *m_disc1, Trk::anyDirection, true, Trk::pion);
-    if (exParameters) {
-      //since boundary check is true, should be enough to say we've hit the disk..
-      ATH_MSG_VERBOSE("Successfully extrapolated track to disk at +" << m_zDisc);
-      float ex_radius = fabs(exParameters->parameters()[Trk::d0]);
-      ATH_MSG_VERBOSE("|loc1| (|d0|) parameter at surface: " << ex_radius);
-      if ((ex_radius > m_minRadiusDisc) and (ex_radius < m_maxRadiusDisc)) {
-        ATH_MSG_VERBOSE("Confirmed within the disk. Accepting particle");
-        return true;
-      }
-      //else...
-      ATH_MSG_VERBOSE("Strange, extrapolation succeeded but extrapolated position not within disc radius! Test next disc");
-    }
-    exParameters = m_extrapolator->extrapolate(cParameters, *m_disc2, Trk::anyDirection, true, Trk::pion);
-    if (exParameters) {
-      //since boundary check is true, should be enough to say we've hit the disk..
-      ATH_MSG_VERBOSE("Successfully extrapolated track to disk at -" << m_zDisc);
-      float ex_radius = fabs(exParameters->parameters()[Trk::d0]);
-      ATH_MSG_VERBOSE("|loc1| (|d0|) parameter at surface: " << ex_radius);
-      if ((ex_radius > m_minRadiusDisc) and (ex_radius < m_maxRadiusDisc)) {
-        ATH_MSG_VERBOSE("Confirmed within the disk. Accepting particle");
-        return true;
-      }
-      //else...
-      ATH_MSG_VERBOSE("Strange, extrapolation succeeded but extrapolated position not within disc radius! Rejecting");
-    }
-    //else..
-    ATH_MSG_VERBOSE("Particle rejected");
-    return false;
-  }
-  //if not cut enabled, returns OK
-  return true;
-}
-*/

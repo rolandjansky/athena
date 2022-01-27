@@ -14,7 +14,6 @@
 class TFile;
 class TTree;
 class CaloCell_ID;
-class CaloDetDescrManager;
 class IToolSvc;
 class LArDigitContainer;
 

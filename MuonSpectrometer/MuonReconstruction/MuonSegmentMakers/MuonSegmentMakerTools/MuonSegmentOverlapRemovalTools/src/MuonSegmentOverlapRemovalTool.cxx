@@ -65,7 +65,7 @@ namespace Muon {
 
                         // good segment of worse quality, replace it
                         segmentsToErase.push_back(good_seg.second);
-                        good_seg.first = std::move(sk);
+                        good_seg.first = sk;
                         good_seg.second = seg;
 
                     } else {
@@ -85,7 +85,7 @@ namespace Muon {
                     ATH_MSG_VERBOSE(" replacing (superset) " << m_printer->print(*good_seg.second) << std::endl
                                                              << " with      " << m_printer->print(*seg));
                     segmentsToErase.push_back(good_seg.second);
-                    good_seg.first = std::move(sk);
+                    good_seg.first = sk;
                     good_seg.second = seg;
                     insertAsGood = false;
                     break;
@@ -100,7 +100,7 @@ namespace Muon {
 
                         // good segment of worse quality, replace it
                         segmentsToErase.push_back(good_seg.second);
-                        good_seg.first = std::move(sk);
+                        good_seg.first = sk;
                         good_seg.second = seg;
                         insertAsGood = false;
                         break;
@@ -269,7 +269,7 @@ namespace Muon {
                                                              << " with      " << m_printer->print(*seg));
 
                         // good segment of worse quality, replace it
-                        good_seg.first = std::move(sk);
+                        good_seg.first = sk;
                         good_seg.second = seg.get();
                     } else {
                         ATH_MSG_VERBOSE(" discarding (chi2) " << m_printer->print(*seg));

@@ -68,7 +68,7 @@ void compare (const sTGCSimHitCollection& p1,
 //** is not supported yet
 void testit (const sTGCSimHitCollection& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   sTGCSimHitCollectionCnv_p2 cnv;
   Muon::sTGCSimHitCollection_p2 pers;
   cnv.transToPers (&trans1, &pers, log);

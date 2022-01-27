@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 
 import xml.etree.cElementTree as ET
-from PyUtils.Decorators import memoize
+from functools import cache
 
 class TrigXMLElement:
     def __init__(self,element):
@@ -42,9 +42,7 @@ class TrigXMLElement:
 class TrigXMLDocumentReader(object):
     def __init__(self,filename):
         self.filename=filename
-        from TrigConfMuctpi.Utils import findFileInXMLPATH
-        self.fullFileName = findFileInXMLPATH(filename)
-        self.read(self.fullFileName)
+        self.read(self.filename)
 
     def read(self,filename):
         self.doc = ET.parse(filename)
@@ -52,7 +50,7 @@ class TrigXMLDocumentReader(object):
         self.__dict__[root.tag] = root
 
     def getFileName(self):
-        return self.fullFileName
+        return self.filename
 
 
 class MioctGeometryXMLReader(TrigXMLDocumentReader):
@@ -62,7 +60,7 @@ class MioctGeometryXMLReader(TrigXMLDocumentReader):
     def getMIOCTs(self):
         return self.MuCTPiGeometry.MIOCTs
 
-    @memoize
+    @cache
     def getMIOCT(self, id):
         for mioct in self.MuCTPiGeometry.MIOCTs:
             if int(mioct["id"]) == id:

@@ -29,17 +29,16 @@ def InDetRttTruthSelectionToolCfg(flags, name="InDetRttTruthSelectionTool", **kw
     kwargs.setdefault("requireCharged", True)
     kwargs.setdefault("maxBarcode", (200*1000 if kwargs.pop("OnlyDressPrimaryTracks", True) else 2**31-1))
     kwargs.setdefault("maxProdVertRadius", 300.)
-    kwargs.setdefault("maxEta", 2.5)
+    if flags.Detector.GeometryITk:
+        kwargs.setdefault("maxEta", 4.)
+    else:
+        kwargs.setdefault("maxEta", 2.5)
     kwargs.setdefault("minPt", 500.)
 
-    Extrapolator = None
-    if flags.Detector.GeometryITk:
-        from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
-        Extrapolator = acc.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
-    else:
-        from  InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
-        Extrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
-    kwargs.setdefault("Extrapolator", Extrapolator)
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+    extrapolator = acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
+    acc.addPublicTool(extrapolator)  # TODO: migrate to private?
+    kwargs.setdefault("Extrapolator", extrapolator)
 
     tool = CompFactory.AthTruthSelectionTool(name = name, **kwargs)
     acc.setPrivateTools(tool)
@@ -127,7 +126,6 @@ def InDetPhysValMonitoringToolCfg(flags, **kwargs):
 
     if flags.Detector.GeometryITk:
         #Disable vertex container for now
-        kwargs.setdefault("VertexContainerName", '')
         kwargs.setdefault("doTRTExtensionPlots", False)
 
     # Control the number of output histograms

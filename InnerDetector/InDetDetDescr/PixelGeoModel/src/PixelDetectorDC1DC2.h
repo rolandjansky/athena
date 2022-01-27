@@ -689,7 +689,7 @@ class OraclePixGeoManager : public PixelGeometryManager {
   const StoredMaterialManager* m_pMatMgr;
 
   // The Transient Detector Store Service
-  StoreGateSvc* m_pDetStore;   
+  StoreGateSvc* m_pDetStore = nullptr;   
 
   // The name of the collections in the det store
   std::string m_elementsObjectName;

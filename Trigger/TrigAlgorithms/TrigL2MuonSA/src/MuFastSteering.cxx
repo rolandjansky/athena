@@ -1937,7 +1937,7 @@ StatusCode MuFastSteering::findMultiTrackSignature(const std::vector<const TrigR
       if (m_use_timer) m_timingTimers[ITIMER_DATA_PREPARATOR]->pause();
       prepTimer.stop();
 
-      for(int i_road = 0; i_road < (int)clusterRoad.size(); i_road++){
+      for(unsigned int i_road = 0; i_road < clusterRoad.size(); i_road++){
         // Pattern finding
         std::vector<TrigL2MuonSA::TrackPattern> tmp_trkPats; tmp_trkPats.clear();
 
@@ -2292,7 +2292,7 @@ StatusCode MuFastSteering::findMultiTrackSignature(const std::vector<const TrigR
       if (m_use_timer) m_timingTimers[ITIMER_DATA_PREPARATOR]->pause();
       prepTimer.stop();
 
-      for(int i_road = 0; i_road < (int)clusterRoad.size(); i_road++){
+      for(unsigned int i_road = 0; i_road < clusterRoad.size(); i_road++){
         // Pattern finding
         std::vector<TrigL2MuonSA::TrackPattern> tmp_trkPats; tmp_trkPats.clear();
 

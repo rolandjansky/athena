@@ -510,7 +510,7 @@ ByteStreamEventStorageInputSvc::setSequentialRead()
 
 /******************************************************************************/
 bool
-ByteStreamEventStorageInputSvc::ready() const
+ByteStreamEventStorageInputSvc::ready()
 {
   return readerReady();
 }
@@ -561,7 +561,7 @@ ByteStreamEventStorageInputSvc::getBlockIterator(const std::string& fileName)
 
 /******************************************************************************/
 bool
-ByteStreamEventStorageInputSvc::readerReady() const
+ByteStreamEventStorageInputSvc::readerReady()
 {
   bool eofFlag(false);
 

@@ -19,6 +19,7 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger('Modifiers.py')
 
 _run_number = None   # set by runHLT_standalone
+_lb_number = None   # set by runHLT_standalone
 
 # Base class
 class _modifier:
@@ -191,10 +192,15 @@ class BFieldFromDCS(_modifier):
     def postSetup(self):
         from IOVDbSvc.CondDB import conddb
         conddb._SetAcc("DCS_OFL","COOLOFL_DCS")
-        conddb.addFolder("DCS_OFL","/EXT/DCS/MAGNETS/SENSORDATA")
+        conddb.addFolder("DCS_OFL","/EXT/DCS/MAGNETS/SENSORDATA",className="CondAttrListCollection")
         from AthenaCommon.AlgSequence import AthSequencer
         condSeq = AthSequencer("AthCondSeq")
+        # see ATLASRECTS-5604 for these settings:
+        condSeq.AtlasFieldMapCondAlg.LoadMapOnStart = False
+        condSeq.AtlasFieldMapCondAlg.UseMapsFromCOOL = True
         condSeq.AtlasFieldCacheCondAlg.UseDCS = True
+        if hasattr(svcMgr,'HltEventLoopMgr'):
+            svcMgr.HltEventLoopMgr.setMagFieldFromPtree = False
 
 class BFieldAutoConfig(_modifier):
     """
@@ -319,17 +325,19 @@ class forceConditions(_modifier):
                      '/MUONALIGN/Onl/TGC/SIDEA',
                      '/MUONALIGN/Onl/TGC/SIDEC']
 
-        from RecExConfig.RecFlags import rec
+        assert _run_number and _lb_number, f'Run or LB number is undefined ({_run_number}, {_lb_number})'
+
         from TrigCommon.AthHLT import get_sor_params
-        sor = get_sor_params(rec.RunNumber())
+        sor = get_sor_params(_run_number)
+        timestamp = sor['SORTime'] // int(1e9)
 
         for i,f in enumerate(svcMgr.IOVDbSvc.Folders):
             if any(name in f for name in ignore):
                 continue
             if any(name in f for name in timebased):
-                svcMgr.IOVDbSvc.Folders[i] += '<forceTimestamp>%d</forceTimestamp>' % (sor['SORTime'] // int(1e9))
+                svcMgr.IOVDbSvc.Folders[i] += f'<forceTimestamp>{timestamp:d}</forceTimestamp>'
             else:
-                svcMgr.IOVDbSvc.Folders[i] += '<forceRunNumber>%d</forceRunNumber>' % sor['RunNumber']
+                svcMgr.IOVDbSvc.Folders[i] += f'<forceRunNumber>{_run_number:d}</forceRunNumber> <forceLumiblockNumber>{_lb_number:d}</forceLumiblockNumber>'
 
 
 class forceAFPLinkNum(_modifier):

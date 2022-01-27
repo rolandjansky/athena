@@ -86,7 +86,7 @@ namespace TrigCompositeUtils {
       return;
     }
     // If not Early Exit, then recurse
-    for (const auto seed : getLinkToPrevious(start)) {
+    for (const auto& seed : getLinkToPrevious(start)) {
 #if TRIGCOMPUTILS_ENABLE_EARLY_EXIT == 1
       if (fullyExploredFrom != nullptr) {
         // We only need to recursivly explore back from each node in the graph once.
@@ -151,7 +151,7 @@ namespace TrigCompositeUtils {
   template<class CONTAINER>
   const std::vector< LinkInfo<CONTAINER> > recursiveGetFeaturesOfType(
     const NavGraph& navGraph,
-    const std::string containerSGKey,
+    const std::string& containerSGKey,
     const bool lastFeatureOfType,
     const std::string& navElementLinkKey,
     const DecisionIDContainer chainIDs) {
@@ -179,7 +179,7 @@ namespace TrigCompositeUtils {
     std::vector< LinkInfo<CONTAINER> >& features, 
     std::set<const NavGraphNode*>& fullyExploredFrom,
     const NavGraphNode* navGraphNode, 
-    const std::string containerSGKey,
+    const std::string& containerSGKey,
     const bool lastFeatureOfType,
     const std::string& navElementLinkKey,
     const DecisionIDContainer chainIDs) {

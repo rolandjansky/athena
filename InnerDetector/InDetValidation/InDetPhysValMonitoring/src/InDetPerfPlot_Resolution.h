@@ -63,7 +63,7 @@ private:
   const double  m_ptMin = 0.745;
   const double  m_ptMax = 1000.0;
 
-  float m_PtBins[m_nPtBins + 1];
+  float m_PtBins[m_nPtBins + 1]{};
    
   std::string m_paramProp[NPARAMS] = { "d0", "z0", "ptqopt", "theta", "phi", "pt", "z0sin" }; 
  

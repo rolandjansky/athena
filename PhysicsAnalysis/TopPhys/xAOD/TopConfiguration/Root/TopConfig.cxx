@@ -1,5 +1,5 @@
 /*
-   Copyrightf (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyrightf (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TopConfiguration/TopConfig.h"
@@ -14,6 +14,7 @@
 #include <boost/algorithm/string/replace.hpp>
 
 #include "TopConfiguration/Tokenize.h"
+#include "TopConfiguration/DuplicateRemoval.h"
 
 #include "TopConfiguration/MsgCategory.h"
 
@@ -196,6 +197,8 @@ namespace top {
     m_electronIsolationLoose("SetMe"),
     m_electronIsolationSF("SetMe"),
     m_electronIsolationSFLoose("SetMe"),
+    m_electron_d0SigCut(5.0),
+    m_electron_delta_z0(0.5),
     m_electronIDDecoration("SetMe"),
     m_electronIDLooseDecoration("SetMe"),
     m_useElectronChargeIDSelection(false),
@@ -1076,9 +1079,9 @@ namespace top {
       this->electronIsolationSF(sf_wp == " " ? cut_wp : sf_wp);
 
       const std::string &isoWPs_str = settings->value("ElectronIsolationWPs");
-      tokenize_set(isoWPs_str, m_electronIsolationWPs, " ", true);
+      tokenize(isoWPs_str, m_electronIsolationWPs, " ", true);
       if (cut_wp != "None")
-	m_electronIsolationWPs.emplace(cut_wp);
+        m_electronIsolationWPs.emplace_back(cut_wp);
     }
     {
       std::string const& cut_wp = settings->value("ElectronIsolationLoose");
@@ -1086,11 +1089,14 @@ namespace top {
       this->electronIsolationLoose(cut_wp);
       this->electronIsolationSFLoose(sf_wp == " " ? cut_wp : sf_wp);
       if (cut_wp != "None")
-	m_electronIsolationWPs.emplace(cut_wp);
+        m_electronIsolationWPs.emplace_back(cut_wp);
     }
+    remove_duplicates(m_electronIsolationWPs);
     this->useElectronChargeIDSelection(settings->value("UseElectronChargeIDSelection"));
     this->useEgammaLeakageCorrection(settings->value("UseEgammaLeakageCorrection"));
     this->electronPtcut(std::stof(settings->value("ElectronPt")));
+    this->electrond0Sigcut(std::stof(settings->value("Electrond0Sig")));
+    this->electrondeltaz0cut(std::stof(settings->value("Electrondeltaz0")));
     this->enablePromptLeptonImprovedVetoStudies(settings->value("EnablePromptLeptonImprovedVetoStudies"));
 
 
@@ -1161,16 +1167,19 @@ namespace top {
     this->photonIsolationLoose(settings->value("PhotonIsolationLoose"));
     {
       const std::string &isoWPs_str = settings->value("PhotonIsolationWPs");
-      tokenize_set(isoWPs_str, m_photonIsolationWPs, " ", true);
+      tokenize(isoWPs_str, m_photonIsolationWPs, " ", true);
       if (this->photonIsolation() != "None")
-	m_photonIsolationWPs.emplace(this->photonIsolation());
+        m_photonIsolationWPs.emplace_back(this->photonIsolation());
       if (this->photonIsolationLoose() != "None")
-	m_photonIsolationWPs.emplace(this->photonIsolationLoose());
+        m_photonIsolationWPs.emplace_back(this->photonIsolationLoose());
+      remove_duplicates(m_photonIsolationWPs);
     }
 
     // Muon configuration
     this->muonPtcut(std::stof(settings->value("MuonPt")));
     this->muonEtacut(std::stof(settings->value("MuonEta")));
+    this->muond0Sigcut(std::stof(settings->value("Muond0Sig")));
+    this->muondeltaz0cut(std::stof(settings->value("Muondeltaz0")));
     this->muonQuality(settings->value("MuonQuality"));
     this->muonQualityLoose(settings->value("MuonQualityLoose"));
     {
@@ -1180,9 +1189,9 @@ namespace top {
       this->muonIsolationSF(sf_wp == " " ? cut_wp : sf_wp);
 
       const std::string &isoWPs_str = settings->value("MuonIsolationWPs");
-      tokenize_set(isoWPs_str, m_muonIsolationWPs, " ", true);
+      tokenize(isoWPs_str, m_muonIsolationWPs, " ", true);
       if (cut_wp != "None")
-	m_muonIsolationWPs.emplace(cut_wp);
+        m_muonIsolationWPs.emplace_back(cut_wp);
     }
     bool muonUse2stationHighPt = true;
     settings->retrieve("MuonUse2stationHighPt", muonUse2stationHighPt);
@@ -1212,8 +1221,9 @@ namespace top {
       this->muonIsolationLoose(cut_wp);
       this->muonIsolationSFLoose(sf_wp == " " ? cut_wp : sf_wp);
       if (cut_wp != "None")
-	m_muonIsolationWPs.emplace(cut_wp);
+        m_muonIsolationWPs.emplace_back(cut_wp);
     }
+    remove_duplicates(m_muonIsolationWPs);
     bool muonDoSmearing2stationHighPt = false;
     settings->retrieve("MuonDoSmearing2stationHighPt", muonDoSmearing2stationHighPt);
     if (settings->value("MuonQuality") != "HighPt" ) muonDoSmearing2stationHighPt = false;
@@ -1254,12 +1264,10 @@ namespace top {
     this->tauEtaRegions(settings->value("TauEtaRegions"));
     this->tauJetIDWP(settings->value("TauJetIDWP"));
     this->tauJetIDWPLoose(settings->value("TauJetIDWPLoose"));
-    this->tauEleBDTWP(settings->value("TauEleBDTWP"));
-    this->tauEleBDTWPLoose(settings->value("TauEleBDTWPLoose"));
+    this->tauEleIDWP(settings->value("TauEleIDWP"));
+    this->tauEleIDWPLoose(settings->value("TauEleIDWPLoose"));
     this->tauMuOLR((settings->value("TauMuOLR") == "True"));
     this->tauMuOLRLoose((settings->value("TauMuOLRLoose") == "True"));
-    this->tauSFDoRNNID((settings->value("TauSFDoRNNID") == "True"));
-    this->tauSFDoBDTID((settings->value("TauSFDoBDTID") == "True"));
     this->tauJetConfigFile(settings->value("TauJetConfigFile"));
     this->tauJetConfigFileLoose(settings->value("TauJetConfigFileLoose"));
     if (settings->value("ApplyTauMVATES") != "True") throw std::runtime_error {
@@ -1528,21 +1536,36 @@ namespace top {
 
     // now get all Btagging WP from the config file, and store them properly in a map.
     // Need function to compare the cut value with the WP and vice versa
-    parse_bTagWPs(settings->value("BTaggingWP"), m_chosen_btaggingWP, m_sgKeyJets + ", " + m_sgKeyTrackJets);
-    parse_bTagWPs(settings->value("BTaggingCaloJetWP"), m_chosen_btaggingWP_caloJet, m_sgKeyJets);
-    parse_bTagWPs(settings->value("BTaggingTrackJetWP"), m_chosen_btaggingWP_trkJet, m_sgKeyTrackJets);
+    parse_bTagWPs(settings->value("BTaggingCaloJetWP"), m_btagAlgoWP_calib_caloJet, m_btagWP_calib_caloJet);
+    parse_bTagWPs(settings->value("BTaggingCaloJetUncalibWP"), m_btagAlgoWP_caloJet, m_btagWP_caloJet);
+    parse_bTagWPs(settings->value("BTaggingTrackJetWP"), m_btagAlgoWP_calib_trkJet, m_btagWP_calib_trkJet);
+    parse_bTagWPs(settings->value("BTaggingTrackJetUncalibWP"), m_btagAlgoWP_trkJet, m_btagWP_trkJet);
 
-    // check whether user is using the deprecated BTaggingWP option
-    if (m_chosen_btaggingWP.size() > 0) {
-      ATH_MSG_WARNING("You specified b-tagging WPs via BTaggingWP which is obsolete. Please switch to options BTaggingCaloJetWP for specifying EMTopo/EMPFlow b-tagging, and BTaggingTrackJetWP for track-jet b-tagging.");
-      if (m_chosen_btaggingWP_caloJet.size() > 0 || m_chosen_btaggingWP_trkJet.size() > 0) {
-        ATH_MSG_ERROR("You specified b-tagging WPs both via BTaggingWP as well as BTaggingCaloJetWP or BTaggingTrackJetWP. The BTaggingWP option is deprecated and conflicts with the other two options!");
-        throw std::runtime_error("TopConfig: Failed to determine what b-tagging WPs to configure.");
-      } else {
-        // if deprecated option used, assume both calo and track jet WPs are the same
-        m_chosen_btaggingWP_caloJet = m_chosen_btaggingWP;
-        m_chosen_btaggingWP_trkJet = m_chosen_btaggingWP;
-      }
+    // below variables store all WPs for btag decision, both calibrated and uncalibrated
+    // therefore copy the calibrated WPs into the list of all WPs
+    m_btagAlgoWP_caloJet.insert(m_btagAlgoWP_caloJet.end(), m_btagAlgoWP_calib_caloJet.begin(), m_btagAlgoWP_calib_caloJet.end());
+    m_btagAlgoWP_trkJet.insert(m_btagAlgoWP_trkJet.end(), m_btagAlgoWP_calib_trkJet.begin(), m_btagAlgoWP_calib_trkJet.end());
+    m_btagWP_caloJet.insert(m_btagWP_caloJet.end(), m_btagWP_calib_caloJet.begin(), m_btagWP_calib_caloJet.end());
+    m_btagWP_trkJet.insert(m_btagWP_trkJet.end(), m_btagWP_calib_trkJet.begin(), m_btagWP_calib_trkJet.end());
+
+    remove_duplicates(m_btagWP_caloJet);
+    remove_duplicates(m_btagWP_trkJet);
+    remove_duplicates(m_btagAlgoWP_caloJet);
+    remove_duplicates(m_btagAlgoWP_trkJet);
+
+    auto print_btag_WPs = [](const std::vector<std::string> &WPlist) {
+      for (const std::string &WP : WPlist)
+        ATH_MSG_INFO("BTagging algorithm: " << WP);
+    };
+    ATH_MSG_INFO("The following b-tagging WPs are configured for tagging decision for " << m_sgKeyJets);
+    print_btag_WPs(m_btagWP_caloJet);
+    ATH_MSG_INFO("Out of those, the calibration SFs will be computed for following WPs:");
+    print_btag_WPs(m_btagWP_calib_caloJet);
+    if (m_useTrackJets) {
+      ATH_MSG_INFO("The following b-tagging WPs are configured for tagging decision for " << m_sgKeyTrackJets);
+      print_btag_WPs(m_btagWP_trkJet);
+      ATH_MSG_INFO("Out of those, the calibration SFs will be computed for following WPs:");
+      print_btag_WPs(m_btagWP_calib_trkJet);
     }
 
     m_btagging_calibration_B = settings->value("BTaggingCalibrationB");
@@ -1701,14 +1724,6 @@ namespace top {
 
     //Switch off PRW for MC samples with data overlay
     if(m_isDataOverlay) m_pileup_reweighting.apply = false;
-
-    /************************************************************
-    *
-    * Muon trigger SF configuration
-    * see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MCPAnalysisGuidelinesMC15#How_to_retrieve_the_SF
-    * for the various trigger strings allowed
-    *
-    ************************************************************/
 
     m_muon_trigger_SF = settings->value("MuonTriggerSF");
 
@@ -2089,18 +2104,18 @@ namespace top {
     m_boostedTaggerSFnames[WP] = SFname;
   }
 
-  std::string TopConfig::FormatedWP(std::string raw_WP) {
-    // just to have some backward compatibility...
-    if (raw_WP == "60%") return "FixedCutBEff_60";
-    else if (raw_WP == "70%") return "FixedCutBEff_70";
-    else if (raw_WP == "77%") return "FixedCutBEff_77";
-    else if (raw_WP == "85%") return "FixedCutBEff_85";
-    else return raw_WP;
+  void TopConfig::addBTagAlgo(const std::string& algorithm, const std::string& selectionToolName, bool trackJets) {
+    // we only need one tool per algorithm, e.g. DL1r, DL1d
+    // the map will by definition only store one
+    if (trackJets)
+      m_btag_algos_trkJet[algorithm] = selectionToolName;
+    else
+      m_btag_algos_caloJet[algorithm] = selectionToolName;
   }
 
   void TopConfig::parse_bTagWPs(const std::string& btagWPsettingString,
-      std::vector<std::pair<std::string, std::string>>& btagWPlist,
-      const std::string& jetCollectionName) {
+      std::vector<std::pair<std::string, std::string>>& btagAlgoWPlist,
+      std::vector<std::string>& btagWPlist) {
     std::istringstream str_btagging_WP(btagWPsettingString);
     std::vector<std::string> all_btagging_WP;
     std::copy(std::istream_iterator<std::string>(str_btagging_WP),
@@ -2111,73 +2126,23 @@ namespace top {
       std::vector<std::string> btagAlg_btagWP;
       tokenize(AlgTag, btagAlg_btagWP, ":");
       // DEFAULT algorithm - May remove in future
-      std::string alg = "MV2c10";
+      std::string alg = "DL1r";
       std::string tag = "";
       // If no ':' delimiter, assume we want default algorithm, and take the WP from the option
       if (btagAlg_btagWP.size() == 2) {
         alg = btagAlg_btagWP.at(0);
         tag = btagAlg_btagWP.at(1);
-      } else if (btagAlg_btagWP.size() == 1) {
-        tag = btagAlg_btagWP.at(0);
       } else {
         ATH_MSG_ERROR("Cannot parse b-tagging ALGORITHM_NAME:WP. Incorrect format.");
         continue;
       }
 
-      ATH_MSG_INFO("BTagging algorithm: " << alg << "_" << tag << " for collection: " << jetCollectionName);
-      std::string formatedWP = FormatedWP(tag);
       std::pair<std::string, std::string> alg_tag = std::make_pair(alg, tag);
-      // take care that no WP is taken twice
-      if (std::find(btagWPlist.begin(), btagWPlist.end(), alg_tag) == btagWPlist.end()) {
-        btagWPlist.push_back(alg_tag);
-      } else {
-        ATH_MSG_INFO("This b-tag algorithm was already added!");
-      }
+      btagAlgoWPlist.push_back(alg_tag);
+      btagWPlist.push_back(alg + "_" + tag);
     }
-  }
-
-  void TopConfig::setBTagWP_available(std::string btagging_WP) {
-    m_available_btaggingWP.push_back(btagging_WP);
-  }
-
-  void TopConfig::setBTagWP_available_trkJet(std::string btagging_WP) {
-    m_available_btaggingWP_trkJet.push_back(btagging_WP);
-  }
-
-  void TopConfig::setBTagWP_calibrated(std::string btagging_WP) {
-    m_calibrated_btaggingWP.push_back(btagging_WP);
-  }
-
-  void TopConfig::setBTagWP_calibrated_trkJet(std::string btagging_WP) {
-    m_calibrated_btaggingWP_trkJet.push_back(btagging_WP);
-  }
-
-  void TopConfig::setBTagAlgo_available(std::string algo, std::string toolName) {
-    if (algo.find("DL1") == std::string::npos) {
-      if (algo.find("MV2c10") != std::string::npos)
-        m_MV2c10_algo_used = true;
-      else
-        ATH_MSG_WARNING("Encountered b-tagging algorithm that is not considered in the EventSaver: " << algo);
-    } else {
-      auto is_inserted = m_available_btaggingAlgos.insert(algo);
-      if (is_inserted.second) {
-        m_algo_selTools[algo] = toolName;
-      }
-    }
-  }
-
-  void TopConfig::setBTagAlgo_available_trkJet(std::string algo, std::string toolName) {
-    if (algo.find("DL1") == std::string::npos) {
-      if (algo.find("MV2c10") != std::string::npos)
-        m_MV2c10_algo_used_trkJet = true;
-      else
-        ATH_MSG_WARNING("Encountered track-jet b-tagging algorithm that is not considered in the EventSaver: " << algo);
-    } else {
-      auto is_inserted = m_available_btaggingAlgos_trkJet.insert(algo);
-      if (is_inserted.second) {
-        m_algo_selTools_trkJet[algo] = toolName;
-      }
-    }
+    remove_duplicates(btagWPlist);
+    remove_duplicates(btagAlgoWPlist);
   }
 
   void TopConfig::addLHAPDFResult(const std::string& pdf_name,
@@ -3468,9 +3433,10 @@ namespace top {
 
     typedef std::unordered_map<std::size_t, std::string>::const_iterator Itr;
 
-    for (std::vector<std::pair<std::string, std::string> >::const_iterator i = m_chosen_btaggingWP.begin();
-         i != m_chosen_btaggingWP.end(); ++i)
-      out->m_chosen_btaggingWP.push_back(*i);
+    for (const auto& btagWP : m_btagWP_caloJet)
+      out->m_chosen_btaggingWP_caloJet.emplace_back(btagWP);
+    for (const auto& btagWP : m_btagWP_trkJet)
+      out->m_chosen_btaggingWP_trkJet.emplace_back(btagWP);
 
     for (Itr i = m_systSgKeyMapPhotons->begin(); i != m_systSgKeyMapPhotons->end(); ++i)
       out->m_systSgKeyMapPhotons.insert(std::make_pair((*i).first, (*i).second));
@@ -3627,10 +3593,6 @@ namespace top {
     m_muonIsolationLoose = settings->m_muonIsolationLoose;
 
     m_softmuonQuality = settings->m_softmuonQuality;
-
-    for (std::vector<std::pair<std::string, std::string> >::const_iterator i = settings->m_chosen_btaggingWP.begin();
-         i != settings->m_chosen_btaggingWP.end(); ++i)
-      m_chosen_btaggingWP.push_back(*i);
 
     typedef std::map<std::size_t, std::string>::const_iterator Itr;
 

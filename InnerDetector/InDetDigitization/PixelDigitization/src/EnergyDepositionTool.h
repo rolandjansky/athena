@@ -112,7 +112,7 @@ private:
 
   Gaudi::Property<double> m_DeltaRayCut
   {
-    this, "DeltaRayCut", 117.0, "Cut of delta ray [keV]"
+    this, "DeltaRayCut", 80.7687, "Cut of delta ray [keV] - Value should be consistent with range cut in simulation"
   };
 
   Gaudi::Property<bool> m_doPU

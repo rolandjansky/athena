@@ -24,6 +24,7 @@ extern "C" {
 
 // Trigger include(s):
 #include "TrigConfData/HLTMenu.h"
+#include "TrigConfData/HLTMonitoring.h"
 #include "TrigConfData/L1Menu.h"
 #include "TrigConfData/HLTPrescalesSet.h"
 #include "TrigConfData/L1PrescalesSet.h"
@@ -68,6 +69,9 @@ namespace TrigConf {
       SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey {this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu",
         "HLT Menu key"};
 
+      SG::ReadHandleKey<TrigConf::HLTMonitoring> m_HLTMonitoringKey {this, "HLTMonitoringMenu", "DetectorStore+HLTMonitoringMenu",
+        "HLT Monitoring key"};
+
       SG::ReadHandleKey<TrigConf::L1Menu> m_L1MenuKey {this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu",
         "L1 Menu key"};
 
@@ -79,6 +83,9 @@ namespace TrigConf {
 
       Gaudi::Property< std::string > m_metaNameJSON_hlt {this, "JSONMetaObjectNameHLT", "TriggerMenuJson_HLT",
         "StoreGate key for the xAOD::TriggerMenuJson HLT configuration object"};
+
+      Gaudi::Property< std::string > m_metaNameJSON_hltmonitoring {this, "JSONMetaObjectNameHLTMonitoring", "TriggerMenuJson_HLTMonitoring",
+        "StoreGate key for the xAOD::TriggerMenuJson HLT Monitoring configuration object"};
 
       Gaudi::Property< std::string > m_metaNameJSON_l1 {this, "JSONMetaObjectNameL1", "TriggerMenuJson_L1",
         "StoreGate key for the xAOD::TriggerMenuJson L1 configuration object"};
@@ -105,6 +112,7 @@ namespace TrigConf {
 
       //  The configuration objects that we are writing
       mutable xAOD::TriggerMenuJsonContainer* m_menuJSON_hlt ATLAS_THREAD_SAFE;
+      mutable xAOD::TriggerMenuJsonContainer* m_menuJSON_hltmonitoring ATLAS_THREAD_SAFE;
       mutable xAOD::TriggerMenuJsonContainer* m_menuJSON_l1 ATLAS_THREAD_SAFE;
       mutable xAOD::TriggerMenuJsonContainer* m_menuJSON_hltps ATLAS_THREAD_SAFE;
       mutable xAOD::TriggerMenuJsonContainer* m_menuJSON_l1ps ATLAS_THREAD_SAFE;

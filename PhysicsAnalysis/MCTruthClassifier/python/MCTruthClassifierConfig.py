@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """
           Tool configuration to instantiate MCTruthClassifier
@@ -11,6 +11,7 @@ def MCTruthClassifierCfg(flags, **kwargs):
     By default, it does not do calo truth matching.
     """
     kwargs.setdefault("ParticleCaloExtensionTool", "")
+    kwargs.setdefault("CaloDetDescrManager", "")
     return MCTruthClassifierCaloTruthMatchCfg(flags, **kwargs)
 
 
@@ -24,24 +25,24 @@ def MCTruthClassifierCaloTruthMatchCfg(flags, **kwargs):
     acc = ComponentAccumulator()
 
     if "ParticleCaloExtensionTool" not in kwargs:
+
         from TrkConfig.AtlasExtrapolatorConfig import (
             MCTruthClassifierExtrapolatorCfg)
         extrapolator = acc.popToolsAndMerge(
             MCTruthClassifierExtrapolatorCfg(flags))
-        from TrackToCalo.TrackToCaloConfig import (
-            ParticleCaloExtensionToolCfg)
-        extAcc = ParticleCaloExtensionToolCfg(
-            flags,
-            Extrapolator=extrapolator)
-        kwargs["ParticleCaloExtensionTool"] = acc.popToolsAndMerge(extAcc)
+        from egammaTrackTools.egammaTrackToolsConfig import (
+            EMParticleCaloExtensionToolCfg)
+        extension = EMParticleCaloExtensionToolCfg(
+            flags, Extrapolator=extrapolator)
+        kwargs["ParticleCaloExtensionTool"] = acc.popToolsAndMerge(extension)
 
+    kwargs.setdefault("CaloDetDescrManager", "CaloDetDescrManager")
     kwargs.setdefault("barcodeG4Shift", flags.Sim.SimBarcodeOffset + 1)
 
     from AthenaConfiguration.ComponentFactory import CompFactory
-    MCTruthClassifier = CompFactory.MCTruthClassifier
-
-    acc.setPrivateTools(MCTruthClassifier(**kwargs))
+    acc.setPrivateTools(CompFactory.MCTruthClassifier(**kwargs))
     return acc
+
 
 ##########################################################
 # The function below are for the old style and should be
@@ -92,7 +93,7 @@ if __name__ == "__main__":
     Configurable.configurableRun3Behavior = 1
 
     ConfigFlags.Input.isMC = True
-    ConfigFlags.Input.Files = defaultTestFiles.RDO
+    ConfigFlags.Input.Files = defaultTestFiles.RDO_RUN2
     ConfigFlags.lock()
 
     mlog = logging.getLogger("MCTruthClassifierConfigTest")
@@ -101,14 +102,14 @@ if __name__ == "__main__":
 
     mlog.info("Configuring standard MCTruthClassifier")
     printProperties(mlog,
-                    cfg.popToolsAndMerge(
+                    cfg.getPrimaryAndMerge(
                         MCTruthClassifierCfg(ConfigFlags)),
                     nestLevel=1,
                     printDefaults=True)
 
     mlog.info("Configuring MCTruthClassifier with calo truth matching")
     printProperties(mlog,
-                    cfg.popToolsAndMerge(
+                    cfg.getPrimaryAndMerge(
                         MCTruthClassifierCaloTruthMatchCfg(ConfigFlags)),
                     nestLevel=1,
                     printDefaults=True)

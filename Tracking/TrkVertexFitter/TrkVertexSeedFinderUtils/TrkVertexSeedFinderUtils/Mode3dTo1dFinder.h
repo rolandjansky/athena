@@ -29,7 +29,7 @@ namespace Trk
 
   class IMode1dFinder;
   
-  class Mode3dTo1dFinder : public extends<AthAlgTool, IMode3dFinder>
+  class Mode3dTo1dFinder final : public extends<AthAlgTool, IMode3dFinder>
   {
   public:
     // Standard Athena constructor.
@@ -51,7 +51,7 @@ namespace Trk
     virtual Amg::Vector3D
     getMode (const double vx,
              const double vy,
-             const std::vector<Trk::PositionAndWeight>& points) const override;
+             const std::vector<Trk::PositionAndWeight>& points) const override final;
     
 
     /**
@@ -68,7 +68,7 @@ namespace Trk
     getMode (const double vx,
              const double vy,
              const std::vector<Trk::PositionAndWeight>& points,
-             std::unique_ptr<IMode3dInfo>& info) const override;
+             std::unique_ptr<IMode3dInfo>& info) const override final;
                                          
 
     /**
@@ -81,7 +81,7 @@ namespace Trk
     virtual Amg::Vector3D
     getMode (const double vx,
              const double vy,
-             const std::vector<Amg::Vector3D>& points) const override;
+             const std::vector<Amg::Vector3D>& points) const override final;
 
 
     /**
@@ -98,7 +98,7 @@ namespace Trk
     getMode (const double vx,
              const double vy,
              const std::vector<Amg::Vector3D>& points,
-             std::unique_ptr<IMode3dInfo>& info) const override;
+             std::unique_ptr<IMode3dInfo>& info) const override final;
      
 
   private:

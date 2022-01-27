@@ -13,9 +13,6 @@
 #include "MuonDigitContainer/sTgcDigit.h"
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonSimData/MuonSimData.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandGauss.h"
 
 #include "TTree.h"
 #include <functional>
@@ -28,7 +25,6 @@ namespace NSWL1 {
     StripClusterTool::StripClusterTool( const std::string& type, const std::string& name, const IInterface* parent) :
       AthAlgTool(type,name,parent),
       m_incidentSvc("IncidentSvc",name),
-      m_rndmSvc("AtRndmGenSvc",name),
       m_detManager(nullptr),
       m_tree(nullptr),
       m_clusters()
@@ -58,8 +54,6 @@ namespace NSWL1 {
     ATH_CHECK(m_incidentSvc.retrieve());
     m_incidentSvc->addListener(this,IncidentType::BeginEvent);
 
-    // retrieve the Random Service
-    ATH_CHECK(m_rndmSvc.retrieve());
     // retrieve the MuonDetectormanager
     ATH_CHECK(detStore()->retrieve( m_detManager ));
     ATH_CHECK(m_idHelperSvc.retrieve());

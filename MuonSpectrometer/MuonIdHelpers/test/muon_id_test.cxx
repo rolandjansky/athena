@@ -159,7 +159,7 @@ int check_muon_decoding(IdDictMgr& idd, bool hasCSC, bool hasSTgc, bool hasMM) {
     return 0;
 }
 
-int checkDictFile(std::string filename, bool hasCSC = true, bool hasSTgc = true, bool hasMM = true) {
+int checkDictFile(const std::string& filename, bool hasCSC = true, bool hasSTgc = true, bool hasMM = true) {
     std::cout << "=========>  checking dictionnary file=" << filename << std::endl;
     IdDictParser parser;
     parser.register_external_entity("MuonSpectrometer", filename);

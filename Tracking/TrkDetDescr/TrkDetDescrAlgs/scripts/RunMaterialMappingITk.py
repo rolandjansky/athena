@@ -62,7 +62,7 @@ if args.localgeo:
   ConfigFlags.GeoModel.useLocalGeometry = True
   
 from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
-detectors = args.detectors if 'detectors' in args and args.detectors else ['ITkPixel', 'ITkStrip']
+detectors = args.detectors if 'detectors' in args and args.detectors else ['ITkPixel', 'ITkStrip', 'HGTD']
 detectors.append('Bpipe')  # always run with beam pipe
 setupDetectorsFromList(ConfigFlags, detectors, toggle_geometry=True)
 
@@ -102,7 +102,8 @@ from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 cfg.merge(PoolReadCfg(ConfigFlags))
 
 from TrkDetDescrAlgs.TrkDetDescrAlgsConfig import ITkMaterialMappingCfg
-cfg.merge(ITkMaterialMappingCfg(ConfigFlags))
+cfg.merge(ITkMaterialMappingCfg(ConfigFlags, 
+                                name="ITkMaterialMapping"))
   
 cfg.printConfig(withDetails = True, summariseProps = True)
 

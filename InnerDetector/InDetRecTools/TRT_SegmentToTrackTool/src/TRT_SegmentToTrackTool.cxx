@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_SegmentToTrackTool/TRT_SegmentToTrackTool.h"
@@ -7,7 +7,6 @@
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "InDetIdentifier/TRT_ID.h"
 #include "TrkSurfaces/Surface.h"
-#include "TrkTrack/TrackStateOnSurfaceContainer.h"
 
 ///Needed for the track refitter
 #include "TrkFitterInterfaces/ITrackFitter.h"
@@ -187,25 +186,31 @@ namespace InDet {
     }
 
     // --- create new track state on surface vector
-    auto ntsos = Trk::TrackStateOnSurfaceProtContainer::make_unique();
-    ntsos->reserve (1 + tS.numberOfMeasurementBases());
+    auto ntsos = DataVector<const Trk::TrackStateOnSurface>();
 
     //
     // if no refit, make it a perigee
     //
     if (!m_doRefit) {
 
+      const Trk::TrackStateOnSurface* par_tsos = nullptr;
+
       // --- create surface at perigee
       Amg::Vector3D perigeePosition(0., 0., 0.);
       Trk::PerigeeSurface perigeeSurface(perigeePosition);
       // --- turn parameters into perigee...
-      auto perParm = std::unique_ptr<const Trk::Perigee>(dynamic_cast<const Trk::Perigee*>(
-       m_extrapolator->extrapolate(*segPar, perigeeSurface)));
+      std::unique_ptr<const Trk::TrackParameters> tmp =
+        m_extrapolator->extrapolate(ctx, *segPar, perigeeSurface);
+      std::unique_ptr<const Trk::Perigee> perParm = nullptr;
+      //pass ownership if of the right type
+      if (tmp && tmp->associatedSurface().type() == Trk::SurfaceType::Perigee) {
+        perParm.reset(static_cast<const Trk::Perigee*>(tmp.release()));
+      }
       if (perParm) {
         ATH_MSG_VERBOSE("Perigee version of Parameters : " << (*segPar));
       } else {
         ATH_MSG_DEBUG("Failed to build perigee parameters.Discard...");
-        ntsos->clear();
+        ntsos.clear();
         delete segPar;
         segPar = nullptr;
         delete fq;
@@ -217,10 +222,10 @@ namespace InDet {
       std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>
         typePattern;
       typePattern.set(Trk::TrackStateOnSurface::Perigee);
-      auto par_tsos = ntsos->allocate(
+      par_tsos = new Trk::TrackStateOnSurface(
         nullptr, std::move(perParm), nullptr, nullptr, typePattern);
       // push new TSOS into the list
-      ntsos->push_back(std::move(par_tsos));
+      ntsos.push_back(par_tsos);
     }
 
     //
@@ -246,7 +251,7 @@ namespace InDet {
     for (int it = 0; it < int(tS.numberOfMeasurementBases()); it++) {
 
       // the track state on service we like to constuct ...
-      Trk::TrackStateOnSurfaceProtContainer::Ptr seg_tsos;
+      const Trk::TrackStateOnSurface* seg_tsos = nullptr;
 
       // is this ROT a psuedo-measurement ?
       if (dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(
@@ -265,7 +270,8 @@ namespace InDet {
 
         if (m_doRefit) {
           // refit means we can simply copy the state, otherwise we skip it
-          seg_tsos = ntsos->allocate(tS.measurement(it)->uniqueClone(), nullptr);
+          seg_tsos =
+            new Trk::TrackStateOnSurface(tS.measurement(it)->uniqueClone(), nullptr);
         }
 
       } else {
@@ -273,7 +279,8 @@ namespace InDet {
         // normal measurement, not a pseudo measurement
         //
         // copy measurement
-        seg_tsos = ntsos->allocate (tS.measurement(it)->uniqueClone(), nullptr);
+        seg_tsos =
+          new Trk::TrackStateOnSurface(tS.measurement(it)->uniqueClone(), nullptr);
 
         //
         // --- following is for the hack below
@@ -324,16 +331,16 @@ namespace InDet {
       }
 
       // push new TSOS into the list
-       if (seg_tsos)
-        ntsos->push_back(std::move(seg_tsos));
+      if (seg_tsos)
+        ntsos.push_back(seg_tsos);
     }
 
     // Construct the new track
     Trk::TrackInfo info;
     info.setPatternRecognitionInfo(Trk::TrackInfo::TRTStandalone);
 
+    // create new track candidate
     if (!m_doRefit) {
-      ntsos->elt_allocator().protect();
       return new Trk::Track(info, std::move(ntsos), fq);
     } else {
       //
@@ -360,8 +367,12 @@ namespace InDet {
         Amg::Vector3D perigeePosition(0., 0., 0.);
         Trk::PerigeeSurface perigeeSurface(perigeePosition);
         // -- get perigee
-        const Trk::Perigee* tempper = dynamic_cast<const Trk::Perigee*>(
-          m_extrapolator->extrapolateDirectly(*segPar, perigeeSurface));
+        std::unique_ptr<const Trk::TrackParameters> tmp =
+          m_extrapolator->extrapolate(ctx, *segPar, perigeeSurface);
+        std::unique_ptr<const Trk::Perigee> tempper = nullptr;
+        if (tmp && tmp->associatedSurface().type() == Trk::SurfaceType::Perigee) {
+           tempper.reset(static_cast<const Trk::Perigee*>(tmp.release()));
+        }
         if (!tempper) {
           ATH_MSG_DEBUG("Could not produce perigee");
           delete segPar;
@@ -372,10 +383,6 @@ namespace InDet {
         // keep some values
         myd0 = tempper->parameters()[Trk::d0];
         myphi = tempper->parameters()[Trk::phi0];
-
-        // delete extrapolation
-        delete tempper;
-        tempper = nullptr;
 
       } else {
         //
@@ -474,7 +481,7 @@ namespace InDet {
 
           // ME: wow this is hacking the vector ...
           const Trk::MeasurementBase* firstmeas =
-            (**ntsos->begin()).measurementOnTrack();
+            (**ntsos.begin()).measurementOnTrack();
           Amg::MatrixX newcov(2, 2);
           newcov.setZero();
           newcov(0, 0) = (firstmeas->localCovariance())(0, 0);
@@ -485,9 +492,9 @@ namespace InDet {
             std::make_unique<Trk::PseudoMeasurementOnTrack>(
               newpar, newcov, firstmeas->associatedSurface());
           // hack replace first measurement with pseudomeasurement
-          ntsos->erase(ntsos->begin());
-          ntsos->insert(ntsos->begin(),
-                        ntsos->allocate(std::move(newpseudo), nullptr));
+          ntsos.erase(ntsos.begin());
+          ntsos.insert(ntsos.begin(),
+                        new Trk::TrackStateOnSurface(std::move(newpseudo), nullptr));
         }
 
         Amg::Vector3D field1;
@@ -549,7 +556,7 @@ namespace InDet {
                                      *surfforpar);
         Trk::PerigeeSurface persurf;
         const Trk::TrackParameters* extrappar =
-          m_extrapolator->extrapolateDirectly(ataline, persurf);
+          m_extrapolator->extrapolateDirectly(ctx, ataline, persurf).release();
 
         // now get parameters
         if (extrappar) {
@@ -588,9 +595,9 @@ namespace InDet {
       std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>
         typePattern;
       typePattern.set(Trk::TrackStateOnSurface::Perigee);
-      auto seg_tsos = ntsos->allocate(
+      Trk::TrackStateOnSurface* seg_tsos = new Trk::TrackStateOnSurface(
         nullptr, std::move(per), nullptr, nullptr, typePattern);
-      ntsos->insert(ntsos->begin(), std::move(seg_tsos));
+      ntsos.insert(ntsos.begin(), seg_tsos);
 
       ATH_MSG_VERBOSE("Constructed perigee at input to fit : " << (*per));
 
@@ -599,10 +606,9 @@ namespace InDet {
       // track
       //
 
-      ntsos->elt_allocator().protect();
       Trk::Track newTrack (info, std::move(ntsos), fq);
       Trk::Track* fitTrack =
-        m_fitterTool->fit(newTrack, true, Trk::nonInteracting);
+        m_fitterTool->fit(ctx,newTrack, true, Trk::nonInteracting).release();
 
       // cleanup
       if (segPar) {
@@ -680,9 +686,14 @@ namespace InDet {
               std::move(fcovmat)).release();
 
           // now take parameters at first measurement and exptrapolate to perigee
-	  const Trk::TrackParameters *newperpar   = m_extrapolator->extrapolate(*updatedPars,perTrack->associatedSurface(),
-										Trk::anyDirection,false,Trk::nonInteracting);
-	  delete updatedPars; updatedPars = nullptr;
+          const Trk::TrackParameters* newperpar =
+            m_extrapolator->extrapolate(ctx,
+                                        *updatedPars,
+                                        perTrack->associatedSurface(),
+                                        Trk::anyDirection,
+                                        false,
+                                        Trk::nonInteracting).release();
+          delete updatedPars; updatedPars = nullptr;
 
 	  if (!newperpar || !newperpar->covariance()) {
 	    ATH_MSG_WARNING ("Can not hack perigee parameters, extrapolation failed");

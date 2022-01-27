@@ -94,7 +94,7 @@ StatusCode MuonPRD_MultiTruthMaker::execute() {
 template <class PrepDataContainer, class SIMDATACOLLECTION>
 StatusCode MuonPRD_MultiTruthMaker::buildPRD_Truth(SG::ReadHandleKey<PrepDataContainer> prepDataKey,
                                                    SG::ReadHandleKey<SIMDATACOLLECTION> sdoKey,
-                                                   SG::WriteHandleKey<PRD_MultiTruthCollection> outputKey) {
+                                                   const SG::WriteHandleKey<PRD_MultiTruthCollection>& outputKey) {
     SG::ReadHandle<SIMDATACOLLECTION> simDataMap(sdoKey);
     if (!simDataMap.isPresent()) {
         ATH_MSG_DEBUG("SimDataCollection for key=" << sdoKey.key() << " not in storegate, not adding it ");

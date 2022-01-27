@@ -347,7 +347,6 @@ class HistoSpec(ToolSpec):
                          ybins = bins[3],ymin = bins[4], ymax=bins[5], 
                          type='TH2F' if not self.isProfile else 'TProfile',                         
             )
-            hargs.setdefault('opt', 'colz')
             if self.nVar==3:
                 hargs.type = 'TProfile2D'
         hargs.update( **self.hargs) # overwrite by user-given args if any

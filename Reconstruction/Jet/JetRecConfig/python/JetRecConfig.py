@@ -65,7 +65,13 @@ def JetRecCfg( configFlags, jetdef,  returnConfiguredDef=False):
     elif isinstance(jetdef, GroomingDefinition):
         algs, jetdef_i = getJetGroomAlgs(configFlags, jetdef, True)
 
+    # FIXME temporarily reorder for serial running
+    if configFlags.Concurrency.NumThreads <= 0:
+        jetlog.info("Reordering algorithms in sequence {0}".format(sequenceName))
+        algs = reOrderAlgs(algs)
+
     for a in algs:
+
         if isinstance(a, ComponentAccumulator):
             components.merge(a )
         else:
@@ -89,7 +95,11 @@ def JetInputCfg(configFlags,jetOrConstitdef , context="default"):
     algs = getInputAlgs(jetOrConstitdef, configFlags, context)
 
     for a in algs:
-        components.addEventAlgo( a )
+
+        if isinstance(a, ComponentAccumulator):
+            components.merge(a)
+        else:
+            components.addEventAlgo(a)
     
     return components
 
@@ -295,18 +305,16 @@ def getInputAlgs(jetOrConstitdef, configFlags=None, context="default", monTool=N
         if isInInput( inputInstance ):
             jetlog.info(f"Input container for {inputInstance} already in input file.")
             continue
-        
+
+        # Get the input or external alg
         if isinstance(inputInstance, JetInputConstit):
-            constitalg = getConstitModAlg(jetdef, inputInstance, monTool=monTool)
-            if constitalg:
-                algs +=[ constitalg ]
+            alg = getConstitModAlg(jetdef, inputInstance, monTool=monTool)
         else: # it must be a JetInputExternal
-            # check if it has something to build an Algorithm
-            if inputInstance.algoBuilder:
-                algs+=[ inputInstance.algoBuilder( jetdef, inputInstance.specs ) ]
-            else:
-                # for now just hope the input will be present... 
-                pass
+            alg = inputInstance.algoBuilder( jetdef, inputInstance.specs ) 
+
+        if alg is not None:
+            algs.append(alg)
+
     return algs
 
 
@@ -503,7 +511,7 @@ def getConstitModAlg(parentjetdef, constitSeq, monTool=None):
         
         tool =  toolclass(modInstance.name,**modInstance.properties)
         
-        if inputtype == xAODType.ParticleFlow and modInstance.tooltype not in ["CorrectPFOTool","ChargedHadronSubtractionTool"]:
+        if (inputtype == xAODType.FlowElement or inputtype == xAODType.ParticleFlow) and modInstance.tooltype not in ["CorrectPFOTool","ChargedHadronSubtractionTool"]:
             tool.IgnoreChargedPFO=True
             tool.ApplyToChargedPFO=False
         tool.InputType = inputtype
@@ -513,7 +521,7 @@ def getConstitModAlg(parentjetdef, constitSeq, monTool=None):
     seqname = "ConstitMod{0}_{1}".format(sequenceshort,constitSeq.name)
     inputcontainer = str(constitSeq.inputname)
     outputcontainer = str(constitSeq.containername)
-    if inputtype==xAODType.ParticleFlow:
+    if (inputtype == xAODType.FlowElement or inputtype == xAODType.ParticleFlow):
         # Tweak PF names because ConstModSequence needs to work with
         # up to 4 containers
         def chopPFO(thestring):
@@ -690,6 +698,24 @@ def isAnalysisRelease():
     return 'Analysis' in os.environ.get("AtlasProject", "")
 
 
+def reOrderAlgs(algs):
+    """In runIII the scheduler automatically orders algs, so the JetRecConfig helpers do not try to enforce the correct ordering.
+    This is not the case in runII config for which this jobO is intended --> This function makes sure some jet-related algs are well ordered.
+    """
+    algs = [ a for a in algs if not isinstance(a, ComponentAccumulator)] 
+    evtDensityAlgs = [(i, alg) for (i, alg) in enumerate(algs) if alg and alg.getType() == 'EventDensityAthAlg' ]
+    pjAlgs = [(i, alg) for (i, alg) in enumerate(algs) if alg and alg.getType() == 'PseudoJetAlgorithm' ]
+    pairsToswap = []
+    for i, edalg in evtDensityAlgs:
+        edInput = edalg.EventDensityTool.InputContainer
+        for j, pjalg in pjAlgs:
+            if j < i:
+                continue 
+            if edInput == str(pjalg.OutputContainer):
+                pairsToswap.append((i, j))
+    for i, j in pairsToswap:
+        algs[i], algs[j] = algs[j], algs[i]
+    return algs
 
 
 

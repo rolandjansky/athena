@@ -6,7 +6,6 @@
 #include<iostream>
 #include<fstream>
 #include<utility>
-#include<string>
 #include<filesystem>
 
 
@@ -74,13 +73,9 @@ int main(int argc, char* argv[]){
     runNumber = argv[1];
     finname = argv[2];
   }else{
-    std::cout << "For initialization: " << std::endl;
-    std::cout << ">makeInactiveModuleList.exe first" << std::endl;
-    std::cout << "Then, PixOverlay_run0.py is created to make new database tag." << std::endl;
-    std::cout << std::endl;
     std::cout << "To make inactive module list: " << std::endl;
     std::cout << ">makeInactiveModuleList.exe [run #] [ROOT file]" << std::endl;
-    std::cout << "Then, PixOverlay_run[run#].py is created." << std::endl;
+    std::cout << "Then, PixelModuleFeMask_run[run#].txt is created." << std::endl;
     return 0;
   }
 
@@ -162,18 +157,17 @@ void checkInactiveModule(bool isIBL, TFile* hitMapFile, int &npush_back, std::ve
   hemispheres.push_back("A");
   hemispheres.push_back("C");
 
-  for(std::vector<std::string>::const_iterator hemisphere = hemispheres.begin(); 
-      hemisphere != hemispheres.end(); ++hemisphere){
-    std::string lbdepDirName = std::string("OccupancyLb");
+  for(std::vector<std::string>::const_iterator hemisphere = hemispheres.begin(); hemisphere != hemispheres.end(); ++hemisphere){
+    std::string lbdepDirName = std::string("All/OccupancyLb");
 
     for(int k = 1; k <= 3; k ++){
-      std::ostringstream component, lbdepPath;
-      component << "Disk" << k << (*hemisphere);
-      lbdepPath << lbdepDirName << "/Disk" << k <<(*hemisphere);
-
+      std::string component, lbdepPath;
+      component = "Disk" +std::to_string(k) + (*hemisphere);
+      lbdepPath = lbdepDirName + "/Disk" + std::to_string(k) + (*hemisphere);
+      
       for(int phi = 0; phi < 48; phi++){
-        std::string name((static_cast<TKey*>((static_cast<TDirectory*>(hitMapFile->Get(lbdepPath.str().c_str())))->GetListOfKeys()->At(phi)))->GetName());
-        lbdep[name] = static_cast<TH1D*>((static_cast<TKey*>(((static_cast<TDirectory*>(hitMapFile->Get(lbdepPath.str().c_str())))->GetListOfKeys())->At(phi)))->ReadObj());
+        std::string name((static_cast<TKey*>((static_cast<TDirectory*>(hitMapFile->Get(lbdepPath.c_str())))->GetListOfKeys()->At(phi)))->GetName());
+        lbdep[name] = static_cast<TH1D*>((static_cast<TKey*>(((static_cast<TDirectory*>(hitMapFile->Get(lbdepPath.c_str())))->GetListOfKeys())->At(phi)))->ReadObj());
         lbdep[name]->SetName(name.c_str());
       }
     } // loop over k
@@ -202,14 +196,13 @@ void checkInactiveModule(bool isIBL, TFile* hitMapFile, int &npush_back, std::ve
 
   std::string lbdepDirName("lbdep_barrel");
   for(unsigned int layer = 0; layer < staves.size(); layer++){
-    std::ostringstream lbdepPath;
-    lbdepPath << "OccupancyLb/" << layers[layer];
-
+    std::string Layer = layers[layer];
+    const std::string lbdepPath = "All/OccupancyLb/" + Layer;
     int nModulesPerStave = 13;
     if (isIBL && layer == 0) nModulesPerStave = 32; // --- IBL --- //
       for(int module = 0; module < staves[layer] * nModulesPerStave; module++){ // loop on modules
-        std::string name((static_cast<TKey*>((static_cast<TDirectory*>(hitMapFile->Get(lbdepPath.str().c_str())))->GetListOfKeys()->At(module)))->GetName());
-        lbdep[name] = static_cast<TH1D*>((static_cast<TKey*>(((static_cast<TDirectory*>(hitMapFile->Get( lbdepPath.str().c_str() ) ))->GetListOfKeys() )->At(module) ))->ReadObj());
+        std::string name((static_cast<TKey*>((static_cast<TDirectory*>(hitMapFile->Get(lbdepPath.c_str())))->GetListOfKeys()->At(module)))->GetName());
+        lbdep[name] = static_cast<TH1D*>((static_cast<TKey*>(((static_cast<TDirectory*>(hitMapFile->Get( lbdepPath.c_str() ) ))->GetListOfKeys() )->At(module) ))->ReadObj());
         lbdep[name]->SetName(name.c_str());
       }
   }
@@ -221,20 +214,24 @@ void checkInactiveModule(bool isIBL, TFile* hitMapFile, int &npush_back, std::ve
     int flag_start = 0;
     int nbin =nEventsLBHistogram->GetNbinsX();
 
+
+
+
     //-----------------------------
     // Writing list of modules (or FEs in IBL modules) that do not work during a LB
     //-----------------------------
-    for (int LB = 1; LB <= nbin; LB++) {
+    for (int LB = 0; LB <= nbin; LB++) {
    
-      if(nEventsLBHistogram->GetBinContent(LB) < 80.) continue; // #events in LB >= 80
+      if(nEventsLBHistogram->GetBinContent(LB) < 80.) {
+	continue; // #to asure that the LB contains at least 80 events
+      }
       if(lbdep[moduleID]->GetBinContent(LB) ==0) { // (#module hits in LB) / (#events in LB) < 1
-        
 	if(flag_start == 0){
 	  flag_start = 1;
-	  LB_start = LB;
-	  LB_end = LB;
+	  LB_start = LB-1;
+	  LB_end = LB-1;
 	}else{
-	  LB_end = LB;
+	  LB_end = LB-1;
 	}
       }else{// the module have hits
 	if(flag_start == 1){
@@ -289,17 +286,17 @@ void checkInactiveFEs(bool isIBL, TFile* hitMapFile, int &npush_backFE, std::vec
 
   for(std::vector<std::string>::const_iterator hemisphere = hemispheres.begin();
       hemisphere != hemispheres.end(); ++hemisphere){
-      std::string hitMapsDirName = std::string("Occupancy2d");
+    std::string hitMapsDirName = std::string("All/Occupancy2d");
 
     for(int k = 1; k <= 3; k ++){
-      std::ostringstream component, hitMapsPath;
-      component << "Disk" << k << (*hemisphere);
-      hitMapsPath << hitMapsDirName << "/Disk" << k <<(*hemisphere);
+      std::string component, hitMapsPath;
+      component = "Disk"+std::to_string(k)+ (*hemisphere);
+      hitMapsPath = hitMapsDirName + "/Disk"+ std::to_string(k)+(*hemisphere);
 
       
       for(int phi = 0; phi < 48; phi++){
-        std::string name((static_cast<TKey*>((static_cast<TDirectory*>(hitMapFile->Get(hitMapsPath.str().c_str())))->GetListOfKeys()->At(phi)))->GetName());
-        hitMaps[name] = static_cast<TH1D*>((static_cast<TKey*>(((static_cast<TDirectory*>(hitMapFile->Get(hitMapsPath.str().c_str())))->GetListOfKeys())->At(phi)))->ReadObj());
+        std::string name((static_cast<TKey*>((static_cast<TDirectory*>(hitMapFile->Get(hitMapsPath.c_str())))->GetListOfKeys()->At(phi)))->GetName());
+        hitMaps[name] = static_cast<TH1D*>((static_cast<TKey*>(((static_cast<TDirectory*>(hitMapFile->Get(hitMapsPath.c_str())))->GetListOfKeys())->At(phi)))->ReadObj());
         hitMaps[name]->SetName(name.c_str());
       }
     } // loop over k
@@ -328,14 +325,14 @@ void checkInactiveFEs(bool isIBL, TFile* hitMapFile, int &npush_backFE, std::vec
 
   std::string hitMapsDirName("hitMaps_barrel");
   for(unsigned int layer = 0; layer < staves.size(); layer++){
-    std::ostringstream hitMapsPath;
-    hitMapsPath <<"Occupancy2d/" << layers[layer];
+    std::string hitMapsPath;
+    hitMapsPath ="All/Occupancy2d/" + layers[layer];
     int nModulesPerStave = 13;
     if (isIBL && layer == 0) nModulesPerStave = 32; // --- IBL --- //
     if (layer !=0){						//IBL ignored,because treated in function for LB information
       for(int module = 0; module < staves[layer] * nModulesPerStave; module++){ // loop on modules
-        std::string name((static_cast<TKey*>((static_cast<TDirectory*>(hitMapFile->Get(hitMapsPath.str().c_str())))->GetListOfKeys()->At(module)))->GetName());
-        hitMaps[name] = static_cast<TH1D*>((static_cast<TKey*>(((static_cast<TDirectory*>(hitMapFile->Get( hitMapsPath.str().c_str() ) ))->GetListOfKeys() )->At(module) ))->ReadObj());
+        std::string name((static_cast<TKey*>((static_cast<TDirectory*>(hitMapFile->Get(hitMapsPath.c_str())))->GetListOfKeys()->At(module)))->GetName());
+        hitMaps[name] = static_cast<TH1D*>((static_cast<TKey*>(((static_cast<TDirectory*>(hitMapFile->Get( hitMapsPath.c_str() ) ))->GetListOfKeys() )->At(module) ))->ReadObj());
         hitMaps[name]->SetName(name.c_str());
       }
     }
@@ -780,10 +777,10 @@ int getHashFromPosition (int barrel_ec, int layer, int module_phi, int module_et
 }
 
 std::vector<int> getPositionFromDCSID (std::string module_name){
-  std::string number1 = "7";
-  std::string number2 = "8";
+  std::string seven = "7";
+  std::string eight = "8";
   std::string character = "I";
-  if(module_name[13]!=number1 and module_name[13]!=number2 and module_name[1]==character){
+  if(module_name[13]!=seven and module_name[13]!=eight and module_name[1]==character){
     module_name.erase(14,2);
   }
   for(unsigned int ii = 0; ii < pixelMapping.size(); ii++) {
@@ -806,7 +803,7 @@ std::vector<int> getChannelFromHashID (int hashid){
 // Make a txt file out of masked modules/FEs
 //---------------------------------------
 void make_txt(std::string srun, int npush_back, int npush_backFE, std::vector<std::string> vsFE, std::vector<std::string> vsmodule, std::vector<int> vLB_start, std::vector<int> vLB_end, std::vector<std::string> FEcode){
-  std::string spyfilename = "./PixMapOverlay_run" + srun;
+  std::string spyfilename = "./PixelModuleFeMask_run" + srun;
   spyfilename += ".txt";
   std::ofstream txtFile;
   txtFile.open(spyfilename.c_str(),std::ofstream::out);
@@ -858,7 +855,14 @@ void make_txt(std::string srun, int npush_back, int npush_backFE, std::vector<st
   //---------------------------------------
   //List of masked modules and FEs(IBL) per LB
   //---------------------------------------
-  std::vector<std::vector<int>> channel_Modulecode(npush_back+1, std::vector<int>(4));
+  std::vector<std::vector<unsigned long>> channel_Modulecode(npush_back+1, std::vector<unsigned long>(4));
+  const std::string seven = "7";
+  const std::string eight = "8";
+  const std::string one = "1";
+  const std::string two = "2";
+  const std::string character = "I";
+  const std::string sideA = "A"; 
+  const std::string sideC = "C"; 
   if(npush_back > 0){
       for(int i=1; i<=npush_back; i++){
         std::vector<int> position = getPositionFromDCSID(*it_smodule);
@@ -891,28 +895,27 @@ void make_txt(std::string srun, int npush_back, int npush_backFE, std::vector<st
           }
           channel_Modulecode[l][0]=channel;
           channel_Modulecode[l][1]=65535;
-          std::string number1 = "7";
-          std::string number2 = "8";
-          std::string number3 = "1";
-          std::string number4 = "2";
-          std::string character = "I"; 
-          if( module_name[1]==character and (module_name[13]==number1 or module_name[13]==number2)){
+          if( module_name[1]==character and (module_name[13]==seven or module_name[13]==eight)){
            channel_Modulecode[l][1]=0;
           }
-          else if(module_name[13]!=number1 and module_name[13]!=number2 and module_name[1]==character){
-           if(module_name[15]==number3){ 
+          else if(module_name[13]!=seven and module_name[13]!=eight and module_name[1]==character){
+           if(module_name[15]==one and module_name[7]==sideA){ 
              channel_Modulecode[l][1]=1;
            }
-           else if(module_name[15]==number4){
+           else if(module_name[15]==one and module_name[7]==sideC){ 
              channel_Modulecode[l][1]=2;
            }
+           else if(module_name[15]==two and module_name[7]==sideA){
+             channel_Modulecode[l][1]=2;
+           }
+           else if(module_name[15]==two and module_name[7]==sideC){
+             channel_Modulecode[l][1]=1;
+           }
           }
-
           channel_Modulecode[l][2]=iov_start;
           channel_Modulecode[l][3]=iov_end;
           break;
         }
-        
         ++it_smodule;
         ++it_LBstart;
         ++it_LBend;
@@ -921,10 +924,9 @@ void make_txt(std::string srun, int npush_back, int npush_backFE, std::vector<st
   //-----------------------------------
   // Combine both lists
   //-----------------------------------
-  std::vector<std::vector<int>> combine(npush_backFE+npush_back+1, std::vector<int>(4));
+  std::vector<std::vector<unsigned long>> combine(npush_backFE+npush_back+1, std::vector<unsigned long>(4));
   std::string module_info;
   for(int i=1; i<=npush_backFE+npush_back; i++){
-
     if (i<=npush_backFE){
       combine[i][0]=channel_FEcode[i][0];
       combine[i][1]=channel_FEcode[i][1];

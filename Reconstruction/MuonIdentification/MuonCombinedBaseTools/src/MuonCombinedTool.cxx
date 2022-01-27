@@ -17,6 +17,7 @@
 #include "GaudiKernel/ConcurrencyFlags.h"
 #include "MuonCombinedEvent/InDetCandidate.h"
 #include "MuonCombinedEvent/MuonCandidate.h"
+#include "TrkCaloExtension/CaloExtension.h"
 namespace MuonCombined {
 
     MuonCombinedTool::MuonCombinedTool(const std::string& type, const std::string& name, const IInterface* parent) :
@@ -100,8 +101,9 @@ namespace MuonCombined {
         }
       
         const Trk::TrackStateOnSurface* id_exit{nullptr}, *dummy{nullptr}, *ms_entrance{nullptr}, *msoe_entrance{nullptr};
-        //// The MuonSystem extension tool extrapolates already the ID candidate to the MS
-        const Trk::TrackParameters* id_extension = idCandidate.getExtension() ? &(idCandidate.getExtension()->muonEntryLayerIntersection()) : nullptr;
+        //// The MuonSystem extension tool extrapolated already the ID candidate to the MS
+        const Trk::CaloExtension* calo_extension = idCandidate.getCaloExtension();
+        const Trk::TrackParameters* id_extension = calo_extension ? calo_extension->muonEntryLayerIntersection() : nullptr;
         /// Use the alignment uncertainty tool to find the last ID measurement and the 
         /// first MS measurement
         if (!m_alignUncertTool.empty()){

@@ -64,7 +64,7 @@ namespace Analysis {
         
         //-------------------------------------------------------------------------------------
         //Doing Calculation and inline functions
-        virtual StatusCode performSearch(xAOD::VertexContainer*& vxContainer, xAOD::VertexAuxContainer*& vxAuxContainer) const override;
+        virtual StatusCode performSearch(const EventContext& ctx, xAOD::VertexContainer& vxContainer) const override;
         std::vector<JpsiEECandidate> getPairs(const std::vector<const xAOD::TrackParticle*>&) const;
         std::vector<JpsiEECandidate> getPairs(const std::vector<const xAOD::Electron*>&) const;
         std::vector<JpsiEECandidate> getPairs2Colls(const std::vector<const xAOD::TrackParticle*>&, const std::vector<const xAOD::Electron*>&, bool) const;

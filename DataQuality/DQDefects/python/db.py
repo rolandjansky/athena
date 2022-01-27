@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 """
 Authors: Peter Waller <peter.waller@cern.ch> and "Peter Onyisi" <peter.onyisi@cern.ch>
@@ -19,23 +19,21 @@ from logging import getLogger; log = getLogger("DQDefects.db")
 from contextlib import contextmanager
 
 from DQUtils import fetch_iovs, IOVSet
+from DQUtils.sugar.iovtype import IOVType
 from DQUtils.channel_mapping import list_to_channelselection
+from DQUtils.sugar import RunLumi
 
 from DQDefects import DEFAULT_CONNECTION_STRING
 
 from .exceptions import DefectExistsError, DefectUnknownError
 from .folders import DefectsDBFoldersMixin
 from .ids import DefectsDBIDsNamesMixin, choose_new_defect_id
-from .tags import DefectsDBTagsMixin
+from .tags import DefectsDBTagsMixin, tagtype
 from .virtual_mixin import DefectsDBVirtualDefectsMixin
 from .virtual_calculator import calculate_virtual_defects
+from typing import Union, Tuple, Optional, Iterable, Collection
 
 import six
-if six.PY2:
-    def _encode (s, enc): return s.encode(enc)
-else:
-    def _encode (s, enc): return s
-
 
 class DefectsDB(DefectsDBVirtualDefectsMixin, 
                 DefectsDBTagsMixin,
@@ -60,8 +58,8 @@ class DefectsDB(DefectsDBVirtualDefectsMixin,
     Public interface is nominally defined in this class (DefectsDB).
     """
 
-    def __init__(self, connection_string=DEFAULT_CONNECTION_STRING,
-                 read_only=True, create=False, tag="HEAD"):
+    def __init__(self, connection_string: str = DEFAULT_CONNECTION_STRING,
+                 read_only: bool = True, create: bool = False, tag: Union[str, Tuple] = "HEAD") -> None:
         """
         Create a new DefectsDB instance.
         
@@ -85,8 +83,6 @@ class DefectsDB(DefectsDBVirtualDefectsMixin,
         self.connection_string = connection_string
         self._read_only = read_only
         self._create = create
-        import collections
-        tagtype = collections.namedtuple('tagtype', ['defects', 'logic'])
         if isinstance(tag, six.string_types):
             self._tag = tagtype(tag, tag) if tag else tagtype("HEAD", "HEAD")
         else:
@@ -97,8 +93,8 @@ class DefectsDB(DefectsDBVirtualDefectsMixin,
             if len(tag) != 2:
                 raise TypeError('tag argument must be a 2-element sequence')
             self._tag = tag
-        self._tag = tagtype(_encode(self._tag[0],'ascii'),
-                            _encode(self._tag[1],'ascii'))
+        self._tag = tagtype(self._tag[0],
+                            self._tag[1])
 
         # COOL has no way of emptying a storage buffer. Creating a new storage
         # buffer flushes the old one. Therefore, if an exception happens 
@@ -114,7 +110,7 @@ class DefectsDB(DefectsDBVirtualDefectsMixin,
             self.defects_folder
             self.defect_logic_folder
     
-    def __del__(self):
+    def __del__(self) -> None:
         """
         Ideally we would use inheritance to call destructors, but this isn't 
         possible in the general case with the way we (ab)use mixins, so we just 
@@ -122,7 +118,7 @@ class DefectsDB(DefectsDBVirtualDefectsMixin,
         """
         self._clear_connections()
     
-    def create_defect(self, name, description):
+    def create_defect(self, name: str, description: str) -> None:
         """
         Create a new type of defect; tries to figure out system ID from the
         defect name. See also: `create_defect_with_id`, `new_system_defect`.
@@ -135,9 +131,9 @@ class DefectsDB(DefectsDBVirtualDefectsMixin,
         """        
         sysid = choose_new_defect_id(self.defect_id_map, name)
         log.info("Creating new defect %s: system ID %08x", name, sysid)
-        return self._create_defect_with_id(sysid, name, description)
+        self._create_defect_with_id(sysid, name, description)
 
-    def _create_defect_with_id(self, did, name, description):
+    def _create_defect_with_id(self, did: int, name: str, description: str) -> None:
         """
         Create a new type of defect, specifying the defect ID.
         See also: `create_defect`, `new_system_defect`.
@@ -151,21 +147,21 @@ class DefectsDB(DefectsDBVirtualDefectsMixin,
         if did in self.defect_ids: raise DefectExistsError(did)
         try:
             oldname = self.normalize_defect_names(name)
-            already_exists = True
+            raise DefectExistsError(f'Defect {oldname} already exists')
         except DefectUnknownError:
-            already_exists = False
-        if already_exists:
-            raise DefectExistsError('Defect %s already exists' % oldname)
+            pass
         
         self.defects_folder.createChannel(did,
-                                          _encode(name,'ascii'),
-                                          _encode(description,'utf-8'))
+                                          name.encode('ascii'),
+                                          description.encode('utf-8'))
         self._new_defect(did, name)
     
-    def retrieve(self, since=None, until=None, channels=None, nonpresent=False,
-                 primary_only=False, ignore=None,
-                 with_primary_dependencies=False, intersect=False,
-                 with_time=False, evaluate_full=True):
+    def retrieve(self, since: Optional[Union[int, Tuple[int,int], RunLumi]] = None,
+                 until: Optional[Union[int, Tuple[int,int], RunLumi]] = None, 
+                 channels: Optional[Iterable[Union[str,int]]] = None, nonpresent: bool = False,
+                 primary_only: bool = False, ignore: Collection[str] = None,
+                 with_primary_dependencies: bool = False, intersect: bool = False,
+                 with_time: bool = False, evaluate_full: bool = True) -> IOVSet:
         """
         Retrieve defects from the database.
         
@@ -203,7 +199,7 @@ class DefectsDB(DefectsDBVirtualDefectsMixin,
                 virtual_channels = None
             else:
                 virtual_channels = self.virtual_defect_ids
-            primary_channels = sorted(self.defect_ids)
+            primary_channels = set(self.defect_ids)
             query_channels = None # (all)
         
         primary_output_names = [self.defect_id_map[pid] for pid in primary_channels]
@@ -230,6 +226,8 @@ class DefectsDB(DefectsDBVirtualDefectsMixin,
         
             for logic in ordered_logics:
                 logic.set_evaluation(evaluate_full)
+        else:
+            ordered_logics = []
         
         # Figure out if the set of channels will produce too many ranges for COOL
         if query_channels is not None:
@@ -301,8 +299,8 @@ class DefectsDB(DefectsDBVirtualDefectsMixin,
                 self.defects_folder.flushStorageBuffer()
         return thunk()
     
-    def insert(self, defect_id, since, until, comment, added_by, 
-               present=True, recoverable=False):
+    def insert(self, defect_id: Union[str, int], since: int, until: int, comment: str, added_by: str, 
+               present: bool = True, recoverable: bool = False) -> None:
         """
         Insert a new defect into the database.
         
@@ -319,7 +317,7 @@ class DefectsDB(DefectsDBVirtualDefectsMixin,
         return self._insert(defect_id, since, until, comment, added_by,
                             present, recoverable, self.defects_tag)
 
-    def _insert_iov(self, iov, tag):
+    def _insert_iov(self, iov: IOVType, tag: str) -> None:
         """
         Helper function for inserting IOV objects, since record order doesn't
         match function argument order
@@ -327,8 +325,9 @@ class DefectsDB(DefectsDBVirtualDefectsMixin,
         return self._insert(iov.channel, iov.since, iov.until, iov.comment,
                             iov.user, iov.present, iov.recoverable, tag)
 
-    def _insert(self, defect_id, since, until, comment, added_by,
-                present=True, recoverable=False, tag='HEAD'):
+    def _insert(self, defect_id: Union[str, int], since: Union[int, Tuple[int, int], RunLumi], 
+                until: Union[int, Tuple[int, int], RunLumi], comment: str, added_by: str,
+                present: bool = True, recoverable: bool = False, tag: str = 'HEAD') -> None:
         """
         Implementation of insert, allows tag specification for internal
         functions
@@ -342,10 +341,10 @@ class DefectsDB(DefectsDBVirtualDefectsMixin,
         
         p["present"] = present
         p["recoverable"] = recoverable
-        p["user"] = _encode(added_by, 'utf-8')
-        p["comment"] = _encode(comment, 'utf-8')
+        p["user"] = added_by.encode('utf-8')
+        p["comment"] = comment.encode('utf-8')
 
         defect_id = self.defect_chan_as_id(defect_id, True)
         
-        store(since, until, p, defect_id, tag,
+        store(since, until, p, defect_id, tag.encode('ascii'),
               (True if tag != 'HEAD' else False))

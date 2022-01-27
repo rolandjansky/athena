@@ -475,26 +475,28 @@ namespace InDetDD {
     //Since these are barrel, endcap, sensor-type, specific, might be better for these to be calculated in the design()
     //However, not clear how one could do that for the annulus calculation which uses global frame
     double sinStereo = 0.;
+    auto designShape = m_siDesign->shape();
     if (isBarrel()) {
       sinStereo = this->phiAxis().z();
     } else { // endcap
-      if (m_siDesign->shape() == InDetDD::Annulus) { //built-in Stereo angle for Annulus shape sensor
-	Amg::Vector3D sensorCenter = m_siDesign->sensorCenter();
-	//Below retrieved method will return -sin(m_Stereo), thus sinStereolocal = sin(m_Stereo)
-	double sinStereoReco = - (m_siDesign->sinStripAngleReco(sensorCenter[1], sensorCenter[0]));
-	double cosStereoReco = sqrt(1-sinStereoReco*sinStereoReco); 
-	double radialShift = sensorCenter[0]; 
-	//The focus of all strips in the local reco frame
-	Amg::Vector2D localfocus(-radialShift*sinStereoReco, radialShift - radialShift*cosStereoReco);
-	//The focus of all strips in the global frame
-	Amg::Vector3D globalfocus(globalPosition(localfocus));
-	//The direction of x-axis of the Strip frame in the global frame
-        const Amg::Vector3D& center = this->center();
-	Amg::Vector3D globalSFxAxis =(center - globalfocus)/radialShift;
-	//Stereo angle is the angle between global radial direction and the x-axis of the Strip frame in the global frame 
-	sinStereo = (center.y() * globalSFxAxis.x() - center.x() * globalSFxAxis.y()) / center.perp();   
+      if (designShape == InDetDD::Annulus) { //built-in Stereo angle for Annulus shape sensor
+        Amg::Vector3D sensorCenter = m_siDesign->sensorCenter();
+        //Below retrieved method will return -sin(m_Stereo), thus sinStereolocal = sin(m_Stereo)
+        double sinStereoReco = - (m_siDesign->sinStripAngleReco(sensorCenter[1], sensorCenter[0]));
+        double cosStereoReco = sqrt(1-sinStereoReco*sinStereoReco); 
+        double radialShift = sensorCenter[0]; 
+        //The focus of all strips in the local reco frame
+        Amg::Vector2D localfocus(-radialShift*sinStereoReco, radialShift - radialShift*cosStereoReco);
+        //The focus of all strips in the global frame
+        Amg::Vector3D globalfocus(globalPosition(localfocus));
+        //The direction of x-axis of the Strip frame in the global frame
+              const Amg::Vector3D& center = this->center();
+        Amg::Vector3D globalSFxAxis =(center - globalfocus)/radialShift;
+        //Stereo angle is the angle between global radial direction and the x-axis of the Strip frame in the global frame 
+        sinStereo = (center.y() * globalSFxAxis.x() - center.x() * globalSFxAxis.y()) / center.perp();   
       }
-      else {
+      // else if (designShape == InDetDD::PolarAnnulus) {} // Polar specialisation in future
+      else { // barrel
         const Amg::Vector3D& etaAxis = this->etaAxis();
         const Amg::Vector3D& center = this->center();
         sinStereo = (center.y() * etaAxis.x() - center.x() * etaAxis.y()) / center.perp();

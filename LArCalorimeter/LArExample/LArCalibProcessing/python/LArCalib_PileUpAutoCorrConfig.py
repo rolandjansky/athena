@@ -1,3 +1,4 @@
+
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory 
@@ -6,7 +7,7 @@ from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 def LArPileUpAutoCorrCfg(flags):
 
     #Get basic services and cond-algos
-    from LArCalibProcessing.LArCalibBaseConfig import LArCalibBaseCfg
+    from LArCalibProcessing.LArCalibBaseConfig import LArCalibBaseCfg,chanSelStr
     result=LArCalibBaseCfg(flags)
 
     from IOVDbSvc.IOVDbSvcConfig import addFolders
@@ -41,7 +42,8 @@ def LArPileUpAutoCorrCfg(flags):
 
     del rs
 
-    result.merge(addFolders(flags,flags.LArCalib.AutoCorr.Folder,detDb=flags.LArCalib.Input.Database, tag=AutoCorrTag,className="LArAutoCorrComplete"))
+    result.merge(addFolders(flags,flags.LArCalib.AutoCorr.Folder,detDb=flags.LArCalib.Input.Database, tag=AutoCorrTag, modifiers=chanSelStr(flags), 
+                            className="LArAutoCorrComplete"))
 
     #Need ADC2MeV values for AutoCorrCondAlg ... 
     #use current production values as input conditions
@@ -114,8 +116,7 @@ if __name__ == "__main__":
     from LArCalibProcessing.LArCalibConfigFlags import addLArCalibFlags
     addLArCalibFlags(ConfigFlags)
 
-
-
+    ConfigFlags.Input.Files=[]
     ConfigFlags.LArCalib.Input.RunNumbers=[400939,]
     ConfigFlags.LArCalib.Input.Database="/home/wlampl/calibTest/00400939_00400943_00400945_Barrel-EMB-EMEC_HIGH_40_21.0.20_1/poolFiles/myDB200_00400939_00400943_00400945_EB-EMBA_one.db_Delay"
     ConfigFlags.LArCalib.Input.SubDet="EM"
@@ -128,6 +129,8 @@ if __name__ == "__main__":
     #ConfigFlags.Exec.OutputLevel=1
     ConfigFlags.LArCalib.OFC.Ncoll=20
     ConfigFlags.LArCalib.OFC.Nsamples=5
+    ConfigFlags.lock()
+
     cfg=MainServicesCfg(ConfigFlags)
     cfg.merge(LArPileUpAutoCorrCfg(ConfigFlags))
 

@@ -48,7 +48,7 @@ Cascade3Plus1::Cascade3Plus1(const std::string& t, const std::string& n, const I
     m_pvRefitter("Analysis::PrimaryVertexRefitter"),
     m_cascadeOutputsKeys{ "CascadeVtx1", "CascadeVtx2" }
 {
-
+    declareProperty("V0Tools",     m_V0Tools);
     declareProperty("TrackMassHyp",     m_trackMasses);
     declareProperty("CascadeVertexCollections",  m_cascadeOutputsKeys);
     declareProperty("TwoTrackMassMin",  m_2trackmassMin);

@@ -6,6 +6,7 @@
 
 #include "MuonDigitContainer/CscDigit.h"
 #include <algorithm>
+#include <utility>
 
 /** Member functions */
 
@@ -23,7 +24,7 @@ CscDigit::CscDigit(const Identifier& id, int charge, float time)
   : MuonDigit(id), m_charge(charge), m_time(time) { }
 
 CscDigit::CscDigit(const Identifier& id, std::vector<float> sampleCharges)
-  : MuonDigit(id), m_sampleCharges(sampleCharges) {
+  : MuonDigit(id), m_sampleCharges(std::move(sampleCharges)) {
 
   std::vector<float, std::allocator<float> >::iterator pkit
     = std::max_element( m_sampleCharges.begin(), m_sampleCharges.end() );

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,7 +13,6 @@
 #include "SiSPSeededTrackFinderData/SeedToTrackConversionData.h"
 #include "StoreGate/WriteHandle.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
-#include "TrkTrack/TrackStateOnSurfaceContainer.h"
 
 #include <iomanip>
 #include <iostream>
@@ -99,6 +98,7 @@ void InDet::SeedToTrackConversionTool::executeSiSPSeedSegments(SeedToTrackConver
                                                                const int& mtrk,
                                                                const std::vector<const Trk::SpacePoint*>& Sp) const
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   ++m_totseed; // accumulate all seeds
   if (mtrk>0) ++m_survived; // survided seeds 
   std::vector<const Trk::PrepRawData*> prdsInSp;
@@ -108,25 +108,24 @@ void InDet::SeedToTrackConversionTool::executeSiSPSeedSegments(SeedToTrackConver
     if (prds.second && prds.first != prds.second) prdsInSp.push_back(prds.second);
   }
   Trk::PerigeeSurface persurf;
-  std::unique_ptr<const Trk::TrackParameters> per(m_extrapolator->extrapolate(*Tp, persurf, Trk::anyDirection, false, Trk::nonInteracting));
+  std::unique_ptr<const Trk::TrackParameters> per(m_extrapolator->extrapolate(ctx,*Tp, persurf, Trk::anyDirection, false, Trk::nonInteracting));
   std::unique_ptr<const Trk::TrackParameters> prevpar(Tp->uniqueClone());
   if (per) {
     std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
     typePattern.set(Trk::TrackStateOnSurface::Perigee);
-    auto traj = Trk::TrackStateOnSurfaceProtContainer::make_unique();
-    auto pertsos = traj->allocate(nullptr, std::move(per), nullptr, nullptr, typePattern);
-    traj->reserve (prdsInSp.size() + 1);
-    traj->push_back(std::move(pertsos));
+    const Trk::TrackStateOnSurface* pertsos = new Trk::TrackStateOnSurface(nullptr, std::move(per), nullptr, nullptr, typePattern);
+    auto traj = DataVector<const Trk::TrackStateOnSurface>();
+    traj.push_back(pertsos);
     for (const Trk::PrepRawData* prd: prdsInSp) {
       const Trk::Surface& surf = prd->detectorElement()->surface(prd->identify());
-      std::unique_ptr<const Trk::TrackParameters> thispar(m_extrapolator->extrapolate(*prevpar, surf, Trk::alongMomentum, false, Trk::nonInteracting));
+      std::unique_ptr<const Trk::TrackParameters> thispar(m_extrapolator->extrapolate(ctx,*prevpar, surf, Trk::alongMomentum, false, Trk::nonInteracting));
       if (thispar) {
         std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
         typePattern.set(Trk::TrackStateOnSurface::Measurement);
         std::unique_ptr<const Trk::RIO_OnTrack> rot(m_rotcreator->correct(*prd, *thispar));
         if (rot) {
-          auto tsos = traj->allocate(std::move(rot), thispar->uniqueClone(), nullptr, nullptr, typePattern);
-          traj->push_back(std::move(tsos));
+          const Trk::TrackStateOnSurface* tsos = new Trk::TrackStateOnSurface(std::move(rot), thispar->uniqueClone(), nullptr, nullptr, typePattern);
+          traj.push_back(tsos);
           prevpar = std::move(thispar);
         }
       }
@@ -134,7 +133,6 @@ void InDet::SeedToTrackConversionTool::executeSiSPSeedSegments(SeedToTrackConver
     if (mtrk>0) { // survived seeds set as
       data.trackInfo().setTrackFitter(Trk::TrackInfo::xKalman); // xk seedfinder
     }
-    traj->elt_allocator().protect();
     Trk::Track* t = new Trk::Track(data.trackInfo(), std::move(traj), nullptr);
     if (t) data.seedSegmentsCollection()->push_back(t);
   }

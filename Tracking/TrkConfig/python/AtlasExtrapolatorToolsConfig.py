@@ -1,120 +1,142 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Configuration of tools for ATLAS extrapolator
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-# @TODO reture once migration to tracking geometry cond alg is complete
-from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
 
 
-def AtlasNavigatorCfg(flags, name='AtlasNavigator'):
+def AtlasNavigatorCfg(flags,
+                      name='AtlasNavigator',
+                      **kwargs):
     # get the correct TrackingGeometry setup
     result = ComponentAccumulator()
-    geom_svc = None
-    geom_cond_key = ''
-    if not use_tracking_geometry_cond_alg:
-        from TrkConfig.AtlasTrackingGeometrySvcConfig import (
-            TrackingGeometrySvcCfg)
-        acc = TrackingGeometrySvcCfg(flags)
-        geom_svc = acc.getPrimary()
-        result.merge(acc)
-    else:
-        from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import (
-            TrackingGeometryCondAlgCfg)
+    if 'TrackingGeometryKey' not in kwargs:
+        from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
         acc = TrackingGeometryCondAlgCfg(flags)
         geom_cond_key = acc.getPrimary().TrackingGeometryWriteKey
         result.merge(acc)
+        kwargs.setdefault("TrackingGeometryKey", geom_cond_key)
+
     # the UNIQUE NAVIGATOR ( === UNIQUE GEOMETRY) ------------------------
-    Trk__Navigator = CompFactory.Trk.Navigator
-    AtlasNavigator = Trk__Navigator(name=name,
-                                    TrackingGeometrySvc=geom_svc,
-                                    TrackingGeometryKey=geom_cond_key)
-    result.addPublicTool(AtlasNavigator, primary=True)
+    result.setPrivateTools(CompFactory.Trk.Navigator(name,**kwargs))
     return result
 
-
-def AtlasRKPropagatorCfg(flags, name='AtlasRungeKuttaPropagator', **kwargs):
+def AtlasRKPropagatorCfg(flags,
+                         name='AtlasRungeKuttaPropagator',
+                         **kwargs):
     result = ComponentAccumulator()
-    RkPropagator = CompFactory.Trk.RungeKuttaPropagator
-    AtlasRungeKuttaPropagator = RkPropagator(name, **kwargs)
-    result.addPublicTool(AtlasRungeKuttaPropagator, primary=True)
+    AtlasRungeKuttaPropagator = CompFactory.Trk.RungeKuttaPropagator(name, **kwargs)
+    result.setPrivateTools(AtlasRungeKuttaPropagator)
     return result
 
-
-def AtlasSTEP_PropagatorCfg(flags, name='AtlasSTEP_Propagator', **kwargs):
+def AtlasSTEP_PropagatorCfg(flags,
+                            name='AtlasSTEP_Propagator',
+                            **kwargs):
     result = ComponentAccumulator()
-    STEP_Propagator = CompFactory.Trk.STEP_Propagator
-    AtlasSTEP_Propagator = STEP_Propagator(name, **kwargs)
-    result.addPublicTool(AtlasSTEP_Propagator, primary=True)
+    AtlasSTEP_Propagator = CompFactory.Trk.STEP_Propagator(name, **kwargs)
+    result.setPrivateTools(AtlasSTEP_Propagator)
     return result
 
-
-def AtlasNoMatSTEP_PropagatorCfg(flags, name='AtlasNoMatSTEP_Propagator', **kwargs):
+def AtlasNoMatSTEP_PropagatorCfg(flags,
+                            name='NoMatSTEP_Propagator',
+                            **kwargs):
     kwargs.setdefault("MaterialEffects", False)
     return AtlasSTEP_PropagatorCfg(flags, name, **kwargs)
 
+def MuonSTEP_PropagatorCfg(flags, name='MuonSTEP_Propagator', **kwargs):
+    # In the old ConfigDb this was named MuonStraightLinePropagator (!)
+    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+    result = ComponentAccumulator()
 
-def InDetPropagatorCfg(flags, name='InDetPropagator', **kwargs):
+    acc  = MagneticFieldSvcCfg(flags)
+    result.merge(acc)
+
+    kwargs.setdefault("Tolerance", 0.00001 )
+    kwargs.setdefault("MaterialEffects", True  )
+    kwargs.setdefault("IncludeBgradients", True  )
+
+    propagator = CompFactory.Trk.STEP_Propagator(name=name, **kwargs)
+    result.setPrivateTools(propagator)
+    return result
+
+def MuonCombinedPropagatorCfg(flags, name='MuonCombinedPropagator', **kwargs ):
+    if not flags.Muon.MuonTrigger:
+        kwargs.setdefault("AccuracyParameter",   .000001 )
+        kwargs.setdefault("IncludeBgradients",   True )
+        kwargs.setdefault("MaxHelixStep",        .001 )
+        kwargs.setdefault("MaxStraightLineStep", .001 )
+    return AtlasRKPropagatorCfg(flags, name, **kwargs)
+
+def InDetPropagatorCfg(flags,
+                       name='InDetPropagator',
+                       **kwargs):
     result = ComponentAccumulator()
 
     InDetPropagator = None
-    if flags.InDet.propagatorType == "STEP":
-        InDetPropagator = result.getPrimaryAndMerge(
+    if flags.InDet.Tracking.propagatorType == "STEP":
+        InDetPropagator = result.popToolsAndMerge(
             AtlasSTEP_PropagatorCfg(flags, name, **kwargs))
-    elif flags.InDet.propagatorType == "RungeKutta":
+    elif flags.InDet.Tracking.propagatorType == "RungeKutta":
         kwargs.setdefault("AccuracyParameter", 0.0001)
         kwargs.setdefault("MaxStraightLineStep", .004)  # Fixes a failed fit
-        InDetPropagator = result.getPrimaryAndMerge(
+        InDetPropagator = result.popToolsAndMerge(
             AtlasRKPropagatorCfg(flags, name, **kwargs))
 
-    result.addPublicTool(InDetPropagator, primary=True)
+    result.setPrivateTools(InDetPropagator)
     return result
 
 
-def ITkPropagatorCfg(flags, name='ITkPropagator', **kwargs):
+def ITkPropagatorCfg(flags,
+                     name='ITkPropagator',
+                     **kwargs):
+    kwargs.setdefault("AccuracyParameter", 0.0001)
+    kwargs.setdefault("MaxStraightLineStep", .004)  # Fixes a failed fit
+    return AtlasRKPropagatorCfg(flags, name, **kwargs)
+
+def AtlasEnergyLossUpdatorCfg(flags,
+                              name='AtlasEnergyLossUpdator',
+                              **kwargs):
     result = ComponentAccumulator()
-
-    ITkPropagator = None
-    if flags.ITk.propagatorType == "STEP":
-        ITkPropagator = result.getPrimaryAndMerge(
-            AtlasSTEP_PropagatorCfg(flags, name, **kwargs))
-    elif flags.ITk.propagatorType == "RungeKutta":
-        kwargs.setdefault("AccuracyParameter", 0.0001)
-        kwargs.setdefault("MaxStraightLineStep", .004)  # Fixes a failed fit
-        ITkPropagator = result.getPrimaryAndMerge(
-            AtlasRKPropagatorCfg(flags, name, **kwargs))
-
-    result.addPublicTool(ITkPropagator, primary=True)
+    kwargs.setdefault("UseBetheBlochForElectrons", False)
+    result.setPrivateTools(CompFactory.Trk.EnergyLossUpdator(name, **kwargs))
     return result
 
-
-def AtlasMaterialEffectsUpdatorCfg(flags, name='AtlasMaterialEffectsUpdator', **kwargs):
+def AtlasMaterialEffectsUpdatorCfg(flags,
+                                   name='AtlasMaterialEffectsUpdator',
+                                   **kwargs):
     result = ComponentAccumulator()
-    MaterialEffectsUpdator = CompFactory.Trk.MaterialEffectsUpdator
-    AtlasMaterialEffectsUpdator = MaterialEffectsUpdator(name, **kwargs)
-    result.addPublicTool(AtlasMaterialEffectsUpdator, primary=True)
+    kwargs.setdefault("EnergyLossUpdator", result.popToolsAndMerge(AtlasEnergyLossUpdatorCfg(flags)))
+    result.setPrivateTools(CompFactory.Trk.MaterialEffectsUpdator(name, **kwargs))
     return result
 
 
-def AtlasMaterialEffectsUpdatorLandauCfg(flags, name='AtlasMaterialEffectsUpdatorLandau', **kwargs):
+def AtlasMaterialEffectsUpdatorLandauCfg(flags,
+                                         name='AtlasMaterialEffectsUpdatorLandau',
+                                         **kwargs):
     kwargs.setdefault("LandauMode", True)
     return AtlasMaterialEffectsUpdatorCfg(flags, name, **kwargs)
 
 
-def AtlasNoElossMaterialEffectsUpdatorCfg(flags, name='AtlasNoElossMaterialEffectsUpdator', **kwargs):
+def AtlasNoElossMaterialEffectsUpdatorCfg(flags,
+                                          name='AtlasNoElossMaterialEffectsUpdator',
+                                          **kwargs):
     kwargs.setdefault("EnergyLoss", False)
     return AtlasMaterialEffectsUpdatorCfg(flags, name, **kwargs)
 
 
-def InDetMaterialEffectsUpdatorCfg(flags, name="InDetMaterialEffectsUpdator", **kwargs):
+def InDetMaterialEffectsUpdatorCfg(flags,
+                                   name="InDetMaterialEffectsUpdator",
+                                   **kwargs):
     if not flags.BField.solenoidOn:
         import AthenaCommon.SystemOfUnits as Units
-        kwargs.setdefault(EnergyLoss=False)
-        kwargs.setdefault(ForceMomentum=True)
-        kwargs.setdefault(ForcedMomentumValue=1000*Units.MeV)
+        kwargs.setdefault("EnergyLoss", False)
+        kwargs.setdefault("ForceMomentum", True)
+        kwargs.setdefault("ForcedMomentumValue", 1000*Units.MeV)
     return AtlasMaterialEffectsUpdatorCfg(flags, name, **kwargs)
 
 
-def ITkMaterialEffectsUpdatorCfg(flags, name="ITkMaterialEffectsUpdator", **kwargs):
+def ITkMaterialEffectsUpdatorCfg(flags,
+                                 name="ITkMaterialEffectsUpdator",
+                                 **kwargs):
     return InDetMaterialEffectsUpdatorCfg(flags, name, **kwargs)

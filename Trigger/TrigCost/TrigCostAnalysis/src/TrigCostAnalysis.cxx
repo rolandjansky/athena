@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #define BOOST_BIND_GLOBAL_PLACEHOLDERS // silence Boost pragma message (fixed in Boost 1.76)
 #include <boost/property_tree/json_parser.hpp>
 
 #include "GaudiKernel/ThreadLocalContext.h"
-#include "TrigConfHLTData/HLTUtils.h"
+#include "TrigConfHLTUtils/HLTUtils.h"
 
 #include "PathResolver/PathResolver.h"
 
@@ -38,6 +38,8 @@ StatusCode  TrigCostAnalysis::initialize() {
   ATH_CHECK( m_costDataKey.initialize() );
   ATH_CHECK( m_rosDataKey.initialize() );
   ATH_CHECK( m_HLTMenuKey.initialize() );
+
+  ATH_CHECK( m_metadataDataKey.initialize( SG::AllowEmpty ) );
 
 
   if (!m_enhancedBiasTool.name().empty()) {
@@ -163,7 +165,7 @@ float TrigCostAnalysis::getWeight(const EventContext& context) {
 }
 
 
-TH1* TrigCostAnalysis::bookGetPointer(TH1* hist, const std::string& tDir) {
+TH1* TrigCostAnalysis::bookGetPointer(TH1* hist, const std::string& tDir) const {
   std::string histName(hist->GetName());
   std::string bookingString = "/COSTSTREAM/" + tDir + "/" + histName;
 
@@ -197,10 +199,25 @@ StatusCode TrigCostAnalysis::execute() {
   SG::ReadHandle<xAOD::TrigCompositeContainer> rosDataHandle(m_rosDataKey, context);
   ATH_CHECK( rosDataHandle.isValid() );
 
+
+  if (!m_metadataDataKey.empty()){
+    SG::ReadHandle<xAOD::TrigCompositeContainer> metadataDataHandle(m_metadataDataKey, context);
+    ATH_CHECK( metadataDataHandle.isValid() );
+
+    for (const xAOD::TrigComposite* tc : *metadataDataHandle) {
+      try {
+        const std::string hostname = tc->getDetail<std::string>("hostname");
+      } catch ( const std::exception& ) {
+        ATH_MSG_WARNING("Missing HLT_TrigCostMetadataContainer EDM hostname for event " << context.eventID().event_number());
+      }
+
+    }
+  }
+
   // Save indexes of algorithm in costDataHandle
   std::map<std::string, std::set<size_t>> chainToAlgIdx;
   std::map<std::string, std::set<size_t>> chainToUniqAlgs; // List for unique algorithms for each chain
-  std::map<std::string, std::set<size_t>> seqToAlgIdx;
+  std::map<std::string, std::map<int16_t, std::set<size_t>>> seqToAlgIdx; // Map of algorithms split in views
   std::map<std::string, std::vector<TrigConf::Chain>> algToChain;
   ATH_CHECK( m_algToChainTool->getChainsForAllAlgs(context, algToChain) );
 
@@ -224,7 +241,8 @@ StatusCode TrigCostAnalysis::execute() {
     }
 
     if (algToSeq.count(algName)){
-      seqToAlgIdx[algToSeq[algName]].insert(tc->index());
+      const int16_t view = tc->getDetail<int16_t>("view");
+      seqToAlgIdx[algToSeq[algName]][view].insert(tc->index());
     }
   }
 
@@ -310,17 +328,23 @@ StatusCode TrigCostAnalysis::registerMonitors(MonitoredRange* range) {
   }
   if (m_doMonitorChain) {
     ATH_CHECK( range->addMonitor(std::make_unique<MonitorChain>("Chain_HLT", range)) );
-    ATH_MSG_INFO("Registering Chain_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
+    ATH_MSG_DEBUG("Registering Chain_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
   }
   if (m_doMonitorChainAlgorithm) {
     ATH_CHECK( range->addMonitor(std::make_unique<MonitorChainAlgorithm>("Chain_Algorithm_HLT", range)) );
-    ATH_MSG_INFO("Registering Chain_Algorihtm_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
+    ATH_MSG_DEBUG("Registering Chain_Algorihtm_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
   }
   if (m_doMonitorSequence) {
     ATH_CHECK( range->addMonitor(std::make_unique<MonitorSequence>("Sequence_HLT", range)) );
-    ATH_MSG_INFO("Registering Sequence_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
+    ATH_MSG_DEBUG("Registering Sequence_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
   }
   // if (m_do...) {}
+  
+  // Set the verbosity for the monitors
+  for (const std::unique_ptr<MonitorBase>& monitor : range->getMonitors()){
+    monitor->msg().setLevel(msg().level());
+  }
+
   return StatusCode::SUCCESS;
 }
 

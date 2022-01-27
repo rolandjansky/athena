@@ -154,7 +154,7 @@ namespace MuonCalib {
         }
     }
 
-    bool CalibRtDbOperations::ReadForConditions(std::string /*site_name*/, int head_id, IConditionsStorage& storage) {
+    bool CalibRtDbOperations::ReadForConditions(const std::string& /*site_name*/, int head_id, IConditionsStorage& storage) {
         try {
             m_db_conn.OpenTransaction();
             m_query = m_db_conn.GetQuery();
@@ -229,7 +229,7 @@ namespace MuonCalib {
         m_query->addToOutputList("CALIBFLAG");
         m_query->addToOutputList("BINS");
         m_query->addToOutputList("ALGO_FLAG");
-        if (full_info != NULL) {
+        if (full_info != nullptr) {
             m_query->addToOutputList("N_SEGS");
             m_query->addToOutputList("AVER_ANGLE");
             m_query->addToOutputList("DELTA_AVER_ANGLE");
@@ -248,7 +248,7 @@ namespace MuonCalib {
             m_rt_id = al["CALIBFLAG"].data<short>();
             m_n_points = static_cast<int>(al["BINS"].data<short>());
             m_prev_algs = al["ALGO_FLAG"].data<std::string>();
-            if (full_info != NULL) {
+            if (full_info != nullptr) {
                 full_info->setNumSeg(static_cast<int>(al["N_SEGS"].data<int>()));
                 full_info->setMeanAng(al["AVER_ANGLE"].data<float>());
                 full_info->setRmsAng(al["DELTA_AVER_ANGLE"].data<float>());
@@ -384,7 +384,7 @@ namespace MuonCalib {
         coral::AttributeList rowBuffer;
         fullInfoInitData(full_info, validflag, rowBuffer, n_points, true);
         editor.insertRow(rowBuffer);
-        return getRtId((validflag > 1), NULL);
+        return getRtId((validflag > 1), nullptr);
     }
 
     inline bool CalibRtDbOperations ::insertRTSable(const std::vector<SamplePoint>& points) {

@@ -16,7 +16,6 @@
 #include "TrkToolInterfaces/IBoundaryCheckTool.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkParameters/TrackParameters.h"
-#include "TrkTrack/TrackStateOnSurfaceContainer.h"
 #include <atomic>
 #include <vector>
 #include <map>
@@ -75,9 +74,8 @@ namespace InDet
 	  The parthyp argument is relevant for the extrapolation steps in the hole search.
 	  Attention: This is a factory, ownership of the return vector is passed to the calling method.
       */
-      virtual Trk::TrackStateOnSurfaceProtContainer::ContainerUniquePtr
-      getHolesOnTrack(const Trk::Track& track, 
-                      const Trk::ParticleHypothesis partHyp = Trk::pion) const ;
+      virtual const DataVector<const Trk::TrackStateOnSurface>* getHolesOnTrack(const Trk::Track& track, 
+										const Trk::ParticleHypothesis partHyp = Trk::pion) const ;
       
       /** Input : track, parthyp
 	  Return: A pointer to a new Trk::Track which containes the information of the input track plus the tsos of the identified holes
@@ -105,7 +103,7 @@ namespace InDet
       */
       void searchForHoles(const Trk::Track& track, 
 			  std::vector<int>* information ,
-                          Trk::TrackStateOnSurfaceProtContainer* listOfHoles,
+			  std::vector<const Trk::TrackStateOnSurface*>* listOfHoles,
 			  const Trk::ParticleHypothesis partHyp = Trk::pion) const;
       
       /**ID pixel helper*/
@@ -157,19 +155,17 @@ namespace InDet
       void performHoleSearchStepWise(std::map<const Identifier, const Trk::TrackStateOnSurface*>& mapOfHits,
 				     std::map<const Identifier, std::pair<const Trk::TrackParameters*,const bool> >& mapOfPredictions,
 				     std::vector<int>* information,
-				     Trk::TrackStateOnSurfaceProtContainer* listOfHoles) const;
+				     std::vector<const Trk::TrackStateOnSurface*>* listOfHoles) const;
       
       /** This method creates a TSOS to represent a detected hole. I creates a new TP from the input and returns
 	  a (pointer to a) new TSOS containing the TP and the typeset 'Hole'
       */
-      static Trk::TrackStateOnSurfaceProtContainer::Ptr
-      createHoleTSOS(Trk::TrackStateOnSurfaceProtContainer& c,
-                     const Trk::TrackParameters* trackPar) ;
+      static const Trk::TrackStateOnSurface* createHoleTSOS(const Trk::TrackParameters* trackPar) ;
 
       /** This Method creates a new Track from the TSOS of the input track combined with the TSOS from listOfHoles
        */
-      const Trk::Track*  addHolesToTrack(const Trk::Track& oldTrack,
-                                         Trk::TrackStateOnSurfaceProtContainer::ContainerUniquePtr listOfHoles) const;
+      const Trk::Track*  addHolesToTrack(const Trk::Track& oldTrack, 
+					 std::vector<const Trk::TrackStateOnSurface*>* listOfHoles) const;
     };
 
 } // end of namespace

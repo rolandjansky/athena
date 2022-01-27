@@ -80,7 +80,7 @@ LVL1CTP::CTPSimulation::initialize() {
    ATH_CHECK( m_iKeyJFexJets.initialize( ! m_iKeyJFexJets.empty() ) );
    ATH_CHECK( m_iKeyJFexLJets.initialize( ! m_iKeyJFexLJets.empty() ) );
    ATH_CHECK( m_iKeyGFexJets.initialize( ! m_iKeyGFexJets.empty() ) );
-   ATH_CHECK( m_iKeyGFexMETPufit.initialize( ! m_iKeyGFexMETPufit.empty() ) );
+   ATH_CHECK( m_iKeyGFexMETNC.initialize( ! m_iKeyGFexMETNC.empty() ) );
    ATH_CHECK( m_iKeyGFexMETRho.initialize( ! m_iKeyGFexMETRho.empty() ) );
    ATH_CHECK( m_iKeyGFexMETJwoJ.initialize( ! m_iKeyGFexMETJwoJ.empty() ) );
    ATH_CHECK( m_iKeyEFexCluster.initialize( ! m_iKeyEFexCluster.empty() ) );
@@ -136,7 +136,7 @@ LVL1CTP::CTPSimulation::createMultiplicityHist(const std::string & type, unsigne
    StatusCode sc;
    std::map<std::string,std::vector<std::string>> typeMapping = {
       { "muon", {"MU"} },
-      { "jet", {"JET", "jJ", "jLJ", "gJ"} },
+      { "jet", {"JET", "jJ", "jLJ", "gJ", "gLJ"} },
       { "xe", {"XE", "gXE", "jXE"} },
       { "te", {"TE", "jTE", "gTE"} },
       { "xs", {"XS"} },
@@ -159,7 +159,7 @@ LVL1CTP::CTPSimulation::setMultiplicityHistLabels(const TrigConf::L1Menu& l1menu
    StatusCode sc;
    std::map<std::string,std::vector<std::string>> typeMapping = {
       { "muon", {"MU"} },
-      { "jet", {"JET", "jJ", "jLJ", "gJ"} },
+      { "jet", {"JET", "jJ", "jLJ", "gJ", "gLJ"} },
       { "xe", {"XE", "gXE", "jXE"} },
       { "te", {"TE", "jTE", "gTE"} },
       { "xs", {"XS"} },
@@ -332,6 +332,9 @@ LVL1CTP::CTPSimulation::bookHists() const {
    ATH_CHECK ( hbook( "/input/jets/", std::make_unique<TH1I>("gJetPt","Jet p_{T} - gJ", 40, 0, 80) ));
    ATH_CHECK ( hbook( "/input/jets/", std::make_unique<TH1I>("gJetEta","Jet #eta - gJ", 64, -3.2, 3.2) ));
    ATH_CHECK ( hbook( "/input/jets/", std::make_unique<TH1I>("gJetPhi","Jet #phi - gJ", 64, -3.2, 3.2) ));
+   ATH_CHECK ( hbook( "/input/jets/", std::make_unique<TH1I>("gLJetPt","Jet p_{T} - gLJ", 40, 0, 80) ));
+   ATH_CHECK ( hbook( "/input/jets/", std::make_unique<TH1I>("gLJetEta","Jet #eta - gLJ", 64, -3.2, 3.2) ));
+   ATH_CHECK ( hbook( "/input/jets/", std::make_unique<TH1I>("gLJetPhi","Jet #phi - gLJ", 64, -3.2, 3.2) ));
 
    // MET
    ATH_CHECK ( hbook( "/input/met/", std::make_unique<TH1I>("Pufit","Missing ET from algorithm pufit", 40, 0, 80) ));
@@ -359,6 +362,7 @@ LVL1CTP::CTPSimulation::bookHists() const {
    ATH_CHECK ( hbook( "/input/counts/", std::make_unique<TH1I>("jJets","Number of jets (jJ)", 40, 0, 40) ));
    ATH_CHECK ( hbook( "/input/counts/", std::make_unique<TH1I>("jLJets","Number of jets (jLJ)", 40, 0, 40) ));
    ATH_CHECK ( hbook( "/input/counts/", std::make_unique<TH1I>("gJets","Number of jets (gJ)", 40, 0, 40) ));
+   ATH_CHECK ( hbook( "/input/counts/", std::make_unique<TH1I>("gLJets","Number of jets (gLJ)", 40, 0, 40) ));
    ATH_CHECK ( hbook( "/input/counts/", std::make_unique<TH1I>("muons","Number of muons", 10, 0, 10) ));
    ATH_CHECK ( hbook( "/input/counts/", std::make_unique<TH1I>("emcluster","Number of EM clusters", 20, 0, 20) ));
    ATH_CHECK ( hbook( "/input/counts/", std::make_unique<TH1I>("taus","Number of TAU candidates", 20, 0, 20) ));
@@ -463,13 +467,13 @@ LVL1CTP::CTPSimulation::fillInputHistograms(const EventContext& context) const {
    }
 
    // MET
-   if( not m_iKeyGFexMETPufit.empty() ) {
-      auto gFexMETPufit  = SG::makeHandle( m_iKeyGFexMETPufit, context );
+   if( not m_iKeyGFexMETNC.empty() ) {
+      auto gFexMETPufit  = SG::makeHandle( m_iKeyGFexMETNC, context );
       if( gFexMETPufit.isValid() ) {
          get1DHist("/input/met/Pufit")->Fill(gFexMETPufit->energyT()/1000.);
          get1DHist("/input/met/PufitPhi")->Fill(atan2(gFexMETPufit->energyX(), gFexMETPufit->energyY()));
       } else {
-         ATH_MSG_DEBUG("No collection " << m_iKeyGFexMETPufit);
+         ATH_MSG_DEBUG("No collection " << m_iKeyGFexMETNC);
       }
    }
 
@@ -840,8 +844,8 @@ LVL1CTP::CTPSimulation::calculateMETMultiplicity( const TrigConf::L1Threshold & 
    } else {
       // new XE
       const SG::ReadHandleKey< xAOD::EnergySumRoI > * rhk { nullptr };
-      if ( confThr.name().find("gXEPUFIT")==0 ) {
-         rhk = & m_iKeyGFexMETPufit;
+      if ( confThr.name().find("gXENC")==0 ) {
+         rhk = & m_iKeyGFexMETNC;
          ATH_MSG_DEBUG("Using Pufit input for threshold " << confThr.name() );
       } else if ( confThr.name().find("gXERHO")==0 ) {
          rhk = & m_iKeyGFexMETRho;
@@ -917,6 +921,8 @@ LVL1CTP::CTPSimulation::calculateTopoOptMultiplicity( const TrigConf::L1Threshol
   } else if (confThr.type().find("jLJ") != std::string::npos) {
     subfolder = "jet";
   } else if (confThr.type().find("gJ") != std::string::npos) {
+    subfolder = "jet";
+  } else if (confThr.type().find("gLJ") != std::string::npos) {
     subfolder = "jet";
   }
   get2DHist( "/multi/" + subfolder + "/" + confThr.type() + "Mult" )->Fill(confThr.mapping(), multiplicity);
@@ -1108,7 +1114,7 @@ LVL1CTP::CTPSimulation::finalize() {
    {
       // run 3 thresholds
       auto hist = * get2DHist( "/multi/all/R3Mult" );
-      std::vector<std::string> thrHists = { "em/eEM", "em/jEM", "muon/MU", "tau/eTAU", "tau/jTAU", "tau/cTAU", "jet/jJ", "jet/jLJ", "jet/gJ", "xe/gXE", "xe/jXE", "te/jTE", "te/gTE" };
+      std::vector<std::string> thrHists = { "em/eEM", "em/jEM", "muon/MU", "tau/eTAU", "tau/jTAU", "tau/cTAU", "jet/jJ", "jet/jLJ", "jet/gJ", "jet/gLJ", "xe/gXE", "xe/jXE", "te/jTE", "te/gTE" };
       for(const std::string & histpath : thrHists) {
          auto h = * get2DHist( "/multi/" + histpath + "Mult" );
          auto xaxis = h->GetXaxis();

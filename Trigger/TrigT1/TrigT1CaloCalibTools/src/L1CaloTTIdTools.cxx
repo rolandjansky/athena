@@ -3,7 +3,7 @@
 */
 
 #include "TrigT1CaloCalibTools/L1CaloTTIdTools.h"
-
+#include <cmath>
 namespace LVL1{
 
   const double L1CaloTTIdTools::BASEDETA = 0.1;
@@ -449,9 +449,6 @@ namespace LVL1{
 
     double phiMax = m_l1ttofflineHelper->phi_max(regId);
     int iphi = m_l1ttofflineHelper->phi(id);
-  #ifndef M_PI
-    double M_PI = acos (-1.0);
-  #endif
     double phi = (iphi+0.5)*2.*M_PI/(phiMax+1.);
     return phi;
   }

@@ -1,23 +1,26 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCOOLConditions/LArDAC2uAFlat.h"
 
 
-LArDAC2uAFlat::LArDAC2uAFlat() {}
+LArDAC2uAFlat::LArDAC2uAFlat()
+  : LArCondFlatBase("LArDAC2uAFlat")
+{}
 
 LArDAC2uAFlat::~LArDAC2uAFlat() {}
 
 
-LArDAC2uAFlat::LArDAC2uAFlat(const CondAttrListCollection* attrList) {
-  StatusCode sc=initializeBase("LArDAC2uAFlat");
-  if (sc.isFailure()) return;
+LArDAC2uAFlat::LArDAC2uAFlat(const CondAttrListCollection* attrList)
+  : LArCondFlatBase("LArDAC2uAFlat")
+{
+  if (initializeBase().isFailure()) return;
  
-   readBlob(attrList,"DAC2uA",*m_log);
+  readBlob(attrList,"DAC2uA",msg());
 
   if (m_pValues.size()!=1) {
-    (*m_log) << MSG::ERROR << "Found unexpected number of gains (" << m_pValues.size() <<"). Expected exactly one gain." << endmsg;
+    ATH_MSG_ERROR( "Found unexpected number of gains (" << m_pValues.size() <<"). Expected exactly one gain." );
   }
 
   return;

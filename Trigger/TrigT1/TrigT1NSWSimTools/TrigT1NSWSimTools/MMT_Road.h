@@ -52,6 +52,7 @@ class MMT_Road : public AthMessaging {
     unsigned int countRealHits();
     unsigned int countUVHits(bool flag);
     unsigned int countXHits(bool flag);
+    bool evaluateLowRes();
     bool horizontalCheck();
     void incrementAge(const int &bcwind);
     double getB() const { return m_B; }

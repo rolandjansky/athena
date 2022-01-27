@@ -48,14 +48,12 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
         inDetGlobalTrackMonAlg.Tight_TrackSelectionTool.CutLevel         = "TightPrimary"
         inDetGlobalTrackMonAlg.Tight_TrackSelectionTool.minPt            = 5000
         
-
-        # Run 3 configs - stolen from SCT
-        from SCT_Monitoring.TrackSummaryToolWorkaround import TrackSummaryToolWorkaround
-        InDetTrackSummaryTool = acc.popToolsAndMerge(TrackSummaryToolWorkaround(flags))
-        inDetGlobalTrackMonAlg.TrackSummaryTool = InDetTrackSummaryTool
-        inDetGlobalTrackMonAlg.TrackSelectionTool.TrackSummaryTool = InDetTrackSummaryTool
+        from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolCfg
+        TrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
+        inDetGlobalTrackMonAlg.TrackSummaryTool = TrackSummaryTool
+        inDetGlobalTrackMonAlg.TrackSelectionTool.TrackSummaryTool = TrackSummaryTool
         inDetGlobalTrackMonAlg.TrackSelectionTool.Extrapolator     = acc.getPublicTool("InDetExtrapolator")
-        inDetGlobalTrackMonAlg.Tight_TrackSelectionTool.TrackSummaryTool = InDetTrackSummaryTool
+        inDetGlobalTrackMonAlg.Tight_TrackSelectionTool.TrackSummaryTool = TrackSummaryTool
         inDetGlobalTrackMonAlg.Tight_TrackSelectionTool.Extrapolator     = acc.getPublicTool("InDetExtrapolator")
         
         InDetGlobalTrackMonAlgCfg(helper, inDetGlobalTrackMonAlg, **kwargsInDetGlobalTrackMonAlg)
@@ -80,14 +78,11 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
 
         inDetGlobalLRTMonAlg.TrackSelectionTool = CompFactory.InDet.InDetTrackSelectionTool('InDetGlobalLRTMonAlg_TrackSelectionTool')
         inDetGlobalLRTMonAlg.TrackSelectionTool.UseTrkTrackTools = True
-        inDetGlobalLRTMonAlg.TrackSelectionTool.CutLevel         = "TightPrimary"
         inDetGlobalLRTMonAlg.TrackSelectionTool.maxNPixelHoles   = 1
-        inDetGlobalLRTMonAlg.TrackSelectionTool.minPt            = 5000
+        inDetGlobalLRTMonAlg.TrackSelectionTool.minPt            = 1000
         
-
-        # Run 3 configs - stolen from SCT
-        from SCT_Monitoring.TrackSummaryToolWorkaround import TrackSummaryToolWorkaround
-        InDetTrackSummaryTool = acc.popToolsAndMerge(TrackSummaryToolWorkaround(flags))
+        from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolCfg
+        InDetTrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
         inDetGlobalLRTMonAlg.TrackSummaryTool = InDetTrackSummaryTool
         inDetGlobalLRTMonAlg.TrackSelectionTool.TrackSummaryTool = InDetTrackSummaryTool
         inDetGlobalLRTMonAlg.TrackSelectionTool.Extrapolator     = acc.getPublicTool("InDetExtrapolator")

@@ -43,6 +43,8 @@ std::string TGCTriggerLUTs::getType(int cwtype, int channel) const {
 }
 
 
-std::map<int, std::map<int, std::map<int, char> > > TGCTriggerLUTs::getReadMapBw(int side, int octantId) const {
-  return m_mapDB_bw[side][octantId];
+int8_t TGCTriggerLUTs::getBigWheelPt(const uint32_t addr) const {
+  std::unordered_map<uint32_t, int8_t>::const_iterator it = m_ptmap_bw.find(addr);
+  if(it == m_ptmap_bw.end()) return 0x0;        // outside from defined window, i.e. pT=0
+  else                       return it->second;
 }

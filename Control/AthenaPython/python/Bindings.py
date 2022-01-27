@@ -1,9 +1,7 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # @file: AthenaPython/python/Bindings.py
 # @author: Sebastien Binet <binet@cern.ch>
-
-from __future__ import print_function
 
 ### data
 __author__  = """
@@ -11,10 +9,10 @@ Sebastien Binet (binet@cern.ch)
 """
 
 ### imports
-from PyUtils.Decorators import memoize
+from functools import cache
 from AthenaCommon.Logging import logging
 
-@memoize
+@cache
 def _load_dict(lib):
     """Helper function to remember which libraries have been already loaded
     """
@@ -23,7 +21,7 @@ def _load_dict(lib):
         lib="lib"+lib
     return cppyy.load_library(lib)
 
-@memoize
+@cache
 def _import_ROOT():
     import ROOT
     ROOT.gROOT.SetBatch(True)
@@ -79,7 +77,7 @@ class _PyAthenaBindingsCatalog(object):
         return
 
     @staticmethod
-    @memoize
+    @cache
     def init(name):
         """Initialize the python binding with the callback previously registered
         If no callback was registered, swallow the warning...
@@ -100,7 +98,7 @@ class _PyAthenaBindingsCatalog(object):
         return klass
 
 ### helper method to easily retrieve services by name -------------------------
-@memoize
+@cache
 def py_svc(svcName, createIf=True, iface=None):
     """
     Helper function to retrieve a service by name, using Gaudi python bindings.
@@ -141,7 +139,7 @@ def py_svc(svcName, createIf=True, iface=None):
     return svc
 
 ### helper method to easily retrieve tools from ToolSvc by name ---------------
-@memoize
+@cache
 def py_tool(toolName, createIf=True, iface=None):
     """
     Helper function to retrieve a tool (owned by the ToolSvc) by name, using
@@ -193,7 +191,6 @@ def py_tool(toolName, createIf=True, iface=None):
     return tool
 
 ### helper method to easily retrieve algorithms by name -----------------------
-# @c memoize # don't memoize ?
 def py_alg(algName, iface='IAlgorithm'):
     """
     Helper function to retrieve an IAlgorithm (managed by the IAlgManager_) by
@@ -238,7 +235,7 @@ def py_alg(algName, iface='IAlgorithm'):
     return alg
 
 ### pythonizations for StoreGateSvc
-@memoize
+@cache
 def _py_init_StoreGateSvc():
     ## most probably, user will want to interact with PyRoot objects
     ## => install the fixes for our user
@@ -251,7 +248,7 @@ def _py_init_StoreGateSvc():
     return StoreGateSvc
 
 ### pythonizations for IIncidentSvc
-@memoize
+@cache
 def _py_init_IIncidentSvc():
     import cppyy
     # IIncidentSvc bindings from dictionary
@@ -283,7 +280,7 @@ def _py_init_IIncidentSvc():
     return IIncidentSvc
         
 ### pythonizations for ClassIDSvc
-@memoize
+@cache
 def _py_init_ClassIDSvc():
     import cppyy
     # IClassIDSvc bindings from dictionary
@@ -304,7 +301,7 @@ def _py_init_ClassIDSvc():
     IClassIDSvc._clidgen = clidGenerator(db=None)
 
     # add pythonized methods
-    @memoize
+    @cache
     def _clid (self, name):
         # handle special cases where CLID has been registered with a typedef
         try:   name = _clid_typename_aliases[name]
@@ -316,7 +313,7 @@ def _py_init_ClassIDSvc():
     IClassIDSvc.clid = _clid
     del _clid
     
-    @memoize
+    @cache
     def _typename (self, clid):
         # handle special cases of missing clids
         try:
@@ -330,7 +327,7 @@ def _py_init_ClassIDSvc():
     return IClassIDSvc
 
 ### pythonizations for ITHistSvc
-@memoize
+@cache
 def _py_init_THistSvc():
     import cppyy
     # ITHistSvc bindings from dictionary
@@ -588,7 +585,7 @@ del %s""" % (n,n,n,n,n)
     return ITHistSvc
 
 ### pythonizations for EventStreamInfo
-@memoize
+@cache
 def _py_init_EventStreamInfo():
     import cppyy
     # EventStreamInfo bindings from dictionary
@@ -620,7 +617,7 @@ def _py_init_EventStreamInfo():
     return ESI
 
 ### pythonizations for EventType
-@memoize
+@cache
 def _py_init_EventType():
     import cppyy
     # EventStreamInfo bindings from dictionary
@@ -652,27 +649,27 @@ def _py_init_EventType():
     return cls
 
 ### pythonizations for DataLink
-@memoize
+@cache
 def _py_init_DataLink():
     return _gen_data_link
 
 ### pythonizations for ElementLink
-@memoize
+@cache
 def _py_init_ElementLink():
     return _gen_element_link
 
 ### pythonizations for ElementLinkVector
-@memoize
+@cache
 def _py_init_ElementLinkVector():
     return _gen_elv
 
 ### pythonizations for NavigationToken
-@memoize
+@cache
 def _py_init_NavigationToken():
     return _gen_navtok
 
 ### helper method to easily instantiate DataLink ------------------------------
-@memoize
+@cache
 def _gen_data_link(klass, storage_policy=None):
     """helper method to easily instantiate a DataLink class.
     Sensible default for the storage policy is chosen if none given (it usually
@@ -691,7 +688,7 @@ def _gen_data_link(klass, storage_policy=None):
     return ROOT.DataLink(klass, storage_policy)
 
 ### helper method to easily instantiate ElementLink ---------------------------
-@memoize
+@cache
 def _gen_element_link(klass, storage_policy=None, indexing_policy=None):
     """helper method to easily instantiate an ElementLink class.
     Sensible defaults for the storage and indexing policies are chosen if none
@@ -714,7 +711,7 @@ def _gen_element_link(klass, storage_policy=None, indexing_policy=None):
     return ROOT.ElementLink(klass)
 
 ### helper method to easily instantiate ElementLinkVector ---------------------
-@memoize
+@cache
 def _gen_elv(klass, storage_policy=None, indexing_policy=None):
     """helper method to easily instantiate an ElementLinkVector class.
     Sensible defaults for the storage and indexing policies are chosen if none
@@ -734,7 +731,7 @@ def _gen_elv(klass, storage_policy=None, indexing_policy=None):
     return ROOT.ElementLinkVector(klass, storage_policy, indexing_policy)
 
 ### helper method to easily instantiate NavigationToken -----------------------
-@memoize
+@cache
 def _gen_navtok(klass, weight_cls=None, hash_cls=None):
     """helper method to easily instantiate a NavigationToken class.
     Sensible default for the weight and hash parameters are chosen if none are

@@ -26,6 +26,7 @@
 
 //forward decl
 class TBuffer;
+class TList;
 class MsgStream;
 
 #include "DataModelRoot/RootType.h"
@@ -65,9 +66,9 @@ public:
   void setCLID(const uint32_t *guid);
 
 private:
-  void do_persistify(const std::string nameOfClass, void* instance);
-  void do_persistify_obj(const std::string nameOfClass, void* instance);
-  void do_follow_ptr(const std::string nameOfClass, void* instance);
+  void do_persistify(const std::string& nameOfClass, void* instance);
+  void do_persistify_obj(const std::string& nameOfClass, void* instance);
+  void do_follow_ptr(const std::string& nameOfClass, void* instance);
   void add_previous_streamerinfos();
   
   static bool streamerErrorHandler(Int_t level, Bool_t abort_bool,
@@ -94,6 +95,9 @@ private:
      "Suppress warining about missing dictionaries", "OrderedSet<std::string>" };
   /// static copy of the IgnoreMissingDicts property for the static error handler
   static std::vector<std::string>    s_dictsToIgnore;
+
+  /// Remember streamer info list for cleaning up later
+  TList* m_streamersList;
 };
 
 #undef REFLEX_NS

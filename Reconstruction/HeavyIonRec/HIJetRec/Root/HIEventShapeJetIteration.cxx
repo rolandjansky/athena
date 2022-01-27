@@ -287,7 +287,10 @@ StatusCode HIEventShapeJetIteration::remodulate(xAOD::HIEventShapeContainer* out
     float eta0=0.5*(s->etaMin()+s->etaMax());
     unsigned int eb=HI::TowerBins::findBinEta(eta0);
     double neff=nphibins-mod_counts[eb];
-    double cf=neff/(neff-mod_factors[eb]);
+    double cf=1;
+    if (neff-mod_factors[eb] != 0) {//PEF fix
+      cf=neff/(neff-mod_factors[eb]);
+    }
     //check on value of cf;
     if(cf < 0.) cf =1;
     if(cf > 2.) cf=2;

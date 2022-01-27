@@ -123,12 +123,14 @@ const Muon::MuonClusterOnTrack* Muon::MMClusterOnTrackCreator::calibratedCluster
     }
     positionAlongStrip = lp[Trk::locY];
 
-    /// correct the local position based on the stereo angle
-    if (m_idHelperSvc->mmIdHelper().isStereo(RIO.identify())) {
-        const MuonGM::MMReadoutElement* mmEL = dynamic_cast<const MuonGM::MMReadoutElement*>(EL);
-        double sAngle = mmEL->getDesign(RIO.identify())->sAngle;
-        locpar[Trk::locX] = locpar[Trk::locX] + positionAlongStrip * tan(sAngle);
-    }
+    /// correct the local x-coordinate for the stereo angle (stereo strips only)
+    /// and for as-built conditions (eta and stereo strips), if enabled.
+    /// note: there's no point in correcting the seeded y-coordinate.
+    Amg::Vector3D localposition3D;
+    const MuonGM::MMReadoutElement* mmEL = dynamic_cast<const MuonGM::MMReadoutElement*>(EL);
+    mmEL->spacePointPosition(RIO.identify(), locpar[Trk::locX], positionAlongStrip, localposition3D);
+    locpar[Trk::locX] = localposition3D.x();
+    double offsetZ = localposition3D.z();
 
     /// calibrate the input
     const MMPrepData* MClus = dynamic_cast<const MMPrepData*>(&RIO);
@@ -138,22 +140,24 @@ const Muon::MuonClusterOnTrack* Muon::MMClusterOnTrackCreator::calibratedCluster
         ATH_MSG_WARNING("Could not calibrate the MM Cluster in the RIO on track creator");
         return cluster;
     }
-    Amg::Vector2D localposition;
+
+    Amg::Vector2D localposition2D;
     Amg::MatrixX loce = RIO.localCovariance();
-    localposition[Trk::locX] = locpar[Trk::locX];
-    localposition[Trk::locY] = 0.0;
+    localposition2D[Trk::locX] = locpar[Trk::locX];
+    localposition2D[Trk::locY] = 0.0;
 
     /// calibrate the cluster position along the precision coordinate
-    sc = m_clusterBuilderTool->getCalibratedClusterPosition(MClus, calibratedStrips, localposition, loce);
+    sc = m_clusterBuilderTool->getCalibratedClusterPosition(MClus, calibratedStrips, localposition2D, loce);
     if (sc != StatusCode::SUCCESS) {
         ATH_MSG_WARNING("Could not calibrate the MM Cluster in the RIO on track creator");
         return cluster;
     }
     /// set the value of the local parameter after the calibration
-    locpar[Trk::locX] = localposition[Trk::locX];
+    locpar[Trk::locX] = localposition2D[Trk::locX];
 
     ATH_MSG_VERBOSE("generating MMClusterOnTrack in MMClusterBuilder");
     cluster = new MMClusterOnTrack(MClus, locpar, loce, positionAlongStrip);
+    cluster->setOffsetNormal(offsetZ);
 
     return cluster;
 }

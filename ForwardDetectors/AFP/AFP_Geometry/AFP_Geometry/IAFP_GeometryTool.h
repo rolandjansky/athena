@@ -10,7 +10,7 @@
 
 class IAFP_GeometryTool : virtual public IAlgTool {
 public:
-   virtual void SetCfgParams(PAFP_CONFIGURATION pCfgParams) = 0;
+   virtual void SetCfgParams(AFP_CONFIGURATION * pCfgParams) = 0;
  
    DeclareInterfaceID( IAFP_GeometryTool, 1, 0);
  

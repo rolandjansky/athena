@@ -5,7 +5,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 
 def ActsTrackingGeometrySvcCfg(configFlags, name = "ActsTrackingGeometrySvc", **kwargs) :
   result = ComponentAccumulator()
-  
+
   Acts_ActsTrackingGeometrySvc = CompFactory.ActsTrackingGeometrySvc
   subDetectors = []
   if configFlags.Detector.GeometryBpipe:
@@ -13,13 +13,22 @@ def ActsTrackingGeometrySvcCfg(configFlags, name = "ActsTrackingGeometrySvc", **
     result.merge(BeamPipeGeometryCfg(configFlags))
   if configFlags.Detector.GeometryPixel:
     subDetectors += ["Pixel"]
-  if configFlags.Detector.GeometrySCT:
+  if configFlags.Detector.GeometrySCT and configFlags.Acts.TrackingGeometry.buildAllAvailableSubDetectors:
     subDetectors += ["SCT"]
-  if configFlags.Detector.GeometryTRT:
-    subDetectors += ["TRT"]
-  if configFlags.Detector.GeometryCalo:
-    subDetectors += ["Calo"]
+  if configFlags.Detector.GeometryTRT and configFlags.Acts.TrackingGeometry.buildAllAvailableSubDetectors:
+    # Commented out because TRT is not production ready yet and we don't 
+    # want to turn it on even if the global flag is set
+    #  subDetectors += ["TRT"]
+    pass
+
+  if configFlags.Detector.GeometryCalo and configFlags.Acts.TrackingGeometry.buildAllAvailableSubDetectors:
+    # Commented out because Calo is not production ready yet and we don't 
+    # want to turn it on even if the global flag is set
+    #  subDetectors += ["Calo"]
+
     # need to configure calo geometry, otherwise we get a crash
+    # Do this even though it's not production ready yet, so the service can
+    # be forced to build the calorimeter later on anyway
     from LArGeoAlgsNV.LArGMConfig import LArGMCfg
     result.merge(LArGMCfg(configFlags))
     from TileGeoModel.TileGMConfig import TileGMCfg
@@ -31,26 +40,33 @@ def ActsTrackingGeometrySvcCfg(configFlags, name = "ActsTrackingGeometrySvc", **
     subDetectors += ["ITkStrip"]
 
 
+  if configFlags.Detector.GeometryBpipe:
+    from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
+    result.merge(BeamPipeGeometryCfg(configFlags))
+    kwargs.setdefault("BuildBeamPipe", True)
+
+
   idSub = [sd in subDetectors for sd in ("Pixel", "SCT", "TRT", "ITkPixel", "ITkStrip")]
   if any(idSub):
     # ANY of the ID subdetectors are on => we require GM sources
-    # In principle we could require only what is enabled, but the group
-    # does extra config that I don't want to duplicate here
     from InDetConfig.InDetGeometryConfig import InDetGeometryCfg
     result.merge(InDetGeometryCfg(configFlags))
 
-    if not all(idSub):
-      from AthenaCommon.Logging import log
-      log.warning("ConfigFlags indicate %s should be built. Not all ID subdetectors are set, but I'll set all of them up to capture the extra setup happening here.", ", ".join(subDetectors))
-      
-  actsTrackingGeometrySvc = Acts_ActsTrackingGeometrySvc(name, BuildSubDetectors=subDetectors, **kwargs)
+  if "Calo" in subDetectors:
+    # in case Calo is enabled, we need this tool
+    kwargs.setdefault("CaloVolumeBuilder", CompFactory.ActsCaloTrackingVolumeBuilder())
 
-  if configFlags.TrackingGeometry.MaterialSource == "Input":
+  actsTrackingGeometrySvc = Acts_ActsTrackingGeometrySvc(name,
+                                                         BuildSubDetectors=subDetectors,
+                                                         **kwargs)
+
+
+  if configFlags.Acts.TrackingGeometry.MaterialSource == "Input":
     actsTrackingGeometrySvc.UseMaterialMap = True
     actsTrackingGeometrySvc.MaterialMapInputFile = "material-maps.json"
-  if configFlags.TrackingGeometry.MaterialSource.find(".json") != -1:  
+  if configFlags.Acts.TrackingGeometry.MaterialSource.find(".json") != -1:  
     actsTrackingGeometrySvc.UseMaterialMap = True
-    actsTrackingGeometrySvc.MaterialMapInputFile = configFlags.TrackingGeometry.MaterialSource
+    actsTrackingGeometrySvc.MaterialMapInputFile = configFlags.Acts.TrackingGeometry.MaterialSource
   result.addService(actsTrackingGeometrySvc)
   return result
 
@@ -74,6 +90,8 @@ def ActsTrackingGeometryToolCfg(configFlags, name = "ActsTrackingGeometryTool" )
   
   acc = ActsTrackingGeometrySvcCfg(configFlags)
   result.merge(acc)
+
+  result.merge(ActsAlignmentCondAlgCfg(configFlags))
   
   Acts_ActsTrackingGeometryTool = CompFactory.ActsTrackingGeometryTool
   actsTrackingGeometryTool = Acts_ActsTrackingGeometryTool(name)
@@ -96,8 +114,25 @@ def NominalAlignmentCondAlgCfg(configFlags, name = "NominalAlignmentCondAlg", **
 def ActsAlignmentCondAlgCfg(configFlags, name = "ActsAlignmentCondAlg", **kwargs) :
   result = ComponentAccumulator()
   
-  acc = ActsTrackingGeometrySvcCfg(configFlags)
-  result.merge(acc)
+  if configFlags.Detector.GeometryITk:
+    from PixelConditionsAlgorithms.ITkPixelConditionsConfig import ITkPixelAlignCondAlgCfg
+    result.merge(ITkPixelAlignCondAlgCfg(configFlags))
+
+    from SCT_ConditionsAlgorithms.ITkStripConditionsAlgorithmsConfig import ITkStripAlignCondAlgCfg
+    result.merge(ITkStripAlignCondAlgCfg(configFlags))
+
+    kwargs.setdefault("PixelAlignStoreReadKey", "ITkPixelAlignmentStore")
+    kwargs.setdefault("SCTAlignStoreReadKey", "ITkStripAlignmentStore")
+  else:
+    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelAlignCondAlgCfg
+    result.merge(PixelAlignCondAlgCfg(configFlags))
+
+    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConfig import SCT_AlignCondAlgCfg
+    result.merge(SCT_AlignCondAlgCfg(configFlags))
+
+    kwargs.setdefault("PixelAlignStoreReadKey", "PixelAlignmentStore")
+    kwargs.setdefault("SCTAlignStoreReadKey", "SCTAlignmentStore")
+
   
   Acts_ActsAlignmentCondAlg = CompFactory.ActsAlignmentCondAlg
   actsAlignmentCondAlg = Acts_ActsAlignmentCondAlg(name, **kwargs)

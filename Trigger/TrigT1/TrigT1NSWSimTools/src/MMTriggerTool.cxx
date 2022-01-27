@@ -112,14 +112,23 @@ namespace NSWL1 {
     m_par_large = std::make_shared<MMT_Parameters>(xxuvuvxx,'L', m_detManager);
     m_par_small = std::make_shared<MMT_Parameters>(xxuvuvxx,'S', m_detManager);
 
+    // Variables for RDO encoding
+    this->setPhiMin(-16.*M_PI/180.0);
+    this->setPhiMax(16.*M_PI/180.0);
+    this->setPhiBits(6);
+    this->setRMin(900); // mm
+    this->setRMax(5000);
+    this->setRBits(8);
+    this->setdThetaMin(-0.015); // rad
+    this->setdThetaMax(0.015);
+    this->setdThetaBits(5);
+
     return StatusCode::SUCCESS;
   }
 
   StatusCode MMTriggerTool::runTrigger(const bool do_MMDiamonds) {
-    //Retrieve the current run number and event number
-    const EventInfo* pevt = 0;
-    ATH_CHECK( evtStore()->retrieve(pevt) );
-    int event = pevt->event_ID()->event_number();
+    auto ctx = Gaudi::Hive::currentContext();
+    int event = ctx.eventID().event_number();
     ATH_MSG_DEBUG("********************************************************* EVENT NUMBER = " << event);
 
     //////////////////////////////////////////////////////////////
@@ -142,8 +151,6 @@ namespace NSWL1 {
     ATH_CHECK( load.getMMDigitsInfo(entries, Hits_Data_Set_Time, Event_Info, pars) );
     this->fillNtuple(load);
 
-    unsigned int particles = entries.rbegin()->first.second +1, nskip=0;
-
     if (entries.empty()) {
       ATH_MSG_WARNING("No digits available for processing, exiting");
       Hits_Data_Set_Time.clear();
@@ -151,19 +158,20 @@ namespace NSWL1 {
       return StatusCode::SUCCESS;
     }
 
-    auto diamond = std::unique_ptr<MMT_Diamond>(new MMT_Diamond(m_detManager));
+    m_diamond = std::make_unique<MMT_Diamond>(m_detManager);
     if (do_MMDiamonds) {
-      diamond->setTrapezoidalShape(true);
-      diamond->setXthreshold(2);
-      diamond->setUV(true);
-      diamond->setUVthreshold(2);
-      diamond->setRoadSize(8);
-      diamond->setRoadSizeUpX(4);
-      diamond->setRoadSizeDownX(0);
-      diamond->setRoadSizeUpUV(4);
-      diamond->setRoadSizeDownUV(0);
+      m_diamond->setTrapezoidalShape(true);
+      m_diamond->setXthreshold(2);
+      m_diamond->setUV(true);
+      m_diamond->setUVthreshold(2);
+      m_diamond->setRoadSize(8);
+      m_diamond->setRoadSizeUpX(4);
+      m_diamond->setRoadSizeDownX(0);
+      m_diamond->setRoadSizeUpUV(4);
+      m_diamond->setRoadSizeDownUV(0);
     }
 
+    unsigned int particles = entries.rbegin()->first.second +1, nskip=0;
     for (unsigned int i=0; i<particles; i++) {
       double trueta = -999., trupt = -999., dt = -999., tpos = -999., ppos = -999.;
       // We need to extract truth info, if available
@@ -210,7 +218,7 @@ namespace NSWL1 {
              * Filling hits for each event: a new class, MMT_Hit, is called in
              * order to use both algorithms witghout interferences
              */
-            diamond->createRoads_fillHits(i-nskip, hitDatas, m_detManager, pars[station], stationPhi);
+            m_diamond->createRoads_fillHits(i-nskip, hitDatas, m_detManager, pars[station], stationPhi);
             double smallest_bc = 999999.;
             for(int ihds=0; ihds<(int)hitDatas.size(); ihds++) {
               if (hitDatas[ihds].BC_time < 0.) continue;
@@ -222,22 +230,22 @@ namespace NSWL1 {
               m_trigger_station->push_back(hitDatas[ihds].station_eta);
               m_trigger_strip->push_back(hitDatas[ihds].strip);
             }
-            diamond->printHits(i-nskip);
-            std::vector<double> slopes = diamond->getHitSlopes();
+            m_diamond->printHits(i-nskip);
+            std::vector<double> slopes = m_diamond->getHitSlopes();
             for (const auto &s : slopes) m_trigger_RZslopes->push_back(s);
-            diamond->resetSlopes();
+            m_diamond->resetSlopes();
             slopes.clear();
             /*
              * Here we create roads with all MMT_Hit collected before (if any), then we save the results
              */
-            if (diamond->getHitVector(i-nskip).size() >= (diamond->getXthreshold()+diamond->getUVthreshold())) {
-              diamond->findDiamonds(i-nskip, smallest_bc, event);
+            if (m_diamond->getHitVector(i-nskip).size() >= (m_diamond->getXthreshold()+m_diamond->getUVthreshold())) {
+              m_diamond->findDiamonds(i-nskip, smallest_bc, event);
 
-              if (!diamond->getSlopeVector(i-nskip).empty()) {
-                m_trigger_diamond_ntrig->push_back(diamond->getSlopeVector(i-nskip).size());
-                for (const auto &slope : diamond->getSlopeVector(i-nskip)) {
-                  m_trigger_diamond_stationPhi->push_back(diamond->getDiamond(i-nskip).phi);
-                  m_trigger_diamond_sector->push_back(diamond->getDiamond(i-nskip).sector);
+              if (!m_diamond->getSlopeVector(i-nskip).empty()) {
+                m_trigger_diamond_ntrig->push_back(m_diamond->getSlopeVector(i-nskip).size());
+                for (const auto &slope : m_diamond->getSlopeVector(i-nskip)) {
+                  m_trigger_diamond_sector->push_back(m_diamond->getDiamond(i-nskip).sector);
+                  m_trigger_diamond_stationPhi->push_back(m_diamond->getDiamond(i-nskip).stationPhi);
                   m_trigger_diamond_bc->push_back(slope.BC);
                   m_trigger_diamond_totalCount->push_back(slope.totalCount);
                   m_trigger_diamond_realCount->push_back(slope.realCount);
@@ -269,7 +277,7 @@ namespace NSWL1 {
             //////////////////////////////////////////////////////////////
 
             //Initialization of the finder: defines all the roads
-            auto find = std::unique_ptr<MMT_Finder>(new MMT_Finder(pars[station], 1));
+            auto find = std::make_unique<MMT_Finder>(pars[station], 1);
             ATH_MSG_DEBUG(  "Number of Roads Configured " <<  find->get_roads()  );
 
             std::map<pair<int,int>,finder_entry> hitBuffer;
@@ -375,7 +383,7 @@ namespace NSWL1 {
 	        else if(n == 8) fitPhi = (fitPhi + (fitPhi >= 0 ? -1 : 1)*shift);
 	        else if(n > 8)  fitPhi = (fitPhi - shift);
 
-	        double fitEta = -1. * TMath::Log(TMath::Tan(fitTheta/2.)); //VALE: trueta was filled!!!!
+	        double fitEta = -1. * std::log(std::tan(fitTheta/2.)); //VALE: trueta was filled!!!!
 
                 ATH_MSG_DEBUG( "Truth " << tpos     << " " << ppos   << " " << dt );
                 ATH_MSG_DEBUG( "FIT!! " << fitTheta << " " << fitPhi << " " << fitDeltaTheta );
@@ -420,7 +428,62 @@ namespace NSWL1 {
     entries.clear();
     Hits_Data_Set_Time.clear();
     Event_Info.clear();
-    if(do_MMDiamonds) diamond->clearEvent();
+
+    return StatusCode::SUCCESS;
+  }
+
+  StatusCode MMTriggerTool::fillRDO(Muon::NSW_TrigRawDataContainer *rdo, const bool do_MMDiamonds) {
+    if(!do_MMDiamonds) return StatusCode::SUCCESS; // The old code won't be used for the moment
+
+    for (const auto &diam : m_diamond->getDiamondVector()) {
+      std::vector<int> slopeBC;
+      for (const auto &slope : diam.slopes) slopeBC.push_back(slope.BC);
+      std::sort(slopeBC.begin(), slopeBC.end());
+      slopeBC.erase( std::unique(slopeBC.begin(), slopeBC.end()), slopeBC.end() );
+      for (const auto &bc : slopeBC) {
+        Muon::NSW_TrigRawData* trigRawData = new Muon::NSW_TrigRawData(diam.stationPhi, diam.side, bc);
+
+        for (const auto &slope : diam.slopes) {
+          if (bc == slope.BC) {
+            Muon::NSW_TrigRawDataSegment* trigRawDataSegment = new Muon::NSW_TrigRawDataSegment();
+
+            // Phi-id
+            uint8_t phi_id = 0;
+            if (slope.phiShf*M_PI/180.0 > this->getPhiMax() || slope.phiShf*M_PI/180.0 < this->getPhiMin()) trigRawDataSegment->setPhiIndex(phi_id);
+            unsigned int nPhi = (1<<this->getPhiBits()) -2; // To accomodate the new phi-id encoding prescription around 0
+            float phiSteps = (this->getPhiMax()-this->getPhiMin())/nPhi;
+            phi_id = std::abs( (slope.phiShf*M_PI/180.0)/phiSteps );
+            trigRawDataSegment->setPhiIndex(phi_id);
+
+            // R-id
+            double extrapolatedR = slope.mx*7824.46; // The Z plane is a fixed value, taken from SL-TP documentation
+            uint8_t R_id = 0;
+            if (extrapolatedR > this->getRMax() || extrapolatedR < this->getRMin()) trigRawDataSegment->setRIndex(R_id);
+            unsigned int nR = (1<<this->getRBits()) -1;
+            float Rsteps = (this->getRMax()-this->getRMin())/nR;
+            R_id = std::abs( extrapolatedR/Rsteps );
+            trigRawDataSegment->setRIndex(R_id);
+
+            // DeltaTheta-id
+            uint8_t dTheta_id = 0;
+            if (slope.dtheta*M_PI/180.0 > this->getdThetaMax() || slope.dtheta*M_PI/180.0 < this->getdThetaMin()) trigRawDataSegment->setDeltaTheta(dTheta_id);
+            unsigned int ndTheta = (1<<this->getdThetaBits()) -1;
+            float dThetaSteps = (this->getdThetaMax()-this->getdThetaMin())/ndTheta;
+            dTheta_id = std::abs( (slope.dtheta*M_PI/180.0)/dThetaSteps );
+            trigRawDataSegment->setDeltaTheta(dTheta_id);
+
+            // Low R-resolution bit
+            trigRawDataSegment->setLowRes(slope.lowRes);
+
+            trigRawData->push_back(trigRawDataSegment);
+          }
+        }
+        rdo->push_back(trigRawData);
+      }
+    }
+
+    ATH_MSG_DEBUG("Filled MM RDO container now having size: " << rdo->size() << ". Clearing event information!");
+    if (do_MMDiamonds) m_diamond->clearEvent();
 
     return StatusCode::SUCCESS;
   }

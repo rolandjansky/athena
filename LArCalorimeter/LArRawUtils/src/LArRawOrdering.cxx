@@ -1,18 +1,18 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawUtils/LArRawOrdering.h" 
-#include "LArRawUtils/LArRoI_Map.h" 
+#include "LArRecConditions/LArRoIMap.h" 
 
 
-  LArRawOrdering::LArRawOrdering(LArRoI_Map* m): m_roiMap(m) 
+  LArRawOrdering::LArRawOrdering(const LArRoIMap* m): m_roiMap(m) 
   { }
 
 
   LArRawOrdering::LArRawOrdering( ): m_roiMap(NULL) 
   { }
-  void LArRawOrdering::setMap( LArRoI_Map* map )
+  void LArRawOrdering::setMap( const LArRoIMap* map )
   { m_roiMap = map; }
 
   bool  
@@ -20,8 +20,8 @@
 	(const LArRawChannel* ch1, const LArRawChannel* ch2)
   {
 
-  LArRoI_Map::TT_ID rId1 = m_roiMap->TrigTowerID(ch1->channelID() ); 
-  LArRoI_Map::TT_ID rId2 = m_roiMap->TrigTowerID(ch2->channelID() ); 
+  LArRoIMap::TT_ID rId1 = m_roiMap->trigTowerID(ch1->channelID() ); 
+  LArRoIMap::TT_ID rId2 = m_roiMap->trigTowerID(ch2->channelID() ); 
 
   // order in eta first 
   if(rId1 == rId2) {

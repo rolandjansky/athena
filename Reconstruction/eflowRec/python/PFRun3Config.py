@@ -1,44 +1,12 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import Format
 
-def getOfflinePFAlgorithm(inputFlags):
-    result=ComponentAccumulator()
 
-    PFAlgorithm=CompFactory.PFAlgorithm
-    PFAlgorithm = PFAlgorithm("PFAlgorithm")
-
-    from eflowRec.PFCfg import getPFClusterSelectorTool
-    PFAlgorithm.PFClusterSelectorTool = getPFClusterSelectorTool("CaloTopoClusters","CaloCalTopoClusters","PFClusterSelectorTool")    
-
-    from eflowRec.PFCfg import getPFCellLevelSubtractionTool
-    PFAlgorithm.SubtractionToolList = [getPFCellLevelSubtractionTool(inputFlags,"PFCellLevelSubtractionTool")]
-
-    if(False is inputFlags.PF.EOverPMode):
-        from eflowRec.PFCfg import getPFRecoverSplitShowersTool
-        PFAlgorithm.SubtractionToolList += [getPFRecoverSplitShowersTool(inputFlags,"PFRecoverSplitShowersTool")]
-
-    from eflowRec.PFCfg import getPFMomentCalculatorTool
-    PFMomentCalculatorTools=result.popToolsAndMerge(getPFMomentCalculatorTool(inputFlags,[]))
-    PFAlgorithm.BaseToolList = [PFMomentCalculatorTools]
-    from eflowRec.PFCfg import getPFLCCalibTool
-    PFAlgorithm.BaseToolList += [getPFLCCalibTool(inputFlags)]
-    result.addEventAlgo(PFAlgorithm)
-    return result
-
-def PFTauFlowElementLinkingCfg(inputFlags,neutral_FE_cont_name="",charged_FE_cont_name="",AODTest=False):
-    result=ComponentAccumulator()
-
-    from eflowRec.PFCfg import getTauFlowElementAssocAlgorithm
-    result.addEventAlgo(getTauFlowElementAssocAlgorithm(inputFlags,neutral_FE_cont_name,charged_FE_cont_name,AODTest))
-
-    return result
-
-def PFCfg(inputFlags,**kwargs):
-
-    #This is monolithic for now.
-    #Once a first complete example runs, this will be split into small modular chunks.
-    #Some such items may be best placed elsewehere (e.g. put magnetic field setup in magnetic field git folder etc)
+#This configures pflow + everything it needs
+def PFFullCfg(inputFlags,**kwargs):
+  
     result=ComponentAccumulator()
 
     StoreGateSvc=CompFactory.StoreGateSvc
@@ -48,23 +16,13 @@ def PFCfg(inputFlags,**kwargs):
     from SGComps.AddressRemappingConfig import InputRenameCfg
     result.merge(InputRenameCfg("xAOD::CaloClusterContainer","CaloCalTopoClusters",""))
 
-    #Setup up tracking geometry
-    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-    acc = TrackingGeometrySvcCfg(inputFlags)
-    result.merge(acc)
-
     #setup magnetic field service
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     result.merge(MagneticFieldSvcCfg(inputFlags))
 
     #Configure topocluster algorithmsm, and associated conditions
     from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
-    result.merge(CaloTopoClusterCfg(inputFlags,
-                                    doLCCalib=True))
-
-
-    #from CaloRec.CaloTopoClusterConfig import caloTopoCoolFolderCfg
-    #result.merge(caloTopoCoolFolderCfg(inputFlags))
+    result.merge(CaloTopoClusterCfg(inputFlags))
 
     from CaloTools.CaloNoiseCondAlgConfig import CaloNoiseCondAlgCfg
     result.merge(CaloNoiseCondAlgCfg(inputFlags,"totalNoise"))
@@ -78,6 +36,25 @@ def PFCfg(inputFlags,**kwargs):
     tempCA.merge(result)
     result = tempCA
 
+    from OutputStreamAthenaPool.OutputStreamConfig import addToAOD, addToESD
+    #PFlow requires electrons, photons, muons and taus in order to have valid links to them. So lets add these objects to the AOD and ESD                                            
+    toESDAndAOD = [f"xAOD::ElectronContainer#Electrons",f"xAOD::ElectronAuxContainer#ElectronsAux."]
+    toESDAndAOD += [f"xAOD::PhotonContainer#Photons",f"xAOD::PhotonAuxContainer#PhotonsAux."]
+    toESDAndAOD += [f"xAOD::MuonContainer#Muons",f"xAOD::MuonAuxContainer#MuonsAux."]
+    toESDAndAOD += [f"xAOD::TauJetContainer#TauJets",f"xAOD::TauJetAuxContainer#TauJetsAux."]
+
+    result.merge(addToESD(inputFlags, toESDAndAOD))
+    result.merge(addToAOD(inputFlags, toESDAndAOD))
+
+    result.merge(PFCfg(inputFlags))
+    return result
+
+#Configures only the pflow algorithms and tools - to be used from RecExCommon to avoid
+#conflicts or if you only want to configure just the pflow algorithms and tools
+def PFCfg(inputFlags,**kwargs):
+
+    result=ComponentAccumulator()
+
     #Configure the pflow algorithms
     PFLeptonSelectorFactory=CompFactory.PFLeptonSelector
     PFLeptonSelector = PFLeptonSelectorFactory("PFLeptonSelector") 
@@ -86,8 +63,13 @@ def PFCfg(inputFlags,**kwargs):
     result.addEventAlgo(PFLeptonSelector)
 
     from eflowRec.PFCfg import PFTrackSelectorAlgCfg
-    result.merge(PFTrackSelectorAlgCfg(inputFlags,"PFTrackSelector"))
+    useCaching = True
+    #If reading ESD/AOD do not make use of caching of track extrapolations.
+    if inputFlags.Input.Format is Format.POOL and "StreamRDO" not in inputFlags.Input.ProcessingTags:
+        useCaching = False
+    result.merge(PFTrackSelectorAlgCfg(inputFlags,"PFTrackSelector",useCaching))
 
+    from eflowRec.PFCfg import getOfflinePFAlgorithm
     result.merge(getOfflinePFAlgorithm(inputFlags))
 
     # old PFO algorithm, keep gated behind a joboption but expect this is deprecated.    
@@ -96,19 +78,20 @@ def PFCfg(inputFlags,**kwargs):
         result.addEventAlgo(getChargedPFOCreatorAlgorithm(inputFlags,""))
         result.addEventAlgo(getNeutralPFOCreatorAlgorithm(inputFlags,""))
 
-    from eflowRec.PFCfg import getChargedFlowElementCreatorAlgorithm,getNeutralFlowElementCreatorAlgorithm
+    from eflowRec.PFCfg import getChargedFlowElementCreatorAlgorithm,getNeutralFlowElementCreatorAlgorithm,getLCNeutralFlowElementCreatorAlgorithm
     result.addEventAlgo(getChargedFlowElementCreatorAlgorithm(inputFlags,""))
     result.addEventAlgo(getNeutralFlowElementCreatorAlgorithm(inputFlags,""))
+    result.addEventAlgo(getLCNeutralFlowElementCreatorAlgorithm(inputFlags,""))
 
-    #Currently we do not have egamma reco in the run 3 config and hence there are no electrons/photons if not running from ESD or AOD
-    if(inputFlags.PF.useElPhotLinks and inputFlags.Input.Format == "POOL" ):
-        from eflowRec.PFCfg import getEGamFlowElementAssocAlgorithm        
-        result.addEventAlgo(getEGamFlowElementAssocAlgorithm(inputFlags))
-    
-    #Currently we do not have muon reco in the run 3 config and hence there are no muons if not running from ESD or AOD
-    if(inputFlags.PF.useMuLinks and inputFlags.Input.Format == "POOL" ):
-        from eflowRec.PFCfg import getMuonFlowElementAssocAlgorithm
-        result.addEventAlgo(getMuonFlowElementAssocAlgorithm(inputFlags))
+    #Only do linking if not in eoverp mode
+    if not inputFlags.PF.EOverPMode:
+      if inputFlags.PF.useElPhotLinks:
+          from eflowRec.PFCfg import getEGamFlowElementAssocAlgorithm        
+          result.addEventAlgo(getEGamFlowElementAssocAlgorithm(inputFlags))
+
+      if inputFlags.PF.useMuLinks:
+          from eflowRec.PFCfg import getMuonFlowElementAssocAlgorithm
+          result.addEventAlgo(getMuonFlowElementAssocAlgorithm(inputFlags))
 
     from OutputStreamAthenaPool.OutputStreamConfig import addToAOD, addToESD
     toESDAndAOD = ""
@@ -120,14 +103,14 @@ def PFCfg(inputFlags,**kwargs):
       toESDAndAOD += [f"xAOD::FlowElementContainer#JetETMissNeutralParticleFlowObjects",f"xAOD::FlowElementAuxContainer#JetETMissNeutralParticleFlowObjectsAux.-FEShowerSubtractedClusterLink."]
       toESDAndAOD += [f"xAOD::FlowElementContainer#JetETMissLCNeutralParticleFlowObjects",f"xAOD::ShallowAuxContainer#JetETMissLCNeutralParticleFlowObjectsAux."]
 
-    #PFlow requires electrons, photons, muons and taus in order to have valid links to them. So lets add these objects to the AOD and ESD
-    toESDAndAOD += [f"xAOD::ElectronContainer#Electrons",f"xAOD::ElectronAuxContainer#ElectronsAux."]
-    toESDAndAOD += [f"xAOD::PhotonContainer#Photons",f"xAOD::PhotonAuxContainer#PhotonsAux."]
-    toESDAndAOD += [f"xAOD::MuonContainer#Muons",f"xAOD::MuonAuxContainer#MuonsAux."]
-    toESDAndAOD += [f"xAOD::TauJetContainer#TauJets",f"xAOD::TauJetAuxContainer#TauJetsAux."]
-  
     result.merge(addToESD(inputFlags, toESDAndAOD))
     result.merge(addToAOD(inputFlags, toESDAndAOD))
+
+    import inspect
+    stack = inspect.stack()
+    if len(stack) >= 2 and stack[1].function == 'CAtoGlobalWrapper':
+      for el in result._allSequences:
+        el.name = "TopAlg"
 
     return result
 
@@ -149,7 +132,7 @@ if __name__=="__main__":
 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     cfg.merge(PoolReadCfg(cfgFlags))
-    cfg.merge(PFCfg(cfgFlags))
+    cfg.merge(PFFullCfg(cfgFlags))
     
     from eflowRec.PFRun3Remaps import ListRemaps
 

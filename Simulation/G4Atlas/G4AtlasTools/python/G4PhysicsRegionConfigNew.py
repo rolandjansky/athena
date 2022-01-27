@@ -68,6 +68,10 @@ def PixelPhysicsRegionToolCfg(ConfigFlags, name='PixelPhysicsRegionTool', **kwar
     if (ConfigFlags.GeoModel.Run in ["RUN2", "RUN3"]) or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isIBL()):
         volumeList += ['Pixel::dbmDiamondLog']
     kwargs.setdefault("VolumeList",  volumeList)
+    # The range cuts used here are directly linked to the minimum energy of delta rays.
+    # The minimum energy of delta rays in an input to the digitisation when using Bichsel charge deposition model.
+    # The range cut is equated to an energy threshold in the simulation log file
+    # If these change please update the digitisation cuts appropriately. 
     kwargs.setdefault("ElectronCut", 0.05)
     kwargs.setdefault("PositronCut", 0.05)
     kwargs.setdefault("GammaCut",    0.05)
@@ -118,8 +122,7 @@ def HGTDPhysicsRegionToolCfg(ConfigFlags, name='HGTDPhysicsRegionTool', **kwargs
     return RegionCreator(name, **kwargs)
 
 def TRTPhysicsRegionToolCfg(ConfigFlags, name='TRTPhysicsRegionTool', **kwargs):
-    #rangeCut = simFlags.TRTRangeCut._Value()
-    rangeCut = 30.0
+    rangeCut = ConfigFlags.Sim.TRTRangeCut
     kwargs.setdefault("RegionName", 'TRT')
     volumeList = ['TRT::Gas', 'TRT::GasMA']
     kwargs.setdefault("VolumeList",  volumeList)

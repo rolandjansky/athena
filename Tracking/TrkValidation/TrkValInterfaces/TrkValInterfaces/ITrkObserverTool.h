@@ -19,7 +19,7 @@
 #include "TrkTrack/TrackCollection.h"
 #include "xAODTracking/TrackingPrimitives.h"
 // data type of map for storing in cache
-#include "TrkTrack/ObservedTracksMap.h"
+#include "TrkTrack/ObservedTrackMap.h"
 
 // Forward declaration
 
@@ -37,8 +37,8 @@ namespace Trk
 			virtual void rejectTrack(int uid, xAOD::RejectionStep rejectStep, xAOD::RejectionReason rejectReason) const = 0;
 			virtual void addInputTrack(int uid, const Trk::Track& track) const = 0;
 			virtual void addSubTrack(int track_uid, int parent_uid, const Trk::Track& track) const = 0;
-			virtual ObservedTracksMap* getTrackMap(const EventContext& ctx) const = 0;
-			virtual int saveTracksToStore(const EventContext& ctx, const ObservedTracksMap* trk_map) const = 0;
+			virtual ObservedTrackMap* getTrackMap(const EventContext& ctx) const = 0;
+			virtual int saveTracksToStore(const EventContext& ctx, const ObservedTrackMap* trk_map) const = 0;
 			virtual void updateHolesSharedHits(int uid, int numPixelHoles, int numSCTHoles, int numSplitSharedPixel, int numSplitSharedSCT,
 				int numSharedOrSplit, int numSharedOrSplitPixels, int numShared, int isPatternTrack, int totalSiHits, int inROI, int hasIBLHit,
 				int hasSharedIBLHit, int hasSharedPixel, int firstPixIsShared, int numPixelDeadSensor, int numSCTDeadSensor, int numPixelHits,

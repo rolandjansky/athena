@@ -118,9 +118,6 @@ namespace InDet {
     const Trk::BinnedArray<Trk::Surface>*           m_bin_array;
     std::vector<Trk::BinUtility*>*                  m_singleBinUtils;
     bool                                            m_pixelCase;    
-    mutable std::atomic<const SCT_ID*>              m_sctIdHelper{nullptr};
-    mutable std::atomic<const PixelID*>             m_pixIdHelper{nullptr};
-    
   };
   
   

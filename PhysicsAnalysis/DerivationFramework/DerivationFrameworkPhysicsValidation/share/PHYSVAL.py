@@ -25,6 +25,7 @@ from DerivationFrameworkJetEtMiss.METCommon import scheduleStandardMETContent
 from TriggerMenuMT.TriggerAPI.TriggerAPI import TriggerAPI
 from TriggerMenuMT.TriggerAPI.TriggerEnums import TriggerPeriod, TriggerType
 from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelper
+from DerivationFrameworkTrigger.TrigSlimmingHelper import addTrigEDMSetToOutput
 from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 
 #====================================================================
@@ -230,6 +231,7 @@ PHYSVALSlimmingHelper.AllVariables =  ["EventInfo",
                                        "BTagging_AntiKt4EMTopo",
                                        "BTagging_AntiKtVR30Rmax4Rmin02Track",
                                        "BTagging_AntiKt4EMPFlowJFVtx", 
+				       "BTagging_AntiKt4EMPFlowJFVtxFlip", #Flip version of JetFitter
                                        "BTagging_AntiKt4EMPFlowSecVtx",
                                        "MET_Reference_AntiKt4EMTopo",
                                        "MET_Reference_AntiKt4EMPFlow",
@@ -269,6 +271,8 @@ PHYSVALSlimmingHelper.IncludeEtMissTriggerContent = True
 PHYSVALSlimmingHelper.IncludeBJetTriggerContent = True
 PHYSVALSlimmingHelper.IncludeBPHYSVALTriggerContent = True
 PHYSVALSlimmingHelper.IncludeMinBiasTriggerContent = True
+addTrigEDMSetToOutput(PHYSVALSlimmingHelper, "AODFULL")
+
 
 # Add the jet containers to the stream (defined in JetCommon if import needed)
 #addJetOutputs(PHYSVALSlimmingHelper,["PHYSVAL"])
@@ -307,6 +311,7 @@ if DerivationFrameworkIsMonteCarlo:
                                             'BTagging_AntiKt4EMPFlowSecVtx':'xAOD::VertexContainer','BTagging_AntiKt4EMPFlowSecVtxAux':'xAOD::VertexAuxContainer',
                                             'CHSChargedParticleFlowObjects': 'xAOD::FlowElementContainer', 'CHSChargedParticleFlowObjectsAux':'xAOD::ShallowAuxContainer',
                                             'CHSNeutralParticleFlowObjects': 'xAOD::FlowElementContainer', 'CHSNeutralParticleFlowObjectsAux':'xAOD::ShallowAuxContainer',
+					    'BTagging_AntiKt4EMPFlowJFVtxFlip':'xAOD::BTagVertexContainer','BTagging_AntiKt4EMPFlowJFVtxFlipAux':'xAOD::BTagVertexAuxContainer',#For Flip version of JetFitter
                                            }
 
    from DerivationFrameworkMCTruth.MCTruthCommon import addTruth3ContentToSlimmerTool

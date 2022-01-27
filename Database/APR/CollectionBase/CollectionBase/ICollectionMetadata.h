@@ -34,7 +34,7 @@ namespace pool {
        const_iterator&	operator++() { m_iterator->operator++(); return *this; }
 
        const std::string&	key() const { return m_iterator->key(); }
-       const char *		value() const { return m_iterator->value(); }
+       const char *		value() { return m_iterator->value(); }
        
        const_iterator( std::unique_ptr<ICollectionMetadataIterator> iter )
          : m_iterator( std::move(iter) ) {}

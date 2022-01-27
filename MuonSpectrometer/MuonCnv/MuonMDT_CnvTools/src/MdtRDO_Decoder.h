@@ -41,70 +41,69 @@ namespace Muon {
 }  // namespace Muon
 
 inline MdtDigit* Muon::MdtRDO_Decoder::getDigit(const MdtAmtHit* amtHit, uint16_t& subdetId, uint16_t& mrodId, uint16_t& csmId) const {
-    int stationEta = 0;
-    int stationPhi = 0;
-    int stationName = 0;
-    int multiLayer = 0;
-    int tubeLayer = 0;
-    int tube = 0;
+    
+    
+    SG::ReadCondHandle<MuonMDT_CablingMap> readHandle{m_readKey};
+    const MuonMDT_CablingMap* readCdo{*readHandle};
+    if (!readCdo) {
+        ATH_MSG_ERROR("Null pointer to the read conditions object");
+        return nullptr;
+    }
+    MuonMDT_CablingMap::CablingData cabling_data{};
+    cabling_data.tdcId = amtHit->tdcId();
+    cabling_data.channelId = amtHit->channelId();
+    cabling_data.subdetectorId = subdetId;
+    cabling_data.mrod = mrodId;
+    cabling_data.csm = csmId;
 
-    uint16_t tdc = amtHit->tdcId();
-    uint16_t chan = amtHit->channelId();
     uint16_t coarse = amtHit->coarse();
     uint16_t fine = amtHit->fine();
     int width = (int)amtHit->width();
 
-    SG::ReadCondHandle<MuonMDT_CablingMap> readHandle{m_readKey};
-    const MuonMDT_CablingMap* readCdo{*readHandle};
-    if (readCdo == nullptr) {
-        ATH_MSG_ERROR("Null pointer to the read conditions object");
-        return NULL;
-    }
     MsgStream& msg(msgStream() );
-    bool cab = readCdo->getOfflineId((uint8_t)subdetId, (uint8_t)mrodId, (uint8_t)csmId, (uint8_t)tdc, (uint8_t)chan, stationName,
-                                     stationEta, stationPhi, multiLayer, tubeLayer, tube, msg);
-
-    if (!cab) return NULL;
-
-    Identifier chanId = m_idHelperSvc->mdtIdHelper().channelID(stationName, stationEta, stationPhi, multiLayer, tubeLayer, tube);
-
+    bool cab = readCdo->getOfflineId(cabling_data, msg);
+    if (!cab) return nullptr;
+    Identifier chanId;
+    if (!readCdo->convert(cabling_data,chanId,false)) return nullptr;
     int tdcCounts = coarse * 32 + fine;
-
     MdtDigit* mdtDigit = new MdtDigit(chanId, tdcCounts, width, amtHit->isMasked());
-
     return mdtDigit;
 }
 
 inline Identifier Muon::MdtRDO_Decoder::getOfflineData(const MdtAmtHit* amtHit, uint16_t& subdetId, uint16_t& mrodId, uint16_t& csmId,
                                                        int& tdcCounts, int& width) const {
-    int stationEta = 0;
-    int stationPhi = 0;
-    int stationName = 0;
-    int multiLayer = 0;
-    int tubeLayer = 0;
-    int tube = 0;
-
+    
+    
     uint16_t tdc = amtHit->tdcId();
     uint16_t chan = amtHit->channelId();
     uint16_t coarse = amtHit->coarse();
     uint16_t fine = amtHit->fine();
-    width = (int)amtHit->width();
+    width = amtHit->width();
+    tdcCounts = coarse * 32 + fine;
 
     Identifier chanIdDefault;
     SG::ReadCondHandle<MuonMDT_CablingMap> readHandle{m_readKey};
     const MuonMDT_CablingMap* readCdo{*readHandle};
-    if (readCdo == nullptr) {
+    if (!readCdo) {
         ATH_MSG_ERROR("Null pointer to the read conditions object");
         return chanIdDefault;
     }
-    bool cab = readCdo->getOfflineId(subdetId, mrodId, csmId, tdc, chan, stationName, stationEta, stationPhi, multiLayer, tubeLayer, tube, msgStream() );
+    MuonMDT_CablingMap::CablingData cabling_data{};
+    cabling_data.subdetectorId = subdetId;
+    cabling_data.csm = csmId;
+    cabling_data.tdcId = tdc;
+    cabling_data.channelId = chan;
+    cabling_data.mrod = mrodId;
 
-    if (!cab) {}
+    bool cab = readCdo->getOfflineId(cabling_data, msgStream() );
 
-    Identifier chanId = m_idHelperSvc->mdtIdHelper().channelID(stationName, stationEta, stationPhi, multiLayer, tubeLayer, tube);
+    if (!cab) {
+        return chanIdDefault;
+    }
 
-    tdcCounts = coarse * 32 + fine;
-
+    Identifier chanId;
+    readCdo->convert(cabling_data, chanId);    
+   
     return chanId;
 }
 

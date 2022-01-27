@@ -17,7 +17,7 @@ class MdtDigitVariables : public ValAlgVariables
                      const MuonGM::MuonDetectorManager* detManager,
                      const MuonIdHelper* idhelper,
                      TTree* tree,
-							std::string containername,
+							const std::string & containername,
 							MSG::Level msglvl) :
     ValAlgVariables(evtStore, detManager, tree, containername, msglvl)
   {
@@ -41,9 +41,9 @@ class MdtDigitVariables : public ValAlgVariables
   void deleteVariables(){};
   StatusCode clearVariables();
   
-  const MdtIdHelper* m_MdtIdHelper;
+  const MdtIdHelper* m_MdtIdHelper{};
 
-  int m_MDT_nDigits;
+  int m_MDT_nDigits{};
   std::vector<std::string> m_MDT_dig_stationName;
   std::vector<double> m_MDT_dig_time;
   std::vector<double> m_MDT_dig_charge;

@@ -81,15 +81,15 @@ namespace MuonCalib {
         void addMBTS(MuonCalibCaloHit* hit);                      //!< Adds a MBTS hit to MBTSVec
         void addL1Calo(MuonCalibCaloHit* hit);                    //!< Adds a L1Calo hit/tower to L1CaloVec
 
-        void addPattern(MuonCalibTrkPtr pat);        //!< Adds a PhiPattern to PhiPatVec
-        void addTrack(MuonCalibTrkPtr track);        //!< Adds a Track to TrackVec
-        void addCtp(TrigInfoPtr trig);               //!< Adds a TriggerInfo to CtpVec
-        void addMUCTPI(MuCTPiPtr mctp);              //!< Adds a MUCTPI obj to MUCTPIVec
-        void addRpcSL(RpcSectorLogicPtr rpcsl);      //!< Adds an RpcSectorLogic obj to RpcSLVec
-        void addRpcCoin(RpcCoinPtr rpcco);           //!< Adds an RpcCoin obj to RpcCoinVec
-        void addRawRpcTrigHit(RpcTrigHitPtr rpctr);  //!< Adds an RpcCoin obj to RpcCoinVec
-        void addMBTS(CaloHitPtr hit);                //!< Adds a MBTS hit to MBTSVec
-        void addL1Calo(CaloHitPtr hit);              //!< Adds a L1Calo hit/tower to L1CaloVec
+        void addPattern(const MuonCalibTrkPtr& pat);        //!< Adds a PhiPattern to PhiPatVec
+        void addTrack(const MuonCalibTrkPtr& track);        //!< Adds a Track to TrackVec
+        void addCtp(const TrigInfoPtr& trig);               //!< Adds a TriggerInfo to CtpVec
+        void addMUCTPI(const MuCTPiPtr& mctp);              //!< Adds a MUCTPI obj to MUCTPIVec
+        void addRpcSL(const RpcSectorLogicPtr& rpcsl);      //!< Adds an RpcSectorLogic obj to RpcSLVec
+        void addRpcCoin(const RpcCoinPtr& rpcco);           //!< Adds an RpcCoin obj to RpcCoinVec
+        void addRawRpcTrigHit(const RpcTrigHitPtr& rpctr);  //!< Adds an RpcCoin obj to RpcCoinVec
+        void addMBTS(const CaloHitPtr& hit);                //!< Adds a MBTS hit to MBTSVec
+        void addL1Calo(const CaloHitPtr& hit);              //!< Adds a L1Calo hit/tower to L1CaloVec
 
         unsigned int nrPhiPat() const;         //!< returns number of PhiPatterns of the MuonCalibEvent_E
         unsigned int nrTracks() const;         //!< returns number of Tracks of the MuonCalibEvent_E

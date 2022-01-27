@@ -23,8 +23,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include <memory>
 
-using namespace HGTD;
-
 StatusCode HGTD_ClusterContainerCnv_p1::initialize(MsgStream& log) {
   // Do not initialize again:
   m_is_initialized = true;

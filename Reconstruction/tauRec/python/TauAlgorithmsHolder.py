@@ -670,8 +670,7 @@ def getTauVertexedClusterDecorator():
     _name = sPrefix + 'TauVertexedClusterDecorator'
     
     myTauVertexedClusterDecorator = TauVertexedClusterDecorator(name = _name,
-                                                                SeedJet = tauFlags.tauRecSeedJetCollection(), 
-                                                                VertexCorrection = True)
+                                                                SeedJet = tauFlags.tauRecSeedJetCollection())
     
     return myTauVertexedClusterDecorator
 

@@ -171,12 +171,19 @@ inline std::vector<TrigCompositeUtils::LinkInfo<xAOD::CaloClusterContainer>> Tri
                                                                 const TrigCompositeUtils::Decision *dec , std::string trigger, unsigned int condition)
 const
 {
+  std::vector<std::string> parts;
+  boost::split(parts,trigger,boost::is_any_of("_"));
+
   if(boost::contains(trigger,"lrt")){
     return getFeatures<xAOD::CaloClusterContainer>(dec, trigger, key("PrecisionCalo_LRT"), condition );
+  }else if(boost::contains(parts.at(0),"g")){
+    return getFeatures<xAOD::CaloClusterContainer>(dec, trigger, key("PrecisionCalo_Photon"), condition );
   }else{
-    return getFeatures<xAOD::CaloClusterContainer>(dec, trigger, key("PrecisionCalo"), condition );
+    return getFeatures<xAOD::CaloClusterContainer>(dec, trigger, key("PrecisionCalo_Electron"), condition );
   }
+
 }
+
 
 
 // Electron

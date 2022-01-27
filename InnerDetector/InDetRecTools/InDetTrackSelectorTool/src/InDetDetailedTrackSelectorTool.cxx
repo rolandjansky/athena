@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackSelectorTool/InDetDetailedTrackSelectorTool.h"
@@ -224,7 +224,12 @@ namespace InDet
 	      return false;
 	    }
     }
-    const Trk::TrackParameters* extrapolatedParameters= m_extrapolator->extrapolate(*firstmeaspar,perigeeSurface,Trk::anyDirection,true,track.info().particleHypothesis() ); 
+    const Trk::TrackParameters* extrapolatedParameters= m_extrapolator->extrapolate(Gaudi::Hive::currentContext(),
+                                                                                    *firstmeaspar,
+                                                                                    perigeeSurface,
+                                                                                    Trk::anyDirection,
+                                                                                    true,
+                                                                                    track.info().particleHypothesis() ).release(); 
     const Trk::Perigee* extrapolatedPerigee = extrapolatedParameters ? dynamic_cast<const Trk::Perigee*>(extrapolatedParameters) : nullptr; 
     if (!extrapolatedPerigee || !extrapolatedPerigee->covariance() ) {
       ATH_MSG_WARNING( "Track Selector failed to extrapolate track to the vertex: " << myVertex->position() );
@@ -402,7 +407,11 @@ namespace InDet
     ATH_MSG_VERBOSE ("Extrapolating to position: " << myVertex->position()[0] << " , " <<
 		     myVertex->position()[1] << " , " << myVertex->position()[2]);
     const Trk::TrackParameters* extrapolatedParameters= firstmeaspar ?
-      m_extrapolator->extrapolate(*firstmeaspar,perigeeSurface,Trk::anyDirection,true,Trk::pion ) : nullptr;
+      m_extrapolator->extrapolate(Gaudi::Hive::currentContext(),
+                                  *firstmeaspar,
+                                  perigeeSurface,
+                                  Trk::anyDirection,
+                                  true,Trk::pion ).release() : nullptr;
     extrapolatedPerigee = extrapolatedParameters ? dynamic_cast<const Trk::Perigee*>(extrapolatedParameters) : nullptr; 
     if (extrapolatedPerigee==nullptr || !extrapolatedPerigee->covariance()) {
       ATH_MSG_WARNING( "Track Selector failed to extrapolate track to the vertex: " << myVertex->position() );
@@ -641,7 +650,10 @@ namespace InDet
     }
     Trk::PerigeeSurface perigeeSurface( getPosOrBeamSpot(vertex) );
     
-    const Trk::TrackParameters* extrapolatedParameters= m_extrapolator->extrapolate(perigee,perigeeSurface,Trk::anyDirection,true,Trk::pion );
+    const Trk::TrackParameters* extrapolatedParameters= m_extrapolator->extrapolate(
+      Gaudi::Hive::currentContext(),
+      perigee,perigeeSurface,
+      Trk::anyDirection,true,Trk::pion).release();
     const Trk::Perigee* extrapolatedPerigee = extrapolatedParameters ? dynamic_cast<const Trk::Perigee*>(extrapolatedParameters) : nullptr; 
     if (extrapolatedPerigee==nullptr) {
       ATH_MSG_WARNING( "Extrapolation to the vertex failed: " << perigeeSurface << std::endl << perigee );

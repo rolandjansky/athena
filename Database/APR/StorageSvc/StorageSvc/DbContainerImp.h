@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -118,8 +118,13 @@ namespace pool    {
     virtual void setSections(const Sections& sections) { m_sections = sections; }
     /// Size of the container
     virtual long long int size();
+    /// Get container name
+    virtual std::string name() const override
+    { return m_name; }
     /// Number of next record in the container (=size if no delete is allowed)
     virtual long long int nextRecordId();
+    /// Suggest next Record ID for tbe next object written - used only with synced indexes
+    virtual void useNextRecordId(long long int) {};
     /// Close the container and deallocate resources
     virtual DbStatus close();
 

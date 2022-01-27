@@ -58,6 +58,8 @@ class CaloNoise2Ntuple : public AthAlgorithm {
     { this, "ElecNoiseKey", "electronicNoise", "SG key for electronic noise" };
   SG::ReadCondHandleKey<CaloNoise> m_pileupNoiseKey
     { this, "PileupNoiseKey", "pileupNoise", "SG key for pileup noise" };
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey
+    {this,"CaloDetDescrManager","CaloDetDescrManager","SG Key for CaloDetDescrManager in the Condition Store" };
 
   std::string m_treeName;
 

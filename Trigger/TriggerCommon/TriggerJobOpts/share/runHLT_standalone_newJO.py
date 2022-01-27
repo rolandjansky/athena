@@ -1,12 +1,13 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 from AthenaCommon.Logging import logging
 log = logging.getLogger('runHLT_standalone_newJO')
 
-from AthenaConfiguration.ComponentAccumulator import CompFactory
-from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+from AthenaConfiguration.ComponentAccumulator import CompFactory
+from AthenaConfiguration.Enums import Format
+from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 
 from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior = 1
@@ -50,7 +51,7 @@ flags.Calo.ClusterCorrection.defaultSource = [CALOCORR_POOL, CALOCORR_JO] # temp
 
 flags.Exec.MaxEvents = 50
 # TODO this two should be resolved in a smarter way (i.e. required passing the tag from the driver test, however now, parsing of string with - fails)
-flags.IOVDb.GlobalTag = lambda f: 'OFLCOND-MC16-SDR-25-02' if f.Input.isMC else "CONDBR2-HLTP-2018-02"
+flags.IOVDb.GlobalTag = lambda f: 'OFLCOND-MC16-SDR-RUN2-08-02' if f.Input.isMC else "CONDBR2-HLTP-2018-03"
 flags.Common.isOnline = lambda f: not f.Input.isMC
 flags.Common.MsgSourceLength=70
 flags.Trigger.doLVL1=True # run L1 sim also on data
@@ -61,9 +62,6 @@ flags.Concurrency.NumThreads = 1
 
 flags.InDet.useSctDCS = False
 flags.InDet.usePixelDCS = False
-
-# Calo is currently the only client of Transient BS
-flags.Trigger.doTransientByteStream = lambda f: f.Input.Format == 'POOL' and f.Trigger.doCalo
 
 # command line handling
 # options that are defined in: AthConfigFlags are handled here
@@ -86,7 +84,7 @@ acc.getService('AvalancheSchedulerSvc').VerboseSubSlots = True
 # this delcares to the scheduler that EventInfo object comes from the input
 loadFromSG = [('xAOD::EventInfo', 'StoreGateSvc+EventInfo')]
 
-if flags.Input.Format == 'BS':
+if flags.Input.Format is Format.BS:
     from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
     acc.merge(ByteStreamReadCfg(flags))
 else:
@@ -97,12 +95,15 @@ else:
 from TriggerJobOpts.TriggerHistSvcConfig import TriggerHistSvcConfig
 acc.merge(TriggerHistSvcConfig(flags))
 
-from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT_newJO import generateMenu as generateHLTMenu
+from TriggerMenuMT.HLT.Menu.GenerateMenuMT_newJO import generateMenu as generateHLTMenu
 from TriggerJobOpts.TriggerConfig import triggerRunCfg
 menu = triggerRunCfg(flags, menu=generateHLTMenu)
 # uncomment to obtain printout of menu (and associated components)
 # menu.printConfig(withDetails=True, summariseProps=True)
 acc.merge(menu)
+
+from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
+acc.merge(LumiBlockMuWriterCfg(flags), sequenceName="HLTBeginSeq")
 
 if flags.Trigger.doTransientByteStream and flags.Trigger.doCalo:
     from TriggerJobOpts.TriggerTransBSConfig import triggerTransBSCfg_Calo
@@ -118,7 +119,8 @@ if flags.Trigger.doLVL1:
 acc.addEventAlgo(CompFactory.SGInputLoader(Load=loadFromSG), sequenceName="AthAlgSeq")
 
 # The L1 presacles do not get created in the menu setup
-from TrigConfigSvc.TrigConfigSvcCfg import createL1PrescalesFileFromMenu
+from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu, createL1PrescalesFileFromMenu
+generateL1Menu(flags)
 createL1PrescalesFileFromMenu(flags)
 
 

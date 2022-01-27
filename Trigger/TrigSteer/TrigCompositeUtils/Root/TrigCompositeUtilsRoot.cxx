@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // See similar workaround the lack of CLID in standalone releases in TrigComposite_v1.h
@@ -10,6 +10,7 @@
 #include "AthContainers/AuxElement.h"
 
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
+#include "boost/algorithm/string/predicate.hpp"
 
 #include <unordered_map>
 #include <regex>
@@ -210,7 +211,7 @@ namespace TrigCompositeUtils {
 
     if ( hasLinkToPrevious(start) ) {
       const ElementLinkVector<DecisionContainer> seeds = getLinkToPrevious(start);
-      for (const ElementLink<DecisionContainer> seedEL : seeds) {
+      for (const ElementLink<DecisionContainer>& seedEL : seeds) {
         const Decision* result = find( *seedEL, filter );
         if (result) return result;
       }
@@ -236,35 +237,57 @@ namespace TrigCompositeUtils {
     return nullptr;
   }
 
-  std::vector<const Decision*> getRejectedDecisionNodes(asg::EventStoreType* eventStore,
+  std::vector<const Decision*> getRejectedDecisionNodes(const asg::EventStoreType* eventStore,
+    const std::string& summaryCollectionKey,
     const DecisionIDContainer& ids,
     const std::set<std::string>& keysToIgnore) {
 
-    std::vector<const Decision*> output;
-    // The list of containers we need to read can change on a file-by-file basis (it depends on the SMK)
-    // Hence we query SG for all collections rather than maintain a large and ever changing ReadHandleKeyArray
+    // The following list contains all known summary store identifiers where the graph nodes are spread out over O(100s) or O(1000s)
+    // of different SG collections. This is the raw output from running the trigger online.
+    // When dealing with this, we need to query eventStore->keys in every event to obtain the full set of collections to process.
+    static const std::vector<std::string> knownDistributedSummaryStores{"HLTNav_Summary"};
 
-    static std::vector<std::string> keys ATLAS_THREAD_SAFE;
-    static std::mutex keysMutex;
-    // TODO TODO TODO NEED TO REPLACE THIS WITH A STANDALONE-FRIENDLY VERSION
+    // The following list contains all known summary store identifiers where all nodes from the graph have been compactified / condensed
+    // down into a single container. Here we just have to search this one container.
+    static const std::vector<std::string> knownCompactSummaryStores{"HLTNav_Summary_OnlineSlimmed",
+      "HLTNav_Summary_ESDSlimmed",
+      "HLTNav_Summary_AODSlimmed",
+      "HLTNav_Summary_DAODSlimmed"};
+
+    std::vector<std::string> keys; // The SG keys we will be exploring to find rejected decision nodes
+
+    if (std::find(knownDistributedSummaryStores.cbegin(), knownDistributedSummaryStores.cend(), summaryCollectionKey) != knownDistributedSummaryStores.end() or summaryCollectionKey == "") {
+      
+      // If we have a distributed store then we need to query SG to find all keys.
+      // This should be a rare case now that we run compactification "online" (i.e. immediately after the trigger has executed) 
 #ifndef XAOD_STANDALONE
-    {
-      std::lock_guard<std::mutex> lock(keysMutex);
-      if (keys.size() == 0) {
-        // In theory this can change from file to file, 
-        // the use case for this function is monitoring, and this is typically over a single run.
-        eventStore->keys(static_cast<CLID>( ClassID_traits< DecisionContainer >::ID() ), keys);
-      }
-    }
+      // The list of containers we need to read can change on a file-by-file basis (it depends on the SMK)
+      // Hence we query SG for all collections rather than maintain a large and ever changing ReadHandleKeyArray
+      eventStore->keys(static_cast<CLID>( ClassID_traits< DecisionContainer >::ID() ), keys);
 #else
-    eventStore->event(); // Avoid unused warning
-    throw std::runtime_error("Cannot yet obtain rejected HLT features in AnalysisBase");
+      eventStore->event(); // Avoid unused warning
+      throw std::runtime_error("Cannot obtain rejected HLT features in AnalysisBase when reading from uncompactified navigation containers, run trigger navigation slimming first if you really need this.");
 #endif
+
+    } else if (std::find(knownCompactSummaryStores.cbegin(), knownCompactSummaryStores.cend(), summaryCollectionKey) != knownCompactSummaryStores.end()) {
+
+      keys.push_back(summaryCollectionKey);
+
+    } else {
+
+      using namespace msgRejected;
+      ANA_MSG_WARNING("getRejectedDecisionNodes has not been told about final collection " << summaryCollectionKey << " please update this function. Assuming that it is already compact.");
+      // Safest to assume that this is a compact summary store
+      keys.push_back(summaryCollectionKey);
+
+    }
+
+    std::vector<const Decision*> output; // The return vector of identified nodes where one of the chains in 'ids' was rejected
 
     // Loop over each DecisionContainer,
     for (const std::string& key : keys) {
       // Get and check this container
-      if ( key.find("HLTNav_") != 0 ) {
+      if ( ! boost::starts_with (key, "HLTNav_") ) {
         continue; // Only concerned about the decision containers which make up the navigation, they have name prefix of HLTNav
       }
       if (keysToIgnore.count(key) == 1) {
@@ -311,7 +334,7 @@ namespace TrigCompositeUtils {
         DecisionIDContainer chainsToCheck;
         if (ids.size() == 0) { // We care about *all* chains
           chainsToCheck = activeChainsIntoThisDecision;
-        } else { // We care about sepcified chains
+        } else { // We care about specified chains
           chainsToCheck = ids;
         }
         // We have found a rejected decision node *iff* a chainID to check is *not* present here
@@ -356,7 +379,7 @@ namespace TrigCompositeUtils {
     // Continue to the path(s) by looking at this Decision object's seed(s)
     if ( hasLinkToPrevious(node) ) {
       // Do the recursion
-      for ( const ElementLink<DecisionContainer> seed : getLinkToPrevious(node)) {
+      for ( const ElementLink<DecisionContainer>& seed : getLinkToPrevious(node)) {
         const Decision* seedDecision = *(seed); // Dereference ElementLink
         // Sending true as final parameter for enforceDecisionOnStartNode as we are recursing away from the supplied start node
         recursiveGetDecisionsInternal(seedDecision, node, navGraph, fullyExploredFrom, ids, /*enforceDecisionOnNode*/ true);
@@ -483,7 +506,7 @@ namespace TrigCompositeUtils {
       return true;
     }
     // If not Early Exit, then recurse
-    for (const ElementLink<DecisionContainer> seed : getLinkToPrevious(start)) {
+    for (const ElementLink<DecisionContainer>& seed : getLinkToPrevious(start)) {
 #if TRIGCOMPUTILS_ENABLE_EARLY_EXIT == 1
       if (fullyExploredFrom != nullptr) {
         // We only need to recursively explore back from each node in the graph once.
@@ -735,7 +758,7 @@ namespace TrigCompositeUtils {
     ret += printerFnc( tc );
     if ( hasLinkToPrevious(tc) ) {
       const ElementLinkVector<DecisionContainer> seeds = getLinkToPrevious(tc);
-      for (const ElementLink<DecisionContainer> seedEL : seeds) {
+      for (const ElementLink<DecisionContainer>& seedEL : seeds) {
         ret += " -> " + dump( *seedEL, printerFnc );
       }
     }

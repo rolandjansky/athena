@@ -15,17 +15,8 @@
 class Flocalize {
 private:
 public:
-   ~Flocalize() {;}
-   Flocalize () {
-      stationName = std::string("");
-      stationEta = 0;
-      stationPhi = 0;
-      multiplet = 0;
-      gas_gap = 0;
-      channel_type = 0;
-      channel = 0;
-   }
-   Flocalize (std::string i_stationName, int i_stationEta, int i_stationPhi, int i_multiplet, int i_gas_gap, int i_channel, int i_channel_type, int i_matchedchannel) {
+  
+   Flocalize (const std::string & i_stationName, int i_stationEta, int i_stationPhi, int i_multiplet, int i_gas_gap, int i_channel, int i_channel_type, int i_matchedchannel) {
       stationName = i_stationName;
       stationEta = i_stationEta;
       stationPhi = i_stationPhi;
@@ -61,31 +52,22 @@ public:
       printf("%-15s %-15d %-15d %-15d %-15d %-15d %-15d %-15d\n", stationName.data(), stationEta, stationPhi, multiplet, gas_gap, channel_type, channel, matchedchannel);
    }
    std::string stationName;
-   int stationEta;
-   int stationPhi;
-   int multiplet;
-   int gas_gap;
-   int channel_type;
-   int channel;
-   int matchedchannel;
+   int stationEta{};
+   int stationPhi{};
+   int multiplet{};
+   int gas_gap{};
+   int channel_type{};
+   int channel{};
+   int matchedchannel{};
 };
 
 class Flocalize_collection {
    //A class to hold all info to find a Hit in the Digits collection. Generalized to also be used on the RDO's. Does not take ownership of any of the parameters used, just a way to collect pointers.
 private:
 public:
-   Flocalize_collection () {
-      stationName = NULL;
-      stationEta = NULL;
-      stationPhi = NULL;
-      multiplet = NULL;
-      gas_gap = NULL;
-      channel_type = NULL;
-      channel = NULL;
-   }
-   ~Flocalize_collection() {;}
+
    //NB: MM has no detector type: make this last entry, and ajust member functions for no type possibility.
-   Flocalize_collection (std::string i_name, std::vector<std::string>* i_stationName, std::vector<int>* i_stationEta, std::vector<int>* i_stationPhi, std::vector<int>* i_multiplet, std::vector<int>* i_gas_gap, std::vector<int>* i_channel, std::vector<int>* i_channel_type = nullptr) {
+   Flocalize_collection (const std::string & i_name, std::vector<std::string>* i_stationName, std::vector<int>* i_stationEta, std::vector<int>* i_stationPhi, std::vector<int>* i_multiplet, std::vector<int>* i_gas_gap, std::vector<int>* i_channel, std::vector<int>* i_channel_type = nullptr) {
       isMM = (i_channel_type == nullptr) ? 1 : 0; 
       stationName = i_stationName;
       stationEta = i_stationEta;
@@ -182,18 +164,18 @@ public:
       _vloc.push_back(unique);
       return (_vloc.size() - 1);
    } 
-   std::vector<std::string>  *stationName;
-   std::vector<int>     *stationEta;
-   std::vector<int>     *stationPhi;
-   std::vector<int>     *multiplet;
-   std::vector<int>     *gas_gap;
-   std::vector<int>     *channel_type;
-   std::vector<int>     *channel;
+   std::vector<std::string>  *stationName{};
+   std::vector<int>     *stationEta{};
+   std::vector<int>     *stationPhi{};
+   std::vector<int>     *multiplet{};
+   std::vector<int>     *gas_gap{};
+   std::vector<int>     *channel_type{};
+   std::vector<int>     *channel{};
    std::vector<int>     matchedchannel;
    std::vector<std::vector<unsigned int>> matchedindices;
    std::string name;
    std::string matchedwith;
-   bool isMM;
+   bool isMM{};
 
  };
 

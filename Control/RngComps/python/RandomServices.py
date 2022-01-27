@@ -21,7 +21,7 @@ def dSFMT(seed, name="AtDSFMTGenSvc"):
     acc = ComponentAccumulator()
     service = AtDSFMTGenSvc(name)
     service.Seeds.append(seed)
-    acc.addService(service)
+    acc.addService(service, primary=True)
     return acc
 
 def Ranlux64(seed, name="AtRanluxGenSvc"):
@@ -29,7 +29,7 @@ def Ranlux64(seed, name="AtRanluxGenSvc"):
     acc = ComponentAccumulator()
     service = AtRanluxGenSvc(name)
     service.Seeds.append(seed)
-    acc.addService(service)
+    acc.addService(service, primary=True)
     return acc
 
 def Ranecu(seed, name="AtRndmGenSvc"):
@@ -37,7 +37,7 @@ def Ranecu(seed, name="AtRndmGenSvc"):
     acc = ComponentAccumulator()
     service = AtRndmGenSvc(name)
     service.Seeds.append(seed)
-    acc.addService(service)
+    acc.addService(service, primary=True)
     return acc
 
 def RNG(engine="dSFMT", name="AthRNGSvc"):
@@ -45,6 +45,14 @@ def RNG(engine="dSFMT", name="AthRNGSvc"):
     acc = ComponentAccumulator()
     service = AthRNGSvc(name)
     service.EngineType = engine
-    acc.addService(service)
+    acc.addService(service, primary=True)
+    return acc
+
+def AthRNGSvcCfg(flags, name="AthRNGSvc"):
+    """Return a ComponentAccumulator containing an AthRNGSvc"""
+    acc = ComponentAccumulator()
+    service = AthRNGSvc(name)
+    service.EngineType = flags.Random.Engine
+    acc.addService(service, primary=True)
     return acc
 

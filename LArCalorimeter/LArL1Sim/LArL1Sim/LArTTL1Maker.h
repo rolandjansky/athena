@@ -23,7 +23,6 @@
 #include "LArElecCalib/ILArfSampl.h"
 
 #include "AthenaKernel/IAthRNGSvc.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
 
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"

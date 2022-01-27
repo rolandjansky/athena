@@ -53,22 +53,26 @@ namespace ATHRNG{
 
     /// Set the random seed using a string (e.g. algorithm name) and the
     /// current slot, event, and run numbers.
-    void setSeed(const std::string& algName, size_t slot, uint64_t ev, uint64_t run);
+    void setSeed(const std::string& algName, size_t slot, uint64_t ev, uint64_t run,
+                 EventContext::ContextEvt_t evt = EventContext::INVALID_CONTEXT_EVT);
 
     /// Set the random seed using a string (e.g. algorithm name) and
     /// the current EventContext and an optional offset. Does nothing
     /// if the context is invalid. - Legacy Version attempting to
     /// reproduce seeds from thread-unsafe random number services
-    void setSeedLegacy(const std::string& algName, const EventContext& ctx, uint32_t offset=0, bool useLegacy=false);
+    void setSeedLegacy(const std::string& algName, const EventContext& ctx, uint32_t offset=0, bool useLegacy=false,
+                       EventContext::ContextEvt_t evt = EventContext::INVALID_CONTEXT_EVT);
 
     /// Set the random seed using a string (e.g. algorithm name) and
     /// the current slot, event, and run numbers and an optional
     /// offset. - Legacy Version attempting to reproduce seeds from
     /// thread-unsafe random number services
-    void setSeedLegacy(const std::string& algName, size_t slot, uint64_t ev, uint64_t run, uint32_t offset=0);
+    void setSeedLegacy(const std::string& algName, size_t slot, uint64_t ev, uint64_t run, uint32_t offset=0,
+                       EventContext::ContextEvt_t evt = EventContext::INVALID_CONTEXT_EVT);
 
     /// Set the seed value directly for a specified slot
-    void setSeed(size_t slot, size_t seed);
+    void setSeed(size_t slot, size_t seed,
+                 EventContext::ContextEvt_t evt = EventContext::INVALID_CONTEXT_EVT);
 
     /// Cast-to-engine pointer operator.
     /// Retrieves the current event context and returns the engine
@@ -82,10 +86,25 @@ namespace ATHRNG{
       return m_engines[ctx.slot()];
     }
 
+    /// Return the event count at which the current slot was last seeded.
+    EventContext::ContextEvt_t evtSeeded() const
+    {
+      return m_evtSeeded[Gaudi::Hive::currentContext().slot()];
+    }
+
+    /// Return the event count at which the current slot of CTX was last seeded.
+    EventContext::ContextEvt_t evtSeeded(const EventContext &ctx) const
+    {
+      return m_evtSeeded[ctx.slot()];
+    }
+
   private:
 
     /// Vector of random engines, ordered by slot number.
     std::vector<CLHEP::HepRandomEngine*> m_engines;
+
+    /// Event counter when the engine was last seeded.
+    std::vector<EventContext::ContextEvt_t>  m_evtSeeded;
 
   };
 

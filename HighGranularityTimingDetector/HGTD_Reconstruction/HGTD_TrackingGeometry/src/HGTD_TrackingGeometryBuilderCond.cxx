@@ -6,7 +6,7 @@
 // HGTD_TrackingGeometryBuilderCond.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-// HGTDet
+// HGTD
 #include "HGTD_TrackingGeometry/HGTD_TrackingGeometryBuilderCond.h"
 // EnvelopeDefinitionService
 #include "SubDetectorEnvelopes/IEnvelopeDefSvc.h"
@@ -42,7 +42,7 @@
 #include <algorithm>
 
 // constructor
-HGTDet::HGTD_TrackingGeometryBuilderCond::HGTD_TrackingGeometryBuilderCond(const std::string& t, const std::string& n, const IInterface* p) :
+HGTD_TrackingGeometryBuilderCond::HGTD_TrackingGeometryBuilderCond(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
   m_enclosingEnvelopeSvc("AtlasEnvelopeDefSvc", n),
   m_trackingVolumeCreator("Trk::CylinderVolumeCreator/CylinderVolumeCreator"),
@@ -67,13 +67,13 @@ HGTDet::HGTD_TrackingGeometryBuilderCond::HGTD_TrackingGeometryBuilderCond(const
 }
 
 // destructor
-HGTDet::HGTD_TrackingGeometryBuilderCond::~HGTD_TrackingGeometryBuilderCond()
+HGTD_TrackingGeometryBuilderCond::~HGTD_TrackingGeometryBuilderCond()
 {
 }
 
 // Athena standard methods
 // initialize
-StatusCode HGTDet::HGTD_TrackingGeometryBuilderCond::initialize()
+StatusCode HGTD_TrackingGeometryBuilderCond::initialize()
 {
   // retrieve envelope definition service 
   ATH_CHECK(m_enclosingEnvelopeSvc.retrieve());
@@ -89,13 +89,13 @@ StatusCode HGTDet::HGTD_TrackingGeometryBuilderCond::initialize()
 }
 
 // finalize
-StatusCode HGTDet::HGTD_TrackingGeometryBuilderCond::finalize()
+StatusCode HGTD_TrackingGeometryBuilderCond::finalize()
 {
   ATH_MSG_INFO( "finalize() successful" );
   return StatusCode::SUCCESS;
 }
 
-std::pair<EventIDRange, Trk::TrackingGeometry*> HGTDet::HGTD_TrackingGeometryBuilderCond::trackingGeometry
+std::pair<EventIDRange, Trk::TrackingGeometry*> HGTD_TrackingGeometryBuilderCond::trackingGeometry
   ATLAS_NOT_THREAD_SAFE // Thread unsafe TrackingGeometry::indexStaticLayers method is used.
   (const EventContext& ctx, std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const
 

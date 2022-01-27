@@ -122,7 +122,7 @@ Muon::MuonStationBuilderCond::buildDetachedTrackingVolumes(const EventContext& c
     while (!vol.atEnd()) {
         const GeoVPhysVol* cv = &(*(vol.getVolume()));
         const GeoLogVol* clv = cv->getLogVol();
-        std::string vname = clv->getName();
+        const std::string &vname = clv->getName();
 
         // special treatment for NSW
         if (vname.compare(0, 3,"NSW") == 0 || vname.compare(0, 8,"NewSmall") == 0) {
@@ -167,7 +167,10 @@ Muon::MuonStationBuilderCond::buildDetachedTrackingVolumes(const EventContext& c
             for (unsigned int ish = 0; ish < vols.size(); ish++) {
                 bool isLargeSector = fabs(((vols[ish]).second)[0].translation().phi()) < 0.01;
                 std::string protoName = vname;
-                if (!simpleTree) protoName = vname + "_" + volNames[ish];
+                if (!simpleTree){
+                   protoName += '_';
+                   protoName += volNames[ish];
+               }
 
                 // Got to mothervolume of sTGC_Sensitive/sTGC_Frame and MM_Sensitive/MM_Frame: TGCGas ArCo2
                 ATH_MSG_DEBUG(" ish " << ish << " protoName14 " << protoName.substr(1, 4) << " volName04 " << volNames[ish].substr(0, 4));
@@ -555,31 +558,32 @@ Muon::MuonStationBuilderCond::buildDetachedTrackingVolumes(const EventContext& c
                         if (msTypeName.compare(0, 1,"T") == 0) {
                             bool az = true;
                             std::string_view msName ( msTV->trackingVolume()->volumeName());
+                            std::string_view sub= msName.substr(7, 2);
                             if (transf.translation().z() < 0) az = false;
-                            if (msName.substr(7, 2) == "01") eta = az ? 5 : 4;
-                            if (msName.substr(7, 2) == "02") eta = az ? 5 : 4;
-                            if (msName.substr(7, 2) == "03") eta = az ? 6 : 3;
-                            if (msName.substr(7, 2) == "04") eta = az ? 7 : 2;
-                            if (msName.substr(7, 2) == "05") eta = az ? 8 : 1;
-                            if (msName.substr(7, 2) == "06") eta = az ? 5 : 4;
-                            if (msName.substr(7, 2) == "07") eta = az ? 5 : 4;
-                            if (msName.substr(7, 2) == "08") eta = az ? 6 : 3;
-                            if (msName.substr(7, 2) == "09") eta = az ? 7 : 2;
-                            if (msName.substr(7, 2) == "10") eta = az ? 8 : 1;
-                            if (msName.substr(7, 2) == "11") eta = az ? 9 : 0;
-                            if (msName.substr(7, 2) == "12") eta = az ? 5 : 4;
-                            if (msName.substr(7, 2) == "13") eta = az ? 5 : 4;
-                            if (msName.substr(7, 2) == "14") eta = az ? 6 : 3;
-                            if (msName.substr(7, 2) == "15") eta = az ? 7 : 2;
-                            if (msName.substr(7, 2) == "16") eta = az ? 8 : 1;
-                            if (msName.substr(7, 2) == "17") eta = az ? 9 : 0;
-                            if (msName.substr(7, 2) == "18") eta = az ? 5 : 4;
-                            if (msName.substr(7, 2) == "19") eta = az ? 5 : 4;
-                            if (msName.substr(7, 2) == "20") eta = az ? 5 : 4;
-                            if (msName.substr(7, 2) == "21") eta = az ? 5 : 4;
-                            if (msName.substr(7, 2) == "22") eta = az ? 5 : 4;
+                            if (sub == "01") eta = az ? 5 : 4;
+                            else if (sub == "02") eta = az ? 5 : 4;
+                            else if (sub == "03") eta = az ? 6 : 3;
+                            else if (sub == "04") eta = az ? 7 : 2;
+                            else if (sub == "05") eta = az ? 8 : 1;
+                            else if (sub == "06") eta = az ? 5 : 4;
+                            else if (sub == "07") eta = az ? 5 : 4;
+                            else if (sub == "08") eta = az ? 6 : 3;
+                            else if (sub == "09") eta = az ? 7 : 2;
+                            else if (sub == "10") eta = az ? 8 : 1;
+                            else if (sub == "11") eta = az ? 9 : 0;
+                            else if (sub == "12") eta = az ? 5 : 4;
+                            else if (sub == "13") eta = az ? 5 : 4;
+                            else if (sub == "14") eta = az ? 6 : 3;
+                            else if (sub == "15") eta = az ? 7 : 2;
+                            else if (sub == "16") eta = az ? 8 : 1;
+                            else if (sub == "17") eta = az ? 9 : 0;
+                            else if (sub == "18") eta = az ? 5 : 4;
+                            else if (sub == "19") eta = az ? 5 : 4;
+                            else if (sub == "20") eta = az ? 5 : 4;
+                            else if (sub == "21") eta = az ? 5 : 4;
+                            else if (sub == "22") eta = az ? 5 : 4;
                         }
-                        if (m_idHelperSvc->hasTGC() && stName.compare(0, 1, "T") == 0) {
+                        if (m_idHelperSvc->hasTGC() && stName[0] =='T') {
                             int etaSt = eta - 4;
                             if (eta < 5) etaSt = eta - 5;
                             double phic = transf.translation().phi();
@@ -1041,9 +1045,9 @@ void Muon::MuonStationBuilderCond::identifyPrototype(const Trk::TrackingVolume* 
     const std::string& stationName = station->volumeName();
     ATH_MSG_VERBOSE(" for station " << stationName);
     const std::string stationNameShort = stationName.substr(0, 3);
-    const std::string stationFirstChar = stationName.substr(0, 1);
+    const char stationFirstChar = stationName[0];
 
-    if (m_idHelperSvc->hasMDT() && (stationFirstChar == "B" || stationFirstChar == "E")) {
+    if (m_idHelperSvc->hasMDT() && (stationFirstChar == 'B' || stationFirstChar == 'E')) {
         // MDT
         int nameIndex = m_idHelperSvc->mdtIdHelper().stationNameIndex(stationNameShort);
         int nameIndexC = nameIndex;
@@ -1208,9 +1212,7 @@ void Muon::MuonStationBuilderCond::getNSWStationsForTranslation(
 
         if (childName.empty()) childName = "Spacer";
         if (childName.size() > 9 && childName.substr(childName.size() - 9, 9) == "Sensitive") {
-            std::stringstream st;
-            st << ic;
-            childName = childName + st.str();
+            childName += std::to_string(ic);
         }
 
         std::string cName = childName.compare(0, 3, "NSW") == 0 || childName.compare(0, 8, "NewSmall") == 0 ? name : name + childName;

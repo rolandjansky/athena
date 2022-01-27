@@ -69,15 +69,12 @@ PhotonTruthTool::queryInterface( const InterfaceID& riid, void** ppvIf )
 /**
  * @brief Go from a photon to a matching @c TruthParticle.
  * @param g The input photon.
- * @param cache Truth classifier association cache.
  * @return The matching @c TruthParticle, or null.
  */
 const xAOD::TruthParticle*
-PhotonTruthTool::toTruthParticle (const xAOD::Photon& g,
-                                  IMCTruthClassifier::Cache& cache) const
+PhotonTruthTool::toTruthParticle (const xAOD::Photon& g) const
 {
   IMCTruthClassifier::Info info;
-  info.extrapolationCache = &cache;
   m_classifier->particleTruthClassifier (&g, &info);
   return info.genPart;
 }

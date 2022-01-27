@@ -9,7 +9,7 @@
 #                 
 #   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration#                 
 #
-
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory # CompFactory creates old or new configs depending on the enva
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
     
@@ -38,10 +38,13 @@ def _createRegSelCondAlg( detector,  CondAlgConstructor ):
     elif detector == "SCT":
         condAlg.DetEleCollKey = "SCT_DetectorElementCollection"
         condAlg.SCT_CablingData = "SCT_CablingData"
+    elif detector == "ITkPixel":
+        condAlg.DetEleCollKey = "ITkPixelDetectorElementCollection"
+        # No cabling data for ITk
+        condAlg.PixelCablingCondData = ""
     elif detector == "ITkStrip":
         condAlg.DetEleCollKey = "ITkStripDetectorElementCollection"
         # No cabling data for ITk
-        condAlg.PixelCablingCondData = ""
         condAlg.SCT_CablingData = ""
     return condAlg
 
@@ -204,105 +207,116 @@ def makeRegSelTool_TILE() :
 
 ##### new JO counterparts
 
-def regSelToolCfg(flags, detector, CondAlg, CablingConfigCfg=None, DetConditionsCfg=None):
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+def regSelToolCfg(flags, detector, algorithm, readout_geometry=None, conditions=None):
     ca = ComponentAccumulator()
-    if CablingConfigCfg:
-        ca.merge(CablingConfigCfg(flags))
-    if DetConditionsCfg:
-        ca.merge(DetConditionsCfg(flags))
+    if readout_geometry:
+        ca.merge(readout_geometry)
+    if conditions:
+        ca.merge(conditions)
     ca.setPrivateTools(_createRegSelTool(detector, True))
-    the_alg = _createRegSelCondAlg(detector, CondAlg)
+    the_alg = _createRegSelCondAlg(detector, algorithm)
     if detector == "MDT" and flags.Common.isOnline:
         the_alg.Conditions = ""
     ca.addCondAlgo(the_alg)
     return ca
 
-# inner detector
 
+# inner detector
 def regSelTool_Pixel_Cfg(flags):
+    from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
     from PixelConditionsAlgorithms.PixelConditionsConfig import PixelCablingCondAlgCfg
-    return regSelToolCfg(flags, "Pixel", CompFactory.SiRegSelCondAlg, CablingConfigCfg=PixelCablingCondAlgCfg)
+    return regSelToolCfg(flags, "Pixel", CompFactory.SiRegSelCondAlg,
+                         readout_geometry=PixelReadoutGeometryCfg(flags), conditions=PixelCablingCondAlgCfg(flags))
 
 def regSelTool_SCT_Cfg(flags):
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
     from SCT_Cabling.SCT_CablingConfig import SCT_CablingCondAlgCfg
-    return regSelToolCfg(flags, "SCT", CompFactory.SiRegSelCondAlg, CablingConfigCfg=SCT_CablingCondAlgCfg)
+    return regSelToolCfg(flags, "SCT", CompFactory.SiRegSelCondAlg,
+                         readout_geometry=SCT_ReadoutGeometryCfg(flags), conditions=SCT_CablingCondAlgCfg(flags))
 
 def regSelTool_TRT_Cfg(flags):
+    from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
     # temporary
     from PixelConditionsAlgorithms.PixelConditionsConfig import PixelCablingCondAlgCfg
-    return regSelToolCfg(flags, "TRT", CompFactory.TRT_RegSelCondAlg, CablingConfigCfg=PixelCablingCondAlgCfg)
+    return regSelToolCfg(flags, "TRT", CompFactory.TRT_RegSelCondAlg,
+                         readout_geometry=TRT_ReadoutGeometryCfg(flags),
+                         conditions=PixelCablingCondAlgCfg(flags))  # FIXME: TRT should not depend on Pixel
 
 # ITk
+def regSelTool_ITkPixel_Cfg(flags):
+    from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelReadoutGeometryCfg
+    return regSelToolCfg(flags, "ITkPixel", CompFactory.SiRegSelCondAlg,
+                         readout_geometry=ITkPixelReadoutGeometryCfg(flags))
 
 def regSelTool_ITkStrip_Cfg(flags):
-    return regSelToolCfg(flags, "ITkStrip", CompFactory.SiRegSelCondAlg)
+    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
+    return regSelToolCfg(flags, "ITkStrip", CompFactory.SiRegSelCondAlg,
+                         readout_geometry=ITkStripReadoutGeometryCfg(flags))
+
 
 # muon spectrometer
-
 def regSelTool_MDT_Cfg(flags):
     from MuonConfig.MuonCablingConfig import MDTCablingConfigCfg
     from MuonConfig.MuonCondAlgConfig import MdtCondDbAlgCfg
-    return regSelToolCfg(flags, "MDT", CompFactory.MDT_RegSelCondAlg, MDTCablingConfigCfg, 
-                        MdtCondDbAlgCfg if not flags.Common.isOnline else None)
+
+    conditions = ComponentAccumulator()
+    conditions.merge(MDTCablingConfigCfg(flags))
+    if not flags.Common.isOnline:
+        conditions.merge(MdtCondDbAlgCfg(flags))
+
+    return regSelToolCfg(flags, "MDT", CompFactory.MDT_RegSelCondAlg,
+                         conditions=conditions)
 
 def regSelTool_RPC_Cfg(flags):
     from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg
-    return regSelToolCfg(flags, "RPC", CompFactory.RPC_RegSelCondAlg, RPCCablingConfigCfg)
+    return regSelToolCfg(flags, "RPC", CompFactory.RPC_RegSelCondAlg,
+                         conditions=RPCCablingConfigCfg(flags))
 
 def regSelTool_TGC_Cfg(flags):
-    from MuonConfig.MuonCablingConfig import TGCCablingConfigCfg
-    return regSelToolCfg(flags, "TGC", CompFactory.TGC_RegSelCondAlg, TGCCablingConfigCfg)
+    from MuonConfig.MuonCablingConfig import MDTCablingConfigCfg, TGCCablingConfigCfg
+
+    conditions = ComponentAccumulator()
+    conditions.merge(MDTCablingConfigCfg(flags))  # FIXME: should not depend on MDT
+    conditions.merge(TGCCablingConfigCfg(flags))
+    return regSelToolCfg(flags, "TGC", CompFactory.TGC_RegSelCondAlg,
+                         conditions=conditions)
 
 def regSelTool_CSC_Cfg(flags):
-    return regSelToolCfg(flags, "CSC", CompFactory.CSC_RegSelCondAlg)
+    from MuonConfig.MuonCablingConfig import MDTCablingConfigCfg
+    return regSelToolCfg(flags, "CSC", CompFactory.CSC_RegSelCondAlg,
+                         conditions=MDTCablingConfigCfg(flags))  # FIXME: CSC should not depend on MDT
 
 def regSelTool_STGC_Cfg(flags):
-    return regSelToolCfg(flags, "STGC", CompFactory.sTGC_RegSelCondAlg)
+    from MuonConfig.MuonCablingConfig import MDTCablingConfigCfg
+    return regSelToolCfg(flags, "STGC", CompFactory.sTGC_RegSelCondAlg,
+                         conditions=MDTCablingConfigCfg(flags))  # FIXME: sTGC should not depend on MDT
 
 def regSelTool_MM_Cfg(flags):
-    return regSelToolCfg(flags, "MM", CompFactory.MM_RegSelCondAlg)
+    from MuonConfig.MuonCablingConfig import MDTCablingConfigCfg
+    return regSelToolCfg(flags, "MM", CompFactory.MM_RegSelCondAlg,
+                         conditions=MDTCablingConfigCfg(flags))  # FIXME: MM should not depend on MDT
 
-#calo 
+
+# calo 
 def regSelTool_TTEM_Cfg(flags):
     from LArRecUtils.LArRecUtilsConfig import LArRoIMapCondAlgCfg
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    acc = ComponentAccumulator()
-    acc.merge (LArRoIMapCondAlgCfg(flags))
-    c = regSelToolCfg(flags, "TTEM", CompFactory.RegSelCondAlg_LAr)
-    acc.setPrivateTools (c.popPrivateTools())
-    acc.merge (c)
-    return acc
+    return regSelToolCfg(flags, "TTEM", CompFactory.RegSelCondAlg_LAr,
+                         conditions=LArRoIMapCondAlgCfg(flags))
 
 def regSelTool_TTHEC_Cfg(flags):
     from LArRecUtils.LArRecUtilsConfig import LArRoIMapCondAlgCfg
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    acc = ComponentAccumulator()
-    acc.merge (LArRoIMapCondAlgCfg(flags))
-    c = regSelToolCfg(flags, "TTHEC", CompFactory.RegSelCondAlg_LAr)
-    acc.setPrivateTools (c.popPrivateTools())
-    acc.merge (c)
-    return acc
+    return regSelToolCfg(flags, "TTHEC", CompFactory.RegSelCondAlg_LAr,
+                         conditions=LArRoIMapCondAlgCfg(flags))
 
 def regSelTool_FCALEM_Cfg(flags):
     from LArRecUtils.LArRecUtilsConfig import LArRoIMapCondAlgCfg
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    acc = ComponentAccumulator()
-    acc.merge (LArRoIMapCondAlgCfg(flags))
-    c = regSelToolCfg(flags, "FCALEM", CompFactory.RegSelCondAlg_LAr)
-    acc.setPrivateTools (c.popPrivateTools())
-    acc.merge (c)
-    return acc
+    return regSelToolCfg(flags, "FCALEM", CompFactory.RegSelCondAlg_LAr,
+                         conditions=LArRoIMapCondAlgCfg(flags))
 
 def regSelTool_FCALHAD_Cfg(flags):
     from LArRecUtils.LArRecUtilsConfig import LArRoIMapCondAlgCfg
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    acc = ComponentAccumulator()
-    acc.merge (LArRoIMapCondAlgCfg(flags))
-    c = regSelToolCfg(flags, "FCALHAD", CompFactory.RegSelCondAlg_LAr)
-    acc.setPrivateTools (c.popPrivateTools())
-    acc.merge (c)
-    return acc
+    return regSelToolCfg(flags, "FCALHAD", CompFactory.RegSelCondAlg_LAr,
+                         conditions=LArRoIMapCondAlgCfg(flags))
 
 def regSelTool_TILE_Cfg(flags):
     return regSelToolCfg(flags, "TILE", CompFactory.RegSelCondAlg_Tile)

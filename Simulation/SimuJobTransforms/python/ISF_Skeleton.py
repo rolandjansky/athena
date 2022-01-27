@@ -24,7 +24,7 @@ def defaultSimulationFlags(ConfigFlags, detectors):
     # ConfigFlags.Sim.LArParameterization = 2
 
     # Fatras does not support simulating the BCM, so have to switch that off
-    if ConfigFlags.Sim.ISF.Simulator in ('ATLFASTIIF', 'ATLFASTIIFMT', 'ATLFASTIIF_G4MS'):
+    if ConfigFlags.Sim.ISF.Simulator in ('ATLFASTIIF', 'ATLFASTIIFMT', 'ATLFASTIIF_G4MS', 'ATLFAST3F_G4MS'):
         try:
             detectors.remove('BCM')
         except ValueError:
@@ -76,15 +76,16 @@ def fromRunArgs(runArgs):
         ConfigFlags.Input.Files = runArgs.inputEVNTFile
     elif hasattr(runArgs, 'inputEVNT_TRFile'):
         ConfigFlags.Input.Files = runArgs.inputEVNT_TRFile
-        ConfigFlags.Sim.ReadTR = True
         # Three common cases here:
         # 2a) Cosmics simulation
         # 2b) Stopped particle simulation
         # 2c) Cavern background simulation
         if ConfigFlags.Beam.Type == 'cosmics':
+            ConfigFlags.Sim.ReadTR = True
             ConfigFlags.Sim.CosmicFilterVolumeNames = ['Muon']
             ConfigFlags.Detector.GeometryCavern = True # simulate the cavern with a cosmic TR file
         elif hasattr(runArgs,"trackRecordType") and runArgs.trackRecordType=="stopped":
+            ConfigFlags.Sim.ReadTR = True
             log.error('Stopped Particle simulation is not supported yet')
         else:
             ConfigFlags.Detector.GeometryCavern = True # simulate the cavern
@@ -93,7 +94,7 @@ def fromRunArgs(runArgs):
         # Common cases
         # 3a) ParticleGun
         # 3b) CosmicGenerator
-        ConfigFlags.Input.Files = ''
+        ConfigFlags.Input.Files = []
         ConfigFlags.Input.isMC = True
         log.info('No inputEVNTFile provided. Assuming that you are running a generator on the fly.')
         if ConfigFlags.Beam.Type == 'cosmics':

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: LArPhaseToolMC.cxx,v 1.1 2006-06-27 18:32:08 ssnyder Exp $
@@ -14,7 +14,6 @@
 
 #include "LArCalibUtils/LArPhaseToolMC.h"
 #include "LArSimEvent/LArHitContainer.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "AthenaKernel/ITriggerTime.h"
 #include "AthenaKernel/errorcheck.h"
@@ -61,7 +60,7 @@ StatusCode LArPhaseToolMC::initialize()
   }
 
   // Get the cell ID helper.
-  m_idhelper = CaloDetDescrManager::instance()->getCaloCell_ID();
+  ATH_CHECK(detStore()->retrieve(m_idhelper,"CaloCell_ID"));
 
   // Get the incident service, and register to look at
   // end-of-event incidents.

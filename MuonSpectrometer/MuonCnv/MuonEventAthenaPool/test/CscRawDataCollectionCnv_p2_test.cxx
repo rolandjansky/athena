@@ -60,7 +60,7 @@ void compare (const CscRawDataCollection& p1,
 
 void testit (const CscRawDataCollection& trans1, Muon::MuonIdHelperSvc* muIdSvc)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   CscRawDataCollectionCnv_p2 cnv;
   cnv.m_elementCnv.setMuonIdHelperSvc(muIdSvc);
   CscRawDataCollection_p2 pers;

@@ -11,15 +11,14 @@ Configurable.configurableRun3Behavior = True
 ConfigFlags.Input.isMC             = True
 
 ConfigFlags.GeoModel.useLocalGeometry = False
-detectors = [
-  "HGTD",
-  "ITkPixel",
-  "ITkStrip",
-  "Bpipe"
-]
-
-from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
-setupDetectorsFromList(ConfigFlags, detectors, toggle_geometry=True)
+if ConfigFlags.GeoModel.useLocalGeometry:
+  detectors = [
+    "ITkPixel",
+    "ITkStrip",
+    "Bpipe"
+  ]
+  from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
+  setupDetectorsFromList(ConfigFlags, detectors, toggle_geometry=True)
 
 ConfigFlags.GeoModel.AtlasVersion = "ATLAS-P2-ITK-24-00-00"
 ConfigFlags.IOVDb.GlobalTag = "OFLCOND-SIM-00-00-00"
@@ -42,32 +41,32 @@ ConfigFlags.dump()
 
 cfg=MainServicesCfg(ConfigFlags)    
 
-from TrkExUnitTests.TrkExUnitTestsConfig import ExtrapolationEngineTestITkCfg
-topoAcc=ExtrapolationEngineTestITkCfg(ConfigFlags,
-                                      NumberOfTestsPerEvent   = 100,
-                                      # parameters mode: 0 - neutral tracks, 1 - charged particles 
-                                      ParametersMode          = 1,
-                                      # do the full test backwards as well            
-                                      BackExtrapolation       = False,
-                                      # Smear the production vertex - standard primary vertex paramters
-                                      SmearOrigin             = True,
-                                      SimgaOriginD0           = 2./3.,
-                                      SimgaOriginZ0           = 50.,
-                                      # pT range for testing
-                                      PtMin                   = 1000,
-                                      PtMax                   = 1000,
-                                      # The test range in Eta                      
-                                      EtaMin                  =  -5.,
-                                      EtaMax                  =   5.,
-                                      # Configure how you wanna run                  
-                                      CollectSensitive        = True,
-                                      CollectPassive          = True,
-                                      CollectBoundary         = True,
-                                      CollectMaterial         = True,
-                                      UseHGTD                 = ConfigFlags.Detector.GeometryHGTD,
-                                      # the path limit to test                        
-                                      PathLimit               = -1.,
-                                      )
+from TrkExUnitTests.TrkExUnitTestsConfig import ExtrapolationEngineTestCfg
+topoAcc=ExtrapolationEngineTestCfg(ConfigFlags,
+                                   NumberOfTestsPerEvent   = 100,
+                                   # parameters mode: 0 - neutral tracks, 1 - charged particles
+                                   ParametersMode          = 1,
+                                   # do the full test backwards as well
+                                   BackExtrapolation       = False,
+                                   # Smear the production vertex - standard primary vertex paramters
+                                   SmearOrigin             = True,
+                                   SimgaOriginD0           = 2./3.,
+                                   SimgaOriginZ0           = 50.,
+                                   # pT range for testing
+                                   PtMin                   = 1000,
+                                   PtMax                   = 1000,
+                                   # The test range in Eta
+                                   EtaMin                  =  -5.,
+                                   EtaMax                  =   5.,
+                                   # Configure how you wanna run
+                                   CollectSensitive        = True,
+                                   CollectPassive          = True,
+                                   CollectBoundary         = True,
+                                   CollectMaterial         = True,
+                                   UseHGTD                 = ConfigFlags.Detector.GeometryHGTD,
+                                   # the path limit to test
+                                   PathLimit               = -1.,
+                                   )
 
 cfg.merge(topoAcc)
 

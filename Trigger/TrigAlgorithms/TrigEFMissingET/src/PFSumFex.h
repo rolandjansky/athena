@@ -14,7 +14,7 @@
 #define TRIGEFMISSINGET_PFSUMFEX_H
 
 #include "FexBase.h"
-#include "xAODPFlow/PFOContainer.h"
+#include "xAODBase/IParticleContainer.h"
 
 namespace HLT { namespace MET {
   /****************************************************************************
@@ -38,10 +38,10 @@ namespace HLT { namespace MET {
        * Properties
        ***********************************************************************/
       /// Input neutral PFOs
-      SG::ReadHandleKey<xAOD::PFOContainer> m_neutralPFOKey{
+      SG::ReadHandleKey<xAOD::IParticleContainer> m_neutralPFOKey{
         this, "NeutralPFOName", "neutralPFOs", "Input neutral PFO collection"};
       /// Input charged PFOs
-      SG::ReadHandleKey<xAOD::PFOContainer> m_chargedPFOKey{
+      SG::ReadHandleKey<xAOD::IParticleContainer> m_chargedPFOKey{
         this, "ChargedPFOName", "chargedPFOs", "Input charged PFO collection"};
       /// Whether to only include charged PFOs that are matched to the PV vertex
       Gaudi::Property<bool> m_chargedOnlyFromPV{

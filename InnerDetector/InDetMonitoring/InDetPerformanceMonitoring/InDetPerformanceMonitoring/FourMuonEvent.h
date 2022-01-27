@@ -156,25 +156,25 @@ class FourMuonEvent : public EventAnalysis
   // Member variables : Mostly to store relevant muon data for quick access.
   unsigned int     m_numberOfFullPassMuons{};
   unsigned int     m_numberOfFullPassElectrons{};
-  bool             m_passedSelectionCuts;
-  bool             m_passedFourMuonSelection;
-  bool             m_passedFourElectronSelection;
-  bool             m_passedFourLeptonSelection;
+  bool             m_passedSelectionCuts = false;
+  bool             m_passedFourMuonSelection = false;
+  bool             m_passedFourElectronSelection = false;
+  bool             m_passedFourLeptonSelection = false;
 
-  const            xAOD::Muon*      m_pxRecMuon[NUM_MUONS];
-  const            xAOD::TrackParticle*  m_pxMETrack[NUM_MUONS];  // Pointer to muon spectro ( corr. )
-  const            xAOD::TrackParticle*  m_pxMSTrack[NUM_MUONS];      // Pointer to muon spectro
-  const            xAOD::TrackParticle*  m_pxIDTrack[NUM_MUONS];       // Pointer to ID track
+  const            xAOD::Muon*      m_pxRecMuon[NUM_MUONS]{};
+  const            xAOD::TrackParticle*  m_pxMETrack[NUM_MUONS]{};  // Pointer to muon spectro ( corr. )
+  const            xAOD::TrackParticle*  m_pxMSTrack[NUM_MUONS]{};      // Pointer to muon spectro
+  const            xAOD::TrackParticle*  m_pxIDTrack[NUM_MUONS]{};       // Pointer to ID track
 
-  const            xAOD::TrackParticle*  m_pxELTrack[NUM_MUONS];  // pointer to Track particle of the electrons
-  const            xAOD::TrackParticle*  m_pxMUTrack[NUM_MUONS];  // pointer to Track particle of the muons
+  const            xAOD::TrackParticle*  m_pxELTrack[NUM_MUONS]{};  // pointer to Track particle of the electrons
+  const            xAOD::TrackParticle*  m_pxMUTrack[NUM_MUONS]{};  // pointer to Track particle of the muons
 
   // Keep kinematic information on the Z
-  float m_fZPt[NUM_TYPES];
-  float m_fZEtaDir[NUM_TYPES];
-  float m_fZPhiDir[NUM_TYPES];
-  float m_fInvariantMass[NUM_TYPES];
-  float m_fMuonDispersion[NUM_TYPES];
+  float m_fZPt[NUM_TYPES]{};
+  float m_fZEtaDir[NUM_TYPES]{};
+  float m_fZPhiDir[NUM_TYPES]{};
+  float m_fInvariantMass[NUM_TYPES]{};
+  float m_fMuonDispersion[NUM_TYPES]{};
 
   // Graphs
   enum HISTOS_1D
@@ -196,23 +196,23 @@ class FourMuonEvent : public EventAnalysis
 
   // selected muon identifiers
   // to be removed
-  int m_muon1;
-  int m_muon2;
+  int m_muon1 = 0;
+  int m_muon2 = 0;
   // selected muon identifiers
-  int m_muonpos1;
-  int m_muonpos2;
-  int m_muonneg1;
-  int m_muonneg2;
+  int m_muonpos1 = 0;
+  int m_muonpos2 = 0;
+  int m_muonneg1 = 0;
+  int m_muonneg2 = 0;
 
   // 
-  int m_nVertex; // number of vertex to which the muons are associated
-  int m_muonneg1_vtx; // tell us wich of the vertex
-  int m_muonneg2_vtx; // tell us wich of the vertex
-  int m_muonpos1_vtx; // tell us wich of the vertex
-  int m_muonpos2_vtx; // tell us wich of the vertex
+  int m_nVertex = 0; // number of vertex to which the muons are associated
+  int m_muonneg1_vtx = 0; // tell us wich of the vertex
+  int m_muonneg2_vtx = 0; // tell us wich of the vertex
+  int m_muonpos1_vtx = 0; // tell us wich of the vertex
+  int m_muonpos2_vtx = 0; // tell us wich of the vertex
 
-  int m_muon_vtx[NUM_MUONS];
-  int m_elec_vtx[NUM_MUONS];
+  int m_muon_vtx[NUM_MUONS]{};
+  int m_elec_vtx[NUM_MUONS]{};
 
 };
 //==============================================================================

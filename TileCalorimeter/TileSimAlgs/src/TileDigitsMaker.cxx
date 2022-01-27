@@ -1097,12 +1097,6 @@ StatusCode TileDigitsMaker::fillDigitCollection(const TileHitCollection* hitColl
                                                 std::vector<bool> &signal_in_channel, const TileEMScale* emScale,
                                                 const TilePulse& pulse) const{
   
-  // Zero sums for monitoring.
-  int nChSum = 0;
-  double HitSum = 0.;
-  double EneSum = 0.;
-  double RChSum = 0.;
-
   constexpr int nchMax = 48; // number of channels per drawer
   std::array<int, nchMax> ntot_ch; ntot_ch.fill(0);
   std::array<double, nchMax> ech_tot; ech_tot.fill(0.0);
@@ -1134,9 +1128,7 @@ StatusCode TileDigitsMaker::fillDigitCollection(const TileHitCollection* hitColl
         for (int ihit = 0; ihit < n_hits; ++ihit) {
           e_hit += tileHit->energy(ihit);
         }
-        HitSum += e_hit;
         e_hit *= m_tileInfo->HitCalib(pmt_id);
-        EneSum += e_hit;
         ech_tot[ich] += e_hit;
         ntot_ch[ich] += n_hits;
         ATH_MSG_VERBOSE("BAD Overlay digits - skip hit in channel " << m_tileHWID->to_string(channel_id,-1));
@@ -1176,10 +1168,6 @@ StatusCode TileDigitsMaker::fillDigitCollection(const TileHitCollection* hitColl
       if (fabs(t_hit) < 50.0) // ene within +/- 50 ns, used for filtered digits cut
         ech_int[ich] += ech_sub * mbts_extra_factor;
       ntot_ch[ich] += 1;
-      nChSum += 1;
-      HitSum += e_hit;
-      EneSum += ech_sub;
-      RChSum += amp_ch;
 
       // Assume time is in nanoseconds, use fine-grain shaping:
       int ishiftHi = (int) (t_hit / m_timeStepHi + 0.5);

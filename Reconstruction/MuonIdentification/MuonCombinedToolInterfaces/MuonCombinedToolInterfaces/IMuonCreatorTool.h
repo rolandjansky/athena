@@ -85,8 +85,8 @@ namespace MuonCombined {
 
         /**IMuonCreatorTool interface: build muons from ID and MS candidates */
 
-        virtual void create(const EventContext& ctx, const MuonCandidateCollection* muonCandidates, const InDetCandidateCollection* inDetCandidates,
-                            std::vector<const InDetCandidateToTagMap*> tagMaps, OutputData& outputData) const = 0;
+        virtual void create(const EventContext& ctx, const MuonCandidateCollection* muonCandidates, 
+                            const std::vector<const InDetCandidateToTagMap*>& tagMaps, OutputData& outputData) const = 0;
 
         /** create a muon from a muon candidate */
         virtual xAOD::Muon* create(const EventContext& ctx, const MuonCandidate& candidate, OutputData& outputData) const = 0;

@@ -39,7 +39,7 @@ StatusCode MMPRDVariables::fillVariables(const MuonGM::MuonDetectorManager* Muon
   for(const Muon::MMPrepDataCollection* coll : *nsw_MMPrepDataContainer) {
 
     const Muon::MM_RawDataCollection* rdo_coll = rdo_container->indexFindPtr(coll->identifyHash());
-    if(rdo_coll==0){
+    if(rdo_coll==nullptr){
       ATH_MSG_ERROR("Did not find rdo collection " << coll->identifyHash());
       return StatusCode::FAILURE;
     }
@@ -100,7 +100,7 @@ StatusCode MMPRDVariables::fillVariables(const MuonGM::MuonDetectorManager* Muon
       for(const Identifier &id_rdo:prd->rdoList()){
         const Muon::MM_RawData* rdo=nullptr;
         for(auto it :*rdo_coll){if(it->identify() == id_rdo) rdo=it;}
-        if(rdo==0){
+        if(rdo==nullptr){
           ATH_MSG_ERROR("Did not find rdo for identifier in rdo list");
           return StatusCode::FAILURE;
         }

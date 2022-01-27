@@ -1,17 +1,20 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConfMuctpi_MuctpiXMLHelper
 #define TrigConfMuctpi_MuctpiXMLHelper
 
+#include "TrigConfBase/TrigConfMessaging.h"
 #include "boost/property_tree/ptree.hpp"
 #include <string>
 
 
-namespace  MuctpiXMLHelper{
+class MuctpiXMLHelper : TrigConf::TrigConfMessaging {
+public:
+   MuctpiXMLHelper();
 
-  std::string readAttribute(const boost::property_tree::ptree & tree, const std::string & attr);
+   std::string readAttribute(const boost::property_tree::ptree & tree, const std::string & attr);
 
    bool hasAttribute(const boost::property_tree::ptree & tree, const std::string & attr);
 
@@ -33,6 +36,6 @@ namespace  MuctpiXMLHelper{
 
    void printAttributes(const boost::property_tree::ptree & tree);
 
-}
+};
 
 #endif

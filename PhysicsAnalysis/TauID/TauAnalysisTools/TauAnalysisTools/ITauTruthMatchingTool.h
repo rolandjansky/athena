@@ -1,7 +1,5 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUANALYSISTOOLS_ITAUTRUTHMATCHINGTOOL_H
@@ -11,10 +9,6 @@
   author: Dirk Duschinger
   mail: dirk.duschinger@cern.ch
   documentation in: ../README.rst
-                    or
-                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-<tag>/README.rst
-		    or
-                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/README.rst
 */
 
 // Framework include(s):
@@ -60,26 +54,26 @@ public:
 
   // wrapper function to get truth tau visible TLorentzvector
   virtual TLorentzVector getTruthTauP4Vis(const xAOD::TauJet& xTau) = 0;
-  virtual TLorentzVector getTruthTauP4Vis(const xAOD::TruthParticle& xTruthTau) = 0;
+  virtual TLorentzVector getTruthTauP4Vis(const xAOD::TruthParticle& xTruthTau) const = 0;
 
   // wrapper function to get truth tau prompt TLorentzvector
   virtual TLorentzVector getTruthTauP4Prompt(const xAOD::TauJet& xTau) = 0;
-  virtual TLorentzVector getTruthTauP4Prompt(const xAOD::TruthParticle& xTruthTau) = 0;
+  virtual TLorentzVector getTruthTauP4Prompt(const xAOD::TruthParticle& xTruthTau) const = 0;
 
   // wrapper function to get truth tau invisible TLorentzvector
   virtual TLorentzVector getTruthTauP4Invis(const xAOD::TauJet& xTau) = 0;
-  virtual TLorentzVector getTruthTauP4Invis(const xAOD::TruthParticle& xTruthTau) = 0;
+  virtual TLorentzVector getTruthTauP4Invis(const xAOD::TruthParticle& xTruthTau) const = 0;
 
   // get type of truth match particle (hadronic tau, leptonic tau, electron, muon, jet)
   virtual TauAnalysisTools::TruthMatchedParticleType getTruthParticleType(const xAOD::TauJet& xTau) = 0;
 
   // wrapper function to count number of decay particles of given pdg id
   virtual int getNTauDecayParticles(const xAOD::TauJet& xTau, int iPdgId, bool bCompareAbsoluteValues = false) = 0;
-  virtual int getNTauDecayParticles(const xAOD::TruthParticle& xTruthTau, int iPdgId, bool bCompareAbsoluteValues = false) = 0;
+  virtual int getNTauDecayParticles(const xAOD::TruthParticle& xTruthTau, int iPdgId, bool bCompareAbsoluteValues = false) const = 0;
 
-  // wrapper function to obtain truth verion of xAOD::TauJetParameters::DecayMode
+  // wrapper function to obtain truth version of xAOD::TauJetParameters::DecayMode
   virtual xAOD::TauJetParameters::DecayMode getDecayMode(const xAOD::TauJet& xTau) = 0;
-  virtual xAOD::TauJetParameters::DecayMode getDecayMode(const xAOD::TruthParticle& xTruthTau) = 0;
+  virtual xAOD::TauJetParameters::DecayMode getDecayMode(const xAOD::TruthParticle& xTruthTau) const = 0;
 
 }; // class ITauTruthMatchingTool
 

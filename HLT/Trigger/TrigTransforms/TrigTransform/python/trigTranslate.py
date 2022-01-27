@@ -26,7 +26,6 @@ def getOption(runArgs, name, substep, first, output):
     tfToAthenaHLT['inputBS_RDOFile'] = 'file'
     tfToAthenaHLT['maxEvents'] = 'number-of-events'
     tfToAthenaHLT['skipEvents'] = 'skip-events'
-    tfToAthenaHLT['runNumber'] = 'run-number'
     tfToAthenaHLT['precommand'] = 'precommand'
     tfToAthenaHLT['postcommand'] = 'postcommand'
     tfToAthenaHLT['useDB'] = 'use-database'

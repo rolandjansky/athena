@@ -127,8 +127,7 @@ namespace Trk {
 
     alignTrack->setResidualVector(residuals); // residuals owned by alignTrack
     ATH_MSG_DEBUG("residuals set for AlignTrack");
-    return;
-  }
+ }
    
 } // end namespace
   

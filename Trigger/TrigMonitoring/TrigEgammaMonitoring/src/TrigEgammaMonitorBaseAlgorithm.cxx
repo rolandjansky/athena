@@ -209,10 +209,11 @@ asg::AcceptData TrigEgammaMonitorBaseAlgorithm::setAccept( const TrigCompositeUt
 
                 if(passedL2){
 
-
                     // Step 4
-                    std::string key = match()->key("PrecisionCalo");
-                    if(info.lrt)  key = match()->key("PrecisionCalo_LRT");
+                    std::string key = match()->key("PrecisionCalo_Electron");
+                    if(info.signature == "Photon") key = match()->key("PrecisionCalo_Photon");
+                    if(info.lrt) key = match()->key("PrecisionCalo_LRT");
+
                     passedEFCalo = match()->ancestorPassed<xAOD::CaloClusterContainer>(dec, trigger, key, condition);
 
                     if(passedEFCalo){
@@ -694,7 +695,7 @@ void TrigEgammaMonitorBaseAlgorithm::setTrigInfo(const std::string& trigger){
     ATH_MSG_INFO( "L1Seed      : " << l1seed << " (Is Legacy? " << (l1legacy?"Yes":"No") << ")");
     ATH_MSG_INFO("========================================================");
 
-    TrigInfo info{false,l1seed,trigger,signature,threshold,pidname,idperf,etcut,gsf,lrt,isolation, isolated};
+    TrigInfo info{l1legacy,l1seed,trigger,signature,threshold,pidname,idperf,etcut,gsf,lrt,isolation, isolated};
     m_trigInfo[trigger] = info;
 
 }

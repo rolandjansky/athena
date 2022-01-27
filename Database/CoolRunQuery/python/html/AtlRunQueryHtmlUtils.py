@@ -27,7 +27,7 @@ def OpenWindow(content, title="Run query result", extracss=None, size="normal"):
 
 def CreatePopupHtmlPage(name,wincontent):
     filename = 'popupContent_%s.html' % name
-    outfn = '%s/%s' % (Run.Datapath, filename) 
+    outfn = '%s/%s' % (QC.datapath, filename) 
     fh = open(outfn,"w")
     if type(wincontent)==list:
         for line in wincontent:
@@ -152,7 +152,7 @@ def CreateStreamOverlapTooltip(run,k):
                 if k==st[0] and stream==st[1]:
                     s1 = st[0].replace('STR:','')
                     fname = 'data_' + s1.strip() + '_' + st[1].strip() + '.txt'
-                    f = open(Run.Datapath + '/' + fname,'a')
+                    f = open(QC.datapath + '/' + fname,'a')
                     f.write('%i   %f\n' % (run.runNr,fraction))
                     f.close()
                     break
@@ -281,7 +281,7 @@ def createRatePopupWindow(v,run):
         path  = makeRatePlot( v, lbduration, triggers_in_range, averrate, 'Luminosity block number', 'Rate [Hz]',
                               'trigcounts%i_vs_lb_run_%i' % (loopcntr,run.runNr),
                               'Trigger Rates for run %i' % (run.runNr),
-                              Run.Datapath, histoText )
+                              QC.datapath, histoText )
         paths += [path]
 
         wincmd = createRateWinContent(loopcntr, v, lbduration, triggers_in_range, run, path)
@@ -395,8 +395,8 @@ def makeSummaryPlotForLHC(run):
     # make summary of all LHC information
     # requires: beam intensities, beam energy, stable beams
     # keys = [ 'olc:beam1intensity', 'olc:beam2intensity', 'lhc:beamenergy', 'olc:lumi:0' ]
-    xvec    = []
-    yvec    = [[],[],[]]  # note that this is not the same as 3*[[]]
+    lbrange    = range(run.lastlb+1)
+    yvec    = [(run.lastlb+1)*[0], (run.lastlb+1)*[0], (run.lastlb+1)*[-1]]  # note that this is not the same as 3*[[]]
     ymax    = 3*[-1]
 
     # stable beams
@@ -420,10 +420,8 @@ def makeSummaryPlotForLHC(run):
 
             lastlb = min(entry.lastlb,run.lastlb)
 
-            if ik==0:
-                xvec += range(entry.startlb,lastlb+1)
-
-            yvec[ik] += (lastlb-entry.startlb+1) * [val]
+            for lb in range(entry.startlb,lastlb+1):
+                yvec[ik][lb] = val
 
             for ilb in range(entry.startlb,lastlb+1):
                 if val > ymax[ik]:
@@ -431,9 +429,9 @@ def makeSummaryPlotForLHC(run):
                         ymax[ik] = val # find max                
 
     histoText = ''
-    path = makeLBPlotSummaryForLHC( xvec, xvecStb, yvec, run.runNr, Run.Datapath, histoText )
+    path = makeLBPlotSummaryForLHC( lbrange, xvecStb, yvec, run.runNr, QC.datapath, histoText )
 
-    return path, xvec, yvec, ymax
+    return path, lbrange, yvec, ymax
 
 
 def makeSummaryPageForLHC(run, yvec, path):

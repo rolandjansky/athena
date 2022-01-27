@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file RootUtils/src/Type.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -12,6 +10,7 @@
 
 
 #include "RootUtils/Type.h"
+#include "CxxUtils/checker_macros.h"
 #include "TError.h"
 #include "TROOT.h"
 #include <memory>
@@ -303,8 +302,13 @@ void* Type::create() const
 void Type::destroy (void* p) const
 {
   if (p) {
-    if (m_cls)
-      m_cls->Destructor (p);
+    if (m_cls) {
+      // TClass::Destructor is non-const.
+      // But there's nothing obviously problematic in it...
+      // just suppress the checker warning for now.
+      TClass* cls ATLAS_THREAD_SAFE = m_cls;
+      cls->Destructor (p);
+    }
     else
       delete [] (reinterpret_cast<char*> (p));
   }

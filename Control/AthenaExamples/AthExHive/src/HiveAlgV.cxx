@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HiveAlgV.h"
@@ -40,17 +40,15 @@ StatusCode HiveAlgV::execute() {
  
   sleep();
 
-  StatusCode sc { StatusCode::SUCCESS };
-
   if (m_writeFirst) {
-    write();
-    sc = read();
+    ATH_CHECK(write());
+    ATH_CHECK(read());
   } else {
-    sc = read();
-    write();
+    ATH_CHECK(read());
+    ATH_CHECK(write());
   }
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -70,12 +68,13 @@ HiveAlgV::read() const {
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-void
+StatusCode
 HiveAlgV::write() {
   std::vector< SG::WriteHandle<HiveDataObj> > whv = m_whv.makeHandles();
   for (auto &hnd : whv) {
-    hnd = std::make_unique<HiveDataObj> ( HiveDataObj( 10101 ) );
+    ATH_CHECK(hnd.record(std::make_unique<HiveDataObj>( 10101 )));
     ATH_MSG_INFO("  write: " << hnd.key() << " = " << hnd->val() );
   }
+  return StatusCode::SUCCESS;
 }
 

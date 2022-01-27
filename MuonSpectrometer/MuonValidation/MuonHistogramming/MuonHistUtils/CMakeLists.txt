@@ -19,6 +19,6 @@ atlas_add_library( MuonHistUtils
                    src/*.cxx
                    PUBLIC_HEADERS MuonHistUtils
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODMuon xAODTracking xAODTrigMuon xAODTrigger xAODTruth TrkValHistUtils MuonStationIndexLib
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODMuon xAODTracking xAODTrigMuon xAODTrigger xAODTruth TrkValHistUtils MuonStationIndexLib FourMomUtils
                    PRIVATE_LINK_LIBRARIES GeoPrimitives ${extra_libs} )
 

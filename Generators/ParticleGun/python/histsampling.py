@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 """
 Tools for histogram sampling, in particular inverse transform sampling which is
@@ -7,7 +7,7 @@ missing from ROOT's TH2 classes.
 
 __author__ = "Andy Buckley <andy.buckley@cern.ch>"
 
-import random, ROOT
+import random, copy, ROOT
 
 
 def load_hist(*args):
@@ -21,7 +21,7 @@ def load_hist(*args):
     elif len(args) == 2:
         if isinstance(args[0], str) and isinstance(args[1], str) :
             f = ROOT.TFile.Open(args[0])
-            h = f.Get(args[1]).Clone()
+            h = copy.deepcopy(f.Get(args[1]).Clone())
             #f.Close()
         elif type(args[0]) is ROOT.TFile and type(args[1]) is str:
             h = args[0].Get(args[1]).Clone()

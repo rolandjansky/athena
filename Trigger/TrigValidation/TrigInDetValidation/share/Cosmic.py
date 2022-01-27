@@ -42,8 +42,8 @@ inputMakerAlg.InputMakerOutputDecisions =  'DUMMYOUTDEC'
 print(inputMakerAlg)
 
 VDV = None
-from TrigInDetConfig.InDetSetup import makeInDetAlgs
-viewAlgs, VDV = makeInDetAlgs(whichSignature=signatureName, rois=inputMakerAlg.InViewRoIs, doFTF= False )
+from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTracking
+viewAlgs, VDV = makeInDetTrigFastTracking(whichSignature=signatureName, rois=inputMakerAlg.InViewRoIs, doFTF= False )
 
 # TODO add additional EFID tracking 
 from AthenaCommon.CFElements import seqAND
@@ -69,19 +69,19 @@ topSequence += viewSequence
 
 
   # Adding vertexing
-  # from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices
+  # from TrigInDetConfig.InDetTrigVertices import makeInDetTrigVertices
   ## TODO need to change the name of the output vertex collection to something recordable
-  # vtxAlgs = makeVertices( "egamma", "HLT_IDTrack_FS_FTF", "HLT_xPrimVx"  )
+  # vtxAlgs = makeInDetTrigVertices( "egamma", "HLT_IDTrack_FS_FTF", "HLT_xPrimVx"  )
   # allViewAlgorithms += vtxAlgs
 
 
-  # from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
+  # from TrigInDetConfig.InDetTrigPrecisionTracking import makeInDetTrigPrecisionTracking
   ## Adding precision tracking
-  # PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "egamma", inputFTFtracks="TrigFastTrackFinder_Tracks_FS" )
+  # PTTracks, PTTrackParticles, PTAlgs = makeInDetTrigPrecisionTracking( "egamma", inputFTFtracks="TrigFastTrackFinder_Tracks_FS" )
   # allViewAlgorithms += PTAlgs
 
 #
-# from TrigInDetConfig.InDetSetup import makeInDetAlgs
+# from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTracking
 #
 ## hypo
 # beamspotHypoAlg = TrigStreamerHypoAlg("BeamspotHypoAlg")

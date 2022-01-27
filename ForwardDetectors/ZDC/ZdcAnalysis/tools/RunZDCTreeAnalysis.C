@@ -93,7 +93,7 @@ void LoadCalibrations(ZDCTreeAnalysis* ana, std::string filename, int runNumber,
   file->Close();
 }
 
-ZDCTreeAnalysis* InitZDCAnalysis(std::string inputFile, std::string calibFile, bool fixTau1, bool fixTau2,
+ZDCTreeAnalysis* InitZDCAnalysis(const std::string & inputFile, const std::string & calibFile, bool fixTau1, bool fixTau2,
 				 bool eCalib = true, bool t0Calib = true, bool doSlew = false)
 {
 
@@ -202,7 +202,7 @@ ZDCTreeAnalysis* InitZDCAnalysis(std::string inputFile, std::string calibFile, b
   return ana;
 }
 
-void RunZDCAnalysis(std::string inputFile, std::string outputFile, std::string calibFile, int nevent = -1, 
+void RunZDCAnalysis(const std::string & inputFile, const std::string & outputFile, const std::string & calibFile, int nevent = -1, 
 		    bool fixTau1 = true, bool fixTau2 = true, bool eCalib = false, bool t0Calib = false, bool doSlew = false)
 {
 

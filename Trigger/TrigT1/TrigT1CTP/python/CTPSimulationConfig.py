@@ -13,7 +13,7 @@ def CTPSimulationCfg(flags):
                                                         jFexJetInput = "",
                                                         jFexLJetInput = "",
                                                         gFexJetInput =  "",
-                                                        gFexMETPufitInput = "",
+                                                        gFexMETNCInput = "",
                                                         gFexMETRhoInput = "",
                                                         gFexMETJwoJInput = "",
                                                         eFexClusterInput = "",

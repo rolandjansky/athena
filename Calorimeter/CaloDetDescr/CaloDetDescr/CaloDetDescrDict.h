@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloDetDescr/CaloDetectorElements.h"
 #include "CaloDetDescr/CaloDetDescriptor.h"
-#include "CaloDetDescr/CaloAlignTool.h"
 #include "CaloDetDescr/CaloDepthTool.h"
 #include "CaloDetDescr/CaloDescriptors.h"
 #include "CaloDetDescr/CaloSubdetNames.h"

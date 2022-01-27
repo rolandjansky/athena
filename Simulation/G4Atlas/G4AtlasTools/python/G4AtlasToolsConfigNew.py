@@ -159,8 +159,8 @@ def CaloSensitiveDetectorListCfg(ConfigFlags):
         if ConfigFlags.Sim.CalibrationRun in ['LAr', 'LAr+Tile']:
             from LArG4SD.LArG4SDToolConfig import LArDeadSensitiveDetectorToolCfg, LArActiveSensitiveDetectorToolCfg, LArInactiveSensitiveDetectorToolCfg
             tools += [ result.popToolsAndMerge(LArDeadSensitiveDetectorToolCfg(ConfigFlags)) ]
-            tools += [ result.popToolsAndMerge(LArActiveSensitiveDetectorToolCfg(ConfigFlags)) ]
             tools += [ result.popToolsAndMerge(LArInactiveSensitiveDetectorToolCfg(ConfigFlags)) ]
+            tools += [ result.popToolsAndMerge(LArActiveSensitiveDetectorToolCfg(ConfigFlags)) ]
         elif ConfigFlags.Sim.CalibrationRun == 'DeadLAr':
             from LArG4SD.LArG4SDToolConfig import LArDeadSensitiveDetectorToolCfg
             tools += [ result.popToolsAndMerge(LArDeadSensitiveDetectorToolCfg(ConfigFlags)) ]
@@ -172,7 +172,6 @@ def CaloSensitiveDetectorListCfg(ConfigFlags):
         else:
             from TileGeoG4SD.TileGeoG4SDToolConfig import TileGeoG4SDCfg
             tools += [ result.popToolsAndMerge(TileGeoG4SDCfg(ConfigFlags)) ]       # mode 0 : No CaloCalibrationHits
-
     if ConfigFlags.Sim.RecordStepInfo:
         from ISF_FastCaloSimSD.ISF_FastCaloSimSDToolConfig import FCS_StepInfoSDToolCfg
         tools += [ result.popToolsAndMerge(FCS_StepInfoSDToolCfg(ConfigFlags)) ]

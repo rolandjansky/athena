@@ -373,7 +373,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
   std::vector<unsigned int> solutions;
   const Trk::TrackingVolume *assocVol = nullptr;
   unsigned int iDest = 0;
-
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   ATH_MSG_DEBUG("  [+] start extrapolateToVolumeWithPathLimit - at " << positionOutput(parm.position())<<" parm="<<&parm);
   // destination volume boundary ?
   if (destVol && m_navigator->atVolumeBoundary(currPar, destVol, dir, nextVol, m_tolerance) && nextVol != destVol) {
@@ -384,7 +384,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
   //   cache.m_lastMaterialLayer = nullptr;
   // }
   if (!cache.m_highestVolume) {
-    cache.m_highestVolume = m_navigator->highestVolume();
+    cache.m_highestVolume = m_navigator->highestVolume(ctx);
   }
 
   emptyGarbageBin(cache,&parm);
@@ -396,7 +396,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
 
   // target volume may not be part of tracking geometry
   if (destVol) {
-    const Trk::TrackingVolume *tgVol = m_navigator->trackingGeometry()->trackingVolume(destVol->volumeName());
+    const Trk::TrackingVolume *tgVol = m_navigator->trackingGeometry(ctx)->trackingVolume(destVol->volumeName());
     if (!tgVol || tgVol != destVol) {
       const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > >& bounds = destVol->boundarySurfaces();
       for (unsigned int ib = 0; ib < bounds.size(); ib++) {
@@ -412,7 +412,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
   Amg::Vector3D gp = parm.position();
 
   if (!cache.m_currentStatic || !cache.m_currentStatic->inside(gp, m_tolerance)) {
-    cache.m_currentStatic = m_navigator->trackingGeometry()->lowestStaticTrackingVolume(gp);
+    cache.m_currentStatic = m_navigator->trackingGeometry(ctx)->lowestStaticTrackingVolume(gp);
     updateStatic = true;
   }
   if (m_navigator->atVolumeBoundary(currPar, cache.m_currentStatic, dir, nextVol,
@@ -569,7 +569,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
 
   gp = currPar->position();
   std::vector<const Trk::DetachedTrackingVolume *> *detVols =
-    m_navigator->trackingGeometry()->lowestDetachedTrackingVolumes(gp);
+    m_navigator->trackingGeometry(ctx)->lowestDetachedTrackingVolumes(gp);
   std::vector<const Trk::DetachedTrackingVolume *>::iterator dIter = detVols->begin();
   for (; dIter != detVols->end(); ++dIter) {
     const Trk::Layer *layR = (*dIter)->layerRepresentation();
@@ -810,11 +810,20 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
           || m_navigator->atVolumeBoundary(currPar, cache.m_currentDense, dir, assocVol, m_tolerance))) {
       cache.m_currentDense = cache.m_highestVolume;
     }
-    // const Trk::TrackParameters* nextPar =
-    // m_stepPropagator->propagateT(*currPar,cache.m_navigSurfs,dir,*cache.m_currentDense,particle,solutions,cache.m_path,timeLim,true);
-    const Trk::TrackParameters *nextPar = m_stepPropagator->propagateT(*currPar, cache.m_navigSurfs, dir, m_fieldProperties,
-                                                                       particle, solutions, cache.m_path, timeLim, true,
-                                                                       cache.m_currentDense, cache.m_hitVector).release();
+    const Trk::TrackParameters* nextPar = m_stepPropagator
+                                            ->propagateT(ctx,
+                                                         *currPar,
+                                                         cache.m_navigSurfs,
+                                                         dir,
+                                                         m_fieldProperties,
+                                                         particle,
+                                                         solutions,
+                                                         cache.m_path,
+                                                         timeLim,
+                                                         true,
+                                                         cache.m_currentDense,
+                                                         cache.m_hitVector)
+                                            .release();
     ATH_MSG_VERBOSE("  [+] Propagation done. ");
     if (nextPar) {
       ATH_MSG_DEBUG("  [+] Position after propagation -   at " << positionOutput(
@@ -914,7 +923,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
           ATH_MSG_DEBUG(
             "  [!] WARNING: wrongly assigned static volume ?" << cache.m_currentStatic->volumeName() << "->" <<
             nextVol->volumeName());
-          nextVol = m_navigator->trackingGeometry()->lowestStaticTrackingVolume(
+          nextVol = m_navigator->trackingGeometry(ctx)->lowestStaticTrackingVolume(
             nextPar->position() + 0.01 * dir * nextPar->momentum().normalized());
           if (nextVol) {
             ATH_MSG_DEBUG("  new search yields: " << nextVol->volumeName());
@@ -1128,6 +1137,8 @@ Trk::TimedExtrapolator::overlapSearch(Trk::TimedExtrapolator::Cache &cache,
                                       const BoundaryCheck& bcheck, // bcheck
                                       ParticleHypothesis particle,
                                       bool startingLayer) const {
+
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   // indicate destination layer
   bool isDestinationLayer = false;
   // start and end surface for on-layer navigation
@@ -1172,7 +1183,7 @@ Trk::TimedExtrapolator::overlapSearch(Trk::TimedExtrapolator::Cache &cache,
     detParameters = (&parm);
   } else if (detSurface) {
     // detParameters = prop.propagate(parm, *detSurface, dir, false, tvol, particle);
-    detParameters = prop.propagate(parm, *detSurface, dir, false, m_fieldProperties, particle).release();
+    detParameters = prop.propagate(ctx,parm, *detSurface, dir, false, m_fieldProperties, particle).release();
   }
 
   // set the surface hit to true, it is anyway overruled
@@ -1227,7 +1238,8 @@ Trk::TimedExtrapolator::overlapSearch(Trk::TimedExtrapolator::Cache &cache,
       for (auto &csf : cSurfaces) {
         // propagate to the compatible surface, return types are (pathLimit failure is excluded by Trk::anyDirection for
         // the moment):
-        const Trk::TrackParameters *overlapParameters = prop.propagate(parm,
+        const Trk::TrackParameters *overlapParameters = prop.propagate(ctx,
+                                                                       parm,
                                                                        *(csf.object),
                                                                        Trk::anyDirection,
                                                                        true,
@@ -1422,6 +1434,7 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(Trk::TimedExtrapolator::C
   // int                        nEntryLays = 0;
   unsigned int iDest = 0;
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   // destination volume boundary ?
   if (destVol && m_navigator->atVolumeBoundary(currPar, destVol, dir, nextVol, m_tolerance) && nextVol != destVol) {
     return &parm;
@@ -1429,7 +1442,7 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(Trk::TimedExtrapolator::C
 
   // bool resolveActive = m_resolveActive;
   if (!cache.m_highestVolume) {
-    cache.m_highestVolume = m_navigator->highestVolume();
+    cache.m_highestVolume = m_navigator->highestVolume(ctx);
   }
 
   emptyGarbageBin(cache,&parm);
@@ -1441,7 +1454,7 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(Trk::TimedExtrapolator::C
 
   // target volume may not be part of tracking geometry
   if (destVol) {
-    const Trk::TrackingVolume *tgVol = m_navigator->trackingGeometry()->trackingVolume(destVol->volumeName());
+    const Trk::TrackingVolume *tgVol = m_navigator->trackingGeometry(ctx)->trackingVolume(destVol->volumeName());
     if (!tgVol || tgVol != destVol) {
       const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > >& bounds = destVol->boundarySurfaces();
       for (unsigned int ib = 0; ib < bounds.size(); ib++) {
@@ -1474,11 +1487,11 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(Trk::TimedExtrapolator::C
   } else {
     const Amg::Vector3D& gp = parm.position();
     if (!cache.m_currentStatic || !cache.m_currentStatic->inside(gp, m_tolerance)) {
-      cache.m_currentStatic = m_navigator->trackingGeometry()->lowestStaticTrackingVolume(gp);
+      cache.m_currentStatic = m_navigator->trackingGeometry(ctx)->lowestStaticTrackingVolume(gp);
 
       if (!cache.m_currentStatic ||
           !cache.m_currentStatic->inside(currPar->position() + 0.01 * dir * currPar->momentum().normalized(), 0.)) {
-        cache.m_currentStatic = m_navigator->trackingGeometry()->lowestStaticTrackingVolume(currPar->position()
+        cache.m_currentStatic = m_navigator->trackingGeometry(ctx)->lowestStaticTrackingVolume(currPar->position()
                                                                                       + 0.01 * dir *
                                                                                       currPar->momentum().normalized());
       }
@@ -1586,7 +1599,7 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(Trk::TimedExtrapolator::C
     // ATH_MSG_WARNING( " recovering from glitch at the static volume boundary:"<<cache.m_trStaticBounds[0].distance );
 
     Amg::Vector3D gp = currPar->position() + m_tolerance * dir * currPar->momentum().unit();
-    cache.m_currentStatic = m_navigator->trackingGeometry()->lowestStaticTrackingVolume(gp);
+    cache.m_currentStatic = m_navigator->trackingGeometry(ctx)->lowestStaticTrackingVolume(gp);
 
     if (cache.m_currentStatic) {
        return transportToVolumeWithPathLimit(cache,parm, timeLim, dir, particle, nextGeoID, destVol);
@@ -1991,7 +2004,7 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(Trk::TimedExtrapolator::C
         ATH_MSG_DEBUG(
           "  [!] WARNING: wrongly assigned static volume ?" << cache.m_currentStatic->volumeName() << "->" <<
           nextVol->volumeName());
-        nextVol = m_navigator->trackingGeometry()->lowestStaticTrackingVolume(
+        nextVol = m_navigator->trackingGeometry(ctx)->lowestStaticTrackingVolume(
           nextPar->position() + 0.01 * dir * nextPar->momentum().normalized());
         if (nextVol) {
           ATH_MSG_DEBUG("  new search yields: " << nextVol->volumeName());
@@ -2072,7 +2085,7 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(Trk::TimedExtrapolator::C
       if (dIter != cache.m_denseVols.end()) {
         currVol = (*dIter).first;
 
-        if (m_navigator->trackingGeometry()->atVolumeBoundary(nextPos, nextPar->momentum(), currVol, assocVol, dir,
+        if (m_navigator->trackingGeometry(ctx)->atVolumeBoundary(nextPos, nextPar->momentum(), currVol, assocVol, dir,
                                                               m_tolerance)) {
           if (assocVol && assocVol->zOverAtimesRho() != 0.) {
             cache.m_currentDense = assocVol;
@@ -2133,8 +2146,9 @@ Trk::TimedExtrapolator::transportInAlignableTV(Trk::TimedExtrapolator::Cache &ca
 
   emptyGarbageBin(cache,&parm);
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   if (!aliTV) {
-    return Trk::BoundaryTrackParameters(nullptr, nullptr, nullptr);
+    return {nullptr, nullptr, nullptr};
   }
 
   // TODO if volume entry go to entry of misaligned volume
@@ -2230,7 +2244,7 @@ Trk::TimedExtrapolator::transportInAlignableTV(Trk::TimedExtrapolator::Cache &ca
         ATH_MSG_DEBUG(
           "  [!] WARNING: wrongly assigned exit volume ?" << cache.m_currentStatic->volumeName() << "->" <<
           attachedVol->volumeName());
-        attachedVol = m_navigator->trackingGeometry()->lowestStaticTrackingVolume(
+        attachedVol = m_navigator->trackingGeometry(ctx)->lowestStaticTrackingVolume(
           gp + 0.01 * dir * currPar->momentum().normalized());
         if (attachedVol) {
           ATH_MSG_DEBUG("  new search yields: " << attachedVol->volumeName());
@@ -2268,11 +2282,11 @@ Trk::TimedExtrapolator::transportInAlignableTV(Trk::TimedExtrapolator::Cache &ca
 
   if (cache.m_trStaticBounds.empty()) {
     ATH_MSG_WARNING("exit from alignable volume " << aliTV->volumeName() << " not resolved, aborting");
-    return Trk::BoundaryTrackParameters(nullptr, nullptr, nullptr);
+    return {nullptr, nullptr, nullptr};
   } if (cache.m_trStaticBounds.size() > 1) {  // hit edge ?
     Amg::Vector3D gp = currPar->position() + (cache.m_trStaticBounds[0].distance + 1.) * dir *
                        currPar->momentum().normalized();
-    nextVol = m_navigator->trackingGeometry()->lowestStaticTrackingVolume(gp);
+    nextVol = m_navigator->trackingGeometry(ctx)->lowestStaticTrackingVolume(gp);
     ATH_MSG_DEBUG("exit volume reassigned:" << nextVol->volumeName());
   }
 
@@ -2352,16 +2366,16 @@ Trk::TimedExtrapolator::transportInAlignableTV(Trk::TimedExtrapolator::Cache &ca
 
         if (nextPar && process == 121) {
           ATH_MSG_DEBUG(" [!] WARNING: failed hadronic interaction, killing the input particle anyway");
-          return Trk::BoundaryTrackParameters(nullptr, nullptr, nullptr);
+          return {nullptr, nullptr, nullptr};
         }
 
         if (!nextPar) {
-          return Trk::BoundaryTrackParameters(nullptr, nullptr, nullptr);
+          return {nullptr, nullptr, nullptr};
         }
 
         // return transportToVolumeWithPathLimit(*nextPar, timeLim, dir, particle, nextGeoID, destVol);
       } else {  // kill particle without trace ?
-        return Trk::BoundaryTrackParameters(nullptr, nullptr, nullptr);
+        return {nullptr, nullptr, nullptr};
       }
     }  // end decay or material interaction during the step
 
@@ -2425,7 +2439,7 @@ Trk::TimedExtrapolator::transportInAlignableTV(Trk::TimedExtrapolator::Cache &ca
 
   cache.m_parametersAtBoundary.boundaryInformation(nextVol, nextPar, nextPar);
 
-  return Trk::BoundaryTrackParameters(nextPar, nextVol, cache.m_currentStatic);
+  return {nextPar, nextVol, cache.m_currentStatic};
 }
 
 Trk::BoundaryTrackParameters
@@ -2453,8 +2467,9 @@ Trk::TimedExtrapolator::extrapolateInAlignableTV(Trk::TimedExtrapolator::Cache &
   std::vector<unsigned int> solutions;
   // double tol = 0.001;
   // double path = 0.;
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   if (!cache.m_highestVolume) {
-    cache.m_highestVolume = m_navigator->highestVolume();
+    cache.m_highestVolume = m_navigator->highestVolume(ctx);
   }
 
   emptyGarbageBin(cache,&parm);
@@ -2464,7 +2479,7 @@ Trk::TimedExtrapolator::extrapolateInAlignableTV(Trk::TimedExtrapolator::Cache &
   if (vol && vol->inside(gp, m_tolerance)) {
     staticVol = vol;
   } else {
-    currVol = m_navigator->trackingGeometry()->lowestStaticTrackingVolume(gp);
+    currVol = m_navigator->trackingGeometry(ctx)->lowestStaticTrackingVolume(gp);
     const Trk::TrackingVolume *nextStatVol = nullptr;
     if (m_navigator->atVolumeBoundary(currPar, currVol, dir, nextStatVol, m_tolerance) && nextStatVol != currVol) {
       currVol = nextStatVol;
@@ -2479,7 +2494,7 @@ Trk::TimedExtrapolator::extrapolateInAlignableTV(Trk::TimedExtrapolator::Cache &
 
   if (!staticVol) {
     ATH_MSG_DEBUG("  [!] failing in retrieval of AlignableTV, return 0");
-    return Trk::BoundaryTrackParameters(nullptr, nullptr, nullptr);
+    return {nullptr, nullptr, nullptr};
   }
 
   // TODO if volume entry go to entry of misaligned volume
@@ -2531,9 +2546,20 @@ Trk::TimedExtrapolator::extrapolateInAlignableTV(Trk::TimedExtrapolator::Cache &
     // type, result,
     //              material collection, intersection collection, path limit, switch for use of path limit, switch for
     // curvilinear on return, current TG volume
-    const Trk::TrackParameters *nextPar = m_stepPropagator->propagateT(*currPar, cache.m_navigSurfs, dir, m_fieldProperties,
-                                                                       particle, solutions, cache.m_path, timeLim, true,
-                                                                       cache.m_currentDense, cache.m_hitVector).release();
+    const Trk::TrackParameters* nextPar = m_stepPropagator
+                                            ->propagateT(ctx,
+                                                         *currPar,
+                                                         cache.m_navigSurfs,
+                                                         dir,
+                                                         m_fieldProperties,
+                                                         particle,
+                                                         solutions,
+                                                         cache.m_path,
+                                                         timeLim,
+                                                         true,
+                                                         cache.m_currentDense,
+                                                         cache.m_hitVector)
+                                            .release();
     ATH_MSG_VERBOSE("  [+] Propagation done. ");
     if (nextPar) {
       ATH_MSG_DEBUG("  [+] Position after propagation -   at " << positionOutput(nextPar->position()));
@@ -2562,19 +2588,19 @@ Trk::TimedExtrapolator::extrapolateInAlignableTV(Trk::TimedExtrapolator::Cache &
         }
 
         if (!iPar) {
-          return Trk::BoundaryTrackParameters(nullptr, nullptr, nullptr);
+          return {nullptr, nullptr, nullptr};
         }
 
         throwIntoGarbageBin(cache,iPar);
 
         if (iPar && cache.m_path.process == 121) {
           ATH_MSG_DEBUG(" [!] WARNING: failed hadronic interaction, killing the input particle anyway");
-          return Trk::BoundaryTrackParameters(nullptr, nullptr, nullptr);
+          return {nullptr, nullptr, nullptr};
         }
 
         // return transportToVolumeWithPathLimit(*nextPar, timeLim, dir, particle, nextGeoID, destVol);
       } else {  // kill particle without trace ?
-        return Trk::BoundaryTrackParameters(nullptr, nullptr, nullptr);
+        return {nullptr, nullptr, nullptr};
       }
     }
 
@@ -2586,14 +2612,14 @@ Trk::TimedExtrapolator::extrapolateInAlignableTV(Trk::TimedExtrapolator::Cache &
         const Trk::TrackParameters *iPar = m_updators[0]->interact(timeLim.time, nextPar->position(),
                                                                    nextPar->momentum(), particle, timeLim.process);
         if (!iPar) {
-          return Trk::BoundaryTrackParameters(nullptr, nullptr, nullptr);
+          return {nullptr, nullptr, nullptr};
         }
 
         throwIntoGarbageBin(cache,iPar);
         ATH_MSG_WARNING("particle decay survival?" << particle << "," << timeLim.process);
-        return Trk::BoundaryTrackParameters(nullptr, nullptr, nullptr);
+        return {nullptr, nullptr, nullptr};
       }    // kill the particle without trace ( some validation info can be included here eventually )
-        return Trk::BoundaryTrackParameters(nullptr, nullptr, nullptr);
+        return {nullptr, nullptr, nullptr};
 
     }
 
@@ -2612,7 +2638,7 @@ Trk::TimedExtrapolator::extrapolateInAlignableTV(Trk::TimedExtrapolator::Cache &
             ATH_MSG_DEBUG(
               "  [!] WARNING: wrongly assigned static volume ?" << cache.m_currentStatic->volumeName() << "->" <<
               nextVol->volumeName());
-            nextVol = m_navigator->trackingGeometry()->lowestStaticTrackingVolume(
+            nextVol = m_navigator->trackingGeometry(ctx)->lowestStaticTrackingVolume(
               nextPar->position() + 0.01 * dir * nextPar->momentum().normalized());
             if (nextVol) {
               ATH_MSG_DEBUG("  new search yields: " << nextVol->volumeName());
@@ -2647,7 +2673,7 @@ Trk::TimedExtrapolator::extrapolateInAlignableTV(Trk::TimedExtrapolator::Cache &
             ATH_MSG_DEBUG("  [+] Crossing position is         - at " << positionOutput(nextPar->position()));
           }
 
-          return Trk::BoundaryTrackParameters(nextPar, nextVol, cache.m_currentStatic);
+          return {nextPar, nextVol, cache.m_currentStatic};
         }
       }
     }
@@ -2655,5 +2681,5 @@ Trk::TimedExtrapolator::extrapolateInAlignableTV(Trk::TimedExtrapolator::Cache &
     currPar = nextPar;
   }
 
-  return Trk::BoundaryTrackParameters(nullptr, nullptr, nullptr);
+  return {nullptr, nullptr, nullptr};
 }

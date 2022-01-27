@@ -29,7 +29,7 @@ void AGDDMuonStation::CreateSolid (const AGDDBuilder& /*builder*/)
 	}
 }
 
-void AGDDMuonStation::CreateVolume (const AGDDBuilder& builder)
+void AGDDMuonStation::CreateVolume (AGDDBuilder& builder)
 {
     std::cout<<"this is AGDDMuonStation::CreateVolume()"<<std::endl;
 	static const GeoMaterial* const air = GetMMMaterial("std::Air");
@@ -51,7 +51,7 @@ void AGDDMuonStation::CreateVolume (const AGDDBuilder& builder)
 
 const GeoMaterial* AGDDMuonStation::GetMMMaterial(const std::string& name) const
 {
-	StoreGateSvc* pDetStore=0;
+	StoreGateSvc* pDetStore=nullptr;
 	ISvcLocator* svcLocator = Gaudi::svcLocator();
 	StatusCode sc=svcLocator->service("DetectorStore",pDetStore);
 	if(sc.isSuccess())
@@ -63,5 +63,5 @@ const GeoMaterial* AGDDMuonStation::GetMMMaterial(const std::string& name) const
 			return theMaterialManager->getMaterial(name);
         }
 	}
-	return 0;
+	return nullptr;
 }

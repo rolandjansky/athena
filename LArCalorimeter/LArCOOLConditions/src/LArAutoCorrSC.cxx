@@ -1,23 +1,25 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCOOLConditions/LArAutoCorrSC.h" 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
-LArAutoCorrSC::LArAutoCorrSC() {}
+LArAutoCorrSC::LArAutoCorrSC()
+  : LArCondSuperCellBase ("LArAutoCorrSC")
+{}
 
 LArAutoCorrSC::~LArAutoCorrSC()  {}
 
 
-LArAutoCorrSC::LArAutoCorrSC(const CondAttrListCollection* attrList) {
-
-  StatusCode sc=initializeBase("LArAutoCorrSC");
-  if (sc.isFailure()) return;
+LArAutoCorrSC::LArAutoCorrSC(const CondAttrListCollection* attrList)
+  : LArCondSuperCellBase ("LArAutoCorrSC")
+{
+  if (initializeBase().isFailure()) return;
  
   if (!attrList) return;
 
-  readBlob(attrList,*m_log);
+  readBlob(attrList,msg());
 
 }
 

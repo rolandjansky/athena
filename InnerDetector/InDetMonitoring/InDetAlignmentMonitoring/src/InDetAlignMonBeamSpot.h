@@ -31,9 +31,6 @@
 class TH1F;
 class TH2F;
 
-namespace Trk {
-  class IExtrapolator;
-}
 
 
 class InDetAlignMonBeamSpot: public ManagedMonitorToolBase {
@@ -48,8 +45,6 @@ public:
   //virtual StatusCode procHistograms( bool isEndOfEventsBlock, bool isEndOfLumiBlock, bool isEndOfRun );
   virtual StatusCode procHistograms();
 protected:
-  ToolHandle<Trk::IExtrapolator> m_extrapolator;
-  bool m_hasExtrapolator;
 
   SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey {
     this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot"

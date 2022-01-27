@@ -94,6 +94,10 @@ namespace ActsTrk {
     Gaudi::Property< float > m_radLengthPerSeed {this,"radLengthPerSeed",0.5,""};
     Gaudi::Property< float > m_minPt {this,"minPt",500. * Acts::UnitConstants::MeV,""};
     Gaudi::Property< float > m_impactMax {this,"impactMax",3. * Acts::UnitConstants::mm,""};
+    Gaudi::Property< int > m_numPhiNeighbors {this, "numPhiNeighbors", 1, ""};
+    Gaudi::Property< std::vector<float> > m_zBinEdges {this, "zBinEdges", {} , ""};
+    Gaudi::Property< std::vector<std::pair<int, int>> > m_zBinNeighborsTop{this, "zBinNeighborsTop", {}, ""};
+    Gaudi::Property< std::vector<std::pair<int, int>> > m_zBinNeighborsBottom{this, "zBinNeighborsBottom", {}, ""};
   };
   
 } // namespace

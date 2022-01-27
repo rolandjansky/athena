@@ -38,7 +38,7 @@ MDTSimHitCollection* MDTSimHitCollectionCnv::createTransient() {
     static pool::Guid   p2_guid("92880B97-75BB-4C5D-8183-577338059FCC");
     static pool::Guid   p3_guid("0E9EEEE2-304F-44B8-B1DF-E75297183A02");
     ATH_MSG_DEBUG("createTransient(): main converter");
-    MDTSimHitCollection* p_collection(0);
+    MDTSimHitCollection* p_collection(nullptr);
     if( compareClassGuid(p3_guid) ) {
       ATH_MSG_DEBUG("createTransient(): T/P version 3 detected");
       std::unique_ptr< Muon::MDTSimHitCollection_p3 >   col_vect( this->poolReadObject< Muon::MDTSimHitCollection_p3 >() );

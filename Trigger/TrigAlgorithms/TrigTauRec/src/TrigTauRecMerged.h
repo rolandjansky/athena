@@ -79,7 +79,6 @@ class TrigTauRecMerged: public AthReentrantAlgorithm {
   Gaudi::Property< float > m_minpt          { this, "minpt", 10000.0, "min pt for tau"};
   Gaudi::Property< std::string > m_beamType { this, "BeamType", "collisions", "Beam type"};
   Gaudi::Property< float > m_trkcone        { this, "trkcone", 0.2, "max distance track seed from roi center"};
-  Gaudi::Property< bool > m_SkipClusterOutsideROI { this, "SkipClusterOutsideROI", false, "do not consider cluster outside the ROI"};
   
 
 };

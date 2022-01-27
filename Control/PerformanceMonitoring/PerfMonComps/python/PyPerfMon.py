@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # @file: PyPerfMon.py
 # @author: Sebastien Binet <binet@cern.ch>
@@ -9,18 +9,15 @@ __doc__     = """python module holding a python service to monitor athena perfor
 """
 
 import os,sys
+from functools import cache
 
 import AthenaCommon.Logging as L
+from PerfMonComps.PyMonUtils import Units, pymon
+from PyUtils.Decorators import forking
 
 _perfMonStates = ('ini','evt','fin')
 
-from PerfMonComps.PyMonUtils import Units, pymon
-
-from PyUtils.Decorators import memoize, forking
-
-import six
-
-@memoize
+@cache
 def _import_ROOT():
     # FIXME: work-around ROOT's silly behaviour wrt graphics libraries
     # see: https://savannah.cern.ch/bugs/?35461
@@ -430,7 +427,7 @@ class Svc(object):
         ## write out meta-data
         import PyUtils.dbsqlite as dbs
         meta = dbs.open(headerFile, 'n')
-        for k,v in six.iteritems (self.meta):
+        for k,v in self.meta.items():
             meta[k] = v
         meta['version_id'] = '0.4.0' # stream-format + header file
         meta['pmon_tuple_files'] = map( os.path.basename, outFiles[1:] )

@@ -35,7 +35,7 @@ void tomoprocessdata_(
 void tomogetdata_(
     int& Status,
     int& optionflag,
-    std::string TheStationName, int& jff, int& jzz, int& MulLay, int& Side,
+    const std::string& TheStationName, int& jff, int& jzz, int& MulLay, int& Side,
     double& XtomoDela , int& XtomoNberTube, double& XtomoZpit, double& XtomoYpit, double& XtomoDelz, double& XtomoDely, int& XtomoNberLayer,
     double& nominalzpitch, double& nominalypitch
 );

@@ -37,9 +37,9 @@ namespace top {
     m_config->setPseudoTop();
 
     // Figure out the b tagging working point
-    if (m_config->bTagWP_available().size() != 1) {
+    if (m_config->bTagWP().size() != 1) {
       ATH_MSG_INFO(
-        m_config->bTagWP_available().size() <<
+        m_config->bTagWP().size() <<
       " b-tagging WP - cannot pick b-jets. Please select only 1 WP if you want to use the PseudoTop reconstruction");
     }
 
@@ -231,7 +231,7 @@ namespace top {
       helpVec.SetPtEtaPhiE(jetPtr->pt() / 1.e3, jetPtr->eta(), jetPtr->phi(), jetPtr->e() / 1.e3);
 
       // if more than two b-jets are available, consider third leading b-tagged jet as light jet!
-      std::string out = m_config->bTagWP_available()[0];
+      std::string out = m_config->bTagWP()[0];
 
       const bool hasbTagFlag = jetPtr->isAvailable<char>("isbtagged_" + out);
 

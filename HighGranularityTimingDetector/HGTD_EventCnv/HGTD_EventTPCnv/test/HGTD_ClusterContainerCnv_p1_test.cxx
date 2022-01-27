@@ -28,8 +28,6 @@
 
 #include "HGTD_EventTPCnv_testfunctions.cxx"
 
-using namespace HGTD;
-
 HGTD_ID* g_hgtd_idhelper;
 
 void compare(const HGTD_ClusterContainer& p1,

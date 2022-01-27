@@ -16,26 +16,23 @@
   @author  Zerwas,Anastopoulos
   */
 
-// XAOD INCLUDES:
+#include "egammaInterfaces/IEMFourMomBuilder.h"
+#include "egammaBaseTool.h"
+
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "egammaInterfaces/IegammaBaseTool.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ToolHandle.h"
+
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "xAODEgamma/EgammaFwd.h"
 #include "xAODEgamma/ElectronFwd.h"
 #include "xAODEgamma/PhotonFwd.h"
 
-// INCLUDE HEADER FILES:
-#include "GaudiKernel/EventContext.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
-
 #include "EventPrimitives/EventPrimitives.h"
-#include "egammaBaseTool.h"
-#include "egammaInterfaces/IEMFourMomBuilder.h"
 #include "egammaRecEvent/egammaRec.h"
 #include "egammaUtils/eg_resolution.h"
 
-class EMFourMomBuilder
+class EMFourMomBuilder final
   : public egammaBaseTool
   , virtual public IEMFourMomBuilder
 {

@@ -11,7 +11,7 @@
 #include "AsgMessaging/MsgStream.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
-#include "TrigConfHLTData/HLTUtils.h"
+#include "TrigConfHLTUtils/HLTUtils.h"
 
 #include "CostData.h"
 #include "CounterBase.h"
@@ -110,6 +110,20 @@ class MonitorBase{
      * @return Message stream reference.
      */  
     MsgStream& msg();
+
+    /**
+     * @brief Logging on a given level
+     * @param[in] lvl Verbosity level
+     * @return Message stream reference.
+     */ 
+    MsgStream& msg(const MSG::Level lvl);
+
+    /**
+     * @brief Returns if requested level is same or higher than logging level
+     * @param[in] lvl Verbosity level
+     * @return If requested level is same or higher than logging level
+     */ 
+    bool msgLvl(const MSG::Level lvl);
 
   protected:
 

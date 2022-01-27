@@ -91,7 +91,7 @@ namespace MuonCalib {
 
     std::string MuonCalibExtendedRawHits::dumpMdtHits() const {
         std::ostringstream sout;
-        MuonFixedIdPrinter printer;
+        MuonFixedIdPrinter printer{};
 
         sout << " number of MDT chambers with hits: " << m_mdtChamberIdMap.size() << std::endl;
         for (const auto& chIt : m_mdtChamberIdMap) {

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -13,27 +13,32 @@ def GSFTrackSummaryToolCfg(flags,
     acc = ComponentAccumulator()
 
     if "PixelToTPIDTool" not in kwargs:
-        from InDetConfig.TrackingCommonConfig import (
-            InDetPixelToTPIDToolCfg)
-        kwargs["PixelToTPIDTool"] = acc.popToolsAndMerge(
-            InDetPixelToTPIDToolCfg(
-                flags,
-                name="GSFBuildPixelToTPIDTool"))
+        if flags.Detector.EnablePixel:
+            kwargs["PixelToTPIDTool"] = CompFactory.InDet.PixelToTPIDTool(
+                name="GSFBuildPixelToTPIDTool")
+        else:
+            kwargs["PixelToTPIDTool"] = None
 
     # TODO what happens to
     # ClusterSplitProbabilityName=
     # TrackingCommon.combinedClusterSplitProbName() ?
+    # It is "InDetTRT_SeededAmbiguityProcessorSplitProb" in run-2 config
+    #         (because backTrk and TRTSA are run)
+    # It might be "AmbiguityProcessorSplitProb" in run-3 config
+    # (only one existing till now)
     if "InDetSummaryHelperTool" not in kwargs:
-        from InDetConfig.TrackingCommonConfig import (
-            InDetRecTestBLayerToolCfg)
-        testBLTool = acc.popToolsAndMerge(
-            InDetRecTestBLayerToolCfg(
-                flags,
-                name="GSFBuildTestBLayerTool"))
+        testBLTool = None
+        if flags.Detector.EnablePixel:
+            from InDetConfig.TrackingCommonConfig import (
+                InDetRecTestBLayerToolCfg)
+            testBLTool = acc.popToolsAndMerge(
+                InDetRecTestBLayerToolCfg(
+                    flags,
+                    name="GSFBuildTestBLayerTool"))
 
         from InDetConfig.InDetRecToolConfig import (
             InDetTrackSummaryHelperToolCfg)
-        kwargs["InDetSummaryHelperTool"] = acc.getPrimaryAndMerge(
+        kwargs["InDetSummaryHelperTool"] = acc.popToolsAndMerge(
             InDetTrackSummaryHelperToolCfg(
                 flags,
                 name="GSFBuildTrackSummaryHelperTool",
@@ -44,14 +49,17 @@ def GSFTrackSummaryToolCfg(flags,
             ))
 
     if "TRT_ElectronPidTool" not in kwargs:
-        from InDetConfig.TRT_ElectronPidToolsConfig import (
-            TRT_ElectronPidToolCfg)
-        kwargs["TRT_ElectronPidTool"] = acc.popToolsAndMerge(
-            TRT_ElectronPidToolCfg(
-                flags,
-                name="GSFBuildTRT_ElectronPidTool",
-                CalculateNNPid=False,
-                MinimumTrackPtForNNPid=0.))
+        if flags.Detector.EnableTRT:
+            from InDetConfig.TRT_ElectronPidToolsConfig import (
+                TRT_ElectronPidToolCfg)
+            kwargs["TRT_ElectronPidTool"] = acc.popToolsAndMerge(
+                TRT_ElectronPidToolCfg(
+                    flags,
+                    name="GSFBuildTRT_ElectronPidTool",
+                    CalculateNNPid=(flags.GeoModel.Run == "RUN3"),
+                    MinimumTrackPtForNNPid=0.))
+        else:
+            kwargs["TRT_ElectronPidTool"] = None
 
     kwargs.setdefault("doSharedHits", False)
     kwargs.setdefault("doHolesInDet", False)
@@ -70,12 +78,6 @@ def EMBremCollectionBuilderCfg(flags,
         Create the relevant TrackParticles """
 
     acc = ComponentAccumulator()
-    # FIXME runtime testing required this, but since this is not a
-    # direct dependency it should be added elsewhere,
-    # but I do not know where yet
-    if not flags.Input.isMC:
-        from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
-        acc.merge(LumiBlockMuWriterCfg(flags))
 
     if "TrackRefitTool" not in kwargs:
         from egammaTrackTools.egammaTrackToolsConfig import (
@@ -89,8 +91,9 @@ def EMBremCollectionBuilderCfg(flags,
             name="GSFBuildInDetParticleCreatorTool",
             KeepParameters=True,
             TrackToVertex=acc.popToolsAndMerge(TrackToVertexCfg(flags)),
-            UseTrackSummaryTool=False,
-            BadClusterID=flags.InDet.pixelClusterBadClusterID)
+            TrackSummaryTool="",
+            BadClusterID=0,
+            IBLParameterSvc="IBLParameterSvc" if flags.Detector.GeometryID else "")
         kwargs["TrackParticleCreatorTool"] = gsfTrackParticleCreatorTool
 
     if "TrackSlimmingTool" not in kwargs:
@@ -104,9 +107,21 @@ def EMBremCollectionBuilderCfg(flags,
         kwargs["TrackSummaryTool"] = acc.popToolsAndMerge(
             GSFTrackSummaryToolCfg(flags))
 
-    kwargs.setdefault("usePixel", flags.Detector.EnablePixel)
-    kwargs.setdefault("useSCT", flags.Detector.EnableSCT)
+    kwargs.setdefault("usePixel", flags.Detector.EnablePixel or flags.Detector.EnableITkPixel)
+    kwargs.setdefault("useSCT", flags.Detector.EnableSCT or flags.Detector.EnableITkStrip)
     kwargs.setdefault("DoTruth", flags.Input.isMC)
+
+    # P->T conversion extra dependencies
+    if flags.Detector.GeometryITk:
+        kwargs.setdefault("ExtraInputs", [
+            ("InDetDD::SiDetectorElementCollection", "ConditionStore+ITkPixelDetectorElementCollection"),
+            ("InDetDD::SiDetectorElementCollection", "ConditionStore+ITkStripDetectorElementCollection"),
+        ])
+    else:
+        kwargs.setdefault("ExtraInputs", [
+            ("InDetDD::SiDetectorElementCollection", "ConditionStore+PixelDetectorElementCollection"),
+            ("InDetDD::SiDetectorElementCollection", "ConditionStore+SCT_DetectorElementCollection"),
+        ])
 
     alg = CompFactory.EMBremCollectionBuilder(name, **kwargs)
     acc.addEventAlgo(alg)
@@ -120,8 +135,8 @@ if __name__ == "__main__":
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     from AthenaConfiguration.ComponentAccumulator import printProperties
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
-    flags.Input.Files = defaultTestFiles.RDO
-
+    flags.Input.Files = defaultTestFiles.RDO_RUN2
+    flags.lock()
     acc = MainServicesCfg(flags)
     acc.merge(EMBremCollectionBuilderCfg(flags))
     mlog = logging.getLogger("EMBremCollectionBuilderConfigTest")

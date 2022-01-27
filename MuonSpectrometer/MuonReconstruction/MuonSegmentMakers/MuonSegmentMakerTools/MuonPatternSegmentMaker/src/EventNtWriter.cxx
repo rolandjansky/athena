@@ -196,7 +196,7 @@ void EventNtWriter::fill( Muon::MuonPatternSegmentMaker::ROTsPerRegion& rots, co
 	  int nml = m_mdtIdHelper->numberOfMultilayers(chid);
 	  if( m_detMgr ){
 	    const MuonGM::MdtReadoutElement* detEl1 = m_detMgr->getMdtReadoutElement( m_mdtIdHelper->channelID( name,eta,phi,1,1,1 ) );
-	    const MuonGM::MdtReadoutElement* detEl2 = 0;
+	    const MuonGM::MdtReadoutElement* detEl2 = nullptr;
 	    int ntube2 = 0;
 	    if( nml == 2 ){
 	      Identifier firstIdml1 = m_mdtIdHelper->channelID( name,eta,phi,2,1,1 );
@@ -280,7 +280,7 @@ void EventNtWriter::fill( Muon::MuonPatternSegmentMaker::ROTsPerRegion& rots, co
 	      int nml = m_mdtIdHelper->numberOfMultilayers(newchid);
 	      if( m_detMgr ){
 		const MuonGM::MdtReadoutElement* detEl1 = m_detMgr->getMdtReadoutElement( m_mdtIdHelper->channelID( name,eta,phi,1,1,1 ) );
-		const MuonGM::MdtReadoutElement* detEl2 = 0;
+		const MuonGM::MdtReadoutElement* detEl2 = nullptr;
 		int ntube2 = 0;
 		if( nml == 2 ){
 		  Identifier firstIdml1 = m_mdtIdHelper->channelID( name,eta,phi,2,1,1 );

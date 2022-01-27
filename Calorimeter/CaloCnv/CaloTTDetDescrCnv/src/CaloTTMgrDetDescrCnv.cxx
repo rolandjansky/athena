@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -25,6 +25,8 @@
 #include "CaloTTDetDescr/CaloTTDescriptor.h"
 #include "CaloIdentifier/CaloLVL1_ID.h"
 
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloTriggerTool/CaloTriggerTowerService.h" 
@@ -139,17 +141,23 @@ CaloTTMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
     log << MSG::INFO << "Set CaloLVL1_ID helper in CaloTTMgr " 
 	<< endmsg;
 
-    // Get CaloDetDescrManager from detector store 
+    // Get CaloDetDescrManager from condition store
     // to build geometry of trigger towers
-    const CaloDetDescrManager* caloMgr;
-    status = detStore->retrieve(caloMgr);
+    //
+    // NB! The information retrieved from the CaloDetDescrManager is NOT sensitive
+    //     to Calo alignment changes. Hence, it is OK to write CaloTTDescrManager
+    //     into DetStore
+    SG::ReadCondHandleKey<CaloDetDescrManager> caloMgrKey {"CaloDetDescrManager"};
+    status = caloMgrKey.initialize();
     if (status.isFailure()) {
-	log << MSG::FATAL << "Could not get CaloDetDescr manager !" << endmsg;
+	log << MSG::FATAL << "Could not initialize RCHK for CaloDetDescrManager !" << endmsg;
 	return StatusCode::FAILURE;
     } 
     else {
-      if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << " Retrieved CaloDetDescr Manager " << endmsg;
+      if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << " Initialized RCHK for CaloDetDescrManager " << endmsg;
     }
+    SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{caloMgrKey};
+    const CaloDetDescrManager* caloMgr = *caloMgrHandle;
 
     IToolSvc* toolSvc;
     status   = service( "ToolSvc",toolSvc  );

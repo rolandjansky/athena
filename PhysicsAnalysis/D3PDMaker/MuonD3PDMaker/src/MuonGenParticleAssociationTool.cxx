@@ -75,9 +75,7 @@ StatusCode MuonGenParticleAssociationTool::book ()
 const xAOD::TruthParticle*
 MuonGenParticleAssociationTool::get (const xAOD::Muon& p)
 {
-  IMCTruthClassifier::Cache cache;
   IMCTruthClassifier::Info info;
-  info.extrapolationCache = &cache;
   const xAOD::TruthParticle* out = 0;
   if (m_classifier->particleTruthClassifier (&p, &info).first !=
       MCTruthPartClassifier::Unknown)

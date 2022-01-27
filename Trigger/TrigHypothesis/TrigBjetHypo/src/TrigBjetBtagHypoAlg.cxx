@@ -123,7 +123,7 @@ StatusCode TrigBjetBtagHypoAlg::execute( const EventContext& context ) const {
       return StatusCode::FAILURE;
     }
 
-    toAdd->setObjectLink< xAOD::BTaggingContainer >( m_bTaggingLink.value(),bTaggingEL.front() );
+    toAdd->setObjectLink< xAOD::BTaggingContainer >(m_btaggingLinkName,bTaggingEL.front() ); // TM 2021-10-30
 
     // online monitoring for btagging, with a check to ensure the PV is marked
     ElementLink< xAOD::VertexContainer > vertexEL;

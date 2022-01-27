@@ -227,7 +227,6 @@ if rec.readRDO():
    from InDetRecExample.InDetJobProperties import InDetFlags
    from MuonRecExample.MuonRecFlags import muonRecFlags
    from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
-   from egammaRec.egammaRecFlags import jobproperties
    from tauRec.tauRecFlags import jobproperties
 
 from JetRec.JetRecFlags import jobproperties
@@ -258,7 +257,7 @@ if (not rec.doMuon()) or (rec.readRDO() and not jobproperties.MuonRec.Enabled())
 if (not rec.doMuonCombined()) or (rec.readRDO() and not jobproperties.MuonCombinedRec.Enabled()):
    DQMonFlags.doMuonCombinedMon=False
 
-if (not rec.doEgamma()) or (rec.readRDO() and not jobproperties.egammaRecFlags.Enabled()):
+if (not rec.doEgamma()) or (rec.readRDO() and not ConfigFlags.Reco.EnableEgamma):
    DQMonFlags.doEgammaMon=False
 
 #if (not rec.doJetRec()) or (rec.readRDO() and not jobproperties.JetRecFlags.Enabled()):

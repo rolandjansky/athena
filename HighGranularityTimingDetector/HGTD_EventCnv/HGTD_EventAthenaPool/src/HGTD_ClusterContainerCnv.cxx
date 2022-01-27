@@ -17,17 +17,17 @@
 HGTD_ClusterContainerCnv::HGTD_ClusterContainerCnv(ISvcLocator* svcloc)
     : HGTD_ClusterContainerCnvBase(svcloc) {}
 
-HGTD::HGTD_ClusterContainer* HGTD_ClusterContainerCnv::createTransient() {
+HGTD_ClusterContainer* HGTD_ClusterContainerCnv::createTransient() {
 
   static pool::Guid p1_guid(
       "7B3D57D6-F590-4266-974D-A0807122DA5F"); // with HGTD_Cluster_p1
   ATH_MSG_DEBUG("createTransient(): main converter");
 
-  HGTD::HGTD_ClusterContainer* p_collection(0);
+  HGTD_ClusterContainer* p_collection(0);
   if (compareClassGuid(p1_guid)) {
     ATH_MSG_DEBUG("createTransient(): T/P version 1 detected");
-    std::auto_ptr<HGTD::HGTD_ClusterContainer_p1> p_coll(
-        poolReadObject<HGTD::HGTD_ClusterContainer_p1>());
+    std::auto_ptr<HGTD_ClusterContainer_p1> p_coll(
+        poolReadObject<HGTD_ClusterContainer_p1>());
     p_collection = m_converter_p1.createTransient(p_coll.get(), msg());
   } else {
     throw std::runtime_error(
@@ -37,7 +37,7 @@ HGTD::HGTD_ClusterContainer* HGTD_ClusterContainerCnv::createTransient() {
 }
 
 HGTD_ClusterContainer_PERS* HGTD_ClusterContainerCnv::createPersistent(
-    HGTD::HGTD_ClusterContainer* transCont) {
+    HGTD_ClusterContainer* transCont) {
   HGTD_ClusterContainer_PERS* pldc_p =
       m_converter_p1.createPersistent(transCont, msg());
 

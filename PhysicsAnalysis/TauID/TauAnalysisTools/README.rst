@@ -27,8 +27,6 @@ analysis. Currently following tools are available:
     4-momentum
 * **TauTruthTrackMatchingTool:** performs matching of tracks to truth taus and
     tracks to truth charged particles
-* **TauOverlappingElectronLLHDecorator:** decorating reconstructed taus with a
-    likelihood score of matched reconstructed electrons
     
 All relevant information about the actual measurement of uncertainties for run 1
 can be found here: `TauRecommendationsWinterConf2013
@@ -121,4 +119,3 @@ More detailed information on how to use the tools can be found here:
 * `TauEfficiencyCorrectionsTool <doc/README-TauEfficiencyCorrectionsTool.rst>`_
 * `TauTruthMatchingTool <doc/README-TauTruthMatchingTool.rst>`_
 * `TauTruthTrackMatchingTool <doc/README-TauTruthTrackMatchingTool.rst>`_
-* `TauOverlappingElectronLLHDecorator <doc/README-TauOverlappingElectronLLHDecorator.rst>`_

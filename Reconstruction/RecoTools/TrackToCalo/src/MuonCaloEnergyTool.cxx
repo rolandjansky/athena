@@ -21,29 +21,10 @@
 namespace Rec {
 
     MuonCaloEnergyTool::MuonCaloEnergyTool(const std::string& t, const std::string& n, const IInterface* p) :
-        AthAlgTool(t, n, p),
-        m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", this),
-        m_caloCellAssociationTool("Rec::ParticleCaloCellAssociationTool/ParticleCaloCellAssociationTool", this),
-        m_particleCreator("Trk::TrackParticleCreatorTool/MuonCaloParticleCreator"),
-        m_sigmasAboveNoise(4.),
-        m_emEtCut(2.5 * Gaudi::Units::GeV),
-        m_emF1Cut(0.15),
-        m_emipEM(0.42),    // 0.42
-        m_emipTile(0.86),  // 0.86
-        m_emipHEC(0.65)    // 0.65
+        AthAlgTool(t, n, p)
     {
         declareInterface<IMuonCaloEnergyTool>(this);
-        declareProperty("ParticleCaloExtensionTool", m_caloExtensionTool);
-        declareProperty("ParticleCaloCellAssociationTool", m_caloCellAssociationTool);
-        declareProperty("TrackParticleCreator", m_particleCreator);
-
-        // coneSize for including calo cells around track
-        declareProperty("SigmasAboveNoise", m_sigmasAboveNoise = 4.);
-        declareProperty("EmEtCut", m_emEtCut = 2.5 * 1000.);  // in MeV
-        declareProperty("EmF1Cut", m_emF1Cut = 0.15);
     }
-
-    MuonCaloEnergyTool::~MuonCaloEnergyTool() {}
 
     StatusCode MuonCaloEnergyTool::initialize() {
         // RETRIEVE TOOLS
@@ -280,7 +261,6 @@ namespace Rec {
         SG::ReadCondHandle<CaloNoise> caloNoiseHdl{m_caloNoiseCDOKey};
         const CaloNoise* caloNoise = *caloNoiseHdl;
 
-        double E_em1 = 0.;
         double E_em = 0.;
         double E_em_expected = 0.;
         double E_em_exptot = 0.;
@@ -351,7 +331,6 @@ namespace Rec {
             //
             if (cellSampling == CaloSampling::PreSamplerB || cellSampling == CaloSampling::PreSamplerE) {
                 if (f_exp > 0 && cellEn > m_sigmasAboveNoise * sigma_Noise && !badCell) {
-                    E_em1 += cellEn;
                     if (storeCells) {
                         crossedCells->push_back(id);
                         sigmaNoise_cell->push_back(sigma_Noise);
@@ -474,7 +453,6 @@ namespace Rec {
         E_FSR = 0.;
         double E_measured = 0.;
         double E_measured_expected = E_em_expected + E_tile_expected + E_HEC_expected;
-        //     if(E_em*cos(theta)>m_emEtCut&&E_em1>0.15*E_em) {
         if (E_em * std::sin(theta) > m_emEtCut) {
             // large e.m. deposit starting in first e.m. layer
             E_FSR = E_em;

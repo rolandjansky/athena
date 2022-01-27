@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AsgDataHandles/ReadHandle.h"
 #include "AsgDataHandles/ReadHandleKey.h"
 
 template<class CONTAINER>
-std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::features(EventPtr_t eventStore,
+std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::features(const asg::EventStoreType* eventStore,
         SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer>& HLTSummaryKeyIn,
         unsigned int condition, const std::string& containerSGKey,
         const unsigned int featureCollectionMode, const std::string& navElementLinkKey,
@@ -107,7 +107,7 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
     // Obtain navigation routes for objects which fail
     if (condition == TrigDefs::includeFailedDecisions) {
       std::vector<const TrigCompositeUtils::Decision*> rejectedDecisionNodes = 
-        TrigCompositeUtils::getRejectedDecisionNodes(eventStore, thisChainIDs);
+        TrigCompositeUtils::getRejectedDecisionNodes(eventStore, HLTSummaryKeyIn.key(), thisChainIDs);
 
       ATH_MSG_DEBUG("Chain " << chainID << " has " << rejectedDecisionNodes.size() 
         << " dangling nodes in the graph from objects which were rejected.");

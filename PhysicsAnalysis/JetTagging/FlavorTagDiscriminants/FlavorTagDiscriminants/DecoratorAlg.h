@@ -19,7 +19,7 @@ namespace FlavorTagDiscriminants {
     virtual StatusCode initialize() override;
     virtual StatusCode execute(const EventContext& cxt) const override;
     virtual StatusCode finalize() override;
-  private:
+  protected:
     SG::ReadHandleKey<CONTAINER> m_containerKey {
       this, "container", "", "Key for the input collection"};
     SG::ReadHandleKey<CONSTITUENTS> m_constituentKey {

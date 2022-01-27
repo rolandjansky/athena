@@ -608,11 +608,13 @@ std::unique_ptr <Trk::TrackParameters> IDAlignMonResidualsAlg::getUnbiasedTrackP
 		      ATH_MSG_VERBOSE("After MagneticFieldProperties cast");
 		      ATH_MSG_VERBOSE("Before other side unbiased propagation");
 
-		      if (TempSurface->associatedLayer() && TempField) PropagatedTrackParams = m_propagator->propagate(*OtherSideUnbiasedTrackParams,
-		       												       tsos->measurementOnTrack()->associatedSurface(),
-		       												       Trk::anyDirection, false,
-		       												       *TempField,
-		       												       Trk::nonInteracting);
+		      if (TempSurface->associatedLayer() && TempField) PropagatedTrackParams = m_propagator->propagate(
+            Gaudi::Hive::currentContext(),
+            *OtherSideUnbiasedTrackParams,
+            tsos->measurementOnTrack()->associatedSurface(),
+            Trk::anyDirection, false,
+            *TempField,
+            Trk::nonInteracting);
 
 		    } else {
 		    ATH_MSG_VERBOSE("TempSurface->associatedLayer()->enclosingTrackingVolume does not exist");

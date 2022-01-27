@@ -97,18 +97,30 @@ def addAntiKt10TruthWZJets(sequence,outputlist):
 
 def addAntiKt4EMTopoJets(sequence, outputlist):
     addEventShape(0.4, "EMTopo", sequence)
-    addStandardJets("AntiKt", 0.4, "EMTopo", ptmin=5000, ptminFilter=10000, calibOpt="arj", algseq=sequence, outputGroup=outputlist, customGetters=jtm.gettersMap["emtopo_reduced"])
+    ptCutCalibrated = 10000
+    from JetRec.JetRecFlags import jetFlags
+    if not jetFlags.useCalibJetThreshold:
+        ptCutCalibrated = 1
+    addStandardJets("AntiKt", 0.4, "EMTopo", ptmin=5000, ptminFilter=ptCutCalibrated, calibOpt="arj", algseq=sequence, outputGroup=outputlist, customGetters=jtm.gettersMap["emtopo_reduced"])
 
 def addAntiKt4LCTopoJets(sequence, outputlist):
     addEventShape(0.4, "LCTopo", sequence)
-    addStandardJets("AntiKt", 0.4, "LCTopo", ptmin=5000, ptminFilter=10000, calibOpt="arj", algseq=sequence, outputGroup=outputlist, customGetters=jtm.gettersMap["lctopo_reduced"])
+    ptCutCalibrated = 10000
+    from JetRec.JetRecFlags import jetFlags
+    if not jetFlags.useCalibJetThreshold:
+        ptCutCalibrated = 1
+    addStandardJets("AntiKt", 0.4, "LCTopo", ptmin=5000, ptminFilter=ptCutCalibrated, calibOpt="arj", algseq=sequence, outputGroup=outputlist, customGetters=jtm.gettersMap["lctopo_reduced"])
 
 def addAntiKt4EMPFlowJets(sequence, outputlist):
     addCHSPFlowObjects()
     addEventShape(0.4, "EMPFlow", sequence)
     #New rho definition for precision recommendations
     addEventShape(0.4, "EMPFlowPUSB", sequence)
-    addStandardJets("AntiKt", 0.4, "EMPFlow", ptmin=5000, ptminFilter=10000, mods="pflow_ungroomed", calibOpt="arj:pflow", algseq=sequence, outputGroup=outputlist, customGetters=jtm.gettersMap["empflow_reduced"])
+    ptCutCalibrated = 10000
+    from JetRec.JetRecFlags import jetFlags
+    if not jetFlags.useCalibJetThreshold:
+        ptCutCalibrated = 1
+    addStandardJets("AntiKt", 0.4, "EMPFlow", ptmin=5000, ptminFilter=ptCutCalibrated, mods="pflow_ungroomed", calibOpt="arj:pflow", algseq=sequence, outputGroup=outputlist, customGetters=jtm.gettersMap["empflow_reduced"])
 
 ##################################################################  
 
@@ -478,9 +490,15 @@ def addCHSPFlowObjects():
         from JetRec.JetRecStandard import jtm
         if not hasattr(job,"jetalgCHSPFlow") and not hasattr(jtm,"jetconstitCHSPFlow"):
             from JetRec.JetRecConf import JetToolRunner
-            jtm += JetToolRunner("jetconstitCHSPFlow",
-                                 EventShapeTools=[],
-                                 Tools=[jtm.JetConstitSeq_PFlowCHS])
+            from JetRec.JetRecFlags import jetFlags
+            if jetFlags.useTrackVertexTool:
+                jtm += JetToolRunner("jetconstitCHSPFlow",
+                                         EventShapeTools=[],
+                                         Tools=[jtm.ttvaassocNew,jtm.JetConstitSeq_PFlowCHS])
+            else:
+                jtm += JetToolRunner("jetconstitCHSPFlow",
+                                         EventShapeTools=[],
+                                         Tools=[jtm.JetConstitSeq_PFlowCHS])
             # Add this tool runner to the JetAlgorithm instance "jetalg"
             # which runs all preparatory tools
             # This was added by JetCommon
@@ -513,7 +531,8 @@ def getPseudoJetAlg(inputType):
             "LCTopoOrigin" : jtm.lcoriginget,
             "EMTopoOrigin" : jtm.emoriginget,
             "EMPFlow": jtm.empflowget,
-            "EMPFlowPUSB": jtm.empflowpusbget}[inputType]
+            "EMPFlowPUSB": jtm.empflowpusbget,
+            "EMPFlowNeut": jtm.empflowneutget}[inputType]
 
 def addEventCleanFlags(sequence, workingPoints = ['Loose', 'Tight', 'LooseLLP']):
     

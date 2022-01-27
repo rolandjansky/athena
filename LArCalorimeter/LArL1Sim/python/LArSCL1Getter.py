@@ -69,7 +69,8 @@ class LArSCL1Getter ( Configured )  :
         from LArRecUtils.LArADC2MeVSCCondAlgDefault import LArADC2MeVSCCondAlgDefault
         LArADC2MeVSCCondAlgDefault()
         theLArSCL1Maker=LArSCL1Maker()
-
+        from LArROD.LArRODFlags import larRODFlags
+        theLArSCL1Maker.NSamples = larRODFlags.nSamples() + 2  # For consistency with LArAutoCorrNoiseSC - see ATLASSIM-5483
         theLArSCL1Maker.SCL1ContainerName = "LArDigitSCL2"
 
         self._LArSCL1Maker = theLArSCL1Maker

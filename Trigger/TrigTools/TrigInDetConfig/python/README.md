@@ -12,15 +12,15 @@ In addition to the modules supporting the current jobOptions configuration, addi
 * [InDetTrigCollectionKeys](InDetTrigCollectionKeys.py) 
   * Defines the names of collections used internally within the Inner detector Trigger SW. It does not include the output track collection names that are set in [ConfigSettings](ConfigSettings.py).	
 # Data Preparation and Fast Tracking
-* [InDetSetup](InDetSetup.py)
+* [InDetTrigFastTracking](InDetTrigFastTracking.py)
   * Creates Data Preparation and Fast Tracking algorithms, configured based on the supplied config and returns the list of algorithms to be added to signature trigger chains
 # Precision Tracking
-* [InDetPT](InDetPT.py)       
+* [InDetTrigPrecisionTracking](InDetTrigPrecisionTracking.py)       
   *  Creates Precision tracking algorithms that processes and refine tracks created by Fast Tracking. The algorithms are configured based on the supplied config. A list is returned of ID algorithms to be added to signature trigger chains
 * [EFIDTracking](EFIDTracking.py)
   * Creates a sequence of Precision Tracking algorithms that starts from raw data using the SiSPSeededTrackFinder (rather than Fast Tracking) to find tracks.
 * [InDetTrigCommon](InDetTrigCommonInDetTrigCommon.py)
-  * Configures Precision Tracking algorithms and tools common to both InDetPT and EFIDTracking 
+  * Configures Precision Tracking algorithms and tools common to both InDetTrigPrecisionTracking and EFIDTracking 
 # Vertex Reconstruction
 * [TrigInDetPriVtxConfig](TrigInDetPriVtxConfig.py)
   * Configures the primary vertex finding algorithms
@@ -85,7 +85,7 @@ should instead be obtained from the config
 
 The Fast Track Finder configuration code can be found in 
 
-[Trigger/TrigTools/TrigInDetConfig/python/InDetSetup.py](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigTools/TrigInDetConfig/python/InDetSetup.py)
+[Trigger/TrigTools/TrigInDetConfig/python/InDetTrigFastTracking.py](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigTools/TrigInDetConfig/python/InDetTrigFastTracking.py)
 
 An example on how to call this 
 
@@ -93,16 +93,16 @@ An example on how to call this
       from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
       idconfig = getInDetTrigConfig( signatureNameID )
 
-      from TrigInDetConfig.InDetSetup import makeInDetAlgs
+      from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTracking
 
-      viewAlgs, viewVerify = makeInDetAlgs( config = idconfig, rois = RoIs )
+      viewAlgs, viewVerify = makeInDetTrigFastTracking( config = idconfig, rois = RoIs )
 
       TrackCollection = idconfig.tracks_FTF()
 
 
 The actual interface is 
 <pre>
-  def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifier='IDViewDataVerifier', secondStageConfig = None):
+  def makeInDetTrigFastTracking( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifier='IDViewDataVerifier', secondStageConfig = None):
 </pre>
 where the arguments are    
   
@@ -118,23 +118,23 @@ where the arguments are
   
 The code for this is in 
 
-[Trigger/TrigTools/TrigInDetConfig/python/InDetPT.py](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigTools/TrigInDetConfig/python/InDetSetup.py)
+[Trigger/TrigTools/TrigInDetConfig/python/InDetTrigPrecisionTracking.py](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigTools/TrigInDetConfig/python/InDetTrigFastTracking.py)
 
 and should be configured using 
    
       from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
       idconfig = getInDetTrigConfig( signatureNameID )
 
-      from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
+      from TrigInDetConfig.InDetTrigPrecisionTracking import makeInDetTrigPrecisionTracking
 
-      viewAlgs, viewVerify = makeInDetPrecisionTracking( config = idconfig, rois = RoIs )
+      viewAlgs, viewVerify = makeInDetTrigPrecisionTracking( config = idconfig, rois = RoIs )
 
       TrackCollection = idconfig.tracks_IDTrig()
 
 
 The actual interface is 
 <pre>
-  def makeInDetPrecisionTracking( config = None, verifier = False, rois = 'EMViewRoIs', prefix = 'InDetTrigMT'):
+  def makeInDetTrigPrecisionTracking( config = None, verifier = False, rois = 'EMViewRoIs', prefix = 'InDetTrigMT'):
 </pre>
 where the arguments are    
   
@@ -149,7 +149,7 @@ where the arguments are
  
 This uses the code in 
 
-[Trigger/TrigTools/TrigInDetConfig/EFIDTracking.py](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigTools/TrigInDetConfig/python/InDetSetup.py)
+[Trigger/TrigTools/TrigInDetConfig/EFIDTracking.py](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigTools/TrigInDetConfig/python/InDetTrigFastTracking.py)
 
 but the actual called function should be the same as for the precision tracking. *** need to check this ***
   
@@ -158,22 +158,22 @@ but the actual called function should be the same as for the precision tracking.
 
 The vertexing is configured using the code in 
 
-[Trigger/TrigTools/TrigInDetConfig/python/TrigInDetPriVtxConfig.py](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigTools/TrigInDetConfig/python/InDetSetup.py)
+[Trigger/TrigTools/TrigInDetConfig/python/TrigInDetPriVtxConfig.py](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigTools/TrigInDetConfig/python/InDetTrigFastTracking.py)
 
 Typically it should be used as in th following example 
 
       from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
       idconfig = getInDetTrigConfig( "jet" )
 
-      from TrigInDetConfig.InDetSetup import makeVertices
+      from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigVertices
 
-      vtxAlgs = makeVertices( "jet", idconfig.tracks_FTF(), idconfig.vertex, idconfig )
+      vtxAlgs = makeInDetTrigVertices( "jet", idconfig.tracks_FTF(), idconfig.vertex, idconfig )
 
       vertexCollection = idconfig.vertex
 
 The actual function is defined 
 ```
-def makeVertices( whichSignature, inputTrackCollection, outputVtxCollection=None, config=None, adaptiveVertex=None ) :
+def makeInDetTrigVertices( whichSignature, inputTrackCollection, outputVtxCollection=None, config=None, adaptiveVertex=None ) :
 ```
 where the arguments are    
 
@@ -185,7 +185,7 @@ where the arguments are
 
 The reason for this somewhat redundent structure, is because of the prior need to be able to run both  the adaptive, and iterative vertex finders in the jet slice, and as such the signature name and the configuration needed to be able to be set to be independent, as did the output vertex collection name, and whether the adaptive vertex algorithm should be run.
 
-As such, this ```makeVertices()``` function contains code to determine the ID config automatically from  ```whichSignature```.
+As such, this ```makeInDetTrigVertices()``` function contains code to determine the ID config automatically from  ```whichSignature```.
 
 Now that both vertex algorithms do not need to be run in the chain, this should probably be replaced by calls to the principle ```vertexFinder_builder()``` function 
 

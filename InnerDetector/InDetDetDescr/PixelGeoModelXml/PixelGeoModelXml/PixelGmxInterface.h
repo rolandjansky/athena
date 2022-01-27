@@ -43,12 +43,12 @@ public:
   //                           GeoAlignableTransform *transform) override final;
 
   std::shared_ptr<const PixelDiodeMatrix> buildMatrix(double phiPitch, double etaPitch,
-                                                      double phiPitchLong, double phiPitchEnd,
-                                                      double etaPitchLong, double etaPitchEnd,
-                                                      int nPhiLong, int nPhiEnd,
-                                                      int nEtaLong, int nEtaEnd,
-                                                      int circuitsPhi, int circuitsEta,
-                                                      int diodeColPerCirc, int diodeRowPerCirc) const;
+						      double phiPitchLong, double phiPitchEnd,
+						      double etaPitchLong, double etaPitchEnd,
+						      int nPhiLong, int nPhiEnd,
+						      int nEtaLong, int nEtaEnd,
+						      int circuitsPhi, int circuitsEta,
+						      int diodeColPerCirc, int diodeRowPerCirc) const;
 
 protected:
   std::map<std::string, int> m_geometryMap;

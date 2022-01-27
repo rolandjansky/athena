@@ -60,6 +60,7 @@ namespace LVL1TGCTrigger {
     DoubleProperty m_deltaThetaCut{this,"DeltaThetaCut", 999.,"Delta theta cut for MuonSegment"};
     BooleanProperty m_emulateA{this,"EmulateA", true,"Emulate A-side"};
     BooleanProperty m_emulateC{this,"EmulateC", true,"Emulate C-side"};
+    BooleanProperty m_nswVetoMode{this,"NSWVetoMode", true,"NSW veto mode or monitoring mode"};
 
   };
 }

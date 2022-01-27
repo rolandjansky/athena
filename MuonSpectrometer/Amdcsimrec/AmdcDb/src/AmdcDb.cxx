@@ -24,8 +24,8 @@ AmdcDb::AmdcDb(const std::string& name,ISvcLocator* svc)
   , m_emptyRecordset(new AmdcDbRecordset())
   , m_AmdcsimrecAthenaSvc ( "AmdcsimrecAthenaSvc",name )
 {
-  m_AmdcDbSvcFromAmdc = 0 ;
-  m_AmdcDbSvcFromRDB  = 0 ;
+  m_AmdcDbSvcFromAmdc = nullptr ;
+  m_AmdcDbSvcFromRDB  = nullptr ;
 
   m_UglyCodeOn = 0 ;
 
@@ -80,7 +80,7 @@ AmdcDb::AmdcDb(const std::string& name,ISvcLocator* svc)
 
   declareProperty("AmdcsimrecAthenaSvc", m_AmdcsimrecAthenaSvc);
   
-  m_detStore = 0 ;
+  m_detStore = nullptr ;
 }
  
 /// Standard Destructor
@@ -237,7 +237,7 @@ std::string AmdcDb::getChildTag(const std::string& /*childNode*/  ,
 std::unique_ptr<IRDBQuery> AmdcDb::getQuery(const std::string& /*node*/     ,
                             const std::string& /*tag*/      ,
                             const std::string& /*tag2node*/ ,
-                            const std::string& /*connName*/ ){ std::cout << " AmdcDb::getQuery Not implemented " << std::endl ; return 0; }
+                            const std::string& /*connName*/ ){ std::cout << " AmdcDb::getQuery Not implemented " << std::endl ; return nullptr; }
 
 void AmdcDb::getTagDetails(RDBTagDetails& /*tagDetails*/,
                            const std::string& /*tag*/,

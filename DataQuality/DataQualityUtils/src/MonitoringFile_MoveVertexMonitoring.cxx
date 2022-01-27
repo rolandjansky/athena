@@ -23,14 +23,14 @@ TFile *target = 0;
 int padding = 0;
     
 // define helper methods here rather then in this central MonitoringFile.h beast
-int updateHists(std::string inFileName, std::string inStem, std::string outFileName = "", std::string outStem = "");
-bool makeDirectories(std::string dirName);
-bool makeDir(std::string dirName);
-void Copy(std::string inDir, std::string outDir, std::string inHist = "", std::string outHist = "");
-void CopyHist(std::string inDir, std::string outDir, std::string inHist, std::string outHist);
+int updateHists(const std::string & inFileName, const std::string & inStem, const std::string & outFileName = "", const std::string & outStem = "");
+bool makeDirectories(const std::string & dirName);
+bool makeDir(const std::string & dirName);
+void Copy(const std::string & inDir, const std::string & outDir, const std::string & inHist = "", const std::string & outHist = "");
+void CopyHist(const std::string & inDir, const std::string & outDir, const std::string & inHist, const std::string & outHist);
 
 //main method here
-void MonitoringFile::VxMon_move( std::string inFilename, bool isIncremental)
+void MonitoringFile::VxMon_move( const std::string & inFilename, bool isIncremental)
 {
   std::string stream_ref = "physics_MinBias";
   int stream_check = -1;
@@ -146,8 +146,10 @@ void MonitoringFile::VxMon_move( std::string inFilename, bool isIncremental)
     //----------------------------------------
     // main macro
     //----------------------------------------
-    int updateHists(std::string inFileName, std::string inStem, std::string outFileName, std::string outStem)
+    int updateHists(const std::string & inFileName, const std::string & inStem, const std::string & fileName, const std::string & stem)
     {
+        std::string outFileName = fileName;
+        std::string outStem = stem;
         //open original file
         source = TFile::Open(inFileName.c_str());
         if (!source) {
@@ -217,7 +219,7 @@ void MonitoringFile::VxMon_move( std::string inFilename, bool isIncremental)
         return 0;
     }
     
-    bool makeDirectories(std::string dirName)
+    bool makeDirectories(const std::string & dirName)
     {
         bool success = true;
         
@@ -238,7 +240,7 @@ void MonitoringFile::VxMon_move( std::string inFilename, bool isIncremental)
         return success;
     }
     
-    bool makeDir(std::string dirName)
+    bool makeDir(const std::string & dirName)
     {
         padding += 3;
         std::cout << std::setw(padding) << " ";
@@ -253,7 +255,7 @@ void MonitoringFile::VxMon_move( std::string inFilename, bool isIncremental)
         return gDirectory->cd(dirName.c_str());
     }
     
-    void Copy(std::string inDir, std::string outDir, std::string inHist, std::string outHist)
+    void Copy(const std::string & inDir, const std::string & outDir, const std::string & inHist, const std::string & outHist)
     {
         padding += 3;
         
@@ -302,7 +304,7 @@ void MonitoringFile::VxMon_move( std::string inFilename, bool isIncremental)
         padding -= 3;
     }
     
-    void CopyHist(std::string inDir, std::string outDir, std::string inHist, std::string outHist)
+    void CopyHist(const std::string & inDir, const std::string & outDir, const std::string & inHist, const std::string & outHist)
     {
         TDirectory *sourceDir = source->GetDirectory(inDir.c_str());
         TDirectory *targetDir = target->GetDirectory(outDir.c_str());

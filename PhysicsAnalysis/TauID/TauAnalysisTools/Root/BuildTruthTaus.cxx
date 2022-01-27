@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s)
@@ -118,7 +118,7 @@ StatusCode BuildTruthTaus::retrieveTruthTaus(TruthTausEvent& truthTausEvent) con
   if ( m_bTruthTauAvailable )
   {
     if (evtStore()->contains<xAOD::TruthParticleContainer>(m_sTruthTauContainerName))
-      ATH_CHECK( evtStore()->retrieve(truthTausEvent.m_xTruthTauContainerConst,m_sTruthTauContainerName));
+      ATH_CHECK( evtStore()->retrieve(truthTausEvent.m_xTruthTauContainerConst, m_sTruthTauContainerName));
     else
     {
       ATH_MSG_INFO("TruthTaus container with name " << m_sTruthTauContainerName << " is not available, will generate the container for each event from TruthParticles container");
@@ -129,7 +129,7 @@ StatusCode BuildTruthTaus::retrieveTruthTaus(TruthTausEvent& truthTausEvent) con
   if ( m_bTruthMuonAvailable )
   {
     if (evtStore()->contains<xAOD::TruthParticleContainer>(m_sTruthMuonContainerName))
-      ATH_CHECK(evtStore()->retrieve(truthTausEvent.m_xTruthMuonContainerConst,m_sTruthMuonContainerName));
+      ATH_CHECK(evtStore()->retrieve(truthTausEvent.m_xTruthMuonContainerConst, m_sTruthMuonContainerName));
     else
     {
       ATH_MSG_INFO("TruthMuons container with name " << m_sTruthMuonContainerName << " is not available, won't perform matching to truth muons");
@@ -140,7 +140,7 @@ StatusCode BuildTruthTaus::retrieveTruthTaus(TruthTausEvent& truthTausEvent) con
   if ( m_bTruthElectronAvailable )
   {
     if (evtStore()->contains<xAOD::TruthParticleContainer>(m_sTruthElectronContainerName))
-      ATH_CHECK(evtStore()->retrieve(truthTausEvent.m_xTruthElectronContainerConst,m_sTruthElectronContainerName));
+      ATH_CHECK(evtStore()->retrieve(truthTausEvent.m_xTruthElectronContainerConst, m_sTruthElectronContainerName));
     else
     {
       ATH_MSG_INFO("TruthElectrons container with name " << m_sTruthElectronContainerName << " is not available, won't perform matching to truth electrons");
@@ -151,7 +151,7 @@ StatusCode BuildTruthTaus::retrieveTruthTaus(TruthTausEvent& truthTausEvent) con
   if ( m_bTruthJetAvailable )
   {
     if (evtStore()->contains<xAOD::JetContainer>(m_sTruthJetContainerName))
-      ATH_CHECK(evtStore()->retrieve(truthTausEvent.m_xTruthJetContainerConst,m_sTruthJetContainerName));
+      ATH_CHECK(evtStore()->retrieve(truthTausEvent.m_xTruthJetContainerConst, m_sTruthJetContainerName));
     else
     {
       ATH_MSG_INFO("TruthJets container with name " << m_sTruthJetContainerName << " is not available, won't perform matching to truth jets");
@@ -164,7 +164,7 @@ StatusCode BuildTruthTaus::retrieveTruthTaus(TruthTausEvent& truthTausEvent) con
   {
     if (evtStore()->contains<xAOD::TruthParticleContainer>(m_sTruthParticlesContainerName))
     {
-      if ( evtStore()->retrieve(truthTausEvent.m_xTruthParticleContainer,m_sTruthParticlesContainerName).isSuccess() )
+      if ( evtStore()->retrieve(truthTausEvent.m_xTruthParticleContainer, m_sTruthParticlesContainerName).isSuccess() )
         return buildTruthTausFromTruthParticles(truthTausEvent);
       else
         return StatusCode::FAILURE;
@@ -226,8 +226,8 @@ BuildTruthTaus::buildTruthTausFromTruthParticles(TruthTausEvent& truthTausEvent)
 
       // Run classification
       std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> pClassification = m_tMCTruthClassifier->particleTruthClassifier(xTruthTau);
-      static const SG::AuxElement::Decorator<unsigned int> decClassifierParticleType("classifierParticleType");
-      static const SG::AuxElement::Decorator<unsigned int> decClassifierParticleOrigin("classifierParticleOrigin");
+      static const SG::AuxElement::Accessor<unsigned int> decClassifierParticleType("classifierParticleType");
+      static const SG::AuxElement::Accessor<unsigned int> decClassifierParticleOrigin("classifierParticleOrigin");
       decClassifierParticleType(*xTruthTau) = pClassification.first;
       decClassifierParticleOrigin(*xTruthTau) = pClassification.second;
 
@@ -288,22 +288,22 @@ StatusCode BuildTruthTaus::examineTruthTau(const xAOD::TruthParticle& xTruthPart
   static const SG::AuxElement::Decorator<double> decPtVis("pt_vis");
   static const SG::AuxElement::Decorator<double> decEtaVis("eta_vis");
   static const SG::AuxElement::Decorator<double> decPhiVis("phi_vis");
-  static const SG::AuxElement::Decorator<double> accMVis("m_vis");
+  static const SG::AuxElement::Decorator<double> decMVis("m_vis");
 
   static const SG::AuxElement::Decorator<size_t> decNumCharged("numCharged");
   static const SG::AuxElement::Decorator<size_t> decNumChargedPion("numChargedPion");
   static const SG::AuxElement::Decorator<size_t> decNumNeutral("numNeutral");
-  static const SG::AuxElement::Decorator<size_t> accNumNeutralPion("numNeutralPion");
+  static const SG::AuxElement::Decorator<size_t> decNumNeutralPion("numNeutralPion");
 
   decPtVis(xTruthParticle) = truthInfo.m_vTruthVisTLV.Pt();
   decEtaVis(xTruthParticle) = truthInfo.m_vTruthVisTLV.Eta();
   decPhiVis(xTruthParticle) = truthInfo.m_vTruthVisTLV.Phi();
-  accMVis(xTruthParticle) = truthInfo.m_vTruthVisTLV.M();
+  decMVis(xTruthParticle) = truthInfo.m_vTruthVisTLV.M();
 
   decNumCharged(xTruthParticle) = truthInfo.m_iNChargedDaughters;
   decNumChargedPion(xTruthParticle) = truthInfo.m_iNChargedPions;
   decNumNeutral(xTruthParticle) = truthInfo.m_iNNeutralPions+truthInfo.m_iNNeutralOthers;
-  accNumNeutralPion(xTruthParticle) = truthInfo.m_iNNeutralPions;
+  decNumNeutralPion(xTruthParticle) = truthInfo.m_iNNeutralPions;
 
   static const SG::AuxElement::Decorator<char> decIsHadronicTau("IsHadronicTau");
   decIsHadronicTau(xTruthParticle) = (char)truthInfo.m_bIsHadronicTau;
@@ -314,11 +314,11 @@ StatusCode BuildTruthTaus::examineTruthTau(const xAOD::TruthParticle& xTruthPart
     static const SG::AuxElement::Decorator<double> decPtInvis("pt_invis");
     static const SG::AuxElement::Decorator<double> decEtaInvis("eta_invis");
     static const SG::AuxElement::Decorator<double> decPhiInvis("phi_invis");
-    static const SG::AuxElement::Decorator<double> accMInvis("m_invis");
+    static const SG::AuxElement::Decorator<double> decMInvis("m_invis");
     decPtInvis(xTruthParticle)  = vTruthInvisTLV.Pt();
     decEtaInvis(xTruthParticle) = vTruthInvisTLV.Eta();
     decPhiInvis(xTruthParticle) = vTruthInvisTLV.Phi();
-    accMInvis(xTruthParticle)   = vTruthInvisTLV.M();
+    decMInvis(xTruthParticle)   = vTruthInvisTLV.M();
   }
 
   if ( m_bWriteVisibleChargedFourMomentum )
@@ -326,11 +326,11 @@ StatusCode BuildTruthTaus::examineTruthTau(const xAOD::TruthParticle& xTruthPart
     static const SG::AuxElement::Decorator<double> decPtVisCharged("pt_vis_charged");
     static const SG::AuxElement::Decorator<double> decEtaVisCharged("eta_vis_charged");
     static const SG::AuxElement::Decorator<double> decPhiVisCharged("phi_vis_charged");
-    static const SG::AuxElement::Decorator<double> accMVisCharged("m_vis_charged");
+    static const SG::AuxElement::Decorator<double> decMVisCharged("m_vis_charged");
     decPtVisCharged(xTruthParticle)  = truthInfo.m_vTruthVisTLVCharged.Pt();
     decEtaVisCharged(xTruthParticle) = truthInfo.m_vTruthVisTLVCharged.Eta();
     decPhiVisCharged(xTruthParticle) = truthInfo.m_vTruthVisTLVCharged.Phi();
-    accMVisCharged(xTruthParticle)   = truthInfo.m_vTruthVisTLVCharged.M();
+    decMVisCharged(xTruthParticle)   = truthInfo.m_vTruthVisTLVCharged.M();
   }
 
   if ( m_bWriteVisibleNeutralFourMomentum )
@@ -338,11 +338,11 @@ StatusCode BuildTruthTaus::examineTruthTau(const xAOD::TruthParticle& xTruthPart
     static const SG::AuxElement::Decorator<double> decPtVisNeutral("pt_vis_neutral");
     static const SG::AuxElement::Decorator<double> decEtaVisNeutral("eta_vis_neutral");
     static const SG::AuxElement::Decorator<double> decPhiVisNeutral("phi_vis_neutral");
-    static const SG::AuxElement::Decorator<double> accMVisNeutral("m_vis_neutral");
+    static const SG::AuxElement::Decorator<double> decMVisNeutral("m_vis_neutral");
     decPtVisNeutral(xTruthParticle)  = truthInfo.m_vTruthVisTLVNeutral.Pt();
     decEtaVisNeutral(xTruthParticle) = truthInfo.m_vTruthVisTLVNeutral.Eta();
     decPhiVisNeutral(xTruthParticle) = truthInfo.m_vTruthVisTLVNeutral.Phi();
-    accMVisNeutral(xTruthParticle)   = truthInfo.m_vTruthVisTLVNeutral.M();
+    decMVisNeutral(xTruthParticle)   = truthInfo.m_vTruthVisTLVNeutral.M();
   }
 
   if ( m_bWriteDecayModeVector )

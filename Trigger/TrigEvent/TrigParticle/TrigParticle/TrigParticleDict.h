@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -72,13 +72,12 @@ void dummyTriggerForTrigPartTypedefs(TrigEFBjetContainer a,
   DataVector<TrigTauContainer>      ll = l;
   DataVector<TrigL2BjetContainer>   mm = m;
   DataVector<TrigEFBphysContainer>  nn = n;
-
-  std::vector<const TrigElectron*> aaa; aaa.size();
-  std::vector<const TrigPhoton*> bbb; bbb.size();
-  std::vector<const TrigTau*> ccc; ccc.size();
-  std::vector<const TrigL2Bjet*> ddd; ddd.size();
-  std::vector<const TrigEFBjet*> eee; eee.size();
-
 }
+
+template class std::vector<const TrigElectron*>;
+template class std::vector<const TrigPhoton*>;
+template class std::vector<const TrigTau*>;
+template class std::vector<const TrigL2Bjet*>;
+template class std::vector<const TrigEFBjet*>;
 
 #endif // TRIG_PARTICLE_DICT

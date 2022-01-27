@@ -40,8 +40,8 @@ public:
   //! see IDynamicNoiseAdjustor
   virtual const DNA_MaterialEffects* DNA_Adjust(
     Trk::IDynamicNoiseAdjustor::State& state,
-    const TrackParameters*& predPar,    // predicted into next layer
-    const TrackParameters*& updatedPar, // previously updated
+    std::unique_ptr<const TrackParameters>& predPar,    // predicted into next layer
+    std::unique_ptr<const TrackParameters>& updatedPar, // previously updated
     const MeasurementBase* fittableMeasurement,
     const KalmanMatEffectsController& matEff,
     PropDirection direction,

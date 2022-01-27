@@ -83,7 +83,9 @@ StatusCode MdtRdoToMdtDigit::decodeMdt( const MdtCsm * rdoColl, MdtDigitContaine
 
 
       if (oldId != elementId) {
-        const MdtDigitCollection * coll = mdtContainer->indexFindPtr(coll_hash);
+        MdtDigitCollection * coll=nullptr;
+        auto sc ATLAS_THREAD_SAFE = mdtContainer->naughtyRetrieve(coll_hash, coll);
+        if(sc.isFailure()) return StatusCode::FAILURE;
         if (nullptr ==  coll) {
           MdtDigitCollection * newCollection =
             new MdtDigitCollection(elementId,coll_hash);
@@ -94,7 +96,7 @@ StatusCode MdtRdoToMdtDigit::decodeMdt( const MdtCsm * rdoColl, MdtDigitContaine
                              << " in StoreGate!"  );
         }
         else {
-          MdtDigitCollection * oldCollection ATLAS_THREAD_SAFE = const_cast<MdtDigitCollection*>( coll ); // FIXME
+          MdtDigitCollection * oldCollection = coll;
           oldCollection->push_back(newDigit);
           collection = oldCollection;
         }

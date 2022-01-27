@@ -13,42 +13,29 @@
 
 usage() {
     cat <<EOF
-Syntax: post.sh TESTNAME [-s REGEX] [-i REGEX]
-    TESTNAME       name of unit test
-    -s             lines matching REGEX will be selected for the diff
-    -i             lines matching REGEX will be ignored for the diff
-    -h             help
+Syntax: post.sh
+    Driven by the following environment variables:
+      ATLAS_CTEST_TESTNAME              test name
+      ATLAS_CTEST_TESTSTATUS            test return code
+      [ATLAS_CTEST_LOG_SELECT_PATTERN]  lines matching (regex) will be selected for the diff
+      [ATLAS_CTEST_LOG_IGNORE_PATTERN]  lines matching (regex) will be ignored for the diff
 
 Post-processing script that checks the return code of an executable (expected
-in \$testStatus) and compares its output with a reference.
+in \$ATLAS_CTEST_TESTSTATUS) and compares its output with a reference.
 
-The select pattern is always extended to include common ERROR patterns.
+The select pattern is always extended to include common error patterns.
 If both select and ignore are specified, the lines are first selected and
 then filtered by the ignore pattern. In all cases, a default ignore list is applied.
 EOF
 }
 
-if [ "$#" -lt 1 -o "$1" == "-h" ]; then
+if [ "$1" == "-h" ]; then
     usage
     exit 1
 fi
-test=$1
-shift
 
-while getopts ":s:i:h" opt; do
-    case $opt in
-        s)
-            selectpatterns=$OPTARG
-            ;;
-        i)
-            ignorepatterns=$OPTARG
-            ;;
-        h)
-            usage
-            exit 0
-            ;;
-    esac
-done
+selectpatterns=${ATLAS_CTEST_LOG_SELECT_PATTERN}
+ignorepatterns=${ATLAS_CTEST_LOG_IGNORE_PATTERN}
 
 if [ "$POST_SH_NOCOLOR" = "" ]; then
  YELLOW="[93;1m"
@@ -82,12 +69,8 @@ EOF
 # Patterns that cannot be ignored
 ERRORS="^ERROR | ERROR | FATAL "
 
-# ignore diff annotations
-PP='^---|^[[:digit:]]+[acd,][[:digit:]]+'
-
 # ignore hex addresses
-PP="$PP"'|0x\w{4,}'
-
+PP="0x\w{4,}"
 # ignore package names e.g. Package-00-00-00
 PP="$PP"'|\w+-[[:digit:]]{2}-[[:digit:]]{2}-[[:digit:]]{2}'
 # ignore trunk package names e.g. Package-r123456
@@ -239,10 +222,6 @@ PP="$PP"'|Warning in <TInterpreter::ReadRootmapFile>: enum'
 # Ignore sourceID message from EventSelector.
 PP="$PP"'|Disconnecting input sourceID'
 
-# Printouts from new-style job configuration.
-PP="$PP"'|Py:ComponentAccumulator +INFO '
-PP="$PP"'|^[a-zA-Z0-9.]+ +: [^ ]'
-
 # xAODMaker::EventInfoCnvAlg
 PP="$PP"'|^xAODMaker::Even.*(WARNING|INFO)'
 
@@ -288,13 +267,13 @@ if [ -n "$selectpatterns" ]; then
     selectpatterns="$selectpatterns|$ERRORS"
 fi
 
-if [ -z "$testStatus" ]; then
-   echo "$YELLOW post.sh> Warning: athena exit status is not available (\$testStatus is not set). $RESET"
+if [ -z "$ATLAS_CTEST_TESTSTATUS" ]; then
+   echo "$YELLOW post.sh> Warning: test exit status is not available (\$ATLAS_CTEST_TESTSTATUS is not set). $RESET"
 else
    # check exit status
-   joblog=${test}.log
-   if [ "$testStatus" = 0 ]; then
-       reflog=../share/${test}.ref
+   joblog=${ATLAS_CTEST_TESTNAME}.log
+   if [ "$ATLAS_CTEST_TESTSTATUS" = 0 ]; then
+       reflog=../share/${ATLAS_CTEST_TESTNAME}.ref
 
        # If we can't find the reference file, maybe it's located outside
        # the repo.  With the switch to git, we have to fall back
@@ -302,20 +281,20 @@ else
        # ATLAS_REFERENCE_TAG should be a string of the form PACKAGE/VERSION.
        # We first look for it in DATAPATH.  If we don't find it,
        # we then look under ATLAS_REFERENCE_DATA.
-       if [ \( ! -r $reflog \) -a "$ATLAS_REFERENCE_TAG" != "" ]; then
+       if [ ! -r $reflog ] && [ -n "$ATLAS_REFERENCE_TAG" ]; then
            # Look for the file in DATAPATH.
            # We have to look for the directory, not the file itself,
            # since get_files is hardcoded not to look more than two
            # levels down.
            get_files -data -symlink $ATLAS_REFERENCE_TAG > /dev/null
-           reflog=`basename $ATLAS_REFERENCE_TAG`/${test}.ref
-           if [ ! -r $reflog ]; then
-               reflog=${ATLAS_REFERENCE_DATA}/${ATLAS_REFERENCE_TAG}/${test}.ref
+           reflog=`basename $ATLAS_REFERENCE_TAG`/${ATLAS_CTEST_TESTNAME}.ref
+           if [ ! -r $reflog ] && [ -n "${ATLAS_REFERENCE_DATA}" ]; then
+               reflog=${ATLAS_REFERENCE_DATA}/${ATLAS_REFERENCE_TAG}/${ATLAS_CTEST_TESTNAME}.ref
            fi
        fi
 
-       echo "Reference log taken from: $reflog" 
        if [ -r $reflog ]; then
+           echo "Reference log taken from: $reflog"
            jobdiff=${joblog}-todiff
            refdiff=`basename ${reflog}`-todiff
 
@@ -331,24 +310,20 @@ else
            diff -a -b -E -B -u $refdiff $jobdiff
            diffStatus=$?
            if [ $diffStatus != 0 ] ; then
-               echo "$RED post.sh> ERROR: $reflog and $joblog differ $RESET"
+               echo "$RED post.sh> ERROR: ${reflog} and ${joblog} differ $RESET"
                # Return with failure in this case:
                exit 1
            fi
        else
-           # Don't warn for gtest tests.
-           tail -1 $joblog | grep 'PASSED .* tests' > /dev/null
-           refstat=$?
-           if [ $refstat != 0 ]; then
-             tail $joblog
-             echo "$YELLOW post.sh> WARNING: reference output $reflog not available $RESET"
-             echo  " post.sh> Please check ${PWD}/$joblog"
-           fi
+           echo "$RED post.sh> ERROR: reference output ${reflog} not available $RESET"
+           echo " post.sh> Either create a reference file or use a different POST_EXEC_SCRIPT."
+           echo " post.sh> see: https://gitlab.cern.ch/atlas/athena/-/tree/master/AtlasTest/TestTools"
+           exit 1
        fi
    else
        tail $joblog
-       echo  "$RED post.sh> ERROR: Athena exited abnormally! Exit code: $testStatus $RESET"
+       echo "$RED post.sh> ERROR: Test ${ATLAS_CTEST_TESTNAME} failed with exit code: ${ATLAS_CTEST_TESTSTATUS}$RESET"
        echo  " post.sh> Please check ${PWD}/$joblog"
    fi
 fi
-exit $testStatus
+exit $ATLAS_CTEST_TESTSTATUS

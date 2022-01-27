@@ -24,6 +24,7 @@
 #include "L1CaloFEXToolInterfaces/IjFEXsumETAlgo.h"
 #include "L1CaloFEXToolInterfaces/IjFEXmetAlgo.h"
 #include "L1CaloFEXToolInterfaces/IjFEXForwardJetsAlgo.h"
+#include "L1CaloFEXToolInterfaces/IjFEXForwardElecAlgo.h"
 #include "L1CaloFEXToolInterfaces/IjFEXPileupAndNoise.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloIdentifier/CaloIdManager.h"
@@ -76,13 +77,13 @@ namespace LVL1 {
     /**Form a tob word out of the potential candidate SmallRJet tob */
     virtual uint32_t formSmallRJetTOB(int &, int &) override;
     virtual uint32_t formLargeRJetTOB(int &, int &) override;
-    virtual std::vector <uint32_t> getSmallRJetTOBs() override;
-    virtual std::vector <uint32_t> getLargeRJetTOBs() override;
+    virtual std::vector <std::vector <uint32_t>> getSmallRJetTOBs() override;
+    virtual std::vector <std::vector <uint32_t>> getLargeRJetTOBs() override;
 
     /**Form a tob word out of the potential candidate Tau tob */
     virtual uint32_t formTauTOB(int &, int &) override;
-    virtual std::vector <uint32_t> getTauTOBs() override;    
-    virtual std::vector <uint32_t> getTauxTOBs() override; 
+    virtual std::vector <std::vector <uint32_t>> getTauTOBs() override;    
+    virtual std::vector <std::vector <uint32_t>> getTauxTOBs() override; 
        
     /**Form a tob word out of the potential candidate SumET tob */
     virtual uint32_t formSumETTOB(int , int ) override;
@@ -99,21 +100,20 @@ namespace LVL1 {
     
    /** Internal data */
   private:
-    static bool etSRJetSort(uint32_t i, uint32_t j){ return (((i >> 12 ) & 0x7ff)> ((j >> 12) & 0x7ff));}
-    static bool etLRJetSort(uint32_t i, uint32_t j){return (((i >>10) & 0x1fff)> ((j>>10) & 0x1fff));}
-    static bool etTauSort(uint32_t i, uint32_t j) {
-      return (((i >> 0 ) & 0x7ff000)> ((j >> 0) & 0x7ff000));
-    }
+    static bool etSRJetSort(std::vector<uint32_t> i, std::vector<uint32_t> j){ return (((i.at(0) >> 1 ) & 0x7ff  )> ((j.at(0) >> 1) & 0x7ff ));}
+    static bool etLRJetSort(std::vector<uint32_t> i, std::vector<uint32_t> j){ return (((i.at(0) >> 1 ) & 0x1fff )> ((j.at(0) >> 1) & 0x1fff));}
+    static bool etTauSort  (std::vector<uint32_t> i, std::vector<uint32_t> j){ return (((i.at(0) >> 0 ) & 0x7ff000)> ((j.at(0) >> 0) & 0x7ff000)); }
+    
     int m_id;
     int m_jfexid;
-    std::vector<uint32_t> m_SRJet_tobwords;
-    std::vector<uint32_t> m_LRJet_tobwords;
-    std::vector<uint32_t> m_tau_tobwords;
+    std::vector<std::vector<uint32_t>> m_SRJet_tobwords;
+    std::vector<std::vector<uint32_t>> m_LRJet_tobwords;
+    std::vector<std::vector<uint32_t>> m_tau_tobwords;
     std::vector<uint32_t> m_sumET_tobwords;
     std::vector<uint32_t> m_Met_tobwords;
     int m_jTowersIDs_Wide [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width] = {{0}};
     int m_jTowersIDs_Thin [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width] = {{0}};
-    int m_jTowersIDs      [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width] = {{0}};
+    
     std::unordered_map<int,jTower> m_jTowersColl;
     std::unordered_map<int,std::vector<int> > m_map_Etvalues_FPGA;
     std::unordered_map<int,std::vector<int> > m_map_HAD_Etvalues_FPGA;
@@ -136,8 +136,7 @@ namespace LVL1 {
     ToolHandle<IjFEXsumETAlgo> m_jFEXsumETAlgoTool         {this, "jFEXsumETAlgoTool"    , "LVL1::jFEXsumETAlgo"    , "Tool that runs the jFEX sumET algorithm"};
     ToolHandle<IjFEXmetAlgo> m_jFEXmetAlgoTool             {this, "jFEXmetAlgoTool"      , "LVL1::jFEXmetAlgo"      , "Tool that runs the jFEX met algorithm"};
     ToolHandle<IjFEXForwardJetsAlgo> m_jFEXForwardJetsAlgoTool {this, "jFEXForwardJetsAlgoTool"      , "LVL1::jFEXForwardJetsAlgo"      , "Tool that runs the jFEX FCAL Jets algorithm"};
-
-    //ToolHandle<IjFEXegAlgo> m_jFEXegAlgoTool {this, "jFEXegAlgoTool", "LVL1::jFEXegAlgo", "Tool that runs the jFEX e/gamma algorithm"};
+    ToolHandle<IjFEXForwardElecAlgo> m_jFEXForwardElecAlgoTool {this, "jFEXForwardElecAlgoTool"      , "LVL1::jFEXForwardElecAlgo"      , "Tool that runs the jFEX FCAL Electrons algorithm"};
     ToolHandle<IjFEXPileupAndNoise> m_jFEXPileupAndNoiseTool {this, "jFEXPileupAndNoiseTool", "LVL1::jFEXPileupAndNoise", "Tool that applies Pileup and Noise"};
     
     int getTTowerET_SG(unsigned int TTID);

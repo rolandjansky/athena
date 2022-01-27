@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from GeneratorModules.EvgenAlg import EvgenAlg
@@ -74,8 +74,9 @@ class ParticleGun(EvgenAlg):
         # TODO: allow weighted sampling?
         try:
           from AthenaPython.PyAthena import HepMC3  as HepMC
+          evt.set_units(HepMC.Units.MEV, HepMC.Units.MM)
         except ImportError:
-          from AthenaPython.PyAthena import HepMC   as HepMC   
+          from AthenaPython.PyAthena import HepMC   as HepMC
         evt.weights().push_back(1.0)
 
         ## Make and fill particles
@@ -83,7 +84,7 @@ class ParticleGun(EvgenAlg):
             particles = s.shoot()
             for p in particles:
                 ## Debug printout of particle properties
-                #print DEBUG0, p.pid, p.mom.E(), p.mom.Pt(), p.mom.M()
+                #print("DEBUG0 ", p.pid, p.mom.E(), p.mom.Pt(), p.mom.M())
                 #print "DEBUG1 (px,py,pz,E) = (%0.2e, %0.2e, %0.2e, %0.2e)" % (p.mom.Px(), p.mom.Py(), p.mom.Pz(), p.mom.E())
                 #print "DEBUG2 (eta,phi,pt,m) = (%0.2e, %0.2e, %0.2e, %0.2e)" % (p.mom.Eta(), p.mom.Phi(), p.mom.Pt(), p.mom.M())
                 #print "DEBUG3 (x,y,z,t) = (%0.2e, %0.2e, %0.2e, %0.2e)" % (p.pos.X(), p.pos.Y(), p.pos.Z(), p.pos.T())

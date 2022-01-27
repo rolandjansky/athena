@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FLUKAHALOGENERATOR_H
@@ -21,8 +21,8 @@ class FlukaHaloGenerator: public BeamHaloGenerator {
   FlukaHaloGenerator(int type, // Type of input Fluka particle record
                      const HepPDT::ParticleDataTable* particleTable,
 		     CLHEP::HepRandomEngine* engine, 
-		     std::string inputFile,
-		     std::vector<std::string> generatorSettings);
+		     const std::string& inputFile,
+		     const std::vector<std::string>& generatorSettings);
 
   virtual ~FlukaHaloGenerator();
 

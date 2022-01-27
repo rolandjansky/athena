@@ -20,7 +20,7 @@ static const int maxDig =    5000;
 /////////////////////////////////////////////////////////////////////////////
 
 ReadMdtDigit::ReadMdtDigit(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator), m_ntuplePtr(0),
+  AthAlgorithm(name, pSvcLocator), m_ntuplePtr(nullptr),
   m_activeStore("ActiveStoreSvc", name)
 {
   declareProperty("NtupleLocID",m_NtupleLocID);

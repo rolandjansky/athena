@@ -8,7 +8,7 @@
 from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addAntiKt4TruthJets
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addAntiKt4TruthJets, addAntiKt4PV0TrackJets
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import (
     DerivationFramework__DerivationKernel)
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import (
@@ -212,7 +212,7 @@ EGAM1_ZEGMassTool = DerivationFramework__EGInvariantMassTool(
     Mass2Hypothesis=0.511*MeV,
     Container1Name="Electrons",
     Container2Name="Photons",
-    Pt2BranchName="DFCommonPhotons_pt",
+    Pt2BranchName="DFCommonPhotons_et",
     Eta2BranchName="DFCommonPhotons_eta",
     Phi2BranchName="DFCommonPhotons_phi",
     CheckCharge=False,
@@ -637,6 +637,7 @@ EGAM1Sequence += CfgMgr.DerivationFramework__DerivationKernel(
 # ====================================================================
 # JET/MET
 # ====================================================================
+addAntiKt4PV0TrackJets(EGAM1Sequence,"EGAM1")
 addAntiKt4TruthJets(EGAM1Sequence, "EGAM1")
 
 

@@ -5,6 +5,7 @@
 
 # Testing package(s):
 + AsgExternal/Asg_Test
++ AtlasTest/CITest
 + AtlasTest/TestTools
 
 # Core xAOD reading:

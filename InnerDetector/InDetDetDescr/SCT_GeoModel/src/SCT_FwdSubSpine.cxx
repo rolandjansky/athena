@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////
@@ -43,7 +43,7 @@ SCT_FwdSubSpine::SCT_FwdSubSpine(const std::string & name,
     m_ringType(ringType), m_spineSide(spineSide)
 {
   getParameters();
-  m_physVolume = build();
+  m_physVolume = SCT_FwdSubSpine::build();
 }
 
 

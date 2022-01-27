@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //--------------------------------
@@ -22,13 +22,15 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 
+#include "TrigConfBase/TrigConfMessaging.h"
 #include "TrigConfMuctpi/MioctTopoCellGeometry.h"
 #include "TrigConfMuctpi/MioctROIGeometry.h"
 #include "TrigConfMuctpi/MioctSectorGeometry.h"
 #include "TrigConfMuctpi/MioctGeometry.h"
 #include "TrigConfMuctpi/MuCTPiGeometry.h"
+#include "TrigConfMuctpi/MuctpiXMLHelper.h"
 
-class MuctpiXMLParser 
+class MuctpiXMLParser : TrigConf::TrigConfMessaging
 {
   
 public:
@@ -75,8 +77,7 @@ private:
   // configuration variables
   boost::property_tree::ptree m_muctpiPT;
   MuCTPiGeometry m_muctpi;
-  
-  
+  MuctpiXMLHelper m_xmlHelper;
 };
   
 

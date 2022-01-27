@@ -37,7 +37,7 @@
 namespace dqutils {
 
   void 
-  MonitoringFile::HLTMETPostProcess( std::string inFilename, bool /* isIncremental */ ) 
+  MonitoringFile::HLTMETPostProcess( const std::string & inFilename, bool /* isIncremental */ ) 
   {
     bool dbgLevel = false;
     if(dbgLevel) std::cout << "--> HLTMETPostProcess: Begin HLTMET post-processing" << std::endl;

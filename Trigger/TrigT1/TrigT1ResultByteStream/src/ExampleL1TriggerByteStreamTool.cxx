@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ExampleL1TriggerByteStreamTool.h"
@@ -87,15 +87,9 @@ StatusCode ExampleL1TriggerByteStreamTool::convertToBS(std::vector<WROBF*>& vrob
 
   // Create ROBFragment containing the ROD words
   const eformat::helper::SourceIdentifier sid(eformat::TDAQ_MUON_CTP_INTERFACE, m_muCTPIModuleID.value());
-  const EventIDBase& eid = eventContext.eventID();
   vrobf.push_back(newRobFragment(
     eventContext,
     sid.code(),
-    eid.run_number(),
-    eid.event_number(),
-    eid.bunch_crossing_id(),
-    0, // lvl1_type will be overwritten downstream from full event fragment
-    0, // detev_type is system-specific
     muonRoIs->size(),
     data,
     eformat::STATUS_BACK // status_position is system-specific

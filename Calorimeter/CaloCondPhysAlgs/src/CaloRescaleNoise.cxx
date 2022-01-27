@@ -54,6 +54,7 @@ StatusCode CaloRescaleNoise::initialize()
   ATH_CHECK( m_scaleCorrKey.initialize() );
   ATH_CHECK( m_cablingKey.initialize());
   ATH_CHECK( m_onlineScaleCorrKey.initialize() );
+  ATH_CHECK( m_caloMgrKey.initialize() );
 
   m_tree = new TTree("mytree","Calo Noise ntuple");
   m_tree->Branch("iCool",&m_iCool,"iCool/I");
@@ -83,10 +84,8 @@ StatusCode CaloRescaleNoise::execute()
 //__________________________________________________________________________
 StatusCode CaloRescaleNoise::stop()
 {
-  const CaloDetDescrManager* calodetdescrmgr = nullptr;
-  ATH_CHECK( detStore()->retrieve(calodetdescrmgr) );
-
-  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey,ctx};
   const LArOnOffIdMapping* cabling{*cablingHdl};
   if(!cabling) {
      ATH_MSG_ERROR( "Do not have cabling mapping from key " << m_cablingKey.key() );
@@ -95,12 +94,15 @@ StatusCode CaloRescaleNoise::stop()
 
   FILE* fp = fopen("calonoise.txt","w");
 
-  const EventContext& ctx = Gaudi::Hive::currentContext();
+
   SG::ReadCondHandle<ILArHVScaleCorr> scaleCorr (m_scaleCorrKey, ctx);
   SG::ReadCondHandle<ILArHVScaleCorr> onlineScaleCorr (m_onlineScaleCorrKey, ctx);
   SG::ReadCondHandle<CaloNoise> totalNoise  (m_totalNoiseKey,  ctx);
   SG::ReadCondHandle<CaloNoise> elecNoise   (m_elecNoiseKey,   ctx);
   SG::ReadCondHandle<CaloNoise> pileupNoise (m_pileupNoiseKey, ctx);
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey, ctx};
+  ATH_CHECK(caloMgrHandle.isValid());
+  const CaloDetDescrManager* calodetdescrmgr = *caloMgrHandle;
 
   int ncell=m_calo_id->calo_cell_hash_max();
   ATH_MSG_INFO ( " start loop over Calo cells " << ncell );

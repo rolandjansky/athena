@@ -1,32 +1,38 @@
 #
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
- 
 from AthenaCommon.SystemOfUnits import GeV
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+
+from ROOT import egammaPID
 
 def same( val , tool):
   return [val]*( len( tool.EtaBins ) - 1 )
 
-from AthenaConfiguration.ComponentFactory import CompFactory
-
 #
 # Create the hypo alg with all selectors
 #
-def createTrigEgammaPrecisionElectronHypoAlg(name, sequenceOut, do_idperf):
+def createTrigEgammaPrecisionElectronHypoAlg(name, sequenceOut):
+    acc = ComponentAccumulator()
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
     MonTool = GenericMonitoringTool("MonTool_"+name)
-    
-    # make the Hypo
-    from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaPrecisionElectronCBSelectors
-    from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaPrecisionElectronLHSelectors
-    from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaPrecisionElectronDNNSelectors
+  
+    acc_ElectronCBSelectorTools = TrigEgammaPrecisionElectronCBSelectorCfg()
+    acc_ElectronLHSelectorTools = TrigEgammaPrecisionElectronLHSelectorCfg()
+    acc_ElectronDNNSelectorTools = TrigEgammaPrecisionElectronDNNSelectorCfg()
+
+    acc.merge(acc_ElectronCBSelectorTools)
+    acc.merge(acc_ElectronLHSelectorTools)
+    acc.merge(acc_ElectronDNNSelectorTools)
+  
     thePrecisionElectronHypo = CompFactory.TrigEgammaPrecisionElectronHypoAlg(name)
-    thePrecisionElectronHypo.Electrons = sequenceOut
-    thePrecisionElectronHypo.Do_idperf = do_idperf
+    thePrecisionElectronHypo.Electrons = str(sequenceOut)
     thePrecisionElectronHypo.RunInView = True
-    thePrecisionElectronHypo.ElectronCBSelectorTools = createTrigEgammaPrecisionElectronCBSelectors()
-    thePrecisionElectronHypo.ElectronLHSelectorTools = createTrigEgammaPrecisionElectronLHSelectors()
-    thePrecisionElectronHypo.ElectronDNNSelectorTools = createTrigEgammaPrecisionElectronDNNSelectors()
+    thePrecisionElectronHypo.ElectronCBSelectorTools = acc_ElectronCBSelectorTools.getPublicTools()
+    thePrecisionElectronHypo.ElectronLHSelectorTools = acc_ElectronLHSelectorTools.getPublicTools()
+    thePrecisionElectronHypo.ElectronDNNSelectorTools = acc_ElectronDNNSelectorTools.getPublicTools()
     thePrecisionElectronHypo.DNNNames = ["dnntight", "dnnmedium", "dnnloose"] # just like the pidnames
     thePrecisionElectronHypo.CBNames = ["medium", "loose", "mergedtight"] # just like the pidnames
     thePrecisionElectronHypo.LHNames = ["lhtight", "lhmedium", "lhloose", "lhvloose", 
@@ -38,16 +44,19 @@ def createTrigEgammaPrecisionElectronHypoAlg(name, sequenceOut, do_idperf):
     ]
     MonTool.HistPath = 'PrecisionElectronHypo/'+name
     thePrecisionElectronHypo.MonTool=MonTool
+    #acc.addEventAlgo(thePrecisionElectronHypo)
+    return thePrecisionElectronHypo, acc
 
-
-    return thePrecisionElectronHypo
-
-def TrigEgammaPrecisionElectronHypoAlgCfg(flags, name, inputElectronCollection, doIDperf ):
-  from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-  acc = ComponentAccumulator()
-  acc.addEventAlgo( createTrigEgammaPrecisionElectronHypoAlg( name, inputElectronCollection, do_idperf=doIDperf ))
-  acc.addService( CompFactory.AthONNX.ONNXRuntimeSvc())
-  return acc
+def TrigEgammaPrecisionElectronHypoAlgCfg(flags, name, inputElectronCollection ):
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    acc = ComponentAccumulator()
+    hypo_tuple = createTrigEgammaPrecisionElectronHypoAlg( name, inputElectronCollection )
+    hypo_alg = hypo_tuple[0]
+    hypo_acc = hypo_tuple[1]
+    acc.addEventAlgo( hypo_alg )
+    acc.merge(hypo_acc)
+    acc.addService( CompFactory.AthONNX.ONNXRuntimeSvc())
+    return acc
 
 class TrigEgammaPrecisionElectronHypoToolConfig:
 
@@ -102,7 +111,6 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
     self.__iso = cpart['isoInfo']
     self.__d0  = cpart['lrtInfo']
     self.__gsfInfo = cpart['gsfInfo']
-    self.__idperfInfo = cpart['idperfInfo']
     self.__lhInfo = cpart['lhInfo']
     self.__monGroups = monGroups
     
@@ -150,9 +158,6 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
 
   def gsfInfo(self):
     return self.__gsfInfo
-
-  def idperfInfo(self):
-    return self.__idperfInfo
 
   def tool(self):
     return self.__tool
@@ -203,10 +208,7 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
   #
   def compile(self):
 
-    if 'idperf' in self.idperfInfo():
-      self.acceptAll()
-
-    elif 'nocut' == self.pidname():
+    if 'nocut' == self.pidname():
       self.nocut()
 
     else: # nominal chain using pid selection
@@ -216,7 +218,7 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
     # secundary cut configurations
     if self.isoInfo() and self.isoInfo()!="":
       self.addIsoCut()
-    if self.d0Info() and self.d0Info()!="" and 'idperf' not in self.idperfInfo():
+    if self.d0Info() and self.d0Info()!="":
       self.addLRTCut()
     
 
@@ -271,6 +273,140 @@ def TrigEgammaPrecisionElectronHypoToolFromDict( d , tool=None):
                    
     
 def TrigEgammaPrecisionElectronHypoToolFromName(name, conf, tool=None):
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
+    from TriggerMenuMT.HLT.Menu.DictFromChainName import dictFromChainName
     decodedDict = dictFromChainName(conf)
     return  TrigEgammaPrecisionElectronHypoToolFromDict( decodedDict , tool=tool )
+
+
+
+
+
+#
+# Electron DNN Selectors
+#
+def TrigEgammaPrecisionElectronDNNSelectorCfg(name='TrigEgammaPrecisionElectronDNNSelector', ConfigFilePath=None):
+    acc = ComponentAccumulator()
+    # We should include the DNN here
+    if not ConfigFilePath:
+      ConfigFilePath = ConfigFlags.Trigger.egamma.dnnVersion
+  
+    import collections
+    SelectorNames = collections.OrderedDict({
+          'dnntight'  :'AsgElectronDNNTightSelector',
+          'dnnmedium' :'AsgElectronDNNMediumSelector',
+          'dnnloose'  :'AsgElectronDNNLooseSelector',
+          })
+
+    ElectronToolConfigFile = collections.OrderedDict({
+          'dnntight'  :'ElectronDNNMulticlassTight.conf',
+          'dnnmedium' :'ElectronDNNMulticlassMedium.conf',
+          'dnnloose'  :'ElectronDNNMulticlassLoose.conf',
+          })
+
+    for dnnname, name in SelectorNames.items():
+      SelectorTool = CompFactory.AsgElectronSelectorTool(name)
+      SelectorTool.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile[dnnname]
+      SelectorTool.skipDeltaPoverP = True
+      acc.addPublicTool(SelectorTool)
+
+    return acc
+
+#
+# Electron LH Selectors
+#
+def TrigEgammaPrecisionElectronLHSelectorCfg( name='TrigEgammaPrecisionElectronLHSelector', ConfigFilePath=None):
+
+    # Configure the LH selectors
+    acc = ComponentAccumulator()
+    if not ConfigFilePath:
+        ConfigFilePath = ConfigFlags.Trigger.egamma.pidVersion
+
+    import collections
+    SelectorNames = collections.OrderedDict({
+          'lhtight'       :'AsgElectronLHTightSelector',
+          'lhmedium'      :'AsgElectronLHMediumSelector',
+          'lhloose'       :'AsgElectronLHLooseSelector',
+          'lhvloose'      :'AsgElectronLHVLooseSelector',
+          'lhtight_nopix' :'AsgElectronLHTightSelectorNoPix',
+          'lhmedium_nopix':'AsgElectronLHMediumSelectorNoPix',
+          'lhloose_nopix' :'AsgElectronLHLooseSelectorNoPix',
+          'lhvloose_nopix':'AsgElectronLHVLooseSelectorNoPix',
+          })
+     
+    ElectronToolConfigFile = collections.OrderedDict({
+          'lhtight'         :'ElectronLikelihoodTightTriggerConfig.conf',
+          'lhmedium'        :'ElectronLikelihoodMediumTriggerConfig.conf',
+          'lhloose'         :'ElectronLikelihoodLooseTriggerConfig.conf',
+          'lhvloose'        :'ElectronLikelihoodVeryLooseTriggerConfig.conf',
+          'lhtight_nopix'   :'ElectronLikelihoodTightTriggerConfig_NoPix.conf',
+          'lhmedium_nopix'  :'ElectronLikelihoodMediumTriggerConfig_NoPix.conf',
+          'lhloose_nopix'   :'ElectronLikelihoodLooseTriggerConfig_NoPix.conf',
+          'lhvloose_nopix'  :'ElectronLikelihoodVeryLooseTriggerConfig_NoPix.conf',
+          })
+
+    for pidname, name in SelectorNames.items():
+      SelectorTool = CompFactory.AsgElectronLikelihoodTool(name)
+      SelectorTool.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile[pidname]
+      SelectorTool.usePVContainer = False 
+      SelectorTool.skipDeltaPoverP = True
+      acc.addPublicTool(SelectorTool)
+    return acc
+
+
+#
+# Electron CB Selectors
+#
+
+def TrigEgammaPrecisionElectronCBSelectorCfg(name='TrigEgammaPrecisionElectronCBSelector', ConfigFilePath=None):
+    acc = ComponentAccumulator()
+    from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import BitDefElectron
+
+    ElectronLooseHI = (0
+            | 1 << BitDefElectron.ClusterEtaRange_Electron
+            | 1 << BitDefElectron.ClusterHadronicLeakage_Electron
+            | 1 << BitDefElectron.ClusterMiddleEnergy_Electron
+            | 1 << BitDefElectron.ClusterMiddleEratio37_Electron
+            | 1 << BitDefElectron.ClusterMiddleWidth_Electron
+            | 1 << BitDefElectron.ClusterStripsWtot_Electron
+    )
+
+    ElectronMediumHI = (ElectronLooseHI
+            | 1 << BitDefElectron.ClusterMiddleEratio33_Electron
+            | 1 << BitDefElectron.ClusterBackEnergyFraction_Electron
+            | 1 << BitDefElectron.ClusterStripsEratio_Electron
+            | 1 << BitDefElectron.ClusterStripsDeltaEmax2_Electron
+            | 1 << BitDefElectron.ClusterStripsDeltaE_Electron
+            | 1 << BitDefElectron.ClusterStripsFracm_Electron
+            | 1 << BitDefElectron.ClusterStripsWeta1c_Electron
+    )
+
+    if not ConfigFilePath:
+        ConfigFilePath = ConfigFlags.Trigger.egamma.pidVersion
+
+    from collections import OrderedDict
+    SelectorNames = OrderedDict({
+          'medium': 'AsgElectronIsEMSelectorHIMedium',
+          'loose': 'AsgElectronIsEMSelectorHILoose',
+          'mergedtight'  : 'AsgElectronIsEMSelectorMergedTight',
+    })
+
+    ElectronToolConfigFile = {
+          'medium': 'ElectronIsEMMediumSelectorCutDefs.conf',
+          'loose': 'ElectronIsEMLooseSelectorCutDefs.conf',
+          'mergedtight'  : 'ElectronIsEMMergedTightSelectorCutDefs.conf',
+    }
+
+    ElectronMaskBits = {
+          'medium': ElectronMediumHI,
+          'loose': ElectronLooseHI,
+          'mergedtight'  : egammaPID.ElectronTightHLT,
+    }
+
+    for sel, name in SelectorNames.items():
+        SelectorTool = CompFactory.AsgElectronIsEMSelector(name)
+        SelectorTool.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile[sel]
+        SelectorTool.isEMMask = ElectronMaskBits[sel]
+        acc.addPublicTool(SelectorTool)
+    
+    return acc
+

@@ -85,8 +85,7 @@ namespace Trk {
   void IPCMatrixTool::prepareBinaryFiles(int) 
   {
     
-    return;
-  }
+     }
   
   //_______________________________________________________________________
   bool IPCMatrixTool::accumulateFromFiles() 
@@ -105,25 +104,21 @@ namespace Trk {
   //_______________________________________________________________________
   void IPCMatrixTool::addFirstDerivatives(AlVec* )
   {
-    return;
-  }
+     }
 
   //________________________________________________________________________
   void IPCMatrixTool::addSecondDerivatives(AlSymMatBase* )
   {
-    return;
-  }
+     }
 
   //________________________________________________________________________
   void IPCMatrixTool::addFirstDerivatives(std::list<int,double>& )
   {
-    return;
-  }
+     }
 
   //________________________________________________________________________
   void IPCMatrixTool::addSecondDerivatives(std::list<std::pair<int,int>,double> & )
   {
-    return;
-  }
+     }
 
 } // end of namespace

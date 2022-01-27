@@ -67,17 +67,20 @@ from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr)
 from AthenaCommon.AlgSequence import AthSequencer
 condSeq = AthSequencer("AthCondSeq")
 
-from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-condSeq+=xAODMaker__EventInfoCnvAlg()
+if not hasattr(condSeq,"xAODMaker::EventInfoCnvAlg"):
+   from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+   condSeq+=xAODMaker__EventInfoCnvAlg()
 
-from IOVSvc.IOVSvcConf import CondInputLoader
-theCLI=CondInputLoader( "CondInputLoader")
-condSeq += theCLI 
+if not hasattr(condSeq,"CondInputLoader"):
+   from IOVSvc.IOVSvcConf import CondInputLoader
+   theCLI=CondInputLoader( "CondInputLoader")
+   condSeq += theCLI 
 
-import StoreGate.StoreGateConf as StoreGateConf
-svcMgr += StoreGateConf.StoreGateSvc("ConditionStore")
+if not hasattr(svcMgr,"ConditionStore"):
+   import StoreGate.StoreGateConf as StoreGateConf
+   svcMgr += StoreGateConf.StoreGateSvc("ConditionStore")
 
-svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2017-04" 
+svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2018-06" 
 
 from LArBadChannelTool.LArBadFebAccess import LArBadFebAccess
 LArBadFebAccess(dbString="/LAR/BadChannelsOfl/MissingFEBs"+dbStr+tagStr)

@@ -85,12 +85,6 @@ except Exception:
     printfunc ("WARNING could not load tauRecFlags")
 
 try:
-    from egammaRec.egammaRecFlags import jobproperties
-except Exception:
-    printfunc ("WARNING could not load egammaRecFlags")
-
-
-try:
     from JetRec.JetRecFlags import jetFlags
 except Exception:
     printfunc ("WARNING could not load jetFlags")

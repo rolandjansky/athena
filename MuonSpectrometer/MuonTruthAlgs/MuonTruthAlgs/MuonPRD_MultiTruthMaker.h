@@ -58,7 +58,7 @@ private:
     //----------------------------------------------------------------
     template <class PrepDataContainer, class SIMDATACOLLECTION>
     StatusCode buildPRD_Truth(SG::ReadHandleKey<PrepDataContainer> prepDataKey, SG::ReadHandleKey<SIMDATACOLLECTION> sdoKey,
-                              SG::WriteHandleKey<PRD_MultiTruthCollection> outputKey);
+                              const SG::WriteHandleKey<PRD_MultiTruthCollection>& outputKey);
 
     template <class PRD_Container_Iterator, class SIMDATACOLLECTION>
     void addPRDCollections(SG::WriteHandle<PRD_MultiTruthCollection> prdTruth, PRD_Container_Iterator collections_begin,

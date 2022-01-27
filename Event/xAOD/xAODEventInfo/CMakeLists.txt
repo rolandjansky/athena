@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name.
 atlas_subdir( xAODEventInfo )
@@ -7,11 +7,18 @@ atlas_subdir( xAODEventInfo )
 find_package( ROOT COMPONENTS Core Tree RIO )
 find_package( xAODUtilities )
 
+# Extra dependencies, based on what environment we're in.
+set( extra_libs )
+if( NOT XAOD_STANDALONE )
+   set( extra_libs StoreGateLib SGTools )
+endif()
+
 # Component(s) in the package.
 atlas_add_library( xAODEventInfo
    xAODEventInfo/versions/*.h xAODEventInfo/*.h Root/*.cxx
    PUBLIC_HEADERS xAODEventInfo
-   LINK_LIBRARIES AthContainers AthLinks xAODCore )
+   LINK_LIBRARIES AthContainers AthLinks xAODCore
+   PRIVATE_LINK_LIBRARIES ${extra_libs} )
 
 atlas_add_xaod_smart_pointer_dicts(
    INPUT xAODEventInfo/selection.xml

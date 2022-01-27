@@ -70,7 +70,6 @@ CaloCellCalcEnergyCorr::HVData::HVData (const LArHVManager& manager,
 CaloCellCalcEnergyCorr::CaloCellCalcEnergyCorr( const std::string& name, 
 						ISvcLocator* pSvcLocator ) : 
   AthAlgorithm( name, pSvcLocator ),
-  m_calodetdescrmgr(nullptr),
   m_larem_id(nullptr),
   m_larhec_id(nullptr),
   m_larfcal_id(nullptr)
@@ -111,10 +110,9 @@ StatusCode CaloCellCalcEnergyCorr::initialize()
   m_larhec_id  = mgr->getHEC_ID();
   m_larfcal_id = mgr->getFCAL_ID();
 
-  ATH_CHECK( detStore()->retrieve(m_calodetdescrmgr) );
-
   ATH_CHECK( m_hvCablingKey.initialize() );
   ATH_CHECK( m_DCSFolderKeys.initialize() );
+  ATH_CHECK( m_caloMgrKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -192,6 +190,10 @@ StatusCode CaloCellCalcEnergyCorr::stop()
 
   HVData hvdata (*manager, **hvCabling, attrvec);
 
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+  ATH_CHECK(caloMgrHandle.isValid());
+  const CaloDetDescrManager* caloMgr = *caloMgrHandle;
+  
   std::vector<float> setVec(1,1);
   unsigned nSet=0;
   unsigned nSetHV=0;
@@ -206,7 +208,7 @@ StatusCode CaloCellCalcEnergyCorr::stop()
         // check if we have also HVLine for this cell
         if(!m_hvlines.empty() && m_hvlines[0]>0) {
            Identifier offId=calocell_id->cell_id(h);
-           std::vector<int> hvlineId = GetHVLines(hvdata, offId);
+           std::vector<int> hvlineId = GetHVLines(hvdata, offId, caloMgr);
            int nfound=0;
            float hvval=-1;
            std::vector<int>::const_iterator poshv;
@@ -233,14 +235,15 @@ StatusCode CaloCellCalcEnergyCorr::stop()
 }
 
 
-std::vector<int> CaloCellCalcEnergyCorr::GetHVLines(const HVData& hvdata,
-                                                    const Identifier& id) {
+std::vector<int> CaloCellCalcEnergyCorr::GetHVLines(const HVData& hvdata
+                                                    , const Identifier& id
+						    , const CaloDetDescrManager* caloMgr) {
   std::set<int> hv;
 
   // LAr EMB
   if (m_larem_id->is_lar_em(id) && m_larem_id->sampling(id)>0) {
     if (abs(m_larem_id->barrel_ec(id))==1) {
-      const EMBDetectorElement* embElement = dynamic_cast<const EMBDetectorElement*>(m_calodetdescrmgr->get_element(id));
+      const EMBDetectorElement* embElement = dynamic_cast<const EMBDetectorElement*>(caloMgr->get_element(id));
       if (!embElement) std::abort();
       const EMBCellConstLink cell = embElement->getEMBCell();
       unsigned int nelec = cell->getNumElectrodes();
@@ -249,7 +252,7 @@ std::vector<int> CaloCellCalcEnergyCorr::GetHVLines(const HVData& hvdata,
         for (unsigned int igap=0;igap<2;igap++) hv.insert(hvdata.m_hvdata_EMB.hvLineNo (electrode, igap));
       }
     } else { // LAr EMEC
-      const EMECDetectorElement* emecElement = dynamic_cast<const EMECDetectorElement*>(m_calodetdescrmgr->get_element(id));
+      const EMECDetectorElement* emecElement = dynamic_cast<const EMECDetectorElement*>(caloMgr->get_element(id));
       if (!emecElement) std::abort();
       const EMECCellConstLink cell = emecElement->getEMECCell();
       unsigned int nelec = cell->getNumElectrodes();
@@ -265,7 +268,7 @@ std::vector<int> CaloCellCalcEnergyCorr::GetHVLines(const HVData& hvdata,
       }
     }
   } else if (m_larhec_id->is_lar_hec(id)) { // LAr HEC
-    const HECDetectorElement* hecElement = dynamic_cast<const HECDetectorElement*>(m_calodetdescrmgr->get_element(id));
+    const HECDetectorElement* hecElement = dynamic_cast<const HECDetectorElement*>(caloMgr->get_element(id));
     if (!hecElement) std::abort();
     const HECCellConstLink cell = hecElement->getHECCell();
     unsigned int nsubgaps = cell->getNumSubgaps();
@@ -274,7 +277,7 @@ std::vector<int> CaloCellCalcEnergyCorr::GetHVLines(const HVData& hvdata,
       hv.insert(hvdata.m_hvdata_HEC.hvLineNo (subgap));
     }
   } else if (m_larfcal_id->is_lar_fcal(id)) { // LAr FCAL
-    const FCALDetectorElement* fcalElement = dynamic_cast<const FCALDetectorElement*>(m_calodetdescrmgr->get_element(id));
+    const FCALDetectorElement* fcalElement = dynamic_cast<const FCALDetectorElement*>(caloMgr->get_element(id));
     if (!fcalElement) std::abort();
     const FCALTile* tile = fcalElement->getFCALTile();
     unsigned int nlines = tile->getNumHVLines();
@@ -284,13 +287,13 @@ std::vector<int> CaloCellCalcEnergyCorr::GetHVLines(const HVData& hvdata,
     }
   } else if (m_larem_id->is_lar_em(id) && m_larem_id->sampling(id)==0) { // Presamplers
     if (abs(m_larem_id->barrel_ec(id))==1) {
-      const EMBDetectorElement* embElement = dynamic_cast<const EMBDetectorElement*>(m_calodetdescrmgr->get_element(id));
+      const EMBDetectorElement* embElement = dynamic_cast<const EMBDetectorElement*>(caloMgr->get_element(id));
       if (!embElement) std::abort();
       const EMBCellConstLink cell = embElement->getEMBCell();
       const EMBPresamplerHVModule& hvmodule = cell->getPresamplerHVModule();
       for (unsigned int igap=0;igap<2;igap++) hv.insert(hvdata.m_hvdata_EMBPS.hvLineNo (hvmodule, igap));
     } else {
-      const EMECDetectorElement* emecElement = dynamic_cast<const EMECDetectorElement*>(m_calodetdescrmgr->get_element(id));
+      const EMECDetectorElement* emecElement = dynamic_cast<const EMECDetectorElement*>(caloMgr->get_element(id));
       if (!emecElement) std::abort();
       const EMECCellConstLink cell = emecElement->getEMECCell();
       const EMECPresamplerHVModule& hvmodule = cell->getPresamplerHVModule ();

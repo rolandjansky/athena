@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // --------------------------------------------------
@@ -43,14 +43,16 @@ public:
     virtual StatusCode 	fillEvt		(HepMC::GenEvent* evt);
 
 protected:
-
     // event counter
-    int m_events;
-
+    int              m_events;
     starlight*       m_starlight;         // pointer to starlight instance
+    std::shared_ptr<randomGenerator> m_randomGenerator;
+    bool             m_lheOutput;
+    unsigned int     m_maxevents;
+    bool             m_doTauolappLheFormat;
     inputParameters  m_inputParameters;   // parameter instance
-
-    upcEvent *m_event;
+    double           m_axionMass;
+    upcEvent        *m_event;
 
     std::string  m_configFileName;
     unsigned int m_beam1Z;
@@ -88,11 +90,15 @@ protected:
     int          m_nThreads;
     bool         m_pythFullRec;
 
+    bool starlight2lhef();
+
     // Commands to setup starlight
     CommandVector m_InitializeVector;
 
     bool set_user_params();
     bool prepare_params_file();
+
+    StoreGateSvc* m_storeGate;  
 };
 
 #endif

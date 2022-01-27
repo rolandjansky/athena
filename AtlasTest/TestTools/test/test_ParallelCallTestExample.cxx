@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include <mutex>
 #include <map>
@@ -20,7 +20,8 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  * @brief Specimen of service caching expensive calculations.
  * It uses internally std::map which is not thread-safely expandable.
  **/
-class ExpensiveCompCacheSvc {
+class IService { };
+class ExpensiveCompCacheSvc : public IService {
 public:
   int compute( int x ) {
     // should the lock be here, or can be later only when we update the map

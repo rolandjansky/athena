@@ -8,20 +8,20 @@
 #include "MuonHistUtils/MuonSegmentPlots.h"
 #include "MuonHistUtils/MuonSegmentTruthRelatedPlots.h"
 
-class MuonSegmentValidationPlots: public PlotBase {
-  public:
-    MuonSegmentValidationPlots(PlotBase* pParent, std::string sDir, bool isData);
+class MuonSegmentValidationPlots : public PlotBase {
+public:
+    MuonSegmentValidationPlots(PlotBase* pParent, const std::string& sDir, bool isData);
     ~MuonSegmentValidationPlots();
-    
-    // Reco only information
-    Muon::MuonSegmentPlots                 *m_oRecoSegmPlots;
-    // Truth related plots
-    Muon::MuonSegmentPlots                 *m_oMatchedMuonSegmPlots;
-    Muon::MuonSegmentTruthRelatedPlots     *m_oMatchedMuonSegmDiffPlots;
-    Muon::MuonSegmentPlots                 *m_oTruthMuonSegmPlots;
 
-    void fill(const xAOD::MuonSegment* truthMuSeg, const xAOD::MuonSegment* muSeg, float weight=1.0);
-    void fill(const xAOD::MuonSegment* muSeg, float weight=1.0);
+    // Reco only information
+    std::unique_ptr<Muon::MuonSegmentPlots> m_oRecoSegmPlots{};
+    // Truth related plots
+    std::unique_ptr<Muon::MuonSegmentPlots> m_oMatchedMuonSegmPlots{};
+    std::unique_ptr<Muon::MuonSegmentTruthRelatedPlots> m_oMatchedMuonSegmDiffPlots{};
+    std::unique_ptr<Muon::MuonSegmentPlots> m_oTruthMuonSegmPlots{};
+
+    void fill(const xAOD::MuonSegment* truthMuSeg, const xAOD::MuonSegment* muSeg, float weight = 1.0);
+    void fill(const xAOD::MuonSegment* muSeg, float weight = 1.0);
 };
 
 #endif

@@ -191,7 +191,8 @@ struct TGC_BYTESTREAM_NSL_ROI
   unsigned pt:        4;
   unsigned charge:    1;
   unsigned coinflag:  3;
-  unsigned fill1:     6;
+  unsigned innerflag: 4;
+  unsigned fill1:     2;
   unsigned bcBitmap:  2;
   unsigned sector:    4;
   unsigned fwd:       1;

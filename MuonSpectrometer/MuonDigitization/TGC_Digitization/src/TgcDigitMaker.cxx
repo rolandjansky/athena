@@ -188,7 +188,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
     int iWireGroup[2];
     float posInWireGroup[2] = {0., 0.};
     for(int iPosition=0; iPosition<2; iPosition++) {
-      int nWireOffset = (std::abs(stationEta) == 5 || stationName.substr(0,2) == "T4") ? 1 : 0;
+      int nWireOffset = (std::abs(stationEta) == 5 || stationName.compare(0,2,"T4") == 0) ? 1 : 0;
       // for chambers in which only the first wire  is not connected                                 : 1
       // for chambers in which the first and last wires are not connected OR all wires are connected : 0
 
@@ -289,7 +289,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
   sensor = kSTRIP;
   m_timeWindowOffsetSensor[sensor] = getTimeWindowOffset(stationName, stationEta, sensor);
 
-  if((ilyr != 2 || (stationName.substr(0,2) != "T1")) && // no stip in middle layers of T1* 
+  if((ilyr != 2 || (stationName.compare(0,2,"T1") != 0)) && // no stip in middle layers of T1* 
      ((energyDeposit< -1. && efficiencyCheck(sensor, rndmEngine)) || // Old efficiencyCheck for TGCSimHit_p1.
       (energyDeposit>=-1. && efficiencyCheck(stationName, stationEta, stationPhi, ilyr, sensor, energyDeposit))) // New efficiencyCheck for TGCSimHit_p2
      ) { 
@@ -1309,7 +1309,7 @@ float TgcDigitMaker::getASDpropTimeOffset(const Identifier elemId,
   return asdpropTimeOffset;
 }
 
-float TgcDigitMaker::getStripPosition(const std::string stationName, int stationEta, int channel) const {
+float TgcDigitMaker::getStripPosition(const std::string& stationName, int stationEta, int channel) const {
   // Convert std::string stationName to int iStationName from 41 to 48                              
   int iStationName = getIStationName(stationName);
 

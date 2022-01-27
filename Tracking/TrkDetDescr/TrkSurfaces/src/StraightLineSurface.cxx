@@ -174,10 +174,10 @@ Trk::StraightLineSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos,
   double currDist = sqrt(dx.dot(dx));
 
   if (A < 0.0001) {
-    return Trk::DistanceSolution(1, currDist, false, 0.);
+    return {1, currDist, false, 0.};
   }
   double sol = (pos - C).dot(D * S - dir) / A;
-  return Trk::DistanceSolution(1, currDist, false, sol);
+  return {1, currDist, false, sol};
 }
 
 // return the measurement frame
@@ -217,7 +217,7 @@ Trk::StraightLineSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos,
   if (A > 0.)
     s = (D * Lz - (dir.dot(dxyz))) / A;
   if (!bound)
-    return Trk::DistanceSolution(1, 0., false, s);
+    return {1, 0., false, s};
 
   // Min distance to surface
   //
@@ -248,7 +248,7 @@ Trk::StraightLineSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos,
   if (dL > 0.){
     dist = sqrt(dist * dist + dL * dL);
   }
-  return Trk::DistanceSolution(1, dist, false, s);
+  return {1, dist, false, s};
 }
 
 Trk::Intersection
@@ -276,7 +276,7 @@ Trk::StraightLineSurface::straightLineIntersection(const Amg::Vector3D& pos,
     Amg::Vector3D result = (ma + lambda0 * ea);
     isValid = bchk ? (isValid && isOnSurface(result)) : isValid;
     // return the result
-    return Trk::Intersection(result, lambda0, isValid);
+    return {result, lambda0, isValid};
   }
-  return Trk::Intersection(pos, 0., false);
+  return {pos, 0., false};
 }

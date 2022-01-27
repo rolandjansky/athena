@@ -29,3 +29,37 @@ if activateCondAlgs:
     condSeq += LArAlignCondAlg("LArAlignCondAlg")
     from CaloAlignmentAlgs.CaloAlignmentAlgsConf import CaloAlignCondAlg
     condSeq += CaloAlignCondAlg("CaloAlignCondAlg")
+
+    AthReadAlg_ExtraInputs = []
+
+    # Configure Super Cell Alignment condition algorithm
+    # Calo super cell building works only if both LAr and Tile are present
+    # And we need to make sure this is a Run3 geometry layout
+
+    from RecExConfig.AutoConfiguration import IsInInputFile
+    caloCellsInInput = IsInInputFile('CaloCellContainer')
+    sCellsInInput = False
+    caloCellKeys = []
+    if caloCellsInInput:
+      from PyUtils.MetaReaderPeeker import convert_itemList
+      caloCellKeys = convert_itemList(layout='dict')
+      for key in caloCellKeys['CaloCellContainer']:
+        if key != 'AllCalo':
+          sCellsInInput = True
+
+    AthReadAlg_ExtraInputs.append(('CaloDetDescrManager', 'ConditionStore+CaloDetDescrManager'))
+    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
+    if commonGeoFlags.Run() == "RUN3" and DetFlags.detdescr.Tile_on() or sCellsInInput:
+      from CaloAlignmentAlgs.CaloAlignmentAlgsConf import CaloSuperCellAlignCondAlg
+      condSeq += CaloSuperCellAlignCondAlg("CaloSuperCellAlignCondAlg")
+      AthReadAlg_ExtraInputs.append(('CaloSuperCellDetDescrManager', 'ConditionStore+CaloSuperCellDetDescrManager'))
+
+    if caloCellsInInput:
+      from AthenaConfiguration.ComponentFactory import CompFactory
+      AthReadAlg=CompFactory.AthReadAlg
+      for key in caloCellKeys['CaloCellContainer']:
+        AthReadAlg_CaloCellCont = AthReadAlg (f'AthReadAlg_{key}',
+                                              Key = f'CaloCellContainer/{key}',
+                                              Aliases = [],
+                                              ExtraInputs = AthReadAlg_ExtraInputs)
+        condSeq += AthReadAlg_CaloCellCont

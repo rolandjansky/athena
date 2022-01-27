@@ -8,7 +8,7 @@
 
 @section MuonEventCnvTools_MuonEventCnvToolsIntro Introduction
 
-This package contains a Tools (currently only one in fact), which are used by the persistency convertors 
+This package contains a Tools (currently only one in fact), which are used by the persistency convertors
 (e.g. TrackCollectionCnv in TrkEventAthenaPool) to rebuild the Muon EDM objects.
 
 @section MuonEventCnvTools_MuonEventCnvToolsOverview Class Overview

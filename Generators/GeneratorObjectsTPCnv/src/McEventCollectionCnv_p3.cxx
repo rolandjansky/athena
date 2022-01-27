@@ -193,7 +193,7 @@ McEventCollectionCnv_p3::createGenVertex( const McEventCollection_p3& persEvt,
   //Is this needed for HEPMC3?
   const unsigned int nPartsIn = persVtx.m_particlesIn.size();
   for ( unsigned int i = 0; i != nPartsIn; ++i ) {
-    createGenParticle( persEvt.m_genParticles[persVtx.m_particlesIn[i]], partToEndVtx, datapools );
+    createGenParticle( persEvt.m_genParticles[persVtx.m_particlesIn[i]], partToEndVtx, datapools, vtx, false );
   }
   // now handle the out-going particles
   const unsigned int nPartsOut = persVtx.m_particlesOut.size();
@@ -237,10 +237,10 @@ McEventCollectionCnv_p3::createGenVertex( const McEventCollection_p3& persEvt,
 HepMC::GenParticlePtr
 McEventCollectionCnv_p3::createGenParticle( const GenParticle_p3& persPart,
                                             ParticlesMap_t& partToEndVtx,
-                                            HepMC::DataPool& datapools, HepMC::GenVertexPtr parent ) const
+                                            HepMC::DataPool& datapools, HepMC::GenVertexPtr parent, bool add_to_output ) const
 {
   HepMC::GenParticlePtr p    = datapools.getGenParticle();
-  if (parent) parent->add_particle_out(p);
+  if (parent) add_to_output?parent->add_particle_out(p):parent->add_particle_in(p);
 
 #ifdef HEPMC3
   p->set_pdg_id(persPart.m_pdgId);

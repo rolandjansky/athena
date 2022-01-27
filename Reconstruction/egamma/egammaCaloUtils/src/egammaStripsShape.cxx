@@ -38,13 +38,12 @@ dim(const double a, const double b)
 struct StripArrayHelper
 {
   StripArrayHelper()
-  {
-    eta = 0.;
-    etaraw = 0.;
-    deta = 0.;
-    ncell = 0;
-    energy = 0.;
-  }
+    : eta(0.)
+    , etaraw(0.)
+    , energy(0.)
+    , deta(0.)
+    , ncell(0.)
+  {}
   bool operator<(const StripArrayHelper& cell2) const
   {
     return etaraw < cell2.etaraw;

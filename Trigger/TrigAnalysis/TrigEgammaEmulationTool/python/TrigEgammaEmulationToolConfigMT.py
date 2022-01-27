@@ -52,22 +52,23 @@ class TrigEgammaEmulationToolConfig:
     #
     def configure(self):
 
+        from TrigEgammaHypo.TrigEgammaFastCaloHypoTool          import createTrigEgammaFastCaloSelectors
+        from TrigEgammaHypo.TrigEgammaPrecisionPhotonHypoTool   import createTrigEgammaPrecisionPhotonSelectors
+        from TrigEgammaHypo.TrigEgammaPrecisionElectronHypoTool import TrigEgammaPrecisionElectronCBSelectorCfg
+        from TrigEgammaHypo.TrigEgammaPrecisionElectronHypoTool import TrigEgammaPrecisionElectronLHSelectorCfg
+        from TrigEgammaHypo.TrigEgammaPrecisionElectronHypoTool import TrigEgammaPrecisionElectronDNNSelectorCfg
 
-        from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaPrecisionElectronLHSelectors
-        from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaPrecisionElectronDNNSelectors
-        from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaPrecisionElectronCBSelectors
-        from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaPrecisionPhotonSelectors
-        from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaFastCaloSelectors
 
         # create the emulator tool
         self.__emulator = CompFactory.Trig.TrigEgammaEmulationToolMT( self.name, 
                                                                ElectronTriggerList = self.ElectronTriggerList,
                                                                PhotonTriggerList = self.PhotonTriggerList )
-
+        
+        # NOTE: will be adapt next
         self.__emulator.RingerTools              = createTrigEgammaFastCaloSelectors(ConfigFilePath = self.FastCaloConfigFilePath)
-        self.__emulator.ElectronLHSelectorTools  = createTrigEgammaPrecisionElectronLHSelectors(ConfigFilePath = self.ElectronLHConfigFilePath)
-        self.__emulator.ElectronCBSelectorTools  = createTrigEgammaPrecisionElectronCBSelectors(ConfigFilePath = self.ElectronCBConfigFilePath)
-        self.__emulator.ElectronDNNSelectorTools = createTrigEgammaPrecisionElectronDNNSelectors(ConfigFilePath = self.ElectronDNNConfigFilePath)
+        self.__emulator.ElectronLHSelectorTools  = TrigEgammaPrecisionElectronLHSelectorCfg(ConfigFilePath = self.ElectronLHConfigFilePath).getPublicTool()
+        self.__emulator.ElectronCBSelectorTools  = TrigEgammaPrecisionElectronCBSelectorCfg(ConfigFilePath = self.ElectronCBConfigFilePath).getPublicTool()
+        self.__emulator.ElectronDNNSelectorTools = TrigEgammaPrecisionElectronDNNSelectorCfg(ConfigFilePath = self.ElectronDNNConfigFilePath).getPublicTool()
         self.__emulator.PhotonCBSelectorTools    = createTrigEgammaPrecisionPhotonSelectors(ConfigFilePath = self.PhotonCBConfigFilePath)
     
     
@@ -79,7 +80,7 @@ class TrigEgammaEmulationToolConfig:
         import cppyy
         cppyy.load_library('libElectronPhotonSelectorToolsDict')
 
-        from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
+        from TriggerMenuMT.HLT.Menu.DictFromChainName import dictFromChainName
         d = dictFromChainName(trigger)
 
         signature = d['signatures'][0]

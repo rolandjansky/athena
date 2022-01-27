@@ -1,7 +1,9 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.SystemOfUnits import GeV, TeV
 from AthenaCommon.Logging import logging
+from AthenaConfiguration.Enums import Format
+
 log = logging.getLogger('OnlineRecoDefaults')
 
 
@@ -22,7 +24,7 @@ def setDefaultOnlineRecoFlags(flags):
     flags.Input.LumiBlockNumber = [-1]
     flags.Input.TimeStamp = [-1]
     flags.Input.ProjectName = 'data_test'
-    flags.Input.Format = 'BS'
+    flags.Input.Format = Format.BS
     flags.Input.ProcessingTags = []
 
     flags.Beam.Type = 'collisions'
@@ -97,7 +99,7 @@ def trySetFlagsFromIS(flags, partition=None):
         hltpsk = tryReadFromISObject(hltpsk_is, 'HltPrescaleKey')
         bgk = tryReadFromISObject(bgk_is, 'L1BunchGroupKey')
         if all([v is not None for v in [smk, l1psk, hltpsk, bgk]]):
-            dbname = 'TRIGGERDBDEV1'  # hardcoded for now, change if available from somewhere
+            dbname = 'TRIGGERDBDEV1_I8'  # Temporary DB to be replaced for Run 3
             flags.Trigger.triggerConfig = 'DB:{:s}:{:d},{:d},{:d},{:d}'.format(
                 dbname, smk, l1psk, hltpsk, bgk)
 

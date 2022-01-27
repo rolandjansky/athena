@@ -33,7 +33,7 @@ namespace MuonGM {
     }
 
     bool MuonReadoutElement::barrel() const {
-        if (m_statname.substr(0, 1) == "B")
+        if (m_statname[0] == 'B')
             return true;
         else
             return false;
@@ -43,13 +43,16 @@ namespace MuonGM {
 
     bool MuonReadoutElement::largeSector() const {
         // this doesn't apply to TGC
-        if (m_statname.substr(2, 1) == "L")
+        if(m_statname.size() >= 3){
+        char c = m_statname[2];
+        if (c == 'L')
             return true;
-        else if (m_statname.substr(2, 1) == "S")
+        else if (c == 'S')
             return false;
         else {
-            if (m_statname.substr(2, 1) == "E" || m_statname.substr(2, 1) == "F" || m_statname.substr(2, 1) == "G") return false;
-            if (m_statname.substr(2, 1) == "M" || m_statname.substr(2, 1) == "R") return true;
+            if (c == 'E' || c == 'F' || c == 'G') return false;
+            if (c == 'M' || c == 'R') return true;
+        }
         }
         throw std::runtime_error(
             Form("File: %s, Line: %d\nMuonReadoutElement::largeSector() - is this Station in a largeSector ???? - DEFAULT answer is NO",

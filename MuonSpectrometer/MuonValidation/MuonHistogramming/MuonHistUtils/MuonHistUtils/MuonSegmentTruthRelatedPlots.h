@@ -15,7 +15,7 @@ namespace Muon{
 
 class MuonSegmentTruthRelatedPlots:public PlotBase {
     public:
-      MuonSegmentTruthRelatedPlots(PlotBase* pParent, std::string sDir);
+      MuonSegmentTruthRelatedPlots(PlotBase* pParent, const std::string& sDir);
       ~MuonSegmentTruthRelatedPlots();
 
       void fill(const xAOD::MuonSegment& muonSeg,const xAOD::MuonSegment& truthMuonSeg,float weight=1.0);
@@ -26,15 +26,15 @@ class MuonSegmentTruthRelatedPlots:public PlotBase {
       Trk::HitTypePlots nTrigEtaLayers;
 
       //resolution plots     
-      TH1* dxpos;
-      TH1* dypos;
-      TH1* dzpos;
+      TH1* dxpos{nullptr};
+      TH1* dypos{nullptr};
+      TH1* dzpos{nullptr};
 
-      TH1* detapos;
-      TH1* dphipos;
+      TH1* detapos{nullptr};
+      TH1* dphipos{nullptr};
 
-      TH1* detadir;
-      TH1* dphidir;
+      TH1* detadir{nullptr};
+      TH1* dphidir{nullptr};
 
 };
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PersistentDataModelTPCnv/DataHeader_p6.h"
@@ -13,7 +13,7 @@ DataHeaderForm_p6::DataHeaderForm_p6(const DataHeaderForm_p6& rhs) :
       m_dbRecords(rhs.m_dbRecords), m_objRecords(rhs.m_objRecords),
       m_objAlias(rhs.m_objAlias), m_objSymLinks(rhs.m_objSymLinks),
       m_objHashes(rhs.m_objHashes), m_version(rhs.m_version),
-      m_modified(rhs.m_modified), m_token(nullptr)
+      m_modified(rhs.m_modified), m_token()
 {
    setToken(rhs.m_token);
 }

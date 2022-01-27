@@ -247,7 +247,6 @@ namespace ITk
     FloatProperty m_r2max{this, "maxRadius2", 600.};
     FloatProperty m_r3min{this, "minRadius3", 0.};
     FloatProperty m_r3max{this, "maxRadius3", 600.};
-    FloatProperty m_rapcut{this, "RapidityCut", 2.7};
     FloatProperty m_diverpps{this, "maxdImpactPPS", 1.7};
     //@}
 

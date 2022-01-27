@@ -160,7 +160,7 @@ pool::CommandLine::TranslateQuotes(std::istringstream& ist, std::string& strWord
       strFullWord += strNextWord;
     }
 
-    if (strNextWord[strNextWord.length() - 1] == '"')
+    if (!strNextWord.empty() && strNextWord[strNextWord.length() - 1] == '"')
     {
       strFullWord += ' ';
       strFullWord += strNextWord.substr(0, strNextWord.length() - 1);

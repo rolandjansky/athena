@@ -1,8 +1,7 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-#from AthenaConfiguration.MainServicesConfig import MainServicesSerial
 
 
 def BunchCrossingCondAlgCfg(configFlags):
@@ -15,21 +14,29 @@ def BunchCrossingCondAlgCfg(configFlags):
 
     if (configFlags.Input.isMC):
         folder = "/Digitization/Parameters"
-        result.merge(addFolders(configFlags,folder,None,className="AthenaAttributeList",tag='HEAD'))
+        Mode = 1
+        from AthenaConfiguration.Enums import ProductionStep
+        if configFlags.Common.ProductionStep not in [ProductionStep.Digitization, ProductionStep.PileUpPresampling]:
+            result.merge(addFolders(configFlags,folder,None,className="AthenaAttributeList",tag='HEAD'))
+        else:
+            # Here we are in a digitization job, so the
+            # /Digitization/Parameters metadata is not present in the
+            # input file and will be created during the job
+            pass
     else: #data case
         folder = '/TDAQ/OLC/LHC/FILLPARAMS'
+        Mode = 0
         result.merge(addFolders(configFlags,folder,'TDAQ',className = 'AthenaAttributeList',tag='HEAD'))
 
 
     alg = BunchCrossingCondAlg('BunchCrossingCondAlgDefault',
                                Run1=run1,
-                               isMC=configFlags.Input.isMC,
-                               FillParamsFolderKey =folder )
+                               FillParamsFolderKey =folder,
+                               Mode=Mode )
 
     result.addCondAlgo(alg)
 
     return result
-    
 
 
 
@@ -38,26 +45,20 @@ if __name__=="__main__":
     Configurable.configurableRun3Behavior=1
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-
-
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
-
-    ConfigFlags.IOVDb.DatabaseInstance="CONDBR2"
+    ConfigFlags.Input.Files = []
     ConfigFlags.Input.isMC=False
+    ConfigFlags.IOVDb.DatabaseInstance="CONDBR2"
     ConfigFlags.IOVDb.GlobalTag="CONDBR2-BLKPA-2017-05"
     ConfigFlags.lock()
 
-
-    
-
     result=MainServicesCfg(ConfigFlags)
-
 
     McEventSelector=CompFactory.McEventSelector
     McCnvSvc=CompFactory.McCnvSvc
     EvtPersistencySvc=CompFactory.EvtPersistencySvc
 
-    #event & time-stamp from the q431 test input 
+    #event & time-stamp from the q431 test input
     mcevtsel=McEventSelector(RunNumber=330470,
                              EventsPerRun=1,
                              FirstEvent=1183722158,
@@ -75,16 +76,14 @@ if __name__=="__main__":
 
 
     result.addService(EvtPersistencySvc("EventPersistencySvc",CnvServices=[mccnvsvc.getFullJobOptName(),]))
-    
+
     result.merge(BunchCrossingCondAlgCfg(ConfigFlags))
-    
-    
+
     BunchCrossingCondTest=CompFactory.BunchCrossingCondTest
     result.addEventAlgo(BunchCrossingCondTest(FileName="BCData1.txt"))
 
     result.run(1)
-                       
-    
+
     #f=open("test.pkl","wb")
     #result.store(f)
     #f.close()

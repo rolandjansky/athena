@@ -3,7 +3,7 @@
 */
 
 #include "TrigT1NSWSimTools/GeoUtils.h"
-#include <TMath.h>
+#include <cmath>
 #include <TVector3.h>
 #include <algorithm>
 
@@ -35,9 +35,9 @@ Polygon etaphi2xyTransform(const Polygon& p, float Z){
      float eta=coordinate<0>(v);
      float phi=coordinate<1>(v);
      float z=Z;
-     float theta=2*TMath::ATan(TMath::Exp(-1*eta));
-     float x=z*TMath::Tan(theta)*TMath::Cos(phi);
-     float y=z*TMath::Tan(theta)*TMath::Sin(phi);
+     float theta=2*std::atan(std::exp(-1*eta));
+     float x=z*std::tan(theta)*std::cos(phi);
+     float y=z*std::tan(theta)*std::sin(phi);
      vts.push_back(Vertex(x,y));
     }
     return buildPolygon(vts);
@@ -53,10 +53,10 @@ Polygon Project(const Polygon& p,float Zinit,float Zfin){
         float z=Zinit;        
         float et=eta(x,y,z);
         float p=phi(x,y,z);
-        float theta=2*TMath::ATan(TMath::Exp(-1*et));
-        float r=Zfin*TMath::Tan(theta);
-        float xproj=r*TMath::Cos(p);
-        float yproj=r*TMath::Sin(p);
+        float theta=2*std::atan(std::exp(-1*et));
+        float r=Zfin*std::tan(theta);
+        float xproj=r*std::cos(p);
+        float yproj=r*std::sin(p);
         vt.push_back(Vertex(xproj,yproj));
     }
     return buildPolygon(vt);

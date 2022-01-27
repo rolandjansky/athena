@@ -9,7 +9,10 @@ msg = logging.getLogger( 'TileConditions_jobOptions.py' )
 from TileConditions.TileInfoConfigurator import TileInfoConfigurator
 tileInfoConfigurator = TileInfoConfigurator()
 
-if 'RunNumber' in dir():
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+if athenaCommonFlags.isOnline():
+    rn = None
+elif 'RunNumber' in dir():
     rn = RunNumber
 elif '_run_number' in dir():
     rn = _run_number
@@ -28,20 +31,28 @@ if (type(ss) != type(None)):
         TileUseCOOL = False
         TileFrameLength = 9
 
-if (not 'TileCablingType' in dir()):
-    if rn is None:
-        try:
-            from G4AtlasApps.SimFlags import simFlags
-            if simFlags.RunNumber.statusOn:
-                rn = simFlags.RunNumber()
-        except:
-            msg.info("No SimFlags available - looks like HLT job")
-    if rn is None:
-        try:
-            from RecExConfig.AutoConfiguration import GetRunNumber
-            rn=GetRunNumber()
-        except:
-            msg.info("No Run Number available - assume latest cabling")
+if not 'TileCablingType' in dir():
+    if not athenaCommonFlags.isOnline():
+        if rn is None:
+            try:
+                from Digitization.DigitizationFlags import digitizationFlags
+                if digitizationFlags.dataRunNumber.statusOn:
+                    rn = digitizationFlags.dataRunNumber()
+            except:
+                msg.info("No DigitizationFlags available - looks like HLT job")
+        if rn is None:
+            try:
+                from G4AtlasApps.SimFlags import simFlags
+                if simFlags.RunNumber.statusOn:
+                    rn = simFlags.RunNumber()
+            except:
+                msg.info("No SimFlags available - looks like HLT job")
+        if rn is None:
+            try:
+                from RecExConfig.AutoConfiguration import GetRunNumber
+                rn=GetRunNumber()
+            except:
+                msg.info("No Run Number available - assume latest cabling")
 
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
     if geoFlags.Run()=="RUN1":
@@ -55,6 +66,9 @@ if (not 'TileCablingType' in dir()):
         else:
             TileCablingType = 4
             msg.info("Forcing RUN2 (2014-2017) cabling for run %s with geometry %s" % (rn,gbltg) )
+    elif geoFlags.Run()=="RUN3":
+        TileCablingType = 6
+        msg.info("Forcing RUN3 cabling for run %s with geometry %s" % (rn,gbltg) )
 
 if 'TileCablingType' in dir():
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -66,7 +80,6 @@ if not 'TileFrameLength' in dir():
 if not 'TileUseCOOL' in dir():
     TileUseCOOL=True; # use COOL DB by default for everything
 
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 if not 'TileUseDCS' in dir():
     TileUseDCS = TileUseCOOL and (not athenaCommonFlags.isOnline()) and globalflags.DataSource()=='data'
 
@@ -85,10 +98,10 @@ if not 'TileUseDCS' in dir():
 if TileUseDCS or ('TileCheckOFC' in dir() and TileCheckOFC) or ('RunOflOFC' in dir()):
     if rn is None:
         from RecExConfig.AutoConfiguration import GetRunNumber
-        rn=GetRunNumber()
+        rn=GetRunNumber()  # This may return None
     if not 'RunOflOFC' in dir():
         RunOflOFC=314450
-    if rn<RunOflOFC: # use OFC stored in online folder for all runs before 2017
+    if rn and rn<RunOflOFC: # use OFC stored in online folder for all runs before 2017
         from TileConditions.TileCoolMgr import tileCoolMgr
         tileCoolMgr.addSource('OfcOf2Phy', '/TILE/ONL01/FILTER/OF2/PHY', 'TILE', "", '/TILE/ONL01/FILTER/OF2/PHY', 'SplitMC')
         tileCoolMgr.addSource('OfcOf1Phy', '/TILE/ONL01/FILTER/OF1/PHY', 'TILE', "", '/TILE/ONL01/FILTER/OF1/PHY', 'SplitMC')

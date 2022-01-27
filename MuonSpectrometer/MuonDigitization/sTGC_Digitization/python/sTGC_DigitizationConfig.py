@@ -34,7 +34,6 @@ def sTgcDigitizationTool(name="sTgcDigitizationTool",**kwargs):
         kwargs.setdefault("UseMcEventCollectionHelper",True)
     else:
         kwargs.setdefault("UseMcEventCollectionHelper",False)
-     
     return CfgMgr.sTgcDigitizationTool(name,**kwargs)
 
 def getSTGCRange(name="sTgcRange", **kwargs): 

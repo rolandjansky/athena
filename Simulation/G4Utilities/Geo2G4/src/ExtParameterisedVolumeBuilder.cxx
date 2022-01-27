@@ -132,13 +132,8 @@ G4LogicalVolume* ExtParameterisedVolumeBuilder::Build(const PVConstLink theGeoPh
           Query<int> Qint =  av.getId();
           if(Qint.isValid()) id = Qint;
 
-	  bool isEther = m_matEther 
-	    ? m_matEther == theGeoPhysChild->getLogVol()->getMaterial() 
-	    : theGeoPhysChild->getLogVol()->getMaterial()->getName().compare("special::Ether")==0;
-
-	  bool isHypUr = m_matHypUr
-	    ? m_matHypUr == theGeoPhysChild->getLogVol()->getMaterial()
-	    : theGeoPhysChild->getLogVol()->getMaterial()->getName().compare("special::HyperUranium")==0;
+	  bool isEther = theGeoPhysChild->getLogVol()->getMaterial()->getName().compare("special::Ether")==0;
+	  bool isHypUr = theGeoPhysChild->getLogVol()->getMaterial()->getName().compare("special::HyperUranium")==0;
 
 	  if(isEther) {
 	    Geo2G4AssemblyVolume* assembly = BuildAssembly(theGeoPhysChild);
@@ -215,13 +210,8 @@ Geo2G4AssemblyVolume* ExtParameterisedVolumeBuilder::BuildAssembly(const PVConst
         + theGeoPhysChild->getLogVol()->getName() + ")";
 
       // Check if it is an assembly
-      bool isEther = m_matEther 
-	? m_matEther == theGeoPhysChild->getLogVol()->getMaterial() 
-	: theGeoPhysChild->getLogVol()->getMaterial()->getName().compare("special::Ether")==0;
-      
-      bool isHypUr = m_matHypUr
-	? m_matHypUr == theGeoPhysChild->getLogVol()->getMaterial()
-	: theGeoPhysChild->getLogVol()->getMaterial()->getName().compare("special::HyperUranium")==0;
+      bool isEther = theGeoPhysChild->getLogVol()->getMaterial()->getName().compare("special::Ether")==0;
+      bool isHypUr = theGeoPhysChild->getLogVol()->getMaterial()->getName().compare("special::HyperUranium")==0;
       
       if(isEther || isHypUr) {
 	// Build the child assembly

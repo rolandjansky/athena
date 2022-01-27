@@ -6,7 +6,7 @@ from TrigHLTJetHypo.HelperConfigToolParams import HelperConfigToolParams
 from TrigHLTJetHypo.ConditionDefaults import defaults
 from TrigHLTJetHypo.make_treevec import make_treevec
 
-from TriggerMenuMT.HLTMenuConfig.Menu.SignatureDicts import (
+from TriggerMenuMT.HLT.Menu.SignatureDicts import (
     JetChainParts_Default,)
 
 from AthenaCommon.Logging import logging

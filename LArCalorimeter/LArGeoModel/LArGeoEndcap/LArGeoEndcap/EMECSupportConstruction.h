@@ -95,7 +95,7 @@ class EMECSupportConstruction
     void put_back_outer_barettes(GeoPhysVol *) const;
     void put_front_outer_electronics(GeoPhysVol *) const;
 
-	GeoPcon* getPcon(std::string) const;
+	GeoPcon* getPcon(const std::string&) const;
 
     type_t m_Type;
     bool m_pos_zside;

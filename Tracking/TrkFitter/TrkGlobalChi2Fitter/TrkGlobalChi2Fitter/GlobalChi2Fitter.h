@@ -5,13 +5,12 @@
 #ifndef GLOBALCHI2FITTER_H
 #define GLOBALCHI2FITTER_H
 //#define GXFDEBUGCODE
-#define LEGACY_TRKGEOM
 #include "TrkDetDescrInterfaces/IMaterialEffectsOnTrackProvider.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "AthenaBaseComps/AthCheckedComponent.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/EventContext.h"
 
-#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 
 #include "TrkToolInterfaces/ITrkMaterialProviderTool.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
@@ -37,9 +36,6 @@
 
 #include "StoreGate/ReadCondHandleKey.h"
 #include "TrkGeometry/TrackingGeometry.h"
-#ifdef LEGACY_TRKGEOM
-#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
-#endif
 
 #include <memory>
 #include <mutex>
@@ -156,7 +152,7 @@ namespace Trk {
   class TrackingVolume;
   class Volume;
 
-  class GlobalChi2Fitter: public extends<AthAlgTool, IGlobalTrackFitter> {
+  class GlobalChi2Fitter: public extends<AthCheckedComponent<AthAlgTool>, IGlobalTrackFitter> {
     struct PropagationResult {
       std::unique_ptr<const TrackParameters> m_parameters;
       std::unique_ptr<TransportJacobian> m_jacobian;
@@ -272,11 +268,6 @@ namespace Trk {
 
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
-    /*
-     * Bring in default impl with
-     * EventContext for now
-     */
-    using ITrackFitter::fit;
 
     virtual std::unique_ptr<Track> fit(
       const EventContext& ctx,
@@ -611,6 +602,7 @@ namespace Trk {
     ) const;
 
     void fillResiduals(
+      const EventContext& ctx,
       Cache &,
       GXFTrajectory &,
       int,
@@ -892,28 +884,31 @@ namespace Trk {
     ToolHandle<IMaterialEffectsOnTrackProvider> m_calotoolparam {this, "MuidToolParam", "", ""};
     ToolHandle<IBoundaryCheckTool> m_boundaryCheckTool {this, "BoundaryCheckTool", "", "Boundary checking tool for detector sensitivities" };
 
-#ifdef LEGACY_TRKGEOM
-     ServiceHandle<ITrackingGeometrySvc> m_trackingGeometrySvc {this, "TrackingGeometrySvc", "",""};
-#endif
     void throwFailedToGetTrackingGeomtry() const;
-    const TrackingGeometry* trackingGeometry(Cache &cache, const EventContext& ctx) const {
-       if (!cache.m_trackingGeometry)
-          cache.m_trackingGeometry=retrieveTrackingGeometry(ctx);
-       return cache.m_trackingGeometry;
+    const TrackingGeometry* trackingGeometry(Cache& cache,
+                                             const EventContext& ctx) const
+    {
+      if (!cache.m_trackingGeometry)
+        cache.m_trackingGeometry = retrieveTrackingGeometry(ctx);
+      return cache.m_trackingGeometry;
     }
-    const TrackingGeometry* retrieveTrackingGeometry(const EventContext& ctx) const {
-#ifdef LEGACY_TRKGEOM
-       if (m_trackingGeometryReadKey.key().empty()) {
-          return m_trackingGeometrySvc->trackingGeometry();
-       }
-#endif
-       SG::ReadCondHandle<TrackingGeometry>  handle(m_trackingGeometryReadKey,ctx);
-       if (!handle.isValid()) {throwFailedToGetTrackingGeomtry(); }
-       return handle.cptr();
+    const TrackingGeometry* retrieveTrackingGeometry(
+      const EventContext& ctx) const
+    {
+      SG::ReadCondHandle<TrackingGeometry> handle(m_trackingGeometryReadKey,
+                                                  ctx);
+      if (!handle.isValid()) {
+        throwFailedToGetTrackingGeomtry();
+      }
+      return handle.cptr();
     }
 
-    SG::ReadCondHandleKey<TrackingGeometry>   m_trackingGeometryReadKey
-       {this, "TrackingGeometryReadKey", "", "Key of the TrackingGeometry conditions data."};
+    SG::ReadCondHandleKey<TrackingGeometry> m_trackingGeometryReadKey{
+      this,
+      "TrackingGeometryReadKey",
+      "AtlasTrackingGeometry",
+      "Key of the TrackingGeometry conditions data."
+    };
 
     SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_field_cache_key{
       this,

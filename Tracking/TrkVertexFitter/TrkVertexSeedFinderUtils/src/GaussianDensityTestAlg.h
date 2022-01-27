@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // GaussianDensityTestAlg.h 
@@ -75,7 +75,9 @@ class GaussianDensityTestAlg
 
   StatusCode findTruth(double mode,
                        const std::vector<Trk::ITrackLink*>& trackVector,
-                       std::vector<Amg::Vector3D>& truth) const;
+                       std::vector<Amg::Vector3D>& truth,
+                       TH1* h_truthDensity,
+                       TH1* h_modeCheck) const;
 
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 
@@ -84,7 +86,7 @@ class GaussianDensityTestAlg
 
   void selectTracks(const xAOD::TrackParticleContainer* trackParticles, std::vector<Trk::ITrackLink*> & trackVector);
 
-  void analyzeTracks(const std::vector<Trk::ITrackLink*> & trackVector, std::vector<const Trk::TrackParameters*>& perigeeList);
+  static void analyzeTracks(const std::vector<Trk::ITrackLink*> & trackVector, std::vector<const Trk::TrackParameters*>& perigeeList);
 
   /////////////////////////////////////////////////////////////////// 
   // Private data: 

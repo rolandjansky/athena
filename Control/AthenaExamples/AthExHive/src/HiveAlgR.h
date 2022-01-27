@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -30,11 +30,11 @@ public:
   ~HiveAlgR ();
   
   // Define the initialize, execute and finalize methods: 
-  StatusCode initialize();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
   // Re-entrant version of execute is const and takes an EventContext param
-  StatusCode execute(const EventContext&) const;
+  virtual StatusCode execute(const EventContext&) const override;
   
 private:
 

@@ -54,10 +54,10 @@ TRTMonitoringRun3ESD_Alg::TRTMonitoringRun3ESD_Alg( const std::string& name, ISv
     declareProperty("InDetTRTStrawStatusSummaryTool",                 m_sumTool);
     declareProperty("ITRT_CalDbTool",                                 m_TRTCalDbTool);
     declareProperty("DriftFunctionTool",                              m_drifttool);
+    declareProperty("doExpert",                 m_doExpert            = false);
     declareProperty("DoTracksMon",              m_doTracksMon         = true);
     declareProperty("doStraws",                 m_doStraws            = true);
     declareProperty("doChips",                  m_doChips             = true);
-    declareProperty("doExpert",                 m_doExpert            = false);
     declareProperty("doShift",                  m_doShift             = true);
     declareProperty("DistanceToStraw",          m_DistToStraw         = 0.4);
     declareProperty("min_si_hits",              m_min_si_hits         = 1);

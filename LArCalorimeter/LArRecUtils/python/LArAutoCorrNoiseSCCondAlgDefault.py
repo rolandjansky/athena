@@ -30,7 +30,7 @@ def LArAutoCorrNoiseSCCondAlgDefault():
 
     from LArROD.LArRODFlags import larRODFlags
     # we need to keep one sample before, another after
-    theAutoCorrNoiseCondAlg.nSampl = larRODFlags.nSamples()+2
+    theAutoCorrNoiseCondAlg.nSampl = larRODFlags.nSamples() + 2 # See ATLASSIM-5483
  
     condSeq+=theAutoCorrNoiseCondAlg
     return theAutoCorrNoiseCondAlg

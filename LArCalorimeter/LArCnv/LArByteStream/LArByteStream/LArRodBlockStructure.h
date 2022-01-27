@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -32,6 +32,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <utility>
 
 //#define LARBYTESTREAMRODBLOCK_CHCKBOUNDARIES
 
@@ -126,8 +127,8 @@ public :
 
   virtual inline int getNextEnergy(int& channelNumber, int32_t& energy, int32_t& time,int32_t& quality,uint32_t& gain);
   virtual int  getNextRawData(int& channelNumber, std::vector<short>& samples, uint32_t& gain);
-  virtual int  getNextAccumulatedCalibDigit(int& channelNumber, std::vector < uint32_t >& SamplesSum,  std::vector < uint32_t >& Samples2Sum, uint32_t&  nStepTriggers, uint32_t& gain);
-  virtual int  getNextAccumulatedDigit(int& channelNumber, std::vector<uint32_t>& SamplesSum, std::vector < uint32_t >& corr2Sum, uint32_t& gain);
+  virtual int  getNextAccumulatedCalibDigit(int& channelNumber, std::vector < uint64_t >& SamplesSum,  std::vector < uint64_t >& Samples2Sum, uint32_t&  nStepTriggers, uint32_t& gain);
+  virtual int  getNextAccumulatedDigit(int& channelNumber, std::vector<uint64_t>& SamplesSum, std::vector < uint64_t >& corr2Sum, uint32_t& gain);
 
   // Get functions related to hasCalibBlock
   virtual inline bool     getPulsed(unsigned channelNumber) const;
@@ -366,9 +367,9 @@ inline uint32_t LArRodBlockStructure::getHeader32(const unsigned n) const // n s
 
 inline uint16_t LArRodBlockStructure::getVectorHeader16(const unsigned n) const // n should be choosen from the above enum
 { if (n&0x1) //n is a odd number 
-    return (m_vFragment->at(n>>1) & 0xffff);
+    return (std::as_const(*m_vFragment).at(n>>1) & 0xffff);
   else //n is a even number
-    return (m_vFragment->at(n>>1) >> 16);
+    return (std::as_const(*m_vFragment).at(n>>1) >> 16);
 }
 
 inline uint32_t LArRodBlockStructure::getVectorHeader32(const unsigned n) const // n should be choosen from the above enum
@@ -407,7 +408,11 @@ inline uint16_t LArRodBlockStructure::LE_getHeader16(const unsigned n) const // 
 }
 
 inline uint16_t LArRodBlockStructure::LE_getVectorHeader16(const unsigned n) const // n should be choosen from the above enum
-{return ((uint16_t*)(&(m_vFragment->front())))[n];}
+{
+  const uint32_t* data32 = std::as_const(*m_vFragment).data();
+  const uint16_t* data16 = reinterpret_cast<const uint16_t*> (data32);
+  return data16[n];
+}
 
 inline void LArRodBlockStructure::LE_setHeader16(const unsigned n, const uint16_t w)
 {

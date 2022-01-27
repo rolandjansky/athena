@@ -15,35 +15,35 @@ namespace Muon{
 class MuonParamElossPlots: public PlotBase
 {
  public:
-  MuonParamElossPlots(PlotBase *pParent, std::string sDir);
+  MuonParamElossPlots(PlotBase *pParent, const std::string& sDir);
   void fill(const xAOD::TruthParticle& truthMu, const xAOD::Muon& mu, float weight=1.0);
   
-  TH1* msInnerMatchChi2;
-  TH1* msOuterMatchChi2;
+  TH1* msInnerMatchChi2{nullptr};
+  TH1* msOuterMatchChi2{nullptr};
 
-  TH1* ELoss;
-  TH1* ELossDiffTruth;
-  TH1* ELossDiffTruthEta0_1p35;
-  TH1* ELossDiffTruthEta1p35_1p55;
-  TH1* ELossDiffTruthEta1p55_end;
-  TH1* ELossSigma;
-  TH1* paramELoss;
-  TH1* paramELossDiff;
-  TH1* paramELossDiffTruth;
-  TH1* paramELossDiffTruthEta0_1p35;
-  TH1* paramELossDiffTruthEta1p35_1p55;
-  TH1* paramELossDiffTruthEta1p55_end;
-  TH1* measELoss; 
-  TH1* measELossDiff; 
-  TH1* measELossDiffTruth; 
-  TH1* measELossDiffTruthEta0_1p35;
-  TH1* measELossDiffTruthEta1p35_1p55;
-  TH1* measELossDiffTruthEta1p55_end;
-  TH1* ELossType;
-  TH1* ELossTypeParametrPt;
-  TH1* ELossTypeNotIsoPt;
-  TH1* ELossTypeTailPt;
-  TH1* ELossTypeAllPt;
+  TH1* ELoss{nullptr};
+  TH1* ELossDiffTruth{nullptr};
+  TH1* ELossDiffTruthEta0_1p35{nullptr};
+  TH1* ELossDiffTruthEta1p35_1p55{nullptr};
+  TH1* ELossDiffTruthEta1p55_end{nullptr};
+  TH1* ELossSigma{nullptr};
+  TH1* paramELoss{nullptr};
+  TH1* paramELossDiff{nullptr};
+  TH1* paramELossDiffTruth{nullptr};
+  TH1* paramELossDiffTruthEta0_1p35{nullptr};
+  TH1* paramELossDiffTruthEta1p35_1p55{nullptr};
+  TH1* paramELossDiffTruthEta1p55_end{nullptr};
+  TH1* measELoss{nullptr}; 
+  TH1* measELossDiff{nullptr}; 
+  TH1* measELossDiffTruth{nullptr}; 
+  TH1* measELossDiffTruthEta0_1p35{nullptr};
+  TH1* measELossDiffTruthEta1p35_1p55{nullptr};
+  TH1* measELossDiffTruthEta1p55_end{nullptr};
+  TH1* ELossType{nullptr};
+  TH1* ELossTypeParametrPt{nullptr};
+  TH1* ELossTypeNotIsoPt{nullptr};
+  TH1* ELossTypeTailPt{nullptr};
+  TH1* ELossTypeAllPt{nullptr};
   
  private:
   void initializePlots();

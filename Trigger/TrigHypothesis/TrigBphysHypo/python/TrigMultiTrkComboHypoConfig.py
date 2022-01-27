@@ -20,7 +20,13 @@ trigMultiTrkComboHypoToolDict = {
     'bTau'       : { 'massRange' : (   0.,  2700.), 'chi2' : 50. },
     'b3mu'       : { 'massRange' : ( 100., 10000.), 'chi2' : 30., 'nTrk' : 3, 'charge' : 1 },
     'bBeeM6000'  : { 'massRange' : ( 100.,  6000.), 'chi2' : 20. },
-    'b0dRAB12vtx20' : { 'massRange' : ( 0.,  999999999.),  'chi2' : 20., 'deltaRMax' : 1.2  }
+    'b0dRAB12vtx20'         : { 'massRange' : ( 0., 999999999.), 'chi2' : 20., 'deltaRMax' : 1.2 },
+    'b0dRAB207invmAB22vtx20': { 'massRange' : ( 7000., 22000.), 'chi2' : 20., 'deltaRMax' : 2.0 },
+    'b0dRAB127invmAB22vtx20': { 'massRange' : ( 7000., 22000.), 'chi2' : 20., 'deltaRMax' : 1.2 },
+    'b7invmAB9vtx20'   : { 'massRange' : (  7000.,  9000.), 'chi2' : 20., 'charge' : -1 },
+    'b11invmAB60vtx20' : { 'massRange' : ( 11000., 60000.), 'chi2' : 20., 'charge' : -1 },
+    'b11invmAB24vtx20' : { 'massRange' : ( 11000., 24000.), 'chi2' : 20., 'charge' : -1 },
+    'b24invmAB60vtx20' : { 'massRange' : ( 24000., 60000.), 'chi2' : 20., 'charge' : -1 }
 }
 
 
@@ -148,6 +154,25 @@ def BmutrkComboHypoCfg(name):
     hypo.trackPtThresholds = [ [ 10000., 3000. ] ]
     return hypo
 
+def DrellYanComboHypoCfg(name):
+    log.debug('DrellYanComboHypoCfg.name = %s ', name)
+
+    config = TrigMultiTrkComboHypoConfig()
+    hypo = config.ConfigurationComboHypo(
+        isStreamer = False,
+        trigSequenceName = 'DrellYan',
+        trigLevel = 'EF',
+        outputTrigBphysCollection = 'HLT_DrellYan')
+    hypo.nTracks = [ 2 ]
+    hypo.totalCharge = [ -1 ]
+    hypo.massRange = [ (7000., 60000.) ]
+    hypo.trackPtThresholds = [ [ 100., 100. ] ]
+    hypo.chi2 = 20.
+    hypo.combineInputDecisionCollections = True
+    hypo.applyOverlapRemoval = False
+    hypo.useLeptonMomentum = True
+    return hypo
+
 def TrigMultiTrkComboHypoToolFromDict(chainDict):
     config = TrigMultiTrkComboHypoConfig()
     tool = config.ConfigurationComboHypoTool(chainDict)
@@ -203,7 +228,7 @@ class TrigMultiTrkComboHypoConfig(object):
             isStreamer = isStreamer,
             trigLevel = trigLevel,
             nTracks = [ 2, 3 ],
-            massRange = [ (100., 20000.), (100., 11000.) ],
+            massRange = [ (100., 20000.), (0., 11000.) ],
             trackPtThresholds = [ [ 3650., 3650. ], [ 3650., 3650., 3650. ] ],
             TrackCollectionKey = trackCollection,
             TrigBphysCollectionKey = outputTrigBphysCollection,
@@ -248,6 +273,10 @@ class TrigMultiTrkComboHypoConfig(object):
         if 'bJpsimutrk' in chainDict['topo']:
             tool.isMuonTrkPEB = True
             tool.totalCharge = 0
+
+        if 'bTau' in chainDict['topo']:
+            tool.nTrk = sum(int(chainPart['multiplicity']) for chainPart in chainDict['chainParts'])
+            tool.totalCharge = 1 if tool.nTrk == 3 else -1
 
         signatures = chainDict['signatures']
         tool.isCombinedChain = (signatures.count(signatures[0]) != len(signatures))

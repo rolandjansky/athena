@@ -104,7 +104,7 @@ namespace Muon {
     std::vector<MuonSegmentMerger::SegVec> MuonSegmentMerger::resolveClusterOverlaps(const MuonSegmentMerger::SegVec& segments) const {
         if (segments.empty()) return std::vector<MuonSegmentMerger::SegVec>();
 
-        const MuonSegment* aSegment = 0;
+        const MuonSegment* aSegment = nullptr;
 
         std::map<IdentifierHash, std::vector<const RpcPrepData*> > rpcsPerCollection;
         std::map<IdentifierHash, std::vector<const TgcPrepData*> > tgcsPerCollection;
@@ -276,9 +276,9 @@ namespace Muon {
     }
 
     const MuonSegment* MuonSegmentMerger::merge(const MuonSegmentMerger::SegVec& segments) const {
-        if (segments.empty()) return 0;
+        if (segments.empty()) return nullptr;
 
-        const MuonSegment* aSegment = 0;
+        const MuonSegment* aSegment = nullptr;
 
         ATH_MSG_DEBUG(" merging overlap " << segments.size());
         SegCit sit = segments.begin();
@@ -338,7 +338,7 @@ namespace Muon {
                 }
             }
         }
-        if (!aSegment) return 0;
+        if (!aSegment) return nullptr;
 
         ATH_MSG_DEBUG(" collected clusters " << clusters.size());
 

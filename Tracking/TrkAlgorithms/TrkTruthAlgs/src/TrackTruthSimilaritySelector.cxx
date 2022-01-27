@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <memory>
@@ -12,9 +12,7 @@
 TrackTruthSimilaritySelector::TrackTruthSimilaritySelector(const std::string &name,ISvcLocator *pSvcLocator)
   : AthAlgorithm(name,pSvcLocator),
   m_detailed("DetailedTrackTruth"), m_out("TrackTruthNew")
-  , m_matchTool("Trk::TruthMatchRatio")
 {
-  declareProperty("TrackTruthSimilarityTool", m_matchTool, "Track-truth similarity tool");
   declareProperty("DetailedTrackTruthName",  m_detailed);
   declareProperty("OutputName",  m_out);
 }
@@ -78,7 +76,7 @@ void TrackTruthSimilaritySelector::fillOutput(TrackTruthCollection *out,
     ATH_MSG_VERBOSE ("track="<<selected->first.index()<<" prob="<<bestProb
 		     <<" link: "<<*(selected->second.trajectory().rbegin()));
 
-    for(Iter imatch = ++range.first; imatch != range.second; imatch++) {
+    for(Iter imatch = ++range.first; imatch != range.second; ++imatch) {
       double prob = m_matchTool->trackTruthSimilarity(imatch->second);
       ATH_MSG_VERBOSE ("track="<<imatch->first.index()<<" prob="<<prob
 		       <<" link: "<<*(imatch->second.trajectory().rbegin()));

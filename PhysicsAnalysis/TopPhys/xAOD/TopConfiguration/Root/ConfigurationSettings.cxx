@@ -1,6 +1,6 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
- */
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+*/
 
 #include "TopConfiguration/ConfigurationSettings.h"
 
@@ -60,6 +60,8 @@ namespace top {
     registerParameter("ElectronIDLoose",
                       "Type of electron for background. Likelihood LooseAndBLayerLH, MediumLH, TightLH", "MediumLH");
     registerParameter("ElectronPt", "Electron pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
+    registerParameter("Electrond0Sig", "Electron d0 significance cut for object selection. Default 5", "5.");
+    registerParameter("Electrondeltaz0", "Electron delta z0 cut for object selection. Default 0.5 mm", "0.5");
     registerParameter("EgammaSystematicModel", "Egamma Calibration Systematic model : FULL_v1 , 1NP_v1 (default)",
                       "1NP_v1");
     registerParameter("ElectronEfficiencySystematicModel",
@@ -109,6 +111,8 @@ namespace top {
 
     registerParameter("MuonPt", "Muon pT cut for object selection (in MeV). Default 25 GeV.", "25000");
     registerParameter("MuonEta", "Absolute Muon eta cut for object selection. Default 2.5.", "2.5");
+    registerParameter("Muond0Sig", "Muon d0 significance cut for object selection. Default 3", "3.");
+    registerParameter("Muondeltaz0", "Muon delta z0 cut for object selection. Default 0.5 mm", "0.5");
     registerParameter("MuonQuality",
                       "Muon quality cut for object selection. Options are VeryLoose, Loose, Medium (default) and Tight",
                       "Medium");
@@ -292,35 +296,23 @@ namespace top {
                       "Default 25 GeV.",
                       "25000");
     registerParameter("TauEtaRegions",
-					            "Eta regions used for both tight and loose taus."
-					            "Default vetoing crack region [0., 1.37, 1.52, 2.5]",
-					            "[0., 1.37, 1.52, 2.5]");
-    registerParameter("TauJetIDWP",
-                      "Tau jet IDWP (None, Loose, Medium, Tight, LooseNotMedium, LooseNotTight, MediumNotTight, NotLoose, RNNLoose, RNNMedium, RNNTight)."
-                      "Default RNNMedium.",
-                      "RNNMedium");
-    registerParameter("TauJetIDWPLoose",
-                      "Loose Tau jet IDWP (None, Loose, Medium, Tight, LooseNotMedium, LooseNotTight, MediumNotTight, NotLoose)."
-                      "Default RNNLoose.",
-                      "RNNLoose");
-    registerParameter("TauEleBDTWP",
-                      "Tau electron BDT WP (None, Loose, Medium, Tight, OldLoose, OldMedium)."
-                      "Default Loose.",
-                      "Loose");
-    registerParameter("TauEleBDTWPLoose",
-                      "Loose Tau electron BDT WP (None, Loose, Medium, Tight, OldLoose, OldMedium)."
-                      "Default Loose.",
-                      "Loose");
-    registerParameter("TauMuOLR",
-                      "Apply tau-electron overlap removal (True/False)."
-                      "Default True",
-                      "True",
-                      {"True","False"});
-    registerParameter("TauMuOLRLoose",
-                      "Apply loose tau-electron overlap removal (True/False)."
-                      "Default True",
-                      "True",
-                      {"True", "False"});
+	  "Eta regions used for both tight and loose taus."
+	  "Default vetoing crack region [0., 1.37, 1.52, 2.5]",
+	  "[0., 1.37, 1.52, 2.5]");
+
+    registerParameter("TauJetIDWP", "Tau jet ID WP.", "RNNMedium",
+                      {"None", "RNNLoose", "RNNMedium", "RNNTight"});
+    registerParameter("TauJetIDWPLoose", "Loose Tau jet ID WP.", "RNNLoose",
+                      {"None", "RNNLoose", "RNNMedium", "RNNTight"});
+
+    registerParameter("TauEleIDWP", "Tau electron ID WP.", "RNNLoose",
+                      {"None", "RNNLoose", "RNNMedium", "RNNTight"});
+    registerParameter("TauEleIDWPLoose", "Loose Tau electron ID WP.", "RNNLoose",
+                      {"None", "RNNLoose", "RNNMedium", "RNNTight"});
+
+    registerParameter("TauMuOLR", "Apply tau-electron overlap removal.", "True", {"True","False"});
+    registerParameter("TauMuOLRLoose", "Apply loose tau-electron overlap removal.", "True", {"True", "False"});
+
     registerParameter("TauJetConfigFile",
                       "Config file to configure tau selection. "
                       "If anything other than 'Default'"
@@ -336,12 +328,6 @@ namespace top {
     registerParameter("ApplyTauMVATES",
                       "Apply new Tau energy calibration based on substructure information and regression. Must be True. Deprecated.",
                       "True");
-    registerParameter("TauSFDoRNNID",
-                      "Save SF for RNN tau ID True/False",
-                      "True");
-    registerParameter("TauSFDoBDTID",
-                      "Save SF for BDT tau ID True/False",
-                      "False");
 
     registerParameter("Systematics", "What to run? Nominal (just the nominal), All(do all systematics) ", "Nominal");
 
@@ -448,7 +434,7 @@ namespace top {
                       "False");
     registerParameter("NominalWeightNames",
                       "List of nominal weight names to attempt to retrieve. Attempts are made in the order as specified. If none of the names can be found, we will crash with error message. Use index instead in such case.",
-                      "\" nominal \",\"nominal\",\"Default\",\"Weight\",\"1001\",\" muR=0.10000E+01 muF=0.10000E+01 \",\"\",\" \",\" dyn=   3 muR=0.10000E+01 muF=0.10000E+01 \",\" mur=1 muf=1 \"");
+                      "\" nominal \",\"nominal\",\"Default\",\"Weight\",\"1001\",\" muR=0.10000E+01 muF=0.10000E+01 \",\"\",\" \",\" dyn=   3 muR=0.10000E+01 muF=0.10000E+01 \",\" mur=1 muf=1 \", \" dyn=   0 muR=0.10000E+01 muF=0.10000E+01 \"");
     registerParameter("NominalWeightFallbackIndex",
                       "Index of nominal weight in MC weights vector. This option is only used in case the MC sample has broken metadata. (Default: -1 means no fallback index specified, rely on metadata and crash if metadata cannot be read)",
                       "-1");
@@ -518,24 +504,24 @@ namespace top {
                       " ");
     registerParameter("BTagCDIPath", "Path to the b-tagging CDI file. Default: Using the hardcoded path.", "Default");
 
-    registerParameter("BTaggingWP",
-                      "DEPRECATED OPTION, use BTaggingCaloJetWP and BTaggingTrackJetWP for specifying b-tagging WPs for jet collections using calorimeter information and for track jets respectively.",
+    registerParameter("BTaggingTrackJetWP",
+                      "b-tagging WPs to use for VR track jet collection in the analysis, separated by commas."
+                      " The format should follow the convention of the b-tagging CP group, e.g. FixedCutBEff_60, FlatBEff_77, Continuous, etc."
+                      " The specified WPs must be calibrated, otherwise use the BTaggingTrackJetWPUncalib option.",
                       " ");
 
-    registerParameter("BTaggingTrackJetWP",
-                      "b-tagging WPs to use for track jet collection in the analysis, separated by commas."
-                      " The format should follow the convention of the b-tagging CP group, e.g. FixedCutBEff_60, FlatBEff_77, Continuous, etc."
-                      " For fixed-cut WPs, the simpler format 60%, instead of FixedCutBEff_60, is also tolerated."
-                      " The specified WPs which are calibrated for all flavours will have scale-factors computed."
-                      " By default, no WP is used.",
-                      " ");
+    registerParameter("BTaggingTrackJetUncalibWP",
+                      "List of uncalibrated b-tagging WPs for track jets. See BTaggingTrackJetWP option description",
+	                    " ");
 
     registerParameter("BTaggingCaloJetWP",
-                      "b-tagging WPs to use for calorimeter jet collection (e.g. EMTopo, EMPFlow) in the analysis, separated by commas."
+                      "b-tagging WPs to use for calo jet collection in the analysis, separated by commas."
                       " The format should follow the convention of the b-tagging CP group, e.g. FixedCutBEff_60, FlatBEff_77, Continuous, etc."
-                      " For fixed-cut WPs, the simpler format 60%, instead of FixedCutBEff_60, is also tolerated."
-                      " The specified WPs which are calibrated for all flavours will have scale-factors computed."
-                      " By default, no WP is used.",
+                      " The specified WPs must be calibrated, otherwise use the BTaggingCaloJetWPUncalib option.",
+                      " ");
+
+    registerParameter("BTaggingCaloJetUncalibWP",
+                      "List of uncalibrated b-tagging WPs for calo jets. See BTaggingCaloJetWP option description",
                       " ");
 
     registerParameter("BTaggingSystExcludedFromEV",
@@ -887,7 +873,7 @@ namespace top {
   }
 
   void ConfigurationSettings::checkSettings() {
-    for (const std::pair<std::string, StringData>& entry : strings_) {
+    for (const std::pair<const std::string, StringData>& entry : strings_) {
       const StringData& data = entry.second;
       // if the config option restricts allowed values to some limited set,
       // check that the configured value is valid

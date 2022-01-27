@@ -21,6 +21,7 @@ hlt.args += ' --outputBSFile=RAW.pool.root'
 hlt.args += ' --outputHIST_HLTMONFile=hltmon.root'
 hlt.args += ' --outputDRAW_TRIGCOSTFile=TRIGCOST.pool.root'
 hlt.args += ' --outputNTUP_TRIGCOSTFile=cost.ntup.root'
+hlt.args += ' --runNumber 360026'  # RunNumber is set by Panda, but ignored by Trf to avoid changes from !48070
 hlt.input = 'data'
 
 #====================================================================================================
@@ -31,8 +32,6 @@ tzrecoPreExec = ' '.join([
  "ConfigFlags.Trigger.AODEDMSet=\'AODFULL\';",
  "ConfigFlags.Trigger.enableL1MuonPhase1=True;",
  "ConfigFlags.Trigger.enableL1CaloPhase1=True;",
- "from TriggerJobOpts.TriggerFlags import TriggerFlags;",
- "TriggerFlags.configForStartup=\'HLToffline\';",
 ])
 
 tzreco = ExecStep.ExecStep('Tier0Reco')
@@ -57,7 +56,7 @@ tzmon.executable = 'Run3DQTestingDriver.py'
 tzmon.input = ''
 tzmon.args = '--threads=1'
 tzmon.args += ' --dqOffByDefault'
-tzmon.args += ' Input.Files="[\'AOD.pool.root\']" DQ.Steering.doHLTMon=True'
+tzmon.args += ' Input.Files="[\'AOD.pool.root\']" DQ.Steering.doHLTMon=True Trigger.triggerMenuSetup=\'PhysicsP1_pp_run3_v1\''
 
 #====================================================================================================
 # Merging NTUP_TRIGRATE/COST

@@ -4,8 +4,6 @@
 
 #include "LArCalibUtils/LArPhysWaveTool.h" 
 
-const int LArPhysWaveTool::DEFAULT=-1;
-
 LArPhysWaveTool::LArPhysWaveTool ( const std::string& type, 
 				   const std::string& name, 
 				   const IInterface* parent )
@@ -38,42 +36,22 @@ LArPhysWaveTool::~LArPhysWaveTool() {}
 
 StatusCode LArPhysWaveTool::makeLArPhysWave(const LArWFParams& larWFParam, 
 					    const LArCaliWave& larCaliWave,
-					    int region, int layer,
+					    int /*region*/, int layer,
 					    LArPhysWave& predLArPhysWave,
-					    float& MphysMcali)
-{
-  // set input objects
-  m_region = region ;
-  m_layer  = layer ; 
-  m_gCali  = larCaliWave;
-  m_Tdrift = larWFParam.tdrift();
-  m_Tcal   = larWFParam.tcal();
-  m_Fstep  = larWFParam.fstep();
-  m_Omega0 = larWFParam.omega0();
-  m_Taur   = larWFParam.taur();
-  
-  // calculates m_gPhys from m_gCali, and m_MphysMcali
-  predict_phys(); 
-  
-  // set output objects;
-  predLArPhysWave = m_gPhys ;
-  MphysMcali = m_MphysMcali ;
-  
-  return StatusCode::SUCCESS; 
-}
+					    float& MphysMcali) const {
 
-void LArPhysWaveTool::predict_phys() {
-  MsgStream log(msgSvc(), name());
+  
   // calib. signal at Mother Board :
-  LArWave gCaliMB(m_gCali) , gPhys ;
+  LArWave gCaliMB(larCaliWave);
+  LArWave gPhys;
   LArWaveHelper wHelper;
 
   // shift gCaliMB to start point and remove baseline
 
-  m_Tstart = wHelper.getStart(gCaliMB) ;
-  double baseline = wHelper.getBaseline(gCaliMB,m_Tstart) ;
+  unsigned tstart = wHelper.getStart(gCaliMB) ;
+  double baseline = wHelper.getBaseline(gCaliMB,tstart) ;
   if ( m_subtractBaseline )   gCaliMB = gCaliMB + (-baseline) ;
-  if ( m_timeOriginShift )    gCaliMB = wHelper.translate(gCaliMB,-m_Tstart,baseline) ;
+  if ( m_timeOriginShift )    gCaliMB = wHelper.translate(gCaliMB,-tstart,baseline) ;
   
   // normalization of calibration pulse
 
@@ -91,67 +69,72 @@ void LArPhysWaveTool::predict_phys() {
 
   // ionisation waveform prediction
 
-  ATH_MSG_VERBOSE ( "*** Physics waveform\t|-> m_Tdrift  = " << m_Tdrift << " ns " );
-  ATH_MSG_VERBOSE ( "*** Physics waveform\t|-> m_Fstep   = " << m_Fstep  << " ns " );
-  ATH_MSG_VERBOSE ( "*** Physics waveform\t|-> m_Tcal    = " << m_Tcal   << " ns " );
-  ATH_MSG_VERBOSE ( "*** Physics waveform\t|-> m_Omega0  = " << m_Omega0 << " GHz" );
-  ATH_MSG_VERBOSE ( "*** Physics waveform\t|-> m_Taur    = " << m_Taur   << " ns " );
+  ATH_MSG_VERBOSE ( "*** Physics waveform\t|-> m_Tdrift  = " << larWFParam.tdrift() << " ns " );
+  ATH_MSG_VERBOSE ( "*** Physics waveform\t|-> m_Fstep   = " << larWFParam.fstep()  << " ns " );
+  ATH_MSG_VERBOSE ( "*** Physics waveform\t|-> m_Tcal    = " << larWFParam.tcal()   << " ns " );
+  ATH_MSG_VERBOSE ( "*** Physics waveform\t|-> m_Omega0  = " << larWFParam.omega0() << " GHz" );
+  ATH_MSG_VERBOSE ( "*** Physics waveform\t|-> m_Taur    = " << larWFParam.taur()   << " ns " );
   
-  //  bool doInjPointCorr = ( ( ( m_region==0 && m_layer>=0 && m_layer<4 && m_injPointCorrLayer[m_layer] ) || m_injPointCorr )
-  //			  && m_Omega0 != 0. ) ;
+  bool doInjPointCorr = ( ( ( layer>=0 && layer<4 && m_injPointCorrLayer[layer] ) || m_injPointCorr )
+			  && larWFParam.omega0() != 0. ) ;
 
-  bool doInjPointCorr = ( ( ( m_layer>=0 && m_layer<4 && m_injPointCorrLayer[m_layer] ) || m_injPointCorr )
-			  && m_Omega0 != 0. ) ;
-  
+  const unsigned N = gCaliMB.getSize();   
+  const double dt = gCaliMB.getDt() ;
+
+
   if ( ! doInjPointCorr ) {
     // perform only exp->triangle correction
     ATH_MSG_VERBOSE ( "*** Inj. Point Corr \t|-> NO" );
-    gPhys = exp2Tri ( gCaliMB ) ;
+    gPhys = exp2Tri ( gCaliMB,N,dt, larWFParam) ;
   } else {
     // perform exp->triangle and then injection point correction
     ATH_MSG_VERBOSE ( "*** Inj. Point Corr \t|-> YES" );
-    if ( !m_injPointUseTauR[m_layer] ) {
-      m_Taur = 0.;
+    if ( !m_injPointUseTauR[layer] ) {
+      //Copy LArWFParams and set Taur to 0
+      LArWFParams paramsNoTaur=larWFParam;
+      paramsNoTaur.setTaur(0);
       ATH_MSG_VERBOSE ( "*** Inj. Point TauR \t|-> NO" );
+      gPhys = injResp ( exp2Tri ( gCaliMB,N,dt,paramsNoTaur),N,dt,paramsNoTaur);
     }
-    gPhys = injResp ( exp2Tri ( gCaliMB ) );
+    else {
+      gPhys = injResp ( exp2Tri ( gCaliMB,N,dt,larWFParam),N,dt,larWFParam);
+    }
   }
   
   // compute Mphys/Mcal
   if ( m_normalizeCali ) {
      // caliwave is normalized to 1 => Mcali = 1
-     m_MphysMcali = gPhys.getSample( wHelper.getMax(gPhys) ) ;
+     MphysMcali = gPhys.getSample( wHelper.getMax(gPhys) ) ;
   } else {
-     m_MphysMcali = gPhys.getSample( wHelper.getMax(gPhys) ) /
-                    gCaliMB.getSample( wHelper.getMax(gCaliMB) ) ;
+     MphysMcali = gPhys.getSample( wHelper.getMax(gPhys) ) /
+                  gCaliMB.getSample( wHelper.getMax(gCaliMB) ) ;
   }  
-  ATH_MSG_VERBOSE ( "*** Physics waveform\t|-> m_MphysMcali = " << m_MphysMcali );
+  ATH_MSG_VERBOSE ( "*** Physics waveform\t|-> m_MphysMcali = " << MphysMcali );
   
-  m_gPhys = LArPhysWave( gPhys.getWave() ,
-			 m_gCali.getDt() );
+  predLArPhysWave = LArPhysWave( gPhys.getWave(), larCaliWave.getDt() );
 			 
-  return ;			 
+  return StatusCode::SUCCESS;			 
 }
 
-LArWave LArPhysWaveTool::exp2Tri (const LArWave &w) const {
-  return w + ( w % caliPhysCorr() ) ;
+LArWave LArPhysWaveTool::exp2Tri (const LArWave &w,const unsigned N, const double dt, const LArWFParams& params) const {
+  return w + ( w % caliPhysCorr(N,dt,params) ) ;
 }
-LArWave LArPhysWaveTool::caliPhysCorr() const {
-  unsigned N = m_gCali.getSize() ;
-  double dt = m_gCali.getDt() ;
+
+
+LArWave LArPhysWaveTool::caliPhysCorr(const unsigned N, const double dt, const LArWFParams& params) const {
   LArWave w(N,dt);
   for ( unsigned i=0 ; i<N ; i++ ) 
-    w.setSample(i,caliPhysCorr(i*dt)) ;
+    w.setSample(i,caliPhysCorr(i*dt,params)) ;
   return w ;
 }
 
 /* =====================================================================
  * Function: Calibration to Ionisation correction function
  * ===================================================================== */
-double LArPhysWaveTool::caliPhysCorr ( double t ) const {
-  double fstep = m_Fstep ;
-  double Tc    = m_Tcal ;
-  double Td    = m_Tdrift ;
+double LArPhysWaveTool::caliPhysCorr ( double t, const LArWFParams& params) const {
+  const double fstep = params.fstep() ;
+  const double Tc    = params.tcal() ;
+  const double Td    = params.tdrift() ;
   if ( t<Td ) {
     if ( fstep==0. ) return ((1.-Tc/Td)-t/Td)/Tc ;
     return (1.-fstep)/Tc * exp (-fstep*t/Tc)
@@ -185,74 +168,70 @@ double LArPhysWaveTool::caliPhysCorr ( double t ) const {
 /*******************************************************************
  * Injection point correction
  *******************************************************************/
-LArWave LArPhysWaveTool::injResp (const LArWave& w) const {
-  return  w % injCorr() ;
+LArWave LArPhysWaveTool::injResp (const LArWave& w, unsigned N, double dt, const LArWFParams& params) const {
+  return  w % injCorr(N,dt,params);
 }
                                                                                 
-LArWave LArPhysWaveTool::stepResp () const {
-  return m_gCali + m_gCali % stepCorr() ;
+LArWave LArPhysWaveTool::stepResp (const LArCaliWave& gCali, const LArWFParams& params) const {
+  const unsigned N=gCali.getSize();
+  const double dt=gCali.getDt();
+
+  return gCali + gCali % stepCorr(N,dt,params) ;
 }
-LArWave LArPhysWaveTool::step2Tri (const LArWave& w) const {
-  return  w + w % stepPhysCorr() ;
+LArWave LArPhysWaveTool::step2Tri (const LArWave& w, unsigned N, double dt, const LArWFParams& params) const {
+  return  w + w % stepPhysCorr(N,dt,params.tdrift()) ;
 }
 /* =================================================================
  * Function: Step response to Ionisation correction function
  * =============================================================== */
-double LArPhysWaveTool::stepPhysCorr ( double t ) const {
-  double Td = m_Tdrift ;
+double LArPhysWaveTool::stepPhysCorr ( double t, const double Td) const {
   if ( t<0. || t>=Td ) return 0. ;
   else return -1./Td ;
 }
-LArWave LArPhysWaveTool::stepPhysCorr() const {
-  unsigned N = m_gCali.getSize() ;
-  double dt = m_gCali.getDt() ;
+LArWave LArPhysWaveTool::stepPhysCorr(unsigned N, double dt, const double Td) const {
   LArWave w(N,dt) ;
-  for ( unsigned i=0 ; i<N ; i++ ) w.setSample(i,stepPhysCorr(i*dt)) ;
+  for ( unsigned i=0 ; i<N ; i++ ) w.setSample(i,stepPhysCorr(i*dt,Td)) ;
   return w ;
 }
 
 
-LArWave LArPhysWaveTool::stepCorr() const {
-  unsigned N = m_gCali.getSize() ;
-  double dt = m_gCali.getDt() ;
+LArWave LArPhysWaveTool::stepCorr(unsigned N, double dt, const LArWFParams& params) const {
   LArWave w(N,dt) ;
-  for ( unsigned i=0 ; i<N ; i++ ) w.setSample(i,stepCorr(i*dt)) ;
+  for ( unsigned i=0 ; i<N ; i++ ) w.setSample(i,stepCorr(i*dt,params)) ;
   return w ;
 }
-double LArPhysWaveTool::stepCorr ( double t ) const {
-  double fstep = m_Fstep ;
-  double Tc    = m_Tcal ;
+double LArPhysWaveTool::stepCorr (double t, const LArWFParams& params) const {
+  const double fstep = params.fstep();
+  const double Tc    = params.tcal();
   return (1.-fstep)/Tc * exp( -fstep*t/Tc );
 }
 
 
-LArWave LArPhysWaveTool::injCorr() const {
-  unsigned N = m_gCali.getSize() ;
-  double dt = m_gCali.getDt() ;
+LArWave LArPhysWaveTool::injCorr(unsigned N, double dt, const LArWFParams& params) const {
   LArWave w(N,dt) ;
-  for ( unsigned i=0 ; i<N ; i++ ) w.setSample(i,injCorr(i*dt)) ;
+  for ( unsigned i=0 ; i<N ; i++ ) w.setSample(i,injCorr(i*dt,params)) ;
   return w ;
 }
 /* =================================================================
  * Function: injection point correction function
  * =============================================================== */
-double LArPhysWaveTool::injCorr ( double t ) const {
-  double tau0 = 1./m_Omega0;
-  double taur = m_Taur;
-  double Delta = pow(taur,2.) - pow(2*tau0,2.) ;
+double LArPhysWaveTool::injCorr ( double t, const LArWFParams& params) const {
+  const double tau0 = 1./params.omega0();
+  const double taur = params.taur();
+  const double Delta = std::pow(taur,2) - std::pow(2*tau0,2) ;
   if ( Delta > 0 ) {
-    double sqrtDelta = sqrt(Delta) ;
+    double sqrtDelta = std::sqrt(Delta) ;
     double taup = 0.5*( taur + sqrtDelta ) ;
     double taum = 0.5*( taur - sqrtDelta ) ;
     return ( exp(-t/taup) - exp(-t/taum) ) / ( taup - taum ) ;
   } else if ( Delta < 0 ) {
-    double T = sqrt(-Delta) ;
-    double A = 2 * taur / ( pow(taur,2.) - Delta ) ;
-    double B = 2 * T / ( pow(taur,2.) - Delta ) ;
+    double T = std::sqrt(-Delta) ;
+    double A = 2 * taur / ( std::pow(taur,2) - Delta ) ;
+    double B = 2 * T / ( std::pow(taur,2) - Delta ) ;
     return 2 * exp(-A*t) * sin(B*t) / T ;
   } else {
     double tau = 0.5 * taur ;
-    return exp(-t/tau) * t / pow(tau,2.) ;
+    return exp(-t/tau) * t / std::pow(tau,2) ;
   }
 #if 0
   double taur2 = taur*taur, tau02 = tau0*tau0 ;

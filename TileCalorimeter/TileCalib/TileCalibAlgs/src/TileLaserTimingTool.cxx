@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Athena includes
@@ -354,9 +354,6 @@ StatusCode TileLaserTimingTool::execute() {
   int Nconnected;
   float ChannelOffset;
 
-  // accumulated vals
-  float totene = 0.0;
-
   DrawerData *ddata = 0;
 
   unsigned frag;
@@ -446,7 +443,6 @@ StatusCode TileLaserTimingTool::execute() {
               pmtdata.eneHisto.Fill(pmtdata.energy);
               pmtdata.gainHisto.Fill(gain);
 #endif
-              if (pmtdata.energy > 0.1) totene += pmtdata.energy;
 
               // pulse data-->
 #ifdef TileLaserTimingMonPulse

@@ -34,7 +34,7 @@ void LArBadChanContainerHashed::setBadFEBs( const std::vector<BadFebEntry>& badF
   for ( unsigned int i=0; i< m_hasher.maxFEBHash(); i++) m_febVec[i].resetBad();
 
   for (std::vector<BadFebEntry>::const_iterator i=badFebs.begin(); 
-       i!=badFebs.end(); i++) {
+       i!=badFebs.end(); ++i) {
     m_febVec.at(  m_hasher.hashFEB(i->first)).setFebStatus(i->second);
   }
 }

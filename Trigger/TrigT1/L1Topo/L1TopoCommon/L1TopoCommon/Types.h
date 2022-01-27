@@ -20,12 +20,28 @@ namespace TCS {
 			 MUONNEXTBC=9,
                          EEM=10,
 			 ETAU=11,
-			 CTAU=12
+                         JEM=12,
+                         GLARGERJET=13,
+                         GJET=14,
+			 CTAU=15
+   }; 
+
+  enum outputTopoType_t { UNDEF=999,
+                          LEGACYTOPO0=0,
+                          LEGACYTOPO1=1,
+                          TOPO2EL=2,
+                          TOPO3EL=3,
+                          TOPO1OPT0=4,
+                          TOPO1OPT1=5,
+                          TOPO1OPT2=6,
+                          TOPO1OPT3=7
    }; 
 
    std::string inputTypeAsString(inputTOBType_t type);
 
    inputTOBType_t inputType(const std::string& input);
+  
+   outputTopoType_t outputType(const std::string& output);
 
 }
 

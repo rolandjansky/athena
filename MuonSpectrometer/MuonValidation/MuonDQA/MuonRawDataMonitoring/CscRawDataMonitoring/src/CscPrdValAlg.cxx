@@ -65,8 +65,8 @@ namespace CscPrdBins {
 CscPrdValAlg::CscPrdValAlg(const std::string & type, const std::string & name, const IInterface* parent) : 
   ManagedMonitorToolBase(type, name, parent),
   m_stripFitter(name),
-  m_cscprd_oviewEA(0),
-  m_cscprd_oviewEC(0)
+  m_cscprd_oviewEA(nullptr),
+  m_cscprd_oviewEC(nullptr)
 {
 
   declareProperty("CSCStripFitter", m_stripFitter);
@@ -87,11 +87,11 @@ CscPrdValAlg::CscPrdValAlg(const std::string & type, const std::string & name, c
 CscPrdValAlg::~CscPrdValAlg() {
   if(m_cscprd_oviewEA) {
     delete m_cscprd_oviewEA;
-    m_cscprd_oviewEA = 0;
+    m_cscprd_oviewEA = nullptr;
   }
   if(m_cscprd_oviewEC) {
     delete m_cscprd_oviewEC;
-    m_cscprd_oviewEC = 0;
+    m_cscprd_oviewEC = nullptr;
   }
   ATH_MSG_DEBUG( "CscPrdValAlg: in destructor" );
 }
@@ -117,60 +117,60 @@ StatusCode CscPrdValAlg::initialize() {
 //
 void CscPrdValAlg::initHistograms() {
 
-  m_h2csc_prd_hitmap = 0;
-  m_h2csc_prd_hitmap_signal = 0;
-  m_h2csc_prd_hitmap_noise = 0;
+  m_h2csc_prd_hitmap = nullptr;
+  m_h2csc_prd_hitmap_signal = nullptr;
+  m_h2csc_prd_hitmap_noise = nullptr;
 
-  m_h2csc_prd_hitmap_norm = 0;
-  m_h2csc_prd_hitmap_norm_signal = 0;
-  m_h2csc_prd_hitmap_norm_noise = 0;
+  m_h2csc_prd_hitmap_norm = nullptr;
+  m_h2csc_prd_hitmap_norm_signal = nullptr;
+  m_h2csc_prd_hitmap_norm_noise = nullptr;
 
-  m_h2csc_prd_hitmap_signal_EA = 0;
-  m_h1csc_prd_hitmap_signal_EA_count = 0;
-  m_h1csc_prd_hitmap_signal_EA_occupancy = 0;
+  m_h2csc_prd_hitmap_signal_EA = nullptr;
+  m_h1csc_prd_hitmap_signal_EA_count = nullptr;
+  m_h1csc_prd_hitmap_signal_EA_occupancy = nullptr;
 
-  m_h2csc_prd_hitmap_norm_signal_EA = 0;
+  m_h2csc_prd_hitmap_norm_signal_EA = nullptr;
 
-  m_h2csc_prd_hitmap_signal_EC = 0;
-  m_h1csc_prd_hitmap_signal_EC_count = 0;
-  m_h1csc_prd_hitmap_signal_EC_occupancy = 0;
+  m_h2csc_prd_hitmap_signal_EC = nullptr;
+  m_h1csc_prd_hitmap_signal_EC_count = nullptr;
+  m_h1csc_prd_hitmap_signal_EC_occupancy = nullptr;
 
-  m_h2csc_prd_hitmap_norm_signal_EC = 0;
+  m_h2csc_prd_hitmap_norm_signal_EC = nullptr;
 
-  m_h2csc_prd_occvslb_EA = 0;
-  m_h2csc_prd_occvslb_EC = 0;
+  m_h2csc_prd_occvslb_EA = nullptr;
+  m_h2csc_prd_occvslb_EC = nullptr;
 
-  m_h2csc_prd_eta_vs_phi_hitmap = 0;
-  m_h2csc_prd_r_vs_z_hitmap = 0;
-  m_h2csc_prd_y_vs_x_hitmap = 0;
+  m_h2csc_prd_eta_vs_phi_hitmap = nullptr;
+  m_h2csc_prd_r_vs_z_hitmap = nullptr;
+  m_h2csc_prd_y_vs_x_hitmap = nullptr;
 
-  m_h2csc_prd_phicluswidth = 0;
-  m_h2csc_prd_phicluswidth_signal = 0;
-  m_h2csc_prd_phicluswidth_noise = 0;
+  m_h2csc_prd_phicluswidth = nullptr;
+  m_h2csc_prd_phicluswidth_signal = nullptr;
+  m_h2csc_prd_phicluswidth_noise = nullptr;
 
-  m_h2csc_prd_etacluswidth = 0;
-  m_h2csc_prd_etacluswidth_signal = 0;
-  m_h2csc_prd_etacluswidth_noise = 0;
+  m_h2csc_prd_etacluswidth = nullptr;
+  m_h2csc_prd_etacluswidth_signal = nullptr;
+  m_h2csc_prd_etacluswidth_noise = nullptr;
 
-  m_h2csc_prd_phicluscount = 0;
-  m_h2csc_prd_phicluscount_signal = 0;
-  m_h2csc_prd_phicluscount_noise = 0;
+  m_h2csc_prd_phicluscount = nullptr;
+  m_h2csc_prd_phicluscount_signal = nullptr;
+  m_h2csc_prd_phicluscount_noise = nullptr;
 
-  m_h2csc_prd_etacluscount = 0;
-  m_h2csc_prd_etacluscount_signal = 0;
-  m_h2csc_prd_etacluscount_noise = 0;
+  m_h2csc_prd_etacluscount = nullptr;
+  m_h2csc_prd_etacluscount_signal = nullptr;
+  m_h2csc_prd_etacluscount_noise = nullptr;
 
 
-  m_h1csc_prd_maxdiffamp = 0;
+  m_h1csc_prd_maxdiffamp = nullptr;
 
   // Correlation plots
-  m_h2csc_prd_eta_vs_phi_cluscount = 0;
-  m_h2csc_prd_eta_vs_phi_cluscount_signal = 0;
-  m_h2csc_prd_eta_vs_phi_cluscount_noise = 0;
+  m_h2csc_prd_eta_vs_phi_cluscount = nullptr;
+  m_h2csc_prd_eta_vs_phi_cluscount_signal = nullptr;
+  m_h2csc_prd_eta_vs_phi_cluscount_noise = nullptr;
 
-  m_h2csc_prd_eta_vs_phi_cluswidth = 0;
-  m_h2csc_prd_eta_vs_phi_cluswidth_signal = 0;
-  m_h2csc_prd_eta_vs_phi_cluswidth_noise = 0;
+  m_h2csc_prd_eta_vs_phi_cluswidth = nullptr;
+  m_h2csc_prd_eta_vs_phi_cluswidth_signal = nullptr;
+  m_h2csc_prd_eta_vs_phi_cluswidth_noise = nullptr;
 
 }
 

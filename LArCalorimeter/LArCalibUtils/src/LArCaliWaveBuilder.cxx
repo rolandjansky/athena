@@ -219,15 +219,15 @@ StatusCode LArCaliWaveBuilder::executeWithAccumulatedDigits()
      
      // transform sampleSum vector from uint32_t to double
      std::vector<double> samplesum;     
-     std::vector < uint32_t >::const_iterator samplesum_it=(*it)->sampleSum().begin();
-     std::vector < uint32_t >::const_iterator samplesum_it_e=(*it)->sampleSum().end();
+     std::vector < uint64_t >::const_iterator samplesum_it=(*it)->sampleSum().begin();
+     std::vector < uint64_t >::const_iterator samplesum_it_e=(*it)->sampleSum().end();
      for (;samplesum_it!=samplesum_it_e; ++samplesum_it) 
        samplesum.push_back((double)(*samplesum_it));     
      
      // transform sample2Sum vector from uint32_t to double
      std::vector<double> sample2sum;     
-     std::vector < uint32_t >::const_iterator sample2sum_it=(*it)->sample2Sum().begin();
-     std::vector < uint32_t >::const_iterator sample2sum_it_e=(*it)->sample2Sum().end();
+     std::vector < uint64_t >::const_iterator sample2sum_it=(*it)->sample2Sum().begin();
+     std::vector < uint64_t >::const_iterator sample2sum_it_e=(*it)->sample2Sum().end();
      for (;sample2sum_it!=sample2sum_it_e; ++sample2sum_it) 
        sample2sum.push_back((double)(*sample2sum_it));     
 
@@ -459,15 +459,13 @@ StatusCode LArCaliWaveBuilder::stop()
 		    ATH_MSG_INFO( "Absolute ADC saturation at DAC = " << thisWave.getDAC() << " ... skip!" ) ;
 		    continue ;
 		} else {
-
-		    LArCaliWave newWave( ((thisWave)+(-pedAve)).getWave() ,
+                    dacWaves.emplace_back(((thisWave)+(-pedAve)).getWave() ,
 		                         thisWave.getErrors(),
 					 thisWave.getTriggers(),
 					 thisWave.getDt(), 
 					 (thisWave.getDAC() + (thisWave.getIsPulsedInt()<<24)), 
 					 thisWave.getFlag() );
        
-		    dacWaves.push_back(newWave);
 		    NCaliWave++;
 		}
 	    

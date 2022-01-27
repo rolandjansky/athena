@@ -585,7 +585,7 @@ void LArGeo::EMECConstruction::place_custom_solids(
   // This lambda function creates a proxy for the LArCustomShape:
   auto toUnidentified = [] (const LArCustomShape *inputShape)
     {
-      std::string name= inputShape->name();
+      const std::string& name= inputShape->name();
       return new GeoUnidentifiedShape("LArCustomShape",name);
     };  
 

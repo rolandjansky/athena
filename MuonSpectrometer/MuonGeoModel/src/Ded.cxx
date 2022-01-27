@@ -62,9 +62,9 @@ namespace MuonGM {
 
         // Apply cutouts
         if (cutoutson && vcutdef.size() > 0) {
-            GeoPhysVol *tempPhys = 0;
-            Cutout *cut = 0;
-            GeoShape *cutoutShape = 0;
+            GeoPhysVol *tempPhys = nullptr;
+            Cutout *cut = nullptr;
+            GeoShape *cutoutShape = nullptr;
             GeoTrf::Transform3D cutTrans{GeoTrf::Transform3D::Identity()};
             for (unsigned i = 0; i < vcutdef.size(); i++) {
                 cut = vcutdef[i];

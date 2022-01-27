@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -15,10 +15,7 @@
 #include "TrkEventTPCnv/TrkNeutralParameters/NeutralAtaSurfaceCnv_p1.icc"
 
 
-namespace {
-   NeutralAtaDiscCnv_p1	inst1;
-   NeutralAtaCylinderCnv_p1	inst2;
-   NeutralAtaPlaneCnv_p1	inst3;
-   NeutralAtaStraightLineCnv_p1 isnt4;
-}
-
+template class NeutralAtaSurfaceCnv_p1< DiscSurfaceCnv_p1, Trk::NeutralAtaDisc >;
+template class NeutralAtaSurfaceCnv_p1< CylinderSurfaceCnv_p1, Trk::NeutralAtaCylinder >;
+template class NeutralAtaSurfaceCnv_p1< PlaneSurfaceCnv_p1, Trk::NeutralAtaPlane >;
+template class NeutralAtaSurfaceCnv_p1< StraightLineSurfaceCnv_p1, Trk::NeutralAtaStraightLine >;

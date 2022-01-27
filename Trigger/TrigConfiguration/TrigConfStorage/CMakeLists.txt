@@ -13,28 +13,27 @@ find_package( tdaq-common )
 atlas_add_library( TrigConfStorage
                    src/*.cxx
                    PUBLIC_HEADERS TrigConfStorage
-                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                   PRIVATE_INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} TrigConfBase TrigConfHLTData TrigConfL1Data
-                   PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} TrigConfJobOptData L1TopoConfig )
+                   INCLUDE_DIRS ${COOL_INCLUDE_DIRS}
+                   PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${COOL_LIBRARIES} TrigConfBase TrigConfL1Data
+                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} TrigConfJobOptData TrigConfHLTData L1TopoConfig )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_executable( TrigConfReadWrite
-                         src/test/ReadWrite.cxx src/test/Run2toRun3ConvertersL1.cxx src/test/Run2toRun3ConvertersHLT.cxx
-                         LINK_LIBRARIES L1TopoConfig TrigConfJobOptData TrigConfStorage TrigConfData TrigConfIO TrigCompositeUtilsLib )
+                         src/apps/ReadWrite.cxx src/apps/Run2toRun3ConvertersL1.cxx src/apps/Run2toRun3ConvertersHLT.cxx src/apps/TrigConfCoolWriter.cxx
+                         INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
+                         LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${CORAL_LIBRARIES} CxxUtils L1TopoConfig TrigCompositeUtilsLib TrigConfBase TrigConfData TrigConfHLTData TrigConfIO TrigConfJobOptData TrigConfL1Data TrigConfStorage nlohmann_json::nlohmann_json )
 
    atlas_add_test( test_Run2Run3Conversion
                    SCRIPT TrigConfReadWrite -i TRIGGERDB 2218,4229,2967,1373 -o r3json
+                   POST_EXEC_SCRIPT nopost.sh
                    PROPERTIES TIMEOUT 300 )
 endif()
 
 atlas_add_executable( TrigConfCoolFix
-                      src/test/CoolFix.cxx
-                      LINK_LIBRARIES TrigConfStorage )
-
-atlas_add_executable( TrigConfTestTriggerDBCoolMix
-                      src/test/TestTriggerDBCoolMix.cxx
-                      LINK_LIBRARIES TrigConfStorage )
+                      src/apps/CoolFix.cxx src/apps/TrigConfCoolWriter.cxx
+                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${CORAL_LIBRARIES} CxxUtils TrigConfBase TrigConfHLTData TrigConfL1Data TrigConfStorage )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

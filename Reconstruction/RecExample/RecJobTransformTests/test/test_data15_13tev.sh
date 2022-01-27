@@ -9,4 +9,3 @@ Reco_tf.py --athenaopts="--threads=8" --inputBSFile /cvmfs/atlas-nightlies.cern.
 
 RES=$?
 echo "art-result: $RES Reco"
-return $RES

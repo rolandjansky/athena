@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaCommon.Logging import logging
 log = logging.getLogger("RecoSteering")
 
@@ -16,30 +16,31 @@ def _run(input):
     #TODO these flags should be defaulted in the divier function above, 
     #TODO    but then we ought to have option to set them from command line should the parser be passed there too?
 
-    flags.Calo.TopoCluster.doTopoClusterLocalCalib=False
     flags.Output.ESDFileName="myESD.pool.root"
     flags.Output.AODFileName="myAOD.pool.root"
     parser = flags.getArgumentParser()
-    parser.add_argument('--tryConfiguringAll', action="store_true")
     args = flags.fillFromArgs(parser=parser)
 
     # test inputs
-    if flags.Input.Files == []:
+    if not flags.Input.Files:
         from AthenaConfiguration.TestDefaults import defaultTestFiles
         if input == "RAW":
             flags.Input.Files = defaultTestFiles.RAW
         if input == "ESD":
             flags.Input.Files = defaultTestFiles.ESD
         if input == "RDO":
-            flags.Input.Files = defaultTestFiles.RDO
+            flags.Input.Files = defaultTestFiles.RDO_RUN2
 
+    # Enable PerfMon
+    flags.PerfMon.doFullMonMT = True
+    flags.PerfMon.OutputJSON = f"perfmonmt_{input}.json"
 
     flags.lock()
     log.info("Configuring according to flag values listed below")
     flags.dump()
 
     from RecJobTransforms.RecoSteering import RecoSteering
-    acc = RecoSteering(flags, tryConfiguringAll=args.tryConfiguringAll)
+    acc = RecoSteering(flags)
     confStamp = datetime.datetime.now()
     log.info("configured in %d seconds", (confStamp-startStamp).seconds )
     acc.printConfig(withDetails=True)

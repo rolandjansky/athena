@@ -116,6 +116,8 @@ private:
     BooleanProperty             m_hasCSC;
     BooleanProperty             m_hasSTgc;
     BooleanProperty             m_hasMM;
+    
+    BooleanProperty             m_useGeomDB_InDet;
 };
 #endif
 

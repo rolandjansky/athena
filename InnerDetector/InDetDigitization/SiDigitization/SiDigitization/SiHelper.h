@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*************************************************************************
@@ -153,7 +153,7 @@ inline void SiHelper::SetTimeBin(SiChargedDiode& chDiode, int time, MsgStream* l
   if (time > 0xf) {
     if (log) (*log) << MSG::ERROR << "TimeBin not allowed" << endmsg;
   }
-  chDiode.m_word = chDiode.m_word | ( (time&0xf) <<28 )  ;
+  chDiode.m_word = chDiode.m_word | ( (static_cast<unsigned int>(time)&0xf) <<28 )  ;
 }
 
 ////////////////////////////////////////////////////////////

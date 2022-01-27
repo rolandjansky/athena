@@ -20,6 +20,8 @@
 
 #include <TCanvas.h>
 
+#include <utility>
+
 //Get rid of Root macros that confuse Doxygen
 ///\cond CLASSIMP
 ClassImp(dqi::HanApp)
@@ -65,7 +67,7 @@ HanApp()
 HanApp::
 HanApp( std::string configName_, std::string inputName_, std::string outputName_, std::string path_ )
 {
-  Analyze( configName_, inputName_, outputName_, path_ );
+  Analyze( std::move(configName_), std::move(inputName_), std::move(outputName_), std::move(path_) );
 }
 
 

@@ -36,8 +36,11 @@ class OverlapDescriptor;
    @author Ian.Watson@cern.ch, Andreas.Salzburger@cern.ch
 */
 
-class ConeLayer final: virtual public ConeSurface, public Layer {
- public:
+class ConeLayer final
+  : public ConeSurface
+  , public Layer
+{
+public:
   /**Default Constructor*/
   ConeLayer() {}
 
@@ -92,18 +95,18 @@ class ConeLayer final: virtual public ConeSurface, public Layer {
 
   /** getting the MaterialProperties back - for pre-update*/
   virtual double preUpdateMaterialFactor(
-      const Trk::TrackParameters& par,
-      Trk::PropDirection dir) const override final;
+    const Trk::TrackParameters& par,
+    Trk::PropDirection dir) const override final;
 
   /** getting the MaterialProperties back - for post-update*/
   virtual double postUpdateMaterialFactor(
-      const Trk::TrackParameters& par,
-      Trk::PropDirection dir) const override final;
+    const Trk::TrackParameters& par,
+    Trk::PropDirection dir) const override final;
 
   /** move the Layer */
   virtual void moveLayer(Amg::Transform3D& shift) override final;
 
- private:
+private:
   /** Resize the layer to the tracking volume - not (yet) supported for
    * ConeLayer */
   void resize(const VolumeBounds&, double) const {}
@@ -112,10 +115,10 @@ class ConeLayer final: virtual public ConeSurface, public Layer {
    * entry layer method*/
   virtual void resizeAndRepositionLayer(const VolumeBounds&,
                                         const Amg::Vector3D&,
-                                        double) override final {}
-
+                                        double) override final
+  {}
 };
 
-}  // namespace Trk
+} // namespace Trk
 
-#endif  // TRKGEOMETY_CONELAYER_H
+#endif // TRKGEOMETY_CONELAYER_H

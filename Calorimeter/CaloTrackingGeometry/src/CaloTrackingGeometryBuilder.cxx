@@ -7,9 +7,8 @@
 ///////////////////////////////////////////////////////////////////
 // Calo
 #include "CaloTrackingGeometry/CaloTrackingGeometryBuilder.h"
-#include "CaloTrackingGeometry/ICaloSurfaceHelper.h"
 // Trk
-#include "TrkDetDescrInterfaces/ITrackingVolumeBuilder.h"
+#include "TrkDetDescrInterfaces/ICaloTrackingVolumeBuilder.h"
 #include "TrkDetDescrInterfaces/ITrackingVolumeCreator.h"
 #include "TrkDetDescrInterfaces/ILayerArrayCreator.h"
 #include "TrkDetDescrInterfaces/ITrackingVolumeArrayCreator.h"
@@ -20,6 +19,7 @@
 #include "TrkDetDescrUtils/SharedObject.h"
 #include "TrkDetDescrUtils/BinUtility.h"
 #include "TrkDetDescrUtils/GeometryStatics.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkGeometry/GlueVolumesDescriptor.h"
@@ -60,7 +60,6 @@ Calo::CaloTrackingGeometryBuilder::CaloTrackingGeometryBuilder(const std::string
   m_exitVolume("Calo::Container"),
   m_mbtsNegLayers(nullptr),
   m_mbtsPosLayers(nullptr)
-  //m_caloSurfaceHelper("CaloSurfaceHelper/CaloSurfaceHelper")
 {
   declareInterface<Trk::IGeometryBuilder>(this);
   // declare the properties via Python
@@ -337,8 +336,13 @@ Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry(const
 
     
   // PART 1 : Liquid Argon Volumes ===========================================================================================
-  // get the Tracking Volumes from the LAr Builder 
-  const std::vector<Trk::TrackingVolume*>* lArVolumes = m_lArVolumeBuilder->trackingVolumes();
+  // get the Tracking Volumes from the LAr Builder
+  const CaloDetDescrManager* caloDDM = nullptr;
+  if (detStore()->retrieve(caloDDM).isFailure()) {
+    ATH_MSG_WARNING("Failed to retrieve calo Det Descr manager");
+    return nullptr;
+  }
+  const std::vector<Trk::TrackingVolume*>* lArVolumes = m_lArVolumeBuilder->trackingVolumes(*caloDDM);
 
   ATH_MSG_INFO( lArVolumes->size() << " volumes retrieved from " << m_lArVolumeBuilder.name() );   
   if (msgLvl(MSG::VERBOSE)){
@@ -373,7 +377,7 @@ Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry(const
 
   // PART 2 : Tile Volumes ===========================================================================================
   // get the Tracking Volumes from the Tile Builder 
-  const std::vector<Trk::TrackingVolume*>* tileVolumes = m_tileVolumeBuilder->trackingVolumes();
+  const std::vector<Trk::TrackingVolume*>* tileVolumes = m_tileVolumeBuilder->trackingVolumes(*caloDDM);
 
   ATH_MSG_INFO( tileVolumes->size() << " volumes retrieved from " << m_tileVolumeBuilder.name() );   
   if (msgLvl(MSG::INFO)){
@@ -450,9 +454,6 @@ Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry(const
 
    double lArPositiveOuterBoundary     = lArPositiveFcal->center().z();
           lArPositiveOuterBoundary    += lArPositiveFcalBounds->halflengthZ();
-
-   double lArNegativeOuterBoundary     = lArNegativeFcal->center().z();
-          lArNegativeOuterBoundary    -= lArNegativeFcalBounds->halflengthZ();
 
    Trk::Material* mAr = new Trk::Material(140.036, 856.32, 39.948, 18., 0.0014);
    Trk::Material* mAl = new Trk::Material(88.93, 388.62, 26.98, 13., 0.0027);

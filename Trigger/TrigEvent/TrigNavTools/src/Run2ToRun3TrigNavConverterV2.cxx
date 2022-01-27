@@ -130,6 +130,7 @@ StatusCode Run2ToRun3TrigNavConverterV2::initialize()
   // configured collections can be either just type name, or type#key
   // decoding takes this into account, if only the type is configured then empty string is places in the decoded lookup map
   // else CLID + a name is placed
+
   for (const auto& name : m_collectionsToSave) {
     std::string typeName = name;
     std::string collName;
@@ -146,6 +147,11 @@ StatusCode Run2ToRun3TrigNavConverterV2::initialize()
     m_collectionsToSaveDecoded[id].insert(collName);
 
   }
+
+  for (const auto& name : m_roisToSave) {
+    m_setRoiName.push_back(name);
+  }
+
   // sanity check, i.e. if there is at least one entry w/o the coll name no other enties are needed for a given clid
   for ( auto [clid, keysSet]: m_collectionsToSaveDecoded ) {
     if ( keysSet.size() > 1 and keysSet.count("") != 0 ) {
@@ -153,6 +159,17 @@ StatusCode Run2ToRun3TrigNavConverterV2::initialize()
       return StatusCode::FAILURE;
     }
   }
+
+  ATH_CHECK(m_clidSvc->getIDOfTypeName("TrigRoiDescriptor", m_roIDescriptorCLID));
+  ATH_CHECK(m_clidSvc->getIDOfTypeName("TrigRoiDescriptorCollection", m_roIDescriptorCollectionCLID));
+  ATH_CHECK(m_clidSvc->getIDOfTypeName("xAOD::TrigRingerRings", m_TrigRingerRingsCLID));
+  ATH_CHECK(m_clidSvc->getIDOfTypeName("xAOD::TrigRingerRingsContainer", m_TrigRingerRingsContainerCLID));
+  ATH_CHECK(m_clidSvc->getIDOfTypeName("xAOD::TrigEMCluster", m_TrigEMClusterCLID));
+  ATH_CHECK(m_clidSvc->getIDOfTypeName("xAOD::TrigEMClusterContainer", m_TrigEMClusterContainerCLID));
+  ATH_CHECK(m_clidSvc->getIDOfTypeName("xAOD::CaloCluster", m_CaloClusterCLID));
+  ATH_CHECK(m_clidSvc->getIDOfTypeName("xAOD::CaloClusterContainer", m_CaloClusterContainerCLID));
+  ATH_CHECK(m_clidSvc->getIDOfTypeName("xAOD::TrackParticleContainer", m_TrackParticleContainerCLID));
+  ATH_CHECK(m_clidSvc->getIDOfTypeName("xAOD::TauTrackContainer", m_TauTrackContainerCLID));
 
   return StatusCode::SUCCESS;
 }
@@ -164,19 +181,34 @@ StatusCode Run2ToRun3TrigNavConverterV2::finalize()
 
 StatusCode Run2ToRun3TrigNavConverterV2::execute(const EventContext& context) const
 {
-  // need to check if this step works in start() or initialize, if so we need to it once
-  // and remember this mapping 
-  TEIdToChainsMap_t allTEIdsToChains, finalTEIdsToChains;
-  ATH_CHECK(extractTECtoChainMapping(allTEIdsToChains, finalTEIdsToChains));
+  {
+    // configuration reading could not be done before the event loop
+    // it needs to be done only once though
+    std::scoped_lock lock(m_configUpdateMutex);
+    if ( m_allTEIdsToChains.empty() )
+      ATH_CHECK( extractTECtoChainMapping( const_cast<TEIdToChainsMap_t&>(m_allTEIdsToChains), const_cast<TEIdToChainsMap_t&>(m_finalTEIdsToChains)) );
+  }
 
   ConvProxySet_t convProxies;
-  HLT::StandaloneNavigation standaloneNav; // needed to keep TEs around
-  ATH_CHECK(mirrorTEsStructure(convProxies, standaloneNav, context));
+  HLT::StandaloneNavigation standaloneNav; // needed to keep TEs around, so it is out of the scope where it is filled and referenced
+  const HLT::TrigNavStructure* run2NavigationPtr = nullptr;
+  if (!m_trigNavKey.key().empty()) {
+    SG::ReadHandle navReadHandle(m_trigNavKey, context);
+    ATH_CHECK(navReadHandle.isValid());
+    standaloneNav.deserialize(navReadHandle->serialized());
+    run2NavigationPtr = &standaloneNav;
+  }
+  else {
+    run2NavigationPtr = m_tdt->ExperimentalAndExpertMethods().getNavigation();
+  }
+
+
+  ATH_CHECK(mirrorTEsStructure(convProxies, *run2NavigationPtr));
 
   if (m_doSelfValidation)
     ATH_CHECK(allProxiesConnected(convProxies));
 
-  ATH_CHECK(associateChainsToProxies(convProxies, allTEIdsToChains));
+  ATH_CHECK(associateChainsToProxies(convProxies, m_allTEIdsToChains));
   ATH_CHECK(cureUnassociatedProxies(convProxies));
   ATH_MSG_DEBUG("Proxies to chains mapping done");
 
@@ -190,10 +222,6 @@ StatusCode Run2ToRun3TrigNavConverterV2::execute(const EventContext& context) co
   if (m_doCompression) {
     ATH_CHECK(doCompression(convProxies));
   }
-  if (m_doLinkFeatures) {
-    ATH_CHECK(fillRelevantFeatures(convProxies));
-    ATH_MSG_DEBUG("Features to link found");
-  }
   SG::WriteHandle<TrigCompositeUtils::DecisionContainer> outputNavigation = TrigCompositeUtils::createAndStore(m_trigOutputNavKey, context);
   auto decisionOutput = outputNavigation.ptr();
   TrigCompositeUtils::newDecisionIn(decisionOutput, "HLTPassRaw"); // we rely on the fact that the 1st element is the top
@@ -202,7 +230,15 @@ StatusCode Run2ToRun3TrigNavConverterV2::execute(const EventContext& context) co
   if (m_doSelfValidation) {
     ATH_CHECK(numberOfHNodesPerProxyNotExcessive(convProxies));
   }
-  ATH_CHECK(createFSNodes(convProxies, *decisionOutput, finalTEIdsToChains, context));
+  if (m_doLinkFeatures) {
+    ATH_CHECK(fillRelevantFeatures(convProxies));
+    ATH_CHECK(fillRelevantRois(convProxies, *run2NavigationPtr));
+    ATH_MSG_DEBUG("Features to link found");
+  }
+  ATH_CHECK(createFSNodes(convProxies, *decisionOutput, m_finalTEIdsToChains, context));
+  ATH_CHECK(linkFeaNode(convProxies, *run2NavigationPtr, context));
+  ATH_CHECK(linkRoiNode(convProxies, *run2NavigationPtr));
+  ATH_CHECK(createL1Nodes(convProxies, *decisionOutput, context));
   ATH_CHECK(linkTopNode(*decisionOutput));
   ATH_MSG_DEBUG("Conversion done, from " << convProxies.size() << " elements to " << decisionOutput->size() << " elements");
 
@@ -219,6 +255,7 @@ StatusCode Run2ToRun3TrigNavConverterV2::execute(const EventContext& context) co
 
 StatusCode Run2ToRun3TrigNavConverterV2::extractTECtoChainMapping(TEIdToChainsMap_t& allTEs, TEIdToChainsMap_t& finalTEs) const {
   // port chains iteration code from previous version
+  ATH_CHECK(not m_configSvc->chains().empty());
   for (auto ptrChain : m_configSvc->chains()) {
       std::string chainName = ptrChain->name();
       if ( not m_chainsToSave.empty() )  {
@@ -246,19 +283,7 @@ StatusCode Run2ToRun3TrigNavConverterV2::extractTECtoChainMapping(TEIdToChainsMa
   return StatusCode::SUCCESS;
 }
 
-StatusCode Run2ToRun3TrigNavConverterV2::mirrorTEsStructure(ConvProxySet_t& convProxies, HLT::StandaloneNavigation& standaloneNav, const EventContext& context) const {
-  const HLT::TrigNavStructure* run2NavigationPtr = nullptr;
-
-  if (!m_trigNavKey.key().empty()) {
-    SG::ReadHandle navReadHandle(m_trigNavKey, context);
-    ATH_CHECK(navReadHandle.isValid());
-    standaloneNav.deserialize(navReadHandle->serialized());
-    run2NavigationPtr = &standaloneNav;
-  }
-  else {
-    run2NavigationPtr = m_tdt->ExperimentalAndExpertMethods().getNavigation();
-  }
-  const HLT::TrigNavStructure& run2Navigation = *run2NavigationPtr;
+StatusCode Run2ToRun3TrigNavConverterV2::mirrorTEsStructure(ConvProxySet_t& convProxies, const HLT::TrigNavStructure& run2Navigation) const {
 
   // iterate over the TEs, for each make the ConvProxy and build connections
   std::map<const HLT::TriggerElement*, ConvProxy*> teToProxy;
@@ -512,8 +537,44 @@ StatusCode Run2ToRun3TrigNavConverterV2::collapseFeaturelessProxies(ConvProxySet
   return StatusCode::SUCCESS;
 }
 
-StatusCode Run2ToRun3TrigNavConverterV2::fillRelevantFeatures(ConvProxySet_t&) const {
+
+StatusCode Run2ToRun3TrigNavConverterV2::fillRelevantFeatures(ConvProxySet_t& convProxies) const {
+
   // from all FEAs of the associated TE pick those objects that are to be linked
+  for (auto& proxy : convProxies) {
+      if (proxy->te != nullptr) {
+        
+        for (HLT::TriggerElement::FeatureAccessHelper helper : proxy->te->getFeatureAccessHelpers())
+        {
+            if (feaToSave(helper)==true) {
+              proxy->features.push_back(helper);
+            }
+        }
+      }
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+StatusCode Run2ToRun3TrigNavConverterV2::fillRelevantRois(ConvProxySet_t &convProxies, const HLT::TrigNavStructure& run2Navigation) const
+{
+
+  for (auto &proxy : convProxies)
+  {
+    ATH_MSG_DEBUG("Creating RoI link");
+    //TODO need check & handling of case when there is more RoIs, now overwriting
+    if ( HLT::TrigNavStructure::getRoINodes(proxy->te).size() > 1 )
+      ATH_MSG_WARNING("Several RoIs pointing to a proxy, taking latest one for now");
+    for (const auto &rNode : HLT::TrigNavStructure::getRoINodes(proxy->te))
+    {
+      proxy->rois = getTEROIfeatures(rNode, run2Navigation);
+    }
+    if ( HLT::TrigNavStructure::isRoINode(proxy->te) ) {
+      proxy->rois = getTEROIfeatures(proxy->te, run2Navigation);
+    }
+    
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -525,24 +586,22 @@ StatusCode Run2ToRun3TrigNavConverterV2::createIMHNodes(ConvProxySet_t& convProx
     for ( auto chainId: proxy->runChains) {
       TrigCompositeUtils::addDecisionID(chainId, proxy->imNode);
     }
-    auto hNode = TrigCompositeUtils::newDecisionIn(&decisions,TrigCompositeUtils::hypoAlgNodeName()); // H 
+    proxy->hNode = TrigCompositeUtils::newDecisionIn(&decisions,TrigCompositeUtils::hypoAlgNodeName()); // H 
     for ( auto chainId: proxy->passChains) {
-      TrigCompositeUtils::addDecisionID(chainId, hNode);
+      TrigCompositeUtils::addDecisionID(chainId, proxy->hNode);
     }
-    proxy->hNodes.push_back(hNode); // H
-    TrigCompositeUtils::linkToPrevious(hNode, proxy->imNode, context); // H low IM up
+    TrigCompositeUtils::linkToPrevious(proxy->hNode, proxy->imNode, context); // H low IM up
   }
   // connecting current IM to all Hs in parent proxies
   for (auto& proxy : convProxies) {
     for (auto& parentProxy : proxy->parents) { 
-      for (auto& hNodeInParent : parentProxy->hNodes) {
-        TrigCompositeUtils::linkToPrevious(proxy->imNode, hNodeInParent, context); // IM low H up (in parent)
-      }
+        TrigCompositeUtils::linkToPrevious(proxy->imNode, parentProxy->hNode, context); // IM low H up (in parent)
     }
   }
   ATH_MSG_DEBUG("IM & H nodes made, output nav elements " << decisions.size());
   return StatusCode::SUCCESS;
 }
+
 
 StatusCode Run2ToRun3TrigNavConverterV2::createFSNodes(const ConvProxySet_t& convProxies, xAOD::TrigCompositeContainer& decisions,
                                                        const TEIdToChainsMap_t& terminalIds, const EventContext& context) const {
@@ -562,12 +621,12 @@ StatusCode Run2ToRun3TrigNavConverterV2::createFSNodes(const ConvProxySet_t& con
   for ( auto proxy: convProxies ) {
     // associate terminal nodes to filter nodes, 
     if (proxy->children.empty()) { // the H modes are terminal
-      if (proxy->hNodes.empty()) { // nothing has passed, so link to the IM node
+      //if (proxy->hNodes.empty()) { // nothing has passed, so link to the IM node
+      if (proxy->hNode == nullptr) { // nothing has passed, so link to the IM node
         // TODO make sure it needs to be done like that
         makeSFNode(proxy->imNode, proxy->runChains);
       } else {
-        for ( auto hNode: proxy->hNodes)
-          makeSFNode(hNode, TCU::decisionIDs(hNode)); // not using passChains as there may be additional filtering
+          makeSFNode(proxy->hNode, TCU::decisionIDs(proxy->hNode)); // not using passChains as there may be additional filtering
       }
     } else { 
       // likely need more iterations
@@ -587,6 +646,89 @@ StatusCode Run2ToRun3TrigNavConverterV2::createFSNodes(const ConvProxySet_t& con
   // associate all nodes designated as final one with the filter nodes
 
   ATH_MSG_DEBUG("FS nodes made, output nav elements " << decisions.size());
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode Run2ToRun3TrigNavConverterV2::createL1Nodes(const ConvProxySet_t& convProxies, xAOD::TrigCompositeContainer& decisions,
+                                                       const EventContext& context) const {
+
+  auto makeL1Node = [&decisions, &context](auto firstDecisionNode, auto chainIds){
+    auto L1Node = TrigCompositeUtils::newDecisionIn(&decisions);
+    L1Node->setName(TrigCompositeUtils::hltSeedingNodeName()); // L1
+    for ( auto chainId: chainIds) {
+      TrigCompositeUtils::addDecisionID(chainId, L1Node);
+    }        
+    TrigCompositeUtils::linkToPrevious(firstDecisionNode, L1Node, context); // IM -> L1
+
+    return L1Node;
+  };
+
+  for ( auto proxy: convProxies ) {
+    // associate initial node to filter nodes, 
+    if (proxy->parents.empty()) { // the IM node is initial
+          proxy->l1Node = makeL1Node(proxy->imNode, TCU::decisionIDs(proxy->imNode)); // not using passChains as there may be additional filtering
+    } 
+  }
+
+  ATH_MSG_DEBUG("L1 nodes made, output nav elements ");
+  return StatusCode::SUCCESS;
+}
+
+StatusCode Run2ToRun3TrigNavConverterV2::linkFeaNode(ConvProxySet_t &convProxies, const HLT::TrigNavStructure& run2Navigation, const EventContext &context) const
+{
+
+  // from all FEAs of the associated TE pick those objects that are to be linked
+  for (auto &proxy : convProxies)
+  {
+
+    if (proxy->features.empty())
+    { // no features attached, self link
+      if (proxy->hNode)
+      {
+        ElementLink<xAOD::TrigCompositeContainer> linkToSelf = TrigCompositeUtils::decisionToElementLink(proxy->hNode, context);
+        proxy->hNode->setObjectLink<xAOD::TrigCompositeContainer>(TrigCompositeUtils::featureString(), linkToSelf);
+      }
+    }
+
+    for (auto &fea : proxy->features)
+    {
+      auto [sgKey, sgCLID, sgName] = getSgKey(run2Navigation, fea);
+      ATH_MSG_DEBUG("After getSgKey");
+
+      if (proxy->hNode)
+      {
+        if (fea.getIndex().objectsBegin() < fea.getIndex().objectsEnd())
+        {
+          proxy->hNode->typelessSetObjectLink(TrigCompositeUtils::featureString(), sgKey, sgCLID, fea.getIndex().objectsBegin(), fea.getIndex().objectsEnd());
+        }
+      }
+    }
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+StatusCode Run2ToRun3TrigNavConverterV2::linkRoiNode(ConvProxySet_t &convProxies, const HLT::TrigNavStructure& run2Navigation) const
+{
+
+  // from all Rois of the associated TE pick those objects that are to be linked
+  for (auto &proxy : convProxies)
+  {
+
+    for (auto &roi : proxy->rois)
+    {
+      auto [sgKey, sgCLID, sgName] = getSgKey(run2Navigation, roi);
+      ATH_MSG_DEBUG("After getSgKey");
+      if (proxy->l1Node)
+      {
+        proxy->l1Node->typelessSetObjectLink(TrigCompositeUtils::initialRoIString(), sgKey, sgCLID, roi.getIndex().objectsBegin());
+      }
+
+      proxy->imNode->typelessSetObjectLink(TrigCompositeUtils::roiString(), sgKey, sgCLID, roi.getIndex().objectsBegin());
+    }
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -632,15 +774,23 @@ bool Run2ToRun3TrigNavConverterV2::feaEqual(const std::vector<HLT::TriggerElemen
   return true;
 }
 
-
 bool Run2ToRun3TrigNavConverterV2::feaToSave(const HLT::TriggerElement::FeatureAccessHelper& fea) const { 
-  auto iter = m_collectionsToSaveDecoded.find(fea.getCLID());
-  if ( iter == m_collectionsToSaveDecoded.end() ) return false;
-  if ( iter->second.count("") ) return true; // recording of all collections of a type is requested
-  // TODO complete this implementation with precise collection match (requires access to the NavStructure)
-  //
-  // the logic would be to call: HLTNavDetails::formatSGKey("HLT", conainerTypeName, *(getHolder(fea)->label());
-  //
+        if (m_collectionsToSaveDecoded.find(fea.getCLID()) != m_collectionsToSaveDecoded.end())
+        {
+          return true; // feature accepted for saving
+        }
+
+  return false; 
+}
+
+bool Run2ToRun3TrigNavConverterV2::roiToSave(const HLT::TrigNavStructure& navigationDecoder, const HLT::TriggerElement::FeatureAccessHelper& roi) const { 
+        auto [sgKey, sgCLID, sgName] = getSgKey(navigationDecoder, roi);
+        ATH_MSG_DEBUG("ROI name to be found: " << sgName);
+        if (std::find(m_setRoiName.begin(), m_setRoiName.end(), sgName) != m_setRoiName.end()) {
+          ATH_MSG_DEBUG("ROI name to be found CONFIRMED: " << sgName);
+          return true;
+        }
+
   return false; 
 }
 
@@ -666,13 +816,7 @@ StatusCode Run2ToRun3TrigNavConverterV2::allProxiesConnected(const ConvProxySet_
   return StatusCode::SUCCESS;
 }
 
-StatusCode Run2ToRun3TrigNavConverterV2::numberOfHNodesPerProxyNotExcessive(const ConvProxySet_t& proxies) const {
-  for (auto p : proxies) {
-    if (p->hNodes.size() > m_hNodesPerProxyThreshold) {
-      ATH_MSG_ERROR("Too many H nodes per proxy");
-      return StatusCode::FAILURE;
-    }
-  }
+StatusCode Run2ToRun3TrigNavConverterV2::numberOfHNodesPerProxyNotExcessive(const ConvProxySet_t&) const {
   ATH_MSG_DEBUG("CHECK OK, no excessive number of H nodes per proxy");
   return StatusCode::SUCCESS;
 }
@@ -698,4 +842,70 @@ StatusCode Run2ToRun3TrigNavConverterV2::noUnconnectedHNodes(const xAOD::TrigCom
   ATH_MSG_DEBUG("CHECK OK, all H modes are connected");
 
   return StatusCode::SUCCESS;
+}
+
+std::tuple<uint32_t, CLID, std::string> Run2ToRun3TrigNavConverterV2::getSgKey(const HLT::TrigNavStructure& navigationDecoder, const HLT::TriggerElement::FeatureAccessHelper& helper) const
+{
+  const std::string hltLabel = navigationDecoder.label(helper.getCLID(), helper.getIndex().subTypeIndex());
+
+  const CLID saveCLID = [&](const CLID& clid) {
+    if (clid == m_roIDescriptorCLID) return m_roIDescriptorCollectionCLID;
+    if (clid == m_TrigEMClusterCLID) return m_TrigEMClusterContainerCLID;
+    if (clid == m_TrigRingerRingsCLID) return m_TrigRingerRingsContainerCLID;
+    return clid;
+  }(helper.getCLID());
+
+  std::string type_name;
+  if (m_clidSvc->getTypeNameOfID(saveCLID, type_name).isFailure())
+  {
+    return { 0, 0, "" };
+  }
+
+  const auto sgStringKey = HLTNavDetails::formatSGkey("HLT", type_name, hltLabel);
+  const bool isAvailable = evtStore()->contains(saveCLID, sgStringKey);
+  ATH_MSG_DEBUG(" Objects presence " << helper << " " << sgStringKey << (isAvailable ? " present" : " absent"));
+  if (!isAvailable) {
+    return { 0, 0, "" };
+  }
+
+
+  const auto sgIntKey = evtStore()->stringToKey(sgStringKey, saveCLID);
+
+  ATH_MSG_DEBUG(" getSgKey: sgKey, sgCLID, sgName " << sgIntKey << " " << saveCLID << " " << hltLabel);
+  return { sgIntKey, saveCLID, hltLabel }; // sgKey, sgCLID, sgName
+}
+
+
+const std::vector<HLT::TriggerElement::FeatureAccessHelper> Run2ToRun3TrigNavConverterV2::getTEROIfeatures(const HLT::TriggerElement* te_ptr, const HLT::TrigNavStructure& navigationDecoder) const
+{
+  // @@@@@@@@@@@@@@@@@@@@@@@@@@ ordered_sorter @@@@@@@@@@@@@@@@@@@@@@@@@@
+  auto ordered_sorter = [&](const auto& left, const auto& right) -> bool {
+    return std::find(cbegin(m_setRoiName), cend(m_setRoiName), left) < std::find(cbegin(m_setRoiName), cend(m_setRoiName), right);
+  };
+
+  std::map<std::string, HLT::TriggerElement::FeatureAccessHelper, decltype(ordered_sorter)> mp(ordered_sorter);
+
+
+  for (HLT::TriggerElement::FeatureAccessHelper helper : te_ptr->getFeatureAccessHelpers())
+  {
+    auto [sgKey, sgCLID, sgName] = getSgKey(navigationDecoder, helper);
+    ATH_MSG_DEBUG("getTEROIfeatures name " << sgName);
+    if (std::find(m_setRoiName.begin(), m_setRoiName.end(), sgName) == m_setRoiName.end()) {
+      // do not filter continue;
+      continue;
+    }
+    ATH_MSG_DEBUG("getTEROIfeatures name accepted " << sgName);
+    mp[sgName] = helper;
+  }
+
+  for (const auto& p : mp) {
+    auto [sgKey, sgCLID, sgName] = getSgKey(navigationDecoder, p.second);
+    ATH_MSG_DEBUG("CHECK getTEROIfeatures name accepted " << sgName);
+  }
+
+  std::vector<HLT::TriggerElement::FeatureAccessHelper> ptrFAHelper;
+  std::transform(cbegin(mp), cend(mp), back_inserter(ptrFAHelper),
+    [](const std::map<std::string, HLT::TriggerElement::FeatureAccessHelper>::value_type& p) {return p.second;});
+
+  return ptrFAHelper;
 }

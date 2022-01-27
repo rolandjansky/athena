@@ -168,8 +168,8 @@ class OpticalConnector(Connector):
         """
         super(OpticalConnector,self).__init__(connDef = connDef)
 
-        # treat differently depending on the "format", which can be: 'topological' or 'multiplicity'
-        if connDef["format"] == 'multiplicity':
+        # treat differently depending on the "format", which can be: 'topological' or 'multiplicity' 
+        if self.cformat == CFormat.MULT:
             # multiplicity connectors contain all the triggerlines in a flat "thresholds" list
             startbit = 0
             for thrName in connDef["thresholds"]:
@@ -190,7 +190,7 @@ class ElectricalConnector(Connector):
     def __init__(self, name, cformat, legacy, connDef):
         """
         @param name name of the connector
-        @param cformat can be 'topological' or 'multiplicity'
+        @param cformat can be 'topological' or 'simple'
         """
         super(ElectricalConnector,self).__init__(connDef = connDef)
         self.triggerLines = { 0 : {0:[],1:[]}, 1 : {0:[],1:[]} }
@@ -223,7 +223,7 @@ class ElectricalConnector(Connector):
                     startbit += nbits
                     self.addTriggerLine(tl, 0, clock)
         else:
-            raise RuntimeError("Property 'format' of connector %s is '%s' but must be either 'multiplicity' or 'topological'" % (name,connDef["format"]))
+            raise RuntimeError("Property 'format' of connector %s is '%s' but must be either 'simple' or 'topological'" % (name,connDef["format"]))
 
 
     def addTriggerLine(self, tl, fpga, clock):

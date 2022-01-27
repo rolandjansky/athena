@@ -147,7 +147,7 @@ execute( const std::string& name, const TObject& data, const dqm_core::Algorithm
 
 HanAlgorithmConfig*
 CompositeAlgorithm::
-ConfigureSubAlg(const dqm_core::AlgorithmConfig& config, std::string subalg)
+ConfigureSubAlg(const dqm_core::AlgorithmConfig& config, const std::string& subalg)
 {
 // caller owns the returned object
 

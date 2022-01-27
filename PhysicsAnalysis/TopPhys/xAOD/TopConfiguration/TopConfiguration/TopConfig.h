@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef ANALYSISTOP_TOPCONFIGURATION_TOPCONFIG_H
@@ -739,6 +739,18 @@ namespace top {
       }
     }
 
+    inline virtual void electrond0Sigcut(const float d0sig) {
+      if (!m_configFixed) {
+         m_electron_d0SigCut = d0sig;
+      }
+    }
+
+    inline virtual void electrondeltaz0cut(const float delta_z0) {
+      if (!m_configFixed) {
+	m_electron_delta_z0 = delta_z0;
+      }
+    }
+
     inline virtual void electronIsolation(const std::string& iso) {
       if (!m_configFixed) {
         m_electronIsolation = iso;
@@ -793,9 +805,11 @@ namespace top {
     inline virtual const std::string& electronIDLoose()  const {return m_electronIDLoose;}
     inline virtual bool electronVetoLArCrack() const {return m_electronVetoLArCrack;}
     inline virtual float electronPtcut()       const {return m_electronPtcut;}
+    inline virtual float electrond0Sigcut()    const {return m_electron_d0SigCut;}
+    inline virtual float electrondeltaz0cut()  const {return m_electron_delta_z0;}
     inline virtual const std::string& electronIsolation() const {return m_electronIsolation;}
     inline virtual const std::string& electronIsolationLoose() const {return m_electronIsolationLoose;}
-    inline virtual const std::set<std::string>& electronIsolationWPs() const {return m_electronIsolationWPs;}
+    inline virtual const std::vector<std::string>& electronIsolationWPs() const {return m_electronIsolationWPs;}
     std::string const& electronIsolationSF() const {return m_electronIsolationSF;}
     std::string const& electronIsolationSFLoose() const {return m_electronIsolationSFLoose;}
     inline const std::string& electronIDDecoration() const {return m_electronIDDecoration;}
@@ -899,6 +913,18 @@ namespace top {
       }
     }
 
+    inline virtual void muond0Sigcut(const float d0sig) {
+      if (!m_configFixed) {
+         m_muon_d0SigCut = d0sig;
+      }
+    }
+
+    inline virtual void muondeltaz0cut(const float delta_z0) {
+      if (!m_configFixed) {
+	m_muon_delta_z0 = delta_z0;
+      }
+    }
+
     inline virtual void muonEtacut(const float eta) {
       if (!m_configFixed) {
         m_muonEtacut = eta;
@@ -979,6 +1005,8 @@ namespace top {
 
     inline virtual float muonPtcut() const {return m_muonPtcut;}
     inline virtual float muonEtacut() const {return m_muonEtacut;}
+    inline virtual float muond0Sigcut()    const {return m_muon_d0SigCut;}
+    inline virtual float muondeltaz0cut()  const {return m_muon_delta_z0;}
     inline virtual const std::string& muonQuality() const {return m_muonQuality;}
     inline virtual const std::string& muonQualityLoose() const {return m_muonQualityLoose;}
     inline virtual bool muonUseMVALowPt() const {return m_muonUseMVALowPt;}
@@ -987,7 +1015,7 @@ namespace top {
     inline virtual bool muonUse2stationMuonsHighPtLoose() const {return m_muonUse2stationMuonsHighPtLoose;}
     inline virtual const std::string& muonIsolation() const {return m_muonIsolation;}
     inline virtual const std::string& muonIsolationLoose() const {return m_muonIsolationLoose;}
-    inline virtual const std::set<std::string>& muonIsolationWPs() const {return m_muonIsolationWPs;}
+    inline virtual const std::vector<std::string>& muonIsolationWPs() const {return m_muonIsolationWPs;}
     std::string const& muonIsolationSF() const {return m_muonIsolationSF;}
     std::string const& muonIsolationSFLoose() const {return m_muonIsolationSFLoose;}
     inline virtual bool muonMuonDoSmearing2stationHighPt() const {return m_muonMuonDoSmearing2stationHighPt;}
@@ -1451,12 +1479,12 @@ namespace top {
       if (!m_configFixed) m_tau_configuration_loose.jetIDWP = s;
     }
 
-    inline virtual void tauEleBDTWP(const std::string& s) {
-      if (!m_configFixed) m_tau_configuration.eleBDTWP = s;
+    inline virtual void tauEleIDWP(const std::string& s) {
+      if (!m_configFixed) m_tau_configuration.eleIDWP = s;
     }
 
-    inline virtual void tauEleBDTWPLoose(const std::string& s) {
-      if (!m_configFixed) m_tau_configuration_loose.eleBDTWP = s;
+    inline virtual void tauEleIDWPLoose(const std::string& s) {
+      if (!m_configFixed) m_tau_configuration_loose.eleIDWP = s;
     }
 
     inline virtual void tauMuOLR(bool do_tau_ele_olr) {
@@ -1465,14 +1493,6 @@ namespace top {
 
     inline virtual void tauMuOLRLoose(bool do_tau_ele_olr) {
       if (!m_configFixed) m_tau_configuration_loose.muOLR = do_tau_ele_olr;
-    }
-
-    inline virtual void tauSFDoRNNID(bool do_tau_rnn_id) {
-      if (!m_configFixed) m_tau_configuration.doRNNID = do_tau_rnn_id;
-    }
-
-    inline virtual void tauSFDoBDTID(bool do_tau_bdt_id) {
-      if (!m_configFixed) m_tau_configuration.doBDTID = do_tau_bdt_id;
     }
 
     inline virtual void tauJetConfigFile(const std::string& s) {
@@ -1508,12 +1528,12 @@ namespace top {
       return m_tau_configuration_loose.jetIDWP;
     }
 
-    inline const std::string& tauEleBDTWP() const {
-      return m_tau_configuration.eleBDTWP;
+    inline const std::string& tauEleIDWP() const {
+      return m_tau_configuration.eleIDWP;
     }
 
-    inline const std::string& tauEleBDTWPLoose() const {
-      return m_tau_configuration_loose.eleBDTWP;
+    inline const std::string& tauEleIDWPLoose() const {
+      return m_tau_configuration_loose.eleIDWP;
     }
 
     inline virtual bool tauMuOLR() {
@@ -1545,14 +1565,6 @@ namespace top {
       return true;
     }
 
-    inline bool tauSFDoRNNID() const {
-      return m_tau_configuration.doRNNID;
-    }
-
-    inline bool tauSFDoBDTID() const {
-      return m_tau_configuration.doBDTID;
-    }
-
     // photon getters
     inline virtual float photonPtcut() const {
       return m_photon_configuration.pt;
@@ -1578,7 +1590,7 @@ namespace top {
       return m_photon_configuration_loose.isolation;
     }
 
-    inline const std::set<std::string>& photonIsolationWPs() { return m_photonIsolationWPs; }
+    inline const std::vector<std::string>& photonIsolationWPs() { return m_photonIsolationWPs; }
 
     // inline const std::string& tauJetID() const {return m_tauJetID;}
     // inline const std::string& tauJetIDBkg() const {return m_tauJetIDBkg;}
@@ -1740,42 +1752,27 @@ namespace top {
     void setBoostedTaggersSFSysNames(const std::unordered_map<std::string, std::vector<std::string>>& sysNames) {m_boostedTaggersSFSysNames=sysNames;}
 
     // B-tagging WPs requested by user (updated to pair of strings to hold algorithm and WP)
-    const std::vector<std::pair<std::string, std::string> > bTagWP() const {return m_chosen_btaggingWP_caloJet;}
-    const std::vector<std::pair<std::string, std::string> > bTagWP_trkJet() const {return m_chosen_btaggingWP_trkJet;}
-    // parse b-tagging configuration from config file into a vector of pair <algorithm, WP>
+    // for all of these the selection tools are initialized
+    const std::vector<std::pair<std::string, std::string> > bTagAlgoWP() const {return m_btagAlgoWP_caloJet;}
+    const std::vector<std::pair<std::string, std::string> > bTagAlgoWP_trkJet() const {return m_btagAlgoWP_trkJet;}
+    const std::vector<std::string> bTagWP() const {return m_btagWP_caloJet;}
+    const std::vector<std::string> bTagWP_trkJet() const {return m_btagWP_trkJet;}
+    // list of calibrated WPs, for these the efficiency tools are initialized
+    const std::vector<std::pair<std::string, std::string> > bTagAlgoWP_calib() const {return m_btagAlgoWP_calib_caloJet;}
+    const std::vector<std::pair<std::string, std::string> > bTagAlgoWP_calib_trkJet() const {return m_btagAlgoWP_calib_trkJet;}
+    const std::vector<std::string> bTagWP_calib() const {return m_btagWP_calib_caloJet;}
+    const std::vector<std::string> bTagWP_calib_trkJet() const {return m_btagWP_calib_trkJet;}
+    // list of pairs <tagging algorithm, selection tool name> to decorate jets with scores
+    const std::map<std::string, std::string> bTagAlgos() const {return m_btag_algos_caloJet;}
+    const std::map<std::string, std::string> bTagAlgos_trkJet() const {return m_btag_algos_trkJet;}
+    // book-keeping of different b-tagging algorithms (DL1r, DL1d, etc) -- one selection tool per algorithm
+    void addBTagAlgo(const std::string& algorithm, const std::string& selectionToolName, bool trackJets=false);
+    // parse b-tagging configuration from config file into a vector of pair <algorithm, WP> and also a vector of algorithm_WP
     void parse_bTagWPs(const std::string& btagWPsettingString,
-        std::vector<std::pair<std::string, std::string>>& btagWPlist,
-        const std::string& jetCollectionName);
+        std::vector<std::pair<std::string, std::string>>& btagAlgoWPlist,
+	      std::vector<std::string>& btagWPlist);
     // B-tagging systematics requested by user to be excluded from EV treatment, separated by semi-colons
     const std::string bTagSystsExcludedFromEV() const {return m_bTagSystsExcludedFromEV;}
-
-    // B-tagging WPs actually available, according to CDI file
-    // will be set in TopCPTools
-    void setBTagWP_available(std::string btagging_WP);
-    void setBTagWP_available_trkJet(std::string btagging_WP);
-    const std::vector<std::string>& bTagWP_available() const {return m_available_btaggingWP;}
-    const std::vector<std::string>& bTagWP_available_trkJet() const {return m_available_btaggingWP_trkJet;}
-    // B-tagging WPs actually calibrated, according to CDI file
-    // will be set in TopCPTools
-    void setBTagWP_calibrated(std::string btagging_WP);
-    void setBTagWP_calibrated_trkJet(std::string btagging_WP);
-    const std::vector<std::string>& bTagWP_calibrated() const {return m_calibrated_btaggingWP;}
-    const std::vector<std::string>& bTagWP_calibrated_trkJet() const {return m_calibrated_btaggingWP_trkJet;}
-    // B-tagging algorithms, e.g. DL1, DL1r, DL1rmu
-    // which of them can be initialized for the given CDI file
-    // used for e.g. storing algorithm discriminant in the event saver
-    void setBTagAlgo_available(std::string algo, std::string toolName);
-    void setBTagAlgo_available_trkJet(std::string algo, std::string toolName);
-    const std::set<std::string>& bTagAlgo_available() const {return m_available_btaggingAlgos;}
-    const std::set<std::string>& bTagAlgo_available_trkJet() const {return m_available_btaggingAlgos_trkJet;}
-    // since MV2c10 is the only non-DL1 b-tagger, we just expose a bool to check if MV2c10 is used or not
-    bool bTagAlgo_MV2c10_used() const {return m_MV2c10_algo_used;}
-    bool bTagAlgo_MV2c10_used_trkJet() const {return m_MV2c10_algo_used_trkJet;}
-
-    const std::unordered_map<std::string, std::string>& bTagAlgo_selToolNames() const {return m_algo_selTools;}
-    const std::unordered_map<std::string, std::string>& bTagAlgo_selToolNames_trkJet() const {return m_algo_selTools_trkJet;}
-
-    std::string FormatedWP(std::string raw_WP);
 
     bool printCDIpathWarning() const
     {return m_cdi_path_warning;}
@@ -2258,7 +2255,7 @@ namespace top {
     std::string m_electronIsolationLoose;
     std::string m_electronIsolationSF;
     std::string m_electronIsolationSFLoose;
-    std::set<std::string> m_electronIsolationWPs; // list of all WPs to store aux decorations for
+    std::vector<std::string> m_electronIsolationWPs; // list of all WPs to store aux decorations for
     int m_electron_d0SigCut;
     float m_electron_delta_z0;
 
@@ -2291,7 +2288,7 @@ namespace top {
     std::string m_muonIsolationLoose;
     std::string m_muonIsolationSF;
     std::string m_muonIsolationSFLoose;
-    std::set<std::string> m_muonIsolationWPs; // list of all WPs to store aux decorations for
+    std::vector<std::string> m_muonIsolationWPs; // list of all WPs to store aux decorations for
     int m_muon_d0SigCut;
     float m_muon_delta_z0;
     bool m_muonMuonDoSmearing2stationHighPt; //to turn on/off special correction for the reco with 2-station muons with missing inner MS station allowed for abs(eta)<1.3, only HighPt WP
@@ -2390,15 +2387,12 @@ namespace top {
       // filename to load tau configuration from.
       // If this is an empty string then take the 'default'
       std::string fileName = "Default";
-      // The jetIDWP in CamelCase
-      // see
-      // https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauSelectionTool.rst
-      // for supported WPs
+      // The jetIDWP
+      // Usefull reference: PhysicsAnalysis/TauID/TauAnalysisTools/TauAnalysisTools/Enums.h
       std::string jetIDWP = "RNNMedium";
       bool doRNNID = true;
-      bool doBDTID = false;
-      // the electron BDTWP
-      std::string eleBDTWP = "Medium";
+      // the electron ID WP (currently there's only eleRNN ID)
+      std::string eleIDWP = "RNNMedium";
       bool substructureSF = false;
       // Whether to perform muon overlap removal
       bool muOLR = true;
@@ -2415,7 +2409,7 @@ namespace top {
       std::string isolation = "None"; // isolation WP used for actual selection decision
       std::string identification = "None";
     } m_photon_configuration, m_photon_configuration_loose;
-    std::set<std::string> m_photonIsolationWPs; // all enabled WPs for aux decorations
+    std::vector<std::string> m_photonIsolationWPs; // all enabled WPs for aux decorations
 
     // [[[-----------------------------------------------
     // Particle Level (truth) configuration
@@ -2494,27 +2488,23 @@ namespace top {
     std::unordered_map<std::string, std::string> m_boostedTaggerSFnames;
     std::unordered_map<std::string, std::vector<std::string>> m_boostedTaggersSFSysNames;
 
-    // B-tagging WPs requested by the user (updated to pair of string to hold algorithm and WP)
-    std::vector<std::pair<std::string, std::string> > m_chosen_btaggingWP;
-    std::vector<std::pair<std::string, std::string> > m_chosen_btaggingWP_caloJet;
-    std::vector<std::pair<std::string, std::string> > m_chosen_btaggingWP_trkJet;
+    // B-tagging WPs as a pair of string to hold algorithm and WP
+    std::vector<std::pair<std::string, std::string> > m_btagAlgoWP_caloJet;
+    std::vector<std::pair<std::string, std::string> > m_btagAlgoWP_trkJet;
+    // B-tagging WPs in a format of Algo_WP -- used in most places in AT
+    std::vector<std::string> m_btagWP_caloJet;
+    std::vector<std::string> m_btagWP_trkJet;
+    // these are only calibrated WPs, so for these SFs are calculated
+    // same format as above
+    std::vector<std::pair<std::string, std::string> > m_btagAlgoWP_calib_caloJet;
+    std::vector<std::pair<std::string, std::string> > m_btagAlgoWP_calib_trkJet;
+    std::vector<std::string> m_btagWP_calib_caloJet;
+    std::vector<std::string> m_btagWP_calib_trkJet;
+    // B-tagging algorithms, pair of algorithm, selection tool name to provide score decorations
+    std::map<std::string, std::string> m_btag_algos_caloJet;
+    std::map<std::string, std::string> m_btag_algos_trkJet;
     // B-tagging systematics requested by user to be excluded from EV treatment, separated by semi-colons
     std::string m_bTagSystsExcludedFromEV = "";
-
-    // list of B-tagging WP actualy available
-    std::vector<std::string> m_available_btaggingWP;
-    std::vector<std::string> m_available_btaggingWP_trkJet;
-    // list of B-tagging WP actualy calibrated
-    std::vector<std::string> m_calibrated_btaggingWP;
-    std::vector<std::string> m_calibrated_btaggingWP_trkJet;
-    // list of B-tagging algorithms requested
-    std::set<std::string> m_available_btaggingAlgos;
-    std::set<std::string> m_available_btaggingAlgos_trkJet;
-    bool m_MV2c10_algo_used = false;
-    bool m_MV2c10_algo_used_trkJet = false;
-
-    std::unordered_map<std::string, std::string> m_algo_selTools;
-    std::unordered_map<std::string, std::string> m_algo_selTools_trkJet;
 
     // B-tagging calibration to be used
     bool m_cdi_path_warning = false;

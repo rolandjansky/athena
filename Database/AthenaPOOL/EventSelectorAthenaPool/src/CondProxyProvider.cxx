@@ -113,7 +113,7 @@ StatusCode CondProxyProvider::preLoadAddresses(StoreID::type storeID,
       if (!headerIterator->next()) {
          m_poolCollectionConverter->disconnectDb().ignore();
          delete m_poolCollectionConverter; m_poolCollectionConverter = 0;
-         m_inputCollectionsIterator++;
+         ++m_inputCollectionsIterator;
          if (m_inputCollectionsIterator != m_inputCollectionsProp.value().end()) {
             // Create PoolCollectionConverter for input file
             m_poolCollectionConverter = getCollectionCnv();
@@ -144,7 +144,7 @@ StatusCode CondProxyProvider::preLoadAddresses(StoreID::type storeID,
       return(StatusCode::SUCCESS);
    }
    for (std::list<SG::ObjectWithVersion<DataHeader> >::iterator iter = allVersions.begin();
-                   iter != allVersions.end(); iter++) {
+                   iter != allVersions.end(); ++iter) {
       SG::ReadHandle<DataHeader> dataHeader = iter->dataObject;
       ATH_MSG_DEBUG("The current File contains: " << dataHeader->size() << " objects");
       for (const auto& element : *dataHeader) {

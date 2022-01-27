@@ -94,15 +94,20 @@ def LArCalibIdMappingSC():
 
 def LArLATOMEMappingSC():
     condSequence = AthSequencer("AthCondSeq")
-    folder="/LAR/Identifier/LatomeMapping"
-    if hasattr(condSequence,"LArLATOMEMappingAlg") and condSequence.LArLATOMEMappingAlg.ReadKey==folder:
-        return #Already there....
+    #temporarily disabled, until conditions will arrive to COOL
+    #folder="/LAR/IdentifierSC/LatomeMapping"
+    #if hasattr(condSequence,"LArLATOMEMappingAlg") and condSequence.LArLATOMEMappingAlg.ReadKey==folder:
+    #    return #Already there....
 
-    if conddb.isMC:
-        dbname="LAR_OFL"
-        return # no latome mapping in MC
-    else:
-        dbname="LAR_ONL"
-    conddb.addFolder(dbname,folder,className="CondAttrListCollection")
-    condSequence+=LArLATOMEMappingAlg("LArLATOMEMappingAlg",ReadKey=folder, WriteKey="LArLATOMEMap")
+    #if conddb.isMC:
+    #    dbname="LAR_OFL"
+    #else:
+    #    dbname="LAR"
+    #conddb.addFolder(dbname,folder,className="AthenaAttributeList")
+    # SC only in OFL database
+    folder="/LAR/IdentifierSC/LatomeMapping"
+    conddb.addFolder("","<db>sqlite://;schema=/afs/cern.ch/user/p/pavol/w0/public/LAr_Reco_SC_22/Phase1/test_mapping/LatomeMapping.db;dbname=CONDBR2</db>"+folder,className="CondAttrListCollection")
+    conddb.addOverride(folder,"LARIdentifierSCLatomeMapping-UPD1-00")
+    condSequence+=LArLATOMEMappingAlg("LArLATOMEMappingAlgSC",ReadKey=folder, WriteKey="LArLATOMEMap")
+
     return

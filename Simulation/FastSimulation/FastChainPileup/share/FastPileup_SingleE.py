@@ -27,11 +27,10 @@ genSeq += MultiParticleGunPileup("PartGun")
 evgenConfig.generators += ["ParticleGun"]
 
 from EvgenProdTools.EvgenProdToolsConf import FixHepMC
-genSeq+=FixHepMC(McEventKey=gen_pu,McEventsR=gen_pu,McEventsRW=gen_pu,OutputLevel=INFO)
+genSeq+=FixHepMC(McEventKey=gen_pu,McEventsR=gen_pu,OutputLevel=INFO)
 
 genSeq.PartGun.McEventKey=gen_pu
 genSeq.PartGun.McEventsR=gen_pu
-genSeq.PartGun.McEventsRW=gen_pu
 # genSeq.PartGun.OutputLevel=DEBUG
 
 genSeq.PartGun.NCollPerEvent=-1

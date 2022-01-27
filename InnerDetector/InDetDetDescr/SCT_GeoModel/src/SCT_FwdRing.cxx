@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_FwdRing.h"
@@ -48,7 +48,7 @@ SCT_FwdRing::SCT_FwdRing(const std::string & name,
     m_module(module)
 {
   getParameters();
-  m_logVolume = preBuild();
+  m_logVolume = SCT_FwdRing::preBuild();
 }
 
 void 

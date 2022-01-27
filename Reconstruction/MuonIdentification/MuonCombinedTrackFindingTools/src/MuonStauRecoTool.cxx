@@ -752,6 +752,10 @@ namespace MuonCombined {
 
         // more than 1 track call ambiguity solver and select first track
         std::unique_ptr<const TrackCollection> resolvedTracks(m_trackAmbibuityResolver->process(&tracks));
+        if (!resolvedTracks || resolvedTracks->empty()){
+            ATH_MSG_WARNING("No track survived the ambiguity solving");
+            return false;
+        }
         const Trk::Track* selectedTrack = resolvedTracks->front();
 
         // get candidate
@@ -1149,8 +1153,8 @@ namespace MuonCombined {
 
         ATH_MSG_DEBUG("About to loop over Hough::Hits");
 
-        std::vector<MuonHough::Hit*>::const_iterator hit = maximum.hits.begin();
-        std::vector<MuonHough::Hit*>::const_iterator hit_end = maximum.hits.end();
+        MuonHough::HitVec::const_iterator hit = maximum.hits.begin();
+        MuonHough::HitVec::const_iterator hit_end = maximum.hits.end();
         for (; hit != hit_end; ++hit) {
           ATH_MSG_DEBUG("hit x,y_min,y_max,w = "
                         << (*hit)->x << "," << (*hit)->ymin << ","
@@ -1216,8 +1220,8 @@ namespace MuonCombined {
         };
 
         // extract eta hits
-        std::vector<MuonHough::Hit*>::const_iterator hit = maximum.hits.begin();
-        std::vector<MuonHough::Hit*>::const_iterator hit_end = maximum.hits.end();
+        MuonHough::HitVec::const_iterator hit = maximum.hits.begin();
+        MuonHough::HitVec::const_iterator hit_end = maximum.hits.end();
         for (; hit != hit_end; ++hit) {
             if ((*hit)->tgc || !(*hit)->prd || !m_idHelperSvc->isRpc((*hit)->prd->identify())) continue;
             addRpc((*hit)->prd);
@@ -1354,8 +1358,8 @@ namespace MuonCombined {
         Muon::MuonLayerHoughTool::PhiMaximumVec::const_iterator pit_end = phiMaxVec.end();
         for (; pit != pit_end; ++pit) {
             const MuonHough::MuonPhiLayerHough::Maximum& maximum = **pit;
-            std::vector<MuonHough::PhiHit*>::const_iterator hit = maximum.hits.begin();
-            std::vector<MuonHough::PhiHit*>::const_iterator hit_end = maximum.hits.end();
+            MuonHough::PhiHitVec::const_iterator hit = maximum.hits.begin();
+            MuonHough::PhiHitVec::const_iterator hit_end = maximum.hits.end();
             for (; hit != hit_end; ++hit) {
                 // treat the case that the hit is a composite TGC hit
                 if ((*hit)->tgc && !(*hit)->tgc->phiCluster.hitList.empty()) {

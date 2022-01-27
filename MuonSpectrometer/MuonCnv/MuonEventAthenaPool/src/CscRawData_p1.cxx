@@ -12,7 +12,7 @@ std::ostream& operator << ( std::ostream& sl, const  CscRawData_p1& data)
       << ", address=" << data.getAddress()
       << ", dpuID=" <<  data.dpuID()
       << ", amps=[";
-   for( unsigned i=0; i<data.getSamples().size(); i++ ) {
+   for( unsigned i=0; i<data.getSamples().size(); ++i ) {
       sl << data.getSamples()[i] << ",";
    }
    sl << "]";

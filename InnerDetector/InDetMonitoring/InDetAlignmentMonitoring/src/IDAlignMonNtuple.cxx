@@ -848,11 +848,13 @@ const Trk::TrackParameters* IDAlignMonNtuple::getUnbiasedTrackParameters(const T
 
 
           if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Before other side unbiased propagation" << endmsg;
-          if (TempSurface.associatedLayer() && TempField) PropagatedTrackParams = m_propagator->propagate(*OtherSideUnbiasedTrackParams,
-                                                                                                          tsos->measurementOnTrack()->associatedSurface(),
-                                                                                                          Trk::anyDirection, false,
-                                                                                                          *TempField,
-                                                                                                          Trk::nonInteracting).release();
+          if (TempSurface.associatedLayer() && TempField) PropagatedTrackParams = m_propagator->propagate(
+            Gaudi::Hive::currentContext(),
+            *OtherSideUnbiasedTrackParams,
+            tsos->measurementOnTrack()->associatedSurface(),
+            Trk::anyDirection, false,
+            *TempField,
+            Trk::nonInteracting).release();
 
           if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "After other side unbiased propagation" << endmsg;
           delete OtherSideUnbiasedTrackParams;

@@ -17,7 +17,7 @@ class DatabaseConfig {
 
 public:
   DatabaseConfig(std::string connectionString, long runNumber);
-  nlohmann::json GetPayload(std::string tag);
+  nlohmann::json GetPayload(const std::string& tag);
 
   bool IsConnected() const;
   void Disconnect();
@@ -34,7 +34,7 @@ private:
   cool::IDatabasePtr m_database;
 
   long GetRunNumber() const;
-  nlohmann::json LoadPayload(std::string tag);
+  nlohmann::json LoadPayload(const std::string& tag);
 
   void Connect();
 };

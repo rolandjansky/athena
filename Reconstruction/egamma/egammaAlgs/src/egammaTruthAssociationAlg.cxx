@@ -307,12 +307,10 @@ template<class T>
 egammaTruthAssociationAlg::MCTruthInfo_t
 egammaTruthAssociationAlg::particleTruthClassifier(
   const EventContext& ctx,
-  const T* particle,
-  Cache* extrapolationCache) const
+  const T* particle) const
 {
   MCTruthInfo_t info{};
   IMCTruthClassifier::Info mcinfo(ctx);
-  mcinfo.extrapolationCache = extrapolationCache;
   auto ret = m_mcTruthClassifier->particleTruthClassifier(particle, &mcinfo);
   info.genPart = mcinfo.genPart;
   info.first = ret.first;
@@ -326,12 +324,10 @@ template<>
 egammaTruthAssociationAlg::MCTruthInfo_t
 egammaTruthAssociationAlg::particleTruthClassifier<xAOD::Electron>(
   const EventContext& ctx,
-  const xAOD::Electron* electron,
-  Cache* extrapolationCache) const
+  const xAOD::Electron* electron) const
 {
   MCTruthInfo_t info{};
   IMCTruthClassifier::Info mcinfo(ctx);
-  mcinfo.extrapolationCache = extrapolationCache;
   auto ret = m_mcTruthClassifier->particleTruthClassifier(electron, &mcinfo);
   if (ret.first == MCTruthPartClassifier::Unknown &&
       !xAOD::EgammaHelpers::isFwdElectron(electron) &&
@@ -358,13 +354,11 @@ egammaTruthAssociationAlg::match(
 
   writeDecorHandles<T> decoHandles(hkeys, ctx);
 
-  // Extrapolation Cache
-  Cache extrapolationCache{};
 
   for (auto particle : *decoHandles.readHandle()) {
 
     MCTruthInfo_t info =
-      particleTruthClassifier(ctx, particle, &extrapolationCache);
+      particleTruthClassifier(ctx, particle);
 
     const xAOD::TruthParticle* truthParticle = info.genPart;
     if (truthParticle) {

@@ -49,7 +49,7 @@ if DetFlags.pixel_on():
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
 
         if (globalflags.DataSource()=='geant4'):
-            from PixelDigitization.PixelDigitizationConfig import PixelConfigCondAlg_MC, IdMapping
+            from PixelDigitization.PixelDigitizationConfig import PixelConfigCondAlg_MC
             condSeq += PixelConfigCondAlg_MC()
 
         elif (globalflags.DataSource=='data'):
@@ -73,8 +73,14 @@ if DetFlags.pixel_on():
                 else:
                     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
 
-            alg = PixelConfigCondAlg(name="PixelConfigCondAlg", 
-                                     CablingMapFileName=IdMappingDat)
+            # Data overlay: hard-scatter MC digitization + pileup data configuration
+            if (globalflags.isOverlay()):
+                from PixelDigitization.PixelDigitizationConfig import PixelConfigCondAlg_MC
+                alg = PixelConfigCondAlg_MC()
+                alg.CablingMapFileName=IdMappingDat
+            else: 
+                alg = PixelConfigCondAlg(name="PixelConfigCondAlg", 
+                                         CablingMapFileName=IdMappingDat)
 
             if jobproperties.Beam.beamType() == 'cosmics':
                 alg.BarrelTimeJitter=[25.0,25.0,25.0,25.0]
@@ -125,9 +131,13 @@ if DetFlags.pixel_on():
     #####################
     # Calibration Setup #
     #####################
-    if commonGeoFlags.Run()=="RUN3":
+    from Digitization.DigitizationFlags import digitizationFlags
+    if commonGeoFlags.Run()=="RUN3" and 'UseOldIBLCond' not in digitizationFlags.experimentalDigi():
         if not conddb.folderRequested("/PIXEL/ChargeCalibration"):
             conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/ChargeCalibration", "/PIXEL/ChargeCalibration", className="CondAttrListCollection")
+        if athenaCommonFlags.isOnline():
+            conddb.addOverride("/PIXEL/Onl/ChargeCalibration", "ChargeCalibration-20211220")
+            
         if not hasattr(condSeq, 'PixelChargeLUTCalibCondAlg'):
             from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeLUTCalibCondAlg
             condSeq += PixelChargeLUTCalibCondAlg(name="PixelChargeLUTCalibCondAlg", ReadKey="/PIXEL/ChargeCalibration")

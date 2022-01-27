@@ -11,7 +11,7 @@ name from the list is an easy mistake to make, but detecting the problem can be
 difficult"""
 
 
-from TriggerMenuMT.HLTMenuConfig.Menu.SignatureDicts import JetChainParts
+from TriggerMenuMT.HLT.Menu.SignatureDicts import JetChainParts
 
 def checkScenarioPresence(chain_parts, chain_name):
     full_scenarios = JetChainParts['hypoScenario']

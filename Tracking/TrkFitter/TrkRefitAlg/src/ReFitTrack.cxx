@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -138,8 +138,8 @@ StatusCode Trk::ReFitTrack::execute()
 {
   ATH_MSG_DEBUG ("ReFitTrack::execute()");
   std::unique_ptr<Trk::PRDtoTrackMap> prd_to_track_map(m_assoTool->createPRDtoTrackMap());
-
-  SG::ReadHandle<TrackCollection> tracks (m_trackName);
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  SG::ReadHandle<TrackCollection> tracks (m_trackName, ctx);
 
   if (!tracks.isValid()){
     msg(MSG::ERROR) <<"Track collection named " << m_trackName.key()
@@ -219,7 +219,10 @@ StatusCode Trk::ReFitTrack::execute()
 
          ATH_MSG_VERBOSE ("Creating measurement for beamspot.");
          // extrapolate the track to the vertex -- for consistent Measurement frame
-         std::unique_ptr<const Trk::TrackParameters> tp( m_extrapolator->extrapolate(**itr,*constrainSf,Trk::anyDirection) );
+         std::unique_ptr<const Trk::TrackParameters> tp( m_extrapolator->extrapolate(ctx,
+                                                                                     **itr,
+                                                                                     *constrainSf,
+                                                                                     Trk::anyDirection) );
          const Trk::Perigee* tpConstrainedSf = dynamic_cast<const Trk::Perigee*>(tp.get());
          // create the vertex/beamsptOnTrack
          std::unique_ptr<Trk::VertexOnTrack> bsvxOnTrack( tpConstrainedSf ? new Trk::VertexOnTrack(*constrainVx,*tpConstrainedSf) : nullptr );
@@ -241,10 +244,17 @@ StatusCode Trk::ReFitTrack::execute()
          // for ( ; measIter != measIterEnd; ++measIter)
          //    vec.push_back((*measIter));
          // refit with the beamspot / vertex
-         newtrack.reset((trtonly ? m_ITrackFitterTRT : m_ITrackFitter)->fit(vec, *origPerigee, m_runOutlier,hypo));
+         newtrack = ((trtonly ? m_ITrackFitterTRT : m_ITrackFitter)
+                       ->fit(Gaudi::Hive::currentContext(),
+                             vec,
+                             *origPerigee,
+                             m_runOutlier,
+                             hypo));
          // now delete the vsvx
       } else {
-         newtrack.reset((trtonly ? m_ITrackFitterTRT : m_ITrackFitter)->fit(**itr,m_runOutlier,hypo));
+        newtrack =
+          ((trtonly ? m_ITrackFitterTRT : m_ITrackFitter)
+             ->fit(Gaudi::Hive::currentContext(), **itr, m_runOutlier, hypo));
       }
     } // passed selection
 

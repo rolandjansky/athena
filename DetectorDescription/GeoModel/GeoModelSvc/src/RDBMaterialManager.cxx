@@ -22,6 +22,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
+#include "boost/algorithm/string/predicate.hpp"
 
 #include <algorithm>
 #include <iostream>
@@ -325,12 +326,14 @@ StatusCode RDBMaterialManager::readMaterialsFromDB(ISvcLocator* pSvcLocator)
 RDBMaterialManager::~RDBMaterialManager() {
 	
   // Unreference the materials:
-  std::map< std::string, GeoMaterial * >::iterator m, begin = m_materialMap.begin(),end = m_materialMap.end();
-  for (m=begin;m!=end;m++) (*m).second->unref();	
+  for (auto &p : m_materialMap) {
+    p.second->unref();
+  }
 	 	
   // Unreference the elements:
-  for (size_t i=0;i<m_elementVector.size();i++)   	m_elementVector[i]->unref();
-	
+  for (GeoElement *elt : m_elementVector) {
+    elt->unref();
+  }
 }
 
 GeoMaterial* RDBMaterialManager::searchMaterialMap(const std::string & name) const
@@ -435,78 +438,78 @@ const GeoMaterial*  RDBMaterialManager:: getMaterial(const std::string &name) co
   pmaterial = searchMaterialMap( name);
   if (pmaterial!= NULL) 
       return pmaterial;
-		
-  if(name.find("std",0) == 0)
+
+  if(boost::starts_with(name, "std"))
     {
       detector = "std";
       tmp_materials = m_stdmaterials;
       tmp_matcomponents = m_stdmatcomponents;
       data_id = "STDMATERIALS_DATA_ID";
     }
-  else if(name.find("trt",0) == 0)
+  else if(boost::starts_with(name, "trt"))
     {
       detector = "trt";
       tmp_materials = m_trtmaterials;
       tmp_matcomponents = m_trtmatcomponents;
       data_id = "TRTMATERIALS_DATA_ID";
     }
-  else if(name.find("LAr",0) == 0)
+  else if(boost::starts_with(name, "LAr"))
     {
       detector = "LAr";
       tmp_materials = m_larmaterials;
       tmp_matcomponents = m_larmatcomponents;
       data_id = "LARMATERIALS_DATA_ID";
     }
-  else if(name.find("muo",0) == 0)
+  else if(boost::starts_with(name, "muo"))
     {
       detector = "muo";
       tmp_materials = m_muomaterials;
       tmp_matcomponents = m_muomatcomponents;
       data_id = "MUOMATERIALS_DATA_ID";
     }
-  else if(name.find("pixtb",0) == 0)
+  else if(boost::starts_with(name, "pixtb"))
     {
       detector = "pixtb";
       tmp_materials = m_pixtbmaterials;
       tmp_matcomponents = m_pixtbmatcomponents;
       data_id = "PIXELTBMATERIALS_DATA_ID";
     }
-  else if(name.find("pix",0) == 0)
+  else if(boost::starts_with(name, "pix"))
     {
       detector = "pix";
       tmp_materials = m_pixmaterials;
       tmp_matcomponents = m_pixmatcomponents;
       data_id = "PIXMATERIALS_DATA_ID";
     }
-  else if(name.find("sct",0) == 0)
+  else if(boost::starts_with(name, "sct"))
     {
       detector = "sct";
       tmp_materials = m_sctmaterials;
       tmp_matcomponents = m_sctmatcomponents;
       data_id = "SCTMATERIALS_DATA_ID";
     }
-  else if(name.find("indet",0) == 0)
+  else if(boost::starts_with(name, "indet"))
     {
       detector = "indet";
       tmp_materials = m_indetmaterials;
       tmp_matcomponents = m_indetmatcomponents;
       data_id = "INDETMATERIALS_DATA_ID";
     }
-  else if(name.find("shield",0) == 0)
+  else if(boost::starts_with(name, "shield"))
     {
       detector = "shield";
       tmp_materials = m_shieldmaterials;
       tmp_matcomponents = m_shieldmatcomponents;
       data_id = "SHIELDMATERIALS_DATA_ID";
     }
-  else if(name.find("tile",0) == 0)
+  else if(boost::starts_with(name, "tile"))
     {
       detector = "tile";
       tmp_materials = m_tilematerials;
       tmp_matcomponents = m_tilematcomponents;
       data_id = "TILEMATERIALS_DATA_ID";
     }
-  else if(name.find("toro",0) == 0)
+  else if(boost::starts_with(name, "toro"))
     {
       detector = "toro";
       tmp_materials = m_toromaterials;
@@ -727,19 +730,17 @@ size_t RDBMaterialManager::size()
 std::ostream &  RDBMaterialManager::printAll(std::ostream & o) const 
 {
   o << "============Material Manager Element List========================" << std::endl;
-  std::vector<GeoElement *>::const_iterator e;
-  for (e=m_elementVector.begin();e!= m_elementVector.end();e++) 
+  for (GeoElement* elt : m_elementVector)
     {
-      o << (*e)->getSymbol() << '\t' << (*e)->getZ() <<  '\t' << (*e)->getA() * (Gaudi::Units::mole / GeoModelKernelUnits::gram) << '\t' << (*e)->getName() << std::endl;
+      o << elt->getSymbol() << '\t' << elt->getZ() <<  '\t' << elt->getA() * (Gaudi::Units::mole / GeoModelKernelUnits::gram) << '\t' << elt->getName() << std::endl;
     }
-  std::map<std::string, GeoMaterial *>::const_iterator m;
-  	
-  for (m=m_materialMap.begin();m!=m_materialMap.end();m++) 
+
+  for (const auto& p : m_materialMap)
     {
-      o << "Material: " << (*m).first <<  " Density " << (*m).second->getDensity() * (Gaudi::Units::cm3 / GeoModelKernelUnits::gram)  << std::endl;
-      for (size_t i = 0; i< (*m).second->getNumElements();i++) 
+      o << "Material: " << p.first <<  " Density " << p.second->getDensity() * (Gaudi::Units::cm3 / GeoModelKernelUnits::gram)  << std::endl;
+      for (size_t i = 0; i< p.second->getNumElements();i++) 
 	{
-	  o <<" ***** ***** "<< int ((*m).second->getFraction(i)*100) << "% \t"  << (*m).second->getElement(i)->getName() << std::endl;
+	  o <<" ***** ***** "<< int (p.second->getFraction(i)*100) << "% \t"  << p.second->getElement(i)->getName() << std::endl;
 	}
     }
   	  	

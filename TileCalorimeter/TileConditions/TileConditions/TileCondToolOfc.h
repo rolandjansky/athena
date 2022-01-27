@@ -27,7 +27,6 @@
 #include <iomanip>
 #include <memory>
 
-class CaloDetDescrManager;
 class IdContext;
 
 /**

@@ -1,13 +1,16 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 import unittest
 import json
+import pickle
+import sys
 
-from AthenaMonitoringKernel.GenericMonitoringTool\
-import GenericMonitoringTool, GenericMonitoringArray
+from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaMonitoringKernel.GenericMonitoringTool import (GenericMonitoringTool,
+                                                          GenericMonitoringArray)
 
 # suppress error messages for these tests
 from AthenaMonitoringKernel.GenericMonitoringTool import log
@@ -18,11 +21,15 @@ def histogramDictionary(histogramList):
     return dict((h['alias'],h) for h in jsonList)
 
 class TestGMT(unittest.TestCase):
+    """Tests for GenericMonitoringTool"""
 
-    # Tests for GenericMonitoringTool
     def test_createGMT(self):
         gmt = GenericMonitoringTool()
-        self.assertIsInstance(gmt, GenericMonitoringTool)
+        self.assertIsInstance(gmt, CompFactory.GenericMonitoringTool)
+
+    def test_pickle(self):
+        gmt = GenericMonitoringTool()
+        pickle.dumps(gmt)
 
     def test_defineHistogram(self):
         gmt = GenericMonitoringTool()
@@ -52,7 +59,7 @@ class TestGMT(unittest.TestCase):
     def test_getitem(self):
         gma = GenericMonitoringArray('TestGMA', [2])
         gmt = gma[0]
-        self.assertIsInstance(gmt, GenericMonitoringTool)
+        self.assertIsInstance(gmt, CompFactory.GenericMonitoringTool)
 
     def test_toolMap(self):
         gma = GenericMonitoringArray('TestGMA', [['x', 'y', 'z']])
@@ -125,6 +132,42 @@ class TestGMT(unittest.TestCase):
         self.assertEqual(d['y_vs_x_1']['yvar'], 'y')
         self.assertEqual(d['y_vs_x_0']['weight'], 'z')
         self.assertEqual(d['y_vs_x_1']['weight'], 'z')
+
+
+class TestLegacy(TestGMT):
+    """All the same tests as above but now with legacy Configurables"""
+
+    @classmethod
+    def setUpClass(cls):
+        # force Run-2 config in CompFactory
+        sys.modules['AthenaCommon.Include'] = 'dummy'
+
+    @classmethod
+    def tearTownClass(cls):
+        sys.modules.pop('AthenaCommon.Include')
+
+    def test_legacy(self):
+        from AthenaConfiguration.ComponentFactory import isRun3Cfg
+        self.assertFalse(isRun3Cfg())
+
+    def test_configurableType(self):
+        gmt = GenericMonitoringTool('gmt')
+        self.assertFalse(hasattr(gmt,'__cpp_type__'))
+
+
+class TestGaudiConfig2(unittest.TestCase):
+    """Tests specific to GaudiConfig2"""
+
+    @classmethod
+    def setUpClass(cls):
+        from AthenaConfiguration import AtlasSemantics  # noqa: F401 (ATLAS merge semantics)
+
+    def test_merge(self):
+        t1 = GenericMonitoringTool(Histograms = ['x','y'])
+        t2 = GenericMonitoringTool(Histograms = ['z'])
+        t2.merge(t1)
+        self.assertEqual(list(t1.Histograms), ['x','y','z'])
+
 
 if __name__ == '__main__':
    unittest.main()

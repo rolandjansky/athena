@@ -11,7 +11,6 @@
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "LArRawEvent/LArSCDigit.h"
 #include "LArRawEvent/LArLATOMEHeaderContainer.h"
-//#include "GaudiKernel/ToolHandle.h"
 
 LArDigits2Ntuple::LArDigits2Ntuple(const std::string& name, ISvcLocator* pSvcLocator):
   LArCond2NtupleBase(name, pSvcLocator),
@@ -24,8 +23,7 @@ LArDigits2Ntuple::LArDigits2Ntuple(const std::string& name, ISvcLocator* pSvcLoc
   declareProperty("FillBCID",m_fillBCID);
   declareProperty("OverwriteEventNumber",m_overwriteEventNumber=false);
   m_ntTitle = "LArDigits";
-  m_ntpath  = "/NTUPLES/FILE1/LARDIGITS";
-  
+  m_ntpath  = "/NTUPLES/FILE1/LARDIGITS";  
 }
 
 LArDigits2Ntuple::~LArDigits2Ntuple() 
@@ -164,6 +162,7 @@ StatusCode LArDigits2Ntuple::initialize()
       }
       
     }else if ( ck == "SC_ET_ID" ){	// SC_ET_ID RawSCContainer
+
       sc = m_nt->addItem("energyVec_ET_ID", m_Nsamples, m_energyVec_ET_ID);
       if (sc!=StatusCode::SUCCESS) {
 	ATH_MSG_ERROR( "addItem 'energyVec_ET_ID' failed" );
@@ -299,6 +298,7 @@ StatusCode LArDigits2Ntuple::execute()
     LArRawChannelContainer::const_iterator	raw_e   = RawChannelContainer->end(); 
     for(;raw!=raw_e;raw++){
       rawChannelMap.insert( std::pair<HWIdentifier, const LArRawChannel*>( raw->channelID(), &(*raw) ) );
+
     }
   
   }// end if m_isSC
@@ -464,10 +464,12 @@ StatusCode LArDigits2Ntuple::execute()
       for( unsigned i = 0; i<rawSC->satur().size();++i){	// just use the vector directly?
 	m_saturVec_ET[i]	   = rawSC->satur().at(i);
       }
-    }
 
-    if( etcontainer1 ){ //SC_ET_ID
+    }
+    // etcontainer1 -> SC_ET_ID
+    if( etcontainer1 ){
       const LArRawSC*rawSC   = etcontainer1->at(c);
+
       if ( !DigitContainer && !DigitContainer1 && !etcontainer ){
 	m_latomeChannel	   = rawSC->chan();
 	if (headcontainer){

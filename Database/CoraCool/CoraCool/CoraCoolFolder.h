@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CORACOOL_CORACOOLFOLDER_H
@@ -149,7 +149,7 @@ class CoraCoolFolder {
   // accessors for friend class CoraCoolObjectIter
   coral::ISessionProxy* proxy();
   const coral::ISessionProxy* proxy() const;
-  coral::ITable* table() const;
+  coral::ITable* table();
   void setOutputSpec(coral::IQuery* query);
 
   bool decodeAttrSpec();

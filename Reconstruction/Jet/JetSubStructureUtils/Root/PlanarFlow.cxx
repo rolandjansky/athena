@@ -65,7 +65,7 @@ double PlanarFlow::result(const fastjet::PseudoJet &jet) const
 
 
   for(vector<fastjet::PseudoJet>::iterator cit=constit_pseudojets.begin(); cit != constit_pseudojets.end();
-      cit++) {
+      ++cit) {
     const fastjet::PseudoJet & cp = *cit;
     TLorentzVector p = TLorentzVector(cp.px(),cp.py(),cp.pz(),cp.e());
     double n=1./(cp.e()*jet.m());

@@ -75,15 +75,17 @@ Trk::ExtrapolationCode Trk::PropagationEngine::propagate(Trk::ExCellCharged& eCe
     Trk::TransportJacobian* tjac = nullptr;
     // we need to first fill the propagation parameters in order to be able to updates & fallbacks
     //release, otherwise need to change the Trk::ExCell code
-    auto pParameters = m_propagator->propagate(*eCell.leadParameters,
-                                              sf,
-                                              pDir,
-                                              bcheck,
-                                              eCell.mFieldMode,
-                                              tjac,
-                                              propLength,
-                                              eCell.pHypothesis,
-                                              returnCurvilinear).release();
+    auto *pParameters = m_propagator->propagate(
+          Gaudi::Hive::currentContext(),
+          *eCell.leadParameters,
+          sf,
+          pDir,
+          bcheck,
+          eCell.mFieldMode,
+          tjac,
+          propLength,
+          eCell.pHypothesis,
+          returnCurvilinear).release();
    // set the return type according to how the propagation went
    if (pParameters){
        // cache the last lead parameters, useful in case a navigation error occured

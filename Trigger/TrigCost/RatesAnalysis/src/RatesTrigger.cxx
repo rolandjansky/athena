@@ -1,14 +1,14 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RatesAnalysis/RatesTrigger.h"
 #include "RatesAnalysis/RatesGroup.h"
 
-RatesTrigger::RatesTrigger(const std::string& name, const MsgStream& log, const double prescale, const double expressPrescale,
+RatesTrigger::RatesTrigger(const std::string& name, IMessageSvc* msgSvc, const double prescale, const double expressPrescale,
                            const std::string& seedName, const double seedPrescale, const bool doHistograms,
                            const ExtrapStrat_t extrapolation) :
-  RatesHistoBase(name, log, doHistograms),
+  RatesHistoBase(name, msgSvc, doHistograms),
   m_pass(false),
   m_active(false),
   m_seedsFromRandom(false),

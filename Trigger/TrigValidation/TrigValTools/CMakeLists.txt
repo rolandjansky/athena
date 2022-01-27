@@ -22,7 +22,7 @@ atlas_add_dictionary( TrigValToolsDict
 # Install files from the package:
 atlas_install_python_modules( python/*.py python/TrigValSteering bin/chainDump.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_scripts( bin/*.py test/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
-atlas_install_scripts( bin/*.pl bin/*.sh )
+atlas_install_scripts( bin/*.pl )
 atlas_install_data( share/*.json share/*.conf )
 
 # Unit tests:

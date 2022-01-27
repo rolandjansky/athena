@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file CaloTowerBuilderToolTestAlg.h
@@ -19,6 +19,8 @@
 #include "CaloEvent/CaloTowerSeg.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include <vector>
 #include <cstdint>
 class CaloCellContainer;
@@ -40,13 +42,13 @@ public:
   /** 
    * @brief Standard Gaudi initialize method.
    */
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
 
   /** 
    * @brief Standard Gaudi execute method.
    */
-  virtual StatusCode execute();
+  virtual StatusCode execute() override;
 
 
 private:
@@ -62,6 +64,10 @@ private:
   CaloTowerSeg m_seg;
 
   uint32_t m_seed;
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+      , "CaloDetDescrManager"
+      , "CaloDetDescrManager"
+      , "SG Key for CaloDetDescrManager in the Condition Store" };
 };
 
 

@@ -317,7 +317,7 @@ void TileROD_Decoder::unpack_frag0(uint32_t version,
   TileDigits *td;
   HWIdentifier drawerID = m_tileHWID->drawer_id(frag);
   HWIdentifier adcID;
-  std::vector<std::vector<float>*> *digiVec;
+  std::array< std::vector<float>, 3 > digiVec;
   
   // take BCID from chip header with good parity
   uint32_t bcid = m_d2Bytes.getBCID(data, chipCount, blockSize);
@@ -343,12 +343,10 @@ void TileROD_Decoder::unpack_frag0(uint32_t version,
         // create ID
         adcID = m_tileHWID->adc_id(drawerID, channel, TileHWID::LOWGAIN);
         
-        td = new TileDigits(adcID, *(*digiVec)[n]);
+        td = new TileDigits(adcID, digiVec[n]);
         pDigits.push_back(td);
         
-        delete ((*digiVec)[n]);
       }
-      delete digiVec;
       
       // Extract high gain digits for fragment
       digiVec = m_d2Bytes.getDigits(data + 1 + gainOffset, dataWordsPerChip);
@@ -359,12 +357,10 @@ void TileROD_Decoder::unpack_frag0(uint32_t version,
         // create ID
         adcID = m_tileHWID->adc_id(drawerID, channel, TileHWID::HIGHGAIN);
         
-        td = new TileDigits(adcID, *(*digiVec)[n]);
+        td = new TileDigits(adcID, digiVec[n]);
         pDigits.push_back(td);
         
-        delete ((*digiVec)[n]);
       }
-      delete digiVec;
       
       // store metadata
       chipHeaderLow.push_back(*data);
@@ -396,26 +392,24 @@ void TileROD_Decoder::unpack_frag0(uint32_t version,
         gain = m_d2Bytes.getGain(data, n);
         // create ID
         adcID = m_tileHWID->adc_id(drawerID, channel, gain);
-        td = new TileDigits(adcID, *(*digiVec)[n]);
+        td = new TileDigits(adcID, digiVec[n]);
         
         ATH_MSG_VERBOSE( "Frag: $" << MSG::hex << frag << MSG::dec
                         << " G:" << gain
                         << " C:" << channel
                         << " BCID: " << MSG::hex << m_d2Bytes.getBCID(data, chipCount, blockSize) << MSG::dec
-                        << " Data={" << (int) (*(*digiVec)[n])[0]
-                        << "," << (int) (*(*digiVec)[n])[1]
-                        << "," << (int) (*(*digiVec)[n])[2]
-                        << "," << (int) (*(*digiVec)[n])[3]
-                        << "," << (int) (*(*digiVec)[n])[4]
-                        << "," << (int) (*(*digiVec)[n])[5]
-                        << "," << (int) (*(*digiVec)[n])[6] << "}" );
+                        << " Data={" << (int) digiVec[n][0]
+                        << "," << (int) digiVec[n][1]
+                        << "," << (int) digiVec[n][2]
+                        << "," << (int) digiVec[n][3]
+                        << "," << (int) digiVec[n][4]
+                        << "," << (int) digiVec[n][5]
+                        << "," << (int) digiVec[n][6] << "}" );
         
         
         pDigits.push_back(td);
         
-        delete ((*digiVec)[n]);
       }
-      delete digiVec;
       
       // store some metadata, first word in chip is header, last is CRC
       chipHeader.push_back(*data);
@@ -1323,25 +1317,16 @@ void TileROD_Decoder::unpack_frag10(uint32_t /* version */, const uint32_t* p,
   uint32_t Mu_drawer;
   uint32_t Mu_quality;
   
-  std::vector<std::vector<float>*> sumE;
-  std::vector<std::vector<unsigned int>*> word;
-  std::vector<std::vector<float>*> eta;
-  std::vector<std::vector<float>*> energy0;
-  std::vector<std::vector<float>*> energy1;
-  std::vector<std::vector<float>*> energy2;
-  std::vector<std::vector<unsigned int>*> quality;
+  std::vector<float> sumE[2];
+  std::vector<unsigned int> word[2];
+  std::vector<float> eta[2];
+  std::vector<float> energy0[2];
+  std::vector<float> energy1[2];
+  std::vector<float> energy2[2];
+  std::vector<unsigned int> quality[2];
+
   
-  for (unsigned int i = 0; i < 2; ++i) {
-    sumE.push_back(new std::vector<float>);
-    word.push_back(new std::vector<unsigned int>);
-    eta.push_back(new std::vector<float>);
-    energy0.push_back(new std::vector<float>);
-    energy1.push_back(new std::vector<float>);
-    energy2.push_back(new std::vector<float>);
-    quality.push_back(new std::vector<unsigned int>);
-  }
-  
-  float eta_LB[9] = {
+  constexpr float eta_LB[9] = {
     ((0.00 + 2 * 0.05) / 3),  // D0, BC1, A1
     ((0.20 + 2 * 0.15) / 3),  // D1, BC2, A2
     ((0.20 + 2 * 0.25) / 3),  // D1, BC3, A3
@@ -1353,7 +1338,7 @@ void TileROD_Decoder::unpack_frag10(uint32_t /* version */, const uint32_t* p,
     ((0.60 + 2 * 0.75) / 3)   // D3, BC8, A8
   };
   
-  float eta_EB[17] = {
+  constexpr float eta_EB[17] = {
     ((1.00 + 1.05 + 1.15) / 3), // D5, B11, A12
     ((1.00 + 1.15 + 1.15) / 3), // D5, B12, A12
     ((1.00 + 1.15 + 1.25) / 3), // D5, B12, A13
@@ -1374,8 +1359,8 @@ void TileROD_Decoder::unpack_frag10(uint32_t /* version */, const uint32_t* p,
   };
   
   // Transverse energy - 2 words
-  sumE[0]->push_back((float) ((int32_t) (*p++) - 9000));
-  sumE[1]->push_back((float) ((int32_t) (*p++) - 9000));
+  sumE[0].push_back((float) ((int32_t) (*p++) - 9000));
+  sumE[1].push_back((float) ((int32_t) (*p++) - 9000));
   
   // Muon tagging
   
@@ -1390,28 +1375,28 @@ void TileROD_Decoder::unpack_frag10(uint32_t /* version */, const uint32_t* p,
     Mu_drawer = (w >> 30) & 1; // 1 bit
     Mu_quality = w >> 31; // 1 bit
     
-    word[Mu_drawer]->push_back(w);
+    word[Mu_drawer].push_back(w);
     
     w = *(p + 1);
     
     Mu_energy0 = w & 0xFFFF;    // 16 bits
     Mu_energy1 = w >> 16;       // 16 bits
     
-    word[Mu_drawer]->push_back(w);
+    word[Mu_drawer].push_back(w);
     
     // Muon eta coordinate
     switch (frag >> 12) {
       case 1:
-        eta[Mu_drawer]->push_back(eta_LB[Mu_pattern]);
+        eta[Mu_drawer].push_back(eta_LB[Mu_pattern]);
         break;
       case 2:
-        eta[Mu_drawer]->push_back(-eta_LB[Mu_pattern]);
+        eta[Mu_drawer].push_back(-eta_LB[Mu_pattern]);
         break;
       case 3:
-        eta[Mu_drawer]->push_back(eta_EB[Mu_pattern]);
+        eta[Mu_drawer].push_back(eta_EB[Mu_pattern]);
         break;
       case 4:
-        eta[Mu_drawer]->push_back(-eta_EB[Mu_pattern]);
+        eta[Mu_drawer].push_back(-eta_EB[Mu_pattern]);
         break;
       default:
         ATH_MSG_WARNING("Unknown fragment: " << (frag >> 8));
@@ -1419,12 +1404,12 @@ void TileROD_Decoder::unpack_frag10(uint32_t /* version */, const uint32_t* p,
     }
     
     // Energy deposited in TileCal by the muon (MeV)
-    energy0[Mu_drawer]->push_back(Mu_energy0 / 2.);
-    energy1[Mu_drawer]->push_back(Mu_energy1 / 2.);
-    energy2[Mu_drawer]->push_back(Mu_energy2 / 2.);
+    energy0[Mu_drawer].push_back(Mu_energy0 / 2.);
+    energy1[Mu_drawer].push_back(Mu_energy1 / 2.);
+    energy2[Mu_drawer].push_back(Mu_energy2 / 2.);
     
     // Muon quality factor
-    quality[Mu_drawer]->push_back(Mu_quality);
+    quality[Mu_drawer].push_back(Mu_quality);
     
     p += 2;
   }
@@ -1435,19 +1420,11 @@ void TileROD_Decoder::unpack_frag10(uint32_t /* version */, const uint32_t* p,
     int fragId = (((frag & 0xF000) >> 4) | nDrawer[i]);
     
     // store sumEt
-    (*pL2[m_hashFunc(fragId)]).setEt(*sumE[i]);
+    (*pL2[m_hashFunc(fragId)]).setEt(std::move(sumE[i]));
     
     // store Muon data
-    (*pL2[m_hashFunc(fragId)]).setMu((*(eta[i])), (*(energy0[i])), (*(energy1[i])), (*(energy2[i])),
-                                     (*(quality[i])), (*(word[i])));
-    
-    delete sumE[i];
-    delete word[i];
-    delete eta[i];
-    delete energy0[i];
-    delete energy1[i];
-    delete energy2[i];
-    delete quality[i];
+    (*pL2[m_hashFunc(fragId)]).setMu(std::move(eta[i]), std::move(energy0[i]), std::move(energy1[i]), std::move(energy2[i]),
+                                     std::move(quality[i]), std::move(word[i]));
   }
   
   return;
@@ -1478,7 +1455,7 @@ void TileROD_Decoder::unpack_frag11(uint32_t /* version */, const uint32_t* p,
   std::vector<float> energy2;
   std::vector<unsigned int> quality;
   
-  float eta_LB[9] = {
+  constexpr float eta_LB[9] = {
     ((0.00 + 2 * 0.05) / 3),  // D0, BC1, A1
     ((0.20 + 2 * 0.15) / 3),  // D1, BC2, A2
     ((0.20 + 2 * 0.25) / 3),  // D1, BC3, A3
@@ -1490,7 +1467,7 @@ void TileROD_Decoder::unpack_frag11(uint32_t /* version */, const uint32_t* p,
     ((0.60 + 2 * 0.75) / 3)   // D3, BC8, A8
   };
   
-  float eta_EB[17] = {
+  constexpr float eta_EB[17] = {
     ((1.00 + 1.05 + 1.15) / 3), // D5, B11, A12
     ((1.00 + 1.15 + 1.15) / 3), // D5, B12, A12
     ((1.00 + 1.15 + 1.25) / 3), // D5, B12, A13
@@ -1512,7 +1489,7 @@ void TileROD_Decoder::unpack_frag11(uint32_t /* version */, const uint32_t* p,
   
   // Transverse energy
   std::vector<float> sumE(1, (float) ((int32_t) (*p++) - 9000));
-  (*pL2[m_hashFunc(frag)]).setEt(sumE);
+  (*pL2[m_hashFunc(frag)]).setEt(std::move(sumE));
   
   // Muon tagging
   
@@ -1566,7 +1543,8 @@ void TileROD_Decoder::unpack_frag11(uint32_t /* version */, const uint32_t* p,
     p += 2;
   }
   
-  (*pL2[m_hashFunc(frag)]).setMu(eta, energy0, energy1, energy2, quality, word);
+  (*pL2[m_hashFunc(frag)]).setMu(std::move(eta), std::move(energy0),
+           std::move(energy1), std::move(energy2), std::move(quality), std::move(word));
   
   return;
 }
@@ -1593,23 +1571,14 @@ void TileROD_Decoder::unpack_frag12(uint32_t /* version */, const uint32_t* p,
   uint32_t Mu_drawer;
   uint32_t Mu_quality;
   
-  std::vector<std::vector<unsigned int>*> word;
-  std::vector<std::vector<float>*> eta;
-  std::vector<std::vector<float>*> energy0;
-  std::vector<std::vector<float>*> energy1;
-  std::vector<std::vector<float>*> energy2;
-  std::vector<std::vector<unsigned int>*> quality;
+  std::vector<unsigned int> word[2];
+  std::vector<float> eta[2];
+  std::vector<float> energy0[2];
+  std::vector<float> energy1[2];
+  std::vector<float> energy2[2];
+  std::vector<unsigned int> quality[2];
   
-  for (unsigned int i = 0; i < 2; ++i) {
-    word.push_back(new std::vector<unsigned int>);
-    eta.push_back(new std::vector<float>);
-    energy0.push_back(new std::vector<float>);
-    energy1.push_back(new std::vector<float>);
-    energy2.push_back(new std::vector<float>);
-    quality.push_back(new std::vector<unsigned int>);
-  }
-  
-  float eta_LB[9] = {
+  constexpr float eta_LB[9] = {
     ((0.00 + 2 * 0.05) / 3),  // D0, BC1, A1
     ((0.20 + 2 * 0.15) / 3),  // D1, BC2, A2
     ((0.20 + 2 * 0.25) / 3),  // D1, BC3, A3
@@ -1621,7 +1590,7 @@ void TileROD_Decoder::unpack_frag12(uint32_t /* version */, const uint32_t* p,
     ((0.60 + 2 * 0.75) / 3)   // D3, BC8, A8
   };
   
-  float eta_EB[17] = {
+  constexpr float eta_EB[17] = {
     ((1.00 + 1.05 + 1.15) / 3), // D5, B11, A12
     ((1.00 + 1.15 + 1.15) / 3), // D5, B12, A12
     ((1.00 + 1.15 + 1.25) / 3), // D5, B12, A13
@@ -1652,28 +1621,28 @@ void TileROD_Decoder::unpack_frag12(uint32_t /* version */, const uint32_t* p,
     Mu_drawer = (w >> 30) & 1; // 1 bit
     Mu_quality = w >> 31; // 1 bit
     
-    word[Mu_drawer]->push_back(w);
+    word[Mu_drawer].push_back(w);
     
     w = *(p + 1);
     
     Mu_energy0 = w & 0xFFFF;    // 16 bits
     Mu_energy1 = w >> 16;       // 16 bits
     
-    word[Mu_drawer]->push_back(w);
+    word[Mu_drawer].push_back(w);
     
     // Muon eta coordinate
     switch (frag >> 12) {
       case 1:
-        eta[Mu_drawer]->push_back(eta_LB[Mu_pattern]);
+        eta[Mu_drawer].push_back(eta_LB[Mu_pattern]);
         break;
       case 2:
-        eta[Mu_drawer]->push_back(-eta_LB[Mu_pattern]);
+        eta[Mu_drawer].push_back(-eta_LB[Mu_pattern]);
         break;
       case 3:
-        eta[Mu_drawer]->push_back(eta_EB[Mu_pattern]);
+        eta[Mu_drawer].push_back(eta_EB[Mu_pattern]);
         break;
       case 4:
-        eta[Mu_drawer]->push_back(-eta_EB[Mu_pattern]);
+        eta[Mu_drawer].push_back(-eta_EB[Mu_pattern]);
         break;
       default:
         ATH_MSG_WARNING("Unknown fragment: " << (frag >> 8));
@@ -1681,12 +1650,12 @@ void TileROD_Decoder::unpack_frag12(uint32_t /* version */, const uint32_t* p,
     }
     
     // Energy deposited in TileCal by the muon (MeV)
-    energy0[Mu_drawer]->push_back(Mu_energy0 / 2.);
-    energy1[Mu_drawer]->push_back(Mu_energy1 / 2.);
-    energy2[Mu_drawer]->push_back(Mu_energy2 / 2.);
+    energy0[Mu_drawer].push_back(Mu_energy0 / 2.);
+    energy1[Mu_drawer].push_back(Mu_energy1 / 2.);
+    energy2[Mu_drawer].push_back(Mu_energy2 / 2.);
     
     // Muon quality factor
-    quality[Mu_drawer]->push_back(Mu_quality);
+    quality[Mu_drawer].push_back(Mu_quality);
     
     p += 2;
   }
@@ -1696,15 +1665,9 @@ void TileROD_Decoder::unpack_frag12(uint32_t /* version */, const uint32_t* p,
     // frag ID
     int fragId = (((frag & 0xF000) >> 4) | nDrawer[i]);
     
-    (*pL2[m_hashFunc(fragId)]).setMu((*(eta[i])), (*(energy0[i])), (*(energy1[i])), (*(energy2[i])),
-                                     (*(quality[i])), (*(word[i])));
-    
-    delete word[i];
-    delete eta[i];
-    delete energy0[i];
-    delete energy1[i];
-    delete energy2[i];
-    delete quality[i];
+    (*pL2[m_hashFunc(fragId)]).setMu(std::move(eta[i]), std::move(energy0[i]), std::move(energy1[i]), std::move(energy2[i]),
+                                     std::move(quality[i]), std::move(word[i]));
+
   }
   
   return;
@@ -1735,7 +1698,7 @@ void TileROD_Decoder::unpack_frag13(uint32_t /* version */, const uint32_t* p,
   std::vector<float> energy2;
   std::vector<unsigned int> quality;
   
-  float eta_LB[9] = {
+  constexpr float eta_LB[9] = {
     ((0.00 + 2 * 0.05) / 3),  // D0, BC1, A1
     ((0.20 + 2 * 0.15) / 3),  // D1, BC2, A2
     ((0.20 + 2 * 0.25) / 3),  // D1, BC3, A3
@@ -1747,7 +1710,7 @@ void TileROD_Decoder::unpack_frag13(uint32_t /* version */, const uint32_t* p,
     ((0.60 + 2 * 0.75) / 3)   // D3, BC8, A8
   };
   
-  float eta_EB[17] = {
+  constexpr float eta_EB[17] = {
     ((1.00 + 1.05 + 1.15) / 3), // D5, B11, A12
     ((1.00 + 1.15 + 1.15) / 3), // D5, B12, A12
     ((1.00 + 1.15 + 1.25) / 3), // D5, B12, A13
@@ -1817,7 +1780,8 @@ void TileROD_Decoder::unpack_frag13(uint32_t /* version */, const uint32_t* p,
     p += 2;
   }
   
-  (*pL2[m_hashFunc(frag)]).setMu(eta, energy0, energy1, energy2, quality, word);
+  (*pL2[m_hashFunc(frag)]).setMu(std::move(eta), std::move(energy0),
+        std::move(energy1), std::move(energy2), std::move(quality), std::move(word));
   
   return;
 }
@@ -1835,14 +1799,12 @@ void TileROD_Decoder::unpack_frag14(uint32_t /* version */, const uint32_t* p,
   
   p += 2; // 2 words somethingm far
   
-  std::vector<float> sumE(1);
-  
   for (unsigned int i = 0; i < 2; ++i) {
     
     int fragId = (((frag & 0xF000) >> 4) | nDrawer[i]);
     
-    sumE[0] = (float) ((int32_t) (*p) - 9000);
-    (*pL2[m_hashFunc(fragId)]).setEt(sumE);
+    float sumE = (float) ((int32_t) (*p) - 9000);
+    (*pL2[m_hashFunc(fragId)]).setEt(std::vector<float>{sumE});
     
     ++p;
   }
@@ -1862,7 +1824,7 @@ void TileROD_Decoder::unpack_frag15(uint32_t /* version */, const uint32_t* p,
   std::vector<float> sumE(1);
   
   sumE[0] = (float) ((int32_t) (*p) - 9000);
-  (*pL2[m_hashFunc(frag)]).setEt(sumE);
+  (*pL2[m_hashFunc(frag)]).setEt(std::move(sumE));
   
   return;
 }
@@ -3028,7 +2990,7 @@ void TileROD_Decoder::fillCollectionL2ROS(const ROBData * rob, TileL2Container &
         sumE[1] = Frag5_unpack_bin2sum(unit, (int)(*(p++)));
         sumE[2] = Frag5_unpack_bin2sum(unit, (int)(*(p++)));
         
-        (v[hash])->setEt(sumE);
+        (v[hash])->setEt(std::vector<float>(sumE)); //copy since looping
       } else {
         p += 3;
       }
@@ -3814,10 +3776,11 @@ bool TileROD_Decoder::unpack_frag4L2(uint32_t /* version */,
   if (size_L2 > 0) {
     
     std::vector<float> sumE;
+    sumE.reserve(size_L2);
     while (size_L2--) {
       sumE.push_back(Frag5_unpack_bin2sum(unit, (int)(*(p++))));
     }
-    (*pL2[m_hashFunc(frag)]).setEt(sumE);
+    (*pL2[m_hashFunc(frag)]).setEt(std::move(sumE));
     
     return true;
     
@@ -3904,17 +3867,19 @@ bool TileROD_Decoder::unpack_frag5L2(uint32_t /* version */, const uint32_t* p,
     default: ATH_MSG_WARNING( "unpack_frag5L2: incorrect ros value: " << ros );
   }
   
-  (*pL2[m_hashFunc(frag)]).setMu(EtaMuons, EMuons0, EMuons1, EMuons2, qf, word);
+  (*pL2[m_hashFunc(frag)]).setMu(std::move(EtaMuons), std::move(EMuons0),
+           std::move(EMuons1), std::move(EMuons2), std::move(qf), std::move(word));
   
 #endif
   
   if (size_L2 > 0) {
     
     std::vector<float> sumE;
+    sumE.reserve(size_L2);
     while (size_L2--) {
       sumE.push_back(Frag5_unpack_bin2sum(unit, (int)(*(p++))));
     }
-    (*pL2[m_hashFunc(frag)]).setEt(sumE);
+    (*pL2[m_hashFunc(frag)]).setEt(std::move(sumE));
     
     return true;
     

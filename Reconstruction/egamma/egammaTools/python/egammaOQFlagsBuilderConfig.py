@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = "Configure e/gamma object quality"
 
@@ -12,7 +12,8 @@ def egammaOQFlagsBuilderCfg(flags, name='egammaOQFlagsBuilder', **kwargs):
     mlog = logging.getLogger(name)
     mlog.debug('Start configuration')
 
-    acc = ComponentAccumulator()
+    from LArCalibUtils.LArHVScaleConfig import LArHVScaleCfg
+    acc = LArHVScaleCfg(flags)
 
     kwargs.setdefault("CellsName", flags.Egamma.Keys.Input.CaloCells)
     kwargs.setdefault("affectedTool", CompFactory.CaloAffectedTool())
@@ -30,7 +31,7 @@ if __name__ == "__main__":
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     Configurable.configurableRun3Behavior = True
 
-    ConfigFlags.Input.Files = defaultTestFiles.RDO
+    ConfigFlags.Input.Files = defaultTestFiles.RDO_RUN2
     ConfigFlags.fillFromArgs()
     ConfigFlags.lock()
     ConfigFlags.dump()

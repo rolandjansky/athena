@@ -74,4 +74,3 @@ set( Pythia8Environment_DIR ${CMAKE_CURRENT_SOURCE_DIR}
    CACHE PATH "Location of Pythia8Environment.cmake" )
 find_package( Pythia8Environment )
 
-

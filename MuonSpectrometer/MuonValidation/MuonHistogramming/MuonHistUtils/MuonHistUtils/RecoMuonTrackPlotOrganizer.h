@@ -21,20 +21,20 @@ namespace Muon {
   
   class RecoMuonTrackPlotOrganizer:public PlotBase {
   public:
-    RecoMuonTrackPlotOrganizer(PlotBase* pParent, std::string sDir,std::vector<int> *selPlots=0);
+    RecoMuonTrackPlotOrganizer(PlotBase* pParent, const std::string& sDir,std::vector<int> selPlots ={});
     ~RecoMuonTrackPlotOrganizer();
     
-    std::vector<PlotBase*> m_allPlots;
+    
     std::vector<int> m_selPlots;  
     
     void fill(const xAOD::TrackParticle& tp, float weight=1.0);
     
     // Reco only information
-    Trk::ParamPlots                 *m_oTrkParamPlots;
-    Trk::RecoInfoPlots              *m_oTrkRecoInfoPlots;	  
-    Trk::ImpactPlots                *m_oImpactPlots;
-    Trk::MSHitPlots                 *m_oMSHitPlots;
-    Muon::IDHitSummaryPlots         *m_oIDHitPlots;    
+    std::unique_ptr<Trk::ParamPlots>                 m_oTrkParamPlots{};
+    std::unique_ptr<Trk::RecoInfoPlots>              m_oTrkRecoInfoPlots{};	  
+    std::unique_ptr<Trk::ImpactPlots>                m_oImpactPlots{};
+    std::unique_ptr<Trk::MSHitPlots>                 m_oMSHitPlots{};
+    std::unique_ptr<Muon::IDHitSummaryPlots>         m_oIDHitPlots{};    
   };
  
 }

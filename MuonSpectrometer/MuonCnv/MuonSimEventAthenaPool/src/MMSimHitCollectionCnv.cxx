@@ -36,7 +36,7 @@ MMSimHitCollection* MMSimHitCollectionCnv::createTransient() {
     static pool::Guid   p1_guid("ac0b677c-fe08-11e8-b174-02163e018187");
     static pool::Guid   p2_guid("b9bdd436-fe08-11e8-a40f-02163e018187");
     ATH_MSG_DEBUG("createTransient(): main converter");
-    MMSimHitCollection* p_collection(0);
+    MMSimHitCollection* p_collection(nullptr);
     if( compareClassGuid(p2_guid) ) {
       ATH_MSG_DEBUG("createTransient(): T/P version 2 detected");
       std::unique_ptr< Muon::MMSimHitCollection_p2 >   col_vect( this->poolReadObject< Muon::MMSimHitCollection_p2 >() );

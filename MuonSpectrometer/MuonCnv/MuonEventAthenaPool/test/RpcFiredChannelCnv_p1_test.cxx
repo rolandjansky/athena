@@ -32,7 +32,7 @@ void compare (const RpcFiredChannel& p1,
 
 void testit (const RpcFiredChannel& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   RpcFiredChannelCnv_p1 cnv;
   RpcFiredChannel_p1 pers;
   cnv.transToPers (&trans1, &pers, log);

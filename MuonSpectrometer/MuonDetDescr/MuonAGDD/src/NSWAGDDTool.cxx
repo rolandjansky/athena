@@ -29,7 +29,7 @@ StatusCode NSWAGDDTool::initialize ATLAS_NOT_THREAD_SAFE ()
 
 	if( m_xmlFiles.size() == 1 && m_writeDBfile )
 	{
-		std::size_t found = m_xmlFiles[0].find_last_of("/");
+		std::size_t found = m_xmlFiles[0].find_last_of('/');
 		m_outFileInName = m_xmlFiles[0].substr(found+1);
 	}
 	else if ( m_writeDBfile ) ATH_MSG_ERROR("writing data base files currently only supported if just a single input XML is given!");

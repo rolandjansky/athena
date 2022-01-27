@@ -7,7 +7,7 @@
 
 namespace Muon{
 
-MuonHitDiffSummaryPlots::MuonHitDiffSummaryPlots(PlotBase* pParent, std::string sDir):PlotBase(pParent, sDir), 
+MuonHitDiffSummaryPlots::MuonHitDiffSummaryPlots(PlotBase* pParent, const std::string& sDir):PlotBase(pParent, sDir), 
 innerSmallHits(this, "diff_innersmallhits", "diff(reco - truth) inner small hits", -10, 10),
 innerLargeHits(this, "diff_innerlargehits", "diff(reco - truth) inner large hits", -10, 10),
 middleSmallHits(this, "diff_middlesmallhits", "diff(reco - truth) middle small hits", -10, 10),
@@ -48,7 +48,7 @@ etaLayer4Hits(this, "diff_etaLayer4hits", "diff(reco - truth) eta Layer 4 hits",
     fillPlot(etaLayer4Hits, xAOD::etaLayer4Hits, muon, "etaLayer4Hits", truthprt, weight);
 }
 
-  void MuonHitDiffSummaryPlots::fillPlot(Trk::HitTypePlots& hitPlots, xAOD::MuonSummaryType info, const xAOD::Muon& muon, std::string sInfo, const xAOD::TruthParticle& truthprt, float weight){
+  void MuonHitDiffSummaryPlots::fillPlot(Trk::HitTypePlots& hitPlots, xAOD::MuonSummaryType info, const xAOD::Muon& muon, const std::string& sInfo, const xAOD::TruthParticle& truthprt, float weight){
   uint8_t hitval = 0;
   if (!muon.summaryValue(hitval,info)) return;
   if (!truthprt.isAvailable<uint8_t>(sInfo)) return;

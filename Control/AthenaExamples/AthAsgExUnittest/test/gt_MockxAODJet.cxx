@@ -68,7 +68,7 @@ namespace Athena_test {
 
   TEST_F( MockxAODJetTest, jetgetAttribute ) {
     EXPECT_CALL( mockjet, getAttributeFloat( "test", _ ) )
-      .WillOnce( DoAll( SetArgReferee<1>( 42 ), Return(true) ) );
+      .WillOnce( testing::DoAll( SetArgReferee<1>( 42 ), Return(true) ) );
     float value;
     EXPECT_TRUE( jet->getAttribute<float>( "test", value ) );
     EXPECT_EQ( 42, value );

@@ -52,6 +52,7 @@ StatusCode CaloNoise2Ntuple::initialize()
   ATH_CHECK( m_totalNoiseKey.initialize() );
   ATH_CHECK( m_elecNoiseKey.initialize() );
   ATH_CHECK( m_pileupNoiseKey.initialize() );
+  ATH_CHECK( m_caloMgrKey.initialize() );
 
   m_tree = new TTree(m_treeName.c_str(),"Calo Noise ntuple");
   m_tree->Branch("iCool",&m_iCool,"iCool/I");
@@ -92,13 +93,13 @@ StatusCode CaloNoise2Ntuple::stop()
 {
   ATH_MSG_INFO ( "  Run Number, lumiblock " << m_runNumber << " " << m_lumiBlock );
 
-  const CaloDetDescrManager* calodetdescrmgr = nullptr;
-  ATH_CHECK( detStore()->retrieve(calodetdescrmgr) );
-
   const EventContext& ctx = Gaudi::Hive::currentContext();
   SG::ReadCondHandle<CaloNoise> totalNoise  (m_totalNoiseKey,  ctx);
   SG::ReadCondHandle<CaloNoise> elecNoise   (m_elecNoiseKey,   ctx);
   SG::ReadCondHandle<CaloNoise> pileupNoise (m_pileupNoiseKey, ctx);
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey, ctx};
+  ATH_CHECK(caloMgrHandle.isValid());
+  const CaloDetDescrManager* calodetdescrmgr = *caloMgrHandle;
 
   int ncell=m_calo_id->calo_cell_hash_max();
   ATH_MSG_INFO ( " start loop over Calo cells " << ncell );

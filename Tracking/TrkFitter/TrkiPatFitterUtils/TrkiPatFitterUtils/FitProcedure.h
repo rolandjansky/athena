@@ -161,7 +161,7 @@ private:
   void calculateChiSq(FitProcedure::Cache& cache,
                       std::vector<FitMeasurement*>& measurements) const;
 
-  ToolHandle<IIntersector>& chooseIntersector(
+  const ToolHandle<IIntersector>& chooseIntersector(
     std::vector<FitMeasurement*>& measurements,
     const FitParameters& parameters) const;
 
@@ -179,7 +179,7 @@ private:
   int m_minIter;
   double m_minPt;
   ToolHandle<IIntersector>& m_rungeKuttaIntersector;
-  ToolHandle<IIntersector>& m_solenoidalIntersector;
+  const ToolHandle<IIntersector>& m_solenoidalIntersector;
   ToolHandle<IIntersector>& m_straightLineIntersector;
   const ToolHandle<IPropagator>& m_stepPropagator;
   int m_useStepPropagator;

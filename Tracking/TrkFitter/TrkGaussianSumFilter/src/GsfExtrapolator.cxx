@@ -30,8 +30,10 @@
 
 #include "TrkTrack/TrackStateOnSurface.h"
 
-#include <unordered_set>
 #include <utility>
+
+#include <boost/container/flat_set.hpp>
+#include <boost/container/small_vector.hpp>
 
 namespace {
 const bool useBoundaryMaterialUpdate(true);
@@ -107,11 +109,8 @@ Trk::GsfExtrapolator::GsfExtrapolator(const std::string& type,
                                       const std::string& name,
                                       const IInterface* parent)
   : AthAlgTool(type, name, parent)
-  , m_propagatorStickyConfiguration(true)
   , m_surfaceBasedMaterialEffects(false)
   , m_fastField(false)
-  , m_propagatorConfigurationLevel(10)
-  , m_propagatorSearchLevel(10)
   , m_extrapolateCalls{}
   , m_extrapolateDirectlyCalls{}
   , m_extrapolateDirectlyFallbacks{}
@@ -122,8 +121,6 @@ Trk::GsfExtrapolator::GsfExtrapolator(const std::string& type,
 
   declareInterface<IMultiStateExtrapolator>(this);
 
-  declareProperty("SearchLevelClosestParameters", m_propagatorSearchLevel);
-  declareProperty("StickyConfiguration", m_propagatorStickyConfiguration);
   declareProperty("SurfaceBasedMaterialEffects", m_surfaceBasedMaterialEffects);
   declareProperty("MagneticFieldProperties", m_fastField);
 }
@@ -138,32 +135,10 @@ StatusCode
 Trk::GsfExtrapolator::initialize()
 {
 
-  // Request the Propagator AlgTools
-  unsigned int retrievedPropagators = 0;
-  if (!m_propagators.empty()) {
-    ATH_CHECK(m_propagators.retrieve());
-    ATH_MSG_INFO("Retrieved tools " << m_propagators);
-    retrievedPropagators = m_propagators.size();
-    // Set the configuration level for the retrieved propagators
-    m_propagatorConfigurationLevel = m_propagators.size() - 1;
-  }
-
-  if (!retrievedPropagators) {
-    ATH_MSG_ERROR("Propagators could be retrieved!");
-    return StatusCode::FAILURE;
-  }
-
-  ATH_MSG_INFO(
-    "Propagator configuration level: " << m_propagatorConfigurationLevel);
-
-  // Request the Navigation AlgTool
+  ATH_CHECK(m_propagator.retrieve());
   ATH_CHECK(m_navigator.retrieve());
-
-  // Request the Material Effects Updator AlgTool
   ATH_CHECK(m_materialUpdator.retrieve());
-
   ATH_CHECK(m_elossupdators.retrieve());
-
   ATH_CHECK(m_msupdators.retrieve());
 
   m_fieldProperties = m_fastField
@@ -287,13 +262,9 @@ Trk::GsfExtrapolator::extrapolateImpl(
      - Extrapolate from start point to volume boundary
      - Extrapolate from volume boundary to destination surface
      */
-
-  const Trk::IPropagator* currentPropagator = nullptr;
-
   /*
    * Extrapolation to destination volume boundary
    */
-
   bool foundFinalBoundary(true);
   int fallbackOscillationCounter(0);
   const Trk::TrackingVolume* currentVolume = startVolume;
@@ -304,16 +275,10 @@ Trk::GsfExtrapolator::extrapolateImpl(
     m_navigationDistanceIncreaseBreaks.buffer();
 
   while (currentVolume && currentVolume != destinationVolume) {
-    // Configure propagator based on the current tracking volume
-    currentPropagator =
-      m_propagatorStickyConfiguration
-        ? &propagator
-        : &(*m_propagators[this->propagatorType(*currentVolume)]);
-
     // Extrapolate to volume boundary
     extrapolateToVolumeBoundary(ctx,
                                 cache,
-                                *currentPropagator,
+                                *m_propagator,
                                 *currentState,
                                 associatedLayer,
                                 *currentVolume,
@@ -323,42 +288,37 @@ Trk::GsfExtrapolator::extrapolateImpl(
     // New current state is the state extrapolated to the tracking volume
     // boundary.
     currentState = cache.m_stateAtBoundarySurface.stateAtBoundary;
-
     // The volume that the extrapolation is about to enter into is called the
     // nextVolume
     const Trk::TrackingVolume* nextVolume =
       cache.m_stateAtBoundarySurface.trackingVolume;
-
     // Break the loop if the next tracking volume is the same as the current one
     if (!nextVolume || nextVolume == currentVolume) {
       ++buff_missedVolumeBoundary;
       foundFinalBoundary = false;
       break;
     }
-
-    // Break the lop if an oscillation is detected
+    // Break the loop if an oscillation is detected
     if (previousVolume == nextVolume) {
       ++fallbackOscillationCounter;
     }
-
     if (fallbackOscillationCounter > 10) {
       ++buff_oscillationBreaks;
       foundFinalBoundary = false;
       break;
     }
-
     // Break the loop if the distance between the surface and the track
     // parameters has increased
     combinedState = currentState->begin()->first.get();
 
     auto parametersAtDestination =
-      currentPropagator->propagateParameters(ctx,
-                                             *combinedState,
-                                             surface,
-                                             direction,
-                                             false,
-                                             m_fieldProperties,
-                                             Trk::electron);
+      propagator.propagateParameters(ctx,
+                                     *combinedState,
+                                     surface,
+                                     direction,
+                                     false,
+                                     m_fieldProperties,
+                                     Trk::electron);
     Amg::Vector3D newDestination;
     if (parametersAtDestination) {
       newDestination = parametersAtDestination->position();
@@ -423,17 +383,11 @@ Trk::GsfExtrapolator::extrapolateImpl(
    * Extrapolation from volume boundary to surface
    */
 
-  // Configure propagator based on the current tracking volume
-  currentPropagator =
-    m_propagatorStickyConfiguration
-      ? &propagator
-      : &(*m_propagators[this->propagatorType(*currentVolume)]);
-
   // extrapolate inside destination volume
   Trk::MultiComponentState destinationState =
     extrapolateInsideVolume(ctx,
                             cache,
-                            *currentPropagator,
+                            propagator,
                             *currentState,
                             surface,
                             associatedLayer,
@@ -519,12 +473,9 @@ Trk::GsfExtrapolator::extrapolate(
   if (multiComponentState.empty()) {
     return {};
   }
-  // Set the propagator to that one corresponding to the configuration level
-  const Trk::IPropagator* currentPropagator =
-    &(*m_propagators[m_propagatorConfigurationLevel]);
   return extrapolateImpl(ctx,
                          cache,
-                         *currentPropagator,
+                         *m_propagator,
                          multiComponentState,
                          surface,
                          direction,
@@ -547,9 +498,6 @@ Trk::GsfExtrapolator::extrapolateDirectly(
   if (multiComponentState.empty()) {
     return {};
   }
-  // Set the propagator to that one corresponding to the configuration level
-  const Trk::IPropagator* currentPropagator =
-    &(*m_propagators[m_propagatorConfigurationLevel]);
 
   auto buff_extrapolateDirectlyCalls = m_extrapolateDirectlyCalls.buffer();
   // statistics
@@ -561,7 +509,7 @@ Trk::GsfExtrapolator::extrapolateDirectly(
     return {};
   }
   return extrapolateDirectlyImpl(ctx,
-                                 *currentPropagator,
+                                 *m_propagator,
                                  multiComponentState,
                                  surface,
                                  direction,
@@ -588,8 +536,7 @@ Trk::GsfExtrapolator::extrapolateM(
     std::make_unique<std::vector<const Trk::TrackStateOnSurface*>>();
 
   // Set the propagator to that one corresponding to the configuration level
-  const Trk::IPropagator* currentPropagator =
-    &(*m_propagators[m_propagatorConfigurationLevel]);
+  const Trk::IPropagator* currentPropagator = &(*m_propagator);
   MultiComponentState parameterAtDestination = extrapolateImpl(
     ctx, cache, *currentPropagator, mcsparameters, sf, dir, bcheck, particle);
   // there are no parameters
@@ -725,38 +672,12 @@ Trk::GsfExtrapolator::extrapolateToVolumeBoundary(
       ? cache.m_stateAtBoundarySurface.navigationParameters
       : combinedState;
 
-  unsigned int navigationPropagatorIndex = 0;
+  nextNavigationCell = m_navigator->nextTrackingVolume(
+    ctx, *m_propagator, *navigationParameters, direction, trackingVolume);
 
-  while (navigationPropagatorIndex <= m_propagatorConfigurationLevel) {
+  nextVolume = nextNavigationCell.nextVolume;
+  navigationParameters = nextNavigationCell.parametersOnBoundary.release();
 
-    const Trk::IPropagator* navigationPropagator =
-      &(*m_propagators[navigationPropagatorIndex]);
-
-    if (!navigationPropagator) {
-      ATH_MSG_WARNING(
-        "Navigation propagator cannot be retrieved... Continuing");
-      continue;
-    }
-
-    nextNavigationCell = m_navigator->nextTrackingVolume(ctx,
-                                                         *navigationPropagator,
-                                                         *navigationParameters,
-                                                         direction,
-                                                         trackingVolume);
-
-    nextVolume = nextNavigationCell.nextVolume;
-    if (navigationPropagatorIndex >= 1) {
-      delete navigationParameters;
-    }
-    navigationParameters = nextNavigationCell.parametersOnBoundary.release();
-
-    ++navigationPropagatorIndex;
-
-    // If the next tracking volume is found then no need to continue looping
-    if (nextVolume) {
-      break;
-    }
-  }
   // Clean up memory allocated by the combiner
   if (navigationParameters != combinedState) {
     delete combinedState;
@@ -988,7 +909,12 @@ Trk::GsfExtrapolator::extrapolateFromLayerToLayer(
   const Trk::Layer* nextLayer =
     currentLayer->nextLayer(currentPosition, currentDirection);
 
-  std::unordered_set<const Trk::Layer*> layersHit;
+  using LayerSet = boost::container::flat_set<
+    const Trk::Layer*,
+    std::less<const Trk::Layer*>,
+    boost::container::small_vector<const Trk::Layer*, 8>>;
+  LayerSet layersHit;
+
   layersHit.insert(currentLayer);
 
   // Begin while loop over all intermediate layers
@@ -1276,43 +1202,6 @@ Trk::GsfExtrapolator::multiStatePropagate(
     return {};
   }
   return propagatedState;
-}
-
-/*
- * PropagatorType
- */
-unsigned int
-Trk::GsfExtrapolator::propagatorType(
-  const Trk::TrackingVolume& trackingVolume) const
-{
-  if (m_propagatorStickyConfiguration) {
-    if (m_propagators.size() > m_propagatorConfigurationLevel) {
-      return m_propagatorConfigurationLevel;
-    }
-    ATH_MSG_WARNING("Misconfigured propagator type, set to "
-                    << m_propagatorConfigurationLevel << "->0");
-    return 0;
-  }
-
-  // Determine what sort of magnetic field is present
-  unsigned int magneticFieldMode = m_fieldProperties.magneticFieldMode();
-
-  // Chose between runge-kutta and step propagators depending on field magnetic
-  // field and material properties ST : the following check may fail as the dEdX
-  // is often dummy for dense volumes - switch to rho or zOverAtimesRho ?
-  unsigned int propagatorMode =
-    (magneticFieldMode > 1 && std::abs(trackingVolume.dEdX) < 10e-2) ? 2 : 3;
-
-  unsigned int returnType = (propagatorMode > m_propagatorConfigurationLevel)
-                              ? m_propagatorConfigurationLevel
-                              : propagatorMode;
-
-  if (m_propagators.size() > returnType) {
-    return returnType;
-  }
-  ATH_MSG_WARNING("Misconfigured propagator type, set to " << returnType
-                                                           << "->0");
-  return 0;
 }
 
 /*

@@ -50,7 +50,8 @@ InDet::StagedTrackingGeometryBuilderCond::StagedTrackingGeometryBuilderCond(cons
   m_ringTolerance(10*Gaudi::Units::mm),
   m_namespace("InDet::"),
   m_exitVolume("InDet::Containers::InnerDetector"),
-  m_removeHGTD(false)
+  m_removeHGTD(false),
+  m_zMinHGTD(3420.0)
 {
   declareInterface<Trk::IGeometryBuilderCond>(this);  
   // layer builders and their configurations
@@ -79,6 +80,7 @@ InDet::StagedTrackingGeometryBuilderCond::StagedTrackingGeometryBuilderCond(cons
   declareProperty("ExitVolumeName",                   m_exitVolume);
   // Remove HGTD volume from ID tracking geometry
   declareProperty("RemoveHGTD",                       m_removeHGTD);
+  declareProperty("ZminHGTD",                         m_zMinHGTD);
 }
 
 // destructor
@@ -153,17 +155,7 @@ InDet::StagedTrackingGeometryBuilderCond::trackingGeometry ATLAS_NOT_THREAD_SAFE
      // If running with the HGTD, we don't want to include its volume
      // as it will be included in another tracking geometry.
      // re-evaluating the ID envelope dimension
-     float envelopeVolumeHalfZatBp = envelopeVolumeHalfZ;
-     // now scan the beampipe envelopes, if there is something smalles, pick it.
-     const RZPairVector& envelopeBeamPipeDefs = m_enclosingEnvelopeSvc->getBeamPipeRZBoundary();
-     float beampipeR = envelopeDefs[0].first;
-     for (const auto & bounds : envelopeBeamPipeDefs) {
-       if (float(bounds.first) == beampipeR and std::abs(bounds.second)<envelopeVolumeHalfZatBp) {
-         envelopeVolumeHalfZatBp = std::abs(bounds.second);
-       }
-     }
-     if (envelopeVolumeHalfZatBp<envelopeVolumeHalfZ)
-       envelopeVolumeHalfZ = envelopeVolumeHalfZatBp; 
+     envelopeVolumeHalfZ = m_zMinHGTD; 
    }
    
    ATH_MSG_VERBOSE("       -> envelope R/Z defined as : " << envelopeVolumeRadius << " / " << envelopeVolumeHalfZ );
@@ -175,23 +167,22 @@ InDet::StagedTrackingGeometryBuilderCond::trackingGeometry ATLAS_NOT_THREAD_SAFE
    std::vector<InDet::LayerSetupCond> layerSetups;
    EventIDRange range = IOVInfiniteRange::infiniteMixed();
    for ( const auto & lProvider : m_layerProviders){
-       // screen output 
+       // screen output
        ATH_MSG_DEBUG( "[ LayerBuilder : '" << lProvider->identification() << "' ] being processed. " );
        // retrieve the layers
        std::pair< EventIDRange, std::vector<Trk::Layer*> > centralLayersPair  = lProvider->centralLayers(ctx);
-       std::pair< EventIDRange, std::vector<Trk::Layer*> > negativeLayersPair = lProvider->negativeLayers(ctx);
-       std::pair< EventIDRange, std::vector<Trk::Layer*> > positiveLayersPair = lProvider->positiveLayers(ctx);
-       range=EventIDRange::intersect(range,centralLayersPair.first, negativeLayersPair.first, positiveLayersPair.first);
-       ATH_MSG_VERBOSE("       -> retrieved "  << centralLayersPair.second.size()  << " central layers.");
-       ATH_MSG_VERBOSE("       -> retrieved "  << negativeLayersPair.second.size() << " layers on negative side.");
-       ATH_MSG_VERBOSE("       -> retrieved "  << positiveLayersPair.second.size() << " layers on positive side.");
+       std::tuple<EventIDRange, const std::vector<Trk::Layer*>, const std::vector<Trk::Layer*> > endcapLayersTuple = lProvider->endcapLayer(ctx);
+       range=EventIDRange::intersect(range,centralLayersPair.first, std::get<0>(endcapLayersTuple));
+       ATH_MSG_INFO("       -> retrieved "  << centralLayersPair.second.size()  << " central layers.");
+       ATH_MSG_INFO("       -> retrieved "  << std::get<2>(endcapLayersTuple).size() << " layers on negative side.");
+       ATH_MSG_INFO("       -> retrieved "  << std::get<1>(endcapLayersTuple).size() << " layers on positive side.");
        // getting the Layer setup from parsing the builder output
        InDet::LayerSetupCond lSetup =
          estimateLayerSetup(lProvider->identification(),
                             ilS,
-                            negativeLayersPair.second,
+                            std::get<2>(endcapLayersTuple),
                             centralLayersPair.second,
-                            positiveLayersPair.second,
+                            std::get<1>(endcapLayersTuple),
                             envelopeVolumeRadius,
                             envelopeVolumeHalfZ);
        // get the maxima - for R and Z
@@ -201,7 +192,7 @@ InDet::StagedTrackingGeometryBuilderCond::trackingGeometry ATLAS_NOT_THREAD_SAFE
        layerSetups.push_back(lSetup);
        // increase counter
        ++ilS;
-   }       
+   }
    ATH_MSG_VERBOSE("       -> layer max R/Z defined as : " << maximumLayerRadius << " / " << maximumLayerExtendZ );
    
    // create a volume cache for:

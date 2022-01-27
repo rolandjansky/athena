@@ -99,6 +99,7 @@ TgcLv1RawDataValAlg::bookHistogramsEfficiency(){
     else if( bin <= 32+27 )       boundary += 1./3.;
     else if( bin <= 32+27+16 )    boundary += 0.5;
     else                          boundary += 1.0;
+    pt_bins[bin] = boundary;
   }
 
   ///////////////////////////////////////////////////////////////////////////
@@ -141,7 +142,8 @@ TgcLv1RawDataValAlg::bookHistogramsEfficiency(){
           ATH_MSG_DEBUG( ss.str()  );
           m_tgclv1turnondenom[ac][pt][pna][m] = new TH1F(ss.str().c_str(), (ss.str() + ";p_{T} GeV/c;Entries").c_str(), pt_nbins, pt_bins); 
           m_tgclv1turnondenom[ac][pt][pna][m]->Sumw2();
-          ATH_CHECK( tgclv1_turnon_numdenom_ac[ac]->regHist(m_tgclv1turnondenom[ac][pt][pna][m]) );
+	  for(int ibin = 1 ; ibin <= m_tgclv1turnondenom[ac][pt][pna][m]->GetNbinsX() ; ibin++) m_tgclv1turnondenom[ac][pt][pna][m]->Fill( m_tgclv1turnondenom[ac][pt][pna][m]->GetXaxis()->GetBinCenter(ibin) );
+	  ATH_CHECK( tgclv1_turnon_numdenom_ac[ac]->regHist(m_tgclv1turnondenom[ac][pt][pna][m]) );
 
           /////////////////////////////////////
           // L1 Trigger Efficiency Maps
@@ -209,6 +211,7 @@ TgcLv1RawDataValAlg::bookHistogramsEfficiency(){
       ATH_MSG_DEBUG( ss.str()  );
       m_tgclv1turnondenom_ES[ac][pt] = new TH1F(ss.str().c_str(), (ss.str() + ";p_{T} GeV/c;Entries").c_str(), pt_nbins, pt_bins); 
       m_tgclv1turnondenom_ES[ac][pt]->Sumw2();
+      for(int ibin = 1 ; ibin <= m_tgclv1turnondenom_ES[ac][pt]->GetNbinsX() ; ibin++) m_tgclv1turnondenom_ES[ac][pt]->Fill( m_tgclv1turnondenom_ES[ac][pt]->GetXaxis()->GetBinCenter(ibin) );
       ATH_CHECK( tgclv1_turnon_numdenom_ac_ES[ac]->regHist(m_tgclv1turnondenom_ES[ac][pt]) );
       
     }//pT

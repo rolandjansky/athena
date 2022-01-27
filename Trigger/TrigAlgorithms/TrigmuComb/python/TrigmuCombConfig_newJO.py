@@ -52,7 +52,7 @@ def muCombCfg(flags, postFix="", useBackExtrp=True):
     
 def l2MuCombRecoCfg(flags, name="L2MuCombReco"):
 
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewRecoCA
+    from TriggerMenuMT.HLT.Menu.MenuComponents import InViewRecoCA
     ViewCreatorFetchFromViewROITool=CompFactory.ViewCreatorFetchFromViewROITool
     viewMakerAlg = CompFactory.EventViewCreatorAlgorithm("IM"+name,
                                                          ViewFallThrough = True,

@@ -38,7 +38,6 @@ muonRecFlags.doCSCs.set_Value_and_Lock(True)
 from RecExConfig.RecFlags import rec
 rec.Commissioning.set_Value_and_Lock(True)
 rec.oldRecExCommissionConfig.set_Value_and_Lock(False)
-rec.oldFlagTopSteering.set_Value_and_Lock(False)
 rec.ScopingLevel=4
 
     

@@ -6,19 +6,6 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import ProductionStep
-# Compiled beam effects methods
-# for documentation of method X, see Simulation__X._propertyDocDct
-Simulation__GenEventValidityChecker=CompFactory.Simulation.GenEventValidityChecker
-Simulation__GenEventRotator=CompFactory.Simulation.GenEventRotator
-Simulation__GenEventVertexPositioner=CompFactory.Simulation.GenEventVertexPositioner
-Simulation__VertexBeamCondPositioner=CompFactory.Simulation.VertexBeamCondPositioner
-Simulation__VertexPositionFromFile=CompFactory.Simulation.VertexPositionFromFile
-Simulation__CrabKissingVertexPositioner=CompFactory.Simulation.CrabKissingVertexPositioner
-Simulation__LongBeamspotVertexPositioner=CompFactory.Simulation.LongBeamspotVertexPositioner
-Simulation__GenEventBeamEffectBooster=CompFactory.Simulation.GenEventBeamEffectBooster
-# For the Algorithm
-Simulation__BeamEffectsAlg=CompFactory.Simulation.BeamEffectsAlg
-
 
 # possible components from BeamEffectsConf
 # todo names required to copy function name? what are names used for?
@@ -27,140 +14,146 @@ Simulation__BeamEffectsAlg=CompFactory.Simulation.BeamEffectsAlg
 
 
 ## GenEventManipulators
-def makeValidityChecker(name="GenEventValidityChecker", **kwargs):
+def ValidityCheckerCfg(flags, name="GenEventValidityChecker", **kwargs):
     """Return a validity checker tool"""
-    return Simulation__GenEventValidityChecker(name, **kwargs)
+    acc = ComponentAccumulator()
+    acc.setPrivateTools(CompFactory.Simulation.GenEventValidityChecker(name, **kwargs))
+    return acc
 
 
-def makeGenEventRotator(name="GenEventRotator", **kwargs):
+def GenEventRotatorCfg(flags, name="GenEventRotator", **kwargs):
     """Return a event rotator tool"""
-    return Simulation__GenEventRotator(name, **kwargs)
+    acc = ComponentAccumulator()
+    acc.setPrivateTools(CompFactory.Simulation.GenEventRotator(name, **kwargs))
+    return acc
 
 
-def makeGenEventBeamEffectBooster(name="GenEventBeamEffectBooster", **kwargs):
+def GenEventBeamEffectBoosterCfg(flags, name="GenEventBeamEffectBooster", **kwargs):
     """Return a lorentz booster tool"""
     # todo needs random seed, more?
-    return Simulation__GenEventBeamEffectBooster(name, **kwargs)
+    acc = ComponentAccumulator()
+    acc.setPrivateTools(CompFactory.Simulation.GenEventBeamEffectBooster(name, **kwargs))
+    return acc
 
 
-def makeGenEventVertexPositioner(ConfigFlags,name="GenEventVertexPositioner", **kwargs):
+def GenEventVertexPositionerCfg(flags, name="GenEventVertexPositioner", **kwargs):
     """Return a vertex positioner tool"""
     # todo needs input file(s?)
 
     acc = ComponentAccumulator()
 
-    readVtxPosFromFile = ConfigFlags.Sim.Vertex.Source == "VertexOverrideFile.txt" or ConfigFlags.Sim.Vertex.Source == "VertexOverrideEventFile.txt"
+    readVtxPosFromFile = flags.Sim.Vertex.Source == "VertexOverrideFile.txt" or flags.Sim.Vertex.Source == "VertexOverrideEventFile.txt"
     if readVtxPosFromFile:
-        kwargs.setdefault("VertexShifters", [makeVertexPositionFromFile()])
-    elif ConfigFlags.Sim.Vertex.Source == "CondDB" :
-        tool = acc.popToolsAndMerge(makeVertexBeamCondPositioner(ConfigFlags))
-        kwargs.setdefault("VertexShifters", [tool])
-    elif ConfigFlags.Sim.Vertex.Source == "LongBeamspotVertexPositioner":
-        kwargs.setdefault("VertexShifters", [makeLongBeamspotVertexPositioner()])
+        kwargs.setdefault("VertexShifters", [acc.popToolsAndMerge(VertexPositionFromFileCfg(flags))])
+    elif flags.Sim.Vertex.Source == "CondDB":
+        kwargs.setdefault("VertexShifters", [acc.popToolsAndMerge(VertexBeamCondPositionerCfg(flags))])
+    elif flags.Sim.Vertex.Source == "LongBeamspotVertexPositioner":
+        kwargs.setdefault("VertexShifters", [acc.popToolsAndMerge(LongBeamspotVertexPositionerCfg(flags))])
 
-    acc.setPrivateTools(Simulation__GenEventVertexPositioner(name, **kwargs))
+    acc.setPrivateTools(CompFactory.Simulation.GenEventVertexPositioner(name, **kwargs))
     return acc
 
 
 ## LorentzVectorGenerators
-def makeVertexBeamCondPositioner(ConfigFlags,name="VertexBeamCondPositioner", **kwargs):
+def VertexBeamCondPositionerCfg(flags, name="VertexBeamCondPositioner", **kwargs):
     """Return a conditional (? todo) vertex positioner tool"""
-    from RngComps.RandomServices import RNG
+    from RngComps.RandomServices import AthRNGSvcCfg
 
     acc = ComponentAccumulator()
-    
-    acc.merge(RNG(engine=ConfigFlags.Random.Engine, name="AthRNGSvc"))
-    kwargs.setdefault('RandomSvc', acc.getService("AthRNGSvc"))
+
+    kwargs.setdefault("RandomSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
 
     from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
-    acc.merge(BeamSpotCondAlgCfg(ConfigFlags))
+    acc.merge(BeamSpotCondAlgCfg(flags))
 
-    acc.setPrivateTools(Simulation__VertexBeamCondPositioner(name, **kwargs))
+    acc.setPrivateTools(CompFactory.Simulation.VertexBeamCondPositioner(name, **kwargs))
     return acc
 
 
-def makeVertexPositionFromFile(name="VertexPositionFromFile", **kwargs):
+def VertexPositionFromFileCfg(flags, name="VertexPositionFromFile", **kwargs):
     """Return a vertex positioner tool"""
     # todo input file? look at cxx for details
-    return Simulation__VertexPositionFromFile(name, **kwargs)
+    acc = ComponentAccumulator()
+    acc.setPrivateTools(CompFactory.Simulation.VertexPositionFromFile(name, **kwargs))
+    return acc
 
 
-def makeCrabKissingVertexPositioner(name="CrabKissingVertexPositioner", **kwargs):
+def CrabKissingVertexPositionerCfg(flags, name="CrabKissingVertexPositioner", **kwargs):
     """Return a Crab-Kissing vertex positioner tool"""
     # todo needs BunchLength, RandomSvc, BunchShape
-    return Simulation__CrabKissingVertexPositioner(name, **kwargs)
+    acc = ComponentAccumulator()
+    acc.setPrivateTools(CompFactory.Simulation.CrabKissingVertexPositioner(name, **kwargs))
+    return acc
 
 
-def makeLongBeamspotVertexPositioner(name="LongBeamspotVertexPositioner", **kwargs):
+def LongBeamspotVertexPositionerCfg(flags, name="LongBeamspotVertexPositioner", **kwargs):
     """Return a long beamspot vertex positioner tool"""
     # todo needs LParameter and RandomSvc
-    return Simulation__LongBeamspotVertexPositioner(name, **kwargs)
+    acc = ComponentAccumulator()
+    acc.setPrivateTools(CompFactory.Simulation.LongBeamspotVertexPositioner(name, **kwargs))
+    return acc
 
 
-def BeamEffectsAlgCfg(ConfigFlags, **kwargs):
+def BeamEffectsAlgCfg(flags, name="BeamEffectsAlg", **kwargs):
     """Return an accumulator and algorithm for beam effects, wihout output"""
     acc = ComponentAccumulator()
-    alg = Simulation__BeamEffectsAlg(name="BeamEffectsAlg", **kwargs)
+
+    kwargs.setdefault("ISFRun", flags.Sim.ISFRun)
 
     # Set default properties
-    alg.ISFRun = ConfigFlags.Sim.ISFRun
-    if ConfigFlags.Sim.DoFullChain and ConfigFlags.Digitization.PileUp:
-        alg.InputMcEventCollection = "OriginalEvent_SG+GEN_EVENT"
+    if flags.Sim.DoFullChain and flags.Digitization.PileUp:
+        kwargs.setdefault("InputMcEventCollection", "OriginalEvent_SG+GEN_EVENT")
     else:
-        alg.InputMcEventCollection = "GEN_EVENT"
-    alg.OutputMcEventCollection = "BeamTruthEvent"
+        kwargs.setdefault("InputMcEventCollection", "GEN_EVENT")
+    kwargs.setdefault("OutputMcEventCollection", "BeamTruthEvent")
 
     # Set (todo) the appropriate manipulator tools
     manipulators = []
-    manipulators.append(makeValidityChecker())
-    if not ConfigFlags.Beam.Type == 'cosmics' and ConfigFlags.Sim.CavernBG != 'Read':
-        toolVertexPositioner = acc.popToolsAndMerge(makeGenEventVertexPositioner(ConfigFlags))
-        manipulators.append(toolVertexPositioner)
-    # manipulators.append(makeGenEventBeamEffectBooster()) # todo segmentation violation
-    # manipulators.append(makeVertexPositionFromFile()) # todo
-    # manipulators.append(makeCrabKissingVertexPositioner()) # todo Callback registration failed
-    # manipulators.append(makeLongBeamspotVertexPositioner()) # todo Callback registration failed
-    alg.GenEventManipulators += manipulators
+    manipulators.append(acc.popToolsAndMerge(ValidityCheckerCfg(flags)))
+    if not flags.Beam.Type == "cosmics" and flags.Sim.CavernBG != "Read":
+        manipulators.append(acc.popToolsAndMerge(GenEventVertexPositionerCfg(flags)))
+    # manipulators.append(acc.popToolsAndMerge(GenEventBeamEffectBoosterCfg(flags))) # todo segmentation violation
+    # manipulators.append(acc.popToolsAndMerge(VertexPositionFromFileCfg(flags))) # todo
+    # manipulators.append(acc.popToolsAndMerge(CrabKissingVertexPositionerCfg(flags))) # todo Callback registration failed
+    # manipulators.append(acc.popToolsAndMerge(LongBeamspotVertexPositionerCfg(flags))) # todo Callback registration failed
+    kwargs.setdefault("GenEventManipulators", manipulators)
 
-    acc.addEventAlgo(alg, sequenceName="AthAlgSeq", primary=True)
+    acc.addEventAlgo(CompFactory.Simulation.BeamEffectsAlg(name, **kwargs), primary=True)
     return acc
 
 
-def BeamEffectsAlgOutputCfg(ConfigFlags, **kwargs):
+def BeamEffectsAlgOutputCfg(flags, **kwargs):
     """Return an accumulator and algorithm for beam effects, with output"""
-    acc = BeamEffectsAlgCfg(ConfigFlags, **kwargs)
+    acc = BeamEffectsAlgCfg(flags, **kwargs)
     # Set to write HITS pool file
     alg = acc.getPrimary()
     ItemList = ["McEventCollection#" + alg.OutputMcEventCollection]
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    acc.merge(OutputStreamCfg(ConfigFlags, "HITS", ItemList=ItemList, disableEventTag=True))
+    acc.merge(OutputStreamCfg(flags, "HITS", ItemList=ItemList, disableEventTag=True))
     return acc
 
 
-def BeamSpotFixerAlgCfg(ConfigFlags, **kwargs):
+def BeamSpotFixerAlgCfg(flags, name="BeamSpotFixerAlg", **kwargs):
     from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
-    acc = BeamSpotCondAlgCfg(ConfigFlags)
+    acc = BeamSpotCondAlgCfg(flags)
 
-    kwargs.setdefault('InputKey', 'Input_EventInfo')
-
-    if ConfigFlags.Common.ProductionStep == ProductionStep.PileUpPresampling:
-        kwargs.setdefault('OutputKey', ConfigFlags.Overlay.BkgPrefix + 'EventInfo')
+    kwargs.setdefault("InputKey", "Input_EventInfo")
+    if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
+        kwargs.setdefault("OutputKey", flags.Overlay.BkgPrefix + "EventInfo")
     else:
-        kwargs.setdefault('OutputKey', 'EventInfo')
+        kwargs.setdefault("OutputKey", "EventInfo")
 
-    alg = CompFactory.Simulation.BeamSpotFixerAlg(name="BeamSpotFixerAlg", **kwargs)
-    acc.addEventAlgo(alg, sequenceName="AthAlgSeq", primary=True)
+    acc.addEventAlgo(CompFactory.Simulation.BeamSpotFixerAlg(name, **kwargs))
     return acc
 
 
-def BeamSpotReweightingAlgCfg(ConfigFlags, **kwargs):
+def BeamSpotReweightingAlgCfg(flags, name="BeamSpotReweightingAlg", **kwargs):
     from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
-    acc = BeamSpotCondAlgCfg(ConfigFlags)
+    acc = BeamSpotCondAlgCfg(flags)
 
-    kwargs.setdefault('Input_beam_sigma_z', ConfigFlags.Digitization.InputBeamSigmaZ)
+    kwargs.setdefault("Input_beam_sigma_z", flags.Digitization.InputBeamSigmaZ)
 
-    alg = CompFactory.Simulation.BeamSpotReweightingAlg(name="BeamSpotReweightingAlg", **kwargs)
-    acc.addEventAlgo(alg)
+    acc.addEventAlgo(CompFactory.Simulation.BeamSpotReweightingAlg(name, **kwargs))
     return acc
 
 
@@ -181,14 +174,14 @@ if __name__ == "__main__":
     Configurable.configurableRun3Behavior = 1
 
     import os
-    inputDir = os.environ.get ('ATLAS_REFERENCE_DATA',
-                                '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art')
+    inputDir = os.environ.get ("ATLAS_REFERENCE_DATA",
+                               "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art")
      # Provide input
     ConfigFlags.Input.Files = [
-         inputDir + 
+         inputDir +
          "/SimCoreTests/e_E50_eta34_49.EVNT.pool.root"
          ]
- 
+
 
     # Specify output
     ConfigFlags.Output.HITSFileName = "myHITS.pool.root"
@@ -203,7 +196,7 @@ if __name__ == "__main__":
     ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-14" #conditions tag for conddb (which one to use - old one for simulation)
     ConfigFlags.Input.RunNumber = [284500] # run test job with and without run number and 222510
 
-    # Finalize 
+    # Finalize
     ConfigFlags.lock()
 
     ## Initialize a new component accumulator
@@ -224,4 +217,3 @@ if __name__ == "__main__":
     # Store in a pickle file
     with open("BeamEffectsAlg.pkl", "wb") as f:
         cfg.store(f)
-    

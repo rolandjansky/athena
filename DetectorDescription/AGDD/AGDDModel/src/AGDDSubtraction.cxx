@@ -12,7 +12,7 @@ void AGDDSubtraction::CreateSolid (const AGDDBuilder& builder)
 }
 
 
-void AGDDSubtraction::CreateVolume (const AGDDBuilder& builder)
+void AGDDSubtraction::CreateVolume (AGDDBuilder& builder)
 {
 	CreateSolid (builder);
  	builder.CreateVolume(this);

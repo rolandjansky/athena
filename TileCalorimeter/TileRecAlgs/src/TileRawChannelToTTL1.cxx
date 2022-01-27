@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -75,7 +75,6 @@ TileRawChannelToTTL1::TileRawChannelToTTL1(const std::string& name, ISvcLocator*
 {
   declareProperty("TileInfoName", m_infoName = "TileInfo");
   declareProperty("TileConstantTTL1Shape", m_constantTTL1shape = true);
-  declareProperty("maskBadChannels", m_maskBadChannels = false);
   declareProperty("TileBadChanTool", m_tileBadChanTool);
   declareProperty("TileCondToolEmscale", m_tileToolEmscale);
 }
@@ -227,46 +226,6 @@ StatusCode TileRawChannelToTTL1::execute() {
       HWIdentifier hwid = rawChannel->adc_HWID();
       int channel = m_tileHWID->channel(hwid);
       int adc = m_tileHWID->adc(hwid);
-
-      // this is the hack for FDR-2
-      // put zero amplitude in all bad channels 
-      // so that zero amplitude will be written to the ByteStream 
-      if (m_maskBadChannels) {
-        // FIXME: const-cast modifying const SG object
-        TileRawChannel * pRch = const_cast<TileRawChannel*>(rawChannel);
-        TileBchStatus status = m_tileBadChanTool->getAdcStatus(hwid);
-
-        if (status.isBad()) {
-          //=== check if we have VeryLargeHfNoise, this indicates hot channel overflow
-          if (status.contains(TileBchPrbs::VeryLargeHfNoise)) {
-            hwid = m_tileHWID->adc_id(m_tileHWID->channel_id(hwid), adc);
-            float amp = m_tileToolEmscale->channelCalib(drawerIdx,
-							channel, adc, double(m_tileInfo->ADCmax()), TileRawChannelUnit::ADCcounts, rChUnit);
-            *pRch = TileRawChannel (hwid,
-                                    amp,
-                                    0.0, // time
-                                    15., // quality
-                                    0.0); // pedestal
-          } else {
-          //=== dead channel, put zero energy
-
-            *pRch = TileRawChannel (pRch->adc_HWID(),
-                                    0.0, // amplitude
-                                    0.0, // time
-                                    0.0, // quality
-                                    0.0); // pedestal
-          }
-        } else if (status.isNoisy()) { // noisy channel ...
-
-        //=== not bad, but noisy channel
-
-          float noise = 0.0; // FIXME::add some noise - but don't know what to add
-          float delamp = m_tileToolEmscale->channelCalib(drawerIdx,
-              channel, adc, noise, TileRawChannelUnit::ADCcounts, rChUnit);
-          pRch->setAmplitude (delamp + pRch->amplitude());
-        }
-
-      }
 
       // note that amplitude() is in unknown units (can be even online MeV), convert it to MeV first
       float e = m_tileToolEmscale->channelCalib(drawerIdx, channel, adc,

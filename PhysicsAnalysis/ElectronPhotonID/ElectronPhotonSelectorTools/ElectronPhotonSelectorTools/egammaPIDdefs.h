@@ -583,7 +583,7 @@ namespace egammaPID {
       0x1 << ClusterStripsEratio_Photon;
 
   /** @brief Loose photon selection */
-  const unsigned int PhotonLoose = HADLEAKETA_PHOTON | CALOMIDDLE_PHOTON;
+  const unsigned int PhotonLoose = HADLEAKETA_PHOTON | CALOMIDDLE_PHOTON | AMBIGUITYRESOLVE_PHOTON;
   /** @brief Loose photon selection with Isolation*/
   const unsigned int PhotonLooseIso = PhotonLoose | ISOLATION_PHOTON;
   /** @brief Loose photon selection with Ambiguity resolver*/
@@ -591,7 +591,7 @@ namespace egammaPID {
   /** @brief Loose photon selection with Ambiguity resolver and Isolation*/
   const unsigned int PhotonLooseARIso = PhotonLooseAR | ISOLATION_PHOTON;
   /** @brief Medium photon selection */
-  const unsigned int PhotonMedium = HADLEAKETA_PHOTON | CALOMIDDLE_PHOTON | CALOSTRIPS_PHOTONMEDIUM;
+  const unsigned int PhotonMedium = HADLEAKETA_PHOTON | CALOMIDDLE_PHOTON | CALOSTRIPS_PHOTONMEDIUM | AMBIGUITYRESOLVE_PHOTON;
   /** @brief Medium photon selection with Isolation*/
   const unsigned int PhotonMediumIso = PhotonMedium | ISOLATION_PHOTON;
   /** @brief Medium photon selection with Ambiguity revolver*/
@@ -599,7 +599,7 @@ namespace egammaPID {
   /** @brief Medium photon selection with Ambiguity resolver and Isolation*/
   const unsigned int PhotonMediumARIso = PhotonMediumAR | ISOLATION_PHOTON;
   /** @brief Tight photon selection */
-  const unsigned int PhotonTight = HADLEAKETA_PHOTON | CALOMIDDLE_PHOTON | CALOSTRIPS_PHOTONTIGHT;
+  const unsigned int PhotonTight = HADLEAKETA_PHOTON | CALOMIDDLE_PHOTON | CALOSTRIPS_PHOTONTIGHT | AMBIGUITYRESOLVE_PHOTON;
   /** @brief Tight photon selection with isolation*/
   const unsigned int PhotonTightIso = PhotonTight | ISOLATION_PHOTON;
   /** @brief Tight photon selection with Ambiguity resolver*/

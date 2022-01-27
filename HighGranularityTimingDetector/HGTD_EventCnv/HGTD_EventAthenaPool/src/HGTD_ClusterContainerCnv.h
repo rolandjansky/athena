@@ -18,8 +18,8 @@
 #include "HGTD_EventTPCnv/HGTD_ClusterContainerCnv_p1.h"
 
 // the latest persistent representation type of DataCollection:
-typedef HGTD::HGTD_ClusterContainer_p1 HGTD_ClusterContainer_PERS;
-typedef T_AthenaPoolCustomCnv<HGTD::HGTD_ClusterContainer,
+typedef HGTD_ClusterContainer_p1 HGTD_ClusterContainer_PERS;
+typedef T_AthenaPoolCustomCnv<HGTD_ClusterContainer,
                               HGTD_ClusterContainer_PERS>
     HGTD_ClusterContainerCnvBase;
 
@@ -38,11 +38,11 @@ public:
   HGTD_ClusterContainerCnv(ISvcLocator* svcloc);
 protected:
   virtual HGTD_ClusterContainer_PERS*
-  createPersistent(HGTD::HGTD_ClusterContainer* transCont) override;
-  virtual HGTD::HGTD_ClusterContainer* createTransient() override;
+  createPersistent(HGTD_ClusterContainer* transCont) override;
+  virtual HGTD_ClusterContainer* createTransient() override;
 
 private:
-  HGTD::HGTD_ClusterContainerCnv_p1 m_converter_p1;
+  HGTD_ClusterContainerCnv_p1 m_converter_p1;
 };
 
 #endif // HGTD_CLUSTERCONTAINERCNV_H

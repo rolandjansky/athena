@@ -1,10 +1,11 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 def LVL1CaloMonitoringConfig(flags):
     '''Function to call l1calo DQ monitoring algorithms'''
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    from AthenaConfiguration.Enums import Format
     import logging
 
     # local printing
@@ -16,6 +17,10 @@ def LVL1CaloMonitoringConfig(flags):
 
     # If we're not putting trigger objects in event store, can't monitor them
     if not flags.DQ.triggerDataAvailable:
+        return result
+
+    #TODO restore proper config
+    if flags.Trigger.triggerConfig == "INFILE":
         return result
 
     from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
@@ -36,5 +41,10 @@ def LVL1CaloMonitoringConfig(flags):
         result.merge(CpmSimMonitoringConfig(flags))
         result.merge(PprMonitoringConfig(flags))
         result.merge(JepJemMonitoringConfig(flags))
+
+        # For online running on bytestream data 
+        if flags.Input.Format is Format.BS and flags.Trigger.Online.isPartition:
+            from TrigT1CaloByteStream.LVL1CaloRun2ByteStreamConfig import LVL1CaloRun2ReadBSCfg
+            result.merge(LVL1CaloRun2ReadBSCfg(flags))
 
     return result

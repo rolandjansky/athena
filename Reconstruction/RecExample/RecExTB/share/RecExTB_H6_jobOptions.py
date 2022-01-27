@@ -850,7 +850,7 @@ if doCBNT:
    from CaloRec.CaloRecConf import CBNTAA_CaloCluster
    if doTopoClusterLocalCalib:
       CBNT_CaloClusterTopoEM = CBNTAA_CaloCluster("CBNT_CaloClusterTopoEM" )
-      CBNT_CaloClusterTopoEM.ClusterColl = "CaloTopoCluster"
+      CBNT_CaloClusterTopoEM.ClusterColl = "CaloTopoClusters"
       CBNT_CaloClusterTopoEM.Suffix = "_topo_em"
       CBNT_CaloClusterTopoEM.EMOnly = False
       CBNT_CaloClusterTopoEM.UseLink = True

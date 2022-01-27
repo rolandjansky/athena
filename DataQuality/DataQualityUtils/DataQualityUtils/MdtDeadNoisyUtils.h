@@ -107,7 +107,7 @@ namespace dqutils_mdtdeadnoisy {
   bool AinB( int A, const std::vector<int> * B );
 
   //For dumping pdf
-  void FillPDF(std::string inFilename, TH1F* hDead, TH1F* hNoise, TCanvas* c, 
+  void FillPDF(const std::string & inFilename, TH1F* hDead, TH1F* hNoise, TCanvas* c, 
 	       const std::vector<int>* deadTubes, const std::vector<int>* deadASD, const std::vector<int>* deadMEZZ, const std::vector<int>* deadLayer, const std::vector<int>* deadML,
 	       const std::vector<int>* noisyTubes, const std::vector<int>* noisyASD, const std::vector<int>* noisyMEZZ, const std::vector<int>* noisyLayer, const std::vector<int>* noisyML, 
 	       int deadTubesChamberValidity, int noisyTubesChamberValidity,

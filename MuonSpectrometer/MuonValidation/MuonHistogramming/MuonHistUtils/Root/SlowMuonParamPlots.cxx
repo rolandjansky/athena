@@ -2,21 +2,23 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <utility>
+
 #include "MuonHistUtils/SlowMuonParamPlots.h"
 #include "TMath.h" // for TMath::Prob()
 
 namespace Muon{
 
-  BetaPlots::BetaPlots(PlotBase *pParent, std::string sDir, std::string sDetType)
+  BetaPlots::BetaPlots(PlotBase *pParent, const std::string& sDir, std::string sDetType)
   :PlotBase(pParent, sDir)
-  , nHits(NULL)
-  , avg(NULL)
-  , chi2(NULL)
-  , ndf(NULL)
-  , chi2ndf(NULL)
-  , chi2prob(NULL)
-  , rms(NULL)
-  , m_sDetType(sDetType)
+  , nHits(nullptr)
+  , avg(nullptr)
+  , chi2(nullptr)
+  , ndf(nullptr)
+  , chi2ndf(nullptr)
+  , chi2prob(nullptr)
+  , rms(nullptr)
+  , m_sDetType(std::move(sDetType))
 {}
 void BetaPlots::initializePlots()
 {
@@ -72,9 +74,9 @@ void BetaPlots::initializePlots()
 
 /////////////////////////////////
   
-SlowMuonParamPlots::SlowMuonParamPlots(PlotBase *pParent, std::string sDir)
+SlowMuonParamPlots::SlowMuonParamPlots(PlotBase *pParent, const std::string& sDir)
   :PlotBase(pParent, sDir)
-  , beta(NULL)
+  , beta(nullptr)
   , mdtBeta(this,"","MDT")
   , rpcBeta(this,"","RPC")
   , caloBeta(this,"","CALO")

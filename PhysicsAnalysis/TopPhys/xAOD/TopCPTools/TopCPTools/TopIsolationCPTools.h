@@ -46,7 +46,7 @@ namespace top {
      *
      * @return return
     */
-    StatusCode setupPerObjectWPs(const std::set<std::string>& WPs, const std::string& objectWPtype);
+    StatusCode setupPerObjectWPs(const std::vector<std::string>& WPs, const std::string& objectWPtype);
   };
 }  // namespace top
 

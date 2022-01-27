@@ -22,9 +22,8 @@ class TrigEgammaTLAPhotonHypoTool: public AthAlgTool{
     ~TrigEgammaTLAPhotonHypoTool();
     StatusCode initialize();
     StatusCode finalize();
-
-    using PhotonDecision = std::pair<const xAOD::Photon*, TrigCompositeUtils::Decision*>;
-    StatusCode decide(std::vector<PhotonDecision>& photonHypoInputs) const;
+   
+    StatusCode decide(TrigCompositeUtils::DecisionContainer* decisionContainer) const;
 
     const HLT::Identifier& getId() const;
 

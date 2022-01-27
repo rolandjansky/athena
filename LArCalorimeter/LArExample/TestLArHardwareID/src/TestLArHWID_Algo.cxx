@@ -1,10 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <fstream>
+
 #include "TestLArHardwareID/TestLArHWID_Algo.h"
 
 #include "GaudiKernel/IService.h"
@@ -21,7 +19,9 @@
 #include "LArIdentifier/LArHVLineID.h"
 #include "LArIdentifier/LArElectrodeID.h"
 #include "LArIdentifier/LArOnlID_Exception.h"
-
+#include <cstdlib>
+#include <fstream>
+#include <iostream>
 /********************************************************/
 TestLArHWID_Algo::TestLArHWID_Algo(const std::string &name , ISvcLocator* pSvcLocator) :
   AthAlgorithm( name , pSvcLocator) ,
@@ -1061,7 +1061,6 @@ StatusCode TestLArHWID_Algo::execute(){
 	int nHEC3r1= 0;
 
 	int nelFCAL = 0;
-	int nelHEC  = 0;
 	int nelHEC0  = 0;
 	int nelHEC0r0= 0;
 	int nelHEC0r1= 0;
@@ -1737,7 +1736,6 @@ StatusCode TestLArHWID_Algo::execute(){
 		    std::vector<HWIdentifier> IdVec;
 		    hvmap->getElectrodeInCell( offId, IdVec );
 		    std::vector<HWIdentifier> electrodeIdVec = IdVec;
-		    nelHEC+= electrodeIdVec.size();
 		  }
 
 		}
@@ -2003,7 +2001,6 @@ StatusCode TestLArHWID_Algo::execute(){
 	int nHEC3r0= 0;
 	int nHEC3r1= 0;
 
-	int nelHEC  = 0;
 	int nelHEC0  = 0;
 	int nelHEC0r0= 0;
 	int nelHEC0r1= 0;
@@ -2326,7 +2323,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		// --------------
 		// Test of EMEC2
 		// --------------
-		if( (m_SubDetector == "S2" || m_SubDetector == "ALL" )&& ( abs(bec) == 2 && abs(bec) == 3 ) ){
+		if( (m_SubDetector == "S2" || m_SubDetector == "ALL" )&& ( abs(bec) == 2 or abs(bec) == 3 ) ){
 		  // m_SubDetector == EMEC2
 		  if( sam == 2 ){
 		    // sam==2
@@ -2732,7 +2729,6 @@ StatusCode TestLArHWID_Algo::execute(){
 		    std::vector<HWIdentifier> IdVec;
 		    hvmap->getHVLineInCell( offId, IdVec );
 		    std::vector<HWIdentifier> hvlineIdVec = IdVec;
-		    nelHEC+= hvlineIdVec.size();
 		  }
 
 		}
@@ -4216,7 +4212,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		m_emHelper->get_neighbours(hashId, LArNeighbours::all3D, neighbourList);
 		std::vector<IdentifierHash>::iterator first=neighbourList.begin();
 		std::vector<IdentifierHash>::iterator last=neighbourList.end();
-		for (;last!=first; first++){
+		for (;last!=first; ++first){
                   ATH_MSG_VERBOSE ( "  neighbour list EM = " << (unsigned int)(*first) );
 		}
 
@@ -4381,7 +4377,7 @@ StatusCode TestLArHWID_Algo::execute(){
 	      m_hecHelper->get_neighbours(hashId, LArNeighbours::all3D, neighbourList);
 	      std::vector<IdentifierHash>::iterator first=neighbourList.begin();
 	      std::vector<IdentifierHash>::iterator last=neighbourList.end();
-	      for (;last!=first; first++){
+	      for (;last!=first; ++first){
 		ATH_MSG_VERBOSE ( "  neighbour list HEC = " << (unsigned int)(*first) );
 	      }
 
@@ -4441,7 +4437,7 @@ StatusCode TestLArHWID_Algo::execute(){
 	    m_fcalHelper->get_neighbours(hashId, LArNeighbours::all3D, neighbourList);
 	    std::vector<IdentifierHash>::iterator first=neighbourList.begin();
 	    std::vector<IdentifierHash>::iterator last=neighbourList.end();
-	    for (;last!=first; first++){
+	    for (;last!=first; ++first){
               ATH_MSG_VERBOSE ( "  neighbour list FCAL = " << (unsigned int)(*first) );
 	    }
 	    

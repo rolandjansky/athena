@@ -5,7 +5,7 @@
 """
 @brief configuration for the min bias monitoring
 """
-
+import math
 
 def TrigSPTRK(configFlags, highGranularity=False):
 
@@ -58,9 +58,19 @@ def TrigSPTRK(configFlags, highGranularity=False):
 
             mbEffGroup.defineHistogram( "trkPt", cutmask="trkMask", title="Offline selected tracks pt;p_{T} [GeV]", xbins=100, xmin=0, xmax=10)
             mbEffGroup.defineHistogram( "trkEta", cutmask="trkMask", title="Offline selected tracks eta;#eta", xbins=50, xmin=-2.5, xmax=2.5)
+            mbEffGroup.defineHistogram( "trkPhi", cutmask="trkMask", title="Offline selected tracks phi;#phi", xbins=64, xmin=-math.pi, xmax=math.pi)
+            mbEffGroup.defineHistogram( "trkHits", title="Offline selected tracks, hits per track;number of hits", xbins=15, xmin=-0.5, xmax=15-0.5)
+
+            mbEffGroup.defineHistogram( "onlTrkPt", title="Online tracks pt;p_{T} [GeV]", xbins=100, xmin=0, xmax=10)
+            mbEffGroup.defineHistogram( "onlTrkEta", title="Online tracks eta;#eta", xbins=50, xmin=-2.5, xmax=2.5)
+            mbEffGroup.defineHistogram( "onlTrkPhi", title="Online tracks phi;#phi", xbins=64, xmin=-math.pi, xmax=math.pi)
+            mbEffGroup.defineHistogram( "onlTrkHits", title="Online hits per track;number of hits", xbins=15, xmin=-0.5, xmax=15-0.5)
+            mbEffGroup.defineHistogram( "onlTrkZ0", title="Online track Z0;number of hits", xbins=40, xmin=-200, xmax=200)
+            mbEffGroup.defineHistogram( "onlTrkD0", title="Online track D0;number of hits", xbins=40, xmin=-20, xmax=20)
+
             mbEffGroup.defineHistogram( "trkD0", cutmask="trkMask", title="Offline selected tracks D0;d_{0} [mm]", xbins=40, xmin=-20, xmax=20)
             mbEffGroup.defineHistogram( "trkZ0", cutmask="trkMask", title="Offline selected tracks Z0;z_{0}[mm]", xbins=40, xmin=-20, xmax=20)
-            mbEffGroup.defineHistogram( "trkZ0;trackZdWideRange", cutmask="trkMask", title="Offline selected tracks Z0;z_{0}[mm]", xbins=40, xmin=-200, xmax=200)
+            mbEffGroup.defineHistogram( "trkZ0;trackZ0WideRange", cutmask="trkMask", title="Offline selected tracks Z0;z_{0}[mm]", xbins=40, xmin=-200, xmax=200)
 
         mbSpGroup = monConfig.addGroup(
             alg,
@@ -101,17 +111,12 @@ if __name__ == "__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.DQ.Environment = "AOD"
     ConfigFlags.Concurrency.NumConcurrentEvents = 5
-    # ConfigFlags.Input.Files = ['/scratch/somadutt/valid1.361238.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_low.recon.AOD.e4981_s3454_s3089_d1617_r12430_tid24359040_00/AOD.24359040._000041.pool.root.1'] #Local HI-UPC file
-    import glob
-    #ConfigFlags.Input.Files = glob.glob("/ATLAS/tbold/DATA/data18_13TeV.00341615.physics_EnhancedBias.merge.AOD.r12635_p4534_tid25577237_00/*")[:1]
-    ConfigFlags.Input.Files = glob.glob("/ATLAS/tbold/athena/add-view-to-zfinder-output-config/*/*AOD._lb*")
     
-    #ConfigFlags.Input.Files = glob.glob('/scratch/somadutt/valid1.361238.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_low.recon.AOD.e4981_s3454_s3089_d1617_r12430_tid24359040_00/*')
-    # data AOD file
-#    ConfigFlags.Input.Files = ["myAOD.pool.root"]
-    # ConfigFlags.Input.isMC = True  #un-Comment this line for MC AOD files, comment for data-AOD files
     ConfigFlags.Output.HISTFileName = "TestMonitorOutput.root"
-
+    ConfigFlags.fillFromArgs()
+    from AthenaCommon.Logging import logging
+    log = logging.getLogger(__name__)
+    log.info("Input %s", str(ConfigFlags.Input.Files))
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
@@ -132,4 +137,4 @@ if __name__ == "__main__":
 
     cfg.run()  # use cfg.run(20) to only run on first 20 events
     # to run:
-    # python -m TrigMinBiasMonitoring.TrigMinBiasMonitoringMT
+    # python -m TrigMinBiasMonitoring.TrigMinBiasMonitoringMT --filesInput=

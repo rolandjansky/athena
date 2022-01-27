@@ -111,7 +111,6 @@ if not jobproperties.Beam.beamType()=='cosmics':
         from InDetRecExample import TrackingCommon
         from InDetAlignmentMonitoring.InDetAlignmentMonitoringConf import InDetAlignMonBeamSpot
         InDetAlignMonBeamSpot_noTrig = InDetAlignMonBeamSpot (name                           = "InDetAlignMonBeamSpot_noTrig",
-                                                              extrapolator                   = TrackingCommon.getInDetExtrapolator(),
                                                               vxContainerName                = InDetKeys.xAODVertexContainer(),
                                                               vxContainerWithBeamConstraint  = InDetFlags.useBeamConstraint())
         

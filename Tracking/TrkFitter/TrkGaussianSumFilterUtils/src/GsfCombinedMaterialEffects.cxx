@@ -125,7 +125,7 @@ ionizationEnergyLoss(const Trk::MaterialProperties& mat,
     sign * Trk::MaterialInteraction::PDG_energyLoss_ionization(
              p, &(mat.material()), particle, sigIoni, kazL, pathLength);
 
-  return Trk::EnergyLoss(meanIoni, sigIoni, sigIoni, sigIoni);
+  return {meanIoni, sigIoni, sigIoni, sigIoni};
 }
 
 inline void

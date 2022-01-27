@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 ##
@@ -8,18 +8,13 @@
 #
 ################################################################################
 
-from AthenaCommon.SystemOfUnits import mm, MeV, GeV
+from AthenaCommon.SystemOfUnits import mm, GeV
 
 cached_instances = {}
 
 sPrefix = 'TrigTau_'
 bAODmode = False
 doVertexCorrection = False
-
-# standard container names
-_DefaultVertexContainer = "PrimaryVertices" #????
-_DefaultTrackContainer ="InDetTrackParticles"  #????
-_DefaultTrigTauTrackContainer ="TrigTauTrackCandidate" #????
 
 ######################################################################## 
 def setPrefix(prefix): 
@@ -315,22 +310,6 @@ def getTauSubstructure():
     return TauSubstructureVariables
 
 #########################################################################
-# ele veto variables
-def getElectronVetoVars():
-    _name = sPrefix + 'TauElectronVetoVars'
-    
-    if _name in cached_instances:
-        return cached_instances[_name]
-    
-    from tauRecTools.tauRecToolsConf import TauElectronVetoVariables
-    TauElectronVetoVariables = TauElectronVetoVariables(name = _name,
-                                                        VertexCorrection = doVertexCorrection)
-    
-    cached_instances[_name] = TauElectronVetoVariables
-    return TauElectronVetoVariables
-
-
-#########################################################################
 # cell weight tool
 def getCellWeightTool():
     _name = sPrefix + 'CellWeightTool'
@@ -352,25 +331,6 @@ def getCellWeightTool():
     
     cached_instances[_name] = CaloWeightTool
     return CaloWeightTool
-
-
-#########################################################################
-# Photon Shot Finder algo
-def getTauShotFinder():    
-    _name = sPrefix + 'TauShotFinder'
-    
-    if _name in cached_instances:
-        return cached_instances[_name]
-    
-    from tauRecTools.tauRecToolsConf import TauShotFinder
-    TauShotFinder = TauShotFinder(name = _name,
-        CaloWeightTool = getCellWeightTool(),
-        NCellsInEta           = 5,
-        MinPtCut              = (400.*MeV,320.*MeV,9999999.*MeV,350.*MeV,320.*MeV),
-        AutoDoubleShotCut     = (10000.*MeV,10000.*MeV,9999999.*MeV,10000.*MeV,10000.*MeV),
-        )
-    cached_instances[_name] = TauShotFinder
-    return TauShotFinder
 
 #########################################################################
 def getInDetTrackSelectorTool():
@@ -507,54 +467,11 @@ def getTauVertexedClusterDecorator():
         return cached_instances[_name]
   
     myTauVertexedClusterDecorator = TauVertexedClusterDecorator(name = _name,
-                                                                SeedJet = "",
-                                                                VertexCorrection = doVertexCorrection)
+                                                                SeedJet = "")
     
     cached_instances[_name] = myTauVertexedClusterDecorator
     return myTauVertexedClusterDecorator
 
-
-########################################################################
-# TauTrackClassifier
-def getTauTrackClassifier():
-
-    _name = sPrefix + 'TauTrackClassifier'
-
-    if _name in cached_instances:
-        return cached_instances[_name]
-    
-    from AthenaCommon.AppMgr import ToolSvc
-    from tauRecTools.tauRecToolsConf import tauRecTools__TauTrackClassifier as TauTrackClassifier
-    from tauRecTools.tauRecToolsConf import tauRecTools__TrackMVABDT as TrackMVABDT
-
-    import PyUtils.RootUtils as ru
-    ROOT = ru.import_root()
-    import cppyy
-    cppyy.load_library('libxAODTau_cDict')
-
-    input_file_name = 'EFtracks_BDT_classifier_v0.root'
-    BDTcut = 0.45
-    deltaZ0 = 1.0
-
-    # =========================================================================
-    EFtrackBDT = TrackMVABDT(
-        name = _name + "_MVABDT",
-        InputWeightsPath = input_file_name,
-        Threshold        = BDTcut,
-        DeltaZ0          = deltaZ0,
-        ExpectedFlag     = ROOT.xAOD.TauJetParameters.TauTrackFlag.unclassified, 
-        inTrigger        = True
-    )
-
-    ToolSvc += EFtrackBDT
-
-    trackclassifier = TauTrackClassifier(
-        name=_name, 
-        Classifiers=[EFtrackBDT]
-    )
-
-    cached_instances[_name] = trackclassifier
-    return trackclassifier
 
 ########################################################################
 # TauIDVarCalculator
@@ -573,26 +490,6 @@ def getTauIDVarCalculator():
     ToolSvc += TauIDVarCalculator                                 
     cached_instances[_name] = TauIDVarCalculator
     return TauIDVarCalculator
-
-########################################################################
-# TauJetBDTEvaluator
-def getTauJetBDTEvaluator(suffix="TauJetBDT", weightsFile="", calibFolder="", minNTracks=0, maxNTracks=10000):
-
-    _name = sPrefix + suffix
-    if _name in cached_instances:
-        return cached_instances[_name]
-
-    from tauRecTools.tauRecToolsConf import TauJetBDTEvaluator
-    TauJetBDTEvaluator = TauJetBDTEvaluator(name=_name,
-                                            weightsFile=weightsFile,
-                                            calibFolder=calibFolder,
-                                            minNTracks=minNTracks,
-                                            maxNTracks=maxNTracks)
-    from AthenaCommon.AppMgr import ToolSvc
-    ToolSvc += TauJetBDTEvaluator
-    cached_instances[_name] = TauJetBDTEvaluator
-    return TauJetBDTEvaluator
-
 
 ########################################################################
 # TauJetRNNEvaluator
@@ -627,40 +524,6 @@ def getTauJetRNNEvaluator(NetworkFile0P="", NetworkFile1P="", NetworkFile3P="", 
     ToolSvc += TauJetRNNEvaluator
     cached_instances[_name] = TauJetRNNEvaluator
     return TauJetRNNEvaluator
-
-
-########################################################################
-# TauWPDecoratorJetBDT
-def getTauWPDecoratorJetBDT():
-
-    _name = sPrefix + 'TauWPDecoratorJetBDT'
-    if _name in cached_instances:
-        return cached_instances[_name]
-
-    import PyUtils.RootUtils as ru
-    ROOT = ru.import_root()
-    import cppyy
-    cppyy.load_library('libxAODTau_cDict')
-
-    from AthenaCommon.AppMgr import ToolSvc
-    from tauRecTools.tauRecToolsConf import TauWPDecorator
-    TauWPDecorator = TauWPDecorator( name=_name,
-                                     flatteningFile1Prong = "FlatJetBDT1P_trigger_v1.root", 
-                                     flatteningFile3Prong = "FlatJetBDT3P_trigger_v1.root", 
-                                     CutEnumVals=[
-                                         ROOT.xAOD.TauJetParameters.IsTauFlag.JetBDTSigVeryLoose, 
-                                         ROOT.xAOD.TauJetParameters.IsTauFlag.JetBDTSigLoose,
-                                         ROOT.xAOD.TauJetParameters.IsTauFlag.JetBDTSigMedium, 
-                                         ROOT.xAOD.TauJetParameters.IsTauFlag.JetBDTSigTight],
-                                     SigEff1P = [0.995, 0.99, 0.97, 0.90],
-                                     SigEff3P = [0.995, 0.94, 0.88, 0.78],
-                                     ScoreName = "BDTJetScore",
-                                     NewScoreName = "BDTJetScoreSigTrans",
-                                     DefineWPs = True)
-
-    ToolSvc += TauWPDecorator
-    cached_instances[_name] = TauWPDecorator
-    return TauWPDecorator
 
 ########################################################################
 # TauWPDecoratorJetRNN

@@ -46,6 +46,7 @@ StatusCode FixHepMC::execute() {
 
     // Some heuristics
     std::vector<HepMC::GenParticlePtr> tofix;
+    // Herwig7+EvtGen has problems with bad pdg id. 16.11.2021
     std::vector<HepMC::GenParticlePtr> bad_pdg_id_particles;
     for (auto ip: evt->particles()) {
       // Skip this particle if (somehow) its pointer is null
@@ -57,22 +58,32 @@ StatusCode FixHepMC::execute() {
       if (ip->production_vertex() && !ip->end_vertex() && ip->status() != 1 ) particle_to_fix = true;
       if (particle_to_fix) tofix.push_back(ip);
       int pdg_id = ip->pdg_id();
-      if (pdg_id == 43 || pdg_id == 44 || pdg_id == -43 || pdg_id == -44 ) bad_pdg_id_particles.push_back(ip);
+      if (pdg_id == 43 || pdg_id == 44 || pdg_id == -43 || pdg_id == -44 || pdg_id == 30353 || pdg_id == -30353 || pdg_id == 30343 || pdg_id == -30343) bad_pdg_id_particles.push_back(ip);
+    }
+
+    // SHERPA has problems with bad beam particles. 16.11.2021
+    auto beams_t = evt->beams();
+    if (beams_t.size() > 2) {
+      ATH_MSG_INFO("Invalid number of beam particles " <<  beams_t.size() << ". Will try to fix.");
+      std::vector<HepMC::GenParticlePtr> bparttoremove;
+      for (auto bpart: beams_t) if (bpart->id() == 0 && bpart->production_vertex()) bparttoremove.push_back(bpart);
+      for (auto bpart: bparttoremove) bpart->production_vertex()->remove_particle_out(bpart);
     }
 
     /// AV: In case we have 3 particles, we try to add a vertex that correspond to 1->2 and 1->1 splitting.
     if (tofix.size() == 3 || tofix.size() == 2) {
-      int no_endv = 0;
-      int no_prov = 0;
+      size_t no_endv = 0;
+      size_t no_prov = 0;
       HepMC::FourVector sum(0,0,0,0);
-      for (auto part: tofix) if (!part->production_vertex() || !part->production_vertex()->id()) { no_prov++; sum += part->momentum();}  
+      for (auto part: tofix) if (!part->production_vertex() || !part->production_vertex()->id()) { no_prov++; sum += part->momentum();}
       for (auto part: tofix) if (!part->end_vertex()) { no_endv++;  sum -= part->momentum(); }
-      ATH_MSG_INFO("Heuristics: found " << tofix.size() << "particles to fix. The momenta sum is " << sum);
-      if (no_endv == 1 && (no_prov == 2 || no_prov == 1) && std::abs(sum.px()) < 1e-2  && std::abs(sum.py()) < 1e-2  && std::abs(sum.pz()) < 1e-2 ) {
-          ATH_MSG_INFO("Try " << no_endv << "->" << no_prov << " splitting.");
+      ATH_MSG_INFO("Heuristics: found " << tofix.size() << " particles to fix. The momenta sum is " << sum);
+      /// The condition below will cover 1->1, 1->2 and 2->1 cases
+      if ( no_endv && no_prov  && ( no_endv + no_prov  == tofix.size() ) && std::abs(sum.px()) < 1e-2  && std::abs(sum.py()) < 1e-2  && std::abs(sum.pz()) < 1e-2 ) {
+          ATH_MSG_INFO("Try " << no_endv << "->" << no_prov << " splitting/merging.");
           auto v = HepMC::newGenVertexPtr();
-          for (auto part: tofix) if (!part->production_vertex() || part->production_vertex()->id() == 0) v->add_particle_out(part);  
-          for (auto part: tofix) if (!part->end_vertex()) v->add_particle_in(part);  
+          for (auto part: tofix) if (!part->production_vertex() || part->production_vertex()->id() == 0) v->add_particle_out(part);
+          for (auto part: tofix) if (!part->end_vertex()) v->add_particle_in(part);
           evt->add_vertex(v);
       }
     }
@@ -80,10 +91,22 @@ StatusCode FixHepMC::execute() {
     /// If some particle would have decay products with bad PDG ids, after the operation below
     /// the visible branching ratio of these decays would be zero.
     for (auto part: bad_pdg_id_particles) {
-        if (!part->production_vertex()) continue;
-        if (!part->end_vertex()) continue;
-        for (auto p: part->end_vertex()->particles_out()) part->production_vertex()->add_particle_out(p);
-        evt->remove_particle(part);
+       /// Check the bad particles have prod and end vertices
+      auto vend = part->end_vertex();
+      auto vprod = part->production_vertex();
+      if (!vend) continue;
+      if (!vprod) continue;
+      bool loop_in_decay = true;
+      /// Check that all particles coming into the decay vertex of bad particle cam from the same production vertex.
+      auto sisters = vend->particles_in();
+      for (auto sister: sisters) if (vprod != sister->production_vertex()) loop_in_decay = false;
+      if (!loop_in_decay) continue;
+
+      auto daughters = vend->particles_out();
+      for (auto p: daughters) vprod->add_particle_out(p);
+      for (auto sister: sisters) { vprod->remove_particle_out(sister); vend->remove_particle_in(sister); evt->remove_particle(sister); }
+      evt->remove_vertex(vend);
+
     }
 
     // Event particle content cleaning -- remove "bad" structures
@@ -152,14 +175,72 @@ StatusCode FixHepMC::execute() {
       }
     }
 
+
+    // Some heuristics
+    std::vector<HepMC::GenParticlePtr> tofix;
+    std::vector<HepMC::GenParticlePtr> bad_pdg_id_particles;
+    for (auto ip: *evt) {
+      // Skip this particle if (somehow) its pointer is null
+      if (!ip) continue;
+      bool particle_to_fix = false;
+      /// Two types of bad particles: those w/o prod.vertex and with status other than 4.
+      if ( (!ip->production_vertex() || ip->production_vertex()->id() == 0 ) &&  ip->end_vertex() && ip->status() != 4 ) particle_to_fix = true;
+      /// Those w/o end vertex, but with bad status
+      if (ip->production_vertex() && !ip->end_vertex() && ip->status() != 1 ) particle_to_fix = true;
+      if (particle_to_fix) tofix.push_back(ip);
+      int pdg_id = ip->pdg_id();
+      if (pdg_id == 43 || pdg_id == 44 || pdg_id == -43 || pdg_id == -44 || pdg_id == 30353 || pdg_id == -30353 || pdg_id == 30343 || pdg_id == -30343) bad_pdg_id_particles.push_back(ip);
+    }
+
+    /// AV: In case we have 3 particles, we try to add a vertex that correspond to 1->2 and 1->1 splitting.
+    if (tofix.size() == 3 || tofix.size() == 2) {
+      size_t no_endv = 0;
+      size_t no_prov = 0;
+      double vsum[4] = {0,0,0,0};
+      for (auto part: tofix) if (!part->production_vertex() ) { no_prov++; vsum[0] += part->momentum().px(); vsum[1] += part->momentum().py(); vsum[2] += part->momentum().pz(); vsum[3] += part->momentum().e();}
+      for (auto part: tofix) if (!part->end_vertex()) { no_endv++;  vsum[0] -= part->momentum().px(); vsum[1] -= part->momentum().py(); vsum[2] -= part->momentum().pz(); vsum[3] -= part->momentum().e();}
+      HepMC::FourVector sum(vsum[0],vsum[1],vsum[2],vsum[3]);
+      ATH_MSG_INFO("Heuristics: found " << tofix.size() << " particles to fix. The momenta sum is " << vsum[0] << " " << vsum[1] << " " << vsum[2] << " " << vsum[3] );
+      /// The condition below will cover 1->1, 1->2 and 2->1 cases
+      if ( no_endv && no_prov  && ( no_endv + no_prov  == tofix.size() ) && std::abs(sum.px()) < 1e-2  && std::abs(sum.py()) < 1e-2  && std::abs(sum.pz()) < 1e-2 ) {
+          ATH_MSG_INFO("Try " << no_endv << "->" << no_prov << " splitting/merging.");
+          auto v = HepMC::newGenVertexPtr();
+          for (auto part: tofix) if (!part->production_vertex())  v->add_particle_out(part);
+          for (auto part: tofix) if (!part->end_vertex()) v->add_particle_in(part);
+          evt->add_vertex(v);
+      }
+    }
+    /// AV: Please note that this approach would distort some branching ratios.
+    /// If some particle would have decay products with bad PDG ids, after the operation below
+    /// the visible branching ratio of these decays would be zero.
+    for (auto part: bad_pdg_id_particles) {
+       /// Check the bad particles have prod and end vertices
+      auto vend = part->end_vertex();
+      auto vprod = part->production_vertex();
+      if (!vend) continue;
+      if (!vprod) continue;
+      bool loop_in_decay = true;
+      /// Check that all particles coming into the decay vertex of bad particle cam from the same production vertex.
+      std::vector<HepMC::GenParticlePtr> sisters;
+      for (auto p = vend->particles_begin(HepMC::parents); p!= vend->particles_end(HepMC::parents); ++p) sisters.push_back(*p);
+      for (auto sister: sisters) if (vprod != sister->production_vertex()) loop_in_decay = false;
+      if (!loop_in_decay) continue;
+
+      std::vector<HepMC::GenParticlePtr> daughters;
+      for (auto p = vend->particles_begin(HepMC::children); p!= vend->particles_end(HepMC::children); ++p) daughters.push_back(*p);
+      for (auto p: daughters) vprod->add_particle_out(p);
+      for (auto sister: sisters) { vprod->remove_particle(sister); vend->remove_particle(sister);  }
+      evt->remove_vertex(vend);
+
+    }
+
+
     // Event particle content cleaning -- remove "bad" structures
     std::vector<HepMC::GenParticlePtr> toremove; toremove.reserve(10);
-    long seenThisEvent = 0;
     for (HepMC::GenEvent::particle_const_iterator ip = evt->particles_begin(); ip != evt->particles_end(); ++ip) {
       // Skip this particle if (somehow) its pointer is null
       if (*ip == NULL) continue;
       m_totalSeen += 1;
-      seenThisEvent += 1;
 
       // Flag to declare if a particle should be removed
       bool bad_particle = false;
@@ -200,12 +281,17 @@ StatusCode FixHepMC::execute() {
 
     // Properties before cleaning
     const int num_particles_orig = evt->particles_size();
-    const int num_orphan_vtxs_orig = MC::const_vertices_match(evt, MC::isDisconnected).size();
-    const int num_noparent_vtxs_orig = MC::const_vertices_match(evt, MC::hasNoParents).size();
-    const int num_nochild_vtxs_orig = MC::const_vertices_match(evt, MC::hasNoChildren).size();
-
+    int num_orphan_vtxs_orig = 0;
+    int num_noparent_vtxs_orig = 0;
+    int num_nochild_vtxs_orig = 0;
+    for (auto v = evt->vertices_begin(); v != evt->vertices_end(); ++v) {
+      if (MC::isDisconnected(*v)) num_orphan_vtxs_orig++;
+      if (MC::hasNoParents(*v)) num_noparent_vtxs_orig++;
+      if (MC::hasNoChildren(*v)) num_nochild_vtxs_orig++;
+    }
     // Clean!
     int signal_vertex_bc = evt->signal_process_vertex() ? evt->signal_process_vertex()->barcode() : 0;
+    //This is the only place where reduce is used.
     MC::reduce(evt , toremove);
     if (evt->barcode_to_vertex (signal_vertex_bc) == nullptr) {
       evt->set_signal_process_vertex (nullptr);
@@ -213,9 +299,14 @@ StatusCode FixHepMC::execute() {
 
     // Properties after cleaning
     const int num_particles_filt = evt->particles_size();
-    const int num_orphan_vtxs_filt = MC::const_vertices_match(evt, MC::isDisconnected).size();
-    const int num_noparent_vtxs_filt = MC::const_vertices_match(evt, MC::hasNoParents).size();
-    const int num_nochild_vtxs_filt = MC::const_vertices_match(evt, MC::hasNoChildren).size();
+    int num_orphan_vtxs_filt = 0;
+    int num_noparent_vtxs_filt = 0;
+    int num_nochild_vtxs_filt = 0;
+    for (auto v = evt->vertices_begin(); v != evt->vertices_end(); ++v) {
+      if (MC::isDisconnected(*v)) num_orphan_vtxs_filt++;
+      if (MC::hasNoParents(*v)) num_noparent_vtxs_filt++;
+      if (MC::hasNoChildren(*v)) num_nochild_vtxs_filt++;
+    }
 
     // Write out the change in the number of particles
     ATH_MSG_INFO("Particles filtered: " << num_particles_orig << " -> " << num_particles_filt);

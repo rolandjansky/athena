@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _VrtSecInclusive_VrtSecInclusive_Utilities_H
@@ -35,9 +35,14 @@ namespace VKalVrtAthena {
 
 
   //____________________________________________________________________________________________________
-  template<class TrackT> void VrtSecInclusive::setIntersection( TrackT* trk, IntersectionPos *layer, const Trk::Perigee* per) {
-    const Trk::TrackParameters* Output (nullptr);
-
+  template<class TrackT>
+  void
+  VrtSecInclusive::setIntersection(TrackT* trk,
+                                   IntersectionPos* layer,
+                                   const Trk::Perigee* per)
+  {
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+    const Trk::TrackParameters* Output(nullptr);
 
     if( layer->bec() == IntersectionPos::barrel ) {
 
@@ -48,7 +53,7 @@ namespace VKalVrtAthena {
       Amg::Transform3D trnsf;
       trnsf.setIdentity();
       Trk::CylinderSurface surfBorder(trnsf, barrel->radius(), 300000.); //
-      Output = m_extrapolator->extrapolateDirectly(*per,surfBorder,Trk::anyDirection,true,Trk::pion);
+      Output = m_extrapolator->extrapolateDirectly(ctx, *per,surfBorder,Trk::anyDirection,true,Trk::pion);
 
       barrel->x()->push_back( Output? Output->position().x() : -10000 );
       barrel->y()->push_back( Output? Output->position().y() : -10000 );
@@ -68,7 +73,7 @@ namespace VKalVrtAthena {
       trnsf.setIdentity();
       trnsf.translate( Amg::Vector3D(0.,0.,endcap->zpos()) );
       Trk::DiscSurface surfBorder(trnsf, endcap->rmin(), endcap->rmax() );
-      Output = m_extrapolator->extrapolateDirectly(*per, surfBorder, Trk::anyDirection, true, Trk::pion);
+      Output = m_extrapolator->extrapolateDirectly(ctx, *per, surfBorder, Trk::anyDirection, true, Trk::pion);
 
       endcap->x()->push_back( Output? Output->position().x() : -10000 );
       endcap->y()->push_back( Output? Output->position().y() : -10000 );
@@ -85,7 +90,6 @@ namespace VKalVrtAthena {
 
     delete Output;
   }
-  
 
   //____________________________________________________________________________________________________
   template<class LeptonFlavor>

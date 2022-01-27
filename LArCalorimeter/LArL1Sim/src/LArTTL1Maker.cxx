@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // +======================================================================+
@@ -89,14 +89,6 @@ LArTTL1Maker::LArTTL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
   m_emHelper              = 0;
   m_hecHelper             = 0;
   m_fcalHelper            = 0;
-
-  m_EmTTL1ContainerName      = "LArTTL1EM";
-  m_HadTTL1ContainerName     = "LArTTL1HAD";
-
-  //m_EmBarrelHitContainerName = "LArHitEMB";
-  //m_EmEndCapHitContainerName = "LArHitEMEC";
-  //m_HecHitContainerName      = "LArHitHEC";
-  //m_ForWardHitContainerName  = "LArHitFCAL";
 
   m_NoiseOnOff               = true;
   m_PileUp                   = false;

@@ -9,8 +9,6 @@
 #include "L1TopoEvent/Heap.h"
 
 
-// TODO implement sizecheck lile in ClusterTOB
-
 namespace TCS {
    
    class GenericTOB;

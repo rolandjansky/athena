@@ -20,6 +20,8 @@
 
 namespace xAODMaker {
 
+   std::mutex TriggerMenuMetaDataTool::s_mutex;
+
    TriggerMenuMetaDataTool::TriggerMenuMetaDataTool( const std::string& name )
       : asg::AsgMetadataTool( name ),
         m_menu(), m_menuAux(), m_beginFileIncidentSeen( false ) {
@@ -34,12 +36,16 @@ namespace xAODMaker {
       declareProperty("OutputKey", m_outputKey = "TriggerMenu");
       declareProperty("InputKeyJSON_HLT", m_inputKeyJSON_HLT = "TriggerMenuJson_HLT");
       declareProperty("OutputKeyJSON_HLT", m_outputKeyJSON_HLT = "TriggerMenuJson_HLT");
+      declareProperty("InputKeyJSON_HLTMonitoring", m_inputKeyJSON_HLTMonitoring = "TriggerMenuJson_HLTMonitoring");
+      declareProperty("OutputKeyJSON_HLTMonitoring", m_outputKeyJSON_HLTMonitoring = "TriggerMenuJson_HLTMonitoring");
       declareProperty("InputKeyJSON_L1", m_inputKeyJSON_L1 = "TriggerMenuJson_L1");
       declareProperty("OutputKeyJSON_L1", m_outputKeyJSON_L1 = "TriggerMenuJson_L1");
       declareProperty("InputKeyJSON_HLTPS", m_inputKeyJSON_HLTPS = "TriggerMenuJson_HLTPS");
       declareProperty("OutputKeyJSON_HLTPS", m_outputKeyJSON_HLTPS = "TriggerMenuJson_HLTPS");
       declareProperty("InputKeyJSON_L1PS", m_inputKeyJSON_L1PS = "TriggerMenuJson_L1PS");
       declareProperty("OutputKeyJSON_L1PS", m_outputKeyJSON_L1PS = "TriggerMenuJson_L1PS");
+      declareProperty("InputKeyJSON_BG", m_inputKeyJSON_BG = "TriggerMenuJson_BG");
+      declareProperty("OutputKeyJSON_BG", m_outputKeyJSON_BG = "TriggerMenuJson_BG");
    }
 
    StatusCode TriggerMenuMetaDataTool::initialize() {
@@ -48,21 +54,21 @@ namespace xAODMaker {
       ATH_MSG_DEBUG( "Initialising TriggerMenuMetaDataTool" );
 
 
-
-
       // Reset the internal variable(s):
       m_menu.reset();
       m_menuAux.reset();
       m_menuJSON_hlt.reset();
       m_menuJSON_hltAux.reset();
+      m_menuJSON_hltmonitoring.reset();
+      m_menuJSON_hltmonitoringAux.reset();
       m_menuJSON_l1.reset();
       m_menuJSON_l1Aux.reset();
       m_menuJSON_hltps.reset();
       m_menuJSON_hltpsAux.reset();
       m_menuJSON_l1ps.reset();
       m_menuJSON_l1psAux.reset();
-      // m_menuJSON_bg.reset(); // TODO
-      // m_menuJSON_bgAux.reset();
+      m_menuJSON_bg.reset();
+      m_menuJSON_bgAux.reset();
 
       m_beginFileIncidentSeen = false;
 
@@ -94,20 +100,28 @@ namespace xAODMaker {
       const xAOD::TriggerMenuContainer* input = nullptr;
       ATH_CHECK( inputMetaStore()->retrieve( input, m_inputKey ) );
 
-      // Create an output container if it doesn't exist yet:
+      // Create an internal container if it doesn't exist yet:
       if( ( ! m_menu.get() ) && ( ! m_menuAux.get() ) ) {
-         ATH_MSG_DEBUG( "Creating output container" );
+         ATH_MSG_DEBUG( "Creating internal container" );
          m_menu = std::make_unique<xAOD::TriggerMenuContainer>( );
          m_menuAux = std::make_unique<xAOD::TriggerMenuAuxContainer>( );
          m_menu->setStore( m_menuAux.get() );
       }
 
-      // Loop over the configurations of the input file:
-      for( const xAOD::TriggerMenu* menu : *input ) {
+      // Copy (and de-duplicate) from the input collection to the internal collection
+      ATH_CHECK( doCopyxAODTriggerMenu(input, m_menu.get()) );
 
-         // Check if this configuration is already in the output container:
+      // Return gracefully:
+      return StatusCode::SUCCESS;
+   }
+
+   StatusCode TriggerMenuMetaDataTool::doCopyxAODTriggerMenu(const xAOD::TriggerMenuContainer* copyFrom, xAOD::TriggerMenuContainer* copyTo) {
+      // Loop over the configurations of the copyFrom collection:
+      for( const xAOD::TriggerMenu* menu : *copyFrom ) {
+
+         // Check if this configuration is already in the copyTo container:
          bool exists = false;
-         for( const xAOD::TriggerMenu* existing : *m_menu ) {
+         for( const xAOD::TriggerMenu* existing : *copyTo ) {
             if( ( existing->smk() == menu->smk() ) &&
                 ( existing->l1psk() == menu->l1psk() ) &&
                 ( existing->hltpsk() == menu->hltpsk() ) ) {
@@ -119,31 +133,31 @@ namespace xAODMaker {
             continue;
          }
 
-         // If it's a new configuration, put it into the output container:
+         // If it's a new configuration, put it into the copyTo container:
          ATH_MSG_VERBOSE( "Copying configuration with SMK: "
                           << menu->smk() << ", L1PSK: " << menu->l1psk()
                           << ", HLTPSK: " << menu->hltpsk() );
          xAOD::TriggerMenu* out = new xAOD::TriggerMenu();
-         m_menu->push_back( out );
+         copyTo->push_back( out );
          *out = *menu;
       }
-
-      // Return gracefully:
       return StatusCode::SUCCESS;
    }
 
    StatusCode TriggerMenuMetaDataTool::checkxAODTriggerMenuJson() {
-      ATH_CHECK( checkCopyJSON(m_inputKeyJSON_HLT, m_menuJSON_hlt, m_menuJSON_hltAux) );
-      ATH_CHECK( checkCopyJSON(m_inputKeyJSON_L1, m_menuJSON_l1, m_menuJSON_l1Aux) );
-      ATH_CHECK( checkCopyJSON(m_inputKeyJSON_HLTPS, m_menuJSON_hltps, m_menuJSON_hltpsAux) );
-      ATH_CHECK( checkCopyJSON(m_inputKeyJSON_L1PS, m_menuJSON_l1ps, m_menuJSON_l1psAux) );
-      // ATH_CHECK( checkCopyJSON(m_inputKeyJSON_BG, m_menuJSON_bg, m_menuJSON_bgAux) );
+      ATH_CHECK( checkCopyJson(m_inputKeyJSON_HLT, m_menuJSON_hlt, m_menuJSON_hltAux) );
+      ATH_CHECK( checkCopyJson(m_inputKeyJSON_HLTMonitoring, m_menuJSON_hltmonitoring, m_menuJSON_hltmonitoringAux) );
+      ATH_CHECK( checkCopyJson(m_inputKeyJSON_L1, m_menuJSON_l1, m_menuJSON_l1Aux) );
+      ATH_CHECK( checkCopyJson(m_inputKeyJSON_HLTPS, m_menuJSON_hltps, m_menuJSON_hltpsAux) );
+      ATH_CHECK( checkCopyJson(m_inputKeyJSON_L1PS, m_menuJSON_l1ps, m_menuJSON_l1psAux) );
+      ATH_CHECK( checkCopyJson(m_inputKeyJSON_BG, m_menuJSON_bg, m_menuJSON_bgAux) );
       return StatusCode::SUCCESS;
    }
 
-   StatusCode TriggerMenuMetaDataTool::checkCopyJSON(const std::string& inputMetaSGKey,
-      std::unique_ptr< xAOD::TriggerMenuJsonContainer >& outContainer,
-      std::unique_ptr< xAOD::TriggerMenuJsonAuxContainer >& outAuxContainer) {
+   StatusCode TriggerMenuMetaDataTool::checkCopyJson(const std::string& inputMetaSGKey,
+      std::unique_ptr< xAOD::TriggerMenuJsonContainer >& internalContainer,
+      std::unique_ptr< xAOD::TriggerMenuJsonAuxContainer >& internalAuxContainer)
+   {
 
       if( !inputMetaStore()->contains<xAOD::TriggerMenuJsonContainer>(inputMetaSGKey)) {
          return StatusCode::SUCCESS;
@@ -152,38 +166,46 @@ namespace xAODMaker {
       const xAOD::TriggerMenuJsonContainer* input = nullptr;
       if (inputMetaStore()->retrieve( input, inputMetaSGKey ).isSuccess() ) {
 
-         // Create an output container if it doesn't exist yet:
-         if( ( ! outContainer.get() ) && ( ! outAuxContainer.get() ) ) {
-            ATH_MSG_DEBUG( "Creating output container" );
-            outContainer = std::make_unique<xAOD::TriggerMenuJsonContainer>( );
-            outAuxContainer = std::make_unique<xAOD::TriggerMenuJsonAuxContainer>( );
-            outContainer->setStore( outAuxContainer.get() );
+         // Create an internal container if it doesn't exist yet:
+         if( ( ! internalContainer.get() ) && ( ! internalAuxContainer.get() ) ) {
+            ATH_MSG_DEBUG( "Creating internal container" );
+            internalContainer = std::make_unique<xAOD::TriggerMenuJsonContainer>( );
+            internalAuxContainer = std::make_unique<xAOD::TriggerMenuJsonAuxContainer>( );
+            internalContainer->setStore( internalAuxContainer.get() );
          }
 
-         // Loop over the configurations of the input file:
-         for( const xAOD::TriggerMenuJson* menuJson : *input ) {
-            // Check if this configuration is already in the output container:
-            bool exists = false;
-            for( const xAOD::TriggerMenuJson* existing : *outContainer ) {
-               if (existing->key() == menuJson->key()) {
-                  exists = true;
-                  break;
-               }
-            }
-            if( exists ) {
-               continue;
-            }
-
-            // If it's a new configuration, put it into the output container:
-            ATH_MSG_VERBOSE( "Copying " << inputMetaSGKey << " configuration with Key: " << menuJson->key() );
-            xAOD::TriggerMenuJson* out = new xAOD::TriggerMenuJson();
-            outContainer->push_back( out );
-            *out = *menuJson;
-         }
+         // Copy (and de-duplicate) from the input collection to the internal collection
+         ATH_CHECK( doCopyxAODTriggerMenuJson(inputMetaSGKey, input, internalContainer.get()) );
       }
       return StatusCode::SUCCESS;
    }
 
+   StatusCode TriggerMenuMetaDataTool::doCopyxAODTriggerMenuJson(const std::string& inputMetaSGKey,
+      const xAOD::TriggerMenuJsonContainer* copyFrom,
+      xAOD::TriggerMenuJsonContainer* copyTo)
+   {
+      // Loop over the configurations of the copyFrom input:
+      for( const xAOD::TriggerMenuJson* menuJson : *copyFrom ) {
+         // Check if this configuration is already in the copyTo container:
+         bool exists = false;
+         for( const xAOD::TriggerMenuJson* existing : *copyTo ) {
+            if (existing->key() == menuJson->key()) {
+               exists = true;
+               break;
+            }
+         }
+         if( exists ) {
+            continue;
+         }
+
+         // If it's a new configuration, put it into the copyTo container:
+         ATH_MSG_VERBOSE( "Copying " << inputMetaSGKey << " configuration with Key: " << menuJson->key() );
+         xAOD::TriggerMenuJson* out = new xAOD::TriggerMenuJson();
+         copyTo->push_back( out );
+         *out = *menuJson;
+      }
+      return StatusCode::SUCCESS;
+   }
 
    StatusCode TriggerMenuMetaDataTool::beginEvent() {
 
@@ -199,6 +221,10 @@ namespace xAODMaker {
    }
 
    StatusCode TriggerMenuMetaDataTool::metaDataStop() {
+      // Note: Copying into a given collection in the output store should only be done
+      // by a single thread at a time.
+      std::scoped_lock lock(s_mutex);
+
       ATH_CHECK( endxAODTriggerMenu() );
       ATH_CHECK( endxAODTriggerMenuJson() );
       return StatusCode::SUCCESS;
@@ -206,22 +232,29 @@ namespace xAODMaker {
 
    StatusCode TriggerMenuMetaDataTool::endxAODTriggerMenu() {
       // The output may already have trigger configuration metadata in it.
-      // For instance from TrigConf::xAODMenuWriter. In this case let that
-      // object take precedence.
-      if( outputMetaStore()->contains< xAOD::TriggerMenuContainer >(
-                                                               m_outputKey ) ) {
-         ATH_MSG_DEBUG( "xAOD::TriggerMenuContainer already in the output" );
+      // For instance from TrigConf::xAODMenuWriter or other instances of the
+      // TriggerMenuMetaDataTool in MP mode. Merge into the output
+
+      // If we don't have an internal store then nothing to do
+      if( ( ! m_menu.get() ) && ( ! m_menuAux.get() ) ) {
+         ATH_MSG_DEBUG( "No internal xAOD::TriggerMenu store to save/merge to output. (Expected in Run 3)." );
          return StatusCode::SUCCESS;
       }
 
-      // Record the trigger configuration metadata, if any was found in the
-      // processed input files.
-      if( m_menu.get() && m_menuAux.get() ) {
-         ATH_MSG_DEBUG( "Recording trigger configuration metadata" );
+      if( not outputMetaStore()->contains<xAOD::TriggerMenuContainer>(m_outputKey) ) {
+         // No output yet - hand over ownership of our internal store
+         ATH_MSG_DEBUG( "Recording xAOD::TriggerMenu trigger configuration metadata container with " << m_menu->size() << " entries." );
          ATH_CHECK( outputMetaStore()->record( m_menu.release(),
                                                m_outputKey ) );
          ATH_CHECK( outputMetaStore()->record( m_menuAux.release(),
                                                m_outputKey + "Aux." ) );
+      } else {
+         // Merge into the existing output store
+         ATH_MSG_DEBUG( "Merging into existing output xAOD::TriggerMenu configuration metadata container" );
+         xAOD::TriggerMenuContainer* output = nullptr;
+         ATH_CHECK( outputMetaStore()->retrieve( output, m_outputKey ) );
+         // Copy (and de-duplicate) from the internal collection to the output collection
+         ATH_CHECK( doCopyxAODTriggerMenu(m_menu.get(), output) );
       }
 
       // Return gracefully:
@@ -229,31 +262,46 @@ namespace xAODMaker {
    }
 
    StatusCode TriggerMenuMetaDataTool::endxAODTriggerMenuJson() {
-      ATH_CHECK( checkExportJSON(m_outputKeyJSON_HLT, m_menuJSON_hlt, m_menuJSON_hltAux) );
-      ATH_CHECK( checkExportJSON(m_outputKeyJSON_L1, m_menuJSON_l1, m_menuJSON_l1Aux) );
-      ATH_CHECK( checkExportJSON(m_outputKeyJSON_HLTPS, m_menuJSON_hltps, m_menuJSON_hltpsAux) );
-      ATH_CHECK( checkExportJSON(m_outputKeyJSON_L1PS, m_menuJSON_l1ps, m_menuJSON_l1psAux) );
-      // ATH_CHECK( checkExportJSON(m_outputKeyJSON_BG, m_menuJSON_bg, m_menuJSON_bgAux) );
+      ATH_CHECK( checkExportJson(m_outputKeyJSON_HLT, m_menuJSON_hlt, m_menuJSON_hltAux) );
+      ATH_CHECK( checkExportJson(m_outputKeyJSON_HLTMonitoring, m_menuJSON_hltmonitoring, m_menuJSON_hltmonitoringAux) );
+      ATH_CHECK( checkExportJson(m_outputKeyJSON_L1, m_menuJSON_l1, m_menuJSON_l1Aux) );
+      ATH_CHECK( checkExportJson(m_outputKeyJSON_HLTPS, m_menuJSON_hltps, m_menuJSON_hltpsAux) );
+      ATH_CHECK( checkExportJson(m_outputKeyJSON_L1PS, m_menuJSON_l1ps, m_menuJSON_l1psAux) );
+      ATH_CHECK( checkExportJson(m_outputKeyJSON_BG, m_menuJSON_bg, m_menuJSON_bgAux) );
       return StatusCode::SUCCESS;
    }
 
-   StatusCode TriggerMenuMetaDataTool::checkExportJSON(const std::string& outputMetaSGKey,
-      std::unique_ptr< xAOD::TriggerMenuJsonContainer >& outContainer,
-      std::unique_ptr< xAOD::TriggerMenuJsonAuxContainer >& outAuxContainer) {
+   StatusCode TriggerMenuMetaDataTool::checkExportJson(const std::string& outputMetaSGKey,
+      std::unique_ptr< xAOD::TriggerMenuJsonContainer >& internalContainer,
+      std::unique_ptr< xAOD::TriggerMenuJsonAuxContainer >& internalAuxContainer)
+   {
 
-      if( outputMetaStore()->contains< xAOD::TriggerMenuJsonContainer >( outputMetaSGKey ) ) {
-         ATH_MSG_DEBUG( "xAOD::TriggerMenuJsonContainer already in the output" );
+      // The output may already have trigger configuration metadata in it.
+      // For instance from TrigConf::xAODMenuWriterMT or other instances of the
+      // TriggerMenuMetaDataTool in MP mode. Merge into the output
+
+      // If we don't have an internal store then nothing to do
+      if( ( ! internalContainer.get() ) && ( ! internalAuxContainer.get() ) ) {
+         ATH_MSG_DEBUG( "No internal xAOD::TriggerJsonMenu " << outputMetaSGKey 
+            << " store to save/merge to output. (Expected for Run 2 MC, release 21 data, or the BG data as this is not added as of Dec 21)." );
          return StatusCode::SUCCESS;
       }
 
-      // Record the trigger configuration metadata, if any was found in the
-      // processed input files.
-      if( outContainer.get() && outAuxContainer.get() ) {
-         ATH_MSG_DEBUG( "Recording " << outputMetaSGKey << " trigger configuration metadata" );
-         ATH_CHECK( outputMetaStore()->record( outContainer.release(),
+      if( not outputMetaStore()->contains< xAOD::TriggerMenuJsonContainer >( outputMetaSGKey ) ) {
+         // No output yet - hand over ownership of our internal store
+         ATH_MSG_DEBUG( "Recording " << outputMetaSGKey << " xAOD::TriggerMenuJson trigger configuration metadata container with " 
+            << internalContainer->size() << " entries" );
+         ATH_CHECK( outputMetaStore()->record( internalContainer.release(),
                                                outputMetaSGKey ) );
-         ATH_CHECK( outputMetaStore()->record( outAuxContainer.release(),
+         ATH_CHECK( outputMetaStore()->record( internalAuxContainer.release(),
                                                outputMetaSGKey + "Aux." ) );
+      } else {
+         // Merge into the existing output store
+         ATH_MSG_DEBUG( "Merging into existing " << outputMetaSGKey << " output xAOD::TriggerMenuJson configuration metadata container" );
+         xAOD::TriggerMenuJsonContainer* output = nullptr;
+         ATH_CHECK( outputMetaStore()->retrieve( output, outputMetaSGKey ) );
+         // Copy (and de-duplicate) from the internal collection to the output collection
+         ATH_CHECK( doCopyxAODTriggerMenuJson(outputMetaSGKey, internalContainer.get(), output) );
       }
 
       // Return gracefully:

@@ -326,6 +326,11 @@ DbStatus DbStorageSvc::read( const FileDescriptor& fDesc,
       if( dbH.open(m_domH, fDesc.PFN(), fid, mode).isSuccess() ) {
          if( dbH.read( token, shape, object).isSuccess() ) {
             return Success;
+         } else {
+            DbPrint log( name() );
+            log << DbPrintLvl::Error
+                << "Could not read object: " << token.toString() << DbPrint::endmsg;
+              return Error;
          }
       }
       DbPrint log( name() );

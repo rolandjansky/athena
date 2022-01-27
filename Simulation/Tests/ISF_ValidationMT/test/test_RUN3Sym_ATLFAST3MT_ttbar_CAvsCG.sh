@@ -1,6 +1,7 @@
 #!/bin/sh
 #
 # art-description: MC21-style simulation using ATLFAST3MT
+# art-include: master/Athena
 # art-type: grid
 # art-output: test.*.HITS.pool.root
 # art-output: log.*
@@ -28,7 +29,7 @@ unset ATHENA_CORE_NUMBER
 
 rc=$?
 mv log.EVNTtoHITS log.EVNTtoHITS.CA
-echo  "art-result: $rc simulation_CA"
+echo  "art-result: $rc simCA"
 status=$rc
 
 rc2=-9999
@@ -41,7 +42,7 @@ then
         --simulator 'ATLFAST3MT' \
         --postInclude 'default:PyJobTransforms/UseFrontier.py' \
         --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' \
-        --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True;import InDetRecExample.TrackingCommon as kludgeTheConfig;kludgeTheConfig.use_tracking_geometry_cond_alg=False' \
+        --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True;' \
         --DataRunNumber '330000' \
         --geometryVersion 'default:ATLAS-R3S-2021-01-00-02_VALIDATION' \
         --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1" \
@@ -57,7 +58,7 @@ then
         --simulator 'ATLFAST3MT' \
         --postInclude 'default:PyJobTransforms/UseFrontier.py' \
         --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' \
-        --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True;import InDetRecExample.TrackingCommon as kludgeTheConfig;kludgeTheConfig.use_tracking_geometry_cond_alg=False' \
+        --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' \
         --DataRunNumber '330000' \
         --geometryVersion 'default:ATLAS-R3S-2021-01-00-02_VALIDATION' \
         --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1" \
@@ -69,7 +70,7 @@ then
     status=$rc2
     mv log.EVNTtoHITS log.EVNTtoHITS.CG
 fi
-echo "art-result: $rc1 simulation CG"
+echo "art-result: $rc2 simOLD"
 
 rc3=-9999
 if [ $rc2 -eq 0 ]
@@ -83,6 +84,17 @@ then
   status=$rc3
 fi
 
-echo "art-result: $rc3 comparison"
+echo "art-result: $rc3 OLDvsCA"
+
+rc4=-9999
+if [ $rc2 -eq 0 ]
+then
+    ArtPackage=$1
+    ArtJobName=$2
+    art.py compare grid --entries 4 ${ArtPackage} ${ArtJobName} --mode=semi-detailed --file=test.CG.HITS.pool.root
+    rc4=$?
+    status=$rc4
+fi
+echo  "art-result: $rc4 regression"
 
 exit $status

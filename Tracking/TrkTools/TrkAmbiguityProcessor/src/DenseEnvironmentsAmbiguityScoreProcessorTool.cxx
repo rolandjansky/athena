@@ -9,7 +9,6 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkTrack/TrackInfo.h"
-#include "InDetRecToolInterfaces/IPixelClusterSplitProbTool.h"
 #include "TrkTrackSummary/TrackSummary.h"
 
 #include <map>
@@ -27,15 +26,11 @@ Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::DenseEnvironmentsAmbiguitySco
                                 const IInterface*  p )
   :
   AthAlgTool(t,n,p),
-  m_scoringTool("Trk::TrackScoringTool/TrackScoringTool"), 
-  m_splitProbTool("InDet::NnPixelClusterSplitProbTool/NnPixelClusterSplitProbTool"),
   m_etaBounds{0.8, 1.6, 2.5,4.0},
   m_stat(m_etaBounds)
 {
 
   declareInterface<ITrackAmbiguityScoreProcessorTool>(this);
-  declareProperty("ScoringTool"          , m_scoringTool);
-  declareProperty("SplitProbTool"        , m_splitProbTool);
   declareProperty("SplitClusterMap_old"  , m_splitClusterMapKey_last);
   declareProperty("SplitClusterMap_new"  , m_splitClusterMapKey);
   declareProperty("sharedProbCut"        , m_sharedProbCut           = 0.3);

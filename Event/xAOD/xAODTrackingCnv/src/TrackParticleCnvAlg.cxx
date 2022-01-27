@@ -16,17 +16,20 @@
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"
 #include "TrkToolInterfaces/ITrackParticleCreatorTool.h"
 
+#include "AthenaMonitoringKernel/Monitored.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
+
 // Local include(s):
 #include "TrackParticleCnvAlg.h"
 #include "xAODTrackingCnv/IRecTrackParticleContainerCnvTool.h"
 #include "xAODTrackingCnv/ITrackCollectionCnvTool.h"
+
 
 namespace xAODMaker {
 TrackParticleCnvAlg::TrackParticleCnvAlg(const std::string& name,
                                          ISvcLocator* svcLoc)
   : AthReentrantAlgorithm(name, svcLoc)
   , m_particleCreator("Trk::TrackParticleCreatorTool/TrackParticleCreatorTool")
-  , m_truthClassifier("MCTruthClassifier/MCTruthClassifier")
   , m_TrackCollectionCnvTool(
       "xAODMaker::TrackCollectionCnvTool/TrackCollectionCnvTool",
       this)
@@ -42,7 +45,6 @@ TrackParticleCnvAlg::TrackParticleCnvAlg(const std::string& name,
   , m_aodTruth("")
   , m_trackTruth("")
 {
-  declareProperty("MCTruthClassifier", m_truthClassifier);
   declareProperty("AODContainerName", m_aod);
   declareProperty("xAODContainerName", m_xaodTrackParticlesout);
   declareProperty("TrackParticleCreator", m_particleCreator);
@@ -58,7 +60,6 @@ TrackParticleCnvAlg::TrackParticleCnvAlg(const std::string& name,
   declareProperty("RecTrackParticleContainerCnvTool",
                   m_RecTrackParticleContainerCnvTool);
   declareProperty("DoMonitoring", m_doMonitoring = false);
-  declareProperty("TrackMonTool", m_trackMonitoringTool);
   declareProperty("AugmentObservedTracks", m_augmentObservedTracks = false, "augment observed tracks");
   declareProperty("TracksMapName", m_tracksMap, "name of observed tracks map saved in store");
 }
@@ -96,8 +97,9 @@ TrackParticleCnvAlg::initialize()
     m_aodTruth.initialize(m_addTruthLink && m_convertAODTrackParticles));
   ATH_CHECK(m_trackTruth.initialize(m_addTruthLink && m_convertTracks));
 
-  // Retrieve monitoring tool if provided
+  // Retrieve monitoring tools if provided
   ATH_CHECK(m_trackMonitoringTool.retrieve(DisableTool{ !m_doMonitoring }));
+  ATH_CHECK(m_monTool.retrieve(DisableTool{ !m_doMonitoring }));
 
   ATH_CHECK(m_tracksMap.initialize(m_augmentObservedTracks));
 
@@ -114,8 +116,11 @@ TrackParticleCnvAlg::execute(const EventContext& ctx) const
   const xAODTruthParticleLinkVector* truthLinks = nullptr;
   const TrackParticleTruthCollection* aodTruth = nullptr;
   const TrackTruthCollection* trackTruth = nullptr;
-  const ObservedTracksMap* tracksMap = nullptr;
+  const ObservedTrackMap* tracksMap = nullptr;
 
+  //timer object for total execution time
+  auto mnt_timer_Total  = Monitored::Timer<std::chrono::milliseconds>("TIME_Total");
+  
   // Retrieve the AOD particles:
   if (m_convertAODTrackParticles) {
     SG::ReadHandle<Rec::TrackParticleContainer> rh_aod(m_aod, ctx);
@@ -177,14 +182,14 @@ TrackParticleCnvAlg::execute(const EventContext& ctx) const
 
     // Augment track particles with information from observer tool
     if (m_augmentObservedTracks){
-      SG::ReadHandle<ObservedTracksMap> rh_tracksMap(m_tracksMap, ctx);
+      SG::ReadHandle<ObservedTrackMap> rh_tracksMap(m_tracksMap, ctx);
       if (!rh_tracksMap.isValid()) {
         ATH_MSG_ERROR(m_tracksMap.key() << " not found");
         return StatusCode::FAILURE;
       }
       else {
         tracksMap = rh_tracksMap.cptr();
-        ATH_MSG_VERBOSE("Got ObservedTracksMap with key " << m_tracksMap.key()
+        ATH_MSG_VERBOSE("Got ObservedTrackMap with key " << m_tracksMap.key()
                                                         << " found.");
       }
 
@@ -212,6 +217,9 @@ TrackParticleCnvAlg::execute(const EventContext& ctx) const
             truthLinks);
   }
 
+  //extra scope needed to trigger the monitoring
+  {auto monTime = Monitored::Group(m_monTool, mnt_timer_Total);}
+  
   return StatusCode::SUCCESS;
 }
 
@@ -266,7 +274,7 @@ TrackParticleCnvAlg::convert(
   CONVTOOL& conv_tool,
   SG::WriteHandle<xAOD::TrackParticleContainer>& xaod,
   const xAODTruthParticleLinkVector* truthLinkVec,
-  const ObservedTracksMap* obs_track_map /*=0*/) const
+  const ObservedTrackMap* obs_track_map /*=0*/) const
 {
   // Create the xAOD container and its auxiliary store:
 

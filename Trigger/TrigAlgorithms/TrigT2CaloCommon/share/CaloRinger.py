@@ -21,7 +21,6 @@ topSequence = AlgSequence()
 from AthenaCommon.CFElements import stepSeq,seqOR,findAlgorithm
 from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
 from AthenaCommon.Constants import DEBUG
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 topSequence.remove( findAlgorithm(topSequence, "HLTSeeding") )
 from HLTSeeding.HLTSeedingConf import HLTSeedingNoCtpForTesting

@@ -178,7 +178,7 @@ void CaloSwApplyWgts_g3::makeCorrection (const Context& /*myctx*/,
 
 }
 
-float CaloSwApplyWgts_g3::GetWgt(int layer, float aeta) const
+float CaloSwApplyWgts_g3::GetWgt(int layer, float aeta) 
 {
   if (aeta < m_table_eta[0] || aeta > m_table_eta[s_numEtaBins])
     return m_table_p[layer%4][0];

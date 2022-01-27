@@ -52,9 +52,8 @@ namespace LVL1 {
       StatusCode retrieveHardwareDecision();
 
    private:
-      void WriteEDM(std::unique_ptr<xAOD::L1TopoSimResultsContainer> &container, std::string name, unsigned int clock, uint32_t word);
-      void WriteEDM(std::unique_ptr<xAOD::L1TopoSimResultsContainer> &container, std::string name, unsigned int clock, uint64_t word);
-      void WriteEDM(std::unique_ptr<xAOD::L1TopoSimResultsContainer> &container, std::string name, unsigned int clock, std::bitset<128> word);
+      void WriteEDM(std::unique_ptr<xAOD::L1TopoSimResultsContainer> &container, const std::string &name, unsigned int clock, uint32_t word);
+      void WriteEDM(std::unique_ptr<xAOD::L1TopoSimResultsContainer> &container, const std::string &name, unsigned int clock, uint64_t word);
 
       std::unique_ptr<TCS::TopoSteering>  m_topoSteering; //!< the topo steering
       std::unique_ptr<LVL1::PeriodicScaler> m_scaler {nullptr}; //! prescale decision tool

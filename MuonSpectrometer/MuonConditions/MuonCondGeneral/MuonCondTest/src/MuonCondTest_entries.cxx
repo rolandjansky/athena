@@ -8,6 +8,7 @@
 #include "MuonCondTest/CSCConditionsTestAlgMT.h"
 #include "MuonCondTest/RPCStatusTestAlg.h"
 #include "MuonCondTest/MuonConditionsHistoSummary.h"
+#include "MuonCondTest/NswCondTestAlg.h"
 
 DECLARE_COMPONENT( AlignCondAthTest )
 DECLARE_COMPONENT( MuonConditionsTestAlg )
@@ -16,3 +17,4 @@ DECLARE_COMPONENT( MDTConditionsTestAlgMT )
 DECLARE_COMPONENT( CSCConditionsTestAlgMT )
 DECLARE_COMPONENT( RPCStatusTestAlg )
 DECLARE_COMPONENT( MuonConditionsHistoSummary )
+DECLARE_COMPONENT( NswCondTestAlg )

@@ -18,12 +18,13 @@ namespace Muon {
             if (!pars || pars->empty()) { return 0; }
 
             bool firstOk = onlyUseMeasured ? pars->front()->covariance() != 0 : true;
+	    bool lastOk = onlyUseMeasured ? pars->back()->covariance() !=0 : true;
 
             double distFront = (pars->front()->position() - pos).dot(pars->front()->momentum().unit());
             if (distFront > 0. && firstOk) { return pars->front()->clone(); }
 
             double distBack = (pars->back()->position() - pos).dot(pars->back()->momentum().unit());
-            if (distBack < 0. && firstOk) { return pars->back()->clone(); }
+            if (distBack < 0. && lastOk) { return pars->back()->clone(); }
 
             bool startFront = fabs(distFront) < distBack;
 

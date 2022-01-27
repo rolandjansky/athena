@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 #*****************************************************************
@@ -14,14 +14,35 @@ from os import system, popen
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'jobOptions_TileTBMon.py' )
 
+MaxEnergySetupFile = "/afs/cern.ch/user/t/tiledemo/public/efmon22/MaxEnergyInMonitoring.txt"
 
 MonitorOutput = 'Tile'
 TileDCS = False
+
+if 'PublishName' in dir() and os.access( MaxEnergySetupFile, os.R_OK ):
+    include( MaxEnergySetupFile )
+    if 'MaximumChannelEnergy' in dir():
+        MaxEnergy = MaximumChannelEnergy
+
+    if 'MaximumTotalEnergy' in dir():
+        MaxTotalEnergy = MaximumTotalEnergy
+
+    log.info("Range in energy monitoring histograms are set up from file: %s", MaxEnergySetupFile)
+else:
+    log.info("No %s found => Default range will be used for energy monitoring histograms!", MaxEnergySetupFile)
 
 if not 'MaxEnergy' in dir():
     MaxEnergy = 60.0
 if not 'MaxTotalEnergy' in dir():
     MaxTotalEnergy = 100.0
+
+if not 'CellEnergyThreshold' in dir():
+    if not 'beam_energy' in dir():
+        CellEnergyThreshold = 0.1
+    else:
+        CellEnergyThreshold = beam_energy * 0.01
+
+log.info("MaxEnergy = %f, MaxTotalEnergy = %f", MaxEnergy, MaxTotalEnergy)
 
 if not 'TestOnline' in dir():
     TestOnline = False
@@ -31,11 +52,19 @@ if TestOnline:
     storeHisto = True;
 
 if not 'TileFELIX' in dir():
-    if 'PublishName' in dir():
-        TileFELIX = True
-    else:
         TileFELIX = False
 
+if not 'TileTBperiod' in dir():
+    TileTBperiod = 2015 if (RunNumber/100000 == 5) else 2016
+
+    if TileFELIX:
+        TileTBperiod = 2017
+
+    if RunNumber > 800000:
+        TileTBperiod += 2
+
+    if RunNumber >= 2110000:
+        TileTBperiod = 2021
 
 if not 'UseDemoCabling' in dir():
     UseDemoCabling = 2016
@@ -94,17 +123,21 @@ def FindFile(path, runinput):
             files.append(f)
 
     elif path.startswith("/eos") :
-        for f in popen('eos ls %(path)s | grep %(run)s' % {'path': path, 'run':run }):
+        for f in popen('xrdfs eosatlas ls %(path)s | grep -v "#" | sed "s|^.*/||" | grep %(run)s' % {'path': path, 'run':run }):
             files.append(f)
 
     else:
         for f in popen('ls  %(path)s | grep %(run)s' % {'path': path, 'run':run }):
             files.append(f)
             
-
+    files=list(dict.fromkeys(files))
     for nn in range(len(files)):
         temp = files[nn].split('\n')
-        fullname.append(path + '/' + temp[0])
+        name=path + '/' + temp[0]
+        if name not in fullname:
+            fullname.append(name)
+        else:
+            print(name,"allready present in fullname list")
 
     return [fullname,run]
 
@@ -254,23 +287,43 @@ ByteStreamCnvSvc.ROD2ROBmap = [
     "0x3",   "0x500000",
     "0x200", "0x0",
     "0x201", "0x0",
-    "0x402", "0x0",
     ]
 
-if RunNumber >= 600000 and RunNumber < 611300:
+if RunNumber < 600000:
+    ByteStreamCnvSvc.ROD2ROBmap += ["0x402", "0x0"]
+elif RunNumber >= 600000 and RunNumber < 611300:
     ByteStreamCnvSvc.ROD2ROBmap += ["0x101", "0x1"]
-elif RunNumber >= 611300:
+    ByteStreamCnvSvc.ROD2ROBmap += ["0x402", "0x0"]
+elif RunNumber >= 611300 and RunNumber < 800000:
     ByteStreamCnvSvc.ROD2ROBmap += ["0x100", "0x1"]
+    ByteStreamCnvSvc.ROD2ROBmap += ["0x402", "0x0"]
+elif RunNumber >= 800000 and RunNumber < 2110000:
+    ByteStreamCnvSvc.ROD2ROBmap += ["0x100", "0x1"]
+    ByteStreamCnvSvc.ROD2ROBmap += ["0x101", "0x1"]
+    ByteStreamCnvSvc.ROD2ROBmap += ["0x402", "0x10"]
+    if UseDemoCabling == 2016:
+        UseDemoCabling = 2018
+    if UseDemoCabling == 2017:
+        UseDemoCabling = 2019
+elif RunNumber >= 2110000:
+    ByteStreamCnvSvc.ROD2ROBmap += ["0x100", "0x1"]
+    ByteStreamCnvSvc.ROD2ROBmap += ["0x101", "0x1"]
+    ByteStreamCnvSvc.ROD2ROBmap += ["0x200", "0x0"]
+    ByteStreamCnvSvc.ROD2ROBmap += ["0x201", "0x0"]
+    ByteStreamCnvSvc.ROD2ROBmap += ["0x402", "0x10"]
+
 if TileFELIX:
     ByteStreamCnvSvc.ROD2ROBmap += ["0x203", "0x500006"]
 
-
-TileCorrectTime = False    
-doTileOptATLAS = False
-
-if TileMonoRun or TileCisRun:
+if 'PublishName' in dir():
+    doTileOptATLAS = False
     doTileOpt2 = False
     doTileFit = True
+
+if not 'TileCorrectTime' in dir():
+    TileCorrectTime = False
+if not 'doTileOptATLAS' in dir():
+    doTileOptATLAS = False
 
 if TileFELIX:
     doTileOpt2 = False
@@ -332,29 +385,44 @@ if doMonitoring:
                                            , CellsContainerID  = '' # used to check if the current event is collision
                                            , MBTSCellContainerID = '' # used to check if the current event is collision
                                            # Masked format: 'module gain channel,channel' (channels are separated by comma)
-                                           , Masked = ['LBC02 0 46', 'LBC02 1 46', 
-                                                       'LBC04 0 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47',
+                                           , Masked = ['LBC04 0 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47',
                                                        'LBC04 1 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47']
                                            , CellContainer       = CellContainerMonitored
-                                           , MaxTotalEnergy      = MaxTotalEnergy)
+                                           , MaxTotalEnergy      = MaxTotalEnergy
+                                           , CellEnergyThreshold = CellEnergyThreshold)
 
 
     topSequence.TileTBMonManager.AthenaMonTools += [ TileTBMonTool ]
     
     TileTBBeamMonTool = CfgMgr.TileTBBeamMonTool ( name                  = 'TileTBBeamMonTool'
                                                    , histoPathBase       = '/Tile/TestBeam/BeamElements'
+                                                   , TBperiod = TileTBperiod
                                                    # , doOnline            = athenaCommonFlags.isOnline()
                                                    , CellsContainerID  = '' # used to check if the current event is collision
                                                    , MBTSCellContainerID = '' # used to check if the current event is collision
                                                    , CutEnergyMin = 40
-                                                   , CutEnergyMax = 70 
-                                                   , CellContainer       = CellContainerMonitored );
+                                                   , CutEnergyMax = 70
+                                                   , BC1HorizontalOffset = -0.156736
+                                                   , BC1HorizontalSlope = -0.178455
+                                                   , BC1VerticalOffset = -0.452977
+                                                   , BC1VerticalSlope = -0.17734
+                                                   , BC2HorizontalOffset = 2.88152
+                                                   , BC2HorizontalSlope = -0.187192
+                                                   , BC2VerticalOffset = -1.79832
+                                                   , BC2VerticalSlope = -0.190846
+                                                   , CellContainer       = CellContainerMonitored )
 
 
 
     topSequence.TileTBMonManager.AthenaMonTools += [ TileTBBeamMonTool ]
     
 
+    TileTBPulseMonTool = CfgMgr.TileTBPulseMonTool ( name                  = 'TileTBPulseMonTool'
+                                                     , histoPathBase       = '/Tile/TestBeam/PulseShape'
+                                                     , UseDemoCabling = UseDemoCabling
+                                                     , TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer() )
+
+    topSequence.TileTBMonManager.AthenaMonTools += [ TileTBPulseMonTool ]
 
     if TileBiGainRun:
         TileTBCellMonToolHG = CfgMgr.TileTBCellMonTool ( name                  = 'TileTBCellMonToolHG'

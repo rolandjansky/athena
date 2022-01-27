@@ -79,7 +79,7 @@ TgcRawDataValAlg::bookHistogramsXYView(){
     }//Global monitoring
     else
       for(int i=0;i<9;i++){
-        m_tgcxyviewlayer[ac][i] = 0;
+        m_tgcxyviewlayer[ac][i] = nullptr;
       }
 
   }//loop over ac

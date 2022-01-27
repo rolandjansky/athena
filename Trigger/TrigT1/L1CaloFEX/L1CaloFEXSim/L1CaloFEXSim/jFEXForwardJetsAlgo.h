@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //***************************************************************************
 //              jFEXForwardJetsAlgo - Algorithm for small R jet Algorithm in jFEX
@@ -40,14 +40,16 @@ namespace LVL1 {
     virtual ~jFEXForwardJetsAlgo();
 
     virtual StatusCode safetyTest() override;
+    virtual StatusCode reset() override;
 
     virtual void setup(int inputTable[FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width], int jfex, int fpga) override;
     //virtual int realValue(int ID, int eta) override;
-    virtual float globalPhi(int nphi, int neta, const LVL1::jTowerContainer& towers) const override;
-    virtual float globalEta(int nphi, int neta, const LVL1::jTowerContainer& towers) const override;   
-    virtual unsigned int localPhi(int nphi, int neta, const LVL1::jTowerContainer& towers) const override;
-    virtual unsigned int localEta(int nphi, int neta, const LVL1::jTowerContainer& towers) const override;
-    virtual unsigned int getTTowerET(int nphi, int neta) override; 
+    virtual float globalPhi(int TTID)  override;
+    virtual float globalEta(int TTID)  override;   
+    virtual std::array<float,2> globalEtaPhi(int) override;
+    virtual unsigned int localPhi(int TTID)  override;
+    virtual unsigned int localEta(int TTID)  override;
+    virtual unsigned int getTTowerET(int TTID) override; 
     virtual std::unordered_map<int, jFEXForwardJetsInfo> FcalJetsTowerIDLists() override;
     virtual std::unordered_map<int, jFEXForwardJetsInfo> isSeedLocalMaxima() override;
     virtual std::unordered_map<int, jFEXForwardJetsInfo> calculateJetETs() override;
@@ -57,17 +59,20 @@ namespace LVL1 {
 
   private:
         SG::ReadHandleKey<LVL1::jTowerContainer> m_jFEXForwardJetsAlgo_jTowerContainerKey {this, "MyjTowers", "jTowerContainer", "Input container for jTowers"};
+        SG::ReadHandle<jTowerContainer> m_jTowerContainer;
         int m_jFEXalgoTowerID[FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width];
         std::unordered_map<int,std::vector<int> > m_map_Etvalues;
         int m_lowerEM_eta;
         int m_upperEM_eta;
         int m_jfex;
         int m_fpga;
+        static constexpr float m_TT_Size_phi = M_PI/32;
+        static constexpr float m_2PI = 2*M_PI;
         
         
         //This flag determines if the TT ID which are in the first and second energy rings are stored
         //in the jFEXForwardJetsInfo class. It is set to false to reduce quantity data stored in class
-        bool m_storeEnergyRingTTIDs = false;        
+        bool m_storeEnergyRingTTIDs = true;        
                 
   };
 }//end of namespace

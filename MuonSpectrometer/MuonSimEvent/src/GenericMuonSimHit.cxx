@@ -57,7 +57,7 @@ GenericMuonSimHit::GenericMuonSimHit(HitID id, double time, double pretime,
                                      const Amg::Vector3D& direction,
                                      const double depositEnergy,
                                      const double StepLength,
-                                     const HepMcParticleLink hmpl)
+                                     const HepMcParticleLink& hmpl)
   : m_GenericId(id), m_globalTime(time), m_globalpreTime(pretime)
   , m_globalPosition(position)
   , m_localPosition(lposition)

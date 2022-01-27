@@ -23,11 +23,16 @@ TrigL2MuonSA::PtEndcapLUTSvc::PtEndcapLUTSvc(const std::string& name, ISvcLocato
 StatusCode TrigL2MuonSA::PtEndcapLUTSvc::initialize()
 {   
   // implement the search of LUT trought the pathresolver Tool.
-  std::string lut_fileName = PathResolver::find_file(m_lut_fileNameRun2, "DATAPATH");
+  std::string lut_fileName;
+  if(m_useRun3LUT){
+    lut_fileName = PathResolver::find_file(m_lut_fileNameRun3, "DATAPATH");
+  } else {
+    lut_fileName = PathResolver::find_file(m_lut_fileNameRun2, "DATAPATH");
+  }  
   ATH_MSG_INFO(lut_fileName);
   
   if (lut_fileName.empty()) {
-    ATH_MSG_ERROR("Cannot find EndcapLUT file " << m_lut_fileNameRun2);
+    ATH_MSG_ERROR("Cannot find EndcapLUT file " << m_lut_fileNameRun3);
     return StatusCode::FAILURE;
   }
   
@@ -36,7 +41,11 @@ StatusCode TrigL2MuonSA::PtEndcapLUTSvc::initialize()
 
   // read LUT
   ATH_CHECK( m_ptEndcapLUT->readLUT(lut_fileName) );
-  ATH_MSG_DEBUG("Read endcap LUT" << m_lut_fileNameRun2);
+  if(m_useRun3LUT){
+    ATH_MSG_DEBUG("Read endcap LUT" << m_lut_fileNameRun3);
+  } else {
+    ATH_MSG_DEBUG("Read endcap LUT" << m_lut_fileNameRun2);
+  }  
 
   return StatusCode::SUCCESS;
 }

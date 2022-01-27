@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator,ConfigurationError
@@ -30,6 +29,16 @@ LArMphysOverMcalCondAlg    =  CompFactory.getComp("LArFlatConditionsAlg<LArMphys
 LArOFCCondAlg              =  CompFactory.getComp("LArFlatConditionsAlg<LArOFCFlat>")
 LArShapeCondAlg            =  CompFactory.getComp("LArFlatConditionsAlg<LArShapeFlat>")
 
+LArDAC2uASCCondAlg = CompFactory.getComp("LArFlatConditionsAlg<LArDAC2uASC>")
+LArRampSCCondAlg = CompFactory.getComp("LArFlatConditionsAlg<LArRampSC>")
+LAruA2MeVSCCondAlg = CompFactory.getComp("LArFlatConditionsAlg<LAruA2MeVSC>")
+LArfSamplSCCondAlg     =  CompFactory.getComp("LArFlatConditionsAlg<LArfSamplSC>")
+LArShapeSCCondAlg      =  CompFactory.getComp("LArFlatConditionsAlg<LArShapeSC>")
+LArPedestalSCCondAlg   =  CompFactory.getComp("LArFlatConditionsAlg<LArPedestalSC>")
+LArNoiseSCCondAlg       =  CompFactory.getComp("LArFlatConditionsAlg<LArNoiseSC>")
+LArMinBiasSCCondAlg       =  CompFactory.getComp("LArFlatConditionsAlg<LArMinBiasSC>")
+LArAutoCorrSCCondAlg      =  CompFactory.getComp("LArFlatConditionsAlg<LArAutoCorrSC>")
+LArPileupAverageSCCondAlg = CompFactory.getComp("LArFlatConditionsAlg<LArMinBiasAverageSC>")
 
 
 def LArElecCalibDbCfg(ConfigFlags,condObjs):
@@ -111,7 +120,7 @@ def LArElecCalibDBRun2Cfg(ConfigFlags,condObjs):
 def LArElecCalibDBRun1Cfg(ConfigFlags,condObjs):
 
     _larCondDBFoldersDataR1 = {"Ramp":("/LAR/ElecCalibOnl/Ramp","LAR_ONL","LArRampComplete",None),
-                               "DAC2uA":("/LAR/ElecCalibOfl/DAC2uA","LAR_ONL","LArDAC2uAMC",LArDAC2uASymAlg),
+                               "DAC2uA":("/LAR/ElecCalibOnl/DAC2uA","LAR_ONL","LArDAC2uAMC",LArDAC2uASymAlg),
                                "Pedestal":("/LAR/ElecCalibOnl/Pedestal<key>LArPedestal</key>","LAR_ONL","LArPedestalComplete",None),
                                "uA2MeV":("/LAR/ElecCalibOfl/uA2MeV/Symmetry","LAR_OFL", "LAruA2MeVMC",LAruA2MeVSymAlg),
                                "MphysOverMcal":("/LAR/ElecCalibOfl/MphysOverMcal/RTM","LAR_OFL","LArMphysOverMcalComplete",None),
@@ -131,14 +140,17 @@ def LArElecCalibDBRun1Cfg(ConfigFlags,condObjs):
             raise ConfigurationError("No conditions data %s found for Run-1 data" % condData)
         folderlist.append((folder,db,obj))
         if (calg):
-            result.addCondAlgo(calg(ReadKey="LAr"+obj,WriteKey="LAr"+obj+"Sym"))
+            if obj.endswith ('MC'):
+                obj = obj[:-2]
+            result.addCondAlgo(calg(ReadKey=obj,WriteKey=obj+"Sym"))
     result.merge(addFolderList(ConfigFlags,folderlist))
                      
     return result
 
 
 def LArElecCalibDBMCCfg(ConfigFlags,folders):
-    _larCondDBFoldersMC = {"Ramp":("LArRampMC","/LAR/ElecCalibMC/Ramp","LArRamp", LArRampSymAlg ),
+    _larCondDBFoldersMC = {
+                           "Ramp":("LArRampMC","/LAR/ElecCalibMC/Ramp","LArRamp", LArRampSymAlg ),
                            "AutoCorr":("LArAutoCorrMC","/LAR/ElecCalibMC/AutoCorr","LArAutoCorr", LArAutoCorrSymAlg),
                            "DAC2uA":("LArDAC2uAMC","/LAR/ElecCalibMC/DAC2uA","LArDAC2uA",LArDAC2uASymAlg),
                            "Pedestal":("LArPedestalMC","/LAR/ElecCalibMC/Pedestal","LArPedestal",None),
@@ -171,7 +183,36 @@ def LArElecCalibDBMCCfg(ConfigFlags,folders):
 
     result.merge(addFolderList(ConfigFlags,folderlist))
     return result
-        
+
+
+def LArElecCalibDBMCSCCfg(ConfigFlags,folders):
+    _larCondDBFoldersMC = {
+                           "RampSC":('CondAttrListCollection',"/LAR/ElecCalibMCSC/Ramp","LArRampSC", LArRampSCCondAlg ),
+                           "DAC2uASC":('CondAttrListCollection',"/LAR/ElecCalibMCSC/DAC2uA","LArDAC2uASC",LArDAC2uASCCondAlg),
+                           "uA2MeVSC":('CondAttrListCollection',"/LAR/ElecCalibMCSC/uA2MeV","LAruA2MeVSC",LAruA2MeVSCCondAlg),
+                           "fSamplSC":('CondAttrListCollection','/LAR/ElecCalibMCSC/fSampl',"LArfSamplSC",LArfSamplSCCondAlg),
+                           "ShapeSC":('CondAttrListCollection','/LAR/ElecCalibMCSC/Shape',"LArShapeSC",LArShapeSCCondAlg),
+                           "PileupAverageSC":('CondAttrListCollection','/LAR/ElecCalibMCSC/LArPileupAverage',"LArPileupAverageSC",LArPileupAverageSCCondAlg),
+                           "PedestalSC":('CondAttrListCollection','/LAR/ElecCalibMCSC/Pedestal',"LArPedestalSC",LArPedestalSCCondAlg),
+                           "NoiseSC":('CondAttrListCollection','/LAR/ElecCalibMCSC/Noise',"LArNoiseSC",LArNoiseSCCondAlg),
+                           "MinBiasSC":('CondAttrListCollection','/LAR/ElecCalibMCSC/MinBias',"LArMinBiasSC",LArMinBiasSCCondAlg),
+                           "AutoCorrSC":('CondAttrListCollection','/LAR/ElecCalibMCSC/AutoCorr',"LArAutoCorrSC",LArAutoCorrSCCondAlg)
+                       }
+
+    result=ComponentAccumulator()
+    folderlist=[]
+    for folder in folders:
+        try:
+            classname,fldr,key,calg=_larCondDBFoldersMC[folder]
+        except KeyError:
+            raise ConfigurationError("No conditions data %s found for Monte Carlo" % folder)
+
+        folderlist+=[(fldr,"LAR_OFL",classname),]
+        if calg is not None:
+            result.addCondAlgo(calg(ReadKey=fldr,WriteKey=key))
+
+    result.merge(addFolderList(ConfigFlags,folderlist))
+    return result
 
 
 if __name__ == "__main__":

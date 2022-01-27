@@ -76,39 +76,39 @@ namespace MuonCalib {
     unsigned int MuonCalibEvent_E::nrMBTS() const { return m_mbts.size(); }
     unsigned int MuonCalibEvent_E::nrL1Calo() const { return m_l1calo.size(); }
 
-    void MuonCalibEvent_E::addPattern(MuonCalibTrkPtr pat) {
+    void MuonCalibEvent_E::addPattern(const MuonCalibTrkPtr& pat) {
         if (pat) { m_phiPats.emplace_back(pat); }
     }
 
-    void MuonCalibEvent_E::addTrack(MuonCalibTrkPtr trk) {
+    void MuonCalibEvent_E::addTrack(const MuonCalibTrkPtr& trk) {
         if (trk) { m_tracks.emplace_back(trk); }
     }
 
-    void MuonCalibEvent_E::addCtp(TrigInfoPtr trig) {
+    void MuonCalibEvent_E::addCtp(const TrigInfoPtr& trig) {
         if (trig) { m_ctp.emplace_back(trig); }
     }
 
-    void MuonCalibEvent_E::addMUCTPI(MuCTPiPtr mctpi) {
+    void MuonCalibEvent_E::addMUCTPI(const MuCTPiPtr& mctpi) {
         if (mctpi) { m_mctpi.emplace_back(mctpi); }
     }
 
-    void MuonCalibEvent_E::addRpcSL(RpcSectorLogicPtr rpcsl) {
+    void MuonCalibEvent_E::addRpcSL(const RpcSectorLogicPtr& rpcsl) {
         if (rpcsl) { m_rpcsl.emplace_back(rpcsl); }
     }
 
-    void MuonCalibEvent_E::addRpcCoin(RpcCoinPtr rpcco) {
+    void MuonCalibEvent_E::addRpcCoin(const RpcCoinPtr& rpcco) {
         if (rpcco) { m_rpcco.emplace_back(rpcco); }
     }
 
-    void MuonCalibEvent_E::addRawRpcTrigHit(RpcTrigHitPtr rpctr) {
+    void MuonCalibEvent_E::addRawRpcTrigHit(const RpcTrigHitPtr& rpctr) {
         if (rpctr) { m_rpctr.emplace_back(rpctr); }
     }
 
-    void MuonCalibEvent_E::addMBTS(CaloHitPtr hit) {
+    void MuonCalibEvent_E::addMBTS(const CaloHitPtr& hit) {
         if (hit) { m_mbts.emplace_back(hit); }
     }
 
-    void MuonCalibEvent_E::addL1Calo(CaloHitPtr hit) {
+    void MuonCalibEvent_E::addL1Calo(const CaloHitPtr& hit) {
         if (hit) { m_l1calo.emplace_back(hit); }
     }
 

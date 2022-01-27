@@ -205,7 +205,7 @@ def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
       return  viewAlgs, dataVerifier
 
 
-# This could potentially be unified with makeInDetPrecisionTracking in the InDetPT.py?
+# This could potentially be unified with makeInDetTrigPrecisionTracking in the InDetTrigPrecisionTracking.py?
 def ambiguitySolverForIDPatternRecognition( config, summaryTool, inputTracks,verifier=None ):
    ptAlgs = [] #List containing all the precision tracking algorithms hence every new added alg has to be appended to the list
    
@@ -242,7 +242,7 @@ def ambiguitySolverForIDPatternRecognition( config, summaryTool, inputTracks,ver
    #-----------------------------------------------------------------------------
    #                      Track particle conversion algorithm
    from .InDetTrigCommon import trackParticleCnv_builder
-   from TrigInDetConf.TrigInDetPostTools import InDetTrigParticleCreatorToolWithSummary
+   from InDetTrigRecExample.InDetTrigConfigRecLoadToolsPost import InDetTrigParticleCreatorToolWithSummary
    creatorTool = InDetTrigParticleCreatorToolWithSummary
    
    trackParticleCnvAlg = trackParticleCnv_builder(name                 = add_prefix( 'xAODParticleCreatorAlg', config.name + '_IDTrig' ), 

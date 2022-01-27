@@ -1,7 +1,5 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TAUANALYSISTOOLS_TAUTRUTHTRACKMATCHINGTOOL_H
@@ -11,24 +9,18 @@
   author: Dirk Duschinger
   mail: dirk.duschinger@cern.ch
   documentation in: ../README.rst
-                    or
-                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-<tag>/README.rst
-		    or
-                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/README.rst
 */
 
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/AnaToolHandle.h"
+#include "CxxUtils/CachedValue.h"
 
 // Local include(s)
 #include "TauAnalysisTools/ITauTruthTrackMatchingTool.h"
 
-// EDM include(s)
-#include "xAODTruth/TruthVertex.h"
-
-#include "CxxUtils/CachedValue.h"
-
+#include "xAODTruth/TruthParticle.h"
+#include "xAODTau/TauTrack.h"
 
 namespace TauAnalysisTools
 {
@@ -61,18 +53,18 @@ public:
   virtual StatusCode initialize() override;
 
   // classify vector of tracks
-  virtual StatusCode classifyTracks(std::vector<const TAUTRACKPARTICLE*>& vTracks) const override;
+  virtual StatusCode classifyTracks(std::vector<const xAOD::TauTrack*>& vTracks) const override;
 
   // classify a single track
-  virtual StatusCode classifyTrack(const TAUTRACKPARTICLE& xTrackParticle) const override;
+  virtual StatusCode classifyTrack(const xAOD::TauTrack& xTrackParticle) const override;
 
 private:
 
-  StatusCode classifyConversion(const TAUTRACKPARTICLE& xTrackParticle, const xAOD::TruthParticle& xTruthParticle) const;
-  StatusCode checkTrackType(const TAUTRACKPARTICLE& xTrackParticle) const;
-  StatusCode checkTrackIsTauInheritant(const TAUTRACKPARTICLE& xTrackParticle) const;
+  StatusCode classifyConversion(const xAOD::TauTrack& xTrackParticle, const xAOD::TruthParticle& xTruthParticle) const;
+  StatusCode checkTrackType(const xAOD::TauTrack& xTrackParticle) const;
+  StatusCode checkTrackIsTauInheritant(const xAOD::TauTrack& xTrackParticle) const;
   bool checkTruthParent(const xAOD::TruthParticle& xTruthParticle, int& iDepth, std::string& sHistory) const;
-  const xAOD::TruthParticle* getTruthParticle(const TAUTRACKPARTICLE& xTrackParticle) const;
+  const xAOD::TruthParticle* getTruthParticle(const xAOD::TauTrack& xTrackParticle) const;
 
 private:
   CxxUtils::CachedValue<bool> m_bIsHadronicTrackAvailable;

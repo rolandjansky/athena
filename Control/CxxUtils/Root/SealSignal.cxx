@@ -38,6 +38,10 @@ static const int SIGNAL_MESSAGE_BUFSIZE = 2048;
 #include <sys/stat.h>
 #include <unistd.h>                            // krasznaa
 
+#if defined(__aarch64__) && defined(__linux)
+# include "arm_helpers.h"
+#endif
+
 /* http://dmawww.epfl.ch/ebt-bin/nph-dweb/dynaweb/SGI_Developer/
      T_IRIX_Prog/@Generic__BookTextView/7525
 
@@ -1077,7 +1081,7 @@ Signal::describe (int sig, int code)
     #wait().  The output is written directly to the file descriptor @a
     fd, using @a buf as the formatting buffer.  */
 void
-Signal::dumpInfo (IOFD fd, char *buf, int sig, const siginfo_t *info)
+Signal::dumpInfo (IOFD fd, char *buf, unsigned int buf_size, int sig, const siginfo_t *info)
 {
     if (! info)
 	return;
@@ -1125,23 +1129,23 @@ Signal::dumpInfo (IOFD fd, char *buf, int sig, const siginfo_t *info)
     // -> DWORD NumberParameters
     // -> DWORD ExceptionInfo [MAX_PARAMETERS (15)]
     if (name)
-	MYWRITE (fd, buf, sprintf (buf, "Exception: %s\n", name));
+        MYWRITE (fd, buf, snprintf (buf, buf_size, "Exception: %s\n", name));
     else
-	MYWRITE (fd, buf, sprintf (buf, "Exception %lu\n",
-				   info->ExceptionCode));
-    MYWRITE (fd, buf, sprintf (buf, "  addr = %08lx", info->ExceptionAddress));
+        MYWRITE (fd, buf, snprintf (buf, buf_size, "Exception %lu\n",
+                                    info->ExceptionCode));
+    MYWRITE (fd, buf, snprintf (buf, buf_size, "  addr = %08lx", info->ExceptionAddress));
 
 #elif HAVE_POSIX_SIGNALS
     // These should always be set.
-    write (fd, buf, sprintf (buf,
-			     "  signo  = %d, errno = %d, code = %d (%s)\n",
-			     info->si_signo, info->si_errno, info->si_code,
-			     describe (sig, info->si_code)));
+    MYWRITE (fd, buf, snprintf (buf, buf_size,
+                               "  signo  = %d, errno = %d, code = %d (%s)\n",
+                               info->si_signo, info->si_errno, info->si_code,
+                               describe (sig, info->si_code)));
 
     // These are set if the signal was sent by kill, POSIX signal
     // send or SIGCHLD.
-    write (fd, buf, sprintf (buf, "  pid    = %ld, uid = %ld\n",
-			     (long) info->si_pid, (long) info->si_uid));
+    MYWRITE (fd, buf, snprintf (buf, buf_size, "  pid    = %ld, uid = %ld\n",
+                                (long) info->si_pid, (long) info->si_uid));
 
     // Child status for SIGCHLD.
     if (sig == SIGCHLD) {
@@ -1151,24 +1155,24 @@ Signal::dumpInfo (IOFD fd, char *buf, int sig, const siginfo_t *info)
        const long status = info->si_status;
        const long utime = info->si_utime;
        const long stime = info->si_stime;
-       write (fd, buf, sprintf (buf,
-                                "  status = %ld, utime = %ld, stime = %ld\n",
-                                status, utime, stime));
+       MYWRITE (fd, buf, snprintf (buf, buf_size,
+                                   "  status = %ld, utime = %ld, stime = %ld\n",
+                                   status, utime, stime));
     }
 
     // These are set if the POSIX signal sender passed them.
-    write (fd, buf, sprintf (buf, "  value  = (%d, %p)\n",
-			     info->si_int, info->si_ptr));
+    MYWRITE (fd, buf, snprintf (buf, buf_size, "  value  = (%d, %p)\n",
+                                info->si_int, info->si_ptr));
 
     // This is the interesting address for memory faults.
     if (sig == SIGILL || sig == SIGFPE || sig == SIGSEGV || sig == SIGBUS)
-	write (fd, buf, sprintf (buf, "  addr   = %p\n", info->si_addr));
+	MYWRITE (fd, buf, snprintf (buf, buf_size, "  addr   = %p\n", info->si_addr));
 
 # ifdef SIGPOLL // not darwin
     // SIGPOLL status data.
     if (sig == SIGPOLL)
-	write (fd, buf, sprintf (buf, "  band   = %ld, fd = %d\n",
-				 (long) info->si_band, info->si_fd));
+	MYWRITE (fd, buf, snprintf (buf, buf_size, "  band   = %ld, fd = %d\n",
+                                    (long) info->si_band, info->si_fd));
 # endif
 #endif // HAVE_POSIX_SIGNALS
 }
@@ -1178,13 +1182,13 @@ Signal::dumpInfo (IOFD fd, char *buf, int sig, const siginfo_t *info)
     know any better.  The output is written directly to the file
     descriptor @a fd, using @a buf as the formatting buffer.  */
 void
-Signal::dumpMemory (IOFD fd, char *buf, const void *data, size_t n)
+Signal::dumpMemory (IOFD fd, char *buf, unsigned int buf_size, const void *data, size_t n)
 {
     for (size_t i = 0; i < n; )
     {
-	size_t m = sprintf (buf, "\n ");
+        size_t m = snprintf (buf, buf_size, "\n ");
 	for (size_t j = 0; i < n && j < 32; ++j, ++i)
-	    m += sprintf (buf + m, "%s%02x",
+	    m += snprintf (buf + m, buf_size-m, "%s%02x",
 			  j % 4 == 0 ? " " : "",
 			  (unsigned int) (((const unsigned char *) data) [i]));
 
@@ -1199,68 +1203,68 @@ Signal::dumpMemory (IOFD fd, char *buf, const void *data, size_t n)
 
     Returns SP if we can find it, else null. */
 unsigned long
-Signal::dumpContext (IOFD fd, char *buf, const void *context)
+Signal::dumpContext (IOFD fd, char *buf, unsigned int buf_size, const void *context)
 {
      unsigned long sp = 0;
 #if defined _WIN32 && defined _M_IX86
     const CONTEXT *uc = static_cast<const CONTEXT *> (context);
     sp = uc->Esp;
-    MYWRITE (fd, buf, sprintf (buf, "\n"
-			       "\n  eip: %04lx:%08lx           eflags: %08lx"
-			       "\n  eax: %08lx   ebx: %08lx"
-			       "   ecx: %08lx   edx: %08lx"
-			       "\n  esi: %08lx   edi: %08lx"
-			       "   ebp: %08lx   esp: %08lx"
-			       "\n   ds: %04lx        es: %04lx"
-			       "    fs: %04lx        ss: %04lx",
-			       uc->SegCs, uc->Eip, uc->EFlags,
-			       uc->Eax, uc->Ebx, uc->Ecx, uc->Edx,
-			       uc->Esi, uc->Edi, uc->Ebp, uc->Esp,
-			       uc->SegDs, uc->SegEs, uc->SegFs, uc->SegSs));
+    MYWRITE (fd, buf, snprintf (buf, buf_size, "\n"
+                                "\n  eip: %04lx:%08lx           eflags: %08lx"
+                                "\n  eax: %08lx   ebx: %08lx"
+                                "   ecx: %08lx   edx: %08lx"
+                                "\n  esi: %08lx   edi: %08lx"
+                                "   ebp: %08lx   esp: %08lx"
+                                "\n   ds: %04lx        es: %04lx"
+                                "    fs: %04lx        ss: %04lx",
+                                uc->SegCs, uc->Eip, uc->EFlags,
+                                uc->Eax, uc->Ebx, uc->Ecx, uc->Edx,
+                                uc->Esi, uc->Edi, uc->Ebp, uc->Esp,
+                                uc->SegDs, uc->SegEs, uc->SegFs, uc->SegSs));
 
-    MYWRITE (fd, buf, sprintf (buf,
-			       "\n  FPU:  control = %08lx"
-			       "\n        status  = %08lx"
-			       "\n        tag     = %08lx"
-			       "\n        ip      = %04lx:%08lx"
-			       "\n        data    = %04lx:%08lx"
-			       "\n        state   = %08lx",
-			       uc->FloatSave.ControlWord,
-			       uc->FloatSave.StatusWord,
-			       uc->FloatSave.TagWord,
-			       uc->FloatSave.ErrorSelector,
-			       uc->FloatSave.ErrorOffset,
-			       uc->FloatSave.DataSelector,
-			       uc->FloatSave.DataOffset,
-			       uc->FloatSave.Cr0NpxState));
+    MYWRITE (fd, buf, snprintf (buf, buf_size,
+                                "\n  FPU:  control = %08lx"
+                                "\n        status  = %08lx"
+                                "\n        tag     = %08lx"
+                                "\n        ip      = %04lx:%08lx"
+                                "\n        data    = %04lx:%08lx"
+                                "\n        state   = %08lx",
+                                uc->FloatSave.ControlWord,
+                                uc->FloatSave.StatusWord,
+                                uc->FloatSave.TagWord,
+                                uc->FloatSave.ErrorSelector,
+                                uc->FloatSave.ErrorOffset,
+                                uc->FloatSave.DataSelector,
+                                uc->FloatSave.DataOffset,
+                                uc->FloatSave.Cr0NpxState));
 
     for (int i = 0; i < 8; ++i)
-	MYWRITE (fd, buf, sprintf (buf,
-				   "\n    %%fp%d = [%02x%02x:%02x%02x%02x%02x"
-				   "%02x%02x%02x%02x]",
-				   i,
-				   uc->FloatSave.RegisterArea [i * 10 + 0],
-				   uc->FloatSave.RegisterArea [i * 10 + 1],
-				   uc->FloatSave.RegisterArea [i * 10 + 2],
-				   uc->FloatSave.RegisterArea [i * 10 + 3],
-				   uc->FloatSave.RegisterArea [i * 10 + 4],
-				   uc->FloatSave.RegisterArea [i * 10 + 5],
-				   uc->FloatSave.RegisterArea [i * 10 + 6],
-				   uc->FloatSave.RegisterArea [i * 10 + 7],
-				   uc->FloatSave.RegisterArea [i * 10 + 8],
-				   uc->FloatSave.RegisterArea [i * 10 + 9]));
+	MYWRITE (fd, buf, snprintf (buf, buf_size.
+                                    "\n    %%fp%d = [%02x%02x:%02x%02x%02x%02x"
+                                    "%02x%02x%02x%02x]",
+                                    i,
+                                    uc->FloatSave.RegisterArea [i * 10 + 0],
+                                    uc->FloatSave.RegisterArea [i * 10 + 1],
+                                    uc->FloatSave.RegisterArea [i * 10 + 2],
+                                    uc->FloatSave.RegisterArea [i * 10 + 3],
+                                    uc->FloatSave.RegisterArea [i * 10 + 4],
+                                    uc->FloatSave.RegisterArea [i * 10 + 5],
+                                    uc->FloatSave.RegisterArea [i * 10 + 6],
+                                    uc->FloatSave.RegisterArea [i * 10 + 7],
+                                    uc->FloatSave.RegisterArea [i * 10 + 8],
+                                    uc->FloatSave.RegisterArea [i * 10 + 9]));
     MYWRITE (fd, "\n", 1);
 
 #elif HAVE_POSIX_SIGNALS
     // FIXME: how much of this is defined in POSIX or ABIs?
     const ucontext_t *uc = static_cast<const ucontext_t *> (context);
     const mcontext_t *mc = &uc->uc_mcontext;
-    write (fd, buf, sprintf (buf, "  stack  = (%x, %x, %p)",
-			     uc->uc_stack.ss_flags,
-			     unsigned(uc->uc_stack.ss_size),
-			     uc->uc_stack.ss_sp));
+    MYWRITE (fd, buf, snprintf (buf, buf_size, "  stack  = (%x, %x, %p)",
+                                uc->uc_stack.ss_flags,
+                                unsigned(uc->uc_stack.ss_size),
+                                uc->uc_stack.ss_sp));
 
-    write (fd, buf, sprintf (buf, "\n"));
+    MYWRITE (fd, "\n", 1);
 #if defined __i386 && defined __linux
 # if !defined REG_CS && defined CS
 #  define REG_CS	CS
@@ -1283,179 +1287,181 @@ Signal::dumpContext (IOFD fd, char *buf, const void *context)
 #  define REG_ERR	ERR
 # endif
     sp = mc->gregs[REG_ESP];
-    write (fd, buf, sprintf (buf,
-			     "\n  eip: %04x:%08x           eflags: %08x"
-			     "\n  eax: %08x   ebx: %08x"
-			     "   ecx: %08x   edx: %08x"
-			     "\n  esi: %08x   edi: %08x"
-			     "   ebp: %08x   esp: %08x"
-			     "\n   ds: %04x        es: %04x"
-			     "        fs: %04x        ss: %04x",
-			     mc->gregs [REG_CS] & 0xffff, mc->gregs [REG_EIP],
-			     mc->gregs [REG_EFL],
-			     mc->gregs [REG_EAX], mc->gregs [REG_EBX],
-			     mc->gregs [REG_ECX], mc->gregs [REG_EDX],
-			     mc->gregs [REG_ESI], mc->gregs [REG_EDI],
-			     mc->gregs [REG_EBP], mc->gregs [REG_ESP],
-			     mc->gregs [REG_DS] & 0xffff,
-			     mc->gregs [REG_ES] & 0xffff,
-			     mc->gregs [REG_FS] & 0xffff,
-			     mc->gregs [REG_SS] & 0xffff));
+    MYWRITE (fd, buf, snprintf (buf, buf_size,
+                                "\n  eip: %04x:%08x           eflags: %08x"
+                                "\n  eax: %08x   ebx: %08x"
+                                "   ecx: %08x   edx: %08x"
+                                "\n  esi: %08x   edi: %08x"
+                                "   ebp: %08x   esp: %08x"
+                                "\n   ds: %04x        es: %04x"
+                                "        fs: %04x        ss: %04x",
+                                mc->gregs [REG_CS] & 0xffff, mc->gregs [REG_EIP],
+                                mc->gregs [REG_EFL],
+                                mc->gregs [REG_EAX], mc->gregs [REG_EBX],
+                                mc->gregs [REG_ECX], mc->gregs [REG_EDX],
+                                mc->gregs [REG_ESI], mc->gregs [REG_EDI],
+                                mc->gregs [REG_EBP], mc->gregs [REG_ESP],
+                                mc->gregs [REG_DS] & 0xffff,
+                                mc->gregs [REG_ES] & 0xffff,
+                                mc->gregs [REG_FS] & 0xffff,
+                                mc->gregs [REG_SS] & 0xffff));
 
-    write (fd, buf, sprintf (buf,
-			     "\n\n  signal esp: %08x"
-			     "  trap: %d/%d"
-			     "  oldmask: %08lx   cr2: %08lx",
-			     mc->gregs [REG_UESP],
-			     mc->gregs [REG_TRAPNO], mc->gregs [REG_ERR],
-			     mc->oldmask, mc->cr2));
+    MYWRITE (fd, buf, snprintf (buf, buf__size,
+                                "\n\n  signal esp: %08x"
+                                "  trap: %d/%d"
+                                "  oldmask: %08lx   cr2: %08lx",
+                                mc->gregs [REG_UESP],
+                                mc->gregs [REG_TRAPNO], mc->gregs [REG_ERR],
+                                mc->oldmask, mc->cr2));
 
     if (mc->fpregs)
     {
-	write (fd, buf, sprintf (buf,
-				 "\n"
-				 "\n  FPU:  control = %08lx"
-				 "\n        status  = %08lx"
-				 "\n        tag     = %08lx"
-				 "\n        ip      = %04lx:%08lx"
-				 "\n        data    = %04lx:%08lx"
-				 "\n        state   = %08lx",
-				 mc->fpregs->cw, mc->fpregs->sw, mc->fpregs->tag,
-				 mc->fpregs->cssel & 0xffff, mc->fpregs->ipoff,
-				 mc->fpregs->datasel & 0xffff, mc->fpregs->dataoff,
-				 mc->fpregs->status));
+	MYWRITE (fd, buf, snprintf (buf, buf_size,
+                                    "\n"
+                                    "\n  FPU:  control = %08lx"
+                                    "\n        status  = %08lx"
+                                    "\n        tag     = %08lx"
+                                    "\n        ip      = %04lx:%08lx"
+                                    "\n        data    = %04lx:%08lx"
+                                    "\n        state   = %08lx",
+                                    mc->fpregs->cw, mc->fpregs->sw, mc->fpregs->tag,
+                                    mc->fpregs->cssel & 0xffff, mc->fpregs->ipoff,
+                                    mc->fpregs->datasel & 0xffff, mc->fpregs->dataoff,
+                                    mc->fpregs->status));
 
 	for (int i = 0; i < 8; ++i)
-	    write (fd, buf, sprintf (buf,
-				     "\n    %%fp%d = [%04hx:%04hx%04hx%04hx%04hx]",
-				     i,
-				     mc->fpregs->_st [i].exponent,
-				     mc->fpregs->_st [i].significand [0],
-				     mc->fpregs->_st [i].significand [1],
-				     mc->fpregs->_st [i].significand [2],
-				     mc->fpregs->_st [i].significand [3]));
+	    MYWRITE (fd, buf, snprintf (buf, buf_size,
+                                        "\n    %%fp%d = [%04hx:%04hx%04hx%04hx%04hx]",
+                                        i,
+                                        mc->fpregs->_st [i].exponent,
+                                        mc->fpregs->_st [i].significand [0],
+                                        mc->fpregs->_st [i].significand [1],
+                                        mc->fpregs->_st [i].significand [2],
+                                        mc->fpregs->_st [i].significand [3]));
     }
     
 #elif defined __x86_64__ && defined __linux
     sp = mc->gregs[REG_RSP];
-    write (fd, buf, sprintf (buf,
-			     "\n  rip: %04x:%016llx           eflags: %016llx"
-			     "\n  rax: %016llx   rbx: %016llx"
-			     "\n  rcx: %016llx   rdx: %016llx"
-			     "\n  r08: %016llx   r09: %016llx"
-			     "\n  r10: %016llx   r11: %016llx"
-			     "\n  r12: %016llx   r13: %016llx"
-			     "\n  r14: %016llx   r15: %016llx"
-			     "\n  rsi: %016llx   rdi: %016llx"
-			     "\n  rbp: %016llx   rsp: %016llx"
-			     "\n   gs: %04x     fs: %04x",
-			     (unsigned)mc->gregs [REG_CSGSFS] & 0xffff,
-                             (unsigned long long)mc->gregs [REG_RIP],
-			     (unsigned long long)mc->gregs [REG_EFL],
-			     (unsigned long long)mc->gregs [REG_RAX],
-                             (unsigned long long)mc->gregs [REG_RBX],
-			     (unsigned long long)mc->gregs [REG_RCX],
-                             (unsigned long long)mc->gregs [REG_RDX],
-                             (unsigned long long)mc->gregs [REG_R8],
-                             (unsigned long long)mc->gregs [REG_R9],
-                             (unsigned long long)mc->gregs [REG_R10],
-                             (unsigned long long)mc->gregs [REG_R11],
-                             (unsigned long long)mc->gregs [REG_R12],
-                             (unsigned long long)mc->gregs [REG_R13],
-                             (unsigned long long)mc->gregs [REG_R14],
-                             (unsigned long long)mc->gregs [REG_R15],
-			     (unsigned long long)mc->gregs [REG_RSI],
-                             (unsigned long long)mc->gregs [REG_RDI],
-			     (unsigned long long)mc->gregs [REG_RBP],
-                             (unsigned long long)mc->gregs [REG_RSP],
-			     (unsigned)(mc->gregs [REG_CSGSFS]>>16) & 0xffff,
-			     (unsigned)(mc->gregs [REG_CSGSFS]>>32) & 0xffff));
+    MYWRITE (fd, buf, snprintf (buf, buf_size,
+                                "\n  rip: %04x:%016llx           eflags: %016llx"
+                                "\n  rax: %016llx   rbx: %016llx"
+                                "\n  rcx: %016llx   rdx: %016llx"
+                                "\n  r08: %016llx   r09: %016llx"
+                                "\n  r10: %016llx   r11: %016llx"
+                                "\n  r12: %016llx   r13: %016llx"
+                                "\n  r14: %016llx   r15: %016llx"
+                                "\n  rsi: %016llx   rdi: %016llx"
+                                "\n  rbp: %016llx   rsp: %016llx"
+                                "\n   gs: %04x     fs: %04x",
+                                (unsigned)mc->gregs [REG_CSGSFS] & 0xffff,
+                                (unsigned long long)mc->gregs [REG_RIP],
+                                (unsigned long long)mc->gregs [REG_EFL],
+                                (unsigned long long)mc->gregs [REG_RAX],
+                                (unsigned long long)mc->gregs [REG_RBX],
+                                (unsigned long long)mc->gregs [REG_RCX],
+                                (unsigned long long)mc->gregs [REG_RDX],
+                                (unsigned long long)mc->gregs [REG_R8],
+                                (unsigned long long)mc->gregs [REG_R9],
+                                (unsigned long long)mc->gregs [REG_R10],
+                                (unsigned long long)mc->gregs [REG_R11],
+                                (unsigned long long)mc->gregs [REG_R12],
+                                (unsigned long long)mc->gregs [REG_R13],
+                                (unsigned long long)mc->gregs [REG_R14],
+                                (unsigned long long)mc->gregs [REG_R15],
+                                (unsigned long long)mc->gregs [REG_RSI],
+                                (unsigned long long)mc->gregs [REG_RDI],
+                                (unsigned long long)mc->gregs [REG_RBP],
+                                (unsigned long long)mc->gregs [REG_RSP],
+                                (unsigned)(mc->gregs [REG_CSGSFS]>>16) & 0xffff,
+                                (unsigned)(mc->gregs [REG_CSGSFS]>>32) & 0xffff));
 
-    write (fd, buf, sprintf (buf,
-			     "\n\n"
-			     "  trap: %llu/%llu"
-			     "  oldmask: %16llx   cr2: %016llx",
-			     (unsigned long long)mc->gregs [REG_TRAPNO],
-                             (unsigned long long)mc->gregs [REG_ERR],
-                             (unsigned long long)mc->gregs [REG_OLDMASK],
-                             (unsigned long long)mc->gregs [REG_CR2]));
+    MYWRITE (fd, buf, snprintf (buf, buf_size,
+                                "\n\n"
+                                "  trap: %llu/%llu"
+                                "  oldmask: %16llx   cr2: %016llx",
+                                (unsigned long long)mc->gregs [REG_TRAPNO],
+                                (unsigned long long)mc->gregs [REG_ERR],
+                                (unsigned long long)mc->gregs [REG_OLDMASK],
+                                (unsigned long long)mc->gregs [REG_CR2]));
 
     if (mc->fpregs)
     {
-	write (fd, buf, sprintf (buf,
-				 "\n"
-				 "\n  FPU:  control = %04x"
-				 "\n        status  = %04x"
-				 "\n        tag     = %02x"
-				 "\n        op      = %04x"
-				 "\n        ip      = %016lx"
-				 "\n        data    = %016lx"
-				 "\n        mxcsr   = %08x"
-				 "\n        mxcr_mask= %08x",
-				 mc->fpregs->cwd,
-                                 mc->fpregs->swd,
-                                 mc->fpregs->ftw,
-                                 mc->fpregs->fop,
-                                 mc->fpregs->rip,
-                                 mc->fpregs->rdp,
-                                 mc->fpregs->mxcsr,
-                                 mc->fpregs->mxcr_mask));
+	MYWRITE (fd, buf, snprintf (buf, buf_size,
+                                    "\n"
+                                    "\n  FPU:  control = %04x"
+                                    "\n        status  = %04x"
+                                    "\n        tag     = %02x"
+                                    "\n        op      = %04x"
+                                    "\n        ip      = %016lx"
+                                    "\n        data    = %016lx"
+                                    "\n        mxcsr   = %08x"
+                                    "\n        mxcr_mask= %08x",
+                                    mc->fpregs->cwd,
+                                    mc->fpregs->swd,
+                                    mc->fpregs->ftw,
+                                    mc->fpregs->fop,
+                                    mc->fpregs->rip,
+                                    mc->fpregs->rdp,
+                                    mc->fpregs->mxcsr,
+                                    mc->fpregs->mxcr_mask));
 
 	for (int i = 0; i < 8; ++i)
-	    write (fd, buf, sprintf (buf,
-				     "\n    %%fp%d = [%04hx:%04hx%04hx%04hx%04hx]",
-				     i,
-				     mc->fpregs->_st [i].exponent,
-				     mc->fpregs->_st [i].significand [0],
-				     mc->fpregs->_st [i].significand [1],
-				     mc->fpregs->_st [i].significand [2],
-				     mc->fpregs->_st [i].significand [3]));
+	    MYWRITE (fd, buf, snprintf (buf, buf_size,
+                                        "\n    %%fp%d = [%04hx:%04hx%04hx%04hx%04hx]",
+                                        i,
+                                        mc->fpregs->_st [i].exponent,
+                                        mc->fpregs->_st [i].significand [0],
+                                        mc->fpregs->_st [i].significand [1],
+                                        mc->fpregs->_st [i].significand [2],
+                                        mc->fpregs->_st [i].significand [3]));
 
 	for (int i = 0; i < 16; ++i)
-	    write (fd, buf, sprintf (buf,
-				     "\n    %%xmm%02d = [%08x %08x %08x %08x]",
-				     i,
-                                     mc->fpregs->_xmm[i].element[0],
-                                     mc->fpregs->_xmm[i].element[1],
-                                     mc->fpregs->_xmm[i].element[2],
-                                     mc->fpregs->_xmm[i].element[3]));
+	    MYWRITE (fd, buf, snprintf (buf, buf_size,
+                                        "\n    %%xmm%02d = [%08x %08x %08x %08x]",
+                                        i,
+                                        mc->fpregs->_xmm[i].element[0],
+                                        mc->fpregs->_xmm[i].element[1],
+                                        mc->fpregs->_xmm[i].element[2],
+                                        mc->fpregs->_xmm[i].element[3]));
     }
     
 #elif __APPLE__ && defined __ppc__
-    write (fd, buf, sprintf (buf, "\n  dar: %08lx   dsisr: %08lx  exception: %08lx",
-			     (*mc)->es.dar, (*mc)->es.dsisr, (*mc)->es.exception));
+    MYWRITE (fd, buf, snprintf (buf, buf_size, "\n  dar: %08lx   dsisr: %08lx  exception: %08lx",
+                                (*mc)->es.dar, (*mc)->es.dsisr, (*mc)->es.exception));
 
-    write (fd, buf, sprintf (buf,
-			     "\n  srr0: %08x  srr1: %08x   cr: %08x         xer: %08x"
-			     "\n  lr: %08x    ctr: %08x    vrsave: %08x     fpscr: %08x",
-			     (*mc)->ss.srr0, (*mc)->ss.srr1, (*mc)->ss.cr, (*mc)->ss.xer,
-			     (*mc)->ss.lr, (*mc)->ss.ctr, (*mc)->ss.vrsave, (*mc)->fs.fpscr));
+    MYWRITE (fd, buf, snprintf (buf, buf_size,
+                                "\n  srr0: %08x  srr1: %08x   cr: %08x         xer: %08x"
+                                "\n  lr: %08x    ctr: %08x    vrsave: %08x     fpscr: %08x",
+                                (*mc)->ss.srr0, (*mc)->ss.srr1, (*mc)->ss.cr, (*mc)->ss.xer,
+                                (*mc)->ss.lr, (*mc)->ss.ctr, (*mc)->ss.vrsave, (*mc)->fs.fpscr));
 
-    write (fd, buf, sprintf (buf, "\n  vrvalid: %08x  vscr: %08lx:%08lx:%08lx:%08lx\n",
-			     (*mc)->vs.save_vrvalid,
-			     (*mc)->vs.save_vscr [0], (*mc)->vs.save_vscr [1],
-			     (*mc)->vs.save_vscr [2], (*mc)->vs.save_vscr [3]));
+    MYWRITE (fd, buf, snprintf (buf, buf_size, "\n  vrvalid: %08x  vscr: %08lx:%08lx:%08lx:%08lx\n",
+                                (*mc)->vs.save_vrvalid,
+                                (*mc)->vs.save_vscr [0], (*mc)->vs.save_vscr [1],
+                                (*mc)->vs.save_vscr [2], (*mc)->vs.save_vscr [3]));
 
     for (unsigned int *regs = &(*mc)->ss.r0, i = 0; i < 32; i += 4)
-        write (fd, buf, sprintf (buf, "\n  r%-2d  %08x   r%-2d  %08x   r%-2d  %08x   r%-2d  %08x",
-				 i, regs [i], i+1, regs [i+1], i+2, regs [i+2], i+3, regs [i+3]));
+        MYWRITE (fd, buf, snprintf (buf, buf_size, "\n  r%-2d  %08x   r%-2d  %08x   r%-2d  %08x   r%-2d  %08x",
+                                    i, regs [i], i+1, regs [i+1], i+2, regs [i+2], i+3, regs [i+3]));
     for (int i = 0; i < 32; ++i)
-        write (fd, buf, sprintf (buf, "\n  fp%-2d %016qx (%f)", i,
-				 *(unsigned long long *) &(*mc)->fs.fpregs [i],
-				 (*mc)->fs.fpregs [i]));
+        MYWRITE (fd, buf, snprintf (buf, buf_size, "\n  fp%-2d %016qx (%f)", i,
+                                    *(unsigned long long *) &(*mc)->fs.fpregs [i],
+                                    (*mc)->fs.fpregs [i]));
     for (int i = 0; i < 32; ++i)
-	write (fd, buf, sprintf (buf, "\n  vr%-2d %08lx:%08lx:%08lx:%08lx", i,
-				 (*mc)->vs.save_vr[i][0], (*mc)->vs.save_vr[i][1],
-				 (*mc)->vs.save_vr[i][2], (*mc)->vs.save_vr[i][3]));
+	MYWRITE (fd, buf, snprintf (buf, buf_size, "\n  vr%-2d %08lx:%08lx:%08lx:%08lx", i,
+                                    (*mc)->vs.save_vr[i][0], (*mc)->vs.save_vr[i][1],
+                                    (*mc)->vs.save_vr[i][2], (*mc)->vs.save_vr[i][3]));
+#elif defined __aarch64__ && defined __linux
+    CxxUtils::aarch64_dump_registers (fd, buf, buf_size, *mc);
 #elif __sun
     for (int i = 0; i < NGREG; i++)
-	write (fd, buf, sprintf (buf, "%s  %%r%02d = %08x",
-				 i % 4 == 0 ? "\n" : "", i, mc->gregs [i]));
+	MYWRITE (fd, buf, snprintf (buf, buf_size, "%s  %%r%02d = %08x",
+                                    i % 4 == 0 ? "\n" : "", i, mc->gregs [i]));
 #else
-    dumpMemory (fd, buf, mc, sizeof (*mc));
+    dumpMemory (fd, buf, buf_size, mc, sizeof (*mc));
 #endif // __i386 && __linux, __sun, other
 
-    write (fd, "\n", 1);
+    MYWRITE (fd, "\n", 1);
 #endif // HAVE_POSIX_SIGNALS
 
     return sp;
@@ -1510,6 +1516,7 @@ Signal::fatalDump ATLAS_NOT_THREAD_SAFE (int sig, siginfo_t *info, void *extra,
                                          IOFD fd,
                                          unsigned options)
 {
+    const unsigned int buf_size = sizeof (buf);
     bool haveCore = false;
     if (sig < 0)
     {
@@ -1533,22 +1540,22 @@ Signal::fatalDump ATLAS_NOT_THREAD_SAFE (int sig, siginfo_t *info, void *extra,
 			  (long) ProcessInfo__pid (), (long) ProcessInfo__ppid (), // wlav :: -> __ (x2)
 			  sig, name (sig), haveCore ? " (core dumped)" : ""));
 
-	MYWRITE (fd, buf, sprintf(buf,"signal context:\n"));
-	dumpInfo (fd, buf, sig, info);
+	MYWRITE (fd, buf, snprintf(buf, buf_size, "signal context:\n"));
+	dumpInfo (fd, buf, buf_size, sig, info);
     }
 
     unsigned long sp = 0;
     if (options & FATAL_DUMP_CONTEXT)
-	sp = dumpContext (fd, buf, extra);
+	sp = dumpContext (fd, buf, buf_size, extra);
 
     if (options & FATAL_DUMP_STACK)
     {
-	MYWRITE (fd, buf, sprintf(buf,"\nstack trace:\n"));
+	MYWRITE (fd, buf, snprintf(buf, buf_size, "\nstack trace:\n"));
         if (s_lastSP) {
-          MYWRITE (fd, buf, sprintf(buf,"\n(backtrace failed; raw dump follows)\n"));
-          MYWRITE (fd, buf, sprintf(buf,"%016lx:", s_lastSP.load()));
-          dumpMemory (fd, buf, reinterpret_cast<void*>(s_lastSP.load()), 1024);
-          MYWRITE (fd, buf, sprintf(buf,"\n\n"));
+          MYWRITE (fd, buf, snprintf(buf, buf_size, "\n(backtrace failed; raw dump follows)\n"));
+          MYWRITE (fd, buf, snprintf(buf, buf_size, "%016lx:", s_lastSP.load()));
+          dumpMemory (fd, buf, buf_size, reinterpret_cast<void*>(s_lastSP.load()), 1024);
+          MYWRITE (fd, buf, snprintf(buf, buf_size, "\n\n"));
         }
         else {
           s_lastSP = sp;
@@ -1559,7 +1566,7 @@ Signal::fatalDump ATLAS_NOT_THREAD_SAFE (int sig, siginfo_t *info, void *extra,
 
     if (options & FATAL_DUMP_LIBS)
     {
-	MYWRITE (fd, buf, sprintf(buf,"\nshared libraries present:\n"));
+	MYWRITE (fd, buf, snprintf(buf, buf_size, "\nshared libraries present:\n"));
 	try { SharedLibrary::loaded (*SignalDumpCallback); }
 	catch (...) { ; }
     }

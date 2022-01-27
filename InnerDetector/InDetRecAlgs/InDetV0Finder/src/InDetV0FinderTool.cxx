@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -713,6 +713,7 @@ bool InDetV0FinderTool::doFit(const xAOD::TrackParticle* track1, const xAOD::Tra
 {
   bool pass = false;
   double srxy = startingPoint.perp();
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   if (srxy <= m_maxsxy)
   {
     double massKshort_i=2000001., massLambda_i=2000001., massLambdabar_i=2000001.;
@@ -721,11 +722,11 @@ bool InDetV0FinderTool::doFit(const xAOD::TrackParticle* track1, const xAOD::Tra
     std::vector<std::unique_ptr<const Trk::TrackParameters> >  cleanup;
     const Trk::TrackParameters* extrapolatedPerigee1(nullptr);
     const Trk::TrackParameters* extrapolatedPerigee2(nullptr);
-    extrapolatedPerigee1 = m_extrapolator->extrapolate(track1->perigeeParameters(), perigeeSurface);
+    extrapolatedPerigee1 = m_extrapolator->extrapolate(ctx,track1->perigeeParameters(), perigeeSurface).release();
     if (extrapolatedPerigee1 == nullptr) extrapolatedPerigee1 = &track1->perigeeParameters();
     else cleanup.push_back(std::unique_ptr<const Trk::TrackParameters>(extrapolatedPerigee1));
 
-    extrapolatedPerigee2 = m_extrapolator->extrapolate(track2->perigeeParameters(), perigeeSurface);
+    extrapolatedPerigee2 = m_extrapolator->extrapolate(ctx,track2->perigeeParameters(), perigeeSurface).release();
     if (extrapolatedPerigee2 == nullptr) extrapolatedPerigee2 = &track2->perigeeParameters();
     else cleanup.push_back(std::unique_ptr<const Trk::TrackParameters>(extrapolatedPerigee2));
 

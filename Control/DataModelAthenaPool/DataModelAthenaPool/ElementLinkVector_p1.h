@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DATAMODELATHENAPOOL_ELEMENTLINKVECT_P1_H
@@ -29,7 +29,7 @@ public:
 
   class ElementRef {
    public:
-    ElementRef() : m_elementIndex(0), m_nameIndex(0) {}
+    ElementRef() : m_elementIndex(), m_nameIndex(0) {}
     ElementRef(const INDEXTYPE &elink_idx, uint32_t name_idx)
 	  : m_elementIndex(elink_idx), m_nameIndex(name_idx)
     { }

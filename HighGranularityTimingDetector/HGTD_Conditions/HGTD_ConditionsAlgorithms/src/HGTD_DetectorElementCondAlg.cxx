@@ -83,7 +83,7 @@ StatusCode HGTD_DetectorElementCondAlg::execute(const EventContext& ctx) const
     if (oldToNewMap[(*oldIt)]!=newEl) {
       ATH_MSG_ERROR("Old and new elements are not synchronized!");
     }
-    // Layer of old element is set by HGTDet::HGTD_LayerBuilderCond::registerSurfacesToLayer.
+    // Layer of old element is set by HGTD_LayerBuilderCond::registerSurfacesToLayer.
     const Trk::Layer* layer{(*oldIt)->surface().associatedLayer()};
     if (layer) {
       newEl->surface().associateLayer(*layer);

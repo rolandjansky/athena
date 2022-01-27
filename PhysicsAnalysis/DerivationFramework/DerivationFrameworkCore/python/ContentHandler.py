@@ -59,10 +59,17 @@ class ContentHandler:
 				# Deal with the (few) containers that still need expanding
 				if (mainItem.split('#')[0] in self.ContainersForExpansion):
 					self.expandAuxStore(components[0])
+				# All variables needed
 				if (components[0]+"." in wholeContentList):
 					if (components[0] not in auxOutput.keys()):
 						auxOutput[components[0]] = ""
 					continue
+				# All variables needed but user did it via smart slimming list with ContainerAux.
+				if (len(components)==2):
+					if (components[1] == ""):
+						wholeContentList.append(components[0]+".")
+						auxOutput[components[0]] = ""
+						continue	
 				if (components[0] not in auxOutput.keys()):
 					auxOutput[components[0]] = components[1:]
 				if (components[0] in auxOutput.keys()):

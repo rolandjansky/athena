@@ -126,6 +126,7 @@ testL1Menu_Connectors(const TrigConf::L1Menu & l1menu) {
    cout << "L1 menu has " << l1menu.connectorNames().size() << " connectors configured" << endl;
    for( const string & connName : l1menu.connectorNames() ) {
       auto & conn = l1menu.connector(connName);
+      if(connName == "LegacyTopoMerged") continue;
       cout << "Connector " << connName << (conn.legacy() ? " (legacy)": "") << " has " << conn.size() << " trigger lines configured:" << endl;
       if( connName == "MuCTPiOpt0" ) {
          for( auto & tl : conn.triggerLines() ) {
@@ -186,10 +187,10 @@ testL1Menu_Topo(const TrigConf::L1Menu & l1menu, bool printdetail)
       topoAlgInvmassLeg.print();
       cout << "Explicit access to 'NumResultBits' as unsigned int: " << topoAlgInvmassLeg.genericParameter<unsigned int>("NumResultBits") << endl;
       
-      auto & topoAlgEMJ = l1menu.algorithmFromOutput("0DR03-EM7ab-CJ15ab", "TOPO");
+      auto & topoAlgEMJ = l1menu.algorithmFromOutput("0DR03-eEM7ab-CjJ15ab", "TOPO");
       topoAlgEMJ.print();
 
-      auto & topoMultAlg = l1menu.algorithm("Mult_eEM22VHI","MULTTOPO");
+      auto & topoMultAlg = l1menu.algorithm("Mult_eEM22M","MULTTOPO");
       topoMultAlg.print();
       cout << "  threshold definition: " << topoMultAlg.getAttribute("threshold") << endl;
 
@@ -293,8 +294,8 @@ testL1Menu_Thresholds(const TrigConf::L1Menu & l1menu, bool printdetail)
       }
    }
 
-   const auto & thrjEM = dynamic_cast<const TrigConf::L1Threshold_jEM&>(l1menu.threshold("jEM18M"));
-   cout << "jEM18M isolation: iso = " << (int)thrjEM.iso() << ", frac = " << (int)thrjEM.frac() << ", frac2 = " << (int)thrjEM.frac2() << endl;
+   const auto & thrjEM = dynamic_cast<const TrigConf::L1Threshold_jEM&>(l1menu.threshold("jEM15M"));
+   cout << "jEM15M isolation: iso = " << (int)thrjEM.iso() << ", frac = " << (int)thrjEM.frac() << ", frac2 = " << (int)thrjEM.frac2() << endl;
 
    const auto & thrjJET = dynamic_cast<const TrigConf::L1Threshold_jJ&>(l1menu.threshold("jJ12p0ETA25"));
    if(thrjJET) {
@@ -371,6 +372,9 @@ testL1Menu_Extrainfo(const TrigConf::L1Menu & l1menu)
    {
       auto & ex = l1menu.thrExtraInfo().eEM();
       cout << "  eEM" << endl;
+      cout << "    iso maxEt (GeV) " << ex.maxEt() << endl;
+      cout << "    iso maxEt (MeV) " << ex.maxEtMeV() << endl;
+      cout << "    iso maxEt (Counts) " << ex.maxEtCounts(ex.resolutionMeV()) << endl;
       cout << "    energy resolution (MeV) " << ex.resolutionMeV() << endl;
       cout << "    ptMinToTopo " << ex.ptMinToTopo() << endl;
       cout << "    ptMinToTopo (MeV) " << ex.ptMinToTopoMeV() << endl;
@@ -395,6 +399,19 @@ testL1Menu_Extrainfo(const TrigConf::L1Menu & l1menu)
       }
       //cout << "    working point Medium at eta = -20:" << ex.isolation(TrigConf::Selection::WP::MEDIUM,-20) << endl;
       cout << "    working point Medium at eta = 20:" << ex.isolation(TrigConf::Selection::WP::LOOSE,20) << endl;
+
+      for( int ieta : { -30, -20, -10, 0, 10, 20, 30 } ) {
+         auto iso_loose  = ex.isolation(TrigConf::Selection::WP::LOOSE, ieta);
+         int reta_loose_fw = iso_loose.reta_fw();
+         int rhad_loose_fw = iso_loose.rhad_fw();
+         int wstot_loose_fw = iso_loose.wstot_fw();
+         int reta_loose_d = iso_loose.reta_d();
+         int rhad_loose_d = iso_loose.rhad_d();
+         int wstot_loose_d = iso_loose.wstot_d();
+         cout << "ieta=" << ieta << "  loose => reta_fw=" << reta_loose_fw << ", rhad_fw=" << rhad_loose_fw << ", wstot_fw=" << wstot_loose_fw << endl;
+         cout << "ieta=" << ieta << "  loose => reta_d=" << reta_loose_d << ", rhad_d=" << rhad_loose_d << ", wstot_d=" << wstot_loose_d << endl;
+      }
+     
    }
    {
       auto & ex = l1menu.thrExtraInfo().jEM();
@@ -448,6 +465,32 @@ testL1Menu_Extrainfo(const TrigConf::L1Menu & l1menu)
       cout << "    ptMinxTOB " << ex.ptMinxTOB("1A") << endl;
       cout << "    ptMinxTOB (MeV) " << ex.ptMinxTOBMeV("1A") << endl;
       cout << "    ptMinxTOB (counts) " << ex.ptMinxTOBCounts("1A") << endl;
+   }
+   {  
+      auto & ex = l1menu.thrExtraInfo().gLJ();
+      cout << "  gLJ" << endl;
+      cout << "    energy resolution (MeV) " << ex.resolutionMeV() << endl;
+      cout << "    ptMinToTopo (eta range "<<std::to_string(1)<<") in GeV " << ex.ptMinToTopo(1) << endl; 
+      cout << "    ptMinToTopo (MeV) " << ex.ptMinToTopoMeV(1) << endl; 
+      cout << "    ptMinToTopo (counts) " << ex.ptMinToTopoCounts(1) << endl;
+      cout << "    seedThr(A) " << ex.seedThr('A') << endl; 
+      cout << "    seedThr(A) (MeV) " << ex.seedThrMeV('A') << endl; 
+      cout << "    rhoTowerMin(B) " << ex.rhoTowerMin('B') << endl;   
+      cout << "    rhoTowerMin(B) (MeV) " << ex.rhoTowerMinMeV('B') << endl;  
+      cout << "    rhoTowerMax(C) " << ex.rhoTowerMax('C') << endl;
+      cout << "    rhoTowerMax(C) (MeV) " << ex.rhoTowerMaxMeV('C') << endl;
+   }
+   {
+      auto & ex = l1menu.thrExtraInfo().gXE();
+      cout << "  gXE" << endl;
+      cout << "    energy resolution (MeV) " << ex.resolutionMeV() << endl;
+      cout << "    seedThr(A) " << ex.seedThr('A') << endl;
+      cout << "    seedThr(A) (MeV) " << ex.seedThrMeV('A') << endl;
+      cout << "    XERHO_sigmaPosA " << ex.XERHO_param('A',true) << endl;
+      cout << "    XERHO_sigmaNegB " << ex.XERHO_param('B',false) << endl;
+      cout << "    XEJWOJ_a_C " << ex.JWOJ_param('C','a') << endl;
+      cout << "    XEJWOJ_b_B " << ex.JWOJ_param('B','b') << endl;
+      cout << "    XEJWOJ_c_A " << ex.JWOJ_param('A','c') << endl;
    }
    {
       auto & ex = l1menu.thrExtraInfo().eTAU();
@@ -540,6 +583,9 @@ testL1Menu_Extrainfo(const TrigConf::L1Menu & l1menu)
    cout << endl << "    known pt values for tgc ";
    for(auto pt : exMU.knownTgcPtValues()) cout << pt << " ";
    cout << endl;
+   cout << " RPC pt value for index 2: "<< exMU.ptForRpcIdx(2) << endl;
+   cout << " TGC pt value for index 2: "<< exMU.ptForTgcIdx(2) << endl;
+   cout << " TGC index for RPC index 2: "<< exMU.tgcIdxForRpcIdx(2) << endl;
    if( const auto & list = exMU.exclusionListNames(); std::find(list.begin(), list.end(), "rpcFeet")!=list.end() ) {
       cout << "    exclusionList 'rpcFeet'" << endl;
       for(auto & x : exMU.exclusionList("rpcFeet")) {
@@ -652,7 +698,7 @@ void usage() {
   cout << "[Other options]\n";
   cout << "  -h|--help                                           ... this help\n";
   cout << "\n";
-  cout << "If no input is specified, the default LS2_v1 menu file will be taken from the release\n\n";
+  cout << "If no input is specified, the default Dev_pp_run3_v1 menu file will be taken from the release\n\n";
 }
 
 int main(int argc, char** argv) {
@@ -725,7 +771,7 @@ int main(int argc, char** argv) {
          string xmlpath(env_xmlpath);
          boost::algorithm::split(paths, xmlpath, boost::is_any_of(":"));
          for( const string & p : paths) {
-            string testFN = p + "/TriggerMenuMT/L1Menu_LS2_v1_" + string(env_AV) + ".json";
+            string testFN = p + "/TriggerMenuMT/L1Menu_Dev_pp_run3_v1_" + string(env_AV) + ".json";
             struct stat buffer;
             if (stat (testFN.c_str(), &buffer) == 0) {
                filename = testFN;

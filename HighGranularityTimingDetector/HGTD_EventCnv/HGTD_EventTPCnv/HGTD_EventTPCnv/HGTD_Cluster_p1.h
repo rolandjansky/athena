@@ -14,8 +14,6 @@
 #include "Identifier/Identifier.h"
 #include "InDetEventTPCnv/InDetPrepRawData/SiWidth_p2.h"
 
-namespace HGTD {
-
 class HGTD_Cluster_p1 {
 public:
   typedef Identifier::value_type IdType_t;
@@ -36,7 +34,5 @@ private:
   std::vector<int> m_time_over_threshold;
   InDet::SiWidth_p2 m_width;
 };
-
-} // namespace HGTD
 
 #endif // HGTD_CLUSTER_P1_H

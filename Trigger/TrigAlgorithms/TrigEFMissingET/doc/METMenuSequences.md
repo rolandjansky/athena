@@ -28,7 +28,7 @@ InputMakerAlg.InputMakerInputDecisions=[mapThresholdToL1DecisionCollection("XE")
 InputMakerAlg.InputMakerOutputDecisions="InputMaker_from_L1MET"
 topSequence += InputMakerAlg
 
-from TriggerMenuMT.HLTMenuConfig.MET.METSequences import metCellRecoSequence
+from TriggerMenuMT.HLT.MET.METSequences import metCellRecoSequence
 cellRecoSeq, METkey = metCellRecoSequence(InputMakerAlg.RoIs)
 topSequence += cellRecoSeq
 
@@ -92,9 +92,9 @@ elif METalgorithm == "pufit" or METalgorithm == "tc":
   clusterSequence, clusterContainer = HLTFSTopoRecoSequence( RoIs="FullScanRoIs" )
   topSequence += clusterSequence 
 elif METalgorithm == "mht":
-  from TriggerMenuMT.HLTMenuConfig.Jet.JetRecoSequences import jetRecoSequence
+  from TriggerMenuMT.HLT.Jet.JetRecoSequences import jetRecoSequence
   from TrigUpgradeTest.jetMenuHelper import jetDictFromString
-  from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool
+  from TriggerMenuMT.HLT.Menu.MenuComponents import RecoFragmentsPool
   jetRecoDict=jetDictFromString("a4_tc_em_subjes")
   (jetSequence, jetsKey) = RecoFragmentsPool.retrieve( jetRecoSequence, None, dataSource="data", RoIs="FullScanRoIs", **jetRecoDict )
   topSequence += jetSequence
@@ -104,7 +104,7 @@ elif METalgorithm == "mht":
 #################################################
 
 from TrigEFMissingET.TrigEFMissingETConf import EFMissingETAlgMT
-from TrigEFMissingET.TrigEFMissingETMTConfig import getMETMonTool
+from TrigEFMissingET.TrigEFMissingETConfig import getMETMonTool
 
 metAlg = EFMissingETAlgMT( name="EFMET" )
 metAlg.METContainerKey="HLT_MET_{}".format(METalgorithm)

@@ -143,7 +143,7 @@ StatusCode DataHeaderCnv::updateRepRefs(IOpaqueAddress* pAddress, DataObject* pO
 {
    static const pool::Guid dhf_p6_guid("7BE56CEF-C866-4BEE-9348-A5F34B5F1DAD");
    std::string dhid = pAddress->par()[1];
-   if( pAddress && pObject ) {
+   if( pObject ) {
       this->setToken( pAddress->par()[0] );
       if( !compareClassGuid( dhf_p6_guid ) ) {
          ATH_MSG_ERROR( "updateRepRefs called without DataHeaderForm" );
@@ -184,6 +184,8 @@ StatusCode DataHeaderCnv::DataObjectToPool(IOpaqueAddress* pAddr, DataObject* pO
    }
    // DH placement first:
    Placement dh_placement = setPlacementWithType("DataHeader", pObj->name(), *pAddr->par());
+   // remember the connection string, it may get changed in registerForWrite by SharedWriter
+   const std::string connection = dh_placement.fileName();
    dh_placement.setAuxString("[KEY=" + obj->getProcessTag() + "]");
 
    // DHForm placement:
@@ -213,7 +215,7 @@ StatusCode DataHeaderCnv::DataObjectToPool(IOpaqueAddress* pAddr, DataObject* pO
       ATH_MSG_FATAL("Failed to write DataHeader");
       return(StatusCode::FAILURE);
    }
-   keepPoolObj(persObj, dh_placement.fileName());
+   keepPoolObj(persObj, connection);
    // this updates DH and can update Form
    m_tpOutConverter.insertDHRef(persObj, obj->getProcessTag(), dh_token->toString(), *dhForm);
 

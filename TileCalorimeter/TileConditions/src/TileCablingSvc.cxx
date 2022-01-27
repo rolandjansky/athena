@@ -154,6 +154,7 @@ StatusCode TileCablingSvc::initialize ATLAS_NOT_THREAD_SAFE () {
     int run1 = atlasVersion.compare(0,8,"ATLAS-R1");
     int ibl  = atlasVersion.compare(0,9,"ATLAS-IBL");
     int run2 = atlasVersion.compare(0,8,"ATLAS-R2");
+    int run3 = atlasVersion.compare(0,8,"ATLAS-R3");
     int upg  = atlasVersion.compare(0,7,"ATLAS-P") ;
     int comm = atlasVersion.compare(0,10,"ATLAS-Comm");
 
@@ -164,9 +165,8 @@ StatusCode TileCablingSvc::initialize ATLAS_NOT_THREAD_SAFE () {
     // choose which geometries are true RUN2 geometries to apply run2 cabling
     bool nothing_found = (ctb*geo*run1*ibl*run2*upg*comm != 0);
     GeoModel::GeoConfig geoConfig = geoModel->geoConfig();
-    bool RUN2 = (nothing_found && (geoConfig==GeoModel::GEO_RUN2 
-                                   || geoConfig==GeoModel::GEO_RUN3
-                                   )) || (run2 == 0);
+    bool RUN2 = (nothing_found && geoConfig==GeoModel::GEO_RUN2) || (run2 == 0);
+    bool RUN3 = (nothing_found && geoConfig==GeoModel::GEO_RUN3) || (run3 == 0);
     bool RUN4 = (nothing_found && geoConfig==GeoModel::GEO_RUN4);
     //|| (ibl == 0 || upg == 0);
 
@@ -187,15 +187,31 @@ StatusCode TileCablingSvc::initialize ATLAS_NOT_THREAD_SAFE () {
           ATH_MSG_INFO( "Cabling for RUN2 (2014-2017) ATLAS geometry is set via jobOptions " );
         } else if (m_cablingType == TileCablingService::RUN2aCabling) {
           ATH_MSG_INFO( "Cabling for RUN2a (2018) ATLAS geometry is set via jobOptions " );
-        } else {
+        } else if (m_cablingType < TileCablingService::RUN2Cabling) {
           ATH_MSG_INFO( "Setting RUN2 (2014-2017) cabling" );
           m_cablingType = TileCablingService::RUN2Cabling;
+        } else {
+          ATH_MSG_INFO( "Using cabling type " << m_cablingType << " from jobOptions " );
         }
+      }
+
+    } else if (RUN3) {
+
+      ATH_MSG_INFO( "RUN3 ATLAS geometry flag detected for geometry: " << atlasVersion );
+      if (m_cablingType == TileCablingService::RUN3Cabling) {
+        ATH_MSG_INFO( "Cabling for RUN3 ATLAS geometry is set via jobOptions " );
+      } else if ( m_cablingType < TileCablingService::RUN2Cabling) {
+        ATH_MSG_INFO( "Setting RUN3 cabling" );
+        m_cablingType = TileCablingService::RUN3Cabling;
+      } else {
+        ATH_MSG_INFO( "Using cabling type " << m_cablingType << " from jobOptions " );
       }
 
     } else if (RUN4) {
       ATH_MSG_INFO( "RUN4 ATLAS geometry detected - use RUN1 cabling: " << atlasVersion );
       m_cablingType = TileCablingService::MBTSOnly;
+    } else if (m_cablingType == TileCablingService::RUN3Cabling) {
+      ATH_MSG_INFO( "Cabling for RUN3 ATLAS geometry is set via jobOptions " );
     } else if (m_cablingType == TileCablingService::RUN2Cabling) {
       ATH_MSG_INFO( "Cabling for RUN2 (2014-2017) ATLAS geometry is set via jobOptions " );
     } else if (m_cablingType == TileCablingService::RUN2aCabling) {

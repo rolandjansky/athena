@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory     import CompFactory
 import InDetConfig.TrackingCommonConfig         as   TC
@@ -98,8 +98,7 @@ def InDetCosmicsEventPhaseCfg(flags, InputTrackCollections, name = 'InDetCosmics
     InDetFixedWindowTrackTimeTool  = acc.popToolsAndMerge(InDetFixedWindowTrackTimeToolCfg(flags))
     acc.addPublicTool(InDetFixedWindowTrackTimeTool )
 
-    InDetTrackSummaryTool = acc.popToolsAndMerge(TC.InDetTrackSummaryToolCfg(flags))
-    acc.addPublicTool(InDetTrackSummaryTool)
+    InDetTrackSummaryTool = acc.getPrimaryAndMerge(TC.InDetTrackSummaryToolCfg(flags))
 
     # CalDb tool
     from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_CalDbToolCfg
@@ -124,7 +123,7 @@ def InDetCosmicsEventPhaseCfg(flags, InputTrackCollections, name = 'InDetCosmics
 # --------------------------------------------------------------------------------
 def TRTPhaseCfg(flags, self, InputTrackCollections = [], **kwargs):
     acc = ComponentAccumulator()
-    if flags.Detector.EnableTRT and flags.InDet.doPRDFormation:
+    if flags.Detector.EnableTRT:
         from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTPhaseCondCfg
         acc.merge(TRTPhaseCondCfg(flags))
         #    
@@ -146,7 +145,7 @@ if __name__ == "__main__":
     # TODO: TRT only?
 
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.Input.Files = defaultTestFiles.RDO
+    ConfigFlags.Input.Files = defaultTestFiles.RDO_RUN2
     ConfigFlags.lock()
     ConfigFlags.dump()
 

@@ -7,7 +7,7 @@
 
 #include "FlavorTagDiscriminants/FlipTagEnums.h"
 #include "FlavorTagDiscriminants/AssociationEnums.h"
-#include "FlavorTagDiscriminants/DL2DataDependencyNames.h"
+#include "FlavorTagDiscriminants/FTagDataDependencyNames.h"
 
 // EDM includes
 #include "xAODBTagging/BTaggingFwd.h"
@@ -32,7 +32,8 @@ namespace FlavorTagDiscriminants {
     ~DL2HighLevel();
     void decorate(const xAOD::BTagging& btag) const;
     void decorate(const xAOD::Jet& jet) const;
-    DL2DataDependencyNames getDataDependencyNames() const;
+    void decorateWithDefaults(const xAOD::Jet& jet) const;
+    FTagDataDependencyNames getDataDependencyNames() const;
   private:
     std::unique_ptr<DL2> m_dl2;
   };

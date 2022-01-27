@@ -6,7 +6,6 @@
 #include "xAODTrigger/MuonRoI.h"
 #include "xAODTrigger/MuonRoIAuxContainer.h"
 #include "eformat/SourceIdentifier.h"
-#include "eformat/Status.h"
 #include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
 #include "TrigT1Interfaces/ITrigThresholdDecisionTool.h"
 
@@ -114,19 +113,7 @@ StatusCode MuonRoIByteStreamTool::convertToBS(std::vector<WROBF*>& vrobf,
 
   // Create ROBFragment containing the ROD words
   const eformat::helper::SourceIdentifier sid(eformat::TDAQ_MUON_CTP_INTERFACE, m_muCTPIModuleID.value());
-  const EventIDBase& eid = eventContext.eventID();
-  vrobf.push_back(newRobFragment(
-    eventContext,
-    sid.code(),
-    eid.run_number(),
-    eid.event_number(),
-    eid.bunch_crossing_id(),
-    0, // lvl1_type will be overwritten downstream from full event fragment
-    0, // detev_type is system-specific
-    muonRoIs->size(),
-    data,
-    eformat::STATUS_BACK // status_position is system-specific
-  ));
+  vrobf.push_back(newRobFragment(eventContext, sid.code(), muonRoIs->size(), data));
 
   return StatusCode::SUCCESS;
 }

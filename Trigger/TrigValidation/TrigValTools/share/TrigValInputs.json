@@ -149,7 +149,7 @@
         "source": "mc",
         "format": "RDO",
         "paths": [
-                "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/RDO_NSW_r20210728.root"
+                "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/RDO_NSW_231121.root"
         ]
     },
     "pileup_low": {

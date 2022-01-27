@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cmath>
@@ -9,7 +9,6 @@
 #include "CaloFillCellPositionShift.h"
 
 #include "CaloIdentifier/CaloIdManager.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloConditions/CaloCellPositionShift.h"
@@ -37,6 +36,8 @@ StatusCode CaloFillCellPositionShift::initialize()
   ATH_CHECK( detStore()->retrieve( mgr ) );
   m_calo_id      = mgr->getCaloCell_ID();
 
+  ATH_CHECK( m_caloMgrKey.initialize() );
+
   ATH_MSG_INFO ( " end of CaloFillCellPositionShift::initialize " );
   return StatusCode::SUCCESS; 
 
@@ -62,8 +63,9 @@ StatusCode CaloFillCellPositionShift::stop()
 
   ATH_CHECK( detStore()->record(m_cellPos,m_key) );
 
-  const CaloDetDescrManager* calodetdescrmgr = nullptr;
-  ATH_CHECK( detStore()->retrieve(calodetdescrmgr) );
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+  ATH_CHECK(caloMgrHandle.isValid());
+  const CaloDetDescrManager* calodetdescrmgr = *caloMgrHandle;
 
   ATH_MSG_INFO ( " start loop over Calo cells " << ncell );
   for (int i=0;i<ncell;i++) {

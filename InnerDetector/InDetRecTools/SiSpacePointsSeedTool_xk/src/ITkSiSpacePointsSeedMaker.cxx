@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+    Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
   */
 
 ///////////////////////////////////////////////////////////////////
@@ -20,6 +20,7 @@
 //for validation
 #include "TrkTrack/Track.h"
 #include "TrkParameters/TrackParameters.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <cmath>
 
@@ -3882,7 +3883,9 @@ void SiSpacePointsSeedMaker::writeNtuple(const InDet::SiSpacePointsSeed* seed, c
     m_givesTrack   =   !(track == nullptr);
     m_eventNumber  =   eventNumber;
 
-    m_outputTree->Fill();
+    // Ok: protected by mutex.
+    TTree* outputTree ATLAS_THREAD_SAFE = m_outputTree;
+    outputTree->Fill();
 
   }
 

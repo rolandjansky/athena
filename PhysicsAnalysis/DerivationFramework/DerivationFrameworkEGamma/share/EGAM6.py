@@ -149,7 +149,7 @@ EGAM6_ZEGMassTool = DerivationFramework__EGInvariantMassTool( name = "EGAM6_ZEGM
                                                               Mass2Hypothesis = 0.511*MeV,
                                                               Container1Name = "Electrons",
                                                               Container2Name = "Photons",
-                                                              Pt2BranchName = "DFCommonPhotons_pt",
+                                                              Pt2BranchName = "DFCommonPhotons_et",
                                                               Eta2BranchName = "DFCommonPhotons_eta",
                                                               Phi2BranchName = "DFCommonPhotons_phi",
                                                               CheckCharge = False,

@@ -68,8 +68,10 @@ atlas_install_runtime( share/test_unit_ExampleMonitorAlgorithm*.ref )
 atlas_add_test( ExampleMonitorAlgorithm_test
     SCRIPT test/test_unit_ExampleMonitorAlgorithm.sh
     PROPERTIES TIMEOUT 300
+    POST_EXEC_SCRIPT nopost.sh
 )
 atlas_add_test( ExampleMonitorAlgorithm_online_test
     SCRIPT test/test_unit_ExampleMonitorAlgorithm_online.sh
     PROPERTIES TIMEOUT 300
+    POST_EXEC_SCRIPT nopost.sh
 )

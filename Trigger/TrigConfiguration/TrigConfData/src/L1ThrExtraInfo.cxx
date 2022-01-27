@@ -49,6 +49,12 @@ TrigConf::L1ThrExtraInfo::createExtraInfo(const std::string & thrTypeName, const
    if( thrTypeName == "jLJ" )
       return std::make_unique<L1ThrExtraInfo_jLJ>(thrTypeName, data);
 
+   if( thrTypeName == "gJ" )
+      return std::make_unique<L1ThrExtraInfo_gJ>(thrTypeName, data);
+
+   if( thrTypeName == "gLJ" )
+      return std::make_unique<L1ThrExtraInfo_gLJ>(thrTypeName, data);
+
    if( thrTypeName == "jXE" )
       return std::make_unique<L1ThrExtraInfo_jXE>(thrTypeName, data);
 
@@ -146,6 +152,16 @@ TrigConf::L1ThrExtraInfo::jJ() const {
 const TrigConf::L1ThrExtraInfo_jLJ &
 TrigConf::L1ThrExtraInfo::jLJ() const {
    return dynamic_cast<const TrigConf::L1ThrExtraInfo_jLJ&>( * m_thrExtraInfo.at("jLJ") );
+}
+
+const TrigConf::L1ThrExtraInfo_gJ &
+TrigConf::L1ThrExtraInfo::gJ() const {
+   return dynamic_cast<const TrigConf::L1ThrExtraInfo_gJ&>( * m_thrExtraInfo.at("gJ") );
+}
+
+const TrigConf::L1ThrExtraInfo_gLJ &
+TrigConf::L1ThrExtraInfo::gLJ() const {
+   return dynamic_cast<const TrigConf::L1ThrExtraInfo_gLJ&>( * m_thrExtraInfo.at("gLJ") );
 }
 
 const TrigConf::L1ThrExtraInfo_jXE &
@@ -264,7 +280,7 @@ TrigConf::L1ThrExtraInfo_JETLegacy::load()
 /*******
  * eEM
  *******/
-TrigConf::L1ThrExtraInfo_eEM::WorkingPoints_eEM::WorkingPoints_eEM( const boost::property_tree::ptree & pt ) {
+TrigConf::L1ThrExtraInfo_eEM::WorkingPoints_eEM::WorkingPoints_eEM( const boost::property_tree::ptree & pt) {
    m_isDefined = true;
    m_reta_d  = pt.get_optional<float>("reta").get_value_or(0);
    m_wstot_d = pt.get_optional<float>("wstot").get_value_or(0);
@@ -272,7 +288,6 @@ TrigConf::L1ThrExtraInfo_eEM::WorkingPoints_eEM::WorkingPoints_eEM( const boost:
    m_reta_fw  = pt.get_optional<int>("reta_fw").get_value_or(0);
    m_wstot_fw = pt.get_optional<int>("wstot_fw").get_value_or(0);
    m_rhad_fw  = pt.get_optional<int>("rhad_fw").get_value_or(0);
-   m_maxEt = pt.get_optional<unsigned int>("maxEt").get_value_or(0);
 }
 
 std::ostream &
@@ -285,7 +300,9 @@ void
 TrigConf::L1ThrExtraInfo_eEM::load()
 {
    for( auto & x : m_extraInfo ) {
-      if( x.first == "ptMinToTopo" ) {
+      if( x.first == "maxEt" ){
+         m_maxEt = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinToTopo" ) {
          m_ptMinToTopoMeV = lround(1000 * x.second.getValue<float>());
       } else if( x.first == "workingPoints" ) {
          for( auto & y : x.second.data() ) {
@@ -313,7 +330,6 @@ TrigConf::L1ThrExtraInfo_jEM::WorkingPoints_jEM::WorkingPoints_jEM( const boost:
    m_iso_fw  = pt.get_optional<int>("iso_fw").get_value_or(0);
    m_frac_fw = pt.get_optional<int>("frac_fw").get_value_or(0);
    m_frac2_fw  = pt.get_optional<int>("frac2_fw").get_value_or(0);
-   m_maxEt = pt.get_optional<unsigned int>("maxEt").get_value_or(0);
 }
 
 std::ostream &
@@ -326,7 +342,9 @@ void
 TrigConf::L1ThrExtraInfo_jEM::load()
 {
    for( auto & x : m_extraInfo ) {
-      if( x.first == "ptMinToTopo1" ) {
+      if( x.first == "maxEt" ){
+         m_maxEt = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinToTopo1" ) {
          m_ptMinToTopoMeV1 = 1000*x.second.getValue<unsigned int>();
       } else if( x.first == "ptMinToTopo2" ){
          m_ptMinToTopoMeV2 = 1000*x.second.getValue<unsigned int>();
@@ -362,7 +380,6 @@ TrigConf::L1ThrExtraInfo_eTAU::WorkingPoints_eTAU::WorkingPoints_eTAU( const boo
    m_rHad_d    = pt.get_optional<float>("rHad").get_value_or(0);
    m_rCore_fw  = pt.get_optional<float>("rCore_fw").get_value_or(0);
    m_rHad_fw   = pt.get_optional<float>("rHad_fw").get_value_or(0);
-   m_maxEt     = pt.get_optional<unsigned int>("maxEt").get_value_or(0);
 }
 
 std::ostream &
@@ -375,7 +392,9 @@ void
 TrigConf::L1ThrExtraInfo_eTAU::load()
 {
    for( auto & x : m_extraInfo ) {
-      if( x.first == "ptMinToTopo" ) {
+      if( x.first == "maxEt" ){
+         m_maxEt = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinToTopo" ) {
          m_ptMinToTopoMeV = lround(1000 * x.second.getValue<float>());
       } else if( x.first == "workingPoints" ) {
          for( auto & y : x.second.data() ) {
@@ -399,7 +418,6 @@ TrigConf::L1ThrExtraInfo_jTAU::WorkingPoints_jTAU::WorkingPoints_jTAU( const boo
    m_isDefined = true;
    m_isolation_d    = pt.get_optional<float>("isolation").get_value_or(0);
    m_isolation_fw   = pt.get_optional<float>("isolation_fw").get_value_or(0);
-   m_maxEt          = pt.get_optional<unsigned int>("maxEt").get_value_or(0); 
 }
 
 std::ostream &
@@ -412,7 +430,9 @@ void
 TrigConf::L1ThrExtraInfo_jTAU::load()
 {
    for( auto & x : m_extraInfo ) {
-      if( x.first == "ptMinToTopo1" ) {
+      if( x.first == "maxEt" ){
+         m_maxEt = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinToTopo1" ) {
          m_ptMinToTopoMeV1 = 1000*x.second.getValue<unsigned int>();
       } else if( x.first == "ptMinToTopo2" ){
          m_ptMinToTopoMeV2 = 1000*x.second.getValue<unsigned int>();
@@ -521,6 +541,72 @@ TrigConf::L1ThrExtraInfo_jLJ::load()
 }
 
 /*******
+ * gJ
+ *******/
+void
+TrigConf::L1ThrExtraInfo_gJ::load()
+{
+   for( auto & x : m_extraInfo ) {
+      if( x.first == "ptMinToTopo1" ) {
+         m_ptMinToTopoMeV1 = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinToTopo2" ){
+         m_ptMinToTopoMeV2 = 1000*x.second.getValue<unsigned int>();
+      }
+   }
+}
+
+/*******
+ * gLJ
+ *******/
+void
+TrigConf::L1ThrExtraInfo_gLJ::load()
+{
+   for( auto & x : m_extraInfo ) {
+      if( x.first == "ptMinToTopo1" ) {
+         m_ptMinToTopoMeV1 = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinToTopo2" ){
+         m_ptMinToTopoMeV2 = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "seedThrA" ){
+         m_seedThrMeVA = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "seedThrB" ){
+         m_seedThrMeVB = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "seedThrC" ){
+         m_seedThrMeVC = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "rhoTowerMinA" ){
+         float rhoTower_tmp = 1000*x.second.getValue<float>();
+         if( (int)rhoTower_tmp != rhoTower_tmp)
+             throw std::runtime_error("gLJ: rhoTower param " + std::to_string(rhoTower_tmp/1000.) + " cannot be converted in MeV" ); 
+         m_rhoTowerMinMeVA = (int)rhoTower_tmp;        
+      } else if( x.first == "rhoTowerMinB" ){
+         float rhoTower_tmp = 1000*x.second.getValue<float>();
+         if( (int)rhoTower_tmp != rhoTower_tmp)
+             throw std::runtime_error("gLJ: rhoTower param " + std::to_string(rhoTower_tmp/1000.) + " cannot be converted in MeV" );  
+         m_rhoTowerMinMeVB = (int)rhoTower_tmp; 
+      } else if( x.first == "rhoTowerMinC" ){
+         float rhoTower_tmp = 1000*x.second.getValue<float>();
+         if( (int)rhoTower_tmp != rhoTower_tmp)
+             throw std::runtime_error("gLJ: rhoTower param " + std::to_string(rhoTower_tmp/1000.) + " cannot be converted in MeV" );  
+         m_rhoTowerMinMeVC = (int)rhoTower_tmp; 
+      } else if( x.first == "rhoTowerMaxA" ){
+         float rhoTower_tmp = 1000*x.second.getValue<float>();
+         if( (int)rhoTower_tmp != rhoTower_tmp)
+             throw std::runtime_error("gLJ: rhoTower param " + std::to_string(rhoTower_tmp/1000.) + " cannot be converted in MeV" );  
+         m_rhoTowerMaxMeVA = (int)rhoTower_tmp; 
+      } else if( x.first == "rhoTowerMaxB" ){
+         float rhoTower_tmp = 1000*x.second.getValue<float>();
+         if( (int)rhoTower_tmp != rhoTower_tmp)
+             throw std::runtime_error("gLJ: rhoTower param " + std::to_string(rhoTower_tmp/1000.) + " cannot be converted in MeV" );
+         m_rhoTowerMaxMeVB = (int)rhoTower_tmp;
+      } else if( x.first == "rhoTowerMaxC" ){
+         float rhoTower_tmp = 1000*x.second.getValue<float>();
+         if( (int)rhoTower_tmp != rhoTower_tmp)
+             throw std::runtime_error("gLJ: rhoTower param " + std::to_string(rhoTower_tmp/1000.) + " cannot be converted in MeV" );
+         m_rhoTowerMaxMeVC = (int)rhoTower_tmp;
+      }
+   }  
+}
+
+/*******
  * jXE
  *******/
 void
@@ -557,6 +643,45 @@ TrigConf::L1ThrExtraInfo_jTE::load()
 void
 TrigConf::L1ThrExtraInfo_gXE::load()
 {
+   for( auto & x : m_extraInfo ) {
+      if( x.first == "seedThrA" ){
+         m_seedThrMeVA = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "seedThrB" ){
+         m_seedThrMeVB = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "seedThrC" ){
+         m_seedThrMeVC = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "XERHO_sigmaPosA" ){
+         m_XERHO_sigmaPosA = x.second.getValue<unsigned int>();
+      } else if( x.first == "XERHO_sigmaPosB" ){
+         m_XERHO_sigmaPosB = x.second.getValue<unsigned int>();
+      } else if( x.first == "XERHO_sigmaPosC" ){
+         m_XERHO_sigmaPosC = x.second.getValue<unsigned int>();
+      } else if( x.first == "XERHO_sigmaNegA" ){
+         m_XERHO_sigmaNegA = x.second.getValue<unsigned int>();
+      } else if( x.first == "XERHO_sigmaNegB" ){
+         m_XERHO_sigmaNegB = x.second.getValue<unsigned int>();
+      } else if( x.first == "XERHO_sigmaNegC" ){
+         m_XERHO_sigmaNegC = x.second.getValue<unsigned int>();
+      } else if( x.first == "XEJWOJ_a_A" ){
+         m_XEJWOJ_a_A = x.second.getValue<unsigned int>();
+      } else if( x.first == "XEJWOJ_a_B" ){
+         m_XEJWOJ_a_B = x.second.getValue<unsigned int>();
+      } else if( x.first == "XEJWOJ_a_C" ){
+         m_XEJWOJ_a_C = x.second.getValue<unsigned int>();
+      } else if( x.first == "XEJWOJ_b_A" ){
+         m_XEJWOJ_b_A = x.second.getValue<unsigned int>();
+      } else if( x.first == "XEJWOJ_b_B" ){
+         m_XEJWOJ_b_B = x.second.getValue<unsigned int>();
+      } else if( x.first == "XEJWOJ_b_C" ){
+         m_XEJWOJ_b_C = x.second.getValue<unsigned int>();
+      } else if( x.first == "XEJWOJ_c_A" ){
+         m_XEJWOJ_c_A = x.second.getValue<unsigned int>();
+      } else if( x.first == "XEJWOJ_c_B" ){
+         m_XEJWOJ_c_B = x.second.getValue<unsigned int>();
+      } else if( x.first == "XEJWOJ_c_C" ){
+         m_XEJWOJ_c_C = x.second.getValue<unsigned int>();
+      }
+   }
 }
 
 /*******
@@ -593,6 +718,36 @@ TrigConf::L1ThrExtraInfo_MU::tgcIdxForPt(unsigned int pt) const
       std::cerr << "No TGC index defined for pt " << pt << endl;
       throw;
    }
+}
+
+unsigned int
+TrigConf::L1ThrExtraInfo_MU::ptForRpcIdx(unsigned int idx) const
+{
+
+   for(auto & x : m_rpcPtMap){
+      if(x.second==idx) return x.first;
+   } 
+   throw std::runtime_error("index "+std::to_string(idx)+" not found for RPC roads"); 
+
+}
+
+unsigned int
+TrigConf::L1ThrExtraInfo_MU::ptForTgcIdx(unsigned int idx) const
+{
+
+   for(auto & x : m_tgcPtMap){
+      if(x.second==idx) return x.first;
+   }
+   throw std::runtime_error("index "+std::to_string(idx)+" not found for TGC roads");
+
+}
+
+unsigned int
+TrigConf::L1ThrExtraInfo_MU::tgcIdxForRpcIdx(unsigned int rpcIdx) const
+{
+
+   int ptValue = ptForRpcIdx(rpcIdx);
+   return tgcIdxForPt(ptValue);
 }
 
 std::vector<unsigned int>

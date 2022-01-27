@@ -96,6 +96,15 @@ auto floatAccessors = initAccessors<float>(
   "dipsLoose20210517_pb",
   "dipsLoose20210517_pc",
   "dipsLoose20210517_pu",
+  "DL1dv00_pb",
+  "DL1dv00_pc",
+  "DL1dv00_pu",
+  "dipsLoose20210729_pb",
+  "dipsLoose20210729_pc",
+  "dipsLoose20210729_pu",
+  "fastDips_pb",
+  "fastDips_pc",
+  "fastDips_pu",
   "DetectorEta", "DetectorPhi",
   "EMFrac", "HECFrac", "JVFCorr", "seed_eta", "seed_phi", "trk_a0beam",
   "btagIp_d0", "btagIp_d0Uncertainty", "btagIp_z0SinTheta", "btagIp_z0SinThetaUncertainty",
@@ -125,7 +134,7 @@ auto floatAccessors = initAccessors<float>(
   "disTrkCand_refit_chi2sum_br_sct1","disTrkCand_refit_chi2sum_br_sct2","disTrkCand_refit_chi2sum_br_sct3","disTrkCand_refit_chi2sum_br_sct4",
   "disTrkCand_refit_ndofsum_br_ibl","disTrkCand_refit_ndofsum_br_pix1","disTrkCand_refit_ndofsum_br_pix2","disTrkCand_refit_ndofsum_br_pix3",
   "disTrkCand_refit_ndofsum_br_sct1","disTrkCand_refit_ndofsum_br_sct2","disTrkCand_refit_ndofsum_br_sct3","disTrkCand_refit_ndofsum_br_sct4",
-  "ptcone20", "ptvarcone20", "etcone20", "topoetcone20"
+  "ptcone20", "ptvarcone20", "etcone20", "topoetcone20","Timing"
   );
 
 auto doubleAccessors = initAccessors<double>("ptcone02", "ptcone03");

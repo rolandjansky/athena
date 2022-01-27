@@ -12,61 +12,31 @@ from collections import namedtuple
 # ('Id working point', 'pt threshold': ['Maximum number of tracks[0]', 'etmincalib[1]', 'Id level[2]'])
 TauCuts = namedtuple('TauCuts','numTrackMax numTrackWideTrackMax EtCalibMin level')
 thresholdsEF = {
-    ('medium1', 0): TauCuts(3, 1,  0000.0, 2), 
-    ('medium1', 12): TauCuts(3, 1, 12000.0, 2),
-    ('medium1', 20): TauCuts(3, 1, 20000.0, 2),
-    ('medium1', 25): TauCuts(3, 1, 25000.0, 2),
-    ('medium1', 29): TauCuts(3, 1, 29000.0, 2),
-    ('medium1', 35): TauCuts(3, 1, 35000.0, 2),
-    ('medium1', 38): TauCuts(3, 1, 38000.0, 2),
-    ('medium1', 40): TauCuts(3, 1, 40000.0, 2),
-    ('medium1', 50): TauCuts(3, 1, 50000.0, 2),
-    ('medium1', 60): TauCuts(3, 1, 60000.0, 2),
-    ('medium1', 80): TauCuts(3, 1, 80000.0, 2),
-    ('medium1', 115): TauCuts(3, 1, 115000.0, 2),
-    ('medium1', 125): TauCuts(3, 1, 125000.0, 2), 
-    ('medium1', 160): TauCuts(3, 1, 160000.0, 2), 
-    ('medium1', 200): TauCuts(3, 1, 200000.0, 2),
     ('looseRNN', 20): TauCuts(3, 1, 20000.0, 1),
     ('looseRNN', 25): TauCuts(3, 1, 25000.0, 1),
-    ('looseRNN', 29): TauCuts(3, 1, 29000.0, 1),
     ('looseRNN', 35): TauCuts(3, 1, 35000.0, 1),
-    ('looseRNN', 38): TauCuts(3, 1, 38000.0, 1),
-    ('looseRNN', 50): TauCuts(3, 1, 50000.0, 1),
+    ('looseRNN', 40): TauCuts(3, 1, 40000.0, 1),
     ('looseRNN', 60): TauCuts(3, 1, 60000.0, 1),
-    ('looseRNN', 80): TauCuts(3, 1, 80000.0, 1),
-    ('looseRNN', 115): TauCuts(3, 1, 115000.0, 1),
-    ('looseRNN', 125): TauCuts(3, 1, 125000.0, 1), 
+    ('looseRNN', 80): TauCuts(3, 1, 80000.0, 1), 
     ('looseRNN', 160): TauCuts(3, 1, 160000.0, 1),
     ('looseRNN', 200): TauCuts(3, 1, 200000.0, 1),
-    ('mediumRNN', 0): TauCuts(3, 1, 0000.0, 2), 
-    ('mediumRNN', 12): TauCuts(3, 1, 12000.0, 2),
     ('mediumRNN', 20): TauCuts(3, 1, 20000.0, 2),
     ('mediumRNN', 25): TauCuts(3, 1, 25000.0, 2),
-    ('mediumRNN', 29): TauCuts(3, 1, 29000.0, 2),
     ('mediumRNN', 35): TauCuts(3, 1, 35000.0, 2),
-    ('mediumRNN', 38): TauCuts(3, 1, 38000.0, 2),
     ('mediumRNN', 40): TauCuts(3, 1, 40000.0, 2),
     ('mediumRNN', 50): TauCuts(3, 1, 50000.0, 2),
     ('mediumRNN', 60): TauCuts(3, 1, 60000.0, 2),
     ('mediumRNN', 80): TauCuts(3, 1,  80000.0, 2),
     ('mediumRNN', 100): TauCuts(3, 1, 100000.0, 2),
-    ('mediumRNN', 115): TauCuts(3, 1, 115000.0, 2),
-    ('mediumRNN', 125): TauCuts(3, 1, 125000.0, 2), 
     ('mediumRNN', 160): TauCuts(3, 1, 160000.0, 2), 
     ('mediumRNN', 180): TauCuts(3, 1, 180000.0, 2), 
     ('mediumRNN', 200): TauCuts(3, 1, 200000.0, 2),
     ('tightRNN', 20): TauCuts(3, 1, 20000.0, 3),
     ('tightRNN', 25): TauCuts(3, 1, 25000.0, 3),
-    ('tightRNN', 29): TauCuts(3, 1, 29000.0, 3),
     ('tightRNN', 35): TauCuts(3, 1, 35000.0, 3),
-    ('tightRNN', 38): TauCuts(3, 1, 38000.0, 3),
     ('tightRNN', 40): TauCuts(3, 1, 40000.0, 3),
-    ('tightRNN', 50): TauCuts(3, 1, 50000.0, 3),
     ('tightRNN', 60): TauCuts(3, 1, 60000.0, 3),
     ('tightRNN', 80): TauCuts(3, 1, 80000.0, 3),
-    ('tightRNN', 115): TauCuts(3, 1, 115000.0, 3),
-    ('tightRNN', 125): TauCuts(3, 1, 125000.0, 3), 
     ('tightRNN', 160): TauCuts(3, 1, 160000.0, 3),
     ('tightRNN', 180): TauCuts(3, 1, 180000.0, 3),
     ('tightRNN', 200): TauCuts(3, 1, 200000.0, 3),
@@ -102,63 +72,38 @@ thresholdsEF_singlepion = {
     ('singlepion', 25): SinglePionCuts(30.0*GeV, 25.0*GeV, 1, 0, 0.06, 0.4, 0.85)
 }
 
-def TrigPresTauMVHypoToolFromDict( chainDict ):
-
-    name = chainDict['chainName']
-
-    chainPart = chainDict['chainParts'][0]
-
-    preselection = chainPart['preselection']
-    criteria  = chainPart['selection']
-    threshold = chainPart['threshold']
-
-    from AthenaConfiguration.ComponentFactory import CompFactory
-    currentHypo = CompFactory.TrigEFTauMVHypoTool(name)
-    currentHypo.MonTool       = ""
-
-    theThresh = thresholdsEF[(criteria, int(threshold))]
-    currentHypo.numTrackMax = theThresh.numTrackMax
-    currentHypo.EtCalibMin  = theThresh.EtCalibMin
-    currentHypo.level       = -1111
-    currentHypo.method      = 0
-
-    if 'idperf' in criteria:
-        currentHypo.AcceptAll = True
-
-    if 'tracktwoMVATest' in preselection:
-        currentHypo.highpt = False
-
-    return currentHypo
-
-
 def TrigEFTauMVHypoToolFromDict( chainDict ):
 
     name = chainDict['chainName']
 
     chainPart = chainDict['chainParts'][0]
 
-    preselection = chainPart['preselection']
     criteria  = chainPart['selection']
     threshold = chainPart['threshold']
 
     from AthenaConfiguration.ComponentFactory import CompFactory
-    if criteria in ['medium', 'loose1', 'medium1', 'tight1', 'verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN', 'idperf', 'perf'] :
+    if criteria in ['verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN', 'idperf', 'perf'] :
     
         currentHypo = CompFactory.TrigEFTauMVHypoTool(name)
 
-        from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
-        monTool = GenericMonitoringTool('MonTool_' + name)
-        monTool.HistPath = 'TrigTauRecMerged_TrigEFTauMVHypo/' + name
+        if 'tauMon:online' in chainDict['monGroups']:
+           from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
+           monTool = GenericMonitoringTool('MonTool_' + name)
+           monTool.HistPath = 'TrigTauRecMerged_TrigEFTauMVHypo/' + name
 
-        # define quantities to be monitored
-        monTool.defineHistogram("CutCounter", path='EXPERT',type='TH1I',title=';CutCounter; Entries', xbins=10, xmin=0.,xmax=10.) 
-        monTool.defineHistogram("ptAccepted", path='EXPERT',type='TH1F',title=';ptAccepted; Entries', xbins=50, xmin=0.,xmax=500.)
-        monTool.defineHistogram("nTrackAccepted", path='EXPERT',type='TH1F',title=';nTrackAccepted; Entries', xbins=10, xmin=0.,xmax=10.)
-        monTool.defineHistogram("nWideTrackAccepted", path='EXPERT',type='TH1F',title=';nWideTrackAccepted; Entries', xbins=10, xmin=0.,xmax=10.)       
-        monTool.defineHistogram("nInputTaus", path='EXPERT',type='TH1F',title=';nInputTaus; Entries', xbins=10, xmin=0.,xmax=10.) 
-        monTool.defineHistogram("RNNJetScore", path='EXPERT',type='TH1F',title=';RNN score; Entries', xbins=40, xmin=0.,xmax=1.)
-        monTool.defineHistogram("RNNJetScoreSigTrans", path='EXPERT',type='TH1F',title=';RNN score sig trans; Entries', xbins=40, xmin=0.,xmax=1.)
-        currentHypo.MonTool = monTool
+           # define quantities to be monitored
+           monTool.defineHistogram("CutCounter", path='EXPERT',type='TH1I',title=';CutCounter; Entries', xbins=10, xmin=0.,xmax=10.) 
+           monTool.defineHistogram("ptAccepted", path='EXPERT',type='TH1F',title=';ptAccepted; Entries', xbins=50, xmin=0.,xmax=500.)
+           monTool.defineHistogram("nTrackAccepted", path='EXPERT',type='TH1F',title=';nTrackAccepted; Entries', xbins=10, xmin=0.,xmax=10.)
+           monTool.defineHistogram("nWideTrackAccepted", path='EXPERT',type='TH1F',title=';nWideTrackAccepted; Entries', xbins=10, xmin=0.,xmax=10.)       
+           monTool.defineHistogram("nInputTaus", path='EXPERT',type='TH1F',title=';nInputTaus; Entries', xbins=10, xmin=0.,xmax=10.) 
+           monTool.defineHistogram("RNNJetScoreAccepted_0p", path='EXPERT',type='TH1F',title=';RNN score Accepted for 0 prong taus; Entries', xbins=40, xmin=0.,xmax=1.)
+           monTool.defineHistogram("RNNJetScoreSigTransAccepted_0p", path='EXPERT',type='TH1F',title=';RNN score sig trans Accepted for 0 prong taus; Entries', xbins=40, xmin=0.,xmax=1.)
+           monTool.defineHistogram("RNNJetScoreAccepted_1p", path='EXPERT',type='TH1F',title=';RNN score Accepted for 1 prong taus; Entries', xbins=40, xmin=0.,xmax=1.)
+           monTool.defineHistogram("RNNJetScoreSigTransAccepted_1p", path='EXPERT',type='TH1F',title=';RNN score sig trans Accepted for 1 prong taus; Entries', xbins=40, xmin=0.,xmax=1.)
+           monTool.defineHistogram("RNNJetScoreAccepted_mp", path='EXPERT',type='TH1F',title=';RNN score Accepted for multi prong taus; Entries', xbins=40, xmin=0.,xmax=1.)
+           monTool.defineHistogram("RNNJetScoreSigTransAccepted_mp", path='EXPERT',type='TH1F',title=';RNN score sig trans Accepted for multi prong taus; Entries', xbins=40, xmin=0.,xmax=1.)
+           currentHypo.MonTool = monTool
 
  
         # setup the Hypo parameter
@@ -167,20 +112,15 @@ def TrigEFTauMVHypoToolFromDict( chainDict ):
         currentHypo.numTrackWideTrackMax = theThresh.numTrackWideTrackMax
         currentHypo.EtCalibMin  = theThresh.EtCalibMin
         currentHypo.level       = theThresh.level
-        currentHypo.method      = 2
-        
+        currentHypo.method      = 1   
+     
         if criteria in [ 'verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN' ]:
-            currentHypo.numTrackMin = 0
             currentHypo.highptidthr = 280000.
-            currentHypo.method      = 3
+            currentHypo.method      = 1
         elif 'idperf' in criteria: 
             currentHypo.AcceptAll = True
         elif 'perf' in criteria:
             currentHypo.method      = 0
-
-        if 'tracktwoMVATest' in preselection:
-            currentHypo.highpt = False
-
 
     elif criteria in [ 'dikaonmass', 'kaonpi1', 'kaonpi2', 'dipion1', 'dipion2', 'dipion3', 'dipion4', 'singlepion' ]: # ATR-22644
         currentHypo = CompFactory.TrigEFTauDiKaonHypoTool(name)
@@ -237,15 +177,16 @@ def TrigTauTrackHypoToolFromDict( chainDict ):
     from AthenaConfiguration.ComponentFactory import CompFactory
     currentHypo = CompFactory.TrigTrackPreSelHypoTool(name)
 
-    from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
-    monTool = GenericMonitoringTool('MonTool_' + name)
-    monTool.HistPath = 'TrigTauRecMerged_TrigTrackPreSelHypo/' + name
+    if 'tauMon:online' in chainDict['monGroups']:
+       from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
+       monTool = GenericMonitoringTool('MonTool_' + name)
+       monTool.HistPath = 'TrigTauRecMerged_TrigTrackPreSelHypo/' + name
 
-    # define quantities to be monitored
-    monTool.defineHistogram("nTracksInCore", path='EXPERT', type='TH1I',title=';nTracksInCore; Entries', xbins=10, xmin=0.,xmax=10.)
-    monTool.defineHistogram("nTracksInIso",  path='EXPERT', type='TH1I',title=';nTracksInIso; Entries',  xbins=10, xmin=0.,xmax=10.)
-    monTool.defineHistogram("CutCounter",   path='EXPERT',  type='TH1I',title=';CutCounter; Entries',    xbins=10, xmin=0.,xmax=10.)
-    currentHypo.MonTool = monTool
+       # define quantities to be monitored
+       monTool.defineHistogram("nTracksInCore", path='EXPERT', type='TH1I',title=';nTracksInCore; Entries', xbins=10, xmin=0.,xmax=10.)
+       monTool.defineHistogram("nTracksInIso",  path='EXPERT', type='TH1I',title=';nTracksInIso; Entries',  xbins=10, xmin=0.,xmax=10.)
+       monTool.defineHistogram("CutCounter",   path='EXPERT',  type='TH1I',title=';CutCounter; Entries',    xbins=10, xmin=0.,xmax=10.)
+       currentHypo.MonTool = monTool
 
     currentHypo.AcceptAll = True
 

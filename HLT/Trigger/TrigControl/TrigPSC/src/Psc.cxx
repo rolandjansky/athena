@@ -36,6 +36,8 @@
 #include "Gaudi/Property.h"
 #include "GaudiKernel/System.h"
 
+#include "TROOT.h"
+
 #include <sstream>
 #include <algorithm>
 #include <vector>
@@ -76,6 +78,8 @@ psc::Psc::~Psc ()
 bool psc::Psc::configure(const ptree& config)
 {
   psc::Utils::ScopeTimer timer("Psc configuration");
+
+  ROOT::EnableThreadSafety();
 
   ERS_DEBUG(1, "psc::Psc::configure ptree:\n" << to_string(config));
   try
@@ -672,6 +676,7 @@ bool psc::Psc::prepareWorker (const boost::property_tree::ptree& args)
 {
   psc::Utils::ScopeTimer timer("Psc prepareWorker");
 
+  ROOT::EnableThreadSafety();
   if ( Py_IsInitialized() ) {
     ERS_DEBUG(1, "Post-fork initialization of Python interpreter");
     PyOS_AfterFork_Child();

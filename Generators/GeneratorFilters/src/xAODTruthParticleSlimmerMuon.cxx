@@ -24,12 +24,14 @@ xAODTruthParticleSlimmerMuon::xAODTruthParticleSlimmerMuon(const std::string &na
 {
     declareProperty("xAODTruthParticleContainerName", m_xaodTruthParticleContainerName = "TruthParticles");
     declareProperty("xAODTruthParticleContainerNameMuon", m_xaodTruthParticleContainerNameMuon = "TruthMuons");
+    declareProperty("xAODTruthEventContainerName", m_xaodTruthEventContainerName = "TruthEvents");
 }
 
 StatusCode xAODTruthParticleSlimmerMuon::initialize()
 {
     ATH_MSG_INFO("xAOD input TruthParticleContainer name = " << m_xaodTruthParticleContainerName);
     ATH_MSG_INFO("xAOD output TruthParticleContainerMuon name = " << m_xaodTruthParticleContainerNameMuon);
+    ATH_MSG_INFO("xAOD input xAODTruthEventContainerName name = " << m_xaodTruthEventContainerName);
     return StatusCode::SUCCESS;
 }
 
@@ -50,43 +52,41 @@ StatusCode xAODTruthParticleSlimmerMuon::execute()
     xTruthParticleContainerMuon->setStore(xTruthParticleAuxContainerMuon);
     ATH_MSG_INFO("Recorded TruthParticleContainerMuon with key: " << m_xaodTruthParticleContainerNameMuon);
 
-    // Retrieve full TruthParticle container
-    const xAOD::TruthParticleContainer *xTruthParticleContainer;
-    if (evtStore()->retrieve(xTruthParticleContainer, m_xaodTruthParticleContainerName).isFailure())
+    // Retrieve full TruthEventContainer container
+    const xAOD::TruthEventContainer *xTruthEventContainer=NULL;
+    if (evtStore()->retrieve(xTruthEventContainer, m_xaodTruthEventContainerName).isFailure())
     {
-        ATH_MSG_ERROR("No TruthParticle collection with name " << m_xaodTruthParticleContainerName << " found in StoreGate!");
+        ATH_MSG_ERROR("No TruthEvent collection with name " << m_xaodTruthEventContainerName << " found in StoreGate!");
         return StatusCode::FAILURE;
     }
-
     // Set up decorators if needed
+    xAOD::TruthEventContainer::const_iterator itr;
+    for (itr = xTruthEventContainer->begin(); itr!=xTruthEventContainer->end(); ++itr) {
 
-    // Loop over full TruthParticle container
-    unsigned int nParticles = xTruthParticleContainer->size();
-    for (unsigned int iPart = 0; iPart < nParticles; ++iPart)
-    {
-        const xAOD::TruthParticle *theParticle = (*xTruthParticleContainer)[iPart];
+        unsigned int nPart = (*itr)->nTruthParticles();
+        for (unsigned int iPart = 0; iPart < nPart; ++iPart) {
+            const xAOD::TruthParticle* theParticle =  (*itr)->truthParticle(iPart);
 
-        int this_absPdgID = theParticle->absPdgId();
+            int this_absPdgID = theParticle->absPdgId();
+            int this_status = theParticle->status();
 
-        int this_status = theParticle->status();
+            //Save stable Muons 
+            if (this_status == 1 && this_absPdgID == 13)
+            {
+                xAOD::TruthParticle *xTruthParticle = new xAOD::TruthParticle();
+                xTruthParticleContainerMuon->push_back( xTruthParticle );
 
-        //Save Muons 
-        if (this_status == 1 && this_absPdgID == 13 )
-        {
-            xAOD::TruthParticle *xTruthParticle = new xAOD::TruthParticle();
-            xTruthParticleContainerMuon->push_back( xTruthParticle );
-
-            // Fill with numerical content
-            xTruthParticle->setPdgId(theParticle->pdgId());
-            xTruthParticle->setBarcode(theParticle->barcode());
-            xTruthParticle->setStatus(theParticle->status());
-            xTruthParticle->setM(theParticle->m());
-            xTruthParticle->setPx(theParticle->px());
-            xTruthParticle->setPy(theParticle->py());
-            xTruthParticle->setPz(theParticle->pz());
-            xTruthParticle->setE(theParticle->e());
+                // Fill with numerical content
+                xTruthParticle->setPdgId(theParticle->pdgId());
+                xTruthParticle->setBarcode(theParticle->barcode());
+                xTruthParticle->setStatus(theParticle->status());
+                xTruthParticle->setM(theParticle->m());
+                xTruthParticle->setPx(theParticle->px());
+                xTruthParticle->setPy(theParticle->py());
+                xTruthParticle->setPz(theParticle->pz());
+                xTruthParticle->setE(theParticle->e());
+            }   
         }
-        
     }
 
     return StatusCode::SUCCESS;

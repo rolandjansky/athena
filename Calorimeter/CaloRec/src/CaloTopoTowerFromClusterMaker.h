@@ -203,7 +203,7 @@ inline bool                                  CaloTopoTowerFromClusterMaker::isVa
 /// <tr>
 /// <td align="left" valign="top"><tt>ClusterContainerKey</tt></td>
 /// <td align="center" valign="top"><tt>SG::ReadHandleKey<xAOD::CaloClusterContainer></tt></td>
-/// <td align="center" valign="top"><tt>"CaloTopoCluster"</tt></td>
+/// <td align="center" valign="top"><tt>"CaloTopoClusters"</tt></td>
 /// <td align="left" valign="top">cluster container key is needed to pick up @c xAOD::CaloClusterContainer for filtered mode (<tt>UseCellsFromCluster = true</tt>)
 /// </tr>
 /// <tr>

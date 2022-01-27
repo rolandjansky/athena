@@ -111,16 +111,16 @@ protected: // data
    ServiceHandle<IAthenaPoolCnvSvc> m_athenaPoolCnvSvc;
    RootType              m_classDesc;
 
-   typedef std::map<std::string, std::string>         StringMap;
-   typedef StringMap::const_iterator                  StringMapIt;
-   StringMap             m_placementHints;
-
    typedef std::map<std::string, RootType>            ClassMap;
    typedef ClassMap::const_iterator                   ClassMapIt;
    std::string           m_className;
    ClassMap              m_classDescs;
 
-   DataObject*           m_dataObject;
+   std::string m_containerPrefix;
+   std::string m_containerNameHint;
+   std::string m_branchNameHint;
+
+   const DataObject*     m_dataObject;
    const Token*          m_i_poolToken;
 
    typedef std::mutex CallMutex;

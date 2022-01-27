@@ -39,7 +39,7 @@ namespace xAOD {
       : SG::AuxElement() {
    }
 
-   void jFexSRJetRoI_v1::initialize( uint8_t jFexNumber, uint8_t fpgaNumber, uint32_t tobWord) {
+   void jFexSRJetRoI_v1::initialize( uint8_t jFexNumber, uint8_t fpgaNumber, uint32_t tobWord, float_t eta, float_t phi) {
     
     
      setTobWord( tobWord );
@@ -51,8 +51,8 @@ namespace xAOD {
      setTobSat(unpackSaturationIndex());
      setGlobalEta(unpackGlobalEta());
      setGlobalPhi(unpackGlobalPhi()); 
-     setEta( (unpackGlobalEta()+unpackTTweightEta())/10 ); 
-     setPhi( (unpackGlobalPhi()+unpackTTweightPhi())/10 ); 
+     setEta( eta ); 
+     setPhi( phi ); 
           
    //include in future when xTOB in jFEX has been implemented.
 
@@ -196,55 +196,6 @@ namespace xAOD {
 
         return globalPhi;
 
-    }
-    
-    
-    float jFexSRJetRoI_v1::unpackTTweightEta() const{
-        float weight = 0.0;
-        if(jFexNumber() == 0 || jFexNumber() == 5) {
-            
-            if(tobLocalEta() <=s_FWD_EtaPosition[1]) { //Region 1
-                weight = 0.5;
-            }
-            else if(tobLocalEta() <=s_FWD_EtaPosition[3]) { //Region 2
-                weight = 1.0;
-            }
-            else if(tobLocalEta() == s_FWD_EtaPosition[4] ) { //Region 3
-                weight = 0.5;
-            }
-            else if(tobLocalEta() <=s_FWD_EtaPosition[6]) {//Region 4
-                weight = 0.5;
-            }
-        }
-        else { //Modules 1-4
-            weight = 0.5;
-        }
-        
-        return  weight;     
-    }
-    
-    float jFexSRJetRoI_v1::unpackTTweightPhi() const{
-        float weight = 0.0;
-        if(jFexNumber() == 0 || jFexNumber() == 5) {
-            
-            if(tobLocalEta() <=s_FWD_EtaPosition[1]) { //Region 1
-                weight = 0.5;
-            }
-            else if(tobLocalEta() <=s_FWD_EtaPosition[3]) { //Region 2
-                weight = 1.0;
-            }
-            else if(tobLocalEta() == s_FWD_EtaPosition[4] ) { //Region 3
-                weight = 1.0;
-            }
-            else if(tobLocalEta() <=s_FWD_EtaPosition[6]) {//Region 4
-                weight = 2;
-            }
-        }
-        else { //Modules 1-4
-            weight = 0.5;
-        }
-        
-        return   weight;         
     }
 
 } // namespace xAOD

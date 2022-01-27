@@ -68,18 +68,28 @@ def SCT_ConfigurationCondAlgCfg(flags, name="SCT_ConfigurationCondAlg", **kwargs
 
 
 def SCT_DetectorElementCondAlgCfg(flags, name="SCT_DetectorElementCondAlg", **kwargs):
-    def merge_lists(a, b):
-        a.extend([item for item in b if item not in a])
-        return a
-
-    alg = CompFactory.SCT_DetectorElementCondAlg(name, **kwargs)
-    alg._descriptors["MuonManagerKey"].semantics.merge = merge_lists
-    alg._descriptors["TRT_DetEltContKey"].semantics.merge = merge_lists
-    alg._descriptors["PixelAlignmentStore"].semantics.merge = merge_lists
-
     from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConfig import SCT_AlignCondAlgCfg
     acc = SCT_AlignCondAlgCfg(flags)
-    acc.addCondAlgo(alg)
+
+    # FIXME
+    # add artifical dependencies to SCT, TRT and Muon
+    # conditions algs to ensure that the IOV
+    # is identical to the IOV of the tracking geometry
+    if flags.Detector.GeometryMuon and flags.Muon.enableAlignment:
+        from MuonConfig.MuonGeometryConfig import MuonDetectorCondAlgCfg
+        acc.merge(MuonDetectorCondAlgCfg(flags))
+        kwargs.setdefault("MuonManagerKey", "MuonDetectorManager")
+    if flags.Detector.GeometryTRT:
+        from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
+        acc.merge(TRT_ReadoutGeometryCfg(flags))
+        kwargs.setdefault("TRT_DetEltContKey", "TRT_DetElementContainer")
+    if not flags.GeoModel.Align.LegacyConditionsAccess and flags.Detector.GeometryPixel:
+        from PixelGeoModel.PixelGeoModelConfig import PixelAlignmentCfg
+        acc.merge(PixelAlignmentCfg(flags))
+        kwargs.setdefault("PixelAlignmentStore", "PixelAlignmentStore")
+    # end of hack
+
+    acc.addCondAlgo(CompFactory.SCT_DetectorElementCondAlg(name, **kwargs))
     return acc
 
 

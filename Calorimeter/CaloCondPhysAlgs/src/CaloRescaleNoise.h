@@ -62,10 +62,14 @@ class CaloRescaleNoise : public AthAlgorithm {
     { this, "PileupNoiseKey", "pileupNoise", "SG key for pileup noise" };
 
   SG::ReadCondHandleKey<ILArHVScaleCorr> m_scaleCorrKey
-  { this, "LArHVScaleCorr", "LArHVScaleCorrRecomputed", "" };
-  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+    { this, "LArHVScaleCorr", "LArHVScaleCorrRecomputed", "" };
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey
+    { this, "CablingKey", "LArOnOffIdMap", "SG Key of LArOnOffIdMapping object"};
   SG::ReadCondHandleKey<ILArHVScaleCorr> m_onlineScaleCorrKey
-  { this, "OnlineLArHVScaleCorr", "LArHVScaleCorr", "" };
+    { this, "OnlineLArHVScaleCorr", "LArHVScaleCorr", "" };
+
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey
+    { this, "CaloDetDescrManager", "CaloDetDescrManager", "SG Key for CaloDetDescrManager in the Condition Store" };
 
   int m_iCool;
   int m_SubHash;

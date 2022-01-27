@@ -238,7 +238,7 @@ ExcludeList=[ #"TrackCollection#Tracks",
               "DetailedTrackTruthCollection#ResolvedForwardTracksDetailedTruth",
               ]
 
-trackParticleAuxExclusions="-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
+trackParticleAuxExclusions="-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
 
 ExcludeList=[]
 #dpdOutput.addAllItemsFromInputExceptExcludeList(streamName,ExcludeList)

@@ -1593,50 +1593,46 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTRDOs(const TRT_RDO_Container& rdoCon
         // Insert here
     }
 
+    if (m_doShift) {
+        const unsigned int lumiBlock = eventInfo.lumiBlock();
+        ATH_MSG_VERBOSE("This is lumiblock : " << lumiBlock);
+        int lastLumiBlock = -99; // ToDo - last lumiblock calculation is not correct
+        if ((int)lumiBlock != lastLumiBlock) {
+            lastLumiBlock = lumiBlock;
+        }
+        float evtLumiBlock = 1.;
+        float lumiBlockScale = (evtLumiBlock > 0) ? (1. / evtLumiBlock) : 0;
+        const float barrelConst = 1. / 105088;
+        const float endcapConst = 1. / 122880;
 
-    if (m_environment != Environment_t::online) {
+        if (m_doTracksMon && evtLumiBlock > 0) {
+            NHitsperLB_x = lastLumiBlock;
+            NHitsperLB_y = (float)nHitsperLB_B * lumiBlockScale * barrelConst;
+            fill("RDOShiftRebinnedBarrelHistograms0", NHitsperLB_x, NHitsperLB_y);
+            NHLHitsperLB_x = lastLumiBlock;
+            NHLHitsperLB_y = (float)nHLHitsperLB_B * lumiBlockScale * barrelConst;
+            fill("RDOShiftRebinnedBarrelHistograms0", NHLHitsperLB_x, NHLHitsperLB_y);
 
-        if (m_doShift) {
-            const unsigned int lumiBlock = eventInfo.lumiBlock();
-            ATH_MSG_VERBOSE("This is lumiblock : " << lumiBlock);
-            int lastLumiBlock = -99; // ToDo - last lumiblock calculation is not correct
-            if ((int)lumiBlock != lastLumiBlock) {
-                lastLumiBlock = lumiBlock;
-            }
-            float evtLumiBlock = 1.;
-            float lumiBlockScale = (evtLumiBlock > 0) ? (1. / evtLumiBlock) : 0;
-            const float barrelConst = 1. / 105088;
-            const float endcapConst = 1. / 122880;
-
-            if (m_doTracksMon && evtLumiBlock > 0) {
+            for (int iside = 0; iside < 2; iside++) {
                 NHitsperLB_x = lastLumiBlock;
-                NHitsperLB_y = (float)nHitsperLB_B * lumiBlockScale * barrelConst;
-                fill("RDOShiftRebinnedBarrelHistograms0", NHitsperLB_x, NHitsperLB_y);
+                NHitsperLB_y = (float)nHitsperLB_E[iside] * lumiBlockScale * endcapConst;
+                fill("RDOShiftRebinnedEndcapHistograms1"+std::to_string(iside), NHitsperLB_x, NHitsperLB_y);
                 NHLHitsperLB_x = lastLumiBlock;
-                NHLHitsperLB_y = (float)nHLHitsperLB_B * lumiBlockScale * barrelConst;
-                fill("RDOShiftRebinnedBarrelHistograms0", NHLHitsperLB_x, NHLHitsperLB_y);
+                NHLHitsperLB_y = (float)nHLHitsperLB_E[iside] * lumiBlockScale * endcapConst;
+                fill("RDOShiftRebinnedEndcapHistograms1"+std::to_string(iside), NHLHitsperLB_x, NHLHitsperLB_y);
+            }
 
-                for (int iside = 0; iside < 2; iside++) {
-                    NHitsperLB_x = lastLumiBlock;
-                    NHitsperLB_y = (float)nHitsperLB_E[iside] * lumiBlockScale * endcapConst;
-                    fill("RDOShiftRebinnedEndcapHistograms1"+std::to_string(iside), NHitsperLB_x, NHitsperLB_y);
-                    NHLHitsperLB_x = lastLumiBlock;
-                    NHLHitsperLB_y = (float)nHLHitsperLB_E[iside] * lumiBlockScale * endcapConst;
-                    fill("RDOShiftRebinnedEndcapHistograms1"+std::to_string(iside), NHLHitsperLB_x, NHLHitsperLB_y);
-                }
+            nHitsperLB_B = 0;
+            nHLHitsperLB_B = 0;
 
-                nHitsperLB_B = 0;
-                nHLHitsperLB_B = 0;
-
-                for (int iside = 0; iside < 2; iside++) {
-                    nHitsperLB_E[iside] = 0;
-                    nHLHitsperLB_E[iside] = 0;
-                }
+            for (int iside = 0; iside < 2; iside++) {
+                nHitsperLB_E[iside] = 0;
+                nHLHitsperLB_E[iside] = 0;
             }
         }
+    }
 
         ATH_MSG_DEBUG("end of event and lumi block");
-    } // TODO!
 
     //Get BSConversion Errors from BSConditionsServices:
     std::set<std::pair<uint32_t, uint32_t> > *L1IDErrorSet      = m_BSSvc->getIdErrorSet(TRTByteStreamErrors::L1IDError);
@@ -1930,16 +1926,16 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTEfficiency(const TrackCollection& co
             fill("TRTEfficiencyHistograms", Efficiency_z0_passed, Efficiency_z0);
         }
 
+
         // Use hole finder to find holes on this track
         if (m_useHoleFinder) {
-            std::unique_ptr<const Trk::TrackStates> holes (m_trt_hole_finder->getHolesOnTrack(**track));
+            std::unique_ptr<const Trk::TrackStates> holes (m_trt_hole_finder->getHolesOnTrack(*(*track)));
 
             if (!holes) {
-
                 ATH_MSG_WARNING("TRTTrackHoleSearchTool returned null results.");
                 continue;
             } else {
-                for (auto it = holes->begin(); it != holes->end(); ++it) {
+                for (auto it = holes->begin(); it != holes->end(); ++it) { // holes->size() is always 0 for some reason
                     if ( !((*it)->type(Trk::TrackStateOnSurface::Hole)) ) continue;
 
                     const Trk::TrackParameters *track_parameters = (*it)->trackParameters();
@@ -2053,6 +2049,12 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTEfficiency(const TrackCollection& co
 }
 
 
+struct straw_edge_struct {
+    int strawNumber;
+    float HitWonTMap_B_y;
+    float HitWonTMap_E_y;
+};
+
 // Fill TRT Hits histograms
 //----------------------------------------------------------------------------------//
 StatusCode TRTMonitoringRun3RAW_Alg::fillTRTHits(const TrackCollection& trackCollection) const {
@@ -2062,8 +2064,6 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTHits(const TrackCollection& trackCol
     // TH1F
     auto HLhitOnTrack_B          = Monitored::Scalar<float>("HLhitOnTrack_B", 0.0);
     auto HLhitOnTrack_E          = Monitored::Scalar<float>("HLhitOnTrack_E", 0.0);
-    auto HitWonTMap_B            = Monitored::Scalar<float>("HitWonTMap_B", 0.0);
-    auto HitWonTMap_E            = Monitored::Scalar<float>("HitWonTMap_E", 0.0);
     auto HtoLRatioOnTrack_B_Ar   = Monitored::Scalar<float>("HtoLRatioOnTrack_B_Ar", 0.0);
     auto HtoLRatioOnTrack_B_Xe   = Monitored::Scalar<float>("HtoLRatioOnTrack_B_Xe", 0.0);
     auto HtoLRatioOnTrack_B      = Monitored::Scalar<float>("HtoLRatioOnTrack_B", 0.0);
@@ -2102,6 +2102,17 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTHits(const TrackCollection& trackCol
     auto HtoLWonTMapC_passed     = Monitored::Scalar<bool>("HtoLWonTMapC_passed", false);
     auto HitTronTMapC_x          = Monitored::Scalar<float>("HitTronTMapC_x", 0.0);
     auto HitTronTMapC_y          = Monitored::Scalar<float>("HitTronTMapC_y", 0.0);
+
+    // TProfile 
+    auto HitWonTMap_B_y          = Monitored::Scalar<float>("HitWonTMap_B_y", 0.0);
+    auto HitWonTMap_E_y          = Monitored::Scalar<float>("HitWonTMap_E_y", 0.0);
+
+    auto scale_hHitWonTMap_B        = std::make_unique<short int[]>(s_Straw_max[0]);
+    auto scale_hHitWonTMap_E        = std::make_unique<short int[][s_Straw_max[1]]>(2);
+    auto scale_hHitWonTMap_B_passed = std::make_unique<short int[]>(s_Straw_max[0]);
+    auto scale_hHitWonTMap_E_passed = std::make_unique<short int[][s_Straw_max[1]]>(2);
+
+    std::map<int,std::vector<straw_edge_struct>> straw_edge_map;
 
     auto p_trk = trackCollection.begin();
 
@@ -2262,7 +2273,7 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTHits(const TrackCollection& trackCol
         }
 
         for (TSOSItBegin = TSOSItBegin0; TSOSItBegin != TSOSItEnd; ++TSOSItBegin) {
-            // Select a TSOS which is non-empty, measurement type and contains  both drift circle and track parameters informations
+            // Select a TSOS which is non-empty, measurement type and contains both drift circle and track parameters informations
             if ((*TSOSItBegin) == 0) continue;
 
             if ( !((*TSOSItBegin)->type(Trk::TrackStateOnSurface::Measurement)) ) continue;
@@ -2339,6 +2350,8 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTHits(const TrackCollection& trackCol
                             StrawEffDetPhi_B_passed = phi_module;
                             StrawEffDetPhi_B = 1.0;
                             fill("ShiftTRTTrackHistograms"+std::to_string(ibe), StrawEffDetPhi_B_passed, StrawEffDetPhi_B);
+
+                            if (m_doStraws) scale_hHitWonTMap_B[thisStrawNumber[ibe]]++;
                         }
 
                     } else if (ibe == 1) {
@@ -2349,6 +2362,8 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTHits(const TrackCollection& trackCol
                             StrawEffDetPhi_E_passed = phi_module;
                             StrawEffDetPhi_E = 1.0;
                             fill("ShiftTRTTrackHistograms"+std::to_string(ibe)+std::to_string(iside), StrawEffDetPhi_E_passed, StrawEffDetPhi_E);
+
+                            if (m_doStraws) scale_hHitWonTMap_E[iside][thisStrawNumber[ibe]]++;
                         }
                     }
 
@@ -2371,15 +2386,16 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTHits(const TrackCollection& trackCol
                             StrawEffDetPhi_B_passed = phi_module;
                             StrawEffDetPhi_B = 0.0;
                             fill("ShiftTRTTrackHistograms"+std::to_string(ibe), StrawEffDetPhi_B_passed, StrawEffDetPhi_B);
-                        }
 
-                        if (m_doStraws && m_doShift) {
+                            if (m_doStraws) scale_hHitWonTMap_B[thisStrawNumber[ibe]]++;
                         }
                     } else if (ibe == 1) {
                         if (m_doShift) {
                             StrawEffDetPhi_E_passed = phi_module;
                             StrawEffDetPhi_E = 0.0;
                             fill("ShiftTRTTrackHistograms"+std::to_string(ibe)+std::to_string(iside), StrawEffDetPhi_E_passed, StrawEffDetPhi_E);
+
+                            if (m_doStraws) scale_hHitWonTMap_E[iside][thisStrawNumber[ibe]]++;
                         }
                     }
 
@@ -2442,13 +2458,17 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTHits(const TrackCollection& trackCol
                 if ( (driftTimeBin < 24) &&
                      !(RawDriftCircle->lastBinHigh()) &&
                      !(RawDriftCircle->firstBinHigh()) ) {
-                    if (m_doStraws) {
+                    if (m_doStraws && m_doShift) {
                         if (ibe == 0) {
-                            HitWonTMap_B = thisStrawNumber[ibe];
-                            fill("ShiftTRTTrackHistograms"+std::to_string(ibe), HitWonTMap_B);
+                            straw_edge_struct& this_struct = straw_edge_map[1].emplace_back(); // index 1 is Barrel
+                            this_struct.strawNumber = thisStrawNumber[ibe];
+                            this_struct.HitWonTMap_B_y = 1.0;
+                            scale_hHitWonTMap_B_passed[thisStrawNumber[ibe]]++;
                         } else if (ibe == 1) {
-                            HitWonTMap_E = thisStrawNumber[ibe];
-                            fill("ShiftTRTTrackHistograms"+std::to_string(ibe)+std::to_string(iside), HitWonTMap_E);
+                            straw_edge_struct& this_struct = straw_edge_map[iside == 0 ? 2 : -2].emplace_back(); // index 2 is EA, index -2 is EC
+                            this_struct.strawNumber = thisStrawNumber[ibe];
+                            this_struct.HitWonTMap_E_y = 1.0;
+                            scale_hHitWonTMap_E_passed[iside][thisStrawNumber[ibe]]++;
                         }
                     }
                 }
@@ -2645,6 +2665,61 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTHits(const TrackCollection& trackCol
                     }
                 }
             }
+        }
+    }
+
+    // Barrel straw normalization
+    for (int k = 0; k < s_Straw_max[0]; k++) {
+        try {
+            if (scale_hHitWonTMap_B[k] - scale_hHitWonTMap_B_passed[k] >= 0) {
+                for (int j = 0; j < scale_hHitWonTMap_B[k] - scale_hHitWonTMap_B_passed[k]; j++) {
+                    if (m_doStraws) {
+                        straw_edge_struct& this_struct = straw_edge_map[1].emplace_back(); // index 1 is Barrel
+                        this_struct.strawNumber = k;
+                        this_struct.HitWonTMap_B_y = 0;
+                    }
+                }
+            } else {
+                ATH_MSG_ERROR("Scale value " << scale_hHitWonTMap_B[k] - scale_hHitWonTMap_B_passed[k] <<
+                    " is less than zero in scaling for Barrel,  k = " << k);
+            }
+        } catch (out_of_range &e) {
+            ATH_MSG_ERROR("Index " << k << " out of range in scaling for Barrel");
+        }
+    }
+
+    // Endcap straw normalization
+    for (int k = 0; k < s_Straw_max[1]; k++) {
+        for (int iside = 0; iside < 2; iside++) {
+            try {
+                if (scale_hHitWonTMap_E[iside][k] - scale_hHitWonTMap_E_passed[iside][k] >= 0) {
+                    for (int j = 0; j < scale_hHitWonTMap_E[iside][k] - scale_hHitWonTMap_E_passed[iside][k]; j++) {
+                        if (m_doStraws) {
+                            straw_edge_struct& this_struct = straw_edge_map[iside == 0 ? 2 : -2].emplace_back(); // index 2 is EA, index -2 is EC
+                            this_struct.strawNumber = k;
+                            this_struct.HitWonTMap_E_y = 0;
+                        }
+                    }
+                } else {
+                    ATH_MSG_ERROR("Scale value " << scale_hHitWonTMap_E[iside][k] - scale_hHitWonTMap_E_passed[iside][k] <<
+                        " is less than zero in scaling for Endcap, iside = " << iside << ", k = " << k);
+                }
+            } catch (out_of_range &e) {
+                ATH_MSG_ERROR("Index " << k << " out of range in scaling for Endcap");
+            }
+        }
+    }
+
+    for (const auto& ibarrel_ecpair : straw_edge_map) {
+        int ibe = abs(ibarrel_ecpair.first) - 1;
+        int iside = ibarrel_ecpair.first > 0 ? 0 : 1;
+        auto strawNumber    = Monitored::Collection("strawNumber", ibarrel_ecpair.second, [](const auto& s){return s.strawNumber;});
+        auto HitWonTMap_B_y = Monitored::Collection("HitWonTMap_B_y", ibarrel_ecpair.second, [](const auto& s){return s.HitWonTMap_B_y;});
+        auto HitWonTMap_E_y = Monitored::Collection("HitWonTMap_E_y", ibarrel_ecpair.second, [](const auto& s){return s.HitWonTMap_E_y;});
+        if (ibe == 0) {
+            fill("ShiftTRTTrackHistograms0", strawNumber, HitWonTMap_B_y);
+        } else if (ibe == 1) {
+            fill("ShiftTRTTrackHistograms1"+std::to_string(iside), strawNumber, HitWonTMap_E_y);
         }
     }
 

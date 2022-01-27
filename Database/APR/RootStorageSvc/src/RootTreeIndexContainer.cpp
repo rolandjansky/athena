@@ -1,87 +1,72 @@
 /*
- *   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  *   */
 
 // Local implementation files
-#include "RootTreeIndexContainer.h"
-
-#include "StorageSvc/Transaction.h"
-
-#include "RootDataPtr.h"
+#include "StorageSvc/DbOption.h"
 #include "RootDatabase.h"
+#include "RootTreeIndexContainer.h"
 
 // Root include files
 #include "TTree.h"
-#include "TMemFile.h"
 #include "TBranch.h"
 
 using namespace pool;
 using namespace std;
 
-RootTreeIndexContainer::RootTreeIndexContainer() : RootTreeContainer(), m_index_ref(nullptr), m_index_shr(nullptr), m_index_entries(0), m_ttree_entries(0), m_index_multi(0), m_index(nullptr) {
-   m_index = new long long int;
-   m_index_multi = getpid();
+RootTreeIndexContainer::RootTreeIndexContainer() :
+   m_indexBranch(nullptr), m_index_entries(0), m_index_multi( getpid() ), m_indexBump(0)
+{ }
+
+
+DbStatus RootTreeIndexContainer::open( DbDatabase& dbH, 
+                                       const std::string& nam,
+                                       const DbTypeInfo* info,
+                                       DbAccessMode mod)
+{
+   auto db = static_cast<const RootDatabase*>( dbH.info() );
+   m_indexBump = db? db->currentIndexMasterID() : 0;
+   return RootTreeContainer::open( dbH, nam, info, mod );
 }
 
-/// Standard destructor
-RootTreeIndexContainer::~RootTreeIndexContainer() {
-   delete m_index; m_index = nullptr;
+
+long long int RootTreeIndexContainer::nextRecordId()
+{
+   long long id = m_index_multi;
+   return (id << 32) + RootTreeContainer::nextRecordId() + m_indexBump;
 }
 
-
-long long int RootTreeIndexContainer::nextRecordId()    {
-   long long int s = m_index_multi;
-   s = s << 32;
-   if (m_index_ref == nullptr && m_index_shr == nullptr) {
-      s += RootTreeContainer::nextRecordId();
-   } else {
-      s += m_index_entries;
+void RootTreeIndexContainer::useNextRecordId(long long int nextID)
+{
+   // Find out how this TTree index is behind the master index in the DB
+   m_indexBump = m_indexBranch? nextID - m_indexBranch->GetEntries() : nextID;
+   if( m_indexBump < 0 ) {
+      // Seems this index is ahead of the master, cannot sync
+      m_indexBump = 0;
    }
-   return s;
 }
 
 
-DbStatus RootTreeIndexContainer::writeObject(ActionList::value_type& action) {
-   // If ROOT TTree has index_ref TBranch share it, otherwise create one and make it part of this POOL container
-   if (m_index_ref == nullptr && m_index_shr == nullptr) {
-      m_index_shr = m_tree->GetBranch("index_ref");
-      if (m_index_shr == nullptr) {
-         m_index_ref = static_cast<TBranch*>(m_tree->Branch("index_ref", m_index));
+DbStatus RootTreeIndexContainer::writeObject(ActionList::value_type& action)
+{
+   // Prepare for writing - grab/create the index branch
+   if( !m_indexBranch ) {
+      m_indexBranch = m_tree->GetBranch("index_ref");
+      if( !m_indexBranch ) {
+         m_indexBranch = m_tree->Branch("index_ref", &m_index);
       }
    }
-   // POOL container that owns the index_ref TBranch fills it.
-   if (m_index_ref != nullptr && m_index_entries >= m_index_ref->GetEntries()) {
-      *m_index = this->nextRecordId();
-      m_index_ref->SetAddress(m_index);
-      if (isBranchContainer() && !m_treeFillMode) m_index_ref->Fill();
+   if( m_indexBranch && m_index_entries >= m_indexBranch->GetEntries() ) {
+      // need to update the index branch
+      m_index = action.link.second;
+      m_indexBranch->SetAddress(&m_index);
+      if (isBranchContainer() && !m_treeFillMode) m_indexBranch->Fill();
    }
-   if (isBranchContainer() && !m_treeFillMode) {
-      m_tree->SetEntries(m_ttree_entries);
-      m_index_entries++;
-      m_ttree_entries++;
-   }
-   DbStatus status = RootTreeContainer::writeObject(action);
-   if (isBranchContainer() && !m_treeFillMode) {
-      m_tree->SetEntries(m_ttree_entries);
-   } else {
-      m_index_entries++;
-      m_ttree_entries++;
-   }
-   return status;
+   m_index_entries++;
+
+   return RootTreeContainer::writeObject(action);
 }
 
-
-DbStatus RootTreeIndexContainer::transAct(Transaction::Action action) {
-   DbStatus status = RootTreeContainer::transAct(action);
-   if (action == Transaction::TRANSACT_FLUSH) {
-      m_ttree_entries = 0;
-      if (m_tree == nullptr) return Error;
-      if (m_index_ref != nullptr && m_tree->GetEntries() > 0 && dynamic_cast<TMemFile*>(m_tree->GetCurrentFile()) == nullptr && m_tree->GetEntryNumberWithIndex(nextRecordId()) == -1) {
-         m_tree->BuildIndex("index_ref");
-      }
-   }
-   return status;
-}
 
 DbStatus RootTreeIndexContainer::loadObject(void** ptr, ShapeH shape, Token::OID_t& oid) {
    if ((oid.second >> 32) > 0) {

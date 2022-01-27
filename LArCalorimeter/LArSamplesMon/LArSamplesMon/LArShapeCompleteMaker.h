@@ -25,11 +25,9 @@
 
 class MsgStream;
 class StoreGateSvc;
-class CaloDetDescrManager;
 class ILArShape;
 class HWIdentifier;
 class Identifier;
-class CaloDetDescrElement;
 class LArOnlineID;
 
 class LArShapeCompleteMaker : public AthAlgorithm
@@ -39,9 +37,9 @@ class LArShapeCompleteMaker : public AthAlgorithm
   ~LArShapeCompleteMaker();
 
   //standart algorithm methods
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
   
  private:
    

@@ -62,7 +62,7 @@ void compare (const TGCSimHitCollection& p1,
 
 void testit (const TGCSimHitCollection& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   TGCSimHitCollectionCnv_p2 cnv;
   Muon::TGCSimHitCollection_p2 pers;
   cnv.transToPers (&trans1, &pers, log);

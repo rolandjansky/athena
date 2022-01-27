@@ -1,8 +1,13 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 namespace Trk {
+
+inline bool PlaneSurface::operator==(const PlaneSurface& sf) const
+{
+  return *this == static_cast<const Surface& >(sf);
+}
 
 inline SurfaceType
 PlaneSurface::type() const

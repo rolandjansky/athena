@@ -38,7 +38,8 @@ public:
 
 protected: // data
    std::vector<std::string> m_initCnvs;
-   std::vector<std::string> m_ROD2ROBmap;
+   // This property is used by Tile BS converter, not by this class.
+   Gaudi::Property<std::vector<std::string> > m_ROD2ROBmap{this,"ROD2ROBmap",{},"","OrderedSet<std::string>"};
 
 private:
    /** @name Flags which are not used by this service.

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Trigger includes
@@ -114,6 +114,8 @@ StatusCode L1TriggerResultByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddr
       printRob(*rob);
       // Set LVL1 Trigger Type from the full event
       rob->rod_lvl1_type(re->lvl1_trigger_type());
+      // Set LVL1 ID from the full event
+      rob->rod_lvl1_id(re->lvl1_id());
       // Add the ROBFragment to the full event
       re->append(rob);
       ATH_MSG_DEBUG("Added ROB fragment 0x" << MSG::hex << rob->source_id() << MSG::dec << " to the output raw event");

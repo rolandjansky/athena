@@ -13,16 +13,17 @@
 #include <GaudiKernel/ServiceHandle.h>
 #include <GeoModelInterfaces/IGeoDbTagSvc.h>
 #include <GeoModelInterfaces/IGeoModelSvc.h>
-#include <GeoModelUtilities/GeoModelTool.h>
+#include <InDetGeoModelUtils/GeoModelXmlTool.h>
 #include <RDBAccessSvc/IRDBAccessSvc.h>
 #include <ReadoutGeometryBase/SiCommonItems.h>
+#include <InDetGeoModelUtils/WaferTree.h>
 
 #include <memory>
 
+class GeoPhysVol;
 
 namespace InDetDD
 {
-  class AthenaComps;
   class PixelDetectorManager;
   class SiCommonItems;
 }
@@ -30,7 +31,7 @@ namespace InDetDD
 namespace ITk
 {
 
-class PixelDetectorTool : public GeoModelTool
+class PixelDetectorTool : public GeoModelXmlTool
 {
 public:
   PixelDetectorTool(const std::string &type, const std::string &name, const IInterface *parent);
@@ -41,15 +42,18 @@ public:
   virtual StatusCode align(IOVSVC_CALLBACK_ARGS_P(I,keys)) override final;
 
 private:
-  const InDetDD::PixelDetectorManager *m_manager{};
+  const InDetDD::PixelDetectorManager *m_detManager{};
   std::unique_ptr<InDetDD::SiCommonItems> m_commonItems{};
+  WaferTree m_moduleTree;
 
   Gaudi::Property<std::string> m_detectorName{this, "DetectorName", "ITkPixel", ""};
   Gaudi::Property<bool> m_alignable{this, "Alignable", false, ""};
-  Gaudi::Property<std::string> m_gmxFilename{this, "GmxFilename", "", ""};
+    //This should be changed to an ITk-specific one in future, once available
+  Gaudi::Property<std::string> m_alignmentFolderName{this, "AlignmentFolderName", "/Indet/Align", ""}; 
   ServiceHandle<IGeoModelSvc> m_geoModelSvc{this, "GeoModelSvc", "GeoModelSvc", ""};
-  ServiceHandle<IRDBAccessSvc> m_rdbAccessSvc{this, "RDBAccessSvc", "RDBAccessSvc", ""};
-  ServiceHandle<IGeoDbTagSvc> m_geoDbTagSvc{this, "GeoDbTagSvc", "GeoDbTagSvc", ""};
+  InDetDD::PixelDetectorManager * createManager(GeoPhysVol * theWorld);
+  // Print out how many of each layer/eta/phi etc. have been set up.
+  void doNumerology(InDetDD::PixelDetectorManager * manager);
 };
 
 } // namespace ITk

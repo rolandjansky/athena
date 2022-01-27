@@ -17,6 +17,8 @@ LArG4__CalibrationDefaultCalculator=CompFactory.LArG4.CalibrationDefaultCalculat
 #to be migrated: getCalibrationDefaultCalculator, getDeadMaterialCalibrationHitMerger
 
 def LArActiveSensitiveDetectorToolCfg(ConfigFlags, name="LArActiveSensitiveDetector", **kwargs):
+    result = ComponentAccumulator()
+
     ## Main configuration
     if ConfigFlags.GeoModel.AtlasVersion not in ["tb_LArH6_2003","tb_LArH6_2002"]:
         kwargs.setdefault("StacVolumes",["LArMgr::LAr::EMB::STAC"])
@@ -39,7 +41,48 @@ def LArActiveSensitiveDetectorToolCfg(ConfigFlags, name="LArActiveSensitiveDetec
     kwargs.setdefault("ParticleID",ConfigFlags.Sim.ParticleID)
     # No effect currently
     kwargs.setdefault("OutputCollectionNames", ["LArCalibrationHitActive"])
-    return LArG4__ActiveSDTool(name, **kwargs)
+
+    from LArG4Barrel.LArG4BarrelConfigNew import BarrelCalibrationCalculatorCfg, BarrelPresamplerCalibrationCalculatorCfg
+    kwargs.setdefault("EMBPSCalibrationCalculator",
+                      result.getPrimaryAndMerge(BarrelPresamplerCalibrationCalculatorCfg(ConfigFlags)).name)
+    kwargs.setdefault("EMBCalibrationCalculator",
+                      result.getPrimaryAndMerge(BarrelCalibrationCalculatorCfg(ConfigFlags)).name)
+
+    from LArG4EC.LArG4ECConfigNew import EMECPosInnerWheelCalibrationCalculatorCfg, EMECNegInnerWheelCalibrationCalculatorCfg, EMECPosOuterWheelCalibrationCalculatorCfg, EMECNegOuterWheelCalibrationCalculatorCfg, EMECPosBackOuterBarretteCalibrationCalculatorCfg, EMECNegBackOuterBarretteCalibrationCalculatorCfg, EMECPresamplerCalibrationCalculatorCfg
+    kwargs.setdefault("EMECPosIWCalibrationCalculator",
+                      result.getPrimaryAndMerge(EMECPosInnerWheelCalibrationCalculatorCfg(ConfigFlags)).name)
+    kwargs.setdefault("EMECNegIWCalibrationCalculator",
+                      result.getPrimaryAndMerge(EMECNegInnerWheelCalibrationCalculatorCfg(ConfigFlags)).name)
+    kwargs.setdefault("EMECPosOWCalibrationCalculator",
+                      result.getPrimaryAndMerge(EMECPosOuterWheelCalibrationCalculatorCfg(ConfigFlags)).name)
+    kwargs.setdefault("EMECNegOWCalibrationCalculator",
+                      result.getPrimaryAndMerge(EMECNegOuterWheelCalibrationCalculatorCfg(ConfigFlags)).name)
+    kwargs.setdefault("EMECPSCalibrationCalculator",
+                      result.getPrimaryAndMerge(EMECPresamplerCalibrationCalculatorCfg(ConfigFlags)).name)
+    kwargs.setdefault("EMECPosBOBCalibrationCalculator",
+                      result.getPrimaryAndMerge(EMECPosBackOuterBarretteCalibrationCalculatorCfg(ConfigFlags)).name)
+    kwargs.setdefault("EMECNegBOBCalibrationCalculator",
+                      result.getPrimaryAndMerge(EMECNegBackOuterBarretteCalibrationCalculatorCfg(ConfigFlags)).name)
+
+    from LArG4HEC.LArG4HECConfigNew import HECCalibrationWheelActiveCalculatorCfg
+    kwargs.setdefault("HECWActiveCalculator",
+                      result.getPrimaryAndMerge(HECCalibrationWheelActiveCalculatorCfg(ConfigFlags)).name)
+
+    from LArG4FCAL.LArG4FCALConfigNew import FCAL1CalibCalculatorCfg, FCAL2CalibCalculatorCfg, FCAL3CalibCalculatorCfg
+    kwargs.setdefault("FCAL1CalibCalculator",
+                      result.getPrimaryAndMerge(FCAL1CalibCalculatorCfg(ConfigFlags)).name)
+    kwargs.setdefault("FCAL2CalibCalculator",
+                      result.getPrimaryAndMerge(FCAL2CalibCalculatorCfg(ConfigFlags)).name)
+    kwargs.setdefault("FCAL3CalibCalculator",
+                      result.getPrimaryAndMerge(FCAL3CalibCalculatorCfg(ConfigFlags)).name)
+
+    from LArG4MiniFCAL.LArG4MiniFCALConfigNew import MiniFCALActiveCalibrationCalculatorCfg
+    kwargs.setdefault("MiniFCALActiveCalibrationCalculator",
+                      result.getPrimaryAndMerge (MiniFCALActiveCalibrationCalculatorCfg(ConfigFlags)).name)
+
+    result.setPrivateTools( LArG4__ActiveSDTool(name, **kwargs))
+    return result
+
 
 def LArDeadSensitiveDetectorToolCfg(ConfigFlags, name="LArDeadSensitiveDetector", **kwargs):
     ## Main configuration
@@ -130,43 +173,29 @@ def LArDeadSensitiveDetectorToolCfg(ConfigFlags, name="LArDeadSensitiveDetector"
         outputCollectionName = "LArCalibrationHitDeadMaterial_DEAD"
     kwargs.setdefault("HitCollectionName", outputCollectionName)
 
-    from LArG4Barrel.LArG4BarrelConfigNew import BarrelCryostatCalibrationCalculatorCfg, BarrelCryostatCalibrationLArCalculatorCfg, BarrelCryostatCalibrationMixedCalculatorCfg, DMCalibrationCalculatorCfg,   BarrelCalibrationCalculatorCfg, BarrelPresamplerCalibrationCalculatorCfg
-
-    from LArG4EC.LArG4ECConfigNew import EndcapCryostatCalibrationCalculatorCfg, EndcapCryostatCalibrationLArCalculatorCfg, EndcapCryostatCalibrationMixedCalculatorCfg, EMECSupportCalibrationCalculatorCfg
-
-    from LArG4HEC.LArG4HECConfigNew import HECCalibrationWheelDeadCalculatorCfg
-
     result = ComponentAccumulator()
 
-    result.merge( BarrelCryostatCalibrationCalculatorCfg(ConfigFlags) )
-    kwargs.setdefault("EMBCryoCalibrationCalculator", result.getService("BarrelCryostatCalibrationCalculator"))
-    result.merge( BarrelCryostatCalibrationLArCalculatorCfg(ConfigFlags) )
-    kwargs.setdefault("EMBCryoLArCalibrationCalculator", result.getService("BarrelCryostatCalibrationLArCalculator"))
-    result.merge( CalibrationDefaultCalculatorCfg(ConfigFlags) )
-    kwargs.setdefault("DefaultCalibrationCalculator", result.getService("CalibrationDefaultCalculator"))
-    result.merge( BarrelCryostatCalibrationMixedCalculatorCfg(ConfigFlags) )
-    kwargs.setdefault("EMBCryoMixCalibrationCalculator", result.getService("BarrelCryostatCalibrationMixedCalculator"))
-    result.merge( DMCalibrationCalculatorCfg(ConfigFlags) )
-    kwargs.setdefault("DMCalibrationCalculator", result.getService("DMCalibrationCalculator"))
-    result.merge( BarrelPresamplerCalibrationCalculatorCfg(ConfigFlags) )
-    kwargs.setdefault("EMBPSCalibrationCalculator", result.getService("BarrelPresamplerCalibrationCalculator"))
-    result.merge( BarrelCalibrationCalculatorCfg(ConfigFlags) )
-    kwargs.setdefault("EMBCalibrationCalculator", result.getService("BarrelCalibrationCalculator"))
+    from LArG4Barrel.LArG4BarrelConfigNew import BarrelCryostatCalibrationCalculatorCfg, BarrelCryostatCalibrationLArCalculatorCfg, BarrelCryostatCalibrationMixedCalculatorCfg, DMCalibrationCalculatorCfg,   BarrelCalibrationCalculatorCfg, BarrelPresamplerCalibrationCalculatorCfg
+    kwargs.setdefault("EMBCryoCalibrationCalculator", result.getPrimaryAndMerge(BarrelCryostatCalibrationCalculatorCfg(ConfigFlags)).name)
+    kwargs.setdefault("EMBCryoLArCalibrationCalculator", result.getPrimaryAndMerge(BarrelCryostatCalibrationLArCalculatorCfg(ConfigFlags)).name)
+    kwargs.setdefault("DefaultCalibrationCalculator", result.getPrimaryAndMerge(CalibrationDefaultCalculatorCfg(ConfigFlags)).name)
+    kwargs.setdefault("EMBCryoMixCalibrationCalculator", result.getPrimaryAndMerge(BarrelCryostatCalibrationMixedCalculatorCfg(ConfigFlags)).name)
+    kwargs.setdefault("DMCalibrationCalculator", result.getPrimaryAndMerge(DMCalibrationCalculatorCfg(ConfigFlags)).name)
+    kwargs.setdefault("EMBPSCalibrationCalculator", result.getPrimaryAndMerge(BarrelPresamplerCalibrationCalculatorCfg(ConfigFlags)).name)
+    kwargs.setdefault("EMBCalibrationCalculator", result.getPrimaryAndMerge(BarrelCalibrationCalculatorCfg(ConfigFlags)).name)
 
-    result.merge( EndcapCryostatCalibrationCalculatorCfg(ConfigFlags) )
-    kwargs.setdefault("ECCryoCalibrationCalculator", result.getService("EndcapCryostatCalibrationCalculator"))
-    result.merge( EndcapCryostatCalibrationLArCalculatorCfg(ConfigFlags) )
-    kwargs.setdefault("ECCryoLArCalibrationCalculator", result.getService("EndcapCryostatCalibrationLArCalculator"))
-    result.merge( EndcapCryostatCalibrationMixedCalculatorCfg(ConfigFlags) )
-    kwargs.setdefault("ECCryoMixCalibrationCalculator", result.getService("EndcapCryostatCalibrationMixedCalculator"))
-    result.merge( EMECSupportCalibrationCalculatorCfg(ConfigFlags) )
-    kwargs.setdefault("EMECSuppCalibrationCalculator", result.getService("EMECSupportCalibrationCalculator"))
+    from LArG4EC.LArG4ECConfigNew import EndcapCryostatCalibrationCalculatorCfg, EndcapCryostatCalibrationLArCalculatorCfg, EndcapCryostatCalibrationMixedCalculatorCfg, EMECSupportCalibrationCalculatorCfg
+    kwargs.setdefault("ECCryoCalibrationCalculator", result.getPrimaryAndMerge(EndcapCryostatCalibrationCalculatorCfg(ConfigFlags)).name)
+    kwargs.setdefault("ECCryoLArCalibrationCalculator", result.getPrimaryAndMerge(EndcapCryostatCalibrationLArCalculatorCfg(ConfigFlags)).name)
+    kwargs.setdefault("ECCryoMixCalibrationCalculator", result.getPrimaryAndMerge(EndcapCryostatCalibrationMixedCalculatorCfg(ConfigFlags)).name)
+    kwargs.setdefault("EMECSuppCalibrationCalculator", result.getPrimaryAndMerge(EMECSupportCalibrationCalculatorCfg(ConfigFlags)).name)
 
-    result.merge( HECCalibrationWheelDeadCalculatorCfg(ConfigFlags) )
-    kwargs.setdefault("HECWheelDeadCalculator", result.getService("HECCalibrationWheelDeadCalculator"))
+    from LArG4HEC.LArG4HECConfigNew import HECCalibrationWheelDeadCalculatorCfg
+    kwargs.setdefault("HECWheelDeadCalculator", result.getPrimaryAndMerge(HECCalibrationWheelDeadCalculatorCfg(ConfigFlags)).name)
 
     result.setPrivateTools(LArG4__DeadSDTool(name, **kwargs))
     return result
+
 
 def LArEMBSensitiveDetectorCfg(ConfigFlags,name="LArEMBSensitiveDetector", **kwargs):
     result = ComponentAccumulator()
@@ -190,14 +219,12 @@ def LArEMBSensitiveDetectorCfg(ConfigFlags,name="LArEMBSensitiveDetector", **kwa
     kwargs.setdefault("UseFrozenShowers", ConfigFlags.Sim.LArParameterization > 0)
 
     from LArG4Barrel.LArG4BarrelConfigNew import EMBPresamplerCalculatorCfg, EMBCalculatorCfg
-    result.merge(EMBPresamplerCalculatorCfg(ConfigFlags))
-    kwargs.setdefault("EMBPSCalculator", result.getService("EMBPresamplerCalculator") )
-
-    result.merge(EMBCalculatorCfg(ConfigFlags))
-    kwargs.setdefault("EMBCalculator", result.getService("EMBCalculator"))
+    kwargs.setdefault("EMBPSCalculator", result.getPrimaryAndMerge(EMBPresamplerCalculatorCfg(ConfigFlags)).name)
+    kwargs.setdefault("EMBCalculator", result.getPrimaryAndMerge(EMBCalculatorCfg(ConfigFlags)).name)
 
     result.setPrivateTools( LArG4__EMBSDTool(name, **kwargs) )
     return result
+
 
 def LArEMECSensitiveDetectorCfg(ConfigFlags, name="LArEMECSensitiveDetector", **kwargs):
     result = ComponentAccumulator()
@@ -227,30 +254,17 @@ def LArEMECSensitiveDetectorCfg(ConfigFlags, name="LArEMECSensitiveDetector", **
     kwargs.setdefault("UseFrozenShowers", ConfigFlags.Sim.LArParameterization > 0)
 
     from LArG4EC.LArG4ECConfigNew import EMECPosInnerWheelCalculatorCfg, EMECNegInnerWheelCalculatorCfg, EMECPosOuterWheelCalculatorCfg, EMECNegOuterWheelCalculatorCfg, EMECPresamplerCalculatorCfg, EMECPosBackOuterBarretteCalculatorCfg, EMECNegBackOuterBarretteCalculatorCfg
-
-    result.merge(EMECPosInnerWheelCalculatorCfg(ConfigFlags))
-    kwargs.setdefault("EMECPosIWCalculator",result.getService("EMECPosInnerWheelCalculator") )
-
-    result.merge(EMECNegInnerWheelCalculatorCfg(ConfigFlags))
-    kwargs.setdefault("EMECNegIWCalculator",result.getService("EMECNegInnerWheelCalculator") )
-
-    result.merge(EMECPosOuterWheelCalculatorCfg(ConfigFlags))
-    kwargs.setdefault("EMECPosOWCalculator",result.getService("EMECPosOuterWheelCalculator") )
-
-    result.merge(EMECNegOuterWheelCalculatorCfg(ConfigFlags))
-    kwargs.setdefault("EMECNegOWCalculator",result.getService("EMECNegOuterWheelCalculator") )
-
-    result.merge(EMECPresamplerCalculatorCfg(ConfigFlags))
-    kwargs.setdefault("EMECPSCalculator",result.getService("EMECPresamplerCalculator") )
-
-    result.merge(EMECPosBackOuterBarretteCalculatorCfg(ConfigFlags))
-    kwargs.setdefault("EMECPosBOBCalculator",result.getService("EMECPosBackOuterBarretteCalculator") )
-
-    result.merge(EMECNegBackOuterBarretteCalculatorCfg(ConfigFlags))
-    kwargs.setdefault("EMECNegBOBCalculator",result.getService("EMECNegBackOuterBarretteCalculator") )
+    kwargs.setdefault("EMECPosIWCalculator", result.getPrimaryAndMerge(EMECPosInnerWheelCalculatorCfg(ConfigFlags)).name)
+    kwargs.setdefault("EMECNegIWCalculator", result.getPrimaryAndMerge(EMECNegInnerWheelCalculatorCfg(ConfigFlags)).name)
+    kwargs.setdefault("EMECPosOWCalculator", result.getPrimaryAndMerge(EMECPosOuterWheelCalculatorCfg(ConfigFlags)).name)
+    kwargs.setdefault("EMECNegOWCalculator", result.getPrimaryAndMerge(EMECNegOuterWheelCalculatorCfg(ConfigFlags)).name)
+    kwargs.setdefault("EMECPSCalculator", result.getPrimaryAndMerge(EMECPresamplerCalculatorCfg(ConfigFlags)).name)
+    kwargs.setdefault("EMECPosBOBCalculator", result.getPrimaryAndMerge(EMECPosBackOuterBarretteCalculatorCfg(ConfigFlags)).name)
+    kwargs.setdefault("EMECNegBOBCalculator", result.getPrimaryAndMerge(EMECNegBackOuterBarretteCalculatorCfg(ConfigFlags)).name)
 
     result.setPrivateTools( LArG4__EMECSDTool(name, **kwargs) )
     return result
+
 
 def LArFCALSensitiveDetectorCfg(ConfigFlags, name="LArFCALSensitiveDetector", **kwargs):
     result = ComponentAccumulator()
@@ -275,18 +289,13 @@ def LArFCALSensitiveDetectorCfg(ConfigFlags, name="LArFCALSensitiveDetector", **
     kwargs.setdefault("UseFrozenShowers", ConfigFlags.Sim.LArParameterization > 0)
 
     from LArG4FCAL.LArG4FCALConfigNew import FCAL1CalculatorCfg, FCAL2CalculatorCfg, FCAL3CalculatorCfg
-
-    result.merge(FCAL1CalculatorCfg(ConfigFlags))
-    kwargs.setdefault("FCAL1Calculator", result.getService("FCAL1Calculator") )
-
-    result.merge(FCAL2CalculatorCfg(ConfigFlags))
-    kwargs.setdefault("FCAL2Calculator", result.getService("FCAL2Calculator") )
-
-    result.merge(FCAL3CalculatorCfg(ConfigFlags))
-    kwargs.setdefault("FCAL3Calculator", result.getService("FCAL3Calculator") )
+    kwargs.setdefault("FCAL1Calculator", result.getPrimaryAndMerge(FCAL1CalculatorCfg(ConfigFlags)).name)
+    kwargs.setdefault("FCAL2Calculator", result.getPrimaryAndMerge(FCAL2CalculatorCfg(ConfigFlags)).name)
+    kwargs.setdefault("FCAL3Calculator", result.getPrimaryAndMerge(FCAL3CalculatorCfg(ConfigFlags)).name)
 
     result.setPrivateTools( LArG4__FCALSDTool(name, **kwargs) )
     return result
+
 
 def LArHECSensitiveDetectorCfg(ConfigFlags, name="LArHECSensitiveDetector", **kwargs):
     result = ComponentAccumulator()
@@ -309,13 +318,14 @@ def LArHECSensitiveDetectorCfg(ConfigFlags, name="LArHECSensitiveDetector", **kw
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
 
     from LArG4HEC.LArG4HECConfigNew import HECWheelCalculatorCfg
-    result.merge(HECWheelCalculatorCfg(ConfigFlags))
-    kwargs.setdefault("HECWheelCalculator", result.getService("HECWheelCalculator"))
+    kwargs.setdefault("HECWheelCalculator", result.getPrimaryAndMerge(HECWheelCalculatorCfg(ConfigFlags)).name)
 
     result.setPrivateTools( LArG4__HECSDTool(name, **kwargs) )
     return result
 
+
 def LArInactiveSensitiveDetectorToolCfg(ConfigFlags, name="LArInactiveSensitiveDetector", **kwargs):
+    result = ComponentAccumulator()
     ## Main configuration
     if ConfigFlags.GeoModel.AtlasVersion not in ["tb_LArH6_2003","tb_LArH6_2002"]:
         kwargs.setdefault("BarrelPreVolumes",["LArMgr::LAr::Barrel::Presampler::Cathode*",
@@ -404,7 +414,31 @@ def LArInactiveSensitiveDetectorToolCfg(ConfigFlags, name="LArInactiveSensitiveD
     kwargs.setdefault("ParticleID",ConfigFlags.Sim.ParticleID)
     # No effect currently
     kwargs.setdefault("OutputCollectionNames", ["LArCalibrationHitInactive"])
-    return LArG4__InactiveSDTool(name, **kwargs)
+
+    from LArG4Barrel.LArG4BarrelConfigNew import BarrelCalibrationCalculatorCfg, BarrelPresamplerCalibrationCalculatorCfg
+    kwargs.setdefault("EMBPSCalibrationCalculator", result.getPrimaryAndMerge(BarrelPresamplerCalibrationCalculatorCfg(ConfigFlags)).name)
+    kwargs.setdefault("EMBCalibrationCalculator", result.getPrimaryAndMerge(BarrelCalibrationCalculatorCfg(ConfigFlags)).name)
+
+    from LArG4EC.LArG4ECConfigNew import EMECPosInnerWheelCalibrationCalculatorCfg, EMECNegInnerWheelCalibrationCalculatorCfg, EMECPosOuterWheelCalibrationCalculatorCfg, EMECNegOuterWheelCalibrationCalculatorCfg
+    kwargs.setdefault("EMECPosIWCalibrationCalculator", result.getPrimaryAndMerge(EMECPosInnerWheelCalibrationCalculatorCfg(ConfigFlags)).name)
+    kwargs.setdefault("EMECNegIWCalibrationCalculator", result.getPrimaryAndMerge(EMECNegInnerWheelCalibrationCalculatorCfg(ConfigFlags)).name)
+    kwargs.setdefault("EMECPosOWCalibrationCalculator", result.getPrimaryAndMerge(EMECPosOuterWheelCalibrationCalculatorCfg(ConfigFlags)).name)
+    kwargs.setdefault("EMECNegOWCalibrationCalculator", result.getPrimaryAndMerge(EMECNegOuterWheelCalibrationCalculatorCfg(ConfigFlags)).name)
+
+    from LArG4HEC.LArG4HECConfigNew import HECCalibrationWheelInactiveCalculatorCfg
+    kwargs.setdefault("HECWheelInactiveCalculator", result.getPrimaryAndMerge(HECCalibrationWheelInactiveCalculatorCfg(ConfigFlags)).name)
+
+    from LArG4FCAL.LArG4FCALConfigNew import FCAL1CalibCalculatorCfg, FCAL2CalibCalculatorCfg, FCAL3CalibCalculatorCfg
+    kwargs.setdefault("FCAL1CalibCalculator", result.getPrimaryAndMerge(FCAL1CalibCalculatorCfg(ConfigFlags)).name)
+    kwargs.setdefault("FCAL2CalibCalculator", result.getPrimaryAndMerge(FCAL2CalibCalculatorCfg(ConfigFlags)).name)
+    kwargs.setdefault("FCAL3CalibCalculator", result.getPrimaryAndMerge(FCAL3CalibCalculatorCfg(ConfigFlags)).name)
+
+    from LArG4MiniFCAL.LArG4MiniFCALConfigNew import MiniFCALInactiveCalibrationCalculatorCfg
+    kwargs.setdefault("MiniFCALInactiveCalibrationCalculator", result.getPrimaryAndMerge(MiniFCALInactiveCalibrationCalculatorCfg(ConfigFlags)).name)
+
+    result.setPrivateTools( LArG4__InactiveSDTool(name, **kwargs) )
+    return result
+
 
 def LArMiniFCALSensitiveDetectorToolCfg(ConfigFlags, name="LArMiniFCALSensitiveDetector", **kwargs):
     result = ComponentAccumulator()
@@ -418,7 +452,7 @@ def LArMiniFCALSensitiveDetectorToolCfg(ConfigFlags, name="LArMiniFCALSensitiveD
 
 def CalibrationDefaultCalculatorCfg(ConfigFlags, name="CalibrationDefaultCalculator", **kwargs):
     result = ComponentAccumulator()
-    result.addService( LArG4__CalibrationDefaultCalculator(name, **kwargs) )
+    result.addService( LArG4__CalibrationDefaultCalculator(name, **kwargs), primary = True)
     return result
 
 #todo -> migrate this

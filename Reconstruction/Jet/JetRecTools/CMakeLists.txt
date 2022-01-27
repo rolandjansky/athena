@@ -24,7 +24,7 @@ atlas_add_library( JetRecToolsLib
    PRIVATE_INCLUDE_DIRS ${FASTJETCONTRIB_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${FASTJET_LIBRARIES} AsgMessagingLib AthContainers AsgTools xAODPFlow
    xAODTracking xAODCore xAODBase xAODCaloEvent xAODEgamma xAODJet
-   TrackVertexAssociationToolLib JetEDM JetInterface JetRecLib
+   TrackVertexAssociationToolLib JetEDM JetInterface JetRecLib PathResolver
    InDetTrackSelectionToolLib PFlowUtilsLib ${extra_libs_pub}
    PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} ${ROOT_LIBRARIES} ${extra_libs} xAODTruth )
 

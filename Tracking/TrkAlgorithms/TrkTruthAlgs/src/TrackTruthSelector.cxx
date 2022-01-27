@@ -83,7 +83,7 @@ void TrackTruthSelector::fillOutput(TrackTruthCollection *out,
     Iter selected = range.first;
     double bestProb = getProbability(selected->second);
     ATH_MSG_VERBOSE ("track=" << selected->first.index() << " prob=" << bestProb << " link: " << *(selected->second.trajectory().rbegin()));
-    for(Iter imatch = ++range.first; imatch != range.second; imatch++) {
+    for(Iter imatch = ++range.first; imatch != range.second; ++imatch) {
       double prob = getProbability(imatch->second);
       ATH_MSG_VERBOSE ("track=" << imatch->first.index() << " prob=" << prob << " link: " << *(imatch->second.trajectory().rbegin()));
       if(prob>bestProb) {

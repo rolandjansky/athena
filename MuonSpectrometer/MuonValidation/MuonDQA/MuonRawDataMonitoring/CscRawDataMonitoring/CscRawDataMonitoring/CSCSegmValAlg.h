@@ -91,71 +91,71 @@ class CSCSegmValAlg : public ManagedMonitorToolBase {
   bool m_doEvtSel;
 
   SG::ReadHandleKey<Trk::SegmentCollection> m_segmKey{this,"SegmentKey","TrackMuonSegments","muon segments"};
-  double m_segmSlope;
+  double m_segmSlope = 0.0;
 
   bool m_debuglevel;           //!< private member to control debug messages
   bool m_bookedhistos;
 
   std::vector<std::string> m_ecap, m_segcoll; 
 
-  TH2F* m_h2CSC_Segm_NumOfSegs_EA;
-  TH2F* m_h2CSC_Segm_NumOfSegs_EC;
+  TH2F* m_h2CSC_Segm_NumOfSegs_EA = nullptr;
+  TH2F* m_h2CSC_Segm_NumOfSegs_EC = nullptr;
 
   std::vector<std::string> m_clusStatWord;
   std::vector<std::string> m_NClusWord;
 
-  TH2F* m_h2CSC_Segm_NumOfNClusSegs_Eta_EA;
-  TH2F* m_h2CSC_Segm_NumOfNClusSegs_Eta_EC;
+  TH2F* m_h2CSC_Segm_NumOfNClusSegs_Eta_EA = nullptr;
+  TH2F* m_h2CSC_Segm_NumOfNClusSegs_Eta_EC = nullptr;
 
-  TH1F* m_h1CSC_Segm_Efficiency_Eta_EA;
-  TH1F* m_h1CSC_Segm_Efficiency_Eta_EC;
+  TH1F* m_h1CSC_Segm_Efficiency_Eta_EA = nullptr;
+  TH1F* m_h1CSC_Segm_Efficiency_Eta_EC = nullptr;
 
-  TH2F* m_h2CSC_Segm_QsumOfGoodClusMap_Eta_EA;
-  TH2F* m_h2CSC_Segm_QsumOfGoodClusMap_Eta_EC;
+  TH2F* m_h2CSC_Segm_QsumOfGoodClusMap_Eta_EA = nullptr;
+  TH2F* m_h2CSC_Segm_QsumOfGoodClusMap_Eta_EC = nullptr;
     
-  TH2F* m_h2CSC_Segm_TimeOfGoodClusMap_Eta_EA;
-  TH2F* m_h2CSC_Segm_TimeOfGoodClusMap_Eta_EC;
+  TH2F* m_h2CSC_Segm_TimeOfGoodClusMap_Eta_EA = nullptr;
+  TH2F* m_h2CSC_Segm_TimeOfGoodClusMap_Eta_EC = nullptr;
     
-  TH1F* m_h1CSC_Segm_StatOfClus_Eta_EA;
-  TH1F* m_h1CSC_Segm_NumOfClus_Eta_EA;
-  TH1F* m_h1CSC_Segm_NumOfGoodClus_Eta_EA;
-  TH1F* m_h1CSC_Segm_QsumOfClus_Eta_EA;
-  TH1F* m_h1CSC_Segm_QsumOfGoodClus_Eta_EA;
-  TH1F* m_h1CSC_Segm_TimeOfClus_Eta_EA;
-  TH1F* m_h1CSC_Segm_TimeOfGoodClus_Eta_EA;
+  TH1F* m_h1CSC_Segm_StatOfClus_Eta_EA = nullptr;
+  TH1F* m_h1CSC_Segm_NumOfClus_Eta_EA = nullptr;
+  TH1F* m_h1CSC_Segm_NumOfGoodClus_Eta_EA = nullptr;
+  TH1F* m_h1CSC_Segm_QsumOfClus_Eta_EA = nullptr;
+  TH1F* m_h1CSC_Segm_QsumOfGoodClus_Eta_EA = nullptr;
+  TH1F* m_h1CSC_Segm_TimeOfClus_Eta_EA = nullptr;
+  TH1F* m_h1CSC_Segm_TimeOfGoodClus_Eta_EA = nullptr;
 
-  TH1F* m_h1CSC_Segm_StatOfClus_Eta_EC;
-  TH1F* m_h1CSC_Segm_NumOfClus_Eta_EC;
-  TH1F* m_h1CSC_Segm_NumOfGoodClus_Eta_EC;
-  TH1F* m_h1CSC_Segm_QsumOfClus_Eta_EC;
-  TH1F* m_h1CSC_Segm_QsumOfGoodClus_Eta_EC;
-  TH1F* m_h1CSC_Segm_TimeOfClus_Eta_EC;
-  TH1F* m_h1CSC_Segm_TimeOfGoodClus_Eta_EC;
+  TH1F* m_h1CSC_Segm_StatOfClus_Eta_EC = nullptr;
+  TH1F* m_h1CSC_Segm_NumOfClus_Eta_EC = nullptr;
+  TH1F* m_h1CSC_Segm_NumOfGoodClus_Eta_EC = nullptr;
+  TH1F* m_h1CSC_Segm_QsumOfClus_Eta_EC = nullptr;
+  TH1F* m_h1CSC_Segm_QsumOfGoodClus_Eta_EC = nullptr;
+  TH1F* m_h1CSC_Segm_TimeOfClus_Eta_EC = nullptr;
+  TH1F* m_h1CSC_Segm_TimeOfGoodClus_Eta_EC = nullptr;
     
-  TH2F* m_h2CSC_Segm_QsumOfGoodClusMap_Phi_EA;
-  TH2F* m_h2CSC_Segm_QsumOfGoodClusMap_Phi_EC;
+  TH2F* m_h2CSC_Segm_QsumOfGoodClusMap_Phi_EA = nullptr;
+  TH2F* m_h2CSC_Segm_QsumOfGoodClusMap_Phi_EC = nullptr;
     
-  TH2F* m_h2CSC_Segm_TimeOfGoodClusMap_Phi_EA;
-  TH2F* m_h2CSC_Segm_TimeOfGoodClusMap_Phi_EC;
+  TH2F* m_h2CSC_Segm_TimeOfGoodClusMap_Phi_EA = nullptr;
+  TH2F* m_h2CSC_Segm_TimeOfGoodClusMap_Phi_EC = nullptr;
     
-  TH1F* m_h1CSC_Segm_StatOfClus_Phi_EA;
-  TH1F* m_h1CSC_Segm_NumOfClus_Phi_EA;
-  TH1F* m_h1CSC_Segm_NumOfGoodClus_Phi_EA;
-  TH1F* m_h1CSC_Segm_QsumOfClus_Phi_EA;
-  TH1F* m_h1CSC_Segm_QsumOfGoodClus_Phi_EA;
-  TH1F* m_h1CSC_Segm_TimeOfClus_Phi_EA;
-  TH1F* m_h1CSC_Segm_TimeOfGoodClus_Phi_EA;
+  TH1F* m_h1CSC_Segm_StatOfClus_Phi_EA = nullptr;
+  TH1F* m_h1CSC_Segm_NumOfClus_Phi_EA = nullptr;
+  TH1F* m_h1CSC_Segm_NumOfGoodClus_Phi_EA = nullptr;
+  TH1F* m_h1CSC_Segm_QsumOfClus_Phi_EA = nullptr;
+  TH1F* m_h1CSC_Segm_QsumOfGoodClus_Phi_EA = nullptr;
+  TH1F* m_h1CSC_Segm_TimeOfClus_Phi_EA = nullptr;
+  TH1F* m_h1CSC_Segm_TimeOfGoodClus_Phi_EA = nullptr;
 
-  TH1F* m_h1CSC_Segm_StatOfClus_Phi_EC;
-  TH1F* m_h1CSC_Segm_NumOfClus_Phi_EC;
-  TH1F* m_h1CSC_Segm_NumOfGoodClus_Phi_EC;
-  TH1F* m_h1CSC_Segm_QsumOfClus_Phi_EC;
-  TH1F* m_h1CSC_Segm_QsumOfGoodClus_Phi_EC;
-  TH1F* m_h1CSC_Segm_TimeOfClus_Phi_EC;
-  TH1F* m_h1CSC_Segm_TimeOfGoodClus_Phi_EC;
+  TH1F* m_h1CSC_Segm_StatOfClus_Phi_EC = nullptr;
+  TH1F* m_h1CSC_Segm_NumOfClus_Phi_EC = nullptr;
+  TH1F* m_h1CSC_Segm_NumOfGoodClus_Phi_EC = nullptr;
+  TH1F* m_h1CSC_Segm_QsumOfClus_Phi_EC = nullptr;
+  TH1F* m_h1CSC_Segm_QsumOfGoodClus_Phi_EC = nullptr;
+  TH1F* m_h1CSC_Segm_TimeOfClus_Phi_EC = nullptr;
+  TH1F* m_h1CSC_Segm_TimeOfGoodClus_Phi_EC = nullptr;
     
-  TH2F* m_h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EA;
-  TH2F* m_h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EC;
+  TH2F* m_h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EA = nullptr;
+  TH2F* m_h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EC = nullptr;
 
   ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
     "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 

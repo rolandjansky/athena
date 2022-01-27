@@ -6,7 +6,7 @@ from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 def LArRTMParamsCfg(flags):
 
     #Get basic services and cond-algos
-    from LArCalibProcessing.LArCalibBaseConfig import LArCalibBaseCfg
+    from LArCalibProcessing.LArCalibBaseConfig import LArCalibBaseCfg,chanSelStr
     result=LArCalibBaseCfg(flags)
 
     from LArCalibProcessing.utils import FolderTagResolver
@@ -19,7 +19,7 @@ def LArRTMParamsCfg(flags):
 
     #Retrieve CaliWave: 
     from IOVDbSvc.IOVDbSvcConfig import addFolders
-    result.merge(addFolders(flags,flags.LArCalib.CaliWave.Folder,detDb=flags.LArCalib.Input.Database, tag=CaliWaveTag))
+    result.merge(addFolders(flags,flags.LArCalib.CaliWave.Folder,detDb=flags.LArCalib.Input.Database, tag=CaliWaveTag, modifiers=chanSelStr(flags)))
 
     if not flags.LArCalib.RTM.ExtractAll:
         #Get information from database:
@@ -134,8 +134,7 @@ if __name__ == "__main__":
     from LArCalibProcessing.LArCalibConfigFlags import addLArCalibFlags
     addLArCalibFlags(ConfigFlags)
 
-
-
+    ConfigFlags.Input.Files=[]
     ConfigFlags.LArCalib.Input.RunNumbers=[401351,]
     ConfigFlags.LArCalib.Input.Database="/home/wlampl/calibTest/00400939_00400943_00400945_Barrel-EMB-EMEC_HIGH_40_21.0.20_1/poolFiles/myDB200_00400939_00400943_00400945_EB-EMBA_one.db_Delay"
     ConfigFlags.LArCalib.Input.SubDet="EM"
@@ -147,6 +146,7 @@ if __name__ == "__main__":
     ConfigFlags.IOVDb.GlobalTag="LARCALIB-RUN2-02"
     #ConfigFlags.Exec.OutputLevel=1
 
+    ConfigFlags.lock()
     cfg=MainServicesCfg(ConfigFlags)
     cfg.merge(LArRTMParamsCfg(ConfigFlags))
 

@@ -62,7 +62,7 @@ private:
   /**
    * Flag to Set SumPt^2 not SumPt as selection criteria
    */
-  bool m_doSumPt2Selection;
+  Gaudi::Property<bool> m_doSumPt2Selection{ this, "DoSumPt2Selection", true };
 
 }; // end of class description
 } // end of namespace definition

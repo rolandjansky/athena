@@ -550,7 +550,6 @@ namespace top {
     std::vector<float> m_jet_eta;
     std::vector<float> m_jet_phi;
     std::vector<float> m_jet_e;
-    std::vector<float> m_jet_mv2c10;
     std::vector<float> m_jet_jvt;
     std::vector<float> m_jet_fjvt;
     std::vector<char> m_jet_passfjvt; //Could be useful to check pass/fail when fJVT only used in MET
@@ -653,7 +652,6 @@ namespace top {
     std::vector<float> m_tjet_eta;
     std::vector<float> m_tjet_phi;
     std::vector<float> m_tjet_e;
-    std::vector<float> m_tjet_mv2c10;
     std::unordered_map<std::string, SG::AuxElement::ConstAccessor<float>> DLx;
     std::unordered_map<std::string, std::vector<float>> m_tjet_DLx;
     std::unordered_map<std::string, std::vector<float>> m_tjet_DLx_pb;
@@ -694,7 +692,6 @@ namespace top {
     std::vector<std::vector<float> > m_rcjetsub_eta;
     std::vector<std::vector<float> > m_rcjetsub_phi;
     std::vector<std::vector<float> > m_rcjetsub_e;
-    std::vector<std::vector<float> > m_rcjetsub_mv2c10;
 
     std::vector<float> m_rrcjet_pt;
     std::vector<float> m_rrcjet_eta;
@@ -735,6 +732,7 @@ namespace top {
 
     //met
     float m_met_met;
+    float m_met_sumet;
     float m_met_phi;
     //these are for specific studies on the met, turned off by default, and turned on with the WriteMETBuiltWithLooseObjects option
     float m_met_met_withLooseObjects;
@@ -1168,7 +1166,6 @@ namespace top {
     const std::vector<float>& jet_eta() const {return m_jet_eta;}
     const std::vector<float>& jet_phi() const {return m_jet_phi;}
     const std::vector<float>& jet_e() const {return m_jet_e;}
-    const std::vector<float>& jet_mv2c10() const {return m_jet_mv2c10;}
     const std::vector<float>& jet_jvt() const {return m_jet_jvt;}
     const std::vector<float>& jet_forwardjvt() const {return m_jet_fjvt;}
     const std::vector<char>& jet_passforwardjvt() const {return m_jet_passfjvt;}
@@ -1237,7 +1234,6 @@ namespace top {
     const std::vector<float>& tjet_eta() const {return m_tjet_eta;}
     const std::vector<float>& tjet_phi() const {return m_tjet_phi;}
     const std::vector<float>& tjet_e() const {return m_tjet_e;}
-    const std::vector<float>& tjet_mv2c10() const {return m_tjet_mv2c10;}
     const std::unordered_map<std::string, std::vector<char> >& tjet_isbtagged() const {return m_tjet_isbtagged;}//one
                                                                                                                 // vector
                                                                                                                 // per
@@ -1281,7 +1277,6 @@ namespace top {
     const std::vector<std::vector<float> >& rcjetsub_eta() const {return m_rcjetsub_eta;}
     const std::vector<std::vector<float> >& rcjetsub_phi() const {return m_rcjetsub_phi;}
     const std::vector<std::vector<float> >& rcjetsub_e() const {return m_rcjetsub_e;}
-    const std::vector<std::vector<float> >& rcjetsub_mv2c10() const {return m_rcjetsub_mv2c10;}
     const std::vector<float>& rcjet_tau32_clstr() const {return m_rcjet_tau32_clstr;}
     const std::vector<float>& rcjet_tau21_clstr() const {return m_rcjet_tau21_clstr;}
     const std::vector<float>& rcjet_tau3_clstr() const {return m_rcjet_tau3_clstr;}

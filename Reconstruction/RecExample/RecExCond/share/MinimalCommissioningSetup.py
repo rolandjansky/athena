@@ -4,6 +4,3 @@ globalflags.DataSource.set_Value_and_Lock('data')
 
 from RecExConfig.RecFlags import rec
 rec.Commissioning.set_Value_and_Lock(True)
-rec.oldFlagTopSteering.set_Value_and_Lock(False)
-
-

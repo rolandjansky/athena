@@ -12,6 +12,7 @@
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexAuxContainer.h"
 #include "xAODTracking/VertexContainer.h"
+#include "FourMomUtils/xAODP4Helpers.h"
 namespace {
     constexpr int MAXPLANES = 100;
     /// Shortcut to square a number
@@ -270,13 +271,7 @@ namespace Muon {
             int ntracks(0);
             for (int jcl = 0; jcl < ncluster; ++jcl) {
                 float dEta = trkClu[icl].eta - trkClu0[jcl].eta;
-                float dPhi = trkClu[icl].phi - trkClu0[jcl].phi;
-                while (std::abs(dPhi) > M_PI) {
-                    if (dPhi < 0)
-                        dPhi += 2 * M_PI;
-                    else
-                        dPhi -= 2 * M_PI;
-                }
+                float dPhi = xAOD::P4Helpers::deltaPhi(trkClu[icl].phi , trkClu0[jcl].phi);
                 if (std::abs(dEta) < 0.7 && std::abs(dPhi) < M_PI / 3.) {
                     ntracks++;
                     trkClu[icl].eta = trkClu[icl].eta - dEta / ntracks;
@@ -304,15 +299,7 @@ namespace Muon {
 
                 for (int jcl = 0; jcl < ncluster; ++jcl) {
                     float dEta = std::abs(trkClu[icl].eta - trkClu0[jcl].eta);
-                    float dPhi = trkClu[icl].phi - trkClu0[jcl].phi;
-
-                    while (std::abs(dPhi) > M_PI) {
-                        if (dPhi < 0)
-                            dPhi += 2 * M_PI;
-                        else
-                            dPhi -= 2 * M_PI;
-                    }
-
+                    float dPhi = xAOD::P4Helpers::deltaPhi(trkClu[icl].phi , trkClu0[jcl].phi);
                     if (dEta < 0.7 && std::abs(dPhi) < M_PI / 3.) {
                         eta_avg += trkClu0[jcl].eta;
                         cosPhi_avg += std::cos(trkClu0[jcl].phi);
@@ -356,13 +343,7 @@ namespace Muon {
         std::vector<Tracklet> unusedTracks;
         for (std::vector<Tracklet>::iterator trkItr = tracks.begin(); trkItr != tracks.end(); ++trkItr) {
             float dEta = std::abs(BestCluster.eta - trkItr->globalPosition().eta());
-            float dPhi = BestCluster.phi - trkItr->globalPosition().phi();
-            while (std::abs(dPhi) > M_PI) {
-                if (dPhi < 0)
-                    dPhi += 2 * M_PI;
-                else
-                    dPhi -= 2 * M_PI;
-            }
+            float dPhi = xAOD::P4Helpers::deltaPhi(BestCluster.phi , trkItr->globalPosition().phi());
             if (dEta < 0.7 && std::abs(dPhi) < M_PI / 3.)
                 BestCluster.tracks.push_back((*trkItr));
             else
@@ -561,7 +542,8 @@ namespace Muon {
                 Trk::CylinderSurface cyl(surfaceTransformMatrix, rpos, 10000.);  // create the surface
                 // extrapolate to the surface
                 std::unique_ptr<const Trk::TrackParameters> extrap_par(
-                    m_extrapolator->extrapolate(*TracksForVertexing[k].at(i), cyl, Trk::anyDirection, boundaryCheck, Trk::muon));
+                    m_extrapolator->extrapolate(ctx,
+                                                *TracksForVertexing[k].at(i), cyl, Trk::anyDirection, boundaryCheck, Trk::muon));
 
                 const Trk::AtaCylinder* extrap = dynamic_cast<const Trk::AtaCylinder*>(extrap_par.get());
 
@@ -593,7 +575,8 @@ namespace Muon {
                         srfTransMat2.setIdentity();
                         Trk::CylinderSurface cyl2(srfTransMat2, rpos, 10000.);
                         std::unique_ptr<const Trk::TrackParameters> extrap_par2(
-                            m_extrapolator->extrapolate(*TracksForErrors[k].at(i), cyl, Trk::anyDirection, boundaryCheck, Trk::muon));
+                            m_extrapolator->extrapolate(ctx,
+                                                        *TracksForErrors[k].at(i), cyl, Trk::anyDirection, boundaryCheck, Trk::muon));
                         const Trk::AtaCylinder* extrap2 = dynamic_cast<const Trk::AtaCylinder*>(extrap_par2.get());
 
                         if (extrap2) {
@@ -891,12 +874,10 @@ namespace Muon {
     void MSVertexRecoTool::MSStraightLineVx_oldMethod(const std::vector<Tracklet>& trks, std::unique_ptr<MSVertex>& vtx,
                                                       const EventContext& ctx) const {
         // find the line of flight of the vpion
-        float aveX(0), aveY(0), aveR(0), aveZ(0);
+        float aveX(0), aveY(0);
         for (auto trkItr = trks.cbegin(); trkItr != trks.cend(); ++trkItr) {
             aveX += trkItr->globalPosition().x();
             aveY += trkItr->globalPosition().y();
-            aveR += trkItr->globalPosition().perp();
-            aveZ += trkItr->globalPosition().z();
         }
         float vxphi = std::atan2(aveY, aveX);
 

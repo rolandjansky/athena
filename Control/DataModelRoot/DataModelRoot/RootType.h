@@ -87,9 +87,9 @@ public:
    Bool_t IsTransient() const;
 
    size_t FunctionParameterSize( Bool_t required = false ) const;
-   TMemberAdapter FunctionParameterAt( size_t nth ) const;
-   std::string FunctionParameterNameAt( size_t nth ) const;
-   std::string FunctionParameterDefaultAt( size_t nth ) const;
+   TMemberAdapter FunctionParameterAt( size_t nth );
+   std::string FunctionParameterNameAt( size_t nth );
+   std::string FunctionParameterDefaultAt( size_t nth );
 
    TReturnTypeAdapter   ReturnType() const;
    TScopeAdapter        DeclaringScope ATLAS_NOT_THREAD_SAFE () const;

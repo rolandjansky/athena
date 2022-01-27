@@ -24,49 +24,7 @@
       <library>TrigPSC</library>
     </HLTImplementationLibraries>
     <HardTimeout>3600000</HardTimeout>
-    <InfoService>
-      <HLTMonInfoImpl>
-        <ConfigurationRules>
-          <ConfigurationRuleBundle>
-            <Rules>
-              <ConfigurationRule>
-                <ExcludeFilter />
-                <IncludeFilter>.*</IncludeFilter>
-                <Name>Dumm</Name>
-                <Parameters>
-                  <OHPublishingParameters>
-                    <NumberOfSlots>5</NumberOfSlots>
-                    <OHServer>${TDAQ_OH_SERVER=HLT-Histogramming}</OHServer>
-                    <PublishInterval>5</PublishInterval>
-                    <ROOTProvider>${TDAQ_APPLICATION_NAME}</ROOTProvider>
-                    <UID>HltpuOHPublishingParameters</UID>
-                  </OHPublishingParameters>
-                </Parameters>
-                <UID>HltpuOHRule</UID>
-              </ConfigurationRule>
-              <ConfigurationRule>
-                <ExcludeFilter />
-                <IncludeFilter>.*</IncludeFilter>
-                <Name>DummDumm</Name>
-                <Parameters>
-                  <ISPublishingParameters>
-                    <ISServer>${TDAQ_IS_SERVER=DF}</ISServer>
-                    <NumberOfSlots>1</NumberOfSlots>
-                    <PublishInterval>10</PublishInterval>
-                    <UID>HltpuISPublishingParameters</UID>
-                  </ISPublishingParameters>
-                </Parameters>
-                <UID>HltpuISRule</UID>
-              </ConfigurationRule>
-            </Rules>
-            <UID>HltpuConfigurationRuleBundle</UID>
-          </ConfigurationRuleBundle>
-        </ConfigurationRules>
-        <UID>hltMonSvc</UID>
-        <library>MonSvcInfoService</library>
-      </HLTMonInfoImpl>
-    </InfoService>
-    <InfoServiceLibrary>MonSvcInfoService</InfoServiceLibrary>
+    <InfoServiceLibrary />
     <UID>HLTMPPy</UID>
     <childLogName>athenaHLT:</childLogName>
     <dontPublishIS>1</dontPublishIS>
@@ -122,6 +80,7 @@
             <postCommands />
             <preCommands>
               <preCommand>_run_number=360026</preCommand>
+              <preCommand>_lb_number=151</preCommand>
             </preCommands>
             <pythonSetupFile>TrigPSC/TrigPSCPythonSetup.py</pythonSetupFile>
             <showInclude>false</showInclude>

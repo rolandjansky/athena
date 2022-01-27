@@ -51,39 +51,39 @@ class AlSymMat : public AlSymMatBase {
   virtual  AlSymMat&  operator*=(const double&);
 
   // ADVANCED:
-  virtual  void reSize(long int Nnew);
-  virtual  double&    elemr(long int, long int);
-  virtual  double     elemc(long int, long int) const;
+  virtual  void reSize(long int Nnew) override final;
+  virtual  double&    elemr(long int, long int) override final;
+  virtual  double     elemc(long int, long int) const override final;
 
-  virtual  int invert();
-  virtual  void RemoveModule(int);
-  virtual  void RemoveAlignPar(int, int);
-  virtual  int  RemoveCollsRows(std::vector<int>);
-  virtual  void SetPathBin(const std::string&);
-  virtual  void SetPathTxt(const std::string&);
-  virtual  StatusCode Write(const std::string&, bool, bool, double, float);
-  virtual  StatusCode CheckMatVersion(const std::string, bool&);
-  virtual  StatusCode Read(const std::string&, int&, bool&, float&);
-  virtual  StatusCode ReadProjected(const std::string&, int&, bool&, float&);
-  virtual  int diagonalize(char jobz, AlVec& w, AlMat& z);
-  virtual  double determinant();
+  virtual  int invert() override final;
+  virtual  void RemoveModule(int) override final;
+  virtual  void RemoveAlignPar(int, int) override final;
+  virtual  int  RemoveCollsRows(std::vector<int>) override final;
+  virtual  void SetPathBin(const std::string&) override final;
+  virtual  void SetPathTxt(const std::string&) override final;
+  virtual  StatusCode Write(const std::string&, bool, bool, double, float) override final;
+  virtual  StatusCode CheckMatVersion(const std::string, bool&) override final;
+  virtual  StatusCode Read(const std::string&, int&, bool&, float&) override final;
+  virtual  StatusCode ReadProjected(const std::string&, int&, bool&, float&) override final;
+  virtual  int diagonalize(char jobz, AlVec& w, AlMat& z) override final;
+  virtual  double determinant() override final;
 
   inline double* ptrData() const;
 
   inline std::string pathBin() const;
   inline std::string pathTxt() const;
 
-  virtual TMatrixDSparse* makeTMatrix();
+  virtual TMatrixDSparse* makeTMatrix() override final;
 
 
  protected:
   inline long int elem(long int, long int) const;
 
-  virtual void copy(const AlSymMat&  m);
-  virtual void copy(const AlSpaMat&  m);
-  virtual void copy(const AlMat&  m);
+  void copy(const AlSymMat&  m);
+  void copy(const AlSpaMat&  m);
+  void copy(const AlMat&  m);
 
-  double*     m_ptr_data;
+  double*     m_ptr_data = nullptr;
 
   std::string m_pathbin;
   std::string m_pathtxt;

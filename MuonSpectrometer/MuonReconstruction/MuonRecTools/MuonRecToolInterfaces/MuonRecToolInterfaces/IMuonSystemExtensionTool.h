@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_IMUONSYSTEMEXTENSIONTOOL_H
@@ -8,30 +8,61 @@
 /**
     @class IMuonSystemExtensionTool
 
-    @author Niels.Van.Eldik@cern.ch
 */
 
+#include <map>
+#include <optional>
+#include <set>
+
 #include "GaudiKernel/IAlgTool.h"
+#include "MuonStationIndex/MuonStationIndex.h"
 #include "xAODTracking/TrackParticle.h"
+#include "TrkCaloExtension/CaloExtensionCollection.h"
+#include "MuonLayerEvent/MuonSystemExtension.h"
 
+namespace MuonCombined {
+    class InDetCandidate;
+    class TagBase;
+}
 namespace Muon {
-
-    class MuonSystemExtension;
-
-    /** Interface ID*/
-    static const InterfaceID IID_IMuonSystemExtensionTool("Muon::IMuonSystemExtensionTool", 1, 0);
-
+   
     class IMuonSystemExtensionTool : virtual public IAlgTool {
     public:
         /**Virtual destructor*/
-        virtual ~IMuonSystemExtensionTool(){};
+        virtual ~IMuonSystemExtensionTool() = default;
 
         /** AlgTool and IAlgTool interface methods */
-        static const InterfaceID& interfaceID() { return IID_IMuonSystemExtensionTool; }
+        static const InterfaceID& interfaceID() {
+            static const InterfaceID IID_IMuonSystemExtensionTool("Muon::IMuonSystemExtensionTool", 1, 0);
+            return IID_IMuonSystemExtensionTool;
+        }
+        /// Helper struct to pipe all data needed by the tool 
+        /// to equip the Id track with a MuonSystemExtension
+        struct SystemExtensionCache {
+            
+            /// Inner detector candidate
+            std::unique_ptr<MuonCombined::InDetCandidate> candidate;
+            /// Cache the sectors which have a recorded hit. Divided into
+            ///     Barrel / EndcapA  / EndcapC
+            const std::map<MuonStationIndex::DetectorRegionIndex, std::set<int>>* sectorsWithHits{nullptr};
+            /// Cache of the CaloExtensions
+            const CaloExtensionCollection* extensionContainer{nullptr};
+            /// Switch to restrict the intersection search only to
+            /// the sectors with hits
+            bool useHitSectors{false};            
+            /// Try to create the muon system extension
+            bool createSystemExtension{true};
+            /// Require that the muon system extension was successful
+            bool requireSystemExtension{false};
+        };
 
         /** get muon system extension */
-        virtual bool muonSystemExtension(const xAOD::TrackParticle& indetTrackParticle,
-                                         const MuonSystemExtension*& muonSystemExtention) const = 0;
+        virtual bool muonSystemExtension(const EventContext& ctx, SystemExtensionCache& cache) const = 0;
+
+        /** Constructs the layer intersections from a primary muon track using the track states in the muon spectrometer **/
+        virtual bool muonLayerInterSections(const EventContext& ctx, 
+                                            const MuonCombined::TagBase& cmb_tag,
+                                            SystemExtensionCache& cache) const = 0;
     };
 
 }  // namespace Muon

@@ -11,8 +11,6 @@
 
 #include <utility>
 
-namespace HGTD {
-
 HGTD_Cluster::HGTD_Cluster(const Identifier& rdo_id,
                            const Amg::Vector2D& loc_pos,
                            const std::vector<Identifier>& rdo_list,
@@ -107,5 +105,3 @@ HGTD_Cluster& HGTD_Cluster::operator=(HGTD_Cluster&& rhs) {
   }
   return *this;
 }
-
-} // namespace HGTD

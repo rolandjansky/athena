@@ -15,10 +15,10 @@ TCS::eTauTOB::eTauTOB(uint32_t roiWord, const std::string& tobName) :
 {}
 
 // constructor with initial values
-TCS::eTauTOB::eTauTOB(unsigned int et, unsigned int isolation, int eta, unsigned int phi, inputTOBType_t tobType, uint32_t roiWord, const std::string& tobName) :
+TCS::eTauTOB::eTauTOB(unsigned int et, double isolation, int eta, unsigned int phi, inputTOBType_t tobType, uint32_t roiWord, const std::string& tobName) :
   BaseTOB( roiWord,tobName )
    , m_Et( sizeCheck(et, nBitsEt()) )
-   , m_isolation( sizeCheck( isolation, nBitsIsolation()) )
+   , m_isolation( isolation )
    , m_eta( sizeCheck(eta, nBitsEta()) )
    , m_phi( sizeCheck(phi, nBitsPhi()) )
    , m_tobType( tobType )
@@ -42,5 +42,5 @@ TCS::eTauTOB::clearHeap() {
 }
 
 void TCS::eTauTOB::print(std::ostream &o) const {
-    o << "eTau energy: " << Et() << ", eta: " << eta() << ", phi: " << phi();
+  o << "eTau energy: " << Et() << ", eta: " << eta() << ", phi: " << phi() << ", isolation: "<< isolation();
 }

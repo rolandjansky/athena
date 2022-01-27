@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # New configuration for ATLAS extrapolator
 # Based heavily on AtlasExtrapolator.py
@@ -7,10 +7,6 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
 import TrkConfig.AtlasExtrapolatorToolsConfig as TC
-
-# import the Extrapolator configurable
-Trk__Extrapolator = CompFactory.Trk.Extrapolator
-
 
 # define the class
 def AtlasExtrapolatorCfg(flags, name='AtlasExtrapolator'):
@@ -21,33 +17,48 @@ def AtlasExtrapolatorCfg(flags, name='AtlasExtrapolator'):
 
     # PROPAGATOR DEFAULTS --------------------------------------------------
 
-    AtlasRungeKuttaPropagator = result.getPrimaryAndMerge(
+    AtlasRungeKuttaPropagator = result.popToolsAndMerge(
         TC.AtlasRKPropagatorCfg(flags))
-    AtlasSTEP_Propagator = result.getPrimaryAndMerge(
+    AtlasSTEP_Propagator = result.popToolsAndMerge(
         TC.AtlasSTEP_PropagatorCfg(flags))
+    ITkPropagator = None
+    if flags.Detector.GeometryITk:
+        ITkPropagator = result.popToolsAndMerge(
+            TC.ITkPropagatorCfg(flags))
 
     AtlasPropagators = []
     AtlasPropagators += [AtlasRungeKuttaPropagator]
     AtlasPropagators += [AtlasSTEP_Propagator]
+    if flags.Detector.GeometryITk:
+        AtlasPropagators += [ITkPropagator]
 
     # UPDATOR DEFAULTS --------------------------------------------------
 
-    AtlasMaterialEffectsUpdator = result.getPrimaryAndMerge(
+    AtlasMaterialEffectsUpdator = result.popToolsAndMerge(
         TC.AtlasMaterialEffectsUpdatorCfg(flags))
-    AtlasMaterialEffectsUpdatorLandau = result.getPrimaryAndMerge(
+    AtlasMaterialEffectsUpdatorLandau = result.popToolsAndMerge(
         TC.AtlasMaterialEffectsUpdatorLandauCfg(flags))
+    ITkMaterialEffectsUpdator = None
+    if flags.Detector.GeometryITk:
+        ITkMaterialEffectsUpdator = result.popToolsAndMerge(
+            TC.ITkMaterialEffectsUpdatorCfg(flags))
 
     AtlasUpdators = []
     AtlasUpdators += [AtlasMaterialEffectsUpdator]
     AtlasUpdators += [AtlasMaterialEffectsUpdatorLandau]
+    if flags.Detector.GeometryITk:
+        AtlasUpdators += [ITkMaterialEffectsUpdator]
 
-    AtlasNavigator = result.getPrimaryAndMerge(TC.AtlasNavigatorCfg(flags))
+    AtlasNavigator = result.popToolsAndMerge(TC.AtlasNavigatorCfg(flags))
 
     # CONFIGURE PROPAGATORS/UPDATORS ACCORDING TO GEOMETRY SIGNATURE
 
     AtlasSubPropagators = []
     AtlasSubPropagators += [AtlasRungeKuttaPropagator.name]  # Global
-    AtlasSubPropagators += [AtlasRungeKuttaPropagator.name]  # ID
+    if flags.Detector.GeometryITk:
+        AtlasSubPropagators += [ITkPropagator.name]  # ITk
+    else:
+        AtlasSubPropagators += [AtlasRungeKuttaPropagator.name]  # ID
     AtlasSubPropagators += [AtlasSTEP_Propagator.name]  # BeamPipe
     AtlasSubPropagators += [AtlasSTEP_Propagator.name]  # Calo
     AtlasSubPropagators += [AtlasSTEP_Propagator.name]  # MS
@@ -55,23 +66,29 @@ def AtlasExtrapolatorCfg(flags, name='AtlasExtrapolator'):
 
     AtlasSubUpdators = []
     AtlasSubUpdators += [AtlasMaterialEffectsUpdator.name]  # Global
-    AtlasSubUpdators += [AtlasMaterialEffectsUpdator.name]  # ID
+    if flags.Detector.GeometryITk:
+        AtlasSubUpdators += [ITkMaterialEffectsUpdator.name]  # ITk
+    else:
+        AtlasSubUpdators += [AtlasMaterialEffectsUpdator.name]  # ID
     AtlasSubUpdators += [AtlasMaterialEffectsUpdator.name]  # BeamPipe
     AtlasSubUpdators += [AtlasMaterialEffectsUpdator.name]  # Calo
     AtlasSubUpdators += [AtlasMaterialEffectsUpdator.name]  # MS
     AtlasSubUpdators += [AtlasMaterialEffectsUpdator.name]  # Cavern
 
+    AtlasELossUpdator = result.popToolsAndMerge(TC.AtlasEnergyLossUpdatorCfg(flags))
+    AtlasEnergyLossUpdators = [AtlasELossUpdator]
+
     # call the base class constructor
-    Extrapolator = Trk__Extrapolator(name,
-                                     Navigator=AtlasNavigator,
-                                     MaterialEffectsUpdators=AtlasUpdators,
-                                     Propagators=AtlasPropagators,
-                                     SubPropagators=AtlasSubPropagators,
-                                     SubMEUpdators=AtlasSubUpdators
-                                     )
+    Extrapolator = CompFactory.Trk.Extrapolator(name,
+                                                Navigator=AtlasNavigator,
+                                                MaterialEffectsUpdators=AtlasUpdators,
+                                                Propagators=AtlasPropagators,
+                                                SubPropagators=AtlasSubPropagators,
+                                                SubMEUpdators=AtlasSubUpdators,
+                                                EnergyLossUpdators=AtlasEnergyLossUpdators
+                                                )
 
     result.setPrivateTools(Extrapolator)
-
     return result
 
 
@@ -82,29 +99,44 @@ def egammaCaloExtrapolatorCfg(flags, name='egammaCaloExtrapolator'):
     egammaExtrapolator = result.popToolsAndMerge(
         AtlasExtrapolatorCfg(flags, name))
 
-    RungeKuttaPropagator = result.getPrimaryAndMerge(
+    RungeKuttaPropagator = result.popToolsAndMerge(
         TC.AtlasRKPropagatorCfg(flags))
-    NoMatSTEP_Propagator = result.getPrimaryAndMerge(
+    NoMatSTEP_Propagator = result.popToolsAndMerge(
         TC.AtlasNoMatSTEP_PropagatorCfg(flags))
+    ITkPropagator = None
+    if flags.Detector.GeometryITk:
+        ITkPropagator = result.popToolsAndMerge(
+            TC.ITkPropagatorCfg(flags))
 
     egammaPropagators = []
     egammaPropagators += [RungeKuttaPropagator]
     egammaPropagators += [NoMatSTEP_Propagator]
+    if flags.Detector.GeometryITk:
+        egammaPropagators += [ITkPropagator]
 
-    MaterialEffectsUpdator = result.getPrimaryAndMerge(
+    MaterialEffectsUpdator = result.popToolsAndMerge(
         TC.AtlasMaterialEffectsUpdatorCfg(flags))
-    NoElossMaterialEffectsUpdator = result.getPrimaryAndMerge(
+    NoElossMaterialEffectsUpdator = result.popToolsAndMerge(
         TC.AtlasNoElossMaterialEffectsUpdatorCfg(flags))
+    ITkMaterialEffectsUpdator = None
+    if flags.Detector.GeometryITk:
+        ITkMaterialEffectsUpdator = result.popToolsAndMerge(
+            TC.ITkMaterialEffectsUpdatorCfg(flags))
 
     egammaUpdators = []
     egammaUpdators += [MaterialEffectsUpdator]
     egammaUpdators += [NoElossMaterialEffectsUpdator]
+    if flags.Detector.GeometryITk:
+        egammaUpdators += [ITkMaterialEffectsUpdator]
 
     # CONFIGURE PROPAGATORS/UPDATORS ACCORDING TO GEOMETRY SIGNATURE
 
     egammaSubPropagators = []
     egammaSubPropagators += [RungeKuttaPropagator.name]  # Global
-    egammaSubPropagators += [RungeKuttaPropagator.name]  # ID
+    if flags.Detector.GeometryITk:
+        egammaSubPropagators += [ITkPropagator.name]  # ITk
+    else:
+        egammaSubPropagators += [RungeKuttaPropagator.name]  # ID
     # BeamPipe (default is STEP)
     egammaSubPropagators += [RungeKuttaPropagator.name]
     # Calo (default is STEP)
@@ -114,7 +146,10 @@ def egammaCaloExtrapolatorCfg(flags, name='egammaCaloExtrapolator'):
 
     egammaSubUpdators = []
     egammaSubUpdators += [MaterialEffectsUpdator.name]  # Global
-    egammaSubUpdators += [MaterialEffectsUpdator.name]  # ID
+    if flags.Detector.GeometryITk:
+        egammaSubUpdators += [ITkMaterialEffectsUpdator.name]  # ID
+    else:
+        egammaSubUpdators += [MaterialEffectsUpdator.name]  # ID
     egammaSubUpdators += [MaterialEffectsUpdator.name]  # BeamPipe
     # Calo (default is Mat)
     egammaSubUpdators += [NoElossMaterialEffectsUpdator.name]
@@ -130,7 +165,6 @@ def egammaCaloExtrapolatorCfg(flags, name='egammaCaloExtrapolator'):
     egammaExtrapolator.STEP_Propagator = NoMatSTEP_Propagator
 
     result.setPrivateTools(egammaExtrapolator)
-
     return result
 
 
@@ -143,7 +177,7 @@ def MCTruthClassifierExtrapolatorCfg(flags, name='MCTruthClassifierExtrapolator'
 
     MCTruthUpdators = []
 
-    NoElossMaterialEffectsUpdator = result.getPrimaryAndMerge(
+    NoElossMaterialEffectsUpdator = result.popToolsAndMerge(
         TC.AtlasNoElossMaterialEffectsUpdatorCfg(flags))
     MCTruthUpdators += [NoElossMaterialEffectsUpdator]
 
@@ -161,7 +195,6 @@ def MCTruthClassifierExtrapolatorCfg(flags, name='MCTruthClassifierExtrapolator'
     MCTruthExtrapolator.SubMEUpdators = MCTruthSubUpdators
 
     result.setPrivateTools(MCTruthExtrapolator)
-
     return result
 
 
@@ -170,7 +203,7 @@ def InDetExtrapolatorCfg(flags, name='InDetExtrapolator', **kwargs):
 
     # FIXME copied from the old config, also needs fixing on the c++ side.
     if 'Propagators' not in kwargs:
-        InDetPropagator = result.getPrimaryAndMerge(
+        InDetPropagator = result.popToolsAndMerge(
             TC.InDetPropagatorCfg(flags))
         Propagators = [InDetPropagator]
         kwargs.setdefault("Propagators", Propagators)
@@ -187,7 +220,7 @@ def InDetExtrapolatorCfg(flags, name='InDetExtrapolator', **kwargs):
         'MaterialEffectsUpdators', None) is not None and len(kwargs.get('MaterialEffectsUpdators', None)) > 0 else None
 
     if 'Navigator' not in kwargs:
-        AtlasNavigator = result.getPrimaryAndMerge(TC.AtlasNavigatorCfg(flags))
+        AtlasNavigator = result.popToolsAndMerge(TC.AtlasNavigatorCfg(flags, name="InDetNavigator"))
         kwargs.setdefault("Navigator", AtlasNavigator)
 
     sub_propagators = []
@@ -210,8 +243,54 @@ def InDetExtrapolatorCfg(flags, name='InDetExtrapolator', **kwargs):
     kwargs.setdefault("SubPropagators", sub_propagators)
     kwargs.setdefault("SubMEUpdators", sub_updators)
 
+    AtlasELossUpdator = result.popToolsAndMerge(TC.AtlasEnergyLossUpdatorCfg(flags))
+    kwargs.setdefault("EnergyLossUpdators", [AtlasELossUpdator])
+
     extrapolator = CompFactory.Trk.Extrapolator(name, **kwargs)
-    result.addPublicTool(extrapolator, primary=True)
+    result.setPrivateTools(extrapolator)
+    return result
+
+
+def MuonExtrapolatorCfg(flags,name = "MuonExtrapolator", **kwargs):
+    result = ComponentAccumulator()
+
+    AtlasMaterialEffectsUpdator = result.popToolsAndMerge(TC.AtlasMaterialEffectsUpdatorCfg(flags))
+    kwargs.setdefault("MaterialEffectsUpdators", [AtlasMaterialEffectsUpdator])
+
+    AtlasNavigator = result.popToolsAndMerge(TC.AtlasNavigatorCfg(flags))
+    kwargs.setdefault("Navigator", AtlasNavigator)
+
+    AtlasELossUpdator = result.popToolsAndMerge(TC.AtlasEnergyLossUpdatorCfg(flags))
+    kwargs.setdefault("EnergyLossUpdators", [AtlasELossUpdator])
+
+    if 'Propagators' not in kwargs:
+        muon_prop = result.popToolsAndMerge(TC.MuonSTEP_PropagatorCfg(flags, name="MuonPropagator"))
+        kwargs.setdefault("Propagators", [muon_prop])
+
+    kwargs.setdefault("ResolveMuonStation", True)
+    kwargs.setdefault("Tolerance", 0.0011)  # must be > 1um to avoid missing MTG intersections
+
+    extrap = CompFactory.Trk.Extrapolator(name=name, **kwargs)
+    result.setPrivateTools(extrap)
+    return result
+
+def MuonStraightLineExtrapolatorCfg(flags, name="MuonStraightLineExtrapolator",**kwargs):
+    # This is a bit odd , but this is exactly what was in the old configuration
+    result = ComponentAccumulator()
+    muon_prop = result.popToolsAndMerge(TC.MuonSTEP_PropagatorCfg(flags, name = "MuonStraightLinePropagator"))
+    kwargs.setdefault("Propagators",[muon_prop])
+    kwargs.setdefault("STEP_Propagator",muon_prop)
+    extrap = result.popToolsAndMerge(MuonExtrapolatorCfg(flags, name ,**kwargs))
+    result.setPrivateTools(extrap)
+    return result
+
+def MCTBExtrapolatorCfg(flags, name='MCTBExtrapolator',**kwargs):
+    result = ComponentAccumulator()
+    prop = result.popToolsAndMerge(TC.MuonSTEP_PropagatorCfg(flags, name = "MCTBPropagator"))
+    kwargs.setdefault("Propagators", [ prop ])
+    kwargs.setdefault("ResolveMuonStation", False)
+    extrap = result.popToolsAndMerge(MuonExtrapolatorCfg(flags, name ,**kwargs))
+    result.setPrivateTools(extrap)
     return result
 
 
@@ -224,7 +303,7 @@ if __name__ == "__main__":
     from AthenaCommon.Logging import logging
     Configurable.configurableRun3Behavior = True
 
-    ConfigFlags.Input.Files = defaultTestFiles.RDO
+    ConfigFlags.Input.Files = defaultTestFiles.RDO_RUN2
     ConfigFlags.fillFromArgs()
     ConfigFlags.lock()
     ConfigFlags.dump()

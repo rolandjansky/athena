@@ -94,13 +94,6 @@ InDetConversionFinderTools::InDetConversionFinderTools(const std::string& t,
     }
     ATH_MSG_INFO("Retrieved tool " << m_singleTrkConvTool);
 
-    /* Get the extrapolator tool from ToolSvc */
-    if (m_extrapolator.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Failed to retrieve tool " << m_extrapolator);
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_INFO("Retrieved tool " << m_extrapolator);
-
     /* Get the track selector tool from ToolSvc */
     if (m_trkSelector.retrieve().isFailure()) {
       ATH_MSG_FATAL("Failed to retrieve tool " << m_trkSelector);

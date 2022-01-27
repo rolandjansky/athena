@@ -2,13 +2,16 @@
 #  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon.Logging import logging
 _msg = logging.getLogger('AccumulatorCache')
 
 import functools
+import time
 from copy import deepcopy
-
 from collections.abc import Hashable
+from collections import defaultdict
+from dataclasses import dataclass
 
 class AccumulatorDecorator:
     """Class for use in function decorators, implements memoization.
@@ -23,6 +26,15 @@ class AccumulatorDecorator:
 
     VERIFY_NOTHING = 0
     VERIFY_HASH = 1
+
+    @dataclass
+    class CacheStats:
+        hits  : int = 0
+        misses: int = 0
+        t_hits: float = 0
+        t_misses: float = 0
+
+    _stats = defaultdict(CacheStats)
 
     def __init__(self , func , size , verify , deepCopy): 
         """The constructor is typically called in a function returning a decorator.
@@ -44,17 +56,35 @@ class AccumulatorDecorator:
         self._func = func
         self._cache = {}
         self._resultCache = {}
-        self._hits = 0
-        self._misses = 0
         self._verify = verify
         self._deepcopy = deepCopy
 
-    def __str__(self):
-        return "|cache size : " + str(len(self._cache)) + " , misses : " + str(self._misses) + " , hits : " + str(self._hits) + " , function : " + str(self._func.__name__) + "|"
+        if self._verify not in [self.VERIFY_NOTHING, self.VERIFY_HASH]:
+            raise RuntimeError(f"Invalid value for verify ({verify}) in AccumulatorCache for {func}")
 
     def getInfo(self):
-        """Rerurn a dictionary with information about the cache size and cache usage"""
-        return {"cache_size" : len(self._cache) , "misses" : self._misses , "hits" : self._hits , "function" : self._func , "result_cache_size" : len(self._resultCache)}
+        """Return a dictionary with information about the cache size and cache usage"""
+        return {"cache_size" : len(self._cache),
+                "misses" : self._stats[self._func].misses,
+                "hits" : self._stats[self._func].hits,
+                "function" : self._func,
+                "result_cache_size" : len(self._resultCache)}
+
+    @classmethod
+    def printStats(cls):
+        """Print cache statistics"""
+        header = "%-70s |    Hits (time) |  Misses (time) |" % "AccumulatorCache"
+        print("-"*len(header))
+        print(header)
+        print("-"*len(header))
+        # Print sorted by hit+miss time:
+        for func, stats in sorted(cls._stats.items(), key=lambda s:s[1].t_hits+s[1].t_misses, reverse=True):
+            name = f"{func.__module__}.{func.__name__}"
+            if len(name) > 70:
+                name = '...' + name[-67:]
+            print(f"{name:70} | {stats.hits:6} ({stats.t_hits:4.1f}s) | "
+                  f"{stats.misses:6} ({stats.t_misses:4.1f}s) |")
+        print("-"*len(header))
 
     @classmethod
     def suspendCaching(cls):
@@ -81,6 +111,25 @@ class AccumulatorDecorator:
         return None
 
     def __call__(self , *args , **kwargs):
+        cacheHit = None
+        try:
+            t0 = time.perf_counter()
+            res, cacheHit = self._callImpl(*args, **kwargs)
+            return res
+        finally:
+            t1 = time.perf_counter()
+            if cacheHit is True:
+                self._stats[self._func].hits += 1
+                self._stats[self._func].t_hits += (t1-t0)
+            elif cacheHit is False:
+                self._stats[self._func].misses += 1
+                self._stats[self._func].t_misses += (t1-t0)
+
+    def _callImpl(self , *args , **kwargs):
+        """Implementation of __call__.
+
+        Returns: (result, cacheHit)
+        """
         if(AccumulatorDecorator._memoize):
             hashable_args = True
             for a in args:
@@ -99,7 +148,7 @@ class AccumulatorDecorator:
 
                 if(hsh in self._cache):
                     res = self._cache[hsh]
-
+                    cacheHit = None
                     if(AccumulatorDecorator.VERIFY_HASH == self._verify):
                         resHsh = self._resultCache[hsh]
                         chkHsh = None
@@ -113,28 +162,22 @@ class AccumulatorDecorator:
                                 _msg.debug("Hash of function result, cached using AccumulatorDecorator, not available for verification.")
                         if((chkHsh is None) or (resHsh is None) or resHsh != chkHsh): 
                             # at least one hash is not available (None) so no verification can be performed 
-                            # or
-                            # hashes are different
-                            self._misses += 1
+                            # or hashes are different
+                            cacheHit = False
                             res = self._func(*args , **kwargs)
                             self._cache[hsh] = res
                             self._resultCache[hsh] = None
                             if(AccumulatorDecorator._hasHash(res)):
                                 self._resultCache[hsh] = AccumulatorDecorator._getHash(res)
                         else:
-                            self._hits += 1
-                    elif(AccumulatorDecorator.VERIFY_NOTHING == self._verify):
-                        self._hits += 1
+                            cacheHit = True
                     else:
-                        _msg.debug("Incorrect value of verify in AccumulatorDecorator, assuming AccumulatorDecorator.VERIFY_NOTHING.")
-                        self._hits += 1
+                        cacheHit = True
 
-                    if(self._deepcopy):
-                        return deepcopy(res)
-                    else:
-                        return res
+                    return (deepcopy(res) if self._deepcopy else res, cacheHit)
+
                 else:
-                    self._misses += 1
+                    _msg.debug('Hash not found in AccumulatorCache for function %s' , self._func)
                     if(len(self._cache) >= self._maxSize):
                         del self._cache[next(iter(self._cache))]
 
@@ -147,23 +190,25 @@ class AccumulatorDecorator:
                         if(AccumulatorDecorator._hasHash(res)):
                             self._resultCache[hsh] = AccumulatorDecorator._getHash(res)
                         self._cache[hsh] = res
-                    elif(AccumulatorDecorator.VERIFY_NOTHING == self._verify):
-                        self._cache[hsh] = res
                     else:
-                        _msg.debug("Incorrect value of verify in AccumulatorDecorator, assuming AccumulatorDecorator.VERIFY_NOTHING.")
                         self._cache[hsh] = res
 
-                    if(self._deepcopy):
-                        return deepcopy(res)
-                    else:
-                        return res
+                    return (deepcopy(res) if self._deepcopy else res, False)
             else:
-                self._misses += 1 
-                return self._func(*args , **kwargs)
+                _msg.debug('Could not calculate hash of arguments for function %s in AccumulatorCache.' , self._func)
+                return (self._func(*args , **kwargs), False)
         else:
-            return self._func(*args , **kwargs)
+            return (self._func(*args , **kwargs), None)
 
-def AccumulatorCache(func = None , maxSize = 128 , verifyResult = AccumulatorDecorator.VERIFY_NOTHING , deepCopy = True): 
+    def __del__(self):
+        # Cleanup dangling private tools of cached CAs
+        for k, v in self._cache.items():
+            if isinstance(v, ComponentAccumulator):
+                v.popPrivateTools(quiet=True)
+
+
+def AccumulatorCache(func = None, maxSize = 128,
+                     verifyResult = AccumulatorDecorator.VERIFY_NOTHING, deepCopy = True):
     """Function decorator, implements memoization.
 
     Keyword arguments:
@@ -180,10 +225,7 @@ def AccumulatorCache(func = None , maxSize = 128 , verifyResult = AccumulatorDec
         An instance of AccumulatorDecorator.
     """
 
-    def newWrapper(funct):
-        return AccumulatorDecorator(funct , maxSize , verifyResult , deepCopy)
+    def wrapper_accumulator(func):
+        return AccumulatorDecorator(func, maxSize, verifyResult, deepCopy)
 
-    if(func):
-        return newWrapper(func)
-    else:
-        return newWrapper
+    return wrapper_accumulator(func) if func else wrapper_accumulator

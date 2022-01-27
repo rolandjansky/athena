@@ -49,7 +49,7 @@ void spHits_vs_y(int SaveOpt=0) {
       jj++;
     }
 
-    sprintf(options,"sct_sp_layer==%d && sct_sp_phi==%d",layer,phi,side);
+    sprintf(options,"sct_sp_layer==%d && sct_sp_phi==%d",layer,phi);
     tree->Draw("sct_sp_y",options,"goff");
     
     for (int ii=0;ii<tree->GetSelectedRows();ii++)

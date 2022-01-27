@@ -48,6 +48,13 @@ class MyHistoFiller(object):
     cscGlobalR = ROOT.TH1F("cscGlobalR","cscGlobalR;CSC_hitGlobalPositionR",100,500,2500)
     cscGlobalP = ROOT.TH1F("cscGlobalP","cscGlobalP;CSC_hitGlobalPositionP",100,-3,3)
     cscWireLayer = ROOT.TH1F("cscWireLayer","cscWireLayer;CSC_Sim_wireLayer",5,0,5)
+    cscStrip = ROOT.TH1F("cscStrip","cscStrip;CSC_strip",3,0,3)
+    cscglobalTime = ROOT.TH1F("cscglobalTime","cscglobalTime;CSC_globalTime",100,0,60)
+    cscKineticEnergy = ROOT.TH1F("cscKineticEnergy","cscKineticEnergy;CSC_kineticEnergy",100,0,400000)
+    cscDepositEnergy = ROOT.TH1F("cscDepositEnergy","cscDeposityEnergy;CSC_depositEnergy",100,0,0.008)
+    cscSimStationEta = ROOT.TH1F("cscSimStationEta","cscSimStationEta;CSC_Sim_stationEta",4,-3,1)
+    cscSimStationPhi = ROOT.TH1F("cscSimStationPhi","cscSimStationPhi;CSC_Sim_stationPhi",9,0,9)
+    cscSimChamberlayer = ROOT.TH1F("cscSimChamberLayer","cscSimChamberLayer;CSC_Sim_chamberLayer",4,0,4)
     # CSC Digit Histograms
     CSCDigitStationEta = ROOT.TH1F("CSCDigitStationEta","CSCDigitStationEta;Digits_CSC_stationEta",4,-3,1)
     CSCDigitStationPhi = ROOT.TH1F("CSCDigitStationPhi","CSCDigitStationPhi;Digits_CSC_stationPhi",9,0,9)
@@ -110,6 +117,10 @@ class MyHistoFiller(object):
     tgcGlobalR = ROOT.TH1F("tgcGlobalR","tgcGlobalR;TGC_hitGlobalPositionR",100,1000,13000)
     tgcGlobalP = ROOT.TH1F("tgcGlobalP","tgcGlobalP;TGC_hitGlobalPositionP",100,-3.6,3.6)
     tgcGasGap = ROOT.TH1F("tgcGasGap","tgcGasGap;TGC_gasGap",4,0,4)
+    tgcChannel = ROOT.TH1F("tgcChannel","tgcChannel;TGC_channel",3,0,3)
+    tgcGlobalTime = ROOT.TH1F("tgcGlobalTime","tgcGlobalTime;TGC_globalTime",100,0,120)
+    tgcKineticEnergy = ROOT.TH1F("tgcKineticEnergy","tgcKineticEnergy;TGC_kineticEnergy",100,0,400000)
+    tgcDepositEnergy = ROOT.TH1F("tgcDepositEnergy","tgcDepositEnergy;TGC_depositEnergy",100,0,0.0018)
     # TGC Digit Histograms
     TGCDigitStationEta = ROOT.TH1F("TGCDigitStationEta","TGCDigitStationEta;Digits_TGC_stationEta",12,-6,6)
     TGCDigitStationPhi = ROOT.TH1F("TGCDigitStationPhi","TGCDigitStationPhi;Digits_TGC_stationPhi",50,0,50)
@@ -235,6 +246,13 @@ class MyHistoFiller(object):
                 MyHistoFiller.cscGlobalR.Fill(TTree.CSC_hitGlobalPositionR[n])
                 MyHistoFiller.cscGlobalP.Fill(TTree.CSC_hitGlobalPositionP[n])
                 MyHistoFiller.cscWireLayer.Fill(TTree.CSC_Sim_wireLayer[n])
+                MyHistoFiller.cscStrip.Fill(TTree.CSC_strip[n])
+                MyHistoFiller.cscglobalTime.Fill(TTree.CSC_globalTime[n])
+                MyHistoFiller.cscKineticEnergy.Fill(TTree.CSC_KineticEnergy[n])
+                MyHistoFiller.cscDepositEnergy.Fill(TTree.CSC_DepositEnergy[n])
+                MyHistoFiller.cscSimStationEta.Fill(TTree.CSC_Sim_stationEta[n])
+                MyHistoFiller.cscSimStationPhi.Fill(TTree.CSC_Sim_stationPhi[n])
+                MyHistoFiller.cscSimChamberLayer.Fill(TTree.CSC_Sim_chamberLayer[n])
                 
         if self.__chamber_name == "CSC_Digit":
             if not (self.__eta_sel(TTree) and self.__sector_sel(TTree)):
@@ -316,6 +334,10 @@ class MyHistoFiller(object):
                 MyHistoFiller.tgcGlobalR.Fill(TTree.TGC_hitGlobalPositionR[n])
                 MyHistoFiller.tgcGlobalP.Fill(TTree.TGC_hitGlobalPositionP[n])
                 MyHistoFiller.tgcGasGap.Fill(TTree.TGC_gasGap[n])
+                MyHistoFiller.tgcChannel.Fill(TTree.TGC_channel[n])
+                MyHistoFiller.tgcGlobalTime.Fill(TTree.TGC_globalTime[n])
+                MyHistoFiller.tgcKineticEnergy.Fill(TTree.TGC_kineticEnergy[n])
+                MyHistoFiller.tgcDepositEnergy.Fill(TTree.TGC_depositEnergy[n])
 
         if self.__chamber_name == "TGC_Digit":
             if not (self.__eta_sel(TTree) and self.__sector_sel(TTree)):
@@ -447,6 +469,14 @@ class MyHistoFiller(object):
             outdir.WriteTObject(MyHistoFiller.cscGlobalR, MyHistoFiller.cscGlobalR.GetName())
             outdir.WriteTObject(MyHistoFiller.cscGlobalP, MyHistoFiller.cscGlobalP.GetName())
             outdir.WriteTObject(MyHistoFiller.cscWireLayer, MyHistoFiller.cscWireLayer.GetName())
+            outdir.WriteTObject(MyHistoFiller.cscStrip, MyHistoFiller.cscStrip.GetName())
+            outdir.WriteTObject(MyHistoFiller.cscglobalTime, MyHistoFiller.cscglobalTime.GetName())
+            outdir.WriteTObject(MyHistoFiller.cscKineticEnergy, MyHistoFiller.cscKineticEnergy.GetName())
+            outdir.WriteTObject(MyHistoFiller.cscDepositEnergy, MyHistoFiller.cscDepositEnergy.GetName())
+            outdir.WriteTObject(MyHistoFiller.cscSimStationEta, MyHistoFiller.cscSimStationEta.GetName())
+            outdir.WriteTObject(MyHistoFiller.cscSimStationPhi, MyHistoFiller.cscSimStationPhi.GetName())
+            outdir.WriteTObject(MyHistoFiller.cscSimChamberLayer, MyHistoFiller.cscSimChamberLayer.GetName())
+
             
         if self.__chamber_name == "CSC_Digit":
             outdir.WriteTObject(MyHistoFiller.CSCDigitStationEta, MyHistoFiller.CSCDigitStationEta.GetName())
@@ -514,6 +544,10 @@ class MyHistoFiller(object):
             outdir.WriteTObject(MyHistoFiller.tgcGlobalR, MyHistoFiller.tgcGlobalR.GetName())
             outdir.WriteTObject(MyHistoFiller.tgcGlobalP, MyHistoFiller.tgcGlobalP.GetName())
             outdir.WriteTObject(MyHistoFiller.tgcGasGap, MyHistoFiller.tgcGasGap.GetName())
+            outdir.WriteTObject(MyHistoFiller.tgcChannel, MyHistoFiller.tgcChannel.GetName())
+            outdir.WriteTObject(MyHistoFiller.tgcGlobalTime, MyHistoFiller.tgcGlobalTime.GetName())
+            outdir.WriteTObject(MyHistoFiller.tgcKineticEnergy, MyHistoFiller.tgcKineticEnergy.GetName())
+            outdir.WriteTObject(MyHistoFiller.tgcDepositEnergy, MyHistoFiller.tgcDepositEnergy.GetName())
             
         if self.__chamber_name == "TGC_Digit":
             outdir.WriteTObject(MyHistoFiller.TGCDigitStationEta, MyHistoFiller.TGCDigitStationEta.GetName())

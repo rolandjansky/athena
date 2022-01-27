@@ -138,7 +138,7 @@ private:
         modifications to axis orientation, in order to obtain the correct strip number */
     Amg::Vector3D adjustPosition(const Identifier& id, const Amg::Vector3D& hitPos) const;
     /** calculates the strip number and returns the position along the strip*/
-    int findStripNumber(Amg::Vector3D gasGapPos, const Identifier& stripPanelId, double& posinstrip) const;
+    int findStripNumber(const Amg::Vector3D& gasGapPos, const Identifier& stripPanelId, double& posinstrip) const;
 
     // pile-up
     bool outsideWindow(double time) const;

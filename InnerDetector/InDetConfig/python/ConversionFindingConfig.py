@@ -49,22 +49,25 @@ def TrackPairsSelectorCfg(flags, name="TrackPairsSelector"):
     return acc
 
 
-def InDetConversionTrackSelectorToolCfg(flags, name="InDetConversionTrackSelectorTool"):
+def InDetConversionTrackSelectorToolCfg(flags, name="TrackSelector"):
     acc = ComponentAccumulator()
     kwargs = {}
-    from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
-    kwargs["Extrapolator"] = acc.getPrimaryAndMerge(
-        InDetExtrapolatorCfg(flags))
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+    kwargs["Extrapolator"] = acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
     kwargs["RatioCut1"] = flags.InDet.SecVertex.TrkSel.RatioCut1
+    kwargs["RatioCut2"] = flags.InDet.SecVertex.TrkSel.RatioCut2
     kwargs["RatioCut3"] = flags.InDet.SecVertex.TrkSel.RatioCut3
+    kwargs["TRTTrksBinnedRatioTRT"] = flags.InDet.SecVertex.TrkSel.TRTTrksBinnedRatioTRT
+    kwargs["TRTTrksEtaBins"] = flags.InDet.SecVertex.TrkSel.TRTTrksEtaBins
     kwargs["RatioTRT"] = flags.InDet.SecVertex.TrkSel.RatioTRT
     kwargs["RatioV0"] = flags.InDet.SecVertex.TrkSel.RatioV0
     kwargs["maxSiD0"] = flags.InDet.SecVertex.TrkSel.maxSiD0
     kwargs["maxSiZ0"] = flags.InDet.SecVertex.TrkSel.maxSiZ0
     kwargs["maxTrtD0"] = flags.InDet.SecVertex.TrkSel.maxTrtD0
     kwargs["maxTrtZ0"] = flags.InDet.SecVertex.TrkSel.maxTrtZ0
-    kwargs["minPt"] = flags.InDet.SecVertex.TrkSel.minPt
+    kwargs["minPt"] = 0.
     kwargs["significanceD0_Si"] = flags.InDet.SecVertex.TrkSel.significanceD0_Si
+    kwargs["IsConversion"] = flags.InDet.SecVertex.TrkSel.IsConversion
 
     tool = CompFactory.InDet.InDetConversionTrackSelectorTool(name, **kwargs)
     acc.setPrivateTools(tool)
@@ -74,9 +77,8 @@ def InDetConversionTrackSelectorToolCfg(flags, name="InDetConversionTrackSelecto
 def TrkVKalVrtFitterCfg(flags, name="TrkVKalVrtFitter"):
     acc = ComponentAccumulator()
     kwargs = {}
-    from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
-    kwargs["Extrapolator"] = acc.getPrimaryAndMerge(
-        InDetExtrapolatorCfg(flags))
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+    kwargs["Extrapolator"] = acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
     kwargs["FirstMeasuredPoint"] = flags.InDet.SecVertex.Fitter.FirstMeasuredPoint
     kwargs["FirstMeasuredPointLimit"] = flags.InDet.SecVertex.Fitter.FirstMeasuredPointLimit
     kwargs["InputParticleMasses"] = flags.InDet.SecVertex.Fitter.InputParticleMasses
@@ -85,6 +87,8 @@ def TrkVKalVrtFitterCfg(flags, name="TrkVKalVrtFitter"):
     kwargs["Robustness"] = flags.InDet.SecVertex.Fitter.Robustness
     kwargs["usePhiCnst"] = flags.InDet.SecVertex.Fitter.usePhiCnst
     kwargs["useThetaCnst"] = flags.InDet.SecVertex.Fitter.useThetaCnst
+    kwargs["CovVrtForConstraint"] = flags.InDet.SecVertex.Fitter.CovVrtForConstraint
+    kwargs["VertexForConstraint"] = flags.InDet.SecVertex.Fitter.VertexForConstraint
 
     tool = CompFactory.Trk.TrkVKalVrtFitter(name, **kwargs)
     acc.setPrivateTools(tool)
@@ -94,8 +98,9 @@ def TrkVKalVrtFitterCfg(flags, name="TrkVKalVrtFitter"):
 def VertexPointEstimatorCfg(flags, name="VertexPointEstimator"):
     acc = ComponentAccumulator()
     kwargs = {}
-    # TODO find out where this setting comes from (flags?)
-    kwargs["MaxPhi"] = [0.05, 0.2, 0.2]
+    kwargs["MinDeltaR"] = flags.InDet.SecVertex.VtxPt.MinDeltaR
+    kwargs["MaxDeltaR"] = flags.InDet.SecVertex.VtxPt.MaxDeltaR
+    kwargs["MaxPhi"] = flags.InDet.SecVertex.VtxPt.MaxPhi
     tool = CompFactory.InDet.VertexPointEstimator(name, **kwargs)
     acc.setPrivateTools(tool)
     return acc
@@ -106,9 +111,6 @@ def ConversionFinderCfg(flags, name="ConversionFinderTool"):
 
     acc = ComponentAccumulator()
     kwargs = {}
-    from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
-    kwargs["Extrapolator"] = acc.getPrimaryAndMerge(
-        InDetExtrapolatorCfg(flags))
     kwargs["PostSelector"] = acc.getPrimaryAndMerge(
         ConversionPostSelectorCfg(flags))
     kwargs["SingleTrackConversionTool"] = acc.getPrimaryAndMerge(
@@ -123,6 +125,11 @@ def ConversionFinderCfg(flags, name="ConversionFinderTool"):
         VertexPointEstimatorCfg(flags))
     kwargs["TrackParticleCollection"] = flags.Egamma.Keys.Output.GSFTrackParticles
     kwargs["IsConversion"] = True
+    kwargs["MaxDistVtxHit"] = flags.InDet.SecVertex.Finder.MaxDistVtxHit
+    kwargs["MinDistVtxHit"] = flags.InDet.SecVertex.Finder.MinDistVtxHit
+    kwargs["MinFlightAngle"] = flags.InDet.SecVertex.Finder.MinFlightAngle
+    kwargs["MinInitVtxR"] = flags.InDet.SecVertex.Finder.MinInitVtxR
+    kwargs["RemoveTrtTracks"] = flags.InDet.SecVertex.Finder.RemoveTrtTracks
     tool = CompFactory.InDet.InDetConversionFinderTools(name, **kwargs)
     acc.setPrivateTools(tool)
     return acc

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( IOVSvc )
@@ -14,7 +14,7 @@ atlas_add_library( IOVSvcLib
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel SGTools
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} PersistentDataModel StoreGateLib xAODEventInfo )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} PersistentDataModel StoreGateLib xAODEventInfo RootUtils )
 
 atlas_add_component( IOVSvc
                      src/components/*.cxx

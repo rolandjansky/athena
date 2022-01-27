@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENASERVICES_PYATHENAEVENTLOOPMGR_H
@@ -9,14 +9,13 @@
     specific overrides in python. The idea is to maximize code-sharing
     with AthenaEventLoopMgr to reduce maintainance.
 
-   $Id: PyAthenaEventLoopMgr.h,v 1.4 2009-05-04 21:24:41 wlav Exp $
-   @author Atlas 
+   @author Atlas
 */
 
-// Framework include files
-#ifndef ATHENASERVICES_ATHENAEVENTLOOPMGR_H
- #include "AthenaEventLoopMgr.h"
-#endif
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // non-MT EventLoopMgr
+
+#include "AthenaEventLoopMgr.h"
 
 // Gaudi
 class ISvcLocator;

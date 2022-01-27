@@ -109,9 +109,6 @@ void test1() {
 
   ISvcLocator* svcLoc = Gaudi::svcLocator();
 
-  IdDictParser parser;
-  TileCablingSvc::init_idhelpers(parser);
-
   ServiceHandle<StoreGateSvc> evtStore("StoreGateSvc", "");
   ServiceHandle<StoreGateSvc> detStore("DetectorStore", "");
 
@@ -195,9 +192,12 @@ void test1() {
 }
 
 
-int main(int /*argc*/, char** argv) {
+int main ATLAS_NOT_THREAD_SAFE (int /*argc*/, char** argv) {
 
   Athena_test::setupStoreGate (argv[0]);
+
+  IdDictParser parser;
+  TileCablingSvc::init_idhelpers(parser);
 
   test1();
 

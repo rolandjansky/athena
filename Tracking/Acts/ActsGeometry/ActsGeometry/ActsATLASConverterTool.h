@@ -11,6 +11,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "Gaudi/Property.h"
 #include "GaudiKernel/EventContext.h"
+#include "TrkParameters/TrackParameters.h"
 
 // PACKAGE
 #include "ActsGeometryInterfaces/IActsATLASConverterTool.h"

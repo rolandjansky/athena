@@ -6,7 +6,7 @@ from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 def LArRampCfg(flags):
 
     #Get basic services and cond-algos
-    from LArCalibProcessing.LArCalibBaseConfig import LArCalibBaseCfg
+    from LArCalibProcessing.LArCalibBaseConfig import LArCalibBaseCfg,chanSelStr
     result=LArCalibBaseCfg(flags)
 
     #Calibration runs are taken in fixed gain. 
@@ -28,12 +28,14 @@ def LArRampCfg(flags):
 
 
     from IOVDbSvc.IOVDbSvcConfig import addFolders
-    result.merge(addFolders(flags,flags.LArCalib.Pedestal.Folder,detDb=flags.LArCalib.Input.Database, tag=pedestalTag, className="LArPedestalComplete"))
-    result.merge(addFolders(flags,flags.LArCalib.OFCCali.Folder,detDb=flags.LArCalib.Input.Database, tag=caliOFCTag))
+    result.merge(addFolders(flags,flags.LArCalib.Pedestal.Folder,detDb=flags.LArCalib.Input.Database, tag=pedestalTag,  modifiers=chanSelStr(flags), 
+                            className="LArPedestalComplete"))
+    result.merge(addFolders(flags,flags.LArCalib.OFCCali.Folder,detDb=flags.LArCalib.Input.Database, tag=caliOFCTag, modifiers=chanSelStr(flags)))
     
 
     result.addEventAlgo(CompFactory.LArRawCalibDataReadingAlg(LArAccCalibDigitKey=digKey,
                                                               LArFebHeaderKey="LArFebHeader",
+                                                              SubCaloPreselection=flags.LArCalib.Input.SubDet,
                                                               PosNegPreselection=flags.LArCalib.Preselection.Side,
                                                               BEPreselection=flags.LArCalib.Preselection.BEC,
                                                               FTNumPreselection=flags.LArCalib.Preselection.FT))
@@ -46,10 +48,10 @@ def LArRampCfg(flags):
     if flags.LArCalib.Input.SubDet == "EM":
         from LArCalibProcessing.LArStripsXtalkCorrConfig import LArStripsXtalkCorrCfg
         result.merge(LArStripsXtalkCorrCfg(flags,[digKey,]))
-    
-    
+
         theLArCalibShortCorrector = CompFactory.LArCalibShortCorrector(KeyList = [digKey,])
         result.addEventAlgo(theLArCalibShortCorrector)
+    pass
 
 
 
@@ -68,19 +70,19 @@ def LArRampCfg(flags):
     theLArRampBuilder.Polynom      = 1    
     theLArRampBuilder.RampRange    = 3600 # Check on the raw data ADC sample before ped subtraction and pulse reconstruction to include point in fit
     theLArRampBuilder.correctBias  = False
-    theLArRampBuilder.ConsecutiveADCs = 0
+    #theLArRampBuilder.ConsecutiveADCs = 0
     theLArRampBuilder.minDAC = 10      # minimum DAC value to use in fit
     theLArRampBuilder.KeyOutput = "LArRamp"
     theLArRampBuilder.DeadChannelCut = -9999
     theLArRampBuilder.GroupingType = flags.LArCalib.GroupingType
-    theLArRampBuilder.LongNtuple = False
+    #theLArRampBuilder.LongNtuple = False
 
     theLArRampBuilder.isSC = flags.LArCalib.isSC
 
     if flags.LArCalib.Input.SubDet == "HEC":
-        theLArRampBuilder.isHEC = flags.LArCalib.SubDet=="HEC"
+        theLArRampBuilder.isHEC = True
         theLArRampBuilder.HECKey = "LArHEC_PAmap"
-   
+        result.merge(addFolders(flags,'/LAR/ElecCalibOfl/HecPAMap','LAR_OFL'))
     
     result.addEventAlgo(theLArRampBuilder)
 
@@ -162,6 +164,7 @@ if __name__ == "__main__":
     for f in ConfigFlags.Input.Files:
         print (f)
 
+    ConfigFlags.lock()
     cfg=MainServicesCfg(ConfigFlags)
     cfg.merge(LArRampCfg(ConfigFlags))
 

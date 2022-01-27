@@ -146,8 +146,8 @@ public:
 
 private:
     int init_id_to_hashes();
-    unsigned int m_module_hashes[60][3][8];
-    unsigned int m_detectorElement_hashes[60][3][8][2];
+    unsigned int m_module_hashes[60][3][8]{};
+    unsigned int m_detectorElement_hashes[60][3][8][2]{};
 
     // compact id indices
     size_type m_CHAMBERLAYER_INDEX;
@@ -194,7 +194,7 @@ private:
         StripMin = 1,
         StripMax = 216  // up to AMDB P
     };
-    int m_hashOffset[2][2];
+    int m_hashOffset[2][2]{};
 
     unsigned int m_stripMaxPhi;  // maximum number of strips for layer which measuresPhi
     unsigned int m_stripMaxEta;  // maximum number of strips for layer which does not measure phi

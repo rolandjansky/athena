@@ -15,8 +15,8 @@ def _make_getter (*args, **kw):
     if 'corrversion' not in kw:
         # Temporary until metatool / ToolWithConstant issues are worked out.
         kw = kw.copy()
-        from egammaRec.egammaRecFlags import jobproperties
-        kw['corrversion'] = jobproperties.egammaRecFlags.clusterCorrectionVersion()
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        kw['corrversion'] = ConfigFlags.Egamma.Calib.ClusterCorrectionVersion
     g = make_CaloClusterSwGetter (*args, **kw)
     globals()[g.__name__] = g
     return g

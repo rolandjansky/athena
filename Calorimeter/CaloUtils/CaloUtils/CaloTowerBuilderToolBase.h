@@ -15,13 +15,16 @@
 ///
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "CaloInterface/ICaloTowerBuilderToolBase.h"
 #include "CaloEvent/CaloTowerSeg.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+
+#include "CaloDetDescr/CaloDetDescrManager.h"
+#include "StoreGate/ReadCondHandle.h"
+
 #include <string>
 
 #include "CxxUtils/checker_macros.h"
@@ -30,8 +33,7 @@ class CaloCellContainer;
 class IGeoAlignTool;
 
 class CaloTowerBuilderToolBase: public AthAlgTool,
-    virtual public ICaloTowerBuilderToolBase,
-    public IIncidentListener
+    virtual public ICaloTowerBuilderToolBase
 {
   public:
 
@@ -44,8 +46,6 @@ class CaloTowerBuilderToolBase: public AthAlgTool,
     virtual StatusCode initialize ATLAS_NOT_THREAD_SAFE () override;
 
     virtual void setTowerSeg(const CaloTowerSeg& theTowerSeg) override;
-
-    virtual StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS) override;
 
 
     /**
@@ -82,19 +82,7 @@ class CaloTowerBuilderToolBase: public AthAlgTool,
 
     virtual StatusCode initializeTool() override = 0;
 
-    // abstract to be implemented by derived class (Tile, LarFCal, Calo)
-    virtual void handle(const Incident&) override = 0;
-
-
   protected:
-
-    /**
-     * @brief Mark that cached data are invalid.
-     *
-     * Called when calibrations are updated.
-     */
-    virtual StatusCode invalidateCache() = 0;
-
 
     /**
      * @brief Return the tower segmentation.
@@ -113,6 +101,8 @@ class CaloTowerBuilderToolBase: public AthAlgTool,
     ////////////////
 
     SG::ReadHandleKey<CaloCellContainer> m_cellContainerName;
+    // ReadHandle to CaloDetDescr CDO in CondStore
+    SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager","CaloDetDescrManager"};
 
 
 private:
@@ -121,12 +111,6 @@ private:
     ////////////////////////
 
     CaloTowerSeg m_theTowerSeg;
-
-    ToolHandle<IGeoAlignTool> m_caloAlignTool;
-
-    /////////////////////////////
-    // Specific Initialization //
-    /////////////////////////////
 
 };
 #endif

@@ -115,7 +115,7 @@ namespace Muon {
         mutable std::map<const Trk::TrackParameters*, unsigned int> m_trackParticleIndexLookup;
 
         mutable MuonInsideOutValidationNtuple m_ntuple;
-        TTree* m_tree;
+        TTree* m_tree = nullptr;
 
         mutable std::atomic<unsigned int> m_candidateCounter;
 

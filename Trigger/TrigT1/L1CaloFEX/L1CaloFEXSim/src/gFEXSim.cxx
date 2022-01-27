@@ -49,6 +49,7 @@ namespace LVL1 {
       ATH_CHECK( m_gFEXFPGA_Tool.retrieve() );
       ATH_CHECK( m_gFEXJetAlgoTool.retrieve() );
       ATH_CHECK( m_gFEXJwoJAlgoTool.retrieve() );
+      ATH_CHECK(m_l1MenuKey.initialize());
       return StatusCode::SUCCESS;
    }
 
@@ -147,9 +148,34 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset, gFEXOutputC
    m_gFEXFPGA_Tool->reset();
    //FPGA C-N----------------------------------------------------------------------------------------------------------------------------------------------
 
+
+   // Retrieve the L1 menu configuration
+   SG::ReadHandle<TrigConf::L1Menu> l1Menu (m_l1MenuKey/*, ctx*/);
+   ATH_CHECK(l1Menu.isValid());
+
+   //Parameters related to gLJ (large-R jet objects - gJet)
+   auto & thr_gLJ = l1Menu->thrExtraInfo().gLJ();
+   int gLJ_seedThrA = 0;
+   int gLJ_seedThrB = 0;
+   gLJ_seedThrA = thr_gLJ.seedThr('A'); //defined in GeV by default
+   gLJ_seedThrA = gLJ_seedThrA/0.2; //rescaling with 0.2 GeV scale to get counts (corresponding to hw units) 
+   gLJ_seedThrB = thr_gLJ.seedThr('B'); //defined in GeV by default
+   gLJ_seedThrB = gLJ_seedThrB/0.2; //rescaling with 0.2 GeV scale to get counts (corresponding to hw units) 
+   int gLJ_ptMinToTopoCounts1 = 0;
+   int gLJ_ptMinToTopoCounts2 = 0;
+   gLJ_ptMinToTopoCounts1 = thr_gLJ.ptMinToTopoCounts(1); 
+   gLJ_ptMinToTopoCounts2 = thr_gLJ.ptMinToTopoCounts(2); 
+   
+   //Parameters related to gJ (small-R jet objects - gBlock)
+   auto & thr_gJ = l1Menu->thrExtraInfo().gJ();
+   int gJ_ptMinToTopoCounts1 = 0;
+   int gJ_ptMinToTopoCounts2 = 0;
+   gJ_ptMinToTopoCounts1 = thr_gJ.ptMinToTopoCounts(1); 
+   gJ_ptMinToTopoCounts2 = thr_gJ.ptMinToTopoCounts(2); 
+
    int pucA = 0;
    int pucB = 0;
-   int seedThreshold = 0;
+   //note that jetThreshold is not a configurable parameter in firmware, it is used to check that jet values are positive
    int jetThreshold = 0;
 
    // The output TOBs, to be filled by the gFEXJetAlgoTool
@@ -161,10 +187,11 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset, gFEXOutputC
    // Use the gFEXJetAlgoTool
 
    // Pass the energy matrices to the algo tool, and run the algorithms
-   auto tobs_v = m_gFEXJetAlgoTool->largeRfinder(Atwr, Btwr, CNtwr, CPtwr,
-                                                 pucA, pucB, seedThreshold, jetThreshold,
-                                                 ATOB1_dat, ATOB2_dat,
-                                                 BTOB1_dat, BTOB2_dat);
+   auto tobs_v = m_gFEXJetAlgoTool->largeRfinder(Atwr, Btwr, CNtwr, CPtwr, pucA, pucB, 
+                                                gLJ_seedThrA, gLJ_seedThrB, gJ_ptMinToTopoCounts1, gJ_ptMinToTopoCounts2, 
+                                                jetThreshold, gLJ_ptMinToTopoCounts1, gLJ_ptMinToTopoCounts2,
+                                                ATOB1_dat, ATOB2_dat,
+                                                BTOB1_dat, BTOB2_dat);
 
    m_gRhoTobWords.resize(2);
    m_gBlockTobWords.resize(8);
@@ -194,9 +221,28 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset, gFEXOutputC
    // Use the gFEXJetAlgoTool
    std::array<uint32_t, 4> outTOB = {0};
 
-   m_gFEXJwoJAlgoTool->setAlgoConstant(FEXAlgoSpaceDefs::aFPGA_A, FEXAlgoSpaceDefs::bFPGA_A,
-                                       FEXAlgoSpaceDefs::aFPGA_B, FEXAlgoSpaceDefs::bFPGA_B,
-                                       FEXAlgoSpaceDefs::gblockThreshold);
+   //Parameters related to gXE (JwoJ MET objects)
+   auto & thr_gXE = l1Menu->thrExtraInfo().gXE();
+   int gXE_seedThrA = 0;
+   int gXE_seedThrB = 0;
+   gXE_seedThrA = thr_gXE.seedThr('A'); //defined in GeV by default
+   gXE_seedThrA = gXE_seedThrA/0.2; //rescaling with 0.2 GeV scale to get counts (corresponding to hw units) 
+   gXE_seedThrB = thr_gXE.seedThr('B'); //defined in GeV by default
+   gXE_seedThrB = gXE_seedThrB/0.2; //rescaling with 0.2 GeV scale to get counts (corresponding to hw units) 
+
+   unsigned int aFPGA_A = 0;
+   unsigned int bFPGA_A = 0;
+   unsigned int aFPGA_B = 0;
+   unsigned int bFPGA_B = 0;
+   aFPGA_A = thr_gXE.JWOJ_param('A','a');
+   bFPGA_A = thr_gXE.JWOJ_param('A','b');
+   aFPGA_B = thr_gXE.JWOJ_param('B','a');
+   bFPGA_B = thr_gXE.JWOJ_param('B','b');
+   
+
+   m_gFEXJwoJAlgoTool->setAlgoConstant(aFPGA_A, bFPGA_A,
+                                       aFPGA_B, bFPGA_B,
+                                       gXE_seedThrA, gXE_seedThrB);
 
    auto global_tobs = m_gFEXJwoJAlgoTool->jwojAlgo(Atwr, Btwr, outTOB);
 

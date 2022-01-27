@@ -57,41 +57,41 @@ class LUCID_DigitizationToolBox {
   double DynodeChainSimulation(double npe, CLHEP::HepRandomEngine* rndEngine) const;
   static double DynodeGainSmearing   (double npe, CLHEP::HepRandomEngine* rndEngine);
   
-  LUCID_DigitContainer* m_digitContainer;
+  LUCID_DigitContainer* m_digitContainer{};
 
-  int    m_numTubes;  
-  double m_qdcChannelsPerPE;
-  double m_qdcPedestal;
-  double m_qdcFedNoiseFactor;
-  double m_tdcPmtNoiseFactor;
-  double m_tdcFedNoiseFactor;
+  int    m_numTubes{};  
+  double m_qdcChannelsPerPE{};
+  double m_qdcPedestal{};
+  double m_qdcFedNoiseFactor{};
+  double m_tdcPmtNoiseFactor{};
+  double m_tdcFedNoiseFactor{};
 
-  double m_TotalPMTgain;
-  double m_AmpFactor;
-  double m_Q1bin;
-  int    m_NoiseCharge;
-  int    m_numDyinodes;
-  double m_dynodeGammaFactor;
+  double m_TotalPMTgain{};
+  double m_AmpFactor{};
+  double m_Q1bin{};
+  int    m_NoiseCharge{};
+  int    m_numDyinodes{};
+  double m_dynodeGammaFactor{};
 
-  double m_gainPerDynode;
-  double m_ChargeToQdcFactor;
+  double m_gainPerDynode{};
+  double m_ChargeToQdcFactor{};
   
-  std::vector<double> m_pmtSmearing;
-  std::vector<double> m_pmtScaling;
-  std::vector<double> m_gasScaling;
-  std::vector<double> m_npeThreshold;
+  std::vector<double> m_pmtSmearing{};
+  std::vector<double> m_pmtScaling{};
+  std::vector<double> m_gasScaling{};
+  std::vector<double> m_npeThreshold{};
 
-  bool   m_fillRootTree;
+  bool   m_fillRootTree{};
 
-  unsigned short m_tubeID;
-  double         m_npe;
-  unsigned short m_npeGas;
-  unsigned short m_npePmt;
-  unsigned short m_qdc;
-  double         m_tdcTot;
-  unsigned short m_tdc;
+  unsigned short m_tubeID{};
+  double         m_npe{};
+  unsigned short m_npeGas{};
+  unsigned short m_npePmt{};
+  unsigned short m_qdc{};
+  double         m_tdcTot{};
+  unsigned short m_tdc{};
 
-  TTree* m_tubeInfo;
+  TTree* m_tubeInfo{};
 };
 
 #endif

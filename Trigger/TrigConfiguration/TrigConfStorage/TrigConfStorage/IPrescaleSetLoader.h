@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_IPrescaleSetLoader
@@ -13,7 +13,7 @@ namespace TrigConf {
    class IPrescaleSetLoader : virtual public ILoader {
    public:
       virtual ~IPrescaleSetLoader() {};
-      virtual bool load( PrescaleSet& data ) = 0;
+      virtual bool load( unsigned int ctpVersion, PrescaleSet& data ) = 0;
    };
 
 }

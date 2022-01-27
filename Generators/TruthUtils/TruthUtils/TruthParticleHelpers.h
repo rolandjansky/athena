@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-#pragma once
-
+#ifndef TRUTHUTILS_TRUTHPARTICLEHELPERS_H
+#define TRUTHUTILS_TRUTHPARTICLEHELPERS_H
 /// @file
 ///
 /// Provides the HepMC tools from the external MCUtils header package,
@@ -39,5 +38,5 @@ namespace MC {
 
   //@}
 
-
 }
+#endif

@@ -137,7 +137,7 @@ class SelectorWorker:
         selcls = SelectorWorker.__creationRules[selname]
         thecls = eval('%s' % selcls)
         newsel = thecls(name=selname, *args, **kwargs)  # noqa: F821
-        print ("CREATING SELECTOR %s %s('%s')" % (("SHOW" if doesShow else "RETRIEVE"), selcls, selname))
+        # print ("CREATING SELECTOR %s %s('%s')" % (("SHOW" if doesShow else "RETRIEVE"), selcls, selname))
         s = cls.SelDescr(selector=newsel, priority=0, doesSelect=False, doesShow=True, executed=False)
         return s
 
@@ -226,7 +226,7 @@ class SelectorWorker:
             cls.addSelector( ReadyForPhysicsSelector(name = 'readyforphysics', readyforphysics = options.readyforphysics), 31 )
 
         if options.partition:
-            cls.addSelector( PartitionSelector(name = 'partition', partition = options.partition), 30 )
+            cls.addSelector( PartitionSelector(name = 'partition', partition = options.partition), 300 )
         
         if options.trigger:
             cls.addSelector( TriggerSelector(name = 'trigger', trigger = options.trigger), 25 )

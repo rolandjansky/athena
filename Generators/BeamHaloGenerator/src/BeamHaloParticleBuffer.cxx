@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BeamHaloGenerator/BeamHaloParticleBuffer.h"
@@ -10,7 +10,7 @@
 //------------------------------------------------------------------------------
 
 BinnedInterval::BinnedInterval(double upperBinEdge,
-			       std::vector<double> intervalUpperBinEdges): m_upperBinEdge(upperBinEdge) {
+			       const std::vector<double>& intervalUpperBinEdges): m_upperBinEdge(upperBinEdge) {
   m_intervalUpperBinEdges = new std::vector<double>(intervalUpperBinEdges);
 }
 
@@ -29,7 +29,7 @@ BinnedInterval::~BinnedInterval() {
 
 //------------------------------------------------------------------------------
 
-BeamHaloParticleBuffer::BeamHaloParticleBuffer(std::string fileName,
+BeamHaloParticleBuffer::BeamHaloParticleBuffer(const std::string& fileName,
 		   CLHEP::HepRandomEngine* engine): m_fileName(fileName),
 						    m_ofstream(),
 						    m_ifstream(),
@@ -208,7 +208,7 @@ BeamHaloParticle* BeamHaloParticleBuffer::readRandomParticle(void) {
       found = true;
     }
     else {
-      superBinItr++;
+      ++superBinItr;
       particleIndex += (*superBinItr).intervalUpperBinEdges()->size();
     }
   }
@@ -241,8 +241,8 @@ BeamHaloParticle* BeamHaloParticleBuffer::readRandomParticle(void) {
       found = true;
     }
     else {
-      intervalItr++;
-      particleIndex++;
+      ++intervalItr;
+      ++particleIndex;
     }
   }
 

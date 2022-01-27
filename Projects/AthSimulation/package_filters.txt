@@ -6,7 +6,9 @@
 + AtlasGeometryCommon/BeamPipeGeoModel
 + AtlasGeometryCommon/GeoModelEnvelopes
 + AtlasGeometryCommon/SubDetectorEnvelopes
++ AtlasTest/CITest
 + AtlasTest/TestTools
++ Calorimeter/CaloAlignment/CaloAlignmentTools
 + Calorimeter/CaloCnv/CaloDetMgrDetDescrCnv
 + Calorimeter/CaloCnv/CaloIdCnv
 + Calorimeter/CaloCnv/CaloSimEventAthenaPool
@@ -282,7 +284,6 @@
 + Simulation/BeamEffects
 + Simulation/G4Atlas/G4AtlasAlg
 + Simulation/G4Atlas/G4AtlasApps
-+ Simulation/G4Atlas/G4AtlasControl
 + Simulation/G4Atlas/G4AtlasInterfaces
 + Simulation/G4Atlas/G4AtlasServices
 + Simulation/G4Atlas/G4AtlasTools
@@ -353,6 +354,7 @@
 + TileCalorimeter/TileSvc/TileSimEventAthenaPool
 + TileCalorimeter/TileSvc/TileSimEventTPCnv
 + Tools/ART
++ Tools/Campaigns
 + Tools/FilePeeker
 + Tools/PathResolver
 + Tools/PmbCxxUtils
@@ -360,6 +362,7 @@
 + Tools/PyJobTransforms
 + Tools/PyUtils
 + Tools/Scripts
++ Tools/WorkflowTestRunner
 + Tools/XMLCoreParser
 + Tracking/TrkDetDescr/TrkDetDescrUtils
 + Tracking/TrkDetDescr/TrkDetElementBase

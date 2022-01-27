@@ -21,7 +21,7 @@ atlas_add_component( BeamPipeGeoModel
 # Test(s) in the package:
 atlas_add_test( BeamPipeGMConfig_test
                 SCRIPT test/BeamPipeGMConfig_test.py
-                PROPERTIES TIMEOUT 300 )
+                POST_EXEC_SCRIPT nopost.sh )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

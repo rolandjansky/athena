@@ -267,7 +267,7 @@ void PRDTrackSegmentHelper::Imp::addSegmentToPRDs(const Trk::Segment * seg)
   for (;it!=itE;++it) {
     std::vector<const Trk::PrepRawData*> prds = Imp::measurementToPRDs(*it); // need to handle compound measurements too.
     std::vector<const Trk::PrepRawData*>::const_iterator itPrd = prds.begin(), itEnd=prds.end();
-    for (;itPrd!=itEnd;itPrd++){
+    for (;itPrd!=itEnd;++itPrd){
       prd = *itPrd;
       itInfo = prdsOnTracksAndSegments.find(prd);
       if (itInfo==prdsOnTracksAndSegments.end()) {
@@ -309,7 +309,7 @@ void PRDTrackSegmentHelper::Imp::removeSegmentFromPRDs(const Trk::Segment * seg)
   for (;it!=itE;++it) {
     std::vector<const Trk::PrepRawData*> prds = Imp::measurementToPRDs(*it); // need to handle compound measurements too.
     std::vector<const Trk::PrepRawData*>::const_iterator itPrd = prds.begin(), itEnd=prds.end();
-    for (;itPrd!=itEnd;itPrd++){
+    for (;itPrd!=itEnd;++itPrd){
       prd = *itPrd;
       itInfo = prdsOnTracksAndSegments.find(prd);
       if (itInfo!=prdsOnTracksAndSegments.end()) {
@@ -345,7 +345,7 @@ void PRDTrackSegmentHelper::Imp::updateMaterialOfPRDs(const Trk::Segment * seg)
   for (;it!=itE;++it) {
     std::vector<const Trk::PrepRawData*> prds = Imp::measurementToPRDs(*it); // need to handle compound measurements too.
     std::vector<const Trk::PrepRawData*>::const_iterator itPrd = prds.begin(), itEnd=prds.end();
-    for (;itPrd!=itEnd;itPrd++){
+    for (;itPrd!=itEnd;++itPrd){
       prd = *itPrd;
       itHandle = prd2handles->find(prd);
       if (itHandle!=itHandleEnd) {
@@ -379,7 +379,7 @@ void PRDTrackSegmentHelper::Imp::addTrackToPRDs(const Trk::Track * trk, bool out
   for (;it!=itE;++it) {
     std::vector<const Trk::PrepRawData*> prds = Imp::measurementToPRDs(*it); // need to handle compound measurements too.
     std::vector<const Trk::PrepRawData*>::const_iterator itPrd = prds.begin(), itEnd=prds.end();
-    for (;itPrd!=itEnd;itPrd++){
+    for (;itPrd!=itEnd;++itPrd){
       prd = *itPrd;
       if (prd) {
         itInfo = prdsOnTracksAndSegments.find(prd);
@@ -426,7 +426,7 @@ void PRDTrackSegmentHelper::Imp::removeTrackFromPRDs(const Trk::Track * trk, boo
   for (;it!=itE;++it) {
     std::vector<const Trk::PrepRawData*> prds = Imp::measurementToPRDs(*it); // need to handle compound measurements too.
     std::vector<const Trk::PrepRawData*>::const_iterator itPrd = prds.begin(), itEnd=prds.end();
-    for (;itPrd!=itEnd;itPrd++){
+    for (;itPrd!=itEnd;++itPrd){
       prd = *itPrd;
       itInfo = prdsOnTracksAndSegments.find(prd);
       if (itInfo!=prdsOnTracksAndSegments.end()) {
@@ -463,7 +463,7 @@ void PRDTrackSegmentHelper::Imp::updateMaterialOfPRDs(const Trk::Track * trk, bo
   for (;it!=itE;++it) {
     std::vector<const Trk::PrepRawData*> prds = Imp::measurementToPRDs(*it); // need to handle compound measurements too.
     std::vector<const Trk::PrepRawData*>::const_iterator itPrd = prds.begin(), itEnd=prds.end();
-    for (;itPrd!=itEnd;itPrd++){
+    for (;itPrd!=itEnd;++itPrd){
       prd = *itPrd;
       itHandle = prd2handles->find(prd);
       if (itHandle!=itHandleEnd) {

@@ -353,7 +353,13 @@ StatusCode HypoBase::validateHasLinks(const ElementLink<DecisionContainer>& dEL,
 
   } else if (name == inputMakerNodeName()) {
 
-    if (not (*dEL)->hasObjectLink( roiString() )) {
+    // This requirement is dropped for empty input makers to avoid unnecessary graph clutter.
+    bool exempt = false;
+    if ((*dEL)->hasDetail<int32_t>("isEmpty") and (*dEL)->getDetail<int32_t>("isEmpty") == 1) {
+      exempt = true;
+    }
+
+    if (not (*dEL)->hasObjectLink( roiString() ) and not exempt) {
       printErrorHeader(dEL, msg);
       msg << MSG::ERROR << "! Decision has no '" << roiString() << "' ElementLink." << endmsg;
       msg << MSG::ERROR << "! Every Decision created by a InputMaker must link to the ROI which reconstruction will run on for that Decision object in this Step." << endmsg;

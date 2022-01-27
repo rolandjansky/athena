@@ -76,7 +76,7 @@ namespace top {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode IsolationCPTools::setupPerObjectWPs(const std::set<std::string>& WPs, const std::string& objectWPtype) {
+  StatusCode IsolationCPTools::setupPerObjectWPs(const std::vector<std::string>& WPs, const std::string& objectWPtype) {
   for (const std::string& isoWP : WPs) {
       std::string tool_name = "IsolationTool_" + objectWPtype + "_" + isoWP;
       ATH_MSG_INFO("Initializing isolation tool: " << tool_name);

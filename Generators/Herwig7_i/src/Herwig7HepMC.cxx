@@ -21,7 +21,11 @@
 
 #include "Herwig/API/HerwigAPI.h"
 
-
+/// AV: We have those defined since HepMC2.05 or so.
+/// These are so old that are seldomly used. ThePeg is an exception.
+/// Defines shoul be before HepMCConverter.h
+#define HEPMC_HAS_CROSS_SECTION
+#define HEPMC_HAS_PDF_INFO
 
 #include "ThePEG/Vectors/HepMCConverter.h"
 #ifdef HWVER_IS_72

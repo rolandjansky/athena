@@ -1,21 +1,24 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCOOLConditions/LArShapeSC.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "CoralBase/Blob.h"
 
-LArShapeSC::LArShapeSC()   {}
+LArShapeSC::LArShapeSC()
+  : LArCondSuperCellBase ("LArShapeSC")
+{}
 
 LArShapeSC::~LArShapeSC() {}
 
 
-LArShapeSC::LArShapeSC(const CondAttrListCollection* attrList) {
-  StatusCode sc=initializeBase("LArShapeSC");
-  if (sc.isFailure()) return;
+LArShapeSC::LArShapeSC(const CondAttrListCollection* attrList)
+  : LArCondSuperCellBase ("LArShapeSC")
+{
+  if (initializeBase().isFailure()) return;
 
-  readBlob(attrList,*m_log);
+  readBlob(attrList,msg());
 }
 
 

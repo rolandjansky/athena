@@ -17,6 +17,7 @@
 #include "AthenaKernel/IIOVSvc.h"
 #include "AthenaKernel/IIOVDbSvc.h"
 #include "AthenaKernel/IDictLoaderSvc.h"
+#include "AthenaKernel/ITPCnvSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "PersistentDataModel/AthenaAttributeList.h"
@@ -47,6 +48,9 @@ class CondInputLoader
   // from AthAlgorithm
   void extraDeps_update_handler(Gaudi::Details::PropertyBase&);
 
+  RootType loadDict (CLID clid);
+  RootType loadDict (const std::string& name);
+
   /// Containers
   Gaudi::Property<DataObjIDColl> m_load{this,"Load",{},
                                         "List of objects to be loaded","OrderedSet<std::vector<std::string> >"};
@@ -69,6 +73,8 @@ class CondInputLoader
   ServiceHandle<Athena::IRCUSvc> m_rcuSvc;
   ServiceHandle<IDictLoaderSvc> m_dictLoader
     { this, "DictLoaderSvc", "AthDictLoaderSvc", "" };
+   ServiceHandle<ITPCnvSvc>      m_tpCnvSvc
+    { this, "TPCnvSvc", "AthTPCnvSvc", "" };
   
   std::map<std::string,std::string> m_keyFolderMap;
 }; 

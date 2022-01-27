@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import Logging
 from ..powheg_V2 import PowhegV2
@@ -45,12 +45,24 @@ class ttj_MiNNLO(PowhegV2):
         warnings = super(ttj_MiNNLO, self).hoppet_warning()
         infos = super(ttj_MiNNLO, self).hoppet_info()
         
-        super(ttj_MiNNLO, self).__init__(base_directory, "ttJ_MiNNLOPS_v1.0_beta1", powheg_executable="pwhg_main-gnu", warning_output=warnings, info_output=infos, error_output=errors, **kwargs)
+        super(ttj_MiNNLO, self).__init__(base_directory, "ttJ_MiNNLO", powheg_executable="pwhg_main-gnu", warning_output=warnings, info_output=infos, error_output=errors, **kwargs)
 
         # defining ttjMiNNLOPATH environment variable to bypass file path problems in fortran code
         # this is definitly a hack, see discussion in AGENE-2055
         os.environ['ttjMiNNLOPATH'] = os.path.dirname(self.executable)
         logger.info("ttjMiNNLOPATH defined as = {0}".format(os.getenv('ttjMiNNLOPATH')))
+
+        # hack in place to help powheg executable find all dynamic libraries
+        logger.warning("Applying manual, hard-coded fixes for Virtuals library paths")
+        logger.debug("LD_LIBRARY_PATH (before) = {0}".format(os.getenv('LD_LIBRARY_PATH')))
+        VirtualsPath = os.path.dirname(self.executable) + "/Virtuals/obj-gnu"
+        ChaplinPath = os.path.dirname(self.executable) + "/../../External/chaplin-1.2/lib"
+        logger.info("VirtualsPath="+VirtualsPath)
+        logger.info("ChaplinPath="+ChaplinPath)
+        ldpath = os.getenv('LD_LIBRARY_PATH')
+        ldpath_new = VirtualsPath + ":" + ChaplinPath + ":" + ldpath
+        os.environ['LD_LIBRARY_PATH'] = ldpath_new
+        logger.debug("LD_LIBRARY_PATH (after) = {0}".format(os.getenv('LD_LIBRARY_PATH')))
 
         # Add algorithms to the sequence
         self.add_algorithm(ExternalMadSpin(process="generate p p > t t~ j [QCD]"))
@@ -195,6 +207,8 @@ class ttj_MiNNLO(PowhegV2):
         # Accordingly, MadSpin will run or not run.
         if "MadSpin" in self.decay_mode:
             self.externals["MadSpin"].parameters_by_keyword("powheg_top_decays_enabled")[0].value = False
+            self.externals["MadSpin"].parameters_by_keyword("MadSpin_model")[0].value = "loop_sm-no_b_mass"
+            self.externals["MadSpin"].parameters_by_keyword("MadSpin_nFlavours")[0].value = 5
 
         # Calculate appropriate decay mode numbers
         self.parameters_by_keyword("topdecaymode")[0].value = _decay_mode_lookup[self.decay_mode]

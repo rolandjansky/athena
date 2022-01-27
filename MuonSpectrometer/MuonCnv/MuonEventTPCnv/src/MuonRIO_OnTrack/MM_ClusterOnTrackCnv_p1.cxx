@@ -29,7 +29,7 @@ persToTrans( const Muon::MM_ClusterOnTrack_p1 *persObj,
 
    std::vector<Amg::MatrixX> stripDriftDistErrors;
    stripDriftDistErrors.reserve(persObj->m_stripDriftDistErrors_0_0.size());
-   for(uint i_strip = 0; i_strip < persObj->m_stripDriftDistErrors_0_0.size(); i_strip++) {
+   for(uint i_strip = 0; i_strip < persObj->m_stripDriftDistErrors_0_0.size(); ++i_strip) {
      Amg::MatrixX tmp(2, 2);
      tmp(0, 0) = persObj->m_stripDriftDistErrors_0_0.at(i_strip);
      tmp(1, 1) = persObj->m_stripDriftDistErrors_1_1.at(i_strip);

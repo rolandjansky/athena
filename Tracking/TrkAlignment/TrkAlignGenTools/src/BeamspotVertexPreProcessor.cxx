@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkAlignGenTools/BeamspotVertexPreProcessor.h"
@@ -320,10 +320,7 @@ bool BeamspotVertexPreProcessor::isAssociatedToVertex(const Trk::Track * track, 
 
   std::vector<VxTrackAtVertex>::const_iterator findResult = std::find_if(iVxTrackBegin, iVxTrackEnd, thisCompare);
 
-  if(findResult != iVxTrackEnd)
-     return true;
-
-  return false;
+  return findResult != iVxTrackEnd;
 }
 
 
@@ -406,6 +403,7 @@ const xAOD::Vertex* BeamspotVertexPreProcessor::findVertexCandidate(const Track*
 
 const VertexOnTrack* BeamspotVertexPreProcessor::provideVotFromVertex(const Track* track, const xAOD::Vertex* &vtx) const {
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   const VertexOnTrack * vot       = nullptr;
   const xAOD::Vertex* tmpVtx      = nullptr;
   const xAOD::Vertex* updatedVtx  = nullptr;
@@ -439,9 +437,13 @@ const VertexOnTrack* BeamspotVertexPreProcessor::provideVotFromVertex(const Trac
       ///vertex as perigeeSurface
       Amg::Vector3D  globPos(updatedVtx->position()); //look
       const PerigeeSurface* surface = new PerigeeSurface(globPos);
-
-
-      const Perigee *  perigee = dynamic_cast<const Perigee*>(m_extrapolator->extrapolate(*track, *surface));
+      const Perigee* perigee = nullptr;
+      std::unique_ptr<const Trk::TrackParameters> tmp =
+        m_extrapolator->extrapolate(ctx, *track, *surface);
+      //pass ownership only if of correct type
+      if (tmp && tmp->associatedSurface().type() == Trk::SurfaceType::Perigee) {
+         perigee = static_cast<const Perigee*> (tmp.release()); 
+      }
       if (!perigee) {
         const Perigee * trackPerigee = track->perigeeParameters();
         if ( trackPerigee && trackPerigee->associatedSurface() == *surface )
@@ -517,8 +519,9 @@ const VertexOnTrack* BeamspotVertexPreProcessor::provideVotFromVertex(const Trac
 
 const VertexOnTrack* BeamspotVertexPreProcessor::provideVotFromBeamspot(const Track* track) const{
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   const VertexOnTrack * vot = nullptr;
-  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey }; 
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx }; 
   Amg::Vector3D  bpos = beamSpotHandle->beamPos();
   ATH_MSG_DEBUG("beam spot: "<<bpos);
   float beamSpotX = bpos.x();
@@ -559,7 +562,14 @@ const VertexOnTrack* BeamspotVertexPreProcessor::provideVotFromBeamspot(const Tr
     beamSpotParameters = LocalParameters(Par0);
 
     // calculate perigee parameters wrt. beam-spot
-    const Perigee * perigee = dynamic_cast<const Perigee*>(m_extrapolator->extrapolate(*track, *surface));
+    const Perigee* perigee = nullptr;
+    std::unique_ptr<const Trk::TrackParameters> tmp =
+      m_extrapolator->extrapolate(ctx, *track, *surface);
+    // pass ownership only if of correct type
+    if (tmp && tmp->associatedSurface().type() == Trk::SurfaceType::Perigee) {
+      perigee = static_cast<const Perigee*>(tmp.release());
+    }
+
     if (!perigee) {
       const Perigee * trackPerigee = track->perigeeParameters();
       if ( trackPerigee && trackPerigee->associatedSurface() == *surface )
@@ -627,13 +637,16 @@ void BeamspotVertexPreProcessor::provideVtxBeamspot(const AlignVertex* b, AmgSym
 
   ATH_MSG_DEBUG("VTX constraint point (x,y,z) = ( "<< (*v)[0] <<" , "<< (*v)[1] <<" , "<< (*v)[2] <<" )");
   ATH_MSG_DEBUG("VTX constraint size  (x,y,z) = ( "<< beamSigmaX <<" , "<< beamSigmaY <<" , "<< beamSigmaZ <<" )");
-
-  return;
 }
 
-
-const Track* BeamspotVertexPreProcessor::doConstraintRefit(ToolHandle<Trk::IGlobalTrackFitter>& fitter, const Track* track,  const VertexOnTrack* vot, const ParticleHypothesis& particleHypothesis) const{
-
+const Track*
+BeamspotVertexPreProcessor::doConstraintRefit(
+  ToolHandle<Trk::IGlobalTrackFitter>& fitter,
+  const Track* track,
+  const VertexOnTrack* vot,
+  const ParticleHypothesis& particleHypothesis) const
+{
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   const Track* newTrack = nullptr;
 
   if(vot){
@@ -649,20 +662,22 @@ const Track* BeamspotVertexPreProcessor::doConstraintRefit(ToolHandle<Trk::IGlob
       // get track parameters at the vertex:
       const PerigeeSurface&         surface=vot->associatedSurface();
       ATH_MSG_DEBUG(" Track reference surface will be:  " << surface);
-      const TrackParameters* parsATvertex=m_extrapolator->extrapolate(*track, surface);
+      const TrackParameters* parsATvertex=m_extrapolator->extrapolate(ctx, *track, surface).release();
 
       ATH_MSG_DEBUG(" Track will be refitted at this surface  ");
-      newTrack = fitter->fit(measurementCollection, *parsATvertex, m_runOutlierRemoval, particleHypothesis);
+      newTrack = (fitter->fit(ctx, measurementCollection, 
+                             *parsATvertex, m_runOutlierRemoval, particleHypothesis)).release();
       delete parsATvertex;
     } else {
-      newTrack = fitter->fit(measurementCollection, *(track->trackParameters()->front()), m_runOutlierRemoval, particleHypothesis);
+      newTrack = (fitter->fit(ctx,
+                             measurementCollection, *(track->trackParameters()->front()), 
+                             m_runOutlierRemoval, particleHypothesis)).release();
     }
      //     delete vot;
   }
 
   return newTrack;
 }
-
 
 bool BeamspotVertexPreProcessor::doBeamspotConstraintTrackSelection(const Track* track) {
 
@@ -874,7 +889,7 @@ DataVector<Track> * BeamspotVertexPreProcessor::processTrackCollection(const Dat
 {
   ATH_MSG_DEBUG("BeamspotVertexPreProcessor::processTrackCollection()");
 
-  if( !tracks || (tracks->size()==0) )
+  if( !tracks || (tracks->empty()) )
     return nullptr;
 
   // Clear the AlignVertex container (will destruct the objects it owns as well!)
@@ -935,7 +950,7 @@ DataVector<Track> * BeamspotVertexPreProcessor::processTrackCollection(const Dat
 
   ATH_MSG_INFO( "Processing of input track collection completed (size: " << tracks->size() << "). Size of the alignTrack collection: " << newTrks->size() ); 
   // delete the collection if it's empty
-  if (newTrks->size()==0) {
+  if (newTrks->empty()) {
     delete newTrks;
     return nullptr;
   }
@@ -1125,9 +1140,6 @@ void BeamspotVertexPreProcessor::accumulateVTX(const AlignTrack* alignTrack) {
 
   delete    WF;
   delete    derivX;
-  //    delete [] VTXDerivatives;
-
-  return;
 }
 
 

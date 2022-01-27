@@ -187,8 +187,8 @@ void ActsLayerBuilder::buildBarrel(const Acts::GeometryContext &gctx,
 
     // layers and extent are determined, build actual layer
     Acts::ProtoLayer pl(gctx, surfaces);
-    pl.envelope[Acts::binR] = std::make_pair(2_mm, 2_mm);
-    pl.envelope[Acts::binZ] = std::make_pair(2_mm, 2_mm);
+    pl.envelope[Acts::binR] = m_cfg.barrelEnvelopeR;
+    pl.envelope[Acts::binZ] = m_cfg.barrelEnvelopeZ;
 
     double layerZ = pl.medium(Acts::binZ, true);
     double layerHalfZ = 0.5 * pl.range(Acts::binZ);
@@ -296,6 +296,17 @@ void ActsLayerBuilder::buildBarrel(const Acts::GeometryContext &gctx,
       layer = m_cfg.layerCreator->cylinderLayer(gctx, surfaces, nBinsPhi,
                                                 nBinsZ, pl, transform,
                                                 std::move(approachDescriptor));
+    } else if (m_cfg.mode == Mode::ITkPixelInner ||
+               m_cfg.mode == Mode::ITkPixelOuter) {
+      double f = 1.0;
+      if (key == 0) {
+        f = 2.0;
+      }
+      size_t nBinsPhi = nModPhi / f;
+      size_t nBinsZ = nModZ / f;
+      layer = m_cfg.layerCreator->cylinderLayer(gctx, surfaces, nBinsPhi,
+                                                nBinsZ, pl, transform,
+                                                std::move(approachDescriptor));
     } else {
       layer = m_cfg.layerCreator->cylinderLayer(
           gctx, surfaces, Acts::equidistant, Acts::equidistant, pl, transform,
@@ -346,8 +357,8 @@ void ActsLayerBuilder::buildEndcap(const Acts::GeometryContext &gctx,
 
   for (const auto &[key, surfaces] : initialLayers) {
     auto &pl = protoLayers.emplace_back(gctx, surfaces);
-    pl.envelope[Acts::binR] = std::make_pair(2_mm, 2_mm);
-    pl.envelope[Acts::binZ] = std::make_pair(2_mm, 2_mm);
+    pl.envelope[Acts::binR] = m_cfg.endcapEnvelopeR;
+    pl.envelope[Acts::binZ] = m_cfg.endcapEnvelopeZ;
   }
 
   // sort proto layers by their medium z position
@@ -380,58 +391,62 @@ void ActsLayerBuilder::buildEndcap(const Acts::GeometryContext &gctx,
   }
 
   std::vector<Acts::ProtoLayer> mergedProtoLayers;
-  mergedProtoLayers.push_back(protoLayers.front());
 
-  std::vector<const Acts::Surface *> surfaces;
-  for (size_t i = 1; i < protoLayers.size(); i++) {
-    auto &pl = protoLayers[i];
-    auto &pl_prev = mergedProtoLayers.back();
-    // do they intersect?
-    ACTS_VERBOSE("Compare: " << plPrintZ(pl_prev) << " and " << plPrintZ(pl));
-    bool overlap = (pl.min(Acts::binZ) <= pl_prev.max(Acts::binZ) &&
-                    pl.max(Acts::binZ) >= pl_prev.min(Acts::binZ));
-    ACTS_VERBOSE(" -> overlap? " << (overlap ? "yes" : "no"));
-    if (overlap) {
-      ACTS_VERBOSE(" ===> merging");
-      surfaces.clear();
-      surfaces.reserve(pl.surfaces().size() + pl_prev.surfaces().size());
-      surfaces.insert(surfaces.end(), pl.surfaces().begin(),
-                      pl.surfaces().end());
-      surfaces.insert(surfaces.end(), pl_prev.surfaces().begin(),
-                      pl_prev.surfaces().end());
-      mergedProtoLayers.pop_back();
-      auto &new_pl = mergedProtoLayers.emplace_back(gctx, std::move(surfaces));
-      new_pl.envelope[Acts::binR] = pl.envelope[Acts::binR];
-      new_pl.envelope[Acts::binZ] = pl.envelope[Acts::binZ];
-    } else {
-      mergedProtoLayers.push_back(std::move(pl));
-    }
-  }
-
-  ACTS_VERBOSE("" << mergedProtoLayers.size() << " "
-                  << (type < 0 ? "NEGATIVE" : "POSITIVE")
-                  << " ENDCAP layers remain after merging");
-
-  for (size_t i = 0; i < mergedProtoLayers.size(); i++) {
-
-    std::stringstream ss;
-    ss << "obj/" << m_cfg.mode << "_" << (type < 0 ? "neg" : "pos") << "_disk_" << std::setfill('0')
-       << std::setw(2) << i << ".obj";
-
-    std::ofstream ofs{ss.str()};
-    Acts::ObjVisualization3D vis{};
-    Acts::ViewConfig vc = Acts::s_viewSensitive;
-    vc.nSegments = 200;
-    for (const auto &surface : mergedProtoLayers[i].surfaces()) {
-      Acts::GeometryView3D::drawSurface(vis, *surface, gctx,
-                                        Acts::Transform3::Identity(), vc);
-
+  if (m_cfg.doEndcapLayerMerging) {
+    mergedProtoLayers.push_back(protoLayers.front());
+    std::vector<const Acts::Surface *> surfaces;
+    for (size_t i = 1; i < protoLayers.size(); i++) {
+      auto &pl = protoLayers[i];
+      auto &pl_prev = mergedProtoLayers.back();
+      // do they intersect?
+      ACTS_VERBOSE("Compare: " << plPrintZ(pl_prev) << " and " << plPrintZ(pl));
+      bool overlap = (pl.min(Acts::binZ) <= pl_prev.max(Acts::binZ) &&
+                      pl.max(Acts::binZ) >= pl_prev.min(Acts::binZ));
+      ACTS_VERBOSE(" -> overlap? " << (overlap ? "yes" : "no"));
+      if (overlap) {
+        ACTS_VERBOSE(" ===> merging");
+        surfaces.clear();
+        surfaces.reserve(pl.surfaces().size() + pl_prev.surfaces().size());
+        surfaces.insert(surfaces.end(), pl.surfaces().begin(),
+                        pl.surfaces().end());
+        surfaces.insert(surfaces.end(), pl_prev.surfaces().begin(),
+                        pl_prev.surfaces().end());
+        mergedProtoLayers.pop_back();
+        auto &new_pl =
+            mergedProtoLayers.emplace_back(gctx, std::move(surfaces));
+        new_pl.envelope[Acts::binR] = pl.envelope[Acts::binR];
+        new_pl.envelope[Acts::binZ] = pl.envelope[Acts::binZ];
+      } else {
+        mergedProtoLayers.push_back(std::move(pl));
+      }
     }
 
-    vis.write(ofs);
+    ACTS_VERBOSE("" << mergedProtoLayers.size() << " "
+                    << (type < 0 ? "NEGATIVE" : "POSITIVE")
+                    << " ENDCAP layers remain after merging");
+  } else {
+    mergedProtoLayers = protoLayers;
   }
 
+  if (m_cfg.objDebugOutput) {
+    for (size_t i = 0; i < mergedProtoLayers.size(); i++) {
 
+      std::stringstream ss;
+      ss << "obj/" << m_cfg.mode << "_" << (type < 0 ? "neg" : "pos")
+         << "_disk_" << std::setfill('0') << std::setw(2) << i << ".obj";
+
+      std::ofstream ofs{ss.str()};
+      Acts::ObjVisualization3D vis{};
+      Acts::ViewConfig vc = Acts::s_viewSensitive;
+      vc.nSegments = 200;
+      for (const auto &surface : mergedProtoLayers[i].surfaces()) {
+        Acts::GeometryView3D::drawSurface(vis, *surface, gctx,
+                                          Acts::Transform3::Identity(), vc);
+      }
+
+      vis.write(ofs);
+    }
+  }
 
   std::vector<std::shared_ptr<const Surface>> ownedSurfaces;
   for (const auto &pl : mergedProtoLayers) {

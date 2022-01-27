@@ -6,7 +6,6 @@
 // =====================================================================================
 #include "CaloRingerReaderUtils.h"
 
-#include <vector>
 
 // Kernel includes:
 #include "GaudiKernel/StatusCode.h"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -21,7 +21,6 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IFileMgr.h"
 
-#include <iostream>
 #include <string>
 #include <cerrno>
 
@@ -49,6 +48,7 @@ RootDatabase::RootDatabase() :
         m_defWritePolicy(TObject::kOverwrite),   // On write create new versions
         m_branchOffsetTabLen(0),
         m_defTreeCacheLearnEvents(-1),
+        m_indexMasterID(0),
         m_fileMgr(nullptr)
 {
   m_counters[READ_COUNTER] = m_counters[WRITE_COUNTER] = m_counters[OTHER_COUNTER] = 0;
@@ -73,6 +73,7 @@ long long int RootDatabase::size()  const   {
 
 /// Callback after successful open of a database object
 DbStatus RootDatabase::onOpen(DbDatabase& dbH, DbAccessMode mode)  {
+  m_dbH = dbH;
   std::string par_val;
   DbPrint log("RootDatabase.onOpen");
   if ( !dbH.param("FORMAT_VSN", par_val).isSuccess() )  {
@@ -98,7 +99,8 @@ DbStatus RootDatabase::onOpen(DbDatabase& dbH, DbAccessMode mode)  {
 }
 
 // Open a new root Database: Access the TFile
-DbStatus RootDatabase::open(const DbDomain& domH,const std::string& nam,DbAccessMode mode)   {
+DbStatus RootDatabase::open(const DbDomain& domH,const std::string& nam,DbAccessMode mode)
+{
   DbPrint log("RootDatabase.open");
   const char* fname = nam.c_str();
   Bool_t result = ( mode == pool::READ ) ? kFALSE : gSystem->AccessPathName(fname, kFileExists);
@@ -590,6 +592,19 @@ DbStatus RootDatabase::setOption(const DbOption& opt)  {
         return Success;
       }
       break;
+    case 'I':
+       if( !strcasecmp(n, "INDEX_MASTER") ) {
+          DbPrint log("RootDatabase::setOption");
+          char *s = nullptr;
+          if( opt._getValue(s).isSuccess() and s ) {
+             m_indexMaster = s;
+             log << DbPrintLvl::Debug << "INDEX_MASTER set to " << m_indexMaster << DbPrint::endmsg;
+             return Success;
+          }
+          log << DbPrintLvl::Debug << "INDEX_MASTER: s=" << (void*)s << DbPrint::endmsg;
+          return Error;
+       }
+      break;
     case 'M':
       if ( !strcasecmp(n, "MAXIMUM_BUFFERSIZE") )         // int
         return opt._getValue(m_maxBufferSize);
@@ -622,7 +637,7 @@ DbStatus RootDatabase::setOption(const DbOption& opt)  {
       break;
     case 'T':
        if ( !strcasecmp(n+5,"BRANCH_OFFSETTAB_LEN") )  {
-	  return opt._getValue(m_branchOffsetTabLen);
+          return opt._getValue(m_branchOffsetTabLen);
        }
        else if ( !strcasecmp(n+5,"MAX_SIZE") )  {
 	  long long int max_size = TTree::GetMaxTreeSize();
@@ -841,9 +856,9 @@ DbStatus RootDatabase::transAct(Transaction::Action action)
    // check all TTrees with branch containers, if they need Filling
    for( map< TTree*, ContainerSet_t >::iterator treeIt = m_containersInTree.begin(),
            mapEnd = m_containersInTree.end(); treeIt != mapEnd; ++treeIt ) {
+      TTree *tree = treeIt->first;
       ContainerSet_t &containers = treeIt->second;
       if( (*containers.begin())->usingTreeFillMode() ) {
-         TTree *tree = treeIt->first;
          // cout << "------- TTree " << tree->GetName() << " - checking containers for commit" << endl;
          int    clean = 0, dirty = 0;
          for( ContainerSet_t::const_iterator cIt = containers.begin(); cIt != containers.end(); ++cIt ) {
@@ -865,7 +880,7 @@ DbStatus RootDatabase::transAct(Transaction::Action action)
             }
             for( ContainerSet_t::iterator cIt = containers.begin(); cIt != containers.end(); ++cIt ) {
                (*cIt)->clearDirty();
-            } 
+            }
          } else {
             // error - some containers in this TTree were not updated
             DbPrint err( m_file->GetName() );
@@ -878,6 +893,12 @@ DbStatus RootDatabase::transAct(Transaction::Action action)
             }
             return Error;
          }
+      } else { // not TreeFillMode
+         long long maxbranchlen = 0;
+         for( ContainerSet_t::iterator cIt = containers.begin(); cIt != containers.end(); ++cIt ) {
+            maxbranchlen = max( maxbranchlen, (*cIt)->size() );
+         }
+         if( maxbranchlen > 0 )  tree->SetEntries( maxbranchlen );
       }
    }
 
@@ -898,7 +919,40 @@ DbStatus RootDatabase::transAct(Transaction::Action action)
          }
       }
    }
+
+   if( !m_indexMaster.empty() ) {
+      DbPrint log( m_file->GetName() );
+      log << DbPrintLvl::Debug << "Synchronizing indexes to master: " <<  m_indexMaster << DbPrint::endmsg;
+      std::vector<IDbContainer*> containers;
+      m_dbH.containers(containers);
+      m_indexMasterID = 0;
+      if( m_indexMaster == "*" ) {
+         // find the biggest index ID
+         for( auto c : containers ) {
+            long long nextID = c->nextRecordId() & 0xFFFFFFFF;
+            if( nextID > m_indexMasterID ) m_indexMasterID = nextID;
+         }
+      } else {
+         // look for the master by name
+         for( auto c = containers.begin(); c !=  containers.end(); ++c ) {
+            if( (*c)->name() == m_indexMaster ) {
+               m_indexMasterID = (*c)->nextRecordId() & 0xFFFFFFFF;
+               // cout << "Found master index: " << (*c)->name() << "  next ID= " << m_indexMasterID  << endl;
+               containers.erase(c);
+               break;
+            }
+         }
+      }
+      // synchronize all container indices
+      if( m_indexMasterID > 0 ) {
+         // go back by one, so nextID in other indices is equal the last ID in master
+         // this works if synchronizing in separate commits - but not in the same commit!
+         --m_indexMasterID;
+         for( auto c: containers ) {
+            c->useNextRecordId( m_indexMasterID );
+         }
+      }
+   }
+   
    return Success;
 }
-
-     

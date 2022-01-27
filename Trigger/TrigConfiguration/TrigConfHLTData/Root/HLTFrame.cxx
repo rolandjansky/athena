@@ -68,10 +68,13 @@ HLTFrame::compareTo(const HLTFrame* o) const {
    ds->name = name();
    ds->check("menu_name", name(), o->name());
    std::string pss_name(""), o_pss_name("");
-   if(getPrescaleSetCollection().size()==1)
-      pss_name= getPrescaleSet()->name();
-   if(o->getPrescaleSetCollection().size()==1)
-      o_pss_name= o->getPrescaleSet()->name();
+
+   const auto& pssc = getPrescaleSetCollection();
+   const auto& o_pssc = o->getPrescaleSetCollection();
+   if(pssc.size()==1)
+     pss_name= pssc.sets().front().pss->name();
+   if(o_pssc.size()==1)
+     o_pss_name= o_pssc.sets().front().pss->name();
    ds->check("prescale_set_name", pss_name, o_pss_name);
 
    ds->addSub( getHLTSequenceList().compareTo( & o->getHLTSequenceList()) );

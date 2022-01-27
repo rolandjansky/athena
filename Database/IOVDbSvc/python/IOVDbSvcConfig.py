@@ -3,7 +3,9 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, ConfigurationError
 import os
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
+@AccumulatorCache
 def IOVDbSvcCfg(configFlags):
 
     result=ComponentAccumulator()
@@ -52,7 +54,7 @@ def IOVDbSvcCfg(configFlags):
     
     PoolSvc=CompFactory.PoolSvc
     poolSvc=PoolSvc()
-    poolSvc.MaxFilesOpen=0
+    poolSvc.MaxFilesOpen=configFlags.PoolSvc.MaxFilesOpen
     poolSvc.ReadCatalog=["apcfile:poolcond/PoolFileCatalog.xml",
                          "apcfile:poolcond/PoolCat_oflcond.xml",
                          ]
@@ -63,8 +65,8 @@ def IOVDbSvcCfg(configFlags):
     result.addService(CondSvc())
     result.addService(ProxyProviderSvc(ProviderNames=["IOVDbSvc",]))
 
-    DBReplicaSvc=CompFactory.DBReplicaSvc
     if not isMC:
+        DBReplicaSvc=CompFactory.DBReplicaSvc
         result.addService(DBReplicaSvc(COOLSQLiteVetoPattern="/DBRelease/"))
 
     # Get TagInfoMgr

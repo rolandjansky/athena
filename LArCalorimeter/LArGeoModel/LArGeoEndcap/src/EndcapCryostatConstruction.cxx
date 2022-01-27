@@ -55,10 +55,11 @@
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
-#include <string>
 #include <cmath>
 #include <iomanip>
 #include <map>
+#include <string>
+#include <utility>
 
 #include "LArGeoMiniFcal/MiniFcalConstruction.h"
 
@@ -81,8 +82,8 @@ LArGeo::EndcapCryostatConstruction::EndcapCryostatConstruction(
   m_pAccessSvc(NULL),
   m_geoModelSvc(NULL),
   m_fullGeo(fullGeo),
-  m_EMECVariantInner(emecVariantInner),
-  m_EMECVariantOuter(emecVariantOuter),
+  m_EMECVariantInner(std::move(emecVariantInner)),
+  m_EMECVariantOuter(std::move(emecVariantOuter)),
   m_activateFT(activateFT),
   m_enableMBTS(enableMBTS)
 {

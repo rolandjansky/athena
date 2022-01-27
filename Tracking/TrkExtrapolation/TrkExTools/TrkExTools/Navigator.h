@@ -73,13 +73,6 @@ namespace Trk {
       /** AlgTool finalize method */
       virtual StatusCode finalize() override;
 
-      using INavigator::trackingGeometry;
-      using INavigator::volume;
-      using INavigator::highestVolume;
-      using INavigator::nextBoundarySurface;
-      using INavigator::nextTrackingVolume;
-
-
       /** INavigator interface method - returns the TrackingGeometry used for
        * navigation */
       virtual const TrackingGeometry* trackingGeometry(
@@ -97,6 +90,7 @@ namespace Trk {
       /** INavigator interface method - getting the closest TrackParameters from
        * a Track to a Surface*/
       virtual const TrackParameters* closestParameters(
+        const EventContext& ctx,
         const Track& trk,
         const Surface& sf,
         const IPropagator* prop = nullptr) const override final;
@@ -140,7 +134,7 @@ namespace Trk {
       SG::ReadCondHandleKey<TrackingGeometry> m_trackingGeometryReadKey{
         this,
         "TrackingGeometryKey",
-        "",
+        "AtlasTrackingGeometry",
         "Key of output of TrackingGeometry for ID"
       };
 

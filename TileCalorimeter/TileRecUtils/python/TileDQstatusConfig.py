@@ -1,9 +1,11 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 """Define method to construct configured Tile DQ status tool and algorithm"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import Format, ProductionStep
+
 
 def TileDQstatusToolCfg(flags, **kwargs):
     """Return component accumulator with configured private Tile DQ status tool
@@ -49,7 +51,7 @@ def TileDQstatusAlgCfg(flags, **kwargs):
     name = kwargs['TileDQstatus'] + 'Alg'
     kwargs.setdefault('name', name)
 
-    if not (flags.Input.isMC or flags.Overlay.DataOverlay or flags.Input.Format.lower() == 'pool'):
+    if not (flags.Input.isMC or flags.Overlay.DataOverlay or flags.Input.Format is Format.POOL):
         if flags.Tile.RunType == 'PHY' or flags.Tile.TimingType == 'GAP/LAS':
             beamElemContainer = ""
         else:
@@ -62,7 +64,7 @@ def TileDQstatusAlgCfg(flags, **kwargs):
 
         rawChannelContainer = 'TileRawChannelCnt'
 
-    elif flags.Overlay.DataOverlay:
+    elif flags.Common.ProductionStep == ProductionStep.Overlay and flags.Overlay.DataOverlay:
         beamElemContainer = ''
         digitsContainer = flags.Overlay.BkgPrefix + 'TileDigitsCnt'
         rawChannelContainer = flags.Overlay.BkgPrefix + 'TileRawChannelCnt'

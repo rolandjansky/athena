@@ -14,6 +14,7 @@ DQBadLBFilterAlg::DQBadLBFilterAlg(const std::string& name, ISvcLocator* pSvcLoc
 , m_readKey("/GLOBAL/DETSTATUS/DEFECTS")
 , m_writeKey("")
 , m_condSvc("CondSvc",name)
+, m_attribListSpec(0)
 {
   declareProperty("ignoreRecoverable", m_ignoreRecoverable);
   declareProperty("defectListStr", m_listofdefects_str);
@@ -22,7 +23,11 @@ DQBadLBFilterAlg::DQBadLBFilterAlg(const std::string& name, ISvcLocator* pSvcLoc
   declareProperty("WriteKey", m_writeKey);
 }
         
-DQBadLBFilterAlg::~DQBadLBFilterAlg () {}
+DQBadLBFilterAlg::~DQBadLBFilterAlg () {
+  if ( m_attribListSpec ) {
+    m_attribListSpec->release();
+  }
+}
         
 StatusCode DQBadLBFilterAlg::initialize()
 {

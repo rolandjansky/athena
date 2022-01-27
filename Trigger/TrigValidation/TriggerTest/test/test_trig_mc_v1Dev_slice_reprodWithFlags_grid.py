@@ -47,7 +47,7 @@ def generate_exec_steps(slice_name = None):
     pre_exec = hist_rename_pre_exec(hist_file_name)
     if slice_name:
         pre_exec += 'doEmptyMenu=True;do{:s}Slice=True;'.format(slice_name)
-    ex.args = '-c "setMenu=\'LS2_v1\';doWriteBS=False;doWriteRDOTrigger=False;{:s}"'.format(pre_exec)
+    ex.args = '-c "setMenu=\'Dev_pp_run3_v1\';doWriteBS=False;doWriteRDOTrigger=False;{:s}"'.format(pre_exec)
     # chainDump
     cd = ExecStep.ExecStep('ChainDump' + name)
     cd.type = 'other'

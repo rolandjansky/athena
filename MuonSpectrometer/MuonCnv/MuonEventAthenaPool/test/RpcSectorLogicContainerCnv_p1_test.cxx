@@ -66,7 +66,7 @@ void compare (const RpcSectorLogicContainer& p1,
 
 void testit (const RpcSectorLogicContainer& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   RpcSectorLogicContainerCnv_p1 cnv;
   RpcSectorLogicContainer_p1 pers;
   cnv.transToPers (&trans1, &pers, log);

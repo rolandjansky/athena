@@ -10,7 +10,6 @@
 TauVertexedClusterDecorator::TauVertexedClusterDecorator(const std::string& name):
   TauRecToolBase(name) {
   declareProperty("SeedJet", m_seedJet = ""); 
-  declareProperty("VertexCorrection", m_doVertexCorrection = true);
 }
 
 
@@ -36,13 +35,12 @@ StatusCode TauVertexedClusterDecorator::initialize() {
 
   
 StatusCode TauVertexedClusterDecorator::execute(xAOD::TauJet& tau) const {
-  if (! tau.jetLink().isValid()) {
-    ATH_MSG_WARNING("Link to the seed jet is invalid");
-    return StatusCode::FAILURE;
-  }
   
   // Obtain the vertex to correct the cluster
-  const xAOD::Vertex* vertex = tauRecTools::getTauVertex(tau, inTrigger());
+  const xAOD::Vertex* vertex = nullptr;
+  if (tau.vertexLink().isValid()) {
+    vertex = tau.vertex();
+  }
 
   std::vector<const xAOD::IParticle*> particleList = tau.clusters();
   

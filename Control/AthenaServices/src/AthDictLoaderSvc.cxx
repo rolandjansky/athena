@@ -214,6 +214,7 @@ AthDictLoaderSvc::load_type (CLID clid, bool recursive /*= false*/)
   if (bib) {
     return load_type(bib->typeinfo(), recursive);
   }
+  // cppcheck-suppress identicalConditionAfterEarlyExit
   return type;
 }
 

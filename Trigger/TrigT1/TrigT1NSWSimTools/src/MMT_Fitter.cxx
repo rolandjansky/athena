@@ -173,10 +173,8 @@ double MMT_Fitter::Get_Local_Slope (const vector<Hit>& Track,double theta,double
     ybin_hits[ipl]=(((Track[x_planes[ipl]].info.slope==-999) || (Track[x_planes[ipl]].info.slope==-4)) ? -1 : par->ybin(Track[x_planes[ipl]].info.y,x_planes[ipl]));
   }
   bool hit=false;
-  double yzsum=0;
   double ysum=0;//added to try alternative calculus
   double zsum=0;//added to try alternative calculus
-  float mxlf=0;
   int xdex=-1;
   int ybin=-1;
   int which=-1;
@@ -199,14 +197,11 @@ double MMT_Fitter::Get_Local_Slope (const vector<Hit>& Track,double theta,double
     }
     if(Track[x_planes[ipl]].info.slope == -999 || Track[x_planes[ipl]].info.slope == -4) continue;
     hit=true;
-    yzsum+=y*(z*zbar-1.);
-    mxlf += bk*y*(z*zbar-1.);
     //alternative calculus
     ysum += y-yfirst;
     zsum += z-zfirst;
   }
-  //double mxl=double(bk*yzsum); //old calculus
-  double mxl=(ysum/zsum); //new calculus
+  double mxl=(ysum/zsum);
   if(!hit) {return double(999);}
   return mxl;
 }
@@ -311,8 +306,7 @@ double MMT_Fitter::DT_Factors_val(int i, int j, std::shared_ptr<MMT_Parameters> 
   return LG_lgr(i,a,m_number_LG_regions,m_LG_min,m_LG_max);
 }
 
-double MMT_Fitter::LG_lgr(int ilgr, double a, int number_LG_regions, double min, double max) const{
-  a+=0;
+double MMT_Fitter::LG_lgr(int ilgr, double /*a*/, int number_LG_regions, double min, double max) const{
   return min+double(ilgr/number_LG_regions)*(max-min);
 }
 
@@ -349,7 +343,7 @@ ROI MMT_Fitter::Get_ROI(double M_x, double M_u, double M_v, const vector<Hit>&tr
   ATH_MSG_DEBUG("\nGet_ROI(" << M_x << "," << M_u << "," << M_v << ") ");
 
   //--- calc constants ------
-  double b=TMath::DegToRad()*(par->stereo_degree);
+  double b=M_PI/180.0*(par->stereo_degree);
   double A=1./std::tan(b);
   double B=1./std::tan(b);
 

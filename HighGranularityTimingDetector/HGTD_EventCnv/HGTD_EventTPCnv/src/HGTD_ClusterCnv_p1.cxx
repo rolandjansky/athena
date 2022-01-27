@@ -12,8 +12,6 @@
 #include <algorithm>
 #include <iostream>
 
-using namespace HGTD;
-
 void HGTD_ClusterCnv_p1::persToTrans(
     const HGTD_Cluster_p1* pers_obj, HGTD_Cluster* trans_obj,
     MsgStream& log) {

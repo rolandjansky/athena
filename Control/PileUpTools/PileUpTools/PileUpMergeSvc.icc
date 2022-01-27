@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>  /* make_pair */
@@ -169,7 +169,7 @@ PileUpMergeSvc::retrieveSubSetEvtData(const KEY& dataKey, //orig evt key
   typedef typename value_type::second_type DataLink_t;
 
   SubEventIterator iEvt = bSubEvents;
-  for (; iEvt != eSubEvents; iEvt++) {
+  for (; iEvt != eSubEvents; ++iEvt) {
 
     StoreGateSvc &seStore = *iEvt->ptr()->evtStore();
     ATH_MSG_VERBOSE("SubEvt StoreGate " << seStore.name() << " :"

@@ -281,7 +281,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
     if flags.Input.isMC:
         # ITk:
-        if flags.GeoModel.Run == "RUN4":
+        if flags.GeoModel.Run not in ['RUN1', 'RUN2', 'RUN3']: # RUN4 and beyond
             IdMappingDat = "ITk_Atlas_IdMapping.dat"
             if flags.GeoModel.Type == "BrlIncl4.0_ref":
                 IdMappingDat = "ITk_Atlas_IdMapping_InclBrl4.dat"
@@ -332,7 +332,8 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
 
 def PixelAlignCondAlgCfg(flags, name="PixelAlignCondAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelAlignCondAlg"""
-    acc = ComponentAccumulator()
+    from PixelGeoModel.PixelGeoModelConfig import PixelGeoModelCfg
+    acc = PixelGeoModelCfg(flags)
 
     if flags.GeoModel.Align.Dynamic:
         acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/AlignL1/ID","/Indet/AlignL1/ID",className="CondAttrListCollection"))
@@ -378,6 +379,8 @@ def PixelChargeCalibCondAlgCfg(flags, name="PixelChargeCalibCondAlg", **kwargs):
     acc = ComponentAccumulator()
     acc.merge(PixelConfigCondAlgCfg(flags))
     acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection"))
+    from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
+    acc.merge(PixelReadoutGeometryCfg(flags))
     kwargs.setdefault("PixelDetEleCollKey", "PixelDetectorElementCollection")
     kwargs.setdefault("PixelModuleData", "PixelModuleData")
     kwargs.setdefault("ReadKey", "/PIXEL/PixCalib")
@@ -471,16 +474,26 @@ def PixelDetectorElementCondAlgCfg(flags, name="PixelDetectorElementCondAlg", **
     
     kwargs.setdefault("PixelAlignmentStore", "PixelAlignmentStore")
     kwargs.setdefault("WriteKey", "PixelDetectorElementCollection")
-    def merge_lists(a, b):
-        a.extend([item for item in b if item not in a])
-        return a
 
-    alg=CompFactory.PixelDetectorElementCondAlg(name, **kwargs)
-    alg._descriptors['MuonManagerKey'].semantics.merge = merge_lists
-    alg._descriptors['TRT_DetEltContKey'].semantics.merge = merge_lists
-    alg._descriptors['SCTAlignmentStore'].semantics.merge = merge_lists
-    acc.addCondAlgo(alg)    
+    # FIXME
+    # add artifical dependencies to SCT, TRT and Muon
+    # conditions algs to ensure that the IOV
+    # is identical to the IOV of the tracking geometry
+    if flags.Detector.GeometryMuon and flags.Muon.enableAlignment:
+        from MuonConfig.MuonGeometryConfig import MuonDetectorCondAlgCfg
+        acc.merge(MuonDetectorCondAlgCfg(flags))
+        kwargs.setdefault("MuonManagerKey", "MuonDetectorManager")
+    if flags.Detector.GeometryTRT:
+        from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
+        acc.merge(TRT_ReadoutGeometryCfg(flags))
+        kwargs.setdefault("TRT_DetEltContKey", "TRT_DetElementContainer")
+    if not flags.GeoModel.Align.LegacyConditionsAccess and flags.Detector.GeometrySCT:
+        from SCT_GeoModel.SCT_GeoModelConfig import SCT_AlignmentCfg
+        acc.merge(SCT_AlignmentCfg(flags))
+        kwargs.setdefault("SCTAlignmentStore", "SCTAlignmentStore")
+    # end of hack
 
+    acc.addCondAlgo(CompFactory.PixelDetectorElementCondAlg(name, **kwargs))    
     return acc
 
 def PixelDistortionAlgCfg(flags, name="PixelDistortionAlg", **kwargs):
@@ -491,6 +504,8 @@ def PixelDistortionAlgCfg(flags, name="PixelDistortionAlg", **kwargs):
     kwargs.setdefault("PixelModuleData", "PixelModuleData")
     kwargs.setdefault("ReadKey", "/Indet/PixelDist")
     kwargs.setdefault("WriteKey", "PixelDistortionData")
+    from RngComps.RandomServices import AthRNGSvcCfg
+    kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
     acc.addCondAlgo(CompFactory.PixelDistortionAlg(name, **kwargs))
     return acc
 

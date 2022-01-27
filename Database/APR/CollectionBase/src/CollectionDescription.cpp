@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CollectionBase/CollectionDescription.h"
@@ -32,8 +32,8 @@ pool::CollectionDescription::CollectionDescription( const std::string& name,
      m_eventReferenceColumnName = pool::CollectionBaseNames::defaultEventReferenceColumnName();
   }
   // Make this collection fragment the top level collection fragment.
-  addCollectionFragment( m_name, "", false );
-  insertTokenColumn( m_eventReferenceColumnName );
+  CollectionDescription::addCollectionFragment( m_name, "", false );
+  CollectionDescription::insertTokenColumn( m_eventReferenceColumnName );
 }
 
 
@@ -41,7 +41,7 @@ pool::CollectionDescription::CollectionDescription( const std::string& name,
 pool::CollectionDescription::
 CollectionDescription( const pool::ICollectionDescription& rhs )
 {
-   copyFrom( rhs );
+   CollectionDescription::copyFrom( rhs );
 }
 
 // Real copy constructor
@@ -50,13 +50,13 @@ CollectionDescription( const pool::CollectionDescription& rhs )
       : ICollectionDescription(),
 	ICollectionSchemaEditor()
 {
-   copyFrom( rhs );
+   CollectionDescription::copyFrom( rhs );
 }
 
 
 pool::CollectionDescription::~CollectionDescription()
 {
-   clearAll();
+   CollectionDescription::clearAll();
 }
 
 

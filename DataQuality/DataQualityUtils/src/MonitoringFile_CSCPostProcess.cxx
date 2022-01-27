@@ -38,7 +38,7 @@ namespace dqutils {
   static const bool csc_debug = false;
 
   void 
-  MonitoringFile::CSCPostProcess( std::string inFilename, bool /* isIncremental */ ) 
+  MonitoringFile::CSCPostProcess( const std::string & inFilename, bool /* isIncremental */ ) 
   {
     if(csc_debug) std::cout << "--> CSCPostProcess: Begin CSC post-processing" << std::endl;
 

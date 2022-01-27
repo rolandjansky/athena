@@ -57,7 +57,7 @@ namespace CaloConstitHelpers {
     }
 
     virtual double moment(JetConstitIterator & it , xAOD::CaloCluster::MomentType momentType){
-      float m;
+      float m=0.;
       const xAOD::PFO* pfo = static_cast<const xAOD::PFO*>(it->rawConstituent()) ;
       pfo->getClusterMoment(m, momentType );
       return m;      
@@ -92,7 +92,7 @@ namespace CaloConstitHelpers {
     }
 
     virtual double moment(JetConstitIterator & it , xAOD::CaloCluster::MomentType momentType){
-      float m;
+      float m=0.;
       const xAOD::FlowElement* fe = static_cast<const xAOD::FlowElement*>(it->rawConstituent());
       FEHelpers::getClusterMoment(*fe, momentType, m);
       return m;      

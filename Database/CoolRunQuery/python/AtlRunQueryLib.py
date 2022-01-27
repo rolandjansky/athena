@@ -63,9 +63,7 @@ class AtlRunQuery:
 
         self.cmdlineOptions = options
         self.origQuery = origQuery
-        self.datapath = datapath
-        Run.Datapath = self.datapath
-        QC.datapath = self.datapath    # TODO: move away from Run.Datapath to QC.datapath 
+        QC.datapath = datapath
         self.parsedstring = parsedstring
         self.maxNumOfRuns = -1    # in case a maximum number of to be selected runs is given
         self.makeSummary = 'summary' in options.show  # in case a summary shall be printed
@@ -76,6 +74,19 @@ class AtlRunQuery:
         self.xmlFileLabel = 'MyLBCollection'
         self.querystart = time()
         self.selectionOutput = []
+
+        # ensure the output directory exists
+        if QC.datapath=='':
+            QC.datapath='.'
+        else:
+            try:
+                os.makedirs(QC.datapath, exist_ok = True)
+                print("Using output directory: %s" % QC.datapath)
+            except (PermissionError, FileExistsError) as err:
+                print("Could not create data output directory: %s" % QC.datapath)
+                print("Reason: %s" % err)
+                print("Will write to local directory")
+                QC.datapath = "."
 
         # if no show argument is specified, we use the minimal version
         if not self.cmdlineOptions.show:
@@ -207,7 +218,7 @@ class AtlRunQuery:
                 from CoolRunQuery.utils.AtlRunQueryUtils import timeStringToSecondsUTC,secondsToTimeStringUTC,get_run_range2,GetTimeRanges
                 timelist = ','.join(self.cmdlineOptions.timelist)
                 timeranges,timerangesHR = GetTimeRanges(timelist, intRepFnc=timeStringToSecondsUTC, maxval=time())
-                timerangesAsString = [ map(secondsToTimeStringUTC, tr) for tr in timeranges]
+                timerangesAsString = [ list(map(secondsToTimeStringUTC, tr)) for tr in timeranges ]
                 runranges = [ ( "%s-%s" % get_run_range2(tr[0],tr[1]) ) for tr in timerangesAsString]
                 runlist = [','.join(runranges)]
 
@@ -287,7 +298,7 @@ class AtlRunQuery:
                 print ("Producing XML file")
                 from CoolRunQuery.output.AtlRunQueryXML import CreateXMLFile
                 from CoolRunQuery.AtlRunQueryVersion import SvnVersion
-                xmlhtmlstr = CreateXMLFile( runlist, self.cmdlineOptions, self.origQuery, self.datapath,
+                xmlhtmlstr = CreateXMLFile( runlist, self.cmdlineOptions, self.origQuery, QC.datapath,
                                             self.xmlFileName, self.xmlFileLabel, SvnVersion )
         else:
             xmlhtmlstr = None
@@ -316,7 +327,7 @@ class AtlRunQuery:
             # create web page
             from CoolRunQuery.html.AtlRunQueryHTML import ResultPageMaker
             #try:
-            pageinfo = { 'datapath'      : self.datapath,
+            pageinfo = { 'datapath'      : QC.datapath,
                          'origQuery'     : self.origQuery,
                          'fullQuery'     : self.parsedstring,
                          'runlist'       : runlist,

@@ -31,7 +31,7 @@ void compare (const MdtCsm& p1,
 
 void testit (const MdtCsm& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   MdtCsmCnv_p1 cnv;
   MdtCsm_p1 pers;
   cnv.transToPers (&trans1, &pers, log);

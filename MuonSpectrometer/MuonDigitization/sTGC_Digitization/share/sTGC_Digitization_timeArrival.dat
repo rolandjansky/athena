@@ -3,37 +3,47 @@
 # Time of arrival is obtained from Garfield simulation. It is parametrized as 
 # a function of the distance of closest approach, i.e. the shortest distance 
 # from a particle's trajectory to the nearest wire.
-# The approach is the following: dividing the Garfield data into 9 intervals 
-# of 0.1 mm (distance of closest approach), then fit the time distribution in
-# each interval.
+# The approach is the following: dividing the Garfield data into 11 intervals, 
+# then fit the time distribution in each interval.
 # 
 # In each interval, the time of arrival distribution can be described by a 
 # gamma distribution with three parameters: 
 #  - the usual k and theta parameters, and 
-#  - t0--the shift from zero.
+#  - t0, which is the earliest time of arrival for the interval and also the
+#    only parameter that varies with the distance of closest approach.
 # The gamma probability distribution function is:
 #   P(t) = 1 / (\Gamma(k) * {\theta}^k) * (t - t0)^{k-1} * exp(-(t - t0) / {\theta})
-# where t is the time of arrival to be selected and t0 is the earliest time of 
-# arrival allowed.
+# where t is the time of arrival to be selected.
 #
-# The current implementation in Athena use the parameters k and theta, and the 
-# most probable value (peak of the gamma pdf) instead of t0. First, a gamma 
-# random number generator is launched to choose a time, say a value val, then 
-# it is shifted by the best-fitted most probable value minus (k-1)*theta. The 
-# best-fitted most probable value (mpv) already includes t0, while the product 
-# (k-1)*theta gives the most probable value of the gamma pdf begining at origin.
-# In other word, t0 = mpv - (k-1)*theta and the resulting time of arrival is 
-# given by 
+# The current implementation in Athena uses the parameters k and theta, and the 
+# most probable value of time instead of t0. First, a gamma random number 
+# generator is launched to choose a time, say a value val, then it is shifted 
+# by the best-fitted most probable value minus (k-1)*theta. The  best-fitted 
+# most probable value (mpv) already includes t0, while the product (k-1)*theta 
+# gives the most probable value of a gamma pdf begining at origin.
+# In other word, t0 = mpv - (k-1)*theta for the intervals considered, except for
+# the 1st interval (distance less than 0.050mm) where both t0 and mpv are 
+# set to zero nanosecond. Also, mpv is parametrized as a 4th-order polymonial 
+# in order to get a continuous time of arrival as a function of distance.
+# So the resulting time of arrival is given by 
 #       time = val + (mpv - (k-1) * theta).
 #
 # Below are the parameters to be read. Line starting with '#' is not read.
-# keyword  low_edge[mm]  k  theta  mpv[ns]
-bin 0.0  1.000  0.833  0.0  
-bin 0.1  2.342  0.455  0.899
-bin 0.2  3.474  0.391  2.220
-bin 0.3  4.153  0.376  3.733
-bin 0.4  5.778  0.321  5.441
-bin 0.5  5.046  0.364  7.186
-bin 0.6  5.981  0.392  9.300
-bin 0.7  5.771  0.533  11.997
-bin 0.8  3.068  1.488  16.095
+# IMPORTANT: the intervals must be sorted in ascending order of low_edge.
+# keyword  low_edge[mm]  k  theta
+bin 0.00  0.500  1.460
+bin 0.05  3.236  0.335
+bin 0.15  7.270  0.219
+bin 0.25  8.406  0.236
+bin 0.35 10.809  0.223 
+bin 0.45  8.017  0.267
+bin 0.55  5.859  0.366
+bin 0.65  8.973  0.290
+bin 0.75  9.319  0.290
+bin 0.80  6.282  0.517
+bin 0.85  4.680  1.044
+
+# Most probable time is described using a 4th-order polymonial
+#   mpv(d) = p0 + p1 * d + p2 * d^2 + p3 * d^3 + p4 * d^4
+# keyword  p0  p1  p2  p3  p4
+mpv 0.106 -2.031 71.36 -128.2 87.16

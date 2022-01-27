@@ -35,7 +35,7 @@ namespace {
 
 namespace MuonGM {
 
-    RpcLayer::RpcLayer(std::string s, Rpc *t) : DetectorElement(std::move(s)), lwidth(0.), llength(0.), thickness(0.), llongWidth(0.) { m = t; }
+    RpcLayer::RpcLayer(const std::string& s, Rpc *t) : DetectorElement(s), lwidth(0.), llength(0.), thickness(0.), llongWidth(0.) { m = t; }
 
     GeoVPhysVol *RpcLayer::build(const StoredMaterialManager& matManager,
                                  const MYSQL& mysql) {
@@ -280,9 +280,9 @@ namespace MuonGM {
 
         // Apply cutouts
         if (cutoutson && vcutdef.size() > 0) {
-            GeoPhysVol *tempPhys = 0;
-            Cutout *cut = 0;
-            GeoShape *cutoutShape = 0;
+            GeoPhysVol *tempPhys = nullptr;
+            Cutout *cut = nullptr;
+            GeoShape *cutoutShape = nullptr;
             GeoTrf::Transform3D cutTrans{GeoTrf::Transform3D::Identity()};
 
             for (unsigned i = 0; i < vcutdef.size(); i++) {

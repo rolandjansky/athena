@@ -72,7 +72,7 @@ void strip_vs_straw_detail(int SaveOpt=0,int trtLayer=0, int trtPhi=0, int SCTLa
   
   
   sprintf(name,"Correlations Offline Monitor - SCT/TRT");
-  sprintf(name2,"Corr1_sctTRT_%d%d&d&d",trtLayer,trtPhi,SCTLayer,SCTPhi);
+  sprintf(name2,"Corr1_sctTRT_%d%d%d%d",trtLayer,trtPhi,SCTLayer,SCTPhi);
   
   TCanvas *c11 = new TCanvas(name2,name);
 

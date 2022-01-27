@@ -22,6 +22,7 @@
 #include "TrigConfHLTData/HLTSequenceList.h"
 
 #include "TrigConfData/HLTMenu.h"
+#include "TrigConfData/HLTMonitoring.h"
 #include "TrigConfData/L1Menu.h"
 #include "TrigConfData/HLTPrescalesSet.h"
 #include "TrigConfData/L1PrescalesSet.h"
@@ -35,6 +36,7 @@
 #include "xAODTrigger/TriggerMenuJsonContainer.h"
 #include "xAODTrigger/TriggerMenuJsonAuxContainer.h"
 #include "xAODTrigger/TrigConfKeys.h"
+#include "xAODTrigger/BunchConfKey.h"
 
 #include <shared_mutex>
 
@@ -133,6 +135,9 @@ namespace TrigConf {
       /// Returns the JSON configured HLTMenu ptree
       virtual const HLTMenu& hltMenu(const EventContext& ctx = Gaudi::Hive::currentContext()) const override;
 
+      /// Returns the JSON configured HLTMonitoring ptree
+      virtual const HLTMonitoring& hltMonitoring(const EventContext& ctx = Gaudi::Hive::currentContext()) const override;
+
       /// Returns the JSON configured L1 ptree
       virtual const L1Menu& l1Menu(const EventContext& ctx = Gaudi::Hive::currentContext()) const override;
 
@@ -167,7 +172,7 @@ namespace TrigConf {
       StatusCode prepareEventRun3Athena(const EventContext& context);
 
       /// Do per-event decoding for R3 in-file serialised xAOD::TriggerMenuJson metadata
-      StatusCode prepareEventxAODTriggerMenuJson(const xAOD::TrigConfKeys* keys, const EventContext& context);
+      StatusCode prepareEventxAODTriggerMenuJson(const xAOD::TrigConfKeys* keys, const xAOD::BunchConfKey* bgKey, const EventContext& context);
 
       /// Do per-event decoding for R2 in-file serialised xAOD::TriggerMenu metadata 
       StatusCode prepareEventxAODTriggerMenu(const xAOD::TrigConfKeys* keys, const EventContext& context);
@@ -178,14 +183,19 @@ namespace TrigConf {
       /// @param keyToCheck The key of the ptree to load
       /// @param cacheOfLoadedMenuPtr Slot's cache of the currently loaded TriggerMenuJson
       /// @param DataStructure dataStructure object to fill with the TriggerMenuJson's payload
+      /// @param optional Set to true if it is expected in some valid scenarios for the payload to be missing
       StatusCode loadPtree(const std::string& humanName, 
                            const xAOD::TriggerMenuJsonContainer* metaContainer, 
                            const uint32_t keyToCheck,
                            TriggerMenuJsonPtrWrapper& cacheOfLoadedMenuPtr,
-                           DataStructure& dataStructure);
+                           DataStructure& dataStructure,
+                           const bool optional = false);
 
       SG::ReadHandleKey<xAOD::TrigConfKeys> m_eventKey{this, "EventObjectName", "TrigConfKeys", 
         "Key for the event-level configuration identifier object"};
+
+      SG::ReadHandleKey<xAOD::BunchConfKey> m_eventBGKey{this, "BGKeysObjectName", "BunchConfKey", 
+        "Key for the event-level bunchgroup configuration identifier object. Only written from late 2021, optional input."};
 
       /// @name Names for reading the R2 (and R1) AOD metadata payload
       /// @{
@@ -197,6 +207,9 @@ namespace TrigConf {
       /// @{
       Gaudi::Property< std::string > m_metaNameJSON_hlt {this, "JSONMetaObjectNameHLT", "TriggerMenuJson_HLT",
         "StoreGate key for the xAOD::TriggerMenuJson HLT configuration object"};
+
+      Gaudi::Property< std::string > m_metaNameJSON_hltmonitoring {this, "JSONMetaObjectNameHLTMonitoring", "TriggerMenuJson_HLTMonitoring",
+        "StoreGate key for the xAOD::TriggerMenuJson HLT monitoring configuration object"};
 
       Gaudi::Property< std::string > m_metaNameJSON_l1 {this, "JSONMetaObjectNameL1", "TriggerMenuJson_L1",
         "StoreGate key for the xAOD::TriggerMenuJson L1 configuration object"};
@@ -250,6 +263,8 @@ namespace TrigConf {
       /// @{
       std::unique_ptr<xAOD::TriggerMenuJsonAuxContainer> m_hltJsonAux;
       std::unique_ptr<xAOD::TriggerMenuJsonContainer> m_hltJson;
+      std::unique_ptr<xAOD::TriggerMenuJsonAuxContainer> m_hltmonitoringJsonAux;
+      std::unique_ptr<xAOD::TriggerMenuJsonContainer> m_hltmonitoringJson;
       std::unique_ptr<xAOD::TriggerMenuJsonAuxContainer> m_l1JsonAux;
       std::unique_ptr<xAOD::TriggerMenuJsonContainer> m_l1Json;
       std::unique_ptr<xAOD::TriggerMenuJsonAuxContainer> m_hltpsJsonAux;
@@ -261,6 +276,7 @@ namespace TrigConf {
 
       // The menu JSONs being used in the current event by each slot (wrapped 'const xAOD::TriggerMenuJson' ptr)
       SG::SlotSpecificObj<TriggerMenuJsonPtrWrapper> m_currentHltJson;
+      SG::SlotSpecificObj<TriggerMenuJsonPtrWrapper> m_currentHltmonitoringJson;
       SG::SlotSpecificObj<TriggerMenuJsonPtrWrapper> m_currentL1Json;
       SG::SlotSpecificObj<TriggerMenuJsonPtrWrapper> m_currentHltpsJson;
       SG::SlotSpecificObj<TriggerMenuJsonPtrWrapper> m_currentL1psJson;
@@ -268,6 +284,7 @@ namespace TrigConf {
 
       // The decoded menu JSON data stored in ptree objects
       SG::SlotSpecificObj<HLTMenu> m_currentHlt;
+      SG::SlotSpecificObj<HLTMonitoring> m_currentHltmonitoring;
       SG::SlotSpecificObj<L1Menu> m_currentL1;
       SG::SlotSpecificObj<HLTPrescalesSet> m_currentHltps;
       SG::SlotSpecificObj<L1PrescalesSet> m_currentL1ps;

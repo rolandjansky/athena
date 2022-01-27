@@ -123,7 +123,7 @@ class TileRawChannelBuilderFitFilterCool: public TileRawChannelBuilder
     double m_noiseHigh; // default high gain noise from TileInfo used in simulation
 
     // Pulse shapes
-    TilePulseShapesStruct* m_pulseShapes;
+    const TilePulseShapesStruct* m_pulseShapes;
 
     ToolHandle<TileCondToolPulseShape> m_tileToolPulseShape{this,
         "TileCondToolPulseShape", "TileCondToolPulseShape", "Tile pulse shape tool"};

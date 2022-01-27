@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MDTPRDValAlg.h"
@@ -23,9 +23,7 @@
 
 #include "TTree.h"
 #include <TString.h> // for Form
-#include <string>
 #include <sstream>
-#include <map>
 #include <iostream>
 #include <fstream>
 
@@ -34,7 +32,7 @@ using namespace MuonGM;
 
 MDTPRDValAlg::MDTPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_mdttree(0),
+  m_mdttree(nullptr),
   m_event_counter(0),
 
   m_counter_ValHitNumber(-99),
@@ -99,7 +97,7 @@ MDTPRDValAlg::MDTPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   m_Validation_MDT_RotRadius(-99999.),
   m_Validation_MDT_WireLen(-99999.),
 
-  m_rootsvc(0),
+  m_rootsvc(nullptr),
   m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
   m_rotCreator("Muon::MdtDriftCircleOnTrackCreator/SaggingMdtDriftCircleOnTrackCreator")
 {
@@ -151,7 +149,7 @@ StatusCode MDTPRDValAlg::initialize()
       m_mdttree = new TTree(TString(mdttreeName), "Muon MDT Hits output");
       
       StatusCode status;
-      ITHistSvc* hSvc=0;
+      ITHistSvc* hSvc=nullptr;
       ISvcLocator* svcLocator = Gaudi::svcLocator();
       ATH_CHECK(svcLocator->service("THistSvc", hSvc));
       
@@ -354,7 +352,7 @@ void MDTPRDValAlg::addMcEventCollection( MDTPRDValAlg::TruthMap& truthMap ) cons
     ATH_MSG_WARNING(" MC event size larger than one: exit algorithm ");
   }
   if( msgLvl(MSG::VERBOSE) ) ATH_MSG_VERBOSE(" looping over MC particles ");
-  for (e=mcEvent->begin();e!=mcEvent->end(); e++) {
+  for (e=mcEvent->begin();e!=mcEvent->end(); ++e) {
     for (auto p: (**e)) {
 
       int pdg = p->pdg_id();
@@ -593,7 +591,7 @@ void MDTPRDValAlg::addSimData( MDTPRDValAlg::MuonMdtHitMap& muonMdtHitMap, MDTPR
 
   //Retrieving MDT truth hits from MDT_SDO container 
   std::string  location = "MDT_SDO";
-  const MuonSimDataCollection* sdoContainer = 0;
+  const MuonSimDataCollection* sdoContainer = nullptr;
   if ( !evtStore()->contains<MuonSimDataCollection>(location) ) {
     if( msgLvl(MSG::DEBUG) ) ATH_MSG_DEBUG(" No SimData found at " << location);
     return;
@@ -656,7 +654,7 @@ void MDTPRDValAlg::addSimData( MDTPRDValAlg::MuonMdtHitMap& muonMdtHitMap, MDTPR
 void MDTPRDValAlg::addPrepData( MDTPRDValAlg::MuonMdtHitMap& muonMdtHitMap ) const{
 
   //MDT raw hits....
-  const Muon::MdtPrepDataContainer* mdtPrds = 0;      
+  const Muon::MdtPrepDataContainer* mdtPrds = nullptr;      
   std::string  location = "MDT_DriftCircles";
   if ( !evtStore()->contains<Muon::MdtPrepDataContainer>(location) ) {
     if( msgLvl(MSG::DEBUG) ) ATH_MSG_DEBUG(" No MdtPrepData found at " << location);
@@ -707,7 +705,7 @@ MDTPRDValAlg::MdtHitData* MDTPRDValAlg::findMdtHitData( const Identifier& id, MD
     MdtHitIt pos = it->second.find(id);
     if( pos!=it->second.end() ) return pos->second;
   }
-  return 0;
+  return nullptr;
 }
 
 
@@ -718,7 +716,7 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
   // fill event data
   /** get EventInfo, used to obtain run and event number */
   const xAOD::EventInfo* pevt;
-		
+	const EventContext& ctx = Gaudi::Hive::currentContext();	
 	
   if (evtStore()->retrieve(pevt).isFailure()) {
     ATH_MSG_WARNING("Could not find event");
@@ -827,16 +825,20 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
       const MuonGM::MdtReadoutElement* detEl = mdt->detectorElement();
       if (!detEl) throw std::runtime_error(Form("File: %s, Line: %d\nMDTPRDValAlg::analyseHits() - no associated detectorElement", __FILE__, __LINE__));
 
+      if (not simHit){
+        ATH_MSG_ERROR("simHit pointer is null in MDTPRDValAlg::analyseHits");
+        throw std::runtime_error("simHit pointer is null in  MDTPRDValAlg::analyseHits");
+      }
       // transform to global coords
       Amg::Vector3D simHitPosLoc(simHit->localPosition().x(), simHit->localPosition().y(), simHit->localPosition().z());
       Amg::Vector3D simHitPos(0., 0., 0.);
       double simRadius = 0.;
       double simDistRO = 0.;
-      if( simHit ){
+      
 	simHitPos = detEl->localToGlobalCoords(simHitPosLoc , id );
 	simRadius = simHit->driftRadius();
 	simDistRO = simHit->localPosition().z();
-      }
+      
 
       double sdoRadius = 0.;
       double sdoDistRO = 0.;
@@ -876,8 +878,8 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
 
       const Trk::SaggedLineSurface& sagSurf = detEl->surface(id);
 	
-      const Trk::TrackParameters* expar = m_extrapolator->extrapolateDirectly(muonPerigee,sagSurf,
-								  Trk::alongMomentum,false);
+      const Trk::TrackParameters* expar = m_extrapolator->extrapolateDirectly(ctx,muonPerigee,sagSurf,
+								  Trk::alongMomentum,false).release();
       if( !expar ){
 	ATH_MSG_DEBUG(" extrapolation failed ");
 	continue;
@@ -899,7 +901,7 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
 //
 //  Perform a full extrapolation including material and Eloss
 //
-      const Trk::TrackParameters* exparEloss = m_extrapolator->extrapolate(muonPerigee,sagSurf,Trk::alongMomentum,false);
+      const Trk::TrackParameters* exparEloss = m_extrapolator->extrapolate(ctx,muonPerigee,sagSurf,Trk::alongMomentum,false).release();
       if( !exparEloss ){
 	ATH_MSG_DEBUG(" extrapolation failed ");
 	delete expar;
@@ -920,8 +922,8 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
 	delete exparEloss;
 	continue;
       }
-      const Trk::TrackParameters* exparSag = m_extrapolator->extrapolateDirectly(muonPerigee,*saggedSurface,
-								     Trk::alongMomentum,false);
+      const Trk::TrackParameters* exparSag = m_extrapolator->extrapolateDirectly(ctx, muonPerigee,*saggedSurface,
+								     Trk::alongMomentum,false).release();
       if( !exparSag ){
 	ATH_MSG_DEBUG(" extrapolation failed ");
 	delete saggedSurface;
@@ -955,8 +957,8 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
 	continue;
       }
      
-      const Trk::TrackParameters* exparSagRot = m_extrapolator->extrapolateDirectly(muonPerigee,rot->associatedSurface(),
-									Trk::alongMomentum,false);
+      const Trk::TrackParameters* exparSagRot = m_extrapolator->extrapolateDirectly(ctx,muonPerigee,rot->associatedSurface(),
+									Trk::alongMomentum,false).release();
       if( !exparSagRot ){
 	ATH_MSG_DEBUG(" extrapolation failed ");
         delete rot;

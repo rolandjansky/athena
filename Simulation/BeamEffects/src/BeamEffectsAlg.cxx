@@ -45,7 +45,7 @@ namespace Simulation
     SG::ReadHandle<McEventCollection> h_inputMcEventCollection (m_inputMcEventCollection, ctx);
     SG::WriteHandle<McEventCollection> h_outputMcEventCollection (m_outputMcEventCollection, ctx);
     if(!h_inputMcEventCollection.isValid()) {
-      ATH_MSG_FATAL("No input McEventCollection called " << h_inputMcEventCollection.name() << " in StoreGate.");
+      ATH_MSG_FATAL("No input McEventCollection called " << h_inputMcEventCollection.name() << " in " << h_inputMcEventCollection.store());
       return StatusCode::FAILURE;
     }
     auto outputMcEventCollection = std::make_unique<McEventCollection>(*h_inputMcEventCollection);

@@ -66,24 +66,6 @@ public:
 
   virtual StatusCode initialize() override;
 
-  /** Method to construct a TrackParticle from a passed Track. Currently, it
-  will ONLY fill the MeasuredPerigee i.e. the TrackParticle will not be complete
-  @param track Pointer to a valid track (i.e. do not pass a zero!). Ownership is
-  not taken (i.e. it will not be deleted)
-  @param vxCandidate Pointer to a valid vxCandidate (i.e. do not pass a zero!).
-  Ownership is not taken (i.e. it will not be deleted)
-  @param bsdata BeamSpot data - can be obtained with CondHandle or from a tool.
-  @param prtOrigin
-  @warning In my opinion, the interface is not optimal - we're not taking
-  ownership of the Trk::Track or Vx::Candidate, so they should be passed by
-  reference.
-  */
-  virtual Rec::TrackParticle* createParticle(
-    const EventContext& ctx,
-    const Trk::Track* track,
-    const Trk::VxCandidate* vxCandidate,
-    Trk::TrackParticleOrigin prtOrigin) const override final;
-
   /** Method to construct a xAOD::TrackParticle from a Rec::TrackParticle.
   @param track particle
   @param TrackParticleContainer needed to have an AuxStore, if provided particle
@@ -94,9 +76,10 @@ public:
     const Rec::TrackParticle& trackParticle,
     xAOD::TrackParticleContainer* container) const override final;
 
-  /** Method to construct a xAOD::TrackParticle from a passed Track. Currently,
-  it will ONLY fill the MeasuredPerigee i.e. the TrackParticle will not be
-  complete
+  /** Method to construct a xAOD::TrackParticle from a passed Track.
+  Will keep parameters  based on m_keepParameters,m_keepFirstParameters,
+  m_keepAllPerigee.
+  It will use the exising summary or redo it based on m_useTrackSummaryTool
   @param track Pointer to a valid track (i.e. do not pass a zero!). Ownership is
   not taken (i.e. it will not be deleted)
   @param TrackParticleContainer needed to have an AuxStore, if provided particle
@@ -114,8 +97,10 @@ public:
     xAOD::ParticleHypothesis prtOrigin,
     const Trk::PRDtoTrackMap* prd_to_track_map) const override final;
 
-  /** Method to construct a TrackParticle from a passed Track. Currently, it
-  will ONLY fill the MeasuredPerigee i.e. the TrackParticle will not be complete
+  /** Method to construct a TrackParticle from a passed Track.
+  Will keep parameters  based on m_keepParameters,m_keepFirstParameters,
+  m_keepAllPerigee.
+  It will use the exising summary or redo it based on m_useTrackSummaryTool
   @param track element link to a valid track (i.e. do not pass a zero!).
   @param TrackParticleContainer needed to have an AuxStore, if provided particle
   will be added to store which takes ownership
@@ -208,10 +193,14 @@ private:
   ToolHandle<Muon::IMuonHitSummaryTool> m_hitSummaryTool{
     this,
     "MuonSummaryTool",
-    "Muon::MuonHitSummaryTool/MuonHitSummaryTool"
+    ""
   };
 
-  ServiceHandle<IBLParameterSvc> m_IBLParameterSvc;
+  ServiceHandle<IBLParameterSvc> m_IBLParameterSvc{
+    this,
+    "IBLParameterSvc",
+    "IBLParameterSvc"
+  };
 
   SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey{
     this,
@@ -239,8 +228,6 @@ private:
   static const SG::AuxElement::Accessor<uint8_t> s_trtdEdxUsedHitsDecoration;
 
   bool m_doIBL;
-  bool m_useTrackSummaryTool;
-  bool m_useMuonSummaryTool;
   ///< if the track contains a summary, the shared, expected hit, and PID
   ///< information will be recomputed. The summary of the track is not updated.
   bool m_computeAdditionalInfo;
@@ -264,7 +251,6 @@ private:
   bool m_checkConversion;
   int m_minSiHits;
   double m_minPt;
-  bool m_doITk;
 };
 
 } // end of namespace Trk

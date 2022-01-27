@@ -277,6 +277,18 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
             }
          } catch(std::bad_cast&) {};
 
+         // gJ
+         try {
+            auto gJThr = dynamic_cast<const TrigConf::L1Threshold_gJ &>(*thr);
+            jThr["value"] = int(gJThr.thrValue());
+         } catch(std::bad_cast&) {};
+
+         // gLJ
+         try {
+            auto gLJThr = dynamic_cast<const TrigConf::L1Threshold_gLJ &>(*thr);
+            jThr["value"] = int(gLJThr.thrValue());
+         } catch(std::bad_cast&) {};         
+
          // jXE
          try {
             auto jXEThr = dynamic_cast<const TrigConf::L1Threshold_jXE &>(*thr);
@@ -409,6 +421,7 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
 
       if(thrType == "eEM") {
          auto & eeminfo = l1menu.thrExtraInfo().eEM();
+         jThrType["maxEt"] = (int)eeminfo.maxEt();
          for( auto wp : {TrigConf::Selection::WP::LOOSE, TrigConf::Selection::WP::MEDIUM, TrigConf::Selection::WP::TIGHT} ) {
             auto wpstr = TrigConf::Selection::wpToString(wp);
             jThrType["workingPoints"][wpstr] = json::array_t({});
@@ -431,7 +444,6 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
                jWPIso["etamin"] = iso.etaMin();
                jWPIso["etamax"] = iso.etaMax();
                jWPIso["priority"] = iso.priority();
-               jWPIso["maxEt"] = iso.value().maxEt();
                jThrType["workingPoints"][wpstr] += jWPIso;
             }
          }
@@ -439,6 +451,7 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
 
       if(thrType == "jEM") {
          auto & jeminfo = l1menu.thrExtraInfo().jEM();
+         jThrType["maxEt"] = (int)jeminfo.maxEt();
          jThrType["ptMinToTopo1"] = (int)jeminfo.ptMinToTopo("1A");
          jThrType["ptMinToTopo2"] = (int)jeminfo.ptMinToTopo("2A");
          jThrType["ptMinToTopo3"] = (int)jeminfo.ptMinToTopo("3A");
@@ -467,7 +480,6 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
                jWPIso["etamin"] = iso.etaMin();
                jWPIso["etamax"] = iso.etaMax();
                jWPIso["priority"] = iso.priority();
-               jWPIso["maxEt"] = iso.value().maxEt();
                jThrType["workingPoints"][wpstr] += jWPIso;
             }
          }
@@ -475,6 +487,7 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
 
       if(thrType == "eTAU") {
          auto & eeminfo = l1menu.thrExtraInfo().eTAU();
+         jThrType["maxEt"] = (int)eeminfo.maxEt();
          for( auto wp : {TrigConf::Selection::WP::LOOSE, TrigConf::Selection::WP::MEDIUM, TrigConf::Selection::WP::TIGHT, 
                          TrigConf::Selection::WP::HADLOOSE, TrigConf::Selection::WP::HADMEDIUM, TrigConf::Selection::WP::HADTIGHT} ) {
             auto wpstr = TrigConf::Selection::wpToString(wp);
@@ -490,7 +503,6 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
                stream << std::fixed << std::setprecision(3) << iso.value().rHad_d();
                jWPIso["rHad"] = std::stod(stream.str());
                jWPIso["rHad_fw"] = iso.value().rHad_fw();
-               jWPIso["maxEt"] = iso.value().maxEt();
                jThrType["workingPoints"][wpstr] += jWPIso;
             }
          }
@@ -498,6 +510,7 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
 
       if(thrType == "jTAU") {
          auto & jtauinfo = l1menu.thrExtraInfo().jTAU();
+         jThrType["maxEt"] = (int)jtauinfo.maxEt();
          jThrType["ptMinToTopo1"] = (int)jtauinfo.ptMinToTopo("1A");
          jThrType["ptMinToTopo2"] = (int)jtauinfo.ptMinToTopo("2A");
          jThrType["ptMinToTopo3"] = (int)jtauinfo.ptMinToTopo("3A");
@@ -513,7 +526,6 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
                stream << std::fixed << std::setprecision(3) << iso.value().isolation_d();
                jWPIso["isolation"] = std::stod(stream.str());
                jWPIso["isolation_fw"] = iso.value().isolation_fw();
-               jWPIso["maxEt"] = iso.value().maxEt();
                jThrType["workingPoints"][wpstr] += jWPIso;
             }
          }
@@ -555,6 +567,44 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
          jThrType["ptMinxTOB3"] = (int)jljinfo.ptMinxTOB("3A");
       }
 
+      if(thrType == "gJ") {
+         auto & gjinfo = l1menu.thrExtraInfo().gJ();
+         jThrType["ptMinToTopo1"] = (int)gjinfo.ptMinToTopo(1);
+         jThrType["ptMinToTopo2"] = (int)gjinfo.ptMinToTopo(2);
+      }
+
+      if(thrType == "gLJ") {
+         auto & gljinfo = l1menu.thrExtraInfo().gLJ();
+         jThrType["ptMinToTopo1"] = (int)gljinfo.ptMinToTopo(1);
+         jThrType["ptMinToTopo2"] = (int)gljinfo.ptMinToTopo(2);
+         jThrType["seedThrA"] = (int)gljinfo.seedThr('A');
+         jThrType["seedThrB"] = (int)gljinfo.seedThr('B');
+         jThrType["seedThrC"] = (int)gljinfo.seedThr('C');
+         std::stringstream stream;
+         stream << std::fixed << std::setprecision(3) << gljinfo.rhoTowerMin('A');
+         jThrType["rhoTowerMinA"] = std::stod(stream.str());
+         stream.str("");
+         stream.clear(); 
+         stream << std::fixed << std::setprecision(3) << gljinfo.rhoTowerMin('B');
+         jThrType["rhoTowerMinB"] = std::stod(stream.str());
+         stream.str("");
+         stream.clear();      
+         stream << std::fixed << std::setprecision(3) << gljinfo.rhoTowerMin('C');
+         jThrType["rhoTowerMinC"] = std::stod(stream.str());
+         stream.str("");
+         stream.clear(); 
+         stream << std::fixed << std::setprecision(3) << gljinfo.rhoTowerMax('A');
+         jThrType["rhoTowerMaxA"] = std::stod(stream.str());
+         stream.str("");
+         stream.clear();      
+         stream << std::fixed << std::setprecision(3) << gljinfo.rhoTowerMax('B');
+         jThrType["rhoTowerMaxB"] = std::stod(stream.str());
+         stream.str("");
+         stream.clear();
+         stream << std::fixed << std::setprecision(3) << gljinfo.rhoTowerMax('C');
+         jThrType["rhoTowerMaxC"] = std::stod(stream.str());
+      }
+
       if(thrType == "jXE") {
           // nothing to do for now...
       }
@@ -570,7 +620,25 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
       }
 
       if(thrType == "gXE") {
-          // nothing to do for now...
+         auto & ei = l1menu.thrExtraInfo().gXE();
+         jThrType["seedThrA"] = (int)ei.seedThr('A');
+         jThrType["seedThrB"] = (int)ei.seedThr('B');
+         jThrType["seedThrC"] = (int)ei.seedThr('C');
+         jThrType["XERHO_sigmaPosA"] = ei.XERHO_param('A',true);
+         jThrType["XERHO_sigmaPosB"] = ei.XERHO_param('B',true);
+         jThrType["XERHO_sigmaPosC"] = ei.XERHO_param('C',true);
+         jThrType["XERHO_sigmaNegA"] = ei.XERHO_param('A',false);
+         jThrType["XERHO_sigmaNegB"] = ei.XERHO_param('B',false);
+         jThrType["XERHO_sigmaNegC"] = ei.XERHO_param('C',false);
+         jThrType["XEJWOJ_a_A"] = ei.JWOJ_param('A','a');
+         jThrType["XEJWOJ_a_B"] = ei.JWOJ_param('B','a');
+         jThrType["XEJWOJ_a_C"] = ei.JWOJ_param('C','a');
+         jThrType["XEJWOJ_b_A"] = ei.JWOJ_param('A','b');
+         jThrType["XEJWOJ_b_B"] = ei.JWOJ_param('B','b');
+         jThrType["XEJWOJ_b_C"] = ei.JWOJ_param('C','b');
+         jThrType["XEJWOJ_c_A"] = ei.JWOJ_param('A','c');
+         jThrType["XEJWOJ_c_B"] = ei.JWOJ_param('B','c');
+         jThrType["XEJWOJ_c_C"] = ei.JWOJ_param('C','c');
       }
 
       if(thrType == "gTE") {
@@ -675,7 +743,6 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
          for(auto & algName : l1menu.topoAlgorithmNames(topoCat)) {
             json jalg = json::object_t({});
             auto & alg = l1menu.algorithm(algName,topoCat);
-            jalg["algId"]     = alg.algId();
             jalg["klass"]     = alg.klass();
             // input
             if(alg.type()==L1TopoAlgorithm::AlgorithmType::MULTIPLICITY) {

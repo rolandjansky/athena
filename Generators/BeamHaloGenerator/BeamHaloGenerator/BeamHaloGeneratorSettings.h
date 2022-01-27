@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BEAMHALOGENERATORSETTINGS_H
@@ -27,7 +27,7 @@ class BeamHaloGeneratorSettings {
 
   /** Construct a class with a vector of string settings to filter
       particles.*/
-  BeamHaloGeneratorSettings(std::vector<std::string> settings);
+  BeamHaloGeneratorSettings(const std::vector<std::string>& settings);
 
   /** A function to parse the settings using the vector of strings
       given to the constructor of this class.

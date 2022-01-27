@@ -22,8 +22,6 @@ class HGTD_ID;
 class StoreGateSvc;
 class HGTD_DetectorManager;
 
-namespace HGTD {
-
 class HGTD_ClusterContainerCnv_p1
     : public T_AthenaPoolTPCnvBase<HGTD_ClusterContainer,
                                    HGTD_ClusterContainer_p1> {
@@ -48,7 +46,5 @@ private:
 
   bool m_is_initialized;
 };
-
-} // namespace HGTD
 
 #endif

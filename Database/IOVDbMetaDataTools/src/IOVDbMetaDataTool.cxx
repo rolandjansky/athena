@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -21,7 +21,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "IOVDbDataModel/IOVMetaDataContainer.h"
 
-#include "CxxUtils/checker_macros.h"
 
 IOVDbMetaDataTool::IOVDbMetaDataTool(const std::string& type, 
                                      const std::string& name, 
@@ -64,14 +63,14 @@ StatusCode IOVDbMetaDataTool::initialize()
 {
   ATH_MSG_DEBUG("in initialize()");
 
-  // locate the meta data stores
-  ATH_CHECK(m_metaDataStore.retrieve());
-  ATH_CHECK(m_inputStore.retrieve());
-
   // Set to be listener for FirstInputFile
   ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", this->name());
   ATH_CHECK(incSvc.retrieve());
   incSvc->addListener(this, "FirstInputFile", 60); // pri has to be < 100 to be after MetaDataSvc.
+
+  // locate the meta data stores
+  ATH_CHECK(m_metaDataStore.retrieve());
+  ATH_CHECK(m_inputStore.retrieve());
 
   // Check whether folders need to be modified
   m_modifyFolders = (m_foldersToBeModified.value().size()>0);
@@ -270,8 +269,7 @@ StatusCode IOVDbMetaDataTool::addPayload (const std::string& folderName
 
   // Override run number if requested
   if (m_overrideRunNumber || m_overrideMinMaxRunNumber) {
-    StatusCode sc = overrideIOV(payload);
-    ATH_CHECK( sc );
+    ATH_CHECK( overrideIOV(payload) );
   }
 
   // Add payload to container
@@ -302,8 +300,8 @@ StatusCode IOVDbMetaDataTool::addPayload (const std::string& folderName
 //--------------------------------------------------------------------------
 
 StatusCode
-IOVDbMetaDataTool::modifyPayload ATLAS_NOT_THREAD_SAFE  (const std::string& folderName, 
-                                                         CondAttrListCollection*& coll) const
+IOVDbMetaDataTool::modifyPayload (const std::string& folderName, 
+                                  CondAttrListCollection*& coll) const
 {
     // protected by lock in processInputFileMetaData()
 
@@ -515,19 +513,13 @@ StatusCode IOVDbMetaDataTool::processInputFileMetaData(const std::string& fileNa
 	CondAttrListCollection* coll = new CondAttrListCollection(**itColl);
 	// Override run number if requested
 	if (m_overrideRunNumber || m_overrideMinMaxRunNumber) {
-          StatusCode sc = overrideIOV(coll);
-          ATH_CHECK( sc );
+          ATH_CHECK( overrideIOV(coll) );
         }
 
 	// first check if we need to modify the incoming payload
-        {
-          // Should be ok.
-          StatusCode sc ATLAS_THREAD_SAFE =
-            modifyPayload (contMaster->folderName(), coll);
-          if (!sc.isSuccess()) {
-            ATH_MSG_ERROR("processInputFileMetaData: Could not modify the payload for folder " << contMaster->folderName());
-            return StatusCode::FAILURE;
-          }
+	if (!modifyPayload (contMaster->folderName(), coll).isSuccess()) {
+          ATH_MSG_ERROR("processInputFileMetaData: Could not modify the payload for folder " << contMaster->folderName());
+          return StatusCode::FAILURE;
         }
 
 	ATH_MSG_VERBOSE("processInputFileMetaData: merge minRange: " << coll->minRange());

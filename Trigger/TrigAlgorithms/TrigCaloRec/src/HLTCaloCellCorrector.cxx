@@ -49,7 +49,8 @@ StatusCode HLTCaloCellCorrector::execute(EventContext const& context) const {
   SG::WriteHandle<CaloConstCellContainer> outputCellHandle(m_outputCellContainerKey, context);
 
   auto eventShape = *eventShapeHandle;
-  auto outputCells = std::make_unique<CaloConstCellContainer>(SG::VIEW_ELEMENTS);
+  //auto outputCells = std::make_unique<CaloConstCellContainer>(SG::VIEW_ELEMENTS);
+  auto outputCells = std::make_unique<CaloConstCellContainer>();
 
   for (auto const* cell : *inputCellHandle) {
     std::unique_ptr<CaloCell> copy = cell->clone();

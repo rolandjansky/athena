@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "tauRecTools/CaloClusterVariables.h"
@@ -16,16 +16,16 @@ const double CaloClusterVariables::DEFAULT = -1111.;
 //****************************************
 
 CaloClusterVariables::CaloClusterVariables() :
-m_numConstit((int) DEFAULT),
-m_effNumConstit_int((int) DEFAULT),
-m_effNumConstit(DEFAULT),
-m_aveRadius(DEFAULT),
-m_aveEffRadius(DEFAULT),
-m_totMass(DEFAULT),
-m_effMass(DEFAULT),
-m_totEnergy(DEFAULT),
-m_effEnergy(DEFAULT) {
-}
+  m_numConstit((int) DEFAULT),
+  m_effNumConstit_int((int) DEFAULT),
+  m_effNumConstit(DEFAULT),
+  m_aveRadius(DEFAULT),
+  m_aveEffRadius(DEFAULT),
+  m_totMass(DEFAULT),
+  m_effMass(DEFAULT),
+  m_totEnergy(DEFAULT),
+  m_effEnergy(DEFAULT) {
+  }
 
 //*******************************************
 // update/fill the cluster based variables
@@ -33,139 +33,139 @@ m_effEnergy(DEFAULT) {
 
 bool CaloClusterVariables::update(const xAOD::TauJet& pTau) {
     
-    const auto& vertexedClusterList = pTau.vertexedClusters();
+  const auto& vertexedClusterList = pTau.vertexedClusters();
 
-    std::vector<TLorentzVector> clusterP4Vector;
-    clusterP4Vector.reserve(vertexedClusterList.size());
+  std::vector<TLorentzVector> clusterP4Vector;
+  clusterP4Vector.reserve(vertexedClusterList.size());
 
-    for (const xAOD::CaloVertexedTopoCluster& vertexedCluster : vertexedClusterList) {
-         clusterP4Vector.push_back(vertexedCluster.p4());
-    }
+  for (const xAOD::CaloVertexedTopoCluster& vertexedCluster : vertexedClusterList) {
+    clusterP4Vector.push_back(vertexedCluster.p4());
+  }
 
-    this->m_numConstit = (int) clusterP4Vector.size();
+  this->m_numConstit = (int) clusterP4Vector.size();
 
-    // Order constituents by energy
-    sort(clusterP4Vector.begin(), clusterP4Vector.end(), CaloClusterCompare());
+  // Order constituents by energy
+  sort(clusterP4Vector.begin(), clusterP4Vector.end(), CaloClusterCompare());
 
-    //****************************************
-    // Looping over all constituents
-    //****************************************
+  //****************************************
+  // Looping over all constituents
+  //****************************************
 
-    double sum_px = 0;
-    double sum_py = 0;
-    double sum_pz = 0;
-    double sum_e = 0;
-    double sum_of_E2 = 0;
-    double sum_radii = 0;
-    TLorentzVector centroid = calculateTauCentroid(this->m_numConstit, clusterP4Vector);
+  double sum_px = 0.;
+  double sum_py = 0.;
+  double sum_pz = 0.;
+  double sum_e = 0.;
+  double sum_of_E2 = 0.;
+  double sum_radii = 0.;
+  TLorentzVector centroid = calculateTauCentroid(this->m_numConstit, clusterP4Vector);
 
-    for (const TLorentzVector& clusterP4 : clusterP4Vector) {
-        double energy = clusterP4.E();
-        sum_of_E2 += energy*energy;
+  for (const TLorentzVector& clusterP4 : clusterP4Vector) {
+    double energy = clusterP4.E();
+    sum_of_E2 += energy*energy;
 
-        double px = clusterP4.Px();
-        double py = clusterP4.Py();
-        double pz = clusterP4.Pz();
-        double dr = clusterP4.DeltaR(centroid);
-        sum_radii += dr;
-        sum_e += energy;
-        sum_px += px;
-        sum_py += py;
-        sum_pz += pz;
-    }
+    double px = clusterP4.Px();
+    double py = clusterP4.Py();
+    double pz = clusterP4.Pz();
+    double dr = clusterP4.DeltaR(centroid);
+    sum_radii += dr;
+    sum_e += energy;
+    sum_px += px;
+    sum_py += py;
+    sum_pz += pz;
+  }
 
-    // Sum up the energy for constituents
-    this->m_totEnergy = sum_e;
+  // Sum up the energy for constituents
+  this->m_totEnergy = sum_e;
 
-    // Calculate the mass of the constituents
-    if (this->m_numConstit < 2) this->m_totMass = DEFAULT;
-    else {
-        double mass2 = sum_e * sum_e - (sum_px * sum_px + sum_py * sum_py + sum_pz * sum_pz);
-        this->m_totMass = mass2 > 0 ? std::sqrt(mass2) : -std::sqrt(-mass2);
-    }
+  // Calculate the mass of the constituents
+  if (this->m_numConstit < 2) this->m_totMass = DEFAULT;
+  else {
+    double mass2 = sum_e * sum_e - (sum_px * sum_px + sum_py * sum_py + sum_pz * sum_pz);
+    this->m_totMass = mass2 > 0 ? std::sqrt(mass2) : -std::sqrt(-mass2);
+  }
 
-    // Calculate the average radius of the constituents wrt the tau centroid
-    this->m_aveRadius = this->m_numConstit > 0 ? sum_radii / this->m_numConstit : DEFAULT;
+  // Calculate the average radius of the constituents wrt the tau centroid
+  this->m_aveRadius = this->m_numConstit > 0 ? sum_radii / this->m_numConstit : DEFAULT;
 
-    // Effective number of constituents
-    this->m_effNumConstit = sum_of_E2 > 0 ? (sum_e * sum_e) / (sum_of_E2) : DEFAULT;
+  // Effective number of constituents
+  this->m_effNumConstit = sum_of_E2 > 0 ? (sum_e * sum_e) / (sum_of_E2) : DEFAULT;
 
-    this->m_effNumConstit_int = int(ceil(this->m_effNumConstit));
+  this->m_effNumConstit_int = int(ceil(this->m_effNumConstit));
 
-    // A problem!
-    if (this->m_effNumConstit_int > this->m_numConstit) return false;
+  // A problem!
+  if (this->m_effNumConstit_int > this->m_numConstit) return false;
 
-    // Avoid segfault, happens when we try to iterate below if sum_of_E2 was 0 or negative
-    if (this->m_effNumConstit_int < 0) return false;
+  // Avoid segfault, happens when we try to iterate below if sum_of_E2 was 0 or negative
+  if (this->m_effNumConstit_int < 0) return false;
 
-    //****************************************
-    // Now: Looping over effective constituents
-    //****************************************
+  //****************************************
+  // Now: Looping over effective constituents
+  //****************************************
 
-    sum_px = 0;
-    sum_py = 0;
-    sum_pz = 0;
-    sum_e = 0;
-    sum_of_E2 = 0;
-    sum_radii = 0;
-    centroid = calculateTauCentroid(this->m_effNumConstit_int, clusterP4Vector);
+  sum_px = 0.;
+  sum_py = 0.;
+  sum_pz = 0.;
+  sum_e = 0.;
+  sum_of_E2 = 0.;
+  sum_radii = 0.;
+  centroid = calculateTauCentroid(this->m_effNumConstit_int, clusterP4Vector);
 
-    int icount = this->m_effNumConstit_int;
-    for (const TLorentzVector& clusterP4 : clusterP4Vector) {
-      if (icount <= 0) break;
-      --icount;
+  int icount = this->m_effNumConstit_int;
+  for (const TLorentzVector& clusterP4 : clusterP4Vector) {
+    if (icount <= 0) break;
+    --icount;
 
-        double energy = clusterP4.E();
-        double px = clusterP4.Px();
-        double py = clusterP4.Py();
-        double pz = clusterP4.Pz();
-        double dr = clusterP4.DeltaR(centroid);
-        sum_radii += dr;
+    double energy = clusterP4.E();
+    double px = clusterP4.Px();
+    double py = clusterP4.Py();
+    double pz = clusterP4.Pz();
+    double dr = clusterP4.DeltaR(centroid);
+    sum_radii += dr;
 
-        sum_e += energy;
-        sum_px += px;
-        sum_py += py;
-        sum_pz += pz;
-    }
+    sum_e += energy;
+    sum_px += px;
+    sum_py += py;
+    sum_pz += pz;
+  }
 
-    // Sum up the energy for effective constituents
-    this->m_effEnergy = sum_e;
+  // Sum up the energy for effective constituents
+  this->m_effEnergy = sum_e;
 
-    // Calculate the mass of the constituents
-    if (this->m_effNumConstit_int < 2) this->m_effMass = DEFAULT;
-    else {
-        double mass2 = sum_e * sum_e - (sum_px * sum_px + sum_py * sum_py + sum_pz * sum_pz);
-        this->m_effMass = mass2 > 0 ? std::sqrt(mass2) : -std::sqrt(-mass2);
-    }
+  // Calculate the mass of the constituents
+  if (this->m_effNumConstit_int < 2) this->m_effMass = DEFAULT;
+  else {
+    double mass2 = sum_e * sum_e - (sum_px * sum_px + sum_py * sum_py + sum_pz * sum_pz);
+    this->m_effMass = mass2 > 0 ? std::sqrt(mass2) : -std::sqrt(-mass2);
+  }
 
-    // Calculate the average radius of the constituents wrt the tau centroid
-    this->m_aveEffRadius = this->m_effNumConstit_int > 0 ? sum_radii / this->m_effNumConstit_int : DEFAULT;
+  // Calculate the average radius of the constituents wrt the tau centroid
+  this->m_aveEffRadius = this->m_effNumConstit_int > 0 ? sum_radii / this->m_effNumConstit_int : DEFAULT;
 
-    return true;
+  return true;
 }
 
 
 //***********************************************************
 // Calculate the geometrical center of the tau constituents
 //***********************************************************
-TLorentzVector CaloClusterVariables::calculateTauCentroid(int nConst, const std::vector<TLorentzVector>& clusterP4Vector) {
+TLorentzVector CaloClusterVariables::calculateTauCentroid(int nConst, const std::vector<TLorentzVector>& clusterP4Vector) const {
 
-    double px = 0;
-    double py = 0;
-    double pz = 0;
-    double current_px, current_py, current_pz, modulus;
+  double px = 0.;
+  double py = 0.;
+  double pz = 0.;
+  double current_px, current_py, current_pz, modulus;
 
-    for (const TLorentzVector& clusterP4: clusterP4Vector) {
-      if (nConst <= 0) break;
-      --nConst;
-        current_px = clusterP4.Px();
-        current_py = clusterP4.Py();
-        current_pz = clusterP4.Pz();
-        modulus = sqrt(current_px * current_px + current_py * current_py + current_pz * current_pz);
-        px += current_px / modulus;
-        py += current_py / modulus;
-        pz += current_pz / modulus;
-    }
-    TLorentzVector centroid(px, py, pz, 1);
-    return centroid;
+  for (const TLorentzVector& clusterP4: clusterP4Vector) {
+    if (nConst <= 0) break;
+    --nConst;
+    current_px = clusterP4.Px();
+    current_py = clusterP4.Py();
+    current_pz = clusterP4.Pz();
+    modulus = std::sqrt(current_px * current_px + current_py * current_py + current_pz * current_pz);
+    px += current_px / modulus;
+    py += current_py / modulus;
+    pz += current_pz / modulus;
+  }
+  TLorentzVector centroid(px, py, pz, 1);
+  return centroid;
 }

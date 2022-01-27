@@ -6,14 +6,15 @@ from G4AtlasTools.G4AtlasToolsConfigNew import SensitiveDetectorMasterToolCfg, F
 from G4AtlasServices.G4AtlasUserActionConfigNew import UserActionSvcCfg
 from G4AtlasApps.G4Atlas_MetadataNew import writeSimulationParametersMetadata
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 
 
 def G4AtlasAlgBasicCfg(ConfigFlags, name="G4AtlasAlg", **kwargs):
     """Return ComponentAccumulator configured for Atlas G4 simulation, without output"""
     # wihout output
-    result = DetectorGeometrySvcCfg(ConfigFlags)
-    kwargs.setdefault("DetGeoSvc", result.getService("DetectorGeometrySvc"))
+    result = ComponentAccumulator()
+    kwargs.setdefault("DetGeoSvc", result.getPrimaryAndMerge(DetectorGeometrySvcCfg(ConfigFlags)).name)
 
     kwargs.setdefault("InputTruthCollection", "BeamTruthEvent") #tocheck -are these string inputs?
     kwargs.setdefault("OutputTruthCollection", "TruthEvent")
@@ -35,9 +36,9 @@ def G4AtlasAlgBasicCfg(ConfigFlags, name="G4AtlasAlg", **kwargs):
     ## default true
     kwargs.setdefault("KillAbortedEvents", ConfigFlags.Sim.KillAbortedEvents)
 
-    from RngComps.RandomServices import RNG
-    result.merge(RNG(ConfigFlags.Random.Engine, name="AthRNGSvc"))
-    kwargs.setdefault("AtRndmGenSvc", result.getService("AthRNGSvc"))
+    from RngComps.RandomServices import AthRNGSvcCfg
+    kwargs.setdefault("AtRndmGenSvc",
+                      result.getPrimaryAndMerge(AthRNGSvcCfg(ConfigFlags)).name)
 
     kwargs.setdefault("RandomGenerator", "athena")
 
@@ -46,21 +47,11 @@ def G4AtlasAlgBasicCfg(ConfigFlags, name="G4AtlasAlg", **kwargs):
     is_hive = ConfigFlags.Concurrency.NumThreads > 0
     kwargs.setdefault("MultiThreading", is_hive)
 
-
-    accMCTruth = TruthServiceCfg(ConfigFlags)
-    truthSvcName = accMCTruth.getPrimary().getName()
-    result.merge(accMCTruth)
-    kwargs.setdefault("TruthRecordService", result.getService(truthSvcName))
-    #kwargs.setdefault("TruthRecordService", ConfigFlags.Sim.TruthStrategy) # TODO need to have manual override (simFlags.TruthStrategy.TruthServiceName())
-
-    accGeoID = GeoIDSvcCfg(ConfigFlags)
-    result.merge(accGeoID)
-    kwargs.setdefault("GeoIDSvc", result.getService("ISF_GeoIDSvc"))
+    kwargs.setdefault("TruthRecordService", result.getPrimaryAndMerge(TruthServiceCfg(ConfigFlags)).name)
+    kwargs.setdefault("GeoIDSvc", result.getPrimaryAndMerge(GeoIDSvcCfg(ConfigFlags)).name)
 
     #input converter
-    accInputConverter = InputConverterCfg(ConfigFlags)
-    result.merge(accInputConverter)
-    kwargs.setdefault("InputConverter", result.getService("ISF_InputConverter"))
+    kwargs.setdefault("InputConverter", result.getPrimaryAndMerge(InputConverterCfg(ConfigFlags)).name)
 
     #sensitive detector master tool
     SensitiveDetector = result.popToolsAndMerge(SensitiveDetectorMasterToolCfg(ConfigFlags))
@@ -76,12 +67,10 @@ def G4AtlasAlgBasicCfg(ConfigFlags, name="G4AtlasAlg", **kwargs):
     result.merge(writeSimulationParametersMetadata(ConfigFlags))
 
     #User action services (Slow...)
-    result.merge( UserActionSvcCfg(ConfigFlags) )
-    kwargs.setdefault("UserActionSvc", result.getService( "G4UA::UserActionSvc") )
+    kwargs.setdefault("UserActionSvc", result.getPrimaryAndMerge(UserActionSvcCfg(ConfigFlags)).name)
 
     #PhysicsListSvc
-    result.merge( PhysicsListSvcCfg(ConfigFlags) )
-    kwargs.setdefault("PhysicsListSvc", result.getService( "PhysicsListSvc") )
+    kwargs.setdefault("PhysicsListSvc", result.getPrimaryAndMerge(PhysicsListSvcCfg(ConfigFlags)).name)
 
     ## G4AtlasAlg verbosities (available domains = Navigator, Propagator, Tracking, Stepping, Stacking, Event)
     ## Set stepper verbose = 1 if the Athena logging level is <= DEBUG

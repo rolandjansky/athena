@@ -8,12 +8,15 @@
 
 #include "L1TopoEvent/BaseTOB.h"
 #include "L1TopoEvent/JetTOB.h"
+#include "L1TopoEvent/gJetTOB.h"
 #include "L1TopoEvent/jTauTOB.h"
+#include "L1TopoEvent/eTauTOB.h"
 #include "L1TopoEvent/jLargeRJetTOB.h"
+#include "L1TopoEvent/gLargeRJetTOB.h"
 #include "L1TopoEvent/jJetTOB.h"
 #include "L1TopoEvent/ClusterTOB.h"
 #include "L1TopoEvent/eEmTOB.h"
-#include "L1TopoEvent/eTauTOB.h"
+#include "L1TopoEvent/jEmTOB.h"
 #include "L1TopoEvent/cTauTOB.h"
 #include "L1TopoEvent/MuonTOB.h"
 #include "L1TopoEvent/LateMuonTOB.h"
@@ -40,14 +43,23 @@ namespace TCS {
       // constructor from jet
       GenericTOB(const JetTOB & jet, JetTOB::JetSize jetSize);
 
-      // constructor from small r jet
+      // constructor from jtaus
       GenericTOB(const jTauTOB & tau);
 
-      // constructor from small r jet
+      // constructor from jEm
+      GenericTOB(const jEmTOB & jem);
+
+      // constructor from large r jet
       GenericTOB(const jLargeRJetTOB & jet);
+
+      // constructor from large r gjet
+      GenericTOB(const gLargeRJetTOB & jet);
 
       // constructor from small r jet
       GenericTOB(const jJetTOB & jet);
+
+      // constructor from small r gjet
+      GenericTOB(const gJetTOB & jet);
 
       // constructor from cluster
       GenericTOB(const ClusterTOB & cluster);
@@ -92,9 +104,13 @@ namespace TCS {
       int eta() const { return m_eta; }
       int phi() const { return m_phi; }
 
+      //eEm
       unsigned int Reta() const { return m_reta; }
       unsigned int Rhad() const { return m_rhad; }
       unsigned int Wstot() const { return m_wstot; }
+
+      //eTau
+      unsigned int fcore() const { return m_fcore; }
 
       // See definitions at TrigT1Interfaces/MuCTPIL1TopoCandidate.h 
       int bw2or3() const { return m_bw2or3; }
@@ -106,6 +122,9 @@ namespace TCS {
       double EtDouble() const { return m_EtDouble; }
       double etaDouble() const { return m_etaDouble; }
       double phiDouble() const { return m_phiDouble; }
+
+      //jtau isolation 
+      unsigned int jtauiso() const { return m_jtauiso; }
 
       virtual void print(std::ostream &o) const;
 
@@ -137,6 +156,9 @@ namespace TCS {
       unsigned int m_reta {0};
       unsigned int m_rhad {0};
       unsigned int m_wstot {0};
+
+      unsigned int m_jtauiso {0};
+      unsigned int m_fcore {0};
       
       inputTOBType_t   m_tobType { NONE };
 

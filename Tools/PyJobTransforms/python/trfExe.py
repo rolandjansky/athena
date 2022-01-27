@@ -1214,6 +1214,27 @@ class athenaExecutor(scriptExecutor):
             msg.info('scanning {0} for reporting events passed the filter ISF_SimEventFilter'.format(self._logFileName))
             self._resimevents = reportEventsPassedSimFilter(self._logFileName)
 
+        # Remove intermediate input/output files of sub-steps
+        # Delete only files with io="temporay" which are files with pattern "tmp*"
+        # Some stubs like tmp.RDO_TRIG_000 created in AthenaMP mode or
+        # tmp.HIST_ESD_INT, tmp.HIST_AOD_INT as input to DQHistogramMerge.py are not deleted
+        # Enable if --deleteIntermediateOutputfiles is set
+        if ('deleteIntermediateOutputfiles' in self.conf._argdict and self.conf._argdict['deleteIntermediateOutputfiles'].value):
+          inputDataDictionary = dict([ (dataType, self.conf.dataDictionary[dataType]) for dataType in self._input ])
+
+          for k, v in inputDataDictionary.items():
+            if not v.io == 'temporary':
+              continue
+            for filename in v.value:
+              if os.access(filename, os.R_OK) and not filename.startswith("/cvmfs"):
+                msg.info("Removing intermediate {0} input file {1}".format(k, filename))
+                # Check if symbolic link and delete also linked file
+                if (os.path.realpath(filename) != filename):
+                  targetpath = os.path.realpath(filename)
+                os.unlink(filename)
+                if (targetpath) and os.access(targetpath, os.R_OK):
+                  os.unlink(targetpath)
+
 
     def validate(self):
         self.setValStart()

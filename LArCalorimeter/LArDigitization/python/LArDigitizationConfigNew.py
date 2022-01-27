@@ -217,6 +217,57 @@ def LArOverlayCfg(flags, **kwargs):
     return acc
 
 
+def LArAutoCorrNoiseCondSCAlgCfg(flags, **kwargs):
+    acc = ComponentAccumulator()
+
+    requiredConditions=["AutoCorrSC"]
+    from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDBMCSCCfg
+    acc.merge(LArElecCalibDBMCSCCfg(flags,requiredConditions))
+    kwargs.setdefault("LArAutoCorrObjKey", "LArAutoCorrSC") # Provided by LArFlatConditionsAlg<LArAutoCorrSC>
+
+    from LArCabling.LArCablingConfig import LArOnOffIdMappingSCCfg
+    acc.merge(LArOnOffIdMappingSCCfg(flags))
+    kwargs.setdefault("LArOnOffIdMappingObjKey", 'LArOnOffIdMapSC')
+    kwargs.setdefault("nSampl", flags.LAr.ROD.nSamples + 2) # See ATLASSIM-5483
+    kwargs.setdefault("isSuperCell", True)
+    kwargs.setdefault("LArAutoCorrNoiseObjKey", "LArAutoCorrNoiseSC") # output
+    acc.addCondAlgo(CompFactory.LArAutoCorrNoiseCondAlg(name="LArAutoCorrNoiseSCCondAlg", **kwargs))
+    return acc
+
+
+def LArSCL1MakerCfg(flags, **kwargs):
+    """Return ComponentAccumulator for LArSCL1Maker"""
+    acc = LArDigitizationBasicCfg(flags)
+    kwargs.setdefault("LArHitEMapKey", "StoreGateSvc+LArHitEMap") # Provided by LArPileUpTool
+
+    from LArRecUtils.LArADC2MeVSCCondAlgConfig import LArADC2MeVSCCondAlgCfg
+    acc.merge(LArADC2MeVSCCondAlgCfg(flags))
+    kwargs.setdefault("LArADC2MeVKey", "ConditionStore+LArADC2MeVSC") # Provided by LArADC2MeVSCCondAlg
+
+    from LArCabling.LArCablingConfig import LArOnOffIdMappingSCCfg
+    acc.merge(LArOnOffIdMappingSCCfg(flags))
+    # '<prefix>/LAR/IdentifierOfl/OnOffIdMap_SC</prefix> <tag>LARIdentifierOflOnOffIdMap_SC-000</tag>' Do we need to add this override in the IOVDbSvc or just add the conditions properly in the Run3 conditions global tag???
+    kwargs.setdefault("ScCablingKey", "ConditionStore+LArOnOffIdMapSC") # Provided by LArOnOffMappingAlgSC
+
+    requiredConditions=["fSamplSC","ShapeSC","PedestalSC","NoiseSC"]
+    from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDBMCSCCfg
+    acc.merge(LArElecCalibDBMCSCCfg(flags,requiredConditions))
+    kwargs.setdefault("FracSKey", "ConditionStore+LArfSamplSC") # Provided by LArFlatConditionsAlg<LArfSamplSC>
+    kwargs.setdefault("ShapeKey", "ConditionStore+LArShapeSC") # Provided by LArFlatConditionsAlg<LArShapeSC>
+    kwargs.setdefault("PedestalKey", "ConditionStore+LArPedestalSC") # Provided by LArFlatConditionsAlg<LArPedestalSC>
+    kwargs.setdefault("LArNoiseKey", "ConditionStore+LArNoiseSC") # Provided by LArFlatConditionsAlg<LArNoiseSC>
+
+    acc.merge(LArAutoCorrNoiseCondSCAlgCfg(flags))
+    kwargs.setdefault("LArAutoCorrKey", "ConditionStore+LArAutoCorrNoiseSC") # Provided by LArAutoCorrNoiseCondAlg/LArAutoCorrNoiseSCCondAlg
+    kwargs.setdefault("NSamples", flags.LAr.ROD.nSamples + 2)  # For consistency with LArAutoCorrNoiseSC - see ATLASSIM-5483
+    from RngComps.RandomServices import AthRNGSvcCfg
+    kwargs.setdefault("RndmSvc",
+                      acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
+    kwargs.setdefault("SCL1ContainerName","LArDigitSCL2") # Output - why L2??
+    acc.addEventAlgo(CompFactory.LArSCL1Maker(**kwargs))
+    return acc
+
+
 def LArTriggerDigitizationBasicCfg(flags, **kwargs):
     """Return ComponentAccumulator for LAr Trigger Tower"""
     acc = LArDigitizationBasicCfg(flags)
@@ -230,6 +281,12 @@ def LArTriggerDigitizationBasicCfg(flags, **kwargs):
         kwargs.setdefault("HadTTL1ContainerName", flags.Overlay.BkgPrefix + "LArTTL1HAD")
     LArTTL1Maker = CompFactory.LArTTL1Maker
     acc.addEventAlgo(LArTTL1Maker(**kwargs))
+    if flags.GeoModel.Run in ['RUN3']:
+        acc.merge(LArSCL1MakerCfg(flags))
+        if flags.Common.ProductionStep is not ProductionStep.PileUpPresampling:
+            from LArROD.LArSuperCellBuilderConfig import LArSuperCellBuilderAlgCfg,LArSuperCellBCIDAlgCfg
+            acc.merge(LArSuperCellBuilderAlgCfg(flags))
+            acc.merge(LArSuperCellBCIDAlgCfg(flags))
     return acc
 
 
@@ -238,6 +295,11 @@ def LArTriggerDigitizationCfg(flags, **kwargs):
     acc = LArTriggerDigitizationBasicCfg(flags)
     acc.merge(LArOutputCfg(flags))
     acc.merge(OutputStreamCfg(flags, "RDO", ["LArTTL1Container#*"]))
+    if flags.GeoModel.Run in ['RUN3']:
+        if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
+            acc.merge(OutputStreamCfg(flags, "RDO", ["LArDigitContainer#" + flags.Overlay.BkgPrefix + "LArDigitSCL2"]))
+        else:
+            acc.merge(OutputStreamCfg(flags, "RDO", ["CaloCellContainer#SCell"]))
     return acc
 
 

@@ -66,6 +66,13 @@ class jFEXDriver : public AthAlgorithm
   
   // This string is used to convert the m_PileupweigthFile file in a readable file for jFEX
   std::string m_PileupHelperFile;
+  
+    //histograms need to set coordinates and noise subtraction
+    TH1F* m_jTowerArea_hist;
+    TH1I* m_Firmware2BitwiseID;
+    TH1I* m_BinLayer;
+    TH1F* m_EtaCoords;
+    TH1F* m_PhiCoords;
 
 
 };

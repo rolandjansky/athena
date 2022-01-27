@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-// $Id$
 /**
  * @file CxxUtils/src/ConcurrentBitset.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -234,15 +233,17 @@ bool ConcurrentBitset::Impl::none() const
  */
 bool ConcurrentBitset::Impl::all() const
 {
+  if (m_nblocks == 0) {
+    return true;
+  }
+
   // Check all blocks except the last.
   for (bit_t i = 0; i < m_nblocks-1; i++) {
     if (m_data[i] != ~static_cast<Block_t>(0)) return false;
   }
   // Special case for the last, since the last block may not be full.
-  if (m_nblocks > 0) {
-    if (m_data[m_nblocks] != ones<Block_t> (m_nbits - (m_nblocks-1)*BLOCKSIZE)) {
-      return false;
-    }
+  if (m_data[m_nblocks] != ones<Block_t> (m_nbits - (m_nblocks-1)*BLOCKSIZE)) {
+    return false;
   }
   return true;
 }

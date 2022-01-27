@@ -13,15 +13,14 @@
 
 */
 
-// INCLUDE HEADER FILES:
+#include "egammaInterfaces/IegammaSwTool.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "CaloRec/CaloClusterProcessor.h"
 #include "GaudiKernel/EventContext.h"
-#include "egammaInterfaces/IegammaSwTool.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
 
-class egammaSwTool
+class egammaSwTool final
   : public AthAlgTool
   , virtual public IegammaSwTool
 {

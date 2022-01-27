@@ -169,22 +169,13 @@ namespace TrigCompositeUtils {
       ss << "  ";
     }
 
-    ss << "|-> " << nodeEL.dataID() << " #" << nodeEL.index() << " Name(" << node->name() << ") Passing(";
-    bool first = true;
-    for (DecisionID id : node->decisions()) {
-      if (!first) ss << ",";
-      first = false;
-      ss << id;
+    ss << "|-> " << nodeEL.dataID() << " #" << nodeEL.index() << " Name(" << node->name() << ") Passing(" << node->decisions().size() << ")";
+    if (node->hasObjectLink("feaure")) {
+      uint32_t key, clid;
+      uint16_t index;
+      node->typelessGetObjectLink("feature", key, clid, index);
+      ss << " feature(" << key << ")";
     }
-    ss << ") IParticles(";
-    std::vector<std::string> links = node->getObjectNames<xAOD::IParticleContainer>();
-    first = true;
-    for (const std::string& link : links) {
-      if (!first) ss << ",";
-      first = false;
-      ss << link;
-    }
-    ss << ")";
     log << msgLevel << ss.str() << endmsg;
     for (const NavGraphNode* seed : nav.seeds()) {
       recursivePrintNavPath(*seed, level + 1, log, msgLevel);

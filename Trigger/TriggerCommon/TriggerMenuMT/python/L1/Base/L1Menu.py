@@ -3,12 +3,14 @@
 from .CTP import CTP
 from .Items import MenuItemsCollection
 from .Thresholds import MenuThresholdsCollection
-from .TopoAlgorithms import MenuTopoAlgorithmsCollection
+from .TopoAlgorithms import MenuTopoAlgorithmsCollection, AlgType, AlgCategory
 from .Boards import MenuBoardsCollection
-from .Connectors import MenuConnectorsCollection
+from .Connectors import MenuConnectorsCollection, CType
 from .MenuUtils import get_smk_psk_Name
 from .Limits import Limits
 from .L1MenuFlags import L1MenuFlags
+from .ThresholdType import ThrType
+from ..Config.TypeWideThresholdConfig import getTypeWideThresholdConfig
 
 from collections import OrderedDict as odict
 from AthenaCommon.Logging import logging
@@ -82,7 +84,7 @@ class L1Menu(object):
 
 
     def setupCTPMonitoring(self):
-        self.ctp.setupMonitoring(self.items, self.thresholds, self.connectors)
+        self.ctp.setupMonitoring(self.menuName, self.items, self.thresholds, self.connectors)
         
     def check(self):
         log.info("Doing L1 Menu checks")
@@ -92,6 +94,8 @@ class L1Menu(object):
         allUsedThresholds = set()
         for item in self.items:
             for thrName in item.thresholdNames():
+                if 'SPARE' in thrName:
+                    raise RuntimeError("CTP input %s is used by %s but SPARE thresholds are not to be used!" %(thrName, item) )
                 if thrName not in allThresholds:
                     missing[thrName].append(item.name) 
                 else:
@@ -102,15 +106,15 @@ class L1Menu(object):
 
         if len(allThresholds)-len(allUsedThresholds)>0:
             unusedThresholds = allThresholds.difference(allUsedThresholds)
-            log.info("The following thresholds are unused")
-            log.info("MU: %s", ", ".join([thr for thr in unusedThresholds if thr.startswith("MU")]))
-            log.info("EM: %s", ", ".join([thr for thr in unusedThresholds if thr.startswith("EM")]))
-            log.info("HA: %s", ", ".join([thr for thr in unusedThresholds if thr.startswith("HA")]))
-            log.info("J: %s", ", ".join([thr for thr in unusedThresholds if thr.startswith("J")]))
-            log.info("eFEX: %s", ", ".join([thr for thr in unusedThresholds if thr.startswith("e")]))
-            log.info("jFEX: %s", ", ".join([thr for thr in unusedThresholds if thr.startswith("j")]))
-            log.info("cTAU: %s", ", ".join([thr for thr in unusedThresholds if thr.startswith("cTAU")]))
-            log.info("gFEX: %s", ", ".join([thr for thr in unusedThresholds if thr.startswith("g")]))
+            log.debug("The following thresholds are unused")
+            log.debug("MU: %s", ", ".join([thr for thr in unusedThresholds if thr.startswith("MU")]))
+            log.debug("EM: %s", ", ".join([thr for thr in unusedThresholds if thr.startswith("EM")]))
+            log.debug("HA: %s", ", ".join([thr for thr in unusedThresholds if thr.startswith("HA")]))
+            log.debug("J: %s", ", ".join([thr for thr in unusedThresholds if thr.startswith("J")]))
+            log.debug("eFEX: %s", ", ".join([thr for thr in unusedThresholds if thr.startswith("e")]))
+            log.debug("jFEX: %s", ", ".join([thr for thr in unusedThresholds if thr.startswith("j")]))
+            log.debug("cTAU: %s", ", ".join([thr for thr in unusedThresholds if thr.startswith("cTAU")]))
+            log.debug("gFEX: %s", ", ".join([thr for thr in unusedThresholds if thr.startswith("g")]))
 
     def checkLegacyThresholds(self):
         from collections import defaultdict as dd 
@@ -118,13 +122,25 @@ class L1Menu(object):
         extraThresholds = dd(list)
         for item in self.items:
             for thrName in item.thresholdNames():
-                if thrName[0] not in ('e','j','g', 'c') and not any(x in thrName for x in ["TOPO", "MU", "MBTS", "ZB", "ALFA", "ZDC", "AFP", "BCM"]):
+                if thrName[:3]=='ZB_':
+                    thrName = thrName[3:]
+                if thrName[0] not in ('e','j','g', 'c') and thrName[:2] not in ["MU"] and "TOPO" not in thrName[:4]:
                     if thrName not in legacyThresholds:
                         extraThresholds[thrName].append(item.name)
 
         for thrName in sorted(extraThresholds.keys()):
             log.warning("Threshold %s (used by %s) should not be used!", thrName,",".join(extraThresholds[thrName]))
 
+    def checkPerfThresholds(self):
+        if 'MC' not in self.menuName:
+            from collections import defaultdict as dd
+            perfThresholds = dd(list)
+            for item in self.items:
+                for thrName in item.thresholdNames():
+                    if 'Perf' in thrName:
+                        perfThresholds[thrName].append(item.name)
+            for thrName in sorted(perfThresholds.keys()):
+                raise RuntimeError("Threshold %s (used by %s) should not be used!", thrName,",".join(perfThresholds[thrName]))
 
     def checkBoardInputs(self, algo, connDefName, fpgaName ):
         if 'MuCTPi' in connDefName or 'Legacy' in connDefName:
@@ -132,10 +148,10 @@ class L1Menu(object):
         boardName = connDefName+fpgaName
 
         allowedInputs = odict()
-        allowedInputs['Topo1Opt0'] = ['MU', 'eEM', 'eTAU',              'gJ',  'gLJ',               ] # TOPO1A, FPGA1
-        allowedInputs['Topo1Opt1'] = ['MU', 'eEM', 'eTAU',              'gJ',  'gLJ',               ] # TOPO1A, FPGA2
-        allowedInputs['Topo1Opt2'] = ['MU',        'eTAU', 'cTAU', 'j',               'gXE', 'gTE', ] # TOPO1B, FPGA1
-        allowedInputs['Topo1Opt3'] = ['MU',        'eTAU', 'cTAU', 'j',               'gXE', 'gTE', ] # TOPO1B, FPGA2
+        allowedInputs['Topo1Opt0'] = ['MU', 'eEM', 'eTAU',              'gJ',  'gLJ',                     ] # TOPO1A, FPGA1
+        allowedInputs['Topo1Opt1'] = ['MU', 'eEM', 'eTAU',              'gJ',  'gLJ',                     ] # TOPO1A, FPGA2
+        allowedInputs['Topo1Opt2'] = ['MU',        'eTAU', 'cTAU', 'j',               'gXE', 'gTE', 'gMHT'] # TOPO1B, FPGA1
+        allowedInputs['Topo1Opt3'] = ['MU',        'eTAU', 'cTAU', 'j',               'gXE', 'gTE', 'gMHT'] # TOPO1B, FPGA2
         allowedInputs['Topo2El0']  = ['MU',        'eTAU',         'j',      ] # TOPO2, FPGA1
         allowedInputs['Topo2El1']  = [      'eEM',                 'j',      ] # TOPO2, FPGA2
         allowedInputs['Topo3El0']  = [      'eEM', 'eTAU',         'j',      ] # TOPO3, FPGA1
@@ -153,4 +169,167 @@ class L1Menu(object):
                 if not (any(x in algoInput for x in allowedInputs[boardName])):
                      raise RuntimeError("Algorithm %s in board %s with input %s not allowed" % (algo.name, boardName, algoInput ))
 
+
+    def checkCTPINconnectors(self):
+        for conn in self.connectors:
+            if conn.ctype == CType.CTPIN:
+               if len(conn.triggerLines)>31:
+                   raise RuntimeError("Too many CTP inputs in %s: %i but a max of 31 are allowed" %(conn.name,len(conn.triggerLines)))
+
+    def checkCountCTPInputsOutput(self):
+        from collections import namedtuple
+        ctpInput = namedtuple('ctpInput',"name, conn, nbit")
+        ctpInputs = []
+        ctpOutputs = []
+        thrNames = [] 
+        ctpInputBitSets = dict()
+        ctpInputNameSets = dict()
+        for item in self.items:
+            ctpOutputs.append(item.name)
+            for thrName in item.thresholdNames():
+                if thrName[:3]=='ZB_':
+                    thrName = thrName[3:]
+                if thrName not in thrNames:
+                    thrNames.append(thrName)
+        for thrName in thrNames:
+            for conn in self.connectors:
+                if conn.ctype != CType.ELEC:
+                    for tl in conn.triggerLines:
+                        if thrName == tl.name:
+                            ctpInputs.append(ctpInput(name=thrName,conn=conn.name,nbit=tl.nbits))
+                else:
+                     for fpga in conn.triggerLines:
+                        for clock in conn.triggerLines[fpga]:
+                            for tl in conn.triggerLines[fpga][clock]:
+                                if thrName == tl.name:
+                                    ctpInputs.append(ctpInput(name=thrName,conn=conn.name,nbit=tl.nbits))
+
+        if len(thrNames) != len(ctpInputs):
+            raise RuntimeError("Not all input thresholds found!")
+
+        for ctpIn in ctpInputs:
+            thrset = None
+            thrName = ctpIn.name
+            if thrName[:2] in ['EM','HA','XE','TE','XS']:
+                thrset = 'legacyCalo'
+            elif thrName[:1]=='J':
+                thrset = 'legacyCalo'
+            elif thrName[:2]=='MU':
+                thrset = 'muon'
+            elif thrName[:3] in ['ALF', 'MBT','AFP','BCM','CAL','NIM','ZDC','BPT','LUC']:
+                thrset = 'detector'
+            elif thrName[:6]=='R2TOPO':
+                thrset = 'legacyTopo'
+            elif thrName[:1] in ['e','j','c','g']:
+                thrset = 'topo1'
+            elif thrName[:4]=='TOPO':
+                if 'Topo2' in ctpIn.conn:
+                    thrset = 'topo2'
+                elif 'Topo3' in ctpIn.conn:
+                    thrset = 'topo3'
+
+            if thrset not in ctpInputBitSets:
+                ctpInputBitSets[thrset] = 0
+                ctpInputNameSets[thrset] = []
+            if thrName not in ctpInputNameSets[thrset]:
+                ctpInputNameSets[thrset].append(thrName)
+                ctpInputBitSets[thrset] += ctpIn.nbit
+
+        totalInputs = 0
+        log.info("Check total number of CTP input and output bits:")
+        log.info("Number of output bits: %i", len(ctpOutputs) )
+        for thrset in ctpInputBitSets:
+            log.info("%s: %i thresholds and %i  bits", thrset, len(ctpInputNameSets[thrset]), ctpInputBitSets[thrset]  )
+            if thrset is not None:
+                log.debug("Threshold set %s: %s", thrset, ",".join(ctpInputNameSets[thrset]) )
+            else:
+                log.info("Unrecognised CTP input bits: %s", ",".join(ctpInputNameSets[thrset]) )
+            totalInputs += ctpInputBitSets[thrset]
+        log.info("Number of inputs bits: %i" , totalInputs )
+
+        # Fail menu generation for menus going to P1:
+        if ( totalInputs > 512 or len(ctpOutputs) > 512 ):
+            if L1MenuFlags.ApplyCTPLimits():
+                raise RuntimeError("Both the numbers of inputs and outputs need to be not greater than 512 in a physics menu!")
+
+    # Avoid that L1 item is defined only for BGRP0 as this include also the CALREQ BGRP2 (ATR-24781)
+    def checkBGRP(self):
+        for item in self.items:
+            if len(item.bunchGroups)==1 and item.bunchGroups[0]=='BGRP0':
+               raise RuntimeError("L1 item %s is defined with only BGRP0, ie it can trigger also in the CALREQ BGRP2 bunches. Please add another bunch group (ATR-24781)" % item.name) 
+
+
+    def checkPtMinToTopo(self):
+        # check that the ptMinToTopo for all types of thresholds is lower than the minimum Et cuts applied in multiplicity and decision algorithms
+
+        # collect the ptMinToTopo values
+        ptMin = {}
+        for thrtype in ThrType.Run3Types():
+            ttconfig = getTypeWideThresholdConfig(thrtype)
+            inputtype = thrtype.name
+            if inputtype == 'cTAU':
+                inputtype = 'eTAU'
+            for key, value in ttconfig.items():
+                if "ptMinToTopo" in key:
+                    if inputtype in ptMin:
+                        if ptMin[inputtype] > value:
+                             ptMin[inputtype] = value
+                    else: 
+                        ptMin[inputtype] = value
+
+        # loop over multiplicity algorithms and get the min et values
+        thresholdMin = {}
+        for algo in self.topoAlgos.topoAlgos[AlgCategory.MULTI][AlgType.MULT]:
+             alg = self.topoAlgos.topoAlgos[AlgCategory.MULTI][AlgType.MULT][algo]
+             threshold = alg.threshold
+             inputtype = alg.input
+             if 'cTAU' in inputtype:
+                 inputtype = 'eTAU'
+             elif any(substring in inputtype for substring in ['XE','TE','MHT']):
+                 continue
+             thr = self.thresholds.thresholds[threshold]
+             minEt = 99999 
+             if hasattr(thr, 'thresholdValues'):
+                 etvalues = thr.thresholdValues
+                 for etvalue in etvalues:
+                     et = etvalue.value
+                     if et < minEt:
+                         minEt = et
+             if hasattr(thr, 'et'):
+                 if thr.et < minEt:
+                     minEt = thr.et
+             if inputtype in thresholdMin:
+                 if minEt < thresholdMin[inputtype]:
+                     thresholdMin[inputtype] = minEt
+             else:
+                 thresholdMin[inputtype] = minEt
+
+        # loop over sorting algorithms and get the min et values
+        for algo in self.topoAlgos.topoAlgos[AlgCategory.TOPO][AlgType.SORT]:
+             alg = self.topoAlgos.topoAlgos[AlgCategory.TOPO][AlgType.SORT][algo]
+             if alg.inputvalue == 'MuonTobs':
+                 continue
+             for (pos, variable) in enumerate(alg.variables): 
+                 if variable.name == "MinET":
+                     value = variable.value/10 # convert energies from 100MeV to GeV units
+                     inputtype = ''
+                     if alg.inputvalue == 'eEmTobs':
+                         inputtype = 'eEM'
+                     elif alg.inputvalue == 'eTauTobs':
+                         inputtype = 'eTAU'
+                     elif alg.inputvalue == 'jJetTobs':
+                         inputtype = 'jJ'
+                     else:
+                         raise RuntimeError("checkPtMinToTopo: input type %s in sorting algo not recognised" % alg.inputvalue)
+                     if inputtype in thresholdMin:
+                         if value < thresholdMin[inputtype]:
+                              thresholdMin[inputtype] = value
+                     else:
+                         thresholdMin[inputtype] = value      
+        for thr in thresholdMin:
+            if thr in ptMin:
+                 if thresholdMin[thr] < ptMin[thr]:
+                     raise RuntimeError("checkPtMinToTopo: for threshold type %s the minimum threshold %i is less than ptMinToTopo %i" % (thr, thresholdMin[thr], ptMin[thr]))
+            else:
+                 raise RuntimeError("checkPtMinToTopo: for threshold type %s the minimum threshold is %i and no ptMinToTopo value is found" % (thr, thresholdMin[thr]))  
 

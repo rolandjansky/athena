@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file StoreGateSvc.icc
@@ -47,7 +47,7 @@ inline
 SGImplSvc*
 StoreGateSvc::currentStore() const {
   if (m_storeID == StoreID::EVENT_STORE) {
-    SG::HiveEventSlot* slot = s_pSlot;
+    SG::HiveEventSlot* slot = currentSlot();
     if (slot) return slot->pEvtStore;
   }
   return m_defaultStore;
@@ -216,7 +216,7 @@ StatusCode StoreGateSvc::record1(DataObject* obj,
                                  T* pObject, const TKEY& key, 
                                  bool allowMods, bool resetOnly, bool noHist)
 {
-  if (m_storeID == StoreID::EVENT_STORE && s_pSlot != nullptr) {
+  if (m_storeID == StoreID::EVENT_STORE && currentSlot() != nullptr) {
     rememberBadRecord (ClassID_traits<T>::ID(), key);
   }
 
@@ -259,7 +259,7 @@ StatusCode StoreGateSvc::overwrite1(DataObject* obj, T* pObject,
                                     const TKEY& key, 
                                     bool allowMods, bool noHist)
 {
-  if (m_storeID == StoreID::EVENT_STORE && s_pSlot != nullptr) {
+  if (m_storeID == StoreID::EVENT_STORE && currentSlot() != nullptr) {
     rememberBadRecord (ClassID_traits<T>::ID(), key);
   }
 
@@ -298,7 +298,7 @@ StatusCode StoreGateSvc::overwrite1(DataObject* obj, T* pObject,
 template <typename T> 
 StatusCode StoreGateSvc::retrieve(const T*& ptr) const
 {
-  if (m_storeID == StoreID::EVENT_STORE && s_pSlot != nullptr) {
+  if (m_storeID == StoreID::EVENT_STORE && currentSlot() != nullptr) {
     rememberBadRetrieve (ClassID_traits<T>::ID(), "");
   }
 
@@ -332,7 +332,7 @@ StatusCode StoreGateSvc::retrieve(const T*& ptr) const
 template <typename T> 
 StatusCode StoreGateSvc::retrieve(T*& ptr) const
 {
-  if (m_storeID == StoreID::EVENT_STORE && s_pSlot != nullptr) {
+  if (m_storeID == StoreID::EVENT_STORE && currentSlot() != nullptr) {
     rememberBadRetrieve (ClassID_traits<T>::ID(), "");
   }
 
@@ -368,7 +368,7 @@ StatusCode StoreGateSvc::retrieve(T*& ptr) const
 template <typename T>
 StatusCode StoreGateSvc::retrieve(const T*& ptr, const std::string& key) const
 {
-  if (m_storeID == StoreID::EVENT_STORE && s_pSlot != nullptr) {
+  if (m_storeID == StoreID::EVENT_STORE && currentSlot() != nullptr) {
     rememberBadRetrieve (ClassID_traits<T>::ID(), key);
   }
 
@@ -417,7 +417,7 @@ StatusCode StoreGateSvc::retrieve(const T*& ptr, const TKEY& key) const
 template <typename T>
 StatusCode StoreGateSvc::retrieve(T*& ptr, const std::string& key) const
 {
-  if (m_storeID == StoreID::EVENT_STORE && s_pSlot != nullptr) {
+  if (m_storeID == StoreID::EVENT_STORE && currentSlot() != nullptr) {
     rememberBadRetrieve (ClassID_traits<T>::ID(), key);
   }
 
@@ -465,7 +465,7 @@ template <typename T>
 StatusCode 
 StoreGateSvc::retrieve(SG::ConstIterator<T>& begin, 
                        SG::ConstIterator<T>& end) const {
-  if (m_storeID == StoreID::EVENT_STORE && s_pSlot != nullptr) {
+  if (m_storeID == StoreID::EVENT_STORE && currentSlot() != nullptr) {
     rememberBadRetrieve (ClassID_traits<T>::ID(), "(iterator)");
   }
   _SGXCALL(retrieve, (ClassID_traits<T>::ID(), begin, end), StatusCode::FAILURE);
@@ -505,7 +505,7 @@ T* StoreGateSvc::retrieve (const TKEY& key) const
 template <typename T>
 T* StoreGateSvc::tryRetrieve () const
 {
-  if (m_storeID == StoreID::EVENT_STORE && s_pSlot != nullptr) {
+  if (m_storeID == StoreID::EVENT_STORE && currentSlot() != nullptr) {
     rememberBadRetrieve (ClassID_traits<T>::ID(), "");
   }
 
@@ -523,7 +523,7 @@ T* StoreGateSvc::tryRetrieve () const
 template <typename T>
 const T* StoreGateSvc::tryConstRetrieve() const
 {
-  if (m_storeID == StoreID::EVENT_STORE && s_pSlot != nullptr) {
+  if (m_storeID == StoreID::EVENT_STORE && currentSlot() != nullptr) {
     rememberBadRetrieve (ClassID_traits<T>::ID(), "");
   }
 
@@ -546,7 +546,7 @@ const T* StoreGateSvc::tryConstRetrieve() const
 template <typename T, class TKEY>
 T* StoreGateSvc::tryRetrieve (const TKEY& key) const
 {
-  if (m_storeID == StoreID::EVENT_STORE && s_pSlot != nullptr) {
+  if (m_storeID == StoreID::EVENT_STORE && currentSlot() != nullptr) {
     rememberBadRetrieve (ClassID_traits<T>::ID(), key);
   }
 #ifndef __clang__
@@ -568,7 +568,7 @@ T* StoreGateSvc::tryRetrieve (const TKEY& key) const
 template <typename T, class TKEY>
 const T* StoreGateSvc::tryConstRetrieve (const TKEY& key) const
 {
-  if (m_storeID == StoreID::EVENT_STORE && s_pSlot != nullptr) {
+  if (m_storeID == StoreID::EVENT_STORE && currentSlot() != nullptr) {
     rememberBadRetrieve (ClassID_traits<T>::ID(), key);
   }
 
@@ -629,7 +629,7 @@ StoreGateSvc::transientContains(const CLID& id, const TKEY& key) const
 template <typename T>
 void
 StoreGateSvc::keys(std::vector<std::string>& vkeys, 
-                   bool includeAlias, bool onlyValid) {
+                   bool includeAlias, bool onlyValid) const {
   return this->keys(ClassID_traits<T>::ID(), vkeys, includeAlias, onlyValid);
 } 
 
@@ -912,7 +912,7 @@ StoreGateSvc::remap (CLID clid,
 template <typename T> 
 StatusCode 
 StoreGateSvc::retrieve(const DataHandle<T>& handle) const {
-  if (m_storeID == StoreID::EVENT_STORE && s_pSlot != nullptr) {
+  if (m_storeID == StoreID::EVENT_STORE && currentSlot() != nullptr) {
     rememberBadRetrieve (ClassID_traits<T>::ID(), "");
   }
 
@@ -940,7 +940,7 @@ StoreGateSvc::retrieve(const DataHandle<T>& handle) const {
 template <typename T> 
 StatusCode
 StoreGateSvc::retrieve(DataHandle<T>& handle) const {
-  if (m_storeID == StoreID::EVENT_STORE && s_pSlot != nullptr) {
+  if (m_storeID == StoreID::EVENT_STORE && currentSlot() != nullptr) {
     rememberBadRetrieve (ClassID_traits<T>::ID(), "");
   }
 
@@ -970,7 +970,7 @@ StoreGateSvc::retrieve(DataHandle<T>& handle) const {
 template <typename T, typename TKEY> 
 StatusCode 
 StoreGateSvc::retrieve(const DataHandle<T>& handle, const TKEY& key) const {
-  if (m_storeID == StoreID::EVENT_STORE && s_pSlot != nullptr) {
+  if (m_storeID == StoreID::EVENT_STORE && currentSlot() != nullptr) {
     rememberBadRetrieve (ClassID_traits<T>::ID(), key);
   }
 
@@ -1002,7 +1002,7 @@ StoreGateSvc::retrieve(const DataHandle<T>& handle, const TKEY& key) const {
 template <typename T, typename TKEY> 
 StatusCode 
 StoreGateSvc::retrieve(DataHandle<T>& handle, const TKEY& key) const {
-  if (m_storeID == StoreID::EVENT_STORE && s_pSlot != nullptr) {
+  if (m_storeID == StoreID::EVENT_STORE && currentSlot() != nullptr) {
     rememberBadRetrieve (ClassID_traits<T>::ID(), key);
   }
 
@@ -1037,7 +1037,7 @@ template <typename T>
 StatusCode 
 StoreGateSvc::retrieve(const DataHandle<T>& chbegin, 
                        const DataHandle<T>& chend) const {
-  if (m_storeID == StoreID::EVENT_STORE && s_pSlot != nullptr) {
+  if (m_storeID == StoreID::EVENT_STORE && currentSlot() != nullptr) {
     rememberBadRetrieve (ClassID_traits<T>::ID(), "(iterator)");
   }
 
@@ -1085,7 +1085,7 @@ StoreGateSvc::fromStorable(DataObject* pObject, T*& pData) {
 /// DEPRECATED, use version taking ref to vector
 template <typename T>
 std::vector<std::string> //FIXME inefficient. Should take ref to vector
-StoreGateSvc::keys(bool allKeys) {
+StoreGateSvc::keys(bool allKeys) const {
   return this->keys(ClassID_traits<T>::ID(), allKeys);
 }
 

@@ -12,7 +12,7 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 atlas_add_component( MuonCondTest
                      src/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel MuonCondInterface MuonCondSvcLib MuonReadoutGeometry Identifier )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel MuonCondInterface MuonCondData MuonCondSvcLib CoralUtilitiesLib MuonReadoutGeometry Identifier )
 
 # Install files from the package:
 atlas_install_headers( MuonCondTest )

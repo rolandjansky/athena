@@ -23,7 +23,11 @@ class Hj_MiNNLO(PowhegV2):
         @param kwargs          dictionary of arguments from Generate_tf.
         """
 
-        super(Hj_MiNNLO, self).__init__(base_directory, os.path.join("HJ", "HJMiNNLO"), powheg_executable="pwhg_main", **kwargs)
+        # apply same hack as in Zj_MiNNLO to avoid Hoppet 'ERRORS'
+        warnings = super(Hj_MiNNLO, self).hoppet_warning()
+        infos = super(Hj_MiNNLO, self).hoppet_info()
+
+        super(Hj_MiNNLO, self).__init__(base_directory, os.path.join("HJ", "HJMiNNLO"), powheg_executable="pwhg_main", warning_output=warnings, info_output=infos, **kwargs)
 
         # Add all keywords for this process, overriding defaults if required
         self.add_keyword("alphas_from_lhapdf",0.0)

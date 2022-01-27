@@ -38,7 +38,7 @@ MMSimHit::MMSimHit(HitID id, double time,
                                      const double kineticEnergy,
                                      const Amg::Vector3D& direction,
                                      const double depositEnergy,
-                                     const HepMcParticleLink hmpl)
+                                     const HepMcParticleLink& hmpl)
   : m_MMId(id), m_globalTime(time)
   , m_globalPosition(position)
   , m_particleEncoding(particleEncoding)

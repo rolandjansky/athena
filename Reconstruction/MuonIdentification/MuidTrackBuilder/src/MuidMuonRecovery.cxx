@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -147,7 +147,7 @@ namespace Rec {
                 ATH_MSG_DEBUG("Using existing pars");
                 exPars = lastPars;
             } else {
-                exPars = m_extrapolator->extrapolate(ctx, *lastPars, meas->associatedSurface(), Trk::alongMomentum, false, Trk::muon);
+                exPars = m_extrapolator->extrapolate(ctx, *lastPars, meas->associatedSurface(), Trk::alongMomentum, false, Trk::muon).release();
             }
 
             if (!exPars) {

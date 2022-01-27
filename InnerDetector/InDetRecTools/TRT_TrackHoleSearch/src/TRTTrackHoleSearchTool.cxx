@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // TRTTrackHoleSearchTool.cxx
@@ -96,9 +96,10 @@ void TRTTrackHoleSearchTool::countHoles(const Trk::Track& track,
                                         std::vector<int>& information ,
                                         const Trk::ParticleHypothesis partHyp) const {
 	ATH_MSG_DEBUG( "TRTTrackHoleSearchTool::countHoles" );
-	auto holes = getHolesOnTrack(track, partHyp);
+	const DataVector<const Trk::TrackStateOnSurface>* holes = getHolesOnTrack(track, partHyp);
 	if (holes) {
 		information[Trk::numberOfTRTHoles] = holes->size();
+		delete holes;
 	}	else {
 		information[Trk::numberOfTRTHoles] = -1;
 	}
@@ -106,9 +107,9 @@ void TRTTrackHoleSearchTool::countHoles(const Trk::Track& track,
 
 
 //____________________________________________________________________________
-Trk::TrackStateOnSurfaceProtContainer::ContainerUniquePtr
-TRTTrackHoleSearchTool::getHolesOnTrack(const Trk::Track& track,
-                                        const Trk::ParticleHypothesis partHyp) const {
+const DataVector<const Trk::TrackStateOnSurface>* TRTTrackHoleSearchTool::getHolesOnTrack(
+	                    const Trk::Track& track,
+	                    const Trk::ParticleHypothesis partHyp) const {
 	ATH_MSG_DEBUG( "TRTTrackHoleSearchTool::getHolesOnTrack" );
 
 	// write out list of bad straws for debugging purposes.
@@ -162,8 +163,7 @@ TRTTrackHoleSearchTool::getHolesOnTrack(const Trk::Track& track,
 	}
 
 	// to be returned:
-        auto holes = Trk::TrackStateOnSurfaceProtContainer::make_unique();
-        holes->reserve (track_states->size() * 10); //WAG
+	DataVector<const Trk::TrackStateOnSurface>* holes = new DataVector<const Trk::TrackStateOnSurface>;
 
 	DataVector<const Trk::TrackStateOnSurface>::const_iterator track_state = beginning_track_state;
 	const Trk::TrackParameters* start_parameters = (*track_state)->trackParameters();
@@ -194,14 +194,14 @@ TRTTrackHoleSearchTool::getHolesOnTrack(const Trk::Track& track,
 		if (!start_parameters) {
 			start_parameters = end_parameters;
 		} else {		 
-			extrapolateBetweenHits(start_parameters, end_surf, *holes, partHyp);
+			extrapolateBetweenHits(start_parameters, end_surf, holes, partHyp);
 			start_parameters = end_parameters;
 		}
 	} // end loop over TrackStateOnSurfaces
 
 	if( !m_end_at_last_trt_hit ) {
 		// final extrapolation to the edge of TRT to check for holes in outermost straws
-		int trailing_hole_count = extrapolateBetweenHits(start_parameters, *m_trt_outer_surf, *holes, partHyp);
+		int trailing_hole_count = extrapolateBetweenHits(start_parameters, *m_trt_outer_surf, holes, partHyp);
 
 		// remove trailing holes
 		if(trailing_hole_count > m_max_trailing_holes) {
@@ -223,8 +223,9 @@ TRTTrackHoleSearchTool::getHolesOnTrack(const Trk::Track& track,
 const Trk::Track* TRTTrackHoleSearchTool::getTrackWithHoles(const Trk::Track& track,
                                                             const Trk::ParticleHypothesis partHyp) const {
 	ATH_MSG_DEBUG( "TRTTrackHoleSearchTool::getTrackWithHoles" );
-	auto holes = getHolesOnTrack(track, partHyp);
-	const Trk::Track* new_track = addHolesToTrack(track, std::move(holes));
+	const DataVector<const Trk::TrackStateOnSurface>* holes = getHolesOnTrack(track, partHyp);
+	const Trk::Track* new_track = addHolesToTrack(track, holes);
+	delete holes;
 	return new_track;
 }
 
@@ -243,7 +244,7 @@ const Trk::Track* TRTTrackHoleSearchTool::getTrackWithHolesAndOutliers(const Trk
 //____________________________________________________________________________
 int TRTTrackHoleSearchTool::extrapolateBetweenHits(const Trk::TrackParameters* start_parameters,
                                                    const Trk::Surface& end_surf,
-                                                   Trk::TrackStateOnSurfaceProtContainer& holes,
+                                                   DataVector<const Trk::TrackStateOnSurface>* holes,
                                                    const Trk::ParticleHypothesis partHyp/*=Trk::pion*/) const {
 	int hole_count = 0;
 	// initialize previous id
@@ -256,14 +257,16 @@ int TRTTrackHoleSearchTool::extrapolateBetweenHits(const Trk::TrackParameters* s
 
 	// look for holes
 	std::vector<std::unique_ptr<const Trk::TrackParameters> > steps =
-          m_extrapolator->extrapolateStepwise(*start_parameters, end_surf, Trk::alongMomentum, m_bcheck, partHyp);
+          m_extrapolator->extrapolateStepwise(Gaudi::Hive::currentContext(),
+                                              *start_parameters, 
+                                              end_surf, 
+                                              Trk::alongMomentum, m_bcheck, partHyp);
 
 	if(steps.empty()) {
 		ATH_MSG_DEBUG("extrapolateBetweenHits: extrapolateStepwise returned null");
 	} else {
 		// loop over parameters from extrapolation
 		// note: the last element in the vector is always the track parameters at the destination surface
-                holes.reserve (holes.size() + steps.size());
                 for(std::vector<std::unique_ptr<const Trk::TrackParameters> >::const_iterator step = steps.begin(); step != steps.end()-1; ++step) {
 			// check for surface
 			const Trk::Surface& surf = (*step)->associatedSurface();
@@ -356,7 +359,7 @@ int TRTTrackHoleSearchTool::extrapolateBetweenHits(const Trk::TrackParameters* s
 			
 			std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
 			typePattern.set(Trk::TrackStateOnSurface::Hole);
-			holes.push_back( holes.allocate(nullptr, (*step)->uniqueClone(), nullptr, nullptr, typePattern) );
+			holes->push_back( new Trk::TrackStateOnSurface(nullptr, (*step)->uniqueClone(), nullptr, nullptr, typePattern) );
 			hole_count++;
 			previous_id = id;
 		} // end loop over parameters from extrapolation
@@ -436,39 +439,39 @@ TRTTrackHoleSearchTool::find_last_hit_before_trt(const DataVector<const Trk::Tra
 const Trk::Track*
 TRTTrackHoleSearchTool::addHolesToTrack(
   const Trk::Track& track,
-  Trk::TrackStateOnSurfaceProtContainer::ContainerUniquePtr holes) const
+  const DataVector<const Trk::TrackStateOnSurface>* holes) const
 {
   ATH_MSG_DEBUG("TRTTrackHoleSearchTool::addHolesToTrack");
   /*
     This method was basically coppied from here:
     http://alxr.usatlas.bnl.gov/lxr-stb4/source/atlas/InnerDetector/InDetRecTools/InDetTrackHoleSearch/src/InDetTrackHoleSearchTool.cxx#931
   */
-  holes->reserve (holes->size() + track.trackStateOnSurfaces()->size());
 
   // get states from track
-  size_t ipos = 0;
+  auto tsos = DataVector<const Trk::TrackStateOnSurface>();
   for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it =
          track.trackStateOnSurfaces()->begin();
        it != track.trackStateOnSurfaces()->end();
        ++it) {
     // veto old holes
     if (!(*it)->type(Trk::TrackStateOnSurface::Hole)) {
-      holes->insert(holes->begin()+ipos, holes->allocate(**it));
-      ++ipos;
+      tsos.push_back(new Trk::TrackStateOnSurface(**it));
     }
   }
 
   // if we have no holes on the old track and no holes found by search, then we
   // just copy the track
-  if (track.trackStateOnSurfaces()->size() == ipos && holes->size() ==ipos) {
+  if (track.trackStateOnSurfaces()->size() == tsos.size() && holes->empty()) {
     // create copy of track
-    holes->elt_allocator().protect();
     const Trk::Track* new_track = new Trk::Track(
       track.info(),
-      std::move(holes),
+      std::move(tsos),
       track.fitQuality() ? track.fitQuality()->clone() : nullptr);
     return new_track;
   }
+
+  // add new holes
+  tsos.insert(tsos.end(), holes->begin(), holes->end());
 
   // sort
   const Trk::TrackParameters* perigee = track.perigeeParameters();
@@ -484,17 +487,16 @@ TRTTrackHoleSearchTool::addHolesToTrack(
       if (msgLvl(MSG::DEBUG)) {
         msg() << "sorting vector with stable_sort" << endmsg;
       }
-      std::stable_sort(holes->begin(), holes->end(), CompFunc);
+      std::stable_sort(tsos.begin(), tsos.end(), CompFunc);
     } else {
-      holes->sort(CompFunc); // respects DV object ownership
+      tsos.sort(CompFunc); // respects DV object ownership
     }
   }
 
   // create copy of track
-  holes->elt_allocator().protect();
   const Trk::Track* new_track =
     new Trk::Track(track.info(),
-                   std::move(holes),
+                   std::move(tsos),
                    track.fitQuality() ? track.fitQuality()->clone() : nullptr);
 
   return new_track;

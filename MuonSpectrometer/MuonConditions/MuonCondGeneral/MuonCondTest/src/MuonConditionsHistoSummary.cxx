@@ -20,12 +20,12 @@ MuonConditionsHistoSummary::MuonConditionsHistoSummary(
 			 m_pSummarySvc("MDTCondSummarySvc", name),
 			 m_rSummarySvc("RPCCondSummarySvc", name),
 			 m_tSummarySvc("TGCCondSummarySvc", name),
-			 m_thistSvc(NULL),
-			 m_t_deadstations(NULL),
-			 m_t_deadmultilayer(NULL),
-			 m_t_deadtube(NULL),
-			 m_t_panelid(NULL),
-			 m_t_stripid(NULL) {
+			 m_thistSvc(nullptr),
+			 m_t_deadstations(nullptr),
+			 m_t_deadmultilayer(nullptr),
+			 m_t_deadtube(nullptr),
+			 m_t_panelid(nullptr),
+			 m_t_stripid(nullptr) {
 			
 }
 

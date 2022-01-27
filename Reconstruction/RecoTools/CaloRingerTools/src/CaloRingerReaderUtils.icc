@@ -6,7 +6,6 @@
 #ifndef CALORINGERTOOLS_CALORINGERREADERUTILS_ICC
 #define CALORINGERTOOLS_CALORINGERREADERUTILS_ICC
 
-#include <vector>
 
 // Kernel includes:
 #include "GaudiKernel/StatusCode.h"

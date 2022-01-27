@@ -4,7 +4,7 @@ This is a tool for the application of MC corrections to photon and electron auxi
 
 It lives in `/head/athena/PhysicsAnalysis/ElectronPhotonID/EGammaVariableCorrection/`.
 
-This README first explains [how to use the `ElectronPhotonVariableCorrectionTool`](#how-to-use-the-tool-single-and-multiple-variable-correction-user-manual). In this section, everything you need in order to setup the tool for corrections and how to integrate it in your code is explained - i.e., everything needed from a user perspective.
+This README first explains [how to use the `ElectronPhotonVariableCorrectionTool`](#how-to-use-the-tool-single-and-multiple-variable-correction-user-manual). In this section, everything you need in order to setup the tool for corrections and how to integrate it in your code is explained - i.e., everything needed from a user perspective. Also, it explains how to use the tool for applying Gaussian smearing to variables.
 
 Second, the deeper mechanics of the both the `ElectronPhotonVariableCorrectionTool` and the `ElectronPhotonVariableCorrectionBase` class are explained ([in this section](#how-to-change-and-adapt-the-tool-developer-manual)). This section is meant for developers / maintainers of the code, i.e. you only need to read it if you want to change the tool itself.
 
@@ -229,6 +229,31 @@ Note that there should be a semicolon after every line but the last one. Also no
 
 An example configuration file can be found in `./data/EGammaVariableCorrectionTool_ExampleConf.conf`
 
+#### Configuration file for Gaussian Smearing
+
+Gaussian smearing corrects variables by adding a random shift to the variable, where the random shifts are selected
+using a Gaussian probability density function. The parameters of the Gaussian pdf used for each variable are selected
+using the separate configuration files for each variable. The configuration files follow the same structure as those described
+in the above section, with some additional constraints. Firstly, the tool is told to apply the random smearing with the flag `doGaussianSmearing`,
+for example:
+
+```bash
+doGaussianSmearing: TRUE
+```
+
+Note that it is not necessary to set the flag to `FALSE` if you do not wish to use the smearing correction - the
+configuration file will default to doing the standard corrections if the `doGaussianSmearing` flag is not present in the
+configuration file.
+
+Additionally, the correction function must be specified as follows:
+
+```bash
+Function: TMath::Gaus(x, [0], [1])
+```
+
+where the [0] parameter is the mean and the [1] parameter is the width of the Gaussian. The values of these parameters can be set using the methods explained previously, in order to apply shifts using different Gaussian distributions in different regions of the phase space. However, the recommended method is to use the parameter type `EtaTimesPtBinned` in order to capture
+the Pt and Eta dependence of the smearing corrections.
+
 ## How to change and adapt the tool (developer manual)
 
 This section is meant for **developers**. If you want to use the tool for variable correction, you should read [this section](#how-to-use-the-tool-single-and-multiple-variable-correction-user-manual) instead.
@@ -349,7 +374,7 @@ If possible, use the provided parameter types which are already implemented and 
 3. Add the code to be executed if the correction parameter is of your new parameter type to the following functions:
 
     - `ElectronPhotonVariableCorrectionBase::GetParameterInformationFromConf`
-    - `ElectronPhotonVariableCorrectionBase::GetCorrectionParameters`
+    - `ElectronPhotonVariableCorrectionBase::setCorrectionParameters`
     - `ElectronPhotonVariableCorrectionBase::StringToParameterType`
 
 If there is a style which all the other types use to implement their functionalities, follow it. This holds especially for `ElectronPhotonVariableCorrectionBase::GetCorrectionParameters`.

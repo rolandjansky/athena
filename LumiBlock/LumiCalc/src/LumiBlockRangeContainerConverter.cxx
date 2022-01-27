@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LumiCalc/LumiBlockRangeContainerConverter.h"
@@ -76,7 +76,7 @@ LumiBlockRangeContainerConverter::GetLumiBlockRangeContainer(const Root::TGoodRu
 
 
 xAOD::LumiBlockRangeContainer* 
-LumiBlockRangeContainerConverter::GetLumiBlockRangeContainer(const char* xmlfile) const
+LumiBlockRangeContainerConverter::GetLumiBlockRangeContainer(const char* xmlfile)
 {
   Root::TGoodRunsList* pgrl = this->GetGRLObject( xmlfile );
   xAOD::LumiBlockRangeContainer* iovc = this->GetLumiBlockRangeContainer( *pgrl );
@@ -86,7 +86,7 @@ LumiBlockRangeContainerConverter::GetLumiBlockRangeContainer(const char* xmlfile
 
 
 xAOD::LumiBlockRangeContainer* 
-LumiBlockRangeContainerConverter::GetLumiBlockRangeContainerFromString( const TString& xmlstring ) const
+LumiBlockRangeContainerConverter::GetLumiBlockRangeContainerFromString( const TString& xmlstring )
 {
   m_reader->SetXMLString( xmlstring );
   (void) m_reader->Interpret();
@@ -95,7 +95,7 @@ LumiBlockRangeContainerConverter::GetLumiBlockRangeContainerFromString( const TS
 
 
 void 
-LumiBlockRangeContainerConverter::CreateXMLFile(const Root::TGRLCollection& grlcollection, const char* xmlfilename) const
+LumiBlockRangeContainerConverter::CreateXMLFile(const Root::TGRLCollection& grlcollection, const char* xmlfilename)
 {
   m_writer->SetGRLCollection( grlcollection ) ;
   m_writer->SetFilename( xmlfilename ) ;
@@ -104,7 +104,7 @@ LumiBlockRangeContainerConverter::CreateXMLFile(const Root::TGRLCollection& grlc
 
 
 void
-LumiBlockRangeContainerConverter::CreateXMLFile(const Root::TGoodRunsList& grl, const TString& xmlfilename, const TString& prefix) const
+LumiBlockRangeContainerConverter::CreateXMLFile(const Root::TGoodRunsList& grl, const TString& xmlfilename, const TString& prefix)
 {
   m_writer->SetGoodRunsList( grl ) ;
   TString xmlfile = ( xmlfilename.IsNull() ? prefix + grl.GetSuggestedName() + ".xml" : xmlfilename );
@@ -115,7 +115,7 @@ LumiBlockRangeContainerConverter::CreateXMLFile(const Root::TGoodRunsList& grl, 
 
 void 
 LumiBlockRangeContainerConverter::CreateXMLFile(const xAOD::LumiBlockRangeContainer& lbc, const grlmetadatamap& metadata, const char* version, 
-                                            const TString& xmlfilename, const TString& prefix ) const
+                                            const TString& xmlfilename, const TString& prefix )
 {
   Root::TGoodRunsList* pgrl = this->GetGRLObject(lbc,metadata,version);
   m_writer->SetGoodRunsList( *pgrl ) ;
@@ -127,7 +127,7 @@ LumiBlockRangeContainerConverter::CreateXMLFile(const xAOD::LumiBlockRangeContai
 
 
 void
-LumiBlockRangeContainerConverter::CreateXMLFiles(const Root::TGRLCollection& grlcollection, const char* prefix) const
+LumiBlockRangeContainerConverter::CreateXMLFiles(const Root::TGRLCollection& grlcollection, const char* prefix)
 {
   m_writer->SetGRLCollection( grlcollection ) ;
   m_writer->SetPrefix( prefix ) ;
@@ -136,7 +136,7 @@ LumiBlockRangeContainerConverter::CreateXMLFiles(const Root::TGRLCollection& grl
 
 
 const TString 
-LumiBlockRangeContainerConverter::GetXMLString(const Root::TGoodRunsList& grl) const
+LumiBlockRangeContainerConverter::GetXMLString(const Root::TGoodRunsList& grl)
 {
   m_writer->SetGoodRunsList( grl ) ;
   return m_writer->GetXMLString() ;
@@ -144,7 +144,7 @@ LumiBlockRangeContainerConverter::GetXMLString(const Root::TGoodRunsList& grl) c
 
 
 const TString
-LumiBlockRangeContainerConverter::GetXMLString(const Root::TGRLCollection& grlcollection) const
+LumiBlockRangeContainerConverter::GetXMLString(const Root::TGRLCollection& grlcollection)
 {
   m_writer->SetGRLCollection( grlcollection ) ;
   return m_writer->GetXMLString() ;
@@ -152,7 +152,7 @@ LumiBlockRangeContainerConverter::GetXMLString(const Root::TGRLCollection& grlco
 
 
 const std::vector<TString> 
-LumiBlockRangeContainerConverter::GetXMLStrings(const Root::TGRLCollection& grlcollection) const
+LumiBlockRangeContainerConverter::GetXMLStrings(const Root::TGRLCollection& grlcollection)
 {
   m_writer->SetGRLCollection( grlcollection ) ;
   return m_writer->GetXMLStrings() ;
@@ -160,7 +160,7 @@ LumiBlockRangeContainerConverter::GetXMLStrings(const Root::TGRLCollection& grlc
 
 
 const TString 
-LumiBlockRangeContainerConverter::GetXMLString( const xAOD::LumiBlockRangeContainer& lbc, const std::map<TString,TString>& metadata, const char* version ) const
+LumiBlockRangeContainerConverter::GetXMLString( const xAOD::LumiBlockRangeContainer& lbc, const std::map<TString,TString>& metadata, const char* version )
 {
   Root::TGoodRunsList* pgrl = this->GetGRLObject(lbc,metadata,version);
   m_writer->SetGoodRunsList( *pgrl ) ;
@@ -207,7 +207,7 @@ LumiBlockRangeContainerConverter::GetGRLObject( const xAOD::LumiBlockRangeContai
 
 
 Root::TGoodRunsList* 
-LumiBlockRangeContainerConverter::GetGRLObject( const char* xmlfile ) const
+LumiBlockRangeContainerConverter::GetGRLObject( const char* xmlfile )
 {
   m_reader->SetXMLFile( xmlfile );
   (void) m_reader->Interpret();
@@ -216,7 +216,7 @@ LumiBlockRangeContainerConverter::GetGRLObject( const char* xmlfile ) const
 
 
 Root::TGoodRunsList* 
-LumiBlockRangeContainerConverter::GetGRLObjectFromString( const TString& xmlstring ) const
+LumiBlockRangeContainerConverter::GetGRLObjectFromString( const TString& xmlstring )
 {
   m_reader->SetXMLString( xmlstring );
   (void) m_reader->Interpret();
@@ -225,7 +225,7 @@ LumiBlockRangeContainerConverter::GetGRLObjectFromString( const TString& xmlstri
 
 
 Root::TGRLCollection*
-LumiBlockRangeContainerConverter::GetGRLCollection( const char* xmlfile ) const
+LumiBlockRangeContainerConverter::GetGRLCollection( const char* xmlfile )
 {
   m_reader->SetXMLFile( xmlfile );
   (void) m_reader->Interpret();
@@ -234,7 +234,7 @@ LumiBlockRangeContainerConverter::GetGRLCollection( const char* xmlfile ) const
 
 
 Root::TGRLCollection*
-LumiBlockRangeContainerConverter::GetGRLCollectionFromString( const TString& xmlstring ) const
+LumiBlockRangeContainerConverter::GetGRLCollectionFromString( const TString& xmlstring )
 {
   m_reader->SetXMLString( xmlstring );
   (void) m_reader->Interpret();

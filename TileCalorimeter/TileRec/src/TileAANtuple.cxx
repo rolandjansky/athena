@@ -2,7 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-///*****************************************************************************
+//*****************************************************************************
 //  Filename : TileAANtuple.cxx
 //  Author   : Alexander Solodkov
 //  Created  : April, 2010
@@ -23,6 +23,7 @@
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileConditions/TileCablingService.h"
 #include "TileConditions/ITileBadChanTool.h"
+#include "TileConditions/TileInfo.h"
 #include "TileDetDescr/TileDetDescrManager.h"
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileEvent/TileDigitsContainer.h"
@@ -63,10 +64,22 @@ memset(array,0,sizeof(array))
 memset(array,-1,sizeof(array))
 
 #define CLEAR2(array,size)			\
-memset(array,0,sizeof(array)/size)
+  memset(array,0,sizeof(array)/size)
 
 #define CLEAR3(array,size)			\
-memset(array,-1,sizeof(array)/size)
+  memset(array,-1,sizeof(array)/size)
+
+// clear for MF arrays with two gains
+#define CLEAR4(array,size)                      \
+memset(array,0,sizeof(*array)*N_ROS2*N_MODULES*N_CHANS*m_nSamples/size)
+
+// clear for sample arrays with two gains
+#define CLEAR5(array,size)                      \
+memset(array,-1,sizeof(*array)*N_ROS2*N_MODULES*N_CHANS*m_nSamples/size)
+
+// clear for TMDB sample arrays with one gain
+#define CLEAR6(array)                           \
+memset(array,0,sizeof(*array)*N_ROS*N_MODULES*N_TMDBCHANS*m_nSamples)
 
 #define NAME1(s1)				\
 s1.c_str()
@@ -76,6 +89,13 @@ s1.c_str()
 
 #define NAME3(s1,s2,s3)				\
 (s1+s2+s3).c_str()
+
+#define NAME5(s1,s2,s3,s4,s5)			\
+(s1+s2+s3+s4+s5).c_str()
+
+#define sample_ind(r,m,c,i) (((r*N_MODULES + m)*N_CHANS + c)*m_nSamples) + i
+
+#define sample_ind_TMDB(r,m,c,i) (((r*N_MODULES + m)*N_TMDBCHANS + c)*m_nSamples) + i
 
 // Constructor & deconstructor
 /** @class TileAANtuple
@@ -162,7 +182,7 @@ TileAANtuple::TileAANtuple(std::string name, ISvcLocator* pSvcLocator)
   declareProperty("CompareMode", m_compareMode = false);
   declareProperty("BSInput", m_bsInput = true);
   declareProperty("PMTOrder", m_pmtOrder = false);
-  
+
   declareProperty("StreamName", m_streamName = "AANT");
   declareProperty("NTupleID", m_ntupleID = "h2000");
   declareProperty("TreeSize", m_treeSize = 16000000000LL);
@@ -171,7 +191,8 @@ TileAANtuple::TileAANtuple(std::string name, ISvcLocator* pSvcLocator)
   declareProperty("DCSBranches",m_DCSBranches = 111111111);
 
   declareProperty("SkipEvents", m_skipEvents = 0);
-  
+  declareProperty("NSamples", m_nSamples=7);
+
   m_evtNr = -1;
 }
 
@@ -218,6 +239,12 @@ StatusCode TileAANtuple::initialize() {
   if (m_dspRawChannelContainerKey.empty() && m_bsInput) {
     m_dspRawChannelContainerKey = "TileRawChannelCnt"; // try DSP container name to read DQ status
   }
+
+  int sample_size = N_ROS2*N_MODULES*N_CHANS*m_nSamples;
+  int sample_TMDB_size = N_ROS*N_MODULES*N_TMDBCHANS*m_nSamples;
+  m_arrays->m_sample = (short *) malloc(sample_size*sizeof(short));
+  m_arrays->m_sampleFlt = (short *) malloc(sample_size*sizeof(short));
+  m_arrays->m_sampleTMDB = (unsigned char *) malloc(sample_TMDB_size*sizeof(unsigned char));
 
   ATH_CHECK( m_beamElemContainerKey.initialize(m_bsInput) );
   ATH_CHECK( m_digitsContainerKey.initialize(SG::AllowEmpty) );
@@ -819,8 +846,8 @@ TileAANtuple::storeRawChannels(const EventContext& ctx
 StatusCode
 TileAANtuple::storeMFRawChannels(const EventContext& ctx
                                  , const SG::ReadHandleKey<TileRawChannelContainer>& containerKey
-                                 , float ene[N_ROS2][N_MODULES][N_CHANS][N_SAMPLES]
-                                 , float time[N_ROS2][N_MODULES][N_CHANS][N_SAMPLES]
+                                 , float * ene
+                                 , float * time
                                  , float chi2[N_ROS2][N_MODULES][N_CHANS]
                                  , float ped[N_ROS2][N_MODULES][N_CHANS]
                                  , bool fillAll)
@@ -828,7 +855,7 @@ TileAANtuple::storeMFRawChannels(const EventContext& ctx
   if (containerKey.empty()) {// empty name, nothing to do
     return StatusCode::FAILURE;
   }
-  
+
   // get named container
   const TileRawChannelContainer* rcCnt = \
     SG::makeHandle (containerKey, ctx).get();
@@ -918,7 +945,7 @@ TileAANtuple::storeMFRawChannels(const EventContext& ctx
           else         rosI = rosL;
         }
       }
-      
+
       /// final calibration
       float energy = 0.;
       for (int i = 0; i < 7; ++i) {
@@ -930,8 +957,8 @@ TileAANtuple::storeMFRawChannels(const EventContext& ctx
             energy = m_tileToolEmscale->channelCalibOnl(drawerIdx, channel, adc, energy, m_rchUnit);
         }
 	      	
-        ene[rosI][drawer][channel][i] = energy;
-        time[rosI][drawer][channel][i] = rch->time(i);
+        ene[sample_ind(rosI,drawer,channel,i)] = energy;
+        time[sample_ind(rosI,drawer,channel,i)] = rch->time(i);
       }
       chi2[rosI][drawer][channel] = rch->quality();
       ped[rosI][drawer][channel] = rch->pedestal();
@@ -940,7 +967,7 @@ TileAANtuple::storeMFRawChannels(const EventContext& ctx
         m_arrays->m_gain[rosI][drawer][channel] = adc;
       
       if (m_compareMode) { // filling array for SumEt calculations
-        E[channel] = ene[rosI][drawer][channel][0];
+        E[channel] = ene[sample_ind(rosI,drawer,channel,0)];
         gain[channel] = adc;
         if (dspCont) { // use bad flag from DSP container only
           m_bad[rosL][drawer][channel] = (rch->quality() > 15.99);
@@ -955,7 +982,7 @@ TileAANtuple::storeMFRawChannels(const EventContext& ctx
         ATH_MSG_VERBOSE( "TRC ch " << channel
                          << " gain " << adc
                          << " type " << std::min(index,0)
-                         << " ene=" << ene[rosI][drawer][channel][0]
+                         << " ene=" << ene[sample_ind(rosI,drawer,channel,0)]
                          << " time=" << rch->time()
                          << " chi2=" << rch->quality()
                          << " ped=" << rch->pedestal()  );
@@ -1016,7 +1043,6 @@ TileAANtuple::storeMFRawChannels(const EventContext& ctx
   return StatusCode::SUCCESS;
 }
 
-
 /**
  /// Fill Ntuple with info from TileDigits
  /// Return true if the collection is empty
@@ -1024,7 +1050,7 @@ TileAANtuple::storeMFRawChannels(const EventContext& ctx
 StatusCode
 TileAANtuple::storeDigits(const EventContext& ctx
                           , const SG::ReadHandleKey<TileDigitsContainer>& containerKey
-                          , short a_sample[N_ROS2][N_MODULES][N_CHANS][N_SAMPLES]
+                          , short *a_sample
                           , short a_gain[N_ROS2][N_MODULES][N_CHANS]
                           , bool fillAll)
 {
@@ -1142,6 +1168,7 @@ TileAANtuple::storeDigits(const EventContext& ctx
         }
       }
       
+      
       int cmpCounter = 0;
       // go through all TileDigits in collection
       for (; it != itEnd; it++) {
@@ -1182,8 +1209,9 @@ TileAANtuple::storeDigits(const EventContext& ctx
             msg(MSG::VERBOSE) <<(int)sampleVec[i] << " ";
           }
         }
-        if (siz > N_SAMPLES) {
-          siz = N_SAMPLES;
+	// changed N_SAMPLES to number of samples from tile configurator
+        if (siz > m_nSamples) {
+          siz = m_nSamples;
           if (msgLvl(MSG::VERBOSE))
             ATH_MSG_VERBOSE( "} ONLY " << siz << " digits saved to ntuple" );
         } else {
@@ -1191,7 +1219,7 @@ TileAANtuple::storeDigits(const EventContext& ctx
             ATH_MSG_VERBOSE( "}"  );
         }
         for (int n = 0; n < siz; ++n) {
-          a_sample[rosI][drawer][channel][n] = (short) sampleVec[n];
+          a_sample[sample_ind(rosI,drawer,channel,n)] = (short) sampleVec[n];
         }
       }
     }
@@ -1298,24 +1326,24 @@ StatusCode TileAANtuple::storeTMDBDigits(const EventContext& ctx) {
           }
 
           const TileDigits* digit = (*it1);
-        
+	  
           // get digits
           const std::vector<float> & sampleVec = digit->samples();
           int siz = sampleVec.size();
 
-          if (siz > N_SAMPLES) {
-            ATH_MSG_VERBOSE( "ONLY " << N_SAMPLES << " digits saved to ntuple instead of " << siz);
-            siz = N_SAMPLES;
+          if (siz > m_nSamples) {
+            ATH_MSG_VERBOSE( "ONLY " << m_nSamples << " digits saved to ntuple instead of " << siz);
+            siz = m_nSamples;
           }
 
           for (int n = 0; n < siz; ++n) {
-            m_arrays->m_sampleTMDB[ros][drawer][ichannel][n] = (unsigned char) sampleVec[n];
+            m_arrays->m_sampleTMDB[sample_ind_TMDB(ros,drawer,ichannel,n)] = (unsigned char) sampleVec[n];
           }
 
           if (msgLvl(MSG::VERBOSE)) {
             std::stringstream ss;
             for (int n = 0; n < siz; ++n) {
-              ss<<std::setw(5)<<(int)m_arrays->m_sampleTMDB[ros][drawer][ichannel][n];
+              ss<<std::setw(5)<<(int)m_arrays->m_sampleTMDB[sample_ind_TMDB(ros,drawer,ichannel,n)];
             }
             ATH_MSG_VERBOSE( "      dig: " <<ros+1<<"/"<<drawer<<"/"<<m_tileHWID->channel(digit->adc_HWID())<<": "<<ss.str()  );
           }
@@ -1386,6 +1414,13 @@ StatusCode TileAANtuple::storeTMDBRawChannel(const EventContext& ctx) {
 
 StatusCode
 TileAANtuple::finalize() {
+  
+  if (m_arrays->m_sample) free(m_arrays->m_sample);
+  if (m_arrays->m_sampleFlt) free(m_arrays->m_sampleFlt);
+  if (m_arrays->m_sampleTMDB) free(m_arrays->m_sampleTMDB);
+  if (m_arrays->m_eMF) free(m_arrays->m_eMF);
+  if (m_arrays->m_tMF) free(m_arrays->m_tMF);
+
   ATH_MSG_INFO( "finalize() successfully" );
   return StatusCode::SUCCESS;
 }
@@ -1812,8 +1847,10 @@ void TileAANtuple::DIGI_addBranch(void)
     m_ntuplePtr->Branch(NAME2("sumEz",suf[2]),       m_sumEz_zz,     NAME3("sumEz",    suf[2],"[4][64]/F")); // float
     m_ntuplePtr->Branch(NAME2("sumE", suf[2]),       m_sumE_zz,      NAME3("sumE",     suf[2],"[4][64]/F")); // float
   }
-  
-  int imin = 2, imax = 3, ir = 0;
+
+  int sample_size = N_ROS*N_MODULES*N_CHANS*m_nSamples;
+
+  int imin = 2, imax = 3, ir = 0, is = 0;
   
   if (m_calibMode) {
     imin = 0;
@@ -1823,7 +1860,7 @@ void TileAANtuple::DIGI_addBranch(void)
   for (int i = imin; i < imax; ++i) {
     
     std::string f_suf(suf[i]);
-    
+   
     if (m_fltDigitsContainerKey.empty() && m_digitsContainerKey.empty()
         && (!m_rawChannelContainerKey.empty()
             || !m_fitRawChannelContainerKey.empty()
@@ -1843,10 +1880,10 @@ void TileAANtuple::DIGI_addBranch(void)
           if (!m_fltDigitsContainerKey.empty()) {
             if (!m_digitsContainerKey.empty()) { // should use different names for two containers
               
-              m_ntuplePtr->Branch(NAME2("sampleFlt",f_suf),   m_arrays->m_sampleFlt[ir],     NAME3("sampleFlt",    f_suf,"[4][64][48][7]/S")); // short
+              m_ntuplePtr->Branch(NAME2("sampleFlt",f_suf),   &(m_arrays->m_sample[is]),     NAME5("sampleFlt",    f_suf,"[4][64][48][",std::to_string(m_nSamples),"]/S")); // short 
               m_ntuplePtr->Branch(NAME2("gainFlt",f_suf),     m_arrays->m_gainFlt[ir],       NAME3("gainFlt",      f_suf,"[4][64][48]/S"));    // short
             } else {
-              m_ntuplePtr->Branch(NAME2("sample",f_suf),      m_arrays->m_sampleFlt[ir],     NAME3("sampleFlt",    f_suf,"[4][64][48][7]/S")); // short
+              m_ntuplePtr->Branch(NAME2("sample",f_suf),      &(m_arrays->m_sampleFlt[is]),     NAME5("sampleFlt",    f_suf,"[4][64][48][",std::to_string(m_nSamples),"]/S")); // short 
               if (!m_rawChannelContainerKey.empty()
                   || !m_fitRawChannelContainerKey.empty()
                   || !m_fitcRawChannelContainerKey.empty()
@@ -1865,7 +1902,7 @@ void TileAANtuple::DIGI_addBranch(void)
           }
           
           if (!m_digitsContainerKey.empty()) {
-            m_ntuplePtr->Branch(NAME2("sample",f_suf),          m_arrays->m_sample[ir],        NAME3("sample",       f_suf,"[4][64][48][7]/S")); // short
+            m_ntuplePtr->Branch(NAME2("sample",f_suf),          &(m_arrays->m_sample[is]),        NAME5("sample",       f_suf,"[4][64][48][",std::to_string(m_nSamples),"]/S")); // short 
             m_ntuplePtr->Branch(NAME2("gain",f_suf),            m_arrays->m_gain[ir],          NAME3("gain",         f_suf,"[4][64][48]/S"));    // short
             
             if (m_bsInput) {
@@ -1947,8 +1984,8 @@ void TileAANtuple::DIGI_addBranch(void)
     }
     
     if (!m_mfRawChannelContainerKey.empty()) {
-      m_ntuplePtr->Branch(NAME2("eMF",f_suf),        m_arrays->m_eMF[ir],               NAME3("eMF",f_suf,"[4][64][48][7]/F")); // float
-      m_ntuplePtr->Branch(NAME2("tMF",f_suf),        m_arrays->m_tMF[ir],               NAME3("tMF",f_suf,"[4][64][48][7]/F")); // float
+      m_ntuplePtr->Branch(NAME2("eMF",f_suf),        &(m_arrays->m_eMF[is]),               NAME3("eMF",f_suf,NAME3("[4][64][48][",std::to_string(m_nSamples),"]/F"))); // float 
+      m_ntuplePtr->Branch(NAME2("tMF",f_suf),        &(m_arrays->m_tMF[is]),               NAME3("tMF",f_suf,NAME3("[4][64][48][",std::to_string(m_nSamples),"]/F"))); // float 
       m_ntuplePtr->Branch(NAME2("chi2MF",f_suf),     m_arrays->m_chi2MF[ir],         NAME3("chi2MF",f_suf,"[4][64][48]/F")); // float
       m_ntuplePtr->Branch(NAME2("pedMF",f_suf),      m_arrays->m_pedMF[ir],           NAME3("pedMF",f_suf,"[4][64][48]/F")); // float
     }
@@ -1972,6 +2009,7 @@ void TileAANtuple::DIGI_addBranch(void)
       }
     }
     ir += N_ROS;
+    is += sample_size;
   }
 }
 
@@ -1998,12 +2036,13 @@ void TileAANtuple::DIGI_clearBranch(void) {
   CLEAR3(m_arrays->m_gain, size);
   
   if (!m_fltDigitsContainerKey.empty()) {
-    CLEAR3(m_arrays->m_sampleFlt, size);
+    CLEAR5(m_arrays->m_sampleFlt, size); 
     CLEAR3(m_arrays->m_gainFlt, size);
   }
   
   if (!m_digitsContainerKey.empty()) {
-    CLEAR3(m_arrays->m_sample, size);
+
+    CLEAR5(m_arrays->m_sample,size);
     
     if (m_bsInput) {
       CLEAR2(m_arrays->m_DMUheader, size);
@@ -2076,8 +2115,8 @@ void TileAANtuple::DIGI_clearBranch(void) {
   }
   
   if (!m_mfRawChannelContainerKey.empty()) {
-    CLEAR2(m_arrays->m_eMF, size);
-    CLEAR2(m_arrays->m_tMF, size);
+    CLEAR4(m_arrays->m_eMF, size);
+    CLEAR4(m_arrays->m_tMF, size);
     CLEAR2(m_arrays->m_chi2MF, size);
     CLEAR2(m_arrays->m_pedMF, size);
   }
@@ -2120,11 +2159,11 @@ void TileAANtuple::TMDB_addBranch(void)
   }
 
   if (!m_tileMuRcvDigitsContainerKey.empty()) {
-    m_ntuplePtr->Branch("sampleTMDB", m_arrays->m_sampleTMDB, "sampleTMDB[4][64][8][7]/b"); // unsigned char m_arrays->m_sampleTMDB[N_ROS][N_MODULES][N_TMDBCHANS][N_SAMPLES]
+    m_ntuplePtr->Branch("sampleTMDB", &(m_arrays->m_sampleTMDB[0]), NAME3("sampleTMDB[4][64][8][",std::to_string(m_nSamples),"]/b")); // unsigned char m_arrays->m_sampleTMDB[N_ROS][N_MODULES][N_TMDBCHANS][N_SAMPLES] 
   }
 
   if (!m_tileMuRcvContainerKey.empty()) {
-    m_ntuplePtr->Branch("decisionTMDB", m_arrays->m_decisionTMDB, "decisionTMDB[4][64][4]/b"); // unsigned char m_arrays->m_decisionTMDB[N_ROS][N_MODULES][N_TMDBDECISIONS]
+    m_ntuplePtr->Branch("decisionTMDB", m_arrays->m_decisionTMDB, "decisionTMDB[4][64][4]/b"); // unsigned char m_arrays->m_decisionTMDB[N_ROS][N_MODULES][N_TMDBDECISIONS] 
   }
 
 }
@@ -2132,7 +2171,7 @@ void TileAANtuple::TMDB_addBranch(void)
 void TileAANtuple::TMDB_clearBranch(void)
 {
   if (!m_tileMuRcvRawChannelContainerKey.empty()) CLEAR(m_arrays->m_eTMDB);
-  if (!m_tileMuRcvDigitsContainerKey.empty()) CLEAR(m_arrays->m_sampleTMDB);
+  if (!m_tileMuRcvDigitsContainerKey.empty()) CLEAR6(m_arrays->m_sampleTMDB);
   if (!m_tileMuRcvContainerKey.empty()) CLEAR(m_arrays->m_decisionTMDB);
 }
 

@@ -51,8 +51,8 @@ Trk::TrackSummaryUpdater::execute(){
   updatedCollection->reserve(inputTrackCollection->size());
   ATH_MSG_DEBUG("Update summaries");  
   const bool createNewSummary = (not m_updateAdditionalInfo) and (not m_updateSharedHits);
-  for (const auto pThisTrack : *inputTrackCollection) {
-    auto nonConstTrackPtr = const_cast<Trk::Track *>(pThisTrack);
+  for (const auto *const pThisTrack : *inputTrackCollection) {
+    auto *nonConstTrackPtr = const_cast<Trk::Track *>(pThisTrack);
     if (m_updateAdditionalInfo)  m_trkSummaryTool->updateAdditionalInfo(*nonConstTrackPtr);
     if (m_updateSharedHits) m_trkSummaryTool->updateSharedHitCount(*nonConstTrackPtr, prdToTrackMap.get());
     if (createNewSummary) m_trkSummaryTool->computeAndReplaceTrackSummary(*nonConstTrackPtr, prdToTrackMap.get(), false /* DO NOT suppress hole search*/);

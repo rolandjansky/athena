@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-export DigitizationTestsVersion="dev"
+DigitizationTestsVersion="dev"
 if [[ $ATLAS_RELEASE_BASE == *"20.7.X.Y-VAL"* ]]; then
     DigitizationTestsVersion="20.7.X.Y-VAL"
 elif [[ $ATLAS_RELEASE_BASE == *"20.7"* ]]; then
@@ -19,4 +19,8 @@ elif [[ $ATLAS_RELEASE_BASE == *"21.0"* ]]; then
     DigitizationTestsVersion="21.0.X"
 elif [[ $ATLAS_RELEASE_BASE == *"21.3"* ]]; then
     DigitizationTestsVersion="21.3.X"
+elif [[ $ATLAS_RELEASE_BASE == *"22.0-mc20"* ]] || [[ $ATLAS_RELEASE_BASE == *"22.0.41."* ]]; then
+    DigitizationTestsVersion="22.0-mc20"
 fi
+
+export DigitizationTestsVersion

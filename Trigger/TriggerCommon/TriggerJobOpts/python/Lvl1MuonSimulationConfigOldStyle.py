@@ -38,14 +38,20 @@ def NSWTriggerSequence(flags):
     nsw = CompFactory.NSWL1__NSWL1Simulation("NSWL1Simulation")
     nsw.DoNtuple=False
 
-    PadTdsTool = CompFactory.NSWL1__PadTdsOfflineTool("PadTdsOfflineTool",DoNtuple=False)
+    PadTdsTool = CompFactory.NSWL1__PadTdsOfflineTool("NSWL1__PadTdsOfflineTool",DoNtuple=False)
     nsw.PadTdsTool = PadTdsTool
-    PadTriggerLogicTool = CompFactory.NSWL1__PadTriggerLogicOfflineTool("PadTriggerLogicOfflineTool",DoNtuple=False)
+
+    PadTriggerLogicTool = CompFactory.NSWL1__PadTriggerLogicOfflineTool("NSWL1__PadTriggerLogicOfflineTool",DoNtuple=False)
     nsw.PadTriggerTool = PadTriggerLogicTool
-    PadTriggerLookupTool = CompFactory.NSWL1__PadTriggerLookupTool("PadTriggerLookupTool",DumpSectorGeometry=False)
+
+    PadTriggerLookupTool = CompFactory.NSWL1__PadTriggerLookupTool("NSWL1__PadTriggerLookupTool")
     nsw.PadTriggerLookupTool = PadTriggerLookupTool
-    StripTdsTool = CompFactory.NSWL1__StripTdsOfflineTool("StripTdsOfflineTool",DoNtuple=False)
+
+    StripTdsTool = CompFactory.NSWL1__StripTdsOfflineTool("NSWL1__StripTdsOfflineTool",DoNtuple=False)
     nsw.StripTdsTool = StripTdsTool
+
+    MMTriggerProcessorTool = CompFactory.NSWL1__TriggerProcessorTool("NSWL1__TriggerProcessorTool")
+    nsw.MMTriggerProcessorTool = MMTriggerProcessorTool
 
     # no MM trigger for this moment
     nsw.MMStripTdsTool = ""
@@ -57,7 +63,6 @@ def NSWTriggerSequence(flags):
     nsw.DosTGC=True
     nsw.UseLookup=False #use lookup table for the pad trigger
     nsw.NSWTrigRDOContainerName="NSWTRGRDO"
-    nsw.PadTriggerRDOName="NSWPADTRGRDO"
     nsw.StripSegmentTool.rIndexScheme=0
 
     return nsw
@@ -95,7 +100,7 @@ def MuonBytestream2RdoSequence(flags):
     from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheNames
     MuonCacheCreator=CompFactory.MuonCacheCreator
     cacheCreator = MuonCacheCreator(MdtCsmCacheKey = MuonCacheNames.MdtCsmCache,
-                                    CscCacheKey    = MuonCacheNames.CscCache,
+                                    CscCacheKey    = MuonCacheNames.CscCache if flags.Detector.GeometryCSC else "",
                                     RpcCacheKey    = MuonCacheNames.RpcCache,
                                     TgcCacheKey    = MuonCacheNames.TgcCache)
     
@@ -122,21 +127,25 @@ def MuonBytestream2RdoSequence(flags):
                                                                              Decoder = TGCRodDecoder )
     TgcRawDataProvider = CompFactory.Muon__TgcRawDataProvider(name = "TgcRawDataProvider" + postFix,
                                                               ProviderTool = MuonTgcRawDataProviderTool)
+
+    bs2rdoSeq = [cacheCreator,
+                 RpcRawDataProvider,
+                 TgcRawDataProvider,
+                 MdtRawDataProvider]
     # for CSC
-    CSCRodDecoder = CompFactory.Muon__CscROD_Decoder(name = "CscROD_Decoder" + postFix,
-                                                     IsCosmics = False,
-                                                     IsOldCosmics = False )
-    MuonCscRawDataProviderTool = CompFactory.Muon__CSC_RawDataProviderToolMT(name = "CSC_RawDataProviderToolMT" + postFix,
-                                                                             CscContainerCacheKey = MuonCacheNames.CscCache,
-                                                                             Decoder = CSCRodDecoder )
-    CscRawDataProvider = CompFactory.Muon__CscRawDataProvider(name = "CscRawDataProvider" + postFix,
-                                                              ProviderTool = MuonCscRawDataProviderTool)
+    if flags.Detector.GeometryCSC:
+        CSCRodDecoder = CompFactory.Muon__CscROD_Decoder(name = "CscROD_Decoder" + postFix,
+                                                         IsCosmics = False,
+                                                         IsOldCosmics = False )
+        MuonCscRawDataProviderTool = CompFactory.Muon__CSC_RawDataProviderToolMT(name = "CSC_RawDataProviderToolMT" + postFix,
+                                                                                 CscContainerCacheKey = MuonCacheNames.CscCache,
+                                                                                 Decoder = CSCRodDecoder )
+        CscRawDataProvider = CompFactory.Muon__CscRawDataProvider(name = "CscRawDataProvider" + postFix,
+                                                                  ProviderTool = MuonCscRawDataProviderTool)
+        bs2rdoSeq+=CscRawDataProvider
+
     from AthenaCommon.CFElements import seqAND
-    muonBS2RDO = seqAND( "MuonBs2RdoSeqForL1Muon", [cacheCreator,
-                                                    RpcRawDataProvider,
-                                                    TgcRawDataProvider,
-                                                    MdtRawDataProvider,
-                                                    CscRawDataProvider] )
+    muonBS2RDO = seqAND( "MuonBs2RdoSeqForL1Muon", bs2rdoSeq )
     return muonBS2RDO
     
 def MuonRdo2PrdSequence(flags):
@@ -198,8 +207,12 @@ def TGCTriggerConfig(flags):
                                                      TileMuRcv_Input = tmdbInput )
 
     from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
-    if MuonGeometryFlags.hasSTGC() or MuonGeometryFlags.hasMM():
+    if (MuonGeometryFlags.hasSTGC() or MuonGeometryFlags.hasMM()) and flags.Input.isMC:
         tgc.MaskFileName12 = "TrigT1TGCMaskedChannel.noFI._12.db"
+        tgc.USENSW = True
+        tgc.NSWSideInfo = "AC"
+        tgc.NSWTrigger_Input = "NSWTRGRDO"
+        tgc.FORCENSWCOIN = not flags.Trigger.L1MuonSim.NSWVetoMode
     else:
         tgc.MaskFileName12 = "TrigT1TGCMaskedChannel._12.db"
 
@@ -225,7 +238,8 @@ def TGCModifierConfig(flags):
                                                                 InputMuctpiLocation = "L1MuctpiStoreTGCint",
                                                                 OutputMuctpiLocation = "L1MuctpiStoreTGC",
                                                                 EmulateA = flags.Trigger.L1MuonSim.EmulateNSWA,
-                                                                EmulateC = flags.Trigger.L1MuonSim.EmulateNSWC )
+                                                                EmulateC = flags.Trigger.L1MuonSim.EmulateNSWC,
+                                                                NSWVetoMode = flags.Trigger.L1MuonSim.NSWVetoMode )
     return tgcModifier
 
 def Lvl1EndcapMuonSequence(flags):
@@ -233,13 +247,17 @@ def Lvl1EndcapMuonSequence(flags):
     tgc = TGCTriggerConfig(flags)
     from AthenaCommon.CFElements import seqAND
     if flags.Trigger.L1MuonSim.EmulateNSWA or flags.Trigger.L1MuonSim.EmulateNSWC:
-        rdo2prd = MuonRdo2PrdSequence(flags)
-        recoSegment = RecoMuonSegmentSequence(flags)
-        tgcmod = TGCModifierConfig(flags)
-        l1MuEndcapSim = seqAND("L1MuonEndcapSim", [tmdb,tgc,rdo2prd,recoSegment,tgcmod] )
+        if flags.Trigger.L1MuonSim.NSWVetoMode:
+            rdo2prd = MuonRdo2PrdSequence(flags)
+            recoSegment = RecoMuonSegmentSequence(flags)
+            tgcmod = TGCModifierConfig(flags)
+            l1MuEndcapSim = seqAND("L1MuonEndcapSim", [tmdb,tgc,rdo2prd,recoSegment,tgcmod] )
+        else:
+            tgcmod = TGCModifierConfig(flags)
+            l1MuEndcapSim = seqAND("L1MuonEndcapSim", [tmdb,tgc,tgcmod] )
     else:
         from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
-        if MuonGeometryFlags.hasSTGC() or MuonGeometryFlags.hasMM():
+        if (MuonGeometryFlags.hasSTGC() or MuonGeometryFlags.hasMM()) and flags.Input.isMC:
             nsw = NSWTriggerSequence(flags)
             l1MuEndcapSim = seqAND("L1MuonEndcapSim", [tmdb,nsw,tgc] )
         else:

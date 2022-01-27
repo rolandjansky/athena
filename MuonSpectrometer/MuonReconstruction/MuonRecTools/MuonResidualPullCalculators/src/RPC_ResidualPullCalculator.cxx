@@ -60,7 +60,7 @@ const Trk::ResidualPull* Muon::RPC_ResidualPullCalculator::residualPull(
     const Trk::ResidualPull::ResidualType resType,
     const Trk::TrackState::MeasurementType) const {
 
-  if (!trkPar || !measurement) return 0;
+  if (!trkPar || !measurement) return nullptr;
 
   Identifier ID = Trk::IdentifierExtractor::extract(measurement);
   if( ID.is_valid() && m_idHelperSvc->isRpc(ID) ) {
@@ -79,7 +79,7 @@ const Trk::ResidualPull* Muon::RPC_ResidualPullCalculator::residualPull(
     } else {
       ATH_MSG_WARNING ( "RPC ClusterOnTrack does not carry the expected "
                         << "LocalParameters structure!" );
-      return 0;
+      return nullptr;
     }
     
     // calculate pull
@@ -100,7 +100,7 @@ const Trk::ResidualPull* Muon::RPC_ResidualPullCalculator::residualPull(
 
   } else {
     ATH_MSG_DEBUG ( "Input problem measurement is not RPC." );
-    return 0;
+    return nullptr;
   }
 }
 

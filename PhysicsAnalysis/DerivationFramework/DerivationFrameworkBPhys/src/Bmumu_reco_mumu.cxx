@@ -32,28 +32,9 @@ namespace DerivationFramework {
   Bmumu_reco_mumu::Bmumu_reco_mumu(const std::string& t,
       const std::string& n,
       const IInterface* p) : 
-    CfAthAlgTool(t,n,p),
-    m_v0Tools("Trk::V0Tools"),
-    m_jpsiFinder("Analysis::JpsiFinder"),
-    m_pvRefitter("Analysis::PrimaryVertexRefitter")
-  {
+    CfAthAlgTool(t,n,p){
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     
-    // Declare tools    
-    declareProperty("V0Tools"   , m_v0Tools);
-    declareProperty("JpsiFinder", m_jpsiFinder);
-    declareProperty("PVRefitter", m_pvRefitter);
-    
-    // Declare user-defined properties
-    declareProperty("OutputVtxContainerName", m_outputVtxContainerName = "OniaCandidates");
-    declareProperty("PVContainerName"       , m_pvContainerName        = "PrimaryVertices");
-    declareProperty("RefPVContainerName"    , m_refPVContainerName     = "RefittedPrimaryVertices");
-    declareProperty("RefitPV"               , m_refitPV                = false);
-    declareProperty("MaxPVrefit"            , m_PV_max                 = 1);
-    declareProperty("DoVertexType"          , m_DoVertexType           = 1);
-    // minimum number of tracks for PV to be considered for PV association
-    declareProperty("MinNTracksInPV"        , m_PV_minNTracks          = 0);
-    declareProperty("Do3d"                  , m_do3d                   = false);
   }
 
   // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -74,31 +55,26 @@ namespace DerivationFramework {
 
     // Get the beam spot service
     CHECK( m_beamSpotKey.initialize() );
+    ATH_CHECK(m_pvContainerKey.initialize());
+    ATH_CHECK(m_refContainerKey.initialize(m_refitPV));
+    ATH_CHECK(m_outVtxContainerKey.initialize());
     
     return StatusCode::SUCCESS;
     
   }
-  
-  // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-
-  StatusCode Bmumu_reco_mumu::finalize()
-  {
-    // everything all right
-    return StatusCode::SUCCESS;
-  }
-
-  // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-  
-  StatusCode Bmumu_reco_mumu::addBranches() const
-  {
+ 
+  StatusCode Bmumu_reco_mumu::addBranches() const {
+    
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     // Jpsi container and its auxilliary store
-    xAOD::VertexContainer*    vtxContainer = NULL;
-    xAOD::VertexAuxContainer* vtxAuxContainer = NULL;
+    std::unique_ptr<xAOD::VertexContainer>  vtxContainer = std::make_unique<xAOD::VertexContainer>();
+    std::unique_ptr<xAOD::VertexAuxContainer> vtxAuxContainer = std::make_unique<xAOD::VertexAuxContainer>();
+    vtxContainer->setStore(vtxAuxContainer.get());
     
     //----------------------------------------------------
     // call Jpsi finder
     //----------------------------------------------------
-    if( !m_jpsiFinder->performSearch(vtxContainer, vtxAuxContainer).isSuccess() ) {
+    if( !m_jpsiFinder->performSearch(ctx, *vtxContainer).isSuccess() ) {
       ATH_MSG_FATAL("Jpsi finder (" << m_jpsiFinder << ") failed.");
       return StatusCode::FAILURE;
     }
@@ -106,61 +82,48 @@ namespace DerivationFramework {
     //----------------------------------------------------
     // retrieve primary vertices
     //----------------------------------------------------
-    const xAOD::VertexContainer*    pvContainer = NULL;
-    CHECK( evtStore()->retrieve(pvContainer, m_pvContainerName) );
-
+    SG::ReadHandle<xAOD::VertexContainer> pvContainer{m_pvContainerKey,ctx};
+    if (!pvContainer.isValid()){
+        ATH_MSG_FATAL("Failed to retrieve "<<m_pvContainerKey);
+        return StatusCode::FAILURE;
+    }
+    
+    
     //----------------------------------------------------
     // Try to retrieve refitted primary vertices
     //----------------------------------------------------
-    bool refPvExists = false;
-    xAOD::VertexContainer*    refPvContainer = NULL;
-    xAOD::VertexAuxContainer* refPvAuxContainer = NULL;
-    if(m_refitPV) {
-      if(evtStore()->contains<xAOD::VertexContainer>(m_refPVContainerName)) {
-        // refitted PV container exists. Get it from the store gate
-        CHECK( evtStore()->retrieve(refPvContainer, m_refPVContainerName) );
-        CHECK( evtStore()->retrieve(refPvAuxContainer, m_refPVContainerName+"Aux.") );
-        refPvExists = true;
-      } else {
-        // refitted PV container does not exist. Create a new one.
-        refPvContainer = new xAOD::VertexContainer;
-        refPvAuxContainer = new xAOD::VertexAuxContainer;
-        refPvContainer->setStore(refPvAuxContainer);
-      }
-    }
+    std::unique_ptr<xAOD::VertexContainer>    refPvContainer = std::make_unique<xAOD::VertexContainer>();
+    std::unique_ptr<xAOD::VertexAuxContainer> refPvAuxContainer = std::make_unique<xAOD::VertexAuxContainer>();
+    refPvContainer->setStore(refPvAuxContainer.get());
+    
+    //m_refContainerKey
     
     // Give the helper class the ptr to v0tools and beamSpotsSvc to use
-    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
-    if(not beamSpotHandle.isValid()) ATH_MSG_ERROR("Cannot Retrieve " << m_beamSpotKey.key() );
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
+    if(!beamSpotHandle.isValid()) {
+        ATH_MSG_ERROR("Cannot Retrieve " << m_beamSpotKey.key() );
+        return StatusCode::FAILURE;
+    }
     BPhysPVTools helper(&(*m_v0Tools), beamSpotHandle.cptr());
     helper.SetMinNTracksInPV(m_PV_minNTracks);
     helper.SetSave3d(m_do3d);
 
-    if(m_refitPV){ 
-       if(vtxContainer->size() >0){
-        StatusCode SC = helper.FillCandwithRefittedVertices(vtxContainer,  pvContainer, refPvContainer, &(*m_pvRefitter) , m_PV_max, m_DoVertexType);
-        if(SC.isFailure()){
-            ATH_MSG_FATAL("refitting failed - check the vertices you passed");
-            return SC;
-        }
-        }
-    }else{
-        if(vtxContainer->size() >0)CHECK(helper.FillCandExistingVertices(vtxContainer, pvContainer, m_DoVertexType));
+    if(m_refitPV && vtxContainer->size()){
+        ATH_CHECK(helper.FillCandwithRefittedVertices(vtxContainer.get(),  pvContainer.cptr(), refPvContainer.get(), &(*m_pvRefitter) , m_PV_max, m_DoVertexType));
+    }else if (!m_refitPV && vtxContainer->size() >0){
+        ATH_CHECK(helper.FillCandExistingVertices(vtxContainer.get(), pvContainer.cptr(), m_DoVertexType));
     }
     
     
     //----------------------------------------------------
     // save in the StoreGate
     //----------------------------------------------------
-    if (!evtStore()->contains<xAOD::VertexContainer>(m_outputVtxContainerName))       
-      CHECK(evtStore()->record(vtxContainer, m_outputVtxContainerName));
+    SG::WriteHandle<xAOD::VertexContainer> outputVertices{m_outVtxContainerKey, ctx};
+    ATH_CHECK(outputVertices.record(std::move(vtxContainer), std::move(vtxAuxContainer)));
     
-    if (!evtStore()->contains<xAOD::VertexAuxContainer>(m_outputVtxContainerName+"Aux.")) 
-      CHECK(evtStore()->record(vtxAuxContainer, m_outputVtxContainerName+"Aux."));
-    
-    if(!refPvExists && m_refitPV) {
-      CHECK(evtStore()->record(refPvContainer   , m_refPVContainerName));
-      CHECK(evtStore()->record(refPvAuxContainer, m_refPVContainerName+"Aux."));
+    if(m_refitPV) {
+      SG::WriteHandle<xAOD::VertexContainer> refitVertices{m_refContainerKey,ctx};
+      ATH_CHECK(refitVertices.record(std::move(refPvContainer), std::move(refPvAuxContainer)));
     }
 
     // add counter for number of events seen

@@ -1,9 +1,0 @@
-<lcgdict>
-  <class name="TrigTauEmul::Level1EmulationTool"/>
-  <class name="TrigTauEmul::HltEmulationTool"/>
-  <class name="ToolsRegistry"/>
-  <class name="EmTauSelectionTool"/>
-  <class name="JetRoISelectionTool"/>
-  <class name="Level1TopoSelectionTool"/>
-  <class name="TrigTauORLTool"/>
-</lcgdict>

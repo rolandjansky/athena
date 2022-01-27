@@ -175,7 +175,7 @@ void TileL2Cnv_p2::persToTrans(const TileL2_p2* persObj, TileL2* transObj, MsgSt
     }
   }
 
-  transObj->setEt (sumE);
+  transObj->setEt (std::move(sumE));
 
   // Muon eta coordinate
   std::vector<float> eta (it, it+l2);  it += l2;

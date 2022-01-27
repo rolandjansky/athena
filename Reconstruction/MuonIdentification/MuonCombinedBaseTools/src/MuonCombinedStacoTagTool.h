@@ -37,14 +37,12 @@ namespace MuonCombined {
                              const EventContext& ctx) const override;
 
     private:
-        std::unique_ptr<const Trk::Perigee> theCombIdMu(const Trk::Perigee& indetPerigee, const Trk::Perigee& extrPerigee,
+        std::unique_ptr<Trk::Perigee> theCombIdMu(const Trk::Perigee& indetPerigee, const Trk::Perigee& extrPerigee,
                                                         double& chi2) const;
 
         ToolHandle<Muon::MuonEDMPrinterTool> m_printer{this, "Printer", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
         ToolHandle<MuonCombined::IMuonTrackTagTool> m_tagTool{this, "TagTool", ""};  // tool needs to be set up explicitly
         ToolHandle<Trk::IExtrapolator> m_extrapolator{this, "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator"};
-        ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtTool{this, "ParticleCaloExtensionTool",
-                                                                  "Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"};
     };
 
 }  // namespace MuonCombined

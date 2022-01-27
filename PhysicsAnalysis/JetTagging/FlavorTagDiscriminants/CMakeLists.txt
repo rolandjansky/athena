@@ -13,6 +13,7 @@ atlas_subdir( FlavorTagDiscriminants )
 find_package( Boost COMPONENTS filesystem )
 find_package( lwtnn )
 find_package( ROOT COMPONENTS Core MathCore )
+find_package( onnxruntime )
 
 # Build a shared library:
 atlas_add_library( FlavorTagDiscriminants
@@ -23,8 +24,10 @@ atlas_add_library( FlavorTagDiscriminants
   Root/BTagMuonAugmenterTool.cxx
   Root/DL2.cxx
   Root/DL2HighLevel.cxx
-  Root/DL2HighLevelTools.cxx
   Root/DL2Tool.cxx
+  Root/DataPrepUtilities.cxx
+  Root/OnnxUtil.cxx
+  Root/GNNTool.cxx
   Root/customGetter.cxx
   Root/FlipTagEnums.cxx
   Root/AssociationEnums.cxx
@@ -35,11 +38,12 @@ atlas_add_library( FlavorTagDiscriminants
   Root/HbbTagConfig.cxx
   Root/HbbGraphConfig.cxx
   Root/VRJetOverlapDecorator.cxx
+  Root/FTagDataDependencyNames.cxx
   PUBLIC_HEADERS FlavorTagDiscriminants
   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-  INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
+  INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS} ${ONNXRUNTIME_INCLUDE_DIRS}
   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} PathResolver
-  LINK_LIBRARIES ${Boost_LIBRARIES} ${LWTNN_LIBRARIES} AsgTools AthContainers AthLinks JetInterface xAODBTagging xAODEventInfo xAODJet xAODMuon xAODTracking )
+  LINK_LIBRARIES ${Boost_LIBRARIES} ${LWTNN_LIBRARIES} ${ONNXRUNTIME_LIBRARIES} AsgTools AthContainers AthLinks JetInterface xAODBTagging xAODEventInfo xAODJet xAODMuon xAODTracking )
 
 
 if (NOT XAOD_STANDALONE)
@@ -51,6 +55,7 @@ if (NOT XAOD_STANDALONE)
     src/BTagTrackLinkCopyAlg.cxx
     src/BTaggingBuilderAlg.cxx
     src/PoorMansIpAugmenterAlg.cxx
+    src/JetTagConditionalDecoratorAlg.cxx
     src/components/FlavorTagDiscriminants_entries.cxx
     LINK_LIBRARIES FlavorTagDiscriminants
     )

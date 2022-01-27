@@ -4,15 +4,16 @@
 atlas_subdir( PLRGeoModelXml )
 
 # External dependencies:
-find_package( GeoModel COMPONENTS GeoModelKernel )
+find_package( XercesC )
+find_package( GeoModel COMPONENTS GeoModelKernel GeoModelXml )
 
 # Component(s) in the package:
 atlas_add_component( PLRGeoModelXml
                      src/*.cxx
                      src/components/*.cxx
-                     PRIVATE_INCLUDE_DIRS ${GEOMODEL_INCLUDE_DIRS}
-                     LINK_LIBRARIES GaudiKernel GeoModelUtilities GeoModelXml InDetGeoModelUtils PixelReadoutGeometryLib PixelGeoModelXmlLib
-                     PRIVATE_LINK_LIBRARIES ${GEOMODEL_LIBRARIES} AthenaBaseComps AthenaPoolUtilities DetDescrConditions GeoModelInterfaces ReadoutGeometryBase InDetReadoutGeometry InDetSimEvent PathResolver RDBAccessSvcLib SGTools StoreGateLib )
+                     PRIVATE_INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
+                     LINK_LIBRARIES GaudiKernel GeoModelUtilities InDetGeoModelUtils PixelReadoutGeometryLib PixelGeoModelXmlLib
+                     PRIVATE_LINK_LIBRARIES ${XERCESC_LIBRARIES} ${GEOMODEL_LIBRARIES} AthenaBaseComps AthenaPoolUtilities DetDescrConditions GeoModelInterfaces ReadoutGeometryBase InDetReadoutGeometry InDetSimEvent PathResolver RDBAccessSvcLib SGTools StoreGateLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

@@ -20,18 +20,30 @@ atlas_add_test( TriggerConfigFlags_AutoConfTest
    SCRIPT test_TriggerFlags_autoconf.py
    POST_EXEC_SCRIPT nopost.sh )
 
-atlas_add_test( NewJOL1SimSetup
+atlas_add_test( Lvl1SimulationConfig
    SCRIPT python -m TriggerJobOpts.Lvl1SimulationConfig
+   PRIVATE_WORKING_DIRECTORY
    PROPERTIES TIMEOUT 600
    POST_EXEC_SCRIPT nopost.sh )
 
-atlas_add_test( NewJOL1MuonSimSetup
+atlas_add_test( Lvl1MuonSimulationConfig
    SCRIPT python -m TriggerJobOpts.Lvl1MuonSimulationConfig
+   PRIVATE_WORKING_DIRECTORY
    PROPERTIES TIMEOUT 300
    POST_EXEC_SCRIPT nopost.sh )
-
 
 atlas_add_test( Run3ConfigFetchKeysTest
    SCRIPT python -m TriggerJobOpts.TriggerConfigGetter
    POST_EXEC_SCRIPT nopost.sh )
 
+atlas_add_test( Run1TriggerRecoConfigTest 
+   SCRIPT python -m TriggerJobOpts.TriggerRecoConfig Trigger.EDMVersion=1
+   POST_EXEC_SCRIPT nopost.sh )
+
+atlas_add_test( Run2TriggerRecoConfigTest 
+   SCRIPT python -m TriggerJobOpts.TriggerRecoConfig Trigger.EDMVersion=2
+   POST_EXEC_SCRIPT nopost.sh )
+
+atlas_add_test( Run3TriggerRecoConfigTest
+   SCRIPT python -m TriggerJobOpts.TriggerRecoConfig Trigger.EDMVersion=3
+   POST_EXEC_SCRIPT nopost.sh )

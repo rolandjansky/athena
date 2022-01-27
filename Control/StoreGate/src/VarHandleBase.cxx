@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // VarHandleBase.cxx 
@@ -931,7 +931,7 @@ namespace SG {
    * If neither match, it's an error.
    */
   StatusCode VarHandleBase::symLink_impl (CLID newClid,
-                                          const std::string& newKey) const
+                                          const std::string& newKey)
   {
     if (!m_ptr || !m_store) {
       REPORT_ERROR (StatusCode::FAILURE) << "symlink: Handle not valid.";

@@ -10,6 +10,7 @@ def LArGMCfg(configFlags):
     result=GeoModelCfg(configFlags)
 
     doAlignment=configFlags.LAr.doAlign
+    activateCondAlgs = not configFlags.GeoModel.Align.LegacyConditionsAccess
 
     tool = CompFactory.LArDetectorToolNV(ApplyAlignments=doAlignment, EnableMBTS=configFlags.Detector.GeometryMBTS)
     if configFlags.Common.ProductionStep != ProductionStep.Simulation and configFlags.Common.ProductionStep != ProductionStep.FastChain:
@@ -32,13 +33,42 @@ def LArGMCfg(configFlags):
                 result.merge(addFolders(configFlags,"/LAR/Align","LAR_ONL",className="DetCondKeyTrans"))
                 result.merge(addFolders(configFlags,"/LAR/LArCellPositionShift","LAR_ONL",className="CaloRec::CaloCellPositionShift"))
 
-        if configFlags.Common.Project != 'AthSimulation':
+        if activateCondAlgs:
             result.addCondAlgo(CompFactory.LArAlignCondAlg())
             result.addCondAlgo(CompFactory.CaloAlignCondAlg())
+            AthReadAlg_ExtraInputs = []
+            caloCellsInInput = "CaloCellContainer" in [i.split('#')[0] for i in configFlags.Input.TypedCollections]
+            sCellsInInput = False
+            caloCellKeys = []
+            if caloCellsInInput:
+                from SGComps.AddressRemappingConfig import AddressRemappingCfg
+                result.merge(AddressRemappingCfg())
+
+                caloCellKeys = [i.split('#')[1] for i in configFlags.Input.TypedCollections if "CaloCellContainer"==i.split('#')[0] ]
+                for key in caloCellKeys:
+                    if key != 'AllCalo':
+                        sCellsInInput = True
+
+            AthReadAlg_ExtraInputs.append(('CaloDetDescrManager', 'ConditionStore+CaloDetDescrManager'))            
+            if configFlags.GeoModel.Run == 'RUN3' and configFlags.Detector.GeometryTile or sCellsInInput:
+                result.addCondAlgo(CompFactory.CaloSuperCellAlignCondAlg())
+                AthReadAlg_ExtraInputs.append(('CaloSuperCellDetDescrManager', 'ConditionStore+CaloSuperCellDetDescrManager'))
+
+
+            if caloCellsInInput:
+                for key in caloCellKeys:
+                    AthReadAlg=CompFactory.AthReadAlg
+                    AthReadAlg_CaloCellCont = AthReadAlg (f'AthReadAlg_{key}',
+                                                          Key = f'CaloCellContainer/{key}',
+                                                          Aliases = [],
+                                                          ExtraInputs = AthReadAlg_ExtraInputs)
+                    result.addCondAlgo(AthReadAlg_CaloCellCont)
     else:
         # Build unalinged CaloDetDescrManager instance in the Condition Store
-        if configFlags.Common.Project != 'AthSimulation':
+        if activateCondAlgs:
             result.addCondAlgo(CompFactory.CaloAlignCondAlg(LArAlignmentStore="",CaloCellPositionShiftFolder=""))
+            if configFlags.GeoModel.Run == 'RUN3' and configFlags.Detector.GeometryTile:
+                result.addCondAlgo(CompFactory.CaloSuperCellAlignCondAlg())
             
     return result
 

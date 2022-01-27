@@ -24,7 +24,7 @@ from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 
 ex = ExecStep.ExecStep()
 ex.type = 'athenaHLT'
-ex.job_options = 'TrigExPartialEB/MTCalibPeb.py'
+ex.job_options = 'TrigExamples/MTCalibPeb.py'
 ex.input = 'data'
 ex.forks = 2
 ex.threads = 6

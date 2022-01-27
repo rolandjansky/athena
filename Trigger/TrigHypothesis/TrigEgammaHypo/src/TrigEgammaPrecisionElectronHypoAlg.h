@@ -36,19 +36,17 @@ class TrigEgammaPrecisionElectronHypoAlg : public ::HypoBase {
     TrigEgammaPrecisionElectronHypoAlg();
 
     Gaudi::Property< bool > m_runInView { this, "RunInView", false , "Set input DH for running in views" };     
-    Gaudi::Property< bool > m_do_idperf { this, "Do_idperf", false , "selection based on idperf" };
 
     SG::ReadHandleKey< xAOD::ElectronContainer > m_electronsKey { this, "Electrons", "Electrons", "Electrons in roi" };  
 
     ToolHandleArray< ITrigEgammaPrecisionElectronHypoTool > m_hypoTools { this, "HypoTools", {}, "Hypo tools" };
-    ToolHandleArray<IAsgElectronIsEMSelector> m_egammaElectronCBTools{ this, "ElectronCBSelectorTools", {},"Cut-based tools" };
-    ToolHandleArray<IAsgElectronLikelihoodTool> m_egammaElectronLHTools{ this, "ElectronLHSelectorTools", {},"Likelihood tools" };
-    ToolHandleArray<IAsgElectronLikelihoodTool> m_egammaElectronDNNTools{ this, "ElectronDNNSelectorTools", {},"DNN tools" };
+    PublicToolHandleArray<IAsgElectronIsEMSelector> m_egammaElectronCBTools{ this, "ElectronCBSelectorTools", {},"Cut-based tools" };
+    PublicToolHandleArray<IAsgElectronLikelihoodTool> m_egammaElectronLHTools{ this, "ElectronLHSelectorTools", {},"Likelihood tools" };
+    PublicToolHandleArray<IAsgElectronLikelihoodTool> m_egammaElectronDNNTools{ this, "ElectronDNNSelectorTools", {},"DNN tools" };
 
     Gaudi::Property<std::vector<std::string>> m_cbNames {this, "CBNames", {}, "CB pid names."};
     Gaudi::Property<std::vector<std::string>> m_lhNames {this, "LHNames", {}, "LH pid names."};
     Gaudi::Property<std::vector<std::string>> m_dnnNames {this, "DNNNames", {}, "DNN pid names."};
-    Gaudi::Property<std::vector<std::string>> m_idperfDecision {this, "idperfDecision", {}, "idperf Decisions."};
     /*Luminosity info*/
     SG::ReadDecorHandleKey<xAOD::EventInfo> m_avgMuKey { this, "averageInteractionsPerCrossingKey", "EventInfo.averageInteractionsPerCrossing", "Decoration for Average Interaction Per Crossing" };
 

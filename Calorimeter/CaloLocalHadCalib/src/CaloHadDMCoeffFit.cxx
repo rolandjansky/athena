@@ -1006,6 +1006,7 @@ void CaloHadDMCoeffFit::clear()
   int i_size=0;
   for (TProfile2D* h : m_hp2_DmWeight) {
     if( i_size==getFirstEnerLambdaBin(i_size) ) delete h;
+    i_size++;
   }
   m_hp2_DmWeight.clear();
 

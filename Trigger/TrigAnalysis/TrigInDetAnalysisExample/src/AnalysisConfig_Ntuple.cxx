@@ -573,6 +573,8 @@ void AnalysisConfig_Ntuple::loop() {
 
 	selectorTruth.clear();
 
+	static bool emptyContainerWarningGiven = false; // if container contains no events only print warning for first event
+
 	m_provider->msg(MSG::INFO) << "MC Truth flag " << m_mcTruth << endmsg; 
 	const TrigInDetTrackTruthMap* truthMap = 0;
 	bool foundTruth = false;
@@ -593,8 +595,13 @@ void AnalysisConfig_Ntuple::loop() {
 		}
 		else if (m_provider->evtStore()->contains<TruthParticleContainer>("SpclMC")) {
 			/// AOD
-			selectTracks<TruthParticleContainer>( &selectorTruth, "SpclMC");
-			foundTruth = true;
+			if (selectTracksNotEmpty<TruthParticleContainer>( &selectorTruth, "SpclMC")) { // added for muon sample bug
+				foundTruth = true;
+				m_provider->msg(MSG::DEBUG) << "SpclMC" << endmsg;
+			} else if (!emptyContainerWarningGiven) {
+				emptyContainerWarningGiven = true;
+				m_provider->msg(MSG::WARNING) << "SpclMC Container empty" << endmsg;
+			}
 		}
 		else if (m_provider->evtStore()->contains<TruthParticleContainer>("")) {
 			/// anything else?

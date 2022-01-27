@@ -27,8 +27,7 @@ ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'ttbar'
 ex.threads = 4
 ex.concurrent_events = 4
-# LS2_v1 soon to be renamed to Dev_pp_run3_v1
-ex.args = '-c "setMenu=\'LS2_v1\';doEmptyMenu=True;doBjetSlice=True;doWriteBS=False;doWriteRDOTrigger=True;"'
+ex.args = '-c "setMenu=\'Dev_pp_run3_v1\';doEmptyMenu=True;doBjetSlice=True;doWriteBS=False;doWriteRDOTrigger=True;"'
 
 test = Test.Test()
 test.art_type = 'grid'

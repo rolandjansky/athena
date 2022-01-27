@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -51,14 +51,13 @@ if __name__ == "__main__":
   Configurable.configurableRun3Behavior = True
   from AthenaConfiguration.TestDefaults import defaultTestFiles
   # Provide MC input
-  ConfigFlags.Input.Files = defaultTestFiles.HITS
+  ConfigFlags.Input.Files = defaultTestFiles.HITS_RUN2
   ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
-  ConfigFlags.GeoModel.Align.Dynamic    = False
+  ConfigFlags.GeoModel.Align.Dynamic = False
   # Provide data input
-  ##from AthenaConfiguration.TestDefaults import defaultTestFiles
-  ##ConfigFlags.Input.Files = defaultTestFiles.AOD
-  ##ConfigFlags.GeoModel.Align.Dynamic    = True
-  #
+  # from AthenaConfiguration.TestDefaults import defaultTestFiles
+  # ConfigFlags.Input.Files = defaultTestFiles.AOD
+  # ConfigFlags.GeoModel.Align.Dynamic = True
   ConfigFlags.lock()
   # Construct ComponentAccumulator
   acc = MainServicesCfg(ConfigFlags)

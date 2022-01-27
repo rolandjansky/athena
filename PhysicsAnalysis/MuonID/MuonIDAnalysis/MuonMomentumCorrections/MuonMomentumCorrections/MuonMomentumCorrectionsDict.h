@@ -7,10 +7,10 @@
 
 #if defined(__GCCXML__) and not defined(EIGEN_DONT_VECTORIZE)
 #define EIGEN_DONT_VECTORIZE
-#endif // __GCCXML__
+#endif  // __GCCXML__
 
 #include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 #include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"
 #include "MuonMomentumCorrections/MuonCalibrationPeriodTool.h"
 
-#endif // not MUONMOMENTUMCORRECTIONS_MUONMOMENTUMCORRECTIONSDICT_H
+#endif  // not MUONMOMENTUMCORRECTIONS_MUONMOMENTUMCORRECTIONSDICT_H

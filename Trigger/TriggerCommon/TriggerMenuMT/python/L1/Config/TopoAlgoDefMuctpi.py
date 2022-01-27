@@ -49,7 +49,7 @@ class TopoAlgoDefMuctpi:
 
             inputList = [d.otype1] if (d.mult>1) else [d.otype1, d.otype2]
             algoname = AlgConf.DeltaRSqrIncl1 if (d.mult>1) else AlgConf.DeltaRSqrIncl2
-            alg = algoname( name = toponame,  inputs = inputList, outputs = [ toponame ], algoId = -1)
+            alg = algoname( name = toponame,  inputs = inputList, outputs = [ toponame ])
  
             if (d.mult>1):
                 alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)

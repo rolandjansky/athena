@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DenseEnvironmentsAmbiguityProcessorTool_H
@@ -29,7 +29,6 @@
 
 namespace Trk {
   class ITruthToTrack;
-  class IExtrapolator;
   //
   class DenseEnvironmentsAmbiguityProcessorTool : public AmbiguityProcessorBase{
   public:
@@ -42,10 +41,10 @@ namespace Trk {
 
 
   /**Returns a processed TrackCollection from the passed 'tracks'
-  @param tracks collection of tracks which will have ambiguities resolved. Will not be 
+  @param tracks collection of tracks which will have ambiguities resolved. Will not be
   modified.
   The tracks will be refitted if no fitQuality is given at input.
-  @return new collections of tracks, with ambiguities resolved. Ownership is passed on 
+  @return new collections of tracks, with ambiguities resolved. Ownership is passed on
   (i.e. client handles deletion)*/
   virtual const TrackCollection*  process(const TracksScores *trackScoreTrackMap) const override;
 
@@ -53,7 +52,7 @@ namespace Trk {
 
   /** statistics output to be called by algorithm during finalize. */
   virtual void statistics() override;
-  
+
   private:
     void solveTracks(const TracksScores& trackScoreTrackMap,
                      Trk::PRDtoTrackMap &prd_to_track_map,
@@ -63,13 +62,13 @@ namespace Trk {
 
 
     /** refit PRDs */
-    Track* 
+    Track*
     refitPrds( const Track* track, Trk::PRDtoTrackMap &prd_to_track_map,
     Counter &stat) const override final;
 
     /** refit ROTs corresponding to PRDs*/
     //TODO or Q: new created track, why const
-    /**Track* 
+    /**Track*
     refitRots( const Track* track, Counter &stat) const override final;**/
 
     virtual std::unique_ptr<Trk::Track>
@@ -79,22 +78,19 @@ namespace Trk {
     std::unique_ptr<Trk::Track>
     fit(const std::vector<const Trk::PrepRawData*> &raw,
           const TrackParameters &param, bool flag, Trk::ParticleHypothesis hypo) const;
-          
+
     std::unique_ptr<Trk::Track>
     fit(const std::vector<const Trk::MeasurementBase*> &measurements,
           const TrackParameters &param, bool flag, Trk::ParticleHypothesis hypo) const;
 
     std::unique_ptr<Trk::Track>
     fit(const Track &track, bool flag, Trk::ParticleHypothesis hypo) const override final;
-    bool 
+    bool
     checkTrack(const Trk::Track *) const;
 
-    /** refitting tool - used to refit tracks once shared hits are removed. 
+    /** refitting tool - used to refit tracks once shared hits are removed.
         Refitting tool used is configured via jobOptions.*/
     ToolHandleArray<ITrackFitter> m_fitterTool;
-    /** extrapolator tool - used to refit tracks once shared hits are removed. 
-        Extrapolator tool used is configured via jobOptions.*/
-    ToolHandle<IExtrapolator> m_extrapolatorTool;
 
     ToolHandle<Trk::IPRDtoTrackMapTool>         m_assoTool
        {this, "AssociationTool", "InDet::InDetPRDtoTrackMapToolGangedPixels" };
@@ -105,26 +101,26 @@ namespace Trk {
 
     /** selection tool - here the decision which hits remain on a track and
         which are removed are made */
-    ToolHandle<IAmbiTrackSelectionTool> m_selectionTool;
+    ToolHandle<IAmbiTrackSelectionTool> m_selectionTool
+      {this, "SelectionTool", "InDet::InDetDenseEnvAmbiTrackSelectionTool/InDetAmbiTrackSelectionTool"};
 
     /**Observer tool      This tool is used to observe the tracks and their 'score' */
-    PublicToolHandle<Trk::ITrkObserverTool> m_observerTool{this, "TrackObserverTool", "", "track observer within ambiguity solver"};
     PublicToolHandle<Trk::ITrkObserverTool> m_observerToolWriter{this, "TrackObserverToolWriter", "", "track observer writer within ambiguity solver"};
 
     bool m_rejectInvalidTracks{};
-    /// If enabled, this flag will make the tool restore the hole information from the input track after a refit. 
+    /// If enabled, this flag will make the tool restore the hole information from the input track after a refit.
     /// This is used when we want to use holes from the pattern recognition instead of repeating the hole search
     /// Off by default
     BooleanProperty m_keepHolesFromBeforeFit{this,"KeepHolesFromBeforeRefit",false,"Restore hole information from input tracks after refit"};
   };
-  
+
   inline std::unique_ptr<Trk::Track>
   DenseEnvironmentsAmbiguityProcessorTool::fit(const std::vector<const Trk::PrepRawData*> &raw,
                                                            const TrackParameters &param, bool flag,
                                                            Trk::ParticleHypothesis hypo) const {
      std::unique_ptr<Trk::Track> newTrack;
      for ( const ToolHandle<ITrackFitter> &thisFitter : m_fitterTool) {
-          newTrack.reset(thisFitter->fit(raw, param, flag,hypo));
+          newTrack=(thisFitter->fit(Gaudi::Hive::currentContext(),raw, param, flag,hypo));
           if (Trk::DenseEnvironmentsAmbiguityProcessorTool::checkTrack(newTrack.get())) {
                       return newTrack;
           }
@@ -144,7 +140,7 @@ namespace Trk {
                                                            Trk::ParticleHypothesis hypo) const{
     std::unique_ptr<Trk::Track> newTrack;
     for ( const ToolHandle<ITrackFitter> &thisFitter : m_fitterTool) {
-      newTrack.reset(thisFitter->fit(measurements, param, flag, hypo));
+      newTrack=thisFitter->fit(Gaudi::Hive::currentContext(),measurements, param, flag, hypo);
       if (Trk::DenseEnvironmentsAmbiguityProcessorTool::checkTrack(newTrack.get())) {
         return newTrack;
       }
@@ -161,12 +157,12 @@ namespace Trk {
   DenseEnvironmentsAmbiguityProcessorTool::fit(const Track &track, bool flag, Trk::ParticleHypothesis hypo) const{
     std::unique_ptr<Trk::Track> newTrack;
     for ( const ToolHandle<ITrackFitter> &thisFitter : m_fitterTool) { //note: there is only ever one fitter anyway
-      newTrack.reset(thisFitter->fit(track,flag, hypo));
+      newTrack=(thisFitter->fit(Gaudi::Hive::currentContext(),track,flag, hypo));
       if (Trk::DenseEnvironmentsAmbiguityProcessorTool::checkTrack(newTrack.get())) {
          return newTrack;
       }
       ATH_MSG_WARNING( "The track fitter, " <<  thisFitter->name() << ", produced a track with an invalid covariance matrix." );
-      //TODO: potential memory leakage 
+      //TODO: potential memory leakage
     }
     ATH_MSG_WARNING( "None of the " <<  m_fitterTool.size() << " track fitter(s) produced a track with a valid covariance matrix." );
     if (m_rejectInvalidTracks) {
@@ -174,7 +170,7 @@ namespace Trk {
     }
     return newTrack;
   }
-  
+
 } //end ns
 
 

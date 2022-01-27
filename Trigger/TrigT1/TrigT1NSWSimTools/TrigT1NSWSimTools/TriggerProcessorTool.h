@@ -7,29 +7,25 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonRDO/NSW_PadTriggerDataContainer.h"
 #include "MuonRDO/NSW_TrigRawDataContainer.h"
+
 namespace NSWL1 {
 
   class TriggerProcessorTool : public AthAlgTool {
 
   public:
 
-    TriggerProcessorTool(const std::string& type,
-			 const std::string& name,
-			 const IInterface* parent);
+    TriggerProcessorTool(const std::string& type, const std::string& name, const IInterface* parent);
     virtual ~TriggerProcessorTool();
 
-    virtual StatusCode initialize() override;  
+    virtual StatusCode initialize() override;
 
-    StatusCode mergeRDO();
-    
+    StatusCode mergeRDO(const Muon::NSW_PadTriggerDataContainer* padTriggerContainer,
+                        const Muon::NSW_TrigRawDataContainer* MMTriggerContainer,
+                        Muon::NSW_TrigRawDataContainer* trigRdoContainer);
+
   private:
 
-    SG::WriteHandleKey<Muon::NSW_TrigRawDataContainer> m_trigRdoContainerKey{this,"trigRdoContainerKey","NSW_TrigRawData","Write handle key for NSW TrigRawData"};
-    SG::ReadHandleKey<Muon::NSW_PadTriggerDataContainer> m_padTriggerContainerKey{this,"padTriggerContainerKey","NSWPADTRGRDO","Name of the pad trigger RDO"};
-    
   };
 
 }
-
-
 #endif    // TRIGGERPROCESSORTOOL_H

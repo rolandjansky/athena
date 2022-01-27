@@ -70,15 +70,15 @@ except Exception:
     
 # MC Event Collection. Should be moved to a separate jobO
 if rec.doTruth():
-    TP_excludedAuxData='.-caloExtension'
+    TP_excludedAuxData=''
     if not rec.doPhysicsValidationAugmentation() :
         # when not doing PhysVal exclude decorations meant for extra outputs
-        TP_excludedAuxData += '.-d0.-phi.-prodR.-prodZ.-qOverP.-theta.-z0.-z0st'
+        TP_excludedAuxData += '-d0.-phi.-prodR.-prodZ.-qOverP.-theta.-z0.-z0st'
 
     McTruthAODList=["xAOD::TruthEventContainer#TruthEvents",
                     "xAOD::TruthEventAuxContainer#TruthEventsAux.",
                     "xAOD::TruthParticleContainer#TruthParticles",
-                    "xAOD::TruthParticleAuxContainer#TruthParticlesAux"+TP_excludedAuxData,
+                    "xAOD::TruthParticleAuxContainer#TruthParticlesAux."+TP_excludedAuxData,
                     "xAOD::TruthParticleContainer#TruthPileupParticles",
                     "xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux.",
                     "xAOD::TruthVertexContainer#TruthVertices", 

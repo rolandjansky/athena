@@ -65,7 +65,6 @@ class ConfiguredTRTStandalone:
 
     from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetTrtTrackScoringTool
     InDetTRT_StandaloneScoringTool = InDet__InDetTrtTrackScoringTool(name                = 'InDetTRT_StandaloneScoringTool'+extension,
-                                                                     SummaryTool         = TrackingCommon.getInDetTrackSummaryTool(),
                                                                      DriftCircleCutTool  = drift_circle_cut_tool,
                                                                      useAmbigFcn         = True,
                                                                      useSigmaChi2        = False,

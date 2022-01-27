@@ -535,7 +535,9 @@ topSequence += InDetSiTrackerSpacePointFinder
 # Taken from InDetRecExample/share/InDetRec_jobOptions.py
 from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
 NewTrackingCuts = None
-if doPixel and doSCT:
+if doPixel and doSCT and InDetFlags.doBLS():
+    NewTrackingCuts = ConfiguredNewTrackingCuts("BLS")
+elif doPixel and doSCT:
     NewTrackingCuts = ConfiguredNewTrackingCuts("Offline")
 elif doPixel:
     NewTrackingCuts = ConfiguredNewTrackingCuts("Pixel")

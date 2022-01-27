@@ -13,26 +13,19 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/Surface.h"
 
-/** ctor a unique_ptr from input */
-std::unique_ptr<Trk::MultiComponentState>
-Trk::MultiComponentStateHelpers::toPtr(MultiComponentState&& in)
-{
-  return std::make_unique<Trk::MultiComponentState>(std::move(in));
-}
-
-std::unique_ptr<Trk::MultiComponentState>
+Trk::MultiComponentState
 Trk::MultiComponentStateHelpers::clone(const Trk::MultiComponentState& in)
 {
-  auto clonedState = std::make_unique<Trk::MultiComponentState>();
-  clonedState->reserve(in.size());
+  auto clonedState = Trk::MultiComponentState();
+  clonedState.reserve(in.size());
   for (const ComponentParameters& component : in) {
-    clonedState->emplace_back(component.first->clone(), component.second);
+    clonedState.emplace_back(component.first->clone(), component.second);
   }
   return clonedState;
 }
 
-std::unique_ptr<Trk::MultiComponentState>
-Trk::MultiComponentStateHelpers::toPtrWithScaledError(
+Trk::MultiComponentState
+Trk::MultiComponentStateHelpers::WithScaledError(
   Trk::MultiComponentState&& in,
   double errorScaleLocX,
   double errorScaleLocY,
@@ -69,7 +62,7 @@ Trk::MultiComponentStateHelpers::toPtrWithScaledError(
     trackParameters->updateParameters(trackParameters->parameters(),
                                       newCovarianceMatrix);
   }
-  return std::make_unique<Trk::MultiComponentState>(std::move(in));
+  return {std::move(in)};
 }
 
 bool

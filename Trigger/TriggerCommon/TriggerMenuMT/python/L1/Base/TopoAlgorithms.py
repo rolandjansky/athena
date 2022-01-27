@@ -86,12 +86,6 @@ class MenuTopoAlgorithmsCollection(object):
 
 
     def json(self):
-        def idGenerator(usedIds, start):
-            while True:
-                while start in usedIds:
-                    start += 1
-                yield start
-                start += 1
 
         confObj = odict()
         for cat in self.topoAlgos:
@@ -100,12 +94,5 @@ class MenuTopoAlgorithmsCollection(object):
                 confObj[cat.key][typ.key] = odict()
                 for alg in sorted(self.topoAlgos[cat][typ].values(), key=attrgetter('name')):
                     confObj[cat.key][typ.key][alg.name] = alg.json()
-
-                # set unspecified algoIds to a unique value
-                usedAlgIds = set([x["algId"] for x in confObj[cat.key][typ.key].values() if x["algId"]>=0])
-                autoId = idGenerator(usedAlgIds, 0)
-                for algJsonEntry in confObj[cat.key][typ.key].values():
-                    if algJsonEntry["algId"] < 0:
-                        algJsonEntry["algId"] = next(autoId)
 
         return confObj

@@ -601,7 +601,8 @@ bool InDet::TRT_TrajectoryElement_xk::propagate
   if(m_bestlink<0) return false;
 
   return m_proptool->propagate
-    (Ta,m_link[m_bestlink].surface(),Tb,Trk::anyDirection,m_fieldprop,Trk::pion);
+    (Gaudi::Hive::currentContext(),
+     Ta,m_link[m_bestlink].surface(),Tb,Trk::anyDirection,m_fieldprop,Trk::pion);
 }
 
 ///////////////////////////////////////////////////////////////////

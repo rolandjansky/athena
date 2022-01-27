@@ -14,5 +14,6 @@ atlas_install_runtime( data/*.ascii )
 
 atlas_add_test(test_MC16a_Digi_tf_configuration
                SCRIPT test/test_MC16a_Digi_tf_configuration.py
+               POST_EXEC_SCRIPT nopost.sh
                PROPERTIES TIMEOUT 600
                PROPERTIES RESOURCE_LOCK DigiTf)

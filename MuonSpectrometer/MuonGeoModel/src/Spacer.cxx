@@ -77,7 +77,7 @@ namespace MuonGM {
             double dx = tckibeam;
             double dy = 3. * tckibeam;
 
-            GeoVPhysVol *ptrdtemp = NULL;
+            GeoVPhysVol *ptrdtemp = nullptr;
 
             GeoTrd *strd1 = new GeoTrd(dx / 2, dx / 2, dy / 2, dy / 2, length / 2);
             const GeoMaterial *mtrd1 = matManager.getMaterial("std::Aluminium");

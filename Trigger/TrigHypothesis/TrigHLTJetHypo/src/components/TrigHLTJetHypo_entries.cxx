@@ -30,6 +30,7 @@
 #include "../TrigJetHypoToolHelperNoGrouper.h"
 #include "../TrigJetTLAHypoAlg.h"
 #include "../TrigJetTLAHypoTool.h"
+#include "../TrigBtagTLATool.h"
 #include "../TrigJetEJsHypoAlg.h"
 #include "../TrigJetEJsHypoTool.h"
 
@@ -58,6 +59,7 @@ DECLARE_COMPONENT(TrigJetHypoAlg)
 DECLARE_COMPONENT(TrigJetHypoTool)
 DECLARE_COMPONENT(TrigJetTLAHypoAlg)
 DECLARE_COMPONENT(TrigJetTLAHypoTool)
+DECLARE_COMPONENT(TrigBtagTLATool)
 DECLARE_COMPONENT(TrigJetHypoToolHelperNoGrouper)
 
 DECLARE_COMPONENT(TrigJetEJsHypoAlg)

@@ -52,3 +52,23 @@ def enableBeamPipeKill(ConfigFlags):
 
 def enableTightMuonStepping(ConfigFlags):
     ConfigFlags.Sim.TightMuonStepping = True
+
+
+def enableG4SignalCavern(ConfigFlags):
+    """Set ConfigFlags to take care of Neutron BG"""
+    ConfigFlags.Sim.CavernBG = 'Signal'
+
+
+def enableCalHits(ConfigFlags):
+    """Turns on calibration hits for LAr and Tile"""
+    ConfigFlags.Sim.CalibrationRun = 'LAr+Tile'
+
+
+def enableParticleID(ConfigFlags):
+    """Mods to have primary particle barcode signature on for calorimeter calibration hits."""
+    ConfigFlags.Sim.ParticleID=True
+
+
+def enableVerboseSelector(ConfigFlags):
+    """ """
+    ConfigFlags.Sim.OptionalUserActionList += ['G4DebuggingTools.G4DebuggingToolsConfigNew.VerboseSelectorToolCfg']

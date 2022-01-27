@@ -44,8 +44,12 @@ struct ConvProxy {
   static const uint64_t MissingFEA = 0;
   uint64_t feaHash = MissingFEA;
 
+  std::vector<HLT::TriggerElement::FeatureAccessHelper> features;
+  std::vector<HLT::TriggerElement::FeatureAccessHelper> rois;
+
+  TrigCompositeUtils::Decision* l1Node { nullptr };
   TrigCompositeUtils::Decision* imNode; // for checks only
-  std::vector<TrigCompositeUtils::Decision*> hNodes;
+  TrigCompositeUtils::Decision* hNode;
   std::string description() const;
 };
 
@@ -80,12 +84,16 @@ private:
   Gaudi::Property<size_t> m_hNodesPerProxyThreshold{ this, "hNodesPerProxyThreshhold", 15, "Limit number of H nodes per TE (if exceeded conversion results in an error)" };
   Gaudi::Property<std::vector<std::string>> m_chainsToSave{ this, "Chains", {}, "If not specified, all chains are handled" };
   Gaudi::Property<std::vector<std::string>> m_collectionsToSave{ this, "Collections", {} };
+  Gaudi::Property<std::vector<std::string>> m_roisToSave{ this, "Rois", {} };
 
   SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_trigOutputNavKey{ this, "OutputNavKey", "HLTNav_Summary" };
 
   StatusCode extractTECtoChainMapping(TEIdToChainsMap_t& allTES, TEIdToChainsMap_t& finalTEs) const;
+  mutable std::mutex m_configUpdateMutex;
+  TEIdToChainsMap_t m_allTEIdsToChains, m_finalTEIdsToChains;
+  
 
-  StatusCode mirrorTEsStructure(ConvProxySet_t&, HLT::StandaloneNavigation& standaloneNav, const EventContext& context) const;
+  StatusCode mirrorTEsStructure(ConvProxySet_t&, const HLT::TrigNavStructure& run2NavPtr) const;
 
   StatusCode associateChainsToProxies(ConvProxySet_t&, const TEIdToChainsMap_t&) const;
 
@@ -103,13 +111,18 @@ private:
   StatusCode collapseProxies(ConvProxySet_t&, MAP&) const;
 
 
-  StatusCode fillRelevantFeatures(ConvProxySet_t&) const;
+  StatusCode fillRelevantFeatures(ConvProxySet_t& convProxies) const;
+  StatusCode fillRelevantRois(ConvProxySet_t& convProxies, const HLT::TrigNavStructure& run2NavPtr) const;
 
   StatusCode createIMHNodes(ConvProxySet_t&, xAOD::TrigCompositeContainer&, const EventContext&) const;
 
+  StatusCode createL1Nodes(const ConvProxySet_t& convProxies, xAOD::TrigCompositeContainer& decisions, const EventContext& context) const;
   StatusCode createFSNodes(const ConvProxySet_t&, xAOD::TrigCompositeContainer&, const TEIdToChainsMap_t& finalTEs,  const EventContext& context) const;
 
   StatusCode linkTopNode(xAOD::TrigCompositeContainer&) const;
+
+  StatusCode linkFeaNode(ConvProxySet_t& convProxies, const HLT::TrigNavStructure& navigationDecoderrun2NavPtr, const EventContext& context) const;
+  StatusCode linkRoiNode(ConvProxySet_t& convProxies, const HLT::TrigNavStructure& run2NavPtr) const;
 
   // helpers
   //!< both method skip TrigPassBits
@@ -117,7 +130,9 @@ private:
   bool feaEqual(const std::vector<HLT::TriggerElement::FeatureAccessHelper>& a, const std::vector<HLT::TriggerElement::FeatureAccessHelper>& b ) const;
 
   //!< returns true if this particular feature is to be saved (linked)
-  bool feaToSave(const HLT::TriggerElement::FeatureAccessHelper&) const;
+  bool feaToSave(const HLT::TriggerElement::FeatureAccessHelper& fea) const;
+  
+  bool roiToSave(const HLT::TrigNavStructure& navigationDecoder, const HLT::TriggerElement::FeatureAccessHelper& fea) const;
 
   // self validators
   // they return failure if something is not ok 
@@ -130,7 +145,24 @@ private:
 
   StatusCode noUnconnectedHNodes(const xAOD::TrigCompositeContainer&) const;
 
+  std::tuple<uint32_t, CLID, std::string> getSgKey(const HLT::TrigNavStructure& navigationDecoder, const HLT::TriggerElement::FeatureAccessHelper& helper) const;
+  const std::vector<HLT::TriggerElement::FeatureAccessHelper> getTEfeatures(const HLT::TriggerElement *te_ptr, const HLT::TrigNavStructure& navigationDecoder, bool filterOnCLID=true) const;
+  const std::vector<HLT::TriggerElement::FeatureAccessHelper> getTEROIfeatures(const HLT::TriggerElement* te_ptr, const HLT::TrigNavStructure& navigationDecoder) const;
+
   std::map<CLID, std::set<std::string>> m_collectionsToSaveDecoded;
+
+  std::vector<std::string> m_setRoiName;
+
+  CLID m_roIDescriptorCLID{0};
+  CLID m_roIDescriptorCollectionCLID{0};
+  CLID m_TrigRingerRingsCLID{0};
+  CLID m_TrigRingerRingsContainerCLID{0};
+  CLID m_TrigEMClusterCLID{0};
+  CLID m_TrigEMClusterContainerCLID{0};
+  CLID m_CaloClusterCLID{0};
+  CLID m_CaloClusterContainerCLID{0};
+  CLID m_TrackParticleContainerCLID{0};
+  CLID m_TauTrackContainerCLID{0};
 
 };
 

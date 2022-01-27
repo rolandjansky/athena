@@ -83,7 +83,6 @@ TileCellBuilderFromHit::TileCellBuilderFromHit(const std::string& type, const st
   , m_tileTBID(0)
   , m_tileHWID(0)
   , m_tileInfo(0)
-  , m_pHRengine(0)
   , m_tileMgr(0)
   , m_mbtsMgr(0)
   , m_RChType(TileFragHash::Default)
@@ -171,7 +170,7 @@ StatusCode TileCellBuilderFromHit::initialize() {
   }
 
   ATH_CHECK( m_rndmSvc.retrieve());
-  m_pHRengine = m_rndmSvc->getEngine(this);
+  (void) m_rndmSvc->getEngine(this); // get this created early.
 
   ATH_MSG_INFO( "max time thr  " << m_maxTime << " ns" );
   ATH_MSG_INFO( "min time thr  " << m_minTime << " ns" );
@@ -747,8 +746,9 @@ void TileCellBuilderFromHit::build(const CaloNoise* caloNoise,
 {
   static const std::string rngname = name() + "-" + ClassName<COLLECTION>::name();
   const EventContext& ctx = Gaudi::Hive::currentContext();
-  m_pHRengine->setSeed (rngname, ctx);
-  CLHEP::HepRandomEngine* engine = m_pHRengine->getEngine (ctx);
+  ATHRNG::RNGWrapper* wrapper = m_rndmSvc->getEngine(this);
+  wrapper->setSeed (rngname, ctx);
+  CLHEP::HepRandomEngine* engine = wrapper->getEngine (ctx);
 
   /* zero all counters and sums */
   int nTwo = 0;

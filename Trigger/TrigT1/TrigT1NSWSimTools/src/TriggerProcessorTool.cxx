@@ -16,54 +16,43 @@ namespace NSWL1 {
   StatusCode TriggerProcessorTool::initialize() {
 
     ATH_MSG_DEBUG("In initialize()");
-    ATH_CHECK(m_trigRdoContainerKey.initialize());
-    ATH_CHECK(m_padTriggerContainerKey.initialize());
-
     return StatusCode::SUCCESS;
   }
 
-  
-  StatusCode TriggerProcessorTool::mergeRDO() {
+  StatusCode TriggerProcessorTool::mergeRDO(const Muon::NSW_PadTriggerDataContainer* padTriggerContainer,
+                                            const Muon::NSW_TrigRawDataContainer* MMTriggerContainer,
+                                            Muon::NSW_TrigRawDataContainer* trigRdoContainer) {
 
-    SG::WriteHandle<Muon::NSW_TrigRawDataContainer> trigRdoContainer(m_trigRdoContainerKey);
-    ATH_CHECK(trigRdoContainer.record(std::make_unique<Muon::NSW_TrigRawDataContainer>()));
-    ATH_MSG_DEBUG("Recorded NSW_TrigRawDataContainer called " << trigRdoContainer.name() << " in store " << trigRdoContainer.store());
- 
-    /// retrieve the stgc pad trigger container
-    SG::ReadHandle<Muon::NSW_PadTriggerDataContainer> padTriggerContainer(m_padTriggerContainerKey);
-    if (!padTriggerContainer.isValid()) {
-      ATH_MSG_ERROR("Could not find the STGC Pad Trigger container with name: " << padTriggerContainer.name() << 
-		    " in store " << padTriggerContainer.store() );
-      return StatusCode::SUCCESS;
-    } 
-
-
+    ATH_MSG_DEBUG("Pad Trigger Container size: " << padTriggerContainer->size());
     for ( const Muon::NSW_PadTriggerData* padTriggerData : *padTriggerContainer ) {
+      ATH_MSG_DEBUG("Pad Trigger data: " << *padTriggerData);
 
-      Muon::NSW_TrigRawData* trigRawData = new Muon::NSW_TrigRawData(padTriggerData->sectorID(),padTriggerData->BCID());
-
+      char sectorSide = (padTriggerData->endcap() == Muon::NSW_PadTriggerData::Endcap::A) ? 'A' : 'C';
+      auto sectorID = (padTriggerData->sectorSize() == Muon::NSW_PadTriggerData::SectorSize::SMALL) ? padTriggerData->sectorID()*2-1 : padTriggerData->sectorID()*2-2;
+      Muon::NSW_TrigRawData* trigRawData = new Muon::NSW_TrigRawData(sectorID, sectorSide, padTriggerData->BCID());
       for ( const Muon::NSW_PadTriggerSegment* padTriggerSegment : *padTriggerData) {
+        ATH_MSG_DEBUG("Pad Trigger segment: " << *padTriggerSegment);
 
-	Muon::NSW_TrigRawDataSegment* trigRawDataSegment = new Muon::NSW_TrigRawDataSegment();
-	uint8_t bandID = padTriggerSegment->bandID();
-	uint8_t phiID  = padTriggerSegment->phiID();
-	
-	trigRawDataSegment->setRIndex(bandID);
-	trigRawDataSegment->setPhiIndex(phiID);
-	// set STGC
-	trigRawDataSegment->setPhiRes(false);
+        Muon::NSW_TrigRawDataSegment* trigRawDataSegment = new Muon::NSW_TrigRawDataSegment();
+        uint8_t bandID = padTriggerSegment->bandID();
+        uint8_t phiID  = padTriggerSegment->phiID();
+        trigRawDataSegment->setRIndex(bandID);
+        trigRawDataSegment->setPhiIndex(phiID);
 
-	trigRawData->push_back(trigRawDataSegment);
-	
+        // set STGC
+        trigRawDataSegment->setPhiRes(true);
+        trigRawData->push_back(trigRawDataSegment);
       }
-
       trigRdoContainer->push_back(trigRawData);
+    }
+    ATH_MSG_DEBUG("After PadTrigger filling -> NSW Trigger RDO size: " << trigRdoContainer->size());
 
-    } 
-    
+    for (const auto rawData : *MMTriggerContainer) {
+      Muon::NSW_TrigRawData* trigRawData = new Muon::NSW_TrigRawData(*rawData);
+      trigRdoContainer->push_back(trigRawData);
+    }
+    ATH_MSG_DEBUG("After MMTrigger filling -> NSW Trigger RDO size: " << trigRdoContainer->size());
+
     return StatusCode::SUCCESS;
   }
-
-  
-  
 }

@@ -156,8 +156,8 @@ StatusCode RpcDigitizationTool::initialize() {
     IRDBAccessSvc* rdbAccess(nullptr);
     ATH_CHECK(service("RDBAccessSvc", rdbAccess));
 
-    enum DataPeriod { Run1, Run2, Run3, Run4 };
-    DataPeriod run = Run1;
+    enum DataPeriod {Unknown, Run1, Run2, Run3, Run4 };
+    DataPeriod run = Unknown;
 
     std::string configVal = "";
     const IGeoModelSvc* geoModel(nullptr);
@@ -175,13 +175,17 @@ StatusCode RpcDigitizationTool::initialize() {
         ATH_MSG_INFO("From DD Database, MuonSpectrometer geometry version is " << MSgeoVersion);
         if (configVal == "RUN1" || MSgeoVersion == "R.06") {
             run = Run1;
-        } else if (configVal == "RUN2" || MSgeoVersion == "R.07") {
+        } 
+        if (configVal == "RUN2" || MSgeoVersion == "R.07") {
             run = Run2;
-        } else if (configVal == "RUN3" || MSgeoVersion == "R.09") {
+        }
+        if (configVal == "RUN3" || MSgeoVersion == "R.09") {
             run = Run3;
-        } else if (configVal == "RUN4" || MSgeoVersion == "R.10") {
+        }
+        if (configVal == "RUN4" || MSgeoVersion == "R.10") {
             run = Run4;
-        } else {
+        } 
+        if (run == DataPeriod::Unknown) {
             ATH_MSG_FATAL("Unexpected value for geometry config read from the database: " << configVal
                                                                                           << " Geometry version=" << MSgeoVersion);
             return StatusCode::FAILURE;
@@ -851,7 +855,8 @@ StatusCode RpcDigitizationTool::doDigitization(const EventContext& ctx, RpcDigit
                 ATH_MSG_DEBUG("Digit Id = " << m_idHelper->show_to_string(theId) << " digit time " << newDigit_time);
 
                 // put new collection in storegate
-                const RpcDigitCollection* coll = digitContainer->indexFindPtr(coll_hash);
+                RpcDigitCollection* coll = nullptr;
+                ATH_CHECK(digitContainer->naughtyRetrieve(coll_hash, coll));
                 if (!coll) {
                     digitCollection = new RpcDigitCollection(elemId, coll_hash);
                     digitCollection->push_back(newDigit);
@@ -866,7 +871,7 @@ StatusCode RpcDigitizationTool::doDigitization(const EventContext& ctx, RpcDigit
                         ATH_MSG_DEBUG("New RpcHitCollection with key=" << coll_hash << " recorded in StoreGate.");
                     }
                 } else {
-                    digitCollection = const_cast<RpcDigitCollection*>(coll);
+                    digitCollection = coll;
                     digitCollection->push_back(newDigit);
                 }
 
@@ -1279,10 +1284,10 @@ Amg::Vector3D RpcDigitizationTool::posInPanel(
 }
 
 //--------------------------------------------
-int RpcDigitizationTool::findStripNumber(Amg::Vector3D posInGap, const Identifier& digitId, double& posinstrip) const {
+int RpcDigitizationTool::findStripNumber(const Amg::Vector3D& posInGap, const Identifier& digitId, double& posinstrip) const {
     const RpcReadoutElement* ele = m_GMmgr->getRpcReadoutElement(digitId);
 
-    Amg::Vector3D posInElement = ele->SDtoModuleCoords(std::move(posInGap), digitId);
+    Amg::Vector3D posInElement = ele->SDtoModuleCoords(posInGap, digitId);
 
     // extract from digit id the relevant info
 

@@ -1,139 +1,121 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDEVENT_COMBINEDFITTAG_H
 #define MUONCOMBINEDEVENT_COMBINEDFITTAG_H
 
+#include <vector>
 
 #include "MuidEvent/FieldIntegral.h"
 #include "MuonCombinedEvent/TagBase.h"
 #include "TrkEventPrimitives/TrackScore.h"
 #include "TrkTrack/TrackCollection.h"
-#include <vector>
 
 namespace Trk {
-  class Track;
+    class Track;
 }
 
 namespace MuonCombined {
-  
-  class MuonCandidate;
 
-  /** TagBase implementation for a combined fit */
-  class CombinedFitTag : public TagBase {
-  public:
-    
-    /** Constructor taking a MuonCandidate as input
-	Users should ensure that the life time of the MuonCandidate 
-	The class takes ownership of the track score
-    */
-    CombinedFitTag( xAOD::Muon::Author author, const MuonCandidate& muonCandidate, 
-		    const Trk::TrackScore& score );
+    class MuonCandidate;
 
-    /** destructor */
-    ~CombinedFitTag();
+    /** TagBase implementation for a combined fit */
+    class CombinedFitTag : public TagBase {
+    public:
+        /** Constructor taking a MuonCandidate as input
+            Users should ensure that the life time of the MuonCandidate
+            The class takes ownership of the track score
+        */
+        CombinedFitTag(xAOD::Muon::Author author, const MuonCandidate& muonCandidate, const Trk::TrackScore& score);
 
-    /** access combined track */
-    const Trk::Track* combinedTrack() const;
+        /** destructor */
+        ~CombinedFitTag();
 
-    /*ElementLink to combined track*/
-    ElementLink<TrackCollection> combinedTrackLink() const {return m_combLink;}
+        /** access combined track */
+        const Trk::Track* combinedTrack() const;
 
-    /** set combined track ElementLink*/
-    void setCombinedTrackLink(ElementLink<TrackCollection> combLink){m_combLink=combLink;}
+        /*ElementLink to combined track*/
+        ElementLink<TrackCollection> combinedTrackLink() const;
 
-    /** access to MuonCandidate */
-    const MuonCandidate& muonCandidate() const;
+        /** set combined track ElementLink*/
+        void setCombinedTrackLink(ElementLink<TrackCollection> combLink);
 
-    /** access update extrapolated track, returns zero if none are available */
-    const Trk::Track* updatedExtrapolatedTrack() const;
+        /** access to MuonCandidate */
+        const MuonCandidate& muonCandidate() const;
 
-    /* ElementLink to ME track*/
-    ElementLink<TrackCollection> updatedExtrapolatedTrackLink() const {return m_MELink;}
+        /** access update extrapolated track, returns zero if none are available */
+        const Trk::Track* updatedExtrapolatedTrack() const;
 
-    /** set update extrapolated track ElementLink */
-    void setUpdatedExtrapolatedTrackLink(ElementLink<TrackCollection> MELink){m_MELink=MELink;}
+        /* ElementLink to ME track*/
+        ElementLink<TrackCollection> updatedExtrapolatedTrackLink() const;
 
-    /** store inner match quality info */
-    void innerMatch(double chi2, int dof, double prob);
-    
-    /** access the inner matching chi2*/
-    double matchChi2() const {return m_matchChi2;}
+        /** set update extrapolated track ElementLink */
+        void setUpdatedExtrapolatedTrackLink(ElementLink<TrackCollection> MELink);
 
-    /** access the inner matching DoF*/
-    int matchDoF() const {return m_matchDoF;}
+        /** store inner match quality info */
+        void innerMatch(double chi2, int dof, double prob);
 
-    /** access the inner matching probability*/
-    double matchProb() const {return m_matchProb;}
+        /** access the inner matching chi2*/
+        double matchChi2() const;
 
-    /** set field integral measurements*/
-    void fieldIntegral(Rec::FieldIntegral fieldI) {m_fieldIntegral=fieldI;}
+        /** access the inner matching DoF*/
+        int matchDoF() const;
 
-    /** get field integral measurements*/
-    Rec::FieldIntegral fieldIntegral() const {return m_fieldIntegral;}
+        /** access the inner matching probability*/
+        double matchProb() const;
 
-    /** set momentum balance significance*/
-    void momentumBalanceSignificance(double m) {m_momentumBalanceSignificance=m;}
+        /** set field integral measurements*/
+        void fieldIntegral(Rec::FieldIntegral fieldI);
 
-    /** get momentum balance significance*/
-    double momentumBalanceSignificance() const {return m_momentumBalanceSignificance;}
+        /** get field integral measurements*/
+        Rec::FieldIntegral fieldIntegral() const;
 
-    /** get track score */
-    const Trk::TrackScore& trackScore() const { return m_trackScore; }
+        /** set momentum balance significance*/
+        void momentumBalanceSignificance(double m);
 
-    /** name string */
-    std::string name() const { return "CombinedFitTag"; }
+        /** get momentum balance significance*/
+        double momentumBalanceSignificance() const;
 
-    /** print content to string */
-    std::string toString() const;
+        /** get track score */
+        const Trk::TrackScore& trackScore() const;
 
-    /** access to primary muon system track, zero if non available */
-    const Trk::Track* primaryTrack() const;
+        /** name string */
+        std::string name() const override;
 
-  private:
-    /** block copy and assignment */
-    CombinedFitTag(const CombinedFitTag&) = delete;
-    CombinedFitTag& operator=(const CombinedFitTag&) = delete;
+        /** print content to string */
+        std::string toString() const override;
 
-    /** data content */
-    const MuonCandidate* m_muonCandidate;  /// MuonCandidate 
-    ElementLink<TrackCollection> m_combLink; //link to combined track
-    Trk::TrackScore      m_trackScore;
-    ElementLink<TrackCollection> m_MELink; //link to ME track
+        /** access to primary muon system track, zero if non available */
+        const Trk::Track* primaryTrack() const override;
 
-    Rec::FieldIntegral m_fieldIntegral;
+        /** access to associated segments, empty vector if non available */
+        std::vector<const Muon::MuonSegment*> associatedSegments() const override;
+        
+         /** Returns whether the muon belongs to the comissioning chain **/
+        bool isComissioning() const override;
 
-    double m_matchChi2; 
-    int    m_matchDoF; 
-    double m_matchProb;
-    double m_momentumBalanceSignificance;
 
-  };
+    private:
+        /** block copy and assignment */
+        CombinedFitTag(const CombinedFitTag&) = delete;
+        CombinedFitTag& operator=(const CombinedFitTag&) = delete;
 
-  inline bool operator<( const CombinedFitTag& t1,  const CombinedFitTag& t2 ){
-    return t1.trackScore() < t2.trackScore();
-  }
+        /** data content */
+        const MuonCandidate* m_muonCandidate{nullptr};  /// MuonCandidate
+        ElementLink<TrackCollection> m_combLink{};      // link to combined track
+        Trk::TrackScore m_trackScore;
+        ElementLink<TrackCollection> m_MELink{};  // link to ME track
 
-  inline const Trk::Track* CombinedFitTag::combinedTrack() const { return m_combLink.isValid() ? *m_combLink : nullptr; }
+        Rec::FieldIntegral m_fieldIntegral;
 
-  inline const MuonCandidate& CombinedFitTag::muonCandidate() const { return *m_muonCandidate; }
-  
-  inline const Trk::Track* CombinedFitTag::updatedExtrapolatedTrack() const { return m_MELink.isValid() ? *m_MELink : nullptr; }
-  
-  inline void CombinedFitTag::innerMatch(double chi2, int dof, double prob) 
-  {
-    m_matchChi2=chi2; 
-    m_matchDoF=dof; 
-    m_matchProb=prob;
-  }
+        double m_matchChi2{0.};
+        int m_matchDoF{0};
+        double m_matchProb{0.};
+        double m_momentumBalanceSignificance{0.};
+    };
 
-  inline const Trk::Track* CombinedFitTag::primaryTrack() const {
-    return combinedTrack();
-  }
-
-}
-
+    inline bool operator<(const CombinedFitTag& t1, const CombinedFitTag& t2) { return t1.trackScore() < t2.trackScore(); }
+}  // namespace MuonCombined
 
 #endif
-

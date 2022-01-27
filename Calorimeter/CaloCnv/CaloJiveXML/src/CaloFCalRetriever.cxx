@@ -104,8 +104,10 @@ namespace JiveXML {
 
     DataVect x; x.reserve(cellContainer->size());
     DataVect y; y.reserve(cellContainer->size());
+    DataVect z; z.reserve(cellContainer->size());
     DataVect dx; dx.reserve(cellContainer->size());
     DataVect dy; dy.reserve(cellContainer->size());
+    DataVect dz; dz.reserve(cellContainer->size());
 
     DataVect energy; energy.reserve(cellContainer->size());
     DataVect idVec; idVec.reserve(cellContainer->size());
@@ -151,7 +153,7 @@ namespace JiveXML {
       adc2mev = *adc2mevH;
     }
 
-      double energyGeV, xmm, ymm, dxmm, dymm, cellTime;
+      double energyGeV, xmm, ymm, zmm, dxmm, dymm, dzmm, cellTime;
       double energyAllLArFcal = 0.;
 
       for(;it1!=it2;++it1){
@@ -184,8 +186,10 @@ namespace JiveXML {
         
 	  xmm = (*it1)->x()*0.1;
 	  ymm = (*it1)->y()*0.1;
+	  zmm = (*it1)->z()*0.1;
 	  x.push_back(DataType( gcvt( xmm, 4, rndStr)  ));
 	  y.push_back(DataType( gcvt( ymm, 4, rndStr)  ));
+	  z.push_back(DataType( gcvt( zmm, 4, rndStr)  ));
 	  
           channel.push_back(DataType(onlineId->channel(LArhwid))); 
           feedThrough.push_back(DataType(onlineId->feedthrough(LArhwid))); 
@@ -212,8 +216,10 @@ namespace JiveXML {
 
 	  dxmm = elt->dx()*0.1;
 	  dymm = elt->dy()*0.1;
+	  dzmm = elt->dz()*0.1;
 	  dx.push_back(DataType( gcvt( dxmm, 4, rndStr)  ));
 	  dy.push_back(DataType( gcvt( dymm, 4, rndStr)  ));
+	  dz.push_back(DataType( gcvt( dzmm, 4, rndStr)  ));
 	    
 	  if(m_calocell_id->pos_neg(cellid)==2)
 	    sub.push_back(DataType(1));
@@ -226,8 +232,10 @@ namespace JiveXML {
     // write values into DataMap
     DataMap["x"] = x;
     DataMap["y"] = y;
+    DataMap["z"] = z;
     DataMap["dx"] = dx;
     DataMap["dy"] = dy;
+    DataMap["dz"] = dz;
     DataMap["energy"] = energy;
     DataMap["id"] = idVec;
     DataMap["channel"] = channel;

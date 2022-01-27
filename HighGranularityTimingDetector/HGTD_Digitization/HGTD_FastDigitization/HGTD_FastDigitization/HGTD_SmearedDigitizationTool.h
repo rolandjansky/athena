@@ -45,9 +45,9 @@ class HepRandomEngine;
 
 class HGTD_SmearedDigitizationTool : virtual public PileUpToolBase {
 public:
-  using Cluster_t = HGTD::HGTD_Cluster;
-  using ClusterCollection_t = HGTD::HGTD_ClusterCollection;
-  using ClusterContainer_t = HGTD::HGTD_ClusterContainer;
+  using Cluster_t = HGTD_Cluster;
+  using ClusterCollection_t = HGTD_ClusterCollection;
+  using ClusterContainer_t = HGTD_ClusterContainer;
 
   using HGTD_DetElement_RIO_Map_t =
       std::multimap<IdentifierHash, const Cluster_t*>;

@@ -42,7 +42,7 @@ namespace xAODMaker {
 
     /// Function that fills an existing xAOD::TrackParticleContainer and augments track particles
     virtual StatusCode convertAndAugment( const Rec::TrackParticleContainer* aod,
-				xAOD::TrackParticleContainer* xaod, const ObservedTracksMap* trk_map ) const = 0;
+				xAOD::TrackParticleContainer* xaod, const ObservedTrackMap* trk_map ) const = 0;
 
     virtual StatusCode setParticleCreatorTool(ToolHandle<Trk::ITrackParticleCreatorTool> *tool) = 0;
     

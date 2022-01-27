@@ -153,6 +153,7 @@ bool PixelConditionsSummaryTool::hasBSError(const IdentifierHash& moduleHash, Id
   int maxHash = m_pixelID->wafer_hash_max();
   Identifier moduleID = m_pixelID->wafer_id(pixid);
   int chFE = m_pixelReadout->getFE(pixid, moduleID);
+  if (m_pixelReadout->getModuleType(moduleID)==InDetDD::PixelModuleType::IBL_3D) { chFE=0; }
 
   int indexFE = (1+chFE)*maxHash+(int)moduleHash;    // (FE_channel+1)*2048 + moduleHash
   uint64_t word = getBSErrorWord(moduleHash,indexFE,ctx);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////
@@ -475,10 +475,10 @@ bool TrigConf::CTPFilesLoader::loadCtpmonData( CTPFiles& ctpFiles) {
 
 void TrigConf::CTPFilesLoader::parseHexString(std::vector<u_int>& vec,const std::string& str, bool verbose) {
    u_int data;
-   static u_int significantBits = 8;
-   static u_int preFix = 2;
-   static u_int postFix = 1;
-   static u_int wordsize = (preFix + significantBits + postFix);	    
+   const static u_int significantBits = 8;
+   const static u_int preFix = 2;
+   const static u_int postFix = 1;
+   const static u_int wordsize = (preFix + significantBits + postFix);
 
    if(str.size() != 0) {
       if(str.size() != wordsize * vec.size()) {

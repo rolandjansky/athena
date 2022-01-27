@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -66,7 +66,7 @@ StatusCode iParSim::MuonSmearer::initialize()
     ATH_MSG_ERROR( "[ --- ] Parameterisation Eta bins file not found" );
     return StatusCode::FAILURE;
   }
-  if( !getBinsFromFile( filenameMC12MuonPtBins.c_str(), filenameMC12MuonEtaBins.c_str() ) ) {
+  if( !getBinsFromFile( filenameMC12MuonPtBins, filenameMC12MuonEtaBins ) ) {
       ATH_MSG_ERROR("[ --- ] Could not retrieve bins from file!!");
       return StatusCode::FAILURE;
   }

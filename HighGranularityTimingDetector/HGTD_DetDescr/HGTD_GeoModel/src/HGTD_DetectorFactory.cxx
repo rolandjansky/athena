@@ -55,8 +55,6 @@
 using namespace std;
 using namespace InDetDD;
 
-namespace HGTDGeo {
-
 HGTD_DetectorFactory::HGTD_DetectorFactory( HGTD_GeoModelAthenaComps* athComps ) :
   InDetDD::DetectorFactoryBase( athComps ),
   m_athComps( athComps ),
@@ -1231,5 +1229,3 @@ std::vector<ModulePosition> HGTD_DetectorFactory::prepareModulePositionsInRowTwo
 
     return modulePositions;
 }
-
-} // end HGTDGeo namespace

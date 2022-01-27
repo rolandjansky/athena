@@ -111,10 +111,6 @@ AthSequencer::initialize()
       m_timeoutMilliseconds = 0;
     }
   
-  std::vector<Gaudi::Algorithm*>* theAlgs;
-  std::vector<Gaudi::Algorithm*>::iterator it;
-  std::vector<Gaudi::Algorithm*>::iterator itend;
-  
   if (!decodeMemberNames().isSuccess()) {
     ATH_MSG_ERROR ("Unable to configure one or more sequencer members ");
     return StatusCode::FAILURE;
@@ -123,10 +119,7 @@ AthSequencer::initialize()
   Ath::DynamicDataHelper dynamic_data_helper;
   StatusCode sc(StatusCode::SUCCESS);
   // Loop over all sub-algorithms
-  theAlgs = subAlgorithms( );
-  itend   = theAlgs->end( );
-  for (it = theAlgs->begin(); it != itend; it++) {
-    Gaudi::Algorithm* theAlgorithm = (*it);
+  for (Gaudi::Algorithm* theAlgorithm : *subAlgorithms()) {
     if (!theAlgorithm->sysInitialize( ).isSuccess()) {
       ATH_MSG_ERROR ("Unable to initialize Algorithm "
                      << theAlgorithm->type() << "/" << theAlgorithm->name());
@@ -164,11 +157,7 @@ AthSequencer::reinitialize()
     
     // Loop over all members calling their reinitialize functions
     // if they are not disabled.
-    std::vector<Gaudi::Algorithm*>* theAlgms = subAlgorithms( );
-    std::vector<Gaudi::Algorithm*>::iterator it;
-    std::vector<Gaudi::Algorithm*>::iterator itend = theAlgms->end( );
-    for (it = theAlgms->begin(); it != itend; it++) {
-      Gaudi::Algorithm* theAlgorithm = (*it);
+    for (Gaudi::Algorithm* theAlgorithm : *subAlgorithms()) {
       if ( theAlgorithm->isEnabled( ) ) {
         if (theAlgorithm->sysReinitialize( ).isFailure()) {
           ATH_MSG_ERROR ("Unable to reinitialize Algorithm "
@@ -289,15 +278,8 @@ AthSequencer::start()
   StatusCode sc(StatusCode::SUCCESS);
 #ifdef GAUDIKERNEL_STATEMACHINE_H_
 
-  std::vector<Gaudi::Algorithm*>* theAlgs;
-  std::vector<Gaudi::Algorithm*>::iterator it;
-  std::vector<Gaudi::Algorithm*>::iterator itend;
-  
   // Loop over all sub-algorithms
-  theAlgs = subAlgorithms( );
-  itend   = theAlgs->end( );
-  for (it = theAlgs->begin(); it != itend; it++) {
-    Gaudi::Algorithm* theAlgorithm = (*it);
+  for (Gaudi::Algorithm* theAlgorithm : *subAlgorithms()) {
     if (!theAlgorithm->sysStart( ).isSuccess()) {
       ATH_MSG_ERROR ("Unable to start Algorithm "
                      << theAlgorithm->type () << "/"
@@ -316,14 +298,7 @@ AthSequencer::stop()
   StatusCode sc(StatusCode::SUCCESS);
 #ifdef GAUDIKERNEL_STATEMACHINE_H_
   // Loop over all sub-algorithms if they are not disabled.
-  std::vector<Gaudi::Algorithm*>* theAlgs;
-  std::vector<Gaudi::Algorithm*>::iterator it;
-  std::vector<Gaudi::Algorithm*>::iterator itend;
-  
-  theAlgs = subAlgorithms( );
-  itend   = theAlgs->end( );
-  for (it = theAlgs->begin(); it != itend; it++) {
-    Gaudi::Algorithm* theAlgorithm = (*it);
+  for (Gaudi::Algorithm* theAlgorithm : *subAlgorithms()) {
     if (theAlgorithm->sysStop( ).isFailure()) {
       ATH_MSG_ERROR ("Unable to stop Algorithm "
                      << theAlgorithm->type () << "/"
@@ -343,11 +318,7 @@ AthSequencer::resetExecuted( const EventContext& ctx ) const
   
   // Loop over all members calling their resetExecuted functions
   // if they are not disabled.
-  const std::vector<Gaudi::Algorithm*>* subAlgms = subAlgorithms( );
-  std::vector<Gaudi::Algorithm*>::const_iterator it;
-  std::vector<Gaudi::Algorithm*>::const_iterator itend = subAlgms->end( );
-  for (it = subAlgms->begin(); it != itend; it++) {
-    Gaudi::Algorithm* theAlgorithm = (*it);
+  for (Gaudi::Algorithm* theAlgorithm : *subAlgorithms()) {
     theAlgorithm->execState(ctx).reset();
   }
 }
@@ -408,10 +379,7 @@ AthSequencer::append( Gaudi::Algorithm* pAlgorithm,
   bool all_good = true;
   // Check that the specified algorithm doesn't already exist 
   // in the membership list
-  std::vector<Gaudi::Algorithm*>::iterator it;
-  std::vector<Gaudi::Algorithm*>::iterator itend = theAlgs->end( );
-  for (it = theAlgs->begin(); it != itend; it++) {
-    Gaudi::Algorithm* theAlgorithm = (*it);
+  for (Gaudi::Algorithm* theAlgorithm : *theAlgs) {
     if ( theAlgorithm == pAlgorithm ) {
       all_good = false;
       break;
@@ -473,9 +441,7 @@ AthSequencer::decodeNames( Gaudi::Property<std::vector<std::string>>& theNames,
     // Build the list of member algorithms from the contents of the
     // theNames list.
     const std::vector<std::string>& theNameVector = theNames.value( );
-    std::vector<std::string>::const_iterator it;
-    std::vector<std::string>::const_iterator itend = theNameVector.end( );
-    for (it = theNameVector.begin(); it != itend; it++) {
+    for (const std::string& name : theNameVector) {
 
       // Parse the name for a syntax of the form:
       //
@@ -483,18 +449,18 @@ AthSequencer::decodeNames( Gaudi::Property<std::vector<std::string>>& theNames,
       //
       // Where <name> is the algorithm instance name, and <type> is the
       // algorithm class type (being a subclass of Algorithm).
-      std::string theName = (*it);
-      std::string theType = (*it);
-      int slash = (*it).find_first_of( "/" );
+      std::string theName = name;
+      std::string theType = name;
+      int slash = name.find_first_of( "/" );
       if ( slash > 0 ) {
-        theType = (*it).substr( 0, slash );
-        theName = (*it).substr( slash+1 );
+        theType = name.substr( 0, slash );
+        theName = name.substr( slash+1 );
       }
 
       // Check whether the suppied name corresponds to an existing
       // Algorithm object.
       IAlgorithm* theIAlg;
-      Gaudi::Algorithm*  theAlgorithm;
+      Gaudi::Algorithm*  theAlgorithm = nullptr;
       StatusCode status = theAlgMgr->getAlgorithm( theName, theIAlg );
       if ( status.isSuccess( ) ) {
         theAlgorithm = dynamic_cast<Gaudi::Algorithm*>(theIAlg);
@@ -565,10 +531,7 @@ AthSequencer::remove( const std::string& algname,
   StatusCode result = StatusCode::FAILURE;
   
   // Test that the algorithm exists in the member list
-  std::vector<Gaudi::Algorithm*>::iterator it;
-  std::vector<Gaudi::Algorithm*>::iterator itend = theAlgs->end( );
-  for (it = theAlgs->begin(); it != itend; it++) {
-    Gaudi::Algorithm* theAlgorithm = (*it);
+  for (Gaudi::Algorithm* theAlgorithm : *theAlgs) {
     if ( theAlgorithm->name( ) == algname ) {
       
       // Algorithm with specified name exists in the algorithm list - remove it

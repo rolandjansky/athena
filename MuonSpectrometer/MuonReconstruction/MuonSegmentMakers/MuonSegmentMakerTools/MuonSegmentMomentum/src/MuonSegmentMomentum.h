@@ -22,10 +22,10 @@ class MuonSegmentMomentum : public AthAlgTool, virtual public Muon::IMuonSegment
   MuonSegmentMomentum& operator= (const MuonSegmentMomentum& ) = delete;
 
   /** fits a momentum to 2 segments */
-  virtual void fitMomentum2Segments( const Muon::MuonSegment* segment1, const Muon::MuonSegment* segment2, double & signedMomentum ) const override;
+  virtual void fitMomentum2Segments( const EventContext&, const Muon::MuonSegment* segment1, const Muon::MuonSegment* segment2, double & signedMomentum ) const override;
 
   /** fits a momentum to a vector of segments */
-  virtual void fitMomentumVectorSegments( const std::vector <const Muon::MuonSegment*>, double & signedMomentum ) const override;
+  virtual void fitMomentumVectorSegments( const EventContext&, const std::vector <const Muon::MuonSegment*>, double & signedMomentum ) const override;
 
  private:  
   /** flag for use of cosmics, straight line model will be used, no interaction point constraint */

@@ -73,8 +73,8 @@ using namespace GeoXF;
 namespace MuonGM {
 
     MuonDetectorFactory001::MuonDetectorFactory001(StoreGateSvc *pDetStore):
+        m_muon (std::make_unique< MuonSystemDescription>("MuonSystem")),
         m_pDetStore{pDetStore} {
-        m_muon = std::make_unique< MuonSystemDescription>("MuonSystem");
         m_muon->barrelInnerRadius = 4.30 * Gaudi::Units::m;
         m_muon->innerRadius = 0.07 * Gaudi::Units::m;
         m_muon->outerRadius = 13.00 * Gaudi::Units::m;
@@ -132,6 +132,7 @@ namespace MuonGM {
         m_manager->setControlAlinesFlag(m_controlAlines);
         m_manager->setNSWABLinesAsciiSideA(m_NSWABLinesSideA);
         m_manager->setNSWABLinesAsciiSideC(m_NSWABLinesSideC);
+        m_manager->setMMAsBuiltCalculator(m_MMAsBuiltJsonPath);
         // set here the flag defining the geometry granularity
         // minimalgeo = 1 => The geo tree is built up to the Detector Level (Full PhysVol)
         //                     no internal structure of the Detector is built

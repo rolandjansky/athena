@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -11,8 +11,9 @@
 #include "D3PDMakerUtils/BlockFillerTool.h"
 #include "D3PDMakerUtils/SGCollectionGetterTool.h"
 #include "LArSimEvent/LArHitContainer.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
-class CaloDetDescrManager ; 
 class Identifier;
 class LArEM_ID; 
 class LArHEC_ID; 
@@ -62,11 +63,11 @@ public:
 
 
   /// Standard Gaudi initialize method.
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
 
   /// Book variables for this block.
-  virtual StatusCode book();
+  virtual StatusCode book() override;
 
   /**
    * @brief Fill one block --- type-safe version.
@@ -76,7 +77,7 @@ public:
    * is responsible for arranging that all the pointers for booked variables
    * are set appropriately upon entry.
    */
-  virtual StatusCode fill (const LArHit& p);
+  virtual StatusCode fill (const LArHit& p) override;
 
 private:
 
@@ -94,7 +95,11 @@ private:
   const TileID* m_tileid;
   const LArOnlineID* m_onlineid;
   unsigned int CaloCell_GetDetectorInfo(Identifier &cellID);
-  const CaloDetDescrManager*  m_dd_man; 
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+      , "CaloDetDescrManager"
+      , "CaloDetDescrManager"
+      , "SG Key for CaloDetDescrManager in the Condition Store" };
+
 };
 
 

@@ -62,8 +62,8 @@ namespace CscRdoBins {
 CscRdoValAlg::CscRdoValAlg(const std::string & type, const std::string & name, 
     const IInterface* parent) : ManagedMonitorToolBase(type, name, parent),
                                 m_cscRdoDecoderTool("Muon::CscRDO_Decoder"),
-                                m_cscrdo_oviewEA(0), 
-                                m_cscrdo_oviewEC(0)
+                                m_cscrdo_oviewEA(nullptr), 
+                                m_cscrdo_oviewEC(nullptr)
 {
 
   declareProperty("CSCRawDataPath", m_cscRDOPath = "Muon/MuonRawDataMonitoring/CSC/RDO");
@@ -83,11 +83,11 @@ CscRdoValAlg::CscRdoValAlg(const std::string & type, const std::string & name,
 CscRdoValAlg::~CscRdoValAlg() {
   if(m_cscrdo_oviewEA) {
     delete m_cscrdo_oviewEA;
-    m_cscrdo_oviewEA = 0;
+    m_cscrdo_oviewEA = nullptr;
   }
   if(m_cscrdo_oviewEC) {
     delete m_cscrdo_oviewEC;
-    m_cscrdo_oviewEC = 0;
+    m_cscrdo_oviewEC = nullptr;
   }
   ATH_MSG_DEBUG ( " deleting CscRdoValAlg "  );
 }
@@ -111,67 +111,67 @@ StatusCode CscRdoValAlg::initialize() {
 ////
 void CscRdoValAlg::initHistograms() {
 
-  m_h2csc_rdo_hitmap = 0;
-  m_h2csc_rdo_hitmap_signal = 0;
-  m_h2csc_rdo_hitmap_noise = 0;
+  m_h2csc_rdo_hitmap = nullptr;
+  m_h2csc_rdo_hitmap_signal = nullptr;
+  m_h2csc_rdo_hitmap_noise = nullptr;
 
-  m_h2csc_rdo_hitmap_norm = 0;
-  m_h2csc_rdo_hitmap_norm_signal = 0;
-  m_h2csc_rdo_hitmap_norm_noise = 0;
+  m_h2csc_rdo_hitmap_norm = nullptr;
+  m_h2csc_rdo_hitmap_norm_signal = nullptr;
+  m_h2csc_rdo_hitmap_norm_noise = nullptr;
 
-  m_h2csc_rdo_hitmap_signal_EA = 0;
-  m_h1csc_rdo_hitmap_signal_EA_count = 0;
-  m_h1csc_rdo_hitmap_signal_EA_occupancy = 0;
+  m_h2csc_rdo_hitmap_signal_EA = nullptr;
+  m_h1csc_rdo_hitmap_signal_EA_count = nullptr;
+  m_h1csc_rdo_hitmap_signal_EA_occupancy = nullptr;
 
-  m_h2csc_rdo_hitmap_norm_signal_EA = 0;
+  m_h2csc_rdo_hitmap_norm_signal_EA = nullptr;
 
-  m_h2csc_rdo_hitmap_signal_EC = 0;
-  m_h1csc_rdo_hitmap_signal_EC_count = 0;
-  m_h1csc_rdo_hitmap_signal_EC_occupancy = 0;
+  m_h2csc_rdo_hitmap_signal_EC = nullptr;
+  m_h1csc_rdo_hitmap_signal_EC_count = nullptr;
+  m_h1csc_rdo_hitmap_signal_EC_occupancy = nullptr;
 
-  m_h2csc_rdo_hitmap_norm_signal_EC = 0;
+  m_h2csc_rdo_hitmap_norm_signal_EC = nullptr;
 
-  m_h2csc_rdo_phicluswidth = 0;
-  m_h2csc_rdo_phicluswidth_signal = 0;
-  m_h2csc_rdo_phicluswidth_noise = 0;
+  m_h2csc_rdo_phicluswidth = nullptr;
+  m_h2csc_rdo_phicluswidth_signal = nullptr;
+  m_h2csc_rdo_phicluswidth_noise = nullptr;
 
-  m_h2csc_rdo_phicluswidth_signal_EA = 0;
-  m_h1csc_rdo_phicluswidth_signal_EA_count = 0;
-  m_h1csc_rdo_phicluswidth_signal_EA_occupancy = 0;
+  m_h2csc_rdo_phicluswidth_signal_EA = nullptr;
+  m_h1csc_rdo_phicluswidth_signal_EA_count = nullptr;
+  m_h1csc_rdo_phicluswidth_signal_EA_occupancy = nullptr;
 
-  m_h2csc_rdo_phicluswidth_signal_EC = 0;
-  m_h1csc_rdo_phicluswidth_signal_EC_count = 0;
-  m_h1csc_rdo_phicluswidth_signal_EC_occupancy = 0;
+  m_h2csc_rdo_phicluswidth_signal_EC = nullptr;
+  m_h1csc_rdo_phicluswidth_signal_EC_count = nullptr;
+  m_h1csc_rdo_phicluswidth_signal_EC_occupancy = nullptr;
 
-  m_h2csc_rdo_etacluswidth = 0;
-  m_h2csc_rdo_etacluswidth_signal = 0;
-  m_h2csc_rdo_etacluswidth_noise = 0;
+  m_h2csc_rdo_etacluswidth = nullptr;
+  m_h2csc_rdo_etacluswidth_signal = nullptr;
+  m_h2csc_rdo_etacluswidth_noise = nullptr;
 
-  m_h2csc_rdo_etacluswidth_signal_EA = 0;
-  m_h1csc_rdo_etacluswidth_signal_EA_count = 0;
-  m_h1csc_rdo_etacluswidth_signal_EA_occupancy = 0;
-  m_h2csc_rdo_etacluswidth_signal_EC = 0;
-  m_h1csc_rdo_etacluswidth_signal_EC_count = 0;
-  m_h1csc_rdo_etacluswidth_signal_EC_occupancy = 0;
+  m_h2csc_rdo_etacluswidth_signal_EA = nullptr;
+  m_h1csc_rdo_etacluswidth_signal_EA_count = nullptr;
+  m_h1csc_rdo_etacluswidth_signal_EA_occupancy = nullptr;
+  m_h2csc_rdo_etacluswidth_signal_EC = nullptr;
+  m_h1csc_rdo_etacluswidth_signal_EC_count = nullptr;
+  m_h1csc_rdo_etacluswidth_signal_EC_occupancy = nullptr;
 
-  m_h2csc_rdo_phicluscount = 0;
-  m_h2csc_rdo_phicluscount_signal = 0;
-  m_h2csc_rdo_phicluscount_noise = 0;
+  m_h2csc_rdo_phicluscount = nullptr;
+  m_h2csc_rdo_phicluscount_signal = nullptr;
+  m_h2csc_rdo_phicluscount_noise = nullptr;
 
-  m_h2csc_rdo_etacluscount = 0;
-  m_h2csc_rdo_etacluscount_signal = 0;
-  m_h2csc_rdo_etacluscount_noise = 0;
+  m_h2csc_rdo_etacluscount = nullptr;
+  m_h2csc_rdo_etacluscount_signal = nullptr;
+  m_h2csc_rdo_etacluscount_noise = nullptr;
 
 
-  m_h1csc_rdo_maxdiffamp = 0;
+  m_h1csc_rdo_maxdiffamp = nullptr;
 
   // Correlation plots
-  m_h2csc_rdo_eta_vs_phi_cluscount = 0;
-  m_h2csc_rdo_eta_vs_phi_cluscount_signal = 0;
-  m_h2csc_rdo_eta_vs_phi_cluscount_noise = 0;
+  m_h2csc_rdo_eta_vs_phi_cluscount = nullptr;
+  m_h2csc_rdo_eta_vs_phi_cluscount_signal = nullptr;
+  m_h2csc_rdo_eta_vs_phi_cluscount_noise = nullptr;
 
-  m_h2csc_rdo_eta_vs_phi_cluswidth = 0;
-  m_h2csc_rdo_eta_vs_phi_cluswidth_signal = 0;
+  m_h2csc_rdo_eta_vs_phi_cluswidth = nullptr;
+  m_h2csc_rdo_eta_vs_phi_cluswidth_signal = nullptr;
 
 }
 
