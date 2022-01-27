@@ -453,8 +453,7 @@ def InDetTrackRecoCfg(flags):
             result.merge(NewTrackingTRTExtensionCfg(current_flags,
                                                     SiTrackCollection = ResolvedTracks,
                                                     ExtendedTrackCollection = ExtendedTracks,
-                                                    ExtendedTracksMap = ExtendedTracksMap,
-                                                    doPhase=False))
+                                                    ExtendedTracksMap = ExtendedTracksMap))
 
             TrackContainer = ExtendedTracks
 

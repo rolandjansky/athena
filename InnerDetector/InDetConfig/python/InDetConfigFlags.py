@@ -52,7 +52,6 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.Tracking.doRefitInvalidCov", False) # Try Kalman fitter if the track fit in the ambiguity processor produces non positive definitematrices.
   icf.addFlag("InDet.Tracking.trtExtensionType", "xk") # which extension type ("xk"/"DAF")
   icf.addFlag("InDet.Tracking.redoTRT_LR", lambda prevFlags: not prevFlags.InDet.Tracking.trtExtensionType=="DAF") # use smart TRT LR/tube hit creator and redo ROTs
-  icf.addFlag("InDet.Tracking.doTRTPhaseCalculation", lambda prevFlags: prevFlags.Beam.Type=="cosmics") # control to run TRT phase calculation
 
   ### Tracking passes/configurations scheduled
 

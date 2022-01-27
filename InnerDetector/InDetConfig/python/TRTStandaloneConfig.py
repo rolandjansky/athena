@@ -217,7 +217,7 @@ if __name__ == "__main__":
     ############################# TRTPreProcessing configuration ############################
     if not ConfigFlags.InDet.Tracking.doDBMstandalone:
         from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
-        top_acc.merge(TRTPreProcessingCfg(ConfigFlags,(not ConfigFlags.InDet.Tracking.doTRTPhaseCalculation or ConfigFlags.Beam.Type =="collisions"),False))
+        top_acc.merge(TRTPreProcessingCfg(ConfigFlags))
     ########################### TRTSegmentFindingCfg configuration ##########################
     # NewTracking collection keys
     InputCombinedInDetTracks = []
