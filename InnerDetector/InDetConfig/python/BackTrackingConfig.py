@@ -369,9 +369,7 @@ if __name__ == "__main__":
 
     if not flags.InDet.Tracking.doDBMstandalone:
         from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
-        top_acc.merge(TRTPreProcessingCfg(flags,
-                                          useTimeInfo = not flags.InDet.Tracking.doTRTPhaseCalculation or flags.Beam.Type=="collisions",
-                                          usePhase = False))
+        top_acc.merge(TRTPreProcessingCfg(flags))
 
     ######################################## TRTSegmentFinding Configuration ###########################################
     InputCollections = []
@@ -380,8 +378,7 @@ if __name__ == "__main__":
     top_acc.merge(TRTSegmentFindingCfg( flags,
                                         extension = "",
                                         InputCollections = InputCollections,
-                                        BarrelSegments = 'TRTSegments', # InDetKeys.TRT_Segments
-                                        doPhase = False))
+                                        BarrelSegments = 'TRTSegments'))
 
     ########################################## BackTracking Configuration ##############################################
     TrackCollectionKeys = []

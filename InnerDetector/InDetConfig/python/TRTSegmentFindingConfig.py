@@ -82,7 +82,7 @@ def TRT_TrackSegmentsMakerCondAlg_ATLxkCfg(flags, name = 'InDetTRT_SeedsMakerCon
     acc.addCondAlgo(InDetTRT_TrackSegmentsMakerCondAlg)
     return acc
 
-def TRT_TrackSegmentsFinderCfg(flags, name = 'InDetTRT_TrackSegmentsFinder', extension = '', BarrelSegments = None, InputCollections =None, doPhase = False, **kwargs):
+def TRT_TrackSegmentsFinderCfg(flags, name = 'InDetTRT_TrackSegmentsFinder', extension = '', BarrelSegments = None, InputCollections =None, **kwargs):
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     acc = MagneticFieldSvcCfg(flags)
 
@@ -95,42 +95,31 @@ def TRT_TrackSegmentsFinderCfg(flags, name = 'InDetTRT_TrackSegmentsFinder', ext
         #
         # --- cosmics barrel segments (use TRT track segements even for NewT) 
         #
-        if doPhase:
-            InDetTRT_TrackSegmentsMakerPhase = acc.popToolsAndMerge(TRT_TrackSegmentsMaker_BarrelCosmicsCfg(flags, name='InDetTRTSegmentsMakerPhase'+extension))
-            acc.addPublicTool(InDetTRT_TrackSegmentsMakerPhase)
+        InDetTRT_TrackSegmentsMaker = acc.popToolsAndMerge(TRT_TrackSegmentsMaker_BarrelCosmicsCfg(flags, name='InDetTRTSegmentsMaker'+extension,
+                                                                                                   TRT_ClustersContainer = 'TRT_DriftCircles')) # InDetKeys.TRT_DriftCircles
+        acc.addPublicTool(InDetTRT_TrackSegmentsMaker)
 
-            kwargs.setdefault("SegmentsMakerTool", InDetTRT_TrackSegmentsMakerPhase)
-            kwargs.setdefault("SegmentsLocation", BarrelSegments)
-        else:
-            InDetTRT_TrackSegmentsMaker = acc.popToolsAndMerge(TRT_TrackSegmentsMaker_BarrelCosmicsCfg(flags, name='InDetTRTSegmentsMaker'+extension,
-                                                                                                              TRT_ClustersContainer = 'TRT_DriftCircles')) # InDetKeys.TRT_DriftCircles
-            acc.addPublicTool(InDetTRT_TrackSegmentsMaker)
-
-            if flags.Detector.EnableCalo and flags.InDet.Tracking.ActivePass.RoISeededBackTracking:
-                from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
-                acc.merge(CaloClusterROI_SelectorCfg(flags))
-                kwargs.setdefault("SegmentsMakerTool", InDetTRT_TrackSegmentsMaker)
-                kwargs.setdefault("SegmentsLocation", BarrelSegments)
-                kwargs.setdefault("useCaloSeeds", True)
-                kwargs.setdefault("InputClusterContainerName", 'InDetCaloClusterROIs') # InDetKeys.CaloClusterROIContainer
-            else:
-                kwargs.setdefault("SegmentsMakerTool", InDetTRT_TrackSegmentsMaker)
-                kwargs.setdefault("SegmentsLocation", BarrelSegments)
-                kwargs.setdefault("InputClusterContainerName", "")
     else:
         #
-        # --- offline version  of TRT segemnt making
+        # --- offline version  of TRT segment making
         #
         InDetTRT_TrackSegmentsMaker = acc.popToolsAndMerge(TRT_TrackSegmentsMaker_ATLxkCfg( flags, 
                                                                                             name = 'InDetTRT_SeedsMaker'+extension, 
                                                                                             extension = extension,
                                                                                             InputCollections = InputCollections))
         acc.addPublicTool(InDetTRT_TrackSegmentsMaker)
-        kwargs.setdefault("SegmentsMakerTool", InDetTRT_TrackSegmentsMaker)
 
         acc.merge(TRT_TrackSegmentsMakerCondAlg_ATLxkCfg(flags, 
                                                          name = 'InDetTRT_SeedsMakerCondAlg'+ extension, 
                                                          extension = extension))
+
+    kwargs.setdefault("SegmentsMakerTool", InDetTRT_TrackSegmentsMaker)
+    kwargs.setdefault("SegmentsLocation", BarrelSegments)
+
+    if flags.InDet.Tracking.ActivePass.RoISeededBackTracking:
+        from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
+        acc.merge(CaloClusterROI_SelectorCfg(flags))
+        kwargs.setdefault("useCaloSeeds", True)
 
     acc.addEventAlgo(CompFactory.InDet.TRT_TrackSegmentsFinder( name = name, **kwargs))
     return acc
@@ -161,7 +150,7 @@ def SegmentDriftCircleAssValidationCfg(flags, name="InDetSegmentDriftCircleAssVa
     acc.addEventAlgo(InDetSegmentDriftCircleAssValidation)
     return acc
 
-def TRTSegmentFindingCfg(flags, extension = "", InputCollections = None, BarrelSegments = None, doPhase = False):
+def TRTSegmentFindingCfg(flags, extension = "", InputCollections = None, BarrelSegments = None):
 
     acc = ComponentAccumulator()
     #
@@ -186,8 +175,7 @@ def TRTSegmentFindingCfg(flags, extension = "", InputCollections = None, BarrelS
                                           name = 'InDetTRT_TrackSegmentsFinder'+extension,
                                           extension =extension,
                                           BarrelSegments=BarrelSegments,
-                                          InputCollections = InputCollections,
-                                          doPhase = doPhase))
+                                          InputCollections = InputCollections))
     #
     # --- load TRT validation alg
     #
@@ -208,6 +196,9 @@ if __name__ == "__main__":
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     flags.Input.Files=defaultTestFiles.RDO_RUN2
 
+    # disable calo for this test
+    flags.Detector.EnableCalo = False
+
     numThreads=1
     flags.Concurrency.NumThreads=numThreads
     flags.Concurrency.NumConcurrentEvents=numThreads # Might change this later, but good enough for the moment.
@@ -226,9 +217,7 @@ if __name__ == "__main__":
 
     if not flags.InDet.Tracking.doDBMstandalone:
         from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
-        top_acc.merge(TRTPreProcessingCfg(flags,
-                                          useTimeInfo = not flags.InDet.Tracking.doTRTPhaseCalculation or flags.Beam.Type =="collisions",
-                                          usePhase = False))
+        top_acc.merge(TRTPreProcessingCfg(flags))
 
     top_acc.merge(TRTSegmentFindingCfg( flags,
                                         extension = "",

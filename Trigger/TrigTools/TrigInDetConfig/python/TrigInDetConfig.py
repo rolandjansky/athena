@@ -783,7 +783,7 @@ def TRTRIOMakerCfg(flags):
                                           TRTRDOLocation = TRT_RDO_Key,
                                           isRoI_Seeded = True,
                                           RoIs = flags.InDet.Tracking.ActivePass.roi,
-                                          TRT_DriftCircleTool = acc.getPrimaryAndMerge(TRT_DriftCircleToolCfg(flags, useTimeInfo=True, usePhase=False, prefix=prefix+"_", name=f"{prefix}_DriftCircleTool")))
+                                          TRT_DriftCircleTool = acc.getPrimaryAndMerge(TRT_DriftCircleToolCfg(flags, prefix=prefix+"_", name=f"{prefix}_DriftCircleTool")))
   acc.addEventAlgo( alg )
   return acc
 

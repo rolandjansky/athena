@@ -96,9 +96,7 @@ if __name__ == "__main__":
     top_acc.merge(InDetRecPreProcessingSiliconCfg(ConfigFlags))
     #################### TRTPreProcessing Configurations #####################
     from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
-    top_acc.merge(TRTPreProcessingCfg(ConfigFlags,
-                                      useTimeInfo = not ConfigFlags.InDet.Tracking.doTRTPhaseCalculation or ConfigFlags.Beam.Type=="collisions",
-                                      usePhase = False))
+    top_acc.merge(TRTPreProcessingCfg(ConfigFlags))
     
     #//// TrackingSiPatternConfig configurations from Temporary location /////
     ################# SiSPSeededTrackFinder Configurations ###################
