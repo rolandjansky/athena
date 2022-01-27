@@ -11,8 +11,22 @@ atlas_add_citest( DuplicateClass
    SCRIPT python -c 'import ROOT'
    PROPERTIES FAIL_REGULAR_EXPRESSION "class .* is already in" )
 
-# TODO: minimal set of tests for now
+#################################################################################
+# Digitization/Simulation
+#################################################################################
+
+atlas_add_citest( G4ExHive
+   SCRIPT athena.py --threads=4 --evtMax=50 G4AtlasApps/jobOptions.G4AtlasMT.py
+   PROPERTIES PROCESSORS 4 )
+
+
+# TODO: We stop here for now (migration ongoing...)
 return()
+
+
+
+
+
 
 #################################################################################
 # Reconstruction
@@ -69,10 +83,6 @@ atlas_add_citest( DigitizationNewConfig
 
 atlas_add_citest( FastChain
    SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/FastChain.sh )
-
-atlas_add_citest( G4ExHive
-   SCRIPT athena.py --threads=4 --evtMax=50 G4AtlasApps/jobOptions.G4AtlasMT.py
-   PROPERTIES PROCESSORS 4 )
 
 atlas_add_citest( MuonDigiReco_digi
    SCRIPT Digi_tf.py --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonRecRTT/Run3/HITS/AsymmetricLayout_HITS_v2.root --imf False --outputRDOFile OUT_RDO.root --conditionsTag OFLCOND-MC16-SDR-RUN3-02 )
