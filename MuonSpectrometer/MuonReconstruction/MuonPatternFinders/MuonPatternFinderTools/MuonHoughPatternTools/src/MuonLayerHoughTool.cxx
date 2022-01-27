@@ -428,7 +428,9 @@ namespace Muon {
 
         if (m_ntuple) {
             fillNtuple(*(state.houghDataPerSectorVec.get()));
-            m_tree->Fill();
+            // Tuple not used in MT configurations.
+            TTree* tree ATLAS_THREAD_SAFE = m_tree.get();
+            tree->Fill();
         }
 
         ATH_MSG_DEBUG("Found " << patternCombis->size() << " pattern combinations " << std::endl << m_printer->print(*patternCombis));
