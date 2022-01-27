@@ -6,4 +6,5 @@
    <class name="Trig::IParticleRetrievalTool" />
    <class name="Trig::MatchFromCompositeTool" />
    <class name="Trig::R3MatchingTool" />
+   <class name="Trig::MatchingTool" />
 </lcgdict>
