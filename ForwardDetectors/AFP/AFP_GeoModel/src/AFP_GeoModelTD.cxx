@@ -257,7 +257,7 @@ void AFP_GeoModelFactory::addSensor(const char* pszStationName, const int nQuart
 	double fSensor2BarDistance=(TofCfg.bEmulateImmersion)? 0.0:m_AfpConstants.ToF_Sensor2BarDist;
     if(m_addSeparationWindow)
     {
-       fSensor2BarDistance -= m_AfpConstants.ToF_SeparationWindowThickness;
+       fSensor2BarDistance += m_AfpConstants.ToF_SeparationWindowThickness;
     }
 
 	GeoBox* pSolSensor=new GeoBox(0.5*TofCfg.fPixelX1Dim,0.5*m_AfpConstants.ToF_SensorThickness,0.5*TofCfg.fPixelX2Dim);
