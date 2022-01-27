@@ -426,7 +426,6 @@ protected:
       if (m_objs[ref.idx() ].second == 0) { this->throwObjectAlreadyDeleted( ref.idx()); }
    }
 
-private:
    /** Will throw an exception if the maximum capacity of the container is exceeded.
     */
    void checkCapacity() {
@@ -470,8 +469,7 @@ private:
       if (m_freeIdx == std::numeric_limits<T_index>::max()) {
          ref=ObjRef(static_cast<T_index>(m_objs.size()));
          m_objs.push_back(std::make_pair(obj, initial_count));
-      }
-      else {
+      } else {
          m_objs[m_freeIdx] = std::make_pair( obj,initial_count);
          ref=ObjRef(m_freeIdx);
          m_freeIdx = std::numeric_limits<T_index>::max();
@@ -598,7 +596,7 @@ public:
    /** Helper method which only stores a "new" object if the given object is not the managed object of the given pointer.
     * @param orig a pointer to a managed object (or an invalid pointer).
     * @param obj a new object or the already managed object pointed to by orig (or a nullptr).
-    * @return a pointer to a manged object either the newly managed object or the original managed object.
+    * @return a pointer to a managed object either the newly managed object or the original managed object.
     */
    static ObjPtr recapture(const ObjPtr &orig, T_Obj *obj) {
       if (obj) {
