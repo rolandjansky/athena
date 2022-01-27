@@ -79,30 +79,29 @@ def LArNoisyROMonConfigCore(helper,algoinstance,inputFlags,
       LArNoisyROMonForceTrigger = False
 
     EFNoiseBurstTriggersList=[
-         "EF_j165_u0uchad_LArNoiseBurst",
-         "EF_j30_u0uchad_empty_LArNoiseBurst",
-         "EF_j55_u0uchad_firstempty_LArNoiseBurst",
-         "EF_j55_u0uchad_empty_LArNoiseBurst",
-         "EF_xe45_LArNoiseBurst",
-         "EF_xe55_LArNoiseBurst",
-         "EF_xe60_LArNoiseBurst",
-         "EF_j55_u0uchad_firstempty_LArNoiseBurstT",
-         "EF_j100_u0uchad_LArNoiseBurstT",
-         "EF_j165_u0uchad_LArNoiseBurstT",
-         "EF_j130_u0uchad_LArNoiseBurstT",
-         "EF_j35_u0uchad_empty_LArNoiseBurst",
-         "EF_j35_u0uchad_firstempty_LArNoiseBurst",
-         "EF_j80_u0uchad_LArNoiseBurstT"
+         "HLT_larnoiseburst_L1XE60",
+         "HLT_larnoiseburst_L1XE70",
+         "HLT_larnoiseburst_L1XE80",
+         "HLT_larnoiseburst_L1J100",
+         "HLT_larnoiseburst_L1J40_XE60",
+         "HLT_larnoiseburst_L1J40_XE50",
+         "HLT_larpsall_L1J12_FIRSTEMPTY",
+         "HLT_larpsall_L1J30_FIRSTEMPTY",
+         "HLT_larpsallem_L1EM7_FIRSTEMPTY"
     ]
     L1NoiseBurstTriggersList = [
          "L1_J75",
+         "L1_J100",
+         "L1_J40_XE50",
+         "L1_J40_XE60",
          "L1_J10_EMPTY",
-         "L1_J30_FIRSTEMPTY",
          "L1_J30_EMPTY",
-         "L1_XE40",
-         "L1_XE50",
-         "L1_XE50_BGRP7",
-         "L1_XE70"
+         "L1_EM7_FIRSTEMPTY",
+         "L1_J12_FIRSTEMPTY",
+         "L1_J30_FIRSTEMPTY",
+         "L1_XE60",
+         "L1_XE70",
+         "L1_XE80"
     ]
     doTrigger=False
     if isRun3Cfg():
