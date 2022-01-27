@@ -359,6 +359,10 @@ MetaDataSvc         DEBUG MetaDataSvc will handle EventStreamInfo ClassID: 16772
 MetaDataSvc         DEBUG MetaDataSvc will handle xAOD::EventFormat_v1 ClassID: 243004407
 Stream1.FileMet...  DEBUG beam energy "" tag could not be converted to float
 Stream1.FileMet...  DEBUG Failed to retrieve  'SimInfoKey':'/Simulation/Parameters' => cannot set: xAOD::FileMetaData::simFlavour, and xAOD::FileMetaData::isDataOverlay
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG added 1 to list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
+Stream1.FileMet...  DEBUG added 0 to list of lumiBlocks
 Stream1.FileMet...  DEBUG Retrieved  'EventInfoKey':'EventInfo'
 Stream1.FileMet...  DEBUG setting xAOD::FileMetaData::mcProcID to 0
 Stream1.FileMet...  DEBUG Retrieved  'StreamName':'Stream1'
@@ -440,6 +444,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 2
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 2
 Stream1             DEBUG connectOutput done for SimplePoolFile3.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #1 2 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
@@ -517,6 +523,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 3
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 3
 Stream1             DEBUG connectOutput done for SimplePoolFile3.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #1 3 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
@@ -594,6 +602,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 4
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 4
 Stream1             DEBUG connectOutput done for SimplePoolFile3.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #1 4 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
@@ -671,6 +681,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 5
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 5
 Stream1             DEBUG connectOutput done for SimplePoolFile3.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #1 5 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
@@ -748,6 +760,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 6
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 6
 Stream1             DEBUG connectOutput done for SimplePoolFile3.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #1 6 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
@@ -825,6 +839,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 7
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 7
 Stream1             DEBUG connectOutput done for SimplePoolFile3.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #6, run #1 7 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
@@ -902,6 +918,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 8
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 8
 Stream1             DEBUG connectOutput done for SimplePoolFile3.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #7, run #1 8 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
@@ -979,6 +997,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 9
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 9
 Stream1             DEBUG connectOutput done for SimplePoolFile3.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #8, run #1 9 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
@@ -1056,6 +1076,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 10
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 10
 Stream1             DEBUG connectOutput done for SimplePoolFile3.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #9, run #1 10 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
@@ -1133,6 +1155,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 11
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 11
 Stream1             DEBUG connectOutput done for SimplePoolFile3.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #10, run #1 11 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
@@ -1210,6 +1234,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 12
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 12
 Stream1             DEBUG connectOutput done for SimplePoolFile3.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #11, run #1 12 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
@@ -1287,6 +1313,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 13
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 13
 Stream1             DEBUG connectOutput done for SimplePoolFile3.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #12, run #1 13 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
@@ -1364,6 +1392,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 14
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 14
 Stream1             DEBUG connectOutput done for SimplePoolFile3.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #13, run #1 14 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
@@ -1441,6 +1471,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 15
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 15
 Stream1             DEBUG connectOutput done for SimplePoolFile3.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #14, run #1 15 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
@@ -1518,6 +1550,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 16
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 16
 Stream1             DEBUG connectOutput done for SimplePoolFile3.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #15, run #1 16 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
@@ -1595,6 +1629,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 17
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 17
 Stream1             DEBUG connectOutput done for SimplePoolFile3.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #16, run #1 17 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
@@ -1672,6 +1708,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 18
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 18
 Stream1             DEBUG connectOutput done for SimplePoolFile3.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #17, run #1 18 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
@@ -1749,6 +1787,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 19
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 19
 Stream1             DEBUG connectOutput done for SimplePoolFile3.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #18, run #1 19 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
@@ -1826,6 +1866,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 20
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 20
 Stream1             DEBUG connectOutput done for SimplePoolFile3.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #1 20 events processed so far  <<<===
 MetaDataSvc         DEBUG handle() EndInputFile for FID:????
 MetaDataSvc         DEBUG retireMetadataSource: FID:????
@@ -1946,7 +1988,7 @@ SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm)
 SimplePoolFile3...  DEBUG ---->ClassID:????
 MetaData(xAOD::...  DEBUG  SG::IAuxStoreIO* detected in xAOD::FileMetaDataAuxInfo_v1_FileMetaDataAux.
 MetaData(xAOD::...  DEBUG        Attributes= 1
-MetaData(xAOD::...  DEBUG    Creating branch for new dynamic attribute, Id=52: type=float, mcProcID
+MetaData(xAOD::...  DEBUG    Creating branch for new dynamic attribute, Id=44: type=float, mcProcID
 MetaData(xAOD::...  DEBUG createBasicAuxBranch: xAOD::FileMetaDataAuxInfo_v1_FileMetaDataAuxDyn.mcProcID, leaf:mcProcID/F
 Stream1              INFO Metadata records written: 21
 MetaDataSvc         DEBUG Unlocking metadata tools

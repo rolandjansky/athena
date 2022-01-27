@@ -752,6 +752,7 @@ def _extract_fields_fmd(interface=None, aux=None):
         "productionRelease": ROOT.std.string(),
         "dataType": ROOT.std.string(),
         "runNumbers": ROOT.std.vector('unsigned int')(),
+        "lumiBlocks": ROOT.std.vector('unsigned int')(),
     }
     # Note: using this for dynamic attributes retruns empty content
     for k, v in metaContent.items():
