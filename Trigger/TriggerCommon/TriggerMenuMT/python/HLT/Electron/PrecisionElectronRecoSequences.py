@@ -31,7 +31,7 @@ def precisionElectronRecoSequence(RoIs, ion=False, variant=''):
     from TriggerMenuMT.HLT.Egamma.TrigEgammaKeys import  getTrigEgammaKeys
     TrigEgammaKeys = getTrigEgammaKeys(variant, ion=ion)
 
-    caloClusters = TrigEgammaKeys.precisionCaloClusterContainer
+    caloClusters = TrigEgammaKeys.precisionElectronCaloClusterContainer
     trackParticles = TrigEgammaKeys.precisionTrackingContainer
 
     ViewVerifyTrk   = CfgMgr.AthViews__ViewDataVerifier("PrecisionTrackViewDataVerifier" + tag)

@@ -16,7 +16,7 @@ def precisionTracks_GSFRefittedSequence(ConfigFlags):
 
     from TriggerMenuMT.HLT.Egamma.TrigEgammaKeys import getTrigEgammaKeys
     TrigEgammaKeys = getTrigEgammaKeys('_GSF')
-    caloClusters = TrigEgammaKeys.precisionCaloClusterContainer
+    caloClusters = TrigEgammaKeys.precisionElectronCaloClusterContainer
  
 
     InViewRoIs = "precisionTracks_GSFRefitted"

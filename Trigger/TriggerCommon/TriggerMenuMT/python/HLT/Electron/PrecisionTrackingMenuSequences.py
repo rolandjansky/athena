@@ -19,7 +19,7 @@ def precisionTrackingSequence(ConfigFlags, ion=False, variant=''):
 
     from TriggerMenuMT.HLT.Egamma.TrigEgammaKeys import getTrigEgammaKeys
     TrigEgammaKeys = getTrigEgammaKeys(variant, ion=ion)
-    caloClusters = TrigEgammaKeys.precisionCaloClusterContainer
+    caloClusters = TrigEgammaKeys.precisionElectronCaloClusterContainer
  
 
     InViewRoIs = "precisionTracking" + variant
