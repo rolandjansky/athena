@@ -56,7 +56,8 @@ namespace xAOD {
          }
          if( ( *ti != typeid( std::string ) ) &&
              ( *ti != typeid( float ) ) &&
-             ( *ti != typeid( char ) ) ) {
+             ( *ti != typeid( char ) ) &&
+             ( *ti != typeid( std::vector< uint32_t > ) ) ) {
             // We just ignore every other type. Still, this is strange, let's
             // warn the user about it.
             std::cerr << "xAOD::FileMetaData::operator==  WARNING  Unsupported "
@@ -99,7 +100,16 @@ namespace xAOD {
             if( value1 != value2 ) {
                return false;
             }
-
+         } else if ( *ti == typeid( std::vector<uint32_t> ) ) {
+            // One code to retrieve them
+            const std::vector<uint32_t>& value1 =
+               this->auxdata< std::vector<uint32_t> >(name);
+            const std::vector<uint32_t>& value2 =
+               rhs.auxdata< std::vector<uint32_t> >(name);
+            // and in simplicity compare them
+            if( value1 != value2 ) {
+               return false;
+            }
          } else {
             // We should really never end up here unless a coding mistake was
             // made upstream.
