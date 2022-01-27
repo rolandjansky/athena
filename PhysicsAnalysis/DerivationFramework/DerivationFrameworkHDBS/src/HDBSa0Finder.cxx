@@ -12,11 +12,9 @@
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h" 
 #include "TrkToolInterfaces/ITrackSelectorTool.h" 
 #include "TrkVertexAnalysisUtils/V0Tools.h"
-#include "GaudiKernel/IPartPropSvc.h"
-
 #include "TrkVertexFitterInterfaces/IVertexFitter.h"
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
-
+#include "GaudiKernel/IPartPropSvc.h"
 #include <tuple>
 
 namespace DerivationFramework {
@@ -192,13 +190,7 @@ namespace DerivationFramework {
 
     if(m_useGSFTrack.any()){
       ATH_CHECK(evtStore()->retrieve(importedGSFTrackCollection, m_TrkParticleGSFCollection));
-      StatusCode sc = evtStore()->retrieve(importedElectronCollection,m_electronCollectionKey);
-      if(sc.isFailure()){
-        ATH_MSG_WARNING("a0Finder: No electron collection with key " << m_electronCollectionKey << " found in StoreGate. EECandidates will be EMPTY!");
-        return StatusCode::SUCCESS;
-      }else{
-        ATH_MSG_DEBUG("a0Finder: Found electron collections with key "<<m_electronCollectionKey);
-      }
+      ATH_CHECK(evtStore()->retrieve(importedElectronCollection,m_electronCollectionKey));
       ATH_MSG_DEBUG("a0Finder: Electron container size "<<importedElectronCollection->size());   
  
       std::vector<const xAOD::Electron*> elePos; elePos.clear();
@@ -290,13 +282,7 @@ namespace DerivationFramework {
     // Get the muons from StoreGate
     const xAOD::MuonContainer* importedMuonCollection;
     if(m_ZisMuons){
-      StatusCode sc = evtStore()->retrieve(importedMuonCollection,m_muonCollectionKey);
-      if(sc.isFailure()){
-          ATH_MSG_WARNING("No muon collection with key " << m_muonCollectionKey << " found in StoreGate. JpsiCandidates will be EMPTY!");
-          return StatusCode::SUCCESS;
-      }else{
-          ATH_MSG_DEBUG("Found muon collections with key "<<m_muonCollectionKey);
-      }
+      ATH_CHECK(evtStore()->retrieve(importedMuonCollection,m_muonCollectionKey));
       ATH_MSG_DEBUG("Muon container size "<<importedMuonCollection->size());
 
       std::vector<const xAOD::Muon*> muPos; muPos.clear();

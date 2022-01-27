@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -9,11 +9,6 @@
 // Based on DerivationFramework::SkimmingToolExample
 
 #include "DerivationFrameworkHDBS/SkimmingToolHDBS2.h"
-
-#include <vector>
-#include <string>
-
-#include "CLHEP/Units/SystemOfUnits.h"
 #include "StoreGate/ReadHandle.h"
 #include "VxVertex/VxTrackAtVertex.h"
 #include "xAODEgamma/ElectronxAODHelpers.h"
@@ -21,6 +16,10 @@
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
+#include "GaudiKernel/SystemOfUnits.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include <vector>
+#include <string>
 
 // Constructor
 DerivationFramework::SkimmingToolHDBS2::SkimmingToolHDBS2(const std::string& t,
@@ -114,11 +113,11 @@ DerivationFramework::SkimmingToolHDBS2::SkimmingToolHDBS2(const std::string& t,
   declareProperty("PhotonEtaCut", m_photonEtaCut=2.5); 
 
   declareProperty("InvariantMassCut", m_invariantMassCut=0.*CLHEP::GeV); 
-  declareProperty("InvariantMassa0LowCut", m_invariantMassa0LowCut=0.0*CLHEP::GeV); 
-  declareProperty("InvariantMassa0UpCut", m_invariantMassa0UpCut=1.5*CLHEP::GeV); 
-  declareProperty("InvariantMassHLowCut", m_invariantMassHLowCut=100*CLHEP::GeV); 
-  declareProperty("InvariantMassZLowCut", m_invariantMassZLowCut=71*CLHEP::GeV);
-  declareProperty("InvariantMassZUpCut", m_invariantMassZUpCut=111*CLHEP::GeV); 
+  declareProperty("InvariantMassa0LowCut", m_invariantMassa0LowCut=0.0 * Gaudi::Units::GeV); 
+  declareProperty("InvariantMassa0UpCut", m_invariantMassa0UpCut=1.5 * Gaudi::Units::GeV); 
+  declareProperty("InvariantMassHLowCut", m_invariantMassHLowCut=100 * Gaudi::Units::GeV); 
+  declareProperty("InvariantMassZLowCut", m_invariantMassZLowCut=71 * Gaudi::Units::GeV);
+  declareProperty("InvariantMassZUpCut", m_invariantMassZUpCut=111 * Gaudi::Units::GeV); 
   declareProperty("InvariantMassJpsiLowCut", m_invariantMassJpsiLowCut=2.0*CLHEP::GeV); 
   declareProperty("InvariantMassJpsiUpCut", m_invariantMassJpsiUpCut=4.3*CLHEP::GeV); 
   declareProperty("InvariantMassUpsilonLowCut",m_invariantMassUpsilonLowCut=8.0*CLHEP::GeV); 

@@ -99,9 +99,9 @@ class HDBSa0Finder : public AthAlgTool, public IAugmentationTool {
         Trk::TrkVKalVrtFitter* m_VKVFitter;
                
         std::bitset<4> m_useGSFTrack;
-        double mass_pion = 139.570; //MeV
-        double mass_muon = 105.658; //MeV
-        double mass_electron = 0.5109989461; //MeV
+        const double mass_pion = 139.570; //MeV
+        const double mass_muon = 105.658; //MeV
+        const double mass_electron = 0.5109989461; //MeV
         const xAOD::TrackParticle* trackParticle1{nullptr};
         const xAOD::TrackParticle* trackParticle2{nullptr};
         const xAOD::Electron* el1{nullptr};
