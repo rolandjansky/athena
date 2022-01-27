@@ -1,26 +1,25 @@
 /*
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-//  gJetSort.cxx
+//  jEmSort.cxx
 //  TopoCore
-//  algorithm to make sorted gJets lists
+//  algorithm to make sorted jEms lists
 //
-#include "L1TopoAlgorithms/gJetSort.h"
+#include "L1TopoAlgorithms/jEmSort.h"
 #include "L1TopoEvent/TOBArray.h"
-#include "L1TopoEvent/gJetTOBArray.h"
+#include "L1TopoEvent/jEmTOBArray.h"
 #include "L1TopoEvent/GenericTOB.h"
 #include <algorithm>
 
-REGISTER_ALG_TCS(gJetSort)
+REGISTER_ALG_TCS(jEmSort)
 
-bool SortByEtLargestgJet(TCS::GenericTOB* tob1, TCS::GenericTOB* tob2)
+bool SortByEtLargestjEm(TCS::GenericTOB* tob1, TCS::GenericTOB* tob2)
 {
    return tob1->Et() > tob2->Et();
 }
 
-
 // constructor
-TCS::gJetSort::gJetSort(const std::string & name) :
+TCS::jEmSort::jEmSort(const std::string & name) :
    SortingAlg(name)
 {
    defineParameter( "InputWidth", 64 ); // for FW
@@ -31,13 +30,13 @@ TCS::gJetSort::gJetSort(const std::string & name) :
 }
 
 
-TCS::gJetSort::~gJetSort()
+TCS::jEmSort::~jEmSort()
 {}
 
 
 
 TCS::StatusCode
-TCS::gJetSort::initialize() {
+TCS::jEmSort::initialize() {
    m_numberOfJets = parameter("OutputWidth").value();
    m_minEta = parameter("MinEta").value();
    m_maxEta = parameter("MaxEta").value();
@@ -46,20 +45,20 @@ TCS::gJetSort::initialize() {
 
 
 TCS::StatusCode
-TCS::gJetSort::sort(const InputTOBArray & input, TOBArray & output) {
-   const gJetTOBArray & jets = dynamic_cast<const gJetTOBArray&>(input);
+TCS::jEmSort::sort(const InputTOBArray & input, TOBArray & output) {
+  
+   const jEmTOBArray & jets = dynamic_cast<const jEmTOBArray&>(input);
    
    // fill output array with GenericTOBs builds from jets
-   for(gJetTOBArray::const_iterator jet = jets.begin(); jet!= jets.end(); ++jet ) {
-     if ( parType_t(std::abs((*jet)-> eta())) < m_minEta) continue; 
-     if ( parType_t(std::abs((*jet)-> eta())) > m_maxEta) continue;      	
+   for(jEmTOBArray::const_iterator jet = jets.begin(); jet!= jets.end(); ++jet ) {
+     if ( parType_t(std::abs((*jet)-> eta())) < m_minEta ) continue; 
+     if ( parType_t(std::abs((*jet)-> eta())) > m_maxEta ) continue;      	
      output.push_back( GenericTOB(**jet)  );
    }
 
    // sort
-   output.sort(SortByEtLargestgJet);
+   output.sort(SortByEtLargestjEm);
    
-
    // keep only max number of jets
    int par = m_numberOfJets;
    unsigned int maxNumberOfJets = (unsigned int)(par<0?0:par);

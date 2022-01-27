@@ -1,12 +1,11 @@
 /*
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-//  jJetSort.h
+//  gJetSelect.h
 //  TopoCore
 
-
-#ifndef __TopoCore__jJetSort__
-#define __TopoCore__jJetSort__
+#ifndef __TopoCore__gJetSelect__
+#define __TopoCore__gJetSelect__
 
 #include "L1TopoInterfaces/SortingAlg.h"
 #include "L1TopoEvent/TOBArray.h"
@@ -16,22 +15,24 @@
 
 namespace TCS {
    
-   class jJetSort : public SortingAlg {
+   class gJetSelect : public SortingAlg {
    public:
       
       // constructor
-      jJetSort(const std::string & name);
+      gJetSelect(const std::string & name);
 
       // destructor
-      virtual ~jJetSort();
-      virtual TCS::StatusCode initialize(); 
-      virtual TCS::StatusCode sort(const InputTOBArray & input, TOBArray & output);
-
+      virtual ~gJetSelect();
+      virtual TCS::StatusCode initialize();
+      virtual TCS::StatusCode sort(const InputTOBArray & input, TOBArray & output);    
+    
    private:
+   
       parType_t      m_numberOfJets = { 0 };
       parType_t      m_minEta = { 0 };
       parType_t      m_maxEta = { 0 };
-
+      parType_t      m_et = { 0 };
+    
    };
 
 } // end of namespace TCS

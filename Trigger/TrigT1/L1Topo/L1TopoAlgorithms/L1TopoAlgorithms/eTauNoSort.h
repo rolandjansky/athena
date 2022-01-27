@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 // eTauNoSort.h
 // TopoCore
@@ -29,9 +29,8 @@ namespace TCS {
    private:
 
       parType_t      m_numberOfeTaus = { 0 };
-      parType_t      m_iso = { 0 };
-      parType_t      m_doIsoCut = { 0 };     
-
+      parType_t      m_rCore = { 0 };
+      parType_t      m_rHad = { 0 };
    };
 
 } // end of namespace TCS
