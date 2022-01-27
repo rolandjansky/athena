@@ -135,6 +135,15 @@ class _ConfigSettings_jetSuper( _ConfigSettingsBase ):
       self._roi      = "HLT_Roi_JetSuper"
       self._doFullScan = True
       self._pTmin      = 1*GeV
+      #-----
+      self._doFullScan      = True
+      self._doTRT           = False
+      self._DoubletDR_Max   = 200
+      self._SeedRadBinWidth = 10
+      self._TripletDoPPS    = False
+      self._nClustersMin    = 8
+      self._RoadWidth       = 5
+      self._UseTrigSeedML   = 4
 
 
 class _ConfigSettings_minBias( _ConfigSettingsBase ):
