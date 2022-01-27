@@ -130,10 +130,8 @@ BOOST_AUTO_TEST_SUITE(TrkExToolsObjContainerTest)
   
   // Test the ObjRef constructors 
   BOOST_AUTO_TEST_CASE(ObjRefConstructors){
-    BOOST_CHECK_NO_THROW(IndexedObj o);
     BOOST_CHECK_NO_THROW(IndexedObj o(1));
     IndexedObj o(1);
-    BOOST_CHECK_NO_THROW(IndexedObj p(o));
     BOOST_CHECK_NO_THROW(IndexedObj q(std::move(o)));
   }
   //... and Methods
