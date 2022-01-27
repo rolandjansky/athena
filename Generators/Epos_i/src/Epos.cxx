@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ---------------------------------------------------------------------- 
@@ -22,12 +22,14 @@
 #include "AtlasHepMC/IO_HEPEVT.h"
 #include "AtlasHepMC/GenEvent.h"
 #include "AtlasHepMC/HeavyIon.h"
+#include "AtlasHepMC/SimpleVector.h"
 
 
 #include "Epos_i/Epos.h"
-#include "Epos_i/EposFort.h"
 
-
+#ifdef HEPMC3
+#include "CRMChepevt.h"
+#endif
 
 namespace{
   static std::string epos_rndm_stream = "EPOS_INIT";
@@ -57,132 +59,14 @@ extern "C"
     // cross section info 
   void crmc_xsection_f_(double &xsigtot, double &xsigine, double &xsigela, double &xsigdd, 
       double &xsigsd, double &xsloela, double &xsigtotaa, double &xsigineaa, double &xsigelaaa);
-#ifdef HEPMC3
-extern struct eposhepevt
-{
-    int        nevhep;
-    int        nhep;
-    int        isthep[HEPEVT_EntriesAllocation];
-    int        idhep [HEPEVT_EntriesAllocation];
-    int        jmohep[HEPEVT_EntriesAllocation][2];
-    int        jdahep[HEPEVT_EntriesAllocation][2];
-    double     phep  [HEPEVT_EntriesAllocation][5];
-    double     vhep  [HEPEVT_EntriesAllocation][4];
-} hepevt_;                              
-struct hepmc3hepevt
-{
-    int        nevhep;
-    int        nhep;
-    int        isthep[10000];
-    int        idhep [10000];
-    int        jmohep[10000][2];
-    int        jdahep[10000][2];
-    double     phep  [10000][5];
-    double     vhep  [10000][4];
-} localhepevt_;  
-#endif
 
 }
-/*
-extern "C"
-{
-  extern struct
-  {
-    float sigtot;
-    float sigcut;
-    float sigela;
-    float sloela;
-    float sigsd;
-    float sigine;
-    float sigdif;
-    float sigineaa;
-    float sigtotaa;
-    float sigelaaa;
-    float sigcutaa;
-  } hadr5_; //crmc-aaa.f
-}
-
-extern "C"
-{
-  extern struct
-  {
-    // nevt .......... error code. 1=valid event, 0=invalid event
-    // bimevt ........ absolute value of impact parameter
-    // phievt ........ angle of impact parameter
-    // kolevt ........ number of collisions
-    // koievt ........ number of inelastic collisions
-    // pmxevt ........ reference momentum
-    // egyevt ........ pp cm energy (hadron) or string energy (lepton)
-    // npjevt ........ number of primary projectile participants
-    // ntgevt ........ number of primary target participants
-    // npnevt ........ number of primary projectile neutron spectators
-    // nppevt ........ number of primary projectile proton spectators
-    // ntnevt ........ number of primary target neutron spectators
-    // ntpevt ........ number of primary target proton spectators
-    // jpnevt ........ number of absolute projectile neutron spectators
-    // jppevt ........ number of absolute projectile proton spectators
-    // jtnevt ........ number of absolute target neutron spectators
-    // jtpevt ........ number of absolute target proton spectators
-    // xbjevt ........ bjorken x for dis
-    // qsqevt ........ q**2 for dis
-    // sigtot ........ total cross section
-    // nglevt ........ number of collisions acc to  Glauber
-    // zppevt ........ average Z-parton-proj
-    // zptevt ........ average Z-parton-targ
-    // ng1evt ........ number of Glauber participants with at least one IAs
-    // ng2evt ........ number of Glauber participants with at least two IAs
-    // ikoevt ........ number of elementary parton-parton scatterings
-    // typevt ........ type of event (1=Non Diff, 2=Double Diff, 3=Single Diff
-    float phievt;
-    int nevt;
-    float bimevt;
-    int kolevt;
-    int koievt;
-    float pmxevt;
-    float egyevt;
-    int npjevt;
-    int ntgevt;
-    int npnevt;
-    int nppevt;
-    int ntnevt;
-    int ntpevt;
-    int jpnevt;
-    int jppevt;
-    int jtnevt;
-    int jtpevt;
-    float xbjevt;
-    float qsqevt;
-    int nglevt;
-    float zppevt;
-    float zptevt;
-    int minfra;
-    int maxfra;
-    int kohevt;
-  } cevt_; //epos.inc
-}
-
-extern "C"
-{
-  extern struct
-  {
-    int ng1evt;
-    int ng2evt;
-    float rglevt;
-    float sglevt;
-    float eglevt;
-    float fglevt;
-    int ikoevt;
-    float typevt;
-  } c2evt_; //epos.inc
-}
-
-*/
-
 
 // ----------------------------------------------------------------------
 Epos::Epos( const std::string &name, ISvcLocator *pSvcLocator ): 
   GenModule( name, pSvcLocator )
 {
+  m_interface = nullptr;
   epos_rndm_stream = "EPOS_INIT";
   
   declareProperty( "BeamMomentum",    m_beamMomentum    = -6500.0 );      // GeV
@@ -256,8 +140,7 @@ StatusCode Epos::genInitialize()
 
     // setup HepMC
 #ifdef HEPMC3
-    /// Inlined
-    HepMC::HEPEVT_Wrapper::set_hepevt_address((char*)(&localhepevt_));
+    /// Not needed anymore
 #else    
     HepMC::HEPEVT_Wrapper::set_sizeof_int(sizeof( int ));
     HepMC::HEPEVT_Wrapper::set_sizeof_real( 8 );
@@ -332,42 +215,18 @@ StatusCode Epos::genFinalize()
 // ---------------------------------------------------------------------- 
 StatusCode Epos::fillEvt( HepMC::GenEvent* evt ) 
 {
-  HepMC::HEPEVT_Wrapper::set_event_number(m_events);
 #ifdef HEPMC3
-  ///If HepMC3 has been compiled with different block size than is used in the interface,
-  /// only the inlined functions can be used without restrictions.
-  /// The convert functions are compiled and should operate on the block of matching size.
-  /// The best solution would be to define a single block sze for all Athena.
-  localhepevt_.nevhep = m_events;
-  localhepevt_.nhep = std::min(10000, hepevt_.nhep);
-   for (int i = 0; i < localhepevt_.nhep; i++ ) {
-    localhepevt_.isthep[i] = hepevt_.isthep[i];
-    localhepevt_.idhep [i] = hepevt_.idhep [i];
-    for (int k = 0; k < 2; k++) localhepevt_.jmohep[i][k] = hepevt_.jmohep[i][k];
-    for (int k = 0; k < 2; k++) localhepevt_.jdahep[i][k] = hepevt_.jdahep[i][k];
-    for (int k = 0; k < 5; k++) localhepevt_.phep  [i][k] = hepevt_.phep  [i][k];
-    for (int k = 0; k < 4; k++) localhepevt_.vhep  [i][k] = hepevt_.vhep  [i][k];
-    localhepevt_.jmohep[i][1] = std::max(localhepevt_.jmohep[i][0],localhepevt_.jmohep[i][1]);
-    localhepevt_.jdahep[i][1] = std::max(localhepevt_.jdahep[i][0],localhepevt_.jdahep[i][1]);
-    /// For some interesting reason EPOS marks beam particle parents as -1 -1
-    if (localhepevt_.jmohep[i][0] <= 0 && localhepevt_.jmohep[i][1] <= 0 ) 
-    {
-      localhepevt_.jmohep[i][0] = 0;
-      localhepevt_.jmohep[i][1] = 0;
-      localhepevt_.isthep[i] = 4;
-    }
-   } 
-  /// Compiled!
-  HepMC::HEPEVT_Wrapper::HEPEVT_to_GenEvent(evt);
-#else  
+  CRMChepevt<HepMC3::GenParticlePtr, HepMC3::GenVertexPtr, HepMC3::FourVector, HepMC3::GenEvent> hepevtconverter;
+  hepevtconverter.convert(*evt);
+#else
+  /// We use the old approach for HepMC2, as the CRMC 2.0.1 has a bug that prevents us from using the same approach as for HepMC3.
+  /// This should be changed once the bug is fixed.
   HepMC::IO_HEPEVT hepio;
-
- 
   hepio.set_trust_mothers_before_daughters(0);
   hepio.set_print_inconsistency_errors(0);
   hepio.fill_next_event(evt);
 #endif
- 
+  evt->set_event_number(m_events);
 
   HepMC::set_random_states(evt, m_seeds );
 
