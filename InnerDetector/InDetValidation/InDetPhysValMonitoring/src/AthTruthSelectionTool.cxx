@@ -247,7 +247,7 @@ AthTruthSelectionTool::initialize() {
   }
   ATH_MSG_INFO(msg);
 
-  ATH_CHECK(m_extrapolator.retrieve());
+  ATH_CHECK(m_extrapolator.retrieve(EnableTool{ m_radiusCylinder > 0 || m_zDisc >0 }));
 
   return StatusCode::SUCCESS;
 }

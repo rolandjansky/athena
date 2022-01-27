@@ -44,7 +44,7 @@ def canAddDecorator(flags):
     if not (flags.Detector.GeometryID or flags.Detector.GeometryITk):
         return False
 
-    return "StreamESD" in flags.Input.ProcessingTags or "StreamAOD" in flags.Input.ProcessingTags
+    return ("StreamESD" in flags.Input.ProcessingTags or "StreamAOD" in flags.Input.ProcessingTags) and flags.IDPVM.runDecoration
 
     '''
     if rec.readTAG:
