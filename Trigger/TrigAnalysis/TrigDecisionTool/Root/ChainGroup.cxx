@@ -74,9 +74,12 @@ void Trig::ChainGroup::addAlias(const std::string& alias) {
 }
 
 const Trig::CacheGlobalMemory* Trig::ChainGroup::cgm(bool onlyConfig) const {
-  if ( !onlyConfig )
-    const_cast<Trig::CacheGlobalMemory*>(&m_cgm)->assert_decision(); 
-  
+  if ( !onlyConfig ) {
+    // thread-safe because assert_decision is locked
+    auto cgm ATLAS_THREAD_SAFE = const_cast<Trig::CacheGlobalMemory*>(&m_cgm);
+    cgm->assert_decision();
+  }
+
   return &m_cgm;
 }
 

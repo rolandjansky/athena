@@ -118,7 +118,7 @@ namespace Trig {
 
   private:
 
-    HLT::TrigNavStructure* navigation() const;
+    const HLT::TrigNavStructure* navigation() const;
 
     /// container preserving insertion order
     std::vector<Trig::Combination> m_combinations;
@@ -202,7 +202,7 @@ Trig::FeatureContainer::getFlags(const Trig::Feature<T> & f, const std::string &
   const HLT::TriggerElement* sourceTE(0);
   std::string sourceLabel;
 
-  auto fullnavi = dynamic_cast<HLT::NavigationCore*>(navigation());
+  auto fullnavi = dynamic_cast<const HLT::NavigationCore*>(navigation());
 
   bool success = fullnavi->getRecentFeature(f.te(), flags, flagsLabel, sourceTE, sourceLabel);
 

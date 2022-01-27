@@ -59,7 +59,7 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::DecisionAccess::fea
                                                                   const unsigned int featureCollectionMode,
                                                                   const std::string& navElementLinkKey,
                                                                   const int          restrictToLegIndex) const {
-  return group->features<CONTAINER>(cgm()->store(), cgm()->getRun3NavigationKeyPtr(), condition, containerSGKey, featureCollectionMode, navElementLinkKey, restrictToLegIndex);
+  return group->features<CONTAINER>(cgm()->store(), cgm()->getRun3NavigationKey(), condition, containerSGKey, featureCollectionMode, navElementLinkKey, restrictToLegIndex);
 }
 
 template<class CONTAINER>
