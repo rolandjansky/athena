@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <typeinfo>
@@ -23,21 +23,8 @@ LArDigit::operator std::string() const{
  }
   */
  
- char * stSamples = new char[20] ;
- char * stGain = new char[20] ;
- char * stNumberOfSamples = new char[30] ;
- char * classNameOfDigit = new char[48] ;
  
- const char * stname = typeid( *this ).name() ; 
- int lname ; 
- sscanf( stname , "%80d%47s" , &lname , classNameOfDigit ) ;
- 
- 
- sprintf( stNumberOfSamples , "# of samples = %d " , this->nsamples() ) ;
- sprintf( stGain , "gain = %d " , this->gain() ) ;
- 
- 
- std::string digitString = classNameOfDigit ;
+  std::string digitString = typeid( *this ).name();
  /*
 	  if( m_ChannelID.id() == 0x80000000 ) {  
 	     digitString += " in cell " ; 
@@ -47,20 +34,21 @@ LArDigit::operator std::string() const{
 	     digitString += cablingService->cnvToString( this->channelID() ) ; // convert LArSignalChannelID 
 	  }
              digitString += "  ";
+             char stNumberOfSamples[30];
+             sprintf( stNumberOfSamples , "# of samples = %d " , this->nsamples() ) ;
 	     digitString += stNumberOfSamples ;
+             char stGain[20];
+             sprintf( stGain , "gain = %d " , this->gain() ) ;
              digitString += stGain ;
 	     digitString += "samples = " ;
 	     const std::vector<short> & l_samples = this->samples() ;
 	     int l_nsamples = this->nsamples() ;
 	     for(int i = 0 ; i < l_nsamples ; i++ ) {  // loop over sample values
+              char stSamples[20];
 	      sprintf( stSamples   , "%d "    , l_samples[i]   ) ;
               digitString += stSamples ; 
 	     }
  */
- delete[] stSamples ;
- delete[] stGain ;
- delete[] classNameOfDigit ;
- delete[] stNumberOfSamples ;
  
  return digitString ;
 
