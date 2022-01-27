@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -74,7 +74,7 @@ LArConditionsContainerBase::initializeBase()
 
     if (m_groupType == LArConditionsContainerBase::SuperCells) {
       //Dealing with supercells, need supercell identifier helper
-      const LArOnline_SuperCellID* onlID;
+      const LArOnline_SuperCellID* onlID = nullptr;
       sc = detStore->retrieve(onlID,"LArOnline_SuperCellID");
       if (sc.isFailure()) {
 	log << MSG::ERROR << "Cannot get LArOnline_SuperCellID!" << endmsg;
@@ -82,7 +82,7 @@ LArConditionsContainerBase::initializeBase()
       }
       m_onlineHelper=onlID;//cast to base-class
 
-      const CaloCell_SuperCell_ID* oflID;
+      const CaloCell_SuperCell_ID* oflID = nullptr;
       sc = detStore->retrieve(oflID,"CaloCell_SuperCell_ID");
       if (sc.isFailure()) {
 	log << MSG::ERROR << "Cannot get CaloCell_SuperCell_ID!" << endmsg;
@@ -92,7 +92,7 @@ LArConditionsContainerBase::initializeBase()
     }
     else {
       //Regular readout
-      const LArOnlineID* onlID;
+      const LArOnlineID* onlID = nullptr;
       sc = detStore->retrieve(onlID,"LArOnlineID");
       if (sc.isFailure()) {
 	log << MSG::ERROR << "Cannot get LArOnlineID!" << endmsg;
@@ -100,7 +100,7 @@ LArConditionsContainerBase::initializeBase()
       }
       m_onlineHelper=onlID;//cast to base-class
 
-      const CaloCell_ID* oflID;
+      const CaloCell_ID* oflID = nullptr;
       sc = detStore->retrieve(oflID,"CaloCell_ID");
       if (sc.isFailure()) {
 	log << MSG::ERROR << "Cannot get CaloCell_ID!" << endmsg;
