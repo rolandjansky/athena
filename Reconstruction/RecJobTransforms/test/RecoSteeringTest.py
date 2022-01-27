@@ -24,12 +24,15 @@ def _run(input):
     # test inputs
     if not flags.Input.Files:
         from AthenaConfiguration.TestDefaults import defaultTestFiles
+        from AthenaConfiguration.Enums import ProductionStep
         if input == "RAW":
             flags.Input.Files = defaultTestFiles.RAW
+            flags.Common.ProductionStep=ProductionStep.Reconstruction
         if input == "ESD":
             flags.Input.Files = defaultTestFiles.ESD
         if input == "RDO":
             flags.Input.Files = defaultTestFiles.RDO_RUN2
+            flags.Common.ProductionStep=ProductionStep.Reconstruction
 
     # Enable PerfMon
     flags.PerfMon.doFullMonMT = True
