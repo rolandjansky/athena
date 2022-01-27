@@ -222,10 +222,14 @@ class TrigTauMonAlgBuilder:
        'HLT_tau35_mediumRNN_tracktwoMVABDT_tau25_mediumRNN_tracktwoMVABDT_03dRAB_L1TAU20IM_2TAU12IM_4J12p0ETA25',
        'HLT_tau40_mediumRNN_tracktwoMVABDT_tau35_mediumRNN_tracktwoMVABDT_03dRAB_L1TAU25IM_2TAU20IM_2J25_3J20',
        # Phase-I
-       'HLT_tau25_mediumRNN_tracktwoMVABDT_L1eTAU12',
-       'HLT_tau25_mediumRNN_tracktwoMVABDT_L1eTAU12M',
-       'HLT_tau35_mediumRNN_tracktwoMVABDT_L1eTAU20',
-       'HLT_tau160_mediumRNN_tracktwoMVABDT_L1eTAU100'
+       'HLT_tau25_idperf_tracktwoMVABDT_L1eTAU20',
+       'HLT_tau25_perf_tracktwoMVABDT_L1eTAU20', 
+       'HLT_tau25_mediumRNN_tracktwoMVABDT_L1eTAU20',
+       'HLT_tau25_idperf_tracktwoMVABDT_L1eTAU20M',
+       'HLT_tau25_perf_tracktwoMVABDT_L1eTAU20M',
+       'HLT_tau25_mediumRNN_tracktwoMVABDT_L1eTAU20M',     
+       'HLT_tau35_mediumRNN_tracktwoMVABDT_L1eTAU30', 
+       'HLT_tau160_mediumRNN_tracktwoMVABDT_L1eTAU140',
     ]
 
     self.tauList = monitoring_tau

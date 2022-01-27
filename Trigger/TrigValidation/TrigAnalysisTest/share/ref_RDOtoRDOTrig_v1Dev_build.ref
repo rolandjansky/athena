@@ -13700,6 +13700,34 @@ HLT_tau25_idperf_tracktwoMVABDT_L1TAU12IM:
     2: 32
     3: 32
     4: 32
+HLT_tau25_idperf_tracktwoMVABDT_L1eTAU20:
+  eventCount: 19
+  stepCounts:
+    0: 19
+    1: 19
+    2: 19
+    3: 19
+    4: 19
+  stepFeatures:
+    0: 129
+    1: 129
+    2: 129
+    3: 129
+    4: 129
+HLT_tau25_idperf_tracktwoMVABDT_L1eTAU20M:
+  eventCount: 19
+  stepCounts:
+    0: 19
+    1: 19
+    2: 19
+    3: 19
+    4: 19
+  stepFeatures:
+    0: 129
+    1: 129
+    2: 129
+    3: 129
+    4: 129
 HLT_tau25_idperf_tracktwoMVA_L1TAU12IM:
   eventCount: 17
   stepCounts:
@@ -13922,6 +13950,34 @@ HLT_tau25_perf_tracktwoMVABDT_L1TAU12IM:
     2: 32
     3: 32
     4: 15
+HLT_tau25_perf_tracktwoMVABDT_L1eTAU20:
+  eventCount: 13
+  stepCounts:
+    0: 19
+    1: 19
+    2: 19
+    3: 19
+    4: 13
+  stepFeatures:
+    0: 129
+    1: 129
+    2: 129
+    3: 129
+    4: 53
+HLT_tau25_perf_tracktwoMVABDT_L1eTAU20M:
+  eventCount: 13
+  stepCounts:
+    0: 19
+    1: 19
+    2: 19
+    3: 19
+    4: 13
+  stepFeatures:
+    0: 129
+    1: 129
+    2: 129
+    3: 129
+    4: 53
 HLT_tau25_perf_tracktwoMVA_L1TAU12IM:
   eventCount: 12
   stepCounts:
