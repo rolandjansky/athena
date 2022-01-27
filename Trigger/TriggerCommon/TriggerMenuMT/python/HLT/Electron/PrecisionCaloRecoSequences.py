@@ -36,7 +36,7 @@ def precisionCaloRecoSequence(flags, RoIs, ion=False, variant=''):
                                           OutputTopoCollectionShallow = "tmp_" + TrigEgammaKeys.precisionCaloTopoCollection,
                                           doAdd = False )
 
-    outputCaloClusters = TrigEgammaKeys.precisionCaloClusterContainer
+    outputCaloClusters = TrigEgammaKeys.precisionElectronCaloClusterContainer
     log.debug('precisionOutputCaloClusters = %s',outputCaloClusters)
 
     algo = egammaTopoClusterCopier()

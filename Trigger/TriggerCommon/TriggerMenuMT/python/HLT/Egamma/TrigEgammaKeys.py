@@ -29,7 +29,8 @@ class TrigEgammaKeysBase(object):
         """Static class to collect all string manipulation in precision calo sequences """
         self.precisionCaloTopoCollection                = 'HLT_egammaTopoCluster'
         self.precisionCaloEgammaRecCollection           = 'HLT_precisionCaloEgammaRecCollection'
-        self.precisionCaloClusterContainer              = recordable("HLT_CaloEMClusters") if not ion else recordable("HLT_HICaloEMClusters") 
+        self.precisionElectronCaloClusterContainer     = recordable("HLT_CaloEMClusters_Electron") if not ion else recordable("HLT_HICaloEMClusters") 
+        self.precisionPhotonCaloClusterContainer       = recordable("HLT_CaloEMClusters_Photon") if not ion else recordable("HLT_HICaloEMClusters")
         self.precisionTopoClusterContainer              = recordable("HLT_TopoCaloClustersRoI") if not ion else recordable("HLT_TopoCaloClustersHIRoI") 
         self.precisionEgammaRecCollection               = 'HLT_egammaRecCollection'
         self.precisionEMClusterContainer                = recordable('HLT_TrigEMClusters')
@@ -73,11 +74,11 @@ class TrigEgammaKeys_LRT(TrigEgammaKeysBase):
     def __init__(self,ion):
         TrigEgammaKeysBase.__init__(self,ion)
         
-        self.fastElectronRoIContainer       = recordable("HLT_Roi_FastElectron_LRT")
-        self.fastElectronContainer          = recordable('HLT_FastElectrons_LRT')
-        self.precisionCaloClusterContainer  = recordable("HLT_CaloEMClusters_LRT")
-        self.precisionElectronContainer     = recordable('HLT_egamma_Electrons_LRT')
-        self._IDTrigConfig                  = getInDetTrigConfig('electronLRT')
+        self.fastElectronRoIContainer               = recordable("HLT_Roi_FastElectron_LRT")
+        self.fastElectronContainer                  = recordable('HLT_FastElectrons_LRT')
+        self.precisionElectronCaloClusterContainer  = recordable("HLT_CaloEMClusters_LRT")
+        self.precisionElectronContainer             = recordable('HLT_egamma_Electrons_LRT')
+        self._IDTrigConfig                          = getInDetTrigConfig('electronLRT')
 
 
 

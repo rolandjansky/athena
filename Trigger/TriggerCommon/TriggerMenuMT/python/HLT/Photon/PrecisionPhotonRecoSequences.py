@@ -30,7 +30,7 @@ def precisionPhotonRecoSequence(RoIs, ion=False):
     # Here we define the data dependencies. What input needs to be available for the Fexs (i.e. TopoClusters from precisionCalo) in order to run
     import AthenaCommon.CfgMgr as CfgMgr
 
-    caloClusters = TrigEgammaKeys.precisionCaloClusterContainer 
+    caloClusters = TrigEgammaKeys.precisionPhotonCaloClusterContainer
 
     ViewVerify = CfgMgr.AthViews__ViewDataVerifier("PrecisionPhotonPhotonViewDataVerifier" + tag)
     ViewVerify.DataObjects = [( 'xAOD::CaloClusterContainer' , 'StoreGateSvc+%s' % caloClusters ),

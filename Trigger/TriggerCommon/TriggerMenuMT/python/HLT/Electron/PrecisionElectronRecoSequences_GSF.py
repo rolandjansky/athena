@@ -21,7 +21,7 @@ def precisionElectronRecoSequence_GSF(RoIs):
     from TriggerMenuMT.HLT.Egamma.TrigEgammaKeys import  getTrigEgammaKeys
     TrigEgammaKeys_noGSF = getTrigEgammaKeys()
     TrigEgammaKeys = getTrigEgammaKeys('_GSF', ion=False)
-    caloClusters = TrigEgammaKeys.precisionCaloClusterContainer
+    caloClusters = TrigEgammaKeys.precisionElectronCaloClusterContainer
     trackParticles = TrigEgammaKeys.precisionElectronTrackParticleContainerGSF
     trackParticles_noGSF = TrigEgammaKeys_noGSF.precisionTrackingContainer
 

@@ -43,7 +43,7 @@ def precisionCaloRecoSequence(flags, RoIs, ion=False):
     trigEgammaRec.egammaRecContainer        = TrigEgammaKeys.precisionCaloEgammaRecCollection # output
     precisionRecoSequence += trigEgammaRec
     
-    outputCaloClusters = TrigEgammaKeys.precisionCaloClusterContainer
+    outputCaloClusters = TrigEgammaKeys.precisionPhotonCaloClusterContainer
     log.debug('precisionOutputCaloClusters = %s',outputCaloClusters)
 
 
