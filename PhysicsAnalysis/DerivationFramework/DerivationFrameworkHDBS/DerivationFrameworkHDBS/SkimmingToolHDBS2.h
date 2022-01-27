@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -41,24 +41,24 @@ namespace DerivationFramework {
       @author Susumu.Oda@cern.ch
   */
   class SkimmingToolHDBS2 : public AthAlgTool, public IAugmentationTool, public ISkimmingTool {
-
-  public:
+    
+  public: 
     /** Constructor with parameters */
     SkimmingToolHDBS2( const std::string& t, const std::string& n, const IInterface* p );
-
+    
     /** Destructor */
     ~SkimmingToolHDBS2();
-
+    
     // Athena algtool's Hooks
     virtual StatusCode  initialize() final;
     virtual StatusCode  finalize() final;
-
+    
     /** Check that the current event passes this filter */
     virtual bool eventPassesFilter() const final;
 
     /** Add new branches as augmentation */
     virtual StatusCode addBranches() const final;
-
+    
   private:
     enum {
       NUMBER_OF_MERGED_JET_TYPES = 3
@@ -99,7 +99,7 @@ namespace DerivationFramework {
     SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackSGKey;
 
     std::string m_vxContainerName;
-
+    
     unsigned int m_nLeptons;
     unsigned int m_nElectrons;
     unsigned int m_nMuons;
@@ -131,6 +131,7 @@ namespace DerivationFramework {
 
     double m_electronEtCut;
     double m_muonPtCut;
+    double m_electronPtCut;
     double m_tightElectronEtCut;
     double m_tightMuonPtCut;
     double m_vertexingElectronEtCut;
@@ -152,6 +153,11 @@ namespace DerivationFramework {
     double m_photonEtaCut;
 
     double m_invariantMassCut;
+    double m_invariantMassa0LowCut;
+    double m_invariantMassa0UpCut; 
+    double m_invariantMassHLowCut;
+    double m_invariantMassZLowCut; 
+    double m_invariantMassZUpCut;
     double m_invariantMassJpsiLowCut;
     double m_invariantMassJpsiUpCut;
     double m_invariantMassUpsilonLowCut;
@@ -168,15 +174,16 @@ namespace DerivationFramework {
     double m_invariantMassD0UpCut;
     double m_invariantMassWLowCut;
     double m_leadingElectronEtCut;
+    double m_leadingElectronPtCut;
     double m_leadingMuonPtCut;
     double m_diMuonPtCut;
 
     double m_dRElectronJetCut;
 
     bool m_checkEventError;
-    bool m_defaultElectronFourMomentum;
+    bool m_defaultElectronFourMomentum; 
 
-    bool m_DFCommonJetFourMomentum;
+    bool m_DFCommonJetFourMomentum; 
 
     bool m_requireTightLeptons;
 
@@ -201,6 +208,7 @@ namespace DerivationFramework {
     bool check4L(const bool onlyVertexing=false) const;
     bool checkTP() const;
     bool check2L2Q() const;
+    bool check2L2TRK() const;
     bool checkJPSI() const;
     bool checkPHI() const;
     bool checkRHO() const;
@@ -213,13 +221,13 @@ namespace DerivationFramework {
     TLorentzVector muonFourMomentum(const xAOD::Muon *mu) const;
     TLorentzVector jetFourMomentum(const xAOD::Jet *jet) const;
 
-    double getDeltaR(const double eta1, const double phi1, const double eta2, const double phi2) const;
+    double getDeltaR(const double eta1, const double phi1, const double eta2, const double phi2) const; 
 
     static const double s_MZ;
     static const double s_MKplus;
     static const double s_MPiplus;
-  };
-
+  }; 
+  
 }
 
 #endif // DERIVATIONFRAMEWORK_SKIMMINGTOOLHDBS2_H
