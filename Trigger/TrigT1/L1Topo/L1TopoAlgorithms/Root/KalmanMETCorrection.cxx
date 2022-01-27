@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
  * KalmanMETCorrection.cpp
@@ -89,7 +89,7 @@ TCS::KalmanMETCorrection::processBitCorrect( const std::vector<TCS::TOBArray con
    double summety = met.Ey();
    double corrfactor = 0;
   
-   TRG_MSG_DEBUG("metsumx " << summetx << "metsumy " << summety );
+   TRG_MSG_DEBUG("metsumx " << summetx << " metsumy " << summety );
  
    KFLUT  LUTobj;
 
@@ -106,6 +106,7 @@ TCS::KalmanMETCorrection::processBitCorrect( const std::vector<TCS::TOBArray con
        corrfactor = LUTobj.getcorrKF(ipt,jeta);   
 
        // This part of the code has to be reviewed again for phase1 BW simulation
+       // Algorithm crashing when jJet inputs are enabled in the menu
        float cosphi;
        float sinphi;
        if (isLegacyTopo()){
@@ -122,7 +123,7 @@ TCS::KalmanMETCorrection::processBitCorrect( const std::vector<TCS::TOBArray con
             
 
         TRG_MSG_DEBUG("corr  " << corrfactor);
-	TRG_MSG_DEBUG("metsumx " << summetx << "metsumy " << summety );
+	TRG_MSG_DEBUG("metsumx " << summetx << " metsumy " << summety );
 
        corrfactor = 0;
   }
@@ -172,7 +173,7 @@ TCS::KalmanMETCorrection::process( const std::vector<TCS::TOBArray const *> & in
    double summety = met.Ey();
    double corrfactor = 0;
   
-   TRG_MSG_DEBUG("metsumx " << summetx << "metsumy " << summety );
+   TRG_MSG_DEBUG("metsumx " << summetx << " metsumy " << summety );
  
    KFLUT  LUTobj;
 
@@ -191,7 +192,7 @@ TCS::KalmanMETCorrection::process( const std::vector<TCS::TOBArray const *> & in
        summety += (-1.)*(*tob)->Et()*sin((*tob)->phiDouble())*corrfactor ;
 
         TRG_MSG_DEBUG("corr  " << corrfactor);
-         TRG_MSG_DEBUG("metsumx " << summetx << "metsumy " << summety );
+         TRG_MSG_DEBUG("metsumx " << summetx << " metsumy " << summety );
 
        corrfactor = 0;
   }

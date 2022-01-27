@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #ifndef L1TopoEvent_TopoInputEvent
 #define L1TopoEvent_TopoInputEvent
@@ -42,11 +42,11 @@ namespace TCS {
       ~TopoInputEvent();
       
       const ClusterTOBArray & clusters() const { return m_clusters; }
-      const eEmTOBArray & eems() const { return m_eems; }
-      const jEmTOBArray & jems() const { return m_jems; }
-      const eTauTOBArray & etaus() const { return m_etaus; }
-      const jTauTOBArray & jTaus() const { return m_jtaus; }
-      const cTauTOBArray & ctaus() const { return m_ctaus; }
+      const eEmTOBArray & eEms() const { return m_eEms; }
+      const jEmTOBArray & jEms() const { return m_jEms; }
+      const eTauTOBArray & eTaus() const { return m_eTaus; }
+      const jTauTOBArray & jTaus() const { return m_jTaus; }
+      const cTauTOBArray & cTaus() const { return m_cTaus; }
       const ClusterTOBArray & taus() const { return m_taus; }
       const JetTOBArray & jets() const { return m_jets; }
       const jLargeRJetTOBArray & jLrageRJets() const { return m_jLargeRJets; }
@@ -79,12 +79,12 @@ namespace TCS {
       bool overflowFromMuonInput  () const { return m_overflowFromMuonInput  ; }
       /** @} */ // end of groupOverflowGetters
       StatusCode addCluster(const ClusterTOB & cluster);
-      StatusCode addeEm(const eEmTOB & eem);
-      StatusCode addjEm(const jEmTOB & jem);
-      StatusCode addeTau(const eTauTOB & etau);
+      StatusCode addeEm(const eEmTOB & eEm);
+      StatusCode addjEm(const jEmTOB & jEm);
+      StatusCode addeTau(const eTauTOB & eTau);
       StatusCode addjTau(const jTauTOB & tau);
-      StatusCode addcTau(const eTauTOB & etau);
-      StatusCode addcTau(const jTauTOB & jtau);
+      StatusCode addcTau(const eTauTOB & eTau);
+      StatusCode addcTau(const jTauTOB & jTau);
       StatusCode addTau(const ClusterTOB & tau);
       StatusCode addMuon(const MuonTOB & muon);
       StatusCode addLateMuon(const LateMuonTOB & muon);
@@ -137,11 +137,11 @@ namespace TCS {
 
       // data is owned by the TopoInputEvent
       ClusterTOBArray   m_clusters;
-      eEmTOBArray       m_eems;
-      jEmTOBArray       m_jems;
-      eTauTOBArray      m_etaus;
-      jTauTOBArray      m_jtaus;
-      cTauTOBArray      m_ctaus;
+      eEmTOBArray       m_eEms;
+      jEmTOBArray       m_jEms;
+      eTauTOBArray      m_eTaus;
+      jTauTOBArray      m_jTaus;
+      cTauTOBArray      m_cTaus;
       ClusterTOBArray   m_taus;
       JetTOBArray       m_jets;
       jLargeRJetTOBArray      m_jLargeRJets;

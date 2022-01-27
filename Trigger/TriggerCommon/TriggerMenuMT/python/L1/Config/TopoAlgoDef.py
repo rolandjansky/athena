@@ -23,9 +23,12 @@ class TopoAlgoDef:
 
         # eEM inputs
         # ALL
-        alg = AlgConf.ClusterNoSort( name = 'eEMall', inputs = 'ClusterTobArray', outputs = 'eEMall' ) #TODO: change ClusterNoSort into...? still old tobs inputs
+        alg = AlgConf.eEmNoSort( name = 'eEMall', inputs = 'eEmTobs', outputs = 'eEMall' )
         alg.addgeneric('InputWidth', HW.eEmInputWidth)
         alg.addgeneric('OutputWidth', HW.eEmInputWidth)
+        alg.addvariable('REtaMin',   0)
+        alg.addvariable('RHadMin',   0)
+        alg.addvariable('WsTotMin',  0)
         tm.registerTopoAlgo(alg)  
 
         # SORT
@@ -95,10 +98,12 @@ class TopoAlgoDef:
 
         # eTAU inputs
         # all
-        alg = AlgConf.ClusterNoSort( name = 'eTAUall', inputs = 'ClusterTobArray', outputs = 'eTAUall') #TODO: change ClusterNoSort into...? still old tob inputs
+        # TODO: no isolation applied yet
+        alg = AlgConf.eTauNoSort( name = 'eTAUall', inputs = 'eTauTobs', outputs = 'eTAUall')
         alg.addgeneric('InputWidth', HW.eTauInputWidth)
         alg.addgeneric('OutputWidth', HW.eTauInputWidth)
-        alg.addvariable('IsoMask', 0)
+        alg.addvariable('RCore', 0)
+        alg.addvariable('RHad', 0)
         tm.registerTopoAlgo(alg)
 
         # SORT
@@ -106,32 +111,33 @@ class TopoAlgoDef:
         alg = AlgConf.eTauSort( name = 'eTAUsi', inputs = 'eTauTobs', outputs = 'eTAUsi' )
         alg.addgeneric('InputWidth', HW.eTauInputWidth)
         alg.addgeneric('OutputWidth', HW.eTauOutputWidthSort)
-        alg.addvariable('IsoMask',   2)
+        alg.addvariable('RCore',   0)
+        alg.addvariable('RHad',   0)
         alg.addvariable('MinEta',    0*_eta_conversion)
         alg.addvariable('MaxEta',   49*_eta_conversion)
-        alg.addgeneric('DoIsoCut',   1)
         tm.registerTopoAlgo(alg)
 
         # SELECT
+        # TODO: no isolation applied yet
         alg = AlgConf.eTauSelect( name = 'eTAUab', inputs = 'eTauTobs', outputs = 'eTAUab' )
         alg.addgeneric('InputWidth',  HW.eTauInputWidth)
         alg.addgeneric('OutputWidth', HW.eTauOutputWidthSelect)
         alg.addvariable('MinET',    12*_et_conversion)
-        alg.addvariable('IsoMask',   0)
+        alg.addvariable('RCore',   0)
+        alg.addvariable('RHad',   0)
         alg.addvariable('MinEta',    0*_eta_conversion)
         alg.addvariable('MaxEta',   49*_eta_conversion)
-        alg.addgeneric('DoIsoCut',   0)
         tm.registerTopoAlgo(alg) 
 
-        #TODO: fix iso cut with proper iso WP
+        #TODO: no isolation applied yet
         alg = AlgConf.eTauSelect( name = 'eTAUabm', inputs = 'eTauTobs', outputs = 'eTAUabm' )
         alg.addgeneric('InputWidth',  HW.eTauInputWidth)
         alg.addgeneric('OutputWidth', HW.eTauOutputWidthSelect)
         alg.addvariable('MinET',    12*_et_conversion)
-        alg.addvariable('IsoMask',   2)
+        alg.addvariable('RCore',   0)
+        alg.addvariable('RHad',   0)
         alg.addvariable('MinEta',    0*_eta_conversion)
         alg.addvariable('MaxEta',   49*_eta_conversion)
-        alg.addgeneric('DoIsoCut',   1)
         tm.registerTopoAlgo(alg) 
 
         # Muon inputs 
@@ -218,7 +224,8 @@ class TopoAlgoDef:
         alg.addvariable('MaxEta', 25*_eta_conversion)
         tm.registerTopoAlgo(alg)
 
-        #jJets inputs # TODO: switch to new jet TOB list
+        #jJets inputs
+        # TODO: switch to phase-I inputs when KF algorithm is fixed
         alg = AlgConf.JetNoSort( name = 'AjJall', inputs = 'JetTobArray', outputs = 'AjJall' ) 
         alg.addgeneric('InputWidth', HW.jJetInputWidth)
         alg.addgeneric('OutputWidth', HW.jJetInputWidth)

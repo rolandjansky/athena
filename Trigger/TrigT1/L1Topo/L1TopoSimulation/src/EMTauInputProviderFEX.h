@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #ifndef L1TopoSimulation_EMTauInputProviderFEX
 #define L1TopoSimulation_EMTauInputProviderFEX
@@ -46,11 +46,11 @@ namespace LVL1 {
       mutable LockedHandle<TH2> m_hEMEtEta ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH2> m_hEMEtPhi ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH1> m_hTauEt ATLAS_THREAD_SAFE;
-      mutable LockedHandle<TH1> m_hTauIsolation ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_hTauRCore ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH2> m_hTauPhiEta ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH2> m_hTauEtEta ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH2> m_hTauEtPhi ATLAS_THREAD_SAFE;
-      mutable LockedHandle<TH2> m_hTauEtIsolation ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hTauEtRCore ATLAS_THREAD_SAFE;
 
      SG::ReadHandleKey<xAOD::eFexEMRoIContainer> m_eEM_EDMKey {this, "L1_eEMRoI", "L1_eEMRoI", "eFEXEM EDM"};
      SG::ReadHandleKey<xAOD::eFexTauRoIContainer> m_eTau_EDMKey {this, "L1_eTauRoI", "L1_eTauRoI", "eFEXTau EDM"};
