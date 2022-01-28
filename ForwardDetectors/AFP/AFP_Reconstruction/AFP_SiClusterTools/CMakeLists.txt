@@ -22,5 +22,5 @@ atlas_add_component( AFP_SiClusterTools
 
 # Install files from the package:
 atlas_install_headers( AFP_SiClusterTools )
-#atlas_install_joboptions( share/*.py )
 
+atlas_install_python_modules( share/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )   
