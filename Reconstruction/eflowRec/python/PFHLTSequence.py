@@ -187,7 +187,7 @@ def getPFAlg(flags, clustersin, tracktype):
 
     # Default energy subtraction where a single cluster satisfies the expected
     # track calo energy
-    PFCellLevelSubtractionTool = eflowRecConf.PFCellLevelSubtractionTool(
+    PFCellLevelSubtractionTool = eflowRecConf.PFSubtractionTool(
         "PFCellLevelSubtractionTool",
         eflowCellEOverPTool=CellEOverPTool,
         # Uses a deltaR' cut (deltaR corrected for cluster width in eta/phi) to
@@ -208,8 +208,9 @@ def getPFAlg(flags, clustersin, tracktype):
     # A second cell-level subtraction tool that handles cases where more than one
     # cluster is needed to recover the full track expected energy
     # Reuse the default E/P subtraction tool
-    PFRecoverSplitShowersTool = eflowRecConf.PFRecoverSplitShowersTool(
-        "PFRecoverSplitShowersTool", eflowCellEOverPTool=CellEOverPTool
+    PFRecoverSplitShowersTool = eflowRecConf.PFSubtractionTool(
+        "PFRecoverSplitShowersTool", eflowCellEOverPTool=CellEOverPTool,
+        RecoverSplitShowers = True
     )
 
     # Configure moment calculation using topocluster moment calculator
