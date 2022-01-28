@@ -43,8 +43,6 @@ StripStereoAnnulusDesign::StripStereoAnnulusDesign(const SiDetectorDesign::Axis 
   m_lengthBF(2. * waferCentreR * std::sin(stereoAngle*0.5)), // Eq. 5 p. 7
   m_usePC(usePC)
 {
-    REPORT_MESSAGE(MSG::INFO) << "StripStereoAnnulusDesign called with usePC=" << usePC << std::endl;
-
     if (nRows < 0) {
         throw std::runtime_error(
                   "ERROR: StripStereoAnnulusDesign called with negative number of rows");
