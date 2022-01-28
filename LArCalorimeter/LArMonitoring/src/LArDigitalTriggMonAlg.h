@@ -18,7 +18,7 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArRawEvent/LArRawSCContainer.h"
-
+#include "LArCabling/LArOnOffIdMapping.h"
 #include <mutex>
 
 class LArEM_ID;
@@ -26,6 +26,7 @@ class LArOnlineID;
 class HWIdentifier;
 class LArOnlineIDStrHelper;
 class LArOnOffIdMapping;
+class CaloCell_SuperCell_ID;
 
 class LArDigitalTriggMonAlg: public AthMonitorAlgorithm
 {
@@ -67,21 +68,42 @@ private:
   //Histogram group names
   Gaudi::Property<std::string> m_scMonGroupName {this, "SCMonGroup", "SC"};
 
+  //\** Handle to cabling *\/ 
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this, "CablingSCKey","LArOnOffIdMapSC","SG Key of LArOnOffIdMapping object"}; 
+
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,"EventInfo","EventInfo","SG Key of EventInfo object"};
 
   /** Handle to digits */
-  SG::ReadHandleKey<LArDigitContainer> m_digitContainerKey{this,"LArDigitContainerKey","SC","SG key of LArDigitContainer read from Bytestream"};
-  SG::ReadHandleKey<LArDigitContainer> m_digitContainerKey1{this,"LArDigitContainerKey1","SC_ADC_BAS","SG key of LArDigitContainer read from Bytestream"};
+  SG::ReadHandleKey<LArDigitContainer> m_digitContainerKey{this,"LArDigitContainerKey","SC","SG key of LArDigitContainer read from Bytestream"}; //raw ADC 12 bits - ADC axis up to 4096
   SG::ReadHandleKey<LArRawSCContainer> m_rawSCContainerKey{this,"LArRawSCContainerKey","SC_ET","SG key of LArRawSCContainer read from Bytestream"};
-  SG::ReadHandleKey<LArRawSCContainer> m_rawSCContainerKey1{this,"LArRawSCContainerKey1","SC_ET_ID","SG key of LArRawSCContainer read from Bytestream"};
+  
+  // SC_ET_ID cuts on taus selection, SC_ET just takes everything
 
   /* Id helpers */
   const LArOnlineID* m_LArOnlineIDHelper;
   const LArEM_ID* m_LArEM_IDHelper;
-
+  const CaloCell_SuperCell_ID*  m_SCID_helper;
 
   int WhatPartition(HWIdentifier id, int side) const; 
   int getXbinFromSourceID(int sourceID) const;
+
+  //Enumerate layer-types, ignoring sides. Useful for configuration that is per-definition symmetric 
+  enum LayerEnumNoSides{EMBPNS=0, EMB1NS, EMB2NS, EMB3NS, HEC0NS, HEC1NS, HEC2NS, HEC3NS,
+                        EMECPNS,EMEC1NS,EMEC2NS,EMEC3NS,FCAL1NS,FCAL2NS,FCAL3NS,MAXLYRNS};
+
+  //Mapping of CaloCell nomencature to CaloCellMonitoring nomencature
+  const std::map<unsigned,LayerEnumNoSides> m_caloSamplingToLyrNS{ 
+    {CaloSampling::PreSamplerB, EMBPNS},{CaloSampling::EMB1,EMB1NS},{CaloSampling::EMB2,EMB2NS},{CaloSampling::EMB3,EMB3NS},         //LAr Barrel
+    {CaloSampling::PreSamplerE, EMECPNS},{CaloSampling::EME1,EMEC1NS}, {CaloSampling::EME2,EMEC2NS}, {CaloSampling::EME3,EMEC3NS},   //LAr Endcap 		
+    {CaloSampling::HEC0,HEC0NS}, {CaloSampling::HEC1,HEC1NS}, {CaloSampling::HEC2,HEC2NS}, {CaloSampling::HEC3,HEC3NS},              //Hadronic endcap
+    {CaloSampling::FCAL0,FCAL1NS}, {CaloSampling::FCAL1,FCAL2NS}, {CaloSampling::FCAL2,FCAL3NS}                                      //FCAL
+  };
+
+  StringArrayProperty m_layerNames{this, "LayerNames", {"EMBPA", "EMBPC", "EMB1A", "EMB1C", "EMB2A", "EMB2C", "EMB3A", "EMB3C",
+	"HEC0A", "HEC0C", "HEC1A", "HEC1C", "HEC2A", "HEC2C", "HEC3A", "HEC3C",
+	"EMECPA", "EMECPC", "EMEC1A", "EMEC1C", "EMEC2A", "EMEC2C", "EMEC3A", "EMEC3C", 
+	"FCAL1A", "FCAL1C", "FCAL2A", "FCAL2C", "FCAL3A", "FCAL3C"},
+        "Names of individual layers to monitor"};
 };
 
 #endif

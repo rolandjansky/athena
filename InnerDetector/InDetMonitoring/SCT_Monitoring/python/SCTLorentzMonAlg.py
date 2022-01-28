@@ -129,7 +129,7 @@ if __name__ == "__main__":
     ConfigFlags.Detector.GeometrySCT = True
     ConfigFlags.Detector.GeometryTRT = True
     ConfigFlags.Detector.GeometryCalo = False
-    ConfigFlags.Detector.GeometryMuon = False
+    ConfigFlags.Detector.GeometryMuon = True
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.

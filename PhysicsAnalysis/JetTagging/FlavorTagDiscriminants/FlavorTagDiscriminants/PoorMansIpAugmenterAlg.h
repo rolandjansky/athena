@@ -11,7 +11,8 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
-#include "StoreGate/WriteDecorHandle.h"
+#include "StoreGate/WriteDecorHandleKey.h"
+#include "StoreGate/ReadDecorHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
 
 namespace FlavorTagDiscriminants {
@@ -57,6 +58,26 @@ namespace FlavorTagDiscriminants {
       "trackDisplacement of tracks" };
     SG::WriteDecorHandleKey< xAOD::TrackParticleContainer > m_dec_track_mom {
       this, "trackMomentum","trackMomentum","trackMomentum of tracks" };
+
+    // accessors for beam spot uncertainty
+    SG::ReadDecorHandleKey<xAOD::EventInfo> m_beam_sigma_x {
+      this, "beamspotSigmaX", "EventInfo.beamPosSigmaX",
+      "Beam spot position sigma in X"
+    };
+    SG::ReadDecorHandleKey<xAOD::EventInfo> m_beam_sigma_y {
+      this, "beamspotSigmaY", "EventInfo.beamPosSigmaY",
+      "Beam spot position sigma in Y"
+    };
+    SG::ReadDecorHandleKey<xAOD::EventInfo> m_beam_sigma_z {
+      this, "beamspotSigmaZ", "EventInfo.beamPosSigmaZ",
+      "Beam spot position sigma in Z"
+    };
+    // note that this last entry is a covariance: the units are mm^2,
+    // whereas the above have units of mm
+    SG::ReadDecorHandleKey<xAOD::EventInfo> m_beam_cov_xy {
+      this, "beamspotCovarianceXY", "EventInfo.beamPosSigmaXY",
+      "Beam spot covariance in XY"
+    };
   };
 
 }

@@ -150,8 +150,8 @@ private:
     };
 
     void createSegmentsWithMDTs(const Muon::MuonPatternCombination* patt, Trk::SegmentCollection* segs,
-                                const std::vector<const Muon::RpcPrepDataCollection*> rpcCols,
-                                const std::vector<const Muon::TgcPrepDataCollection*> tgcCols, const EventContext& ctx) const;
+                                const std::vector<const Muon::RpcPrepDataCollection*>& rpcCols,
+                                const std::vector<const Muon::TgcPrepDataCollection*>& tgcCols, const EventContext& ctx) const;
     void createSegmentsFromClusters(const EventContext& ctx, const Muon::MuonPatternCombination* patt, Trk::SegmentCollection* segments) const;
 
     Gaudi::Property<bool> m_printSummary{this, "PrintSummary", false};

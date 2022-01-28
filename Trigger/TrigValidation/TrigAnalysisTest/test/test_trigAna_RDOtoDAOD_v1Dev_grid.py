@@ -24,7 +24,7 @@ from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 from TrigAnalysisTest.TrigAnalysisSteps import add_analysis_steps
 
 preExec = ';'.join([
-  'setMenu=\'LS2_v1_TriggerValidation_prescale\'',
+  'setMenu=\'Dev_pp_run3_v1_TriggerValidation_prescale\'',
   'from AthenaConfiguration.AllConfigFlags import ConfigFlags',
   'ConfigFlags.Trigger.AODEDMSet=\'AODFULL\'',
 ])
@@ -44,7 +44,7 @@ aod2daod.input = ''
 aod2daod.forks = 4
 aod2daod.explicit_input = True
 aod2daod.args = '--inputAODFile=AOD.pool.root --sharedWriter=True --runNumber=300001 --digiSeedOffset1=1 --digiSeedOffset2=1 --outputDAODFile=DAOD.pool.root --reductionConf=PHYS'
-aod2daod.args += ' --preExec="default:from AthenaCommon.DetFlags import DetFlags; DetFlags.detdescr.all_setOff(); DetFlags.detdescr.Calo_setOn(); DetFlags.BField_setOn(); DetFlags.pileup.all_setOff(); DetFlags.overlay.all_setOff(); DetFlags.digitize.all_setOff(); from AthenaMP.AthenaMPFlags import jobproperties as ampjp; ampjp.AthenaMPFlags.ChunkSize=100;"'
+aod2daod.args += ' --preExec="default:from AthenaCommon.DetFlags import DetFlags; DetFlags.detdescr.all_setOff(); DetFlags.detdescr.Calo_setOn(); DetFlags.BField_setOn(); DetFlags.pileup.all_setOff(); DetFlags.overlay.all_setOff(); DetFlags.digitize.all_setOff(); DetFlags.simulate.all_setOff(); from AthenaMP.AthenaMPFlags import jobproperties as ampjp; ampjp.AthenaMPFlags.ChunkSize=100;"'
 aod2daod.args += ' --postExec="default:from IOVDbSvc.CondDB import conddb; conddb.addFolderSplitOnline(\\\"INDET\\\",\\\"/Indet/Onl/Beampos\\\",\\\"/Indet/Beampos\\\", className=\\\"AthenaAttributeList\\\"); from AthenaCommon.AlgSequence import AthSequencer; condSeq = AthSequencer(\\\"AthCondSeq\\\"); from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg; condSeq += BeamSpotCondAlg( \\\"BeamSpotCondAlg\\\" );"'
 
 test = Test.Test()

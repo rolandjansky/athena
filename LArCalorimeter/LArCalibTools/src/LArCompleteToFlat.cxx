@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArCompleteToFlat.h"
@@ -817,7 +817,7 @@ StatusCode LArCompleteToFlat::stop() {
 
   //Ramp
   if (m_RampInput.size()) { 
-    const LArRampComplete* rampComplete;
+    const LArRampComplete* rampComplete = nullptr;
     sc=detStore()->retrieve(rampComplete,m_RampInput);
     if (sc.isFailure()) {
       if(m_forceStop) { 
@@ -833,7 +833,7 @@ StatusCode LArCompleteToFlat::stop() {
   
   if(m_DSPThresholdsInput.size()) {
     //DSPThresh:
-    const LArDSPThresholdsComplete* DSPTComplete;
+    const LArDSPThresholdsComplete* DSPTComplete = nullptr;
     sc=detStore()->retrieve(DSPTComplete,m_DSPThresholdsInput);
     if (sc.isFailure()) {
       if(m_forceStop) { 

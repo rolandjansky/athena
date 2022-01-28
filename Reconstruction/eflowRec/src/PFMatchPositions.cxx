@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -43,7 +43,7 @@ EtaPhiWithVariance ClusterGeometricalCenterProvider::getPosition(ICluster* clust
 
   /* Check the status to make sure this function only execute once since it is expensive. */
   if(cluster->calVarianceStatus()) {
-    return EtaPhiWithVariance(eflowEtaPhiPosition(cluster->etaMean(), cluster->phiMean()), cluster->etaVariance(), cluster->phiVariance());
+    return {eflowEtaPhiPosition(cluster->etaMean(), cluster->phiMean()), cluster->etaVariance(), cluster->phiVariance()};
   }
   cluster->setCalVarianceStatus();
 
@@ -53,7 +53,7 @@ EtaPhiWithVariance ClusterGeometricalCenterProvider::getPosition(ICluster* clust
   if (nCells == 0){
     cluster->etaVariance(m_etaPhiLowerLimit);
     cluster->phiVariance(m_etaPhiLowerLimit);
-    return EtaPhiWithVariance(eflowEtaPhiPosition(cluster->eta(), cluster->phi()), cluster->etaVariance(), cluster->phiVariance());;
+    return {eflowEtaPhiPosition(cluster->eta(), cluster->phi()), cluster->etaVariance(), cluster->phiVariance()};;
   }
   assert(nCells > 0);
 
@@ -61,7 +61,7 @@ EtaPhiWithVariance ClusterGeometricalCenterProvider::getPosition(ICluster* clust
   if (1 == nCells){
     cluster->etaVariance(m_etaPhiLowerLimit);
     cluster->phiVariance(m_etaPhiLowerLimit);
-    return EtaPhiWithVariance(eflowEtaPhiPosition(cluster->eta(), cluster->phi()), cluster->etaVariance(), cluster->phiVariance());
+    return {eflowEtaPhiPosition(cluster->eta(), cluster->phi()), cluster->etaVariance(), cluster->phiVariance()};
   }
 
 
@@ -94,7 +94,7 @@ EtaPhiWithVariance ClusterGeometricalCenterProvider::getPosition(ICluster* clust
   cluster->phiMean(phiMean);
   cluster->etaVariance(etaVariance);
   cluster->phiVariance(phiVariance);
-  return EtaPhiWithVariance(eflowEtaPhiPosition(etaMean, phiMean), cluster->etaVariance(), cluster->phiVariance());
+  return {eflowEtaPhiPosition(etaMean, phiMean), cluster->etaVariance(), cluster->phiVariance()};
 }
 
 }

@@ -12,7 +12,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonCombinedToolInterfaces/IMuonTrackTagTool.h"
 #include "StoreGate/ReadCondHandleKey.h"
-#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkParameters/TrackParameters.h"
@@ -37,8 +36,6 @@ namespace MuonCombined {
         };
         SG::ReadCondHandleKey<Trk::TrackingGeometry> m_trackingGeometryReadKey{this, "TrackingGeometryReadKey", "",
                                                                                "Key of input TrackingGeometry"};
-        ServiceHandle<Trk::ITrackingGeometrySvc> m_trackingGeometrySvc{
-            this, "TrackingGeometrySvc", "AtlasTrackingGeometrySvc"};  // Services are assumed to be thread-safe
 
         // end LEGACY_TRKGEOM
 
@@ -48,15 +45,13 @@ namespace MuonCombined {
 #endif
         inline const Trk::TrackingVolume* getVolume(const std::string&& vol_name, const EventContext& ctx) const {
             /// Tracking geometry is provided by the TrackingGeometryAlg
-            if (!m_trackingGeometryReadKey.empty()) {
-                SG::ReadCondHandle<Trk::TrackingGeometry> handle(m_trackingGeometryReadKey, ctx);
-                if (!handle.isValid()) {
-                    ATH_MSG_WARNING("Could not retrieve a valid tracking geometry");
-                    return nullptr;
-                }
-                return handle.cptr()->trackingVolume(vol_name);
+            SG::ReadCondHandle<Trk::TrackingGeometry> handle(m_trackingGeometryReadKey, ctx);
+            if (!handle.isValid()) {
+                ATH_MSG_WARNING("Could not retrieve a valid tracking geometry");
+                return nullptr;
             }
-            return m_trackingGeometrySvc->trackingGeometry()->trackingVolume(vol_name);
+            return handle.cptr()->trackingVolume(vol_name);
+            
         }
     };
 

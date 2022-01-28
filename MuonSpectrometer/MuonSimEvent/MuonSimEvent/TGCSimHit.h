@@ -32,7 +32,7 @@ public:
 	      const int trackNumber, const double energyDeposit, const double stepLength,
 	      const int particleEncoding=0, const double kineticEnergy=-9999.);
     TGCSimHit(const int id, const double time, const Amg::Vector3D& position, const Amg::Vector3D& direcos,
-	      const HepMcParticleLink hmpl, const double energyDeposit, const double stepLength,
+	      const HepMcParticleLink& hmpl, const double energyDeposit, const double stepLength,
 	      const int particleEncoding=0, const double kineticEnergy=-9999.);
     
 

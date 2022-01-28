@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -18,9 +18,9 @@
 #include "TrkParticleBase/TrackParticleBase.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkLinks/LinkToXAODTrackParticle.h"
-//#include "TrkVxEdmCnv/IVxCandidateXAODVertex.h" 
+//#include "TrkVxEdmCnv/IVxCandidateXAODVertex.h"
 #include "xAODTracking/Vertex.h"
-#include "xAODTracking/TrackParticle.h" 
+#include "xAODTracking/TrackParticle.h"
 
 #include "StoreGate/ReadCondHandle.h"
 #include <sstream>
@@ -69,9 +69,9 @@ namespace Trk
     if ( m_extrapolator.retrieve().isFailure() ) {
       ATH_MSG_FATAL("Failed to retrieve tool " << m_extrapolator);
       return StatusCode::FAILURE;
-    } 
+    }
       ATH_MSG_INFO( "Retrieved tool " << m_extrapolator );
-    
+
 
     ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
 
@@ -122,6 +122,7 @@ namespace Trk
                                         const xAOD::Vertex* pointingVertex,
                                         const Amg::Vector3D& firstStartingPoint) const
   {
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     std::vector<const Trk::TrackParameters*> measuredPerigees;
     std::vector<const Trk::TrackParameters*> measuredPerigees_delete;
     for (const xAOD::TrackParticle* p : vectorTrk)
@@ -140,14 +141,26 @@ namespace Trk
           const Trk::TrackParameters* chargeParameters = &p->perigeeParameters();
           MaterialUpdateMode mode = Trk::removeNoise;
           const Trk::TrackParameters* extrapolatedPerigee(nullptr);
-          extrapolatedPerigee = m_extrapolator->extrapolate(*chargeParameters, estimationCylinder, Trk::alongMomentum, true, Trk::pion, mode);
-          if (extrapolatedPerigee!=nullptr) {
+          extrapolatedPerigee = m_extrapolator->extrapolate(ctx,
+                                                            *chargeParameters,
+                                                            estimationCylinder,
+                                                            Trk::alongMomentum,
+                                                            true,
+                                                            Trk::pion,
+                                                            mode).release();
+          if (extrapolatedPerigee != nullptr) {
             msg(MSG::DEBUG) << "extrapolated to first measurement" << endmsg;
             measuredPerigees.push_back (extrapolatedPerigee);
             measuredPerigees_delete.push_back (extrapolatedPerigee);
           } else {
-            extrapolatedPerigee = m_extrapolator->extrapolateDirectly(*chargeParameters, estimationCylinder, Trk::alongMomentum, true, Trk::pion);
-            if (extrapolatedPerigee!=nullptr) {
+            extrapolatedPerigee =
+              m_extrapolator->extrapolateDirectly(ctx,
+                                                  *chargeParameters,
+                                                  estimationCylinder,
+                                                  Trk::alongMomentum,
+                                                  true,
+                                                  Trk::pion).release();
+            if (extrapolatedPerigee != nullptr) {
               msg(MSG::DEBUG) << "extrapolated (direct) to first measurement" << endmsg;
               measuredPerigees.push_back (extrapolatedPerigee);
               measuredPerigees_delete.push_back (extrapolatedPerigee);
@@ -163,7 +176,7 @@ namespace Trk
     }
 
     xAOD::Vertex * fittedVxCandidate = fit(measuredPerigees, masses, constraintMass, pointingVertex, firstStartingPoint);
-    
+
     // assign the used tracks to the V0Candidate
     if (fittedVxCandidate) {
       for (const xAOD::TrackParticle* p : vectorTrk)
@@ -178,7 +191,7 @@ namespace Trk
 
     return fittedVxCandidate;
   }
-  
+
 
 
   /** Interface for Trk::TrackParameters with Amg::Vector3D starting point */
@@ -217,13 +230,13 @@ namespace Trk
                                         const xAOD::Vertex* pointingVertex,
                                         const Amg::Vector3D& firstStartingPoint) const
   {
-
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     if ( originalPerigees.empty() )
     {
       ATH_MSG_DEBUG("No tracks to fit in this event.");
       return nullptr;
     }
- 
+
     // Initialisation of variables
     bool pointingConstraint = false;
     bool massConstraint = false;
@@ -353,13 +366,24 @@ namespace Trk
         const double extrapolationDirection = gMomentum.dot( gDirection );
         MaterialUpdateMode mode = Trk::removeNoise;
         if(extrapolationDirection > 0) mode = Trk::addNoise;
-        const Trk::Perigee* extrapolatedPerigee(nullptr);
-        extrapolatedPerigee = dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolate(*chargeParameters, perigeeSurface, Trk::anyDirection, true, Trk::pion, mode));
-        if (extrapolatedPerigee==nullptr)
-        {
+        std::unique_ptr<const Trk::Perigee> extrapolatedPerigee(nullptr);
+        std::unique_ptr<const Trk::TrackParameters> tmp =
+          m_extrapolator->extrapolate(ctx,
+                                      *chargeParameters,
+                                      perigeeSurface,
+                                      Trk::anyDirection,
+                                      true,
+                                      Trk::pion,
+                                      mode);
+        //if of right type we want to pass ownership
+        if (tmp && tmp->associatedSurface().type() == Trk::SurfaceType::Perigee) {
+            extrapolatedPerigee.reset(static_cast<const Trk::Perigee*>(tmp.release()));
+        } 
+
+        if (extrapolatedPerigee == nullptr) {
           ATH_MSG_DEBUG("Perigee was not extrapolated! Taking original one!");
           const Trk::Perigee* tmpPerigee = dynamic_cast<const Trk::Perigee*>(chargeParameters);
-          if (tmpPerigee!=nullptr) extrapolatedPerigee = new Trk::Perigee(*tmpPerigee);
+          if (tmpPerigee!=nullptr) extrapolatedPerigee = std::make_unique<Trk::Perigee>(*tmpPerigee);
           else return nullptr;
         }
 
@@ -373,7 +397,6 @@ namespace Trk
         locV0FitterTrack.Wi_mat = extrapolatedPerigee->covariance()->inverse().eval();
         locV0FitterTrack.originalPerigee = *iter;
         v0FitterTracks.push_back(locV0FitterTrack);
-        delete extrapolatedPerigee;
       } else {
         ATH_MSG_DEBUG("Track parameters are not charged tracks ... fit aborted");
         return nullptr;
@@ -421,7 +444,7 @@ namespace Trk
       A_vec = DeltaA_vec;
 
       // check theta and phi ranges
-      for (unsigned int i=0; i<nTrk; ++i) 
+      for (unsigned int i=0; i<nTrk; ++i)
       {
         if ( fabs ( Y_vec(2+5*i) ) > 100. || fabs ( Y_vec(3+5*i) ) > 100. ) { return nullptr; }
         while ( fabs ( Y_vec(2+5*i) ) > M_PI ) Y_vec(2+5*i) += ( Y_vec(2+5*i) > 0 ) ? -2*M_PI : 2*M_PI;
@@ -446,7 +469,7 @@ namespace Trk
         d0Cor.setZero();  d0Fac.setZero(); xcphiplusysphi.setZero(); xsphiminusycphi.setZero();
       AmgVector(2) conv_sign;
         conv_sign[0] = -1; conv_sign[1] = 1;
-      for (unsigned int i=0; i<nTrk; ++i) 
+      for (unsigned int i=0; i<nTrk; ++i)
       {
         charge[i] = (Y_vec(4+5*i) < 0.) ? -1. : 1.;
         rho[i] = sin(Y_vec(3+5*i))/(B_z*Y_vec(4+5*i));
@@ -513,7 +536,7 @@ namespace Trk
       //
       FPxz  = Px*(frameOriginItr[2] - z_point) - Pz*(frameOriginItr[0]- x_point);
 
-      for (unsigned int i=0; i<nTrk; ++i) 
+      for (unsigned int i=0; i<nTrk; ++i)
       {
       //
       // Fxy = vertex constraint in xy plane (one for each track)
@@ -612,7 +635,7 @@ namespace Trk
       }
 
       sumConstr = 0.;
-      for (unsigned int i=0; i<dim; ++i) 
+      for (unsigned int i=0; i<dim; ++i)
       {
         sumConstr += F_fac_vec[i]*fabs(F_vec[i]);
       }
@@ -620,7 +643,7 @@ namespace Trk
       if (sumConstr < 0.001) { onConstr = true; }
       ATH_MSG_DEBUG("sumConstr " << sumConstr);
 
-      for (unsigned int i=0; i<nTrk; ++i) 
+      for (unsigned int i=0; i<nTrk; ++i)
       {
         Bjac_mat(i,0+5*i)        = dFxydd0(i);
         Bjac_mat(i,1+5*i)        = dFxydz0(i);
@@ -720,8 +743,8 @@ namespace Trk
       C32_mat =   Atemp_mat * C22_mat;
       C31_mat =   Btemp_mat + Atemp_mat * C21_mat;
       Amg::MatrixX mat_prod_1 = Wmeas_mat * Bjac_mat.transpose();
-      Amg::MatrixX mat_prod_2 = Wmeas_mat * Bjac_mat.transpose() * Wb_mat * Ajac_mat; 
-      C11_mat =   Wmeas_mat - Wb_mat.similarity( mat_prod_1 ) + C22_mat.similarity( mat_prod_2 );	
+      Amg::MatrixX mat_prod_2 = Wmeas_mat * Bjac_mat.transpose() * Wb_mat * Ajac_mat;
+      C11_mat =   Wmeas_mat - Wb_mat.similarity( mat_prod_1 ) + C22_mat.similarity( mat_prod_2 );
 
       C_cor_vec = Ajac_mat*DeltaA_vec + Bjac_mat*DeltaY_vec;
       C_vec = C_cor_vec + F_vec;
@@ -729,7 +752,7 @@ namespace Trk
       DeltaY_vec = C31_mat.transpose()*C_vec;
       DeltaA_vec = C32_mat.transpose()*C_vec;
 
-      for (unsigned int i=0; i<n_dim; ++i) 
+      for (unsigned int i=0; i<n_dim; ++i)
       {
         ChiItr_vec(0,i) = DeltaY_vec(i);
       }
@@ -788,13 +811,25 @@ namespace Trk
             const double extrapolationDirection = gMomentum .dot( gDirection );
             MaterialUpdateMode mode = Trk::removeNoise;
             if(extrapolationDirection > 0) mode = Trk::addNoise;
-            const Trk::Perigee* extrapolatedPerigee(nullptr);
-            extrapolatedPerigee = dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolate(*chargeParameters, perigeeSurfaceItr, Trk::anyDirection, true, Trk::pion, mode));
-            if (extrapolatedPerigee==nullptr)
-            {
+            std::unique_ptr<const Trk::Perigee> extrapolatedPerigee(nullptr);
+            std::unique_ptr<const Trk::TrackParameters> tmp =
+              m_extrapolator->extrapolate(ctx,
+                                          *chargeParameters,
+                                          perigeeSurfaceItr,
+                                          Trk::anyDirection,
+                                          true,
+                                          Trk::pion,
+                                          mode);
+            // if of right type we want to pass ownership
+            if (tmp && tmp->associatedSurface().type() == Trk::SurfaceType::Perigee) {
+              extrapolatedPerigee.reset(
+                static_cast<const Trk::Perigee*>(tmp.release()));
+            }
+
+            if (extrapolatedPerigee == nullptr) {
               ATH_MSG_DEBUG("Perigee was not extrapolated! Taking original one!");
               const Trk::Perigee* tmpPerigee = dynamic_cast<const Trk::Perigee*>(chargeParameters);
-              if (tmpPerigee!=nullptr) extrapolatedPerigee = new Trk::Perigee(*tmpPerigee);
+              if (tmpPerigee!=nullptr) extrapolatedPerigee = std::make_unique<Trk::Perigee>(*tmpPerigee);
               else return nullptr;
             }
 
@@ -808,7 +843,6 @@ namespace Trk
             locV0FitterTrack.Wi_mat = extrapolatedPerigee->covariance()->inverse().eval();
             locV0FitterTrack.originalPerigee = *iter;
             v0FitterTracks.push_back(locV0FitterTrack);
-            delete extrapolatedPerigee;
           } else {
             ATH_MSG_DEBUG("Track parameters are not charged tracks ... fit aborted");
             return nullptr;
@@ -839,7 +873,7 @@ namespace Trk
     Y_vec = Y0_vec + DeltaY_vec;
 
     // check theta and phi ranges
-    for (unsigned int i=0; i<nTrk; ++i) 
+    for (unsigned int i=0; i<nTrk; ++i)
     {
       if ( fabs ( Y_vec(2+5*i) ) > 100. || fabs ( Y_vec(3+5*i) ) > 100. ) { return nullptr; }
       while ( fabs ( Y_vec(2+5*i) ) > M_PI ) Y_vec(2+5*i) += ( Y_vec(2+5*i) > 0 ) ? -2*M_PI : 2*M_PI;
@@ -857,7 +891,7 @@ namespace Trk
       }
     }
 
-    for (unsigned int i=0; i<n_dim; ++i) 
+    for (unsigned int i=0; i<n_dim; ++i)
     {
       Chi_vec(0,i) = DeltaY_vec(i);
     }
@@ -885,7 +919,7 @@ namespace Trk
       iRP++;
     }
 
-    // Store the vertex 
+    // Store the vertex
     xAOD::Vertex* vx = new xAOD::Vertex;
     vx->makePrivateStore();
     vx->setPosition (frameOrigin);
@@ -893,7 +927,7 @@ namespace Trk
     vx->setFitQuality(chi2,static_cast<float>(ndf));
     vx->setVertexType(xAOD::VxType::V0Vtx);
 
-    // Store the tracks at vertex 
+    // Store the tracks at vertex
     std::vector<VxTrackAtVertex> & tracksAtVertex = vx->vxTrackAtVertex(); tracksAtVertex.clear();
     Amg::Vector3D Vertex(frameOrigin[0],frameOrigin[1],frameOrigin[2]);
     const Trk::PerigeeSurface Surface(Vertex);
@@ -910,7 +944,7 @@ namespace Trk
           CovMtxP.fillSymmetric(i,j,val);
         }
       }
-      refittedPerigee = new Trk::Perigee (Y_vec(0+5*iterf),Y_vec(1+5*iterf),Y_vec(2+5*iterf),Y_vec(3+5*iterf),Y_vec(4+5*iterf), 
+      refittedPerigee = new Trk::Perigee (Y_vec(0+5*iterf),Y_vec(1+5*iterf),Y_vec(2+5*iterf),Y_vec(3+5*iterf),Y_vec(4+5*iterf),
                                           Surface, std::move(CovMtxP));
       tracksAtVertex.emplace_back((*BTIterf).chi2, refittedPerigee, (*BTIterf).originalPerigee);
       iterf++;

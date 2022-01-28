@@ -41,8 +41,9 @@ class QTest(WorkflowTest):
         self.output_checks.append(FrozenTier0PolicyCheck(setup, "AOD", 20))
 
         self.digest_checks = []
-        self.digest_checks.append(AODContentCheck(setup))
-        self.digest_checks.append(AODDigestCheck(setup))
+        if "--CA" not in extra_args:
+            self.digest_checks.append(AODContentCheck(setup))
+            self.digest_checks.append(AODDigestCheck(setup))
 
         super().__init__(ID, run, type, steps, setup)
 

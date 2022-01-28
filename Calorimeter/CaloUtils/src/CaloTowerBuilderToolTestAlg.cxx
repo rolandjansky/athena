@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file  CaloTowerBuilderToolTestAlg.cxx
@@ -15,7 +15,6 @@
 #include "CaloUtils/CaloTowerBuilderTool.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloTowerContainer.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "AthenaKernel/errorcheck.h"
 #include "TestTools/random.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -66,6 +65,7 @@ StatusCode CaloTowerBuilderToolTestAlg::initialize()
   m_calos.push_back (CaloCell_ID::TILE);
 
   CHECK( m_builder.retrieve() );
+  ATH_CHECK(m_caloMgrKey.initialize());
 
   m_seg = CaloTowerSeg (50, 64, -2.5, 2.5);
   m_builder->setTowerSeg (m_seg);
@@ -77,7 +77,9 @@ CaloCellContainer*
 CaloTowerBuilderToolTestAlg::make_cells()
 {
   CaloCellContainer* cells = new CaloCellContainer;
-  const CaloDetDescrManager* ddman = nullptr;
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+  if(!caloMgrHandle.isValid()) std::abort();
+  const CaloDetDescrManager* ddman = *caloMgrHandle;
   if ( detStore()->retrieve (ddman, "CaloMgr").isFailure() )
     std::abort();
   for (CaloCell_ID::SUBCALO subcalo : m_calos) {

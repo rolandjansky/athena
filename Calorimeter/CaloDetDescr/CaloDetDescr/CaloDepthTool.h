@@ -235,6 +235,17 @@ public:
                               const double phi,
                               const CaloDetDescrManager* caloDD) ;
 
+  enum class DepthChoice
+  {
+    egparam,
+    cscopt,
+    cscopt2,
+    TBparam,
+    entrance,
+    middle,
+    flat
+  };
+
 private:
   /** @brief Methods taken from the old egammaqdepth class :
       return the parametrised depth used in DC1 and DC2. Only LAREM is foreseen
@@ -316,7 +327,15 @@ protected:
   CaloDepthTool& operator=(const CaloDepthTool&); //> not implemented
 
 private:
+  /**
+   * Depth choice related code
+   * User passes a string but we convert to an enum
+   * at init to avoid string comparisons
+   */
+
   Gaudi::Property<std::string> m_depth_choice{ this, "DepthChoice", "", "depth choice" };
+  
+  DepthChoice m_depthChoice = DepthChoice::entrance;
   /** ID Helper
    */
   const CaloCell_ID* m_calo_id;

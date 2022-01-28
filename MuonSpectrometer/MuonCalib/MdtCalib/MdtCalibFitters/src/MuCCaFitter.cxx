@@ -144,7 +144,7 @@ namespace MuonCalib {
         seg.set(chi2f / (N - 2), npos, ndir);
 
         int i{0};
-        for (MuonCalibSegment::MdtHitPtr hit_ptr : seg.mdtHOT()) {
+        for (const MuonCalibSegment::MdtHitPtr& hit_ptr : seg.mdtHOT()) {
             hit_ptr->setDistanceToTrack(dist[i], ddist[i]);
             ++i;
         }

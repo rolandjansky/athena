@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCOOLConditions/LArPedestalFlat.h"
@@ -9,15 +9,17 @@
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/AttributeListSpecification.h"
 
-LArPedestalFlat::LArPedestalFlat()  {}
+LArPedestalFlat::LArPedestalFlat()
+  : LArCondFlatBase("LArPedestalFlat")
+{}
 
 
-LArPedestalFlat::LArPedestalFlat(const CondAttrListCollection* attrList) {
+LArPedestalFlat::LArPedestalFlat(const CondAttrListCollection* attrList)
+  : LArCondFlatBase("LArPedestalFlat")
+{
+  if (initializeBase().isFailure()) return;
  
-  StatusCode sc=initializeBase("LArPedestalFlat");
-  if (sc.isFailure()) return;
- 
-  readBlob(attrList,*m_log);
+  readBlob(attrList,msg());
   return;
 }
 

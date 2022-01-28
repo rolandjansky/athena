@@ -3514,7 +3514,7 @@ void MuonGMCheck::testCscDetectorElementHash()
     fout0.close();
 }
 
-void MuonGMCheck::showVmemCpu(std::string message) 
+void MuonGMCheck::showVmemCpu(const std::string& message) 
 {
     int dmem = 0;
     int ducpu = 0;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -98,6 +98,7 @@ void InDet::SeedToTrackConversionTool::executeSiSPSeedSegments(SeedToTrackConver
                                                                const int& mtrk,
                                                                const std::vector<const Trk::SpacePoint*>& Sp) const
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   ++m_totseed; // accumulate all seeds
   if (mtrk>0) ++m_survived; // survided seeds 
   std::vector<const Trk::PrepRawData*> prdsInSp;
@@ -107,7 +108,7 @@ void InDet::SeedToTrackConversionTool::executeSiSPSeedSegments(SeedToTrackConver
     if (prds.second && prds.first != prds.second) prdsInSp.push_back(prds.second);
   }
   Trk::PerigeeSurface persurf;
-  std::unique_ptr<const Trk::TrackParameters> per(m_extrapolator->extrapolate(*Tp, persurf, Trk::anyDirection, false, Trk::nonInteracting));
+  std::unique_ptr<const Trk::TrackParameters> per(m_extrapolator->extrapolate(ctx,*Tp, persurf, Trk::anyDirection, false, Trk::nonInteracting));
   std::unique_ptr<const Trk::TrackParameters> prevpar(Tp->uniqueClone());
   if (per) {
     std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
@@ -117,7 +118,7 @@ void InDet::SeedToTrackConversionTool::executeSiSPSeedSegments(SeedToTrackConver
     traj.push_back(pertsos);
     for (const Trk::PrepRawData* prd: prdsInSp) {
       const Trk::Surface& surf = prd->detectorElement()->surface(prd->identify());
-      std::unique_ptr<const Trk::TrackParameters> thispar(m_extrapolator->extrapolate(*prevpar, surf, Trk::alongMomentum, false, Trk::nonInteracting));
+      std::unique_ptr<const Trk::TrackParameters> thispar(m_extrapolator->extrapolate(ctx,*prevpar, surf, Trk::alongMomentum, false, Trk::nonInteracting));
       if (thispar) {
         std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
         typePattern.set(Trk::TrackStateOnSurface::Measurement);

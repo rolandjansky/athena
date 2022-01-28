@@ -46,7 +46,7 @@ legacyThresholds = [
     "BCM_AtoC", "BCM_CtoA", "BCM_Wide", "BCM_Comb",
     "BPTX0", "BPTX1",
     "LUCID_A", "LUCID_C",
-    "ZDC_A", "ZDC_C", "ZDC_AND",
+    "ZDC_0", "ZDC_1", "ZDC_2",
     "AFP_NSA", "AFP_FSA", "AFP_FSA_TOF_T0", "AFP_FSA_TOF_T1", "AFP_FSA_TOF_T2", "AFP_FSA_TOF_T3",
     "AFP_NSC", "AFP_FSC", "AFP_FSC_TOF_T0", "AFP_FSC_TOF_T1", "AFP_FSC_TOF_T2", "AFP_FSC_TOF_T3",
 

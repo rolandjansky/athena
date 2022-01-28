@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -35,7 +35,7 @@ Trk::RotatedTrapezoidBounds::RotatedTrapezoidBounds(double halex, double minhale
   if (m_boundValues[RotatedTrapezoidBounds::bv_minHalfY] > m_boundValues[RotatedTrapezoidBounds::bv_maxHalfY])
     swap(m_boundValues[RotatedTrapezoidBounds::bv_minHalfY], m_boundValues[RotatedTrapezoidBounds::bv_maxHalfY]);
   // assign kappa and delta
-  initCache();
+  RotatedTrapezoidBounds::initCache();
 }
 
 

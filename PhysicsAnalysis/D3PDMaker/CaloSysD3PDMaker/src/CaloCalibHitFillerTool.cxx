@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -22,7 +22,6 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/CaloDM_ID.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloDmDetDescr/CaloDmDescrManager.h"
 #include <sstream>
@@ -36,7 +35,7 @@ CaloCalibHitFillerTool::CaloCalibHitFillerTool
      const std::string& name,
      const IInterface* parent)
       : BlockFillerTool<CaloCalibrationHit> (type, name, parent),
-        m_ddm(0),m_dm_ddm(0),
+        m_dm_ddm(0),
         m_emid(0),
         m_fcalid(0),
         m_hecid(0),
@@ -63,24 +62,23 @@ CaloCalibHitFillerTool::CaloCalibHitFillerTool
 StatusCode CaloCalibHitFillerTool::initialize()
 {
   ServiceHandle<StoreGateSvc> detStore("DetectorStore", name());
-  CHECK( detStore.retrieve() ) ;
+  ATH_CHECK ( detStore.retrieve() );
     
-  CHECK ( detStore->retrieve(m_ddm)   );
-  CHECK ( detStore->retrieve(m_emid)   );
-  CHECK ( detStore->retrieve(m_fcalid) );
-  CHECK ( detStore->retrieve(m_hecid)  );
-  CHECK ( detStore->retrieve(m_tileid) );
-  CHECK ( detStore->retrieve(m_onlineid));
+  ATH_CHECK ( m_caloMgrKey.initialize()     );
+  ATH_CHECK ( detStore->retrieve(m_emid)    );
+  ATH_CHECK ( detStore->retrieve(m_fcalid)  );
+  ATH_CHECK ( detStore->retrieve(m_hecid)   );
+  ATH_CHECK ( detStore->retrieve(m_tileid)  );
+  ATH_CHECK ( detStore->retrieve(m_onlineid));
   if(m_isDM) {
-     CHECK ( detStore->retrieve(m_dmid));
-     /* CHECK ( detStore->retrieve(m_dm_ddm)   );*/
+     ATH_CHECK ( detStore->retrieve(m_dmid) );
      m_dm_ddm = CaloDmDescrManager::instance(); 
      if(!m_dm_ddm) {
         std::cout<<"Could not get CaloDmDescrManager"<<std::endl;
         return StatusCode::FAILURE;
      }
   } else {
-     CHECK ( detStore->retrieve(m_cellid));
+     ATH_CHECK ( detStore->retrieve(m_cellid) );
   }
    
   if(m_saveallen) { m_savetoten = false; m_savevisen = false; }
@@ -172,7 +170,9 @@ StatusCode CaloCalibHitFillerTool::fill (const CaloCalibrationHit& p)
 
   if(m_isbasic) {
     if(!m_isDM) {
-      const CaloDetDescrElement* dde = m_ddm->get_element(id); 
+      SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+      ATH_CHECK(caloMgrHandle.isValid());
+      const CaloDetDescrElement* dde = (*caloMgrHandle)->get_element(id);
       if(dde) {
         *m_eta = dde->eta();
         *m_phi = dde->phi(); 

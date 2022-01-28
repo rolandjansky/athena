@@ -320,13 +320,14 @@ Trk::Track* RefitTracksAndVertex::fitSCTOnlyTrack(const Trk::Track* track) {
    ATH_MSG_VERBOSE ("==========================================");
   
   // fit TRT part of the track with PseudoMeas on z_0, theta
-  Trk::Track* trkSCT=m_trackFitter->fit( setSCT
+  Trk::Track* trkSCT=(m_trackFitter->fit(Gaudi::Hive::currentContext()
+                                       ,setSCT
                                        , *perTrk
                                        , true
                                        , Trk::pion
                                        //, Trk::muon
                                        //, Trk::nonInteracting
-                                       ) ;
+                                       )).release() ;
   if( !trkSCT ) {
     ATH_MSG_DEBUG( "RefitTracksAndVertex() : Fit of SCT part of the track failed! " ) ;
     return NULL ;

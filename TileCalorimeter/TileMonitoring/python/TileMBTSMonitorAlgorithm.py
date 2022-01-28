@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 '''
 @file TileMBTSMonitorAlgorithm.py
@@ -34,7 +34,8 @@ def TileMBTSMonitoringConfig(flags, **kwargs):
         from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
         result.merge( L1ConfigSvcCfg(flags) )
 
-    if flags.Input.Format.lower() == 'pool':
+    from AthenaConfiguration.Enums import Format
+    if flags.Input.Format is Format.POOL:
         kwargs.setdefault('TileDigitsContainer', 'TileDigitsFlt')
 
     # The following class will make a sequence, configure algorithms, and link

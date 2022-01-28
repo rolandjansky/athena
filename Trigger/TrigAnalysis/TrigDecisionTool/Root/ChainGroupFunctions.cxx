@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -40,8 +40,7 @@ void Trig::ChainGroupFunctions::ChainGroupInitialize() {
 }
 
 const Trig::ChainGroup* Trig::ChainGroupFunctions::getChainGroup(const std::vector< std::string >& triggerNames) const {
-  //  std::cout  << " getting chain group  " << std::endl;
-  std::map< std::vector< std::string >, Trig::ChainGroup* >::iterator searchRes = cgm()->getChainGroups().find(triggerNames);
+  auto searchRes = cgm()->getChainGroups().find(triggerNames);
 
   if ( searchRes != cgm()->getChainGroups().end()) {
     return searchRes->second;

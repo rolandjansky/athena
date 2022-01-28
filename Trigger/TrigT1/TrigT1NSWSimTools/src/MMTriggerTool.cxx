@@ -127,10 +127,8 @@ namespace NSWL1 {
   }
 
   StatusCode MMTriggerTool::runTrigger(const bool do_MMDiamonds) {
-    //Retrieve the current run number and event number
-    const EventInfo* pevt = 0;
-    ATH_CHECK( evtStore()->retrieve(pevt) );
-    int event = pevt->event_ID()->event_number();
+    auto ctx = Gaudi::Hive::currentContext();
+    int event = ctx.eventID().event_number();
     ATH_MSG_DEBUG("********************************************************* EVENT NUMBER = " << event);
 
     //////////////////////////////////////////////////////////////
@@ -153,8 +151,6 @@ namespace NSWL1 {
     ATH_CHECK( load.getMMDigitsInfo(entries, Hits_Data_Set_Time, Event_Info, pars) );
     this->fillNtuple(load);
 
-    unsigned int particles = entries.rbegin()->first.second +1, nskip=0;
-
     if (entries.empty()) {
       ATH_MSG_WARNING("No digits available for processing, exiting");
       Hits_Data_Set_Time.clear();
@@ -175,6 +171,7 @@ namespace NSWL1 {
       m_diamond->setRoadSizeDownUV(0);
     }
 
+    unsigned int particles = entries.rbegin()->first.second +1, nskip=0;
     for (unsigned int i=0; i<particles; i++) {
       double trueta = -999., trupt = -999., dt = -999., tpos = -999., ppos = -999.;
       // We need to extract truth info, if available

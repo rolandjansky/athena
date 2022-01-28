@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # art-description: Run digitization combining a heavy ion sample produced with MC15 using 2015 geometry and conditions with Zmumu events
 # art-include: 21.0/Athena
@@ -33,6 +33,6 @@ Digi_tf.py \
 
 rc=$?
 status=$rc
-echo  "art-result: $rc Digi_tf.py"
+echo "art-result: $rc Digi_tf.py"
 
 exit $status

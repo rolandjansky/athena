@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BYTESTREAMDATA_BYTESTREAM_H
@@ -23,6 +23,9 @@ public:
   ByteStream(int nWord) : m_nWord(nWord) {
     m_start = new OFFLINE_FRAGMENTS_NAMESPACE::DataType[m_nWord];
   }
+
+  ByteStream(const ByteStream&) = delete;
+  ByteStream& operator=(const ByteStream&) = delete;
 
   /// destructor
   virtual ~ByteStream() {

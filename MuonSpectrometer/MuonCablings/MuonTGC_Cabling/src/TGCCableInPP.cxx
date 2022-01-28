@@ -12,7 +12,7 @@
 namespace MuonTGC_Cabling {
 
 // Constructor & Destructor
-TGCCableInPP::TGCCableInPP(std::string filename)
+TGCCableInPP::TGCCableInPP(const std::string& filename)
   : TGCCable(TGCCable::InPP)
 {
   m_database[TGCIdBase::Endcap][TGCIdBase::WD] = new TGCDatabaseInPP(filename,"EWD");
@@ -55,12 +55,12 @@ TGCChannelId* TGCCableInPP::getChannel(const TGCChannelId* channelId,
     if(channelId->getChannelIdType()==TGCIdBase::PPOut)
       return getChannelIn(channelId,orChannel);
   }
-  return 0;
+  return nullptr;
 }
   
 TGCChannelId* TGCCableInPP::getChannelIn(const TGCChannelId* ppout,
 					 bool orChannel) const {
-  if(ppout->isValid()==false) return 0;
+  if(ppout->isValid()==false) return nullptr;
   
   TGCIdBase::ModuleType moduleType = ppout->getModuleType();
   
@@ -112,7 +112,7 @@ TGCChannelId* TGCCableInPP::getChannelIn(const TGCChannelId* ppout,
     }
   } 
   
-  if(!found) return 0;
+  if(!found) return nullptr;
   
   TGCChannelPPIn* ppin = 
     new TGCChannelPPIn(ppout->getSideType(),
@@ -128,7 +128,7 @@ TGCChannelId* TGCCableInPP::getChannelIn(const TGCChannelId* ppout,
 
 TGCChannelId* TGCCableInPP::getChannelOut(const TGCChannelId* ppin,
 					  bool orChannel) const {
-  if(ppin->isValid()==false) return 0;
+  if(ppin->isValid()==false) return nullptr;
 
   const int ppinChannel = ppin->getChannel();
   const int ppinBlock = ppin->getBlock();
@@ -137,7 +137,7 @@ TGCChannelId* TGCCableInPP::getChannelOut(const TGCChannelId* ppin,
   TGCDatabase* databaseP =
     m_database[ppin->getRegionType()][ppin->getModuleType()];
 
-  TGCChannelPPOut* ppout = 0;
+  TGCChannelPPOut* ppout = nullptr;
   const int MaxEntry = databaseP->getMaxEntry();
   for(int i=0; i<MaxEntry; i++){
     bool cond1 = (databaseP->getEntry(i,5)==ppinChannel)&& 

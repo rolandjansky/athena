@@ -169,6 +169,16 @@ private:
   // prefetch all ROBs from a ROS if ROB data from this ROS are requested
   Gaudi::Property<bool> m_prefetchAllROBsfromROS{
     this, "prefetchAllROBsfromROS", false , "When ROBs from a ROS are requested then prefetch all ROBs in this ROS"};
+  // list of sub-detector ids for which all ROBs in their ROSes are prefetched
+  //      list empty or sub-det ID = 0x0 --> all ROSes will use complete prefetching
+  //      For sub-detector specific prefetching sub-detector IDs or sub-detector groups should be specified. 
+  //      Both types of identifiers can be mixed,
+  //      e.g. [ 0x4, 0x5, 0x13, 0x14 ] means prefetching is used for all LAR and TILE ROSes and
+  //      for the ROSes of PIXEL_B_LAYER and PIXEL_IBL  
+  Gaudi::Property< std::vector<uint8_t> > m_prefetchSubDetROS{
+    this, "prefetchSubDetROS", {} , "List of sub-detectors for which whole ROS prefetching is used"};
+  // internal array, which holds list of ROBs for whole ROS prefetching
+  std::vector<uint32_t> m_prefetchWholeROSList ;
 
   Gaudi::Property<bool> m_doCostMonitoring{
     this, "doCostMonitoring", false, "Enables start-of-event cost monitoring behavior."};

@@ -554,7 +554,7 @@ namespace Muon {
         int layer = 0;
         for (std::vector<std::vector<const Muon::MuonClusterOnTrack*> >::const_iterator cvecIt = clusters.begin(); cvecIt != clusters.end();
              ++cvecIt) {
-            const Muon::MuonClusterOnTrack* rio = 0;
+            const Muon::MuonClusterOnTrack* rio = nullptr;
             double bestDist(9999.);
 
             for (std::vector<const Muon::MuonClusterOnTrack*>::const_iterator cit = (*cvecIt).begin(); cit != (*cvecIt).end(); ++cit) {

@@ -631,6 +631,7 @@ namespace InDet{
                  if( std::abs(mass_PiPi-m_massK0) < 22. )  badTracks = 1;
                  if( std::abs(mass_PPi-m_massLam) <  8. )  badTracks = 2;
                }
+
 //
 //  Creation of V0 tracks
 //
@@ -682,10 +683,17 @@ namespace InDet{
 //
 //  Check interactions on material layers
 //
-            float minWgtI = std::min(trkScore[i][2],trkScore[j][2]);
-            if( minWgtI >0.50 && Dist2D > m_beampipeR-vrtRadiusError(tmpVrt.fitVertex, tmpVrt.errorMatrix) ) badTracks = 4;
-            //if( (trkScore[i][2]>0.4 || trkScore[j][2]>0.4) 
-            //   && insideMatLayer(tmpVrt.fitVertex.x(),tmpVrt.fitVertex.y()) ) badTracks=5;
+	     if(m_useITkMaterialRejection){
+	       double xvt = tmpVrt.fitVertex.x(); double yvt = tmpVrt.fitVertex.y();
+	       float zvt = tmpVrt.fitVertex.z(); float Rvt = std::hypot(xvt,yvt);
+	       int bin = m_ITkPixMaterialMap->FindBin(zvt,Rvt);
+	       if(m_ITkPixMaterialMap->GetBinContent(bin)>0) badTracks = 4;
+	     }
+	     else{
+	       float minWgtI = std::min(trkScore[i][2],trkScore[j][2]);
+	       if(minWgtI >0.50 && Dist2D > m_beampipeR-vrtRadiusError(tmpVrt.fitVertex, tmpVrt.errorMatrix) ) badTracks = 4;
+	     }
+
 //
 //-----------------------------------------------
              tmpVrt.badVrt=badTracks;          //

@@ -18,6 +18,7 @@ def main():
     args = parser.parse_args()
 
     # set menu
+    ConfigFlags.Input.Files = []
     ConfigFlags.Trigger.triggerMenuSetup = args.menu
     ConfigFlags.lock()
 

@@ -66,7 +66,7 @@ namespace Muon {
             "TrackToSegmentTool",
             "Muon::MuonTrackToSegmentTool/MuonTrackToSegmentTool",
         };  //<! track to segment converter
-        ToolHandle<MuonEDMPrinterTool> m_printer{
+        PublicToolHandle<MuonEDMPrinterTool> m_printer{
             this,
             "Printer",
             "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",

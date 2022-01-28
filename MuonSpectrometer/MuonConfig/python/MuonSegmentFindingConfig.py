@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # This file configures the Muon segment finding. It is based on a few files in the old configuration system:
 # Tools, which are configured here: 
@@ -15,6 +15,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 
 # Core
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.Enums import Format
 
 # Muon
 # Csc2dSegmentMaker, Csc4dSegmentMaker=CompFactory.getComps("Csc2dSegmentMaker","Csc4dSegmentMaker",)
@@ -22,7 +23,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 #Local
 from MuonConfig.MuonCalibrationConfig import MdtCalibrationDbToolCfg
 from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MCTBSLFitterMaterialFromTrackCfg, MuonAmbiProcessorCfg, MuonStationIntersectSvcCfg, MuonTrackCleanerCfg, MuonTrackSummaryToolCfg, MuonEDMPrinterTool
-from MuonConfig.MuonRecToolsConfig import MuonStraightLineExtrapolatorCfg
+from TrkConfig.AtlasExtrapolatorConfig import MuonStraightLineExtrapolatorCfg
 from MuonConfig.MuonRIO_OnTrackCreatorConfig import MdtCalibWindowNumber
 
 def MuonHoughPatternFinderTool(flags, **kwargs):
@@ -687,12 +688,22 @@ def MuonLayerHoughAlgCfg(flags, name = "MuonLayerHoughAlg", **kwargs):
     return result
 
 
+def MuonPatternCalibrationCfg(flags, name="MuonPatternCalibration", **kwargs):
+    from MuonConfig.MuonRIO_OnTrackCreatorConfig import MuonClusterOnTrackCreatorCfg, MdtDriftCircleOnTrackCreatorCfg
+    result = MdtDriftCircleOnTrackCreatorCfg(flags)
+    kwargs.setdefault("MdtCreator", result.popPrivateTools())
+    kwargs.setdefault('ClusterCreator', result.popToolsAndMerge(MuonClusterOnTrackCreatorCfg(flags)))
+    kwargs.setdefault("Printer", MuonEDMPrinterTool(flags) )
+    # Won't explicitly configure MuonIdHelperSvc
+    result.setPrivateTools( CompFactory.Muon.MuonPatternCalibration(name, **kwargs) )
+    return result
+
 def MuonSegmentFinderAlgCfg(flags, name="MuonSegmentMaker", **kwargs):
     result = ComponentAccumulator()
     
-   
     acc = MuonStraightLineExtrapolatorCfg(flags)
     extrapolator = acc.getPrimary()
+    result.addPublicTool(extrapolator)
     result.merge(acc)
 
     acc = MCTBSLFitterMaterialFromTrackCfg(flags)
@@ -752,14 +763,21 @@ def MuonSegmentFinderAlgCfg(flags, name="MuonSegmentMaker", **kwargs):
     kwargs.setdefault('TGC_PRDs', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
 
     # for test purposes allow parallel running of truth segment finding and new segment finder
-    #### Do we need to setup this tool as well?
-    ####  MuonPatternCalibration = getPublicTool("MuonPatternCalibration"),
+    kwargs.setdefault('MuonPatternCalibration', result.popToolsAndMerge( MuonPatternCalibrationCfg(flags) ) )
     the_alg = CompFactory.MuonSegmentFinderAlg( name,
                                                **kwargs)
                                                        
     result.addEventAlgo(the_alg)
     return result    
 
+def MuonSegmentFilterAlgCfg(flags, name="MuonSegmentFilterAlg", **kwargs):
+    result = ComponentAccumulator()
+    kwargs.setdefault("SegmentCollectionName", "TrackMuonSegments")
+    ## The output key of this alg os per default FilteredMuonSegments
+    kwargs.setdefault("FilteredCollectionName", "TrackMuonSegmentsEMEO")
+    the_alg =  CompFactory.MuonSegmentFilterAlg(name, **kwargs)
+    result.addEventAlgo(the_alg)
+    return result
 
 def MuonSegmentFindingCfg(flags, cardinality=1):
     # Set up some general stuff needed by muon reconstruction
@@ -773,11 +791,11 @@ def MuonSegmentFindingCfg(flags, cardinality=1):
     muon_edm_helper_svc = Muon__MuonEDMHelperSvc("MuonEDMHelperSvc")
     result.addService( muon_edm_helper_svc )
     
-    if flags.Input.Format == 'BS':
+    if flags.Input.Format is Format.BS:
         from MuonConfig.MuonBytestreamDecodeConfig import MuonByteStreamDecodersCfg
         result.merge( MuonByteStreamDecodersCfg(flags) )
 
-    if flags.Input.Format == 'BS' or 'StreamRDO' in flags.Input.ProcessingTags or 'OutputStreamRDO' in flags.Input.ProcessingTags:
+    if flags.Input.Format is Format.BS or 'StreamRDO' in flags.Input.ProcessingTags:
         from MuonConfig.MuonRdoDecodeConfig import MuonRDOtoPRDConvertorsCfg
         result.merge( MuonRDOtoPRDConvertorsCfg(flags) )
 
@@ -790,6 +808,9 @@ def MuonSegmentFindingCfg(flags, cardinality=1):
     result.merge(MuonSegmentFinderAlgCfg(flags, name="MuonSegmentFinderAlg"))
   
     result.merge(MooSegmentFinderAlg_NCBCfg(flags, Cardinality=cardinality))
+    
+    if flags.Muon.runCommissioningChain:
+        result.merge(MuonSegmentFilterAlgCfg(flags))
 
     result.addEventAlgo(CompFactory.xAODMaker.MuonSegmentCnvAlg("MuonSegmentCnvAlg"))
 

@@ -74,7 +74,7 @@ namespace Trk {
 
         const MuonSimData::Deposit* getDeposit(const MuonSimDataCollection& simCol, HepMC::ConstGenParticlePtr genPart,
                                                const Identifier& id);
-        const MuonSimDataCollection* retrieveTruthCollection(std::string colName);
+        const MuonSimDataCollection* retrieveTruthCollection(const std::string& colName);
 
         void addTrack(DetailedMuonPatternTruthCollection* output, const ElementLink<DataVector<Muon::MuonPatternCombination> >& track,
                       const std::vector<const PRD_MultiTruthCollection*>& orderedPRD_Truth, const PRD_InverseTruth& inverseTruth);

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # art-description: Run digitization of an MC20 ttbar sample with 2018 geometry and conditions, without pile-up using AthenaMT with one thread
 # art-type: grid
@@ -27,17 +27,15 @@ Digi_tf.py \
 
 rc=$?
 status=$rc
-echo  "art-result: $rc Digi_tf.py"
+echo "art-result: $rc Digi_tf.py"
 
 rc2=-9999
-if [ $rc -eq 0 ]
+if [[ $rc -eq 0 ]]
 then
-    ArtPackage=$1
-    ArtJobName=$2
-    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=semi-detailed
+    art.py compare grid --entries 10 "$1" "$2" --mode=semi-detailed
     rc2=$?
     status=$rc2
 fi
-echo  "art-result: $rc2 regression"
+echo "art-result: $rc2 regression"
 
 exit $status

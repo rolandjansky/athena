@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_SegmentToTrackTool/TRT_SegmentToTrackTool.h"
@@ -199,8 +199,13 @@ namespace InDet {
       Amg::Vector3D perigeePosition(0., 0., 0.);
       Trk::PerigeeSurface perigeeSurface(perigeePosition);
       // --- turn parameters into perigee...
-      auto perParm = std::unique_ptr<const Trk::Perigee>(dynamic_cast<const Trk::Perigee*>(
-       m_extrapolator->extrapolate(*segPar, perigeeSurface)));
+      std::unique_ptr<const Trk::TrackParameters> tmp =
+        m_extrapolator->extrapolate(ctx, *segPar, perigeeSurface);
+      std::unique_ptr<const Trk::Perigee> perParm = nullptr;
+      //pass ownership if of the right type
+      if (tmp && tmp->associatedSurface().type() == Trk::SurfaceType::Perigee) {
+        perParm.reset(static_cast<const Trk::Perigee*>(tmp.release()));
+      }
       if (perParm) {
         ATH_MSG_VERBOSE("Perigee version of Parameters : " << (*segPar));
       } else {
@@ -362,8 +367,12 @@ namespace InDet {
         Amg::Vector3D perigeePosition(0., 0., 0.);
         Trk::PerigeeSurface perigeeSurface(perigeePosition);
         // -- get perigee
-        const Trk::Perigee* tempper = dynamic_cast<const Trk::Perigee*>(
-          m_extrapolator->extrapolateDirectly(*segPar, perigeeSurface));
+        std::unique_ptr<const Trk::TrackParameters> tmp =
+          m_extrapolator->extrapolate(ctx, *segPar, perigeeSurface);
+        std::unique_ptr<const Trk::Perigee> tempper = nullptr;
+        if (tmp && tmp->associatedSurface().type() == Trk::SurfaceType::Perigee) {
+           tempper.reset(static_cast<const Trk::Perigee*>(tmp.release()));
+        }
         if (!tempper) {
           ATH_MSG_DEBUG("Could not produce perigee");
           delete segPar;
@@ -374,10 +383,6 @@ namespace InDet {
         // keep some values
         myd0 = tempper->parameters()[Trk::d0];
         myphi = tempper->parameters()[Trk::phi0];
-
-        // delete extrapolation
-        delete tempper;
-        tempper = nullptr;
 
       } else {
         //
@@ -551,7 +556,7 @@ namespace InDet {
                                      *surfforpar);
         Trk::PerigeeSurface persurf;
         const Trk::TrackParameters* extrappar =
-          m_extrapolator->extrapolateDirectly(ataline, persurf);
+          m_extrapolator->extrapolateDirectly(ctx, ataline, persurf).release();
 
         // now get parameters
         if (extrappar) {
@@ -603,7 +608,7 @@ namespace InDet {
 
       Trk::Track newTrack (info, std::move(ntsos), fq);
       Trk::Track* fitTrack =
-        m_fitterTool->fit(newTrack, true, Trk::nonInteracting);
+        m_fitterTool->fit(ctx,newTrack, true, Trk::nonInteracting).release();
 
       // cleanup
       if (segPar) {
@@ -681,9 +686,14 @@ namespace InDet {
               std::move(fcovmat)).release();
 
           // now take parameters at first measurement and exptrapolate to perigee
-	  const Trk::TrackParameters *newperpar   = m_extrapolator->extrapolate(*updatedPars,perTrack->associatedSurface(),
-										Trk::anyDirection,false,Trk::nonInteracting);
-	  delete updatedPars; updatedPars = nullptr;
+          const Trk::TrackParameters* newperpar =
+            m_extrapolator->extrapolate(ctx,
+                                        *updatedPars,
+                                        perTrack->associatedSurface(),
+                                        Trk::anyDirection,
+                                        false,
+                                        Trk::nonInteracting).release();
+          delete updatedPars; updatedPars = nullptr;
 
 	  if (!newperpar || !newperpar->covariance()) {
 	    ATH_MSG_WARNING ("Can not hack perigee parameters, extrapolation failed");

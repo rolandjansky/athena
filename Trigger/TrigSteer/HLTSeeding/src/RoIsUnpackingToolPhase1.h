@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef HLTSEEDING_ROISUNPACKINGTOOLPHASE1_H
 #define HLTSEEDING_ROISUNPACKINGTOOLPHASE1_H
@@ -116,17 +116,23 @@ public:
                                     ElementLink<T_RoIContainer>(m_l1RoILinkName, linkIndex, ctx));
       }
 
+      std::vector<TrigCompositeUtils::DecisionID> passedThresholdIDs;
+
       // Add positive decisions for chains to be activated by this RoI object
       uint64_t thresholdPattern = thrPatternAcc(*roi);
       ATH_MSG_DEBUG("RoI #" << linkIndex << " threshold pattern: " << thresholdPattern);
       for (const std::shared_ptr<TrigConf::L1Threshold>& thr : thresholds.value().get()) {
         if ((thresholdPattern & (1 << thr->mapping())) == 0u) {continue;}
+        passedThresholdIDs.push_back(HLT::Identifier(thr->name()));
         ATH_MSG_DEBUG("RoI #" << linkIndex << " passed threshold number " << thr->mapping()
                       << " name" << (doProbe ? "s " : " ") << thr->name()
                       << (doProbe ? " and "+getProbeThresholdName(thr->name()) : ""));
         addChainsToDecision(HLT::Identifier(thr->name()), decisionMain, activeChains);
         if (doProbe) addChainsToDecision(HLT::Identifier(getProbeThresholdName(thr->name())), decisionProbe, activeChains);
       }
+
+      decisionMain->setDetail("thresholds", passedThresholdIDs);
+      if (doProbe) decisionProbe->setDetail("thresholds", passedThresholdIDs);
 
       ++linkIndex;
     }

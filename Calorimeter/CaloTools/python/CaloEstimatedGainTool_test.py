@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
 #
 # File: CaloTools/python/CaloEstimatedGainTool_test.py
 # Author: scott snyder
@@ -106,7 +106,7 @@ Configurable.configurableRun3Behavior=1
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 
-ConfigFlags.Input.Files = defaultTestFiles.RDO
+ConfigFlags.Input.Files = defaultTestFiles.RDO_RUN2
 ConfigFlags.Detector.GeometryLAr = True
 ConfigFlags.Detector.GeometryTile = True
 ConfigFlags.needFlagsCategory('Tile')

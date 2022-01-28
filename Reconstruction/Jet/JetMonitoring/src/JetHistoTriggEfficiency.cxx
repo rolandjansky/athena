@@ -49,7 +49,14 @@ StatusCode JetHistoTriggEfficiency::processJetContainer(const JetMonitoringAlg& 
 
   // check trigger bits
   const unsigned int probeBits = parentAlg.isPassedBits(m_probeTrigChain);
-  if(!(probeBits & TrigDefs::L1_isPassedAfterVeto) ) return StatusCode::SUCCESS;
+
+
+  // disable the L1 test for probe chains with 'noalg' in the chain name
+  // such chains have no HLT cuts, so requiring L1 to pass results in 100% efficiency.
+  std::string sprob = m_probeTrigChain;
+  bool noalg = sprob.find("noalg") != std::string::npos;
+  
+  if(!(probeBits & TrigDefs::L1_isPassedAfterVeto) and !noalg) return StatusCode::SUCCESS;
   if( (probeBits & TrigDefs::EF_prescaled) ) return StatusCode::SUCCESS;
 
 

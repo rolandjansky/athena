@@ -75,7 +75,6 @@ class LArCond2NtupleBase : public AthAlgorithm {
   const LArFCAL_Base_ID* m_fcalId;
   const LArOnlineID_Base* m_onlineId;
   const CaloCell_Base_ID* m_caloId;
-  const CaloDetDescrManager_Base* m_dd_man = nullptr;
   ToolHandle<ILArFEBTempTool> m_FEBTempTool;
 
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTGC_Cabling/TGCChannelSLBIn.h"
@@ -23,7 +23,7 @@ TGCChannelSLBIn::TGCChannelSLBIn(TGCIdBase::SideType vside,
   setRegionType(vregion);
   setSector(vsector);
   setId(vid);
-  setChannel(vchannel);
+  TGCChannelSLBIn::setChannel(vchannel);
 }
 
 TGCModuleId* TGCChannelSLBIn::getModule(void) const 

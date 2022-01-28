@@ -1,7 +1,9 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.SystemOfUnits import GeV, TeV
 from AthenaCommon.Logging import logging
+from AthenaConfiguration.Enums import Format
+
 log = logging.getLogger('OnlineRecoDefaults')
 
 
@@ -22,7 +24,7 @@ def setDefaultOnlineRecoFlags(flags):
     flags.Input.LumiBlockNumber = [-1]
     flags.Input.TimeStamp = [-1]
     flags.Input.ProjectName = 'data_test'
-    flags.Input.Format = 'BS'
+    flags.Input.Format = Format.BS
     flags.Input.ProcessingTags = []
 
     flags.Beam.Type = 'collisions'

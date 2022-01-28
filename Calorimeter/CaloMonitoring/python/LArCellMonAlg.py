@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 def LArCellMonConfigOld(inputFlags):
@@ -512,8 +512,6 @@ if __name__=='__main__':
 
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-#    from AthenaConfiguration.TestDefaults import defaultTestFiles
-#    ConfigFlags.Input.Files = defaultTestFiles.ESD
     ConfigFlags.Input.Files = ['/eos/atlas/atlastier0/rucio//data18_13TeV/physics_Main/00357750/data18_13TeV.00357750.physics_Main.daq.RAW/data18_13TeV.00357750.physics_Main.daq.RAW._lb0123._SFO-3._0004.data']
     # to test tier0 workflow:
     #ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/data15_13TeV.00278748.physics_ZeroBias.merge.RAW._lb0384._SFO-ALL._0001.1']

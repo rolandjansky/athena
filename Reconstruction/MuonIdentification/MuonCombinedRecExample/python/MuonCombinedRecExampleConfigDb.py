@@ -65,6 +65,7 @@ addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonSegmentTagAlg_LRT","Mu
 
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCreatorAlg","MuonCreatorAlg")
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCreatorAlg_LRT","MuonCreatorAlg_LRT" )
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCreatorAlg_EMEO", "MuonCreatorAlg_EMEO")
 
 
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.StauCreatorAlg","StauCreatorAlg")

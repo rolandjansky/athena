@@ -10,9 +10,7 @@ def createGeoModelConfigFlags():
     gcf.addFlag('GeoModel.Layout', 'atlas') # replaces global.GeoLayout
 
     gcf.addFlag("GeoModel.AtlasVersion",
-                lambda prevFlags : ((prevFlags.Input.Files and
-                                    prevFlags.Input.Files != ["_ATHENA_GENERIC_INPUTFILE_NAME_"] and
-                                    GetFileMD(prevFlags.Input.Files).get("GeoAtlas",None))
+                lambda prevFlags : (GetFileMD(prevFlags.Input.Files).get("GeoAtlas", None)
                                     or "ATLAS-R2-2016-01-00-01"))
 
     gcf.addFlag("GeoModel.Align.Dynamic",

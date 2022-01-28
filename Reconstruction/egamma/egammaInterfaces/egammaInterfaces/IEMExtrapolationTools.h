@@ -11,7 +11,7 @@
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkNeutralParameters/NeutralParameters.h"
 #include "TrkParameters/TrackParameters.h"
-#include "xAODCaloEvent/CaloClusterFwd.h"
+#include "xAODCaloEvent/CaloCluster.h"
 #include "xAODTracking/TrackParticleFwd.h"
 #include "xAODTracking/VertexFwd.h"
 
@@ -48,10 +48,11 @@ public:
 
   /** initialize method*/
   virtual StatusCode initialize() = 0;
-  /** finalize method*/
-  virtual StatusCode finalize() = 0;
 
-  typedef std::unordered_map<size_t, std::unique_ptr<Trk::CaloExtension>> Cache;
+  virtual std::pair<std::vector<CaloSampling::CaloSample>,
+                    std::vector<std::unique_ptr<Trk::Surface>>>
+  getClusterLayerSurfaces(const xAOD::CaloCluster& cluster,
+                          const CaloDetDescrManager& caloDD) const = 0;
 
   /**   get eta, phi, deltaEta, and deltaPhi at the four calorimeter
    *    layers given the Trk::ParametersBase.
@@ -61,11 +62,12 @@ public:
     const EventContext& ctx,
     const xAOD::CaloCluster& cluster,
     const xAOD::TrackParticle& trkPB,
+    const std::vector<CaloSampling::CaloSample>& samples,
+    const std::vector<std::unique_ptr<Trk::Surface>>& surfaces,
     std::array<double, 4>& eta,
     std::array<double, 4>& phi,
     std::array<double, 4>& deltaEta,
     std::array<double, 4>& deltaPhi,
-    const CaloDetDescrManager& caloDD,
     unsigned int extrapFrom = fromPerigee) const = 0;
 
   /** test for vertex-to-cluster match given also the positions

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TruthIO/HepMCReadFromFile.h"
@@ -7,7 +7,11 @@
 #include "AtlasHepMC/GenEvent.h"
 #include "AtlasHepMC/IO_HEPEVT.h"
 #include "AtlasHepMC/HEPEVT_Wrapper.h"
-
+#ifdef HEPMC3 
+#include "HepMC3/GenCrossSection.h"
+#else
+#include "HepMC/GenCrossSection.h" 
+#endif
 #include "GaudiKernel/DataSvc.h"
 
 #include "StoreGate/StoreGateSvc.h"
@@ -19,6 +23,7 @@ HepMCReadFromFile::HepMCReadFromFile(const std::string& name, ISvcLocator* pSvcL
 {
   declareProperty("InputFile", m_input_file="events.hepmc");
   m_event_number = 0;
+  m_sum_xs = 0;
 }
 
 
@@ -67,6 +72,10 @@ StatusCode HepMCReadFromFile::execute() {
     evt->set_event_number(m_event_number);
     evt->set_units(HepMC3::Units::MEV, HepMC3::Units::MM);
     mcEvtColl->push_back(evt);
+    const auto cs = evt->cross_section();
+    double xs=cs->xsec();
+    m_sum_xs = m_sum_xs+xs; 
+
   }
 
 #else
@@ -77,7 +86,20 @@ StatusCode HepMCReadFromFile::execute() {
     evt->set_event_number(m_event_number);
     GeVToMeV(evt);
     mcEvtColl->push_back(evt);
+    HepMC::GenCrossSection* cs=evt->cross_section();
+    double xs=cs->cross_section();
+    m_sum_xs = m_sum_xs+xs; 
+
   }
 #endif
   return StatusCode::SUCCESS;
 }
+
+StatusCode HepMCReadFromFile::finalize() {
+
+ if (m_sum_xs >0)  std::cout << "MetaData: cross-section (nb)= " << m_sum_xs/(1000*m_event_number) <<std::endl;
+      
+  return StatusCode::SUCCESS;
+}  
+
+

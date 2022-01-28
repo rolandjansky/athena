@@ -260,7 +260,10 @@ namespace Trk {
     }
     ATH_MSG_DEBUG(" -- performSiliconHitSelection -- after removing bad Silicon hits, the selected measurement collection has "<< selectedMeasurementSet.size()<< " elements");
 
-    newTrack = fitter->fit(selectedMeasurementSet,*inputTrack->perigeeParameters(),m_runOutlierRemoval,ParticleHypothesis(m_particleHypothesis));
+    newTrack = (fitter->fit(Gaudi::Hive::currentContext(),
+                            selectedMeasurementSet,
+                            *inputTrack->perigeeParameters(),
+                            m_runOutlierRemoval,ParticleHypothesis(m_particleHypothesis))).release();
 
     return newTrack;
   }

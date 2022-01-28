@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -216,7 +216,7 @@ StatusCode TileInfoLoader::initialize() {
 
   ATH_MSG_DEBUG( "Initializing...." << name() );
 
-  auto info = std::make_unique<TileInfo> (serviceLocator());
+  auto info = std::make_unique<TileInfo>();
 
   // Forward properties.
   info->m_nSamples = m_nSamples;

@@ -1,13 +1,13 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AsgDataHandles/ReadHandle.h"
 #include "AsgDataHandles/ReadHandleKey.h"
 
 template<class CONTAINER>
-std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::features(EventPtr_t eventStore,
-        SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer>& HLTSummaryKeyIn,
+std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::features(const asg::EventStoreType* eventStore,
+        const SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer>& HLTSummaryKeyIn,
         unsigned int condition, const std::string& containerSGKey,
         const unsigned int featureCollectionMode, const std::string& navElementLinkKey,
         const int restrictToLegIndex) const {

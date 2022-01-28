@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -41,7 +41,7 @@ SCT_SkiPowerTape::SCT_SkiPowerTape(const std::string & name,
   m_length(length), m_ski(ski)
 {
   getParameters();
-  m_physVolume = build();
+  m_physVolume = SCT_SkiPowerTape::build();
 }
 
 void 

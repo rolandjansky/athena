@@ -1,4 +1,8 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.Enums import Format
+
 
 def RecoSteering(flags):
     """
@@ -14,7 +18,7 @@ def RecoSteering(flags):
     acc = MainServicesCfg(flags)
 
     # setup input
-    if flags.Input.Format == 'BS':
+    if flags.Input.Format is Format.BS:
         from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
         acc.merge(ByteStreamReadCfg(flags))
         log.info("---------- Configured BS reading")
@@ -32,7 +36,7 @@ def RecoSteering(flags):
     if flags.Input.isMC:
         from xAODTruthCnv.xAODTruthCnvConfigNew import GEN_AOD2xAODCfg
         acc.merge(GEN_AOD2xAODCfg(flags))
-        log.info("---------- Configured xAODTruthCnvAlg")
+        log.info("---------- Configured AODtoxAOD Truth Conversion")
 
     # trigger
     if flags.Reco.EnableTrigger:
@@ -62,9 +66,9 @@ def RecoSteering(flags):
     if flags.Reco.EnableEgamma:
         from egammaConfig.egammaSteeringConfig import EGammaSteeringCfg
         acc.merge(EGammaSteeringCfg(flags))
-        log.info("---------- Configured egamma")
+        log.info("---------- Configured e/gamma")
 
-    # Caching of CaloExtension for downstream 
+    # Caching of CaloExtension for downstream
     # Combined Performance algorithms.
     if flags.Reco.EnableCaloExtension:
         from TrackToCalo.CaloExtensionBuilderAlgCfg import (
@@ -114,6 +118,11 @@ def RecoSteering(flags):
         acc.merge(HIRecCfg(flags))
         log.info("---------- Configured Heavy Ion reconstruction")
 
+    # Setup the final post-processing
+    if flags.Reco.EnablePostProcessing:
+        acc.merge(RecoPostProcessingCfg(flags))
+        log.info("---------- Configured post-processing")
+
     # setup output
     if any((flags.Output.doWriteESD,
             flags.Output.doWriteAOD,
@@ -131,5 +140,27 @@ def RecoSteering(flags):
         log.info("ESD ItemList: %s", acc.getEventAlgo(
             "OutputStreamAOD").ItemList)
         log.info("---------- Configured AOD writing")
+
+    # Set up PerfMon
+    if flags.PerfMon.doFastMonMT or flags.PerfMon.doFullMonMT:
+        from PerfMonComps.PerfMonCompsConfig import PerfMonMTSvcCfg
+        acc.merge(PerfMonMTSvcCfg(flags))
+        log.info("---------- Configured PerfMon")
+
+    return acc
+
+
+def RecoPostProcessingCfg(flags):
+    acc = ComponentAccumulator()
+    if flags.Reco.PostProcessing.TRTAloneThinning:
+        from ThinningUtils.ThinTRTStandaloneConfig import (
+            ThinTRTStandaloneCfg)
+        # TODO remove doTau=False when Tau are added
+        acc.merge(ThinTRTStandaloneCfg(flags, doTau=False))
+    if flags.Reco.PostProcessing.GeantTruthThinning:
+        from ThinningUtils.ThinGeantTruthConfig import (
+            ThinGeantTruthCfg)
+        acc.merge(ThinGeantTruthCfg(flags))
+        pass
 
     return acc

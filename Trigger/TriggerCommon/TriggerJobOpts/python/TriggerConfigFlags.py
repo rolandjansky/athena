@@ -1,8 +1,9 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 import os
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
+from AthenaConfiguration.Enums import Format
 from AthenaCommon.SystemOfUnits import GeV
 from AthenaCommon.Logging import logging
 from TrigEDMConfig.Utils import getEDMVersionFromBS
@@ -69,7 +70,7 @@ def createTriggerFlags():
 
         default_version = -1     # intentionally invalid default value, ATR-22856
 
-        if flags.Input.Format=="BS":
+        if flags.Input.Format is Format.BS:
             _log.debug("Input format is ByteStream")
 
             if not any(flags.Input.Files) and flags.Common.isOnline:
@@ -118,9 +119,8 @@ def createTriggerFlags():
     # True if we have at least one input file, it is a POOL file, it has a metadata store, and the store has xAOD trigger configuration data
     # in either the run-2 or run-3 formats.
     def __trigConfMeta(flags):
-        hasInput = any(flags.Input.Files) and '_ATHENA_GENERIC_INPUTFILE_NAME_' not in flags.Input.Files
         from AthenaConfiguration.AutoConfigFlags import GetFileMD
-        md = GetFileMD(flags.Input.Files) if hasInput else {}
+        md = GetFileMD(flags.Input.Files)
         return ("metadata_items" in md and any(('TriggerMenu' in key) for key in md["metadata_items"].keys()))
 
     # Flag to sense if trigger configuration POOL metadata is available on the job's input
@@ -155,7 +155,7 @@ def createTriggerFlags():
     flags.addFlag('Trigger.writeBS', False)
 
     # Write transient BS before executing HLT algorithms (for running on MC RDO with clients which require BS inputs)
-    flags.addFlag('Trigger.doTransientByteStream', lambda prevFlags: True if  prevFlags.Input.Format=='POOL' and prevFlags.Trigger.doCalo else False)
+    flags.addFlag('Trigger.doTransientByteStream', lambda prevFlags: True if prevFlags.Input.Format is Format.POOL and prevFlags.Trigger.doCalo else False)
 
     # list of EDM objects to be written to AOD
     flags.addFlag('Trigger.AODEDMSet', lambda flags: 'AODSLIM' if flags.Input.isMC else 'AODFULL')
@@ -167,7 +167,7 @@ def createTriggerFlags():
     flags.addFlag('Trigger.ExtraEDMList', [])
 
     # tag to be used for condutions used by HLT code
-    flags.addFlag('Trigger.OnlineCondTag', 'CONDBR2-HLTP-2018-02')
+    flags.addFlag('Trigger.OnlineCondTag', 'CONDBR2-HLTP-2018-03')
 
     # geometry version used by HLT online
     flags.addFlag('Trigger.OnlineGeoTag', 'ATLAS-R2-2016-01-00-01')
@@ -181,7 +181,7 @@ def createTriggerFlags():
         elif flags.Trigger.doHLT:
             raise RuntimeError('Trigger.availableRecoMetadata is ill-defined if Trigger.doHLT==True')
         # RAW: check if keys are in COOL
-        elif flags.Input.Format=="BS":
+        elif flags.Input.Format is Format.BS:
             from TrigConfigSvc.TriggerConfigAccess import getKeysFromCool
             keys = getKeysFromCool(flags.Input.RunNumber[0], lbNr = 1)  # currently only checking first file
             return ( (['L1'] if 'L1PSK' in keys else []) +
@@ -198,7 +198,7 @@ def createTriggerFlags():
     flags.addFlag('Trigger.triggerConfig', lambda flags: 'INFILE' if flags.Trigger.InputContainsConfigMetadata else 'FILE')
 
     # name of the trigger menu
-    flags.addFlag('Trigger.triggerMenuSetup', 'LS2_v1_BulkMCProd_prescale')
+    flags.addFlag('Trigger.triggerMenuSetup', 'Dev_pp_run3_v1_BulkMCProd_prescale')
 
     # modify the slection of chains that are run (default run all), see more in GenerateMenuMT_newJO
     flags.addFlag('Trigger.triggerMenuModifier', ['all'])
@@ -206,10 +206,11 @@ def createTriggerFlags():
     # name of the trigger menu
     flags.addFlag('Trigger.generateMenuDiagnostics', False)
 
+    # disable Consistent Prescale Sets, for testing only, useful when using selectChains (ATR-24744)
+    flags.addFlag('Trigger.disableCPS', False)
+
     # Switch whether end-of-event sequence running extra algorithms for accepted events should be added
     flags.addFlag('Trigger.endOfEventProcessing.Enabled', True)
-    # Run the LArNoiseBurst algorithms in the end-of-event sequence
-    flags.addFlag('Trigger.endOfEventProcessing.doLArNoiseBurst', True)
 
     # trigger reconstruction
 
@@ -217,7 +218,9 @@ def createTriggerFlags():
     flags.addFlag('Trigger.calo.doOffsetCorrection', True )
 
     # Particle ID tune
-    flags.addFlag('Trigger.egamma.pidVersion', 'ElectronPhotonSelectorTools/trigger/rel21_20170214/')
+    flags.addFlag('Trigger.egamma.pidVersion', 'ElectronPhotonSelectorTools/trigger/rel22_20210611/')
+    flags.addFlag('Trigger.egamma.dnnVersion', 'ElectronPhotonSelectorTools/trigger/rel21_20210928/')
+    flags.addFlag('Trigger.egamma.ringerVersion', 'RingerSelectorTools/TrigL2_20210702_r4/')
 
     # cluster correction version, allowed value is: None or v12phiflip_noecorrnogap
     flags.addFlag('Trigger.egamma.clusterCorrectionVersion', 'v12phiflip_noecorrnogap')
@@ -276,6 +279,9 @@ def createTriggerFlags():
 
     # Switch on MC20 EOverP maps for the jet slice
     flags.addFlag("Trigger.Jet.doMC20_EOverP", True)
+
+    # ATR-24619 - to be removed after validation
+    flags.addFlag("Trigger.usexAODFlowElements", False)
 
     return flags
 

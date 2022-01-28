@@ -85,7 +85,7 @@ namespace MuonGM {
     private:
         const RpcIdHelper* m_helper;
         int m_ndbz;
-        const RpcReadoutElement* m_rpcVector[NDoubletZ];
+        const RpcReadoutElement* m_rpcVector[NDoubletZ]{};
     };
 
 }  // namespace MuonGM

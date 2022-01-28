@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaMtesEventLoopMgr.h"
@@ -699,7 +699,9 @@ StatusCode AthenaMtesEventLoopMgr::nextEvent(int maxevt)
 
   yampl::ISocketFactory* socketFactory = new yampl::SocketFactory();
   // Create a socket to communicate with the Pilot
-  m_socket = socketFactory->createClientSocket(yampl::Channel(m_eventRangeChannel.value(),yampl::LOCAL),yampl::MOVE_DATA);
+  m_socket = socketFactory->createClientSocket(yampl::Channel(m_eventRangeChannel.value(),yampl::LOCAL),
+                                               yampl::MOVE_DATA, yampl::defaultDeallocator,
+                                               m_socketName.value());
 
   // Reset the application return code.
   resetAppReturnCode();
@@ -1347,12 +1349,12 @@ StatusCode AthenaMtesEventLoopMgr::clearWBSlot(int evtSlot)  {
 
 std::unique_ptr<AthenaMtesEventLoopMgr::RangeStruct> AthenaMtesEventLoopMgr::getNextRange(yampl::ISocket* socket)
 {
-  std::string strReady("Ready for events");
-  std::string strStopProcessing("No more events");
+  static const std::string strReady("Ready for events");
+  static const std::string strStopProcessing("No more events");
 
   std::string range;
   if( m_inTestMode ) {
-     static size_t line_n = 0;
+     static std::atomic<size_t> line_n = 0;
      info() <<"in TEST MODE, Range #" << line_n+1 << endmsg;
      range = (line_n < m_testPilotMessages.value().size()) ? m_testPilotMessages.value()[line_n++] : strStopProcessing;
   } else {
@@ -1361,7 +1363,7 @@ std::unique_ptr<AthenaMtesEventLoopMgr::RangeStruct> AthenaMtesEventLoopMgr::get
      memcpy(ready_message,strReady.data(),strReady.size());
      socket->send(ready_message,strReady.size());
      void* eventRangeMessage;
-     ssize_t eventRangeSize = socket->recv(eventRangeMessage);
+     ssize_t eventRangeSize = socket->recv(eventRangeMessage, m_socketName.value());
      range = std::string((const char*)eventRangeMessage,eventRangeSize);
      size_t carRet = range.find('\n');
      if(carRet!=std::string::npos) range = range.substr(0,carRet);

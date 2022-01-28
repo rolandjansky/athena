@@ -57,12 +57,11 @@ def GenEventVertexPositionerCfg(flags, name="GenEventVertexPositioner", **kwargs
 ## LorentzVectorGenerators
 def VertexBeamCondPositionerCfg(flags, name="VertexBeamCondPositioner", **kwargs):
     """Return a conditional (? todo) vertex positioner tool"""
-    from RngComps.RandomServices import RNG
+    from RngComps.RandomServices import AthRNGSvcCfg
 
     acc = ComponentAccumulator()
 
-    acc.merge(RNG(engine=flags.Random.Engine, name="AthRNGSvc"))
-    kwargs.setdefault("RandomSvc", acc.getService("AthRNGSvc"))
+    kwargs.setdefault("RandomSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
 
     from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
     acc.merge(BeamSpotCondAlgCfg(flags))

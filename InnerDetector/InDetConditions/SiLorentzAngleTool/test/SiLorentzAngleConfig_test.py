@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 """Run tests on *LorentzAngleConfig.py
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 from AthenaCommon.Logging import log
@@ -15,7 +14,7 @@ from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleCfg
 # test setup
 log.setLevel(DEBUG)
 Configurable.configurableRun3Behavior = True
-ConfigFlags.Input.Files = defaultTestFiles.HITS
+ConfigFlags.Input.Files = defaultTestFiles.HITS_RUN2
 # using __init__ to reset, preventing errors on deletion
 # case online
 ConfigFlags.Common.isOnline = True

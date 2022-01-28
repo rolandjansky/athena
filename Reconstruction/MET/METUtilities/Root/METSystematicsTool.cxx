@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "METUtilities/METSystematicsTool.h"
@@ -116,7 +116,6 @@ namespace met {
 
     ATH_CHECK( m_EventInfoKey.assign(m_eventInfo) );
     ATH_CHECK( m_EventInfoKey.initialize() );
-
 
 
     const char lastchar = m_configPrefix.back();
@@ -255,7 +254,7 @@ namespace met {
     // If at some point we can deal with multiple systematics, we will check here that the combination we are given will work
 
     m_appliedSystEnum = NONE;
-    if( systSet.size()==0 ) {
+    if( systSet.empty() ) {
       ATH_MSG_DEBUG("No affecting systematics received.");
       return StatusCode::SUCCESS;
     } else if( systSet.size() > 1 ) {
@@ -429,8 +428,8 @@ namespace met {
       }
 
       missingEt const ptHard = calcPtHard(METcont);
-      double const ptHardMet = TMath::Sqrt( ptHard.mpx * ptHard.mpx +
-					    ptHard.mpy * ptHard.mpy )  ;
+      double const ptHardMet = std::sqrt( ptHard.mpx * ptHard.mpx +
+					  ptHard.mpy * ptHard.mpy )  ;
 
       const xAOD::MissingET* jetterm = *METcont->find( MissingETBase::Source::jet() );
       size_t njet = (jetterm==nullptr) ? 0 : acc_constitObjLinks(*jetterm ).size();
@@ -526,7 +525,7 @@ namespace met {
       int phbin  = m_jet_systRpt_pt_eta->GetXaxis()->FindBin(jet->pt()/1e3);
       if(phbin>m_jet_systRpt_pt_eta->GetNbinsX())  phbin  = m_jet_systRpt_pt_eta->GetNbinsX();
 
-      int etabin  = m_jet_systRpt_pt_eta->GetYaxis()->FindBin(fabs( jet->eta()  ));
+      int etabin  = m_jet_systRpt_pt_eta->GetYaxis()->FindBin(std::abs( jet->eta()  ));
       if(etabin>m_jet_systRpt_pt_eta->GetNbinsY()) etabin = m_jet_systRpt_pt_eta->GetNbinsY();
 
       double uncert = 0.;
@@ -577,7 +576,7 @@ namespace met {
       }
       bool originalInputs = jets.empty() ? false : !acc_originalObject.isAvailable(*jets.front());
       for(const xAOD::Jet *jet : jets) {
-	const MissingETAssociation* assoc = 0;
+	const MissingETAssociation* assoc = nullptr;
         const MissingETAssociationMap* map = helper.map();
 	if(originalInputs) {
 	  assoc = MissingETComposition::getAssociation(map,jet);
@@ -587,19 +586,19 @@ namespace met {
 	}
 
 	MissingETBase::Types::constvec_t trkvec = assoc->jetTrkVec();
-	if(fabs(jet->eta())<=2.5)
+	if(std::abs(jet->eta())<=2.5)
 	  {
 	    jetCount++;
 	    int         phbin  = m_jet_systRpt_pt_eta->GetXaxis()->FindBin(jet->pt()/1e3);
 	    if(phbin>m_jet_systRpt_pt_eta->GetNbinsX())  phbin  = m_jet_systRpt_pt_eta->GetNbinsX();
 
-	    int         etabin  = m_jet_systRpt_pt_eta->GetYaxis()->FindBin(fabs( jet->eta()  ));
+	    int         etabin  = m_jet_systRpt_pt_eta->GetYaxis()->FindBin(std::abs( jet->eta()  ));
 	    if(etabin>m_jet_systRpt_pt_eta->GetNbinsY()) etabin = m_jet_systRpt_pt_eta->GetNbinsY();
 	    float uncert_frac=(trkvec.sumpt())*(m_jet_systRpt_pt_eta->GetBinContent(phbin, etabin));
 
 	    ATH_MSG_VERBOSE("Sumpt: "<< trkvec.sumpt());
 	    ATH_MSG_VERBOSE("jet uncert: "<< m_jet_systRpt_pt_eta->GetBinContent(phbin, etabin));
-	    uncert=sqrt(uncert*uncert+uncert_frac*uncert_frac);
+	    uncert = std::sqrt(uncert*uncert+uncert_frac*uncert_frac);
 	  }
       }
 
@@ -621,8 +620,8 @@ namespace met {
 	break;
 	}
 
-      jettrkmet.setMpx  ( jettrkmet.mpx()*(1 + uncert/(fabs(jettrkmet.mpx())*sqrt(2))));
-      jettrkmet.setMpy  ( jettrkmet.mpy()*(1 + uncert/(fabs(jettrkmet.mpy())*sqrt(2))));
+      jettrkmet.setMpx  ( jettrkmet.mpx()*(1 + uncert/(std::abs(jettrkmet.mpx())*std::sqrt(2))));
+      jettrkmet.setMpy  ( jettrkmet.mpy()*(1 + uncert/(std::abs(jettrkmet.mpy())*std::sqrt(2))));
       jettrkmet.setSumet( jettrkmet.sumet() + uncert);
     }
 
@@ -660,15 +659,15 @@ namespace met {
     ATH_MSG_VERBOSE( __PRETTY_FUNCTION__ );
     //    ATH_MSG_VERBOSE("caloSyst_reso: input MET: " << softTerms.met);
 
-    double const metSigma     = .7 * sqrt(softTerms.sumet);
+    double const metSigma     = .7 * std::sqrt(softTerms.sumet);
     double const resUnc       =  m_h_calosyst_reso->GetBinContent(1);
-    double const smearedSigma = sqrt( (metSigma* (1. + resUnc))*(metSigma* (1. + resUnc)) -
-				      metSigma * metSigma );
+    double const smearedSigma = std::sqrt( (metSigma* (1. + resUnc))*(metSigma* (1. + resUnc)) -
+					   metSigma * metSigma );
 
     ATH_MSG_VERBOSE("caloSyst_reso: metSigma: " << metSigma << ", resUnc: " << resUnc << ", smearedSigma = " << smearedSigma);
 
-    double const softTermsMet = TMath::Sqrt( softTerms.mpx * softTerms.mpx +
-					     softTerms.mpy * softTerms.mpy );
+    double const softTermsMet = std::sqrt( softTerms.mpx * softTerms.mpx +
+					   softTerms.mpy * softTerms.mpy );
 
 
     double const rand  = gRandom->Gaus(0.,1.);
@@ -702,8 +701,8 @@ namespace met {
   missingEt METSystematicsTool::projectST(missingEt const &softTerms, missingEt const &ptHard) const
   {
     ATH_MSG_VERBOSE( __PRETTY_FUNCTION__ );
-    double const ptHardMet =     TMath::Sqrt( ptHard.mpx * ptHard.mpx +
-					      ptHard.mpy * ptHard.mpy );
+    double const ptHardMet =     std::sqrt( ptHard.mpx * ptHard.mpx +
+					    ptHard.mpy * ptHard.mpy );
 
     double const ux    = ptHard.mpx/ptHardMet;
     double const uy    = ptHard.mpy/ptHardMet;
@@ -791,8 +790,8 @@ namespace met {
     }
 
     ATH_MSG_INFO( "Searching for configFile: " << configfile);
-    ATH_MSG_INFO( "PWD: "        << gSystem->Getenv("PWD")  )  ;
-    ATH_MSG_INFO( "CALIBPATH: "  << gSystem->Getenv("CALIBPATH") );
+    ATH_MSG_DEBUG( "PWD: "        << gSystem->Getenv("PWD")  )  ;
+    ATH_MSG_DEBUG( "CALIBPATH: "  << gSystem->Getenv("CALIBPATH") );
 
     if(configpath.empty() || configfile.empty() ){
       ATH_MSG_ERROR( "Path Resolver couldn't find config file");
@@ -857,7 +856,7 @@ namespace met {
     }
 
     ATH_MSG_INFO( "Will read histograms from : " << histfile );
-    ATH_MSG_INFO( "Systpath :" <<  systpath ) ;
+    ATH_MSG_DEBUG( "Systpath :" <<  systpath ) ;
     histpath = PathResolverFindCalibFile(histfile);//, "CALIBPATH", PathResolver::RecursiveSearch) ;
     ATH_MSG_INFO("Extracted histogram path : " << histpath);
 
@@ -905,7 +904,7 @@ namespace met {
     int NPV = 0;
     xAOD::VertexContainer::const_iterator itr;
     for (itr = vertices->begin(); itr != vertices->end(); ++itr)
-      if ( (*itr)->vertexType()  != 0) NPV++;
+      if ( (*itr)->vertexType()  != xAOD::VxType::NoVtx) NPV++;
 
     return NPV;
   }

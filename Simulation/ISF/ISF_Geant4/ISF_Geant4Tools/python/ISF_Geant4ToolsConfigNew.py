@@ -4,7 +4,7 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from RngComps.RandomServices import RNG
+from RngComps.RandomServices import AthRNGSvcCfg
 from G4AtlasServices.G4AtlasServicesConfigNew import (
     DetectorGeometrySvcCfg, PhysicsListSvcCfg
 )
@@ -30,8 +30,7 @@ def Geant4ToolCfg(flags, name="ISF_Geant4Tool", **kwargs):
     acc = ComponentAccumulator()
     kwargs.setdefault("DetGeoSvc", acc.getPrimaryAndMerge(DetectorGeometrySvcCfg(flags)).name)
 
-    acc.merge(RNG(flags.Random.Engine, name="AthRNGSvc"))
-    kwargs.setdefault("RandomNumberService", acc.getService("AthRNGSvc").name) # FIXME
+    kwargs.setdefault("RandomNumberService", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
 
     # Only add it if it's not added already
     if "InputConverter" not in kwargs.keys():

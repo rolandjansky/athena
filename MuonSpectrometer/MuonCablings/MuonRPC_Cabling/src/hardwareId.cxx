@@ -18,7 +18,7 @@ hardwareId::hardwareId(){
   m_gasGap=-999;
 }
 
-bool hardwareId::SetHwId(std::string x_HwId){
+bool hardwareId::SetHwId(const std::string& x_HwId){
   // READ A STRING WITH FORMAT:
   // BML6C03.CO.DP2.Ly1.DZ1
 

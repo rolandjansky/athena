@@ -7,7 +7,7 @@
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/MuonAuxContainer.h"
 
-HLTriggerMuonPlots::HLTriggerMuonPlots(PlotBase* pParent, std::string sDir):PlotBase(pParent, sDir),
+HLTriggerMuonPlots::HLTriggerMuonPlots(PlotBase* pParent, const std::string& sDir):PlotBase(pParent, sDir),
 m_oHLTriggerPlots(this, "/", "HLT Muons")
 {}	
 

@@ -5,6 +5,7 @@
 #include "MuonCalibEventBase/MuonCalibRawHitCollection.h"
 
 #include <algorithm>
+#include <utility>
 
 #include "MuonCalibEventBase/MuonCalibRawCscHit.h"
 #include "MuonCalibEventBase/MuonCalibRawMdtHit.h"
@@ -18,11 +19,11 @@ namespace MuonCalib {
     MuonCalibRawHitCollection::MuonCalibRawHitCollection(MuonCalibRawMdtHitVec rawMdtHitVec, MuonCalibRawRpcHitVec rawRpcHitVec,
                                                          MuonCalibRawTgcHitVec rawTgcHitVec, MuonCalibRawTgcCoinVec rawTgcCoinVec,
                                                          MuonCalibRawCscHitVec rawCscHitVec) :
-        m_rawMdtHitVec{rawMdtHitVec},
-        m_rawRpcHitVec{rawRpcHitVec},
-        m_rawTgcHitVec{rawTgcHitVec},
-        m_rawTgcCoinVec{rawTgcCoinVec},
-        m_rawCscHitVec{rawCscHitVec} {}
+        m_rawMdtHitVec{std::move(rawMdtHitVec)},
+        m_rawRpcHitVec{std::move(rawRpcHitVec)},
+        m_rawTgcHitVec{std::move(rawTgcHitVec)},
+        m_rawTgcCoinVec{std::move(rawTgcCoinVec)},
+        m_rawCscHitVec{std::move(rawCscHitVec)} {}
 
     const MuonCalibRawHitCollection::MuonCalibRawMdtHitVec& MuonCalibRawHitCollection::MdtContainer() const { return m_rawMdtHitVec; }
     MuonCalibRawHitCollection::MuonCalibRawMdtHitVec& MuonCalibRawHitCollection::MdtContainer() { return m_rawMdtHitVec; }
@@ -79,19 +80,19 @@ namespace MuonCalib {
     void MuonCalibRawHitCollection::addMuonCalibRawHit(MuonCalibRawCscHit* rawHit) {
         if (rawHit) { m_rawCscHitVec.emplace_back(rawHit); }
     }
-    void MuonCalibRawHitCollection::addMuonCalibRawHit(MdtCalibRawHitPtr rawHit) {
+    void MuonCalibRawHitCollection::addMuonCalibRawHit(const MdtCalibRawHitPtr& rawHit) {
         if (rawHit) { m_rawMdtHitVec.emplace_back(rawHit); }
     }
-    void MuonCalibRawHitCollection::addMuonCalibRawHit(RpcCalibRawHitPtr rawHit) {
+    void MuonCalibRawHitCollection::addMuonCalibRawHit(const RpcCalibRawHitPtr& rawHit) {
         if (rawHit) { m_rawRpcHitVec.emplace_back(rawHit); }
     }
-    void MuonCalibRawHitCollection::addMuonCalibRawHit(TgcCalibRawHitPtr rawHit) {
+    void MuonCalibRawHitCollection::addMuonCalibRawHit(const TgcCalibRawHitPtr& rawHit) {
         if (rawHit) { m_rawTgcHitVec.emplace_back(rawHit); }
     }
-    void MuonCalibRawHitCollection::addMuonCalibRawHit(TgcCoinRawPtr rawHit) {
+    void MuonCalibRawHitCollection::addMuonCalibRawHit(const TgcCoinRawPtr& rawHit) {
         if (rawHit) { m_rawTgcCoinVec.emplace_back(rawHit); }
     }
-    void MuonCalibRawHitCollection::addMuonCalibRawHit(CscCalibRawHitPtr rawHit) {
+    void MuonCalibRawHitCollection::addMuonCalibRawHit(const CscCalibRawHitPtr& rawHit) {
         if (rawHit) { m_rawCscHitVec.emplace_back(rawHit); }
     }
 }  // namespace MuonCalib

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # art-description: Run 4 digitization of a ttbar sample without pile-up
 # art-type: grid

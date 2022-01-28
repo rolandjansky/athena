@@ -170,6 +170,12 @@ class L1Menu(object):
                      raise RuntimeError("Algorithm %s in board %s with input %s not allowed" % (algo.name, boardName, algoInput ))
 
 
+    def checkCTPINconnectors(self):
+        for conn in self.connectors:
+            if conn.ctype == CType.CTPIN:
+               if len(conn.triggerLines)>31:
+                   raise RuntimeError("Too many CTP inputs in %s: %i but a max of 31 are allowed" %(conn.name,len(conn.triggerLines)))
+
     def checkCountCTPInputsOutput(self):
         from collections import namedtuple
         ctpInput = namedtuple('ctpInput',"name, conn, nbit")
@@ -245,6 +251,13 @@ class L1Menu(object):
         if ( totalInputs > 512 or len(ctpOutputs) > 512 ):
             if L1MenuFlags.ApplyCTPLimits():
                 raise RuntimeError("Both the numbers of inputs and outputs need to be not greater than 512 in a physics menu!")
+
+    # Avoid that L1 item is defined only for BGRP0 as this include also the CALREQ BGRP2 (ATR-24781)
+    def checkBGRP(self):
+        for item in self.items:
+            if len(item.bunchGroups)==1 and item.bunchGroups[0]=='BGRP0':
+               raise RuntimeError("L1 item %s is defined with only BGRP0, ie it can trigger also in the CALREQ BGRP2 bunches. Please add another bunch group (ATR-24781)" % item.name) 
+
 
     def checkPtMinToTopo(self):
         # check that the ptMinToTopo for all types of thresholds is lower than the minimum Et cuts applied in multiplicity and decision algorithms

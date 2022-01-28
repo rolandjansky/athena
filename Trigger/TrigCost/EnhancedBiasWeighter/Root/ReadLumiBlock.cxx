@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Trigger
 #include "EnhancedBiasWeighter/ReadLumiBlock.h"
 
 // COOL
-#include "CoolApplication/Application.h"
 #include "CoolKernel/ValidityKey.h"
 #include "CoolKernel/IFolder.h"
 #include "CoolKernel/Exception.h"
@@ -111,13 +110,6 @@ float ReadLumiBlock::getLumiBlockLength(const uint32_t lb, MsgStream& msg) const
 }
 
 //---------------------------------------------------------------------------------------
-cool::IDatabaseSvc& ReadLumiBlock::databaseService()
-{
-  static cool::Application app;
-  return app.databaseService();
-}
-
-//---------------------------------------------------------------------------------------
 bool ReadLumiBlock::dbIsOpen()
 { 
   return m_cool_ptr.use_count() > 0 && m_cool_ptr->isOpen();
@@ -127,11 +119,10 @@ bool ReadLumiBlock::dbIsOpen()
 bool ReadLumiBlock::openDb(bool readOnly, MsgStream& msg)
 {
   if(dbIsOpen()) return true;
-  
-  cool::IDatabaseSvc& dbSvc = databaseService();
+
   try {
     msg << MSG::DEBUG << "ReadLumiBlock::openDb - opening database '" << m_cool_id << "'" << endmsg;
-    m_cool_ptr = dbSvc.openDatabase(m_cool_id, readOnly);
+    m_cool_ptr = databaseService().openDatabase(m_cool_id, readOnly);
     
     return true;
   } catch(cool::DatabaseDoesNotExist& e) {

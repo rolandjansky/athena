@@ -1,20 +1,23 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCOOLConditions/LArMphysOverMcalFlat.h"
 
 
-LArMphysOverMcalFlat::LArMphysOverMcalFlat() {}
+LArMphysOverMcalFlat::LArMphysOverMcalFlat()
+  : LArCondFlatBase("LArMphysOverMcalFlat")
+{}
 
 LArMphysOverMcalFlat::~LArMphysOverMcalFlat() {}
 
 
-LArMphysOverMcalFlat::LArMphysOverMcalFlat(const CondAttrListCollection* attrList) {
-  StatusCode sc=initializeBase("LArMphysOverMcalFlat");
-  if (sc.isFailure()) return;
+LArMphysOverMcalFlat::LArMphysOverMcalFlat(const CondAttrListCollection* attrList)
+  : LArCondFlatBase("LArMphysOverMcalFlat")
+{
+  if (initializeBase().isFailure()) return;
   
-  this->readBlob(attrList,"MphysOverMcal",*m_log);
+  this->readBlob(attrList,"MphysOverMcal",msg());
 
   return;
 }

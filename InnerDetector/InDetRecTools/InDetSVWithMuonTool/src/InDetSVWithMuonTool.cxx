@@ -1,11 +1,13 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
 #include "InDetSVWithMuonTool/InDetSVWithMuonTool.h"
-#include "GaudiKernel/ITHistSvc.h"
 #include  "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
+#include "AthenaKernel/SlotSpecificObj.h" // for getNSlots
+#include "CxxUtils/checker_macros.h"
+#include "GaudiKernel/ITHistSvc.h"
 #include "TMath.h"
 #include "TH1D.h"
 #include "TH2D.h"
@@ -131,43 +133,17 @@ InDetSVWithMuonTool::InDetSVWithMuonTool(const std::string& type,
        
 //
 //
-     ITHistSvc*     hist_root=nullptr;
      if(m_FillHist){
+       if (SG::getNSlots() > 1) {
+         ATH_MSG_FATAL("Filling histograms not supported in MT jobs.");
+         return StatusCode::FAILURE;
+       }
 
-       StatusCode sc = service( "THistSvc", hist_root); 
-       if( sc.isFailure() ) {
-          if(msgLvl(MSG::ERROR))msg(MSG::ERROR)<< "Could not find THistSvc service" << endmsg;
-       }
-       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "InDetSVWithMuonTool Histograms found" << endmsg;
- 
-       m_hb_massPiPi   = new TH1D("massPiPi"," massPiPi",160,200., 1000.);
-       m_hb_muonPt     = new TH1D("muonPt",  " Pt of input muon",100,0., 20000.);
-       m_hb_nvrt2      = new TH1D("nvrt2"," vertices2", 50,0., 50.);
-       m_hb_nseltrk    = new TH1D("nseltrk"," Number of tracks cloase to muon", 50,0., 50.);
-       m_hb_totmass    = new TH1D("totmass"," totmass", 250,0., 10000.);
-       m_hb_impact     = new TH1D("impact", " impact", 100,0., 20.);
-       m_hb_impactR    = new TH1D("impactR"," impactR", 100,-30., 70.);
-       m_hb_impactZ    = new TH1D("impactZ"," impactZ", 100,-30., 70.);
-       m_hb_r2d        = new TH1D("r2interact","Interaction radius 2tr", 150,0., 150.);
-       m_hb_r2dc       = new TH1D("r2interactCommon","Interaction radius common", 150,0., 150.);
-       m_hb_signif3D   = new TH1D("Signif3D","3D SV-PV significance for track+muon", 120,-5., 25.);
-       std::string histDir="/file1/stat/MuonSV/";
-       sc = hist_root->regHist(histDir+"muonPt",   m_hb_muonPt);
-       sc = hist_root->regHist(histDir+"massPiPi", m_hb_massPiPi);
-       sc = hist_root->regHist(histDir+"nvrt2",    m_hb_nvrt2);
-       sc = hist_root->regHist(histDir+"nseltrk",  m_hb_nseltrk);
-       sc = hist_root->regHist(histDir+"totmass",  m_hb_totmass);
-       sc = hist_root->regHist(histDir+"impact",   m_hb_impact);
-       sc = hist_root->regHist(histDir+"impactR",  m_hb_impactR);
-       sc = hist_root->regHist(histDir+"impactZ",  m_hb_impactZ);
-       sc = hist_root->regHist(histDir+"Signif3D", m_hb_signif3D);
-       sc = hist_root->regHist(histDir+"r2interact2tr",    m_hb_r2d);
-       sc = hist_root->regHist(histDir+"r2interactCommon", m_hb_r2dc);
-       if( sc.isFailure() ) {     // Check of StatusCode
-         if(msgLvl(MSG::INFO))msg(MSG::INFO) << "InDetMuonSV Histogram registration failure!!!" << endmsg;
-       }
+       ServiceHandle<ITHistSvc> histSvc ("THistSvc", name());
+       ATH_CHECK( histSvc.retrieve() );
+       m_h = std::make_unique<Hists>();
+       ATH_CHECK( m_h->book (*histSvc) );
        m_w_1 = 1.;
-
      }
 
 
@@ -176,6 +152,35 @@ InDetSVWithMuonTool::InDetSVWithMuonTool(const std::string& type,
    }
 
 
+   StatusCode InDetSVWithMuonTool::Hists::book (ITHistSvc& histSvc)
+   {
+     m_hb_massPiPi   = new TH1D("massPiPi"," massPiPi",160,200., 1000.);
+     m_hb_muonPt     = new TH1D("muonPt",  " Pt of input muon",100,0., 20000.);
+     m_hb_nvrt2      = new TH1D("nvrt2"," vertices2", 50,0., 50.);
+     m_hb_nseltrk    = new TH1D("nseltrk"," Number of tracks cloase to muon", 50,0., 50.);
+     m_hb_totmass    = new TH1D("totmass"," totmass", 250,0., 10000.);
+     m_hb_impact     = new TH1D("impact", " impact", 100,0., 20.);
+     m_hb_impactR    = new TH1D("impactR"," impactR", 100,-30., 70.);
+     m_hb_impactZ    = new TH1D("impactZ"," impactZ", 100,-30., 70.);
+     m_hb_r2d        = new TH1D("r2interact","Interaction radius 2tr", 150,0., 150.);
+     m_hb_r2dc       = new TH1D("r2interactCommon","Interaction radius common", 150,0., 150.);
+     m_hb_signif3D   = new TH1D("Signif3D","3D SV-PV significance for track+muon", 120,-5., 25.);
+     std::string histDir="/file1/stat/MuonSV/";
+#define H_CHECK(X) if((X).isFailure()) return StatusCode::FAILURE
+     H_CHECK( histSvc.regHist(histDir+"muonPt",   m_hb_muonPt) );
+     H_CHECK( histSvc.regHist(histDir+"massPiPi", m_hb_massPiPi) );
+     H_CHECK( histSvc.regHist(histDir+"nvrt2",    m_hb_nvrt2) );
+     H_CHECK( histSvc.regHist(histDir+"nseltrk",  m_hb_nseltrk) );
+     H_CHECK( histSvc.regHist(histDir+"totmass",  m_hb_totmass) );
+     H_CHECK( histSvc.regHist(histDir+"impact",   m_hb_impact) );
+     H_CHECK( histSvc.regHist(histDir+"impactR",  m_hb_impactR) );
+     H_CHECK( histSvc.regHist(histDir+"impactZ",  m_hb_impactZ) );
+     H_CHECK( histSvc.regHist(histDir+"Signif3D", m_hb_signif3D) );
+     H_CHECK( histSvc.regHist(histDir+"r2interact2tr",    m_hb_r2d) );
+     H_CHECK( histSvc.regHist(histDir+"r2interactCommon", m_hb_r2dc) );
+#undef H_CHECK
+     return StatusCode::SUCCESS;
+   }
 
 
   StatusCode InDetSVWithMuonTool::finalize()
@@ -199,6 +204,13 @@ InDetSVWithMuonTool::InDetSVWithMuonTool(const std::string& type,
    }
 
 
+   InDetSVWithMuonTool::Hists&
+   InDetSVWithMuonTool::getHists() const
+   {
+     // We earlier checked that no more than one thread is being used.
+     Hists* h ATLAS_THREAD_SAFE = m_h.get();
+     return *h;
+   }
 
 
 }  // end InDet namespace

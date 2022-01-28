@@ -32,7 +32,7 @@ createRpcPrepData( const Muon::RpcPrepData_p3 *persObj,
                           0, // collectionHash
                           localPos,
                           rdoList,
-                          std::move(cmat),
+                          cmat,
                           detEl,
                           persObj->m_time,
                           persObj->m_triggerInfo,

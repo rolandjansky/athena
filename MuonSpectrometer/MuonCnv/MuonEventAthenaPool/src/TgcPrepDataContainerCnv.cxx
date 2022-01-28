@@ -54,7 +54,7 @@ Muon::TgcPrepDataContainer* TgcPrepDataContainerCnv::createTransient() {
 
     
     if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): main converter"<<endmsg;
-    Muon::TgcPrepDataContainer* p_collection(0);
+    Muon::TgcPrepDataContainer* p_collection(nullptr);
     if( compareClassGuid(p3_guid) ) {
         if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 3 detected"<<endmsg;
         std::unique_ptr< Muon::TgcPrepDataContainer_p3 >  p_coll( poolReadObject< Muon::TgcPrepDataContainer_p3 >() );

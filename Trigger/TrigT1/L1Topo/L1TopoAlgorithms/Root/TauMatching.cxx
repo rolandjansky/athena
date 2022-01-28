@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //  TauMatching.cxx
 //  TopoCore
@@ -19,10 +19,10 @@ TCS::TauMatching::TauMatching(const std::string & name) : SortingAlg(name) {
    defineParameter( "InputWidth1stStage", 30 ); // for fw
    defineParameter( "OutputWidth", 6 );
    defineParameter( "MinET", 0 );
-   defineParameter( "IsoMask", 0);
+   defineParameter( "RCore", 0);
+   defineParameter( "RHad", 0);
    defineParameter( "MinEta", 0 );
    defineParameter( "MaxEta", 63);
-   defineParameter( "DoIsoCut", 1);
 }
 
 
@@ -33,10 +33,10 @@ TCS::StatusCode
 TCS::TauMatching::initialize() {
    m_numberOfcTaus = parameter("OutputWidth").value();
    m_et = parameter("MinET").value();
-   m_iso = parameter("IsoMask").value();
+   m_rCore = parameter("RCore").value();
+   m_rHad = parameter("RHad").value();
    m_minEta = parameter("MinEta").value();
    m_maxEta = parameter("MaxEta").value();
-   m_doIsoCut = parameter("DoIsoCut").value();
    return TCS::StatusCode::SUCCESS;
 }
 

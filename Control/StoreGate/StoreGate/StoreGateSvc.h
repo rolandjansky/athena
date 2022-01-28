@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STOREGATE_STOREGATESVC_H
@@ -484,7 +484,7 @@ public:
   template <typename T>
   void
   keys(std::vector<std::string>& vkeys, 
-       bool includeAlias = false, bool onlyValid = true); 
+       bool includeAlias = false, bool onlyValid = true) const;
  
   /** provide list of all StoreGate keys associated with an object.
    *  usage: p_store->keys(CLID, vkeys, optionalFlags);
@@ -495,7 +495,7 @@ public:
    */
   void
   keys(const CLID& id, std::vector<std::string>& vkeys, 
-       bool includeAlias = false, bool onlyValid = true); 
+       bool includeAlias = false, bool onlyValid = true) const;
 
   //@}
 
@@ -1061,11 +1061,11 @@ public:
   /// DEPRECATED, use version taking ref to vector
   template <typename T>
   std::vector<std::string> //FIXME inefficient. Should take ref to vector
-  SG_DEPRECATED keys(bool allKeys = false); 
+  SG_DEPRECATED keys(bool allKeys = false) const;
  
   /// DEPRECATED, use version taking ref to vector
   std::vector<std::string> //FIXME inefficient. Should take ref to vector 
-  SG_DEPRECATED keys(const CLID& id, bool allKeys = false);
+  SG_DEPRECATED keys(const CLID& id, bool allKeys = false) const;
 
   /// DEPRECATED:  use recordAddress instead
   StatusCode SG_DEPRECATED createProxy(IOpaqueAddress* pAddress, bool clearAddressFlag=true) {

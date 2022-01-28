@@ -30,10 +30,10 @@ namespace MuonGM {
 
         double thickness;
         double cscthickness;
-        double dim[8];
+        double dim[8]{};
 
       public: // methods
-        CscMultiLayer(const MYSQL& mysql, std::string n);
+        CscMultiLayer(const MYSQL& mysql, const std::string& n);
         GeoVPhysVol *build(const StoredMaterialManager& matManager,
                            const MYSQL& mysql);
         GeoVPhysVol *build(const StoredMaterialManager& matManager,

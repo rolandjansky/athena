@@ -11,7 +11,7 @@ void AGDDTrd::CreateSolid (const AGDDBuilder& builder)
 	builder.CreateTrd(this);
 }
 
-void AGDDTrd::CreateVolume (const AGDDBuilder& builder)
+void AGDDTrd::CreateVolume (AGDDBuilder& builder)
 {
 	CreateSolid (builder);
  	builder.CreateVolume(this);

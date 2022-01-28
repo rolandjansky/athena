@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -34,7 +34,7 @@ ATH_ENABLE_VECTORIZATION;
 
 namespace {
 /*
- * All internal implementation methods 
+ * All internal implementation methods
  * are in the anonymous namespace
  */
 
@@ -44,7 +44,7 @@ namespace {
 
 using Cache = Trk::RungeKuttaPropagator::Cache;
 void
-getField(Cache& cache, double* R, double* H)
+getField(Cache& cache, const double* ATH_RESTRICT R, double* ATH_RESTRICT H)
 {
 
   if (cache.m_solenoid) {
@@ -55,7 +55,10 @@ getField(Cache& cache, double* R, double* H)
 }
 
 void
-getFieldGradient(Cache& cache, double* R, double* H, double* dH)
+getFieldGradient(Cache& cache,
+                 const double* ATH_RESTRICT R,
+                 double* ATH_RESTRICT H,
+                 double* ATH_RESTRICT dH)
 {
   if (cache.m_solenoid) {
     cache.m_fieldCache.getFieldZR(R, H, dH);
@@ -93,27 +96,27 @@ rungeKuttaStep(Cache& cache, bool Jac, double S, double* ATH_RESTRICT P, bool& I
     Helix = true;
   while (S != 0.) {
 
-    double S3 = (1. / 3.) * S;
-    double S4 = .25 * S;
-    double PS2 = Pi * S;
+    const double S3 = (1. / 3.) * S;
+    const double S4 = .25 * S;
+    const double PS2 = Pi * S;
 
     // First point
     //
-    double H0[3] = { f0[0] * PS2, f0[1] * PS2, f0[2] * PS2 };
-    double A0 = A[1] * H0[2] - A[2] * H0[1];
-    double B0 = A[2] * H0[0] - A[0] * H0[2];
-    double C0 = A[0] * H0[1] - A[1] * H0[0];
-    double A2 = A0 + A[0];
-    double B2 = B0 + A[1];
-    double C2 = C0 + A[2];
-    double A1 = A2 + A[0];
-    double B1 = B2 + A[1];
-    double C1 = C2 + A[2];
+    const double H0[3] = { f0[0] * PS2, f0[1] * PS2, f0[2] * PS2 };
+    const double A0 = A[1] * H0[2] - A[2] * H0[1];
+    const double B0 = A[2] * H0[0] - A[0] * H0[2];
+    const double C0 = A[0] * H0[1] - A[1] * H0[0];
+    const double A2 = A0 + A[0];
+    const double B2 = B0 + A[1];
+    const double C2 = C0 + A[2];
+    const double A1 = A2 + A[0];
+    const double B1 = B2 + A[1];
+    const double C1 = C2 + A[2];
 
     // Second point
     //
     if (!Helix) {
-      double gP[3] = { R[0] + A1 * S4, R[1] + B1 * S4, R[2] + C1 * S4 };
+      const double gP[3] = { R[0] + A1 * S4, R[1] + B1 * S4, R[2] + C1 * S4 };
       getField(cache, gP, f);
     } else {
       f[0] = f0[0];
@@ -121,21 +124,21 @@ rungeKuttaStep(Cache& cache, bool Jac, double S, double* ATH_RESTRICT P, bool& I
       f[2] = f0[2];
     }
 
-    double H1[3] = { f[0] * PS2, f[1] * PS2, f[2] * PS2 };
-    double A3 = (A[0] + B2 * H1[2]) - C2 * H1[1];
-    double B3 = (A[1] + C2 * H1[0]) - A2 * H1[2];
-    double C3 = (A[2] + A2 * H1[1]) - B2 * H1[0];
-    double A4 = (A[0] + B3 * H1[2]) - C3 * H1[1];
-    double B4 = (A[1] + C3 * H1[0]) - A3 * H1[2];
-    double C4 = (A[2] + A3 * H1[1]) - B3 * H1[0];
-    double A5 = 2. * A4 - A[0];
-    double B5 = 2. * B4 - A[1];
-    double C5 = 2. * C4 - A[2];
+    const double H1[3] = { f[0] * PS2, f[1] * PS2, f[2] * PS2 };
+    const double A3 = (A[0] + B2 * H1[2]) - C2 * H1[1];
+    const double B3 = (A[1] + C2 * H1[0]) - A2 * H1[2];
+    const double C3 = (A[2] + A2 * H1[1]) - B2 * H1[0];
+    const double A4 = (A[0] + B3 * H1[2]) - C3 * H1[1];
+    const double B4 = (A[1] + C3 * H1[0]) - A3 * H1[2];
+    const double C4 = (A[2] + A3 * H1[1]) - B3 * H1[0];
+    const double A5 = 2. * A4 - A[0];
+    const double B5 = 2. * B4 - A[1];
+    const double C5 = 2. * C4 - A[2];
 
     // Last point
     //
     if (!Helix) {
-      double gP[3] = { R[0] + S * A4, R[1] + S * B4, R[2] + S * C4 };
+      const double gP[3] = { R[0] + S * A4, R[1] + S * B4, R[2] + S * C4 };
       getField(cache, gP, f);
     } else {
       f[0] = f0[0];
@@ -143,15 +146,16 @@ rungeKuttaStep(Cache& cache, bool Jac, double S, double* ATH_RESTRICT P, bool& I
       f[2] = f0[2];
     }
 
-    double H2[3] = { f[0] * PS2, f[1] * PS2, f[2] * PS2 };
-    double A6 = B5 * H2[2] - C5 * H2[1];
-    double B6 = C5 * H2[0] - A5 * H2[2];
-    double C6 = A5 * H2[1] - B5 * H2[0];
+    const double H2[3] = { f[0] * PS2, f[1] * PS2, f[2] * PS2 };
+    const double A6 = B5 * H2[2] - C5 * H2[1];
+    const double B6 = C5 * H2[0] - A5 * H2[2];
+    const double C6 = A5 * H2[1] - B5 * H2[0];
 
     // Test approximation quality on give step and possible step reduction
     //
-    double EST = std::fabs((A1 + A6) - (A3 + A4)) + std::fabs((B1 + B6) - (B3 + B4)) +
-                 std::fabs((C1 + C6) - (C3 + C4));
+    const double EST = std::fabs((A1 + A6) - (A3 + A4)) +
+                       std::fabs((B1 + B6) - (B3 + B4)) +
+                       std::fabs((C1 + C6) - (C3 + C4));
     if (EST > cache.m_dlt) {
       S *= .5;
       dltm = 0.;
@@ -161,22 +165,22 @@ rungeKuttaStep(Cache& cache, bool Jac, double S, double* ATH_RESTRICT P, bool& I
 
     // Parameters calculation
     //
-    double A00 = A[0];
-    double A11 = A[1];
-    double A22 = A[2];
+    const double A00 = A[0];
+    const double A11 = A[1];
+    const double A22 = A[2];
 
-    double Aarr[3]{ A00, A11, A22 };
-    double A0arr[3]{ A0, B0, C0 };
-    double A3arr[3]{ A3, B3, C3 };
-    double A4arr[3]{ A4, B4, C4 };
-    double A6arr[3]{ A6, B6, C6 };
+    const double Aarr[3]{ A00, A11, A22 };
+    const double A0arr[3]{ A0, B0, C0 };
+    const double A3arr[3]{ A3, B3, C3 };
+    const double A4arr[3]{ A4, B4, C4 };
+    const double A6arr[3]{ A6, B6, C6 };
 
     A[0] = 2. * A3 + (A0 + A5 + A6);
     A[1] = 2. * B3 + (B0 + B5 + B6);
     A[2] = 2. * C3 + (C0 + C5 + C6);
 
     double D = (A[0] * A[0] + A[1] * A[1]) + (A[2] * A[2] - 9.);
-    double Sl = 2. / S;
+    const double Sl = 2. / S;
     D = (1. / 3.) - ((1. / 648.) * D) * (12. - D);
 
     R[0] += (A2 + A3 + A4) * S3;
@@ -212,7 +216,7 @@ double
 straightLineStep(bool Jac, double S, double* P)
 {
   double* R = &P[0]; // Start coordinates
-  double* A = &P[3]; // Start directions
+  const double* A = &P[3]; // Start directions
   double* sA = &P[42];
 
   // Track parameters in last point
@@ -228,7 +232,7 @@ straightLineStep(bool Jac, double S, double* P)
   for (int i = 7; i < 42; i += 7) {
 
     double* dR = &P[i];
-    double* dA = &P[i + 3];
+    const double* dA = &P[i + 3];
     dR[0] += (dA[0] * S);
     dR[1] += (dA[1] * S);
     dR[2] += (dA[2] * S);
@@ -270,54 +274,54 @@ rungeKuttaStepWithGradient(Cache& cache, double S, double* ATH_RESTRICT P, bool&
 
   while (S != 0.) {
 
-    double S3 = C33 * S;
-    double S4 = .25 * S;
-    double PS2 = Pi * S;
+    const double S3 = C33 * S;
+    const double S4 = .25 * S;
+    const double PS2 = Pi * S;
 
     // First point
     //
     H0[0] = f0[0] * PS2;
     H0[1] = f0[1] * PS2;
     H0[2] = f0[2] * PS2;
-    double A0 = A[1] * H0[2] - A[2] * H0[1];
-    double B0 = A[2] * H0[0] - A[0] * H0[2];
-    double C0 = A[0] * H0[1] - A[1] * H0[0];
-    double A2 = A[0] + A0;
-    double B2 = A[1] + B0;
-    double C2 = A[2] + C0;
-    double A1 = A2 + A[0];
-    double B1 = B2 + A[1];
-    double C1 = C2 + A[2];
+    const double A0 = A[1] * H0[2] - A[2] * H0[1];
+    const double B0 = A[2] * H0[0] - A[0] * H0[2];
+    const double C0 = A[0] * H0[1] - A[1] * H0[0];
+    const double A2 = A[0] + A0;
+    const double B2 = A[1] + B0;
+    const double C2 = A[2] + C0;
+    const double A1 = A2 + A[0];
+    const double B1 = B2 + A[1];
+    const double C1 = C2 + A[2];
 
     // Second point
     //
-    double gP1[3] = { R[0] + A1 * S4, R[1] + B1 * S4, R[2] + C1 * S4 };
+    const double gP1[3] = { R[0] + A1 * S4, R[1] + B1 * S4, R[2] + C1 * S4 };
     getFieldGradient(cache, gP1, f1, g1);
 
     H1[0] = f1[0] * PS2;
     H1[1] = f1[1] * PS2;
     H1[2] = f1[2] * PS2;
-    double A3 = B2 * H1[2] - C2 * H1[1] + A[0];
-    double B3 = C2 * H1[0] - A2 * H1[2] + A[1];
-    double C3 = A2 * H1[1] - B2 * H1[0] + A[2];
-    double A4 = B3 * H1[2] - C3 * H1[1] + A[0];
-    double B4 = C3 * H1[0] - A3 * H1[2] + A[1];
-    double C4 = A3 * H1[1] - B3 * H1[0] + A[2];
-    double A5 = A4 - A[0] + A4;
-    double B5 = B4 - A[1] + B4;
-    double C5 = C4 - A[2] + C4;
+    const double A3 = B2 * H1[2] - C2 * H1[1] + A[0];
+    const double B3 = C2 * H1[0] - A2 * H1[2] + A[1];
+    const double C3 = A2 * H1[1] - B2 * H1[0] + A[2];
+    const double A4 = B3 * H1[2] - C3 * H1[1] + A[0];
+    const double B4 = C3 * H1[0] - A3 * H1[2] + A[1];
+    const double C4 = A3 * H1[1] - B3 * H1[0] + A[2];
+    const double A5 = A4 - A[0] + A4;
+    const double B5 = B4 - A[1] + B4;
+    const double C5 = C4 - A[2] + C4;
 
     // Last point
     //
-    double gP2[3] = { R[0] + S * A4, R[1] + S * B4, R[2] + S * C4 };
+    const double gP2[3] = { R[0] + S * A4, R[1] + S * B4, R[2] + S * C4 };
     getFieldGradient(cache, gP2, f2, g2);
 
     H2[0] = f2[0] * PS2;
     H2[1] = f2[1] * PS2;
     H2[2] = f2[2] * PS2;
-    double A6 = B5 * H2[2] - C5 * H2[1];
-    double B6 = C5 * H2[0] - A5 * H2[2];
-    double C6 = A5 * H2[1] - B5 * H2[0];
+    const double A6 = B5 * H2[2] - C5 * H2[1];
+    const double B6 = C5 * H2[0] - A5 * H2[2];
+    const double C6 = A5 * H2[1] - B5 * H2[0];
 
     // Test approximation quality on give step and possible step reduction
     //
@@ -341,7 +345,7 @@ rungeKuttaStepWithGradient(Cache& cache, double S, double* ATH_RESTRICT P, bool&
     A[1] = ((B0 + 2. * B3) + (B5 + B6)) * C33;
     R[2] += (C2 + C3 + C4) * S3;
     A[2] = ((C0 + 2. * C3) + (C5 + C6)) * C33;
-    double CBA = 1. / std::sqrt(A[0] * A[0] + A[1] * A[1] + A[2] * A[2]);
+    const double CBA = 1. / std::sqrt(A[0] * A[0] + A[1] * A[1] + A[2] * A[2]);
     A[0] *= CBA;
     A[1] *= CBA;
     A[2] *= CBA;
@@ -467,15 +471,17 @@ rungeKuttaStepWithGradient(Cache& cache, double S, double* ATH_RESTRICT P, bool&
 // Test new cross point
 /////////////////////////////////////////////////////////////////////////////////
 bool
-newCrossPoint(const Trk::CylinderSurface& Su, const double* Ro, const double* P)
+newCrossPoint(const Trk::CylinderSurface& Su,
+              const double* ATH_RESTRICT Ro,
+              const double* ATH_RESTRICT P)
 {
   const double pi = 3.1415927;
   const double pi2 = 2. * pi;
   const Amg::Transform3D& T = Su.transform();
-  double Ax[3] = { T(0, 0), T(1, 0), T(2, 0) };
-  double Ay[3] = { T(0, 1), T(1, 1), T(2, 1) };
+  const double Ax[3] = { T(0, 0), T(1, 0), T(2, 0) };
+  const double Ay[3] = { T(0, 1), T(1, 1), T(2, 1) };
 
-  double R = Su.bounds().r();
+  const double R = Su.bounds().r();
   double x = Ro[0] - T(0, 3);
   double y = Ro[1] - T(1, 3);
   double z = Ro[2] - T(2, 3);
@@ -501,11 +507,12 @@ newCrossPoint(const Trk::CylinderSurface& Su, const double* Ro, const double* P)
 // Build new track parameters without propagation
 /////////////////////////////////////////////////////////////////////////////////
 std::unique_ptr<Trk::TrackParameters>
-buildTrackParametersWithoutPropagation(const Trk::TrackParameters& Tp, double* Jac)
+buildTrackParametersWithoutPropagation(const Trk::TrackParameters& Tp,
+                                       double* ATH_RESTRICT Jac)
 {
   Jac[0] = Jac[6] = Jac[12] = Jac[18] = Jac[20] = 1.;
-  Jac[1] = Jac[2] = Jac[3] = Jac[4] = Jac[5] = Jac[7] = Jac[8] = Jac[9] = Jac[10] = Jac[11] = Jac[13] =
-    Jac[14] = Jac[15] = Jac[16] = Jac[17] = Jac[19] = 0.;
+  Jac[1] = Jac[2] = Jac[3] = Jac[4] = Jac[5] = Jac[7] = Jac[8] = Jac[9] =
+  Jac[10] = Jac[11] = Jac[13] = Jac[14] = Jac[15] = Jac[16] = Jac[17] = Jac[19] = 0.;
   return std::unique_ptr<Trk::TrackParameters>(Tp.clone());
 }
 
@@ -513,11 +520,12 @@ buildTrackParametersWithoutPropagation(const Trk::TrackParameters& Tp, double* J
 // Build new neutral track parameters without propagation
 /////////////////////////////////////////////////////////////////////////////////
 std::unique_ptr<Trk::NeutralParameters>
-buildTrackParametersWithoutPropagation(const Trk::NeutralParameters& Tp, double* Jac)
+buildTrackParametersWithoutPropagation(const Trk::NeutralParameters& Tp,
+                                       double* ATH_RESTRICT Jac)
 {
   Jac[0] = Jac[6] = Jac[12] = Jac[18] = Jac[20] = 1.;
-  Jac[1] = Jac[2] = Jac[3] = Jac[4] = Jac[5] = Jac[7] = Jac[8] = Jac[9] = Jac[10] = Jac[11] = Jac[13] =
-    Jac[14] = Jac[15] = Jac[16] = Jac[17] = Jac[19] = 0.;
+  Jac[1] = Jac[2] = Jac[3] = Jac[4] = Jac[5] = Jac[7] = Jac[8] = Jac[9] =
+  Jac[10] = Jac[11] = Jac[13] = Jac[14] = Jac[15] = Jac[16] = Jac[17] = Jac[19] = 0.;
   return std::unique_ptr<Trk::NeutralParameters>(Tp.clone());
 }
 
@@ -528,12 +536,12 @@ std::unique_ptr<Trk::TrackParameters>
 crossPoint(const Trk::TrackParameters& Tp,
            std::vector<Trk::DestSurf>& SU,
            std::vector<unsigned int>& So,
-           double* P,
+           double* ATH_RESTRICT P,
            std::pair<double, int>& SN)
 {
   double* R = &P[0];   // Start coordinates
   double* A = &P[3];   // Start directions
-  double* SA = &P[42]; // d(directions)/dStep
+  const double* SA = &P[42]; // d(directions)/dStep
   double Step = SN.first;
   int N = SN.second;
 
@@ -543,7 +551,7 @@ crossPoint(const Trk::TrackParameters& Tp,
   As[0] = A[0] + SA[0] * Step;
   As[1] = A[1] + SA[1] * Step;
   As[2] = A[2] + SA[2] * Step;
-  double CBA = 1. / std::sqrt(As[0] * As[0] + As[1] * As[1] + As[2] * As[2]);
+  const double CBA = 1. / std::sqrt(As[0] * As[0] + As[1] * As[1] + As[2] * As[2]);
 
   Rs[0] = R[0] + Step * (As[0] - .5 * Step * SA[0]);
   As[0] *= CBA;
@@ -552,8 +560,8 @@ crossPoint(const Trk::TrackParameters& Tp,
   Rs[2] = R[2] + Step * (As[2] - .5 * Step * SA[2]);
   As[2] *= CBA;
 
-  Amg::Vector3D pos(Rs[0], Rs[1], Rs[2]);
-  Amg::Vector3D dir(As[0], As[1], As[2]);
+  const Amg::Vector3D pos(Rs[0], Rs[1], Rs[2]);
+  const Amg::Vector3D dir(As[0], As[1], As[2]);
 
   Trk::DistanceSolution ds = SU[N].first->straightLineDistanceEstimate(pos, dir, SU[N].second);
   if (ds.currentDistance(false) > .010)
@@ -574,7 +582,7 @@ crossPoint(const Trk::TrackParameters& Tp,
   Tp.covariance() ? useJac = true : useJac = false;
 
   if (useJac) {
-    double d = 1. / P[6];
+    const double d = 1. / P[6];
     P[35] *= d;
     P[36] *= d;
     P[37] *= d;
@@ -613,20 +621,20 @@ stepEstimatorWithCurvature(Cache& cache,
   double Step = Trk::RungeKuttaUtils::stepEstimator(kind, Su, P, Q);
   if (!Q)
     return 0.;
-  double AStep = std::fabs(Step);
+  const double AStep = std::fabs(Step);
   if (kind || AStep < cache.m_straightStep || !cache.m_mcondition)
     return Step;
 
   const double* SA = &P[42]; // Start direction
-  double S = .5 * Step;
+  const double S = .5 * Step;
 
-  double Ax = P[3] + S * SA[0];
-  double Ay = P[4] + S * SA[1];
-  double Az = P[5] + S * SA[2];
-  double As = 1. / std::sqrt(Ax * Ax + Ay * Ay + Az * Az);
+  const double Ax = P[3] + S * SA[0];
+  const double Ay = P[4] + S * SA[1];
+  const double Az = P[5] + S * SA[2];
+  const double As = 1. / std::sqrt(Ax * Ax + Ay * Ay + Az * Az);
 
-  double PN[6] = { P[0], P[1], P[2], Ax * As, Ay * As, Az * As };
-  double StepN = Trk::RungeKuttaUtils::stepEstimator(kind, Su, PN, Q);
+  const double PN[6] = { P[0], P[1], P[2], Ax * As, Ay * As, Az * As };
+  const double StepN = Trk::RungeKuttaUtils::stepEstimator(kind, Su, PN, Q);
   if (!Q) {
     Q = true;
     return Step;
@@ -714,8 +722,8 @@ propagateWithJacobian(Cache& cache,
       ++iS;
     }
 
-    double aS = std::fabs(S);
-    double aStep = std::fabs(Step);
+    const double aS = std::fabs(S);
+    const double aStep = std::fabs(Step);
     if (aS > aStep)
       S = Step;
     else if (!iS && InS && aS * 2. < aStep)
@@ -728,7 +736,7 @@ propagateWithJacobian(Cache& cache,
         break;
       return false;
     }
-    double dW = Wmax - std::fabs(W);
+    const double dW = Wmax - std::fabs(W);
     if (std::fabs(S) > dW) {
       S > 0. ? S = dW : S = -dW;
       Step = S;
@@ -747,7 +755,7 @@ propagateWithJacobian(Cache& cache,
   A[0] += (SA[0] * Step);
   A[1] += (SA[1] * Step);
   A[2] += (SA[2] * Step);
-  double CBA = 1. / std::sqrt(A[0] * A[0] + A[1] * A[1] + A[2] * A[2]);
+  const double CBA = 1. / std::sqrt(A[0] * A[0] + A[1] * A[1] + A[2] * A[2]);
 
   R[0] += Step * (A[0] - .5 * Step * SA[0]);
   A[0] *= CBA;
@@ -768,12 +776,13 @@ propagateStraightLine(Cache& cache,
                       const Trk::Surface& Su,
                       Trk::PropDirection D,
                       const Trk::BoundaryCheck& B,
-                      double* Jac,
+                      double* ATH_RESTRICT Jac,
                       bool returnCurv)
 {
   const Trk::Surface* su = &Su;
-  if (su == &Tp.associatedSurface())
+  if (su == &Tp.associatedSurface()){
     return buildTrackParametersWithoutPropagation(Tp, Jac);
+  }
 
   cache.m_direction = D;
   cache.m_mcondition = false;
@@ -787,9 +796,9 @@ propagateStraightLine(Cache& cache,
   Trk::SurfaceType ty = Su.type();
 
   if (ty == Trk::SurfaceType::Plane) {
-
+    // plane
     double s[4];
-    double d = T(0, 3) * T(0, 2) + T(1, 3) * T(1, 2) + T(2, 3) * T(2, 2);
+    const double d = T(0, 3) * T(0, 2) + T(1, 3) * T(1, 2) + T(2, 3) * T(2, 2);
 
     if (d >= 0.) {
       s[0] = T(0, 2);
@@ -802,18 +811,21 @@ propagateStraightLine(Cache& cache,
       s[2] = -T(2, 2);
       s[3] = -d;
     }
-    if (!propagateWithJacobian(cache, useJac, 1, s, P, Step))
+    if (!propagateWithJacobian(cache, useJac, 1, s, P, Step)) {
       return nullptr;
+    }
   } else if (ty == Trk::SurfaceType::Line) {
-
-    double s[6] = { T(0, 3), T(1, 3), T(2, 3), T(0, 2), T(1, 2), T(2, 2) };
-    if (!propagateWithJacobian(cache, useJac, 0, s, P, Step))
+    // Line
+    double s[6] = {
+      T(0, 3), T(1, 3), T(2, 3), T(0, 2), T(1, 2), T(2, 2)
+    };
+    if (!propagateWithJacobian(cache, useJac, 0, s, P, Step)) {
       return nullptr;
+    }
   } else if (ty == Trk::SurfaceType::Disc) {
-
+    // disc
     double s[4];
-    double d = T(0, 3) * T(0, 2) + T(1, 3) * T(1, 2) + T(2, 3) * T(2, 2);
-
+    const double d = T(0, 3) * T(0, 2) + T(1, 3) * T(1, 2) + T(2, 3) * T(2, 2);
     if (d >= 0.) {
       s[0] = T(0, 2);
       s[1] = T(1, 2);
@@ -825,43 +837,52 @@ propagateStraightLine(Cache& cache,
       s[2] = -T(2, 2);
       s[3] = -d;
     }
-    if (!propagateWithJacobian(cache, useJac, 1, s, P, Step))
+    if (!propagateWithJacobian(cache, useJac, 1, s, P, Step)) {
       return nullptr;
+    }
   } else if (ty == Trk::SurfaceType::Cylinder) {
+    // cylinder
+    const Trk::CylinderSurface* cyl =
+      static_cast<const Trk::CylinderSurface*>(su);
 
-    const Trk::CylinderSurface* cyl = static_cast<const Trk::CylinderSurface*>(su);
+    const double r0[3] = { P[0], P[1], P[2] };
+    double s[9] = { T(0, 3),           T(1, 3),           T(2, 3),
+                    T(0, 2),           T(1, 2),           T(2, 2),
+                    cyl->bounds().r(), cache.m_direction, 0. };
 
-    double r0[3] = { P[0], P[1], P[2] };
-    double s[9] = { T(0, 3), T(1, 3),           T(2, 3),           T(0, 2), T(1, 2),
-                    T(2, 2), cyl->bounds().r(), cache.m_direction, 0. };
-
-    if (!propagateWithJacobian(cache, useJac, 2, s, P, Step))
+    if (!propagateWithJacobian(cache, useJac, 2, s, P, Step)) {
       return nullptr;
-
+    }
     // For cylinder we do test for next cross point
     //
     if (cyl->bounds().halfPhiSector() < 3.1 && newCrossPoint(*cyl, r0, P)) {
       s[8] = 0.;
-      if (!propagateWithJacobian(cache, useJac, 2, s, P, Step))
+      if (!propagateWithJacobian(cache, useJac, 2, s, P, Step)) {
         return nullptr;
+      }
     }
   } else if (ty == Trk::SurfaceType::Perigee) {
-
+    // Perigee
     double s[6] = { T(0, 3), T(1, 3), T(2, 3), T(0, 2), T(1, 2), T(2, 2) };
-    if (!propagateWithJacobian(cache, useJac, 0, s, P, Step))
+    if (!propagateWithJacobian(cache, useJac, 0, s, P, Step)) {
       return nullptr;
+    }
   } else if (ty == Trk::SurfaceType::Cone) {
-
+    // cone
     double k = static_cast<const Trk::ConeSurface*>(su)->bounds().tanAlpha();
     k = k * k + 1.;
-    double s[9] = { T(0, 3), T(1, 3), T(2, 3), T(0, 2), T(1, 2), T(2, 2), k, cache.m_direction, 0. };
+    double s[9] = { T(0, 3), T(1, 3), T(2, 3),
+                    T(0, 2), T(1, 2), T(2, 2),
+                    k, cache.m_direction, 0. };
     if (!propagateWithJacobian(cache, useJac, 3, s, P, Step))
       return nullptr;
-  } else
+  } else {
     return nullptr;
+  }
 
-  if (cache.m_direction != 0. && (cache.m_direction * Step) < 0.)
+  if (cache.m_direction != 0. && (cache.m_direction * Step) < 0.) {
     return nullptr;
+  }
 
   // Common transformation for all surfaces (angles and momentum)
   //
@@ -908,16 +929,15 @@ propagateStraightLine(Cache& cache,
   }
 
   AmgSymMatrix(5) e = Trk::RungeKuttaUtils::newCovarianceMatrix(Jac, *Tp.covariance());
-  AmgSymMatrix(5)& cv = e;
 
-  if (cv(0, 0) <= 0. || cv(1, 1) <= 0. || cv(2, 2) <= 0. || cv(3, 3) <= 0. || cv(4, 4) <= 0.) {
+  if (e(0, 0) <= 0. || e(1, 1) <= 0. || e(2, 2) <= 0. || e(3, 3) <= 0. || e(4, 4) <= 0.) {
     return nullptr;
   }
 
   if (!returnCurv) {
     return Su.createUniqueNeutralParameters(p[0], p[1], p[2], p[3], p[4], std::move(e));
   } else {
-    Amg::Vector3D gp(P[0], P[1], P[2]);
+    const Amg::Vector3D gp(P[0], P[1], P[2]);
     return std::make_unique<Trk::NeutralCurvilinearParameters>(gp, p[2], p[3], p[4], std::move(e));
   }
 }
@@ -930,7 +950,7 @@ propagateStraightLine(Cache& cache,
 void
 globalOneSidePositions(Cache& cache,
                        std::list<Amg::Vector3D>& GP,
-                       const double* P,
+                       const double* ATH_RESTRICT P,
                        const Trk::MagneticFieldProperties& M,
                        const Trk::CylinderBounds& CB,
                        double mS,
@@ -1064,8 +1084,8 @@ globalOneSidePositions(Cache& cache,
       GP.back() = gf;
     }
   } else {
-    double x = GP.front().x();
-    double y = GP.front().y();
+    const double x = GP.front().x();
+    const double y = GP.front().y();
     if ((x * x + y * y) > (Pm[0] * Pm[0] + Pm[1] * Pm[1])) {
       if (sm)
         GP.pop_front();
@@ -1083,7 +1103,7 @@ globalOneSidePositions(Cache& cache,
 void
 globalTwoSidePositions(Cache& cache,
                        std::list<Amg::Vector3D>& GP,
-                       const double* P,
+                       const double* ATH_RESTRICT P,
                        const Trk::MagneticFieldProperties& M,
                        const Trk::CylinderBounds& CB,
                        double mS,
@@ -1178,7 +1198,6 @@ Trk::RungeKuttaPropagator::~RungeKuttaPropagator() = default;
 StatusCode
 Trk::RungeKuttaPropagator::initialize()
 {
-  ATH_MSG_VERBOSE(" RungeKutta_Propagator initialize() successful");
   // Read handle for AtlasFieldCacheCondObj
   ATH_CHECK(m_fieldCondObjInputKey.initialize());
   ATH_MSG_DEBUG("initialize() init key: " << m_fieldCondObjInputKey.key());
@@ -1550,7 +1569,7 @@ Trk::RungeKuttaPropagator::propagateRungeKutta(Cache& cache,
   if (ty == Trk::SurfaceType::Plane) {
 
     double s[4];
-    double d = T(0, 3) * T(0, 2) + T(1, 3) * T(1, 2) + T(2, 3) * T(2, 2);
+    const double d = T(0, 3) * T(0, 2) + T(1, 3) * T(1, 2) + T(2, 3) * T(2, 2);
 
     if (d >= 0.) {
       s[0] = T(0, 2);
@@ -1574,7 +1593,7 @@ Trk::RungeKuttaPropagator::propagateRungeKutta(Cache& cache,
   } else if (ty == Trk::SurfaceType::Disc) {
 
     double s[4];
-    double d = T(0, 3) * T(0, 2) + T(1, 3) * T(1, 2) + T(2, 3) * T(2, 2);
+    const double d = T(0, 3) * T(0, 2) + T(1, 3) * T(1, 2) + T(2, 3) * T(2, 2);
     if (d >= 0.) {
       s[0] = T(0, 2);
       s[1] = T(1, 2);
@@ -1592,9 +1611,10 @@ Trk::RungeKuttaPropagator::propagateRungeKutta(Cache& cache,
 
     const Trk::CylinderSurface* cyl = static_cast<const Trk::CylinderSurface*>(su);
 
-    double r0[3] = { P[0], P[1], P[2] };
-    double s[9] = { T(0, 3), T(1, 3),           T(2, 3),           T(0, 2), T(1, 2),
-                    T(2, 2), cyl->bounds().r(), cache.m_direction, 0. };
+    const double r0[3] = { P[0], P[1], P[2] };
+    double s[9] = { T(0, 3), T(1, 3), T(2, 3),
+                    T(0, 2), T(1, 2), T(2, 2),
+                    cyl->bounds().r(), cache.m_direction, 0. };
     if (!propagateWithJacobian(cache, useJac, 2, s, P, Step))
       return nullptr;
 
@@ -1614,7 +1634,9 @@ Trk::RungeKuttaPropagator::propagateRungeKutta(Cache& cache,
 
     double k = static_cast<const Trk::ConeSurface*>(su)->bounds().tanAlpha();
     k = k * k + 1.;
-    double s[9] = { T(0, 3), T(1, 3), T(2, 3), T(0, 2), T(1, 2), T(2, 2), k, cache.m_direction, 0. };
+    double s[9] = { T(0, 3), T(1, 3), T(2, 3),
+                    T(0, 2), T(1, 2), T(2, 2),
+                    k, cache.m_direction, 0. };
     if (!propagateWithJacobian(cache, useJac, 3, s, P, Step))
       return nullptr;
   } else
@@ -1796,9 +1818,10 @@ Trk::RungeKuttaPropagator::intersect(const ::EventContext& ctx,
 
     const Trk::CylinderSurface* cyl = static_cast<const Trk::CylinderSurface*>(su);
 
-    double r0[3] = { P[0], P[1], P[2] };
-    double s[9] = { T(0, 3), T(1, 3),           T(2, 3),           T(0, 2), T(1, 2),
-                    T(2, 2), cyl->bounds().r(), cache.m_direction, 0. };
+    const double r0[3] = { P[0], P[1], P[2] };
+    double s[9] = { T(0, 3),           T(1, 3),           T(2, 3),
+                    T(0, 2),           T(1, 2),           T(2, 2),
+                    cyl->bounds().r(), cache.m_direction, 0. };
 
     if (!propagateWithJacobian(cache, nJ, 2, s, P, Step))
       return nullptr;
@@ -1819,7 +1842,9 @@ Trk::RungeKuttaPropagator::intersect(const ::EventContext& ctx,
 
     double k = static_cast<const Trk::ConeSurface*>(su)->bounds().tanAlpha();
     k = k * k + 1.;
-    double s[9] = { T(0, 3), T(1, 3), T(2, 3), T(0, 2), T(1, 2), T(2, 2), k, cache.m_direction, 0. };
+    double s[9] = { T(0, 3), T(1, 3), T(2, 3),
+                    T(0, 2), T(1, 2), T(2, 2),
+                    k, cache.m_direction, 0. };
     if (!propagateWithJacobian(cache, nJ, 3, s, P, Step))
       return nullptr;
   } else
@@ -1828,8 +1853,8 @@ Trk::RungeKuttaPropagator::intersect(const ::EventContext& ctx,
   if (cache.m_maxPathLimit)
     return nullptr;
 
-  Amg::Vector3D Glo(P[0], P[1], P[2]);
-  Amg::Vector3D Dir(P[3], P[4], P[5]);
+  const Amg::Vector3D Glo(P[0], P[1], P[2]);
+  const Amg::Vector3D Dir(P[3], P[4], P[5]);
   Trk::IntersectionSolution* Int = new Trk::IntersectionSolution();
   Int->push_back(std::make_unique<const Trk::TrackSurfaceIntersection>(Glo, Dir, Step));
   return Int;
@@ -2017,7 +2042,7 @@ Trk::RungeKuttaPropagator::globalPositions(const ::EventContext& ctx,
     if (ty == Trk::SurfaceType::Plane) {
 
       double s[4];
-      double d = T(0, 3) * T(0, 2) + T(1, 3) * T(1, 2) + T(2, 3) * T(2, 2);
+      const double d = T(0, 3) * T(0, 2) + T(1, 3) * T(1, 2) + T(2, 3) * T(2, 2);
 
       if (d >= 0.) {
         s[0] = T(0, 2);
@@ -2030,17 +2055,19 @@ Trk::RungeKuttaPropagator::globalPositions(const ::EventContext& ctx,
         s[2] = -T(2, 2);
         s[3] = -d;
       }
-      if (!propagateWithJacobian(cache, false, 1, s, P, Step))
+      if (!propagateWithJacobian(cache, false, 1, s, P, Step)){
         return;
+      }
     } else if (ty == Trk::SurfaceType::Line) {
 
       double s[6] = { T(0, 3), T(1, 3), T(2, 3), T(0, 2), T(1, 2), T(2, 2) };
-      if (!propagateWithJacobian(cache, false, 0, s, P, Step))
+      if (!propagateWithJacobian(cache, false, 0, s, P, Step)){
         return;
+      }
     } else if (ty == Trk::SurfaceType::Disc) {
 
       double s[4];
-      double d = T(0, 3) * T(0, 2) + T(1, 3) * T(1, 2) + T(2, 3) * T(2, 2);
+      const  double d = T(0, 3) * T(0, 2) + T(1, 3) * T(1, 2) + T(2, 3) * T(2, 2);
       if (d >= 0.) {
         s[0] = T(0, 2);
         s[1] = T(1, 2);
@@ -2052,39 +2079,49 @@ Trk::RungeKuttaPropagator::globalPositions(const ::EventContext& ctx,
         s[2] = -T(2, 2);
         s[3] = -d;
       }
-      if (!propagateWithJacobian(cache, false, 1, s, P, Step))
+      if (!propagateWithJacobian(cache, false, 1, s, P, Step)){
         return;
+      }
     } else if (ty == Trk::SurfaceType::Cylinder) {
 
-      const Trk::CylinderSurface* cyl = static_cast<const Trk::CylinderSurface*>(*su);
-      double r0[3] = { P[0], P[1], P[2] };
-      double s[9] = { T(0, 3), T(1, 3),           T(2, 3),           T(0, 2), T(1, 2),
-                      T(2, 2), cyl->bounds().r(), cache.m_direction, 0. };
+      const Trk::CylinderSurface* cyl =
+        static_cast<const Trk::CylinderSurface*>(*su);
+      const double r0[3] = { P[0], P[1], P[2] };
+      double s[9] = { T(0, 3),           T(1, 3),           T(2, 3),
+                      T(0, 2),           T(1, 2),           T(2, 2),
+                      cyl->bounds().r(), cache.m_direction, 0. };
 
-      if (!propagateWithJacobian(cache, false, 2, s, P, Step))
+      if (!propagateWithJacobian(cache, false, 2, s, P, Step)){
         return;
+      }
 
       // For cylinder we do test for next cross point
       //
       if (cyl->bounds().halfPhiSector() < 3.1 && newCrossPoint(*cyl, r0, P)) {
         s[8] = 0.;
-        if (!propagateWithJacobian(cache, false, 2, s, P, Step))
+        if (!propagateWithJacobian(cache, false, 2, s, P, Step)){
           return;
+        }
       }
     } else if (ty == Trk::SurfaceType::Perigee) {
 
       double s[6] = { T(0, 3), T(1, 3), T(2, 3), T(0, 2), T(1, 2), T(2, 2) };
-      if (!propagateWithJacobian(cache, false, 0, s, P, Step))
+      if (!propagateWithJacobian(cache, false, 0, s, P, Step)){
         return;
+      }
     } else if (ty == Trk::SurfaceType::Cone) {
 
       double k = static_cast<const Trk::ConeSurface*>(*su)->bounds().tanAlpha();
       k = k * k + 1.;
-      double s[9] = { T(0, 3), T(1, 3), T(2, 3), T(0, 2), T(1, 2), T(2, 2), k, cache.m_direction, 0. };
-      if (!propagateWithJacobian(cache, false, 3, s, P, Step))
+      double s[9] = { T(0, 3), T(1, 3), T(2, 3),
+                      T(0, 2), T(1, 2), T(2, 2),
+                      k,       cache.m_direction, 0. };
+      if (!propagateWithJacobian(cache, false, 3, s, P, Step)) {
         return;
-    } else
+      }
+    } else{
       return;
+    }
 
     if (cache.m_maxPathLimit)
       return;
@@ -2134,10 +2171,8 @@ Trk::RungeKuttaPropagator::propagateRungeKutta(Cache& cache,
   Trk::SurfaceType ty = Su.type();
 
   if (ty == Trk::SurfaceType::Plane) {
-
     double s[4];
-    double d = T(0, 3) * T(0, 2) + T(1, 3) * T(1, 2) + T(2, 3) * T(2, 2);
-
+    const double d = T(0, 3) * T(0, 2) + T(1, 3) * T(1, 2) + T(2, 3) * T(2, 2);
     if (d >= 0.) {
       s[0] = T(0, 2);
       s[1] = T(1, 2);
@@ -2159,8 +2194,7 @@ Trk::RungeKuttaPropagator::propagateRungeKutta(Cache& cache,
   } else if (ty == Trk::SurfaceType::Disc) {
 
     double s[4];
-    double d = T(0, 3) * T(0, 2) + T(1, 3) * T(1, 2) + T(2, 3) * T(2, 2);
-
+    const double d = T(0, 3) * T(0, 2) + T(1, 3) * T(1, 2) + T(2, 3) * T(2, 2);
     if (d >= 0.) {
       s[0] = T(0, 2);
       s[1] = T(1, 2);
@@ -2172,40 +2206,49 @@ Trk::RungeKuttaPropagator::propagateRungeKutta(Cache& cache,
       s[2] = -T(2, 2);
       s[3] = -d;
     }
-    if (!propagateWithJacobian(cache, useJac, 1, s, P, Step))
+    if (!propagateWithJacobian(cache, useJac, 1, s, P, Step)){
       return false;
+    }
   } else if (ty == Trk::SurfaceType::Cylinder) {
 
     const Trk::CylinderSurface* cyl = static_cast<const Trk::CylinderSurface*>(su);
 
-    double r0[3] = { P[0], P[1], P[2] };
-    double s[9] = { T(0, 3), T(1, 3),           T(2, 3),           T(0, 2), T(1, 2),
-                    T(2, 2), cyl->bounds().r(), cache.m_direction, 0. };
+    const double r0[3] = { P[0], P[1], P[2] };
+    double s[9] = { T(0, 3),           T(1, 3),           T(2, 3),
+                    T(0, 2),           T(1, 2),           T(2, 2),
+                    cyl->bounds().r(), cache.m_direction, 0. };
 
-    if (!propagateWithJacobian(cache, useJac, 2, s, P, Step))
+    if (!propagateWithJacobian(cache, useJac, 2, s, P, Step)){
       return false;
+    }
 
     // For cylinder we do test for next cross point
     //
     if (cyl->bounds().halfPhiSector() < 3.1 && newCrossPoint(*cyl, r0, P)) {
       s[8] = 0.;
-      if (!propagateWithJacobian(cache, useJac, 2, s, P, Step))
+      if (!propagateWithJacobian(cache, useJac, 2, s, P, Step)){
         return false;
+      }
     }
   } else if (ty == Trk::SurfaceType::Perigee) {
 
     double s[6] = { T(0, 3), T(1, 3), T(2, 3), T(0, 2), T(1, 2), T(2, 2) };
-    if (!propagateWithJacobian(cache, useJac, 0, s, P, Step))
+    if (!propagateWithJacobian(cache, useJac, 0, s, P, Step)){
       return false;
+    }
   } else if (ty == Trk::SurfaceType::Cone) {
 
     double k = static_cast<const Trk::ConeSurface*>(su)->bounds().tanAlpha();
     k = k * k + 1.;
-    double s[9] = { T(0, 3), T(1, 3), T(2, 3), T(0, 2), T(1, 2), T(2, 2), k, cache.m_direction, 0. };
-    if (!propagateWithJacobian(cache, useJac, 3, s, P, Step))
+    double s[9] = { T(0, 3), T(1, 3), T(2, 3),
+                    T(0, 2), T(1, 2), T(2, 2),
+                    k,       cache.m_direction, 0. };
+    if (!propagateWithJacobian(cache, useJac, 3, s, P, Step)) {
       return false;
-  } else
+    }
+  } else{
     return false;
+  }
 
   if (cache.m_maxPathLimit || (cache.m_direction && (cache.m_direction * Step) < 0.))
     return false;
@@ -2213,7 +2256,7 @@ Trk::RungeKuttaPropagator::propagateRungeKutta(Cache& cache,
   // Common transformation for all surfaces (angles and momentum)
   //
   if (useJac) {
-    double p = 1. / P[6];
+    const double p = 1. / P[6];
     P[35] *= p;
     P[36] *= p;
     P[37] *= p;

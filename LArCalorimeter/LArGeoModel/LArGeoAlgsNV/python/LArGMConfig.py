@@ -36,9 +36,33 @@ def LArGMCfg(configFlags):
         if activateCondAlgs:
             result.addCondAlgo(CompFactory.LArAlignCondAlg())
             result.addCondAlgo(CompFactory.CaloAlignCondAlg())
-            if configFlags.GeoModel.Run == 'RUN3' and configFlags.Detector.GeometryTile:
-                #Calo super cell building works only if both LAr and Tile are present
+            AthReadAlg_ExtraInputs = []
+            caloCellsInInput = "CaloCellContainer" in [i.split('#')[0] for i in configFlags.Input.TypedCollections]
+            sCellsInInput = False
+            caloCellKeys = []
+            if caloCellsInInput:
+                from SGComps.AddressRemappingConfig import AddressRemappingCfg
+                result.merge(AddressRemappingCfg())
+
+                caloCellKeys = [i.split('#')[1] for i in configFlags.Input.TypedCollections if "CaloCellContainer"==i.split('#')[0] ]
+                for key in caloCellKeys:
+                    if key != 'AllCalo':
+                        sCellsInInput = True
+
+            AthReadAlg_ExtraInputs.append(('CaloDetDescrManager', 'ConditionStore+CaloDetDescrManager'))            
+            if configFlags.GeoModel.Run == 'RUN3' and configFlags.Detector.GeometryTile or sCellsInInput:
                 result.addCondAlgo(CompFactory.CaloSuperCellAlignCondAlg())
+                AthReadAlg_ExtraInputs.append(('CaloSuperCellDetDescrManager', 'ConditionStore+CaloSuperCellDetDescrManager'))
+
+
+            if caloCellsInInput:
+                for key in caloCellKeys:
+                    AthReadAlg=CompFactory.AthReadAlg
+                    AthReadAlg_CaloCellCont = AthReadAlg (f'AthReadAlg_{key}',
+                                                          Key = f'CaloCellContainer/{key}',
+                                                          Aliases = [],
+                                                          ExtraInputs = AthReadAlg_ExtraInputs)
+                    result.addCondAlgo(AthReadAlg_CaloCellCont)
     else:
         # Build unalinged CaloDetDescrManager instance in the Condition Store
         if activateCondAlgs:

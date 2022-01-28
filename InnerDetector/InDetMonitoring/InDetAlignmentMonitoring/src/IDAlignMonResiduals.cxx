@@ -2934,11 +2934,13 @@ const Trk::TrackParameters* IDAlignMonResiduals::getUnbiasedTrackParameters(cons
                 if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "After MagneticFieldProperties cast" << endmsg;
 
                 if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Before other side unbiased propagation" << endmsg;
-                if (TempSurface->associatedLayer() && TempField) PropagatedTrackParams = m_propagator->propagate(*OtherSideUnbiasedTrackParams,
-                                                                                                                 tsos->measurementOnTrack()->associatedSurface(),
-                                                                                                                 Trk::anyDirection, false,
-                                                                                                                 *TempField,
-                                                                                                                 Trk::nonInteracting).release();
+                if (TempSurface->associatedLayer() && TempField) PropagatedTrackParams = m_propagator->propagate(
+                  Gaudi::Hive::currentContext(),
+                  *OtherSideUnbiasedTrackParams,
+                  tsos->measurementOnTrack()->associatedSurface(),
+                  Trk::anyDirection, false,
+                  *TempField,
+                  Trk::nonInteracting).release();
               } else {
                 if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "TempSurface->associatedLayer()->enclosingTrackingVolume does not exist" << endmsg;
               }

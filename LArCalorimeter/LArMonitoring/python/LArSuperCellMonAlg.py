@@ -124,7 +124,7 @@ def LArSuperCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, isM
     cellMonGroup = helper.addGroup(
         LArSuperCellMonAlg,
         GroupName,
-        '/LArMonitoring/LArSuperCellMon_NoTrigSel/'
+        '/LAr/LArSuperCellMon_NoTrigSel/'
 
     )
 

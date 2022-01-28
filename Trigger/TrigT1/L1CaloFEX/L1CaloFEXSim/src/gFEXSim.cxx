@@ -175,6 +175,7 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset, gFEXOutputC
 
    int pucA = 0;
    int pucB = 0;
+   //note that jetThreshold is not a configurable parameter in firmware, it is used to check that jet values are positive
    int jetThreshold = 0;
 
    // The output TOBs, to be filled by the gFEXJetAlgoTool

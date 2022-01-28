@@ -100,6 +100,8 @@ def ITkStripGeoDetectorToolCfg(ConfigFlags, name='ITkStrip', **kwargs):
 def HGTDGeoDetectorToolCfg(ConfigFlags, name='HGTD', **kwargs):
     #set up geometry
     from HGTD_GeoModel.HGTD_GeoModelConfig import HGTD_SimulationGeometryCfg
+    # TODO: for running GMX implementation
+    # from HGTD_GeoModelXml.HGTD_GeoModelConfig import HGTD_SimulationGeometryCfg
     result = HGTD_SimulationGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "HGTD")
     #add the GeometryNotifierSvc
@@ -234,7 +236,7 @@ def ITKEnvelopeCfg(ConfigFlags, name="ITK", **kwargs):
     result = ComponentAccumulator()
 
     kwargs.setdefault("DetectorName", "ITK")
-    kwargs.setdefault("InnerRadius", 32.15*mm)
+    kwargs.setdefault("InnerRadius", 28.8*mm)
     kwargs.setdefault("OuterRadius", 1.148*m)
     if ConfigFlags.GeoModel.Run not in ["RUN1", "RUN2", "RUN3"]:
         # ITk should include the HGTD (3420 mm < |z| < 3545 mm) for now

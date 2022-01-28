@@ -104,7 +104,7 @@ class TileRawChannelBuilderWienerFilter: public TileRawChannelBuilder {
     double m_maxTime; //!< max allowed time = 25*(m_nSamples-1)/2
     double m_minTime; //!< min allowed time = -25*(m_nSamples-1)/2
 
-    TileWienerFilterWeightsStruct *m_weights; //!< structure for Wiener Filter weights
+    const TileWienerFilterWeightsStruct *m_weights; //!< structure for Wiener Filter weights
 
     std::vector<float> m_digits;
 };

@@ -121,7 +121,7 @@ std::unique_ptr<MuonSegmentCombinationCollection> Csc2dSegmentMaker::find(const 
 
 MuonSegmentCombination* Csc2dSegmentMaker::findSegmentCombination(const CscPrepDataCollection& clus, const EventContext& ctx) const {
     // check whether input not empty
-    if (clus.empty()) return 0;
+    if (clus.empty()) return nullptr;
 
     int col_station = 0;
     int col_eta = 0;
@@ -133,7 +133,7 @@ MuonSegmentCombination* Csc2dSegmentMaker::findSegmentCombination(const CscPrepD
     const MuonGM::CscReadoutElement* detEl = clus.front()->detectorElement();
     if (!detEl) {
         ATH_MSG_WARNING("Failed to obtain CscReadoutElement for cluster");
-        return 0;
+        return nullptr;
     }
     Amg::Transform3D gToLocal = detEl->GlobalToAmdbLRSTransform();
     Amg::Vector3D lpos000 = gToLocal * Amg::Vector3D(0.0, 0.0, 0.0);
@@ -198,7 +198,7 @@ MuonSegmentCombination* Csc2dSegmentMaker::findSegmentCombination(const CscPrepD
 
         if (station != col_station || eta != col_eta || phisec != col_phisec) {
             ATH_MSG_WARNING("Inconsistent collection contents");
-            return 0;
+            return nullptr;
         }
 
         const Muon::MuonClusterOnTrack* clu = m_cscClusterOnTrackCreator->createRIO_OnTrack(*pclu, pclu->globalPosition());
@@ -229,7 +229,7 @@ MuonSegmentCombination* Csc2dSegmentMaker::findSegmentCombination(const CscPrepD
     ATH_MSG_DEBUG("there are " << nHitLayer_eta << " eta hit layers and " << nHitLayer_phi << " phi hit layers");
 
     //  MuonSegmentCombination* pcol;
-    MuonSegmentCombination* pcol = 0;
+    MuonSegmentCombination* pcol = nullptr;
     if (nHitLayer_eta >= 2 || nHitLayer_phi >= 2) {
         ATH_MSG_DEBUG("Csc2dSegment calls get2dMuonSegmentCombination !!!");
         pcol = m_segmentTool->get2dMuonSegmentCombination(eta_id, phi_id, eta_clus, phi_clus, lpos000, ctx, layStatus[0], layStatus[1]);

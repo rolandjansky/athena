@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************
@@ -7,7 +7,7 @@
 
     authors : Evelina Bouhova-Thacker (Lancater University)
     email   : e.bouhova@cern.ch
- 
+
 *********************************************************************/
 
 #include "TrkVertexAnalysisUtils/V0Tools.h"
@@ -23,16 +23,16 @@
 namespace Trk
 {
 
-  V0Tools::V0Tools(const std::string& t, const std::string& n, const IInterface*  p) : 
+  V0Tools::V0Tools(const std::string& t, const std::string& n, const IInterface*  p) :
    AthAlgTool(t,n,p),
-   m_extrapolator("Trk::Extrapolator") 
+   m_extrapolator("Trk::Extrapolator")
   {
     declareProperty("Extrapolator", m_extrapolator);
     declareInterface<V0Tools>(this);
   }
- 
+
   V0Tools::~V0Tools() {}
- 
+
   StatusCode V0Tools::initialize()
   {
 
@@ -45,10 +45,10 @@ namespace Trk
   }
 
     ATH_MSG_DEBUG( "Initialize successful" );
-    return StatusCode::SUCCESS; 
+    return StatusCode::SUCCESS;
   }
 
-  const xAOD::Vertex * V0Tools::v0Link(const xAOD::Vertex * vxCandidate) 
+  const xAOD::Vertex * V0Tools::v0Link(const xAOD::Vertex * vxCandidate)
   {
     const xAOD::Vertex* v0(nullptr);
     const static SG::AuxElement::Accessor< ElementLink< xAOD::VertexContainer > > acc( "V0Link" );
@@ -58,7 +58,7 @@ namespace Trk
     return v0;
   }
 
-  const xAOD::Vertex * V0Tools::kshortLink(const xAOD::Vertex * vxCandidate) 
+  const xAOD::Vertex * V0Tools::kshortLink(const xAOD::Vertex * vxCandidate)
   {
     const xAOD::Vertex* v0(nullptr);
     const static SG::AuxElement::Accessor< ElementLink< xAOD::VertexContainer > > acc( "KshortLink" );
@@ -68,7 +68,7 @@ namespace Trk
     return v0;
   }
 
-  const xAOD::Vertex * V0Tools::lambdaLink(const xAOD::Vertex * vxCandidate) 
+  const xAOD::Vertex * V0Tools::lambdaLink(const xAOD::Vertex * vxCandidate)
   {
     const xAOD::Vertex* v0(nullptr);
     const static SG::AuxElement::Accessor< ElementLink< xAOD::VertexContainer > > acc( "LambdaLink" );
@@ -78,7 +78,7 @@ namespace Trk
     return v0;
   }
 
-  const xAOD::Vertex * V0Tools::lambdabarLink(const xAOD::Vertex * vxCandidate) 
+  const xAOD::Vertex * V0Tools::lambdabarLink(const xAOD::Vertex * vxCandidate)
   {
     const xAOD::Vertex* v0(nullptr);
     const static SG::AuxElement::Accessor< ElementLink< xAOD::VertexContainer > > acc( "LambdabarLink" );
@@ -124,7 +124,7 @@ namespace Trk
 
     return invariantMassError(vxCandidate,masses);
   }
- 
+
   double V0Tools::invariantMassError(const xAOD::Vertex * vxCandidate, const std::vector<double> &masses) const
   {
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
@@ -150,7 +150,7 @@ namespace Trk
     delete fullCov;
     return error;
   }
- 
+
   double V0Tools::massErrorV0Fitter(const xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
   {
     std::vector<double> masses = {posTrackMass, negTrackMass};
@@ -168,7 +168,7 @@ namespace Trk
     Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
     if (fullCov == nullptr) return -999999.;
     unsigned int ndim = fullCov->rows();
-    double E=0., Px=0., Py=0., Pz=0.; 
+    double E=0., Px=0., Py=0., Pz=0.;
     std::vector<double>phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk), e(NTrk);
     std::vector<double>dm2dphi(NTrk), dm2dtheta(NTrk), dm2dqOverP(NTrk);
     for( unsigned int it=0; it<NTrk; it++) {
@@ -217,7 +217,7 @@ namespace Trk
     double massErr = massVar/(2.*mass);
     return massErr;
   }
- 
+
   double V0Tools::massErrorVKalVrt(const xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
   {
     std::vector<double> masses = {posTrackMass, negTrackMass};
@@ -237,7 +237,7 @@ namespace Trk
     Amg::MatrixX tmpDeriv(3,3); tmpDeriv.setZero();
     Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
     if (fullCov == nullptr) return -999999.;
- 
+
     for( unsigned int it=0; it<NTrk; it++){
       if (masses[it] >= 0.) {
         const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
@@ -267,18 +267,18 @@ namespace Trk
         particleDeriv[it] = tmpDeriv;
       }
     }
-  
+
     std::vector<double> Deriv(3*NTrk+3, 0.);
     for(unsigned int it=0; it<NTrk; it++){
       if (masses[it] >= 0.) {
         double dMdPx = ( totalMom.E() * particleMom[it].Px()/particleMom[it].E() - totalMom.Px() ) / totalMom.M();
         double dMdPy = ( totalMom.E() * particleMom[it].Py()/particleMom[it].E() - totalMom.Py() ) / totalMom.M();
         double dMdPz = ( totalMom.E() * particleMom[it].Pz()/particleMom[it].E() - totalMom.Pz() ) / totalMom.M();
-  
+
         double dMdPhi   = dMdPx*particleDeriv[it](0,0) + dMdPy*particleDeriv[it](1,0) + dMdPz*particleDeriv[it](2,0);
         double dMdTheta = dMdPx*particleDeriv[it](0,1) + dMdPy*particleDeriv[it](1,1) + dMdPz*particleDeriv[it](2,1);
         double dMdInvP  = dMdPx*particleDeriv[it](0,2) + dMdPy*particleDeriv[it](1,2) + dMdPz*particleDeriv[it](2,2);
-  
+
         Deriv[3*it + 3 + 0] = dMdPhi;    Deriv[3*it + 3 + 1] = dMdTheta; Deriv[3*it + 3 + 2] = dMdInvP;
       }
     }
@@ -300,7 +300,7 @@ namespace Trk
 
     return massErrorVxCandidate(vxCandidate,masses);
   }
- 
+
   double V0Tools::massErrorVxCandidate(const xAOD::Vertex * vxCandidate, const std::vector<double> &masses) const
   {
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
@@ -308,7 +308,7 @@ namespace Trk
       ATH_MSG_DEBUG("The provided number of masses does not match the number of tracks in the vertex");
       return -999999.;
     }
-    double E=0., Px=0., Py=0., Pz=0.; 
+    double E=0., Px=0., Py=0., Pz=0.;
     std::vector<double>phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk), e(NTrk);
     std::vector<double>dm2dphi(NTrk), dm2dtheta(NTrk), dm2dqOverP(NTrk);
     Amg::MatrixX V0_cor(5*NTrk,5*NTrk); V0_cor.setZero();
@@ -375,7 +375,7 @@ namespace Trk
 
     return invariantMassProbability(vxCandidate,V0Mass,masses);
   }
- 
+
   double V0Tools::invariantMassProbability(const xAOD::Vertex * vxCandidate, double V0Mass, const std::vector<double> &masses) const
   {
     double mass = invariantMass(vxCandidate, masses);
@@ -397,7 +397,7 @@ namespace Trk
       return -1.;
     }
   }
- 
+
   double V0Tools::massProbability(double V0Mass, double mass, double massErr) const
   {
     if(massErr > 0.)
@@ -418,7 +418,7 @@ namespace Trk
     }
   }
 
-  Amg::Vector3D V0Tools::trackMomentum(const xAOD::Vertex * vxCandidate, unsigned int trkIndex) 
+  Amg::Vector3D V0Tools::trackMomentum(const xAOD::Vertex * vxCandidate, unsigned int trkIndex)
   {
     double px = 0., py = 0., pz = 0.;
     const Trk::TrackParameters* aPerigee = vxCandidate->vxTrackAtVertex()[trkIndex].perigeeAtVertex();
@@ -429,7 +429,7 @@ namespace Trk
     return mom;
   }
 
-  Amg::Vector3D V0Tools::positiveTrackMomentum(const xAOD::Vertex * vxCandidate) 
+  Amg::Vector3D V0Tools::positiveTrackMomentum(const xAOD::Vertex * vxCandidate)
   {
     Amg::Vector3D mom;
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
@@ -441,7 +441,7 @@ namespace Trk
     return mom;
   }
 
-  Amg::Vector3D V0Tools::negativeTrackMomentum(const xAOD::Vertex * vxCandidate) 
+  Amg::Vector3D V0Tools::negativeTrackMomentum(const xAOD::Vertex * vxCandidate)
   {
     Amg::Vector3D mom;
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
@@ -453,7 +453,7 @@ namespace Trk
     return mom;
   }
 
-  Amg::Vector3D V0Tools::V0Momentum(const xAOD::Vertex * vxCandidate) 
+  Amg::Vector3D V0Tools::V0Momentum(const xAOD::Vertex * vxCandidate)
   {
     double px = 0., py = 0., pz = 0.;
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
@@ -467,7 +467,7 @@ namespace Trk
     return mom;
   }
 
-  xAOD::TrackParticle::FourMom_t V0Tools::track4Momentum(const xAOD::Vertex * vxCandidate, unsigned int trkIndex, double mass) 
+  xAOD::TrackParticle::FourMom_t V0Tools::track4Momentum(const xAOD::Vertex * vxCandidate, unsigned int trkIndex, double mass)
   {
     Amg::Vector3D mom = trackMomentum(vxCandidate, trkIndex);
     xAOD::TrackParticle::FourMom_t lorentz(0,0,0,0);
@@ -507,12 +507,12 @@ namespace Trk
     return lorentz;
   }
 
-  float V0Tools::ndof(const xAOD::Vertex * vxCandidate) 
+  float V0Tools::ndof(const xAOD::Vertex * vxCandidate)
   {
     return vxCandidate->numberDoF();
   }
 
-  float V0Tools::chisq(const xAOD::Vertex * vxCandidate) 
+  float V0Tools::chisq(const xAOD::Vertex * vxCandidate)
   {
     return vxCandidate->chiSquared();
   }
@@ -537,28 +537,28 @@ namespace Trk
 
   }
 
-  Amg::Vector3D V0Tools::vtx(const xAOD::Vertex * vxCandidate) 
+  Amg::Vector3D V0Tools::vtx(const xAOD::Vertex * vxCandidate)
   {
     Amg::Vector3D vertex(vxCandidate->position().x(),vxCandidate->position().y(),vxCandidate->position().z());
     return vertex;
   }
 
-  double V0Tools::rxy(const xAOD::Vertex * vxCandidate) 
+  double V0Tools::rxy(const xAOD::Vertex * vxCandidate)
   {
     return vxCandidate->position().perp();
   }
 
-  double V0Tools::rxy(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) 
+  double V0Tools::rxy(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex)
   {
     return (vxCandidate->position() - vertex->position()).perp();
   }
 
-  double V0Tools::rxy(const xAOD::Vertex * vxCandidate, const Amg::Vector3D& vertex) 
+  double V0Tools::rxy(const xAOD::Vertex * vxCandidate, const Amg::Vector3D& vertex)
   {
     return (vxCandidate->position() - vertex).perp();
   }
 
-  double V0Tools::rxy_var(double dx, double dy, const Amg::MatrixX& cov) 
+  double V0Tools::rxy_var(double dx, double dy, const Amg::MatrixX& cov)
   {
     double rxysq = dx*dx + dy*dy;
     double rxy = (rxysq>0.) ? sqrt(rxysq) : 0.;
@@ -584,7 +584,7 @@ namespace Trk
 
   double V0Tools::rxyError(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const
   {
-    const Amg::MatrixX cov = vxCandidate->covariancePosition() + vertex->covariancePosition(); 
+    const Amg::MatrixX cov = vxCandidate->covariancePosition() + vertex->covariancePosition();
     auto vert = vxCandidate->position() - vertex->position();
     double dx = vert.x();
     double dy = vert.y();
@@ -612,7 +612,7 @@ namespace Trk
   double V0Tools::pTError(const xAOD::Vertex * vxCandidate) const
   {
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
-    double Px=0., Py=0.; 
+    double Px=0., Py=0.;
     std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
     std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
     std::vector<double>dPTdqOverP(NTrk), dPTdtheta(NTrk), dPTdphi(NTrk);
@@ -707,7 +707,7 @@ namespace Trk
     D_vec(1) = vert.y();
     D_vec(2) = vert.z();
     Amg::MatrixX sepVarsqMat = D_vec.transpose() * cov * D_vec;
-    double sepVarsq = sepVarsqMat(0,0); 
+    double sepVarsq = sepVarsqMat(0,0);
     if (sepVarsq <= 0.) ATH_MSG_DEBUG("separation: negative sqrt sepVarsq " << sepVarsq);
     double sepVar = (sepVarsq>0.) ? sqrt(sepVarsq) : 0.;
     return sepVar;
@@ -1010,7 +1010,7 @@ namespace Trk
     double dx = vert.x();
     double dy = vert.y();
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
-    double Px=0., Py=0.; 
+    double Px=0., Py=0.;
     std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
     std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
     std::vector<double>dLxydqOverP(NTrk), dLxydtheta(NTrk), dLxydphi(NTrk);
@@ -1127,7 +1127,7 @@ namespace Trk
     double dy = vert.y();
     double dz = vert.z();
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
-    double Px=0., Py=0., Pz=0.; 
+    double Px=0., Py=0., Pz=0.;
     std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
     std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
     std::vector<double>dpzdqOverP(NTrk), dpzdtheta(NTrk);
@@ -1310,7 +1310,7 @@ namespace Trk
     double dx = vert.x();
     double dy = vert.y();
     double M = invariantMass(vxCandidate, masses);
-    double E=0., Px=0., Py=0., Pz=0.; 
+    double E=0., Px=0., Py=0., Pz=0.;
     std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
     std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
     std::vector<double>dpzdqOverP(NTrk), dpzdtheta(NTrk), dedqOverP(NTrk);
@@ -1454,7 +1454,7 @@ namespace Trk
     double dx = vecsub.x();
     double dy = vecsub.y();
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
-    double Px=0., Py=0.; 
+    double Px=0., Py=0.;
     std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
     std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
     std::vector<double>dPTdtheta(NTrk), dPTdphi(NTrk);
@@ -1596,7 +1596,7 @@ namespace Trk
     double dy = vert.y();
     double dz = vert.z();
     double M = invariantMass(vxCandidate, masses);
-    double E=0., Px=0., Py=0., Pz=0.; 
+    double E=0., Px=0., Py=0., Pz=0.;
     std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
     std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
     std::vector<double>dpzdqOverP(NTrk), dpzdtheta(NTrk), dedqOverP(NTrk);
@@ -1721,7 +1721,7 @@ namespace Trk
     double dy = vecsub.y();
     double dz = vecsub.z();
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
-    double Px=0., Py=0., Pz=0.; 
+    double Px=0., Py=0., Pz=0.;
     std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
     std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
     std::vector<double>dpzdqOverP(NTrk), dpzdtheta(NTrk);
@@ -1853,7 +1853,7 @@ namespace Trk
     return cosThetaStar(posMom, negMom);
   }
 
-  double V0Tools::cosThetaStar(const CLHEP::HepLorentzVector & posTrack, const CLHEP::HepLorentzVector & negTrack) 
+  double V0Tools::cosThetaStar(const CLHEP::HepLorentzVector & posTrack, const CLHEP::HepLorentzVector & negTrack)
   {
     CLHEP::HepLorentzVector v0(posTrack + negTrack);
     double Mv0   = v0.m();
@@ -1877,7 +1877,7 @@ namespace Trk
     return phiStar(v_pos+v_neg,v_pos);
   }
 
-  double V0Tools::phiStar(const CLHEP::HepLorentzVector & v0, const CLHEP::HepLorentzVector & track) 
+  double V0Tools::phiStar(const CLHEP::HepLorentzVector & v0, const CLHEP::HepLorentzVector & track)
   {
     double phiStar = -999999.;
     CLHEP::Hep3Vector V0 = v0.getV();
@@ -1929,7 +1929,7 @@ namespace Trk
     return (mom.x()*vtx1.x()+mom.y()*vtx1.y())/(pT*vtx1.perp());
   }
 
-  float V0Tools::charge(const xAOD::Vertex * vxCandidate) 
+  float V0Tools::charge(const xAOD::Vertex * vxCandidate)
   {
     float ch = 0.;
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
@@ -1943,12 +1943,12 @@ namespace Trk
     return ch;
   }
 
-  const xAOD::TrackParticle* V0Tools::origTrack(const xAOD::Vertex * vxCandidate, int trkIndex) 
+  const xAOD::TrackParticle* V0Tools::origTrack(const xAOD::Vertex * vxCandidate, int trkIndex)
   {
     return vxCandidate->trackParticle(trkIndex);
   }
 
-  const xAOD::TrackParticle* V0Tools::positiveOrigTrack(const xAOD::Vertex * vxCandidate) 
+  const xAOD::TrackParticle* V0Tools::positiveOrigTrack(const xAOD::Vertex * vxCandidate)
   {
     const xAOD::TrackParticle* origTrk(nullptr);
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
@@ -1959,7 +1959,7 @@ namespace Trk
     return origTrk;
   }
 
-  const xAOD::TrackParticle* V0Tools::negativeOrigTrack(const xAOD::Vertex * vxCandidate) 
+  const xAOD::TrackParticle* V0Tools::negativeOrigTrack(const xAOD::Vertex * vxCandidate)
   {
     const xAOD::TrackParticle* origTrk(nullptr);
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
@@ -1984,7 +1984,7 @@ namespace Trk
   }
   */
 
-  /* JRC - NOT POSSIBLE WITH NEW EDM 
+  /* JRC - NOT POSSIBLE WITH NEW EDM
   Rec::TrackParticle* V0Tools::createParticle(const Trk::V0Hypothesis* v0Hypothesis) const
   {
     const std::vector<Trk::VxTrackAtVertex*> * myTrackVectorPtr=v0Hypothesis->vxTrackAtVertex();
@@ -1997,7 +1997,7 @@ namespace Trk
     Rec::TrackParticle* nTrkPrt;
     unsigned int NTrk = v0Hypothesis->vxTrackAtVertex()->size();
 
-    double Px=0., Py=0., Pz=0., D0=0., Z0=0., T0=0.; 
+    double Px=0., Py=0., Pz=0., D0=0., Z0=0., T0=0.;
     CLHEP::HepVector phi(NTrk,0), theta(NTrk,0), qOverP(NTrk,0);
     CLHEP::HepVector dPxdphi(NTrk,0), dPxdtheta(NTrk,0), dPxdqOverP(NTrk,0);
     CLHEP::HepVector dPydphi(NTrk,0), dPydtheta(NTrk,0), dPydqOverP(NTrk,0);
@@ -2156,7 +2156,7 @@ namespace Trk
 
     gp = v0Hypothesis->recVertex().position();
     PerigeeSurface surface;
-    
+
     perigee = surface.createNeutralParameters( D0, Z0, Phi, Theta, invP, &SumCov );
     tmpPar.push_back(perigee);
 
@@ -2209,7 +2209,7 @@ namespace Trk
                                      tmpPar, perigee, fitQuality);
     return nTrkPrt;
   }
-  */  
+  */
 
   double V0Tools::invariantMassBeforeFitIP(const xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
   {
@@ -2260,15 +2260,17 @@ namespace Trk
       if (masses[it] >= 0.) {
         const xAOD::TrackParticle* TP = origTrack(vxCandidate,it);
         if (TP == nullptr) return -999999.;
-        const Trk::TrackParameters* extrPer = m_extrapolator->extrapolate(*TP, perigeeSurface);
-        if (extrPer == nullptr) return -999999.;
+        std::unique_ptr<const Trk::TrackParameters> extrPer =
+          m_extrapolator->extrapolate(
+            Gaudi::Hive::currentContext(), *TP, perigeeSurface);
+        if (extrPer == nullptr)
+          return -999999.;
         px += extrPer->momentum().x();
         py += extrPer->momentum().y();
         pz += extrPer->momentum().z();
         double pesq = extrPer->momentum().mag2() + masses[it]*masses[it];
         double pe = (pesq>0.) ? sqrt(pesq) : 0.;
         e += pe;
-        delete extrPer;
       }
     }
     double msq = e*e - px*px - py*py - pz*pz;
@@ -2294,15 +2296,17 @@ namespace Trk
       if (masses[it] >= 0.) {
         const xAOD::TrackParticle* TP = origTrack(vxCandidate,it);
         if (TP == nullptr) return -999999.;
-        const Trk::TrackParameters* extrPer = m_extrapolator->extrapolate(*TP, perigeeSurface);
-        if (extrPer == nullptr) return -999999.;
+        std::unique_ptr<const Trk::TrackParameters> extrPer =
+          m_extrapolator->extrapolate(
+            Gaudi::Hive::currentContext(), *TP, perigeeSurface);
+        if (extrPer == nullptr)
+          return -999999.;
         px += extrPer->momentum().x();
         py += extrPer->momentum().y();
         pz += extrPer->momentum().z();
         double pesq = extrPer->momentum().mag2() + masses[it]*masses[it];
         double pe = (pesq>0.) ? sqrt(pesq) : 0.;
         e += pe;
-        delete extrPer;
       }
     }
     double msq = e*e - px*px - py*py - pz*pz;
@@ -2324,7 +2328,7 @@ namespace Trk
       return -999999.;
     }
     double mass = invariantMassBeforeFitIP(vxCandidate, masses);
-    double E=0., Px=0., Py=0., Pz=0.; 
+    double E=0., Px=0., Py=0., Pz=0.;
     std::vector<double>phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk), e(NTrk);
     std::vector<double>dm2dphi(NTrk), dm2dtheta(NTrk), dm2dqOverP(NTrk);
     Amg::MatrixX V0_cor(5*NTrk,5*NTrk); V0_cor.setZero();
@@ -2398,7 +2402,7 @@ namespace Trk
     Amg::Vector3D vertex = vxCandidate->position();
     return invariantMassErrorBeforeFit(vxCandidate,masses,vertex);
   }
- 
+
   double V0Tools::invariantMassErrorBeforeFit(const xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass, const Amg::Vector3D& vertex) const
   {
     std::vector<double> masses = {posTrackMass, negTrackMass};
@@ -2414,7 +2418,7 @@ namespace Trk
       return -999999.;
     }
     Trk::PerigeeSurface perigeeSurface(vertex);
-    double E=0., Px=0., Py=0., Pz=0.; 
+    double E=0., Px=0., Py=0., Pz=0.;
     std::vector<double>phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk), e(NTrk);
     std::vector<double>dm2dphi(NTrk), dm2dtheta(NTrk), dm2dqOverP(NTrk);
     Amg::MatrixX V0_cor(5*NTrk,5*NTrk); V0_cor.setZero();
@@ -2422,8 +2426,11 @@ namespace Trk
       if (masses[it] >= 0.) {
         const xAOD::TrackParticle* TP = origTrack(vxCandidate,it);
         if (TP == nullptr) return -999999.;
-        const Trk::TrackParameters* extrPer = m_extrapolator->extrapolate(*TP, perigeeSurface);
-        if (extrPer == nullptr) return -999999.;
+        std::unique_ptr<const Trk::TrackParameters> extrPer =
+          m_extrapolator->extrapolate(
+            Gaudi::Hive::currentContext(), *TP, perigeeSurface);
+        if (extrPer == nullptr)
+          return -999999.;
         const AmgSymMatrix(5)* cov_tmp = extrPer->covariance();
         V0_cor(5*it+2,5*it+2) = (*cov_tmp)(2,2);
         V0_cor(5*it+2,5*it+3) = (*cov_tmp)(2,3);
@@ -2445,7 +2452,6 @@ namespace Trk
         Px += extrPer->momentum().x();
         Py += extrPer->momentum().y();
         Pz += extrPer->momentum().z();
-        delete extrPer;
       }
     }
     double msq = E*E - Px*Px - Py*Py - Pz*Pz;
@@ -2498,7 +2504,7 @@ namespace Trk
     double dx = vert.x();
     double dy = vert.y();
     double M = invariantMass(vxCandidate, masses);
-    double E=0., Px=0., Py=0., Pz=0.; 
+    double E=0., Px=0., Py=0., Pz=0.;
     std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
     std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
     std::vector<double>dpzdqOverP(NTrk), dpzdtheta(NTrk), dedqOverP(NTrk);
@@ -2631,7 +2637,7 @@ namespace Trk
       }
       return V0_cov;
   }
-  
+
   Amg::MatrixX V0Tools::tauMassCovariance(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, const std::vector<double> &masses) const
   {
     // Tau = CONST*M*(Px*dx+Py*dy)/(PT*PT)
@@ -2648,7 +2654,7 @@ namespace Trk
     double dx = vert.x();
     double dy = vert.y();
     double M = invariantMass(vxCandidate, masses);
-    double E=0., Px=0., Py=0., Pz=0.; 
+    double E=0., Px=0., Py=0., Pz=0.;
     std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
     std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
     std::vector<double>dpzdqOverP(NTrk), dpzdtheta(NTrk), dedqOverP(NTrk);
@@ -2762,7 +2768,7 @@ namespace Trk
     return V0_err;
   }
 
-  Amg::MatrixX * V0Tools::convertCovMatrix(const xAOD::Vertex * vxCandidate) 
+  Amg::MatrixX * V0Tools::convertCovMatrix(const xAOD::Vertex * vxCandidate)
   {
     unsigned int NTrk = vxCandidate->nTrackParticles();
     const std::vector<float> &matrix = vxCandidate->covariance();

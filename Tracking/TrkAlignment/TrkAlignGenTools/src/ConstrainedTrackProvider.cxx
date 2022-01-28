@@ -293,7 +293,9 @@ namespace Trk {
             vecOfMB.push_back(*it);
         }
       
-        Trk::Track* constrainedFittedTrack = m_trackFitter->fit( vecOfMB, *measuredPerigee, m_runOutlierRemoval, Trk::pion);
+        Trk::Track* constrainedFittedTrack = m_trackFitter->fit( Gaudi::Hive::currentContext(),
+                                                                 vecOfMB, *measuredPerigee, 
+                                                                 m_runOutlierRemoval, Trk::pion).release();
         delete pmot;
         
         if (constrainedFittedTrack){
@@ -327,8 +329,14 @@ namespace Trk {
         if(m_useConstrainedTrkOnly) continue;
         
         //Prob could just copy the track?
-        Trk::Track* unconstrainedFittedTrack = m_trackFitter->fit( **trackIt,m_runOutlierRemoval, Trk::pion);
-        
+        Trk::Track* unconstrainedFittedTrack =
+          m_trackFitter
+            ->fit(Gaudi::Hive::currentContext(),
+                  **trackIt,
+                  m_runOutlierRemoval,
+                  Trk::pion)
+            .release();
+
         if(unconstrainedFittedTrack) {
           ATH_MSG_DEBUG("Unconstrained fit was successful");
           trackCollection->push_back(unconstrainedFittedTrack);

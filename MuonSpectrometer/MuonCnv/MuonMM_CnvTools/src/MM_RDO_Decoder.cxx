@@ -8,7 +8,7 @@ using namespace Muon;
 
 MM_RDO_Decoder::MM_RDO_Decoder(const std::string& type, const std::string& name,const IInterface* parent) :
   AthAlgTool(type,name,parent),
-  m_mmIdHelper(0)
+  m_mmIdHelper(nullptr)
 {  
   declareInterface< Muon::IMM_RDO_Decoder  >( this );
 }

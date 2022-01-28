@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternTools/MuonHoughPatternFinderTool.h"
@@ -24,6 +24,7 @@
 #include "TrkDriftCircleMath/MatchDCWithLine.h"
 #include "TrkDriftCircleMath/TangentToCircles.h"
 #include "TrkSurfaces/Surface.h"
+#include "GaudiKernel/ConcurrencyFlags.h"
 
 using namespace TrkDriftCircleMath;
 
@@ -36,12 +37,18 @@ namespace Muon {
     MuonHoughPatternFinderTool::~MuonHoughPatternFinderTool() = default;
     StatusCode MuonHoughPatternFinderTool::initialize() {
         if (m_use_histos) {
-            m_file = std::make_unique<TFile>("Hough_histos.root", "RECREATE");
-            m_weighthistogram = std::make_unique<TH1F>("weighthisto", "weighthisto", 100, -0.5, 2);
-            m_weighthistogrammdt = std::make_unique<TH1F>("weighthistomdt", "weighthistomdt", 100, -0.3, 2.2);
-            m_weighthistogramrpc = std::make_unique<TH1F>("weighthistorpc", "weighthistorpc", 100, -0.3, 2.2);
-            m_weighthistogramcsc = std::make_unique<TH1F>("weighthistocsc", "weighthistocsc", 100, -0.3, 2.2);
-            m_weighthistogramtgc = std::make_unique<TH1F>("weighthistotgc", "weighthistotgc", 100, -0.3, 2.2);
+            if (Gaudi::Concurrency::ConcurrencyFlags::numThreads() > 1) {
+              ATH_MSG_FATAL("Filling histograms not supported in MT jobs.");
+              return StatusCode::FAILURE;
+            }
+
+            m_h = std::make_unique<Hists>();
+            m_h->m_file = std::make_unique<TFile>("Hough_histos.root", "RECREATE");
+            m_h->m_weighthistogram = std::make_unique<TH1F>("weighthisto", "weighthisto", 100, -0.5, 2);
+            m_h->m_weighthistogrammdt = std::make_unique<TH1F>("weighthistomdt", "weighthistomdt", 100, -0.3, 2.2);
+            m_h->m_weighthistogramrpc = std::make_unique<TH1F>("weighthistorpc", "weighthistorpc", 100, -0.3, 2.2);
+            m_h->m_weighthistogramcsc = std::make_unique<TH1F>("weighthistocsc", "weighthistocsc", 100, -0.3, 2.2);
+            m_h->m_weighthistogramtgc = std::make_unique<TH1F>("weighthistotgc", "weighthistotgc", 100, -0.3, 2.2);
         }
 
         ATH_MSG_VERBOSE("MuonHoughPatternFinderTool::Initializing");
@@ -147,14 +154,14 @@ namespace Muon {
         if (m_use_histos) {
             auto save_histo = [this](std::unique_ptr<TH1>& h_ptr) {
                 if (!h_ptr) return;
-                m_file->WriteObject(h_ptr.get(), h_ptr->GetName());
+                m_h->m_file->WriteObject(h_ptr.get(), h_ptr->GetName());
                 h_ptr.reset();
             };
-            save_histo(m_weighthistogram);
-            save_histo(m_weighthistogrammdt);
-            save_histo(m_weighthistogramrpc);
-            save_histo(m_weighthistogramcsc);
-            save_histo(m_weighthistogramtgc);
+            save_histo(m_h->m_weighthistogram);
+            save_histo(m_h->m_weighthistogrammdt);
+            save_histo(m_h->m_weighthistogramrpc);
+            save_histo(m_h->m_weighthistogramcsc);
+            save_histo(m_h->m_weighthistogramtgc);
         }
         ATH_MSG_VERBOSE("finalize()");
 
@@ -328,8 +335,9 @@ namespace Muon {
 
                 hitcontainer->addHit(hit);
                 if (m_use_histos) {
-                    m_weighthistogram->Fill(weight);
-                    m_weighthistogramcsc->Fill(weight);
+                  Hists& h = getHists();
+                  h.m_weighthistogram->Fill(weight);
+                  h.m_weighthistogramcsc->Fill(weight);
                 }
             }
         }  // use_csc_segments
@@ -505,8 +513,9 @@ namespace Muon {
             ATH_MSG_DEBUG(m_printer->print(*prd) << " NEW weight " << weight);
 
             if (m_use_histos) {
-                m_weighthistogram->Fill(weight);
-                m_weighthistogramrpc->Fill(weight);
+              Hists& h = getHists();
+              h.m_weighthistogram->Fill(weight);
+              h.m_weighthistogramrpc->Fill(weight);
             }
         }
 
@@ -626,8 +635,9 @@ namespace Muon {
                 hitcontainer.addHit(hit);
                 ATH_MSG_DEBUG(m_printer->print(*prd) << " NEW weight " << weight);
                 if (m_use_histos) {
-                    m_weighthistogram->Fill(weight);
-                    m_weighthistogramtgc->Fill(weight);
+                  Hists& h = getHists();
+                  h.m_weighthistogram->Fill(weight);
+                  h.m_weighthistogramtgc->Fill(weight);
                 }
             }
         }
@@ -785,8 +795,9 @@ namespace Muon {
                 ATH_MSG_DEBUG(m_printer->print(*mdt_hit) << " weight " << 0 << " adc: " << mdt_hit->adc());
                 hitcontainer.addHit(new_mdt_hit(mdt_hit, 0., 0.));
                 if (m_use_histos) {
-                    m_weighthistogram->Fill(0);
-                    m_weighthistogrammdt->Fill(0);
+                  Hists& h = getHists();
+                  h.m_weighthistogram->Fill(0);
+                  h.m_weighthistogrammdt->Fill(0);
                 }
 
             }  // collection
@@ -817,8 +828,9 @@ namespace Muon {
                 ATH_MSG_DEBUG(m_printer->print(*mdt_hit) << " weight " << 0);
                 hitcontainer.addHit(new_mdt_hit(mdt_hit, 0., 0.));
                 if (m_use_histos) {
-                    m_weighthistogram->Fill(0);
-                    m_weighthistogrammdt->Fill(0);
+                  Hists& h = getHists();
+                  h.m_weighthistogram->Fill(0);
+                  h.m_weighthistogrammdt->Fill(0);
                 }
             }  // collection
             return;
@@ -1026,8 +1038,9 @@ namespace Muon {
                                                     << psi[i] << " prob " << prob[i] << " weight " << weights[i]);
             hitcontainer.addHit(new_mdt_hit(prd[i], prob[i], weights[i]));
             if (m_use_histos) {
-                m_weighthistogram->Fill(weights[i]);
-                m_weighthistogrammdt->Fill(weights[i]);
+                Hists& h = getHists();
+                h.m_weighthistogram->Fill(weights[i]);
+                h.m_weighthistogrammdt->Fill(weights[i]);
             }
 
         }  // collection
@@ -1099,8 +1112,9 @@ namespace Muon {
             hitcontainer.addHit(hit);
             ATH_MSG_DEBUG(m_printer->print(*prd) << " weight " << weight);
             if (m_use_histos) {
-                m_weighthistogram->Fill(weight);
-                m_weighthistogramcsc->Fill(weight);
+                Hists& h = getHists();
+                h.m_weighthistogram->Fill(weight);
+                h.m_weighthistogramcsc->Fill(weight);
             }
         }
         // extract preprawdata from gasgapmap // might not be fastest way (filling
@@ -1490,4 +1504,15 @@ namespace Muon {
             }
         }
     }
+
+
+    MuonHoughPatternFinderTool::Hists&
+    MuonHoughPatternFinderTool::getHists() const
+    {
+      // We earlier checked that no more than one thread is being used.
+      Hists* h ATLAS_THREAD_SAFE = m_h.get();
+      return *h;
+    }
+
+
 }  // namespace Muon

@@ -78,8 +78,6 @@ namespace LVL1 {
     /** Get coordinates of tower */
     int iEta() const;
     int iPhi() const;
-    float eta() {return m_eta;};
-    float phi() {return m_phi;};
     
     float eta() const {return m_eta;};
     float phi() const {return m_phi;};
@@ -130,12 +128,15 @@ namespace LVL1 {
     std::vector<float> getLayerETvec_float(unsigned int layer) const;
 
     /** Get vector of all ET values in MeV FLOAT VERSION */
-    std::vector<float> getETs_float() const {return m_et_float;};
+    std::vector<float> getETs_float() const {return m_et_float_raw;};
 
-    void setET(int cell, float et);
+    void set_TileCal_Et(int cell, float et);
 
-    /** Set supercell position ID **/
-    void setSCID(Identifier ID, int cell, float et, int layer, bool doenergysplit);
+    /** Set LAr supercell position ID **/
+    void set_LAr_Et(Identifier ID, int cell, float et, int layer);
+    
+    /** Applies LAr digitization scheme **/    
+    void Do_LAr_encoding();
     
     /** Noise values for each layer and object **/
     void  setNoiseForMet(int noiseVal,int layer);
@@ -167,8 +168,8 @@ namespace LVL1 {
     float m_centre_phi_toPI=0;
     std::vector<Identifier> m_EM_scID;
     std::vector<Identifier> m_HAD_scID;
-    std::vector<int> m_et;    
-    std::vector<float> m_et_float;
+    std::vector<int> m_et; // Real energy from TILE and the decoded energy from LATOME
+    std::vector<float> m_et_float_raw;  // Raw imput energy from LATOME (not encoded/decoded) and TILE.
     std::vector<float> m_TTowerArea{ 1.0, 1.0};
     int m_fcal_layer = -1;
     int m_NoiseForMet[2] = {0};

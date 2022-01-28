@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGMINBIAS_TRIGZVERTEXHYPOTOOL_H
 #define TRIGMINBIAS_TRIGZVERTEXHYPOTOOL_H
@@ -20,7 +20,6 @@
 class TrigZVertexHypoTool : public ::AthAlgTool {
 public:
   TrigZVertexHypoTool(const std::string& type, const std::string& name, const IInterface* parent);
-  virtual ~TrigZVertexHypoTool() override;
 
   struct ZVertexInfo {
     TrigCompositeUtils::Decision* decision;
@@ -29,7 +28,6 @@ public:
   };
 
   StatusCode decide(ZVertexInfo& decisions) const;
-
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
 

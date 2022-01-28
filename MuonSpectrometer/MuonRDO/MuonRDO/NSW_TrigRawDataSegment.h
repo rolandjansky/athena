@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */  
 
 #ifndef NSW_TRIGRAWDATASEGMENT_H
@@ -15,12 +15,9 @@ class NSW_TrigRawDataSegment
 
  public:
   NSW_TrigRawDataSegment();
-
-  NSW_TrigRawDataSegment(uint8_t deltaTheta, uint8_t phiIndex, uint8_t rIndex, uint8_t spare,
-			 bool lowRes, bool phiRes, bool monitor);
-
-  NSW_TrigRawDataSegment(uint8_t deltaTheta, uint8_t phiIndex, uint8_t rIndex,
-			 bool lowRes, bool phiRes);
+  NSW_TrigRawDataSegment(uint8_t deltaTheta, uint8_t phiIndex, uint8_t rIndex, uint8_t spare, bool lowRes, bool phiRes, bool monitor);
+  NSW_TrigRawDataSegment(uint8_t deltaTheta, uint8_t phiIndex, uint8_t rIndex, bool lowRes, bool phiRes);
+  NSW_TrigRawDataSegment(const Muon::NSW_TrigRawDataSegment &segment);
 
   ~NSW_TrigRawDataSegment() { };
 
@@ -60,7 +57,3 @@ class NSW_TrigRawDataSegment
 CLASS_DEF(Muon::NSW_TrigRawDataSegment,218364457,1)
 
 #endif   ///  NSW_TRIGRAWDATASEGMENT_H
-
-
-
-

@@ -27,7 +27,7 @@ namespace MuonGM {
     public:
         /** constructor */
 
-        sTgcReadoutElement(GeoVFullPhysVol* pv, std::string stName, int zi, int fi, int mL, bool is_mirrored, MuonDetectorManager* mgr);
+        sTgcReadoutElement(GeoVFullPhysVol* pv, const std::string& stName, int zi, int fi, int mL, bool is_mirrored, MuonDetectorManager* mgr);
 
         /** destructor */
         ~sTgcReadoutElement();
@@ -201,7 +201,7 @@ namespace MuonGM {
         std::vector<double> m_PadminHalfY;
         std::vector<double> m_PadmaxHalfY;
 
-        BLinePar* m_BLinePar;
+        BLinePar* m_BLinePar = nullptr;
 
         // transforms (RE->layer)
         Amg::Transform3D m_Xlg[4];

@@ -31,7 +31,7 @@ MuonDetectorTool::MuonDetectorTool(const std::string &type, const std::string &n
     : GeoModelTool(type, name, parent), m_layout("R.08"), m_accessCondDb(1), m_asciiCondData(0), m_includeCutouts(0), m_includeCutoutsBog(0), m_includeCtbBis(0),
       m_fillCache_initTime(0), m_dumpMemoryBreakDown(false), m_enableFineClashFixing(0), m_hasCSC(true), m_hasSTgc(true), m_hasMM(true), m_stationSelection(0),
       m_controlAlines(111111), m_dumpAlines(false), m_altAsztFile(""), m_minimalGeoFlag(false), m_useCscIntAlines(false), m_controlCscIntAlines(0), m_dumpCscIntAlines(false),
-      m_useCscIntAlinesFromGM(true), m_altCscIntAlinesFile(""), m_enableMdtDeformations(0), m_enableMdtAsBuiltParameters(0), m_altMdtAsBuiltFile(""), m_manager(0) {
+      m_useCscIntAlinesFromGM(true), m_altCscIntAlinesFile(""), m_enableMdtDeformations(0), m_enableMdtAsBuiltParameters(0), m_altMdtAsBuiltFile(""), m_manager(nullptr) {
     declareInterface<IGeoModelTool>(this);
     declareProperty("LayoutName", m_layout);
     declareProperty("UseConditionDb", m_accessCondDb);
@@ -47,7 +47,6 @@ MuonDetectorTool::MuonDetectorTool(const std::string &type, const std::string &n
     declareProperty("HasCSC", m_hasCSC);
     declareProperty("HasSTgc", m_hasSTgc);
     declareProperty("HasMM", m_hasMM);
-    declareProperty("passivationWidthMM", m_testPassivationWidthMM = 0); // temporary to test the effect MM passivation
     //
     declareProperty("StationSelection", m_stationSelection = 0);
     declareProperty("SelectedStations", m_selectedStations);
@@ -70,6 +69,7 @@ MuonDetectorTool::MuonDetectorTool(const std::string &type, const std::string &n
     declareProperty("EnableMdtAsBuiltParameters", m_enableMdtAsBuiltParameters = 0);
     declareProperty("AlternateAsBuiltParamAlignFile", m_altMdtAsBuiltFile);
     //
+    declareProperty("passivationWidthMM", m_testPassivationWidthMM = 0); // temporary to test the effect MM passivation
     // THESE ALLOW TO RESET THE MUON SWITCHES IN THE oracle TABLES:
     // to reset (for example) BUILDBARRELTOROID use ForceSwitchOnOff_BUILDBARRELTOROID = 1001/1000 to have/not have the BARRELTOROID
     // i.e  you must set 1000 to force resetting + 1/0 (enable/disable)
@@ -92,9 +92,9 @@ MuonDetectorTool::MuonDetectorTool(const std::string &type, const std::string &n
 MuonDetectorTool::~MuonDetectorTool() {
     // This will need to be modified once we register the Muon DetectorNode in
     // the Transient Detector Store
-    if (0 != m_detector) {
+    if (nullptr != m_detector) {
         delete m_detector;
-        m_detector = 0;
+        m_detector = nullptr;
     }
 }
 
@@ -117,7 +117,7 @@ StatusCode MuonDetectorTool::create() {
     if (createFactory(theFactory).isFailure())
         return StatusCode::FAILURE;
 
-    if (0 == m_detector) {
+    if (nullptr == m_detector) {
         ATH_CHECK(detStore()->record(theFactory.getDetectorManager(), theFactory.getDetectorManager()->getName()));
 
         GeoModelExperiment *theExpt = nullptr;
@@ -281,8 +281,8 @@ StatusCode MuonDetectorTool::createFactory(MuonDetectorFactory001 &theFactory) c
         cpu = ucpu;
     }
 
-    if (0 == m_detector) {
-        IRDBAccessSvc *access = 0;
+    if (nullptr == m_detector) {
+        IRDBAccessSvc *access = nullptr;
         if (m_amdcDb)
             ATH_CHECK(service("AmdcDb", access));
         else
@@ -301,6 +301,7 @@ StatusCode MuonDetectorTool::createFactory(MuonDetectorFactory001 &theFactory) c
         theFactory.setDBnode(detectorNode);
         theFactory.setABLinesAsciiSideA(m_NSWABLinesAsciiSideA);
         theFactory.setABLinesAsciiSideC(m_NSWABLinesAsciiSideC);
+        theFactory.setMMAsBuiltJsonPath(m_MMAsBuiltJsonPath);
         theFactory.setAmdcDb(isAmdcDb);
         theFactory.setLayout(tempLayout);
         theFactory.setCutoutsFlag(m_includeCutouts);
@@ -356,7 +357,7 @@ StatusCode MuonDetectorTool::createFactory(MuonDetectorFactory001 &theFactory) c
         if ((theManager->initCSCInternalAlignmentMap()).isFailure())
             return StatusCode::FAILURE; // does nothing other then checking the size (map is built while reading data from the primary source)
 
-        // temporary way to pass MM correction for passivation
+        // temporary MM passivation width (for tests)
         theManager->setMMPassivationCorrection(m_testPassivationWidthMM);
 
         if (m_fillCache_initTime) {
@@ -384,7 +385,7 @@ StatusCode MuonDetectorTool::clear() {
     SG::DataProxy *proxy = detStore()->proxy(ClassID_traits<MuonGM::MuonDetectorManager>::ID(), m_manager->getName());
     if (proxy) {
         proxy->reset();
-        m_manager = 0;
+        m_manager = nullptr;
     }
     return StatusCode::SUCCESS;
 }

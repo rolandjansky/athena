@@ -42,8 +42,8 @@
 namespace MuonGM {
 
     //============================================================================
-    sTgcReadoutElement::sTgcReadoutElement(GeoVFullPhysVol* pv, std::string stName, int zi, int fi, int mL, bool is_mirrored, MuonDetectorManager* mgr) 
-    : MuonClusterReadoutElement(pv, std::move(stName), zi, fi, is_mirrored, mgr)
+    sTgcReadoutElement::sTgcReadoutElement(GeoVFullPhysVol* pv, const std::string& stName, int zi, int fi, int mL, bool is_mirrored, MuonDetectorManager* mgr) 
+    : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr)
     , m_ml(mL) {
 
         // get the setting of the caching flag from the manager

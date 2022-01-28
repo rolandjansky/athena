@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "TrkFitterUtils/TrackFitInputPreparator.h"
 #include "TrkGlobalChi2Fitter/GlobalChi2Fitter.h"
@@ -363,7 +363,7 @@ namespace Trk {
     if (!m_useCaloTG) {
       if (!m_calotool.empty()) {
         calomeots = m_calotool->extrapolationSurfacesAndEffects(
-          *m_navigator->highestVolume(), 
+          *m_navigator->highestVolume(ctx), 
           *prop,
           *parforcalo,
           parforcalo->associatedSurface(),
@@ -424,7 +424,7 @@ namespace Trk {
       ) {
         ATH_MSG_DEBUG("Changing from measured to parametrized energy loss");
         calomeots = m_calotoolparam->extrapolationSurfacesAndEffects(
-          *m_navigator->highestVolume(),
+          *m_navigator->highestVolume(ctx),
           *prop, 
           *parforcalo,
           parforcalo->associatedSurface(),
@@ -640,16 +640,10 @@ namespace Trk {
     }
 
     if ((tp_closestmuon != nullptr) && (cache.m_msEntrance != nullptr)) {
-      tmppar.reset(
-        m_extrapolator->extrapolateToVolume(ctx,
-          *tp_closestmuon,
-          *cache.m_msEntrance,
-          propdir,
-          nonInteracting
-        )
-      );
+      tmppar = m_extrapolator->extrapolateToVolume(
+        ctx, *tp_closestmuon, *cache.m_msEntrance, propdir, nonInteracting);
     }
-    
+
     std::unique_ptr<const std::vector<const TrackStateOnSurface *>> matvec;
     
     if (tmppar != nullptr) {
@@ -836,13 +830,9 @@ namespace Trk {
           newpar[0], newpar[1], newpar[2], newpar[3], newqoverpid, std::nullopt
         );
       }
-      
-      lastidpar.reset(m_extrapolator->extrapolateToVolume(
-        *firstidpar,
-        *cache.m_caloEntrance,
-        alongMomentum, 
-        Trk::muon
-      ));
+
+      lastidpar = m_extrapolator->extrapolateToVolume(
+        ctx, *firstidpar, *cache.m_caloEntrance, alongMomentum, Trk::muon);
     }
 
     if (lastidpar == nullptr) {
@@ -1091,13 +1081,12 @@ namespace Trk {
         );
         idscatpar = firstscatpar.get();
 
-        startPar.reset(m_extrapolator->extrapolateToVolume(
-          *idscatpar,
-          *cache.m_caloEntrance,
-          oppositeMomentum,
-          Trk::nonInteracting
-        ));
-        
+        startPar = m_extrapolator->extrapolateToVolume(ctx,
+                                                       *idscatpar,
+                                                       *cache.m_caloEntrance,
+                                                       oppositeMomentum,
+                                                       Trk::nonInteracting);
+
         if (startPar != nullptr) {
           Amg::Vector3D trackdir = startPar->momentum().unit();
           Amg::Vector3D curvZcrossT = -(trackdir.cross(Amg::Vector3D(0, 0, 1)));
@@ -1115,11 +1104,12 @@ namespace Trk {
           PlaneSurface curvlinsurf(trans);
           
           const TrackParameters *curvlinpar = m_extrapolator->extrapolateDirectly(
+            ctx,
             *startPar, 
             curvlinsurf,
             Trk::oppositeMomentum,
             Trk::nonInteracting != 0u
-          );
+          ).release();
           
           if (curvlinpar != nullptr) {
             startPar.reset(curvlinpar);
@@ -1303,13 +1293,9 @@ namespace Trk {
 
     std::unique_ptr<const TrackParameters> lastidpar = nullptr;
     if ((firstidpar != nullptr) && (cache.m_caloEntrance != nullptr))
-      lastidpar.reset(m_extrapolator->extrapolateToVolume(
-        *firstidpar,
-        *cache.m_caloEntrance,
-        alongMomentum, 
-        Trk::muon
-      ));
-      
+      lastidpar = m_extrapolator->extrapolateToVolume(
+        ctx, *firstidpar, *cache.m_caloEntrance, alongMomentum, Trk::muon);
+
     if (lastidpar == nullptr) {
       lastidpar.reset(pParametersVector->back()->clone());
     }
@@ -3262,12 +3248,23 @@ namespace Trk {
          * material effects.
          */
         double X0 = matprop->thicknessInX0();
-        double currentqoverp = (matEffects != Trk::electron) ? parforextrap->parameters()[Trk::qOverP] : refpar2->parameters()[Trk::qOverP];
+        double currentqoverp = (matEffects != Trk::electron)
+                                 ? parforextrap->parameters()[Trk::qOverP]
+                                 : refpar2->parameters()[Trk::qOverP];
         double actualx0 = X0 / costracksurf;
-        double de = -std::abs((matprop->thickness() / costracksurf) * m_elosstool->dEdX(*matprop, (m_p != 0.0 ? std::abs(m_p) : std::abs(1. / currentqoverp)), matEffects));
+        double de = -std::abs(
+          (matprop->thickness() / costracksurf) *
+          m_elosstool->dEdX(
+            *matprop,
+            (m_p != 0.0 ? std::abs(m_p) : std::abs(1. / currentqoverp)),
+            matEffects));
         double sintheta = std::sin(parforextrap->parameters()[Trk::theta]);
-        double sigmascat = std::sqrt(m_scattool->sigmaSquare(*matprop, (m_p != 0.0 ? std::abs(m_p) : std::abs(1. / currentqoverp)), 1. / costracksurf, matEffects));
-        
+        double sigmascat = std::sqrt(m_scattool->sigmaSquare(
+          *matprop,
+          (m_p != 0.0 ? std::abs(m_p) : std::abs(1. / currentqoverp)),
+          1. / costracksurf,
+          matEffects));
+
         std::unique_ptr<GXFMaterialEffects> meff = std::make_unique<GXFMaterialEffects>();
         meff->setDeltaE(de);
         meff->setScatteringSigmas(sigmascat / sintheta, sigmascat);
@@ -3486,11 +3483,12 @@ namespace Trk {
        * Confirm intersection with the layer.
        */
       double zintersect = firstz + ((*it)->surfaceRepresentation().bounds().r() - firstr) * slope;
-      
-      if (std::abs(zintersect - (*it)->surfaceRepresentation().center().z()) > ((const CylinderSurface *) (&(*it)->surfaceRepresentation()))->bounds().halflengthZ() + 50) {
+
+      if (std::abs(zintersect - (*it)->surfaceRepresentation().center().z()) >
+          ((const CylinderSurface*)(&(*it)->surfaceRepresentation()))->bounds().halflengthZ() + 50) {
         continue;
       }
-      
+
       if ((*it) == endlayer) {
         continue;
       }
@@ -3651,6 +3649,7 @@ namespace Trk {
      */
     if (lastsistate->trackParameters() == nullptr) {
       std::unique_ptr<const TrackParameters> tmppar(m_propagator->propagateParameters(
+        ctx,
         *refpar,
         *lastsistate->surface(),
         alongMomentum, false,
@@ -3758,12 +3757,13 @@ namespace Trk {
           if (cache.m_acceleration) {
             if (tp == nullptr) {
               tp = m_extrapolator->extrapolate(
+                ctx,
                 *refpar2, 
                 *state->surface(),
                 alongMomentum, 
                 false, 
                 matEffects
-              );
+              ).release();
 
               if (tp == nullptr) {
                 return;
@@ -3912,13 +3912,12 @@ namespace Trk {
           if (cache.m_caloEntrance == nullptr) {
             ATH_MSG_ERROR("calo entrance not available");
           } else {
-            tmppar.reset(m_extrapolator->extrapolateToVolume(
-              *startmatpar1,
-              *cache.m_caloEntrance,
-              oppositeMomentum,
-              Trk::nonInteracting
-            ));
-            
+            tmppar = m_extrapolator->extrapolateToVolume(ctx,
+                                                         *startmatpar1,
+                                                         *cache.m_caloEntrance,
+                                                         oppositeMomentum,
+                                                         Trk::nonInteracting);
+
             if (tmppar != nullptr) {
               destsurf = &tmppar->associatedSurface();
             }
@@ -3926,7 +3925,11 @@ namespace Trk {
         }
 
         if (matvec_used) cache.m_matTempStore.push_back( std::move(matvec) );
-        matvec.reset( m_extrapolator->extrapolateM(*startmatpar1, *destsurf, oppositeMomentum, false, matEffects) );
+        matvec.reset( m_extrapolator->extrapolateM(ctx,
+                                                   *startmatpar1, 
+                                                   *destsurf, 
+                                                   oppositeMomentum, 
+                                                   false, matEffects) );
         matvec_used=false;
 
         if (matvec && !matvec->empty()) {
@@ -3977,14 +3980,13 @@ namespace Trk {
           if (cache.m_caloEntrance == nullptr) {
             ATH_MSG_ERROR("calo entrance not available");
           } else {
-            tmppar.reset(m_extrapolator->extrapolateToVolume(
-              *startmatpar2,
-              *cache.m_caloEntrance,
-              Trk::alongMomentum,
-              Trk::nonInteracting
-            ));
+            tmppar = m_extrapolator->extrapolateToVolume(ctx,
+                                                         *startmatpar2,
+                                                         *cache.m_caloEntrance,
+                                                         Trk::alongMomentum,
+                                                         Trk::nonInteracting);
           }
-          
+
           if (tmppar != nullptr) {
             const CylinderSurface *cylcalosurf = nullptr;
             
@@ -4028,8 +4030,9 @@ namespace Trk {
         }
 
         if (matvec_used) cache.m_matTempStore.push_back( std::move(matvec) );
-        matvec.reset( m_extrapolator->extrapolateM(*startmatpar2, *destsurf, alongMomentum, false, matEffects) );
-        matvec_used=false;
+        matvec.reset(m_extrapolator->extrapolateM(
+          ctx, *startmatpar2, *destsurf, alongMomentum, false, matEffects));
+        matvec_used = false;
 
         if (matvec && !matvec->empty()) {
           for (const auto & i : *matvec) {
@@ -4074,7 +4077,7 @@ namespace Trk {
       const IPropagator *prop = &*m_propagator;
 
       std::vector<MaterialEffectsOnTrack> calomeots = m_calotool->extrapolationSurfacesAndEffects(
-        *m_navigator->highestVolume(), 
+        *m_navigator->highestVolume(ctx), 
         *prop,
         *lastidpar,
         firstmuonhit->associatedSurface(),
@@ -4093,6 +4096,7 @@ namespace Trk {
           PropDirection propdir = alongMomentum;
     
           std::unique_ptr<const TrackParameters> layerpar(m_propagator->propagateParameters(
+            ctx,
             *prevtrackpars,
             calomeots[i].associatedSurface(), 
             propdir,
@@ -4151,6 +4155,7 @@ namespace Trk {
         for (int i = 0; i < (int) calomeots.size(); i++) {
           PropDirection propdir = oppositeMomentum;
           std::unique_ptr<const TrackParameters> layerpar(m_propagator->propagateParameters(
+            ctx,
             *prevtrackpars,
             calomeots[i].associatedSurface(), 
             propdir,
@@ -4217,12 +4222,11 @@ namespace Trk {
         if (cache.m_msEntrance == nullptr) {
           ATH_MSG_ERROR("MS entrance not available");
         } else if (cache.m_msEntrance->inside(lastcalopar->position())) {
-          muonpar1.reset(m_extrapolator->extrapolateToVolume(
-            *lastcalopar,
-            *cache.m_msEntrance,
-            Trk::alongMomentum,
-            Trk::nonInteracting
-          ));
+          muonpar1 = m_extrapolator->extrapolateToVolume(ctx,
+                                                         *lastcalopar,
+                                                         *cache.m_msEntrance,
+                                                         Trk::alongMomentum,
+                                                         Trk::nonInteracting);
 
           if (muonpar1 != nullptr) {
             Amg::Vector3D trackdir = muonpar1->momentum().unit();
@@ -4239,6 +4243,7 @@ namespace Trk {
             PlaneSurface curvlinsurf(trans);
 
             std::unique_ptr<const TrackParameters> curvlinpar(m_extrapolator->extrapolateDirectly(
+              ctx,
               *muonpar1, 
               curvlinsurf,
               Trk::alongMomentum,
@@ -4299,6 +4304,7 @@ namespace Trk {
             );
           } else {
             std::unique_ptr<const TrackParameters> tmppar(m_propagator->propagateParameters(
+              ctx,
               *muonpar1,
               firstmuonhit->associatedSurface(),
               oppositeMomentum, 
@@ -4316,8 +4322,13 @@ namespace Trk {
         const TrackParameters *prevtp = muonpar1.get();
         ATH_MSG_DEBUG("Obtaining downstream layers from Extrapolator");
         if (matvec_used) cache.m_matTempStore.push_back( std::move(matvec) );
-        matvec.reset( m_extrapolator->extrapolateM(*prevtp, *states.back()->surface(), alongMomentum, false, Trk::nonInteractingMuon));
-        matvec_used=false;
+        matvec.reset(m_extrapolator->extrapolateM(ctx,
+                                                  *prevtp,
+                                                  *states.back()->surface(),
+                                                  alongMomentum,
+                                                  false,
+                                                  Trk::nonInteractingMuon));
+        matvec_used = false;
 
         if (matvec && matvec->size() > 1000 && m_rejectLargeNScat) {
           ATH_MSG_DEBUG("too many scatterers: " << matvec->size());
@@ -4374,13 +4385,12 @@ namespace Trk {
         if (cache.m_msEntrance == nullptr) {
           ATH_MSG_ERROR("MS entrance not available");
         } else if (cache.m_msEntrance->inside(firstcalopar->position())) {
-          muonpar1.reset(m_extrapolator->extrapolateToVolume(
-            *firstcalopar,
-            *cache.m_msEntrance,
-            Trk::oppositeMomentum,
-            Trk::nonInteracting
-          ));
-          
+          muonpar1 = m_extrapolator->extrapolateToVolume(ctx,
+                                                         *firstcalopar,
+                                                         *cache.m_msEntrance,
+                                                         Trk::oppositeMomentum,
+                                                         Trk::nonInteracting);
+
           if (muonpar1 != nullptr) {
             Amg::Vector3D trackdir = muonpar1->momentum().unit();
             Amg::Vector3D curvZcrossT = -(trackdir.cross(Amg::Vector3D(0, 0, 1)));
@@ -4396,6 +4406,7 @@ namespace Trk {
             PlaneSurface curvlinsurf(trans);
 
             std::unique_ptr<const TrackParameters> curvlinpar(m_extrapolator->extrapolateDirectly(
+              ctx,
               *muonpar1, 
               curvlinsurf,
               Trk::oppositeMomentum,
@@ -4428,8 +4439,13 @@ namespace Trk {
         const TrackParameters *prevtp = muonpar1.get();
         ATH_MSG_DEBUG("Collecting upstream muon material from extrapolator");
         if (matvec_used) cache.m_matTempStore.push_back( std::move(matvec) );
-        matvec.reset( m_extrapolator->extrapolateM(*prevtp, *states[0]->surface(), oppositeMomentum, false, Trk::nonInteractingMuon) );
-        matvec_used=false;
+        matvec.reset(m_extrapolator->extrapolateM(ctx,
+                                                  *prevtp,
+                                                  *states[0]->surface(),
+                                                  oppositeMomentum,
+                                                  false,
+                                                  Trk::nonInteractingMuon));
+        matvec_used = false;
 
         if (matvec && !matvec->empty()) {
           ATH_MSG_DEBUG("Retrieved " << matvec->size() << " material states");
@@ -4452,8 +4468,11 @@ namespace Trk {
                   meff->setSigmaDeltaE(meot->energyLoss()->sigmaDeltaE());
                 }
 
-                const TrackParameters * tmpparams = (*matvec)[j]->trackParameters() != nullptr ? (*matvec)[j]->trackParameters()->clone() : nullptr;
-                
+                const TrackParameters* tmpparams =
+                  (*matvec)[j]->trackParameters() != nullptr
+                    ? (*matvec)[j]->trackParameters()->clone()
+                    : nullptr;
+
                 matstates.insert(matstates.begin(), std::make_unique<GXFTrackState>(
                   std::move(meff),
                   std::unique_ptr<const TrackParameters>(tmpparams)
@@ -4540,7 +4559,7 @@ namespace Trk {
           trajectory.addMaterialState(std::move(matstates[layerno]));
           
           if ((layerpar != nullptr) && matEffects != pion && matEffects != muon) {
-            const TrackingVolume *tvol = m_navigator->volume(layerpar->position());
+            const TrackingVolume *tvol = m_navigator->volume(ctx,layerpar->position());
             const Layer *lay = nullptr;
 
             if (tvol != nullptr) {
@@ -4584,10 +4603,9 @@ namespace Trk {
     }
     
     PerigeeSurface tmppersf;
-    std::unique_ptr<const TrackParameters> per(
-      m_extrapolator->extrapolate(param, tmppersf, oppositeMomentum, false, matEffects)
-    );
-    
+    std::unique_ptr<const TrackParameters> per(m_extrapolator->extrapolate(
+      Gaudi::Hive::currentContext(),param, tmppersf, oppositeMomentum, false, matEffects));
+
     if (per == nullptr) {
       ATH_MSG_DEBUG("Cannot make Perigee with starting parameters");
       return nullptr;
@@ -4697,8 +4715,11 @@ namespace Trk {
         GXFTrackState *scatstate = nullptr;
         GXFTrackState *scatstate2 = nullptr;
         int scatindex = 0;
-        
-        for (std::vector<std::unique_ptr<GXFTrackState>>::iterator it = trajectory.trackStates().begin(); it != trajectory.trackStates().end(); ++it) {
+
+        for (std::vector<std::unique_ptr<GXFTrackState>>::iterator it =
+               trajectory.trackStates().begin();
+             it != trajectory.trackStates().end();
+             ++it) {
           if ((**it).getStateType(TrackStateOnSurface::Scatterer)) {
             if (
               scatindex == trajectory.numberOfScatterers() / 2 || 
@@ -4712,7 +4733,7 @@ namespace Trk {
             scatstate = (*it).get();
           }
         }
-        
+
         // @TODO coverity complains about a possible null pointer dereferencing in scatstate->... or scatstate2->...
         // it seems to me that if (**it).materialEffects()->deltaE()==0 of the first scatterer
         // than scatstate will be NULL.
@@ -5006,8 +5027,12 @@ namespace Trk {
 	    return nullptr;
 	  }
 	}
-	ATH_MSG_DEBUG("Iter = " << it << " | nTRTStates = " << ntrthits << " | nTRTPrecHits = " << ntrtprechits << " | nTRTTubeHits = " << ntrttubehits << " | nOutliers = " << trajectory.numberOfOutliers());
-        
+        ATH_MSG_DEBUG("Iter = " << it << " | nTRTStates = " << ntrthits
+                                << " | nTRTPrecHits = " << ntrtprechits
+                                << " | nTRTTubeHits = " << ntrttubehits
+                                << " | nOutliers = "
+                                << trajectory.numberOfOutliers());
+
         if (!trajectory.converged()) {
           cache.m_fittercode = updateFitParameters(trajectory, b, lu);
           if (cache.m_fittercode != FitterStatusCode::Success) {
@@ -5123,9 +5148,12 @@ namespace Trk {
       incrementFitStatus(S_NOT_ENOUGH_MEAS);
       cache.m_fittercode = FitterStatusCode::OutlierLogicFailure;
     }
-    
-    double cut = (finaltrajectory->numberOfSiliconHits() == finaltrajectory->numberOfHits())? 999.0 : m_chi2cut.value();
-    
+
+    double cut = (finaltrajectory->numberOfSiliconHits() ==
+                  finaltrajectory->numberOfHits())
+                   ? 999.0
+                   : m_chi2cut.value();
+
     if (
       runOutlier && 
       (track != nullptr) && (
@@ -5149,6 +5177,7 @@ namespace Trk {
   }
 
   void GlobalChi2Fitter::fillResiduals(
+    const EventContext& ctx,
     Cache & cache,
     GXFTrajectory & trajectory, 
     int it,
@@ -5342,18 +5371,20 @@ namespace Trk {
           state->materialEffects()->isMeasuredEloss() && 
           res[nmeas - nbrem + bremno] / (.001 * state->materialEffects()->sigmaDeltaEAve()) > 2.5
         ) {
-          const TrackParameters *parforcalo = trajectory.prefit() != 0? trajectory.referenceParameters() : states[hitno - 2]->trackParameters();
-          const IPropagator *prop = &*m_propagator;
-          
-          std::vector < MaterialEffectsOnTrack > calomeots = m_calotoolparam->extrapolationSurfacesAndEffects(
-            *m_navigator->highestVolume(),
-            *prop,
-            *parforcalo,
-            parforcalo->associatedSurface(),
-            Trk::anyDirection,
-            Trk::muon
-          );
-          
+          const TrackParameters* parforcalo =
+            trajectory.prefit() != 0 ? trajectory.referenceParameters()
+                                     : states[hitno - 2]->trackParameters();
+          const IPropagator* prop = &*m_propagator;
+
+          std::vector<MaterialEffectsOnTrack> calomeots =
+            m_calotoolparam->extrapolationSurfacesAndEffects(
+              *m_navigator->highestVolume(ctx),
+              *prop,
+              *parforcalo,
+              parforcalo->associatedSurface(),
+              Trk::anyDirection,
+              Trk::muon);
+
           if (calomeots.size() == 3) {
             averagenergyloss = std::abs(calomeots[1].energyLoss()->deltaE());
             double newres = .001 * averagenergyloss - energy + bremEnergy;
@@ -5517,7 +5548,10 @@ namespace Trk {
             int cols = trajectory.m_straightline ? 4 : 5;
 
             if (i == 0) {
-              weightderiv.row(measno).head(cols) = (derivatives.row(0).head(cols) * cosstereo + sinstereo * derivatives.row(1).head(cols)) / error[measno];
+              weightderiv.row(measno).head(cols) =
+                (derivatives.row(0).head(cols) * cosstereo +
+                 sinstereo * derivatives.row(1).head(cols)) /
+                error[measno];
             } else {
               weightderiv.row(measno).head(cols) = derivatives.row(i).head(cols) / error[measno];
             }
@@ -5649,7 +5683,7 @@ namespace Trk {
     
     b.setZero();
 
-    fillResiduals(cache, trajectory, it, a, b, lu, doderiv);
+    fillResiduals(ctx, cache, trajectory, it, a, b, lu, doderiv);
 
     double newredchi2 = (trajectory.nDOF() > 0) ? trajectory.chi2() / trajectory.nDOF() : 0;
 
@@ -6902,15 +6936,12 @@ namespace Trk {
         return nullptr;
       }
     } else if (cache.m_acceleration && (firstmeasstate->trackParameters() != nullptr)) {
-      per.reset(
-        m_extrapolator->extrapolate(
-          *firstmeasstate->trackParameters(),
-          PerigeeSurface(Amg::Vector3D(0, 0, 0)),
-          oppositeMomentum,
-          false,
-          matEffects
-        )
-      );
+      per = m_extrapolator->extrapolate(ctx,
+                                        *firstmeasstate->trackParameters(),
+                                        PerigeeSurface(Amg::Vector3D(0, 0, 0)),
+                                        oppositeMomentum,
+                                        false,
+                                        matEffects);
     } else {
       per.reset(oldtrajectory.referenceParameters()->clone());
     }
@@ -7233,6 +7264,7 @@ namespace Trk {
        * to ensure that the hole counts are updated.
        */
       std::vector<std::unique_ptr<const Trk::TrackParameters>> bl = m_extrapolator->extrapolateBlindly(
+        ctx,
         *last.trackParameters(),
         Trk::alongMomentum,
         false,

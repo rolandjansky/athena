@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 /***************************************************************************
@@ -119,6 +119,8 @@ namespace Trk
                                         ParticleHypothesis particleHypothesis,
                                         FitParameters& fitParameters,
                                         Garbage_t& garbage) const {
+
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     // nothing to do if starting with vertex measurement
     if (measurements.front()->isVertex()) {
       return;
@@ -381,7 +383,8 @@ namespace Trk
           if (leadingScatterers++ || !firstMeasurementSurface) {
             if (m_useStepPropagator == 99) {
               const TrackSurfaceIntersection* newIntersectionSTEP =
-                m_stepPropagator->intersectSurface((**r).trackParameters()->associatedSurface(),
+                m_stepPropagator->intersectSurface(ctx,
+                                                   (**r).trackParameters()->associatedSurface(),
                                                    intersection,
                                                    qOverP,
                                                    Trk::MagneticFieldProperties(Trk::FullField),
@@ -395,7 +398,8 @@ namespace Trk
               }
             } else {
               intersection = m_useStepPropagator >= 1 ?
-                             m_stepPropagator->intersectSurface((**r).trackParameters()->associatedSurface(),
+                             m_stepPropagator->intersectSurface(ctx,
+                                                                (**r).trackParameters()->associatedSurface(),
                                                                 intersection,
                                                                 qOverP,
                                                                 m_stepField,
@@ -468,7 +472,8 @@ namespace Trk
       if (leadingMeas) {
         if (m_useStepPropagator == 99) {
           const TrackSurfaceIntersection* newIntersectionSTEP =
-            m_stepPropagator->intersectSurface(perigee->associatedSurface(),
+            m_stepPropagator->intersectSurface(ctx,
+                                               perigee->associatedSurface(),
                                                intersection,
                                                qOverP,
                                                Trk::MagneticFieldProperties(Trk::FullField),
@@ -481,7 +486,8 @@ namespace Trk
           }
         } else {
           intersection = m_useStepPropagator >= 1 ?
-                         m_stepPropagator->intersectSurface(perigee->associatedSurface(),
+                         m_stepPropagator->intersectSurface(ctx,
+                                                            perigee->associatedSurface(),
                                                             intersection,
                                                             qOverP,
                                                             m_stepField,
@@ -658,15 +664,18 @@ namespace Trk
   MaterialAllocator::leadingSpectrometerTSOS(const TrackParameters& spectrometerParameters,
                                              Garbage_t& garbage) const {
 
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     const Trk::TrackingVolume* spectrometerEntrance = getSpectrometerEntrance();
     if (!spectrometerEntrance) return nullptr;
     // check input parameters are really in the spectrometer
     if (m_calorimeterVolume->inside(spectrometerParameters.position())) return nullptr;
 
-    std::unique_ptr<const TrackParameters> entranceParameters(m_extrapolator->extrapolateToVolume(spectrometerParameters,
-                                                              *spectrometerEntrance,
-                                                              anyDirection,
-                                                              Trk::nonInteracting));
+    std::unique_ptr<const TrackParameters> entranceParameters(m_extrapolator->extrapolateToVolume(
+        ctx,
+        spectrometerParameters,
+        *spectrometerEntrance,
+        anyDirection,
+        Trk::nonInteracting));
     if (!entranceParameters) {
       ATH_MSG_VERBOSE(std::setiosflags(std::ios::fixed)
                       << "leadingSpectrometerTSOS: no material found from RZ"
@@ -1043,9 +1052,10 @@ namespace Trk
                                           const BoundaryCheck& boundsCheck,
                                           ParticleHypothesis particleHypothesis,
                                           Garbage_t& garbage) const {
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     // fix up material duplication appearing after recent TrackingGeometry speed-up
     const std::vector<const TrackStateOnSurface*>* TGMaterial =
-      extrapolator->extrapolateM(parameters, surface, dir, boundsCheck, particleHypothesis);
+      extrapolator->extrapolateM(ctx, parameters, surface, dir, boundsCheck, particleHypothesis);
 
     if (!TGMaterial || TGMaterial->empty()) return TGMaterial;
 
@@ -1086,6 +1096,7 @@ namespace Trk
                                    ParticleHypothesis particleHypothesis,
                                    const TrackParameters& startParameters,
                                    Garbage_t& garbage) const {
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     // gather material between first and last measurements inside indet volume
     // allow a few mm radial tolerance around first&last measurements for their associated material
     double tolerance = 10. * Gaudi::Units::mm / startParameters.momentum().unit().perp();
@@ -1123,7 +1134,8 @@ namespace Trk
 
           if (m_useStepPropagator == 99) {
             const TrackSurfaceIntersection* newIntersectionSTEP =
-              m_stepPropagator->intersectSurface(plane,
+              m_stepPropagator->intersectSurface(ctx,
+                                                 plane,
                                                  intersection,
                                                  qOverP,
                                                  Trk::MagneticFieldProperties(Trk::FullField),
@@ -1141,7 +1153,8 @@ namespace Trk
             }
           } else {
             intersection = m_useStepPropagator >= 1 ?
-                           m_stepPropagator->intersectSurface(plane,
+                           m_stepPropagator->intersectSurface(ctx,
+                                                              plane,
                                                               intersection,
                                                               qOverP,
                                                               m_stepField,
@@ -1955,6 +1968,7 @@ namespace Trk
                                           FitParameters& fitParameters,
                                           const TrackParameters& startParameters,
                                           Garbage_t& garbage) const {
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     // return if no MS measurement
     if (m_calorimeterVolume->inside(measurements.back()->position())) return;
 
@@ -2068,10 +2082,12 @@ namespace Trk
                                                                              *innerMeasurement,
                                                                              false));
       if (!innerParameters) innerParameters.reset(startParameters.clone());
-      entranceParameters.reset( m_extrapolator->extrapolateToVolume(*innerParameters,
-                                                                           *spectrometerEntrance,
-                                                                           anyDirection,
-                                                                           Trk::nonInteracting));
+      entranceParameters =
+        m_extrapolator->extrapolateToVolume(ctx,
+                                            *innerParameters,
+                                            *spectrometerEntrance,
+                                            anyDirection,
+                                            Trk::nonInteracting);
       if (entranceParameters) {
         startDirection = entranceParameters->momentum().unit();
         startPosition = entranceParameters->position();
@@ -2102,20 +2118,23 @@ namespace Trk
     if (!outerParameters) outerParameters.reset(startParameters.clone());
     const Surface& endSurface = *measurements.back()->surface();
     std::unique_ptr<const TrackParameters> endParameters(
-      m_extrapolator->extrapolate(*outerParameters,
-                                              endSurface,
-                                              anyDirection,
-                                              false,
-                                              particleHypothesis));
+      m_extrapolator->extrapolate(ctx,
+                                  *outerParameters,
+                                  endSurface,
+                                  anyDirection,
+                                  false,
+                                  particleHypothesis));
    if (endParameters.get() == outerParameters.get()) throw std::logic_error("Extrapolator returned input parameters.");
 
    if (!endParameters) {
-      endParameters.reset(m_extrapolator->extrapolate(*outerParameters,
-                                                              endSurface,
-                                                              anyDirection,
-                                                              false,
-                                                              Trk::nonInteracting));
-     if (endParameters.get() == outerParameters.get()) throw std::logic_error("Extrapolator returned input parameters.");
+     endParameters = m_extrapolator->extrapolate(ctx,
+                                                 *outerParameters,
+                                                 endSurface,
+                                                 anyDirection,
+                                                 false,
+                                                 Trk::nonInteracting);
+     if (endParameters.get() == outerParameters.get())
+       throw std::logic_error("Extrapolator returned input parameters.");
 
      if (!endParameters) {
         // failed extrapolation

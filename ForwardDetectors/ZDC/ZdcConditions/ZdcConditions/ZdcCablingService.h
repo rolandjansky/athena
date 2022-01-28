@@ -56,8 +56,7 @@ public:
  protected:
 
     /** Default constructor protected */
-    ZdcCablingService(const ZdcID* zdcID,
-                      const ZdcHardwareID* zdcHWID) ;
+    ZdcCablingService(const ZdcID* zdcID);//  const ZdcHardwareID* zdcHWID) ;
 
     /** Destructor protected */
     virtual ~ZdcCablingService() ;

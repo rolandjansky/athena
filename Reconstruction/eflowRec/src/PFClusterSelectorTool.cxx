@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "eflowRec/eflowRecCluster.h"
@@ -23,7 +23,11 @@ StatusCode PFClusterSelectorTool::initialize(){
   return StatusCode::SUCCESS;
 }
 
-StatusCode PFClusterSelectorTool::execute(eflowRecClusterContainer& theEFlowRecClusterContainer,xAOD::CaloClusterContainer& theCaloClusterContainer){
+StatusCode
+PFClusterSelectorTool::execute(
+  eflowRecClusterContainer& theEFlowRecClusterContainer,
+  xAOD::CaloClusterContainer& theCaloClusterContainer) const
+{
 
   SG::ReadHandle<xAOD::CaloClusterContainer> caloClustersReadHandle(m_caloClustersReadHandleKey);
   
@@ -81,11 +85,19 @@ StatusCode PFClusterSelectorTool::finalize(){
   return StatusCode::SUCCESS;
 }
 
-void 
-PFClusterSelectorTool::retrieveLCCalCellWeight(const double& energy, const unsigned& index, std::map<IdentifierHash,double>& cellsWeight, const xAOD::CaloClusterContainer& caloCalClustersContainer, const CaloDetDescrManager& calo_dd_man) {
+void
+PFClusterSelectorTool::retrieveLCCalCellWeight(
+  const double& energy,
+  const unsigned& index,
+  std::map<IdentifierHash, double>& cellsWeight,
+  const xAOD::CaloClusterContainer& caloCalClustersContainer,
+  const CaloDetDescrManager& calo_dd_man) const
+{
   /* match CaloCluster with CaloCalCluster to obtain cell weight */
-  /* first try the position at 'index'. If we are lucky, the loop can be avoided. */
-  /* Note the read handle has been tested to be valid prior to the call of this function */
+  /* first try the position at 'index'. If we are lucky, the loop can be
+   * avoided. */
+  /* Note the read handle has been tested to be valid prior to the call of this
+   * function */
   const xAOD::CaloCluster* matchedCalCluster = caloCalClustersContainer.at(index);
   if (matchedCalCluster){
     if (!(fabs(energy - matchedCalCluster->rawE()) < 0.001)) {
@@ -112,5 +124,4 @@ PFClusterSelectorTool::retrieveLCCalCellWeight(const double& energy, const unsig
       cellsWeight[myHashId] = itCell.weight();
     }
   } else ATH_MSG_WARNING("Invalid pointer to matched cluster - could not look up local hadron cell weights");
-  return ;
 }

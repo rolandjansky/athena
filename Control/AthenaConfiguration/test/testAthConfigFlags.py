@@ -1,8 +1,9 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from AthenaConfiguration.AccumulatorCache import AccumulatorCache
+from AthenaConfiguration.Enums import Format
 
 import unittest
 
@@ -85,6 +86,28 @@ class BasicTests(FlagsSetup):
         self.assertEqual(self.flags.athHash() , hash_value)
         self.assertEqual(self.flags.Extra.Y, 'foo_bar')
         self.assertEqual(self.flags.athHash() , hash_value)
+
+    def test_enums(self):
+        """Test that enums are properly validated"""
+        self.flags.addFlag("Format", Format.BS, enum=Format)
+        self.flags.addFlag("FormatFun", lambda flags : Format.POOL if flags.Atest else Format.BS, enum=Format)
+        self.flags.addFlag("FormatPOOL", Format.BS, enum=Format)
+        self.flags.FormatPOOL = Format.POOL
+        self.flags.lock()
+
+    def test_enums_incorrect_assign(self):
+        """Test that enums are properly validated (incorrect flags)"""
+        self.flags.addFlag("FormatWrong", Format.BS, enum=Format)
+        with self.assertRaises(Exception) as _:
+            self.flags.FormatWrong == "BS"
+
+        with self.assertRaises(Exception) as _:
+            self.flags.FormatWrong = "POOL"
+
+    def test_enums_incorrect_lock(self):
+        """Test that enums are properly validated (incorrect flags)"""
+        self.flags.addFlag("FormatWrong", lambda flags : "ABC", enum=Format)
+        self.assertRaises(RuntimeError, self.flags.lock)
 
 
 class TestFlagsSetupDynamic(FlagsSetup):

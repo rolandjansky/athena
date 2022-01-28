@@ -12,6 +12,7 @@
 
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODJet/JetContainer.h"
+#include "CaloEvent/CaloCellContainer.h"
 
 // JVT
 #include "JetInterface/IJetUpdateJvt.h"
@@ -82,6 +83,8 @@ class TileJetMonitorAlgorithm : public AthMonitorAlgorithm {
     SG::ReadHandleKey<xAOD::JetContainer> m_jetContainerKey{this,
         "JetContainer", "AntiKt4EMTopoJets", "Jet container for monitoring"};
 
+    SG::ReadHandleKey<CaloCellContainer> m_caloCellContainerKey{this,
+        "CaloCellContainer", "AllCalo", "Calo cell container name"};
 
    const TileID* m_tileID;
    const TileHWID* m_tileHWID;

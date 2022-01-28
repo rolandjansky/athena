@@ -121,7 +121,7 @@ Trk::Navigator::nextBoundarySurface(const EventContext& ctx,
                                     const Trk::TrackParameters& parms,
                                     Trk::PropDirection dir) const
 {
-  const Trk::TrackingVolume* trackingVolume = volume(parms.position());
+  const Trk::TrackingVolume* trackingVolume = volume(ctx,parms.position());
 
   if (trackingVolume) {
     return (nextBoundarySurface(ctx,prop, parms, dir, *trackingVolume));
@@ -381,11 +381,11 @@ Trk::Navigator::atVolumeBoundary(const Trk::TrackParameters* parms,
 }
 
 const Trk::TrackParameters*
-Trk::Navigator::closestParameters(const Trk::Track& trk,
+Trk::Navigator::closestParameters(const EventContext& ctx,
+                                  const Trk::Track& trk,
                                   const Trk::Surface& sf,
                                   const Trk::IPropagator* propptr) const
 {
-
   // -- corresponds to Extrapolator::m_searchLevel = 2/3 - search with Propagation
   if (propptr && !m_searchWithDistance) {
     const Trk::TrackParameters *closestTrackParameters = nullptr;
@@ -403,7 +403,7 @@ Trk::Navigator::closestParameters(const Trk::Track& trk,
       }
 
       // const Trk::IntersectionSolution* interSolutions =  propptr->intersect(**it, sf, *highestVolume);
-      const Trk::IntersectionSolution *interSolutions = propptr->intersect(**it, sf, m_fieldProperties);
+      const Trk::IntersectionSolution *interSolutions = propptr->intersect(ctx,**it, sf, m_fieldProperties);
       if (!interSolutions) {
         return nullptr;
       }

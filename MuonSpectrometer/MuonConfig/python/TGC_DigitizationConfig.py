@@ -52,6 +52,9 @@ def TGC_DigitizationToolCfg(flags, name="TgcDigitizationTool", **kwargs):
         acc.merge(TgcDigitASDposCondAlgCfg(flags))
         kwargs.setdefault("TGCDigitASDposKey", "TGCDigitASDposData")
 
+    from RngComps.RandomServices import AthRNGSvcCfg
+    kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
+
     TgcDigitizationTool = CompFactory.TgcDigitizationTool
     acc.setPrivateTools(TgcDigitizationTool(name, **kwargs))
     return acc
@@ -68,6 +71,9 @@ def TGC_OverlayDigitizationToolCfg(flags, name="Tgc_OverlayDigitizationTool", **
         from MuonConfig.MuonCondAlgConfig import TgcDigitASDposCondAlgCfg
         acc.merge(TgcDigitASDposCondAlgCfg(flags))
         kwargs.setdefault("TGCDigitASDposKey", "TGCDigitASDposData")
+
+    from RngComps.RandomServices import AthRNGSvcCfg
+    kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
 
     TgcDigitizationTool = CompFactory.TgcDigitizationTool
     acc.setPrivateTools(TgcDigitizationTool(name, **kwargs))

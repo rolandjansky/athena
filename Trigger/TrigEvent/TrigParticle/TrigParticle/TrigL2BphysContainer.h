@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -30,7 +30,10 @@ Modified:
 class TrigL2Bphys;
 
 //typedef DataVector<TrigL2Bphys> TrigL2BphysContainer;
-class TrigL2BphysContainer : public DataVector<TrigL2Bphys> { }; 
+class TrigL2BphysContainer : public DataVector<TrigL2Bphys> {
+public:
+  using DataVector::DataVector;  // inherit constructors
+};
 
 CLASS_DEF( TrigL2BphysContainer , 1305857775 , 1 )
 

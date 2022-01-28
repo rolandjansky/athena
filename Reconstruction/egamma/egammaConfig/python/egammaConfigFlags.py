@@ -30,12 +30,18 @@ def createEgammaConfigFlags():
 
     # do egamma truth association when running on MC
     egcf.addFlag("Egamma.doTruthAssociation",
-                 lambda prevFlags: prevFlags.Input.isMC)
+                 lambda prevFlags: prevFlags.Input.isMC or
+                 prevFlags.Overlay.DataOverlay)
 
     # Do e/gamma track thinning (Although we call the alg slimming...)
     egcf.addFlag("Egamma.doTrackThinning",
                  lambda prevFlags: prevFlags.Output.doWriteAOD and
                  prevFlags.Egamma.doTracking)
+
+    # Keep egamma Cells in AOD
+    egcf.addFlag("Egamma.keepCaloCellsAOD",
+                 lambda prevFlags: prevFlags.Egamma.doCentral or
+                 prevFlags.Egamma.doForward)
 
     # The cluster corrections/calib
     egcf.addFlag("Egamma.Calib.ClusterCorrectionVersion",
@@ -75,10 +81,10 @@ def createEgammaConfigFlags():
     egcf.addFlag("Egamma.Keys.Output.CaloClustersSuppAOD", '')
 
     egcf.addFlag("Egamma.Keys.Output.EgammaSuppAOD",
-                     '-e033.-e011.-e333.-e335.-e337.-e377.'
-                     '-isEMLoose.-isEMTight.'
-                     '-ptconeCorrBitset.-ptconecoreTrackPtrCorrection.'
-                     '-topoetconeCorrBitset')
+                 '-e033.-e011.-e333.-e335.-e337.-e377.'
+                 '-isEMLoose.-isEMTight.'
+                 '-ptconeCorrBitset.-ptconecoreTrackPtrCorrection.'
+                 '-topoetconeCorrBitset')
 
     egcf.addFlag("Egamma.Keys.Output.Electrons", 'Electrons')
     egcf.addFlag("Egamma.Keys.Output.ElectronsSuppESD", '')

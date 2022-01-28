@@ -51,7 +51,7 @@ endfunction( _add_test )
 
 # Test(s) in the package:
 # ---------------------------
-set( TEST_IGNORE_STR "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:|DEBUG.*ThinningCacheTool|DEBUG setAttribute|metadataItemList|Creating branch for new dynamic" )
+set( TEST_IGNORE_STR "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:|DEBUG.*ThinningCacheTool|DEBUG setAttribute|DEBUG Failed to find TTree:.*to set POOL property|DEBUG.*failed process POOL.*attributes.|metadataItemList|Creating branch for new dynamic" )
 
 # Write 'Hits', with multistreamand
 _add_test( AthenaPoolExample_Write 

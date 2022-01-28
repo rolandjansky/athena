@@ -149,20 +149,20 @@ def LArDigitMonConfigCore(helper, algoinstance,inputFlags):
                                   xbins=int(slot_n),xmin=slot_low,xmax=slot_up,
                                   ybins=int(ft_n), ymin=ft_low, ymax=ft_up)
        array.defineHistogram('Nullslot,NullFT,Nullweight;RAW_NullDigit', 
-                                  title='% chan/FEB/events with min=0 ADC ',
+                                  title='% chan/FEB/events with min=0 ADC;Slot;FT',
                                   type='TProfile2D',
                                   path=hist_path,
                                   xbins=int(slot_n),xmin=slot_low,xmax=slot_up,
                                   ybins=int(ft_n), ymin=ft_low, ymax=ft_up)
        array.defineHistogram('Nullcrate,Nullchan;RAW_NullDigitChan', 
-                                  title='% chan/FEB/events with min=0 ADC - All Gain - All Stream',
+                                  title='% chan/FEB/events with min=0 ADC - All Gain - All Stream;Crate;Channel',
                                   type='TH2I',
                                   path=hist_path,
                                   xbins=crates_n,xmin=crates_low,xmax=crates_up,
                                   ybins=chan_n, ymin=chan_low, ymax=chan_up)
 
        array.defineHistogram('slot,FT,MaxPos;RAW_AvePosMaxDig', 
-                                  title='Average position of Max Digit ',
+                                  title='Average position of Max Digit;Slot;FT',
                                   type='TProfile2D',
                                   path=hist_path,
                                   xbins=int(slot_n),xmin=slot_low,xmax=slot_up,

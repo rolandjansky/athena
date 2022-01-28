@@ -5,7 +5,9 @@
 #include "MuonHistUtils/MomentumPullPlots.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
+#include "FourMomUtils/xAODP4Helpers.h"
 
+using namespace xAOD::P4Helpers;
 namespace Muon{
 
 void MomentumPullPlots::initializePlots(){
@@ -30,22 +32,15 @@ void MomentumPullPlots::initializePlots(){
   const xAOD::TrackParticle* id = mu.trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
 
   ////////////////// sorting out the mess with the link to the extrapolated muon
-  //for 20.1.0...
-  /// const xAOD::TrackParticle* me = mu.trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle); // points to the ExtrapolatedMuonSpectrometerTrackParticle, the ExtrapolatedMuonSpectrometerTrackParticle link doesn't exist
-
-  //for 20.1.3...
-  //const xAOD::TrackParticle* me = mu.trackParticle(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle);
-
-  //trying to accomodate both in a way that the code compiles in both releases
-  int correctEnum = (int) xAOD::Muon::MuonSpectrometerTrackParticle;
-  if (mu.isAvailable< ElementLink<xAOD::TrackParticleContainer> >("extrapolatedMuonSpectrometerTrackParticleLink") && (mu.auxdata<ElementLink<xAOD::TrackParticleContainer> >("extrapolatedMuonSpectrometerTrackParticleLink")).isValid()) correctEnum+=2; 
+  
   //check correct numbering in Muon.h -> OK!
-  const xAOD::TrackParticle* me = mu.trackParticle( (xAOD::Muon::TrackParticleType) correctEnum );
+  const xAOD::TrackParticle* me = mu.trackParticle(xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle);
+  if (!me) me = mu.trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle);
     
   if (cb && me){
     dpt_cbme->Fill( (cb->pt() - me->pt())*0.001, weight);
     ddpt_cbme->Fill( (cb->pt() - me->pt())/cb->pt(), weight);
-    dphi_cbme->Fill( cb->phi() - me->phi(),weight);
+    dphi_cbme->Fill( deltaPhi(cb->phi(), me->phi()),weight);
     deta_cbme->Fill( cb->eta() - me->eta(), weight);
     pt_cbme->Fill( cb->pt()*0.001, me->pt()*0.001 , weight);
   }
@@ -53,7 +48,7 @@ void MomentumPullPlots::initializePlots(){
   if (id && me){
     dpt_idme->Fill( (id->pt() - me->pt())*0.001, weight);
     ddpt_idme->Fill( (id->pt() - me->pt())/id->pt(), weight);
-    dphi_idme->Fill( id->phi() - me->phi(), weight);
+    dphi_idme->Fill( deltaPhi(id->phi() , me->phi()), weight);
     deta_idme->Fill( id->eta() - me->eta(), weight);
     pt_meid->Fill( me->pt()*0.001, id->pt()*0.001 , weight);
   }

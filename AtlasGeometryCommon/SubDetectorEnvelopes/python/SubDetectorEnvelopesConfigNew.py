@@ -25,7 +25,7 @@ def EnvelopeDefSvcCfg(ConfigFlags, name="AtlasGeometry_EnvelopeDefSvc", **kwargs
     BeamPipe = Volume()
 
     if ConfigFlags.GeoModel.Run not in ["RUN1", "RUN2", "RUN3"]:
-        BeamPipe.addRZ(   34.3,   3545.0 )
+        BeamPipe.addRZ(   28.8,   3545.0 )
         BeamPipe.addRZ(  120.0,   3545.0 )
     else:
         BeamPipe.addRZ(   34.3,   3475.0 )
@@ -52,7 +52,7 @@ def EnvelopeDefSvcCfg(ConfigFlags, name="AtlasGeometry_EnvelopeDefSvc", **kwargs
     # InDet should include HGTD when it's turned on
     if ConfigFlags.GeoModel.Run not in ["RUN1", "RUN2", "RUN3"]:
         InDet.addRZ( 1148.,  3545. )
-        InDet.addRZ(  34.3,  3545. )
+        InDet.addRZ(  28.8,  3545. )
     else:
         InDet.addRZ( 1148.,  3475. )
         InDet.addRZ(  34.3,  3475. )

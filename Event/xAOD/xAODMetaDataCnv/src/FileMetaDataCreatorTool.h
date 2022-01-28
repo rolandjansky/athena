@@ -148,6 +148,9 @@ class FileMetaDataCreatorTool
   void set(const xAOD::FileMetaData::MetaDataType, float);
   void set(const xAOD::FileMetaData::MetaDataType, const std::string&);
 
+  /// helper function to add values to lists
+  void addUniqueValue(std::string type, uint32_t value);
+
   /// The object created for this output stream
   std::unique_ptr< xAOD::FileMetaData > m_info;
 

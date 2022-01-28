@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = "Configure GSF track fitter building"
 
@@ -21,7 +21,12 @@ def EMGSFExtrapolatorToolCfg(flags, **kwargs):
         from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasNavigatorCfg
 
         egTrkNavigator = AtlasNavigatorCfg(flags, name="egTrkNavigator")
-        kwargs["Navigator"] = acc.getPrimaryAndMerge(egTrkNavigator)
+        kwargs["Navigator"] = acc.popToolsAndMerge(egTrkNavigator)
+
+    if "EnergyLossUpdator" not in kwargs:
+        from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasEnergyLossUpdatorCfg
+        ELossUpdator = AtlasEnergyLossUpdatorCfg(flags)
+        kwargs["EnergyLossUpdator"] = acc.popToolsAndMerge(ELossUpdator)
 
     if "GsfMaterialConvolution" not in kwargs:
         GsfMaterialUpdator = CompFactory.Trk.GsfMaterialMixtureConvolution(
@@ -72,7 +77,7 @@ if __name__ == "__main__":
 
     Configurable.configurableRun3Behavior = True
 
-    ConfigFlags.Input.Files = defaultTestFiles.RDO
+    ConfigFlags.Input.Files = defaultTestFiles.RDO_RUN2
     ConfigFlags.fillFromArgs()
     ConfigFlags.lock()
     ConfigFlags.dump()

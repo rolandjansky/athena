@@ -28,8 +28,7 @@ ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data'
 ex.threads = 4
 ex.concurrent_events = 4
-# LS2_v1 soon to be renamed to Dev_pp_run3_v1
-ex.args = '-c "setMenu=\'LS2_v1_TriggerValidation_prescale\';doL1Sim=True;rewriteLVL1=True;doWriteBS=True;doWriteRDOTrigger=False;"'
+ex.args = '-c "setMenu=\'Dev_pp_run3_v1_TriggerValidation_prescale\';doL1Sim=True;rewriteLVL1=True;doWriteBS=True;doWriteRDOTrigger=False;"'
 
 checkBS = Step.Step("CheckBS")
 checkBS.executable = 'trigbs_dumpHLTContentInBS_run3.py'

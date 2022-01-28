@@ -144,7 +144,7 @@ MuonSegmentInOverlapResolvingTool::estimateSegmentDirection(const MuonSegment& s
     // Confusing but  Amg::Vector3D can hold a 3D local position
     Amg::Vector3D lPos1  = gToLocal1 * gPos1;
     Amg::Vector3D lPos21 = gToLocal2 * gPos1;
-    Amg::Vector3D gPos2  = seg2.globalPosition();
+    const Amg::Vector3D& gPos2  = seg2.globalPosition();
     Amg::Vector3D lPos12 = gToLocal1 * gPos2;
     Amg::Vector3D lPos2  = gToLocal2 * gPos2;
     // In local frame of segment 2 shift segment 1 to obtain zero residual
@@ -262,7 +262,7 @@ MuonSegmentInOverlapResolvingTool::bestPhiMatchAnalytic(const MuonSegment& seg1,
     Amg::Vector3D lDirn1(dxn, dyn, dzn);
     // Global direction of both segments
     Amg::Vector3D       segDir1Min = gToGlobal1.linear() * lDirn1;
-    Amg::Vector3D       segDir2Min = segDir1Min;  // updateSegmentDirection(seg2,segDir1Min.phi());
+    const Amg::Vector3D&       segDir2Min = segDir1Min;  // updateSegmentDirection(seg2,segDir1Min.phi());
     Trk::LocalDirection segLocDir1;
     seg2.associatedSurface().globalToLocalDirection(segDir1Min, segLocDir1);
     Trk::LocalDirection segLocDir2;
@@ -453,7 +453,7 @@ MuonSegmentInOverlapResolvingTool::segmentGeometrySummary(const MuonSegment& seg
 }
 
 MuonSegmentInOverlapResolvingTool::SegmentMatchResult
-MuonSegmentInOverlapResolvingTool::matchResult(const MuonSegment& seg1, const MuonSegment& seg2) const
+MuonSegmentInOverlapResolvingTool::matchResult(const EventContext& ctx, const MuonSegment& seg1, const MuonSegment& seg2) const
 {
 
     ATH_MSG_DEBUG(" First segment  " << m_printer->print(seg1) << std::endl
@@ -468,8 +468,8 @@ MuonSegmentInOverlapResolvingTool::matchResult(const MuonSegment& seg1, const Mu
     result.segmentResult2 = bestPositionAlongTubeMatch(seg2, seg1, result.phiResult.segmentDirection2);
 
     // calculate the average pull of the phi hits on the segments with the new parameters
-    result.averagePhiHitPullSegment1 = checkPhiHitConsistency(seg1, result.phiResult, result.segmentResult1);
-    result.averagePhiHitPullSegment2 = checkPhiHitConsistency(seg2, result.phiResult, result.segmentResult2);
+    result.averagePhiHitPullSegment1 = checkPhiHitConsistency(ctx, seg1, result.phiResult, result.segmentResult1);
+    result.averagePhiHitPullSegment2 = checkPhiHitConsistency(ctx, seg2, result.phiResult, result.segmentResult2);
 
     if (result.segmentResult1.goodMatch && result.segmentResult2.goodMatch) {
 
@@ -489,7 +489,7 @@ MuonSegmentInOverlapResolvingTool::matchResult(const MuonSegment& seg1, const Mu
 
 
 double
-MuonSegmentInOverlapResolvingTool::checkPhiHitConsistency(const Muon::MuonSegment&    segment,
+MuonSegmentInOverlapResolvingTool::checkPhiHitConsistency(const EventContext& ctx, const Muon::MuonSegment&    segment,
                                                           SegmentPhiMatchResult&      phiMatchResult,
                                                           SegmentPositionMatchResult& posMatchResult) const
 {
@@ -516,7 +516,13 @@ MuonSegmentInOverlapResolvingTool::checkPhiHitConsistency(const Muon::MuonSegmen
 
         // propagate station parameters to segment
         std::unique_ptr<const Trk::TrackParameters> exPars {
-            m_propagator->propagate(segPars, measSurf, Trk::anyDirection, false, m_magFieldProperties)};
+            m_propagator->propagate(
+              ctx,
+              segPars, 
+              measSurf, 
+              Trk::anyDirection, 
+              false, 
+              m_magFieldProperties)};
         if (!exPars) {
             ATH_MSG_WARNING("  Failed to propagate parameter to segment surface" << std::endl
                                                                                  << " pars "

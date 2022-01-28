@@ -62,7 +62,7 @@ void compare (const MDTSimHitCollection& p1,
 
 void testit (const MDTSimHitCollection& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   MDTSimHitCollectionCnv_p1 cnv;
   Muon::MDTSimHitCollection_p1 pers;
   cnv.transToPers (&trans1, &pers, log);

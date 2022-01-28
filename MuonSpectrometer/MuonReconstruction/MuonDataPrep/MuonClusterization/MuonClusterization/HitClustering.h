@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCHITCLUSTERING_H
@@ -117,52 +117,57 @@ namespace Muon {
       int sum() const { return first+second+third; }
     };
 
+    struct Data
+    {
+      std::vector<ClusterObj>   clustersEta;
+      std::vector<ClusterObj>   clustersPhi;
+    };
 
 
-    HitClusteringObj( const MuonIdHelper& muonIdHelper ) : 
-      m_muonIdHelper(&muonIdHelper),bunchIdBestEta(-99),bunchIdBestPhi(-99),
-      ngasgaps(-99),debug(false),combinedGasGaps(true)
+
+    HitClusteringObj( const MuonIdHelper& muonIdHelper,
+                      bool combinedGasGaps,
+                      bool debug = false) : 
+      m_muonIdHelper(&muonIdHelper),
+      m_debug(debug),m_combinedGasGaps(combinedGasGaps)
     {}
 
     
-    bool cluster( const std::vector<const MuonCluster*>& col );
+    bool cluster( const std::vector<const MuonCluster*>& col,
+                  std::vector<ClusterObj>& clustersEta,
+                  std::vector<ClusterObj>& clustersPhi) const;
 
-    bool cluster( const std::vector<const TgcPrepData*>& col ){
+    bool cluster( const std::vector<const TgcPrepData*>& col,
+                  std::vector<ClusterObj>& clustersEta,
+                  std::vector<ClusterObj>& clustersPhi) const
+    {
       std::vector<const MuonCluster*> prds;      
       for(unsigned int i=0; i < col.size(); i++){
 	prds.push_back(col.at(i));
       }
-      return cluster( prds );
+      return cluster( prds, clustersEta, clustersPhi );
     };
 
 
-    bool buildClusters3D();
+    std::vector<ClusterObj3D>
+    buildClusters3D(const std::vector<ClusterObj>& clustersEta,
+                    const std::vector<ClusterObj>& clustersPhi) const;
 
-    void dump() const;
+    void dump(const std::vector<ClusterObj>& clustersEta,
+              const std::vector<ClusterObj>& clustersPhi) const;
 
-    const ClusterObj* bestEtaCluster() const {
-      if( clustersEta.empty() ) return 0;
-      return &clustersEta.front();
+    const ClusterObj* bestCluster(const std::vector<ClusterObj>& clusters) const {
+      if( clusters.empty() ) return nullptr;
+      return &clusters.front();
     }
 
-    const ClusterObj* bestPhiCluster() const {
-      if( clustersPhi.empty() ) return 0;
-      return &clustersPhi.front();
-    }
- 
-    void findBest();
-    
+    void findBest(std::vector<ClusterObj>& clustersEta,
+                  std::vector<ClusterObj>& clustersPhi) const;
+
+  private:
     const MuonIdHelper*       m_muonIdHelper;
-    std::vector<Triplet>      channelsEta;
-    std::vector<Triplet>      channelsPhi;
-    std::vector<ClusterObj>   clustersEta;
-    std::vector<ClusterObj>   clustersPhi;
-    std::vector<ClusterObj3D> clusters3D;
-    int bunchIdBestEta;
-    int bunchIdBestPhi;
-    int ngasgaps;
-    bool debug;
-    bool combinedGasGaps;
+    bool m_debug;
+    bool m_combinedGasGaps;
   };
 
 }

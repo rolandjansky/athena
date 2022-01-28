@@ -71,8 +71,6 @@ def JetRecCfg( configFlags, jetdef,  returnConfiguredDef=False):
         algs = reOrderAlgs(algs)
 
     for a in algs:
-        if a is None:
-            continue
 
         if isinstance(a, ComponentAccumulator):
             components.merge(a )
@@ -97,8 +95,6 @@ def JetInputCfg(configFlags,jetOrConstitdef , context="default"):
     algs = getInputAlgs(jetOrConstitdef, configFlags, context)
 
     for a in algs:
-        if not a:
-            continue
 
         if isinstance(a, ComponentAccumulator):
             components.merge(a)
@@ -309,18 +305,16 @@ def getInputAlgs(jetOrConstitdef, configFlags=None, context="default", monTool=N
         if isInInput( inputInstance ):
             jetlog.info(f"Input container for {inputInstance} already in input file.")
             continue
-        
+
+        # Get the input or external alg
         if isinstance(inputInstance, JetInputConstit):
-            constitalg = getConstitModAlg(jetdef, inputInstance, monTool=monTool)
-            if constitalg:
-                algs +=[ constitalg ]
+            alg = getConstitModAlg(jetdef, inputInstance, monTool=monTool)
         else: # it must be a JetInputExternal
-            # check if it has something to build an Algorithm
-            if inputInstance.algoBuilder:
-                algs+=[ inputInstance.algoBuilder( jetdef, inputInstance.specs ) ]
-            else:
-                # for now just hope the input will be present... 
-                pass
+            alg = inputInstance.algoBuilder( jetdef, inputInstance.specs ) 
+
+        if alg is not None:
+            algs.append(alg)
+
     return algs
 
 
@@ -708,6 +702,7 @@ def reOrderAlgs(algs):
     """In runIII the scheduler automatically orders algs, so the JetRecConfig helpers do not try to enforce the correct ordering.
     This is not the case in runII config for which this jobO is intended --> This function makes sure some jet-related algs are well ordered.
     """
+    algs = [ a for a in algs if not isinstance(a, ComponentAccumulator)] 
     evtDensityAlgs = [(i, alg) for (i, alg) in enumerate(algs) if alg and alg.getType() == 'EventDensityAthAlg' ]
     pjAlgs = [(i, alg) for (i, alg) in enumerate(algs) if alg and alg.getType() == 'PseudoJetAlgorithm' ]
     pairsToswap = []

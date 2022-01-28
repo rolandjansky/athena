@@ -118,7 +118,7 @@ StatusCode Trk::TrackSlimmer::execute()
           //loop through tracks, slimming them as you go.
           TrackCollection::const_iterator it    = trackLocation->begin();
           TrackCollection::const_iterator itEnd = trackLocation->end();
-          for (; it!=itEnd; it++)
+          for (; it!=itEnd; ++it)
             { 
 	      const DataVector< const Trk::TrackParameters > * params = (**it).trackParameters();
 	      if ( params!=nullptr && !params->empty() && params->front()->pT()>m_ptCut )

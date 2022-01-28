@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileDetDescr/TileDddbManager.h"
@@ -13,13 +13,13 @@
 
 #include <iostream>
 #include <stdexcept>
-#define MLOG(x)   if (m_log->level()<=MSG::x) *m_log << MSG::x
 
 TileDddbManager::TileDddbManager(IRDBAccessSvc* access,
 		                 const std::string&    version_tag,
 				 const std::string&    version_node,
                  bool sqliteInput)
-  : m_n_cuts(0)
+  : AthMessaging (Athena::getMessageSvc(), "TileDddbManager")
+  , m_n_cuts(0)
   , m_n_saddle(0)
   , m_currentTileGlob(0)
   , m_currentTileMod(0)
@@ -36,14 +36,11 @@ TileDddbManager::TileDddbManager(IRDBAccessSvc* access,
   , m_node(version_node)
   , m_sqliteInput(sqliteInput)
 {
-  m_log = new MsgStream(Athena::getMessageSvc(), "TileDddbManager");
-
-  MLOG(INFO) << "m_tag = " << m_tag << endmsg;
+  ATH_MSG_INFO( "m_tag = " << m_tag );
 
   m_tiglob = access->getRecordsetPtr("TileGlobals",m_tag,m_node);
   m_n_tiglob = m_tiglob->size();
-  MLOG(INFO) << "n_tiglob = " << m_n_tiglob << endmsg;
-
+  ATH_MSG_INFO( "n_tiglob = " << m_n_tiglob );
 
   if (m_sqliteInput) {
       m_timod = access->getRecordsetPtr("TileModule",m_tag,m_node);
@@ -55,13 +52,13 @@ TileDddbManager::TileDddbManager(IRDBAccessSvc* access,
       }
   }
   m_n_timod = m_timod->size();
-  MLOG(INFO) << "n_timod = " << m_n_timod << endmsg;
+  ATH_MSG_INFO( "n_timod = " << m_n_timod );
   
   if (access->getChildTag("TileCuts",m_tag,m_node)!="") 
    { m_buildCuts = true;
      m_cuts = access->getRecordsetPtr("TileCuts",m_tag,m_node);
      m_n_cuts = m_cuts->size();
-     MLOG(INFO) << "n_cuts = " << m_n_cuts << endmsg;
+     ATH_MSG_INFO( "n_cuts = " << m_n_cuts );
 
    } else {
      m_buildCuts = false;
@@ -72,7 +69,7 @@ TileDddbManager::TileDddbManager(IRDBAccessSvc* access,
    { m_buildSaddle = true;
      m_saddle = access->getRecordsetPtr("TileSaddleSup",m_tag,m_node);
      m_n_saddle = m_saddle->size();
-     MLOG(INFO) << "n_saddle = " << m_n_saddle << endmsg;
+     ATH_MSG_INFO( "n_saddle = " << m_n_saddle );
 
    } else {
      m_buildSaddle = false;
@@ -82,7 +79,7 @@ TileDddbManager::TileDddbManager(IRDBAccessSvc* access,
 
   m_tilb = access->getRecordsetPtr("TILB",m_tag,m_node);
   m_n_tilb = m_tilb->size();
-  MLOG(INFO) << "n_tilb = " << m_n_tilb << endmsg;
+  ATH_MSG_INFO( "n_tilb = " << m_n_tilb );
 
   m_tigr = access->getRecordsetPtr("TIGR",m_tag,m_node);
   m_n_tigr = m_tigr->size();
@@ -101,7 +98,7 @@ TileDddbManager::TileDddbManager(IRDBAccessSvc* access,
 
   m_tileSwitches = access->getRecordsetPtr("TileSwitches",m_tag,m_node);
   m_n_tileSwitches = m_tileSwitches->size();
-  MLOG(INFO) << "n_tileSwitches = " << m_n_tileSwitches << endmsg;
+  ATH_MSG_INFO( "n_tileSwitches = " << m_n_tileSwitches );
 
 
   m_EnvNum = 0;
@@ -164,7 +161,7 @@ int TileDddbManager::GetEnvType() const
     return m_currentTileGlob->getInt("PART");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::GetEnvType() - Current Envelope not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::GetEnvType() - Current Envelope not set, returning -999" );
     return -999;
   }  
 }
@@ -194,12 +191,12 @@ int TileDddbManager::SetCurrentEnvByType(unsigned int envelopeT)
     else {
       m_EnvSize = 0;
       m_EnvBegin = 0;
-      MLOG(ERROR) << "TileDddbManager::SetCurrentEnvByType() - Couldn't return begin of modules" << endmsg;
+      ATH_MSG_ERROR( "TileDddbManager::SetCurrentEnvByType() - Couldn't return begin of modules" );
       return 0;
     }
   } else {
     m_currentTileGlob = 0;
-    MLOG(ERROR) << "TileDddbManager::SetCurrentEnvByType() - Couldn't return Envelope" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::SetCurrentEnvByType() - Couldn't return Envelope" );
     return 0;
   } 
 }
@@ -235,12 +232,12 @@ int TileDddbManager::SetCurrentEnvByIndex(unsigned int envelopeI)
     else {
       m_EnvSize = 0;
       m_EnvBegin = 0;
-      MLOG(ERROR) << "TileDddbManager::SetCurrentEnvByIndex() - Couldn't return begin of modules" << endmsg;
+      ATH_MSG_ERROR( "TileDddbManager::SetCurrentEnvByIndex() - Couldn't return begin of modules" );
       return 0;
     }
   } else {
     m_currentTileGlob = 0;
-    MLOG(ERROR) << "TileDddbManager::SetCurrentEnvByIndex() - Couldn't return Envelope" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::SetCurrentEnvByIndex() - Couldn't return Envelope" );
     return 0;
   }
 }
@@ -252,7 +249,7 @@ int TileDddbManager::GetEnvSide() const
     return m_currentTileGlob->getInt("SIDE");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::GetEnvSide() - Current Section not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::GetEnvSide() - Current Section not set, returning -999" );
     return -999;
   }  
 }
@@ -264,7 +261,7 @@ int TileDddbManager::GetEnvNModules() const
     //sb return 1;
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::GetEnvNModules() - Current Envelope not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::GetEnvNModules() - Current Envelope not set, returning -999" );
     return -999;
   } 
 }
@@ -275,7 +272,7 @@ double TileDddbManager::GetEnvRin() const
     return m_currentTileGlob->getDouble("RIN");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::GetEnvRin() - Current Envelope not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::GetEnvRin() - Current Envelope not set, returning -999" );
     return -999;
   } 
 }
@@ -286,7 +283,7 @@ double TileDddbManager::GetEnvRout() const
     return m_currentTileGlob->getDouble("ROUT");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::GetEnvRout() - Current Envelope not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::GetEnvRout() - Current Envelope not set, returning -999" );
     return -999;
   } 
 }
@@ -304,7 +301,7 @@ double TileDddbManager::GetEnvZLength() const
     return len;
   }  
   else {
-    MLOG(ERROR) << "TileDddbManager::GetEnvZLength() - Current Envelope not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::GetEnvZLength() - Current Envelope not set, returning -999" );
     return -999;
   } 
 }
@@ -321,7 +318,7 @@ double TileDddbManager::GetEnvDPhi() const
     return dphi;
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::GetEnvDPhi() - Current Envelope not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::GetEnvDPhi() - Current Envelope not set, returning -999" );
     return -999;
   } 
 }
@@ -339,7 +336,7 @@ double TileDddbManager::GetEnvDZ() const
     return dz;
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::GetEnvDZ() - Current Envelope not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::GetEnvDZ() - Current Envelope not set, returning -999" );
     return -999;
   } 
 }
@@ -350,7 +347,7 @@ double TileDddbManager::GetEnvDX() const
     return m_currentTileGlob->getDouble("DX");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::GetEnvDX() - Current Envelope not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::GetEnvDX() - Current Envelope not set, returning -999" );
     return -999;
   } 
 }
@@ -361,7 +358,7 @@ double TileDddbManager::GetEnvDY() const
     return m_currentTileGlob->getDouble("DY");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::GetEnvDY() - Current Envelope not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::GetEnvDY() - Current Envelope not set, returning -999" );
     return -999;
   } 
 }
@@ -372,7 +369,7 @@ double TileDddbManager::GetEnvDPsi() const
     return m_currentTileGlob->getDouble("DPSI");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::GetEnvDPsi() - Current Envelope not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::GetEnvDPsi() - Current Envelope not set, returning -999" );
     return -999;
   } 
 }
@@ -383,7 +380,7 @@ double TileDddbManager::GetEnvDTheta() const
     return m_currentTileGlob->getDouble("DTHETA");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::GetEnvDTheta() - Current Envelope not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::GetEnvDTheta() - Current Envelope not set, returning -999" );
     return -999;
   } 
 }
@@ -394,7 +391,7 @@ double TileDddbManager::GetEnvZShift() const
     return m_currentTileGlob->getDouble("ZSHIFT");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::GetEnvZShift() - Current Envelope not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::GetEnvZShift() - Current Envelope not set, returning -999" );
     return -999;
   } 
 }
@@ -410,7 +407,7 @@ int TileDddbManager::SetCurrentModuleByIndex(unsigned int Id)
   if (m_currentTileGlob) {
   //Modules enumerated from zero, so SetCurrentModuleByIndex(0) gives the first module in the Envelope
     if(Id >= m_EnvSize) { 
-      MLOG(ERROR) << "TileDddbManager::SetCurrentModuleByIndex() - Module number " << Id << " is out of range" << endmsg;
+      ATH_MSG_ERROR( "TileDddbManager::SetCurrentModuleByIndex() - Module number " << Id << " is out of range" );
       return 0;
     }
     else {
@@ -420,7 +417,7 @@ int TileDddbManager::SetCurrentModuleByIndex(unsigned int Id)
     }
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::SetCurrentModuleByIndex() - Current Envelope not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::SetCurrentModuleByIndex() - Current Envelope not set, returning -999" );
     return -999;
   } 
 }
@@ -445,12 +442,12 @@ int TileDddbManager::SetCurrentModuleByNumber(unsigned int Number)
     }
     else{
       m_currentTileMod = 0;
-      MLOG(ERROR) << "TileDddbManager::SetCurrentModuleByNumber() - Couldn't return Module" << endmsg;
+      ATH_MSG_ERROR( "TileDddbManager::SetCurrentModuleByNumber() - Couldn't return Module" );
       return 0;
     }
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::SetCurrentModuleByNumber() - Current Envelope not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::SetCurrentModuleByNumber() - Current Envelope not set, returning -999" );
     return -999;
   } 
 }
@@ -461,7 +458,7 @@ int TileDddbManager::GetModNumber() const
     return m_currentTileMod->getInt("MODNUM");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::GetModNumber() - Current Module not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::GetModNumber() - Current Module not set, returning -999" );
     return -999;
   }  
 }
@@ -472,7 +469,7 @@ int TileDddbManager::GetModType() const
     return m_currentTileMod->getInt("TYP");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::GetModType() - Current Module not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::GetModType() - Current Module not set, returning -999" );
     return -999;
   }
 }
@@ -483,7 +480,7 @@ double TileDddbManager::GetModDX() const
     return m_currentTileMod->getDouble("DX");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::GetModDX() - Current Module not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::GetModDX() - Current Module not set, returning -999" );
     return -999;
   }
 }
@@ -494,7 +491,7 @@ double TileDddbManager::GetModDY() const
     return m_currentTileMod->getDouble("DY");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::GetModDY() - Current Module not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::GetModDY() - Current Module not set, returning -999" );
     return -999;
   }
 }
@@ -505,7 +502,7 @@ double TileDddbManager::GetModDZ() const
     return m_currentTileMod->getDouble("DZ");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::GetModDZ() - Current Module not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::GetModDZ() - Current Module not set, returning -999" );
     return -999;
   }
 }
@@ -516,7 +513,7 @@ double TileDddbManager::GetModDPhi() const
     return m_currentTileMod->getDouble("DPHI");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::GetModDPhi() - Current Module not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::GetModDPhi() - Current Module not set, returning -999" );
     return -999;
   }
 }
@@ -527,7 +524,7 @@ double TileDddbManager::GetModDPsi() const
     return m_currentTileMod->getDouble("DPSI");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::GetModDPsi() - Current Module not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::GetModDPsi() - Current Module not set, returning -999" );
     return -999;
   }
 }
@@ -538,7 +535,7 @@ double TileDddbManager::GetModDTheta() const
     return m_currentTileMod->getDouble("DTHETA");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::GetModDTheta() - Current Module not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::GetModDTheta() - Current Module not set, returning -999" );
     return -999;
   }
 }
@@ -550,7 +547,7 @@ int TileDddbManager::SetCurrentTypeByIndex(unsigned int Id)
   if (Id < m_modTypes.size()) {
     return SetCurrentSection(m_modTypes[Id]);
   } else {
-    MLOG(ERROR) << "TileDddbManager::SetCurrentTypeByIndex() - Type index (" << Id << ") is out of range (" << m_modTypes.size() << ")" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::SetCurrentTypeByIndex() - Type index (" << Id << ") is out of range (" << m_modTypes.size() << ")" );
     m_currentSection = 0;
     return 0;
   }
@@ -600,7 +597,7 @@ int TileDddbManager::SetCurrentSectionByIndex(unsigned int IdSection)
     return 1;
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::SetCurrentSectionByIndex() - Section index (" << IdSection << ") is out of range (" << m_n_tilb << ")" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::SetCurrentSectionByIndex() - Section index (" << IdSection << ") is out of range (" << m_n_tilb << ")" );
     m_currentSection = 0;
     return 0;
   }
@@ -620,7 +617,7 @@ int TileDddbManager::SetCurrentSection(unsigned int section, bool print)
   }
 
   if(ind >= m_n_tilb) {
-    if (print) MLOG(ERROR) << "TileDddbManager::SetCurrentSection() - Unable to find the section" << endmsg;
+    if (print) ATH_MSG_ERROR( "TileDddbManager::SetCurrentSection() - Unable to find the section" );
     m_currentSection = 0;
     return 0;
   }
@@ -636,7 +633,7 @@ int TileDddbManager::TILBsection() const
     return m_currentSection->getInt("SECTION");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::TILBsection() - Current Section not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TILBsection() - Current Section not set, returning -999" );
     return -999;
   }
 }
@@ -647,7 +644,7 @@ int TileDddbManager::TILBnperiod() const
     return m_currentSection->getInt("NPERIOD");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::TILBnperiod() - Current Section not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TILBnperiod() - Current Section not set, returning -999" );
     return -999;
   }
 }
@@ -658,7 +655,7 @@ int TileDddbManager::TILBnmodul() const
     return m_currentSection->getInt("NMODUL");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::TILBnmodul() - Current Section not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TILBnmodul() - Current Section not set, returning -999" );
     return -999;
   }
 }
@@ -669,7 +666,7 @@ double TileDddbManager::TILBrmin() const
     return m_currentSection->getDouble("RMIN");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::TILBrmin() - Current Section not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TILBrmin() - Current Section not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -680,7 +677,7 @@ double TileDddbManager::TILBrmax() const
     return m_currentSection->getDouble("RMAX");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::TILBrmax() - Current Section not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TILBrmax() - Current Section not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -691,7 +688,7 @@ double TileDddbManager::TILBrminimal() const
     return m_currentSection->getDouble("RMINIMAL");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::TILBrminimal() - Current Section not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TILBrminimal() - Current Section not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -702,7 +699,7 @@ double TileDddbManager::TILBrmaximal() const
     return m_currentSection->getDouble("RMAXIMAL");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::TILBrmaximal() - Current Section not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TILBrmaximal() - Current Section not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -713,7 +710,7 @@ double TileDddbManager::TILBdzperio() const
     return m_currentSection->getDouble("DZPERIO");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::TILBdzperio() - Current Section not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TILBdzperio() - Current Section not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -724,7 +721,7 @@ double TileDddbManager::TILBdrfront() const
     return m_currentSection->getDouble("DRFRONT");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::TILBdrfront() - Current Section not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TILBdrfront() - Current Section not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -735,7 +732,7 @@ double TileDddbManager::TILBdzend() const
     return m_currentSection->getDouble("DZEND");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::TILBdzend() - Current Section not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TILBdzend() - Current Section not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -746,7 +743,7 @@ double TileDddbManager::TILBflangex() const
     return m_currentSection->getDouble("FLANGEX");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::TILBflangex() - Current Section not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TILBflangex() - Current Section not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -757,7 +754,7 @@ double TileDddbManager::TILBflangey() const
     return m_currentSection->getDouble("FLANGEY");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::TILBflangey() - Current Section not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TILBflangey() - Current Section not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -768,7 +765,7 @@ double TileDddbManager::TILBzoffset() const
     return m_currentSection->getDouble("ZOFFSET");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::TILBzoffset() - Current Section not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TILBzoffset() - Current Section not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -779,7 +776,7 @@ double TileDddbManager::TILBphigap() const
     return m_currentSection->getDouble("PHIGAP");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::TILBphigap() - Current Section not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TILBphigap() - Current Section not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -790,7 +787,7 @@ double TileDddbManager::TILBisci_st() const
     return m_currentSection->getInt("ISCI_ST");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::TILBisci_st() - Current Section not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TILBisci_st() - Current Section not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -801,7 +798,7 @@ double TileDddbManager::TILBdzmodul() const
     return m_currentSection->getDouble("DZMODUL");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::TILBdzmodul() - Current Section not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TILBdzmodul() - Current Section not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -812,7 +809,7 @@ double TileDddbManager::TILBdzmast() const
     return m_currentSection->getDouble("DZMAST");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::TILBdzmast() - Current Section not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TILBdzmast() - Current Section not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -823,7 +820,7 @@ double TileDddbManager::TILBdzspac() const
     return m_currentSection->getDouble("DZSPAC");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::TILBdzspac() - Current Section not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TILBdzspac() - Current Section not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -834,7 +831,7 @@ double TileDddbManager::TILBdzend1() const
     return m_currentSection->getDouble("DZEND1");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::TILBdzend1() - Current Section not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TILBdzend1() - Current Section not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -845,7 +842,7 @@ double TileDddbManager::TILBdzend2() const
     return m_currentSection->getDouble("DZEND2");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::TILBdzend2() - Current Section not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TILBdzend2() - Current Section not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -856,7 +853,7 @@ int TileDddbManager::TILBngirder() const
     return m_currentSection->getInt("NGIRDER");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::TILBngirder() - Current Section not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TILBngirder() - Current Section not set, returning -999" );
     return -999;
   }
 }
@@ -867,7 +864,7 @@ int TileDddbManager::TILBnscin() const
     return m_currentSection->getInt("NSCIN");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::TILBnscin() - Current Section not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TILBnscin() - Current Section not set, returning -999" );
     return -999;
   }
 }
@@ -878,7 +875,7 @@ int TileDddbManager::TILBfingpattern() const
     return m_currentSection->getInt("FINGPATTERN");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::TILBfingpattern() - Current Section not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TILBfingpattern() - Current Section not set, returning -999" );
     return -999;
   }
 }
@@ -889,7 +886,7 @@ int TileDddbManager::TILBnpercutpos() const
     return m_currentSection->getInt("NPERCUTPOS");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::TILBnpercutpos() - Current Section not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TILBnpercutpos() - Current Section not set, returning -999" );
     return -999;
   }
 }
@@ -900,7 +897,7 @@ int TileDddbManager::TILBnpercutneg() const
     return m_currentSection->getInt("NPERCUTNEG");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::TILBnpercutneg() - Current Section not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TILBnpercutneg() - Current Section not set, returning -999" );
     return -999;
   }
 }
@@ -915,7 +912,7 @@ int TileDddbManager::TILBcurscint() const
       return m_currentSection->getInt("CURSCINT");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::TILBcurscint() - Current Section not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TILBcurscint() - Current Section not set, returning -999" );
     return -999;
   }
 }
@@ -926,7 +923,7 @@ double TileDddbManager::TILBdzgir() const
     return m_currentSection->getDouble("DZGIR");
   }
   else {
-    MLOG(ERROR) << "TileDddbManager::TILBdzgir() - Current Section not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TILBdzgir() - Current Section not set, returning -999" );
     return -999;
   }
 }
@@ -942,7 +939,7 @@ int TileDddbManager::SetCurrentScin(int item)
 
   if(ind >= m_n_scnt)
   {
-    MLOG(ERROR) << "TileDddbManager::SetCurrentScin() - Unable to find the scintillator, item = " << item << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::SetCurrentScin() - Unable to find the scintillator, item = " << item );
     return 0;
   }
   else
@@ -958,7 +955,7 @@ int TileDddbManager::SCNTitem() const
     return m_currentScin->getInt("ITEM");
   else
   {
-    MLOG(ERROR) << "TileDddbManager::SCNTitem() - Current Scintillator not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::SCNTitem() - Current Scintillator not set, returning -999" );
     return -999;
   }
 }
@@ -969,7 +966,7 @@ double TileDddbManager::SCNTdr() const
     return m_currentScin->getDouble("DR");
   else
   {
-    MLOG(ERROR) << "TileDddbManager::SCNTdr() - Current Scintillator not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::SCNTdr() - Current Scintillator not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -980,7 +977,7 @@ double TileDddbManager::SCNTrc() const
     return m_currentScin->getDouble("RC");
   else
   {
-    MLOG(ERROR) << "TileDddbManager::SCNTrc() - Current Scintillator not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::SCNTrc() - Current Scintillator not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -991,7 +988,7 @@ double TileDddbManager::SCNTzp() const
     return m_currentScin->getDouble("ZP");
   else
   {
-    MLOG(ERROR) << "TileDddbManager::SCNTzp() - Current Scintillator not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::SCNTzp() - Current Scintillator not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -1002,7 +999,7 @@ double TileDddbManager::SCNTdrw() const
     return m_currentScin->getDouble("DRW");
   else
   {
-    MLOG(ERROR) << "TileDddbManager::SCNTdrw() - Current Scintillator not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::SCNTdrw() - Current Scintillator not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -1013,7 +1010,7 @@ double TileDddbManager::SCNTdt() const
     return m_currentScin->getDouble("DT");
   else
   {
-    MLOG(ERROR) << "TileDddbManager::SCNTdt() - Current Scintillator not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::SCNTdt() - Current Scintillator not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -1024,7 +1021,7 @@ double TileDddbManager::SCNTdtw() const
     return m_currentScin->getDouble("DTW");
   else
   {
-    MLOG(ERROR) << "TileDddbManager::SCNTdtw() - Current Scintillator not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::SCNTdtw() - Current Scintillator not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -1035,7 +1032,7 @@ double TileDddbManager::SCNTdphi() const
     return m_currentScin->getDouble("DPHI");
   else
   {
-    MLOG(ERROR) << "TileDddbManager::SCNTdphi() - Current Scintillator not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::SCNTdphi() - Current Scintillator not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -1054,7 +1051,7 @@ int TileDddbManager::SetCurrentCuts(std::string input)
      }
 
      if(ind >= m_n_cuts)
-     { MLOG(ERROR) << "TileDddbManager::SetCurrentCuts() - Unable to find the m_currentCuts volume name = " << name << endmsg;
+     { ATH_MSG_ERROR( "TileDddbManager::SetCurrentCuts() - Unable to find the m_currentCuts volume name = " << name );
        return 0;
      }
      else
@@ -1062,7 +1059,7 @@ int TileDddbManager::SetCurrentCuts(std::string input)
        return 1;
      }
     }
-   MLOG(WARNING) << "TileDddbManager::SetCurrentCuts() - SetCuts Ext.Barrel Cuts unavailable in touched DB";
+    ATH_MSG_WARNING( "TileDddbManager::SetCurrentCuts() - SetCuts Ext.Barrel Cuts unavailable in touched DB" );
    return 1;
 } 
 
@@ -1070,7 +1067,7 @@ bool TileDddbManager::BoolCuts()
 { if (m_buildCuts) 
   { return m_buildCuts;
   } else
-    { MLOG(DEBUG) << "TileDddbManager::BoolCuts() - return false" << endmsg;
+  { ATH_MSG_DEBUG( "TileDddbManager::BoolCuts() - return false" );
     return false;
   }
 }
@@ -1080,7 +1077,7 @@ std::string TileDddbManager::CutsName() const
    if (m_currentCuts)
      return m_currentCuts->getString("VOLUME");
    else
-   { MLOG(ERROR) << "TileDddbManager::CutsName() - Current VOLUME dimension not set, returning -999.9" << endmsg;
+   { ATH_MSG_ERROR( "TileDddbManager::CutsName() - Current VOLUME dimension not set, returning -999.9" );
      return output;
    } 
 }
@@ -1090,7 +1087,7 @@ double TileDddbManager::CutsDX1() const
   if (m_currentCuts)
     return (double)m_currentCuts->getFloat("DX1");
   else
-  { MLOG(ERROR) << "TileDddbManager::CutsDX1() - Current dX1 dimension not set, returning -999.9" << endmsg;
+  { ATH_MSG_ERROR( "TileDddbManager::CutsDX1() - Current dX1 dimension not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -1100,7 +1097,7 @@ double TileDddbManager::CutsDX2() const
   if (m_currentCuts)
     return (double)m_currentCuts->getFloat("DX2");
   else
-  { MLOG(ERROR) << "TileDddbManager::CutsDX2() - Current dX2 dimension not set, returning -999.9" << endmsg;
+  { ATH_MSG_ERROR( "TileDddbManager::CutsDX2() - Current dX2 dimension not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -1110,7 +1107,7 @@ double TileDddbManager::CutsDY1() const
   if (m_currentCuts)
     return (double)m_currentCuts->getFloat("DY1");
   else
-  { MLOG(ERROR) << "TileDddbManager::CutsDY1() - Current dY1 dimension not set, returning -999.9" << endmsg;
+  { ATH_MSG_ERROR( "TileDddbManager::CutsDY1() - Current dY1 dimension not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -1120,7 +1117,7 @@ double TileDddbManager::CutsDY2() const
   if (m_currentCuts)
     return (double)m_currentCuts->getFloat("DY2");
   else
-  { MLOG(ERROR) << "TileDddbManager::CutsDY2() - Current dY2 dimension not set, returning -999.9" << endmsg;
+  { ATH_MSG_ERROR( "TileDddbManager::CutsDY2() - Current dY2 dimension not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -1130,7 +1127,7 @@ double TileDddbManager::CutsDZ1() const
   if (m_currentCuts)
     return (double)m_currentCuts->getFloat("DZ1");
   else
-  { MLOG(ERROR) << "TileDddbManager::CutsDZ1() - Current dZ1 dimension not set, returning -999.9" << endmsg;
+  { ATH_MSG_ERROR( "TileDddbManager::CutsDZ1() - Current dZ1 dimension not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -1140,7 +1137,7 @@ double TileDddbManager::CutsXpos() const
   if (m_currentCuts)
     return (double)m_currentCuts->getFloat("XPOS");
   else
-  { MLOG(ERROR) << "TileDddbManager::CutsXpos() - Current Xpos dimension not set, returning -999.9" << endmsg;
+  { ATH_MSG_ERROR( "TileDddbManager::CutsXpos() - Current Xpos dimension not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -1150,7 +1147,7 @@ double TileDddbManager::CutsYpos() const
   if (m_currentCuts)
     return (double)m_currentCuts->getFloat("YPOS");
   else
-  { MLOG(ERROR) << "TileDddbManager::CutsYpos() - Current Ypos dimension not set, returning -999.9" << endmsg;
+  { ATH_MSG_ERROR( "TileDddbManager::CutsYpos() - Current Ypos dimension not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -1168,7 +1165,7 @@ int TileDddbManager::SetCurrentSaddle(unsigned int index)
        return 1;
      }
    }
-   MLOG(WARNING) << "TileDddbManager::SetCurrentSaddle() - Saddle unavailable in touched DB"<<endmsg;
+  ATH_MSG_WARNING( "TileDddbManager::SetCurrentSaddle() - Saddle unavailable in touched DB");
    return 1;
 }
 
@@ -1176,7 +1173,7 @@ bool TileDddbManager::BoolSaddle()
 { if (m_buildSaddle) 
   { return m_buildSaddle;
   } else
-  { MLOG(DEBUG) << "TileDddbManager::BoolSaddle() - return false" << endmsg;
+  { ATH_MSG_DEBUG( "TileDddbManager::BoolSaddle() - return false" );
     return false;
   }
 }
@@ -1186,7 +1183,7 @@ double TileDddbManager::DzSaddleSupport() const
   if (m_currentSaddle)
     return (double)m_currentSaddle->getFloat("DZSADDLESUPPORT");
   else
-  { MLOG(ERROR) << "TileDddbManager::DzSaddleSupport() - dimension not set, returning -999.9" << endmsg;
+  { ATH_MSG_ERROR( "TileDddbManager::DzSaddleSupport() - dimension not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -1196,7 +1193,7 @@ double TileDddbManager::RadiusSaddle() const
   if (m_currentSaddle)
     return (double)m_currentSaddle->getFloat("RADIUSSADDLE");
   else
-  { MLOG(ERROR) << "TileDddbManager::RadiusSaddle() - dimension not set, returning -999.9";
+  { ATH_MSG_ERROR( "TileDddbManager::RadiusSaddle() - dimension not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -1212,7 +1209,7 @@ int TileDddbManager::SetCurrentGird(int item)
 
   if(ind >= m_n_tigr)
   {
-    MLOG(DEBUG) << "TileDddbManager::SetCurrentGird() - Unable to find the girder element, item= " << item << endmsg;
+    ATH_MSG_DEBUG( "TileDddbManager::SetCurrentGird() - Unable to find the girder element, item= " << item );
     return 0;
   }
   else
@@ -1228,7 +1225,7 @@ int TileDddbManager::TIGRitem() const
     return m_currentGird->getInt("ITEM");
   else
   {
-    MLOG(ERROR) << "TileDddbManager::TIGRitem() - Current Girder element not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TIGRitem() - Current Girder element not set, returning -999" );
     return -999;
   }
 }
@@ -1239,7 +1236,7 @@ int TileDddbManager::TIGRmaterial() const
     return m_currentGird->getInt("MATERIAL");
   else
   {
-    MLOG(ERROR) << "TileDddbManager::TIGRmaterial() - Current Girder element not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TIGRmaterial() - Current Girder element not set, returning -999" );
     return -999;
   }
 }
@@ -1250,7 +1247,7 @@ double TileDddbManager::TIGRrc() const
     return m_currentGird->getDouble("RC");
   else
   {
-    MLOG(ERROR) << "TileDddbManager::TIGRrc() - Current Girder element not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TIGRrc() - Current Girder element not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -1261,7 +1258,7 @@ double TileDddbManager::TIGRdr() const
     return m_currentGird->getDouble("DR");
   else
   {
-    MLOG(ERROR) << "TileDddbManager::TIGRdr() - Current Girder element not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TIGRdr() - Current Girder element not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -1272,7 +1269,7 @@ double TileDddbManager::TIGRdw() const
     return m_currentGird->getDouble("DW");
   else
   {
-    MLOG(ERROR) << "TileDddbManager::TIGRdw() - Current Girder element not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TIGRdw() - Current Girder element not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -1283,7 +1280,7 @@ double TileDddbManager::TIGRoff() const
     return m_currentGird->getDouble("OFF");
   else
   {
-    MLOG(ERROR) << "TileDddbManager::TIGRoff() - Current Girder element not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TIGRoff() - Current Girder element not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -1299,7 +1296,7 @@ int TileDddbManager::SetCurrentTifg(int section)
 
   if(ind >= m_n_tifg)
   {
-    MLOG(DEBUG) << "TileDddbManager::SetCurrentTifg() - Unable to find the finger, section = " << section << endmsg;
+    ATH_MSG_DEBUG( "TileDddbManager::SetCurrentTifg() - Unable to find the finger, section = " << section );
     return 0;
   }
   else
@@ -1315,7 +1312,7 @@ int TileDddbManager::TIFGsection() const
     return m_currentTifg->getInt("SECTION");
   else
   {
-    MLOG(ERROR) << "TileDddbManager::TIFGsection() - Current TIFG not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TIFGsection() - Current TIFG not set, returning -999" );
     return -999;
   }
 }
@@ -1326,7 +1323,7 @@ int TileDddbManager::TIFGnelem() const
     return m_currentTifg->getInt("NELEM");
   else
   {
-    MLOG(ERROR) << "TileDddbManager::TIFGnelem() - Current TIFG not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TIFGnelem() - Current TIFG not set, returning -999" );
     return -999;
   }
 }
@@ -1337,7 +1334,7 @@ double TileDddbManager::TIFGdz() const
     return m_currentTifg->getDouble("DZ");
   else
   {
-    MLOG(ERROR) << "TileDddbManager::TIFGdz() - Current TIFG not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TIFGdz() - Current TIFG not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -1353,7 +1350,7 @@ int TileDddbManager::SetCurrentTicg(int item)
 
   if(ind >= m_n_ticg)
   {
-    MLOG(DEBUG) << "TileDddbManager::SetCurrentTicg() - Unable to find the finger element, item = " << item << endmsg;
+    ATH_MSG_DEBUG( "TileDddbManager::SetCurrentTicg() - Unable to find the finger element, item = " << item );
     return 0;
   }
   else
@@ -1369,7 +1366,7 @@ int TileDddbManager::TICGitem() const
     return m_currentTicg->getInt("ITEM");
   else
   {
-    MLOG(ERROR) << "TileDddbManager::TICGitem() - Current TICG not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TICGitem() - Current TICG not set, returning -999" );
     return -999;
   }
 }
@@ -1380,7 +1377,7 @@ int TileDddbManager::TICGmaterial() const
     return m_currentTicg->getInt("MATERIAL");
   else
   {
-    MLOG(ERROR) << "TileDddbManager::TICGmaterial() - Current TICG not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TICGmaterial() - Current TICG not set, returning -999" );
     return -999;
   }
 }
@@ -1391,7 +1388,7 @@ int TileDddbManager::TICGshape() const
     return m_currentTicg->getInt("SHAPE");
   else
   {
-    MLOG(ERROR) << "TileDddbManager::TICGshape() - Current TICG not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TICGshape() - Current TICG not set, returning -999" );
     return -999;
   }
 }
@@ -1402,7 +1399,7 @@ double TileDddbManager::TICGrc() const
     return m_currentTicg->getDouble("RC");
   else
   {
-    MLOG(ERROR) << "TileDddbManager::TICGrc() - Current TICG not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TICGrc() - Current TICG not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -1413,7 +1410,7 @@ double TileDddbManager::TICGdr() const
     return m_currentTicg->getDouble("DR");
   else
   {
-    MLOG(ERROR) << "TileDddbManager::TICGdr() - Current TICG not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TICGdr() - Current TICG not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -1424,7 +1421,7 @@ double TileDddbManager::TICGdx1() const
     return m_currentTicg->getDouble("DX1");
   else
   {
-    MLOG(ERROR) << "TileDddbManager::TICGdx1() - Current TICG not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TICGdx1() - Current TICG not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -1435,7 +1432,7 @@ double TileDddbManager::TICGdx2() const
     return m_currentTicg->getDouble("DX2");
   else
   {
-    MLOG(ERROR) << "TileDddbManager::TICGdx2() - Current TICG not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TICGdx2() - Current TICG not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -1446,7 +1443,7 @@ double TileDddbManager::TICGoff() const
     return m_currentTicg->getDouble("OFF");
   else
   {
-    MLOG(ERROR) << "TileDddbManager::TICGoff() - Current TICG not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TICGoff() - Current TICG not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -1457,7 +1454,7 @@ double TileDddbManager::TICGdz() const
     return m_currentTicg->getDouble("DZ");
   else
   {
-    MLOG(ERROR) << "TileDddbManager::TICGdz() - Current TICG not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TICGdz() - Current TICG not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -1468,7 +1465,7 @@ double TileDddbManager::TICGzc() const
     return m_currentTicg->getDouble("ZC");
   else
   {
-    MLOG(ERROR) << "TileDddbManager::TICGzc() - Current TICG not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TICGzc() - Current TICG not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -1490,7 +1487,7 @@ int TileDddbManager::SetCurrentTicl(int detector, double sample, double tower)
 
   if(detector_ind >= m_n_ticl)
   {
-    MLOG(DEBUG) << "TileDddbManager::SetCurrentTicl() - Unable to find any cell for the detector = " << detector << endmsg;
+    ATH_MSG_DEBUG( "TileDddbManager::SetCurrentTicl() - Unable to find any cell for the detector = " << detector );
     return 0;
   }
   else
@@ -1504,8 +1501,8 @@ int TileDddbManager::SetCurrentTicl(int detector, double sample, double tower)
 
     if(sample_ind >= m_n_ticl)
     {
-      MLOG(DEBUG) << "TileDddbManager::SetCurrentTicl() - Unable to find any cell for sample = "
-                  << sample << " in the detector = " << detector << endmsg;
+      ATH_MSG_DEBUG( "TileDddbManager::SetCurrentTicl() - Unable to find any cell for sample = "
+                     << sample << " in the detector = " << detector );
       return 0;
     }
     else
@@ -1519,8 +1516,8 @@ int TileDddbManager::SetCurrentTicl(int detector, double sample, double tower)
 
       if(ind >= m_n_ticl)
       {
-	MLOG(DEBUG) << "TileDddbManager::SetCurrentTicl() - Unable to find any cell for tower = "
-                    << tower << " in the detector = " << detector << " and sample = " << sample << endmsg;
+	ATH_MSG_DEBUG( "TileDddbManager::SetCurrentTicl() - Unable to find any cell for tower = "
+                       << tower << " in the detector = " << detector << " and sample = " << sample );
 	return 0;
       }
       else
@@ -1537,7 +1534,7 @@ int TileDddbManager::SetCurrentTicl(unsigned int index)
 {
   if(index >= m_n_ticl)
   {
-    MLOG(DEBUG) << "TileDddbManager::SetCurrentTicl() - The requested index = " << index << " out of range." << endmsg;
+    ATH_MSG_DEBUG( "TileDddbManager::SetCurrentTicl() - The requested index = " << index << " out of range." );
     return 0;
   }
   else
@@ -1636,7 +1633,7 @@ int TileDddbManager::TICLdetector() const
     return m_currentTicl->getInt("DETECTOR");
   else
   {
-    MLOG(ERROR) << "TileDddbManager::TICLdetector() - Current TICL not set, returning -999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TICLdetector() - Current TICL not set, returning -999" );
     return -999;
   }
 }
@@ -1647,7 +1644,7 @@ double TileDddbManager::TICLncell() const
     return m_currentTicl->getInt("NCELL");
   else
   {
-    MLOG(ERROR) << "TileDddbManager::TICLncell() - Current TICL not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TICLncell() - Current TICL not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -1658,7 +1655,7 @@ double TileDddbManager::TICLtower() const
     return m_currentTicl->getInt("TOWER");
   else
   {
-    MLOG(ERROR) << "TileDddbManager::TICLtower() - Current TICL not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TICLtower() - Current TICL not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -1669,7 +1666,7 @@ double TileDddbManager::TICLsample() const
     return m_currentTicl->getInt("SAMPLE");
   else
   {
-    MLOG(ERROR) << "TileDddbManager::TICLsample() - Current TICL not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TICLsample() - Current TICL not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -1680,7 +1677,7 @@ double TileDddbManager::TICLeta() const
     return m_currentTicl->getDouble("ETA");
   else
   {
-    MLOG(ERROR) << "TileDddbManager::TICLeta() - Current TICL not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TICLeta() - Current TICL not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -1691,7 +1688,7 @@ double TileDddbManager::TICLdeta() const
     return m_currentTicl->getDouble("DETA");
   else
   {
-    MLOG(ERROR) << "TileDddbManager::TICLdeta() - Current TICL not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TICLdeta() - Current TICL not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -1702,7 +1699,7 @@ double TileDddbManager::TICLfirstrow() const
     return m_currentTicl->getInt("FIRSTROW");
   else
   {
-    MLOG(ERROR) << "TileDddbManager::TICLfirstrow() - Current TICL not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TICLfirstrow() - Current TICL not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -1713,7 +1710,7 @@ double TileDddbManager::TICLlastrow() const
     return m_currentTicl->getInt("LASTROW");
   else
   {
-    MLOG(ERROR) << "TileDddbManager::TICLlastrow() - Current TICL not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TICLlastrow() - Current TICL not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -1724,7 +1721,7 @@ double TileDddbManager::TICLntilesrow(unsigned int ind) const
     return m_currentTicl->getInt("NTILESROW",ind);
   else
   {
-    MLOG(ERROR) << "TileDddbManager::TICLntilesrow() - Current TICL not set, returning 9999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TICLntilesrow() - Current TICL not set, returning 9999" );
     return 9999;
   }
 }
@@ -1735,7 +1732,7 @@ double TileDddbManager::TICLnpmt() const
     return m_currentTicl->getInt("NPMT");
   else
   {
-    MLOG(ERROR) << "TileDddbManager::TICLnpmt() - Current TICL not set, returning -999.9" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TICLnpmt() - Current TICL not set, returning -999.9" );
     return -999.9;
   }
 }
@@ -1746,7 +1743,7 @@ double TileDddbManager::TICLholes(unsigned int ind) const
     return m_currentTicl->getInt("HOLES",ind);
   else
   {
-    MLOG(ERROR) << "TileDddbManager::TICLholes() - Current TICL not set, returning 9999" << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::TICLholes() - Current TICL not set, returning 9999" );
     return 9999;
   }
 }
@@ -1756,17 +1753,17 @@ int TileDddbManager::getSwitch(const char *name, int val) const
   if (m_tileSwitches) {
     try {
       if ((*m_tileSwitches)[0]->isFieldNull(name)) {
-        MLOG(DEBUG) << "TileDddbManager::getSwitch() - TileSwitches(" << name << ") is EMPTY, returning " << name << " = " << val << endmsg;
+        ATH_MSG_DEBUG( "TileDddbManager::getSwitch() - TileSwitches(" << name << ") is EMPTY, returning " << name << " = " << val );
         return val;
       } else {
         return (*m_tileSwitches)[0]->getInt(name);
       }
     } catch (std::exception& e) {
-      MLOG(WARNING) << "TileDddbManager::getSwitch() - TileSwitches table does not contain field " << name << ", returning " << name << " = " << val << endmsg;
+      ATH_MSG_WARNING( "TileDddbManager::getSwitch() - TileSwitches table does not contain field " << name << ", returning " << name << " = " << val );
       return val;
     }
   } else {
-    MLOG(ERROR) << "TileDddbManager::getSwitch() - TileSwitches is not set, returning " << name << " = " << val << endmsg;
+    ATH_MSG_ERROR( "TileDddbManager::getSwitch() - TileSwitches is not set, returning " << name << " = " << val );
     return val;
   }
 }

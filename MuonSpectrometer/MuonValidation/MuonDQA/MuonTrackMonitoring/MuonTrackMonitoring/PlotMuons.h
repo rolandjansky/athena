@@ -16,7 +16,7 @@ class PlotMuons:public PlotBase{
 
     public:
 
-        PlotMuons(PlotBase* pParent, std::string sDir);
+        PlotMuons(PlotBase* pParent, const std::string& sDir);
 
         void fill(const xAOD::Muon& muon);
         

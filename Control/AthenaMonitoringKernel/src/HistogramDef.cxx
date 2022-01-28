@@ -13,14 +13,14 @@ const HistogramDef HistogramDef::parse(const std::string& histogramDefinition) {
   HistogramDef result;
 
   result.name = setting["allvars"].get<std::vector<std::string>>();
-  result.alias = setting["alias"];
-  result.type = setting["type"];
-  result.path = setting["path"];
-  result.title = setting["title"];
-  result.weight = setting["weight"];
-  result.cutMask = setting["cutMask"];
+  result.alias = static_cast<std::string>(setting["alias"]);
+  result.type = static_cast<std::string>(setting["type"]);
+  result.path = static_cast<std::string>(setting["path"]);
+  result.title = static_cast<std::string>(setting["title"]);
+  result.weight = static_cast<std::string>(setting["weight"]);
+  result.cutMask = static_cast<std::string>(setting["cutMask"]);
 
-  result.convention = setting["convention"];
+  result.convention = static_cast<std::string>(setting["convention"]);
   size_t offline = result.convention.find("OFFLINE");
   if (offline != std::string::npos) {
     result.runmode = RunMode::Offline;
@@ -48,29 +48,29 @@ const HistogramDef HistogramDef::parse(const std::string& histogramDefinition) {
   result.kLive = setting["kLive"];
   result.kAlwaysCreate = setting["kAlwaysCreate"];
 
-  result.xvar = setting["xvar"];
+  result.xvar = static_cast<std::string>(setting["xvar"]);
   result.xbins = setting["xbins"];
   result.xmin = setting["xmin"];
   result.xmax = setting["xmax"];
   result.xlabels = setting["xlabels"].get<std::vector<std::string>>();
   result.xarray = setting["xarray"].get<std::vector<double>>();
 
-  result.yvar = setting["yvar"];
+  result.yvar = static_cast<std::string>(setting["yvar"]);
   result.ybins = setting["ybins"];
   result.ymin = setting["ymin"];
   result.ymax = setting["ymax"];
   result.ylabels = setting["ylabels"].get<std::vector<std::string>>();
   result.yarray = setting["yarray"].get<std::vector<double>>();
 
-  result.zvar = setting["zvar"];
+  result.zvar = static_cast<std::string>(setting["zvar"]);
   result.zbins = setting["zbins"];
   result.zmin = setting["zmin"];
   result.zmax = setting["zmax"];
   result.zlabels = setting["zlabels"].get<std::vector<std::string>>();
 
-  result.merge = setting["merge"];
+  result.merge = static_cast<std::string>(setting["merge"]);
 
-  result.treeDef = setting["treeDef"];
+  result.treeDef = static_cast<std::string>(setting["treeDef"]);
 
   result.ok = true;
   return result;

@@ -21,7 +21,7 @@ atlas_add_library( Epos_iLib
                    src/Rangen.F
                    PUBLIC_HEADERS Epos_i
                    INCLUDE_DIRS ${CRMC_INCLUDE_DIRS}
-                   PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
+                   PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${CRMC_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${CRMC_LIBRARIES} GeneratorModulesLib
                    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib AtlasHepMCfioLib AthenaKernel GaudiKernel TruthUtils )

@@ -54,12 +54,14 @@ def SensorSimPlanarTool(name="SensorSimPlanarTool", **kwargs):
     kwargs.setdefault("SiPropertiesTool", ToolSvc.PixelSiPropertiesTool)
     kwargs.setdefault("LorentzAngleTool", ToolSvc.PixelLorentzAngleTool)
     kwargs.setdefault("doRadDamage", digitizationFlags.doPixelPlanarRadiationDamage.get_Value())
+    kwargs.setdefault("doRadDamageTemplate", digitizationFlags.doPixelPlanarRadiationDamageTemplate.get_Value())
     return CfgMgr.SensorSimPlanarTool(name, **kwargs)
 
 def SensorSim3DTool(name="SensorSim3DTool", **kwargs):
     from AthenaCommon.AppMgr import ToolSvc
     kwargs.setdefault("SiPropertiesTool", ToolSvc.PixelSiPropertiesTool)
     kwargs.setdefault("doRadDamage", digitizationFlags.doPixel3DRadiationDamage.get_Value())
+    kwargs.setdefault("doRadDamageTemplate", digitizationFlags.doPixel3DRadiationDamageTemplate.get_Value())
     return CfgMgr.SensorSim3DTool(name, **kwargs)
 
 def SensorSimTool(name="SensorSimTool", **kwargs):

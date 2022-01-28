@@ -21,7 +21,7 @@
 
 class RecoMuonPlots:public PlotBase {
     public:
-      RecoMuonPlots(PlotBase* pParent, std::string sDir, bool detail=false);
+      RecoMuonPlots(PlotBase* pParent, const std::string& sDir, bool detail=false);
       void fill(const xAOD::Muon& mu);
       void fill(const xAOD::Muon& mu, xAOD::Muon::Quality my_quality);
       
@@ -51,23 +51,23 @@ class RecoMuonPlots:public PlotBase {
       TH2* m_MS_eff_ndof;
       TH2* m_MS_eff_chi2;
 
-      TH2* m_avg_hits_precision_inner;
-      TH2* m_avg_hits_precision_middle;
-      TH2* m_avg_hits_precision_outer;
-      TH2* m_avg_hits_precision_extended;
+      TH2* m_avg_hits_precision_inner = nullptr;
+      TH2* m_avg_hits_precision_middle = nullptr;
+      TH2* m_avg_hits_precision_outer = nullptr;
+      TH2* m_avg_hits_precision_extended = nullptr;
 
-      TH2* m_avg_hits_trigger_layer1;
-      TH2* m_avg_hits_trigger_layer2;
-      TH2* m_avg_hits_trigger_layer3;
-      TH2* m_avg_hits_trigger_layer4;
+      TH2* m_avg_hits_trigger_layer1 = nullptr;
+      TH2* m_avg_hits_trigger_layer2 = nullptr;
+      TH2* m_avg_hits_trigger_layer3 = nullptr;
+      TH2* m_avg_hits_trigger_layer4 = nullptr;
 
-      TH2* m_avg_hits_ibl;
-      TH2* m_avg_hits_pix;
-      TH2* m_avg_hits_sct;
-      TH2* m_avg_hits_trt;
+      TH2* m_avg_hits_ibl = nullptr;
+      TH2* m_avg_hits_pix = nullptr;
+      TH2* m_avg_hits_sct = nullptr;
+      TH2* m_avg_hits_trt = nullptr;
 
-      TH2* m_avg_ddpt_idme;
-      TH2* m_avg_dptsignif;
+      TH2* m_avg_ddpt_idme = nullptr;
+      TH2* m_avg_dptsignif = nullptr;
 
       // overview layers
       uint8_t hitval_numberOfPrecisionLayers  = 0;

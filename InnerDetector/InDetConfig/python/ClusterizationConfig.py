@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 from InDetConfig.TrackRecoConfig 	import BCM_ZeroSuppressionCfg, PixelClusterizationCfg, \
@@ -61,10 +61,10 @@ if __name__ == "__main__":
 
     ConfigFlags.Detector.GeometryPixel   = True 
     ConfigFlags.Detector.GeometrySCT   = True
-    ConfigFlags.InDet.doPixelClusterSplitting = True
+    ConfigFlags.InDet.Tracking.doPixelClusterSplitting = True
 
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.Input.Files = defaultTestFiles.RDO
+    ConfigFlags.Input.Files = defaultTestFiles.RDO_RUN2
     ConfigFlags.lock()
     ConfigFlags.dump()
 

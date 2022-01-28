@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -399,10 +399,6 @@ if __name__=="__main__":
         print ("file input.txt does not exist")
         print ("WIll use files: \n", file_list)
 
-
-    # from AthenaConfiguration.TestDefaults import defaultTestFiles
-    # ConfigFlags.Input.Files = defaultTestFiles.ESD
-
     ConfigFlags.Input.Files = file_list
 
     ConfigFlags.Output.HISTFileName = 'RPCMonitoringOutput.root'
@@ -427,10 +423,8 @@ if __name__=="__main__":
 
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
-    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
     cfg.merge(MagneticFieldSvcCfg(ConfigFlags))
     cfg.merge(AtlasGeometryCfg(ConfigFlags))
-    cfg.merge(TrackingGeometrySvcCfg(ConfigFlags))
 
     if ConfigFlags.DQ.Steering.Muon.doTrackMon:
         # do not run in RAW->ESD

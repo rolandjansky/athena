@@ -93,7 +93,7 @@ namespace Muon {
 
         TrackSegmentMatchCuts getMatchingCuts(const MuPatTrack& entry1, const MuPatSegment& entry2, bool useTightCuts) const;
 
-        bool applyTrackSegmentCuts(MooTrackSegmentMatchResult& info, const TrackSegmentMatchCuts& cuts) const;
+        bool applyTrackSegmentCuts(const EventContext& ctx, MooTrackSegmentMatchResult& info, const TrackSegmentMatchCuts& cuts) const;
 
         /** @brief check whether two segments are on the same side of the point of
            closest approach to the perigee of the connecting track, or on the same
@@ -181,7 +181,7 @@ namespace Muon {
         ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc{this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
                                                         "Handle to the service providing the IMuonEDMHelperSvc interface"};
 
-        ToolHandle<MuonEDMPrinterTool> m_printer{this, "MuonPrinterTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",
+        PublicToolHandle<MuonEDMPrinterTool> m_printer{this, "MuonPrinterTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",
                                                  "tool to print EDM objects"};
         ToolHandle<Trk::IExtrapolator> m_atlasExtrapolator{this, "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator",
                                                            "curved extrapolator"};

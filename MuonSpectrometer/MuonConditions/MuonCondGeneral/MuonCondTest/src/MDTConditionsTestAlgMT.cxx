@@ -35,7 +35,7 @@ MDTConditionsTestAlgMT::execute(){
   ss << "Now setting up read handle: "; 
   SG::ReadCondHandle<MdtCondDbData> readHandle{m_readKey};
   const MdtCondDbData* readCdo{*readHandle};
-  if(readCdo==0){
+  if(readCdo==nullptr){
     ss << "DID NOT WORK!";
     ATH_MSG_INFO(ss.str());
     ATH_MSG_ERROR("Null pointer to the read conditions object");

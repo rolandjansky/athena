@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigInDetEvent/TrigVertex.h"
@@ -44,37 +44,18 @@ void TrigVertexCnv_p2::persToTrans( const TrigVertex_p2 *persObj,
   
   fesetenv (&fenv);
 
-  if(&(persObj->m_tracks)!=NULL){  
-    m_TrigInDetTrackVectorCnv.persToTrans( &(persObj->m_tracks), &m_trackInVertexVector, log);
-    if(m_trackInVertexVector.size() != 0){
-
-      //TrackInVertexList L;
-      //L.clear();
-      //
-      //TrackInVertexVector::const_iterator iVBeg = m_trackInVertexVector.begin();
-      //TrackInVertexVector::const_iterator iVEnd = m_trackInVertexVector.end();
-      //for(TrackInVertexVector::const_iterator iV=iVBeg; iV != iVEnd; ++iV){
-      //	L.push_back(*iV);
-      //}
-      //	
-      //transObj->m_tracks = new TrackInVertexList;
-      //*(transObj->m_tracks) = L;
+  m_TrigInDetTrackVectorCnv.persToTrans( &(persObj->m_tracks), &m_trackInVertexVector, log);
+  if(!m_trackInVertexVector.empty()) {
       
-      if (transObj->m_tracks)
-        transObj->m_tracks->assign (m_trackInVertexVector.begin(),
-                                    m_trackInVertexVector.end());
-      else
-        transObj->m_tracks =
-          new TrackInVertexList (m_trackInVertexVector.begin(),
-                                 m_trackInVertexVector.end());
-      transObj->m_ownTracks = true;
-      
-
-    }
-  } else {
-    log << MSG::DEBUG << "TrigVertexCnv_p2::persToTrans: No tracks associated to the vertex" << endmsg;
+    if (transObj->m_tracks)
+      transObj->m_tracks->assign (m_trackInVertexVector.begin(),
+                                  m_trackInVertexVector.end());
+    else
+      transObj->m_tracks =
+        new TrackInVertexList (m_trackInVertexVector.begin(),
+                               m_trackInVertexVector.end());
+    transObj->m_ownTracks = true;
   }
-  
 }
 
 //-----------------------------------------------------------------------------

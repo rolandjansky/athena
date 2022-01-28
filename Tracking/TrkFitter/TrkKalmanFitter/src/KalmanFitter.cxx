@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -443,7 +443,7 @@ Trk::KalmanFitter::fit(const EventContext& ctx,
     //    if m_option_callValidationToolForFailedFitsOnly repeat the track fit with calls of validation tool
     if (m_option_callValidationToolForFailedFitsOnly && (!m_callValidationTool) && m_haveValidationTool) {
         m_callValidationTool = true;
-        if (fit(inputTrack, runOutlier, kalMec.particleType())) {
+        if (fit(ctx,inputTrack, runOutlier, kalMec.particleType())) {
             ATH_MSG_WARNING( "Error: fit succeeded! Should not happen, if we repeat a failed fit!" );
         }
         m_callValidationTool = false;
@@ -633,7 +633,7 @@ Trk::KalmanFitter::fit(const EventContext& ctx,
     //    if m_option_callValidationToolForFailedFitsOnly repeat the track fit with calls of validation tool
     if (m_option_callValidationToolForFailedFitsOnly && (!m_callValidationTool) && m_haveValidationTool) {
         m_callValidationTool = true;
-        if (fit(inputMeasSet, estimatedStartParameters, runOutlier, kalMec.particleType())) {
+        if (fit(ctx,inputMeasSet, estimatedStartParameters, runOutlier, kalMec.particleType())) {
             ATH_MSG_WARNING( "Error: fit succeeded! Should not happen, if we repeat a failed fit!" );
         }
         m_callValidationTool = false;
@@ -1228,9 +1228,9 @@ bool Trk::KalmanFitter::prepareNextIteration(const unsigned int& upcomingIterati
     iFilterBeginState = 1;
     Trk::ProtoTrajectoryUtility::clearFitResultsAfterOutlier(m_trajectory,FQ,iFilterBeginState);
     if (m_forwardFitter->needsReferenceTrajectory()) {
-      AmgVector(5)* x = new AmgVector(5)(newSeedPars->parameters()-ffs->referenceParameters()->parameters());
-      ffs->checkinParametersDifference(x);
-      ffs->checkinParametersCovariance(new AmgSymMatrix(5)(*newSeedPars->covariance()));
+      auto x = std::make_unique<const AmgVector(5)>(newSeedPars->parameters()-ffs->referenceParameters()->parameters());
+      ffs->checkinParametersDifference(std::move(x));
+      ffs->checkinParametersCovariance(std::make_unique<const AmgSymMatrix(5)>(*newSeedPars->covariance()));
     } else ffs->checkinForwardPar(std::move(newSeedPars));
     ATH_MSG_VERBOSE ("made new seed parameters");
     // FIXME consider remaking the reference here
@@ -1554,7 +1554,7 @@ Trk::KalmanFitter::callValidation(const EventContext& ctx,
                                                Trk::anyDirection
                                                : Trk::oppositeMomentum,
                                              false,
-                                             matEffects);
+                                             matEffects).release();
         per = dynamic_cast<const Trk::Perigee*>(perPar);
     } else {
         ATH_MSG_WARNING("Perigee-making for validation failed: no useful parameters on track!" );

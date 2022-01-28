@@ -52,7 +52,13 @@ def tauMonitoringCaloOnlyMVA():
    monTool.defineHistogram('EtFinal, PhiEF', path='EXPERT', type='TH2F', title="Phi EF vs Et Final; Et Final; Phi EF",
                                                            xbins=100 , xmin=0, xmax=1000,
                                                            ybins=100, ymin=-3.2, ymax=3.2)
-
+   monTool.defineHistogram('clustersMeanCenterLambda', path='EXPERT', type='TH1F', title='clustersMeanCenterLambda;clustersMeanCenterLambda;nevents',xbins=40, xmin=0., xmax=2500.)
+   monTool.defineHistogram('clustersMeanFirstEngDens', path='EXPERT', type='TH1F', title='clustersMeanFirstEngDens;clustersMeanFirstEngDens;nevents',xbins=40, xmin=-8.7, xmax=-5.5)
+   monTool.defineHistogram('clustersMeanSecondLambda', path='EXPERT', type='TH1F', title='clustersMeanSecondLambda;clustersMeanSecondLambda;nevents',xbins=20, xmin=0., xmax=6e5)
+   monTool.defineHistogram('clustersMeanPresamplerFrac', path='EXPERT', type='TH1F', title='clustersMeanPresamplerFrac;clustersMeanPresamplerFrac;nevents',xbins=20, xmin=0., xmax=0.2)
+   monTool.defineHistogram('clustersMeanEMProbability', path='EXPERT', type='TH1F', title='clustersMeanEMProbability;clustersMeanEMProbability;nevents',xbins=20, xmin=0., xmax=1.)
+   monTool.defineHistogram('etaDetectorAxis', path='EXPERT', type='TH1F', title="EF RNN etaDetectorAxis; etaDetectorAxis", xbins=100, xmin=-2.6, xmax=2.6)
+   
    return monTool
 
 def tauMonitoringPrecisionMVA():
@@ -122,13 +128,23 @@ def tauMonitoringPrecisionMVA():
    monTool.defineHistogram('vertex_x', path='EXPERT', type='TH1F', title="EF RoI Vertex x; Vertex x; nRoIS", xbins=100, xmin=-1, xmax=1)
    monTool.defineHistogram('vertex_y', path='EXPERT', type='TH1F', title="EF RoI Vertex y; Vertex y; nRoIS", xbins=100, xmin=-2, xmax=0)
    monTool.defineHistogram('vertex_z', path='EXPERT', type='TH1F', title="EF RoI Vertex z; Vertex z; nRoIS", xbins=120, xmin=-120, xmax=120)
-   monTool.defineHistogram('RNNJetScore', path='EXPERT', type='TH1F', title="EF RNN score; RNN score; nTaus", xbins=40, xmin=0, xmax=1) 
-   monTool.defineHistogram('RNNJetScoreSigTrans', path='EXPERT', type='TH1F', title="EF RNN score; RNN score sig trans; nTaus", xbins=40, xmin=0, xmax=1)
+   monTool.defineHistogram('RNNJetScore_0p', path='EXPERT', type='TH1F', title="EF RNN score for 0 prong taus; RNN score; nTaus", xbins=40, xmin=0, xmax=1) 
+   monTool.defineHistogram('RNNJetScoreSigTrans_0p', path='EXPERT', type='TH1F', title="EF RNN score for 0 prong taus; RNN score sig trans; nTaus", xbins=40, xmin=0, xmax=1)
+   monTool.defineHistogram('RNNJetScore_1p', path='EXPERT', type='TH1F', title="EF RNN score for 1 prong taus; RNN score; nTaus", xbins=40, xmin=0, xmax=1)
+   monTool.defineHistogram('RNNJetScoreSigTrans_1p', path='EXPERT', type='TH1F', title="EF RNN score for 1 prong taus; RNN score sig trans; nTaus", xbins=40, xmin=0, xmax=1)
+   monTool.defineHistogram('RNNJetScore_mp', path='EXPERT', type='TH1F', title="EF RNN score for multi prong taus; RNN score; nTaus", xbins=40, xmin=0, xmax=1)
+   monTool.defineHistogram('RNNJetScoreSigTrans_mp', path='EXPERT', type='TH1F', title="EF RNN score for multi prong taus; RNN score sig trans; nTaus", xbins=40, xmin=0, xmax=1)
    monTool.defineHistogram('EtFinal, EtaEF', path='EXPERT', type='TH2F', title="Eta EF vs Et Final; Et Final; Eta EF",
                                                            xbins=100 , xmin=0, xmax=1000,
                                                            ybins=100, ymin=-2.6, ymax=2.6)
    monTool.defineHistogram('EtFinal, PhiEF', path='EXPERT', type='TH2F', title="Phi Ef vs Et Final; Et Final; Phi EF",
                                                            xbins=100 , xmin=0, xmax=1000,
                                                            ybins=100, ymin=-3.2, ymax=3.2)
+   monTool.defineHistogram('clustersMeanCenterLambda', path='EXPERT', type='TH1F', title='clustersMeanCenterLambda;clustersMeanCenterLambda;nevents',xbins=40, xmin=0., xmax=2500.)
+   monTool.defineHistogram('clustersMeanFirstEngDens', path='EXPERT', type='TH1F', title='clustersMeanFirstEngDens;clustersMeanFirstEngDens;nevents',xbins=40, xmin=-8.7, xmax=-5.5)
+   monTool.defineHistogram('clustersMeanSecondLambda', path='EXPERT', type='TH1F', title='clustersMeanSecondLambda;clustersMeanSecondLambda;nevents',xbins=20, xmin=0., xmax=6e5)
+   monTool.defineHistogram('clustersMeanPresamplerFrac', path='EXPERT', type='TH1F', title='clustersMeanPresamplerFrac;clustersMeanPresamplerFrac;nevents',xbins=20, xmin=0., xmax=0.2)
+   monTool.defineHistogram('clustersMeanEMProbability', path='EXPERT', type='TH1F', title='clustersMeanEMProbability;clustersMeanEMProbability;nevents',xbins=20, xmin=0., xmax=1.)
+   monTool.defineHistogram('etaDetectorAxis', path='EXPERT', type='TH1F', title="EF RNN etaDetectorAxis; etaDetectorAxis", xbins=100, xmin=-2.6, xmax=2.6)
 
    return monTool

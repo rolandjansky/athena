@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #ifndef L1TopoEvent_eTauTOB
 #define L1TopoEvent_eTauTOB
@@ -40,6 +40,9 @@ namespace TCS {
       double etaDouble() const { return m_etaDouble; }          // float eta with granularity 0.025
       double phiDouble() const { return m_phiDouble; }          // float phi with granularity 0.05
       
+      unsigned int rCore() const { return m_rCore; }
+      unsigned int rHad() const { return m_rHad; }
+
       // setters
       void setEt(unsigned int et) { m_Et = sizeCheck(et, nBitsEt()); }
       void setIsolation(double isolation) { m_isolation = isolation ; }
@@ -49,7 +52,10 @@ namespace TCS {
       void setEtDouble(double et) { m_EtDouble = et; }
       void setEtaDouble(double eta) { m_etaDouble = eta; }
       void setPhiDouble(double phi) { m_phiDouble = phi; }
-     
+
+      void setRCore(unsigned int rCore) { m_rCore = rCore; }
+      void setRHad(unsigned int rHad) { m_rHad = rHad; }
+      
       // memory management
       static eTauTOB* createOnHeap(const eTauTOB& eem);
       static void clearHeap();
@@ -75,6 +81,9 @@ namespace TCS {
       double m_EtDouble {0};
       double m_etaDouble {0};
       double m_phiDouble {0};
+
+      unsigned int m_rCore {0};
+      unsigned int m_rHad {0};
 
       inputTOBType_t  m_tobType { NONE };
 

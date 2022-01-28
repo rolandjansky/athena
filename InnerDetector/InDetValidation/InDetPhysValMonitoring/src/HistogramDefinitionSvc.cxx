@@ -9,6 +9,8 @@
 //  Created by sroe on 07/07/2015.
 //
 
+#include <memory>
+
 #include "InDetPhysValMonitoring/HistogramDefinitionSvc.h"
 #include "ReadFromXmlDom.h"
 #include "IReadHistoDef.h"
@@ -49,7 +51,7 @@ HistogramDefinitionSvc::initialize() {
     return StatusCode::FAILURE;
   }
   if (m_format == TEXT_XML) {
-    m_reader.reset(new ReadFromXmlDom(m_source.value()));
+    m_reader = std::make_unique<ReadFromXmlDom>(m_source.value());
   }
   ATH_MSG_INFO("Reader initialising from " << m_reader->source() << " in " << m_reader->format() << " format.");
   bool ok = m_reader->initialize();

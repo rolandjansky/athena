@@ -110,15 +110,15 @@ StatusCode MuonSegmentFinderAlg::execute(const EventContext& ctx) const {
     // do cluster based segment finding
     if (m_doTGCClust || m_doRPCClust) {
         SG::ReadHandle<Muon::MdtPrepDataContainer> mdtPrds(m_mdtPrdsKey, ctx);
-        const PRD_MultiTruthCollection* tgcTruthColl = 0;
-        const PRD_MultiTruthCollection* rpcTruthColl = 0;
+        const PRD_MultiTruthCollection* tgcTruthColl = nullptr;
+        const PRD_MultiTruthCollection* rpcTruthColl = nullptr;
         if (m_doClusterTruth) {
             SG::ReadHandle<PRD_MultiTruthCollection> tgcTruth(m_tgcTruth, ctx);
             SG::ReadHandle<PRD_MultiTruthCollection> rpcTruth(m_rpcTruth, ctx);
             tgcTruthColl = tgcTruth.cptr();
             rpcTruthColl = rpcTruth.cptr();
         }
-        m_clusterSegMaker->getClusterSegments(mdtPrds.cptr(), m_doRPCClust ? rpcPrdCont : 0, m_doTGCClust ? tgcPrdCont : 0, tgcTruthColl,
+        m_clusterSegMaker->getClusterSegments(mdtPrds.cptr(), m_doRPCClust ? rpcPrdCont : nullptr, m_doTGCClust ? tgcPrdCont : nullptr, tgcTruthColl,
                                               rpcTruthColl, handle.ptr());
     }
 
@@ -224,8 +224,8 @@ void MuonSegmentFinderAlg::createSegmentsFromClusters(const EventContext& ctx, c
 }
 
 void MuonSegmentFinderAlg::createSegmentsWithMDTs(const Muon::MuonPatternCombination* patcomb, Trk::SegmentCollection* segs,
-                                                  const std::vector<const Muon::RpcPrepDataCollection*> rpcCols,
-                                                  const std::vector<const Muon::TgcPrepDataCollection*> tgcCols,
+                                                  const std::vector<const Muon::RpcPrepDataCollection*>& rpcCols,
+                                                  const std::vector<const Muon::TgcPrepDataCollection*>& tgcCols,
                                                   const EventContext& ctx) const {
     if (m_idHelperSvc->hasMM() && m_idHelperSvc->hasSTgc()) {
         // break the pattern combination into regions and calibrate the PRDs
@@ -260,7 +260,7 @@ void MuonSegmentFinderAlg::createSegmentsWithMDTs(const Muon::MuonPatternCombina
                 }
             }
 
-            Trk::TrackParameters* trkpars = 0;
+            Trk::TrackParameters* trkpars = nullptr;
             if (patcomb->trackParameter()) trkpars = patcomb->trackParameter()->clone();
             Muon::MuonPatternCombination pattern(trkpars, chambers);
             ATH_MSG_VERBOSE(" created pattern for region: number of chambers " << chambers.size());

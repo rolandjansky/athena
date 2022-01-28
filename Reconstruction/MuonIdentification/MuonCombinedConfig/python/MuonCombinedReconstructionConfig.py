@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -45,7 +45,7 @@ def MuTagMatchingToolCfg(flags, name='MuTagMatchingTool', **kwargs ):
     result = AtlasExtrapolatorCfg(flags)
     kwargs.setdefault("IExtrapolator", result.popPrivateTools())
 
-    kwargs.setdefault("Propagator", result.getPrimaryAndMerge( AtlasRKPropagatorCfg(flags) ))
+    kwargs.setdefault("Propagator", result.popToolsAndMerge( AtlasRKPropagatorCfg(flags) ))
 
     from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import (
         TrackingGeometryCondAlgCfg)
@@ -148,6 +148,28 @@ def MuonCombinedMuonCandidateAlgCfg(flags, name="MuonCombinedMuonCandidateAlg", 
     alg = CompFactory.MuonCombinedMuonCandidateAlg(name,**kwargs)
     result.addEventAlgo( alg, primary=True )
     return result
+
+def MuonCombinedMuonCandidateAlg_EMEO_Cfg(flags, name = "MuonCombinedMuonCandidateAlg_EMEO"):
+    result = ComponentAccumulator()
+    
+    from MuonCombinedConfig.MuonCombinedRecToolsConfig import CombinedMuonTrackBuilder_EMEO_Cfg
+    from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCandidateToolCfg
+
+    track_builder = result.getPrimaryAndMerge(CombinedMuonTrackBuilder_EMEO_Cfg(flags))
+   
+    acc = MuonCandidateToolCfg(flags,
+                               name = "MuonCandidateTool_EMEO",
+                               TrackBuilder = track_builder,
+                               Commissioning = True)
+    candidate_tool = acc.getPrimary()
+    result.merge(acc)
+
+    alg = CompFactory.MuonCombinedMuonCandidateAlg(name,
+                                                   MuonCandidateTool = candidate_tool)
+    result.addEventAlgo( alg, primary=True )
+
+    return result
+
 
 def MuonCombinedInDetCandidateAlgCfg(flags, name="MuonCombinedInDetCandidateAlg",**kwargs ):
     # FIXME - need to have InDet flags set at this point to know if doForwardTracks is true. 
@@ -260,7 +282,8 @@ def MuonCreatorAlgCfg( flags, name="MuonCreatorAlg",**kwargs ):
     # if muGirl is off, remove "muGirlTagMap" from "TagMaps"
     # but don't set this default in case the StauCreatorAlg is created (see below)
     if not flags.MuonCombined.doMuGirl and not name=="StauCreatorAlg":
-        kwargs.setdefault("TagMaps",["muidcoTagMap","stacoTagMap","caloTagMap","segmentTagMap"])
+        tag_maps = ["muidcoTagMap","stacoTagMap","caloTagMap","segmentTagMap"]        
+        kwargs.setdefault("TagMaps",tag_maps)        
     if flags.Muon.MuonTrigger:
         kwargs.setdefault("MakeClusters", False)
         kwargs.setdefault("ClusterContainerName", "")
@@ -272,6 +295,22 @@ def MuonCreatorAlgCfg( flags, name="MuonCreatorAlg",**kwargs ):
     alg = CompFactory.MuonCreatorAlg(name,**kwargs)
     result.addEventAlgo( alg, primary=True )
     return result
+
+def MuonCreatorAlg_EMEO(flags, name = "MuonCreatorAlg_EMEO", **kwargs ):
+    muon_maps = ["MuonCandidates_EMEO"]
+    combined_maps = []
+    kwargs.setdefault("TagMaps", combined_maps)
+    kwargs.setdefault("MuonCandidateLocation", muon_maps)
+    kwargs.setdefault("MuonContainerLocation", "EMEO_Muons")
+    kwargs.setdefault("ExtrapolatedLocation", "EMEO_ExtraPolatedMuon")
+    kwargs.setdefault("MSOnlyExtrapolatedLocation", "EMEO_MSOnlyExtraPolatedMuon")   
+    kwargs.setdefault("CombinedLocation", "EMEO_CombinedMuon")
+    kwargs.setdefault("SegmentContainerName", "EMEO_MuonSegments")
+    kwargs.setdefault("TrackSegmentContainerName", "EMEO_TrkMuonSegments")
+    kwargs.setdefault("BuildSlowMuon", False)
+    kwargs.setdefault("MakeClusters", False)
+    kwargs.setdefault("ClusterContainerName", "")
+    return MuonCreatorAlgCfg(flags, name = name, **kwargs)
 
 def StauCreatorAlgCfg(flags, name="StauCreatorAlg", **kwargs ):
     from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCreatorToolCfg
@@ -294,6 +333,113 @@ def StauCreatorAlgCfg(flags, name="StauCreatorAlg", **kwargs ):
     result.merge(acc)
     return result # don't have the right algorithm being primary here, but should be okay?
 
+def CombinedMuonOutputCfg(flags):
+    from OutputStreamAthenaPool.OutputStreamConfig import addToESD,addToAOD
+    result = ComponentAccumulator()
+
+    # FIXME! Fix for ATLASRECTS-5151. Remove when better solution found.
+    Trk__EventCnvSuperTool = CompFactory.Trk.EventCnvSuperTool
+    cnvTool = Trk__EventCnvSuperTool(name = 'EventCnvSuperTool')
+    cnvTool.MuonCnvTool.FixTGCs = True 
+    result.addPublicTool(cnvTool)
+
+    # Avoid old-style import from from IsolationAlgs.IsoUpdatedTrackCones import iso_vars
+    # But shouldn't be here.
+    iso_vars = []
+    for track_pt in 500, 1000:
+        for cone_str in "", "LooseCone":
+            name = f"Nonprompt_All_MaxWeightTTVA{cone_str}_pt{track_pt}"
+            iso_vars += ["ptconeCorrBitset_"+name, "ptconecoreTrackPtrCorrection_"+name]
+            for cone_size in 20, 30, 40:
+                for var_str in "", "var":
+                    iso_vars.append(f"pt{var_str}cone{cone_size}_{name}")
+
+
+    aod_items = []
+
+    if flags.Detector.EnableCalo: 
+        aod_items+=["xAOD::CaloClusterContainer#MuonClusterCollection"]
+        aod_items+=["xAOD::CaloClusterAuxContainer#MuonClusterCollectionAux."]
+        aod_items+=["CaloClusterCellLinkContainer#MuonClusterCollection_links"]
+
+    # Adding the xAOD content by default
+    excludedAuxData = '-clusterAssociation'
+    aod_items+=[ "xAOD::TrackParticleContainer#CombinedMuonTrackParticles"]
+    aod_items+=[ "xAOD::TrackParticleAuxContainer#CombinedMuonTrackParticlesAux." + excludedAuxData ]
+    aod_items+=[ "xAOD::TrackParticleContainer#ExtrapolatedMuonTrackParticles" ]
+    aod_items+=[ "xAOD::TrackParticleAuxContainer#ExtrapolatedMuonTrackParticlesAux." + excludedAuxData ]
+    aod_items+=[ "xAOD::TrackParticleContainer#MSOnlyExtrapolatedMuonTrackParticles" ]
+    aod_items+=[ "xAOD::TrackParticleAuxContainer#MSOnlyExtrapolatedMuonTrackParticlesAux." + excludedAuxData ]
+    aod_items+=[ "xAOD::TrackParticleContainer#MuonSpectrometerTrackParticles" ]
+    aod_items+=[ "xAOD::TrackParticleAuxContainer#MuonSpectrometerTrackParticlesAux." + excludedAuxData ]
+    aod_items+=[ "xAOD::MuonContainer#Muons" ]
+    aod_items+=[ "xAOD::MuonContainer#MuonsLRT"]
+
+    # FIXME! Next two lines are hack to remove derivation framework variables that are added by DRAW building and are supposed to be transient
+    excludedMuonAuxData = ".-"+".-".join(iso_vars)
+    aod_items+=[ "xAOD::MuonAuxContainer#MuonsAux.-DFCommonMuonsTight.-DFCommonGoodMuon.-DFCommonMuonsMedium.-DFCommonMuonsLoose" + excludedMuonAuxData ]
+    aod_items+=[ "xAOD::MuonAuxContainer#MuonsLRTAux.-DFCommonMuonsTight.-DFCommonGoodMuon.-DFCommonMuonsMedium.-DFCommonMuonsLoose" + excludedMuonAuxData] 
+    
+    ### Combined muon track particles
+    aod_items+=[ "xAOD::TrackParticleContainer#CombinedMuonsLRTTrackParticles"]
+    aod_items+=[ "xAOD::TrackParticleAuxContainer#CombinedMuonsLRTTrackParticlesAux." + excludedAuxData]
+    ### ME trackParticles
+    aod_items+=[ "xAOD::TrackParticleContainer#ExtraPolatedMuonsLRTTrackParticles"]
+    aod_items+=[ "xAOD::TrackParticleAuxContainer#ExtraPolatedMuonsLRTTrackParticlesAux." + excludedAuxData]
+    aod_items+=[ "xAOD::TrackParticleContainer#MSOnlyExtraPolatedMuonsLRTTrackParticles"]
+    aod_items+=[ "xAOD::TrackParticleAuxContainer#MSOnlyExtraPolatedMuonsLRTTrackParticlesAux." + excludedAuxData]
+
+
+    ### stau
+    aod_items+=[ "xAOD::TrackParticleContainer#CombinedStauTrackParticles"]
+    aod_items+=[ "xAOD::TrackParticleAuxContainer#CombinedStauTrackParticlesAux." + excludedAuxData]
+    aod_items+=[ "xAOD::TrackParticleContainer#ExtrapolatedStauTrackParticles"]
+    aod_items+=[ "xAOD::TrackParticleAuxContainer#ExtrapolatedStauTrackParticlesAux." + excludedAuxData]
+    aod_items+=[ "xAOD::MuonContainer#Staus" ]
+    aod_items+=[ "xAOD::MuonAuxContainer#StausAux." + excludedAuxData ]
+    aod_items+=[ "xAOD::SlowMuonContainer#SlowMuons" ]
+    aod_items+=[ "xAOD::SlowMuonAuxContainer#SlowMuonsAux." ]
+
+    # +++++ ESD +++++
+
+    # Tracks 
+    esd_items =["TrackCollection#ExtrapolatedMuonTracks"] 
+    esd_items+=["TrackCollection#CombinedMuonTracks"]
+    esd_items+=["TrackCollection#MSOnlyExtrapolatedTracks"]
+  
+    if flags.Muon.runCommissioningChain:
+         esd_items+=["TrackCollection#EMEO_MSOnlyExtrapolatedTracks"]
+
+    # Truth    
+    if flags.Input.isMC:
+        esd_items =["DetailedTrackTruthCollection#ExtrapolatedMuonTracksTruth"] 
+        esd_items+=["DetailedTrackTruthCollection#CombinedMuonTracksTruth"]
+        esd_items+=["DetailedTrackTruthCollection#ExtrapolatedMuonTrackParticlesTruth"]
+        esd_items+=["DetailedTrackTruthCollection#CombinedMuonTrackParticlesTruth"]
+
+    if flags.MuonCombined.doCosmicSplitTracks:
+        esd_items+=["TrackCollection#Combined_Tracks_split"]
+        esd_items+=["TrackCollection#Tracks_split"]
+        esd_items+=["Rec::TrackParticleContainer#TrackParticleCandidate_split"]
+
+    esd_items += aod_items
+    
+    result = addToESD(flags,esd_items)
+    result.merge(addToAOD(flags, aod_items))
+
+    # Leaving in for the moment, because we might still need this. Will remove once it's confirmed we don't
+    # if flags.Output.doWriteESD:
+        # 
+        # if runOnESD:
+        #     # Need to make it possible to write Object ... so rename read containers
+        #     from AthenaCommon.Logging import log
+        #     from SGComps.AddressRemappingConfig import AddressRemappingCfg
+        #     rename_maps = list(map(lambda item:'%s->%s' % (item, 'old_'+item.split('#')[1]), esd_items))
+        #     log.info('Since we are running on ESD, rename inputs as follows:'+str(rename_maps))
+        #     cfg.merge( AddressRemappingCfg(rename_maps) )
+    
+    return result
+
 def MuonCombinedReconstructionCfg(flags):
     result = ComponentAccumulator()
 
@@ -309,8 +455,8 @@ def MuonCombinedReconstructionCfg(flags):
     
     result.merge( MuonCombinedInDetCandidateAlgCfg(flags) )
     result.merge( MuonCombinedMuonCandidateAlgCfg(flags) )
-
-    if flags.Detector.GeometryID and flags.InDet.doR3LargeD0:
+     
+    if flags.Detector.GeometryID and flags.InDet.Tracking.doR3LargeD0:
         result.merge( MuonCombinedInDetCandidateAlg_LRTCfg(flags) )
 
     if flags.MuonCombined.doStatisticalCombination or flags.MuonCombined.doCombinedFit:
@@ -323,7 +469,7 @@ def MuonCombinedReconstructionCfg(flags):
         result.merge(MuonInsideOutRecoAlgCfg(flags, name="MuonInsideOutRecoAlg") ) 
         if flags.MuonCombined.doMuGirlLowBeta:
             result.merge(MuGirlStauAlgCfg)
-        if flags.Detector.GeometryID and flags.InDet.doR3LargeD0: 
+        if flags.Detector.GeometryID and flags.InDet.Tracking.doR3LargeD0:
             result.merge( MuGirlAlg_LRTCfg(flags) )
 
     if flags.MuonCombined.doCaloTrkMuId:
@@ -331,7 +477,9 @@ def MuonCombinedReconstructionCfg(flags):
         
     if flags.MuonCombined.doMuonSegmentTagger:
         result.merge( MuonSegmentTagAlgCfg(flags) )
-
+    if flags.Muon.runCommissioningChain:
+        result.merge(MuonCombinedMuonCandidateAlg_EMEO_Cfg(flags))
+        result.merge(MuonCreatorAlg_EMEO(flags))
     # runs over outputs and create xAODMuon collection
     acc = MuonCreatorAlgCfg(flags)
     result.merge(acc)
@@ -342,6 +490,10 @@ def MuonCombinedReconstructionCfg(flags):
 
     # post processing
     result.addEventAlgo( CompFactory.ClusterMatching.CaloClusterMatchLinkAlg("MuonTCLinks",ClustersToDecorate="MuonClusterCollection") )
+
+    # Setup output
+    result.merge(CombinedMuonOutputCfg(flags))
+    
     return result
 
 if __name__=="__main__":
@@ -355,23 +507,13 @@ if __name__=="__main__":
 
     ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.0/v2/myESD.pool.root']
     # Keep this comment in, for easy local debugging.
-    # ConfigFlags.Input.Files = ['/eos/atlas/atlascerngroupdisk/data-art/grid-input/MuonCombinedConfig/myESD_q221_unslimmedTracks.pool.root']
+    # ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonCombinedConfig/myESD_q221_unslimmedTracks.pool.root']
     
     ConfigFlags.Concurrency.NumThreads=args.threads
     ConfigFlags.Concurrency.NumConcurrentEvents=args.threads # Might change this later, but good enough for the moment.
 
-    ConfigFlags.Detector.GeometryBpipe   = True 
-    ConfigFlags.Detector.GeometryMDT   = True 
-    ConfigFlags.Detector.GeometryTGC   = True
-    ConfigFlags.Detector.GeometryCSC   = True     
-    ConfigFlags.Detector.GeometryRPC   = True     
-    ConfigFlags.Detector.GeometryTile  = True 
-    ConfigFlags.Detector.GeometryLAr   = True 
-    ConfigFlags.Detector.GeometryPixel = True 
-    ConfigFlags.Detector.GeometrySCT   = True 
-    ConfigFlags.Detector.GeometryTRT   = True  
     ConfigFlags.Output.ESDFileName=args.output
-    ConfigFlags.InDet.doR3LargeD0 = False # Not working with this input
+    ConfigFlags.InDet.Tracking.doR3LargeD0 = False # Not working with this input
     if args.debug:
         from AthenaCommon.Debugging import DbgStage
         if args.debug not in DbgStage.allowed_values:
@@ -379,19 +521,22 @@ if __name__=="__main__":
                              (DbgStage.allowed_values))
         ConfigFlags.Exec.DebugStage = args.debug
 
-
     ConfigFlags.lock()
-
     ConfigFlags.dump()
 
     cfg = SetupMuonStandaloneCA(args,ConfigFlags)
 
+    # "Fixes" to get this working standalone i.e. from ESD
     #Configure topocluster algorithmsm, and associated conditions
     from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
     cfg.merge(CaloTopoClusterCfg(ConfigFlags))
     acc = MuonCombinedReconstructionCfg(ConfigFlags)
     cfg.merge(acc)
     
+    # Commented out for now as this causes a stall. FIXME
+    # Should be what provides xoadMuonSegments
+    # cfg.addEventAlgo(CompFactory.xAODMaker.MuonSegmentCnvAlg("MuonSegmentCnvAlg"))
+
     # Keep this in, since it makes debugging easier to simply uncomment and change Algo/Service name,
     # from AthenaCommon.Constants import VERBOSE
     # tmp = cfg.getEventAlgo("MuonCombinedMuonCandidateAlg")

@@ -33,7 +33,7 @@ namespace MuonGM {
         double thickness;
         double longWidth; // for trapezoidal layers
 
-        double rotangle[10];
+        double rotangle[10]{};
 
         int stationPhiTGC(std::string_view stName, int fi, int zi, std::string_view geometry_version) const;
         inline void setFineClashFixingFlag(int value);
@@ -51,7 +51,7 @@ namespace MuonGM {
         void setMdtReadoutGeom(const MYSQL& mysql,
                                MdtReadoutElement *re, const MdtComponent *cc, const Position &p);
         void setRpcReadoutGeom(const MYSQL& mysql,
-                               RpcReadoutElement *re, const RpcComponent *cc, const Position &p, std::string geomVers, MuonDetectorManager *manager);
+                               RpcReadoutElement *re, const RpcComponent *cc, const Position &p, const std::string& geomVers, MuonDetectorManager *manager);
         void setTgcReadoutGeom(const MYSQL& mysql,
                                TgcReadoutElement *re, const TgcComponent *cc, const Position &p, const std::string& statname);
 
@@ -59,7 +59,7 @@ namespace MuonGM {
         IMessageSvc *m_msgSvc;
         int m_enableFineClashFixing;
 
-        FPVMAP *m_FPVMAP;
+        FPVMAP *m_FPVMAP = nullptr;
     };
 
     void MuonChamber::setFineClashFixingFlag(int value) { m_enableFineClashFixing = value; }

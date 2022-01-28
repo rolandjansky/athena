@@ -197,10 +197,13 @@ StatusCode AthenaRootSharedWriterSvc::initialize() {
    return StatusCode::SUCCESS;
 }
 //___________________________________________________________________________
-StatusCode AthenaRootSharedWriterSvc::share(int numClients) {
+StatusCode AthenaRootSharedWriterSvc::share(int numClients, bool motherClient) {
    ATH_MSG_VERBOSE("Start commitOutput loop");
    StatusCode sc = m_cnvSvc->commitOutput("", false);
    int workerCounter = 0;
+   if (motherClient) {
+      m_rootClientCount++;
+   }
    std::set<int> rootClientSet;
    std::map<TString, int> workerCount;
    while ((m_rootClientCount > 0 || workerCounter < (numClients - 1)) && (sc.isSuccess() || sc.isRecoverable())) {

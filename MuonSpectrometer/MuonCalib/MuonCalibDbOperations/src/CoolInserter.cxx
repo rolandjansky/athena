@@ -39,7 +39,7 @@ namespace MuonCalib {
     CoolInserter::CoolInserter(const std::string &name, ISvcLocator *pSvcLocator) :
         AthAlgorithm(name, pSvcLocator),
         m_version("v0.0"),
-        p_reg_sel_svc(NULL),
+        p_reg_sel_svc(nullptr),
         m_cool_connect(false),
         m_t0_created(false),
         m_rt_created(false) {

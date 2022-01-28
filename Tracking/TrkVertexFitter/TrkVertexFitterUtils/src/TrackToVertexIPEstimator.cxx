@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVertexFitterUtils/TrackToVertexIPEstimator.h"
@@ -7,10 +7,6 @@
 #include "VxVertex/VxTrackAtVertex.h"
 #include "TrkParticleBase/TrackParticleBase.h"
 #include "TrkParameters/TrackParameters.h"
-#include "TrkExInterfaces/IExtrapolator.h"
-#include "TrkExInterfaces/IExtrapolator.h"
-#include "TrkVertexFitterInterfaces/IVertexLinearizedTrackFactory.h"
-#include "TrkVertexFitterInterfaces/IVertexUpdator.h"
 #include "TrkTrackLink/ITrackLink.h"
 
 #include "xAODTracking/TrackParticle.h"
@@ -21,13 +17,9 @@ namespace Trk
 {
 
  TrackToVertexIPEstimator::TrackToVertexIPEstimator(const std::string& t, const std::string& n, const IInterface*  p):
-  AthAlgTool(t,n,p), m_extrapolator("Trk::Extrapolator",this),m_Updator("Trk::KalmanVertexUpdator",this),
-  m_linFactory("Trk::FullLinearizedTrackFactory",this)
+  AthAlgTool(t,n,p)
  {
-  declareProperty("Extrapolator",            m_extrapolator);
-  declareProperty("VertexUpdator",           m_Updator);
-  declareProperty("LinearizedTrackFactory",  m_linFactory);
-  declareInterface<ITrackToVertexIPEstimator>(this);    
+  declareInterface<ITrackToVertexIPEstimator>(this);
  }
 
  TrackToVertexIPEstimator::~TrackToVertexIPEstimator()= default;
@@ -36,77 +28,77 @@ namespace Trk
  {
 
 //uploading the corresponding tools
-//extrapolator    
-  if ( m_extrapolator.retrieve().isFailure() ) 
+//extrapolator
+  if ( m_extrapolator.retrieve().isFailure() )
   {
-   msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endmsg;
+   ATH_MSG_FATAL( "Failed to retrieve tool " << m_extrapolator );
    return StatusCode::FAILURE;
-  } 
-   msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endmsg;
-  
+  }
+  ATH_MSG_INFO( "Retrieved tool " << m_extrapolator );
 
-//updator 
-  if ( m_Updator.retrieve().isFailure() ) 
+
+//updator
+  if ( m_Updator.retrieve().isFailure() )
   {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_Updator << endmsg;
+    ATH_MSG_FATAL( "Failed to retrieve tool " << m_Updator );
     return StatusCode::FAILURE;
-  } 
-    msg(MSG::INFO) << "Retrieved tool " << m_Updator << endmsg;
-  
-  
+  }
+  ATH_MSG_INFO( "Retrieved tool " << m_Updator );
+
+
 //linearized track factory
-  if ( m_linFactory.retrieve().isFailure() ) 
+  if ( m_linFactory.retrieve().isFailure() )
   {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_linFactory << endmsg;
+    ATH_MSG_FATAL("Failed to retrieve tool " << m_linFactory );
     return StatusCode::FAILURE;
-  } 
-    msg(MSG::INFO) << "Retrieved tool " << m_linFactory << endmsg;
-  
-  
-   return StatusCode::SUCCESS;  
+  }
+  ATH_MSG_INFO( "Retrieved tool " << m_linFactory );
+
+
+   return StatusCode::SUCCESS;
  }//end of initialize method
-    
+
 
  const  ImpactParametersAndSigma * TrackToVertexIPEstimator::estimate(const xAOD::TrackParticle * track, const xAOD::Vertex * vtx, bool doRemoval) const
  {
   if(track && vtx)
   {
-   return estimate(&(track->perigeeParameters()),&(track->perigeeParameters()),vtx,doRemoval); 
+   return estimate(&(track->perigeeParameters()),&(track->perigeeParameters()),vtx,doRemoval);
   }
-   msg(MSG::INFO) << "Empty TrackParticle or Vertex pointer passed. Returning zero " << endmsg;
-   return nullptr;
+  ATH_MSG_INFO( "Empty TrackParticle or Vertex pointer passed. Returning zero " );
+  return nullptr;
   //end of track particle validity check
  }//end of method using track particles
- 
+
  const  ImpactParametersAndSigma * TrackToVertexIPEstimator::estimate(const xAOD::TrackParticle * track, const xAOD::TrackParticle * newtrack, const xAOD::Vertex * vtx, bool doRemoval) const
  {
   if(track && vtx)
   {
-    return estimate(&(track->perigeeParameters()),&(newtrack->perigeeParameters()),vtx,doRemoval); 
+    return estimate(&(track->perigeeParameters()),&(newtrack->perigeeParameters()),vtx,doRemoval);
   }
-   msg(MSG::INFO) << "Empty TrackParticle or Vertex pointer passed. Returning zero " << endmsg;
+   ATH_MSG_INFO( "Empty TrackParticle or Vertex pointer passed. Returning zero " );
    return nullptr;
   //end of track particle validity check
  }//end of method using track particles
- 
+
 
 
 
  const  ImpactParametersAndSigma * TrackToVertexIPEstimator::estimate(const TrackParameters * track, const xAOD::Vertex * vtx, bool doRemoval) const
  {
    if(track && vtx){
-     return estimate(track,track,vtx,doRemoval); 
+     return estimate(track,track,vtx,doRemoval);
    }
-     msg(MSG::INFO) << "Empty TrackParticle or Vertex pointer passed. Returning zero " << endmsg;
-     return nullptr;
+   ATH_MSG_INFO( "Empty TrackParticle or Vertex pointer passed. Returning zero " );
+   return nullptr;
    //end of track particle validity check
- 
- }//end of parameterBase estimate method     
-   
+
+ }//end of parameterBase estimate method
+
  const  ImpactParametersAndSigma * TrackToVertexIPEstimator::estimate(const TrackParameters * track, const TrackParameters * newtrack, const xAOD::Vertex * vtx, bool doRemoval) const
  {
- 
-   if (vtx==nullptr) 
+
+   if (vtx==nullptr)
    {
      ATH_MSG_WARNING("Vertex is zero pointer. Will not estimate IP of track.");
      return nullptr;
@@ -129,24 +121,28 @@ namespace Trk
      delete newVertex;
      newVertex=nullptr;
    }
-   
+
    return IPandSigma;
 
- }//end of parameterBase estimate method   
+ }//end of parameterBase estimate method
 
-   
+
  const  ImpactParametersAndSigma * TrackToVertexIPEstimator::calculate(const TrackParameters * track, const xAOD::Vertex& vtx) const
- { 
-  //estimating the d0 and its significance by propagating the trajectory state towards 
+ {
+  //estimating the d0 and its significance by propagating the trajectory state towards
   //the vertex position. By this time the vertex should NOT contain this trajectory anymore
-  
-  //estrapolating to the  perigee of the reconstructed vertex  
+
+  //estrapolating to the  perigee of the reconstructed vertex
   const Amg::Vector3D & lp = vtx.position();
   PerigeeSurface perigeeSurface(lp);
-  const  Trk::Perigee * extrapolatedParameters =dynamic_cast<const Trk::Perigee *>(m_extrapolator->extrapolate(*track,perigeeSurface));
+  const Trk::Perigee* extrapolatedParameters =
+    dynamic_cast<const Trk::Perigee*>(
+      m_extrapolator
+        ->extrapolate(Gaudi::Hive::currentContext(), *track, perigeeSurface)
+        .release());
   if (extrapolatedParameters && extrapolatedParameters->covariance()) {
-  
-    //actual calculation of d0 and sigma.  
+
+    //actual calculation of d0 and sigma.
     const AmgVector(5) & par = extrapolatedParameters->parameters();
     const double d0  = par[Trk::d0];
     const double z0  = par[Trk::z0];
@@ -154,16 +150,16 @@ namespace Trk
     const double theta = par[Trk::theta];
 
     AmgSymMatrix(2) vrtXYCov = vtx.covariancePosition().block<2,2>(0,0);
-   
+
     //   std::cout<<"Vertex covariance: "<<vtx.errorPosition().covariance()<<std::endl;
     //   std::cout<<"Vertex covariance sub: "<<vrtXYCov<<std::endl;
-   
+
     const AmgSymMatrix(5) & perigeeCov = *(extrapolatedParameters->covariance());
     //   std::cout<<"Perigee covariance: "<<perigeeCov<<std::endl;
-   
-    //d0phi->cartesian Jacobian  
+
+    //d0phi->cartesian Jacobian
     Amg::Vector2D d0JacXY(-sin(phi), cos(phi));
-   
+
     //  std::cout<<"To cartesian jacobian "<<d0PhiCart<<std::endl;
     //  std::cout<<" - d0*cos(phi)"<< - d0*cos(phi)<<std::endl;
 
@@ -203,30 +199,30 @@ namespace Trk
    }
    else
    {
-     msg(MSG::WARNING) << " The contribution to z0_err: " << vrtZZCov << " from PV is negative: critical error in PV error matrix! Removing contribution from PV ... "  << endmsg;     
+     msg(MSG::WARNING) << " The contribution to z0_err: " << vrtZZCov << " from PV is negative: critical error in PV error matrix! Removing contribution from PV ... "  << endmsg;
      newIPandSigma->IPz0SinTheta=z0*sin(theta);
      double temp = (IPz0JacZ0Theta.transpose()*(covPerigeeZ0Theta*IPz0JacZ0Theta));
      newIPandSigma->sigmaz0SinTheta=sqrt(temp);
      newIPandSigma->PVsigmaz0SinTheta=0;
-     
+
      newIPandSigma->IPz0 = z0;
      newIPandSigma->sigmaz0 = std::sqrt( perigeeCov(Trk::z0,Trk::z0) );
      newIPandSigma->PVsigmaz0 = 0;
    }
 
    //   std::cout<<"Calculated sigma: "<<sqrt(sigmaM)<<std::endl;
-  
+
    //checking the other way of calculating the errors
    // Calculation using the projection
    //   double  s_d0_test = extrapolatedParameters->localErrorMatrix().covValue(Trk::d0)+
    //   sin(phi) * sin(phi) * vtx.errorPosition().covValue(Trk::x) +
-   //   cos(phi) * cos(phi) * vtx.errorPosition().covValue(Trk::y) - 
+   //   cos(phi) * cos(phi) * vtx.errorPosition().covValue(Trk::y) -
    //   2.* sin(phi) * cos(phi) * vtx.errorPosition().covValue(Trk::x, Trk::y);
-   //   std::cout<<"new sigma: "<<sqrt(s_d0_test)<<std::endl; 
-   
+   //   std::cout<<"new sigma: "<<sqrt(s_d0_test)<<std::endl;
+
    delete extrapolatedParameters;
    return newIPandSigma;
-  } 
+  }
     ATH_MSG_DEBUG ("Cannot extrapolate the trajectory state. Returning null. ");
     return nullptr;
   //end of successfull extrapolation check
@@ -251,22 +247,23 @@ namespace Trk
   {
     const Amg::Vector3D & lp = primaryVertex.position();
     PerigeeSurface perigeeSurface(lp);
-    
-    const  Trk::TrackParameters * extrapolatedParameters = m_extrapolator->extrapolate(track,perigeeSurface);
-    
+
+    std::unique_ptr<const Trk::TrackParameters> extrapolatedParameters =
+      m_extrapolator->extrapolate(
+        Gaudi::Hive::currentContext(), track, perigeeSurface);
+
     if (!extrapolatedParameters) return 0.;
 
     const Amg::Vector3D & primaryPos=primaryVertex.position();
     const Amg::Vector3D & trackPos=extrapolatedParameters->position();
     const Amg::Vector3D & trackMom=extrapolatedParameters->momentum();
-    
+
     double sign=(jetMomentum.cross(trackMom)).dot(trackMom.cross(primaryPos-trackPos));
-    delete extrapolatedParameters;
-    
+
     return sign>=0.?1.:-1;
   }
 
-  
+
 
   double TrackToVertexIPEstimator::get2DLifetimeSignOfTrack(const TrackParameters & track,
                                                             const CLHEP::Hep3Vector & jetMomentum,
@@ -282,16 +279,17 @@ namespace Trk
   {
     const Amg::Vector3D & lp = primaryVertex.position();
     PerigeeSurface perigeeSurface(lp);
-    
-    const  Trk::TrackParameters * extrapolatedParameters =  m_extrapolator->extrapolate(track,perigeeSurface);
-    
+
+    std::unique_ptr<const Trk::TrackParameters> extrapolatedParameters =
+      m_extrapolator->extrapolate(
+        Gaudi::Hive::currentContext(), track, perigeeSurface);
+
     if (!extrapolatedParameters) return 0.;
 
     double trackD0  = extrapolatedParameters->parameters()[Trk::d0];
     double trackPhi = extrapolatedParameters->parameters()[Trk::phi];
     double vs = sinf( atan2(jetMomentum.y(),jetMomentum.x()) - trackPhi )*trackD0;
-   
-    delete extrapolatedParameters;
+
     return (vs>=0. ? 1. : -1.);
   }
 
@@ -313,9 +311,11 @@ namespace Trk
 
     const Amg::Vector3D & lp = primaryVertex.position();
     PerigeeSurface perigeeSurface(lp);
-    
-    const  Trk::TrackParameters * extrapolatedParameters = m_extrapolator->extrapolate(track,perigeeSurface);
-    
+
+    std::unique_ptr<const Trk::TrackParameters> extrapolatedParameters =
+      m_extrapolator->extrapolate(
+        Gaudi::Hive::currentContext(), track, perigeeSurface);
+
     if (!extrapolatedParameters) return 0.;
 
     double trackTheta  = extrapolatedParameters->parameters()[Trk::theta];
@@ -323,7 +323,6 @@ namespace Trk
     double trackEta = -logf(tanf(trackTheta/2.));
     double jetEta = jetMomentum.eta();
     double zs = (jetEta - trackEta)*trackZ0;
-    delete extrapolatedParameters;
     return (zs>=0. ? 1. : -1.);
   }
 
@@ -331,21 +330,21 @@ namespace Trk
 /*
   StatusCode TrackToVertexIPEstimator::queryInterface(const InterfaceID& riid, void** ppvIf)
   {
-  
-  
+
+
     if(interfaceID() == riid){
       *ppvIf = dynamic_cast< TrackToVertexIPEstimator* > (this);
-    } 
+    }
     else if(ITrackToVertexIPEstimator::interfaceID() == riid){
       *ppvIf = dynamic_cast<ITrackToVertexIPEstimator*> (this);
-    } 
+    }
     else{
       return AthAlgTool::queryInterface(riid, ppvIf);
     }
-    
+
     addRef();
     return StatusCode::SUCCESS;
-     
+
   }
 */
 
@@ -359,10 +358,10 @@ const xAOD::Vertex * TrackToVertexIPEstimator::getUnbiasedVertex(const xAOD::Tra
   }
    msg(MSG::INFO) << "Empty xAOD::TrackParticle pointer passed. Returning zero " << endmsg;
    return nullptr;
-  //end of track particle validity check   
+  //end of track particle validity check
  }
 
-const xAOD::Vertex * TrackToVertexIPEstimator::getUnbiasedVertex(const TrackParameters * track, const xAOD::Vertex * vtx ) const 
+const xAOD::Vertex * TrackToVertexIPEstimator::getUnbiasedVertex(const TrackParameters * track, const xAOD::Vertex * vtx ) const
  {
    if (!track) {
      msg(MSG::INFO) << "Empty Trk::TrackParameter pointer passed. Returning zero " << endmsg;
@@ -378,7 +377,7 @@ const xAOD::Vertex * TrackToVertexIPEstimator::getUnbiasedVertex(const TrackPara
       ATH_MSG_DEBUG("This vertex has no associated tracks. Normal if beam spot is used. Vertex already unbiased");
       return new xAOD::Vertex(*vtx);
     }
-   
+
    //create new vertex for output
    xAOD::Vertex *outputVertex = new xAOD::Vertex(*vtx);
    outputVertex->clearTracks(); //remove all tracks -> will add them back one by one
@@ -418,7 +417,7 @@ const xAOD::Vertex * TrackToVertexIPEstimator::getUnbiasedVertex(const TrackPara
        }
        //now update vertex position removing the linearized track, and do not add the track back to the output vertex
        const IVertexUpdator::positionUpdateOutcome & reducedVertex = m_Updator->positionUpdate(*vtx, linTrack, trackWeight,IVertexUpdator::removeTrack);
-       
+
        //calculate updated chi2
        double chi2 = vtx->chiSquared();
        double trk_chi = m_Updator->trackParametersChi2( reducedVertex, linTrack );
@@ -443,7 +442,7 @@ const xAOD::Vertex * TrackToVertexIPEstimator::getUnbiasedVertex(const TrackPara
 	 outputVertex->vxTrackAtVertex().push_back(vtx->vxTrackAtVertex()[itrk]);//will clone everything inside -> output vertex owns all the memory
        }
      }
-   }  
+   }
    return outputVertex;
 
  }

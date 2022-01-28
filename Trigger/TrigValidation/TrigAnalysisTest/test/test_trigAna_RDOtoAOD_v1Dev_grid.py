@@ -24,7 +24,7 @@ from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 from TrigAnalysisTest.TrigAnalysisSteps import add_analysis_steps
 
 preExec = ';'.join([
-  'setMenu=\'LS2_v1_TriggerValidation_prescale\'',
+  'setMenu=\'Dev_pp_run3_v1_TriggerValidation_prescale\'',
   'from AthenaConfiguration.AllConfigFlags import ConfigFlags',
   'ConfigFlags.Trigger.AODEDMSet=\'AODFULL\'',
 ])

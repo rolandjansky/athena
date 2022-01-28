@@ -2,7 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: pool.h 590734 2014-04-01 21:49:36Z gemmeren $
 //====================================================================
 //
 //  Package    : StorageSvc (The pool framework)
@@ -96,7 +95,7 @@ namespace pool   {
   /// Check for tracing
   bool      doTrace();
 
-  /// Translate acce mode to string
+  /// Translate access mode to string
   const char* accessMode(pool::DbAccessMode access_mode);
 
   /// Delete a pointer

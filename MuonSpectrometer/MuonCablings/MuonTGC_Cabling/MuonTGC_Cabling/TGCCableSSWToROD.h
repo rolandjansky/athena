@@ -18,7 +18,7 @@ class TGCCableSSWToROD : public TGCCable
 {
 public:
   // Constructor & Destructor
-  TGCCableSSWToROD(std::string filename);
+  TGCCableSSWToROD(const std::string& filename);
   TGCCableSSWToROD (const TGCCableSSWToROD&);
   TGCCableSSWToROD& operator=(const TGCCableSSWToROD&);
 

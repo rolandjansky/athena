@@ -126,17 +126,17 @@ namespace Muon
       /** The number of failures on setRdo */
       unsigned int m_failedSetRdo;
       /** The number of failures on decodeRodToRdo */
-      unsigned int m_failedDecodeRodToRdo[NROD+1];
+      unsigned int m_failedDecodeRodToRdo[NROD+1]{};
       /** The number of strange header and SizeRawData */
-      unsigned int m_failedHeaderSizeRawData[NROD+1];
+      unsigned int m_failedHeaderSizeRawData[NROD+1]{};
       /** The number of failures on setSbLoc */
-      unsigned int m_failedSetSbLoc[NROD+1];
+      unsigned int m_failedSetSbLoc[NROD+1]{};
       /** The number of failures on setType */
-      unsigned int m_failedSetType[NROD+1];
+      unsigned int m_failedSetType[NROD+1]{};
       /** The number of failures on getSLBIDfromRxID */
-      unsigned int m_failedGetSLBIDfromRxID[NROD+1];
+      unsigned int m_failedGetSLBIDfromRxID[NROD+1]{};
       /** The number of failures on getReadoutIDfromSLBID */
-      unsigned int m_failedGetReadoutIDfromSLBID[NROD+1];
+      unsigned int m_failedGetReadoutIDfromSLBID[NROD+1]{};
 
       /** TGC RDO container */
       TgcRdo* m_tgcRdo;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfData/Logic.h"
@@ -85,6 +85,17 @@ TrigConf::LogicLeaf::evaluate(const std::map<std::string, unsigned int> & elemen
    return negate() ? !pass : pass;
 }
 
+std::map<std::string, bool>
+TrigConf::LogicLeaf::elements() const {
+   return {{m_name, true}};
+}
+
+
+std::map<std::string, unsigned int>
+TrigConf::LogicLeaf::elementsCount() const {
+   return {{m_name, m_count}};
+}
+
 
 void
 TrigConf::LogicLeaf::print(std::ostream & o, size_t indSize, size_t indLevel) const {
@@ -164,6 +175,28 @@ TrigConf::LogicAND::evaluate(const std::map<std::string, unsigned int> & element
    return negate() ? false : true;
 }
 
+std::map<std::string, bool>
+TrigConf::LogicAND::elements() const {
+   std::map<std::string, bool> elements;
+   for( auto & subLogic : subLogics() ) {
+      for ( const auto& el : subLogic->elements() ) {
+         elements.insert(el);
+      }
+   }
+   return elements;
+}
+
+std::map<std::string, unsigned int>
+TrigConf::LogicAND::elementsCount() const {
+   std::map<std::string, unsigned int> elementsCount;
+   for( auto & subLogic : subLogics() ) {
+      for ( const auto& el : subLogic->elementsCount() ) {
+         elementsCount.insert(el);
+      }
+   }
+   return elementsCount;
+}
+
 TrigConf::LogicOR::LogicOR() :
    LogicOPS(Logic::OR)
 {}
@@ -192,3 +225,24 @@ TrigConf::LogicOR::evaluate(const std::map<std::string, unsigned int> & elements
    return negate() ? true : false;
 }
 
+std::map<std::string, bool>
+TrigConf::LogicOR::elements() const {
+   std::map<std::string, bool> elements;
+   for( auto & subLogic : subLogics() ) {
+      for ( const auto& el : subLogic->elements() ) {
+         elements.insert(el);
+      }
+   }
+   return elements;
+}
+
+std::map<std::string, unsigned int>
+TrigConf::LogicOR::elementsCount() const {
+   std::map<std::string, unsigned int> elementsCount;
+   for( auto & subLogic : subLogics() ) {
+      for ( const auto& el : subLogic->elementsCount() ) {
+         elementsCount.insert(el);
+      }
+   }
+   return elementsCount;
+}

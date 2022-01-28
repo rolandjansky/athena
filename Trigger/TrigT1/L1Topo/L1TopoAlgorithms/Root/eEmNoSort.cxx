@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 // eEmNoSort.cxx
 // TopoCore
@@ -41,14 +41,14 @@ TCS::eEmNoSort::sort(const InputTOBArray & input, TOBArray & output) {
    const eEmTOBArray & clusters = dynamic_cast<const eEmTOBArray&>(input);
 
    // fill output array with GenericTOB built from clusters
-   for(eEmTOBArray::const_iterator cl = clusters.begin(); cl!= clusters.end(); ++cl ) {
+   for(eEmTOBArray::const_iterator eem = clusters.begin(); eem!= clusters.end(); ++eem ) {
 
       // Isolation cut
-      if ( !isocut(m_minREta, (*cl)->Reta()) ) {continue;}
-      if ( !isocut(m_minRHad, (*cl)->Rhad()) ) {continue;}
-      if ( !isocut(m_minWsTot, (*cl)->Wstot()) ) {continue;}
+      if ( !isocut(m_minREta, (*eem)-> Reta()) ) {continue;}
+      if ( !isocut(m_minRHad, (*eem)-> Rhad()) ) {continue;}
+      if ( !isocut(m_minWsTot, (*eem)-> Wstot()) ) {continue;}
      
-      const GenericTOB gtob(**cl);
+      const GenericTOB gtob(**eem);
       output.push_back( gtob );
    }
 

@@ -27,9 +27,6 @@
  *   explicit knowledge of which layer intersection to
  *   target
  *
- * - egammaCaloExtension : Specialize layersCaloExtension
- *   given an egamma cluster
- *
  *
  * Methods accepting  IParticle :
  *
@@ -187,11 +184,46 @@ public:
     ParticleHypothesis particleType) const = 0;
 
   /**
+   * Method returning a vector of calo surfaces give calo
+   * layers/samplings
+   * @param ctx          event context needed for multithreading
+   * @param clusterLayers  the layers (should be ordered) we aim to
+   * @param eta            eta used for the depth
+   */
+  virtual std::vector<std::unique_ptr<Trk::Surface>> caloSurfacesFromLayers(
+    const std::vector<CaloSampling::CaloSample>& clusterLayers,
+    double eta,
+    const CaloDetDescrManager& caloDD) const = 0;
+
+  /**
    * Method returning a vector of the Track Parameters at
    * layers/samplings
    * @param ctx          event context needed for multithreading
    * @param startPars    the starting track parameters
-   * @param clusterLayers  the layers (should be ordered)  we aim for
+   * @param clusterLayers  the layers (should be ordered) we aim to
+   * @param clusterSurfaces  the surfaces for each layer
+   * @param particleType type of particle
+   *
+   * The clusterLayers and clusterSurfaces need to be 1-1
+   * this can be done via the caloSurfacesFromLayers
+   * method above.
+   *
+   */
+  virtual std::vector<std::pair<CaloSampling::CaloSample,
+                                std::unique_ptr<const Trk::TrackParameters>>>
+  surfaceCaloExtension(
+    const EventContext& ctx,
+    const TrackParameters& startPars,
+    const std::vector<CaloSampling::CaloSample>& clusterLayers,
+    const std::vector<std::unique_ptr<Trk::Surface>>& caloSurfaces,
+    ParticleHypothesis particleType) const = 0;
+
+  /**
+   * Method returning a vector of the Track Parameters at
+   * layers/samplings
+   * @param ctx          event context needed for multithreading
+   * @param startPars    the starting track parameters
+   * @param clusterLayers  the layers (should be ordered)  we aim to
    * @param eta            eta used for the depth
    * @param particleType type of particle
    */
@@ -203,24 +235,6 @@ public:
     const TrackParameters& startPars,
     const std::vector<CaloSampling::CaloSample>& clusterLayers,
     double eta,
-    const CaloDetDescrManager& caloDD,
-    ParticleHypothesis particleType = Trk::nonInteracting) const = 0;
-
-  /**
-   * Method returning a vector of the Track Parameters at the
-   * egamma cluster layers/samplings
-   * @param ctx          event context needed for multithreading
-   * @param startPars    the starting track parameters
-   * @param caloCluster  the cluster we aim for
-   * @param particleType type of particle
-   */
-
-  virtual std::vector<std::pair<CaloSampling::CaloSample,
-                                std::unique_ptr<const Trk::TrackParameters>>>
-  egammaCaloExtension(
-    const EventContext& ctx,
-    const TrackParameters& startPars,
-    const xAOD::CaloCluster& cluster,
     const CaloDetDescrManager& caloDD,
     ParticleHypothesis particleType = Trk::nonInteracting) const = 0;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -12,7 +12,8 @@
 void dummyTriggerForTrigPartTypedefs(TrigJpsiContainer a, DataVector<TrigJpsi> b){
 	TrigJpsiContainer aa = a;
 	DataVector<TrigJpsi> bb = b;
-	std::vector<TrigJpsi*> aaa; aaa.size();
 }
+
+template class std::vector<TrigJpsi*>;
 
 #endif // TRIGBPHYSICSEVENT_TRIGBPHYSICSEVENTDICT 

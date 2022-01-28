@@ -26,9 +26,19 @@
 #include <iomanip>
 #include <iostream>
 
+
 namespace {
 constexpr double s_default = 0;
+const std::unordered_map<std::string, CaloDepthTool::DepthChoice>
+  s_stringToEnum = { { "egparam", CaloDepthTool::DepthChoice::egparam },
+                     { "cscopt", CaloDepthTool::DepthChoice::cscopt },
+                     { "cscopt2", CaloDepthTool::DepthChoice::cscopt2 },
+                     { "TBparam", CaloDepthTool::DepthChoice::TBparam },
+                     { "entrance", CaloDepthTool::DepthChoice::entrance },
+                     { "middle", CaloDepthTool::DepthChoice::middle },
+                     { "flat", CaloDepthTool::DepthChoice::flat } };
 }
+
 static const InterfaceID IID_CaloDepthTool("CaloDepthTool", 1, 0);
 const InterfaceID&
 CaloDepthTool::interfaceID()
@@ -51,20 +61,24 @@ StatusCode
 CaloDepthTool::initialize()
 {
 
-  ATH_MSG_DEBUG(" getting started ");
-
   ATH_CHECK(detStore()->retrieve(m_calo_id, "CaloCell_ID"));
 
-  if (m_depth_choice.empty()) {
-    ATH_MSG_INFO(" CaloDepthTool "
-                 << this->name()
-                 << " successfully initialised, will provide entrance (default)"
-                 << m_depth_choice);
-  } else {
-    ATH_MSG_INFO(" CaloDepthTool " << this->name()
-                                   << " successfully initialised, will provide "
-                                   << m_depth_choice);
+  if (!m_depth_choice.empty()) {
+  
+    auto it = s_stringToEnum.find(m_depth_choice);
+    if (it != s_stringToEnum.end()) {
+      m_depthChoice = it->second;
+    } else {
+      ATH_MSG_FATAL(" invalid depth choice " << m_depth_choice);
+      return StatusCode::FAILURE;
+    }
+
   }
+  ATH_MSG_INFO(" CaloDepthTool " << this->name()
+                                 << " successfully initialised, will provide "
+                                 << m_depth_choice << " enum "
+                                 << static_cast<int>(m_depthChoice));
+
   return StatusCode::SUCCESS;
 }
 
@@ -98,29 +112,30 @@ CaloDepthTool::radius(const CaloCell_ID::CaloSample sample,
 {
   double radius = s_default;
 
-  if (m_depth_choice == "egparam") {
+  if (m_depthChoice == DepthChoice::egparam) {
     radius = egparametrized(sample, eta, phi, caloDD);
-  } else if (m_depth_choice == "cscopt") {
+  } else if (m_depthChoice == DepthChoice::cscopt) {
     radius = cscopt_parametrized(sample, eta, phi, caloDD);
-  } else if (m_depth_choice == "cscopt2") {
+  } else if (m_depthChoice == DepthChoice::cscopt2) {
     radius = cscopt2_parametrized(sample, eta, phi, caloDD);
-  } else if (m_depth_choice == "TBparam") {
+  } else if (m_depthChoice == DepthChoice::TBparam) {
     radius = TBparametrized(sample, eta, phi, caloDD);
-  } else if (m_depth_choice == "entrance") {
+  } else if (m_depthChoice == DepthChoice::entrance) {
     radius = entrance(sample, eta, phi, caloDD);
-  } else if (m_depth_choice == "middle") {
+  } else if (m_depthChoice == DepthChoice::middle) {
     radius = middle(sample, eta, phi, caloDD);
-  } else if (m_depth_choice == "flat") {
-    if (eta >= 0)
+  } else if (m_depthChoice == DepthChoice::flat) {
+    if (eta >= 0) {
       radius = flat(sample, 1, caloDD);
-    else
+    } else {
       radius = flat(sample, -1, caloDD);
+    }
   } else {
     radius = entrance(sample, eta, phi, caloDD);
   }
 
   // outside DD, use parametrised radius as default
-  //  it is OK, but choice should be left tothe user
+  // it is OK, but choice should be left to the user
   if (std::abs(radius) < 10.) {
     radius = egparametrized(sample, eta, phi, caloDD);
   }

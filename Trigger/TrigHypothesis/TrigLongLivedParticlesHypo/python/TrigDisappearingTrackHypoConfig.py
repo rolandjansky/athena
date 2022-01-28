@@ -137,7 +137,7 @@ def TrigDisappearingTrackHypoToolFromName( name, conf ):
     """ provides configuration of the hypo tool given the chain name
     The argument will be replaced by "parsed" chain dict. For now it only serves simplest chain HLT_eXYZ.
     """
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
+    from TriggerMenuMT.HLT.Menu.DictFromChainName import dictFromChainName
     
     decodedDict = dictFromChainName(conf)
     

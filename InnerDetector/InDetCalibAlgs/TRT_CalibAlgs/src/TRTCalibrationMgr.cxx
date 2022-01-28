@@ -201,7 +201,8 @@ StatusCode TRTCalibrationMgr::execute() {
 					if(m_dorefit){
 						//Refit Track with new ROT creator
 						Trk::RunOutlierRemoval runOutlier=true;
-						aTrack= m_trackFitter->fit(*aTrack,runOutlier,aTrack->info().particleHypothesis());
+						aTrack= m_trackFitter->fit(Gaudi::Hive::currentContext(),
+                                       *aTrack,runOutlier,aTrack->info().particleHypothesis()).release();
 					}
 					// Check selection if requested
 					if (aTrack ){

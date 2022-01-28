@@ -24,6 +24,8 @@
 //include Root dependencies
 #include <TH1F.h>
 
+#include <utility>
+
 // *********************************************************************
 // Public Methods
 // *********************************************************************
@@ -96,76 +98,76 @@ StatusCode MuonGenericTracksMon::bookHistograms()
       //book lumi associated info
       dirpath = m_MuonTriggerChainName + "Overview/" + m_sources[SOURCE::CBMUONS];//redefine for hist name
       MonGroup mongroup_overview2(this, rootpath + dirpath, run, attr);
-      m_oRecoLumiPlots.push_back(new RecoLumiPlots(0, dirpath + "_", m_sources[SOURCE::CBMUONS]));
+      m_oRecoLumiPlots.push_back(new RecoLumiPlots(nullptr, dirpath + "_", m_sources[SOURCE::CBMUONS]));
       bookInMongroup(*m_oRecoLumiPlots[0], mongroup_overview2, m_sources[SOURCE::CBMUONS]).ignore();
 
       dirpath = m_MuonTriggerChainName + "Overview/" + m_sources[SOURCE::NONCBMUONS];//redefine for hist name
       MonGroup mongroup_overview3(this, rootpath + dirpath, run, attr);
-      m_oRecoLumiPlots.push_back(new RecoLumiPlots(0, dirpath + "_", m_sources[SOURCE::NONCBMUONS]));
+      m_oRecoLumiPlots.push_back(new RecoLumiPlots(nullptr, dirpath + "_", m_sources[SOURCE::NONCBMUONS]));
       bookInMongroup(*m_oRecoLumiPlots[1], mongroup_overview3, m_sources[SOURCE::NONCBMUONS]).ignore();
 
       dirpath = m_MuonTriggerChainName + "Overview/" + m_sources[SOURCE::CONTAINER];//redefine for hist name
       MonGroup mongroup_overview(this, rootpath + dirpath, run, attr);
-      m_oRecoLumiPlots.push_back(new RecoLumiPlots(0, dirpath + "_", m_sources[SOURCE::CONTAINER]));
+      m_oRecoLumiPlots.push_back(new RecoLumiPlots(nullptr, dirpath + "_", m_sources[SOURCE::CONTAINER]));
       bookInMongroup(*m_oRecoLumiPlots[2], mongroup_overview, m_sources[SOURCE::CONTAINER]).ignore();
  
       //book segments
       dirpath = m_MuonTriggerChainName + "Segments/" + m_sources[SOURCE::CBMUONS];
       MonGroup mongroup_segments2(this, rootpath + dirpath, run, attr);
-      m_oRecoMuonSegmentPlots.push_back(new RecoMuonSegmentPlots(0, dirpath));
+      m_oRecoMuonSegmentPlots.push_back(new RecoMuonSegmentPlots(nullptr, dirpath));
       bookInMongroup(*m_oRecoMuonSegmentPlots[0], mongroup_segments2, m_sources[SOURCE::CBMUONS]).ignore();
 
       dirpath = m_MuonTriggerChainName + "Segments/" + m_sources[SOURCE::NONCBMUONS];
       MonGroup mongroup_segments3(this, rootpath + dirpath, run, attr);
-      m_oRecoMuonSegmentPlots.push_back(new RecoMuonSegmentPlots(0, dirpath));
+      m_oRecoMuonSegmentPlots.push_back(new RecoMuonSegmentPlots(nullptr, dirpath));
       bookInMongroup(*m_oRecoMuonSegmentPlots[1], mongroup_segments3, m_sources[SOURCE::NONCBMUONS]).ignore();
 
       dirpath = m_MuonTriggerChainName + "Segments/" + m_sources[SOURCE::CONTAINER];
       MonGroup mongroup_segments(this, rootpath + dirpath, run, attr);
-      m_oRecoMuonSegmentPlots.push_back(new RecoMuonSegmentPlots(0, dirpath, true));
+      m_oRecoMuonSegmentPlots.push_back(new RecoMuonSegmentPlots(nullptr, dirpath, true));
       bookInMongroup(*m_oRecoMuonSegmentPlots[2], mongroup_segments, m_sources[SOURCE::CONTAINER]).ignore();
 
       //book MS tracks
       dirpath = m_MuonTriggerChainName + "TracksMS/" + m_sources[SOURCE::CONTAINER];
       MonGroup mongroup_mstracks(this, rootpath + dirpath, run, attr);
-      m_oRecoMuonMSTrackPlots.push_back(new RecoMuonTrackPlots(0, dirpath));
+      m_oRecoMuonMSTrackPlots.push_back(new RecoMuonTrackPlots(nullptr, dirpath));
       bookInMongroup(*m_oRecoMuonMSTrackPlots[0], mongroup_mstracks, m_sources[SOURCE::CONTAINER], "MS").ignore();
 
       //book muons
       dirpath = m_MuonTriggerChainName + "Muons/" + m_sources[SOURCE::CBMUONS];
       MonGroup mongroup_mutracks(this, rootpath + dirpath, run, attr);
-      m_oRecoMuonPlots.push_back(new RecoMuonPlots(0, dirpath, true));
+      m_oRecoMuonPlots.push_back(new RecoMuonPlots(nullptr, dirpath, true));
       bookInMongroup(*m_oRecoMuonPlots[0], mongroup_mutracks, m_sources[SOURCE::CBMUONS], "").ignore();
 
       dirpath = m_MuonTriggerChainName + "Muons/" + m_sources[SOURCE::NONCBMUONS];
       MonGroup mongroup_mutracks2(this, rootpath + dirpath, run, attr);
-      m_oRecoMuonPlots.push_back(new RecoMuonPlots(0, dirpath, false));
+      m_oRecoMuonPlots.push_back(new RecoMuonPlots(nullptr, dirpath, false));
       bookInMongroup(*m_oRecoMuonPlots[1], mongroup_mutracks2, m_sources[SOURCE::NONCBMUONS], "NonCB").ignore();
 
       //book id tracks
       dirpath = m_MuonTriggerChainName + "TracksID/" + m_sources[SOURCE::CBMUONS];
       MonGroup mongroup_idtracks(this, rootpath + dirpath, run, attr);
-      m_oRecoMuonIDTrackPlots.push_back(new RecoMuonIDTrackPlots(0, dirpath));
+      m_oRecoMuonIDTrackPlots.push_back(new RecoMuonIDTrackPlots(nullptr, dirpath));
       bookInMongroup(*m_oRecoMuonIDTrackPlots[0], mongroup_idtracks, m_sources[SOURCE::CBMUONS], "ID").ignore();
 
       dirpath = m_MuonTriggerChainName + "TracksID/" + m_sources[SOURCE::NONCBMUONS];
       MonGroup mongroup_idtracks2(this, rootpath + dirpath, run, attr);
-      m_oRecoMuonIDTrackPlots.push_back(new RecoMuonIDTrackPlots(0, dirpath));
+      m_oRecoMuonIDTrackPlots.push_back(new RecoMuonIDTrackPlots(nullptr, dirpath));
       bookInMongroup(*m_oRecoMuonIDTrackPlots[1], mongroup_idtracks2, m_sources[SOURCE::NONCBMUONS], "ID").ignore();
 
       dirpath = m_MuonTriggerChainName + "TracksME/" + m_sources[SOURCE::CBMUONS];
       MonGroup mongroup_metracks(this, rootpath + dirpath, run, attr);
-      m_oRecoMuonMETrackPlots.push_back(new RecoMuonTrackPlots(0, dirpath));
+      m_oRecoMuonMETrackPlots.push_back(new RecoMuonTrackPlots(nullptr, dirpath));
       bookInMongroup(*m_oRecoMuonMETrackPlots[0], mongroup_metracks, m_sources[SOURCE::CBMUONS], "ME").ignore();
 
       dirpath = m_MuonTriggerChainName + "TracksME/" + m_sources[SOURCE::NONCBMUONS];
       MonGroup mongroup_metracks2(this, rootpath + dirpath, run, attr);
-      m_oRecoMuonMETrackPlots.push_back(new RecoMuonTrackPlots(0, dirpath));
+      m_oRecoMuonMETrackPlots.push_back(new RecoMuonTrackPlots(nullptr, dirpath));
       bookInMongroup(*m_oRecoMuonMETrackPlots[1], mongroup_metracks2, m_sources[SOURCE::NONCBMUONS], "ME").ignore();
 
       dirpath = m_MuonTriggerChainName + "MSVertices/";
       MonGroup mongroup_msvertices(this, rootpath + dirpath, run, attr);
-      m_oRecoVertexPlots.push_back(new RecoVertexPlots(0, dirpath));
+      m_oRecoVertexPlots.push_back(new RecoVertexPlots(nullptr, dirpath));
       bookInMongroup(*m_oRecoVertexPlots[0], mongroup_msvertices, m_sources[SOURCE::CONTAINER]).ignore();
 	  
     }
@@ -173,17 +175,17 @@ StatusCode MuonGenericTracksMon::bookHistograms()
         for (int i = 0; i < SOURCE::N_SOURCE; i++) {
     	  dirpath = "Overview/" + m_sources[i];//redefine for hist name
     	  MonGroup mongroup_overview(this, rootpath + dirpath, run, attr);
-    	  m_oRecoLumiPlots.push_back(new RecoLumiPlots(0, dirpath + "_", m_sources[i]));
+    	  m_oRecoLumiPlots.push_back(new RecoLumiPlots(nullptr, dirpath + "_", m_sources[i]));
     	  bookInMongroup(*m_oRecoLumiPlots[i], mongroup_overview, m_sources[i]).ignore();
 
     	  dirpath = "Segments/" + m_sources[i];
     	  MonGroup mongroup_segments(this, rootpath + dirpath, run, attr);
 
         if(i == SOURCE::CBMUONS || i == SOURCE::CONTAINER){
-          m_oRecoMuonSegmentPlots.push_back(new RecoMuonSegmentPlots(0, dirpath, true));
+          m_oRecoMuonSegmentPlots.push_back(new RecoMuonSegmentPlots(nullptr, dirpath, true));
         }
         else{
-          m_oRecoMuonSegmentPlots.push_back(new RecoMuonSegmentPlots(0, dirpath, false));
+          m_oRecoMuonSegmentPlots.push_back(new RecoMuonSegmentPlots(nullptr, dirpath, false));
     	}
 
         bookInMongroup(*m_oRecoMuonSegmentPlots[i], mongroup_segments, m_sources[i]).ignore();
@@ -191,7 +193,7 @@ StatusCode MuonGenericTracksMon::bookHistograms()
     	if(i > SOURCE::CBMUONS){//for MS tracks, only do not CB muons, since it overlaps with ME
   	  dirpath = "TracksMS/" + m_sources[i];
   	  MonGroup mongroup_mstracks(this, rootpath + dirpath, run, attr);
-          m_oRecoMuonMSTrackPlots.push_back(new RecoMuonTrackPlots(0, dirpath));
+          m_oRecoMuonMSTrackPlots.push_back(new RecoMuonTrackPlots(nullptr, dirpath));
           bookInMongroup(*m_oRecoMuonMSTrackPlots[i - 3], mongroup_mstracks, m_sources[i], "MS").ignore();
         }
 
@@ -199,34 +201,34 @@ StatusCode MuonGenericTracksMon::bookHistograms()
           dirpath = "Muons/" + m_sources[i];
           MonGroup mongroup_mutracks(this, rootpath + dirpath, run, attr);
     	  if(i > SOURCE::CBMUONS){
-            m_oRecoMuonPlots.push_back(new RecoMuonPlots(0, dirpath, false));
+            m_oRecoMuonPlots.push_back(new RecoMuonPlots(nullptr, dirpath, false));
           }
           else{
-            m_oRecoMuonPlots.push_back(new RecoMuonPlots(0, dirpath, true));
+            m_oRecoMuonPlots.push_back(new RecoMuonPlots(nullptr, dirpath, true));
           }
     	  bookInMongroup(*m_oRecoMuonPlots[i], mongroup_mutracks, m_sources[i], "").ignore();
 
           dirpath = "TracksME/" + m_sources[i];
           MonGroup mongroup_metracks(this, rootpath + dirpath, run, attr);
-          m_oRecoMuonMETrackPlots.push_back(new RecoMuonTrackPlots(0, dirpath));
+          m_oRecoMuonMETrackPlots.push_back(new RecoMuonTrackPlots(nullptr, dirpath));
           bookInMongroup(*m_oRecoMuonMETrackPlots[i], mongroup_metracks, m_sources[i], "ME").ignore();
 
           dirpath = "TracksID/" + m_sources[i];
           MonGroup mongroup_idtracks(this, rootpath + dirpath, run, attr);
-          m_oRecoMuonIDTrackPlots.push_back(new RecoMuonIDTrackPlots(0, dirpath));
+          m_oRecoMuonIDTrackPlots.push_back(new RecoMuonIDTrackPlots(nullptr, dirpath));
           bookInMongroup(*m_oRecoMuonIDTrackPlots[i], mongroup_idtracks, m_sources[i], "ID").ignore();
         }
 
         if(i == SOURCE::Z){
           dirpath = rootpath + "/MuonTrkPhys/" + m_sources[i];
           MonGroup mongroup_Zsignal(this, dirpath, run, attr);
-          m_oRecoPhysPlots.push_back(new RecoPhysPlots(0, "", m_sources[i]));//the naming for res is slightly diff
+          m_oRecoPhysPlots.push_back(new RecoPhysPlots(nullptr, "", m_sources[i]));//the naming for res is slightly diff
           bookInMongroup(*m_oRecoPhysPlots[i], mongroup_Zsignal, m_sources[i]).ignore();
         }
         if(i == SOURCE::JPSI){
           dirpath = rootpath + "/MuonTrkPhys/" + m_sources[i];
           MonGroup mongroup_Jpsisignal(this, dirpath, run, attr);
-          m_oRecoPhysPlots.push_back(new RecoPhysPlots(0, "", m_sources[i]));//the naming for res is slightly diff
+          m_oRecoPhysPlots.push_back(new RecoPhysPlots(nullptr, "", m_sources[i]));//the naming for res is slightly diff
           bookInMongroup(*m_oRecoPhysPlots[i], mongroup_Jpsisignal, m_sources[i]).ignore();
         }
       }//end of loopoing over different m_sources
@@ -256,7 +258,7 @@ StatusCode MuonGenericTracksMon::bookInMongroup(HistData& hist, MonGroup& mongro
   return StatusCode::SUCCESS;
 }
 
-StatusCode MuonGenericTracksMon::bookInMongroup(PlotBase& valPlots, MonGroup& mongroup, std::string source)
+StatusCode MuonGenericTracksMon::bookInMongroup(PlotBase& valPlots, MonGroup& mongroup, const std::string& source)
 {
   valPlots.initialize();
   std::vector<HistData> hists = valPlots.retrieveBookedHistograms(); // HistData -> std::pair<TH1*, std::string>
@@ -266,7 +268,7 @@ StatusCode MuonGenericTracksMon::bookInMongroup(PlotBase& valPlots, MonGroup& mo
   return StatusCode::SUCCESS;
 }
 
-StatusCode MuonGenericTracksMon::bookInMongroup(PlotBase& valPlots, MonGroup& mongroup, std::string source, TString Montype)
+StatusCode MuonGenericTracksMon::bookInMongroup(PlotBase& valPlots, MonGroup& mongroup, const std::string& source, const TString& Montype)
 {
   valPlots.initialize();
   std::vector<HistData> hists = valPlots.retrieveBookedHistograms(); // HistData -> std::pair<TH1*, std::string> 
@@ -491,8 +493,8 @@ StatusCode MuonGenericTracksMon::fillHistograms()
 
 //======================================================================================//
 void MuonGenericTracksMon::plot_lumi(
-  std::vector<std::pair<const xAOD::Muon*, const xAOD::Muon*> > resonances_Z, 
-  std::vector<std::pair<const xAOD::Muon*, const xAOD::Muon*> > resonances_jpsi,
+  const std::vector<std::pair<const xAOD::Muon*, const xAOD::Muon*> >& resonances_Z, 
+  const std::vector<std::pair<const xAOD::Muon*, const xAOD::Muon*> >& resonances_jpsi,
   const xAOD::MuonContainer* Muons, 
   const xAOD::TrackParticleContainer*   tracksMS, 
   const xAOD::MuonSegmentContainer* MuonSegments)
@@ -577,7 +579,7 @@ void MuonGenericTracksMon::plot_vertex(const xAOD::Vertex& aVx, int source)
 }
 
 //======================================================================================//
-void MuonGenericTracksMon::plot_resonances(std::vector<std::pair<const xAOD::Muon*, const xAOD::Muon*> > resonances, int source)
+void MuonGenericTracksMon::plot_resonances(const std::vector<std::pair<const xAOD::Muon*, const xAOD::Muon*> >& resonances, int source)
 //======================================================================================//
 {
     m_oRecoPhysPlots[source]->fill(resonances);

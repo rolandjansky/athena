@@ -159,7 +159,7 @@ namespace Muon {
         ToolHandle<IRegSelTool> m_regsel_tgc{this, "TGCRegionSelector", "RegSelTool/RegSelTool_TGC"};
         ToolHandle<IRegSelTool> m_regsel_stgc{this, "STGCRegionSelector", "RegSelTool/RegSelTool_STGC"};
         ToolHandle<IRegSelTool> m_regsel_mm{this, "MMRegionSelector", "RegSelTool/RegSelTool_MM"};
-        ToolHandle<MuonEDMPrinterTool> m_printer{this, "EDMPrinter", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
+        PublicToolHandle<MuonEDMPrinterTool> m_printer{this, "EDMPrinter", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
         ToolHandle<Trk::IExtendedTrackSummaryTool> m_trackSummaryTool{this, "TrackSummaryTool", "MuonTrackSummaryTool"};
 
         SG::ReadCondHandleKey<MdtCondDbData> m_condKey{this, "MdtCondKey", "MdtCondDbData", "Key of MdtCondDbData"};

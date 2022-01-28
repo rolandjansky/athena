@@ -58,9 +58,9 @@ private:
    int m_EpsLengthCM ;
    int m_EpsAngle    ;
    
-   int GetEpsLengthMM(std::string NameOfTheSet) ;
-   int GetEpsLengthCM(std::string NameOfTheSet) ;
-   int GetEpsAngle   (std::string NameOfTheSet) ;
+   int GetEpsLengthMM(const std::string& NameOfTheSet) ;
+   int GetEpsLengthCM(const std::string& NameOfTheSet) ;
+   int GetEpsAngle   (const std::string& NameOfTheSet) ;
    
    void AMDC(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcDbSvc);
    void AGDD(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcDbSvc);

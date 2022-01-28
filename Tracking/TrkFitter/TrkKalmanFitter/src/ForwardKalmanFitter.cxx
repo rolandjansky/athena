@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -178,14 +178,14 @@ Trk::ForwardKalmanFitter::fit(Trk::Trajectory& trajectory,
 
   ATH_MSG_VERBOSE ("Prepare the old start parameters...");
   // copy input TrkParameter into prediction without Errors
-  const TrackParameters* updatedPar = estParamNear0.clone();
+  std::unique_ptr<const TrackParameters> updatedPar = estParamNear0.uniqueClone();
   Trk::ProtoTrackStateOnSurface* bremStateIfBremFound = nullptr;
 
   // loop over all PreRawData objects in Set
   int itcounter=1;
   PrepRawDataSet::const_iterator it    = inputPRDColl.begin();
   for(  ; it!=inputPRDColl.end(); ++it) {
-    const Trk::TrackParameters* predPar =
+    std::unique_ptr<const Trk::TrackParameters> predPar=
       this->predict( updatedPar,
                      (*it)->detectorElement()->surface( (*it)->identify() ),
                      controlledMatEffects, itcounter, itcounter);
@@ -215,16 +215,15 @@ Trk::ForwardKalmanFitter::fit(Trk::Trajectory& trajectory,
                                       controlledMatEffects,itcounter,
                                       bremStateIfBremFound,false /*no recalibrate*/);
     if (stepFwF.isFailure()) {
-      delete updatedPar; delete predPar; return stepFwF;
+     return stepFwF;
     }
     stepFwF = this->updateOrSkip(newestState,updatedPar,predPar,itcounter,
                                  runOutlier,bremStateIfBremFound);
     bremStateIfBremFound = nullptr;
-    if (stepFwF.isFailure()) { delete updatedPar; return stepFwF; }
+    if (stepFwF.isFailure()) { return stepFwF; }
     ++itcounter;
 
   }
-  delete updatedPar; updatedPar = nullptr;     // clean up
   int testNumber = Trk::ProtoTrajectoryUtility::rankedNumberOfMeasurements(trajectory);
   if (testNumber < 5) {
     ATH_MSG_DEBUG ("Filtered trajectory has only "<<testNumber<<" and thus too few fittable meas'ts!");
@@ -253,7 +252,7 @@ Trk::ForwardKalmanFitter::fit(Trk::Trajectory& trajectory,
   }
   if (allowRecalibrate) m_utility->identifyMeasurements(trajectory);
   Trk::Trajectory::iterator it = Trk::ProtoTrajectoryUtility::firstFittableState(trajectory);
-  const TrackParameters* updatedPar = nullptr;        // delete & remake during filter
+  std::unique_ptr<const TrackParameters> updatedPar;        // delete & remake during filter
   Trk::ProtoTrackStateOnSurface* bremStateIfBremFound = nullptr;
   ATH_MSG_DEBUG ("-F- entering FwFilter with matEff="<<controlledMatEffects.particleType()<<
                  ", "<<(allowRecalibrate?"recalibrate:yes":"recalibrate:no")<<
@@ -272,7 +271,7 @@ Trk::ForwardKalmanFitter::fit(Trk::Trajectory& trajectory,
   */
 
   if ( filterStartState<0 ) {
-    updatedPar = referenceParameters.clone();
+    updatedPar = referenceParameters.uniqueClone();
     ATH_MSG_VERBOSE ("-F- start filtering with input reference parameters (no cov matrix)...");
 
   } else {
@@ -295,32 +294,25 @@ Trk::ForwardKalmanFitter::fit(Trk::Trajectory& trajectory,
     }
 
     auto predPar = it->checkoutForwardPar(); // get ownership right for main loop.
-    const Trk::TrackParameters * pTrackParam = predPar.get();
     FitterStatusCode stepFwF =
       this->buildAndAnalyseTrajectory(trajectory,it,updatedPar /*=nullptr pointer*/,
-                                      pTrackParam, controlledMatEffects,itcounter,
+                                      predPar, controlledMatEffects,itcounter,
                                       bremStateIfBremFound,allowRecalibrate);
-    predPar.reset(pTrackParam);
     if (stepFwF.isFailure()) {
       ATH_MSG_INFO ("-F- first buildAndAnalyseTrajectory() failed.");
       it->checkinForwardPar(std::move(predPar));//predPar dies here and the function returns
       return stepFwF;
     }
     if (filterStartState == 0 ){
-      pTrackParam = predPar.get();
-      stepFwF = this->updateOrSkip(it,updatedPar,pTrackParam /* check in again to trajectory*/,
+      stepFwF = this->updateOrSkip(it,updatedPar,predPar /* check in again to trajectory*/,
                                    1,runOutlier,bremStateIfBremFound);
-      predPar.reset(pTrackParam);
     } else {
-      pTrackParam = predPar.get();
-      stepFwF = this->updateOrSkip(it,updatedPar,pTrackParam /* check in again to trajectory*/,
+      stepFwF = this->updateOrSkip(it,updatedPar,predPar /* check in again to trajectory*/,
                                    filterStartState,runOutlier,bremStateIfBremFound);
-      predPar.reset(pTrackParam);
     }
     if (stepFwF.isFailure()) {
       ATH_MSG_DEBUG ("-F- first updateOrSkip() failed.");
-      it->checkinForwardPar(std::move(predPar));
-      delete updatedPar; 
+      it->checkinForwardPar(std::move(predPar));//is this predPar still valid?
       return stepFwF;
     }
     itcounter = it->positionOnTrajectory()+1;
@@ -331,7 +323,7 @@ Trk::ForwardKalmanFitter::fit(Trk::Trajectory& trajectory,
   // the regular filter loop after finding the correct initialisation
   for( ; it!=trajectory.end(); ++it) if (!it->isOutlier()) {
 
-    const Trk::TrackParameters* predPar =
+    std::unique_ptr<const Trk::TrackParameters> predPar =
       this->predict( updatedPar, it->measurement()->associatedSurface(),
                      controlledMatEffects, ++itcounter, it->positionOnTrajectory());
 
@@ -340,16 +332,15 @@ Trk::ForwardKalmanFitter::fit(Trk::Trajectory& trajectory,
                                       controlledMatEffects,itcounter,
                                       bremStateIfBremFound,allowRecalibrate);
     if (stepFwF.isFailure()) {
-      delete updatedPar; delete predPar; return stepFwF;
+      return stepFwF;
     }
     stepFwF = this->updateOrSkip(it,updatedPar,predPar,itcounter,
                                  runOutlier,bremStateIfBremFound);
     bremStateIfBremFound = nullptr;
 
-    if (stepFwF.isFailure()) { delete updatedPar; return stepFwF; }
+    if (stepFwF.isFailure()) {return stepFwF; }
   }
 
-  delete updatedPar;
   int testNumber = Trk::ProtoTrajectoryUtility::rankedNumberOfMeasurements(trajectory);
   if (testNumber < 5) {
     ATH_MSG_DEBUG ("Filtered trajectory has only " << testNumber
@@ -366,36 +357,39 @@ Trk::ForwardKalmanFitter::fit(Trk::Trajectory& trajectory,
 // dynamic-trajectory forward filter step part 1: prediction to next surface  //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
-const Trk::TrackParameters* Trk::ForwardKalmanFitter::predict
-(const Trk::TrackParameters*    updatedPar,
+std::unique_ptr<const Trk::TrackParameters> 
+Trk::ForwardKalmanFitter::predict
+(std::unique_ptr<const Trk::TrackParameters> &   updatedPar,
  const Trk::Surface&            nominalDestSurface,
  const Trk::KalmanMatEffectsController& controlledMatEffects,
  const int                      filterCounter,
  const int                      tjPositionCounter) const
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   if (msgLvl(MSG::DEBUG) && filterCounter == 1)
-    printGlobalParams( (tjPositionCounter-1), "  init", updatedPar );
-  //  m_log << MSG::DEBUG << "From " << *updatedPar << " to " << destinationSurface << endmsg;
+    printGlobalParams( (tjPositionCounter-1), "  init", updatedPar.get() );
 
   const Trk::Surface& destinationSurface = m_alignableSurfaceProvider              ?
     m_alignableSurfaceProvider->retrieveAlignableSurface(nominalDestSurface):
     nominalDestSurface                                                      ;
-
-  const Trk::TrackParameters* predPar = nullptr;
+  std::unique_ptr<const Trk::TrackParameters> predPar;
   if (filterCounter == 1) {
 
     ////////////////////////////////////////////////////////////////////////////
     // --- cover two cases in this method: this one initialises the filter
     if ((updatedPar->associatedSurface()) == (destinationSurface)) {
-      predPar = updatedPar->clone();
+      predPar = updatedPar->uniqueClone();
       ATH_MSG_VERBOSE ("-Fp start params already expressed at 1st"
                        << " meas't - no extrapolation needed.");
     } else {
       ATH_MSG_VERBOSE ("-Fp get filter onto 1st surface by direct extrapolation.");
       if (!m_useExEngine)
-	predPar = m_extrapolator->extrapolateDirectly(*updatedPar, destinationSurface,
-						      Trk::anyDirection,
-						      false, Trk::nonInteracting);
+        predPar= m_extrapolator->extrapolateDirectly(ctx,
+                                                          *updatedPar,
+                                                          destinationSurface,
+                                                          Trk::anyDirection,
+                                                          false,
+                                                          Trk::nonInteracting);
 
       else {
         ATH_MSG_INFO ("Forward Kalman Fitter --> starting extrapolation engine");
@@ -406,13 +400,12 @@ const Trk::TrackParameters* Trk::ForwardKalmanFitter::predict
 
 	if (eCode.isSuccess() && ecc.endParameters) {
 	  ATH_MSG_INFO ("Forward Kalman Fitter --> extrapolation engine success");
-	  predPar = ecc.endParameters;
+	  predPar.reset(ecc.endParameters);
 	} else {
           ATH_MSG_WARNING ("Forward Kalman Fitter --> extrapolation engine did not succeed");
-          predPar = nullptr;
+          predPar.reset();
         }
       }
-
     }
 
     /* possible difficulty here
@@ -421,11 +414,11 @@ const Trk::TrackParameters* Trk::ForwardKalmanFitter::predict
        does not check if the surfaces overlap, but are different (Perigee & Line
        defined at the same point). This has to be recognised, and the TP cloned */
     if (!predPar && destinationSurface.isOnSurface(updatedPar->position(),true,5.0)) {
-      const Trk::Perigee* testPer = dynamic_cast<const Trk::Perigee*>(updatedPar);
+      const Trk::Perigee* testPer = dynamic_cast<const Trk::Perigee*>(updatedPar.get());
       const Trk::StraightLineSurface* wireSurface =
         dynamic_cast<const Trk::StraightLineSurface*>(&destinationSurface);
       if (testPer and wireSurface) {
-        predPar = new Trk::AtaStraightLine(updatedPar->parameters()[Trk::loc1],
+        predPar = std::make_unique<const Trk::AtaStraightLine>(updatedPar->parameters()[Trk::loc1],
 					   updatedPar->parameters()[Trk::loc2],
                                            updatedPar->parameters()[Trk::phi],
                                            updatedPar->parameters()[Trk::theta],
@@ -440,9 +433,13 @@ const Trk::TrackParameters* Trk::ForwardKalmanFitter::predict
     ////////////////////////////////////////////////////////////////////////////
     // --- 2nd case covers filter loop: extrapolate to next surface with full matEffects
     if (!m_useExEngine)
-      predPar = m_extrapolator->extrapolate(*updatedPar,destinationSurface,
-					    Trk::alongMomentum,false,
-					    controlledMatEffects.particleType());
+      predPar =
+        m_extrapolator->extrapolate(ctx,
+                                    *updatedPar,
+                                    destinationSurface,
+                                    Trk::alongMomentum,
+                                    false,
+                                    controlledMatEffects.particleType());
     else {
       ATH_MSG_DEBUG ("Forward Kalman Fitter --> starting extrapolation engine");
       Trk::ExtrapolationCell <Trk::TrackParameters> ecc(*updatedPar, Trk::alongMomentum);
@@ -451,7 +448,7 @@ const Trk::TrackParameters* Trk::ForwardKalmanFitter::predict
 
       if (eCode.isSuccess() && ecc.endParameters) {
 	ATH_MSG_DEBUG ("Forward Kalman Fitter --> extrapolation engine success");
-	predPar = ecc.endParameters;
+	predPar.reset(ecc.endParameters);
       } else
         ATH_MSG_WARNING ("Forward Kalman Fitter --> extrapolation engine does not succeed");
     }
@@ -464,11 +461,12 @@ const Trk::TrackParameters* Trk::ForwardKalmanFitter::predict
 // forward filter step part 2: validation, calibration, trajectory analysis   //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
-Trk::FitterStatusCode Trk::ForwardKalmanFitter::buildAndAnalyseTrajectory
+Trk::FitterStatusCode 
+Trk::ForwardKalmanFitter::buildAndAnalyseTrajectory
 (Trk::Trajectory&                T,
  Trajectory::iterator&           predictedState,
- const Trk::TrackParameters*&    updatedPar,
- const Trk::TrackParameters*&    predPar,
+ std::unique_ptr<const Trk::TrackParameters>&    updatedPar,
+ std::unique_ptr<const Trk::TrackParameters>&    predPar,
  const Trk::KalmanMatEffectsController&  controlledMatEffects,
  const int&                      filterCounter,
  Trk::ProtoTrackStateOnSurface*& bremEffectsState,
@@ -517,7 +515,7 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::buildAndAnalyseTrajectory
     predictedState->isOutlier(Trk::TrackState::MissedOutlier,1);
     return Trk::FitterStatusCode::Success;
   }
-  if (msgLvl(MSG::DEBUG)) printGlobalParams( predictedState->positionOnTrajectory(), " extrp", predPar );
+  if (msgLvl(MSG::DEBUG)) printGlobalParams( predictedState->positionOnTrajectory(), " extrp", predPar.get() );
 
   //// 2a ////////////////////////////////////////////////////////////////
   // Posibly re-calibrate
@@ -611,8 +609,8 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::buildAndAnalyseTrajectory
 ////////////////////////////////////////////////////////////////////////////////
 Trk::FitterStatusCode Trk::ForwardKalmanFitter::updateOrSkip
 (const Trajectory::iterator&     predictedState,
- const Trk::TrackParameters*&    updatedPar,
- const Trk::TrackParameters*&    predPar,
+ std::unique_ptr<const Trk::TrackParameters>&    updatedPar,
+ std::unique_ptr<const Trk::TrackParameters>&    predPar,
  const int&                      filterCounter,
  const Trk::RunOutlierRemoval&   runOutlier,
  Trk::ProtoTrackStateOnSurface*  bremEffectsState) const
@@ -621,7 +619,6 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::updateOrSkip
   if (predPar==nullptr)   return FitterStatusCode::Success;
   const MeasurementBase* fittableMeasurement = predictedState->measurement();
   FitQualityOnSurface* fitQuality=nullptr;
-  delete updatedPar;
 
   ////////////////////////////////////////////////////////////////////
   // special fits with PseudoMeasurement (eg TRT only): PM replaces initial cov.
@@ -650,7 +647,7 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::updateOrSkip
         (cov)(i,i) = cov0[i];
       }
     }
-    updatedPar = CREATE_PARAMETERS(*predPar,par,cov).release();
+    updatedPar = CREATE_PARAMETERS(*predPar,par,cov);
     fitQuality = new Trk::FitQuality(0.0, fittableMeasurement->localParameters().dimension());
   } else {
 
@@ -659,18 +656,17 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::updateOrSkip
     // make the update
     updatedPar = m_updator->addToState(*predPar, fittableMeasurement->localParameters(),
                                        fittableMeasurement->localCovariance(),
-                                       fitQuality).release();
+                                       fitQuality);
     ////////////////////////////////////////////////////////////////////
     // check that updated parameters are ok and write back to trajectory
     if (!updatedPar) {
       ATH_MSG_INFO (" --- update of track params failed, stop filter");
-      delete predPar;
       if (fitQuality) delete fitQuality;
       return FitterStatusCode::UpdateFailure;
     }
   }
   if (msgLvl(MSG::DEBUG)) printGlobalParams( predictedState->positionOnTrajectory(),
-                                             " updat", updatedPar );
+                                             " updat", updatedPar.get() );
 
   ////////////////////////////////////////////////////////////////////
   // analyse the fit quality, possibly flag as outlier
@@ -693,14 +689,13 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::updateOrSkip
           );
       fittableMeasurement = predictedState->measurement();
       ATH_MSG_DEBUG ("Broadened TRT hit instead of outlier");
-      delete updatedPar; 
       delete fitQuality; 
       fitQuality=nullptr;
       ////////////////////////////////////////////////////////////////////
       // make the update
       updatedPar = m_updator->addToState(*predPar, fittableMeasurement->localParameters(),
                                          fittableMeasurement->localCovariance(),
-                                         fitQuality).release();
+                                         fitQuality);
       if ( (!updatedPar || !fitQuality ||
            (runOutlier && fitQuality->chiSquared() > m_StateChiSquaredPerNumberDoFPreCut
             * fitQuality->numberDoF())) ) {
@@ -736,12 +731,10 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::updateOrSkip
     if (bremEffectsState!=nullptr){
       auto p = bremEffectsState->checkoutDNA_MaterialEffects();
     }
-    delete updatedPar;
-    updatedPar = predPar->clone();
+    updatedPar = predPar->uniqueClone();
   } // end if fitQuality OK
   if (fitQuality) predictedState->setForwardStateFitQuality(*fitQuality);
-  auto uniquePar = std::unique_ptr<const Trk::TrackParameters>(predPar);
-  predictedState->checkinForwardPar(std::move(uniquePar));
+  predictedState->checkinForwardPar(predPar->uniqueClone());
   delete fitQuality;
   return FitterStatusCode::Success;
 }
@@ -783,10 +776,12 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::enterSeedIntoTrajectory
   } else {
     ATH_MSG_VERBOSE ("-Fe get filter onto 1st surface by direct extrapolation.");
     if (!m_useExEngine)
-      inputParAtStartSurface = m_extrapolator->extrapolateDirectly(inputPar,
-								   startSurface,
-								   Trk::anyDirection,
-								   false, Trk::nonInteracting);
+      inputParAtStartSurface = m_extrapolator->extrapolateDirectly(
+        Gaudi::Hive::currentContext(),
+        inputPar,
+        startSurface,
+        Trk::anyDirection,
+        false, Trk::nonInteracting).release();
     else {
       ATH_MSG_DEBUG ("Forward Kalman Fitter --> starting extrapolation engine");
       Trk::ExtrapolationCell <Trk::TrackParameters> ecc(inputPar, Trk::anyDirection);

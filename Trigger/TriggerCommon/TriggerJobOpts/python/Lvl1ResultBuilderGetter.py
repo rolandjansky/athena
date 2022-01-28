@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # -------------------------------------------------------------
 # L1 Getter of the result
@@ -7,9 +7,9 @@ from AthenaCommon.GlobalFlags import jobproperties
 
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+from AthenaConfiguration.Enums import Format
 
-from RecExConfig.RecFlags  import rec
-
+from RecExConfig.RecFlags import rec
 
 from RecExConfig.Configured import Configured
 from RecExConfig.ObjKeyStore import objKeyStore
@@ -18,7 +18,7 @@ class Lvl1ResultBuilderGetter(Configured):
 
     def configure(self):
 
-        if ConfigFlags.Input.Format == 'BS':
+        if ConfigFlags.Input.Format is Format.BS:
             from TrigT1CaloByteStream.LVL1CaloRun2ByteStreamConfig import LVL1CaloRun2ReadBSCfg
             CAtoGlobalWrapper(LVL1CaloRun2ReadBSCfg, ConfigFlags)
 

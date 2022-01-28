@@ -27,6 +27,12 @@ atlas_add_test( ObjContainer_test
   LINK_LIBRARIES CxxUtils
   POST_EXEC_SCRIPT nopost.sh
 )
+
+atlas_add_test( ObjContainer_boost_test
+  SOURCES test/ObjContainer_boost_test.cxx
+  LINK_LIBRARIES CxxUtils
+  POST_EXEC_SCRIPT nopost.sh
+)
 	
 atlas_add_test( TrkExToolsStringUtility_test	
   SOURCES 

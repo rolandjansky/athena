@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TileDddbManager_H
@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include "RDBAccessSvc/IRDBAccessSvc.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
 class IRDBRecord;
 class MsgStream;
@@ -27,6 +28,7 @@ class MsgStream;
 */
 
 class TileDddbManager
+  : public AthMessaging
 {
  public:
   enum TileSections
@@ -320,8 +322,6 @@ class TileDddbManager
 
   bool m_buildCuts;
   bool m_buildSaddle;
-
-  MsgStream * m_log;
 };
 
 #endif

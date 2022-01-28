@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDControl/AGDDController.h"
@@ -241,7 +241,7 @@ AliasStore& AGDDController::GetAliasStore()
 }
 
 
-ExpressionEvaluator& AGDDController::Evaluator()
+AGDD::ExpressionEvaluator& AGDDController::Evaluator()
 {
   return m_eval;
 }

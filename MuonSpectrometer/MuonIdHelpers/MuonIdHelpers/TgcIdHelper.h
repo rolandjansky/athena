@@ -131,7 +131,7 @@ public:
 
 private:
     int init_id_to_hashes();
-    unsigned int m_module_hashes[60][20][48];
+    unsigned int m_module_hashes[60][20][48]{};
 
     // compact id indices
     size_type m_GASGAP_INDEX;

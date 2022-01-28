@@ -44,6 +44,7 @@ if muonRecFlags.doCSCs() and not MuonGeometryFlags.hasCSC(): muonRecFlags.doCSCs
 if muonRecFlags.dosTGCs() and not MuonGeometryFlags.hasSTGC(): muonRecFlags.dosTGCs = False
 if muonRecFlags.doMicromegas() and not MuonGeometryFlags.hasMM(): muonRecFlags.doMicromegas = False
 
+muonRecFlags.runCommissioningChain = muonRecFlags.doMicromegas() or muonRecFlags.dosTGCs()
 if muonRecFlags.doDigitization():
     include("MuonRecExample/MuonDigitization_jobOptions.py")
 
@@ -107,8 +108,6 @@ if rec.doTruth() and DetFlags.makeRIO.Muon_on():
    from MuonTruthAlgs.MuonTruthAlgsConf import MuonPRD_MultiTruthMaker
    topSequence+=MuonPRD_MultiTruthMaker()
 
-   from AthenaCommon.CfgGetter import getService
-   getService("AtlasTrackingGeometrySvc")
    from MuonTruthAlgs.MuonTruthAlgsConf import Muon__MuonTruthDecorationAlg
    topSequence += Muon__MuonTruthDecorationAlg("MuonTruthDecorationAlg")
    from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifier

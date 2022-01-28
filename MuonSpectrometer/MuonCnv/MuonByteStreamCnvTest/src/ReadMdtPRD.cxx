@@ -19,7 +19,7 @@ static const int maxPrd =    5000;
 /////////////////////////////////////////////////////////////////////////////
 
 ReadMdtPRD::ReadMdtPRD(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator), m_ntuplePtr(0)
+  AthAlgorithm(name, pSvcLocator), m_ntuplePtr(nullptr)
 {
   // Declare the properties
 

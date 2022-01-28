@@ -8,13 +8,12 @@
 #define ACTSEDM_MEASUREMENT_H 1
 
 #include "Acts/EventData/Measurement.hpp"
-#include "ActsGeometry/ATLASSourceLink.h"
 
 #include "AthContainers/DataVector.h"
 
 namespace ActsTrk {
-  typedef Acts::BoundVariantMeasurement< ATLASSourceLink > Measurement;
-  typedef DataVector< Acts::BoundVariantMeasurement< ATLASSourceLink > > MeasurementContainer;
+  using Measurement = Acts::BoundVariantMeasurement;
+  using MeasurementContainer = DataVector<Acts::BoundVariantMeasurement>;
 }
 
 // Set up a CLID for the type:                                                                                                                                                                 

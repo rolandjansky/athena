@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -27,7 +27,7 @@ namespace Trk{
 // constructor
 MeasurementProcessor::MeasurementProcessor (bool				asymmetricCaloEnergy,
 					    Amg::MatrixX&			/*derivativeMatrix*/,
-					    ToolHandle<IIntersector>&		intersector,
+					    const ToolHandle<IIntersector>&		intersector,
 					    std::vector<FitMeasurement*>&		measurements,
 					    FitParameters*			parameters,
 					    ToolHandle<IIntersector>&		rungeKuttaIntersector,
@@ -957,15 +957,15 @@ MeasurementProcessor::extrapolateToMeasurements(ExtrapolationType type)
     double qOverP					= m_qOverP[type];
     const TrackSurfaceIntersection* intersection	= m_vertexIntersect;
     const Surface* surface				= nullptr;
-
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     // careful: use RungeKutta for extrapolation to vertex measurement
     std::vector<FitMeasurement*>::iterator m = m_measurements.begin();
     if ((**m).isVertex())
     {
         if (m_useStepPropagator==99)
 	{
-	    const TrackSurfaceIntersection* newIntersectionSTEP =
-		m_stepPropagator->intersectSurface(*(**m).surface(),
+    const TrackSurfaceIntersection* newIntersectionSTEP =
+		m_stepPropagator->intersectSurface(ctx,*(**m).surface(),
 						   intersection,
 						   qOverP,
 						   m_stepField,
@@ -993,7 +993,7 @@ MeasurementProcessor::extrapolateToMeasurements(ExtrapolationType type)
 				  m_rungeKuttaIntersector->intersectSurface(*(**m).surface(),
 									    intersection,
 									    qOverP):
-				  m_stepPropagator->intersectSurface(*(**m).surface(),
+				  m_stepPropagator->intersectSurface(ctx,*(**m).surface(),
 								     intersection,
 								     qOverP,
 								     m_stepField,
@@ -1026,7 +1026,7 @@ MeasurementProcessor::extrapolateToMeasurements(ExtrapolationType type)
 	    if (m_useStepPropagator==99)
 	    {
 		const TrackSurfaceIntersection* newIntersectionSTEP =
-		    m_stepPropagator->intersectSurface(*(**m).surface(),
+		    m_stepPropagator->intersectSurface(ctx,*(**m).surface(),
 						       intersection,
 						       qOverP,
 						       m_stepField,
@@ -1055,7 +1055,7 @@ MeasurementProcessor::extrapolateToMeasurements(ExtrapolationType type)
 				  m_intersector->intersectSurface(*(**m).surface(),
 								  intersection,
 								  qOverP):
-				  m_stepPropagator->intersectSurface(*(**m).surface(),
+				  m_stepPropagator->intersectSurface(ctx,*(**m).surface(),
 								     intersection,
 								     qOverP,
 								     m_stepField,

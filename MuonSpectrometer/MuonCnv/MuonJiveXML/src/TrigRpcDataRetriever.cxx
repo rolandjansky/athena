@@ -2,12 +2,11 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonJiveXML/TrigRpcDataRetriever.h"
+#include "TrigRpcDataRetriever.h"
 
-#include "MuonJiveXML/MuonFullIDHelper.h"
+#include "MuonFullIDHelper.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
-#include "MuonRDO/RpcPadContainer.h"
 
 #include <vector>
 #include <list>
@@ -41,32 +40,11 @@ namespace JiveXML {
     if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Retrieving " << dataTypeName());
 
     // retrieve the collection of RDO
-    const RpcPadContainer* rdoContainer;
-    if ( evtStore()->retrieve( rdoContainer, m_sgKey).isFailure() ) {
-      if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Muon::RpcPadContainer '" << m_sgKey << "' was not retrieved.");
-      return StatusCode::SUCCESS;
-    }
-    else{
-      if (msgLvl(MSG::DEBUG)) {
-        ATH_MSG_DEBUG("Muon::RpcPadContainer retrieved");
-        ATH_MSG_DEBUG(rdoContainer->size() << " RPC RDO collections.");
-      }
-    }
-
-    const DataHandle<RpcPad> firstRdoColl;
-    const DataHandle<RpcPad> lastRdoColl;
-    if ( evtStore()->retrieve(firstRdoColl,lastRdoColl).isFailure() ) {
-      if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("RpcPad collections not found");
-      return StatusCode::SUCCESS;
-    }
-    else{
-      if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("RpcPad collections retrieved");
-    }
+    SG::ReadHandle<RpcPadContainer> rdoContainer(m_sgKey);
 
     int ndata=0;
-    const DataHandle<RpcPad> rdoColl(firstRdoColl);
-    for (; rdoColl!=lastRdoColl; ++rdoColl){
-      ndata+= rdoColl->size();
+    for (auto containerIt=rdoContainer->begin(); containerIt!=rdoContainer->end(); ++containerIt) {
+      ndata += (*containerIt)->size();
     }
 
     //Make the vectors to contain the information and reserve space accordingly
@@ -95,8 +73,7 @@ namespace JiveXML {
     SG::ReadCondHandle<RpcCablingCondData> readHandle{m_rpcCab, Gaudi::Hive::currentContext()};
     const RpcCablingCondData* rpcCabling{*readHandle};
 
-    const DataHandle<RpcPad> itColl(firstRdoColl);
-    for (; itColl!=lastRdoColl; ++itColl){
+    for (auto itColl=rdoContainer->begin(); itColl!=rdoContainer->end(); ++itColl) {
       if ( itColl->size() == 0 ) continue;
 
       ipad++;
@@ -244,6 +221,6 @@ namespace JiveXML {
     if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG(dataTypeName() << ": "<< x.size());
 
     //forward data to formating tool
-    return FormatTool->AddToEvent(dataTypeName(), m_sgKey, &myDataMap);  
+    return FormatTool->AddToEvent(dataTypeName(), m_sgKey.key(), &myDataMap);  
   }
 }

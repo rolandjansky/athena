@@ -8,6 +8,7 @@
 #include <fstream>
 #include <iostream>
 #include <typeinfo>
+#include <utility>
 
 #include "MdtCalibData/IRtRelation.h"
 #include "MdtCalibData/IRtResolution.h"
@@ -22,7 +23,7 @@ using namespace MuonCalib;
 
 MdtCalibOutputDbSvc::MdtCalibOutputDbSvc(const std::string &name, ISvcLocator *svc_locator) :
     AthService(name, svc_locator),
-    m_results(NULL),
+    m_results(nullptr),
     m_postprocess_calibration(false),
     m_iov_start(-1),
     m_iov_end(-1),
@@ -38,7 +39,7 @@ MdtCalibOutputDbSvc::MdtCalibOutputDbSvc(const std::string &name, ISvcLocator *s
     declareProperty("RegionSelectionSvc", m_reg_sel_svc);
 
     // for the sake of coverity
-    m_resolution = NULL;
+    m_resolution = nullptr;
 
     return;
 }
@@ -118,7 +119,7 @@ void MdtCalibOutputDbSvc::AddRunNumber(int run_number) {
 //::::::::::::::::::::::::::::::
 bool MdtCalibOutputDbSvc::memorize(std::shared_ptr<const MuonCalib::IMdtCalibrationOutput> result) {
     // no overwriting is allowed //
-    m_results = result;
+    m_results = std::move(result);
     m_resolution.reset();
     return true;
 }
@@ -130,8 +131,8 @@ bool MdtCalibOutputDbSvc::memorize(std::shared_ptr<const MuonCalib::IMdtCalibrat
 //:::::::::::::::::::::::::::::::::
 bool MdtCalibOutputDbSvc::memorize(std::shared_ptr<const MuonCalib::IMdtCalibrationOutput> result,
                                    std::shared_ptr<const MuonCalib::IRtResolution> resol) {
-    m_results = result;
-    m_resolution = resol;
+    m_results = std::move(result);
+    m_resolution = std::move(resol);
     return true;
 }
 
@@ -172,7 +173,7 @@ StatusCode MdtCalibOutputDbSvc::saveCalibrationResults(void) {
         }
         // t0 calibration //
         std::shared_ptr<const T0CalibrationOutput> t0_output = std::dynamic_pointer_cast<const T0CalibrationOutput>(m_results);
-        if (t0_output != 0) {
+        if (t0_output != nullptr) {
             ATH_MSG_INFO("Writing out t0s.");
             MdtTubeFitContainer *new_t0s = t0_output->t0s();
             if (t0_output->GetMap().size()) {
@@ -281,7 +282,7 @@ MuonCalib::MdtTubeFitContainer *MdtCalibOutputDbSvc::postprocess_t0s(MuonCalib::
     return new_t0;
 }  // end MdtCalibOutputDbSvc::postprocess_t0s
 
-inline void MdtCalibOutputDbSvc::create_default_resolution(std::shared_ptr<const MuonCalib::IRtRelation> rt) {
+inline void MdtCalibOutputDbSvc::create_default_resolution(const std::shared_ptr<const MuonCalib::IRtRelation>& rt) {
     // check if resolution is saved in input service
     const IRtResolution *old_res = m_input_service->GetResolution();
     const IRtRelation *old_rel = m_input_service->GetRtRelation();

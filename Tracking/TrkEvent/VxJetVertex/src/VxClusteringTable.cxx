@@ -135,7 +135,7 @@ namespace Trk {
     std::map<float,PairOfVxVertexOnJetAxis>::const_reverse_iterator pairHighest=revIteratorEnd;
     
     bool found(false);
-    for ( ; revIterator!=m_compatibilityPairOfVertices.rend() ; revIterator++)
+    for ( ; revIterator!=m_compatibilityPairOfVertices.rend() ; ++revIterator)
     {
       
       const PairOfVxVertexOnJetAxis & myVxVertex=(*revIterator).second;

@@ -617,15 +617,15 @@ bool MuonTGC_CablingSvc::getOnlineIDfromOfflineID(const Identifier & offlineId,
     m_cabling->getChannel(&asdin,
 			  TGCIdBase::ASDOut,
 			  false);
-  if(asdout==0) return false;
+  if(asdout==nullptr) return false;
   if(!asdout->isValid()) {
     delete asdout;
-    asdout=0;
+    asdout=nullptr;
     return false;
   }
   channelNumber = asdout->getChannel();
   delete asdout;
-  asdout=0;
+  asdout=nullptr;
 
   return true;
 }
@@ -687,10 +687,10 @@ bool MuonTGC_CablingSvc::getOfflineIDfromOnlineID(Identifier & offlineId,
 	  << " chamber=" << rNumber << " w/s=" << signalType
 	  << " channel=" << channelNumber);
   }
-  if(asdin==0) return false;
+  if(asdin==nullptr) return false;
   if(!asdin->isValid()) {
     delete asdin;
-    asdin = 0;
+    asdin = nullptr;
     return false;
   }  
   // build identifier
@@ -709,7 +709,7 @@ bool MuonTGC_CablingSvc::getOfflineIDfromOnlineID(Identifier & offlineId,
     stationNameStr = (asdin->isForward()) ? "T4F" : "T4E";
     break;
   default:
-    delete asdin; asdin = 0;
+    delete asdin; asdin = nullptr;
     return false;
   }
   int stationEta = asdin->getChamber();
@@ -727,7 +727,7 @@ bool MuonTGC_CablingSvc::getOfflineIDfromOnlineID(Identifier & offlineId,
     stationPhi = phiIE[ asdin->getSector() ];
     if(stationPhi<0) {
       delete asdin;
-      asdin = 0;
+      asdin = nullptr;
       return false;
     }
   }
@@ -773,7 +773,7 @@ bool MuonTGC_CablingSvc::getOfflineIDfromOnlineID(Identifier & offlineId,
 				    channel);
   
   delete asdin;
-  asdin = 0;
+  asdin = nullptr;
   return true;
 }
 
@@ -806,7 +806,7 @@ bool MuonTGC_CablingSvc::getOnlineIDfromReadoutID(const int subDetectorID,
 				    sbLoc,
 				    channelID,
 				    orChannel);
-  if(asdout==0) {
+  if(asdout==nullptr) {
     if(!orChannel) {
       ATH_MSG_VERBOSE(" getOnlineIDfromReadoutID :"
           << " Cannot get OnlineID of "
@@ -830,7 +830,7 @@ bool MuonTGC_CablingSvc::getOnlineIDfromReadoutID(const int subDetectorID,
 	  << " [ Or =" << orChannel <<"] ");
 
     delete asdout;
-    asdout = 0;
+    asdout = nullptr;
     return false;
   }
   // SubsystemNumber
@@ -854,7 +854,7 @@ bool MuonTGC_CablingSvc::getOnlineIDfromReadoutID(const int subDetectorID,
   channelNumber = asdout->getChannel();
 
   delete asdout;
-  asdout = 0;
+  asdout = nullptr;
   return true;
 }
 
@@ -1181,7 +1181,7 @@ bool MuonTGC_CablingSvc::getSLBIDfromRxID(int &phi,
   offset = numOfSector -  numOfSector/24;
   phi = (slb->getSector()+offset)%numOfSector +1;
   id = slb->getId();
-  delete slb; slb = 0; 
+  delete slb; slb = nullptr; 
   return true;
 }
 

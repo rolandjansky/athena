@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 Events=100
 DigiOutFileName="mc21a_presampling.RDO.pool.root"
@@ -13,7 +13,7 @@ Digi_tf.py \
 --DataRunNumber 330000 \
 --conditionsTag default:OFLCOND-MC16-SDR-RUN3-01 \
 --digiSeedOffset1 170 --digiSeedOffset2 170 \
---digiSteeringConf "StandardSignalOnlyTruth" \
+--digiSteeringConf 'StandardSignalOnlyTruth' \
 --geometryVersion default:ATLAS-R3-2021-01-00-02 \
 --inputHITSFile ${HSHitsFile} \
 --inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles} \

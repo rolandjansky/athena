@@ -66,22 +66,22 @@ namespace MuonCalib {
     void MuonCalibTruthCollection::addTruth(MuonCalibCscTruthHit* truth) {
         if (truth) m_cscTruthVec.emplace_back(truth);
     }
-    void MuonCalibTruthCollection::addTruth(TruthPtr truth) {
+    void MuonCalibTruthCollection::addTruth(const TruthPtr& truth) {
         if (truth) m_truthVec.emplace_back(truth);
     }
-    void MuonCalibTruthCollection::addTruth(TruthMdtPtr truth) {
+    void MuonCalibTruthCollection::addTruth(const TruthMdtPtr& truth) {
         if (truth) m_mdtTruthVec.emplace_back(truth);
     }
 
-    void MuonCalibTruthCollection::addTruth(TruthRpcPtr truth) {
+    void MuonCalibTruthCollection::addTruth(const TruthRpcPtr& truth) {
         if (truth) m_rpcTruthVec.emplace_back(truth);
     }
 
-    void MuonCalibTruthCollection::addTruth(TruthTgcPtr truth) {
+    void MuonCalibTruthCollection::addTruth(const TruthTgcPtr& truth) {
         if (truth) m_tgcTruthVec.emplace_back(truth);
     }
 
-    void MuonCalibTruthCollection::addTruth(TruthCscPtr truth) {
+    void MuonCalibTruthCollection::addTruth(const TruthCscPtr& truth) {
         if (truth) m_cscTruthVec.emplace_back(truth);
     }
 

@@ -324,6 +324,7 @@ class  ConfiguredNewTrackingSiPattern:
          if InDetFlags.doStoreTrackSeeds():
               from SeedToTrackConversionTool.SeedToTrackConversionToolConf import InDet__SeedToTrackConversionTool
               InDet_SeedToTrackConversion = InDet__SeedToTrackConversionTool(name = "InDet_SeedToTrackConversion",
+                                                                             Extrapolator = TrackingCommon.getInDetExtrapolator(),
                                                                              OutputName = InDetKeys.SiSPSeedSegments()+NewTrackingCuts.extension())
               InDetSiTrackMaker.SeedToTrackConversion = InDet_SeedToTrackConversion
               InDetSiTrackMaker.SeedSegmentsWrite = True

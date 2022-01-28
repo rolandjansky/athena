@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////
@@ -119,7 +119,7 @@ StatusCode  Trk::TruthTrackBuilder::finalize()
 
 Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTraj, SegmentCollection* segs ) const 
 {
-
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     if( segs != nullptr ){
       ATH_MSG_WARNING("Requested to fill segment collection but mode not implemented");
     }
@@ -160,10 +160,17 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
     Trk::PerigeeSurface persurf;
     Trk::CurvilinearParameters startParams(startPos,startMom,charge);
     //minimal conversion; ideally the extrapolator would return a unique_ptr
-    auto per = std::unique_ptr<const Trk::TrackParameters>(m_extrapolator->extrapolate(startParams,persurf,Trk::anyDirection,false,Trk::nonInteracting));
+    auto per = std::unique_ptr<const Trk::TrackParameters>(
+      m_extrapolator->extrapolate(ctx,
+                                  startParams,
+                                  persurf,
+                                  Trk::anyDirection,
+                                  false,
+                                  Trk::nonInteracting));
     if (!per) {
-        ATH_MSG_DEBUG("Perigee creation for genParticle start position failed. Skipping track creation.");
-        return nullptr;
+      ATH_MSG_DEBUG("Perigee creation for genParticle start position failed. "
+                    "Skipping track creation.");
+      return nullptr;
     }
     // first TrackStateOnSurface is the Perigee 
     std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
@@ -184,9 +191,16 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
         if (surf==prevpar->associatedSurface()) continue;
         bool ispixel=false;
         if (m_DetID->is_pixel(clusters[i]->identify())) ispixel=true;
-        
-        auto thispar = std::unique_ptr<const Trk::TrackParameters>(m_extrapolator->extrapolate(*prevpar,surf,Trk::alongMomentum,false,Trk::nonInteracting));
-        if (!thispar) break;
+
+        auto thispar = std::unique_ptr<const Trk::TrackParameters>(
+          m_extrapolator->extrapolate(ctx,
+                                      *prevpar,
+                                      surf,
+                                      Trk::alongMomentum,
+                                      false,
+                                      Trk::nonInteracting));
+        if (!thispar)
+          break;
         if (!surf.insideBounds(thispar->localPosition(),20*Gaudi::Units::mm,50*Gaudi::Units::mm)) {
           continue;
         }
@@ -226,7 +240,7 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
    Trk::ParticleSwitcher particleSwitch;
    Trk::ParticleHypothesis materialInteractions = particleSwitch.particle[m_matEffects];
 
-   Trk::Track *refittedtrack=m_trackFitter->fit(track,false,materialInteractions);
+   Trk::Track *refittedtrack=(m_trackFitter->fit(Gaudi::Hive::currentContext(),track,false,materialInteractions)).release();
   
    //!<  Refit a second time to add TRT hits
    Trk::Track *refittedtrack2=nullptr;
@@ -235,13 +249,13 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
      std::unique_ptr<const Trk::TrackParameters> prevpar(refittedtrack->trackParameters()->back()->uniqueClone());
      for (;i<(int)clusters.size();i++) {
        const Trk::Surface *surf=&clusters[i]->detectorElement()->surface(clusters[i]->identify());
-       std::unique_ptr<const Trk::TrackParameters> thispar(m_extrapolator->extrapolate(*prevpar,*surf,Trk::alongMomentum,false,Trk::nonInteracting));
+       std::unique_ptr<const Trk::TrackParameters> thispar(m_extrapolator->extrapolate(ctx,*prevpar,*surf,Trk::alongMomentum,false,Trk::nonInteracting));
        if (!thispar) break;
        const Trk::RIO_OnTrack *rot=m_rotcreatorbroad->correct(*clusters[i],*thispar);
        if (rot) measset.push_back(rot);
        prevpar=std::move(thispar);
      }
-     refittedtrack2=m_trackFitter->fit(*refittedtrack,measset,false,materialInteractions);
+     refittedtrack2=(m_trackFitter->fit(Gaudi::Hive::currentContext(),*refittedtrack,measset,false,materialInteractions)).release();
      if (!refittedtrack2){
        auto traj2 = DataVector<const Trk::TrackStateOnSurface>();
        for (int j=0;j<(int)refittedtrack->trackStateOnSurfaces()->size();j++) traj2.push_back(new Trk::TrackStateOnSurface(*(*refittedtrack->trackStateOnSurfaces())[j]));

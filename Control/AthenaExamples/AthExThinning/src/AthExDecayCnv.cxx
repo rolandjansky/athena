@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // DecayCnv.cxx 
@@ -62,7 +62,7 @@ AthExDecay* AthExDecayCnv::createTransient()
 
    AthExDecay *transObj = 0;
 
-   static pool::Guid p1_guid("FD6FC38A-2EE4-4EC6-916B-DBF6A8E88A03");
+   static const pool::Guid p1_guid("FD6FC38A-2EE4-4EC6-916B-DBF6A8E88A03");
 
    if ( compareClassGuid(p1_guid) ) {
 

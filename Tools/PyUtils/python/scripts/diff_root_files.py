@@ -74,6 +74,10 @@ def _is_exit_early():
                   action='store_true',
                   default=False,
                   help="""To order trees according to event numbers""")
+@acmdlib.argument('--exact-branches',
+                  action='store_true',
+                  default=False,
+                  help="""Only allow exact list of branches present""")
 @acmdlib.argument('--mode',
                   choices=g_ALLOWED_MODES,
                   default='detailed',
@@ -139,6 +143,7 @@ def main(args):
     msg.info('mode:                 %s', args.mode)
     msg.info('error mode:           %s', args.error_mode)
     msg.info('order trees:          %s', args.order_trees)
+    msg.info('exact branches:       %s', args.exact_branches)
 
     import PyUtils.Helpers as H
     with H.ShutUp() :
@@ -231,14 +236,28 @@ def main(args):
 
         old_leaves = infos['old']['leaves'] - infos['new']['leaves']
         if old_leaves:
-            msg.warning('the following variables exist only in the old file !')
-            for l in old_leaves:
-                msg.warning(' - [%s]', l)
+            old_leaves_list = list(old_leaves)
+            old_leaves_list.sort()
+            if args.exact_branches:
+                msg.error('the following variables exist only in the old file !')
+                for l in old_leaves_list:
+                    msg.error(' - [%s]', l)
+            else:
+                msg.warning('the following variables exist only in the old file !')
+                for l in old_leaves_list:
+                    msg.warning(' - [%s]', l)
         new_leaves = infos['new']['leaves'] - infos['old']['leaves']
         if new_leaves:
-            msg.warning('the following variables exist only in the new file !')
-            for l in new_leaves:
-                msg.warning(' - [%s]', l)
+            new_leaves_list = list(new_leaves)
+            new_leaves_list.sort()
+            if args.exact_branches:
+                msg.error('the following variables exist only in the new file !')
+                for l in new_leaves_list:
+                    msg.error(' - [%s]', l)
+            else:
+                msg.warning('the following variables exist only in the new file !')
+                for l in new_leaves_list:
+                    msg.warning(' - [%s]', l)
 
         # need to remove trailing dots as they confuse reach_next()
         skip_leaves = [ l.rstrip('.') for l in old_leaves | new_leaves | set(args.ignore_leaves) ]
@@ -273,6 +292,8 @@ def main(args):
         msg.info('comparing [%s] leaves over entries...', len(infos['old']['leaves'] & infos['new']['leaves']))
         n_good = 0
         n_bad = 0
+        if args.exact_branches:
+            n_bad += len(old_leaves) + len(new_leaves)
         import collections
         summary = collections.defaultdict(int)
 

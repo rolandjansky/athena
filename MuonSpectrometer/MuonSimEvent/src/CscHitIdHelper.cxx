@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSimEvent/CscHitIdHelper.h"
 
-#include <iomanip> // for std::array
+#include <iomanip>
+#include <array>
 
 CscHitIdHelper* CscHitIdHelper::m_help = nullptr;
 
@@ -87,7 +88,7 @@ int CscHitIdHelper::GetWireLayer(const int& hid) const
 }
 
 //packing method
-int CscHitIdHelper::BuildCscHitId(const std::string statName, const int phiSect,
+int CscHitIdHelper::BuildCscHitId(const std::string& statName, const int phiSect,
                                   const int zSect, const int chamberLayer, int wireLayer) const
 {
   int theID(0);

@@ -177,7 +177,7 @@ namespace Muon {
         double restrictedMomentum(double momentum) const;
 
         /** create perigee parameter to initialize fit */
-        Trk::Perigee* createPerigee(const Trk::TrackParameters& firstPars, const Trk::MeasurementBase& firstMeas) const;
+        Trk::Perigee* createPerigee(const EventContext& ctx, const Trk::TrackParameters& firstPars, const Trk::MeasurementBase& firstMeas) const;
 
         /** fit track */
         std::unique_ptr<Trk::Track> fit(const EventContext& ctx, const Trk::Perigee& startPars, MeasVec& hits, GarbageContainer& garbage,
@@ -203,14 +203,14 @@ namespace Muon {
         std::unique_ptr<Trk::Track> cleanAndEvaluateTrack(const EventContext& ctx, Trk::Track& track, const std::set<Identifier>& excludedChambers) const;
 
         /** extract all information needed for the fit from the track */
-        bool extractData(const MuPatCandidateBase& entry1, const MuPatCandidateBase& entry2, FitterData& fitterData,
+        bool extractData(const EventContext& ctx, const MuPatCandidateBase& entry1, const MuPatCandidateBase& entry2, FitterData& fitterData,
                          GarbageContainer& garbage) const;
 
         /** extract all information from the HitList of a FitterData object */
         bool extractData(FitterData& fitterData, bool usePreciseHits) const;
 
         /** check fitterData, add fake phi hits if needed. If provided the reference parameter will be used to calcualte the fake hits */
-        bool addFakePhiHits(FitterData& fitterData, const Trk::TrackParameters* referenceParameter, GarbageContainer& garbage) const;
+        bool addFakePhiHits(const EventContext& ctx, FitterData& fitterData, const Trk::TrackParameters* referenceParameter, GarbageContainer& garbage) const;
 
         /** sanity check for entries */
         bool corruptEntry(const MuPatCandidateBase& entry) const;
@@ -242,13 +242,13 @@ namespace Muon {
                                  GarbageContainer& garbage) const;
 
         /** calculate phi used to for seeding the fit */
-        double phiSeeding(FitterData& fitterData) const;
+        double phiSeeding(const EventContext& ctx, FitterData& fitterData) const;
 
         /** calculate theta used for seeding the fit */
         double thetaSeeding(const MuPatCandidateBase& entry, MeasVec& etaHits) const;
 
         /** clean phi hits, returns true if anything happened during the cleaning */
-        bool cleanPhiHits(double momentum, FitterData& phiHits, const PrepVec* patternPhiHits, GarbageContainer& garbage) const;
+        bool cleanPhiHits(const EventContext& ctx, double momentum, FitterData& phiHits, const PrepVec* patternPhiHits, GarbageContainer& garbage) const;
 
         /** check whether mometum of start parameter is ok */
         bool validMomentum(const Trk::TrackParameters& pars) const;
@@ -264,7 +264,7 @@ namespace Muon {
         ToolHandle<Trk::IPropagator> m_propagator{this, "Propagator",
                                                   "Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator"};  //!< propagator
         ToolHandle<Trk::ITrackFitter> m_trackFitter{this, "Fitter", "Trk::GlobalChi2Fitter/MCTBFitter"};   //!< fitter
-        ToolHandle<MuPatHitTool> m_hitHandler{this, "HitTool", "Muon::MuPatHitTool/MuPatHitTool"};         //!< hit handler
+        PublicToolHandle<MuPatHitTool> m_hitHandler{this, "HitTool", "Muon::MuPatHitTool/MuPatHitTool"};         //!< hit handler
         ToolHandle<IMuonSegmentMomentumEstimator> m_momentumEstimator{
             this, "SegmentMomentum", "MuonSegmentMomentum/MuonSegmentMomentum"};  //!< tool to estimate track momentum
 

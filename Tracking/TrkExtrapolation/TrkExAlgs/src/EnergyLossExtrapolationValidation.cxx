@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -267,7 +267,7 @@ StatusCode Trk::EnergyLossExtrapolationValidation::finalize()
 
 StatusCode Trk::EnergyLossExtrapolationValidation::execute()
 {
-
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     // get the overall dimensions
     if (!m_highestVolume){
         // get TrackingGeometry and highest volume
@@ -345,21 +345,24 @@ StatusCode Trk::EnergyLossExtrapolationValidation::execute()
     if (!m_materialCollectionValidation) {
 
         lastParameters = m_extrapolator->extrapolate(
-                startParameters,
-                *(m_theCylinders->at(0)),
-                Trk::alongMomentum,
-                true,
-                (Trk::ParticleHypothesis)m_particleType);
+          ctx,
+          startParameters,
+          *(m_theCylinders->at(0)),
+          Trk::alongMomentum,
+          true,
+          (Trk::ParticleHypothesis)m_particleType).release();
 
     } else { // material collection validation
 
         // get the vector of TrackStateOnSurfaces back
         const std::vector<const Trk::TrackStateOnSurface*>* collectedMaterial =
-                              m_extrapolator->extrapolateM(startParameters,
-                                                           *(m_theCylinders->at(0)),
-                                                           Trk::alongMomentum,
-                                                           true,
-                                                           (Trk::ParticleHypothesis)m_particleType);
+                              m_extrapolator->extrapolateM(
+                                ctx,
+                                startParameters,
+                                *(m_theCylinders->at(0)),
+                                Trk::alongMomentum,
+                                true,
+                                (Trk::ParticleHypothesis)m_particleType);
 
         // get the last one and clone it
         if (collectedMaterial && !collectedMaterial->empty()) {
@@ -397,17 +400,19 @@ StatusCode Trk::EnergyLossExtrapolationValidation::execute()
         if (!m_materialCollectionValidation) {
 
             newParameters = m_extrapolator->extrapolate(
-                    m_onion ? *lastParameters : startParameters,
-                    *(m_theCylinders->at(lay)),
-                    Trk::alongMomentum,
-                    true,
-                    (Trk::ParticleHypothesis)m_particleType);
+              ctx,
+              m_onion ? *lastParameters : startParameters,
+              *(m_theCylinders->at(lay)),
+              Trk::alongMomentum,
+              true,
+              (Trk::ParticleHypothesis)m_particleType).release();
 
         } else { // material collection validation
 
             // get the vector of TrackStateOnSurfaces back
             const std::vector<const Trk::TrackStateOnSurface*>* collectedMaterial =
-                                  m_extrapolator->extrapolateM(m_onion ? *lastParameters : startParameters,
+                                  m_extrapolator->extrapolateM(ctx,
+                                                               m_onion ? *lastParameters : startParameters,
                                                                *(m_theCylinders->at(lay)),
                                                                Trk::alongMomentum,
                                                                true,
@@ -438,17 +443,21 @@ StatusCode Trk::EnergyLossExtrapolationValidation::execute()
 
             if (!m_materialCollectionValidation) {
 
-                newParameters = m_extrapolator->extrapolate(m_onion ? *lastParameters : startParameters,
-                                                            (m_parameterEta[0] < 0) ? *(m_theDiscs1->at(lay)) : *(m_theDiscs2->at(lay)),
-                                                            Trk::alongMomentum,
-                                                            true,
-                                                            (Trk::ParticleHypothesis)m_particleType);
+              newParameters = m_extrapolator->extrapolate(
+                ctx,
+                m_onion ? *lastParameters : startParameters,
+                (m_parameterEta[0] < 0) ? *(m_theDiscs1->at(lay))
+                                        : *(m_theDiscs2->at(lay)),
+                Trk::alongMomentum,
+                true,
+                (Trk::ParticleHypothesis)m_particleType).release();
 
             } else { // material collection validation
 
                 // get the vector of TrackStateOnSurfaces back
                 const std::vector<const Trk::TrackStateOnSurface*>* collectedMaterial =
-                                      m_extrapolator->extrapolateM(m_onion ? *lastParameters : startParameters,
+                                      m_extrapolator->extrapolateM(ctx,
+                                                                   m_onion ? *lastParameters : startParameters,
                                                                    (m_parameterEta[0] < 0) ? *(m_theDiscs1->at(lay)) : *(m_theDiscs2->at(lay)),
                                                                    Trk::alongMomentum,
                                                                    true,

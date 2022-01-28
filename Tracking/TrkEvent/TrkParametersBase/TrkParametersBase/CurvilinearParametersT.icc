@@ -112,7 +112,7 @@ CurvilinearParametersT<DIM, T, S>::CurvilinearParametersT(
 template<int DIM, class T, class S>
 CurvilinearParametersT<DIM, T, S>::CurvilinearParametersT(
   const CurvilinearParametersT<DIM, T, S>& rhs)
-  : ParametersBase<DIM, T>(rhs.parameters(), rhs.m_covariance, rhs.charge())
+  : ParametersBase<DIM, T>(rhs)
   , m_position(rhs.position())
   , m_momentum(rhs.momentum())
   , m_surface(rhs.m_surface)

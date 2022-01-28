@@ -106,7 +106,7 @@ namespace {
         m_chargedDiodes(chargedDiodes) {
     }
 
-    void operator () (const SiSurfaceCharge& scharge) const;
+    void operator () (const SiSurfaceCharge& scharge);
   private:
     const InDetDD::SiDetectorElement* m_sielement;
     SiChargedDiodeCollection* m_chargedDiodes;
@@ -114,7 +114,7 @@ namespace {
 
 
   void SiDigitizationSurfaceChargeInserter::operator ()
-    (const SiSurfaceCharge& scharge) const {
+    (const SiSurfaceCharge& scharge) {
     // get the diode in which this charge is
     SiCellId diode{m_sielement->cellIdOfPosition(scharge.position())};
 
@@ -260,7 +260,7 @@ StatusCode SCT_DigitizationTool::mergeEvent(const EventContext& ctx) {
   return StatusCode::SUCCESS;
 }
 
-void SCT_DigitizationTool::digitizeAllHits(const EventContext& ctx, SG::WriteHandle<SCT_RDO_Container>* rdoContainer, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap, std::vector<bool>* processedElements, TimedHitCollection<SiHit>* thpcsi, CLHEP::HepRandomEngine * rndmEngine) const {
+void SCT_DigitizationTool::digitizeAllHits(const EventContext& ctx, SG::WriteHandle<SCT_RDO_Container>* rdoContainer, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap, std::vector<bool>* processedElements, TimedHitCollection<SiHit>* thpcsi, CLHEP::HepRandomEngine * rndmEngine) {
   /////////////////////////////////////////////////
   //
   // In order to process all element rather than just those with hits we
@@ -360,7 +360,7 @@ void SCT_DigitizationTool::digitizeNonHits(const EventContext& ctx, SG::WriteHan
   return;
 }
 
-bool SCT_DigitizationTool::digitizeElement(const EventContext& ctx, SiChargedDiodeCollection* chargedDiodes, TimedHitCollection<SiHit>*& thpcsi, CLHEP::HepRandomEngine * rndmEngine) const {
+bool SCT_DigitizationTool::digitizeElement(const EventContext& ctx, SiChargedDiodeCollection* chargedDiodes, TimedHitCollection<SiHit>*& thpcsi, CLHEP::HepRandomEngine * rndmEngine) {
   if (nullptr == thpcsi) {
     ATH_MSG_ERROR("thpcsi should not be nullptr!");
 
@@ -416,7 +416,8 @@ bool SCT_DigitizationTool::digitizeElement(const EventContext& ctx, SiChargedDio
                                                                        phit->getEtaModule(),
                                                                        phit->getSide())));
       ATH_MSG_DEBUG("calling process() for all methods");
-      m_sct_SurfaceChargesGenerator->process(sielement, phit, SiDigitizationSurfaceChargeInserter(sielement, chargedDiodes), rndmEngine, ctx);
+      SiDigitizationSurfaceChargeInserter inserter(sielement, chargedDiodes);
+      m_sct_SurfaceChargesGenerator->process(sielement, phit, inserter, rndmEngine, ctx);
       ATH_MSG_DEBUG("charges filled!");
     }
   }

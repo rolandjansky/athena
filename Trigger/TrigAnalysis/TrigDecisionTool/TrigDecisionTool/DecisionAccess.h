@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGGER_DECISION_TOOL_DecisionAccess_H
@@ -229,7 +229,7 @@ namespace Trig {
      * Feature object can be given here as well
      **/
     template<class T> 
-    const Feature<T> ancestor(const HLT::TriggerElement* te, std::string label = "") const;
+    Feature<T> ancestor(const HLT::TriggerElement* te, std::string label = "") const;
 
     /**
      * @brief gives back features matching (by seeding relation) - will also flatten
@@ -238,7 +238,7 @@ namespace Trig {
      * Feature object can be given here as well
      **/
     template<class T>
-    const std::vector<Trig::Feature<T> > ancestors(const HLT::TriggerElement* te, std::string label = "", unsigned int condition=TrigDefs::Physics, const std::string& teName = "") const;
+    std::vector<Trig::Feature<T> > ancestors(const HLT::TriggerElement* te, std::string label = "", unsigned int condition=TrigDefs::Physics, const std::string& teName = "") const;
 
   protected:
 

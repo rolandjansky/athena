@@ -453,11 +453,12 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
   //now put in the positions at `ly spaced points for a y dependent z
   bool hack=false;
   z_large=vector<vector<double > >(ybins,z_nominal);
-  double pitch_f=1.*std::sin(correct.rotate.X())*h1/ybins, pitch_b=0, bumper_up=0.0;
+  double pitch_f=1.*std::sin(correct.rotate.X())*h1/ybins, bumper_up=0.0;
+  //double pitch_b = 0;
   if(hack) {
     double factor=-1;
     pitch_f*=factor;
-    pitch_b*=factor;
+    //pitch_b*=factor;
   }
   ATH_MSG_DEBUG("Specs: correct.rotate.X()=" << correct.rotate.X() << ",correct.translate.Z()=" << correct.translate.Z() << ",pitch_f=" << pitch_f);
   for(int iy=0;iy<ybins;iy++){

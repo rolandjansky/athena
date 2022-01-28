@@ -204,9 +204,9 @@ namespace MuonCalib {
       m_parDefaultVec;
 
     //eta, sector, measuresPhi, layer
-    unsigned int m_layerHashes[2][2][8][4][2];
+    unsigned int m_layerHashes[2][2][8][4][2]{};
     std::vector<unsigned int> m_onlineChannelIdsFromLayerHash;
-    unsigned int m_chamberCoolChannels[2][2][8];
+    unsigned int m_chamberCoolChannels[2][2][8]{};
     const unsigned int m_maxChamberCoolChannel;
     std::vector<unsigned int> m_onlineChannelIdsFromChamberCoolChannel;
     const unsigned int m_maxLayerHash;

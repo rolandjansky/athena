@@ -8,6 +8,7 @@
 
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloUtils/CaloLayerCalculator.h"
+#include "CaloUtils/CaloCellList.h"
 #include <cmath>
 
 StatusCode
@@ -15,7 +16,7 @@ egammaBackShape::execute(const xAOD::CaloCluster& cluster,
                          const CaloDetDescrManager& cmgr,
                          const CaloCellContainer& cell_container,
                          Info& info,
-                         bool ExecOtherVariables) 
+                         bool ExecOtherVariables)
 {
   //
   // Estimate shower shapes from third compartment
@@ -105,33 +106,29 @@ egammaBackShape::execute(const xAOD::CaloCluster& cluster,
   info.e333 = calc.em();
 
   if (ExecOtherVariables) {
-    // 3X5
-    sc = calc.fill(cmgr, &cell_container, eta, phi, 3. * deta, 5. * dphi, sam);
-    if (sc.isFailure()) {
-      return sc;
-    }
-    info.e335 = calc.em();
+
+    CaloCellList cell_list(&cmgr, &cell_container);
+    // 7x7
+    cell_list.select(eta, phi, 7.0 * deta, 7.0 * dphi, sam);
+
+    calc.fill(
+      cell_list.begin(), cell_list.end(), eta, phi, 7. * deta, 7. * dphi, sam);
+    info.e377 = calc.em();
 
     // 5X5
-    sc = calc.fill(cmgr, &cell_container, eta, phi, 5. * deta, 5. * dphi, sam);
-    if (sc.isFailure()) {
-      return sc;
-    }
+    calc.fill(
+      cell_list.begin(), cell_list.end(), eta, phi, 5. * deta, 5. * dphi, sam);
     info.e355 = calc.em();
 
     // 3X7
-    sc = calc.fill(cmgr, &cell_container, eta, phi, 3. * deta, 7. * dphi, sam);
-    if (sc.isFailure()) {
-      return sc;
-    }
+    calc.fill(
+      cell_list.begin(), cell_list.end(), eta, phi, 3. * deta, 7. * dphi, sam);
     info.e337 = calc.em();
 
-    // 7x7
-    sc = calc.fill(cmgr, &cell_container, eta, phi, 7. * deta, 7. * dphi, sam);
-    if (sc.isFailure()) {
-      return sc;
-    }
-    info.e377 = calc.em();
+    // 3X5
+    calc.fill(
+      cell_list.begin(), cell_list.end(), eta, phi, 3. * deta, 5. * dphi, sam);
+    info.e335 = calc.em();
   }
 
   // f3core

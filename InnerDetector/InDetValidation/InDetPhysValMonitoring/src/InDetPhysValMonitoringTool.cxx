@@ -365,7 +365,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
     //Get the HS vertex position from the truthVertexContainer
     //FIXME: Add plots w.r.t truth HS positions (vertexing plots)
     //
-    const xAOD::TruthVertex* truthVertex = 0;
+    const xAOD::TruthVertex* truthVertex = nullptr;
     if (truthVrt.isValid()) {
       const auto& stdVertexContainer = truthVrt->stdcont();
       //First truth particle vertex?
@@ -393,7 +393,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
   std::vector<const xAOD::TrackParticle*> selectedTracks {};
   selectedTracks.reserve(tracks->size());
   unsigned int nTrackBAT = 0, nTrackSTD = 0, nTrackANT = 0, nTrackTOT = 0;
-  for (const auto thisTrack: *tracks) {
+  for (const auto *const thisTrack: *tracks) {
     //FIXME: Why is this w.r.t the primary vertex?
     const asg::AcceptData& accept = m_trackSelectionTool->accept(*thisTrack, primaryvertex);
     if (m_useTrackSelection and not accept) continue;
@@ -438,7 +438,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
       }
     }
 
-    const bool isAssociatedTruth = associatedTruth ? true : false;
+    const bool isAssociatedTruth = associatedTruth != nullptr;
     const bool isFake = not std::isnan(prob) ? (prob < m_lowProb) : true;
 
     if(isFake) nFakeTracks++;
@@ -590,7 +590,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
       "Cannot open " << m_jetContainerName <<
         " jet container or TruthParticles truth particle container. Skipping jet plots.");
   } else {
-    for (const auto thisJet: *jets) {         // The big jets loop
+    for (const auto *const thisJet: *jets) {         // The big jets loop
       if (not passJetCuts(*thisJet)) {
         continue;
       }
@@ -616,7 +616,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
             if(!accept) continue;
             bool isEfficient(false);
 
-            for (auto thisTrack: *tracks) {
+            for (const auto *thisTrack: *tracks) {
               if (m_useTrackSelection and not (m_trackSelectionTool->accept(*thisTrack, primaryvertex))) {
                 continue;
               }
@@ -640,7 +640,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
         }
       }
 
-      for (auto thisTrack: *tracks) {    // The beginning of the track loop
+      for (const auto *thisTrack: *tracks) {    // The beginning of the track loop
         if (m_useTrackSelection and not (m_trackSelectionTool->accept(*thisTrack, primaryvertex))) {
           continue;
         }
@@ -708,7 +708,7 @@ InDetPhysValMonitoringTool::bookHistograms() {
   ATH_MSG_INFO("Booking hists " << name() << "with detailed level: " << m_detailLevel);
   m_monPlots->initialize();
   std::vector<HistData> hists = m_monPlots->retrieveBookedHistograms();
-  for (auto hist : hists) {
+  for (const auto& hist : hists) {
     ATH_CHECK(regHist(hist.first, hist.second, all)); // ??
   }
   // do the same for Efficiencies, but there's a twist:
@@ -793,7 +793,7 @@ InDetPhysValMonitoringTool::getTruthParticles() const {
         const unsigned int nPileup = truthPileupEventContainer->size();
         tempVec.reserve(nPileup * 200); // quick initial guess, will still save some time
         for (unsigned int i(0); i != nPileup; ++i) {
-          auto eventPileup = truthPileupEventContainer->at(i);
+          const auto *eventPileup = truthPileupEventContainer->at(i);
           // get truth particles from each pileup event
           int ntruth = eventPileup->nTruthParticles();
           ATH_MSG_VERBOSE("Adding " << ntruth << " truth particles from TruthPileupEvents container");
@@ -843,7 +843,7 @@ InDetPhysValMonitoringTool::getTruthVertices() const {
       ATH_MSG_VERBOSE("Getting TruthEvents container.");
       SG::ReadHandle<xAOD::TruthEventContainer> truthEventContainer(m_truthEventName);
       if (truthEventContainer.isValid()) {
-        for (const auto evt : *truthEventContainer) {
+        for (const auto *const evt : *truthEventContainer) {
           truthVtx = evt->truthVertex(0);
           if (truthVtx) {
             truthHSVertices.push_back(truthVtx);
@@ -861,7 +861,7 @@ InDetPhysValMonitoringTool::getTruthVertices() const {
       ATH_MSG_VERBOSE("Getting TruthEvents container.");
       SG::ReadHandle<xAOD::TruthPileupEventContainer> truthPileupEventContainer(m_truthPileUpEventName);
       if (truthPileupEventContainer.isValid()) {
-        for (const auto evt : *truthPileupEventContainer) {
+        for (const auto *const evt : *truthPileupEventContainer) {
           truthVtx = evt->truthVertex(0);
           if (truthVtx) {
             truthPUVertices.push_back(truthVtx);
@@ -881,7 +881,6 @@ InDetPhysValMonitoringTool::getTruthVertices() const {
 void
 InDetPhysValMonitoringTool::fillTrackCutFlow(const asg::AcceptData& accept) {
   fillCutFlow(accept, m_trackCutflowNames, m_trackCutflow);
-  return;
 }
 
 void
@@ -889,7 +888,7 @@ InDetPhysValMonitoringTool::fillCutFlow(const asg::AcceptData& accept, std::vect
                                         std::vector<int>& cutFlow) {
   // initialise cutflows
   if (cutFlow.empty()) {
-    names.push_back("preCut");
+    names.emplace_back("preCut");
     cutFlow.push_back(0);
     for (unsigned int i = 0; i != accept.getNCuts(); ++i) {
       cutFlow.push_back(0);
@@ -909,5 +908,4 @@ InDetPhysValMonitoringTool::fillCutFlow(const asg::AcceptData& accept, std::vect
       cutPositive = false;
     }
   }
-  return;
-}
+  }

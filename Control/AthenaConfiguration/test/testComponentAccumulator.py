@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # self test of ComponentAccumulator
 
@@ -559,6 +559,8 @@ class TestSequencesMerging( unittest.TestCase ):
 
     def test_sequences_merging(self):
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        if '_ATHENA_GENERIC_INPUTFILE_NAME_' in ConfigFlags.Input.Files:
+            ConfigFlags.Input.Files = []
         ConfigFlags.lock()
         from AthenaCommon.Logging import logging
         logging.getLogger('ComponentAccumulator').setLevel(DEBUG)
@@ -600,6 +602,8 @@ class TestDifferentSequencesMerging( unittest.TestCase ):
 
     def test_sequences_merging(self):
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        if '_ATHENA_GENERIC_INPUTFILE_NAME_' in ConfigFlags.Input.Files:
+            ConfigFlags.Input.Files = []
         ConfigFlags.lock()
         from AthenaCommon.Logging import logging
         logging.getLogger('ComponentAccumulator').setLevel(DEBUG)

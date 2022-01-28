@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -462,16 +462,18 @@ InDet::InDetTestPixelLayerTool::getTrackStateOnPixelLayerInfo(
   std::vector<TrackStateOnPixelLayerInfo>& infoList) const
 {
 
-  const Trk::TrackParameters* startParameters = nullptr;
+  std::unique_ptr<const Trk::TrackParameters> startParameters = nullptr;
 
   if (track->perigeeParameters()) {
-    startParameters = track->perigeeParameters()->clone();
+    startParameters = track->perigeeParameters()->uniqueClone();
   } else if (track->trackParameters()->front()) {
     startParameters =
-      m_extrapolator->extrapolate(*(track->trackParameters()->front()),
-                                  Trk::PerigeeSurface(),
-                                  Trk::anyDirection,
-                                  false);
+      m_extrapolator->extrapolate(
+        Gaudi::Hive::currentContext(),
+        *(track->trackParameters()->front()),
+        Trk::PerigeeSurface(),
+        Trk::anyDirection,
+        false);
   }
 
   if (!startParameters) {
@@ -480,8 +482,7 @@ InDet::InDetTestPixelLayerTool::getTrackStateOnPixelLayerInfo(
     return false;
   }
 
-  bool succeed = getTrackStateOnPixelLayerInfo(startParameters, infoList);
-  delete startParameters;
+  bool succeed = getTrackStateOnPixelLayerInfo(startParameters.get(), infoList);
   return succeed;
 }
 
@@ -631,7 +632,7 @@ InDet::InDetTestPixelLayerTool::getPixelLayerParameters(
 
   // extrapolate stepwise to this parameter (be careful, sorting might be wrong)
   std::vector<std::unique_ptr<const Trk::TrackParameters>> paramList =
-    m_extrapolator->extrapolateStepwise(
+    m_extrapolator->extrapolateStepwise(Gaudi::Hive::currentContext(),
       *trackpar, BiggerThanPixelLayerSurface, Trk::alongMomentum, false);
 
   if (paramList.empty()) {

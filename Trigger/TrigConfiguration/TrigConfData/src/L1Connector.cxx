@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfData/L1Connector.h"
@@ -14,7 +14,7 @@ TrigConf::L1Connector::L1Connector(const std::string & connName, const boost::pr
    : DataStructure(data)
 {
    m_name = connName;
-   update();
+   L1Connector::update();
 }
 
 TrigConf::L1Connector::~L1Connector()

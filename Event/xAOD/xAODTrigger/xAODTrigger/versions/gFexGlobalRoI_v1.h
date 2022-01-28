@@ -90,7 +90,7 @@ namespace xAOD {
 
 
       /// Constants used in converting to ATLAS units
-      static const float s_tobEtScale;
+      static const float s_globaltobEtScale;
 
 
       // Constants used in decoding TOB words

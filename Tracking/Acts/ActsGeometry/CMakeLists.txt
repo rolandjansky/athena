@@ -18,6 +18,7 @@ atlas_add_library( ActsGeometryLib
                    src/ActsLayerBuilder.cxx
                    src/ActsStrawLayerBuilder.cxx
                    src/ActsTrackingGeometrySvc.cxx
+                   src/ATLASSourceLink.cxx
                    src/util/*.cxx
                    PUBLIC_HEADERS ActsGeometry
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}

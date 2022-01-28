@@ -167,9 +167,10 @@ def getNeutralPFOCreatorAlgorithm(inputFlags,neutralPFOOutputName,eflowObjectsIn
 
     return PFONeutralCreatorAlgorithm
 
-def getChargedFlowElementCreatorAlgorithm(inputFlags,chargedFlowElementOutputName):
+def getChargedFlowElementCreatorAlgorithm(inputFlags,chargedFlowElementOutputName,eflowCaloObjectContainerName="eflowCaloObjects"):
     FlowElementChargedCreatorAlgorithmFactory = CompFactory.PFChargedFlowElementCreatorAlgorithm
     FlowElementChargedCreatorAlgorithm = FlowElementChargedCreatorAlgorithmFactory("PFChargedFlowElementCreatorAlgorithm")
+    FlowElementChargedCreatorAlgorithm.eflowCaloObjectContainerName = eflowCaloObjectContainerName
     if chargedFlowElementOutputName:
         FlowElementChargedCreatorAlgorithm.FlowElementOutputName=chargedFlowElementOutputName
     if(inputFlags.PF.EOverPMode):
@@ -177,13 +178,14 @@ def getChargedFlowElementCreatorAlgorithm(inputFlags,chargedFlowElementOutputNam
 
     return FlowElementChargedCreatorAlgorithm
 
-def getNeutralFlowElementCreatorAlgorithm(inputFlags,neutralFlowElementOutputName):
+def getNeutralFlowElementCreatorAlgorithm(inputFlags,neutralFlowElementOutputName,eflowCaloObjectContainerName="eflowCaloObjects"):
     FlowElementNeutralCreatorAlgorithmFactory = CompFactory.PFNeutralFlowElementCreatorAlgorithm
     FlowElementNeutralCreatorAlgorithm = FlowElementNeutralCreatorAlgorithmFactory("PFNeutralFlowElementCreatorAlgorithm")
+    FlowElementNeutralCreatorAlgorithm.eflowCaloObjectContainerName = eflowCaloObjectContainerName
     if neutralFlowElementOutputName:
         FlowElementNeutralCreatorAlgorithm.FlowElementOutputName=neutralFlowElementOutputName
     if(inputFlags.PF.EOverPMode):
-        FlowElementNeutralCreatorAlgorithm.FlowElementOutputName="EOverPNeutralParticleFlowObjects"
+        FlowElementNeutralCreatorAlgorithm.FEOutputName="EOverPNeutralParticleFlowObjects"
     if(inputFlags.PF.useCalibHitTruthClusterMoments and inputFlags.PF.addClusterMoments):
         FlowElementNeutralCreatorAlgorithm.useCalibHitTruth=True
 
@@ -195,7 +197,7 @@ def getLCNeutralFlowElementCreatorAlgorithm(inputFlags,neutralFlowElementOutputN
     if neutralFlowElementOutputName:
       LCFlowElementNeutralCreatorAlgorithm.FELCOutputName==neutralFlowElementOutputName
     if(inputFlags.PF.EOverPMode):
-      LCFlowElementNeutralCreatorAlgorithm.EInputContainerName="EOverPNeutralParticleFlowObjects"
+      LCFlowElementNeutralCreatorAlgorithm.FEInputContainerName="EOverPNeutralParticleFlowObjects"
       LCFlowElementNeutralCreatorAlgorithm.FELCOutputName="EOverPLCNeutralParticleFlowObjects"
     
     return LCFlowElementNeutralCreatorAlgorithm 
@@ -396,6 +398,43 @@ def getTauFlowElementAssocAlgorithm(inputFlags,neutral_FE_cont_name="",charged_F
          PFTauFlowElementLinkerAlgorithm.ChargedFETauDecorKey="TrackCaloClustersCharged.TCC_TauLinks"
 
     return PFTauFlowElementLinkerAlgorithm
+
+def getOfflinePFAlgorithm(inputFlags):
+    result=ComponentAccumulator()
+
+    PFAlgorithm=CompFactory.PFAlgorithm
+    PFAlgorithm = PFAlgorithm("PFAlgorithm")
+    
+    topoClustersName="CaloTopoClusters"
+
+    PFAlgorithm.PFClusterSelectorTool = getPFClusterSelectorTool(topoClustersName,"CaloCalTopoClusters","PFClusterSelectorTool")    
+    
+    PFAlgorithm.SubtractionToolList = [getPFCellLevelSubtractionTool(inputFlags,"PFCellLevelSubtractionTool")]
+
+    if(False is inputFlags.PF.EOverPMode):
+        PFAlgorithm.SubtractionToolList += [getPFRecoverSplitShowersTool(inputFlags,"PFRecoverSplitShowersTool")]
+
+    PFMomentCalculatorTools=result.popToolsAndMerge(getPFMomentCalculatorTool(inputFlags,[]))
+    PFAlgorithm.BaseToolList = [PFMomentCalculatorTools]
+    PFAlgorithm.BaseToolList += [getPFLCCalibTool(inputFlags)]
+    result.addEventAlgo(PFAlgorithm)
+    return result
+
+def PFTauFlowElementLinkingCfg(inputFlags,neutral_FE_cont_name="",charged_FE_cont_name="",AODTest=False):
+    result=ComponentAccumulator()
+    
+    result.addEventAlgo(getTauFlowElementAssocAlgorithm(inputFlags,neutral_FE_cont_name,charged_FE_cont_name,AODTest))
+
+    # the following is needed to reliably determine whether we're really being steered from an old-style job option
+    # assume we're running CPython
+    #Snippet provided by Carlo Varni
+    import inspect
+    stack = inspect.stack()
+    if len(stack) >= 2 and stack[1].function == 'CAtoGlobalWrapper':
+      for el in result._allSequences:
+        el.name = "TopAlg"
+
+    return result
 
 
 

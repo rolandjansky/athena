@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetMultipleVertexSeedFinder/SlidingWindowMultiSeedFinder.h"
@@ -87,11 +87,12 @@ namespace InDet
 
  std::vector< std::vector<const Trk::Track *> > SlidingWindowMultiSeedFinder::seeds(const std::vector<const Trk::Track*>& tracks )const
  {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   std::vector<const Trk::Track*> preselectedTracks(0);
   std::vector<const Trk::Track*>::const_iterator tr = tracks.begin();
   std::vector<const Trk::Track*>::const_iterator tre = tracks.end(); 
   
-  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
   Trk::RecVertex  beamRecVertex(beamSpotHandle->beamVtx());
   for(;tr!=tre;++tr) if(m_trkFilter->decision(**tr,&beamRecVertex)) preselectedTracks.push_back(*tr);
   if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Beam spot position is: "<< beamRecVertex.position()<<endmsg;
@@ -123,9 +124,13 @@ namespace InDet
    Trk::PerigeeSurface perigeeSurface(beamVertex->position());
 
    const Trk::TrackParameters * exPerigee = nullptr;
-   if (!indexOfSorted.empty()) exPerigee = 
-				 m_extrapolator->extrapolate(*preselectedTracks[indexOfSorted[0]],perigeeSurface,Trk::anyDirection,true, Trk::pion);
-         
+   if (!indexOfSorted.empty()){
+     exPerigee =
+       m_extrapolator
+         ->extrapolate(ctx, *preselectedTracks[indexOfSorted[0]], perigeeSurface, Trk::anyDirection, true, Trk::pion)
+         .release();
+   }
+
    float lastTrackZ0  = -999.;
    if(exPerigee) { lastTrackZ0 = exPerigee->parameters()[Trk::z0]; delete exPerigee; }
    else
@@ -143,8 +148,8 @@ namespace InDet
    if(m_useMaxInCluster) addingDistance = 0.;
    for(unsigned int i=0;i<indexOfSorted.size();++i)
    {
-    const  Trk::TrackParameters * lexPerigee = m_extrapolator->extrapolate(*preselectedTracks[indexOfSorted[i]],
-									   perigeeSurface,Trk::anyDirection,true, Trk::pion); 
+    const  Trk::TrackParameters * lexPerigee = m_extrapolator->extrapolate(ctx, *preselectedTracks[indexOfSorted[i]],
+									   perigeeSurface,Trk::anyDirection,true, Trk::pion).release(); 
     float currentTrackZ0 = lexPerigee->parameters()[Trk::z0];
     delete lexPerigee;
     
@@ -189,6 +194,7 @@ namespace InDet
  
  std::vector< std::vector<const Trk::TrackParticleBase *> > SlidingWindowMultiSeedFinder::seeds(const std::vector<const Trk::TrackParticleBase*>& tracks )const
  {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   std::vector<const Trk::TrackParticleBase*> preselectedTracks(0);
   std::vector<const Trk::TrackParticleBase*>::const_iterator tr = tracks.begin();
   std::vector<const Trk::TrackParticleBase*>::const_iterator tre = tracks.end(); 
@@ -234,9 +240,14 @@ namespace InDet
    const Trk::TrackParameters * exPerigee(nullptr);
    Trk::PerigeeSurface perigeeSurface(beamVertex->position());
 
-   exPerigee = m_extrapolator->extrapolate(preselectedTracks[indexOfSorted[0]]->definingParameters(),
-					   perigeeSurface,Trk::anyDirection,true, Trk::pion);
-  
+   exPerigee = m_extrapolator
+                 ->extrapolate(ctx,
+                               preselectedTracks[indexOfSorted[0]]->definingParameters(),
+                               perigeeSurface,
+                               Trk::anyDirection,
+                               true,
+                               Trk::pion).release();
+
    float lastTrackZ0  = -999.;
    if(exPerigee) { lastTrackZ0 = exPerigee->parameters()[Trk::z0]; delete exPerigee; }
    else
@@ -257,25 +268,34 @@ namespace InDet
    
    for(unsigned int i=0;i<indexOfSorted.size();++i)
    {
-   
-     const  Trk::TrackParameters * lexPerigee = m_extrapolator->extrapolate(preselectedTracks[indexOfSorted[i]]->definingParameters(),
-									    perigeeSurface,Trk::anyDirection,true, Trk::pion); 
-    float currentTrackZ0 = lexPerigee->parameters()[Trk::z0];
-    delete lexPerigee;
-    
-    if(!i)prevTrackZ0 = currentTrackZ0;    
-    
-    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Z0 of current  track"<< currentTrackZ0<<endmsg;   
-    if((fabs(currentTrackZ0 - lastTrackZ0)>m_clusterLength && fabs(currentTrackZ0 - prevTrackZ0)>addingDistance )|| 
-                                                              fabs(currentTrackZ0 - prevTrackZ0)>m_breakingDistance)
-    {
-  
-//this track is outside the current cluster or the distance is too big. breaking the cluster here
-     if(int(tmp_cluster.size())>m_ignoreLevel) result.push_back(tmp_cluster);
-     tmp_cluster.clear();
-     tmp_cluster.push_back(preselectedTracks[indexOfSorted[i]]);
-     lastTrackZ0 = currentTrackZ0;
-     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Finishing a cluster, starting the new one"<<endmsg;
+
+     const Trk::TrackParameters* lexPerigee = m_extrapolator
+                                                ->extrapolate(ctx,
+                                                              preselectedTracks[indexOfSorted[i]]->definingParameters(),
+                                                              perigeeSurface,
+                                                              Trk::anyDirection,
+                                                              true,
+                                                              Trk::pion).release();
+     float currentTrackZ0 = lexPerigee->parameters()[Trk::z0];
+     delete lexPerigee;
+
+     if (!i)
+       prevTrackZ0 = currentTrackZ0;
+
+     if (msgLvl(MSG::DEBUG))
+       msg(MSG::DEBUG) << "Z0 of current  track" << currentTrackZ0 << endmsg;
+     if ((fabs(currentTrackZ0 - lastTrackZ0) > m_clusterLength &&
+          fabs(currentTrackZ0 - prevTrackZ0) > addingDistance) ||
+         fabs(currentTrackZ0 - prevTrackZ0) > m_breakingDistance) {
+
+       // this track is outside the current cluster or the distance is too big. breaking the cluster here
+       if (int(tmp_cluster.size()) > m_ignoreLevel)
+         result.push_back(tmp_cluster);
+       tmp_cluster.clear();
+       tmp_cluster.push_back(preselectedTracks[indexOfSorted[i]]);
+       lastTrackZ0 = currentTrackZ0;
+       if (msgLvl(MSG::DEBUG))
+         msg(MSG::DEBUG) << "Finishing a cluster, starting the new one" << endmsg;
     
     }else{
  
@@ -307,7 +327,7 @@ namespace InDet
 
 std::vector< std::vector<const Trk::TrackParameters *> > SlidingWindowMultiSeedFinder::seeds(const std::vector<const xAOD::TrackParticle*>& tracks )const
   {
- 
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     //step 1: preselection 
     std::vector<const xAOD::TrackParticle*> preselectedTracks(0);
     
@@ -365,8 +385,8 @@ std::vector< std::vector<const Trk::TrackParameters *> > SlidingWindowMultiSeedF
 	const Trk::TrackParameters * exPerigee(nullptr);
 	Trk::PerigeeSurface perigeeSurface(beamposition->position());
 	
-	exPerigee = m_extrapolator->extrapolate(*preselectedTracks[indexOfSorted[0]],
-						perigeeSurface,Trk::anyDirection,true, Trk::pion);
+	exPerigee = m_extrapolator->extrapolate(ctx, *preselectedTracks[indexOfSorted[0]],
+						perigeeSurface,Trk::anyDirection,true, Trk::pion).release();
 	
 	float lastTrackZ0  = -999.;
 	if(exPerigee) { lastTrackZ0 = exPerigee->parameters()[Trk::z0]; delete exPerigee; }
@@ -389,25 +409,31 @@ std::vector< std::vector<const Trk::TrackParameters *> > SlidingWindowMultiSeedF
 	
 	for(unsigned int i=0;i<indexOfSorted.size();++i)
 	  {
-	    
-	    const  Trk::TrackParameters * lexPerigee = m_extrapolator->extrapolate(*preselectedTracks[indexOfSorted[i]],
-										   perigeeSurface,Trk::anyDirection,true, Trk::pion); 
-	    float currentTrackZ0 = lexPerigee->parameters()[Trk::z0];
-	    delete lexPerigee;
-	    
-	    if(!i)prevTrackZ0 = currentTrackZ0;    
-	    
-	    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Z0 of current  track"<< currentTrackZ0<<endmsg;   
-	    if((fabs(currentTrackZ0 - lastTrackZ0)>m_clusterLength && fabs(currentTrackZ0 - prevTrackZ0)>addingDistance )|| 
-	       fabs(currentTrackZ0 - prevTrackZ0)>m_breakingDistance)
-	      {
-		
-		//this track is outside the current cluster or the distance is too big. breaking the cluster here
-		if(int(tmp_cluster.size())>m_ignoreLevel) result.push_back(tmp_cluster);
-		tmp_cluster.clear();
-		tmp_cluster.push_back(&(preselectedTracks[indexOfSorted[i]]->perigeeParameters()));
-		lastTrackZ0 = currentTrackZ0;
-		if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Finishing a cluster, starting the new one"<<endmsg;
+
+          const Trk::TrackParameters* lexPerigee =
+            m_extrapolator
+              ->extrapolate(
+                ctx, *preselectedTracks[indexOfSorted[i]], perigeeSurface, Trk::anyDirection, true, Trk::pion).release();
+          float currentTrackZ0 = lexPerigee->parameters()[Trk::z0];
+          delete lexPerigee;
+
+          if (!i)
+            prevTrackZ0 = currentTrackZ0;
+
+          if (msgLvl(MSG::DEBUG))
+            msg(MSG::DEBUG) << "Z0 of current  track" << currentTrackZ0 << endmsg;
+          if ((fabs(currentTrackZ0 - lastTrackZ0) > m_clusterLength &&
+               fabs(currentTrackZ0 - prevTrackZ0) > addingDistance) ||
+              fabs(currentTrackZ0 - prevTrackZ0) > m_breakingDistance) {
+
+            // this track is outside the current cluster or the distance is too big. breaking the cluster here
+            if (int(tmp_cluster.size()) > m_ignoreLevel)
+              result.push_back(tmp_cluster);
+            tmp_cluster.clear();
+            tmp_cluster.push_back(&(preselectedTracks[indexOfSorted[i]]->perigeeParameters()));
+            lastTrackZ0 = currentTrackZ0;
+            if (msgLvl(MSG::DEBUG))
+              msg(MSG::DEBUG) << "Finishing a cluster, starting the new one" << endmsg;
 		
 	      }else{
 	      
@@ -436,55 +462,5 @@ std::vector< std::vector<const Trk::TrackParameters *> > SlidingWindowMultiSeedF
     return result; 	
     
   }
-  /*  
- std::vector<int> SlidingWindowMultiSeedFinder::m_z0sort(std::vector<const xAOD::TrackParticle*>& tracks,xAOD::Vertex * reference) const
- {
-   
-    // std::vector<int> no_perigee(0);
-    std::map<double, int> mapOfZ0; 
-    std::vector<const xAOD::TrackParticle*>::const_iterator tb = tracks.begin();
-    std::vector<const xAOD::TrackParticle*>::const_iterator te = tracks.end();
-    unsigned int j=0;
-    
-    for(;tb != te ;++tb)
-      {
-	const Trk::TrackParameters * perigee = 0;
-	
-	
-	//here we want to make an extrapolation    
-	Trk::PerigeeSurface perigeeSurface(reference->position());
-	perigee = m_extrapolator->extrapolate(**tb,
-					      perigeeSurface,
-					      Trk::anyDirection,true, Trk::pion);  
-	
-	if(perigee)
-	  {
-	    double trkZ0 = perigee->parameters()[Trk::z0];
-	    mapOfZ0.insert(std::map<double, int>::value_type(trkZ0,j)); 
-	    delete perigee;
-	    perigee =0;
-	    
-	  }else{
-	  msg(MSG::WARNING)  << "This track particle has no perigee state. Not egligible for sorting. Will NOT be written to the sorted vector" << endmsg;
-	  //    no_perigee.push_back(j);
-	}//end of perigee existance check
-	++j;
-      }//end of loop over all track particle base's
-    
-    //creating an output vector, filling it and returning
-    std::vector<int> result(0);
-    
-    //sorted part  
-    std::map<double, int>::const_iterator mb = mapOfZ0.begin();
-    std::map<double, int>::const_iterator me = mapOfZ0.end(); 
-    for(;mb!=me;++mb) result.push_back((*mb).second);
-    
-    //part failed sorting
-    //  std::vector<int>::const_iterator ib = no_perigee.begin();
-    //  std::vector<int>::const_iterator ie = no_perigee.end();
-    //  for(;ib!=ie;++ib) result.push_back(*ib);  
-    return result;
-  }
-  */    
-    
+  
 }//end of namespace definitions

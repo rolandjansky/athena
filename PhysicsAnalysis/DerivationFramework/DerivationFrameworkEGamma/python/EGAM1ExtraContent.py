@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 
 #Content included in addition to the Smart Slimming Content
@@ -6,10 +6,6 @@
 ExtraContentElectrons=[]
 
 ExtraContentMuons=[
-#    "Muons.DFCommonGoodMuon",
-#    "Muons.DFCommonMuonsLoose",
-#    "Muons.DFCommonMuonsMedium",
-#    "Muons.DFCommonMuonsTight",
     "Muons.DFCommonMuonsPreselection",
     "Muons.ptcone20",
     "Muons.ptcone30",
@@ -17,15 +13,6 @@ ExtraContentMuons=[
     "Muons.etcone20",
     "Muons.etcone30",
     "Muons.etcone40"
-#    "Muons.PromptLepton_TrackJetNTrack",
-#    "Muons.PromptLepton_sv1_ntkv",
-#    "Muons.PromptLepton_jf_ntrkv",
-#    "Muons.PromptLepton_ip2",
-#    "Muons.PromptLepton_ip2_cu",
-#    "Muons.PromptLepton_ip3",
-#    "Muons.PromptLepton_ip3_cu",
-#    "Muons.PromptLepton_EtTopoCone20Rel",
-#    "Muons.PromptLepton_TagWeight"
 ]   
 
 ExtraMuonsTruth=[
@@ -85,8 +72,6 @@ ExtraContainersTruth=["TruthEvents",
                       "TruthVertices",
                       "AntiKt4TruthJets",
                       "egammaTruthParticles"
-                      #,"BTagging_AntiKt4TruthWZ"
-                      #,"AntiKt4TruthWZJets"
                       ]
 
 ExtraContainersElectrons=["Electrons",
@@ -129,12 +114,10 @@ ExtraContainersTrigger=[
 ExtraContainersTriggerDataOnly=[]
 
 ExtraVariablesEventShape=[
-    "TopoClusterIsoCentralEventShape.DensitySigma.Density.DensityArea",
-    "TopoClusterIsoForwardEventShape.DensitySigma.Density.DensityArea",
-    "NeutralParticleFlowIsoCentralEventShape.Density.DensityArea.DensitySigma",
-    "NeutralParticleFlowIsoForwardEventShape.Density.DensityArea.DensitySigma",
-    "ParticleFlowIsoCentralEventShape.Density.DensityArea.DensitySigma",
-    "ParticleFlowIsoForwardEventShape.Density.DensityArea.DensitySigma"
+    "TopoClusterIsoCentralEventShape.Density",
+    "TopoClusterIsoForwardEventShape.Density",
+    "NeutralParticleFlowIsoCentralEventShape.Density",
+    "NeutralParticleFlowIsoForwardEventShape.Density"
 ]
 
 #should slim electron/fwdelectrons/cluster collections and keep only relevant subset of variables..

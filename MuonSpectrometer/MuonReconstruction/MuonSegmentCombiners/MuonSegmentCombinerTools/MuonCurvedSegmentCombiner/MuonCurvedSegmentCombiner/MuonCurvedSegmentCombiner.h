@@ -58,21 +58,21 @@ namespace Muon {
                             SegInfoMap segInfoMap) const;
         std::unique_ptr<MuonSegmentCombinationCollection> processCombinationCollection(
             const MuonSegmentCombinationCollection& mdtCombiCol, MuonSegmentCombPatternCombAssociationMap* segPattMap,
-            SegInfoMap seg2DCscInfoMap, SegInfoMap seg4DCscInfoMap, SegInfoMap& segInfoMap,
+            const SegInfoMap& seg2DCscInfoMap, SegInfoMap seg4DCscInfoMap, SegInfoMap& segInfoMap,
             std::map<Muon::MuonSegment*, const MuonPatternCombination*>& segAssoMap, int& segmentIndex) const;
         void processCscCombinationCollection(const MuonSegmentCombinationCollection& cscCombiCol,
-                                             MuonSegmentCombPatternCombAssociationMap* segPattMap, SegInfoMap segInfoMap,
+                                             MuonSegmentCombPatternCombAssociationMap* segPattMap, const SegInfoMap& segInfoMap,
                                              SegInfoMap& seg4DCscInfoMap, std::set<Identifier>& cscIdSet,
                                              std::map<Muon::MuonSegment*, const MuonPatternCombination*>& segAssoMap,
                                              int& segmentIndex) const;
-        void process2DCscCombinationCollection(const MuonSegmentCombinationCollection& csc2DcombiCol, SegInfoMap segInfoMap,
+        void process2DCscCombinationCollection(const MuonSegmentCombinationCollection& csc2DcombiCol, const SegInfoMap& segInfoMap,
                                                std::set<Identifier> cscIdSet, SegInfoMap& seg2DCscInfoMap,
                                                std::map<Muon::MuonSegment*, const MuonPatternCombination*>& segAssoMap,
                                                int& segmentIndex) const;
 
         void muonCurvedSegmentCombinations(MuonSegmentCombinationCollection* curvedCombiCol,
                                            MuonSegmentCombPatternCombAssociationMap* segPattMap, SegInfoMap segInfoMap,
-                                           std::map<Muon::MuonSegment*, const MuonPatternCombination*> segAssoMap) const;
+                                           const std::map<Muon::MuonSegment*, const MuonPatternCombination*>& segAssoMap) const;
 
         Muon::MCSCSegmentInfo segInfo(Muon::MuonSegment* seg, SegInfoMap segInfoMap,
                                       std::map<Muon::MuonSegment*, const MuonPatternCombination*> segAssoMap) const;
@@ -86,7 +86,7 @@ namespace Muon {
             "Muon::MuonIdHelperSvc/MuonIdHelperSvc",
         };
 
-        ToolHandle<MuonEDMPrinterTool> m_printer{
+        PublicToolHandle<MuonEDMPrinterTool> m_printer{
             this,
             "Printer",
             "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",

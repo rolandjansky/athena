@@ -6,9 +6,9 @@
 #define GENERATORMODULESEPOS_H
 
 #include "GeneratorModules/GenModule.h"
-#include "AtlasHepMC/HEPEVT_Wrapper.h"
 #include <sys/types.h>
 
+#include "CRMC.h"
 /**
 @class Epos
 @brief This code is used to get an Epos Monte Carlo event.
@@ -36,6 +36,8 @@ public:
   virtual StatusCode fillEvt(HepMC::GenEvent* evt);
 
 protected:
+  // The interface 
+  CRMCinterface* m_interface;
     // event counter
   int m_events;
   int m_ievent; //event counter in Epos

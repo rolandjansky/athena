@@ -58,8 +58,8 @@ namespace MuonCalib {
         static void dumpMapping();
 
     private:
-        static void addEntry(MuonCalibTriggerType type, int bit, std::string name);
-        static void addEntry(MuonCalibTriggerType type, std::vector<int>& bits, std::string name);
+        static void addEntry(MuonCalibTriggerType type, int bit, const std::string& name);
+        static void addEntry(MuonCalibTriggerType type, std::vector<int>& bits, const std::string& name);
         static void initMap();
         static std::vector<std::pair<std::vector<int>, std::string> > m_typeToBitAndStringMapping;
     };

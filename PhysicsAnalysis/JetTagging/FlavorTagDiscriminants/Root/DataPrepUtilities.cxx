@@ -596,7 +596,7 @@ namespace FlavorTagDiscriminants {
         {"(log_)?(ptfrac|dr|pt).*"_r, EDMType::CUSTOM_GETTER},
         {"(deta|dphi)"_r, EDMType::CUSTOM_GETTER},
         {"phi|theta|qOverP"_r, EDMType::FLOAT},
-        {"(phi|theta|qOverp)Uncertainty"_r, EDMType::CUSTOM_GETTER}
+        {"(phi|theta|qOverP)Uncertainty"_r, EDMType::CUSTOM_GETTER}
       };
       // We have a number of special naming conventions to sort and
       // filter tracks. The track nodes should be named according to

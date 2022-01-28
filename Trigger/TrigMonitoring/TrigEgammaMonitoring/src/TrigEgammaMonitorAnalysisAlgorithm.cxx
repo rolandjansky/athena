@@ -356,7 +356,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillDistributions( const std::vector< s
   {
     //  Fill L1 features
     std::vector<const xAOD::EmTauRoI*> l1_vec;
-    auto initRois =  tdt()->features<TrigRoiDescriptorCollection>(trigger,condition,"",TrigDefs::allFeaturesOfType,"initialRoI");       
+    auto initRois =  tdt()->features<TrigRoiDescriptorCollection>(trigger,TrigDefs::includeFailedDecisions,"",TrigDefs::allFeaturesOfType,"initialRoI");       
     for( auto &initRoi: initRois ){               
       if( !initRoi.link.isValid() ) continue;      
       const auto *feat = match()->getL1Feature( initRoi.source );
@@ -380,7 +380,9 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillDistributions( const std::vector< s
   }
   // EFCalo
   {
-    std::string key = info.lrt? match()->key("PrecisionCalo_LRT") : match()->key("PrecisionCalo");
+    std::string key = match()->key("PrecisionCalo_Electron");
+    if(info.signature == "Photon") key = match()->key("PrecisionCalo_Photon");
+    if(info.lrt) key = match()->key("PrecisionCalo_LRT");
     
     std::vector<const xAOD::CaloCluster* > clus_vec;
     auto vec =  tdt()->features<xAOD::CaloClusterContainer>(trigger,condition,key);      
@@ -483,6 +485,28 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillL1Calo( const std::string &trigger,
 }
 
 
+void TrigEgammaMonitorAnalysisAlgorithm::fillL1CaloL1eEM( const std::string &trigger, const std::vector< const xAOD::eFexEMRoI* >& l1_vec ) const 
+{
+    auto monGroup = getGroup(trigger+"_Distributions_L1Calo");
+
+    std::vector<float> eta_vec, phi_vec, roi_et_vec;
+
+    auto eta_col      = Monitored::Collection( "eta"     , eta_vec       );
+    auto phi_col      = Monitored::Collection( "phi"     , phi_vec       );
+    auto roi_et_col   = Monitored::Collection( "roi_et"  , roi_et_vec    );
+
+    for( const auto *l1 : l1_vec )
+    {
+      if(!l1)  continue;
+      eta_vec.push_back( l1->eta() );
+      phi_vec.push_back( l1->phi() );
+      roi_et_vec.push_back( l1->et()/Gaudi::Units::GeV );
+
+    }
+
+    fill( monGroup, eta_col, phi_col, roi_et_col );
+
+}
 
 
 
@@ -490,9 +514,10 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillL2Calo(const std::string &trigger, 
 {
     auto monGroup = getGroup(trigger+"_Distributions_L2Calo");
     
-    std::vector<float> et_vec, eta_vec, phi_vec;
+    std::vector<float> et_vec,highet_vec, eta_vec, phi_vec;
     
-    auto et_col   = Monitored::Collection("et" , et_vec  );    
+    auto et_col   = Monitored::Collection("et" , et_vec  );
+    auto highet_col   = Monitored::Collection("highet" , highet_vec  );    
     auto eta_col  = Monitored::Collection("eta", eta_vec );    
     auto phi_col  = Monitored::Collection("phi", phi_vec );    
     
@@ -500,11 +525,12 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillL2Calo(const std::string &trigger, 
     {
       if(!emCluster)  continue;
       et_vec.push_back(  emCluster->et()/Gaudi::Units::GeV );
+      highet_vec.push_back(  emCluster->et()/Gaudi::Units::GeV );
       eta_vec.push_back( emCluster->eta() );
       phi_vec.push_back( emCluster->phi() );
     }
 
-    fill( monGroup, et_col, eta_col, phi_col );
+    fill( monGroup, et_col, eta_col, phi_col, highet_col );
 
 
 }
@@ -516,9 +542,10 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillL2Electron(const std::string &trigg
  
     auto monGroup = getGroup(trigger+"_Distributions_L2Electron");
     
-    std::vector<float> et_vec, eta_vec, phi_vec;
+    std::vector<float> et_vec, eta_vec, phi_vec, highet_vec;
     
-    auto et_col   = Monitored::Collection("et" , et_vec  );    
+    auto et_col   = Monitored::Collection("et" , et_vec  ); 
+    auto highet_col   = Monitored::Collection("highet" , highet_vec  );    
     auto eta_col  = Monitored::Collection("eta", eta_vec );    
     auto phi_col  = Monitored::Collection("phi", phi_vec );    
     
@@ -526,11 +553,12 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillL2Electron(const std::string &trigg
     {
       if(!el)  continue;
       et_vec.push_back( el->pt()/Gaudi::Units::GeV );
+      highet_vec.push_back( el->pt()/Gaudi::Units::GeV );
       eta_vec.push_back( el->eta() );
       phi_vec.push_back( el->phi() );
     }
 
-    fill( monGroup, et_col, eta_col, phi_col );
+    fill( monGroup, et_col, eta_col, phi_col, highet_col );
 }
 
 void TrigEgammaMonitorAnalysisAlgorithm::fillEFCalo(const std::string &trigger, const std::vector< const xAOD::CaloCluster*>& clus_vec) const
@@ -540,7 +568,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEFCalo(const std::string &trigger, 
     
    
     std::vector<float> energyBE0_vec, energyBE1_vec, energyBE2_vec, energyBE3_vec, 
-      energy_vec, et_vec, eta_vec, phi_vec, eta_calo_vec, phi_calo_vec;
+      energy_vec, et_vec, eta_vec, phi_vec, eta_calo_vec, phi_calo_vec, highet_vec;
    
 
 
@@ -550,6 +578,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEFCalo(const std::string &trigger, 
     auto energyBE3_col  = Monitored::Collection("energyBE3", energyBE3_vec);
     auto energy_col     = Monitored::Collection("energy"   , energy_vec );
     auto et_col         = Monitored::Collection("et"       , et_vec );
+    auto highet_col     = Monitored::Collection("highet"   , highet_vec );
     auto eta_col        = Monitored::Collection("eta"      , eta_vec );
     auto phi_col        = Monitored::Collection("phi"      , phi_vec );
     auto eta_calo_col   = Monitored::Collection("eta_calo" , eta_calo_vec );
@@ -570,6 +599,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEFCalo(const std::string &trigger, 
         energyBE3_vec.push_back( clus->energyBE(3)/Gaudi::Units::GeV ); 
         energy_vec.push_back( clus->e()/Gaudi::Units::GeV ); 
         et_vec.push_back( clus->et()/Gaudi::Units::GeV ); 
+        highet_vec.push_back( clus->et()/Gaudi::Units::GeV ); 
         eta_vec.push_back( clus->eta() );
         phi_vec.push_back( clus->phi() );
         eta_calo_vec.push_back( tmpeta );
@@ -579,7 +609,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEFCalo(const std::string &trigger, 
 
  
     fill( monGroup,  energyBE0_col, energyBE1_col, energyBE2_col, energyBE3_col, 
-      energy_col, et_col, eta_col, phi_col, eta_calo_col, phi_calo_col);
+      energy_col, et_col, eta_col, phi_col, eta_calo_col, phi_calo_col, highet_col);
 }
 
 

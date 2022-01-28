@@ -65,7 +65,7 @@ namespace MuonCalib {
 
 
       /**Retrieves data from cool database and adds to stream*/
-      std::string RetrieveDataAsString(std::string coolKey, int hash, std::string dataType);
+      std::string RetrieveDataAsString(const std::string& coolKey, int hash, const std::string& dataType);
 
       StatusCode writeToCool();
 

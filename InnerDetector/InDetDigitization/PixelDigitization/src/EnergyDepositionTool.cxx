@@ -30,6 +30,27 @@
 #include <cmath>
 #include <fstream>
 #include <algorithm> //for std::clamp
+#include <limits> //for numeric_limits min
+
+namespace{
+  //iBetaGamma function returning zero for the error case
+  double iBetaGammaFn(const double k){
+    double result(0.);
+    constexpr double me =0.51099906; //electron mass in MeV, directly from CLHEP file
+    if (auto subCalc = 2. * me + k; subCalc>0){
+      result = std::sqrt(k*subCalc)/me;
+    }
+    return result;
+  }
+  double iBetaGammaFn(const TLorentzVector & vec){
+    double result(0.);
+    double beta = vec.Beta();
+    //if beta >=1, bad things happen because 
+    //TLorentzVector::Gamma = 1./sqrt(1. - beta*beta)
+    if (beta <1.0) result = beta * vec.Gamma();
+    return result;
+  }
+}
 
 // Constructor with parameters:
 EnergyDepositionTool::EnergyDepositionTool(const std::string& type, const std::string& name, const IInterface* parent) :
@@ -183,7 +204,7 @@ StatusCode EnergyDepositionTool::depositEnergy(const TimedHitPtr<SiHit>& phit, c
   double dEta = eta_f - eta_0;
   double dPhi = phi_f - phi_0;
   const double dDepth = depth_f - depth_0;
-  double pathLength = sqrt(dEta * dEta + dPhi * dPhi + dDepth * dDepth);
+  double pathLength = std::sqrt(dEta * dEta + dPhi * dPhi + dDepth * dDepth);
 
   //Scale steps and charge chunks
   const int nsteps = int(pathLength / stepsize) + 1;
@@ -191,13 +212,7 @@ StatusCode EnergyDepositionTool::depositEnergy(const TimedHitPtr<SiHit>& phit, c
 
   //Store information
   initialConditions.clear();
-  initialConditions.push_back(eta_0);
-  initialConditions.push_back(phi_0);
-  initialConditions.push_back(depth_0);
-  initialConditions.push_back(dEta);
-  initialConditions.push_back(dPhi);
-  initialConditions.push_back(dDepth);
-  initialConditions.push_back(ncharges);
+  initialConditions = {eta_0, phi_0, depth_0, dEta, dPhi, dDepth, static_cast<double>(ncharges)};
 
   //////////////////////////////////////////////////////
   // ***                For Bichsel               *** //
@@ -209,22 +224,20 @@ StatusCode EnergyDepositionTool::depositEnergy(const TimedHitPtr<SiHit>& phit, c
   int ParticleType = -1;
   if (m_doBichsel and !(Module.isDBM()) and genPart) {
     ParticleType = delta_hit ? (m_doDeltaRay ? 4 : -1) : trfPDG(genPart->pdg_id());
-
-
     if (ParticleType != -1) { // this is a protection in case delta_hit == true (a delta ray)
       TLorentzVector genPart_4V;
 
       if (genPart) { // non-delta-ray
         genPart_4V.SetPtEtaPhiM(genPart->momentum().perp(), genPart->momentum().eta(),
                                 genPart->momentum().phi(), genPart->momentum().m());
-        double iBetaGamma = genPart_4V.Beta() * genPart_4V.Gamma();
-        if (iBetaGamma < m_doBichselBetaGammaCut) ParticleType = -1;
+        if (iBetaGammaFn(genPart_4V) < m_doBichselBetaGammaCut){
+          ParticleType = -1;
+        }        
       } else { // delta-ray.
         double k = phit->energyLoss() / CLHEP::MeV;     // unit of MeV
-        double m = 0.511;                             // unit of MeV
-        double iBetaGamma = TMath::Sqrt(k * (2 * m + k)) / m;
-
-        if (iBetaGamma < m_doBichselBetaGammaCut) ParticleType = -1;
+        if (iBetaGammaFn(k) < m_doBichselBetaGammaCut){
+          ParticleType = -1;
+        } 
       }
 
       // In-time PU
@@ -240,22 +253,17 @@ StatusCode EnergyDepositionTool::depositEnergy(const TimedHitPtr<SiHit>& phit, c
   if (ParticleType != -1) { // yes, good to go with Bichsel
     // I don't know why genPart->momentum() goes crazy ...
     TLorentzVector genPart_4V;
-    double iBetaGamma;
-
-
+    double iBetaGamma=0.;
     if (genPart) {
       genPart_4V.SetPtEtaPhiM(genPart->momentum().perp(), genPart->momentum().eta(),
                               genPart->momentum().phi(), genPart->momentum().m());
-      iBetaGamma = genPart_4V.Beta() * genPart_4V.Gamma();
+      iBetaGamma = iBetaGammaFn(genPart_4V);
     } else {
-      double k = phit->energyLoss() / CLHEP::MeV;     // unit of MeV
-      constexpr double m = 0.511;                             // unit of MeV
-      iBetaGamma = std::sqrt(k * (2 * m + k)) / m;
+      double k = phit->energyLoss() / CLHEP::MeV;     // unit of MeV                            // unit of MeV
+      iBetaGamma = iBetaGammaFn(k);
     }
 
     int iParticleType = ParticleType;
-    //double iTotalLength = pathLength*1000.;   // mm -> micrometer
-
     // begin simulation
     std::vector<std::pair<double, double> > rawHitRecord = BichselSim(iBetaGamma, iParticleType, iTotalLength,
                                                                       genPart ? (genPart->momentum().e() /
@@ -333,15 +341,20 @@ void EnergyDepositionTool::simulateBow(const InDetDD::SiDetectorElement* element
 // In case there is any abnormal in runtime, (-1,-1) will be returned indicating old deposition model should be used
 // instead
 //-----------------------------------------------------------
-std::vector<std::pair<double, double> > EnergyDepositionTool::BichselSim(double BetaGamma, int ParticleType,
-                                                                         double TotalLength, double InciEnergy,
-                                                                         CLHEP::HepRandomEngine* rndmEngine) const {
+std::vector<std::pair<double, double> > 
+EnergyDepositionTool::BichselSim(double BetaGamma, int ParticleType,double TotalLength, 
+     double InciEnergy,CLHEP::HepRandomEngine* rndmEngine) const {
   ATH_MSG_DEBUG("Begin EnergyDepositionTool::BichselSim");
 
   // prepare hit record (output)
   std::vector<std::pair<double, double> > rawHitRecord;
   double TotalEnergyLoss = 0.;
   double accumLength = 0.;
+  
+  if (BetaGamma <= std::numeric_limits<double>::min()){
+    SetFailureFlag(rawHitRecord);
+    return rawHitRecord;
+  }
 
   // load relevant data
   BichselData iData = m_BichselData[ParticleType - 1];
@@ -355,15 +368,15 @@ std::vector<std::pair<double, double> > EnergyDepositionTool::BichselSim(double 
     SetFailureFlag(rawHitRecord);
     return rawHitRecord;
   }
-
-  // mean-free path
-  double lambda = (1. / IntXUpperBound) * 1.E4;   // unit of IntX is cm-1. It needs to be converted to micrometer-1
-
-  // check nan lambda
-  if (std::isnan(lambda)) {
+  
+  if(IntXUpperBound<std::numeric_limits<double>::min()){
     SetFailureFlag(rawHitRecord);
     return rawHitRecord;
   }
+  
+  // mean-free path
+  double lambda = (1. / IntXUpperBound) * 1.E4;   // unit of IntX is cm-1. It needs to be converted to micrometer-1
+
 
   // direct those hits with potential too many steps into nominal simulation
   int LoopLimit = m_LoopLimit;                         // limit assuming 1 collision per sampling
@@ -613,7 +626,8 @@ double EnergyDepositionTool::GetColE(double BetaGammaLog10, double IntXLog10, Bi
 //==========================================
 // G E T   U P P E R   B O U N D  BETA GAMMA
 //==========================================
-double EnergyDepositionTool::GetUpperBound(std::pair<int, int> indices_BetaGammaLog10, double BetaGammaLog10,
+double 
+EnergyDepositionTool::GetUpperBound(std::pair<int, int> indices_BetaGammaLog10, double BetaGammaLog10,
                                            BichselData& iData) {
   if (indices_BetaGammaLog10.first < 0) {
     return -1;

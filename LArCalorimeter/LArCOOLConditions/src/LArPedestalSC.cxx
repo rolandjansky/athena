@@ -1,18 +1,20 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCOOLConditions/LArPedestalSC.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
-LArPedestalSC::LArPedestalSC()   {}
+LArPedestalSC::LArPedestalSC()
+  : LArCondSuperCellBase ("LArPedestalSC")
+{}
 
-LArPedestalSC::LArPedestalSC(const CondAttrListCollection* attrList) {
+LArPedestalSC::LArPedestalSC(const CondAttrListCollection* attrList)
+  : LArCondSuperCellBase ("LArPedestalSC")
+{
+  if (initializeBase().isFailure()) return;
  
-  StatusCode sc=initializeBase("LArPedestalSC");
-  if (sc.isFailure()) return;
- 
-  readBlob(attrList,*m_log);
+  readBlob(attrList,msg());
 }
  
 

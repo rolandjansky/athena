@@ -53,38 +53,38 @@ StatusCode sTGCHitsTestTool::processEvent() {
       int simId = (*i_hit).sTGCId();
       std::string sim_stationName = hitHelper->GetStationName(simId);
 
-      static std::string TS11("TS11");
-      static std::string TS21("TS21");
-      static std::string TS31("TS31");
-      static std::string TL11("TL11");
-      static std::string TL21("TL21");
-      static std::string TL31("TL31");
+      static std::string QS1C("QS1C");
+      static std::string QS2C("QS2C");
+      static std::string QS3C("QS3C");
+      static std::string QL1P("QL1P");
+      static std::string QL2P("QL2P");
+      static std::string QL3P("QL3P");
 
-      if (sim_stationName==TS11 && u.z()>0){
-        m_sTgc_TransverseView_TS11_posZ->Fill(u.x(),u.y());
+      if (sim_stationName==QS1C && u.z()>0){
+        m_sTgc_TransverseView_QS1C_posZ->Fill(u.x(),u.y());
       }
 
 
-      if (sim_stationName==TS21 && u.z()>0){
-        m_sTgc_TransverseView_TS21_posZ->Fill(u.x(),u.y());
+      if (sim_stationName==QS2C && u.z()>0){
+        m_sTgc_TransverseView_QS2C_posZ->Fill(u.x(),u.y());
       }
 
 
-      if (sim_stationName==TS31 && u.z()>0){
-        m_sTgc_TransverseView_TS31_posZ->Fill(u.x(),u.y());
+      if (sim_stationName==QS3C && u.z()>0){
+        m_sTgc_TransverseView_QS3C_posZ->Fill(u.x(),u.y());
       }
 
-      if (sim_stationName==TL11 && u.z()>0){
-        m_sTgc_TransverseView_TL11_posZ->Fill(u.x(),u.y());
+      if (sim_stationName==QL1P && u.z()>0){
+        m_sTgc_TransverseView_QL1P_posZ->Fill(u.x(),u.y());
       }
 
 
-      if (sim_stationName==TL21 && u.z()>0){
-        m_sTgc_TransverseView_TL21_posZ->Fill(u.x(),u.y());
+      if (sim_stationName==QL2P && u.z()>0){
+        m_sTgc_TransverseView_QL2P_posZ->Fill(u.x(),u.y());
       }
 
-      if (sim_stationName==TL31 && u.z()>0){
-        m_sTgc_TransverseView_TL31_posZ->Fill(u.x(),u.y());
+      if (sim_stationName==QL3P && u.z()>0){
+        m_sTgc_TransverseView_QL3P_posZ->Fill(u.x(),u.y());
       }
 
       double r_sTGc = sqrt(u.x()*u.x()+u.y()*u.y());
@@ -107,13 +107,13 @@ StatusCode sTGCHitsTestTool::processEvent() {
 
 StatusCode sTGCHitsTestTool::initialize() {
   CHECK(MuonHitTestToolBase::initialize());
-  _TH2D( m_sTgc_TransverseView_TS11_posZ,"sTGC_TransverseView_TS11_posZ",1200,-6000.,6000.,1200,-6000.,6000.);
-  _TH2D( m_sTgc_TransverseView_TS21_posZ,"sTGC_TransverseView_TS21_posZ",1200,-6000.,6000.,1200,-6000.,6000.);
-  _TH2D( m_sTgc_TransverseView_TS31_posZ,"sTGC_TransverseView_TS31_posZ",1200,-6000.,6000.,1200,-6000.,6000.);
+  _TH2D( m_sTgc_TransverseView_QS1C_posZ,"sTGC_TransverseView_QS1C_posZ",1200,-6000.,6000.,1200,-6000.,6000.);
+  _TH2D( m_sTgc_TransverseView_QS2C_posZ,"sTGC_TransverseView_QS2C_posZ",1200,-6000.,6000.,1200,-6000.,6000.);
+  _TH2D( m_sTgc_TransverseView_QS3C_posZ,"sTGC_TransverseView_QS3C_posZ",1200,-6000.,6000.,1200,-6000.,6000.);
 
-  _TH2D( m_sTgc_TransverseView_TL11_posZ,"sTGC_TransverseView_TL11_posZ",1200,-6000.,6000.,1200,-6000.,6000.);
-  _TH2D( m_sTgc_TransverseView_TL21_posZ,"sTGC_TransverseView_TL21_posZ",1200,-6000.,6000.,1200,-6000.,6000.);
-  _TH2D( m_sTgc_TransverseView_TL31_posZ,"sTGC_TransverseView_TL31_posZ",1200,-6000.,6000.,1200,-6000.,6000.);
+  _TH2D( m_sTgc_TransverseView_QL1P_posZ,"sTGC_TransverseView_QL1P_posZ",1200,-6000.,6000.,1200,-6000.,6000.);
+  _TH2D( m_sTgc_TransverseView_QL2P_posZ,"sTGC_TransverseView_QL2P_posZ",1200,-6000.,6000.,1200,-6000.,6000.);
+  _TH2D( m_sTgc_TransverseView_QL3P_posZ,"sTGC_TransverseView_QL3P_posZ",1200,-6000.,6000.,1200,-6000.,6000.);
 
   _TH2D(m_sTgc_rZview_positiveZ,"sTGC_rZView_posZ",2000,6500.,8500.,5000,0.,5000.);
   return StatusCode::SUCCESS;

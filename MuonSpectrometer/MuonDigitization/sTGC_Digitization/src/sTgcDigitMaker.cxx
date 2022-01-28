@@ -1182,7 +1182,7 @@ StatusCode sTgcDigitMaker::readFileOfTimeArrival() {
 
   // Read the sTGC_Digitization_timeWindowOffset.dat file
   std::string line;
-  GammaParameter param;
+  GammaParameter param{};
 
   while (std::getline(ifs, line)) {
     std::string key;

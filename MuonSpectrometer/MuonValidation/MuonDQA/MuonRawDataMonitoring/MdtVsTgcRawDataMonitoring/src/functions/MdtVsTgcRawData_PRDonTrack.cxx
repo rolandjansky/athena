@@ -79,7 +79,7 @@ MdtVsTgcRawDataValAlg::CheckTGConTrack(std::vector<SegmTrack> (&matchedSegments)
     
     // Check which layers have sufficienct segments to operate on for global coordinates
     bool canCheckGlobal[4] = {0, 0, 0, 0};// [TGCStation]
-    if(matchedSegments[i].at(0).at(2)!=0){
+    if(matchedSegments[i].at(0).at(2)!=nullptr){
       // Check Midstation
       canCheckGlobal[0]=true; canCheckGlobal[1]=true; canCheckGlobal[2]=true;
       // Read Midstation Segment Values into variables
@@ -89,7 +89,7 @@ MdtVsTgcRawDataValAlg::CheckTGConTrack(std::vector<SegmTrack> (&matchedSegments)
       if(midSegmPhi<0)midSegmPhi+=2*M_PI;
       midSegmDirzunit = Amg::Vector3D(midSegmPos/std::abs(midSegmZ));
     }
-    if((matchedSegments[i].at(0).at(0)!=0)&&(matchedSegments[i].at(0).at(2)!=0)){
+    if((matchedSegments[i].at(0).at(0)!=nullptr)&&(matchedSegments[i].at(0).at(2)!=nullptr)){
       // Check EIFI
       canCheckGlobal[3]=true;
       // Read Inner Segment Values
@@ -128,7 +128,7 @@ MdtVsTgcRawDataValAlg::CheckTGConTrack(std::vector<SegmTrack> (&matchedSegments)
       for(int stationeta=1; stationeta<=8; stationeta++){// AbsStationEta
         for(int stationphi=1; stationphi<=48; stationphi++){// StationPhi
           // Cut Station EtaPhi combinations with no TGC element
-          if(m_TREarray[stationnameindex][i][stationeta][stationphi]==0)continue;
+          if(m_TREarray[stationnameindex][i][stationeta][stationphi]==nullptr)continue;
           const MuonGM::TgcReadoutElement *tre=m_TREarray[stationnameindex][i][stationeta][stationphi];
           
           // Extrapolate position from nearest Station's Segment to Sector's Z
@@ -187,7 +187,7 @@ MdtVsTgcRawDataValAlg::CheckTGConTrack(std::vector<SegmTrack> (&matchedSegments)
     // Loop through segments to check number of TGC Strips in each
     int nTGCStrips[4] = {0, 0, 0, 0};//[TGCStation]
     for(int jMDT=0;jMDT<4;jMDT++){// MDT Station
-      if(matchedSegments[i].at(0).at(jMDT)==0)continue;
+      if(matchedSegments[i].at(0).at(jMDT)==nullptr)continue;
       const Muon::MuonSegment *segm=matchedSegments[i].at(0).at(jMDT);
       // Loop through contained ROTs and identify used stations
       const std::vector<const Trk::MeasurementBase*> mMeasTrk = segm->containedMeasurements();

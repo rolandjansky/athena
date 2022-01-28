@@ -29,6 +29,8 @@ public:
 protected:
   // Make me an SD!
   virtual G4VSensitiveDetector* makeSD() const override final;
+  // property to toggle GeoModelXML 
+  Gaudi::Property<bool> m_gmxSensor{this, "GmxSensor", false};
 };
 
 #endif // HGTD_G4_SD_HGTDSENSORSDTOOL_H

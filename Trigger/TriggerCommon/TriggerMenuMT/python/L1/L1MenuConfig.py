@@ -257,7 +257,7 @@ class L1MenuConfig(object):
         Menu.defineMenu() defines the menu via L1MenuFlags "items", "thresholds", 
         """
 
-        # we apply a hack here. menu group is working on LS2_v1, until ready we will use MC_pp_v8
+        # we apply a hack here. menu group is working on Dev_pp_run3_v1, until ready we will use MC_pp_run3_v1
         log.info("Reading TriggerMenuMT.Menu.Menu_%s", self.menuFilesToLoad[0])
         menumodule = __import__('TriggerMenuMT.L1.Menu.Menu_%s' % self.menuFilesToLoad[0], globals(), locals(), ['defineMenu'], 0)
         menumodule.defineMenu()
@@ -681,8 +681,12 @@ class L1MenuConfig(object):
 
         self.l1menu.check()
 
+        # check that no L1 items are defined with BGRP0 only
+        self.l1menu.checkBGRP()
+
         # check that only the minimal set of legacy and detector thresholds is used
-        self.l1menu.checkLegacyThresholds()   
+        if 'pp' in self.l1menu.menuName:
+           self.l1menu.checkLegacyThresholds()   
 
         # check for the topo multiplicity algorithms and CTP inputs
         # TOPO1
@@ -690,6 +694,9 @@ class L1MenuConfig(object):
 
         # check #number of CTP inputs and outputs <=512
         self.l1menu.checkCountCTPInputsOutput()
+
+        # check #number of inputs on the CTPIN connectors
+        self.l1menu.checkCTPINconnectors()
 
         # check that performance thresholds are not used in the physics L1 menu
         self.l1menu.checkPerfThresholds()

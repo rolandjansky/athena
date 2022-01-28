@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Overlay test helpers
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 
 from argparse import ArgumentParser
@@ -67,8 +67,8 @@ def defaultTestFlags(configFlags, args):
         configFlags.IOVDb.DatabaseInstance = "CONDBR2"
         configFlags.Overlay.DataOverlay = True
     else:
-        configFlags.Input.Files = defaultTestFiles.RDO_BKG
-        configFlags.Input.SecondaryFiles = defaultTestFiles.HITS
+        configFlags.Input.Files = defaultTestFiles.RDO_BKG_RUN2
+        configFlags.Input.SecondaryFiles = defaultTestFiles.HITS_RUN2
         configFlags.Output.RDOFileName = "mcOverlayRDO.pool.root"
         configFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-20-01"
         configFlags.Overlay.DataOverlay = False

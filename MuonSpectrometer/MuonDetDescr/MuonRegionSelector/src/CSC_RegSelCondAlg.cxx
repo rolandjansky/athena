@@ -119,13 +119,13 @@ std::unique_ptr<RegSelSiLUT> CSC_RegSelCondAlg::createTable( const EventContext&
     Identifier Id2ndLayer;
     int chamberLayer = 2;
     const MuonGM::CscReadoutElement *csc = manager->getCscReadoutElement(Id);
-    if (csc == NULL) {
+    if (csc == nullptr) {
 
       //       std::cout << "Csc Readout Element not found for this Id ---- try 2nd layer"<<std::endl;
       Id2ndLayer = helper->parentID(Id);
       Id2ndLayer = helper->channelID(Id2ndLayer, chamberLayer, 1, 0, 1);
       csc = manager->getCscReadoutElement(Id2ndLayer);
-      if (csc == NULL)
+      if (csc == nullptr)
 	{
 	  //    std::cout << "Csc Readout Element not found for 2nd layer too ---- skip"<<std::endl;
 	  continue;

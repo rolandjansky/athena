@@ -10,7 +10,7 @@
 
 from math import fabs
 from collections import OrderedDict
-
+from TrigCostAnalysis.CostMetadataUtil import ignoreUnderflow
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TableConstructor')
 
@@ -136,7 +136,7 @@ class TableConstructorBase:
 
                 underflowThreshold = self.underflowThreshold * histIntegral
                 underflow = hist.GetBinContent(0)
-                if underflow > underflowThreshold:
+                if underflow > underflowThreshold and not ignoreUnderflow(fullHistName):
                     log.warning("Histogram {0} contains underflow of {1}".format(fullHistName, underflow))
                     self.warningMsg.append("Underflow of {0} ({1} histogram integral) in {2}".format(underflow, histIntegral, fullHistName))
 

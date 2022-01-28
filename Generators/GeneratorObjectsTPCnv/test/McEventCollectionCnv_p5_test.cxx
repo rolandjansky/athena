@@ -223,19 +223,7 @@ void testit (const McEventCollection& trans1)
   cnv.transToPers (&trans1, &pers, log);
   McEventCollection trans2;
   cnv.persToTrans (&pers, &trans2, log);
-#if HEPMC3
   compare (trans1, trans2);
-#else
-  // TP conversion of HepMC2::GenEvents has a feature where the order
-  // of GenParticles associated with each GenVertex is flipped, so
-  // agreement is only restored after running TP conversion twice...
-  McEventCollection_p5 pers2;
-  cnv.transToPers (&trans2, &pers2, log);
-  McEventCollection trans3;
-  cnv.persToTrans (&pers2, &trans3, log);
-
-  compare (trans1, trans3);
-#endif
 }
 
 void test1()

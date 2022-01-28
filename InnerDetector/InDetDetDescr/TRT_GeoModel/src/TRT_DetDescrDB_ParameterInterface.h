@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_GEOMODEL_TRT_DETDESCRDB_PARAMETERINTERFACE_H
@@ -44,7 +44,7 @@ public:
 
   void SetValues();
 
-  MsgStream& msg (MSG::Level lvl) const { return m_athenaComps->msg(lvl); }
+  MsgStream& msg (MSG::Level lvl) { return m_athenaComps->msg(lvl); }
 
   
 private:

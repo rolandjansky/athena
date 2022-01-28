@@ -120,7 +120,6 @@ namespace MuonCombined {
             m_caloMaterialProvider.disable();
             m_propagator.disable();
         }
-        if (m_buildStauContainer) m_runComissioningChain = false;
         ATH_CHECK(m_cellContainerName.initialize(m_useCaloCells));
         ATH_CHECK(m_trackSummaryTool.retrieve());
 
@@ -130,12 +129,11 @@ namespace MuonCombined {
                                  const std::vector<const InDetCandidateToTagMap*>& tagMaps,
                                  OutputData& outputData) const {
         create(ctx, muonCandidates, tagMaps, outputData, false);
-
-        if (m_runComissioningChain) { create(ctx, muonCandidates, tagMaps, outputData, true); }
+        create(ctx, muonCandidates, tagMaps, outputData, true); 
     }
     void MuonCreatorTool::create(const EventContext& ctx, const MuonCandidateCollection* muonCandidates,
                                  const std::vector<const InDetCandidateToTagMap*>& tagMaps,
-                                 OutputData& outputData, bool select_comissioning) const {
+                                 OutputData& outputData, bool select_commissioning) const {
        
         // Create containers for resolved candidates (always of type VIEW_ELEMENTS)
         InDetCandidateTagsMap resolvedInDetCandidates;
@@ -145,8 +143,8 @@ namespace MuonCombined {
         // Resolve Overlap
         if (!m_buildStauContainer)
             resolveOverlaps(ctx, muonCandidates, tagMaps, resolvedInDetCandidates, resolvedMuonCandidates,
-                            select_comissioning);
-        else
+                            select_commissioning);
+        else if (!select_commissioning)
             selectStaus(resolvedInDetCandidates, tagMaps);
 
         unsigned int numIdCan = resolvedInDetCandidates.size();
@@ -165,7 +163,7 @@ namespace MuonCombined {
                 ATH_MSG_DEBUG("no muon found");
             } else {
                 ATH_MSG_DEBUG("muon found");
-                if (select_comissioning) { muon->addAllAuthor(xAOD::Muon::Author::Commissioning); }
+                if (select_commissioning) { muon->addAllAuthor(xAOD::Muon::Author::Commissioning); }
                 if (!muon->primaryTrackParticleLink().isValid()) {
                     ATH_MSG_ERROR("This muon has no valid primaryTrackParticleLink! Author=" << muon->author());
                 }
@@ -176,7 +174,7 @@ namespace MuonCombined {
             for (const MuonCombined::MuonCandidate* can : resolvedMuonCandidates) {
                 ATH_MSG_DEBUG("New MuonCandidate");
                 xAOD::Muon* muon = create(ctx, *can, outputData);
-                if (muon && select_comissioning) { muon->addAllAuthor(xAOD::Muon::Author::Commissioning); }
+                if (muon && select_commissioning) { muon->addAllAuthor(xAOD::Muon::Author::Commissioning); }
                 ATH_MSG_DEBUG("Creation of Muon from MuonCandidates done");
             }
         }
@@ -1103,6 +1101,14 @@ namespace MuonCombined {
                 msg(MSG::DEBUG) << "ID candidate staus:  " << candidate.first->toString() << endmsg;
             }
         }
+
+        // tag_map above is keyed on a pointer.
+        // So we need to sort in order to get reproducible results.
+        std::stable_sort(resolvedInDetCandidates.begin(), resolvedInDetCandidates.end(),
+                         [] (const InDetCandidateTags& a,
+                             const InDetCandidateTags& b)
+                         { return a.first->indetTrackParticle().pt() >
+                                  b.first->indetTrackParticle().pt(); });
     }
 
     void MuonCreatorTool::resolveOverlaps(const EventContext& ctx ,
@@ -1110,7 +1116,7 @@ namespace MuonCombined {
                                           const std::vector<const InDetCandidateToTagMap*>& tagMaps,
                                           InDetCandidateTagsMap& resolvedInDetCandidates,
                                           std::vector<const MuonCombined::MuonCandidate*>& resolvedMuonCandidates,
-                                          bool select_comissioning) const {
+                                          bool select_commissioning) const {
         
         resolvedMuonCandidates.clear();
         resolvedInDetCandidates.clear();
@@ -1130,7 +1136,7 @@ namespace MuonCombined {
                 /// Check whether the author arises from the comissioning chain
                 /// The maps are filled in dedicated algorithim. So all tags will 
                 /// fail / satisfy this condition
-                if (tag->isComissioning() != select_comissioning) break;
+                if (tag->isComissioning() != select_commissioning) break;
                 InDetCandidateTagsMap::iterator itr = std::find_if(inDetCandidateMap.begin(),inDetCandidateMap.end(), 
                                         [&comb_tag](const InDetCandidateTags& to_test) {
                                             return (*to_test.first) == (*comb_tag.first);
@@ -1238,6 +1244,13 @@ namespace MuonCombined {
             resolvedInDetCandidates.insert(resolvedInDetCandidates.end(), 
                                            caloMuons.begin(), 
                                            caloMuons.end()); 
+
+            // now sort the selected ID candidates
+            std::stable_sort(resolvedInDetCandidates.begin(), resolvedInDetCandidates.end(),
+                             [] (const InDetCandidateTags& a,
+                                 const InDetCandidateTags& b)
+                             { return a.first->indetTrackParticle().pt() >
+                                      b.first->indetTrackParticle().pt(); });
         }
 
         
@@ -1274,7 +1287,7 @@ namespace MuonCombined {
         // and muon candidates
         std::map<const Trk::Track*, const MuonCandidate*> trackMuonCandLinks;
         for (const MuonCandidate* candidate : *muonCandidates) {
-            if (candidate->isComissioning() != select_comissioning) continue;
+            if (candidate->isComissioning() != select_commissioning) continue;
             const Trk::Track* track = candidate->primaryTrack();
             if (used_candidates.count(candidate)) {
                 ATH_MSG_DEBUG("Duplicate MS track " << m_printer->print(*track));

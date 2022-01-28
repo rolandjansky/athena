@@ -84,14 +84,14 @@ BarWeight = [1.0, 1.0, 1.0, 1.0]
 TimeOffset0 = [105707, 105670, 105675, 105638,
                105834, 105819, 105778, 105754,
                105900, 105892, 105870, 105820,
-               105726, 105720, 105714, 105717]
+               105953, 105924, 105905, 105877]
 
 basicTool0 = CompFactory.getComp("AFPTDBasicTool")("AFPTDBasicTool0", stationID=0, maxAllowedLength=100, TimeOffset=TimeOffset0, BarWeight=BarWeight)
 
 TimeOffset3 = [105796, 105761, 105742, 105696,
                105890, 105871, 105839, 105816,
                105923, 105899, 105862, 105853,
-       	       105707, 105711, 105714, 105713]
+       	       105953, 105930, 105908, 105879]
 
 basicTool3 = CompFactory.getComp("AFPTDBasicTool")("AFPTDBasicTool3", stationID=3, maxAllowedLength=100, TimeOffset=TimeOffset3, BarWeight=BarWeight)
 basicToolsList=[basicTool0, basicTool3]

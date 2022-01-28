@@ -26,6 +26,11 @@ public:
   TFCSEnergyAndHitGAN(const char* name=nullptr, const char* title=nullptr);
   virtual ~TFCSEnergyAndHitGAN();
 
+  virtual bool is_match_Ekin_bin(int /*Ekin_bin*/) const override {return true;};
+  virtual bool is_match_calosample(int calosample) const override;
+  virtual bool is_match_all_Ekin_bin() const override {return true;};
+  virtual bool is_match_all_calosample() const override {return false;};
+
   ///Status bit for chain persistency
   enum FCSGANfreemem {
      kGANfreemem = BIT(17) ///< Set this bit in the TObject bit if the memory for m_input should be freed after reading in athena

@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -53,6 +53,9 @@ def TileMonitoringCfg(flags):
             acc.merge( TileTMDBRawChannelMonitoringConfig(flags, FillRawChannelHistograms = False, FillEfficiencyHistograms = True) )
 
         if flags.Beam.Type in ('cosmics', 'singlebeam'):
+            from TileCosmicAlgs.TileMuonFitterConfig import TileMuonFitterCfg
+            acc.merge(TileMuonFitterCfg(flags))
+
             from TileMonitoring.TileMuonFitMonitorAlgorithm import TileMuonFitMonitoringConfig
             acc.merge( TileMuonFitMonitoringConfig(flags) )
 

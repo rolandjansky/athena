@@ -175,13 +175,17 @@ StatusCode RoIsUnpackingEmulationTool::unpack(const EventContext& ctx,
 
     // This hltSeedingNodeName() denotes an initial node with no parents
     auto *decision  = TrigCompositeUtils::newDecisionIn( decisionOutput.ptr(), hltSeedingNodeName() );
+    std::vector<TrigCompositeUtils::DecisionID> passedThresholdIDs;
 
     for ( const auto& th: roi.passedThresholdIDs ) {
       ATH_MSG_DEBUG( "Passed Threshold " << th << " enabling respective chains " );
+      passedThresholdIDs.push_back( HLT::Identifier(th) );
       addChainsToDecision( HLT::Identifier( th ), decision, activeChains );
       decision->setObjectLink( initialRoIString(),
                                ElementLink<TrigRoiDescriptorCollection>(m_trigRoIsKey.key(), trigRoIs->size()-1) );
     }
+
+    decision->setDetail( "thresholds", passedThresholdIDs );
   }
 
   for ( auto roi: *trigRoIs ) {

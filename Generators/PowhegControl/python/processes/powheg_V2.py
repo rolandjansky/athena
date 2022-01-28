@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from .powheg_base import PowhegBase
 import glob
@@ -48,7 +48,6 @@ class PowhegV2(PowhegBase):
             "mint_upb_btildeupb.top",
             "mint_upb_remnupb.top",
             "pwg*.top",
-            "pwg*stat.dat",
             "pwgboundviolations*.dat",
             "pwgcounters*.dat",
             "pwgseeds.dat",
@@ -69,6 +68,7 @@ class PowhegV2(PowhegBase):
             "pwggrid*.dat",
             "pwgfullgrid*.dat",
             "pwgubound*.dat",
+            "pwg*stat.dat",
         ]
 
     @property

@@ -23,7 +23,7 @@
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 
 preExec = ';'.join([
-  'setMenu=\'LS2_v1_TriggerValidation_prescale\'',
+  'setMenu=\'Dev_pp_run3_v1_TriggerValidation_prescale\'',
   'from AthenaConfiguration.AllConfigFlags import ConfigFlags',
   'ConfigFlags.Trigger.AODEDMSet=\'AODFULL\'',
 ])
@@ -43,7 +43,7 @@ dq.executable = 'Run3DQTestingDriver.py'
 dq.input = ''
 dq.args = '--threads=4'
 dq.args += ' --dqOffByDefault'
-dq.args += ' Input.Files="[\'AOD.pool.root\']" DQ.Steering.doHLTMon=True Trigger.triggerMenuSetup=\'LS2_v1_TriggerValidation_prescale\''
+dq.args += ' Input.Files="[\'AOD.pool.root\']" DQ.Steering.doHLTMon=True Trigger.triggerMenuSetup=\'Dev_pp_run3_v1_TriggerValidation_prescale\''
 
 test = Test.Test()
 test.art_type = 'grid'

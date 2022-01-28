@@ -125,7 +125,7 @@ StatusCode ThinInDetForwardTrackParticlesAlg::execute()
     // Loop over the muons. Identify which are SiliconAssociatedForwardMuon. 
     // Get their associated inner detector track. Find that track in the InDetForwardTrackParticles.
     // Set the mask element.
-    for (auto muon : *muons) {
+    for (const auto *muon : *muons) {
       if (muon->muonType()==xAOD::Muon::SiliconAssociatedForwardMuon) {
         ++m_nSiFwdMuons;
         const xAOD::TrackParticle* muTrk(nullptr);
@@ -139,7 +139,7 @@ StatusCode ThinInDetForwardTrackParticlesAlg::execute()
 
     // Increment counters
     for (unsigned int i=0; i<nTracks; ++i) {
-        if (trackMask[i]==false) ++m_nTracksThinned;  
+        if (!trackMask[i]) ++m_nTracksThinned;  
     }
 
     // Apply masks to thinning service

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -45,9 +45,8 @@
 
 //
 //_____________________________________________________________________________
-TileInfo::TileInfo(ISvcLocator *svcLocator)
-  : m_svcLocator(svcLocator)
-  , m_tileID(0)
+TileInfo::TileInfo()
+  : m_tileID(0)
   , m_tileHWID(0)
   , m_tileTBID(0)
   , m_cabling(0)
@@ -214,9 +213,7 @@ TileInfo::initialize()
 IMessageSvc* 
 TileInfo::msgSvc() const 
 {
-  IMessageSvc *msgSvc = 0;
-  StatusCode sc = m_svcLocator->service("MessageSvc",msgSvc,true);
-  return sc.isFailure() ? 0 : msgSvc;
+  return Athena::getMessageSvc();
 }
 
 

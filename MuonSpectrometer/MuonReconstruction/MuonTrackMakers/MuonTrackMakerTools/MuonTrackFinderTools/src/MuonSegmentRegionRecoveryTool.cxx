@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentRegionRecoveryTool.h"
@@ -774,7 +774,7 @@ namespace Muon {
                     }
                 }
                 if (prds && exParsFirst) {
-                    std::unique_ptr<Trk::SegmentCollection> segments = m_seededSegmentFinder->find(*exParsFirst, *prds);
+                    std::unique_ptr<Trk::SegmentCollection> segments = m_seededSegmentFinder->find(ctx, *exParsFirst, *prds);
                     if (segments) {
                         if (!segments->empty()) ATH_MSG_DEBUG("found segments " << segments->size());
 
@@ -981,11 +981,11 @@ namespace Muon {
         std::unique_ptr<const Trk::TrackParameters> closest{MuonGetClosestParameters::closestParameters(track, detEl.surface(), true)};
         if (closest) {
             ATH_MSG_VERBOSE("Extrapolating from closest point:\n" << m_printer->print(*closest));
-            exPars.reset(m_extrapolator->extrapolateDirectly(ctx, *closest, detEl.surface(), Trk::anyDirection, false, Trk::muon));
+            exPars = m_extrapolator->extrapolateDirectly(ctx, *closest, detEl.surface(), Trk::anyDirection, false, Trk::muon);
 
         } else {
             ATH_MSG_VERBOSE("Extrapolating from track (no closest point found):\n" << m_printer->print(track));
-            exPars.reset(m_extrapolator->extrapolate(ctx, track, detEl.surface(), Trk::anyDirection, false, Trk::muon));
+            exPars = m_extrapolator->extrapolate(ctx, track, detEl.surface(), Trk::anyDirection, false, Trk::muon);
         }
         if (!exPars) {
             ATH_MSG_DEBUG("Extrapolation did not succeed");

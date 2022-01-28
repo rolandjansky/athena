@@ -207,13 +207,11 @@ namespace Muon {
 
         // Combine/remove duplicate segments
         std::vector<TrackletSegment> CleanSegs[6][2][16];
-        int nSegs(0);
         for (int st = 0; st < 6; ++st) {
             for (int ml = 0; ml < 2; ++ml) {
                 for (int sector = 0; sector < 16; ++sector) {
                     if (segs[st][ml][sector].size() > 0) {
                         CleanSegs[st][ml][sector] = CleanSegments(segs[st][ml][sector]);
-                        nSegs += CleanSegs[st][ml][sector].size();
                     }
                 }
             }
@@ -671,16 +669,13 @@ namespace Muon {
             if (std::abs(std::cos(alpha)) < 0.03 && ((stName > 11 && stName < 22) || stName == 49)) continue;
 
             // calculate constants used in the fit
-            float sPz(0), sPy(0), sPyy(0), sPzz(0), sPyz(0), sPyyzz(0);
+            float sPyy(0), sPyz(0), sPyyzz(0);
             for (unsigned int i = 0; i < mdts.size(); ++i) {
                 const Muon::MdtPrepData* prd = mdts.at(i);
                 float mdt_y = std::hypot(prd->globalPosition().x(), prd->globalPosition().y());
                 float mdt_z = prd->globalPosition().z();
                 float sigma2 = sq(Amg::error(prd->localCovariance(), Trk::locR));
-                sPz += (mdt_z - zc) / sigma2;
-                sPy += (mdt_y - yc) / sigma2;
                 sPyy += sq(mdt_y - yc) / sigma2;
-                sPzz += sq(mdt_z - zc) / sigma2;
                 sPyz += (mdt_y - yc) * (mdt_z - zc) / sigma2;
                 sPyyzz += ((mdt_y - yc) - (mdt_z - zc)) * ((mdt_y - yc) + (mdt_z - zc)) / sigma2;
             }
@@ -1101,8 +1096,6 @@ namespace Muon {
 
         std::vector<Tracklet> UniqueTracks;
         std::vector<unsigned int> AmbigTrks;
-        int nBarrelAmbiguousTrks = 0;
-        int nEndcapAmbiguousTrks = 0;
         for (unsigned int tk1 = 0; tk1 < tracks.size(); ++tk1) {
             int nShared = 0;
             // check if any Ambiguity has been broken
@@ -1175,10 +1168,6 @@ namespace Muon {
                 UniqueTracks.push_back(tracks.at(tk1));
                 continue;
             }
-            if (tracks.at(tk1).mdtChamber() <= 11 || tracks.at(tk1).mdtChamber() == 52)
-                nBarrelAmbiguousTrks += (AmbigTracks.size() - 1);
-            else
-                nEndcapAmbiguousTrks += (AmbigTracks.size() - 1);
             // Deal with any ambiguities
             // Barrel tracks
             if (tracks.at(tk1).mdtChamber() <= 11 || tracks.at(tk1).mdtChamber() == 52) {

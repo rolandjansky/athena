@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -32,7 +32,7 @@ void CompressedLayerMaterialCnv_p1::persToTrans( const Trk::CompressedLayerMater
                                     std::move(mvec),
                                     persObj->materialBins,
                                     persObj->splitFactor);
-  *transObj = std::move (mat);
+  *transObj = mat;
 }
 
 void CompressedLayerMaterialCnv_p1::transToPers( const Trk::CompressedLayerMaterial    *transObj,

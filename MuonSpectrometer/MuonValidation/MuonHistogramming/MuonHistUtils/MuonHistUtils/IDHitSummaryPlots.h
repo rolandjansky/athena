@@ -16,8 +16,8 @@ class HitFracTypePlots:public PlotBase {
   HitFracTypePlots(PlotBase* pParent, std::string sHitType, std::string sHitLabel);
   void fill(float hitval, float trketa, float weight=1.0);
 
-  TH1* fracHits;
-  TH1* fracHitsVsEta;
+  TH1* fracHits{nullptr};
+  TH1* fracHitsVsEta{nullptr};
  private:
   void initializePlots();
   std::string m_sHitType;
@@ -26,7 +26,7 @@ class HitFracTypePlots:public PlotBase {
     
 class IDHitSummaryPlots:public PlotBase {
  public:
-  IDHitSummaryPlots(PlotBase* pParent, std::string sDir);
+  IDHitSummaryPlots(PlotBase* pParent, const std::string& sDir);
   void fill(const xAOD::TrackParticle& trk,float weight=1.0);
 
   Trk::HitTypePlots nBLayerHitsIfExpected;

@@ -16,13 +16,16 @@ bTaggingWP = \
   , 'dl1r77' : 2.23
   , 'dl1r85' : 1.32
 
-  , "dl1d60" : 4.45699
-  , "dl1d70" : 3.13445
-  , "dl1d75" : 2.41521
-  , "dl1d77" : 2.09658
-  , "dl1d80" : 1.59187
-  , "dl1d85" : 0.62055
-
+  , "dl1d40" : 7.213
+  , "dl1d50" : 5.814
+  , "dl1d60" : 4.456
+  , "dl1d70" : 3.134
+  , "dl1d75" : 2.415
+  , "dl1d77" : 2.096
+  , "dl1d80" : 1.591
+  , "dl1d85" : 0.620
+  , "dl1d90" : -0.505
+  , "dl1d95" : -1.751
   }
 
 
@@ -50,7 +53,7 @@ def TrigBjetBtagHypoToolFromDict( chainDict ):
 
 def TrigBjetBtagHypoToolFromName( name, conf ):
     """ Configure a b-jet hypo tool from chain name. """
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
+    from TriggerMenuMT.HLT.Menu.DictFromChainName import dictFromChainName
     decodedDict = dictFromChainName( conf )
     decodedDict['chainName'] = name # override
     

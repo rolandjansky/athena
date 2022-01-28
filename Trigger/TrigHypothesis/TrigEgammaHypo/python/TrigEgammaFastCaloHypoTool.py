@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 
 from AthenaCommon.SystemOfUnits import GeV
-from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaSliceFlags import TrigEgammaSliceFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -346,7 +346,7 @@ def TrigEgammaFastCaloHypoToolFromName( name, conf , tool=None):
     """ To be phased out """
     """ set the name of the HypoTool (name=chain) and figure out the threshold and selection from conf """
 
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
+    from TriggerMenuMT.HLT.Menu.DictFromChainName import dictFromChainName
     decodedDict = dictFromChainName(conf)
     return TrigEgammaFastCaloHypoToolFromDict( decodedDict , tool=tool)
 
@@ -358,7 +358,7 @@ def createTrigEgammaFastCaloSelectors(ConfigFilePath=None):
     import collections
 
     if not ConfigFilePath:
-      ConfigFilePath = 'RingerSelectorTools/'+TrigEgammaSliceFlags.ringerVersion()
+      ConfigFilePath = ConfigFlags.Trigger.egamma.ringerVersion
 
   
     SelectorNames = collections.OrderedDict({

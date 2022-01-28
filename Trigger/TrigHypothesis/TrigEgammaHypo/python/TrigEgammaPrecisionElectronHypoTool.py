@@ -1,12 +1,11 @@
 #
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
-from __future__ import print_function 
 from AthenaCommon.SystemOfUnits import GeV
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-#from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable, appendCAtoAthena
-from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaSliceFlags import TrigEgammaSliceFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+
 from ROOT import egammaPID
 
 def same( val , tool):
@@ -274,7 +273,7 @@ def TrigEgammaPrecisionElectronHypoToolFromDict( d , tool=None):
                    
     
 def TrigEgammaPrecisionElectronHypoToolFromName(name, conf, tool=None):
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
+    from TriggerMenuMT.HLT.Menu.DictFromChainName import dictFromChainName
     decodedDict = dictFromChainName(conf)
     return  TrigEgammaPrecisionElectronHypoToolFromDict( decodedDict , tool=tool )
 
@@ -289,7 +288,7 @@ def TrigEgammaPrecisionElectronDNNSelectorCfg(name='TrigEgammaPrecisionElectronD
     acc = ComponentAccumulator()
     # We should include the DNN here
     if not ConfigFilePath:
-      ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaSliceFlags.dnnVersion()
+      ConfigFilePath = ConfigFlags.Trigger.egamma.dnnVersion
   
     import collections
     SelectorNames = collections.OrderedDict({
@@ -320,7 +319,7 @@ def TrigEgammaPrecisionElectronLHSelectorCfg( name='TrigEgammaPrecisionElectronL
     # Configure the LH selectors
     acc = ComponentAccumulator()
     if not ConfigFilePath:
-        ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaSliceFlags.pidVersion()
+        ConfigFilePath = ConfigFlags.Trigger.egamma.pidVersion
 
     import collections
     SelectorNames = collections.OrderedDict({
@@ -382,7 +381,7 @@ def TrigEgammaPrecisionElectronCBSelectorCfg(name='TrigEgammaPrecisionElectronCB
     )
 
     if not ConfigFilePath:
-        ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaSliceFlags.pidVersion()
+        ConfigFilePath = ConfigFlags.Trigger.egamma.pidVersion
 
     from collections import OrderedDict
     SelectorNames = OrderedDict({

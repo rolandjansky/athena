@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONRDO_STGCRAWDATA_H
@@ -13,6 +13,7 @@ class MsgStream;
 namespace Muon {
 class STGC_RawData {
  friend class STGC_RawDataCnv_p1;
+ friend class STGC_RawDataCnv_p2;
  
  private:
 
@@ -20,9 +21,10 @@ class STGC_RawData {
    const Identifier m_id;
 
    // readout data
-   // keeping time as a float for now, but it should also become an int
+   // keeping time in two variables: a float and an int. The float variable is kept for backward compatibility
    float m_time;
-   uint16_t m_charge;
+   unsigned int m_tdo; // time converted to TDC counts
+   unsigned int m_charge;
    uint16_t m_bcTag;
    
    bool m_isDead;
@@ -32,16 +34,20 @@ class STGC_RawData {
    STGC_RawData (const Identifier id);
    STGC_RawData () {} //!< TODO remove this. Currently have problems with convertor if I do though.
 
-   STGC_RawData (const Identifier id, const uint16_t bcTag, const float time, const uint16_t charge, 
+   STGC_RawData (const Identifier id, const uint16_t bcTag, const float time, const unsigned int charge, 
 		 const bool isDead );
  
+   STGC_RawData (const Identifier id, const uint16_t bcTag, const float time, const unsigned int tdo, 
+                 const unsigned int charge, const bool isDead );
+
    virtual ~STGC_RawData() {}
 
    const Identifier identify() const { return m_id; }
 
    // access functions
    float time() const {return m_time;}
-   uint16_t charge() const {return m_charge;}
+   unsigned int tdo() const {return m_tdo;}
+   unsigned int charge() const {return m_charge;}
    uint16_t bcTag() const {return m_bcTag;}
 
    bool isDead() const {return m_isDead;}

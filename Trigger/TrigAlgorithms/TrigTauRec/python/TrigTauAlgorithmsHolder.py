@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 ##
@@ -8,18 +8,13 @@
 #
 ################################################################################
 
-from AthenaCommon.SystemOfUnits import mm, MeV, GeV
+from AthenaCommon.SystemOfUnits import mm, GeV
 
 cached_instances = {}
 
 sPrefix = 'TrigTau_'
 bAODmode = False
 doVertexCorrection = False
-
-# standard container names
-_DefaultVertexContainer = "PrimaryVertices" #????
-_DefaultTrackContainer ="InDetTrackParticles"  #????
-_DefaultTrigTauTrackContainer ="TrigTauTrackCandidate" #????
 
 ######################################################################## 
 def setPrefix(prefix): 
@@ -315,22 +310,6 @@ def getTauSubstructure():
     return TauSubstructureVariables
 
 #########################################################################
-# ele veto variables
-def getElectronVetoVars():
-    _name = sPrefix + 'TauElectronVetoVars'
-    
-    if _name in cached_instances:
-        return cached_instances[_name]
-    
-    from tauRecTools.tauRecToolsConf import TauElectronVetoVariables
-    TauElectronVetoVariables = TauElectronVetoVariables(name = _name,
-                                                        VertexCorrection = doVertexCorrection)
-    
-    cached_instances[_name] = TauElectronVetoVariables
-    return TauElectronVetoVariables
-
-
-#########################################################################
 # cell weight tool
 def getCellWeightTool():
     _name = sPrefix + 'CellWeightTool'
@@ -352,25 +331,6 @@ def getCellWeightTool():
     
     cached_instances[_name] = CaloWeightTool
     return CaloWeightTool
-
-
-#########################################################################
-# Photon Shot Finder algo
-def getTauShotFinder():    
-    _name = sPrefix + 'TauShotFinder'
-    
-    if _name in cached_instances:
-        return cached_instances[_name]
-    
-    from tauRecTools.tauRecToolsConf import TauShotFinder
-    TauShotFinder = TauShotFinder(name = _name,
-        CaloWeightTool = getCellWeightTool(),
-        NCellsInEta           = 5,
-        MinPtCut              = (400.*MeV,320.*MeV,9999999.*MeV,350.*MeV,320.*MeV),
-        AutoDoubleShotCut     = (10000.*MeV,10000.*MeV,9999999.*MeV,10000.*MeV,10000.*MeV),
-        )
-    cached_instances[_name] = TauShotFinder
-    return TauShotFinder
 
 #########################################################################
 def getInDetTrackSelectorTool():
@@ -512,48 +472,6 @@ def getTauVertexedClusterDecorator():
     cached_instances[_name] = myTauVertexedClusterDecorator
     return myTauVertexedClusterDecorator
 
-
-########################################################################
-# TauTrackClassifier
-def getTauTrackClassifier():
-
-    _name = sPrefix + 'TauTrackClassifier'
-
-    if _name in cached_instances:
-        return cached_instances[_name]
-    
-    from AthenaCommon.AppMgr import ToolSvc
-    from tauRecTools.tauRecToolsConf import tauRecTools__TauTrackClassifier as TauTrackClassifier
-    from tauRecTools.tauRecToolsConf import tauRecTools__TrackMVABDT as TrackMVABDT
-
-    import PyUtils.RootUtils as ru
-    ROOT = ru.import_root()
-    import cppyy
-    cppyy.load_library('libxAODTau_cDict')
-
-    input_file_name = 'EFtracks_BDT_classifier_v0.root'
-    BDTcut = 0.45
-    deltaZ0 = 1.0
-
-    # =========================================================================
-    EFtrackBDT = TrackMVABDT(
-        name = _name + "_MVABDT",
-        InputWeightsPath = input_file_name,
-        Threshold        = BDTcut,
-        DeltaZ0          = deltaZ0,
-        ExpectedFlag     = ROOT.xAOD.TauJetParameters.TauTrackFlag.unclassified, 
-        inTrigger        = True
-    )
-
-    ToolSvc += EFtrackBDT
-
-    trackclassifier = TauTrackClassifier(
-        name=_name, 
-        Classifiers=[EFtrackBDT]
-    )
-
-    cached_instances[_name] = trackclassifier
-    return trackclassifier
 
 ########################################################################
 # TauIDVarCalculator

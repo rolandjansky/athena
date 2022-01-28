@@ -1,5 +1,5 @@
 
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 ################################################################################
 # TriggerJobOpts/runHLT_standalone.py
 #
@@ -144,7 +144,7 @@ if len(athenaCommonFlags.FilesInput())>0:
         if globalflags.DataSource=='data':
             opt.setGlobalTag = ConfigFlags.Trigger.OnlineCondTag if opt.isOnline else 'CONDBR2-BLKPA-2018-13'
         else:
-            opt.setGlobalTag = 'OFLCOND-MC16-SDR-25-02'
+            opt.setGlobalTag = 'OFLCOND-MC16-SDR-RUN2-08-02'
     TriggerJobOpts.Modifiers._run_number = ConfigFlags.Input.RunNumber[0]
     TriggerJobOpts.Modifiers._lb_number = ConfigFlags.Input.LumiBlockNumber[0]
 
@@ -152,7 +152,7 @@ else:   # athenaHLT
     globalflags.InputFormat = 'bytestream'
     globalflags.DataSource = 'data' if not opt.setupForMC else 'data'
     ConfigFlags.Input.isMC = False
-    ConfigFlags.Input.Collections = []
+    ConfigFlags.Input.Files = []
     TriggerJobOpts.Modifiers._run_number = globals().get('_run_number')  # set by athenaHLT
     TriggerJobOpts.Modifiers._lb_number = globals().get('_lb_number')  # set by athenaHLT
     if '_run_number' in globals():
@@ -160,11 +160,12 @@ else:   # athenaHLT
     if '_lb_number' in globals():
         del _lb_number  # noqa, set by athenaHLT
 
-ConfigFlags.Input.Format = 'BS' if globalflags.InputFormat=='bytestream' else 'POOL'
+from AthenaConfiguration.Enums import Format
+ConfigFlags.Input.Format = Format.BS if globalflags.InputFormat == 'bytestream' else Format.POOL
 
 # Load input collection list from POOL metadata
 from RecExConfig.ObjKeyStore import objKeyStore
-if ConfigFlags.Input.Format == 'POOL':
+if ConfigFlags.Input.Format is Format.POOL:
     from PyUtils.MetaReaderPeeker import convert_itemList
     objKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
 
@@ -200,7 +201,7 @@ if 'doL1Sim' not in globals():
 
 # Set default enableL1CaloPhase1 option to True if running L1Sim on data or MC with SuperCells (ATR-23703)
 if 'enableL1CaloPhase1' not in globals():
-    if ConfigFlags.Input.Format == 'BS':
+    if ConfigFlags.Input.Format is Format.BS:
         opt.enableL1CaloPhase1 = opt.doL1Sim
         log.info('Setting default enableL1CaloPhase1=%s because ConfigFlags.Input.Format=%s and doL1Sim=%s',
                  opt.enableL1CaloPhase1, ConfigFlags.Input.Format, opt.doL1Sim)
@@ -216,7 +217,7 @@ if 'enableL1MuonPhase1' not in globals():
     opt.enableL1MuonPhase1 = opt.doL1Sim
     log.info('Setting default enableL1MuonPhase1=%s because doL1Sim=%s', opt.enableL1MuonPhase1, opt.doL1Sim)
 
-if ConfigFlags.Input.Format == 'BS' or opt.doL1Sim:
+if ConfigFlags.Input.Format is Format.BS or opt.doL1Sim:
     ConfigFlags.Trigger.HLTSeeding.forceEnableAllChains = opt.forceEnableAllChains
 
 # Translate a few other flags
@@ -320,7 +321,7 @@ topSequence += hltTop
 #-------------------------------------------------------------
 
 from AthenaCommon.DetFlags import DetFlags
-if not ConfigFlags.Input.Format == 'BS':
+if ConfigFlags.Input.Format is not Format.BS:
     DetFlags.detdescr.all_setOn()
     #if not ConfigFlags.Input.isMC or ConfigFlags.Common.isOnline:
     #    DetFlags.detdescr.ALFA_setOff()
@@ -433,7 +434,7 @@ log = logging.getLogger('runHLT_standalone.py')
 # ----------------------------------------------------------------
 print("ConfigFlags.Input.Format", ConfigFlags.Input.Format)
 print("ConfigFlags.Trigger.Online.isPartition", ConfigFlags.Trigger.Online.isPartition)
-if ConfigFlags.Input.Format == 'POOL':
+if ConfigFlags.Input.Format is Format.POOL:
     import AthenaPoolCnvSvc.ReadAthenaPool   # noqa
     svcMgr.AthenaPoolCnvSvc.PoolAttributes = [ "DEFAULT_BUFFERSIZE = '2048'" ]
     svcMgr.PoolSvc.AttemptCatalogPatch=True
@@ -441,7 +442,7 @@ if ConfigFlags.Input.Format == 'POOL':
 # ----------------------------------------------------------------
 # ByteStream input
 # ----------------------------------------------------------------
-elif ConfigFlags.Input.Format == 'BS' and not ConfigFlags.Trigger.Online.isPartition:
+elif ConfigFlags.Input.Format is Format.BS and not ConfigFlags.Trigger.Online.isPartition:
     # Set up ByteStream reading services
     from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
     CAtoGlobalWrapper(ByteStreamReadCfg, ConfigFlags)
@@ -460,7 +461,7 @@ CAtoGlobalWrapper(L1ConfigSvcCfg,ConfigFlags)
 # Event Info setup
 # ---------------------------------------------------------------
 # If no xAOD::EventInfo is found in a POOL file, schedule conversion from old EventInfo
-if ConfigFlags.Input.Format == 'POOL':
+if ConfigFlags.Input.Format is Format.POOL:
     if objKeyStore.isInInput("xAOD::EventInfo"):
         topSequence.SGInputLoader.Load += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
     else:
@@ -493,7 +494,7 @@ if opt.doL1Sim:
 # Add HLTSeeding providing inputs to HLT
 # ---------------------------------------------------------------
 if opt.doL1Unpacking:
-    if ConfigFlags.Input.Format == 'BS' or opt.doL1Sim:
+    if ConfigFlags.Input.Format is Format.BS or opt.doL1Sim:
         from HLTSeeding.HLTSeedingConfig import HLTSeedingCfg
         CAtoGlobalWrapper(HLTSeedingCfg, ConfigFlags, seqName="HLTBeginSeq")
     else:
@@ -505,7 +506,7 @@ if opt.doL1Unpacking:
 # ---------------------------------------------------------------
 if not opt.createHLTMenuExternally:
 
-    from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
+    from TriggerMenuMT.HLT.Menu.GenerateMenuMT import GenerateMenuMT
     menu = GenerateMenuMT()
 
     def chainsToGenerate(signame, chain):
@@ -516,7 +517,7 @@ if not opt.createHLTMenuExternally:
 
     # generating the HLT structure requires
     # the HLTSeeding to be defined in the topSequence
-    menu.generateMT()
+    menu.generateMT(ConfigFlags)
     # Note this will also create the requested HLTPrescale JSON
     # - the default file (with all prescales set to 1) is not really needed.
     # - If no file is provided all chains are either enabled or disabled,

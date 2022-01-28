@@ -130,9 +130,9 @@ namespace MuonCalib {
         void setCov34(float cov34) { m_params.cov(3, 4) = cov34; }  //!< sets covariance matrix
         void setCov44(float cov44) { m_params.cov(4, 4) = cov44; }  //!< sets covariance matrix
 
-        void addHit(CalibHitPtr hit);           //!< Add a MuonCalib::MuonCalibHit_E to the track
-        void addHole(CalibHolePtr hole);        //!< Add a MuonCalib::MuonCalibHole_E to the track
-        void addSegmentOnTrack(CalibSegPtr s);  //! Add a Segment on Track
+        void addHit(const CalibHitPtr& hit);           //!< Add a MuonCalib::MuonCalibHit_E to the track
+        void addHole(const CalibHolePtr& hole);        //!< Add a MuonCalib::MuonCalibHole_E to the track
+        void addSegmentOnTrack(const CalibSegPtr& s);  //! Add a Segment on Track
 
     private:
         /** frees memory of current object */

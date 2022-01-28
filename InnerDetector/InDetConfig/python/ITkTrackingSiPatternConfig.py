@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from InDetConfig.ITkRecToolConfig import ITkBoundaryCheckToolCfg, ITkPatternPropagatorCfg, ITkPatternUpdatorCfg
@@ -8,60 +8,45 @@ import InDetConfig.ITkTrackingCommonConfig as TC
 def ITkSiSpacePointsSeedMakerCfg(flags, name="ITkSpSeedsMaker", InputCollections = None, **kwargs) :
     acc = ComponentAccumulator()
     #
-    # --- decide if use the association tool
-    #
-    if (len(InputCollections) > 0) and \
-        (flags.ITk.Tracking.Pass.extension == "LargeD0" \
-         or flags.ITk.Tracking.Pass.extension == "ConversionFinding"):
-        usePrdAssociationTool = True
-    else:
-        usePrdAssociationTool = False
-    #
-    # --- get list of already associated hits (always do this, even if no other tracking ran before)
-    #
-    if usePrdAssociationTool:
-        prefix = 'ITk'
-        suffix = flags.ITk.Tracking.Pass.extension
-    #
     # --- Space points seeds maker, use different ones for cosmics and collisions
     #
     SiSpacePointsSeedMaker = CompFactory.ITk.SiSpacePointsSeedMaker
 
-    kwargs.setdefault("pTmin", flags.ITk.Tracking.Pass.minPTSeed )
-    kwargs.setdefault("maxdImpact", flags.ITk.Tracking.Pass.maxPrimaryImpactSeed )
-    kwargs.setdefault("maxZ", flags.ITk.Tracking.Pass.maxZImpactSeed )
-    kwargs.setdefault("minZ", -flags.ITk.Tracking.Pass.maxZImpactSeed )
-    kwargs.setdefault("usePixel", flags.ITk.Tracking.Pass.useITkPixel)
+    kwargs.setdefault("pTmin", flags.ITk.Tracking.ActivePass.minPTSeed )
+    kwargs.setdefault("maxdImpact", flags.ITk.Tracking.ActivePass.maxPrimaryImpactSeed )
+    kwargs.setdefault("maxZ", flags.ITk.Tracking.ActivePass.maxZImpactSeed )
+    kwargs.setdefault("minZ", -flags.ITk.Tracking.ActivePass.maxZImpactSeed )
+    kwargs.setdefault("usePixel", flags.ITk.Tracking.ActivePass.useITkPixel)
     kwargs.setdefault("SpacePointsPixelName", 'ITkPixelSpacePoints')
-    kwargs.setdefault("useStrip", flags.ITk.Tracking.Pass.useITkStrip and flags.ITk.Tracking.Pass.useITkStripSeeding )
+    kwargs.setdefault("useStrip", flags.ITk.Tracking.ActivePass.useITkStrip and flags.ITk.Tracking.ActivePass.useITkStripSeeding )
     kwargs.setdefault("SpacePointsStripName", 'ITkStripSpacePoints')
-    kwargs.setdefault("useOverlapSpCollection", flags.ITk.Tracking.Pass.useITkStrip and flags.ITk.Tracking.Pass.useITkStripSeeding )
+    kwargs.setdefault("useOverlapSpCollection", flags.ITk.Tracking.ActivePass.useITkStrip and flags.ITk.Tracking.ActivePass.useITkStripSeeding )
     kwargs.setdefault("SpacePointsOverlapName", 'ITkOverlapSpacePoints')
-    kwargs.setdefault("radMax", flags.ITk.Tracking.Pass.radMax)
-    kwargs.setdefault("etaMax", flags.ITk.Tracking.Pass.maxEta )
+    kwargs.setdefault("radMax", flags.ITk.Tracking.ActivePass.radMax)
+    kwargs.setdefault("etaMax", flags.ITk.Tracking.ActivePass.maxEta )
 
-    if usePrdAssociationTool:
+    if (len(InputCollections) > 0) and flags.ITk.Tracking.ActivePass.usePrdAssociationTool:
         # not all classes have that property !!!
-        kwargs.setdefault("PRDtoTrackMap", prefix+'PRDtoTrackMap'+ suffix)
+        kwargs.setdefault("PRDtoTrackMap", 'ITkPRDtoTrackMap'+ flags.ITk.Tracking.ActivePass.extension)
     if not flags.Beam.Type == 'cosmics':
-        kwargs.setdefault("maxRadius1", 0.75*flags.ITk.Tracking.Pass.radMax)
-        kwargs.setdefault("maxRadius2", flags.ITk.Tracking.Pass.radMax)
-        kwargs.setdefault("maxRadius3", flags.ITk.Tracking.Pass.radMax)
+        kwargs.setdefault("maxRadius1", 0.75*flags.ITk.Tracking.ActivePass.radMax)
+        kwargs.setdefault("maxRadius2", flags.ITk.Tracking.ActivePass.radMax)
+        kwargs.setdefault("maxRadius3", flags.ITk.Tracking.ActivePass.radMax)
 
-    if flags.ITk.Tracking.Pass.extension == "LargeD0":
+    if flags.ITk.Tracking.ActivePass.extension == "LargeD0":
         kwargs.setdefault("maxSeedsForSpacePoint", 5)
         kwargs.setdefault("isLRT", True)
-        kwargs.setdefault("maxZPPP", flags.ITk.Tracking.Pass.maxZSpacePointsPPPSeeds)
-        kwargs.setdefault("maxZSSS", flags.ITk.Tracking.Pass.maxZSpacePointsSSSSeeds)
+        kwargs.setdefault("maxZPPP", flags.ITk.Tracking.ActivePass.maxZSpacePointsPPPSeeds)
+        kwargs.setdefault("maxZSSS", flags.ITk.Tracking.ActivePass.maxZSpacePointsSSSSeeds)
 
     if flags.ITk.Tracking.doFastTracking :
         kwargs.setdefault("useFastTracking", True)
         kwargs.setdefault("maxSeedsForSpacePoint", 3)
         kwargs.setdefault("useStrip", False)
-        if flags.ITk.Tracking.Pass.extension == "LargeD0":
+        if flags.ITk.Tracking.ActivePass.extension == "LargeD0":
             kwargs.setdefault("usePixel", False)
 
-    ITkSiSpacePointsSeedMaker = SiSpacePointsSeedMaker (name = name+flags.ITk.Tracking.Pass.extension, **kwargs)
+    ITkSiSpacePointsSeedMaker = SiSpacePointsSeedMaker (name = name+flags.ITk.Tracking.ActivePass.extension, **kwargs)
 
     acc.setPrivateTools(ITkSiSpacePointsSeedMaker)
     return acc
@@ -74,13 +59,13 @@ def ITkSiDetElementsRoadMaker_xkCfg(flags, name="ITkSiRoadMaker", **kwargs) :
     ITkPatternPropagator = acc.getPrimaryAndMerge(ITkPatternPropagatorCfg(flags))
 
     kwargs.setdefault("PropagatorTool", ITkPatternPropagator)
-    kwargs.setdefault("usePixel", flags.ITk.Tracking.Pass.useITkPixel )
+    kwargs.setdefault("usePixel", flags.ITk.Tracking.ActivePass.useITkPixel )
     kwargs.setdefault("PixManagerLocation", 'ITkPixel')
-    kwargs.setdefault("useSCT", flags.ITk.Tracking.Pass.useITkStrip)
+    kwargs.setdefault("useSCT", flags.ITk.Tracking.ActivePass.useITkStrip)
     kwargs.setdefault("SCTManagerLocation", 'ITkStrip')
-    kwargs.setdefault("RoadWidth", flags.ITk.Tracking.Pass.roadWidth)
+    kwargs.setdefault("RoadWidth", flags.ITk.Tracking.ActivePass.roadWidth)
 
-    ITkSiDetElementsRoadMaker = CompFactory.InDet.SiDetElementsRoadMaker_xk(name = name+flags.ITk.Tracking.Pass.extension, **kwargs)
+    ITkSiDetElementsRoadMaker = CompFactory.InDet.SiDetElementsRoadMaker_xk(name = name+flags.ITk.Tracking.ActivePass.extension, **kwargs)
     acc.setPrivateTools(ITkSiDetElementsRoadMaker)
     return acc
 
@@ -90,7 +75,6 @@ def ITkSiCombinatorialTrackFinder_xkCfg(flags, name="ITkSiComTrackFinder", **kwa
     #
     # --- Local track finding using sdCaloSeededSSSpace point seed
     #
-    # @TODO ensure that PRD association map is used if usePrdAssociationTool is set
     ITkRotCreatorDigital = acc.getPrimaryAndMerge(TC.ITkRotCreatorDigitalCfg(flags))
     ITkPatternPropagator = acc.getPrimaryAndMerge(ITkPatternPropagatorCfg(flags))
     ITkPatternUpdator = acc.popToolsAndMerge(ITkPatternUpdatorCfg(flags))
@@ -111,20 +95,19 @@ def ITkSiCombinatorialTrackFinder_xkCfg(flags, name="ITkSiComTrackFinder", **kwa
     kwargs.setdefault("ITkGeometry", True)
     kwargs.setdefault("doFastTracking", flags.ITk.Tracking.doFastTracking)
 
-    if flags.Detector.EnableITkStrip:
-        from SCT_ConditionsTools.ITkStripConditionsToolsConfig import ITkStripConditionsSummaryToolCfg
-        ITkStripConditionsSummaryTool = acc.popToolsAndMerge(ITkStripConditionsSummaryToolCfg(flags))
-        kwargs.setdefault("SctSummaryTool", ITkStripConditionsSummaryTool)
-    else:
-        kwargs.setdefault("SctSummaryTool", None)
-
     if flags.Detector.EnableITkPixel:
         from PixelConditionsTools.ITkPixelConditionsSummaryConfig import ITkPixelConditionsSummaryCfg
-        kwargs.setdefault("PixelSummaryTool", acc.popToolsAndMerge(ITkPixelConditionsSummaryCfg(flags)) )
+        kwargs.setdefault("PixelSummaryTool", acc.popToolsAndMerge(ITkPixelConditionsSummaryCfg(flags)))
     else:
         kwargs.setdefault("PixelSummaryTool", None)
 
-    ITkSiComTrackFinder = CompFactory.InDet.SiCombinatorialTrackFinder_xk(name = name+flags.ITk.Tracking.Pass.extension, **kwargs)
+    if flags.Detector.EnableITkStrip:
+        from SCT_ConditionsTools.ITkStripConditionsToolsConfig import ITkStripConditionsSummaryToolCfg
+        kwargs.setdefault("SctSummaryTool", acc.popToolsAndMerge(ITkStripConditionsSummaryToolCfg(flags)))
+    else:
+        kwargs.setdefault("SctSummaryTool", None)
+
+    ITkSiComTrackFinder = CompFactory.InDet.SiCombinatorialTrackFinder_xk(name = name+flags.ITk.Tracking.ActivePass.extension, **kwargs)
     acc.setPrivateTools(ITkSiComTrackFinder)
     return acc
 
@@ -133,12 +116,12 @@ def ITkSiTrackMaker_xkCfg(flags, name="ITkSiTrackMaker", InputCollections = None
 
     ITkSiDetElementsRoadMaker = acc.popToolsAndMerge(ITkSiDetElementsRoadMaker_xkCfg(flags))
 
-    if flags.ITk.Tracking.Pass.useITkPixel:
+    if flags.ITk.Tracking.ActivePass.useITkPixel:
         acc.addCondAlgo( CompFactory.InDet.SiDetElementBoundaryLinksCondAlg_xk( name = "ITkSiDetElementBoundaryLinksPixelCondAlg",
                                                                                 ReadKey  = "ITkPixelDetectorElementCollection",
                                                                                 WriteKey = "ITkPixelDetElementBoundaryLinks_xk",
                                                                                 ITkGeometry = True ) )
-    if flags.ITk.Tracking.Pass.useITkStrip:
+    if flags.ITk.Tracking.ActivePass.useITkStrip:
         acc.addCondAlgo(CompFactory.InDet.SiDetElementsRoadCondAlg_xk(name = "ITkSiDetElementsRoadCondAlg_xk",
                                                                       PixelDetEleCollKey = "ITkPixelDetectorElementCollection",
                                                                       SCTDetEleCollKey = "ITkStripDetectorElementCollection"))
@@ -150,53 +133,44 @@ def ITkSiTrackMaker_xkCfg(flags, name="ITkSiTrackMaker", InputCollections = None
 
     track_finder = acc.popToolsAndMerge(ITkSiCombinatorialTrackFinder_xkCfg(flags))
 
-    #
-    # --- decide if use the association tool
-    #
-    if (len(InputCollections) > 0) and (flags.ITk.Tracking.Pass.extension == "LargeD0" or flags.ITk.Tracking.Pass.extension == "ConversionFinding"):
-        usePrdAssociationTool = True
-    else:
-        usePrdAssociationTool = False
-
-    kwargs.setdefault("useSCT", flags.ITk.Tracking.Pass.useITkStrip)
-    kwargs.setdefault("usePixel", flags.ITk.Tracking.Pass.useITkPixel)
+    kwargs.setdefault("useSCT", flags.ITk.Tracking.ActivePass.useITkStrip)
+    kwargs.setdefault("usePixel", flags.ITk.Tracking.ActivePass.useITkPixel)
     kwargs.setdefault("RoadTool", ITkSiDetElementsRoadMaker)
     kwargs.setdefault("CombinatorialTrackFinder", track_finder)
-    kwargs.setdefault("etaBins", flags.ITk.Tracking.Pass.etaBins)
-    kwargs.setdefault("pTBins", flags.ITk.Tracking.Pass.minPT)
-    kwargs.setdefault("pTmin", flags.ITk.Tracking.Pass.minPT[0])
-    kwargs.setdefault("pTminBrem", flags.ITk.Tracking.Pass.minPTBrem[0])
-    kwargs.setdefault("pTminSSS", flags.ITk.Tracking.Pass.pT_SSScut)
-    kwargs.setdefault("nClustersMin", min(flags.ITk.Tracking.Pass.minClusters))
-    kwargs.setdefault("nHolesMax", flags.ITk.Tracking.Pass.nHolesMax[0])
-    kwargs.setdefault("nHolesGapMax", flags.ITk.Tracking.Pass.nHolesGapMax[0])
-    kwargs.setdefault("SeedsFilterLevel", flags.ITk.Tracking.Pass.seedFilterLevel)
-    kwargs.setdefault("Xi2max", flags.ITk.Tracking.Pass.Xi2max[0])
-    kwargs.setdefault("Xi2maxNoAdd", flags.ITk.Tracking.Pass.Xi2maxNoAdd[0])
-    kwargs.setdefault("nWeightedClustersMin", flags.ITk.Tracking.Pass.nWeightedClustersMin[0])
+    kwargs.setdefault("etaBins", flags.ITk.Tracking.ActivePass.etaBins)
+    kwargs.setdefault("pTBins", flags.ITk.Tracking.ActivePass.minPT)
+    kwargs.setdefault("pTmin", flags.ITk.Tracking.ActivePass.minPT[0])
+    kwargs.setdefault("pTminBrem", flags.ITk.Tracking.ActivePass.minPTBrem[0])
+    kwargs.setdefault("nClustersMin", min(flags.ITk.Tracking.ActivePass.minClusters))
+    kwargs.setdefault("nHolesMax", flags.ITk.Tracking.ActivePass.nHolesMax[0])
+    kwargs.setdefault("nHolesGapMax", flags.ITk.Tracking.ActivePass.nHolesGapMax[0])
+    kwargs.setdefault("SeedsFilterLevel", flags.ITk.Tracking.ActivePass.seedFilterLevel)
+    kwargs.setdefault("Xi2max", flags.ITk.Tracking.ActivePass.Xi2max[0])
+    kwargs.setdefault("Xi2maxNoAdd", flags.ITk.Tracking.ActivePass.Xi2maxNoAdd[0])
+    kwargs.setdefault("nWeightedClustersMin", flags.ITk.Tracking.ActivePass.nWeightedClustersMin[0])
     kwargs.setdefault("CosmicTrack", flags.Beam.Type == 'cosmics')
-    kwargs.setdefault("Xi2maxMultiTracks", flags.ITk.Tracking.Pass.Xi2max[0])
+    kwargs.setdefault("Xi2maxMultiTracks", flags.ITk.Tracking.ActivePass.Xi2max[0])
     kwargs.setdefault("doMultiTracksProd", True)
-    kwargs.setdefault("useBremModel", flags.Detector.EnableCalo and flags.ITk.Tracking.doBremRecovery and flags.ITk.Tracking.Pass.extension == "") # Disabled for second passes in reco
+    kwargs.setdefault("useBremModel", flags.Detector.EnableCalo and flags.ITk.Tracking.doBremRecovery and flags.ITk.Tracking.ActivePass.extension == "") # Disabled for second passes in reco
     kwargs.setdefault("doCaloSeededBrem", flags.ITk.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo)
     kwargs.setdefault("doHadCaloSeedSSS", flags.ITk.Tracking.doHadCaloSeededSSS and flags.Detector.EnableCalo)
     if kwargs["useBremModel"] and kwargs["doCaloSeededBrem"]:
         from InDetConfig.ITkRecCaloSeededROISelectionConfig import ITkCaloClusterROI_SelectorCfg
         acc.merge(ITkCaloClusterROI_SelectorCfg(flags))
-    kwargs.setdefault("phiWidth", flags.ITk.Tracking.Pass.phiWidthBrem[0])
-    kwargs.setdefault("etaWidth", flags.ITk.Tracking.Pass.etaWidthBrem[0])
+    kwargs.setdefault("phiWidth", flags.ITk.Tracking.ActivePass.phiWidthBrem[0])
+    kwargs.setdefault("etaWidth", flags.ITk.Tracking.ActivePass.etaWidthBrem[0])
     kwargs.setdefault("InputClusterContainerName", 'ITkCaloClusterROIs')
     kwargs.setdefault("InputHadClusterContainerName", 'ITkHadCaloClusterROIs')
-    kwargs.setdefault("UseAssociationTool", usePrdAssociationTool)
+    kwargs.setdefault("UseAssociationTool", (len(InputCollections) > 0) and (flags.ITk.Tracking.ActivePass.usePrdAssociationTool))
     kwargs.setdefault("ITKGeometry", True)
 
     if flags.Beam.Type == 'cosmics':
         kwargs.setdefault("TrackPatternRecoInfo", 'SiSpacePointsSeedMaker_Cosmic')
 
-    elif flags.ITk.Tracking.Pass.extension == "ConversionFinding":
+    elif flags.ITk.Tracking.ActivePass.extension == "ConversionFinding":
         kwargs.setdefault("TrackPatternRecoInfo", 'SiSpacePointsSeedMaker_ITkConversionTracks')
 
-    elif flags.ITk.Tracking.Pass.extension == "LargeD0":
+    elif flags.ITk.Tracking.ActivePass.extension == "LargeD0":
         kwargs.setdefault("TrackPatternRecoInfo", 'SiSpacePointsSeedMaker_LargeD0')
 
     else:
@@ -207,14 +181,13 @@ def ITkSiTrackMaker_xkCfg(flags, name="ITkSiTrackMaker", InputCollections = None
         extrapolator = acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
         acc.addPublicTool(extrapolator)  # TODO: migrate to private?
 
-        ITkSeedToTrackConversion = CompFactory.InDet.SeedToTrackConversionTool(name="ITkSeedToTrackConversion",
-                                                                               OutputName=f"SiSPSeedSegments{flags.ITk.Tracking.Pass.extension}",
-                                                                               Extrapolator=extrapolator)
-        acc.setPrivateTools(ITkSeedToTrackConversion)
-        kwargs.setdefault("SeedToTrackConversion", ITkSeedToTrackConversion)
+        kwargs.setdefault("SeedToTrackConversion", CompFactory.InDet.SeedToTrackConversionTool(
+            name="ITkSeedToTrackConversion",
+            Extrapolator=extrapolator,
+            OutputName=f"SiSPSeedSegments{flags.ITk.Tracking.ActivePass.extension}"))
         kwargs.setdefault("SeedSegmentsWrite", True)
 
-    ITkSiTrackMaker = CompFactory.InDet.SiTrackMaker_xk(name = name+flags.ITk.Tracking.Pass.extension, **kwargs)
+    ITkSiTrackMaker = CompFactory.InDet.SiTrackMaker_xk(name = name+flags.ITk.Tracking.ActivePass.extension, **kwargs)
     acc.setPrivateTools(ITkSiTrackMaker)
     return acc
 
@@ -224,24 +197,11 @@ def ITkSiSPSeededTrackFinderCfg(flags, name="ITkSiSpTrackFinder", InputCollectio
     # set output track collection name
     #
     SiTrackCollection = SiSPSeededTrackCollectionKey
-    #
-    # --- decide if use the association tool
-    #
-    if (len(InputCollections) > 0) and (flags.ITk.Tracking.Pass.extension == "LargeD0" or flags.ITk.Tracking.Pass.extension == "ConversionFinding"):
-        usePrdAssociationTool = True
-    else:
-        usePrdAssociationTool = False
-    #
-    # --- get list of already associated hits (always do this, even if no other tracking ran before)
-    #
-    if usePrdAssociationTool:
-        prefix = 'ITk'
-        suffix = flags.ITk.Tracking.Pass.extension
 
     ITkSiTrackMaker = acc.popToolsAndMerge(ITkSiTrackMaker_xkCfg(flags,
                                                                  InputCollections = InputCollections ))
     from TrkConfig.AtlasExtrapolatorToolsConfig import ITkPropagatorCfg
-    ITkPropagator = acc.getPrimaryAndMerge(ITkPropagatorCfg(flags))
+    ITkPropagator = acc.popToolsAndMerge(ITkPropagatorCfg(flags))
     ITkTrackSummaryToolNoHoleSearch = acc.getPrimaryAndMerge(TC.ITkTrackSummaryToolNoHoleSearchCfg(flags))
     ITkSiSpacePointsSeedMaker = acc.popToolsAndMerge(ITkSiSpacePointsSeedMakerCfg(flags,
                                                                                   InputCollections = InputCollections ))
@@ -251,13 +211,14 @@ def ITkSiSPSeededTrackFinderCfg(flags, name="ITkSiSpTrackFinder", InputCollectio
     #
     kwargs.setdefault("TrackTool", ITkSiTrackMaker)
     kwargs.setdefault("PropagatorTool", ITkPropagator)
-    kwargs.setdefault("PRDtoTrackMap", prefix+'PRDtoTrackMap'+suffix \
-                                            if usePrdAssociationTool else '')
+    if (len(InputCollections) > 0) and flags.ITk.Tracking.ActivePass.usePrdAssociationTool:
+        # not all classes have that property !!!
+        kwargs.setdefault("PRDtoTrackMap", 'ITkPRDtoTrackMap'+ flags.ITk.Tracking.ActivePass.extension)
     kwargs.setdefault("TrackSummaryTool", ITkTrackSummaryToolNoHoleSearch)
     kwargs.setdefault("TracksLocation", SiTrackCollection)
     kwargs.setdefault("SeedsTool", ITkSiSpacePointsSeedMaker)
     kwargs.setdefault("useZvertexTool", False)
-    kwargs.setdefault("useZBoundFinding", flags.ITk.Tracking.Pass.doZBoundary)
+    kwargs.setdefault("useZBoundFinding", flags.ITk.Tracking.ActivePass.doZBoundary)
     kwargs.setdefault("ITKGeometry", True)
     kwargs.setdefault("SpacePointsSCTName", "ITkStripSpacePoints")
     kwargs.setdefault("SpacePointsPixelName", "ITkPixelSpacePoints")
@@ -267,9 +228,9 @@ def ITkSiSPSeededTrackFinderCfg(flags, name="ITkSiSpTrackFinder", InputCollectio
 
         if 'InDetEtaDependentCutsSvc' not in kwargs :
             acc.merge(TC.ITkEtaDependentCutsSvcCfg(flags))
-            kwargs.setdefault("InDetEtaDependentCutsSvc", acc.getService("ITkEtaDependentCutsSvc"+flags.ITk.Tracking.Pass.extension))
+            kwargs.setdefault("InDetEtaDependentCutsSvc", acc.getService("ITkEtaDependentCutsSvc"+flags.ITk.Tracking.ActivePass.extension))
 
-    ITkSiSPSeededTrackFinder = CompFactory.InDet.SiSPSeededTrackFinder(name = name+flags.ITk.Tracking.Pass.extension, **kwargs)
+    ITkSiSPSeededTrackFinder = CompFactory.InDet.SiSPSeededTrackFinder(name = name+flags.ITk.Tracking.ActivePass.extension, **kwargs)
     acc.addEventAlgo(ITkSiSPSeededTrackFinder)
     return acc
 
@@ -295,7 +256,7 @@ def ITkCopyAlgForAmbiCfg(flags, name="ITkCopyAlgForAmbi", InputTrackCollection =
 
     kwargs.setdefault("CollectionName", InputTrackCollection)
     kwargs.setdefault("AliasName", OutputTrackCollection)
-    ITkCopyAlgForAmbi = CompFactory.Trk.TrkCollectionAliasAlg (name = name+flags.ITk.Tracking.Pass.extension, **kwargs)
+    ITkCopyAlgForAmbi = CompFactory.Trk.TrkCollectionAliasAlg (name = name+flags.ITk.Tracking.ActivePass.extension, **kwargs)
     acc.addEventAlgo(ITkCopyAlgForAmbi)
     return acc
 
@@ -328,7 +289,7 @@ def ITkAmbiTrackSelectionToolCfg(flags, name="ITkAmbiTrackSelectionTool", **kwar
     kwargs.setdefault("minSiHitsToAllowSplitting" , 9)
     kwargs.setdefault("minUniqueSCTHits"          , 4)
     kwargs.setdefault("minTrackChi2ForSharedHits" , 3)
-    kwargs.setdefault("minPtSplit"                , flags.ITk.Tracking.pixelClusterSplitMinPt)       #Only allow split clusters on track withe pt greater than this MeV
+    kwargs.setdefault("minPtSplit"                , 1000)       #Only allow split clusters on track withe pt greater than this MeV
     kwargs.setdefault("maxSharedModulesInROI"     , 3)     #Maximum number of shared modules for tracks in ROI
     kwargs.setdefault("minNotSharedInROI"         , 2)     #Minimum number of unique modules for tracks in ROI
     kwargs.setdefault("minSiHitsToAllowSplittingInROI" , 8)  #Minimum number of Si hits to allow splittings for tracks in ROI
@@ -351,9 +312,9 @@ def ITkAmbiTrackSelectionToolCfg(flags, name="ITkAmbiTrackSelectionTool", **kwar
 
     if 'InDetEtaDependentCutsSvc' not in kwargs :
         acc.merge(TC.ITkEtaDependentCutsSvcCfg(flags))
-        kwargs.setdefault("InDetEtaDependentCutsSvc", acc.getService("ITkEtaDependentCutsSvc"+flags.ITk.Tracking.Pass.extension))
+        kwargs.setdefault("InDetEtaDependentCutsSvc", acc.getService("ITkEtaDependentCutsSvc"+flags.ITk.Tracking.ActivePass.extension))
 
-    ITkAmbiTrackSelectionTool = CompFactory.InDet.InDetDenseEnvAmbiTrackSelectionTool(name = name+flags.ITk.Tracking.Pass.extension, **kwargs)
+    ITkAmbiTrackSelectionTool = CompFactory.InDet.InDetDenseEnvAmbiTrackSelectionTool(name = name+flags.ITk.Tracking.ActivePass.extension, **kwargs)
     acc.setPrivateTools(ITkAmbiTrackSelectionTool)
     return acc
 
@@ -374,25 +335,23 @@ def ITkDenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags, name = "ITkAmbigui
 
     kwargs.setdefault("sharedProbCut",  flags.ITk.Tracking.pixelClusterSplitProb1)
     kwargs.setdefault("sharedProbCut2", flags.ITk.Tracking.pixelClusterSplitProb2)
-    if flags.ITk.Tracking.Pass.extension == "":
-        kwargs.setdefault("SplitClusterMap_old", "")
-    kwargs.setdefault("SplitClusterMap_new", 'SplitClusterAmbiguityMap'+flags.ITk.Tracking.Pass.extension)
+    kwargs.setdefault("SplitClusterMap_new", 'SplitClusterAmbiguityMap'+flags.ITk.Tracking.ActivePass.extension)
 
     kwargs.setdefault("ScoringTool", ITkAmbiScoringTool)
     kwargs.setdefault("SplitProbTool", ITkNnPixelClusterSplitProbTool if flags.ITk.Tracking.doPixelClusterSplitting else None,)
     kwargs.setdefault("AssociationTool", ITkPRDtoTrackMapToolGangedPixels)
     kwargs.setdefault("AssociationToolNotGanged", ITkPRDtoTrackMapTool)
-    kwargs.setdefault("AssociationMapName", 'ITkPRDToTrackMap'+flags.ITk.Tracking.Pass.extension)
+    kwargs.setdefault("AssociationMapName", 'ITkPRDToTrackMap'+flags.ITk.Tracking.ActivePass.extension)
     kwargs.setdefault("InputClusterSplitProbabilityName", ClusterSplitProbContainer)
-    kwargs.setdefault("OutputClusterSplitProbabilityName", 'SplitProb'+flags.ITk.Tracking.Pass.extension)
+    kwargs.setdefault("OutputClusterSplitProbabilityName", 'SplitProb'+flags.ITk.Tracking.ActivePass.extension)
 
     # DenseEnvironmentsAmbiguityScoreProcessorTool
-    ITkAmbiguityScoreProcessor = CompFactory.Trk.DenseEnvironmentsAmbiguityScoreProcessorTool(name=name+flags.ITk.Tracking.Pass.extension, **kwargs)
+    ITkAmbiguityScoreProcessor = CompFactory.Trk.DenseEnvironmentsAmbiguityScoreProcessorTool(name=name+flags.ITk.Tracking.ActivePass.extension, **kwargs)
 
     acc.setPrivateTools(ITkAmbiguityScoreProcessor)
     return acc
 
-def ITkDenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "ITkAmbiguityProcessor", ClusterSplitProbContainer='', **kwargs) :
+def ITkDenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "ITkAmbiguityProcessor", **kwargs) :
     acc = ComponentAccumulator()
 
     #
@@ -404,87 +363,82 @@ def ITkDenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "ITkAmbiguityPro
         ITkAmbiScoringTool = acc.popToolsAndMerge(TC.ITkAmbiScoringToolCfg(flags))
 
     fitter_args = {}
-    fitter_args.setdefault("nameSuffix", 'Ambi'+flags.ITk.Tracking.Pass.extension)
-    fitter_args.setdefault("SplitClusterMapExtension", flags.ITk.Tracking.Pass.extension)
-    fitter_args.setdefault("ClusterSplitProbabilityName", 'ITkAmbiguityProcessorSplitProb'+flags.ITk.Tracking.Pass.extension)
-
     fitter_args.setdefault("DoHoleSearch", True)
 
     ITkBoundaryCheckTool = acc.popToolsAndMerge(ITkBoundaryCheckToolCfg(flags))
     fitter_args.setdefault("BoundaryCheckTool", ITkBoundaryCheckTool)
 
     fitter_list=[]
-    ITkTrackFitterAmbi = acc.getPrimaryAndMerge(TC.ITkTrackFitterCfg(flags, name='ITkTrackFitter'+'Ambi'+flags.ITk.Tracking.Pass.extension, **fitter_args))
+    ITkTrackFitterAmbi = acc.popToolsAndMerge(TC.ITkTrackFitterAmbiCfg(flags,
+                                                                   name='ITkTrackFitterAmbi'+flags.ITk.Tracking.ActivePass.extension,
+                                                                   **fitter_args))
     fitter_list.append(ITkTrackFitterAmbi)
 
     ITkPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge(TC.ITkPRDtoTrackMapToolGangedPixelsCfg(flags))
 
     ambi_track_summary_tool = acc.getPrimaryAndMerge(TC.ITkTrackSummaryToolCfg( flags,
-                                                                                namePrefix                  = 'ITkAmbiguityProcessorSplitProb',
-                                                                                nameSuffix                  = flags.ITk.Tracking.Pass.extension,
-                                                                                ClusterSplitProbabilityName = 'ITkAmbiguityProcessorSplitProb'+flags.ITk.Tracking.Pass.extension))
+                                                                                name = "ITkAmbiguityProcessorSplitProbTrackSummaryTool" + flags.ITk.Tracking.ActivePass.extension))
 
     ITkAmbiTrackSelectionTool = acc.popToolsAndMerge(ITkAmbiTrackSelectionToolCfg(flags))
 
 
     kwargs.setdefault("Fitter", fitter_list)
     kwargs.setdefault("AssociationTool", ITkPRDtoTrackMapToolGangedPixels)
-    kwargs.setdefault("AssociationMapName", 'ITkPRDToTrackMap'+flags.ITk.Tracking.Pass.extension)
+    kwargs.setdefault("AssociationMapName", 'ITkPRDToTrackMap'+flags.ITk.Tracking.ActivePass.extension)
     kwargs.setdefault("TrackSummaryTool", ambi_track_summary_tool)
     kwargs.setdefault("ScoringTool", ITkAmbiScoringTool)
     kwargs.setdefault("SelectionTool", ITkAmbiTrackSelectionTool)
-    kwargs.setdefault("InputClusterSplitProbabilityName", 'SplitProb'+flags.ITk.Tracking.Pass.extension)
-    kwargs.setdefault("OutputClusterSplitProbabilityName", 'ITkAmbiguityProcessorSplitProb'+flags.ITk.Tracking.Pass.extension)
+    kwargs.setdefault("InputClusterSplitProbabilityName", 'SplitProb'+flags.ITk.Tracking.ActivePass.extension)
+    kwargs.setdefault("OutputClusterSplitProbabilityName", 'ITkAmbiguityProcessorSplitProb'+flags.ITk.Tracking.ActivePass.extension)
     kwargs.setdefault("SuppressHoleSearch", False)
-    kwargs.setdefault("tryBremFit", flags.ITk.Tracking.doBremRecovery and flags.Detector.EnableCalo and flags.ITk.Tracking.Pass.extension == "") # Disabled for second passes in reco
+    kwargs.setdefault("tryBremFit", flags.ITk.Tracking.doBremRecovery and flags.Detector.EnableCalo and flags.ITk.Tracking.ActivePass.extension == "") # Disabled for second passes in reco
     kwargs.setdefault("caloSeededBrem", flags.ITk.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo)
-    kwargs.setdefault("pTminBrem", flags.ITk.Tracking.Pass.minPTBrem[0])
+    kwargs.setdefault("pTminBrem", flags.ITk.Tracking.ActivePass.minPTBrem[0])
     kwargs.setdefault("RefitPrds", True)
-    kwargs.setdefault("KeepHolesFromBeforeRefit", flags.ITk.Tracking.useHolesFromPattern)
+    kwargs.setdefault("KeepHolesFromBeforeRefit", False)
 
     # DenseEnvironmentsAmbiguityProcessorTool
     ProcessorTool = CompFactory.Trk.DenseEnvironmentsAmbiguityProcessorTool
-    ITkAmbiguityProcessor = ProcessorTool(name=name+flags.ITk.Tracking.Pass.extension, **kwargs)
+    ITkAmbiguityProcessor = ProcessorTool(name=name+flags.ITk.Tracking.ActivePass.extension, **kwargs)
     acc.setPrivateTools(ITkAmbiguityProcessor)
     return acc
 
-def ITkTrkAmbiguityScoreCfg(flags, name="ITkAmbiguityScore", SiSPSeededTrackCollectionKey = None, **kwargs) :
+def ITkTrkAmbiguityScoreCfg(flags, name="ITkAmbiguityScore", SiSPSeededTrackCollectionKey = None, ClusterSplitProbContainer='', **kwargs) :
     acc = ComponentAccumulator()
     #
     # --- set input and output collection
     #
     InputTrackCollection = SiSPSeededTrackCollectionKey
 
-    ITkAmbiguityScoreProcessor = acc.popToolsAndMerge(ITkDenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags))
+    ITkAmbiguityScoreProcessor = acc.popToolsAndMerge(ITkDenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags, ClusterSplitProbContainer=ClusterSplitProbContainer))
 
     #
     # --- configure Ambiguity (score) solver
     #
     kwargs.setdefault("TrackInput" , [ InputTrackCollection ])
-    kwargs.setdefault("TrackOutput", 'ScoredMap'+'ITkAmbiguityScore'+ flags.ITk.Tracking.Pass.extension)
+    kwargs.setdefault("TrackOutput", 'ScoredMap'+'ITkAmbiguityScore'+ flags.ITk.Tracking.ActivePass.extension)
     kwargs.setdefault("AmbiguityScoreProcessor" ,  ITkAmbiguityScoreProcessor ) ## TODO: check the case when it is None object
 
-    ITkAmbiguityScore = CompFactory.Trk.TrkAmbiguityScore(name = name+flags.ITk.Tracking.Pass.extension, **kwargs)
+    ITkAmbiguityScore = CompFactory.Trk.TrkAmbiguityScore(name = name+flags.ITk.Tracking.ActivePass.extension, **kwargs)
     acc.addEventAlgo(ITkAmbiguityScore)
     return acc
 
 
-def ITkTrkAmbiguitySolverCfg(flags, name="ITkAmbiguitySolver", ResolvedTrackCollectionKey = None, ClusterSplitProbContainer='', **kwargs):
+def ITkTrkAmbiguitySolverCfg(flags, name="ITkAmbiguitySolver", ResolvedTrackCollectionKey = None, **kwargs):
     acc = ComponentAccumulator()
     SiTrackCollection = ResolvedTrackCollectionKey
 
     # DenseEnvironmentsAmbiguityProcessorTool
-    ITkAmbiguityProcessor = acc.popToolsAndMerge(ITkDenseEnvironmentsAmbiguityProcessorToolCfg( flags,
-                                                                                                ClusterSplitProbContainer=ClusterSplitProbContainer))
+    ITkAmbiguityProcessor = acc.popToolsAndMerge(ITkDenseEnvironmentsAmbiguityProcessorToolCfg(flags))
 
     #
     # --- configure Ambiguity solver
     #
-    kwargs.setdefault("TrackInput", 'ScoredMap'+'ITkAmbiguityScore'+ flags.ITk.Tracking.Pass.extension)
+    kwargs.setdefault("TrackInput", 'ScoredMap'+'ITkAmbiguityScore'+ flags.ITk.Tracking.ActivePass.extension)
     kwargs.setdefault("TrackOutput", SiTrackCollection)
     kwargs.setdefault( "AmbiguityProcessor", ITkAmbiguityProcessor)
 
-    ITkAmbiguitySolver = CompFactory.Trk.TrkAmbiguitySolver(name = name+flags.ITk.Tracking.Pass.extension, **kwargs)
+    ITkAmbiguitySolver = CompFactory.Trk.TrkAmbiguitySolver(name = name+flags.ITk.Tracking.ActivePass.extension, **kwargs)
     acc.addEventAlgo(ITkAmbiguitySolver )
     return acc
 
@@ -496,20 +450,11 @@ def ITkTrkAmbiguitySolverCfg(flags, name="ITkAmbiguitySolver", ResolvedTrackColl
 def ITkTrackingSiPatternCfg(flags, InputCollections = None, ResolvedTrackCollectionKey = None, SiSPSeededTrackCollectionKey = None , ClusterSplitProbContainer=''):
     acc = ComponentAccumulator()
     #
-    # --- decide if use the association tool
-    #
-    if (len(InputCollections) > 0) and (flags.ITk.Tracking.Pass.extension == "LargeD0" or flags.ITk.Tracking.Pass.extension == "ConversionFinding"):
-        usePrdAssociationTool = True
-    else:
-        usePrdAssociationTool = False
-    #
     # --- get list of already associated hits (always do this, even if no other tracking ran before)
     #
-    if usePrdAssociationTool:
-        prefix = 'ITk'
-        suffix = flags.ITk.Tracking.Pass.extension
-        acc.merge(TC.ITkTrackPRD_AssociationCfg(flags,namePrefix = prefix,
-                                                nameSuffix = suffix,
+    if (len(InputCollections) > 0) and flags.ITk.Tracking.ActivePass.usePrdAssociationTool:
+        acc.merge(TC.ITkTrackPRD_AssociationCfg(flags,
+                                                name = 'ITkTrackPRD_Association' + flags.ITk.Tracking.ActivePass.extension,
                                                 TracksName = list(InputCollections)))
 
     # ------------------------------------------------------------
@@ -519,7 +464,7 @@ def ITkTrackingSiPatternCfg(flags, InputCollections = None, ResolvedTrackCollect
     # ------------------------------------------------------------
 
     SiSPSeededTrackFinderCfg = ITkSiSPSeededTrackFinderCfg
-    if flags.ITk.Tracking.Pass.extension == "ConversionFinding":
+    if flags.ITk.Tracking.ActivePass.extension == "ConversionFinding":
         SiSPSeededTrackFinderCfg = ITkSiSPSeededTrackFinderROIConvCfg
     acc.merge(SiSPSeededTrackFinderCfg( flags,
                                         InputCollections = InputCollections,
@@ -537,10 +482,11 @@ def ITkTrackingSiPatternCfg(flags, InputCollections = None, ResolvedTrackCollect
 
     else:
         acc.merge(ITkTrkAmbiguityScoreCfg( flags,
-                                           SiSPSeededTrackCollectionKey=SiSPSeededTrackCollectionKey))
+                                           SiSPSeededTrackCollectionKey = SiSPSeededTrackCollectionKey,
+                                           ClusterSplitProbContainer = ClusterSplitProbContainer))
 
         acc.merge(ITkTrkAmbiguitySolverCfg(flags,
-                                           ResolvedTrackCollectionKey=ResolvedTrackCollectionKey))
+                                           ResolvedTrackCollectionKey = ResolvedTrackCollectionKey))
 
     return acc
 

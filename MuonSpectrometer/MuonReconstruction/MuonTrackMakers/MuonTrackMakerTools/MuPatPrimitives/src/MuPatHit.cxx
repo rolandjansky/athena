@@ -5,6 +5,7 @@
 #include "MuPatPrimitives/MuPatHit.h"
 
 #include <iostream>
+#include <utility>
 
 #include "TrkEventPrimitives/ResidualPull.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
@@ -59,7 +60,7 @@ namespace Muon {
         m_info = hit.m_info;
     }
 
-    void MuPatHit::updateParameters(std::shared_ptr<const Trk::TrackParameters> pars) { m_pars = pars; }
+    void MuPatHit::updateParameters(std::shared_ptr<const Trk::TrackParameters> pars) { m_pars = std::move(pars); }
 
     const Trk::TrackParameters& MuPatHit::parameters() const { return *m_pars; }
 

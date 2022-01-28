@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_FSIFibreMask.h"
@@ -23,7 +23,7 @@ SCT_FSIFibreMask::SCT_FSIFibreMask(const std::string & name, int iLayer, double 
     m_iLayer(iLayer), m_length(length)
 {
   getParameters();
-  m_physVolume = build();
+  m_physVolume = SCT_FSIFibreMask::build();
 }
 
 

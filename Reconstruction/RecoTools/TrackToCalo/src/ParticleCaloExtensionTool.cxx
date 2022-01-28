@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "ParticleCaloExtensionTool.h"
@@ -431,6 +431,56 @@ ParticleCaloExtensionTool::caloExtension(const EventContext& ctx,
     caloEntry, muonEntry, std::move(caloLayers));
 }
 
+std::vector<std::unique_ptr<Trk::Surface>>
+ParticleCaloExtensionTool::caloSurfacesFromLayers(
+  const std::vector<CaloSampling::CaloSample>& clusterLayers,
+  double eta,
+  const CaloDetDescrManager& caloDD) const
+{
+  // Create surfaces at the layers
+  std::vector<std::unique_ptr<Trk::Surface>> caloSurfaces;
+  caloSurfaces.reserve(clusterLayers.size());
+  for (CaloSampling::CaloSample lay : clusterLayers) {
+    auto* surf = m_calosurf->CreateUserSurface(lay, 0., eta, &caloDD);
+    if (surf) {
+      caloSurfaces.emplace_back(surf);
+    }
+  }
+
+  return caloSurfaces;
+}
+
+std::vector<std::pair<CaloSampling::CaloSample,
+                      std::unique_ptr<const Trk::TrackParameters>>>
+ParticleCaloExtensionTool::surfaceCaloExtension(
+  const EventContext& ctx,
+  const TrackParameters& startPars,
+  const std::vector<CaloSampling::CaloSample>& clusterLayers,
+  const std::vector<std::unique_ptr<Trk::Surface>>& caloSurfaces,
+  ParticleHypothesis particleType) const
+{
+  std::vector<std::pair<CaloSampling::CaloSample,
+                        std::unique_ptr<const Trk::TrackParameters>>>
+    caloParameters{};
+  const auto* lastImpact = &startPars;
+  // Go into steps from layer to layer
+  size_t numSteps = caloSurfaces.size();
+  for (size_t i = 0; i < numSteps; ++i) {
+    std::unique_ptr<const Trk::TrackParameters> nextImpact =
+      m_extrapolator->extrapolate(ctx,
+                                  *lastImpact,
+                                  *(caloSurfaces[i]),
+                                  alongMomentum,
+                                  false,
+                                  particleType);
+    if (nextImpact) {
+      caloParameters.emplace_back(clusterLayers[i], std::move(nextImpact));
+      lastImpact = caloParameters.back().second.get();
+    }
+  }
+  return caloParameters;
+}
+
 std::vector<std::pair<CaloSampling::CaloSample,
                       std::unique_ptr<const Trk::TrackParameters>>>
 ParticleCaloExtensionTool::layersCaloExtension(
@@ -442,103 +492,12 @@ ParticleCaloExtensionTool::layersCaloExtension(
   ParticleHypothesis particleType) const
 {
 
-  std::vector<std::pair<CaloSampling::CaloSample,
-                        std::unique_ptr<const Trk::TrackParameters>>>
-    caloParameters{};
-
   // Create surfaces at the layers
-  std::vector<std::unique_ptr<Trk::Surface>> caloSurfaces;
-  caloSurfaces.reserve(clusterLayers.size());
-  for (CaloSampling::CaloSample lay : clusterLayers) {
-    auto* surf = m_calosurf->CreateUserSurface(lay, 0., eta, &caloDD);
-    if (surf) {
-      caloSurfaces.emplace_back(surf);
-    }
-  }
+  std::vector<std::unique_ptr<Trk::Surface>> caloSurfaces =
+    caloSurfacesFromLayers(clusterLayers, eta, caloDD);
 
-  const auto* lastImpact = &startPars;
-  // Go into steps from layer to layer
-  size_t numSteps = caloSurfaces.size();
-  for (size_t i = 0; i < numSteps; ++i) {
-    const auto* nextImpact = m_extrapolator->extrapolate(
-      ctx, *lastImpact, *(caloSurfaces[i]), alongMomentum, false, particleType);
-
-    if (nextImpact) {
-      caloParameters.emplace_back(clusterLayers[i], nextImpact);
-      lastImpact = nextImpact;
-    }
-  }
-  return caloParameters;
-}
-
-std::vector<std::pair<CaloSampling::CaloSample,
-                      std::unique_ptr<const Trk::TrackParameters>>>
-ParticleCaloExtensionTool::egammaCaloExtension(
-  const EventContext& ctx,
-  const TrackParameters& startPars,
-  const xAOD::CaloCluster& cluster,
-  const CaloDetDescrManager& caloDD,
-  ParticleHypothesis particleType) const
-{
-
-  // figure which layer we need
-  // based on the where most of the energy of the cluster
-  // is we might want to do EM barrel, EM endCap
-  // or forward calo layers/samplings
-  constexpr std::array<CaloSampling::CaloSample, 4> barrelLayers = {
-    CaloSampling::PreSamplerB,
-    CaloSampling::EMB1,
-    CaloSampling::EMB2,
-    CaloSampling::EMB3
-  };
-  constexpr std::array<CaloSampling::CaloSample, 4> endcapLayers = {
-    CaloSampling::PreSamplerE,
-    CaloSampling::EME1,
-    CaloSampling::EME2,
-    CaloSampling::EME3
-  };
-  constexpr std::array<CaloSampling::CaloSample, 1> forwardLayers = {
-    CaloSampling::FCAL0,
-  };
-
-  // figure which layers we  want to shoot at
-  bool isBarrel = false;
-  if (cluster.inBarrel() && cluster.inEndcap()) {
-    isBarrel = cluster.eSample(CaloSampling::EMB2) >=
-               cluster.eSample(CaloSampling::EME2);
-  } else if (cluster.inBarrel()) {
-    isBarrel = true;
-  }
-
-  bool isEMEC = false;
-  if (!isBarrel && cluster.eSample(CaloSampling::EME2) >
-                     cluster.eSample(CaloSampling::FCAL0)) {
-    isEMEC = true;
-  }
-
-  std::vector<CaloSampling::CaloSample> clusterLayers;
-  clusterLayers.reserve(4);
-  if (isBarrel) {
-    for (const CaloSampling::CaloSample lay : barrelLayers) {
-      if (cluster.hasSampling(lay)) {
-        clusterLayers.emplace_back(lay);
-      }
-    }
-  } else if (isEMEC) {
-    for (const CaloSampling::CaloSample lay : endcapLayers) {
-      if (cluster.hasSampling(lay)) {
-        clusterLayers.emplace_back(lay);
-      }
-    }
-  } else {
-    for (const CaloSampling::CaloSample lay : forwardLayers) {
-      if (cluster.hasSampling(lay)) {
-        clusterLayers.emplace_back(lay);
-      }
-    }
-  }
-  return layersCaloExtension(
-    ctx, startPars, clusterLayers, cluster.eta(), caloDD, particleType);
+  return surfaceCaloExtension(
+    ctx, startPars, clusterLayers, caloSurfaces, particleType);
 }
 
 } // end of namespace Trk

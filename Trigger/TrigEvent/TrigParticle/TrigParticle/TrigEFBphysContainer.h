@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -31,7 +31,10 @@ Modified:
 class TrigEFBphys;
 
 //typedef DataVector<TrigEFBphys> TrigEFBphysContainer;
-class TrigEFBphysContainer : public DataVector<TrigEFBphys> {}; 
+class TrigEFBphysContainer : public DataVector<TrigEFBphys> {
+public:
+  using DataVector::DataVector;  // inherit constructors
+};
 
 
 CLASS_DEF( TrigEFBphysContainer , 1308708496 , 1 )

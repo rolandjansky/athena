@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 //////////////////////////////////////////////////////////////////
@@ -136,18 +136,12 @@ Trk::DistributedKalmanFilter::DistributedKalmanFilter(const std::string& t,
   , m_idHelper(nullptr) {
   // AlgTool stuff
   declareInterface<ITrackFitter>(this);
-  m_pvpNodes = new std::vector<TrkBaseNode*>;
-  m_pvpSurfaces = new std::vector<TrkPlanarSurface*>;
-  m_pvpTrackStates = new std::vector<TrkTrackState*>;
   // ME temporary fix
   declareProperty("sortingReferencePoint", m_option_sortingRefPoint);
 }
 
 // destructor
 Trk::DistributedKalmanFilter::~DistributedKalmanFilter() {
-  delete m_pvpSurfaces;
-  delete m_pvpNodes;
-  delete m_pvpTrackStates;
 }
 
 // initialize
@@ -319,10 +313,11 @@ double Trk::DistributedKalmanFilter::integrate(double Rk[5],
   return path;
 }
 
-Trk::TrkTrackState* Trk::DistributedKalmanFilter::extrapolate(Trk::TrkTrackState* pTS,
-                                                              Trk::TrkPlanarSurface* pSB,
-                                                              Trk::TrkPlanarSurface* pSE,
-                                                              MagField::AtlasFieldCache& fieldCache) const {
+std::unique_ptr<Trk::TrkTrackState>
+Trk::DistributedKalmanFilter::extrapolate(Trk::TrkTrackState* pTS,
+                                          Trk::TrkPlanarSurface* pSB,
+                                          Trk::TrkPlanarSurface* pSE,
+                                          MagField::AtlasFieldCache& fieldCache) const {
   const double C = 0.02999975;
   const double minStep = 30.0;
 
@@ -698,7 +693,7 @@ Trk::TrkTrackState* Trk::DistributedKalmanFilter::extrapolate(Trk::TrkTrackState
       Gf[j][i] = Gf[i][j];
     }
 
-  Trk::TrkTrackState* pTE = new Trk::TrkTrackState(pTS);
+  auto pTE = std::make_unique<Trk::TrkTrackState>(pTS);
 
   pTE->setTrackState(Rf);
   pTE->setTrackCovariance(Gf);
@@ -721,20 +716,22 @@ Trk::TrkTrackState* Trk::DistributedKalmanFilter::extrapolate(Trk::TrkTrackState
   return pTE;
 }
 
-bool Trk::DistributedKalmanFilter::runForwardKalmanFilter(TrkTrackState* pInitState,
+bool Trk::DistributedKalmanFilter::runForwardKalmanFilter(PVPNodes& pvpNodes,
+                                                          PVPTrackStates& pvpTrackStates,
+                                                          TrkTrackState* pInitState,
                                                           MagField::AtlasFieldCache& fieldCache) const {
-  std::vector<TrkBaseNode*>::iterator pnIt(m_pvpNodes->begin()), pnEnd(m_pvpNodes->end());
   bool OK = true;
   Trk::TrkPlanarSurface* pSB = nullptr, * pSE;
 
-  Trk::TrkTrackState* pTS = new Trk::TrkTrackState(pInitState);
-  m_pvpTrackStates->push_back(pTS);
-  for (; pnIt != pnEnd; ++pnIt) {
-    pSE = (*pnIt)->getSurface();
-    Trk::TrkTrackState* pNS = extrapolate(pTS, pSB, pSE, fieldCache);
+  pvpTrackStates.push_back(std::make_unique<Trk::TrkTrackState>(pInitState));
+  Trk::TrkTrackState* pTS = pvpTrackStates.back().get();
+  for (std::unique_ptr<TrkBaseNode>& node : pvpNodes) {
+    pSE = node->getSurface();
+    std::unique_ptr<Trk::TrkTrackState> pNS = extrapolate(pTS, pSB, pSE, fieldCache);
     pSB = pSE;
-    if (pNS != nullptr) {
-      m_pvpTrackStates->push_back(pNS);
+    if (pNS) {
+      Trk::TrkTrackState* state = pNS.get();
+      pvpTrackStates.push_back(std::move(pNS));
 
       bool isNaN = std::isnan(pTS->getTrackState(0)) ||
                    std::isnan(pTS->getTrackState(1)) ||
@@ -746,9 +743,9 @@ bool Trk::DistributedKalmanFilter::runForwardKalmanFilter(TrkTrackState* pInitSt
         break;
       }
 
-      (*pnIt)->validateMeasurement(pNS);
-      (*pnIt)->updateTrackState(pNS);
-      pTS = pNS;
+      node->validateMeasurement(state);
+      node->updateTrackState(state);
+      pTS = state;
     } else {
       OK = false;
       break;
@@ -757,34 +754,28 @@ bool Trk::DistributedKalmanFilter::runForwardKalmanFilter(TrkTrackState* pInitSt
   return OK;
 }
 
-void Trk::DistributedKalmanFilter::runSmoother() const {
-  std::vector<TrkTrackState*>::reverse_iterator ptsIt(m_pvpTrackStates->rbegin()),
-  ptsEnd(m_pvpTrackStates->rend());
-  for (; ptsIt != ptsEnd; ++ptsIt) {
-    (*ptsIt)->runSmoother();
+void Trk::DistributedKalmanFilter::runSmoother(PVPTrackStates& pvpTrackStates) const {
+  for (std::unique_ptr<TrkTrackState>& state : pvpTrackStates) {
+    state->runSmoother();
   }
 }
 
-void Trk::DistributedKalmanFilter::calculateLRsolution() const {
-  std::vector<TrkBaseNode*>::iterator pnIt(m_pvpNodes->begin()), pnEnd(m_pvpNodes->end());
-
-  for (; pnIt != pnEnd; ++pnIt) {
-    (*pnIt)->updateInternal();
+void Trk::DistributedKalmanFilter::calculateLRsolution(PVPNodes& pvpNodes) const {
+  for (std::unique_ptr<TrkBaseNode>& node : pvpNodes) {
+    node->updateInternal();
   }
 }
 
-int Trk::DistributedKalmanFilter::findOutliers(double cut) const {
+int Trk::DistributedKalmanFilter::findOutliers(PVPNodes& pvpNodes, double cut) const {
   double dchi2;
   int nOutl = 0;
 
-  std::vector<TrkBaseNode*>::iterator pnIt(m_pvpNodes->begin()), pnEnd(m_pvpNodes->end());
-
-  for (; pnIt != pnEnd; ++pnIt) {
-    dchi2 = ((*pnIt)->getChi2Distance((*pnIt)->getTrackState())) / (*pnIt)->getNdof();
+  for (std::unique_ptr<TrkBaseNode>& node : pvpNodes) {
+    dchi2 = (node->getChi2Distance(node->getTrackState())) / node->getNdof();
     if (dchi2 > cut) {
-      if ((*pnIt)->isValidated()) nOutl++;
-      (*pnIt)->setNodeState(0);
-    } else (*pnIt)->setNodeState(1);
+      if (node->isValidated()) nOutl++;
+      node->setNodeState(0);
+    } else node->setNodeState(1);
   }
   return nOutl;
 }
@@ -862,10 +853,6 @@ Trk::DistributedKalmanFilter::fit(
 
   TrkPlanarSurface* pS;
   TrkTrackState* pTS, * pInitState;
-  TrkPixelNode* pPN;
-  TrkClusterNode* pCN;
-  TrkEndCapClusterNode* pECN;
-  TrkTrtNode* pTN;
   double Rk[5], C[3], N[3], M[3][3];
   int i, nAmbHits = 0;
   const Perigee* pP;
@@ -917,7 +904,7 @@ Trk::DistributedKalmanFilter::fit(
                                           perSurf,
                                           Trk::anyDirection,
                                           false,
-                                          Trk::nonInteracting);
+                                          Trk::nonInteracting).release();
 
     pP = dynamic_cast<const Perigee*>(pTP);
     if (pP == nullptr) {
@@ -952,9 +939,9 @@ Trk::DistributedKalmanFilter::fit(
 
   // 2. Create filtering nodes:
 
-  m_pvpNodes->clear();
-  m_pvpSurfaces->clear();
-  m_pvpTrackStates->clear();
+  PVPNodes pvpNodes;
+  PVPSurfaces pvpSurfaces;
+  PVPTrackStates pvpTrackStates;
 
   for (PrepRawDataSet::const_iterator prdIt = inputPRDColl.begin();
        prdIt != inputPRDColl.end();
@@ -982,18 +969,15 @@ Trk::DistributedKalmanFilter::fit(
           M[i][1] = my[i];
           M[i][2] = mz[i];
         }
-        pS = new TrkPlanarSurface(C, N, M, rlSili);
-        m_pvpSurfaces->push_back(pS);
+        pvpSurfaces.push_back(std::make_unique<TrkPlanarSurface>(C, N, M, rlSili));
+        pS = pvpSurfaces.back().get();
         if (m_idHelper->is_pixel(ID)) {
-          pPN = new TrkPixelNode(pS, 200.0, (*prdIt));
-          m_pvpNodes->push_back(pPN);
+          pvpNodes.push_back(std::make_unique<TrkPixelNode>(pS, 200.0, (*prdIt)));
         } else {
           if (fabs(N[2]) < 0.1) {
-            pCN = new TrkClusterNode(pS, 200.0, (*prdIt));
-            m_pvpNodes->push_back(pCN);
+            pvpNodes.push_back(std::make_unique<TrkClusterNode>(pS, 200.0, (*prdIt)));
           } else {
-            pECN = new TrkEndCapClusterNode(pS, 200.0, (*prdIt));
-            m_pvpNodes->push_back(pECN);
+            pvpNodes.push_back(std::make_unique<TrkEndCapClusterNode>(pS, 200.0, (*prdIt)));
           }
         }
         continue;
@@ -1063,10 +1047,9 @@ Trk::DistributedKalmanFilter::fit(
           M[2][1] = 0.0;
           M[2][2] = 1.0;
         }
-        pS = new TrkPlanarSurface(C, N, M, rlTrt);
-        m_pvpSurfaces->push_back(pS);
-        pTN = new TrkTrtNode(pS, 200.0, -len, len, (*prdIt));
-        m_pvpNodes->push_back(pTN);
+        pvpSurfaces.push_back(std::make_unique<TrkPlanarSurface>(C, N, M, rlTrt));
+        pS = pvpSurfaces.back().get();
+        pvpNodes.push_back(std::make_unique<TrkTrtNode>(pS, 200.0, -len, len, (*prdIt)));
 
         continue;
       }
@@ -1075,7 +1058,7 @@ Trk::DistributedKalmanFilter::fit(
     ATH_MSG_WARNING("RIO ID prints as " << m_idHelper->print_to_string(ID));
   }
   ATH_MSG_VERBOSE(" Number of nodes/surfaces created: "
-                  << m_pvpNodes->size() << "/" << m_pvpSurfaces->size());
+                  << pvpNodes.size() << "/" << pvpSurfaces.size());
 
   SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle {
     m_fieldCacheCondObjInputKey, ctx
@@ -1101,34 +1084,34 @@ Trk::DistributedKalmanFilter::fit(
 
   // 4. Main algorithm: filter and smoother (Rauch-Tung-Striebel)
 
-  if (runForwardKalmanFilter(pInitState, fieldCache)) {
-    runSmoother();
+  if (runForwardKalmanFilter(pvpNodes, pvpTrackStates, pInitState, fieldCache)) {
+    runSmoother(pvpTrackStates);
     if (runOutlier) {
-      int nOutl = findOutliers(outlCut);
+      int nOutl = findOutliers(pvpNodes, outlCut);
       ATH_MSG_VERBOSE(nOutl << " outliers removed ");
 
-      if ((nOutl * 1.0 / m_pvpNodes->size()) > 0.3) {
+      if ((nOutl * 1.0 /pvpNodes.size()) > 0.3) {
         ATH_MSG_VERBOSE(" two many outliers - bad track ");
         badTrack = true;
       }
       if ((nOutl != 0) && (!badTrack)) {
-        deleteTrackStates();
-        runForwardKalmanFilter(pInitState, fieldCache);
-        runSmoother();
-        nOutl = findOutliers(outlCut);
+        pvpTrackStates.clear();
+        runForwardKalmanFilter(pvpNodes, pvpTrackStates, pInitState, fieldCache);
+        runSmoother(pvpTrackStates);
+        nOutl = findOutliers(pvpNodes, outlCut);
         ATH_MSG_VERBOSE(nOutl << " new outliers found ");
       }
     }
     if ((nAmbHits != 0) && (!badTrack)) {
-      calculateLRsolution();
-      deleteTrackStates();
-      runForwardKalmanFilter(pInitState, fieldCache);
-      runSmoother();
+      calculateLRsolution(pvpNodes);
+      pvpTrackStates.clear();
+      runForwardKalmanFilter(pvpNodes, pvpTrackStates, pInitState, fieldCache);
+      runSmoother(pvpTrackStates);
     }
 
     // 5. Create and store back all the stuff
     if (!badTrack) {
-      pTS = (*m_pvpTrackStates->begin());
+      pTS = pvpTrackStates.begin()->get();
       auto pMP {
         createMeasuredPerigee(pTS)
       };
@@ -1151,19 +1134,17 @@ Trk::DistributedKalmanFilter::fit(
         new TrackStateOnSurface(nullptr, std::move(pMP), nullptr, nullptr, typePattern);
 
       pvTS.push_back(pTSOS);
-      std::vector<TrkBaseNode*>::iterator pnIt(m_pvpNodes->begin()),
-      pnEnd(m_pvpNodes->end());
 
       double chi2 = 0.0;
       int ndof = -5;
 
-      for (; pnIt != pnEnd; ++pnIt) {
-        if ((*pnIt)->isValidated()) {
-          TrackStateOnSurface* pTSS = createTrackStateOnSurface(*pnIt);
+      for (std::unique_ptr<TrkBaseNode>& node : pvpNodes) {
+        if (node->isValidated()) {
+          TrackStateOnSurface* pTSS = createTrackStateOnSurface(node.get());
           if (pTSS != nullptr) {
             pvTS.push_back(pTSS);
-            chi2 += (*pnIt)->getChi2();
-            ndof += (*pnIt)->getNdof();
+            chi2 += node->getChi2();
+            ndof += node->getNdof();
           }
         }
       }
@@ -1179,9 +1160,6 @@ Trk::DistributedKalmanFilter::fit(
     ATH_MSG_WARNING("Extrapolation failed ");
     fittedTrack = nullptr;
   }
-  deleteNodes();
-  deleteSurfaces();
-  deleteTrackStates();
   delete pInitState;
   return std::unique_ptr<Trk::Track>(fittedTrack);
 }
@@ -1334,27 +1312,3 @@ Trk::DistributedKalmanFilter::fit(
     ctx, prepRDColl, estimatedParametersNearOrigine, runOutlier, matEffects);
 }
 
-void
-Trk::DistributedKalmanFilter::deleteNodes() const {
-  for (std::vector<TrkBaseNode*>::iterator pnIt = m_pvpNodes->begin();
-       pnIt != m_pvpNodes->end();
-       ++pnIt) {
-    delete (*pnIt);
-  }
-  m_pvpNodes->clear();
-}
-
-void
-Trk::DistributedKalmanFilter::deleteSurfaces() const {
-  std::vector<TrkPlanarSurface*>::iterator psIt(m_pvpSurfaces->begin()),
-  psEnd(m_pvpSurfaces->end());
-  for (; psIt != psEnd; ++psIt) delete (*psIt);
-  m_pvpSurfaces->clear();
-}
-
-void Trk::DistributedKalmanFilter::deleteTrackStates() const {
-  std::vector<TrkTrackState*>::iterator ptsIt(m_pvpTrackStates->begin()),
-  ptsEnd(m_pvpTrackStates->end());
-  for (; ptsIt != ptsEnd; ++ptsIt) delete (*ptsIt);
-  m_pvpTrackStates->clear();
-}

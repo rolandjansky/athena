@@ -144,24 +144,45 @@ HepGeom::Transform3D AFP_Geometry::getSIDTransform(const eSIDTransformType eType
     eAFPStation eStation=parseStationName(pszStationName);
     AFP_SIDCONFIGURATION sidcfg=m_CfgParams.sidcfg.at(eStation);
     double falpha = sidcfg.fSlope;
-
-    HepGeom::Transform3D TotTransform;
-    HepGeom::Transform3D TransInMotherVolume=getStationElementTransform(pszStationName,ESE_SID,nPlateID);
-    HepGeom::Transform3D TransMotherInWorld=getStationTransform(pszStationName);
-
-    //double fxm=DETXSIDE*(0.5*SID_MAINPLATEXDIM*std::cos(falpha)+SID_PLATETHICKNESS*std::sin(falpha)); double fzm=0.0;
-    double fxm=-(sidcfg.vecChipXPos[nPlateID]+0.5*sidcfg.vecChipXLength[nPlateID])*std::cos(falpha); double fzm=0.0;
+	
+	double fxm=-(sidcfg.vecChipXPos[nPlateID]+0.5*sidcfg.vecChipXLength[nPlateID])*std::cos(falpha); double fzm=0.0;
     double fZCorrOffset=(DETXSIDE==+1 || falpha==0)? -0:4*AfpConstants.SiT_CorrZOffset;
+	
+    HepGeom::Transform3D TransInMotherVolume=getStationElementTransform(pszStationName,ESE_SID,nPlateID);
     HepGeom::Transform3D NominalPosInPocket=HepGeom::Translate3D(0.0*CLHEP::mm,0.0*CLHEP::mm, (fzm-fZCorrOffset));
+
+
+    if(eType==ESTT_VACUUMSENSOR)
+    {
+        if(nPlateID<AfpConstants.Stat_GlobalVacuumSensorID)
+        {
+            ReqTransform=HepGeom::Translate3D(0.5*AfpConstants.SiT_Plate_Main_length_x-0.5*AfpConstants.SiT_Chip_length_x, 0.0*CLHEP::mm, -0.5*AfpConstants.SiT_Plate_Main_thickness-0.5*AfpConstants.Stat_GlobalVacuumSensorThickness);
+            ReqTransform=TransInMotherVolume*NominalPosInPocket*HepGeom::Translate3D(fxm, 0.0*CLHEP::mm, nPlateID*sidcfg.fLayerSpacing/std::cos(falpha))*HepGeom::RotateY3D(falpha)*ReqTransform;
+        }
+        else
+        {
+            if(nPlateID==AfpConstants.Stat_GlobalVacuumSensorID)
+            {
+                if(eStation==EAS_AFP00) ReqTransform=HepGeom::TranslateZ3D(-AfpConstants.Stat_GlobalVacuumSensorZOffset);
+                else if(eStation==EAS_AFP01) ReqTransform=HepGeom::TranslateZ3D(-AfpConstants.Stat_GlobalVacuumSensorZOffset);
+                else if(eStation==EAS_AFP02) ReqTransform=HepGeom::TranslateZ3D(-AfpConstants.Stat_GlobalVacuumSensorZOffset);
+                else if(eStation==EAS_AFP03) ReqTransform=HepGeom::TranslateZ3D(-AfpConstants.Stat_GlobalVacuumSensorZOffset);
+            }
+        }
+        
+        return ReqTransform;
+    }
+
+
+    HepGeom::Transform3D TransMotherInWorld=getStationTransform(pszStationName);    
 
     //staggering of sensor shift in its plane - correction to cosinus needed fo x-staggering to transform to staggering in LHC CS
     HepGeom::Transform3D TransStaggering=HepGeom::Translate3D(sidcfg.vecXStaggering[nPlateID]*std::cos(falpha),sidcfg.vecYStaggering[nPlateID], 0.0*CLHEP::mm);
-    TotTransform=TransInMotherVolume*TransStaggering*NominalPosInPocket;
+    HepGeom::Transform3D TotTransform=TransInMotherVolume*TransStaggering*NominalPosInPocket;
 
     HepGeom::Transform3D PlateTotTrans=TotTransform*HepGeom::Translate3D(fxm,0.0*CLHEP::mm, nPlateID*sidcfg.fLayerSpacing/std::cos(falpha))*HepGeom::RotateY3D(falpha);
-    HepGeom::Transform3D TransFEI4=PlateTotTrans*HepGeom::Translate3D(sidcfg.vecChipXPos[nPlateID],sidcfg.vecChipYPos[nPlateID],0.5*AfpConstants.SiT_Plate_Main_thickness+0.5*AfpConstants.SiT_Chip_thickness)*HepGeom::RotateZ3D(sidcfg.vecChipRotAngle[nPlateID]);;
-    HepGeom::Transform3D TransSID=TotTransform*HepGeom::Translate3D(fxm,0.0*CLHEP::mm, nPlateID*sidcfg.fLayerSpacing/std::cos(falpha))*
-    HepGeom::Translate3D(sidcfg.vecChipXPos[nPlateID]+sidcfg.vecSensorXPos[nPlateID], sidcfg.vecChipYPos[nPlateID]+sidcfg.vecSensorYPos[nPlateID],  (0.5*AfpConstants.SiT_Plate_Main_thickness+AfpConstants.SiT_Chip_thickness+0.5*AfpConstants.SiT_Pixel_thickness))*HepGeom::RotateY3D(falpha) * HepGeom::RotateZ3D(sidcfg.vecChipRotAngle[nPlateID]);
+    HepGeom::Transform3D TransFEI4=PlateTotTrans*HepGeom::Translate3D(sidcfg.vecChipXPos[nPlateID], sidcfg.vecChipYPos[nPlateID], 0.5*AfpConstants.SiT_Plate_Main_thickness+0.5*AfpConstants.SiT_Chip_thickness)*HepGeom::RotateZ3D(sidcfg.vecChipRotAngle[nPlateID]);
+    HepGeom::Transform3D TransSID=TotTransform*HepGeom::Translate3D(fxm,0.0*CLHEP::mm, nPlateID*sidcfg.fLayerSpacing/std::cos(falpha)) * HepGeom::Translate3D(sidcfg.vecChipXPos[nPlateID]+sidcfg.vecSensorXPos[nPlateID], sidcfg.vecChipYPos[nPlateID]+sidcfg.vecSensorYPos[nPlateID],  (0.5*AfpConstants.SiT_Plate_Main_thickness+AfpConstants.SiT_Chip_thickness+0.5*AfpConstants.SiT_Pixel_thickness))*HepGeom::RotateY3D(falpha) * HepGeom::RotateZ3D(sidcfg.vecChipRotAngle[nPlateID]);
     HepGeom::Transform3D TotTransSIDInWorld=TransMotherInWorld*TransSID;
     
     switch(eType)
@@ -181,24 +202,8 @@ HepGeom::Transform3D AFP_Geometry::getSIDTransform(const eSIDTransformType eType
     case ESTT_SENSORGLOBAL:
         ReqTransform=TotTransSIDInWorld;
         break;
-    case ESTT_VACUUMSENSOR:
-        if(nPlateID<=10)
-        {
-            ReqTransform=HepGeom::Translate3D(0.5*AfpConstants.SiT_Plate_Main_length_x-0.5*AfpConstants.SiT_Chip_length_x, 0.0*CLHEP::mm, -0.5*AfpConstants.SiT_Plate_Main_thickness-0.5*AfpConstants.Stat_GlobalVacuumSensorThickness);
-            ReqTransform=TransInMotherVolume*NominalPosInPocket*HepGeom::Translate3D(fxm,0.0*CLHEP::mm,nPlateID*sidcfg.fLayerSpacing/std::cos(falpha))*HepGeom::RotateY3D(falpha)*ReqTransform;
-        }
-        else
-        {
-            if(nPlateID==AfpConstants.Stat_GlobalVacuumSensorID)
-            {
-                if(eStation==EAS_AFP00) ReqTransform=HepGeom::TranslateZ3D(-AfpConstants.Stat_GlobalVacuumSensorZOffset);
-                else if(eStation==EAS_AFP01) ReqTransform=HepGeom::TranslateZ3D(-AfpConstants.Stat_GlobalVacuumSensorZOffset);
-                else if(eStation==EAS_AFP02) ReqTransform=HepGeom::TranslateZ3D(-AfpConstants.Stat_GlobalVacuumSensorZOffset);
-                else if(eStation==EAS_AFP03) ReqTransform=HepGeom::TranslateZ3D(-AfpConstants.Stat_GlobalVacuumSensorZOffset);
-            }
-        }
-        break;
-        default:
+    
+    default:
         break;
     }
 

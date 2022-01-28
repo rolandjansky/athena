@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "EMExtrapolationTools.h"
@@ -99,10 +99,74 @@ EMExtrapolationTools::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode
-EMExtrapolationTools::finalize()
+std::pair<std::vector<CaloSampling::CaloSample>,
+          std::vector<std::unique_ptr<Trk::Surface>>>
+EMExtrapolationTools::getClusterLayerSurfaces(
+  const xAOD::CaloCluster& cluster,
+  const CaloDetDescrManager& caloDD) const
 {
-  return StatusCode::SUCCESS;
+  // figure which layer we need
+  // based on the where most of the energy of the cluster
+  // is we might want to do EM barrel, EM endCap
+  // or forward calo layers/samplings
+  constexpr std::array<CaloSampling::CaloSample, 4> barrelLayers = {
+    CaloSampling::PreSamplerB,
+    CaloSampling::EMB1,
+    CaloSampling::EMB2,
+    CaloSampling::EMB3
+  };
+  constexpr std::array<CaloSampling::CaloSample, 4> endcapLayers = {
+    CaloSampling::PreSamplerE,
+    CaloSampling::EME1,
+    CaloSampling::EME2,
+    CaloSampling::EME3
+  };
+  constexpr std::array<CaloSampling::CaloSample, 1> forwardLayers = {
+    CaloSampling::FCAL0,
+  };
+
+  // figure which layers we  want to shoot at
+  bool isBarrel = false;
+  if (cluster.inBarrel() && cluster.inEndcap()) {
+    isBarrel = cluster.eSample(CaloSampling::EMB2) >=
+               cluster.eSample(CaloSampling::EME2);
+  } else if (cluster.inBarrel()) {
+    isBarrel = true;
+  }
+
+  bool isEMEC = false;
+  if (!isBarrel && cluster.eSample(CaloSampling::EME2) >
+                     cluster.eSample(CaloSampling::FCAL0)) {
+    isEMEC = true;
+  }
+
+  std::vector<CaloSampling::CaloSample> clusterLayers;
+  clusterLayers.reserve(4);
+  if (isBarrel) {
+    for (const CaloSampling::CaloSample lay : barrelLayers) {
+      if (cluster.hasSampling(lay)) {
+        clusterLayers.emplace_back(lay);
+      }
+    }
+  } else if (isEMEC) {
+    for (const CaloSampling::CaloSample lay : endcapLayers) {
+      if (cluster.hasSampling(lay)) {
+        clusterLayers.emplace_back(lay);
+      }
+    }
+  } else {
+    for (const CaloSampling::CaloSample lay : forwardLayers) {
+      if (cluster.hasSampling(lay)) {
+        clusterLayers.emplace_back(lay);
+      }
+    }
+  }
+
+  std::vector<std::unique_ptr<Trk::Surface>> caloSurfaces =
+    m_ParticleCaloExtensionTool->caloSurfacesFromLayers(
+      clusterLayers, cluster.eta(), caloDD);
+
+  return { std::move(clusterLayers), std::move(caloSurfaces) };
 }
 
 /*
@@ -110,15 +174,17 @@ EMExtrapolationTools::finalize()
  * electrons extrapolations. Handles multipe extrapolation modes.
  */
 StatusCode
-EMExtrapolationTools::getMatchAtCalo(const EventContext& ctx,
-                                     const xAOD::CaloCluster& cluster,
-                                     const xAOD::TrackParticle& trkPB,
-                                     std::array<double, 4>& eta,
-                                     std::array<double, 4>& phi,
-                                     std::array<double, 4>& deltaEta,
-                                     std::array<double, 4>& deltaPhi,
-                                     const CaloDetDescrManager& caloDD,
-                                     unsigned int extrapFrom) const
+EMExtrapolationTools::getMatchAtCalo(
+  const EventContext& ctx,
+  const xAOD::CaloCluster& cluster,
+  const xAOD::TrackParticle& trkPB,
+  const std::vector<CaloSampling::CaloSample>& samples,
+  const std::vector<std::unique_ptr<Trk::Surface>>& surfaces,
+  std::array<double, 4>& eta,
+  std::array<double, 4>& phi,
+  std::array<double, 4>& deltaEta,
+  std::array<double, 4>& deltaPhi,
+  unsigned int extrapFrom) const
 {
   /* Extrapolate track to calo and return
    * the extrapolated eta/phi and
@@ -141,8 +207,8 @@ EMExtrapolationTools::getMatchAtCalo(const EventContext& ctx,
   switch (extrapFrom) {
     case fromPerigeeRescaled: {
       Trk::Perigee trkPar = getRescaledPerigee(trkPB, cluster);
-      const auto extension = m_ParticleCaloExtensionTool->egammaCaloExtension(
-        ctx, trkPar, cluster, caloDD);
+      const auto extension = m_ParticleCaloExtensionTool->surfaceCaloExtension(
+        ctx, trkPar, samples, surfaces, Trk::nonInteracting);
       didExtension = !extension.empty();
       for (const auto& i : extension) {
         intersections.emplace_back(
@@ -151,8 +217,8 @@ EMExtrapolationTools::getMatchAtCalo(const EventContext& ctx,
     } break;
 
     case fromPerigee: {
-      const auto extension = m_ParticleCaloExtensionTool->egammaCaloExtension(
-        ctx, trkPB.perigeeParameters(), cluster, caloDD);
+      const auto extension = m_ParticleCaloExtensionTool->surfaceCaloExtension(
+        ctx, trkPB.perigeeParameters(), samples, surfaces, Trk::nonInteracting);
       didExtension = !extension.empty();
       for (const auto& i : extension) {
         intersections.emplace_back(
@@ -172,8 +238,8 @@ EMExtrapolationTools::getMatchAtCalo(const EventContext& ctx,
           didExtension = false;
         } else {
           const auto extension =
-            m_ParticleCaloExtensionTool->egammaCaloExtension(
-              ctx, lastParams, cluster, caloDD);
+            m_ParticleCaloExtensionTool->surfaceCaloExtension(
+              ctx, lastParams, samples, surfaces, Trk::nonInteracting);
           didExtension = !extension.empty();
           for (const auto& i : extension) {
             intersections.emplace_back(
@@ -388,17 +454,14 @@ EMExtrapolationTools::getMomentumAtVertex(const EventContext& ctx,
     if (!tp) {
       ATH_MSG_WARNING("NULL pointer to TrackParticle in vertex");
     } else {
-      const Trk::PerigeeSurface* surface =
-        new Trk::PerigeeSurface(vertex.position());
-      const Trk::TrackParameters* params =
-        m_extrapolator->extrapolate(ctx, *tp, *surface, Trk::alongMomentum);
-      delete surface;
+      Trk::PerigeeSurface surface(vertex.position());
+      std::unique_ptr<const Trk::TrackParameters> params =
+        m_extrapolator->extrapolate(ctx, *tp, surface, Trk::alongMomentum);
       if (!params) {
         ATH_MSG_DEBUG("Extrapolation to vertex (perigee) failed");
       } else {
         momentum += params->momentum();
       }
-      delete params;
     }
   }
   return momentum;

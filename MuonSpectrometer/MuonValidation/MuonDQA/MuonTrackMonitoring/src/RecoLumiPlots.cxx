@@ -2,9 +2,11 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <utility>
+
 #include "MuonTrackMonitoring/RecoLumiPlots.h"
 
-RecoLumiPlots::RecoLumiPlots(PlotBase* pParent, std::string sDir, std::string recObj):PlotBase(pParent, sDir),
+RecoLumiPlots::RecoLumiPlots(PlotBase* pParent, const std::string& sDir, std::string recObj):PlotBase(pParent, sDir),
 
   m_hNSegment_LB_1D(nullptr),
   m_hNMuonTrack_LB_1D(nullptr),
@@ -16,7 +18,7 @@ RecoLumiPlots::RecoLumiPlots(PlotBase* pParent, std::string sDir, std::string re
   m_hNMuon_LB(nullptr),
   m_hNResonance_LB(nullptr),
 
-  type(recObj),
+  type(std::move(recObj)),
   name("other")
 {}
 
@@ -108,7 +110,7 @@ void RecoLumiPlots::fill_Other(const xAOD::MuonContainer* Muons, int current_lb,
 }
 
 //fill muon related plots
-void RecoLumiPlots::fill(std::vector<std::pair<const xAOD::Muon*, const xAOD::Muon*> > resonances, int current_lb, float inst_lumi_bcid, float inst_lumi_lb){
+void RecoLumiPlots::fill(const std::vector<std::pair<const xAOD::Muon*, const xAOD::Muon*> >& resonances, int current_lb, float inst_lumi_bcid, float inst_lumi_lb){
 
   int Nresonance = resonances.size();
 

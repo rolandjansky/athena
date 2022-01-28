@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfData/L1Board.h"
@@ -17,7 +17,7 @@ TrigConf::L1Board::L1Board(const std::string & boardName, const boost::property_
    : DataStructure(data)
 {
    m_name = boardName;
-   update();
+   L1Board::update();
 }
 
 TrigConf::L1Board::~L1Board()

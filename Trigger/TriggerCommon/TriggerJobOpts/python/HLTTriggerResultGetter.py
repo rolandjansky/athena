@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.Logging import logging
@@ -98,8 +98,8 @@ class HLTTriggerResultGetter(Configured):
         xAODContainers = {}
 
         if ConfigFlags.Trigger.EDMVersion == 1:
-            xaodcnvrt = xAODConversionGetter()
-            xAODContainers = xaodcnvrt.xaodlist
+            xAODConversionGetter()
+            # xAODContainers = xaodcnvrt.xaodlist
 
         if ConfigFlags.Trigger.EDMVersion == 1 or \
            ConfigFlags.Trigger.EDMVersion == 2:

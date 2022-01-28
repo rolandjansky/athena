@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -15,11 +15,8 @@
 #include "TrkEventTPCnv/TrkParameters/AtaSurfaceCnv_p1.icc"
 
 
-namespace {
-   AtaDiscCnv_p1	inst1;
-   AtaCylinderCnv_p1	inst2;
-   AtaPlaneCnv_p1	inst3;
-   AtaStraightLineCnv_p1 isnt4;
-   CurvilinearParametersCnv_p1 isnt5; 
-}
-
+template class AtaSurfaceCnv_p1< DiscSurfaceCnv_p1, Trk::AtaDisc >;
+template class AtaSurfaceCnv_p1< CylinderSurfaceCnv_p1, Trk::AtaCylinder >;
+template class AtaSurfaceCnv_p1< PlaneSurfaceCnv_p1, Trk::AtaPlane >;
+template class AtaSurfaceCnv_p1< StraightLineSurfaceCnv_p1, Trk::AtaStraightLine >;
+template class AtaSurfaceCnv_p1< PlaneSurfaceCnv_p1, Trk::CurvilinearParameters >;

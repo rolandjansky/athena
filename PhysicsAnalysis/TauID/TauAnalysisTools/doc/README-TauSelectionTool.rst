@@ -7,8 +7,6 @@ TauSelectionTool
 
 .. contents:: Table of contents 
 
-**NOTE:** The eleBDT working points were updated to the new re-tuned eleBDT scores. These are only available in new derivations with AODfix (since 21.2.54.0, p3759). In cases where an electron veto is needed and older derivations are used, you may have to switch the ELEIDBDTOLDLOOSE or ELEIDBDTOLDMEDIUM working points. See the below ``CutEleBDTWP`` table with all eleBDT working points. 
-
 ------------
 Introduction
 ------------
@@ -27,7 +25,7 @@ The tool at least needs to be created and initialized like::
   
 This creates the tool with the recommended cuts, which are defined in the
 default config file
-/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/TauAnalysisTools/00-00-30/Selection/recommended_selection_mc15.conf
+/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/TauAnalysisTools/00-04-00/Selection/recommended_selection_r22.conf
 (or in newer versions).
 
 ------------------
@@ -36,14 +34,14 @@ Tool configuration
 
 The default config file looks like this::
 
-  SelectionCuts: PtMin AbsEtaRegion AbsCharge NTracks JetIDWP EleOLR
+  SelectionCuts: PtMin AbsEtaRegion AbsCharge NTracks JetIDWP EleIDWP
 
   PtMin: 20
   AbsEtaRegion: 0; 1.37; 1.52; 2.5
   AbsCharge: 1
   NTracks: 1; 3
-  JetIDWP: JETIDBDTMEDIUM
-  EleOLR: TRUE
+  JetIDWP: JETIDRNNMEDIUM
+  EleIDWP: ELEIDRNNLOOSE
 
 The top line lists the cuts to be applied. Below are the configurations on the
 cuts, like the pt threshold of 20 GeV. If there is a cut specified, e.g. `PtMin:
@@ -128,24 +126,6 @@ setup:
      - accepting taus with the given track multiplicity
      - if ``NTrack`` is configured, ``NTracks`` configuration wont be considered
 
-   * - ``CutJetBDTScoreSigTrans``
-     - ``JetBDTSigTransRegion``
-     - ``std::vector<double>``
-     - accepting taus within jet BDT score regions, each `odd` in the vector is a lower bound, each `even` is an upper bound
-     - ``JetBDTSigTrans`` is a transformed BDT score and provides flat ID efficiencies with respect to pT and pile-up. 
-
-   * -
-     - ``JetBDTSigTransMin``
-     - ``double``
-     - accepting taus with a jet BDT score above a lower bound
-     - if ``JetBDTMin`` is configured, ``JetBDTRegion`` configuration wont be considered. ``JetBDTSigTrans`` is a transformed BDT score and provides flat ID efficiencies with respect to pT and pile-up. 
-
-   * - 
-     - ``JetBDTSigTransMax``
-     - ``double``
-     - accepting taus with a jet BDT score below an upper bound
-     - if ``JetBDTMax`` is configured, ``JetBDTRegion`` configuration wont be considered. ``JetBDTSigTrans`` is a transformed BDT score and provides flat ID efficiencies with respect to pT and pile-up. 
-
    * - ``CutJetRNNScoreSigTrans``
      - ``JetRNNSigTransRegion``
      - ``std::vector<double>``
@@ -170,41 +150,29 @@ setup:
      - accepting taus passing the given working point
      -
 
-   * - ``CutEleBDTScore``
-     - ``EleBDTRegion``
+   * - ``CutEleRNNScore``
+     - ``EleRNNRegion``
      - ``std::vector<double>``
-     - accepting taus within electron BDT score regions, each `odd` in the vector is a lower bound, each `even` is an upper bound
+     - accepting taus within electron RNN score regions, each `odd` in the vector is a lower bound, each `even` is an upper bound
      - 
 
    * -
-     - ``EleBDTMin``
+     - ``EleRNNMin``
      - ``double``
-     - accepting taus with a electron BDT score above a lower bound
-     - if ``EleBDTMin`` is configured, ``EleBDTRegion`` configuration wont be considered
+     - accepting taus with a electron RNN score above a lower bound
+     - if ``EleRNNMin`` is configured, ``EleRNNRegion`` configuration wont be considered
 
    * -
-     - ``EleBDTMax``
+     - ``EleRNNMax``
      - ``double``
-     - accepting taus with a electron BDT score below an upper bound
-     - if ``EleBDTMax`` is configured, ``EleBDTRegion`` configuration wont be considered
+     - accepting taus with a electron RNN score below an upper bound
+     - if ``EleRNNMax`` is configured, ``EleRNNRegion`` configuration wont be considered
 
-   * - ``CutEleBDTWP``
-     - ``EleBDTWP``
+   * - ``CutEleIDWP``
+     - ``EleIDWP``
      - ``int``
      - accepting taus passing the given working point
      - 
-
-   * - ``CutEleOLR``
-     - ``EleOLR``
-     - ``bool``
-     - if ``EleOLR == true``, accepting taus not overlapping with a good reconstructed electron
-     - should only be used for run 2 analysis
-
-   * - ``CutMuonVeto``
-     - ``MuonVeto``
-     - ``bool``
-     - if ``MuonVeto == true``, accepting taus passing the muon veto
-     - should only be used for run 1 analysis
 
    * - ``CutMuonOLR``
      - ``MuonOLR``
@@ -222,39 +190,6 @@ Currently implemented working points for ``CutJetIDWP`` are:
      
    * - JETIDNONE
      - no cut at all
-     
-   * - JETIDBDTVERYLOOSE
-     - passing BDT very loose working point, ID efficiency 95%
-
-   * - JETIDBDTLOOSE
-     - passing BDT loose working point, ID efficiency 85% (75%) for 1-prong (3-prong)
-     
-   * - JETIDBDTMEDIUM
-     - passing BDT medium working point, ID efficiency 75% (60%) for 1-prong (3-prong)
-     
-   * - JETIDBDTTIGHT
-     - passing BDT tight working point, ID efficiency 60% (45%) for 1-prong (3-prong)
-     
-   * - JETIDBDTLOOSENOTTIGHT
-     - passing BDT loose but not BDT tight working point
-     
-   * - JETIDBDTLOOSENOTMEDIUM
-     - passing BDT loose but not BDT medium working point
-     
-   * - JETIDBDTMEDIUMNOTTIGHT
-     - passing BDT medium but not BDT tight working point
-     
-   * - JETIDBDTNOTLOOSE
-     - not passing BDT loose working point
-
-   * - JETBDTBKGLOOSE
-     - loose background working point
-
-   * - JETBDTBKGMEDIUM
-     - medium background working point
-
-   * - JETBDTBKGTIGHT
-     - tight background working point
 
    * - JETIDRNNVERYLOOSE
      - passing RNN very loose working point, ID efficiency 95%
@@ -269,7 +204,7 @@ Currently implemented working points for ``CutJetIDWP`` are:
      - passing RNN tight working point, ID efficiency 60% (45%) for 1-prong (3-prong)
      
 
-and for ``CutEleBDTWP``:
+and for ``CutEleIDWP``:
 
 .. list-table::
    :header-rows: 1
@@ -278,28 +213,21 @@ and for ``CutEleBDTWP``:
    * - Electron veto working points
      - description
      
-   * - ELEIDBDTLOOSE
-     - BDT loose electron veto (BDTEleScoreSigTrans_retuned > 0.05), available in new derivations with AODfix (since 21.2.54.0, p3759)
+   * - ELEIDRNNLOOSE
+     - passing electron RNN loose working point. Electron ID efficiency 95% (98%) for 1-prong (3-prong)
      
-   * - ELEIDBDTMEDIUM
-     - BDT medium electron veto (BDTEleScoreSigTrans_retuned > 0.15), available in new derivations with AODfix (since 21.2.54.0, p3759)
+   * - ELEIDRNNMEDIUM
+     - passing electron RNN medium working point. Electron ID efficiency 90% (95%) for 1-prong (3-prong)
      
-   * - ELEIDBDTTIGHT
-     - BDT tight electron veto (BDTEleScoreSigTrans_retuned > 0.25), available in new derivations with AODfix (since 21.2.54.0, p3759)
-     
-   * - ELEIDBDTOLDLOOSE
-     - old BDT loose electron veto (BDTEleScoreSigTrans > 0.05)
-
-   * - ELEIDBDTOLDMEDIUM
-     - old BDT medium electron veto (BDTEleScoreSigTrans > 0.15)
-     
+   * - ELEIDRNNTIGHT
+     - passing electron RNN tight working point. Electron ID efficiency 85% (90%) for 1-prong (3-prong)
 
 If one wants to use a different setup one has three options:
 
 1. Using an own config file
 ===========================
 
-One needs to create a new file like the recommended_selection_mc15.conf and
+One needs to create a new file like the recommended_selection_r22.conf and
 modify it as needed. You then have to tell the tool where it can find your
 configuration file via::
 
@@ -335,7 +263,7 @@ Notes:
    needs to pass an enum, defined in `Enums.h <../TauAnalysisTools/Enums.h>`_,
    which need to be casted to int, e.g.::
 
-     TauSelTool.setProperty("JetIDWP", int(TauAnalysisTools::JETIDBDTTIGHT));
+     TauSelTool.setProperty("JetIDWP", int(TauAnalysisTools::JETIDRNNTIGHT));
 
 #. Vector based variables need to get a vector of the correct type. I.e. to
    achieve the same configuration as in the config file::
@@ -432,17 +360,9 @@ FAQ
     TauSelectionTool          DEBUG BDTEleScore: -inf to inf
     TauSelectionTool          DEBUG JetIDWP: JETIDNONE
     TauSelectionTool          DEBUG EleBDTDWP: ELEIDNONE
-    TauSelectionTool          DEBUG EleOLR: 1
-    TauSelectionTool          DEBUG MuonVeto: 0
-    TauSelectionTool          DEBUG cuts: Pt AbsEta AbsCharge NTrack JetIDWP EleOLR
+    TauSelectionTool          DEBUG cuts: Pt AbsEta AbsCharge NTrack JetIDWP
 
    **Note:** only the cuts in the last line will be processed
-
-#. **Question**: After cutting on EleOLR there are still taus with rather large
-   likelihood scores.
-
-   **Answer**: These are most probably 3 prong taus which are skipped by the
-   electron overlap removal cut.
 
 ----------
 Navigation
@@ -454,10 +374,7 @@ Navigation
   * `TauSmearingTool <README-TauSmearingTool.rst>`_
   * `TauEfficiencyCorrectionsTool <README-TauEfficiencyCorrectionsTool.rst>`_
 
-    * `mc12 recommendations <README-TauEfficiencyCorrectionsTool-mc12.rst>`_
-    * `mc15 pre-recommendations <README-TauEfficiencyCorrectionsTool-mc15_pre-recommendations.rst>`_
     * `TauEfficiencyCorrectionsTool Trigger <README-TauEfficiencyCorrectionsTool_Trigger.rst>`_
 
   * `TauTruthMatchingTool <README-TauTruthMatchingTool.rst>`_
   * `TauTruthTrackMatchingTool <README-TauTruthTrackMatchingTool.rst>`_
-  * `TauOverlappingElectronLLHDecorator <README-TauOverlappingElectronLLHDecorator.rst>`_

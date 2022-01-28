@@ -44,7 +44,7 @@ namespace TrigConf {
       void startSession();
 
       /** @brief commit session if not already done */
-      void commitSession() const;
+      void commitSession();
 
       /** @brief get l1 master from super master */
       bool loadL1MasterKey(int SuperMasterKey, int& Lvl1MasterKey); 

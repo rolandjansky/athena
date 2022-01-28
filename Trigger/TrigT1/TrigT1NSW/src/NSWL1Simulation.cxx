@@ -158,7 +158,7 @@ namespace NSWL1 {
 
     SG::WriteHandle<Muon::NSW_TrigRawDataContainer> rdohandle( m_trigRdoContainer );
     auto trgContainer=std::make_unique<Muon::NSW_TrigRawDataContainer>();
-    ATH_CHECK( m_trigProcessor->mergeRDO(padTriggerContainer.get(), trgContainer.get()) );
+    ATH_CHECK( m_trigProcessor->mergeRDO(padTriggerContainer.get(), MMTriggerContainer.get(), trgContainer.get()) );
     ATH_CHECK(rdohandle.record(std::move(trgContainer)));
     return StatusCode::SUCCESS;
   }

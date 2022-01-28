@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -308,11 +308,15 @@ InDet::TRT_SeededTrackFinder::execute_r (const EventContext& ctx) const{
               Trk::PerigeeSurface perigeeSurface(beamSpotPosition);
 
               // uses perigee on track or extrapolates, no material in any case, we cut on impacts
-              const Trk::TrackParameters* parm = m_extrapolator->extrapolateDirectly(*input, perigeeSurface);
-              const Trk::Perigee* extrapolatedPerigee = dynamic_cast<const Trk::Perigee*> (parm );
+              std::unique_ptr<const Trk::TrackParameters> parm =
+                m_extrapolator->extrapolateDirectly(
+                  ctx, *input, perigeeSurface);
+              std::unique_ptr<const Trk::Perigee> extrapolatedPerigee = nullptr;
+              if (parm && parm->associatedSurface().type() == Trk::SurfaceType::Perigee) {
+                extrapolatedPerigee.reset(static_cast<const Trk::Perigee*>(parm.release()));
+              }
               if (!extrapolatedPerigee) {
                 ATH_MSG_WARNING("Extrapolation of perigee failed, this should never happen" );
-                delete parm;
                 // statistics
                 ev_stat.m_counter[Stat_t::kNExtCut]++;
                 continue;
@@ -321,19 +325,16 @@ InDet::TRT_SeededTrackFinder::execute_r (const EventContext& ctx) const{
               ATH_MSG_VERBOSE ("extrapolated perigee: "<<*extrapolatedPerigee);
               if (std::abs(extrapolatedPerigee->parameters()[Trk::d0]) > m_maxRPhiImp) {
                 ATH_MSG_DEBUG ("Track Rphi impact > "<<m_maxRPhiImp<<", reject it");
-                delete extrapolatedPerigee;
                 // statistics
                 ev_stat.m_counter[Stat_t::kNExtCut]++;
                 continue;
               }
               if (std::abs(extrapolatedPerigee->parameters()[Trk::z0]) > m_maxZImp) {
                 ATH_MSG_DEBUG ("Track Z impact > "<<m_maxZImp<<", reject it");
-                delete extrapolatedPerigee;
                 // statistics
                 ev_stat.m_counter[Stat_t::kNExtCut]++;
                 continue;
               }
-              delete extrapolatedPerigee;
             }
 
             // do re run a Track extension into TRT ?
@@ -578,7 +579,7 @@ Trk::Track* InDet::TRT_SeededTrackFinder::mergeSegments(const Trk::Track& tT, co
 
   //Careful refitting at the end
   if (m_doRefit) {
-    newTrack=std::unique_ptr<Trk::Track>( m_fitterTool->fit(*newTrack, false, Trk::pion) );
+    newTrack=m_fitterTool->fit(Gaudi::Hive::currentContext(),*newTrack, false, Trk::pion);
     if (!newTrack) {
       ATH_MSG_DEBUG ("Refit of TRT+Si track segment failed!");
       return nullptr;
@@ -598,7 +599,7 @@ Trk::Track* InDet::TRT_SeededTrackFinder::mergeSegments(const Trk::Track& tT, co
 // Transform a TRT segment to track
 ///////////////////////////////////////////////////////////////////
 
-Trk::Track* InDet::TRT_SeededTrackFinder::segToTrack(const EventContext&, const Trk::TrackSegment& tS) const {
+Trk::Track* InDet::TRT_SeededTrackFinder::segToTrack(const EventContext& ctx, const Trk::TrackSegment& tS) const {
   ATH_MSG_DEBUG ("Transforming the TRT segment into a track...");
 
   //Get the track segment information and build the initial track parameters
@@ -635,7 +636,7 @@ Trk::Track* InDet::TRT_SeededTrackFinder::segToTrack(const EventContext&, const 
   std::unique_ptr<Trk::Track> newTrack = std::make_unique<Trk::Track>(info, std::move(ntsos), nullptr);
   // Careful refitting of the TRT stand alone track
   if (m_doRefit) {
-    newTrack = std::unique_ptr<Trk::Track>( m_fitterTool->fit(*newTrack, false, Trk::pion));
+    newTrack = m_fitterTool->fit(ctx,*newTrack, false, Trk::pion);
     if (!newTrack) {
       ATH_MSG_DEBUG ("Refit of TRT track segment failed!");
       return nullptr;
@@ -684,7 +685,7 @@ mergeExtension(const Trk::Track& tT, std::vector<const Trk::MeasurementBase*>& t
   std::unique_ptr<Trk::Track> newTrack( std::make_unique<Trk::Track>(info, std::move(ntsos), fq) );
   //Careful refitting at the end
   if (m_doRefit) {
-    newTrack = std::unique_ptr<Trk::Track>( m_fitterTool->fit(*newTrack, false, Trk::pion) ) ;
+    newTrack = (m_fitterTool->fit(Gaudi::Hive::currentContext(),*newTrack, false, Trk::pion) ) ;
     if (!newTrack) {
       ATH_MSG_DEBUG ("Refit of TRT+Si track segment failed!");
       return nullptr;

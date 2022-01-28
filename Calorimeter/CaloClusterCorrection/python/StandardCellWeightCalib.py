@@ -5,9 +5,12 @@
 #--
 #-- Note the input for this calibration is jet driven. The fitted default
 
+#Remark: This code is supposed to work with both old-style config and ComponentAccumulator based config.
+#CA-based config is assumed if the additional parameter 'flags' is set to a AthConfigFlags container (and not None)
+
+
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.Logging import logging
-from AthenaCommon.GlobalFlags import globalflags
 
 _logger = logging.getLogger('Calorimeter::StandardCellWeightCalibration')
 
@@ -96,15 +99,22 @@ class H1Calibration(object):
     # folder overriding -----------------------
     forceOverrideFolder = False
     @staticmethod
-    def overrideFolder():
-        return H1Calibration.forceOverrideFolder or globalflags.DataSource()!="data"
+    def overrideFolder(flags=None):
+        if flags is None:
+            #Assume non-CA case, old-style config flags
+            from AthenaCommon.GlobalFlags import globalflags
+            isMC=(globalflags.DataSource()!="data")
+        else:
+            isMC=flags.isMC
+
+        return H1Calibration.forceOverrideFolder or isMC
 
     #--
     #-- Helper functions to access DB parameters. Note that providing a dbtag (like from JetCalibrationDBTag)
     #-- overwrites the default tag extracted from the detector description version
     #--
     @staticmethod
-    def calibration_dict(dbtag=""):
+    def calibration_dict(dbtag="",flags=None):
         #-- DB tag provided
         if dbtag != "":
             calibdic = {
@@ -120,8 +130,15 @@ class H1Calibration(object):
             return calibdic
         #-- default extraction
         else:
-            from AthenaCommon.GlobalFlags import globalflags
-            ddv = globalflags.DetDescrVersion()
+            if flags is None:
+                #Assume non-CA case, old-style config flags
+                from AthenaCommon.GlobalFlags import globalflags
+                ddv = globalflags.DetDescrVersion()
+            else:
+                #Assume ComponentAccumulator case
+                ddv=flags.GeoModel.AtlasVersion 
+
+
             #-- establish relation between detector description and calibration
             if ddv.startswith("ATLAS-CSC"):
                 if ddv >= "ATLAS-CSC-01-00-01":
@@ -196,7 +213,7 @@ class H1Calibration(object):
 
             H1Calibration.loaded_folder.append( (folder,tag) )
     
-def getCellWeightTool(finder="Cone",mainparam=0.4,input="Topo", onlyCellWeight=False):
+def getCellWeightTool(finder="Cone",mainparam=0.4,input="Topo", onlyCellWeight=False,flags=None):
     """
     Returns a fully configured H1-style cell weighting calibration tool. This tool only uses cell weights!
     Parameters/type:
@@ -205,17 +222,32 @@ def getCellWeightTool(finder="Cone",mainparam=0.4,input="Topo", onlyCellWeight=F
     mainparam/float: size parameter for jet
     """
     H1WeightToolCSC12Generic = CompFactory.H1WeightToolCSC12Generic  # CaloClusterCorrection
-    
-    if globalflags.DataSource()=='data':
-      isMC=False
-    else:  
-      isMC=True
-    #-- DB access  
-    (key,folder,tag) = H1Calibration.getCalibDBParams(finder,mainparam,input, onlyCellWeight, isMC)
-    H1Calibration.loadCaloFolder(folder,tag, isMC)
-    #-- configure tool
-    toolName = finder + editParm(mainparam) + input
-    cellcalibtool = H1WeightToolCSC12Generic("H1Weight"+toolName)
-    cellcalibtool.DBHandleKey = key
-    # --
-    return cellcalibtool
+    if flags is None:
+        #old-style case
+        from AthenaCommon.GlobalFlags import globalflags
+        isMC=globalflags.DataSource()!='data'
+        #-- DB access  
+        (key,folder,tag) = H1Calibration.getCalibDBParams(finder,mainparam,input, onlyCellWeight, isMC)
+        H1Calibration.loadCaloFolder(folder,tag, isMC)
+        #-- configure tool
+        toolName = finder + editParm(mainparam) + input
+        cellcalibtool = H1WeightToolCSC12Generic("H1Weight"+toolName)
+        cellcalibtool.DBHandleKey = key
+        # --
+        return cellcalibtool
+    else:
+        #ComponentAccumulator case
+        from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+        result=ComponentAccumulator()
+        (key,folder,tag) = H1Calibration.getCalibDBParams(finder,mainparam,input, onlyCellWeight, flags.isMC)
+        from IOVDbSvc.IOVDbSvcConfig import addFolders
+        result.merge(addFolders(flags,folder,'CALO_OFL' if flags.isMC else 'CALO',className = 'CaloRec::ToolConstants',
+                                tag=tag if H1Calibration.overrideFolder() else None))
+        
+         #-- configure tool
+        toolName = finder + editParm(mainparam) + input
+        cellcalibtool = H1WeightToolCSC12Generic("H1Weight"+toolName)
+        cellcalibtool.DBHandleKey = key
+        result.setPrivateAlgTools(cellcalibtool)
+        return result
+

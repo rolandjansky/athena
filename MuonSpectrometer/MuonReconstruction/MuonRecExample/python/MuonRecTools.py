@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s", __name__)
@@ -187,9 +187,6 @@ def MuonHoughPatternFinderTool(name="MuonHoughPatternFinderTool",**kwargs):
 #--------------------------------------------------------------------------------
 
 # combined tracking geometry service
-def AtlasTrackingGeometrySvc(name="AtlasTrackingGeometrySvc",**kwargs):
-    from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
-    return AtlasTrackingGeometrySvc
 
 def TrackingVolumesSvc(name="TrackingVolumesSvc",**kwargs):
     from TrkDetDescrSvc.TrkDetDescrSvcConf import Trk__TrackingVolumesSvc
@@ -367,6 +364,8 @@ def MdtMathT0FitSegmentFinder(name="MdtMathT0FitSegmentFinder",extraFlags=None,*
 
 def MuonClusterSegmentFinder(name="MuonClusterSegmentFinder", extraFlags=None,**kwargs):
     kwargs.setdefault("AmbiguityProcessor",getPublicTool("MuonAmbiProcessor"))
+    if ConfigFlags.Muon.MuonTrigger:
+        kwargs.setdefault("TrackToSegmentTool", getPublicTool("MuonTrackToSegmentTool") )
     return CfgMgr.Muon__MuonClusterSegmentFinder(name,**kwargs)
 
 def MuonClusterSegmentFinderTool(name="MuonClusterSegmentFinderTool", extraFlags=None,**kwargs):
@@ -374,6 +373,7 @@ def MuonClusterSegmentFinderTool(name="MuonClusterSegmentFinderTool", extraFlags
     import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401
     from AthenaCommon.AppMgr import ToolSvc
     if ConfigFlags.Muon.MuonTrigger:
+        kwargs.setdefault("TrackToSegmentTool", getPublicTool("MuonTrackToSegmentTool") )
         kwargs.setdefault("TrackSummaryTool", "MuonTrackSummaryTool" )
     else:
         kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)

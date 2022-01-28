@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -34,7 +34,7 @@ class InDetServMatManager : public GeoVDetectorManager  {
   virtual PVConstLink getTreeTop(unsigned int i) const;
 
   // Add a Tree top:
-  void addTreeTop(PVLink);
+  void addTreeTop(PVConstLink);
 
  private:  
   // prevent copy and assignment
@@ -42,7 +42,7 @@ class InDetServMatManager : public GeoVDetectorManager  {
   InDetServMatManager(const InDetServMatManager &right);
 
   // data members
-  std::vector<PVLink> m_volume;
+  std::vector<PVConstLink> m_volume;
 };
 
 } // namespace InDetDD

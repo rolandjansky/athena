@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //***************************************************************************
 //    gFEXJetAlgo - JetFinder algorithm for gFEX
@@ -328,9 +328,10 @@ std::vector<std::unique_ptr<gFEXJetTOB>> gFEXJetAlgo::largeRfinder(
   // according the specification https://docs.google.com/spreadsheets/d/15YVVtGofhXMtV7jXRFzWO0FVUtUAjS-X-aQjh3FKE_w/edit#gid=523371660
   // we should have an lsb of 3.2 GeV -- so ignore lower 4 bits.
 
-  // TOBs 10-13 are sleading gJets
-  int tobvShift = 4;
-  int tobvMask   = 0x0000FFF0;
+  // TOBs 10-13 are leading gJets
+  // shift is done before sorting as in firmware!
+  int tobvShift = 8;
+  int tobvMask   = 0x00000FFF;
 
 
   ATOB1_dat[3] =  0x00000005;
@@ -562,7 +563,6 @@ void gFEXJetAlgo::gBlockAB(gTowersCentral twrs, gTowersCentral & gBlkSum){
 
   int rows = twrs.size();
   int cols = twrs[0].size();
-
   for( int irow = 0; irow < rows; irow++ ){
     for(int jcolumn = 0; jcolumn<cols; jcolumn++){
       // zero jet sum here
@@ -586,6 +586,16 @@ void gFEXJetAlgo::gBlockAB(gTowersCentral twrs, gTowersCentral & gBlkSum){
           twrs[irow][jcolumn-1] + twrs[krowUp][jcolumn-1] + twrs[krowDn][jcolumn-1] +
           twrs[irow][jcolumn+1] + twrs[krowUp][jcolumn+1] + twrs[krowDn][jcolumn+1];
         }
+        // switch to 800 MeV LSB 
+        gBlkSum[irow][jcolumn] =  gBlkSum[irow][jcolumn]/4;
+        // limit result to an unsigned integer of 12 bits ( 2376 GeV) 
+        if ( gBlkSum[irow][jcolumn] < 0 ){
+          gBlkSum[irow][jcolumn] = 0;
+        }
+        if ( gBlkSum[irow][jcolumn] > 4091 ){
+          gBlkSum[irow][jcolumn] = 4091;
+        }  
+
     }
   }
 
@@ -862,6 +872,10 @@ void gFEXJetAlgo::jetOutAB(gTowersCentral jets, gTowersCentral blocks, int seedT
         etaIndL[ieng] = localEta;
       }
     }
+    // Turncate to 15 bits as in firmware
+    if( jetOutL[ieng] >  (1<<16) - 1 )  jetOutL[ieng] = 0x00007FFF;
+    // reduce by 3 bits prior to sorting done here
+    jetOutL[ieng] = jetOutL[ieng]/8; 
   }
   // loop over right engines
   for(int ieng=0; ieng<FEXAlgoSpaceDefs::ABCrows; ieng++){
@@ -873,6 +887,11 @@ void gFEXJetAlgo::jetOutAB(gTowersCentral jets, gTowersCentral blocks, int seedT
        etaIndR[ieng] = localEta;
       }
     }
+    // Turncate to 15 bits as in firmware 
+    if( jetOutR[ieng] >  (1<<16) - 1 )  jetOutR[ieng] = 0x00007FFF;
+    // reduce by 3 bits prior to sorting done here
+    jetOutR[ieng] = jetOutR[ieng]/8; 
+
   }
 
 }
@@ -883,6 +902,18 @@ void gFEXJetAlgo::gJetTOBgen(std::array<int, FEXAlgoSpaceDefs::ABCrows>  jetOut,
                              std::array<int, FEXAlgoSpaceDefs::gJetTOBfib> & gJetTOBv,
                              std::array<int, FEXAlgoSpaceDefs::gJetTOBfib> & gJetTOBeta,
                              std::array<int, FEXAlgoSpaceDefs::gJetTOBfib> & gJetTOBphi ){
+
+  int jetOutZS[FEXAlgoSpaceDefs::ABCrows]; 
+  // apply the tobthreshold to the values 
+  //note that jetThreshold is not a configurable parameter in firmware, it is used to check that jet values are positive
+  for( int irow =0; irow<FEXAlgoSpaceDefs::ABCrows; irow++){
+    if(  jetOut[irow] > jetThreshold ) {
+      jetOutZS[irow] = jetOut[irow];
+    } else {
+      jetOutZS[irow] = 0 ; 
+    }
+  }
+
 
   // offset of TOBs according to official format
   int etaOff[4] = {8,14,20,26};
@@ -903,15 +934,15 @@ void gFEXJetAlgo::gJetTOBgen(std::array<int, FEXAlgoSpaceDefs::ABCrows>  jetOut,
   int l4mv[2];
   int l4met[2];
   int l4mphi[2];
-
+  
 
   for(int i=0; i<16; i++){
-    if( jetOut[2*i + 1] > jetOut[2*i] ){
-      l1mv[i]   = jetOut[2*i + 1];
+    if( jetOut[2*i + 1] > jetOutZS[2*i] ){
+      l1mv[i]   = jetOutZS[2*i + 1];
       l1met[i]  = etaInd[2*i + 1];
       l1mphi[i] =        2*i + 1;
     } else {
-      l1mv[i]   = jetOut[2*i ];
+      l1mv[i]   = jetOutZS[2*i ];
       l1met[i]  = etaInd[2*i ];
       l1mphi[i] =        2*i ;
     }

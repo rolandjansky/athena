@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -17,7 +17,7 @@ def SiSpacePointMakerToolCfg(flags, name="InDetSiSpacePointMakerTool", **kwargs)
     # --- SiSpacePointMakerTool (public)
     #
 
-    if flags.Beam.Type == "cosmics" or flags.InDet.doBeamHalo:
+    if flags.Beam.Type == "cosmics" or flags.InDet.Tracking.doBeamGas:
         kwargs.setdefault("StripLengthTolerance", 0.05)
         kwargs.setdefault("UsePerpendicularProjection", True)
     
@@ -49,7 +49,7 @@ def InDetSiTrackerSpacePointFinderCfg(flags, name = "InDetSiTrackerSpacePointFin
     kwargs.setdefault("ProcessSCTs", flags.Detector.EnableSCT)
     kwargs.setdefault("ProcessOverlaps", flags.Detector.EnableSCT)
 
-    if flags.InDet.doDBMstandalone:
+    if flags.InDet.Tracking.doDBMstandalone:
         kwargs.setdefault("OverlapLimitEtaMax", 5.0)
         kwargs.setdefault("OverlapLimitEtaMin", 0)
 
@@ -141,7 +141,7 @@ def NnPixelClusterSplitProbToolCfg(flags, name="NnPixelClusterSplitProbTool", **
 
     kwargs.setdefault("PriorMultiplicityContent", MultiplicityContent)
     kwargs.setdefault("NnClusterizationFactory", NnClusterizationFactory)
-    kwargs.setdefault("useBeamSpotInfo", flags.InDet.useBeamSpotInfoNN)
+    kwargs.setdefault("useBeamSpotInfo", flags.InDet.Tracking.useBeamSpotInfoNN)
 
     NnPixelClusterSplitProbTool = CompFactory.InDet.NnPixelClusterSplitProbTool(name=name,**kwargs)
 
@@ -158,7 +158,7 @@ def NnPixelClusterSplitterCfg(flags, name="NnPixelClusterSplitter", **kwargs):
     kwargs.setdefault("ThresholdSplittingIntoTwoClusters", 0.5)
     kwargs.setdefault("ThresholdSplittingIntoThreeClusters", 0.25)
     kwargs.setdefault("SplitOnlyOnBLayer", False)
-    kwargs.setdefault("useBeamSpotInfo", flags.InDet.useBeamSpotInfoNN)
+    kwargs.setdefault("useBeamSpotInfo", flags.InDet.Tracking.useBeamSpotInfoNN)
     # --- new NN splitter
     NnPixelClusterSplitter = CompFactory.InDet.NnPixelClusterSplitter(name=name,**kwargs)
 
@@ -231,9 +231,9 @@ if __name__ == "__main__":
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.Input.Files=defaultTestFiles.RDO
+    ConfigFlags.Input.Files = defaultTestFiles.RDO_RUN2
 
-    ConfigFlags.InDet.doPixelClusterSplitting = True
+    ConfigFlags.InDet.Tracking.doPixelClusterSplitting = True
 
     numThreads=1
     ConfigFlags.Concurrency.NumThreads=numThreads

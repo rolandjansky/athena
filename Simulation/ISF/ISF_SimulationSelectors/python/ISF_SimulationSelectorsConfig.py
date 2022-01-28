@@ -266,18 +266,20 @@ def getPionAFIIGeant4Selector(name="ISF_PionAFIIGeant4Selector", **kwargs):
     kwargs.setdefault('ParticlePDG'     , 211)
     return getKinematicAFIIGeant4Selector(name, **kwargs)
 
-def getPionATLFAST3Geant4Selector(name="ISF_PionATLFAST3Geant4Selector", **kwargs):
-    kwargs.setdefault('MaxEkin'          , 200)
-    kwargs.setdefault('ParticlePDG'     , 211)
-    return getKinematicAFIIGeant4Selector(name, **kwargs)
-
 def getPionAFII_QS_Geant4Selector(name="ISF_PionAFII_QS_Geant4Selector", **kwargs):
     kwargs.setdefault('MaxMom'          , 200)
     kwargs.setdefault('ParticlePDG'     , 211)
     return getKinematicAFII_QS_Geant4Selector(name, **kwargs)
 
+def getPionATLFAST3Geant4Selector(name="ISF_PionATLFAST3Geant4Selector", **kwargs):
+    kwargs.setdefault('MaxEkin'          , 200)
+    kwargs.setdefault('ParticlePDG'     , 211)
+    return getKinematicAFIIGeant4Selector(name, **kwargs)
+
 def getPionATLFAST3_QS_Geant4Selector(name="ISF_PionATLFAST3_QS_Geant4Selector", **kwargs):
-    return getPionAFII_QS_Geant4Selector(name, **kwargs)
+    kwargs.setdefault('MaxEkin'          , 200)
+    kwargs.setdefault('ParticlePDG'     , 211)
+    return getKinematicAFII_QS_Geant4Selector(name, **kwargs)
 
 # Neutrons
 def getNeutronATLFAST3Geant4Selector(name="ISF_NeutronATLFAST3Geant4Selector", **kwargs):

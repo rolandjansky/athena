@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //  jLJetSelect.h
 //  TopoCore
@@ -32,7 +32,6 @@ namespace TCS {
       parType_t      m_minEta = { 0 };
       parType_t      m_maxEta = { 0 };
       parType_t      m_et = { 0 };
-      parType_t      m_doEtaCut = { 0 };
     
    };
 

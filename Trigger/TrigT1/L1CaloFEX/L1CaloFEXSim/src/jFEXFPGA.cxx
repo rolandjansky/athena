@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -225,6 +225,9 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
 
     //Central region algorithms
     if(m_jfexid > 0 && m_jfexid < 5) {
+        m_jFEXSmallRJetAlgoTool->setFPGAEnergy(m_map_Etvalues_FPGA);
+        m_jFEXLargeRJetAlgoTool->setFPGAEnergy(m_map_Etvalues_FPGA);
+        m_jFEXtauAlgoTool->setFPGAEnergy(m_map_Etvalues_FPGA);
         
         for(int mphi = 8; mphi < FEXAlgoSpaceDefs::jFEX_algoSpace_height -8; mphi++) {
             for(int meta = 8; meta < FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width -8; meta++) {
@@ -269,8 +272,6 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
                 
                 // ********  jJ and jLJ algorithms  ********
                 
-                m_jFEXSmallRJetAlgoTool->setFPGAEnergy(m_map_Etvalues_FPGA);
-                m_jFEXLargeRJetAlgoTool->setFPGAEnergy(m_map_Etvalues_FPGA);
                 m_jFEXSmallRJetAlgoTool->setup(SRJet_SearchWindow);
                 m_jFEXLargeRJetAlgoTool->setupCluster(largeRCluster_IDs);
                 m_jFEXSmallRJetAlgoTool->buildSeeds();
@@ -295,13 +296,12 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
                     m_SRJet_tobwords.push_back( SRtob_aux);
                     
                     //Creating LR TOB
-                    uint32_t LRJet_tobword = formLargeRJetTOB(mphi, meta);
+                    uint32_t LRJet_tobword = formLargeRJetTOB(mphi_LM, meta_LM);
                     std::vector<uint32_t> LRtob_aux{LRJet_tobword,(uint32_t) m_jTowersIDs_Thin[mphi_LM][meta_LM]};
                     if ( LRJet_tobword != 0 ) m_LRJet_tobwords.push_back(LRtob_aux);
                 }
                 // ********  jTau algorithm  ********
                 ATH_CHECK( m_jFEXtauAlgoTool->safetyTest());
-                m_jFEXtauAlgoTool->setFPGAEnergy(m_map_Etvalues_FPGA);
                 m_jFEXtauAlgoTool->setup(TT_searchWindow_ID,TT_seed_ID);
                 m_jFEXtauAlgoTool->buildSeeds();
                 bool is_tau_LocalMax = m_jFEXtauAlgoTool->isSeedLocalMaxima();
@@ -393,6 +393,7 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
             }
         }
         ATH_MSG_DEBUG("============================ jFEXtauAlgo ============================");
+        m_jFEXtauAlgoTool->setFPGAEnergy(m_map_Etvalues_FPGA);
         for(int mphi = 8; mphi < 24; mphi++) {
             for(int meta = 8; meta < max_meta; meta++) {
 
@@ -420,7 +421,6 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
                 }
 
                 ATH_CHECK( m_jFEXtauAlgoTool->safetyTest());
-                m_jFEXtauAlgoTool->setFPGAEnergy(m_map_Etvalues_FPGA);
                 m_jFEXtauAlgoTool->setup(TT_searchWindow_ID,TT_seed_ID);
                 m_jFEXtauAlgoTool->buildSeeds();
                 bool is_tau_LocalMax = m_jFEXtauAlgoTool->isSeedLocalMaxima();

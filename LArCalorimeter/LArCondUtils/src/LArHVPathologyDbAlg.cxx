@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHVPathologyDbAlg.h"
@@ -263,7 +263,7 @@ StatusCode LArHVPathologyDbAlg::printCondObjects (const EventContext& ctx, const
   }
 
   std::ofstream *fout=0;
-  const AthenaAttributeList* attrlist;
+  const AthenaAttributeList* attrlist = nullptr;
   StatusCode sc = detStore()->retrieve(attrlist,m_folder);
 
   if(sc.isFailure())

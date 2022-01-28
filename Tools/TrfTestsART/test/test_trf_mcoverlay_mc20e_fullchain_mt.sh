@@ -3,6 +3,8 @@
 # art-description: MC+MC Overlay chain for MC20e, ttbar, full reco chain, 1000 events, AthenaMT
 # art-type: grid
 # art-include: master/Athena/x86_64-centos7-gcc11-opt
+# art-include: master/Athena/x86_64-centos7-clang13-opt
+# art-include: 22.0-mc20/Athena
 # art-athena-mt: 8
 
 events=1000
@@ -23,29 +25,15 @@ Reco_tf.py \
 --steering "doOverlay" "doRDO_TRIG" "doTRIGtoALL" \
 --triggerConfig "RDOtoRDOTrigger=MCRECO:DBF:TRIGGERDBMC:2233,87,314" --asetup "RDOtoRDOTrigger:Athena,21.0,latest" \
 --outputAODFile MC_plus_MC.AOD.pool.root \
+--postExec 'FPEAuditor.NStacktracesOnFPE=10' \
 --imf False
 
 rc1=$?
 echo "art-result: ${rc1} Reco_tf_overlay_fullchain_mt"
 
-echo "==================Checking for FPEs"
-grep --quiet "WARNING FPE" log.*
+# Check for FPEs in the logiles
+test_trf_check_fpe.sh
 fpeStat=$?
-# Let's flip this - finding a FPE is a failure and it'd be confusing to check for 0
-if [[ "$fpeStat" == "0" ]]; then
-  fpeStat="1"
-else
-  fpeStat="0"
-fi
-
-if [[ "$fpeStat" != "0" ]]; then
-  echo "Found FPEs! FAILING the test. FPEs reported below." `date`
-  for file in `ls log.*`;
-    do
-      echo "=====" $file;
-      grep "WARNING FPE" $file | awk '{print $11}' | sed 's/\[//' | sed 's/\]//' | sed -r '/^\s*$/d' | sort  | uniq -c
-    done
-fi
 
 echo "art-result: ${fpeStat} FPEs in logfiles"
 exit $rc1

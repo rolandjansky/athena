@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 /**
@@ -15,14 +15,14 @@
 
 #include <Gaudi/Accumulators.h>
 
-#include "TrkExInterfaces/IEnergyLossUpdator.h"
-#include "TrkExInterfaces/INavigator.h"
-#include "TrkExInterfaces/IPropagator.h"
-#include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
-#include "TrkGaussianSumFilter/IMaterialMixtureConvolution.h"
-#include "TrkExInterfaces/IMultipleScatteringUpdator.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "TrkExInterfaces/IEnergyLossUpdator.h"
+#include "TrkExInterfaces/IMultipleScatteringUpdator.h"
+#include "TrkExInterfaces/INavigator.h"
+#include "TrkExInterfaces/IPropagator.h"
+#include "TrkGaussianSumFilter/IMaterialMixtureConvolution.h"
+#include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
 #include "TrkParameters/TrackParameters.h"
 
@@ -91,8 +91,8 @@ public:
                ParticleHypothesis particle) const override final;
 
 private:
-  /** These are the methods that do the actual heavy lifting when extrapolating
-   * with a cache */
+  /** These are the methods that do the actual heavy lifting when
+   * extrapolating*/
   MultiComponentState extrapolateImpl(
     const EventContext& ctx,
     Cache& cache,
@@ -120,7 +120,6 @@ private:
     - extrapolateInsideVolume     - extrapolates to the destination surface in
     the final tracking volume
     */
-
   void extrapolateToVolumeBoundary(
     const EventContext& ctx,
     Cache& cache,
@@ -193,19 +192,6 @@ private:
     const BoundaryCheck& boundaryCheck = true,
     ParticleHypothesis particleHypothesis = nonInteracting) const;
 
-  /** GSF Method to propagate a number of components simultaneously */
-  Trk::MultiComponentState multiStatePropagate(
-    const EventContext& ctx,
-    const IPropagator&,
-    const MultiComponentState&,
-    const Surface&,
-    PropDirection direction = anyDirection,
-    const BoundaryCheck& boundaryCheck = true,
-    ParticleHypothesis particleHypothesis = nonInteracting) const;
-
-  /** Method to choose propagator type */
-  unsigned int propagatorType(const TrackingVolume& trackingVolume) const;
-
   /** Method to initialise navigation parameters including starting state, layer
    * and volume, and destination volume */
   void initialiseNavigation(
@@ -219,15 +205,6 @@ private:
     const TrackingVolume*& destinationVolume,
     std::unique_ptr<TrackParameters>& referenceParameters,
     PropDirection direction) const;
-
-  bool radialDirectionCheck(const EventContext& ctx,
-                            const IPropagator& prop,
-                            const MultiComponentState& startParm,
-                            const MultiComponentState& parsOnLayer,
-                            const TrackingVolume& tvol,
-                            PropDirection dir,
-                            ParticleHypothesis particle) const;
-
 
   /** Add material to vector*/
   void addMaterialtoVector(
@@ -265,20 +242,6 @@ private:
   bool m_surfaceBasedMaterialEffects;
   bool m_fastField;
   Trk::MagneticFieldProperties m_fieldProperties;
-
-  //!< Statistics: Number of calls to the main extrapolate method
-  mutable Gaudi::Accumulators::Counter<> m_extrapolateCalls;
-  //!< Statistics: Number of calls to the extrapolate directly method
-  mutable Gaudi::Accumulators::Counter<> m_extrapolateDirectlyCalls;
-  //!< Statistics: Number of calls to the  extrapolate directly fallback
-  mutable Gaudi::Accumulators::Counter<> m_extrapolateDirectlyFallbacks;
-  //!< Statistics: Number of times navigation stepping fails to go the  right
-  //!< way
-  mutable Gaudi::Accumulators::Counter<> m_navigationDistanceIncreaseBreaks;
-  //!< Statistics: Number of times a tracking volume oscillation is detected
-  mutable Gaudi::Accumulators::Counter<> m_oscillationBreaks;
-  //!< Statistics: Number of times the volume boundary is missed
-  mutable Gaudi::Accumulators::Counter<> m_missedVolumeBoundary;
 };
 
 } // end namespace Trk

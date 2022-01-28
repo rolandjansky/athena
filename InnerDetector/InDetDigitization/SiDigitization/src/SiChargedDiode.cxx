@@ -23,6 +23,20 @@ SiChargedDiode::SiChargedDiode(const InDetDD::SiCellId & diode, const InDetDD::S
      m_nextInCluster(nextInCluster)
 {}
 
+// add another charge
+// If the current charge is large than max, update
+// If we update, replace the track parameters
+void SiChargedDiode::add(const SiCharge &charge) {
+  const float currentCharge = std::abs(charge.charge());
+  if (currentCharge > m_maxCharge) {
+    m_maxCharge = currentCharge;
+    // update the track distance parameters
+    m_trackDistance = charge.trackDistance();
+  }
+
+  // add the charge
+  m_totalCharge.add(charge);
+}
 
 ///////////////////////////////////////////////////////////////////
 // Input/Output stream functions:

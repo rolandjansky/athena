@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArPhysWaves2Ntuple.h"
@@ -57,8 +57,8 @@ StatusCode LArPhysWaves2Ntuple::stop()
 
 
     ATH_MSG_INFO( "Processing WaveContainer from StoreGate! key=" << m_keylist[k] ); 
-    const LArPhysWaveContainer* physWaveContainer;
-    LArPhysWaveContainer* physWaveContainer_nc;
+    const LArPhysWaveContainer* physWaveContainer = nullptr;
+    LArPhysWaveContainer* physWaveContainer_nc = nullptr;
     StatusCode sc;
     if (m_applyCorr) {
       sc = m_detStore->retrieve(physWaveContainer_nc,key);	    

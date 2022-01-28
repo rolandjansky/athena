@@ -83,6 +83,9 @@ public:
   /**Equality operator*/
   virtual bool operator==(const SurfaceBounds& sbo) const override;
 
+  // Needed to prevent ambiguities with c++20.
+  bool operator==(const ConeBounds& bo) const;
+
   /**Virtual constructor */
   virtual ConeBounds* clone() const override;
 

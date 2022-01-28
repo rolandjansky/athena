@@ -1,6 +1,6 @@
 """Define method to configure and test SCT_LinkMaskingTestAlg
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -22,6 +22,7 @@ if __name__=="__main__":
     Configurable.configurableRun3Behavior=1
     
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    ConfigFlags.Input.Files = []
     ConfigFlags.Input.isMC = False
     ConfigFlags.Input.ProjectName = "data16_13TeV"
     ConfigFlags.Input.RunNumber = 310809

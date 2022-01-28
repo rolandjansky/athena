@@ -46,9 +46,9 @@ namespace MuonCalib {
         //===============================job options====================================
         // head id and site name - job options
         std::string m_site_name;
-        int m_head_id;
+        int m_head_id = 0;
         // overwirte iov - job-option
-        int m_iov_start, m_iov_end;
+        int m_iov_start = 0, m_iov_end = 0;
         // connection string for calibration db  - job option
         std::string m_calib_connection_string, m_calib_working_schema;
         // username and password for calib-db connection

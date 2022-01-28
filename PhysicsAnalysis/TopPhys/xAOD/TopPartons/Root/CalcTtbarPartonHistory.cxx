@@ -4,8 +4,10 @@
 
 #include "TopPartons/CalcTtbarPartonHistory.h"
 #include "TopConfiguration/TopConfig.h"
+#include "TopPartons/PartonHistoryUtils.h"
 
 namespace top {
+  using PartonHistoryUtils::decorateWithMPtPhi;
   CalcTtbarPartonHistory::CalcTtbarPartonHistory(const std::string& name) : CalcTopPartonHistory(name) {}
 
   void CalcTtbarPartonHistory::ttbarHistorySaver(const xAOD::TruthParticleContainer* truthParticles,
@@ -17,8 +19,8 @@ namespace top {
     TLorentzVector b;
     TLorentzVector WpDecay1;
     TLorentzVector WpDecay2;
-    int WpDecay1_pdgId;
-    int WpDecay2_pdgId;
+    int WpDecay1_pdgId{};
+    int WpDecay2_pdgId{};
 
     bool event_top = CalcTopPartonHistory::topWb(truthParticles, 6, t_before, t_after, Wp, b, WpDecay1, WpDecay1_pdgId,
                                                  WpDecay2, WpDecay2_pdgId);
@@ -29,8 +31,8 @@ namespace top {
     TLorentzVector bbar;
     TLorentzVector WmDecay1;
     TLorentzVector WmDecay2;
-    int WmDecay1_pdgId;
-    int WmDecay2_pdgId;
+    int WmDecay1_pdgId{};
+    int WmDecay2_pdgId{};
 
     bool event_topbar = CalcTopPartonHistory::topWb(truthParticles, -6, tbar_before, tbar_after, Wm, bbar, WmDecay1,
                                                     WmDecay1_pdgId, WmDecay2, WmDecay2_pdgId);
@@ -38,100 +40,65 @@ namespace top {
 
     if (event_top && event_topbar) {
       TLorentzVector temp = t_before + tbar_before;
-      ttbarPartonHistory->auxdecor< float >("MC_ttbar_beforeFSR_m") = temp.M();
-      ttbarPartonHistory->auxdecor< float >("MC_ttbar_beforeFSR_pt") = temp.Pt();
-      ttbarPartonHistory->auxdecor< float >("MC_ttbar_beforeFSR_phi") = temp.Phi();
+      decorateWithMPtPhi(ttbarPartonHistory, "MC_ttbar_beforeFSR", temp);
       fillEtaBranch(ttbarPartonHistory, "MC_ttbar_beforeFSR_eta", temp);
 
       temp = t_after + tbar_after;
-      ttbarPartonHistory->auxdecor< float >("MC_ttbar_afterFSR_beforeDecay_m") = temp.M();
-      ttbarPartonHistory->auxdecor< float >("MC_ttbar_afterFSR_beforeDecay_pt") = temp.Pt();
-      ttbarPartonHistory->auxdecor< float >("MC_ttbar_afterFSR_beforeDecay_phi") = temp.Phi();
+      decorateWithMPtPhi(ttbarPartonHistory, "MC_ttbar_afterFSR_beforeDecay", temp);
       fillEtaBranch(ttbarPartonHistory, "MC_ttbar_afterFSR_beforeDecay_eta", temp);
 
       temp = WmDecay1 + WmDecay2 + b + WpDecay1 + WpDecay2 + bbar;
-      ttbarPartonHistory->auxdecor< float >("MC_ttbar_afterFSR_m") = temp.M();
-      ttbarPartonHistory->auxdecor< float >("MC_ttbar_afterFSR_pt") = temp.Pt();
-      ttbarPartonHistory->auxdecor< float >("MC_ttbar_afterFSR_phi") = temp.Phi();
+      decorateWithMPtPhi(ttbarPartonHistory, "MC_ttbar_afterFSR", temp);
       fillEtaBranch(ttbarPartonHistory, "MC_ttbar_afterFSR_eta", temp);
     }//if
     if (event_top) {
-      ttbarPartonHistory->auxdecor< float >("MC_t_beforeFSR_m") = t_before.M();
-      ttbarPartonHistory->auxdecor< float >("MC_t_beforeFSR_pt") = t_before.Pt();
-      ttbarPartonHistory->auxdecor< float >("MC_t_beforeFSR_phi") = t_before.Phi();
+      decorateWithMPtPhi(ttbarPartonHistory, "MC_t_beforeFSR", t_before);
       fillEtaBranch(ttbarPartonHistory, "MC_t_beforeFSR_eta", t_before);
 
-      ttbarPartonHistory->auxdecor< float >("MC_t_afterFSR_m") = t_after.M();
-      ttbarPartonHistory->auxdecor< float >("MC_t_afterFSR_pt") = t_after.Pt();
-      ttbarPartonHistory->auxdecor< float >("MC_t_afterFSR_phi") = t_after.Phi();
+      decorateWithMPtPhi(ttbarPartonHistory, "MC_t_afterFSR", t_after);
       fillEtaBranch(ttbarPartonHistory, "MC_t_afterFSR_eta", t_after);
 
       if (event_top_SC) {
-        ttbarPartonHistory->auxdecor< float >("MC_t_afterFSR_SC_m") = t_after_SC.M();
-        ttbarPartonHistory->auxdecor< float >("MC_t_afterFSR_SC_pt") = t_after_SC.Pt();
-        ttbarPartonHistory->auxdecor< float >("MC_t_afterFSR_SC_phi") = t_after_SC.Phi();
+        decorateWithMPtPhi(ttbarPartonHistory, "MC_t_afterFSR_SC", t_after_SC);
         fillEtaBranch(ttbarPartonHistory, "MC_t_afterFSR_SC_eta", t_after_SC);
       }
-
-      ttbarPartonHistory->auxdecor< float >("MC_W_from_t_m") = Wp.M();
-      ttbarPartonHistory->auxdecor< float >("MC_W_from_t_pt") = Wp.Pt();
-      ttbarPartonHistory->auxdecor< float >("MC_W_from_t_phi") = Wp.Phi();
+      decorateWithMPtPhi(ttbarPartonHistory, "MC_W_from_t", Wp);
       fillEtaBranch(ttbarPartonHistory, "MC_W_from_t_eta", Wp);
 
-      ttbarPartonHistory->auxdecor< float >("MC_b_from_t_m") = b.M();
-      ttbarPartonHistory->auxdecor< float >("MC_b_from_t_pt") = b.Pt();
-      ttbarPartonHistory->auxdecor< float >("MC_b_from_t_phi") = b.Phi();
+      decorateWithMPtPhi(ttbarPartonHistory, "MC_b_from_t", b);
       fillEtaBranch(ttbarPartonHistory, "MC_b_from_t_eta", b);
 
-      ttbarPartonHistory->auxdecor< float >("MC_Wdecay1_from_t_m") = WpDecay1.M();
-      ttbarPartonHistory->auxdecor< float >("MC_Wdecay1_from_t_pt") = WpDecay1.Pt();
-      ttbarPartonHistory->auxdecor< float >("MC_Wdecay1_from_t_phi") = WpDecay1.Phi();
+      decorateWithMPtPhi(ttbarPartonHistory, "MC_Wdecay1_from_t", WpDecay1);
       ttbarPartonHistory->auxdecor< int >("MC_Wdecay1_from_t_pdgId") = WpDecay1_pdgId;
       fillEtaBranch(ttbarPartonHistory, "MC_Wdecay1_from_t_eta", WpDecay1);
 
-      ttbarPartonHistory->auxdecor< float >("MC_Wdecay2_from_t_m") = WpDecay2.M();
-      ttbarPartonHistory->auxdecor< float >("MC_Wdecay2_from_t_pt") = WpDecay2.Pt();
-      ttbarPartonHistory->auxdecor< float >("MC_Wdecay2_from_t_phi") = WpDecay2.Phi();
+      decorateWithMPtPhi(ttbarPartonHistory, "MC_Wdecay2_from_t", WpDecay2);
       ttbarPartonHistory->auxdecor< int >("MC_Wdecay2_from_t_pdgId") = WpDecay2_pdgId;
       fillEtaBranch(ttbarPartonHistory, "MC_Wdecay2_from_t_eta", WpDecay2);
     }//if
     if (event_topbar) {
-      ttbarPartonHistory->auxdecor< float >("MC_tbar_beforeFSR_m") = tbar_before.M();
-      ttbarPartonHistory->auxdecor< float >("MC_tbar_beforeFSR_pt") = tbar_before.Pt();
-      ttbarPartonHistory->auxdecor< float >("MC_tbar_beforeFSR_phi") = tbar_before.Phi();
+      decorateWithMPtPhi(ttbarPartonHistory, "MC_tbar_beforeFSR", tbar_before);
       fillEtaBranch(ttbarPartonHistory, "MC_tbar_beforeFSR_eta", tbar_before);
 
-      ttbarPartonHistory->auxdecor< float >("MC_tbar_afterFSR_m") = tbar_after.M();
-      ttbarPartonHistory->auxdecor< float >("MC_tbar_afterFSR_pt") = tbar_after.Pt();
-      ttbarPartonHistory->auxdecor< float >("MC_tbar_afterFSR_phi") = tbar_after.Phi();
+      decorateWithMPtPhi(ttbarPartonHistory, "MC_tbar_afterFSR", tbar_after);
       fillEtaBranch(ttbarPartonHistory, "MC_tbar_afterFSR_eta", tbar_after);
 
       if (event_topbar_SC) {
-        ttbarPartonHistory->auxdecor< float >("MC_tbar_afterFSR_SC_m") = tbar_after_SC.M();
-        ttbarPartonHistory->auxdecor< float >("MC_tbar_afterFSR_SC_pt") = tbar_after_SC.Pt();
-        ttbarPartonHistory->auxdecor< float >("MC_tbar_afterFSR_SC_phi") = tbar_after_SC.Phi();
+        decorateWithMPtPhi(ttbarPartonHistory, "MC_tbar_afterFSR_SC", tbar_after_SC);
         fillEtaBranch(ttbarPartonHistory, "MC_tbar_afterFSR_SC_eta", tbar_after_SC);
       }
-
-      ttbarPartonHistory->auxdecor< float >("MC_W_from_tbar_m") = Wm.M();
-      ttbarPartonHistory->auxdecor< float >("MC_W_from_tbar_pt") = Wm.Pt();
-      ttbarPartonHistory->auxdecor< float >("MC_W_from_tbar_phi") = Wm.Phi();
+      
+      decorateWithMPtPhi(ttbarPartonHistory, "MC_W_from_tbar", Wm);
       fillEtaBranch(ttbarPartonHistory, "MC_W_from_tbar_eta", Wm);
-
-      ttbarPartonHistory->auxdecor< float >("MC_b_from_tbar_m") = bbar.M();
-      ttbarPartonHistory->auxdecor< float >("MC_b_from_tbar_pt") = bbar.Pt();
-      ttbarPartonHistory->auxdecor< float >("MC_b_from_tbar_phi") = bbar.Phi();
+      
+      decorateWithMPtPhi(ttbarPartonHistory, "MC_b_from_tbar", bbar);
       fillEtaBranch(ttbarPartonHistory, "MC_b_from_tbar_eta", bbar);
-
-      ttbarPartonHistory->auxdecor< float >("MC_Wdecay1_from_tbar_m") = WmDecay1.M();
-      ttbarPartonHistory->auxdecor< float >("MC_Wdecay1_from_tbar_pt") = WmDecay1.Pt();
-      ttbarPartonHistory->auxdecor< float >("MC_Wdecay1_from_tbar_phi") = WmDecay1.Phi();
+      
+      decorateWithMPtPhi(ttbarPartonHistory, "MC_Wdecay1_from_tbar", WmDecay1);
       ttbarPartonHistory->auxdecor< int >("MC_Wdecay1_from_tbar_pdgId") = WmDecay1_pdgId;
       fillEtaBranch(ttbarPartonHistory, "MC_Wdecay1_from_tbar_eta", WmDecay1);
-
-      ttbarPartonHistory->auxdecor< float >("MC_Wdecay2_from_tbar_m") = WmDecay2.M();
-      ttbarPartonHistory->auxdecor< float >("MC_Wdecay2_from_tbar_pt") = WmDecay2.Pt();
-      ttbarPartonHistory->auxdecor< float >("MC_Wdecay2_from_tbar_phi") = WmDecay2.Phi();
+      
+      decorateWithMPtPhi(ttbarPartonHistory, "MC_Wdecay2_from_tbar", WmDecay2);
       ttbarPartonHistory->auxdecor< int >("MC_Wdecay2_from_tbar_pdgId") = WmDecay2_pdgId;
       fillEtaBranch(ttbarPartonHistory, "MC_Wdecay2_from_tbar_eta", WmDecay2);
     }//if
@@ -159,10 +126,12 @@ namespace top {
     }
     
     // Create the partonHistory xAOD object
+    //cppcheck-suppress uninitvar
     xAOD::PartonHistoryAuxContainer* partonAuxCont = new xAOD::PartonHistoryAuxContainer {};
+    //cppcheck-suppress uninitvar
     xAOD::PartonHistoryContainer* partonCont = new xAOD::PartonHistoryContainer {};
     partonCont->setStore(partonAuxCont);
-
+    //cppcheck-suppress uninitvar
     xAOD::PartonHistory* ttbarPartonHistory = new xAOD::PartonHistory {};
     partonCont->push_back(ttbarPartonHistory);
 

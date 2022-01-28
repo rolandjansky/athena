@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #include "./EMTauInputProviderFEX.h"
 
@@ -83,8 +83,8 @@ EMTauInputProviderFEX::handle(const Incident& incident) {
 
    auto hTauEt = std::make_unique<TH1I>( "eTauTOBEt", "eTau TOB Et", 200, 0, 200);
    hTauEt->SetXTitle("E_{T} [GeV]");
-   auto hTauIsolation = std::make_unique<TH1I>( "eTauIsolation", "eTau TOB isolation", 3, 0, 3);
-   hTauIsolation->SetXTitle("fCore isolation");
+   auto hTauRCore = std::make_unique<TH1I>( "eTauRCore", "eTau TOB rCore isolation", 3, 0, 3);
+   hTauRCore->SetXTitle("rCore isolation");
    auto hTauPhiEta = std::make_unique<TH2I>( "eTauTOBPhiEta", "eTau TOB Location", 400, -200, 200, 128, 0, 128);
    hTauPhiEta->SetXTitle("#eta#times40");
    hTauPhiEta->SetYTitle("#phi#times20");
@@ -94,9 +94,9 @@ EMTauInputProviderFEX::handle(const Incident& incident) {
    auto hTauEtPhi = std::make_unique<TH2I>( "eTauTOBEtPhi", "eTau TOB Et vs phi", 64, 0, 128, 100, 0, 200);
    hTauEtPhi->SetXTitle("#phi#times20");
    hTauEtPhi->SetYTitle("E_{t} [GeV]");
-   auto hTauEtIsolation = std::make_unique<TH2I>( "eTauTOBEtIsolation", "eTau TOB Et vs Isolation", 3, 0, 3, 100, 0, 200);
-   hTauEtIsolation->SetXTitle("fCore isolation");
-   hTauEtIsolation->SetYTitle("E_{t} [GeV]");
+   auto hTauEtRCore = std::make_unique<TH2I>( "eTauTOBEtRCore", "eTau TOB Et vs rCore isolation", 3, 0, 3, 100, 0, 200);
+   hTauEtRCore->SetXTitle("rCore isolation");
+   hTauEtRCore->SetYTitle("E_{t} [GeV]");
 
    if (m_histSvc->regShared( histPath + "eEMTOBEt", std::move(hEMEt), m_hEMEt ).isSuccess()){
      ATH_MSG_DEBUG("eEMTOBEt histogram has been registered successfully for EMTauProviderFEX.");
@@ -134,11 +134,11 @@ EMTauInputProviderFEX::handle(const Incident& incident) {
    else{
      ATH_MSG_WARNING("Could not register eTauTOBEt histogram for EMTauProviderFEX");
    }
-   if (m_histSvc->regShared( histPath + "eTauIsolation", std::move(hTauIsolation), m_hTauIsolation ).isSuccess()){
-     ATH_MSG_DEBUG("eTauIsolation histogram has been registered successfully for EMTauProviderFEX.");
+   if (m_histSvc->regShared( histPath + "eTauRCore", std::move(hTauRCore), m_hTauRCore ).isSuccess()){
+     ATH_MSG_DEBUG("eTauRCore histogram has been registered successfully for EMTauProviderFEX.");
    }
    else{
-     ATH_MSG_WARNING("Could not register eTauIsolation histogram for EMTauProviderFEX");
+     ATH_MSG_WARNING("Could not register eTauRCore histogram for EMTauProviderFEX");
    }
    if (m_histSvc->regShared( histPath + "eTauTOBPhiEta", std::move(hTauPhiEta), m_hTauPhiEta ).isSuccess()){
      ATH_MSG_DEBUG("eTauTOBPhiEta histogram has been registered successfully for EMTauProviderFEX.");
@@ -158,11 +158,11 @@ EMTauInputProviderFEX::handle(const Incident& incident) {
    else{
      ATH_MSG_WARNING("Could not register eTauTOBEtPhi histogram for EMTauProviderFEX");
    }
-   if (m_histSvc->regShared( histPath + "eTauTOBEtIsolation", std::move(hTauEtIsolation), m_hTauEtIsolation ).isSuccess()){
-     ATH_MSG_DEBUG("eTauTOBEtIsolation histogram has been registered successfully for EMTauProviderFEX.");
+   if (m_histSvc->regShared( histPath + "eTauTOBEtRCore", std::move(hTauEtRCore), m_hTauEtRCore ).isSuccess()){
+     ATH_MSG_DEBUG("eTauTOBEtRCore histogram has been registered successfully for EMTauProviderFEX.");
    }
    else{
-     ATH_MSG_WARNING("Could not register eTauTOBEtIsolation histogram for EMTauProviderFEX");
+     ATH_MSG_WARNING("Could not register eTauTOBEtRCore histogram for EMTauProviderFEX");
    }
 }
 
@@ -219,7 +219,7 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
     
     inputEvent.addeEm( eem );
     
-    m_hEMEt->Fill(eem.EtDouble());  // GeV
+    m_hEMEt->Fill(eem.EtDouble());
     m_hEMPhiEta->Fill(eem.eta(),eem.phi());
     m_hEMPhiEta_local->Fill(eFexRoI->iEta(),eFexRoI->iPhi());
     m_hEMEtEta->Fill(eem.eta(),eem.EtDouble());
@@ -236,6 +236,7 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
     return StatusCode::SUCCESS;
   }
   
+  // TODO: read eTau isolation variables from eTau RoI
   for(const auto it : * eTau_EDM){
     const xAOD::eFexTauRoI* eFexTauRoI = it;
     ATH_MSG_DEBUG( "EDM eFex Number: " 
@@ -248,32 +249,37 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
 		   << eFexTauRoI->eta() // returns a floating point global eta 
 		   << " phi: "
 		   << eFexTauRoI->phi() // returns a floating point global phi
-		   << " fcore "
-		   << eFexTauRoI->fCoreThresholds() // results of the 3 jet discriminant algorithms
+		   // << " rCore: "
+		   // << eFexTauRoI->rCoreThresholds() 
+		   // << " rHad: "
+		   // << eFexTauRoI->rHadThresholds()
 		  );
 
 
-    unsigned int EtTopo = eFexTauRoI->etTOB(); // MeV units
+    unsigned int EtTopo = eFexTauRoI->etTOB();
     int etaTopo = eFexTauRoI->iEtaTopo();
     int phiTopo = eFexTauRoI->iPhiTopo();
-    double isolation = eFexTauRoI->fCoreThresholds();
+    // unsigned int rCore = eFexTauRoI->rCoreThresholds();
+    // unsigned int rHad = eFexTauRoI->rHadThresholds();
 
     //Tau TOB
-    TCS::eTauTOB etau( EtTopo, isolation, etaTopo, static_cast<unsigned int>(phiTopo), TCS::ETAU );
+    TCS::eTauTOB etau( EtTopo, 0, etaTopo, static_cast<unsigned int>(phiTopo), TCS::ETAU );
     etau.setEtDouble(  static_cast<double>(EtTopo/10.) );
     etau.setEtaDouble( static_cast<double>(etaTopo/40.) );
     etau.setPhiDouble( static_cast<double>(phiTopo/20.) );
-    etau.setIsolation( static_cast<double>(isolation) );
+
+    // etau.setRCore( rCore );
+    // etau.setRHad( rHad );
 
     inputEvent.addeTau( etau );
     inputEvent.addcTau( etau );
 
-    m_hTauEt->Fill(etau.EtDouble());  // GeV
-    m_hTauIsolation->Fill(etau.isolation());  
+    m_hTauEt->Fill(etau.EtDouble());
+    // m_hTauRCore->Fill(etau.rCore());  
     m_hTauPhiEta->Fill(etau.eta(),etau.phi());
     m_hTauEtEta->Fill(etau.eta(),etau.EtDouble());
     m_hTauEtPhi->Fill(etau.phi(),etau.EtDouble());
-    m_hTauEtIsolation->Fill(etau.isolation(),etau.EtDouble());
+    // m_hTauEtRCore->Fill(etau.rCore(),etau.EtDouble());
   }
 
   return StatusCode::SUCCESS;

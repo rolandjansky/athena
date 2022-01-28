@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
+from AthenaConfiguration.AutoConfigFlags import GetFileMD
 
 #todo? add in the explanatory text from previous implementation
 
@@ -65,6 +66,9 @@ def createSimConfigFlags():
     scf.addFlag("Sim.StoppedParticleFile", '')
     scf.addFlag("Sim.BeamPipeSimMode", "Normal")  ## ["Normal", "FastSim", "EGammaRangeCuts", "EGammaPRangeCuts"]
     scf.addFlag("Sim.LArParameterization", 0)  ## 0 = No frozen showers, 1 = Frozen Showers, 2 = DeadMaterial Frozen Showers
+    # TRT Range cut used in simulation in mm. Should be 0.05 or 30.
+    scf.addFlag("Sim.TRTRangeCut",
+                  lambda prevFlags: float(GetFileMD(prevFlags.Input.Files).get('TRTRangeCut', 30.0)))
 
     #For BeameffectsAlg
     scf.addFlag("Sim.Vertex.Source", "CondDB" ) #"CondDB", "VertexOverrideEventFile.txt", "VertexOverride.txt","LongBeamspot"
@@ -108,7 +112,7 @@ def createSimConfigFlags():
             doITk = False
             doCALO = False
             doMUON = False
-        elif simstr in ("ATLFASTIIF_G4MS", "ATLFASTIIFMT"):
+        elif simstr in ("ATLFASTIIF_G4MS", "ATLFASTIIFMT", "ATLFAST3F_G4MS"):
             doID = True
             doITk = True
             doCALO = True

@@ -149,9 +149,9 @@ namespace Muon {
         GarbageContainer trash_bin;
 
         // convert segments
-        std::unique_ptr<MuPatSegment> segInfo1{m_candidateHandler->createSegInfo(seg1, trash_bin)};
+        std::unique_ptr<MuPatSegment> segInfo1{m_candidateHandler->createSegInfo(ctx, seg1, trash_bin)};
         if (!segInfo1) return nullptr;
-        std::unique_ptr<MuPatSegment> segInfo2{m_candidateHandler->createSegInfo(seg2, trash_bin)};
+        std::unique_ptr<MuPatSegment> segInfo2{m_candidateHandler->createSegInfo(ctx, seg2, trash_bin)};
         if (!segInfo2) { return nullptr; }
 
         // call fit()
@@ -334,7 +334,7 @@ namespace Muon {
         std::unique_ptr<Trk::Track> inTrack = std::make_unique<Trk::Track>(track);
         std::unique_ptr<MuPatTrack> candidate(m_candidateHandler->createCandidate(inTrack, trash_bin));
         if (!candidate) return nullptr;
-        std::unique_ptr<MuPatSegment> segInfo(m_candidateHandler->createSegInfo(seg, trash_bin));
+        std::unique_ptr<MuPatSegment> segInfo(m_candidateHandler->createSegInfo(ctx, seg, trash_bin));
         if (!segInfo) { return nullptr; }
        
         // call fit()
@@ -353,7 +353,7 @@ namespace Muon {
        
         std::unique_ptr<MuPatTrack> candidate = m_candidateHandler->createCandidate(inTrack, trash_bin);
         if (!candidate) return emptyVec;
-        std::unique_ptr<MuPatSegment> segInfo(m_candidateHandler->createSegInfo(seg, trash_bin));
+        std::unique_ptr<MuPatSegment> segInfo(m_candidateHandler->createSegInfo(ctx, seg, trash_bin));
         if (!segInfo) return emptyVec;
         // call fit()
         return combineWithSegmentFinding(ctx, *candidate, *segInfo, trash_bin, externalPhiHits);
@@ -486,7 +486,7 @@ namespace Muon {
 
         // propagate to segment surface
         std::unique_ptr<Trk::TrackParameters> exPars(
-            m_propagator->propagate(*closestPars, seg.associatedSurface(), Trk::anyDirection, false, m_magFieldProperties));
+            m_propagator->propagate(ctx,*closestPars, seg.associatedSurface(), Trk::anyDirection, false, m_magFieldProperties));
 
         if (!exPars) {
             ATH_MSG_WARNING(" Propagation failed!! ");
@@ -615,7 +615,7 @@ namespace Muon {
                         msg(MSG::DEBUG) << endmsg;
                     }
                 }
-                std::unique_ptr<MuPatSegment> segInfo{m_candidateHandler->createSegInfo(*mseg, trash_bin)};
+                std::unique_ptr<MuPatSegment> segInfo{m_candidateHandler->createSegInfo(ctx, *mseg, trash_bin)};
                 
                 if (!m_candidateMatchingTool->match(ctx, candidate, *segInfo, true)) { continue; }
                
@@ -855,7 +855,8 @@ namespace Muon {
                 } else {
                     // ownership relinquished, should be treated in createMeasTSOS
                     etaPars =
-                        m_propagator->propagate(*pars, etaCompRot->associatedSurface(), Trk::anyDirection, false, m_magFieldProperties)
+                        m_propagator->propagate(ctx,
+                                                *pars, etaCompRot->associatedSurface(), Trk::anyDirection, false, m_magFieldProperties)
                             .release();
                 }
                 if (!etaPars) {
@@ -1115,7 +1116,7 @@ namespace Muon {
         return candidates;
     }
 
-    bool MooTrackBuilder::isSplitTrack(const Trk::Track& track1, const Trk::Track& track2) const {
+    bool MooTrackBuilder::isSplitTrack(const EventContext& ctx, const Trk::Track& track1, const Trk::Track& track2) const {
         // some loose association cuts
         const DataVector<const Trk::TrackParameters>* parsVec1 = track1.trackParameters();
         if (!parsVec1 || parsVec1->empty()) {
@@ -1256,7 +1257,8 @@ namespace Muon {
                     if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << m_idHelperSvc->toString(id);
                     // unique ptr ownership retained. Original code deleted impactPars
                     auto impactPars =
-                        m_propagator->propagate(*closestPars, meas->associatedSurface(), Trk::anyDirection, false, m_magFieldProperties);
+                        m_propagator->propagate(ctx, *closestPars, meas->associatedSurface(), 
+                                                Trk::anyDirection, false, m_magFieldProperties);
                     if (impactPars) {
                         double residual = 1e10;
                         double pull = 1e10;
@@ -1352,7 +1354,7 @@ namespace Muon {
             // compare them to all good tracks and look for split tracks
             for (std::pair<bool, std::unique_ptr<Trk::Track>>& good_trk : goodTracks) {
                 // check whether track is split
-                bool isSplit = isSplitTrack(*good_trk.second, *in_track);
+                bool isSplit = isSplitTrack(ctx, *good_trk.second, *in_track);
                 if (isSplit) {
                     // if we found a potential split track, try to combine them
                     std::unique_ptr<Trk::Track> track1 = std::make_unique<Trk::Track>(*good_trk.second);

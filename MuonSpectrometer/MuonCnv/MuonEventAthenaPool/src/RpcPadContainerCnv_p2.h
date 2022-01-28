@@ -32,7 +32,7 @@ public:
     StatusCode initialize(MsgStream &log);
 private:
     bool m_isInitialized;
-    const RpcIdHelper* m_rpcIdHelper;
+    const RpcIdHelper* m_rpcIdHelper = nullptr;
 };
 
 #endif 

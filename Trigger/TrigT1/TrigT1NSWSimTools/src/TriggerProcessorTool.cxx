@@ -19,8 +19,9 @@ namespace NSWL1 {
     return StatusCode::SUCCESS;
   }
 
-  
-  StatusCode TriggerProcessorTool::mergeRDO(const Muon::NSW_PadTriggerDataContainer* padTriggerContainer, Muon::NSW_TrigRawDataContainer* trigRdoContainer) {
+  StatusCode TriggerProcessorTool::mergeRDO(const Muon::NSW_PadTriggerDataContainer* padTriggerContainer,
+                                            const Muon::NSW_TrigRawDataContainer* MMTriggerContainer,
+                                            Muon::NSW_TrigRawDataContainer* trigRdoContainer) {
 
     ATH_MSG_DEBUG("Pad Trigger Container size: " << padTriggerContainer->size());
     for ( const Muon::NSW_PadTriggerData* padTriggerData : *padTriggerContainer ) {
@@ -39,12 +40,18 @@ namespace NSWL1 {
         trigRawDataSegment->setPhiIndex(phiID);
 
         // set STGC
-        trigRawDataSegment->setPhiRes(false);
+        trigRawDataSegment->setPhiRes(true);
         trigRawData->push_back(trigRawDataSegment);
       }
       trigRdoContainer->push_back(trigRawData);
     }
-    ATH_MSG_DEBUG("NSW Trigger RDO size: " << trigRdoContainer->size());
+    ATH_MSG_DEBUG("After PadTrigger filling -> NSW Trigger RDO size: " << trigRdoContainer->size());
+
+    for (const auto rawData : *MMTriggerContainer) {
+      Muon::NSW_TrigRawData* trigRawData = new Muon::NSW_TrigRawData(*rawData);
+      trigRdoContainer->push_back(trigRawData);
+    }
+    ATH_MSG_DEBUG("After MMTrigger filling -> NSW Trigger RDO size: " << trigRdoContainer->size());
 
     return StatusCode::SUCCESS;
   }

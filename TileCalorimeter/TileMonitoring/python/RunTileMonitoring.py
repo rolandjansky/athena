@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 '''@file RunTileMonitoring.py
 @brief Script to run Tile Reconstrcution/Monitoring with new-style configuration
 '''
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import Format
+
+
 def ByteStreamEmonReadCfg( inputFlags, type_names=[]):
     """
     Creates accumulator for BS Emon reading
@@ -216,7 +219,7 @@ if __name__=='__main__':
     if args.stateless:
         _configFlagsFromPartition(ConfigFlags, args.partition, log)
         ConfigFlags.Input.isMC = False
-        ConfigFlags.Input.Format = 'BS'
+        ConfigFlags.Input.Format = Format.BS
         if args.mbts and args.useMbtsTrigger:
             from AthenaConfiguration.AutoConfigOnlineRecoFlags import autoConfigOnlineRecoFlags
             autoConfigOnlineRecoFlags(ConfigFlags, args.partition)

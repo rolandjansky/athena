@@ -92,8 +92,8 @@ StatusCode gFEXDriver::initialize()
   local_gTowerContainerRaw->fillContainerMap();
 
   // STEP 3 - Do the supercell-tower mapping - put this information into the gTowerContainer
-  ATH_CHECK(m_gSuperCellTowerMapperTool->AssignSuperCellsToTowers(local_gTowerContainerRaw));
   ATH_CHECK(m_gSuperCellTowerMapperTool->AssignTriggerTowerMapper(local_gTowerContainerRaw));
+  ATH_CHECK(m_gSuperCellTowerMapperTool->AssignSuperCellsToTowers(local_gTowerContainerRaw));
 
   // STEP 4 - Write the completed gTowerContainer into StoreGate (move the local copy in memory)
   SG::WriteHandle<LVL1::gTowerContainer> gTowerContainerSG(m_gTowerContainerSGKey);

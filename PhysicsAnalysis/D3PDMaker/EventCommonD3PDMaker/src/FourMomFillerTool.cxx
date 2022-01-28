@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -43,7 +43,7 @@ FourMomFillerTool::FourMomFillerTool (const std::string& type,
   m_do_tanth    = true;
   m_do_etaphi   = true;
   m_do_rect     = true;
-  book().ignore(); // Avoid coverity warnings.
+  FourMomFillerTool::book().ignore(); // Avoid coverity warnings.
 
   declareProperty ("WriteE",        m_do_E        = false);
   declareProperty ("WriteP",        m_do_p        = false);

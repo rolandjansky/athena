@@ -24,6 +24,8 @@ logRecExCommon_flags = logging.getLogger( 'RecExCommon_flags' )
 # start using the new job properties
 from AthenaCommon.AthenaCommonFlags import jobproperties,athenaCommonFlags
 
+from PyUtils.moduleExists import moduleExists
+
 
 #FilesInput() triggers full auto-configuration. Only for a transition period.
 if len(athenaCommonFlags.FilesInput())>0:
@@ -62,13 +64,19 @@ from RecExConfig.RecFlags import rec
 from RecExConfig.RecAlgsFlags import recAlgs
 from AthenaCommon.GlobalFlags import globalflags
 
-from CaloRec.CaloRecFlags import jobproperties
-from InDetRecExample.InDetJobProperties import InDetFlags
-InDetFlags.doPrintConfigurables=False  # change default here
-from MuonRecExample.MuonRecFlags import muonRecFlags
-from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
-from tauRec.tauRecFlags import jobproperties
-from JetRec.JetRecFlags import jobproperties
+if moduleExists ('CaloRec'):
+   from CaloRec.CaloRecFlags import jobproperties
+if moduleExists ('InDetRecExample'):
+   from InDetRecExample.InDetJobProperties import InDetFlags
+   InDetFlags.doPrintConfigurables=False  # change default here
+if moduleExists ('MuonRecExample'):
+   from MuonRecExample.MuonRecFlags import muonRecFlags
+if moduleExists ('MuonCombinedRecExample'):
+   from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
+if moduleExists ('tauRec'):
+   from tauRec.tauRecFlags import jobproperties
+if moduleExists ('JetRec'):
+   from JetRec.JetRecFlags import jobproperties
 
 # some special migration (temporary)
 if rec.doFloatingPointException() and not athenaCommonFlags.isOnline():
@@ -258,23 +266,29 @@ if not rec.doESD():
          jobproperties._log.info('RecExCommon_flags:: migration data %s',data)  
          jobproperties.set_JobProperties(data)
 
-   from CaloRec.CaloRecFlags import jobproperties
-   jobproperties.CaloRecFlags.Enabled=False
+   if moduleExists ('CaloRec'):
+      from CaloRec.CaloRecFlags import jobproperties
+      jobproperties.CaloRecFlags.Enabled=False
 
-   from InDetRecExample.InDetJobProperties import InDetFlags
-   jobproperties.InDetJobProperties.disableInDetReco=True
+   if moduleExists ('InDetRecExample'):
+      from InDetRecExample.InDetJobProperties import InDetFlags
+      jobproperties.InDetJobProperties.disableInDetReco=True
 
-   from MuonRecExample.MuonRecFlags import muonRecFlags
-   jobproperties.MuonRec.Enabled=False
+   if moduleExists ('MuonRecExample'):
+      from MuonRecExample.MuonRecFlags import muonRecFlags
+      jobproperties.MuonRec.Enabled=False
 
-   from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
-   jobproperties.MuonCombinedRec.Enabled=False
+   if moduleExists ('MuonCombinedRecExample'):
+      from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
+      jobproperties.MuonCombinedRec.Enabled=False
 
-   from JetRec.JetRecFlags import jobproperties
-   jobproperties.JetRecFlags.Enabled=False
+   if moduleExists ('JetRec'):
+      from JetRec.JetRecFlags import jobproperties
+      jobproperties.JetRecFlags.Enabled=False
 
-   from tauRec.tauRecFlags import jobproperties
-   jobproperties.tauRecFlags.Enabled=False
+   if moduleExists ('tauRec'):
+      from tauRec.tauRecFlags import jobproperties
+      jobproperties.tauRecFlags.Enabled=False
 
 
 if rec.doESD() and rec.doHeavyIon():
@@ -485,10 +499,6 @@ else:
    pos=myathpath.find("LCGCMT_")
    if(pos>-1):
       rec.LCGCMTVersion=myathpath[pos+7:pos+10]
-
-if rec.doTrigger():
-   from TriggerJobOpts.TriggerFlags import sync_Trigger2Reco
-   sync_Trigger2Reco()
 
 del _AODFlagsAvailable
 

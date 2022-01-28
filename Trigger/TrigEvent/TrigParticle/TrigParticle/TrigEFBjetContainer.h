@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ************************************************
@@ -27,8 +27,12 @@
  * @author Andrea Coccaro <Andrea.Coccaro@ge.infn.it>
  */
 
-class TrigEFBjetContainer: public DataVector<TrigEFBjet> { }; 
 //typedef DataVector<TrigEFBjet> TrigEFBjetContainer;
+class TrigEFBjetContainer: public DataVector<TrigEFBjet> {
+public:
+  using DataVector::DataVector;  // inherit constructors
+}; 
+
 
 CLASS_DEF(TrigEFBjetContainer, 1142962358, 1)
 

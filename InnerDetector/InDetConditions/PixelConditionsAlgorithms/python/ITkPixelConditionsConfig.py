@@ -1,6 +1,6 @@
 """Define functions to configure Pixel conditions algorithms
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -43,7 +43,7 @@ def ITkPixelChargeCalibCondAlgCfg(flags, name="ITkPixelChargeCalibCondAlg", **kw
     acc.merge(ITkPixelReadoutGeometryCfg(flags))
     kwargs.setdefault("PixelDetEleCollKey", "ITkPixelDetectorElementCollection")
     kwargs.setdefault("PixelModuleData", "ITkPixelModuleData")
-    kwargs.setdefault("ReadKey", "")  # TODO: enable when ready
+    kwargs.setdefault("ReadKey", "/PIXEL/PixCalib")  # Proper calibration path inserted
     kwargs.setdefault("WriteKey", "ITkPixelChargeCalibCondData")
     acc.addCondAlgo(CompFactory.PixelChargeCalibCondAlg(name, **kwargs))
     return acc
@@ -79,11 +79,7 @@ def ITkPixelDCSCondHVAlgCfg(flags, name="ITkPixelDCSCondHVAlg", **kwargs):
 def ITkPixelDCSCondStateAlgCfg(flags, name="ITkPixelDCSCondStateAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelDCSCondStateAlg for ITk"""
     acc = ComponentAccumulator()
-    if not flags.Input.isMC and not flags.Overlay.DataOverlay and flags.InDet.usePixelDCS:
-        acc.merge(addFolders(flags, "/PIXEL/DCS/FSMSTATE", "DCS_OFL", className="CondAttrListCollection"))
-        kwargs.setdefault("ReadKeyState", "/PIXEL/DCS/FSMSTATE")
-    else:
-        kwargs.setdefault("ReadKeyState", "")
+    kwargs.setdefault("ReadKeyState", "") #To be configured when final DCS implementation for ITk becomes available
     kwargs.setdefault("WriteKeyState", "ITkPixelDCSStateCondData")
     acc.addCondAlgo(CompFactory.PixelDCSCondStateAlg(name, **kwargs))
     return acc
@@ -91,11 +87,7 @@ def ITkPixelDCSCondStateAlgCfg(flags, name="ITkPixelDCSCondStateAlg", **kwargs):
 def ITkPixelDCSCondStatusAlgCfg(flags, name="ITkPixelDCSCondStatusAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelDCSCondStatusAlg for ITk"""
     acc = ComponentAccumulator()
-    if not flags.Input.isMC and not flags.Overlay.DataOverlay and flags.InDet.usePixelDCS:
-        acc.merge(addFolders(flags, "/PIXEL/DCS/FSMSTATUS", "DCS_OFL", className="CondAttrListCollection"))
-        kwargs.setdefault("ReadKeyStatus", "/PIXEL/DCS/FSMSTATUS")
-    else:
-        kwargs.setdefault("ReadKeyStatus", "")
+    kwargs.setdefault("ReadKeyStatus", "") #To be configured when final DCS implementation for ITk becomes available
     kwargs.setdefault("WriteKeyStatus", "ITkPixelDCSStatusCondData")
     acc.addCondAlgo(CompFactory.PixelDCSCondStatusAlg(name, **kwargs))
     return acc
@@ -144,6 +136,8 @@ def ITkPixelDistortionAlgCfg(flags, name="ITkPixelDistortionAlg", **kwargs):
     kwargs.setdefault("PixelModuleData", "ITkPixelModuleData")
     kwargs.setdefault("ReadKey", "/Indet/PixelDist")
     kwargs.setdefault("WriteKey", "ITkPixelDistortionData")
+    from RngComps.RandomServices import AthRNGSvcCfg
+    kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
     acc.addCondAlgo(CompFactory.PixelDistortionAlg(name, **kwargs))
     return acc
 

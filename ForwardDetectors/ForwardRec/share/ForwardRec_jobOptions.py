@@ -53,3 +53,5 @@ if rec.doAFP() and rec.doESD():
   include("AFP_LocReco/AFP_LocReco_joboption.py")
   # protons reconstruction
   include("AFP_GlobReco/AFP_GlobReco_joboption.py")
+  # vertex reconstruction
+  include("AFP_VertexReco/AFP_VertexReco_joboption.py")

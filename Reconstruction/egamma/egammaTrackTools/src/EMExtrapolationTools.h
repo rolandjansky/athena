@@ -56,22 +56,24 @@ public:
 
   /** @brief initialize method */
   virtual StatusCode initialize() override final;
-  /** @brief finalize method */
-  virtual StatusCode finalize() override final;
 
-  typedef std::unordered_map<size_t, std::unique_ptr<Trk::CaloExtension>> Cache;
-
+  virtual std::pair<std::vector<CaloSampling::CaloSample>,
+                    std::vector<std::unique_ptr<Trk::Surface>>>
+  getClusterLayerSurfaces(
+    const xAOD::CaloCluster& cluster,
+    const CaloDetDescrManager& caloDD) const override final;
   /**   get eta, phi, deltaEta, and deltaPhi at the four calorimeter
    *    layers given the Trk::ParametersBase.  */
   virtual StatusCode getMatchAtCalo(
     const EventContext& ctx,
     const xAOD::CaloCluster& cluster,
     const xAOD::TrackParticle& trkPB,
+    const std::vector<CaloSampling::CaloSample>& samples,
+    const std::vector<std::unique_ptr<Trk::Surface>>& surfaces,
     std::array<double, 4>& eta,
     std::array<double, 4>& phi,
     std::array<double, 4>& deltaEta,
     std::array<double, 4>& deltaPhi,
-    const CaloDetDescrManager& caloDD,
     unsigned int extrapFrom = fromPerigee) const override final;
 
   /** test for vertex-to-cluster match given also the positions

@@ -24,9 +24,9 @@ const int MAX_DATA = 1024;
 
 ReadTgcRDO::ReadTgcRDO(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_ntuplePtr(0), 
+  m_ntuplePtr(nullptr), 
   m_activeStore("ActiveStoreSvc", name),
-  m_hashFunc(0)
+  m_hashFunc(nullptr)
 {
   // Declare the properties
   declareProperty("NtupleLocID",m_NtupleLocID);

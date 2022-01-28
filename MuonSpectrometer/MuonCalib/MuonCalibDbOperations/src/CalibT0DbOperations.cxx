@@ -299,7 +299,7 @@ namespace MuonCalib {
         }
     }
 
-    bool CalibT0DbOperations::ReadForConditions(std::string /*site_name*/, int head_id, IConditionsStorage &storage) {
+    bool CalibT0DbOperations::ReadForConditions(const std::string& /*site_name*/, int head_id, IConditionsStorage &storage) {
         try {
             // prepare query
             m_db_conn.OpenTransaction();

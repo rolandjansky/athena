@@ -47,6 +47,10 @@ def TRT_dEdxToolCfg(flags, name="TRT_dEdxTool", **kwargs):
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTToTCondAlgCfg
     acc = TRTToTCondAlgCfg(flags)
 
+    if not flags.Input.isMC:
+        from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
+        acc.merge(LumiBlockMuWriterCfg(flags))
+
     kwargs.setdefault("TRT_dEdx_isData", not flags.Input.isMC)
     kwargs.setdefault("TRT_LocalOccupancyTool", acc.popToolsAndMerge(TRT_LocalOccupancyCfg(flags)))
     

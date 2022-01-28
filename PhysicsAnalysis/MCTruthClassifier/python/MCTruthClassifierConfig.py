@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """
           Tool configuration to instantiate MCTruthClassifier
@@ -93,7 +93,7 @@ if __name__ == "__main__":
     Configurable.configurableRun3Behavior = 1
 
     ConfigFlags.Input.isMC = True
-    ConfigFlags.Input.Files = defaultTestFiles.RDO
+    ConfigFlags.Input.Files = defaultTestFiles.RDO_RUN2
     ConfigFlags.lock()
 
     mlog = logging.getLogger("MCTruthClassifierConfigTest")

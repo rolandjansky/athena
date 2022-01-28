@@ -19,7 +19,7 @@ namespace MuonGM {
         friend std::ostream &operator<<(std::ostream &os, const sTGCComponent &c);
 
         double yCutout;
-        double yCutoutCathode;
+        double yCutoutCathode = 0.0;
         std::string subType;
     };
 

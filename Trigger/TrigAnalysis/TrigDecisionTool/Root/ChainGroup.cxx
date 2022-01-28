@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -21,7 +21,7 @@
 #include "TrigConfHLTData/HLTStreamTag.h"
 #include "TrigConfHLTData/HLTSignature.h"
 #include "TrigConfHLTData/HLTTriggerElement.h"
-#include "TrigConfHLTData/HLTUtils.h"
+#include "TrigConfHLTUtils/HLTUtils.h"
 #include "TrigConfL1Data/TriggerItem.h"
 #include "TrigConfL1Data/TriggerItemNode.h"
 #include "TrigSteeringEvent/Chain.h"
@@ -74,9 +74,12 @@ void Trig::ChainGroup::addAlias(const std::string& alias) {
 }
 
 const Trig::CacheGlobalMemory* Trig::ChainGroup::cgm(bool onlyConfig) const {
-  if ( !onlyConfig )
-    const_cast<Trig::CacheGlobalMemory*>(&m_cgm)->assert_decision(); 
-  
+  if ( !onlyConfig ) {
+    // thread-safe because assert_decision is locked
+    auto cgm ATLAS_THREAD_SAFE = const_cast<Trig::CacheGlobalMemory*>(&m_cgm);
+    cgm->assert_decision();
+  }
+
   return &m_cgm;
 }
 
@@ -210,30 +213,9 @@ bool Trig::ChainGroup::isPassed(unsigned int condition) const
   }
 
   if (condition == TrigDefs::Express_passed) {
-    //reset the RESULT, since for now we do not want to depend on the upstream result, but just pick it up from the ES container
-    RESULT = false;
-    const xAOD::TrigCompositeContainer* expressCont = cgm()->expressStreamContainer();
-    if (expressCont && expressCont->size() > 0) {
-      const xAOD::TrigComposite* expressStream = (*expressCont)[0];
-      if (expressStream) {
-	//here we just get both possible L1 Items and HLT Chains instead of looping over each one separately
-	std::vector<std::string> triggers = getListOfTriggers();
-        const std::vector<std::string>& express_names = expressStream->linkColNames();
-	std::vector<std::string>::const_iterator p1, p2;
-        for (p1=triggers.begin(); p1!=triggers.end(); ++p1) {
-          for (p2=express_names.begin(); p2!=express_names.end(); ++p2) {
-            if ( (*p1) == (*p2) ) {
-	      //essentially implements a OR across all triggers in the CG (as is done upstream)
-              RESULT = true;
-	      ATH_MSG_VERBOSE("Express_passed: " << (*p1) );
-              break;
-            }
-          }
-        }
-      }
-    }
+    ATH_MSG_ERROR("Calling isPassed with TrigDefs::Express_passed is currently not supported");
   }
-  
+
   return RESULT;
 }
 

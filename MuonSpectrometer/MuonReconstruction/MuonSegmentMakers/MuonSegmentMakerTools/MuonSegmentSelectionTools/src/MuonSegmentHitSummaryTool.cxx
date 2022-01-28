@@ -47,7 +47,7 @@ MuonSegmentHitSummaryTool::getHitCounts(const MuonSegment& seg) const
 
     // calculate shortest channel
     double                       shortestTube   = 1e9;
-    const MdtDriftCircleOnTrack* mdtShortest    = 0;
+    const MdtDriftCircleOnTrack* mdtShortest    = nullptr;
     bool                         transformIsSet = false;
     Amg::Transform3D             gToAMDB;
     Amg::Vector3D                lpos(0., 0., 0.);

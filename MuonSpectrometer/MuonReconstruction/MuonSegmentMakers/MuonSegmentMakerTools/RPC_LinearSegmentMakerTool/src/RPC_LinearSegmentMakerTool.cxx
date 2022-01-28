@@ -73,7 +73,7 @@ RPC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
 {
     ATH_MSG_DEBUG("RPC_LinearSegmentMakerTool::find");
     
-    std::vector<const Muon::MuonSegment*>* pMuonSegs = NULL;
+    std::vector<const Muon::MuonSegment*>* pMuonSegs = nullptr;
     double dChi2 = 0.0;
     int nDegf = 0;
     Muon::Fit2D::PointArray zPoints, phiPoints;
@@ -232,7 +232,7 @@ RPC_LinearSegmentMakerTool::find(const Trk::TrackRoad& road,
                         << " loc (" << loc3Dframe.x() << "," << loc3Dframe.y() << "," << loc3Dframe.z() << ")" );
         }
         const Trk::PlaneSurface* pSurface = dynamic_cast<const Trk::PlaneSurface*>(&surface);
-        if (pSurface == NULL)
+        if (pSurface == nullptr)
         {
             ATH_MSG_WARNING("Cannot get a PlaneSurface from RpcClusterOnTrack");
             goto done;

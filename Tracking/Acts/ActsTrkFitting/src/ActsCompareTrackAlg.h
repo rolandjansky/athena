@@ -7,21 +7,10 @@
 
 // ATHENA
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "Gaudi/Property.h"  /*no forward decl: typedef*/
 #include "GaudiKernel/ISvcLocator.h"
-#include "TrkTrack/TrackCollection.h"
-#include "StoreGate/ReadHandleKey.h"
-#include "StoreGate/WriteHandleKey.h"
-
-#include "xAODTracking/TrackParticleContainer.h"
-#include "xAODTracking/TrackParticle.h"
-
 // STL
 #include <memory>
-#include <vector>
-#include <fstream>
-#include <mutex>
+#include <string>
 
 // FIXME: header-global macro for an array size constant!
 #ifndef MAXPROBES
@@ -51,7 +40,7 @@ private:
   std::string m_validationTreeDescription; //!< validation tree description - second argument in TTree
   std::string m_validationTreeFolder;      //!< stream/folder to for the TTree to be written out
 
-  TTree *m_validationTree; //!< Root Validation Tree
+  TTree *m_validationTree{}; //!< Root Validation Tree
   /** Ntuple variables : initial parameters
         Split this out into a separate, dynamically-allocated block.
         Otherwise, the CaloCellNoiseAlg is so large that it violates
@@ -116,18 +105,18 @@ private:
     };
     std::unique_ptr<TreeData> m_treeData;
 
-    TH1* m_diff_d0;
-    TH1* m_diff_z0;
-    TH1* m_diff_phi;
-    TH1* m_diff_theta;
-    TH1* m_diff_q_p;
+    TH1* m_diff_d0{};
+    TH1* m_diff_z0{};
+    TH1* m_diff_phi{};
+    TH1* m_diff_theta{};
+    TH1* m_diff_q_p{};
     
-    TH1* m_sigma_d0;
-    TH1* m_sigma_z0;
-    TH1* m_sigma_phi;
-    TH1* m_sigma_theta;
-    TH1* m_sigma_q_p;
-    TH1F** m_cov_comparison;
+    TH1* m_sigma_d0{};
+    TH1* m_sigma_z0{};
+    TH1* m_sigma_phi{};
+    TH1* m_sigma_theta{};
+    TH1* m_sigma_q_p{};
+    TH1F** m_cov_comparison{};
 
 };
 

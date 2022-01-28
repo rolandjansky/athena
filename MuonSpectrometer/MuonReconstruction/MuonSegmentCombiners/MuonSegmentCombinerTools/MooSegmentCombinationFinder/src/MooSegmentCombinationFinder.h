@@ -89,7 +89,7 @@ namespace Muon {
                                                              "Run segment combination cleaning"};
         Gaudi::Property<bool> m_cloneSegments{this, "CloneSegments", false, ""};
 
-        ToolHandle<MuonEDMPrinterTool> m_edmPrinter{"Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
+        PublicToolHandle<MuonEDMPrinterTool> m_edmPrinter{"Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
         ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc{this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
                                                         "Handle to the service providing the IMuonEDMHelperSvc interface"};
         ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};

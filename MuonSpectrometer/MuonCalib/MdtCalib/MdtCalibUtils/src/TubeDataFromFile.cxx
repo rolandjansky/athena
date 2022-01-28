@@ -36,8 +36,8 @@ namespace MuonCalib {
                 // unpack regionKey
                 std::string chamberName = m_tubeData[i]->regionKey();
                 std::string stnName(chamberName, 0, 3);
-                int separator1 = chamberName.find_first_of("_");
-                int separator2 = chamberName.find_last_of("_");
+                int separator1 = chamberName.find_first_of('_');
+                int separator2 = chamberName.find_last_of('_');
                 if ((separator2 - separator1) <= 3) {
                     std::string stnPhi(chamberName, separator1 + 1, separator2 - separator1 - 1);
                     std::string stnEta(chamberName, separator2 + 1, chamberName.size() - separator2 - 1);
@@ -118,8 +118,8 @@ namespace MuonCalib {
                 // unpack regionKey
                 std::string chamberName = m_tubeData[i]->regionKey();
                 std::string stnName(chamberName, 0, 3);
-                int separator1 = chamberName.find_first_of("_");
-                int separator2 = chamberName.find_last_of("_");
+                int separator1 = chamberName.find_first_of('_');
+                int separator2 = chamberName.find_last_of('_');
                 if ((separator2 - separator1) <= 3) {
                     std::string stnPhi(chamberName, separator1 + 1, separator2 - separator1 - 1);
                     std::string stnEta(chamberName, separator2 + 1, chamberName.size() - separator2 - 1);
