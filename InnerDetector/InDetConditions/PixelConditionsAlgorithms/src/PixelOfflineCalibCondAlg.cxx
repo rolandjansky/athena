@@ -76,7 +76,7 @@ StatusCode PixelOfflineCalibCondAlg::execute(const EventContext& ctx) const {
 
     // First constants are info on the number of bins of parametrizations
     ATH_MSG_DEBUG("Get error constants");
-    std::vector<float> constants = calibData->GetConstants();
+    std::vector<float> constants = calibData->getConstants();
     if (!constants.empty()) { ATH_MSG_VERBOSE("constants are defined"); }
     else                  { ATH_MSG_ERROR("constants size is NULL!!!"); } 
 
@@ -88,7 +88,7 @@ StatusCode PixelOfflineCalibCondAlg::execute(const EventContext& ctx) const {
 
     if (!constants.empty()) {
       ATH_MSG_DEBUG("Found constants with new-style Identifier key");
-      writeCdo->SetConstants(constants);
+      writeCdo->setConstants(constants);
     }
 
     if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
@@ -99,7 +99,7 @@ StatusCode PixelOfflineCalibCondAlg::execute(const EventContext& ctx) const {
 
     if (m_dump!=0) {
       ATH_MSG_DEBUG("Dump the constants to file");
-      calibData->Dump();
+      calibData->dump();
     }
     delete calibData;
 
@@ -127,7 +127,7 @@ for (int i=0; i<readCdo->size(); i++) { constants.push_back(readCdo->get(Identif
 
     if (!constants.empty()) {
       ATH_MSG_DEBUG("Found constants with new-style Identifier key");
-      writeCdo->SetConstants(constants);
+      writeCdo->setConstants(constants);
     }
     else {
       Identifier key;
@@ -140,7 +140,7 @@ for (int i=0; i<readCdo->size(); i++) { const2.push_back(readCdo->get(key.set_li
 
       if (!const2.empty()) {
         ATH_MSG_DEBUG("Found constants with old-style Identifier key");
-        writeCdo->SetConstants(const2);
+        writeCdo->setConstants(const2);
       }
       else {
         ATH_MSG_ERROR("Could not get the constants!");
