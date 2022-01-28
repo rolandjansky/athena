@@ -140,9 +140,13 @@ namespace InDet {
     // (b) EndEvent needed for memory cleanup
     m_incidentSvc->addListener( this, IncidentType::EndEvent);
 
-    if (m_pixofflinecalibSvc.retrieve().isFailure()) {
-      ATH_MSG_ERROR("Could not retrieve " << m_pixofflinecalibSvc);
-      return StatusCode::FAILURE;
+    if (m_IBLParameterSvc->containsIBL()){
+      if (m_pixofflinecalibSvc.retrieve().isFailure()) {
+	ATH_MSG_ERROR("Could not retrieve " << m_pixofflinecalibSvc);
+	return StatusCode::FAILURE;
+      }
+    } else {
+      ATH_MSG_INFO("not loading _pixofflinecalibSvc");
     }
     
     return PixelClusteringToolBase::initialize();
