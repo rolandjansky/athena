@@ -25,7 +25,9 @@ EXOT28AllVariablesContent = [
     "ElectronTruthParticles"
 ]
 
-EXOT28ExtraVariables = []
+EXOT28ExtraVariables = [
+    "InDetTrackParticles.truthMatchProbability",
+]
 
 EXOT28UnslimmedContent = []
 
