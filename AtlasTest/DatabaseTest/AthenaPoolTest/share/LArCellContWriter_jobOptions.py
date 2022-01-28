@@ -4,7 +4,7 @@
 #
 ## @file LArCellContWriter_jobOptions.py
 ##
-## @brief For Athena POOL test: write out LArCellContainers
+## @brief For Athena POOL test: write out CaloCellContainers
 ##
 ## @author RD Schaffer <R.D.Schaffer@cern.ch>
 #
