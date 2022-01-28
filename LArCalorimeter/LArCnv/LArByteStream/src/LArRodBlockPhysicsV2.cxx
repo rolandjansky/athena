@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation of the LArRODBlockStructure_3 class
@@ -60,7 +60,7 @@ m_logstr(Athena::getMessageSvc(), BlockType())
 
  m_iHeadBlockSize=endtag/2; // The implicit cast rounds down to the right size 
  m_NFlaggingWords=4; 
- resetPointers();
+ LArRodBlockPhysicsV2::resetPointers();
  m_vFragment=NULL;
  m_FebBlock=NULL;
  m_pRODblock=NULL; 
