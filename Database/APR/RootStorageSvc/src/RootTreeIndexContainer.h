@@ -56,10 +56,10 @@ namespace pool {
         * @return Status code indicating success or failure.
         */
       virtual DbStatus loadObject( void** ptr, ShapeH shape, 
-                                   Token::OID_t& oid);
+                                   Token::OID_t& oid) override;
       
       /// Commit single entry to container
-      virtual DbStatus writeObject(ActionList::value_type&);
+      virtual DbStatus writeObject(ActionList::value_type&) override;
 
    private:
       /// Pointer to index branch
