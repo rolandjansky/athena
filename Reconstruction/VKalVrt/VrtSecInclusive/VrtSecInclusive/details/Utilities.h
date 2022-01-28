@@ -42,7 +42,7 @@ namespace VKalVrtAthena {
                                    const Trk::Perigee* per)
   {
     const EventContext& ctx = Gaudi::Hive::currentContext();
-    const Trk::TrackParameters* Output(nullptr);
+    std::unique_ptr<Trk::TrackParameters> Output;
 
     if( layer->bec() == IntersectionPos::barrel ) {
 
@@ -87,8 +87,6 @@ namespace VKalVrtAthena {
       trk->template auxdecor<float>( Form("intersection_%s_y", layer->name().c_str()) ) = Output->position().y();
       trk->template auxdecor<float>( Form("intersection_%s_z", layer->name().c_str()) ) = Output->position().z();
     }
-
-    delete Output;
   }
 
   //____________________________________________________________________________________________________
