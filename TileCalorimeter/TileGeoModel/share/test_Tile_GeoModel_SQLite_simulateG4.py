@@ -9,12 +9,22 @@
 
 from __future__ import print_function
 
+
+from AthenaCommon.Logging import log as msg
+msg.info("Job to test the new Tile 'DetectorFactoryLite' with G4")
+
+
 ## Algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence
 topSeq = AlgSequence()
 
 ## Output threshold (DEBUG, INFO, WARNING, ERROR, FATAL)
-ServiceMgr.MessageSvc.OutputLevel = DEBUG
+ServiceMgr.MessageSvc.OutputLevel = DEBUG #INFO
+ServiceMgr.MessageSvc.useColors = True
+ServiceMgr.MessageSvc.defaultLimit = 0 # '0' means 'no limit'; otherwise, you can set to a value (e.g., 10000); default is '500'
+#print( dir(ServiceMgr.MessageSvc)) # to see all options of MessageSvc
+
+
 
 ## Detector flags
 from AthenaCommon.DetFlags import DetFlags
@@ -29,6 +39,12 @@ DetFlags.Print()
 
 from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
 GeoModelSvc = GeoModelSvc()
+
+
+#from TileGeoModel import TileGeoModelConf
+#print( dir(TileGeoModelConf)) # to see all available handles 
+from TileGeoModel.TileGeoModelConf import TileDetectorTool
+TileDetectorTool.OutputLevel=DEBUG
 
 
 ## Global conditions tag
@@ -59,6 +75,14 @@ simFlags.RunNumber = 222510
 ## Set the EtaPhi, VertexSpread and VertexRange checks on
 simFlags.EventFilter.set_On()
 
+# Setup custom log level for the Athena tool 'TrackingAction',
+# which is otherwise very verbose and buries the DEBUG messages
+# we are interested into
+from AthenaCommon.CfgGetter import getPublicTool
+getPublicTool('G4UA::AthenaTrackingActionTool').OutputLevel = INFO
+
+
+
 ## Use single particle generator
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 #athenaCommonFlags.PoolEvgenInput.set_Off()
@@ -74,8 +98,12 @@ include("G4AtlasApps/G4Atlas.flat.configuration.py")
 #topSeq += DumpMC()
 
 
+# Detector Description -- SQLite/Oracle switch
+# If those lines are commented, then the DD decriotion is taken from the Oracle-based 'GeometryDB' online DB
+# If those lines are uncommented, then the DD description is taken from the SQLite file provided (the '.db' file below)
 #GeoModelSvc.SQLiteDB = "atlas-from-newDD.db"
-GeoModelSvc.SQLiteDB = "tile.db"
+#GeoModelSvc.SQLiteDB = "tile.db"
+GeoModelSvc.SQLiteDB = "tile_V4.db"
 
 
 
