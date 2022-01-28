@@ -1,0 +1,402 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module systematicsTool</title>
+<meta charset="utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>systematicsTool</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/afs/cern.ch/work/l/lcorpe/private/PMGTools_Aug2018/systematics-tools/local/bin/systematicsTool.py">/afs/cern.ch/work/l/lcorpe/private/PMGTools_Aug2018/systematics-tools/local/bin/systematicsTool.py</a></font></td></tr></table>
+    <p><tt>This&nbsp;module&nbsp;contains&nbsp;helper&nbsp;functions&nbsp;which&nbsp;allow&nbsp;users&nbsp;to&nbsp;manipluate&nbsp;multiple&nbsp;<br>
+YODA&nbsp;files&nbsp;corresponding&nbsp;to&nbsp;different&nbsp;subsamples&nbsp;of&nbsp;a&nbsp;given&nbsp;process/generator,<br>
+different&nbsp;sources&nbsp;of&nbsp;theory&nbsp;uncertainty,&nbsp;etc.&nbsp;and&nbsp;combine&nbsp;them,&nbsp;plotting&nbsp;the&nbsp;<br>
+theory&nbsp;error&nbsp;bands&nbsp;along&nbsp;the&nbsp;way.&nbsp;<br>
+&nbsp;<br>
+Can&nbsp;be&nbsp;used&nbsp;either&nbsp;as&nbsp;a&nbsp;standalone&nbsp;exectuable&nbsp;or&nbsp;the&nbsp;functions&nbsp;can&nbsp;be&nbsp;imported<br>
+intot&nbsp;a&nbsp;custom&nbsp;python&nbsp;script.<br>
+&nbsp;<br>
+This&nbsp;module&nbsp;uses&nbsp;a&nbsp;loosely-defined&nbsp;datatype&nbsp;which&nbsp;shall&nbsp;be&nbsp;referred&nbsp;to&nbsp;as&nbsp;<br>
+AnalysisObject,&nbsp;which&nbsp;is&nbsp;effectively&nbsp;a&nbsp;dict&nbsp;of&nbsp;np.arrays&nbsp;and&nbsp;strings.<br>
+This&nbsp;encodes&nbsp;the&nbsp;information&nbsp;from&nbsp;a&nbsp;yoda.Scatter2D(),&nbsp;yoda.Histo1D(),<br>
+root.TGraphAsymmErrors()&nbsp;or&nbsp;root.TH1D()&nbsp;in&nbsp;the&nbsp;same&nbsp;format,&nbsp;and&nbsp;which<br>
+can&nbsp;be&nbsp;easily&nbsp;manipulated&nbsp;since&nbsp;it&nbsp;consists&nbsp;of&nbsp;np.arrays&nbsp;or&nbsp;strings<br>
+An&nbsp;AO&nbsp;has&nbsp;the&nbsp;following&nbsp;keys:<br>
+&nbsp;<br>
+`ao['name']`&nbsp;&nbsp;&nbsp;the&nbsp;name&nbsp;of&nbsp;the&nbsp;object&nbsp;a&nbsp;la&nbsp;YODA&nbsp;&nbsp;&nbsp;<br>
+`ao['path']`&nbsp;&nbsp;&nbsp;the&nbsp;path&nbsp;of&nbsp;the&nbsp;object&nbsp;a&nbsp;la&nbsp;YODA&nbsp;&nbsp;<br>
+`ao['annotations']`&nbsp;&nbsp;a&nbsp;dict&nbsp;of&nbsp;annotations&nbsp;a&nbsp;la&nbsp;YODA&nbsp;&nbsp;<br>
+`ao['bw']`&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;np.array&nbsp;of&nbsp;widths&nbsp;of&nbsp;each&nbsp;bin&nbsp;&nbsp;<br>
+`ao['x']`&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;np.array&nbsp;of&nbsp;mid-points&nbsp;of&nbsp;bins&nbsp;&nbsp;<br>
+`ao['xup']`&nbsp;&nbsp;&nbsp;&nbsp;np.array&nbsp;of&nbsp;high&nbsp;bin&nbsp;edges&nbsp;&nbsp;<br>
+`ao['xdn']`&nbsp;&nbsp;&nbsp;&nbsp;np.array&nbsp;of&nbsp;low&nbsp;bin&nbsp;edges&nbsp;&nbsp;<br>
+`ao['y']`&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;np.array&nbsp;of&nbsp;y&nbsp;values&nbsp;&nbsp;<br>
+`ao['yup']`&nbsp;&nbsp;&nbsp;&nbsp;np.array&nbsp;of&nbsp;y+err_up&nbsp;values&nbsp;&nbsp;<br>
+`ao['ydn']`&nbsp;&nbsp;&nbsp;&nbsp;np.array&nbsp;of&nbsp;y-err_dn&nbsp;values&nbsp;&nbsp;<br>
+`ao['nbins']`&nbsp;&nbsp;number&nbsp;of&nbsp;bins&nbsp;&nbsp;<br>
+&nbsp;<br>
+This&nbsp;should&nbsp;probably&nbsp;be&nbsp;replaced&nbsp;by&nbsp;a&nbsp;Class&nbsp;in&nbsp;the&nbsp;next&nbsp;version&nbsp;!<br>
+&nbsp;<br>
+For&nbsp;a&nbsp;full&nbsp;list&nbsp;of&nbsp;functions&nbsp;and&nbsp;their&nbsp;usage,&nbsp;type:<br>
+pydoc&nbsp;systematicsTool<br>
+&nbsp;<br>
+TODO&nbsp;(perspectives&nbsp;for&nbsp;future&nbsp;development):<br>
+-&nbsp;Also&nbsp;handle&nbsp;ROOT&nbsp;as&nbsp;input/output&nbsp;instead&nbsp;of&nbsp;YODA<br>
+-&nbsp;Replace&nbsp;AnalysisObject&nbsp;by&nbsp;an&nbsp;actual&nbsp;Class&nbsp;rather&nbsp;than&nbsp;loosely-defined&nbsp;dicts<br>
+-&nbsp;Implement&nbsp;<a href="#-combineVariationsReplicas">combineVariationsReplicas</a>()<br>
+-&nbsp;Implement&nbsp;includeErrorsInEnvelope&nbsp;for&nbsp;<a href="#-combineVariationsEnvelope">combineVariationsEnvelope</a>()&nbsp;<br>
+-&nbsp;Support&nbsp;other&nbsp;types&nbsp;in&nbsp;readFromYODA<br>
+&nbsp;<br>
+&nbsp;<br>
+Author:&nbsp;Louie&nbsp;D.&nbsp;Corpe&nbsp;(UCL)&nbsp;&nbsp;<br>
+Email:&nbsp;l.corpe@cern.ch</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="StringIO.html">StringIO</a><br>
+<a href="copy.html">copy</a><br>
+<a href="lhapdf.html">lhapdf</a><br>
+<a href="multiprocessing.html">multiprocessing</a><br>
+</td><td width="25%" valign=top><a href="numpy.html">numpy</a><br>
+<a href="optparse.html">optparse</a><br>
+<a href="os.html">os</a><br>
+<a href="cPickle.html">cPickle</a><br>
+</td><td width="25%" valign=top><a href="ROOT.html">ROOT</a><br>
+<a href="readDatabase.html">readDatabase</a><br>
+<a href="re.html">re</a><br>
+<a href="sys.html">sys</a><br>
+</td><td width="25%" valign=top><a href="tarfile.html">tarfile</a><br>
+<a href="time.html">time</a><br>
+<a href="yaml.html">yaml</a><br>
+<a href="yoda.html">yoda</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-arrayDictToTGraph"><strong>arrayDictToTGraph</strong></a>(ao, isData<font color="#909090">=False</font>, setYErrorsToZero<font color="#909090">=False</font>, nominalAOForRatio<font color="#909090">=None</font>)</dt><dd><tt>`ao`&nbsp;AnalysisObject&nbsp;(the&nbsp;one&nbsp;to&nbsp;convert&nbsp;to&nbsp;a&nbsp;TGraph)&nbsp;&nbsp;<br>
+`isData`&nbsp;Bool&nbsp;[optional]&nbsp;(modify&nbsp;style&nbsp;of&nbsp;TGraph&nbsp;for&nbsp;data&nbsp;points)&nbsp;&nbsp;<br>
+`setYErrorsToZero`&nbsp;Bool&nbsp;[optional](Might&nbsp;want&nbsp;to&nbsp;do&nbsp;this&nbsp;if&nbsp;you&nbsp;don't&nbsp;care&nbsp;about&nbsp;the<br>
+error&nbsp;bands&nbsp;for&nbsp;some&nbsp;uncertainty&nbsp;component)&nbsp;&nbsp;<br>
+`nominalAOForRatio`&nbsp;[optional]AnalysisObject&nbsp;or&nbsp;None&nbsp;(if&nbsp;not&nbsp;None,&nbsp;make&nbsp;a&nbsp;ratio&nbsp;plot<br>
+with&nbsp;respect&nbsp;to&nbsp;this&nbsp;AnalysisObject)&nbsp;&nbsp;<br>
+`return`&nbsp;ROOT.TGraphAsymmErrors()&nbsp;&nbsp;<br>
+&nbsp;<br>
+Fill&nbsp;a&nbsp;TGraphAsymmErrors&nbsp;from&nbsp;an&nbsp;AO,&nbsp;for&nbsp;plotting&nbsp;purposes.&nbsp;<br>
+Can&nbsp;format&nbsp;as&nbsp;MC&nbsp;or&nbsp;Data.&nbsp;If&nbsp;nominalAOForRatio&nbsp;is&nbsp;specified&nbsp;(ie&nbsp;not&nbsp;None),&nbsp;<br>
+the&nbsp;TGraphAsymmErrors&nbsp;is&nbsp;divided&nbsp;by&nbsp;the&nbsp;'y'&nbsp;value&nbsp;of&nbsp;the&nbsp;nominalAOForRatio&nbsp;<br>
+in&nbsp;each&nbsp;bin.</tt></dd></dl>
+ <dl><dt><a name="-combineAllVariations"><strong>combineAllVariations</strong></a>(weightList, indir, outdir, regexFilter<font color="#909090">=None</font>, regexVeto<font color="#909090">=None</font>, combinationRecipe<font color="#909090">=None</font>, returnOnlyVariationsInComination<font color="#909090">=True</font>)</dt><dd><tt>`weightList`&nbsp;dict&nbsp;in&nbsp;output&nbsp;format&nbsp;of&nbsp;the&nbsp;readDatabase.getWeight()&nbsp;tool.<br>
+See&nbsp;https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/PmgSystTool<br>
+for&nbsp;more&nbsp;info.&nbsp;&nbsp;<br>
+`indir`&nbsp;String&nbsp;(input&nbsp;dir,&nbsp;where&nbsp;to&nbsp;find&nbsp;samples&nbsp;for&nbsp;each&nbsp;weight&nbsp;(merged<br>
+across&nbsp;jobs/DSIDs&nbsp;if&nbsp;needed)&nbsp;&nbsp;<br>
+`outdir`&nbsp;String&nbsp;(output&nbsp;dir,&nbsp;where&nbsp;to&nbsp;write&nbsp;the&nbsp;output&nbsp;files&nbsp;where&nbsp;the<br>
+individual&nbsp;weights&nbsp;are&nbsp;combined&nbsp;into&nbsp;systematic&nbsp;variations)&nbsp;&nbsp;<br>
+`regexFilter`&nbsp;String&nbsp;[optional]&nbsp;(AOs&nbsp;whose&nbsp;names&nbsp;match&nbsp;regex&nbsp;are&nbsp;processed)&nbsp;&nbsp;<br>
+`regexVeto`&nbsp;String&nbsp;[optional](AOs&nbsp;whose&nbsp;names&nbsp;match&nbsp;regex&nbsp;are&nbsp;NOT&nbsp;processed)&nbsp;<br>
+`combinationRecipe`&nbsp;String&nbsp;[optional]&nbsp;(if&nbsp;you&nbsp;want&nbsp;to&nbsp;use&nbsp;a&nbsp;specific&nbsp;<br>
+combination&nbsp;recipe,&nbsp;specify&nbsp;it&nbsp;here.&nbsp;If&nbsp;None,&nbsp;then&nbsp;the&nbsp;code&nbsp;will&nbsp;try&nbsp;to<br>
+auto-determine&nbsp;the&nbsp;correct&nbsp;recipe&nbsp;from&nbsp;the&nbsp;$SYSTTOOLSPATH/data/Syst_Database.yaml.<br>
+supports&nbsp;String:String&nbsp;where&nbsp;the&nbsp;first&nbsp;part&nbsp;is&nbsp;the&nbsp;yaml&nbsp;file&nbsp;containing&nbsp;the&nbsp;recipe)<br>
+`returnOnlyVariationsInComination`&nbsp;Bool&nbsp;[optional]&nbsp;(by&nbsp;default&nbsp;the&nbsp;code&nbsp;will&nbsp;return&nbsp;<br>
+only&nbsp;a&nbsp;list&nbsp;of&nbsp;files&nbsp;for&nbsp;variations&nbsp;which&nbsp;take&nbsp;part&nbsp;in&nbsp;the&nbsp;combination.&nbsp;Set&nbsp;to&nbsp;False<br>
+to&nbsp;return&nbsp;all&nbsp;possible&nbsp;variations)<br>
+`return`&nbsp;dict{String,String}&nbsp;(format&nbsp;is&nbsp;as&nbsp;follows&nbsp;{N!label:filename},<br>
+where&nbsp;N&nbsp;is&nbsp;the&nbsp;order&nbsp;in&nbsp;which&nbsp;to&nbsp;plot&nbsp;the&nbsp;variations,&nbsp;labels&nbsp;is&nbsp;what&nbsp;to&nbsp;put&nbsp;on<br>
+the&nbsp;legend,&nbsp;and&nbsp;filename&nbsp;is&nbsp;the&nbsp;name&nbsp;of&nbsp;the&nbsp;YODA&nbsp;file&nbsp;to&nbsp;use&nbsp;as&nbsp;input)&nbsp;&nbsp;<br>
+&nbsp;<br>
+Using&nbsp;the&nbsp;information&nbsp;provided&nbsp;by&nbsp;the&nbsp;readDatabase&nbsp;tool&nbsp;(see&nbsp;<br>
+https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/PmgSystTool),<br>
+combine&nbsp;individual&nbsp;YODA&nbsp;files&nbsp;for&nbsp;each&nbsp;Matrix&nbsp;Element&nbsp;weights&nbsp;into<br>
+individual&nbsp;YODA&nbsp;files&nbsp;for&nbsp;each&nbsp;systematic&nbsp;uncertainty.</tt></dd></dl>
+ <dl><dt><a name="-combineVariation"><strong>combineVariation</strong></a>(wName, wInfo, fOut, regexFilter<font color="#909090">=None</font>, regexVeto<font color="#909090">=None</font>)</dt><dd><tt>`wName`&nbsp;String&nbsp;(Name&nbsp;of&nbsp;the&nbsp;systemtic&nbsp;weight&nbsp;to&nbsp;combine)&nbsp;&nbsp;<br>
+`wInfo`&nbsp;dict&nbsp;in&nbsp;output&nbsp;format&nbsp;of&nbsp;the&nbsp;readDatabase.getWeight()&nbsp;tool.<br>
+See&nbsp;https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/PmgSystTool<br>
+for&nbsp;more&nbsp;info.&nbsp;&nbsp;<br>
+`regexFilter`&nbsp;String&nbsp;[optional]&nbsp;(AOs&nbsp;whose&nbsp;names&nbsp;match&nbsp;regex&nbsp;are&nbsp;processed)&nbsp;&nbsp;<br>
+`regexVeto`&nbsp;String&nbsp;[optional]&nbsp;(AOs&nbsp;whose&nbsp;names&nbsp;match&nbsp;regex&nbsp;are&nbsp;NOT&nbsp;processed)&nbsp;&nbsp;<br>
+`return`&nbsp;None&nbsp;&nbsp;<br>
+&nbsp;<br>
+Produce&nbsp;aand&nbsp;write&nbsp;a&nbsp;YODA&nbsp;file&nbsp;for&nbsp;the&nbsp;systematioc&nbsp;uncertainty&nbsp;wName&nbsp;by&nbsp;<br>
+combining&nbsp;the&nbsp;weights&nbsp;listed&nbsp;in&nbsp;wInfo['weights'],&nbsp;according&nbsp;to&nbsp;the&nbsp;procedure<br>
+specified&nbsp;in&nbsp;wInfo['combination']&nbsp;for&nbsp;each&nbsp;AO.<br>
+&nbsp;<br>
+The&nbsp;following&nbsp;values&nbsp;of&nbsp;wInfo['combination']&nbsp;are&nbsp;suppored:&nbsp;stat,lhapdf,<br>
+replicas,&nbsp;alphas,&nbsp;envelope,&nbsp;hessian,&nbsp;and&nbsp;customFunction&nbsp;(&nbsp;in&nbsp;this&nbsp;case,&nbsp;the<br>
+formula&nbsp;given&nbsp;in&nbsp;wInfo['function']&nbsp;is&nbsp;evaluated).</tt></dd></dl>
+ <dl><dt><a name="-combineVariationsAlphaS"><strong>combineVariationsAlphaS</strong></a>(nom, variations)</dt><dd><tt>`nom`&nbsp;AnalysisObject&nbsp;(of&nbsp;the&nbsp;nominal&nbsp;variation)&nbsp;&nbsp;<br>
+`variations`&nbsp;dict(String,&nbsp;AnalysisObject)&nbsp;&nbsp;<br>
+`return`&nbsp;AnalysisObject&nbsp;&nbsp;<br>
+&nbsp;<br>
+Get&nbsp;the&nbsp;alphaS&nbsp;variation.&nbsp;This&nbsp;is&nbsp;just&nbsp;a&nbsp;special&nbsp;case&nbsp;of&nbsp;Envelope<br>
+where&nbsp;the&nbsp;error&nbsp;is&nbsp;symmetrized!</tt></dd></dl>
+ <dl><dt><a name="-combineVariationsEnvelope"><strong>combineVariationsEnvelope</strong></a>(nom, variations, asym<font color="#909090">=True</font>, includeErrorsInEnvelope<font color="#909090">=False</font>)</dt><dd><tt>`nom`&nbsp;AnalysisObject&nbsp;(of&nbsp;the&nbsp;nominal&nbsp;variation)&nbsp;&nbsp;<br>
+`variations`&nbsp;dict(String,&nbsp;AnalysisObject)&nbsp;&nbsp;<br>
+`asym`&nbsp;Bool&nbsp;[optional]&nbsp;(return&nbsp;asymmetric&nbsp;errors?&nbsp;Or&nbsp;symmetrize?)&nbsp;&nbsp;<br>
+`includeErrorsInEnvelope`&nbsp;Bool&nbsp;[optional]&nbsp;(TODO&nbsp;to&nbsp;be&nbsp;implemented)&nbsp;&nbsp;<br>
+`return`&nbsp;AnalysisObject&nbsp;&nbsp;<br>
+&nbsp;<br>
+Take&nbsp;the&nbsp;min/max&nbsp;envelope&nbsp;of&nbsp;the&nbsp;arguments&nbsp;as&nbsp;the&nbsp;up/down&nbsp;errors&nbsp;of&nbsp;the<br>
+resulting&nbsp;AO.&nbsp;The&nbsp;central&nbsp;value&nbsp;is&nbsp;taken&nbsp;from&nbsp;'nominal'.</tt></dd></dl>
+ <dl><dt><a name="-combineVariationsFromFormula"><strong>combineVariationsFromFormula</strong></a>(nom, variations, formula)</dt><dd><tt>`nom`&nbsp;AnalysisObject&nbsp;(of&nbsp;the&nbsp;nominal&nbsp;variation)&nbsp;&nbsp;<br>
+`variations`&nbsp;dict(String,&nbsp;AnalysisObject)&nbsp;&nbsp;<br>
+`formula`&nbsp;String&nbsp;(custom&nbsp;formula&nbsp;to&nbsp;combine&nbsp;uncertainties)&nbsp;&nbsp;<br>
+`return`&nbsp;AnalysisObject&nbsp;&nbsp;<br>
+&nbsp;<br>
+Combine&nbsp;the&nbsp;specified&nbsp;variations&nbsp;according&nbsp;to&nbsp;custom&nbsp;formula&nbsp;given&nbsp;by&nbsp;formula</tt></dd></dl>
+ <dl><dt><a name="-combineVariationsHessian"><strong>combineVariationsHessian</strong></a>(nom, variations, asym<font color="#909090">=True</font>)</dt><dd><tt>`nom`&nbsp;AnalysisObject&nbsp;(of&nbsp;the&nbsp;nominal&nbsp;variation)&nbsp;&nbsp;<br>
+`variations`&nbsp;dict(String,&nbsp;AnalysisObject)&nbsp;&nbsp;<br>
+`asym`&nbsp;Bool&nbsp;[optional]&nbsp;(return&nbsp;asymmetric&nbsp;errors?&nbsp;Or&nbsp;symmetrize?)&nbsp;&nbsp;<br>
+`return`&nbsp;AnalysisObject&nbsp;&nbsp;<br>
+&nbsp;<br>
+Combine&nbsp;the&nbsp;specified&nbsp;variations&nbsp;according&nbsp;to&nbsp;the&nbsp;Hession&nbsp;prescription<br>
+Central&nbsp;value&nbsp;given&nbsp;by&nbsp;nom.</tt></dd></dl>
+ <dl><dt><a name="-combineVariationsLHAPDF"><strong>combineVariationsLHAPDF</strong></a>(nom, variations, pset, asym<font color="#909090">=False</font>)</dt><dd><tt>`nom`&nbsp;AnalysisObject&nbsp;(of&nbsp;the&nbsp;nominal&nbsp;variation)&nbsp;&nbsp;<br>
+`variations`&nbsp;dict(String,&nbsp;AnalysisObject)&nbsp;&nbsp;<br>
+`pset`&nbsp;LHAPDF&nbsp;PDFSet&nbsp;(obtained&nbsp;from&nbsp;lhapdf.getPDFSet(pdfSetName))&nbsp;&nbsp;<br>
+`asym`&nbsp;Bool&nbsp;[optional]&nbsp;(return&nbsp;asymmetric&nbsp;errors?&nbsp;Or&nbsp;symmetrize?)&nbsp;&nbsp;<br>
+`return`&nbsp;AnalysisObject&nbsp;&nbsp;<br>
+&nbsp;<br>
+Combines&nbsp;PDF&nbsp;variations&nbsp;according&nbsp;to&nbsp;the&nbsp;LHAPDF&nbsp;PDFSet&nbsp;prescription.</tt></dd></dl>
+ <dl><dt><a name="-combineVariationsReplicas"><strong>combineVariationsReplicas</strong></a>(nom, variations, asym<font color="#909090">=True</font>)</dt><dd><tt>`nom`&nbsp;AnalysisObject&nbsp;(of&nbsp;the&nbsp;nominal&nbsp;variation)&nbsp;&nbsp;<br>
+`variations`&nbsp;dict(String,&nbsp;AnalysisObject)&nbsp;&nbsp;<br>
+`asym`&nbsp;Bool&nbsp;[optional]&nbsp;(return&nbsp;asymmetric&nbsp;errors?&nbsp;Or&nbsp;symmetrize?)&nbsp;&nbsp;<br>
+`return`&nbsp;AnalysisObject&nbsp;&nbsp;<br>
+&nbsp;<br>
+Takes&nbsp;the&nbsp;standard&nbsp;deviation&nbsp;of&nbsp;the&nbsp;variations...&nbsp;in&nbsp;principle<br>
+This&nbsp;is&nbsp;a&nbsp;placeholder&nbsp;for&nbsp;now...&nbsp;needs&nbsp;to&nbsp;be&nbsp;implemented&nbsp;TODO</tt></dd></dl>
+ <dl><dt><a name="-combineVariationsStat"><strong>combineVariationsStat</strong></a>(nom)</dt><dd><tt>`nom`&nbsp;AnalysisObject&nbsp;(of&nbsp;the&nbsp;nominal&nbsp;variation)&nbsp;&nbsp;<br>
+`return`&nbsp;AnalysisObject&nbsp;&nbsp;<br>
+&nbsp;<br>
+Dummy&nbsp;function&nbsp;which&nbsp;currently&nbsp;just&nbsp;grabs&nbsp;the&nbsp;dn/up&nbsp;errs&nbsp;as&nbsp;the&nbsp;stat&nbsp;errs.</tt></dd></dl>
+ <dl><dt><a name="-extractTarballsFromDirectory"><strong>extractTarballsFromDirectory</strong></a>(fulldir, force<font color="#909090">=False</font>, verbose<font color="#909090">=False</font>)</dt><dd><tt>`fulldir`&nbsp;String&nbsp;(directory&nbsp;containing&nbsp;tarballs&nbsp;to&nbsp;unpack&nbsp;&nbsp;<br>
+`force`&nbsp;Bool&nbsp;[optional]&nbsp;(re-do&nbsp;untarring&nbsp;even&nbsp;if&nbsp;already&nbsp;done)&nbsp;&nbsp;<br>
+`verbose`&nbsp;Bool&nbsp;[optional]&nbsp;(Print&nbsp;more&nbsp;output&nbsp;if&nbsp;set&nbsp;to&nbsp;True)&nbsp;&nbsp;<br>
+&nbsp;<br>
+`return`&nbsp;list&nbsp;of&nbsp;[sample,newfn,filepath]&nbsp;&nbsp;<br>
+&nbsp;<br>
+This&nbsp;function&nbsp;goes&nbsp;through&nbsp;a&nbsp;directpry&nbsp;and&nbsp;unpacks&nbsp;all&nbsp;the&nbsp;tarballs&nbsp;it&nbsp;finds.<br>
+By&nbsp;default&nbsp;if&nbsp;a&nbsp;matching&nbsp;unpacked&nbsp;file&nbsp;has&nbsp;been&nbsp;found,<br>
+a&nbsp;tarball&nbsp;is&nbsp;not&nbsp;needlessly&nbsp;re-unpacked&nbsp;unless&nbsp;option&nbsp;`force`&nbsp;is&nbsp;used.</tt></dd></dl>
+ <dl><dt><a name="-getAverageUncertaintySizePerBin"><strong>getAverageUncertaintySizePerBin</strong></a>(fIn, regexFilter<font color="#909090">=None</font>, regexVeto<font color="#909090">=None</font>)</dt><dd><tt>`fIn`&nbsp;String&nbsp;(input&nbsp;file&nbsp;to&nbsp;evaluate)&nbsp;&nbsp;<br>
+`regexFilter`&nbsp;String&nbsp;[optional]&nbsp;(AOs&nbsp;whose&nbsp;names&nbsp;match&nbsp;regex&nbsp;are&nbsp;processed)&nbsp;&nbsp;<br>
+`regexVeto`&nbsp;String&nbsp;[optional]&nbsp;(AOs&nbsp;whose&nbsp;names&nbsp;match&nbsp;regex&nbsp;are&nbsp;NOT&nbsp;processed)&nbsp;&nbsp;<br>
+`return`&nbsp;Float&nbsp;&nbsp;<br>
+&nbsp;<br>
+Get&nbsp;a&nbsp;rough&nbsp;estimate&nbsp;of&nbsp;the&nbsp;average&nbsp;symmetric&nbsp;relative&nbsp;error&nbsp;per&nbsp;bin,&nbsp;used&nbsp;to<br>
+determine&nbsp;what&nbsp;order&nbsp;to&nbsp;plot&nbsp;the&nbsp;uncertaities&nbsp;in.</tt></dd></dl>
+ <dl><dt><a name="-getCombinationRecipe"><strong>getCombinationRecipe</strong></a>(systWeights, combinationRecipeFile<font color="#909090">=None</font>, combinationRecipeName<font color="#909090">=None</font>)</dt><dd><tt>`systWeights`&nbsp;list(String)&nbsp;(list&nbsp;of&nbsp;weight&nbsp;types&nbsp;which&nbsp;are&nbsp;avaliable<br>
+for&nbsp;a&nbsp;given&nbsp;dsid,&nbsp;to&nbsp;identify&nbsp;the&nbsp;correct&nbsp;combination&nbsp;recipe)&nbsp;&nbsp;<br>
+`combinationRecipeName`&nbsp;String&nbsp;[optional]&nbsp;(specify&nbsp;if&nbsp;you&nbsp;want&nbsp;to&nbsp;use&nbsp;a&nbsp;<br>
+specific&nbsp;comboination&nbsp;uncertainty,&nbsp;otherwise,&nbsp;it&nbsp;will&nbsp;try&nbsp;to&nbsp;auto-<br>
+determine&nbsp;frim&nbsp;the&nbsp;systWeights)<br>
+`combinationRecipeFile`&nbsp;String&nbsp;[optional]&nbsp;(specify&nbsp;if&nbsp;the&nbsp;target&nbsp;file&nbsp;is&nbsp;in<br>
+a&nbsp;different&nbsp;location&nbsp;to&nbsp;$SYSTTOOLSPATH/data/Syst_Database.yaml<br>
+`return`&nbsp;String,dict{components,formula}&nbsp;&nbsp;<br>
+&nbsp;<br>
+Each&nbsp;sample&nbsp;type&nbsp;should&nbsp;have&nbsp;a&nbsp;unique&nbsp;set&nbsp;of&nbsp;weight&nbsp;types/names&nbsp;which&nbsp;allow&nbsp;us&nbsp;<br>
+to&nbsp;identify&nbsp;in&nbsp;the&nbsp;Syst_Database.yaml&nbsp;what&nbsp;the&nbsp;correct&nbsp;combination&nbsp;recipe&nbsp;is.</tt></dd></dl>
+ <dl><dt><a name="-getCrossSectionCorrection"><strong>getCrossSectionCorrection</strong></a>(xsList, systFiles, nomFiles)</dt><dd><tt>`xsList`&nbsp;list[Float]&nbsp;(list&nbsp;of&nbsp;nominal&nbsp;XS&nbsp;values&nbsp;for&nbsp;the&nbsp;subsamples)&nbsp;&nbsp;<br>
+`systFiles`&nbsp;list[String]&nbsp;(list&nbsp;of&nbsp;file&nbsp;names&nbsp;for&nbsp;the&nbsp;variated&nbsp;subsamples&nbsp;<br>
+(same&nbsp;order&nbsp;as&nbsp;xsList)&nbsp;&nbsp;<br>
+`nomFiles`&nbsp;list[String]&nbsp;(list&nbsp;of&nbsp;file&nbsp;names&nbsp;for&nbsp;the&nbsp;nominal&nbsp;subsamples&nbsp;<br>
+(same&nbsp;order&nbsp;as&nbsp;xsList)&nbsp;&nbsp;<br>
+&nbsp;<br>
+This&nbsp;function&nbsp;takes&nbsp;a&nbsp;list&nbsp;of&nbsp;nominal&nbsp;and&nbsp;variated&nbsp;YODA&nbsp;files,&nbsp;and&nbsp;a&nbsp;list&nbsp;of<br>
+nominal&nbsp;cross-sections&nbsp;int&nbsp;he&nbsp;same&nbsp;order,&nbsp;to&nbsp;calculate&nbsp;the&nbsp;on-the-fly&nbsp;cross-<br>
+section&nbsp;corrections&nbsp;needed&nbsp;for&nbsp;each&nbsp;systFile.</tt></dd></dl>
+ <dl><dt><a name="-getFormulaComponents"><strong>getFormulaComponents</strong></a>(formula)</dt><dd><tt>`formula`&nbsp;String&nbsp;&nbsp;<br>
+`return`&nbsp;list(String)&nbsp;&nbsp;<br>
+&nbsp;<br>
+Take&nbsp;this&nbsp;formula&nbsp;written&nbsp;in&nbsp;this&nbsp;string&nbsp;and&nbsp;recusively&nbsp;optain&nbsp;a&nbsp;list&nbsp;of&nbsp;<br>
+basic&nbsp;components&nbsp;which&nbsp;is&nbsp;needs&nbsp;eg:&nbsp;&nbsp;<br>
+Funcion1(foo,&nbsp;Function2(&nbsp;bar,&nbsp;foo),&nbsp;Function3(foo,&nbsp;Function4&nbsp;(bar,&nbsp;foo)))&nbsp;&nbsp;<br>
+--&gt;&nbsp;[foo,&nbsp;bar,&nbsp;foo,&nbsp;foo,&nbsp;bar,&nbsp;foo]</tt></dd></dl>
+ <dl><dt><a name="-getPlotInfo"><strong>getPlotInfo</strong></a>(aoName, pathInRivetEnv)</dt><dd><tt>`aoName`&nbsp;String&nbsp;(name&nbsp;to&nbsp;access&nbsp;plot&nbsp;info&nbsp;for)&nbsp;&nbsp;<br>
+`pathInRivetEnv`&nbsp;String&nbsp;(.plot&nbsp;file&nbsp;where&nbsp;to&nbsp;get&nbsp;the&nbsp;plot&nbsp;info&nbsp;from)&nbsp;&nbsp;<br>
+`return`&nbsp;dict{String,String}&nbsp;(the&nbsp;list&nbsp;of&nbsp;plotting&nbsp;specifications&nbsp;from&nbsp;the&nbsp;<br>
+.plot&nbsp;file,&nbsp;as&nbsp;a&nbsp;dict)&nbsp;&nbsp;<br>
+&nbsp;<br>
+Rivet&nbsp;uses&nbsp;a&nbsp;separate&nbsp;.plot&nbsp;file&nbsp;to&nbsp;format&nbsp;plots.&nbsp;We&nbsp;want&nbsp;to&nbsp;use&nbsp;the&nbsp;same<br>
+information&nbsp;to&nbsp;format&nbsp;our&nbsp;plots,&nbsp;and&nbsp;this&nbsp;function&nbsp;is&nbsp;a&nbsp;helper&nbsp;to&nbsp;retrieve<br>
+that&nbsp;info&nbsp;in&nbsp;a&nbsp;more&nbsp;usable&nbsp;format&nbsp;from&nbsp;a&nbsp;given&nbsp;.plot&nbsp;file.</tt></dd></dl>
+ <dl><dt><a name="-getXS"><strong>getXS</strong></a>(dsid, campaign<font color="#909090">=15</font>)</dt><dd><tt>`dsid`&nbsp;Int&nbsp;(dataset&nbsp;ID&nbsp;of&nbsp;the&nbsp;ATLAS&nbsp;dataset&nbsp;you&nbsp;want&nbsp;to&nbsp;get&nbsp;the<br>
+cross-section&nbsp;for&nbsp;&nbsp;<br>
+`campaign`&nbsp;String&nbsp;[optional]&nbsp;(the&nbsp;MC&nbsp;campaign&nbsp;number&nbsp;15&nbsp;for&nbsp;mc15_13TeV&nbsp;&nbsp;<br>
+datasets,&nbsp;16&nbsp;for&nbsp;mc16_13TeV.&nbsp;If&nbsp;campaign&nbsp;&gt;&nbsp;16&nbsp;look&nbsp;instead&nbsp;for&nbsp;a&nbsp;local&nbsp;&nbsp;<br>
+file&nbsp;`data/PMGxsecDB_manual.txt`&nbsp;where&nbsp;the&nbsp;user&nbsp;can&nbsp;input&nbsp;the&nbsp;XS&nbsp;info)&nbsp;&nbsp;<br>
+`return`&nbsp;Float&nbsp;&nbsp;<br>
+&nbsp;<br>
+Fetch&nbsp;the&nbsp;cross-section&nbsp;(XS)&nbsp;of&nbsp;the&nbsp;dataset&nbsp;whose&nbsp;ID&nbsp;you&nbsp;specified.<br>
+This&nbsp;function&nbsp;checks&nbsp;for&nbsp;the&nbsp;DSID&nbsp;in&nbsp;the&nbsp;central&nbsp;PMG&nbsp;XS&nbsp;database&nbsp;on&nbsp;cvmfs<br>
+but&nbsp;by&nbsp;setting&nbsp;campaign=999&nbsp;you&nbsp;can&nbsp;force&nbsp;it&nbsp;to&nbsp;check&nbsp;in&nbsp;a&nbsp;local&nbsp;file:<br>
+PMGxsecDB_manual.txt&nbsp;where&nbsp;the&nbsp;user&nbsp;can&nbsp;input&nbsp;the&nbsp;XS&nbsp;info&nbsp;manually.</tt></dd></dl>
+ <dl><dt><a name="-lookupPDFSetName"><strong>lookupPDFSetName</strong></a>(lhapdfid)</dt><dd><tt>`lhapdfid`&nbsp;Int&nbsp;&nbsp;<br>
+`return`&nbsp;String&nbsp;&nbsp;<br>
+&nbsp;<br>
+Takes&nbsp;a&nbsp;LHAPDF&nbsp;ID&nbsp;code&nbsp;and&nbsp;figures&nbsp;out&nbsp;what&nbsp;is&nbsp;the&nbsp;name&nbsp;of&nbsp;the&nbsp;PDF&nbsp;Set<br>
+which&nbsp;it&nbsp;belons&nbsp;to.</tt></dd></dl>
+ <dl><dt><a name="-main"><strong>main</strong></a>(argv)</dt><dd><tt>This&nbsp;module&nbsp;can&nbsp;also&nbsp;be&nbsp;run&nbsp;as&nbsp;a&nbsp;standalone&nbsp;executable.&nbsp;<br>
+For&nbsp;info&nbsp;about&nbsp;the&nbsp;options&nbsp;try:<br>
+systematicsTool.py&nbsp;-h<br>
+&nbsp;<br>
+This&nbsp;is&nbsp;useful&nbsp;for&nbsp;unpacking&nbsp;large&nbsp;GRID&nbsp;job&nbsp;outputs,&nbsp;as&nbsp;it&nbsp;will&nbsp;do&nbsp;all&nbsp;the&nbsp;<br>
+book-keeping,&nbsp;untarring&nbsp;of&nbsp;tarballs,&nbsp;merging&nbsp;across&nbsp;jobs,&nbsp;across&nbsp;subsamples,<br>
+across&nbsp;samples&nbsp;weighted&nbsp;by&nbsp;DSID,&nbsp;and&nbsp;then&nbsp;finally&nbsp;processing&nbsp;the&nbsp;systematics<br>
+and&nbsp;plotting&nbsp;them.&nbsp;Multithreading&nbsp;available.</tt></dd></dl>
+ <dl><dt><a name="-makeDummyHisto"><strong>makeDummyHisto</strong></a>(tg, isLog<font color="#909090">=False</font>, ratioZoom<font color="#909090">=None</font>, isRatio<font color="#909090">=False</font>)</dt><dd><tt>`tg`&nbsp;TGraphAsymmErrors&nbsp;(use&nbsp;this&nbsp;to&nbsp;build&nbsp;the&nbsp;dummy&nbsp;TH1D)&nbsp;&nbsp;<br>
+`isLog`&nbsp;Bool&nbsp;[optional]&nbsp;(Max/Min&nbsp;will&nbsp;need&nbsp;to&nbsp;be&nbsp;adjusted&nbsp;differently<br>
+in&nbsp;case&nbsp;of&nbsp;a&nbsp;log&nbsp;plot)&nbsp;&nbsp;<br>
+`ratioZoom`&nbsp;Float&nbsp;or&nbsp;None&nbsp;(if&nbsp;not&nbsp;None,&nbsp;use&nbsp;this&nbsp;factor&nbsp;as&nbsp;the&nbsp;limits&nbsp;of&nbsp;the<br>
+ratio&nbsp;plot)&nbsp;&nbsp;<br>
+`return`&nbsp;TH2D&nbsp;(with&nbsp;appropriate&nbsp;max/min&nbsp;on&nbsp;each&nbsp;axis)&nbsp;&nbsp;<br>
+&nbsp;<br>
+In&nbsp;order&nbsp;to&nbsp;control&nbsp;better&nbsp;what&nbsp;axis&nbsp;ranges&nbsp;to&nbsp;use,&nbsp;construct&nbsp;a&nbsp;dummy&nbsp;TH1D<br>
+with&nbsp;the&nbsp;desired&nbsp;max/min&nbsp;on&nbsp;each&nbsp;axis&nbsp;to&nbsp;be&nbsp;able&nbsp;to&nbsp;show&nbsp;the&nbsp;TGraphs&nbsp;nicely</tt></dd></dl>
+ <dl><dt><a name="-makeSystematicsPlotsWithRIVET"><strong>makeSystematicsPlotsWithRIVET</strong></a>(mergedSystDict)</dt><dd><tt>`mergedSystDict`&nbsp;dict{String,String}&nbsp;(format&nbsp;is&nbsp;as&nbsp;follows&nbsp;{N!label:filename},<br>
+where&nbsp;N&nbsp;is&nbsp;the&nbsp;order&nbsp;in&nbsp;which&nbsp;to&nbsp;plot&nbsp;the&nbsp;variations,&nbsp;labels&nbsp;is&nbsp;what&nbsp;to&nbsp;put&nbsp;on<br>
+the&nbsp;legend,&nbsp;and&nbsp;filename&nbsp;is&nbsp;the&nbsp;name&nbsp;of&nbsp;the&nbsp;YODA&nbsp;file&nbsp;to&nbsp;use&nbsp;as&nbsp;input)&nbsp;&nbsp;<br>
+`return`&nbsp;None&nbsp;&nbsp;&nbsp;<br>
+&nbsp;<br>
+Make&nbsp;some&nbsp;ugly&nbsp;plots&nbsp;using&nbsp;modified&nbsp;rivet&nbsp;make-plots.&nbsp;I&nbsp;think&nbsp;they&nbsp;are&nbsp;kinda&nbsp;<br>
+ugly&nbsp;and&nbsp;would&nbsp;suggest&nbsp;using&nbsp;makeSystematicsPlotsWithROOT&nbsp;instead.</tt></dd></dl>
+ <dl><dt><a name="-makeSystematicsPlotsWithROOT"><strong>makeSystematicsPlotsWithROOT</strong></a>(mergedSystDict, outdir, nominalName<font color="#909090">='Nominal'</font>, ratioZoom<font color="#909090">=None</font>, regexFilter<font color="#909090">=None</font>, regexVeto<font color="#909090">=None</font>)</dt><dd><tt>`mergedSystDict`&nbsp;dict{String,String}&nbsp;(format&nbsp;is&nbsp;as&nbsp;follows&nbsp;{N!label:filename},<br>
+where&nbsp;N&nbsp;is&nbsp;the&nbsp;order&nbsp;in&nbsp;which&nbsp;to&nbsp;plot&nbsp;the&nbsp;variations,&nbsp;labels&nbsp;is&nbsp;what&nbsp;to&nbsp;put&nbsp;on<br>
+the&nbsp;legend,&nbsp;and&nbsp;filename&nbsp;is&nbsp;the&nbsp;name&nbsp;of&nbsp;the&nbsp;YODA&nbsp;file&nbsp;to&nbsp;use&nbsp;as&nbsp;input)&nbsp;&nbsp;<br>
+`isLog`&nbsp;Bool&nbsp;[optional]&nbsp;(Max/Min&nbsp;will&nbsp;need&nbsp;to&nbsp;be&nbsp;adjusted&nbsp;differently<br>
+in&nbsp;case&nbsp;of&nbsp;a&nbsp;log&nbsp;plot)&nbsp;&nbsp;<br>
+`outdir`&nbsp;String&nbsp;(the&nbsp;output&nbsp;dir&nbsp;for&nbsp;the&nbsp;plots)&nbsp;&nbsp;<br>
+`nominalName`&nbsp;String&nbsp;(which&nbsp;entry&nbsp;of&nbsp;mergedSystDict&nbsp;is&nbsp;the&nbsp;nominal?&nbsp;One&nbsp;of&nbsp;the<br>
+entries&nbsp;in&nbsp;mergedSystDict&nbsp;should&nbsp;have&nbsp;this&nbsp;as&nbsp;a&nbsp;label)&nbsp;&nbsp;<br>
+`ratioZoom`&nbsp;Float&nbsp;or&nbsp;None&nbsp;(if&nbsp;not&nbsp;None,&nbsp;use&nbsp;this&nbsp;factor&nbsp;as&nbsp;the&nbsp;limits&nbsp;of&nbsp;the<br>
+ratio&nbsp;plot)&nbsp;&nbsp;<br>
+`regexFilter`&nbsp;String&nbsp;[optional]&nbsp;(AOs&nbsp;whose&nbsp;names&nbsp;match&nbsp;regex&nbsp;are&nbsp;processed)&nbsp;&nbsp;<br>
+`regexVeto`&nbsp;String&nbsp;[optional](AOs&nbsp;whose&nbsp;names&nbsp;match&nbsp;regex&nbsp;are&nbsp;NOT&nbsp;processed)&nbsp;&nbsp;<br>
+`return`&nbsp;None&nbsp;&nbsp;<br>
+&nbsp;<br>
+This&nbsp;is&nbsp;a&nbsp;generic&nbsp;macro&nbsp;which&nbsp;will&nbsp;make&nbsp;the&nbsp;output&nbsp;plots&nbsp;of&nbsp;the&nbsp;AOs&nbsp;contained<br>
+in&nbsp;the&nbsp;files&nbsp;listed&nbsp;in&nbsp;mergedSystDict.</tt></dd></dl>
+ <dl><dt><a name="-mergeInChunks"><strong>mergeInChunks</strong></a>(outfn, paths, progressDict<font color="#909090">=None</font>, nFilesPerChunk<font color="#909090">=100</font>, force<font color="#909090">=False</font>)</dt><dd><tt>`outfn`&nbsp;String&nbsp;(The&nbsp;name&nbsp;of&nbsp;the&nbsp;output&nbsp;Yoda&nbsp;file&nbsp;you&nbsp;wish&nbsp;to&nbsp;produce,&nbsp;with&nbsp;full&nbsp;path)&nbsp;&nbsp;<br>
+`paths`&nbsp;list[String]&nbsp;(List&nbsp;of&nbsp;Yoda&nbsp;files&nbsp;to&nbsp;merge,&nbsp;with&nbsp;full&nbsp;paths)&nbsp;&nbsp;<br>
+`progressText`&nbsp;String&nbsp;[optional]&nbsp;(An&nbsp;extra&nbsp;string&nbsp;to&nbsp;print&nbsp;at&nbsp;the&nbsp;end&nbsp;of&nbsp;the&nbsp;progress&nbsp;message)&nbsp;&nbsp;<br>
+`nFilesPerChunk`&nbsp;int&nbsp;[optional]&nbsp;(How&nbsp;many&nbsp;files&nbsp;to&nbsp;do&nbsp;per&nbsp;chunk)&nbsp;&nbsp;<br>
+`force`&nbsp;Bool&nbsp;[optional]&nbsp;by&nbsp;default,&nbsp;if&nbsp;there&nbsp;is&nbsp;already&nbsp;a&nbsp;matching&nbsp;merged&nbsp;file,&nbsp;this&nbsp;function&nbsp;does&nbsp;nothing<br>
+but&nbsp;`force`&nbsp;forces&nbsp;the&nbsp;merge&nbsp;again&nbsp;&nbsp;<br>
+`return`&nbsp;None<br>
+&nbsp;<br>
+This&nbsp;function&nbsp;safely&nbsp;merges&nbsp;multiple&nbsp;yoda&nbsp;files&nbsp;in&nbsp;chunks&nbsp;of&nbsp;nFilesToProcess&nbsp;at&nbsp;a&nbsp;time&nbsp;(if&nbsp;too&nbsp;many,&nbsp;yodamerge&nbsp;can&nbsp;fail!)<br>
+Recommended&nbsp;is&nbsp;nFilesPerChunk=100,&nbsp;but&nbsp;definitely&nbsp;less&nbsp;than&nbsp;300.</tt></dd></dl>
+ <dl><dt><a name="-printProgress"><strong>printProgress</strong></a>(progress)</dt><dd><tt>`progress`&nbsp;dict&nbsp;(a&nbsp;dictionary&nbsp;of&nbsp;the&nbsp;job&nbsp;labels:status)&nbsp;&nbsp;<br>
+&nbsp;<br>
+This&nbsp;is&nbsp;a&nbsp;helper&nbsp;function&nbsp;print&nbsp;the&nbsp;progress&nbsp;update&nbsp;in&nbsp;multi-<br>
+threader&nbsp;processes</tt></dd></dl>
+ <dl><dt><a name="-readFromYODA"><strong>readFromYODA</strong></a>(filename, regexFilter<font color="#909090">=None</font>, regexVeto<font color="#909090">=None</font>)</dt><dd><tt>`filename`&nbsp;String&nbsp;(path&nbsp;to&nbsp;file&nbsp;which&nbsp;is&nbsp;to&nbsp;be&nbsp;read)&nbsp;&nbsp;<br>
+`regexFilter`&nbsp;String&nbsp;[optional]&nbsp;(AOs&nbsp;whose&nbsp;names&nbsp;match&nbsp;regex&nbsp;are&nbsp;processed)&nbsp;&nbsp;<br>
+`regexVeto`&nbsp;String&nbsp;[optional](AOs&nbsp;whose&nbsp;names&nbsp;match&nbsp;regex&nbsp;are&nbsp;NOT&nbsp;processed)&nbsp;&nbsp;<br>
+`return`&nbsp;dict{String,AnalysisObject}&nbsp;&nbsp;<br>
+&nbsp;<br>
+Open&nbsp;a&nbsp;YODA&nbsp;file,&nbsp;read&nbsp;the&nbsp;contents&nbsp;and&nbsp;return&nbsp;them&nbsp;as&nbsp;AnalysisObjects.<br>
+Control&nbsp;which&nbsp;AOs&nbsp;to&nbsp;select/reject&nbsp;using&nbsp;the&nbsp;optional&nbsp;regexFilter/regexVeto<br>
+arguments.<br>
+Only&nbsp;supports&nbsp;Histo1D&nbsp;and&nbsp;Scatter2D&nbsp;types&nbsp;for&nbsp;now.&nbsp;TODO&nbsp;Support&nbsp;other&nbsp;types.</tt></dd></dl>
+ <dl><dt><a name="-renameFilesWithoutPrefix"><strong>renameFilesWithoutPrefix</strong></a>(directory)</dt><dd><tt>`directory`&nbsp;String&nbsp;&nbsp;<br>
+`return`&nbsp;None&nbsp;&nbsp;<br>
+&nbsp;<br>
+Renames&nbsp;the&nbsp;files&nbsp;in&nbsp;a&nbsp;given&nbsp;directory,&nbsp;such&nbsp;that&nbsp;the&nbsp;longest&nbsp;common&nbsp;prefix<br>
+which&nbsp;occurs&nbsp;in&nbsp;all&nbsp;filenames&nbsp;is&nbsp;ommitted.&nbsp;Useful&nbsp;if&nbsp;your&nbsp;GRID&nbsp;jobs&nbsp;were<br>
+submitted&nbsp;with&nbsp;the&nbsp;format&nbsp;&lt;prefix&gt;.&lt;weights_names&gt;.yoda&nbsp;and&nbsp;you&nbsp;want&nbsp;to&nbsp;<br>
+lose&nbsp;the&nbsp;&lt;prefix&gt;.&nbsp;bit&nbsp;!</tt></dd></dl>
+ <dl><dt><a name="-resolveFormula"><strong>resolveFormula</strong></a>(nominal, formula, componentsMap, level<font color="#909090">=0</font>, verbose<font color="#909090">=0</font>)</dt><dd><tt>`nominal`&nbsp;AnalysisObject&nbsp;(nominal&nbsp;object,&nbsp;which&nbsp;gives&nbsp;us&nbsp;the&nbsp;centeal&nbsp;values.<br>
+The&nbsp;typ&nbsp;is&nbsp;a&nbsp;dict&nbsp;of&nbsp;np.arrays()&nbsp;encoding&nbsp;information&nbsp;equivalent<br>
+to&nbsp;a&nbsp;Scatter2D,&nbsp;Histo1D,&nbsp;TGraphAsymmErrors&nbsp;or&nbsp;TH1D.&nbsp;See&nbsp;module&nbsp;description&nbsp;<br>
+for&nbsp;more&nbsp;information&nbsp;about&nbsp;this&nbsp;format.&nbsp;TODO:&nbsp;dedicated&nbsp;class&nbsp;for&nbsp;this?)&nbsp;&nbsp;<br>
+`formula`&nbsp;String&nbsp;(The&nbsp;formula&nbsp;with&nbsp;which&nbsp;to&nbsp;combine&nbsp;the&nbsp;components)&nbsp;&nbsp;<br>
+`componentsMap`&nbsp;dict(filenames,AnalysisObjects)&nbsp;(this&nbsp;is&nbsp;a&nbsp;map&nbsp;between&nbsp;the<br>
+file&nbsp;which&nbsp;the&nbsp;component&nbsp;corresponds&nbsp;to&nbsp;and&nbsp;the&nbsp;AnalysisObject&nbsp;which&nbsp;it&nbsp;<br>
+corresponds&nbsp;to.&nbsp;&nbsp;<br>
+`level`&nbsp;Int&nbsp;[optional]&nbsp;(keeps&nbsp;track&nbsp;of&nbsp;how&nbsp;deep&nbsp;in&nbsp;the&nbsp;recursiom&nbsp;we&nbsp;have&nbsp;gone)&nbsp;&nbsp;<br>
+`verbose`&nbsp;Int&nbsp;[optional]&nbsp;(0&nbsp;or&nbsp;1,&nbsp;whether&nbsp;or&nbsp;not&nbsp;to&nbsp;print&nbsp;a&nbsp;lot&nbsp;of&nbsp;debug&nbsp;messages)&nbsp;&nbsp;<br>
+`return`&nbsp;AnalysisObject&nbsp;&nbsp;<br>
+&nbsp;<br>
+Resolves&nbsp;the&nbsp;formula&nbsp;iteratively,&nbsp;using&nbsp;the&nbsp;AnalysisObjects&nbsp;listed&nbsp;in&nbsp;the<br>
+componentsMap.&nbsp;resolveFormula&nbsp;supports&nbsp;the&nbsp;following&nbsp;functions:&nbsp;&nbsp;<br>
+&nbsp;<br>
+`Central(arg1)`:&nbsp;Use&nbsp;the&nbsp;central&nbsp;value&nbsp;of&nbsp;arg1,&nbsp;and&nbsp;set&nbsp;errors&nbsp;to&nbsp;0&nbsp;&nbsp;<br>
+&nbsp;<br>
+`DownUpNominal(arg0,&nbsp;arg1,&nbsp;arg2)`:&nbsp;Produce&nbsp;a&nbsp;new&nbsp;AO&nbsp;where&nbsp;ydn&nbsp;is&nbsp;taken&nbsp;from&nbsp;<br>
+the&nbsp;central&nbsp;value&nbsp;('y')&nbsp;of&nbsp;arg0,&nbsp;yup&nbsp;is&nbsp;taken&nbsp;from&nbsp;the&nbsp;central&nbsp;value&nbsp;of&nbsp;arg1,<br>
+and&nbsp;y&nbsp;is&nbsp;taken&nbsp;from&nbsp;the&nbsp;central&nbsp;value&nbsp;of&nbsp;arg2.&nbsp;&nbsp;<br>
+&nbsp;<br>
+`Envelope(arg1,...,argN)`:&nbsp;Take&nbsp;the&nbsp;min/max&nbsp;envelope&nbsp;of&nbsp;the&nbsp;arguments&nbsp;as&nbsp;the&nbsp;<br>
+up/down&nbsp;errors&nbsp;of&nbsp;the&nbsp;resulting&nbsp;AO.&nbsp;The&nbsp;central&nbsp;value&nbsp;is&nbsp;taken&nbsp;from&nbsp;'nominal'.&nbsp;&nbsp;<br>
+&nbsp;<br>
+`Inverse(arg1)`:&nbsp;Take&nbsp;the&nbsp;inverse&nbsp;of&nbsp;the&nbsp;AO,&nbsp;so&nbsp;y--&gt;&nbsp;1/y,&nbsp;and&nbsp;the&nbsp;errors&nbsp;are&nbsp;<br>
+propagated&nbsp;as&nbsp;yerr&nbsp;--&gt;&nbsp;|yerr/y**2|&nbsp;&nbsp;<br>
+&nbsp;<br>
+`Product(arg1,...,argN)`:&nbsp;Take&nbsp;the&nbsp;product&nbsp;of&nbsp;the&nbsp;arguments&nbsp;of&nbsp;the&nbsp;function.&nbsp;<br>
+The&nbsp;'y'&nbsp;value&nbsp;is&nbsp;the&nbsp;product&nbsp;of&nbsp;the&nbsp;'y'&nbsp;values&nbsp;of&nbsp;the&nbsp;arguments,&nbsp;the&nbsp;errors&nbsp;<br>
+are&nbsp;propagated&nbsp;according&nbsp;the&nbsp;relative&nbsp;errors&nbsp;in&nbsp;quadrature.&nbsp;&nbsp;<br>
+&nbsp;<br>
+`QuadSum(arg1,..,argN)`:&nbsp;Sum&nbsp;in&nbsp;quadrature&nbsp;of&nbsp;the&nbsp;errors&nbsp;of&nbsp;the&nbsp;arguments,<br>
+and&nbsp;central&nbsp;value&nbsp;taken&nbsp;from&nbsp;nominal&nbsp;AO.</tt></dd></dl>
+ <dl><dt><a name="-safeDiv"><strong>safeDiv</strong></a>(numerator, denominator)</dt><dd><tt>`numerator`&nbsp;np.array()&nbsp;&nbsp;<br>
+`denominator`&nbsp;np.array()&nbsp;&nbsp;<br>
+`return`&nbsp;np.array&nbsp;&nbsp;<br>
+&nbsp;<br>
+Avoid&nbsp;NaNs&nbsp;when&nbsp;doing&nbsp;division.&nbsp;Replaces&nbsp;NaN&nbsp;with&nbsp;0&nbsp;in&nbsp;the&nbsp;array.</tt></dd></dl>
+ <dl><dt><a name="-safeFileName"><strong>safeFileName</strong></a>(name, removeExtension<font color="#909090">=True</font>)</dt><dd><tt>`name`&nbsp;String&nbsp;&nbsp;<br>
+`removeExtension`&nbsp;Bool&nbsp;[optional]&nbsp;(remove&nbsp;the&nbsp;file&nbsp;extension,&nbsp;eg&nbsp;.root,&nbsp;or&nbsp;.yoda)<br>
+`return`&nbsp;String&nbsp;&nbsp;<br>
+&nbsp;<br>
+Converts&nbsp;an&nbsp;input&nbsp;string&nbsp;(eg&nbsp;a&nbsp;weight&nbsp;name)&nbsp;which&nbsp;may&nbsp;contain&nbsp;non-standard<br>
+characters&nbsp;into&nbsp;a&nbsp;string&nbsp;which&nbsp;is&nbsp;safe&nbsp;to&nbsp;use&nbsp;as&nbsp;a&nbsp;filename.<br>
+In&nbsp;particular,&nbsp;the&nbsp;following&nbsp;substitutions&nbsp;are&nbsp;made:&nbsp;&nbsp;<br>
+'.'&nbsp;--&gt;&nbsp;'p'&nbsp;&nbsp;<br>
+'&nbsp;'&nbsp;--&gt;&nbsp;'_'&nbsp;&nbsp;<br>
+':'&nbsp;--&gt;&nbsp;'_'</tt></dd></dl>
+ <dl><dt><a name="-safeRootLatex"><strong>safeRootLatex</strong></a>(unsafeLatex)</dt><dd><tt>`unsafeLatex`&nbsp;String&nbsp;(unsafe&nbsp;Latex&nbsp;string&nbsp;to&nbsp;be&nbsp;converted)&nbsp;&nbsp;<br>
+`return`&nbsp;String&nbsp;(safe&nbsp;TLatex&nbsp;string&nbsp;which&nbsp;can&nbsp;be&nbsp;used&nbsp;on&nbsp;ROOT&nbsp;plots)&nbsp;&nbsp;<br>
+&nbsp;<br>
+TLatex&nbsp;is&nbsp;not&nbsp;quite&nbsp;the&nbsp;same&nbsp;as&nbsp;regular&nbsp;latex,&nbsp;and&nbsp;won't&nbsp;compiled&nbsp;properly<br>
+out&nbsp;of&nbsp;the&nbsp;box&nbsp;unless&nbsp;a&nbsp;few&nbsp;changes&nbsp;are&nbsp;made.&nbsp;This&nbsp;function&nbsp;does&nbsp;that<br>
+hopefully&nbsp;in&nbsp;the&nbsp;majority&nbsp;of&nbsp;cases!&nbsp;No&nbsp;promises&nbsp;though...&nbsp;*sigh*</tt></dd></dl>
+ <dl><dt><a name="-splitOperand"><strong>splitOperand</strong></a>(operand, bracket<font color="#909090">='()'</font>)</dt><dd><tt>`operand`&nbsp;String&nbsp;(The&nbsp;operand&nbsp;which&nbsp;you&nbsp;want&nbsp;to&nbsp;decompose&nbsp;into&nbsp;chunks)&nbsp;&nbsp;<br>
+`bracket`&nbsp;String&nbsp;[optional]&nbsp;(The&nbsp;type&nbsp;of&nbsp;bracket&nbsp;you&nbsp;want&nbsp;to&nbsp;avoid&nbsp;splitting,&nbsp;<br>
+eg&nbsp;(),&nbsp;{},&nbsp;[]...)&nbsp;&nbsp;<br>
+`return`&nbsp;list(String)&nbsp;&nbsp;<br>
+&nbsp;<br>
+Splits&nbsp;the&nbsp;operand&nbsp;of&nbsp;a&nbsp;formula&nbsp;into&nbsp;comma-separated&nbsp;chunks&nbsp;without&nbsp;splitting<br>
+operands&nbsp;of&nbsp;nested&nbsp;functions.<br>
+eg:&nbsp;Funcion1(foo,&nbsp;Function2(&nbsp;bar,&nbsp;foo),&nbsp;Function3(foo,&nbsp;Function4&nbsp;(bar,&nbsp;foo)))&nbsp;&nbsp;<br>
+--&gt;&nbsp;[foo,&nbsp;&nbsp;Function2(&nbsp;bar,&nbsp;foo),&nbsp;Function3(foo,&nbsp;Function4&nbsp;(bar,&nbsp;foo))]</tt></dd></dl>
+ <dl><dt><a name="-updateProgress"><strong>updateProgress</strong></a>(progress, key, message)</dt><dd><tt>`progress`&nbsp;dict&nbsp;(a&nbsp;dictionary&nbsp;of&nbsp;the&nbsp;job&nbsp;labels:status)&nbsp;&nbsp;<br>
+`key`&nbsp;String&nbsp;(the&nbsp;job&nbsp;label&nbsp;to&nbsp;update)&nbsp;&nbsp;<br>
+`message`&nbsp;String&nbsp;(the&nbsp;status&nbsp;to&nbsp;update)&nbsp;&nbsp;<br>
+&nbsp;<br>
+This&nbsp;is&nbsp;a&nbsp;helper&nbsp;function&nbsp;to&nbsp;update&nbsp;and&nbsp;print&nbsp;a&nbsp;progress&nbsp;update<br>
+when&nbsp;multi-threading</tt></dd></dl>
+ <dl><dt><a name="-weightCorrection"><strong>weightCorrection</strong></a>(var, nom, sampleDir<font color="#909090">=''</font>)</dt><dd><tt>`var`&nbsp;String&nbsp;(name&nbsp;of&nbsp;YODA&nbsp;file&nbsp;for&nbsp;variation&nbsp;to&nbsp;get&nbsp;the&nbsp;correction&nbsp;for)&nbsp;&nbsp;<br>
+`nom`&nbsp;String&nbsp;(name&nbsp;of&nbsp;YODA&nbsp;file&nbsp;for&nbsp;nominal&nbsp;to&nbsp;get&nbsp;correct&nbsp;away&nbsp;from)&nbsp;&nbsp;<br>
+`sampleDir`&nbsp;String&nbsp;[optional]&nbsp;(directory&nbsp;path&nbsp;for&nbsp;a&nbsp;given&nbsp;subsample)&nbsp;&nbsp;<br>
+`return`&nbsp;Float&nbsp;&nbsp;<br>
+&nbsp;<br>
+Computes&nbsp;the&nbsp;on-the-fly&nbsp;weight&nbsp;correction&nbsp;of&nbsp;the&nbsp;systematic&nbsp;variation&nbsp;with<br>
+respect&nbsp;to&nbsp;the&nbsp;nominal.&nbsp;This&nbsp;is&nbsp;needed&nbsp;for&nbsp;YODA&nbsp;files&nbsp;because&nbsp;by&nbsp;default,<br>
+Rivet&nbsp;normalises&nbsp;by&nbsp;the&nbsp;sum&nbsp;of&nbsp;weights&nbsp;for&nbsp;a&nbsp;given&nbsp;instance&nbsp;(ie&nbsp;variation)<br>
+rather&nbsp;than&nbsp;by&nbsp;the&nbsp;nominal.&nbsp;This&nbsp;weight&nbsp;is&nbsp;used&nbsp;to&nbsp;fix&nbsp;the&nbsp;issue.</tt></dd></dl>
+ <dl><dt><a name="-writeToYODA"><strong>writeToYODA</strong></a>(histDict, fOut)</dt><dd><tt>`histDict`&nbsp;dict{String,AnalysisObject}&nbsp;(AOs&nbsp;to&nbsp;write&nbsp;out)&nbsp;&nbsp;<br>
+`fOut`&nbsp;String&nbsp;(output&nbsp;file&nbsp;to&nbsp;write&nbsp;to)&nbsp;&nbsp;<br>
+`return`&nbsp;None&nbsp;&nbsp;<br>
+&nbsp;<br>
+Write&nbsp;AOs&nbsp;out&nbsp;to&nbsp;a&nbsp;YODA&nbsp;file.</tt></dd></dl>
+</td></tr></table>
+</body></html>

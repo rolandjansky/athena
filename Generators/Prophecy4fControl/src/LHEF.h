@@ -1114,7 +1114,11 @@ struct Weight : public TagBase {
     if ( sudakov != 0.0 ) file << oattr("sudakov", sudakov);
     file << ">";
     for ( int j = 0, M = weights.size(); j < M; ++j ) file << " " << weights[j];
-    file << "</weight>" << std::endl;
+    if ( iswgt )
+        file << "</wgt>" << std::endl;
+    else {
+        file << "</weight>" << std::endl;
+    }
   }
 
   /**
@@ -1510,8 +1514,8 @@ public:
     file << "<init>\n"
 	 << " " << setw(8) << IDBMUP.first
 	 << " " << setw(8) << IDBMUP.second
-	 << " " << setw(14) << EBMUP.first
-	 << " " << setw(14) << EBMUP.second
+	 << " " << setw(18) << EBMUP.first
+	 << " " << setw(18) << EBMUP.second
 	 << " " << setw(4) << PDFGUP.first
 	 << " " << setw(4) << PDFGUP.second
 	 << " " << setw(4) << PDFSUP.first
@@ -1520,9 +1524,9 @@ public:
 	 << " " << setw(4) << NPRUP << std::endl;
 
     for ( int i = 0; i < NPRUP; ++i )
-      file << " " << setw(14) << XSECUP[i]
-	   << " " << setw(14) << XERRUP[i]
-	   << " " << setw(14) << XMAXUP[i]
+      file << " " << setw(18) << XSECUP[i]
+	   << " " << setw(18) << XERRUP[i]
+	   << " " << setw(18) << XMAXUP[i]
 	   << " " << setw(6) << LPRUP[i] << std::endl;
 
     for ( int i = 0, N = generators.size(); i < N; ++i )
@@ -2041,10 +2045,10 @@ public:
     file << ">\n";
     file << " " << setw(4) << NUP
 	 << " " << setw(6) << IDPRUP
-	 << " " << setw(14) << XWGTUP
-	 << " " << setw(14) << SCALUP
-	 << " " << setw(14) << AQEDUP
-	 << " " << setw(14) << AQCDUP << "\n";
+	 << " " << setw(18) << XWGTUP
+	 << " " << setw(18) << SCALUP
+	 << " " << setw(18) << AQEDUP
+	 << " " << setw(18) << AQCDUP << "\n";
 
     for ( int i = 0; i < NUP; ++i )
       file << " " << setw(8) << IDUP[i]
@@ -2053,20 +2057,20 @@ public:
 	   << " " << setw(4) << MOTHUP[i].second
 	   << " " << setw(4) << ICOLUP[i].first
 	   << " " << setw(4) << ICOLUP[i].second
-	   << " " << setw(14) << PUP[i][0]
-	   << " " << setw(14) << PUP[i][1]
-	   << " " << setw(14) << PUP[i][2]
-	   << " " << setw(14) << PUP[i][3]
-	   << " " << setw(14) << PUP[i][4]
+	   << " " << setw(18) << PUP[i][0]
+	   << " " << setw(18) << PUP[i][1]
+	   << " " << setw(18) << PUP[i][2]
+	   << " " << setw(18) << PUP[i][3]
+	   << " " << setw(18) << PUP[i][4]
 	   << " " << setw(1) << VTIMUP[i]
 	   << " " << setw(1) << SPINUP[i] << std::endl;
 
-    if ( weights.size() > 0 ) {
-      file << "<weights>";
-      for ( int i = 1, N = weights.size(); i < N; ++i )
-        file << " " << weights[i].first;
-      file << "</weights>\n";
-    }
+    // if ( weights.size() > 0 ) {
+    //   file << "<weights>";
+    //   for ( int i = 1, N = weights.size(); i < N; ++i )
+    //     file << " " << weights[i].first;
+    //   file << "</weights>\n";
+    // }
 
     bool iswgt = false;
     for ( int i = 0, N = namedweights.size(); i < N; ++i ) {
@@ -2496,18 +2500,23 @@ private:
 
     // Make sure we are reading a LHEF file:
     getline();
-    if ( !currentFind("<LesHouchesEvents") )
-      throw std::runtime_error
-	("Tried to read a file which does not start with the "
-	 "LesHouchesEvents tag.");
-    version = 1;
+    if ( !currentFind("<LesHouchesEvents") ) {
+        std::string error = "Tried to read a file which does not start with the "
+	 "LesHouchesEvents tag. Found: " + m_currentLine;
+        throw std::runtime_error (error);
+        // ("Tried to read a file which does not start with the "
+        // "LesHouchesEvents tag.");
+    }
+    // ** RDS** version = 1;
+    version = 2;
     if ( currentFind("version=\"3" ) )
       version = 3;
     else if ( currentFind("version=\"2" ) )
       version = 2;
-    else if ( !currentFind("version=\"1" ) )
-      throw std::runtime_error
-	("Tried to read a LesHouchesEvents file which is above version 3.");
+    // ** RDS ** Removed exception for Prophecy4f which is missing the version number!
+    // else if ( !currentFind("version=\"1" ) )
+    //   throw std::runtime_error
+    //     ("Tried to read a LesHouchesEvents file which is above version 3.");
 
     // Loop over all lines until we hit the </init> tag.
     while ( getline() && !currentFind("</init>") ) {
@@ -2786,7 +2795,7 @@ public:
       m_file << "<LesHouchesEvents version=\"1.0\">\n";
 
 
-    m_file << std::setprecision(8);
+    m_file << std::setprecision(12);
 
     using std::setw;
 
@@ -2884,7 +2893,7 @@ private:
     to try it on.
 */
 
-/** \page LHEF_page Les Houches Event File
+/**\mainpage Les Houches Event File
 
 Here are some example classes for reading and writing Les Houches
 Event Files according to the

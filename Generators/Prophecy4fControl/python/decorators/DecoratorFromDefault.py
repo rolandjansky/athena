@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 class DecoratorFromDefault(object) :
 
@@ -13,7 +13,7 @@ class DecoratorFromDefault(object) :
 
 #   ATTENTION output file name must not be set in the input file otherwise there will be no log (i.e. stdout of the job)!!
 #    self.decorated.add_parameter( 'outputLHE', 'ProphecyOTF.lhe',  desc='name of outputfile', parameter='outputfile' )
-    self.decorated.add_parameter( 'nEvents_weighted', 1000000,     desc='nevents: number of weighted events', parameter='nevents' )
+    self.decorated.add_parameter( 'nEvents_weighted', 10000000,     desc='nevents: number of weighted events', parameter='nevents' )
     self.decorated.add_parameter( 'nEvents', 10000,                desc='nunwevents: number of unweighted events', parameter='nunwevents' )
     self.decorated.add_parameter( 'WriteOutput', 1,                desc='do (not) write lhe event files: 1 (0)', parameter='lheoutput' )
     self.decorated.add_parameter( 'contrib', 1,                    desc='contrib: 1=best 2=IBA 3=Born' )

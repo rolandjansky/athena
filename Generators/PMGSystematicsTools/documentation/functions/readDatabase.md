@@ -1,0 +1,23 @@
+Help on module readDatabase
+
+# NAME
+readDatabase
+
+# FILE
+/afs/cern.ch/user/l/lcorpe/work/private/testPMGSystTools_13Sept18/systematics-tools/local/bin/readDatabase.py
+
+# DESCRIPTION
+#Author: Abhishek Nag (TU Dresden)
+#email: abhishek.nag@cern.ch
+
+# FUNCTIONS
+## getOrderedWeights(dsid)
+
+## getWeights(dsid)
+
+## main(argv)
+
+# DATA
+## SystToolsPath = '/afs/cern.ch/user/l/lcorpe/work/private/testPMGSystTo...
+
+

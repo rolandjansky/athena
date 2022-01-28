@@ -1,0 +1,26 @@
+package PyUtils
+
+author Louie Dartmoor Corpe <lcorpe@cern.ch>
+
+use AtlasPolicy AtlasPolicy-*
+use AtlasPython	AtlasPython-*	External -no_auto_imports
+use AtlasPyROOT	AtlasPyROOT-*	External -no_auto_imports
+use AtlasPyFwdBwdPorts          AtlasPyFwdBwdPorts-*        External    -no_auto_imports
+use PyCmt       PyCmt-*         Tools    -no_auto_imports
+use Rivet             Rivet-*             External
+use YODA              YODA-*              External
+
+branches python bin
+
+## some handy aliases
+alias systematicsTool     systematicsTool.py
+
+private
+
+apply_pattern declare_python_modules files="*.py AthFile scripts"
+apply_pattern declare_scripts files="\
+ -s=$(PMGSystematicsTools_root)/bin \
+ systematicsTool.py \
+"
+
+end_private
