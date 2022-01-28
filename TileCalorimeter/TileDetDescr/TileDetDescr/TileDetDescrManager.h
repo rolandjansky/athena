@@ -15,6 +15,7 @@
 #include <cmath>
 #include <memory>
 
+// fwd
 class TileDddbManager;
 class TileDetDescrRegion;
 class TileDetDescriptor;

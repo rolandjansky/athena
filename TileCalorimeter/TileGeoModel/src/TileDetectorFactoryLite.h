@@ -29,6 +29,7 @@
 // FWD Declarations
 class MsgStream;
 class StoreGateSvc;
+class IRDBAccessSvc;
 namespace GeoModelIO {
       class ReadGeoModel;
 }
@@ -42,6 +43,7 @@ public:
   TileDetectorFactoryLite(StoreGateSvc *pDetStore, 
                           TileDetDescrManager *manager, 
 			              GeoModelIO::ReadGeoModel* sqliteReader,
+                          IRDBAccessSvc* rdbaccess,
                           const TileSwitches & switches,
                           MsgStream *log, 
                           bool fullGeo);
@@ -66,6 +68,9 @@ private:
 
   /** Pointer to an instance of the GeoModel I/O class */
   GeoModelIO::ReadGeoModel* m_sqliteReader;
+
+  /** Pointer to an instance of the RDBAccessSvc to get parameters from the SQLite file */
+  IRDBAccessSvc* m_paramsSvc;
 
   /** all switches */
   TileSwitches m_switches;

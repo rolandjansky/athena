@@ -41,7 +41,8 @@ class TileDddbManager
 
   TileDddbManager(IRDBAccessSvc* access,
 		  const std::string&    version_tag,
-		  const std::string&    version_node);
+		  const std::string&    version_node,
+          bool sqliteInput = false);
 
   TileDddbManager (const TileDddbManager&) = delete;
   TileDddbManager& operator= (const TileDddbManager&) = delete;
@@ -311,6 +312,9 @@ class TileDddbManager
 
   std::string m_tag;
   std::string m_node;
+
+  bool m_sqliteInput;
+
   std::vector<unsigned int> m_modTypes;
   void FillModTypes();
 

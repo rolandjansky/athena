@@ -10,7 +10,6 @@
 
 #include <string>
 
-class MsgStream;
 class StoreGateSvc;
 class TileDetDescrManager;
 

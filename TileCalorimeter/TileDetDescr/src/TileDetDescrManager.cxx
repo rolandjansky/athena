@@ -159,6 +159,7 @@ void TileDetDescrManager::create_elements(bool checks)
   int n_cells = 0;
 
 // For each descriptor :
+  MLOG(DEBUG) << "Looping over descriptors..." << endmsg;
 
   for (; first != last; ++first) {
     
@@ -177,6 +178,10 @@ void TileDetDescrManager::create_elements(bool checks)
                   << "] do not match" << endmsg;
     }
     ++n_regions;
+
+    MLOG(DEBUG) << "descriptor - " << reg_id << ", " << section << ", " << side
+                << ", " << zshift << ", " << doZshift 
+                << ", " << etasign << ", " << n_regions << endmsg;
     
     int nsamp = descr->n_samp();
 
@@ -472,19 +477,27 @@ void TileDetDescrManager::create_elements(bool checks)
                 double oldz = elt->z();
                 double olddz = elt->dz();
                 int ic=cell_dim->getNRows()-1;
+                MLOG(DEBUG) << "ic is set to: " << ic << endmsg;
                 double z1=0,z2=0;
                 if (side < 0) {
+                  MLOG(DEBUG) << "side < 0 ..." << endmsg;
                   z1 = cell_dim->getZMax(0);
                   for ( ; ic>=0; --ic) {
                     z2 = cell_dim->getZMin(ic);
+                    MLOG(DEBUG) << "z2: " << z2 << ", ZMax: " << cell_dim->getZMax(ic) << ", diff: " << z2-cell_dim->getZMax(ic) << endmsg;
                     if (fabs(z2-cell_dim->getZMax(ic))>0.1) break;
                   }
                 } else {
+                  MLOG(DEBUG) << "side >= 0 ..." << endmsg;
                   z1 = cell_dim->getZMin(0);
                   for ( ; ic>=0; --ic) {
                     z2 = cell_dim->getZMax(ic);
                     if (fabs(z2-cell_dim->getZMin(ic))>0.1) break;
                   }
+                }
+
+                if (ic<0) {
+                    MLOG(WARNING) << "TileDetDescrManager -- ic < 0! Expect crashes or misbehavior! ==> This should be checked, because 'ic' should be related to the numbers of rows!! Note: 'ic' gets < 0 when z2-cell_dim is too small and does not make the above loop break; that can be caused, for example, if 'barrelPeriodThickness' and 'extendedPeriodThickness' are not set (or set to the default 0. value) and, as a result, ZMax is not properly set." << endmsg;
                 }
                 
                 double z = (z1+z2)/2.;
@@ -497,6 +510,7 @@ void TileDetDescrManager::create_elements(bool checks)
                 // numbers to 0.
                 if (std::abs(z) < 1e-8 * Gaudi::Units::mm) z = 0;
 
+                MLOG(DEBUG) << "ic: " << ic << endmsg;
                 double dz = 0.5 * fabs(cell_dim->getZMax(0)     // special 
                                        -cell_dim->getZMin(0)    // calculations
                                        +cell_dim->getZMax(ic)   // to get BC cells 

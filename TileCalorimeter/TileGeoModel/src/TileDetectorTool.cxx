@@ -37,6 +37,8 @@
 #include "AthenaKernel/ClassID_traits.h"
 #include "SGTools/DataProxy.h"
 
+
+
 TileDetectorTool::TileDetectorTool(const std::string& type, 
 				   const std::string& name, 
 				   const IInterface* parent):
@@ -111,18 +113,35 @@ StatusCode TileDetectorTool::create()
   {
 
     
-    IRDBAccessSvc* raccess = 0;
-    ATH_CHECK(service("RDBAccessSvc",raccess));
+    //IRDBAccessSvc* raccess = 0;
+    //ATH_CHECK(service("RDBAccessSvc",raccess));
 
-    TileDddbManager_ptr  dbManager(new TileDddbManager(raccess,versionTag,versionNode));
-    m_manager = new TileDetDescrManager(dbManager);
+    //TileDddbManager_ptr  dbManager(new TileDddbManager(raccess,versionTag,versionNode));
+    //m_manager = new TileDetDescrManager(dbManager);
+
+    // Get the detector configuration.
+    //ServiceHandle<IGeoDbTagSvc> geoDbTag("GeoDbTagSvc",name());
+    //ATH_CHECK(geoDbTag.retrieve());
 
     // Get the detector configuration.
     ServiceHandle<IGeoDbTagSvc> geoDbTag("GeoDbTagSvc",name());
     ATH_CHECK(geoDbTag.retrieve());
 
+    // Get the 'new' accessSvc to get parameters / DB data from the DD SQLite input file.
+    ServiceHandle<IRDBAccessSvc> accessSvc(geoDbTag->getParamSvcName(),name());
+    ATH_CHECK(accessSvc.retrieve());
+    
     // Get the SQLite reader, if specified in the jobOption
     GeoModelIO::ReadGeoModel* sqliteReader = geoDbTag->getSqliteReader();
+
+    // Get the Tile 'DDDB' and 'DetDescr' managers
+    // Note: we need to pass the raw IRDBAccess* to the TildDddbManager constructor.
+    bool sqliteInput = false;
+    if (sqliteReader) sqliteInput = true;
+    TileDddbManager_ptr  dbManager(new TileDddbManager(&*accessSvc,versionTag,versionNode, sqliteInput));
+    m_manager = new TileDetDescrManager(dbManager);
+
+    // check what factory can be used
     if (0==dbManager->GetNumberOfEnv() && m_useNewFactory) {
       ATH_MSG_WARNING("New TileAtlasFactory can not be used because TileGlobals do not exist in Database");
       ATH_MSG_WARNING("Use old TileDetectorFactory instead");
@@ -147,9 +166,10 @@ StatusCode TileDetectorTool::create()
         TileDetectorFactoryLite theTileFactoryLite(detStore().operator->(), 
                 m_manager, 
                 sqliteReader,
+                accessSvc.operator->(),
                 m_switches,
                 &log,
-                false);
+                true);
         theTileFactoryLite.create(world);
     } 
     // build the geometry from the Oracle-based GeometryDB
@@ -170,6 +190,7 @@ StatusCode TileDetectorTool::create()
             theTileFactory.create(world);
         }
     } // end of building the geometry from the GeometryDB
+   ATH_MSG_INFO( "The Tile raw geometry has been built.");
 
     CHECK( createElements() );
 

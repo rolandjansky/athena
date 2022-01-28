@@ -7,6 +7,9 @@
 
 #include <vector>
 
+// fwd
+class MsgStream;
+
 class TileCellDim 
 {
  public:
@@ -39,6 +42,7 @@ class TileCellDim
   std::vector<double> m_zMin;
   std::vector<double> m_zMax;
   double m_volume, m_Radius2HalfLength;
+  MsgStream * m_log;
 };
 
 #endif
