@@ -179,8 +179,8 @@ def _createCfgFlags():
     _addFlagsCategory(acf, "Reco", __reco, 'RecJobTransforms')
 
 #IOVDbSvc Flags:
-    acf.addFlag("IOVDb.GlobalTag",lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("IOVDbGlobalTag",None) or "CONDBR2-BLKPA-RUN2-09")
-    from IOVDbSvc.IOVDbAutoCfgFlags import getDatabaseInstanceDefault
+    from IOVDbSvc.IOVDbAutoCfgFlags import getLastGlobalTag, getDatabaseInstanceDefault
+    acf.addFlag("IOVDb.GlobalTag", getLastGlobalTag) # Retrieve last global tag used from metadata
     acf.addFlag("IOVDb.DatabaseInstance",getDatabaseInstanceDefault)
     # Run dependent simulation
     # map from runNumber to timestamp; migrated from RunDMCFlags.py
