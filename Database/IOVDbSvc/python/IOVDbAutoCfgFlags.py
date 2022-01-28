@@ -3,6 +3,13 @@
 from AthenaCommon.Logging import logging
 log = logging.getLogger('IOVDbAutoCfgFlags')
 
+def getLastGlobalTag(prevFlags):
+    from AthenaConfiguration.AutoConfigFlags import GetFileMD
+    globaltag = GetFileMD(prevFlags.Input.Files).get("IOVDbGlobalTag",None) or "CONDBR2-BLKPA-RUN2-09"
+    if isinstance(globaltag,list): # if different tags have been used at different steps
+        globaltag = globaltag[-1]
+    return globaltag
+
 def getDatabaseInstanceDefault(prevFlags):
     isMC=prevFlags.Input.isMC
     if (isMC):
