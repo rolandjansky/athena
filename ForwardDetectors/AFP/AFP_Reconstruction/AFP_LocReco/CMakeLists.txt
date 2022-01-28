@@ -16,5 +16,5 @@ atlas_add_component( AFP_LocReco
 
 
 # Install files from the package:
-atlas_install_joboptions( share/*.py )
+atlas_install_python_modules( share/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )   
 
