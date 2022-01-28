@@ -12,13 +12,12 @@ namespace PixelCalib{
 
   // PixelCalibData::~PixelCalibData(){}
 
-std::vector<float> PixelOfflineCalibData::getConstants() const { 
+std::vector<float> PixelOfflineCalibData::GetConstants() const { 
 
   // format version of parametrizations (note it is an increasing NEGATIVE number)
   int v1 = m_clustererrordata->getVersion(); 
   int v2 = m_clusterontrackerrordata->getVersion(); 
-  int v3 = m_chargeinterpolationparameters->getVersion();
-  const bool includesIBL = (v1< -1) or (v2< -1) or (v3< -1);
+  int v3 = m_chargeinterpolationparameters->getVersion(); 
 
   int n1 = m_clustererrordata->getNumberOfBarrelBins(); 
   int n2 = m_clustererrordata->getNumberOfEndcapBins();
@@ -79,15 +78,27 @@ std::vector<float> PixelOfflineCalibData::getConstants() const {
     +n4+n5; // number of ChargeInterpolation values
 
   int offset = 13;
-  if(includesIBL) { 
+  if(v1<-1||v2<-1||v3<-1) { // including IBL
     offset +=8;
     datasize +=2*n1 + netaibl+1 + nalphaibl+1 + n3c +n3d + netaibl2+1 + nalphaibl2+1 + n6 + n7;
   }
 
   std::vector<float> constants;
-  constants.reserve(datasize+offset);// NOTE: this was 'resize' before; may change output
-  constants = {float(v1),float(v2), float(v3), float(n1), float(n2), float(ncsx), float(ncsy), float(neta), 
-    float(nalpha), float(ncsx2),float(ncsy2), float(neta2), float(nalpha2)};
+  constants.resize(datasize+offset);
+
+  constants.push_back(v1);
+  constants.push_back(v2);
+  constants.push_back(v3); 
+  constants.push_back(n1);
+  constants.push_back(n2);
+  constants.push_back(ncsx);
+  constants.push_back(ncsy);
+  constants.push_back(neta);
+  constants.push_back(nalpha);
+  constants.push_back(ncsx2);
+  constants.push_back(ncsy2);
+  constants.push_back(neta2);
+  constants.push_back(nalpha2);
   if(offset>13){
     constants.push_back(ncsx_ibl);
     constants.push_back(ncsx_ibl); 
@@ -100,22 +111,19 @@ std::vector<float> PixelOfflineCalibData::getConstants() const {
   }
 
   // set bins of cluster error on track parametrization (uppermost value implicit)
-  auto insert = [&constants](const std::vector<float> & v)->void{
-    if (not v.empty()) constants.insert(constants.end(), v.begin(), v.end());
-  };
-  insert(csx);
-  insert(csy);
+  for(int i=0; i<ncsx; i++){ constants.push_back(csx[i]); }
+  for(int i=0; i<ncsy; i++){ constants.push_back(csy[i]); }
   if(netaibl>0){
     for(int i=0; i<netaibl+1; i++){ constants.push_back(etaibl[i]); }
   }
   if(nalphaibl>0){
     for(int i=0; i<nalphaibl+1; i++){ constants.push_back(alphaibl[i]); }
   }
-  insert(eta);
-  insert(alpha);
+  for(int i=0; i<neta; i++){ constants.push_back(eta[i]); }
+  for(int i=0; i<nalpha; i++){ constants.push_back(alpha[i]); }
   // set bins of charge interpolation parametrization (uppermost value stored)
-  insert(csx2);
-  insert(csy2);
+  for(int i=0; i<ncsx2+1; i++){ constants.push_back(csx2[i]); }
+  for(int i=0; i<ncsy2+1; i++){ constants.push_back(csy2[i]); }
   if(netaibl2>0){
     for(int i=0; i<netaibl2+1; i++){ constants.push_back(etaibl2[i]); }
   }
@@ -148,13 +156,13 @@ std::vector<float> PixelOfflineCalibData::getConstants() const {
   return constants;
 }
 
-void PixelOfflineCalibData::dump(){
+void PixelOfflineCalibData::Dump(){
   m_clustererrordata->Print("PixelClusterDump.txt");
   m_clusterontrackerrordata->Print("PixelClusterOnTrackDump.txt");
   m_chargeinterpolationparameters->Print("PixelChargeInterpolationParametersDump.txt");
 }
 
-void PixelOfflineCalibData::setConstants(const std::vector<float> &constants){ 
+void PixelOfflineCalibData::SetConstants(const std::vector<float> &constants){ 
 
   if(constants.at(0) > 0){    // old format
     m_clustererrordata->setVersion(0);
