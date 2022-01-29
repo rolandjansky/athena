@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -332,10 +332,10 @@ void TRT_FillCablingData_DC1::defineTables()
       for (straw = 0; straw < 1664; ++straw)
       {
         Id = defineIdentifier(det_id, phi * 3 + i, straw); 
-        m_cabling->set_identfierForAllStraws(Id);	
+        m_cabling->set_identifierForAllStraws(Id);	
 	IdLayer = m_id_trt->layer_id(Id);
 	if ( !m_id_trt->get_hash(IdLayer, hashId, &m_cntx) )
-	   m_cabling->set_identfierHashForAllStraws(hashId);
+	   m_cabling->set_identifierHashForAllStraws(hashId);
 	else
 	   ATH_MSG_DEBUG( "defineTables: unable to get hash for IdLayer " << m_id_trt->show_to_string(IdLayer) );
 
@@ -352,10 +352,10 @@ void TRT_FillCablingData_DC1::defineTables()
     for (straw = 0; straw < 1642; ++straw)
     {
       Id = defineIdentifier(det_id, phi, straw);
-      m_cabling->set_identfierForAllStraws(Id);
+      m_cabling->set_identifierForAllStraws(Id);
       IdLayer = m_id_trt->layer_id(Id);
       if ( !m_id_trt->get_hash(IdLayer, hashId, &m_cntx) )
-	 m_cabling->set_identfierHashForAllStraws(hashId);
+	 m_cabling->set_identifierHashForAllStraws(hashId);
       else
 	 ATH_MSG_DEBUG( "defineTables: unable to get hash for IdLayer " << m_id_trt->show_to_string(IdLayer) );
     }
@@ -368,10 +368,10 @@ void TRT_FillCablingData_DC1::defineTables()
     for (straw = 0; straw < 1642; ++straw)
     {
       Id = defineIdentifier(det_id, phi, straw);
-      m_cabling->set_identfierForAllStraws(Id); 
+      m_cabling->set_identifierForAllStraws(Id); 
       IdLayer = m_id_trt->layer_id(Id);
       if ( !m_id_trt->get_hash(IdLayer, hashId, &m_cntx) )
-	 m_cabling->set_identfierHashForAllStraws(hashId);
+	 m_cabling->set_identifierHashForAllStraws(hashId);
       else
 	 ATH_MSG_DEBUG( "defineTables: unable to get hash for IdLayer " << m_id_trt->show_to_string(IdLayer) );
     }     
@@ -386,17 +386,17 @@ void TRT_FillCablingData_DC1::defineTables()
       for (straw = 0; straw < 1664; ++straw)
       {
         Id = defineIdentifier(det_id, phi * 3 + i, straw);
-        m_cabling->set_identfierForAllStraws(Id);
+        m_cabling->set_identifierForAllStraws(Id);
 	IdLayer = m_id_trt->layer_id(Id);
         if ( !m_id_trt->get_hash(IdLayer, hashId, &m_cntx) )
-	   m_cabling->set_identfierHashForAllStraws(hashId);
+	   m_cabling->set_identifierHashForAllStraws(hashId);
 	else
 	   ATH_MSG_DEBUG( "defineTables: unable to get hash for IdLayer " << m_id_trt->show_to_string(IdLayer) );
       }	
     }
   }
   
-//  ATH_MSG_DEBUG( " m_identfierForAllStraws size " << m_identfierForAllStraws.size() );
+//  ATH_MSG_DEBUG( " m_identifierForAllStraws size " << m_identifierForAllStraws.size() );
 
     // Initialize m_allRobs
   //EventFormat::ModuleType type = EventFormat::ROD_TYPE;
