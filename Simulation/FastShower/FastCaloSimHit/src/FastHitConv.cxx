@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FastCaloSimHit/FastHitConv.h"
@@ -173,7 +173,7 @@ StatusCode FastHitConv::hitConstruction()
   const double minEnergy = 1e-9;
 
   // Read back FastCaloSim cells
-  const CaloCellContainer* cellContainer;
+  const CaloCellContainer* cellContainer = nullptr;
   CHECK(evtStore()->retrieve(cellContainer, m_caloCellsOutputName));
 
   double hitTime = 0.0;
