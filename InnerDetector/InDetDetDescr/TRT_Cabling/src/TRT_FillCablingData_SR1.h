@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -60,7 +60,7 @@ public:
   void defineCollID();
 
     // Get ROBIDs for each Detector Element (Straw Layer)
-  std::vector<uint32_t> getRobID(Identifier id);
+  std::vector<uint32_t> getRobID(Identifier id) const;
 
   void fillCollID(uint32_t rob_id, std::vector<IdentifierHash> & ids);
 

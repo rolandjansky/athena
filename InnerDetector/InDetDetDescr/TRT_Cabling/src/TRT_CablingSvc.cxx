@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -237,8 +237,8 @@ Identifier TRT_CablingSvc::getIdentifier(const eformat::SubDetector&
     // TB04, SR1 or DC3 Case 
   if ( m_TRTLayout == 1 || m_TRTLayout == 4 || m_TRTLayout == 5 || m_TRTLayout == 6 )
   {
-    hashId = m_cabling->get_identfierHashForAllStraws(intRod, bufferOffset);
-    return m_cabling->get_identfierForAllStraws(intRod, bufferOffset);
+    hashId = m_cabling->get_identifierHashForAllStraws(intRod, bufferOffset);
+    return m_cabling->get_identifierForAllStraws(intRod, bufferOffset);
   }
 
     // DC1, DC2 Case
@@ -247,30 +247,30 @@ Identifier TRT_CablingSvc::getIdentifier(const eformat::SubDetector&
   {
     shift = m_shiftForLeftEndCapStraws +
       intRod * m_numberOfStrawsInROD + straw; 
-    hashId = m_cabling->get_identfierHashForAllStraws(shift);
-    return m_cabling->get_identfierForAllStraws(shift);
+    hashId = m_cabling->get_identifierHashForAllStraws(shift);
+    return m_cabling->get_identifierForAllStraws(shift);
   }
 
   if (subdetector == eformat::TRT_BARREL_A_SIDE)
   {
     shift = m_shiftForLeftBarrelStraws + 
      intRod * m_numberOfStrawsInBarrelROD + straw; 
-    hashId = m_cabling->get_identfierHashForAllStraws(shift);
-    return m_cabling->get_identfierForAllStraws(shift);
+    hashId = m_cabling->get_identifierHashForAllStraws(shift);
+    return m_cabling->get_identifierForAllStraws(shift);
   }
 
   if (subdetector == eformat::TRT_BARREL_C_SIDE)
   {
     shift = m_shiftForRightBarrelStraws +
       intRod * m_numberOfStrawsInBarrelROD + straw;
-    hashId = m_cabling->get_identfierHashForAllStraws(shift);
-    return m_cabling->get_identfierForAllStraws(shift);
+    hashId = m_cabling->get_identifierHashForAllStraws(shift);
+    return m_cabling->get_identifierForAllStraws(shift);
   }
 
   shift = m_shiftForRightEndCapStraws +
     intRod * m_numberOfStrawsInROD + straw;
-  hashId = m_cabling->get_identfierHashForAllStraws(shift);
-  return m_cabling->get_identfierForAllStraws(shift);
+  hashId = m_cabling->get_identifierHashForAllStraws(shift);
+  return m_cabling->get_identifierForAllStraws(shift);
 
 }
 

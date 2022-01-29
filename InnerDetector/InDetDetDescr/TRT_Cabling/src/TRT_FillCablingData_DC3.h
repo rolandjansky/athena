@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -51,7 +51,7 @@ class TRT_FillCablingData_DC3: public AthAlgTool {
    TRT_CablingData* fillData();
 
    // Get ROBIDs for each Detector Element (Straw Layer)
-   std::vector<uint32_t> getRobID(Identifier id);
+   std::vector<uint32_t> getRobID(Identifier id) const;
 
  private:
    //Define map of collection IDs for all ROBs
