@@ -87,37 +87,37 @@ def GetRunNumber():
         if not rec.RunNumber.isDefault():
             runNb = rec.RunNumber()
     except ImportError:
-        logAutoConfiguration.debug("Could not import from RecFlags, trying "
-                                   "in-file metadata")
+        logAutoConfiguration.verbose("Could not import from RecFlags, trying "
+                                     "in-file metadata")
     try:
         if not runNb:
             from PyUtils.MetaReaderPeeker import metadata
     except ImportError as err:
-        logAutoConfiguration.error(f"Unexpected: {err}")
+        logAutoConfiguration.debug(f"Unexpected: {err}")
         return None
     try:
         if not runNb:
             runNb = metadata['runNumbers'][0]
     except KeyError:
-        logAutoConfiguration.info("no runNumbers from EventStreamInput in "
-                                  "in-file metadata")
+        logAutoConfiguration.verbose("no runNumbers from EventStreamInput in "
+                                     "in-file metadata")
     except IndexError:
-        logAutoConfiguration.debug("Empty list of runNumbers from "
-                                   "EventStreamInfo, trying FileMetaData")
+        logAutoConfiguration.verbose("Empty list of runNumbers from "
+                                     "EventStreamInfo, trying FileMetaData")
     try:
         if not runNb:
             runNb = metadata['FileMetaData']['runNumbers'][0]
     except KeyError:
-        logAutoConfiguration.debug("FileMetaData does not provide runNumbers")
+        logAutoConfiguration.verbose("FileMetaData does not provide runNumbers")
     except IndexError:
-        logAutoConfiguration.debug("Empty list of runNumbers in FileMetaData")
+        logAutoConfiguration.verbose("Empty list of runNumbers in FileMetaData")
     if not runNb:
         try:
             from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
             if not athenaCommonFlags.isOnline():
-                logAutoConfiguration.error("No RunNumber stored in InputFile!")
+                logAutoConfiguration.debug("No RunNumber stored in InputFile!")
         except ImportError as err:
-            logAutoConfiguration.error(f"Unexpected: {err}")
+            logAutoConfiguration.debug(f"Unexpected: {err}")
     logAutoConfiguration.debug(f"RunNumber is: {runNb}")
     return runNb
 
@@ -136,35 +136,39 @@ def GetLBNumber():
         Returns:
             int: lumi block number if successful, None otherwise
     """
-    from PyUtils.MetaReaderPeeker import metadata
+    try:
+        from PyUtils.MetaReaderPeeker import metadata
+    except ImportError as err:
+        logAutoConfiguration.debug(f"Unexpected: {err}")
+        return None
     lbs = None
     try:
         lbs = metadata['lumiBlockNumbers']
     except (KeyError,):
-        logAutoConfiguration.debug("No lumiBlockNumbers from EventStreamInfo")
-    if not lbs:
-        # if EventStreamInfo is empty, try FileMetaData
-        try:
+        logAutoConfiguration.verbose("No lumiBlockNumbers from EventStreamInfo")
+    try:
+        if not lbs:
+            # if EventStreamInfo is empty, try FileMetaData
             lbs = metadata['FileMetaData']['lumiBlocks']
-        except (KeyError,):
-            logAutoConfiguration.debug("lumiBlocks missing from FileMetaData")
+    except (KeyError,):
+        logAutoConfiguration.verbose("lumiBlocks missing from FileMetaData")
     try:
         if len(lbs)>1:
-            logAutoConfiguration.warning("Data from more than one lumi-block "
+            logAutoConfiguration.verbose("Data from more than one lumi-block "
                                          "in the same file. Use first "
                                          "lumi-block number.")
     except (TypeError,):
-        logAutoConfiguration.warning("No LumiBlock number stored in InputFile!"
-                                     " Use None")
+        logAutoConfiguration.verbose("No LumiBlock number stored in InputFile!"
+                                     " Returning 'None'")
         return None
     try:
         lb = lbs[0]
-        logAutoConfiguration.debug("LumiBlock Number is: %i",lb)
-        return lb
     except (IndexError,):
-        logAutoConfiguration.warning("No LumiBlock number stored in InputFile!"
-                                     " Use None")
-    return None
+        logAutoConfiguration.verbose("No LumiBlock number stored in InputFile!"
+                                     " Returning 'None'")
+        lb = None
+    logAutoConfiguration.debug(f"LumiBlock Number is: {lb}")
+    return lb
 
 
 def GetFieldFromCool():
