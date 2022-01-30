@@ -27,14 +27,22 @@ ServiceMgr.MessageSvc.defaultLimit = 0 # '0' means 'no limit'; otherwise, you ca
 
 
 ## Detector flags
+##
+## NOTE: InDetServMat cannot be switched ON/OFF, so it must be present when running on any InDet subsystems. Therefore, you should dump it from the InDetServMat plugin too, when dumping any other InDet subsystem.
 from AthenaCommon.DetFlags import DetFlags
-DetFlags.ID_setOff()
+#print(dir(DetFlags)) # debug msg, to see all det flags
+DetFlags.ID_setOn() # needs to be ON also when using beampipe only
+DetFlags.bpipe_setOn() 
+DetFlags.pixel_setOff()
+DetFlags.SCT_setOff()
+DetFlags.TRT_setOff()
+DetFlags.BCM_setOff()
 DetFlags.Calo_setOff() # LAr
 DetFlags.Tile_setOn()  # Tile
 DetFlags.Muon_setOff()
 DetFlags.Lucid_setOff()
 DetFlags.Truth_setOff()
-DetFlags.Print()
+#DetFlags.Print() # WARNING: this enables all Athena steps. I'm not sure what it is used for, actually...
 
 
 from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
@@ -102,8 +110,9 @@ include("G4AtlasApps/G4Atlas.flat.configuration.py")
 # If those lines are commented, then the DD decriotion is taken from the Oracle-based 'GeometryDB' online DB
 # If those lines are uncommented, then the DD description is taken from the SQLite file provided (the '.db' file below)
 #GeoModelSvc.SQLiteDB = "atlas-from-newDD.db"
-#GeoModelSvc.SQLiteDB = "tile.db"
-GeoModelSvc.SQLiteDB = "tile_V4.db"
+#GeoModelSvc.SQLiteDB = "tile_V4.db"
+#GeoModelSvc.SQLiteDB = "combinedGeo_beampipe_indetservmat.db"
+GeoModelSvc.SQLiteDB = "combinedGeo_beampipe_indetservmat_tile.db"
 
 
 
