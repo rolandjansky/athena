@@ -5,7 +5,7 @@
 /**
  * @file LArCellContFakeReader.cxx
  *
- * @brief Test Algorithm for POOL I/O uses LArCellContainer as test
+ * @brief Test Algorithm for POOL I/O uses CaloCellContainer for LAr as test
  * data
  *
  * @author RD Schaffer <R.D.Schaffer@cern.ch>

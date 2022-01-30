@@ -21,4 +21,13 @@
   <class name="std::vector<GenParticle_p5>" />
   <class name="GenParticle_p5" />
 
+
+  <class name="McEventCollection_p6" id="6B78A751-B31A-4597-BFB6-DDCE62646CF9" />
+  <class name="std::vector<GenEvent_p6>" />
+  <class name="GenEvent_p6" />
+  <class name="std::vector<GenVertex_p6>" />
+  <class name="GenVertex_p6" />
+  <class name="std::vector<GenParticle_p6>" />
+  <class name="GenParticle_p6" />
+
 </lcgdict>

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -30,7 +30,7 @@ ClusterTimeFillerTool::ClusterTimeFillerTool
      const IInterface* parent)
   : BlockFillerTool<CaloCluster> (type, name, parent)
 {
-  book().ignore(); // Avoid coverity warnings
+  ClusterTimeFillerTool::book().ignore(); // Avoid coverity warnings
 }
 
 

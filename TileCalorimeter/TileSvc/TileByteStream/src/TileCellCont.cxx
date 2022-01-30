@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -51,27 +51,27 @@ StatusCode TileCellCont::initialize() {
   }
 
   // Get the TileID helper from the detector store
-  const TileID* tileID;
+  const TileID* tileID = nullptr;
   if (detStore->retrieve(tileID, "TileID").isFailure()) {
     std::cout << "Could not get TileID helper !" << std::endl;
     return StatusCode::FAILURE;
   }
   // Get the TileHWID helper from the detector store
-  const TileHWID* tileHWID;
+  const TileHWID* tileHWID = nullptr;
   if (detStore->retrieve(tileHWID, "TileHWID").isFailure()) {
     std::cout << "Could not get TileHWID helper !" << std::endl;
     return StatusCode::FAILURE;
   }
 
   // Get pointer to TileDetDescrManager
-  const TileDetDescrManager* tileMgr;
+  const TileDetDescrManager* tileMgr = nullptr;
   if (detStore->retrieve(tileMgr).isFailure()) {
     std::cout << "Unable to retrieve TileDetDescrManager from DetectorStore" << std::endl;
     return StatusCode::FAILURE;
   }
 
   // Get pointer to MbtsDetDescrManager
-  const MbtsDetDescrManager* mbtsMgr;
+  const MbtsDetDescrManager* mbtsMgr = nullptr;
   if (detStore->retrieve(mbtsMgr).isFailure()) {
     std::cout << "Warning: unable to retrieve MbtsDetDescrManager from DetectorStore" << std::endl;
     mbtsMgr = 0;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /* 
@@ -19,7 +19,7 @@ namespace D3PD {
                 const std::string& name,
                 const IInterface* parent):Base(type, name,parent)
     {
-      book().ignore();  // Avoid coverity warnings.
+      LArRawChannelFillerTool::book().ignore();  // Avoid coverity warnings.
     }
 
     LArRawChannelFillerTool::~LArRawChannelFillerTool() {

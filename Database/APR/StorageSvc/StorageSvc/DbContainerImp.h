@@ -90,7 +90,7 @@ namespace pool    {
     size_t stackSize()  const   
     { return m_size;                                                          }
     /// Query the pending transaction stack
-    virtual bool updatesPending() const 
+    virtual bool updatesPending() const override
     { return m_size > 0;                                                      }
     /// Internal: get access to stack entry
     ActionList::value_type* stackEntry(size_t which) 
@@ -113,57 +113,57 @@ namespace pool    {
   public:
     DbContainerImp();
     /// Release instance (Abstract interfaces do not expose destructor!)
-    virtual void release()                             { delete this;           }
+    virtual void release() override                    { delete this;           }
     /// Attach sections to container object
-    virtual void setSections(const Sections& sections) { m_sections = sections; }
+    virtual void setSections(const Sections& sections) override { m_sections = sections; }
     /// Size of the container
-    virtual long long int size();
+    virtual long long int size() override;
     /// Get container name
     virtual std::string name() const override
     { return m_name; }
     /// Number of next record in the container (=size if no delete is allowed)
-    virtual long long int nextRecordId();
+    virtual long long int nextRecordId() override;
     /// Suggest next Record ID for tbe next object written - used only with synced indexes
-    virtual void useNextRecordId(long long int) {};
+    virtual void useNextRecordId(long long int) override {};
     /// Close the container and deallocate resources
-    virtual DbStatus close();
+    virtual DbStatus close() override;
 
     /// Access options
     /** @param opt      [IN]  Reference to option object.
       *
       * @return DbStatus code indicating success or failure.  
       */
-    virtual DbStatus getOption(DbOption& opt) const;
+    virtual DbStatus getOption(DbOption& opt) const override;
 
     /// Set options
     /** @param opt      [IN]  Reference to option object.
       *
       * @return DbStatus code indicating success or failure.  
       */
-    virtual DbStatus setOption(const DbOption& opt);
+    virtual DbStatus setOption(const DbOption& opt) override;
 
     /// Execute Transaction Action
-    virtual DbStatus transAct(Transaction::Action);
+    virtual DbStatus transAct(Transaction::Action) override;
     /// In place allocation of raw memory for the transient object
     virtual void* allocate(   unsigned long siz, 
                               DbContainer&  cntH,
-                              ShapeH shape);
+                              ShapeH shape) override;
     /// In place allocation of object location
     virtual DbStatus allocate(DbContainer& cntH, 
                               const void* object,
                               ShapeH shape,
-                              Token::OID_t& oid);
+                              Token::OID_t& oid) override;
     /// In place deletion of raw memory
     virtual DbStatus free(    void* ptr,
-                              DbContainer& cntH);
+                              DbContainer& cntH) override;
     /// Perform UPDATE statement
-    virtual DbStatus update(DbSelect&  /* sel */)     { return Error;   }
+    virtual DbStatus update(DbSelect&  /* sel */) override { return Error;   }
     /// Perform DELETE statement
-    virtual DbStatus destroy(DbSelect& /* sel */)     { return Error;   }
+    virtual DbStatus destroy(DbSelect& /* sel */) override { return Error;   }
     /// Fetch next object address of the selection to set token
-    virtual DbStatus fetch(DbSelect&      sel);
+    virtual DbStatus fetch(DbSelect&      sel) override;
     /// Add the specified object to the delete stack.
-    virtual DbStatus destroy(const Token::OID_t& lnkH);
+    virtual DbStatus destroy(const Token::OID_t& lnkH) override;
     /// Update existing object in the container
     /** @param cntH      [IN]     Valid handle to container 
       * @param object    [IN]     Data object
@@ -174,7 +174,7 @@ namespace pool    {
     virtual DbStatus update(DbContainer&  cntH,
                             const void* object,
                             ShapeH shape,
-                            const Token::OID_t& linkH);
+                            const Token::OID_t& linkH) override;
     /// Update existing object in the container
     /** @param cntH      [IN]     Valid handle to container 
       * @param object    [IN]     Data object
@@ -185,9 +185,9 @@ namespace pool    {
     virtual DbStatus update(DbContainer&  cntH,
                             const void* object,
                             ShapeH shape,
-                            const DbObjectHandle<DbObject>& objH);
+                            const DbObjectHandle<DbObject>& objH) override;
     /// Add single entry to container
-    virtual DbStatus save(  DbObjectHandle<DbObject>& objH);
+    virtual DbStatus save(  DbObjectHandle<DbObject>& objH) override;
 
     /// Save new object in the container and return its handle
     /** @param  cntH      [IN]   Handle to container object.
@@ -198,7 +198,7 @@ namespace pool    {
     virtual DbStatus save(DbContainer&  cntH,
                           const void* object,
                           ShapeH shape,
-                          Token::OID_t& linkH);
+                          Token::OID_t& linkH) override;
 
     /// Find object within the container and load it into memory
     /** @param  ptr    [IN/OUT]  ROOT-style address of the pointer to object
@@ -213,7 +213,7 @@ namespace pool    {
     virtual DbStatus load( void** ptr, ShapeH shape, 
                            const Token::OID_t& lnkH, 
                            Token::OID_t&       oid,
-                           bool                any_next);
+                           bool                any_next) override;
     /// Clear Transaction stack containing transaction requests
     virtual DbStatus clearStack();
     /// Fetch refined object address. Default implementation returns identity

@@ -75,7 +75,7 @@ VP1TabBar::VP1TabBar( QWidget *parent )
 
   m_d->mActivateDragSwitchTabTimer = new QTimer( this );
   m_d->mActivateDragSwitchTabTimer->setSingleShot( true );
-  connect( m_d->mActivateDragSwitchTabTimer, SIGNAL( timeout() ), SLOT( activateDragSwitchTab() ) );
+  connect( m_d->mActivateDragSwitchTabTimer, SIGNAL( timeout() ), SLOT( VP1TabBar::activateDragSwitchTab() ) );
 
   //connect( this, SIGNAL( layoutChanged() ), SLOT( onLayoutChange() ) );
 }

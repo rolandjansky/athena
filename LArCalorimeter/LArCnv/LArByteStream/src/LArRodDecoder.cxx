@@ -868,7 +868,7 @@ LArRodDecoder::prepareBlockStructure1 (const uint16_t rodMinorVersion, const uin
   }
 
 #ifndef NDEBUG
-  ATH_MSG_DEBUG("Found version " << rodMinorVersion << " of Rod block type " << ronBlockType);
+  ATH_MSG_DEBUG("Found version " << rodMinorVersion << " of Rod block type " << robBlockType);
 #endif
 
   return blstructs[index].get();

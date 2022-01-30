@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ## @file MuonRecFlags.py Flags to steer Muon Standalone Reconstruction
 
@@ -620,7 +620,6 @@ class Enabled(SummaryJobProperty):
                     muonRecFlags.doMSVertex ]
 
 muonRecFlags.add_JobProperty(Enabled)
-muonRecFlags.add_JobProperty(runCommissioningChain)
 
 muonRecFlags.setDefaults()
 

@@ -113,7 +113,7 @@ get_MaterialResolutionEffect::get_MaterialResolutionEffect()
         if (isys == 3 && iconv == 2)
           sprintf(name, "systConv_sigmaG_FMX_etaBin_%d", ieta);
 
-        m_hSystResol.at(isys).at(ieta).at(iconv).reset(dynamic_cast<TH1*>(m_file0->Get(name)));
+        m_hSystResol.at(isys).at(ieta).at(iconv).reset(checked_cast<TH1*>(m_file0->Get(name)));
         m_hSystResol.at(isys).at(ieta).at(iconv)->SetDirectory(nullptr);
         if (!(m_hSystResol.at(isys).at(ieta).at(iconv).get()))
           ATH_MSG_FATAL("cannot find histogram " << name << " in file '" << filename << "'");
