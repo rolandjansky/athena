@@ -149,7 +149,7 @@ def TrigTauRecMergedOnlyMVACfg(flags):
     tools.append(CompFactory.TauAxisSetter(ClusterCone = 0.2,
                                            VertexCorrection = False))
     # Decorate the clusters
-    tools.append(CompFactory.TauClusterFinder(JetVertexCorrection = False)) # TODO use JetRec.doVertexCorrection once available
+    tools.append(CompFactory.TauClusterFinder(UseOriginalCluster = False)) # TODO use JetRec.doVertexCorrection once available
 
     tools.append(CompFactory.TauVertexedClusterDecorator(SeedJet = flags.Tau.SeedJetCollection))
 
