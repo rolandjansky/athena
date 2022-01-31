@@ -54,6 +54,9 @@ private:
   std::unordered_map<TrigCompositeUtils::DecisionID, MultiplicityInfo> m_thresholdMap; //< {HLTChainHash, MultiplicityInfo}
   std::unordered_map<TrigCompositeUtils::DecisionID, std::string> m_thresholdNames; //< {L1ThresholdHash, L1ThresholdName}
   std::set<TrigCompositeUtils::DecisionID> m_monitoredThresholds;
+
+  /// Shorter alias for a check whether we are in DEBUG logging mode
+  bool doDebug() const {return ATH_UNLIKELY(msgLevel(MSG::DEBUG));}
 };
 
 #endif // HLTSEEDING_L1DATACONSISTENCYCHECKER_H
