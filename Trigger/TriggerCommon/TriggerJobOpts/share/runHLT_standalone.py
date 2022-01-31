@@ -43,6 +43,8 @@ class opt:
     enableL1CaloPhase1   = False          # Enable Run-3 LVL1 calo simulation and/or decoding
     enableL1CaloLegacy = True         # Enable Run-2 L1Calo simulation and/or decoding (possible even if enablePhase1 is True)
     enableL1TopoDump = False          # Enable L1Topo simulation to write inputs to txt
+    enableL1NSWEmulation = False      # Enable TGC-NSW coincidence emulator : ConfigFlags.Trigger.L1MuonSim.EmulateNSW
+    enableL1NSWVetoMode = False       # Enable TGC-NSW coincidence veto mode: ConfigFlags.Trigger.L1MuonSim.NSWVetoMode
 #Individual slice flags
     doCalibSlice        = True
     doTestSlice         = True
@@ -226,6 +228,9 @@ ConfigFlags.Trigger.enableL1MuonPhase1 = opt.enableL1MuonPhase1
 ConfigFlags.Trigger.enableL1CaloPhase1 = opt.enableL1CaloPhase1
 ConfigFlags.Trigger.enableL1CaloLegacy = opt.enableL1CaloLegacy
 ConfigFlags.Trigger.enableL1TopoDump = opt.enableL1TopoDump
+
+ConfigFlags.Trigger.L1MuonSim.EmulateNSW  = opt.enableL1NSWEmulation
+ConfigFlags.Trigger.L1MuonSim.NSWVetoMode = opt.enableL1NSWVetoMode
 
 ConfigFlags.Trigger.doHLT = bool(opt.doHLT)
 ConfigFlags.Trigger.doID = opt.doID
@@ -482,12 +487,8 @@ CAtoGlobalWrapper(LumiBlockMuWriterCfg, ConfigFlags, seqName="HLTBeginSeq")
 # Level 1 simulation
 # ---------------------------------------------------------------
 if opt.doL1Sim:
-    if ConfigFlags.Detector.GeometrysTGC and ConfigFlags.Detector.GeometryMM and ConfigFlags.Input.isMC:
-        from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
-        hltBeginSeq += Lvl1SimulationSequence(ConfigFlags)
-    else:
-        from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationCfg
-        CAtoGlobalWrapper(Lvl1SimulationCfg, ConfigFlags, seqName="HLTBeginSeq")
+    from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationCfg
+    CAtoGlobalWrapper(Lvl1SimulationCfg, ConfigFlags, seqName="HLTBeginSeq")
 
 
 # ---------------------------------------------------------------
