@@ -482,7 +482,7 @@ void HGTD_DigitizationTool::createAndStoreSDO(
       int eta_index = readout_cell.etaIndex();
       int phi_index = readout_cell.phiIndex();
       const Identifier id_readout = m_id_helper->pixel_id(
-          charged_diodes->identify(), eta_index, phi_index);
+          charged_diodes->identify(), phi_index, eta_index);
 
       m_sdo_collection->insert(std::make_pair(
           id_readout, InDetSimData(deposits, (*i_chargedDiode).second.flag())));
