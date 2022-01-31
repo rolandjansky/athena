@@ -34,11 +34,8 @@ def createTriggerFlags():
     # Enable Run-2 L1Calo simulation and/or decoding (possible even if enablePhase1 is True)
     flags.addFlag('Trigger.enableL1CaloLegacy', True)
 
-    # Enable emulation tool for NSW-TGC coincidence in A-side
-    flags.addFlag('Trigger.L1MuonSim.EmulateNSWA', False)
-
-    # Enable emulation tool for NSW-TGC coincidence in C-side
-    flags.addFlag('Trigger.L1MuonSim.EmulateNSWC', False)
+    # Enable emulation tool for NSW-TGC coincidence
+    flags.addFlag('Trigger.L1MuonSim.EmulateNSW', False)
 
     # Enable the veto mode of the NSW-TGC coincidence
     flags.addFlag('Trigger.L1MuonSim.NSWVetoMode', False)
