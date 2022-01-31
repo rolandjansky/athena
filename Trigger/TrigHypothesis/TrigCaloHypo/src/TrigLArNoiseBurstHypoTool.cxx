@@ -118,6 +118,8 @@ bool TrigLArNoiseBurstHypoTool::decide( const ITrigLArNoiseBurstHypoTool::CaloCe
   }
 
   ATH_MSG_DEBUG("got the flag : " << (unsigned int)flag);
+  // hope it is ok to accumulate multiple hypothesis here.
+  input.flag |= flag;
 
   if ( (flag & m_mask) != 0x0 ) {
         ATH_MSG_DEBUG("LAr Noise detected : ");
