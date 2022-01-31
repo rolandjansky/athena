@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #include <IsolationSelection/IsolationCloseByCorrectionTool.h>
@@ -795,11 +795,11 @@ namespace CP {
     }
     bool IsolationCloseByCorrectionTool::isFixedTrackIsoTTVA(xAOD::Iso::IsolationType type) const {
         xAOD::Iso::IsolationFlavour flavour = xAOD::Iso::isolationFlavour(type);
-        return xAOD::Iso::IsolationFlavour::ptcone_Nonprompt_All_MaxWeightTTVA_pt500 == flavour || xAOD::Iso::IsolationFlavour::ptcone_Nonprompt_All_MaxWeightTTVA_pt1000 == flavour;
+        return xAOD::Iso::IsolationFlavour::ptcone_Nonprompt_All_MaxWeightTTVA_pt500 == flavour || xAOD::Iso::IsolationFlavour::ptcone_Nonprompt_All_MaxWeightTTVA_pt1000 == flavour || xAOD::Iso::IsolationFlavour::ptcone_Nonprompt_All_MaxWeightTTVALooseCone_pt500 == flavour || xAOD::Iso::IsolationFlavour::ptcone_Nonprompt_All_MaxWeightTTVALooseCone_pt1000 == flavour;
     }
     bool IsolationCloseByCorrectionTool::isVarTrackIsoTTVA(xAOD::Iso::IsolationType type) const {
         xAOD::Iso::IsolationFlavour flavour = xAOD::Iso::isolationFlavour(type);
-        return xAOD::Iso::IsolationFlavour::ptvarcone_Nonprompt_All_MaxWeightTTVA_pt500 == flavour || xAOD::Iso::IsolationFlavour::ptvarcone_Nonprompt_All_MaxWeightTTVA_pt1000 == flavour;
+        return xAOD::Iso::IsolationFlavour::ptvarcone_Nonprompt_All_MaxWeightTTVA_pt500 == flavour || xAOD::Iso::IsolationFlavour::ptvarcone_Nonprompt_All_MaxWeightTTVA_pt1000 == flavour || xAOD::Iso::IsolationFlavour::ptvarcone_Nonprompt_All_MaxWeightTTVALooseCone_pt500 == flavour || xAOD::Iso::IsolationFlavour::ptvarcone_Nonprompt_All_MaxWeightTTVALooseCone_pt1000 == flavour;
     }
     bool IsolationCloseByCorrectionTool::isTrackIsoTTVA(xAOD::Iso::IsolationType type) const {
         return isFixedTrackIsoTTVA(type) || isVarTrackIsoTTVA(type);
@@ -813,8 +813,8 @@ namespace CP {
     float IsolationCloseByCorrectionTool::trackPtCut(xAOD::Iso::IsolationType type) const {
         if (!isTrackIso(type)) return -1;        
         xAOD::Iso::IsolationFlavour flavour = xAOD::Iso::isolationFlavour(type);
-        if (flavour == xAOD::Iso::IsolationFlavour::ptcone_Nonprompt_All_MaxWeightTTVA_pt500) return 500;
-        else if (flavour == xAOD::Iso::IsolationFlavour::ptvarcone_Nonprompt_All_MaxWeightTTVA_pt500) return 500;
+        if (flavour == xAOD::Iso::IsolationFlavour::ptcone_Nonprompt_All_MaxWeightTTVA_pt500 || flavour == xAOD::Iso::IsolationFlavour::ptcone_Nonprompt_All_MaxWeightTTVALooseCone_pt500) return 500;
+        else if (flavour == xAOD::Iso::IsolationFlavour::ptvarcone_Nonprompt_All_MaxWeightTTVA_pt500 || flavour == xAOD::Iso::IsolationFlavour::ptvarcone_Nonprompt_All_MaxWeightTTVALooseCone_pt500) return 500;
         return 1000;
     } 
     bool IsolationCloseByCorrectionTool::isPFlowIso(xAOD::Iso::IsolationType type) const{
