@@ -150,6 +150,7 @@ int calo(int detector)
   else if(abs(detector)<=3) return EMEC;
   else if(abs(detector)==4) return HEC;
   else if(abs(detector)==5) return FCAL;
+  std::abort();
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -442,7 +443,7 @@ void symmetrize()
     int iDet=ID.det[index];
 
     // z symmetry
-    if(iDet<0) continue;
+    if(iDet<=0) continue;
     // phi symmetry    
 #ifndef _TESTBEAM_  
     if(calo(iDet)!=FCAL && ID.iphi[index]!=0) continue;     
