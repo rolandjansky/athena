@@ -98,7 +98,6 @@ class TopoAlgoDef:
 
         # eTAU inputs
         # all
-        # TODO: no isolation applied yet
         alg = AlgConf.eTauNoSort( name = 'eTAUall', inputs = 'eTauTobs', outputs = 'eTAUall')
         alg.addgeneric('InputWidth', HW.eTauInputWidth)
         alg.addgeneric('OutputWidth', HW.eTauInputWidth)
@@ -107,34 +106,33 @@ class TopoAlgoDef:
         tm.registerTopoAlgo(alg)
 
         # SORT
-        # TODO: no isolation applied yet
-        alg = AlgConf.eTauSort( name = 'eTAUsi', inputs = 'eTauTobs', outputs = 'eTAUsi' )
+        # TODO: iso cut not yet implemented in topo sim
+        alg = AlgConf.eTauSort( name = 'eTAUsm', inputs = 'eTauTobs', outputs = 'eTAUsm' )
         alg.addgeneric('InputWidth', HW.eTauInputWidth)
         alg.addgeneric('OutputWidth', HW.eTauOutputWidthSort)
-        alg.addvariable('RCore',   0)
+        alg.addvariable('RCore',  2)
         alg.addvariable('RHad',   0)
         alg.addvariable('MinEta',    0*_eta_conversion)
         alg.addvariable('MaxEta',   49*_eta_conversion)
         tm.registerTopoAlgo(alg)
 
         # SELECT
-        # TODO: no isolation applied yet
         alg = AlgConf.eTauSelect( name = 'eTAUab', inputs = 'eTauTobs', outputs = 'eTAUab' )
         alg.addgeneric('InputWidth',  HW.eTauInputWidth)
         alg.addgeneric('OutputWidth', HW.eTauOutputWidthSelect)
         alg.addvariable('MinET',    12*_et_conversion)
-        alg.addvariable('RCore',   0)
+        alg.addvariable('RCore',  0)
         alg.addvariable('RHad',   0)
         alg.addvariable('MinEta',    0*_eta_conversion)
         alg.addvariable('MaxEta',   49*_eta_conversion)
         tm.registerTopoAlgo(alg) 
 
-        #TODO: no isolation applied yet
+        # TODO: iso cut not yet implemented in topo sim
         alg = AlgConf.eTauSelect( name = 'eTAUabm', inputs = 'eTauTobs', outputs = 'eTAUabm' )
         alg.addgeneric('InputWidth',  HW.eTauInputWidth)
         alg.addgeneric('OutputWidth', HW.eTauOutputWidthSelect)
         alg.addvariable('MinET',    12*_et_conversion)
-        alg.addvariable('RCore',   0)
+        alg.addvariable('RCore',  2)
         alg.addvariable('RHad',   0)
         alg.addvariable('MinEta',    0*_eta_conversion)
         alg.addvariable('MaxEta',   49*_eta_conversion)
@@ -215,7 +213,8 @@ class TopoAlgoDef:
         alg.addvariable('GoodMFieldCut', 0)
         tm.registerTopoAlgo(alg)
     
-        #LATE #TODO: update to new muon inputs
+        #LATE 
+        #TODO: update to new muon inputs
         alg = AlgConf.MuonSort_1BC( name = 'LMUs', inputs = 'LateMuonTobArray', outputs = 'LMUs' )
         alg.addgeneric('InputWidth', HW.muonInputWidth)
         alg.addgeneric('OutputWidth', 1)
@@ -284,6 +283,7 @@ class TopoAlgoDef:
         alg.addvariable('MaxEta', 49*_eta_conversion)
         tm.registerTopoAlgo(alg)
 
+        # MET
         # TODO: replace to new TOB
         alg = AlgConf.METNoSort( name = 'jXENoSort', inputs = 'MetTobArray', outputs = 'jXENoSort' )
         alg.addgeneric('InputWidth', HW.jMetInputWidth)
@@ -668,7 +668,7 @@ class TopoAlgoDef:
 
         # RATIO MATCH dedicated to Exotic #TODO: are eTAU correct to use here (and below)?
         toponame = '100RATIO-0MATCH-eTAU30si2-eEMall'
-        alg = AlgConf.RatioMatch( name = toponame, inputs = [ 'eTAUsi', 'eEMall'], outputs = [ toponame ] )
+        alg = AlgConf.RatioMatch( name = toponame, inputs = [ 'eTAUsm', 'eEMall'], outputs = [ toponame ] )
         alg.addgeneric('InputWidth1', HW.eTauOutputWidthSort)
         alg.addgeneric('InputWidth2', HW.eEmInputWidth)      
         alg.addgeneric('MaxTob1', 2)
@@ -681,7 +681,7 @@ class TopoAlgoDef:
 
         # NOT MATCH dedicated to Exotic
         toponame = 'NOT-0MATCH-eTAU30si1-eEMall'
-        alg = AlgConf.NotMatch( name = toponame, inputs = [ 'eTAUsi', 'eEMall'], outputs = [ toponame ] )
+        alg = AlgConf.NotMatch( name = toponame, inputs = [ 'eTAUsm', 'eEMall'], outputs = [ toponame ] )
         alg.addgeneric('InputWidth1', HW.eTauOutputWidthSort)
         alg.addgeneric('InputWidth2', HW.eEmInputWidth)
         alg.addgeneric('MaxTob1', 1)
@@ -1349,7 +1349,7 @@ class TopoAlgoDef:
 
  
         # CEP_CjJ
-        # TODO: update with phase1 jets, what conversion for Xi?
+        # TODO: what conversion for Xi?
         CEPmap = [
             {"algoname": 'CEP_CjJ', "minETlist": [50, 60]}
         ]
