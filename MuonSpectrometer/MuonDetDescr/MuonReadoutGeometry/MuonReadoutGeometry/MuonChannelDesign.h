@@ -251,8 +251,8 @@ namespace MuonGM {
                 // Print a warning if the wire number is outside the range [1, nch]
                 if ((wire_number < 1) || (wire_number > nch)) {
                     MsgStream log(Athena::getMessageSvc(), "MuonChannelDesign");
-                    if (log.level() <= MSG::WARNING)
-                        log << MSG::WARNING << "sTGC wire number out of range: wire number = " << wire_number << " local pos = (" << pos.x()
+                    if (log.level() <= MSG::DEBUG)
+                        log << MSG::DEBUG << "sTGC wire number out of range: wire number = " << wire_number << " local pos = (" << pos.x()
                             << ", " << pos.y() << ")" << endmsg;
                 }
             }
