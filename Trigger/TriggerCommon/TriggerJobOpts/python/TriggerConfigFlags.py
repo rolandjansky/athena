@@ -216,7 +216,7 @@ def createTriggerFlags():
 
     # Particle ID tune
     flags.addFlag('Trigger.egamma.pidVersion', 'ElectronPhotonSelectorTools/trigger/rel22_20210611/')
-    flags.addFlag('Trigger.egamma.dnnVersion', 'ElectronPhotonSelectorTools/trigger/rel21_20210928/')
+    flags.addFlag('Trigger.egamma.dnnVersion', 'ElectronPhotonSelectorTools/trigger/rel21_20220103/')
     flags.addFlag('Trigger.egamma.ringerVersion', 'RingerSelectorTools/TrigL2_20210702_r4/')
 
     # cluster correction version, allowed value is: None or v12phiflip_noecorrnogap
