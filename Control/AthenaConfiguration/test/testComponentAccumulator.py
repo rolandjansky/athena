@@ -6,7 +6,7 @@
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, ConfigurationError 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
-from AthenaCommon.CFElements import findSubSequence,findAlgorithm, seqAND, seqOR, parOR, findAllAlgorithms
+from AthenaCommon.CFElements import findSubSequence,findAlgorithm, seqAND, seqOR, parOR, findAllAlgorithms, checkSequenceConsistency 
 from AthenaCommon.Configurable import Configurable # guinea pig algorithms
 from AthenaCommon.Logging import log
 from AthenaCommon.Constants import DEBUG, INFO
@@ -267,6 +267,7 @@ class ForbidRecursiveSequences( unittest.TestCase ):
             seq1_again = seqAND("seq1")
             accTop.addSequence(seq1)
             accTop.addSequence(seq1_again, parentName = "seq1")
+            checkSequenceConsistency(accTop._sequence)
 
         #Allowed to add a sequence with the same name at same depth, e.g.
         # \__ AthAlgSeq (seq: PAR AND)
@@ -285,6 +286,7 @@ class ForbidRecursiveSequences( unittest.TestCase ):
             accTop.addSequence(seq2, parentName = "seq1")
             accTop.addSequence(seq2_again, parentName = "seq1")
             accTop.wasMerged()
+            checkSequenceConsistency(accTop._sequence)
 
 
         #Can't add a sequence with the same name two steps below itself, e.g.
@@ -302,6 +304,7 @@ class ForbidRecursiveSequences( unittest.TestCase ):
             accTop.addSequence(seq1)
             accTop.addSequence(seq2, parentName = "seq1")
             accTop.addSequence(seq1_again, parentName = "seq2")
+            checkSequenceConsistency(accTop._sequence)
 
 
         #Can't merge sequences with the same name two steps below itself, e.g.
@@ -320,6 +323,7 @@ class ForbidRecursiveSequences( unittest.TestCase ):
             acc2.addSequence(seqAND("seq2"))
             acc2.addSequence(seqAND("seq1"), parentName = "seq2")
             acc1.merge(acc2, sequenceName="seq1")
+            checkSequenceConsistency(acc1._sequence)
 
         print("selfSequence")
         self.assertRaises(RuntimeError, selfSequence )

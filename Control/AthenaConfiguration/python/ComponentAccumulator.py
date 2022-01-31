@@ -301,7 +301,6 @@ class ComponentAccumulator(object):
                 raise ConfigurationError("Missing sequence {} to add new sequence to".format(parentName))
 
         parent.Members.append(newseq)
-        checkSequenceConsistency(self._sequence)
         if "trackSequence" in ComponentAccumulator.debugMode:
             self._componentsContext[newseq] = shortCallStack()
         return newseq
@@ -657,7 +656,6 @@ class ComponentAccumulator(object):
                 self._allSequences.append( otherSeq )
                 mergeSequences( self._allSequences[-1], otherSeq )
 
-        checkSequenceConsistency(self._sequence)
 
 
 
@@ -718,6 +716,9 @@ class ComponentAccumulator(object):
 
         when withDefaultHandles is True, also the handles that are not set are saved
         """
+
+        checkSequenceConsistency(self._sequence)
+        
         self.wasMerged()
         if withDefaultHandles:
             from AthenaConfiguration.Utils import loadDefaultComps, exposeHandles
@@ -878,6 +879,8 @@ class ComponentAccumulator(object):
         from AthenaCommon.Debugging import allowPtrace, hookDebugger
         allowPtrace()
 
+        checkSequenceConsistency(self._sequence)
+        
         app = self.createApp (OutputLevel)
         self.__verifyFinalSequencesStructure()
 
