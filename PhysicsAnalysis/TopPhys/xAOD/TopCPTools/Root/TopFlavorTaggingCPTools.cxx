@@ -91,6 +91,13 @@ namespace top {
 
     std::string caloJets_type = m_config->sgKeyJetsType();
     std::string caloJets_collection = m_config->sgKeyJets();
+    if (m_config->useHIJets()) {
+      if (m_config->isMC()) {
+        caloJets_collection = "BTagging_AntiKt4HI";
+      } else {
+        caloJets_collection = "BTagging_DFAntiKt4HI";
+      }
+    }
 
     std::string trackJets_type = m_config->sgKeyTrackJetsType();
     std::string trackJets_collection = m_config->sgKeyTrackJets();
@@ -159,9 +166,9 @@ namespace top {
                      "Failed to set b-tagging OperatingPoint");
           top::check(btageff->setProperty("JetAuthor", caloJets_collection),
                      "Failed to set b-tagging JetAuthor");
-	  top::check(btageff->setProperty("MinPt",
-                                      static_cast<double>(m_config->jetPtcut())),
-		     "Failed to set b-tagging selection tool MinPt");
+          top::check(btageff->setProperty("MinPt",
+                                          static_cast<double>(m_config->jetPtcut())),
+                                          "Failed to set b-tagging selection tool MinPt");
           top::check(btageff->setProperty("EfficiencyFileName", calib_file_path),
                      "Failed to set path to b-tagging CDI file");
           top::check(btageff->setProperty("ScaleFactorFileName", calib_file_path),

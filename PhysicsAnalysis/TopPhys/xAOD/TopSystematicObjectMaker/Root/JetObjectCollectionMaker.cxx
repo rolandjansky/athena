@@ -431,6 +431,12 @@ namespace top {
       if (!isLargeR) { ///-- small-R jets used in most analyses --///
         ///-- Calibrate jet --///
 
+        if (m_config->useHIJets()) {
+          const xAOD::JetFourMom_t jet_4mom_subtracted = jet->jetP4("JetSubtractedScaleMomentum");
+          jet->setJetP4("JetConstitScaleMomentum",jet_4mom_subtracted);
+          jet->setJetP4("JetEMScaleMomentum",jet_4mom_subtracted);
+        }
+
         top::check(m_jetCalibrationTool->applyCalibration(*jet), "Failed to applyCalibration");
 
         // only multiply by JSF and bJSF if one of them != 1.0 (used by top mass analysis)
@@ -951,7 +957,7 @@ namespace top {
 
     top::check(evtStore()->retrieve(jets,
                                     m_config->sgKeyJets()),
-               "Failed to retrieve small-R jet collection" + m_config->sgKeyJets());
+               "Failed to retrieve small-R jet collection " + m_config->sgKeyJets());
 
     // retrieve truth jet collection
     const xAOD::JetContainer* truthJets = nullptr;
@@ -978,7 +984,7 @@ namespace top {
 
     top::check(evtStore()->retrieve(jets,
                                     m_config->sgKeyJets()),
-               "Failed to retrieve small-R jet collection" + m_config->sgKeyJets());
+               "Failed to retrieve small-R jet collection " + m_config->sgKeyJets());
 
     const xAOD::JetContainer* truthJets = nullptr;
     top::check(asg::AsgTool::evtStore()->retrieve(truthJets, m_config->sgKeyTruthJets()), "Failed to retrieve the truth jets");

@@ -115,6 +115,13 @@ namespace top {
 
       m_jetAntiKt4_PFlow_MCFS_JMS_ConfigFile = "JES_JMS_MC16Recommendation_Consolidated_MC_only_PFlow_July2019_Rel21.config";
       m_jetAntiKt4_PFlow_MCFS_JMS_CalibSequence = "JetArea_Residual_EtaJES_GSC_Smear_JMS";
+
+      // HI special
+      m_jetAntiKt4HI_MC_ConfigFile = "JES_MC16_HI_Jan2021_5TeV.config";
+      m_jetAntiKt4HI_MC_CalibSequence = "EtaJES";
+      
+      m_jetAntiKt4HI_Data_ConfigFile = "JES_MC16_HI_Jan2021_5TeV.config";
+      m_jetAntiKt4HI_Data_CalibSequence = "EtaJES_Insitu";
     } else { // standard pp collisions
       m_jetJVT_ConfigFile = "JVTlikelihood_20140805.root";
 
@@ -173,13 +180,18 @@ namespace top {
 
     // Get jet calibration name and erase "Jets" from the end
     std::string caloJets_type = m_config->sgKeyJetsType();
-    std::string jetCalibrationName;
-    if (caloJets_type == "AntiKt4EMTopoNoElJets") {
-      jetCalibrationName = "AntiKt4EMTopoJets";
+    std::string jetCalibrationName{};
+
+    if (m_config->useHIJets()) {
+      jetCalibrationName = "AntiKt4HI";
     } else {
-      jetCalibrationName = caloJets_type;
+      if (caloJets_type == "AntiKt4EMTopoNoElJets") {
+        jetCalibrationName = "AntiKt4EMTopoJets";
+      } else {
+        jetCalibrationName = caloJets_type;
+      }
+      jetCalibrationName.erase(jetCalibrationName.length() - 4);
     }
-    jetCalibrationName.erase(jetCalibrationName.length() - 4);
 
     ///-- Calibration --///
     if (asg::ToolStore::contains<IJetCalibrationTool>("JetCalibrationTool")) {
@@ -199,6 +211,9 @@ namespace top {
           if (m_config->useParticleFlowJets()) {
             calibConfig = m_jetAntiKt4_MCAFII_PFlow_ConfigFile;
             calibSequence = m_jetAntiKt4_MCAFII_PFlow_CalibSequence;
+          } else if (m_config->useHIJets()) {
+            calibConfig = m_jetAntiKt4HI_MC_ConfigFile;
+            calibSequence = m_jetAntiKt4HI_MC_CalibSequence;
           } else {
             calibConfig = m_jetAntiKt4_MCAFII_ConfigFile;
             calibSequence = m_jetAntiKt4_MCAFII_CalibSequence;
@@ -216,6 +231,9 @@ namespace top {
             if (m_config->useParticleFlowJets()) { // PFlow
               calibConfig = m_jetAntiKt4_PFlow_MCFS_ConfigFile;
               calibSequence = m_jetAntiKt4_PFlow_MCFS_CalibSequence;
+            } else if (m_config->useHIJets()) {
+              calibConfig = m_jetAntiKt4HI_MC_ConfigFile;
+              calibSequence = m_jetAntiKt4HI_MC_CalibSequence;
             } else { // EMTopo
               calibConfig = m_jetAntiKt4_MCFS_ConfigFile;
               calibSequence = m_jetAntiKt4_MCFS_CalibSequence;
@@ -235,6 +253,9 @@ namespace top {
           if (m_config->useParticleFlowJets()) {
             calibConfig = m_jetAntiKt4_Data_PFlow_ConfigFile;
             calibSequence = m_jetAntiKt4_Data_PFlow_CalibSequence;
+          } else if (m_config->useHIJets()) {
+            calibConfig = m_jetAntiKt4HI_Data_ConfigFile;
+            calibSequence = m_jetAntiKt4HI_Data_CalibSequence;
           } else {
             calibConfig = m_jetAntiKt4_Data_ConfigFile;
             calibSequence = m_jetAntiKt4_Data_CalibSequence;
@@ -353,15 +374,32 @@ namespace top {
 
     // Are we doing multiple JES for the reduced NP senarios?
     if (!m_config->doMultipleJES()) {
+
+      std::string calibrationPathJESJER = "rel21/" + conference + "/R4_" + m_config->jetUncertainties_NPModel() + JERSmearModel + JMSOption + ".config";
+      // now check the special HI setup
+      if (m_config->useHIJets()) {
+        if (m_config->jetUncertainties_NPModel() != "GlobalReduction") {
+          ATH_MSG_ERROR("Only GlobalReduction JES is currently supported for the HI jets");
+          return StatusCode::FAILURE;
+        }
+        if (JERSmearModel != "_SimpleJER") {
+          ATH_MSG_ERROR("Only Simple JER is currently supported for the HI jets");
+          return StatusCode::FAILURE;
+        }
+        if (JMSOption != "") {
+          ATH_MSG_ERROR("JMS is not supported for the HI jets");
+          return StatusCode::FAILURE;
+        }
+
+        // hardcode the path as only one is supported
+        calibrationPathJESJER = "HIJetUncertainties/Winter2021/HIR4_GlobalReduction_SimpleJER.config";
+      }
+
       m_jetUncertaintiesTool = setupJetUncertaintiesTool("JetUncertaintiesTool",
                                                          jetCalibrationName,
                                                          MC_type,
                                                          m_config->isMC(),
-                                                         "rel21/" + conference
-                                                         + "/R4_" + m_config->jetUncertainties_NPModel()
-                                                         + JERSmearModel
-                                                         + JMSOption
-                                                         + ".config",
+                                                         calibrationPathJESJER,
                                                          nullptr,
                                                          m_config->jetUncertainties_QGFracFile(),
                                                          calib_area
@@ -372,11 +410,7 @@ namespace top {
                                                                      jetCalibrationName,
                                                                      MC_type,
                                                                      false, // treat MC as data
-                                                                     "rel21/" + conference
-                                                                     + "/R4_" + m_config->jetUncertainties_NPModel()
-                                                                     + JERSmearModel
-                                                                     + JMSOption
-                                                                     + ".config",
+                                                                     calibrationPathJESJER,
                                                                      nullptr,
                                                                      m_config->jetUncertainties_QGFracFile(),
                                                                      calib_area
@@ -705,35 +739,37 @@ namespace top {
     }
 
     // MET significance tool
-    if (asg::ToolStore::contains<IMETSignificance>("metSignificance")) {
-      m_metSignif = asg::ToolStore::get<IMETSignificance>("metSignificance");
-    } else {
-      met::METSignificance* metSignificance = new met::METSignificance("metSignificance");
-      met::SoftTermParams softTerm;
-      if (m_config->METSignifSoftTermParam().compare("Random")==0) {
-        softTerm = met::Random;
-      } else if (m_config->METSignifSoftTermParam().compare("PthardParam")==0) {
-        softTerm = met::PthardParam;
-      } else if (m_config->METSignifSoftTermParam().compare("TSTParam")==0) {
-        softTerm = met::TSTParam;
+    if (!m_config->useHIJets()) {
+      if (asg::ToolStore::contains<IMETSignificance>("metSignificance")) {
+        m_metSignif = asg::ToolStore::get<IMETSignificance>("metSignificance");
       } else {
-        ATH_MSG_ERROR("top::JetMETCPTools: Unkown SoftTermParam for MetSignificance");
-        // TODO actually throw some error here, though we should not get here since config restricts this to one of the three options above
+        met::METSignificance* metSignificance = new met::METSignificance("metSignificance");
+        met::SoftTermParams softTerm;
+        if (m_config->METSignifSoftTermParam().compare("Random")==0) {
+          softTerm = met::Random;
+        } else if (m_config->METSignifSoftTermParam().compare("PthardParam")==0) {
+          softTerm = met::PthardParam;
+        } else if (m_config->METSignifSoftTermParam().compare("TSTParam")==0) {
+          softTerm = met::TSTParam;
+        } else {
+          ATH_MSG_ERROR("top::JetMETCPTools: Unkown SoftTermParam for MetSignificance");
+          // TODO actually throw some error here, though we should not get here since config restricts this to one of the three options above
+        }
+        top::check(metSignificance->setProperty("SoftTermParam", softTerm),   "Failed to set MetSignificance::SoftTermParam!");
+        top::check(metSignificance->setProperty("DoPhiReso",     true),                   "Failed to set MetSignificance::DoPhiReso!");
+        top::check(metSignificance->setProperty("IsDataJet",     false),                  "Failed to set MetSignificance::IsDataJet!");
+        top::check(metSignificance->setProperty("IsAFII",        m_config->isAFII()), "Failed to set MetSignificance::IsAFII!");
+        //chopping off the "Jets" part from the jet container name for correct initialization of the METSigTool.
+        std::string jetCollectionName = m_config->sgKeyJetsType();
+        std::string deleteString = "Jets";
+        std::string::size_type index = jetCollectionName.find(deleteString);
+        if(index != std::string::npos) jetCollectionName.erase(index, (jetCollectionName.length() - index));
+        top::check(metSignificance->setProperty("JetCollection", jetCollectionName),       "Failed to set MetSignificance::JetCollection!");
+        //disable TreatPUJets when using EMTopoJets and fjvt not active
+        top::check(metSignificance->setProperty("TreatPUJets",(jetCollectionName != "AntiKt4EMTopo") || (m_config->doForwardJVTinMET()) ),"Failed to set MetSignificance::TreatPUJets!");
+        top::check(metSignificance->initialize(), "Failed to initialize METSignificanceTool");
+        m_metSignif = metSignificance;
       }
-      top::check(metSignificance->setProperty("SoftTermParam", softTerm),   "Failed to set MetSignificance::SoftTermParam!");
-      top::check(metSignificance->setProperty("DoPhiReso",     true),                   "Failed to set MetSignificance::DoPhiReso!");
-      top::check(metSignificance->setProperty("IsDataJet",     false),                  "Failed to set MetSignificance::IsDataJet!");
-      top::check(metSignificance->setProperty("IsAFII",        m_config->isAFII()), "Failed to set MetSignificance::IsAFII!");
-      //chopping off the "Jets" part from the jet container name for correct initialization of the METSigTool.
-      std::string jetCollectionName = m_config->sgKeyJetsType();
-      std::string deleteString = "Jets";
-      std::string::size_type index = jetCollectionName.find(deleteString);
-      if(index != std::string::npos) jetCollectionName.erase(index, (jetCollectionName.length() - index));
-      top::check(metSignificance->setProperty("JetCollection", jetCollectionName),       "Failed to set MetSignificance::JetCollection!");
-      //disable TreatPUJets when using EMTopoJets and fjvt not active
-      top::check(metSignificance->setProperty("TreatPUJets",(jetCollectionName != "AntiKt4EMTopo") || (m_config->doForwardJVTinMET()) ),"Failed to set MetSignificance::TreatPUJets!");
-      top::check(metSignificance->initialize(), "Failed to initialize METSignificanceTool");
-      m_metSignif = metSignificance;
     }
 
     return StatusCode::SUCCESS;
