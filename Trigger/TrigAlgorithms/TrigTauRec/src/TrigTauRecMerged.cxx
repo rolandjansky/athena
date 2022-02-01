@@ -74,7 +74,6 @@ StatusCode TrigTauRecMerged::initialize()
   
   ATH_MSG_DEBUG("Initialising HandleKeys");
   ATH_CHECK(m_roIInputKey.initialize());
-  ATH_CHECK(m_L1RoIKey.initialize());
   ATH_CHECK(m_clustersKey.initialize(SG::AllowEmpty));
   ATH_CHECK(m_tracksKey.initialize(SG::AllowEmpty));
   ATH_CHECK(m_vertexKey.initialize(SG::AllowEmpty));
