@@ -411,7 +411,8 @@ void McEventCollectionCnv_p6::transToPers( const McEventCollection* transObj,
          persEvt.m_e_attribute_name.push_back(attmap.first);
          persEvt.m_e_attribute_id.push_back(att.first);
          std::string st;
-         bool status = att.second->to_string(st);
+         att.second->to_string(st);
+         /// bool status = att.second->to_string(st);
          /// One can add here checks for the status
          persEvt.m_e_attribute_string.push_back(st);
        }
@@ -422,7 +423,8 @@ void McEventCollectionCnv_p6::transToPers( const McEventCollection* transObj,
          for (auto& att: r_atts) {
            persEvt.m_r_attribute_name.push_back(att.first);
            std::string st;
-           bool status = att.second->to_string(st);
+           att.second->to_string(st);
+           ///bool status = att.second->to_string(st);
            /// One can add here checks for the status
            persEvt.m_r_attribute_string.push_back(st);
          }
