@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGSERVICES_HLTEVENTLOOPMGR_H
@@ -134,6 +134,12 @@ private:
     std::atomic<bool> loopEnded{false};
     /// Max lumiblock number seen in the loop
     std::atomic<EventIDBase::number_type> maxLB{0};
+    /// Condition variable to synchronize COOL updates
+    std::condition_variable coolUpdateCond;
+    /// Mutex to synchronize COOL updates
+    std::mutex coolUpdateMutex;
+    /// COOL update ongoing
+    bool coolUpdateOngoing{false};
   };
   /// Enum type returned by the drainScheduler method
   enum class DrainSchedulerStatusCode : int {INVALID=-3, FAILURE=-2, RECOVERABLE=-1, SCHEDULER_EMPTY=0, NO_EVENT=1, SUCCESS=2};
