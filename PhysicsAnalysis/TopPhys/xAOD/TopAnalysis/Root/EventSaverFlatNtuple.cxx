@@ -3795,26 +3795,28 @@ namespace top {
 
 
     //met
-    m_met_met = event.m_met->met();
-    m_met_phi = event.m_met->phi();
-    if(m_config->METSignificance()){
-      if( event.m_met->isAvailable<float>("metSig")){
-        m_met_sig = event.m_met->auxdata<float>("metSig");
-      }
-      if( event.m_met->isAvailable<float>("metSigET")){
-        m_met_sigET = event.m_met->auxdata<float>("metSigET");
-      }
-      if( event.m_met->isAvailable<float>("metSigHT")){
-        m_met_sigHT = event.m_met->auxdata<float>("metSigHT");
-      }
-      if( event.m_met->isAvailable<float>("metSigRho")){
-        m_met_sigRho = event.m_met->auxdata<float>("metSigRho");
-      }
-      if( event.m_met->isAvailable<float>("metSigVarL")){
-        m_met_sigVarL = event.m_met->auxdata<float>("metSigVarL");
-      }
-      if( event.m_met->isAvailable<float>("metSigVarT")){
-        m_met_sigVarT = event.m_met->auxdata<float>("metSigVarT");
+    if (!m_config->useHIJets()) {
+      m_met_met = event.m_met->met();
+      m_met_phi = event.m_met->phi();
+      if(m_config->METSignificance()){
+        if( event.m_met->isAvailable<float>("metSig")){
+          m_met_sig = event.m_met->auxdata<float>("metSig");
+        }
+        if( event.m_met->isAvailable<float>("metSigET")){
+          m_met_sigET = event.m_met->auxdata<float>("metSigET");
+        }
+        if( event.m_met->isAvailable<float>("metSigHT")){
+          m_met_sigHT = event.m_met->auxdata<float>("metSigHT");
+        }
+        if( event.m_met->isAvailable<float>("metSigRho")){
+          m_met_sigRho = event.m_met->auxdata<float>("metSigRho");
+        }
+        if( event.m_met->isAvailable<float>("metSigVarL")){
+          m_met_sigVarL = event.m_met->auxdata<float>("metSigVarL");
+        }
+        if( event.m_met->isAvailable<float>("metSigVarT")){
+          m_met_sigVarT = event.m_met->auxdata<float>("metSigVarT");
+        }
       }
     }
     

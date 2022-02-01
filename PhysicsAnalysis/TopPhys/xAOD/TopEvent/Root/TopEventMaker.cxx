@@ -579,13 +579,15 @@ namespace top {
 
     //met
     const xAOD::MissingETContainer* mets(nullptr);
-    if (!currentSystematic.isLooseEvent()) {
-      top::check(evtStore()->retrieve(mets, m_config->sgKeyMissingEt(hash)), "Failed to retrieve MET");
+    if (!m_config->useHIJets()) {
+      if (!currentSystematic.isLooseEvent()) {
+        top::check(evtStore()->retrieve(mets, m_config->sgKeyMissingEt(hash)), "Failed to retrieve MET");
+      }
+      if (currentSystematic.isLooseEvent()) {
+        top::check(evtStore()->retrieve(mets, m_config->sgKeyMissingEtLoose(hash)), "Failed to retrieve MET");
+      }
+      event.m_met = (*mets)["FinalTrk"];  // MissingETBase::Source::total()];
     }
-    if (currentSystematic.isLooseEvent()) {
-      top::check(evtStore()->retrieve(mets, m_config->sgKeyMissingEtLoose(hash)), "Failed to retrieve MET");
-    }
-    event.m_met = (*mets)["FinalTrk"];  // MissingETBase::Source::total()];
 
     //MC
     if (m_config->isMC()) {

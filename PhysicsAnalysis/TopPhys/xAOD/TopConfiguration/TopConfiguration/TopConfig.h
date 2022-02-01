@@ -93,6 +93,7 @@ namespace top {
     inline bool useVarRCJets()  const {return m_useVarRCJets;}
 
     inline bool useParticleFlowJets() const {return m_useParticleFlowJets;}
+    inline bool useHIJets() const {return m_useHIJets;}
 
     inline bool useTruthParticles() const {return m_useTruthParticles;}
     inline bool useTruthElectrons()  const {return m_useTruthElectrons;}
@@ -2288,6 +2289,7 @@ namespace top {
     // Need this as some things aren't supported at the moment
     // C++11 so nice inline initialization (we should make this consistent)
     bool m_useParticleFlowJets = false;
+    bool m_useHIJets = false;
 
     bool m_useTruthParticles;
     bool m_useTruthElectrons;

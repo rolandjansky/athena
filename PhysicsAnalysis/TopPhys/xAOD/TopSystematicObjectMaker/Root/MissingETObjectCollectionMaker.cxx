@@ -44,7 +44,9 @@ namespace top {
 
     top::check(m_met_maker.retrieve(), "Failed to retrieve met maker tool");
     top::check(m_met_systematics.retrieve(), "Failed to retrieve met systematic tool");
-    top::check(m_metSignif.retrieve(),       "Failed to retrieve metSignificance!");
+    if (!m_config->useHIJets()) {
+      top::check(m_metSignif.retrieve(),       "Failed to retrieve metSignificance!");
+    }
 
     std::string jet_collection = m_config->sgKeyJetsType();
     jet_collection.erase(jet_collection.length() - 4); //erase "Jets" from jet collection name
@@ -77,6 +79,11 @@ namespace top {
   }
 
   StatusCode MissingETObjectCollectionMaker::recalculateMET(bool executeNominal) {
+
+    if (m_config->useHIJets()) {
+      return StatusCode::SUCCESS;
+    }
+
     // met core contains the soft terms we need to add to our met calculation
     const xAOD::MissingETContainer* xaod_met_core(nullptr);
 

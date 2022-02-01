@@ -52,6 +52,12 @@ namespace top {
 
     std::string m_jetAntiKt4_MCFS_ConfigFile;
     std::string m_jetAntiKt4_MCFS_CalibSequence;
+    
+    std::string m_jetAntiKt4HI_MC_ConfigFile;
+    std::string m_jetAntiKt4HI_MC_CalibSequence;
+
+    std::string m_jetAntiKt4HI_Data_ConfigFile;
+    std::string m_jetAntiKt4HI_Data_CalibSequence;
 
     // small-R calibration with jet mass calibration included
     std::string m_jetAntiKt4_Data_JMS_ConfigFile;
