@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file TrigMETMonitoringAlgorithm.py
@@ -101,12 +101,10 @@ def TrigMETMonConfig(inputFlags):
 
     ### chain name selection
     L1Chains = ["L1_XE50",
-                "L1_jXE50",
-                "L1_gXE50",
-                "L1_gXERHO50",
-                "L1_gXEJWOJ50",
-                "L1_gXEPUFIT50",
-                "L1_gXERHO20"]
+                "L1_jXE100",
+                "L1_gXENC100",
+                "L1_gXERHO100",
+                "L1_gXEJWOJ100"]
     HLTChains = ["HLT_xe65_cell_L1XE50",
                  "HLT_xe65_cell_xe110_tcpufit_L1XE50",
                  "HLT_xe65_cell_xe90_pfopufit_L1XE50",
@@ -122,44 +120,56 @@ def TrigMETMonConfig(inputFlags):
                  "HLT_xe110_pfsum_cssk_L1XE50",
                  "HLT_xe110_pfsum_vssk_L1XE50"]
     if mt_chains == 0:
-      L1Chains[1] = "L1_XE10"
-      L1Chains[2] = "L1_XE30"
-      L1Chains[3] = "L1_XE55"
-      L1Chains[4] = "L1_XE60"
-      L1Chains[5] = "L1_XE70"
-      L1Chains[6] = "L1_XE75"
-      HLTChains[0] = "HLT_xe70_mht"
-      HLTChains[1] = "HLT_xe90_mht_L1XE50"
-      HLTChains[2] = "HLT_xe100_mht_L1XE50"
-      HLTChains[3] = "HLT_xe110_mht_L1XE50"
-      HLTChains[4] = "HLT_xe90_pufit_L1XE50"
-      HLTChains[5] = "HLT_xe100_pufit_L1XE50"
-      HLTChains[6] = "HLT_xe100_pufit_L1XE55"
-      HLTChains[7] = "HLT_xe110_pufit_L1XE50"
-      HLTChains[8] = "HLT_xe110_pufit_L1XE55"
-      HLTChains[9] = "HLT_xe110_pufit_xe65_L1XE50"
-      HLTChains[10] = "HLT_xe110_pufit_xe65_L1XE60"
-      HLTChains[11] = "HLT_xe110_pufit_xe70_L1XE50"
-      HLTChains[12] = "HLT_xe110_pfsum_cssk_L1XE50"
-      HLTChains[13] = "HLT_xe110_pfsum_vssk_L1XE50"
-    ## mon group test
-    # size = len (metChains)
-    # if size > 0:
-    #   HLTChains[13] = metChains[0]
+      L1Chains = ["L1_XE50"]
+      HLTChains= ["HLT_xe70_mht",
+                  "HLT_xe90_mht_L1XE50",
+                  "HLT_xe100_mht_L1XE50",
+                  "HLT_xe110_mht_L1XE50",
+                  "HLT_xe90_pufit_L1XE50",
+                  "HLT_xe100_pufit_L1XE50",
+                  "HLT_xe100_pufit_L1XE55",
+                  "HLT_xe110_pufit_L1XE50",
+                  "HLT_xe110_pufit_L1XE55",
+                  "HLT_xe110_pufit_xe65_L1XE50",
+                  "HLT_xe110_pufit_xe65_L1XE60",
+                  "HLT_xe110_pufit_xe70_L1XE50"]
+    ## set chains from mon group
     if len(metChains) > 0:
         HLTChains = metChains
-    for i,chain in enumerate(HLTChains):
-        index = chr(i + 65)
-        setattr(TrigMETMonAlg, 'HLTChain' + index, chain)
-      
-    ### these are default chains ######
-    TrigMETMonAlg.L1ChainA = L1Chains[0]
-    TrigMETMonAlg.L1ChainB = L1Chains[1]
-    TrigMETMonAlg.L1ChainC = L1Chains[2]
-    TrigMETMonAlg.L1ChainD = L1Chains[3]
-    TrigMETMonAlg.L1ChainE = L1Chains[4]
-    TrigMETMonAlg.L1ChainF = L1Chains[5]
-    TrigMETMonAlg.L1ChainG = L1Chains[6]
+    print("L1Chains = ",L1Chains)
+    print("HLTChains = ",HLTChains)
+    ## pass chians to TrigMETMonAlg
+    TrigMETMonAlg.L1Chains = L1Chains
+    TrigMETMonAlg.HLTChains = HLTChains
+
+    ### algorithm selection
+    algsL1 = ["roi", 
+              "jnc", 
+              "jrho", 
+              "gnc", 
+              "grho", 
+              "gjwoj", 
+              "gpufit"]
+    algsHLT = ["cell", 
+               "tcpufit", 
+               "trkmht", 
+               "mht", 
+               "tc_em", 
+               "pfsum", 
+               "pfsum_cssk", 
+               "pfsum_vssk", 
+               "pfopufit", 
+               "cvfpufit", 
+               "mhtpufit_pf", 
+               "mhtpufit_em"]
+    algsHLT2d = ["cell", 
+                 "tcpufit", 
+                 "pfopufit"]
+    ## pass algorithmss to TrigMETMonAlg
+    #TrigMETMonAlg.algsL1 = algsL1
+    #TrigMETMonAlg.algsHLT = algsHLT
+    #TrigMETMonAlg.algsHLT2d = algsHLT2d
+
  
     ### STEP 4 ###
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the
@@ -212,7 +222,6 @@ def TrigMETMonConfig(inputFlags):
     phi_bins_2d=24 # phi
     phi_min=-3.1416
     phi_max=3.1416
-    #eta_bins=100 # eta
     eta_bins_2d=24# eta
     eta_min=-4.8
     eta_max=4.8
@@ -255,7 +264,6 @@ def TrigMETMonConfig(inputFlags):
                            path='Expert/Vertex',xbins=100,xmin=-200,xmax=200)
     
     ## L1
-    algsL1 = ["roi", "jnc", "jrho", "gnc", "grho", "gjwoj", "gpufit"]
     for alg in algsL1:
       metGroup.defineHistogram('L1_{}_Ex'.format(alg),title='L1_{} Missing E_{{x}};E_{{x}} [GeV];Events'.format(alg),
                              path='Shifter/L1_{}'.format(alg),xbins=ec_bins,xmin=ec_min,xmax=ec_max)
@@ -301,7 +309,6 @@ def TrigMETMonConfig(inputFlags):
                              path='Shifter/preSel'.format(alg),xbins=et_bins,xmin=et_min,xmax=et_max)
 
     ## HLT 2d eta-phi histos
-    algsHLT2d = ["cell", "tcpufit", "pfopufit"]
     for alg in algsHLT2d:
       metGroup.defineHistogram('{0}_eta,{0}_phi;{0}_eta_phi'.format(alg), type='TH2F', title='{} #eta - #phi;#eta;#phi'.format(alg),
                              path='Shifter/{}'.format(alg),
@@ -310,29 +317,22 @@ def TrigMETMonConfig(inputFlags):
                              weight='{}_Et'.format(alg),
                              path='Shifter/{}'.format(alg),
                              xbins=eta_bins_2d,xmin=eta_min,xmax=eta_max,ybins=phi_bins_2d,ymin=phi_min,ymax=phi_max)
+
     ## L1 efficiency
-    ii = 0
-    effL1 = ["A", "B", "C", "D", "E", "F", "G"]
-    for eff in effL1:
-      metGroup.defineHistogram('offline_Et,pass_L1{a};{b}_eff'.format(a=eff,b=L1Chains[ii]), type='TProfile',title='L1{} efficiency;offline E_{{T}} [GeV];Efficiency'.format(eff),
-                             path='Shifter/eff',xbins=eff_bins,xmin=eff_min,xmax=eff_max)
-      ii +=1
+    for chain in L1Chains:
+       metGroup.defineHistogram('offline_Et_eff,pass_{};{}_eff'.format(chain,chain),
+                                type='TProfile',
+                                title='{} efficiency;offline E_{{T}} [GeV];Efficiency'.format(chain),
+                                path='Shifter/eff',
+                                xbins=eff_bins, xmin=eff_min, xmax=eff_max)
+
     ## HLT efficiency
-    # jj = 0
-    # # effHLT = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14"]
-    # for eff in effHLT:
-    #   metGroup.defineHistogram('offline_Et,pass_HLT{a};{b}_eff'.format(a=eff,b=HLTChains[jj]), type='TProfile',title='HLT{} efficiency;offline E_{{T}} [GeV];Efficiency'.format(eff),
-    #                          path='Shifter/eff',xbins=eff_bins,xmin=eff_min,xmax=eff_max)
-    #   jj +=1
-    for i,chain in enumerate(HLTChains):
-        index = chr(i + 65)
-        metGroup.defineHistogram('offline_Et,pass_HLT{a};{b}_eff'.format(a=index,b=chain),
-                                 type='TProfile',
-                                 title='HLT{} efficiency;offline E_{{T}} [GeV];Efficiency'.format(index),
-                                 path='Shifter/eff',
-                                 xbins=eff_bins,
-                                 xmin=eff_min,
-                                 xmax=eff_max)
+    for chain in HLTChains:
+       metGroup.defineHistogram('offline_Et_eff,pass_{};{}_eff'.format(chain,chain),
+                                type='TProfile',
+                                title='{} efficiency;offline E_{{T}} [GeV];Efficiency'.format(chain),
+                                path='Shifter/eff',
+                                xbins=eff_bins, xmin=eff_min, xmax=eff_max)
     
     ## HLT cell component
     comp_names = ["PreSamplB", "EMB1", "EMB2", "EMB3", # LAr barrel
