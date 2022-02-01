@@ -11,7 +11,7 @@
 
 struct slope_t {
   slope_t(int ev=-1, int bc=-1, unsigned int tC=999, unsigned int rC=999, int iX=-1, int iU=-1, int iV=-1, unsigned int uvb=999, unsigned int xb=999, 
-          unsigned int uvm=999, unsigned int xm=999, int age=-1, double mxl=999., double xavg=999., double uavg=999., double vavg=999., double mx=999., 
+          unsigned int uvm=999, unsigned int xm=999, int age=-1, double mxl=999., double my=999., double uavg=999., double vavg=999., double mx=999., 
           double th=999., double eta=999., double dth=999., char side='-', double phi=999., double phiS=999., bool lowRes=false);
   unsigned int event;
   int BC;
@@ -26,7 +26,7 @@ struct slope_t {
   unsigned int xmuon;
   int age;
   double mxl;
-  double xavg;
+  double my;
   double uavg;
   double vavg;
   double mx;
