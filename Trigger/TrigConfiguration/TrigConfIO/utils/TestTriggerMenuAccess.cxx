@@ -126,7 +126,6 @@ testL1Menu_Connectors(const TrigConf::L1Menu & l1menu) {
    cout << "L1 menu has " << l1menu.connectorNames().size() << " connectors configured" << endl;
    for( const string & connName : l1menu.connectorNames() ) {
       auto & conn = l1menu.connector(connName);
-      if(connName == "LegacyTopoMerged") continue;
       cout << "Connector " << connName << (conn.legacy() ? " (legacy)": "") << " has " << conn.size() << " trigger lines configured:" << endl;
       if( connName == "MuCTPiOpt0" ) {
          for( auto & tl : conn.triggerLines() ) {
@@ -283,8 +282,8 @@ testL1Menu_Thresholds(const TrigConf::L1Menu & l1menu, bool printdetail)
 //   }
 
 
-   const auto & threEM = dynamic_cast<const TrigConf::L1Threshold_eEM&>(l1menu.threshold("eEM15M"));
-   cout << "eEM15M isolation: rhad = " << (int)threEM.rhad() << ", reta = " << (int)threEM.reta() << ", wstot = " << (int)threEM.wstot() << endl;
+   const auto & threEM = dynamic_cast<const TrigConf::L1Threshold_eEM&>(l1menu.threshold("eEM26M"));
+   cout << "eEM26M isolation: rhad = " << (int)threEM.rhad() << ", reta = " << (int)threEM.reta() << ", wstot = " << (int)threEM.wstot() << endl;
 
    const auto & threTAU = dynamic_cast<const TrigConf::L1Threshold_eTAU&>(l1menu.threshold("eTAU12"));
    if(threTAU) {
@@ -294,10 +293,10 @@ testL1Menu_Thresholds(const TrigConf::L1Menu & l1menu, bool printdetail)
       }
    }
 
-   const auto & thrjEM = dynamic_cast<const TrigConf::L1Threshold_jEM&>(l1menu.threshold("jEM15M"));
-   cout << "jEM15M isolation: iso = " << (int)thrjEM.iso() << ", frac = " << (int)thrjEM.frac() << ", frac2 = " << (int)thrjEM.frac2() << endl;
+   const auto & thrjEM = dynamic_cast<const TrigConf::L1Threshold_jEM&>(l1menu.threshold("jEM20M"));
+   cout << "jEM20M isolation: iso = " << (int)thrjEM.iso() << ", frac = " << (int)thrjEM.frac() << ", frac2 = " << (int)thrjEM.frac2() << endl;
 
-   const auto & thrjJET = dynamic_cast<const TrigConf::L1Threshold_jJ&>(l1menu.threshold("jJ12p0ETA25"));
+   const auto & thrjJET = dynamic_cast<const TrigConf::L1Threshold_jJ&>(l1menu.threshold("jJ30p0ETA25"));
    if(thrjJET) {
       cout << thrjJET.name() << ":" << endl;
       for(int eta  : {0, 20, 30, 40}) {

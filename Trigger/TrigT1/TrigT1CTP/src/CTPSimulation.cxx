@@ -281,8 +281,7 @@ LVL1CTP::CTPSimulation::setHistLabels(const TrigConf::L1Menu& l1menu) const {
       for(uint fpga : {0,1}) {
          for(uint clock : {0,1}) {
             for(auto & tl : l1menu.connector(connName).triggerLines(fpga,clock)) {
-               //uint flatIndex = 32*tl.fpga() + 2*tl.startbit() + tl.clock(); // activate later
-               uint flatIndex = 32*tl.fpga() + tl.startbit() + 16*tl.clock();
+               uint flatIndex = tl.flatindex(); 
                hTopo->GetXaxis()->SetBinLabel(flatIndex+1,tl.name().c_str());
             }
          }
@@ -661,8 +660,7 @@ LVL1CTP::CTPSimulation::extractMultiplicities(std::map<std::string, unsigned int
       for(uint fpga : {0,1}) {
          for(uint clock : {0,1}) {
             for(auto & tl : conn.triggerLines(fpga,clock)) {
-               //uint flatIndex = 32*tl.fpga() + 2*tl.startbit() + tl.clock(); // activate later
-               uint flatIndex = 32*tl.fpga() + tl.startbit() + 16*tl.clock();
+               uint flatIndex = tl.flatindex();
                uint pass = (cable & (uint64_t(0x1) << flatIndex)) == 0 ? 0 : 1;
                if(size_t pos = tl.name().find('['); pos == std::string::npos) {
                   thrMultiMap[tl.name()] = pass;

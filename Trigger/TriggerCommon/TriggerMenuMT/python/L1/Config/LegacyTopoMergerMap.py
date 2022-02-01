@@ -66,7 +66,7 @@ def createMergerBoard(legacyBoard0, legacyBoard1):
             algFromMapping = mc.signals[clock]
             if algFromMapping is None:
                 continue
-            signals[clock][mc.target_bit] = algFromMapping
+            signals[clock][mc.target_bit] = "R2TOPO_"+algFromMapping
             algFromLegacyBoardDef = legacyOccupation[mc.topo_board][clock][mc.source_bit]
             if algFromMapping != algFromLegacyBoardDef:
                 fpga = mc.source_bit // 16
@@ -75,8 +75,6 @@ def createMergerBoard(legacyBoard0, legacyBoard1):
                       f"clock {clock}, bit {bit} but board defines {algFromLegacyBoardDef}"
                 log.error(msg)
                 raise RuntimeError("Mapping doesn't match LegacyBoard definition")
-
-
 
 
     board = odict()
