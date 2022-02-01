@@ -83,7 +83,6 @@ namespace top {
       OR_flags.boostedLeptons = true;
     }
     OR_flags.doFatJets = (m_config->useLargeRJets() && m_config->doLargeJetOverlapRemoval());
-    OR_flags.doMuPFJetOR = (m_config->useParticleFlowJets() && m_config->useMuons());
 
     const float floatMax = std::numeric_limits<float>::max();
 
