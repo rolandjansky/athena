@@ -8,6 +8,33 @@
 
 def TileTMDBMonitoringConfig(flags, **kwargs):
     ''' Function to configure TileTMDBMonitorAlgorithm algorithm in the monitoring system.'''
+    histogram_limits = {
+        "PHY": {
+            "Energy": [-1010, 1010],
+            "Error": [-1010, 1010]
+        },
+        "LAS": {
+            "Energy": [-1010, 15010],
+            "Error": [-15010, 15010]
+        },
+        "BILAS": {
+            "Energy": [-1010, 15010],
+            "Error": [-15010, 15010]
+        },
+        "CIS": {
+            "Energy": [-1010, 15000],
+            "Error": [-15010, 15000]
+        },
+        "MONOCIS": {
+            "Energy": [-1010, 15000],
+            "Error": [-15010, 15000]
+        },
+        "PED": {
+            "Energy": [-1010, 10000],
+            "Error": [-15010, 10000]
+        }
+    }
+
 
     # Define one top-level monitoring algorithm. The new configuration
     # framework uses a component accumulator.
@@ -39,7 +66,7 @@ def TileTMDBMonitoringConfig(flags, **kwargs):
 
     # Configure histogram with TileTMDBMonAlg algorithm execution time
     executeTimeGroup = helper.addGroup(tileTMDBMonAlg, 'TileTMDBMonExecuteTime', 'Tile/')
-    executeTimeGroup.defineHistogram('TIME_execute', path = 'TMDB', type='TH1F',
+    executeTimeGroup.defineHistogram('TIME_execute', path = f'TMDB/{flags.Tile.RunType}', type='TH1F',
                                      title = 'Time for execute TileTMDBMonAlg algorithm;time [#ms]',
                                      xbins = 100, xmin = 0, xmax = 100000)
 
@@ -53,13 +80,30 @@ def TileTMDBMonitoringConfig(flags, **kwargs):
     addTileTMDB_1DHistogramsArray(helper, tileTMDBMonAlg, name = 'TMDB_Energy',
                                   xvalue = 'energy', path = 'Tile/TMDB/NoiseAnalysis',
                                   title = 'Energy in TMDB;E_{TMDB} [MeV]', type = 'TH1D', run = run,
-                                  xbins = 101, xmin = -1010, xmax = 1010, perModule = True)
+                                  xbins = 101, 
+                                  xmin = histogram_limits[flags.Tile.RunType]["Energy"][0], 
+                                  xmax = histogram_limits[flags.Tile.RunType]["Energy"][1], perModule = True)
+
+    addTileTMDB_1DHistogramsArray(helper, tileTMDBMonAlg, name = 'TMDB_Peak',
+                                    xvalue = 'peak', path = 'Tile/TMDB/PeakPosition',
+                                    title = 'Peak Position in TMDB;E_{TMDB}', type = 'TH1D', run = run,
+                                    xbins = 7, xmin = 0, xmax = 7, perModule = True)
+
+    from TileMonitoring.TileMonitoringCfgHelper import addTileTMDB2DScatterHistogramsArray
+
+    addTileTMDB2DScatterHistogramsArray(helper, tileTMDBMonAlg, name = 'TMDB_ChanNoise',
+                                            xvalue = 'channX', yvalue = 'channY', path = 'Tile/TMDB/ChannelNoise',
+                                            title = 'Channel CrossProduct TMDB;', type = 'TH2D', run = run,
+                                            xbins = 101, xmin = 0, xmax = 255)
 
     errorTitle = 'Energy difference between TMDB and correspoding Tile Cell (D) PMT;E_{D_PMT} - E_{TMDB} [MeV]'
     addTileTMDB_1DHistogramsArray(helper, tileTMDBMonAlg, name = 'TMDB_CalibrationError',
                                   xvalue = 'error', path = 'Tile/TMDB/CalibError',
                                   title = errorTitle, type = 'TH1D', run = run,
-                                  xbins = 101, xmin = -1010, xmax = 1010, perModule = True)
+                                  xbins = 101, 
+                                  xmin = histogram_limits[flags.Tile.RunType]["Error"][0], 
+                                  xmax = histogram_limits[flags.Tile.RunType]["Error"][1], 
+                                  perModule = True)
 
     from TileMonitoring.TileMonitoringCfgHelper import addTileTMDB_2DHistogramsArray
 
@@ -96,7 +140,9 @@ if __name__=='__main__':
     ConfigFlags.DQ.enableLumiAccess = False
     ConfigFlags.Exec.MaxEvents = 3
     ConfigFlags.fillFromArgs()
+    ConfigFlags.Tile.RunType = "CIS"
     ConfigFlags.lock()
+
 
     # Initialize configuration object, add accumulator, merge, and run.
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
