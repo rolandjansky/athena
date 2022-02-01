@@ -257,7 +257,8 @@ namespace NSWL1 {
                   m_trigger_diamond_iU->push_back(slope.iRoadu);
                   m_trigger_diamond_iV->push_back(slope.iRoadv);
                   m_trigger_diamond_age->push_back(slope.age);
-                  m_trigger_diamond_Xavg->push_back(slope.xavg);
+                  m_trigger_diamond_mx->push_back(slope.mx);
+                  m_trigger_diamond_my->push_back(slope.my);
                   m_trigger_diamond_Uavg->push_back(slope.uavg);
                   m_trigger_diamond_Vavg->push_back(slope.vavg);
                   m_trigger_diamond_mxl->push_back(slope.mxl);
@@ -454,6 +455,7 @@ namespace NSWL1 {
             float phiSteps = (this->getPhiMax()-this->getPhiMin())/nPhi;
             phi_id = std::abs( (slope.phiShf*M_PI/180.0)/phiSteps );
             trigRawDataSegment->setPhiIndex(phi_id);
+            m_trigger_diamond_TP_phi_id->push_back(phi_id);
 
             // R-id
             double extrapolatedR = slope.mx*7824.46; // The Z plane is a fixed value, taken from SL-TP documentation
@@ -463,6 +465,7 @@ namespace NSWL1 {
             float Rsteps = (this->getRMax()-this->getRMin())/nR;
             R_id = std::abs( extrapolatedR/Rsteps );
             trigRawDataSegment->setRIndex(R_id);
+            m_trigger_diamond_TP_R_id->push_back(R_id);
 
             // DeltaTheta-id
             uint8_t dTheta_id = 0;
@@ -471,6 +474,7 @@ namespace NSWL1 {
             float dThetaSteps = (this->getdThetaMax()-this->getdThetaMin())/ndTheta;
             dTheta_id = std::abs( (slope.dtheta*M_PI/180.0)/dThetaSteps );
             trigRawDataSegment->setDeltaTheta(dTheta_id);
+            m_trigger_diamond_TP_dTheta_id->push_back(dTheta_id);
 
             // Low R-resolution bit
             trigRawDataSegment->setLowRes(slope.lowRes);
