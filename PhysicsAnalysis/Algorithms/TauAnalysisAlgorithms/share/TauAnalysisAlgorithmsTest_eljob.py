@@ -23,6 +23,7 @@ parser.add_option( '-u', '--unit-test', dest='unit_test',
 # Set up (Py)ROOT.
 import ROOT
 ROOT.xAOD.Init().ignore()
+ROOT.xAOD.TauJetContainer()
 ROOT.xAOD.LoadDictionaries().ignore()
 
 # ideally we'd run over all of them, but we don't have a mechanism to
