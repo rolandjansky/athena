@@ -87,7 +87,7 @@ class MenuConnectorsCollection(object):
                 thr = re.match(r"^ZB_\d?(?P<thr>\w*)",zbThr).groupdict()["thr"] # extract the threshold
                 if thr not in connDef["thresholds"]:
                     raise RuntimeError("Connector %s contains zero bias threshold %s but not the corresponding threshold %s" % (name, zbThr, thr))
-                newConnector.addTriggerLine( TriggerLine( name = zbThr, startbit = 30, nbits = 1) )
+                newConnector.addTriggerLine( TriggerLine( name = zbThr, startbit = 30,  flatindex = 30, nbits = 1) )
             except KeyError:
                 # for connectors without zeroBias threshold
                 pass
@@ -153,7 +153,7 @@ class CtpinConnector(Connector):
             if thrName is None:
                 startbit += nbits
                 continue
-            tl = TriggerLine( name = thrName, startbit = startbit, nbits = nbits)
+            tl = TriggerLine( name = thrName, startbit = startbit, flatindex = startbit, nbits = nbits)
             startbit += nbits
             self.addTriggerLine(tl)
 
@@ -179,7 +179,7 @@ class OpticalConnector(Connector):
                 if thrName is None:
                     startbit += nbits
                     continue
-                tl = TriggerLine( name = thrName, startbit = startbit, nbits = nbits)
+                tl = TriggerLine( name = thrName, startbit = startbit, flatindex = startbit, nbits = nbits)
                 startbit += nbits
                 self.addTriggerLine(tl)
         else:
@@ -205,9 +205,11 @@ class ElectricalConnector(Connector):
                 for topo in thrG["algorithms"]:
                     bit = topo.outputbits[0] if isinstance(topo.outputbits, tuple) else topo.outputbits
                     for (i, tl) in enumerate(topo.outputlines):
-                        # for topoological triggerlines the names have to be prefixed as they are in the item definitions
+                        # for topological triggerlines the names have to be prefixed as they are in the item definitions
                         tlname = currentTopoCategory.prefix + tl
-                        self.addTriggerLine( TriggerLine( name = tlname, startbit = bit+i, nbits = 1 ), fpga, clock )
+                        startbit = bit+i
+                        flatindex = 32*fpga + 2*startbit + clock  
+                        self.addTriggerLine( TriggerLine( name = tlname, startbit = startbit, flatindex = flatindex, nbits = 1, fpga = fpga, clock = clock ), fpga, clock )
         elif self.cformat == CFormat.SIMPLE:
             for sigG in connDef["signalGroups"]:
                 clock = sigG["clock"]
@@ -219,7 +221,12 @@ class ElectricalConnector(Connector):
                     if signal is None:
                         startbit += nbits
                         continue
-                    tl = TriggerLine( name = signal, startbit = startbit, nbits = nbits)
+                    flatindex = 0
+                    if connDef["name"]=="LegacyTopoMerged":
+                        flatindex = 2*startbit + clock
+                    else: # AlfaCtpin
+                        flatindex = 32*clock + startbit 
+                    tl = TriggerLine( name = signal, startbit = startbit, flatindex = flatindex, nbits = nbits, fpga = None, clock = clock)
                     startbit += nbits
                     self.addTriggerLine(tl, 0, clock)
         else:
@@ -240,32 +247,40 @@ class ElectricalConnector(Connector):
             confObj["legacy"] = self.legacy
         confObj["triggerlines"] = odict()
         if self.cformat == CFormat.TOPO:
+            _triggerLines = []
             for fpga in [0,1]:
-                fpgas = "fpga%i" % fpga
-                confObj["triggerlines"][fpgas] = odict()
                 for clock in [0,1]:
-                    clocks = "clock%i" % clock
-                    confObj["triggerlines"][fpgas][clocks] = [tl.json() for tl in self.triggerLines[fpga][clock]]
+                     _triggerLines += [tl.json() for tl in self.triggerLines[fpga][clock]]
+            confObj["triggerlines"] = _triggerLines
         elif self.cformat == CFormat.SIMPLE:
-            confObj["triggerlines"] = odict()
+            _triggerLines = []
             for clock in [0,1]:
-                clocks = "clock%i" % clock
-                confObj["triggerlines"][clocks] = [tl.json() for tl in self.triggerLines[0][clock]]
+                _triggerLines += [tl.json() for tl in self.triggerLines[0][clock]]
+            confObj["triggerlines"] = _triggerLines
         return confObj
 
 
 class TriggerLine(object):
 
-    def __init__(self, name, startbit, nbits):
-        self.name     = name    
-        self.startbit = startbit
-        self.nbits    = nbits   
-
+    def __init__(self, name, startbit, nbits, flatindex=None, fpga=None, clock=None):
+        self.name      = name    
+        self.startbit  = startbit
+        self.flatindex = flatindex # for electrical cables
+        self.nbits     = nbits  
+        self.fpga      = fpga
+        self.clock     = clock 
+         
     def json(self):
         confObj = odict()
         confObj["name"]     = self.name
         confObj["startbit"] = self.startbit
+        if self.flatindex is not None: 
+           confObj["flatindex"] = self.flatindex
         confObj["nbits"]    = self.nbits
+        if self.fpga is not None:
+           confObj["fpga"]  = self.fpga
+        if self.clock is not None:
+           confObj["clock"] = self.clock
         return confObj
 
 

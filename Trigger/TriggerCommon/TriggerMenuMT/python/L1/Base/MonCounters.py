@@ -11,6 +11,8 @@ class MenuMonCountersCollection(object):
     def __init__(self):
         # list of monitoring counters
         self.counters = odict()
+        self.counters['ctpmon'] = []
+        self.counters['ctpin'] = []
 
     def addCounter(self, c):
         if c.montype not in self.counters:
