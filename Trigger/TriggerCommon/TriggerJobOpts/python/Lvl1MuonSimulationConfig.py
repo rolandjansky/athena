@@ -176,20 +176,22 @@ def NSWTriggerConfig(flags):
     PadTriggerLogicTool = CompFactory.NSWL1.PadTriggerLogicOfflineTool("NSWL1__PadTriggerLogicOfflineTool",DoNtuple=False)
     PadTriggerLookupTool = CompFactory.NSWL1.PadTriggerLookupTool("NSWL1__PadTriggerLookupTool")
     StripTdsTool = CompFactory.NSWL1.StripTdsOfflineTool("NSWL1__StripTdsOfflineTool",DoNtuple=False)
+    MMStripTdsTool = CompFactory.NSWL1.MMStripTdsOfflineTool("NSWL1__MMStripTdsOfflineTool",DoNtuple=False)
+    MMTriggerTool = CompFactory.NSWL1.MMTriggerTool("NSWL1__MMTriggerTool",DoNtuple=False)
     MMTriggerProcessorTool = CompFactory.NSWL1.TriggerProcessorTool("NSWL1__TriggerProcessorTool")
     nswAlg = CompFactory.NSWL1.NSWL1Simulation("NSWL1Simulation",
                                                DoOffline = True, # so far only offline simulation is available
                                                UseLookup = False,
                                                DoNtuple = False,
-                                               DoMM = False,
-                                               DoMMDiamonds = False,
-                                               DosTGC = True, # sTGC pad-only trigger
+                                               DoMM = flags.Trigger.L1MuonSim.doMMTrigger,
+                                               DoMMDiamonds = flags.Trigger.L1MuonSim.doMMTrigger,
+                                               DosTGC = True, # sTGC pad-only trigger: default
                                                PadTdsTool = PadTdsTool,
                                                PadTriggerTool = PadTriggerLogicTool,
                                                PadTriggerLookupTool = PadTriggerLookupTool,
                                                StripTdsTool = StripTdsTool,
-                                               MMStripTdsTool = "",
-                                               MMTriggerTool = "",
+                                               MMStripTdsTool = MMStripTdsTool,
+                                               MMTriggerTool = MMTriggerTool,
                                                MMTriggerProcessorTool = MMTriggerProcessorTool,
                                                NSWTrigRDOContainerName = "NSWTRGRDO" )
     acc.addEventAlgo(nswAlg)
