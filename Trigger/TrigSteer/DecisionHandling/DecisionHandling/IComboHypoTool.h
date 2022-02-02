@@ -25,7 +25,7 @@ namespace Combo {
   /**
    * @brief LegDecisionsMap For a given chain leg key, this map holds all Decision Objects which are active on the leg.  
    **/
-  typedef std::map<TrigCompositeUtils::DecisionID, ElementLinkVector<TrigCompositeUtils::DecisionContainer>> LegDecisionsMap;
+  typedef std::map<TrigCompositeUtils::DecisionID, std::vector<ElementLink<TrigCompositeUtils::DecisionContainer>>> LegDecisionsMap;
 
   /**
    * @brief LegDecision keeps a given Decision Object associated with a specific leg when being used inside a single combination.

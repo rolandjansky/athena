@@ -10,7 +10,6 @@
 
 // EDM include(s):
 #include "AthLinks/ElementLink.h"
-#include "AthLinks/ElementLinkVector.h"
 #include "AthContainers/tools/copyAuxStoreThinned.h"
 
 // Local include(s):
@@ -65,8 +64,8 @@ int populateObject(xAOD::TrigComposite* obj) {
    obj->setObjectLink( "MuonRoI",
                        ElementLink<xAOD::MuonRoIContainer>( 123, 11, mrc->at(11)) );
 
-   // Test the ElementLinkVector functionality in a basic way:
-   ElementLinkVector<xAOD::MuonRoIContainer> elementLinks;
+   // Test the ElementLink vector functionality in a basic way:
+   std::vector<ElementLink<xAOD::MuonRoIContainer>> elementLinks;
    elementLinks.push_back( ElementLink<xAOD::MuonRoIContainer>( 789, 13, mrc->at(13) ) );
    elementLinks.push_back( ElementLink<xAOD::MuonRoIContainer>( 345, 17, mrc->at(17) ) );
    obj->addObjectCollectionLinks("ManyMuonRoIs", elementLinks);
@@ -160,8 +159,8 @@ int testLinks(const xAOD::TrigComposite* obj, const size_t expectedSize = 3) {
    ElementLink< xAOD::MuonRoIContainer > getMuonRoILink = obj->objectLink<xAOD::MuonRoIContainer>("MuonRoI");
    SIMPLE_ASSERT(getMuonRoILink == ElementLink<xAOD::MuonRoIContainer>( 123, 11 ));
 
-   ElementLinkVector<xAOD::MuonRoIContainer> getMuonRoILinks = obj->objectCollectionLinks<xAOD::MuonRoIContainer>("ManyMuonRoIs");
-   ElementLinkVector<xAOD::MuonRoIContainer> elementLinks;
+   std::vector<ElementLink<xAOD::MuonRoIContainer>> getMuonRoILinks = obj->objectCollectionLinks<xAOD::MuonRoIContainer>("ManyMuonRoIs");
+   std::vector<ElementLink<xAOD::MuonRoIContainer>> elementLinks;
    elementLinks.push_back( ElementLink<xAOD::MuonRoIContainer>( 789, 13 ) );
    elementLinks.push_back( ElementLink<xAOD::MuonRoIContainer>( 345, 17 ) );
    SIMPLE_ASSERT(getMuonRoILinks == elementLinks);
@@ -311,8 +310,8 @@ int main() {
 
    // Test typeless collection add
    obj->typelessSetObjectLink( "typeless2", 123, ClassID_traits< xAOD::MuonRoIContainer >::ID(), 12, 15 );
-   ElementLinkVector<xAOD::MuonRoIContainer> getMuonRoILinks = obj->objectCollectionLinks<xAOD::MuonRoIContainer>("typeless2");
-   ElementLinkVector<xAOD::MuonRoIContainer> elementLinks;
+   std::vector<ElementLink<xAOD::MuonRoIContainer>> getMuonRoILinks = obj->objectCollectionLinks<xAOD::MuonRoIContainer>("typeless2");
+   std::vector<ElementLink<xAOD::MuonRoIContainer>> elementLinks;
    elementLinks.push_back( ElementLink<xAOD::MuonRoIContainer>( 123, 12 ) );
    elementLinks.push_back( ElementLink<xAOD::MuonRoIContainer>( 123, 13 ) );
    elementLinks.push_back( ElementLink<xAOD::MuonRoIContainer>( 123, 14 ) );

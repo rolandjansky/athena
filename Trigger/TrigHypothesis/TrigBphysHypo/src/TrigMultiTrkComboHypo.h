@@ -66,7 +66,7 @@ class TrigMultiTrkStateBase: public ::ITrigBphysState {
       : ITrigBphysState(context, previousDecisions, decisions, trigBphysCollection, beamSpotData),
         m_isEventAccepted(0) {}
   virtual ~TrigMultiTrkStateBase() = default;
-  virtual ElementLinkVector<TrigCompositeUtils::DecisionContainer>& getDecisionLinks(size_t) = 0;
+  virtual std::vector<ElementLink<TrigCompositeUtils::DecisionContainer>>& getDecisionLinks(size_t) = 0;
   virtual TrigCompositeUtils::DecisionIDContainer& getDecisionIDs(size_t) = 0;
   virtual void addTrigBphysObject(xAOD::TrigBphys*, const std::vector<size_t>& legIndices) = 0;
 
@@ -97,12 +97,12 @@ class TrigMultiTrkState : public TrigMultiTrkStateBase {
 
   struct LEPTON {
     ElementLink<CONTAINER> link;
-    ElementLinkVector<TrigCompositeUtils::DecisionContainer> decisionLinks;
+    std::vector<ElementLink<TrigCompositeUtils::DecisionContainer>> decisionLinks;
     TrigCompositeUtils::DecisionIDContainer decisionIDs;
   };
 
   std::vector<LEPTON>& leptons() { return m_leptons; }
-  virtual ElementLinkVector<TrigCompositeUtils::DecisionContainer>& getDecisionLinks(size_t i) override final {
+  virtual std::vector<ElementLink<TrigCompositeUtils::DecisionContainer>>& getDecisionLinks(size_t i) override final {
     return m_leptons.at(i).decisionLinks;
   }
   virtual TrigCompositeUtils::DecisionIDContainer& getDecisionIDs(size_t i) override final {
