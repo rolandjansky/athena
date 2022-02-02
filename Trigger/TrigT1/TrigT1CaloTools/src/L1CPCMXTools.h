@@ -49,10 +49,12 @@ public:
   formCMXCPTob(const std::vector<const xAOD::CPMTobRoIContainer *> &cpmRoiColls,
                xAOD::CMXCPTobContainer *cmxTobVec, uint8_t peak) const;
   /** form complete CMX-CP hits from CMX-CP TOBs */
-  virtual void formCMXCPHits(const xAOD::CMXCPTobContainer *cmxTobVec,
+  virtual void formCMXCPHits(const TrigConf::L1Menu* l1menu,
+			     const xAOD::CMXCPTobContainer *cmxTobVec,
                              xAOD::CMXCPHitsContainer *cmxHitsVec) const;
   /** form partial CMX-CP hits (crate) from CMX-CP TOBs */
-  virtual void formCMXCPHitsCrate(const xAOD::CMXCPTobContainer *cmxTobVec,
+  virtual void formCMXCPHitsCrate(const TrigConf::L1Menu* l1menu,
+				  const xAOD::CMXCPTobContainer *cmxTobVec,
                                   xAOD::CMXCPHitsContainer *cmxHitsCrate) const;
   /** form partial CMX-CP hits (system) from crate CMX-CP hits */
   virtual void formCMXCPHitsSystem(const xAOD::CMXCPHitsContainer *cmxHitsCrate,
@@ -77,7 +79,7 @@ private:
                      unsigned int &hadIsol) const;
   // void getHits(const xAOD::CMXCPTob* tob,
   //		 HitsVector& hit0, HitsVector& hit1) const;
-  void getHits(const xAOD::CMXCPTob *tob, HitsVector &hits0,
+  void getHits(const TrigConf::L1Menu* l1menu, const xAOD::CMXCPTob *tob, HitsVector &hits0,
                HitsVector &hits1) const;
 
   void addOverflow(ErrorVector &hitErr, const ErrorVector &tobErr) const;
@@ -96,8 +98,6 @@ private:
                      const ErrorVector &err0, const ErrorVector &err1,
                      uint8_t crate, uint8_t cmx, uint8_t source,
                      uint8_t peak) const;
-
-  SG::ReadHandleKey<TrigConf::L1Menu>  m_L1MenuKey{ this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu", "L1 Menu" };
 
   /** Number of CP crates */
   int m_crates;
