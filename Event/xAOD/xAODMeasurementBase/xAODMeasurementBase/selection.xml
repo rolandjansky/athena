@@ -1,0 +1,10 @@
+<!-- Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration -->
+<lcgdict>
+
+    <class name="xAOD::UncalibratedMeasurement_v1" />
+    <class name="xAOD::UncalibratedMeasurementContainer_v1"
+           id="E3407CD3-DCEC-46BC-A03C-B5ACC9F48533" />
+    <typedef name="xAOD::UncalibratedMeasurement" />
+    <typedef name="xAOD::UncalibratedMeasurementContainer" />
+
+</lcgdict>
