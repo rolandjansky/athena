@@ -60,21 +60,31 @@ def getCopyTruthLabelParticles(truthtype):
 def getCopyTruthJetParticles(modspec):
     truthclassif = getMCTruthClassifier()
 
-    # Commented for now -- we ideally need a dual-use input file peeker
+    barCodeFromMetadata=2
     # # Input file is EVNT
-    # if objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
-    #    barCodeFromMetadata=0
+    from RecExConfig.ObjKeyStore import objKeyStore
+    if objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
+        barCodeFromMetadata=0
 
     truthpartcopy = CompFactory.CopyTruthJetParticles(
         "truthpartcopy"+modspec,
         OutputName="JetInputTruthParticles"+modspec,
         MCTruthClassifier=truthclassif,
-        BarCodeFromMetadata=2)
+        BarCodeFromMetadata=barCodeFromMetadata)
     if modspec=="NoWZ":
         truthpartcopy.IncludePromptLeptons=False
-        # truthpartcopy.IncludePromptPhotons=False # Needs cherry-pick from 21.2
+        truthpartcopy.IncludePromptPhotons=False
         truthpartcopy.IncludeMuons=True
         truthpartcopy.IncludeNeutrinos=True
+    if modspec=="DressedWZ":
+        truthpartcopy.IncludePromptLeptons=False
+        truthpartcopy.IncludePromptPhotons=True
+        truthpartcopy.IncludeMuons=True
+        truthpartcopy.IncludeNeutrinos=True
+        truthpartcopy.FSRPhotonCone=-1.
+        truthpartcopy.DressingDecorationName='dressedPhoton'
+    if modspec=="Charged":
+        truthpartcopy.ChargedParticlesOnly=True
     return truthpartcopy
 
 def getJetQuarkLabel():
@@ -117,3 +127,14 @@ def getJetDeltaRLabelTool(jetdef, modspec):
     jetdrlabeler.JetPtMin = jetptmin
     return jetdrlabeler
 
+def getJetGhostLabelTool(jetdef, modspec):
+    jetghostlabeler = CompFactory.ParticleJetGhostLabelTool(
+        "jetghostlabeler",
+        LabelName = "HadronGhostTruthLabelID",
+        DoubleLabelName = "HadronGhostExtendedTruthLabelID",
+        GhostBName = "GhostBHadronsFinal",
+        GhostCName = "GhostCHadronsFinal",
+        GhostTauName = "GhostTausFinal",
+        PartPtMin = 5000.0
+    )
+    return jetghostlabeler

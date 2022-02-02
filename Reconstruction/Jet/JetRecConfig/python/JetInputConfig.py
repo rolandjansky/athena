@@ -55,11 +55,11 @@ def buildPV0TrackSel(parentjetdef, spec):
                                  returnCompFactory = True,
                                  addDecoAlg = isAthenaRelease(),
                                  WorkingPoint = "Nonprompt_All_MaxWeight",
-                                 TrackContName = trkOptions['JetTracks'],
+                                 TrackContName = trkOptions['JetTracksQualityCuts'],
                                  VertexContName = trkOptions['Vertices'],
                                  )
     alg = CompFactory.PV0TrackSelectionAlg("pv0tracksel_trackjet", 
-                                           InputTrackContainer = trkOptions['JetTracks'],
+                                           InputTrackContainer = trkOptions['JetTracksQualityCuts'],
                                            VertexContainer = trkOptions['Vertices'],
                                            OutputTrackContainer = "PV0"+trkOptions['JetTracks'],
                                            TVATool = tvaTool,
@@ -68,20 +68,31 @@ def buildPV0TrackSel(parentjetdef, spec):
 
 
 ########################################################################
-def getEventShapeName( parentjetdef, inputspec):
+def getEventShapeName( jetDefOrLabel, inputspec):
     """ Get the name of the event shape container for a given event shape alg """
+
+    from .JetDefinition import JetDefinition
     nameprefix = inputspec or ""
-    label = parentjetdef.inputdef.label
+    if isinstance(jetDefOrLabel, JetDefinition):
+        label = jetDefOrLabel.inputdef.label
+    else:
+        label = jetDefOrLabel.replace('_','')
     return nameprefix+"Kt4"+label+"EventShape"
 
 
-def buildEventShapeAlg( parentjetdef, inputspec, voronoiRf = 0.9, radius = 0.4 ):
+def buildEventShapeAlg(jetOrConstitdef, inputspec, voronoiRf = 0.9, radius = 0.4, suffix = None ):
     """Function producing an EventShapeAlg to calculate
      median energy density for pileup correction"""
+
+    from .JetDefinition import JetInputConstit
     
-    rhokey = getEventShapeName(parentjetdef, inputspec)
+    if isinstance(jetOrConstitdef, JetInputConstit):
+        label = jetOrConstitdef.label + '' if suffix is None else f'_{suffix}'
+    else:
+        label = jetOrConstitdef.inputdef.label + '' if suffix is None else f'_{suffix}'
+
+    rhokey = getEventShapeName(label, inputspec)
     nameprefix = inputspec or ""
-    label = parentjetdef.inputdef.label
     rhotoolname = "EventDensity_"+nameprefix+"Kt4"+label
     
     rhotool = CompFactory.EventDensityTool(

@@ -93,10 +93,10 @@ std::unique_ptr<PseudoJetContainer> PseudoJetAlgorithm::createPJContainer(const 
 std::vector<fastjet::PseudoJet> 
 PseudoJetAlgorithm::createPseudoJets(const xAOD::IParticleContainer& ips) const{
 #ifndef GENERATIONBASE
-  if (m_pflow) {return PseudoJetGetter::PFlowsToPJs(ips,m_skipNegativeEnergy,m_useCharged,m_useNeutral,m_useChargedPV,m_useChargedPUsideband);}
-  if (m_emtopo) {return PseudoJetGetter::EMToposToPJs(ips,m_skipNegativeEnergy);}
+  if (m_pflow) {return PseudoJetGetter::PFlowsToPJs(ips,m_skipNegativeEnergy.value(),m_useCharged.value(),m_useNeutral.value(),m_useChargedPV.value(),m_useChargedPUsideband.value());}
+  if (m_emtopo) {return PseudoJetGetter::EMToposToPJs(ips,m_skipNegativeEnergy.value());}
 #endif
-  return PseudoJetGetter::IParticlesToPJs(ips,m_skipNegativeEnergy);
+  return PseudoJetGetter::IParticlesToPJs(ips,m_skipNegativeEnergy.value());
 }
 
 
@@ -113,7 +113,13 @@ void PseudoJetAlgorithm::print() const {
   ATH_MSG_INFO("         Is EMTopo: " << m_emtopo);
   ATH_MSG_INFO("          Is PFlow: " << m_pflow);
   ATH_MSG_INFO("          Is ghost: " << m_isGhost);
-  ATH_MSG_INFO(" Treat negative E as ghost: " << m_negEnergyAsGhosts);
+  ATH_MSG_INFO(" Treat negative E as ghost: " << m_negEnergyAsGhosts.value());
+  if(m_pflow){
+    ATH_MSG_INFO("   Use charged FEs: " << m_useCharged.value());
+    ATH_MSG_INFO("   Use neutral FEs: " << m_useNeutral.value());
+    ATH_MSG_INFO("Use charged PV FEs: " << m_useChargedPV.value());
+    ATH_MSG_INFO("   PU sideband def: " << m_useChargedPUsideband.value());
+  }
 }
 
 //**********************************************************************

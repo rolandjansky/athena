@@ -19,8 +19,9 @@ from DerivationFrameworkMuons import MuonsCommon
 InDetCommon.makeInDetDFCommon()
 EGammaCommon.makeEGammaDFCommon()
 MuonsCommon.makeMuonsDFCommon()
-from DerivationFrameworkJetEtMiss.JetCommon import OutputJets
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDAODJets, addDefaultTrimmedJets, addJetTruthLabel, addQGTaggerTool, getPFlowfJVT, addEventCleanFlags
+from DerivationFrameworkJetEtMiss.JetCommon import addEventCleanFlags, addDAODJets, addQGTaggerTool, getPFlowfJVT, addJetTruthLabel, addVRTrackJetMoments
+from JetRecConfig.StandardSmallRJets import AntiKt4EMTopo,AntiKt4LCTopo,AntiKt4EMPFlow,AntiKtVR30Rmax4Rmin02PV0Track
+from JetRecConfig.StandardLargeRJets import AntiKt10LCTopoTrimmed
 from DerivationFrameworkJetEtMiss.METCommon import scheduleStandardMETContent
 from TriggerMenuMT.TriggerAPI.TriggerAPI import TriggerAPI
 from TriggerMenuMT.TriggerAPI.TriggerEnums import TriggerPeriod, TriggerType
@@ -120,26 +121,16 @@ trigmatching_helper_tau = TriggerMatchingHelper(name='PHYSVALTriggerMatchingTool
 # JET/MET   
 #====================================================================
 
-OutputJets["PHYSVAL"] = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
-jetList = ["AntiKt4EMTopoJets",
-           "AntiKt4LCTopoJets",
-           "AntiKt4EMPFlowJets",
-           "AntiKt2PV0TrackJets",
-           "AntiKt4PV0TrackJets",
-           "AntiKt10PV0TrackJets",
-           "AntiKtVR30Rmax4Rmin02PV0TrackJets",
-           "AntiKt10LCTopoJets"]
+jetList = [AntiKt4EMTopo,AntiKt4LCTopo,AntiKt4EMPFlow,
+           AntiKtVR30Rmax4Rmin02PV0Track,
+           AntiKt10LCTopoTrimmed]
 
-if (DerivationFrameworkIsMonteCarlo):
-   OutputJets["PHYSVAL"].append("AntiKt10TruthTrimmedPtFrac5SmallR20Jets")
-
-addDAODJets(jetList,SeqPHYSVAL,"PHYSVAL")
-add_largeR_truth_jets = DerivationFrameworkIsMonteCarlo and not hasattr(SeqPHYSVAL,'jetalgAntiKt10TruthTrimmedPtFrac5SmallR20')
-addDefaultTrimmedJets(SeqPHYSVAL,"PHYSVAL",dotruth=add_largeR_truth_jets,linkVRGhosts=True)
+addDAODJets(jetList,SeqPHYSVAL)
 
 # Add large-R jet truth labeling
 if (DerivationFrameworkIsMonteCarlo):
    addJetTruthLabel(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=SeqPHYSVAL,labelname="R10TruthLabel_R21Consolidated")
+   addJetTruthLabel(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=SeqPHYSVAL,labelname="R10TruthLabel_R21Precision")
 
 addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=SeqPHYSVAL)
 addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqPHYSVAL)
@@ -151,18 +142,6 @@ getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqPHYSVAL)
 addEventCleanFlags(sequence=SeqPHYSVAL)
 
 scheduleStandardMETContent(sequence=SeqPHYSVAL, algname="METAssociationAlg")
-
-#====================================================================
-# EGAMMA
-#====================================================================
-
-if DerivationFrameworkIsMonteCarlo:
-   # Schedule the two energy density tools for running after the pseudojets are created.
-   for alg in ['EDTruthCentralAlg', 'EDTruthForwardAlg']:
-      if hasattr(topSequence, alg):
-         edtalg = getattr(topSequence, alg)
-         delattr(topSequence, alg)
-         SeqPHYSVAL += edtalg
 
 #====================================================================
 # Add our sequence to the top sequence
@@ -239,7 +218,7 @@ PHYSVALSlimmingHelper.AllVariables =  ["EventInfo",
                                        "TauJets",
                                        "DiTauJets",
                                        "DiTauJetsLowPt",
-                                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets","AntiKt10PV0TrackJets","AntiKt10LCTopoJets","AntiKt4LCTopoJets",
+                                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets","AntiKt10LCTopoJets","AntiKt4LCTopoJets",
                                        "TruthParticles", "TruthEvents", "TruthVertices", "MuonTruthParticles", "egammaTruthParticles",
                                        "MuonTruthSegments",
                                        "MET_Truth","MET_TruthRegions",
@@ -273,10 +252,6 @@ PHYSVALSlimmingHelper.IncludeBPHYSVALTriggerContent = True
 PHYSVALSlimmingHelper.IncludeMinBiasTriggerContent = True
 addTrigEDMSetToOutput(PHYSVALSlimmingHelper, "AODFULL")
 
-
-# Add the jet containers to the stream (defined in JetCommon if import needed)
-#addJetOutputs(PHYSVALSlimmingHelper,["PHYSVAL"])
-
 # Truth containers
 if DerivationFrameworkIsMonteCarlo:
    PHYSVALSlimmingHelper.AppendToDictionary = {'TruthEvents':'xAOD::TruthEventContainer','TruthEventsAux':'xAOD::TruthEventAuxContainer',
@@ -303,7 +278,6 @@ if DerivationFrameworkIsMonteCarlo:
                                             'TruthPrimaryVertices':'xAOD::TruthVertexContainer','TruthPrimaryVerticesAux':'xAOD::TruthVertexAuxContainer',
                                             'AntiKt10TruthTrimmedPtFrac5SmallR20Jets':'xAOD::JetContainer', 'AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux':'xAOD::JetAuxContainer',
                                             'AntiKt10LCTopoJets':'xAOD::JetContainer', 'AntiKt10LCTopoJetsAux':'xAOD::JetAuxContainer',
-                                            'AntiKt10PV0TrackJets':'xAOD::JetContainer','AntiKt10PV0TrackJetsAux':'xAOD::JetAuxContainer',
                                             'BTagging_AntiKtVR30Rmax4Rmin02Track':'xAOD::BTaggingContainer','BTagging_AntiKtVR30Rmax4Rmin02TrackAux':'xAOD::BTaggingAuxContainer',
                                             'EMOriginTopoClusters':'xAOD::CaloClusterContainer', 'EMOriginTopoClustersAux':'xAOD::ShallowAuxContainer',
                                             'LCOriginTopoClusters':'xAOD::CaloClusterContainer', 'LCOriginTopoClustersAux':'xAOD::ShallowAuxContainer',
