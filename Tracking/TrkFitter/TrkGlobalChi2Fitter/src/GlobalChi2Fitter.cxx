@@ -2882,8 +2882,8 @@ namespace Trk {
       
     // loop over confined layers
     if (confinedLayers != nullptr) {
-      const std::vector < const Trk::Layer * >&layerVector = confinedLayers->arrayObjects();
-      std::vector < const Trk::Layer * >::const_iterator layerIter = layerVector.begin();
+      Trk::BinnedArraySpan<Trk::Layer const * const >layerVector = confinedLayers->arrayObjects();
+      Trk::BinnedArraySpan<Trk::Layer const * const >::const_iterator layerIter = layerVector.begin();
       
       // loop over layers
       for (; layerIter != layerVector.end(); ++layerIter) {
@@ -2968,13 +2968,13 @@ namespace Trk {
       }
     }
     
-    const Trk::BinnedArray<Trk::TrackingVolume> *confinedVolumes = tvol->confinedVolumes();
+    const Trk::BinnedArray<const Trk::TrackingVolume> *confinedVolumes = tvol->confinedVolumes();
     // get the confined volumes and loop over it -> call recursively
     if (confinedVolumes != nullptr) {
-      const std::vector<const Trk::TrackingVolume *> & volumes = confinedVolumes->arrayObjects();
+      Trk::BinnedArraySpan<Trk::TrackingVolume const * const> volumes = confinedVolumes->arrayObjects();
       
-      std::vector < const Trk::TrackingVolume * >::const_iterator volIter = volumes.begin();
-      std::vector < const Trk::TrackingVolume * >::const_iterator volIterEnd = volumes.end();
+      Trk::BinnedArraySpan<Trk::TrackingVolume const * const >::const_iterator volIter = volumes.begin();
+      Trk::BinnedArraySpan<Trk::TrackingVolume const * const>::const_iterator volIterEnd = volumes.end();
       
       for (; volIter != volIterEnd; ++volIter) {
         if (*volIter != nullptr) {

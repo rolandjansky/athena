@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@ class DetachedTrackingVolume;
 class ICompatibilityEstimator;
 
 typedef ObjectIntersection<Surface> SurfaceIntersection;
-typedef BinnedArray<Surface> SurfaceArray;
+typedef BinnedArray<const Surface> SurfaceArray;
 
 /**
    @enum LayerType
@@ -97,6 +97,9 @@ class Layer {
 
   /** Return the entire SurfaceArray, returns 0 if no SurfaceArray*/
   const SurfaceArray* surfaceArray() const;
+
+  /** Return the entire SurfaceArray, returns 0 if no SurfaceArray*/
+  SurfaceArray* surfaceArray();
 
   /** If no subSurface array is defined or no subSurface can be found
       to the given Amg::Vector3D, it would return 0
@@ -255,8 +258,7 @@ class Layer {
       const ICompatibilityEstimator* ice = nullptr) const;
 
   //!< propagate TrackingGeometry owner downstream
-  void compactify ATLAS_NOT_THREAD_SAFE(size_t& cSurfaces,
-                                        size_t& tSurfaces) const;
+  void compactify ATLAS_NOT_THREAD_SAFE(size_t& cSurfaces, size_t& tSurfaces) const;
 
   //!< register layer index for material map registration
   void registerLayerIndex(const LayerIndex& lIdx);
@@ -279,28 +281,28 @@ class Layer {
                                         double envelope = 1.) = 0;
 
  protected:
-  SurfaceArray* m_surfaceArray;  //!< SurfaceArray on this layer Surface
-  SharedObject<LayerMaterialProperties>
-      m_layerMaterialProperties;  //!< MaterialPoperties of this layer Surface
+   SurfaceArray* m_surfaceArray; //!< SurfaceArray on this layer Surface
+   //!< MaterialPoperties of this layer Surface
+   SharedObject<LayerMaterialProperties> m_layerMaterialProperties;
+   //!< thickness of the Layer
+   double m_layerThickness;
+   //!< descriptor for overlap/next surface
+   OverlapDescriptor* m_overlapDescriptor;
 
-  double m_layerThickness;  //!< thickness of the Layer
-  OverlapDescriptor*
-      m_overlapDescriptor;  //!< descriptor for overlap/next surface
-
-  // These are stored by pointers and never deleted as they belong to the Volume
-  const Layer*
-      m_previousLayer;       //!< the previous Layer according to BinGenUtils
-  const Layer* m_nextLayer;  //!< next Layer according to BinGenUtils
-  const BinUtility* m_binUtility;  //!< BinUtility for next/previous decission
-
-  const TrackingVolume*
-      m_enclosingTrackingVolume;  //!< Enclosing TrackingVolume
-  const DetachedTrackingVolume*
-      m_enclosingDetachedTrackingVolume;  //!< Enclosing DetachedTrackingVolume
-  LayerIndex m_index;                     //!< LayerIndex
-  int m_layerType;                        //!< active passive layer
-  const Volume* m_representingVolume;     //!< Representing Volume
-  double m_ref;  //!< reference measure for local coordinate convertors
+   // These are stored by pointers and never deleted as they belong to the
+   // Volume
+   //!< the previous Layer according to BinGenUtils
+   const Layer* m_previousLayer;
+   const Layer* m_nextLayer;       //!< next Layer according to BinGenUtils
+   const BinUtility* m_binUtility; //!< BinUtility for next/previous decission
+   //!< Enclosing TrackingVolume
+   const TrackingVolume* m_enclosingTrackingVolume;
+   //!< Enclosing DetachedTrackingVolume
+   const DetachedTrackingVolume* m_enclosingDetachedTrackingVolume;
+   LayerIndex m_index;                 //!< LayerIndex
+   int m_layerType;                    //!< active passive layer
+   const Volume* m_representingVolume; //!< Representing Volume
+   double m_ref; //!< reference measure for local coordinate convertors
 };
 
 }  // namespace Trk

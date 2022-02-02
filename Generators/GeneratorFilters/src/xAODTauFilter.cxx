@@ -8,15 +8,6 @@
 #include "TMath.h"
 #include <vector>
 
-// Helper macro for retrieving containers from the event
-#define CHECK_RETRIEVE( container , name ) { \
-    if (!evtStore()->retrieve( container , name ).isSuccess()){ \
-      ATH_MSG_ERROR("Could not load event from the file! "<< name); \
-      throw; \
-    } \
-  }
-
-
 
 xAODTauFilter::xAODTauFilter( const std::string& name, ISvcLocator* pSvcLocator)
   : GenFilter( name,pSvcLocator ),
@@ -123,12 +114,8 @@ StatusCode xAODTauFilter::filterEvent() {
   double weight = 1;
 
 
-  const xAOD::TruthParticleContainer* vtruth;
-  CHECK_RETRIEVE(vtruth, "TruthTaus");
-  if (! vtruth) {
-    ATH_MSG_WARNING("No tau truth particles");
-    return StatusCode::SUCCESS;
-  }
+  const xAOD::TruthParticleContainer* vtruth = nullptr;
+  ATH_CHECK( evtStore()->retrieve( vtruth, "TruthTaus" ) );
 
 //get the weight of the event from McEventCollection
 

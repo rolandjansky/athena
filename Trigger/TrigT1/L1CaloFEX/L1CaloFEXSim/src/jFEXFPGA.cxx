@@ -293,7 +293,7 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
                     //Creating SR TOB
                     uint32_t SRJet_tobword = formSmallRJetTOB(mphi_LM, meta_LM);
                     std::vector<uint32_t> SRtob_aux{SRJet_tobword,(uint32_t) m_jTowersIDs_Thin[mphi_LM][meta_LM]};
-                    m_SRJet_tobwords.push_back( SRtob_aux);
+                    if ( SRJet_tobword != 0 ) m_SRJet_tobwords.push_back( SRtob_aux);
                     
                     //Creating LR TOB
                     uint32_t LRJet_tobword = formLargeRJetTOB(mphi_LM, meta_LM);
@@ -312,9 +312,9 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
                     //calculates the 1st energy ring
                     m_jFEXtauAlgoTool->setFirstEtRing(TT_First_ETring);
                     
-                    uint32_t tobword = formTauTOB(mphi, meta);
-                    std::vector<uint32_t> TAUtob_aux{tobword,(uint32_t) m_jTowersIDs_Thin[mphi][meta]};
-                    m_tau_tobwords.push_back(TAUtob_aux); 
+                    uint32_t jTau_tobword = formTauTOB(mphi, meta);
+                    std::vector<uint32_t> TAUtob_aux{jTau_tobword,(uint32_t) m_jTowersIDs_Thin[mphi][meta]};
+                    if ( jTau_tobword != 0 ) m_tau_tobwords.push_back(TAUtob_aux); 
                 }                
             }
         }
@@ -431,9 +431,9 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
                     //calculates the 1st energy ring
                     m_jFEXtauAlgoTool->setFirstEtRing(TT_First_ETring);
                     
-                    uint32_t tobword = formTauTOB(mphi, meta);
-                    std::vector<uint32_t> TAUtob_aux{tobword,(uint32_t) jTowersIDs[mphi][meta]};
-                    m_tau_tobwords.push_back(TAUtob_aux); 
+                    uint32_t jTau_tobword = formTauTOB(mphi, meta);
+                    std::vector<uint32_t> TAUtob_aux{jTau_tobword,(uint32_t) jTowersIDs[mphi][meta]};
+                    if ( jTau_tobword != 0 ) m_tau_tobwords.push_back(TAUtob_aux); 
                 }
             }
         }

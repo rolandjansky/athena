@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
@@ -81,4 +81,13 @@ def TRTHTCondAlgCfg(flags, name="TRTHTCondAlg", **kwargs):
     acc.merge(addFoldersSplitOnline(flags, "TRT", "/TRT/Onl/Calib/PID_vector", "/TRT/Calib/PID_vector", className="CondAttrListVec"))
     kwargs.setdefault("HTWriteKey", "HTcalculator")
     acc.addCondAlgo(CompFactory.TRTHTCondAlg(name, **kwargs))
+    return acc
+
+
+def TRTPIDNNCondAlgCfg(flags, name="TRTPIDNNCondAlg", **kwargs):
+    """Return a ComponentAccumulator for TRTHTCondAlg algorithm"""
+    acc = ComponentAccumulator()
+    acc.merge(addFoldersSplitOnline(flags, "TRT", "/TRT/Onl/Calib/PID_NN", "/TRT/Calib/PID_NN", className="CondAttrListCollection"))
+    kwargs.setdefault("TRTPIDNNWriteKey", "TRTPIDNN")
+    acc.addCondAlgo(CompFactory.TRTPIDNNCondAlg(name, **kwargs))
     return acc

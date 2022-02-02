@@ -99,8 +99,9 @@ StatusCode TrigLArNoiseBurstAlg::execute( const EventContext& context ) const {
   // Get new output decision, child of previousDecision
   auto d = newDecisionIn (decisions, previousDecision, hypoAlgNodeName(), context );
     
+  unsigned int flag(0); // to get information outside
   // create summary struct
-  toolInput.emplace_back( d, roi, cellsHandle.cptr(), &bf, &MNBfeb, previousDecision );
+  toolInput.emplace_back( d, flag, roi, cellsHandle.cptr(), &bf, &MNBfeb, previousDecision );
   
   // link the cluster
   { 
@@ -153,7 +154,7 @@ StatusCode TrigLArNoiseBurstAlg::execute( const EventContext& context ) const {
         m_timeTagPosRec = thisTimeStamp ; // records to remember when things were cleared
       } // thisTimeStamp if check
 
-      m_IsObject->appendField(m_evntPos,std::vector<long>{0});
+      m_IsObject->appendField(m_evntPos,std::vector<long>{flag});
       m_IsObject->appendField(m_timeTagPos,std::vector<long>{(long int)thisTimeStamp});
       m_IsObject->appendField(m_timeTagPosns,std::vector<long>{(long int)thisTimeStampns});
       hltinterface::IInfoRegister::instance()->endEvent(event_tree);

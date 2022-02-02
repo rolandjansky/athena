@@ -6,7 +6,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 from JetRecConfig.StandardSmallRJets import AntiKt4EMPFlow, AntiKt4LCTopo, AntiKt4EMTopo, AntiKt4Truth
-from JetRecConfig.StandardLargeRJets import AntiKt10LCTopo
+from JetRecConfig.StandardLargeRJets import AntiKt10LCTopo_noVR
 from JetRecConfig.JetRecConfig import getJetDefAlgs, reOrderAlgs
 
 from JetRecConfig.StandardJetConstits import stdConstitDic
@@ -21,7 +21,7 @@ stdConstitDic.EMPFlow.inputname = stdConstitDic.EMPFlow.containername
 
 
 # the Standard list of jets to run :
-jetdefs = [AntiKt4EMTopo, AntiKt4EMPFlow  , AntiKt4LCTopo, AntiKt4Truth , AntiKt10LCTopo]
+jetdefs = [AntiKt4EMTopo, AntiKt4EMPFlow, AntiKt4LCTopo, AntiKt4Truth, AntiKt10LCTopo_noVR]
 
 # we'll remember the EventDensity collections we create.
 evtDensities = []

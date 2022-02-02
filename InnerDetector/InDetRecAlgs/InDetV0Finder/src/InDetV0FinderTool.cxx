@@ -39,7 +39,7 @@
 
 #include "HepPDT/ParticleDataTable.hh"
 #include "xAODTracking/VertexContainer.h"
-
+#include "EventKernel/PdtPdg.h"
 #include "StoreGate/WriteDecorHandle.h"
 
 #include <vector>

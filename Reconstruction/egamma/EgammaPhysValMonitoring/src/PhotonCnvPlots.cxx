@@ -44,7 +44,7 @@ void PhotonCnvPlots::initializePlots(){
   void PhotonCnvPlots::fill(const xAOD::Photon& photon, const xAOD::EventInfo& eventInfo, bool isPrompt) const{
  
     float weight = 1.;
-    weight = !eventInfo.beamSpotWeight() ? eventInfo.beamSpotWeight() : 1.;
+    weight = eventInfo.beamSpotWeight();
 
    if(!xAOD::EgammaHelpers::isConvertedPhoton(&photon)) return;
    m_oKinAllPlots.fill(photon,eventInfo);

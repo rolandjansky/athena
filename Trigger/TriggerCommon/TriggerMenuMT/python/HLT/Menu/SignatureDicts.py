@@ -395,7 +395,7 @@ MuonChainParts_Default = {
 #==========================================================
 AllowedTopos_Bphysics = [
     'bJpsimumu','bJpsi','bJpsimutrk','bUpsimumu','bUpsi','bBmumu','bDimu','bDimu2700','bDimu6000','bPhi','bTau','b3mu',
-    'bBmumux','b0dRAB12vtx20', 'b0dRAB127invmAB22vtx20', 'b0dRAB207invmAB22vtx20',
+    'bBmumux','b0dRAB12vtx20', 'b0dRAB127invmAB22vtx20', 'b0dRAB207invmAB22vtx20', 'b7invmAB22vtx20', 
     
     ##### TO BE REMOVED ONCE IMPLEMENTED IN SIGNATURE CODE
     # topoVariants
@@ -458,8 +458,8 @@ TauChainParts_Default = {
     'L1threshold'   : '',
     'chainPartName' : '',
     'threshold'     : '20',
-    'preselection'  : 'tracktwoMVA',
-    'selection'     : 'mediumRNN',
+    'preselection'  : '',
+    'selection'     : '',
     'multiplicity'  :  '',
     'trigType'      : ['tau'],
     'trkInfo'       : [],

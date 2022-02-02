@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBECLArRawChannelBuilder.h"
@@ -246,8 +246,8 @@ StatusCode TBECLArRawChannelBuilder::execute()
 
   //retrieve TDC
   if (m_useTDC) { //All this timing business is only necessary if the readout and the beam are not in phase (Testbeam)
-    const TBPhase* theTBPhase;
-    const ILArGlobalTimeOffset* larGlobalTimeOffset;
+    const TBPhase* theTBPhase = nullptr;
+    const ILArGlobalTimeOffset* larGlobalTimeOffset = nullptr;
     ATH_CHECK( evtStore()->retrieve(theTBPhase,"TBPhase") );
     //Get Phase in nanoseconds
     PhaseTime = theTBPhase->getPhase();

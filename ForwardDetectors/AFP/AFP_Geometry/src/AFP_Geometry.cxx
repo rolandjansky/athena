@@ -145,17 +145,17 @@ HepGeom::Transform3D AFP_Geometry::getSIDTransform(const eSIDTransformType eType
     AFP_SIDCONFIGURATION sidcfg=m_CfgParams.sidcfg.at(eStation);
     double falpha = sidcfg.fSlope;
 	
-	double fxm=-(sidcfg.vecChipXPos[nPlateID]+0.5*sidcfg.vecChipXLength[nPlateID])*std::cos(falpha); double fzm=0.0;
-    double fZCorrOffset=(DETXSIDE==+1 || falpha==0)? -0:4*AfpConstants.SiT_CorrZOffset;
-	
-    HepGeom::Transform3D TransInMotherVolume=getStationElementTransform(pszStationName,ESE_SID,nPlateID);
-    HepGeom::Transform3D NominalPosInPocket=HepGeom::Translate3D(0.0*CLHEP::mm,0.0*CLHEP::mm, (fzm-fZCorrOffset));
-
+    double fzm=0.0;
 
     if(eType==ESTT_VACUUMSENSOR)
     {
         if(nPlateID<AfpConstants.Stat_GlobalVacuumSensorID)
         {
+            double fxm=-(sidcfg.vecChipXPos[nPlateID]+0.5*sidcfg.vecChipXLength[nPlateID])*std::cos(falpha); 
+            double fZCorrOffset=(DETXSIDE==+1 || falpha==0)? -0:4*AfpConstants.SiT_CorrZOffset;
+            HepGeom::Transform3D TransInMotherVolume=getStationElementTransform(pszStationName,ESE_SID,nPlateID);
+            HepGeom::Transform3D NominalPosInPocket=HepGeom::Translate3D(0.0*CLHEP::mm,0.0*CLHEP::mm, (fzm-fZCorrOffset));
+    
             ReqTransform=HepGeom::Translate3D(0.5*AfpConstants.SiT_Plate_Main_length_x-0.5*AfpConstants.SiT_Chip_length_x, 0.0*CLHEP::mm, -0.5*AfpConstants.SiT_Plate_Main_thickness-0.5*AfpConstants.Stat_GlobalVacuumSensorThickness);
             ReqTransform=TransInMotherVolume*NominalPosInPocket*HepGeom::Translate3D(fxm, 0.0*CLHEP::mm, nPlateID*sidcfg.fLayerSpacing/std::cos(falpha))*HepGeom::RotateY3D(falpha)*ReqTransform;
         }
@@ -172,7 +172,11 @@ HepGeom::Transform3D AFP_Geometry::getSIDTransform(const eSIDTransformType eType
         
         return ReqTransform;
     }
-
+    
+    double fxm=-(sidcfg.vecChipXPos[nPlateID]+0.5*sidcfg.vecChipXLength[nPlateID])*std::cos(falpha); 
+    double fZCorrOffset=(DETXSIDE==+1 || falpha==0)? -0:4*AfpConstants.SiT_CorrZOffset;
+    HepGeom::Transform3D TransInMotherVolume=getStationElementTransform(pszStationName,ESE_SID,nPlateID);
+    HepGeom::Transform3D NominalPosInPocket=HepGeom::Translate3D(0.0*CLHEP::mm,0.0*CLHEP::mm, (fzm-fZCorrOffset));
 
     HepGeom::Transform3D TransMotherInWorld=getStationTransform(pszStationName);    
 

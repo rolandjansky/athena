@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTrackingGeometry/MuonStationBuilderCond.h"
@@ -699,7 +699,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilderC
                                     new Trk::DetachedTrackingVolume(name, csc_station, layerRepr.first, layerRepr.second);
                                 stations.push_back(typeStat);
                             } else {
-                                std::vector<const Trk::TrackingVolume*> tgc_stations =
+                                std::vector<Trk::TrackingVolume*> tgc_stations =
                                     m_muonStationTypeBuilder->processTgcStation(cv, cache);
                                 for (unsigned int i = 0; i < tgc_stations.size(); i++) {
                                     // create layer representation
@@ -741,7 +741,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilderC
                             halfZ = trd->getZHalfLength();
 
                             // define enveloping volume
-                            const Trk::TrackingVolumeArray* confinedVolumes = nullptr;
+                            Trk::TrackingVolumeArray* confinedVolumes = nullptr;
                             Trk::Volume* envelope = nullptr;
                             std::string shape = "Trd";
                             if (halfX1 == halfX2 && halfY1 == halfY2) shape = "Box";
@@ -817,7 +817,7 @@ void Muon::MuonStationBuilderCond::glueComponents(const Trk::DetachedTrackingVol
     const Trk::TrackingVolumeArray* volArray = stat->trackingVolume()->confinedVolumes();
     if (volArray) {
         if (volArray->arrayObjectsNumber() > 1) {
-            const std::vector<const Trk::TrackingVolume*>& components = volArray->arrayObjects();
+            Trk::BinnedArraySpan<Trk::TrackingVolume const * const> components = volArray->arrayObjects();
             const Trk::BinUtility* binUtilityX = volArray->binUtility();
             const Trk::CuboidVolumeBounds* cubVolBounds = dynamic_cast<const Trk::CuboidVolumeBounds*>(&(components[0]->volumeBounds()));
 
@@ -924,7 +924,7 @@ void Muon::MuonStationBuilderCond::identifyLayers(const Trk::DetachedTrackingVol
             const Trk::TrackingVolume* assocVol = station->trackingVolume()->associatedSubVolume(gp);
             if (!assocVol) ATH_MSG_DEBUG("wrong tgcROE?" << stationName << "," << etaSt << "," << phiSt);
             if (assocVol && assocVol->confinedLayers()) {
-                const std::vector<const Trk::Layer*> layers = assocVol->confinedLayers()->arrayObjects();
+                Trk::BinnedArraySpan<Trk::Layer const * const> layers = assocVol->confinedLayers()->arrayObjects();
                 for (unsigned int il = 0; il < layers.size(); il++) {
                     wireId = m_idHelperSvc->tgcIdHelper().channelID(stationName.substr(0, 3), etaSt, phiSt, il + 1, 0, 1, true, validId);
                     if (!(*validId))
@@ -956,10 +956,10 @@ void Muon::MuonStationBuilderCond::identifyLayers(const Trk::DetachedTrackingVol
 
         int nameIndex = m_idHelperSvc->mdtIdHelper().stationNameIndex(stationName.substr(0, 3));
         if (station->trackingVolume()->confinedVolumes()) {
-            const std::vector<const Trk::TrackingVolume*> cVols = station->trackingVolume()->confinedVolumes()->arrayObjects();
+            Trk::BinnedArraySpan<Trk::TrackingVolume const * const> cVols = station->trackingVolume()->confinedVolumes()->arrayObjects();
             for (unsigned int i = 0; i < cVols.size(); i++) {
                 if (cVols[i]->confinedLayers()) {
-                    const std::vector<const Trk::Layer*> cLays = cVols[i]->confinedLayers()->arrayObjects();
+                    Trk::BinnedArraySpan<Trk::Layer const * const> cLays = cVols[i]->confinedLayers()->arrayObjects();
                     const MuonGM::MdtReadoutElement* mdtROE = nullptr;
                     for (unsigned int il = 0; il < cLays.size(); il++) {
                         Identifier id(cLays[il]->layerType());
@@ -1010,10 +1010,10 @@ void Muon::MuonStationBuilderCond::identifyLayers(const Trk::DetachedTrackingVol
 
     // by now, all the layers should be identified - verify
     if (station->trackingVolume()->confinedVolumes()) {
-        const std::vector<const Trk::TrackingVolume*> cVols = station->trackingVolume()->confinedVolumes()->arrayObjects();
+        Trk::BinnedArraySpan<Trk::TrackingVolume const * const> cVols = station->trackingVolume()->confinedVolumes()->arrayObjects();
         for (unsigned int i = 0; i < cVols.size(); i++) {
             if (cVols[i]->confinedLayers()) {
-                const std::vector<const Trk::Layer*> cLays = cVols[i]->confinedLayers()->arrayObjects();
+                Trk::BinnedArraySpan<Trk::Layer const * const> cLays = cVols[i]->confinedLayers()->arrayObjects();
                 for (unsigned int il = 0; il < cLays.size(); il++) {
                     Identifier id(cLays[il]->layerType());
                     if (id == 1) ATH_MSG_DEBUG(station->name() << "," << cVols[i]->volumeName() << ", unidentified active layer:" << il);
@@ -1029,7 +1029,7 @@ void Muon::MuonStationBuilderCond::identifyLayers(const Trk::DetachedTrackingVol
         }
     }
     if (station->trackingVolume()->confinedLayers()) {
-        const std::vector<const Trk::Layer*> cLays = station->trackingVolume()->confinedLayers()->arrayObjects();
+        Trk::BinnedArraySpan<Trk::Layer const * const> cLays = station->trackingVolume()->confinedLayers()->arrayObjects();
         for (unsigned int il = 0; il < cLays.size(); il++) {
             Identifier id(cLays[il]->layerType());
             if (id == 1) ATH_MSG_DEBUG(station->name() << "," << station->name() << ", unidentified active layer:" << il);
@@ -1078,9 +1078,9 @@ void Muon::MuonStationBuilderCond::identifyPrototype(const Trk::TrackingVolume* 
         }
 
         // RPC ?
-        const Trk::BinnedArray<Trk::TrackingVolume>* confinedVolumes = station->confinedVolumes();
+        const Trk::BinnedArray<const Trk::TrackingVolume>* confinedVolumes = station->confinedVolumes();
         if (confinedVolumes) {
-            const std::vector<const Trk::TrackingVolume*>& vols = confinedVolumes->arrayObjects();
+            Trk::BinnedArraySpan<Trk::TrackingVolume const * const> vols = confinedVolumes->arrayObjects();
             for (unsigned int iv = 0; iv < vols.size(); iv++)
                 if (m_idHelperSvc->hasRPC() && vols[iv]->volumeName() == "RPC") {
                     // for active layers do a search of associated ROE
@@ -1162,10 +1162,10 @@ void Muon::MuonStationBuilderCond::identifyPrototype(const Trk::TrackingVolume* 
 
     // by now, all the layers should be identified - verify
     if (station->confinedVolumes()) {
-        const std::vector<const Trk::TrackingVolume*> cVols = station->confinedVolumes()->arrayObjects();
+        Trk::BinnedArraySpan<Trk::TrackingVolume const * const> cVols = station->confinedVolumes()->arrayObjects();
         for (unsigned int i = 0; i < cVols.size(); i++) {
             if (cVols[i]->confinedLayers()) {
-                const std::vector<const Trk::Layer*> cLays = cVols[i]->confinedLayers()->arrayObjects();
+                Trk::BinnedArraySpan<Trk::Layer const * const> cLays = cVols[i]->confinedLayers()->arrayObjects();
                 for (unsigned int il = 0; il < cLays.size(); il++) {
                     Identifier id(cLays[il]->layerType());
                     if (id == 1)
@@ -1183,7 +1183,7 @@ void Muon::MuonStationBuilderCond::identifyPrototype(const Trk::TrackingVolume* 
         }
     }
     if (station->confinedLayers()) {
-        const std::vector<const Trk::Layer*> cLays = station->confinedLayers()->arrayObjects();
+        Trk::BinnedArraySpan<Trk::Layer const * const> cLays = station->confinedLayers()->arrayObjects();
         for (unsigned int il = 0; il < cLays.size(); il++) {
             Identifier id(cLays[il]->layerType());
             if (id == 1) ATH_MSG_DEBUG(station->volumeName() << "," << station->volumeName() << ", unidentified active layer:" << il);

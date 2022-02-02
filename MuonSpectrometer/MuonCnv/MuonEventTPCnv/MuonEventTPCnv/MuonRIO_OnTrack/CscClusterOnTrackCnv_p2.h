@@ -34,9 +34,7 @@ class CscClusterOnTrackCnv_p2
                                         Muon::CscClusterOnTrack_p2 >
 {
 public:
-    CscClusterOnTrackCnv_p2() : m_eventCnvTool("Trk::EventCnvSuperTool/EventCnvSuperTool"), 
-                                    m_localParCnv(0), m_errorMxCnv(0) {}
-
+    CscClusterOnTrackCnv_p2() = default;
     void persToTrans(   const Muon :: CscClusterOnTrack_p2  *persObj,
                         Muon :: CscClusterOnTrack           *transObj,
                         MsgStream                           &log );
@@ -46,9 +44,9 @@ public:
 
 protected:
     ElementLinkCnv_p3< ElementLinkToIDC_CSC_Container >     m_elCnv;
-    ToolHandle  < Trk::IEventCnvSuperTool >   m_eventCnvTool ; 
-    LocalParametersCnv_p1     *               m_localParCnv;
-    ErrorMatrixCnv_p1         *               m_errorMxCnv;     
+    ToolHandle  < Trk::IEventCnvSuperTool >   m_eventCnvTool{"Trk::EventCnvSuperTool/EventCnvSuperTool"}; 
+    LocalParametersCnv_p1     *               m_localParCnv{nullptr};
+    ErrorMatrixCnv_p1         *               m_errorMxCnv{nullptr};  
 };
 
 #endif // CSC_CLUSTER_ON_TRACK_CNV_P1_H

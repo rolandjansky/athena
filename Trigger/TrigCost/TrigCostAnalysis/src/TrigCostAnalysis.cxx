@@ -85,8 +85,9 @@ StatusCode TrigCostAnalysis::start() {
       // Data stored in Gaudi format of "AlgClassType/AlgInstanceName"
       size_t breakPoint = alg.second.data().find('/');
       std::string algType = alg.second.data().substr(0, breakPoint);
-      const std::string algName = alg.second.data().substr(breakPoint+1, alg.second.data().size());
+      std::string algName = alg.second.data().substr(breakPoint+1, alg.second.data().size());
       std::replace(algType.begin(), algType.end(), ':', '_');
+      std::replace(algName.begin(), algName.end(), ':', '_');
       m_algTypeMap[ TrigConf::HLTUtils::string2hash(algName, "ALG") ] = algType;
       ATH_MSG_VERBOSE("AlgType:" << algType << ", AlgName:" << algName );
       if (algType.find("EventViewCreatorAlgorithm") != std::string::npos) {

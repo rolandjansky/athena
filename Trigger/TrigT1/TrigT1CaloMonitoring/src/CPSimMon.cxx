@@ -1947,11 +1947,12 @@ void CPSimMon::simulate(const CpmTowerMap *towers, const CpmTowerMap *towersOv,
       continue;
     crateMaps[crate].insert(std::make_pair(iter.first, tt));
   }
+  const TrigConf::L1Menu* l1menu = nullptr;
   for (int crate = 0; crate < s_crates; ++crate) {
     xAOD::CPMTobRoIContainer *roiTemp =
         new xAOD::CPMTobRoIContainer(SG::VIEW_ELEMENTS);
 
-    m_cpmTool->findCPMTobRoIs(towers, roiTemp, 1);
+    m_cpmTool->findCPMTobRoIs(l1menu, towers, roiTemp, 1);
 
     xAOD::CPMTobRoIContainer::iterator roiIter = roiTemp->begin();
     xAOD::CPMTobRoIContainer::iterator roiIterE = roiTemp->end();
@@ -1973,7 +1974,8 @@ void CPSimMon::simulate(const CpmTowerMap *towers,
   if (m_debug)
     msg(MSG::DEBUG) << "Simulate CPM TOB RoIs from CPM Towers" << endmsg;
 
-  m_cpmTool->findCPMTobRoIs(towers, rois, 1);
+  const TrigConf::L1Menu* l1menu = nullptr;
+  m_cpmTool->findCPMTobRoIs(l1menu, towers, rois, 1);
 }
 
 // Simulate CMX-CP TOBs from CPM RoIs
@@ -1993,11 +1995,13 @@ void CPSimMon::simulate(const xAOD::CMXCPTobContainer *tobs,
   if (m_debug)
     msg(MSG::DEBUG) << "Simulate CMX Hit sums from CMX TOBs" << endmsg;
 
+  const TrigConf::L1Menu* l1menu = nullptr;
   if (selection == xAOD::CMXCPHits::LOCAL) {
-    m_cpCmxTool->formCMXCPHitsCrate(tobs, hits);
+    m_cpCmxTool->formCMXCPHitsCrate(l1menu, tobs, hits);
   } else if (selection == xAOD::CMXCPHits::TOPO_CHECKSUM) {
     m_cpCmxTool->formCMXCPHitsTopo(tobs, hits);
   }
+
 }
 
 // Simulate CMX Total Hit sums from Remote/Local

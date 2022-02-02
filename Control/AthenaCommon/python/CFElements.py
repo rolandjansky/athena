@@ -61,7 +61,12 @@ def compName(comp):
     return  comp.name() if callable(comp.name) else comp.name
 
 def getSequenceChildren(comp):
-    return  comp.getChildren() if hasattr(comp, "getChildren") and callable(comp.getChildren) else comp.Members
+    if hasattr(comp, "getChildren") and callable(comp.getChildren):
+        return comp.getChildren()
+    elif hasattr(comp, "Members"):
+        return comp.Members
+    else:
+        return []
 
 
 def getAllSequenceNames(seq, depth=0):
@@ -96,6 +101,8 @@ def checkSequenceConsistency( seq ):
                 __noSubSequenceOfName( c, n, seen )
 
     __noSubSequenceOfName( seq, compName(seq) )
+    for c in getSequenceChildren( seq ):
+        checkSequenceConsistency(c)
 
 
 

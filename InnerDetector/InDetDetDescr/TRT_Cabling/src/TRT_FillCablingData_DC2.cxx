@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -341,10 +341,10 @@ void TRT_FillCablingData_DC2::defineTables()
       for (straw = 0; straw < m_numberOfStrawsInROD; ++straw)
       {
         Id = defineIdentifier(det_id, phi * 2 + i, straw);
-        m_cabling->set_identfierForAllStraws(Id);	
+        m_cabling->set_identifierForAllStraws(Id);	
 	IdLayer = m_id_trt->layer_id(Id);
 	if ( !m_id_trt->get_hash(IdLayer, hashId, &m_cntx) )
-	   m_cabling->set_identfierHashForAllStraws(hashId);
+	   m_cabling->set_identifierHashForAllStraws(hashId);
 	else
 	   ATH_MSG_DEBUG( "defineTables: unable to get hash for IdLayer " << m_id_trt->show_to_string(IdLayer) );
 
@@ -358,10 +358,10 @@ void TRT_FillCablingData_DC2::defineTables()
     for (straw = 0; straw < m_numberOfStrawsInBarrelROD; ++straw)
     {
       Id = defineIdentifier(det_id, phi, straw);
-      m_cabling->set_identfierForAllStraws(Id);
+      m_cabling->set_identifierForAllStraws(Id);
       IdLayer = m_id_trt->layer_id(Id);
       if ( !m_id_trt->get_hash(IdLayer, hashId, &m_cntx) )
-	 m_cabling->set_identfierHashForAllStraws(hashId);
+	 m_cabling->set_identifierHashForAllStraws(hashId);
       else
 	 ATH_MSG_DEBUG( "defineTables: unable to get hash for IdLayer " << m_id_trt->show_to_string(IdLayer) );
     }
@@ -373,10 +373,10 @@ void TRT_FillCablingData_DC2::defineTables()
     for (straw = 0; straw < m_numberOfStrawsInBarrelROD; ++straw)
     {
       Id = defineIdentifier(det_id, phi, straw);
-      m_cabling->set_identfierForAllStraws(Id); 
+      m_cabling->set_identifierForAllStraws(Id); 
       IdLayer = m_id_trt->layer_id(Id);
       if ( !m_id_trt->get_hash(IdLayer, hashId, &m_cntx) )
-	 m_cabling->set_identfierHashForAllStraws(hashId);
+	 m_cabling->set_identifierHashForAllStraws(hashId);
       else
 	 ATH_MSG_DEBUG( "defineTables: unable to get hash for IdLayer " << m_id_trt->show_to_string(IdLayer) );
     }     
@@ -390,10 +390,10 @@ void TRT_FillCablingData_DC2::defineTables()
       for (straw = 0; straw < m_numberOfStrawsInROD; ++straw)
       {
         Id = defineIdentifier(det_id, phi * 2 + i, straw);
-        m_cabling->set_identfierForAllStraws(Id);
+        m_cabling->set_identifierForAllStraws(Id);
 	IdLayer = m_id_trt->layer_id(Id);
         if ( !m_id_trt->get_hash(IdLayer, hashId, &m_cntx) )
-	   m_cabling->set_identfierHashForAllStraws(hashId);
+	   m_cabling->set_identifierHashForAllStraws(hashId);
 	else
 	   ATH_MSG_DEBUG( "defineTables: unable to get hash for IdLayer " << m_id_trt->show_to_string(IdLayer) );
       }	

@@ -3,6 +3,7 @@
 */
 // Local includes
 #include "L1DataConsistencyChecker.h"
+#include "HLTSeedingRoIToolDefs.h"
 // Trigger includes
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigConfData/L1Item.h"
@@ -80,6 +81,7 @@ StatusCode L1DataConsistencyChecker::consistencyCheck(const HLT::IDVec& l1Seeded
   // ---------------------------------------------------------------------------
   // Get information from TOBs
   // ---------------------------------------------------------------------------
+  std::ostringstream ssPassedThresholds; // ss for debug printouts, allocate before loop
   std::unordered_map<TrigCompositeUtils::DecisionID, size_t> tobThresholdCounts; // {thrName hash, nTOBs passing thr}
   // Loop over threshold types
   for (const auto& [thrType, decisionsKey] : m_thresholdToDecisionMap.value()) {
@@ -88,6 +90,7 @@ StatusCode L1DataConsistencyChecker::consistencyCheck(const HLT::IDVec& l1Seeded
       ATH_MSG_DEBUG("No DecisionContainer " << decisionsKey << " for threshold type " << thrType << " found in this event");
       continue;
     }
+    size_t idec{0}; /// Counter for debug printouts
     // Loop over TOBs of the given threshold type (one decision = one TOB)
     for (const TrigCompositeUtils::Decision* d : *decisions) {
       std::vector<TrigCompositeUtils::DecisionID> passedThresholdIDs;
@@ -96,6 +99,7 @@ StatusCode L1DataConsistencyChecker::consistencyCheck(const HLT::IDVec& l1Seeded
         ATH_MSG_ERROR("Detail \"thresholds\" missing from Decision in the container " << decisionsKey);
         return StatusCode::FAILURE;
       }
+      if (doDebug()) {ssPassedThresholds.str("");}
       for (const TrigCompositeUtils::DecisionID thrNameHash : passedThresholdIDs) {
         if (tobThresholdCounts.find(thrNameHash)==tobThresholdCounts.end()) {
           tobThresholdCounts[thrNameHash] = 1;
@@ -103,6 +107,26 @@ StatusCode L1DataConsistencyChecker::consistencyCheck(const HLT::IDVec& l1Seeded
         else {
           tobThresholdCounts[thrNameHash] += 1;
         }
+        if (doDebug()) {
+          if (!ssPassedThresholds.str().empty()) ssPassedThresholds << ", ";
+          ssPassedThresholds << m_thresholdNames.at(thrNameHash);
+        }
+      }
+      if (doDebug()) {
+        namespace RoIDefs = HLTSeedingRoIToolDefs;
+        std::optional<RoIDefs::AnyRoIPointer> optTob = RoIDefs::roiFromLink(*d, TrigCompositeUtils::initialRecRoIString());
+        if (optTob.has_value()) {
+          const RoIDefs::AnyRoIPointer& tob = optTob.value();
+          ATH_MSG_DEBUG("Decision " << decisionsKey << "[" << idec << "] corresponds to TOB with word / et / eta / phi = 0x"
+                        << MSG::hex << RoIDefs::roiWord(tob) << MSG::dec << " / " << RoIDefs::roiTobEt(tob)
+                        << " / " << RoIDefs::roiEta(tob) << " / " << RoIDefs::roiPhi(tob));
+        } else {
+          ATH_MSG_DEBUG("Decision " << decisionsKey << "[" << idec << "] TOB type not supported by template code for "
+                        << "debug printout of word / et / eta / phi");
+        }
+        ATH_MSG_DEBUG("Decision " << decisionsKey << "[" << idec << "] TOB passes " << passedThresholdIDs.size()
+                      << " thresholds: " << ssPassedThresholds.str());
+        ++idec;
       }
     }
   }

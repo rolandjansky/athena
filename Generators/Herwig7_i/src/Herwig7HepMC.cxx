@@ -10,9 +10,6 @@
  */
 
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
 #include "ThePEG/EventRecord/Event.h"
 #include "ThePEG/EventRecord/SubProcess.h"
 #include "ThePEG/Handlers/XComb.h"

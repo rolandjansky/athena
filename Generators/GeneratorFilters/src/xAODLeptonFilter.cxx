@@ -4,7 +4,6 @@
 
 #include "GeneratorFilters/xAODLeptonFilter.h"
 #include <cmath>
-#include "EventInfo/EventStreamInfo.h"
 
 
 xAODLeptonFilter::xAODLeptonFilter(const std::string& name, ISvcLocator* pSvcLocator)

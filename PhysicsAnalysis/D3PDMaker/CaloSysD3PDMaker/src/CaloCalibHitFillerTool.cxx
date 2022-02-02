@@ -55,7 +55,7 @@ CaloCalibHitFillerTool::CaloCalibHitFillerTool
   declareProperty("SaveTotalEnergy",m_savetoten); 
   declareProperty("SaveVisibleEnergy",m_savevisen); 
   declareProperty("SaveAllEnergies",m_saveallen); 
-  book().ignore();
+  CaloCalibHitFillerTool::book().ignore();
 }
 
 

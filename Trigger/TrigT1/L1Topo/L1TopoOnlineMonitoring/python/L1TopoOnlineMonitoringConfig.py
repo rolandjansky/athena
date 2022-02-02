@@ -6,7 +6,8 @@ from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
 from AthenaConfiguration.Enums import Format
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulationOldStyleCfg, RoiB2TopoInputDataCnv
-from TrigConfigSvc.TriggerConfigAccess import getL1MenuAccess
+from TrigConfIO.L1TriggerConfigAccess import L1MenuAccess
+from TrigConfigSvc.TrigConfigSvcCfg   import getL1MenuFileName
 from libpyeformat_helper import SourceIdentifier, SubDetector
 
 def getL1TopoOnlineMonitorHypo(flags):
@@ -113,19 +114,29 @@ def configureLegacyHistograms(alg, flags):
                                 xmin=0, xmax=len(input_link_crc_labels))
     # ==========================================================================
     topo_trigline_labels = [str(i) for i in range(128)]
-    l1menu = getL1MenuAccess(flags)
+    lvl1name = getL1MenuFileName(flags)
+    lvl1access  = L1MenuAccess(lvl1name)
     connectors = {0: 'LegacyTopo0', 1: 'LegacyTopo1'}
     for connector_id, connectorKey in connectors.items():
-        topo_triglines_dict = l1menu.connector(connectorKey)['triggerlines']
-        for fpga_id in [0,1]:
-            topo_fpga = topo_triglines_dict['fpga{:d}'.format(fpga_id)]
-            for clock_id in [0,1]:
-                topo_clock = topo_fpga['clock{:d}'.format(clock_id)]
-                for topo_trigline in topo_clock:
-                    topo_trigline_name = topo_trigline['name']
-                    bit_id = topo_trigline['startbit']
-                    topo_trigline_index = 64*connector_id + 32*fpga_id + 2*bit_id + clock_id
-                    topo_trigline_labels[topo_trigline_index] = topo_trigline_name
+        topo_triglines_dict = lvl1access.connector(connectorKey)['triggerlines']
+        if not isinstance(topo_triglines_dict, list):
+            for fpga_id in [0,1]:
+                topo_fpga = topo_triglines_dict['fpga{:d}'.format(fpga_id)]
+                for clock_id in [0,1]:
+                    topo_clock = topo_fpga['clock{:d}'.format(clock_id)]
+                    for topo_trigline in topo_clock:
+                        topo_trigline_name = topo_trigline['name']
+                        bit_id = topo_trigline['startbit']
+                        topo_trigline_index = 64*connector_id + 32*fpga_id + 2*bit_id + clock_id
+                        topo_trigline_labels[topo_trigline_index] = topo_trigline_name
+        else:
+            for topo_trigline in topo_triglines_dict:
+                topo_trigline_name = topo_trigline['name']
+                bit_id = topo_trigline['startbit']
+                fpga_id = topo_trigline['fpga']
+                clock_id = topo_trigline['clock']
+                topo_trigline_index = 64*connector_id + 32*fpga_id + 2*bit_id + clock_id
+                topo_trigline_labels[topo_trigline_index] = topo_trigline_name
 
     def defineBitsHistogram(var, title):
         alg.MonTool.defineHistogram(var, path='EXPERT', type='TH1F', title=title+';;Entries',

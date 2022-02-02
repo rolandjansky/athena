@@ -1,0 +1,13 @@
+ --------- MEASUREMENT BASE ------------
+Identifier = 0x20024480ea00000
+Local Position = 0.1
+0.5
+Local Covariance = 0.012     0
+    0 0.012
+ ----------PIXEL CLUSTER INFO -----------
+Global Position = 10
+10
+10
+RDOs = [0x200921680c00000, 0x298094737200000, 0x24e105292800000, 0x298094737200000, 0xaa1cdd0d200000, 0x200921680c00000]
+ToTs = [1, 2, 3, 4, 5, 6] with total ToT = 21
+Dimensions = 3, 2

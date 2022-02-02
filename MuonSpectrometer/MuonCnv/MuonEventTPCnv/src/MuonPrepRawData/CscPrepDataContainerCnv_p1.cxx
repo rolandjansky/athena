@@ -60,16 +60,19 @@ StatusCode Muon::CscPrepDataContainerCnv_p1::initialize(MsgStream &log) {
         if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the CSC ID helper." << endmsg;
     }
 
-    sc = detStore->retrieve(m_muonDetMgr);
-    if (sc.isFailure()) {
-        log << MSG::FATAL << "Could not get PixelDetectorDescription" << endmsg;
-        return sc;
+    if (m_eventCnvTool.retrieve().isFailure()) {
+         log << MSG::FATAL << "Could not get DetectorDescription manager" << endmsg;
+            return StatusCode::FAILURE;
     }
 
     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
     return StatusCode::SUCCESS;
 }
-
+const MuonGM::CscReadoutElement* Muon::CscPrepDataContainerCnv_p1::getReadOutElement(const Identifier& id ) const {
+    const Trk::ITrkEventCnvTool* cnv_tool = m_eventCnvTool->getCnvTool(id);
+    if (!cnv_tool) return nullptr; 
+    return dynamic_cast<const MuonGM::CscReadoutElement*>(cnv_tool->getDetectorElement(id));
+}
 void Muon::CscPrepDataContainerCnv_p1::transToPers(const Muon::CscPrepDataContainer* transCont,  Muon::MuonPRD_Container_p1* persCont, MsgStream &log) 
 {
 
@@ -94,21 +97,12 @@ void Muon::CscPrepDataContainerCnv_p1::transToPers(const Muon::CscPrepDataContai
     CscPrepDataCnv_p1  chanCnv;
     TRANS::const_iterator it_Coll     = transCont->begin();
     TRANS::const_iterator it_CollEnd  = transCont->end();
-    unsigned int collIndex;
+    unsigned int collIndex = 0;
     unsigned int chanBegin = 0;
     unsigned int chanEnd = 0;
     int numColl = transCont->numberOfCollections();
     
-    // FIXME FIXME FIXME
-    // Is this check still needed?
-    // Ed
-    
-    // if(numColl == transCont->hashFunc().max() ) { // let's count how many collections we have:
-    //  numColl = 0;
-    //  for ( ; it_Coll != it_CollEnd; it_Coll++)
-    //     numColl++;
-    //  it_Coll     = transCont->begin(); // reset the iterator, we used it!
-    // }
+   
     persCont->m_collections.resize(numColl);    
     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Preparing " << persCont->m_collections.size() << "Collections" << endmsg;
 
@@ -175,7 +169,7 @@ void  Muon::CscPrepDataContainerCnv_p1::persToTrans(const Muon::MuonPRD_Containe
                log << MSG::ERROR << "AthenaPoolTPCnvIDCont::persToTrans: Cannot get CscPrepData!" << endmsg;
                continue;
             }
-            const MuonGM::CscReadoutElement * de = m_muonDetMgr->getCscReadoutElement(chan->identify());
+            const MuonGM::CscReadoutElement * de = getReadOutElement(chan->identify());
             chan->m_detEl = de;
             (*coll)[ichan] = chan;
         }

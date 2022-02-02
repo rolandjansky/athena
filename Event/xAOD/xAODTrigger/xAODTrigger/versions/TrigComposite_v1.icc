@@ -211,7 +211,7 @@ namespace xAOD {
   template< class CONTAINER >
   bool
   TrigComposite_v1::addObjectCollectionLinks( const std::string& collectionName,
-                                              const ElementLinkVector< CONTAINER >& links ) {
+                                              const std::vector<ElementLink< CONTAINER >>& links ) {
     // Add all links
     for (const ElementLink< CONTAINER >& link : links ) {
       addObjectCollectionLink( collectionName, link );
@@ -220,9 +220,9 @@ namespace xAOD {
   }
 
   template< class CONTAINER >
-  ElementLinkVector< CONTAINER >
+  std::vector<ElementLink< CONTAINER >>
   TrigComposite_v1::objectCollectionLinks( const std::string& collectionName ) const {
-    ElementLinkVector< CONTAINER > links;
+    std::vector<ElementLink< CONTAINER >> links;
     const std::string mangledName = collectionName + s_collectionSuffix;
 
     const std::vector< std::string >& names = linkColNames();

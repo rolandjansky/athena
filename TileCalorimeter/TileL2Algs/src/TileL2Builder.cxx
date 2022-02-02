@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -78,14 +78,14 @@ StatusCode TileL2Builder::initialize() {
   // Initialize
   this->m_hashFunc.initialize(m_tileHWID);
 
-  const TileID* tileID;
+  const TileID* tileID = nullptr;
   ATH_CHECK( detStore()->retrieve(tileID) );
 
-  const TileTBID* tileTBID;
+  const TileTBID* tileTBID = nullptr;
   ATH_CHECK( detStore()->retrieve(tileTBID) );
 
   // retrieve Tile detector manager and TileID helper from det store
-  const TileDetDescrManager* tileMgr;
+  const TileDetDescrManager* tileMgr = nullptr;
   ATH_CHECK( detStore()->retrieve(tileMgr) );
 
   ServiceHandle<TileCablingSvc> cablingSvc("TileCablingSvc", name());

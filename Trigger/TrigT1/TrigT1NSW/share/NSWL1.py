@@ -69,6 +69,7 @@ topSequence.NSWL1Simulation.PadTriggerTool.DoNtuple=True
 topSequence.NSWL1Simulation.StripTdsTool.DoNtuple=True
 topSequence.NSWL1Simulation.StripClusterTool.DoNtuple=False
 topSequence.NSWL1Simulation.StripSegmentTool.DoNtuple=False
+topSequence.NSWL1Simulation.MMTriggerTool.DoNtuple=True
 
 #useful for validation of geometry and offline analyses
 topSequence.NSWL1Simulation.PadTriggerLookupTool.DumpSectorGeometry=False
@@ -119,3 +120,4 @@ else:#to avoid any possible crash. If DoNtuple is set to true for a tool but fal
     topSequence.NSWL1Simulation.StripTdsTool.DoNtuple=False
     topSequence.NSWL1Simulation.StripClusterTool.DoNtuple=False
     topSequence.NSWL1Simulation.StripSegmentTool.DoNtuple=False
+    topSequence.NSWL1Simulation.MMTriggerTool.DoNtuple=False

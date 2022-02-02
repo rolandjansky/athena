@@ -6,6 +6,8 @@ def CpmSimMonitoringConfig(inputFlags):
 
     #import math 
     # get the component factory - used for getting the algorithms
+    from AthenaConfiguration.AutoConfigFlags import GetFileMD
+    from AthenaConfiguration.Enums import Format
     from AthenaConfiguration.ComponentFactory import CompFactory
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     result = ComponentAccumulator()
@@ -18,8 +20,29 @@ def CpmSimMonitoringConfig(inputFlags):
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'CpmSimMonitoringCfg')
 
+    # Use metadata to check Run3 compatible trigger info is available  
+    md = GetFileMD(inputFlags.Input.Files)
+    inputContainsRun3FormatConfigMetadata = ("metadata_items" in md and any(('TriggerMenuJson' in key) for key in md["metadata_items"].keys()))
+    if inputFlags.Input.Format is Format.POOL and not inputContainsRun3FormatConfigMetadata:
+        # No L1 menu available in the POOL file.
+        return helper.result()
+
     # get any algorithms
     CpmSimMonAlg = helper.addAlgorithm(CompFactory.CpmSimMonitorAlgorithm,'CpmSimMonAlg')
+
+    # configure the L1Menu depending on input type
+    if inputFlags.Trigger.Online.isPartition or inputFlags.Input.Format is Format.BS:
+        # For standalone monitoring use from RAW
+        CpmSimMonAlg.TrigConfigSvc = ""
+        from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
+        helper.result().merge(L1ConfigSvcCfg(inputFlags))
+    else:
+        # For monitoring ESD (or MC) 
+        from TrigConfxAOD.TrigConfxAODConfig import getxAODConfigSvc
+        ca = getxAODConfigSvc(inputFlags)
+        CpmSimMonAlg.TrigConfigSvc = ca.getPrimary()
+        helper.result().merge(ca)
+
 
     # add any steering
     groupName = 'CpmSimMonitor' # the monitoring group name is also used for the package name

@@ -30,7 +30,7 @@ class ESDEDMSet(JobProperty):
     allowedType=['list']
     StoredValue='ESD'
     def _do_action(self):
-        log.warning("TriggerFlags.ESDEDMSet is deprecated. Use ConfigFlags.Trigger.ESDEDMSet instead.")
+        log.error("TriggerFlags.ESDEDMSet is deprecated. Use ConfigFlags.Trigger.ESDEDMSet instead.")
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         ConfigFlags.Trigger.ESDEDMSet = self.get_Value()
 
@@ -43,7 +43,7 @@ class configForStartup(JobProperty):
     allowedType=['string']
     StoredValue = None
     def _do_action(self):
-        log.warning("TriggerFlags.configForStartup is deprecated. Remove it from your configuration.")
+        log.error("TriggerFlags.configForStartup is deprecated. Remove it from your configuration.")
 
 _flags.append(configForStartup)
 
@@ -54,7 +54,7 @@ class triggerConfig(JobProperty):
     StoredValue = None
 
     def _do_action(self):
-        log.warning("TriggerFlags.triggerConfig is deprecated. Use ConfigFlags.Trigger.triggerConfig instead.")
+        log.error("TriggerFlags.triggerConfig is deprecated. Use ConfigFlags.Trigger.triggerConfig instead.")
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         ConfigFlags.Trigger.triggerConfig = self.get_Value()
 

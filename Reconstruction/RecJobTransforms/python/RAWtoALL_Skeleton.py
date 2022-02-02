@@ -56,6 +56,9 @@ def fromRunArgs(runArgs):
         ConfigFlags.Output.AODFileName = runArgs.outputAODFile
         log.info("---------- Configured AOD output")
 
+    from AthenaConfiguration.Enums import ProductionStep
+    ConfigFlags.Common.ProductionStep=ProductionStep.Reconstruction
+
     # TODO: DESD, DAOD and DRAW
 
     # outputHIST_R2AFile

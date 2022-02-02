@@ -154,7 +154,7 @@ namespace TrigCompositeUtils {
     return d->hasObjectCollectionLinks( seedString() );
   }
 
-  const ElementLinkVector<DecisionContainer> getLinkToPrevious( const Decision* d ) {
+  const std::vector<ElementLink<DecisionContainer>> getLinkToPrevious( const Decision* d ) {
     return d->objectCollectionLinks<DecisionContainer>( seedString() );
   }
 
@@ -210,7 +210,7 @@ namespace TrigCompositeUtils {
     if ( filter( start ) ) return start;
 
     if ( hasLinkToPrevious(start) ) {
-      const ElementLinkVector<DecisionContainer> seeds = getLinkToPrevious(start);
+      const std::vector<ElementLink<DecisionContainer>> seeds = getLinkToPrevious(start);
       for (const ElementLink<DecisionContainer>& seedEL : seeds) {
         const Decision* result = find( *seedEL, filter );
         if (result) return result;
@@ -302,7 +302,7 @@ namespace TrigCompositeUtils {
           // TODO add logic for ComboHypo where this is expected
           continue; // Only want Decision objects created by HypoAlgs
         }
-        const ElementLinkVector<DecisionContainer> mySeeds = d->objectCollectionLinks<DecisionContainer>(seedString());
+        const std::vector<ElementLink<DecisionContainer>> mySeeds = d->objectCollectionLinks<DecisionContainer>(seedString());
         if (mySeeds.size() == 0) {
           continue;
         }
@@ -757,7 +757,7 @@ namespace TrigCompositeUtils {
     std::string ret; 
     ret += printerFnc( tc );
     if ( hasLinkToPrevious(tc) ) {
-      const ElementLinkVector<DecisionContainer> seeds = getLinkToPrevious(tc);
+      const std::vector<ElementLink<DecisionContainer>> seeds = getLinkToPrevious(tc);
       for (const ElementLink<DecisionContainer>& seedEL : seeds) {
         ret += " -> " + dump( *seedEL, printerFnc );
       }
