@@ -6,31 +6,31 @@
 #define JETCALIBTOOLS_JETSMEARINGCORRECTION_H
 
 
-#include "JetCalibTools/JetCalibrationStep.h"
+#include "JetCalibTools/JetCalibrationToolBase.h"
 
 #include <memory>
 #include <vector>
 
 #include "TRandom3.h"
-#include "TEnv.h"
-#include "TH1.h"
-#include "TH2.h"
-#include "TFile.h"
 
 class JetSmearingCorrection
-    : virtual public JetCalibrationStep
+    : virtual public JetCalibrationToolBase
 {
 
+    ASG_TOOL_CLASS(JetSmearingCorrection,IJetCalibrationTool)
+
     public:
-        JetSmearingCorrection();
+        // Constructor/destructor/init
+        JetSmearingCorrection(const std::string name = "NominalJetSmear");
         JetSmearingCorrection(const std::string& name, TEnv* config, TString jetAlgo, TString calibAreaTag, bool dev);
         virtual ~JetSmearingCorrection();
+        virtual StatusCode initializeTool(const std::string& name);
 
-        virtual StatusCode initialize() override;
-        virtual StatusCode calibrate(xAOD::Jet& jet, JetEventInfo&) const override;
+        virtual StatusCode getNominalResolutionData(const xAOD::Jet& jet, double& resolution) const;
+        virtual StatusCode getNominalResolutionMC(  const xAOD::Jet& jet, double& resolution) const;
 
-        virtual StatusCode getNominalResolutionData(const xAOD::Jet& jet, double& resolution) const override;
-        virtual StatusCode getNominalResolutionMC(  const xAOD::Jet& jet, double& resolution) const override;
+    protected:
+        virtual StatusCode calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const;
 
     private:
         // Helper methods
@@ -72,6 +72,7 @@ class JetSmearingCorrection
         mutable TRandom3 m_rand; // mutable as this we want to call in a const function (everything else is fixed, the random generator is modifiable)
         
         // Class variables read in from the config file
+        TString m_jetStartScale;
         TString m_jetOutScale;
         SmearType  m_smearType;
         HistType   m_histType;

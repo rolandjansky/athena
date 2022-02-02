@@ -9,26 +9,28 @@
 // Author: Joe Taenzer <joseph.taenzer@cern.ch>
 /////////////////////////////////////////////////////////////////// 
 
+
+// JetCalibTools includes
 #include "JetCalibTools/JetCalibrationTool.h"
-#include "JetCalibTools/CalibrationMethods/JetPileupCorrection.h"
-#include "JetCalibTools/CalibrationMethods/ResidualOffsetCorrection.h"
-#include "JetCalibTools/CalibrationMethods/BcidOffsetCorrection.h"
-#include "JetCalibTools/CalibrationMethods/EtaJESCorrection.h"
-#include "JetCalibTools/CalibrationMethods/GlobalSequentialCorrection.h"
-#include "JetCalibTools/CalibrationMethods/InsituDataCorrection.h"
-#include "JetCalibTools/CalibrationMethods/JMSCorrection.h"
-#include "JetCalibTools/CalibrationMethods/JetSmearingCorrection.h"
 #include "PathResolver/PathResolver.h"
 #include "AsgDataHandles/ReadDecorHandle.h"
 
+// Constructors
+////////////////
+
 JetCalibrationTool::JetCalibrationTool(const std::string& name)
-  : asg::AsgTool( name ),
+  : JetCalibrationToolBase::JetCalibrationToolBase( name ),
+    m_rhkEvtInfo("EventInfo"),
+    m_rhkRhoKey(""),
     m_jetAlgo(""), m_config(""), m_calibSeq(""), m_calibAreaTag(""), m_originScale(""), m_devMode(false),
-    m_isData(true), m_timeDependentCalib(false), m_dir(""), m_eInfoName(""), m_globalConfig(nullptr),
-    m_doBcid(true), m_doJetArea(true), m_doResidual(true), m_doOrigin(true), m_doGSC(true), m_gscDepth("auto"), m_smearIndex(-1)
+    m_isData(true), m_timeDependentCalib(false), m_rhoKey("auto"), m_dir(""), m_eInfoName(""), m_globalConfig(nullptr),
+    m_doBcid(true), m_doJetArea(true), m_doResidual(true), m_doOrigin(true), m_doGSC(true), m_gscDepth("auto"),
+    m_bcidCorr(nullptr), m_jetPileupCorr(nullptr), m_etaJESCorr(nullptr), m_globalSequentialCorr(nullptr),
+    m_insituDataCorr(nullptr), m_jetMassCorr(nullptr), m_jetSmearCorr(nullptr), m_insituCombMassCorr_tmp(nullptr)
 { 
 
   declareProperty( "JetCollection", m_jetAlgo = "AntiKt4LCTopo" );
+  declareProperty( "RhoKey", m_rhoKey = "auto" );
   declareProperty( "ConfigFile", m_config = "" );
   declareProperty( "CalibSequence", m_calibSeq = "JetArea_Offset_AbsoluteEtaJES_Insitu" );
   declareProperty( "IsData", m_isData = true );
@@ -37,14 +39,26 @@ JetCalibrationTool::JetCalibrationTool(const std::string& name)
   declareProperty( "DEVmode", m_devMode = false);
   declareProperty( "OriginScale", m_originScale = "JetOriginConstitScaleMomentum");
   declareProperty( "CalibArea", m_calibAreaTag = "00-04-82");
+  declareProperty( "rhkRhoKey", m_rhkRhoKey);
   declareProperty( "GSCDepth", m_gscDepth);
 
 }
 
+
+// Destructor
+///////////////
 JetCalibrationTool::~JetCalibrationTool() {
-  if(m_globalConfig) delete m_globalConfig;
-  for(TEnv* config : m_globalTimeDependentConfigs) delete config;
-  for(TEnv* config : m_globalInsituCombMassConfig) delete config;
+
+  if (m_globalConfig) delete m_globalConfig;
+  if (m_bcidCorr) delete m_bcidCorr;
+  if (m_jetPileupCorr) delete m_jetPileupCorr;
+  if (m_etaJESCorr) delete m_etaJESCorr;
+  if (m_globalSequentialCorr) delete m_globalSequentialCorr;
+  if (m_insituDataCorr) delete m_insituDataCorr;
+  if (m_jetMassCorr) delete m_jetMassCorr;
+  if (m_jetSmearCorr) delete m_jetSmearCorr;
+  if (m_insituCombMassCorr_tmp) delete m_insituCombMassCorr_tmp;
+
 }
 
 
@@ -53,19 +67,58 @@ JetCalibrationTool::~JetCalibrationTool() {
 /////////////////////////////////////////////////////////////////// 
 
 StatusCode JetCalibrationTool::initialize() {
-  ATH_MSG_INFO ("Initializing " << name() << " to calibrate " << m_jetAlgo << "jets");
+  ATH_MSG_INFO ("Initializing " << name() << "...");
+  ATH_CHECK( this->initializeTool( name() ) );
+
+  // Initialise ReadHandle(s)
+  ATH_CHECK( m_rhkEvtInfo.initialize() );
+  ATH_CHECK( m_rdhkEvtInfo.initialize() );
+  if(m_rhkPV.empty()) {
+    // No PV key: -- check if it is required
+    if(m_doResidual) {
+      // May require modification in case of residual that does not require NPV
+      ATH_MSG_ERROR("Residual calibration requested but no primary vertex container specified!");
+      return StatusCode::FAILURE;
+    } else if(m_doGSC) {
+      if(m_jetAlgo.find("PFlow")!=std::string::npos) {
+	ATH_MSG_ERROR("GSC calibration for PFlow requested but no primary vertex container specified!");
+	return StatusCode::FAILURE;
+      } else if((m_gscDepth!="Tile0" && m_gscDepth!="EM3")) {
+	ATH_MSG_ERROR("GSC calibration with tracks requested but no primary vertex container specified!");
+	return StatusCode::FAILURE;
+      }
+    }
+  } else {
+    // Received a PV key, declare the data dependency
+    ATH_CHECK( m_rhkPV.initialize() );
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+StatusCode JetCalibrationTool::finalize() {
+  ATH_MSG_INFO ("Finalizing " << name() << "...");
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
 
   TString jetAlgo = m_jetAlgo;
+  TString config = m_config;
   TString calibSeq = m_calibSeq;
   std::string dir = m_dir;
 
+  ATH_MSG_INFO("===================================");
+  ATH_MSG_INFO("Initializing the xAOD Jet Calibration Tool for " << jetAlgo << "jets");
+
   //Make sure the necessary properties were set via the constructor or python configuration
   if ( jetAlgo.EqualTo("") || calibSeq.EqualTo("") ) {
-    ATH_MSG_FATAL("JetCalibrationTool::initialize : At least one of your constructor arguments is not set. Did you use the copy constructor?");
+    ATH_MSG_FATAL("JetCalibrationTool::initializeTool : At least one of your constructor arguments is not set. Did you use the copy constructor?");
     return StatusCode::FAILURE;
   }
 
-  if ( m_config.empty() ) { ATH_MSG_FATAL("No configuration file specified."); return StatusCode::FAILURE; } 
+  if ( config.EqualTo("") || !config ) { ATH_MSG_FATAL("No configuration file specified."); return StatusCode::FAILURE; } 
   // The calibration area tag is a property of the tool
   const std::string calibPath = "CalibArea-" + m_calibAreaTag + "/";
   if(m_devMode){
@@ -81,6 +134,7 @@ StatusCode JetCalibrationTool::initialize() {
   ATH_MSG_INFO("resolved in: " << fn);
   
   m_globalConfig = new TEnv();
+  //int status=m_globalConfig->ReadFile(FindFile(fn),EEnvLevel(0));
   int status=m_globalConfig->ReadFile(fn ,EEnvLevel(0));
   if (status!=0) { ATH_MSG_FATAL("Cannot read config file " << fn ); return StatusCode::FAILURE; }
 
@@ -92,24 +146,25 @@ StatusCode JetCalibrationTool::initialize() {
     else { ATH_MSG_FATAL("jetAlgo " << jetAlgo << " not recognized."); return StatusCode::FAILURE; }
   }
 
+  //Set the default units to MeV, user can override by calling setUnitsGeV(true)
+  setUnitsGeV(false);
+
   // Settings for R21/2.5.X
   m_originCorrectedClusters = m_globalConfig->GetValue("OriginCorrectedClusters",false);
   m_doSetDetectorEta = m_globalConfig->GetValue("SetDetectorEta",true);
 
   // Rho key specified in the config file?
-  std::string rhoKey_config = m_globalConfig->GetValue("RhoKey", "None");
+  m_rhoKey_config = m_globalConfig->GetValue("RhoKey", "None");
 
   // Get name of vertex container
   m_vertexContainerName = m_globalConfig->GetValue("VertexContainerName","PrimaryVertices");
   
-  bool requireRhoInput = false;
-
   //Make sure the residual correction is turned on if requested
   if ( !calibSeq.Contains("JetArea") && !calibSeq.Contains("Residual") ) {
     m_doJetArea = false;
     m_doResidual = false;
   } else if ( calibSeq.Contains("JetArea") ) {
-    if ( m_rhoKey.key().compare("auto") == 0 && rhoKey_config.compare("None") == 0) {
+    if ( m_rhoKey.compare("auto") == 0 && m_rhoKey_config.compare("None") == 0) {
       if(!m_originCorrectedClusters){
         if ( m_jetScale == EM ) m_rhoKey = "Kt4EMTopoEventShape";
         else if ( m_jetScale == LC ) m_rhoKey = "Kt4LCTopoEventShape";
@@ -120,10 +175,11 @@ StatusCode JetCalibrationTool::initialize() {
         else if ( m_jetScale == PFLOW ) m_rhoKey = "Kt4EMPFlowEventShape";
       }
     }
-    else if(rhoKey_config.compare("None") != 0 && m_rhoKey.key().compare("auto") == 0){
-      m_rhoKey = rhoKey_config;
+    else if(m_rhoKey_config.compare("None") != 0 && m_rhoKey.compare("auto") == 0){
+      m_rhoKey = m_rhoKey_config;
     }
-    requireRhoInput = true;
+    ATH_CHECK( m_rhkRhoKey.assign(m_rhoKey)) ;  // set in `initializeTool'
+    ATH_CHECK( m_rhkRhoKey.initialize() );
     if ( !calibSeq.Contains("Residual") ) m_doResidual = false;
   } else if ( !calibSeq.Contains("JetArea") && calibSeq.Contains("Residual") ) {
     m_doJetArea = false;
@@ -136,12 +192,14 @@ StatusCode JetCalibrationTool::initialize() {
                                                  "HLT_xAOD__JetContainer_a4tcemsubjesISFS");
 
   if ( !calibSeq.Contains("Origin") ) m_doOrigin = false;
+
   if ( !calibSeq.Contains("GSC") ) m_doGSC = false;
+
   if ( !calibSeq.Contains("Bcid") ) m_doBcid = false;
 
   //Protect against the in-situ calibration being requested when isData is false
   if ( calibSeq.Contains("Insitu") && !m_isData ) {
-    ATH_MSG_FATAL("JetCalibrationTool::initialize : calibSeq string contains Insitu with isData set to false. Can't apply in-situ correction to MC!!");
+    ATH_MSG_FATAL("JetCalibrationTool::initializeTool : calibSeq string contains Insitu with isData set to false. Can't apply in-situ correction to MC!!");
     return StatusCode::FAILURE;
   }
 
@@ -153,6 +211,8 @@ StatusCode JetCalibrationTool::initialize() {
     m_runBins = JetCalibUtils::VectorizeD( m_globalConfig->GetValue("InsituRunBins","") );
     if(m_runBins.size()!=m_timeDependentInsituConfigs.size()+1) ATH_MSG_ERROR("Please check the insitu run bins");
     for(unsigned int i=0;i<m_timeDependentInsituConfigs.size();++i){
+      //InsituDataCorrection *insituTemp = NULL;
+      //m_insituTimeDependentCorr.push_back(insituTemp);
 
       std::string configPath_insitu = dir+m_timeDependentInsituConfigs.at(i).Data(); // Full path
       TString fn_insitu =  PathResolverFindCalibFile(configPath_insitu);
@@ -190,130 +250,173 @@ StatusCode JetCalibrationTool::initialize() {
   //Loop over the request calib sequence
   //Initialize derived classes for applying the requested calibrations and add them to a vector
   std::vector<TString> vecCalibSeq = JetCalibUtils::Vectorize(calibSeq,"_");
+  TString vecCalibSeqtmp;
   for ( unsigned int i=0; i<vecCalibSeq.size(); ++i) {
     if ( vecCalibSeq[i].EqualTo("Origin") || vecCalibSeq[i].EqualTo("DEV") ) continue;
     if ( vecCalibSeq[i].EqualTo("Residual") && m_doJetArea ) continue;
-    ATH_CHECK( getCalibClass(vecCalibSeq[i] ));
+    ATH_CHECK( getCalibClass(name,vecCalibSeq[i] ));
   }
 
-  // Initialise ReadHandle(s)
-  ATH_CHECK( m_evtInfoKey.initialize() );
-  ATH_CHECK( m_muKey.initialize() );
-  ATH_CHECK( m_rhoKey.initialize(requireRhoInput) );
-  if(m_pvKey.empty()) {
-    // No PV key: -- check if it is required
-    if(m_doResidual) {
-      // May require modification in case of residual that does not require NPV
-      ATH_MSG_ERROR("Residual calibration requested but no primary vertex container specified!");
-      return StatusCode::FAILURE;
-    }
-    else if(m_doGSC) {
-      if(m_jetAlgo.find("PFlow")!=std::string::npos) {
-        ATH_MSG_ERROR("GSC calibration for PFlow requested but no primary vertex container specified!");
-        return StatusCode::FAILURE;
-      }
-      else if((m_gscDepth!="Tile0" && m_gscDepth!="EM3")) {
-        ATH_MSG_ERROR("GSC calibration with tracks requested but no primary vertex container specified!");
-        return StatusCode::FAILURE;
-      }
-    }
-  } else {
-    // Received a PV key, declare the data dependency
-    ATH_CHECK( m_pvKey.initialize() );
-  }
+  ATH_MSG_INFO("===================================");
 
   return StatusCode::SUCCESS;
 }
 
 //Method for initializing the requested calibration derived classes
-StatusCode JetCalibrationTool::getCalibClass(TString calibration) {
+StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString calibration) {
   TString jetAlgo = m_jetAlgo;
   const TString calibPath = "CalibArea-" + m_calibAreaTag + "/";
+  std::string suffix = "";
+  //ATH_MSG_INFO("Initializing sub tools.");
   if ( calibration.EqualTo("Bcid") ){
+    ATH_MSG_INFO("Initializing BCID correction for data.");
+    suffix="_Bcid";
+    if(m_devMode) suffix+="_DEV";
     m_globalConfig->SetValue("PileupStartingScale","JetBcidScaleMomentum");
-    std::unique_ptr<JetCalibrationStep> bcidCorr = std::make_unique<BcidOffsetCorrection>(this->name()+"_Bcid", m_globalConfig, jetAlgo, calibPath, m_isData);
-    ATH_CHECK(bcidCorr->initialize());
-    m_calibSteps.push_back(std::move(bcidCorr));
-    return StatusCode::SUCCESS;
-  }
-  else if ( calibration.EqualTo("JetArea") || calibration.EqualTo("Residual") ) {
-    std::unique_ptr<JetCalibrationStep> puCorr = std::make_unique<JetPileupCorrection>(this->name()+"_Pileup", m_globalConfig, jetAlgo, calibPath,
-                                                   m_doResidual, m_doJetArea, m_doOrigin, m_originScale.c_str(), m_isData, m_devMode);
-    puCorr->msg().setLevel( this->msg().level() );
-    ATH_CHECK(puCorr->initialize());
-    m_calibSteps.push_back(std::move(puCorr));
-    return StatusCode::SUCCESS;
-  }
-  else if ( calibration.EqualTo("EtaJES") || calibration.EqualTo("AbsoluteEtaJES") ) {
-    std::unique_ptr<JetCalibrationStep> etaJESCorr = std::make_unique<EtaJESCorrection>(this->name()+"_EtaJES", m_globalConfig, jetAlgo, calibPath, false, m_devMode);
-    etaJESCorr->msg().setLevel( this->msg().level() );
-    ATH_CHECK(etaJESCorr->initialize());
-    m_calibSteps.push_back(std::move(etaJESCorr)); 
-    return StatusCode::SUCCESS; 
-  }
-  else if ( calibration.EqualTo("EtaMassJES") ) {
-    std::unique_ptr<JetCalibrationStep> etaJESCorr = std::make_unique<EtaJESCorrection>(this->name()+"_EtaMassJES", m_globalConfig, jetAlgo, calibPath, true, m_devMode);
-    etaJESCorr->msg().setLevel( this->msg().level() );
-    ATH_CHECK(etaJESCorr->initialize());
-    m_calibSteps.push_back(std::move(etaJESCorr)); 
-    return StatusCode::SUCCESS; 
-  }
-  else if ( calibration.EqualTo("GSC") ) {
-    std::unique_ptr<JetCalibrationStep> gsc = std::make_unique<GlobalSequentialCorrection>(this->name()+"_GSC", m_globalConfig, jetAlgo, m_gscDepth, calibPath, m_devMode);
-    gsc->msg().setLevel( this->msg().level() );
-    ATH_CHECK(gsc->initialize());
-    m_calibSteps.push_back(std::move(gsc)); 
-    return StatusCode::SUCCESS; 
-  }
-  else if ( calibration.EqualTo("JMS") ) {
-    std::unique_ptr<JetCalibrationStep> jetMassCorr = std::make_unique<JMSCorrection>(this->name()+"_JMS", m_globalConfig, jetAlgo, calibPath, m_devMode);
-    jetMassCorr->msg().setLevel( this->msg().level() );
-    ATH_CHECK(jetMassCorr->initialize());
-    m_calibSteps.push_back(std::move(jetMassCorr));
-    return StatusCode::SUCCESS;
-  }
-  else if ( calibration.EqualTo("InsituCombinedMass") ){
-    for(unsigned int i=0;i<m_insituCombMassConfig.size();++i){
-      std::unique_ptr<JetCalibrationStep> jetMassCorr = std::make_unique<JMSCorrection>(this->name()+"_InsituCombinedMass", m_globalInsituCombMassConfig.at(i), jetAlgo, calibPath, m_devMode);
-      jetMassCorr->msg().setLevel( this->msg().level() );
-      ATH_CHECK(jetMassCorr->initialize());
-      m_calibSteps.push_back(std::move(jetMassCorr));
+    m_bcidCorr = new BcidOffsetCorrection(name+suffix,m_globalConfig,jetAlgo,calibPath,m_isData,m_devMode);
+    if ( m_bcidCorr->initializeTool(name+suffix).isFailure() ) {
+      ATH_MSG_FATAL("Couldn't initialize the BCID Offset correction. Aborting");
+      return StatusCode::FAILURE;
+    } else {
+      m_calibClasses.push_back(m_bcidCorr);
+      return StatusCode::SUCCESS;
     }
-    return StatusCode::SUCCESS;
-  }
-  else if ( calibration.EqualTo("Insitu") ) {
-    if(!m_timeDependentCalib){
-      std::unique_ptr<JetCalibrationStep> insituDataCorr = std::make_unique<InsituDataCorrection>(this->name()+"_Insitu", m_globalConfig, jetAlgo, calibPath, m_devMode);
-      insituDataCorr->msg().setLevel( this->msg().level() );
-      ATH_CHECK(insituDataCorr->initialize());
-      m_calibSteps.push_back(std::move(insituDataCorr));
+  } else if ( calibration.EqualTo("JetArea") || calibration.EqualTo("Residual") ) {
+    ATH_MSG_INFO("Initializing pileup correction.");
+    suffix="_Pileup";
+    if(m_devMode) suffix+="_DEV";
+    m_jetPileupCorr = new JetPileupCorrection(name+suffix,m_globalConfig,jetAlgo,calibPath,
+                                              m_doResidual,m_doJetArea,m_doOrigin,m_isData,m_devMode);
+    ATH_CHECK( m_jetPileupCorr->setProperty("OriginScale",m_originScale.c_str()) );
+    m_jetPileupCorr->msg().setLevel( this->msg().level() );
+    if( m_jetPileupCorr->initializeTool(name+suffix).isFailure() ) { 
+      ATH_MSG_FATAL("Couldn't initialize the pileup correction. Aborting"); 
+      return StatusCode::FAILURE; 
+    } else { 
+      m_calibClasses.push_back(m_jetPileupCorr); 
       return StatusCode::SUCCESS; 
     }
-    else{
+  } else if ( calibration.EqualTo("EtaJES") || calibration.EqualTo("AbsoluteEtaJES") ) {
+    ATH_MSG_INFO("Initializing JES correction.");
+    suffix="_EtaJES";
+    if(m_devMode) suffix+="_DEV";
+    m_etaJESCorr = new EtaJESCorrection(name+suffix,m_globalConfig,jetAlgo,calibPath,false,m_devMode);
+    m_etaJESCorr->msg().setLevel( this->msg().level() );
+    if ( m_etaJESCorr->initializeTool(name+suffix).isFailure() ) {
+      ATH_MSG_FATAL("Couldn't initialize the Monte Carlo JES correction. Aborting"); 
+      return StatusCode::FAILURE; 
+    } else { 
+      m_calibClasses.push_back(m_etaJESCorr); 
+      return StatusCode::SUCCESS; 
+    }
+  } else if ( calibration.EqualTo("EtaMassJES") ) {
+    ATH_MSG_INFO("Initializing JES correction.");
+    suffix="_EtaMassJES";
+    if(m_devMode) suffix+="_DEV";
+    m_etaJESCorr = new EtaJESCorrection(name+suffix,m_globalConfig,jetAlgo,calibPath,true,m_devMode);
+    m_etaJESCorr->msg().setLevel( this->msg().level() );
+    if ( m_etaJESCorr->initializeTool(name+suffix).isFailure() ) {
+      ATH_MSG_FATAL("Couldn't initialize the Monte Carlo JES correction. Aborting");
+      return StatusCode::FAILURE;
+    } else {
+      m_calibClasses.push_back(m_etaJESCorr);
+      return StatusCode::SUCCESS;
+    }
+  } else if ( calibration.EqualTo("GSC") ) {
+    ATH_MSG_INFO("Initializing GSC correction.");
+    suffix="_GSC";
+    if(m_devMode) suffix+="_DEV";
+    m_globalSequentialCorr = new GlobalSequentialCorrection(name+suffix,m_globalConfig,jetAlgo,m_gscDepth,calibPath,m_devMode);
+    m_globalSequentialCorr->msg().setLevel( this->msg().level() );
+    if ( m_globalSequentialCorr->initializeTool(name+suffix).isFailure() ) {
+      ATH_MSG_FATAL("Couldn't initialize the Global Sequential Calibration. Aborting"); 
+      return StatusCode::FAILURE; 
+    } else { 
+      m_calibClasses.push_back(m_globalSequentialCorr); 
+      return StatusCode::SUCCESS; 
+    }
+  } else if ( calibration.EqualTo("JMS") ) {
+    ATH_MSG_INFO("Initializing JMS correction.");
+    suffix="_JMS";
+    if(m_devMode) suffix+="_DEV";
+    m_jetMassCorr = new JMSCorrection(name+suffix,m_globalConfig,jetAlgo,calibPath,m_devMode);
+    m_jetMassCorr->msg().setLevel( this->msg().level() );
+    if ( m_jetMassCorr->initializeTool(name+suffix).isFailure() ) {
+      ATH_MSG_FATAL("Couldn't initialize the JMS Calibration. Aborting");
+      return StatusCode::FAILURE;
+    } else {
+      m_calibClasses.push_back(m_jetMassCorr);
+      return StatusCode::SUCCESS;
+    }
+  } else if ( calibration.EqualTo("InsituCombinedMass") ){
+    ATH_MSG_INFO("Initializing Combined Mass Correction");
+    for(unsigned int i=0;i<m_insituCombMassConfig.size();++i){
+      suffix="_InsituCombinedMass"; suffix += "_"; suffix += std::to_string(i);
+      if(m_devMode) suffix+="_DEV";
+      m_insituCombMassCorr_tmp = new JMSCorrection(name+suffix,m_globalInsituCombMassConfig.at(i),jetAlgo,calibPath,m_devMode);
+      m_insituCombMassCorr_tmp->msg().setLevel( this->msg().level() );
+      if ( m_insituCombMassCorr_tmp->initializeTool(name+suffix).isFailure() ) {
+	ATH_MSG_FATAL("Couldn't initialize the Combined Mass correction. Aborting");
+	return StatusCode::FAILURE;
+      } else {
+	m_insituCombMassCorr.push_back(m_insituCombMassCorr_tmp);
+	return StatusCode::SUCCESS;
+      }
+    }
+  } else if ( calibration.EqualTo("Insitu") ) {
+    if(!m_timeDependentCalib){
+      ATH_MSG_INFO("Initializing Insitu correction.");
+      suffix="_Insitu";
+      if(m_devMode) suffix+="_DEV";
+      m_insituDataCorr = new InsituDataCorrection(name+suffix,m_globalConfig,jetAlgo,calibPath,m_devMode);
+      m_insituDataCorr->msg().setLevel( this->msg().level() );
+      if ( m_insituDataCorr->initializeTool(name+suffix).isFailure() ) {
+        ATH_MSG_FATAL("Couldn't initialize the In-situ data correction. Aborting"); 
+        return StatusCode::FAILURE; 
+      } else { 
+        m_calibClasses.push_back(m_insituDataCorr);
+	m_relInsituPtMax.push_back(m_insituDataCorr->getRelHistoPtMax());
+	m_absInsituPtMax.push_back(m_insituDataCorr->getAbsHistoPtMax());
+        return StatusCode::SUCCESS; 
+      }
+    } else{
       ATH_MSG_INFO("Initializing Time-Dependent Insitu Corrections");
       for(unsigned int i=0;i<m_timeDependentInsituConfigs.size();++i){
-        // Add 0.5 before casting to avoid floating-point precision issues
-        unsigned int firstRun = static_cast<unsigned int>(m_runBins.at(i)+1.5);
-        unsigned int lastRun = static_cast<unsigned int>(m_runBins.at(i+1)+0.5);
-        std::unique_ptr<JetCalibrationStep> insituDataCorr = std::make_unique<InsituDataCorrection>(this->name()+"_Insitu_"+std::to_string(i), m_globalTimeDependentConfigs.at(i), jetAlgo,
-                                                                                                    calibPath, m_devMode, firstRun, lastRun);
-        insituDataCorr->msg().setLevel( this->msg().level() );
-        ATH_CHECK(insituDataCorr->initialize());
-        m_calibSteps.push_back(std::move(insituDataCorr));
+        suffix="_Insitu"; suffix += "_"; suffix += std::to_string(i);
+        if(m_devMode) suffix+="_DEV";
+        InsituDataCorrection *insituTimeDependentCorr_Tmp = new InsituDataCorrection(name+suffix,m_globalTimeDependentConfigs.at(i),jetAlgo,calibPath,m_devMode);
+        insituTimeDependentCorr_Tmp->msg().setLevel( this->msg().level() );
+        if ( insituTimeDependentCorr_Tmp->initializeTool(name+suffix).isFailure() ) {
+          ATH_MSG_FATAL("Couldn't initialize the In-situ data correction. Aborting"); 
+          return StatusCode::FAILURE; 
+        } else {     		
+          m_insituTimeDependentCorr.push_back(insituTimeDependentCorr_Tmp);
+	  m_relInsituPtMax.push_back(insituTimeDependentCorr_Tmp->getRelHistoPtMax());
+	  m_absInsituPtMax.push_back(insituTimeDependentCorr_Tmp->getAbsHistoPtMax());
+        }
       }
       return StatusCode::SUCCESS; 
     }
-  }
-  else if ( calibration.EqualTo("Smear") ) {
-    if(m_isData){
+  } else if ( calibration.EqualTo("Smear") ) {
+    if (m_isData)
+    {
       ATH_MSG_FATAL("Asked for smearing of data, which is not supported.  Aborting.");
       return StatusCode::FAILURE;
     }
-    std::unique_ptr<JetCalibrationStep> jetSmearCorr = std::make_unique<JetSmearingCorrection>(this->name()+"_Smear", m_globalConfig,jetAlgo,calibPath,m_devMode);
-    jetSmearCorr->msg().setLevel(this->msg().level());
-    ATH_CHECK(jetSmearCorr->initialize());
-    m_calibSteps.push_back(std::move(jetSmearCorr));
-    m_smearIndex = m_calibSteps.size() - 1;
+
+    ATH_MSG_INFO("Initializing jet smearing correction");
+    suffix = "_Smear";
+    if (m_devMode) suffix += "_DEV";
+    
+    m_jetSmearCorr = new JetSmearingCorrection(name+suffix,m_globalConfig,jetAlgo,calibPath,m_devMode);
+    m_jetSmearCorr->msg().setLevel(this->msg().level());
+
+    if (m_jetSmearCorr->initializeTool(name+suffix).isFailure())
+    {
+      ATH_MSG_FATAL("Couldn't initialize the jet smearing correction.  Aborting.");
+      return StatusCode::FAILURE;
+    }
+    m_calibClasses.push_back(m_jetSmearCorr);
     return StatusCode::SUCCESS;
   }
   ATH_MSG_FATAL("Calibration string not recognized: " << calibration << ", aborting.");
@@ -325,8 +428,11 @@ StatusCode JetCalibrationTool::applyCalibration(xAOD::JetContainer& jets) const 
   ATH_MSG_VERBOSE("Modifying jet collection.");
   JetEventInfo jetEventInfo;
   ATH_CHECK( initializeEvent(jetEventInfo) );
-  for (xAOD::Jet* jet : jets) ATH_CHECK( calibrate(*jet, jetEventInfo) );
-  return StatusCode::SUCCESS;
+  xAOD::JetContainer::iterator jet_itr = jets.begin();
+  xAOD::JetContainer::iterator jet_end = jets.end(); 
+  for ( ; jet_itr != jet_end; ++jet_itr )
+    ATH_CHECK( calibrateImpl(**jet_itr,jetEventInfo) );
+ return StatusCode::SUCCESS;
 }
 
 // Private/Protected Methods
@@ -335,7 +441,7 @@ StatusCode JetCalibrationTool::applyCalibration(xAOD::JetContainer& jets) const 
 StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const {
 
   // Check if the tool was initialized
-  if( m_calibSteps.size() == 0 ){
+  if( m_calibClasses.size() == 0 ){
     ATH_MSG_FATAL("   JetCalibrationTool::initializeEvent : The tool was not initialized.");
     return StatusCode::FAILURE;
   }
@@ -351,24 +457,24 @@ StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const
     double rho=0;
     const xAOD::EventShape * eventShape = 0;
 
-    SG::ReadHandle<xAOD::EventShape> rhRhoKey(m_rhoKey);
+    SG::ReadHandle<xAOD::EventShape> rhRhoKey(m_rhkRhoKey);
 
     if ( rhRhoKey.isValid() ) {
-      ATH_MSG_VERBOSE("  Found event density container " << m_rhoKey.key());
+      ATH_MSG_VERBOSE("  Found event density container " << m_rhoKey);
       eventShape = rhRhoKey.cptr();
       if ( !rhRhoKey.isValid() ) {
-        ATH_MSG_VERBOSE("  Event shape container not found.");
-        ATH_MSG_FATAL("Could not retrieve xAOD::EventShape DataHandle.");
-        return StatusCode::FAILURE;
+	ATH_MSG_VERBOSE("  Event shape container not found.");
+	ATH_MSG_FATAL("Could not retrieve xAOD::EventShape DataHandle.");
+	return StatusCode::FAILURE;
       } else if ( !eventShape->getDensity( xAOD::EventShape::Density, rho ) ) {
-        ATH_MSG_VERBOSE("  Event density not found in container.");
-        ATH_MSG_FATAL("Could not retrieve xAOD::EventShape::Density from xAOD::EventShape.");
-        return StatusCode::FAILURE;
+	ATH_MSG_VERBOSE("  Event density not found in container.");
+	ATH_MSG_FATAL("Could not retrieve xAOD::EventShape::Density from xAOD::EventShape.");
+	return StatusCode::FAILURE;
       } else {
-        ATH_MSG_VERBOSE("  Event density retrieved.");
+	ATH_MSG_VERBOSE("  Event density retrieved.");
       }
     } else if ( m_doJetArea && !rhRhoKey.isValid() ) {
-      ATH_MSG_VERBOSE("  Rho container not found: " << m_rhoKey.key());
+      ATH_MSG_VERBOSE("  Rho container not found: " << m_rhoKey);
       ATH_MSG_FATAL("Could not retrieve xAOD::EventShape DataHandle.");
       return StatusCode::FAILURE;
     }
@@ -393,7 +499,7 @@ StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const
       // count jets above threshold
       int nJets = 0;
       for (auto jet : *jets) {
-        if(jet->pt()/1000. > m_nJetThreshold)
+        if(jet->pt()/m_GeV > m_nJetThreshold)
           nJets += 1;
       }
       jetEventInfo.setNjet(nJets);
@@ -404,7 +510,7 @@ StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const
   if ( m_doResidual || m_doGSC || m_doBcid) {
     const xAOD::EventInfo * eventObj = 0;
     static unsigned int eventInfoWarnings = 0;
-    SG::ReadHandle<xAOD::EventInfo> rhEvtInfo(m_evtInfoKey);
+    SG::ReadHandle<xAOD::EventInfo> rhEvtInfo(m_rhkEvtInfo);
     if ( rhEvtInfo.isValid() ) {
       eventObj = rhEvtInfo.cptr();
     } else {
@@ -415,14 +521,13 @@ StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const
       jetEventInfo.setPVIndex(0);
       return StatusCode::SUCCESS; //error is recoverable, so return SUCCESS
     }
-    jetEventInfo.setRunNumber( eventObj->runNumber() );
 
     // If we are applying the reisdual, then store mu
     if (m_doResidual || m_doBcid) {
-      SG::ReadDecorHandle<xAOD::EventInfo,float> eventInfoDecor(m_muKey);
+      SG::ReadDecorHandle<xAOD::EventInfo,float> eventInfoDecor(m_rdhkEvtInfo);
       if(!eventInfoDecor.isPresent()) {
-        ATH_MSG_ERROR("EventInfo decoration not available!");
-        return StatusCode::FAILURE;
+	ATH_MSG_ERROR("EventInfo decoration not available!");
+	return StatusCode::FAILURE;
       }
       jetEventInfo.setMu( eventInfoDecor(0) );
     }
@@ -444,6 +549,7 @@ StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const
     // Extract the BCID information for the BCID correction
     if (m_doBcid)
     {
+      jetEventInfo.setRunNumber( eventObj->runNumber() );
       jetEventInfo.setBcidDistanceFromFront( eventObj->auxdata<int>("DFCommonJets_BCIDDistanceFromFront") );
       jetEventInfo.setBcidGapBeforeTrain( eventObj->auxdata<int>("DFCommonJets_BCIDGapBeforeTrain") );
       jetEventInfo.setBcidGapBeforeTrainMinus12( eventObj->auxdata<int>("DFCommonJets_BCIDGapBeforeTrainMinus12") );
@@ -457,12 +563,15 @@ StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const
     {
       //Retrieve VertexContainer object, use it to obtain NPV for the residual correction or check validity of GSC non-PV0 usage
       const xAOD::VertexContainer * vertices = 0;
+      static unsigned int vertexContainerWarnings = 0;
 
-      SG::ReadHandle<xAOD::VertexContainer> rhPV(m_pvKey);
+      SG::ReadHandle<xAOD::VertexContainer> rhPV(m_rhkPV);
       if (rhPV.isValid()) {
         vertices = rhPV.cptr(); 
       } else {
-        ATH_MSG_WARNING("   JetCalibrationTool::initializeEvent : Failed to retrieve primary vertices.");
+        ++vertexContainerWarnings;
+        if ( vertexContainerWarnings < 20 )
+          ATH_MSG_ERROR("   JetCalibrationTool::initializeEvent : Failed to retrieve primary vertices.");
         jetEventInfo.setNPV(0); //Hard coded value NPV = 0 in case of failure (to prevent seg faults later).
         return StatusCode::SUCCESS; //error is recoverable, so return SUCCESS
       }
@@ -487,17 +596,24 @@ StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const
         {
           ++vertexIndexWarnings;
           if (vertexIndexWarnings < 20)
-            ATH_MSG_WARNING("   JetCalibrationTool::initializeEvent : PV index is out of bounds.");
+            ATH_MSG_ERROR("   JetCalibrationTool::initializeEvent : PV index is out of bounds.");
           jetEventInfo.setPVIndex(0); // Hard coded value PVIndex = 0 in case of failure (to prevent seg faults later).
           return StatusCode::SUCCESS; // error is recoverable, so return SUCCESS
         }
       }
     }
+
+    //Check if the input jets are coming from data or MC
+    //if ( m_eventObj->eventType( xAOD::EventInfo::IS_SIMULATION ) ) {
+    //     m_isData = false; // controls mu scaling in the pile up correction, no scaling for data
+    //}
+
   }
-  return StatusCode::SUCCESS;
+
+    return StatusCode::SUCCESS;
 }
 
-StatusCode JetCalibrationTool::calibrate(xAOD::Jet& jet, JetEventInfo& jetEventInfo) const {
+StatusCode JetCalibrationTool::calibrateImpl(xAOD::Jet& jet, JetEventInfo& jetEventInfo) const {
 
   //Check for OriginCorrected and PileupCorrected attributes, assume they are false if not found
   int tmp = 0; //temporary int for checking getAttribute
@@ -511,27 +627,56 @@ StatusCode JetCalibrationTool::calibrate(xAOD::Jet& jet, JetEventInfo& jetEventI
     xAOD::JetFourMom_t jetconstitP4 = jet.getAttribute<xAOD::JetFourMom_t>("JetConstitScaleMomentum");
     jet.setAttribute<float>("DetectorEta",jetconstitP4.eta()); //saving constituent scale eta for later use
   }
-
-  for (unsigned int i=0; i<m_calibSteps.size(); ++i) ATH_CHECK(m_calibSteps[i]->calibrate(jet, jetEventInfo));
+  for (unsigned int i=0; i<m_calibClasses.size(); ++i) //Loop over requested calibations
+    ATH_CHECK ( m_calibClasses[i]->calibrateImpl(jet,jetEventInfo) );
+  TString CalibSeq = m_calibSeq;
+  if(CalibSeq.Contains("Insitu") && m_timeDependentCalib){ // Insitu Time-Dependent Correction
+    for(unsigned int i=0;i<m_timeDependentInsituConfigs.size();++i){
+      // Retrieve EventInfo container
+      const xAOD::EventInfo* eventInfo(nullptr);
+      SG::ReadHandle<xAOD::EventInfo> rhEvtInfo(m_rhkEvtInfo);
+      if ( rhEvtInfo.isValid() ) {
+        eventInfo = rhEvtInfo.cptr();
+      } else {
+        ATH_MSG_ERROR("   JetCalibrationTool::calibrateImpl : Failed to retrieve EventInfo.");
+      }
+      // Run Number Dependent Correction
+      double runNumber = eventInfo->runNumber();
+      if(runNumber>m_runBins.at(i) && runNumber<=m_runBins.at(i+1)){ ATH_CHECK ( m_insituTimeDependentCorr.at(i)->calibrateImpl(jet,jetEventInfo) );}
+    }
+  }
+  if(CalibSeq.Contains("InsituCombinedMass") && m_insituCombMassCalib){
+    for(unsigned int i=0;i<m_insituCombMassConfig.size();++i){
+      //Retrive EventInfo container
+      const xAOD::EventInfo* eventInfo(nullptr);
+      if( evtStore()->retrieve(eventInfo,"EventInfo").isFailure() || !eventInfo ) {
+	ATH_MSG_ERROR("   JetCalibrationTool::calibrateImpl : Failed to retrieve EventInfo.");
+      }
+      ATH_CHECK ( m_insituCombMassCorr.at(i)->calibrateImpl(jet,jetEventInfo) );
+    }
+  }
 
   return StatusCode::SUCCESS; 
 }
 
 
-StatusCode JetCalibrationTool::getNominalResolutionData(const xAOD::Jet& jet, double& resolution) const{
-  if(m_smearIndex < 0){
-    ATH_MSG_ERROR("Cannot retrieve the nominal data resolution - smearing was not configured during initialization");
-    return StatusCode::FAILURE;
-  }
-  return m_calibSteps.at(m_smearIndex)->getNominalResolutionData(jet, resolution);
+StatusCode JetCalibrationTool::getNominalResolutionData(const xAOD::Jet& jet, double& resolution) const
+{
+    if (!m_jetSmearCorr)
+    {
+        ATH_MSG_ERROR("Cannot retrieve the nominal data resolution - smearing was not configured during initialization");
+        return StatusCode::FAILURE;
+    }
+    return m_jetSmearCorr->getNominalResolutionData(jet,resolution);
 }
 
 StatusCode JetCalibrationTool::getNominalResolutionMC(const xAOD::Jet& jet, double& resolution) const
 {
-    if(m_smearIndex < 0){
-    ATH_MSG_ERROR("Cannot retrieve the nominal MC resolution - smearing was not configured during initialization");
-    return StatusCode::FAILURE;
-  }
-  return m_calibSteps.at(m_smearIndex)->getNominalResolutionMC(jet, resolution);
+    if (!m_jetSmearCorr)
+    {
+        ATH_MSG_ERROR("Cannot retrieve the nominal MC resolution - smearing was not configured during initialization");
+        return StatusCode::FAILURE;
+    }
+    return m_jetSmearCorr->getNominalResolutionMC(jet,resolution);
 }
 

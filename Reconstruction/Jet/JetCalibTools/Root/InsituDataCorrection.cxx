@@ -3,47 +3,46 @@
 */
 
 #include "JetCalibTools/CalibrationMethods/InsituDataCorrection.h"
-#include "JetCalibTools/JetCalibUtils.h"
 #include "PathResolver/PathResolver.h"
 
 InsituDataCorrection::InsituDataCorrection()
-  : JetCalibrationStep::JetCalibrationStep(),
+  : JetCalibrationToolBase::JetCalibrationToolBase("InsituDataCorrection::InsituDataCorrection"),
     m_config(nullptr),
     m_jetAlgo(""),
     m_calibAreaTag(""),
     m_dev(false),
     m_insituCorr(nullptr),
     m_insituCorr_JMS(nullptr),
-    m_insituCorr_ResidualMCbased(nullptr),
-    m_firstRun(0),
-    m_lastRun(0)
+    m_insituCorr_ResidualMCbased(nullptr)
 { }
 
-InsituDataCorrection::InsituDataCorrection(const std::string& name, TEnv* config, TString jetAlgo, TString calibAreaTag, bool dev, unsigned int firstRun, unsigned int lastRun)
-  : JetCalibrationStep::JetCalibrationStep(name.c_str()),
+InsituDataCorrection::InsituDataCorrection(const std::string& name)
+  : JetCalibrationToolBase::JetCalibrationToolBase( name ),
+    m_config(nullptr),
+    m_jetAlgo(""),
+    m_calibAreaTag(""),
+    m_dev(false),
+    m_insituCorr(nullptr),
+    m_insituCorr_JMS(nullptr),
+    m_insituCorr_ResidualMCbased(nullptr)
+{ }
+
+InsituDataCorrection::InsituDataCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool dev)
+  : JetCalibrationToolBase::JetCalibrationToolBase( name ),
     m_config(config),
     m_jetAlgo(jetAlgo),
     m_calibAreaTag(calibAreaTag),
     m_dev(dev),
     m_insituCorr(nullptr),
     m_insituCorr_JMS(nullptr),
-    m_insituCorr_ResidualMCbased(nullptr),
-    m_firstRun(firstRun),
-    m_lastRun(lastRun)
+    m_insituCorr_ResidualMCbased(nullptr)
 { }
 
 InsituDataCorrection::~InsituDataCorrection() {
 
 }
 
-StatusCode InsituDataCorrection::initialize() {
-
-  ATH_MSG_INFO("Initializing In Situ correction.");
-
-  if(!m_config){
-    ATH_MSG_ERROR("In Situ data correction tool received a null config pointer.");
-    return StatusCode::FAILURE;
-  }
+StatusCode InsituDataCorrection::initializeTool(const std::string&) {
 
   m_jetStartScale = m_config->GetValue("InsituStartingScale","JetGSCScaleMomentum");
 
@@ -201,12 +200,7 @@ StatusCode InsituDataCorrection::initialize() {
 
 }
 
-StatusCode InsituDataCorrection::calibrate(xAOD::Jet& jet, JetEventInfo& jetEventInfo) const {
-
-  //If this is a time-dependent calibration and we're not on a relevant run, don't calibrate.
-  unsigned int runNumber = static_cast<unsigned int>(jetEventInfo.runNumber()+0.5);
-  if(m_lastRun > 0 && (runNumber < m_firstRun || runNumber > m_lastRun))
-    return StatusCode::SUCCESS;
+StatusCode InsituDataCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
 
   float detectorEta = jet.getAttribute<float>("DetectorEta");
 

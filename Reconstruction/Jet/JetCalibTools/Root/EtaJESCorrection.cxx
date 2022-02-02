@@ -3,19 +3,26 @@
 */
 
 #include "JetCalibTools/CalibrationMethods/EtaJESCorrection.h"
-#include "JetCalibTools/JetCalibUtils.h"
 #include "PathResolver/PathResolver.h"
 
 EtaJESCorrection::EtaJESCorrection()
-  : JetCalibrationStep::JetCalibrationStep(),
+  : JetCalibrationToolBase::JetCalibrationToolBase("EtaJESCorrection::EtaJESCorrection"),
     m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_mass(false), m_dev(false),
     m_minPt_JES(10), m_minPt_EtaCorr(8), m_maxE_EtaCorr(2500),
     m_lowPtExtrap(0), m_lowPtMinR(0.25),
     m_etaBinAxis(NULL)
 { }
 
-EtaJESCorrection::EtaJESCorrection(const std::string& name, TEnv* config, TString jetAlgo, TString calibAreaTag, bool mass, bool dev)
-  : JetCalibrationStep::JetCalibrationStep(name.c_str()),
+EtaJESCorrection::EtaJESCorrection(const std::string& name)
+  : JetCalibrationToolBase::JetCalibrationToolBase( name ),
+    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_mass(false), m_dev(false),
+    m_minPt_JES(10), m_minPt_EtaCorr(8), m_maxE_EtaCorr(2500),
+    m_lowPtExtrap(0), m_lowPtMinR(0.25),
+    m_etaBinAxis(NULL)
+{ }
+
+EtaJESCorrection::EtaJESCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool mass, bool dev)
+  : JetCalibrationToolBase::JetCalibrationToolBase( name ),
     m_config(config), m_jetAlgo(jetAlgo), m_calibAreaTag(calibAreaTag), m_mass(mass), m_dev(dev),
     m_minPt_JES(10), m_minPt_EtaCorr(8), m_maxE_EtaCorr(2500),
     m_lowPtExtrap(0), m_lowPtMinR(0.25),
@@ -28,17 +35,12 @@ EtaJESCorrection::~EtaJESCorrection() {
 
 }
 
-StatusCode EtaJESCorrection::initialize() {
-
-  ATH_MSG_INFO("Initializing JES correction.");
-
-  if(!m_config){
-    ATH_MSG_ERROR("EtaJES tool received a null config pointer.");
-    return StatusCode::FAILURE;
-  }
+//bool EtaJESCorrection::initializeTool(TEnv * config, TString jetAlgo) {
+StatusCode EtaJESCorrection::initializeTool(const std::string&) {
 
   m_jetStartScale = m_config->GetValue("EtaJESStartingScale","JetPileupScaleMomentum");
 
+  //TString calibFile = FindFile(m_config->GetValue("AbsoluteJES.CalibFile",""));
   TString absoluteJESCalibFile = m_config->GetValue("AbsoluteJES.CalibFile","");
   if(m_dev){
     absoluteJESCalibFile.Remove(0,33);
@@ -153,7 +155,7 @@ StatusCode EtaJESCorrection::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode EtaJESCorrection::calibrate(xAOD::Jet& jet, JetEventInfo&) const {
+StatusCode EtaJESCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
 
   xAOD::JetFourMom_t jetStartP4;
   ATH_CHECK( setStartP4(jet) );

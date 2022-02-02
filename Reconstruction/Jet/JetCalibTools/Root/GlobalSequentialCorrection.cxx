@@ -27,7 +27,7 @@
 
 
 GlobalSequentialCorrection::GlobalSequentialCorrection()
-  : JetCalibrationStep::JetCalibrationStep(),
+  : JetCalibrationToolBase::JetCalibrationToolBase("GlobalSequentialCorrection::GlobalSequentialCorrection"),
     m_config(NULL), m_jetAlgo(""), m_depthString("auto"), m_calibAreaTag(""), m_dev(false),
     m_binSize(0.1), m_depth(0), 
     m_trackWIDTHMaxEtaBin(25), m_nTrkMaxEtaBin(25), m_Tile0MaxEtaBin(17), m_EM3MaxEtaBin(35), m_chargedFractionMaxEtaBin(27), m_caloWIDTHMaxEtaBin(35), m_N90ConstituentsMaxEtaBin(35),
@@ -35,22 +35,26 @@ GlobalSequentialCorrection::GlobalSequentialCorrection()
    
 { }
 
-GlobalSequentialCorrection::GlobalSequentialCorrection(const std::string& name, TEnv* config, TString jetAlgo, std::string depth, TString calibAreaTag, bool dev)
-  : JetCalibrationStep::JetCalibrationStep(name.c_str()),
+GlobalSequentialCorrection::GlobalSequentialCorrection(const std::string& name)
+  : JetCalibrationToolBase::JetCalibrationToolBase( name ),
+    m_config(NULL), m_jetAlgo(""), m_depthString("auto"), m_calibAreaTag(""), m_dev(false),
+    m_binSize(0.1), m_depth(0), 
+    m_trackWIDTHMaxEtaBin(25), m_nTrkMaxEtaBin(25), m_Tile0MaxEtaBin(17), m_EM3MaxEtaBin(35), m_chargedFractionMaxEtaBin(27), m_caloWIDTHMaxEtaBin(35), m_N90ConstituentsMaxEtaBin(35),
+    m_TileGap3MaxEtaBin(16), m_punchThroughMinPt(50)
+   
+{ }
+
+GlobalSequentialCorrection::GlobalSequentialCorrection(const std::string& name, TEnv * config, TString jetAlgo, std::string depth, TString calibAreaTag, bool dev)
+  : JetCalibrationToolBase::JetCalibrationToolBase( name ),
     m_config(config), m_jetAlgo(jetAlgo), m_depthString(depth), m_calibAreaTag(calibAreaTag), m_dev(dev),
     m_binSize(0.1), m_depth(0),
     m_trackWIDTHMaxEtaBin(25), m_nTrkMaxEtaBin(25), m_Tile0MaxEtaBin(17), m_EM3MaxEtaBin(35), m_chargedFractionMaxEtaBin(27), m_caloWIDTHMaxEtaBin(35), m_N90ConstituentsMaxEtaBin(35),
     m_TileGap3MaxEtaBin(16), m_punchThroughMinPt(50)
 { }
 
-StatusCode GlobalSequentialCorrection::initialize() {
+StatusCode GlobalSequentialCorrection::initializeTool(const std::string&) {
 
   ATH_MSG_INFO("Initializing the Global Sequential Calibration tool");
-
-  if(!m_config){
-    ATH_MSG_ERROR("GSC tool received a null config pointer.");
-    return StatusCode::FAILURE;
-  }
 
   // Set m_PFlow
   if( m_jetAlgo == "AntiKt4EMPFlow" ) m_PFlow = true;
@@ -428,7 +432,7 @@ double GlobalSequentialCorrection::getGSCCorrection(xAOD::JetFourMom_t jetP4, do
   return Corr;
 }
 
-StatusCode GlobalSequentialCorrection::calibrate(xAOD::Jet& jet, JetEventInfo& jetEventInfo) const {
+StatusCode GlobalSequentialCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo& jetEventInfo) const {
 
   //vector<float> that holds the fractional energy deposited by the jet in different layers of the calorimetery
   /* Map of the entries in the vector to different layers of the calorimeter

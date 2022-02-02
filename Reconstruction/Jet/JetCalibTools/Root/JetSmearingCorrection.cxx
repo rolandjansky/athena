@@ -6,13 +6,14 @@
 #include "PathResolver/PathResolver.h"
 #include "JetCalibTools/RootHelpers.h"
 
-JetSmearingCorrection::JetSmearingCorrection()
-    : JetCalibrationStep()
+JetSmearingCorrection::JetSmearingCorrection(const std::string name)
+    : JetCalibrationToolBase(name)
     , m_config(NULL)
     , m_jetAlgo("")
     , m_calibAreaTag("")
     , m_dev(false)
     , m_rand()
+    , m_jetStartScale("")
     , m_jetOutScale("")
     , m_smearType(SmearType::UNKNOWN)
     , m_histType(HistType::UNKNOWN)
@@ -24,12 +25,13 @@ JetSmearingCorrection::JetSmearingCorrection()
 { }
 
 JetSmearingCorrection::JetSmearingCorrection(const std::string& name, TEnv* config, TString jetAlgo, TString calibAreaTag, bool dev)
-    : JetCalibrationStep(name.c_str())
+    : JetCalibrationToolBase(name)
     , m_config(config)
     , m_jetAlgo(jetAlgo)
     , m_calibAreaTag(calibAreaTag)
     , m_dev(dev)
     , m_rand()
+    , m_jetStartScale("")
     , m_jetOutScale("")
     , m_smearType(SmearType::UNKNOWN)
     , m_histType(HistType::UNKNOWN)
@@ -43,7 +45,7 @@ JetSmearingCorrection::JetSmearingCorrection(const std::string& name, TEnv* conf
 JetSmearingCorrection::~JetSmearingCorrection()
 { }
 
-StatusCode JetSmearingCorrection::initialize()
+StatusCode JetSmearingCorrection::initializeTool(const std::string&)
 {
     ATH_MSG_INFO("Initializing the jet smearing correction tool");
 
@@ -61,7 +63,7 @@ StatusCode JetSmearingCorrection::initialize()
     // Get the starting and ending jet scales
     m_jetStartScale = m_config->GetValue("JSCStartingScale","JetGSCScaleMomentum");
     m_jetOutScale   = m_config->GetValue("JSCOutScale","JetSmearedMomentum");
-    ATH_MSG_INFO("Reading from " << m_jetStartScale.c_str() << " and writing to " << m_jetOutScale.Data());
+    ATH_MSG_INFO("Reading from " << m_jetStartScale.Data() << " and writing to " << m_jetOutScale.Data());
 
     // Get information about how to smear
     TString smearType = m_config->GetValue("SmearType","");
@@ -412,7 +414,7 @@ StatusCode JetSmearingCorrection::getNominalResolutionMC(const xAOD::Jet& jet, d
 
 
 
-StatusCode JetSmearingCorrection::calibrate(xAOD::Jet& jet, JetEventInfo&) const
+StatusCode JetSmearingCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const
 {
     // Apply the jet smearing correction
 

@@ -13,23 +13,26 @@
 #include <TKey.h>
 
 #include "JetCalibTools/CalibrationMethods/JMSCorrection.h"
-#include "JetCalibTools/JetCalibUtils.h"
-#include "JetCalibTools/RootHelpers.h"
 #include "PathResolver/PathResolver.h"
+#include "JetCalibTools/RootHelpers.h"
 
 
 JMSCorrection::JMSCorrection()
-  : JetCalibrationStep::JetCalibrationStep(),
+  : JetCalibrationToolBase::JetCalibrationToolBase("JMSCorrection::JMSCorrection"),
     m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false)
 { }
 
+JMSCorrection::JMSCorrection(const std::string& name)
+  : JetCalibrationToolBase::JetCalibrationToolBase( name ),
+    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false)
+{ }
 
-JMSCorrection::JMSCorrection(const std::string& name, TEnv* config, TString jetAlgo, TString calibAreaTag, bool dev)
-  : JetCalibrationStep::JetCalibrationStep(name.c_str()),
+JMSCorrection::JMSCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool dev)
+  : JetCalibrationToolBase::JetCalibrationToolBase( name ),
     m_config(config), m_jetAlgo(jetAlgo), m_calibAreaTag(calibAreaTag), m_dev(dev)
 { }
 
-StatusCode JMSCorrection::initialize() {
+StatusCode JMSCorrection::initializeTool(const std::string&) {
 
   ATH_MSG_INFO("Initializing the JMS Calibration tool");
 
@@ -499,7 +502,7 @@ float JMSCorrection::getRho(double pT_uncorr, double mass_over_pt_uncorr, int et
 }
 
 
-StatusCode JMSCorrection::calibrate(xAOD::Jet& jet, JetEventInfo&) const {
+StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
 
   //Apply the JMS calibration scale factor
 

@@ -7,20 +7,39 @@
 #include "PUResidual3DCorrection.h"
 
 JetPileupCorrection::JetPileupCorrection()
-  : JetCalibrationStep::JetCalibrationStep(),
+  : JetCalibrationToolBase::JetCalibrationToolBase("JetPileupCorrection::JetPileupCorrection"),
     m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false), m_doResidual(false),
     m_doJetArea(false), m_doOrigin(false), m_isData(false),
-    m_useFull4vectorArea(false), m_residualOffsetCorr(NULL), m_originScale("JetOriginConstitScaleMomentum")
-{}
+    m_useFull4vectorArea(false), m_residualOffsetCorr(NULL), m_originScale("")
+{ 
 
-JetPileupCorrection::JetPileupCorrection(const std::string& name, TEnv* config, TString jetAlgo, TString calibAreaTag,
-                                         bool doResidual, bool doJetArea, bool doOrigin, const std::string& originScale,
-                                         bool isData, bool dev)
-  : JetCalibrationStep::JetCalibrationStep(name.c_str()),
+  declareProperty( "OriginScale", m_originScale = "JetOriginConstitScaleMomentum");
+
+}
+
+JetPileupCorrection::JetPileupCorrection(const std::string& name)
+  : JetCalibrationToolBase::JetCalibrationToolBase( name ),
+    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(), m_dev(false), m_doResidual(false),
+    m_doJetArea(false), m_doOrigin(false), m_isData(false),
+    m_useFull4vectorArea(false), m_residualOffsetCorr(NULL), m_originScale("")
+{ 
+
+  declareProperty( "OriginScale", m_originScale = "JetOriginConstitScaleMomentum");
+
+}
+
+JetPileupCorrection::JetPileupCorrection(const std::string& name, TEnv * config, TString jetAlgo,
+                                         TString calibAreaTag, bool doResidual, bool doJetArea,
+                                         bool doOrigin, bool isData, bool dev)
+  : JetCalibrationToolBase::JetCalibrationToolBase( name ),
     m_config(config), m_jetAlgo(jetAlgo), m_calibAreaTag(calibAreaTag), m_dev(dev),
     m_doResidual(doResidual), m_doJetArea(doJetArea), m_doOrigin(doOrigin), m_isData(isData),
-    m_useFull4vectorArea(false), m_residualOffsetCorr(NULL), m_originScale(originScale)
-{}
+    m_useFull4vectorArea(false), m_residualOffsetCorr(NULL), m_originScale("")
+{ 
+
+  declareProperty( "OriginScale", m_originScale = "JetOriginConstitScaleMomentum");
+
+}
 
 JetPileupCorrection::~JetPileupCorrection() {
 
@@ -29,16 +48,10 @@ JetPileupCorrection::~JetPileupCorrection() {
 }
 
 
-StatusCode JetPileupCorrection::initialize() {
-
-  ATH_MSG_INFO("Initializing pileup correction.");
+//bool JetPileupCorrection::initializeTool(const std::string& name, TEnv * config, TString jetAlgo, bool doResidual, bool isData) {
+StatusCode JetPileupCorrection::initializeTool(const std::string& name) {
 
   if (m_doOrigin) ATH_MSG_INFO("OriginScale: " << m_originScale);
-
-  if(!m_config){
-    ATH_MSG_ERROR("Jet pileup correction tool received a null config pointer.");
-    return StatusCode::FAILURE;
-  }
 
   m_doOnlyResidual = m_config->GetValue("ApplyOnlyResidual",false);
   if(m_doJetArea && m_doOnlyResidual){
@@ -95,7 +108,7 @@ StatusCode JetPileupCorrection::initialize() {
   
   m_jetStartScale = m_config->GetValue("PileupStartingScale","JetConstitScaleMomentum");
   ATH_MSG_INFO("JetPileupCorrection: Starting scale: " << m_jetStartScale);
-  if ( m_jetStartScale.compare("DO_NOT_USE") == 0 ) {
+  if ( m_jetStartScale == "DO_NOT_USE" ) {
     ATH_MSG_WARNING("Configuration file does not specify the jet starting scale!");
   }
 
@@ -132,9 +145,9 @@ StatusCode JetPileupCorrection::initialize() {
     ATH_MSG_INFO("  apply deltaPt term = " << m_residual3DCorr->m_applyDeltaPtTerm);
   } else if ( m_doResidual ) {
     std::string suffix = "_Residual";
-    m_residualOffsetCorr = new ResidualOffsetCorrection(m_name+suffix,m_config,m_jetAlgo,m_calibAreaTag,m_isData,m_dev);
+    m_residualOffsetCorr = new ResidualOffsetCorrection(name+suffix,m_config,m_jetAlgo,m_calibAreaTag,m_isData,m_dev);
     m_residualOffsetCorr->msg().setLevel( this->msg().level() );
-    ATH_CHECK( m_residualOffsetCorr->initialize() );
+    ATH_CHECK( m_residualOffsetCorr->initializeTool(name+suffix) );
   }
 
   if ( m_doResidual && m_useFull4vectorArea ) { 
@@ -149,7 +162,7 @@ StatusCode JetPileupCorrection::initialize() {
   return StatusCode::FAILURE;
 }
 
-StatusCode JetPileupCorrection::calibrate(xAOD::Jet& jet, JetEventInfo& jetEventInfo) const {
+StatusCode JetPileupCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo& jetEventInfo) const {
   ATH_MSG_VERBOSE("  Applying pileup calibration to jet " << jet.index());
   ATH_MSG_VERBOSE("    Initial jet pT = " << 0.001*jet.pt() << " GeV");
 

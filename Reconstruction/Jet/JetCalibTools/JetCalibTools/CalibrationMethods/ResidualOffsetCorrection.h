@@ -15,19 +15,23 @@
 #include <TEnv.h>
 #include <TAxis.h>
 
+#include "JetCalibTools/JetCalibrationToolBase.h"
 #include "JetCalibTools/CalibrationMethods/NPVBeamspotCorrection.h"
-#include "AsgMessaging/AsgMessaging.h"
-#include "AsgMessaging/StatusCode.h"
 
-class ResidualOffsetCorrection : public asg::AsgMessaging
+class ResidualOffsetCorrection 
+  : virtual public ::JetCalibrationToolBase
 {
+
+  ASG_TOOL_CLASS( ResidualOffsetCorrection, IJetCalibrationTool )
 
  public:
   ResidualOffsetCorrection();
-  ResidualOffsetCorrection(const std::string& name, TEnv* config, TString jetAlgo, TString calibAreaTag, bool isData, bool dev);
+  ResidualOffsetCorrection(const std::string& name);
+  ResidualOffsetCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool isData, bool dev);
   virtual ~ResidualOffsetCorrection();
 
-  virtual StatusCode initialize();
+  //virtual bool initializeTool(TEnv * config, TString jetAlgo, bool isData);
+  virtual StatusCode initializeTool(const std::string& name);
 
   double GetResidualOffset ( double abseta, double mu, double NPV, int nJet, bool MuOnly, bool NOnly ) const;
 
@@ -43,9 +47,9 @@ class ResidualOffsetCorrection : public asg::AsgMessaging
   TString m_jetAlgo, m_calibAreaTag;
   bool m_dev;
   bool m_isData;
-  static constexpr float m_GeV = 1000;
 
   NPVBeamspotCorrection * m_npvBeamspotCorr;
+  JetEventInfo m_eventInfo;
 
   TString m_resOffsetDesc;
   TAxis * m_resOffsetBins;

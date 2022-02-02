@@ -3,30 +3,28 @@
 */
 
 #include "JetCalibTools/CalibrationMethods/BcidOffsetCorrection.h"
-#include "JetCalibTools/JetCalibUtils.h"
 #include "PathResolver/PathResolver.h"
 
 BcidOffsetCorrection::BcidOffsetCorrection()
-  : JetCalibrationStep(),
-    m_config(nullptr), m_jetAlgo(""), m_calibAreaTag(""), m_isData(false)
-{}
+  : JetCalibrationToolBase( "BcidOffsetCorrection::BcidOffsetCorrection" ),
+    m_config(nullptr), m_jetAlgo(""), m_calibAreaTag(""), m_isData(false)//,
+{ }
 
-BcidOffsetCorrection::BcidOffsetCorrection(const std::string& name, TEnv* config, TString jetAlgo, TString calibAreaTag, bool isData)
-  : JetCalibrationStep(name.c_str()),
-    m_config(config), m_jetAlgo(jetAlgo), m_calibAreaTag(calibAreaTag), m_isData(isData)
-{}
+BcidOffsetCorrection::BcidOffsetCorrection(const std::string& name)
+  : JetCalibrationToolBase( name ),
+    m_config(nullptr), m_jetAlgo(""), m_calibAreaTag(""), m_isData(false)//,
+{ }
 
-BcidOffsetCorrection::~BcidOffsetCorrection()
-{}
+BcidOffsetCorrection::BcidOffsetCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool isData, bool /*dev*/)
+  : JetCalibrationToolBase( name ),
+    m_config(config), m_jetAlgo(jetAlgo), m_calibAreaTag(calibAreaTag), m_isData(isData)//,
+{ }
 
-StatusCode BcidOffsetCorrection::initialize(){
+BcidOffsetCorrection::~BcidOffsetCorrection() {
 
-  ATH_MSG_INFO("Initializing BCID offset correction");
+}
 
-  if(!m_config){
-    ATH_MSG_ERROR("BCID offset correction tool received a null config pointer.");
-    return StatusCode::FAILURE;
-  }
+StatusCode BcidOffsetCorrection::initializeTool(const std::string&) {
 
   m_doEMECIW2bcid = m_config->GetValue("ApplyEMECIW2bcid",true);
   m_doEMECIW3bcid = m_config->GetValue("ApplyEMECIW3bcid",false);
@@ -45,19 +43,19 @@ StatusCode BcidOffsetCorrection::initialize(){
   m_doFCal2InnerBcid = m_config->GetValue("ApplyFCal2InnerBcid",false);
 
   if(m_doEMECIW3bcid || m_doHEC2bcid || m_doHEC3bcid){
-    ATH_MSG_ERROR("You are attempting to apply the BCID offset correction to the EMEC3 or HEC back wheel cells which is not implemented.");
+    ATH_MSG_FATAL("You are attempting to apply the BCID offset correction to the EMEC3 or HEC back wheel cells which is not implemented.");
     return StatusCode::FAILURE;
   }
   if(m_doFCal0OuterBcid || m_doFCal1OuterBcid || m_doFCal2OuterBcid){
-    ATH_MSG_ERROR("You are attempting to apply the BCID offset correction to the outer small FCal cells which is not implemented.");
+    ATH_MSG_FATAL("You are attempting to apply the BCID offset correction to the outer small FCal cells which is not implemented.");
     return StatusCode::FAILURE;
   }
   if(m_doFCal1bcid || m_doFCal2bcid){
-    ATH_MSG_ERROR("You are attempting to apply the BCID offset correction to the large FCal1/2 cells which is not implemented.");
+    ATH_MSG_FATAL("You are attempting to apply the BCID offset correction to the large FCal1/2 cells which is not implemented.");
     return StatusCode::FAILURE;
   }
   if(m_doFCal0InnerBcid || m_doFCal1InnerBcid || m_doFCal2InnerBcid){
-    ATH_MSG_ERROR("You are attempting to apply the BCID offset correction to the inner small FCal cells which is not implemented.");
+    ATH_MSG_FATAL("You are attempting to apply the BCID offset correction to the inner small FCal cells which is not implemented.");
     return StatusCode::FAILURE;
   }
 
@@ -66,14 +64,14 @@ StatusCode BcidOffsetCorrection::initialize(){
   //find the ROOT file containing the BCID slopes and numbers of cells.
   TString BCIDFile = m_config->GetValue("BCIDOffsetFile","");
   if ( BCIDFile.EqualTo("empty") ) { 
-    ATH_MSG_ERROR("No BCIDOffsetFile specified. Aborting.");
+    ATH_MSG_FATAL("No BCIDOffsetFile specified. Aborting.");
     return StatusCode::FAILURE;
   }
   BCIDFile.Insert(14,m_calibAreaTag);
   TString fileName = PathResolverFindCalibFile(BCIDFile.Data());
   std::unique_ptr<TFile> inputFile(TFile::Open(fileName));
   if (!inputFile){
-    ATH_MSG_ERROR("Cannot open BCID offset calibration file" << fileName);
+    ATH_MSG_FATAL("Cannot open BCID offset calibration file" << fileName);
     return StatusCode::FAILURE;
   }
 
@@ -101,7 +99,7 @@ StatusCode BcidOffsetCorrection::initialize(){
   return StatusCode::SUCCESS;
 }
 
-StatusCode BcidOffsetCorrection::calibrate(xAOD::Jet& jet, JetEventInfo& jetEventInfo) const {
+StatusCode BcidOffsetCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo& jetEventInfo) const {
 
   // correction should only be applied to data
   if (!m_isData){
