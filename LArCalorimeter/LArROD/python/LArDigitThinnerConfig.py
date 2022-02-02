@@ -19,6 +19,7 @@ def LArDigitThinnerCfg(flags, **kwargs):
             from LArByteStream.LArRawDataReadingConfig import LArRawDataReadingCfg
             acc.merge(LArRawDataReadingCfg(flags,LArDigitKey="FREE"))
 
+
     acc.merge(LArOnOffIdMappingCfg(flags))
 
     if flags.Beam.Type == "cosmics":
@@ -31,6 +32,9 @@ def LArDigitThinnerCfg(flags, **kwargs):
         kwargs.setdefault("EnergyCuts_Endcap", [2000, 2000, 2000, 2000])
         kwargs.setdefault("EnergyCut_HEC", 5000)
         kwargs.setdefault("EnergyCut_FCAL", 20000)
+
+    if flags.LAr.RawChannelSource=="calculated":
+        kwargs.setdefault("RawChannelContainerName","LArRawChannels_FromDigits")
 
     acc.addEventAlgo(CompFactory.LArDigitThinner(**kwargs))
     return acc
