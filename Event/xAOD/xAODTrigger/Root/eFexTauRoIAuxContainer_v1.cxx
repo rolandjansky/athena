@@ -12,10 +12,10 @@ namespace xAOD {
 
       AUX_VARIABLE( word0);
       AUX_VARIABLE( word1);
-      AUX_VARIABLE( fCoreNumerator);
-      AUX_VARIABLE( fCoreDenominator);
-      AUX_VARIABLE( fHadNumerator);
-      AUX_VARIABLE( fHadDenominator);
+      AUX_VARIABLE( rCoreNumerator);
+      AUX_VARIABLE( rCoreDenominator);
+      AUX_VARIABLE( rHadNumerator);
+      AUX_VARIABLE( rHadDenominator);
       AUX_VARIABLE( et);
       AUX_VARIABLE( eta);
       AUX_VARIABLE( phi);

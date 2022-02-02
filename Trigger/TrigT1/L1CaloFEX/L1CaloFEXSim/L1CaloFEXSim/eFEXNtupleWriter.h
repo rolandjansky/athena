@@ -76,10 +76,14 @@ private:
   std::vector<float> m_eg_RhadDen;
 
   // values from the tau algorithm
-  std::vector<float> m_tau_realIso;
-  std::vector<float> m_tau_isoCore;
-  std::vector<float> m_tau_isoEnv;
-  std::vector<float> m_tau_isoWP;
+  std::vector<float> m_tau_realRCore;
+  std::vector<float> m_tau_rCoreCore;
+  std::vector<float> m_tau_rCoreEnv;
+  std::vector<float> m_tau_rCoreWP;
+  std::vector<float> m_tau_realRHad;
+  std::vector<float> m_tau_rHadCore;
+  std::vector<float> m_tau_rHadEnv;
+  std::vector<float> m_tau_rHadWP;
   std::vector<float> m_tau_seed;
   std::vector<float> m_tau_und;
   std::vector<float> m_tau_Et;
