@@ -115,6 +115,9 @@ if jetFlags.useTracks():
   lcgetters += [jtm.gtrackget]
   empfgetters += [jtm.gtrackget]
 
+if jetFlags.useLargeD0Tracks():
+  emgetters += [jtm.gtracklrtget]
+
 if jetFlags.useMuonSegments():
   emgetters += [jtm.gmusegget]
   lcgetters += [jtm.gmusegget]
