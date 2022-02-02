@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// This code is used in both MT and single-thread
@@ -95,7 +95,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::manageOutputContainers(bool& firstTimeInT
 
   }
   else{
-    const Muon::RpcPrepDataContainer* rpcPrepDataContainer_c;
+    const Muon::RpcPrepDataContainer* rpcPrepDataContainer_c = nullptr;
     ATH_CHECK( evtStore()->retrieve (rpcPrepDataContainer_c, m_rpcPrepDataContainerKey.key()) );
     m_state.m_rpcPrepDataContainer = const_cast<Muon::RpcPrepDataContainer*> (rpcPrepDataContainer_c);
     ATH_MSG_DEBUG("RPC PrepData Container is already in StoreGate ");
@@ -105,7 +105,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::manageOutputContainers(bool& firstTimeInT
         ATH_MSG_FATAL("Muon::RpcPrepDataContainer found while Muon::RpcCoinDataContainer not found in Event Store");
         return StatusCode::FAILURE;
       }
-      const Muon::RpcCoinDataContainer* rpcCoinDataContainer_c;
+      const Muon::RpcCoinDataContainer* rpcCoinDataContainer_c = nullptr;
       ATH_CHECK( evtStore()->retrieve (rpcCoinDataContainer_c, m_rpcCoinDataContainerKey.key()) );
       m_state.m_rpcCoinDataContainer = const_cast<Muon::RpcCoinDataContainer*> (rpcCoinDataContainer_c);
       ATH_MSG_DEBUG("RPC CoinData Container is already in StoreGate ");
