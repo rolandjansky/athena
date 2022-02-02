@@ -36,6 +36,7 @@ std::atomic<unsigned int> TestObj::s_ctorCounter;
 std::atomic<unsigned int> TestObj::s_dtorCounter;
 
 template <> TestObj *cloneObj<TestObj>( const TestObj *a) { return (a) ? new TestObj(*a) : nullptr; }
+std::unique_ptr<TestObj> uniqueForTest( const TestObj *a) { return (a) ? std::make_unique<TestObj>(*a) : nullptr; }
 
 using Container  = ObjContainer<const TestObj>;
 using Ptr        = ObjRef<>;
@@ -71,7 +72,7 @@ void test2()
 
    TestObj external_obj;
    GuardedPtr eobj(container, external_obj);
-   GuardedPtr clone( GuardedPtr::recapture(eobj, cloneObj(eobj.get()) ));
+   GuardedPtr clone( GuardedPtr::recapture(eobj, uniqueForTest(eobj.get()) ));
    (void) clone;
 }
 
@@ -82,9 +83,9 @@ const TestObj *test1HelperG(const TestObj &external_obj) {
    GuardedPtr ret(container);
    {
    GuardedPtr ptr(container,external_obj);
-   GuardedPtr new_obj2(GuardedPtr::recapture(GuardedPtr(container),new TestObj));
+   GuardedPtr new_obj2(GuardedPtr::recapture(GuardedPtr(container),std::make_unique<TestObj>()));
    GuardedPtr shared_obj1(new_obj2);
-   shared_obj1 = GuardedPtr::recapture(GuardedPtr(container),new TestObj);
+   shared_obj1 = GuardedPtr::recapture(GuardedPtr(container),std::make_unique<TestObj>());
    ret=shared_obj1;
    }
    return ret.release();
@@ -105,14 +106,14 @@ const TestObj *test3HelperG(const TestObj &external_obj) {
    {
    GuardedPtr ptr(container,external_obj);
    GuardedPtr empty(container);
-   GuardedPtr ptr2( GuardedPtr::recapture(empty,cloneObj(&external_obj)));
-   GuardedPtr new_obj1(GuardedPtr::recapture(empty,cloneObj(&external_obj)));
-   GuardedPtr new_obj4(GuardedPtr::recapture(empty,cloneObj(&external_obj)));
-   GuardedPtr new_obj2(GuardedPtr::recapture(empty,new TestObj));
-   GuardedPtr new_obj3(GuardedPtr::recapture(empty,new TestObj));
+   GuardedPtr ptr2( GuardedPtr::recapture(empty,uniqueForTest(&external_obj)));
+   GuardedPtr new_obj1(GuardedPtr::recapture(empty,uniqueForTest(&external_obj)));
+   GuardedPtr new_obj4(GuardedPtr::recapture(empty,uniqueForTest(&external_obj)));
+   GuardedPtr new_obj2(GuardedPtr::recapture(empty,std::make_unique<TestObj>()));
+   GuardedPtr new_obj3(GuardedPtr::recapture(empty,std::make_unique<TestObj>()));
    GuardedPtr shared_obj3(new_obj2); 
    shared_obj3 = new_obj4;
-   shared_obj3 = GuardedPtr::recapture(empty,new TestObj);
+   shared_obj3 = GuardedPtr::recapture(empty,std::make_unique<TestObj>());
 
    TestObj::stat("INFO ");
    ret=shared_obj3;
@@ -135,19 +136,14 @@ const TestObj *test5HelperG(const TestObj &external_obj) {
    {
    GuardedPtr eobj(container,external_obj);
    GuardedPtr empty(container);
-   GuardedPtr nobj(GuardedPtr::recapture(empty,cloneObj(&external_obj)));
+   GuardedPtr nobj(GuardedPtr::recapture(empty,uniqueForTest(&external_obj)));
 
-   const GuardedPtr& shared_eobj(eobj);
    GuardedPtr shared_nobj(nobj);
    GuardedPtr shared_eobj2(eobj);
    GuardedPtr shared_nobj2(nobj);
-   GuardedPtr nobj3(GuardedPtr::recapture(empty, cloneObj(&external_obj)));
+   GuardedPtr nobj3(GuardedPtr::recapture(empty, uniqueForTest(&external_obj)));
 
-   shared_eobj2 = shared_eobj;
-   shared_nobj2 = shared_nobj;
-   shared_nobj2 = GuardedPtr::recapture(shared_nobj, shared_nobj.get());
-   shared_nobj  = GuardedPtr::recapture(empty, new TestObj);
-   nobj3  = GuardedPtr::recapture(nobj3, nobj3.get());
+   shared_nobj  = GuardedPtr::recapture(empty, std::make_unique<TestObj>());
    TestObj::stat("INFO ");
    ret=shared_nobj2;
    }
@@ -175,13 +171,12 @@ const TestObj *test6Helper(const TestObj &external_obj) {
    {
    GuardedPtr eobj(container,external_obj);
    GuardedPtr empty(container);
-   GuardedPtr nobj(GuardedPtr::recapture(empty,cloneObj(&external_obj)));
-   GuardedPtr nobj2(GuardedPtr::recapture(empty,cloneObj(&external_obj)));
-   GuardedPtr nobj3(GuardedPtr::recapture(empty,cloneObj(&external_obj)));
-   GuardedPtr nobj4(GuardedPtr::recapture(empty,cloneObj(&external_obj)));
-   GuardedPtr nobj5(GuardedPtr::recapture(empty,cloneObj(&external_obj)));
-   GuardedPtr nobj6(GuardedPtr::recapture(empty,cloneObj(&external_obj)));
-   nobj4 = GuardedPtr::recapture(nobj5,ret_func(container,nobj5.index()));
+   GuardedPtr nobj(GuardedPtr::recapture(empty,uniqueForTest(&external_obj)));
+   GuardedPtr nobj2(GuardedPtr::recapture(empty,uniqueForTest(&external_obj)));
+   GuardedPtr nobj3(GuardedPtr::recapture(empty,uniqueForTest(&external_obj)));
+   GuardedPtr nobj4(GuardedPtr::recapture(empty,uniqueForTest(&external_obj)));
+   GuardedPtr nobj5(GuardedPtr::recapture(empty,uniqueForTest(&external_obj)));
+   GuardedPtr nobj6(GuardedPtr::recapture(empty,uniqueForTest(&external_obj)));
    TestObj::stat("INFO ");
    ret=nobj4;
    }
@@ -204,8 +199,8 @@ const TestObj *test7Helper(const TestObj &external_obj) {
    GuardedPtr ret(container);
    {
    GuardedPtr empty(container);
-   GuardedPtr nobj(GuardedPtr::recapture(empty,cloneObj(&external_obj)));
-   GuardedPtr nobj2(GuardedPtr::recapture(empty,cloneObj(&external_obj)));
+   GuardedPtr nobj(GuardedPtr::recapture(empty,uniqueForTest(&external_obj)));
+   GuardedPtr nobj2(GuardedPtr::recapture(empty,uniqueForTest(&external_obj)));
    if (nobj==nobj2) {
       std::abort();
    }
