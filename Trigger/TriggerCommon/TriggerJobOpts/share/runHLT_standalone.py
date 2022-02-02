@@ -45,6 +45,7 @@ class opt:
     enableL1TopoDump = False          # Enable L1Topo simulation to write inputs to txt
     enableL1NSWEmulation = False      # Enable TGC-NSW coincidence emulator : ConfigFlags.Trigger.L1MuonSim.EmulateNSW
     enableL1NSWVetoMode = False       # Enable TGC-NSW coincidence veto mode: ConfigFlags.Trigger.L1MuonSim.NSWVetoMode
+    enableL1NSWMMTrigger = False      # Enable MM trigger for TGC-NSW coincidence : ConfigFlags.Trigger.L1MuonSim.doMMTrigger
 #Individual slice flags
     doCalibSlice        = True
     doTestSlice         = True
@@ -231,6 +232,7 @@ ConfigFlags.Trigger.enableL1TopoDump = opt.enableL1TopoDump
 
 ConfigFlags.Trigger.L1MuonSim.EmulateNSW  = opt.enableL1NSWEmulation
 ConfigFlags.Trigger.L1MuonSim.NSWVetoMode = opt.enableL1NSWVetoMode
+ConfigFlags.Trigger.L1MuonSim.doMMTrigger = opt.enableL1NSWMMTrigger
 
 ConfigFlags.Trigger.doHLT = bool(opt.doHLT)
 ConfigFlags.Trigger.doID = opt.doID
