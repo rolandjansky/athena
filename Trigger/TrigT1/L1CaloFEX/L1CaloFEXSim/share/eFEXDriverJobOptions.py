@@ -52,6 +52,8 @@ include("RecExCond/AllDet_detDescr.py")
 from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
 from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
 from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
+flags.Input.Files = athenaCommonFlags.FilesInput()
+flags.Trigger.triggerConfig = "FILE"
 flags.lock()
 CAtoGlobalWrapper(L1ConfigSvcCfg,flags)
 
