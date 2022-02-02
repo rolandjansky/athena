@@ -93,21 +93,20 @@ def LArCalibIdMappingSC():
     return
 
 def LArLATOMEMappingSC():
+    folder="/LAR/Identifier/LatomeMapping"
     condSequence = AthSequencer("AthCondSeq")
-    #temporarily disabled, until conditions will arrive to COOL
-    #folder="/LAR/IdentifierSC/LatomeMapping"
-    #if hasattr(condSequence,"LArLATOMEMappingAlg") and condSequence.LArLATOMEMappingAlg.ReadKey==folder:
-    #    return #Already there....
+    if hasattr(condSequence,"LArLATOMEMappingAlg") and condSequence.LArLATOMEMappingAlg.ReadKey==folder:
+        return #Already there....
 
-    #if conddb.isMC:
-    #    dbname="LAR_OFL"
-    #else:
-    #    dbname="LAR"
-    #conddb.addFolder(dbname,folder,className="AthenaAttributeList")
-    # SC only in OFL database
-    folder="/LAR/IdentifierSC/LatomeMapping"
-    conddb.addFolder("","<db>sqlite://;schema=/afs/cern.ch/user/p/pavol/w0/public/LAr_Reco_SC_22/Phase1/test_mapping/LatomeMapping.db;dbname=CONDBR2</db>"+folder,className="CondAttrListCollection")
-    conddb.addOverride(folder,"LARIdentifierSCLatomeMapping-UPD1-00")
+    if conddb.isMC:
+        dbname="LAR_OFL"
+        folder=""
+        from AthenaCommon.Logging import logging
+        mlog = logging.getLogger( 'LArCablingAccess' )
+        mlog.warning("There is no LATOME mapping in the MC jobs yet")
+    else:
+        dbname="LAR_ONL"
+    conddb.addFolder(dbname,folder,className="AthenaAttributeList")
     condSequence+=LArLATOMEMappingAlg("LArLATOMEMappingAlgSC",ReadKey=folder, WriteKey="LArLATOMEMap")
 
     return
