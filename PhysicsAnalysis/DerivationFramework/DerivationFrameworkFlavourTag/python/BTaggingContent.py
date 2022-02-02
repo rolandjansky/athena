@@ -12,7 +12,6 @@ def rchop(thestring, ending):
 JetStandardAux = \
     [ "pt"
     , "eta"
-    , "btagging"
     , "btaggingLink"
     , "HadronConeExclTruthLabelID"
     , "HadronConeExclExtendedTruthLabelID"

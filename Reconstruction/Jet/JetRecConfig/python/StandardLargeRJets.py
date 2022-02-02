@@ -12,7 +12,7 @@ from .JetGrooming import  JetTrimming, JetSoftDrop
 standardghosts =  ["Track","MuonSegment","Truth"]
 
 
-flavourghosts = [
+flavourghosts = [ "BHadronsFinal",
                   "WBosons", "ZBosons", "HBosons", "TQuarksFinal",
                   "Partons",]
 
@@ -27,16 +27,19 @@ flavourghosts = [
 standardrecomods = (
     "Sort",
     "Width",
-    "TrackMoments",
+    "ConstitFourMom"
 )
 clustermods      = ("ECPSFrac","ClusterMoments",) 
-truthmods        =  ("PartonTruthLabel","TruthPartonDR", ) 
+truthmods        = ("PartonTruthLabel","TruthPartonDR",)
 pflowmods        = ()
 
 substrmods = ("nsubjettiness", "nsubjettinessR", "ktsplitter",
-              "ecorr", "ecorrR",  "qw",
+              "ecorr", "ecorrR", "qw",
               # ... others ?
 )
+
+#Variables used for trimmed large-R jets
+lctopo_trimmed_mods = ("planarflow","angularity","comshapes","ktdr","TrackSumMoments")
 
 
 # *********************************************************
@@ -45,10 +48,15 @@ substrmods = ("nsubjettiness", "nsubjettinessR", "ktsplitter",
 
 
 AntiKt10LCTopo = JetDefinition("AntiKt",1.0,cst.LCTopoOrigin,
-                               ghostdefs = standardghosts+flavourghosts , 
-                               modifiers = ("Sort", "Filter:50000"), 
+                               ghostdefs = standardghosts+flavourghosts+["AntiKtVR30Rmax4Rmin02PV0TrackJet"] ,
+                               modifiers = ("Sort", "Filter:50000","TrackMoments"),
                                standardRecoMode = True,                               
                                lock = True
+)
+
+#Remove VR track jets from ghosts for core reco
+AntiKt10LCTopo_noVR = AntiKt10LCTopo.clone(
+    ghostdefs = standardghosts+flavourghosts
 )
 
 AntiKt10LCTopo_withmoms = AntiKt10LCTopo.clone(
@@ -57,7 +65,7 @@ AntiKt10LCTopo_withmoms = AntiKt10LCTopo.clone(
                                                
 )
 AntiKt10LCTopoTrimmed = JetTrimming(AntiKt10LCTopo,
-                                    modifiers = standardrecomods+substrmods,
+                                    modifiers = standardrecomods+substrmods+lctopo_trimmed_mods,
                                     PtFrac = 0.05, RClus = 0.2,                                    
                                     )
 
@@ -71,19 +79,19 @@ AntiKt10LCTopoSoftDrop = JetSoftDrop(AntiKt10LCTopo,
 
 AntiKt10Truth = JetDefinition("AntiKt",1.0,cst.Truth,
                                ghostdefs = flavourghosts , 
-                               modifiers = ("Sort", "Filter:50000"), 
+                               modifiers = ("Sort", "Filter:50000","ktsplitter"),
                                standardRecoMode = True,                               
                                lock = True
 )
 
 
 AntiKt10TruthTrimmed = JetTrimming(AntiKt10Truth,
-                                   modifiers = standardrecomods+substrmods+truthmods,
+                                   modifiers = ("Sort",)+substrmods+truthmods,
                                    PtFrac = 0.05, RClus = 0.2,                                    
                                    )
 
 AntiKt10TruthSoftDrop = JetSoftDrop(AntiKt10Truth,
-                                    modifiers = standardrecomods+substrmods+truthmods,
+                                    modifiers = ("Sort",)+substrmods+truthmods,
                                     Beta = 1., ZCut= 0.1,
                                     )
 
