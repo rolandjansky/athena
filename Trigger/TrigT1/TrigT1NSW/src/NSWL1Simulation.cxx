@@ -33,8 +33,8 @@ namespace NSWL1 {
     // Property setting general behaviour:
     declareProperty( "DoOffline",    m_doOffline    = false, "Steers the offline emulation of the LVL1 logic" );
     declareProperty( "UseLookup",    m_useLookup    = false, "Toggle Lookup mode on and off default is the otf(old) mode" );
-    declareProperty( "DoNtuple",     m_doNtuple     = true,  "Create an ntuple for data analysis" );
-    declareProperty( "DoMM",         m_doMM         = true,  "Run data analysis for MM" );
+    declareProperty( "DoNtuple",     m_doNtuple     = false,  "Create an ntuple for data analysis" );
+    declareProperty( "DoMM",         m_doMM         = false,  "Run data analysis for MM" );
     declareProperty( "DoMMDiamonds", m_doMMDiamonds = false, "Run data analysis for MM using Diamond Roads algorithm" );
     declareProperty( "DosTGC",       m_dosTGC       = false, "Run data analysis for sTGCs" );
 
