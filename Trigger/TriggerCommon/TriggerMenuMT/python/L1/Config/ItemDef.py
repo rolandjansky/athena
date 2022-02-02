@@ -1598,28 +1598,19 @@ class ItemDef:
             MenuItem('L1_BPH-0M10C-3MU3V'             ).setLogic( d.TOPO_0INVM10C_3MU3Vab & physcond)
             #ATR-19639
             MenuItem('L1_BPH-2M9-0DR15-C-MU5VFMU3V'   ).setLogic( d.TOPO_2INVM9_0DR15_C_MU5VFab_MU3Vab & physcond)        
+
             # ATR-21566
-            MenuItem('L1_BPH-0DR12-2MU3V'      ).setLogic( d.TOPO_0DR12_2MU3Vab & physcond)
-            MenuItem('L1_BPH-0DR12C-2MU3V'     ).setLogic( d.TOPO_0DR12C_2MU3Vab & physcond)             
-            MenuItem('L1_BPH-7M22-0DR12-2MU3V' ).setLogic( d.TOPO_7INVM22_0DR12_2MU3Vab & physcond)
-            MenuItem('L1_BPH-7M22-0DR20-2MU3V' ).setLogic( d.TOPO_7INVM22_0DR20_2MU3Vab & physcond)
-            MenuItem('L1_BPH-0DR12-2MU3VF'     ).setLogic( d.TOPO_0DR12_2MU3VFab & physcond)
-            MenuItem('L1_BPH-7M22-0DR12-2MU3VF').setLogic( d.TOPO_7INVM22_0DR12_2MU3VFab & physcond)
-            MenuItem('L1_BPH-7M22-0DR12-MU5VFMU3VF' ).setLogic( d.TOPO_7INVM22_0DR12_MU5VFab_MU3VFab & physcond)
-            MenuItem('L1_BPH-8M22-2MU3V').setLogic( d.TOPO_8INVM22_2MU3Vab & physcond)
-            MenuItem('L1_BPH-8M22-2MU3VF').setLogic( d.TOPO_8INVM22_2MU3VFab & physcond)
-            MenuItem('L1_BPH-7M22-0DR12-MU5VFMU3V' ).setLogic( d.TOPO_7INVM22_0DR12_MU5VFab_MU3Vab & physcond)
-            MenuItem('L1_BPH-7M22-0DR20-MU5VFMU3V' ).setLogic( d.TOPO_7INVM22_0DR20_MU5VFab_MU3Vab & physcond)
+            MenuItem('L1_BPH-7M22-2MU3VF'       ).setLogic( d.TOPO_7INVM22_2MU3VFab & physcond)
+            MenuItem('L1_BPH-7M22-MU5VFMU3VF'   ).setLogic( d.TOPO_7INVM22_MU5VFab_MU3VFab & physcond)
+            MenuItem('L1_BPH-7M22-0DR20-2MU3V'  ).setLogic( d.TOPO_7INVM22_0DR20_2MU3Vab & physcond)
+            MenuItem('L1_BPH-7M22-0DR20-2MU3VF' ).setLogic( d.TOPO_7INVM22_0DR20_2MU3VFab & physcond)
+            MenuItem('L1_BPH-7M22-0DR12-2MU3V'  ).setLogic( d.TOPO_7INVM22_0DR12_2MU3Vab & physcond)
+
             #ATR-22782
-            MenuItem('L1_BPH-0M16-20DR99-2MU3V'       ).setLogic( d.TOPO_0INVM16_20DR99_2MU3Vab & physcond)
-            MenuItem('L1_BPH-0M16-15DR99-2MU3V'       ).setLogic( d.TOPO_0INVM16_15DR99_2MU3Vab & physcond)
-            MenuItem('L1_BPH-8M15-20DR99-2MU3V'       ).setLogic( d.TOPO_8INVM15_20DR99_2MU3Vab & physcond)
-            MenuItem('L1_BPH-8M15-15DR99-2MU3V'       ).setLogic( d.TOPO_8INVM15_15DR99_2MU3Vab & physcond)
-            MenuItem('L1_BPH-8M15-20DR99-C-2MU3V'     ).setLogic( d.TOPO_8INVM15_20DR99_C_2MU3Vab & physcond)
-            MenuItem('L1_BPH-7M11-25DR99-2MU3V'       ).setLogic( d.TOPO_7INVM11_25DR99_2MU3Vab & physcond)
-            MenuItem('L1_BPH-7M14-0DR25-MU5VFMU3V'    ).setLogic( d.TOPO_7INVM14_0DR25_MU5VFab_MU3Vab & physcond)
-            MenuItem('L1_BPH-7M11-25DR99-2MU3VF'      ).setLogic( d.TOPO_7INVM11_25DR99_2MU3VFab & physcond)
-            MenuItem('L1_BPH-7M14-0DR25-MU5VFMU3VF'   ).setLogic( d.TOPO_7INVM14_0DR25_MU5VFab_MU3VFab & physcond)
+            MenuItem('L1_BPH-7M11-25DR99-2MU3VF'   ).setLogic( d.TOPO_7INVM11_25DR99_2MU3VFab & physcond)
+            MenuItem('L1_BPH-7M14-MU5VFMU3VF'      ).setLogic( d.TOPO_7INVM14_MU5VFab_MU3VFab & physcond)
+            MenuItem('L1_BPH-7M14-2MU3VF'          ).setLogic( d.TOPO_7INVM14_2MU3VFab & physcond)
+            MenuItem('L1_BPH-7M14-2MU3V'           ).setLogic( d.TOPO_7INVM14_2MU3Vab & physcond)
 
             # ATR-19510, SM Low-mass DY
             MenuItem('L1_DY-BOX-2MU3V' ).setLogic( d.TOPO_5DETA99_5DPHI99_2MU3Vab & physcond)
