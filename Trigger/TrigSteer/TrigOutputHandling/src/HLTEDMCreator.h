@@ -76,8 +76,16 @@
 #include "xAODTrigRinger/TrigRNNOutputContainer.h"
 #include "xAODTrigRinger/TrigRNNOutputAuxContainer.h"
 
+#include "xAODForward/AFPSiHitsClusterContainer.h"
+#include "xAODForward/AFPSiHitsClusterAuxContainer.h"
 #include "xAODForward/AFPTrackContainer.h"
 #include "xAODForward/AFPTrackAuxContainer.h"
+#include "xAODForward/AFPToFTrackContainer.h"
+#include "xAODForward/AFPToFTrackAuxContainer.h"
+#include "xAODForward/AFPProtonContainer.h"
+#include "xAODForward/AFPProtonAuxContainer.h"
+#include "xAODForward/AFPVertexContainer.h"
+#include "xAODForward/AFPVertexAuxContainer.h"
 
 /**
  * @class HLTEDMCreator
@@ -158,7 +166,11 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
   DEF_XAOD_KEY( TrigT2MbtsBitsContainer );
   DEF_XAOD_KEY( HIEventShapeContainer );
   DEF_XAOD_KEY( TrigRNNOutputContainer );
+  DEF_XAOD_KEY( AFPSiHitsClusterContainer );
   DEF_XAOD_KEY( AFPTrackContainer );
+  DEF_XAOD_KEY( AFPToFTrackContainer );
+  DEF_XAOD_KEY( AFPProtonContainer );
+  DEF_XAOD_KEY( AFPVertexContainer );
 
 #undef DEF_VIEWS
 #undef DEF_KEY
