@@ -4279,7 +4279,7 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
       // Output my ID in the graph. 
       const DecisionContainer* container = dynamic_cast<const DecisionContainer*>( tc->container() );
       const ElementLink<DecisionContainer> selfEL = ElementLink<DecisionContainer>(*container, tc->index());
-      ElementLinkVector<DecisionContainer> seedELs = tc->objectCollectionLinks<DecisionContainer>("seed");
+      std::vector<ElementLink<DecisionContainer>> seedELs = tc->objectCollectionLinks<DecisionContainer>("seed");
       const bool isHypoAlgNode = tc->name() == "H";
       const std::vector<DecisionID>& decisions = tc->decisions();
       const uint32_t selfKey = selfEL.key();
@@ -4295,7 +4295,7 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
         }
         // Check my seeds
         if (!doDump and isHypoAlgNode and not m_excludeFailedHypoNodes) {
-          for (const ElementLink<DecisionContainer> s : seedELs) {
+          for (const ElementLink<DecisionContainer>& s : seedELs) {
             const std::vector<DecisionID>& seedDecisions = (*s)->decisions();
             for (DecisionID id : seedDecisions) {
               if (chainIDs.count(id) == 1) {
