@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -82,9 +82,9 @@ StatusCode Trk::InputLayerMaterialProvider::process(const Trk::TrackingVolume& t
   const Trk::LayerArray* layerArray = tvol.confinedLayers();
   if (layerArray) {
       // display output
-      const std::vector<const Trk::Layer*>& layers = layerArray->arrayObjects();
-      std::vector<const Trk::Layer*>::const_iterator layIter  = layers.begin();
-      std::vector<const Trk::Layer*>::const_iterator layIterE = layers.end();    
+      Trk::BinnedArraySpan<Trk::Layer const * const> layers = layerArray->arrayObjects();
+      Trk::BinnedArraySpan<Trk::Layer const * const>::const_iterator layIter  = layers.begin();
+      Trk::BinnedArraySpan<Trk::Layer const * const>::const_iterator layIterE = layers.end();    
       ATH_MSG_VERBOSE(displayBuffer.str() << "--> has " << layers.size() << " confined layers." ); 
       for ( ; layIter != layIterE; ++layIter){
           if (!(*layIter))
@@ -97,11 +97,11 @@ StatusCode Trk::InputLayerMaterialProvider::process(const Trk::TrackingVolume& t
    } 
 
    // Process the contained TrackingVolumes (recursively) if they exist
-   const Trk::BinnedArray< Trk::TrackingVolume >* confinedVolumes = tvol.confinedVolumes();
+   const Trk::BinnedArray< const Trk::TrackingVolume >* confinedVolumes = tvol.confinedVolumes();
    // register the next round
    if (confinedVolumes) {
-       const std::vector<const Trk::TrackingVolume*>& volumes = confinedVolumes->arrayObjects();
-       std::vector<const Trk::TrackingVolume*>::const_iterator volumesIter = volumes.begin();
+       Trk::BinnedArraySpan<Trk::TrackingVolume const * const> volumes = confinedVolumes->arrayObjects();
+       Trk::BinnedArraySpan<Trk::TrackingVolume const * const>::const_iterator volumesIter = volumes.begin();
        for (; volumesIter != volumes.end(); ++volumesIter){
            if (!(*volumesIter))
               ATH_MSG_WARNING("Zero-pointer found in VolumeArray - indicates problem !");

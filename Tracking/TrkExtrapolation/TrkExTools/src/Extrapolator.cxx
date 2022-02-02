@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 ///////////////////////////////////////////////////////////////////
@@ -1092,7 +1092,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
     } else { // active material
       const Trk::TrackingVolume* detVol = dVol->associatedSubVolume(gp);
       if (!detVol && dVol->confinedVolumes()) {
-        std::vector<const Trk::TrackingVolume*> subvols = dVol->confinedVolumes()->arrayObjects();
+        Trk::BinnedArraySpan<Trk::TrackingVolume const * const> subvols = dVol->confinedVolumes()->arrayObjects();
         for (unsigned int iv = 0; iv < subvols.size(); iv++) {
           if (subvols[iv]->inside(gp, m_tolerance)) {
             detVol = subvols[iv];
@@ -5154,7 +5154,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
     } else { // active material
       const Trk::TrackingVolume* detVol = dVol->associatedSubVolume(gp);
       if (!detVol && dVol->confinedVolumes()) {
-        std::vector<const Trk::TrackingVolume*> subvols = dVol->confinedVolumes()->arrayObjects();
+        Trk::BinnedArraySpan<Trk::TrackingVolume const * const> subvols = dVol->confinedVolumes()->arrayObjects();
         for (unsigned int iv = 0; iv < subvols.size(); iv++) {
           if (subvols[iv]->inside(gp, m_tolerance)) {
             detVol = subvols[iv];
@@ -5191,7 +5191,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
         // layers ?
         if (detVol->confinedLayers()) {
           if (cache.m_robustSampling) {
-            std::vector<const Trk::Layer*> cLays = detVol->confinedLayers()->arrayObjects();
+            Trk::BinnedArraySpan<Trk::Layer const * const> cLays = detVol->confinedLayers()->arrayObjects();
             for (unsigned int i = 0; i < cLays.size(); i++) {
               if (cLays[i]->layerType() > 0 || cLays[i]->layerMaterialProperties()) {
                 cache.m_layers.emplace_back(&(cLays[i]->surfaceRepresentation()), true);
@@ -5229,7 +5229,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
   if (cache.m_currentStatic->confinedLayers() && updateStatic) {
     // if ( cache.m_currentStatic->confinedLayers() ) {
     if (cache.m_robustSampling) {
-      std::vector<const Trk::Layer*> cLays =
+      Trk::BinnedArraySpan<Trk::Layer const * const> cLays =
         cache.m_currentStatic->confinedLayers()->arrayObjects();
       for (unsigned int i = 0; i < cLays.size(); i++) {
         if (cLays[i]->layerType() > 0 || cLays[i]->layerMaterialProperties()) {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -85,7 +85,7 @@ StatusCode Trk::GeometryAsciiDumper::processNode(const Trk::TrackingVolume& tvol
     }
 
    // Process the contained TrackingVolumes (recursively) if they exist
-   const Trk::BinnedArray< Trk::TrackingVolume >* confinedVolumes = tvol.confinedVolumes();
+   const Trk::BinnedArray< const Trk::TrackingVolume >* confinedVolumes = tvol.confinedVolumes();
    if (confinedVolumes){ 
        m_outputFile << levelBuffer.str() << "  - contains " << confinedVolumes->arrayObjects().size() << " confined Trk::TrackingVolume objects." << std::endl;
        m_outputFile << levelBuffer.str() << "  - stepping down in hierarchy to Trk::TrackingVolume objects :" << std::endl;

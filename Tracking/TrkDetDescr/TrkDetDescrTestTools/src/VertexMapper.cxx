@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -70,8 +70,8 @@ Trk::MappedVertex Trk::VertexMapper::mapToLocal(const Amg::Vector3D& vertex) con
         // and check if we have confined layers
         if (mLayerArray){
             // extract all the layers with sensitive surfaces
-            const std::vector<const Trk::Layer*>& mLayerObjects = mLayerArray->arrayObjects();
-            std::vector<const Trk::Layer*> mSensitiveLayers;
+          Trk::BinnedArraySpan<Trk::Layer const * const> mLayerObjects = mLayerArray->arrayObjects();
+          std::vector<const Trk::Layer*> mSensitiveLayers;
             // loop over for the extraction - and check if they have a sub surface array
             for (const auto & mLayer : mLayerObjects){
                 if (mLayer->surfaceArray()){

@@ -17,6 +17,7 @@
 // Trk
 #include "TrkDetDescrInterfaces/ILayerBuilder.h"
 #include "TrkDetDescrUtils/SharedObject.h"
+#include "TrkDetDescrUtils/BinnedArray.h"
 // STL
 #include <vector>
 #include <utility> //for std::pair
@@ -101,7 +102,7 @@ namespace InDet {
       const Trk::LayerMaterialProperties* barrelLayerMaterial(double r, double hz) const;  //!< helper method to construct barrel material
       const Trk::LayerMaterialProperties* endcapLayerMaterial(double rMin, double rMax) const; //!< helper method to construct endcap material
         
-      void registerSurfacesToLayer(const std::vector<const Trk::Surface*>& surfaces, const Trk::Layer& layer) const; //!< layer association
+      void registerSurfacesToLayer(Trk::BinnedArraySpan<Trk::Surface const * const >& surfaces, const Trk::Layer& layer) const; //!< layer association
 
       bool                                           m_pixelCase;                      //!< flag for pixel/sct
                                                      
