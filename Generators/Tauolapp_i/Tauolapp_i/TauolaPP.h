@@ -16,8 +16,6 @@
 #include "GaudiKernel/IPartPropSvc.h"
 
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "GeneratorObjects/McEventCollection.h"
 
 class StoreGateSvc;
