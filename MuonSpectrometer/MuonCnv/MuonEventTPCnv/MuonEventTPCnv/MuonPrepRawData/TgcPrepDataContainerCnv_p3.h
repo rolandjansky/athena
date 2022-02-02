@@ -1,30 +1,28 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TgcPREPDATACONTAINERCNV_P3_H
 #define TgcPREPDATACONTAINERCNV_P3_H
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
-
 #include "MuonPrepRawData/TgcPrepDataContainer.h"
-
 #include "MuonEventTPCnv/MuonPrepRawData/MuonPRD_Container_p2.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "TrkEventCnvTools/IEventCnvSuperTool.h"
 
 
 #include <iostream>
 
 class StoreGateSvc;
 class TgcIdHelper;
-namespace MuonGM {class MuonDetectorManager;}
-
 namespace Muon{
 /** Class to handle the conversion of the transient TgcPrepDataContainer into its persistent representation (defined in MuonPRD_Container_p3).
 This replaces TgcPrepDataContainerCnv_tlp1, which is a AthenaPoolTopLevelTPConverter, as I have now simplified/flattened the TgcPrepData.*/
 class TgcPrepDataContainerCnv_p3 : public T_AthenaPoolTPCnvBase<Muon::TgcPrepDataContainer, Muon::TgcPrepDataContainer_p3>
 {
 public:
-  TgcPrepDataContainerCnv_p3() : m_TgcId(0), m_storeGate(0), m_muonDetMgr(0), m_isInitialized(0)  {};
+  TgcPrepDataContainerCnv_p3() = default;
 
     virtual void	persToTrans(const Muon::TgcPrepDataContainer_p3* persCont,
         Muon::TgcPrepDataContainer* transCont,
@@ -37,10 +35,12 @@ public:
 
 
 private:
-    const TgcIdHelper *m_TgcId;
-    StoreGateSvc *m_storeGate;
-    const MuonGM::MuonDetectorManager* m_muonDetMgr;
-    bool m_isInitialized;
+    const MuonGM::TgcReadoutElement* getReadOutElement(const Identifier& id ) const;
+   
+    const TgcIdHelper *m_TgcId{nullptr};
+    StoreGateSvc *m_storeGate{nullptr};
+    ToolHandle  < Trk::IEventCnvSuperTool >   m_eventCnvTool{"Trk::EventCnvSuperTool/EventCnvSuperTool"}; 
+    bool m_isInitialized{false};
     StatusCode initialize(MsgStream &log);
 };
 }

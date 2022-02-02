@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonPrepRawData/MdtPrepData.h"
@@ -7,9 +7,9 @@
 #include "MuonEventTPCnv/MuonPrepRawData/MdtPrepData_p2.h"
 #include "MuonEventTPCnv/MuonPrepRawData/MuonPRD_Container_p2.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonEventTPCnv/MuonPrepRawData/MdtPrepDataCnv_p2.h"
 #include "MuonEventTPCnv/MuonPrepRawData/MdtPrepDataContainerCnv_p2.h"
+#include "TrkEventCnvTools/ITrkEventCnvTool.h"
 
 // Gaudi
 #include "GaudiKernel/ISvcLocator.h"
@@ -51,14 +51,19 @@ StatusCode Muon::MdtPrepDataContainerCnv_p2::initialize(MsgStream &log) {
         if (log.level() <= MSG::DEBUG)log << MSG::DEBUG << "Found the  ID helper." << endmsg;
     }
 
-    sc = detStore->retrieve(m_muonDetMgr);
-    if (sc.isFailure()) {
+    if (m_eventCnvTool.retrieve().isFailure()) {
         log << MSG::FATAL << "Could not get DetectorDescription manager" << endmsg;
-        return sc;
+        return StatusCode::FAILURE;
     }
 
     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
     return StatusCode::SUCCESS;
+}
+
+const MuonGM::MdtReadoutElement* Muon::MdtPrepDataContainerCnv_p2::getReadOutElement(const Identifier& id ) const {
+    const Trk::ITrkEventCnvTool* cnv_tool = m_eventCnvTool->getCnvTool(id);
+    if (!cnv_tool) return nullptr; 
+    return dynamic_cast<const MuonGM::MdtReadoutElement*>(cnv_tool->getDetectorElement(id));
 }
 
 void Muon::MdtPrepDataContainerCnv_p2::transToPers(const Muon::MdtPrepDataContainer* transCont,  Muon::MdtPrepDataContainer_p2* persCont, MsgStream &log) 
@@ -79,14 +84,12 @@ void Muon::MdtPrepDataContainerCnv_p2::transToPers(const Muon::MdtPrepDataContai
     // to the container's vector, saving the indexes in the
     // collection. 
 
-//  std::cout<<"Starting transToPers"<<std::endl;
    typedef Muon::MdtPrepDataContainer TRANS;
-    //typedef ITPConverterFor<Trk::PrepRawData> CONV;
 
     MdtPrepDataCnv_p2  chanCnv;
     TRANS::const_iterator it_Coll     = transCont->begin();
     TRANS::const_iterator it_CollEnd  = transCont->end();
-    unsigned int pcollIndex; // index to the persistent collection we're filling
+    unsigned int pcollIndex =0; // index to the persistent collection we're filling
     unsigned int pcollBegin = 0; // index to start of persistent collection we're filling, in long list of persistent PRDs
     unsigned int pcollEnd = 0; // index to end 
     int numColl = transCont->numberOfCollections();
@@ -94,7 +97,6 @@ void Muon::MdtPrepDataContainerCnv_p2::transToPers(const Muon::MdtPrepDataContai
     
     if (log.level() <= MSG::DEBUG) 
         log << MSG::DEBUG<< " Preparing " << persCont->m_collections.size() << "Collections" <<endmsg;
-  //  std::cout<<"Preparing " << persCont->m_collections.size() << "Collections" << std::endl;
     for (pcollIndex = 0; it_Coll != it_CollEnd; ++pcollIndex, ++it_Coll)  {
         // Add in new collection
       if (log.level() <= MSG::DEBUG) 
@@ -108,13 +110,11 @@ void Muon::MdtPrepDataContainerCnv_p2::transToPers(const Muon::MdtPrepDataContai
         pcollection.m_hashId = collection.identifyHash(); 
         pcollection.m_id = collection.identify().get_identifier32().get_compact();
         pcollection.m_size = collection.size();
-//        std::cout<<"Coll Index: "<<pcollIndex<<"\tCollId: "<<collection.identify().get_compact()<<"\tCollHash: "<<collection.identifyHash()<<"\tpCollId: "<<pcollection.m_id<<"\tpCollHash: "<<std::endl;
 
         // Add in channels
         persCont->m_prds.resize(pcollEnd); // FIXME! isn't this potentially a bit slow? Do a resize and a copy for each loop? EJWM.
         persCont->m_prdDeltaId.resize(pcollEnd);
         
-//        unsigned int lastPRDIdHash = 0;
         for (unsigned int i = 0; i < collection.size(); ++i) {
             unsigned int pchanIndex=i+pcollBegin;
             const MdtPrepData* chan = collection[i]; // channel being converted
@@ -122,14 +122,6 @@ void Muon::MdtPrepDataContainerCnv_p2::transToPers(const Muon::MdtPrepDataContai
             chanCnv.transToPers(chan, pchan, log); // convert from MdtPrepData to MdtPrepData_p2
             
             persCont->m_prdDeltaId[pchanIndex]=chan->identify().get_identifier32().get_compact() - collection.identify().get_identifier32().get_compact(); //store delta identifiers, rather than full identifiers
-            // sanity checks - to be removed at some point
-//            if (chan->m_tdc!=pchan->m_tdc) log << MSG::WARNING << "PRDs TDC counts differ! chan:"<<chan->m_tdc<<", pchan:"<<pchan->m_tdc<<endmsg;
-//            Identifier temp(pcollection.m_id + persCont->m_prdDeltaId[pchanIndex]);
-//            if (temp!=chan->m_clusId ) 
-//                log << MSG::WARNING << "PRD ids differ! Transient:"<<chan->m_clusId-collection.identify()<<", Persistent:"<<temp<<", Compact:"<<collection.identify().get_compact()<<endmsg;
-//            if (lastPRDIdHash && lastPRDIdHash != chan->collectionHash() )  log << MSG::WARNING << "Collection Identifier hashes differ!"<<endmsg;
-//            lastPRDIdHash = chan->collectionHash();
-//            if (chan->collectionHash()!= collection.identifyHash() ) log << MSG::WARNING << "Collection's idHash does not match PRD collection hash!"<<endmsg;
         }
     }
     if (log.level() <= MSG::DEBUG) 
@@ -164,11 +156,8 @@ void  Muon::MdtPrepDataContainerCnv_p2::persToTrans(const Muon::MdtPrepDataConta
         const Muon::MuonPRD_Collection_p2& pcoll = persCont->m_collections[pcollIndex];        
         IdentifierHash collIDHash(pcoll.m_hashId);
         coll = new Muon::MdtPrepDataCollection(collIDHash);
-        // Identifier firstChanId = persCont->m_prds[collBegin].m_clusId;
-        // Identifier collId = m_MdtId->parentID(firstChanId);
         coll->setIdentifier(Identifier(pcoll.m_id)); 
 
-//        std::cout<<"Coll Index: "<<pcollIndex<<"\tCollId: "<<collection.identify().get_compact()<<"\tCollHash: "<<collection.identifyHash()<<"\tpCollId: "<<pcollection.m_id<<"\tpCollHash: "<<std::endl;
         
         // FIXME - really would like to remove Identifier from collection, but cannot as there is :
         // a) no way (apparently - find it hard to believe) to go from collection IdHash to collection Identifer.
@@ -188,8 +177,7 @@ void  Muon::MdtPrepDataContainerCnv_p2::persToTrans(const Muon::MdtPrepDataConta
             int result = m_MdtId->get_detectorElement_hash(clusId, deIDHash);
             if (result&&log.level() <= MSG::WARNING) 
               log << MSG::WARNING<< " Muon::MdtPrepDataContainerCnv_p2::persToTrans: problem converting Identifier to DE hash "<<endmsg;
-            const MuonGM::MdtReadoutElement* detEl =
-              m_muonDetMgr->getMdtReadoutElement(clusId);
+            const MuonGM::MdtReadoutElement* detEl = getReadOutElement(clusId);
 
             auto chan = std::make_unique<MdtPrepData>
               (chanCnv.createMdtPrepData (pchan,
