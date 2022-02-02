@@ -322,6 +322,14 @@ jtm += PseudoJetAlgorithm(
   SkipNegativeEnergy = True,
 )
 
+jtm += PseudoJetAlgorithm(
+  "gtracklrtget",
+  InputContainer = "InDetLargeD0TrackParticles",
+  Label = "GhostTrackLRT",
+  OutputContainer = "PseudoJetGhostTrackLRT",
+  SkipNegativeEnergy = True,
+)
+
 # Muon segments
 jtm += MuonSegmentPseudoJetAlgorithm(
   "gmusegget",
