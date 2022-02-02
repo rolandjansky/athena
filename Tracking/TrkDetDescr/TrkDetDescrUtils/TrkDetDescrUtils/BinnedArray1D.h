@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -22,7 +22,7 @@ class MsgStream;
 
 namespace Trk {
 
-/** @class BinnedArray1DT
+/** @class BinnedArray1D
 
     1-dimensional binned arry based on a sorting
     given by the BinUtitlity.
@@ -32,13 +32,13 @@ namespace Trk {
    */
 
 template<class T>
-class BinnedArray1DT final: public BinnedArrayT<T>
+class BinnedArray1D final : public BinnedArray<T>
 {
 
 public:
   /**Default Constructor - needed for inherited classes */
-  BinnedArray1DT()
-    : BinnedArrayT<T>()
+  BinnedArray1D()
+    : BinnedArray<T>()
     , m_array{}
     , m_arrayObjects(nullptr)
     , m_binUtility(nullptr)
@@ -48,10 +48,10 @@ public:
      delete objects at the end, if this deletion should be turned off, the
      boolean deletion should be switched to false the global position is given
      by object */
-  BinnedArray1DT(
+  BinnedArray1D(
     const std::vector<std::pair<SharedObject<T>, Amg::Vector3D>>& tclassvector,
     BinUtility* bingen)
-    : BinnedArrayT<T>()
+    : BinnedArray<T>()
     , m_array{}
     , m_arrayObjects(nullptr)
     , m_binUtility(bingen)
@@ -65,7 +65,7 @@ public:
         if (bingen->inside(currentGlobal)) {
           m_array[bingen->bin(currentGlobal, 0)] = ((tclassvector)[ivec]).first;
         } else
-          throw GaudiException("BinnedArray1DT constructor",
+          throw GaudiException("BinnedArray1D constructor",
                                "Object outside bounds",
                                StatusCode::FAILURE);
       }
@@ -73,8 +73,8 @@ public:
   }
 
   /**Copy Constructor - copies only pointers !*/
-  BinnedArray1DT(const BinnedArray1DT& barr)
-    : BinnedArrayT<T>()
+  BinnedArray1D(const BinnedArray1D& barr)
+    : BinnedArray<T>()
     , m_array{}
     , m_arrayObjects(nullptr)
     , m_binUtility(nullptr)
@@ -88,7 +88,7 @@ public:
     }
   }
   /**Assignment operator*/
-  BinnedArray1DT& operator=(const BinnedArray1DT& barr)
+  BinnedArray1D& operator=(const BinnedArray1D& barr)
   {
     if (this != &barr) {
       m_array.clear();
@@ -107,12 +107,12 @@ public:
     return *this;
   }
   /** Implicit Constructor */
-  BinnedArray1DT* clone() const { return new BinnedArray1DT(*this); }
+  BinnedArray1D* clone() const { return new BinnedArray1D(*this); }
 
   /**Virtual Destructor*/
-  ~BinnedArray1DT() { delete m_binUtility; }
+  ~BinnedArray1D() { delete m_binUtility; }
 
-  /** Returns the pointer to the templated class object from the BinnedArrayT,
+  /** Returns the pointer to the templated class object from the BinnedArray,
       it returns 0 if not defined;
    */
   T* object(const Amg::Vector2D& lp) const
@@ -123,7 +123,7 @@ public:
     return nullptr;
   }
 
-  /** Returns the pointer to the templated class object from the BinnedArrayT
+  /** Returns the pointer to the templated class object from the BinnedArray
       it returns 0 if not defined;
    */
   T* object(const Amg::Vector3D& gp) const
@@ -131,14 +131,14 @@ public:
     return (m_array[m_binUtility->bin(gp, 0)]).get();
   }
 
-  /** Returns the pointer to the templated class object from the BinnedArrayT -
+  /** Returns the pointer to the templated class object from the BinnedArray -
    * entry point*/
   T* entryObject(const Amg::Vector3D& gp) const
   {
     return (m_array[m_binUtility->entry(gp, 0)]).get();
   }
 
-  /** Returns the pointer to the templated class object from the BinnedArrayT
+  /** Returns the pointer to the templated class object from the BinnedArray
    */
   T* nextObject(const Amg::Vector3D& gp,
                 const Amg::Vector3D& mom,
@@ -150,8 +150,28 @@ public:
     return (m_array[bin]).get();
   }
 
-  /** Return all objects of the Array */
-  const std::vector<T*>& arrayObjects() const
+  /** Return all objects of the Array non-const T*/
+  BinnedArraySpan<T* const> arrayObjects()
+  {
+    createArrayCache();
+    return Trk::BinnedArraySpan<T* const>(&*(m_arrayObjects->begin()), &*(m_arrayObjects->end()));
+  }
+
+  /** Return all objects of the Array const T*/
+  BinnedArraySpan<T const * const > arrayObjects() const
+  {
+    createArrayCache();
+    return Trk::BinnedArraySpan<const T* const>(&*(m_arrayObjects->begin()), &*(m_arrayObjects->end()));
+  }
+
+  /** Number of Entries in the Array */
+  unsigned int arrayObjectsNumber() const { return arrayObjects().size(); }
+
+  /** Return the BinUtility*/
+  const BinUtility* binUtility() const { return (m_binUtility); }
+
+private:
+  void createArrayCache() const
   {
     if (!m_arrayObjects) {
       std::unique_ptr<std::vector<T*>> arrayObjects =
@@ -163,26 +183,16 @@ public:
       }
       m_arrayObjects.set(std::move(arrayObjects));
     }
-    return (*m_arrayObjects);
   }
 
-  /** Number of Entries in the Array */
-  unsigned int arrayObjectsNumber() const { return arrayObjects().size(); }
-
-  /** Return the BinUtility*/
-  const BinUtility* binUtility() const { return (m_binUtility); }
-
-private:
   //!< vector of pointers to the class T
-  std::vector<SharedObject<T>> m_array;   
+  std::vector<SharedObject<T>> m_array;
   //!< forced 1D vector of pointers to class T
   CxxUtils::CachedUniquePtr<std::vector<T*>> m_arrayObjects;
   //!< binUtility for retrieving and filling the Array
-  BinUtility* m_binUtility; 
+  BinUtility* m_binUtility;
 };
 
-template<class T>
-using BinnedArray1D = BinnedArray1DT<const T>;
 } // end of namespace Trk
 
 #endif // TRKSURFACES_BINNEDARRAY1D_H

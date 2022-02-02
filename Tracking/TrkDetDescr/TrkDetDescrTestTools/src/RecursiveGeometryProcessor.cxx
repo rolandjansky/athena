@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -101,7 +101,7 @@ StatusCode Trk::RecursiveGeometryProcessor::process(const Trk::TrackingVolume& t
 
 
    // Process the contained TrackingVolumes (recursively) if they exist
-   const Trk::BinnedArray< Trk::TrackingVolume >* confinedVolumes = tvol.confinedVolumes();
+   const Trk::BinnedArray< const Trk::TrackingVolume >* confinedVolumes = tvol.confinedVolumes();
    // register the next round
    if (confinedVolumes) {
        const auto & volumes = confinedVolumes->arrayObjects();
@@ -135,11 +135,11 @@ StatusCode Trk::RecursiveGeometryProcessor::process(const Trk::Layer& lay, size_
     // get the subsurface array
     const Trk::SurfaceArray* surfArray = lay.surfaceArray();
     if (surfArray) {
-        const std::vector<const Trk::Surface*>& layerSurfaces = surfArray->arrayObjects();
+        Trk::BinnedArraySpan<Trk::Surface const * const > layerSurfaces = surfArray->arrayObjects();
         ATH_MSG_VERBOSE(displayBuffer.str() << "   ---> has " << layerSurfaces.size() << " surfaces on the layer.");
         
-        std::vector<const Trk::Surface*>::const_iterator laySurfIter    = layerSurfaces.begin();
-        std::vector<const Trk::Surface*>::const_iterator laySurfIterEnd = layerSurfaces.end();
+        Trk::BinnedArraySpan<Trk::Surface const * const >::const_iterator laySurfIter    = layerSurfaces.begin();
+        Trk::BinnedArraySpan<Trk::Surface const * const >::const_iterator laySurfIterEnd = layerSurfaces.end();
         // loop over the surfaces and draw them
         for ( ; laySurfIter != laySurfIterEnd; ++laySurfIter) {
              if (!(*laySurfIter))
