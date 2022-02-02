@@ -1,4 +1,5 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+import logging
 from pathlib import Path
 import subprocess
 
@@ -443,6 +444,9 @@ class WarningsComparisonCheck(WorkflowCheck):
 class FPECheck(WorkflowCheck):
     """Run FPE check."""
 
+    # Ignore FPEs for these tests:
+    ignoreTests = [WorkflowType.FullSim, WorkflowType.DataOverlay, WorkflowType.MCOverlay]
+
     def run(self, test: WorkflowTest):
         self.logger.info("-----------------------------------------------------")
         self.logger.info(f"Running {test.ID} FPE Check")
@@ -474,20 +478,21 @@ class FPECheck(WorkflowCheck):
                         last_stack_trace.append(line.strip()[9:])
 
             if fpes.keys():
+                msgLvl = logging.WARNING if test.type in self.ignoreTests else logging.ERROR
                 result = False
-                self.logger.error(f" {step} validation test step FPEs")
+                self.logger.log(msgLvl, f" {step} validation test step FPEs")
                 for fpe, count in sorted(fpes.items(), key=lambda item: item[1]):
-                    self.logger.error(f"{count:>5}  {fpe}")
+                    self.logger.log(msgLvl, f"{count:>5}  {fpe}")
                 for fpe in fpes.keys():
-                    self.logger.error("-----------------------------------------------------")
-                    self.logger.error(f" first stack trace for algorithm {fpe}:")
+                    self.logger.log(msgLvl, "-----------------------------------------------------")
+                    self.logger.log(msgLvl, f" first stack trace for algorithm {fpe}:")
                     for line in stack_traces[fpe]:
-                        self.logger.error(line)
-                    self.logger.error("-----------------------------------------------------")
+                        self.logger.log(msgLvl, line)
+                    self.logger.log(msgLvl, "-----------------------------------------------------")
 
         if result:
             self.logger.info("Passed!\n")
-        elif test.type in [WorkflowType.FullSim, WorkflowType.DataOverlay, WorkflowType.MCOverlay]:
+        elif test.type in self.ignoreTests:
             self.logger.warning("Failed!")
             self.logger.warning("Check disabled due to irreproducibilities!\n")
             result = True
