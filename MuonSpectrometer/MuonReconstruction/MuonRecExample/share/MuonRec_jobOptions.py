@@ -57,6 +57,8 @@ if rec.readRDO():
         include("MuonRecExample/MuonRDO_to_PRD_jobOptions.py")
 
 ### add PRD -> xAOD
+if rec.readESD():
+    import MuonCnvExample.MuonPrepDataCnvConfig  # noqa: F401
 if (rec.readRDO() or rec.readESD()) and muonRecFlags.prdToxAOD():
     from AthenaCommon import CfgMgr
     topSequence += CfgMgr.MDT_PrepDataToxAOD()

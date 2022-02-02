@@ -29,9 +29,7 @@ class MdtDriftCircleOnTrackCnv_p2
                                         Muon::MdtDriftCircleOnTrack_p2 >
 {
 public:
-    MdtDriftCircleOnTrackCnv_p2() : m_eventCnvTool("Trk::EventCnvSuperTool/EventCnvSuperTool"), 
-                                    m_localParCnv(0), m_errorMxCnv(0) {}
-
+    MdtDriftCircleOnTrackCnv_p2() = default;
     void persToTrans( const Muon :: MdtDriftCircleOnTrack_p2 *persObj,
         Muon :: MdtDriftCircleOnTrack    *transObj,
         MsgStream                          &log );
@@ -41,9 +39,9 @@ public:
 
 protected:
     ElementLinkCnv_p3< ElementLinkToIDC_MDT_Container >     m_elCnv; 
-    ToolHandle  < Trk::IEventCnvSuperTool >   m_eventCnvTool ; 
-    LocalParametersCnv_p1     *               m_localParCnv;
-    ErrorMatrixCnv_p1         *               m_errorMxCnv;  
+    ToolHandle  < Trk::IEventCnvSuperTool >   m_eventCnvTool{"Trk::EventCnvSuperTool/EventCnvSuperTool"}; 
+    LocalParametersCnv_p1     *               m_localParCnv{nullptr};
+    ErrorMatrixCnv_p1         *               m_errorMxCnv{nullptr};  
 };
 
 #endif // DRIFT_CIRCLE_ON_TRACK_CNV_P2_H
