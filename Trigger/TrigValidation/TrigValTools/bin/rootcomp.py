@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 # @file:    rootcomp.py
 # @purpose: Script to compare the histograms in two root files
 # @author:  Frank Winklmeier, Will Buttinger
@@ -98,36 +98,21 @@ def main():
       return 255
 
    if not opts.noSkipList:
-      opts.skip += ["TIMERS"]
-      opts.skip += ["/TIME_"]
-      opts.skip += ["TimerTot"]         # For TrigCalo[Cell,Cluster,Tower]Maker
-      opts.skip += ["FullCalo_Total"]   # TrigCaloCellMaker_fullcalo/FullCalo_Total
-      opts.skip += ["signatureAcceptance"]
-      opts.skip += ["ErrorCodes_vs_Chains_"]
-      opts.skip += ["Initital_RoIs_phi_vs_eta"]
-      opts.skip += ["Time$","time_","Time_", "_time"]
-      opts.skip += ["HltEventLoopMgr/TotalTime"]
-      opts.skip += ["HltEventLoopMgr/PopScheduler"]
-      opts.skip += ["Unpck$"]
-      opts.skip += ["BufFreeCnt$", "CalEvtSize$"]     # muon calibration buffer
-      opts.skip += ["/TrigMemMonitor/"]               # memory monitor
-      opts.skip += ["TrigTimerSvc/TimerCalls"]        # number of timing calls
-      opts.skip += ["GeneralOpInfo"]                  # release number, etc.
-      opts.skip += ["MessageSvc/MessageCount"]        # MessageSvc
-      opts.skip += ["TrigSteer_.*/Rate"]              # Rate monitoring
-      opts.skip += ["TrigSignatureMoni/.*Rate"]       # Rate monitoring
-      opts.skip += ["IOVDbRunRange","IOVDbBytesRead"] # conditions data IOVs and size
-      opts.skip += ["TrigOpMonitor/.*BytesRead"]      # conditions data size
-      opts.skip += ["/ROBMonitor/DataVolumeFractionForSD"]  # Volume data fraction profile diff
-      opts.skip += ["HLTConfigSvc/PrescaleKey_LB"]  
-      opts.skip += ["HLTConfigSvc/TimePrescaleUpdate"]  
-      opts.skip += ["run_[0-9]/lb_[0-9]+/"]           # LB histograms (ATR-15027)
-      opts.skip += ["Average Hlt Result size for physics streams"]  # ATR-14330
-      opts.skip += ["HltEDMSizes:Events_Without_Truncation"]        # ATR-14330
-      opts.skip += ["Trig.*CaloCellMaker.*/TCRec_"] # timing histograms in TrigCaloCellMaker
+      opts.skip += ["Unpck$", "BufFreeCnt$", "CalEvtSize$"]     # muon calibration buffer
+      opts.skip += ["/TIME_"]                          # timers from Monitored framework
+      opts.skip += ["/athenaHLT.*/.*Time$"]            # HLTMPPU timing histograms
+      opts.skip += ["HltEventLoopMgr/.*Time.*"]        # custom timers
+      opts.skip += ["HltEventLoopMgr/PopScheduler.*"]  # scheduler monitoring
+      opts.skip += ["MessageSvc/MessageCount"]         # MessageSvc
+      opts.skip += ["TrigSignatureMoni/.*Rate"]        # Rate monitoring
+      opts.skip += ["TrigOpMonitor/GeneralOpInfo"]     # release number, etc.
+      opts.skip += ["TrigOpMonitor/IOVDb.*"]           # conditions data IOVs, size and time
+      opts.skip += ["TrigOpMonitor/.*ReadTime"]        # conditions read time
+      opts.skip += ["TrigOpMonitor/.*BytesRead"]       # conditions read size
       opts.skip += ["HLTFramework/ROBDataProviderSvc"] # RDP histograms differ in MT due to caching
-      opts.skip += ["HLTFramework/ByteStreamCnvSvc/ResultSizeByStream"] # ROOT bug, see ATR-21755, ROOT-10944 
-      opts.skip += ["HLTFramework/SchedulerMonSvc"] # ATR-22345, not reproducible by definition
+      opts.skip += ["HLTFramework/SchedulerMonSvc"]    # ATR-22345, not reproducible by definition
+      opts.skip += ["HLTSeeding/Random"]               # Prescale validation (ATR-21935)
+
 
    # Default thresholds
    if not opts.threshold:
