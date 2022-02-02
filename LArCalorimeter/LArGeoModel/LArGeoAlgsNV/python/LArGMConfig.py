@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AtlasGeoModel.GeoModelConfig import GeoModelCfg
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -10,7 +10,7 @@ def LArGMCfg(configFlags):
     result=GeoModelCfg(configFlags)
 
     doAlignment=configFlags.LAr.doAlign
-    activateCondAlgs = not configFlags.GeoModel.Align.LegacyConditionsAccess
+    activateCondAlgs = configFlags.Common.Project != "AthSimulation"
 
     tool = CompFactory.LArDetectorToolNV(ApplyAlignments=doAlignment, EnableMBTS=configFlags.Detector.GeometryMBTS)
     if configFlags.Common.ProductionStep != ProductionStep.Simulation and configFlags.Common.ProductionStep != ProductionStep.FastChain:
