@@ -199,6 +199,13 @@ namespace {
         return tracks;
       };
     }
+    if (name == "log_z0RelativeToBeamspotUncertainty") {
+      return [](const Jet&, const Tracks& t) {
+        std::vector<double> tracks;
+        for (auto* trk: t) tracks.push_back(std::log(std::sqrt(trk->definingParametersCovMatrixDiagVec().at(1))));
+        return tracks;
+      };
+    }
     return std::nullopt;
   }
 
