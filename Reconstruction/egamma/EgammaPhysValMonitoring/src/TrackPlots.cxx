@@ -11,7 +11,7 @@ namespace Egamma{
 
 TrackPlots::TrackPlots(PlotBase* pParent, const std::string& sDir, std::string sParticleType):PlotBase(pParent, sDir), 
 										       m_sParticleType(std::move(sParticleType)),
-										        deta(nullptr),
+										       deta(nullptr),
 										       dphi(nullptr),
 										       d0(nullptr),
 										       z0(nullptr),
@@ -29,7 +29,9 @@ TrackPlots::TrackPlots(PlotBase* pParent, const std::string& sDir, std::string s
 										       eProbHT(nullptr),
 										       deltaPoverP(nullptr),
 										       EoverP(nullptr),
-										       trtratio(nullptr)
+										       trtratio(nullptr),
+                           trtvseta(nullptr),
+                           trthtvseta(nullptr)
 
 {}	
 
@@ -53,6 +55,8 @@ void TrackPlots::initializePlots(){
   deltaPoverP  = Book1D("deltaPoverP", "#DeltaP/P of "+m_sParticleType+";#DeltaP/P;Electrons", 100,-1.1, 1.1);           
   EoverP       = Book1D("EoverP", "E/P of "+m_sParticleType+";E/P;Electrons", 100, 0, 10);
   trtratio = Book2D("trtratio", "TRT ratio vs eta of"+m_sParticleType+";#eta; TRT ratio", 50, -2.5, 2.5,100,0.,1.);
+  trtvseta = Book2D("trtvseta", "#trt hits vs eta of"+m_sParticleType+";#eta; #trt hits", 50, -2.5, 2.5,50,0.,50.);
+  trthtvseta = Book2D("trthtvseta", "#HT trt hits vs eta of"+m_sParticleType+";#eta; #HT trt hits", 50, -2.5, 2.5,50,0.,50.);
 }
 
 
@@ -67,7 +71,7 @@ void TrackPlots::initializePlots(){
   double dpOverp(0);
 
   float weight = 1.;
-  weight = !eventInfo.beamSpotWeight() ? eventInfo.beamSpotWeight() : 1.;
+  weight = eventInfo.beamSpotWeight();
 
   if(electron.trackCaloMatchValue(deta1, xAOD::EgammaParameters::deltaEta1 )){
     deta->Fill(deta1, weight);
@@ -115,6 +119,8 @@ void TrackPlots::initializePlots(){
   trt_total->Fill(numTotalTRTHits, weight);
   trt_ht_total->Fill(numTotalTRTHighThresholdHits, weight);
   trtratio->Fill(electron.trackParticle()->eta(),totalTRTratio, weight);
+  trtvseta->Fill(electron.trackParticle()->eta(),RetrieveHitInfo(electron, xAOD::numberOfTRTHits), weight);
+  trthtvseta->Fill(electron.trackParticle()->eta(),RetrieveHitInfo(electron, xAOD::numberOfTRTHighThresholdHits), weight);
 
   d0->Fill(electron.trackParticle()->d0(), weight);
   z0->Fill(electron.trackParticle()->z0(), weight);

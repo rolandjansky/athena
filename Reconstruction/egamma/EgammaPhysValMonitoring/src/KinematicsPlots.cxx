@@ -28,7 +28,7 @@ namespace Egamma{
   void KinematicsPlots::fill(const xAOD::IParticle& part, const xAOD::EventInfo& eventInfo) const{
 
     float weight = 1.;
-    weight = !eventInfo.beamSpotWeight() ? eventInfo.beamSpotWeight() : 1.;
+    weight = eventInfo.beamSpotWeight();
     
     et->Fill(part.pt()/GeV,weight);
     eta->Fill(part.eta(),weight);
