@@ -46,6 +46,7 @@ if dumpPixInfo:
     xAOD_PixelPrepDataToxAOD.WriteNNinformation   = False
     xAOD_PixelPrepDataToxAOD.WriteSDOs            = True
     xAOD_PixelPrepDataToxAOD.WriteSiHits          = False # if available
+    xAOD_PixelPrepDataToxAOD.OutputClusterContainer = "xAOD_PixelClusters" #NB, this must match the name used to define the thinning string
 
 
     topSequence += xAOD_PixelPrepDataToxAOD
@@ -113,7 +114,7 @@ if dumpPixInfo:
     IDPIXLUMIThinningTool = DerivationFramework__TrackMeasurementThinning( name = "IDPIXLUMIThinningTool",
         StreamName = streamName,
         SelectionString = thinning_expression,
-        TrackMeasurementValidationKey = "PixelClusters")
+        TrackMeasurementValidationKey = "xAOD_PixelClusters")
     ToolSvc += IDPIXLUMIThinningTool
     thinningTools.append(IDPIXLUMIThinningTool)
 
@@ -140,8 +141,8 @@ if (printIdTrkDxAODConf):
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 IDPIXLUMISlimmingHelper = SlimmingHelper("IDPIXLUMISlimmingHelper")
 excludedVtxAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
-IDPIXLUMISlimmingHelper.AppendToDictionary = {'PixelClusters': 'xAOD::TrackMeasurementValidationContainer', 'PixelClustersAux': 'xAOD::TrackMeasurementValidationAuxContainer'}
-IDPIXLUMISlimmingHelper.ExtraVariables = [ "PixelClusters.bec.layer.phi_module.eta_module.sizePhi.sizeZ.nRDO.charge.ToT.LVL1A.isFake.gangedPixel.isSplit" ]
+IDPIXLUMISlimmingHelper.AppendToDictionary = {'xAOD_PixelClusters': 'xAOD::TrackMeasurementValidationContainer', 'PixelClustersAux': 'xAOD::TrackMeasurementValidationAuxContainer'}
+IDPIXLUMISlimmingHelper.ExtraVariables = [ "xAOD_PixelClusters.bec.layer.phi_module.eta_module.sizePhi.sizeZ.nRDO.charge.ToT.LVL1A.isFake.gangedPixel.isSplit" ]
 IDPIXLUMISlimmingHelper.AllVariables = [ "InDetTrackParticles", "PrimaryVertices."+excludedVtxAuxData ]
 IDPIXLUMISlimmingHelper.SmartCollections = [ "InDetTrackParticles", "PrimaryVertices" ]
 IDPIXLUMISlimmingHelper.AppendContentToStream(IDPIXLUMIStream)
