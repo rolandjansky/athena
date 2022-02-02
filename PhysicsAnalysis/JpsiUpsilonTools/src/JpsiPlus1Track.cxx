@@ -109,7 +109,9 @@ namespace Analysis {
     m_trkTrippletPt(-1.0),
     m_trkDeltaZ(-1.0),
     m_requiredNMuons(0),
-    m_TrkParticleGSFCollection("GSFTrackParticles")
+    m_requiredNElectrons(0),
+    m_TrkParticleGSFCollection("GSFTrackParticles"),
+    m_electronCollectionKey("Electrons")
     {
         declareInterface<JpsiPlus1Track>(this);
         declareProperty("pionHypothesis",m_piMassHyp);
@@ -139,9 +141,11 @@ namespace Analysis {
         declareProperty("TrkQuadrupletPt"       ,m_trkTrippletPt       );
         declareProperty("TrkDeltaZ"             ,m_trkDeltaZ           );
         declareProperty("RequireNMuonTracks"    ,m_requiredNMuons      );
+        declareProperty("RequireNElectronTracks", m_requiredNElectrons );
         declareProperty("AlternativeMassConstraintTrack", m_muonMasses );
         declareProperty("UseGSFTrackIndices",    m_useGSFTrackIndices  );
         declareProperty("GSFCollection",         m_TrkParticleGSFCollection);
+        declareProperty("ElectronCollection",    m_electronCollectionKey);
 
     }
     
@@ -208,8 +212,20 @@ namespace Analysis {
             ATH_MSG_DEBUG("Muon container size "<< importedMuonCollection->size());
         }
         
+        // Get the electrons from StoreGate
+        const xAOD::ElectronContainer* importedElectronCollection = nullptr;
+        sc = evtStore()->retrieve(importedElectronCollection,m_electronCollectionKey);
+        if (sc.isFailure()) {
+           ATH_MSG_WARNING("No electron collection with key " << m_electronCollectionKey << " found in StoreGate. JpsiEECandidates will be EMPTY!");
+           return StatusCode::SUCCESS;;
+        } else {
+            ATH_MSG_DEBUG("Found electron collections with key " << m_electronCollectionKey);
+        }
+        ATH_MSG_DEBUG("Electron container size " << importedElectronCollection->size());
+        
         // Typedef for vectors of tracks and VxCandidates
         typedef std::vector<const xAOD::TrackParticle*> TrackBag;
+        typedef std::vector<const xAOD::Electron*> ElectronBag;
         
         // Select the inner detector tracks
         const xAOD::Vertex* vx = 0;
@@ -223,10 +239,22 @@ namespace Analysis {
             }
             if ( m_trkSelector->decision(*tp, vx) ) theIDTracksAfterSelection.push_back(tp);
         }
+        
+        // Add GSF tracks
+        if(m_useGSFTrack.any()){
+            ATH_MSG_DEBUG("importedTrackCollection contains GSF tracks " << importedGSFTrackCollection->size());
+            for (auto trkPBItr=importedGSFTrackCollection->cbegin(); trkPBItr!=importedGSFTrackCollection->cend(); ++trkPBItr) {
+            const xAOD::TrackParticle* tp (*trkPBItr);
+            if ( tp->pt()<m_trkThresholdPt ) continue;
+            if ( fabs(tp->eta())>m_trkMaxEta ) continue;
+            if (!importedMuonCollection->empty() && !m_excludeJpsiMuonsOnly) {
+               if (JpsiUpsilonCommon::isContainedIn(tp,importedMuonCollection)) continue;
+            }
+            if (m_trkSelector->decision(*tp, vx)) theIDTracksAfterSelection.push_back(tp);
+          }
+        }
         if (theIDTracksAfterSelection.empty()) return StatusCode::SUCCESS;
         ATH_MSG_DEBUG("Number of tracks after ID trkSelector: " << theIDTracksAfterSelection.size());
-        
-
         
         // Loop over J/psi candidates, select, collect up tracks used to build a J/psi
         std::vector<const xAOD::Vertex*> selectedJpsiCandidates;
@@ -275,6 +303,22 @@ namespace Analysis {
             muonTracks.push_back(track);
           }
         }
+        
+        TrackBag electronTracks;
+        ElectronBag theElectronsAfterSelection;
+        if (!importedElectronCollection->empty()) {
+          for(auto electron : *importedElectronCollection) {
+              if (!electron->trackParticleLink().isValid()) continue; // No electrons without ID tracks
+              const xAOD::TrackParticle* elTrk(0);
+              elTrk = electron->trackParticleLink().cachedElement();
+              if (!elTrk) continue;
+              theElectronsAfterSelection.push_back(electron); 
+              electronTracks.push_back(elTrk); 
+          }
+          if (theElectronsAfterSelection.size() == 0) return StatusCode::SUCCESS;
+            ATH_MSG_DEBUG("Number of electrons after selection: " << theElectronsAfterSelection.size());
+        }
+        
         std::vector<const xAOD::TrackParticle*> tracks(3, nullptr);
 
         for(auto jpsiItr=selectedJpsiCandidates.cbegin(); jpsiItr!=selectedJpsiCandidates.cend(); ++jpsiItr) {
@@ -303,6 +347,15 @@ namespace Analysis {
                     
                   }
                 }
+                
+                int linkedElectronTrk = 0;
+                linkedElectronTrk = JpsiUpsilonCommon::isContainedIn(*trkItr, electronTracks);
+                if (linkedElectronTrk) ATH_MSG_DEBUG("This id track is an electron track!");
+                if (JpsiUpsilonCommon::isContainedIn(*trkItr,jpsiTracks)) {
+                    if (linkedElectronTrk) ATH_MSG_DEBUG("ID track removed: id track is selected to build Jpsi!");
+                    continue;
+                }
+                
                 // Convert to TrackParticleBase
                 const xAOD::TrackParticle* theThirdTP = tracks[2] = *trkItr;
 
@@ -313,6 +366,11 @@ namespace Analysis {
                 if (linkedMuonTrk < m_requiredNMuons) {
                   ATH_MSG_DEBUG("Skipping Tracks with Muons " << linkedMuonTrk << " Limited to " << m_requiredNMuons);
                     continue;
+                }
+                 
+                if (linkedElectronTrk < m_requiredNElectrons) {
+                  ATH_MSG_DEBUG("Skipping Tracks with Electron " << linkedElectronTrk << " Limited to " << m_requiredNElectrons);
+                  continue;
                 }
                 // apply mass cut on track tripplet if requested
                 bool passRoughMassCuts(true);

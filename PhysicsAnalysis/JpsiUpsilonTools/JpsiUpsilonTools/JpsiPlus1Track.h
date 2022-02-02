@@ -82,10 +82,12 @@ namespace Analysis {
         double m_trkTrippletPt       ;
         double m_trkDeltaZ           ;
         int m_requiredNMuons;
+        int m_requiredNElectrons;
         std::vector<double> m_muonMasses;
         std::vector<int>    m_useGSFTrackIndices;
         std::string         m_TrkParticleGSFCollection;
         std::bitset<3>      m_useGSFTrack;
+        std::string         m_electronCollectionKey;
 
     };
 } // end of namespace
