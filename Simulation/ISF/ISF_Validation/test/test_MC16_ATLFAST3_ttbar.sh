@@ -10,7 +10,7 @@
 # MC16 setup
 # ATLAS-R2-2016-01-00-01 and OFLCOND-MC16-SDR-14
 
-
+unset ATHENA_PROC_NUMBER
 
 Sim_tf.py \
 --conditionsTag 'default:OFLCOND-MC16-SDR-14' \
