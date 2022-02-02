@@ -6,7 +6,7 @@ class CFNaming(object):
     """Static Class to collect all string manipulations on CF object names """
 
     RECO_POSTFIX = "_reco"
-    VIEW_POSTFIX = "_view"
+    CONTENT_POSTFIX = "_content"
     FILTER_POSTFIX = "_filter"
 
     @staticmethod
@@ -74,5 +74,5 @@ class CFNaming(object):
         return stepName + CFNaming.RECO_POSTFIX
 
     @staticmethod
-    def stepViewName(stepName):
-        return stepName + CFNaming.VIEW_POSTFIX
+    def stepContentName(stepName):
+        return stepName + CFNaming.CONTENT_POSTFIX
