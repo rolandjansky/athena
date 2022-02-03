@@ -11088,6 +11088,20 @@ HLT_j80_pf_ftf_j55_pf_ftf_j28_pf_ftf_j20_0eta290_pf_ftf_boffperf_L1J45p0ETA21_3J
     0: 48
     1: 216
     2: 95
+HLT_j80_roiftf_77bdips_preselj20_L1J20:
+  eventCount: 0
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
+HLT_j80_roiftf_95bdips_preselj20_L1J20:
+  eventCount: 5
+  stepCounts:
+    0: 20
+    1: 5
+  stepFeatures:
+    0: 20
+    1: 7
 HLT_j80_roiftf_preselj20_L1J20:
   eventCount: 12
   stepCounts:

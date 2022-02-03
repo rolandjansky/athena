@@ -528,6 +528,8 @@ def setupMenu():
 
         # Prototyping RoI jet tracking
         ChainProp(name="HLT_j80_roiftf_preselj20_L1J20", l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+DevGroup),
+        ChainProp(name="HLT_j80_roiftf_95bdips_preselj20_L1J20", l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+DevGroup),
+        ChainProp(name="HLT_j80_roiftf_77bdips_preselj20_L1J20", l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+DevGroup),                  
 
         # ATR-24720 Testing additions to Run 3 baseline menu
         # Find lower threshold for lowest unprescaled single forward jet trigger

@@ -262,13 +262,14 @@ JetChainParts = {
     'jvt'           : # Jet Vertex Tagger pileup discriminant
       ['010jvt', '011jvt', '015jvt', '020jvt', '050jvt', '059jvt'],
     'momCuts'       : # Generic moment cut on single jets
-      ['050momemfrac100','momhecfrac010','050momemfrac100XXmomhecfrac010'],
+      ['050momemfrac100', 'momhecfrac010', '050momemfrac100XXmomhecfrac010'],
     'prefilters'      : # Pre-hypo jet selectors (including cleaning)
     ['CLEANlb', 'CLEANllp', 'MASK300ceta210XX300nphi10',
      # ptrangeXrY (X, Y matches regex \d+)  triggers a prehypo selection of
      # jets by ordering by pt, and selecting those with indices in [X,Y]
      'PTRANGE0r1',
      'PTRANGE2r3'],
+    'bdips': ['95bdips','90bdips','85bdips','80bdips','77bdips'],
     'smc'           : # "Single mass condition" -- rename?
       ['30smcINF', '35smcINF', '40smcINF', '50smcINF', '60smcINF', 'nosmc'],
     # Setup for alternative data stream readout
@@ -312,6 +313,7 @@ JetChainParts_Default = {
     'jvt'           : '',
     'momCuts'       : '',
     'prefilters'    : [],
+    'bdips'         : '',
     'hypoScenario'  : 'simple',
     'exotHypo'      : [],
     'smc'           : 'nosmc',
