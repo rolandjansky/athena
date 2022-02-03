@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "sTGC_HitsTruthRelink.h"
@@ -63,8 +63,10 @@ StatusCode sTGC_HitsTruthRelink::execute(const EventContext &ctx) const
     int           pdgID         = hit.particleEncoding();
     Amg::Vector3D direction     = hit.globalDirection();
     double        energyDeposit = hit.depositEnergy();
+    double        kineticEnergy = hit.kineticEnergy();
+    Amg::Vector3D preposition   = hit.globalPrePosition();
 
-    outputCollection->Emplace(id, time, position, pdgID, direction, energyDeposit, particleLink);
+    outputCollection->Emplace(id, time, position, pdgID, direction, energyDeposit, particleLink, kineticEnergy, preposition);
   }
 
   return StatusCode::SUCCESS;
