@@ -339,11 +339,21 @@ def analyseChainName(chainName, L1thresholds, L1item):
     if chainName.count("_L1") > 1:
         # handle muXnoL1
         _chainName_fsnoseed = chainName.replace('noL1','_FSNOSEED')
-        indices = [ _chainName_fsnoseed.index( th ) for th in L1thresholds  ]
+        indices = []
+        for ith,th in enumerate(L1thresholds):
+            if th == 'FSNOSEED': # Does not matter and we can omit
+                indices.append(0 if not indices else indices[ith-1]+1)
+                continue
+            th_noprobe = th.replace('PROBE','')
+            if th_noprobe in _chainName_fsnoseed:
+                indices.append(_chainName_fsnoseed.index( th_noprobe ))
+            else:
+                raise RuntimeError( f'Failed to find explicit leg seeds {th_noprobe} in "{chainName}"')
+
         # verify if all thresholds are mentioned in chain parts, if they are not then one of the indices will be -1
         assert all( [i > 0 for i in indices] ), "Some thresholds are not part of the chain name name {}, {}".format(chainName, L1thresholds)
         # verify that the order of threshold and order of threshold mentioned in the name (there they are prexixed by L1) is identical, else there may be mistake
-        assert sorted(indices), "The order of L1 thresholds mentioned in chain name {} are not the same as threshold passed {}".format(chainName, L1thresholds)
+        assert sorted(indices)==indices, "The order of L1 thresholds mentioned in chain name {} are not the same as threshold passed {}".format(chainName, L1thresholds)
 
     for chainindex, chainparts in enumerate(multichainparts):
         chainProperties = {} #will contain properties for one part of chain if multiple parts
@@ -353,7 +363,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
             chainProperties['L1threshold'] = L1thresholds[chainindex]
             if '_L1' in chainparts:
                 chainpartsNoL1,thisl1 = chainparts.rsplit('_L1',1)
-                assert thisl1 == chainProperties['L1threshold'], f"Explicit L1 threshold for chainpart {thisl1} does not match provided list {chainProperties['L1threshold']}"
+                assert thisl1 == chainProperties['L1threshold'].replace('PROBE',''), f"Explicit L1 threshold for chainpart {thisl1} does not match provided list {chainProperties['L1threshold']}"
         else:
             __th = getAllThresholdsFromItem ( L1item )
             assert chainindex < len(__th), "In defintion of the chain {chainName} there is not enough thresholds to be used, index: {chainindex} >= number of thresholds, thresholds are: {__th}"
