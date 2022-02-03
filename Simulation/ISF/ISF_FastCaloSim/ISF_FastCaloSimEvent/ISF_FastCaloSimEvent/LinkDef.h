@@ -44,6 +44,7 @@
 #include "ISF_FastCaloSimEvent/TFCSEnergyBinParametrization.h"
 #ifndef __FastCaloSimNoLWTNN__
 #include "ISF_FastCaloSimEvent/TFCSEnergyAndHitGAN.h"
+#include "ISF_FastCaloSimEvent/TFCSPredictExtrapWeights.h"
 #endif
 
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrization.h"
@@ -317,6 +318,7 @@
 #pragma link C++ class TFCSEnergyBinParametrization+;
 #ifndef __FastCaloSimNoLWTNN__
 #pragma link C++ class TFCSEnergyAndHitGAN-;
+#pragma link C++ class TFCSPredictExtrapWeights-;
 #endif
 
 #pragma link C++ class TFCSLateralShapeParametrization+;
