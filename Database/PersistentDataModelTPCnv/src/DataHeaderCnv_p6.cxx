@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file DataHeaderCnv_p6.cxx
@@ -34,6 +34,10 @@ void DataHeaderCnv_p6::persToElem( const DataHeader_p6* pers, unsigned p_idx,
          db_idx = full_el.dbIdx;
          obj_idx = full_el.objIdx;
          oid2 = full_el.oid2;
+      }
+
+      if( form.sizeDb() <= db_idx || form.sizeObj() <= (size_t)obj_idx ) {
+         throw std::runtime_error("DataHeader/DataHeaderForm indices out of range. DataHeader can NOT be read!");
       }
       // Append DbGuid
       token->setDb(         form.getDbGuid( db_idx ) );
