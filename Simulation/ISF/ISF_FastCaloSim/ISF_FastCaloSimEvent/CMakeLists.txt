@@ -70,6 +70,7 @@ atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
                            ISF_FastCaloSimEvent/TFCSPCAEnergyParametrization.h 
                            ISF_FastCaloSimEvent/TFCSEnergyBinParametrization.h
                            ISF_FastCaloSimEvent/TFCSEnergyAndHitGAN.h
+                           ISF_FastCaloSimEvent/TFCSPredictExtrapWeights.h
                            ISF_FastCaloSimEvent/TFCSLateralShapeParametrization.h
                            ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitBase.h
                            ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitChain.h
