@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -42,10 +42,13 @@ Muon::TGC_RodDecoderRawdata::~TGC_RodDecoderRawdata()
 
 StatusCode Muon::TGC_RodDecoderRawdata::initialize()
 {
-  StatusCode sc = AthAlgTool::initialize();
-  if(sc.isFailure()) return sc;
-  
-  m_tgcRODReadOut = new TgcRODReadOut();
+  ATH_CHECK( AthAlgTool::initialize() );
+
+  ATH_CHECK( m_cablingSvc.retrieve() );
+  const ITGCcablingSvc* cabling = nullptr;
+  ATH_CHECK( m_cablingSvc->giveCabling (cabling) );
+
+  m_tgcRODReadOut = new TgcRODReadOut (*cabling);
   
   ATH_MSG_INFO( "initialize() successful in " << name() );
   return StatusCode::SUCCESS;
