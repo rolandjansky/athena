@@ -278,11 +278,8 @@ namespace InDet
         summaryUniquePtr = m_trackSumTool->summary(track);
         summary = summaryUniquePtr.get();
       }
-      if (!m_trackSumToolAvailable) {
-        ATH_MSG_WARNING( " No Track Summary Tool available. This should be the case only when running on AOD" );
-      }
       if (nullptr==summary ) {
-        ATH_MSG_WARNING( "Track preselection: cannot create a track summary (but useTrackSummary is true). Selection failed." );
+        ATH_MSG_FATAL( "Track preselection: cannot create a track summary (but useTrackSummary is true). Selection failed." );
         return false;
       }
       // get the minimum nimber of TRT hits based on eta of the track
