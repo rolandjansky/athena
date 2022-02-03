@@ -47,7 +47,7 @@ namespace Pythia8 {
     // Initialise. Only use hook for simple showers with recoilToColoured = off.
     virtual bool initAfterBeams() override {
 
-      int showerModel  = 1;//settingsPtr->mode("PartonShowers:Model");
+      // int showerModel  = 1;//settingsPtr->mode("PartonShowers:Model");
       // Switch off if not using simple showers or if recoilToColoured = on.
       bool recoilToColoured = settingsPtr->flag("TimeShower:recoilToColoured");
       ///      if (showerModel != 1 || recoilToColoured) doTopRecoil=false;
