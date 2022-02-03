@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -69,6 +69,12 @@ PFTrackClusterMatchingTool::doMatches(
   std::vector<eflowRecCluster*>& clusters,
   int nMatches) const
 {
+  auto matched_tracks_pt = Monitored::Scalar<float>("matched_tracks_pt");
+  auto matched_clusters_e = Monitored::Scalar<float>("matched_clusters_e");
+  auto matched_clusters_eta = Monitored::Scalar<float>("matched_clusters_eta");
+  auto matched_clusters_phi = Monitored::Scalar<float>("matched_clusters_phi");
+  auto group = Monitored::Group(m_monTool, matched_tracks_pt, matched_clusters_e, 
+                                matched_clusters_eta, matched_clusters_phi);
 
   /* Transform the vector of eflowRecCluster into a vector of eflowMatchClusters
    */
@@ -93,6 +99,10 @@ PFTrackClusterMatchingTool::doMatches(
     // ICluster*
     eflowMatchCluster* thisMatch = static_cast<eflowMatchCluster*>(match.first);
     results.emplace_back(thisMatch->getEfRecCluster(), match.second);
+    matched_clusters_e = thisMatch->e() * m_invGeV;
+    matched_clusters_eta = thisMatch->eta();
+    matched_clusters_phi = thisMatch->phi();
   }
+  matched_tracks_pt = track->getTrack()->pt() / 1000; //Conversion to GeV
   return results;
 }
