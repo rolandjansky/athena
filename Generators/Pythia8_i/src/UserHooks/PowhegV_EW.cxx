@@ -91,9 +91,10 @@ namespace Pythia8{
 
     virtual double scaleResonance( const int iRes, const Event& event) {
       // Set scale for the emissions from the resonace (FSR), equal to the scale stored in the LHE file
-      //cout << "SI in scaleResonance. Setting scale: " << si_event_info_.vetoscale_fsr << endl; 
-      //cout << event[iRes].id();
-      //cout << "\n";
+      
+      ATH_MSG_DEBUG("SI in scaleResonance. Setting scale: " << si_event_info_.vetoscale_fsr );
+      ATH_MSG_DEBUG("event id " << event[iRes].id() );
+
       return si_event_info_.vetoscale_fsr;
     }    
 
