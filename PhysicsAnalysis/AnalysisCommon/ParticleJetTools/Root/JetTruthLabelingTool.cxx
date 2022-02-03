@@ -63,7 +63,7 @@ StatusCode JetTruthLabelingTool::initialize(){
   m_dR_H_truthKey    = m_truthJetCollectionName.key() + "." + m_truthLabelName + "_dR_H";
   m_dR_Top_truthKey  = m_truthJetCollectionName.key() + "." + m_truthLabelName + "_dR_Top";
   m_NB_truthKey      = m_truthJetCollectionName.key() + "." + m_truthLabelName + "_NB";
-  m_split23_truthKey = m_truthJetCollectionName.key() + "." + m_truthLabelName + "Split23";
+  m_split23_truthKey = m_truthJetCollectionName.key() + ".Split23";
 
   if(!m_isTruthJetCol){
     m_label_recoKey  = m_jetContainerName + "." + m_truthLabelName;

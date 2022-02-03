@@ -49,7 +49,7 @@ namespace NSWL1 {
     {
       declareInterface<NSWL1::IMMStripTdsTool>(this);
 
-      declareProperty("DoNtuple", m_doNtuple = true, "input the MMStripTds branches into the analysis ntuple");
+      declareProperty("DoNtuple", m_doNtuple = false, "input the MMStripTds branches into the analysis ntuple");
 
       // reserve enough slots for the trigger sectors and fills empty vectors
       m_mmstrip_cache.reserve(32);
@@ -80,7 +80,6 @@ namespace NSWL1 {
       ATH_MSG_DEBUG( name() << " configuration:");
       ATH_MSG_DEBUG(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_doNtuple.name() << ((m_doNtuple)? "[True]":"[False]")
 		   << std::setfill(' ') << std::setiosflags(std::ios::right) );
-
 
 
       const IInterface* parent = this->parent();
@@ -350,7 +349,7 @@ namespace NSWL1 {
 
     void MMStripTdsOfflineTool::clear_ntuple_variables() {
       //clear the ntuple variables
-
+      if(m_tree==0) return;
 
       m_fitThe->clear();
       m_fitPhi->clear();

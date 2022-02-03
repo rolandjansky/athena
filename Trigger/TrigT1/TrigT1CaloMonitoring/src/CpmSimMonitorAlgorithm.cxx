@@ -35,6 +35,9 @@ StatusCode CpmSimMonitorAlgorithm::initialize() {
   ATH_CHECK(m_cmxCpTobLocation.initialize());
   ATH_CHECK(m_cmxCpHitsLocation.initialize());
 
+  ATH_CHECK( m_L1MenuKey.initialize() );
+  renounce(m_L1MenuKey); // Detector Store data - hide this Data Dependency from the MT Scheduler
+
   // retrieve any tools if needed
   ATH_CHECK(m_cpCmxTool.retrieve());
   ATH_CHECK(m_cpmTool.retrieve());
@@ -45,6 +48,8 @@ StatusCode CpmSimMonitorAlgorithm::initialize() {
   ATH_MSG_DEBUG("m_modules"<<m_modules ); 
   ATH_MSG_DEBUG("m_maxSlices"<<m_maxSlices );
   ATH_MSG_DEBUG("m_cmxs"<<m_cmxs ); 
+
+
   
   return AthMonitorAlgorithm::initialize();
 }
@@ -55,6 +60,11 @@ StatusCode CpmSimMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
   ATH_MSG_DEBUG("CpmSimMonitorAlgorithm::fillHistograms");
 
   std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> variables;
+
+  // to deal with trigger menu
+  if (not m_configSvc.empty()) {
+    ATH_CHECK(m_configSvc.retrieve());
+  }
     
   //Retrieve Trigger Towers from SG
   SG::ReadHandle<xAOD::TriggerTowerContainer> triggerTowerTES(m_triggerTowerLocation, ctx);
@@ -135,15 +145,16 @@ StatusCode CpmSimMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
 
   // Compare RoIs simulated from CPM Towers with CPM RoIs from data
 
+
   std::unique_ptr<xAOD::CPMTobRoIContainer> cpmRoiSIM = std::make_unique<xAOD::CPMTobRoIContainer>();
   std::unique_ptr<xAOD::CPMTobRoIAuxContainer> cpmRoiSIMAux = std::make_unique<xAOD::CPMTobRoIAuxContainer>();
 
   cpmRoiSIM.get()->setStore(cpmRoiSIMAux.get());
   if (mismatchCoreEm || mismatchCoreHad || mismatchOverlapEm ||
       mismatchOverlapHad) {
-    simulate(&cpMap, &ovMap, cpmRoiSIM.get());
+    simulate(&cpMap, &ovMap, cpmRoiSIM.get(), ctx);
   } else {
-    simulate(&cpMap, cpmRoiSIM.get());
+    simulate(&cpMap, cpmRoiSIM.get(), ctx);
   }
 
   CpmTobRoiMap crSimMap;
@@ -170,7 +181,7 @@ StatusCode CpmSimMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
   std::unique_ptr<xAOD::CMXCPHitsContainer> cmxLocalSIM = std::make_unique<xAOD::CMXCPHitsContainer>();
   std::unique_ptr<xAOD::CMXCPHitsAuxContainer> cmxLocalSIMAux = std::make_unique<xAOD::CMXCPHitsAuxContainer>();
   cmxLocalSIM.get()->setStore(cmxLocalSIMAux.get());
-  simulate(cmxCpTobTESptr, cmxLocalSIM.get(), xAOD::CMXCPHits::LOCAL);
+  simulate(cmxCpTobTESptr, cmxLocalSIM.get(), xAOD::CMXCPHits::LOCAL,ctx);
 
   CmxCpHitsMap cmxLocalSimMap;
   ATH_CHECK(setupMap(cmxLocalSIM.get(), cmxLocalSimMap));
@@ -182,6 +193,7 @@ StatusCode CpmSimMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
   compare(cmMap, cmMap, errorsCMX, xAOD::CMXCPHits::REMOTE_0);
 
   // Compare Total sums simulated from Remote sums with Total sums from data
+
 
   std::unique_ptr<xAOD::CMXCPHitsContainer> cmxTotalSIM = std::make_unique<xAOD::CMXCPHitsContainer>();
   std::unique_ptr<xAOD::CMXCPHitsAuxContainer> cmxTotalSIMAux = std::make_unique<xAOD::CMXCPHitsAuxContainer>();
@@ -200,7 +212,7 @@ StatusCode CpmSimMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
   std::unique_ptr<xAOD::CMXCPHitsContainer> cmxTopoSIM = std::make_unique<xAOD::CMXCPHitsContainer>();
   std::unique_ptr<xAOD::CMXCPHitsAuxContainer> cmxTopoSIMAux = std::make_unique<xAOD::CMXCPHitsAuxContainer>();
   cmxTopoSIM.get()->setStore(cmxTopoSIMAux.get());
-  simulate(cmxCpTobTESptr, cmxTopoSIM.get(), xAOD::CMXCPHits::TOPO_CHECKSUM);
+  simulate(cmxCpTobTESptr, cmxTopoSIM.get(), xAOD::CMXCPHits::TOPO_CHECKSUM, ctx);
 
   CmxCpHitsMap cmxTopoSimMap;
   ATH_CHECK(setupMap(cmxTopoSIM.get(), cmxTopoSimMap));
@@ -1825,7 +1837,7 @@ StatusCode CpmSimMonitorAlgorithm::setupMap(const xAOD::CMXCPHitsContainer *coll
 // Simulate CPM RoIs from CPM Towers
 
 void CpmSimMonitorAlgorithm::simulate(const CpmTowerMap *towers, const CpmTowerMap *towersOv,
-				      xAOD::CPMTobRoIContainer *rois) const {
+				      xAOD::CPMTobRoIContainer *rois, const EventContext& ctx) const {
 
   ATH_MSG_DEBUG("Simulate CPM TOB RoIs from CPM Towers");
 
@@ -1853,11 +1865,12 @@ void CpmSimMonitorAlgorithm::simulate(const CpmTowerMap *towers, const CpmTowerM
       continue;
     crateMaps[crate].insert(std::make_pair(iter.first, tt));
   }
+  
   for (int crate = 0; crate < m_crates; ++crate) {
     xAOD::CPMTobRoIContainer *roiTemp =
         new xAOD::CPMTobRoIContainer(SG::VIEW_ELEMENTS);
 
-    m_cpmTool->findCPMTobRoIs(towers, roiTemp, 1);
+    m_cpmTool->findCPMTobRoIs(getL1Menu(ctx), towers, roiTemp, 1);
 
     xAOD::CPMTobRoIContainer::iterator roiIter = roiTemp->begin();
     xAOD::CPMTobRoIContainer::iterator roiIterE = roiTemp->end();
@@ -1873,11 +1886,11 @@ void CpmSimMonitorAlgorithm::simulate(const CpmTowerMap *towers, const CpmTowerM
 // Simulate CPM RoIs from CPM Towers quick version
 
 void CpmSimMonitorAlgorithm::simulate(const CpmTowerMap *towers,
-				      xAOD::CPMTobRoIContainer *rois) const {
+				      xAOD::CPMTobRoIContainer *rois, const EventContext& ctx) const {
 
   ATH_MSG_DEBUG("Simulate CPM TOB RoIs from CPM Towers");
   
-  m_cpmTool->findCPMTobRoIs(towers, rois, 1);
+  m_cpmTool->findCPMTobRoIs(getL1Menu(ctx), towers, rois, 1);
 }
 
 // Simulate CMX-CP TOBs from CPM RoIs
@@ -1894,15 +1907,18 @@ void CpmSimMonitorAlgorithm::simulate(const xAOD::CPMTobRoIContainer *rois,
 
 void CpmSimMonitorAlgorithm::simulate(const xAOD::CMXCPTobContainer *tobs,
 				      xAOD::CMXCPHitsContainer *hits, 
-				      int selection) const {
+				      int selection,
+				      const EventContext& ctx) const {
 
   ATH_MSG_DEBUG("Simulate CMX Hit sums from CMX TOBs");
 
+
   if (selection == xAOD::CMXCPHits::LOCAL) {
-    m_cpCmxTool->formCMXCPHitsCrate(tobs, hits);
+    m_cpCmxTool->formCMXCPHitsCrate(getL1Menu(ctx), tobs, hits);
   } else if (selection == xAOD::CMXCPHits::TOPO_CHECKSUM) {
     m_cpCmxTool->formCMXCPHitsTopo(tobs, hits);
   }
+
 }
 
 // Simulate CMX Total Hit sums from Remote/Local
@@ -1984,3 +2000,20 @@ bool CpmSimMonitorAlgorithm::limitedRoiSet(int crate, SG::ReadHandle<xAOD::RODHe
   }
   return (((limitedRoi >> crate) & 0x1) == 1);
 }
+
+
+
+const TrigConf::L1Menu* CpmSimMonitorAlgorithm::getL1Menu(const EventContext& ctx) const {
+  const TrigConf::L1Menu* menu = nullptr;
+  if (detStore()->contains<TrigConf::L1Menu>(m_L1MenuKey.key())) {
+    SG::ReadHandle<TrigConf::L1Menu>  l1MenuHandle = SG::makeHandle( m_L1MenuKey, ctx );
+    if( l1MenuHandle.isValid() ){
+      menu=l1MenuHandle.cptr();
+    }
+  } else {
+    menu = &(m_configSvc->l1Menu(ctx)); 
+  }
+
+  return menu;
+}
+

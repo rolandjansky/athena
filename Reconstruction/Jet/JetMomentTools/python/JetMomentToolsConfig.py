@@ -92,6 +92,7 @@ def getJVFTool(jetdef, modspec):
         TrackVertexAssociation = trackingKeys["TVA"],
         TrackParticleContainer  = trackingKeys["Tracks"],
         TrackSelector = jettrackselloose,
+        SuppressInputDependence = True
     )
     return jvf
 
@@ -101,6 +102,7 @@ def getJVTTool(jetdef, modspec):
     jvt = CompFactory.JetVertexTaggerTool(
         "jvt",
         VertexContainer = jetContextDic[modspec or jetdef.context]["Vertices"],
+        SuppressInputDependence = True
     )
     return jvt
 

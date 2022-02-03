@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -128,7 +128,7 @@ Trk::TrackingVolumeArrayCreator::cylinderVolumesArrayInR(
     Trk::BinUtility* volBinUtilR =
       new Trk::BinUtility(boundaries, Trk::open, Trk::binR);
     ATH_MSG_VERBOSE("Return created Array. ");
-    return new Trk::BinnedArray1D<Trk::TrackingVolume>(volOrder, volBinUtilR);
+    return new Trk::BinnedArray1D<const Trk::TrackingVolume>(volOrder, volBinUtilR);
   }
   ATH_MSG_ERROR(
     "No TrackingVolumes provided to the TrackingVolumeArrayCreator: return 0");
@@ -223,7 +223,7 @@ Trk::TrackingVolumeArrayCreator::cylinderVolumesArrayInZ(
     Trk::BinUtility* volBinUtil =
       new Trk::BinUtility(boundaries, Trk::open, Trk::binZ);
     ATH_MSG_VERBOSE("Return created Array. ");
-    return new Trk::BinnedArray1D<Trk::TrackingVolume>(volOrder, volBinUtil);
+    return new Trk::BinnedArray1D<const Trk::TrackingVolume>(volOrder, volBinUtil);
   }
   ATH_MSG_ERROR(
     "No TrackingVolumes provided to the TrackingVolumeArrayCreator: return 0");
@@ -275,7 +275,7 @@ Trk::TrackingVolumeArrayCreator::cylinderVolumesArrayInPhi(
   if (!volOrder.empty()) {
     Trk::BinUtility* volBinUtil =
       new Trk::BinUtility(nPhiBins, -phi, +phi, Trk::closed, Trk::binPhi);
-    return new Trk::BinnedArray1D<Trk::TrackingVolume>(volOrder, volBinUtil);
+    return new Trk::BinnedArray1D<const Trk::TrackingVolume>(volOrder, volBinUtil);
   }
   ATH_MSG_ERROR(
     "No TrackingVolumes provided to the TrackingVolumeArrayCreator: return 0");
@@ -539,7 +539,7 @@ Trk::TrackingVolumeArrayCreator::cylinderVolumesArrayInPhiR(
       (*hUtil)[ih] = new Trk::BinUtility(phiRef[ih], hSteps[ih]);
     }
 
-    return new Trk::BinnedArray1D1D<Trk::TrackingVolume>(
+    return new Trk::BinnedArray1D1D<const Trk::TrackingVolume>(
       volOrder, phiBinUtil, hUtil);
   }
 
@@ -646,7 +646,7 @@ Trk::TrackingVolumeArrayCreator::cylinderVolumesArrayInPhiR(
       (*phiUtil)[ip] =
         new Trk::BinUtility(phiSect[ip], Trk::closed, Trk::binPhi);
     }
-    return new Trk::BinnedArray1D1D<Trk::TrackingVolume>(
+    return new Trk::BinnedArray1D1D<const Trk::TrackingVolume>(
       volOrder, rBinUtil, phiUtil);
   }
 
@@ -718,7 +718,7 @@ Trk::TrackingVolumeArrayCreator::cylinderVolumesArrayInPhiR(
       new Trk::BinUtility(phiSteps[ip], Trk::closed, Trk::binPhi);
   }
 
-  return new Trk::BinnedArray1D1D<Trk::TrackingVolume>(
+  return new Trk::BinnedArray1D1D<const Trk::TrackingVolume>(
     volOrder, binGenR, phiUtil);
 }
 
@@ -845,7 +845,7 @@ Trk::TrackingVolumeArrayCreator::cylinderVolumesArrayInPhiZ(
       new Trk::BinUtility(zSteps, Trk::open, Trk::binZ);
     (*binGenZPhi) +=
       Trk::BinUtility(phiSector, -M_PI, M_PI, Trk::closed, Trk::binPhi);
-    return new Trk::BinnedArray2D<Trk::TrackingVolume>(volOrder, binGenZPhi);
+    return new Trk::BinnedArray2D<const Trk::TrackingVolume>(volOrder, binGenZPhi);
   }
 
   // steering binUtility in binZ
@@ -917,7 +917,7 @@ Trk::TrackingVolumeArrayCreator::cylinderVolumesArrayInPhiZ(
       new Trk::BinUtility(phiSteps[ip], Trk::closed, Trk::binPhi);
   }
 
-  return new Trk::BinnedArray1D1D<Trk::TrackingVolume>(
+  return new Trk::BinnedArray1D1D<const Trk::TrackingVolume>(
     volOrder, binGenZ, phiUtil);
 }
 
@@ -961,7 +961,7 @@ Trk::TrackingVolumeArrayCreator::cuboidVolumesArrayNav(
   if (!volOrder.empty()) {
     Amg::Transform3D* navTransform = new Amg::Transform3D;
     navTransform->setIdentity();
-    return new Trk::NavBinnedArray1D<Trk::TrackingVolume>(
+    return new Trk::NavBinnedArray1D<const Trk::TrackingVolume>(
       volOrder, binUtil, navTransform);
   }
   ATH_MSG_ERROR(
@@ -1000,7 +1000,7 @@ Trk::TrackingVolumeArrayCreator::trapezoidVolumesArrayNav(
   if (!volOrder.empty()) {
     Amg::Transform3D* navTransform = new Amg::Transform3D;
     navTransform->setIdentity();
-    return new Trk::NavBinnedArray1D<Trk::TrackingVolume>(
+    return new Trk::NavBinnedArray1D<const Trk::TrackingVolume>(
       volOrder, binUtil, navTransform);
   }
   ATH_MSG_ERROR(
@@ -1039,7 +1039,7 @@ Trk::TrackingVolumeArrayCreator::doubleTrapezoidVolumesArrayNav(
   if (!volOrder.empty()) {
     Amg::Transform3D* navTransform = new Amg::Transform3D;
     navTransform->setIdentity();
-    return new Trk::NavBinnedArray1D<Trk::TrackingVolume>(
+    return new Trk::NavBinnedArray1D<const Trk::TrackingVolume>(
       volOrder, binUtil, navTransform);
   }
   ATH_MSG_ERROR(

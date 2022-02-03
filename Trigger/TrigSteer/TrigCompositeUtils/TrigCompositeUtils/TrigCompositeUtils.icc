@@ -47,7 +47,7 @@ namespace TrigCompositeUtils {
   void
   findLinks(const Decision* start, const std::string& linkName, std::vector<LinkInfo<T>>& links, unsigned int behaviour, std::set<const Decision*>* fullyExploredFrom) {
     using namespace msgFindLink;
-    ElementLinkVector<T> featureLinks;
+    std::vector<ElementLink<T>> featureLinks;
     if (start->hasObjectCollectionLinks(linkName, ClassID_traits<T>::ID())) {
       featureLinks = start->objectCollectionLinks<T>(linkName);
     }
@@ -136,7 +136,7 @@ namespace TrigCompositeUtils {
 
 
   template<class CONTAINER>
-  void filterLinkVectorByContainerKey(const std::string& containerSGKey, ElementLinkVector<CONTAINER>& vector) {
+  void filterLinkVectorByContainerKey(const std::string& containerSGKey, std::vector<ElementLink<CONTAINER>>& vector) {
     if (containerSGKey.empty()) {
       return;
     }
@@ -187,7 +187,7 @@ namespace TrigCompositeUtils {
 
  
     const Decision* decisionObj = navGraphNode->node();
-    ElementLinkVector<CONTAINER> featureLinks;
+    std::vector<ElementLink<CONTAINER>> featureLinks;
 
     // Look up what named links are available in the Decision Object
     std::vector<std::string> availableLinkNames;
@@ -209,7 +209,7 @@ namespace TrigCompositeUtils {
 #endif
         // Slices may have added link collections. These links may have been to objects in different containers.
         if (decisionObj->hasObjectCollectionLinks(featureNameToGet, ClassID_traits< CONTAINER >::ID())) {
-          ElementLinkVector<CONTAINER> collectionLinks = decisionObj->objectCollectionLinks<CONTAINER>( featureNameToGet );
+          std::vector<ElementLink<CONTAINER>> collectionLinks = decisionObj->objectCollectionLinks<CONTAINER>( featureNameToGet );
           filterLinkVectorByContainerKey<CONTAINER>(containerSGKey, collectionLinks);
           std::copy(collectionLinks.begin(), collectionLinks.end(), std::back_inserter(featureLinks));
         }
@@ -222,7 +222,7 @@ namespace TrigCompositeUtils {
 #endif
         // Slices may have added single links. Note: the framework-specified "feature" link is always a single link.
         if (decisionObj->hasObjectLink(featureNameToGet, ClassID_traits< CONTAINER >::ID())) {
-          ElementLinkVector<CONTAINER> singleEntryVector; // Filtering function operates on a vector
+          std::vector<ElementLink<CONTAINER>> singleEntryVector; // Filtering function operates on a vector
           singleEntryVector.push_back( decisionObj->objectLink<CONTAINER>( featureNameToGet ) );
           filterLinkVectorByContainerKey<CONTAINER>(containerSGKey, singleEntryVector);
           std::copy(singleEntryVector.begin(), singleEntryVector.end(), std::back_inserter(featureLinks));

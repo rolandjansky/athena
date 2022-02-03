@@ -150,27 +150,17 @@ def setupMenu():
         ChainProp(name='HLT_mu10_PhysicsTLA_L1MU8F',   stream=['TLA'], groups=SingleMuonGroup), 
         ChainProp(name='HLT_mu10_mu6_probe_PhysicsTLA_L1MU8F', stream=['TLA'],l1SeedThresholds=['MU8F','PROBEMU3V'], groups=MultiMuonGroup),
         # di-muon TLA with L1TOPO
-        ChainProp(name='HLT_2mu4_PhysicsTLA_L1BPH-0DR12-2MU3V', l1SeedThresholds=['MU3V'],stream=["TLA"], groups=MultiMuonGroup),
-        ChainProp(name='HLT_2mu4_PhysicsTLA_L1BPH-0DR12C-2MU3V', l1SeedThresholds=['MU3V'],stream=["TLA"], groups=MultiMuonGroup),
-        ChainProp(name='HLT_2mu4_PhysicsTLA_L1BPH-7M22-0DR12-2MU3V', l1SeedThresholds=['MU3V'],stream=["TLA"], groups=MultiMuonGroup),
-        ChainProp(name='HLT_2mu4_PhysicsTLA_L1BPH-7M22-0DR20-2MU3V', l1SeedThresholds=['MU3V'],stream=["TLA"], groups=MultiMuonGroup),
-        ChainProp(name='HLT_2mu4_PhysicsTLA_L1BPH-8M22-2MU3V', l1SeedThresholds=['MU3V'],stream=["TLA"], groups=MultiMuonGroup),
-        # backup with MU3VF (ATR-24747)
-        ChainProp(name='HLT_2mu4_PhysicsTLA_L1BPH-0DR12-2MU3VF', l1SeedThresholds=['MU3VF'],stream=["TLA"], groups=MultiMuonGroup),
-        ChainProp(name='HLT_2mu4_PhysicsTLA_L1BPH-7M22-0DR12-2MU3VF', l1SeedThresholds=['MU3VF'],stream=["TLA"], groups=MultiMuonGroup),        
-        ChainProp(name='HLT_2mu4_PhysicsTLA_L1BPH-8M22-2MU3VF', l1SeedThresholds=['MU3VF'],stream=["TLA"], groups=MultiMuonGroup),
+        ChainProp(name='HLT_2mu4_PhysicsTLA_L1BPH-7M22-2MU3VF', l1SeedThresholds=['MU3VF'],stream=['TLA'], groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu6_mu4_PhysicsTLA_L1BPH-7M22-MU5VFMU3VF', l1SeedThresholds=['MU5VF','MU3VF'],stream=['TLA'], groups=MultiMuonGroup),
+        ChainProp(name='HLT_2mu4_PhysicsTLA_L1BPH-7M22-0DR20-2MU3V', l1SeedThresholds=['MU3V'],stream=['TLA'], groups=MultiMuonGroup),
+        ChainProp(name='HLT_2mu4_PhysicsTLA_L1BPH-7M22-0DR20-2MU3VF', l1SeedThresholds=['MU3VF'],stream=['TLA'], groups=MultiMuonGroup),
+        ChainProp(name='HLT_2mu4_PhysicsTLA_L1BPH-7M22-0DR12-2MU3V', l1SeedThresholds=['MU3V'],stream=['TLA'], groups=MultiMuonGroup),
 
         # ATR-22782
-        ChainProp(name='HLT_2mu4_L1BPH-0M16-20DR99-2MU3V', l1SeedThresholds=['MU3V'], stream=["BphysDelayed"], groups=BphysicsGroup),
-        ChainProp(name='HLT_2mu4_L1BPH-0M16-15DR99-2MU3V', l1SeedThresholds=['MU3V'], stream=["BphysDelayed"], groups=BphysicsGroup),
-        ChainProp(name='HLT_2mu4_L1BPH-8M15-20DR99-C-2MU3V', l1SeedThresholds=['MU3V'], stream=["BphysDelayed"], groups=BphysicsGroup),
-        ChainProp(name='HLT_2mu4_L1BPH-8M15-20DR99-2MU3V', l1SeedThresholds=['MU3V'], stream=["BphysDelayed"], groups=BphysicsGroup),
-        ChainProp(name='HLT_2mu4_L1BPH-8M15-15DR99-2MU3V', l1SeedThresholds=['MU3V'], stream=["BphysDelayed"], groups=BphysicsGroup),
-        ChainProp(name='HLT_mu6_mu4_L1BPH-7M14-0DR25-MU5VFMU3V', l1SeedThresholds=['MU5VF','MU3V'], stream=["BphysDelayed"], groups=BphysicsGroup),
-        ChainProp(name='HLT_2mu4_L1BPH-7M11-25DR99-2MU3V', l1SeedThresholds=['MU3V'], stream=["BphysDelayed"], groups=BphysicsGroup),
-        # backup with MU3VF (ATR-24747)
-        ChainProp(name='HLT_mu6_mu4_L1BPH-7M14-0DR25-MU5VFMU3VF', l1SeedThresholds=['MU5VF','MU3VF'], stream=["BphysDelayed"], groups=BphysicsGroup),
-        ChainProp(name='HLT_2mu4_L1BPH-7M11-25DR99-2MU3VF', l1SeedThresholds=['MU3VF'], stream=["BphysDelayed"], groups=BphysicsGroup),     
+        ChainProp(name='HLT_2mu4_L1BPH-7M11-25DR99-2MU3VF', l1SeedThresholds=['MU3VF'], stream=["BphysDelayed"], groups=BphysicsGroup),
+        ChainProp(name='HLT_mu6_mu4_L1BPH-7M14-MU5VFMU3VF', l1SeedThresholds=['MU5VF','MU3VF'], stream=["BphysDelayed"], groups=BphysicsGroup),
+        ChainProp(name='HLT_2mu4_L1BPH-7M14-2MU3V', l1SeedThresholds=['MU3V'], stream=["BphysDelayed"], groups=BphysicsGroup),
+        ChainProp(name='HLT_2mu4_L1BPH-7M14-2MU3VF', l1SeedThresholds=['MU3VF'], stream=["BphysDelayed"], groups=BphysicsGroup),
 
         # ATR-24399, support chains for the measurement dimuon trigger efficiency (replacement for HLT_2mu4_bDimu_novtx_noos_L12MU3V)
         ChainProp(name='HLT_2mu4_l2io_invmDimu_L12MU3V', l1SeedThresholds=['MU3V'], groups=MultiMuonGroup+SupportGroup),
@@ -855,16 +845,11 @@ def setupMenu():
         ChainProp(name='HLT_2mu4_bBmumux_BcmumuDstarloose_L12MU3V', stream=["BphysDelayed"], groups=BphysicsGroup+SupportGroup),
 
         #ATR-21566, di-muon TLA  
-        ChainProp(name='HLT_2mu4_b0dRAB12vtx20_L1BPH-0DR12-2MU3V', l1SeedThresholds=['MU3V'],stream=['BphysDelayed'], groups=BphysicsGroup),
-        ChainProp(name='HLT_2mu4_b0dRAB12vtx20_L1BPH-0DR12C-2MU3V', l1SeedThresholds=['MU3V'],stream=['BphysDelayed'], groups=BphysicsGroup),
-        ChainProp(name='HLT_2mu4_b0dRAB127invmAB22vtx20_L1BPH-7M22-0DR12-2MU3V', l1SeedThresholds=['MU3V'],stream=['BphysDelayed'], groups=BphysicsGroup),
+        ChainProp(name='HLT_2mu4_b7invmAB22vtx20_L1BPH-7M22-2MU3VF', l1SeedThresholds=['MU3VF'],stream=['BphysDelayed'], groups=BphysicsGroup),
+        ChainProp(name='HLT_mu6_mu4_b7invmAB22vtx20_L1BPH-7M22-MU5VFMU3VF', l1SeedThresholds=['MU5VF','MU3VF'],stream=['BphysDelayed'], groups=BphysicsGroup),
         ChainProp(name='HLT_2mu4_b0dRAB207invmAB22vtx20_L1BPH-7M22-0DR20-2MU3V', l1SeedThresholds=['MU3V'],stream=['BphysDelayed'], groups=BphysicsGroup),
-        ChainProp(name='HLT_mu6_mu4_b0dRAB127invmAB22vtx20_L1BPH-7M22-0DR12-MU5VFMU3V', l1SeedThresholds=['MU5VF','MU3V'],stream=['BphysDelayed'], groups=BphysicsGroup),
-        ChainProp(name='HLT_mu6_mu4_b0dRAB207invmAB22vtx20_L1BPH-7M22-0DR20-MU5VFMU3V', l1SeedThresholds=['MU5VF','MU3V'],stream=['BphysDelayed'], groups=BphysicsGroup),
-        # backup with MU3VF (ATR-2474)
-        ChainProp(name='HLT_2mu4_b0dRAB12vtx20_L1BPH-0DR12-2MU3VF', l1SeedThresholds=['MU3VF'],stream=['BphysDelayed'], groups=BphysicsGroup),
-        ChainProp(name='HLT_2mu4_b0dRAB207invmAB22vtx20_L1BPH-7M22-0DR12-2MU3VF', l1SeedThresholds=['MU3VF'],stream=['BphysDelayed'], groups=BphysicsGroup),
-        ChainProp(name='HLT_mu6_mu4_b0dRAB127invmAB22vtx20_L1BPH-7M22-0DR12-MU5VFMU3VF', l1SeedThresholds=['MU5VF','MU3VF'],stream=['BphysDelayed'], groups=BphysicsGroup),
+        ChainProp(name='HLT_2mu4_b0dRAB207invmAB22vtx20_L1BPH-7M22-0DR20-2MU3VF', l1SeedThresholds=['MU3VF'],stream=['BphysDelayed'], groups=BphysicsGroup),
+        ChainProp(name='HLT_2mu4_b0dRAB127invmAB22vtx20_L1BPH-7M22-0DR12-2MU3V', l1SeedThresholds=['MU3V'],stream=['BphysDelayed'], groups=BphysicsGroup),
 
         ]
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -108,6 +108,7 @@ class NavigationLayer final : public Layer {
 inline const Surface& NavigationLayer::surfaceRepresentation() const {
   return (*m_surfaceRepresentation);
 }
+
 
 inline const MaterialProperties* NavigationLayer::fullUpdateMaterialProperties()
     const {

@@ -20,73 +20,57 @@ def addPhysValAODContent(algseq,doJets,doTopoCluster):
     requiresLCOriginTC = not IsInInputFile('xAOD::CaloClusterContainer','LCOriginTopoClusters')
     requiresEMOriginTC = not IsInInputFile('xAOD::CaloClusterContainer','EMOriginTopoClusters')
 
-    jettools_PhysVal = []
     # Truth jets
     if doJets and requiresTruthJets:
-        jettools_PhysVal += addAntiKt4TruthJets(algseq)
+        addAntiKt4TruthJets(algseq)
 
-    # Origin-corrected topoclusters
+    ## Origin-corrected topoclusters
     if doTopoCluster and (requiresLCOriginTC or requiresEMOriginTC):
-        jettools_PhysVal += addOriginCorrectedClusters(algseq,requiresLCOriginTC,requiresEMOriginTC)
-
-    from AthenaCommon import CfgMgr
-    # Only add the algorithm if there is a need for it
-    if jettools_PhysVal:  
-        from JetRec.JetRecStandard import jtm
-        jtm += CfgMgr.JetToolRunner("jetrun_PhysVal",
-                             EventShapeTools=[],
-                             Tools=jettools_PhysVal,
-                             Timer=0 # No timing information
-                             )
-
-        from JetRec.JetRecConf import JetAlgorithm  # noqa: F401
-        algseq += CfgMgr.JetAlgorithm("jetalgPhysVal",Tools=[jtm.jetrun_PhysVal])
+        addOriginCorrectedClusters(algseq,requiresLCOriginTC,requiresEMOriginTC)
 
     logger.info( '******************              Done              *****************' )
     
 ################################################################################################
 
 def addAntiKt4TruthJets(algseq):
-    '''
-    Use the standard AntiKt4TruthJets configuration helpers
-    and return the jet finder
-    '''
-    logger.info( 'Configuring AntiKt4TruthJets' )
-    
-    truthtools = []
-    from JetRec.JetFlavorAlgs import scheduleCopyTruthParticles
-    truthtools += scheduleCopyTruthParticles()
-    from JetRec.JetRecStandard import jtm
-    truthtools.append( jtm.truthpartcopy )
-    from AthenaCommon import CfgMgr
-    algseq += CfgMgr.JetAlgorithm("jetalgTruthPartCopy",Tools=truthtools)
 
-    for getter in jtm.gettersMap["truth"]:
-        algseq += getter
+    from JetRecConfig.StandardSmallRJets import AntiKt4Truth
+    from JetRecConfig.JetRecConfig import getJetAlgs
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-    from JetRec.JetRecStandard import jtm
-    return [ jtm.addJetFinder("AntiKt4TruthJets", "AntiKt", 0.4, "truth", ptmin= 5000) ]
+    algs, jetdef_i = getJetAlgs(ConfigFlags, AntiKt4Truth, True)
+    sortJetAlgs(algseq, algs)
 
 ################################################################################################
 
 def addOriginCorrectedClusters(algseq,doLC,doEM):
-    '''
-    Create and return the origin-corrected cluster builders
-    in the form of JetConsituentModSequence
-    '''
+    from JetRecConfig.JetRecConfig import getInputAlgs
+    from JetRecConfig.StandardJetConstits import stdConstitDic as cst
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
     logger.info( 'Configuring origin-corrected cluster collections:' )
-    ctools = []
-    # Most likely we need both or none, but set this up generally
-    from JetRec.JetRecStandard import jtm
+
     if doLC:
         logger.info( '    * LCOriginTopoClusters' )
-        ctools += [jtm.JetConstitSeq_LCOrigin]
+        constit_algs = getInputAlgs(cst.LCTopoOrigin, configFlags=ConfigFlags)
+        sortJetAlgs(algseq, constit_algs)
     if doEM:
         logger.info( '    * EMOriginTopoClusters' )
-        ctools += [jtm.JetConstitSeq_EMOrigin]
+        constit_algs = getInputAlgs(cst.EMTopoOrigin, configFlags=ConfigFlags)
+        sortJetAlgs(algseq, constit_algs)
 
-    return ctools
+################################################################################################
+
+def sortJetAlgs(algseq, algs):
+
+    from JetRecConfig.JetRecConfig import reOrderAlgs
+    from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
+
+    algs = reOrderAlgs( [a for a in algs if a is not None])
+    for a in algs:
+        if hasattr(algseq,a.getName()):
+            continue
+        algseq += conf2toConfigurable(a)
 
 ################################################################################################
 

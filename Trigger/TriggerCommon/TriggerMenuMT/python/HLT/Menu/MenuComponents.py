@@ -1158,7 +1158,7 @@ class SelectionCA(ComponentAccumulator):
         super( SelectionCA, self ).__init__()
 
         self.stepRecoSequence = parOR(CFNaming.stepRecoName(name))
-        self.stepViewSequence = seqAND(CFNaming.stepViewName(name), [self.stepRecoSequence])
+        self.stepViewSequence = seqAND(CFNaming.stepContentName(name), [self.stepRecoSequence])
         self.addSequence(self.stepViewSequence)
 
     def mergeReco(self, other):
@@ -1343,5 +1343,5 @@ def getChainStepName(chainName, stepNumber):
 
 def createStepView(stepName):
     stepReco = parOR(CFNaming.stepRecoName(stepName))
-    stepView = seqAND(CFNaming.stepViewName(stepName), [stepReco])
+    stepView = seqAND(CFNaming.stepContentName(stepName), [stepReco])
     return stepReco, stepView

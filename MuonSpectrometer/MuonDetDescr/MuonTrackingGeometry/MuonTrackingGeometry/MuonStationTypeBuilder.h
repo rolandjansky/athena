@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -78,15 +78,15 @@ namespace Muon {
         /** Interface methode */
         static const InterfaceID& interfaceID();
         /** steering routine */
-        const Trk::TrackingVolumeArray* processBoxStationComponents(const GeoVPhysVol* cv, Trk::CuboidVolumeBounds* envBounds,
-                                                                    Cache&) const;
+        Trk::TrackingVolumeArray* processBoxStationComponents(const GeoVPhysVol* cv, Trk::CuboidVolumeBounds* envBounds,
+                                                              Cache&) const;
 
-        const Trk::TrackingVolumeArray* processTrdStationComponents(const GeoVPhysVol* cv, Trk::TrapezoidVolumeBounds* envBounds,
-                                                                    Cache&) const;
+        Trk::TrackingVolumeArray* processTrdStationComponents(const GeoVPhysVol* cv, Trk::TrapezoidVolumeBounds* envBounds,
+                                                              Cache&) const;
 
         Trk::TrackingVolume* processCscStation(const GeoVPhysVol* cv, const std::string& name, Cache&) const;
 
-        std::vector<const Trk::TrackingVolume*> processTgcStation(const GeoVPhysVol* cv, Cache&) const;
+        std::vector<Trk::TrackingVolume*> processTgcStation(const GeoVPhysVol* cv, Cache&) const;
 
         /** components */
         const Trk::TrackingVolume* processMdtBox(Trk::Volume*&, const GeoVPhysVol*&, Amg::Transform3D*, double, Cache&) const;
@@ -99,12 +99,12 @@ namespace Muon {
 
         const Trk::TrackingVolume* processNSW(const MuonGM::MuonDetectorManager* muonDetMgr, const std::vector<const Trk::Layer*>&) const;
 
-        const Trk::LayerArray* processCSCTrdComponent(const GeoVPhysVol*&, Trk::TrapezoidVolumeBounds*&, Amg::Transform3D*&, Cache&) const;
+        Trk::LayerArray* processCSCTrdComponent(const GeoVPhysVol*&, Trk::TrapezoidVolumeBounds*&, Amg::Transform3D*&, Cache&) const;
 
-        const Trk::LayerArray* processCSCDiamondComponent(const GeoVPhysVol*&, Trk::DoubleTrapezoidVolumeBounds*&, Amg::Transform3D*&,
-                                                          Cache&) const;
+        Trk::LayerArray* processCSCDiamondComponent(const GeoVPhysVol*&, Trk::DoubleTrapezoidVolumeBounds*&, Amg::Transform3D*&,
+                                                    Cache&) const;
 
-        const Trk::LayerArray* processTGCComponent(const GeoVPhysVol*&, Trk::TrapezoidVolumeBounds*&, Amg::Transform3D*&, Cache&) const;
+        Trk::LayerArray* processTGCComponent(const GeoVPhysVol*&, Trk::TrapezoidVolumeBounds*&, Amg::Transform3D*&, Cache&) const;
 
         std::pair<const Trk::Layer*, const std::vector<const Trk::Layer*>*> createLayerRepresentation(
             const Trk::TrackingVolume* trVol) const;

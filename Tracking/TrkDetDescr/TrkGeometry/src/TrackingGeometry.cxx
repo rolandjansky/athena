@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021  CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022  CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -84,10 +84,9 @@ ATLAS_NOT_THREAD_SAFE(const Trk::TrackingVolume& tvol,
 
   const_cast<Trk::TrackingVolume&>(tvol).setMotherVolume(mvol);
   m_trackingVolumes[tvol.volumeName()] = (&tvol);
-  const Trk::BinnedArray<Trk::TrackingVolume>* confinedVolumes =
-    tvol.confinedVolumes();
+  const Trk::BinnedArray<const Trk::TrackingVolume>* confinedVolumes = tvol.confinedVolumes();
   if (confinedVolumes) {
-    const std::vector<const Trk::TrackingVolume*>& volumes =
+    Trk::BinnedArraySpan<Trk::TrackingVolume const * const> volumes =
       confinedVolumes->arrayObjects();
     for (const auto& volumesIter : volumes)
       if (volumesIter)
@@ -135,7 +134,7 @@ ATLAS_NOT_THREAD_SAFE(MsgStream& msg, const TrackingVolume* vol)
   size_t cSurfaces = 0;
   size_t tSurfaces = 0;
   if (tVolume) {
-    tVolume->compactify(cSurfaces, tSurfaces);
+    const_cast<TrackingVolume*>(tVolume)->compactify(cSurfaces, tSurfaces);
   }
   msg << MSG::VERBOSE << "  --> set TG ownership of " << cSurfaces << " out of "
       << tSurfaces << std::endl;
@@ -154,18 +153,21 @@ void Trk::TrackingGeometry::synchronizeLayers
 ATLAS_NOT_THREAD_SAFE(MsgStream& msg, const TrackingVolume* vol)
 {
   const Trk::TrackingVolume* tVolume = vol ? vol : m_world;
-  tVolume->synchronizeLayers(msg);
+  const_cast<TrackingVolume*>(tVolume)->synchronizeLayers(msg);
 }
 
-const Trk::TrackingVolume*
+
+Trk::TrackingVolume*
 Trk::TrackingGeometry::checkoutHighestTrackingVolume()
 {
-  const Trk::TrackingVolume* checkoutVolume = m_world;
+  Trk::TrackingVolume* checkoutVolume = m_world;
   m_world = nullptr;
   // clear the boundary layers they go with the highest volume
   m_boundaryLayers.clear();
   return checkoutVolume;
 }
+
+
 
 void
 Trk::TrackingGeometry::printVolumeHierarchy(MsgStream& msg) const
@@ -192,18 +194,16 @@ Trk::TrackingGeometry::printVolumeInformation(MsgStream& msg,
 
   const Trk::BinnedArray<Trk::Layer>* confinedLayers = tvol.confinedLayers();
   if (confinedLayers) {
-    const std::vector<const Trk::Layer*>& layers =
+    Trk::BinnedArraySpan<Trk::Layer const * const> layers =
       confinedLayers->arrayObjects();
     for (int indent = 0; indent < sublevel; ++indent)
       msg << "  ";
     msg << "- found : " << layers.size() << " confined Layers" << std::endl;
   }
 
-  const Trk::BinnedArray<Trk::TrackingVolume>* confinedVolumes =
-    tvol.confinedVolumes();
+  const Trk::BinnedArray<const Trk::TrackingVolume>* confinedVolumes = tvol.confinedVolumes();
   if (confinedVolumes) {
-    const std::vector<const Trk::TrackingVolume*>& volumes =
-      confinedVolumes->arrayObjects();
+    Trk::BinnedArraySpan<Trk::TrackingVolume const * const> volumes = confinedVolumes->arrayObjects();
 
     for (int indent = 0; indent < sublevel; ++indent)
       msg << "  ";

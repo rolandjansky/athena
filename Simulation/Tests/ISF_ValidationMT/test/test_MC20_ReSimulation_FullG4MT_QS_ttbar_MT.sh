@@ -28,7 +28,7 @@ else
         --imf False
 
     rc=$?
-    echo "art-result: $rc initial-sim"
+    echo "art-result: $rc initial-simOLD"
 fi
 status=$rc
 cp log.EVNTtoHITS log.EVNTtoHITS.initial
@@ -53,7 +53,7 @@ then
     status=$rc1
     mv log.ReSim log.EVNTtoHITS.CA
 fi
-echo "art-result: $rc1 resimulation CA"
+echo "art-result: $rc1 resimCA"
 
 rc2=-9999
 if [ $rc -eq 0 ]
@@ -85,7 +85,7 @@ then
     status=$rc2
     mv log.ReSim log.ReSim.CG
 fi
-echo "art-result: $rc2 simulation CG"
+echo "art-result: $rc2 resimOLD"
 
 rc3=-9999
 if [ $rc2 -eq 0 ]
@@ -99,14 +99,17 @@ then
   status=$rc3
 fi
 
-echo "art-result: $rc3 comparison"
+echo "art-result: $rc3 OLDvsCA"
 
-
-
-ArtPackage=$1
-ArtJobName=$2
-art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --diff-root --mode=semi-detailed --ignore-leave RecoTimingObj_p1_EVNTtoHITS_timingsOLD
-
-echo  "art-result: $? regression"
+rc4=-9999
+if [ $rc2 -eq 0 ]
+then
+    ArtPackage=$1
+    ArtJobName=$2
+    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --diff-root --mode=semi-detailed --ignore-leave RecoTimingObj_p1_EVNTtoHITS_timingsOLD --file=resim.CG.HITS.pool.root
+    rc4=$?
+    status=$rc4
+fi
+echo  "art-result: $rc4 regression"
 
 exit $status

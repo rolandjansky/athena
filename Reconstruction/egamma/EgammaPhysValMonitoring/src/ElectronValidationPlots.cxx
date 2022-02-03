@@ -9,7 +9,7 @@ ElectronValidationPlots::ElectronValidationPlots(PlotBase* pParent, const std::s
 										      m_oCentralElecPlots(this,"Central/", "Central"),
 										      m_oFrwdElecPlots(this, "Frwd/", "Forward"),
 										      m_oTruthAllPlots(this, "Truth/All/", "Truth Electron All"),
-										      m_oTruthAllIsoPlots(this, "Truth/All/Iso", "Truth Electron Prompt"),
+										      m_oTruthAllIsoPlots(this, "Truth/All/Iso/", "Truth Electron Prompt"),
 										      m_oTruthIsoPlots(this, "Truth/Iso/", "Truth Electron Prompt"),
 										      author(nullptr),
 										      mu_average(nullptr),
@@ -39,7 +39,7 @@ void ElectronValidationPlots::initializePlots(){
 void ElectronValidationPlots::fill(const xAOD::Electron& electron, const xAOD::EventInfo& eventInfo, bool isPrompt) const {
 
   float weight = 1.;
-  weight = !eventInfo.beamSpotWeight() ? eventInfo.beamSpotWeight() : 1.;
+  weight = eventInfo.beamSpotWeight();
 
   author->Fill(electron.author(),weight);
   

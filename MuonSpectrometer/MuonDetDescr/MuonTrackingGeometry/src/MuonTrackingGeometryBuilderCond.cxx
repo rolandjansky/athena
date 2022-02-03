@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -179,8 +179,8 @@ std::pair<EventIDRange, Trk::TrackingGeometry*> Muon::MuonTrackingGeometryBuilde
     aLVC.m_muonMaterial = Trk::Material(10e10, 10e10, 0., 0., 0.);  // default material properties
 
     // dummy substructures
-    const Trk::LayerArray* dummyLayers = nullptr;
-    const Trk::TrackingVolumeArray* dummyVolumes = nullptr;
+    Trk::LayerArray* dummyLayers = nullptr;
+    Trk::TrackingVolumeArray* dummyVolumes = nullptr;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     //   Envelope definition (cutouts)
@@ -1222,7 +1222,7 @@ Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilderCond::processVolume(const 
         Trk::BinUtility* volBinUtil = new Trk::BinUtility(buPhi);  // TODO verify ordering PhiZ vs. ZPhi
 
         delete protVol;
-        Trk::BinnedArray2D<Trk::TrackingVolume>* subVols = new Trk::BinnedArray2D<Trk::TrackingVolume>(subVolumes, volBinUtil);
+        Trk::BinnedArray2D<const Trk::TrackingVolume>* subVols = new Trk::BinnedArray2D<const Trk::TrackingVolume>(subVolumes, volBinUtil);
 
         tVol = new Trk::TrackingVolume(*vol, aLVC.m_muonMaterial, nullptr, subVols, volumeName);
         // register glue volumes
@@ -1359,7 +1359,7 @@ Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilderCond::processVolume(const 
         // create subvolumes & BinnedArray
         std::vector<Trk::TrackingVolumeOrderPosition> subVolumesVect;
         std::vector<std::vector<std::vector<const Trk::TrackingVolume*> > > subVolumes;
-        std::vector<std::vector<Trk::SharedObject<Trk::BinnedArray<Trk::TrackingVolume> > > > hBins;
+        std::vector<std::vector<Trk::SharedObject<Trk::BinnedArray<const Trk::TrackingVolume> > > > hBins;
         std::vector<const Trk::TrackingVolume*> sVolsInn;  // for gluing
         std::vector<const Trk::TrackingVolume*> sVolsOut;  // for gluing
         std::vector<const Trk::TrackingVolume*> sVolsNeg;  // for gluing
@@ -1369,7 +1369,7 @@ Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilderCond::processVolume(const 
             double posZ = 0.5 * (zSteps[eta] + zSteps[eta + 1]);
             double hZ = 0.5 * std::fabs(zSteps[eta + 1] - zSteps[eta]);
             std::vector<std::vector<const Trk::TrackingVolume*> > phiSubs;
-            std::vector<Trk::SharedObject<Trk::BinnedArray<Trk::TrackingVolume> > > phBins;
+            std::vector<Trk::SharedObject<Trk::BinnedArray<const Trk::TrackingVolume> > > phBins;
             std::vector<int> phiType(phiTypeMax + 1, -1);  // indication of first phi/R partition built for a given type (for cloning)
             std::vector<std::vector<Trk::Volume*> > garbVol(phiTypeMax + 1);
             unsigned int pCode = 1;
@@ -1497,9 +1497,9 @@ Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilderCond::processVolume(const 
                     //
                 }
                 phiSubs.push_back(hSubs);
-                Trk::BinnedArray1D<Trk::TrackingVolume>* volBinArray =
-                    new Trk::BinnedArray1D<Trk::TrackingVolume>(hSubsTr, (*hBinUtil)[eta][phi]->clone());
-                phBins.push_back(Trk::SharedObject<Trk::BinnedArray<Trk::TrackingVolume> >(volBinArray));
+                Trk::BinnedArray1D<const Trk::TrackingVolume>* volBinArray =
+                    new Trk::BinnedArray1D<const Trk::TrackingVolume>(hSubsTr, (*hBinUtil)[eta][phi]->clone());
+                phBins.push_back(Trk::SharedObject<Trk::BinnedArray<const Trk::TrackingVolume> >(volBinArray));
                 // save link to current partition for cloning
                 if (phiP < 0) phiType[aLVC.m_adjustedPhiType[phi]] = phi;
 
@@ -1532,8 +1532,8 @@ Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilderCond::processVolume(const 
 
         // Trk::BinUtility3DZFH* volBinUtil=new Trk::BinUtility3DZFH(zBinUtil,pBinUtil,hBinUtil,new Amg::Transform3D(vol->transform()));
 
-        Trk::BinnedArray1D1D1D<Trk::TrackingVolume>* subVols =
-            new Trk::BinnedArray1D1D1D<Trk::TrackingVolume>(subVolumesVect, zBinUtil, pBinUtil, hBinUtil);
+        Trk::BinnedArray1D1D1D<const Trk::TrackingVolume>* subVols =
+            new Trk::BinnedArray1D1D1D<const Trk::TrackingVolume>(subVolumesVect, zBinUtil, pBinUtil, hBinUtil);
 
         tVol = new Trk::TrackingVolume(*vol, aLVC.m_muonMaterial, nullptr, subVols, volumeName);
         // register glue volumes
@@ -1658,7 +1658,7 @@ Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilderCond::processVolume(const 
 
         Trk::BinUtility* volBinUtil = new Trk::BinUtility(zBinUtil);  // TODO verify ordering PhiZ vs. ZPhi
 
-        Trk::BinnedArray2D<Trk::TrackingVolume>* subVols = new Trk::BinnedArray2D<Trk::TrackingVolume>(subVolumes, volBinUtil);
+        Trk::BinnedArray2D<const Trk::TrackingVolume>* subVols = new Trk::BinnedArray2D<const Trk::TrackingVolume>(subVolumes, volBinUtil);
 
         tVol = new Trk::TrackingVolume(*vol, aLVC.m_muonMaterial, nullptr, subVols, volumeName);
         // register glue volumes
@@ -1753,7 +1753,7 @@ const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilderCond::processShield(
     // create subvolumes & BinnedArray
     std::vector<Trk::TrackingVolumeOrderPosition> subVolumesVect;
     std::vector<std::vector<std::vector<const Trk::TrackingVolume*> > > subVolumes;
-    std::vector<std::vector<Trk::SharedObject<Trk::BinnedArray<Trk::TrackingVolume> > > > hBins;
+    std::vector<std::vector<Trk::SharedObject<Trk::BinnedArray<const Trk::TrackingVolume> > > > hBins;
     std::vector<const Trk::TrackingVolume*> sVolsInn;  // for gluing
     std::vector<const Trk::TrackingVolume*> sVolsOut;  // for gluing
     std::vector<const Trk::TrackingVolume*> sVolsNeg;  // for gluing
@@ -1763,7 +1763,7 @@ const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilderCond::processShield(
         double posZ = 0.5 * (zSteps[eta] + zSteps[eta + 1]);
         double hZ = 0.5 * std::fabs(zSteps[eta + 1] - zSteps[eta]);
         std::vector<std::vector<const Trk::TrackingVolume*> > phiSubs;
-        std::vector<Trk::SharedObject<Trk::BinnedArray<Trk::TrackingVolume> > > phBins;
+        std::vector<Trk::SharedObject<Trk::BinnedArray<const Trk::TrackingVolume> > > phBins;
         int phi = 0;
         double posPhi = 0.;
         double phiSect = M_PI;
@@ -1833,9 +1833,9 @@ const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilderCond::processShield(
             if (etaN > 1 && eta > 0) m_trackingVolumeHelper->setOutsideTrackingVolumeArray(*sVol, Trk::negativeFaceXY, hBins[eta - 1][phi]);
         }
         phiSubs.push_back(hSubs);
-        Trk::BinnedArray1D<Trk::TrackingVolume>* volBinArray =
-            new Trk::BinnedArray1D<Trk::TrackingVolume>(hSubsTr, (*hBinUtil)[eta][phi]->clone());
-        phBins.push_back(Trk::SharedObject<Trk::BinnedArray<Trk::TrackingVolume> >(volBinArray));
+        Trk::BinnedArray1D<const Trk::TrackingVolume>* volBinArray =
+            new Trk::BinnedArray1D<const Trk::TrackingVolume>(hSubsTr, (*hBinUtil)[eta][phi]->clone());
+        phBins.push_back(Trk::SharedObject<Trk::BinnedArray<const Trk::TrackingVolume> >(volBinArray));
 
         // finish eta gluing
         if (etaN > 1 && eta > 0) {
@@ -1849,8 +1849,8 @@ const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilderCond::processShield(
 
     // Trk::BinUtility3DZFH* volBinUtil=new Trk::BinUtility3DZFH(zBinUtil,pBinUtil,hBinUtil,new Amg::Transform3D(vol->transform()));
 
-    Trk::BinnedArray1D1D1D<Trk::TrackingVolume>* subVols =
-        new Trk::BinnedArray1D1D1D<Trk::TrackingVolume>(subVolumesVect, zBinUtil, pBinUtil, hBinUtil);
+    Trk::BinnedArray1D1D1D<const Trk::TrackingVolume>* subVols =
+        new Trk::BinnedArray1D1D1D<const Trk::TrackingVolume>(subVolumesVect, zBinUtil, pBinUtil, hBinUtil);
 
     tVol = new Trk::TrackingVolume(*vol, aLVC.m_muonMaterial, nullptr, subVols, volumeName);
     // register glue volumes

@@ -58,16 +58,19 @@ StatusCode Muon::RpcPrepDataContainerCnv_p1::initialize(MsgStream &log) {
         if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the Rpc ID helper." << endmsg;
     }
 
-    sc = detStore->retrieve(m_muonDetMgr);
-    if (sc.isFailure()) {
-        log << MSG::FATAL << "Could not get PixelDetectorDescription" << endmsg;
-        return sc;
+    if (m_eventCnvTool.retrieve().isFailure()) {
+        log << MSG::FATAL << "Could not get DetectorDescription manager" << endmsg;
+        return StatusCode::FAILURE;
     }
 
     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
     return StatusCode::SUCCESS;
 }
-
+const MuonGM::RpcReadoutElement* Muon::RpcPrepDataContainerCnv_p1::getReadOutElement(const Identifier& id ) const {
+    const Trk::ITrkEventCnvTool* cnv_tool = m_eventCnvTool->getCnvTool(id);
+    if (!cnv_tool) return nullptr; 
+    return dynamic_cast<const MuonGM::RpcReadoutElement*>(cnv_tool->getDetectorElement(id));
+}
 void Muon::RpcPrepDataContainerCnv_p1::transToPers(const Muon::RpcPrepDataContainer* transCont,  Muon::MuonPRD_Container_p1* persCont, MsgStream &log) 
 {
 
@@ -92,16 +95,11 @@ void Muon::RpcPrepDataContainerCnv_p1::transToPers(const Muon::RpcPrepDataContai
     RpcPrepDataCnv_p1  chanCnv;
     TRANS::const_iterator it_Coll     = transCont->begin();
     TRANS::const_iterator it_CollEnd  = transCont->end();
-    unsigned int collIndex;
+    unsigned int collIndex = 0;
     unsigned int chanBegin = 0;
     unsigned int chanEnd = 0;
     int numColl = transCont->numberOfCollections();
-    // if(numColl == transCont->hashFunc().max() ) { // let's count how many collections we have:
-    //  numColl = 0;
-    //  for ( ; it_Coll != it_CollEnd; it_Coll++)
-    //     numColl++;
-    //  it_Coll     = transCont->begin(); // reset the iterator, we used it!
-    // }
+    
     persCont->m_collections.resize(numColl);    
     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Preparing " << persCont->m_collections.size() << "Collections" << endmsg;
 
@@ -160,9 +158,6 @@ void  Muon::RpcPrepDataContainerCnv_p1::persToTrans(const Muon::MuonPRD_Containe
         coll->setIdentifier(Identifier(pcoll.m_id));
         unsigned int nchans           = pcoll.m_end - pcoll.m_begin;
         coll->resize(nchans);
-//        MuonDD::RpcReadoutElement * de = m_muonDetMgr->getDetectorElement(collIDHash);
-// No hash based lookup for Rpcs?
-//        const MuonGM::RpcReadoutElement * de = m_muonDetMgr->getRpcReadoutElement(collID);
         // Fill with channels
         for (unsigned int ichan = 0; ichan < nchans; ++ ichan) {
             const TPObjRef pchan = persCont->m_PRD[ichan + pcoll.m_begin];
@@ -171,7 +166,7 @@ void  Muon::RpcPrepDataContainerCnv_p1::persToTrans(const Muon::MuonPRD_Containe
                log << MSG::ERROR << "RpcPrepDataContainerCnv_p1::persToTrans: Cannot get RpcPrepData!" << endmsg;
                continue;
             }
-            const MuonGM::RpcReadoutElement * de = m_muonDetMgr->getRpcReadoutElement(chan->identify());
+            const MuonGM::RpcReadoutElement * de = getReadOutElement(chan->identify());
             chan->m_detEl = de;
             (*coll)[ichan] = chan;
             

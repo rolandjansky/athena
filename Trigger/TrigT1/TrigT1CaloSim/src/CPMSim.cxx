@@ -60,6 +60,7 @@ StatusCode CPMSim::initialize()
   ATH_CHECK( m_CPMTowerLocation.initialize() );
   ATH_CHECK( m_CPMCMXDataLocation.initialize() );
   ATH_CHECK( m_CPMTobRoILocation.initialize() );
+  ATH_CHECK( m_L1MenuKey.initialize() );
 
   return StatusCode::SUCCESS ;
 }
@@ -96,7 +97,11 @@ StatusCode CPMSim::execute(const EventContext& ctx) const
   // Map the CPMTs
   xAOD::CPMTowerMap_t towerMap;
   m_CPMTool->mapTowers(storedCPMTs.cptr(), &towerMap);
-	 
+
+  // get the L1Menu for the CPMTool
+  auto l1Menu = SG::makeHandle( m_L1MenuKey, ctx );
+  const TrigConf::L1Menu* l1Menu_ptr=l1Menu.cptr();
+
   // Loop over crates and modules
   for (int iCrate = 0; iCrate < 4; ++iCrate) {
     for (int iModule = 1; iModule <= 14; ++iModule) {
@@ -104,7 +109,7 @@ StatusCode CPMSim::execute(const EventContext& ctx) const
       // For each module, find TOBs and backplane data
       std::vector<unsigned int> emCMXData;
       std::vector<unsigned int> tauCMXData;
-      m_CPMTool->findCPMResults(&towerMap,iCrate,iModule,allTOBs.get(),emCMXData,tauCMXData);
+      m_CPMTool->findCPMResults(l1Menu_ptr,&towerMap,iCrate,iModule,allTOBs.get(),emCMXData,tauCMXData);
       // Push backplane data into output DataVectors
       CMXData -> push_back(std::make_unique<CPMCMXData>(iCrate,iModule,0,emCMXData));
       CMXData -> push_back(std::make_unique<CPMCMXData>(iCrate,iModule,1,tauCMXData));

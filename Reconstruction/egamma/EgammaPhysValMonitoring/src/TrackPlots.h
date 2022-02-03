@@ -39,6 +39,8 @@ class TrackPlots:public PlotBase {
       TH1* deltaPoverP;
       TH1* EoverP;
       TH2* trtratio;
+      TH2* trtvseta;
+      TH2* trthtvseta;
 
     private:
       virtual void initializePlots();

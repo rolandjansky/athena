@@ -11,7 +11,6 @@
 #include <iostream>
 
 #include "AthLinks/ElementLink.h"
-#include "AthLinks/ElementLinkVector.h"
 #include "AsgDataHandles/WriteHandle.h"
 #include "AsgDataHandles/ReadHandle.h"
 #include "AsgDataHandles/WriteHandleKey.h"
@@ -187,7 +186,7 @@ namespace TrigCompositeUtils {
   /**
    * @brief returns links to previous decision object 'seed'
    **/
-  const ElementLinkVector<DecisionContainer> getLinkToPrevious(const Decision*);
+  const std::vector<ElementLink<DecisionContainer>> getLinkToPrevious(const Decision*);
 
   /**
    * @brief copy all links from src to dest TC objects
@@ -376,7 +375,7 @@ namespace TrigCompositeUtils {
    * @param[in,out] vector Mutable vector of ElementLinks on which to filter.
    **/
   template<class CONTAINER>
-  void filterLinkVectorByContainerKey(const std::string& containerSGKey, ElementLinkVector<CONTAINER>& vector);
+  void filterLinkVectorByContainerKey(const std::string& containerSGKey, std::vector<ElementLink<CONTAINER>>& vector);
 
   /**
    * @brief Extract features from the supplied linkVector (obtained through recursiveGetDecisions).

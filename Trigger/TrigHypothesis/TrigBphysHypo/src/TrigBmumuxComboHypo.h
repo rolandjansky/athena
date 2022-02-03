@@ -57,7 +57,7 @@ class TrigBmumuxState: public ::ITrigBphysState {
 
   struct Muon {
     ElementLink<xAOD::MuonContainer> link;
-    ElementLinkVector<TrigCompositeUtils::DecisionContainer> decisionLinks;
+    std::vector<ElementLink<TrigCompositeUtils::DecisionContainer>> decisionLinks;
     TrigCompositeUtils::DecisionIDContainer decisionIDs;
   };
   std::vector<Muon> muons;

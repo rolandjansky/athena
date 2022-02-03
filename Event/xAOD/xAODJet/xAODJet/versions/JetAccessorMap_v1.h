@@ -196,6 +196,8 @@ namespace xAOD {
           JET_DEFINE_ATT_ACCESSOR( BchCorrDotx ); 
           JET_DEFINE_ATT_ACCESSOR( BchCorrJet ); 
           JET_DEFINE_ATT_ACCESSOR( BchCorrJetForCell ); 
+	  JET_DEFINE_ATT_ACCESSOR( VariableRMinRadius );
+          JET_DEFINE_ATT_ACCESSOR( VariableRMassScale );
         
         default:
           std::cerr << "xAOD::Jet_v1 ERROR Unknown attribute ("

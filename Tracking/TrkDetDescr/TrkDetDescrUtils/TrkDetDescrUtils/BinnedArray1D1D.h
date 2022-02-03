@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,30 +13,31 @@
 #include "TrkDetDescrUtils/BinnedArray.h"
 #include "TrkDetDescrUtils/SharedObject.h"
 
-#include <vector>
 #include "CxxUtils/CachedUniquePtr.h"
+#include <vector>
 
 class MsgStream;
 
 namespace Trk {
 
-/** @class BinnedArray1D1DT
+/** @class BinnedArray1D1D
 
     2D dimensional binned array, where the binning grid is
     not symmetric.
     One steering bin utility finds the associated array of the other.
 
     @author Andreas.Salzburger@cern.ch
+    @author Christos Anastopoulos (Athena MT modifications)
  */
 
 template<class T>
-class BinnedArray1D1DT final: public BinnedArrayT<T>
+class BinnedArray1D1D final : public BinnedArray<T>
 {
 
 public:
   /** Default Constructor - needed for inherited classes */
-  BinnedArray1D1DT()
-    : BinnedArrayT<T>()
+  BinnedArray1D1D()
+    : BinnedArray<T>()
     , m_array{}
     , m_arrayObjects(nullptr)
     , m_steeringBinUtility(nullptr)
@@ -47,11 +48,11 @@ public:
      delete objects at the end, if this deletion should be turned off, the
      boolean deletion should be switched to false the global position is given
      by object! */
-  BinnedArray1D1DT(
+  BinnedArray1D1D(
     const std::vector<std::pair<SharedObject<T>, Amg::Vector3D>>& tclassvector,
     BinUtility* steeringBinGen1D,
     std::vector<BinUtility*>* singleBinGen)
-    : BinnedArrayT<T>()
+    : BinnedArray<T>()
     , m_array{}
     , m_arrayObjects(nullptr)
     , m_steeringBinUtility(steeringBinGen1D)
@@ -79,14 +80,14 @@ public:
           curVec[singleBin] = ((tclassvector)[ivec]).first;
         } else
           throw GaudiException(
-            "BinnedArray1D1DT", "Object outside bounds", StatusCode::FAILURE);
+            "BinnedArray1D1D", "Object outside bounds", StatusCode::FAILURE);
       }
     }
   }
 
   /** Copy Constructor - copies only pointers! */
-  BinnedArray1D1DT(const BinnedArray1D1DT& barr)
-    : BinnedArrayT<T>()
+  BinnedArray1D1D(const BinnedArray1D1D& barr)
+    : BinnedArray<T>()
     , m_array{}
     , m_arrayObjects(nullptr)
     , m_steeringBinUtility(nullptr)
@@ -99,7 +100,7 @@ public:
     m_singleBinUtilities = new std::vector<BinUtility*>;
     std::vector<BinUtility*>::iterator singleBinIter =
       barr.m_singleBinUtilities->begin();
-    for (; singleBinIter != barr.m_singleBinUtilities->end(); ++singleBinIter){
+    for (; singleBinIter != barr.m_singleBinUtilities->end(); ++singleBinIter) {
       m_singleBinUtilities->push_back((*singleBinIter)->clone());
     }
 
@@ -114,8 +115,11 @@ public:
       }
 
       // assign the items
-      for (size_t isteer = 0; isteer < m_steeringBinUtility->bins(0); ++isteer){
-        for (size_t isingle = 0; isingle < (*m_singleBinUtilities)[isteer]->bins(0);++isteer){
+      for (size_t isteer = 0; isteer < m_steeringBinUtility->bins(0);
+           ++isteer) {
+        for (size_t isingle = 0;
+             isingle < (*m_singleBinUtilities)[isteer]->bins(0);
+             ++isteer) {
           m_array[isteer][isingle] = (barr.m_array)[isteer][isingle];
         }
       }
@@ -123,7 +127,7 @@ public:
   }
 
   /** Assignment operator */
-  BinnedArray1D1DT& operator=(const BinnedArray1D1DT& barr)
+  BinnedArray1D1D& operator=(const BinnedArray1D1D& barr)
   {
     if (this != &barr) {
 
@@ -132,7 +136,7 @@ public:
 
       std::vector<BinUtility*>::iterator singleBinIter =
         m_singleBinUtilities->begin();
-      for (; singleBinIter != m_singleBinUtilities->end(); ++singleBinIter){
+      for (; singleBinIter != m_singleBinUtilities->end(); ++singleBinIter) {
         delete *singleBinIter;
       }
       delete m_singleBinUtilities;
@@ -149,7 +153,8 @@ public:
       // prepare the binned Array
       if (m_steeringBinUtility && m_singleBinUtilities->size()) {
         // prepare the array
-        m_array=std::vector<std::vector<SharedObject<T>>>(m_steeringBinUtility->bins(0));
+        m_array = std::vector<std::vector<SharedObject<T>>>(
+          m_steeringBinUtility->bins(0));
         for (int i = 0; i < m_steeringBinUtility->bins(0); ++i) {
           unsigned int sizeOfSubBin = ((*m_singleBinUtilities)[i])->bins(0);
           m_array[i] = std::vector<SharedObject<T>>(sizeOfSubBin);
@@ -157,7 +162,9 @@ public:
 
         // assign the items
         for (int isteer = 0; isteer < m_steeringBinUtility->bins(0); ++isteer) {
-          for (int isingle = 0;isingle < (*m_singleBinUtilities)[isteer]->bins(0);++isteer) {
+          for (int isingle = 0;
+               isingle < (*m_singleBinUtilities)[isteer]->bins(0);
+               ++isteer) {
             m_array[isteer][isingle] = (barr.m_array)[isteer][isingle];
           }
         }
@@ -167,22 +174,23 @@ public:
   }
 
   /** Implicit Constructor */
-  BinnedArray1D1DT* clone() const { return new BinnedArray1D1DT(*this); }
+  BinnedArray1D1D* clone() const { return new BinnedArray1D1D(*this); }
 
   /** Virtual Destructor */
-  virtual ~BinnedArray1D1DT()
+  virtual ~BinnedArray1D1D()
   {
     delete m_steeringBinUtility;
     if (m_singleBinUtilities) {
-      std::vector<BinUtility*>::iterator binIter = m_singleBinUtilities->begin();
-      for (; binIter != m_singleBinUtilities->end(); ++binIter){
+      std::vector<BinUtility*>::iterator binIter =
+        m_singleBinUtilities->begin();
+      for (; binIter != m_singleBinUtilities->end(); ++binIter) {
         delete *binIter;
       }
     }
     delete m_singleBinUtilities;
   }
 
-  /** Returns the pointer to the templated class object from the BinnedArrayT,
+  /** Returns the pointer to the templated class object from the BinnedArray,
       it returns 0 if not defined
    */
   T* object(const Amg::Vector2D& lp) const
@@ -192,7 +200,7 @@ public:
     return (m_array[steerBin][singleBin]).get();
   }
 
-  /** Returns the pointer to the templated class object from the BinnedArrayT,
+  /** Returns the pointer to the templated class object from the BinnedArray,
       it returns 0 if not defined
    */
   T* object(const Amg::Vector3D& gp) const
@@ -202,7 +210,7 @@ public:
     return (m_array[steerBin][singleBin]).get();
   }
 
-  /** Returns the pointer to the templated class object from the BinnedArrayT -
+  /** Returns the pointer to the templated class object from the BinnedArray -
    * entry point */
   T* entryObject(const Amg::Vector3D& gp) const
   {
@@ -211,14 +219,34 @@ public:
     return (m_array[steerBin][singleBin]).get();
   }
 
-  /** Returns the pointer to the templated class object from the BinnedArrayT */
+  /** Returns the pointer to the templated class object from the BinnedArray */
   T* nextObject(const Amg::Vector3D&, const Amg::Vector3D&, bool) const
   {
     return nullptr;
   }
 
-  /** Return all objects of the Array */
-  const std::vector<T*>& arrayObjects() const
+  /** Return all objects of the Array non-const T*/
+  BinnedArraySpan<T* const> arrayObjects()
+  {
+    createArrayCache();
+    return Trk::BinnedArraySpan<T* const>(&*(m_arrayObjects->begin()), &*(m_arrayObjects->end()));
+  }
+
+  /** Return all objects of the Array const T*/
+  BinnedArraySpan<T const * const> arrayObjects() const
+  {
+    createArrayCache();
+    return BinnedArraySpan<const T* const>(&*(m_arrayObjects->begin()), &*(m_arrayObjects->end()));
+  }
+
+  /** Number of Entries in the Array */
+  unsigned int arrayObjectsNumber() const { return arrayObjects().size(); }
+
+  /** Return the BinUtility - returns the steering binUtility in this case*/
+  const BinUtility* binUtility() const { return (m_steeringBinUtility); }
+
+private:
+  void createArrayCache() const
   {
     if (!m_arrayObjects) {
       std::unique_ptr<std::vector<T*>> arrayObjects =
@@ -232,23 +260,15 @@ public:
       }
       m_arrayObjects.set(std::move(arrayObjects));
     }
-    return (*m_arrayObjects);
   }
-
-  /** Number of Entries in the Array */
-  unsigned int arrayObjectsNumber() const { return arrayObjects().size(); }
-
-  /** Return the BinUtility - returns the steering binUtility in this case*/
-  const BinUtility* binUtility() const { return (m_steeringBinUtility); }
-
-private:
-  std::vector<std::vector<SharedObject<T>>> m_array; //!< vector of pointers to the class T
-  CxxUtils::CachedUniquePtr<std::vector<T*>> m_arrayObjects; //!< forced 1D vector of pointers to class T
-  BinUtility* m_steeringBinUtility; //!< binUtility for retrieving and filling the Array
+  //!< vector of pointers to the class T
+  std::vector<std::vector<SharedObject<T>>> m_array;
+  //!< forced 1D vector of pointers to class T
+  CxxUtils::CachedUniquePtr<std::vector<T*>> m_arrayObjects;
+  //!< binUtility for retrieving and filling the Array
+  BinUtility* m_steeringBinUtility;
   std::vector<BinUtility*>* m_singleBinUtilities; //!< single bin utilities
 };
-template<class T>
-using BinnedArray1D1D = BinnedArray1D1DT<const T>;
 } // end of namespace Trk
 
 #endif // TRKSURFACES_BINNEDARRAY1D1D_H

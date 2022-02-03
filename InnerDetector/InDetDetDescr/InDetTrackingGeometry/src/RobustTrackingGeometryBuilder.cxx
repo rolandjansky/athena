@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////
@@ -333,8 +333,21 @@ Trk::TrackingGeometry* InDet::RobustTrackingGeometryBuilder::trackingGeometry AT
    // BinnedArray needed
    Trk::BinnedArray<Trk::Layer>* beamPipeLayerArray = nullptr;
    const std::vector<const Trk::CylinderLayer*>* beamPipeVec = m_beamPipeBuilder->cylindricalLayers();
-   if (!beamPipeVec->empty())
-       beamPipeLayerArray = m_layerArrayCreator->cylinderLayerArray(*beamPipeVec,0.,beamPipeBounds->outerRadius(),Trk::arbitrary);
+   if (!beamPipeVec->empty()) {
+     /*
+      * This is done correctly in RobustTrackingGeometryBuilderCond as the beamPipeBuilderCond
+      * return already what we want
+      * We do not fix it here / non condition tools 
+      * as we assume the non-safe RobustTrackingGeometryBuilder
+      * is to be replaced by RobustTrackingGeometryBuilderCond
+      */
+     auto mutablebeamPipeVec = std::vector<Trk::CylinderLayer*>();
+     mutablebeamPipeVec.reserve(beamPipeVec->size());
+     for (const Trk::CylinderLayer* lay : *beamPipeVec) {
+       mutablebeamPipeVec.push_back(const_cast<Trk::CylinderLayer*>(lay));
+     }
+     beamPipeLayerArray = m_layerArrayCreator->cylinderLayerArray(mutablebeamPipeVec, 0., beamPipeBounds->outerRadius(), Trk::arbitrary);
+   }
    delete beamPipeVec;
    // create the TrackingVolume
    beamPipeVolume = new Trk::TrackingVolume(nullptr,

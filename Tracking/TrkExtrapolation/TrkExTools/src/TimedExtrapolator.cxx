@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -627,7 +627,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
     } else {   // active material
       const Trk::TrackingVolume *detVol = dVol->associatedSubVolume(gp);
       if (!detVol && dVol->confinedVolumes()) {
-        std::vector<const Trk::TrackingVolume *> subvols = dVol->confinedVolumes()->arrayObjects();
+        Trk::BinnedArraySpan<Trk::TrackingVolume const * const> subvols = dVol->confinedVolumes()->arrayObjects();
         for (unsigned int iv = 0; iv < subvols.size(); iv++) {
           if (subvols[iv]->inside(gp, m_tolerance)) {
             detVol = subvols[iv];
@@ -661,7 +661,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
         // layers ?
         if (detVol->confinedLayers()) {
           if (m_robustSampling || cache.m_currentStatic->geometrySignature() == Trk::MS) {
-            std::vector<const Trk::Layer *> cLays = detVol->confinedLayers()->arrayObjects();
+            Trk::BinnedArraySpan<Trk::Layer const * const> cLays = detVol->confinedLayers()->arrayObjects();
             for (unsigned int i = 0; i < cLays.size(); i++) {
               if (cLays[i]->layerType() > 0 || cLays[i]->layerMaterialProperties()) {
                 cache.m_layers.emplace_back(&(cLays[i]->surfaceRepresentation()), true);
@@ -701,7 +701,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
   if (cache.m_currentStatic->confinedLayers() && updateStatic) {
     // if ( cache.m_currentStatic->confinedLayers() ) {
     if (m_robustSampling || cache.m_currentStatic->geometrySignature() == Trk::MS) {
-      std::vector<const Trk::Layer *> cLays = cache.m_currentStatic->confinedLayers()->arrayObjects();
+      Trk::BinnedArraySpan<Trk::Layer const * const> cLays = cache.m_currentStatic->confinedLayers()->arrayObjects();
       for (unsigned int i = 0; i < cLays.size(); i++) {
         if (cLays[i]->layerType() > 0 || cLays[i]->layerMaterialProperties()) {
           cache.m_layers.emplace_back(&(cLays[i]->surfaceRepresentation()),
@@ -1779,7 +1779,7 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(Trk::TimedExtrapolator::C
 
   // confined layers
   if (cache.m_currentStatic->confinedLayers()) {
-    std::vector<const Trk::Layer *> cLays = cache.m_currentStatic->confinedLayers()->arrayObjects();
+    Trk::BinnedArraySpan <Trk::Layer const * const> cLays = cache.m_currentStatic->confinedLayers()->arrayObjects();
     for (unsigned int i = 0; i < cLays.size(); i++) {
       if (cLays[i]->layerMaterialProperties()) {
         const Trk::Surface &surf = cLays[i]->surfaceRepresentation();
