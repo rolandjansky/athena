@@ -199,20 +199,10 @@ def setupMenu():
     chains['Egamma'] += [
         # ElectronChains----------
         # Phase1 eEM chains
-        ChainProp(name='HLT_e5_etcut_L1eEM5', groups=SingleElectronGroup),        
-        # More PhaseI eEM chains (ATR-24182)
+
         # Keep for validation of the AB/AC/BC overlap-removal, remove after
         ChainProp(name='HLT_e24_lhmedium_g12_loose_g12_loose_02dRAB_02dRAC_02dRBC_L1eEM24L_3eEM12L', l1SeedThresholds=['eEM24L','eEM12L','eEM12L'], groups=PrimaryPhIGroup+MultiElectronGroup),
         ChainProp(name='HLT_g35_loose_PhysicsTLA_L1eEM26M', stream=['TLA'], groups=PrimaryPhIGroup+SinglePhotonGroup),
-        # Remove Zee and add matching 50invmAB130 copy, ATR-21117
-        ChainProp(name='HLT_e26_lhtight_e15_etcut_probe_50invmAB130_L1eEM26M', l1SeedThresholds=['eEM26M','eEM9'], groups=PrimaryPhIGroup+MultiElectronGroup),
-        ChainProp(name='HLT_e26_lhtight_e15_etcut_idperf_probe_50invmAB130_L1eEM26M', l1SeedThresholds=['eEM26M','eEM9'], groups=PrimaryPhIGroup+MultiElectronGroup),
-        ChainProp(name='HLT_e26_lhtight_e15_etcut_50invmAB130_L1eEM26M', l1SeedThresholds=['eEM26M','eEM9'], groups=PrimaryPhIGroup+MultiElectronGroup),
-        ChainProp(name='HLT_e26_lhtight_e15_etcut_idperf_50invmAB130_L1eEM26M', l1SeedThresholds=['eEM26M','eEM9'], groups=PrimaryPhIGroup+MultiElectronGroup),
-        
-        
-        # lrt chains
-        ChainProp(name='HLT_e5_idperf_loose_lrtloose_L1EM3', groups=SingleElectronGroup),
 
         # electron forward triggers (keep this only for dev now)
         #ChainProp(name='HLT_e30_etcut_fwd_L1EM22VHI', groups=SingleElectronGroup),
@@ -261,22 +251,6 @@ def setupMenu():
         #------------ GSF triggers
         ChainProp(name='HLT_2e17_lhvloose_gsf_L12EM15VHI', groups=MultiElectronGroup),
 
-        #------------ idperf triggers
-        ChainProp(name='HLT_e60_idperf_medium_L1EM22VHI', groups=SingleElectronGroup),
-        ChainProp(name='HLT_2e17_idperf_loose_L12EM15VHI', groups=MultiElectronGroup),
-
-        ChainProp(name='HLT_e60_idperf_medium_L1eEM26M', groups=SingleElectronGroup+SupportPhIGroup),
-        ChainProp(name='HLT_2e17_idperf_loose_L12eEM18M', groups=MultiElectronGroup+SupportPhIGroup),
-
-        ChainProp(name='HLT_e5_idperf_gsf_tight_L1EM3', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e26_idperf_gsf_tight_L1EM22VHI', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e60_idperf_gsf_medium_L1EM22VHI', groups=SingleElectronGroup),
-        ChainProp(name='HLT_2e17_idperf_gsf_loose_L12EM15VHI', groups=MultiElectronGroup),
-
-        # idperf for id validation, can some be removed?
-        ChainProp(name='HLT_e5_idperf_loose_L1EM3', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e28_idperf_loose_L1EM24VHI', groups=SingleElectronGroup),
-
         #------------ dnn chains
         ChainProp(name='HLT_e5_dnnloose_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_dnnmedium_L1EM3', groups=SingleElectronGroup),
@@ -296,8 +270,7 @@ def setupMenu():
         # Alternative formulation of T&P chains with generic mass cut combohypotool
         # With & without 'probe' expression to check count consistency
         # ATR-24117
-        ChainProp(name='HLT_e26_lhtight_e14_etcut_probe_50invmAB130_L1EM22VHI', l1SeedThresholds=['EM22VHI','EM7'], groups=PrimaryLegGroup+MultiElectronGroup), 
-        ChainProp(name='HLT_e26_lhtight_e14_etcut_50invmAB130_L1EM22VHI', l1SeedThresholds=['EM22VHI','EM7'], groups=PrimaryLegGroup+MultiElectronGroup), 
+
         # Jpsiee
         ChainProp(name='HLT_e5_lhtight_e9_etcut_probe_1invmAB5_L1JPSI-1M5-EM7', l1SeedThresholds=['EM3','EM7'], groups=SupportLegGroup+MultiElectronGroup+['RATE:CPS_JPSI-1M5-EM7']),
         ChainProp(name='HLT_e5_lhtight_e14_etcut_probe_1invmAB5_L1JPSI-1M5-EM12', l1SeedThresholds=['EM3','EM12'], groups=SupportLegGroup+MultiElectronGroup+['RATE:CPS_JPSI-1M5-EM12']),
