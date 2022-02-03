@@ -20,6 +20,7 @@ import ROOT
 
 class TestAlg (Alg):
     def initialize (self):
+        ROOT.errorcheck.ReportMessage.hideFunctionNames(True)
         toolh = ROOT.ToolHandle(ROOT.CaloUtils.ToolWithConstantsTestTool)
         self.tool1 = toolh ('CaloUtils::ToolWithConstantsTestTool/tool1')
         if not self.tool1.retrieve():
