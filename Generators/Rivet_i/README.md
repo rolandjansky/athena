@@ -1,7 +1,7 @@
 **For support: [Mailing list](mailto:atlas-phys-pmg-rivet@cern.ch)**
 
 Rivet contacts on ATLAS: [Deepak Kar](mailto:deepak.kar@cern.ch)
-and [Neil Warrack](mailto:neil.warrack@cern.ch).
+and [Christian Gütschow ](mailto:chris.g@cern.ch).
 
 For adding your awesome analysis in the official Rivet 
 framework [see here](https://gitlab.cern.ch/atlas-physics/pmg/rivet-routines#atlas-internal-rivet-routines).
