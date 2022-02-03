@@ -22,7 +22,6 @@ def precisionTracks_GSFRefittedSequence(ConfigFlags):
     InViewRoIs = "precisionTracks_GSFRefitted"
     # EVCreator:
     precisionTracks_GSFRefittedViewsMaker = EventViewCreatorAlgorithm("IMPrecisionTracking_GSFRefitted")
-    #precisionTracks_GSFRefittedViewsMaker.RoIsLink = "initialRoI" # Merge inputs based on their initial L1 ROI
     precisionTracks_GSFRefittedViewsMaker.mergeUsingFeature=True
     precisionTracks_GSFRefittedViewsMaker.RoITool = ViewCreatorPreviousROITool()
     precisionTracks_GSFRefittedViewsMaker.InViewRoIs = InViewRoIs
