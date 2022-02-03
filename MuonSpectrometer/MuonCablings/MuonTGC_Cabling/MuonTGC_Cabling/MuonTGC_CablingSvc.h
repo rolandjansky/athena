@@ -256,7 +256,7 @@ class MuonTGC_CablingSvc : public ITGCcablingSvc
 			    const int subsectorID,
 			    const int rodID,
 			    const int sswID,
-			    const int sbLoc) const;
+			    const int sbLoc) const override;
 
   // SL ID -> readout ID ( SROD )
   virtual
