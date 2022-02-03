@@ -225,6 +225,7 @@ PLVConfig.ConfigureAntiKt4PV0TrackJets(SeqPHYS, "PHYS")
 # add decoration
 SeqPHYS += PLVConfig.GetDecoratePromptLeptonAlgs(addSpectators=False)
 
+SeqPHYS += PLVConfig.GetDecorateImprovedPromptLeptonAlgs()
 
 #====================================================================
 # Add our sequence to the top sequence
@@ -401,6 +402,7 @@ PHYSSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.T
 # Saves the BDT output scores for the PLV algorithms.
 # Can specify just electrons or just muons by adding 'name="Electrons"' or 'name="Muons"' as the argument.
 PHYSSlimmingHelper.ExtraVariables += PLVConfig.GetExtraPromptVariablesForDxAOD(addSpectators=False, onlyBDT=True)
+PHYSSlimmingHelper.ExtraVariables += PLVConfig.GetExtraImprovedPromptVariablesForDxAOD(onlyBDT=True)
 
 # Add trigger matching
 trigmatching_helper_notau.add_to_slimming(PHYSSlimmingHelper)
