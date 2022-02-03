@@ -81,7 +81,14 @@ public:
                    const bool &usePC);
 
     ~StripStereoAnnulusDesign() = default;
-
+    
+    SiLocalPosition beamToStrip(const SiLocalPosition &pos) const;
+    SiLocalPosition beamToStripPC(const SiLocalPosition &pos) const;
+    SiLocalPosition beamToStripPCpolar(const SiLocalPosition &pos) const;
+    
+    SiLocalPosition stripToBeam(const SiLocalPosition &pos) const;
+    SiLocalPosition stripToBeamPC(const SiLocalPosition &pos) const;
+    SiLocalPosition stripToBeamPCpolar(const SiLocalPosition &pos) const;
    
     HepGeom::Point3D<double> sensorCenter() const;
 
@@ -223,6 +230,10 @@ private:
     const std::vector<double> m_stripStartRadius;
     const std::vector<double> m_stripEndRadius;
     const double m_stereo;
+    const double m_cos_minus_stereo;
+    const double m_sin_minus_stereo;
+    const double m_cos_plus_stereo;
+    const double m_sin_plus_stereo;
     const double m_R;
     const double m_waferCentreR;
     const double m_lengthBF;
@@ -254,11 +265,11 @@ inline double StripStereoAnnulusDesign::stripPitch() const { // Don't use; which
 }
 
 inline double StripStereoAnnulusDesign::phiPitch(const SiLocalPosition &pos) const {
-// Return pitch in mm for the strip at this position, at this point's distance along the strip.
+ // Return pitch in mm for the strip at this position, at this point's distance along the strip.
     const SiCellId cellId = cellIdOfPosition(pos);
     const int row = cellId.etaIndex();
     if(row<0) return -phiPitch();
-    const double radius = sqrt(pos.xEta() * pos.xEta() + pos.xPhi() * pos.xPhi());
+    const double radius = (m_usePC) ? pos.xEta() : std::hypot(pos.xEta(), pos.xPhi());
     return m_pitch[row] * radius;
 }
 

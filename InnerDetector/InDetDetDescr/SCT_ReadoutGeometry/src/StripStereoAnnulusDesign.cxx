@@ -38,6 +38,10 @@ StripStereoAnnulusDesign::StripStereoAnnulusDesign(const SiDetectorDesign::Axis 
   m_stripStartRadius(stripStartRadius),
   m_stripEndRadius(stripEndRadius),
   m_stereo(stereoAngle),
+  m_cos_minus_stereo(std::cos(-m_stereo)),
+  m_sin_minus_stereo(std::sin(-m_stereo)),
+  m_cos_plus_stereo(m_cos_minus_stereo),
+  m_sin_plus_stereo(-m_sin_minus_stereo),
   m_R(centreR),
   m_waferCentreR(waferCentreR),//if not specified in constructor, wafer centre assumed to simply be element centre 
   m_lengthBF(2. * waferCentreR * std::sin(stereoAngle*0.5)), // Eq. 5 p. 7
@@ -103,6 +107,138 @@ StripStereoAnnulusDesign::StripStereoAnnulusDesign(const SiDetectorDesign::Axis 
 //assuming here that centreR==waferCentreR
 }
 
+SiLocalPosition StripStereoAnnulusDesign::beamToStrip(const SiLocalPosition &pos) const {
+  if (m_usePC) return beamToStripPC(pos);
+
+  const double x_beam = pos.xEta();
+  const double y_beam = pos.xPhi();
+
+  //    Transform to strip frame SF (eq. 36 in ver G, combined with eq. 2 since we are in beam frame)
+  //
+  //    x_strip       cos(-m_stereo)  -sin(-m_stereo)  x-R     R
+  //   (       )  =  [                               ](   ) + ( )
+  //    y_strip       sin(-m_stereo)   cos(-m_stereo)   y      0
+  const double x_strip = m_cos_minus_stereo * (x_beam - m_waferCentreR) - m_sin_minus_stereo * y_beam + m_waferCentreR;
+  const double y_strip = m_sin_minus_stereo * (x_beam - m_waferCentreR) + m_cos_minus_stereo * y_beam;
+  
+  return {x_strip, y_strip};
+}
+
+SiLocalPosition StripStereoAnnulusDesign::beamToStripPC(const SiLocalPosition &pos) const {
+  const double phi_beam = pos.xPhi();
+  const double rad_beam = pos.xEta(); 
+
+  // Convert to cart and use cartesian transform
+  const double x_beam = rad_beam * std::cos(phi_beam);
+  const double y_beam = rad_beam * std::sin(phi_beam);
+
+  //    Transform to strip frame SF (eq. 36 in ver G, combined with eq. 2 since we are in beam frame)
+  //
+  //    x_strip       cos(-m_stereo)  -sin(-m_stereo)  x-R     R
+  //   (       )  =  [                               ](   ) + ( )
+  //    y_strip       sin(-m_stereo)   cos(-m_stereo)   y      0
+  const double x_strip = m_cos_minus_stereo * (x_beam - m_waferCentreR) - m_sin_minus_stereo * y_beam + m_waferCentreR;
+  const double y_strip = m_sin_minus_stereo * (x_beam - m_waferCentreR) + m_cos_minus_stereo * y_beam;
+
+  const double phi_strip = std::atan2(y_strip, x_strip);
+  const double rad_strip = std::hypot(x_strip, y_strip);
+
+  return {rad_strip, phi_strip};
+}
+
+/**
+ * @brief Version of StripStereoAnnulusDesign::beamToStripPC transform based exclusively in a polar system
+ * 
+ * Not currently used. Requires debugging and profiling
+ * 
+ * @param pos 
+ * @return SiLocalPosition 
+ */
+SiLocalPosition StripStereoAnnulusDesign::beamToStripPCpolar(const SiLocalPosition &pos) const {
+  const double phi_beam = pos.xPhi();
+  const double rad_beam = pos.xEta(); 
+
+  // Exclusively-polar transform:
+  // Trig which can be precalculated in the future
+  const double m_stereo_2 = m_stereo*0.5;
+  const double m_cos_plus_stereo_2 = std::cos(m_stereo_2);
+  const double m_sin_plus_stereo_2 = std::sin(m_stereo_2);
+
+  // calculation for strip-frame radius uses cosine law - see ATL-COM-ITK-2021-048
+  const double rad_conv = 2.0*m_waferCentreR*std::abs(m_sin_plus_stereo_2);
+  const double rad_strip = std::sqrt( std::pow(rad_beam,2.0) + std::pow(rad_conv,2.0) + 2.0*rad_beam*rad_conv*m_cos_plus_stereo_2);
+  
+  // calculation for strip-frame angle uses sine law - see ATL-COM-ITK-2021-048
+  const double phi_strip = M_PI_2 - m_stereo_2 - std::asin((rad_beam*std::sin(M_PI + phi_beam - m_stereo_2))/rad_strip);
+
+  return {rad_strip, phi_strip};
+}
+
+SiLocalPosition StripStereoAnnulusDesign::stripToBeam(const SiLocalPosition &pos) const {
+  if (m_usePC) return stripToBeamPC(pos);
+
+  const double x_strip = pos.xEta();
+  const double y_strip = pos.xPhi();
+
+  //    Transform to beam frame (eq. 36 in ver G, combined with eq. 2 since we are in strip frame)
+  //
+  //    x_beam       cos(m_stereo)  -sin(m_stereo)  x-R     R
+  //   (       )  =  [                               ](   ) + ( )
+  //    y_beam       sin(m_stereo)   cos(m_stereo)   y      0
+  const double x_beam = m_cos_plus_stereo * (x_strip - m_waferCentreR) - m_sin_plus_stereo * y_strip + m_waferCentreR;
+  const double y_beam = m_sin_plus_stereo * (x_strip - m_waferCentreR) + m_cos_plus_stereo * y_strip;
+  
+  return {x_beam, y_beam};
+}
+
+SiLocalPosition StripStereoAnnulusDesign::stripToBeamPC(const SiLocalPosition &pos) const {
+  const double phi_strip = pos.xPhi();
+  const double rad_strip = pos.xEta(); 
+
+  // Convert to cart and use previous transform
+  const double x_strip = rad_strip * std::cos(phi_strip);
+  const double y_strip = rad_strip * std::sin(phi_strip);
+
+  //    Transform to beam frame (eq. 36 in ver G, combined with eq. 2 since we are in strip frame)
+  //
+  //    x_beam        cos(m_stereo)  -sin(m_stereo)  x-R     R
+  //   (       )  =  [                             ](   ) + ( )
+  //    y_beam        sin(m_stereo)   cos(m_stereo)   y      0
+  const double x_beam = m_cos_plus_stereo * (x_strip - m_waferCentreR) - m_sin_plus_stereo * y_strip + m_waferCentreR;
+  const double y_beam = m_sin_plus_stereo * (x_strip - m_waferCentreR) + m_cos_plus_stereo * y_strip;
+
+  const double phi_beam = std::atan2(y_beam, x_beam);
+  const double rad_beam = std::hypot(x_beam, y_beam);
+
+  return {rad_beam, phi_beam};
+}
+
+/**
+ * @brief Version of StripStereoAnnulusDesign::stripToBeamPC transform based exclusively in a polar system
+ * 
+ * Not currently used. Requires debugging and profiling
+ * 
+ * @param pos 
+ * @return SiLocalPosition 
+ */
+SiLocalPosition StripStereoAnnulusDesign::stripToBeamPCpolar(const SiLocalPosition &pos) const {
+  const double phi_strip = pos.xPhi();
+  const double rad_strip = pos.xEta(); 
+
+  // Exclusively-polar transform:
+  // Trig which can be precalculated in the future
+  const double m_stereo_2 = m_stereo*0.5;
+  const double m_sin_plus_stereo_2 = std::sin(m_stereo_2);
+
+  // calculation for beam-frame radius uses cosine law - see ATL-COM-ITK-2021-048
+  const double rad_conv = 2.0*m_waferCentreR*std::abs(m_sin_plus_stereo_2);
+  const double rad_beam = std::sqrt( std::pow(rad_strip,2.0) + std::pow(rad_conv,2.0) + 2.0*rad_strip*rad_conv*std::cos(M_PI_2 - m_stereo_2 - phi_strip));
+  
+  // calculation for beam-frame angle uses sine law - see ATL-COM-ITK-2021-048
+  const double phi_beam = m_stereo_2 - M_PI_2 + std::asin((rad_strip*std::sin(M_PI_2 - m_stereo_2 - phi_strip))/rad_beam);
+
+  return {rad_beam, phi_beam};
+}
 
 HepGeom::Point3D<double> StripStereoAnnulusDesign::sensorCenter() const {
   return HepGeom::Point3D<double>(m_R, 0., 0.);
@@ -112,15 +248,13 @@ double StripStereoAnnulusDesign::sinStripAngleReco(double phiCoord, double etaCo
 //
 //    Transform to strip frame SF (eq. 36 in ver G, combined with eq. 2 since we are in beam frame)
 //
-    double x = etaCoord;
-    double y = phiCoord;
-    double xSF = cos(-m_stereo) * (x - m_waferCentreR) - sin(-m_stereo) * y + m_waferCentreR;
-    double ySF = sin(-m_stereo) * (x - m_waferCentreR) + cos(-m_stereo) * y;
-    double phiPrime = atan2(ySF, xSF);
+    SiLocalPosition pos_strip = beamToStrip({etaCoord, phiCoord});
+    
+    double phi_strip = (m_usePC) ? pos_strip.xPhi() : std::atan2(pos_strip.xPhi(), pos_strip.xEta());
 
     // The minus sign below is because this routine is called by tracking software, which swaps x and y, then measures angles from y 
     // to x
-    return -sin(phiPrime + m_stereo);
+    return -sin(phi_strip + m_stereo);
 }
 
 void StripStereoAnnulusDesign::getStripRow(SiCellId cellId, int *strip2D, int *rowNum) const {
@@ -173,35 +307,31 @@ SiCellId StripStereoAnnulusDesign::cellIdOfPosition(SiLocalPosition const &pos) 
 //
 //    Find the row
 //
-    double r = pos.r();
-    if (r < m_stripStartRadius[0] || r >= m_stripEndRadius.back()) {
+    double rad_beam = (m_usePC) ? pos.xEta() : pos.r();
+    if (rad_beam < m_stripStartRadius[0] || rad_beam >= m_stripEndRadius.back()) { // Check r is in the module
+      REPORT_MESSAGE( MSG::DEBUG ) << "Invalid SiLocalPosition (radius outside module), returning invalid SiCellId (r="<<rad_beam<<", inside="<<m_stripStartRadius[0]<<", outside = "<<m_stripEndRadius.back()<<")\n";
       return SiCellId(); // return an invalid id
     }
 
     int row = 0;
     if(m_nRows>1){ //only do this if we have multiple rows...
-      vector<double>::const_iterator endPtr = upper_bound(m_stripStartRadius.begin(), m_stripStartRadius.end(), r);
+      vector<double>::const_iterator endPtr = upper_bound(m_stripStartRadius.begin(), m_stripStartRadius.end(), rad_beam);
       row = distance(m_stripStartRadius.begin(), endPtr) - 1;
       // Following should never happen, check is done on r above
       if (row < 0 || row >= m_nRows) {
-	REPORT_MESSAGE( MSG::DEBUG ) << "Invalid SiLocalPosition, returning invalid SiCellId: bad row = " << row << " for r = " << r << " \n";
-	return SiCellId(); // return an invalid id
+        REPORT_MESSAGE( MSG::DEBUG ) << "Invalid SiLocalPosition, returning invalid SiCellId: bad row = " << row << " for r = " << rad_beam << " \n";
+        return SiCellId(); // return an invalid id
       }
     }
 //
 //    Find the strip
 //
-    double x = pos.xEta();
-    double y = pos.xPhi();
-//
-//    Transform to strip frame SF (eq. 36 in ver G, combined with eq. 2 since we are in beam frame)
-//
-    double xSF = cos(-m_stereo) * (x - m_waferCentreR) - sin(-m_stereo) * y + m_waferCentreR;
-    double ySF = sin(-m_stereo) * (x - m_waferCentreR) + cos(-m_stereo) * y;
-    double phiPrime = atan2(ySF, xSF); 
-    int strip = floor(phiPrime / m_pitch[row]) + m_nStrips[row] / 2.0;
+    SiLocalPosition pos_strip = beamToStrip(pos);
+    double phi_strip = (m_usePC) ? pos_strip.xPhi() : std::atan2(pos_strip.xPhi(), pos_strip.xEta()); 
+    int strip = floor(phi_strip / m_pitch[row]) + m_nStrips[row] / 2.0;
     if (strip < 0 || strip >= m_nStrips[row]) { // Outside
-      REPORT_MESSAGE( MSG::DEBUG ) << "Invalid SiLocalPosition, returning invalid SiCellId \n";
+      REPORT_MESSAGE( MSG::DEBUG ) << "Invalid SiLocalPosition (conversion to strip frame gave invalid strip), returning invalid SiCellId";
+      REPORT_MESSAGE( MSG::DEBUG ) << "Strip was "<<strip<<", max strip was "<<m_nStrips[row]<<", phiPrime="<<phi_strip<<"\n";
       return SiCellId(); // return an invalid id
     }
 
@@ -210,16 +340,35 @@ SiCellId StripStereoAnnulusDesign::cellIdOfPosition(SiLocalPosition const &pos) 
 }
 
 SiLocalPosition StripStereoAnnulusDesign::localPositionOfCell(SiCellId const &cellId) const {
-    if (m_usePC) {
-        return localPositionOfCellPC(cellId);
-    } else {
-        int strip, row;
-        getStripRow(cellId, &strip, &row);
-        double r = (m_stripEndRadius[row] + m_stripStartRadius[row]) / 2.;
-        return stripPosAtR(strip, row, r);
+    int strip, row;
+    getStripRow(cellId, &strip, &row);
+    // this is the radius in the module / radial system
+    double r = (m_stripEndRadius[row] + m_stripStartRadius[row]) / 2.;
+
+    // get phi of strip in the strip system
+    double phi_strip = (strip - m_nStrips[row] / 2. + 0.5) * m_pitch[row];
+
+    double b = -2. * m_lengthBF * sin(m_stereo/2. + phi_strip);
+    double c = m_lengthBF * m_lengthBF - r * r;
+    // this is the radius in the strip system
+    double rad_strip = (-b + sqrt(b * b - 4. * c))/2.;
+    
+    if (m_usePC) return stripToBeam({rad_strip,phi_strip}); 
+    else {
+      //else use cart
+      double x_strip = rad_strip * cos(phi_strip);
+      double y_strip = rad_strip * sin(phi_strip);
+      return stripToBeam({x_strip, y_strip});
     }
 }
 
+/**
+ * @brief Explicit polar version, no longer required. To be depreceated
+ * @deprecated 
+ * 
+ * @param cellId 
+ * @return SiLocalPosition 
+ */
 SiLocalPosition StripStereoAnnulusDesign::localPositionOfCellPC(SiCellId const &cellId) const {
   
     int strip, row;
@@ -244,18 +393,18 @@ SiLocalPosition StripStereoAnnulusDesign::localPositionOfCellPC(SiCellId const &
 
 SiLocalPosition StripStereoAnnulusDesign::stripPosAtR(int strip, int row, double r) const {
 
-    double phiPrime = (strip - m_nStrips[row] / 2. + 0.5) * m_pitch[row];
+    double phi_strip = (strip - m_nStrips[row] / 2. + 0.5) * m_pitch[row];
 
-    double b = -2. * m_lengthBF * sin(m_stereo/2. + phiPrime);
+    double b = -2. * m_lengthBF * sin(m_stereo/2. + phi_strip);
     double c = m_lengthBF * m_lengthBF - r * r;
-    double rPrime = (-b + sqrt(b * b - 4. * c))/2.;
+    double rad_strip = (-b + sqrt(b * b - 4. * c))/2.;
 
-    double xPrime = rPrime * cos(phiPrime);
-    double yPrime = rPrime * sin(phiPrime);
-    double x = cos(m_stereo) * (xPrime - m_waferCentreR) - sin(m_stereo) * yPrime + m_waferCentreR;
-    double y = sin(m_stereo) * (xPrime - m_waferCentreR) + cos(m_stereo) * yPrime;
+    if (m_usePC) return stripToBeam({rad_strip,phi_strip});
 
-    return SiLocalPosition(x, y, 0.0);
+    //else use cart
+    double x_strip = rad_strip * cos(phi_strip);
+    double y_strip = rad_strip * sin(phi_strip);
+    return stripToBeam({x_strip, y_strip});
 }
 
 SiLocalPosition StripStereoAnnulusDesign::localPositionOfCluster(SiCellId const &cellId, int clusterSize) const {
@@ -281,7 +430,7 @@ SiLocalPosition StripStereoAnnulusDesign::localPositionOfCluster(SiCellId const 
 /**
  * @brief This is for debugging only. Call to explicitly get PC clusters.
  * 
- * The method StripStereoAnnulusDesign::localPositionOfCluster() should detect the use of polar co-ordinates
+ * @deprecated method StripStereoAnnulusDesign::localPositionOfCluster() should detect the use of polar co-ordinates
  * automatically and return the cluster in the appropriate co-ordinate system. This is handled in the call to the 
  * localPositionOfCell() function. Therefore, the only use of this method is to explicitly get a polar cluster when the 
  * module was created with a cartesian co-ordinate system. After the integration of polar co-ordinates is complete, this
@@ -331,23 +480,21 @@ bool StripStereoAnnulusDesign::inActiveArea(SiLocalPosition const &pos, bool /*c
 
 // Used in surfaceChargesGenerator
 double StripStereoAnnulusDesign::scaledDistanceToNearestDiode(SiLocalPosition const &pos) const {
+  //    Get phiPrime of pos   
+  SiLocalPosition pos_stripframe = beamToStrip(pos);
+  double pos_phi_stripframe = (m_usePC) ? pos_stripframe.xPhi() : std::atan2(pos_stripframe.xPhi(),pos_stripframe.xEta());
 
-//    Get phiPrime of pos
-//
-    double posxP = cos(-m_stereo) * (pos.xEta() - m_waferCentreR) - sin(-m_stereo) * pos.xPhi() + m_waferCentreR;
-    double posyP = sin(-m_stereo) * (pos.xEta() - m_waferCentreR) + cos(-m_stereo) * pos.xPhi();
-    double posphiP = atan2(posyP, posxP);
 //
 //    Get phiPrime of strip
 //
-    SiCellId cellId = cellIdOfPosition(pos);
-    SiLocalPosition posStrip = localPositionOfCell(cellId);
-    double posStripxP = cos(-m_stereo) * (posStrip.xEta() - m_waferCentreR) - sin(-m_stereo) * posStrip.xPhi() + m_waferCentreR;
-    double posStripyP = sin(-m_stereo) * (posStrip.xEta() - m_waferCentreR) + cos(-m_stereo) * posStrip.xPhi();
-    double posStripphiP = atan2(posStripyP, posStripxP);
-    int strip, row;
-    getStripRow(cellId, &strip, &row);
-    return fabs(posphiP - posStripphiP) / m_pitch[row];
+  SiCellId cellId = cellIdOfPosition(pos);
+  SiLocalPosition stripPos_beamframe = localPositionOfCell(cellId); // This can be polar or cart
+  SiLocalPosition stripPos_stripframe = beamToStrip(stripPos_beamframe); // This should automatically work with polar or cart
+  double strip_phi_stripframe = (m_usePC) ? stripPos_stripframe.xPhi() : std::atan2(stripPos_stripframe.xPhi(),stripPos_stripframe.xEta());
+
+  int strip, row;
+  getStripRow(cellId, &strip, &row);
+  return std::abs(pos_phi_stripframe - strip_phi_stripframe) / m_pitch[row];
 }
 
 /// Return strip width, centre, length etc. Hard to find if this is used or not.
@@ -415,36 +562,35 @@ const {
 }
 
 void StripStereoAnnulusDesign::distanceToDetectorEdge(SiLocalPosition const & pos, double & etaDist, double & phiDist) const {
+
 // For eta, we use the Strip frame. This is centred at the beamline, x along eta, y along phi, z along depth
 // Happens to coincide with SiLocalPosition; no transform needed.
   double rInner = m_stripStartRadius[0];
   double rOuter = m_stripEndRadius[m_nRows - 1];
-  double xEta = pos.xEta();
-  double xPhi = pos.xPhi();
-  double r = sqrt(xEta * xEta + xPhi * xPhi);
-  if (r < rInner)
-    etaDist = r - rInner;
-  else if (r > rOuter)
-    etaDist = rOuter - r;
+  double rad_beam = (m_usePC) ? pos.xEta() : std::hypot(pos.xEta(), pos.xPhi());
+
+  if (rad_beam < rInner)
+    etaDist = rad_beam - rInner;
+  else if (rad_beam > rOuter)
+    etaDist = rOuter - rad_beam;
   else
-    etaDist = min(rOuter - r, r - rInner);
+    etaDist = std::min(rOuter - rad_beam, rad_beam - rInner);
  
 // For phi, we use the Strip frame. Transform to Strip-frame:
-  double etaStrip = cos(-m_stereo) * (xEta - m_waferCentreR) - sin(-m_stereo) * xPhi + m_waferCentreR;
-  double phiStrip = sin(-m_stereo) * (xEta - m_waferCentreR) + cos(-m_stereo) * xPhi;
-// Put these into polar coordinates
-  double rStrip = sqrt(etaStrip * etaStrip + phiStrip * phiStrip);
-  double phiAngleStrip = atan2(phiStrip, etaStrip);
-
+  SiLocalPosition pos_strip = beamToStrip(pos);
+  
+  double rad_strip = (m_usePC) ? pos_strip.xEta() : std::hypot(pos_strip.xEta(), pos_strip.xPhi());
+  double phi_strip = (m_usePC) ? pos_strip.xPhi() : std::atan2(pos_strip.xPhi(), pos_strip.xEta());
+  
   double phiAngleMax = m_pitch[0] * m_nStrips[0] / 2.0;
   double phiAngleMin = -phiAngleMax;
 
-  if (phiAngleStrip < phiAngleMin)
-    phiDist = rStrip * (phiAngleStrip - phiAngleMin);
-  else if (phiAngleStrip > phiAngleMax)
-    phiDist = rStrip * (phiAngleMax - phiAngleStrip);
+  if (phi_strip < phiAngleMin)
+    phiDist = rad_strip * (phi_strip - phiAngleMin);
+  else if (phi_strip > phiAngleMax)
+    phiDist = rad_strip * (phiAngleMax - phi_strip);
   else
-    phiDist = rStrip * min(phiAngleMax - phiAngleStrip, phiAngleStrip - phiAngleMin);
+    phiDist = rad_strip * std::min(phiAngleMax - phi_strip, phi_strip - phiAngleMin);
 
   return;
 }
