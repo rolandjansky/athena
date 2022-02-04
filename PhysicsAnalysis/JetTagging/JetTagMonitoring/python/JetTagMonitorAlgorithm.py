@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file JetTagMonitorAlgorithm.py
@@ -54,31 +54,22 @@ def JetTagMonitorConfig(inputFlags):
     # Declare properties
 
     #objects collections
-    #jetTagMonAlg.JetsCollection = "AntiKt4EMPFlowJets"
-    jetTagMonAlg.JetsCollection = "AntiKt4EMTopoJets"
+    jetTagMonAlg.JetsCollection = "AntiKt4EMPFlowJets"
     jetTagMonAlg.MuonsCollection = "Muons"
     jetTagMonAlg.ElectronsCollection = "Electrons"
-
-    #trigger chain
-    jetTagMonAlg.TriggerChain = ''
-    #jetTagMonAlg.TriggerChain = 'HLT_mu26_ivarmedium'
-    #jetTagMonAlg.TriggerChain = 'HLT_e24_lhtight_nod0'
 
     #skip jet filter selection if ion-ion or proton-ion collisions
     jetTagMonAlg.SkipJetFilter = False
 
     jetTagMonAlg.DoExtraTaggerHistos = True
 
-    #trigger pre-selection wild-cards
-    jetTagMonAlg.ElectronTrigger_201X = "HLT_e[2-9][0-9]_.*" # electrons 20-99 GeV
-    jetTagMonAlg.MuonTrigger_201X = "HLT_mu[2-9][0-9].*" # muons 20-99 GeV
-
     #general pT / eta cuts for jets
     jetTagMonAlg.JetEtaCut = 2.5
-    jetTagMonAlg.JetPtCut = 25.0
+    jetTagMonAlg.JetPtCut = 20.0
     
     #soft muon pT cut for SMT jets 
-    jetTagMonAlg.SoftMuonPtCut = 5.0
+    jetTagMonAlg.SoftMuonPtMin = 5.0
+    jetTagMonAlg.SoftMuonPtMax = 25.0
 
     #track selection for jet quality 
     jetTagMonAlg.MinGoodTrackCut = 1
@@ -109,59 +100,33 @@ def JetTagMonitorConfig(inputFlags):
     jetTagMonAlg.ElectronPtVarCone20Cut = 0.06
     jetTagMonAlg.MuonPtVarCone30Cut = 0.06
 
-    #JVT cut r21 WP, update eventually to r22
-    jetTagMonAlg.JVTCut = 0.59
+    #JVT r22 recommendations: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/BTagRecommendationsRelease22#Default_Object_Recommendations_f
+    jetTagMonAlg.JVTCut = 0.5
     jetTagMonAlg.JVTpTCut = 60.0
     jetTagMonAlg.JVTetaCut = 2.4
-
-    if jetTagMonAlg.JetsCollection == "AntiKt4EMPFlowJets" :
-        jetTagMonAlg.JVTCut = 0.2
-    elif jetTagMonAlg.JetsCollection == "AntiKt4EMTopoJets" :
-        jetTagMonAlg.JVTCut = 0.59
-    else :
-        jetTagMonAlg.JVTCut = 0.59
      
-    #Main b-tagging algorithm: MV2c10 (r21) or DL1r (r22)
-    #r21 benchmarks from: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/BTaggingBenchmarksRelease21
-    jetTagMonAlg.TaggerName = "DL1r"
+    #Main b-tagging algorithm r22: DL1dv00
+    #r22 benchmarks from: https://ftag.docs.cern.ch/recommendations/r22-preliminary/#working-point-definition-for-dl1dv00
+    jetTagMonAlg.TaggerName = "DL1dv00"
     
-    if jetTagMonAlg.TaggerName == "MV2c10" :
-     jetTagMonAlg.WP60Cut = 0.94
-     jetTagMonAlg.WP70Cut = 0.83
-     jetTagMonAlg.WP77Cut = 0.64
-     jetTagMonAlg.WP85Cut = 0.11
-     MV_bins = 100
-     MV_start = -1.0
-     MV_stop = 1.0
-    elif jetTagMonAlg.TaggerName == "DL1r" :
-     jetTagMonAlg.WP60Cut = 2.74
-     jetTagMonAlg.WP70Cut = 2.02
-     jetTagMonAlg.WP77Cut = 1.45
-     jetTagMonAlg.WP85Cut = 0.46
-     jetTagMonAlg.cFraction = 0.08
-     jetTagMonAlg.bFraction = 0.08
+    if jetTagMonAlg.TaggerName == "DL1dv00" :
+     jetTagMonAlg.WP60Cut = 4.884
+     jetTagMonAlg.WP70Cut = 3.494
+     jetTagMonAlg.WP77Cut = 2.443
+     jetTagMonAlg.WP85Cut = 0.930
+     jetTagMonAlg.cFraction = 0.018
      MV_bins = 100
      MV_start = -6.0
      MV_stop = 14.0
-    else :
-     jetTagMonAlg.WP60Cut = 2.74
-     jetTagMonAlg.WP70Cut = 2.02
-     jetTagMonAlg.WP77Cut = 1.45
-     jetTagMonAlg.WP85Cut = 0.46
-     jetTagMonAlg.cFraction = 0.08
-     jetTagMonAlg.bFraction = 0.08
-     MV_bins = 100
-     MV_start = -6.0
-     MV_stop = 14.0
-
-    #r21 benchmarks, update when r22 DL1 training will be available
-    if jetTagMonAlg.JetsCollection == "AntiKt4EMPFlowJets" :
+    else : #r21 DL1r WPs
      jetTagMonAlg.WP60Cut = 2.75
      jetTagMonAlg.WP70Cut = 2.01
      jetTagMonAlg.WP77Cut = 1.42
      jetTagMonAlg.WP85Cut = 0.41
      jetTagMonAlg.cFraction = 0.08
-     jetTagMonAlg.bFraction = 0.08
+     MV_bins = 100
+     MV_start = -6.0
+     MV_stop = 14.0
     
     ### STEP 4 ###
     # Add some tools. N.B. Do not use your own trigger decision tool. Use the
@@ -183,8 +148,7 @@ def JetTagMonitorConfig(inputFlags):
     #path is for folder structure of output file 
 
     #General histograms: cutflow, run, PV, tracks, hits
-    GeneralGroup.defineHistogram('Cutflow_Event',title='Event CutFlow;Pass Event CutFlow;Events',path='Cutflow',xbins=6,xmin=-0.5,xmax=5.5)
-    GeneralGroup.defineHistogram('Cutflow_Trigger',title='Trigger CutFlow;Pass Trigger CutFlow;Events',path='Cutflow',xbins=5,xmin=-0.5,xmax=4.5)
+    GeneralGroup.defineHistogram('Cutflow_Event',title='Event CutFlow;Pass Event CutFlow;Events',path='Cutflow',xbins=8,xmin=-0.5,xmax=7.5)
     GeneralGroup.defineHistogram('Cutflow_Jet',title='Jet CutFlow;Pass Jet CutFlow;Jets',path='Cutflow',xbins=9,xmin=-0.5,xmax=8.5)
 
     GeneralGroup.defineHistogram('Run_lb',title='Lumi Block;LB;Events',path='Run',xbins=1000,xmin=-0.5,xmax=999.5)
@@ -383,8 +347,6 @@ def JetTagMonitorConfig(inputFlags):
     GeneralGroup.defineHistogram('jet_eta_77tag,jet_phi_77tag;jet_MAP_77tag',title='2D MAP of jets passing 77 tag WP;Jet #eta;Jet #phi',type='TH2F',path='JetGood',xbins=25,xmin=-2.5,xmax=2.5,ybins=50,ymin=-1*math.pi,ymax=math.pi)
     GeneralGroup.defineHistogram('jet_eta_85tag,jet_phi_85tag;jet_MAP_85tag',title='2D MAP of jets passing 85 tag WP;Jet #eta;Jet #phi',type='TH2F',path='JetGood',xbins=25,xmin=-2.5,xmax=2.5,ybins=50,ymin=-1*math.pi,ymax=math.pi)
 
-    GeneralGroup.defineHistogram('passGood,jet_eta_all,jet_phi_all',type='TEfficiency',title='TEfficiency in 2D;Jet #eta;Jet #phi;Good Jet Efficiency',path='JetGood',xbins=25,xmin=-2.5,xmax=2.5,ybins=50,ymin=-1*math.pi,ymax=math.pi)
-
     #Suspect jet plots (same definition of good jet plots) --> jet quality from Suspect/Suspect/Bad selection)
     GeneralGroup.defineHistogram('jet_pT_suspect',title='Suspect jets pT;Suspect Jet pT [GeV];Jets',path='JetSuspect',xbins=100,xmin=0.0,xmax=200.0)
     GeneralGroup.defineHistogram('jet_eta_suspect',title='Suspect jets #eta;Suspect Jet #eta;Jets',path='JetSuspect',xbins=100,xmin=-2.5,xmax=2.5)
@@ -466,8 +428,7 @@ if __name__=='__main__':
     #Select the input (data or MC) and output files
     
     #Data r22 ART input working:
-    ConfigFlags.Input.Files = ["/afs/cern.ch/work/a/alaperto/dq_test/dq_r22_JUL21/run/DQ_ARTs/myESD.data18.13Jul.root"] #ESD from ART test, 13 July 21, data18
-    #ConfigFlags.Input.Files = ["/afs/cern.ch/work/a/alaperto/dq_test/dq_r22_JUL21/run/DQ_ARTs/myAOD.data18.13Jul.root"] #AOD from ART test, 13 July 21, data18
+    ConfigFlags.Input.Files = ["/afs/cern.ch/work/a/alaperto/dq_test/dq_r22_FEB22/run/DQ_ARTs/myESD.data18.26Gen.root"] #ESD from ART test, 26 Gen 22, data18
     ConfigFlags.Input.isMC = False
 
     #MC r22 ART input working:
