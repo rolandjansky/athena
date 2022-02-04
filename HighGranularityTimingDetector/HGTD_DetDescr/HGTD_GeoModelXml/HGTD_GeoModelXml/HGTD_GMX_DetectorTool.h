@@ -6,17 +6,15 @@
 #define HGTD_GeoModelXml_HGTD_GMX_DETECTORTOOL_H
 //
 //    Create an Athena Tool; handle Athena services and Tools needed for 
-//    building the HGTD geometry. Then create the geometry using the HGTD_DetectorFactory.
-//    This is the entry to the StripGeoModelXml package.
+//    building the HGTD geometry. 
+//    This is the entry to the HGTD_GeoModelXml package.
 //
-#include "GeoModelUtilities/GeoModelTool.h"
+#include "InDetGeoModelUtils/GeoModelXmlTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 // #include "GeoModelInterfaces/IGeoDbTagSvc.h"
-
-#include "HGTD_GeoModel/HGTD_GeoModelAthenaComps.h" 
 
 #include <string>
 
@@ -26,7 +24,7 @@ namespace InDetDD {
     class SiCommonItems;
 }
 
-class HGTD_GMX_DetectorTool : public GeoModelTool {
+class HGTD_GMX_DetectorTool : public GeoModelXmlTool {
 public:
     // Standard Constructor
     HGTD_GMX_DetectorTool(const std::string &type, const std::string &name, const IInterface *parent);
@@ -42,16 +40,15 @@ public:
     virtual StatusCode align(IOVSVC_CALLBACK_ARGS_P(I,keys)) override final;
 
 private:
-    StringProperty m_detectorName{this, "DetectorName", "HGTD"};
-    BooleanProperty m_alignable{this, "Alignable", false};
-    StringProperty m_gmxFilename{this, "GmxFilename", ""};
 
-    ServiceHandle<IRDBAccessSvc> m_rdbAccessSvc;
-    ServiceHandle<IGeoDbTagSvc> m_geoDbTagSvc;
+    Gaudi::Property<bool> m_alignable{this, "Alignable", false, ""};
+    //This should be changed to an HGTD-specific one in future, once available
+    Gaudi::Property<std::string> m_alignmentFolderName{this, "AlignmentFolderName", "/Indet/AlignHGTD", ""}; // modifay it in future
 
     const HGTD_DetectorManager* m_detectorManager{nullptr};
-    HGTD_GeoModelAthenaComps m_athenaComps;
     InDetDD::SiCommonItems* m_commonItems;
+
+    HGTD_DetectorManager * createManager(GeoPhysVol * theWorld);
 };
 
 #endif // HGTD_GeoModelXml_HGTD_GMX_DETECTORTOOL_H
