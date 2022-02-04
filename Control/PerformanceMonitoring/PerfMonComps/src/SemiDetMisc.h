@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////
@@ -12,6 +12,8 @@
 //                                                            //
 ////////////////////////////////////////////////////////////////
 
+#ifndef PERFMONCOMPS_SEMIDETMISC_H
+#define PERFMONCOMPS_SEMIDETMISC_H
 
 #include "PerfMonEvent/mallinfo.h"
 #include <sys/time.h>
@@ -635,3 +637,5 @@ inline double PMonSD::get_wall_ms()
     offset=t;
   return t-offset;
 }
+
+#endif // PERFMONCOMPS_SEMIDETMISC_H
