@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TgcRODReadOut.h"
@@ -8,19 +8,14 @@
 
 #include "TGCcablingInterface/ITGCcablingServerSvc.h"
 
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
-
 #include "AthenaKernel/getMessageSvc.h"
-#include "GaudiKernel/MsgStream.h"
 
 // constructor
-Muon::TgcRODReadOut::TgcRODReadOut()
-  : m_tgcRdo(nullptr), m_cabling(nullptr)
+Muon::TgcRODReadOut::TgcRODReadOut(const ITGCcablingSvc& cabling)
+  : m_cabling(cabling)
 { 
   m_tgcSlbDataHelper = new TgcSlbDataHelper;
 
-  m_failedSetRdo = 0;
   for(unsigned int rodId=0; rodId<NROD+1; rodId++) {
     m_failedDecodeRodToRdo[rodId] = 0;
     m_failedHeaderSizeRawData[rodId] = 0;
@@ -35,9 +30,6 @@ Muon::TgcRODReadOut::TgcRODReadOut()
 Muon::TgcRODReadOut::~TgcRODReadOut()
 { 
     MsgStream log(Athena::getMessageSvc(),"Muon::TgcRODReadOut");
-    if(m_failedSetRdo) {
-      log << MSG::WARNING << "setRdo failed " << m_failedSetRdo << " times" << endmsg;
-    } 
     for(unsigned int rodId=0; rodId<NROD+1; rodId++) {
       if(m_failedDecodeRodToRdo[rodId]) {
 	log << MSG::WARNING << "rodId=" << rodId << " : decodeRodToRdo faied " 
@@ -71,36 +63,13 @@ Muon::TgcRODReadOut::~TgcRODReadOut()
   delete m_tgcSlbDataHelper; m_tgcSlbDataHelper=nullptr;
 }
 
-const TgcRdo* Muon::TgcRODReadOut::getRdo(void) const 
-{
-  return m_tgcRdo;
-}
-
-StatusCode Muon::TgcRODReadOut::setRdo(TgcRdo * v_tgcRdo) 
-{
-  m_tgcRdo = v_tgcRdo; 
-  return StatusCode::SUCCESS;
-}
-
 StatusCode Muon::TgcRODReadOut::byteStream2Rdo(const ByteStream& bs, 
 					       TgcRdo& tgcRdo, 
-					       uint32_t source_id)
+					       uint32_t source_id) const
 {
   MsgStream log(Athena::getMessageSvc(),"Muon::TgcRODReadOut");
   bool t_debug = (log.level()<=MSG::DEBUG);
   
-  // set collection
-  if(!setRdo(&tgcRdo)){
-    if(t_debug || !m_failedSetRdo) {
-      log << (!m_failedSetRdo ? MSG::WARNING : MSG::DEBUG)
-	       << " Can't set tgcRdo pointer correctly: Skip decoding of remaining hits of this event..." 
-	       << endmsg;
-    } 
-    m_failedSetRdo++;
-
-    return StatusCode::SUCCESS;
-  }
-
   // set ROD attribute
   uint16_t subDetectorId = (source_id & 0x00FF0000) >> 16;
   uint16_t rodId         = (source_id & 0x000000FF);
@@ -108,10 +77,10 @@ StatusCode Muon::TgcRODReadOut::byteStream2Rdo(const ByteStream& bs,
   uint32_t l1Id          = tgcRdo.l1Id();
   uint16_t bcId          = tgcRdo.bcId();
 
-  m_tgcRdo->setOnlineId(subDetectorId, rodId);
+  tgcRdo.setOnlineId(subDetectorId, rodId);
 
   // decode
-  if(!(decodeRodToRdo(bs,subDetectorId, rodId,l1Id, bcId).isSuccess())){
+  if(!(decodeRodToRdo(tgcRdo, bs,subDetectorId, rodId,l1Id, bcId).isSuccess())){
     unsigned int tmpRodId = rodId + (subDetectorId==CSIDE ? NROD/2 : 0);
     if(tmpRodId>NROD) tmpRodId = NROD;
     
@@ -137,24 +106,13 @@ StatusCode Muon::TgcRODReadOut::byteStream2Rdo(const ByteStream& bs,
 
 StatusCode Muon::TgcRODReadOut::check(const ByteStream& bs, 
 				      TgcRdo& tgcRdo, 
-				      uint32_t source_id)
+				      uint32_t source_id) const
 {
-
   // create another TgcTdo
-  TgcRdo* newRdo = new TgcRdo();
+  TgcRdo newRdo;
 
   MsgStream log(Athena::getMessageSvc(),"Muon::TgcRODReadOut");
  
-  // set collection
-  if(!newRdo || !setRdo(newRdo)){
-    log << MSG::WARNING << " Can't set tgcRdo pointer correctly: Skip decoding of remaining hits of this event..." 
-	     << endmsg;
-    if(newRdo){
-      delete newRdo; newRdo = nullptr;
-    } 
-    return StatusCode::SUCCESS;
-  }
-
   // set ROD attribute
   uint16_t subDetectorId = (source_id & 0x00FF0000) >> 16;
   uint16_t rodId         = (source_id & 0x000000FF);
@@ -162,10 +120,10 @@ StatusCode Muon::TgcRODReadOut::check(const ByteStream& bs,
   uint32_t l1Id          = tgcRdo.l1Id();
   uint16_t bcId          = tgcRdo.bcId();
 
-  m_tgcRdo->setOnlineId(subDetectorId, rodId);
+  newRdo.setOnlineId(subDetectorId, rodId);
 
   // decode
-  if(!(decodeRodToRdo(bs,subDetectorId, rodId,l1Id, bcId).isSuccess())){
+  if(!(decodeRodToRdo(newRdo, bs,subDetectorId, rodId,l1Id, bcId).isSuccess())){
     log << MSG::WARNING << " Can't convert TGC BS to RDO: "
 	     << "subDetectorId = " << subDetectorId
 	     << "rodId = " << rodId
@@ -174,23 +132,19 @@ StatusCode Muon::TgcRODReadOut::check(const ByteStream& bs,
 	     << endmsg;
     log << MSG::WARNING << "Corrupted data, Skip decoding of remaining hits of this event..."
 	     << endmsg;
-    delete newRdo; newRdo = nullptr;
     return StatusCode::SUCCESS;
   }
   
   // compare 
-  if(!compare(&tgcRdo, newRdo)){
+  if(!compare(&tgcRdo, &newRdo)){
     log << MSG::WARNING << "Can't compare TgcRdos: Skip decoding of remaining hits of this event..."<<endmsg;
-    delete newRdo; newRdo = nullptr;
     return StatusCode::SUCCESS;
   }
-
-  delete newRdo; newRdo = nullptr;
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::TgcRODReadOut::compare(TgcRdo* rdo, TgcRdo* newRdo)
+StatusCode Muon::TgcRODReadOut::compare(TgcRdo* rdo, TgcRdo* newRdo) const
 {
   #ifndef NDEBUG
   MsgStream log(Athena::getMessageSvc(),"Muon::TgcRODReadOut");
@@ -315,11 +269,12 @@ bool Muon::TgcRODReadOut::isMatched(const TgcRawData* rdo1,
 }
 
 // decode ROD data to RDO
-StatusCode Muon::TgcRODReadOut::decodeRodToRdo(const ByteStream& vData, 
+StatusCode Muon::TgcRODReadOut::decodeRodToRdo(TgcRdo& tgcRdo,
+                                               const ByteStream& vData, 
 					       uint16_t subDetectorId,
 					       uint16_t rodId, 
 					       uint32_t l1Id, 
-					       uint16_t bcId)
+					       uint16_t bcId) const
 {
 
   /////////
@@ -669,7 +624,7 @@ StatusCode Muon::TgcRODReadOut::decodeRodToRdo(const ByteStream& vData,
   size_t n_vCh=0;
   for(; ith!=ith_e; ++ith){
     // push back
-    m_tgcRdo->push_back(*ith);
+    tgcRdo.push_back(*ith);
 
     n_vCh +=1;
 
@@ -684,142 +639,14 @@ StatusCode Muon::TgcRODReadOut::decodeRodToRdo(const ByteStream& vData,
  
 }
 
-// Decode the ROD header
-StatusCode Muon::TgcRODReadOut::decodeHeader(const ByteStream& vData)
-{ 
-  int vDataIndex=0;
-  
-  // Start Maker
-  #ifndef NDEBUG
-  MsgStream log(Athena::getMessageSvc(),"Muon::TgcRODReadOut");
-  if(vData[vDataIndex] != ROD_START) {
-    log << MSG::DEBUG 
-	       << "ROD Start of header marker not found" << endmsg;
-  }
-  #endif
-  ++vDataIndex;
-  
-  // Header Size
-  #ifndef NDEBUG
-  if(vData[vDataIndex] != ROD_HEADER_SIZE) {
-    log << MSG::DEBUG 
-	       << "ROD header size doesn't match " << vData[vDataIndex] 
-	       << endmsg;
-  }
-  #endif
-  ++vDataIndex;
-  
-  // Format version
-  ++vDataIndex;
-  
-  // decode the rest of the header
-  
-  // Source ID 
-  uint16_t subDetectorId = ((vData[vDataIndex]) & 0x00FF0000) >> 16;   
-  uint16_t rodId =  (vData[vDataIndex]) & 0x000000FF;
-
-  ++vDataIndex;
-  
-  // Run Number
-  ++vDataIndex;
-
-  // L1ID
-  uint32_t l1Id = (vData[vDataIndex]) & 0xFFFFFFFF;
-  ++vDataIndex;
-
-  // BCID
-  uint16_t bcId = (vData[vDataIndex]) & 0x0000FFFF;
-  ++vDataIndex;
-
-  // Trigger Type
-  uint16_t triggerType = (vData[vDataIndex]) & 0x000000FF;
-  ++vDataIndex;
-
-  // set attributes
-  if(!setRodAttributes(subDetectorId,rodId,l1Id,bcId,triggerType)){
-    #ifndef NDEBUG
-    log << MSG::DEBUG << "Can't set ROD Attributes: Skip decoding of remaining hits of this event..." << endmsg;
-    #endif
-    return StatusCode::SUCCESS;
-  }
-
-  return StatusCode::SUCCESS;
-}
-
-
-uint16_t Muon::TgcRODReadOut::subDetectorId() const {
-  return m_tgcRdo->subDetectorId();
-}
-
-uint16_t Muon::TgcRODReadOut::rodId() const {
-  return m_tgcRdo->rodId();
-}
-
-uint32_t Muon::TgcRODReadOut::l1Id() const {
-  return m_tgcRdo->l1Id();
-}
-
-uint16_t Muon::TgcRODReadOut::bcId() const {
-  return m_tgcRdo->bcId();
-}
-
-uint16_t Muon::TgcRODReadOut::triggerType() const {
-  return m_tgcRdo->triggerType();
-}
-
-// set RDO attributes
-StatusCode Muon::TgcRODReadOut::setRodAttributes(const uint16_t subDetectorId, 
-						 const uint16_t rodId,
-						 const uint32_t l1Id,
-						 const uint16_t bcId,
-						 const uint16_t triggerType)
-{
-  m_tgcRdo->setOnlineId(subDetectorId, rodId);
-  m_tgcRdo->setL1Id(l1Id);
-  m_tgcRdo->setBcId(bcId);
-  m_tgcRdo->setTriggerType(triggerType);
-  return StatusCode::SUCCESS;
-}
-
 // set sbLoc to slb 
 bool Muon::TgcRODReadOut::setSbLoc(uint16_t subDetectorId,
 				   uint16_t rodId, 
 				   TgcSlbData * slb, 
-				   int rxId) 
+				   int rxId)  const
 {
-  ISvcLocator* svcLocator = Gaudi::svcLocator();
-
   MsgStream log(Athena::getMessageSvc(),"Muon::TgcRODReadOut");
   bool t_debug = (log.level()<=MSG::DEBUG);
-
-  if(m_cabling ==nullptr) {
-    // TGCcablingSvc
-    // get Cabling Server Service
-    const ITGCcablingServerSvc* TgcCabGet = nullptr;
-    StatusCode sc = svcLocator->service("TGCcablingServerSvc", TgcCabGet);
-    if(sc.isFailure()) {
-      log << MSG::ERROR << " Can't get TGCcablingServerSvc " << endmsg;
-      return false;
-    }
-    
-    // get Cabling Service
-    sc = TgcCabGet->giveCabling(m_cabling);
-    if(sc.isFailure()) {
-      log << MSG::ERROR << " Can't get ITGCcablingSvc from TGCcablingServerSvc" << endmsg;
-      return false; 
-    }
-    int maxRodId,maxSswId, maxSbloc,minChannelId, maxChannelId;
-    m_cabling->getReadoutIDRanges(maxRodId,maxSswId, maxSbloc,minChannelId, maxChannelId);
-    bool isAtlas = (maxRodId==12);
-    if(isAtlas) {
-      log << MSG::INFO << m_cabling->name() << " is OK" << endmsg ;
-    } else {
-      log << MSG::ERROR 
-		 << "TGCcablingSvc(octant segmentation) can not be used for TgcRODReadOut" 
-		 << endmsg ;
-      return false;
-    }
-  }
 
   // get sbLoc
   int phi = 0;
@@ -835,15 +662,15 @@ bool Muon::TgcRODReadOut::setSbLoc(uint16_t subDetectorId,
   
   int sswId = slb->getSswId();
 
-  if(!m_cabling->getSLBIDfromRxID(phi, 
-				  isAside, 
-				  isEndcap, 
-				  moduleType, 
-				  slbId,
-				  subDetectorId,
-				  rodId,
-				  sswId,
-				  rxId)) {
+  if(!m_cabling.getSLBIDfromRxID(phi, 
+                                 isAside, 
+                                 isEndcap, 
+                                 moduleType, 
+                                 slbId,
+                                 subDetectorId,
+                                 rodId,
+                                 sswId,
+                                 rxId)) {
     unsigned int tmpRodId = rodId + (subDetectorId==CSIDE ? NROD/2 : 0);
     if(tmpRodId>NROD) tmpRodId = NROD;
 
@@ -860,15 +687,15 @@ bool Muon::TgcRODReadOut::setSbLoc(uint16_t subDetectorId,
     return false;
   }
 
-  if(!m_cabling->getReadoutIDfromSLBID(phi,
-				       isAside,
-				       isEndcap,
-				       moduleType,
-				       slbId,
-				       dummy_subDetectorId,
-				       dummy_rodId,
-				       dummy_sswId,
-				       sbLoc)) {
+  if(!m_cabling.getReadoutIDfromSLBID(phi,
+                                      isAside,
+                                      isEndcap,
+                                      moduleType,
+                                      slbId,
+                                      dummy_subDetectorId,
+                                      dummy_rodId,
+                                      dummy_sswId,
+                                      sbLoc)) {
     unsigned int tmpRodId = rodId + (subDetectorId==CSIDE ? NROD/2 : 0);
     if(tmpRodId>NROD) tmpRodId = NROD;
     
@@ -885,11 +712,11 @@ bool Muon::TgcRODReadOut::setSbLoc(uint16_t subDetectorId,
     return false;
   }
   
-  if(m_cabling->getSLBAddressfromReadoutID(slbaddress_ret,
-					   subDetectorId,
-					   rodId,
-					   sswId,
-					   sbLoc)) {
+  if(m_cabling.getSLBAddressfromReadoutID(slbaddress_ret,
+                                          subDetectorId,
+                                          rodId,
+                                          sswId,
+                                          sbLoc)) {
     // check SLB  Address
     if(slbaddress_ret != slb->getSlbId() ) {
       if(t_debug) {

@@ -6,17 +6,17 @@
 #define MMPREPDATACONTAINERCNV_p1_H
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
-
 #include "MuonPrepRawData/MMPrepDataContainer.h"
-
 #include "MuonEventTPCnv/MuonPrepRawData/MuonPRD_Container_p2.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "TrkEventCnvTools/IEventCnvSuperTool.h"
 
 
 #include <iostream>
 
 class StoreGateSvc;
 class MmIdHelper;
-namespace MuonGM {class MuonDetectorManager;}
+
 
 namespace Muon{
 /** Class to handle the conversion of the transient MMPrepDataContainer into its persistent representation (defined in MuonPRD_Container_p1).
@@ -24,7 +24,7 @@ This replaces MMPrepDataContainerCnv_tlp1, which is a AthenaPoolTopLevelTPConver
 class MMPrepDataContainerCnv_p1 : public T_AthenaPoolTPCnvBase<Muon::MMPrepDataContainer, Muon::MMPrepDataContainer_p1>
 {
 public:
-    MMPrepDataContainerCnv_p1() : m_MMId(0), m_storeGate(0), m_muonDetMgr(0), m_isInitialized(0)  {};
+    MMPrepDataContainerCnv_p1() = default;
 
     virtual void	persToTrans(const Muon::MMPrepDataContainer_p1* persCont,
         Muon::MMPrepDataContainer* transCont,
@@ -37,10 +37,11 @@ public:
 
 
 private:
-    const MmIdHelper *m_MMId;
-    StoreGateSvc *m_storeGate;
-    const MuonGM::MuonDetectorManager* m_muonDetMgr;
-    bool m_isInitialized;
+    const MuonGM::MMReadoutElement* getReadOutElement(const Identifier& id ) const;
+    const MmIdHelper *m_MMId{nullptr};
+    StoreGateSvc *m_storeGate{nullptr};
+    ToolHandle  < Trk::IEventCnvSuperTool > m_eventCnvTool{"Trk::EventCnvSuperTool/EventCnvSuperTool"};
+    bool m_isInitialized{false};
     StatusCode initialize(MsgStream &log);
 };
 }

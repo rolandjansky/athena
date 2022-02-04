@@ -1,7 +1,7 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from JetRecConfig.StandardSmallRJets import AntiKt4EMPFlow, AntiKt4LCTopo, AntiKt4EMTopo, AntiKt4Truth
-from JetRecConfig.StandardLargeRJets import AntiKt10LCTopo
+from JetRecConfig.StandardLargeRJets import AntiKt10LCTopo_noVR
 from JetRecConfig.JetRecConfig import JetRecCfg
 
 
@@ -9,7 +9,7 @@ def JetRecoSteeringCfg(flags):
     result = ComponentAccumulator()
 
     # the Standard list of jets to run :
-    jetdefs = [AntiKt4EMTopo, AntiKt4EMPFlow, AntiKt4LCTopo, AntiKt4Truth, AntiKt10LCTopo]
+    jetdefs = [AntiKt4EMTopo, AntiKt4EMPFlow, AntiKt4LCTopo, AntiKt4Truth, AntiKt10LCTopo_noVR]
 
     #--------------------------------------------------------------
     # Create the jet algs from the jet definitions

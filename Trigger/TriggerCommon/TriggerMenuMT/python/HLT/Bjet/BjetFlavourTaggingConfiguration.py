@@ -132,11 +132,9 @@ def getFastFlavourTagging( flags, inputJets, inputVertex, inputTracks):
     # cause an algorithm stall if we don't explicetly tell it that it
     # can ignore some of them.
     missingKeys = getStaticTrackVars(inputTracks)
-    # The 'jetLink' is a special special hack: it won't be used
-    # because we're tagging the jet directly here, but DL2 still
-    # reports it as a dependency.
-    missingKeys += [f'{jet_name}.jetLink']
+
     nnAlgoKey = nnFile.replace('/','_').split('.')[0]
+
     ca.addEventAlgo(
         CompFactory.FlavorTagDiscriminants.JetTagDecoratorAlg(
             name='_'.join([

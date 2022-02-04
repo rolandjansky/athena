@@ -55,7 +55,7 @@ void PhotonValidationPlots::initializePlots(){
 void PhotonValidationPlots::fill(const xAOD::Photon& photon, const xAOD::EventInfo& eventInfo, bool isPrompt) const{
   
   float weight = 1.;
-  weight = !eventInfo.beamSpotWeight() ? eventInfo.beamSpotWeight() : 1.;
+  weight = eventInfo.beamSpotWeight();
     
   author->Fill(photon.author(),weight);
   m_oAllPlots.fill(photon, eventInfo, isPrompt);

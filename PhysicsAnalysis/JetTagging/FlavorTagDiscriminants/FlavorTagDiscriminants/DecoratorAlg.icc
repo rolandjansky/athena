@@ -15,9 +15,16 @@ namespace FlavorTagDiscriminants {
   {
   }
 
+  template <typename C, typename D, typename N>
+  StatusCode DecoratorAlg<C,D,N>::initialize()
+  {
+    return initializeInternal();
+  }
 
   template <typename C, typename D, typename N>
-  StatusCode DecoratorAlg<C,D,N>::initialize() {
+  StatusCode DecoratorAlg<C,D,N>::initializeInternal(
+    DecoratorAlg::ExtraDependencies extraDeps)
+  {
     ATH_CHECK(m_containerKey.initialize());
     ATH_CHECK(m_constituentKey.initialize());
 
@@ -30,8 +37,10 @@ namespace FlavorTagDiscriminants {
     // now we build data dependencies from the internal tools. We have
     // to reserve the vectors here to prevent a segfault since read /
     // write handles aren't movable once declaired as a property.
-    m_aux.reserve(m_decorator->getAuxInputKeys().size());
-    for (const std::string& key: m_decorator->getAuxInputKeys()) {
+    auto auxKeys = m_decorator->getAuxInputKeys();
+    auxKeys.merge(extraDeps);
+    m_aux.reserve(auxKeys.size());
+    for (const std::string& key: auxKeys) {
       const std::string full = m_containerKey.key() + "." + key;
       if (veto.count(full)) {
         ATH_MSG_DEBUG("Not declaring accessor: " + full);

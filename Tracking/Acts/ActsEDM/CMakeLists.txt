@@ -27,8 +27,3 @@ atlas_add_dictionary( ActsEDMDict
 		      ActsTrk::SpacePointContainer 
 		      ActsTrk::SeedContainer 
 		      )
-
-
-
-
-

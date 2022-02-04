@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -61,7 +61,7 @@ getSCT_ID(StoreGateSvc const * const detStore)
 
 } // end anonymous namespace
 
-InDet::DiscOverlapDescriptor::DiscOverlapDescriptor(const Trk::BinnedArray<Trk::Surface>* bin_array, 
+InDet::DiscOverlapDescriptor::DiscOverlapDescriptor(const Trk::BinnedArray<const Trk::Surface>* bin_array, 
                                                     std::vector<Trk::BinUtility*>* singleBinUtils,
                                                     bool isPixel):
   m_bin_array(bin_array),
@@ -124,15 +124,15 @@ bool InDet::DiscOverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceInt
       const Trk::Surface* previousPhi_NextEta = nullptr;
       const Trk::Surface* nextPhi_NextEta     = nullptr;
       
-      std::vector<const Trk::Surface*> surf = m_bin_array->arrayObjects();
+      Trk::BinnedArraySpan<Trk::Surface const * const> surf = m_bin_array->arrayObjects();
       size_t offset = 0;
       for (unsigned int bin = 0; bin < m_singleBinUtils->size(); bin++) {
         int etamod =
           m_pixelCase
             ? pixIdHelper->eta_module(
-                (*(surf.at(offset))).associatedDetectorElementIdentifier())
+                (*(surf[offset])).associatedDetectorElementIdentifier())
             : sctIdHelper->eta_module(
-                (*(surf.at(offset))).associatedDetectorElementIdentifier());
+                (*(surf[offset])).associatedDetectorElementIdentifier());
 
         if (etamod == etaModule || etamod < (etaModule - 1) ||
             etamod > (etaModule + 1)) {
@@ -144,28 +144,28 @@ bool InDet::DiscOverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceInt
         double NextDeltaPhi = -9999.;
         for (unsigned int ss = offset; ss < (offset+(std::as_const(*m_singleBinUtils).at(bin))->bins()); ss++ ) {
           if (etamod == (etaModule-1) ) {
-            if( tsf.center().phi() == (*(surf.at(ss))).center().phi() )
-              samePhi_PrevEta = surf.at(ss);
-            double DeltaPhi = tsf.center().phi() - (*(surf.at(ss))).center().phi();
+            if( tsf.center().phi() == (*(surf[ss])).center().phi() )
+              samePhi_PrevEta = surf[ss];
+            double DeltaPhi = tsf.center().phi() - (*(surf[ss])).center().phi();
             if( DeltaPhi < PrevDeltaPhi && DeltaPhi > 0) {
-              previousPhi_PrevEta = surf.at(ss);
+              previousPhi_PrevEta = surf[ss];
               PrevDeltaPhi = DeltaPhi;
             }
             if( DeltaPhi > NextDeltaPhi && DeltaPhi < 0) {
-              nextPhi_PrevEta = surf.at(ss);
+              nextPhi_PrevEta = surf[ss];
               NextDeltaPhi = DeltaPhi;
             }
           } else if (etamod == (etaModule+1) ) {
-            if( tsf.center().phi() == (*(surf.at(ss))).center().phi() )
-              samePhi_NextEta = surf.at(ss);
-            double DeltaPhi = tsf.center().phi() - (*(surf.at(ss))).center().phi();
+            if( tsf.center().phi() == (*(surf[ss])).center().phi() )
+              samePhi_NextEta = surf[ss];
+            double DeltaPhi = tsf.center().phi() - (*(surf[ss])).center().phi();
             if( DeltaPhi < PrevDeltaPhi && DeltaPhi > 0) {
-              previousPhi_NextEta = surf.at(ss);
+              previousPhi_NextEta = surf[ss];
               PrevDeltaPhi = DeltaPhi;
             }
             
             if( DeltaPhi > NextDeltaPhi && DeltaPhi < 0) {
-              nextPhi_NextEta = surf.at(ss);
+              nextPhi_NextEta = surf[ss];
               NextDeltaPhi = DeltaPhi;
             }
           }

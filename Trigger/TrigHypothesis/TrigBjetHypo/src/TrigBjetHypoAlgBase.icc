@@ -187,7 +187,7 @@ StatusCode TrigBjetHypoAlgBase::attachObjectLinkToDecisionFromEventView( const E
   }
 
   // Get parent decision
-  const ElementLinkVector< TrigCompositeUtils::DecisionContainer > mySeeds = outputDecision.objectCollectionLinks< TrigCompositeUtils::DecisionContainer >( TrigCompositeUtils::seedString() );
+  const std::vector<ElementLink< TrigCompositeUtils::DecisionContainer >> mySeeds = outputDecision.objectCollectionLinks< TrigCompositeUtils::DecisionContainer >( TrigCompositeUtils::seedString() );
   const TrigCompositeUtils::Decision inputDecision = **mySeeds.back();
 
   // Get object link from view, taken from the input decision
@@ -250,7 +250,7 @@ StatusCode TrigBjetHypoAlgBase::attachObjectCollectionLinkToDecisionsFromEventVi
     } 
 
     // Get corresponding input decision
-    const ElementLinkVector< TrigCompositeUtils::DecisionContainer > mySeeds = outputDecision->objectCollectionLinks< TrigCompositeUtils::DecisionContainer >( TrigCompositeUtils::seedString() );
+    const std::vector<ElementLink< TrigCompositeUtils::DecisionContainer >> mySeeds = outputDecision->objectCollectionLinks< TrigCompositeUtils::DecisionContainer >( TrigCompositeUtils::seedString() );
     const TrigCompositeUtils::Decision* inputDecision = *mySeeds.back();
 
     // Get object link from view, taken from the input decision 
@@ -261,7 +261,7 @@ StatusCode TrigBjetHypoAlgBase::attachObjectCollectionLinkToDecisionsFromEventVi
     ATH_CHECK( calObjectHandle.isValid() );
 
     // Create Collection to be linked
-    ElementLinkVector< CONTAINER > objELs;
+    std::vector<ElementLink< CONTAINER >> objELs;
     for ( unsigned int i(0); i<calObjectHandle->size(); i++ ) {
       ElementLink< CONTAINER > objEL = ViewHelper::makeLink( *viewEL, calObjectHandle, i );
       ATH_CHECK( objEL.isValid() );

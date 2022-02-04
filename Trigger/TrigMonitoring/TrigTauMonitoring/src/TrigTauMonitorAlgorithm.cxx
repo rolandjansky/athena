@@ -821,7 +821,13 @@ void TrigTauMonitorAlgorithm::fillDiTauVars(const std::string& trigger, const st
   auto subleadEFPhi = Monitored::Scalar<float>("hsubleadEFPhi",0.0);
   auto dR = Monitored::Scalar<float>("hdR",0.0);
   auto dEta = Monitored::Scalar<float>("hdEta",0.0);  
-  auto dPhi = Monitored::Scalar<float>("hdPhi",0.0); 
+  auto dPhi = Monitored::Scalar<float>("hdPhi",0.0);
+  
+  auto Pt = Monitored::Scalar<float>("Pt",0.0);
+  auto Eta = Monitored::Scalar<float>("Eta",0.0);
+  auto Phi = Monitored::Scalar<float>("Phi",0.0); 
+  auto M = Monitored::Scalar<float>("M",0.0);
+  auto dPt = Monitored::Scalar<float>("dPt",0.0); 
 
   // get the index of the leading and the subleading tau
   unsigned int index0=0, index1=1;
@@ -830,17 +836,33 @@ void TrigTauMonitorAlgorithm::fillDiTauVars(const std::string& trigger, const st
     index1=0;
   } 
 
-  leadEFEt = tau_vec.at(index0)->p4().Pt()/1000;
-  subleadEFEt = tau_vec.at(index1)->p4().Pt()/1000;
-  leadEFEta = tau_vec.at(index0)->p4().Eta();
-  subleadEFEta = tau_vec.at(index1)->p4().Eta();
-  leadEFPhi = tau_vec.at(index0)->p4().Phi();
-  subleadEFPhi = tau_vec.at(index1)->p4().Phi();
-  dR = tau_vec.at(index0)->p4().DeltaR(tau_vec.at(index1)->p4());
-  dEta = std::abs(tau_vec.at(index0)->p4().Eta() - tau_vec.at(index1)->p4().Eta());
-  dPhi = tau_vec.at(index0)->p4().DeltaPhi(tau_vec.at(index1)->p4());
+  TLorentzVector leadTau4V, subleadTau4V, diTau4V;
 
-  fill(monGroup, leadEFEt, subleadEFEt, leadEFEta, subleadEFEta, leadEFPhi, subleadEFPhi, dR, dEta, dPhi);
+  leadTau4V.SetPtEtaPhiM(0,0,0,0);
+  subleadTau4V.SetPtEtaPhiM(0,0,0,0);
+
+  leadTau4V = tau_vec.at(index0)->p4();
+  subleadTau4V = tau_vec.at(index1)->p4();
+
+  diTau4V = leadTau4V + subleadTau4V;
+
+  leadEFEt = leadTau4V.Pt()/1000;
+  subleadEFEt = subleadTau4V.Pt()/1000;
+  leadEFEta = leadTau4V.Eta();
+  subleadEFEta = subleadTau4V.Eta();
+  leadEFPhi = leadTau4V.Phi();
+  subleadEFPhi = subleadTau4V.Phi();
+  dR = leadTau4V.DeltaR(subleadTau4V);
+  dEta = std::abs(leadTau4V.Eta() - subleadTau4V.Eta());
+  dPhi = leadTau4V.DeltaPhi(subleadTau4V);
+
+  dPt = std::abs((leadTau4V.Pt() - subleadTau4V.Pt())/1000);
+  Pt = diTau4V.Pt()/1000;
+  Eta = diTau4V.Eta();
+  Phi = diTau4V.Phi();
+  M = diTau4V.M()/1000;
+  
+  fill(monGroup, leadEFEt, subleadEFEt, leadEFEta, subleadEFEta, leadEFPhi, subleadEFPhi, dR, dEta, dPhi, dPt, Pt, Eta, Phi, M);
 
   ATH_MSG_DEBUG("After fill DiTau variables: " << trigger); 
 }

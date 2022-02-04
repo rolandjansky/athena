@@ -71,9 +71,9 @@ if __name__=="__main__":
     cfg.addEventAlgo(muWriter,"AthAlgSeq")
     
     # Get Jet Inputs
-    from JetRecConfig.StandardJetDefs import EMTopoOrigin, LCTopoOrigin, CHSPFlow
+    from JetRecConfig.StandardJetConstits import stdConstitDic as cst
     from JetRecConfig import JetRecConfig
-    for jetdef in [EMTopoOrigin,LCTopoOrigin,CHSPFlow]:
+    for jetdef in [cst.EMTopoOrigin,cst.LCTopoOrigin,cst.EMPFlow]):
         cfg.merge(JetRecConfig.JetInputCfg( [jetdef], ConfigFlags))
         
     # Need to rename the collections in the xAOD in order to avoid conflicts

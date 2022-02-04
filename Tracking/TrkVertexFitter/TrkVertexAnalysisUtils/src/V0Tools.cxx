@@ -133,12 +133,12 @@ namespace Trk
       return -999999.;
     }
     double error = -999999.;
-    Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
-    if (fullCov == nullptr) {
+    auto fullCov = convertCovMatrix(vxCandidate);
+    if (fullCov.size() == 0) {
       ATH_MSG_DEBUG("0 pointer for full covariance. Making-up one from the vertex and tracks covariances");
       error = massErrorVxCandidate(vxCandidate,masses);
     } else {
-      unsigned int ndim = fullCov->rows();
+      unsigned int ndim = fullCov.rows();
       if (ndim != 0) {
         if (ndim == 5*NTrk+3 || ndim == 5*NTrk+6) {
           error = massErrorV0Fitter(vxCandidate,masses);
@@ -147,7 +147,6 @@ namespace Trk
         }
       }
     }
-    delete fullCov;
     return error;
   }
 
@@ -165,9 +164,9 @@ namespace Trk
       ATH_MSG_DEBUG("The provided number of masses does not match the number of tracks in the vertex");
       return -999999.;
     }
-    Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
-    if (fullCov == nullptr) return -999999.;
-    unsigned int ndim = fullCov->rows();
+    auto fullCov = convertCovMatrix(vxCandidate);
+    if (fullCov.size() == 0) return -999999.;
+    unsigned int ndim = fullCov.rows();
     double E=0., Px=0., Py=0., Pz=0.;
     std::vector<double>phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk), e(NTrk);
     std::vector<double>dm2dphi(NTrk), dm2dtheta(NTrk), dm2dqOverP(NTrk);
@@ -208,8 +207,7 @@ namespace Trk
       D_vec(5*it+3,0)  = dm2dtheta[it];
       D_vec(5*it+4,0)  = dm2dqOverP[it];
     }
-    Amg::MatrixX V0_merr = D_vec.transpose() * fullCov->block(0,0,ndim-3,ndim-3) * D_vec;
-    delete fullCov;
+    Amg::MatrixX V0_merr = D_vec.transpose() * fullCov.block(0,0,ndim-3,ndim-3) * D_vec;
 
     double massVarsq = V0_merr(0,0);
     if (massVarsq <= 0.) ATH_MSG_DEBUG("massError: negative sqrt massVarsq " << massVarsq);
@@ -235,8 +233,8 @@ namespace Trk
     std::vector<Amg::MatrixX> particleDeriv(NTrk);
     xAOD::TrackParticle::FourMom_t totalMom;
     Amg::MatrixX tmpDeriv(3,3); tmpDeriv.setZero();
-    Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
-    if (fullCov == nullptr) return -999999.;
+    auto fullCov = convertCovMatrix(vxCandidate);
+    if (fullCov.size() == 0) return -999999.;
 
     for( unsigned int it=0; it<NTrk; it++){
       if (masses[it] >= 0.) {
@@ -286,10 +284,9 @@ namespace Trk
     double err = 0;
     for(unsigned int i=0; i<3*NTrk+3; i++){
       for(unsigned int j=0; j<3*NTrk+3; j++){
-        err += Deriv[i]*( (*fullCov))(i,j)*Deriv[j];
+        err += Deriv[i]*( fullCov)(i,j)*Deriv[j];
       }
     }
-    delete fullCov;
     if (err <= 0.) ATH_MSG_DEBUG("massError: negative sqrt err " << err);
     return (err>0.) ? sqrt(err) : 0.;
   }
@@ -617,7 +614,7 @@ namespace Trk
     std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
     std::vector<double>dPTdqOverP(NTrk), dPTdtheta(NTrk), dPTdphi(NTrk);
 
-    Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
+    auto fullCov = convertCovMatrix(vxCandidate);
     for( unsigned int it=0; it<NTrk; it++) {
       const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
       double trkCharge = 1.;
@@ -644,10 +641,10 @@ namespace Trk
     }
 
     unsigned int ndim = 0;
-    if (fullCov == nullptr) {
+    if (fullCov.size() == 0) {
       ndim = 5*NTrk+3;
     } else {
-      ndim = fullCov->rows();
+      ndim = fullCov.rows();
     }
 
     Amg::MatrixX PtErrSq(1,1);
@@ -661,11 +658,11 @@ namespace Trk
         D_vec(5*it+3,0)  = dPTdtheta[it];
         D_vec(5*it+4,0)  = dPTdqOverP[it];
       }
-      if (fullCov == nullptr) {
+      if (fullCov.size() == 0) {
         Amg::MatrixX V0_cov = makeV0Cov(vxCandidate);
         PtErrSq = D_vec.transpose() * V0_cov * D_vec;
       } else {
-        PtErrSq = D_vec.transpose() * fullCov->block(0,0,5*NTrk-1,5*NTrk-1) * D_vec;
+        PtErrSq = D_vec.transpose() * fullCov.block(0,0,5*NTrk-1,5*NTrk-1) * D_vec;
       }
     } else if (ndim == 3*NTrk+3) {
       Amg::MatrixX D_vec(3*NTrk,1); D_vec.setZero();
@@ -674,9 +671,8 @@ namespace Trk
         D_vec(3*it+1,0)  = dPTdtheta[it];
         D_vec(3*it+2,0)  = dPTdqOverP[it];
       }
-      PtErrSq = D_vec.transpose() * fullCov->block(3,3,ndim-3,ndim-3) * D_vec;
+      PtErrSq = D_vec.transpose() * fullCov.block(3,3,ndim-3,ndim-3) * D_vec;
     }
-    delete fullCov;
 
     PtErrsq = PtErrSq(0,0);
     if (PtErrsq <= 0.) ATH_MSG_DEBUG("ptError: negative sqrt PtErrsq " << PtErrsq);
@@ -765,7 +761,7 @@ namespace Trk
     std::vector<double>dpzdqOverP(NTrk), dpzdtheta(NTrk);
     std::vector<double>da0dqOverP(NTrk), da0dtheta(NTrk), da0dphi(NTrk);
 
-    Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
+    auto fullCov = convertCovMatrix(vxCandidate);
     for( unsigned int it=0; it<NTrk; it++) {
       const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
       double trkCharge = 1.;
@@ -807,8 +803,8 @@ namespace Trk
     }
 
     unsigned int ndim = 0;
-    if (fullCov != nullptr) {
-      ndim = fullCov->rows();
+    if (fullCov.size() != 0) {
+      ndim = fullCov.rows();
     } else {
       ndim = 5*NTrk+3;
     }
@@ -831,8 +827,8 @@ namespace Trk
       D_vec(5*NTrk+5) = da0dz0;
 
       Amg::MatrixX W_mat(5*NTrk+6,5*NTrk+6); W_mat.setZero();
-      if (fullCov != nullptr) {
-        W_mat.block(0,0,ndim,ndim) = *fullCov;
+      if (fullCov.size() != 0) {
+        W_mat.block(0,0,ndim,ndim) = fullCov;
       } else {
         Amg::MatrixX V0_cov = makeV0Cov(vxCandidate);
         W_mat.block(0,0,V0_cov.rows(),V0_cov.rows()) = V0_cov;
@@ -855,7 +851,7 @@ namespace Trk
       D_vec(3*NTrk+5) = da0dz0;
 
       Amg::MatrixX W_mat(3*NTrk+6,3*NTrk+6); W_mat.setZero();
-      W_mat.block(0,0,ndim,ndim) = *fullCov;
+      W_mat.block(0,0,ndim,ndim) = fullCov;
       W_mat.block(3*NTrk+3,3*NTrk+3,3,3) =  vertex->covariancePosition();
       V0_err = D_vec.transpose() * W_mat * D_vec;
     }
@@ -863,7 +859,6 @@ namespace Trk
     double a0Errsq = V0_err(0,0);
     if (a0Errsq <= 0.) ATH_MSG_DEBUG("a0Error: negative sqrt a0Errsq " << a0Errsq);
     double a0Err = (a0Errsq>0.) ? sqrt(a0Errsq) : 0.;
-    delete fullCov;
     return a0Err;
   }
 
@@ -885,7 +880,7 @@ namespace Trk
     std::vector<double>dpzdqOverP(NTrk), dpzdtheta(NTrk);
     std::vector<double>da0dqOverP(NTrk), da0dtheta(NTrk), da0dphi(NTrk);
 
-    Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
+    auto fullCov = convertCovMatrix(vxCandidate);
     for( unsigned int it=0; it<NTrk; it++) {
       const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
       double trkCharge = 1.;
@@ -934,8 +929,8 @@ namespace Trk
     }
 
     unsigned int ndim = 0;
-    if (fullCov != nullptr) {
-      ndim = fullCov->rows();
+    if (fullCov.size() != 0) {
+      ndim = fullCov.rows();
     } else {
       ndim = 5*NTrk+3;
     }
@@ -958,8 +953,8 @@ namespace Trk
       D_vec(5*NTrk+5) = da0dz0;
 
       Amg::MatrixX W_mat(5*NTrk+6,5*NTrk+6); W_mat.setZero();
-      if (fullCov != nullptr) {
-        W_mat.block(0,0,ndim,ndim) = *fullCov;
+      if (fullCov.size() != 0) {
+        W_mat.block(0,0,ndim,ndim) = fullCov;
       } else {
         Amg::MatrixX V0_cov = makeV0Cov(vxCandidate);
         W_mat.block(0,0,V0_cov.rows(),V0_cov.rows()) = V0_cov;
@@ -982,7 +977,7 @@ namespace Trk
       D_vec(3*NTrk+5) = da0dz0;
 
       Amg::MatrixX W_mat(3*NTrk+6,3*NTrk+6); W_mat.setZero();
-      W_mat.block(0,0,ndim,ndim) = *fullCov;
+      W_mat.block(0,0,ndim,ndim) = fullCov;
       W_mat.block(3*NTrk+3,3*NTrk+3,3,3) =  vertex->covariancePosition();
       V0_err = D_vec.transpose() * W_mat * D_vec;
     }
@@ -990,7 +985,6 @@ namespace Trk
     double a0Errsq = V0_err(0,0);
     if (a0Errsq <= 0.) ATH_MSG_DEBUG("a0Error: negative sqrt a0Errsq " << a0Errsq);
     double a0Err = (a0Errsq>0.) ? sqrt(a0Errsq) : 0.;
-    delete fullCov;
     return a0Err;
   }
 
@@ -1015,7 +1009,7 @@ namespace Trk
     std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
     std::vector<double>dLxydqOverP(NTrk), dLxydtheta(NTrk), dLxydphi(NTrk);
 
-    Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
+    auto fullCov = convertCovMatrix(vxCandidate);
     for( unsigned int it=0; it<NTrk; it++) {
       const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
       double trkCharge = 1.;
@@ -1050,8 +1044,8 @@ namespace Trk
     double dLxydy0 = -dLxydy;
 
     unsigned int ndim = 0;
-    if (fullCov != nullptr) {
-      ndim = fullCov->rows();
+    if (fullCov.size() != 0) {
+      ndim = fullCov.rows();
     } else {
       ndim = 5*NTrk+3;
     }
@@ -1074,8 +1068,8 @@ namespace Trk
       D_vec(5*NTrk+5) = 0.;
 
       Amg::MatrixX W_mat(5*NTrk+6,5*NTrk+6); W_mat.setZero();
-      if (fullCov != nullptr) {
-        W_mat.block(0,0,ndim,ndim) = *fullCov;
+      if (fullCov.size() != 0) {
+        W_mat.block(0,0,ndim,ndim) = fullCov;
       } else {
         Amg::MatrixX V0_cov = makeV0Cov(vxCandidate);
         W_mat.block(0,0,V0_cov.rows(),V0_cov.rows()) = V0_cov;
@@ -1098,14 +1092,13 @@ namespace Trk
       D_vec(3*NTrk+5) = 0.;
 
       Amg::MatrixX W_mat(3*NTrk+6,3*NTrk+6); W_mat.setZero();
-      W_mat.block(0,0,ndim,ndim) = *fullCov;
+      W_mat.block(0,0,ndim,ndim) = fullCov;
       W_mat.block(3*NTrk+3,3*NTrk+3,3,3) = vertex->covariancePosition();
       V0_err = D_vec.transpose() * W_mat * D_vec;
     }
 
     double LxyErrsq = V0_err(0,0);
     if (LxyErrsq <= 0.) ATH_MSG_DEBUG("lxyError: negative sqrt LxyErrsq " << LxyErrsq);
-    delete fullCov;
     return (LxyErrsq>0.) ? sqrt(LxyErrsq) : 0.;
   }
 
@@ -1133,7 +1126,7 @@ namespace Trk
     std::vector<double>dpzdqOverP(NTrk), dpzdtheta(NTrk);
     std::vector<double>dLxyzdqOverP(NTrk), dLxyzdtheta(NTrk), dLxyzdphi(NTrk);
 
-    Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
+    auto fullCov = convertCovMatrix(vxCandidate);
     for( unsigned int it=0; it<NTrk; it++) {
       const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
       double trkCharge = 1.;
@@ -1173,8 +1166,8 @@ namespace Trk
     double dLxyzdz0 = -dLxyzdz;
 
     unsigned int ndim = 0;
-    if (fullCov != nullptr) {
-      ndim = fullCov->rows();
+    if (fullCov.size() != 0) {
+      ndim = fullCov.rows();
     } else {
       ndim = 5*NTrk+3;
     }
@@ -1197,8 +1190,8 @@ namespace Trk
       D_vec(5*NTrk+5) = dLxyzdz0;
 
       Amg::MatrixX W_mat(5*NTrk+6,5*NTrk+6); W_mat.setZero();
-      if (fullCov != nullptr) {
-        W_mat.block(0,0,ndim,ndim) = *fullCov;
+      if (fullCov.size() != 0) {
+        W_mat.block(0,0,ndim,ndim) = fullCov;
       } else {
         Amg::MatrixX V0_cov = makeV0Cov(vxCandidate);
         W_mat.block(0,0,V0_cov.rows(),V0_cov.rows()) = V0_cov;
@@ -1221,14 +1214,13 @@ namespace Trk
       D_vec(3*NTrk+5) = dLxyzdz0;
 
       Amg::MatrixX W_mat(3*NTrk+6,3*NTrk+6); W_mat.setZero();
-      W_mat.block(0,0,ndim,ndim) = *fullCov;
+      W_mat.block(0,0,ndim,ndim) = fullCov;
       W_mat.block(3*NTrk+3,3*NTrk+3,3,3) = vertex->covariancePosition();
       V0_err = D_vec.transpose() * W_mat * D_vec;
     }
 
     double LxyzErrsq = V0_err(0,0);
     if (LxyzErrsq <= 0.) ATH_MSG_DEBUG("lxyzError: negative sqrt LxyzErrsq " << LxyzErrsq);
-    delete fullCov;
     return (LxyzErrsq>0.) ? sqrt(LxyzErrsq) : 0.;
   }
 
@@ -1316,7 +1308,7 @@ namespace Trk
     std::vector<double>dpzdqOverP(NTrk), dpzdtheta(NTrk), dedqOverP(NTrk);
     std::vector<double>dTaudqOverP(NTrk), dTaudtheta(NTrk), dTaudphi(NTrk);
 
-    Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
+    auto fullCov = convertCovMatrix(vxCandidate);
     for( unsigned int it=0; it<NTrk; it++) {
       const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
       double trkCharge = 1.;
@@ -1362,8 +1354,8 @@ namespace Trk
     double dTaudy0 = -dTaudy;
 
     unsigned int ndim = 0;
-    if (fullCov != nullptr) {
-      ndim = fullCov->rows();
+    if (fullCov.size() != 0) {
+      ndim = fullCov.rows();
     } else {
       ndim = 5*NTrk+3;
     }
@@ -1386,8 +1378,8 @@ namespace Trk
       D_vec(5*NTrk+5) = 0.;
 
       Amg::MatrixX W_mat(5*NTrk+6,5*NTrk+6); W_mat.setZero();
-      if (fullCov != nullptr) {
-        W_mat.block(0,0,ndim,ndim) = *fullCov;
+      if (fullCov.size() != 0) {
+        W_mat.block(0,0,ndim,ndim) = fullCov;
       } else {
         Amg::MatrixX V0_cov = makeV0Cov(vxCandidate);
         W_mat.block(0,0,V0_cov.rows(),V0_cov.rows()) = V0_cov;
@@ -1410,7 +1402,7 @@ namespace Trk
       D_vec(3*NTrk+5) = 0.;
 
       Amg::MatrixX W_mat(3*NTrk+6,3*NTrk+6); W_mat.setZero();
-      W_mat.block(0,0,ndim,ndim) = *fullCov;
+      W_mat.block(0,0,ndim,ndim) = fullCov;
       W_mat.block(3*NTrk+3,3*NTrk+3,3,3) =  vertex->covariancePosition();
       V0_err = D_vec.transpose() * W_mat * D_vec;
     }
@@ -1418,7 +1410,6 @@ namespace Trk
     double tauErrsq = V0_err(0,0);
     if (tauErrsq <= 0.) ATH_MSG_DEBUG("tauError: negative sqrt tauErrsq " << tauErrsq);
     double tauErr = (tauErrsq>0.) ? sqrt(tauErrsq) : 0.;
-    delete fullCov;
     return CONST*tauErr;
   }
 
@@ -1460,7 +1451,7 @@ namespace Trk
     std::vector<double>dPTdtheta(NTrk), dPTdphi(NTrk);
     std::vector<double>dTaudqOverP(NTrk), dTaudtheta(NTrk), dTaudphi(NTrk);
 
-    Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
+    auto fullCov = convertCovMatrix(vxCandidate);
     for( unsigned int it=0; it<NTrk; it++) {
       const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
       double trkCharge = 1.;
@@ -1496,8 +1487,8 @@ namespace Trk
     double dTaudy0 = -dTaudy;
 
     unsigned int ndim = 0;
-    if (fullCov != nullptr) {
-      ndim = fullCov->rows();
+    if (fullCov.size() != 0) {
+      ndim = fullCov.rows();
     } else {
       ndim = 5*NTrk+3;
     }
@@ -1520,8 +1511,8 @@ namespace Trk
       D_vec(5*NTrk+5) = 0.;
 
       Amg::MatrixX W_mat(5*NTrk+6,5*NTrk+6); W_mat.setZero();
-      if (fullCov != nullptr) {
-        W_mat.block(0,0,ndim,ndim) = *fullCov;
+      if (fullCov.size() != 0) {
+        W_mat.block(0,0,ndim,ndim) = fullCov;
       } else {
         Amg::MatrixX V0_cov = makeV0Cov(vxCandidate);
         W_mat.block(0,0,V0_cov.rows(),V0_cov.rows()) = V0_cov;
@@ -1544,7 +1535,7 @@ namespace Trk
       D_vec(3*NTrk+5) = 0.;
 
       Amg::MatrixX W_mat(3*NTrk+6,3*NTrk+6); W_mat.setZero();
-      W_mat.block(0,0,ndim,ndim) = *fullCov;
+      W_mat.block(0,0,ndim,ndim) = fullCov;
       W_mat.block(3*NTrk+3,3*NTrk+3,3,3) = vertex->covariancePosition();
       V0_err = D_vec.transpose() * W_mat * D_vec;
     }
@@ -1552,7 +1543,6 @@ namespace Trk
     double tauErrsq = V0_err(0,0);
     if (tauErrsq <= 0.) ATH_MSG_DEBUG("tauError: negative sqrt tauErrsq " << tauErrsq);
     double tauErr = (tauErrsq>0.) ? sqrt(tauErrsq) : 0.;
-    delete fullCov;
     return CONST*tauErr;
   }
 
@@ -1602,7 +1592,7 @@ namespace Trk
     std::vector<double>dpzdqOverP(NTrk), dpzdtheta(NTrk), dedqOverP(NTrk);
     std::vector<double>dTaudqOverP(NTrk), dTaudtheta(NTrk), dTaudphi(NTrk);
 
-    Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
+    auto fullCov = convertCovMatrix(vxCandidate);
     for( unsigned int it=0; it<NTrk; it++) {
       const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
       double trkCharge = 1.;
@@ -1650,8 +1640,8 @@ namespace Trk
     double dTaudz0 = -dTaudz;
 
     unsigned int ndim = 0;
-    if (fullCov != nullptr) {
-      ndim = fullCov->rows();
+    if (fullCov.size() != 0) {
+      ndim = fullCov.rows();
     } else {
       ndim = 5*NTrk+3;
     }
@@ -1674,8 +1664,8 @@ namespace Trk
       D_vec(5*NTrk+5) = dTaudz0;
 
       Amg::MatrixX W_mat(5*NTrk+6,5*NTrk+6); W_mat.setZero();
-      if (fullCov != nullptr) {
-        W_mat.block(0,0,ndim,ndim) = *fullCov;
+      if (fullCov.size() != 0) {
+        W_mat.block(0,0,ndim,ndim) = fullCov;
       } else {
         Amg::MatrixX V0_cov = makeV0Cov(vxCandidate);
         W_mat.block(0,0,V0_cov.rows(),V0_cov.rows()) = V0_cov;
@@ -1698,7 +1688,7 @@ namespace Trk
       D_vec(3*NTrk+5) = dTaudz0;
 
       Amg::MatrixX W_mat(3*NTrk+6,3*NTrk+6); W_mat.setZero();
-      W_mat.block(0,0,ndim,ndim) = *fullCov;
+      W_mat.block(0,0,ndim,ndim) = fullCov;
       W_mat.block(3*NTrk+3,3*NTrk+3,3,3) =  vertex->covariancePosition();
       V0_err = D_vec.transpose() * W_mat * D_vec;
     }
@@ -1706,7 +1696,6 @@ namespace Trk
     double tauErrsq = V0_err(0,0);
     if (tauErrsq <= 0.) ATH_MSG_DEBUG("tauError: negative sqrt tauErrsq " << tauErrsq);
     double tauErr = (tauErrsq>0.) ? sqrt(tauErrsq) : 0.;
-    delete fullCov;
     return CONST*tauErr;
   }
 
@@ -1727,7 +1716,7 @@ namespace Trk
     std::vector<double>dpzdqOverP(NTrk), dpzdtheta(NTrk);
     std::vector<double>dTaudqOverP(NTrk), dTaudtheta(NTrk), dTaudphi(NTrk);
 
-    Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
+    auto fullCov = convertCovMatrix(vxCandidate);
     for( unsigned int it=0; it<NTrk; it++) {
       const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
       double trkCharge = 1.;
@@ -1768,8 +1757,8 @@ namespace Trk
     double dTaudz0 = -dTaudz;
 
     unsigned int ndim = 0;
-    if (fullCov != nullptr) {
-      ndim = fullCov->rows();
+    if (fullCov.size() != 0) {
+      ndim = fullCov.rows();
     } else {
       ndim = 5*NTrk+3;
     }
@@ -1792,8 +1781,8 @@ namespace Trk
       D_vec(5*NTrk+5) = dTaudz0;
 
       Amg::MatrixX W_mat(5*NTrk+6,5*NTrk+6); W_mat.setZero();
-      if (fullCov != nullptr) {
-        W_mat.block(0,0,ndim,ndim) = *fullCov;
+      if (fullCov.size() != 0) {
+        W_mat.block(0,0,ndim,ndim) = fullCov;
       } else {
         Amg::MatrixX V0_cov = makeV0Cov(vxCandidate);
         W_mat.block(0,0,V0_cov.rows(),V0_cov.rows()) = V0_cov;
@@ -1816,7 +1805,7 @@ namespace Trk
       D_vec(3*NTrk+5) = dTaudz0;
 
       Amg::MatrixX W_mat(3*NTrk+6,3*NTrk+6); W_mat.setZero();
-      W_mat.block(0,0,ndim,ndim) = *fullCov;
+      W_mat.block(0,0,ndim,ndim) = fullCov;
       W_mat.block(3*NTrk+3,3*NTrk+3,3,3) = vertex->covariancePosition();
       V0_err = D_vec.transpose() * W_mat * D_vec;
     }
@@ -1824,7 +1813,6 @@ namespace Trk
     double tauErrsq = V0_err(0,0);
     if (tauErrsq <= 0.) ATH_MSG_DEBUG("tauError: negative sqrt tauErrsq " << tauErrsq);
     double tauErr = (tauErrsq>0.) ? sqrt(tauErrsq) : 0.;
-    delete fullCov;
     return CONST*tauErr;
   }
 
@@ -2511,7 +2499,7 @@ namespace Trk
     std::vector<double>dMdqOverP(NTrk), dMdtheta(NTrk), dMdphi(NTrk);
     std::vector<double>dTaudqOverP(NTrk), dTaudtheta(NTrk), dTaudphi(NTrk);
 
-    Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
+    auto fullCov = convertCovMatrix(vxCandidate);
     for( unsigned int it=0; it<NTrk; it++) {
       const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
       double trkCharge = 1.;
@@ -2557,8 +2545,8 @@ namespace Trk
     double dTaudy0 = -dTaudy;
 
     unsigned int ndim = 0;
-    if (fullCov != nullptr) {
-      ndim = fullCov->rows();
+    if (fullCov.size() != 0) {
+      ndim = fullCov.rows();
     } else {
       ndim = 5*NTrk+3;
     }
@@ -2585,8 +2573,8 @@ namespace Trk
       D_mat(5*NTrk+4,0) = CONST*dTaudy0;
       D_mat(5*NTrk+5,0) = 0.;
       Amg::MatrixX W_mat(5*NTrk+6,5*NTrk+6); W_mat.setZero();
-      if (fullCov != nullptr) {
-        W_mat.block(0,0,ndim,ndim) = *fullCov;
+      if (fullCov.size() != 0) {
+        W_mat.block(0,0,ndim,ndim) = fullCov;
       } else {
         Amg::MatrixX V0_cov = makeV0Cov(vxCandidate);
         W_mat.block(0,0,V0_cov.rows(),V0_cov.rows()) = V0_cov;
@@ -2611,11 +2599,10 @@ namespace Trk
       D_mat(3*NTrk+4,0) = CONST*dTaudy0;
       D_mat(3*NTrk+5,0) = 0.;
       Amg::MatrixX W_mat(3*NTrk+6,3*NTrk+6); W_mat.setZero();
-      W_mat.block(0,0,ndim,ndim) = *fullCov;
+      W_mat.block(0,0,ndim,ndim) = fullCov;
       W_mat.block(3*NTrk+3,3*NTrk+3,3,3) = vertex->covariancePosition();
       V0_err = D_mat.transpose() * W_mat * D_mat;
     }
-    delete fullCov;
     return V0_err(0,1);
   }
 
@@ -2661,7 +2648,7 @@ namespace Trk
     std::vector<double>dMdqOverP(NTrk), dMdtheta(NTrk), dMdphi(NTrk);
     std::vector<double>dTaudqOverP(NTrk), dTaudtheta(NTrk), dTaudphi(NTrk);
 
-    Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
+    auto fullCov = convertCovMatrix(vxCandidate);
     for( unsigned int it=0; it<NTrk; it++) {
       const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
       double trkCharge = 1.;
@@ -2707,8 +2694,8 @@ namespace Trk
     double dTaudy0 = -dTaudy;
 
     unsigned int ndim = 0;
-    if (fullCov != nullptr) {
-      ndim = fullCov->rows();
+    if (fullCov.size() != 0) {
+      ndim = fullCov.rows();
     } else {
       ndim = 5*NTrk+3;
     }
@@ -2734,8 +2721,8 @@ namespace Trk
       D_mat(5*NTrk+4,0) = CONST*dTaudy0;
       D_mat(5*NTrk+5,0) = 0.;
       Amg::MatrixX W_mat(5*NTrk+6,5*NTrk+6); W_mat.setZero();
-      if (fullCov != nullptr) {
-        W_mat.block(0,0,ndim,ndim) = *fullCov;
+      if (fullCov.size() != 0) {
+        W_mat.block(0,0,ndim,ndim) = fullCov;
       } else {
         Amg::MatrixX V0_cov = makeV0Cov(vxCandidate);
         W_mat.block(0,0,V0_cov.rows(),V0_cov.rows()) = V0_cov;
@@ -2760,15 +2747,14 @@ namespace Trk
       D_mat(3*NTrk+4,0) = CONST*dTaudy0;
       D_mat(3*NTrk+5,0) = 0.;
       Amg::MatrixX W_mat(3*NTrk+6,3*NTrk+6); W_mat.setZero();
-      W_mat.block(0,0,ndim,ndim) = *fullCov;
+      W_mat.block(0,0,ndim,ndim) = fullCov;
       W_mat.block(3*NTrk+3,3*NTrk+3,3,3) = vertex->covariancePosition();
       V0_err = D_mat.transpose() * W_mat * D_mat;
     }
-    delete fullCov;
     return V0_err;
   }
 
-  Amg::MatrixX * V0Tools::convertCovMatrix(const xAOD::Vertex * vxCandidate)
+  Amg::MatrixX V0Tools::convertCovMatrix(const xAOD::Vertex * vxCandidate)
   {
     unsigned int NTrk = vxCandidate->nTrackParticles();
     const std::vector<float> &matrix = vxCandidate->covariance();
@@ -2780,18 +2766,18 @@ namespace Trk
     } else if (matrix.size() == (5*NTrk+3)*(5*NTrk+3+1)/2) {
       ndim = 5*NTrk+3;
     } else {
-      return nullptr;
+      return Amg::MatrixX(0,0);
     }
 
-    Amg::MatrixX* mtx = new Amg::MatrixX(ndim,ndim);
+    Amg::MatrixX mtx(ndim,ndim);
 
     long int ij=0;
     for (int i=1; i<= ndim; i++) {
       for (int j=1; j<=i; j++){
         if (i==j) {
-          (*mtx)(i-1,j-1)=matrix[ij];
+          mtx(i-1,j-1)=matrix[ij];
         } else {
-          (*mtx).fillSymmetric(i-1,j-1,matrix[ij]);
+          mtx.fillSymmetric(i-1,j-1,matrix[ij]);
         }
         ij++;
        }

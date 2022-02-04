@@ -31,7 +31,7 @@ Sim_tf.py \
 --imf False
 
 rc=$?
-echo  "art-result: $rc simulation"
+echo  "art-result: $rc simOLD"
 rc2=-9999
 if [ $rc -eq 0 ]
 then

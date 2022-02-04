@@ -37,6 +37,9 @@ def createTriggerFlags():
     # Enable emulation tool for NSW-TGC coincidence
     flags.addFlag('Trigger.L1MuonSim.EmulateNSW', False)
 
+    # Enable NSW MM trigger
+    flags.addFlag('Trigger.L1MuonSim.doMMTrigger', False)
+
     # Enable the veto mode of the NSW-TGC coincidence
     flags.addFlag('Trigger.L1MuonSim.NSWVetoMode', False)
 

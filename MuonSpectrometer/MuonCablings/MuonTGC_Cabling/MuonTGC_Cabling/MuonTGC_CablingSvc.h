@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -248,7 +248,7 @@ class MuonTGC_CablingSvc : public ITGCcablingSvc
 			     int & sswID,
 			     int & sbLoc) const override;
   
-  // readout ID -> SL ID
+  // readout ID (ROD) -> SL ID 
   virtual
   bool getSLIDfromReadoutID(int & phi,
 			    bool & isAside,
@@ -258,13 +258,13 @@ class MuonTGC_CablingSvc : public ITGCcablingSvc
 			    const int sswID,
 			    const int sbLoc) const override;
 
-  // SL ID -> readout ID
+  // SL ID -> readout ID ( SROD )
   virtual
   bool getReadoutIDfromSLID(const int phi,
 			    const bool isAside,
 			    const bool isEndcap,
 			    int & subsectorID,
-			    int & rodID,
+			    int & srodID,
 			    int & sswID,
 			    int & sbLoc) const override;
 

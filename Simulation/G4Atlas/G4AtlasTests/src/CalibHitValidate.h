@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef CALIBHITVALIDATE_H
-#define CALIBHITVALIDATE_H
+#ifndef G4ATLASTESTS_CALIBHITVALIDATE_H
+#define G4ATLASTESTS_CALIBHITVALIDATE_H
 /**
  * @class CalibHitValidate
  * @author Robert Harrington <roberth@cern.ch>
@@ -12,30 +12,10 @@
  *
  *  */
 
-class CaloDetDescrManager;
-class CaloDetDescrElement;
-class CaloCell_ID;
-class CaloDM_ID;
-class CaloDmDescrManager;
-class McEventCollection;
-//class TruthParticleContainer;
-
-#include "StoreGate/DataHandle.h"
-#include "GaudiKernel/ToolHandle.h"
-
 #include "AthenaBaseComps/AthAlgorithm.h"
-
-//#include "CaloRec/CaloClusterCollectionProcessor.h"
-//#include "CaloEvent/CaloClusterMoment.h"
-//#include "CaloEvent/CaloSampling.h"
-//#include "CaloIdentifier/CaloCell_ID.h"
-//#include "CaloDmDetDescr/CaloDmDescrManager.h"
 
 #include <string>
 #include <vector>
-#include <set>
-#include <map>
-
 
 class CalibHitValidate: public AthAlgorithm
 {
@@ -43,10 +23,8 @@ class CalibHitValidate: public AthAlgorithm
 
   CalibHitValidate(const std::string& name, ISvcLocator* pSvcLocator);
 
-  virtual ~CalibHitValidate();
-
-  StatusCode execute();
-  StatusCode initialize();
+  virtual StatusCode execute() override;
+  virtual StatusCode initialize() override;
 
  private:
 
@@ -68,19 +46,6 @@ class CalibHitValidate: public AthAlgorithm
    * @brief name of truth particle container
    */
   std::string m_truthParticleCollectionName;
-
-  //const CaloDetDescrManager* m_calo_dd_man;
-
-  //const CaloCell_ID* m_calo_id;
-
-  //const CaloDM_ID*    m_caloDM_ID;
-
-  //const CaloDmDescrManager* m_caloDmDescrManager;
-
-  //const TruthParticleContainer* m_truthParticles;
-
-  //bool m_isInitialized;
-
 };
 
 #endif // CALIBHITVALIDATE_H

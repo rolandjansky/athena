@@ -1,4 +1,5 @@
 #
+#
 include.block ("MuonCombinedRecExample/MuonCombinedRec_postprocessing.py")
 from AthenaCommon import CfgMgr
     
@@ -35,6 +36,18 @@ if rec.doTruth() and muonCombinedRecFlags.doxAOD() and rec.doMuonCombined():
     from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
     colsTP = [ "ExtrapolatedMuonTrackParticles", "CombinedMuonTrackParticles", "MSOnlyExtrapolatedMuonTrackParticles" ]
     cols = [ "ExtrapolatedMuonTracks", "CombinedMuonTracks", "MSOnlyExtrapolatedTracks" ]
+
+    if InDetFlags.doR3LargeD0():
+        colsTP+= ["CombinedMuonsLRTTrackParticles", "ExtraPolatedMuonsLRTTrackParticles"]
+        cols += ["CombinedMuonsLRTTracks", "ExtraPolatedMuonsLRTTracks"]
+    
+    if muonRecFlags.runCommissioningChain():
+        cols +=["EMEO_MSOnlyExtrapolatedTracks", "EMEO_ExtrapolatedMuonTracks", "EMEO_CombinedMuonTracks"]
+        colsTP += ["EMEO_MSOnlyExtrapolatedMuonTrackParticles", "EMEO_ExtrapolatedMuonTrackParticles", "EMEO_CombinedMuonTrackParticles"]
+    if muonCombinedRecFlags.doMuGirl() and muonCombinedRecFlags.doMuGirlLowBeta():
+        colsTP += ["CombinedStauTrackParticles", "ExtrapolatedStauTrackParticles"]
+        cols += ["CombinedStauTracks", "ExtrapolatedStauTracks"]
+    ### Schedule the truth tracks for the 
     topSequence+= MuonDetailedTrackTruthMaker("MuonCombinedDetailedTrackTruthMaker",
                                               TrackCollectionNames = cols,
                                               PRD_TruthNames =["RPC_TruthMap", "TGC_TruthMap", "MDT_TruthMap"] + 
@@ -53,7 +66,24 @@ if rec.doTruth() and muonCombinedRecFlags.doxAOD() and rec.doMuonCombined():
         
     from MuonTruthAlgs.MuonTruthAlgsConf import MuonTruthAssociationAlg
     topSequence += MuonTruthAssociationAlg("MuonTruthAssociationAlg")
-
+    if InDetFlags.doR3LargeD0():
+        topSequence += MuonTruthAssociationAlg("MuonTruthAssociationAlgLRT",
+                                                MuonContainerName="MuonsLRT",
+                                                RecoLinkName="recoMuonLinkLRT",
+                                                TrackContainers = colsTP)
+    if muonRecFlags.runCommissioningChain():
+        topSequence += MuonTruthAssociationAlg("MuonTruthAssociationAlg_EMEO",
+                                                MuonContainerName="EMEO_Muons",
+                                                RecoLinkName="", # Do not decorate the truth particle
+                                                TrackContainers = colsTP)
+      
+    if muonCombinedRecFlags.doMuGirl() and muonCombinedRecFlags.doMuGirlLowBeta():
+        topSequence += MuonTruthAssociationAlg("MuonTruthAssociationAlgStau",
+                                                MuonContainerName="Staus",
+                                                RecoLinkName="", # Do not decorate the truth particle
+                                                TrackContainers = colsTP)
+        
+        
     try:
         from PyUtils.MetaReaderPeeker import metadata
         truthStrategy = metadata['TruthStrategy']

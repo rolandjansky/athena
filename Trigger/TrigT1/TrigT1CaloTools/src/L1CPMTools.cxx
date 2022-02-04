@@ -10,8 +10,6 @@
 #include "TrigT1Interfaces/CoordinateRange.h"
 #include "TrigT1CaloUtils/TriggerTowerKey.h"
 
-#include "TrigConfData/L1Menu.h"
-
 #include <math.h>
 
 namespace LVL1 {
@@ -25,7 +23,6 @@ L1CPMTools::L1CPMTools(const std::string& t, const std::string& n, const IInterf
 
 StatusCode L1CPMTools::initialize()
 {
-  ATH_CHECK(detStore()->retrieve(m_l1menu));
   return StatusCode::SUCCESS;
 }
 
@@ -39,7 +36,7 @@ StatusCode L1CPMTools::finalize()
 
 /** Form results for a specified module*/
 
-void L1CPMTools::findCPMResults(const xAOD::CPMTowerMap_t* towers, int crate, int module,
+void L1CPMTools::findCPMResults(const TrigConf::L1Menu* l1menu, const xAOD::CPMTowerMap_t* towers, int crate, int module,
                                 DataVector<CPMTobRoI>* rois, std::vector<unsigned int>& emCMXData,
                                 std::vector<unsigned int>& tauCMXData, int slice) const {
 
@@ -75,7 +72,7 @@ void L1CPMTools::findCPMResults(const xAOD::CPMTowerMap_t* towers, int crate, in
            *  evaluating window, this would be the place to put the test */
           
           /** Form algorithm object for this location */
-          CPMTobAlgorithm tob(eta, phi, towers, m_l1menu, slice); // quicker to do both in one go, though maybe not cleaner
+          CPMTobAlgorithm tob(eta, phi, towers, l1menu, slice); // quicker to do both in one go, though maybe not cleaner
           
           /** Did it pass as EM TOB? If so:
               * Create TOB RoI object and push back into system results
@@ -192,14 +189,14 @@ void L1CPMTools::findCPMResults(const xAOD::CPMTowerMap_t* towers, int crate, in
 
 /** Find all CPMTobRoIs in the event */
 
-void L1CPMTools::findCPMTobRoIs(const DataVector<xAOD::CPMTower>* cpmts, xAOD::CPMTobRoIContainer* rois, int slice) const {
+void L1CPMTools::findCPMTobRoIs(const TrigConf::L1Menu* l1menu, const DataVector<xAOD::CPMTower>* cpmts, xAOD::CPMTobRoIContainer* rois, int slice) const {
 
   /** Need a map of CPMTowers as input */
   xAOD::CPMTowerMap_t* towers = new xAOD::CPMTowerMap_t;
   mapTowers(cpmts, towers);
 
   /** Now find the RoIs in this map */
-  findCPMTobRoIs(towers, rois, slice);  
+  findCPMTobRoIs(l1menu, towers, rois, slice);  
 
   /** Clean up */
   for (xAOD::CPMTowerMap_t::iterator it = towers->begin(); it != towers->end(); ++it) {
@@ -211,7 +208,7 @@ void L1CPMTools::findCPMTobRoIs(const DataVector<xAOD::CPMTower>* cpmts, xAOD::C
 
 /** Find all CPMTobRoIs in the event */
 
-void L1CPMTools::findCPMTobRoIs(const xAOD::CPMTowerMap_t* towers, xAOD::CPMTobRoIContainer* rois, int slice) const {
+void L1CPMTools::findCPMTobRoIs(const TrigConf::L1Menu* l1menu, const xAOD::CPMTowerMap_t* towers, xAOD::CPMTobRoIContainer* rois, int slice) const {
 
   /** Clear results vector to be safe */
   rois->clear();
@@ -236,7 +233,7 @@ void L1CPMTools::findCPMTobRoIs(const xAOD::CPMTowerMap_t* towers, xAOD::CPMTobR
         if (test == analysed.end()) {
           analysed.insert(std::map<int, int>::value_type(key,1));
           
-          CPMTobAlgorithm tob(tempEta, tempPhi, towers, m_l1menu, slice);
+          CPMTobAlgorithm tob(tempEta, tempPhi, towers, l1menu, slice);
 
           // Did this pass as an EM TOB?
           if (tob.isEMRoI()) { 
@@ -257,16 +254,15 @@ void L1CPMTools::findCPMTobRoIs(const xAOD::CPMTowerMap_t* towers, xAOD::CPMTobR
   
 }
 
-
 /** Find list of TOBs from user-supplied vector of CPMTowers */
-void L1CPMTools::findRoIs(const DataVector<xAOD::CPMTower>* cpmts, DataVector<CPMTobAlgorithm>* tobs, int slice) const {
+void L1CPMTools::findRoIs(const TrigConf::L1Menu* l1menu, const DataVector<xAOD::CPMTower>* cpmts, DataVector<CPMTobAlgorithm>* tobs, int slice) const {
 
   /** Need a map of CPMTowers as input */
   xAOD::CPMTowerMap_t* towers = new xAOD::CPMTowerMap_t;
   mapTowers(cpmts, towers);
 
   /** Now find the RoIs in this map */
-  findRoIs(towers, tobs, slice);  
+  findRoIs(l1menu, towers, tobs, slice);  
 
   /** Clean up */
   for (xAOD::CPMTowerMap_t::iterator it = towers->begin(); it != towers->end(); ++it) {
@@ -277,7 +273,7 @@ void L1CPMTools::findRoIs(const DataVector<xAOD::CPMTower>* cpmts, DataVector<CP
  
 
 /** Find list of TOBs from user-supplied map of CPMTowers */
-void L1CPMTools::findRoIs(const xAOD::CPMTowerMap_t* towers, DataVector<CPMTobAlgorithm>* tobs, int slice) const {
+void L1CPMTools::findRoIs(const TrigConf::L1Menu* l1menu, const xAOD::CPMTowerMap_t* towers, DataVector<CPMTobAlgorithm>* tobs, int slice) const {
 
   /** Clear results vector to be safe */
   tobs->clear();
@@ -302,7 +298,7 @@ void L1CPMTools::findRoIs(const xAOD::CPMTowerMap_t* towers, DataVector<CPMTobAl
         if (test == analysed.end()) {
           analysed.insert(std::map<int, int>::value_type(key,1));
           
-          CPMTobAlgorithm* tob = new CPMTobAlgorithm(tempEta, tempPhi, towers, m_l1menu, slice);
+          CPMTobAlgorithm* tob = new CPMTobAlgorithm(tempEta, tempPhi, towers, l1menu, slice);
           if ( (tob->isEMRoI() || tob->isTauRoI()) ) tobs->push_back(tob);
           else delete tob;
         } // not done this one already
@@ -349,28 +345,28 @@ void L1CPMTools::mapTowers(const DataVector<xAOD::CPMTower>* cpmts, xAOD::CPMTow
 
 /** Return RoI for given coordinates */
 
-CPMTobAlgorithm L1CPMTools::findRoI(double RoIeta, double RoIphi, const xAOD::CPMTowerMap_t* towers, int slice) const {
+CPMTobAlgorithm L1CPMTools::findRoI(const TrigConf::L1Menu* l1menu, double RoIeta, double RoIphi, const xAOD::CPMTowerMap_t* towers, int slice) const {
   // Performs all processing for this location
-  return CPMTobAlgorithm(RoIeta, RoIphi, towers, m_l1menu, slice);
+  return CPMTobAlgorithm(RoIeta, RoIphi, towers, l1menu, slice);
 }
 
 /** Form clusters for given coordinates */
 
-CPMTobAlgorithm L1CPMTools::formSums(double RoIeta, double RoIphi, const xAOD::CPMTowerMap_t* towers, int slice) const {
+CPMTobAlgorithm L1CPMTools::formSums(const TrigConf::L1Menu* l1menu, double RoIeta, double RoIphi, const xAOD::CPMTowerMap_t* towers, int slice) const {
   // Performs all processing for this location
-  return CPMTobAlgorithm(RoIeta, RoIphi, towers, m_l1menu, slice);
+  return CPMTobAlgorithm(RoIeta, RoIphi, towers, l1menu, slice);
 }
 
 /** Form sums for given RoI */
 
-CPMTobAlgorithm L1CPMTools::formSums(uint32_t roiWord, const xAOD::CPMTowerMap_t* towers, int slice) const {
+CPMTobAlgorithm L1CPMTools::formSums(const TrigConf::L1Menu* l1menu, uint32_t roiWord, const xAOD::CPMTowerMap_t* towers, int slice) const {
   // Find RoI coordinate
   CoordinateRange coord = m_conv.coordinate(roiWord);
   float RoIphi = coord.phi();
   float RoIeta = coord.eta();
 
   // Performs all processing for this location
-  return CPMTobAlgorithm(RoIeta, RoIphi, towers, m_l1menu, slice);
+  return CPMTobAlgorithm(RoIeta, RoIphi, towers, l1menu, slice);
 }
 
 } // end of namespace

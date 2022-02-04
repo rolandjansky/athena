@@ -7,7 +7,7 @@ from .JetDefinition import  JetDefinition
 # *********************************************************
 # Ghost-associated particles for the standard small R jets 
 # *********************************************************
-standardghosts =  ["Track","MuonSegment","Truth"]
+standardghosts =  ["Track","MuonSegment","Truth","Tower"]
 
 
 flavourghosts = [ "BHadronsInitial", "BHadronsFinal", "BQuarksFinal",
@@ -32,32 +32,42 @@ calibmods = (
 standardmods = (
     "LArHVCorr", "Width",
      "CaloQuality", "TrackMoments","TrackSumMoments",
-    "JVF","JVT","OriginSetPV", "Charge",
+    "JVF", "JVT", "Charge",
 )
+
 clustermods      = ("ECPSFrac","ClusterMoments",) 
-truthmods        =  ("PartonTruthLabel","TruthPartonDR","JetDeltaRLabel:5000"  ) 
+truthmods        = ("PartonTruthLabel","TruthPartonDR","JetDeltaRLabel:5000")
 pflowmods        = ()
 
 
 # ********************************************************
-# Standard VR track jet definition
+# Standard track jet definition
 # ********************************************************
-AntiKtVR30Rmax4Rmin02PV0TrackJets = JetDefinition("AntiKt", 0.4, cst.PV0Track,
-                               ptmin=4000,
-                               standardRecoMode = True,
-                               VRMinR = 0.02,
-                               VRMassSc = 30000,
-                               lock = True)
+AntiKtVR30Rmax4Rmin02PV0Track = JetDefinition("AntiKt", 0.4, cst.PV0Track,
+                                              modifiers = ("Sort","JetDeltaRLabel:4500","JetGhostLabel"),
+                                              ptmin=4000,
+                                              standardRecoMode = True,
+                                              VRMinR = 0.02,
+                                              VRMassSc = 30000,
+                                              lock = True)
+
+
+
+AntiKt4PV0Track = JetDefinition("AntiKt", 0.4, cst.PV0Track,
+                                modifiers = ("Sort",)+truthmods,
+                                ptmin=2000,
+                                standardRecoMode = True,
+                                lock = True)
 
 
 # *********************************************************
-# Standard small R jets definitions
+# Standard small R reco jet definitions
 # *********************************************************
 
 
 AntiKt4EMPFlow = JetDefinition("AntiKt",0.4,cst.EMPFlow,
-                               ghostdefs = standardghosts+flavourghosts , 
-                               modifiers = calibmods+("Filter:10000",)+standardmods, 
+                               ghostdefs = standardghosts+flavourghosts,
+                               modifiers = calibmods+("Filter:10000",)+truthmods+standardmods,
                                standardRecoMode = True,                               
                                lock = True
 )
@@ -76,10 +86,14 @@ AntiKt4LCTopo = JetDefinition("AntiKt",0.4,cst.LCTopoOrigin,
 
 AntiKt4EMTopo = JetDefinition("AntiKt",0.4,cst.EMTopoOrigin,
                               ghostdefs = standardghosts+flavourghosts, 
-                              modifiers = calibmods+("Filter:15000",)+standardmods+clustermods,
+                              modifiers = calibmods+("Filter:15000",)+truthmods+standardmods+clustermods,
                               standardRecoMode = True,
                               lock = True,
 )
+
+# *********************************************************
+# Standard small R truth jet definitions
+# *********************************************************
 
 AntiKt4Truth = JetDefinition("AntiKt",0.4, cst.Truth,
                              ghostdefs = flavourghosts,
@@ -95,8 +109,21 @@ AntiKt4TruthWZ = JetDefinition("AntiKt",0.4, cst.TruthWZ,
                                lock = True,
 )
 
+AntiKt4TruthDressedWZ = JetDefinition("AntiKt",0.4, cst.TruthDressedWZ,
+                                      ghostdefs = flavourghosts,
+                                      modifiers = ("Sort", "Width")+truthmods,
+                                      standardRecoMode = True,
+                                      lock = True,
+)
 
-
+AntiKtVRTruthCharged = JetDefinition("AntiKt",0.4, cst.TruthCharged,
+                                     ghostdefs = flavourghosts,
+                                     modifiers = ("Sort",)+truthmods,
+                                     VRMinR = 0.02,
+                                     VRMassSc = 30000,
+                                     standardRecoMode = True,
+                                     lock = True
+)
 
 
 def StandardSmallRJetCfg(configFlags):

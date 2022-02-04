@@ -798,7 +798,7 @@ def MuonSegmentFindingCfg(flags, cardinality=1):
     if flags.Input.Format is Format.BS or 'StreamRDO' in flags.Input.ProcessingTags:
         from MuonConfig.MuonRdoDecodeConfig import MuonRDOtoPRDConvertorsCfg
         result.merge( MuonRDOtoPRDConvertorsCfg(flags) )
-
+  
     # We need to add two algorithms - one for normal collisions, one for NCB
     # result.merge( MooSegmentFinderAlgCfg(flags, Cardinality=cardinality) )
     ### For the moment to not use the run 3 segment maker algorithm as we need

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMETMONITORING_TRIGMETMONITORALGORITHM_H
@@ -71,26 +71,16 @@ class TrigMETMonitorAlgorithm : public AthMonitorAlgorithm {
   SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_mhtpufit_pf_met_key;
   SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_mhtpufit_em_met_key;
 
-  std::string m_L1ChainA;
-  std::string m_L1ChainB;
-  std::string m_L1ChainC;
-  std::string m_L1ChainD;
-  std::string m_L1ChainE;
-  std::string m_L1ChainF;
-  std::string m_L1ChainG;
-  std::string m_HLTChainA;
-  std::string m_HLTChainB;
-  std::string m_HLTChainC;
-  std::string m_HLTChainD;
-  std::string m_HLTChainE;
-  std::string m_HLTChainF;
-  std::string m_HLTChainG;
-  std::string m_HLTChainH;
-  std::string m_HLTChainI;
-  std::string m_HLTChainJ;
-  std::string m_HLTChainK;
-  std::string m_HLTChainL;
-  std::string m_HLTChainM;
-  std::string m_HLTChainN;
+  Gaudi::Property<std::vector<std::string>> m_l1Chains{this, "L1Chains", {}, "The L1 chains to monitor"};
+  Gaudi::Property<std::vector<std::string>> m_hltChains{this, "HLTChains", {}, "The HLT shifter chains to monitor"};
+  Gaudi::Property<std::vector<std::string>> m_hltChainsVal{this, "HLTChainsVal", {}, "The HLT val chains to monitor"};
+  Gaudi::Property<std::vector<std::string>> m_hltChainsT0{this, "HLTChainsT0", {}, "The HLT t0 chains to monitor"};
+  Gaudi::Property<std::vector<std::string>> m_algsL1{this, "algsL1", {}, "L1 algorithms to monitor"};
+  Gaudi::Property<std::vector<std::string>> m_algsHLT{this, "algsHLT", {}, "HLT algorithms to monitor"};
+  Gaudi::Property<std::vector<std::string>> m_algsHLT2d{this, "algsHLT2d", {}, "HLT algorithms for 2d eta-phi plots"};
+  Gaudi::Property<std::vector<std::string>> m_algsHLTExpert{this, "algsHLTExpert", {}, "HLT algorithms for Expert"};
+  Gaudi::Property<std::vector<std::string>> m_compNames{this, "compNames", {}, "Calorimeter component names"};
+  Gaudi::Property<std::vector<std::string>> m_bitNames{this, "bitNames", {}, "Status bit names"};
+
 };
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -32,21 +32,21 @@ std::cout << "LArCellCont \t\t DEBUG \t in initialize" << std::endl;
 
  StatusCode sc;
  ISvcLocator* svcLoc = Gaudi::svcLocator( );
- IToolSvc* toolSvc;
+ IToolSvc* toolSvc = nullptr;
  sc = svcLoc->service( "ToolSvc",toolSvc);
  if(sc.isFailure()){
    std::cout << "LArCellCont:initialize ERROR: Can not retrieve ToolSvc" << std::endl;
    return StatusCode::FAILURE;
 }
  
- StoreGateSvc* detStore;
+ StoreGateSvc* detStore = nullptr;
  sc=svcLoc->service("DetectorStore",detStore);
  if(sc.isFailure()){
    std::cout << "LArCellCont:initialize ERROR: Can not retrieve DetectorStore" << std::endl;
    return StatusCode::FAILURE;
  }
 
- const LArOnlineID* onlineId;
+ const LArOnlineID* onlineId = nullptr;
  sc=detStore->retrieve(onlineId,"LArOnlineID");
  if(sc.isFailure()){
    std::cout << "LArCellCont:initialize ERROR: Can not retrieve LArOnlineID" << std::endl;

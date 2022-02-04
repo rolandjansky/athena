@@ -73,7 +73,7 @@ public:
   /** [xAOD interface ] */
 
   /** xAOD 0) neutral xAOD particle */
-  virtual std::unique_ptr<const NeutralParameters> extrapolate(
+  virtual std::unique_ptr<NeutralParameters> extrapolate(
     const xAOD::NeutralParticle& xnParticle,
     const Surface& sf,
     PropDirection dir = anyDirection,
@@ -87,7 +87,7 @@ public:
      did not succeed.
     */
 
-  virtual std::unique_ptr<const NeutralParameters> extrapolate(
+  virtual std::unique_ptr<NeutralParameters> extrapolate(
     const NeutralParameters& parameters,
     const Surface& sf,
     PropDirection dir = anyDirection,
@@ -97,7 +97,7 @@ public:
    * ------------------------------------------ */
 
   /** xAOD 0) xAOD track particle */
-  virtual std::unique_ptr<const TrackParameters> extrapolate(
+  virtual std::unique_ptr<TrackParameters> extrapolate(
     const EventContext& ctx,
     const xAOD::TrackParticle& particleBase,
     const Surface& sf,
@@ -110,7 +110,7 @@ public:
    -  returns the TrackParameters at the Destination Surface (if extrapolation
    succeeds), nullptr if extrapolation to destination surface does not succeed
  */
-  virtual std::unique_ptr<const TrackParameters> extrapolate(
+  virtual std::unique_ptr<TrackParameters> extrapolate(
     const EventContext& ctx,
     const TrackParameters& parm,
     const Surface& sf,
@@ -138,7 +138,7 @@ public:
   Surface
   - returns the TrackParameters at the Destination Surface (if extrapolation
   succeeds), nullptr if extrapolation to destination surface does not suceed */
-  virtual std::unique_ptr<const TrackParameters> extrapolate(
+  virtual std::unique_ptr<TrackParameters> extrapolate(
     const EventContext& ctx,
     const Track& trk,
     const Surface& sf,
@@ -212,7 +212,7 @@ public:
     - extrapolation to the next active layer, based on the extrapolation to the
     next layer and layer identification
     * */
-  virtual std::unique_ptr<const TrackParameters> extrapolateToVolume(
+  virtual std::unique_ptr<TrackParameters> extrapolateToVolume(
     const EventContext& ctx,
     const TrackParameters& parm,
     const Trk::TrackingVolume& vol,
@@ -247,7 +247,7 @@ public:
     ParticleHypothesis particle = pion,
     Trk::ExtrapolationCache* cache = nullptr) const = 0;
 
-  virtual std::unique_ptr<const Trk::TrackParameters> extrapolateWithPathLimit(
+  virtual std::unique_ptr<Trk::TrackParameters> extrapolateWithPathLimit(
     const EventContext& ctx,
     const Trk::TrackParameters& parm,
     double& pathLim,

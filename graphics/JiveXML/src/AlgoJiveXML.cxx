@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JiveXML/AlgoJiveXML.h"
@@ -180,7 +180,7 @@ namespace JiveXML{
     geometryVersion = DataType(m_geometryVersionIn).toString();
 
     //Retrieve eventInfo from StoreGate
-    const xAOD::EventInfo* eventInfo;
+    const xAOD::EventInfo* eventInfo = nullptr;
     if (evtStore()->retrieve(eventInfo).isFailure()){
       ATH_MSG_FATAL("Could not find xAODEventInfo" );
       return StatusCode::FAILURE;

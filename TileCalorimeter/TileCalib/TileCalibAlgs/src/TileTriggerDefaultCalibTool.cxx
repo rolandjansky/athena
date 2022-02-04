@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -266,11 +266,12 @@ StatusCode TileTriggerDefaultCalibTool::execute()
         if (ieta < 9 || ieta > 14) continue;
       }
 
-      if((ros==1) || (ros==2)){ 
-	if (chan != chan_bar[(ieta*6)-1 + m_ipmt+1]) continue;   	// check if the chan is firing
+      if((ros==1) || (ros==2)){
+        // (Manually fold constants to avoid cppcheck warning.)
+	if (chan != chan_bar[(ieta*6)/*-1*/ + m_ipmt/*+1*/]) continue;   	// check if the chan is firing
       }
       else if ((ros==3) || (ros==4)){
-	if ((chan != chan_ext[((ieta-9)*6)-1 + m_ipmt+1]) || (chan == 0)) continue;	// check if the chan is firing
+	if ((chan != chan_ext[((ieta-9)*6)/*-1*/ + m_ipmt/*+1*/]) || (chan == 0)) continue;	// check if the chan is firing
       }
       else
 	continue;

@@ -8,7 +8,8 @@
 from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addAntiKt4TruthJets, addAntiKt4PV0TrackJets
+from DerivationFrameworkJetEtMiss.JetCommon import addDAODJets
+from JetRecConfig.StandardSmallRJets import AntiKt4Truth,AntiKt4PV0Track
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import (
     DerivationFramework__DerivationKernel)
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import (
@@ -637,8 +638,8 @@ EGAM1Sequence += CfgMgr.DerivationFramework__DerivationKernel(
 # ====================================================================
 # JET/MET
 # ====================================================================
-addAntiKt4PV0TrackJets(EGAM1Sequence,"EGAM1")
-addAntiKt4TruthJets(EGAM1Sequence, "EGAM1")
+jetList = [AntiKt4Truth,AntiKt4PV0Track]
+addDAODJets(jetList, EGAM1Sequence)
 
 
 # =======================================
@@ -649,18 +650,6 @@ print('WARNING: NonPromptLepton tagger not migrated yet to R22, will not decorat
 # import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
 # JetTagConfig.ConfigureAntiKt4PV0TrackJets(EGAM1Sequence, "EGAM1")
 # EGAM1Sequence += JetTagConfig.GetDecoratePromptLeptonAlgs(name="Electrons")
-
-
-# ========================================
-# ENERGY DENSITY
-# ========================================
-if (DerivationFrameworkIsMonteCarlo):
-    # Schedule the two energy density tools for running after the pseudojets are created.
-    for alg in ['EDTruthCentralAlg', 'EDTruthForwardAlg']:
-        if hasattr(topSequence, alg):
-            edtalg = getattr(topSequence, alg)
-            delattr(topSequence, alg)
-            EGAM1Sequence += edtalg
 
 
 # ====================================================================

@@ -92,8 +92,8 @@ elif args.jetType=='cssk':
     jetdefs = [AntiKt4LCTopoCSSK,AntiKt4EMPFlowCSSK]
     alljetdefs = jetdefs
 elif args.jetType=='VR':
-    from JetRecConfig.StandardSmallRJets import AntiKtVR30Rmax4Rmin02PV0TrackJets
-    jetdefs = [AntiKtVR30Rmax4Rmin02PV0TrackJets]
+    from JetRecConfig.StandardSmallRJets import AntiKtVR30Rmax4Rmin02PV0Track
+    jetdefs = [AntiKtVR30Rmax4Rmin02PV0Track]
     alljetdefs = jetdefs
 
 # ***********************************************

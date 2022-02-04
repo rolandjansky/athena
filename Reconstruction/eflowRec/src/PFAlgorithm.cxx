@@ -35,8 +35,8 @@ StatusCode PFAlgorithm::initialize(){
 StatusCode PFAlgorithm::execute(const EventContext& ctx) const{
   // Define monitored quantities
   auto t_exec = Monitored::Timer<std::chrono::milliseconds>( "TIME_execute" );
+	Monitored::ScopedTimer execution_time(t_exec); 
   auto t_subtract = Monitored::Timer<std::chrono::milliseconds>( "TIME_subtract" );
-  auto N_efrTracks = Monitored::Scalar( "N_efrTracks", 0 );
   auto N_efrClusters = Monitored::Scalar( "N_efrClusters", 0 );
 
   ATH_MSG_DEBUG("Executing");
@@ -83,7 +83,6 @@ StatusCode PFAlgorithm::execute(const EventContext& ctx) const{
     }
   }
 
-  N_efrTracks = localEFlowRecTrackContainer.size();
   N_efrClusters = theEFlowRecClusterContainerReference.size();
 
   /* Run the other AglTools */
@@ -91,7 +90,7 @@ StatusCode PFAlgorithm::execute(const EventContext& ctx) const{
     thisIPFBaseTool->execute(*theElowCaloObjectContainer);
   }
 
-  auto mon = Monitored::Group(m_monTool, t_exec, t_subtract, N_efrTracks, N_efrClusters);
+  auto mon = Monitored::Group(m_monTool, t_exec, t_subtract, N_efrClusters);
   return StatusCode::SUCCESS;
 }
 

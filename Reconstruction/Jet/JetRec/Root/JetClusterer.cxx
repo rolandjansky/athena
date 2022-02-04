@@ -172,8 +172,12 @@ std::pair<std::unique_ptr<xAOD::JetContainer>, std::unique_ptr<SG::IAuxStore> > 
       jet.setInputType(  xAOD::JetInput::Type( (int) m_inputType) ) ;
       xAOD::JetAlgorithmType::ID ialg = xAOD::JetAlgorithmType::algId(m_fjalg);
       jet.setAlgorithmType(ialg);
-      jet.setSizeParameter((float)m_jetrad);
-      if(useArea) jet.setAttribute(xAOD::JetAttribute::JetGhostArea, (float)m_ghostarea);
+      jet.setSizeParameter(m_jetrad.value());
+      if ( isVariableR() ){
+	jet.setAttribute(xAOD::JetAttribute::VariableRMinRadius, m_minrad.value());
+	jet.setAttribute(xAOD::JetAttribute::VariableRMassScale, m_massscale.value());
+      }
+      if(useArea) jet.setAttribute(xAOD::JetAttribute::JetGhostArea, m_ghostarea.value());
 
       ATH_MSG_VERBOSE( "  xAOD::Jet with pt " << std::setprecision(4) << jet.pt()*1e-3 << " has " << jet.getConstituents().size() << " constituents" );
       ATH_MSG_VERBOSE( "  Leading constituent is of type " << jet.getConstituents()[0].rawConstituent()->type());

@@ -31,7 +31,7 @@ StatusCode eFEXFormTOBs::initialize()
   return StatusCode::SUCCESS;
 }
 
-uint32_t eFEXFormTOBs::formTauTOBWord(int & fpga, int & eta, int & phi, unsigned int & et, unsigned int & iso, unsigned int & seed, unsigned int & und, unsigned int & ptMinTopo)
+uint32_t eFEXFormTOBs::formTauTOBWord(int & fpga, int & eta, int & phi, unsigned int & et, unsigned int & rhad, unsigned int & rcore, unsigned int & seed, unsigned int & und, unsigned int & ptMinTopo)
 {
 
   uint32_t tobWord = 0;
@@ -44,7 +44,7 @@ uint32_t eFEXFormTOBs::formTauTOBWord(int & fpga, int & eta, int & phi, unsigned
   if (etTob > 0xfff) etTob = 0xfff;
 
   // Create bare minimum tob word with et, eta, phi, and fpga index, bitshifted to the appropriate locations
-  tobWord = tobWord + (fpga << 30) + (eta << 27) + (phi << 24) + (iso << 18) + (seed << 16) + (und << 15) + etTob;
+  tobWord = tobWord + (fpga << 30) + (eta << 27) + (phi << 24) + (rhad << 20) + (rcore << 18) + (seed << 16) + (und << 15) + etTob;
 
   ATH_MSG_DEBUG("Tau tobword: " << std::bitset<32>(tobWord) );
 

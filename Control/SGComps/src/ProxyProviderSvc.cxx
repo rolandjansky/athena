@@ -319,7 +319,7 @@ ProxyProviderSvc::providerNamesPropertyHandler( Gaudi::Details::PropertyBase& /*
     } else {
       ATH_MSG_DEBUG(" added Address Provider "<< pIS->name());
     }
-    addProvider(pAP);
+    ProxyProviderSvc::addProvider(pAP);
   }
 
 }

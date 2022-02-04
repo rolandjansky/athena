@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -54,7 +54,7 @@ class IApproachDescriptor {
 
   // Default constructor
   IApproachDescriptor(
-      std::unique_ptr<BinnedArray<ApproachSurfaces>> aSurfaceArray,
+      std::unique_ptr<BinnedArray<const ApproachSurfaces>> aSurfaceArray,
       std::unique_ptr<Surface> aSurfaceArraySurface = nullptr)
       : m_approachSurfaces(nullptr),
         m_approachSurfaceArraySurface(std::move(aSurfaceArraySurface)),
@@ -89,7 +89,7 @@ class IApproachDescriptor {
  protected:
   std::unique_ptr<ApproachSurfaces> m_approachSurfaces;
   std::unique_ptr<Surface> m_approachSurfaceArraySurface;
-  std::unique_ptr<BinnedArray<ApproachSurfaces>> m_approachSurfaceArray;
+  std::unique_ptr<BinnedArray<const ApproachSurfaces>> m_approachSurfaceArray;
   bool m_rebuild;
 };
 
@@ -102,7 +102,7 @@ inline void IApproachDescriptor::registerLayer(const Layer& lay) {
     m_approachSurfaceArraySurface->setOwner(Trk::TGOwn);
   }
   if (m_approachSurfaceArray) {
-    const std::vector<const ApproachSurfaces*>& aSurfaceObjects =
+   BinnedArraySpan<ApproachSurfaces const * const> aSurfaceObjects =
         m_approachSurfaceArray->arrayObjects();
     for (auto& aSurfaces : aSurfaceObjects) {
       registerLayerToSurfaces(lay, *aSurfaces);

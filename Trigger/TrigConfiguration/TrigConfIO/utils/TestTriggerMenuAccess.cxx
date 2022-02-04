@@ -254,12 +254,16 @@ testL1Menu_Thresholds(const TrigConf::L1Menu & l1menu, bool printdetail)
       }
    }
 
-   cout << "XE30 cut: " << l1menu.threshold("XE30").thrValue() << endl;
    if(printdetail) {
       for ( const string & thrName : l1menu.thresholdNames() ) {
          cout << thrName << " threshold value: " << l1menu.threshold(thrName).thrValue() << endl;
       }
    }
+
+   cout << "XE30 cut: " << l1menu.threshold("XE30").thrValue() << endl;
+   const auto & thrjXE = dynamic_cast<const TrigConf::L1Threshold_jXE&>(l1menu.threshold("jXESPARE1"));
+   if(thrjXE) cout << "jXESPARE1 cut [100 MeV]: " << thrjXE.thrValue100MeV() << endl;
+
 
    auto thrJET = dynamic_pointer_cast<TrigConf::L1Threshold_JET>(l1menu.thresholds("JET")[0]);
    if(thrJET) {

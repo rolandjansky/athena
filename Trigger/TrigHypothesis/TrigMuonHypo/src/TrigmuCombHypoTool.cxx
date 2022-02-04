@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/SystemOfUnits.h"
@@ -294,7 +294,7 @@ StatusCode TrigmuCombHypoTool::multiplicitySelection(std::vector<TrigmuCombHypoT
       size_t elementIndex{ 0 };
       for ( auto& i: input ) {
 
-	if(!m_acceptAll && m_applyOR && !i.passOR) {
+	if(!m_acceptAll && m_applyOR && (i.isOR.find(m_decisionId.numeric()) != i.isOR.end())) {
 	  ATH_MSG_DEBUG("skip due to overap, DecisionID " << m_decisionId );
 	  elementIndex++;
 	  continue;
@@ -729,7 +729,7 @@ StatusCode TrigmuCombHypoTool::chooseBestMuon(std::vector<TrigmuCombHypoTool::Co
 	if( j != best_ev ) {
 	  ATH_MSG_DEBUG( "      EventView( j=" << j << " ) is not active" );
 
-	  (*input[j]).passOR = false;
+	  (*input[j]).isOR.insert(m_decisionId.numeric());
 
 	  // monitoring
 	  const xAOD::L2CombinedMuon* CombMf = (*input[j]).muComb;

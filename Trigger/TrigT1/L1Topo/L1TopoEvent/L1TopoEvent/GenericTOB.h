@@ -110,7 +110,7 @@ namespace TCS {
       unsigned int Wstot() const { return m_wstot; }
 
       //eTau
-      unsigned int fcore() const { return m_fcore; }
+      unsigned int rcore() const { return m_rcore; }
 
       // See definitions at TrigT1Interfaces/MuCTPIL1TopoCandidate.h 
       int bw2or3() const { return m_bw2or3; }
@@ -158,7 +158,7 @@ namespace TCS {
       unsigned int m_wstot {0};
 
       unsigned int m_jtauiso {0};
-      unsigned int m_fcore {0};
+      unsigned int m_rcore {0};
       
       inputTOBType_t   m_tobType { NONE };
 

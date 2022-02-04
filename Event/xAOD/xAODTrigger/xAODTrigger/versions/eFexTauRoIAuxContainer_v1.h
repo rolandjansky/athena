@@ -35,10 +35,10 @@ namespace xAOD {
    private:
       std::vector< uint32_t > word0;
       std::vector< uint32_t > word1;
-      std::vector< uint16_t > fCoreNumerator;
-      std::vector< uint16_t > fCoreDenominator;
-      std::vector< uint16_t > fHadNumerator;
-      std::vector< uint16_t > fHadDenominator;
+      std::vector< uint16_t > rCoreNumerator;
+      std::vector< uint16_t > rCoreDenominator;
+      std::vector< uint16_t > rHadNumerator;
+      std::vector< uint16_t > rHadDenominator;
 
       std::vector< float >    et;
       std::vector< float >    eta;

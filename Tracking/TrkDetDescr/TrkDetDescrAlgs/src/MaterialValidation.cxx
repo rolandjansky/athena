@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -165,7 +165,7 @@ Trk::PositionAtBoundary Trk::MaterialValidation::collectMaterialAndExit(const Tr
         const Trk::LayerArray* layerArray = tvol.confinedLayers();
         if (layerArray) {
            // display output
-           const std::vector<const Trk::Layer*>& layers = layerArray->arrayObjects();
+           Trk::BinnedArraySpan<Trk::Layer const * const> layers = layerArray->arrayObjects();
            auto layIter  = layers.begin();
            auto layIterE = layers.end();    
            for ( ; layIter != layIterE; ++layIter){
