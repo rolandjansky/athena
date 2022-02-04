@@ -43,7 +43,7 @@ void SqliteRecordset::getData(sqlite3* db, const std::string& nodeName)
   sqlite3_stmt* stTable{nullptr};
   int rc = sqlite3_prepare_v2(db, sql.str().c_str(), -1, &stTable, NULL);
   if(rc!=SQLITE_OK) {
-    ATH_MSG_ERROR(m_nodeName << " table is not found in the database");
+    ATH_MSG_WARNING(m_nodeName << " table is not found in the database");
     return;
   }
 
