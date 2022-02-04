@@ -139,6 +139,24 @@ private:
     void testCscDetectorElementHash();
     
     void coercePositivePhi(double& phi);
+
+    Identifier getMdtIdentifier(const int sname_index,
+                               const int seta_index,
+                               const int sphi_index,
+                               const int dbr_index,
+                               bool& valid ) const;
+   
+   Identifier getCscIdentifier(const int sname_index,
+                               const int seta_index,
+                               const int sphi_index,
+                               const int ml,
+                               bool& valid ) const;
+    Identifier getTgcIdentifier(const int sname_index,
+                                const int seta_index,
+                                const int sphi_index,
+                                bool& valid ) const;
+
+
 };
 inline void MuonGMCheck::coercePositivePhi(double& phi){ if (phi<0) phi += 2*M_PI; }
 

@@ -306,12 +306,19 @@ void AmdcDumpGeoModel::LoopMdtElements(std::ofstream&  OutFile) {
     {
      for (int dbr_index = 0; dbr_index<MuonGM::MuonDetectorManager::NMdtMultilayer; ++dbr_index)
      {
-      const MuonGM::MdtReadoutElement* pReadoutElement = 
-          p_MuonDetectorManager->getMdtReadoutElement(sname_index,
-     	     					      seta_index,
-     	     					      sphi_index,
-     	     					      dbr_index);
-      if (pReadoutElement == nullptr) continue;
+      
+      const int stName = p_MuonDetectorManager->mdtStationName(sname_index);
+      const int stEta = seta_index -  p_MuonDetectorManager->NMdtStEtaOffset;
+      const int stPhi = sphi_index + 1;
+      const int ml = dbr_index + 1;
+      bool isValid{false};
+      const Identifier readout_id = m_idHelperSvc->mdtIdHelper().channelID(stName, stEta, stPhi, ml,0, 1, true, &isValid);    
+      if (!isValid){
+          ATH_MSG_WARNING("Failed to construct a valid Mdt identifier for "<<sname_index<<","<<seta_index<<","<<sphi_index<<","<<dbr_index);
+          continue;
+      }
+      const MuonGM::MdtReadoutElement* pReadoutElement = p_MuonDetectorManager->getMdtReadoutElement(readout_id);
+      if (!pReadoutElement) continue;
       Identifier idr = pReadoutElement->identify();
       Identifier idp = m_idHelperSvc->mdtIdHelper().parentID(idr);
       for ( int tl=1; tl<=pReadoutElement->getNLayers();) 
@@ -1200,11 +1207,21 @@ void AmdcDumpGeoModel::LoopTgcElements(std::ofstream&  OutFile){
    {
     for (int sphi_index = 0; sphi_index<MuonGM::MuonDetectorManager::NTgcStatPhi; ++sphi_index)
     {
+     
+     
+     const int stationName = sname_index - MuonGM::MuonDetectorManager::NTgcStatTypeOff;
+    const int stationPhi = sphi_index +1;
+    const int zi = seta_index - MuonGM::MuonDetectorManager::NTgcStEtaOffset;
+    const int stationEta = zi + (seta_index >= MuonGM::MuonDetectorManager::NTgcStEtaOffset);
+    bool isValid{false};
+    const Identifier readout_id = m_idHelperSvc->tgcIdHelper().elementID(stationName, stationEta, stationPhi,true, &isValid);
+    if (!isValid){
+        ATH_MSG_WARNING("Failed to construct a valid Tgc identifier from "<<sname_index<<","<<seta_index<<","<<sphi_index);
+        continue;
+    }
      const MuonGM::TgcReadoutElement* pReadoutElement = 
-         p_MuonDetectorManager->getTgcReadoutElement(sname_index,
-     						     seta_index,
-     						     sphi_index);
-     if (pReadoutElement == nullptr) continue;
+         p_MuonDetectorManager->getTgcReadoutElement(readout_id);
+     if (!pReadoutElement) continue;
      Identifier idr  = pReadoutElement->identify();
      Identifier idp  = m_idHelperSvc->tgcIdHelper().parentID(idr);
      Identifier idp1 = m_idHelperSvc->tgcIdHelper().elementID(m_idHelperSvc->tgcIdHelper().stationName(idp),
@@ -1572,12 +1589,19 @@ void AmdcDumpGeoModel::LoopCscElements(std::ofstream&  OutFile){
     {
      for (int ml=0; ml<MuonGM::MuonDetectorManager::NCscChamberLayer; ++ml)
      {
-      const MuonGM::CscReadoutElement* pReadoutElement = 
-          p_MuonDetectorManager->getCscReadoutElement(sname_index,
-     	     					      seta_index,
-     	     					      sphi_index,
-     	     					      ml);
-      if (pReadoutElement == nullptr) continue;
+      
+    const int stName = sname_index -MuonGM::MuonDetectorManager::NCscStatTypeOff;
+    const int stEta  = seta_index - MuonGM::MuonDetectorManager::NCscStEtaOffset;
+    const int stPhi  = sphi_index + 1;
+    const int stMl     =  ml +1;
+    bool isValid{false};
+    const Identifier readout_id =  m_idHelperSvc->cscIdHelper().channelID(stName,stEta,stPhi,stMl, 0,0,1,true, &isValid  );
+    if(!isValid){
+        ATH_MSG_WARNING("Failed to construct a valid Csc identifier from "<<sname_index<<","<<seta_index<<","<<sphi_index<<","<<ml);
+        continue;
+    }
+      const MuonGM::CscReadoutElement* pReadoutElement = p_MuonDetectorManager->getCscReadoutElement(readout_id);
+      if (!pReadoutElement) continue;
 
       Identifier idr  = pReadoutElement->identify();
       Identifier idp  = m_idHelperSvc->cscIdHelper().parentID(idr);
@@ -1587,7 +1611,6 @@ void AmdcDumpGeoModel::LoopCscElements(std::ofstream&  OutFile){
       Identifier idp1ch = m_idHelperSvc->cscIdHelper().channelID(idp1, 
                                              pReadoutElement->ChamberLayer(), 
 					     1, 0, 1);
-//Why is it not getCscReadoutElement(idp1) JFL(Tue Nov 30 10:17:40 CET 2004)
       const MuonGM::CscReadoutElement* pReadoutElement1 = 
           p_MuonDetectorManager->getCscReadoutElement(idp1ch);
 

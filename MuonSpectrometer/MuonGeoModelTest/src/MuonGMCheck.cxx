@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -43,6 +43,8 @@ namespace {
   constexpr double const invRad = 180./M_PI;
   // the tube number of a tube in a tubeLayer is encoded in the GeoSerialIdentifier (modulo maxNTubesPerLayer)
   constexpr unsigned int maxNTubesPerLayer = MdtIdHelper::maxNTubesPerLayer;
+
+  static const Amg::Vector3D Zero{0.,0.,0.}; 
 }
 
 using namespace MuonGM;
@@ -1031,10 +1033,13 @@ void MuonGMCheck::checkParentStation()
              {
                  for (int dbr_index = 0; dbr_index<MuonDetectorManager::NMdtMultilayer; ++dbr_index)
                  {
-                     const MdtReadoutElement* mdt = p_MuonMgr->getMdtReadoutElement(sname_index,
-                                                                              seta_index,
-                                                                              sphi_index,
-                                                                              dbr_index);
+                     bool isValid = false; 
+                     const Identifier readout_ident = getMdtIdentifier(sname_index, seta_index, sphi_index, dbr_index, isValid);
+                     if (!isValid){
+                        ATH_MSG_WARNING("Failed to create a valid Mdt identifier from "<<sname_index<<","<<seta_index<<","<<sphi_index<<","<<dbr_index);
+                        continue;
+                     } 
+                     const MdtReadoutElement* mdt = p_MuonMgr->getMdtReadoutElement(readout_ident);
                      if (!mdt) continue;
                      ATH_MSG_INFO(" ///////////////////// Found a MdtReadoutElement for indices = "
                               <<sname_index<<" "<<seta_index<<" "<< sphi_index<<" "
@@ -1130,8 +1135,8 @@ void MuonGMCheck::checkreadoutmmgeo()
 			 <<std::endl;
 		     fout<<helper.show_to_string(idA)<<" # of gas gaps = "<<helper.gasGapMax(idA)-helper.gasGapMin(idA)+1<<" ggMax = "<<helper.gasGapMax(idA)<<" number of layers(from geo)= "<<mmA->numberOfLayers(true)<<" nStrips = "<<mmA->numberOfStrips(idA)<<std::endl;
 		     fout<<helper.show_to_string(idC)<<" # of gas gaps = "<<helper.gasGapMax(idC)-helper.gasGapMin(idC)+1<<" ggMax = "<<helper.gasGapMax(idC)<<" number of layers(from geo)= "<<mmC->numberOfLayers(true)<<" nStrips = "<<mmC->numberOfStrips(idC)<<std::endl;
-		     Amg::Vector3D chCenterC = (mmC->absTransform())*Amg::Vector3D(0.,0.,0.);
-		     Amg::Vector3D chCenterA = (mmA->absTransform())*Amg::Vector3D(0.,0.,0.);
+		     Amg::Vector3D chCenterC = (mmC->absTransform())*Zero;
+		     Amg::Vector3D chCenterA = (mmA->absTransform())*Zero;
 		     fout<<"center of the chamber on the A-side = "<<chCenterA<<" cyl coord (r,phi)-> "<<chCenterA.perp()<<" "<<chCenterA.phi()*invRad<<std::endl;
 		     fout<<"center of the chamber on the C-side = "<<chCenterC<<" cyl coord (r,phi)-> "<<chCenterC.perp()<<" "<<chCenterC.phi()*invRad<<std::endl;
 		     Amg::Vector2D lpos(0.,0.);
@@ -1230,8 +1235,8 @@ void MuonGMCheck::checkreadoutstgcgeo()
 		     fout<<"# of gas gaps = "<<helper.gasGapMax(idA)-helper.gasGapMin(idA)+1<<std::endl;
 
 
-		     Amg::Vector3D chCenterC = (mmC->absTransform())*Amg::Vector3D(0.,0.,0.);
-		     Amg::Vector3D chCenterA = (mmA->absTransform())*Amg::Vector3D(0.,0.,0.);
+		     Amg::Vector3D chCenterC = (mmC->absTransform())*Zero;
+		     Amg::Vector3D chCenterA = (mmA->absTransform())*Zero;
 		     fout<<"center of the chamber on the A-side = "<<chCenterA<<" cyl coord (r,phi)-> "<<chCenterA.perp()<<" "<<chCenterA.phi()*invRad<<std::endl;
 		     fout<<"center of the chamber on the C-side = "<<chCenterC<<" cyl coord (r,phi)-> "<<chCenterC.perp()<<" "<<chCenterC.phi()*invRad<<std::endl;
 
@@ -1279,10 +1284,16 @@ void MuonGMCheck::checkreadoutmdtgeo()
 		 bool doChHeader = true;
                  for (int dbr_index = 0; dbr_index<MuonDetectorManager::NMdtMultilayer; ++dbr_index)
                  {
-                     const MdtReadoutElement* mdt = p_MuonMgr->getMdtReadoutElement(sname_index,
-                                                                                    seta_index,
-                                                                                    sphi_index,
-                                                                                    dbr_index);
+                     
+                     
+                    bool isValid = false; 
+                    const Identifier readout_ident = getMdtIdentifier(sname_index, seta_index, sphi_index, dbr_index, isValid);
+                    if (!isValid){
+                        ATH_MSG_WARNING("Failed to create a valid Mdt identifier from "<<sname_index<<","<<seta_index<<","<<sphi_index<<","<<dbr_index);
+                        continue;
+                    } 
+                  
+                     const MdtReadoutElement* mdt = p_MuonMgr->getMdtReadoutElement(readout_ident);
                      if (!mdt) continue;
 
                      fout<<" ///////////////////// Found a MdtReadoutElement for indices = "
@@ -1311,7 +1322,7 @@ void MuonGMCheck::checkreadoutmdtgeo()
                      if (mdt->getStationName() == "BIL2" && mdt->getStationPhi()== 3 && mdt->getStationEta() == 1 )
                      {
                          fout<<" ^^^^^^^^^^^^^^^^^ start checking transform to amdb lrs MULTILAYER = "<<mdt->getMultilayer()<<std::endl;
-                         fout<<" center in the parent station RF "<<mdt->toParentStation()*Amg::Vector3D(0.,0.,0.)<<std::endl;
+                         fout<<" center in the parent station RF "<<mdt->toParentStation()*Zero<<std::endl;
                          Amg::Transform3D gToStation = mdt->GlobalToAmdbLRSTransform();
                          for ( int tl=1; tl<=mdt->getNLayers(); tl++) 
                          {
@@ -1459,7 +1470,7 @@ void MuonGMCheck::checkreadoutmdtgeo()
 						   <<pms->ZsizeMdtStation()<<" "<<pms->RsizeMdtStation()<<std::endl;
 				     HepGeom::Point3D<double> temp = pms->getUpdatedBlineFixedPointInAmdbLRS();
 				     Amg::Vector3D bLineFixedPointAMDBl(temp[0],temp[1],temp[2]);
-				     Amg::Vector3D aLineFixedPoint      = mdt->AmdbLRSToGlobalCoords(Amg::Vector3D(0.,0.,0.));
+				     Amg::Vector3D aLineFixedPoint      = mdt->AmdbLRSToGlobalCoords(Zero);
 				     Amg::Vector3D bLineFixedPoint      = mdt->AmdbLRSToGlobalCoords(bLineFixedPointAMDBl);
 				     fendpoints<<m_idHelperSvc->mdtIdHelper().show_to_string(chid)
 					       <<" A-line szt frame origine:               "
@@ -1598,9 +1609,13 @@ void MuonGMCheck::checkreadouttgcgeo()
              {
                  fout<<" indices are "<<sname_index<<" "<<seta_index<<" "<<sphi_index<<std::endl;
                  
-                 const TgcReadoutElement* tgc = p_MuonMgr->getTgcReadoutElement(sname_index,
-                                                                                seta_index,
-                                                                                sphi_index);
+                 bool isValid{false};
+                 const Identifier readout_id = getTgcIdentifier(sname_index,seta_index,sphi_index,isValid);
+                 if (!isValid){
+                     ATH_MSG_WARNING("Failed to retrieve a valid Identifier from "<<sname_index<<","<<seta_index<<","<<sphi_index);
+                     continue;
+                 }
+                 const TgcReadoutElement* tgc = p_MuonMgr->getTgcReadoutElement(readout_id);
                  if (!tgc) continue;
                  fout<<" ///////////////////// Found a TgcReadoutElement for indices = "
                           <<sname_index<<" "<<seta_index<<" "<< sphi_index<<" "
@@ -1653,19 +1668,19 @@ void MuonGMCheck::checkreadouttgcgeo()
                               <<rpar->nWires(ngg+1,3)<<std::endl;
                      
                      Identifier idch = m_idHelperSvc->tgcIdHelper().channelID(idp, ngg+1, 0, 1);
-                     Amg::Vector3D ggcentre = tgc->localToGlobalCoords(Amg::Vector3D(0.,0.,0.), idch);
+                     Amg::Vector3D ggcentre = tgc->localToGlobalCoords(Zero, idch);
                      fout<<" For Chamber id "<<m_idHelperSvc->tgcIdHelper().show_to_string(idch)
                               <<" gasgap centre is "<<ggcentre<<std::endl;
                      idch = m_idHelperSvc->tgcIdHelper().channelID(idp1, ngg+1, 0, 1);
-                     ggcentre = tgc1->localToGlobalCoords(Amg::Vector3D(0.,0.,0.), idch);
+                     ggcentre = tgc1->localToGlobalCoords(Zero, idch);
                      fout<<" For Chamber id "<<m_idHelperSvc->tgcIdHelper().show_to_string(idch)
                               <<" gasgap centre is "<<ggcentre<<std::endl;
                      idch = m_idHelperSvc->tgcIdHelper().channelID(idp, ngg+1, 1, 1);
-                     ggcentre = tgc->localToGlobalCoords(Amg::Vector3D(0.,0.,0.), idch);
+                     ggcentre = tgc->localToGlobalCoords(Zero, idch);
                      fout<<" For Chamber id "<<m_idHelperSvc->tgcIdHelper().show_to_string(idch)
                               <<" gasgap centre is "<<ggcentre<<std::endl;
                      idch = m_idHelperSvc->tgcIdHelper().channelID(idp1, ngg+1, 1, 1);
-                     ggcentre = tgc1->localToGlobalCoords(Amg::Vector3D(0.,0.,0.), idch);
+                     ggcentre = tgc1->localToGlobalCoords(Zero, idch);
                      fout<<" For Chamber id "<<m_idHelperSvc->tgcIdHelper().show_to_string(idch)
                               <<" gasgap centre is "<<ggcentre<<std::endl;
 
@@ -1906,11 +1921,14 @@ void MuonGMCheck::checkreadoutcscgeo()
                      
                      
                      fout<<" indices are "<<sname_index<<" "<<seta_index<<" "<<sphi_index<<" ml "<<ml<<std::endl;
-                 
-                     const CscReadoutElement* csc = p_MuonMgr->getCscReadoutElement(sname_index,
-                                                                                    seta_index,
-                                                                                    sphi_index,
-                                                                                    ml);
+                     bool isValid{false};
+                     const Identifier readout_id = getCscIdentifier(sname_index,seta_index,sphi_index, ml, isValid);
+                     if (!isValid){
+                         ATH_MSG_WARNING("Failed to build a valid CSC identifier from "<<sname_index<<","<<seta_index<<","<<sphi_index<<","<<ml);
+                         continue;
+                     }
+                     
+                     const CscReadoutElement* csc = p_MuonMgr->getCscReadoutElement(readout_id);
                      if (!csc) continue;
                      fout<<" ///////////////////// Found a CscReadoutElement for indices = "
                               <<sname_index<<" "<<seta_index<<" "<< sphi_index<<" "<<ml
@@ -1920,7 +1938,7 @@ void MuonGMCheck::checkreadoutcscgeo()
                      fout<<" its offline Id = "<<m_idHelperSvc->cscIdHelper().show_to_string(idr)
                               <<" ////////////////// belongs to module "
                               <<csc->getTechnologyName()<<"/"
-                              <<csc->getStationName()<<" centre at "<<(csc->transform())*Amg::Vector3D(0.,0.,0.)<<std::endl;
+                              <<csc->getStationName()<<" centre at "<<(csc->transform())*Zero<<std::endl;
                      Identifier idp = m_idHelperSvc->cscIdHelper().parentID(idr);
                      fout<<"      parent Id = "<<m_idHelperSvc->cscIdHelper().show_to_string(idp)<<std::endl;
 
@@ -1940,7 +1958,7 @@ void MuonGMCheck::checkreadoutcscgeo()
                      fout<<" at opposite z  = "<<m_idHelperSvc->cscIdHelper().show_to_string(csc1->identify())
                               <<" ////////////////// belongs to module "
                               <<csc1->getTechnologyName()<<"/"
-                              <<csc1->getStationName()<<" centre at "<<(csc1->transform())*Amg::Vector3D(0.,0.,0.)<<std::endl;
+                              <<csc1->getStationName()<<" centre at "<<(csc1->transform())*Zero<<std::endl;
                      fout<<" at opposite z the offline hash Id = "<<csc1->identifyHash()<<std::endl;
 
 
@@ -2015,12 +2033,12 @@ void MuonGMCheck::checkreadoutcscgeo()
                          Identifier fszp1 = m_idHelperSvc->cscIdHelper().channelID(idp1, ml+1, gg, 1, 1);
                          Identifier lwzp1 = m_idHelperSvc->cscIdHelper().channelID(idp1, ml+1, gg, 0, csc1->NetaStrips(gg));
                          Identifier lszp1 = m_idHelperSvc->cscIdHelper().channelID(idp1, ml+1, gg, 1, csc1->NphiStrips(gg));
-			 Amg::Vector3D AoriginGlobalF = csc->AmdbLRSToGlobalCoords(Amg::Vector3D(0.,0.,0.));
+			 Amg::Vector3D AoriginGlobalF = csc->AmdbLRSToGlobalCoords(Zero);
 			 Amg::Vector3D AoriginTrkF = csc->transform(fszp).inverse()*AoriginGlobalF;
 			 fout<<" Side-A: A-line origin Global Frame       "
 			   <<AoriginGlobalF.x() << " " << AoriginGlobalF.y() << " " << AoriginGlobalF.z()<<std::endl;
 			 fout<<" Side-A: A-line origin Tracking Phi Frame "<<AoriginTrkF<<std::endl;
-			 Amg::Vector3D AoriginGlobalF1 = csc1->AmdbLRSToGlobalCoords(Amg::Vector3D(0.,0.,0.));
+			 Amg::Vector3D AoriginGlobalF1 = csc1->AmdbLRSToGlobalCoords(Zero);
 			 Amg::Vector3D AoriginTrkF1 = csc1->transform(fszp1).inverse()*AoriginGlobalF1;
 			 fout<<" Side-C: A-line origin Global Frame       "
 			   <<AoriginGlobalF1.x() << " " << AoriginGlobalF1.y() << " " << AoriginGlobalF1.z()<<std::endl;
@@ -3058,9 +3076,13 @@ void MuonGMCheck::testTgcCache_here()
              for (int sphi_index = 0; sphi_index<MuonDetectorManager::NTgcStatPhi; ++sphi_index)
              {
                  
-                 TgcReadoutElement* tgc = p_MuonMgr->getTgcReadoutElement(sname_index,
-                                                                                seta_index,
-                                                                                sphi_index);
+                bool isValid{false};
+                const Identifier readout_id = getTgcIdentifier(sname_index,seta_index,sphi_index,isValid);
+                if (!isValid){
+                     ATH_MSG_WARNING("Failed to retrieve a valid Identifier from "<<sname_index<<","<<seta_index<<","<<sphi_index);
+                     continue;
+                 }
+                TgcReadoutElement* tgc = p_MuonMgr->getTgcReadoutElement(readout_id);                
                  if (!tgc) continue;
                  nre++;           
                  Identifier idr = tgc->identify();
@@ -3097,11 +3119,13 @@ void MuonGMCheck::testCscCache_here()
              {
                  for (int ml=0; ml<MuonDetectorManager::NCscChamberLayer; ++ml)
                  {   
-                 
-                     CscReadoutElement* csc = p_MuonMgr->getCscReadoutElement(sname_index,
-                                                                                    seta_index,
-                                                                                    sphi_index,
-                                                                                    ml);
+                     bool isValid{false};
+                     const Identifier readout_id = getCscIdentifier(sname_index,seta_index,sphi_index, ml, isValid);
+                     if (!isValid){
+                         ATH_MSG_WARNING("Failed to build a valid CSC identifier from "<<sname_index<<","<<seta_index<<","<<sphi_index<<","<<ml);
+                         continue;
+                     }
+                     CscReadoutElement* csc = p_MuonMgr->getCscReadoutElement(readout_id);
                      if (!csc) continue;
                      nre++;
                      Identifier idr = csc->identify();
@@ -3140,12 +3164,14 @@ void MuonGMCheck::testMdtCache_here()
              {
                  for (int dbr_index = 0; dbr_index<MuonDetectorManager::NMdtMultilayer; ++dbr_index)
                  {
-                     MdtReadoutElement* mdt = p_MuonMgr->getMdtReadoutElement(sname_index,
-                                                                                    seta_index,
-                                                                                    sphi_index,
-                                                                                    dbr_index);
                      
-                     
+                    bool isValid = false; 
+                    const Identifier readout_ident = getMdtIdentifier(sname_index, seta_index, sphi_index, dbr_index, isValid);
+                    if (!isValid){
+                        ATH_MSG_WARNING("Failed to create a valid Mdt identifier from "<<sname_index<<","<<seta_index<<","<<sphi_index<<","<<dbr_index);
+                        continue;
+                    } 
+                     MdtReadoutElement* mdt = p_MuonMgr->getMdtReadoutElement(readout_ident);
                      if (!mdt) continue;
                      nre++;
                      Identifier idr = mdt->identify();
@@ -3545,3 +3571,37 @@ void MuonGMCheck::getVmemCpu(int& dVmem, int& dUCpu, int& dSCpu)
 
     return;
 }
+Identifier MuonGMCheck::getMdtIdentifier(const int sname_index,
+                               const int seta_index,
+                               const int sphi_index,
+                               const int dbr_index,
+                               bool& isValid ) const{
+    const int stName = p_MuonMgr->mdtStationName(sname_index);
+    const int stEta = seta_index - MuonGM::MuonDetectorManager::NMdtStEtaOffset;
+    const int stPhi = sphi_index + 1;
+    const int ml = dbr_index + 1;                    
+    return m_idHelperSvc->mdtIdHelper().channelID(stName, stEta, stPhi, ml,0, 1, true, &isValid);                              
+}
+ Identifier MuonGMCheck::getCscIdentifier(const int sname_index,
+                               const int seta_index,
+                               const int sphi_index,
+                               const int ml,
+                               bool& isValid ) const {
+    const int stName = sname_index - MuonGM::MuonDetectorManager::NCscStatTypeOff;
+    const int stEta  = seta_index - MuonGM::MuonDetectorManager::NCscStEtaOffset;
+    const int stPhi  = sphi_index + 1;
+    const int stMl     =  ml +1;
+    return m_idHelperSvc->cscIdHelper().channelID(stName,stEta,stPhi,stMl, 0,0,1,true, &isValid  );
+}
+Identifier MuonGMCheck::getTgcIdentifier(const int sname_index,
+                                const int seta_index,
+                                const int sphi_index,
+                                bool& valid ) const {
+    const int stationName = sname_index - MuonGM::MuonDetectorManager::NTgcStatTypeOff;
+    const int stationPhi = sphi_index +1;
+    const int zi = seta_index - MuonGM::MuonDetectorManager::NTgcStEtaOffset;
+    const int stationEta = zi + (seta_index >= MuonGM::MuonDetectorManager::NTgcStEtaOffset);
+    return m_idHelperSvc->tgcIdHelper().elementID(stationName, stationEta, stationPhi,true, &valid) ;
+}
+
+     

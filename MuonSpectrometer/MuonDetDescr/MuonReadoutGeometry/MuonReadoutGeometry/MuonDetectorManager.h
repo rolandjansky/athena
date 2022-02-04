@@ -119,6 +119,11 @@ namespace MuonGM {
         const CscReadoutElement* getCscReadoutElement(int i1, int i2, int i3, int i4) const;
 
         //// Non const version
+        MdtReadoutElement* getMdtReadoutElement(const Identifier& id);
+        CscReadoutElement* getCscReadoutElement(const Identifier& id);
+        TgcReadoutElement* getTgcReadoutElement(const Identifier& id);
+        
+
         MdtReadoutElement* getMdtReadoutElement(int i1, int i2, int i3, int i4);
         sTgcReadoutElement* getsTgcReadoutElement(int i1, int i2, int i3, int i4);
         MMReadoutElement* getMMReadoutElement(int i1, int i2, int i3, int i4);
@@ -345,6 +350,9 @@ namespace MuonGM {
 
         // map the RPC station indices (0-NRpcStatType) back to the RpcIdHelper stationNames
         int rpcStationName(const int stationIndex) const;
+        /// Map the MDT station indeces (0-NMdtStatType) back to the MdtIdHelper station names
+        int mdtStationName(const int stationIndex) const;
+
 
     private:
         unsigned int rpcStationTypeIdx(const int stationName) const;  // map the RPC stationNames from the RpcIdHelper to 0-NRpcStatType
