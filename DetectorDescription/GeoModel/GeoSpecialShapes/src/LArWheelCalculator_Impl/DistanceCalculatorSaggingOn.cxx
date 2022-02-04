@@ -22,21 +22,10 @@ using Athena::Units::mm;
 namespace LArWheelCalculator_Impl
 {
   DistanceCalculatorSaggingOn::DistanceCalculatorSaggingOn(const std::string& saggingOptions,
-                                                           LArWheelCalculator* lwc,
-                                                           IRDBAccessSvc* rdbAccess,
-                                                           const DecodeVersionKey& larVersionKey)
-    : parent(lwc, rdbAccess, larVersionKey),
+                                                           LArWheelCalculator* lwc)
+    : parent(lwc),
       m_saggingOptions(saggingOptions)
   {
-    // load sagging parameters
-    /*RDBParamReader rdbr(rdbAccess);
-      rdbr.
-      data( "EmecMagicNumbers", larVersionKey.tag(), larVersionKey.node() ).
-      fallback_to( "EmecMagicNumbers","EMECMagigNumbers-00" ).
-      param(lwc()->m_ActiveLength, "ACTIVELENGTH", mm).
-      param(lwc()->m_dWRPtoFrontFace, "REFTOACTIVE", mm).
-      param(lwc()->m_StraightStartSection, "STRAIGHTSTARTSECTION", mm)
-      ;*/
     init_sagging_parameters();
   }
 	
