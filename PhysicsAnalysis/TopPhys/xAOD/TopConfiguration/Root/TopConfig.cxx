@@ -259,6 +259,9 @@ namespace top {
     m_muonMuonDoExtraSmearingHighPt(false),
     m_muonBreakDownSystematics(false),
     m_muonSFCustomInputFolder(" "),
+    m_forcePeriod(" "),
+    m_forceYear(-1),
+    m_forceTrigger(" "),
 
     // Soft Muon configuration
     m_softmuonPtcut(4000.),
@@ -1353,7 +1356,18 @@ namespace top {
       std::string const& customMuonSF = settings->value("MuonSFCustomInputFolder");
       this->muonSFCustomInputFolder(customMuonSF);
     }
-
+    {
+      int customforceYear = std::stoi(settings->value("forceYear"));
+      this->forceYear(customforceYear);
+    }
+    {
+      std::string const& customforcePeriod = settings->value("forcePeriod");
+      this->forcePeriod(customforcePeriod);
+    }
+    {
+      std::string const& customforceTrigger = settings->value("forceTrigger");
+      this->forceTrigger(customforceTrigger);
+    }
     if (settings->value("UseAntiMuons") == "True") this->m_useAntiMuons = true;
     if (settings->value("UseJetElectrons") == "True"){
       this->m_useJetElectrons = true;

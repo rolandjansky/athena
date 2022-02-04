@@ -1166,6 +1166,24 @@ namespace top {
         m_muonSFCustomInputFolder = s;
       }
     } 
+    int forceYear() const {return m_forceYear;}
+    void forceYear(int s) {
+      if (!m_configFixed) {
+        m_forceYear = s;
+      }
+    }
+    std::string const& forcePeriod() const {return m_forcePeriod;}
+    void forcePeriod(const std::string& s) {
+      if (!m_configFixed) {
+        m_forcePeriod = s;
+      }
+    }
+    std::string const& forceTrigger() const {return m_forceTrigger;}
+    void forceTrigger(const std::string& s) {
+      if (!m_configFixed) {
+        m_forceTrigger = s;
+      }
+    }
 
     // Soft Muon configuration
     inline virtual void softmuonPtcut(const float pt) {
@@ -2558,6 +2576,9 @@ namespace top {
     bool m_muonMuonDoExtraSmearingHighPt; //to turn on/off a special correction for the muon with high momenta.
     bool m_muonBreakDownSystematics; //to turn on/off a more complex systematic model
     std::string m_muonSFCustomInputFolder;
+    std::string m_forcePeriod;
+    int m_forceYear;
+    std::string m_forceTrigger;
 
     //Soft muon configuration
     float m_softmuonPtcut; // soft muon object selection pT cut
