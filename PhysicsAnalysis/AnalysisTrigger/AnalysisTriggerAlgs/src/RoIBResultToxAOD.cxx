@@ -206,7 +206,7 @@ StatusCode RoIBResultToxAOD::createEmTauRoI( const ROIB::RoIBResult& result,
 
          // Cluster ET values, reconstructed from TriggerTowers
          if( m_emTauTool.isEnabled() ) {
-            LVL1::CPMTobAlgorithm roiSums = m_emTauTool->formSums( roIWord, &cpmtowers );
+	     LVL1::CPMTobAlgorithm roiSums = m_emTauTool->formSums(l1menu, roIWord, &cpmtowers );
             roi->setCore( roiSums.CoreET() * caloTrigScale );
             roi->setEmClus( roiSums.EMClusET() * caloTrigScale );
             roi->setTauClus( roiSums.TauClusET() * caloTrigScale );

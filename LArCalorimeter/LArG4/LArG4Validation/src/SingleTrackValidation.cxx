@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SingleTrackValidation.h"
@@ -26,7 +26,6 @@
 #include "GeoXPEngine.h"
 
 // To interpret LAr Geometry information:
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "LArSimEvent/LArHitContainer.h"
 #include "CaloIdentifier/CaloCell_ID.h"

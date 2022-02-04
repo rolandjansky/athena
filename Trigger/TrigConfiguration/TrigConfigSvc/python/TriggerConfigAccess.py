@@ -103,7 +103,7 @@ def getL1MenuAccess( flags = None ):
         keysFromCool = getKeysFromCool( inpSum["run_number"] )
         cfg = L1MenuAccess( dbalias = keysFromCool["DB"], smkey = keysFromCool['SMK'] )
     elif tc["SOURCE"] == "DB":
-        cfg = L1MenuAccess( dbalias = tc["dbconn"], smkey = tc["smk"] )
+        cfg = L1MenuAccess( dbalias = tc["DBCONN"], smkey = tc["SMK"] )
     elif tc["SOURCE"] == "INFILE":
         cfg = L1MenuAccess(jsonString=_getJSONFromMetadata(flags, key='TriggerMenuJson_L1'))
     else:
@@ -121,7 +121,7 @@ def getL1PrescalesSetAccess( flags = None ):
         keysFromCool = getKeysFromCool( inpSum["run_number"] )
         cfg = L1PrescalesSetAccess( dbalias = keysFromCool["DB"], l1pskey = keysFromCool['L1PSK'] )
     elif tc["SOURCE"] == "DB":
-        cfg = L1PrescalesSetAccess( dbalias = tc["dbconn"], l1pskey = tc["l1psk"] )
+        cfg = L1PrescalesSetAccess( dbalias = tc["DBCONN"], l1pskey = tc["L1PSK"] )
     elif tc["SOURCE"] == "INFILE":
         cfg = L1PrescalesSetAccess(jsonString=_getJSONFromMetadata(flags, key='TriggerMenuJson_L1PS'))
     else:
@@ -139,7 +139,7 @@ def getBunchGroupSetAccess( flags = None ):
         keysFromCool = getKeysFromCool( inpSum["run_number"] )
         cfg = BunchGroupSetAccess( dbalias = keysFromCool["DB"], bgskey = keysFromCool['BGSK'] )
     elif tc["SOURCE"] == "DB":
-        cfg = BunchGroupSetAccess( dbalias = tc["dbconn"], bgskey = tc["bgsk"] )
+        cfg = BunchGroupSetAccess( dbalias = tc["DBCONN"], bgskey = tc["BGSK"] )
     elif tc["SOURCE"] == "INFILE":
         from RecExConfig.InputFilePeeker import inputFileSummary as inpSum
         if inpSum["file_type"] != 'pool':
@@ -166,7 +166,7 @@ def getHLTMenuAccess( flags = None ):
         keysFromCool = getKeysFromCool( inpSum["run_number"] )
         cfg = HLTMenuAccess( dbalias = keysFromCool["DB"], smkey = keysFromCool['SMK'] )
     elif tc["SOURCE"] == "DB":
-        cfg = HLTMenuAccess( dbalias = tc["dbconn"], smkey = tc["smk"] )
+        cfg = HLTMenuAccess( dbalias = tc["DBCONN"], smkey = tc["SMK"] )
     elif tc["SOURCE"] == "INFILE":
         cfg = HLTMenuAccess(jsonString=_getJSONFromMetadata(flags, key='TriggerMenuJson_HLT'))
     else:
@@ -184,7 +184,7 @@ def getHLTPrescalesSetAccess( flags = None ):
         keysFromCool = getKeysFromCool( inpSum["run_number"] )
         cfg = HLTPrescalesSetAccess( dbalias = keysFromCool["DB"], l1pskey = keysFromCool['HLTPSK'] )
     elif tc["SOURCE"] == "DB":
-        cfg = HLTPrescalesSetAccess( dbalias = tc["dbconn"], l1pskey = tc["hltpsk"] )
+        cfg = HLTPrescalesSetAccess( dbalias = tc["DBCONN"], l1pskey = tc["HLTPSK"] )
     elif tc["SOURCE"] == "INFILE":
         cfg = HLTPrescalesSetAccess(jsonString=_getJSONFromMetadata(flags, key='TriggerMenuJson_HLTPS'))
     else:
@@ -202,7 +202,7 @@ def getHLTJobOptionsAccess( flags = None ):
         keysFromCool = getKeysFromCool( inpSum["run_number"] )
         cfg = HLTJobOptionsAccess( dbalias = keysFromCool["DB"], smkey = keysFromCool['SMK'] )
     elif tc["SOURCE"] == "DB":
-        cfg = HLTJobOptionsAccess( dbalias = tc["dbconn"], smkey = tc["smk"] )
+        cfg = HLTJobOptionsAccess( dbalias = tc["DBCONN"], smkey = tc["SMK"] )
     elif tc["SOURCE"] == "INFILE":
         raise NotImplementedError("Python access to the HLT Job Options configuration from in-file metadata is NOT SUPPORTED (this file is huge!)")
     else:

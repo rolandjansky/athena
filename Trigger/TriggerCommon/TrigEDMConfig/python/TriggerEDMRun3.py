@@ -871,8 +871,16 @@ TriggerHLTListRun3 = [
     ('xAOD::TrigCompositeContainer#HLT_vtx_z', 'BS ESD AODFULL', 'MinBias' ,'inViews:ZVertFinderRecoViews'),
     ('xAOD::TrigCompositeAuxContainer#HLT_vtx_zAux.zfinder_vtx_z.zfinder_vtx_weight.zfinder_tool', 'BS ESD AODFULL', 'MinBias'),
 
+    ('xAOD::AFPSiHitsClusterContainer#HLT_AFPSiHitsClusterContainer', 'BS ESD AODFULL', 'MinBias'),
+    ('xAOD::AFPSiHitsClusterAuxContainer#HLT_AFPSiHitsClusterContainerAux.', 'BS ESD AODFULL', 'MinBias'),
     ('xAOD::AFPTrackContainer#HLT_AFPTrackContainer', 'BS ESD AODFULL', 'MinBias'),
     ('xAOD::AFPTrackAuxContainer#HLT_AFPTrackContainerAux.', 'BS ESD AODFULL', 'MinBias'),
+    ('xAOD::AFPToFTrackContainer#HLT_AFPToFTrackContainer', 'BS ESD AODFULL', 'MinBias'),
+    ('xAOD::AFPToFTrackAuxContainer#HLT_AFPToFTrackContainerAux.', 'BS ESD AODFULL', 'MinBias'),
+    ('xAOD::AFPProtonContainer#HLT_AFPProtonContainer', 'BS ESD AODFULL', 'MinBias'),
+    ('xAOD::AFPProtonAuxContainer#HLT_AFPProtonContainerAux.', 'BS ESD AODFULL', 'MinBias'),
+    ('xAOD::AFPVertexContainer#HLT_AFPVertexContainer', 'BS ESD AODFULL', 'MinBias'),
+    ('xAOD::AFPVertexAuxContainer#HLT_AFPVertexContainerAux.', 'BS ESD AODFULL', 'MinBias'),
 
     # Cosmic
     ('xAOD::TrackParticleContainer#HLT_IDTrack_Cosmic_FTF',                 'BS ESD AODFULL', 'Cosmic'),

@@ -68,9 +68,11 @@ PixelPrepDataToxAOD::PixelPrepDataToxAOD(const std::string &name, ISvcLocator *p
   declareProperty("MC_SDOs", m_SDOcontainer_key = "PixelSDO_Map");
   declareProperty("MC_Hits", m_sihitContainer_key = "PixelHits");
   declareProperty("PRD_MultiTruth", m_multiTruth_key = "PRD_MultiTruthPixel");
+  //Keep this the same as input for now, for consistency with downstream assumptions
+  declareProperty("OutputClusterContainer",  m_write_xaod_key = "PixelClusters");
 
   // --- Services and Tools
-  declare(m_write_xaod);
+  declare(m_write_xaod_key);
   declare(m_write_offsets);
 
 }
@@ -108,8 +110,7 @@ StatusCode PixelPrepDataToxAOD::initialize()
   ATH_CHECK(m_SDOcontainer_key.initialize(m_writeSDOs));
   ATH_CHECK(m_multiTruth_key.initialize(m_useTruthInfo));
 
-  m_write_xaod = m_clustercontainer_key.key();
-  ATH_CHECK(m_write_xaod.initialize());
+  ATH_CHECK(m_write_xaod_key.initialize());
   m_write_offsets = m_clustercontainer_key.key() + "Offsets";
   ATH_CHECK(m_write_offsets.initialize());
 
@@ -192,7 +193,7 @@ StatusCode PixelPrepDataToxAOD::execute()
   }
 
   // Create the xAOD container and its auxiliary store:
-  SG::WriteHandle<xAOD::TrackMeasurementValidationContainer> xaod(m_write_xaod,ctx);
+  SG::WriteHandle<xAOD::TrackMeasurementValidationContainer> xaod(m_write_xaod_key,ctx);
   ATH_CHECK(xaod.record(std::make_unique<xAOD::TrackMeasurementValidationContainer>(),
                         std::make_unique<xAOD::TrackMeasurementValidationAuxContainer>()));
 

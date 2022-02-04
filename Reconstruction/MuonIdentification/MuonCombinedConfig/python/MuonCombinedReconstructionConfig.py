@@ -333,6 +333,79 @@ def StauCreatorAlgCfg(flags, name="StauCreatorAlg", **kwargs ):
     result.merge(acc)
     return result # don't have the right algorithm being primary here, but should be okay?
 
+### Returns a pair vectors containing th names of the 
+### track particle collections associated with combined muon tracks
+def GetCombinedTrkContainers(flags):
+    tp_coll = []
+    track_coll = []
+    tp_coll = ["ExtrapolatedMuonTrackParticles", 
+                "CombinedMuonTrackParticles", 
+                "MSOnlyExtrapolatedMuonTrackParticles" ]
+    track_coll = ["ExtrapolatedMuonTracks", 
+                  "CombinedMuonTracks", 
+                  "MSOnlyExtrapolatedTracks"]
+    if flags.Muon.runCommissioningChain:
+        tp_coll += ["EMEO_ExtrapolatedMuonTrackParticles",
+                    "EMEO_CombinedMuonTrackParticles",
+                    "EMEO_MSOnlyExtrapolatedMuonTrackParticles"] 
+        track_coll += ["EMEO_ExtrapolatedMuonTracks", 
+                      "EMEO_CombinedMuonTracks", 
+                      "EMEO_MSOnlyExtrapolatedTracks"]
+    if flags.MuonCombined.doMuGirl and flags.MuonCombined.doMuGirlLowBeta:
+        tp_coll+= ["CombinedStauTrackParticles",
+                   "ExtrapolatedStauTrackParticles"]
+        track_coll+=["CombinedStauTracks",
+                     "ExtrapolatedStauTracks"]
+    ### Disable the LRT tracks for the moment.
+    if False and flags.InDet.Tracking.doR3LargeD0:
+        tp_coll += ["CombinedMuonsLRTTrackParticles", 
+                     "ExtrapolatedMuonsLRTTrackParticles",
+                    "MSOnlyExtrapolatedMuonsLRTTrackParticles"]
+    return tp_coll, track_coll
+
+def MuonTrkIDMSScatterDecorAlgCfg(flags, name ="MuonCombIDMSScatterDecorAlg", **kwargs ):
+    result = ComponentAccumulator()
+    the_alg = CompFactory.MuonTrkIDMSScatterDecorAlg(name = name, **kwargs)
+    result.addEventAlgo(the_alg)
+    return result
+
+def MuonTrkAEOTDecorAlgCfg(flags, name ="MuonCombAEOTDecorAlg", **kwargs ):
+    result = ComponentAccumulator()
+    the_alg = CompFactory.MuonTrkAEOTDecorationAlg(name = name, **kwargs)
+    result.addEventAlgo(the_alg)
+    return result
+def MuonPrecisionLayerDecorAlgCfg(flags, name = "MuonPrecisionLayerDecorAlg", **kwargs):
+    result = ComponentAccumulator()
+    the_alg = CompFactory.MuonPrecisionLayerDecorAlg(name = name, **kwargs)
+    result.addEventAlgo(the_alg)
+    return result
+
+def MuonDecorationAlgsCfg(flags):
+    result  = ComponentAccumulator()
+    trk_cols = GetCombinedTrkContainers(flags)[0]
+    
+    ### Decorate the muon tracks
+    for coll in trk_cols:
+            result.merge(MuonTrkIDMSScatterDecorAlgCfg(flags, "MuonCombIDMSScatterDecorAlg"+coll,
+                                                            TrackContainer=coll))
+
+            result.merge(MuonTrkAEOTDecorAlgCfg(flags, "MuonCombAEOTDecorAlg"+coll,
+                                                TrackContainer = coll))
+    ### Proceed with the precision layer decoration                                            
+    result.merge(MuonPrecisionLayerDecorAlgCfg(flags, "MuonCombPrecisionLayerDecorAlg",
+                                            MuonContainer="Muons",
+                                            TrackContainer=trk_cols))
+    if flags.MuonCombined.doMuGirl and flags.MuonCombined.doMuGirlLowBeta:
+        result.merge(MuonPrecisionLayerDecorAlgCfg(flags, "MuonCombStauPrecisionLayerDecorAlg",
+                                                    MuonContainer="Staus",
+                                                    TrackContainer=trk_cols))
+    if False and flags.InDet.Tracking.doR3LargeD0:
+        result.merge(MuonPrecisionLayerDecorAlgCfg(flags, "MuonCombLRTPrecisionLayerDecorAlg",
+                                                         MuonContainer="MuonsLRT",
+                                                         TrackContainer=trk_cols))
+
+    return result
+
 def CombinedMuonOutputCfg(flags):
     from OutputStreamAthenaPool.OutputStreamConfig import addToESD,addToAOD
     result = ComponentAccumulator()
@@ -490,7 +563,7 @@ def MuonCombinedReconstructionCfg(flags):
 
     # post processing
     result.addEventAlgo( CompFactory.ClusterMatching.CaloClusterMatchLinkAlg("MuonTCLinks",ClustersToDecorate="MuonClusterCollection") )
-
+    result.merge(MuonDecorationAlgsCfg(flags))
     # Setup output
     result.merge(CombinedMuonOutputCfg(flags))
     

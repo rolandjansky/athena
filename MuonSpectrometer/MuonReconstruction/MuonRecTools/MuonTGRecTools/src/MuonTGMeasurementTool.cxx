@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTGRecTools/MuonTGMeasurementTool.h"
@@ -1147,8 +1147,8 @@ const Trk::Layer* Muon::MuonTGMeasurementTool::associatedLayer(Identifier id, co
     if (!vol) return lay;
 
     if (vol->confinedVolumes()) {
-        const std::vector<const Trk::TrackingVolume*> subVols = vol->confinedVolumes()->arrayObjects();
-        std::vector<const Trk::TrackingVolume*>::const_iterator iter = subVols.begin();
+        Trk::BinnedArraySpan<Trk::TrackingVolume const * const > subVols = vol->confinedVolumes()->arrayObjects();
+        Trk::BinnedArraySpan<Trk::TrackingVolume const * const > ::const_iterator iter = subVols.begin();
         while (!lay && iter != subVols.end()) {
             lay = associatedLayer(id, *iter);
             if (lay) break;
@@ -1158,8 +1158,8 @@ const Trk::Layer* Muon::MuonTGMeasurementTool::associatedLayer(Identifier id, co
     }
 
     if (vol->confinedLayers()) {
-        const std::vector<const Trk::Layer*> ordLay = vol->confinedLayers()->arrayObjects();
-        std::vector<const Trk::Layer*>::const_iterator iter = ordLay.begin();
+        Trk::BinnedArraySpan<Trk::Layer const * const > ordLay = vol->confinedLayers()->arrayObjects();
+        Trk::BinnedArraySpan<Trk::Layer const * const >::const_iterator iter = ordLay.begin();
         while (!lay && iter != ordLay.end()) {
             lay = match(id, *iter);
             if (lay) break;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -209,6 +209,8 @@ public:
 
   /** return the material Layer */
   const Trk::Layer* materialLayer() const;
+  Trk::Layer* materialLayer();
+
 
   /** return the base surface (simplified for persistification) */
   virtual const Trk::Surface* baseSurface() const;
@@ -410,9 +412,9 @@ public:
   SurfaceOwner owner() const;
 
   /** set material layer */
-  void setMaterialLayer(const Layer& mlay);
+  void setMaterialLayer(Layer& mlay);
 
-  void setMaterialLayer(const Layer* mlay);
+  void setMaterialLayer(Layer* mlay);
 
   /** Output Method for MsgStream, to be overloaded by child classes */
   virtual MsgStream& dump(MsgStream& sl) const;
@@ -455,7 +457,7 @@ protected:
   - potentially given as the associated material layer
     (not owning pointer)
   */
-  const Layer* m_materialLayer = nullptr;
+  Layer* m_materialLayer = nullptr;
   /** enum for surface owner : 0  free surface */
   SurfaceOwner m_owner;
 

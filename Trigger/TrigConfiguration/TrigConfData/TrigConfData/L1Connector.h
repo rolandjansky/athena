@@ -20,23 +20,25 @@ namespace TrigConf {
     */
    class TriggerLine {
    public:
-   TriggerLine(const std::string & name, unsigned int startbit, unsigned int nbits, unsigned int fpga=0, unsigned int clock=0, const std::string & connName="") :
-     m_name(name), m_startbit(startbit), m_nbits(nbits), m_fpga(fpga), m_clock(clock), m_connName(connName)
+   TriggerLine(const std::string & name, unsigned int startbit, unsigned int nbits, unsigned int flatindex, unsigned int fpga=0, unsigned int clock=0, const std::string & connName="") :
+     m_name(name), m_startbit(startbit), m_nbits(nbits), m_flatindex(flatindex), m_fpga(fpga), m_clock(clock), m_connName(connName)
       {}
       const std::string & name() const { return m_name; }
       unsigned int startbit() const { return  m_startbit; }
+      unsigned int flatindex() const { return  m_flatindex; }
       unsigned int endbit() const { return  m_startbit + m_nbits - 1; }
       unsigned int nbits() const { return m_nbits; }
       unsigned int fpga() const { return m_fpga; }
       unsigned int clock() const { return m_clock; }
       const std::string & connName() const { return m_connName; }
    private:
-      std::string m_name{""};      // the name of the threshold whose multiplicity is transmitted
-      unsigned int m_startbit{0};  // the location on the cable - first bit
-      unsigned int m_nbits{0};     // the location on the cable - number of bits used to encode the multiplicity
-      unsigned int m_fpga{0};      // for electrical signals from L1Topo boards only: the fpga the signal is coming from
-      unsigned int m_clock{0};     // for electrical signals from L1Topo boards only: the clock of the signal
-      std::string m_connName{""};  // the name of the connector where the triggerline is allocated
+      std::string m_name;      // the name of the threshold whose multiplicity is transmitted
+      unsigned int m_startbit;  // the location on the cable - first bit
+      unsigned int m_nbits;     // the location on the cable - number of bits used to encode the multiplicity
+      unsigned int m_flatindex; // position of output bit in topo board for a given fpga/clock - first bit
+      unsigned int m_fpga;      // for electrical signals from L1Topo boards only: the fpga the signal is coming from
+      unsigned int m_clock;     // for electrical signals from L1Topo boards only: the clock of the signal
+      std::string m_connName;  // the name of the connector where the triggerline is allocated
    };
 
    /** @brief L1 connectors configuration */

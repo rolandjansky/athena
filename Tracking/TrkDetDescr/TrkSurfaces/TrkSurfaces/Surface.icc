@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 namespace Trk {
@@ -208,6 +208,12 @@ Surface::materialLayer() const
   return m_materialLayer;
 }
 
+inline Layer*
+Surface::materialLayer()
+{
+  return m_materialLayer;
+}
+
 inline const Surface*
 Surface::baseSurface() const
 {
@@ -245,13 +251,13 @@ Surface::owner() const
 }
 
 inline void
-Surface::setMaterialLayer(const Layer& mlay)
+Surface::setMaterialLayer(Layer& mlay)
 {
   m_materialLayer = (&mlay);
 }
 
 inline void
-Surface::setMaterialLayer(const Layer* mlay)
+Surface::setMaterialLayer(Layer* mlay)
 {
   m_materialLayer = mlay;
 }

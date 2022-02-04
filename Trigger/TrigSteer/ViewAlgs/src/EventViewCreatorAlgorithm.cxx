@@ -73,7 +73,7 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
 
   // Keep track of the ROIs we spawn a View for, do not spawn duplicates.
   // For many cases, this will be covered by the Merging operation preceding this.
-  ElementLinkVector<TrigRoiDescriptorCollection> RoIsFromDecision;
+  std::vector<ElementLink<TrigRoiDescriptorCollection>> RoIsFromDecision;
 
   if( outputHandle->size() == 0) {
     ATH_MSG_DEBUG( "Have no decisions in output handle "<< outputHandle.key() << ". Handle is valid but container is empty. "

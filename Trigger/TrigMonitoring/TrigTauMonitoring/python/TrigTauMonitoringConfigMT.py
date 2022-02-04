@@ -525,6 +525,12 @@ class TrigTauMonAlgBuilder:
     monGroup.defineHistogram('hdEta', title='EF dEta(#tau,#tau);dEta(#tau,#tau);Nevents',xbins=40,xmin=0,xmax=4)
     monGroup.defineHistogram('hdPhi', title='EF dPhi(#tau,#tau);dPhi(#tau,#tau);Nevents',xbins=16,xmin=-3.2,xmax=3.2)
 
+    monGroup.defineHistogram('Pt', title='Pt DiTau; P_{t}; Nevents', xbins=50,xmin=0,xmax=250)
+    monGroup.defineHistogram('Eta', title='Eta(#tau,#tau);Eta(#tau,#tau);Nevents',xbins=26,xmin=-2.6,xmax=2.6)
+    monGroup.defineHistogram('Phi', title='Phi(#tau,#tau);Phi(#tau,#tau);Nevents',xbins=16,xmin=-3.2,xmax=3.2)
+    monGroup.defineHistogram('M', title='M(#tau,#tau);M_{#tau,#tau};Nevents',xbins=50,xmin=0,xmax=250)
+    monGroup.defineHistogram('dPt', title='dPt |leading-subleading|; P_{t}; Nevents', xbins=20,xmin=0,xmax=200)  
+
   def bookTruth( self, monAlg, trigger):
 
     monGroupName = trigger+'EFVsTruth'

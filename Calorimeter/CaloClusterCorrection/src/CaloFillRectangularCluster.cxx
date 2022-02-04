@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file  CaloFillRectangularCluster.h
@@ -395,7 +395,7 @@ SamplingHelper::calculate_and_set
 
   double fallback_eta = eta;
   double fallback_phi = phi;
-  if ((seteta == -999 || setphi == -999) && fallback_layer >= 0) {
+  if ((seteta == -999 || setphi == -999) && fallback_layer >= 0 && fallback_layer < 4) {
     // In the calo frame
     fallback_eta = m_cluster->etaSample (samplings[fallback_layer]);
     fallback_phi = m_cluster->phiSample (samplings[fallback_layer]);

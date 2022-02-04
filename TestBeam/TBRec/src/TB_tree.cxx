@@ -799,7 +799,7 @@ TB_tree::TB_tree(TTree *tree)
       tree = (TTree*)gDirectory->Get("tree");
 
    }
-   Init(tree);
+   TB_tree::Init(tree);
 }
 
 TB_tree::~TB_tree()

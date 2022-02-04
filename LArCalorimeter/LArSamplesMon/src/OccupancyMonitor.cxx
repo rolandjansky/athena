@@ -31,9 +31,13 @@ TH1I* OccupancyMonitor::runOccupancyHistory() const
       occ[history->data(k)->run()]++;
   }
   
-  unsigned int runMin = occ.begin()->first;
-  unsigned int runMax = occ.rbegin()->first;
-  
+  unsigned int runMin = 0;
+  unsigned int runMax = 1;
+  if (!occ.empty()) {
+    runMin = occ.begin()->first;
+    runMax = occ.rbegin()->first;
+  }
+
   TH1I* h = new TH1I("occ", "Run occupancies", runMax - runMin + 1, runMin - 0.5, runMax + 0.5);
   h->GetXaxis()->SetTitle("Run number");
   h->GetYaxis()->SetTitle("Occupancy");

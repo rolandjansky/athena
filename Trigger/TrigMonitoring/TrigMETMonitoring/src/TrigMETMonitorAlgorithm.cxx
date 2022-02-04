@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigMETMonitorAlgorithm.h"
@@ -37,28 +37,6 @@ TrigMETMonitorAlgorithm::TrigMETMonitorAlgorithm( const std::string& name, ISvcL
   declareProperty("hlt_cvfpufit_key", m_hlt_cvfpufit_met_key = "HLT_MET_cvfpufit");
   declareProperty("hlt_mhtpufit_pf_key", m_hlt_mhtpufit_pf_met_key = "HLT_MET_mhtpufit_pf_subjesgscIS");
   declareProperty("hlt_mhtpufit_em_key", m_hlt_mhtpufit_em_met_key = "HLT_MET_mhtpufit_em_subjesgscIS");
-
-  declareProperty("L1ChainA", m_L1ChainA="L1_XE50");
-  declareProperty("L1ChainB", m_L1ChainB="L1_jXENC50");
-  declareProperty("L1ChainC", m_L1ChainC="L1_jXERHO50");
-  declareProperty("L1ChainD", m_L1ChainD="L1_gXENC50");
-  declareProperty("L1ChainE", m_L1ChainE="L1_gXERHO50");
-  declareProperty("L1ChainF", m_L1ChainF="L1_gXEJWOJ50");
-  declareProperty("L1ChainG", m_L1ChainG="L1_gXEPUFIT50");
-  declareProperty("HLTChainA", m_HLTChainA="HLT_xe65_cell_L1XE50");
-  declareProperty("HLTChainB", m_HLTChainB="HLT_xe65_cell_xe90_pfopufit_L1XE50");
-  declareProperty("HLTChainC", m_HLTChainC="HLT_xe75_cell_xe65_tcpufit_xe90_trkmht_L1XE50");
-  declareProperty("HLTChainD", m_HLTChainD="HLT_xe60_cell_xe95_pfsum_cssk_L1XE50");
-  declareProperty("HLTChainE", m_HLTChainE="HLT_xe55_cell_xe70_tcpufit_xe90_pfsum_vssk_L1XE50");
-  declareProperty("HLTChainF", m_HLTChainF="HLT_xe100_pfopuft_L1XE50");
-  declareProperty("HLTChainG", m_HLTChainG="HLT_xe65_cell_xe105_mhtpufit_em_subjesgscIS_L1XE50");
-  declareProperty("HLTChainH", m_HLTChainH="HLT_xe65_cell_xe100_mhtpufit_pf_subjesgscIS_L1XE50");
-  declareProperty("HLTChainI", m_HLTChainI="HLT_xe55_cell_xe70_tcpufit_xe95_pfsum_cssk_L1XE50");
-  declareProperty("HLTChainJ", m_HLTChainJ="HLT_xe100_pfsum_cssk_L1XE50");
-  declareProperty("HLTChainK", m_HLTChainK="HLT_xe65_cell_xe95_pfsum_vssk_L1XE50");
-  declareProperty("HLTChainL", m_HLTChainL="HLT_xe30_cell_xe30_tcpufit_L1XE30");
-  declareProperty("HLTChainM", m_HLTChainM="HLT_xe65_cell_xe110_tcpufit_L1XE50");
-  declareProperty("HLTChainN", m_HLTChainN="HLT_xe80_cell_xe115_tcpufit_L1XE50");
 }
 
 
@@ -120,19 +98,29 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 
     // access topoclusters container
     SG::ReadHandle<xAOD::CaloClusterContainer> hlt_topoclusters_cont(m_topoclusters_key, ctx);
+    if (! hlt_topoclusters_cont.isValid() || hlt_topoclusters_cont->size()==0 ) {
+        ATH_MSG_DEBUG("Container "<< m_topoclusters_key << " does not exist or is empty");
+    }
 
     // access tracks container
     SG::ReadHandle<xAOD::TrackParticleContainer> hlt_tracks_cont(m_tracks_key, ctx);
+    if (! hlt_tracks_cont.isValid() || hlt_tracks_cont->size()==0 ) {
+        ATH_MSG_DEBUG("Container "<< m_tracks_key << " does not exist or is empty");
+    }
 
     // access vertex container
     SG::ReadHandle<xAOD::VertexContainer> hlt_vertex_cont(m_vertex_key, ctx);
+    if (! hlt_vertex_cont.isValid() || hlt_vertex_cont->size()==0 ) {
+        ATH_MSG_DEBUG("Container "<< m_vertex_key << " does not exist or is empty");
+    }
 
-    // access met containers
+    // access offline met containers
     SG::ReadHandle<xAOD::MissingETContainer> offline_met_cont(m_offline_met_key, ctx);
     if (! offline_met_cont.isValid() || offline_met_cont->size()==0 ) {
         ATH_MSG_DEBUG("Container "<< m_offline_met_key << " does not exist or is empty");
     }
 
+    // access L1 met containers
     SG::ReadHandle<xAOD::EnergySumRoI> l1_roi_cont(m_lvl1_roi_key, ctx);
     if (! l1_roi_cont.isValid() ) {
         ATH_MSG_DEBUG("Container "<< m_lvl1_roi_key << " does not exist or is empty");
@@ -168,6 +156,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
         ATH_MSG_DEBUG("Container "<< m_lvl1_gpufit_key << " does not exist or is empty");
     }
 
+    // access HLT met containers
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_cell_met_cont(m_hlt_cell_met_key, ctx);
     if (! hlt_cell_met_cont.isValid() || hlt_cell_met_cont->size()==0 ) {
         ATH_MSG_DEBUG("Container "<< m_hlt_cell_met_key << " does not exist or is empty");
@@ -258,6 +247,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     auto offline_Ey = Monitored::Scalar<float>("offline_Ey",0.0);
     auto offline_Et = Monitored::Scalar<float>("offline_Et",0.0);
     auto offline_sumEt = Monitored::Scalar<float>("offline_sumEt",0.0);
+    auto offline_Et_eff = Monitored::Scalar<float>("offline_Et_eff",0.0);
     auto L1_roi_Ex = Monitored::Scalar<float>("L1_roi_Ex",0.0);
     auto L1_roi_Ey = Monitored::Scalar<float>("L1_roi_Ey",0.0);
     auto L1_roi_Et = Monitored::Scalar<float>("L1_roi_Et",0.0);
@@ -448,29 +438,6 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     auto cvfpufit_presel_Et = Monitored::Scalar<float>("cvfpufit_presel_Et",0.0);
     auto mhtpufit_pf_presel_Et = Monitored::Scalar<float>("mhtpufit_pf_presel_Et",0.0);
     auto mhtpufit_em_presel_Et = Monitored::Scalar<float>("mhtpufit_em_presel_Et",0.0);
-    //< -------------------------------------------------------------------------------------------------- > //
-
-    auto pass_L1A = Monitored::Scalar<float>("pass_L1A",0.0);
-    auto pass_L1B = Monitored::Scalar<float>("pass_L1B",0.0);
-    auto pass_L1C = Monitored::Scalar<float>("pass_L1C",0.0);
-    auto pass_L1D = Monitored::Scalar<float>("pass_L1D",0.0);
-    auto pass_L1E = Monitored::Scalar<float>("pass_L1E",0.0);
-    auto pass_L1F = Monitored::Scalar<float>("pass_L1F",0.0);
-    auto pass_L1G = Monitored::Scalar<float>("pass_L1G",0.0);
-    auto pass_HLTA = Monitored::Scalar<float>("pass_HLTA",0.0);
-    auto pass_HLTB = Monitored::Scalar<float>("pass_HLTB",0.0);
-    auto pass_HLTC = Monitored::Scalar<float>("pass_HLTC",0.0);
-    auto pass_HLTD = Monitored::Scalar<float>("pass_HLTD",0.0);
-    auto pass_HLTE = Monitored::Scalar<float>("pass_HLTE",0.0);
-    auto pass_HLTF = Monitored::Scalar<float>("pass_HLTF",0.0);
-    auto pass_HLTG = Monitored::Scalar<float>("pass_HLTG",0.0);
-    auto pass_HLTH = Monitored::Scalar<float>("pass_HLTH",0.0);
-    auto pass_HLTI = Monitored::Scalar<float>("pass_HLTI",0.0);
-    auto pass_HLTJ = Monitored::Scalar<float>("pass_HLTJ",0.0);
-    auto pass_HLTK = Monitored::Scalar<float>("pass_HLTK",0.0);
-    auto pass_HLTL = Monitored::Scalar<float>("pass_HLTL",0.0);
-    auto pass_HLTM = Monitored::Scalar<float>("pass_HLTM",0.0);
-    auto pass_HLTN = Monitored::Scalar<float>("pass_HLTN",0.0);
 
     auto HLT_MET_status = Monitored::Scalar<int>("HLT_MET_status",0.0);
     auto MET_status = Monitored::Scalar<float>("MET_status",0.0);
@@ -559,6 +526,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       offline_Ey = - (offline_met->mpy())/1000.;
       offline_sumEt = (offline_met->sumet())/1000.;
       offline_Et = std::sqrt(offline_Ex*offline_Ex + offline_Ey*offline_Ey);
+      offline_Et_eff = std::sqrt(offline_Ex*offline_Ex + offline_Ey*offline_Ey);
     }
 
     // access L1 roi MET values
@@ -988,31 +956,14 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     ATH_MSG_DEBUG("mhtpufit_em_Et = " << mhtpufit_em_Et);
 
     // efficiency plots
-    if (getTrigDecisionTool()->isPassed(m_L1ChainA)) pass_L1A = 1.0;
-    if (getTrigDecisionTool()->isPassed(m_L1ChainB)) pass_L1B = 1.0;
-    if (getTrigDecisionTool()->isPassed(m_L1ChainC)) pass_L1C = 1.0;
-    if (getTrigDecisionTool()->isPassed(m_L1ChainD)) pass_L1D = 1.0;
-    if (getTrigDecisionTool()->isPassed(m_L1ChainE)) pass_L1E = 1.0;
-    if (getTrigDecisionTool()->isPassed(m_L1ChainF)) pass_L1F = 1.0;
-    if (getTrigDecisionTool()->isPassed(m_L1ChainG)) pass_L1G = 1.0;
-    if (getTrigDecisionTool()->isPassed(m_HLTChainA)) pass_HLTA = 1.0;
-    if (getTrigDecisionTool()->isPassed(m_HLTChainB)) pass_HLTB = 1.0;
-    if (getTrigDecisionTool()->isPassed(m_HLTChainC)) pass_HLTC = 1.0;
-    if (getTrigDecisionTool()->isPassed(m_HLTChainD)) pass_HLTD = 1.0;
-    if (getTrigDecisionTool()->isPassed(m_HLTChainE)) pass_HLTE = 1.0;
-    if (getTrigDecisionTool()->isPassed(m_HLTChainF)) pass_HLTF = 1.0;
-    if (getTrigDecisionTool()->isPassed(m_HLTChainG)) pass_HLTG = 1.0;
-    if (getTrigDecisionTool()->isPassed(m_HLTChainH)) pass_HLTH = 1.0;
-    if (getTrigDecisionTool()->isPassed(m_HLTChainI)) pass_HLTI = 1.0;
-    if (getTrigDecisionTool()->isPassed(m_HLTChainJ)) pass_HLTJ = 1.0;
-    if (getTrigDecisionTool()->isPassed(m_HLTChainK)) pass_HLTK = 1.0;
-    if (getTrigDecisionTool()->isPassed(m_HLTChainL)) pass_HLTL = 1.0;
-    if (getTrigDecisionTool()->isPassed(m_HLTChainM)) pass_HLTM = 1.0;
-    if (getTrigDecisionTool()->isPassed(m_HLTChainN)) pass_HLTN = 1.0;
-    ATH_MSG_DEBUG("pass " << m_L1ChainA << " = " << pass_L1A);
-    ATH_MSG_DEBUG("pass " << m_HLTChainA << " = " << pass_HLTA);
-    ATH_MSG_DEBUG("pass " << m_HLTChainB << " = " << pass_HLTB);
-
+    for (const std::string& chain : m_l1Chains) {
+      auto pass_chain = Monitored::Scalar<float>("pass_" + chain, static_cast<float>(getTrigDecisionTool()->isPassed(chain)));
+      fill(tool, pass_chain,offline_Et_eff);
+    }
+    for (const std::string& chain : m_hltChains) {
+      auto pass_chain = Monitored::Scalar<float>("pass_" + chain, static_cast<float>(getTrigDecisionTool()->isPassed(chain)));
+      fill(tool, pass_chain,offline_Et_eff);
+    }
 
     // Fill. First argument is the tool (GMT) name as defined in the py file,
     // all others are the variables to be saved.
@@ -1032,12 +983,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
          L1_gjwoj_Ex,L1_gjwoj_Ey,L1_gjwoj_Et,L1_gjwoj_sumEt,
          L1_gjwoj_Ex_log,L1_gjwoj_Ey_log,L1_gjwoj_Et_log,L1_gjwoj_sumEt_log,
          L1_gpufit_Ex,L1_gpufit_Ey,L1_gpufit_Et,L1_gpufit_sumEt,
-         L1_gpufit_Ex_log,L1_gpufit_Ey_log,L1_gpufit_Et_log,L1_gpufit_sumEt_log,
-         pass_L1A,pass_L1B,pass_L1C,pass_L1D,pass_L1E,
-         pass_L1F,pass_L1G,
-         pass_HLTA,pass_HLTB,pass_HLTC,pass_HLTD,pass_HLTE,
-         pass_HLTF,pass_HLTG,pass_HLTH,pass_HLTI,pass_HLTJ,
-         pass_HLTK,pass_HLTL,pass_HLTM,pass_HLTN);
+         L1_gpufit_Ex_log,L1_gpufit_Ey_log,L1_gpufit_Et_log,L1_gpufit_sumEt_log);
     if (hlt_el_mult > 0) {
       fill(tool,hlt_el_mult);
     }

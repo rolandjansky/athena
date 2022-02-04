@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "eflowRec/eflowTrackCaloExtensionTool.h"
@@ -16,8 +16,7 @@
 #include "eflowRec/PFChargedFlowElementCreatorAlgorithm.h"
 #include "eflowRec/PFNeutralFlowElementCreatorAlgorithm.h"
 #include "eflowRec/PFLCNeutralFlowElementCreatorAlgorithm.h"
-#include "eflowRec/PFCellLevelSubtractionTool.h"
-#include "eflowRec/PFRecoverSplitShowersTool.h"
+#include "eflowRec/PFSubtractionTool.h"
 #include "eflowRec/PFMomentCalculatorTool.h"
 #include "eflowRec/PFClusterCollectionTool.h"
 #include "eflowRec/PFLCCalibTool.h"
@@ -41,8 +40,7 @@ DECLARE_COMPONENT( PFNeutralFlowElementCreatorAlgorithm)
 DECLARE_COMPONENT( PFLCNeutralFlowElementCreatorAlgorithm)
 DECLARE_COMPONENT( PFOChargedCreatorAlgorithm )
 DECLARE_COMPONENT( PFONeutralCreatorAlgorithm )
-DECLARE_COMPONENT( PFCellLevelSubtractionTool )
-DECLARE_COMPONENT( PFRecoverSplitShowersTool )
+DECLARE_COMPONENT( PFSubtractionTool )
 DECLARE_COMPONENT( PFMomentCalculatorTool )
 DECLARE_COMPONENT( PFClusterCollectionTool )
 DECLARE_COMPONENT( PFLCCalibTool )

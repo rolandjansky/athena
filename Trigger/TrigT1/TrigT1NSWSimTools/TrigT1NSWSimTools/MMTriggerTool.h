@@ -111,7 +111,8 @@ namespace NSWL1 {
     std::vector<unsigned int>* m_trigger_diamond_XmuonCount;
     std::vector<unsigned int>* m_trigger_diamond_UVmuonCount;
     std::vector<double>* m_trigger_diamond_age;
-    std::vector<double>* m_trigger_diamond_Xavg;
+    std::vector<double>* m_trigger_diamond_mx;
+    std::vector<double>* m_trigger_diamond_my;
     std::vector<double>* m_trigger_diamond_Uavg;
     std::vector<double>* m_trigger_diamond_Vavg;
     std::vector<double>* m_trigger_diamond_mxl;
@@ -120,6 +121,9 @@ namespace NSWL1 {
     std::vector<double>* m_trigger_diamond_dtheta;
     std::vector<double>* m_trigger_diamond_phi;
     std::vector<double>* m_trigger_diamond_phiShf;
+    std::vector<uint8_t>* m_trigger_diamond_TP_phi_id;
+    std::vector<uint8_t>* m_trigger_diamond_TP_R_id;
+    std::vector<uint8_t>* m_trigger_diamond_TP_dTheta_id;
 
     std::vector<double>* m_trigger_RZslopes;
     std::vector<double>* m_trigger_fitThe;

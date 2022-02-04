@@ -25,6 +25,7 @@ namespace FlavorTagDiscriminants {
   {
   public:
     BTagDecoratorAlg(const std::string& name, ISvcLocator* svcloc);
+    StatusCode initialize() override;
   };
 }
 

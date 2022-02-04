@@ -355,17 +355,29 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillDistributions( const std::vector< s
   // L1Calo
   {
     //  Fill L1 features
-    std::vector<const xAOD::EmTauRoI*> l1_vec;
-    auto initRois =  tdt()->features<TrigRoiDescriptorCollection>(trigger,TrigDefs::includeFailedDecisions,"",TrigDefs::allFeaturesOfType,"initialRoI");       
-    for( auto &initRoi: initRois ){               
-      if( !initRoi.link.isValid() ) continue;      
-      const auto *feat = match()->getL1Feature( initRoi.source );
-      if(feat)
-        l1_vec.push_back(feat);
+    auto initRois =  tdt()->features<TrigRoiDescriptorCollection>(trigger,condition,"",TrigDefs::allFeaturesOfType,"initialRoI");       
+    
+    if (info.L1Legacy){
+        std::vector<const xAOD::EmTauRoI*> l1_vec;
+        for( auto &initRoi: initRois ){               
+            if( !initRoi.link.isValid() ) continue;      
+            const auto *feat = match()->getL1Feature( initRoi.source );
+            if(feat) l1_vec.push_back(feat);
+        }
+        fillL1Calo( trigger, l1_vec );
+    }else{
+        std::vector<const xAOD::eFexEMRoI*> l1_vec;
+        for( auto &initRoi: initRois ){               
+            if( !initRoi.link.isValid() ) continue;      
+            const auto *feat = match()->getL1eEMFeature( initRoi.source );
+            if(feat) l1_vec.push_back(feat);
+        }
+        fillL1eEM( trigger, l1_vec );
     }
-    fillL1Calo( trigger, l1_vec );
-  }
 
+  }
+      
+    
   // L2Calo
   {
     std::vector<const xAOD::TrigEMCluster*> emCluster_vec;
@@ -485,26 +497,32 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillL1Calo( const std::string &trigger,
 }
 
 
-void TrigEgammaMonitorAnalysisAlgorithm::fillL1CaloL1eEM( const std::string &trigger, const std::vector< const xAOD::eFexEMRoI* >& l1_vec ) const 
+void TrigEgammaMonitorAnalysisAlgorithm::fillL1eEM( const std::string &trigger, const std::vector< const xAOD::eFexEMRoI* >& l1_vec ) const 
 {
     auto monGroup = getGroup(trigger+"_Distributions_L1Calo");
 
-    std::vector<float> eta_vec, phi_vec, roi_et_vec;
+    std::vector<float> eta_vec, phi_vec, et_vec, wstot_vec, reta_vec, rhad_vec;
 
+    auto et_col       = Monitored::Collection( "et"      , et_vec        );
     auto eta_col      = Monitored::Collection( "eta"     , eta_vec       );
     auto phi_col      = Monitored::Collection( "phi"     , phi_vec       );
-    auto roi_et_col   = Monitored::Collection( "roi_et"  , roi_et_vec    );
+    auto wstot_col    = Monitored::Collection( "Wstot"   , wstot_vec     );
+    auto reta_col     = Monitored::Collection( "Reta"    , reta_vec      );
+    auto rhad_col     = Monitored::Collection( "Rhad"    , rhad_vec      );
+
 
     for( const auto *l1 : l1_vec )
     {
       if(!l1)  continue;
+      et_vec.push_back( l1->et()/Gaudi::Units::GeV );
       eta_vec.push_back( l1->eta() );
       phi_vec.push_back( l1->phi() );
-      roi_et_vec.push_back( l1->et()/Gaudi::Units::GeV );
-
+      wstot_vec.push_back( l1->Wstot() );
+      reta_vec.push_back( l1->Reta() );
+      rhad_vec.push_back( l1->Rhad() );
     }
 
-    fill( monGroup, eta_col, phi_col, roi_et_col );
+    fill( monGroup, eta_col, phi_col, et_col, wstot_col, reta_col, rhad_col );
 
 }
 

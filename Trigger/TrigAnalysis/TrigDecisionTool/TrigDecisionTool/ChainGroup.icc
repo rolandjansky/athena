@@ -30,7 +30,7 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
   // TODO when we decide what happens to CacheGlobalMemory - this needs to be updated to use a ReadHandle
   SG::ReadHandle<TrigCompositeUtils::DecisionContainer> navigationSummaryRH = SG::ReadHandle(HLTSummaryKeyIn);
   if (!navigationSummaryRH.isValid()) {
-    ATH_MSG_ERROR("Unable to read Run 3 trigger navigation. Cannot retrieve features.");
+    ATH_MSG_ERROR("Unable to read Run 3 trigger navigation from " << HLTSummaryKeyIn.key() << ". Cannot retrieve features.");
     errState = true;
   }
 
@@ -39,7 +39,8 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
   if (!errState) {
     terminusNode = TrigCompositeUtils::getTerminusNode(navigationSummaryRH);
     if (terminusNode == nullptr) {
-      ATH_MSG_ERROR("Unable to locate HLTPassRaw element of HLTNav_Summary");
+      ATH_MSG_ERROR("Unable to locate HLTPassRaw element of " << HLTSummaryKeyIn.key() 
+        << ", collection contains " << navigationSummaryRH->size() << " nodes."  );
       errState = true;
     }
   }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -32,7 +32,7 @@ public:
 
   // Default constructor
   ApproachDescriptor(
-    std::unique_ptr<BinnedArray<ApproachSurfaces>> aSurfaceArray,
+    std::unique_ptr<BinnedArray<const ApproachSurfaces>> aSurfaceArray,
     std::unique_ptr<Surface> aSurfaceArraySurface = nullptr)
     : IApproachDescriptor(std::move(aSurfaceArray), std::move(aSurfaceArraySurface))
   {}

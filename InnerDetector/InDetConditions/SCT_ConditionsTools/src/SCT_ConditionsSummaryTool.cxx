@@ -182,6 +182,13 @@ SCT_ConditionsSummaryTool::hasBSError(const IdentifierHash& /*elementHash*/, Ide
   return true;
 }
 
+bool
+SCT_ConditionsSummaryTool::hasBSError(const IdentifierHash& /*elementHash*/, const EventContext& /*ctx*/, Identifier /*elementId*/) const {
+  ATH_MSG_WARNING("hasBSError() is not implemented for SCT_ConditionsSummaryTool");
+  return true;
+}
+
+
 uint64_t
 SCT_ConditionsSummaryTool::getBSErrorWord(const IdentifierHash& /*moduleHash*/, const EventContext& /*ctx*/) const {
   ATH_MSG_WARNING("getBSErrorWord() is not implemented for SCT_ConditionsSummaryTool");

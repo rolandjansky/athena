@@ -26,11 +26,12 @@
 #include "GaudiKernel/IPartPropSvc.h"
 #include "StoreGate/WriteDecorHandle.h"
 #include "HepPDT/ParticleDataTable.hh"
+#include "EventKernel/PdtPdg.h"
 
 #include <vector>
 #include <cmath>
 #include <string>
-#include "TVector3.h"
+
 
 namespace InDet
 {

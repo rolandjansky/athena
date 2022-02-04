@@ -32,7 +32,7 @@ namespace LVL1 {
     /** Destructor */
     virtual ~eFEXFormTOBs();
 
-    virtual uint32_t formTauTOBWord(int &, int &, int &, unsigned int &, unsigned int &, unsigned int &, unsigned int &, unsigned int &) override;
+    virtual uint32_t formTauTOBWord(int &, int &, int &, unsigned int &, unsigned int &, unsigned int &, unsigned int &, unsigned int &, unsigned int &) override;
 
     virtual uint32_t formEmTOBWord(int &, int &, int &, unsigned int &, unsigned int &, unsigned int &, unsigned int &, unsigned int &, unsigned int &) override;
 

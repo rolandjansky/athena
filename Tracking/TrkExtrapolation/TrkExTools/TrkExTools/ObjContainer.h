@@ -26,27 +26,40 @@
  * of the container object base class does not properly clone the managed objects.
  */
 
-template <class T_Obj, class T_index = unsigned short, class T_signed_count=short>
+template<class T_Obj, class T_index = unsigned short, class T_signed_count = short>
 class ObjContainer;
 
-template <class T_Obj, class T_index = unsigned short, class T_signed_counter=short>
+template<class T_Obj, class T_index = unsigned short, class T_signed_counter = short>
 class ObjPtr;
 
-template <class T_index = unsigned short>
+template<class T_index = unsigned short>
 class ObjRef;
 
 /** Template to be specialised if object cloning is not handled by the copy operator of the container object class.
  */
-template <class T_Obj> T_Obj *cloneObj(const T_Obj *obj)      { return (obj ? new T_Obj(*obj): obj); }
+template<class T_Obj>
+T_Obj*
+cloneObj(const T_Obj* obj)
+{
+  return (obj ? new T_Obj(*obj) : obj);
+}
 
-template <class T_Obj> 
-std::unique_ptr<T_Obj> uniqueClone(const T_Obj *obj)      { return std::unique_ptr<T_Obj>(cloneObj(obj)); }
+template<class T_Obj>
+std::unique_ptr<T_Obj>
+uniqueClone(const T_Obj* obj)
+{
+  return std::unique_ptr<T_Obj>(cloneObj(obj));
+}
 
 /** @brief Template which can be specialised to eventually instrument the managed objects.
  * Prerequisite for specialisation: the container object base class has a virtual destructor.
  */
-template <class T_Obj> T_Obj *replaceManagedPtr(T_Obj *p_ptr) { return p_ptr; }
-
+template<class T_Obj>
+T_Obj*
+replaceManagedPtr(T_Obj* p_ptr)
+{
+  return p_ptr;
+}
 
 /** Templates which can be specialised to monitor resources.
  */
@@ -376,20 +389,24 @@ protected:
 
    /** Return true if this container owns the object.
     */
-   static bool isOwned( ObjRef<T_index> ref) {
-      return ref.idx() == 1;
+   bool isOwned( ObjRef<T_index> ref) {
+      return count(ref) == 1;
    }
 
    /** Return true if the object is referred to by more than one @ref ObjPtr.
     */
-   static bool isShared( ObjRef<T_index> ref) {
-      return ref.idx() > 1;
+   bool isShared( ObjRef<T_index> ref) {
+      return count(ref) > 1;
    }
 
    /** Return true if the object is external i.e. not owned by this container.
     */
-   static bool isExtern( ObjRef<T_index> ref) {
-      return ref.idx() == s_externalObj;
+   bool isExtern( ObjRef<T_index> ref) {
+      return count(ref) == s_externalObj;
+   }
+   
+   T_signed_count count(ObjRef<T_index> ref) const{
+     return m_objs[ref.idx() ].second;
    }
 
 protected:
@@ -499,41 +516,42 @@ public:
       shareAndSet(obj_ptr.index());
    }
 
-   /** Store a managed object in the container.
-    * @param container the container to store the given object
-    * @param obj the object to be managed.
-    */
-   ObjPtr(ObjContainer<T_Obj,T_index, T_signed_counter> &container, T_Obj *obj)
-      : m_container(&container),
-        m_ref(m_container->registerObj(obj))
-   {
-   }
-
    /** Store an external object in the container.
     * @param container the container to store the given object
     * @param obj the external object to be stored in the container.
     * The container will not claim ownership.
     */
-   ObjPtr(ObjContainer<T_Obj,T_index, T_signed_counter> &container, const T_Obj &obj)
-      : m_container(&container),
-        m_ref(m_container->registerObj(obj))
-   {
-   }
+   ObjPtr(ObjContainer<T_Obj, T_index, T_signed_counter>& container, const T_Obj& obj)
+     : m_container(&container)
+     , m_ref(m_container->registerObj(obj))
+   {}
+
+
+   /** 
+    * Pass a unique_ptr to the container
+    * The Unique_ptr becomes an Owned object 
+    * i.e has count 1
+    * @param container the container to store the given object
+    * @param obj the object to be managed.
+    */
+   ObjPtr(ObjContainer<T_Obj, T_index, T_signed_counter>& container, std::unique_ptr<T_Obj> obj)
+     : ObjPtr(container, container.registerObj(obj.release()))
+   {}
 
    /** Share the referred object managed by the given container.
     * @param container the container which manages the referenced object.
     * @param ref a reference to an object in the container (or an invalid reference) to create on invalid ObjPtr.
     */
-   ObjPtr(ObjContainer<T_Obj,T_index, T_signed_counter> &container, ObjRef<T_index> ref=ObjRef<T_index>())
-      : m_container(&container),
-        m_ref( ref ? container.share(ref) : ref)
-   {
-   }
+   ObjPtr(ObjContainer<T_Obj, T_index, T_signed_counter>& container, ObjRef<T_index> ref = ObjRef<T_index>())
+     : m_container(&container)
+     , m_ref(ref ? container.share(ref) : ref)
+   {}
 
-   ~ObjPtr() {
-      if  (m_ref) {
-         m_container->drop(m_ref);
-      }
+   ~ObjPtr()
+   {
+     if (m_ref) {
+       m_container->drop(m_ref);
+     }
    }
 
    /** Test whether this pointer points to a valid object.
@@ -598,16 +616,16 @@ public:
     * @param obj a new object or the already managed object pointed to by orig (or a nullptr).
     * @return a pointer to a managed object either the newly managed object or the original managed object.
     */
-   static ObjPtr recapture(const ObjPtr &orig, T_Obj *obj) {
+   static ObjPtr recapture(const ObjPtr &orig, std::unique_ptr<T_Obj> obj) {
       if (obj) {
          if (!orig.m_container) {
             ObjContainerBase::throwNoContainer();
          }
-         if (orig && obj == orig.get()) {
+         if (orig && obj.get() == orig.get()) {
             return orig;
          }
          else {
-            return ObjPtr(*orig.m_container, orig.m_container->registerObj(obj));
+            return ObjPtr(*orig.m_container, orig.m_container->registerObj(obj.release()));
          }
       }
       else {
@@ -698,19 +716,19 @@ public:
    /** Return true if the object is managed and owned by the container.
     */
    bool isOwned() const {
-      return ObjContainer<T_Obj, T_index, T_signed_counter>::isOwned(m_ref);
+      return m_container->isOwned(m_ref);
    }
 
    /** Return true if the object is managed by the container and if there are more than one instances of ObjPtr which point to this object.
     */
    bool isShared() const {
-      return ObjContainer<T_Obj, T_index, T_signed_counter>::isShared(m_ref);
+      return m_container->isShared(m_ref);
    }
 
    /** Return true if the object is an external object i.e. if the container does not have ownership over this object.
     */
    bool isExtern() const {
-      return ObjContainer<T_Obj, T_index, T_signed_counter>::isExtern(m_ref);
+      return m_container->isExtern(m_ref);
    }
 
 

@@ -405,24 +405,12 @@ EGAM10Sequence += CfgMgr.DerivationFramework__DerivationKernel("EGAM10Kernel",
 #====================================================================
 # JET/MET
 #====================================================================
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addAntiKt4PV0TrackJets, addAntiKt4TruthJets, addAntiKt4TruthWZJets
-addAntiKt4PV0TrackJets(EGAM10Sequence,"EGAM10")
-addAntiKt4TruthJets(EGAM10Sequence,"EGAM10")
-addAntiKt4TruthWZJets(EGAM10Sequence,"EGAM10")
+from DerivationFrameworkJetEtMiss.JetCommon import addDAODJets
+from JetRecConfig.StandardSmallRJets import AntiKt4Truth,AntiKt4TruthWZ,AntiKt4PV0Track
+jetList = [AntiKt4Truth,AntiKt4TruthWZ,AntiKt4PV0Track]
+addDAODJets(jetList, EGAM10Sequence)
 
 
-#========================================
-# ENERGY DENSITY
-#========================================
-if (DerivationFrameworkIsMonteCarlo):
-    # Schedule the two energy density tools for running after the pseudojets are created.
-    for alg in ['EDTruthCentralAlg', 'EDTruthForwardAlg']:
-        if hasattr(topSequence, alg):
-            edtalg = getattr(topSequence, alg)
-            delattr(topSequence, alg)
-            EGAM10Sequence += edtalg
-        
-        
 #====================================================================
 # SET UP SLIMMING
 #====================================================================

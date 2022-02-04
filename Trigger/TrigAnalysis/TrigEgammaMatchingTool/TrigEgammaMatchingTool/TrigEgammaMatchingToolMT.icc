@@ -62,21 +62,24 @@ inline bool TrigEgammaMatchingToolMT::ancestorPassed<TrigRoiDescriptorCollection
 
 template<class T>
 inline bool TrigEgammaMatchingToolMT::closestObject( const xAOD::Egamma *eg, const TrigCompositeUtils::Decision *&dec, 
-                                                     std::string trigger, std::string key , unsigned int condition) const
+                                                     const std::string &trigger, const std::string &key , 
+                                                     float dR_value, unsigned int condition
+                                                   ) const
 {
   double deltaR=0.;        
-  auto vec =  tdt()->features<T>(trigger, condition ,key);      
+  auto vec =  tdt()->features<T>(trigger, condition ,key);
   
   
-  for( auto &featLinkInfo : vec ){                                             
+  for( auto &featLinkInfo : vec ){
+
     if(! featLinkInfo.isValid() ) continue;
-    const auto *feat = *(featLinkInfo.link);                   
+    const auto *feat = *(featLinkInfo.link);
     if(!feat) continue;
-    deltaR = dR(eg->eta(),eg->phi(), feat->eta(),feat->phi());                                
-    if(deltaR < (float)m_dR){            
-      dec = featLinkInfo.source;                                                
-      return true;                                                                            
-    }                                                                                         
+    deltaR = dR(eg->eta(),eg->phi(), feat->eta(),feat->phi());
+    if(deltaR < dR_value){
+      dec = featLinkInfo.source;
+      return true;
+    }
   }
   return false;
 }
@@ -118,11 +121,11 @@ const
   if( initRoi.isValid() ){
     // includeFailedDecisions
 
-    auto vec_dec =  tdt()->features<TrigRoiDescriptorCollection>(trigger, condition,"",TrigDefs::allFeaturesOfType,"initialRoI");       
-    for( auto &featLinkInfo: vec_dec ){  
-      if( !featLinkInfo.isValid() ) continue; 
+    auto vec_dec =  tdt()->features<TrigRoiDescriptorCollection>(trigger, condition,"",TrigDefs::allFeaturesOfType,"initialRoI");
+    for( auto &featLinkInfo: vec_dec ){
+      if( !featLinkInfo.isValid() ) continue;
       if( (*featLinkInfo.link)->roiWord() == (*initRoi.link)->roiWord() )  return featLinkInfo; 
-    }                                                               
+    }
   }
 
   return TrigCompositeUtils::LinkInfo<TrigRoiDescriptorCollection>();
@@ -210,8 +213,6 @@ const
 {
   return getFeatures<xAOD::PhotonContainer>(dec, trigger, key("Photons"), condition );
 }
-
-
 
 
 

@@ -155,7 +155,7 @@ int main ATLAS_NOT_THREAD_SAFE () {
   // Make, store and retrieve a "seed" link within a collection
   ElementLink<DecisionContainer> el( *dc, 1 );
   assert( d3->addObjectCollectionLink( "seed", el ) );
-  ElementLinkVector<DecisionContainer > resElVector = d3->objectCollectionLinks<DecisionContainer>("seed");
+  std::vector<ElementLink<DecisionContainer >> resElVector = d3->objectCollectionLinks<DecisionContainer>("seed");
   assert( resElVector.size() == 1 );
   ElementLink<DecisionContainer> resEl = resElVector.front();
   VALUE( resEl.index() ) EXPECTED ( el.index() );
@@ -182,7 +182,7 @@ int main ATLAS_NOT_THREAD_SAFE () {
   std::cout << "d3: " << *d3 << std::endl;
   std::cout << "d4: " << *d4 << std::endl;
   std::cout << "el: key " << el.key() << " index " << el.index() << std::endl;
-  ElementLinkVector<DecisionContainer > resElCopiedVector = d4->objectCollectionLinks<DecisionContainer>("seed");
+  std::vector<ElementLink<DecisionContainer >> resElCopiedVector = d4->objectCollectionLinks<DecisionContainer>("seed");
   ElementLink<DecisionContainer> resElCopied = resElCopiedVector.front();
   VALUE ( resElCopied.index() ) EXPECTED ( el.index() );
   VALUE ( resElCopied.key() ) EXPECTED ( el.key() );

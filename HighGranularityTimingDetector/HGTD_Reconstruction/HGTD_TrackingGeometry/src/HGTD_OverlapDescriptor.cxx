@@ -1,6 +1,6 @@
  
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -23,7 +23,7 @@
 #include "Identifier/Identifier.h"
 
 
-HGTD_OverlapDescriptor::HGTD_OverlapDescriptor(const Trk::BinnedArray<Trk::Surface>* bin_array,
+HGTD_OverlapDescriptor::HGTD_OverlapDescriptor(const Trk::BinnedArray<const Trk::Surface>* bin_array,
                                                std::vector < float > valuesR,
                                                std::vector < std::vector< float> > valuesPhi,
                                                int nStepsR, int nStepsPhi):

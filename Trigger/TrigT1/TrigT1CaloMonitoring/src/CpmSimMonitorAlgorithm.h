@@ -28,6 +28,8 @@
 #include "TrigT1Interfaces/CPRoIDecoder.h"
 #include "TrigT1CaloUtils/TriggerTowerKey.h"
 
+#include "TrigConfData/L1Menu.h"
+
 class IL1CPCMXTools;
 class IL1CPMTools;
 class ITrigT1CaloMonErrorTool; 
@@ -39,6 +41,10 @@ class CpmSimMonitorAlgorithm : public AthMonitorAlgorithm {
   virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
 
  private:
+
+  // to deal with L1 menu
+  ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc{this, "TrigConfigSvc", "TrigConf::xAODConfigSvc/xAODConfigSvc"};
+  const TrigConf::L1Menu* getL1Menu(const EventContext& ctx) const;
 
   StringProperty m_packageName{this,"PackageName","CpmSimMonitor","group name for histograming"};
 
@@ -66,6 +72,9 @@ class CpmSimMonitorAlgorithm : public AthMonitorAlgorithm {
   SG::ReadHandleKey<xAOD::CMXCPTobContainer> m_cmxCpTobLocation{this, "CMXCPTobLocation", LVL1::TrigT1CaloDefs::CMXCPTobLocation, "CMX CP Tob container"};
   SG::ReadHandleKey<xAOD::CMXCPHitsContainer> m_cmxCpHitsLocation{this, "CMXCPHitsLocation", LVL1::TrigT1CaloDefs::CMXCPHitsLocation, "CMX CP Hits container"};
   SG::ReadHandleKey<xAOD::RODHeaderContainer> m_rodHeaderLocation{this, "RodHeaderLocation", LVL1::TrigT1CaloDefs::RODHeaderLocation, "Rod header container"};
+
+  SG::ReadHandleKey<TrigConf::L1Menu> m_L1MenuKey  { this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu", "L1 Menu" };
+
 
   // CP-CMX simulation tool
   ToolHandle<LVL1::IL1CPCMXTools>        m_cpCmxTool;
@@ -123,16 +132,19 @@ class CpmSimMonitorAlgorithm : public AthMonitorAlgorithm {
   // simulation
   // Simulate CPM RoIs from CPM Towers
   void  simulate(const CpmTowerMap *towers, const CpmTowerMap *towersOv,
-		 xAOD::CPMTobRoIContainer* rois) const;
+		 xAOD::CPMTobRoIContainer* rois, const EventContext& ctx) const;
   // Simulate CPM RoIs from CPM Towers quick version
-  void  simulate(const CpmTowerMap* towers, xAOD::CPMTobRoIContainer* rois) const;
+  void  simulate(const CpmTowerMap* towers, xAOD::CPMTobRoIContainer* rois, const EventContext& ctx) const;
+
 
   // Simulate CMX-CP TOBs from CPM RoIs
   void  simulate(const xAOD::CPMTobRoIContainer* rois, xAOD::CMXCPTobContainer* tobs) const;
 
   // Simulate CMX Hit sums from CMX TOBs
   void  simulate(const xAOD::CMXCPTobContainer* tobs,
-		 xAOD::CMXCPHitsContainer* hits, int selection) const;
+		 xAOD::CMXCPHitsContainer* hits, int selection,
+		 const EventContext& ctx) const;
+
   // Simulate CMX Total Hit sums from Remote/Local
   void  simulate(const xAOD::CMXCPHitsContainer* hitsIn,
 		 xAOD::CMXCPHitsContainer* hitsOut) const;

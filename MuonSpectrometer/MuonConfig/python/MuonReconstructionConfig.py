@@ -126,6 +126,9 @@ def StandaloneMuonOutputCfg(flags):
 def MuonReconstructionCfg(flags):
     # https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonStandalone.py
     result=ComponentAccumulator()
+    from MuonConfig.MuonPrepDataConvConfig import MuonPrepDataConvCfg
+    result.merge(MuonPrepDataConvCfg(flags))
+
     result.merge( MuonSegmentFindingCfg(flags))
     result.merge( MuonTrackBuildingCfg(flags))
     result.merge( MuonStandaloneTrackParticleCnvAlgCfg(flags) )

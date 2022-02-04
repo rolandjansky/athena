@@ -16,6 +16,13 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
+#include "TileTMDBMonitorAlgorithm.h"
+#include "TileIdentifier/TileHWID.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/ReadCondHandle.h"
+
+#include "math.h"
+
 class TileHWID;
 class TileCablingService;
 
@@ -32,10 +39,13 @@ class TileTMDBMonitorAlgorithm: public AthMonitorAlgorithm {
     virtual StatusCode initialize() override;
     virtual StatusCode fillHistograms(const EventContext& ctx) const override;
 
+
+    void fillNoiseHistograms(const TileDigitsCollection* muRcvDigitsCollection, const int drawer, const int partition) const;
+
   private:
 
     Gaudi::Property<std::vector<float>> m_pulseEnergyRange{this,
-        "PulseEnergyRange", {1000.0F, 5000.F}, "Energy [MeV] range for pulse shape"};
+        "PulseEnergyRange", {0.5F, 5000.F}, "Energy [MeV] range for pulse shape"};
 
     Gaudi::Property<std::vector<float>> m_energyRange{this,
         "EnergyRange", {100.0F, 10000.F}, "Energy [MeV] range for pulse shape"};
@@ -67,9 +77,20 @@ class TileTMDBMonitorAlgorithm: public AthMonitorAlgorithm {
     std::vector<int> m_peakGroups;
     std::vector<int> m_energyGroups;
 
+    std::vector<std::vector<std::vector<std::vector<float>>>> m_PedestalVector;
+
     std::vector<std::vector<std::vector<int>>> m_chanEnergyGroups;
+    std::vector<std::vector<std::vector<std::vector<int>>>> m_chanChannelNoiseGroups;
+    std::vector<std::vector<std::vector<int>>> m_chanPeakPosGroups;
     std::vector<std::vector<std::vector<int>>> m_calibErrorGroups;
     std::vector<std::vector<std::vector<int>>> m_pulseGroups;
+
+    struct corrmap {
+        double **accCorrelation;
+        double *accMean;
+    };
+
+    std::vector<std::vector<std::vector<float *>>> m_accCorrelation;
 
     using Tile = TileCalibUtils;
 

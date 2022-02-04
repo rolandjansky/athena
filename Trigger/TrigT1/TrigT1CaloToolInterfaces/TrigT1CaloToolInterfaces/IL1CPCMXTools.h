@@ -15,6 +15,8 @@
 #include "xAODTrigL1Calo/CMXCPTobContainer.h"
 #include "xAODTrigL1Calo/CMXCPHitsContainer.h"
 
+#include "TrigConfData/L1Menu.h"
+
 namespace LVL1 
 {
   class CPMTobRoI;
@@ -37,9 +39,11 @@ namespace LVL1
                  xAOD::CMXCPTobContainer* cmxTobVec, uint8_t peak) const = 0;
     
 
-    virtual void formCMXCPHits(const xAOD::CMXCPTobContainer*  cmxTobVec,
+    virtual void formCMXCPHits(const TrigConf::L1Menu* l1menu,
+			       const xAOD::CMXCPTobContainer*  cmxTobVec,
                                xAOD::CMXCPHitsContainer* cmxHitsVec) const = 0;
-    virtual void formCMXCPHitsCrate(const xAOD::CMXCPTobContainer* cmxTobVec,
+    virtual void formCMXCPHitsCrate(const TrigConf::L1Menu* l1menu,
+				    const xAOD::CMXCPTobContainer* cmxTobVec,
 				    xAOD::CMXCPHitsContainer* cmxHitsCrate) const = 0;
     virtual void formCMXCPHitsSystem(const xAOD::CMXCPHitsContainer* cmxHitsCrate,
 				     xAOD::CMXCPHitsContainer* cmxHitsSys) const = 0;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -24,37 +24,37 @@ public:
     //Destructor
   virtual ~TRT_CablingData();
   
-    // Initialize m_identfierForAllStraws with zeros (TB case)
-  void zero_identfierForAllStraws(int rod, std::vector<Identifier> tempbuff);  
+    // Initialize m_identifierForAllStraws with zeros (TB case)
+  void zero_identifierForAllStraws(int rod, std::vector<Identifier> tempbuff);  
   
-    // Initialize m_identfierHashForAllStraws with zeros (TB case)
-  void zero_identfierHashForAllStraws(int rod, std::vector<IdentifierHash> tempbuff);
+    // Initialize m_identifierHashForAllStraws with zeros (TB case)
+  void zero_identifierHashForAllStraws(int rod, std::vector<IdentifierHash> tempbuff);
   
     // Set value of Identifier for each straw (TB case)
-  void set_identfierForAllStraws(int rod, int bufferPosition, 
+  void set_identifierForAllStraws(int rod, int bufferPosition, 
     Identifier strawID);
 
     // Set value of Identifier for each straw (DC1, DC2)
-  void set_identfierForAllStraws(Identifier strawID);
+  void set_identifierForAllStraws(Identifier strawID);
 
     // Set value of IdentifierHash for each straw (TB case)
-  void set_identfierHashForAllStraws(int rod, int bufferPosition, 
+  void set_identifierHashForAllStraws(int rod, int bufferPosition, 
     IdentifierHash hashId);
 
     // Set value of IdentifierHash for each straw (DC1, DC2)
-  void set_identfierHashForAllStraws(IdentifierHash hashId);
+  void set_identifierHashForAllStraws(IdentifierHash hashId);
 
     // Get value of Identifier for each straw (TB case)
-  Identifier get_identfierForAllStraws(int rod, int bufferPosition);
+  Identifier get_identifierForAllStraws(int rod, int bufferPosition) const;
   
     // Get value of IdentifierHash for each straw (TB case)
-  IdentifierHash get_identfierHashForAllStraws(int rod, int bufferPosition);
+  IdentifierHash get_identifierHashForAllStraws(int rod, int bufferPosition) const;
     
     // Get value of Identifier for each straw (DC1, DC2)
-  Identifier get_identfierForAllStraws(int shift);
+  Identifier get_identifierForAllStraws(int shift) const;
 
     // Get value of IdentifierHash for each straw (DC1, DC2)
-  IdentifierHash get_identfierHashForAllStraws(int shift);
+  IdentifierHash get_identifierHashForAllStraws(int shift) const;
 
   // Get buffer offset from Identifier
   uint32_t get_BufferOffset( Identifier StrawId );
@@ -77,10 +77,10 @@ private:
   std::vector<uint32_t> m_allRobs;
 
     // Identifiers for all straws
-  std::vector<Identifier> m_identfierForAllStraws;
+  std::vector<Identifier> m_identifierForAllStraws;
 
     // Hashed Identifiers for all straws;
-  std::vector<IdentifierHash> m_identfierHashForAllStraws;
+  std::vector<IdentifierHash> m_identifierHashForAllStraws;
 
   // Buffer Offsets for all Identifiers;
   struct idpair
@@ -106,6 +106,7 @@ private:
   rodmap_t m_rodoffset_to_id;
 
   idandhash_t& find_idandhash (int rod, int bufferPosition);
+  const idandhash_t& find_idandhash (int rod, int bufferPosition) const;
 };
 
 #endif // TRT_CABLINGDATA_H

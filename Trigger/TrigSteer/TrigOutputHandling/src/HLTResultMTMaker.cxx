@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigOutputHandling/HLTResultMTMaker.h"
@@ -65,7 +65,7 @@ StatusCode HLTResultMTMaker::initialize() {
   ATH_CHECK(m_runtimeMetadataWHKey.initialize());
   ATH_CHECK(m_streamTagMaker.retrieve(DisableTool{m_streamTagMaker.name().empty()}));
   ATH_CHECK(m_makerTools.retrieve());
-  ATH_CHECK(m_monTool.retrieve());
+  ATH_CHECK(m_monTool.retrieve(DisableTool{m_monTool.empty()}));
   ATH_CHECK(m_jobOptionsSvc.retrieve());
   ATH_CHECK(m_bsMetaDataContRHKey.initialize(!m_extraROBs.empty() || !m_extraSubDets.empty()));
 

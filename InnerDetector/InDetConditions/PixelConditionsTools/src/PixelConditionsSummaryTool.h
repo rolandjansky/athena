@@ -65,6 +65,7 @@ class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool
     virtual bool hasBSError(const IdentifierHash& moduleHash, Identifier pixid) const override final;
     virtual bool hasBSError(const IdentifierHash& moduleHash, const EventContext& ctx) const override final;
     virtual bool hasBSError(const IdentifierHash& moduleHash, Identifier pixid, const EventContext& ctx) const override final;
+    virtual bool hasBSError(const IdentifierHash& moduleHash, const EventContext& ctx, Identifier pixid) const override final;
     virtual uint64_t getBSErrorWord(const IdentifierHash& moduleHash, const EventContext& ctx) const override final;
     virtual uint64_t getBSErrorWord(const IdentifierHash& moduleHash, const int index, const EventContext& ctx) const override final;
 

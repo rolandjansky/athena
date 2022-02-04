@@ -593,7 +593,6 @@ def createR3LargeD0TrackingPassFlags():
     icf.doZBoundary             = True
     icf.keepAllConfirmedStripSeeds = True
     icf.maxSeedsPerSP_Strips = 1
-    icf.usePixel             = False
 
     return icf
 

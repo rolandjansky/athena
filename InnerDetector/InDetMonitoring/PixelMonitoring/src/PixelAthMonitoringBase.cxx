@@ -285,6 +285,22 @@ int PixelAthMonitoringBase::getPixLayersID(int ec, int ld) const {
   return layer;
 }
 
+///
+/// helper function to check if module is IBL planar based on pixel hash ID
+///
+bool PixelAthMonitoringBase::isIBL2D(int hashID) const {
+  bool result(false);
+  if ( hashID>=156 && hashID<=435 ) // IBL
+    { 
+      int module = (hashID-156) % 20;
+      if (module>3 && module<16)
+	{ 
+	  result = true;
+	}
+    }
+  return result;
+}
+
 //////////////////////////////////////////////
 
 ///

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPC_RawDataProviderTool.h"
@@ -155,7 +155,7 @@ StatusCode Muon::RPC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs
 
   // here we have to check if the container is already present and if it is we retrieve from SG
   if (rdoContainerHandle.isPresent()) {
-    const RpcPadContainer* pad_c;
+    const RpcPadContainer* pad_c = nullptr;
     ATH_CHECK( evtStore()->retrieve (pad_c, m_containerKey.key()) );
     pad = const_cast<RpcPadContainer*>(pad_c);
   } else {
@@ -164,7 +164,7 @@ StatusCode Muon::RPC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs
   }
 
   if (logicHandle.isPresent()) {
-    const RpcSectorLogicContainer* logic_c;
+    const RpcSectorLogicContainer* logic_c = nullptr;
     ATH_CHECK( evtStore()->retrieve (logic_c, m_sec.key()) );
     logic = const_cast<RpcSectorLogicContainer*>(logic_c);                  
   } else {

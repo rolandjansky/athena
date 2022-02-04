@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Muon
@@ -97,9 +97,9 @@ StatusCode Muon::MuonStationTypeBuilder::initialize() {
     return StatusCode::SUCCESS;
 }
 
-const Trk::TrackingVolumeArray* Muon::MuonStationTypeBuilder::processBoxStationComponents(const GeoVPhysVol* mv,
-                                                                                          Trk::CuboidVolumeBounds* envelope,
-                                                                                          Cache& cache) const {
+Trk::TrackingVolumeArray* Muon::MuonStationTypeBuilder::processBoxStationComponents(const GeoVPhysVol* mv,
+                                                                                    Trk::CuboidVolumeBounds* envelope,
+                                                                                    Cache& cache) const {
     ATH_MSG_DEBUG(name() << " processing station components for " << mv->getLogVol()->getName());
     ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -375,7 +375,7 @@ const Trk::TrackingVolumeArray* Muon::MuonStationTypeBuilder::processBoxStationC
         }
     }
     // create VolumeArray (1DX)
-    const Trk::TrackingVolumeArray* components = nullptr;
+    Trk::TrackingVolumeArray* components = nullptr;
     if (m_trackingVolumeArrayCreator) {
         Trk::BinUtility* binUtility = new Trk::BinUtility(volSteps, Trk::BinningOption::open, Trk::BinningValue::binX);
         components = m_trackingVolumeArrayCreator->cuboidVolumesArrayNav(trkVols, binUtility, false);
@@ -386,9 +386,9 @@ const Trk::TrackingVolumeArray* Muon::MuonStationTypeBuilder::processBoxStationC
     return components;
 }
 
-const Trk::TrackingVolumeArray* Muon::MuonStationTypeBuilder::processTrdStationComponents(const GeoVPhysVol* mv,
-                                                                                          Trk::TrapezoidVolumeBounds* envelope,
-                                                                                          Cache& cache) const {
+Trk::TrackingVolumeArray* Muon::MuonStationTypeBuilder::processTrdStationComponents(const GeoVPhysVol* mv,
+                                                                                    Trk::TrapezoidVolumeBounds* envelope,
+                                                                                    Cache& cache) const {
     ATH_MSG_DEBUG(name() << " processing station components for " << mv->getLogVol()->getName());
     ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -633,7 +633,7 @@ const Trk::TrackingVolumeArray* Muon::MuonStationTypeBuilder::processTrdStationC
         }
     }
     // create VolumeArray (1DX)
-    const Trk::TrackingVolumeArray* components = nullptr;
+    Trk::TrackingVolumeArray* components = nullptr;
     // Trk::BinUtility* binUtility = new Trk::BinUtility1DX( -(
     // envelope->halflengthZ() ), volSteps);
     if (m_trackingVolumeArrayCreator) {
@@ -654,7 +654,7 @@ StatusCode Muon::MuonStationTypeBuilder::finalize() {
 //
 const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processMdtBox(Trk::Volume*& vol, const GeoVPhysVol*& gv, Amg::Transform3D* transf,
                                                                        double zShift, Cache& cache) const {
-    std::vector<const Trk::PlaneLayer*> layers;
+    std::vector<Trk::PlaneLayer*> layers;
     std::vector<double> x_array;
     std::vector<double> x_ref;
     std::vector<Trk::MaterialProperties*> x_mat;
@@ -773,7 +773,7 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processMdtBox(Trk::Volu
        }
     }
     // create the BinnedArray
-    std::vector<Trk::SharedObject<const Trk::Layer>> layerOrder;
+    std::vector<Trk::SharedObject<Trk::Layer>> layerOrder;
     std::vector<float> binSteps;
     // check if additional (navigation) layers needed
     // fix lower and upper bound of step vector to volume boundary
@@ -783,7 +783,7 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processMdtBox(Trk::Volu
         currX = minX;
         for (unsigned int i = 0; i < layers.size(); i++) {
             const Amg::Transform3D ltransf = layers[i]->transform();
-            layerOrder.push_back(Trk::SharedObject<const Trk::Layer>(layers[i]));
+            layerOrder.push_back(Trk::SharedObject<Trk::Layer>(layers[i]));
             if (i < layers.size() - 1) {
                 currX = ltransf.translation()[0] + 0.5 * layers[i]->thickness();
                 binSteps.push_back(currX);
@@ -805,7 +805,7 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processMdtBox(Trk::Volu
 //
 const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processMdtTrd(Trk::Volume*& vol, const GeoVPhysVol*& gv, Amg::Transform3D* transf,
                                                                        Cache& cache) const {
-    std::vector<const Trk::PlaneLayer*> layers;
+    std::vector<Trk::PlaneLayer*> layers;
     std::vector<double> x_array;
     std::vector<Trk::MaterialProperties*> x_mat;
     std::vector<double> x_thickness;
@@ -910,7 +910,7 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processMdtTrd(Trk::Volu
        }
 
         // create the BinnedArray
-        std::vector<Trk::SharedObject<const Trk::Layer>> layerOrder;
+        std::vector<Trk::SharedObject<Trk::Layer>> layerOrder;
         std::vector<float> binSteps;
         //
         double minX = transf->translation()[0] - volBounds->halflengthZ();
@@ -919,7 +919,7 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processMdtTrd(Trk::Volu
             currX = minX;
             for (unsigned int i = 0; i < layers.size(); i++) {
                 const Amg::Transform3D ltransf = layers[i]->transform();
-                layerOrder.push_back(Trk::SharedObject<const Trk::Layer>(layers[i]));
+                layerOrder.push_back(Trk::SharedObject<Trk::Layer>(layers[i]));
                 if (i < layers.size() - 1) {
                     currX = ltransf.translation()[0] + 0.5 * layers[i]->thickness();
                     binSteps.push_back(currX);
@@ -1570,7 +1570,7 @@ Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processCscStation(const GeoVP
                 new Amg::Transform3D(Amg::AngleAxis3D(0.5 * M_PI, Amg::Vector3D(0., 1., 0.)) *
                                      Amg::AngleAxis3D(0.5 * M_PI, Amg::Vector3D(0., 0., 1.)) * Amg::Translation3D(0., 0., xCurr + xShift));
             compBounds = new Trk::TrapezoidVolumeBounds(xMin, xMax, y1, xSizes[ic]);
-            const Trk::LayerArray* cscLayerArray = processCSCTrdComponent(compGeoVol[ic], compBounds, compTr, cache);
+            Trk::LayerArray* cscLayerArray = processCSCTrdComponent(compGeoVol[ic], compBounds, compTr, cache);
             Trk::Volume* compVol = new Trk::Volume(compTr, compBounds);
             const Trk::TrackingVolume* compTV = new Trk::TrackingVolume(*compVol, *m_muonMaterial, cscLayerArray, nullptr, compName[ic]);
             delete compVol;
@@ -1602,7 +1602,7 @@ Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processCscStation(const GeoVP
                 Amg::AngleAxis3D(0.5 * M_PI, Amg::Vector3D(0., 1., 0.)) * Amg::AngleAxis3D(0.5 * M_PI, Amg::Vector3D(0., 0., 1.)) *
                 Amg::Translation3D(0., envY1 - envY2, 0.) * Amg::Translation3D(0., 0., xCurr + xShift));
             compBounds = new Trk::DoubleTrapezoidVolumeBounds(xMin, envXMed, xMax, envY1, envY2, xSizes[ic]);
-            const Trk::LayerArray* cscLayerArray = processCSCDiamondComponent(compGeoVol[ic], compBounds, compTr, cache);
+            Trk::LayerArray* cscLayerArray = processCSCDiamondComponent(compGeoVol[ic], compBounds, compTr, cache);
             Trk::Volume* compVol = new Trk::Volume(compTr, compBounds);
             const Trk::TrackingVolume* compTV = new Trk::TrackingVolume(*compVol, *m_muonMaterial, cscLayerArray, nullptr, compName[ic]);
             delete compVol;
@@ -1613,7 +1613,7 @@ Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processCscStation(const GeoVP
     }
 
     // convert component volumes into array
-    const Trk::BinnedArray<Trk::TrackingVolume>* compArray = nullptr;
+    Trk::BinnedArray<const Trk::TrackingVolume>* compArray = nullptr;
     if (!components.empty() && isDiamond) {
         if (m_trackingVolumeArrayCreator) {
             Trk::BinUtility* binUtil = new Trk::BinUtility(volSteps, Trk::BinningOption::open, Trk::BinningValue::binX);
@@ -1632,9 +1632,9 @@ Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processCscStation(const GeoVP
     return csc_station;
 }
 
-std::vector<const Trk::TrackingVolume*> Muon::MuonStationTypeBuilder::processTgcStation(const GeoVPhysVol* mv, Cache& cache) const {
+std::vector<Trk::TrackingVolume*> Muon::MuonStationTypeBuilder::processTgcStation(const GeoVPhysVol* mv, Cache& cache) const {
     // TGC stations
-    std::vector<const Trk::TrackingVolume*> tgc_stations;
+    std::vector<Trk::TrackingVolume*> tgc_stations;
     //  printChildren(mv);
     Trk::TrapezoidVolumeBounds* tgcBounds;
     Trk::Volume* envelope;
@@ -1661,9 +1661,9 @@ std::vector<const Trk::TrackingVolume*> Muon::MuonStationTypeBuilder::processTgc
             Amg::Transform3D* tTr = new Amg::Transform3D(transform * Amg::AngleAxis3D(0.5 * M_PI, Amg::Vector3D(0., 1., 0.)) *
                                                          Amg::AngleAxis3D(0.5 * M_PI, Amg::Vector3D(0., 0., 1.)));
             envelope = new Trk::Volume(tTr, tgcBounds);
-            const Trk::LayerArray* tgcLayerArray = processTGCComponent(cv, tgcBounds, tTr, cache);
+            Trk::LayerArray* tgcLayerArray = processTGCComponent(cv, tgcBounds, tTr, cache);
             // ready to build the station prototype
-            const Trk::TrackingVolume* tgc_station = new Trk::TrackingVolume(*envelope, *m_muonMaterial, tgcLayerArray, nullptr, tgc_name);
+            Trk::TrackingVolume* tgc_station = new Trk::TrackingVolume(*envelope, *m_muonMaterial, tgcLayerArray, nullptr, tgc_name);
 
             delete envelope;
             if (tgc_station) tgc_stations.push_back(tgc_station);
@@ -1854,12 +1854,12 @@ double Muon::MuonStationTypeBuilder::getVolume(const GeoShape* shape) const {
     return volume;
 }
 
-const Trk::LayerArray* Muon::MuonStationTypeBuilder::processCSCTrdComponent(const GeoVPhysVol*& pv, Trk::TrapezoidVolumeBounds*& compBounds,
-                                                                            Amg::Transform3D*& transf, Cache& cache) const {
+Trk::LayerArray* Muon::MuonStationTypeBuilder::processCSCTrdComponent(const GeoVPhysVol*& pv, Trk::TrapezoidVolumeBounds*& compBounds,
+                                                                      Amg::Transform3D*& transf, Cache& cache) const {
     // tolerance
     std::string name = pv->getLogVol()->getName();
     // printChildren(pv);
-    std::vector<const Trk::PlaneLayer*> layers;
+    std::vector<Trk::PlaneLayer*> layers;
     std::vector<double> x_array;
     std::vector<Trk::MaterialProperties> x_mat;
     std::vector<double> x_thickness;
@@ -1951,7 +1951,7 @@ const Trk::LayerArray* Muon::MuonStationTypeBuilder::processCSCTrdComponent(cons
     }
 
     // create the BinnedArray
-    std::vector<Trk::SharedObject<const Trk::Layer>> layerOrder;
+    std::vector<Trk::SharedObject<Trk::Layer>> layerOrder;
     std::vector<float> binSteps;
     double xShift = transf->translation()[0];
     float lowX = -compBounds->halflengthZ() + xShift;
@@ -1961,12 +1961,12 @@ const Trk::LayerArray* Muon::MuonStationTypeBuilder::processCSCTrdComponent(cons
         currX = lowX - xShift;
         for (unsigned int i = 0; i < layers.size() - 1; i++) {
             const Amg::Transform3D ltransf(Amg::Translation3D(x_array[i], 0., 0.));
-            layerOrder.push_back(Trk::SharedObject<const Trk::Layer>(layers[i]));
+            layerOrder.push_back(Trk::SharedObject<Trk::Layer>(layers[i]));
             currX = ltransf.translation()[0] + 0.5 * layers[i]->thickness();
             binSteps.push_back(currX + xShift);
         }
         const Amg::Transform3D ltransf(Amg::Translation3D(x_array.back(), 0., 0.));
-        layerOrder.push_back(Trk::SharedObject<const Trk::Layer>(layers.back()));
+        layerOrder.push_back(Trk::SharedObject<Trk::Layer>(layers.back()));
         binSteps.push_back(compBounds->halflengthZ() + xShift);
     }
     // Trk::BinUtility* binUtility = new Trk::BinUtility1DX( lowX, new
@@ -1978,12 +1978,12 @@ const Trk::LayerArray* Muon::MuonStationTypeBuilder::processCSCTrdComponent(cons
     return cscLayerArray;
 }
 
-const Trk::LayerArray* Muon::MuonStationTypeBuilder::processCSCDiamondComponent(const GeoVPhysVol*& pv,
-                                                                                Trk::DoubleTrapezoidVolumeBounds*& compBounds,
-                                                                                Amg::Transform3D*& transf, Cache& cache) const {
+Trk::LayerArray* Muon::MuonStationTypeBuilder::processCSCDiamondComponent(const GeoVPhysVol*& pv,
+                                                                          Trk::DoubleTrapezoidVolumeBounds*& compBounds,
+                                                                          Amg::Transform3D*& transf, Cache& cache) const {
     // tolerance
     std::string name = pv->getLogVol()->getName();
-    std::vector<const Trk::PlaneLayer*> layers;
+    std::vector<Trk::PlaneLayer*> layers;
     std::vector<double> x_array;
     std::vector<Trk::MaterialProperties> x_mat;
     std::vector<double> x_thickness;
@@ -2076,7 +2076,7 @@ const Trk::LayerArray* Muon::MuonStationTypeBuilder::processCSCDiamondComponent(
     }
 
     // create the BinnedArray
-    std::vector<Trk::SharedObject<const Trk::Layer>> layerOrder;
+    std::vector<Trk::SharedObject<Trk::Layer>> layerOrder;
     std::vector<float> binSteps;
     double xShift = transf->translation()[0];
     double lowX = -compBounds->halflengthZ() + xShift;
@@ -2086,12 +2086,12 @@ const Trk::LayerArray* Muon::MuonStationTypeBuilder::processCSCDiamondComponent(
         currX = lowX;
         for (unsigned int i = 0; i < layers.size() - 1; i++) {
             const Amg::Transform3D ltransf(Amg::Translation3D(x_array[i], 0., 0.));
-            layerOrder.push_back(Trk::SharedObject<const Trk::Layer>(layers[i]));
+            layerOrder.push_back(Trk::SharedObject<Trk::Layer>(layers[i]));
             currX = ltransf.translation()[0] + 0.5 * layers[i]->thickness() + xShift;
             binSteps.push_back(currX);
         }
         const Amg::Transform3D ltransf(Amg::Translation3D(x_array.back(), 0., 0.));
-        layerOrder.push_back(Trk::SharedObject<const Trk::Layer>(layers.back()));
+        layerOrder.push_back(Trk::SharedObject<Trk::Layer>(layers.back()));
         binSteps.push_back(compBounds->halflengthZ() + xShift);
     }
     // Trk::BinUtility* binUtility = new Trk::BinUtility1DX( lowX, new
@@ -2103,12 +2103,12 @@ const Trk::LayerArray* Muon::MuonStationTypeBuilder::processCSCDiamondComponent(
     return cscLayerArray;
 }
 
-const Trk::LayerArray* Muon::MuonStationTypeBuilder::processTGCComponent(const GeoVPhysVol*& pv, Trk::TrapezoidVolumeBounds*& tgcBounds,
-                                                                         Amg::Transform3D*& transf, Cache& cache) const {
+Trk::LayerArray* Muon::MuonStationTypeBuilder::processTGCComponent(const GeoVPhysVol*& pv, Trk::TrapezoidVolumeBounds*& tgcBounds,
+                                                                   Amg::Transform3D*& transf, Cache& cache) const {
     // tolerance
     double tol = 0.001;
     std::string name = pv->getLogVol()->getName();
-    std::vector<const Trk::PlaneLayer*> layers;
+    std::vector<Trk::PlaneLayer*> layers;
     std::vector<double> x_array;
     std::vector<Trk::MaterialProperties> x_mat;
     std::vector<double> x_thickness;
@@ -2190,7 +2190,7 @@ const Trk::LayerArray* Muon::MuonStationTypeBuilder::processTGCComponent(const G
         layers.push_back(layer);
     }
     // create the BinnedArray
-    std::vector<Trk::SharedObject<const Trk::Layer>> layerOrder;
+    std::vector<Trk::SharedObject<Trk::Layer>> layerOrder;
     std::vector<float> binSteps;
     //
     float xShift = transf->translation()[0];
@@ -2200,12 +2200,12 @@ const Trk::LayerArray* Muon::MuonStationTypeBuilder::processTGCComponent(const G
         currX = lowX;
         for (unsigned int i = 0; i < layers.size() - 1; i++) {
             const Amg::Transform3D ltransf(Amg::Translation3D(x_array[i], 0., 0.));
-            layerOrder.push_back(Trk::SharedObject<const Trk::Layer>(layers[i]));
+            layerOrder.push_back(Trk::SharedObject<Trk::Layer>(layers[i]));
             currX = ltransf.translation()[0] + 0.5 * layers[i]->thickness() + xShift;
             binSteps.push_back(currX);
         }
         const Amg::Transform3D ltransf(Amg::Translation3D(x_array.back(), 0., 0.));
-        layerOrder.push_back(Trk::SharedObject<const Trk::Layer>(layers.back()));
+        layerOrder.push_back(Trk::SharedObject<Trk::Layer>(layers.back()));
         binSteps.push_back(halfZ + xShift);
     }
     Trk::BinUtility* binUtility = new Trk::BinUtility(binSteps, Trk::BinningOption::open, Trk::BinningValue::binX);
@@ -2321,7 +2321,7 @@ std::pair<const Trk::Layer*, const std::vector<const Trk::Layer*>*> Muon::MuonSt
         // delete surfs;
         // multilayers
         if (m_multilayerRepresentation && trVol->confinedVolumes()) {
-            const std::vector<const Trk::TrackingVolume*> vols = trVol->confinedVolumes()->arrayObjects();
+            Trk::BinnedArraySpan<Trk::TrackingVolume const * const> vols = trVol->confinedVolumes()->arrayObjects();
             if (vols.size() > 1) {
                 for (unsigned int i = 0; i < vols.size(); i++) {
                     Trk::MaterialProperties matMulti = collectStationMaterial(vols[i], sf);
@@ -2356,7 +2356,7 @@ std::pair<const Trk::Layer*, const std::vector<const Trk::Layer*>*> Muon::MuonSt
         delete surfs;
         // multilayers
         if (m_multilayerRepresentation && trVol->confinedVolumes()) {
-            const std::vector<const Trk::TrackingVolume*> vols = trVol->confinedVolumes()->arrayObjects();
+          Trk::BinnedArraySpan<Trk::TrackingVolume const * const> vols = trVol->confinedVolumes()->arrayObjects();
             if (vols.size() > 1) {
                 for (unsigned int i = 0; i < vols.size(); i++) {
                     Trk::MaterialProperties matMulti = collectStationMaterial(vols[i], sf);
@@ -2390,7 +2390,7 @@ std::pair<const Trk::Layer*, const std::vector<const Trk::Layer*>*> Muon::MuonSt
         delete surfs;
         // multilayers
         if (m_multilayerRepresentation && trVol->confinedVolumes()) {
-            const std::vector<const Trk::TrackingVolume*> vols = trVol->confinedVolumes()->arrayObjects();
+          Trk::BinnedArraySpan<Trk::TrackingVolume const * const> vols = trVol->confinedVolumes()->arrayObjects();
             if (vols.size() > 1) {
                 for (unsigned int i = 0; i < vols.size(); i++) {
                     Trk::MaterialProperties matMulti = collectStationMaterial(vols[i], sf);
@@ -2649,7 +2649,7 @@ Trk::MaterialProperties Muon::MuonStationTypeBuilder::collectStationMaterial(con
     // sf is surface of the new layer used to calculate the average 'thickness' of
     // components layers
     if (vol->confinedLayers()) {
-        const std::vector<const Trk::Layer*> lays = vol->confinedLayers()->arrayObjects();
+      Trk::BinnedArraySpan<Trk::Layer const * const> lays = vol->confinedLayers()->arrayObjects();
         for (unsigned il = 0; il < lays.size(); il++) {
             const Trk::MaterialProperties* mLay =
                 lays[il]->layerMaterialProperties()->fullMaterial(lays[il]->surfaceRepresentation().center());
@@ -2681,10 +2681,10 @@ Trk::MaterialProperties Muon::MuonStationTypeBuilder::collectStationMaterial(con
     }
     // subvolumes
     if (vol->confinedVolumes()) {
-        const std::vector<const Trk::TrackingVolume*> subVols = vol->confinedVolumes()->arrayObjects();
+      Trk::BinnedArraySpan<Trk::TrackingVolume const * const> subVols = vol->confinedVolumes()->arrayObjects();
         for (unsigned iv = 0; iv < subVols.size(); iv++) {
             if (subVols[iv]->confinedLayers()) {
-                const std::vector<const Trk::Layer*> lays = subVols[iv]->confinedLayers()->arrayObjects();
+              Trk::BinnedArraySpan<Trk::Layer const * const> lays = subVols[iv]->confinedLayers()->arrayObjects();
                 for (unsigned il = 0; il < lays.size(); il++) {
                     const Trk::MaterialProperties* mLay =
                         lays[il]->layerMaterialProperties()->fullMaterial(lays[il]->surfaceRepresentation().center());

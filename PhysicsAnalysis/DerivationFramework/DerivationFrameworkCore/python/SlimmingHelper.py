@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ####################################################################
 # SlimmingHelper.py
@@ -223,7 +223,7 @@ class SlimmingHelper:
                 mainEntries,auxEntries = self.theHandler.GetContent(masterItemList,allVariablesList)
 
                 # Add processed items to the stream
-                excludedAuxData = "-clusterAssociation"
+                excludedAuxData = "-clusterAssociation.-PseudoJet"
                 excludedAuxEntries= [entry.strip("-") for entry in excludedAuxData.split(".")]
                 for item in mainEntries:
                         Stream.AddItem(item)
@@ -246,14 +246,17 @@ class SlimmingHelper:
                                 else:
                                         entry = "xAOD::AuxContainerBase!#"+item+"."
                                 for element in auxEntries[item]:
-                                        #Skip anything that shouldn't be written out to a DAOD for tracks 
+                                        #Skip anything that shouldn't be written out to a DAOD for tracks or jets
                                         if ('xAOD::TrackParticleContainer' in theDictionary[item]) and (element in excludedAuxEntries): continue
+                                        if ('xAOD::JetAuxContainer' in theDictionary[item]) and (element in excludedAuxEntries): continue
                                         length = len(auxEntries[item])
                                         if (element==(auxEntries[item])[length-1]):
                                                 entry += element
                                         else:
                                                 entry += element+"."
                                 if ('xAOD::TrackParticleContainer' in theDictionary[item] and auxEntries[item]==""):
+                                        entry+=excludedAuxData
+                                if ('xAOD::JetAuxContainer' in theDictionary[item] and auxEntries[item]==""):
                                         entry+=excludedAuxData
                                 Stream.AddItem(entry)
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////
@@ -345,11 +345,9 @@ InDet::RobustTrackingGeometryBuilderCond::trackingGeometry ATLAS_NOT_THREAD_SAFE
    std::pair<EventIDRange,const std::vector<Trk::CylinderLayer*>*> beamPipeVecPair = m_beamPipeBuilder->cylindricalLayers(ctx);
    const std::vector<Trk::CylinderLayer*>* beamPipeVecPtr = beamPipeVecPair.second;
    if (!beamPipeVecPtr->empty()) {
-     std::vector<const Trk::CylinderLayer*> beamPipeVec(beamPipeVecPtr->begin(),
-                                                        beamPipeVecPtr->end());
      range = EventIDRange::intersect(range, beamPipeVecPair.first);
      beamPipeLayerArray = m_layerArrayCreator->cylinderLayerArray(
-       beamPipeVec, 0., beamPipeBounds->outerRadius(), Trk::arbitrary);
+       *beamPipeVecPtr, 0., beamPipeBounds->outerRadius(), Trk::arbitrary);
    }
    delete beamPipeVecPtr;
    // create the TrackingVolume

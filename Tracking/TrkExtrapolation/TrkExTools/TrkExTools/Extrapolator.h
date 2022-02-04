@@ -73,9 +73,9 @@ typedef std::vector<const Trk::TrackParameters*> TrackParametersVector;
 typedef std::vector<std::unique_ptr<const Trk::TrackParameters>> TrackParametersUVector;
 typedef std::pair<const Surface*, BoundaryCheck> DestSurf;
 
-using TrackParmContainer = ObjContainer<const Trk::TrackParameters>;
+using TrackParmContainer = ObjContainer<Trk::TrackParameters>;
 using TrackParmPtr = ObjRef<>;
-using ManagedTrackParmPtr = ObjPtr<const Trk::TrackParameters>;
+using ManagedTrackParmPtr = ObjPtr<Trk::TrackParameters>;
 
 /** @struct ParametersAtBoundarySurface
   has only three member
@@ -146,18 +146,6 @@ class Extrapolator
   , virtual public IExtrapolator
 {
 public:
-  /** This following "using" statements can be removed after the methods in IExtrapolator.h for the
-   * old interfaces WITHOUT EventContext are removed, i.e. only the new ones with EventContext are
-   * used throughout the sw */
-  using IExtrapolator::extrapolate;
-  using IExtrapolator::extrapolateBlindly;
-  using IExtrapolator::extrapolateDirectly;
-  using IExtrapolator::extrapolateM;
-  using IExtrapolator::extrapolateStepwise;
-  using IExtrapolator::extrapolateToNextActiveLayer;
-  using IExtrapolator::extrapolateToNextActiveLayerM;
-  using IExtrapolator::extrapolateToVolume;
-  using IExtrapolator::extrapolateWithPathLimit;
 
   /**Constructor */
   Extrapolator(const std::string&, const std::string&, const IInterface*);
@@ -420,13 +408,10 @@ private:
 
     TrackParmContainer& trackParmContainer() { return m_trackParmContainer; }
 
-    ManagedTrackParmPtr manage(const Trk::TrackParameters& parm)
+ 
+    ManagedTrackParmPtr manage(std::unique_ptr<Trk::TrackParameters>&& parm)
     {
-      return ManagedTrackParmPtr(trackParmContainer(), parm);
-    }
-    ManagedTrackParmPtr manage(const Trk::TrackParameters* parm)
-    {
-      return ManagedTrackParmPtr(trackParmContainer(), parm);
+      return ManagedTrackParmPtr(trackParmContainer(), std::move(parm));
     }
     ManagedTrackParmPtr manage(TrackParmPtr parm)
     {

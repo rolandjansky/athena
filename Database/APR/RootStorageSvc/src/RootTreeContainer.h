@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -193,7 +193,7 @@ namespace pool  {
     virtual ~RootTreeContainer();
 
     /// Close the container and deallocate resources
-    virtual DbStatus close();
+    virtual DbStatus close() override;
 
     /// Open the container for object access
     virtual DbStatus open(DbDatabase& dbH, 
@@ -206,23 +206,23 @@ namespace pool  {
       *
       * @return DbStatus code indicating success or failure.  
       */
-    virtual DbStatus getOption(DbOption& opt) const;
+    virtual DbStatus getOption(DbOption& opt) const override;
 
     /// Set options
     /** @param opt      [IN]  Reference to option object.
       *
       * @return DbStatus code indicating success or failure.  
       */
-    virtual DbStatus setOption(const DbOption& opt);
+    virtual DbStatus setOption(const DbOption& opt) override;
 
     /// Ask if a given shape is supported
-    virtual DbStatus isShapeSupported(const DbTypeInfo* typ) const;
+    virtual DbStatus isShapeSupported(const DbTypeInfo* typ) const override;
 
     /// Define selection criteria
-    virtual DbStatus select(DbSelect& criteria);
+    virtual DbStatus select(DbSelect& criteria) override;
 
     /// Number of entries within the container
-    virtual long long int size();
+    virtual long long int size() override;
 
     /// return the TTree in which this container is stored
     TTree*      getTTree() { return m_tree; }
@@ -246,10 +246,10 @@ namespace pool  {
     void        clearDirty() { m_isDirty = false; }
 
     /// Fetch next object address of the selection to set token
-    virtual DbStatus fetch(DbSelect& sel);
+    virtual DbStatus fetch(DbSelect& sel) override;
 
     /// Fetch refined object address. Default implementation returns identity
-    virtual DbStatus fetch(const Token::OID_t& linkH, Token::OID_t& stmt);
+    virtual DbStatus fetch(const Token::OID_t& linkH, Token::OID_t& stmt) override;
 
     /// Find object by object identifier and load it into memory
     /** @param  ptr    [IN/OUT]  ROOT-style address of the pointer to object
@@ -259,7 +259,7 @@ namespace pool  {
       * @return Status code indicating success or failure.
       */
     virtual DbStatus loadObject( void** ptr, ShapeH shape, 
-                                 Token::OID_t& oid);
+                                 Token::OID_t& oid) override;
 
     /// Create TBranch for a basic type (ROOT type notation given in the leafname)
     void createBasicAuxBranch(const std::string& branchname,
@@ -267,10 +267,10 @@ namespace pool  {
                               BranchDesc& dsc);
 
     /// Commit single entry to container
-    virtual DbStatus writeObject(ActionList::value_type&);
+    virtual DbStatus writeObject(ActionList::value_type&) override;
 
     /// Execute Transaction action
-    virtual DbStatus transAct(Transaction::Action action);
+    virtual DbStatus transAct(Transaction::Action action) override;
   };
 }
 #endif //POOL_ROOTTREECONTAINER_H

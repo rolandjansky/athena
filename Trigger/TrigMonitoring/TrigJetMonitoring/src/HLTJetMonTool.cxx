@@ -53,6 +53,8 @@ HLTJetMonTool::HLTJetMonTool(
   declareProperty("DoOfflineJets",       m_doOFJets = true);
   declareProperty("DoHLTEfficiency",     m_doHLTTrigEff = true);
   //  declareProperty("DoLumiWeight",        m_doLumiWeight = true);
+  declareProperty("DoLArNoiseBurstVeto", m_vetoNoiseBurst = true);
+
 
   declareProperty("L1xAODJetKey",        m_L1xAODJetKey = "LVL1JetRoIs");
   declareProperty("HLTJetKeys",          m_HLTJetKeys, "SG Keys to access HLT Jet Collections");
@@ -1416,7 +1418,16 @@ int HLTJetMonTool::retrieveLumiBlock(){
   return eventInfo->lumiBlock();
 }
 
-
+bool HLTJetMonTool::hasLArNoiseBurst(){  
+  const xAOD::EventInfo* eventInfo = 0;   
+  StatusCode sc=evtStore()->retrieve(eventInfo,"EventInfo"); 
+  if (sc.isFailure() || 0 == eventInfo ){
+    ATH_MSG_ERROR("Could not retrieve EventInfo, disabling hasLArNoiseBurst filter");
+    return false;
+  }
+  if (eventInfo->errorState(xAOD::EventInfo::LAr) == xAOD::EventInfo::Error) return true;  
+  return false;
+}
 
 StatusCode HLTJetMonTool::fill() {
 
@@ -1457,6 +1468,11 @@ StatusCode HLTJetMonTool::fillJetHists() {
   m_v_lbn.push_back(m_lumiBlock);
 
   //  ATH_MSG_INFO("lbLumiWeight() = "<<lbLumiWeight()<<" m_lumi_weight = "<<m_lumi_weight<<" LumiBlock = "<<m_lumiBlock<<" first v_lb = "<<m_v_lbn.front()<<" last m_v_lbn = "<<m_v_lbn.back());
+
+  if (m_vetoNoiseBurst && hasLArNoiseBurst()) {
+    ATH_MSG_WARNING ( "HLTJetMonTool vetoed noise" ); //todo delete
+    return StatusCode::SUCCESS; //noiseburst filter
+  }
 
   StatusCode sc = StatusCode::SUCCESS;
   sc = fillBasicHists();

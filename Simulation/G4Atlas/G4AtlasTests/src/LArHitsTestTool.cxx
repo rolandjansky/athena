@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHitsTestTool.h"
@@ -39,7 +39,7 @@ LArHitsTestTool::LArHitsTestTool(const std::string& type, const std::string& nam
 
 StatusCode LArHitsTestTool::initialize()
 {
-  ATH_CHECK(detStore()->retrieve(m_caloMgr));
+  ATH_CHECK(m_caloMgrKey.initialize());
 
   m_path+="LAr/";
   // all LAr detectors
@@ -114,6 +114,10 @@ StatusCode LArHitsTestTool::initialize()
 }
 
 StatusCode LArHitsTestTool::processEvent() {
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+  ATH_CHECK(caloMgrHandle.isValid());
+  const CaloDetDescrManager* caloMgr = *caloMgrHandle;
+
   LArHitContainer::const_iterator hi;
   std::string lArkey = "LArHit"+m_detname;
 
@@ -122,7 +126,7 @@ StatusCode LArHitsTestTool::processEvent() {
   CHECK(evtStore()->retrieve(iter,lArkey));
   for (hi=(*iter).begin(); hi != (*iter).end(); ++hi) {
     const LArHit* larHit = *hi;
-    const CaloDetDescrElement* ddElement = m_caloMgr->get_element(larHit->cellID());
+    const CaloDetDescrElement* ddElement = caloMgr->get_element(larHit->cellID());
 
     double eta = ddElement->eta();
     double phi = ddElement->phi();
@@ -182,7 +186,7 @@ StatusCode LArHitsTestTool::processEvent() {
     for(hi_fast=(*iter_fast).begin();hi_fast!=(*iter_fast).end();++hi_fast) 
     {
       const LArHit* larHit = *hi_fast;
-      const CaloDetDescrElement* ddElement = m_caloMgr->get_element(larHit->cellID());
+      const CaloDetDescrElement* ddElement = caloMgr->get_element(larHit->cellID());
       double eta=ddElement->eta();
       double phi=ddElement->phi();
       double radius=ddElement->r();

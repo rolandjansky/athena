@@ -1,6 +1,6 @@
  
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -41,7 +41,7 @@ class HGTD_OverlapDescriptor : public Trk::OverlapDescriptor {
 public:
 
   /** Constructor */
-  HGTD_OverlapDescriptor(const Trk::BinnedArray<Trk::Surface>* bin_array = nullptr,
+  HGTD_OverlapDescriptor(const Trk::BinnedArray<const Trk::Surface>* bin_array = nullptr,
                          std::vector < float > valuesR = {},
                          std::vector < std::vector< float> > valuesPhi = {},
                          int nStepsR=3, int nStepsPhi=10);
@@ -72,7 +72,7 @@ public:
 private:
   bool dumpSurfaces(std::vector<Trk::SurfaceIntersection>& surfaces) const;
 
-  const Trk::BinnedArray<Trk::Surface>*   m_binnedArray;
+  const Trk::BinnedArray<const Trk::Surface>*   m_binnedArray;
   std::vector < float >                   m_valuesR;
   std::vector < std::vector< float> >     m_valuesPhi;
   int                                     m_nStepsR;

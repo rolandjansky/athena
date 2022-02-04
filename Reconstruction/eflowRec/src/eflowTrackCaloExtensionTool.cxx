@@ -60,6 +60,8 @@ StatusCode eflowTrackCaloExtensionTool::initialize() {
 
   if (!m_ParticleCacheKey.key().empty()) ATH_CHECK(m_ParticleCacheKey.initialize());
   else m_useOldCalo = true;
+
+	if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
   
   return StatusCode::SUCCESS;
 }
@@ -67,6 +69,14 @@ StatusCode eflowTrackCaloExtensionTool::initialize() {
 std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloExtensionTool::execute(const xAOD::TrackParticle* track) const {
 
   ATH_MSG_VERBOSE(" Now running eflowTrackCaloExtensionTool");
+
+  auto execution_timer = Monitored::Timer<std::chrono::microseconds>( "TIME_execute" );
+  Monitored::ScopedTimer execution_time(execution_timer);
+  auto extrapolation_timer = Monitored::Timer<std::chrono::microseconds>( "TIME_extrapolation" );
+  auto track_pt = Monitored::Scalar<float>("track_pt");
+  auto group = Monitored::Group(m_monTool, execution_timer, extrapolation_timer, track_pt);
+
+  track_pt = track->pt() * m_invGeV ;
 
   /*Create a map to index the TrackParameters at calo (owned by the extension) wrt to layers*/
   std::map<eflowCalo::LAYER, const Trk::TrackParameters*> parametersMap;
@@ -77,6 +87,7 @@ std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloExtensionTool::execute(const
   const int index = track->index();
   ATH_MSG_VERBOSE("Getting element " << index << " from the particleCache");
 
+  extrapolation_timer.start();
   if (m_useOldCalo) {
     /* If CaloExtensionBuilder is unavailable, use the calo extension tool */
     ATH_MSG_VERBOSE("Using the CaloExtensionTool");
@@ -96,7 +107,8 @@ std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloExtensionTool::execute(const
       extension = uniqueExtension.get();
     }
   }
-  
+  extrapolation_timer.stop();  
+
   if (extension != nullptr) {
 
     /*extract the CurvilinearParameters*/

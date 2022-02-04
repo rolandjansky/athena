@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*---------------------------------------------------------
@@ -135,7 +135,7 @@ void TRT_ActiveFractionSvc::handle( const Incident& inc ) {
       return;
     }
 
-    const TRT_ID *TRTHelper;
+    const TRT_ID *TRTHelper = nullptr;
     sc = m_detStore->retrieve(TRTHelper, "TRT_ID");
     if ( sc.isFailure() ) {
       if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "TRT_ActiveFractionSvc::handle: Could not get TRT ID helper, TRT_ActiveFraction == 1" << endmsg;

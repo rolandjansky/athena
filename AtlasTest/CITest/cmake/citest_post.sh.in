@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 #
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 # Post-processing script used for all CI tests
 #
@@ -24,5 +24,8 @@ echo "| CI test:            ${ATLAS_CTEST_TESTSTATUS}"
 echo "| CI log check:       ${logStatus}"
 echo "| CI post-processing: ${postStatus}"
 echo "----------------------------------------------------------"
+
+# This time stamp is used by NICOS:
+echo "[CITest][${ATLAS_CTEST_TESTNAME}] end time: `date` (`date +%s.%N`)"
 
 exit $status

@@ -13,12 +13,13 @@ atlas_install_python_modules( python/*.py
 
 atlas_install_scripts( scripts/generateL1MenuRun3.py
                        scripts/trigCompareOldandNewL1Menus.py
-                       scripts/verify_menu_config.py                       
+                       scripts/verify_menu_config.py
                        scripts/generateBunchGroupSetFromOldKey.py
                        scripts/trigmenu_modify_prescale_json.py
                        scripts/extract_chain_from_json.py
                        scripts/runTriggerAPIExample.py
-                       scripts/generateUnprescaledLists.py                       
+                       scripts/generateUnprescaledLists.py
+                       scripts/test_menu_dump.py
                        POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 # Shell scripts without flake8 checking:
@@ -92,3 +93,8 @@ atlas_add_test( generateMenuMT_newJO
                 PRIVATE_WORKING_DIRECTORY
                 PROPERTIES TIMEOUT 500
                 POST_EXEC_SCRIPT nopost.sh )
+
+# test for menu name consistency
+atlas_add_test( test_menu_dump
+  SCRIPT test_menu_dump.py -p
+  POST_EXEC_SCRIPT nopost.sh )

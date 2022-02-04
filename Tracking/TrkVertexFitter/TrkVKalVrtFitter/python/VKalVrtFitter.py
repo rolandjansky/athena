@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Configurable import ConfigurableAlgTool
 from AthenaCommon.Logging import logging
@@ -13,8 +13,7 @@ class InDetVKalVrtFitter( ConfigurableAlgTool ) :
         mlog.info("entering")
 
         Trk__TrkVKalVrtFitter.__init__( self,name="Trk__TrkVKalVrtFitter",
-                             Extrapolator="Trk::Extrapolator/InDetExtrapolator",
-                             MagFieldSvc="Trk::MagneticFieldTool/InDetMagField" )
+                             Extrapolator="Trk::Extrapolator/InDetExtrapolator")
 
 
 class VKalFitterForAnalysis( ConfigurableAlgTool ) :
@@ -25,8 +24,7 @@ class VKalFitterForAnalysis( ConfigurableAlgTool ) :
         mlog.info("entering")
 
         Trk__TrkVKalVrtFitter.__init__( self,name="Trk__TrkVKalVrtFitter",
-                             Extrapolator="DefaultVKalPropagator",   # Internal VKal propagator
-                             MagFieldSvc="DefaultMagneticField"    # Internal VKal field
+                             Extrapolator="DefaultVKalPropagator"   # Internal VKal propagator
                              )
 
 class VKalFitterForAnalysisWithField( ConfigurableAlgTool ) :
@@ -37,7 +35,5 @@ class VKalFitterForAnalysisWithField( ConfigurableAlgTool ) :
         mlog.info("entering")
 
         Trk__TrkVKalVrtFitter.__init__( self,name="Trk__TrkVKalVrtFitter",
-                             Extrapolator="DefaultVKalPropagator",      # internal VKal propagatorcd
-                             MagFieldSvc="DefaultMagneticField",
-                             MagFieldAtlasService="MagFieldAthenaSvc" # ATLAS mag field
+                             Extrapolator="DefaultVKalPropagator"      # internal VKal propagatorcd
                              )
