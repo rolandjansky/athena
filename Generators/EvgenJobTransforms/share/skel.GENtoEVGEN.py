@@ -19,6 +19,10 @@ import os, re, string, subprocess
 import AthenaCommon.AlgSequence as acas
 import AthenaCommon.AppMgr as acam
 from AthenaCommon.AthenaCommonFlags import jobproperties
+
+from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
+acam.athMasterSeq += xAODMaker__EventInfoCnvAlg(xAODKey="TMPEvtInfo")
+
 theApp = acam.theApp
 acam.athMasterSeq += acas.AlgSequence("EvgenGenSeq")
 genSeq = acam.athMasterSeq.EvgenGenSeq
@@ -138,7 +142,7 @@ svcMgr.THistSvc.Output = ["TestHepMCname DATAFILE='TestHepMC.root' OPT='RECREATE
 # TODO: Rewrite in Python?
 from EvgenProdTools.EvgenProdToolsConf import CopyEventWeight
 if not hasattr(postSeq, "CopyEventWeight"):
-    postSeq += CopyEventWeight()
+    postSeq += CopyEventWeight(mcEventWeightsKey="TMPEvtInfo.mcEventWeights")
 
 ## Configure the event counting (AFTER all filters)
 # TODO: Rewrite in Python?
@@ -150,7 +154,9 @@ theApp.EvtMax = -1
 #  theApp.EvtMax = runArgs.maxEvents
 
 if not hasattr(postSeq, "CountHepMC"):
-    postSeq += CountHepMC()
+    postSeq += CountHepMC(InputEventInfo="TMPEvtInfo",
+                          OutputEventInfo="McEventInfo",
+                          mcEventWeightsKey="TMPEvtInfo.mcEventWeights")
 #postSeq.CountHepMC.RequestedOutput = evgenConfig.nEventsPerJob if runArgs.maxEvents == -1 else runArgs.maxEvents
 
 postSeq.CountHepMC.FirstEvent = runArgs.firstEvent
@@ -447,10 +453,10 @@ if hasattr( runArgs, "outputEVNTFile") or hasattr( runArgs, "outputEVNT_PreFile"
     else:
         raise RuntimeError("Output pool file, either EVNT or EVNT_Pre, is not known.")
 
-    StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", poolFile, noTag=True)
+    StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", poolFile, noTag=True, eventInfoKey="McEventInfo")
 
     StreamEVGEN.ForceRead = True
-    StreamEVGEN.ItemList += ["EventInfo#*", "McEventCollection#*"]
+    StreamEVGEN.ItemList += ["EventInfo#*", "xAOD::EventInfo#McEventInfo*", "xAOD::EventAuxInfo#McEventInfoAux.*", "McEventCollection#*"]
     StreamEVGEN.RequireAlgs += ["EvgenFilterSeq"]
     ## Used for pile-up (remove dynamic variables except flavour labels)
     if evgenConfig.saveJets:
