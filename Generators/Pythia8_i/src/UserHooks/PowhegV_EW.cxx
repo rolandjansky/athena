@@ -61,9 +61,9 @@ namespace Pythia8{
       std::cout<<"**********************************************************"<<std::endl;
 
 
-      Pythia8_UserHooks::UserHooksFactory::userSettings<bool>()["si_data_.vetoqed"]=true;
-      Pythia8_UserHooks::UserHooksFactory::userSettings<bool>()["si_data_.py8veto"]=true;
-      Pythia8_UserHooks::UserHooksFactory::userSettings<double>()["si_event_info_.vetoscale_fsr"]=10.0;
+      Pythia8_UserHooks::UserHooksFactory::userSettings<bool>()["m_si_data_.vetoqed"]=true;
+      Pythia8_UserHooks::UserHooksFactory::userSettings<bool>()["m_si_data_.py8veto"]=true;
+      Pythia8_UserHooks::UserHooksFactory::userSettings<double>()["m_si_event_info_.vetoscale_fsr"]=10.0;
 
     }
 
@@ -72,9 +72,9 @@ namespace Pythia8{
     // Initialize settings.
 
     bool initAfterBeams() {
-      si_data_.vetoqed              = settingsPtr->mode("si_data_.vetoqed");
-      si_data_.py8veto              = settingsPtr->mode("si_data_.py8veto");
-      si_event_info_.vetoscale_fsr  = settingsPtr->mode("si_event_info_.vetoscale_fsr");
+      m_si_data_.vetoqed              = settingsPtr->mode("m_si_data_.vetoqed");
+      m_si_data_.py8veto              = settingsPtr->mode("m_si_data_.py8veto");
+      m_si_event_info_.vetoscale_fsr  = settingsPtr->mode("m_si_event_info_.vetoscale_fsr");
       return true;
     }
 
@@ -84,17 +84,19 @@ namespace Pythia8{
     virtual bool canSetResonanceScale() {
       // If we are vetoing QED emissions, and ptmaxmatch = 1, and we are using PYTHIA8 based veto, set scale for QED radiation from leptons
       //  (the default would be the resonance mass)
-      cout << "**** SI: Allow to set scale to veto QED emissions in PYTHIA" << endl;
-      if ((si_data_.vetoqed) && (si_data_.py8veto)) return true;
+      std::cout << "**** SI: Allow to set scale to veto QED emissions in PYTHIA" << std::endl;
+      if ((m_si_data_.vetoqed) && (m_si_data_.py8veto)) return true;
       else return false;
     }
 
-    virtual double scaleResonance( const int iRes, const Event& event) {
+      virtual double scaleResonance() {
+ //   virtual double scaleResonance( const int iRes, const Event& event) {
       // Set scale for the emissions from the resonace (FSR), equal to the scale stored in the LHE file
-      //cout << "SI in scaleResonance. Setting scale: " << si_event_info_.vetoscale_fsr << endl; 
-      //cout << event[iRes].id();
-      //cout << "\n";
-      return si_event_info_.vetoscale_fsr;
+      //std::cout << "SI in scaleResonance. Setting scale: " << si_event_info_.vetoscale_fsr << std::endl; 
+      //std::cout << event[iRes].id();
+      //std::cout << "\n";
+
+      return m_si_event_info_.vetoscale_fsr;
     }    
 
     virtual double EventList( const Event& event)
@@ -104,8 +106,8 @@ namespace Pythia8{
     }
 
   private:
-    si_data_type si_data_;
-    si_event_info_type si_event_info_;
+    si_data_type m_si_data_;
+    si_event_info_type m_si_event_info_;
   };
 
   // PowhegV_EW is intended to veto QCD radiation (ISR and FSR) 
@@ -126,10 +128,10 @@ namespace Pythia8{
       std::cout<<"*                                                        *"<<std::endl;
       std::cout<<"**********************************************************"<<std::endl;
 
-      Pythia8_UserHooks::UserHooksFactory::userSettings<bool>()["si_data_.vetoqed"]=true;
-      Pythia8_UserHooks::UserHooksFactory::userSettings<bool>()["si_data_.py8veto"]=true;
-      Pythia8_UserHooks::UserHooksFactory::userSettings<double>()["si_event_info_.vetoscale_fsr"]=10.0;
-      Pythia8_UserHooks::UserHooksFactory::userSettings<double>()["si_event_info_.vetoscale_isr"]=10.0;
+      Pythia8_UserHooks::UserHooksFactory::userSettings<bool>()["m_si_data_.vetoqed"]=true;
+      Pythia8_UserHooks::UserHooksFactory::userSettings<bool>()["m_si_data_.py8veto"]=true;
+      Pythia8_UserHooks::UserHooksFactory::userSettings<double>()["m_si_event_info_.vetoscale_fsr"]=10.0;
+      Pythia8_UserHooks::UserHooksFactory::userSettings<double>()["m_si_event_info_.vetoscale_isr"]=10.0;
 
     };
 
@@ -137,19 +139,19 @@ namespace Pythia8{
 
     // Initialize settings, detailing merging strategy to use.
     bool initAfterBeams() {
-      nFinal      = settingsPtr->mode("POWHEG:nFinal");
-      vetoMode    = settingsPtr->mode("POWHEG:veto");
-      vetoCount   = settingsPtr->mode("POWHEG:vetoCount");
-      pThardMode  = settingsPtr->mode("POWHEG:pThard");
-      pTemtMode   = settingsPtr->mode("POWHEG:pTemt");
-      emittedMode = settingsPtr->mode("POWHEG:emitted");
-      pTdefMode   = settingsPtr->mode("POWHEG:pTdef");
-      MPIvetoMode = settingsPtr->mode("POWHEG:MPIveto");
+      m_nFinal      = settingsPtr->mode("POWHEG:nFinal");
+      m_vetoMode    = settingsPtr->mode("POWHEG:veto");
+      m_vetoCount   = settingsPtr->mode("POWHEG:vetoCount");
+      m_pThardMode  = settingsPtr->mode("POWHEG:pThard");
+      m_pTemtMode   = settingsPtr->mode("POWHEG:pTemt");
+      m_emittedMode = settingsPtr->mode("POWHEG:emitted");
+      m_pTdefMode   = settingsPtr->mode("POWHEG:pTdef");
+      m_MPIvetoMode = settingsPtr->mode("POWHEG:MPIveto");
 
-      si_data_.vetoqed              = settingsPtr->mode("si_data_.vetoqed");
-      si_data_.py8veto              = settingsPtr->mode("si_data_.py8veto");
-      si_event_info_.vetoscale_fsr  = settingsPtr->mode("si_event_info_.vetoscale_fsr");
-      si_event_info_.vetoscale_isr  = settingsPtr->mode("si_event_info_.vetoscale_isr");
+      m_si_data_.vetoqed              = settingsPtr->mode("si_data_.vetoqed");
+      m_si_data_.py8veto              = settingsPtr->mode("si_data_.py8veto");
+      m_si_event_info_.vetoscale_fsr  = settingsPtr->mode("m_si_event_info_.vetoscale_fsr");
+      m_si_event_info_.vetoscale_isr  = settingsPtr->mode("m_si_event_info_.vetoscale_isr");
       return true;
     }
 
@@ -204,14 +206,14 @@ namespace Pythia8{
 
       // Can get negative pT for massive splittings
       if (pTnow < 0.) {
-	cout << "Warning: pTpythia was negative" << endl;
+	std::cout << "Warning: pTpythia was negative" << std::endl;
 	return -1.;
       }
 
 #ifdef DBGOUTPUT
-      cout << "pTpythia: rad = " << RadAfterBranch << ", emt = "
+      std::cout << "pTpythia: rad = " << RadAfterBranch << ", emt = "
 	   << EmtAfterBranch << ", rec = " << RecAfterBranch
-	   << ", pTnow = " << sqrt(pTnow) << endl;
+	   << ", pTnow = " << sqrt(pTnow) << std::endl;
 #endif
 
       // Return pT
@@ -253,30 +255,30 @@ namespace Pythia8{
 
       // Check result
       if (pTnow < 0.) {
-	cout << "Warning: pTpowheg was negative" << endl;
+	std::cout << "Warning: pTpowheg was negative" << std::endl;
 	return -1.;
       }
 
 #ifdef DBGOUTPUT
-      cout << "pTpowheg: i = " << i << ", j = " << j
-	   << ", pTnow = " << pTnow << endl;
+      std::cout << "pTpowheg: i = " << i << ", j = " << j
+	   << ", pTnow = " << pTnow << std::endl;
 #endif
 
       return pTnow;
     }
 
-    // Calculate pT for a splitting based on pTdefMode.
+    // Calculate pT for a splitting based on m_pTdefMode.
     // If j is -1, all final-state partons are tried.
     // If i, k, r and xSR are -1, then all incoming and outgoing 
     // partons are tried.
     // xSR set to 0 means ISR, while xSR set to 1 means FSR
     double pTcalc(const Event &e, int i, int j, int k, int r, int xSRin) {
 
-      //    cout << "APPENA ENTRATO IN pTcalc" << endl;
+      //    std::cout << "APPENA ENTRATO IN pTcalc" << std::endl;
 
-      //cout << "idhep(i)= " << e[i].id() << endl;
-      //cout << "idhep(j)= " << e[j].id() << endl;
-      //cout << "idhep(k)= " << e[k].id() << endl;
+      //std::cout << "idhep(i)= " << e[i].id() << std::endl;
+      //std::cout << "idhep(j)= " << e[j].id() << std::endl;
+      //std::cout << "idhep(k)= " << e[k].id() << std::endl;
 
 
       // Loop over ISR and FSR if necessary
@@ -289,15 +291,15 @@ namespace Pythia8{
 
 	// If all necessary arguments have been given, then directly calculate.
 	// POWHEG ISR and FSR, need i and j.
-	if ((pTdefMode == 0 || pTdefMode == 1) && i > 0 && j > 0) {
-	  pTemt = pTpowheg(e, i, j, (pTdefMode == 0) ? false : FSR);
+	if ((m_pTdefMode == 0 || m_pTdefMode == 1) && i > 0 && j > 0) {
+	  pTemt = pTpowheg(e, i, j, (m_pTdefMode == 0) ? false : FSR);
 
 	  // Pythia ISR, need i, j and r.
-	} else if (!FSR && pTdefMode == 2 && i > 0 && j > 0 && r > 0) {
+	} else if (!FSR && m_pTdefMode == 2 && i > 0 && j > 0 && r > 0) {
 	  pTemt = pTpythia(e, i, j, r, FSR);
 
 	  // Pythia FSR, need k, j and r.
-	} else if (FSR && pTdefMode == 2 && j > 0 && k > 0 && r > 0) {
+	} else if (FSR && m_pTdefMode == 2 && j > 0 && k > 0 && r > 0) {
 	  pTemt = pTpythia(e, k, j, r, FSR);
 
 	  // Otherwise need to try all possible combintations.
@@ -320,11 +322,11 @@ namespace Pythia8{
 	    if ( !e[jNow].isFinal() ) continue;
 
 	    // POWHEG
-	    if (pTdefMode == 0 || pTdefMode == 1) {
+	    if (m_pTdefMode == 0 || m_pTdefMode == 1) {
 
 	      // ISR - only done once as just kinematical pT
 	      if (!FSR) {
-		pTnow = pTpowheg(e, iInA, jNow, (pTdefMode == 0) ? false : FSR);
+		pTnow = pTpowheg(e, iInA, jNow, (m_pTdefMode == 0) ? false : FSR);
 		if (pTnow > 0.) pTemt = (pTemt < 0) ? pTnow : min(pTemt, pTnow);
   
 		// FSR - try all outgoing partons from system before branching 
@@ -341,7 +343,7 @@ namespace Pythia8{
                   if (jNow == e[iNow].daughter1() 
 		      && jNow == e[iNow].daughter2()) continue;
 
-                  pTnow = pTpowheg(e, iNow, jNow, (pTdefMode == 0) 
+                  pTnow = pTpowheg(e, iNow, jNow, (m_pTdefMode == 0) 
 				   ? false : FSR);
                   if (pTnow > 0.) pTemt = (pTemt < 0) 
 				    ? pTnow : min(pTemt, pTnow);
@@ -350,7 +352,7 @@ namespace Pythia8{
               } // if (!FSR)
   
 	      // Pythia
-	    } else if (pTdefMode == 2) {
+	    } else if (m_pTdefMode == 2) {
   
 	      // ISR - other incoming as recoiler
 	      if (!FSR) {
@@ -385,15 +387,15 @@ namespace Pythia8{
   
 		} // for (kNow)
 	      } // if (!FSR)
-	    } // if (pTdefMode)
+	    } // if (m_pTdefMode)
 	  } // for (j)
 	}
       } // for (xSR)
 
 #ifdef DBGOUTPUT
-      cout << "pTcalc: i = " << i << ", j = " << j << ", k = " << k
+      std::cout << "pTcalc: i = " << i << ", j = " << j << ", k = " << k
 	   << ", r = " << r << ", xSR = " << xSRin
-	   << ", pTemt = " << pTemt << endl;
+	   << ", pTemt = " << pTemt << std::endl;
 #endif
 
       return pTemt;
@@ -401,10 +403,10 @@ namespace Pythia8{
 
     //--------------------------------------------------------------------------
 
-    // Extraction of pThard based on the incoming event.
+    // Extraction of m_pThard based on the incoming event.
     // Assume that all the final-state particles are in a continuous block
     // at the end of the event and the final entry is the POWHEG emission.
-    // If there is no POWHEG emission, then pThard is set to SCALUP.
+    // If there is no POWHEG emission, then m_pThard is set to SCALUP.
 
     bool canVetoMPIStep()    { return true; }
     int  numberVetoMPIStep() { return 1; }
@@ -425,58 +427,58 @@ namespace Pythia8{
 	} else break;
       }
       // Extra check that we have the correct final state
-      if (count != nFinal && count != nFinal + 1) {
-	cout << "Error: wrong number of final state particles in event" << endl;
+      if (count != m_nFinal && count != m_nFinal + 1) {
+	std::cout << "Error: wrong number of final state particles in event" << std::endl;
 	exit(1);
       }
       // Flag if POWHEG radiation present and index
-      bool isEmt = (count == nFinal) ? false : true;
+      bool isEmt = (count == m_nFinal) ? false : true;
       int  iEmt  = (isEmt) ? e.size() - 1 : -1;
 
-      // If there is no radiation or if pThardMode is 0 then set pThard = SCALUP.
-      pThard = -1;
-      // pThardMode is 0
-      if (!isEmt || pThardMode == 0) {
+      // If there is no radiation or if m_pThardMode is 0 then set m_pThard = SCALUP.
+      m_pThard = -1;
+      // m_pThardMode is 0
+      if (!isEmt || m_pThardMode == 0) {
 	// This sets the scale to veto emissions in the QCD shower by Pythia
 	// This scale is used for all emissions, except if they come from the resonance
-	//cout << "SI: in doVetoMPIStep: " << si_event_info_.vetoscale_isr << endl;
-	pThard = si_event_info_.vetoscale_isr;
+	//std::cout << "SI: in doVetoMPIStep: " << m_si_event_info_.vetoscale_isr << std::endl;
+	m_pThard = m_si_event_info_.vetoscale_isr;
 	// Not using directly scalup, because the special file LHE (two scales)
-	//      pThard = infoPtr->scalup();
+	//      m_pThard = infoPtr->scalup();
       
-	// If pThardMode is 1 then the pT of the POWHEG emission is checked against
+	// If m_pThardMode is 1 then the pT of the POWHEG emission is checked against
 	// all other incoming and outgoing partons, with the minimal value taken
-      } else if (pThardMode == 1) {
-	pThard = pTcalc(e, -1, iEmt, -1, -1, -1);
+      } else if (m_pThardMode == 1) {
+	m_pThard = pTcalc(e, -1, iEmt, -1, -1, -1);
 
-	// If pThardMode is 2, then the pT of all final-state partons is checked
+	// If m_pThardMode is 2, then the pT of all final-state partons is checked
 	// against all other incoming and outgoing partons, with the minimal value
 	// taken
-      } else if (pThardMode == 2) {
-	pThard = pTcalc(e, -1, -1, -1, -1, -1);
+      } else if (m_pThardMode == 2) {
+	m_pThard = pTcalc(e, -1, -1, -1, -1, -1);
       }
 
       // Find MPI veto pT if necessary
-      if (MPIvetoMode == 1) {
-	//pTMPI = infoPtr->QFac();
-	pTMPI = (isEmt) ? pTsum / 2. : pT1;
+      if (m_MPIvetoMode == 1) {
+	//m_pTMPI = infoPtr->QFac();
+	m_pTMPI = (isEmt) ? pTsum / 2. : pT1;
       }
 
 #ifdef DBGOUTPUT
-      cout << "doVetoMPIStep: Qfac = " << infoPtr->scalup()
-	   << ", pThard = " << pThard << endl << endl;
+      std::cout << "doVetoMPIStep: Qfac = " << infoPtr->scalup()
+	   << ", pThard = " << m_pThard << std::endl;
 #endif
 
       // Initialise other variables
-      accepted   = false;
-      nAcceptSeq = nISRveto = nFSRveto = 0;
+      m_accepted   = false;
+      m_nAcceptSeq = m_nISRveto = m_nFSRveto = 0;
 
-      if(pThard < 0)
+      if(m_pThard < 0)
 	{
-	  cout << "something wrong with pThard = " << pThard << endl;
+	  std::cout << "something wrong with pThard = " << m_pThard << std::endl;
 	  exit(1);
 	}
-      //    pThard = infoPtr->QFac();
+      //    m_pThard = infoPtr->QFac();
 
       // Do not veto the event
       return false;
@@ -486,15 +488,15 @@ namespace Pythia8{
 
     // ISR veto
 
-    bool canVetoISREmission() { return (vetoMode == 0) ? false : true; }
+    bool canVetoISREmission() { return (m_vetoMode == 0) ? false : true; }
     bool doVetoISREmission(int, const Event &e, int iSys) {
 
       // Must be radiation from the hard system, otherwise return
       if (iSys != 0) return false;
 
-      // If vetocount != 0 and we already have accepted 'vetoCount' emissions in a row,
-      // do nothing; if vetocount = 0 check all emissions
-      if (vetoCount != 0 && nAcceptSeq >= vetoCount) return false;
+      // If m_vetocount != 0 and we already have accepted 'vetoCount' emissions in a row,
+      // do nothing; if m_vetocount = 0 check all emissions
+      if (m_vetoCount != 0 && m_nAcceptSeq >= m_vetoCount) return false;
 
       // Pythia radiator after, emitted and recoiler after.
       int iRadAft = -1, iEmt = -1, iRecAft = -1;
@@ -506,35 +508,35 @@ namespace Pythia8{
       }
       if (iRadAft == -1 || iEmt == -1 || iRecAft == -1) {
 	e.list();
-	cout << "Error: couldn't find Pythia ISR emission" << endl;
+	std::cout << "Error: couldn't find Pythia ISR emission" << std::endl;
 	exit(1);
       }
 
-      // pTemtMode == 0: pT of emitted w.r.t. radiator
-      // pTemtMode == 1: min(pT of emitted w.r.t. all incoming/outgoing)
-      // pTemtMode == 2: min(pT of all outgoing w.r.t. all incoming/outgoing)
-      int xSR      = (pTemtMode == 0) ? 0       : -1;
-      int i        = (pTemtMode == 0) ? iRadAft : -1;
-      int j        = (pTemtMode != 2) ? iEmt    : -1;
+      // m_pTemtMode == 0: pT of emitted w.r.t. radiator
+      // m_pTemtMode == 1: min(pT of emitted w.r.t. all incoming/outgoing)
+      // m_pTemtMode == 2: min(pT of all outgoing w.r.t. all incoming/outgoing)
+      int xSR      = (m_pTemtMode == 0) ? 0       : -1;
+      int i        = (m_pTemtMode == 0) ? iRadAft : -1;
+      int j        = (m_pTemtMode != 2) ? iEmt    : -1;
       int k        = -1;
-      int r        = (pTemtMode == 0) ? iRecAft : -1;
+      int r        = (m_pTemtMode == 0) ? iRecAft : -1;
       double pTemt = pTcalc(e, i, j, k, r, xSR);
 
 #ifdef DBGOUTPUT
-      cout << "doVetoISREmission: pTemt = " << pTemt << endl << endl;
+      std::cout << "doVetoISREmission: pTemt = " << pTemt << std::endl;
 #endif
 
-      // Veto if pTemt > pThard
-      //cout << "SI In doVetoISREmission with pThard: " << pThard << endl;
-      if (pTemt > pThard) {
-	nAcceptSeq = 0;
-	nISRveto++;
+      // Veto if pTemt > m_pThard
+      //std::cout << "SI In doVetoISREmission with pThard: " << m_pThard << std::endl;
+      if (pTemt > m_pThard) {
+	m_nAcceptSeq = 0;
+	m_nISRveto++;
 	return true;
       }
 
       // Else mark that an emission has been accepted and continue
-      nAcceptSeq++;
-      accepted = true;
+      m_nAcceptSeq++;
+      m_accepted = true;
 
       return false;
     }
@@ -543,7 +545,7 @@ namespace Pythia8{
 
     // FSR veto
 
-    bool canVetoFSREmission() { return (vetoMode == 0) ? false : true; }
+    bool canVetoFSREmission() { return (m_vetoMode == 0) ? false : true; }
     bool doVetoFSREmission(int, const Event &e, int iSys, bool inr) {
       // radiation from the hard system: isys=0
       // radiation from resonances: isys!=0 and inr=1
@@ -557,23 +559,23 @@ namespace Pythia8{
       // In case of radiation from resonance we veto
       // This is used for ptmaxmatch = 2. 
       // If py8veto = 1, this method is also used to veto photons, otherwise, use external function
-      // force the radiation scale, pThard, to be equal to the one set in the LHE file
+      // force the radiation scale, m_pThard, to be equal to the one set in the LHE file
       if (inr == 1) {
-	if ((si_data_.vetoqed == false) || (si_data_.py8veto == false)) {
-	  //cout << "SI: not using doVetoFSREmission" << endl;
+	if ((m_si_data_.vetoqed == false) || (m_si_data_.py8veto == false)) {
+	  //std::cout << "SI: not using doVetoFSREmission" << std::endl;
 	  return false;
 	}
 	else {
 	  // Set scale for FSR from the resonance
-	  pThard = si_event_info_.vetoscale_fsr;
-	  //cout << "SI: Using PYTHIA8 based veto with ptmaxmatch = 2 for FSR, pthard: " << pThard << endl;
+	  m_pThard = m_si_event_info_.vetoscale_fsr;
+	  //std::cout << "SI: Using PYTHIA8 based veto with ptmaxmatch = 2 for FSR, pthard: " << m_pThard << std::endl;
 	}
       }
       
 
-      // If vetocount != 0 and we already have accepted 'vetoCount' emissions in a row,
-      // do nothing; if vetocount = 0 check all emissions
-      if (vetoCount != 0 && nAcceptSeq >= vetoCount) return false;
+      // If m_vetocount != 0 and we already have accepted 'vetoCount' emissions in a row,
+      // do nothing; if m_vetocount = 0 check all emissions
+      if (m_vetoCount != 0 && m_nAcceptSeq >= m_vetoCount) return false;
 
       // Pythia radiator (before and after), emitted and recoiler (after)
       int iRecAft = e.size() - 1;
@@ -583,26 +585,26 @@ namespace Pythia8{
       if ( (e[iRecAft].status() != 52 && e[iRecAft].status() != -53) ||
 	   e[iEmt].status() != 51 || e[iRadAft].status() != 51) {
 	e.list();
-	cout << "Error: couldn't find Pythia FSR emission" << endl;
+	std::cout << "Error: couldn't find Pythia FSR emission" << std::endl;
 	exit(1);
       }
 
-      // Behaviour based on pTemtMode:
+      // Behaviour based on m_pTemtMode:
       //  0 - pT of emitted w.r.t. radiator before
       //  1 - min(pT of emitted w.r.t. all incoming/outgoing)
       //  2 - min(pT of all outgoing w.r.t. all incoming/outgoing)
-      int xSR = (pTemtMode == 0) ? 1       : -1;
+      int xSR = (m_pTemtMode == 0) ? 1       : -1;
 
-      int i   = (pTemtMode == 0) ? iRadBef : -1;
-      i = (pTdefMode == 1) ? iRadAft : iRadBef;
+      int i   = (m_pTemtMode == 0) ? iRadBef : -1;
+      i = (m_pTdefMode == 1) ? iRadAft : iRadBef;
       // using POWHEG pT definition i should be iRadAft (daugther)
-      int k   = (pTemtMode == 0) ? iRadAft : -1;
-      int r   = (pTemtMode == 0) ? iRecAft : -1;
+      int k   = (m_pTemtMode == 0) ? iRadAft : -1;
+      int r   = (m_pTemtMode == 0) ? iRecAft : -1;
 
       // When pTemtMode is 0 or 1, iEmt has been selected
       double pTemt = 0.;
-      if (pTemtMode == 0 || pTemtMode == 1) {
-	// Which parton is emitted, based on emittedMode:
+      if (m_pTemtMode == 0 || m_pTemtMode == 1) {
+	// Which parton is emitted, based on m_emittedMode:
 	//  0 - Pythia definition of emitted
 	//  1 - Pythia definition of radiated after emission
 	//  2 - Random selection of emitted or radiated after emission
@@ -611,38 +613,38 @@ namespace Pythia8{
 	// j = radiator after
 
 	int j = iRadAft;
-	//emittedMode = 0 -> j = iRadAft + 1 = iEmt 
-	if (emittedMode == 0 || (emittedMode == 2 && rndmPtr->flat() < 0.5)) j++;
+	//m_emittedMode = 0 -> j = iRadAft + 1 = iEmt 
+	if (m_emittedMode == 0 || (m_emittedMode == 2 && rndmPtr->flat() < 0.5)) j++;
 
 	for (int jLoop = 0; jLoop < 2; jLoop++) {
 	  if      (jLoop == 0) pTemt = pTcalc(e, i, j, k, r, xSR);
 	  else if (jLoop == 1) pTemt = min(pTemt, pTcalc(e, i, j, k, r, xSR));
   
-	  // For emittedMode == 3, have tried iRadAft, now try iEmt
-	  if (emittedMode != 3) break;
+	  // For m_emittedMode == 3, have tried iRadAft, now try iEmt
+	  if (m_emittedMode != 3) break;
 	  if (k != -1) swap(j, k); else j = iEmt;
 	}
 
-	// If pTemtMode is 2, then try all final-state partons as emitted
-      } else if (pTemtMode == 2) {
+	// If m_pTemtMode is 2, then try all final-state partons as emitted
+      } else if (m_pTemtMode == 2) {
 	pTemt = pTcalc(e, i, -1, k, r, xSR);
       }
 
 #ifdef DBGOUTPUT
-      cout << "doVetoFSREmission: pTemt = " << pTemt << endl << endl;
+      std::cout << "doVetoFSREmission: pTemt = " << pTemt << std::endl;
 #endif
 
-      // Veto if pTemt > pThard
-      //cout << "SI In doVetoFSREmission with pThard: " << pThard << endl;
-      if (pTemt > pThard) {
-	nAcceptSeq = 0;
-	nFSRveto++;
+      // Veto if pTemt > m_pThard
+      //std::cout << "SI In doVetoFSREmission with pThard: " << m_pThard << std::endl;
+      if (pTemt > m_pThard) {
+	m_nAcceptSeq = 0;
+	m_nFSRveto++;
 	return true;
       }
 
       // Else mark that an emission has been accepted and continue
-      nAcceptSeq++;
-      accepted = true;
+      m_nAcceptSeq++;
+      m_accepted = true;
       return false;
     }
 
@@ -650,14 +652,14 @@ namespace Pythia8{
 
     // MPI veto
 
-    bool canVetoMPIEmission() { return (MPIvetoMode == 0) ? false : true; }
+    bool canVetoMPIEmission() { return (m_MPIvetoMode == 0) ? false : true; }
     bool doVetoMPIEmission(int, const Event &e) {
 
-      if (MPIvetoMode == 1) {
-	if (e[e.size() - 1].pT() > pTMPI) {
+      if (m_MPIvetoMode == 1) {
+	if (e[e.size() - 1].pT() > m_pTMPI) {
 #ifdef DBGOUTPUT
-	  cout << "doVetoMPIEmission: pTnow = " << e[e.size() - 1].pT()
-	       << ", pTMPI = " << pTMPI << endl << endl;
+	  std::cout << "doVetoMPIEmission: pTnow = " << e[e.size() - 1].pT()
+	       << ", pTMPI = " << m_pTMPI << std::endl;
 #endif
 	  return true;
 	}
@@ -669,20 +671,20 @@ namespace Pythia8{
 
     // Functions to return information
 
-    int    getNISRveto() { return nISRveto; }
-    int    getNFSRveto() { return nFSRveto; }
+    int    getNISRveto() { return m_nISRveto; }
+    int    getNFSRveto() { return m_nFSRveto; }
 
   private:
-    int    nFinal, vetoMode, vetoCount, pThardMode, pTemtMode,
-					   emittedMode, pTdefMode, MPIvetoMode;
-    double pThard, pTMPI;
-    bool   accepted;
+    int    m_nFinal, m_vetoMode, m_vetoCount, m_pThardMode, m_pTemtMode,
+					   m_emittedMode, m_pTdefMode, m_MPIvetoMode;
+    double m_pThard, m_pTMPI;
+    bool   m_accepted;
     // The number of accepted emissions (in a row)
-    int nAcceptSeq;
+    int m_nAcceptSeq;
     // Statistics on vetos
-    unsigned long int nISRveto, nFSRveto;
-    si_data_type si_data_;
-    si_event_info_type si_event_info_;
+    unsigned long int m_nISRveto, m_nFSRveto;
+    si_data_type m_si_data_;
+    si_event_info_type m_si_event_info_;
   };
 
 } // end namespace Pythia8

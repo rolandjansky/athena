@@ -48,7 +48,7 @@ namespace Pythia8 {
 	m_vetoPartonLevel("Powheg:bb4l:PartonLevel:veto", 0),
         m_wouldVetoFsr(false), 
         m_topresscale(-1.), m_vetoDecScale(-1.), m_atopresscale(-1.), 
-	m_nISRveto(0), m_nFSRveto(0), nFSRvetoBB4l(0),
+	m_nISRveto(0), m_nFSRveto(0), m_nFSRvetoBB4l(0),
 	m_pTmin("Powheg:bb4l:pTminVeto", 0.5),
         m_vetoTopCharge(-1),
 	m_vetoProduction("Powheg:veto", 0),
@@ -67,7 +67,7 @@ namespace Pythia8 {
     }
 
 
-    ~PowhegBB4Ltms() override { std::cout << "Number of FSR vetoed in BB4l = " << nFSRvetoBB4l << std::endl; }
+    ~PowhegBB4Ltms() override { std::cout << "Number of FSR vetoed in BB4l = " << m_nFSRvetoBB4l << std::endl; }
 
 
     //Initialization
@@ -512,7 +512,7 @@ namespace Pythia8 {
 	}
 	if (m_dryRunFSR(settingsPtr)) return false;
 	else {
-          nFSRvetoBB4l++;
+          m_nFSRvetoBB4l++;
 	  return true;
 	}
       }
@@ -535,7 +535,7 @@ namespace Pythia8 {
     bool m_wouldVetoFsr;
     double m_topresscale,  m_vetoDecScale, m_atopresscale;
     unsigned long int m_nISRveto, m_nFSRveto;
-    unsigned long int nFSRvetoBB4l;
+    unsigned long int m_nFSRvetoBB4l;
 
     Pythia8_UserHooks::UserSetting<double> m_pTmin;
     int m_vetoTopCharge;

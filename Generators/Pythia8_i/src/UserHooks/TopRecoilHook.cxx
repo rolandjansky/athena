@@ -24,45 +24,45 @@ namespace Pythia8 {
   public:
 
     // Constructor.
-    //  doTopRecoil : eikonal correction in GW dipole on/off when no MEC applied.
-    //  useOldDipole  : in GW dipole, use partons before or after branching.
-    //  doList        : diagnostic output; set false for production runs.
+    //  m_doTopRecoil : eikonal correction in GW dipole on/off when no MEC applied.
+    //  m_useOldDipole  : in GW dipole, use partons before or after branching.
+    //  m_doList        : diagnostic output; set false for production runs.
     TopRecoilHook(bool doTopRecoilIn=true, bool useOldDipoleIn=false, bool doListIn = false) {
-      doTopRecoil = doTopRecoilIn;
-      useOldDipole = useOldDipoleIn;
-      doList = doListIn; 
+      m_doTopRecoil = doTopRecoilIn;
+      m_useOldDipole = useOldDipoleIn;
+      m_doList = doListIn; 
       // Constructor also creates some histograms for analysis inside User Hook.
-      wtCorr = new Hist("corrective weight", 100, 0., 2.);
+      m_wtCorr = new Hist("corrective weight", 100, 0., 2.);
       std::cout << " enabling TopRecoilHook"<< std::endl;
 
     }
 
     // Destructor prints histogram.
     ~TopRecoilHook() override {
-      if (doTopRecoil) cout << *wtCorr;
-      delete wtCorr;
+      if (m_doTopRecoil) cout << *m_wtCorr;
+      delete m_wtCorr;
     }
 
 
     // Initialise. Only use hook for simple showers with recoilToColoured = off.
     virtual bool initAfterBeams() override {
 
-      int showerModel  = 1;//settingsPtr->mode("PartonShowers:Model");
+      // int showerModel  = 1;//settingsPtr->mode("PartonShowers:Model");
       // Switch off if not using simple showers or if recoilToColoured = on.
       bool recoilToColoured = settingsPtr->flag("TimeShower:recoilToColoured");
-      ///      if (showerModel != 1 || recoilToColoured) doTopRecoil=false;
+      ///      if (showerModel != 1 || recoilToColoured) m_doTopRecoil=false;
       if (recoilToColoured){
-	doTopRecoil=false;
+	m_doTopRecoil=false;
 	std::cout << "  TopRecoilHook should not be used with RecoilToColoured=on; disabling"<< std::endl;
       }
       // Flag if W mass term is already accounted for (true) or not (false).
-      recoilDeadCone        = settingsPtr->flag("TimeShower:recoilDeadCone");
+      m_recoilDeadCone        = settingsPtr->flag("TimeShower:recoilDeadCone");
       // All ok.
       return true;
     }
 
     // Allow a veto after an FSR emission
-    virtual bool canVetoFSREmission() override {return doTopRecoil;}
+    virtual bool canVetoFSREmission() override {return m_doTopRecoil;}
 
     // Access the event after an FSR emission, specifically inside top decay.
     virtual bool doVetoFSREmission( int sizeOld, const Event& event, int iSys,
@@ -86,7 +86,7 @@ namespace Pythia8 {
     
       // The above partons are after emission;
       // alternatively use the ones before.
-      if (useOldDipole) {
+      if (m_useOldDipole) {
 	iRad = event[iRad].mother1();
 	iRec = event[iRec].mother1();
       }
@@ -111,8 +111,8 @@ namespace Pythia8 {
       double pRecEmt = event[iRec].p() * event[iEmt].p();
       double wtW = 2. * pRadRec / (pRadEmt * pRecEmt)
 	- pow2(event[iRad].m() / pRadEmt);
-      // If recoilDeadCone = on, include W mass term in denominator.
-      if (recoilDeadCone) wtW -= pow2(event[iRec].m() / pRecEmt);
+      // If m_recoilDeadCone = on, include W mass term in denominator.
+      if (m_recoilDeadCone) wtW -= pow2(event[iRec].m() / pRecEmt);
 
       // Numerator: eikonal weight with top as recoiler.
       double pRadTop = event[iRad].p() * event[iTop].p();
@@ -121,10 +121,10 @@ namespace Pythia8 {
 	- pow2(event[iRad].m() / pRadEmt) - pow2(event[iTop].m() / pTopEmt);
     
       // Histogram weight ratio.
-      wtCorr->fill( wtT / wtW );
+      m_wtCorr->fill( wtT / wtW );
     
       // List relevant properties.
-      if (doList) {
+      if (m_doList) {
 	std::cout << "\n now event with sizeOld = " << sizeOld << ", iSys = "
 		  << iSys << ", sizeOut = " << sizeOut << scientific
 		  << setprecision(3)
@@ -141,8 +141,8 @@ namespace Pythia8 {
 private:
   
     // Options and Histograms.
-    bool  doTopRecoil, useOldDipole, doList, recoilDeadCone;
-    Hist *wtCorr;
+    bool  m_doTopRecoil, m_useOldDipole, m_doList, m_recoilDeadCone;
+    Hist *m_wtCorr;
 
   };
 
