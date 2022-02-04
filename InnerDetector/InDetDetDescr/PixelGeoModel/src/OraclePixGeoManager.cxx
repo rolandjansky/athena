@@ -161,9 +161,9 @@ OraclePixGeoManager::init()
 
   m_dbVersion = determineDbVersion();
 
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Database version number: " << dbVersion() << endmsg;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Database version number: " << m_dbVersion << endmsg;
 
-  if (dbVersion() < 4) {
+  if (m_dbVersion < 4) {
     m_legacyManager = new PixelLegacyManager(rdbSvc,  detectorKey, detectorNode);
   }
 
@@ -172,7 +172,7 @@ OraclePixGeoManager::init()
   m_distortedMatManager = new InDetDD::DistortedMaterialManager;
  
   // Set default lenth unit to Gaudi::Units::mm for newer version and Gaudi::Units::cm for older versions
-  m_defaultLengthUnit =  (dbVersion() < 3) ? Gaudi::Units::cm : Gaudi::Units::mm;
+  m_defaultLengthUnit =  (m_dbVersion < 3) ? Gaudi::Units::cm : Gaudi::Units::mm;
 
   // Get the top level placements
   m_placements = new TopLevelPlacements(m_PixelTopLevel);
@@ -181,7 +181,7 @@ OraclePixGeoManager::init()
   m_allPartsPresent = (!m_placements->present("Barrel") && !m_placements->present("EndcapA") &&  !m_placements->present("EndcapC"));
 
   // cache the number of inner frames
-  if (dbVersion() < 3) {
+  if (m_dbVersion < 3) {
     m_barrelInFrames =  (*m_PixelBarrelGeneral)[0]->getInt("NFRAMEIN");
     m_endcapInFrames =  (*m_PixelEndcapGeneral)[0]->getInt("NFRAMEIN");
   } else {

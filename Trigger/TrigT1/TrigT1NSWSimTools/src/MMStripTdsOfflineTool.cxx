@@ -339,11 +339,7 @@ namespace NSWL1 {
 
 
     void MMStripTdsOfflineTool::reset_ntuple_variables() {
-      // if ntuple is not booked nothing to do
-      if ( m_tree==0 ) return;
-
       //reset the ntuple variables
-
       clear_ntuple_variables();
     }
 

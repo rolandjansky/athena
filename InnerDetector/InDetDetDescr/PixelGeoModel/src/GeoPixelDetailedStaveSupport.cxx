@@ -35,7 +35,7 @@ GeoPixelDetailedStaveSupport::GeoPixelDetailedStaveSupport(InDetDD::PixelDetecto
     m_transform(GeoTrf::Transform3D::Identity())
 {
   m_bVerbose = (m_gmt_mgr->msgLvl(MSG::DEBUG));
-  m_physVol = Build();
+  m_physVol = GeoPixelDetailedStaveSupport::Build();
 
 }
 

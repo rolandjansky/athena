@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //============================================================
 //
@@ -32,7 +32,7 @@ StatusCode T2VertexBeamSpot::initialize() {
 
    ATH_CHECK(m_beamSpotTool.retrieve());
    ATH_CHECK(m_trackBSTool.retrieve());
-   ATH_CHECK(m_monTool.retrieve());
+   if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
 
    ATH_CHECK( m_trackCollectionKey.initialize() );
 

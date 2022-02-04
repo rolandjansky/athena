@@ -3713,7 +3713,7 @@ StatusCode TrigEDMChecker::dumpTauJetContainer() {
   int ntag=1;
   std::string TauContainerTags[]={"HLT_TrigTauRecMerged"};
   for (int itag=0; itag < ntag; itag++) {
-    const TauJetContainer* TauJetcont;
+    const TauJetContainer* TauJetcont = nullptr;
     sCode=evtStore()->retrieve(TauJetcont , TauContainerTags[itag]);
     if( sCode.isFailure() ){
       ATH_MSG_INFO("Failed to retrieve TauJetContainer  with key " << TauContainerTags[itag]);

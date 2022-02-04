@@ -20,7 +20,7 @@ namespace NSWL1 {
       m_pad_trigger("NSWL1::PadTriggerLogicOfflineTool",this),
       m_pad_trigger_lookup("NSWL1::PadTriggerLookupTool",this),
       m_strip_tds("NSWL1::StripTdsOfflineTool",this),
-      //m_strip_cluster("NSWL1::StripClusterTool",this),
+      m_strip_cluster("NSWL1::StripClusterTool",this),
       //m_strip_segment("NSWL1::StripSegmentTool",this), TODO: this line makes the code crash in initialization... please, sTGC friends, fix it!!!
       m_mmstrip_tds("NSWL1::MMStripTdsOfflineTool",this),
       m_mmtrigger("NSWL1::MMTriggerTool",this),
@@ -87,7 +87,7 @@ namespace NSWL1 {
         ATH_CHECK(m_pad_trigger.retrieve());
       }
       ATH_CHECK(m_strip_tds.retrieve());
-      //ATH_CHECK(m_strip_cluster.retrieve());
+      ATH_CHECK(m_strip_cluster.retrieve());
       //ATH_CHECK(m_strip_segment.retrieve());
     }
 
@@ -138,7 +138,7 @@ namespace NSWL1 {
       }
 
       ATH_CHECK( m_strip_tds->gather_strip_data(strips,padTriggers) );
-      //ATH_CHECK( m_strip_cluster->cluster_strip_data(strips,clusters) );
+      ATH_CHECK( m_strip_cluster->cluster_strip_data(strips,clusters) );
       //ATH_CHECK( m_strip_segment->find_segments(clusters,trgContainer) );
 
       ATH_CHECK(PadTriggerAdapter::fillContainer(padTriggerContainer, padTriggers, m_current_evt));

@@ -32,8 +32,6 @@ def MuonTrackToVertexCfg(flags, name = 'MuonTrackToVertexTool', **kwargs ):
     return acc
 
 def MuonCombinedInDetDetailedTrackSelectorToolCfg(flags, name="MuonCombinedInDetDetailedTrackSelectorTool",**kwargs):
-    from TrkConfig.AtlasTrackSummaryToolConfig import AtlasTrackSummaryToolCfg
-
     if flags.Beam.Type == 'collisions':
         kwargs.setdefault("pTMin", 2000 )
         kwargs.setdefault("nHitBLayer", 0 )
@@ -69,9 +67,7 @@ def MuonCombinedInDetDetailedTrackSelectorToolCfg(flags, name="MuonCombinedInDet
     extrapolator = result.getPrimary()
     kwargs.setdefault("Extrapolator", extrapolator )
 
-    acc = AtlasTrackSummaryToolCfg(flags)
-    kwargs.setdefault("TrackSummaryTool", acc.popPrivateTools() )
-    result.merge(acc)
+    kwargs.setdefault("TrackSummaryTool", "")
 
     # Has two CondKeys
     # SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
