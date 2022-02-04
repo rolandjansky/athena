@@ -14,10 +14,7 @@
 #include "GeoModelKernel/GeoTessellatedSolid.h"
 #include "GeoModelKernel/GeoFacet.h"
 #include "GeoModelKernel/GeoGenericTrap.h"
-#ifndef BUILDVP1LIGHT
-    #include "GeoSpecialShapes/LArCustomShape.h"
-    #include "GeoSpecialShapes/LArWheelCalculator.h"
-#endif
+#include "GeoModelKernel/GeoUnidentifiedShape.h"
 #include "VP1HEPVis/nodes/SoTubs.h"
 #include "VP1HEPVis/nodes/SoCons.h"
 #include "VP1HEPVis/nodes/SoGenericBox.h"
@@ -55,8 +52,9 @@ SoVisualizeAction::~SoVisualizeAction()
 void SoVisualizeAction::handleShape(const GeoShape *shape)
 {
 #ifndef BUILDVP1LIGHT
-  const LArCustomShape* custom = dynamic_cast< const LArCustomShape* >( shape );
-  if( custom ) {
+  const GeoUnidentifiedShape* custom = dynamic_cast< const GeoUnidentifiedShape* >( shape );
+  if( custom) {
+    std::string customName = custom->name();
     static const double eta_hi  = 3.2;
     static const double eta_mid = 2.5;
     static const double eta_low = 1.375;
@@ -64,23 +62,21 @@ void SoVisualizeAction::handleShape(const GeoShape *shape)
     static const double dMechFocaltoWRP      = 3691. *SYSTEM_OF_UNITS::mm;  //=endg_z1
     static const double dWRPtoFrontFace      =   11. *SYSTEM_OF_UNITS::mm;
     static const double rOuterCutoff         = 2034. *SYSTEM_OF_UNITS::mm;  //=endg_rlimit
+    static const double activeLength         = 510*SYSTEM_OF_UNITS::mm;
+    static const double straightStartSection = 2*SYSTEM_OF_UNITS::mm;
+    static const double wheelThickness       = activeLength+2*straightStartSection;
 
     SoLAr::initClass();
     SoLAr *solar = new SoLAr();
-    const LArWheelCalculator *calc = custom->calculator();
-    LArG4::LArWheelCalculator_t type = calc->type();
-    if (type==LArG4::InnerAbsorberWheel ||
-        type==LArG4::InnerElectrodWheel ||
-        type==LArG4::InnerAbsorberModule ||
-        type==LArG4::InnerElectrodModule ) {
+    if (customName.find("Inner")!=std::string::npos) {
       float zPlane[2],rInner[2],rOuter[2];
       zPlane[0]=0;
-      zPlane[1]=calc->GetWheelThickness();
+      zPlane[1]=wheelThickness;
 
       double tanThetaInner = 2. * exp(-eta_hi ) / (1. - exp(2.*-eta_hi ));
       double tanThetaMid   = 2. * exp(-eta_mid) / (1. - exp(2.*-eta_mid));
       double zWheelFrontFace = dMechFocaltoWRP + dWRPtoFrontFace;
-      double zWheelBackFace = zWheelFrontFace + calc->GetWheelThickness();
+      double zWheelBackFace = zWheelFrontFace + wheelThickness;
       rInner[0] = zWheelFrontFace * tanThetaInner;
       rInner[1] = zWheelBackFace  * tanThetaInner;
       // Note that there is a 3mm gap between the outer surface of the
@@ -92,17 +88,14 @@ void SoVisualizeAction::handleShape(const GeoShape *shape)
       solar->fRmax.setValues(0,2,rOuter);
       solar->fDz.setValues  (0,2,zPlane);
     }
-    else if (type==LArG4::OuterAbsorberWheel ||
-	           type==LArG4::OuterElectrodWheel ||
-	           type==LArG4::OuterAbsorberModule ||
-	           type==LArG4::OuterElectrodModule ) {
+    else if (customName.find("Outer")!=std::string::npos) {
       float zPlane[3], rInner[3], rOuter[3];
       zPlane[0] = 0;
-      zPlane[2] = calc->GetWheelThickness();
+      zPlane[2] = wheelThickness;
       double tanThetaMid   = 2. * exp(-eta_mid) / (1. - exp(2.*-eta_mid));
       double tanThetaOuter = 2. * exp(-eta_low) / (1. - exp(2.*-eta_low));
       double zWheelFrontFace = dMechFocaltoWRP + dWRPtoFrontFace;
-      double zWheelBackFace = zWheelFrontFace + calc->GetWheelThickness();
+      double zWheelBackFace = zWheelFrontFace + wheelThickness;
       // Note that there is a 3mm gap between the outer surface of the
       // inner wheel and the inner surface of the outer wheel.
       double HalfGapBetweenWheels = 0.15*SYSTEM_OF_UNITS::cm;  // In DB! (EMECGEOMETRY.DCRACK);
