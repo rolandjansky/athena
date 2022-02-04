@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 # Unit test for rootcomp.py
 
 if [ -z "$1" ]; then
-    echo "Usage: $0 root.C"
+    echo "Usage: $0 command args..."
     exit 1
 fi
 
@@ -18,7 +18,7 @@ assert_fail() {
 }
 
 # Create histogram files:
-assert_pass root -l -b -n -q $1
+assert_pass $@
 
 # Check default options:
 assert_pass rootcomp.py hist1.root hist1.root
