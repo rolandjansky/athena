@@ -1,38 +1,36 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RPCStatusTestAlg_H
-#define RPCStatusTestAlg_H 
-//STL
+#define RPCStatusTestAlg_H
+// STL
 #include <string>
 
-//Gaudi
+// Gaudi
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-//Athena
+// Athena
 
 //#include "MuonCondInterface/IMuonConditionsSvc.h"
 #include "MuonCondInterface/IRPCConditionsSvc.h"
 
-
-//Forward declarations
+// Forward declarations
 class ISvcLocator;
 class StatusCode;
 
-///Example class to show calling the RPC_ConditionsSummarySvc
+/// Example class to show calling the RPC_ConditionsSummarySvc
 class RPCStatusTestAlg : public AthAlgorithm {
- public:
-  RPCStatusTestAlg(const std::string &name,ISvcLocator *pSvcLocator) ;
- ~RPCStatusTestAlg();
+public:
+    RPCStatusTestAlg(const std::string &name, ISvcLocator *pSvcLocator);
+    ~RPCStatusTestAlg();
 
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
-   
- private:
-  ServiceHandle<IRPCConditionsSvc> m_pSummarySvc;
-}; //end of class
+    StatusCode initialize() override;
+    StatusCode execute() override;
+
+private:
+    ServiceHandle<IRPCConditionsSvc> m_pSummarySvc;
+};  // end of class
 
 #endif
