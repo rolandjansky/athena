@@ -173,7 +173,7 @@ class ElectronChainConfiguration(ChainConfigurationBase):
             stepNames += ['getPrecisionCaloElectron']
 
         # If its an etcut chain, we will not run precision Tracking Electron. Just precision Calo. So returning here if its an etcut chain unless its an etcut_idperf chaiin:
-        if 'etcut' in self.chainPart['addInfo'] and not 'idperf' in self.chainPart['idperfInfo']:
+        if 'etcut' in self.chainPart['addInfo'] and 'idperf' not in self.chainPart['idperfInfo']:
             log.debug("This is an etcut chain. Returning here")
             return stepNames
 
