@@ -283,6 +283,18 @@ namespace top {
                  "Failed to set MuonQuality for " + name);
       top::check(asg::setProperty(tool, "AllowZeroSF", true),
                  "Failed to set AllowZeroSF for " + name);
+      if (m_config->muonSFCustomInputFolder() != " ") {
+        top::check(asg::setProperty(tool, "CustomInputFolder", m_config->muonSFCustomInputFolder()),
+                   "Failed to set CustomInputFolder property for MuonTriggerScaleFactors tool");
+      }
+      if (m_config->forcePeriod() != " ") {
+        top::check(asg::setProperty(tool, "forcePeriod", m_config->forcePeriod()),
+                   "Failed to set forcePeriod property for MuonTriggerScaleFactors tool");
+      }
+      if (m_config->forceYear() != -1) {
+        top::check(asg::setProperty(tool, "forceYear", m_config->forceYear()),
+                   "Failed to set forceYear property for MuonTriggerScaleFactors tool");
+      }
       top::check(tool->initialize(), "Failed to init. " + name);
     }
     return tool;
