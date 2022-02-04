@@ -183,7 +183,7 @@ def getNeutralFlowElementCreatorAlgorithm(inputFlags,neutralFlowElementOutputNam
     if neutralFlowElementOutputName:
         FlowElementNeutralCreatorAlgorithm.FlowElementOutputName=neutralFlowElementOutputName
     if(inputFlags.PF.EOverPMode):
-        FlowElementNeutralCreatorAlgorithm.FEOutputName="EOverPNeutralParticleFlowObjects"
+        FlowElementNeutralCreatorAlgorithm.FlowElementOutputName="EOverPNeutralParticleFlowObjects"
     if(inputFlags.PF.useCalibHitTruthClusterMoments and inputFlags.PF.addClusterMoments):
         FlowElementNeutralCreatorAlgorithm.useCalibHitTruth=True
 
