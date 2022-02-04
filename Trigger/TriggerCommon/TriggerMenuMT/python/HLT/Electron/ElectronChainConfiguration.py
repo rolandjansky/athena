@@ -222,61 +222,7 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         # This will contain the name of the steps we will want to configure
         steps = self.prepareSequence()
 
-        # # --------------------
-        # # define here the names of the steps and obtain the chainStep configuration
-        # # --------------------
-        # stepDictionary = {
-        #         'etcut1step': ['getFastCalo'],
-        #   
-        #         'etcut'     : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking'],
-        #         
-        #         # nominal and nominal-idperf
-        #         'nominal'        : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
-        #         'nominal_idperf' : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking'],
-        #         
-        #         # gsf and gsf-idperf
-        #         'nominalgsf'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionTrack_GSFRefitted', 'getPrecisionGSFElectron'],
-        #         'gsf_idperf'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionTrack_GSFRefitted'],
 
-        #         # lrt and lrt-idperf
-        #         'nominallrt'         : ['getFastCalo', 'getFastElectron_lrt', 'getPrecisionCaloElectron_lrt', 'getPrecisionTracking_lrt', 'getPrecisionElectron_lrt'],  
-        #         'lrt_idperf'  : ['getFastCalo', 'getFastElectron_lrt', 'getPrecisionCaloElectron_lrt', 'getPrecisionTracking_lrt'],
-        #         # fwd sequences
-        #         'etcutfwd' : ['getFastCalo_fwd']
-        #         }
-
-        # log.debug('electron chain part = %s', self.chainPart)
-        # key = "nominal"
-
-        # if 'idperf' in self.chainPart['idperfInfo'] and not self.chainPart['gsfInfo'] and not self.chainPart['lrtInfo']:
-        #     key = "nominal_idperf"
- 
-        # if self.chainPart['addInfo']:
-        #     if "etcut1step" in self.chainPart['addInfo']:
-        #         key = "etcut1step"
-        #     elif "etcut" in self.chainPart['addInfo'] and "fwd" in self.chainPart['addInfo']:
-        #         key = "etcutfwd"
-        #     else:
-        #         key = "etcut"
-        # 
-        # if "gsf" in self.chainPart['gsfInfo']:
-        #     if self.chainPart['idperfInfo']:
-        #         key = "gsf_idperf"
-        #     else:
-        #         key = "nominalgsf"
-
-        # if self.chainPart['lrtInfo']:
-        #     if self.chainPart['idperfInfo']:
-        #         key = "lrt_idperf"
-        #     else:  
-        #         key = "nominallrt"
-
-        # log.debug('electron key = %s', key)
-        # if key in stepDictionary:
-        #     steps=stepDictionary[key]
-        # else:
-        #     raise RuntimeError("Chain configuration unknown for electron chain with key: " + key )
-        # 
         # This is it, lets print the list of stepNames
         log.debug("stepNames: %s", steps)
         for step in steps:
