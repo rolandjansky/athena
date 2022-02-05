@@ -47,7 +47,7 @@ def addAndRemove(dbname,folder,tag,ts1,ts2,chansToAdd=dict(),chansToRemove=()):
             toAdd=dict()
 
         newData=()
-        for i in range(bcBlob.size()/8):
+        for i in range(int(bcBlob.size()/8)):
             (ch,bc)=unpack('II',bcBlob.read(8))
             if ch in chansToRemove:
                 print ("Removing entry [0x%x 0x%x] from COOL channel %i, IOV start run %i" % (ch,bc,cc, since>>32))

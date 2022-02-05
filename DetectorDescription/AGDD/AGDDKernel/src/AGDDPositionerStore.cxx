@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDKernel/AGDDPositionerStore.h"
@@ -24,10 +24,4 @@ AGDDPositioner* AGDDPositionerStore::GetPositioner(unsigned int i)
 		std::cout << " Positioner "<<i<<" not found: returning 0"<<std::endl;
 		return 0;
 	}
-}
-
-AGDDPositionerStore* AGDDPositionerStore::GetPositionerStore()
-{
-	static AGDDPositionerStore* thePointer=new AGDDPositionerStore();
-	return thePointer;
 }

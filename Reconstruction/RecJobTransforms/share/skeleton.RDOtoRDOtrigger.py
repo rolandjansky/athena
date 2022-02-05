@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # Transform skeleton for RDO -> RDO_TRIG (running trigger and adding its output to the RDO file).
 # This is only a wrapper interfacing transform arguments into the main job options file
@@ -50,6 +50,10 @@ maxEvents = getFromRunArgs('maxEvents', False) or -1
 skipEvents = getFromRunArgs('skipEvents', False) or 0
 athenaCommonFlags.EvtMax = maxEvents
 athenaCommonFlags.SkipEvents = skipEvents
+
+#conditions/geometry setup for runHLT_standalone
+setGlobalTag = getFromRunArgs("conditionsTag", False)
+setDetDescr = getFromRunArgs("geometryVersion", False)
 
 ##################################################
 # Parse preExec / preInclude

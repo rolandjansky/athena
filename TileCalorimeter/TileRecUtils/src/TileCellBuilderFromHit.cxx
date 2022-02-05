@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -30,12 +30,12 @@
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/ReadCondHandle.h"
+#include "AthenaKernel/ClassName.h"
+#include "AthenaKernel/RNGWrapper.h"
 
 // access all Hits inside container
 #include "EventContainers/SelectAllObject.h" 
 #include "AthenaKernel/errorcheck.h"
-// For the Athena-based random numbers.
-#include "AthenaKernel/IAtRndmGenSvc.h"
 
 
 //CLHEP includes
@@ -83,8 +83,6 @@ TileCellBuilderFromHit::TileCellBuilderFromHit(const std::string& type, const st
   , m_tileTBID(0)
   , m_tileHWID(0)
   , m_tileInfo(0)
-  , m_pHRengine(0)
-  , m_rndmSvc ("AtRndmGenSvc", name)
   , m_tileMgr(0)
   , m_mbtsMgr(0)
   , m_RChType(TileFragHash::Default)
@@ -102,7 +100,6 @@ TileCellBuilderFromHit::TileCellBuilderFromHit(const std::string& type, const st
   m_zeroEnergy = 0.5 * MeV; // half a MeV in both PMTs i.e. one MeV in a cell
 
   declareProperty("TileInfoName"                ,m_infoName);        // Name of TileInfo store (default=TileInfo);
-  declareProperty("RndmSvc"             ,m_rndmSvc, "Random Number Service used in TileCellBuildetFromHit");
 
   // Noise Sigma
   declareProperty("NoiseSigma",m_noiseSigma);
@@ -173,7 +170,7 @@ StatusCode TileCellBuilderFromHit::initialize() {
   }
 
   ATH_CHECK( m_rndmSvc.retrieve());
-  m_pHRengine = m_rndmSvc->GetEngine("Tile_DigitsMaker");
+  (void) m_rndmSvc->getEngine(this); // get this created early.
 
   ATH_MSG_INFO( "max time thr  " << m_maxTime << " ns" );
   ATH_MSG_INFO( "min time thr  " << m_minTime << " ns" );
@@ -747,6 +744,12 @@ void TileCellBuilderFromHit::build(const CaloNoise* caloNoise,
                                    TileCellContainer* MBTSCells,
                                    TileCellContainer* E4prCells) const
 {
+  static const std::string rngname = name() + "-" + ClassName<COLLECTION>::name();
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  ATHRNG::RNGWrapper* wrapper = m_rndmSvc->getEngine(this);
+  wrapper->setSeed (rngname, ctx);
+  CLHEP::HepRandomEngine* engine = wrapper->getEngine (ctx);
+
   /* zero all counters and sums */
   int nTwo = 0;
   int nCell = 0;
@@ -1088,7 +1091,7 @@ void TileCellBuilderFromHit::build(const CaloNoise* caloNoise,
 
         if (bad1 || bad2 || single_PMT) {
             
-          float ene = RandGaussQ::shoot(m_pHRengine, 0.0, noiseSigma);
+          float ene = RandGaussQ::shoot(engine, 0.0, noiseSigma);
 
           ATH_MSG_VERBOSE ( "Cell noise for cell id=" << m_tileID->to_string(pCell->ID(), -2)
                             << " sigma " << noiseSigma << " noise " << ene );
@@ -1104,7 +1107,7 @@ void TileCellBuilderFromHit::build(const CaloNoise* caloNoise,
             
           if (gain1!=gain2) {
 
-            float ene = RandGaussQ::shoot(m_pHRengine, 0.0, noiseSigma);
+            float ene = RandGaussQ::shoot(engine, 0.0, noiseSigma);
             ATH_MSG_VERBOSE ( "Cell noise for cell id=" << m_tileID->to_string(pCell->ID(), -2)
                               << " sigma " << noiseSigma << " noise " << ene );
 
@@ -1116,8 +1119,8 @@ void TileCellBuilderFromHit::build(const CaloNoise* caloNoise,
           } else {
 
             noiseSigma *= M_SQRT1_2;
-            float ene1 = RandGaussQ::shoot(m_pHRengine, 0.0, noiseSigma);
-            float ene2 = RandGaussQ::shoot(m_pHRengine, 0.0, noiseSigma);
+            float ene1 = RandGaussQ::shoot(engine, 0.0, noiseSigma);
+            float ene2 = RandGaussQ::shoot(engine, 0.0, noiseSigma);
 
             ATH_MSG_VERBOSE ( "Cell noise for cell id=" << m_tileID->to_string(pCell->ID(), -2)
                               << " sigma " << noiseSigma*M_SQRT2 << " noise " << ene1+ene2 << " noise1 " << ene1 << " noise2 " << ene2 );

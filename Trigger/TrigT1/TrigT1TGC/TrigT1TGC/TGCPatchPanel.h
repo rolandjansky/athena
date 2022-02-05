@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCPatchPanel_hh
@@ -29,7 +29,6 @@ typedef class TGCPatchPanel TGCStripInnerPP;
 
 const int NumberOfPatchPanelOut = 2;
 const int NumberOfASDOut = 4;
-const int NumberOfConnectorPerPPOut = 2;
 const int NumberOfPPOutputConnector = 4;
 const int NumberOfASDChannel = 16;
 const int NChOfPPOutputConnector = 2*NumberOfASDChannel;
@@ -69,11 +68,10 @@ public:
   void connect();
   std::string getTypeName(int typeIn) const;
 
-  TGCPatchPanel( TGCArguments* );
+  TGCPatchPanel(TGCArguments*);
   ~TGCPatchPanel();
-
-  TGCPatchPanel(const TGCPatchPanel& right);
-  TGCPatchPanel& operator=(const TGCPatchPanel& right);
+  TGCPatchPanel(const TGCPatchPanel& right) = delete;
+  TGCPatchPanel& operator = (const TGCPatchPanel& right);
 
   const TGCArguments* tgcArgs() const { return m_tgcArgs; }
 

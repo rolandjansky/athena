@@ -54,7 +54,7 @@ namespace LArG4 {
       ~Parameters();
 
       // Access to parameters.
-      LArVG4DetectorParameters* m_parameters;
+      const LArVG4DetectorParameters* m_parameters;
 
       double m_zShift;                 // 40.0
       double m_zEMECRefPoint;          // 3689.5000

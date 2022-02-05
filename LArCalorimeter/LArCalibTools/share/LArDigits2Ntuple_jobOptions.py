@@ -1,5 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 import os
 
 
@@ -58,8 +57,6 @@ if not 'FullFileName' in dir():
    for RunNumber in RunNumberList :
        FullFileName+=GetInputFilesFromTokens(InputDir,int(RunNumber),FilePrefix,Trigger)
 
-if not 'Gain' in dir():
-   Gain = "HIGH"
    
 if not 'EvtMax' in dir():
    EvtMax=-1
@@ -67,8 +64,15 @@ if not 'EvtMax' in dir():
 if not 'WriteNtuple' in dir():
    WriteNtuple = LArCalib_Flags.WriteNtuple
 
-if not 'SuperCells' in dir():
+if not 'SuperCells' in dir():   
    SuperCells=False
+
+if not 'GainList' in dir():
+   if SuperCells:
+      GainList = ["SC"]
+   else:
+      GainList = [ "HIGH", "MEDIUM", "LOW" ]
+
 
 if not SuperCells: include("LArCalibProcessing/LArCalib_Flags.py")
 else: include("LArCalibProcessing/LArCalib_FlagsSC.py")
@@ -109,9 +113,10 @@ LArOnOffIdMapping()
 LArFebRodMapping()
 LArCalibIdMapping()
 if SuperCells:
-   from LArCabling.LArCablingAccess import  LArOnOffIdMappingSC, LArCalibIdMappingSC
+   from LArCabling.LArCablingAccess import  LArOnOffIdMappingSC, LArCalibIdMappingSC,LArLATOMEMappingSC
    LArOnOffIdMappingSC()
    LArCalibIdMappingSC()
+   LArLATOMEMappingSC()
 
 
 svcMgr.IOVDbSvc.GlobalTag=LArCalib_Flags.globalFlagDB
@@ -159,6 +164,7 @@ if SuperCells:
 
 
 
+
    
 
 from AthenaCommon.AlgSequence import AlgSequence 
@@ -182,7 +188,6 @@ svcMgr.ByteStreamCnvSvc.InitCnvs += [ "EventInfo"]
 
 theByteStreamAddressProviderSvc =svcMgr.ByteStreamAddressProviderSvc
 
-
 if not SuperCells:
    from LArByteStream.LArByteStreamConf import LArRodDecoder
    svcMgr.ToolSvc += LArRodDecoder()
@@ -200,29 +205,28 @@ if not SuperCells:
    theLArBadEventCatcher=LArBadEventCatcher()
    theLArBadEventCatcher.CheckAccCalibDigitCont=False
    theLArBadEventCatcher.CheckBSErrors=True
-   theLArBadEventCatcher.KeyList=[Gain]
+   theLArBadEventCatcher.KeyList= GainList
    theLArBadEventCatcher.StopOnError=False
    topSequence+=theLArBadEventCatcher    
 else:
-   theByteStreamAddressProviderSvc.TypeNames += [ "LArDigitContainer/SC"  ]
-   if SCDecodeAllContainers:
-      theByteStreamAddressProviderSvc.TypeNames += [ "LArDigitContainer/SC_ADC_BAS"  ]
-      theByteStreamAddressProviderSvc.TypeNames += [ "LArRawSCContainer/SC_ET"  ]
-      theByteStreamAddressProviderSvc.TypeNames += [ "LArRawSCContainer/SC_ET_ID"  ]
-      theByteStreamAddressProviderSvc.TypeNames += [ "LArLATOMEHeaderContainer/SC_LATOME_HEADER"  ]
    from LArByteStream.LArByteStreamConf import LArLATOMEDecoder 
-   theLArLATOMEDecoder = LArLATOMEDecoder("LArLATOMEDecoder")
-   theLArLATOMEDecoder.latomeInfoFileName = LatomeInfo
-   theLArLATOMEDecoder.DumpFile = SC_DumpFile
-   theLArLATOMEDecoder.RawDataFile = SC_RawDataFile
-   theLArLATOMEDecoder.ProtectSourceId = SCProtectSourceId
-   svcMgr.ToolSvc += theLArLATOMEDecoder
+   from LArByteStream.LArByteStreamConf import LArRawSCDataReadingAlg
+   LArRawSCDataReadingAlg = LArRawSCDataReadingAlg()
+   LArRawSCDataReadingAlg.LATOMEDecoder = LArLATOMEDecoder("LArLATOMEDecoder")
+   LArRawSCDataReadingAlg.LATOMEDecoder.DumpFile = SC_DumpFile
+   LArRawSCDataReadingAlg.LATOMEDecoder.RawDataFile = SC_RawDataFile
+   LArRawSCDataReadingAlg.LATOMEDecoder.ProtectSourceId = SCProtectSourceId
+   topSequence+=LArRawSCDataReadingAlg
 
-from LArCalibTools.LArCalibToolsConf import *
+from LArCalibTools.LArCalibToolsConf import LArDigits2Ntuple
 
 LArDigits2Ntuple=LArDigits2Ntuple("LArDigits2Ntuple")
-contkeys = []
-contkeys.append(Gain)
+contkeys = GainList
+
+if 'rawChannels' not in dir():
+   rawChannels = False
+if rawChannels is True:
+   contkeys.append("LArRawChannels")
 
 
 if SuperCells and SCDecodeAllContainers:
@@ -238,14 +242,17 @@ if 'FTlist' in dir():
 LArDigits2Ntuple.isSC = SuperCells
 
 LArDigits2Ntuple.FillBCID = True
+
+LArDigits2Ntuple.RealGeometry = True
+LArDigits2Ntuple.OffId = True
+
 if SuperCells:
-   LArDigits2Ntuple.RealGeometry = True
-   LArDigits2Ntuple.OffId = True   
    LArDigits2Ntuple.AddBadChannelInfo = False
    LArDigits2Ntuple.OverwriteEventNumber = OverwriteEventNumber
+LArDigits2Ntuple.OutputLevel = DEBUG
+
 
 topSequence+= LArDigits2Ntuple
-
 
 theApp.HistogramPersistency = "ROOT"
 from GaudiSvc.GaudiSvcConf import NTupleSvc
@@ -253,10 +260,16 @@ svcMgr += NTupleSvc()
 svcMgr.NTupleSvc.Output = [ "FILE1 DATAFILE='"+OutputDir + "/" +OutputRootFileName+"' OPT='NEW'" ]
 
 AthenaEventLoopMgr=Service("AthenaEventLoopMgr")
-AthenaEventLoopMgr.OutputLevel=WARNING
+AthenaEventLoopMgr.OutputLevel=DEBUG
 
 theApp.EvtMax=EvtMax
-svcMgr.MessageSvc.OutputLevel=WARNING
 
-LArDigits2Ntuple.OutputLevel=WARNING
 
+svcMgr.MessageSvc.OutputLevel=DEBUG
+
+LArDigits2Ntuple.OutputLevel=DEBUG
+
+from AthenaCommon.AlgSequence import dumpSequence
+dumpSequence(topSequence)
+
+svcMgr.StoreGateSvc.Dump = True;

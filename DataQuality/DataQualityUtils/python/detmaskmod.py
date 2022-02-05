@@ -103,7 +103,7 @@ def decodeBlack(mask, defects=False):
     dm = eformat.helper.DetectorMask(mask)
     rv = []
     dmap = detmaskmap if not defects else detmaskmap_defects
-    for keys, value in sorted(dmap.items()):
+    for keys, value in dmap.items():
         if isinstance(keys, str):
             keys = [keys]
         if reduce(operator.and_,

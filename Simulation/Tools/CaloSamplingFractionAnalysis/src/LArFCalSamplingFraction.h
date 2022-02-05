@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LAR_FCAL_SAMPLING_FRACTION_H
@@ -15,10 +15,12 @@
 #include "GaudiKernel/ObjectVector.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GeneratorObjects/McEventCollection.h"
-#include "GeoAdaptors/GeoLArHit.h"
 #include "LArSimEvent/LArHit.h"
 #include "LArSimEvent/LArHitContainer.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 
 class JetCollection;
 class ISvcLocator;
@@ -27,9 +29,9 @@ class LArFCAL_ID;
 class CaloDM_ID;
 class CaloCell_ID;
 class LArHitContainer;
+class CaloDetDescrElement;
 class CaloCalibrationHit;
 class CaloCalibrationHitContainer;
-class CaloDetDescrManager;
 class TCECollection;
 class TCEnergies;
 
@@ -40,17 +42,17 @@ public:
     LArFCalSamplingFraction(const std::string &name, ISvcLocator *pSvcLocator);
     ~LArFCalSamplingFraction();
 
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
-    virtual StatusCode execute();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
+    virtual StatusCode execute() override;
     virtual StatusCode initEvent();
     StatusCode doFCal();
     void TruthImpactPosition(McEventCollection::const_iterator);
 
     void FCalCalibAnalysis(const std::string& name, const CaloCalibrationHit *CalibHit);
-    void FCalClusterCenter(const LArHitContainer *container);
-    void FCalHitCenter(const LArHitContainer *container);
-    void FillCellInfo(const GeoLArHit &fcalhit, std::vector<double> *cell_E,
+    void FCalClusterCenter(const LArHitContainer *container, const CaloDetDescrManager* caloMgr);
+    void FCalHitCenter(const LArHitContainer *container, const CaloDetDescrManager* caloMgr);
+    void FillCellInfo(const CaloDetDescrElement* caloDDE, double energy, std::vector<double> *cell_E,
                       std::vector<double> *hit_x, std::vector<double> *hit_y,
                       std::vector<double> *hit_ieta, std::vector<double> *hit_iphi,
                       int &NCell);
@@ -63,6 +65,11 @@ private:
     StatusCode addEventInfo();
 
 private:
+    SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+	, "CaloDetDescrManager"
+	, "CaloDetDescrManager"
+	, "SG Key for CaloDetDescrManager in the Condition Store" };
+
     /** Athena-Aware Ntuple (AAN) variables - branches of the AAN TTree */
     TTree *m_tree_AS{};
 

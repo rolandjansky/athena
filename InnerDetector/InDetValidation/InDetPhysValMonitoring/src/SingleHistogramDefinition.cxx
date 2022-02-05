@@ -37,12 +37,12 @@ SingleHistogramDefinition::SingleHistogramDefinition(Titles_t thename, Titles_t 
   name(thename), histoType(thehistoType), title(thetitle), 
   nBinsX(nbinsX), nBinsY(0), nBinsZ(0), 
   xTitle(xName), yTitle(yName), zTitle(""), 
-  folder(thefolder) {
+  folder(thefolder), m_empty(false) {
   // should do sanity checks here
   xAxis = std::make_pair(xLo, xHi);
   yAxis = std::make_pair(std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN());
   zAxis = std::make_pair(std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN());
-  m_empty = false;
+  
   allTitles = titleDigest();
 }
 
@@ -53,12 +53,12 @@ SingleHistogramDefinition::SingleHistogramDefinition(Titles_t thename, Titles_t 
   name(thename), histoType(thehistoType), title(thetitle), 
   nBinsX(nbinsX), nBinsY(nbinsY), nBinsZ(0),
   xTitle(xName), yTitle(yName), zTitle(""),
-  folder(thefolder) {
+  folder(thefolder), m_empty(false) {
   // should do sanity checks here
   xAxis = std::make_pair(xLo, xHi);
   yAxis = std::make_pair(yLo, yHi);
   zAxis = std::make_pair(std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN());
-  m_empty = false;
+  
   allTitles = titleDigest();
 }
 
@@ -69,12 +69,12 @@ SingleHistogramDefinition::SingleHistogramDefinition(Titles_t thename, Titles_t 
   name(thename), histoType(thehistoType), title(thetitle), 
   nBinsX(nbinsX), nBinsY(nbinsY), nBinsZ(nbinsZ),
   xTitle(xName), yTitle(yName), zTitle(zName), 
-  folder(thefolder) {
+  folder(thefolder), m_empty(false) {
   // should do sanity checks here
   xAxis = std::make_pair(xLo, xHi);
   yAxis = std::make_pair(yLo, yHi);
   zAxis = std::make_pair(zLo, zHi);
-  m_empty = false;
+  
   allTitles = titleDigest();
 }
 

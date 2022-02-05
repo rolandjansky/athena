@@ -4,25 +4,12 @@
 
 #include "MuonCalibExtraTreeEvent/MuonCalibHole_E.h"
 
-namespace MuonCalib{
-  MuonCalibHole_E::MuonCalibHole_E() : m_id(0), m_pos(0.,0.,0.) {
-  }
+namespace MuonCalib {
 
-  MuonCalibHole_E::MuonCalibHole_E( const MuonFixedId& id, const Amg::Vector3D& pos ) : m_id(id), m_pos(pos) {
-  }
+    MuonCalibHole_E::MuonCalibHole_E(const MuonFixedId& id, const Amg::Vector3D& pos) : m_id(id), m_pos(pos) {}
 
-  
-  MuonCalibHole_E::MuonCalibHole_E( const MuonCalibHole_E& hole ) {
-    m_id = hole.identify();
-    m_pos = hole.position();
-  } 
-  
-  MuonCalibHole_E&  MuonCalibHole_E::operator=( const MuonCalibHole_E& rhs ) {
-    if(this!=&rhs){
-      m_id = rhs.identify() ;
-      m_pos = rhs.position() ;
-    }
-    return (*this);
-  } 
-
-}//namespace MuonCalib
+    const MuonFixedId& MuonCalibHole_E::identify() const { return m_id; }
+    const Amg::Vector3D& MuonCalibHole_E::position() const { return m_pos; }
+    void MuonCalibHole_E::setId(const MuonFixedId& id) { m_id = id; }
+    void MuonCalibHole_E::setPosition(const Amg::Vector3D& pos) { m_pos = pos; }
+}  // namespace MuonCalib

@@ -150,31 +150,6 @@ public:
                    CaloSampling::CaloSample sampling,
                    xAOD::CaloCluster* tofill = 0);
 
-  /**
-   * @brief Calculate layer variables from a cell container.
-   * @param cell_container The cell container.
-   * @param eta The @f$\eta@f$ center of the cluster, for cell selection.
-   * @param phi The @f$\phi@f$ center of the cluster, for cell selection.
-   * @param deta The @f$\eta@f$ full width for cell selection.
-   * @param dphi The @f$\phi@f$ full width for cell selection.
-   * @param sampling The sampling for cell selection.
-   * @param tofill If non-null, then selected cells will be added
-   *               to this cluster.
-   *
-   * This takes a list of cells from a cell container,
-   * selects those within a @c deta by @c dphi window around @c eta, @c phi
-   * in layer @c sampling, and fills the layer variables from them.
-   * If @c tofill is non-null, then selected cells will also be added
-   * to the cluster @c tofill.
-   */
-  StatusCode fill (const CaloCellContainer* cell_container,
-                   double eta,
-                   double phi,
-                   double deta,
-                   double dphi,
-                   CaloSampling::CaloSample sampling,
-                   xAOD::CaloCluster* tofill = 0);
-
 
   //@}
   /** Data access. */

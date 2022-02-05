@@ -1,0 +1,289 @@
+/*
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+*/
+
+namespace Trk {
+
+inline const std::string&
+TrackingVolume::volumeName() const
+{
+  return m_name;
+}
+
+inline unsigned int
+TrackingVolume::layerAttempts(BoundarySurfaceFace exitFace) const
+{
+  if (m_layerAttemptsCalculator)
+    return m_layerAttemptsCalculator->layerAttempts(exitFace);
+  return TRKGEOMETRY_MAXLAYERATTEMPTS;
+}
+
+inline unsigned int
+TrackingVolume::maxLayerAttempts() const
+{
+  if (m_layerAttemptsCalculator)
+    return m_layerAttemptsCalculator->maxLayerAttempts();
+  return TRKGEOMETRY_MAXLAYERATTEMPTS;
+}
+
+inline const LayerArray*
+TrackingVolume::confinedLayers() const
+{
+  return m_confinedLayers;
+}
+
+inline LayerArray*
+TrackingVolume::confinedLayers()
+{
+  return m_confinedLayers;
+}
+
+inline const std::vector<const Layer*>*
+TrackingVolume::confinedArbitraryLayers() const
+{
+  return m_confinedArbitraryLayers;
+}
+
+inline const std::vector<const Layer*>*
+TrackingVolume::confinedArbitraryLayers()
+{
+  return m_confinedArbitraryLayers;
+}
+
+inline const TrackingVolumeArray*
+TrackingVolume::confinedVolumes() const
+{
+  return m_confinedVolumes;
+}
+
+inline TrackingVolumeArray*
+TrackingVolume::confinedVolumes()
+{
+  return m_confinedVolumes;
+}
+
+
+
+inline const std::vector<const DetachedTrackingVolume*>*
+TrackingVolume::confinedDetachedVolumes() const
+{
+  return m_confinedDetachedVolumes;
+}
+
+inline const std::vector<const TrackingVolume*>*
+TrackingVolume::confinedDenseVolumes() const
+{
+  return m_confinedDenseVolumes;
+}
+
+
+template<class T>
+bool
+TrackingVolume::onVolumeBoundary(const T& pars) const
+{
+  // get the associated Surface
+  const Surface* pSurface = &pars.associatedSurface();
+  auto& bSurfaces = boundarySurfaces();
+  // fast loop pointer comparison of the surfaces
+  for (auto& bsIter : bSurfaces) {
+    const BoundarySurface<TrackingVolume>* bSurface = bsIter.get();
+    // pointer of the parameter surface is identical with one of the boundary
+    // surface pointers
+    if (pSurface == &bSurface->surfaceRepresentation())
+      return true;
+  }
+  // slow loop - checking the onSurface (does pointer comparison as well)
+  for (auto& bsIter : bSurfaces) {
+    const BoundarySurface<TrackingVolume>* bSurface = bsIter.get();
+    // pointer of the parameter surface is identical with one of the boundary
+    // surface pointers
+    if (bSurface->onBoundary(pars))
+      return true;
+  }
+  // could not find an onSurface
+  return false;
+}
+
+/** Return the material layers ordered based on straight line intersections
+    - start and end layer are always part of it
+*/
+template<class T>
+std::vector<LayerIntersection<T>>
+TrackingVolume::materialLayersOrdered(const Layer* sLayer,
+                                      const Layer* eLayer,
+                                      const T& pars,
+                                      PropDirection pDir,
+                                      const BoundaryCheck& bchk,
+                                      bool resolveSubSurfaces) const
+{
+  // get position and momentum from the parameters
+  const Amg::Vector3D& gp = pars.position();
+  const Amg::Vector3D& gm = pars.momentum();
+  // the layer intersections
+  std::vector<LayerIntersection<T>> lIntersections;
+  // assign the direction
+  const Amg::Vector3D& dir =
+    (pDir == alongMomentum ? gm.unit() : Amg::Vector3D(-1 * gm.unit()));
+  // the confinedLayers
+  if (m_confinedLayers) {
+    // cache the longest path length to avoid punch-through to the other side
+    Trk::Intersection sLayerIntersection(
+      Amg::Vector3D(0., 0., 0), 0., true, 0.);
+    const Trk::Surface* sLayerSurface = nullptr;
+    double validPathLength = 0.;
+    // start layer given or not - test layer
+    const Trk::Layer* tLayer = sLayer ? sLayer : associatedLayer(gp);
+    if (tLayer) {
+      do {
+        // collect material or sensitive layers, always provide the final layer
+        // for the navigation stop
+        if (tLayer->layerMaterialProperties() || tLayer->surfaceArray() ||
+            tLayer == eLayer) {
+          // get the approaching surface
+          const Surface& tSurface =
+            tLayer->surfaceOnApproach(gp, dir, pDir, bchk, resolveSubSurfaces);
+          // calculate the intersection with the layer
+          Trk::Intersection lIntersection =
+            tSurface.straightLineIntersection(gp, dir, true, bchk);
+          // (a) if the current layer is NOT the start layer - intersection is
+          // ok
+          if (tLayer != sLayer && lIntersection.valid) {
+            lIntersections.push_back(
+              LayerIntersection<T>(lIntersection, tLayer, &tSurface, 0, pDir));
+            validPathLength = lIntersection.pathLength;
+          } else if (tLayer == sLayer) {
+            // (b) the current layer is the start layer - we need to cache it
+            // and check with the path length
+            //     this avoids potential punch-through to other side of
+            sLayerIntersection = lIntersection;
+            sLayerSurface = &tSurface;
+          } else if (tLayer == eLayer) {
+            // (c) it is the end layer after all - provide it and break the loop
+            lIntersections.push_back(
+              LayerIntersection<T>(lIntersection, tLayer, &tSurface, 0, pDir));
+            break;
+          }
+        }
+        // move to next one or break because you reached the end layer
+        tLayer = (tLayer == eLayer) ? nullptr : tLayer->nextLayer(gp, dir);
+      } while (tLayer);
+    }
+
+    // final check for compatibility of the start layer in order to avoid
+    // punch-through
+    if (sLayer && sLayerIntersection.valid &&
+        sLayerIntersection.pathLength < validPathLength)
+      lIntersections.push_back(LayerIntersection<T>(
+        sLayerIntersection, sLayer, sLayerSurface, 0, pDir));
+  }
+  // and the arbitraray layers
+  if (m_confinedArbitraryLayers) {
+    // loop over the layers and intersect them
+    for (auto& layer : (*m_confinedArbitraryLayers)) {
+      // intersections
+      Trk::Intersection lIntersection =
+        layer->surfaceRepresentation().straightLineIntersection(
+          gp, dir, true, bchk);
+      if (lIntersection.valid)
+        lIntersections.push_back(LayerIntersection<T>(
+          lIntersection, layer, &(layer->surfaceRepresentation()), 0, pDir));
+    }
+  }
+
+  // sort them accordingly to the path length
+  std::sort(lIntersections.begin(), lIntersections.end());
+  // and return
+  return lIntersections;
+}
+
+/** Returns the boundary surfaces ordered in probability to hit them based on
+ * straight line intersection @todo change hard-coded default */
+template<class T>
+std::vector<BoundaryIntersection<T>>
+TrackingVolume::boundarySurfacesOrdered(const T& pars,
+                                        PropDirection pDir,
+                                        bool) const
+{
+
+  // assign the direction
+
+  const Amg::Vector3D dir =
+    (pDir == alongMomentum ? pars.momentum().unit()
+                           : Amg::Vector3D(-1 * pars.momentum().unit()));
+  // loop over boundarySurfaces and calculate the intersection
+  std::vector<BoundaryIntersection<T>> bIntersections;
+  auto& bSurfaces = boundarySurfaces();
+  for (auto& bsIter : bSurfaces) {
+    const BoundarySurface<TrackingVolume>* bSurface = bsIter.get();
+    Intersection bsIntersection =
+      bSurface->surfaceRepresentation().straightLineIntersection(
+        pars.position(), dir, true, false);
+    if (bsIntersection.valid)
+      bIntersections.push_back(
+        BoundaryIntersection<T>(bsIntersection,
+                                bSurface,
+                                &(bSurface->surfaceRepresentation()),
+                                0,
+                                pDir));
+  }
+  // and now sort to get the closest
+  std::sort(bIntersections.begin(), bIntersections.end());
+  // and return
+  return bIntersections;
+}
+
+inline GeometrySignature
+TrackingVolume::geometrySignature() const
+{
+  return m_geometrySignature;
+}
+
+inline GeometryType
+TrackingVolume::geometryType() const
+{
+  return m_geometryType;
+}
+
+inline void
+TrackingVolume::registerColorCode(unsigned int icolor)
+{
+  m_colorCode = icolor;
+}
+
+inline unsigned int
+TrackingVolume::colorCode() const
+{
+  return m_colorCode;
+}
+
+inline void
+TrackingVolume::forceNavigationCheck()
+{
+  m_redoNavigation = true;
+}
+
+inline bool
+TrackingVolume::redoNavigation() const
+{
+  return m_redoNavigation;
+}
+
+inline const TrackingVolume*
+TrackingVolume::getMotherVolume() const
+{
+  return m_motherVolume;
+}
+
+inline void
+TrackingVolume::setMotherVolume(const TrackingVolume* mvol)
+{
+  m_motherVolume = mvol;
+}
+
+inline bool
+TrackingVolume::isAlignable() const
+{
+  return false;
+}
+
+}

@@ -39,6 +39,3 @@ atlas_add_library( TopEventSelectionTools Root/*.cxx Root/*.h Root/*.icc
                                           xAODJet
                                           xAODMuon )
 
-# Install data files from the package:
-atlas_install_data( share/* )
-

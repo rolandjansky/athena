@@ -319,6 +319,11 @@
  <service name="frontier://ATLF/()/ATLAS_CONF_TRIGGER_REPR" accessMode="read" />
 </logicalservice>
 
+<logicalservice name="TRIGGERDBART">
+ <service name="oracle://ATLAS_CONFIG/ATLAS_CONF_TRIGGER_ART" accessMode="read" authentication="password" />
+ <service name="frontier://ATLF/()/ATLAS_CONF_TRIGGER_ART" accessMode="read" />
+</logicalservice>
+
 <!-- SFO-CASTOR T0 database -->
 <logicalservice name="SFOT0DB_READER">
  <service name="oracle://ATLAS_CONFIG/ATLAS_SFO_T0_R" accessMode="read" authentication="password" />

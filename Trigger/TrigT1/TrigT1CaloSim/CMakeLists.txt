@@ -19,6 +19,6 @@ atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 
 # Tests:
-atlas_add_test( NewJOSimSetup
+atlas_add_test( TrigT1CaloSimRun2Config
    SCRIPT python -m TrigT1CaloSim.TrigT1CaloSimRun2Config
    POST_EXEC_SCRIPT nopost.sh )

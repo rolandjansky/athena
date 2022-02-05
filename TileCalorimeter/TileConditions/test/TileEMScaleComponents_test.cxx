@@ -215,6 +215,7 @@ class TileCondProxyMock: public AthAlgTool, virtual public ITileCondProxy<T> {
 
 // Online proxies
 typedef TileCondProxyMock<TileCalibDrawerFlt, &ONL_CIS_DEF> TileCondProxyOnlCisMock;
+// cppcheck-suppress unknownMacro
 DECLARE_COMPONENT_WITH_ID( TileCondProxyOnlCisMock, "TileCondProxyOnlCisMock" )
 
 typedef TileCondProxyMock<TileCalibDrawerFlt, &ONL_LAS_DEF> TileCondProxyOnlLasMock;
@@ -519,7 +520,7 @@ void testTileCondToolEmscale(ISvcLocator* svcLoc) {
 }
 
 
-int main() {
+int main ATLAS_NOT_THREAD_SAFE () {
 
 
   std::ofstream jo(TILE_JO_NAME);

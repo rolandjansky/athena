@@ -141,7 +141,7 @@ if cosmicData:
         rec.doMuon=False
 
 if runReco and IDRecoOnly or cosmicData:        
-    rec.doTrigger = False; recAlgs.doTrigger=False
+    rec.doTrigger = False
 
 
 # autoconfiguration might trigger undesired feature

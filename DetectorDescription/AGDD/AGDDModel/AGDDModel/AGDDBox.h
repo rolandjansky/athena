@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AGDDBox_H
@@ -12,22 +12,25 @@
 
 class AGDDBox: public AGDDVolume {
 public:
-	AGDDBox(std::string s):AGDDVolume(s),_x(0),_y(0),_z(0) {}
+	AGDDBox(const std::string& s,
+                 AGDDVolumeStore& vs,
+                 AGDDSectionStore& ss)
+          : AGDDVolume(s,vs,ss),m_x(0),m_y(0),m_z(0) {}
 	~AGDDBox() {}
-	void SetXYZ(std::vector<double> v) 
+	void SetXYZ(const std::vector<double>& v) 
 	{
-		_x=v[0];
-		_y=v[1];
-		_z=v[2];
+		m_x=v[0];
+		m_y=v[1];
+		m_z=v[2];
 	}
-	double x() {return _x;}
-	double y() {return _y;}
-	double z() {return _z;}
-	void CreateVolume();
-	void CreateSolid();
-	double _x;
-	double _y;
-	double _z;
+	double x() const {return m_x;}
+	double y() const {return m_y;}
+	double z() const {return m_z;}
+        virtual void CreateVolume (AGDDBuilder& builder) override;
+	virtual void CreateSolid (const AGDDBuilder& builder) override;
+	double m_x;
+	double m_y;
+	double m_z;
 };
 
 #endif

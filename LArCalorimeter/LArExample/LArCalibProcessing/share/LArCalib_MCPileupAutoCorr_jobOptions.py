@@ -30,7 +30,8 @@ if not 'GainList' in dir():
    GainList = [ "HIGH", "MEDIUM", "LOW" ]
 
 if not 'GroupingType' in dir():
-   GroupingType = "ExtendedSubDetector"
+   if not SuperCells: GroupingType = "ExtendedSubDetector"
+   if SuperCells:     GroupingType = "SuperCells"
 
 if not 'ChannelSelection' in dir():
    # read all
@@ -216,9 +217,9 @@ include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
 if SuperCells:
    #SC conditiona folders are not set-up yet in LArConditionsCommon_comm_jobOptions.py, should go there at some point
    conddb.addFolderWithTag("","<dbConnection>"+InputDB+"</dbConnection>/LAR/ElecCalibOflSC/Pedestals/Pedestal<key>LArPedestal</key>",
-                          "LARElecCalibOflSCPedestalsPedestal-UPD3-01",
+                          "LARElecCalibOflSCPedestalsPedestal-UPD3-00",
                           className="LArPedestalComplete")
-   conddb.addFolderWithTag("","<dbConnection>"+InputDB+"</dbConnection>/LAR/ElecCalibOflSC/Ramps/RampLinea", "LARElecCalibOflSCRampsRampLinea-UPD3-01", className="LArRampComplete")
+   conddb.addFolderWithTag("","<dbConnection>"+InputDB+"</dbConnection>/LAR/ElecCalibOflSC/Ramps/RampLinea", "LARElecCalibOflSCRampsRampLinea-UPD3-00", className="LArRampComplete")
    conddb.addFolderWithTag("","<dbConnection>"+InputDB+"</dbConnection>/LAR/ElecCalibOflSC/MphysOverMcal/RTM", "LARElecCalibOflSCMphysOverMcalRTM-UPD3-00", className="LArMphysOverMcalComplete")
   
    
@@ -260,7 +261,7 @@ if not SuperCells:
    conddb.addOverride("/LAR/ElecCalibOfl/AutoCorrs/AutoCorr","LARElecCalibOflAutoCorrsAutoCorr-RUN2-UPD3-00")
 else:
    conddb.addFolder("","<dbConnection>"+InputDB+"</dbConnection>/LAR/ElecCalibOflSC/AutoCorrs/AutoCorr<key>LArAutoCorrRef</key>",className='LArAutoCorrComplete')
-   conddb.addOverride("/LAR/ElecCalibOflSC/AutoCorrs/AutoCorr","LARElecCalibOflSCAutoCorrsAutoCorr-UPD3-01")
+   conddb.addOverride("/LAR/ElecCalibOflSC/AutoCorrs/AutoCorr","LARElecCalibOflSCAutoCorrsAutoCorr-UPD3-00")
 
 from LArRecUtils.LArRecUtilsConf import LArAutoCorrTotalCondAlg 
 theAutoCorrTotalCondAlg=LArAutoCorrTotalCondAlg()
@@ -268,6 +269,11 @@ theAutoCorrTotalCondAlg.Nsamples = NSamples
 theAutoCorrTotalCondAlg.isMC = False
 theAutoCorrTotalCondAlg.LArAutoCorrObjKey = "LArAutoCorrRef"
 theAutoCorrTotalCondAlg.LArAutoCorrTotalObjKey = KeyOutputAC
+theAutoCorrTotalCondAlg.isSuperCell = SuperCells
+theAutoCorrTotalCondAlg.Nminbias = NColl
+if SuperCells:
+   theAutoCorrTotalCondAlg.LArADC2MeVObjKey = "LArADC2MeVSC"
+   theAutoCorrTotalCondAlg.LArOnOffIdMappingObjKey = "LArOnOffIdMapSC"
 
 #load fsampl, MinBias Average and PulseShape 32 samples from OFLP200
 from IOVDbSvc.CondDB import conddb
@@ -306,7 +312,6 @@ else:
   theAutoCorrTotalCondAlg.LArShapeObjKey = "LArShapeSC"
   theAutoCorrTotalCondAlg.LArMinBiasObjKey = "LArMinBiasSC"
   theAutoCorrTotalCondAlg.LArfSamplObjKey = "LArfSamplSC"
-  theAutoCorrTotalCondAlg.isSuperCell = True
 
   for className,fldr,key,tag,calg in mcfolders:           
      conddb.addFolder("LAR_OFL",fldr, forceMC=True, className=className)
@@ -314,6 +319,7 @@ else:
      condSeq+=calg(ReadKey=fldr,WriteKey=key)
 
   from LArRecUtils.LArADC2MeVSCCondAlgDefault import LArADC2MeVSCCondAlgDefault
+  
   LArADC2MeVSCCondAlgDefault(isMC=True)
 
 condSeq += theAutoCorrTotalCondAlg
@@ -323,7 +329,7 @@ from LArCalibUtils.LArCalibUtilsConf import LArAutoCorrAlgToDB
 theLArAutoCorrAlgToDB=LArAutoCorrAlgToDB()
 theLArAutoCorrAlgToDB.LArAutoCorrTotal=KeyOutputAC
 theLArAutoCorrAlgToDB.isSC = SuperCells
-theLArAutoCorrAlgToDB.GroupingType = "ExtendedSubDetector"
+theLArAutoCorrAlgToDB.GroupingType = GroupingType
 theLArAutoCorrAlgToDB.OutAutoCorrKey = KeyOutputAC
 topSequence += theLArAutoCorrAlgToDB
 

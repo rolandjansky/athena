@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondData/RpcCalibData.h"
@@ -19,33 +19,33 @@ namespace MuonCalib{
     for(unsigned int k=0;k<m_thePhiData.size();k++) delete m_thePhiData[k];
   }
 
-  RpcCalibDBEntry::RpcCalibDBEntry(Identifier gapID, std::string payLoad):m_nRecEta(0),m_nDetEta(0), m_nRecPhi1(0),m_nRecPhi2(0),m_nDetPhi1(0),m_nDetPhi2(0),m_theGap(gapID) {
+  RpcCalibDBEntry::RpcCalibDBEntry(Identifier gapID, std::string_view payLoad):m_nRecEta(0),m_nDetEta(0), m_nRecPhi1(0),m_nRecPhi2(0),m_nDetPhi1(0),m_nDetPhi2(0),m_theGap(gapID) {
 
     
     std::string::size_type end=payLoad.find("END ");
-    std::string etaRec=payLoad.substr(0,end);
+    std::string_view etaRec=payLoad.substr(0,end);
     payLoad=payLoad.substr(end+4,payLoad.size()-end-4);
 
     end=payLoad.find("END ");
-    std::string etaDet=payLoad.substr(0,end);
+    std::string_view etaDet=payLoad.substr(0,end);
     payLoad=payLoad.substr(end+4,payLoad.size()-end-4);
 
     end=payLoad.find("END ");
-    std::string phiRec1=payLoad.substr(0,end);
+    std::string_view phiRec1=payLoad.substr(0,end);
     payLoad=payLoad.substr(end+4,payLoad.size()-end-4);
 
     end=payLoad.find("END ");
-    std::string phiRec2=payLoad.substr(0,end);
+    std::string_view phiRec2=payLoad.substr(0,end);
     payLoad=payLoad.substr(end+4,payLoad.size()-end-4);
 
     end=payLoad.find("END ");
-    std::string phiDet1=payLoad.substr(0,end);
+    std::string_view phiDet1=payLoad.substr(0,end);
     payLoad=payLoad.substr(end+4,payLoad.size()-end-4);
 
     end=payLoad.find("END ");
-    std::string phiDet2=payLoad.substr(0,end);
+    std::string_view phiDet2=payLoad.substr(0,end);
 
-    this->initData(etaRec, etaDet,phiRec1,phiRec2,phiDet1,phiDet2);
+    this->initData(std::string(etaRec), std::string(etaDet),std::string(phiRec1),std::string(phiRec2),std::string(phiDet1),std::string(phiDet2));
     
   }
 
@@ -53,23 +53,23 @@ namespace MuonCalib{
 
 
     unsigned long int pos = 0;
-    std::string::size_type start = etaRec.find_first_not_of(" ",pos);
+    std::string::size_type start = etaRec.find_first_not_of(' ',pos);
     if(start == std::string::npos) {
       std::cout << "RpcCalibDBEntry::initData -- problems extracting m_nRecEta -- crashing." << std::endl;
-      throw;      
+      std::abort();
     }
-    std::string::size_type stop = etaRec.find_first_of(" ",start+1);
+    std::string::size_type stop = etaRec.find_first_of(' ',start+1);
     if (stop == std::string::npos) stop = etaRec.size();
     m_nRecEta = std::stoi(etaRec.substr(start,stop-start),nullptr);
     etaRec.erase(pos,stop-pos);
 
     pos = 0;
-    start = phiRec1.find_first_not_of(" ",pos);
+    start = phiRec1.find_first_not_of(' ',pos);
     if(start == std::string::npos) {
       std::cout << "RpcCalibDBEntry::initData -- problems extracting m_nRecPhi1 -- crashing." << std::endl;
-      throw;      
+      std::abort();      
     }
-    stop = phiRec1.find_first_of(" ",start+1);
+    stop = phiRec1.find_first_of(' ',start+1);
     if (stop == std::string::npos) stop = phiRec1.size();
     m_nRecPhi1 = std::stoi(phiRec1.substr(start,stop-start),nullptr);
     phiRec1.erase(pos,stop-pos);
@@ -163,7 +163,7 @@ namespace MuonCalib{
 
   // initialize from db columns
   
-  RpcCalibDBEntry::RpcCalibDBEntry(Identifier gapID, std::string etaRec, std::string etaDet, std::string phiRec1, std::string phiRec2, std::string phiDet1, std::string phiDet2 ):m_nRecEta(0),m_nDetEta(0), m_nRecPhi1(0),m_nRecPhi2(0),m_nDetPhi1(0),m_nDetPhi2(0),m_theGap(gapID)
+  RpcCalibDBEntry::RpcCalibDBEntry(Identifier gapID, const std::string& etaRec, const std::string& etaDet, const std::string& phiRec1, const std::string& phiRec2, const std::string& phiDet1, const std::string& phiDet2 ):m_nRecEta(0),m_nDetEta(0), m_nRecPhi1(0),m_nRecPhi2(0),m_nDetPhi1(0),m_nDetPhi2(0),m_theGap(gapID)
   {
     
     this->initData(etaRec, etaDet,phiRec1,phiRec2,phiDet1,phiDet2);
@@ -185,14 +185,14 @@ namespace MuonCalib{
 
     float eff, errEff, res1, res2, resX, errRes1, errRes2, errResX, time, errTime, noise, errNoise, noiseC, errNoiseC, cs, errCs;
     
-    recEta_str<<m_nRecEta<<" ";
-    detEta_str<<m_nDetEta<<" ";
+    recEta_str<<m_nRecEta<<' ';
+    detEta_str<<m_nDetEta<<' ';
 
-    recPhi1_str<<m_nRecPhi1<<" ";
-    detPhi1_str<<m_nDetPhi1<<" ";
+    recPhi1_str<<m_nRecPhi1<<' ';
+    detPhi1_str<<m_nDetPhi1<<' ';
 
-    recPhi2_str<<m_nRecPhi2<<" ";
-    detPhi2_str<<m_nDetPhi2<<" ";
+    recPhi2_str<<m_nRecPhi2<<' ';
+    detPhi2_str<<m_nDetPhi2<<' ';
 
 
 
@@ -217,12 +217,9 @@ namespace MuonCalib{
       cs=theData->getCs();
       errCs=theData->getErrCs();
 
-      //      std::cout<<" provo a metterci "<<eff<< " "<<errEff<< " "<<res1<< " "<<errRes1<< " "<<res2<< " "<<errRes2<< " "<<resX<< " "<<errResX<< " "<<time<< " "<<errTime<<std::endl;
+      recEta_str<< eff<< ' '<<errEff<< ' '<<res1<< ' '<<errRes1<< ' '<<res2<< ' '<<errRes2<< ' '<<resX<< ' '<<errResX<< ' '<<time<< ' '<<errTime<< ' ';
+      detEta_str<<noise<< ' '<<errNoise<< ' '<<noiseC<< ' '<<errNoiseC<< ' '<<cs<< ' '<<errCs<< ' ';
 
-      recEta_str<< eff<< " "<<errEff<< " "<<res1<< " "<<errRes1<< " "<<res2<< " "<<errRes2<< " "<<resX<< " "<<errResX<< " "<<time<< " "<<errTime<< " ";
-      detEta_str<<noise<< " "<<errNoise<< " "<<noiseC<< " "<<errNoiseC<< " "<<cs<< " "<<errCs<< " ";
-      
-      //      std::cout<<" vediamo se ha funzionato,  ora receta e' "<<recEta.str()<<std::endl;
 
     }
 
@@ -247,9 +244,9 @@ namespace MuonCalib{
       cs=theData->getCs();
       errCs=theData->getErrCs();
 
-      recPhi1_str<<eff<<" " <<res1<<" " <<res2<<" " <<resX<<" " <<time<< " ";
-      recPhi2_str<<errEff<<" " <<errRes1<<" " <<errRes2<<" " <<errResX<<" " <<errTime<< " ";
-      detPhi1_str<<noise<<" " <<errNoise<<" " <<noiseC<<" " <<errNoiseC<<" " <<cs<<" " <<errCs<< " ";
+      recPhi1_str<<eff<<' ' <<res1<<' ' <<res2<<' ' <<resX<<' ' <<time<< ' ';
+      recPhi2_str<<errEff<<' ' <<errRes1<<' ' <<errRes2<<' ' <<errResX<<' ' <<errTime<< ' ';
+      detPhi1_str<<noise<<' ' <<errNoise<<' ' <<noiseC<<' ' <<errNoiseC<<' ' <<cs<<' ' <<errCs<< ' ';
 
 
     }

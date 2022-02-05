@@ -5,7 +5,7 @@ atlasG4log = logging.getLogger('ISF')
 atlasG4log.info('****************** STARTING ISF ******************')
 
 ## Include common skeleton
-include("SimuJobTransforms/skeleton.EVGENtoHIT.py")
+include("SimuJobTransforms/CommonSkeletonJobOptions.py")
 
 if hasattr(runArgs, 'useISF') and not runArgs.useISF:
     raise RuntimeError("Unsupported configuration! If you want to run with useISF=False, please use AtlasG4_tf.py!")
@@ -82,6 +82,14 @@ else:
     athenaCommonFlags.PoolHitsOutput = ""
     athenaCommonFlags.PoolHitsOutput.statusOn = False
 
+## Simulator
+from ISF_Config.ISF_jobProperties import ISF_Flags
+if jobproperties.Beam.beamType.get_Value() == 'cosmics':
+    ISF_Flags.Simulator.set_Value_and_Lock('CosmicsG4')
+elif hasattr(runArgs, 'simulator'):
+    ISF_Flags.Simulator.set_Value_and_Lock(runArgs.simulator)
+else:
+    ISF_Flags.Simulator.set_Value_and_Lock('FullG4')
 
 ## Write out runArgs configuration
 atlasG4log.info( '**** Transformation run arguments' )
@@ -109,6 +117,9 @@ if hasattr(runArgs, "preInclude"):
     for fragment in runArgs.preInclude:
         include(fragment)
 
+## Include common skeleton after the preExec/preInclude
+include("SimuJobTransforms/skeleton.EVGENtoHIT.py")
+
 if hasattr(runArgs, "inputEVNT_TRFile"):
     if hasattr(runArgs,"trackRecordType") and runArgs.trackRecordType=="stopped":
         include('SimulationJobOptions/preInclude.ReadStoppedParticles.py')
@@ -123,14 +134,6 @@ if jobproperties.Beam.beamType.get_Value() != 'cosmics':
     if hasattr(runArgs, "outputEVNT_TRFile") and\
         not (hasattr(simFlags,'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn and simFlags.StoppedParticleFile.get_Value()!=''):
         include('SimulationJobOptions/preInclude.G4WriteCavern.py')
-
-from ISF_Config.ISF_jobProperties import ISF_Flags
-if jobproperties.Beam.beamType.get_Value() == 'cosmics':
-    ISF_Flags.Simulator.set_Value_and_Lock('CosmicsG4')
-elif hasattr(runArgs, 'simulator'):
-    ISF_Flags.Simulator.set_Value_and_Lock(runArgs.simulator)
-else:
-    ISF_Flags.Simulator.set_Value_and_Lock('MC12G4')
 
 try:
     from ISF_Config import FlagSetters
@@ -205,7 +208,7 @@ if hasattr(runArgs, 'physicsList'):
 if hasattr(runArgs, "randomSeed"):
     simFlags.RandomSeedOffset = int(runArgs.randomSeed)
 else:
-    atlasG4log.warning('randomSeed not set')
+    atlasG4log.info('randomSeed not set')
 ## Don't use the SeedsG4 override
 simFlags.SeedsG4.set_Off()
 
@@ -220,6 +223,8 @@ elif hasattr(runArgs,'jobNumber'):
         atlasG4log.info( 'Using job number '+str(runArgs.jobNumber)+' to derive run number.' )
         simFlags.RunNumber = simFlags.RunDict.GetRunNumber( runArgs.jobNumber )
         atlasG4log.info( 'Set run number based on dictionary to '+str(simFlags.RunNumber) )
+else:
+    atlasG4log.info( 'Using run number: %s ', simFlags.RunNumber )
 
 ## Handle cosmics track record
 from AthenaCommon.BeamFlags import jobproperties
@@ -256,10 +261,9 @@ if hasattr(runArgs, "enableLooperKiller") and not runArgs.enableLooperKiller:
 include("ISF_Config/ISF_ConfigJobInclude.py")
 
 ## Add AMITag MetaData to TagInfoMgr
-if hasattr(runArgs, 'AMITag'):
-    if runArgs.AMITag != "NONE":
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag": runArgs.AMITag})
+from PyUtils import AMITagHelper
+AMITagHelper.SetAMITag(runArgs=runArgs)
+
 ## Set firstEvent for cosmics jobs
 if jobproperties.Beam.beamType.get_Value() == 'cosmics':
     if hasattr(runArgs, "firstEvent"):

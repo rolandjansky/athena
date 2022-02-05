@@ -277,10 +277,10 @@ public:
     _dataAnalyzer_p->SetTimingCorrParams(HGParamArr, LGParamArr);
   }
 
-  void OpenOutputTree(std::string file);
+  void OpenOutputTree(const std::string & file);
   void CloseOutputTree();
 
-  void PlotFits(std::string canvasSavePath = "");
+  void PlotFits(const std::string & canvasSavePath = "");
 
   virtual ~ZDCTreeAnalysis();
   virtual Int_t    Cut(Long64_t entry);
@@ -313,7 +313,7 @@ public:
 
 #ifdef ZDCTreeAnalysis_cxx
 
-ZDCTreeAnalysis::ZDCTreeAnalysis(std::string filename, int nSample, double deltaT, int preSamplIdx, std::string fitFunction) : 
+ZDCTreeAnalysis::ZDCTreeAnalysis(const std::string & filename, int nSample, double deltaT, int preSamplIdx, const std::string & fitFunction) : 
   fChain(0), _outTFile(0), _outTree(0), 
   _nSample(nSample), _deltaTSample(deltaT),  _preSampleIdx(preSamplIdx),
   _doOutput(false), _currentEntry(-1), _inLoop(false),

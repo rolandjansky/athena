@@ -32,13 +32,13 @@ public:
   virtual StatusCode simulateVector(const ConstISFParticleVector &particles, ISFParticleContainer& secondaries, McEventCollection* mcEventCollection) const = 0;
 
   /** Create data containers for an event */
-  virtual StatusCode setupEvent() = 0;
+  virtual StatusCode setupEvent(const EventContext&) = 0;
 
   /** Create data containers for an event (called by ISimulationSvc) */
   virtual StatusCode setupEventST() = 0;
 
   /** Finalise data containers for an event */
-  virtual StatusCode releaseEvent() = 0;
+  virtual StatusCode releaseEvent(const EventContext&) = 0;
 
   /** Finalise data containers for an event (called by ISimulationSvc) */
   virtual StatusCode releaseEventST() = 0;

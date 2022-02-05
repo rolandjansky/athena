@@ -40,19 +40,16 @@ if DetFlags.readRDOBS.RPC_on() or DetFlags.readRDOPool.RPC_on() or DetFlags.read
         log.info("No metadata/Taginfo found. Using normal configuration for RPC")
     log.info("RPC cabling is using mode: %s",muonCnvFlags.RpcCablingMode())
 
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    enableL1MuonPhase1 = ConfigFlags.Trigger.enableL1MuonPhase1
-    ConfigFlags.Input.isMC = False if globalflags.DataSource() == 'data' else True
-    isMC = ConfigFlags.Input.isMC
-    doLVL1 = ConfigFlags.Trigger.doLVL1
-
+    isMC = globalflags.DataSource() != 'data'
     rpcDbName = 'RPC_OFL' if isMC else 'RPC'
     dbRepo="MuonRPC_Cabling/ATLAS.data"
     rpcCabMap="/RPC/CABLING/MAP_SCHEMA"
     rpcCabMapCorr="/RPC/CABLING/MAP_SCHEMA_CORR"
     rpcTrigEta="/RPC/TRIGGER/CM_THR_ETA"
     rpcTrigPhi="/RPC/TRIGGER/CM_THR_PHI"
-    if doLVL1 and enableL1MuonPhase1:
+
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    if ConfigFlags.Trigger.enableL1MuonPhase1 and ConfigFlags.Trigger.doLVL1:
         # Run3 trigger roads are not avaialble in the global tag yet (OFLCOND-MC16-SDR-RUN3-01)
         # Relevant folder tags are set for now, until new global tag (RUN3-02) becomes avaialble
         rpcTrigEta="/RPC/TRIGGER/CM_THR_ETA <tag>RPCTriggerCMThrEta_RUN12_MC16_04</tag> <forceRunNumber>330000</forceRunNumber>"
@@ -65,14 +62,14 @@ if DetFlags.readRDOBS.RPC_on() or DetFlags.readRDOPool.RPC_on() or DetFlags.read
     from IOVDbSvc.CondDB import conddb
     conddb.addFolder(rpcDbName,rpcCabMap,className='CondAttrListCollection')
     conddb.addFolder(rpcDbName,rpcCabMapCorr,className='CondAttrListCollection')
-    if doLVL1 and not isMC:
+    if not isMC and ConfigFlags.Trigger.doLVL1:
         # RPC trigger roads in the online database are not up-to-dated
         # Use offline database for now
         # Will switch to online database once online database has been updated (ATR-23465)
         conddb._SetAcc('RPC_OFL','COOLOFL_RPC')
         conddb.blockFolder("/RPC/TRIGGER/CM_THR_ETA")
         conddb.blockFolder("/RPC/TRIGGER/CM_THR_PHI")
-        if enableL1MuonPhase1:
+        if ConfigFlags.Trigger.enableL1MuonPhase1:
             conddb.addFolder('RPC_OFL',rpcTrigEta,className='CondAttrListCollection')
             conddb.addFolder('RPC_OFL',rpcTrigPhi,className='CondAttrListCollection')
         else:

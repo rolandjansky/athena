@@ -6,7 +6,7 @@ atlasG4log = logging.getLogger('TestBeam')
 atlasG4log.info('****************** STARTING ATLASG4 Test Beam ******************')
 
 ## Include common skeleton
-include("SimuJobTransforms/skeleton.EVGENtoHIT.py")
+include("SimuJobTransforms/CommonSkeletonJobOptions.py")
 
 svcMgr.MessageSvc.defaultLimit = 1000000
 svcMgr.MessageSvc.Format = "% F%60W%S%7W%R%T %0W%M"
@@ -90,6 +90,9 @@ if hasattr(runArgs, "preInclude"):
     for fragment in runArgs.preInclude:
         include(fragment)
 
+## Include common skeleton after the preExec/preInclude
+include("SimuJobTransforms/skeleton.EVGENtoHIT.py")
+
 include( "AthenaCommon/MemTraceInclude.py" )
 
 ## Select detectors
@@ -120,7 +123,7 @@ if hasattr(runArgs, 'physicsList'):
 if hasattr(runArgs, "randomSeed"):
     simFlags.RandomSeedOffset = int(runArgs.randomSeed)
 else:
-    atlasG4log.warning('randomSeed not set')
+    atlasG4log.info('randomSeed not set')
 
 if hasattr(runArgs,"Eta") and ( hasattr(runArgs,"Theta") or hasattr(runArgs,"Z") ):
     raise RuntimeError("Eta cannot be specified at the same time as Theta and Z.")
@@ -158,6 +161,8 @@ elif hasattr(runArgs,'jobNumber'):
         atlasG4log.info( 'Using job number '+str(runArgs.jobNumber)+' to derive run number.' )
         simFlags.RunNumber = simFlags.RunDict.GetRunNumber( runArgs.jobNumber )
         atlasG4log.info( 'Set run number based on dictionary to '+str(simFlags.RunNumber) )
+else:
+    atlasG4log.info( 'Using run number: %s ', simFlags.RunNumber )
 
 if hasattr(runArgs, 'testBeamConfig') and 'tbtile' == runArgs.testBeamConfig:
     # avoid reading CaloTTMap from COOL
@@ -230,10 +235,8 @@ topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 print(topSeq)
 
 ## Add AMITag MetaData to TagInfoMgr
-if hasattr(runArgs, 'AMITag'):
-    if runArgs.AMITag != "NONE":
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag": runArgs.AMITag})
+from PyUtils import AMITagHelper
+AMITagHelper.SetAMITag(runArgs=runArgs)
 
 ## Post-include
 if hasattr(runArgs, "postInclude"):

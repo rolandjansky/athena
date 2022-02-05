@@ -17,11 +17,9 @@ static const InterfaceID IID_ILArLATOMEDecoder("LArLATOMEDecoder", 1, 0);
 using namespace OFFLINE_FRAGMENTS_NAMESPACE;
 
 LArLATOMEDecoder::LArLATOMEDecoder(const std::string& type, const std::string& name, const IInterface* parent) 
-  : AthAlgTool(type,name,parent), m_LATOMEInfoFileName("EmptyPath"), m_detailDumpFileName("EmptyPath"), m_ADCDumpFileName("EmptyPath"), m_protectSourceId(true)
+  : AthAlgTool(type,name,parent), m_detailDumpFileName("EmptyPath"), m_ADCDumpFileName("EmptyPath"), m_protectSourceId(true)
 {
   declareInterface<LArLATOMEDecoder>(this);
-  declareProperty("latomeInfoFileName", m_LATOMEInfoFileName);
-  declareProperty("latomeInfoFilePath", m_LATOMEInfoFilePath="./");
   declareProperty("DumpFile", m_detailDumpFileName);
   declareProperty("RawDataFile", m_ADCDumpFileName);
   declareProperty("ProtectSourceId", m_protectSourceId); // discard main readout sourceID, should be false for reading all files from the mon path with old source IDs
@@ -39,17 +37,6 @@ StatusCode LArLATOMEDecoder::initialize() {
 #if ADC_DUMP_ON
   m_ADCDumpFile = new std::ofstream(m_ADCDumpFileName);
 #endif
-  std::ifstream ifs(m_LATOMEInfoFilePath+"/"+m_LATOMEInfoFileName);
-  if (ifs.fail()) msg(MSG::WARNING) << "Failed to open LATOME info file " << m_LATOMEInfoFilePath+"/"+m_LATOMEInfoFileName << endmsg;
-  uint32_t tmpLATOMEsourceID;
-  Path tmp_latomeMapPath;
-  while (ifs >> tmpLATOMEsourceID >> tmp_latomeMapPath) {
-    m_LATOMEsourceID.push_back(std::move(tmpLATOMEsourceID));
-    m_LATOMEMapPath.push_back(std::move(tmp_latomeMapPath));
-  }
-  const NumLATOME nLATOMEs = m_LATOMEsourceID.size();
-  m_SCIDMap.resize(nLATOMEs);
-  for (NumLATOME i = 0; i < nLATOMEs; ++i) LATOMEMapping::fill(&m_SCIDMap[i], m_LATOMEInfoFilePath+"/"+m_LATOMEMapPath[i]); // Get mapping information
 
   return StatusCode::SUCCESS;
 }
@@ -61,10 +48,12 @@ StatusCode LArLATOMEDecoder::finalize() {
 #if ADC_DUMP_ON
   m_ADCDumpFile->close();
 #endif
+
   return StatusCode::SUCCESS;
 }
 
-StatusCode LArLATOMEDecoder::convert(const RawEvent* re, LArDigitContainer* adc_coll,
+StatusCode LArLATOMEDecoder::convert(const RawEvent* re, const LArLATOMEMapping *map,
+                                     LArDigitContainer* adc_coll,
 				     LArDigitContainer* adc_bas_coll,
 				     LArRawSCContainer* et_coll,
 				     LArRawSCContainer* et_id_coll,
@@ -96,10 +85,10 @@ StatusCode LArLATOMEDecoder::convert(const RawEvent* re, LArDigitContainer* adc_
 	    msg(MSG::DEBUG) << " discarding non latome source ID " << std::hex << latomeSourceID << endmsg;
 	    continue;
 	  }
-	  msg(MSG::DEBUG) << " found latome source ID " << std::hex << latomeSourceID << endmsg;
+	  ATH_MSG_DEBUG(" found latome source ID " << std::hex << latomeSourceID);
 	}
-	EventProcess ev(this, adc_coll, adc_bas_coll, et_coll, et_id_coll, header_coll);
-	ev.fillCollection(&robFrag);
+	EventProcess ev(this, map, adc_coll, adc_bas_coll, et_coll, et_id_coll, header_coll);
+	ev.fillCollection(&robFrag, map);
       }	
       catch (eformat::Issue& ex) {
 	ATH_MSG_WARNING ( " exception thrown by ROBFragment, badly corrupted event. Abort decoding " );
@@ -115,8 +104,9 @@ StatusCode LArLATOMEDecoder::convert(const RawEvent* re, LArDigitContainer* adc_
   return StatusCode::SUCCESS;
 }
 
-LArLATOMEDecoder::EventProcess::EventProcess(const LArLATOMEDecoder* decoderInput,LArDigitContainer* adc_coll,
-					     LArDigitContainer* adc_bas_coll,
+LArLATOMEDecoder::EventProcess::EventProcess(const LArLATOMEDecoder* decoderInput, const LArLATOMEMapping *,
+                                             LArDigitContainer* adc_coll, 
+                                             LArDigitContainer* adc_bas_coll,
 					     LArRawSCContainer* et_coll,
 					     LArRawSCContainer* et_id_coll,
 					     LArLATOMEHeaderContainer* header_coll)
@@ -272,6 +262,12 @@ unsigned int LArLATOMEDecoder::EventProcess::decodeHeader(const uint32_t* p, uns
 
 }
 
+int LArLATOMEDecoder::EventProcess::signEnergy(unsigned int energy){
+
+  if( energy & (1<<17) )return energy-pow(2,18); else return energy;
+}
+
+
 unsigned int LArLATOMEDecoder::EventProcess::bytesPerChannel(MonDataType at0, MonDataType at1){
   unsigned int b=0;
   //// 2 bytes per stream and 1 bytes for sat/val if energy
@@ -379,7 +375,7 @@ void LArLATOMEDecoder::EventProcess::decodeChannel(unsigned int& wordshift, unsi
 
 
 
-void LArLATOMEDecoder::EventProcess::fillCollection(const ROBFragment* robFrag) {
+void LArLATOMEDecoder::EventProcess::fillCollection(const ROBFragment* robFrag, const LArLATOMEMapping *map) {
   //Mon* mon = new Mon;
 
   /// some of this info should be used in the LatomeHeader class and for cross checks also (same as for the mon header)
@@ -397,7 +393,6 @@ void LArLATOMEDecoder::EventProcess::fillCollection(const ROBFragment* robFrag) 
   m_l1ID = robFrag->rod_lvl1_id();
   const uint32_t* p = robFrag->rod_data();
   const unsigned int n = robFrag->rod_ndata();
-  m_latomeSourceID = robFrag->rod_source_id();
   m_latomeBCID = robFrag->rod_bc_id();
   const uint32_t *rod_status =  robFrag->rod_status();
   const unsigned int rod_nstatus = robFrag->rod_nstatus();
@@ -411,7 +406,8 @@ void LArLATOMEDecoder::EventProcess::fillCollection(const ROBFragment* robFrag) 
     m_at1type = (status8>>2) & 0x3;
   }
   
-  m_nthLATOME = determinedLATOMENum(robFrag->rod_source_id());
+  m_nthLATOME = robFrag->rod_source_id();
+  const HWIdentifier hwidEmpty;
 
   ////lets first decode the mon header in the first packet and get the info.
 
@@ -535,7 +531,6 @@ void LArLATOMEDecoder::EventProcess::fillCollection(const ROBFragment* robFrag) 
   m_BCIDsInEvent.resize(nBC);
   
   unsigned int s = m_monHeaderSize; /// lets start from here
-  auto theMap = m_decoder->m_SCIDMap[m_nthLATOME];
   unsigned int bcid=s_nBunches;
 
   for(short iBC=0;iBC<nBC; ++iBC){
@@ -604,12 +599,12 @@ void LArLATOMEDecoder::EventProcess::fillCollection(const ROBFragment* robFrag) 
 				   << " nsc " << nsc << endmsg;
 	
 	/// lets fill now, using the older code structure but this should be change to support having energy.
-	const auto SCIDMapSearch = theMap.find(nsc);
-	if (SCIDMapSearch == theMap.end()) {
+	const auto SCID = map ? map->getChannelID(m_nthLATOME, nsc):hwidEmpty;
+	if (SCID == hwidEmpty) {
 	  m_decoder->msg(MSG::DEBUG) << "No mapping for ch: " << std::dec << nsc << endmsg;
 	}
 	int RAWValue0 = -999;
-	if (!at0val && SCIDMapSearch != theMap.end() && at0!=MonDataType::Invalid) { 
+	if (!at0val && SCID != hwidEmpty && at0!=MonDataType::Invalid) { 
 	  m_decoder->msg(MSG::INFO) << "at0 bad quality bit for SC:" << nsc << " BC " << iBC
 				       << " latome " << robFrag->rod_source_id() << endmsg;
 	  RAWValue0 = -1; 
@@ -625,10 +620,10 @@ void LArLATOMEDecoder::EventProcess::fillCollection(const ROBFragment* robFrag) 
 	  m_rawValuesInEvent[nsc].adc_bas[iBC] = RAWValue0;
 	  break;
 	case MonDataType::Energy:
-	  m_rawValuesInEvent[nsc].et[iBC] = RAWValue0;
+	  m_rawValuesInEvent[nsc].et[iBC] = signEnergy(RAWValue0);
 	  break;
 	case MonDataType::SelectedEnergy:
-	  m_rawValuesInEvent[nsc].et_id[iBC] = RAWValue0;
+	  m_rawValuesInEvent[nsc].et_id[iBC] = signEnergy(RAWValue0);
 	  break;
 	case MonDataType::Invalid:
 	  break;
@@ -636,7 +631,7 @@ void LArLATOMEDecoder::EventProcess::fillCollection(const ROBFragment* robFrag) 
     
 
 	int RAWValue1 = -999;
-	if (!at1val && SCIDMapSearch != theMap.end() && at1!=MonDataType::Invalid) { 
+	if (!at1val && SCID != hwidEmpty && at1!=MonDataType::Invalid) { 
 	  m_decoder->msg(MSG::INFO) << "at1 bad quality bit for SC:" << nsc << " BC " << iBC
 				       << " latome " << robFrag->rod_source_id() << endmsg;
 	  RAWValue1 = -1; 
@@ -652,10 +647,10 @@ void LArLATOMEDecoder::EventProcess::fillCollection(const ROBFragment* robFrag) 
 	  m_rawValuesInEvent[nsc].adc_bas[iBC-startBC1] = RAWValue1;
 	  break;
 	case MonDataType::Energy:
-	  m_rawValuesInEvent[nsc].et[iBC-startBC1] = RAWValue1;
+	  m_rawValuesInEvent[nsc].et[iBC-startBC1] = signEnergy(RAWValue1);
 	  break;
 	case MonDataType::SelectedEnergy:
-	  m_rawValuesInEvent[nsc].et_id[iBC-startBC1] = RAWValue1;
+	  m_rawValuesInEvent[nsc].et_id[iBC-startBC1] = signEnergy(RAWValue1);
 	  break;
 	case MonDataType::Invalid:
 	  break;
@@ -681,28 +676,17 @@ void LArLATOMEDecoder::EventProcess::fillCollection(const ROBFragment* robFrag) 
   } /// Loop over BC
 
   
-  fillRaw(theMap);
+  fillRaw(map);
   fillHeader();
 }
 
-// Determine LATOME using a word in ROD header.
-LArLATOMEDecoder::NumLATOME LArLATOMEDecoder::EventProcess::determinedLATOMENum(uint32_t RODSourceID) {
-  NumLATOME i = 0;
-  for (const auto& itr : m_decoder->m_LATOMEsourceID) {
-    if (RODSourceID == itr) {return std::move(i);}
-    else {++i;}
-  }
-  m_decoder->msg(MSG::ERROR) << "Failed to determine LATOME. The ROD source ID (identical to LATOME source ID for LATOME data) is 0x"
-			     << std::hex << std::uppercase << std::setw(4) << std::setfill('0') << RODSourceID << "." << endmsg;
-  return 0;
-}
-
 // Pass ADC values from an event
-void LArLATOMEDecoder::EventProcess::fillRaw(const std::map<SuperCell, HWIdentifier>& theMap) {
+void LArLATOMEDecoder::EventProcess::fillRaw(const LArLATOMEMapping *map) {
   //const CaloGain::CaloGain dummyGain = CaloGain::LARHIGHGAIN;
+  const HWIdentifier hwidEmpty;
   for (SuperCell ch = 0; ch < N_LATOME_CHANNELS; ++ch) {
-    const auto SCIDMapSearch = theMap.find(ch);
-    if (SCIDMapSearch == theMap.end()) {
+    const auto SCID = map ? map->getChannelID(m_nthLATOME, ch):hwidEmpty;
+    if (SCID == hwidEmpty) {
       m_decoder->msg(MSG::DEBUG) << "No mapping for ch: " << std::dec << ch << endmsg;
       continue;
     }
@@ -712,8 +696,6 @@ void LArLATOMEDecoder::EventProcess::fillRaw(const std::map<SuperCell, HWIdentif
       adcValues_inChannel_inEvent=m_rawValuesInEvent[ch].adc;
     }
    
-    HWIdentifier SCID = (*SCIDMapSearch).second;
-
     if(m_hasRawAdc && m_adc_coll){
       /// need to shift the BCID as well
       /// do it at the same time
@@ -723,7 +705,7 @@ void LArLATOMEDecoder::EventProcess::fillRaw(const std::map<SuperCell, HWIdentif
 	bcid_in_event.push_back(m_BCIDsInEvent[b]);
       }
       
-      LArSCDigit* scDigit = new LArSCDigit(SCID, m_rawValuesInEvent[ch].latomeChannel,m_decoder->m_LATOMEsourceID[m_nthLATOME],
+      LArSCDigit* scDigit = new LArSCDigit(SCID, m_rawValuesInEvent[ch].latomeChannel,m_nthLATOME,
 					   adcValues_inChannel_inEvent, bcid_in_event);
       m_adc_coll->push_back(scDigit);
     }
@@ -738,7 +720,7 @@ void LArLATOMEDecoder::EventProcess::fillRaw(const std::map<SuperCell, HWIdentif
 	  bcid_in_event.push_back(m_BCIDsInEvent[b]);
 	}
       }
-      LArSCDigit* scDigit = new LArSCDigit(SCID, m_rawValuesInEvent[ch].latomeChannel,m_decoder->m_LATOMEsourceID[m_nthLATOME],
+      LArSCDigit* scDigit = new LArSCDigit(SCID, m_rawValuesInEvent[ch].latomeChannel,m_nthLATOME,
 					   m_rawValuesInEvent[ch].adc_bas, bcid_in_event);
       m_adc_bas_coll->push_back(scDigit);
 
@@ -756,7 +738,7 @@ void LArLATOMEDecoder::EventProcess::fillRaw(const std::map<SuperCell, HWIdentif
 	  satur.push_back(false);
 	}
       }
-      LArRawSC* scDigit = new LArRawSC(SCID, m_rawValuesInEvent[ch].latomeChannel,m_decoder->m_LATOMEsourceID[m_nthLATOME],
+      LArRawSC* scDigit = new LArRawSC(SCID, m_rawValuesInEvent[ch].latomeChannel,m_nthLATOME,
 				       m_rawValuesInEvent[ch].et, bcid_in_event, satur);
       m_et_coll->push_back(scDigit);
 
@@ -774,7 +756,7 @@ void LArLATOMEDecoder::EventProcess::fillRaw(const std::map<SuperCell, HWIdentif
 	  satur.push_back(false);
 	}
       }
-      LArRawSC* scDigit = new LArRawSC(SCID, m_rawValuesInEvent[ch].latomeChannel,m_decoder->m_LATOMEsourceID[m_nthLATOME],
+      LArRawSC* scDigit = new LArRawSC(SCID, m_rawValuesInEvent[ch].latomeChannel,m_nthLATOME,
 				       m_rawValuesInEvent[ch].et_id, bcid_in_event,satur);
       m_et_id_coll->push_back(scDigit);
 
@@ -788,7 +770,7 @@ void LArLATOMEDecoder::EventProcess::fillRaw(const std::map<SuperCell, HWIdentif
 void LArLATOMEDecoder::EventProcess::fillHeader() {
 
   if(m_header_coll){
-    LArLATOMEHeader* latome = new LArLATOMEHeader(m_latomeSourceID, m_latomeID,  m_activeSC, m_latomeBCID, m_l1ID);
+    LArLATOMEHeader* latome = new LArLATOMEHeader(m_nthLATOME, m_latomeID,  m_activeSC, m_latomeBCID, m_l1ID);
     m_header_coll->push_back(latome);
   }
   

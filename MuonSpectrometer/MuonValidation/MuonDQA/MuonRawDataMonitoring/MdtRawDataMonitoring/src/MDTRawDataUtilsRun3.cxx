@@ -74,7 +74,7 @@ StatusCode MdtRawDataMonAlg::binMdtGlobal( TH2* h, char ecap ) {
   return StatusCode::SUCCESS;
 } 
 
-StatusCode  MdtRawDataMonAlg::binMdtRegional( TH2* h, string &xAxis ) {
+StatusCode  MdtRawDataMonAlg::binMdtRegional( TH2* h, std::string_view xAxis ) {
   
   ///SET Ghost Entries
   int LowerEta=-0;
@@ -276,7 +276,7 @@ StatusCode  MdtRawDataMonAlg::binMdtGlobal_byLayer( TH2* nHits_In, TH2* nHits_Mi
 
 
 //Correct for CutOuts
-void MdtRawDataMonAlg::ChamberTubeNumberCorrection(int & tubeNum, const std::string & hardware_name, int tubePos, int numLayers) const{
+void MdtRawDataMonAlg::ChamberTubeNumberCorrection(int & tubeNum, std::string_view hardware_name, int tubePos, int numLayers) const{
   //numLayers should be mdt_layer-1 so numLayers = 0 implies layer 1 ML 1 or mdt_layer==1
   if(hardware_name.substr(0,4)=="BMS4" || hardware_name.substr(0,4)=="BMS6"){//layer 1-4 tubeId 41-48 cut out
     if( numLayers <= 2 ) tubeNum = tubePos + numLayers * 48;
@@ -442,7 +442,7 @@ int MdtRawDataMonAlg::mezzmdt(Identifier digcoll_id) const { //int mezz_chamber,
 // Get the Maximum # of tubes in the chamber
 // the 'if' statements are for chambers with ML1 != ML2
 // except for BIS8 -- mdtIdHelper gets the # layers wrong in this instance
-int MdtRawDataMonAlg::GetTubeMax( const Identifier & digcoll_id, const std::string & hardware_name ) {
+int MdtRawDataMonAlg::GetTubeMax( const Identifier & digcoll_id, std::string_view hardware_name ) {
   int tubeMax(0);
   if( hardware_name.substr(0,4) == "BIS8" ) { // Why does mdtIdHelper get this one wrong?
     tubeMax = 16*3;
@@ -531,7 +531,7 @@ StatusCode MdtRawDataMonAlg::getChamber(IdentifierHash id, MDTChamber* &chamber)
   if( id >= m_hist_hash_list->size() ) return StatusCode::FAILURE;
 
    chamber = (*m_hist_hash_list)[id];
-    if( chamber == 0 ) return StatusCode::FAILURE;
+    if( chamber == nullptr ) return StatusCode::FAILURE;
 
   return StatusCode::SUCCESS;
 }
@@ -545,7 +545,7 @@ void MdtRawDataMonAlg::clear_hist_map(bool reallocate){
       delete (*itr);
     }
     delete m_hist_hash_list;
-    m_hist_hash_list = 0;
+    m_hist_hash_list = nullptr;
   }
   //  if(reallocate) m_hist_map = new std::map<IdentifierHash, MDTChamber*>;
   if(reallocate) {
@@ -554,7 +554,7 @@ void MdtRawDataMonAlg::clear_hist_map(bool reallocate){
     unsigned int nChambers = 1200;
     m_hist_hash_list->reserve(nChambers);
     //Ensure size is 1200 and that all reservec quantities are 0!
-    for(unsigned int i = 0; i != 1200; ++i) m_hist_hash_list->push_back(0);
+    for(unsigned int i = 0; i != 1200; ++i) m_hist_hash_list->push_back(nullptr);
   }
 }
 
@@ -1096,7 +1096,7 @@ StatusCode MdtRawDataMonAlg::binMdtOccVsLB_Crate(TH2* &h, int region, int crate)
 }
 
 
-int MdtRawDataMonAlg::get_bin_for_LB_crate_hist(int region, int crate, int phi, int eta, std::string chamber) const{
+int MdtRawDataMonAlg::get_bin_for_LB_crate_hist(int region, int crate, int phi, int eta, std::string_view chamber) const{
   int binNum = 999;
 
   if(region == 0 || region == 1){ //Barrel

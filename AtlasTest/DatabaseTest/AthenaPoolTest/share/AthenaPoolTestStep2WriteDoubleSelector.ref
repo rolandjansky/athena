@@ -1,6 +1,7 @@
 SecondaryEventS...  DEBUG Initializing secondary event selector SecondaryEventSelector
 SecondaryEventS...  DEBUG reinitialization...
 SecondaryEventS...   INFO EventSelection with query 
+SecondaryEventS...  DEBUG EventSelectorAthenaPool::nextWithSkip
 AthenaPoolTestD...  DEBUG Executing AthenaPoolTestDataWriter
 AthenaPoolTestD...  DEBUG Collection of A's
 AthenaPoolTestD...  DEBUG AthenaPoolTestA::printWhoYouAre A - a, b 1 2
@@ -219,6 +220,7 @@ AthenaPoolTestD...  DEBUG Time, index 25 0
 AthenaPoolTestD...  DEBUG Event ID: [1,4294967296:0] 
 AthenaPoolTestD...  DEBUG Event type: user type McEvent
 AthenaPoolTestD...  DEBUG Pileup time, index type 25 0
+SecondaryEventS...  DEBUG EventSelectorAthenaPool::nextWithSkip
 AthenaPoolTestD...  DEBUG Executing AthenaPoolTestDataWriter
 AthenaPoolTestD...  DEBUG Collection of A's
 AthenaPoolTestD...  DEBUG AthenaPoolTestA::printWhoYouAre A - a, b 1 2

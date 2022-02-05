@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ITGC_STATUSCONDITIONSSVC_H
@@ -21,7 +21,7 @@ class StatusCode;
 //static const InterfaceID IID_TGC_STATUSConditionsSvc("TGC_STATUSConditionsSvc", 1, 0);
 
 
-class ITGC_STATUSConditionsSvc : virtual public ITGCConditionsSvc {
+class ATLAS_NOT_THREAD_SAFE ITGC_STATUSConditionsSvc : virtual public ITGCConditionsSvc {
   
 
 public:

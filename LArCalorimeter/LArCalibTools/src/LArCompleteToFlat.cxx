@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArCompleteToFlat.h"
@@ -27,6 +27,8 @@
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "CoralBase/Blob.h"
 
+#include "LArIdentifier/LArOnlineID.h"
+#include "LArIdentifier/LArOnline_SuperCellID.h"
 
 #include "LArElecCalib/LArCalibErrorCode.h"
 
@@ -40,9 +42,10 @@ LArCompleteToFlat::LArCompleteToFlat( const std::string& name,
 			  ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator ),
   m_hashMax(0),
-  m_onlineID(0)
+  m_onlineID(0),
+  m_isSC(false)
 {
-
+  declareProperty("isSC",m_isSC);
   declareProperty("uA2MeVInput",m_uA2MeVInput);//="LAruA2MeV");
   declareProperty("DAC2uAVInput",m_DAC2uAInput);//="LArDAC2uA");
   declareProperty("HVScaleCorrInput",m_HVScaleCorrInput);//="LArHVScaleCorr");
@@ -57,7 +60,8 @@ LArCompleteToFlat::LArCompleteToFlat( const std::string& name,
   declareProperty("ForceStop",m_forceStop=true);
 
   declareProperty("FakeEMBPSLowGain",m_fakeEMBPSLowGain=false);
-  
+
+
 }
 
 // Destructor
@@ -69,7 +73,8 @@ LArCompleteToFlat::~LArCompleteToFlat()
 ////////////////////////////
 StatusCode LArCompleteToFlat::initialize()
 {
-  ATH_CHECK(m_cablingKey.initialize());
+  ATH_CHECK( m_cablingKey.initialize() );
+  if ( m_isSC ) ATH_CHECK( m_cablingKeySC.initialize() );
   return StatusCode::SUCCESS;
 }
 
@@ -159,11 +164,20 @@ CondAttrListCollection* LArCompleteToFlat::pedestalFlat(const ILArPedestal* inpu
     blobRMS.resize(m_hashMax*sizeof(float));
     float* pblobPed=static_cast<float*>(blobPed.startingAddress());
     float* pblobRMS=static_cast<float*>(blobRMS.startingAddress());
-
+    int nDefault=0;
     for (unsigned hs=0;hs<m_hashMax;++hs) {
       const HWIdentifier chid=m_onlineID->channel_Id(hs);
       float ped=input->pedestal(chid,gain);
       float pedRMS=input->pedestalRMS(chid,gain);
+      if (gain==0){
+	if (ped<0){
+	  ped = 1000;
+	  pedRMS = 1;
+	  ++nDefault;
+	}
+	 
+	
+      }
       if (ped<0 && gain==2 && m_fakeEMBPSLowGain) {
 	ped=input->pedestal(chid,1);
 	pedRMS=input->pedestalRMS(chid,1);
@@ -175,6 +189,7 @@ CondAttrListCollection* LArCompleteToFlat::pedestalFlat(const ILArPedestal* inpu
       ++nChannels; 
     }//end loop over hash ids
     collPed->add(gain,*attrList);
+    ATH_MSG_INFO( "Number of channels filled with default Pedestal (1000) and PedestalRMS (1) "<< nDefault << " (including disconnected)" );
   }//end loop over gains
    
   StatusCode sc=detStore()->record(collPed,outputName);//"/LAR/ElecCalibFlat/Pedestal");
@@ -422,8 +437,14 @@ CondAttrListCollection* LArCompleteToFlat::rampFlat(const ILArRamp* input, const
 
   std::vector<float> defaultRamp={0.0,1.0};
 
-  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
-  const LArOnOffIdMapping* cabling{*cablingHdl};
+  const LArOnOffIdMapping* cabling(0);
+  if(m_isSC){
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKeySC};
+    cabling=*cablingHdl;
+  }else{
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    cabling=*cablingHdl;
+  }
   if(!cabling) {
      ATH_MSG_ERROR( "Do not have cabling mapping from key " << m_cablingKey.key() );
      return coll;
@@ -454,9 +475,24 @@ CondAttrListCollection* LArCompleteToFlat::rampFlat(const ILArRamp* input, const
     for (unsigned hs=0;hs<m_hashMax;++hs) {
       const HWIdentifier chid=m_onlineID->channel_Id(hs);
       std::vector<float> rampVec(input->ADC2DAC(chid,gain).asVector());
+      if(rampVec.size()>=2 && rampVec[1]>500) {
+         ATH_MSG_WARNING("Protection against crazy ramp values, set 500");
+         rampVec[1]=500.;
+      }
       if (rampVec.size()==0 && gain==2 && m_fakeEMBPSLowGain && cabling->isOnlineConnected(chid) ) { 
 	rampVec=input->ADC2DAC(chid,1).asVector();
-	rampVec[1]*=10.0;
+        if(rampVec.size()==0) {
+           ATH_MSG_WARNING("Filling EMBPS ramp with default values 0,10");
+           rampVec.resize(2);
+           rampVec[0]=0.;
+           rampVec[1]=10.;
+        } else {
+	   rampVec[1]*=10.0;
+           if(rampVec[1]>500) {
+              ATH_MSG_WARNING("Protection against crazy ramp values, set 500");
+              rampVec[1]=500.;
+           }
+        }
 	++nCopiedEMPS;
       }
       
@@ -591,18 +627,35 @@ AthenaAttributeList* LArCompleteToFlat::DSPThresholdsFlat(const LArDSPThresholds
 
 
 StatusCode LArCompleteToFlat::stop() {  
+  std::string flatName = "/LAR/ElecCalibFlat";
+  StatusCode sc;
+    if(m_isSC){
+      flatName += "SC";
+      const LArOnline_SuperCellID* ll;
+      sc = detStore()->retrieve(ll, "LArOnline_SuperCellID");
+      if (sc.isFailure()) {
+	ATH_MSG_ERROR( "Could not get LArOnlineID helper !" );
+	return StatusCode::FAILURE;
+      }
+      else {
+	m_onlineID = (const LArOnlineID_Base*)ll;
+	ATH_MSG_DEBUG("Found the LArOnlineID helper");
+      }
+    }else{
+      const LArOnlineID* ll;
+      sc = detStore()->retrieve(ll, "LArOnlineID");
+      if (sc.isFailure()) {
+	ATH_MSG_ERROR( "Could not get LArOnlineID helper !" );
+	return StatusCode::FAILURE;
+      }
+      else {
+	m_onlineID = (const LArOnlineID_Base*)ll;
+	ATH_MSG_DEBUG(" Found the LArOnlineID helper. ");
+      }
 
-
-  StatusCode sc=detStore()->retrieve(m_onlineID);
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Failed to get LArOnlineID" );
-    return sc;
-  }
+    }
 
   m_hashMax=m_onlineID->channelHashMax();
-  
-
-  //CondAttrListCollection* coll;
   
   if (m_uA2MeVInput.size()) {
     const ILAruA2MeV* uA2MeVComplete;
@@ -615,7 +668,7 @@ StatusCode LArCompleteToFlat::stop() {
 	ATH_MSG_WARNING( "Will not process LAruA2MeV" );
       }
     } else {
-      uA2MeVFlat(uA2MeVComplete, "/LAR/ElecCalibFlat/uA2MeV");
+      uA2MeVFlat(uA2MeVComplete, flatName+"/uA2MeV");
     }
   }//end if have m_uA2MeV
     
@@ -631,8 +684,7 @@ StatusCode LArCompleteToFlat::stop() {
 	ATH_MSG_WARNING( "Will not process LArDAC2uA" );
       }  
     } else {
-      DAC2uAFlat(DAC2uAComplete, "/LAR/ElecCalibFlat/DAC2uA");
-      //singleFloatFlat("DAC2uA", DAC2uAComplete, "/LAR/ElecCalibFlat/DAC2uA",1);
+      DAC2uAFlat(DAC2uAComplete, flatName+"/DAC2uA");
     }
   }//end if have m_DAC2uAInput
 
@@ -647,7 +699,7 @@ StatusCode LArCompleteToFlat::stop() {
 	ATH_MSG_WARNING( "Will not process LArMphysOverMcal" );
       }   
     } else {
-      singleFloatFlat("MphysOverMcal", MphysOverMcalComplete, "/LAR/ElecCalibFlat/MphysOverMcal",3,false); //No MphysOverMCal for FCAL
+      singleFloatFlat("MphysOverMcal", MphysOverMcalComplete, flatName+"/MphysOverMcal",3,false); //No MphysOverMCal for FCAL
     }
   }//end if have m_MphysOverMcalInput
 
@@ -663,7 +715,7 @@ StatusCode LArCompleteToFlat::stop() {
 	ATH_MSG_WARNING( "Will not process LArHVScaleCorr" );
       }   
     } else {
-      singleFloatFlat("HVScaleCorr", HVScaleCorrComplete, "/LAR/ElecCalibFlat/HVScaleCorr",1);
+      singleFloatFlat("HVScaleCorr", HVScaleCorrComplete, flatName+"/HVScaleCorr",1);
     }
   }//end if have m_HVScaleCorrInput
 
@@ -678,7 +730,7 @@ StatusCode LArCompleteToFlat::stop() {
 	ATH_MSG_WARNING( "Will not process LArPedestal" );
       }   
     } else {
-      pedestalFlat(pedComplete,"/LAR/ElecCalibFlat/Pedestal");
+      pedestalFlat(pedComplete,flatName+"/Pedestal");
 
       /*
      CondAttrListCollection* coll=pedestalFlat(pedComplete,"/LAR/ElecCalibFlat/Pedestal");
@@ -711,7 +763,7 @@ StatusCode LArCompleteToFlat::stop() {
 	ATH_MSG_WARNING( "Will not process LArOFCComplete" );
       }
     } else {
-      ofcFlat(ofcComplete,"/LAR/ElecCalibFlat/OFC");
+      ofcFlat(ofcComplete,flatName+"/OFC");
       /*  
       CondAttrListCollection* coll=ofcFlat(ofcComplete,"/LAR/ElecCalibFlat/OFC");
       
@@ -743,7 +795,7 @@ StatusCode LArCompleteToFlat::stop() {
 	ATH_MSG_WARNING( "Will not process LArShapeComplete" );
       }   
     } else {
-      shapeFlat(shapeComplete,"/LAR/ElecCalibFlat/Shape");
+      shapeFlat(shapeComplete,flatName+"/Shape");
       /*
       CondAttrListCollection* coll=shapeFlat(shapeComplete,"/LAR/ElecCalibFlat/Shape");
 
@@ -765,7 +817,7 @@ StatusCode LArCompleteToFlat::stop() {
 
   //Ramp
   if (m_RampInput.size()) { 
-    const LArRampComplete* rampComplete;
+    const LArRampComplete* rampComplete = nullptr;
     sc=detStore()->retrieve(rampComplete,m_RampInput);
     if (sc.isFailure()) {
       if(m_forceStop) { 
@@ -775,13 +827,13 @@ StatusCode LArCompleteToFlat::stop() {
 	ATH_MSG_WARNING( "Will not process LArRampComplete" );
       }   
     } else {
-      rampFlat(rampComplete,"/LAR/ElecCalibFlat/Ramp");
+      rampFlat(rampComplete,flatName+"/Ramp");
     }
   }
   
   if(m_DSPThresholdsInput.size()) {
     //DSPThresh:
-    const LArDSPThresholdsComplete* DSPTComplete;
+    const LArDSPThresholdsComplete* DSPTComplete = nullptr;
     sc=detStore()->retrieve(DSPTComplete,m_DSPThresholdsInput);
     if (sc.isFailure()) {
       if(m_forceStop) { 
@@ -817,8 +869,14 @@ StatusCode LArCompleteToFlat::stop() {
 
 void LArCompleteToFlat::errIfConnected(const HWIdentifier chid, const int gain, const char* objName, const char* message) const{
 
-  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
-  const LArOnOffIdMapping* cabling{*cablingHdl};
+  const LArOnOffIdMapping* cabling(0);
+  if(m_isSC){
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKeySC};
+    cabling=*cablingHdl;
+  }else{
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    cabling=*cablingHdl;
+  }
   if(!cabling) {
      ATH_MSG_ERROR( "Do not have cabling mapping from key " << m_cablingKey.key() );
      return;

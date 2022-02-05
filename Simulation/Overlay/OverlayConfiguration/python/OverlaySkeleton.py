@@ -4,6 +4,7 @@ import sys
 
 from PyJobTransforms.CommonRunArgsToFlags import commonRunArgsToFlags
 from PyJobTransforms.TransformUtils import processPreExec, processPreInclude, processPostExec, processPostInclude
+from SimuJobTransforms.CommonSimulationSteering import specialConfigPreInclude, specialConfigPostInclude
 
 
 def defaultOverlayFlags(configFlags):
@@ -48,6 +49,9 @@ def fromRunArgs(runArgs):
         raise RuntimeError('Both RDO_BKG and BS_SKIM are defined')
     if not hasRDO_BKGInput and not hasBS_SKIMInput:
         raise RuntimeError('Define one of RDO_BKG and BS_SKIM file types')
+
+    if hasattr(runArgs, 'skipSecondaryEvents'):
+        ConfigFlags.Overlay.SkipSecondaryEvents = runArgs.skipSecondaryEvents
 
     from AthenaConfiguration.Enums import ProductionStep
     ConfigFlags.Common.ProductionStep = ProductionStep.Overlay
@@ -98,6 +102,9 @@ def fromRunArgs(runArgs):
     if hasattr(runArgs, 'triggerConfig') and runArgs.triggerConfig == 'NONE':
         ConfigFlags.Detector.EnableL1Calo = False
 
+    # Special Configuration preInclude
+    specialConfigPreInclude(ConfigFlags)
+
     # Pre-include
     processPreInclude(runArgs, ConfigFlags)
 
@@ -117,6 +124,9 @@ def fromRunArgs(runArgs):
     # Special message service configuration
     from Digitization.DigitizationSteering import DigitizationMessageSvcCfg
     cfg.merge(DigitizationMessageSvcCfg(ConfigFlags))
+
+    # Special Configuration postInclude
+    specialConfigPostInclude(ConfigFlags, cfg)
 
     # Post-include
     processPostInclude(runArgs, ConfigFlags, cfg)

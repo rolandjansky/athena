@@ -1655,9 +1655,17 @@ StatusCode HLTXAODBphysMonTool::fillTriggerGroup(const std::string & groupName, 
                 if ((bphys->level() != xAOD::TrigBphys::EF) &&  (bphys->level() != xAOD::TrigBphys::HLT)) continue;
                 
                 if(bits) {
-                  bool objPass = bits->isPassing( bphys, cont_bphys.cptr() );
-                  ATH_MSG_DEBUG("TrigBphys object pass: " << objPass << ", mass: " << bphys->mass() );
-                  if(!objPass) continue;
+                  // A dirty check below, to fix ATR-24344:
+                  // We want to avoid the wrong CLID exception thrown from Event/xAOD/xAODTrigger/xAODTrigger/versions/TrigPassBits_v1.icc,
+                  // so we check validity of CLID here and if it is bad we just ignore TrigPassBits, issuing a warning
+                  if(bits->containerClid()) {
+                    bool objPass = bits->isPassing( bphys, cont_bphys.cptr() );
+                    ATH_MSG_DEBUG("TrigBphys object pass: " << objPass << ", mass: " << bphys->mass() );
+                    if(!objPass) continue;
+                  }
+                  else {
+                    ATH_MSG_WARNING("Broken TrigPassBits with bits->containerClid() = " << bits->containerClid() << ", will not use it and take all combinations." );
+                  }
                 }
                 
                 fillTrigBphysHists(bphys,groupName,  m_prefix,groupName,chainName, fullSetOfHists);

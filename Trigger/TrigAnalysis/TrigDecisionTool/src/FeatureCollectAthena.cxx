@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-//only in full Athena
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
+#ifndef XAOD_ANALYSIS // Full Athena only
 
 
 #include "TrigDecisionTool/FeatureCollectAthena.h"
@@ -19,13 +18,13 @@ namespace Trig{
     // returns TrigPassBits object appropriate for given object 
     // if there is none returns 0 pointer
     // not this is not templated function, can be changed anytime needed
-    const TrigPassBits* getBits(size_t sz, const HLT::TriggerElement* te, const std::string& /*label*/, HLT::NavigationCore* navigation ) {
+    const TrigPassBits* getBits(size_t sz, const HLT::TriggerElement* te, const std::string& /*label*/, const HLT::NavigationCore* navigation ) {
       if (!sz)
 	return 0;
 
       const TrigPassBits* bits(0);
 
-      if ( navigation->getFeature(te, bits, "passbits" ) ){
+      if ( const_cast<HLT::NavigationCore*>(navigation)->getFeature(te, bits, "passbits" ) ){
 	// We have to apply (vague) verification if there are any bits and that they match the feature container
 	// this is if there are any bits, 
 	// if so that they come from the same TE
@@ -37,11 +36,11 @@ namespace Trig{
       return 0; // bits recording was problematic (Navigation will complain bitterly, no need to handle it here).
     }
 
-    const TrigPassFlags* getFlags(size_t size, const HLT::TriggerElement* te, const std::string& label, HLT::NavigationCore* navigation ) {
+    const TrigPassFlags* getFlags(size_t size, const HLT::TriggerElement* te, const std::string& label, const HLT::NavigationCore* navigation ) {
       if(size==0) return 0;
 
       const TrigPassFlags* flags(0);
-      if(navigation->getFeature(te, flags, label) && flags && flags->size()==size)
+      if(const_cast<HLT::NavigationCore*>(navigation)->getFeature(te, flags, label) && flags && flags->size()==size)
 	return flags;
 
       return 0;
@@ -51,9 +50,9 @@ namespace Trig{
     template<class T>
     void l1collect(const HLT::TriggerElement* te, std::vector<Trig::Feature<T> >& data,  unsigned int condition,
                    const std::vector<T>& (LVL1_ROI::*method)() const,
-                   HLT::TrigNavStructure* navstructure) {
+                   const HLT::TrigNavStructure* navstructure) {
 
-      auto navigation = dynamic_cast<HLT::NavigationCore*>(navstructure);
+      auto navigation = dynamic_cast<const HLT::NavigationCore*>(navstructure);
 
       // first we need to collect RoI descriptors
       std::vector<Trig::Feature<TrigRoiDescriptor> > rois;
@@ -76,25 +75,25 @@ namespace Trig{
     }
 
     template<>
-    void collect<Muon_ROI>(const HLT::TriggerElement* te, std::vector<Trig::Feature<Muon_ROI> >& data, const std::string&, unsigned int condition, const std::string&, HLT::TrigNavStructure* navigation) {
+    void collect<Muon_ROI>(const HLT::TriggerElement* te, std::vector<Trig::Feature<Muon_ROI> >& data, const std::string&, unsigned int condition, const std::string&, const HLT::TrigNavStructure* navigation) {
       l1collect<Muon_ROI>(te, data, condition, &LVL1_ROI::getMuonROIs, navigation);
     }
 
     template<>
-    void collect<EmTau_ROI>(const HLT::TriggerElement* te, std::vector<Trig::Feature<EmTau_ROI> >& data, const std::string&, unsigned int condition, const std::string&, HLT::TrigNavStructure* navigation) {
+    void collect<EmTau_ROI>(const HLT::TriggerElement* te, std::vector<Trig::Feature<EmTau_ROI> >& data, const std::string&, unsigned int condition, const std::string&, const HLT::TrigNavStructure* navigation) {
       l1collect<EmTau_ROI>(te, data, condition, &LVL1_ROI::getEmTauROIs, navigation);
     }
 
     template<>
-    void collect<Jet_ROI>(const HLT::TriggerElement* te, std::vector<Trig::Feature<Jet_ROI> >& data, const std::string&, unsigned int condition, const std::string&, HLT::TrigNavStructure* navigation) {
+    void collect<Jet_ROI>(const HLT::TriggerElement* te, std::vector<Trig::Feature<Jet_ROI> >& data, const std::string&, unsigned int condition, const std::string&, const HLT::TrigNavStructure* navigation) {
       l1collect<Jet_ROI>(te, data, condition, &LVL1_ROI::getJetROIs, navigation);
     }
 
     template<typename ROI,typename ROICONTAINER>
-    void xAODcollect(const HLT::TriggerElement* te, std::vector<Trig::Feature<ROI> >& data, unsigned int condition, HLT::TrigNavStructure* navstructure, const std::string& sgkey){
+    void xAODcollect(const HLT::TriggerElement* te, std::vector<Trig::Feature<ROI> >& data, unsigned int condition, const HLT::TrigNavStructure* navstructure, const std::string& sgkey){
       // first we need to collect RoI descriptors
 
-      auto navigation = dynamic_cast<HLT::NavigationCore*>(navstructure);
+      auto navigation = dynamic_cast<const HLT::NavigationCore*>(navstructure);
 
 
       std::vector<Trig::Feature<TrigRoiDescriptor> > rois;
@@ -124,17 +123,17 @@ namespace Trig{
     }
 
     template<>
-    void collect<xAOD::EmTauRoI>(const HLT::TriggerElement* te, std::vector<Trig::Feature<xAOD::EmTauRoI> >& data, const std::string&, unsigned int condition, const std::string&, HLT::TrigNavStructure* navigation) {
+    void collect<xAOD::EmTauRoI>(const HLT::TriggerElement* te, std::vector<Trig::Feature<xAOD::EmTauRoI> >& data, const std::string&, unsigned int condition, const std::string&, const HLT::TrigNavStructure* navigation) {
       xAODcollect<xAOD::EmTauRoI,xAOD::EmTauRoIContainer>(te, data, condition, navigation,"LVL1EmTauRoIs");
     }
 
     template<>
-    void collect<xAOD::MuonRoI>(const HLT::TriggerElement* te, std::vector<Trig::Feature<xAOD::MuonRoI> >& data, const std::string&, unsigned int condition, const std::string&, HLT::TrigNavStructure* navigation) {
+    void collect<xAOD::MuonRoI>(const HLT::TriggerElement* te, std::vector<Trig::Feature<xAOD::MuonRoI> >& data, const std::string&, unsigned int condition, const std::string&, const HLT::TrigNavStructure* navigation) {
       xAODcollect<xAOD::MuonRoI,xAOD::MuonRoIContainer>(te, data, condition, navigation,"LVL1MuonRoIs");
     }
 
     template<>
-    void collect<xAOD::JetRoI>(const HLT::TriggerElement* te, std::vector<Trig::Feature<xAOD::JetRoI> >& data, const std::string&, unsigned int condition, const std::string&, HLT::TrigNavStructure* navigation) {
+    void collect<xAOD::JetRoI>(const HLT::TriggerElement* te, std::vector<Trig::Feature<xAOD::JetRoI> >& data, const std::string&, unsigned int condition, const std::string&, const HLT::TrigNavStructure* navigation) {
       xAODcollect<xAOD::JetRoI,xAOD::JetRoIContainer>(te, data, condition, navigation,"LVL1JetRoIs");
     }
 

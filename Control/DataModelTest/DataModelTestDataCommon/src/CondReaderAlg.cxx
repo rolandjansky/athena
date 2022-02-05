@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file DataModelTestDataCommon/src/CondReaderAlg.cxx
@@ -106,7 +106,7 @@ StatusCode CondReaderAlg::execute (const EventContext& ctx) const
   {
     std::string xint = "xint";
     Chrono chrono (&*m_chronoSvc, "spin time");
-    int xx = 0;
+    int xx [[maybe_unused]] = 0;
     for (size_t i = 0; i < m_spins; i++) {
       {
         SG::ReadCondHandle<AthenaAttributeList> attrList (m_attrListKey, ctx);

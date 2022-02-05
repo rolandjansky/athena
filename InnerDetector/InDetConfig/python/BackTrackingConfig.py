@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory     import CompFactory
 import InDetConfig.TrackingCommonConfig         as   TC
@@ -11,9 +11,9 @@ def SiDetElementsRoadMaker_xkCfg(flags, name = 'InDetTRT_SeededSiRoad', **kwargs
     InDetPatternPropagator = acc.getPrimaryAndMerge(TC.InDetPatternPropagatorCfg())
 
     kwargs.setdefault("PropagatorTool", InDetPatternPropagator)
-    kwargs.setdefault("usePixel", flags.InDet.Tracking.usePixel)
+    kwargs.setdefault("usePixel", flags.InDet.Tracking.ActivePass.usePixel)
     kwargs.setdefault("PixManagerLocation", 'Pixel') # InDetKeys.PixelManager()
-    kwargs.setdefault("useSCT", flags.InDet.Tracking.useSCT)
+    kwargs.setdefault("useSCT", flags.InDet.Tracking.ActivePass.useSCT)
     kwargs.setdefault("SCTManagerLocation", 'SCT') # InDetKeys.SCT_Manager()
     kwargs.setdefault("RoadWidth", 35.)
     kwargs.setdefault("MaxStep", 20.)
@@ -21,7 +21,7 @@ def SiDetElementsRoadMaker_xkCfg(flags, name = 'InDetTRT_SeededSiRoad', **kwargs
     if flags.Beam.Type == "cosmics":
         kwargs.setdefault("RoadWidth", 50)
     # Condition algorithm for InDet__SiDetElementsRoadMaker_xk
-    if flags.InDet.Tracking.useSCT:
+    if flags.InDet.Tracking.ActivePass.useSCT:
         acc.addCondAlgo(CompFactory.InDet.SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk"))
 
     InDetTRT_SeededSiRoadMaker = CompFactory.InDet.SiDetElementsRoadMaker_xk(name = name, **kwargs)
@@ -29,18 +29,23 @@ def SiDetElementsRoadMaker_xkCfg(flags, name = 'InDetTRT_SeededSiRoad', **kwargs
     return acc
 
 def SimpleTRT_SeededSpacePointFinder_ATLCfg(flags, name='InDetTRT_SeededSpFinder', InputCollections=[], **kwargs):
-    acc = ComponentAccumulator()
+    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+    acc = MagneticFieldSvcCfg(flags)
 
     #
     # --- decide if use the association tool
     #
     if len(InputCollections) > 0:
+        usePrdAssociationTool = True
         prefix = 'InDetSegment'
         suffix = ''
-        asso_tool = acc.popToolsAndMerge(TC.ConstPRD_AssociationToolCfg(namePrefix = prefix, nameSuffix = suffix))
-        acc.addPublicTool(asso_tool)
+    else:
+        prefix = ''
+        suffix = ''
+        usePrdAssociationTool = False
 
-    kwargs.setdefault("SpacePointsSCTName", 'SCT_SpacePoints') # InDetKeys.SCT_SpacePoints()
+    kwargs.setdefault("SpacePointsSCTName", 'SCT_SpacePoints')
+    kwargs.setdefault("PRDtoTrackMap", prefix+'PRDtoTrackMap'+suffix if usePrdAssociationTool else "")
     kwargs.setdefault("PerigeeCut", 1000.)
     kwargs.setdefault("DirectionPhiCut", .3)
     kwargs.setdefault("DirectionEtaCut", 1.)
@@ -73,14 +78,16 @@ def TRT_SeededSpacePointFinder_ATLCfg(flags, name='InDetTRT_SeededSpFinder', Inp
     kwargs.setdefault("NeighborSearch", True)
     kwargs.setdefault("LoadFull", False)
     kwargs.setdefault("DoCosmics", flags.Beam.Type == "cosmics")
-    kwargs.setdefault("pTmin", flags.InDet.Tracking.minSecondaryPt)
+    kwargs.setdefault("pTmin", flags.InDet.Tracking.ActivePass.minSecondaryPt)
 
     InDetTRT_SeededSpacePointFinder = CompFactory.InDet.TRT_SeededSpacePointFinder_ATL(name = name, **kwargs)
     acc.setPrivateTools(InDetTRT_SeededSpacePointFinder)
     return acc
 
 def TRT_SeededTrackFinder_ATLCfg(flags, name='InDetTRT_SeededTrackMaker', InputCollections=[], **kwargs):
-    acc = ComponentAccumulator()
+    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+    acc = MagneticFieldSvcCfg(flags)
+
     #
     # --- TRT seeded back tracking tool
     #
@@ -88,9 +95,8 @@ def TRT_SeededTrackFinder_ATLCfg(flags, name='InDetTRT_SeededTrackMaker', InputC
     InDetPatternUpdator = acc.getPrimaryAndMerge(TC.InDetPatternUpdatorCfg())
 
     InDetSiComTrackFinder = acc.popToolsAndMerge(TC.SiCombinatorialTrackFinder_xkCfg(flags))
-    acc.addPublicTool(InDetSiComTrackFinder)
 
-    if (flags.InDet.Tracking.usePixel and flags.InDet.Tracking.useSCT) is not False:
+    if flags.InDet.Tracking.ActivePass.usePixel and flags.InDet.Tracking.ActivePass.useSCT:
         InDetTRT_SeededSiRoadMaker = acc.popToolsAndMerge(SiDetElementsRoadMaker_xkCfg(flags))
         acc.addPublicTool(InDetTRT_SeededSiRoadMaker)
         kwargs.setdefault("RoadTool", InDetTRT_SeededSiRoadMaker)
@@ -98,25 +104,25 @@ def TRT_SeededTrackFinder_ATLCfg(flags, name='InDetTRT_SeededTrackMaker', InputC
     #
     # --- decide which TRT seed space point finder to use
     #
-    if flags.InDet.loadTRTSeededSPFinder:
-        InDetTRT_SeededSpacePointFinder = acc.popToolsAndMerge(TRT_SeededSpacePointFinder_ATLCfg(flags, 
-                                                                                                 InputCollections=InputCollections))
-    elif flags.InDet.loadSimpleTRTSeededSPFinder:
-        InDetTRT_SeededSpacePointFinder = acc.popToolsAndMerge(SimpleTRT_SeededSpacePointFinder_ATLCfg(flags, InputCollections=InputCollections))
-
+    InDetTRT_SeededSpacePointFinder = acc.popToolsAndMerge(TRT_SeededSpacePointFinder_ATLCfg(flags, InputCollections=InputCollections))
     acc.addPublicTool(InDetTRT_SeededSpacePointFinder)
 
     kwargs.setdefault("PropagatorTool", InDetPatternPropagator)
     kwargs.setdefault("UpdatorTool", InDetPatternUpdator)
     kwargs.setdefault("SeedTool", InDetTRT_SeededSpacePointFinder)
     kwargs.setdefault("CombinatorialTrackFinder", InDetSiComTrackFinder)
-    kwargs.setdefault("pTmin", flags.InDet.Tracking.minSecondaryPt)
-    kwargs.setdefault("nHolesMax", flags.InDet.Tracking.SecondarynHolesMax)
-    kwargs.setdefault("nHolesGapMax", flags.InDet.Tracking.SecondarynHolesGapMax)
-    kwargs.setdefault("Xi2max", flags.InDet.Tracking.SecondaryXi2max)
-    kwargs.setdefault("Xi2maxNoAdd", flags.InDet.Tracking.SecondaryXi2maxNoAdd)
+    kwargs.setdefault("pTmin", flags.InDet.Tracking.ActivePass.minSecondaryPt)
+    kwargs.setdefault("nHolesMax", flags.InDet.Tracking.ActivePass.SecondarynHolesMax)
+    kwargs.setdefault("nHolesGapMax", flags.InDet.Tracking.ActivePass.SecondarynHolesGapMax)
+    kwargs.setdefault("Xi2max", flags.InDet.Tracking.ActivePass.SecondaryXi2max)
+    kwargs.setdefault("Xi2maxNoAdd", flags.InDet.Tracking.ActivePass.SecondaryXi2maxNoAdd)
     kwargs.setdefault("SearchInCaloROI", False)
-    kwargs.setdefault("InputClusterContainerName", 'InDetCaloClusterROIs') # InDetKeys.CaloClusterROIContainer()
+    if kwargs["SearchInCaloROI"]:
+        from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
+        acc.merge(CaloClusterROI_SelectorCfg(flags))
+        kwargs.setdefault("InputClusterContainerName", "InDetCaloClusterROIs") # InDetKeys.CaloClusterROIContainer()
+    else:
+        kwargs.setdefault("InputClusterContainerName", "")
     kwargs.setdefault("ConsistentSeeds", True)
     kwargs.setdefault("BremCorrection", False)
 
@@ -149,16 +155,28 @@ def TRT_SeededTrackFinderCfg(flags, name='InDetTRT_SeededTrackFinder', InputColl
         suffix = ''
         usePrdAssociationTool = False
 
-    InDetTrackFitterBT = acc.popToolsAndMerge(TC.InDetTrackFitterBTCfg(flags))
-    acc.addPublicTool(InDetTrackFitterBT)
+    from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
+    acc.merge(BeamSpotCondAlgCfg(flags))
 
-    InDetTrackSummaryToolNoHoleSearch = acc.popToolsAndMerge(TC.InDetTrackSummaryToolNoHoleSearchCfg(flags))
-    acc.addPublicTool(InDetTrackSummaryToolNoHoleSearch)
+    if flags.InDet.Tracking.ActivePass.usePixel:
+        acc.addCondAlgo(CompFactory.InDet.SiDetElementBoundaryLinksCondAlg_xk(name="InDetSiDetElementBoundaryLinksPixelCondAlg",
+                                                                              ReadKey="PixelDetectorElementCollection",
+                                                                              WriteKey="PixelDetElementBoundaryLinks_xk"))
+    if flags.InDet.Tracking.ActivePass.useSCT:
+        acc.addCondAlgo(CompFactory.InDet.SiDetElementsRoadCondAlg_xk(name="InDet__SiDetElementsRoadCondAlg_xk"))
+
+        acc.addCondAlgo(CompFactory.InDet.SiDetElementBoundaryLinksCondAlg_xk(name="InDetSiDetElementBoundaryLinksSCTCondAlg",
+                                                                              ReadKey="SCT_DetectorElementCollection",
+                                                                              WriteKey="SCT_DetElementBoundaryLinks_xk"))
+
+    InDetTrackFitterBT = acc.popToolsAndMerge(TC.InDetTrackFitterBTCfg(flags))
+
+    InDetTrackSummaryToolNoHoleSearch = acc.getPrimaryAndMerge(TC.InDetTrackSummaryToolNoHoleSearchCfg(flags))
 
     InDetTRTExtensionTool = acc.popToolsAndMerge(TC.InDetTRT_ExtensionToolCfg(flags))
     acc.addPublicTool(InDetTRTExtensionTool)
 
-    from  InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+    from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     InDetExtrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
 
     InDetTRT_SeededTrackTool = acc.popToolsAndMerge(TRT_SeededTrackFinder_ATLCfg(flags, 
@@ -170,24 +188,24 @@ def TRT_SeededTrackFinderCfg(flags, name='InDetTRT_SeededTrackFinder', InputColl
     kwargs.setdefault("PRDtoTrackMap", prefix+'PRDtoTrackMap'+suffix if usePrdAssociationTool else "")
     kwargs.setdefault("TrackSummaryTool", InDetTrackSummaryToolNoHoleSearch)
     kwargs.setdefault("TrackExtensionTool", InDetTRTExtensionTool)
-    kwargs.setdefault("MinTRTonSegment", flags.InDet.Tracking.minSecondaryTRTonTrk)
-    kwargs.setdefault("MinTRTonly", flags.InDet.Tracking.minTRTonly)
+    kwargs.setdefault("MinTRTonSegment", flags.InDet.Tracking.ActivePass.minSecondaryTRTonTrk)
+    kwargs.setdefault("MinTRTonly", flags.InDet.Tracking.ActivePass.minTRTonly)
     kwargs.setdefault("TrtExtension", True)
-    kwargs.setdefault("SiExtensionCuts", flags.InDet.Tracking.SiExtensionCuts)
-    kwargs.setdefault("minPt", flags.InDet.Tracking.minSecondaryPt)
-    kwargs.setdefault("maxRPhiImp", flags.InDet.Tracking.maxSecondaryImpact)
-    kwargs.setdefault("maxZImp", flags.InDet.Tracking.maxZImpact)
-    kwargs.setdefault("maxEta", flags.InDet.Tracking.maxEta)
+    kwargs.setdefault("SiExtensionCuts", flags.InDet.Tracking.ActivePass.SiExtensionCuts)
+    kwargs.setdefault("minPt", flags.InDet.Tracking.ActivePass.minSecondaryPt)
+    kwargs.setdefault("maxRPhiImp", flags.InDet.Tracking.ActivePass.maxSecondaryImpact)
+    kwargs.setdefault("maxZImp", flags.InDet.Tracking.ActivePass.maxZImpact)
+    kwargs.setdefault("maxEta", flags.InDet.Tracking.ActivePass.maxEta)
     kwargs.setdefault("Extrapolator", InDetExtrapolator)
-    kwargs.setdefault("RejectShortExtension", flags.InDet.Tracking.rejectShortExtensions)
+    kwargs.setdefault("RejectShortExtension", flags.InDet.Tracking.ActivePass.rejectShortExtensions)
     kwargs.setdefault("FinalRefit", False)
     kwargs.setdefault("FinalStatistics", False)
     kwargs.setdefault("OutputSegments", False)
     kwargs.setdefault("InputSegmentsLocation", 'TRTSegments') # InDetKeys.TRT_Segments()
     kwargs.setdefault("OutputTracksLocation", TRTSeededTracks)
-    kwargs.setdefault("CaloClusterEt", flags.InDet.Tracking.minRoIClusterEt)
+    kwargs.setdefault("CaloClusterEt", flags.InDet.Tracking.ActivePass.minRoIClusterEt)
 
-    if flags.InDet.Tracking.RoISeededBackTracking:
+    if flags.InDet.Tracking.ActivePass.RoISeededBackTracking:
         from RegionSelector.RegSelToolConfig import regSelTool_SCT_Cfg
         RegSelTool_SCT   = acc.popToolsAndMerge(regSelTool_SCT_Cfg(flags))
         acc.addPublicTool(RegSelTool_SCT)
@@ -213,27 +231,25 @@ def TrkAmbiguityScoreCfg(flags, name='InDetTRT_SeededAmbiguityScore', **kwargs):
     acc.addEventAlgo(InDetAmbiguityScore)
     return acc
 
-def InDetAmbiTrackSelectionToolCfg(flags, name='InDetTRT_SeededAmbiTrackSelectionTool', **kwargs):
+def InDetTRTAmbiTrackSelectionToolCfg(flags, name='InDetTRT_SeededAmbiTrackSelectionTool', **kwargs):
     acc = ComponentAccumulator()
 
-    InDetTRTDriftCircleCut = acc.getPrimaryAndMerge(TC.InDetTRTDriftCircleCutForPatternRecoCfg(flags))
+    InDetTRTDriftCircleCut = acc.popToolsAndMerge(TC.InDetTRTDriftCircleCutForPatternRecoCfg(flags))
 
     InDetPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge( TC.InDetPRDtoTrackMapToolGangedPixelsCfg(flags) )
-    acc.addPublicTool(InDetPRDtoTrackMapToolGangedPixels)
 
     kwargs.setdefault("DriftCircleCutTool", InDetTRTDriftCircleCut)
     kwargs.setdefault("AssociationTool", InDetPRDtoTrackMapToolGangedPixels)
     kwargs.setdefault("minScoreShareTracks", -1.) # off !
-    kwargs.setdefault("minHits", flags.InDet.Tracking.minSecondaryClusters)
-    kwargs.setdefault("minNotShared", flags.InDet.Tracking.minSecondarySiNotShared)
-    kwargs.setdefault("maxShared", flags.InDet.Tracking.maxSecondaryShared)
-    kwargs.setdefault("minTRTHits", flags.InDet.Tracking.minSecondaryTRTonTrk)
-    kwargs.setdefault("UseParameterization", flags.InDet.Tracking.useParameterizedTRTCuts)
+    kwargs.setdefault("minHits", flags.InDet.Tracking.ActivePass.minSecondaryClusters)
+    kwargs.setdefault("minNotShared", flags.InDet.Tracking.ActivePass.minSecondarySiNotShared)
+    kwargs.setdefault("maxShared", flags.InDet.Tracking.ActivePass.maxSecondaryShared)
+    kwargs.setdefault("minTRTHits", flags.InDet.Tracking.ActivePass.minSecondaryTRTonTrk)
+    kwargs.setdefault("UseParameterization", flags.InDet.Tracking.ActivePass.useParameterizedTRTCuts)
     kwargs.setdefault("Cosmics", flags.Beam.Type == "cosmics")
-    kwargs.setdefault("doPixelSplitting", flags.InDet.doPixelClusterSplitting)
+    kwargs.setdefault("doPixelSplitting", flags.InDet.Tracking.doPixelClusterSplitting)
 
-    InDetTRT_SeededAmbiTrackSelectionTool = CompFactory.InDet.InDetAmbiTrackSelectionTool(name = name, **kwargs)
-    acc.setPrivateTools(InDetTRT_SeededAmbiTrackSelectionTool)
+    acc.setPrivateTools(CompFactory.InDet.InDetAmbiTrackSelectionTool(name, **kwargs))
     return acc
 
 def SimpleAmbiguityProcessorToolCfg(flags, name='InDetTRT_SeededAmbiguityProcessor', ClusterSplitProbContainer="", **kwargs):
@@ -242,43 +258,31 @@ def SimpleAmbiguityProcessorToolCfg(flags, name='InDetTRT_SeededAmbiguityProcess
     # --- load Ambiguity Processor
     #
     InDetTrackFitterBT = acc.popToolsAndMerge(TC.InDetTrackFitterBTCfg(flags))
-    acc.addPublicTool(InDetTrackFitterBT)
-
     InDetPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge( TC.InDetPRDtoTrackMapToolGangedPixelsCfg(flags) )
-    acc.addPublicTool(InDetPRDtoTrackMapToolGangedPixels)
 
     #
     # --- set up special Scoring Tool for TRT seeded tracks
     #
     if flags.Beam.Type == "cosmics":
         InDetTRT_SeededScoringTool = acc.popToolsAndMerge(TC.InDetCosmicScoringTool_TRTCfg(flags))
-        acc.addPublicTool(InDetTRT_SeededScoringTool)
         InDetTRT_SeededSummaryTool = acc.popToolsAndMerge(TC.InDetTrackSummaryToolSharedHitsCfg(flags))
-        acc.addPublicTool(InDetTRT_SeededSummaryTool)
     else:
         InDetTRT_SeededScoringTool = acc.popToolsAndMerge(TC.InDetTRT_SeededScoringToolCfg(flags))
-        acc.addPublicTool(InDetTRT_SeededScoringTool)
-        InDetTRT_SeededSummaryTool = acc.popToolsAndMerge(TC.InDetTrackSummaryToolCfg(flags))
-        acc.addPublicTool(InDetTRT_SeededSummaryTool)
+        InDetTRT_SeededSummaryTool = acc.getPrimaryAndMerge(TC.InDetTrackSummaryToolCfg(flags))
 
-    InDetTRT_SeededAmbiTrackSelectionTool = acc.popToolsAndMerge(InDetAmbiTrackSelectionToolCfg(flags))
-    acc.addPublicTool(InDetTRT_SeededAmbiTrackSelectionTool)
+    InDetTRT_SeededAmbiTrackSelectionTool = acc.popToolsAndMerge(InDetTRTAmbiTrackSelectionToolCfg(flags))
 
     kwargs.setdefault("Fitter", InDetTrackFitterBT)
     kwargs.setdefault("AssociationTool", InDetPRDtoTrackMapToolGangedPixels)
     kwargs.setdefault("TrackSummaryTool", InDetTRT_SeededSummaryTool)
     kwargs.setdefault("SelectionTool", InDetTRT_SeededAmbiTrackSelectionTool)
     kwargs.setdefault("InputClusterSplitProbabilityName", ClusterSplitProbContainer)
-    kwargs.setdefault("OutputClusterSplitProbabilityName", 'InDetTRT_SeededAmbiguityProcessorSplitProb'+flags.InDet.Tracking.extension)
-    kwargs.setdefault("RefitPrds", not flags.InDet.refitROT)
+    kwargs.setdefault("OutputClusterSplitProbabilityName", 'InDetTRT_SeededAmbiguityProcessorSplitProb'+flags.InDet.Tracking.ActivePass.extension)
+    kwargs.setdefault("RefitPrds", False)
     kwargs.setdefault("SuppressTrackFit", False)
     kwargs.setdefault("SuppressHoleSearch", False)
     kwargs.setdefault("ScoringTool", InDetTRT_SeededScoringTool)
-
-    if flags.InDet.materialInteractions:
-        kwargs.setdefault("MatEffects", flags.InDet.materialInteractionsType)
-    else:
-        kwargs.setdefault("MatEffects", 0)
+    kwargs.setdefault("MatEffects", flags.InDet.Tracking.materialInteractionsType if flags.InDet.Tracking.materialInteractions else 0)
 
     InDetTRT_SeededAmbiguityProcessor = CompFactory.Trk.SimpleAmbiguityProcessorTool(name = name, **kwargs)
     acc.setPrivateTools(InDetTRT_SeededAmbiguityProcessor)
@@ -315,21 +319,16 @@ def BackTrackingCfg(flags, InputCollections = None, TrackCollectionKeys=[] , Tra
     #
     # ------------------------------------------------------------
 
-    if flags.InDet.doTRTSeededTrackFinder:
-        #
-        # --- decide which TRT seed space point finder to use
-        #
-        acc.merge(TRT_SeededTrackFinderCfg( flags,
-                                            InputCollections=InputCollections))
+    acc.merge(TRT_SeededTrackFinderCfg(flags,
+                                       InputCollections = InputCollections))
     # ------------------------------------------------------------
     #
-    # --- Resolve back tracking tracks ?
+    # --- Resolve back tracking tracks
     #
     # ------------------------------------------------------------
-    if flags.InDet.doResolveBackTracks:
-        acc.merge(TrkAmbiguityScoreCfg(flags))
-        acc.merge(TrkAmbiguitySolverCfg(flags,
-                                        ClusterSplitProbContainer = ClusterSplitProbContainer))
+    acc.merge(TrkAmbiguityScoreCfg(flags))
+    acc.merge(TrkAmbiguitySolverCfg(flags,
+                                    ClusterSplitProbContainer = ClusterSplitProbContainer))
 
     return acc
 
@@ -340,14 +339,10 @@ if __name__ == "__main__":
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    flags.Input.Files=defaultTestFiles.RDO
+    flags.Input.Files=defaultTestFiles.RDO_RUN2
 
-    flags.Detector.GeometryPixel   = True
-    flags.Detector.GeometrySCT   = True
-    flags.Detector.GeometryTRT   = True
-
-    flags.InDet.doTRTSeededTrackFinder = True
-    flags.InDet.doResolveBackTracks = True
+    # disable calo for this test
+    flags.Detector.EnableCalo = False
 
     numThreads=1
     flags.Concurrency.NumThreads=numThreads
@@ -366,54 +361,15 @@ if __name__ == "__main__":
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     top_acc.merge(PoolReadCfg(flags))
 
-    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-    top_acc.merge( PixelGeometryCfg(flags) )
-
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-    top_acc.merge(SCT_GeometryCfg(flags))
-
-    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-    top_acc.merge(TRT_GeometryCfg( flags ))
-
-    from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg, MuonIdHelperSvcCfg
-    top_acc.merge(MuonGeoModelCfg(flags))
-    top_acc.merge(MuonIdHelperSvcCfg(flags))
     ##
-    from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
-    top_acc.merge(BeamSpotCondAlgCfg(flags))
-
-    from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
-    top_acc.merge(BeamPipeGeometryCfg(flags))
-    ##
-    top_acc.addCondAlgo( CompFactory.InDet.SiDetElementBoundaryLinksCondAlg_xk( name = "InDetSiDetElementBoundaryLinksPixelCondAlg",
-                                                                                ReadKey  = "PixelDetectorElementCollection",
-                                                                                WriteKey = "PixelDetElementBoundaryLinks_xk") )
-
-    top_acc.addCondAlgo(CompFactory.InDet.SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk"))
-    ##
-    from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleTool, PixelLorentzAngleCfg
-    top_acc.addPublicTool(PixelLorentzAngleTool(flags))
-    top_acc.addPublicTool(top_acc.popToolsAndMerge(PixelLorentzAngleCfg(flags)))
-
-    from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
-    top_acc.addPublicTool(top_acc.popToolsAndMerge(SCT_LorentzAngleCfg(flags)))
-    ##
-    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelOfflineCalibCondAlgCfg, PixelDistortionAlgCfg
-    top_acc.merge(PixelOfflineCalibCondAlgCfg(flags))
-    top_acc.merge(PixelDistortionAlgCfg(flags))
-    ##
-    top_acc.merge(TC.PixelClusterNnCondAlgCfg(flags))
-    top_acc.merge(TC.PixelClusterNnWithTrackCondAlgCfg(flags))
-    ##
-    from InDetConfig.TRTSegmentFindingConfig import TRTActiveCondAlgCfg
-    top_acc.merge(TRTActiveCondAlgCfg(flags))
-    top_acc.merge(TC.TRT_DetElementsRoadCondAlgCfg(flags))
+    from InDetConfig.SiliconPreProcessing import InDetRecPreProcessingSiliconCfg
+    top_acc.merge(InDetRecPreProcessingSiliconCfg(flags))
 
     ########################## TRTPreProcessing Configuration ################################
 
-    from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
-    if not flags.InDet.doDBMstandalone:
-        top_acc.merge(TRTPreProcessingCfg(flags,(not flags.InDet.doTRTPhaseCalculation or flags.Beam.Type =="collisions"),False))
+    if not flags.InDet.Tracking.doDBMstandalone:
+        from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
+        top_acc.merge(TRTPreProcessingCfg(flags))
 
     ######################################## TRTSegmentFinding Configuration ###########################################
     InputCollections = []
@@ -422,8 +378,7 @@ if __name__ == "__main__":
     top_acc.merge(TRTSegmentFindingCfg( flags,
                                         extension = "",
                                         InputCollections = InputCollections,
-                                        BarrelSegments = 'TRTSegments', # InDetKeys.TRT_Segments
-                                        doPhase = False))
+                                        BarrelSegments = 'TRTSegments'))
 
     ########################################## BackTracking Configuration ##############################################
     TrackCollectionKeys = []
@@ -443,5 +398,5 @@ if __name__ == "__main__":
     top_acc.store(open("test_BackTrackingConfig.pkl", "wb"))
     import sys
     if "--norun" not in sys.argv:
-        sc = top_acc.run(25)
+        sc = top_acc.run(5)
         sys.exit(not sc.isSuccess())

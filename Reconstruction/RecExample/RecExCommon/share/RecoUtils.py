@@ -182,6 +182,9 @@ if rec.doPersistencyOptimization() and hasattr(svcMgr, 'AthenaPoolCnvSvc'):
         # Use LZMA w/ Level 1
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setFileCompAlg( athenaCommonFlags.PoolAODOutput(), 2 ) ]
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setFileCompLvl( athenaCommonFlags.PoolAODOutput(), 1 ) ]
+        # By default use a maximum basket buffer size of 128k and minimum buffer entries of 10
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setMaxBufferSize( athenaCommonFlags.PoolAODOutput(), "131072" ) ]
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setMinBufferEntries( athenaCommonFlags.PoolAODOutput(), "10" ) ]
         # Flush the CollectionTree, POOLContainer, and POOLContainerForm to disk at every 100 events
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setTreeAutoFlush( athenaCommonFlags.PoolAODOutput(), "CollectionTree", 100 ) ]
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setTreeAutoFlush( athenaCommonFlags.PoolAODOutput(), "POOLContainer", 100 ) ]

@@ -92,6 +92,8 @@ DetFlags.digitize.all_setOff()
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit 
 
+from LArConditionsCommon import LArAlignable #noqa F401
+
 #Get identifier mapping (needed by LArConditionsContainer)
 svcMgr.IOVDbSvc.GlobalTag=DBTag
 if IsMC:
@@ -172,7 +174,7 @@ if doObj("AUTOCORR"):
        conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/AutoCorr"))
        LArAutoCorr2Ntuple.ContainerKey="LArAutoCorr"
   elif IsFlat:
-       print ('No Flat Autocorr exists !!!')
+       print( 'No Flat Autocorr exists !!!')
        import sys; sys.exit(-1) 
   else:
     conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/AutoCorrs/AutoCorr"))
@@ -300,7 +302,7 @@ if (doObj("MPHYSOVERMCAL")):
   if IsMC: 
     if SuperCells:
       conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMCSC/MphysOverMcal"))
-      print ('Not MPHYSOVERMCAL fo SuperCells yet !!')
+      print( 'Not MPHYSOVERMCAL fo SuperCells yet !!' )
       import sys; sys.exit(-2)
     else:
       conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/MphysOverMcal"))
@@ -320,12 +322,12 @@ if (doObj("MPHYSOVERMCAL")):
 if (doObj("CALIWAVE")):
   if IsMC: 
     if SuperCells:
-      print ('No CALIWAVE for SuperCells yet !!!')
+      print( 'No CALIWAVE for SuperCells yet !!!')
       import sys; sys.exit(-3)
     else:
       conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/CaliWave"))
   elif IsFlat: 
-    print ('No Flat CALIWAVE !!!')
+    print( 'No Flat CALIWAVE !!!')
     import sys; sys.exit(-3)
   else:  
     loadCastorCat=True
@@ -375,10 +377,10 @@ if (doObj("NOISE")):
       conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/Noise"))
   elif IsFlat: 
     #conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibFlat/Noise"))
-    print ('No Flat LArNoise yet !!!')
+    print( 'No Flat LArNoise yet !!!')
     import sys; sys.exit(-5) 
   else:  
-    print ('For Cell noise use the CaloNoise2Ntuple algo !')
+    print( 'For Cell noise use the CaloNoise2Ntuple algo !')
     import sys; sys.exit(-5)
   pass
   from LArCalibTools.LArCalibToolsConf import LArNoise2Ntuple
@@ -397,7 +399,7 @@ if (doObj("FSAMPL")):
       conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/fSampl"))
   elif IsFlat: 
     #conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibFlat/fSampl"))
-    print ('No Flat LArfSampl yet !!!')
+    print( 'No Flat LArfSampl yet !!!')
     import sys; sys.exit(-5) 
   else:  
     conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/fSampl/Symmetry"))
@@ -419,7 +421,7 @@ if doObj("HVSCALE"):
       conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibFlat/HVScaleCorr"))
       svcMgr.LArFlatConditionSvc.HVScaleCorrInput="/LAR/ElecCalibFlat/HVScaleCorr"
     else:
-      print ('Only Flat HVSCALE !!!')
+      print( 'Only Flat HVSCALE !!!')
       import sys; sys.exit(-5) 
 
 
@@ -438,7 +440,7 @@ if (doObj("MINBIAS")):
       conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/MinBiasAverage"))
   elif IsFlat: 
     #conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibFlat/Noise"))
-    print ('No Flat LArMinBias yet !!!')
+    print( 'No Flat LArMinBias yet !!!')
     import sys; sys.exit(-5) 
   from LArCalibTools.LArCalibToolsConf import LArMinBias2Ntuple
   LArMinBias2Ntuple=LArMinBias2Ntuple("LArMinBias2Ntuple")
@@ -448,13 +450,13 @@ if (doObj("MINBIAS")):
 if (doObj("PILEUP")):
   if IsMC: 
     if SuperCells:
-      print ('No LArPileup for SC yet !!!')
+      print( 'No LArPileup for SC yet !!!')
       import sys; sys.exit(-5) 
     else:
       conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/LArPileupAverage"))
   elif IsFlat: 
     #conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibFlat/Noise"))
-    print ('No Flat LArPileup yet !!!')
+    print( 'No Flat LArPileup yet !!!')
     import sys; sys.exit(-5) 
   else:  
     conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/LArPileupAverage"))
@@ -477,5 +479,5 @@ svcMgr.NTupleSvc.Output = [ "FILE1 DATAFILE='"+RootFile+"' OPT='NEW'" ]
 
 #svcMgr.DetectorStore.Dump=True
 #svcMgr.MessageSvc.OutputLevel = DEBUG
-
+svcMgr.MessageSvc.Format = "% F%50W%C%8W%R%T %0W%M"
 svcMgr.IOVDbSvc.DBInstance=""

@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-# $Id: BunchCrossingConfProvider.py 586922 2014-03-10 14:56:39Z krasznaa $
 
 ## @package BunchCrossingConfProvider
 #
@@ -10,8 +9,6 @@
 #
 # @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 #
-# $Revision: 586922 $
-# $Date: 2014-03-10 15:56:39 +0100 (Mon, 10 Mar 2014) $
 
 ##
 # @short Function creating an instance of Trig::IBunchCrossingConfProvider
@@ -25,8 +22,6 @@
 #
 # @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 #
-# $Revision: 586922 $
-# $Date: 2014-03-10 15:56:39 +0100 (Mon, 10 Mar 2014) $
 def BunchCrossingConfProvider( type = "" ):
 
     # Get ourselves a logger:
@@ -59,9 +54,7 @@ def BunchCrossingConfProvider( type = "" ):
         return LHCBunchCrossingTool()
     if globalflags.DataSource() == "data":
         from RecExConfig.RecFlags import rec
-        from RecExConfig.RecAlgsFlags import recAlgs
-        from TriggerJobOpts.TriggerFlags import TriggerFlags
-        if rec.doTrigger() or TriggerFlags.doTriggerConfigOnly() or recAlgs.doTrigger():
+        if rec.doTrigger():
             from TrigBunchCrossingTool.BunchCrossingTool import TrigConfBunchCrossingTool
             __logger.info( "Selecting TrigConfBunchCrossingTool for this job" )
             return TrigConfBunchCrossingTool()

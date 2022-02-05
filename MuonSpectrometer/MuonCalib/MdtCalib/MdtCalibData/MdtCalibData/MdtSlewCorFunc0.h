@@ -9,16 +9,16 @@
 
 namespace MuonCalib {
 
-  /** implementation of a slewing correction function */
+    /** implementation of a slewing correction function */
 
-class MdtSlewCorFunc0 : public IMdtSlewCorFunc {
- public:
-  explicit MdtSlewCorFunc0( const CalibFunc::ParVec& vec ) : IMdtSlewCorFunc(vec) {};
-  virtual std::string name() const { return "MdtSlewCorFunc0"; }
-  static unsigned int nUsedPar() { return 0; }
-  virtual double correction(double /*t*/, double /*adc*/) const { return 0.0; }
-};
+    class MdtSlewCorFunc0 : public IMdtSlewCorFunc {
+    public:
+        explicit MdtSlewCorFunc0(const CalibFunc::ParVec& vec) : IMdtSlewCorFunc(vec){};
+        virtual std::string name() const { return "MdtSlewCorFunc0"; }
+        static unsigned int nUsedPar() { return 0; }
+        virtual double correction(double /*t*/, double /*adc*/) const { return 0.0; }
+    };
 
-}  //namespace MuonCalib
+}  // namespace MuonCalib
 
 #endif

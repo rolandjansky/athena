@@ -21,7 +21,6 @@ class IByteStreamEventAccess;
 class StoreGateSvc; 
 class MsgStream; 
 class LArDigitContainer; 
-class LArRawDataContByteStreamTool ; 
 class IROBDataProviderSvc; 
 class ByteStreamCnvSvc;
 class LArABBADecoder;

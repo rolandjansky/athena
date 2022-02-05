@@ -20,6 +20,7 @@
 #include "L1CaloFEXSim/gFEXJwoJAlgo.h"
 #include "L1CaloFEXSim/gFEXJwoJTOB.h"
 #include "L1CaloFEXSim/gFEXOutputCollection.h"
+#include "TrigConfData/L1Menu.h"
 
 
 namespace LVL1 {
@@ -47,7 +48,7 @@ namespace LVL1 {
 
     virtual StatusCode initialize() override ;
 
-    virtual StatusCode executegFEXSim(gTowersIDs tmp) override;
+    virtual StatusCode executegFEXSim(gTowersIDs tmp, gFEXOutputCollection* gFEXOutputs) override;
 
     virtual std::vector<uint32_t> getgRhoTOBs() const override;
 
@@ -55,7 +56,14 @@ namespace LVL1 {
 
     virtual std::vector<uint32_t> getgJetTOBs() const override;
 
-    virtual std::vector<uint32_t> getgGlobalTOBs() const override;
+    virtual std::vector<uint32_t> getgScalarEJwojTOBs() const override;
+ 
+    virtual std::vector<uint32_t> getgMETComponentsJwojTOBs() const override;
+
+    virtual std::vector<uint32_t> getgMHTComponentsJwojTOBs() const override;
+
+    virtual std::vector<uint32_t> getgMSTComponentsJwojTOBs() const override;
+
 
     /** Internal data */
   private:
@@ -70,7 +78,13 @@ namespace LVL1 {
 
     std::vector<uint32_t>  m_gJetTobWords;
 
-    std::vector<uint32_t>  m_gGlobalTobWords;
+    std::vector<uint32_t>  m_gScalarEJwojTobWords;
+
+    std::vector<uint32_t>  m_gMETComponentsJwojTobWords;
+
+    std::vector<uint32_t>  m_gMHTComponentsJwojTobWords;
+
+    std::vector<uint32_t>  m_gMSTComponentsJwojTobWords;
 
 
 
@@ -79,6 +93,8 @@ namespace LVL1 {
     ToolHandle<IgFEXJetAlgo> m_gFEXJetAlgoTool {this, "gFEXJetAlgoTool", "LVL1::gFEXJetAlgo", "Tool that runs the gFEX jet algorithm"};
 
     ToolHandle<IgFEXJwoJAlgo> m_gFEXJwoJAlgoTool {this, "gFEXJwoJAlgoTool", "LVL1::gFEXJwoJAlgo", "Tool that runs the gFEX Jets without Jets algorithm"};
+
+    SG::ReadHandleKey<TrigConf::L1Menu> m_l1MenuKey{this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu","Name of the L1Menu object to read configuration from"}; 
   };
 
 } // end of namespace

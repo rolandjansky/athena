@@ -1,14 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
  * Muon Calibration Input Event Data Model
- * -----------------------------------------
- *
- * Author       : Zdenko van Kesteren
- * Creation Date: 17 October 2005
- * Last Update  : 17 October 2005
  ***************************************************************************/
 
 // this package
@@ -16,32 +11,42 @@
 
 namespace MuonCalib {
 
-    RpcCalibHitBase::RpcCalibHitBase() :
-        m_nStrips(0), m_stripWidth(0.0), m_stripLength(0.), m_time(0.0), m_error(0.0), m_distanceToRO(0.) {}
-
+    void RpcCalibHitBase::setIdentifier(const MuonFixedId &id) { m_id = id; }
+    void RpcCalibHitBase::setNStrips(int nStrips) { m_nStrips = nStrips; }
+    void RpcCalibHitBase::setStripWidth(double stripWidth) { m_stripWidth = stripWidth; }
+    void RpcCalibHitBase::setStripLength(double stripLength) { m_stripLength = stripLength; }
+    void RpcCalibHitBase::setTime(double time) { m_time = time; }
+    void RpcCalibHitBase::setError(double error) { m_error = error; }
+    void RpcCalibHitBase::setGlobalPos(const Amg::Vector3D &globalPos) { m_globalPosition = globalPos; }
+    void RpcCalibHitBase::setLocalPos(const Amg::Vector3D &localPos) { m_localPosition = localPos; }
+    void RpcCalibHitBase::setDistanceToRO(const double distance) { m_distanceToRO = distance; }
+    const MuonFixedId &RpcCalibHitBase::identify() const { return m_id; }
+    int RpcCalibHitBase::nStrips() const { return m_nStrips; }
+    double RpcCalibHitBase::stripWidth() const { return m_stripWidth; }
+    double RpcCalibHitBase::stripLength() const { return m_stripLength; }
+    double RpcCalibHitBase::time() const { return m_time; }
+    double RpcCalibHitBase::error() const { return m_error; }
+    const Amg::Vector3D &RpcCalibHitBase::globalPosition() const { return m_globalPosition; }
+    const Amg::Vector3D &RpcCalibHitBase::localPosition() const { return m_localPosition; }
+    double RpcCalibHitBase::distanceToRO() const { return m_distanceToRO; }
     RpcCalibHitBase::RpcCalibHitBase(int nStrips, double stripWidth, double time, double error, const Amg::Vector3D &globalPos,
                                      const Amg::Vector3D &localPos) :
-        m_nStrips(nStrips),
-        m_stripWidth(stripWidth),
-        m_stripLength(0.),
-        m_time(time),
-        m_error(error),
-        m_globalPosition(globalPos),
-        m_localPosition(localPos),
-        m_distanceToRO(0.) {}
+        m_nStrips{nStrips},
+        m_stripWidth{stripWidth},
+        m_time{time},
+        m_error{error},
+        m_globalPosition{globalPos},
+        m_localPosition{localPos} {}
 
     RpcCalibHitBase::RpcCalibHitBase(int nStrips, double stripWidth, double stripLength, double time, double error,
                                      const Amg::Vector3D &globalPos, const Amg::Vector3D &localPos) :
-        m_nStrips(nStrips),
-        m_stripWidth(stripWidth),
-        m_stripLength(stripLength),
-        m_time(time),
-        m_error(error),
-        m_globalPosition(globalPos),
-        m_localPosition(localPos),
-        m_distanceToRO(0.) {}
-
-    RpcCalibHitBase::~RpcCalibHitBase() {}
+        m_nStrips{nStrips},
+        m_stripWidth{stripWidth},
+        m_stripLength{stripLength},
+        m_time{time},
+        m_error{error},
+        m_globalPosition{globalPos},
+        m_localPosition{localPos} {}
 
     std::ostream &RpcCalibHitBase::dump(std::ostream &stream) const {
         stream << "RpcCalibHitBase: " << std::endl;

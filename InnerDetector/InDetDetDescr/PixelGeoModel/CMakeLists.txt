@@ -25,4 +25,4 @@ atlas_install_scripts( test/*.py )
 # Test(s) in the package:
 atlas_add_test( PixelGMConfig_test
                 SCRIPT test/PixelGMConfig_test.py
-                PROPERTIES TIMEOUT 300 )
+                POST_EXEC_SCRIPT nopost.sh )

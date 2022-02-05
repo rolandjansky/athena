@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondAlg/MuonAlignmentCondAlg.h"
@@ -187,35 +187,30 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines() {
 }
 
 StatusCode MuonAlignmentCondAlg::loadAlignABLinesData(const std::string& folderName, const std::string& data, nlohmann::json& json, bool hasBLine) {
-    // Check the first word to see if it is a correction
-    std::string type;
 
+    using namespace MuonCalib;
     // Parse corrections
-    std::string since_str;
-    std::string till_str;
-    std::string delimiter = "\n";
+    char delimiter = '\n';
 
     json = nlohmann::json::array();
-    std::vector<std::string> lines;
-    MuonCalib::MdtStringUtils::tokenize(data, lines, delimiter);
-    for (const std::string& blobline : lines) {
+    auto lines = MdtStringUtils::tokenize(data, delimiter);
+    for (const std::string_view& blobline : lines) {
         nlohmann::json line;
-        std::string delimiter = ":";
-        std::vector<std::string> tokens;
-        MuonCalib::MdtStringUtils::tokenize(blobline, tokens, delimiter);
+        char delimiter = ':';
+        const auto tokens = MdtStringUtils::tokenize(blobline, delimiter);
 
         // Check if tokens is not empty
         if (tokens.empty()) {
             ATH_MSG_FATAL("Empty string retrieved from DB in folder " << folderName);
             return StatusCode::FAILURE;
         }
-        type = tokens[0];
+        const std::string_view &type = tokens[0];
         // Parse line
-        if (type.find('#') == 0) {
+        if (type[0] == '#') {
             // skip it
             continue;
         }
-        if (type.find("Corr") == 0) {
+        if (type.compare(0, 4, "Corr") == 0) {
             //#: Corr line is counter typ,  jff,  jzz, job,                         * Chamber information
             //#:                       svalue,  zvalue, tvalue,  tsv,  tzv,  ttv,   * A lines
             //#:                       bz, bp, bn, sp, sn, tw, pg, tr, eg, ep, en   * B lines
@@ -224,9 +219,8 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLinesData(const std::string& folderN
             // Corr: EMS  4   1  0     2.260     3.461    28.639 -0.002402 -0.002013  0.000482    -0.006    -0.013 -0.006000  0.000000
             // 0.000000     0.026    -0.353  0.000000  0.070000  0.012000    -0.012    EMS1A08
 
-            std::string delimiter = " ";
-            std::vector<std::string> tokens;
-            MuonCalib::MdtStringUtils::tokenize(blobline, tokens, delimiter);
+            char delimiter = ' ';
+            auto tokens = MdtStringUtils::tokenize(blobline, delimiter);
 
             // Check if tokens has the right length
             // if (tokens.size() != 12 and tokens.size() != 23) {
@@ -237,7 +231,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLinesData(const std::string& folderN
             }
 
             ATH_MSG_VERBOSE("Parsing Line = ");
-            for (const std::string& token : tokens) ATH_MSG_VERBOSE(token << " | ");
+            for (const std::string_view& token : tokens) ATH_MSG_VERBOSE(token << " | ");
             ATH_MSG_VERBOSE(" ");
 
             bool thisRowHasBLine = true;
@@ -254,16 +248,13 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLinesData(const std::string& folderN
             int jff;
             int jzz;
             int job;
-            std::string stationType = tokens[ival++];
-            line["typ"] = stationType;
-            std::string jff_str = tokens[ival++];
-            sscanf(jff_str.c_str(), "%80d", &jff);
+            std::string stationType = std::string(tokens[ival++]);
+            line["typ"] = std::move(stationType);
+            jff = MdtStringUtils::atoi(tokens[ival++]);
             line["jff"] = jff;
-            std::string jzz_str = tokens[ival++];
-            sscanf(jzz_str.c_str(), "%80d", &jzz);
+            jzz = MdtStringUtils::atoi(tokens[ival++]);
             line["jzz"] = jzz;
-            std::string job_str = tokens[ival++];
-            sscanf(job_str.c_str(), "%80d", &job);
+            job = MdtStringUtils::atoi(tokens[ival++]);
             line["job"] = job;
 
             // A-line
@@ -273,78 +264,58 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLinesData(const std::string& folderN
             float ths;
             float thz;
             float tht;
-            std::string s_str = tokens[ival++];
-            sscanf(s_str.c_str(), "%80f", &s);
+            s = MdtStringUtils::stof(tokens[ival++]);
             line["svalue"] = s;
-            std::string z_str = tokens[ival++];
-            sscanf(z_str.c_str(), "%80f", &z);
+            z = MdtStringUtils::stof(tokens[ival++]);
             line["zvalue"] = z;
-            std::string t_str = tokens[ival++];
-            sscanf(t_str.c_str(), "%80f", &t);
+            t = MdtStringUtils::stof(tokens[ival++]);
             line["tvalue"] = t;
-            std::string ths_str = tokens[ival++];
-            sscanf(ths_str.c_str(), "%80f", &ths);
+            ths = MdtStringUtils::stof(tokens[ival++]);
             line["tsv"] = ths;
-            std::string thz_str = tokens[ival++];
-            sscanf(thz_str.c_str(), "%80f", &thz);
+            thz = MdtStringUtils::stof(tokens[ival++]);
             line["tzv"] = thz;
-            std::string tht_str = tokens[ival++];
-            sscanf(tht_str.c_str(), "%80f", &tht);
+            tht = MdtStringUtils::stof(tokens[ival++]);
             line["ttv"] = tht;
 
             // B-line
             float bz, bp, bn, sp, sn, tw, pg, tr, eg, ep, en;
             float xAtlas, yAtlas;
-            std::string ChamberHwName = "";
 
             if (hasBLine && thisRowHasBLine) {
-                std::string tmp_str = tokens[ival++];
-                sscanf(tmp_str.c_str(), "%80f", &bz);
+                bz = MdtStringUtils::stof(tokens[ival++]);
                 line["bz"] = bz;
-                tmp_str = tokens[ival++];
-                sscanf(tmp_str.c_str(), "%80f", &bp);
+                bp = MdtStringUtils::stof(tokens[ival++]);
                 line["bp"] = bp;
-                tmp_str = tokens[ival++];
-                sscanf(tmp_str.c_str(), "%80f", &bn);
+                bn = MdtStringUtils::stof(tokens[ival++]);
                 line["bn"] = bn;
-                tmp_str = tokens[ival++];
-                sscanf(tmp_str.c_str(), "%80f", &sp);
+                sp = MdtStringUtils::stof(tokens[ival++]);
                 line["sp"] = sp;
-                tmp_str = tokens[ival++];
-                sscanf(tmp_str.c_str(), "%80f", &sn);
+                sn = MdtStringUtils::stof(tokens[ival++]);
                 line["sn"] = sn;
-                tmp_str = tokens[ival++];
-                sscanf(tmp_str.c_str(), "%80f", &tw);
+                tw = MdtStringUtils::stof(tokens[ival++]);
                 line["tw"] = tw;
-                tmp_str = tokens[ival++];
-                sscanf(tmp_str.c_str(), "%80f", &pg);
+                pg = MdtStringUtils::stof(tokens[ival++]);
                 line["pg"] = pg;
-                tmp_str = tokens[ival++];
-                sscanf(tmp_str.c_str(), "%80f", &tr);
+                tr = MdtStringUtils::stof(tokens[ival++]);
                 line["tr"] = tr;
-                tmp_str = tokens[ival++];
-                sscanf(tmp_str.c_str(), "%80f", &eg);
+                eg = MdtStringUtils::stof(tokens[ival++]);
                 line["eg"] = eg;
-                tmp_str = tokens[ival++];
-                sscanf(tmp_str.c_str(), "%80f", &ep);
+                ep = MdtStringUtils::stof(tokens[ival++]);
                 line["ep"] = ep;
-                tmp_str = tokens[ival++];
-                sscanf(tmp_str.c_str(), "%80f", &en);
+                en = MdtStringUtils::stof(tokens[ival++]);
                 line["en"] = en;
 
-                tmp_str = tokens[ival++];
-                sscanf(tmp_str.c_str(), "%80f", &xAtlas);
+                xAtlas = MdtStringUtils::stof(tokens[ival++]);
                 line["xAtlas"] = xAtlas;
-                tmp_str = tokens[ival++];
-                sscanf(tmp_str.c_str(), "%80f", &yAtlas);
+                yAtlas = MdtStringUtils::stof(tokens[ival++]);
                 line["yAtlas"] = yAtlas;
 
                 // ChamberName (hardware convention)
-                line["hwElement"] = tokens[ival++];
+                line["hwElement"] = std::string(tokens[ival++]);
             }
         }
         if (line.empty()) continue;
-        json.push_back(line);
+        json.push_back(std::move(line));
     }
     return StatusCode::SUCCESS;
 }
@@ -364,7 +335,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines(const std::string& folderName,
     // =======================
     EventIDRange rangeALinesTemp;
     EventIDRange rangeBLinesTemp;
-    const CondAttrListCollection* readCdo;
+    const CondAttrListCollection* readCdo = nullptr;
     if (folderName.find("/MUONALIGN/MDT/BARREL") != std::string::npos) {
         SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readMdtBarrelKey};
         readCdo = *readHandle;
@@ -561,7 +532,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines(const std::string& folderName,
                 eg = line["eg"];
                 ep = line["ep"];
                 en = line["en"];
-                ChamberHwName = line["hwElement"];
+                ChamberHwName = static_cast<std::string>(line["hwElement"]);
                 thisRowHasBLine = true;
             }
 
@@ -600,6 +571,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines(const std::string& folderName,
                 ATH_MSG_VERBOSE("identifier being assigned is " << m_idHelperSvc->tgcIdHelper().show_to_string(id));
             } else if (stationType.substr(0, 1) == "C") {
                 // csc case
+  	        if(!m_doCSC) continue; //skip if geometry doesn't include CSCs
                 id = m_idHelperSvc->cscIdHelper().elementID(stationName, jzz, jff);
                 ATH_MSG_VERBOSE("identifier being assigned is " << m_idHelperSvc->cscIdHelper().show_to_string(id));
             } else if (stationType.substr(0, 3) == "BML" && abs(jzz) == 7) {
@@ -802,43 +774,36 @@ StatusCode MuonAlignmentCondAlg::loadAlignILines(const std::string& folderName) 
 }
 
 StatusCode MuonAlignmentCondAlg::loadAlignILinesData(const std::string& folderName, const std::string& data, nlohmann::json& json) {
-    // Check the first word to see if it is a correction
-    std::string type;
-
+    using namespace MuonCalib;
     // Parse corrections
-    std::string since_str;
-    std::string till_str;
-    std::string delimiter = "\n";
+    char delimiter = '\n';
 
     json = nlohmann::json::array();
-    std::vector<std::string> lines;
-    MuonCalib::MdtStringUtils::tokenize(data, lines, delimiter);
-    for (const std::string& blobline : lines) {
+    auto lines = MuonCalib::MdtStringUtils::tokenize(data, delimiter);
+    for (const std::string_view& blobline : lines) {
         nlohmann::json line;
-        std::string delimiter = ":";
-        std::vector<std::string> tokens;
-        MuonCalib::MdtStringUtils::tokenize(blobline, tokens, delimiter);
+        char delimiter = ':';
+        auto tokens = MuonCalib::MdtStringUtils::tokenize(blobline, delimiter);
         // Check if tokens is not empty
         if (tokens.empty()) {
             ATH_MSG_FATAL("Empty string retrieved from DB in folder " << folderName);
             return StatusCode::FAILURE;
         }
-        type = tokens[0];
+        const std::string_view &type = tokens[0];
         // Parse line
-        if (type.find('#') == 0) {
+        if ('#' == type[0]) {
             // skip it
             continue;
         }
-        if (type.find("Corr") == 0) {
+        if (type.compare(0, 4, "Corr") == 0) {
             //# Amdb like clob for ilines using geometry tag ISZT-R06-02
             //# ISZT_DATA_ID VERS TYP JFF JZZ JOB JLAY TRAS TRAZ TRAT ROTS ROTZ ROTT
             //
             //.... example
             // Corr:  CSL 1 -1 3 1 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000
 
-            std::string delimiter = " ";
-            std::vector<std::string> tokens;
-            MuonCalib::MdtStringUtils::tokenize(blobline, tokens, delimiter);
+            char delimiter = ' ';
+            auto tokens = MuonCalib::MdtStringUtils::tokenize(blobline, delimiter);
             if (tokens.size() != 12) {
                 ATH_MSG_FATAL("Invalid length in string retrieved from DB in folder " << folderName << " String length is "
                                                                                       << tokens.size());
@@ -846,7 +811,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignILinesData(const std::string& folderNa
             }
 
             ATH_MSG_VERBOSE("Parsing Line = ");
-            for (const std::string& token : tokens) ATH_MSG_VERBOSE(token << " | ");
+            for (const std::string_view& token : tokens) ATH_MSG_VERBOSE(token << " | ");
             ATH_MSG_VERBOSE(" ");
 
             // Start parsing
@@ -857,19 +822,15 @@ StatusCode MuonAlignmentCondAlg::loadAlignILinesData(const std::string& folderNa
             int jzz;
             int job;
             int jlay;
-            std::string stationType = tokens[ival++];
-            line["typ"] = stationType;
-            std::string jff_str = tokens[ival++];
-            sscanf(jff_str.c_str(), "%80d", &jff);
+            std::string stationType = std::string(tokens[ival++]);
+            line["typ"] = std::move(stationType);
+            jff = MdtStringUtils::atoi(tokens[ival++]);
             line["jff"] = jff;
-            std::string jzz_str = tokens[ival++];
-            sscanf(jzz_str.c_str(), "%80d", &jzz);
+            jzz = MdtStringUtils::atoi(tokens[ival++]);
             line["jzz"] = jzz;
-            std::string job_str = tokens[ival++];
-            sscanf(job_str.c_str(), "%80d", &job);
+            job = MdtStringUtils::atoi(tokens[ival++]);
             line["job"] = job;
-            std::string jlay_str = tokens[ival++];
-            sscanf(jlay_str.c_str(), "%80d", &jlay);
+            jlay = MdtStringUtils::atoi(tokens[ival++]);
             line["jlay"] = jlay;
 
             // I-line
@@ -879,27 +840,21 @@ StatusCode MuonAlignmentCondAlg::loadAlignILinesData(const std::string& folderNa
             float rots;
             float rotz;
             float rott;
-            std::string tras_str = tokens[ival++];
-            sscanf(tras_str.c_str(), "%80f", &tras);
+            tras = MdtStringUtils::stof(tokens[ival++]);
             line["tras"] = tras;
-            std::string traz_str = tokens[ival++];
-            sscanf(traz_str.c_str(), "%80f", &traz);
+            traz = MdtStringUtils::stof(tokens[ival++]);
             line["traz"] = traz;
-            std::string trat_str = tokens[ival++];
-            sscanf(trat_str.c_str(), "%80f", &trat);
+            trat = MdtStringUtils::stof(tokens[ival++]);
             line["trat"] = trat;
-            std::string rots_str = tokens[ival++];
-            sscanf(rots_str.c_str(), "%80f", &rots);
+            rots = MdtStringUtils::stof(tokens[ival++]);
             line["rots"] = rots;
-            std::string rotz_str = tokens[ival++];
-            sscanf(rotz_str.c_str(), "%80f", &rotz);
+            rotz = MdtStringUtils::stof(tokens[ival++]);
             line["rotz"] = rotz;
-            std::string rott_str = tokens[ival++];
-            sscanf(rott_str.c_str(), "%80f", &rott);
+            rott = MdtStringUtils::stof(tokens[ival++]);
             line["rott"] = rott;
         }
         if (line.empty()) continue;
-        json.push_back(line);
+        json.push_back(std::move(line));
     }
     return StatusCode::SUCCESS;
 }
@@ -957,34 +912,29 @@ StatusCode MuonAlignmentCondAlg::loadAlignAsBuilt(const std::string& folderName)
 
         ATH_MSG_DEBUG("Data load is " << data << " FINISHED HERE ");
 
-        // Check the first word to see if it is a correction
-        std::string type;
-
         // Parse corrections
-        std::string delimiter = "\n";
+        char delimiter = '\n';
 
-        std::vector<std::string> lines;
-        MuonCalib::MdtStringUtils::tokenize(data, lines, delimiter);
-        for (const std::string& blobline : lines) {
+        auto lines = MuonCalib::MdtStringUtils::tokenize(data, delimiter);
+        for (const std::string_view& blobline : lines) {
             ++nLines;
 
-            std::string delimiter = ":";
-            std::vector<std::string> tokens;
-            MuonCalib::MdtStringUtils::tokenize(blobline, tokens, delimiter);
+            char delimiter = ':';
+            auto tokens = MuonCalib::MdtStringUtils::tokenize(blobline, delimiter);
             // Check if tokens is not empty
             if (tokens.empty()) {
                 ATH_MSG_FATAL("Empty string retrieved from DB in folder " << folderName);
                 return StatusCode::FAILURE;
             }
-            type = tokens[0];
+            const std::string_view &type = tokens[0];
             // Parse line
-            if (type.find('#') == 0) {
+            if (type[0] == '#') {
                 // skip it
                 continue;
             }
 
-            if (type.find("Corr") == 0) {
-                if (!xPar.setFromAscii(blobline)) {
+            if (type.compare(0, 4, "Corr") == 0) {
+                if (!xPar.setFromAscii(std::string(blobline))) {
                     ATH_MSG_ERROR("Unable to parse AsBuilt params from Ascii line: " << blobline);
                     continue;
                 }

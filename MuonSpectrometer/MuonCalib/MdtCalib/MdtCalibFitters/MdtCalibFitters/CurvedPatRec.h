@@ -32,8 +32,11 @@
 
 namespace MuonCalib {
 
-    class ATLAS_NOT_THREAD_SAFE CurvedPatRec : public IMdtPatRecFitter {
+    class CurvedPatRec : public IMdtPatRecFitter {
     public:
+        using MdtHitVec = MuonCalibSegment::MdtHitVec;
+        using MdtHitPtr = MuonCalibSegment::MdtHitPtr;
+
         // Constructors //
         CurvedPatRec();
         ///< Default constructor: road width of 0.5 mm is used.
@@ -93,21 +96,21 @@ namespace MuonCalib {
         //
 
         // settings //
-        double m_road_width;  // road width to be used in pattern finding
-        double m_time_out;    // time out for pattern recognition.
+        double m_road_width{0.5};  // road width to be used in pattern finding
+        double m_time_out{10};     // time out for pattern recognition.
 
         // straight pattern recognition to get the approximate incidence angle //
 
         // auxiliary methods //
-        Amg::Vector3D getHitPoint(const MdtCalibHitBase* hit, const MTStraightLine& straight_track) const;
+        Amg::Vector3D getHitPoint(const MdtHitPtr& hit, const MTStraightLine& straight_track) const;
         // transform the given hit into a hit point in
         // 3 dimensions using the given straight line
         // as helper
-        std::vector<Amg::Vector3D> getHitPoints(std::vector<const MdtCalibHitBase*> track_hits, const MTStraightLine& straight_track) const;
+        std::vector<Amg::Vector3D> getHitPoints(const MdtHitVec& track_hits, const MTStraightLine& straight_track) const;
         // transform the track hits into hit points in
         // 3 dimensions using the given straight line
         // as helper
-        std::vector<Amg::Vector3D> getHitPoints(std::vector<const MdtCalibHitBase*> track_hits, const CurvedLine& curved_track) const;
+        std::vector<Amg::Vector3D> getHitPoints(const MdtHitVec& track_hits, const CurvedLine& curved_track) const;
         // transform the track hits into hit points in
         // 3 dimensions using the given curved line
         // as helper

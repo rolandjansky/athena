@@ -3,6 +3,10 @@
 # --- for athena online running ---
 if 'EventBlockSize' not in dir():
     EventBlockSize=0
+if 'doNoiseCorr' not in dir():
+    doNoiseCorr = True
+if 'doCNF' not in dir():
+    doCNF = True
 
 
 #Run is Online or Offline:
@@ -22,9 +26,10 @@ if 'coherent_noise_febs' in dir():
     defaultFEBs=coherent_noise_febs
     pass
 
-###### LArNoiseCorrelationMon Configuration ###############
-from LArMonTools.LArMonToolsConf import LArNoiseCorrelationMon
-theLArNoiseCorrelationMon = LArNoiseCorrelationMon(name="LArNoiseCorrelationMon",
+if doNoiseCorr:
+   ###### LArNoiseCorrelationMon Configuration ###############
+   from LArMonTools.LArMonToolsConf import LArNoiseCorrelationMon
+   theLArNoiseCorrelationMon = LArNoiseCorrelationMon(name="LArNoiseCorrelationMon",
                              LArDigitContainerKey  = LArMonFlags.LArDigitKey(),
                              IsOnline              = OnlineMode,
                              IgnoreBadChannels     = True,
@@ -38,20 +43,42 @@ theLArNoiseCorrelationMon = LArNoiseCorrelationMon(name="LArNoiseCorrelationMon"
 
 
 
-if 'coherent_noise_calibration_run' in dir():
-    if coherent_noise_calibration_run:
-        theLArNoiseCorrelationMon.IsCalibrationRun=True
-        theLArNoiseCorrelationMon.LArDigitContainerKey=Gain
-        theLArNoiseCorrelationMon.TriggerChain=""
-        theLArNoiseCorrelationMon.TrigDecisionTool=""
-        pass
-    pass                
+   if 'coherent_noise_calibration_run' in dir():
+       if coherent_noise_calibration_run:
+          theLArNoiseCorrelationMon.IsCalibrationRun=True
+          theLArNoiseCorrelationMon.LArDigitContainerKey=Gain
+          theLArNoiseCorrelationMon.TriggerChain=""
+          theLArNoiseCorrelationMon.TrigDecisionTool=""
+          pass
+       pass                
 
-if 'coherent_noise_PublishPartialSums' in dir():
-    theLArNoiseCorrelationMon.PublishPartialSums = coherent_noise_PublishPartialSums
-    pass
+   if 'coherent_noise_PublishPartialSums' in dir():
+       theLArNoiseCorrelationMon.PublishPartialSums = coherent_noise_PublishPartialSums
+       pass
 
-#ToolSvc += theLArNoiseCorrelationMon
-LArMon.AthenaMonTools+=[ theLArNoiseCorrelationMon ] 
+   LArMon.AthenaMonTools+=[ theLArNoiseCorrelationMon ] 
 
+if doCNF:
+   ###### LArCoherentNoisefractionMon Configuration ###############
+   from LArMonTools.LArMonToolsConf import LArCoherentNoisefractionMon
+   theLArCNFMon = LArCoherentNoisefractionMon(name="LArCoherentNoisefractionMon",
+                             LArDigitContainerKey  = LArMonFlags.LArDigitKey(),
+                             IsOnline              = OnlineMode,
+                             ProcessNEvents        = EventBlockSize,
+                             TriggerChain          = "HLT_noalg_zb_L1ZB, HLT_noalg_cosmiccalo_L1RD1_EMPTY",
+                             FEBsToMonitor         = defaultFEBs,
+                             IsCalibrationRun      = False,
+                             OutputLevel = WARNING
+                             )
+
+   if 'coherent_noise_calibration_run' in dir():
+       if coherent_noise_calibration_run:
+          theLArCNFMon.IsCalibrationRun=True
+          theLArCNFMon.LArDigitContainerKey=Gain
+          theLArCNFMon.TriggerChain=""
+          theLArCNFMon.TrigDecisionTool=""
+          pass
+       pass
+
+   LArMon.AthenaMonTools+=[ theLArCNFMon ]
 

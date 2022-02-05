@@ -24,7 +24,14 @@ TrigConf::DataStructure::DataStructure(const std::string & name, const ptree & d
 
 
 TrigConf::DataStructure::DataStructure(ptree && data) :
+   m_initialized(true),
    m_dataSPtr(std::make_shared<ptree>(move(data)))
+{}
+
+TrigConf::DataStructure::DataStructure(const std::string & name, ptree && data) :
+   m_initialized(true),
+   m_dataSPtr(std::make_shared<ptree>(move(data))),
+   m_name(name)
 {}
 
 
@@ -49,12 +56,12 @@ TrigConf::DataStructure::setData(ptree&& data)
    clear();
    m_initialized = true;
    m_dataSPtr = std::make_shared<ptree>(move(data));
-   m_dataPtr = &data;
+   m_dataPtr = nullptr;
    update();
 }
 
 void TrigConf::DataStructure::setName(const std::string& n) {
-  m_name = n;
+   m_name = n;
 }
 
 
@@ -86,6 +93,16 @@ TrigConf::DataStructure::hasAttribute(const std::string & key) const {
       return false;
    return child.get().empty(); // if empty then it is an attribute, otherwise a child note
 }
+
+bool
+TrigConf::DataStructure::isNull(const std::string & key) const {
+   auto child = data().get_child_optional( key );
+   if( ! child ) {
+      return false;
+   }
+   return child->get_value<std::string>() == "null";
+}
+
 
 std::string
 TrigConf::DataStructure::className() const {
@@ -201,10 +218,12 @@ TrigConf::DataStructure::getObject(const std::string & pathToChild, bool ignoreI
          throw std::runtime_error(className() + "#" + name() + ": structure '" + pathToChild + "' does not exist.");
       }
    }
-   // check if the pathToChild points to an object
-   if ( obj.get().empty() ) {
+   // check if the pathToChild is an attribute
+   if( obj.get().get_value<std::string>() != "" ) {
       throw std::runtime_error(className() + "#" + name() + ": structure '" + pathToChild + "' is not an object {} but a simple attribute, it needs to be accessed via [\"" + pathToChild + "\"] -> string");
-   } else if ( obj.get().front().first.empty() ) {
+   }
+   // check if the pathToChild points to a list
+   if ( obj.get().front().first.empty() ) {
       throw std::runtime_error(className() + "#" + name() + ": structure '" + pathToChild + "' is not an object {} but a list [], it needs to be accessed via getList(\"" + pathToChild + "\") -> vector<DataStructure>");
    }
    return { obj.get() };

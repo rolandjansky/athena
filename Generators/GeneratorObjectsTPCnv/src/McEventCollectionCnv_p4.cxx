@@ -107,15 +107,13 @@ void McEventCollectionCnv_p4::persToTrans( const McEventCollection_p4* persObj,
           genEvt        =  datapools.getGenEvent();
         }
 #ifdef HEPMC3
-      genEvt->add_attribute("signal_process_id",std::make_shared<HepMC3::IntAttribute>(persEvt.m_signalProcessId));
+      genEvt->add_attribute("signal_process_id", std::make_shared<HepMC3::IntAttribute>(persEvt.m_signalProcessId));
       genEvt->set_event_number(persEvt.m_eventNbr);
-      genEvt->add_attribute("event_scale",std::make_shared<HepMC3::DoubleAttribute>(persEvt.m_eventScale));
-      genEvt->add_attribute("alphaQCD",std::make_shared<HepMC3::DoubleAttribute>(persEvt.m_alphaQCD));
-      genEvt->add_attribute("alphaQED",std::make_shared<HepMC3::DoubleAttribute>(persEvt.m_alphaQED));
-
-      genEvt->add_attribute("signal_process_vertex",std::make_shared<HepMC3::IntAttribute>(0));
-      genEvt->weights()= persEvt.m_weights;
-      genEvt->add_attribute("random_states",std::make_shared<HepMC3::VectorLongIntAttribute>(persEvt.m_randomStates));
+      genEvt->add_attribute("event_scale", std::make_shared<HepMC3::DoubleAttribute>(persEvt.m_eventScale));
+      genEvt->add_attribute("alphaQCD", std::make_shared<HepMC3::DoubleAttribute>(persEvt.m_alphaQCD));
+      genEvt->add_attribute("alphaQED", std::make_shared<HepMC3::DoubleAttribute>(persEvt.m_alphaQED));
+      genEvt->weights() = persEvt.m_weights;
+      genEvt->add_attribute("random_states", std::make_shared<HepMC3::VectorLongIntAttribute>(persEvt.m_randomStates));
       //restore weight names from the dedicated svc (which was keeping them in metadata for efficiency)
       if(!genEvt->run_info()) genEvt->set_run_info(std::make_shared<HepMC3::GenRunInfo>());
       if(genEvt->run_info()) genEvt->run_info()->set_weight_names(name_index_map_to_names(m_hepMCWeightSvc->weightNames()));
@@ -144,13 +142,31 @@ void McEventCollectionCnv_p4::persToTrans( const McEventCollection_p4* persObj,
       // As not all particles are stable (d'oh!) we take 50% of the number of
       // particles as an initial size of the hash-map (to prevent re-hash)
       ParticlesMap_t partToEndVtx( (persEvt.m_particlesEnd-persEvt.m_particlesBegin)/2 );
+      // This is faster than the HepMC::barcode_to_vertex
+      std::map<int, HepMC::GenVertexPtr> brc_to_vertex;
       // create the vertices
       const unsigned int endVtx = persEvt.m_verticesEnd;
       for ( unsigned int iVtx= persEvt.m_verticesBegin; iVtx != endVtx; ++iVtx )
         {
-         createGenVertex( *persObj, persObj->m_genVertices[iVtx], partToEndVtx, datapools, genEvt );
+         auto vtx = createGenVertex( *persObj, persObj->m_genVertices[iVtx], partToEndVtx, datapools, genEvt );
+         brc_to_vertex[persObj->m_genVertices[iVtx].m_barcode] = vtx;
         } //> end loop over vertices
 
+        // set the signal process vertex
+        const int sigProcVtx = persEvt.m_signalProcessVtx;
+        if ( sigProcVtx != 0 && brc_to_vertex.count(sigProcVtx) ) {
+          HepMC::set_signal_process_vertex(genEvt, brc_to_vertex[sigProcVtx] );
+        }
+
+        // connect particles to their end vertices
+        for ( ParticlesMap_t::iterator p = partToEndVtx.begin(), endItr = partToEndVtx.end(); p != endItr; ++p ) {
+          if ( brc_to_vertex.count(p->second) ) {
+            auto decayVtx = brc_to_vertex[p->second];
+            decayVtx->add_particle_in( p->first );
+          } else {
+          msg << MSG::ERROR << "GenParticle points to null end vertex !!" << endmsg;
+          }
+         }
 #else
       genEvt->m_signal_process_id     = persEvt.m_signalProcessId;
       genEvt->m_event_number          = persEvt.m_eventNbr;
@@ -199,13 +215,14 @@ void McEventCollectionCnv_p4::persToTrans( const McEventCollection_p4* persObj,
                                                partToEndVtx,
                                                datapools ) );
         } //> end loop over vertices
-#endif
+
       // set the signal process vertex
       const int sigProcVtx = persEvt.m_signalProcessVtx;
       if ( sigProcVtx != 0 )
         {
           HepMC::set_signal_process_vertex(genEvt,HepMC::barcode_to_vertex(genEvt, sigProcVtx ) );
         }
+
 
       // connect particles to their end vertices
       for ( ParticlesMap_t::iterator
@@ -226,6 +243,7 @@ void McEventCollectionCnv_p4::persToTrans( const McEventCollection_p4* persObj,
                   << endmsg;
             }
         }
+#endif
     } //> end loop over m_genEvents
 
   msg << MSG::DEBUG << "Loaded McEventCollection from persistent state [OK]"
@@ -251,7 +269,7 @@ void McEventCollectionCnv_p4::transToPers( const McEventCollection* transObj,
         itr != itrEnd;
         ++itr )
     {
-#ifdef HEPMC3 
+#ifdef HEPMC3
       const unsigned int nPersVtx   = persObj->m_genVertices.size();
       const unsigned int nPersParts = persObj->m_genParticles.size();
       const HepMC::GenEvent* genEvt = *itr;
@@ -265,23 +283,23 @@ void McEventCollectionCnv_p4::transToPers( const McEventCollection* transObj,
           //m_hepMCWeightSvc->setWeightNames( names_to_name_index_map(names) );
         }
       }
-      auto A_signal_process_id=genEvt->attribute<HepMC3::IntAttribute>("signal_process_id");    
-      auto A_event_scale=genEvt->attribute<HepMC3::DoubleAttribute>("event_scale");    
-      auto A_alphaQCD=genEvt->attribute<HepMC3::DoubleAttribute>("alphaQCD");    
-      auto A_alphaQED=genEvt->attribute<HepMC3::DoubleAttribute>("alphaQED");    
-      auto A_signal_process_vertex=genEvt->attribute<HepMC3::IntAttribute>("signal_process_vertex");    
-      auto A_random_states=genEvt->attribute<HepMC3::VectorLongIntAttribute>("random_states");    
+      auto A_signal_process_id=genEvt->attribute<HepMC3::IntAttribute>("signal_process_id");
+      auto A_event_scale=genEvt->attribute<HepMC3::DoubleAttribute>("event_scale");
+      auto A_alphaQCD=genEvt->attribute<HepMC3::DoubleAttribute>("alphaQCD");
+      auto A_alphaQED=genEvt->attribute<HepMC3::DoubleAttribute>("alphaQED");
+      auto signal_process_vertex = HepMC::signal_process_vertex(genEvt);
+      auto A_random_states=genEvt->attribute<HepMC3::VectorLongIntAttribute>("random_states");
 
       persObj->m_genEvents.
       push_back( GenEvent_p4( A_signal_process_id?(A_signal_process_id->value()):0,
                                 genEvt->event_number(),
-                                A_event_scale?(A_event_scale->value()):0.0, 
-                                A_alphaQCD?(A_alphaQCD->value()):0.0, 
-                                A_alphaQED?(A_alphaQED->value()):0.0, 
-                                A_signal_process_vertex?(A_signal_process_vertex->value()):0, 
-                                genEvt->weights(), 
-                                std::vector<double>(),//No idea why it is empty 
-                                A_random_states?(A_random_states->value()):std::vector<long>(), 
+                                A_event_scale?(A_event_scale->value()):0.0,
+                                A_alphaQCD?(A_alphaQCD->value()):0.0,
+                                A_alphaQED?(A_alphaQED->value()):0.0,
+                                signal_process_vertex?HepMC::barcode(signal_process_vertex):0,
+                                genEvt->weights(),
+                                std::vector<double>(),//No idea why it is empty
+                                A_random_states?(A_random_states->value()):std::vector<long>(),
                                 nPersVtx,
                                 nPersVtx + genEvt->vertices().size(),
                                 nPersParts,
@@ -316,7 +334,7 @@ void McEventCollectionCnv_p4::transToPers( const McEventCollection* transObj,
         ? genEvt->m_signal_process_vertex->barcode()
         : 0;
       //save the weight names to metadata via the HepMCWeightSvc
-      m_hepMCWeightSvc->setWeightNames( genEvt->m_weights.m_names ).ignore(); 
+      m_hepMCWeightSvc->setWeightNames( genEvt->m_weights.m_names ).ignore();
       persObj->m_genEvents.
         push_back( GenEvent_p4( genEvt->m_signal_process_id,
                                 genEvt->m_event_number,
@@ -391,7 +409,7 @@ McEventCollectionCnv_p4::createGenVertex( const McEventCollection_p4& persEvt,
   const unsigned int nPartsIn = persVtx.m_particlesIn.size();
   for ( unsigned int i = 0; i != nPartsIn; ++i )
     {
-      createGenParticle( persEvt.m_genParticles[persVtx.m_particlesIn[i]], partToEndVtx, datapools );
+      createGenParticle( persEvt.m_genParticles[persVtx.m_particlesIn[i]], partToEndVtx, datapools, vtx, false );
     }
 
   // now handle the out-going particles
@@ -439,7 +457,7 @@ McEventCollectionCnv_p4::createGenVertex( const McEventCollection_p4& persEvt,
 HepMC::GenParticlePtr
 McEventCollectionCnv_p4::createGenParticle( const GenParticle_p4& persPart,
                                             ParticlesMap_t& partToEndVtx,
-                                            HepMC::DataPool& datapools, HepMC::GenVertexPtr parent ) const
+                                            HepMC::DataPool& datapools, HepMC::GenVertexPtr parent, bool add_to_output ) const
 {
   HepMC::GenParticlePtr p(0);
   if (m_isPileup)
@@ -450,13 +468,13 @@ McEventCollectionCnv_p4::createGenParticle( const GenParticle_p4& persPart,
     {
       p    = datapools.getGenParticle();
     }
-  if (parent) parent->add_particle_out(p);
+  if (parent) add_to_output?parent->add_particle_out(p):parent->add_particle_in(p);
 #ifdef HEPMC3
   p->set_pdg_id(              persPart.m_pdgId);
   p->set_status(              persPart.m_status);
   p->add_attribute("phi",std::make_shared<HepMC3::DoubleAttribute>(persPart.m_phiPolarization));
   p->add_attribute("theta",std::make_shared<HepMC3::DoubleAttribute>(persPart.m_thetaPolarization));
-  p->add_attribute("barcode",std::make_shared<HepMC3::IntAttribute>(persPart.m_barcode));  
+  p->add_attribute("barcode",std::make_shared<HepMC3::IntAttribute>(persPart.m_barcode));
 
   // Note: do the E calculation in extended (long double) precision.
   // That happens implicitly on x86 with optimization on; saying it
@@ -537,6 +555,7 @@ McEventCollectionCnv_p4::createGenParticle( const GenParticle_p4& persPart,
 
   // setup flow
   const unsigned int nFlow = persPart.m_flow.size();
+  p->m_flow.clear();
   for ( unsigned int iFlow= 0; iFlow != nFlow; ++iFlow )
     {
       p->m_flow.set_icode( persPart.m_flow[iFlow].first,
@@ -555,27 +574,27 @@ McEventCollectionCnv_p4::createGenParticle( const GenParticle_p4& persPart,
 #ifdef HEPMC3
 void McEventCollectionCnv_p4::writeGenVertex( HepMC::ConstGenVertexPtr vtx,
                                               McEventCollection_p4& persEvt ) const
-{                                              
+{
   const HepMC::FourVector& position = vtx->position();
-  auto A_weights=vtx->attribute<HepMC3::VectorDoubleAttribute>("weights"); 
-  auto A_barcode=vtx->attribute<HepMC3::IntAttribute>("barcode"); 
+  auto A_weights=vtx->attribute<HepMC3::VectorDoubleAttribute>("weights");
+  auto A_barcode=vtx->attribute<HepMC3::IntAttribute>("barcode");
   std::vector<double> weights=A_weights?(A_weights->value()):std::vector<double>();
   persEvt.m_genVertices.push_back(
                                   GenVertex_p4( position.x(),
                                                 position.y(),
                                                 position.z(),
                                                 position.t(),
-                                                vtx->id(),
+                                                vtx->status(),
                                                 weights.begin(),
                                                 weights.end(),
                                                 A_barcode?(A_barcode->value()):vtx->id()
                                                 ) );
   GenVertex_p4& persVtx = persEvt.m_genVertices.back();
-  // we write only the orphans in-coming particles
+  // we write only the orphans in-coming particles and beams
   persVtx.m_particlesIn.reserve(vtx->particles_in().size());
   for ( auto p: vtx->particles_in())
     {
-      if ( !p->production_vertex() )
+      if ( !p->production_vertex() || p->production_vertex()->id() == 0 )
         {
           persVtx.m_particlesIn.push_back( writeGenParticle(p, persEvt ));
         }
@@ -632,7 +651,7 @@ void McEventCollectionCnv_p4::writeGenVertex( const HepMC::GenVertex& vtx,
 #ifdef HEPMC3
 int McEventCollectionCnv_p4::writeGenParticle( HepMC::ConstGenParticlePtr p,
                                                McEventCollection_p4& persEvt ) const
-{                                               
+{
   const HepMC::FourVector& mom = p->momentum();
   const double ene = mom.e();
   const double m2  = mom.m2();
@@ -643,11 +662,11 @@ int McEventCollectionCnv_p4::writeGenParticle( HepMC::ConstGenParticlePtr p,
     !(std::abs(m2) < 2.0*DBL_EPSILON*ene*ene); // !isLightlike
 
     const short recoMethod = ( !useP2M2 ? 0: ( ene >= 0. ? 1 : 2 ) );
-    auto A_theta=p->attribute<HepMC3::DoubleAttribute>("theta"); 
-    auto A_phi=p->attribute<HepMC3::DoubleAttribute>("phi"); 
-    auto A_flows=p->attribute<HepMC3::VectorIntAttribute>("flows"); 
-    
-    
+    auto A_theta=p->attribute<HepMC3::DoubleAttribute>("theta");
+    auto A_phi=p->attribute<HepMC3::DoubleAttribute>("phi");
+    auto A_flows=p->attribute<HepMC3::VectorIntAttribute>("flows");
+
+
     persEvt.m_genParticles.push_back( GenParticle_p4( mom.px(),
                                mom.py(),
                                mom.pz(),
@@ -661,14 +680,14 @@ int McEventCollectionCnv_p4::writeGenParticle( HepMC::ConstGenParticlePtr p,
                                p->end_vertex()?(HepMC::barcode(p->end_vertex())):0,
                                HepMC::barcode(p),
                                recoMethod ) );
-  
+
   std::vector< std::pair<int,int> > flow_hepmc2;
   if(A_flows) flow_hepmc2=vector_to_vector_int_int(A_flows->value());
   persEvt.m_genParticles.back().m_flow.assign( flow_hepmc2.begin(),flow_hepmc2.end() );
   // we return the index of the particle in the big vector of particles
   // (contained by the persistent GenEvent)
   return (persEvt.m_genParticles.size() - 1);
-}                                               
+}
 #else
 int McEventCollectionCnv_p4::writeGenParticle( const HepMC::GenParticle& p,
                                                McEventCollection_p4& persEvt ) const

@@ -5,6 +5,8 @@
 # author: giovanni.marchiori@cern.ch
 #********************************************************************
 
+from DerivationFrameworkJetEtMiss.JetCommon import addDAODJets
+from JetRecConfig.StandardSmallRJets import AntiKt4Truth,AntiKt4PV0Track
 from DerivationFrameworkCore.DerivationFrameworkMaster import buildFileName
 from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob
 from DerivationFrameworkPhys import PhysCommon
@@ -20,7 +22,6 @@ jobproperties.egammaDFFlags.print_JobProperties("full")
 
 # additional settings for this derivation
 thinCells = True
-
 
 #====================================================================
 # check if we run on data or MC (DataSource = geant4)
@@ -354,20 +355,7 @@ EGAM7Sequence += CfgMgr.DerivationFramework__DerivationKernel("EGAM7Kernel",
 #====================================================================
 # JET/MET
 #====================================================================
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addAntiKt4TruthJets
-addAntiKt4TruthJets(EGAM7Sequence,"EGAM7")
-
-
-#========================================
-# ENERGY DENSITY
-#========================================
-if (DerivationFrameworkIsMonteCarlo):
-    # Schedule the two energy density tools for running after the pseudojets are created.
-    for alg in ['EDTruthCentralAlg', 'EDTruthForwardAlg']:
-        if hasattr(topSequence, alg):
-            edtalg = getattr(topSequence, alg)
-            delattr(topSequence, alg)
-            EGAM7Sequence += edtalg
+addDAODJets([AntiKt4Truth,AntiKt4PV0Track], EGAM7Sequence)
 
 
 #====================================================================

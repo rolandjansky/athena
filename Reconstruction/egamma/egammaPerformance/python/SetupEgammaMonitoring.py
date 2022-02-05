@@ -2,12 +2,14 @@
 #  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
-'''@file SetupEgammaMonitoring.py
+'''
+@file SetupEgammaMonitoring.py
 @author B. Laforge
 4 May 2020
 @brief Example python configuration for the Run III AthenaMonitoring package
 '''
 from AthenaConfiguration.ComponentFactory import CompFactory
+import TrigEgammaMonitoring.TrigEgammaMonitCategory as egammaConf
 
 def BookHistogramsPerRegions(thegroupe,theparttype,thename,title,path,xbins,xmin,xmax,thetype="TH1F",thecut="is_pt_gt_4gev"):
     '''
@@ -78,7 +80,7 @@ def BookHistograms(groupe,reconame,particletype,withTrigger=""):
 
         hname= "Eta"
         htitle= particletype + " #eta" + " (" + reconame + " " + withTrigger + ")"+ " ; #eta" + tlabel + " ; N" + tlabel
-        groupe.defineHistogram(hname,title=htitle, path='',xbins=64,xmin=-3.2,xmax=3.2)
+        groupe.defineHistogram(hname,title=htitle, path='',type = "TH1D", xbins=64,xmin=-3.2,xmax=3.2)
 
         if particletype in ["Photon"] :
             hname= "EtaConv"
@@ -368,15 +370,15 @@ def BookTnPHistograms(groupe,reconame,TnPType,MassLowerCut,MassUpperCut):
     # Probe electron candidate distributions
 
     hname = "Etprobe;Etprobe_distribution"
-    htitle = "Number of "+ TnPType +" candidates vs of leading e ; Et_{probe} ; N_{e_ {probe}}"
+    htitle = "Number of "+ TnPType +" candidates vs of leading e ; Et_{probe} ; N_{e_{probe}}"
     groupe.defineHistogram(hname,title=htitle, path='ElectronProbes',xbins=100,xmin=-1000.0,xmax=200000.0)
 
     hname = "Etaprobe;Etaprobe_distribution"
-    htitle = "#eta distribution of probe candidates ; #eta_{e_{probe}} ; N_{e_ {probe}}"
+    htitle = "#eta distribution of probe candidates ; #eta_{e_{probe}} ; N_{e_{probe}}"
     groupe.defineHistogram(hname,title=htitle,path='ElectronProbes', xbins=64,xmin=-3.2,xmax=3.2)
 
     hname = "Phiprobe;Phiprobe_distribution"
-    htitle = "#phi distribution of probe candidates ; #phi_{e_{probe}} ; N_{e_ {probe}}"
+    htitle = "#phi distribution of probe candidates ; #phi_{e_{probe}} ; N_{e_{probe}}"
     groupe.defineHistogram(hname,title=htitle,path='ElectronProbes', xbins=64,xmin=-3.2,xmax=3.2)
 
     hname = "Etaprobe,Phiprobe;Eta_Phi_map_of_electron_probes_for_T_and_P_"+ TnPType
@@ -601,8 +603,6 @@ def MonitorElectronConfig(inputFlags):
     ### STEP 3 ###
     # Edit properties of algorithms
 
-    import TrigEgammaMonitoring.TrigEgammaMonitCategory as egammaConf
-
     elLHTightMonAlg.ParticleContainerName = "Electrons"
     elLHTightMonAlg.RecoName = "LHTight"
     elLHTightMonAlg.ParticlePrefix = "electron"
@@ -705,8 +705,6 @@ def MonitorPhotonConfig(inputFlags):
     ### STEP 3 ###
     # Edit properties of algorithms
 
-    import TrigEgammaMonitoring.TrigEgammaMonitCategory as egammaConf
-
     phCBTightMonAlg.ParticleContainerName = "Photons"
     phCBTightMonAlg.RecoName = "Tight"
     phCBTightMonAlg.ParticlePrefix = "photon"
@@ -770,8 +768,6 @@ def MonitorTnPConfig(inputFlags):
     ### STEP 3 ###
     # Edit properties of algorithms
 
-    import TrigEgammaMonitoring.TrigEgammaMonitCategory as egammaConf
-
     ZeeMonAlg.ParticleContainerName = "Electrons"
     ZeeMonAlg.RecoName = "LHLoose"
     ZeeMonAlg.ParticlePrefix = "electron"
@@ -780,17 +776,33 @@ def MonitorTnPConfig(inputFlags):
     ZeeMonAlg.MassLowerCut = 70000.
     ZeeMonAlg.MassUpperCut = 110000.
     ZeeMonAlg.TnPType = "Z"
-    ZeeMonAlg.TriggerChain = egammaConf.monitoring_Zee[0]
+
+    # get trigger chain from egammaConf.monitoring_Zee
+    chain=""
+    for el in egammaConf.monitoring_Zee:
+        if chain != "":
+            chain = chain + ", " + el
+        else :
+            chain = el
+    #ZeeMonAlg.TriggerChain = chain
 
     JPsiMonAlg.ParticleContainerName = "Electrons"
     JPsiMonAlg.RecoName = "LHLoose"
     JPsiMonAlg.ParticlePrefix = "electron"
     JPsiMonAlg.MassPeak = 3097.
     JPsiMonAlg.ElectronEtCut = 3000.
-    JPsiMonAlg.MassLowerCut = 2500.
-    JPsiMonAlg.MassUpperCut = 3500.
+    JPsiMonAlg.MassLowerCut = 2000.
+    JPsiMonAlg.MassUpperCut = 5000.
     JPsiMonAlg.TnPType = "JPsi"
-    JPsiMonAlg.TriggerChain =egammaConf.monitoring_Jpsiee[0]
+
+    # get trigger chain from egammaConf.monitoring_Jpsiee
+    chain =""
+    for el in egammaConf.monitoring_Jpsiee:
+        if chain != "":
+            chain = chain + ", " + el
+        else :
+            chain = el
+    JPsiMonAlg.TriggerChain = chain
 
     ### STEP 4 ###
 
@@ -835,8 +847,6 @@ def MonitorForwardElectronConfig(inputFlags):
 
     ### STEP 3 ###
     # Edit properties of algorithms
-
-    import TrigEgammaMonitoring.TrigEgammaMonitCategory as egammaConf
 
     # fwdelLHTightMonAlg.ParticleContainerName = "ForwardElectrons"
     # fwdelLHTightMonAlg.RecoName = "LHTight"
@@ -931,16 +941,16 @@ if __name__=='__main__':
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import INFO
     log.setLevel(INFO)
-
+    
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     nightly = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/'
     file = 'data16_13TeV.00311321.physics_Main.recon.AOD.r9264/AOD.11038520._000001.pool.root.1'
 
     ConfigFlags.Input.Files = [nightly+file]
-#    ConfigFlags.Input.Files = 'AOD.11038520._000001.pool.root.1'
+    # ConfigFlags.Input.Files = ['AOD.11038520._000001.pool.root.1']
     ConfigFlags.Input.isMC = False
-#    ConfigFlags.Output.HISTFileName = 'MonitorEgammaOutput.root'
+    # ConfigFlags.Output.HISTFileName = 'MonitorEgammaOutput.root'
 
 # To produce WebDisplay, filename must follow a certain format
     ConfigFlags.Output.HISTFileName = 'data16_13TeV.00311321.physics_Main.merge.HIST.f1156_h347._0002.1.root'
@@ -970,6 +980,7 @@ if __name__=='__main__':
     #MonitorElectronAcc.getEventAlgo('elLHLooseMonAlg').OutputLevel = 2 # 2 = DEBUG
     #MonitorPhotonAcc.getEventAlgo('phCBLooseMonAlg').OutputLevel = 2 # 2 = DEBUG
     #MonitorTnPAcc.getEventAlgo('TnPZeeMonAlg').OutputLevel = 2 # 2 = DEBUG
+    #MonitorTnPAcc.getEventAlgo('TnPJpsiMonAlg').OutputLevel = 2 # 2 = DEBUG
     #MonitorFwdElectronAcc.getEventAlgo('fwdelCBTightMonAlg').OutputLevel = 2 # 2 = DEBUG
 
     MonitorFwdElectronAcc = MonitorForwardElectronConfig(ConfigFlags)

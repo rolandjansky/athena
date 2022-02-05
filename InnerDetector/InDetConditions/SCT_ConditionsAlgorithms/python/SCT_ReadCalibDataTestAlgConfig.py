@@ -1,6 +1,6 @@
 """Define method to configure and test SCT_ReadCalibDataTestAlg
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -8,9 +8,9 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 def SCT_ReadCalibDataTestAlgCfg(flags, name="SCT_ReadCalibDataTestAlg", **kwargs):
     """Return a configured SCT_ReadCalibDataTestAlg"""
     acc = ComponentAccumulator()
-    from InDetConfig.InDetRecToolConfig import SCT_ReadCalibDataToolCfg
+    from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_ReadCalibDataToolCfg
     kwargs.setdefault("SCT_ReadCalibDataTool", acc.popToolsAndMerge(SCT_ReadCalibDataToolCfg(flags)))
-    acc.addEventAlgo(CompFactory.SCT_ReadCalibDataTestAlg(**kwargs))
+    acc.addEventAlgo(CompFactory.SCT_ReadCalibDataTestAlg(name, **kwargs))
     return acc
 
 if __name__=="__main__":
@@ -22,6 +22,7 @@ if __name__=="__main__":
     Configurable.configurableRun3Behavior=1
     
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    ConfigFlags.Input.Files = []
     ConfigFlags.Input.isMC = True
     ConfigFlags.Input.ProjectName = "mc16_13TeV"
     ConfigFlags.Input.RunNumber = 300000 # MC16c 2017 run number

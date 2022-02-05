@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
+from AthenaConfiguration.AutoConfigFlags import GetFileMD
 
 #todo? add in the explanatory text from previous implementation
 
@@ -52,17 +53,22 @@ def createSimConfigFlags():
             raise ValueError("Unknown G4 version")
         return version
 
-    scf.addFlag("Sim.G4Version", _check_G4_version)
+    scf.addFlag("Sim.G4Version", lambda prevFlags : _check_G4_version(prevFlags))
+
     scf.addFlag("Sim.PhysicsList", "FTFP_BERT_ATL")
     scf.addFlag("Sim.NeutronTimeCut", 150.) # Sets the value for the neutron out of time cut in G4
     scf.addFlag("Sim.NeutronEnergyCut", -1.) # Sets the value for the neutron energy cut in G4
     scf.addFlag("Sim.ApplyEMCuts", False) # Turns on the G4 option to apply cuts for EM physics
+    scf.addFlag("Sim.MuonFieldOnlyInCalo", False) # Only muons see the B-field in the calo
 
     #For G4AtlasToolsConfig
     scf.addFlag("Sim.RecordStepInfo",False)
     scf.addFlag("Sim.StoppedParticleFile", '')
     scf.addFlag("Sim.BeamPipeSimMode", "Normal")  ## ["Normal", "FastSim", "EGammaRangeCuts", "EGammaPRangeCuts"]
     scf.addFlag("Sim.LArParameterization", 0)  ## 0 = No frozen showers, 1 = Frozen Showers, 2 = DeadMaterial Frozen Showers
+    # TRT Range cut used in simulation in mm. Should be 0.05 or 30.
+    scf.addFlag("Sim.TRTRangeCut",
+                  lambda prevFlags: float(GetFileMD(prevFlags.Input.Files).get('TRTRangeCut', 30.0)))
 
     #For BeameffectsAlg
     scf.addFlag("Sim.Vertex.Source", "CondDB" ) #"CondDB", "VertexOverrideEventFile.txt", "VertexOverride.txt","LongBeamspot"
@@ -73,6 +79,7 @@ def createSimConfigFlags():
     scf.addFlag("Sim.NRRWeight", False)
     scf.addFlag("Sim.PRRThreshold", False)
     scf.addFlag("Sim.PRRWeight", False)
+    scf.addFlag("Sim.OptionalUserActionList", [])
 
     # For G4FieldConfigNew
     scf.addFlag("Sim.G4Stepper", "AtlasRK4")
@@ -94,33 +101,37 @@ def createSimConfigFlags():
     scf.addFlag("Sim.ISF.DoTimeMonitoring", True) # bool: run time monitoring
     scf.addFlag("Sim.ISF.DoMemoryMonitoring", True) # bool: run time monitoring
     scf.addFlag("Sim.ISF.ValidationMode", False) # bool: run ISF internal validation checks
-    
+    scf.addFlag("Sim.ISF.ReSimulation", False) # Using ReSimulation workflow
+    scf.addFlag("Sim.ISF.UseTrackingGeometryCond", False) # Using Condition for tracking Geometry
+
     def decideHITSMerging(prevFlags):
         simstr = prevFlags.Sim.ISF.Simulator
-        if simstr.endswith("MT"):
-            simstr = simstr[:-2]
         # Further specialization possible in future
-        if simstr in ("FullG4", "PassBackG4"):
+        if simstr in ("FullG4MT", "FullG4MT_QS", "PassBackG4MT"):
             doID = False
+            doITk = False
             doCALO = False
             doMUON = False
-        elif simstr in ("ATLFASTIIF_G4MS"):
+        elif simstr in ("ATLFASTIIF_G4MS", "ATLFASTIIFMT", "ATLFAST3F_G4MS"):
             doID = True
+            doITk = True
             doCALO = True
             doMUON = True
-        elif simstr in ("ATLFASTII", "G4FastCalo", "ATLFAST3MT", "ATLFAST3MT_QS"):
+        elif simstr in ("ATLFASTIIMT", "ATLFAST3MT", "ATLFAST3MT_QS"):
             doID = False
+            doITk = False
             doCALO = True
             doMUON = False
         else:
             doID = True
+            doITk = True
             doCALO = True
             doMUON = True
-        return {"ID": doID, "CALO": doCALO, "MUON": doMUON}
+        return {"ID": doID, "CALO": doCALO, "MUON": doMUON, "ITk": doITk}
 
     scf.addFlag("Sim.ISF.HITSMergingRequired", decideHITSMerging)
 
-    scf.addFlag("Sim.FastCalo.ParamsInputFilename", "FastCaloSim/MC16/TFCSparam_v011.root") # filename of the input parametrizations file
+    scf.addFlag("Sim.FastCalo.ParamsInputFilename", "FastCaloSim/MC16/TFCSparam_run2_reprocessing.root") # filename of the input parametrizations file
     scf.addFlag("Sim.FastCalo.CaloCellsName", "AllCalo") # StoreGate collection name for FastCaloSim hits
     
     scf.addFlag("Sim.FastShower.InputCollection", "TruthEvent") # StoreGate collection name of modified TruthEvent for legayc FastCaloSim use
@@ -148,3 +159,23 @@ def createSimConfigFlags():
     scf.addFlag("Sim.TightMuonStepping", False)
 
     return scf
+
+
+def simulationRunArgsToFlags(runArgs, flags):
+    """Fill simulation configuration flags from run arguments."""
+    if hasattr(runArgs, "DataRunNumber"):
+        flags.Input.RunNumber = [runArgs.DataRunNumber]
+        flags.Input.OverrideRunNumber = True
+        flags.Input.LumiBlockNumber = [1] # dummy value
+
+    if hasattr(runArgs, "physicsList"):
+        flags.Sim.PhysicsList = runArgs.physicsList
+
+    if hasattr(runArgs, "truthStrategy"):
+        flags.Sim.TruthStrategy = runArgs.truthStrategy
+
+    # Not used as deprecated
+    # '--enableLooperKiller'
+    # '--perfmon'
+    # '--randomSeed'
+    # '--useISF'

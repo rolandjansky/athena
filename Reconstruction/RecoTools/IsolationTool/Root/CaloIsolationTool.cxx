@@ -878,6 +878,9 @@ for( auto isoType : isoTypes ){
       return false;
     }
 
+    SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+    const CaloDetDescrManager* caloDDMgr = *caloMgrHandle;
+
     std::vector<float> coneSizes;        coneSizes.resize(3);
     std::vector<float> coneSizesSquared; coneSizesSquared.resize(3);
     for (unsigned int i = 0; i < isoTypes.size(); i++) {
@@ -894,13 +897,13 @@ for( auto isoType : isoTypes ){
     for (unsigned int n=0; n < m_EMCaloNums.size(); ++n) {
       Vec_EMCaloEnums.push_back(static_cast<CaloCell_ID::SUBCALO>( m_EMCaloNums[n] ));
     }
-    CaloCellList EMccl(container, Vec_EMCaloEnums);
+    CaloCellList EMccl(caloDDMgr,container, Vec_EMCaloEnums);
 
     std::vector<CaloCell_ID::SUBCALO> Vec_HadCaloEnums;
     for (unsigned int n=0; n < m_HadCaloNums.size(); ++n) {
       Vec_HadCaloEnums.push_back(static_cast<CaloCell_ID::SUBCALO>( m_HadCaloNums[n] ));
     }
-    CaloCellList HADccl(container, Vec_HadCaloEnums);
+    CaloCellList HADccl(caloDDMgr,container, Vec_HadCaloEnums);
 
     // Let's determine some values based on the input specs
     // Search for largest radius

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # -------------------------------------
 # Common data and MC overlay skeleton
@@ -65,10 +65,13 @@ else:
 # Common athena flags
 if hasattr(overlayArgs, 'skipEvents'):
     athenaCommonFlags.SkipEvents.set_Value_and_Lock(overlayArgs.skipEvents)
+if hasattr(overlayArgs, 'skipSecondaryEvents'):
+    overlayFlags.SkipSecondaryEvents.set_Value_and_Lock(overlayArgs.skipSecondaryEvents)
 if hasattr(overlayArgs, 'maxEvents'):
     athenaCommonFlags.EvtMax.set_Value_and_Lock(overlayArgs.maxEvents)
 
 if hasattr(overlayArgs, 'inputHITSFile'):
+    if not overlayFlags.isDataOverlay(): athenaCommonFlags.FilesInput.set_Value_and_Lock(overlayArgs.inputHITSFile)
     athenaCommonFlags.PoolHitsInput.set_Value_and_Lock(overlayArgs.inputHITSFile)
 else:
     raise RuntimeError('No input HITS file defined')
@@ -186,24 +189,9 @@ if hasattr(overlayArgs, 'conditionsTag') and overlayArgs.conditionsTag not in ['
     if len(globalflags.ConditionsTag()) != 0:
         conddb.setGlobalTag(globalflags.ConditionsTag())
 
-
-# LVL1 Trigger Menu
-if hasattr(overlayArgs, 'triggerConfig') and overlayArgs.triggerConfig != 'NONE':
-    # LVL1 Trigger Menu
-    # PJB 9/2/2009 Setup the new triggerConfig flags here
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-    triggerArg = overlayArgs.triggerConfig
-    # if not prefixed with LVL1: add it here
-    Args = triggerArg.split(':')
-    if Args[0] != 'LVL1':
-        TriggerFlags.triggerConfig = 'LVL1:'+triggerArg
-    else:
-        TriggerFlags.triggerConfig = triggerArg
-    logOverlay.info('triggerConfig argument is: %s ',
-                    TriggerFlags.triggerConfig.get_Value())
-    from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
-    cfg = TriggerConfigGetter('HIT2RDO')
-
+# convert flags to ConfigFlags
+from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
+ConfigFlags = getNewConfigFlags()
 
 # -------------------------
 # Configuration
@@ -290,10 +278,9 @@ if not overlayFlags.isDataOverlay():
     ServiceMgr.TagInfoMgr.ExtraTagValuePairs.update(
         overlayFlags.extraTagInfoPairs.get_Value())
 
-if hasattr(overlayArgs, 'AMITag'):
-    if overlayArgs.AMITag != 'NONE':
-        ServiceMgr.TagInfoMgr.ExtraTagValuePairs.update(
-            {'AMITag': overlayArgs.AMITag})
+# Set AMITag in /TagInfo
+from PyUtils import AMITagHelper
+AMITagHelper.SetAMITag(runArgs=overlayArgs)
 
 # ================================================================
 logOverlay.info('\nOverlay: OutputStream = \n' + str(outStream))  # noqa F821

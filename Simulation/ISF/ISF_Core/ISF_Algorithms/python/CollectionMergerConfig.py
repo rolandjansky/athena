@@ -78,7 +78,10 @@ def CollectionMergerCfg(ConfigFlags,
 
         from ISF_Algorithms.CollectionMergerConfig import ISFCollectionMergerCfg
         algo = ISFCollectionMergerCfg(ConfigFlags)
-        result.addEventAlgo(algo)
+        if ConfigFlags.Sim.ISF.ReSimulation:
+            result.addEventAlgo(algo,'SimSequence') # TODO ideally this would be configurable
+        else:
+            result.addEventAlgo(algo)
 
         input_attribute_name = f'Input{merger_input_property}'
         merger_input_collections = getattr(algo, input_attribute_name)

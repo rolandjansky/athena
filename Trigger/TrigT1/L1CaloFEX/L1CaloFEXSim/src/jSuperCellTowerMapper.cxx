@@ -13,6 +13,7 @@
 #include "TROOT.h"
 #include "TH1.h"
 #include "TH1F.h"
+#include "TH1I.h"
 #include "TPad.h"
 #include "TCanvas.h"
 #include "L1CaloFEXSim/jSuperCellTowerMapper.h"
@@ -89,7 +90,7 @@ StatusCode jSuperCellTowerMapper::AssignTriggerTowerMapper(std::unique_ptr<jTowe
                     ATH_MSG_WARNING("\n==== jSuperCellTowerMapper ============ Hadronic layer energy filled more than once - it will be ignored. (Needs investigation).  Please report this!");
                 }
                 
-                targetTower->setET(1, int(eachTower->jepET()) * 1000.); // cf 1000.0
+                targetTower->set_TileCal_Et(1, int(eachTower->jepET()) * 1000.); // cf 1000.0
             } else {
                 ATH_MSG_WARNING("\n==== jSuperCellTowerMapper ============ Tower ID is officially unknown - it will be ignored. (Needs investigation).  Please report this!");
             }
@@ -127,7 +128,7 @@ void jSuperCellTowerMapper::reset(){
         int pos_neg = idHelper->pos_neg(ID); // corresponds to 'barrel_ec' for LArEM
         int eta_index = idHelper->eta(ID);
         const int phi_index = idHelper->phi(ID);
-        float et = (cell)->energy();
+        float et = (cell)->energy()/cosh((cell)->eta());
         int prov = (cell)->provenance();
 
         /*
@@ -277,8 +278,13 @@ void jSuperCellTowerMapper::reset(){
         case CaloSampling::HEC1:
         case CaloSampling::HEC2:
         case CaloSampling::HEC3: {
+	  if(region == 0){
             eta_index += 15;
-            break;
+	  }
+	  else if (region == 1){ // to push these supercells to 2.5 and above
+	    eta_index += 25;
+	  }
+	  break;
         }
         default: {
             /*ATH_MSG_DEBUG("Not doing anything since sample = " << sample);*/ break;
@@ -289,17 +295,23 @@ void jSuperCellTowerMapper::reset(){
         FindAndConnectTower(my_jTowerContainerRaw,sample,region,layer,pos_neg,eta_index,phi_index,ID,et,prov,doPrint, eta_min, eta_max, eta0, phi_min, phi_max, phi0);
 
     }
+    
+    //multi linear digitisation encoding after filling all TT with the corresponding SC
+    for(auto tmpTower : *my_jTowerContainerRaw){
+        tmpTower->Do_LAr_encoding();
+    }
 
+     
     return StatusCode::SUCCESS;
 
 }
 
 
-void jSuperCellTowerMapper::ConnectSuperCellToTower(std::unique_ptr<jTowerContainer> & my_jTowerContainerRaw,int iJTower, Identifier ID, int iCell, float et, int layer, bool doenergysplit){
+void jSuperCellTowerMapper::ConnectSuperCellToTower(std::unique_ptr<jTowerContainer> & my_jTowerContainerRaw,int iJTower, Identifier ID, int iCell, float et, int layer){
 
   LVL1::jTower * tmpTower = my_jTowerContainerRaw->findTower(iJTower);
   if(tmpTower){
-    tmpTower->setSCID(ID,iCell,et,layer,doenergysplit);
+    tmpTower->set_LAr_Et(ID,iCell,et,layer);
   }
 
 }
@@ -1078,7 +1090,7 @@ int jSuperCellTowerMapper::FindAndConnectTower(std::unique_ptr<jTowerContainer> 
         if(doPrint) {
             PrintCellSpec(sample, layer, region, eta_index, phi_index, pos_neg, iJTower, iCell, prov, ID, doenergysplit, eta_min, eta_max, eta0, phi_min, phi_max, phi0);
         }
-        ConnectSuperCellToTower( my_jTowerContainerRaw, iJTower, ID, iCell, et, layer, doenergysplit);
+        ConnectSuperCellToTower( my_jTowerContainerRaw, iJTower, ID, iCell, et, layer);
 
 
     }
@@ -1091,6 +1103,10 @@ int jSuperCellTowerMapper::FindAndConnectTower(std::unique_ptr<jTowerContainer> 
     return 1;
 
 }
+
+
+
+
 
 int jSuperCellTowerMapper::FindTowerIDForSuperCell(int towereta, int towerphi)
 {
@@ -1171,6 +1187,47 @@ int jSuperCellTowerMapper::FindTowerIDForSuperCell(int towereta, int towerphi)
 
   return;
 }
+
+
+StatusCode jSuperCellTowerMapper::AssignPileupAndNoiseValues(std::unique_ptr<jTowerContainer> & my_jTowerContainerRaw,TH1F *jTowerArea_hist, TH1I *Firmware2BitwiseID,TH1I *BinLayer,TH1F *EtaCoords,TH1F *PhiCoords){
+    
+    // Including the jTowerArea for Pileup subtraction
+
+    for(int i=1; i<jTowerArea_hist->GetNbinsX()+1; i++) {
+        float TTowerArea = jTowerArea_hist->GetBinContent(i);
+        int TTid = Firmware2BitwiseID->GetBinContent(i);
+        int layer = BinLayer->GetBinContent(i);
+        float eta = EtaCoords->GetBinContent(i);
+        float phi = PhiCoords->GetBinContent(i);
+        int noise = TTowerArea*100; // the noise cut depends on the TT Area weight, allows to increase the threshold for bigger TT
+        //int noise = 3000; // This noise cut value was used in Run2, keep to remember for now, will be changed when COOL database is built
+        
+        if(TTid == 0) continue; //avoid repeated TTID in jTowerArea_hist, which are set to 0 in Firmware2BitwiseID
+
+        LVL1::jTower * targetTower = my_jTowerContainerRaw->findTower(TTid);
+        int CalorimeterLayer = 1; // it is = 1 for Hadronic calorimeters Tile=1, FCAL1=3 and FCAL2=4
+        
+        if(layer == 0 || layer==2){
+            CalorimeterLayer = 0;  // it is = 0 for EM calorimeters LAr=0 and FCAL0=2
+        }
+        targetTower->setTTowerArea(TTowerArea,CalorimeterLayer);
+
+        targetTower->setNoiseForMet(noise,CalorimeterLayer);
+        targetTower->setNoiseForJet(noise,CalorimeterLayer);
+        
+        
+        //This step is to correct the FCAL coordinates since there is non-homogeneous granularity
+        if(layer>1){
+            targetTower->setCentreEta(eta);
+            targetTower->setCentrePhi(phi);
+        }
+        
+    }
+    return StatusCode::SUCCESS;    
+    
+    
+}
+
 
 
 } // end of LVL1 namespace

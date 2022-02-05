@@ -57,7 +57,7 @@ def main():
     parser.add_argument(
         "-m",
         "--mode",
-        default="lite",
+        default="full",
         metavar="MODE",
         type=str,
         choices=["tiny", "lite", "full", "peeker"],

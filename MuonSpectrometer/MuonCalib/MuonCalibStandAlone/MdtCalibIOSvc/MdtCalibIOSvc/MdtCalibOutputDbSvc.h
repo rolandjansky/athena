@@ -30,7 +30,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "MdtCalibIOSvc/MdtCalibInputSvc.h"
 #include "MdtCalibUtils/RtDataFromFile.h"
-#include "MuonCalibStandAloneBase/CalibrationIOTool.h"
+#include "MuonCalibStandAloneBase/ICalibrationIOTool.h"
 #include "MuonCalibStandAloneBase/NtupleStationId.h"
 #include "MuonCalibStandAloneBase/RegionSelectionSvc.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
@@ -43,28 +43,28 @@ namespace MuonCalib {
     class MdtTubeFitContainer;
 }  // namespace MuonCalib
 
-// interface to enable retrieving of a pointer to the singleton //
-const InterfaceID IID_IMdtCalibOutputDbSvc("MdtCalibOutputDbSvc", 1, 0);
-
 class MdtCalibOutputDbSvc : public AthService {
 public:
     // Constructor //
     MdtCalibOutputDbSvc(const std::string &name, ISvcLocator *svc_locator);
     ///< Constructor
 
-    virtual ~MdtCalibOutputDbSvc(void){};
+    virtual ~MdtCalibOutputDbSvc() = default;
     ///< Virtual destructor
 
     // Methods //
     /// Methods required as defined in the base class "Service"
     /** interface */
-    static const InterfaceID &interfaceID() { return IID_IMdtCalibOutputDbSvc; }
+    static const InterfaceID &interfaceID() {
+        static const InterfaceID IID_IMdtCalibOutputDbSvc("MdtCalibOutputDbSvc", 1, 0);
+        return IID_IMdtCalibOutputDbSvc;
+    }
     virtual StatusCode queryInterface(const InterfaceID &riid, void **ppvUnknown);
     ///< method required by the base class which is need to obtain a pointer to the service in the standard way
-    virtual StatusCode initialize(void);
+    virtual StatusCode initialize();
     ///< initialize method as required by the base class
 
-    virtual StatusCode finalize(void);
+    virtual StatusCode finalize();
     ///< finalize method as required by the base class;
     ///< the finalize method calls the method "save_calibration_results"
     void AddRunNumber(int run_number);
@@ -86,7 +86,7 @@ public:
     ///< "saved_calibration_results"; method return true in case of success,
     ///< false otherwise; the user can pass a pointer to a resolution
     ///< function which should be associated with the calibration output
-    void reset(void);
+    void reset();
     ///< reset, clear memory of results
 
 private:
@@ -105,7 +105,7 @@ private:
     // use default resolution even if a resolution was loaded by the input service
     bool m_force_default_resolution;
     // calibration io tool to be used
-    ToolHandle<MuonCalib::CalibrationIOTool> m_calib_output_tool{this, "OutputTool", "MuonCalib::CalibrationFileIOTool"};
+    ToolHandle<MuonCalib::ICalibrationIOTool> m_calib_output_tool{this, "OutputTool", "MuonCalib::CalibrationFileIOTool"};
     // iov range in run numbers//
     int m_iov_start, m_iov_end;
 
@@ -128,6 +128,6 @@ private:
 
     // postprocess t0
     MuonCalib::MdtTubeFitContainer *postprocess_t0s(MuonCalib::MdtTubeFitContainer *new_t0, const MuonCalib::NtupleStationId &id);
-    inline void create_default_resolution(std::shared_ptr<const MuonCalib::IRtRelation> rt);
+    void create_default_resolution(const std::shared_ptr<const MuonCalib::IRtRelation>& rt);
 };
 #endif

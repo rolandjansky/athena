@@ -11,8 +11,8 @@
 #include <MuonAnalysisInterfaces/IMuonSelectionTool.h>
 #include <SelectionHelpers/ISelectionAccessor.h>
 #include <SelectionHelpers/SelectionReadHandle.h>
-#include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
+#include <SystematicsHandles/SysReadHandle.h>
 #include <xAODMuon/MuonContainer.h>
 
 namespace CP
@@ -50,7 +50,7 @@ namespace CP
 
     /// \brief the particle continer we run on
   private:
-    SysCopyHandle<xAOD::MuonContainer> m_muonsHandle {
+    SysReadHandle<xAOD::MuonContainer> m_muonsHandle {
       this, "muons", "Muons", "the muons collection to run on"};
 
     /// \brief the decoration for the quality selection

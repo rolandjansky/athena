@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModel/StationSelector.h"
@@ -17,7 +17,7 @@ namespace MuonGM {
 
     std::atomic<int> StationSelector::m_selectType = 0;
 
-    StationSelector::StationSelector(const std::string& filename) {
+    StationSelector::StationSelector(const MYSQL& mysql, const std::string& filename) {
         std::ifstream from;
         from.open(filename.c_str());
         char buffer[200];
@@ -28,19 +28,17 @@ namespace MuonGM {
             m_selector.push_back(key);
         }
 
-        MYSQL *mysql = MYSQL::GetPointer();
         StationIterator it;
-        for (it = mysql->StationBegin(); it != mysql->StationEnd(); it++) {
+        for (it = mysql.StationBegin(); it != mysql.StationEnd(); ++it) {
             if (select(it)) {
                 m_theMap[(*it).first] = (*it).second;
             }
         }
     }
 
-    StationSelector::StationSelector(std::vector<std::string> s) : m_selector(std::move(s)) {
-        MYSQL *mysql = MYSQL::GetPointer();
+    StationSelector::StationSelector(const MYSQL& mysql, std::vector<std::string> s) : m_selector(std::move(s)) {
         StationIterator it;
-        for (it = mysql->StationBegin(); it != mysql->StationEnd(); it++) {
+        for (it = mysql.StationBegin(); it != mysql.StationEnd(); ++it) {
             if (select(it))
                 m_theMap[(*it).first] = (*it).second;
         }

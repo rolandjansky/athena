@@ -19,6 +19,7 @@
 egammaSuperClusterBuilder::egammaSuperClusterBuilder(const std::string& name,
                                                      ISvcLocator* pSvcLocator)
   : egammaSuperClusterBuilderBase(name, pSvcLocator)
+  , m_egTypeForCalibration(xAOD::EgammaParameters::electron)
 {}
 
 StatusCode
@@ -29,7 +30,17 @@ egammaSuperClusterBuilder::initialize()
   // the data handle keys
   ATH_CHECK(m_inputEgammaRecContainerKey.initialize());
   ATH_CHECK(m_egammaSuperRecCollectionKey.initialize());
+  ATH_CHECK(m_outputegammaSuperClustersKey.initialize());
   ATH_CHECK(m_precorrClustersKey.initialize(SG::AllowEmpty));
+  ATH_CHECK(m_caloDetDescrMgrKey.initialize());
+  if (m_calibrationType == "electron") {
+    m_egTypeForCalibration = xAOD::EgammaParameters::electron;
+  } else if (m_calibrationType == "photon") {
+    m_egTypeForCalibration = xAOD::EgammaParameters::unconvertedPhoton;
+  } else {
+    ATH_MSG_ERROR("Unsupported calibration for " << m_calibrationType);
+    return StatusCode::FAILURE;
+  }
   return egammaSuperClusterBuilderBase::initialize();
 }
 
@@ -59,24 +70,28 @@ egammaSuperClusterBuilder::execute(const EventContext& ctx) const
     m_egammaSuperRecCollectionKey, ctx);
   ATH_CHECK(newEgammaRecs.record(std::make_unique<EgammaRecContainer>()));
 
-  std::optional<SG::WriteHandle<xAOD::CaloClusterContainer> > precorrClustersH;
+  std::optional<SG::WriteHandle<xAOD::CaloClusterContainer>> precorrClustersH;
   if (!m_precorrClustersKey.empty()) {
-    precorrClustersH.emplace (m_precorrClustersKey, ctx);
-    ATH_CHECK( precorrClustersH->record
-               (std::make_unique<xAOD::CaloClusterContainer>(),
-                std::make_unique<xAOD::CaloClusterAuxContainer>()) );
+    precorrClustersH.emplace(m_precorrClustersKey, ctx);
+    ATH_CHECK(precorrClustersH->record(
+      std::make_unique<xAOD::CaloClusterContainer>(),
+      std::make_unique<xAOD::CaloClusterAuxContainer>()));
   }
 
   // The calo Det Descr manager
-  const CaloDetDescrManager* calodetdescrmgr = nullptr;
-  ATH_CHECK(detStore()->retrieve(calodetdescrmgr, "CaloMgr"));
+  SG::ReadCondHandle<CaloDetDescrManager> caloDetDescrMgrHandle{
+    m_caloDetDescrMgrKey, ctx
+  };
+  ATH_CHECK(caloDetDescrMgrHandle.isValid());
+
+  const CaloDetDescrManager* calodetdescrmgr = *caloDetDescrMgrHandle;
 
   // Reserve a vector to keep track of what is used
   std::vector<bool> isUsed(egammaRecs->size(), false);
   std::vector<bool> isUsedRevert(egammaRecs->size(), false);
   // Loop over input egammaRec objects, build superclusters.
   for (std::size_t i = 0; i < egammaRecs->size(); ++i) {
-    if (isUsed[i]){
+    if (isUsed[i]) {
       continue;
     }
 
@@ -104,22 +119,18 @@ egammaSuperClusterBuilder::execute(const EventContext& ctx) const
       // no need to add vertices
     }
 
-    std::unique_ptr<xAOD::CaloCluster> newCluster =
+   bool clusterAdded =
       createNewCluster(ctx,
                        accumulatedClusters,
                        *calodetdescrmgr,
-                       xAOD::EgammaParameters::electron,
+                       m_egTypeForCalibration,
+                       outputClusterContainer.ptr(),
                        precorrClustersH ? precorrClustersH->ptr() : nullptr);
 
-    if (!newCluster) {
-      ATH_MSG_DEBUG("Creating a new cluster failed");
-      // Revert status of constituent clusters.
+    if (!clusterAdded) {
       isUsed.swap(isUsedRevert);
       continue;
     }
-
-    // push back the new egamma super cluster to the output container
-    outputClusterContainer->push_back(std::move(newCluster));
 
     // Add the cluster link to the super cluster
     ElementLink<xAOD::CaloClusterContainer> clusterLink(

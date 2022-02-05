@@ -360,8 +360,8 @@ if ( ReadPhysCaliTdiffFromCOOL ):
    if 'InputPhysCaliTdiffSQLiteFile' in dir():
       InputDBConnectionPhysCaliTdiff = DBConnectionFile(InputPhysCaliTdiffSQLiteFile)
    else:
-      InputDBConnectionPhysCaliTdiff = DBConnectionCOOL
-
+      InputDBConnectionPhysCaliTdiff = "COOLOFL_LAR/COMP200"
+xxx
 ## Bad Channel   
    
 if not 'ReadBadChannelFromCOOL' in dir():
@@ -620,6 +620,12 @@ else:
 #                      OFC computation
 ###########################################################################
 
+from LArCalibUtils.LArCalibUtilsConf import LArAutoCorrDecoderTool
+theLArAutoCorrDecoderTool = LArAutoCorrDecoderTool()
+theLArAutoCorrDecoderTool.UseAlwaysHighGain=True
+if NColl > 0:
+   theLArAutoCorrDecoderTool.DecodeMode=1
+
 from LArCalibUtils.LArCalibUtilsConf import LArOFCAlg
 
 LArPhysOFCAlg = LArOFCAlg("LArPhysOFCAlg")
@@ -629,7 +635,7 @@ LArPhysOFCAlg.KeyList      = [ InputKey ]
 LArPhysOFCAlg.Normalize    = Normalize
 LArPhysOFCAlg.Verify       = True
 LArPhysOFCAlg.GroupingType = GroupingType
-
+LArPhysOFCAlg.OutputLevel = DEBUG
 LArPhysOFCAlg.Nphase    = Nphases
 LArPhysOFCAlg.Dphase    = Dphases
 LArPhysOFCAlg.Ndelay    = Ndelays
@@ -643,7 +649,7 @@ LArPhysOFCAlg.LArPhysWaveBinKey = ShiftKey
 LArPhysOFCAlg.UseDelta = UseDelta
 LArPhysOFCAlg.KeyOFC   = OFCKey
 LArPhysOFCAlg.KeyShape = ShapeKey
-
+LArPhysOFCAlg.DecoderTool = theLArAutoCorrDecoderTool
 
 topSequence+=LArPhysOFCAlg
 
@@ -668,15 +674,10 @@ LArPhysOFCAlg2.UseDelta = UseDelta
 
 LArPhysOFCAlg2.KeyOFC   = OFCKey2
 LArPhysOFCAlg2.KeyShape = ShapeKey2
+LArPhysOFCAlg2.DecoderTool = theLArAutoCorrDecoderTool
 
 topSequence+=LArPhysOFCAlg2
 
-from LArCalibUtils.LArCalibUtilsConf import LArAutoCorrDecoderTool
-theLArAutoCorrDecoderTool = LArAutoCorrDecoderTool()
-theLArAutoCorrDecoderTool.UseAlwaysHighGain=True
-if NColl > 0:
-   theLArAutoCorrDecoderTool.DecodeMode=1
-ToolSvc += theLArAutoCorrDecoderTool
 
 ###########################################################################
 

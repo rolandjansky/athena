@@ -1,9 +1,13 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GeoOpticalSurface_h
 #define GeoOpticalSurface_h 1
+
+/// Ensure that the extensions for the Vector3D are properly loaded
+#include "GeoPrimitives/GeoPrimitives.h"
+
 
 #include "GeoModelKernel/RCBase.h"
 #include "GeoModelUtilities/GeoMaterialPropertiesTable.h"

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #########################################################################
 # ConfiguredNewtrackingCuts class
@@ -272,22 +272,6 @@ class ConfiguredNewTrackingCuts :
       self.__minSiNotShared   = 5
       self.__rejectShortExtensions = False
 
-
-    # --- SLHC setup
-    if mode == "SLHC":
-      self.__extension               = "SLHC"
-      # --- higher pt cut and impact parameter cut
-      self.__minPT                   = 0.9 * Units.GeV
-      self.__maxPrimaryImpact        = 2.0 * Units.mm # highlumi
-      self.__maxZImpact              = 250.0 * Units.mm
-
-      # --- cluster cuts
-      self.__minClusters             = 9
-      self.__minSiNotShared          = 8
-
-      # --- also tighten pattern cuts
-      self.__radMax                  = 1000. * Units.mm
-
     # --- IBL setup
     if mode == "IBL" :
       self.__extension               = "IBL"
@@ -421,23 +405,6 @@ class ConfiguredNewTrackingCuts :
         self.__maxPT            = 1000000 * Units.GeV # Won't accept None *NEEDS FIXING*
         self.__maxPrimaryImpact = 100.0 * Units.mm
 
-    if mode == "SLHCConversionFinding":
-      self.__extension        = "SLHCConversionFinding" # this runs parallel to NewTracking
-      self.__minPT                   = 0.9 * Units.GeV
-      self.__maxPrimaryImpact        = 10.0 * Units.mm
-      self.__maxZImpact              = 150.0 * Units.mm
-      self.__minClusters             = 6
-      self.__minSiNotShared          = 4
-      self.__maxHoles                = 0
-
-      # --- also tighten pattern cuts
-      self.__radMax                  = 1000. * Units.mm
-      self.__radMin                  = 0. * Units.mm # not turn on this cut for now
-
-      # --- turn on Z Boundary seeding
-      self.__doZBoundary              = False #
-
-
     # --- change defaults for very low pt tracking
     if mode == "VeryLowPt":
       self.__extension        = "VeryLowPt" # this runs parallel to NewTracking
@@ -476,44 +443,6 @@ class ConfiguredNewTrackingCuts :
       self.__nHolesGapMax     = self.__maxHoles
       self.__radMax           = 600. * Units.mm
 
-      self.__useTRT           = False # no TRT for forward tracks
-
-
-    if mode == "ForwardSLHCTracks":
-      self.__extension        = "ForwardSLHCTracks" # this runs parallel to NewTracking
-      self.__minEta           = 2.4 # restrict to minimal eta
-      self.__maxEta           = 3.0
-      self.__minPT            = 0.9 * Units.GeV
-      self.__minClusters      = 5
-      self.__minSiNotShared   = 3
-      self.__maxShared        = 1
-      self.__minPixel         = 3
-      self.__maxHoles         = 1
-      self.__maxPixelHoles    = 1
-      self.__maxSctHoles      = 1
-      self.__maxDoubleHoles   = 0
-      self.__nHolesMax        = self.__maxHoles
-      self.__nHolesGapMax     = self.__maxHoles
-      self.__radMax           = 600. * Units.mm
-
-      self.__useTRT           = False # no TRT for forward tracks
-
-    if mode == "VeryForwardSLHCTracks":
-      self.__extension        = "VeryForwardSLHCTracks" # this runs parallel to NewTracking
-      self.__minEta           = 2.4 # restrict to minimal eta
-      self.__maxEta           = 4.0
-      self.__minPT            = 0.9 * Units.GeV
-      self.__minClusters      = 5
-      self.__minSiNotShared   = 3
-      self.__maxShared        = 1
-      self.__minPixel         = 3
-      self.__maxHoles         = 1
-      self.__maxPixelHoles    = 1
-      self.__maxSctHoles      = 0
-      self.__maxDoubleHoles   = 0
-      self.__nHolesMax        = self.__maxHoles
-      self.__nHolesGapMax     = self.__maxHoles
-      self.__radMax           = 600. * Units.mm
       self.__useTRT           = False # no TRT for forward tracks
 
     # --- change defauls for beam gas tracking
@@ -846,6 +775,13 @@ class ConfiguredNewTrackingCuts :
 #        self.__maxDoubleHoles          = 4               # was 2
 #        self.__maxPrimaryImpact        = 50.0 * Units.mm # low lumi
 #        self.__maxZImpact              = 500.0 * Units.mm
+
+
+    # using d0<10mm instead of d0<5mm. This is desired for B-physics
+    if mode == "BLS":
+      self.__maxPrimaryImpact   = 10.0 * Units.mm 
+      self.__maxdImpactSSSSeeds = 10.0 * Units.mm
+
 
 # ----------------------------------------------------------------------------
 # --- private method

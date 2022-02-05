@@ -35,6 +35,10 @@ using namespace MuonCalib;
 
 //*****************************************************************************
 
+RtCalibrationAnalytic::RtCalibrationAnalytic(const std::string &name) : IMdtCalibration(name) {
+    init(0.5 * CLHEP::mm, 1, 5, true, true, true, true, 100, false, false);
+}
+
 RtCalibrationAnalytic::RtCalibrationAnalytic(const std::string &name, const double &rt_accuracy, const unsigned int &func_type,
                                              const unsigned int &ord, const bool &split, const bool &full_matrix, const bool &fix_min,
                                              const bool &fix_max, const int &max_it, bool do_smoothing, bool do_parabolic_extrapolation) :
@@ -57,11 +61,11 @@ void RtCalibrationAnalytic::init(const double &rt_accuracy, const unsigned int &
     /////////////////////////////
     m_r_max = 15.0 * CLHEP::mm;
     m_control_histograms = false;
-    m_tfile = 0;
-    m_cut_evolution = 0;
-    m_nb_segment_hits = 0;
-    m_CL = 0;
-    m_residuals = 0;
+    m_tfile = nullptr;
+    m_cut_evolution = nullptr;
+    m_nb_segment_hits = nullptr;
+    m_CL = nullptr;
+    m_residuals = nullptr;
     m_split_into_ml = split;
     m_full_matrix = full_matrix;
     m_nb_segments = 0;
@@ -89,9 +93,6 @@ void RtCalibrationAnalytic::init(const double &rt_accuracy, const unsigned int &
     // default values, correct values will be set when the input r-t
     // has been given
 
-    m_rt_new = 0;
-    m_output = 0;
-
     m_U = std::vector<CLHEP::HepVector>(m_order);
     m_A = CLHEP::HepSymMatrix(m_order, 0);
     m_b = CLHEP::HepVector(m_order, 0);
@@ -99,7 +100,7 @@ void RtCalibrationAnalytic::init(const double &rt_accuracy, const unsigned int &
 
     // correction function
     if (func_type < 1 || func_type > 3) {
-        m_base_function = 0;
+        m_base_function = nullptr;
         throw std::runtime_error(
             Form("File: %s, Line: %d\nRtCalibrationAnalytic::init - Illegal correction function type!", __FILE__, __LINE__));
     }
@@ -335,7 +336,7 @@ void RtCalibrationAnalytic::noParabolicExtrapolation() { m_do_parabolic_extrapol
 void RtCalibrationAnalytic::setEstimateRtAccuracy(const double &acc) { m_rt_accuracy = std::abs(acc); }
 void RtCalibrationAnalytic::splitIntoMultilayers(const bool &yes_or_no) { m_split_into_ml = yes_or_no; }
 void RtCalibrationAnalytic::fullMatrix(const bool &yes_or_no) { m_full_matrix = yes_or_no; }
-const IMdtCalibrationOutput *RtCalibrationAnalytic::analyseSegments(const std::vector<MuonCalibSegment *> &seg) {
+RtCalibrationAnalytic::MdtCalibOutputPtr RtCalibrationAnalytic::analyseSegments(const MuonSegVec &seg) {
     std::shared_ptr<const IRtRelation> tmp_rt;
     std::shared_ptr<const IRtRelation> conv_rt;
 
@@ -368,7 +369,7 @@ const IMdtCalibrationOutput *RtCalibrationAnalytic::analyseSegments(const std::v
     // parabolic extrapolations for small radii //
     if (m_do_parabolic_extrapolation) {
         std::shared_ptr<const RtRelationLookUp> tmprt = performParabolicExtrapolation(true, true, *tmp_rt);
-        m_output = std::make_unique<RtCalibrationOutput>(
+        m_output = std::make_shared<RtCalibrationOutput>(
             tmprt, std::make_shared<RtFullInfo>("RtCalibrationAnalyticExt", m_iteration, m_nb_segments_used, 0.0, 0.0, 0.0, 0.0));
         tmp_rt = tmprt;
     }
@@ -452,7 +453,7 @@ const IMdtCalibrationOutput *RtCalibrationAnalytic::analyseSegments(const std::v
     //---------------------------------------------------------------------------//
     //---------------------------------------------------------------------------//
 
-    m_output = std::make_unique<RtCalibrationOutput>(
+    m_output = std::make_shared<RtCalibrationOutput>(
         tmp_rt, std::make_shared<RtFullInfo>("RtCalibrationAnalytic", m_iteration, m_nb_segments_used, 0.0, 0.0, 0.0, 0.0));
 
     /////////////////////////////////////////
@@ -695,7 +696,7 @@ void RtCalibrationAnalytic::setInput(const IMdtCalibrationOutput *rt_input) {
     ////////////////////////////////////////////
     // CHECK IF THE OUTPUT CLASS IS SUPPORTED //
     ////////////////////////////////////////////
-    if (input == 0) {
+    if (input == nullptr) {
         throw std::runtime_error(
             Form("File: %s, Line: %d\nRtCalibrationAnalytic::setInput - Calibration input class not supported.", __FILE__, __LINE__));
     }
@@ -900,15 +901,13 @@ bool RtCalibrationAnalytic::analyse() {
     //////////////////////////////////////////////////
     m_iteration = m_iteration + 1;
 
-    m_output = std::make_unique<RtCalibrationOutput>(
+    m_output = std::make_shared<RtCalibrationOutput>(
         m_rt_new, std::make_shared<RtFullInfo>("RtCalibrationAnalytic", m_iteration, m_nb_segments_used, 0.0, 0.0, 0.0, 0.0));
 
     return true;
 }
 bool RtCalibrationAnalytic::converged() const { return (m_status > 0); }
-const IMdtCalibrationOutput *RtCalibrationAnalytic::getResults() const {
-    return static_cast<const IMdtCalibrationOutput *>(m_output.get());
-}
+RtCalibrationAnalytic::MdtCalibOutputPtr RtCalibrationAnalytic::getResults() const { return m_output; }
 std::shared_ptr<RtRelationLookUp> RtCalibrationAnalytic::performParabolicExtrapolation(const bool &min, const bool &max,
                                                                                        const IRtRelation &in_rt) {
     ///////////////

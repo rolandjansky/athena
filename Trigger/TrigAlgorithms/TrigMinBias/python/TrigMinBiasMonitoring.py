@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 def SpCountMonitoring():
 
@@ -24,13 +24,16 @@ def SpCountMonitoring():
 
 
 def MbtsFexMonitoring():
-
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
     monTool = GenericMonitoringTool('MonTool')
-    monTool.defineHistogram('triggerEnergies', path='EXPERT', type='TH1D', title='triggerEnergies',xbins=100, xmin=-0, xmax=60999.5)
-    monTool.defineHistogram('triggerEta', path='EXPERT', type='TH1D', title='triggerEta', xbins = 250, xmin=-5, xmax=5)
-    monTool.defineHistogram('triggerPhi', path='EXPERT', type='TH1I', title='triggerPhi',xbins=100, xmin=-3.2, xmax=3.2)
-    monTool.defineHistogram('triggerTimes', path='EXPERT', type='TH1I', title='triggerTimes',xbins=100, xmin=-0, xmax=60999.5)
+    monTool.defineHistogram('triggerEnergies', path='EXPERT', type='TH1D', title='triggerEnergies',xbins=50, xmin=-5, xmax=45)
+    monTool.defineHistogram('triggerTimes', path='EXPERT', type='TH1I', title='triggerTimes',xbins=100, xmin=-50, xmax=50)
+    monTool.defineHistogram('channelID, triggerEnergies', path='EXPERT', title='signal per channel;channel ID; energy[pC]', type='TH2F', xbins=32, xmin=-0.5, xmax=31.5, ybins=20, ymin=-5,ymax=45)
+    monTool.defineHistogram('channelID, triggerEnergies;triggerEnergies_vs_channelID_zoom', path='EXPERT', title='signal per channel;channel ID; energy[pC]', type='TH2F', xbins=32, xmin=-0.5, xmax=31.5, ybins=50, ymin=-2, ymax=3)
+    monTool.defineHistogram('channelID, triggerTimes', path='EXPERT', title='times per channel;channel ID; time[ns]', type='TH2F', xbins=32, xmin=-0.5, xmax=31.5, ybins=20, ymin=-50, ymax=50)
+    monTool.defineHistogram('channelID, triggerTimes;triggerTimes_vs_channelID_zoom', path='EXPERT', title='times per channel;channel ID; time[ns]', type='TH2F', xbins=32, xmin=-0.5, xmax=31.5, ybins=20, ymin=-5, ymax=5)
+    monTool.defineHistogram('timeDelta', path='EXPERT', type='TH1F', title='MBTS time delta;time[ns]', xbins=80, xmin=-40, xmax=40)
+
     return monTool
 
 

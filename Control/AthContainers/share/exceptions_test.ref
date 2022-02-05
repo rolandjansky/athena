@@ -23,3 +23,5 @@ ViewVector intwas used in a context that requires a CLID, but no CLID was availa
 Ownership mismatch for insertMove.
 SG::ExcAtomicMismatch: Non-atomic access to atomic aux variable  `cl::bar' (1) of type int
 SG::ExcInvalidThinningTarget: ThinningHandle target does not exist: 1234/asd
+SG::ExcBadIterSwap: Attempt to swap between containers with inconsistent ownership.
+SG::ExcAllocOwnership: Bad allocation ownership.

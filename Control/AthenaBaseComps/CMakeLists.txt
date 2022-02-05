@@ -38,10 +38,14 @@ atlas_add_test( AthAlgTool_test
 atlas_add_test( AthAlgorithmDHUpdate_test
    SOURCES test/AthAlgorithmDHUpdate_test.cxx
    LINK_LIBRARIES StoreGateLib GaudiKernel TestTools AthenaBaseComps
-   LOG_IGNORE_PATTERN "FATAL uncheckedSetTypePackageForID"   # temporary: ATEAM-731
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
- atlas_add_test( AthAlgStartVisitor_test
+atlas_add_test( AthAlgStartVisitor_test
    SOURCES test/AthAlgStartVisitor_test.cxx
-   LINK_LIBRARIES StoreGateLib GaudiKernel TestTools AthenaBaseComps
+   LINK_LIBRARIES GaudiKernel TestTools AthenaBaseComps
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+
+atlas_add_test( AthCheckedComponent_test
+   SOURCES test/AthCheckedComponent_test.cxx
+   LINK_LIBRARIES GaudiKernel TestTools AthenaBaseComps
+   POST_EXEC_SCRIPT nopost.sh )

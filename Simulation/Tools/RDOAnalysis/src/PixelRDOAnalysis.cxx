@@ -371,7 +371,7 @@ StatusCode PixelRDOAnalysis::execute() {
   bool doTruthMatching = true;
   const HepMC::GenEvent* hardScatterEvent(nullptr);
 
-  if (mcEventCollection->size()==0){
+  if ((!mcEventCollection.isValid())||mcEventCollection->size()==0){
     ATH_MSG_WARNING("Failed to retrieve a nonzero sized truth event collection, disabling truthMatching");
     doTruthMatching = false;
   }

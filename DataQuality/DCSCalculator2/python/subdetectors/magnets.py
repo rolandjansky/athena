@@ -34,7 +34,9 @@ class Magnet_Currents(DCSC_Defect_Global_Variable):
             # the issue came up in 2015 run 253014.
             if measured is not None and desired is not None and not desired._is_empty:
                 # NOTE: if measured is 'empty', this is always true
-                if measured.value <= tolerance:
+                if measured.value is None:
+                    continue
+                elif measured.value <= tolerance:
                     # Magnet off
                     defect = system + '_OFF'
 

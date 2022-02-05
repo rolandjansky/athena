@@ -36,6 +36,7 @@
 
  // LVL1 Calo Trigger
  #include "TrigT1CaloToolInterfaces/IL1CPMTools.h"
+ #include "TrigConfData/L1Menu.h"
 
  // For RoI output 
  #include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
@@ -98,6 +99,8 @@
 
   
  private: // Private attributes
+
+   SG::ReadHandleKey<TrigConf::L1Menu>  m_L1MenuKey{ this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu", "L1 Menu" };
 
    /** Where to store the CPMTowers */
    SG::ReadHandleKey<xAOD::CPMTowerContainer> m_CPMTowerLocation

@@ -35,7 +35,11 @@ def MM_DigitizationTool(name="MM_DigitizationTool",**kwargs):
         kwargs.setdefault("UseMcEventCollectionHelper",True)
     else:
         kwargs.setdefault("UseMcEventCollectionHelper",False)
-
+    
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSequence = AthSequencer("AthCondSeq")
+    if not hasattr(condSequence,"MuonDetectorCondAlg"):
+        import MuonRecExample.MuonAlignConfig  # noqa: F401 (import side-effects)
     return CfgMgr.MM_DigitizationTool(name,**kwargs)
 
 def getMMRange(name="MMRange", **kwargs):

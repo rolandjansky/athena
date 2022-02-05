@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-
-from __future__ import print_function
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """JobTransform to run LAr Noise Burst jobs"""
 
@@ -16,9 +14,8 @@ import PyJobTransforms.trfArgClasses as trfArgClasses
 if __name__ == '__main__':
 
     executorSet = set()
-    executorSet.add(athenaExecutor(name = 'LArNoiseBursts_from_raw', skeletonFile = 'LArCafJobs/skeleton.LArNoise.py',
-                                   substep = 'r2e', inData = ['BS',], outData = ['NTUP_LARNOISE','NTUP_HECNOISE']))
-    executorSet.add(athenaExecutor(name = 'LArNoiseBursts', skeletonFile = 'LArCafJobs/skeleton.LArNoise.py',
+    executorSet.add(athenaExecutor(name = 'LArNoiseBursts', skeletonFile = None,
+                                   skeletonCA='LArCafJobs.LArNoiseSkeleton',
                                    substep = 'e2a', inData = ['ESD',], outData = ['NTUP_LARNOISE','NTUP_HECNOISE']))
    
     trf = transform(executor = executorSet) 
@@ -27,10 +24,6 @@ if __name__ == '__main__':
     trf.parser.add_argument('--inputESDFile', nargs='+',
                             type=trfArgClasses.argFactory(trfArgClasses.argPOOLFile, io='input'),
                             help='Input pool file', group='Reco Files')
-   
-    trf.parser.add_argument('--inputBSFile', nargs='+',
-                            type=trfArgClasses.argFactory(trfArgClasses.argPOOLFile, io='input'),
-                            help='Input BS file', group='Reco Files')
    
     trf.parser.add_argument('--outputNTUP_LARNOISEFile', nargs='+',
                             type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, io='output'),
@@ -41,11 +34,5 @@ if __name__ == '__main__':
                             help='Output HECNoise file', group='Ntuple Files')
 
     trf.parseCmdLineArgs(sys.argv[1:])
-
-
     trf.execute()
-    print ("DataDict:")
-    print (trf.dataDictionary)
-
-
     trf.generateReport()

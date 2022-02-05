@@ -21,6 +21,7 @@
 #include "AthenaKernel/IAthRNGSvc.h"
 
 #include "CaloIdentifier/CaloGain.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 #include "LArElecCalib/ILArNoise.h"
 #include "LArElecCalib/ILArOFC.h"
@@ -58,7 +59,7 @@ class LArHEC_ID;
 class LArFCAL_ID;
 class CaloCell_ID;
 class LArDigit;
-class CaloDetDescrManager;
+
 namespace CLHEP {
   class HepRandomEngine;
 }
@@ -260,7 +261,9 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
 
   SG::ReadCondHandleKey<LArBadChannelCont> m_bcContKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
   SG::ReadCondHandleKey<LArBadFebCont> m_badFebKey{this, "BadFebKey", "LArBadFeb", "Key of BadFeb object in ConditionsStore"};
-
+ 
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager", "CaloDetDescrManager"};
+  
   PublicToolHandle<ITriggerTime> m_triggerTimeTool{this, "TriggerTimeToolName", "CosmicTriggerTimeTool", "Trigger Tool Name"};
 
   const CaloCell_ID*     m_calocell_id{};
@@ -268,8 +271,6 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   const LArHEC_ID*       m_larhec_id{};
   const LArFCAL_ID*      m_larfcal_id{};
   const LArOnlineID*     m_laronline_id{};
-
-  const CaloDetDescrManager* m_caloDDMgr{};
 
 
   Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{},"Bad-Channel categories to mask entirly"}; 
@@ -284,7 +285,7 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
 
   Gaudi::Property<uint32_t> m_randomSeedOffset{this, "RandomSeedOffset", 2, ""}; //
 
-  Gaudi::Property<bool> m_useLegacyRandomSeeds{this, "UseLegacyRandomSeeds", true,
+  Gaudi::Property<bool> m_useLegacyRandomSeeds{this, "UseLegacyRandomSeeds", false,
       "Use MC16-style random number seeding"};
 
   Gaudi::Property<bool> m_doDigiTruth{this, "DoDigiTruthReconstruction", false,

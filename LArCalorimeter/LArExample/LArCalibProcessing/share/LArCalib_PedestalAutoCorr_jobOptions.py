@@ -71,7 +71,7 @@ if not 'GainList' in dir():
 
 if not 'GroupingType' in dir():
    if not SuperCells: GroupingType = "ExtendedSubDetector"
-   if SuperCells:     GroupingType = "ExtendedFeedThrough"
+   if SuperCells:     GroupingType = "SuperCells"
 
 if not 'ChannelSelection' in dir():
    # read all
@@ -270,9 +270,10 @@ from LArCabling.LArCablingAccess import LArCalibIdMapping,LArOnOffIdMapping
 LArOnOffIdMapping()
 LArCalibIdMapping()
 if SuperCells:
-   from LArCabling.LArCablingAccess import LArCalibIdMappingSC,LArOnOffIdMappingSC
+   from LArCabling.LArCablingAccess import LArCalibIdMappingSC,LArOnOffIdMappingSC,LArLATOMEMappingSC
    LArOnOffIdMappingSC()
    LArCalibIdMappingSC()
+   LArLATOMEMappingSC()
 
 #
 # Provides ByteStreamInputSvc name of the data file to process in the offline context
@@ -333,7 +334,6 @@ if runAccumulator:
  if SuperCells:
    from LArByteStream.LArByteStreamConf import LArLATOMEDecoder
    theLArLATOMEDecoder = LArLATOMEDecoder("LArLATOMEDecoder")
-   theLArLATOMEDecoder.latomeInfoFileName = LatomeInfo
    theLArLATOMEDecoder.DumpFile = SC_DumpFile
    theLArLATOMEDecoder.RawDataFile = SC_RawDataFile
 
@@ -344,7 +344,7 @@ if runAccumulator:
    larRawSCDataReadingAlg.etCollKey = ""
    larRawSCDataReadingAlg.etIdCollKey = ""
    larRawSCDataReadingAlg.LATOMEDecoder = theLArLATOMEDecoder
-   larRawSCDataReadingAlg.OutputLevel = DEBUG
+   larRawSCDataReadingAlg.OutputLevel = INFO
    topSequence += larRawSCDataReadingAlg
 
  else:
@@ -358,7 +358,7 @@ if runAccumulator:
  larDigitsAccumulator.KeyList = [Gain]
  larDigitsAccumulator.LArAccuDigitContainerName = ""
  larDigitsAccumulator.NTriggersPerStep = 100
- larDigitsAccumulator.OutputLevel = DEBUG
+ larDigitsAccumulator.OutputLevel = INFO
 
  topSequence += larDigitsAccumulator
 
@@ -377,9 +377,9 @@ else:
 from IOVDbSvc.CondDB import conddb
 
 if 'BadChannelsFolder' not in dir():
-   BadChannelsFolder="/LAR/BadChannels/BadChannels"
+   BadChannelsFolder="/LAR/BadChannelsOfl/BadChannels"
 if 'MissingFEBsFolder' not in dir():
-   MissingFEBsFolder="/LAR/BadChannels/MissingFEBs"
+   MissingFEBsFolder="/LAR/BadChannelsOfl/MissingFEBs"
 
 
 if ( ReadBadChannelFromCOOL ):      
@@ -516,6 +516,7 @@ else :
 # pre computation in the DSP or acummulator
 from LArCalibUtils.LArCalibUtilsConf import LArPedestalAutoCorrBuilder
 LArPedACBuilder=LArPedestalAutoCorrBuilder("LArPedestalAutoCorrBuilder")
+#LArPedACBuilder.isSC            = SuperCells
 LArPedACBuilder.KeyList         = GainList
 LArPedACBuilder.PedestalKey     = KeyOutputPed
 LArPedACBuilder.AutoCorrKey     = KeyOutputAC      
@@ -524,7 +525,7 @@ if not SuperCells:
    LArPedACBuilder.sample_min      = MinSample
    LArPedACBuilder.sample_max      = MaxSample
 
-LArPedACBuilder.OutputLevel     = DEBUG
+LArPedACBuilder.OutputLevel     = WARNING
 topSequence += LArPedACBuilder
 
       
@@ -737,7 +738,7 @@ if ( WritePoolFile ) :
         
         from RegistrationServices.RegistrationServicesConf import IOVRegistrationSvc
         ServiceMgr += IOVRegistrationSvc()
-        ServiceMgr.IOVRegistrationSvc.OutputLevel = DEBUG
+        ServiceMgr.IOVRegistrationSvc.OutputLevel = WARNING
         ServiceMgr.IOVRegistrationSvc.RecreateFolders = False
        
         
@@ -747,7 +748,8 @@ if ( WritePoolFile ) :
 ServiceMgr.EventSelector.SkipEvents = SkipEvents
 
 ServiceMgr.MessageSvc.OutputLevel  = INFO
-ServiceMgr.MessageSvc.defaultLimit = 10000
+ServiceMgr.MessageSvc.defaultLimit = 1000000000
+ServiceMgr.MessageSvc.infoLimit = 1000000000
 ServiceMgr.MessageSvc.Format       = "% F%20W%S%7W%R%T %0W%M"
 
 ServiceMgr+=CfgMgr.AthenaEventLoopMgr(OutputLevel = INFO)

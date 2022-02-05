@@ -1,24 +1,28 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDHandlers/elementHandler.h"
 #include "AGDDModel/AGDDElement.h"
 #include "AGDDModel/AGDDMaterial.h"
+#include "AGDDControl/AGDDController.h"
 #include <iostream>
 
 
-elementHandler::elementHandler(std::string s):XMLHandler(s),mat(0)
+elementHandler::elementHandler(const std::string& s,
+                               AGDDController& c)
+  : XMLHandler(s, c)
 {
 }
 
-void elementHandler::ElementHandle()
+void elementHandler::ElementHandle(AGDDController& c,
+                                   xercesc::DOMNode *t)
 {
-	std::string name=getAttributeAsString("name");
-	std::string symbol=getAttributeAsString("symbol");
-	double ca=getAttributeAsInt("aweight");
-	int cz=getAttributeAsInt("z");
-	double density=getAttributeAsDouble("density");
-	AGDDElement *el=new AGDDElement(name,symbol,cz,ca);
-	mat=new AGDDMaterial(name,el,density);
+	std::string name=getAttributeAsString(c, t, "name");
+	std::string symbol=getAttributeAsString(c, t, "symbol");
+	double ca=getAttributeAsInt(c, t, "aweight");
+	int cz=getAttributeAsInt(c, t, "z");
+	double density=getAttributeAsDouble(c, t, "density");
+	AGDDElement *el=new AGDDElement(c.GetMaterialStore(),name,symbol,cz,ca);
+	new AGDDMaterial(c.GetMaterialStore(),name,el,density);
 }

@@ -15,7 +15,7 @@ const InDetDD::PixelDetectorManager* GeoSiHit::initPixMgr()
   if (!detStore->contains<InDetDD::PixelDetectorManager>("Pixel") || detStore->retrieve(pix,"Pixel").isFailure())
   {
     // if Pixel retrieval fails, try ITkPixel
-    if (!detStore->contains<InDetDD::PixelDetectorManager>("ITkPixel") || detStore->retrieve(pix,"ITkPixel").isFailure()) 
+    if (!detStore->contains<InDetDD::PixelDetectorManager>("ITkPixel") || detStore->retrieve(pix,"ITkPixel").isFailure())
     {
       std::abort();
     }
@@ -37,6 +37,24 @@ const InDetDD::SCT_DetectorManager* GeoSiHit::initSctMgr()
     }
   }
   return sct;
+}
+
+
+const InDetDD::PixelDetectorManager* GeoSiHit::initPlrMgr()
+{
+  ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "GeoSiHit");
+  const InDetDD::PixelDetectorManager* plr = nullptr;
+  detStore->retrieve(plr,"PLR").isFailure();
+  return plr;
+}
+
+
+const HGTD_DetectorManager* GeoSiHit::initHgtdMgr()
+{
+  ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "GeoSiHit");
+  const HGTD_DetectorManager* hgtd = nullptr;
+  detStore->retrieve(hgtd,"HGTD").isFailure();
+  return hgtd;
 }
 
 
@@ -62,6 +80,17 @@ const SCT_ID* GeoSiHit::initSctID()
 }
 
 
+const HGTD_ID* GeoSiHit::initHgtdID()
+{
+  ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "GeoSiHit");
+  const HGTD_ID* hgtd = nullptr;
+  if(detStore->retrieve(hgtd,"HGTD_ID").isFailure()) {
+    std::abort();
+  }
+  return hgtd;
+}
+
+
 const InDetDD::PixelDetectorManager* GeoSiHit::pixMgr() const
 {
   const InDetDD::PixelDetectorManager* const mgr = initPixMgr();
@@ -76,16 +105,36 @@ const InDetDD::SCT_DetectorManager*  GeoSiHit::sctMgr() const
 }
 
 
-const PixelID*                       GeoSiHit::pixID()  const
+const InDetDD::PixelDetectorManager* GeoSiHit::plrMgr() const
+{
+  const InDetDD::PixelDetectorManager* const mgr = initPlrMgr();
+  return mgr;
+}
+
+
+const HGTD_DetectorManager* GeoSiHit::hgtdMgr() const
+{
+  const HGTD_DetectorManager* const mgr = initHgtdMgr();
+  return mgr;
+}
+
+
+const PixelID* GeoSiHit::pixID() const
 {
   const PixelID* const id = initPixID();
   return id;
 }
 
 
-const SCT_ID*                        GeoSiHit::sctID()  const
+const SCT_ID* GeoSiHit::sctID() const
 {
   const SCT_ID* const id = initSctID();
   return id;
 }
 
+
+const HGTD_ID* GeoSiHit::hgtdID() const
+{
+  const HGTD_ID* const id = initHgtdID();
+  return id;
+}

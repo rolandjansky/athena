@@ -23,6 +23,7 @@
 #include "GaudiKernel/SystemOfUnits.h"
 
 #include "GeoModelInterfaces/StoredMaterialManager.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 // Author Soumya Mohapatra
 // soumya@cern.ch
@@ -39,7 +40,10 @@
 using namespace GeoGenfun;
 using namespace GeoXF;
 
-ZDC_DetFactory::ZDC_DetFactory(StoreGateSvc* detStore) : m_detectorManager(nullptr) , m_detectorStore(detStore) {}
+ZDC_DetFactory::ZDC_DetFactory(StoreGateSvc* detStore)
+  : AthMessaging (Athena::getMessageSvc(), "ZDC_DetFactory"),
+    m_detectorManager(nullptr) , m_detectorStore(detStore)
+{}
 
 ZDC_DetFactory::~ZDC_DetFactory() {}
 
@@ -219,7 +223,7 @@ void ZDC_DetFactory::create(GeoPhysVol* world)
 
   for (int I=0;I<2;I++) {
 
-    std::string Vol_Name, Vol_Name_append;
+    std::string Vol_Name, Vol_Name_append = "";
     float sgn = 1.0;
    
     if (I==0) {sgn =-1.0; Vol_Name_append="_A"; }
@@ -312,9 +316,8 @@ void ZDC_DetFactory::create(GeoPhysVol* world)
 
   m_detectorManager->addTreeTop(Envelope_Physical[0]);
 
-  if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << " ZDC DetFactory ADDED TOP VOLUME "
-					    << Envelope_Physical[0]->getAbsoluteName() 
-					    << endmsg;
+  ATH_MSG_DEBUG( " ZDC DetFactory ADDED TOP VOLUME "
+                 << Envelope_Physical[0]->getAbsoluteName() );
   
   tag = new GeoNameTag("ZDC_C");
   
@@ -327,9 +330,8 @@ void ZDC_DetFactory::create(GeoPhysVol* world)
 
   m_detectorManager->addTreeTop(Envelope_Physical[1]);
 
-  if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << " ZDC DetFactory ADDED TOP VOLUME "
-					    << Envelope_Physical[1]->getAbsoluteName() 
-					    << endmsg;
+  ATH_MSG_DEBUG( " ZDC DetFactory ADDED TOP VOLUME "
+                 << Envelope_Physical[1]->getAbsoluteName() );
 }
 
 const ZDC_DetManager* ZDC_DetFactory::getDetectorManager() const { return m_detectorManager; }

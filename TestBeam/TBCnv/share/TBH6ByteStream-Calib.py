@@ -19,9 +19,7 @@ ESDOutputFileName='%(dir)s/ESD_%(No)d.root' % {"dir" : OutputDir, "No" : RunNumb
 
 include( "AthenaCommon/Atlas.UnixStandardJob.py" )
 
-# Turn off printing for LArRoI_Map
 ToolSvc = Service( "ToolSvc" )
-ToolSvc.LArRoI_Map.Print=False
 ToolSvc.TBByteStreamCnvTool.Dump        = False
 ToolSvc.TBByteStreamCnvTool.OutputLevel = INFO
     

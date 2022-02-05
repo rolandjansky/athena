@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 // $Id: EgammaObjectCollectionMaker.h 811374 2017-10-24 13:04:52Z iconnell $
@@ -99,31 +99,10 @@ namespace top {
     ToolHandle<IElectronPhotonShowerShapeFudgeTool> m_photonFudgeTool;
 
     ///-- Isolation --///
-    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_LooseTrackOnly;
-    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_Loose;
-    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_PflowLoose;
-    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_Tight;
-    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_PflowTight;
-    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_Gradient;
-    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_GradientLoose;
-    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FixedCutTight;
-    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FixedCutTightTrackOnly;
-    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_TightTrackOnly;
-    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_TightTrackOnly_FixedRad;
-    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FixedCutTightCaloOnly;
-    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_TightCaloOnly;
-    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FixedCutLoose;
-    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FixedCutHighPtCaloOnly;
-    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FCHighPtCaloOnly;
-    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_HighPtCaloOnly;
-    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FCTight;
-    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FCLoose;
-    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_PLVTight;
-    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_PLVLoose;
+    std::unordered_map<std::string, ToolHandle<CP::IIsolationSelectionTool>> m_electronIsolationTools;
+    std::unordered_map<std::string, ToolHandle<CP::IIsolationSelectionTool>> m_photonIsolationTools;
 
-//    ToolHandle<CP::IIsolationLowPtPLVTool> m_isolationTool_LowPtPLV;
-
-    ToolHandle<CP::IIsolationCorrectionTool> m_isolationCorr;
+    ToolHandle<CP::IIsolationCorrectionTool> m_isolationCorr; // TODO not used at the moment -- to test in R22
 
     // Flag for applying calibration to objects
     bool calibrateElectrons;

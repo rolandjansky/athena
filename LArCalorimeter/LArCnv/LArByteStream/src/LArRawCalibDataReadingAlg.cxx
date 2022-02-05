@@ -5,6 +5,7 @@
 #include "LArRawCalibDataReadingAlg.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h" 
+#include "LArRawEvent/LArDigitContainer.h"
 #include "LArRawEvent/LArCalibDigitContainer.h"
 #include "LArRawEvent/LArAccumulatedDigitContainer.h"
 #include "LArRawEvent/LArAccumulatedCalibDigitContainer.h"
@@ -23,6 +24,14 @@ LArRawCalibDataReadingAlg::LArRawCalibDataReadingAlg(const std::string& name, IS
   AthReentrantAlgorithm(name, pSvcLocator) {}
 
   StatusCode LArRawCalibDataReadingAlg::initialize() {
+
+  if (m_DigitKey.key().size()>0) {
+    ATH_CHECK(m_DigitKey.initialize());
+    m_doDigits=true;
+  }
+  else {
+    m_doDigits=false;
+  }
 
   if (m_calibDigitKey.key().size()>0) {
     ATH_CHECK(m_calibDigitKey.initialize());
@@ -56,8 +65,8 @@ LArRawCalibDataReadingAlg::LArRawCalibDataReadingAlg(const std::string& name, IS
     m_doFebHeaders=false;
   }
   
-  if(!(m_doCalibDigits || m_doAccDigits || m_doAccCalibDigits)) {
-     ATH_MSG_FATAL("Needs ether CalibDigits or AccDigits  or AccCalibDigit Key");
+  if(!(m_doDigits || m_doCalibDigits || m_doAccDigits || m_doAccCalibDigits)) {
+     ATH_MSG_FATAL("Needs ether Digits or CalibDigits or AccDigits  or AccCalibDigit Key");
      return StatusCode::FAILURE;
   }
 
@@ -66,7 +75,7 @@ LArRawCalibDataReadingAlg::LArRawCalibDataReadingAlg(const std::string& name, IS
      return StatusCode::FAILURE;
   }
 
-  if(m_doAccDigits && (m_doCalibDigits || m_doAccCalibDigits)) {
+  if(m_doAccDigits && (m_doDigits || m_doCalibDigits || m_doAccCalibDigits)) {
      ATH_MSG_FATAL("Could not have AccDigits with Calib Key");
      return StatusCode::FAILURE;
   }
@@ -96,23 +105,80 @@ LArRawCalibDataReadingAlg::LArRawCalibDataReadingAlg(const std::string& name, IS
       for (const unsigned iPN: m_vPosNegPreselection) {
 	for (const unsigned iFT: m_vFTPreselection) {
 	  HWIdentifier finalFTId=m_onlineId->feedthrough_Id(iBE,iPN,iFT);
-	  unsigned int finalFTId32 = finalFTId.get_identifier32().get_compact();
+	  //unsigned int finalFTId32 = finalFTId.get_identifier32().get_compact();
 	  ATH_MSG_INFO("Adding feedthrough Barrel/Endcap=" << iBE << " pos/neg=" << iPN << " FT=" << iFT 
-		       << " (0x" << std::hex << finalFTId32 << std::dec << ")");
-	  m_vFinalPreselection.insert(finalFTId32);
+		       << " (0x" << std::hex << finalFTId.get_identifier32().get_compact() << std::dec << ")");
+	  m_vFinalPreselection.insert(finalFTId);
 	}
       }
     }
   }//end if something set
 
+  if (!m_subCaloPreselection.value().empty()) {
+    std::set<HWIdentifier> subcaloFTs;
+    if (m_subCaloPreselection.value().compare("EM")==0) {
+      for (auto febid : m_onlineId->feb_range()) {
+	if (m_onlineId->isEMBchannel(febid) || m_onlineId->isEMECchannel(febid)) {
+	  subcaloFTs.insert(m_onlineId->feedthrough_Id(febid));
+	}
+      }
+    }
+    else if (m_subCaloPreselection.value().compare("HEC")==0) {
+      for (auto febid : m_onlineId->feb_range()) {
+	if (m_onlineId->isHECchannel(febid)) {
+	  subcaloFTs.insert(m_onlineId->feedthrough_Id(febid));
+	} 
+      }
+    }
+    else if (m_subCaloPreselection.value().compare("FCAL")==0) {
+      for (auto febid : m_onlineId->feb_range()) {
+	if (m_onlineId->isFCALchannel(febid)) {
+	  subcaloFTs.insert(m_onlineId->feedthrough_Id(febid));
+	} 
+      }
+    }
+    else {
+      ATH_MSG_ERROR("Configuration problem, property 'SubCaloPreselection' set to " << m_subCaloPreselection.value() << ", expect 'EM', 'HEC' or 'FCAL'");
+      return StatusCode::FAILURE;
+    }
+    std::cout << "set sizes:" << subcaloFTs.size() << ", " << m_vFinalPreselection.size() << std::endl;
+    if (m_vFinalPreselection.size()>0) {
+      //Form the intersection of the preselection give as subdet and side/FT/slot
+      for(auto it = m_vFinalPreselection.begin(); it != m_vFinalPreselection.end(); ) {
+	if (subcaloFTs.find(*it)==subcaloFTs.end()) 
+	  it=m_vFinalPreselection.erase(it);
+	else 
+	  ++it;
+      }
+      if (m_vFinalPreselection.empty()) {
+	ATH_MSG_WARNING("Apparently inconistent configuration of FT preselections. No preselection left after intersecting 'SubCaloPreselection' with 'PosNeg/BE/FT' preselection");
+      }
+    }
+    else {
+      m_vFinalPreselection.swap(subcaloFTs);
+    }
+  }//end if subCaloPreselection set
+
+  if (!m_vFinalPreselection.empty()) {
+    ATH_MSG_INFO("Give pre-selection covers " << m_vFinalPreselection.size() << " feedthroughts. Will ignore bytestream data from other feedthroughs.");
+  }
+
   return StatusCode::SUCCESS;
 }     
   
 StatusCode LArRawCalibDataReadingAlg::execute(const EventContext& ctx) const {
+  LArDigitContainer* digits=nullptr;
   LArCalibDigitContainer* cdigits=nullptr;
   LArAccumulatedDigitContainer* accdigits=nullptr;
   LArAccumulatedCalibDigitContainer* caccdigits=nullptr;
   LArFebHeaderContainer* febHeaders=nullptr;
+
+  if (m_doDigits) {
+    SG::WriteHandle<LArDigitContainer> digitsHdl(m_DigitKey,ctx);
+    ATH_CHECK(digitsHdl.record(std::make_unique<LArDigitContainer>()));
+    digits=digitsHdl.ptr();
+    digits->reserve(200000); //Enough space for the full calo
+  }
 
   if (m_doCalibDigits) {
     SG::WriteHandle<LArCalibDigitContainer> cdigitsHdl(m_calibDigitKey,ctx);
@@ -176,7 +242,7 @@ StatusCode LArRawCalibDataReadingAlg::execute(const EventContext& ctx) const {
       if (m_failOnCorruption) {
 	return StatusCode::FAILURE;
       }else 
-	continue;
+	continue; //Jump to next ROD block
     }
     
      eformat::helper::Version ver(rob.rod_version());
@@ -198,7 +264,10 @@ StatusCode LArRawCalibDataReadingAlg::execute(const EventContext& ctx) const {
          }
       } else {
 	ATH_MSG_ERROR("Found unsupported Rod block type " << rodBlockType);
-	return m_failOnCorruption ? StatusCode::FAILURE : StatusCode::SUCCESS;
+	if (m_failOnCorruption) 
+	  return StatusCode::FAILURE;
+	else 
+	  continue; //Jump to next ROD block
       }
     }//End if need to re-init RodBlock
 
@@ -235,7 +304,7 @@ StatusCode LArRawCalibDataReadingAlg::execute(const EventContext& ctx) const {
       }
 
       if (m_vFinalPreselection.size()) {
-	const unsigned int ftId=m_onlineId->feedthrough_Id(fId).get_identifier32().get_compact();
+	const auto ftId=m_onlineId->feedthrough_Id(fId);
 	if (m_vFinalPreselection.find(ftId)==m_vFinalPreselection.end()) {
 	  ATH_MSG_DEBUG("Feedthrough with id 0x" << MSG::hex << ftId << MSG::dec <<" not in preselection. Ignored.");
 	  continue;
@@ -244,6 +313,21 @@ StatusCode LArRawCalibDataReadingAlg::execute(const EventContext& ctx) const {
 
 
       const int NthisFebChannel=m_onlineId->channelInSlotMax(fId);
+
+      //Decode LArDigits (if requested)
+      if (m_doDigits) {
+	uint32_t gain;
+	int fcNb;
+	std::vector<short> samples;
+	while (rodBlock->getNextRawData(fcNb,samples,gain)) {
+	  if (fcNb>=NthisFebChannel)
+	    continue;
+	  if (samples.size()==0) continue; // Ignore missing cells
+	  HWIdentifier cId = m_onlineId->channel_Id(fId,fcNb);
+	  digits->emplace_back(new LArDigit(cId, (CaloGain::CaloGain)gain, std::move(samples)));
+	  samples.clear();
+	}//end getNextRawData loop
+      }//end if m_doDigits
 
       //Decode LArCalibDigits (if requested)
       if (m_doCalibDigits) {
@@ -270,8 +354,8 @@ StatusCode LArRawCalibDataReadingAlg::execute(const EventContext& ctx) const {
       if (m_doAccDigits && rodBlockType==10) {
 	uint32_t gain;
 	int fcNb;
-	std::vector<uint32_t> samplesSum;
-	std::vector<uint32_t> samples2Sum;
+	std::vector<uint64_t> samplesSum;
+	std::vector<uint64_t> samples2Sum;
         uint32_t nTrigger;
 	while (rodBlock->getNextAccumulatedDigit(fcNb,samplesSum,samples2Sum,gain)) {
 	  if (fcNb>=NthisFebChannel)
@@ -297,8 +381,8 @@ StatusCode LArRawCalibDataReadingAlg::execute(const EventContext& ctx) const {
         uint16_t ispulsed_int;
         unsigned bitShift;
 	int fcNb;
-	std::vector<uint32_t> samplesSum;
-	std::vector<uint32_t> samples2Sum;
+	std::vector<uint64_t> samplesSum;
+	std::vector<uint64_t> samples2Sum;
         uint32_t nTrigger;
 	while (rodBlock->getNextAccumulatedCalibDigit(fcNb,samplesSum,samples2Sum,itmp,gain)) {
 	  if (fcNb>=NthisFebChannel)
@@ -319,7 +403,7 @@ StatusCode LArRawCalibDataReadingAlg::execute(const EventContext& ctx) const {
             ispulsed_int=( ispulsed_int | ((uint16_t)ispulsed<<bitShift) );
             bitShift++;
           }
-          caccdigits->emplace_back(new LArAccumulatedCalibDigit(cId, (CaloGain::CaloGain)gain, std::move(samplesSum), std::move(samples2Sum), nTrigger, dac, delay, ispulsed, nstep, istep));
+          caccdigits->emplace_back(new LArAccumulatedCalibDigit(cId, (CaloGain::CaloGain)gain, std::move(samplesSum), std::move(samples2Sum), nTrigger, dac, delay, ispulsed_int, nstep, istep));
 	}//end getNext loop
         caccdigits->setDelayScale(m_delayScale);
       }//end if m_doAccDigits

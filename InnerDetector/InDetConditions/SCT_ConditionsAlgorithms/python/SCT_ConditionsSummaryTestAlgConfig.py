@@ -1,6 +1,6 @@
 """Define method to configure and test SCT_ConditionsSummaryTestAlg
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -8,10 +8,10 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 def SCT_ConditionsSummaryTestAlgCfg(flags, name="SCT_ConditionsSummaryTestAlg", **kwargs):
     """Return a configured SCT_ConditionsSummaryTestAlg"""
     acc = ComponentAccumulator()
-    from InDetConfig.InDetRecToolConfig import InDetSCT_ConditionsSummaryToolCfg
-    InDetSCT_ConditionsSummaryToolWithoutFlagged = acc.popToolsAndMerge(InDetSCT_ConditionsSummaryToolCfg(flags,withFlaggedCondTool=False))
+    from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_ConditionsSummaryToolCfg
+    InDetSCT_ConditionsSummaryToolWithoutFlagged = acc.popToolsAndMerge(SCT_ConditionsSummaryToolCfg(flags,withFlaggedCondTool=False))
     kwargs.setdefault("SCT_ConditionsSummaryTool", InDetSCT_ConditionsSummaryToolWithoutFlagged)
-    acc.addEventAlgo(CompFactory.SCT_ConditionsSummaryTestAlg(**kwargs))
+    acc.addEventAlgo(CompFactory.SCT_ConditionsSummaryTestAlg(name, **kwargs))
     return acc
 
 if __name__=="__main__":
@@ -23,6 +23,7 @@ if __name__=="__main__":
     Configurable.configurableRun3Behavior=1
     
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    ConfigFlags.Input.Files = []
     ConfigFlags.Input.isMC = False
     ConfigFlags.Input.ProjectName = "data17_13TeV"
     ConfigFlags.Input.RunNumber = [310809]

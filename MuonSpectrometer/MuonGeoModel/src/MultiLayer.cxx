@@ -55,13 +55,12 @@ namespace {
 
 namespace MuonGM {
 
-    MultiLayer::MultiLayer(std::string n)
-        : DetectorElement(std::move(n)), nrOfLayers(0), nrOfTubes(0), tubePitch(0.), width(0.), length(0.), thickness(0.), mdtthickness(0.), longWidth(0.), nrOfSteps(0), cutoutNsteps(0),
+    MultiLayer::MultiLayer(const MYSQL& mysql, const std::string& n)
+        : DetectorElement(n), nrOfLayers(0), nrOfTubes(0), tubePitch(0.), width(0.), length(0.), thickness(0.), mdtthickness(0.), longWidth(0.), nrOfSteps(0), cutoutNsteps(0),
           cutoutAtAngle(false), m_nonCutoutXSteps(), m_nonCutoutYSteps() {
         MsgStream log(Athena::getMessageSvc(), "MultiLayer::MultiLayer");
 
-        MYSQL *mysql = MYSQL::GetPointer();
-        MDT *md = (MDT *)mysql->GetTechnology(name);
+        const MDT *md = dynamic_cast<const MDT*>(mysql.GetTechnology(name));
         if (md) {
             nrOfLayers = md->numOfLayers;
             mdtthickness = md->totalThickness;
@@ -83,10 +82,11 @@ namespace MuonGM {
         }
     }
 
-    GeoFullPhysVol *MultiLayer::build() {
+    GeoFullPhysVol *MultiLayer::build(const StoredMaterialManager& matManager,
+                                      const MYSQL& mysql) {
         MsgStream log(Athena::getMessageSvc(), "MultiLayer::build");
 
-        DriftTube tube(name + " DriftTube");
+        DriftTube tube(mysql, name + " DriftTube");
         double eps = 0.001;
         double tuberad = tube.outerRadius;
         if (verbose_multilayer) {
@@ -333,7 +333,7 @@ namespace MuonGM {
 
         stube->unref();
 
-        const GeoMaterial *mlay = getMaterialManager()->getMaterial("std::Air");
+        const GeoMaterial *mlay = matManager.getMaterial("std::Air");
         GeoLogVol *llay = new GeoLogVol(logVolName, slay, mlay);
         GeoFullPhysVol *play = new GeoFullPhysVol(llay);
 
@@ -352,7 +352,7 @@ namespace MuonGM {
             }
             GeoShape *sboxf = new GeoTrd(mdtthickness, mdtthickness, longWidth, longWidth, tubePitch / 4. + 1 * Gaudi::Units::mm);
             sfoam = &(sfoam->subtract((*sboxf) << GeoTrf::Translate3D(0., 0., length / 2. - tubePitch / 4.)));
-            mfoam = getMaterialManager()->getMaterial("muo::Foam");
+            mfoam = matManager.getMaterial("muo::Foam");
             lfoam = new GeoLogVol("MultiLayerFoam", sfoam, mfoam);
 
         } else if (foamthicknessup != 0) {
@@ -364,7 +364,7 @@ namespace MuonGM {
             }
             GeoShape *sboxf = new GeoTrd(mdtthickness, mdtthickness, longWidth, longWidth, tubePitch / 4. + 1 * Gaudi::Units::mm);
             sfoam = &(sfoam->subtract((*sboxf) << GeoTrf::Translate3D(0., 0., length / 2. - tubePitch / 4.)));
-            mfoam = getMaterialManager()->getMaterial("muo::Foam");
+            mfoam = matManager.getMaterial("muo::Foam");
             lfoam = new GeoLogVol("MultiLayerFoam", sfoam, mfoam);
 
         } else if (logVolName.find("MDT09") != std::string::npos || logVolName.find("MDT14") != std::string::npos) {
@@ -404,7 +404,7 @@ namespace MuonGM {
                 if (verbose_multilayer) {
                     log << MSG::VERBOSE << " logVolName " << logVolName << " step = " << j << " tube length = " << tube.length << endmsg;
                 }
-                tubeVector.push_back(tube.build());
+                tubeVector.push_back(tube.build(matManager));
             }
 
             // Cutouts
@@ -482,7 +482,7 @@ namespace MuonGM {
 
                     if (std::abs(tlen - previousTlen) > 0.001) {
                         tube.length = tlen;
-                        tubeVector.push_back(tube.build());
+                        tubeVector.push_back(tube.build(matManager));
                         if (weAreInCutStep < 1) {
                             internalCutout.push_back(false);
                         } else {
@@ -518,7 +518,7 @@ namespace MuonGM {
         if (cutoutNsteps < -10000 && cutoutNsteps > -40000) {
 
             bool internalCutoutBMG[3] = {false, true, false};
-            std::array<std::array<int, 3>, 4> NtubesBMG;
+            std::array<std::array<int, 3>, 4> NtubesBMG{};
 
             if (cutoutNsteps == -11112) { // BMG1A12 - ML1
                 NtubesBMG = {{{{23, 7, 24}}, {{24, 7, 23}}, {{24, 7, 23}}, {{25, 7, 22}}}};

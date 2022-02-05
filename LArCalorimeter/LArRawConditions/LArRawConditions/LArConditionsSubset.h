@@ -233,7 +233,7 @@ public:
     /// They must be properly sorted.
     void                    insertCorrections (CorrectionVec&& corrs);
 
-    //Get NCHANNELPERFEB
+    //Get channelVectorSize()
     unsigned                channelVectorSize() const;
 
     /// Fill map from vector
@@ -607,8 +607,8 @@ inline
 unsigned
 LArConditionsSubset<T>::channelVectorSize() const
 {
- //SuperCells have 312 channels per FEB, the regular readout has 128.
-  return m_groupingType == LArConditionsContainerBase::SuperCells ? 312 : 128;
+ //SuperCells have 320 channels per FEB, the regular readout has 128.
+  return m_groupingType == LArConditionsContainerBase::SuperCells ? 320 : 128;
 }
 
 

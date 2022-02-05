@@ -185,6 +185,7 @@ namespace top {
       else if (m_PMGTruthWeights->hasWeight(" muR=0.50000E+00 muF=0.50000E+00 ")) scaleWeight = m_PMGTruthWeights->getWeight(" muR=0.50000E+00 muF=0.50000E+00 "); // for e.g. ttZ DSID 410218
       else if (m_PMGTruthWeights->hasWeight(" dyn=   0 muR=0.50000E+00 muF=0.50000E+00 ")) scaleWeight = m_PMGTruthWeights->getWeight(" dyn=   0 muR=0.50000E+00 muF=0.50000E+00 "); // for e.g. tWZ 412118
       else if (m_PMGTruthWeights->hasWeight("1009")) scaleWeight = m_PMGTruthWeights->getWeight("1009"); // for e.g. tZ 412063
+      else if (m_PMGTruthWeights->hasWeight(" dyn=  -1 muR=0.50000E+00 muF=0.50000E+00 ")) scaleWeight = m_PMGTruthWeights->getWeight(" dyn=  -1 muR=0.50000E+00 muF=0.50000E+00 "); // for e.g. ttZ 504330
       else if (m_PMGTruthWeights->hasWeight("muR=05,muF=05")) scaleWeight = m_PMGTruthWeights->getWeight("muR=05,muF=05"); // for some other generator setups
       else top::check(m_PMGTruthWeights->hasWeight(" muR = 0.5, muF = 0.5 "), "JetFlavorPlots::apply(): Weight \" muR = 0.5, muF = 0.5 \" not found. Please report this message!");
       double eventWeight = scaleWeight;
@@ -208,6 +209,7 @@ namespace top {
       else if (m_PMGTruthWeights->hasWeight(" muR=0.20000E+01 muF=0.20000E+01 ")) scaleWeight = m_PMGTruthWeights->getWeight(" muR=0.20000E+01 muF=0.20000E+01 "); // for e.g. ttZ DSID 410218
       else if (m_PMGTruthWeights->hasWeight(" dyn=   0 muR=0.20000E+01 muF=0.20000E+01 ")) scaleWeight = m_PMGTruthWeights->getWeight(" dyn=   0 muR=0.20000E+01 muF=0.20000E+01 "); // for e.g. tWZ 412118
       else if (m_PMGTruthWeights->hasWeight("1005")) scaleWeight = m_PMGTruthWeights->getWeight("1005"); // for e.g. tZ 412063
+      else if (m_PMGTruthWeights->hasWeight(" dyn=  -1 muR=0.20000E+01 muF=0.20000E+01 ")) scaleWeight = m_PMGTruthWeights->getWeight(" dyn=  -1 muR=0.20000E+01 muF=0.20000E+01 "); // for e.g. ttZ 504330
       else if (m_PMGTruthWeights->hasWeight("muR=20,muF=20")) scaleWeight = m_PMGTruthWeights->getWeight("muR=20,muF=20"); // for some other generator setups
       else top::check(m_PMGTruthWeights->hasWeight(" muR = 2.0, muF = 2.0 "), "JetFlavorPlots::apply(): Weight \" muR = 2.0, muF = 2.0 \" not found. Please report this message!");
       double eventWeight = scaleWeight;

@@ -50,8 +50,6 @@ LArRawChannelBuilder.UseTDC=True
 
 
 ToolSvc.LArRodDecoder.FirstSample=2
-# Turn off printing for LArRoI_Map
-ToolSvc.LArRoI_Map.Print=FALSE; 
 
 # write out a list of all Storegate collection with their keys and
 # lock/unlock state. Very useful for debugging purpose

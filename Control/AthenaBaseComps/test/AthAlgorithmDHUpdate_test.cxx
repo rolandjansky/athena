@@ -1,8 +1,6 @@
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
  */
-
-// $Id$
 /**
  * @file AthenaBaseComps/test/AthAlgorithmDHUpdate_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -28,11 +26,11 @@ CLASS_DEF (A2, 132102065, 0)
 CLASS_DEF (A3, 132102066, 0)
 SG_BASES2 (A1, A2, A3);
 
-class B2 {};
-class B1 : public B2 {};
-CLASS_DEF (B1, 132102074, 0)
-CLASS_DEF (B2, 132102075, 0)
-SG_BASE (B1, B2);
+class BB2 {};
+class BB1 : public BB2 {};
+CLASS_DEF (BB1, 132102074, 0)
+CLASS_DEF (BB2, 132102075, 0)
+SG_BASE (BB1, BB2);
 
 class C2 {};
 class C1 : public C2 {};
@@ -125,7 +123,7 @@ void test1()
   Gaudi::DataHandle h1 (DataObjID (ClassID_traits<A1>::ID(), "a1"));
   h.handle_ptrs.push_back (&h1);
 
-  h.outDeps.emplace (ClassID_traits<B1>::ID(), "b1");
+  h.outDeps.emplace (ClassID_traits<BB1>::ID(), "b1");
   h.outDeps.emplace (ClassID_traits<C1>::ID(), "c1");
   h.extraOutDeps.emplace (ClassID_traits<C1>::ID(), "c1");
   h.extraOutDeps.emplace (ClassID_traits<C1>::ID(), "d1");
@@ -140,7 +138,7 @@ void test1()
   DataObjIDColl exp = {
     { ClassID_traits<A2>::ID(), "a1" },
     { ClassID_traits<A3>::ID(), "a1" },
-    { ClassID_traits<B2>::ID(), "b1" },
+    { ClassID_traits<BB2>::ID(), "b1" },
     { ClassID_traits<C1>::ID(), "c1" },
     { ClassID_traits<C2>::ID(), "c1" },
     { ClassID_traits<C1>::ID(), "d1" },

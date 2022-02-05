@@ -11,9 +11,7 @@
 
 from ElectronPhotonSelectorTools.EgammaPIDdefs import egammaPID
 #
-import ElectronPhotonSelectorTools.ForwardElectronIsEMLooseSelectorCutDefs as ForwardElectronIsEMLooseSelectorCutDefs
-import ElectronPhotonSelectorTools.ForwardElectronIsEMTightSelectorCutDefs as ForwardElectronIsEMTightSelectorCutDefs
-import ElectronPhotonSelectorTools.ForwardElectronIsEMMediumSelectorCutDefs as ForwardElectronIsEMMediumSelectorCutDefs
+import ElectronPhotonSelectorTools.ForwardElectronIsEMMenuDefs as ForwardElectronIsEMSelectorCutDefs
 
 
 class forwardelectronPIDmenu:
@@ -25,16 +23,16 @@ class forwardelectronPIDmenu:
 ForwardElectronIsEMMapMC15 = {
     egammaPID.ForwardElectronIDLoose: (
         egammaPID.ID_ForwardElectron,
-        ForwardElectronIsEMLooseSelectorCutDefs.ForwardElectronIsEMLooseSelectorConfigMC15),
+        ForwardElectronIsEMSelectorCutDefs.ForwardElectronIsEMLooseSelectorConfigMC15),
     egammaPID.ForwardElectronIDMedium: (
         egammaPID.ID_ForwardElectron,
-        ForwardElectronIsEMMediumSelectorCutDefs.ForwardElectronIsEMMediumSelectorConfigMC15),
+        ForwardElectronIsEMSelectorCutDefs.ForwardElectronIsEMMediumSelectorConfigMC15),
     egammaPID.ForwardElectronIDTight: (
         egammaPID.ID_ForwardElectron,
-        ForwardElectronIsEMTightSelectorCutDefs.ForwardElectronIsEMTightSelectorConfigMC15),
+        ForwardElectronIsEMSelectorCutDefs.ForwardElectronIsEMTightSelectorConfigMC15),
     egammaPID.NoIDCut: (
         0,
-        ForwardElectronIsEMLooseSelectorCutDefs.ForwardElectronIsEMLooseSelectorConfigMC15)
+        ForwardElectronIsEMSelectorCutDefs.ForwardElectronIsEMLooseSelectorConfigMC15)
 }
 
 

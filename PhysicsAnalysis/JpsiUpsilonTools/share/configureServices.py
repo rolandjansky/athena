@@ -3,8 +3,8 @@
 #
 # set up extrapolator
 #
-from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
-InDetExtrapolator = AtlasExtrapolator()
+from InDetRecExample import TrackingCommon
+InDetExtrapolator = TrackingCommon.getInDetExtrapolator()
 ToolSvc += InDetExtrapolator
 print      (InDetExtrapolator)
 
@@ -147,8 +147,7 @@ print     ( InDetFastVxFitterTool)
 
 from TrkVertexBilloirTools.TrkVertexBilloirToolsConf import Trk__FullVertexFitter
 InDetFullVxFitterTool = Trk__FullVertexFitter(name                   = "InDetFullVertexFitterTool",
-                                              LinearizedTrackFactory = InDetLinFactory,
-                                              Extrapolator           = InDetExtrapolator)
+                                              LinearizedTrackFactory = InDetLinFactory)
 ToolSvc += InDetFullVxFitterTool
 print      (InDetFullVxFitterTool)
 
@@ -158,11 +157,3 @@ myVertexUpdator = Trk__KalmanVertexUpdator()
 ToolSvc += myVertexUpdator
 print    (  myVertexUpdator)
 
-
-
-# timing
-from PrimaryDPDMaker.PrimaryDPDMakerConf import MBTSTimeFilterTool
-ToolSvc += MBTSTimeFilterTool()
-MBTSTimeFilterTool.ChargeThreshold   = 60.0/222.0
-MBTSTimeFilterTool.MinHitsPerSide    = 2
-MBTSTimeFilterTool.MaxTimeDifference = 10.0

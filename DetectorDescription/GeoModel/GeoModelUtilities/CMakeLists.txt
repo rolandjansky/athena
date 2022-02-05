@@ -27,7 +27,7 @@ atlas_add_library( GeoModelUtilities
    GeoModelUtilities/*.h ${sources}
    PUBLIC_HEADERS GeoModelUtilities
    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
-   LINK_LIBRARIES ${EIGEN_LIBRARIES} ${GEOMODEL_LIBRARIES} ${libraries} )
+   LINK_LIBRARIES GeoPrimitives ${EIGEN_LIBRARIES} ${GEOMODEL_LIBRARIES} ${libraries} )
 
 atlas_add_test( GeoGetIds_test
    SOURCES test/GeoGetIds_test.cxx

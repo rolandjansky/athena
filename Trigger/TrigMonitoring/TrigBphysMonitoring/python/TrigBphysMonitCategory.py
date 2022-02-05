@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
@@ -82,26 +82,26 @@ if not ConfigFlags.Input.isMC :
 
 if ConfigFlags.Trigger.EDMVersion == 3 :
   monitoring_bphys = [
-                      'HLT_2mu4_bJpsimumu_L12MU4',
-                      'HLT_2mu4_bUpsimumu_L12MU4',
-                      'HLT_2mu4_bDimu_L12MU4',
-                      'HLT_mu6_mu4_bJpsimumu_L1MU6_2MU4',
-                      'HLT_mu6_mu4_bUpsimumu_L1MU6_2MU4',
-                      'HLT_mu6_mu4_bDimu_L1MU6_2MU4',
-                      'HLT_2mu6_bJpsimumu_L12MU6',
-                      'HLT_2mu6_bUpsimumu_L12MU6',
-                      'HLT_2mu6_bDimu_L12MU6',
-                      'HLT_mu11_mu6_bJpsimumu_L1MU11_2MU6',
-                      'HLT_mu11_mu6_bUpsimumu_L1MU11_2MU6',
-                      'HLT_mu11_mu6_bDimu_L1MU11_2MU6',
-                      'HLT_mu11_mu6_bPhi_L1MU11_2MU6',
-                      'HLT_mu11_mu6_bTau_L1MU11_2MU6',
-                      'HLT_mu11_mu6_bBmumu_L1MU11_2MU6',
-                      'HLT_mu11_mu6_bDimu2700_L1MU11_2MU6',
-                      'HLT_2mu4_bBmumux_BsmumuPhi_L12MU4',
-                      'HLT_mu6_mu4_bBmumux_BsmumuPhi_L1MU6_2MU4',
-                      'HLT_2mu4_bBmumux_BpmumuKp_L12MU4',
-                      'HLT_mu6_mu4_bBmumux_BpmumuKp_L1MU6_2MU4',
+                      'HLT_2mu4_bJpsimumu_L12MU3V',
+                      'HLT_2mu4_bUpsimumu_L12MU3V',
+                      'HLT_2mu4_bDimu_L12MU3V',
+                      'HLT_mu6_mu4_bJpsimumu_L1MU5VF_2MU3V',
+                      'HLT_mu6_mu4_bUpsimumu_L1MU5VF_2MU3V',
+                      'HLT_mu6_mu4_bDimu_L1MU5VF_2MU3V',
+                      'HLT_2mu6_bJpsimumu_L12MU5VF',
+                      'HLT_2mu6_bUpsimumu_L12MU5VF',
+                      'HLT_2mu6_bDimu_L12MU5VF',
+                      'HLT_mu11_mu6_bJpsimumu_L1MU8VF_2MU5VF',
+                      'HLT_mu11_mu6_bUpsimumu_L1MU8VF_2MU5VF',
+                      'HLT_mu11_mu6_bDimu_L1MU8VF_2MU5VF',
+                      'HLT_mu11_mu6_bPhi_L1MU8VF_2MU5VF',
+                      'HLT_mu11_mu6_bTau_L1MU8VF_2MU5VF',
+                      'HLT_mu11_mu6_bBmumu_L1MU8VF_2MU5VF',
+                      'HLT_mu11_mu6_bDimu2700_L1MU8VF_2MU5VF',
+                      'HLT_2mu4_bBmumux_BsmumuPhi_L12MU3V',
+                      'HLT_mu6_mu4_bBmumux_BsmumuPhi_L1MU5VF_2MU3V',
+                      'HLT_2mu4_bBmumux_BpmumuKp_L12MU3V',
+                      'HLT_mu6_mu4_bBmumux_BpmumuKp_L1MU5VF_2MU3V',
                      ]
   primary_bphys = [
                     'HLT_2mu4_bDimu_L12MU4',

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonPrepRawData/TgcPrepData.h"
@@ -8,10 +8,9 @@
 #include "MuonEventTPCnv/MuonPrepRawData/MuonPRD_Container_p1.h"
 
 #include "MuonIdHelpers/TgcIdHelper.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonEventTPCnv/MuonPrepRawData/TgcPrepDataCnv_p1.h"
 #include "MuonEventTPCnv/MuonPrepRawData/TgcPrepDataContainerCnv_p1.h"
-
+#include "TrkEventCnvTools/ITrkEventCnvTool.h"
 // Gaudi
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
@@ -58,16 +57,19 @@ StatusCode Muon::TgcPrepDataContainerCnv_p1::initialize(MsgStream &log) {
         if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the Tgc ID helper." << endmsg;
     }
 
-    sc = detStore->retrieve(m_muonDetMgr);
-    if (sc.isFailure()) {
-        log << MSG::FATAL << "Could not get PixelDetectorDescription" << endmsg;
-        return sc;
+    if (m_eventCnvTool.retrieve().isFailure()) {
+        log << MSG::FATAL << "Could not get DetectorDescription manager" << endmsg;
+        return StatusCode::FAILURE;
     }
 
     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
     return StatusCode::SUCCESS;
 }
-
+const MuonGM::TgcReadoutElement* Muon::TgcPrepDataContainerCnv_p1::getReadOutElement(const Identifier& id ) const {
+    const Trk::ITrkEventCnvTool* cnv_tool = m_eventCnvTool->getCnvTool(id);
+    if (!cnv_tool) return nullptr; 
+    return dynamic_cast<const MuonGM::TgcReadoutElement*>(cnv_tool->getDetectorElement(id));
+}
 void Muon::TgcPrepDataContainerCnv_p1::transToPers(const Muon::TgcPrepDataContainer* transCont,  Muon::MuonPRD_Container_p1* persCont, MsgStream &log) 
 {
 
@@ -92,20 +94,15 @@ void Muon::TgcPrepDataContainerCnv_p1::transToPers(const Muon::TgcPrepDataContai
     TgcPrepDataCnv_p1  chanCnv;
     TRANS::const_iterator it_Coll     = transCont->begin();
     TRANS::const_iterator it_CollEnd  = transCont->end();
-    unsigned int collIndex;
+    unsigned int collIndex = 0;
     unsigned int chanBegin = 0;
     unsigned int chanEnd = 0;
     int numColl = transCont->numberOfCollections();
-    // if(numColl == transCont->hashFunc().max() ) { // let's count how many collections we have:
-    //  numColl = 0;
-    //  for ( ; it_Coll != it_CollEnd; it_Coll++)
-    //     numColl++;
-    //  it_Coll     = transCont->begin(); // reset the iterator, we used it!
-    // }
+    
     persCont->m_collections.resize(numColl);    
     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Preparing " << persCont->m_collections.size() << "Collections" << endmsg;
 
-    for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, it_Coll++)  {
+    for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, ++it_Coll)  {
         // Add in new collection
         if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " New collection" << endmsg;
         const Muon::TgcPrepDataCollection& collection = (**it_Coll);
@@ -161,9 +158,8 @@ void  Muon::TgcPrepDataContainerCnv_p1::persToTrans(const Muon::MuonPRD_Containe
         coll->setIdentifier(Identifier(pcoll.m_id));
         unsigned int nchans           = pcoll.m_end - pcoll.m_begin;
         coll->resize(nchans);
-//        MuonDD::TgcReadoutElement * de = m_muonDetMgr->getDetectorElement(collIDHash);
 // No hash based lookup for Tgcs?
-        const MuonGM::TgcReadoutElement * de = m_muonDetMgr->getTgcReadoutElement(collID);
+        const MuonGM::TgcReadoutElement * de = getReadOutElement(collID);
         // Fill with channels
         for (unsigned int ichan = 0; ichan < nchans; ++ ichan) {
             const TPObjRef pchan = persCont->m_PRD[ichan + pcoll.m_begin];

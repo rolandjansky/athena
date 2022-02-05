@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGGER_DECISION_TOOL_CHAIN_GROUP_H
@@ -133,8 +133,8 @@ namespace Trig {
        * @return Vector of LinkInfo, where each entry wraps an ElementLink to the feature, and the Decision object it came from.
        **/  
       template<class CONTAINER>
-      std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > features(EventPtr_t eventStore,
-                SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer>& HLTSummaryKeyIn,
+      std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > features(const asg::EventStoreType* eventStore,
+                const SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer>& HLTSummaryKeyIn,
                 unsigned int condition = TrigDefs::Physics,
                 const std::string& containerSGKey = "",
                 const unsigned int featureCollectionMode = TrigDefs::lastFeatureOfType,

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -45,7 +45,6 @@ if __name__ == "__main__":
     from AthenaCommon.Logging import log
     # from AthenaCommon.Constants import DEBUG
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    # from AthenaConfiguration.TestDefaults import defaultTestFiles
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 
@@ -59,18 +58,6 @@ if __name__ == "__main__":
     # To run on data do e.g.
     # ConfigFlags.Input.Files = ["../q431/myESD.pool.root"]
 
-    # Just enable ID for the moment.
-    ConfigFlags.Detector.GeometryBpipe = True
-    ConfigFlags.Detector.GeometryMDT = True
-    ConfigFlags.Detector.GeometryTGC = True
-    ConfigFlags.Detector.GeometryCSC = True
-    ConfigFlags.Detector.GeometryRPC = True
-    ConfigFlags.Detector.GeometryTile = True
-    ConfigFlags.Detector.GeometryLAr = True
-    ConfigFlags.Detector.GeometryPixel = True
-    ConfigFlags.Detector.GeometrySCT = True
-    ConfigFlags.Detector.GeometryTRT = True
-
     # This should run serially for the moment.
     ConfigFlags.Concurrency.NumThreads = 1
     ConfigFlags.Concurrency.NumConcurrentEvents = 1
@@ -82,29 +69,41 @@ if __name__ == "__main__":
     cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
 
-    from AtlasGeoModel.GeoModelConfig import GeoModelCfg
-    cfg.merge(GeoModelCfg(ConfigFlags))
+    if ConfigFlags.Detector.GeometryBpipe:
+        from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
+        cfg.merge(BeamPipeGeometryCfg(ConfigFlags))
 
-    from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
-    cfg.merge(MuonGeoModelCfg(ConfigFlags))
+    if ConfigFlags.Detector.GeometryPixel:
+        from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
+        cfg.merge(PixelReadoutGeometryCfg(ConfigFlags))
 
-    from LArGeoAlgsNV.LArGMConfig import LArGMCfg
-    cfg.merge(LArGMCfg(ConfigFlags))
+    if ConfigFlags.Detector.GeometrySCT:
+        from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+        cfg.merge(SCT_ReadoutGeometryCfg(ConfigFlags))
 
-    from TileGeoModel.TileGMConfig import TileGMCfg
-    cfg.merge(TileGMCfg(ConfigFlags))
+    if ConfigFlags.Detector.GeometryTRT:
+        from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
+        cfg.merge(TRT_ReadoutGeometryCfg(ConfigFlags))
 
-    from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
-    cfg.merge(BeamPipeGeometryCfg(ConfigFlags))
+    if ConfigFlags.Detector.GeometryITkPixel:
+        from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelReadoutGeometryCfg
+        cfg.merge(ITkPixelReadoutGeometryCfg(ConfigFlags))
 
-    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-    cfg.merge(PixelGeometryCfg(ConfigFlags))
+    if ConfigFlags.Detector.GeometryITkStrip:
+        from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
+        cfg.merge(ITkStripReadoutGeometryCfg(ConfigFlags))
 
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-    cfg.merge(SCT_GeometryCfg(ConfigFlags))
+    if ConfigFlags.Detector.GeometryLAr:
+        from LArGeoAlgsNV.LArGMConfig import LArGMCfg
+        cfg.merge(LArGMCfg(ConfigFlags))
 
-    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-    cfg.merge(TRT_GeometryCfg(ConfigFlags))
+    if ConfigFlags.Detector.GeometryTile:
+        from TileGeoModel.TileGMConfig import TileGMCfg
+        cfg.merge(TileGMCfg(ConfigFlags))
+
+    if ConfigFlags.Detector.GeometryMuon:
+        from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
+        cfg.merge(MuonGeoModelCfg(ConfigFlags))
 
     from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
     cfg.merge(TrackingGeometrySvcCfg(ConfigFlags))

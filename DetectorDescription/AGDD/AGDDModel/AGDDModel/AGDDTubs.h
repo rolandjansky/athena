@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AGDDTubs_H
@@ -12,26 +12,29 @@
 
 class AGDDTubs: public AGDDVolume {
 public:
-	AGDDTubs(std::string s):AGDDVolume(s),_rin(0),_rou(0),_z(0),_phi0(0),_dphi(0) {}
-	void SetRio_Z(std::vector<double> v) 
+	AGDDTubs(const std::string& s,
+                 AGDDVolumeStore& vs,
+                 AGDDSectionStore& ss)
+          : AGDDVolume(s,vs,ss),m_rin(0),m_rou(0),m_z(0),m_phi0(0),m_dphi(0) {}
+	void SetRio_Z(const std::vector<double>& v) 
 	{
-		_rin=v[0];
-		_rou=v[1];
-		_z=v[2];
+		m_rin=v[0];
+		m_rou=v[1];
+		m_z=v[2];
 	}
-	void SetProfile(double p0,double dp) {_phi0=p0;_dphi=dp;}
-	void CreateVolume();
-	void CreateSolid();
-	double rin() {return _rin;}
-	double rou() {return _rou;}
-	double z() {return _z;}
-	double phi0() {return _phi0;}
-	double dphi() {return _dphi;}
-	double _rin;
-	double _rou;
-	double _z;
-	double _phi0;
-	double _dphi;
+	void SetProfile(double p0,double dp) {m_phi0=p0;m_dphi=dp;}
+        virtual void CreateVolume (AGDDBuilder& builder) override;
+	virtual void CreateSolid (const AGDDBuilder& builder) override;
+	double rin() const {return m_rin;}
+	double rou() const {return m_rou;}
+	double z() const {return m_z;}
+	double phi0() const {return m_phi0;}
+	double dphi() const {return m_dphi;}
+	double m_rin;
+	double m_rou;
+	double m_z;
+	double m_phi0;
+	double m_dphi;
 };
 
 #endif

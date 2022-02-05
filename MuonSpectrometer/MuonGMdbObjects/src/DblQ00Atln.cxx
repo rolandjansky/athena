@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -63,7 +63,7 @@ DblQ00Atln::DblQ00Atln(AmdcDb* atln) :
   if (m_nObj == 0) std::cerr<<"NO Atln banks in the AmdcDbRecord"<<std::endl;
 
   const AmdcDbRecord* pAmdcDbRecord = dynamic_cast<const AmdcDbRecord*>((*it));
-  if (pAmdcDbRecord == 0){
+  if (pAmdcDbRecord == nullptr){
     std::cerr << "No way to cast in AmdcDbRecord for " << getObjName() << std::endl;
     return;
   }
@@ -76,9 +76,9 @@ DblQ00Atln::DblQ00Atln(AmdcDb* atln) :
 
   int i = -1;
   it = pIRDBRecordset->begin();
-  for( ; it<pIRDBRecordset->end(); it++){
+  for( ; it<pIRDBRecordset->end(); ++it){
      pAmdcDbRecord = dynamic_cast<const AmdcDbRecord*>((*it));
-     if(pAmdcDbRecord == 0){
+     if(pAmdcDbRecord == nullptr){
        std::cerr << "No way to cast in AmdcDbRecord for " << getObjName() << std::endl;
        return;
      }

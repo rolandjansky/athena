@@ -22,7 +22,6 @@ NSkipPoints         = 23   # Shift peak to the 3rd sample if it is at 96ns
 theApp.EvtMax = 1
 
 ToolSvc = Service( "ToolSvc" )
-ToolSvc.LArRoI_Map.Print = False
 
 include( "AthenaCommon/Atlas.UnixStandardJob.py" )
 

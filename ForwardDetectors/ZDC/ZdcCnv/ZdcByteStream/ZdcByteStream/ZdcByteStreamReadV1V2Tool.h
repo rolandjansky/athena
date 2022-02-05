@@ -63,7 +63,8 @@ namespace LVL1BS {
  * @author alexander.mazurov@cern.ch
  */
 
-class ZdcByteStreamReadV1V2Tool: public asg::AsgTool, virtual public IIncidentListener {
+class ZdcByteStreamReadV1V2Tool: public asg::AsgTool
+{
   ASG_TOOL_INTERFACE(ZdcByteStreamReadV1V2Tool)
   ASG_TOOL_CLASS0(ZdcByteStreamReadV1V2Tool)
 public:
@@ -72,28 +73,27 @@ public:
 
   virtual StatusCode initialize();
   virtual StatusCode finalize();
-  virtual void handle( const Incident& );
 
   // =========================================================================
   /// Convert ROB fragments to trigger towers
   StatusCode convert(
     const IROBDataProviderSvc::VROBFRAG& robFrags,
     xAOD::TriggerTowerContainer* const ttCollection
-  );
+  ) const;
 
   StatusCode convert(	const IROBDataProviderSvc::VROBFRAG& robFrags,
-			ZdcDigitsCollection* zdcCollection);
+			ZdcDigitsCollection* zdcCollection) const;
   
-  StatusCode convert(xAOD::TriggerTowerContainer* const ttCollection);
-  StatusCode convert(const std::string& sgKey, xAOD::TriggerTowerContainer* const ttCollection);
+  StatusCode convert(xAOD::TriggerTowerContainer* const ttCollection) const;
+  StatusCode convert(const std::string& sgKey, xAOD::TriggerTowerContainer* const ttCollection) const;
 
-  ZdcDigitsCollection* convertTT2ZD(xAOD::TriggerTowerContainer* const ttCollection);
+  ZdcDigitsCollection* convertTT2ZD(xAOD::TriggerTowerContainer* const ttCollection) const;
   //xAOD::ZdcModuleContainer* convertTT2ZM(xAOD::TriggerTowerContainer* const ttCollection);
 
 
   // =========================================================================
   /// Return reference to vector with all possible Source Identifiers
-  const std::vector<uint32_t>& ppmSourceIDs(const std::string& sgKey);
+  const std::vector<uint32_t>& ppmSourceIDs(const std::string& sgKey) const;
 
 private:
   enum class RequestType { PPM, CPM, CMX };
@@ -102,31 +102,76 @@ private:
   typedef OFFLINE_FRAGMENTS_NAMESPACE::PointerType      RODPointer;
 
 
+  class BitReader
+  {
+  public:
+    BitReader (const std::vector<uint32_t>& ppBlock)
+      : m_ppPointer (0),
+        m_ppMaxBit (31 * ppBlock.size()),
+        m_ppBlock (ppBlock)
+    {
+    }
+
+    uint32_t getField (const uint8_t numBits);
+
+
+  private:
+    uint32_t m_ppPointer;
+    uint32_t m_ppMaxBit;
+    const std::vector<uint32_t>& m_ppBlock;
+  };
+
+
+  struct State
+  {
+    std::set<uint32_t> m_coolIds;
+    xAOD::TriggerTowerContainer* m_triggerTowers = nullptr;
+
+    ZdcCaloUserHeader m_caloUserHeader;
+    ZdcSubBlockHeader m_subBlockHeader;
+
+    uint8_t m_subDetectorID = 0;
+    uint32_t m_rodSourceId = 0;
+    uint32_t m_robSourceId = 0;
+    uint8_t m_verCode = 0;
+
+    // For RUN2
+    std::vector<uint32_t> m_ppBlock;
+    // For RUN1
+    std::map<uint8_t, std::vector<uint16_t>> m_ppFadcs;
+    std::map<uint8_t, std::vector<uint16_t>> m_ppLuts;
+  };
+
+
 private:
-  StatusCode processRobFragment_(const ROBIterator& robFrag,
-                                 const RequestType& requestedType);
+  StatusCode processRobFragment_(State& state,
+                                 const ROBIterator& robFrag,
+                                 const RequestType& requestedType) const;
 
   // ==========================================================================
   // PPM
   // ==========================================================================
-  StatusCode processPpmWord_(uint32_t word, int indata);
-  StatusCode processPpmBlock_();
+  StatusCode processPpmWord_(State& state, uint32_t word, int indata) const;
+  StatusCode processPpmBlock_(State& state) const;
 
-  StatusCode processPpmBlockR4V1_();
-  StatusCode processPpmBlockR3V1_();
-  StatusCode processPpmStandardR4V1_();
-  StatusCode processPpmStandardR3V1_();
-  StatusCode processPpmStandardR3V1_(uint32_t word, int indata);
-  StatusCode processPpmCompressedR3V1_();
-  std::vector<uint16_t> getPpmAdcSamplesR3_(uint8_t format, uint8_t minIndex);
-  StatusCode processPpmCompressedR4V1_();
-  void interpretPpmHeaderR4V1_(uint8_t numAdc, int8_t& encoding,
-                               int8_t& minIndex);
-  std::vector<uint16_t> getPpmAdcSamplesR4_(uint8_t encoding, uint8_t minIndex);
-  StatusCode processPpmNeutral_();
-  uint32_t getPpmBytestreamField_(uint8_t numBits);
+  StatusCode processPpmBlockR4V1_(State& state) const;
+  StatusCode processPpmBlockR3V1_(State& state) const;
+  StatusCode processPpmStandardR4V1_(State& state) const;
+  StatusCode processPpmStandardR3V1_(State& state) const;
+  StatusCode processPpmStandardR3V1_(State& state, uint32_t word, int indata) const;
+  StatusCode processPpmCompressedR3V1_(State& state) const;
+  std::vector<uint16_t> getPpmAdcSamplesR3_(State& state, BitReader& br, uint8_t format, uint8_t minIndex) const;
+  StatusCode processPpmCompressedR4V1_(State& state) const;
+  void interpretPpmHeaderR4V1_(BitReader& br,
+                               uint8_t numAdc, int8_t& encoding,
+                               int8_t& minIndex) const;
+  std::vector<uint16_t> getPpmAdcSamplesR4_(State& state,
+                                            BitReader& br,
+                                            uint8_t encoding, uint8_t minIndex) const;
+  StatusCode processPpmNeutral_(State& state) const;
 
   StatusCode addTriggerTowerV2_(
+    State& state,
     uint8_t crate,
     uint8_t module,
     uint8_t channel,
@@ -139,17 +184,19 @@ private:
     const std::vector<uint16_t>& adcVal,
     const std::vector<uint8_t>& adcExt,
     const std::vector<int16_t>& pedCor,
-    const std::vector<uint8_t>& pedEn);
+    const std::vector<uint8_t>& pedEn) const;
 
   StatusCode addTriggerTowerV1_(
+    State& state,
     uint8_t crate,
     uint8_t module,
     uint8_t channel,
     const std::vector<uint16_t>& luts,
     const std::vector<uint16_t>& fadc
-  );
+  ) const;
 
   StatusCode addTriggerTowerV1_(
+    State& state,
     uint8_t crate,
     uint8_t module,
     uint8_t channel,
@@ -157,7 +204,9 @@ private:
     const std::vector<uint8_t>& lcpBcidVec,
     const std::vector<uint16_t>& fadc,
     const std::vector<uint8_t>& bcidExt
-  );
+  ) const;
+
+  void initSourceIDs();
 
 private:
   //ToolHandle<LVL1BS::L1CaloErrorByteStreamTool> m_errorTool;
@@ -168,39 +217,11 @@ private:
   ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
 
 private:
-  ZdcCaloUserHeader m_caloUserHeader;
-  ZdcSubBlockHeader m_subBlockHeader;
-  ZdcSubBlockStatus m_subBlockStatus;
-
-  uint8_t m_subDetectorID{};
-  RequestType m_requestedType;
-
-  std::set<uint32_t> m_coolIds;
   std::vector<uint32_t> m_ppmSourceIDs;
-  bool m_ppmIsRetMuon{};
   std::vector<uint32_t> m_ppmSourceIDsMuon;
-  bool m_ppmIsRetSpare{};
   std::vector<uint32_t> m_ppmSourceIDsSpare;
-  std::vector<uint32_t> m_cpSourceIDs;
-  ZdcSrcIdMap* m_srcIdMap{};
-  const ZdcID* m_zdcID{};
-
-  uint32_t m_rodSourceId{};
-  uint32_t m_robSourceId{};
-  uint32_t m_rodRunNumber{};
-  uint16_t m_rodVer{};
-  uint8_t m_verCode{};
-
-  // For RUN2
-  std::vector<uint32_t> m_ppBlock;
-  uint32_t m_ppPointer{};
-  uint32_t m_ppMaxBit{};
-  // For RUN1
-  std::map<uint8_t, std::vector<uint16_t>> m_ppLuts;
-  std::map<uint8_t, std::vector<uint16_t>> m_ppFadcs;
-// ==========================================================================
-private:
-  xAOD::TriggerTowerContainer* m_triggerTowers{};
+  ZdcSrcIdMap* m_srcIdMap;
+  const ZdcID* m_zdcID;
 };
 
 

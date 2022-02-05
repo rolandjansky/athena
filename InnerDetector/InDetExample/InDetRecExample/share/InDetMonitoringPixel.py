@@ -11,6 +11,7 @@ forceOnline = False # for testing of online monitoring and 100LB histograms
 doHitMonAlg       = True
 doClusterMonAlg   = True
 doErrorMonAlg     = True
+doMVAMonAlg       = False
 
 from PixelMonitoring.PixelMonitoringConf import PixelAthHitMonAlg
 from PixelMonitoring.PixelAthHitMonAlgCfg import PixelAthHitMonAlgCfg
@@ -21,38 +22,41 @@ from PixelMonitoring.PixelAthClusterMonAlgCfg import PixelAthClusterMonAlgCfg
 from PixelMonitoring.PixelMonitoringConf import PixelAthErrorMonAlg
 from PixelMonitoring.PixelAthErrorMonAlgCfg import PixelAthErrorMonAlgCfg
 
+from PixelMonitoring.PixelMonitoringConf import PixelAthMVAMonAlg
+from PixelMonitoring.PixelAthMVAMonAlgCfg import PixelAthMVAMonAlgCfg
+
 from InDetRecExample.InDetKeys import InDetKeys
 from InDetRecExample import TrackingCommon
 
-if forceOnline : athenaCommonFlags.isOnline = True
-kwargsHitMonAlg = { 'doOnline'        : True if athenaCommonFlags.isOnline() else False,      #Histograms for online (athenaPT) running
-                     'doLumiBlock'     : False if athenaCommonFlags.isOnline() else True,       #Turn on/off histograms stored for each lumi block
-                     'doLowOccupancy'  : False,      #Turn on/off histograms with binning for cosmics/single beam                    
-                     'doHighOccupancy' : True,       #Turn on/off histograms with binning for collisions
-                     'doHeavyIonMon'   : InDetFlags.doHeavyIon(),   # Histogram modification for heavy ion monitoring
-                     'doFEPlots'       : True,       #Turn on/off histograms with FE Status information
+if forceOnline : 
+  isOnline = True
+else:
+  isOnline = athenaCommonFlags.isOnline()
+kwargsHitMonAlg = { 'doOnline'        : isOnline,      #Histograms for online (GlobalMonitoring) running
+                     'doLumiBlock'     : not isOnline,     #Turn on/off histograms stored every 1(20) lumi block(s)
+                     'doFEPlots'       : True,                                                #Turn on/off per FE-I3 histograms
                      'RDOName'         : InDetKeys.PixelRDOs()
 }
 
-kwargsClusMonAlg = { 'doOnline'        : True if athenaCommonFlags.isOnline() else False,      #Histograms for online (athenaPT) running
-                      'doLumiBlock'     : False if athenaCommonFlags.isOnline() else True,       #Turn on/off histograms stored for each lumi block
-                      'doLowOccupancy'  : False,      #Turn on/off histograms with binning for cosmics/single beam
-                      'doHighOccupancy' : True,       #Turn on/off histograms with binning for collisions
-                      'doHeavyIonMon'   : InDetFlags.doHeavyIon(),   # Histogram modification for heavy ion monitoring
-                      'doFEPlots'       : True,       #Turn on/off histograms with FE Status information
+kwargsClusMonAlg = { 'doOnline'        : isOnline,     #Histograms for online (GlobalMonitoring) running
+                      'doLumiBlock'     : not isOnline,    #Turn on/off histograms stored every 1(20) lumi block(s)
+                      'doLowOccupancy'  : InDetFlags.doCosmics(),      #Setting up 1D histogram ranges and binnings, if False, high occupancy i.e. collisions settings will be used
+                      'doHeavyIonMon'   : InDetFlags.doHeavyIon(),     #Setting up 1D histogram ranges and binnings for heavy ions
+                      'doFEPlots'       : True,                                               #Turn on/off per FE-I3 histograms
                       'ClusterName'     : InDetKeys.PixelClusters(),
                       'TrackName'       : InDetKeys.Tracks()
 }
 
-kwargsErrMonAlg = { 'doOnline'        : True if athenaCommonFlags.isOnline() else False,      #Histograms for online (athenaPT) running
-                     'doLumiBlock'     : False if athenaCommonFlags.isOnline() else True,       #Turn on/off histograms stored for each lumi block
-                     'doLowOccupancy'  : False,      #Turn on/off histograms with binning for cosmics/single beam                    
-                     'doHighOccupancy' : True,       #Turn on/off histograms with binning for collisions
-                     'doHeavyIonMon'   : InDetFlags.doHeavyIon()
+kwargsErrMonAlg = { 'doOnline'        : isOnline,      #Histograms for online (GlobalMonitoring) running
+                     'doLumiBlock'     : not isOnline      #Turn on/off histograms stored every 1(20) lumi block(s)
 }
-if forceOnline : athenaCommonFlags.isOnline = False
 
-                                                                           
+kwargsMVAMonAlg = { 'calibFolder'     : 'mva01022022',
+                    'RDOName'         : InDetKeys.PixelRDOs(),
+                    'ClusterName'     : InDetKeys.PixelClusters(),
+                    'TrackName'       : InDetKeys.Tracks()
+}
+
 from AthenaMonitoring.DQMonFlags import DQMonFlags                                                                                                                                      
 from AthenaMonitoring import AthMonitorCfgHelperOld
 helper = AthMonitorCfgHelperOld(DQMonFlags, "NewPixelMonitoring")
@@ -84,6 +88,23 @@ if doErrorMonAlg:
   for k, v in kwargsErrMonAlg.items():
     setattr(pixelAthMonAlgErrorMonAlg, k, v)
   PixelAthErrorMonAlgCfg(helper, pixelAthMonAlgErrorMonAlg, **kwargsErrMonAlg)
+
+if doMVAMonAlg:
+  pixelAthMVAMonAlg = helper.addAlgorithm(PixelAthMVAMonAlg, 'PixelAthMVAMonAlg')
+  for k, v in kwargsMVAMonAlg.items():
+    setattr(pixelAthMVAMonAlg, k, v)
+  pixelAthMVAMonAlg.HoleSearchTool   = TrackingCommon.getInDetHoleSearchTool()
+  pixelAthMVAMonAlg.TrackSelectionTool.UseTrkTrackTools = True
+  pixelAthMVAMonAlg.TrackSelectionTool.CutLevel         = "TightPrimary"
+  #  pixelAthMVAMonAlg.TrackSelectionTool.CutLevel         = "Loose"
+  pixelAthMVAMonAlg.TrackSelectionTool.maxNPixelHoles   = 1
+  pixelAthMVAMonAlg.TrackSelectionTool.maxD0            = 2
+  pixelAthMVAMonAlg.TrackSelectionTool.maxZ0            = 150
+  pixelAthMVAMonAlg.TrackSelectionTool.TrackSummaryTool = TrackingCommon.getInDetTrackSummaryTool()
+  pixelAthMVAMonAlg.TrackSelectionTool.Extrapolator     = TrackingCommon.getInDetExtrapolator()
+
+  PixelAthMVAMonAlgCfg(helper, pixelAthMVAMonAlg, **kwargsMVAMonAlg)
+
 
 topSequence += helper.result()
 

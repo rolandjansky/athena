@@ -48,7 +48,6 @@ DetDescrCnvSvc = Service( "DetDescrCnvSvc" )
 DetDescrCnvSvc.DoIdChecks
 
 ToolSvc = Service( "ToolSvc" )
-ToolSvc.LArRoI_Map.Print=FALSE
 
 #obsolete!
 # include("LArCondCnv_CalibTB04_jobOptions.py")

@@ -13,7 +13,7 @@ def CTPSimulationCfg(flags):
                                                         jFexJetInput = "",
                                                         jFexLJetInput = "",
                                                         gFexJetInput =  "",
-                                                        gFexMETPufitInput = "",
+                                                        gFexMETNCInput = "",
                                                         gFexMETRhoInput = "",
                                                         gFexMETJwoJInput = "",
                                                         eFexClusterInput = "",
@@ -22,10 +22,10 @@ def CTPSimulationCfg(flags):
                                                         LegacyTopoInput = "L1TopoLegacyToCTPLocation"
                                                         ))
     log.info("Not all part of CTP simulation are enabled yet")
-    if flags.Trigger.enableL1CaloLegacy or not flags.Trigger.enableL1MuonPhase1:
+    if flags.Trigger.enableL1CaloLegacy:
         roib = CompFactory.ROIB.RoIBuilder("RoIBuilder",
                                             DoCalo = flags.Trigger.enableL1CaloLegacy,
-                                            DoMuon = not flags.Trigger.enableL1MuonPhase1)
+                                            DoMuon = False)   # not needed for L1MuonPhase1
         acc.addEventAlgo(roib)
 
 

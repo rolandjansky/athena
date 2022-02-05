@@ -29,20 +29,21 @@ StatusCode TestCascadeAlg::initialize() {
 }
 
 StatusCode TestCascadeAlg::execute() {
-    xAOD::VertexContainer*    jpsiContainer = nullptr;
-    xAOD::VertexAuxContainer* jpsiauxContainer = nullptr;
+    std::unique_ptr<xAOD::VertexContainer>    jpsiContainer = std::make_unique<xAOD::VertexContainer>();
+    std::unique_ptr<xAOD::VertexAuxContainer> jpsiauxContainer = std::make_unique<xAOD::VertexAuxContainer>();
+    jpsiContainer->setStore(jpsiauxContainer.get());
     
     // call Jpsi+2track tool
-    if( !m_jpsiFinder->performSearch(jpsiContainer, jpsiauxContainer).isSuccess() ) {
+    if( !m_jpsiFinder->performSearch(Gaudi::Hive::currentContext(), *jpsiContainer).isSuccess() ) {
       ATH_MSG_FATAL("Jpsi+2 track tool (" << m_jpsiFinder << ") failed.");
       return StatusCode::FAILURE;
     }
-    if(jpsiContainer->size() ==0) { delete jpsiContainer; return StatusCode::SUCCESS; }
+    if(jpsiContainer->size() ==0) { return StatusCode::SUCCESS; }
     std::vector<const xAOD::TrackParticle*> tracksJpsi;
     std::vector<std::vector<const xAOD::TrackParticle*>> tracksV0;
-    double mass_muon = 105.658;
-    double mass_pion = 139.570;
-    double mass_ks   = 497.61;
+    constexpr double mass_muon = 105.658;
+    constexpr double mass_pion = 139.570;
+    constexpr double mass_ks   = 497.61;
     std::vector<double> massesJpsi(2, mass_muon);
     std::vector<double> massesV0;
     std::vector<double> Masses(2, mass_muon);
@@ -62,7 +63,7 @@ StatusCode TestCascadeAlg::execute() {
     }
 
     double mass_v0 = mass_ks;
-    double mass_jpsi = 3.0969 * 1000;
+    constexpr double mass_jpsi = 3.0969 * 1000;
     int pereventcount = 0;
     for(auto jpsi : *jpsiContainer) { //Iterate over Jpsi vertices
 
@@ -102,12 +103,10 @@ StatusCode TestCascadeAlg::execute() {
           	const std::vector< std::vector<TLorentzVector> > &moms = result->getParticleMoms();
           	for(auto& p :moms) { ATH_MSG_DEBUG("new part"); for(auto &l : p) ATH_MSG_DEBUG("vect " << l.M()); }
            pereventcount++;
-           if(pereventcount>=m_perELimit) goto exitEvent;
+           if(pereventcount>=m_perELimit) return StatusCode::SUCCESS;
           }
        }
     }
 
-exitEvent:
-    delete jpsiContainer;
     return StatusCode::SUCCESS;
 }

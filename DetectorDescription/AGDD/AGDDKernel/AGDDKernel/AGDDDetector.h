@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AGDDDetector_H
@@ -14,8 +14,8 @@ class GeoMaterial;
 
 class AGDDDetector {
 public:
-        AGDDDetector(std::string s):m_small_x(0),m_large_x(0),m_y(0),m_z(0),m_name(s) {}
-        AGDDDetector(std::string s,std::string t):m_small_x(0),m_large_x(0),m_y(0),m_z(0),m_detectorType(t),m_name(s) {}
+        AGDDDetector(const std::string& s):m_small_x(0),m_large_x(0),m_y(0),m_z(0),m_name(s) {}
+        AGDDDetector(const std::string& s,const std::string& t):m_small_x(0),m_large_x(0),m_y(0),m_z(0),m_detectorType(t),m_name(s) {}
         virtual ~AGDDDetector() {}
 	virtual void SetXYZ(const std::vector<double>& v) 
 	{
@@ -29,7 +29,7 @@ public:
 	void large_x(double x) {m_large_x=x;}
 	void y(double yval) {m_y=yval;}
 	void z(double zval) {m_z=zval;}
-        void subType(std::string s) {m_sType=s;}
+        void subType(const std::string& s) {m_sType=s;}
 	double small_x() const {return m_small_x;}
 	double large_x() const {return m_large_x;}
 	double y() const {return m_y;}

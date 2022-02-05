@@ -11,6 +11,7 @@
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
 #include "InDetRIO_OnTrack/PixelRIO_OnTrackErrorScaling.h"
+#include "SiClusterizationTool/NnClusterizationFactory.h"
 
 #include "InDetPrepRawData/PixelGangedClusterAmbiguities.h"
 #include "TrkParameters/TrackParameters.h"
@@ -31,7 +32,8 @@
 #include <atomic>
 #include <mutex>
 
-namespace InDet {
+namespace ITk
+{
 
   /** @brief creates PixelClusterOnTrack objects allowing to
     calibrate cluster position and error using a given track hypothesis. 
@@ -47,16 +49,14 @@ namespace InDet {
 
    */
 
-  class NnClusterizationFactory;
-
-  enum ITkPixelClusterStrategy {
-    ITKPIXELCLUSTER_DEFAULT=0,
-    ITKPIXELCLUSTER_OUTLIER=1,
-    ITKPIXELCLUSTER_SHARED =2,
-    ITKPIXELCLUSTER_SPLIT  =3
+  enum class PixelClusterStrategy {
+    DEFAULT=0,
+    OUTLIER=1,
+    SHARED =2,
+    SPLIT  =3
   };
 
-  class ITkPixelClusterOnTrackTool: 
+  class PixelClusterOnTrackTool: 
         public AthAlgTool, virtual public Trk::IRIO_OnTrackCreator
 {
   ///////////////////////////////////////////////////////////////////
@@ -66,13 +66,11 @@ namespace InDet {
 public:
 
   //! AlgTool constructor 
-  ITkPixelClusterOnTrackTool(const std::string&,const std::string&,
+  PixelClusterOnTrackTool(const std::string&,const std::string&,
                           const IInterface*);
-  virtual ~ITkPixelClusterOnTrackTool ();
+  virtual ~PixelClusterOnTrackTool () = default;
   //! AlgTool initialisation
   virtual StatusCode initialize() override;
-  //! AlgTool termination
-  virtual StatusCode finalize  () override;
 
   /** @brief produces a PixelClusterOnTrack (object factory!).
 
@@ -102,7 +100,7 @@ protected:
 
   const InDet::PixelClusterOnTrack* correct
     (const Trk::PrepRawData&, const Trk::TrackParameters&,
-     const InDet::ITkPixelClusterStrategy) const;
+     const ITk::PixelClusterStrategy) const;
 
   const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo &getClusterSplittingProbability(const InDet::PixelCluster*pix) const {
       if (!pix || m_clusterSplitProbContainer.key().empty())  return Trk::ClusterSplitProbabilityContainer::getNoSplitProbability();
@@ -122,7 +120,7 @@ private:
 
   ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool", "Tool to retreive Lorentz angle"};
 
-  SG::ReadCondHandleKey<ITkPixelCalib::ITkPixelOfflineCalibData> m_clusterITkErrorKey{this, "ITkPixelOfflineCalibData", "ITkPixelOfflineCalibData", "Output key of ITk pixel cluster"};
+  SG::ReadCondHandleKey<ITk::PixelOfflineCalibData> m_clusterITkErrorKey{this, "ITkPixelOfflineCalibData", "ITkPixelOfflineCalibData", "Output key of ITk pixel cluster"};
 
   SG::ReadCondHandleKey<RIO_OnTrackErrorScaling> m_pixelErrorScalingKey
     {this,"PixelErrorScalingKey", "/Indet/TrkErrorScalingPixel", "Key for pixel error scaling conditions data."};
@@ -154,7 +152,7 @@ private:
   BooleanProperty                   m_applyNNcorrectionProperty{this, "applyNNcorrection", false};
   
   /** NN clusterizationi factory for NN based positions and errors **/
-  ToolHandle<NnClusterizationFactory>                   m_NnClusterizationFactory;
+  ToolHandle<InDet::NnClusterizationFactory>                   m_NnClusterizationFactory;
 
   bool                                                  m_doNotRecalibrateNN;
   bool                                                  m_noNNandBroadErrors;
@@ -166,6 +164,6 @@ private:
 
 };
 
-} // end of namespace InDet
+} // end of namespace ITk
 
 #endif // ITkPixelClusterOnTrackTool_H

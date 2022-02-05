@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArGeoBarrel/BarrelPresamplerConstruction.h"
@@ -51,8 +51,10 @@
 #include "GeoGenericFunctions/FixedConstant.h"
 
 // Constructor;
-LArGeo::BarrelPresamplerConstruction ::BarrelPresamplerConstruction(bool fullGeo, int itb):
-  m_parameters(LArGeo::VDetectorParameters::GetInstance()),
+LArGeo::BarrelPresamplerConstruction ::BarrelPresamplerConstruction(bool fullGeo,
+                                                                    const VDetectorParameters* params,
+                                                                    int itb):
+  m_parameters(params),
   m_psPhysicalPos(NULL),
   m_psPhysicalNeg(NULL),
   m_fullGeo(fullGeo)

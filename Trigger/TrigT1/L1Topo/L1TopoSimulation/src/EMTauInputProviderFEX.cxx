@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #include "./EMTauInputProviderFEX.h"
 
@@ -66,90 +66,104 @@ EMTauInputProviderFEX::handle(const Incident& incident) {
    string histPath = "/EXPERT/" + name() + "/";
    replace( histPath.begin(), histPath.end(), '.', '/'); 
 
-   auto hEMEt = std::make_unique<TH1I>( "eEMTOBEt", "eEM TOB Et", 400, 0, 400);
-   hEMEt->SetXTitle("E_{T}");
-   auto hEMEtaPhi = std::make_unique<TH2I>( "eEMTOBPhiEta", "eEM TOB Location", 400, -200, 200, 128, 0, 128);
-   hEMEtaPhi->SetXTitle("#eta");
-   hEMEtaPhi->SetYTitle("#phi");
-   auto hEMEtaPhi_local = std::make_unique<TH2I>( "EMTOBEtEta_local", "eta vs phi", 400, -200, 200, 128, 0, 128);
-   hEMEtaPhi_local->SetXTitle("#eta");
-   hEMEtaPhi_local->SetYTitle("#phi");
-   auto hEMEtEta = std::make_unique<TH2I>( "EMTOBEtEta", "Et vs eta", 40, 0, 200, 256, -128, 128);
-   hEMEtEta->SetXTitle("E_{t}");
-   hEMEtEta->SetYTitle("#eta");
-   auto hEMEtPhi = std::make_unique<TH2I>( "EMTOBEtPhi", "Et vs phi", 40, 0, 200, 128, 0, 128);
-   hEMEtPhi->SetXTitle("E_{t}");
-   hEMEtPhi->SetYTitle("#phi");
+   auto hEMEt = std::make_unique<TH1I>( "eEMTOBEt", "eEm TOB Et", 200, 0, 200);
+   hEMEt->SetXTitle("E_{T} [GeV]");
+   auto hEMPhiEta = std::make_unique<TH2I>( "eEMTOBPhiEta", "eEm TOB Location", 200, -200, 200, 64, 0, 128);
+   hEMPhiEta->SetXTitle("#eta#times40");
+   hEMPhiEta->SetYTitle("#phi#times20");
+   auto hEMPhiEta_local = std::make_unique<TH2I>( "eEMTOBPhiEta_local", "eEm TOB local phi vs eta", 200, -200, 200, 64, 0, 128);
+   hEMPhiEta_local->SetXTitle("#eta#times10");
+   hEMPhiEta_local->SetYTitle("#phi#times10");
+   auto hEMEtEta = std::make_unique<TH2I>( "eEMTOBEtEta", "eEm TOB Et vs eta", 200, -200, 200, 100, 0, 200);
+   hEMEtEta->SetXTitle("#eta#times40");
+   hEMEtEta->SetYTitle("E_{t} [GeV]");
+   auto hEMEtPhi = std::make_unique<TH2I>( "eEMTOBEtPhi", "eEm TOB Et vs phi", 64, 0, 128, 100, 0, 200);
+   hEMEtPhi->SetXTitle("#phi#times20");
+   hEMEtPhi->SetYTitle("E_{t} [GeV]");
 
-   auto hTauEt = std::make_unique<TH1I>( "TauTOBEt", "Tau TOB Et", 400, 0, 400);
-   hTauEt->SetXTitle("E_{T}");
-   auto hTauEtaPhi = std::make_unique<TH2I>( "TauTOBPhiEta", "Tau TOB Location", 400, -200, 200, 128, 0, 128);
-   hTauEtaPhi->SetXTitle("#eta");
-   hTauEtaPhi->SetYTitle("#phi");
-   auto hTauEtEta = std::make_unique<TH2I>( "TauTOBEtEta", "Et vs eta", 40, 0, 200, 256, -128, 128);
-   hTauEtEta->SetXTitle("E_{t}");
-   hTauEtEta->SetYTitle("#eta");
-   auto hTauEtPhi = std::make_unique<TH2I>( "TauTOBEtPhi", "Et vs phi", 40, 0, 200, 128, 0, 128);
-   hTauEtPhi->SetXTitle("E_{t}");
-   hTauEtPhi->SetYTitle("#phi");
-
+   auto hTauEt = std::make_unique<TH1I>( "eTauTOBEt", "eTau TOB Et", 200, 0, 200);
+   hTauEt->SetXTitle("E_{T} [GeV]");
+   auto hTauRCore = std::make_unique<TH1I>( "eTauRCore", "eTau TOB rCore isolation", 3, 0, 3);
+   hTauRCore->SetXTitle("rCore isolation");
+   auto hTauPhiEta = std::make_unique<TH2I>( "eTauTOBPhiEta", "eTau TOB Location", 400, -200, 200, 128, 0, 128);
+   hTauPhiEta->SetXTitle("#eta#times40");
+   hTauPhiEta->SetYTitle("#phi#times20");
+   auto hTauEtEta = std::make_unique<TH2I>( "eTauTOBEtEta", "eTau TOB Et vs eta", 200, -200, 200, 100, 0, 200);
+   hTauEtEta->SetXTitle("#eta#times40");
+   hTauEtEta->SetYTitle("E_{t} [GeV]");
+   auto hTauEtPhi = std::make_unique<TH2I>( "eTauTOBEtPhi", "eTau TOB Et vs phi", 64, 0, 128, 100, 0, 200);
+   hTauEtPhi->SetXTitle("#phi#times20");
+   hTauEtPhi->SetYTitle("E_{t} [GeV]");
+   auto hTauEtRCore = std::make_unique<TH2I>( "eTauTOBEtRCore", "eTau TOB Et vs rCore isolation", 3, 0, 3, 100, 0, 200);
+   hTauEtRCore->SetXTitle("rCore isolation");
+   hTauEtRCore->SetYTitle("E_{t} [GeV]");
 
    if (m_histSvc->regShared( histPath + "eEMTOBEt", std::move(hEMEt), m_hEMEt ).isSuccess()){
-     ATH_MSG_DEBUG("eEMTOBEt histogram has been registered successfully for EMTauProvider.");
+     ATH_MSG_DEBUG("eEMTOBEt histogram has been registered successfully for EMTauProviderFEX.");
    }
    else{
-     ATH_MSG_WARNING("Could not register eEMTOBEt histogram for EMTauProvider");
+     ATH_MSG_WARNING("Could not register eEMTOBEt histogram for EMTauProviderFEX");
    }
-   if (m_histSvc->regShared( histPath + "eEMTOBPhiEta", std::move(hEMEtaPhi), m_hEMEtaPhi ).isSuccess()){
-     ATH_MSG_DEBUG("eEMTOBPhiEta histogram has been registered successfully for EMTauProvider.");
-   }
-   else{
-     ATH_MSG_WARNING("Could not register eEMTOBPhiEta histogram for EMTauProvider");
-   }
-   if (m_histSvc->regShared( histPath + "eEMTOBPhiEta_local", std::move(hEMEtaPhi_local), m_hEMEtaPhi_local ).isSuccess()){
-     ATH_MSG_DEBUG("eEMTOBPhiEta (local coordinates) histogram has been registered successfully for EMTauProvider.");
+   if (m_histSvc->regShared( histPath + "eEMTOBPhiEta", std::move(hEMPhiEta), m_hEMPhiEta ).isSuccess()){
+     ATH_MSG_DEBUG("eEMTOBPhiEta histogram has been registered successfully for EMTauProviderFEX.");
    }
    else{
-     ATH_MSG_WARNING("Could not register eEMTOBPhiEta (local coordinates) histogram for EMTauProvider");
+     ATH_MSG_WARNING("Could not register eEMTOBPhiEta histogram for EMTauProviderFEX");
    }
-   if (m_histSvc->regShared( histPath + "EMTOBEtEta", std::move(hEMEtEta), m_hEMEtEta ).isSuccess()){
-     ATH_MSG_DEBUG("EMTOBEtEta histogram has been registered successfully for EMTauProvider.");
-   }
-   else{
-     ATH_MSG_WARNING("Could not register EMTOBEtEta histogram for EMTauProvider");
-   }
-   if (m_histSvc->regShared( histPath + "EMTOBEtPhi", std::move(hEMEtPhi), m_hEMEtPhi ).isSuccess()){
-     ATH_MSG_DEBUG("EMTOBEtPhi histogram has been registered successfully for EMTauProvider.");
+   if (m_histSvc->regShared( histPath + "eEMTOBPhiEta_local", std::move(hEMPhiEta_local), m_hEMPhiEta_local ).isSuccess()){
+     ATH_MSG_DEBUG("eEMTOBPhiEta (local coordinates) histogram has been registered successfully for EMTauProviderFEX.");
    }
    else{
-     ATH_MSG_WARNING("Could not register EMTOBEtPhi histogram for EMTauProvider");
+     ATH_MSG_WARNING("Could not register eEMTOBPhiEta (local coordinates) histogram for EMTauProviderFEX");
    }
-
-   if (m_histSvc->regShared( histPath + "TauTOBEt", std::move(hTauEt), m_hTauEt ).isSuccess()){
-     ATH_MSG_DEBUG("TauTOBEt histogram has been registered successfully for EMTauProvider.");
-   }
-   else{
-     ATH_MSG_WARNING("Could not register TauTOBEt histogram for EMTauProvider");
-   }
-   if (m_histSvc->regShared( histPath + "TauTOBPhiEta", std::move(hTauEtaPhi), m_hTauEtaPhi ).isSuccess()){
-     ATH_MSG_DEBUG("TauTOBPhiEta histogram has been registered successfully for EMTauProvider.");
+   if (m_histSvc->regShared( histPath + "eEMTOBEtEta", std::move(hEMEtEta), m_hEMEtEta ).isSuccess()){
+     ATH_MSG_DEBUG("eEMTOBEtEta histogram has been registered successfully for EMTauProviderFEX.");
    }
    else{
-     ATH_MSG_WARNING("Could not register TauTOBPhiEta histogram for EMTauProvider");
+     ATH_MSG_WARNING("Could not register eEMTOBEtEta histogram for EMTauProviderFEX");
    }
-   if (m_histSvc->regShared( histPath + "TauTOBEtEta", std::move(hTauEtEta), m_hTauEtEta ).isSuccess()){
-     ATH_MSG_DEBUG("TauTOBEtEta histogram has been registered successfully for TauTauProvider.");
-   }
-   else{
-     ATH_MSG_WARNING("Could not register TauTOBEtEta histogram for TauTauProvider");
-   }
-   if (m_histSvc->regShared( histPath + "TauTOBEtPhi", std::move(hTauEtPhi), m_hTauEtPhi ).isSuccess()){
-     ATH_MSG_DEBUG("TauTOBEtPhi histogram has been registered successfully for TauTauProvider.");
+   if (m_histSvc->regShared( histPath + "eEMTOBEtPhi", std::move(hEMEtPhi), m_hEMEtPhi ).isSuccess()){
+     ATH_MSG_DEBUG("eEMTOBEtPhi histogram has been registered successfully for EMTauProviderFEX.");
    }
    else{
-     ATH_MSG_WARNING("Could not register TauTOBEtPhi histogram for TauTauProvider");
+     ATH_MSG_WARNING("Could not register eEMTOBEtPhi histogram for EMTauProviderFEX");
    }
-   
+   if (m_histSvc->regShared( histPath + "eTauTOBEt", std::move(hTauEt), m_hTauEt ).isSuccess()){
+     ATH_MSG_DEBUG("eTauTOBEt histogram has been registered successfully for EMTauProviderFEX.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register eTauTOBEt histogram for EMTauProviderFEX");
+   }
+   if (m_histSvc->regShared( histPath + "eTauRCore", std::move(hTauRCore), m_hTauRCore ).isSuccess()){
+     ATH_MSG_DEBUG("eTauRCore histogram has been registered successfully for EMTauProviderFEX.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register eTauRCore histogram for EMTauProviderFEX");
+   }
+   if (m_histSvc->regShared( histPath + "eTauTOBPhiEta", std::move(hTauPhiEta), m_hTauPhiEta ).isSuccess()){
+     ATH_MSG_DEBUG("eTauTOBPhiEta histogram has been registered successfully for EMTauProviderFEX.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register eTauTOBPhiEta histogram for EMTauProviderFEX");
+   }
+   if (m_histSvc->regShared( histPath + "eTauTOBEtEta", std::move(hTauEtEta), m_hTauEtEta ).isSuccess()){
+     ATH_MSG_DEBUG("eTauTOBEtEta histogram has been registered successfully for EMTauProviderFEX.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register eTauTOBEtEta histogram for EMTauProviderFEX");
+   }
+   if (m_histSvc->regShared( histPath + "eTauTOBEtPhi", std::move(hTauEtPhi), m_hTauEtPhi ).isSuccess()){
+     ATH_MSG_DEBUG("eTauTOBEtPhi histogram has been registered successfully for EMTauProviderFEX.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register eTauTOBEtPhi histogram for EMTauProviderFEX");
+   }
+   if (m_histSvc->regShared( histPath + "eTauTOBEtRCore", std::move(hTauEtRCore), m_hTauEtRCore ).isSuccess()){
+     ATH_MSG_DEBUG("eTauTOBEtRCore histogram has been registered successfully for EMTauProviderFEX.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register eTauTOBEtRCore histogram for EMTauProviderFEX");
+   }
 }
 
 
@@ -175,7 +189,7 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
 		   << " etTOB: " 
 		   << eFexRoI->etTOB() // returns the et value of the EM cluster in units of 100 MeV
 		   << " eta: "
-		   << eFexRoI->eta() // returns a floating point global eta (will be at full precision 0.025, but currently only at 0.1)
+		   << eFexRoI->eta() // returns a floating point global eta
 		   << " phi: "
 		   << eFexRoI->phi() // returns a floating point global phi
 		   << " reta: "
@@ -184,11 +198,8 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
 		   << eFexRoI->RhadThresholds() // jet disc 2
 		   << " wstot: "
 		   << eFexRoI->WstotThresholds() // jet disc 3
-		   << " is TOB? "
-		   << +eFexRoI->isTOB() // returns 1 if true, returns 0 if xTOB)
 		  );
 
-    if (!eFexRoI->isTOB()) {return StatusCode::SUCCESS;}
 
     unsigned int EtTopo = eFexRoI->etTOB();
     int etaTopo = eFexRoI->iEtaTopo();
@@ -208,14 +219,13 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
     
     inputEvent.addeEm( eem );
     
-    m_hEMEt->Fill(eem.EtDouble());  // GeV
-    m_hEMEtaPhi->Fill(eem.eta(),eem.phi());
-    m_hEMEtaPhi_local->Fill(eFexRoI->iEta(),eFexRoI->iPhi());
-    m_hEMEtEta->Fill(eem.EtDouble(),eem.eta());
-    m_hEMEtPhi->Fill(eem.EtDouble(),eem.phi());
+    m_hEMEt->Fill(eem.EtDouble());
+    m_hEMPhiEta->Fill(eem.eta(),eem.phi());
+    m_hEMPhiEta_local->Fill(eFexRoI->iEta(),eFexRoI->iPhi());
+    m_hEMEtEta->Fill(eem.eta(),eem.EtDouble());
+    m_hEMEtPhi->Fill(eem.phi(),eem.EtDouble());
 
   }
-
 
   //eTau
   SG::ReadHandle<xAOD::eFexTauRoIContainer> eTau_EDM(m_eTau_EDMKey);
@@ -225,45 +235,51 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
     
     return StatusCode::SUCCESS;
   }
-
+  
+  // TODO: read eTau isolation variables from eTau RoI
   for(const auto it : * eTau_EDM){
-    const xAOD::eFexTauRoI* eFexRoI = it;
+    const xAOD::eFexTauRoI* eFexTauRoI = it;
     ATH_MSG_DEBUG( "EDM eFex Number: " 
-		   << +eFexRoI->eFexNumber() // returns an 8 bit unsigned integer referring to the eFEX number 
+		   << +eFexTauRoI->eFexNumber() // returns an 8 bit unsigned integer referring to the eFEX number 
 		   << " et: " 
-		   << eFexRoI->et() // returns the et value of the Tau cluster in MeV
+		   << eFexTauRoI->et() // returns the et value of the Tau cluster in MeV
 		   << " etTOB: " 
-		   << eFexRoI->etTOB() // returns the et value of the Tau cluster in units of 100 MeV
+		   << eFexTauRoI->etTOB() // returns the et value of the Tau cluster in units of 100 MeV
 		   << " eta: "
-		   << eFexRoI->eta() // returns a floating point global eta (will be at full precision 0.025, but currently only at 0.1)
+		   << eFexTauRoI->eta() // returns a floating point global eta 
 		   << " phi: "
-		   << eFexRoI->phi() // returns a floating point global phi
-		   << " is TOB? "
-		   << +eFexRoI->isTOB() // returns 1 if true, returns 0 if xTOB)
+		   << eFexTauRoI->phi() // returns a floating point global phi
+		   // << " rCore: "
+		   // << eFexTauRoI->rCoreThresholds() 
+		   // << " rHad: "
+		   // << eFexTauRoI->rHadThresholds()
 		  );
 
-    if (!eFexRoI->isTOB()) {return StatusCode::SUCCESS;}
 
-    unsigned int EtTopo = eFexRoI->etTOB();
-    int etaTopo = eFexRoI->iEta();
-    int phiTopo = eFexRoI->iPhi();
-    
+    unsigned int EtTopo = eFexTauRoI->etTOB();
+    int etaTopo = eFexTauRoI->iEtaTopo();
+    int phiTopo = eFexTauRoI->iPhiTopo();
+    // unsigned int rCore = eFexTauRoI->rCoreThresholds();
+    // unsigned int rHad = eFexTauRoI->rHadThresholds();
+
     //Tau TOB
     TCS::eTauTOB etau( EtTopo, 0, etaTopo, static_cast<unsigned int>(phiTopo), TCS::ETAU );
-    etau.setEtDouble( static_cast<double>(EtTopo/10.) );
+    etau.setEtDouble(  static_cast<double>(EtTopo/10.) );
     etau.setEtaDouble( static_cast<double>(etaTopo/40.) );
     etau.setPhiDouble( static_cast<double>(phiTopo/20.) );
-    etau.setReta( 0 );
-    etau.setRhad( 0 );
-    etau.setWstot( 0 );
-    
+
+    // etau.setRCore( rCore );
+    // etau.setRHad( rHad );
+
     inputEvent.addeTau( etau );
-    
-    m_hTauEt->Fill(etau.EtDouble());  // GeV
-    m_hTauEtaPhi->Fill(etau.eta(),etau.phi());
-    m_hTauEtEta->Fill(etau.EtDouble(),etau.eta());
-    m_hTauEtPhi->Fill(etau.EtDouble(),etau.phi());
-    
+    inputEvent.addcTau( etau );
+
+    m_hTauEt->Fill(etau.EtDouble());
+    // m_hTauRCore->Fill(etau.rCore());  
+    m_hTauPhiEta->Fill(etau.eta(),etau.phi());
+    m_hTauEtEta->Fill(etau.eta(),etau.EtDouble());
+    m_hTauEtPhi->Fill(etau.phi(),etau.EtDouble());
+    // m_hTauEtRCore->Fill(etau.rCore(),etau.EtDouble());
   }
 
   return StatusCode::SUCCESS;

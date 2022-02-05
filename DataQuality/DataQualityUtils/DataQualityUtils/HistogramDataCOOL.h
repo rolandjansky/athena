@@ -38,7 +38,6 @@
 
 #include <sstream>
 #include <fstream>
-#include <string>
 #include <TCanvas.h>
 #include <TDirectory.h>
 #include <TFile.h>

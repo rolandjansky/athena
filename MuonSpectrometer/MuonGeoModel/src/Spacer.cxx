@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModel/Spacer.h"
@@ -31,22 +31,21 @@
 
 namespace MuonGM {
 
-    Spacer::Spacer(Component *ss) : DetectorElement(ss->name) {
+    Spacer::Spacer(const MYSQL& mysql, Component *ss) : DetectorElement(ss->name) {
         SpaComponent *s = dynamic_cast<SpaComponent *>(ss);
         width = s->dx1;
         longWidth = s->dx2;
-        MYSQL *mysql = MYSQL::GetPointer();
-        thickness = mysql->GetTechnology(s->name)->thickness;
+        thickness = mysql.GetTechnology(s->name)->thickness;
         length = s->dy;
         m_component = *s;
     }
 
-    GeoVPhysVol *Spacer::build() {
+    GeoVPhysVol *Spacer::build(const StoredMaterialManager& matManager) {
         int cutoutson = 0;
-        return build(cutoutson);
+        return build(matManager, cutoutson);
     }
 
-    GeoVPhysVol *Spacer::build(int /*cutoutson*/) {
+    GeoVPhysVol *Spacer::build(const StoredMaterialManager& matManager, int /*cutoutson*/) {
         if (name == "SPA06" || name == "SPA01") {
             double excent = m_component.excent;
             double maxwLength = m_component.maxwdy;
@@ -63,14 +62,14 @@ namespace MuonGM {
                 strd = &((strd->add((*upTrd) << GeoTrf::TranslateZ3D(length / 2.))) << GeoTrf::TranslateZ3D((maxwLength - length) / 2.));
             }
 
-            const GeoMaterial *mtrd = getMaterialManager()->getMaterial("std::Aluminium");
+            const GeoMaterial *mtrd = matManager.getMaterial("std::Aluminium");
             const GeoLogVol *lspa = new GeoLogVol("CSCspacer", strd, mtrd);
             GeoPhysVol *pspa = new GeoPhysVol(lspa);
             return pspa;
 
         } else {
             const GeoShape *strd = new GeoTrd(thickness / 2, thickness / 2, width / 2, longWidth / 2, length / 2);
-            const GeoMaterial *mtrd = getMaterialManager()->getMaterial("std::Air");
+            const GeoMaterial *mtrd = matManager.getMaterial("std::Air");
             GeoLogVol *ltrd = new GeoLogVol("Spacer", strd, mtrd);
             GeoPhysVol *ptrd = new GeoPhysVol(ltrd);
 
@@ -78,15 +77,15 @@ namespace MuonGM {
             double dx = tckibeam;
             double dy = 3. * tckibeam;
 
-            GeoVPhysVol *ptrdtemp = NULL;
+            GeoVPhysVol *ptrdtemp = nullptr;
 
             GeoTrd *strd1 = new GeoTrd(dx / 2, dx / 2, dy / 2, dy / 2, length / 2);
-            const GeoMaterial *mtrd1 = getMaterialManager()->getMaterial("std::Aluminium");
+            const GeoMaterial *mtrd1 = matManager.getMaterial("std::Aluminium");
             GeoLogVol *ltrd1 = new GeoLogVol("ibeam1", strd1, mtrd1);
             GeoPhysVol *ptrd1 = new GeoPhysVol(ltrd1);
 
             GeoTrd *strd2 = new GeoTrd(dy / 2, dy / 2, dx / 2, dx / 2, length / 2);
-            const GeoMaterial *mtrd2 = getMaterialManager()->getMaterial("std::Aluminium");
+            const GeoMaterial *mtrd2 = matManager.getMaterial("std::Aluminium");
             GeoLogVol *ltrd2 = new GeoLogVol("ibeam2", strd2, mtrd2);
             GeoPhysVol *ptrd2 = new GeoPhysVol(ltrd2);
 

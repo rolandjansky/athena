@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -109,14 +109,14 @@ ATLAS_NOT_THREAD_SAFE(const std::string& name, Amg::Transform3D& shift) const {
   //
   // enclose layers
   if (newTV->confinedVolumes()) {
-    std::vector<const Trk::TrackingVolume*> vols =
+    BinnedArraySpan<Trk::TrackingVolume const * const> vols =
         newTV->confinedVolumes()->arrayObjects();
     for (unsigned int ivol = 0; ivol < vols.size(); ivol++) {
       const Trk::LayerArray* layAr = vols[ivol]->confinedLayers();
       const std::vector<const Trk::Layer*>* alays =
           vols[ivol]->confinedArbitraryLayers();
       if (layAr) {
-        const std::vector<const Trk::Layer*>& lays = layAr->arrayObjects();
+        Trk::BinnedArraySpan<const Trk::Layer* const> lays = layAr->arrayObjects();
         for (unsigned int il = 0; il < lays.size(); il++) {
           (const_cast<Trk::Layer*>(lays[il]))
             ->encloseDetachedTrackingVolume(*newStat);
@@ -131,7 +131,7 @@ ATLAS_NOT_THREAD_SAFE(const std::string& name, Amg::Transform3D& shift) const {
     }
   }
   if (newTV->confinedLayers()) {
-    const std::vector<const Trk::Layer*> lays =
+    BinnedArraySpan<Trk::Layer* const> lays =
         newTV->confinedLayers()->arrayObjects();
     for (unsigned int il = 0; il < lays.size(); il++){
       (const_cast<Trk::Layer*>(lays[il]))
@@ -201,15 +201,3 @@ void Trk::DetachedTrackingVolume::setBaseTransform(Amg::Transform3D* transf) {
   }
 }
 
-void Trk::DetachedTrackingVolume::realign ATLAS_NOT_THREAD_SAFE(
-    Amg::Transform3D* transf) const {
-  if (transf) {
-    Amg::Transform3D shift =
-        (*transf) * this->trackingVolume()->transform().inverse();
-    this->move(shift);
-  } else if (m_baseTransform) {
-    Amg::Transform3D shift =
-        *m_baseTransform * this->trackingVolume()->transform().inverse();
-    this->move(shift);
-  }
-}

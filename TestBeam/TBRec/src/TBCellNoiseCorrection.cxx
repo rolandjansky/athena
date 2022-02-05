@@ -6,7 +6,7 @@
 
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloEvent/CaloCell.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/RNGWrapper.h"
 
 #include "PathResolver/PathResolver.h"
 
@@ -24,7 +24,7 @@ TBCellNoiseCorrection::TBCellNoiseCorrection(const std::string& type,
 						 const IInterface* parent)
   : CaloCellCorrection(type, name, parent),
     m_noise_correction(false),m_noise_file(),
-    m_rndmSvc ("AtRanluxGenSvc", name), m_engine(0),
+    m_engine(0),
     m_tree(0), m_xcryo(0.), m_ytable(0.), m_energy(-1.), m_cell_id(0), m_cell_energy(0),m_entries(0)
     //m_myevtnum(-1)
 { 
@@ -47,16 +47,8 @@ StatusCode TBCellNoiseCorrection::initialize()
   ATH_MSG_DEBUG( " TBCellNoiseCorrection initialization " );
 
   // RandomNumbers
-  if (!m_rndmSvc.retrieve().isSuccess()) {
-     ATH_MSG_FATAL( "Could not initialize find Random Number Service."  );
-     return StatusCode::FAILURE; 
-  } else {
-     m_engine = m_rndmSvc->GetEngine("TB_NOISE");
-     if(!m_engine) {
-        ATH_MSG_FATAL( "Could not get the TB_NOISE engine..."  );
-        return StatusCode::FAILURE; 
-     }
-  }
+  ATH_CHECK( m_rndmSvc.retrieve() );
+  m_engine = m_rndmSvc->getEngine(this, "TB_NOISE");
 
   if(m_energy > 0.) { // Do we have run parameters (x,y,energy) ?
      ATH_MSG_DEBUG( " Trying to patch the noise file name " );
@@ -178,7 +170,8 @@ void TBCellNoiseCorrection::handle(const Incident &inc) {
   ATH_MSG_DEBUG( " Handle BeginEvent "  );
 
   if ( inc.type() == "BeginEvent") {
-     unsigned int random = int(RandFlat::shoot(m_engine, 0., m_entries-1.));
+     m_engine->setSeed ("TBCellNoseCorrection", inc.context());
+     unsigned int random = int(RandFlat::shoot(m_engine->getEngine (inc.context()), 0., m_entries-1.));
      ATH_MSG_DEBUG( "Reading noise event: "<<random );
      m_tree->GetEntry(random);
      unsigned int size = m_cell_id->size();

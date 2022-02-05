@@ -38,7 +38,6 @@ ByteStreamInputSvc.FilePrefix += [RawDataFilePrefix]
 ByteStreamInputSvc.RunNumber = [RunNumber]
 
 ToolSvc = Service( "ToolSvc" )
-ToolSvc.LArRoI_Map.Print=FALSE
 #Fix for swapped LArFEBs
 if (RunNumber>=1000931):
   if (RunNumber<=1000969):

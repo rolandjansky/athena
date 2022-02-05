@@ -1,5 +1,0 @@
-#include "../TrigEgammaMonitorBaseAlgorithm.h"
-#include "../TrigEgammaTapMonitorAlgorithm.h"
-
-DECLARE_COMPONENT(TrigEgammaMonitorBaseAlgorithm)
-DECLARE_COMPONENT(TrigEgammaTaPMonitorAlgorithm)

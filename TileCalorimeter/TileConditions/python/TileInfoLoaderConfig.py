@@ -71,6 +71,26 @@ def TileInfoLoaderCfg(flags, **kwargs):
 
         msg.info("Using 1/s.f. = %s for %s physics list and G4version %s (%s)", EmScaleA, physicsList, G4V, G4Version)
 
+        # new sampling fraction for gap/crack scintillators in RUN3
+        # see https://indico.cern.ch/event/1084901/contributions/4616550/attachments/2349654/4007529/TileGap3_SamplingFraction.pdf
+        # RUN2 values:         125 107 97 75
+        # RUN3 EM scale:       109  89 74 61
+        # RUN3 EM+nonEM scale: 123  85 69 62
+        run = flags.GeoModel.Run
+        if run in ['RUN3', 'RUN4'] and G4V >= 10.05:
+
+            if 'EmScaleE1' not in kwargs:
+                kwargs['EmScaleE1'] = 109.0
+            if 'EmScaleE2' not in kwargs:
+                kwargs['EmScaleE2'] = 89.0
+            if 'EmScaleE3' not in kwargs:
+                kwargs['EmScaleE3'] = 74.0
+            if 'EmScaleE4' not in kwargs:
+                kwargs['EmScaleE4'] = 61.0
+
+            msg.info("Using 1/s.f. = %s %s %s %s for E-cells in %s",
+                     kwargs['EmScaleE1'], kwargs['EmScaleE2'], kwargs['EmScaleE3'], kwargs['EmScaleE4'], run )
+
         kwargs.setdefault('TileNoise', flags.Digitization.DoCaloNoise)
         if kwargs['TileNoise']:
             msg.info("Switching ON noise in Tile Digitization" )

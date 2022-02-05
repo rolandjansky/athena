@@ -35,13 +35,14 @@ persToTrans( const Muon::TgcClusterOnTrack_p2 *persObj,
                                        nullptr,
                                        persObj->m_positionAlongStrip);
 
+  
   // Attempt to call supertool to fill in detElements
   m_eventCnvTool->recreateRIO_OnTrack(transObj);
-  if (transObj->detectorElement()==nullptr) 
+  if (!transObj->detectorElement()) 
     log << MSG::WARNING<<"Unable to reset DetEl for this RIO_OnTrack, "
         << "probably because of a problem with the Identifier/IdentifierHash : ("
         << transObj->identify()<<"/"<<transObj->idDE()<<endmsg;   
-}
+ }
 
 
 void TgcClusterOnTrackCnv_p2::

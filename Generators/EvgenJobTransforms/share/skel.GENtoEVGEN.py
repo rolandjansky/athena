@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 """Functionality core of the Gen_tf transform"""
 
@@ -127,6 +127,7 @@ if not hasattr(fixSeq, "FixHepMC"):
 ## Sanity check the event record (not appropriate for all generators)
 from EvgenProdTools.EvgenProdToolsConf import TestHepMC
 testSeq += TestHepMC(CmEnergy=runArgs.ecmEnergy*Units.GeV)
+#testSeq += TestHepMC(CmEnergy=runArgs.ecmEnergy)
 if not hasattr(svcMgr, 'THistSvc'):
     from GaudiSvc.GaudiSvcConf import THistSvc
     svcMgr += THistSvc()
@@ -177,7 +178,7 @@ if hasattr(runArgs, "rivetAnas"):
     from Rivet_i.Rivet_iConf import Rivet_i
     anaSeq += Rivet_i()
     anaSeq.Rivet_i.Analyses = runArgs.rivetAnas
-    anaSeq.Rivet_i.DoRootHistos = True
+    anaSeq.Rivet_i.AnalysisPath = os.environ['PWD']
     if hasattr(runArgs, "outputYODAFile"):
       anaSeq.Rivet_i.HistoFile = runArgs.outputYODAFile
 
@@ -480,7 +481,9 @@ svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"evgenTune": evgenConfig.tune})
 if hasattr( evgenConfig, "hardPDF" ) : svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"hardPDF": evgenConfig.hardPDF})
 if hasattr( evgenConfig, "softPDF" ) : svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"softPDF": evgenConfig.softPDF})
 if hasattr( runArgs, "randomSeed") :  svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"randomSeed": str(runArgs.randomSeed)})
-if hasattr( runArgs, "AMITag") and runArgs.AMITag != "NONE": svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag": runArgs.AMITag})
+# Set AMITag in in-file metadata
+from PyUtils import AMITagHelper
+AMITagHelper.SetAMITag(runArgs=runArgs)
 
 ## Handle beam info
 svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"beam_energy": str(int(runArgs.ecmEnergy*Units.GeV/2.0))})
@@ -492,6 +495,10 @@ include("EvgenJobTransforms/Generate_ecmenergies.py")
 
 ## Process random seed arg and pass to generators
 include("EvgenJobTransforms/Generate_randomseeds.py")
+
+## Propagate debug output level requirement to generators
+if (hasattr( runArgs, "VERBOSE") and runArgs.VERBOSE ) or (hasattr( runArgs, "loglevel") and runArgs.loglevel == "DEBUG") or (hasattr( runArgs, "loglevel") and runArgs.loglevel == "VERBOSE"):
+   include("EvgenJobTransforms/Generate_debug_level.py")
 
 ## Add special config option (extended model info for BSM scenarios)
 svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"specialConfiguration": evgenConfig.specialConfig })
@@ -750,15 +757,17 @@ if hasattr(runArgs, "outputTXTFile"):
     # counting the number of events in LHE output
     count_ev = 0
     with open(eventsFile) as f:
-        lines = f.read()
-        count_ev = lines.count('/event')
+        for line in f:
+           count_ev += line.count('/event')
+
     printfunc("MetaData: %s = %s" % ("Number of produced LHE events ", count_ev))
 elif hasattr(runArgs, "inputGeneratorFile"):
-    # counting the number of events in LHE output
+    # counting the number of events in LHE input
     count_ev = 0
     with open(eventsFile) as f:
-        lines = f.read()
-        count_ev = lines.count('/event')
+        for line in f:
+           count_ev += line.count('/event')
+
     printfunc("MetaData: %s = %s" % ("Number of input LHE events ", count_ev))
 
 

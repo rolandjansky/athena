@@ -1,5 +1,5 @@
 #!/bin/env python
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ##=======================================================================================
 ## Name:        LArCellConditions.py
@@ -111,6 +111,7 @@ except:
 sys.argv = sys.argv[:1] + ['-b'] 
 
 from AthenaConfiguration.AllConfigFlags import ConfigFlags 
+ConfigFlags.Input.Files = []
 ConfigFlags.Input.TimeStamp = 1000
 ConfigFlags.Input.isMC=False
 ConfigFlags.Input.RunNumber=run
@@ -118,8 +119,8 @@ ConfigFlags.IOVDb.DatabaseInstance="CONDBR2" if run>222222 else "COMP200"
 ConfigFlags.IOVDb.GlobalTag=tag
 ConfigFlags.LAr.doAlign=False
 ConfigFlags.Exec.OutputLevel=8
-#from AthenaConfiguration.TestDefaults import defaultTestFiles
-#ConfigFlags.Input.Files = defaultTestFiles.RAW
+ConfigFlags.lock()
+
 from RootUtils import PyROOTFixes  # noqa F401
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 cfg=MainServicesCfg(ConfigFlags)
@@ -150,11 +151,9 @@ theLArCellConditionsAlg=LArCellConditionsAlg("LArCellConditions",
                                              printLocation=geo)
 cfg.addEventAlgo(theLArCellConditionsAlg)
 
-import readline
 if os.path.exists( fhistory ):
     readline.read_history_file( fhistory )
 readline.set_history_length( 128 )
 cfg.run(2,OutputLevel=7) #First event is dummy to close DB connections, second has the user-loop
 
 readline.write_history_file(fhistory)
-

@@ -37,7 +37,7 @@ UseEgammaLeakageCorrection False
 
 ElectronID TightLH
 ElectronIDLoose LooseAndBLayerLH
-ElectronIsolation FCTight
+ElectronIsolation Tight_VarRad
 ElectronIsolationLoose None
 
 MuonQuality Medium

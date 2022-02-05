@@ -55,7 +55,7 @@ namespace Muon {
     }
     bool MuPatHitTool::insert(MuPatHit* /*hit*/, MuPatHitList& /*hitList*/) const { return true; }
 
-    bool MuPatHitTool::create(const MuonSegment& seg, MuPatHitList& hitList, GarbageContainer& hitsToBeDeleted) const {
+    bool MuPatHitTool::create(const EventContext& ctx, const MuonSegment& seg, MuPatHitList& hitList, GarbageContainer& hitsToBeDeleted) const {
         ATH_MSG_DEBUG(" creating hit list from segment " << std::endl << m_printer->print(seg));
 
         // create parameters with very large momentum and no charge
@@ -67,12 +67,12 @@ namespace Muon {
             return false;
         }
 
-        bool result = create(*pars, seg.containedMeasurements(), hitList, hitsToBeDeleted);
+        bool result = create(ctx, *pars, seg.containedMeasurements(), hitList, hitsToBeDeleted);
 
         return result;
     }
 
-    bool MuPatHitTool::create(const Trk::TrackParameters& pars, const std::vector<const Trk::MeasurementBase*>& measVec,
+    bool MuPatHitTool::create(const EventContext& ctx, const Trk::TrackParameters& pars, const std::vector<const Trk::MeasurementBase*>& measVec,
                               MuPatHitList& hitList, GarbageContainer& hitsToBeDeleted) const {
         // store position of the current hit to speed up insertion
         MuPatHitIt currentHitIt = hitList.begin();
@@ -110,7 +110,8 @@ namespace Muon {
                 ATH_MSG_VERBOSE(" start parameters and measurement expressed at same surface, cloning parameters ");
             } else {
                 // this code does its own manual garbage collection which can probably be omitted now
-                exPars = m_propagator->propagate(pars, meas.associatedSurface(), Trk::anyDirection, false, m_magFieldProperties);
+                exPars = m_propagator->propagate(ctx, pars, meas.associatedSurface(), 
+                                                 Trk::anyDirection, false, m_magFieldProperties);
 
                 if (!exPars) {
                     if (!wasPrinted) {
@@ -187,14 +188,14 @@ namespace Muon {
         return true;
     }
 
-    bool MuPatHitTool::merge(const MuPatHitList& hitList1, const MuPatHitList& hitList2, MuPatHitList& outList) const {
+    bool MuPatHitTool::merge(const EventContext& ctx, const MuPatHitList& hitList1, const MuPatHitList& hitList2, MuPatHitList& outList) const {
         // copy first list into outList
         outList = hitList1;
 
-        return merge(hitList2, outList);
+        return merge(ctx, hitList2, outList);
     }
 
-    bool MuPatHitTool::merge(const MuPatHitList& hitList1, MuPatHitList& hitList2) const {
+    bool MuPatHitTool::merge(const EventContext& ctx, const MuPatHitList& hitList1, MuPatHitList& hitList2) const {
         // The hits in the first list are most likely expressed with respect to a different set of track parameters
         // as the ones in the second list. They cannot be merged. To allow merging a new set of track parameters is
         // calculated for the hits in the first list by extrapolation of parameters of hits in the second list. This is only
@@ -259,7 +260,8 @@ namespace Muon {
 
                             // this code does its own garbage collection, but this can prob. be simplified now
                             exPars =
-                                m_propagator->propagate(stPars, meas.associatedSurface(), Trk::anyDirection, false, m_magFieldProperties);
+                                m_propagator->propagate(ctx, stPars, meas.associatedSurface(), 
+                                                        Trk::anyDirection, false, m_magFieldProperties);
 
                             // if failed keep old parameters
                             if (!exPars) {
@@ -476,12 +478,11 @@ namespace Muon {
             isLarger = isLargerCal(hit, *pos, &*m_idHelperSvc);  // recalculate distance
         }
         // check for chamber sorting issues
-        if (m_idHelperSvc->chamberIndex(hit->info().id) != m_idHelperSvc->chamberIndex((*pos)->info().id) && pos != list.begin()) {
-            MuonStationIndex::ChIndex posInd = m_idHelperSvc->chamberIndex((*pos)->info().id);
+        if (m_idHelperSvc->detElId(hit->info().id) != m_idHelperSvc->detElId((*pos)->info().id) && pos != list.begin()) {
+            Identifier posDetElId = m_idHelperSvc->detElId((*pos)->info().id);
             --pos;
-            if (posInd == m_idHelperSvc->chamberIndex(
-                              (*pos)->info().id)) {  // can't insert a hit from one chamber in the middle of hits of another chamber
-                while (posInd == m_idHelperSvc->chamberIndex((*pos)->info().id)) {
+            if (posDetElId == m_idHelperSvc->detElId((*pos)->info().id)) {  // can't insert a hit from one chamber in the middle of hits of another chamber
+                while (posDetElId == m_idHelperSvc->detElId((*pos)->info().id)) {
                     if (isLargerInit)
                         --pos;  // we incremented up to get here, so go down to find the rest of the hits from this chamber
                     else

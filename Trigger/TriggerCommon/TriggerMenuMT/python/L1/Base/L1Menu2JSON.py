@@ -53,9 +53,6 @@ class L1MenuJSONConverter(object):
         # items
         confObj["items"] = self.menu.items.json()
 
-        # bunchgroups
-        confObj["bunchGroups"] = self.menu.ctp.bunchGroupSet.json()
-
         # thresholds
         confObj["thresholds"] = odict()
         confObj["thresholds"]["internal"] = odict()

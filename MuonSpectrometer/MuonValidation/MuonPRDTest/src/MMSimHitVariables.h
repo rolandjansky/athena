@@ -17,7 +17,7 @@ class MMSimHitVariables : public ValAlgVariables
                     const MuonGM::MuonDetectorManager* detManager,
                     const MuonIdHelper* idhelper,
                     TTree* tree,
-						  std::string containername,
+						  const std::string & containername,
 						  MSG::Level msglvl) :
     ValAlgVariables(evtStore, detManager, tree, containername, msglvl),
     m_MmIdHelper(nullptr),
@@ -79,16 +79,16 @@ class MMSimHitVariables : public ValAlgVariables
     m_MmIdHelper = dynamic_cast<const MmIdHelper*>(idhelper);
     if(!m_MmIdHelper) {
        ATH_MSG_ERROR("casting IdHelper to MmIdhelper failed");
-       throw;
+       throw std::runtime_error("Casting error in MMSimHitVariables::setHelper");
     }
   }
 
   void deleteVariables();
   StatusCode clearVariables();
 
-  const MmIdHelper* m_MmIdHelper;
+  const MmIdHelper* m_MmIdHelper{};
 
-  int m_NSWMM_nSimHits;
+  int m_NSWMM_nSimHits{};
   std::vector<int>    m_NSWMM_trackId;
   std::vector<bool>   m_NSWMM_isInsideBounds;
   std::vector<double> m_NSWMM_globalTime;

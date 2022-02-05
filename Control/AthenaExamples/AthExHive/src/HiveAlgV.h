@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -29,9 +29,9 @@ public:
 
   // Define the initialize, execute and finalize methods:
   
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
   
 private:
   
@@ -49,7 +49,7 @@ private:
   StatusCode read() const;
 
   // do the actual writing of the ReadHandleArray
-  void write();
+  StatusCode write();
    
 };
 #endif

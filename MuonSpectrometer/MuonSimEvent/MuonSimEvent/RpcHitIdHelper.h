@@ -25,7 +25,7 @@ public:
   int GetDoubletZ(const int& hid) const;
   int GetMeasuresPhi(const int& hid) const;
 
-  int BuildRpcHitId (const std::string, const int, const int, const int,
+  int BuildRpcHitId (const std::string&, const int, const int, const int,
                      const int, const int, const int, const int) const;
 
 private:

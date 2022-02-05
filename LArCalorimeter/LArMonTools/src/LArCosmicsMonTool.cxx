@@ -111,7 +111,7 @@ LArCosmicsMonTool::initialize()
   ATH_CHECK( this->initMonInfo() );
   ATH_CHECK( m_larPedestalKey.initialize() );
   ATH_CHECK( m_cablingKey.initialize() );
-  
+  ATH_CHECK( m_caloMgrKey.initialize() );
   // End Initialize
   ManagedMonitorToolBase::initialize().ignore();
   ATH_MSG_DEBUG( "Successful Initialize LArCosmicsMonTool " );
@@ -221,9 +221,9 @@ LArCosmicsMonTool::fillHistograms() {
   // Increment event counter
   m_eventsCounter++;
   
-  const CaloDetDescrManager* ddman = nullptr;
-  ATH_CHECK( detStore()->retrieve (ddman, "CaloMgr") );
-  
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,ctx};
+  ATH_CHECK(caloMgrHandle.isValid());
+  const CaloDetDescrManager* ddman = *caloMgrHandle;
   
   /////////////////////////////////
   // Work with the LArDigits  //

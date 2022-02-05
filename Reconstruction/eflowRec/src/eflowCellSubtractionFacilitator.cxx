@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Athena Headers
@@ -84,7 +84,7 @@ eflowCellSubtractionFacilitator::getRingsEnergy(
       std::pair<const CaloCell*, int> thisPair = thisCell;
       xAOD::CaloCluster* clus = tracksClusters[thisPair.second].first;
       CaloClusterCellLink::iterator theIterator =
-        this->getCellIterator(clus, thisPair.first);
+        eflowCellSubtractionFacilitator::getCellIterator(clus, thisPair.first);
       double cellWeight = theIterator.weight();
       eRing += thisPair.first->energy() * cellWeight;
     }
@@ -130,7 +130,7 @@ eflowCellSubtractionFacilitator::subtractPartialRings(
       tracksClusters[thisPair.second].second = true;
       const CaloCell* cell = thisPair.first;
       CaloClusterCellLink::iterator theIterator =
-        this->getCellIterator(cluster, cell);
+        eflowCellSubtractionFacilitator::getCellIterator(cluster, cell);
       double oldCellWeight = theIterator.weight();
       const double newCellWeight = oldCellWeight * targetRingEnergy / eRings;
       ATH_MSG_DEBUG("eflowCellSubtractionFacilitator: Cluster with e "
@@ -245,7 +245,7 @@ eflowCellSubtractionFacilitator::subtractCaloCell(double& eSubtracted,
 {
 
   CaloClusterCellLink::iterator theIterator =
-    this->getCellIterator(cluster, cell);
+    eflowCellSubtractionFacilitator::getCellIterator(cluster, cell);
   double oldCellWeight = theIterator.weight();
   double oldCellEnergy = cell->energy() * oldCellWeight;
 

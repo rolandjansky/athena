@@ -3,7 +3,7 @@
 */
 
 // INCLUDE HEADER FILES:
-#include "TestLArDetDescr/TestLArMaterial.h"
+#include "TestLArMaterial.h"
 
 // Athena related 
 #include "Gaudi/Property.h"
@@ -19,7 +19,6 @@
 
 // specific :
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "CaloDetDescr/ICaloRecoMaterialTool.h"
@@ -32,13 +31,9 @@
 // -------------------------------------------------------------
 // Constructor 
 // -------------------------------------------------------------
-TestLArMaterial::TestLArMaterial(const std::string& name, 
-				   ISvcLocator* pSvcLocator): 
-  AthAlgorithm(name, pSvcLocator),
-  m_calo_dd_man(0),
-  m_surfbuild(0),
-  m_lar_names(0),
-  m_lar_mat(0)
+TestLArMaterial::TestLArMaterial(const std::string& name
+				 , ISvcLocator* pSvcLocator)
+  : AthAlgorithm(name, pSvcLocator)
 {}
 
 // DESTRUCTOR:
@@ -48,7 +43,7 @@ TestLArMaterial::~TestLArMaterial()
 // INITIALIZE:
 StatusCode TestLArMaterial::initialize()
 {
-  m_calo_dd_man = CaloDetDescrManager::instance();
+  ATH_CHECK(m_caloMgrKey.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -99,10 +94,17 @@ TestLArMaterial::print_elt(bool em, bool hec, bool fcal, bool tile)
 
   ATH_MSG_INFO ( " printing CaloDDE characteristics " );
 
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+  if(!caloMgrHandle.isValid()) {
+    ATH_MSG_FATAL("Failed to get CaloDetDescrManager from Condition Store");
+    return;
+  }
+  const CaloDetDescrManager* caloMgr = *caloMgrHandle;
+
   IdentifierHash idcalohash,hash_min,hash_max ;
   Identifier id;
 
-  const CaloCell_ID* help_all = m_calo_dd_man->getCaloCell_ID();
+  const CaloCell_ID* help_all = caloMgr->getCaloCell_ID();
 
   //
   // Now loop on CaloCell:
@@ -122,7 +124,7 @@ TestLArMaterial::print_elt(bool em, bool hec, bool fcal, bool tile)
       idcalohash = (IdentifierHash) i;
       id = help_all->cell_id(idcalohash);
 
-      const CaloDetDescrElement* newelt = m_calo_dd_man->get_element(idcalohash); 
+      const CaloDetDescrElement* newelt = caloMgr->get_element(idcalohash); 
       if ( !newelt ) std::cout << "missing em element" 
 			       << i << std::endl;
       
@@ -156,7 +158,7 @@ TestLArMaterial::print_elt(bool em, bool hec, bool fcal, bool tile)
       idcalohash = (IdentifierHash) i;
       id = help_all->cell_id(idcalohash);
 
-      const CaloDetDescrElement* newelt = m_calo_dd_man->get_element(idcalohash); 
+      const CaloDetDescrElement* newelt = caloMgr->get_element(idcalohash); 
       if ( !newelt ) 
 	std::cout << "missing hec element" 
 		  << i << std::endl;
@@ -186,7 +188,7 @@ TestLArMaterial::print_elt(bool em, bool hec, bool fcal, bool tile)
       idcalohash = (IdentifierHash) i;
       id = help_all->cell_id(idcalohash);
 
-      const CaloDetDescrElement* newelt = m_calo_dd_man->get_element(idcalohash); 
+      const CaloDetDescrElement* newelt = caloMgr->get_element(idcalohash); 
       if ( !newelt ) std::cout << "missing fcal element" 
 			       << i << std::endl;
 
@@ -221,7 +223,7 @@ TestLArMaterial::print_elt(bool em, bool hec, bool fcal, bool tile)
       idcalohash = (IdentifierHash) i;
       id = help_all->cell_id(idcalohash);
 
-      const CaloDetDescrElement* newelt = m_calo_dd_man->get_element(idcalohash); 
+      const CaloDetDescrElement* newelt = caloMgr->get_element(idcalohash); 
       if ( !newelt ) std::cout << "missing Tile element" 
 			       << i << std::endl;
 

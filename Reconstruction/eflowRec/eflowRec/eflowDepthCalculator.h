@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EFLOWDEPTHCALCULATOR_H
@@ -96,7 +96,7 @@ class eflowDepthCalculator {
 
  private:
 
-  double lengthThroughBox(double theta, double zMin, double zMax, double rMin, double rMax) const;
+  static double lengthThroughBox(double theta, double zMin, double zMax, double rMin, double rMax) ;
   
   static const int m_nDepth = FCAL2;//Tile_back;  // number of region bounds
   static const DEPTHLAYER m_layerDepthMap[eflowCalo::nRegions];

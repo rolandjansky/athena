@@ -1,3 +1,3 @@
-#include "BCMPrimeGeoModelXml/BCMPrimeDetectorTool.h"
+#include "src/BCMPrimeDetectorTool.h"
 
 DECLARE_COMPONENT( BCMPrimeDetectorTool )

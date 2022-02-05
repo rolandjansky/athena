@@ -2,32 +2,34 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <utility>
+
 #include "MuonTrackMonitoring/RecoPhysPlots.h"
 
 
-RecoPhysPlots::RecoPhysPlots(PlotBase *pParent, std::string sDir, std::string recObj):PlotBase(pParent, sDir),
-    m_Mass(0),
-    m_occupancy(0),
-    m_2occupancy(0),
-    m_M_Mean(0),
-    m_M_Sigma(0),
-    m_M_EA_EA(0),
-    m_M_EA_BA(0),
-    m_M_EA_BC(0),
-    m_M_EA_EC(0),
-    m_M_BA_EA(0),
-    m_M_BA_BA(0),
-    m_M_BA_BC(0),
-    m_M_BA_EC(0),
-    m_M_BC_EA(0),
-    m_M_BC_BA(0),
-    m_M_BC_BC(0),
-    m_M_BC_EC(0),
-    m_M_EC_EA(0),
-    m_M_EC_BA(0),
-    m_M_EC_BC(0),
-    m_M_EC_EC(0),
-    type(recObj)
+RecoPhysPlots::RecoPhysPlots(PlotBase *pParent, const std::string& sDir, std::string recObj):PlotBase(pParent, sDir),
+    m_Mass(nullptr),
+    m_occupancy(nullptr),
+    m_2occupancy(nullptr),
+    m_M_Mean(nullptr),
+    m_M_Sigma(nullptr),
+    m_M_EA_EA(nullptr),
+    m_M_EA_BA(nullptr),
+    m_M_EA_BC(nullptr),
+    m_M_EA_EC(nullptr),
+    m_M_BA_EA(nullptr),
+    m_M_BA_BA(nullptr),
+    m_M_BA_BC(nullptr),
+    m_M_BA_EC(nullptr),
+    m_M_BC_EA(nullptr),
+    m_M_BC_BA(nullptr),
+    m_M_BC_BC(nullptr),
+    m_M_BC_EC(nullptr),
+    m_M_EC_EA(nullptr),
+    m_M_EC_BA(nullptr),
+    m_M_EC_BC(nullptr),
+    m_M_EC_EC(nullptr),
+    type(std::move(recObj))
 {}
 
 void RecoPhysPlots::initializePlots(){
@@ -91,7 +93,7 @@ void RecoPhysPlots::initializePlots(){
     LabelLargeEtaRegions(m_occupancy->GetXaxis());
 }
 
-void RecoPhysPlots::fill(std::vector<std::pair<const xAOD::Muon*, const xAOD::Muon*> > mumucandidates){
+void RecoPhysPlots::fill(const std::vector<std::pair<const xAOD::Muon*, const xAOD::Muon*> >& mumucandidates){
     for (auto mumu: mumucandidates){
         const float invariant_mass = (mumu.first->p4() + mumu.second->p4()).M();
         fill(mumu.first->eta(), mumu.second->eta(), invariant_mass);

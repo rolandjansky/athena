@@ -6,6 +6,7 @@
 #define ACTSGEOMETRY_ACTSEXTRAPOLATIONTOOL_H
 
 // ATHENA
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/ServiceHandle.h"

@@ -13,15 +13,9 @@
 #include "cmath"
 #include "time.h"
 using namespace MuonCalib;
-CurvedPatRec::CurvedPatRec() {
-    m_road_width = 0.5;
-    m_time_out = 10;
-}
+CurvedPatRec::CurvedPatRec() = default;
 
-CurvedPatRec::CurvedPatRec(const double &road_width) {
-    m_road_width = road_width;
-    m_time_out = 10;
-}
+CurvedPatRec::CurvedPatRec(const double &road_width) { m_road_width = road_width; }
 
 double CurvedPatRec::roadWidth() const { return m_road_width; }
 void CurvedPatRec::setRoadWidth(const double &r_road_width) { m_road_width = r_road_width; }
@@ -44,16 +38,16 @@ bool CurvedPatRec::fit(MuonCalibSegment &r_segment, HitSelection r_selection, Cu
     time_t start, end;  // start and end times (needed for time-out)
     double diff;        // difference of start and end time (needed for time-out)
     Combination combination;
-    std::vector<unsigned int> hit_index;                   // hit indices for a given combination
-    unsigned int try_nb_hits;                              // try to find a segment with try_nb_hits hits
-    bool segment_found(false);                             // flag indicating the a segment has been found
-    std::vector<const MdtCalibHitBase *> cand_track_hits;  // vector of the track hits
-                                                           // found so far
-    CurvedLine aux_line;                                   // memory for reconstructed curved lines
+    std::vector<unsigned int> hit_index;  // hit indices for a given combination
+    unsigned int try_nb_hits;             // try to find a segment with try_nb_hits hits
+    bool segment_found(false);            // flag indicating the a segment has been found
+    MdtHitVec cand_track_hits;            // vector of the track hits
+                                          // found so far
+    CurvedLine aux_line;                  // memory for reconstructed curved lines
     Amg::Vector3D null(0.0, 0.0, 0.0);
     Amg::Vector3D xhat(1.0, 0.0, 0.0);
-    std::vector<Amg::Vector3D> points;                    // hit points for the track fit
-    std::vector<const MdtCalibHitBase *> loc_track_hits;  // track hit store
+    std::vector<Amg::Vector3D> points;  // hit points for the track fit
+    MdtHitVec loc_track_hits;           // track hit store
 
     ////////////
     // RESETS //
@@ -82,8 +76,10 @@ bool CurvedPatRec::fit(MuonCalibSegment &r_segment, HitSelection r_selection, Cu
     if (sfitter->fit(r_segment, r_selection, track)) { est_dir = track.directionVector(); }
 
     // store track hits //
-    for (unsigned int k = 0; k < r_segment.mdtHitsOnTrack(); k++) {
-        if (r_selection[k] == 0 && r_segment.mdtHOT()[k]->sigmaDriftRadius() < 100) { loc_track_hits.push_back(r_segment.mdtHOT()[k]); }
+    unsigned int k = 0;
+    for (const MuonCalibSegment::MdtHitPtr &hit : r_segment.mdtHOT()) {
+        if (r_selection[k] == 0 && hit->sigmaDriftRadius() < 100) { loc_track_hits.push_back(hit); };
+        ++k;
     }
 
     // return, if there are too few hits //
@@ -95,7 +91,7 @@ bool CurvedPatRec::fit(MuonCalibSegment &r_segment, HitSelection r_selection, Cu
     // try to find a segment with as many hits on it as possible //
     try_nb_hits = loc_track_hits.size();
 
-    std::vector<const MdtCalibHitBase *> stored_track_hits;
+    MdtHitVec stored_track_hits;
     double chi2 = -1.;
 
     while (!segment_found && try_nb_hits > 3) {
@@ -118,8 +114,8 @@ bool CurvedPatRec::fit(MuonCalibSegment &r_segment, HitSelection r_selection, Cu
             } else {
                 combination.nextCombination(hit_index);
             }
-            std::vector<const MdtCalibHitBase *> track_hits;
-            for (unsigned int k = 0; k < try_nb_hits; k++) { track_hits.push_back(loc_track_hits[hit_index[k] - 1]); }
+            MdtHitVec track_hits;
+            for (unsigned int k = 0; k < try_nb_hits; ++k) { track_hits.push_back(loc_track_hits[hit_index[k] - 1]); }
 
             // find candidates //
             CurvedCandidateFinder finder(track_hits);
@@ -212,20 +208,15 @@ bool CurvedPatRec::fit(MuonCalibSegment &r_segment, HitSelection r_selection, Cu
     // UPDATE HIT RESIDUALS //
     //////////////////////////
 
-    MuonCalibSegment::MdtHitIt it = r_segment.mdtHOTBegin();
-    while (it != r_segment.mdtHOTEnd()) {
-        MdtCalibHitBase &hit = const_cast<MdtCalibHitBase &>(**it);
-
-        Amg::Vector3D pos(0.0, (hit.localPosition()).y(), (hit.localPosition()).z());
+    for (const MdtHitPtr& hit : r_segment.mdtHOT()) {
+        Amg::Vector3D pos(0.0, hit->localPosition().y(), hit->localPosition().z());
         MTStraightLine aux_line(pos, xhat, null, null);
 
         MTStraightLine tang(curved_track.getTangent(pos.z()));
 
         double dist(tang.signDistFrom(aux_line));  // track distance
         double dist_err(1.0);                      // unknown error of the track distance
-        hit.setDistanceToTrack(dist, dist_err);
-
-        ++it;
+        hit->setDistanceToTrack(dist, dist_err);
     }
 
     if (std::isnan(chi2)) { chi2 = 1.0e6; }
@@ -242,7 +233,7 @@ bool CurvedPatRec::fit(MuonCalibSegment &r_segment, HitSelection r_selection, Cu
     return true;
 }
 
-Amg::Vector3D CurvedPatRec::getHitPoint(const MdtCalibHitBase *hit, const MTStraightLine &straight_track) const {
+Amg::Vector3D CurvedPatRec::getHitPoint(const MdtHitPtr &hit, const MTStraightLine &straight_track) const {
     /////////////////////////
     // CALCULATE HIT POINT //
     /////////////////////////
@@ -255,8 +246,7 @@ Amg::Vector3D CurvedPatRec::getHitPoint(const MdtCalibHitBase *hit, const MTStra
     return point_2;
 }
 
-std::vector<Amg::Vector3D> CurvedPatRec::getHitPoints(std::vector<const MdtCalibHitBase *> track_hits,
-                                                      const MTStraightLine &straight_track) const {
+std::vector<Amg::Vector3D> CurvedPatRec::getHitPoints(const MdtHitVec &track_hits, const MTStraightLine &straight_track) const {
     ///////////////
     // VARIABLES //
     ///////////////
@@ -276,8 +266,7 @@ std::vector<Amg::Vector3D> CurvedPatRec::getHitPoints(std::vector<const MdtCalib
     return hit_vec;
 }
 
-std::vector<Amg::Vector3D> CurvedPatRec::getHitPoints(std::vector<const MdtCalibHitBase *> track_hits,
-                                                      const CurvedLine &curved_track) const {
+std::vector<Amg::Vector3D> CurvedPatRec::getHitPoints(const MdtHitVec &track_hits, const CurvedLine &curved_track) const {
     ///////////////
     // VARIABLES //
     ///////////////

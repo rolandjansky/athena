@@ -10,173 +10,159 @@
 
 #include "CaloDetDescr/CaloDepthTool.h"
 
-#include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/IMessageSvc.h"
+#include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include <vector>
 
-
 #include "GaudiKernel/SystemOfUnits.h"
 
-
 // Calo specific stuff :
+#include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescriptor.h"
-#include "CaloDetDescr/CaloDetDescrElement.h"
 
 #include <cmath>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 
 
-static const InterfaceID IID_CaloDepthTool("CaloDepthTool", 1, 0);
-const InterfaceID& CaloDepthTool::interfaceID( ) 
-{ return IID_CaloDepthTool; }
-
-
-CaloDepthTool::CaloDepthTool(const std::string& type, 
-			     const std::string& name, 
-			     const IInterface* parent) :
-  AthAlgTool(type, name, parent),
-  m_depth_choice(""),
-  m_calo_id(nullptr),
-  m_default(0)
-{
-  declareInterface<CaloDepthTool>( this );
-  declareProperty("DepthChoice", m_depth_choice,"choice of depth paramaterisation" );
+namespace {
+constexpr double s_default = 0;
+const std::unordered_map<std::string, CaloDepthTool::DepthChoice>
+  s_stringToEnum = { { "egparam", CaloDepthTool::DepthChoice::egparam },
+                     { "cscopt", CaloDepthTool::DepthChoice::cscopt },
+                     { "cscopt2", CaloDepthTool::DepthChoice::cscopt2 },
+                     { "TBparam", CaloDepthTool::DepthChoice::TBparam },
+                     { "entrance", CaloDepthTool::DepthChoice::entrance },
+                     { "middle", CaloDepthTool::DepthChoice::middle },
+                     { "flat", CaloDepthTool::DepthChoice::flat } };
 }
 
-CaloDepthTool::~CaloDepthTool()
-{}
+static const InterfaceID IID_CaloDepthTool("CaloDepthTool", 1, 0);
+const InterfaceID&
+CaloDepthTool::interfaceID()
+{
+  return IID_CaloDepthTool;
+}
+
+CaloDepthTool::CaloDepthTool(const std::string& type,
+                             const std::string& name,
+                             const IInterface* parent)
+  : AthAlgTool(type, name, parent)
+  , m_calo_id(nullptr)
+{
+  declareInterface<CaloDepthTool>(this);
+}
+
+CaloDepthTool::~CaloDepthTool() {}
 
 StatusCode
 CaloDepthTool::initialize()
 {
-  // FIXME : in the old egammaqdepth class, the default was -999., but the
-  //         CaloDetDescr convention is to return 0 
-  m_default = 0.;
 
-  ATH_MSG_DEBUG( " getting started " );
+  ATH_CHECK(detStore()->retrieve(m_calo_id, "CaloCell_ID"));
 
-  ATH_CHECK( detStore()->retrieve (m_calo_id, "CaloCell_ID") );
-    
-  if (m_depth_choice.empty()) {
-    ATH_MSG_INFO (" CaloDepthTool " << this->name() 
-                  << " successfully initialised, will provide entrance (default)" 
-                  << m_depth_choice );
+  if (!m_depth_choice.empty()) {
+  
+    auto it = s_stringToEnum.find(m_depth_choice);
+    if (it != s_stringToEnum.end()) {
+      m_depthChoice = it->second;
+    } else {
+      ATH_MSG_FATAL(" invalid depth choice " << m_depth_choice);
+      return StatusCode::FAILURE;
+    }
+
   }
-  else{
-    ATH_MSG_INFO(" CaloDepthTool " << this->name() 
-                 << " successfully initialised, will provide " 
-                 << m_depth_choice );
-  }
+  ATH_MSG_INFO(" CaloDepthTool " << this->name()
+                                 << " successfully initialised, will provide "
+                                 << m_depth_choice << " enum "
+                                 << static_cast<int>(m_depthChoice));
+
   return StatusCode::SUCCESS;
 }
-
 
 StatusCode
 CaloDepthTool::finalize()
 {
-    return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
-
-
-const CaloDetDescrManager*
-CaloDepthTool::caloMgr() const
-{
-  const CaloDetDescrManager* caloMgr = m_calo_dd.get();
-  if (!caloMgr) {
-    if (detStore()->retrieve (caloMgr, "CaloMgr").isFailure()) {
-      ATH_MSG_ERROR ("Can't retrieve CaloDetDescrManager");
-      std::abort();
-    }
-    m_calo_dd.set (caloMgr);
-  }
-  return caloMgr;
-}
-
 
 // the generic methods to be used by clients :
 
-double 
-CaloDepthTool::radius(const CaloCell_ID::SUBCALO subcalo,const  int sampling_or_module,  const bool barrel,
-		      const double eta, const double phi ) const
+double
+CaloDepthTool::radius(const CaloCell_ID::SUBCALO subcalo,
+                      const int sampling_or_module,
+                      const bool barrel,
+                      const double eta,
+                      const double phi,
+                      const CaloDetDescrManager* caloDD) const
 {
   CaloCell_ID::CaloSample sample;
-  CaloDetDescrManager::build_sample ( subcalo, barrel,sampling_or_module, sample);
-  return radius(sample, eta, phi);
+  CaloDetDescrManager::build_sample(
+    subcalo, barrel, sampling_or_module, sample);
+  return radius(sample, eta, phi, caloDD);
 }
 
-double 
-CaloDepthTool::radius(const CaloCell_ID::CaloSample sample,const double eta, const double phi ) const
+double
+CaloDepthTool::radius(const CaloCell_ID::CaloSample sample,
+                      const double eta,
+                      const double phi,
+                      const CaloDetDescrManager* caloDD) const
 {
-  double radius = m_default;
+  double radius = s_default;
 
-  if ( m_depth_choice == "egparam" ){
-    radius = egparametrized(sample,eta,phi);
-  }
-  else if ( m_depth_choice == "cscopt" ){
-    radius = cscopt_parametrized(sample,eta,phi);
-  }
-  else if ( m_depth_choice == "cscopt2" ){
-    radius = cscopt2_parametrized(sample,eta,phi);
-  }
-  else if ( m_depth_choice == "TBparam" ){
-    radius = TBparametrized(sample,eta,phi);
-  }
-  else if ( m_depth_choice == "entrance" ){
-    radius = entrance(sample,eta,phi);
-  }
-  else if ( m_depth_choice == "middle" ){
-    radius = middle(sample,eta,phi);
-  }
-  else if ( m_depth_choice == "flat" ) {
-    if (eta >=0) radius = flat(sample, 1);
-    else radius = flat(sample, -1); 
-  }
-  else {
-    radius = entrance(sample,eta,phi);
+  if (m_depthChoice == DepthChoice::egparam) {
+    radius = egparametrized(sample, eta, phi, caloDD);
+  } else if (m_depthChoice == DepthChoice::cscopt) {
+    radius = cscopt_parametrized(sample, eta, phi, caloDD);
+  } else if (m_depthChoice == DepthChoice::cscopt2) {
+    radius = cscopt2_parametrized(sample, eta, phi, caloDD);
+  } else if (m_depthChoice == DepthChoice::TBparam) {
+    radius = TBparametrized(sample, eta, phi, caloDD);
+  } else if (m_depthChoice == DepthChoice::entrance) {
+    radius = entrance(sample, eta, phi, caloDD);
+  } else if (m_depthChoice == DepthChoice::middle) {
+    radius = middle(sample, eta, phi, caloDD);
+  } else if (m_depthChoice == DepthChoice::flat) {
+    if (eta >= 0) {
+      radius = flat(sample, 1, caloDD);
+    } else {
+      radius = flat(sample, -1, caloDD);
+    }
+  } else {
+    radius = entrance(sample, eta, phi, caloDD);
   }
 
-  /*  
-  double dist = deta (sample,eta);
-  std::cout << std::setw(10) << std::setprecision(3) 
-	    << " eta = " << eta << " sample "  << (int) sample
-	    << " dist = " << dist
-	    << " egparam = " << egparametrized(sample,eta,0.)
-	    << " entrance = " << entrance(sample,eta,0.)
-	    << " middle= " << middle(sample,eta,0.)
-	    << " flat >0 = " << flat(sample, 1)
-	    << " flat <0 = " << flat(sample, -1)
-	    << std::endl;
-  */
-
-  // FIXME : outside DD, use parametrised radius as default   
-  //         it is OK, but choice should be left tothe user
-  if ( std::abs (radius) < 10.) {
-    radius = egparametrized(sample,eta,phi);
-    //std::cout << " => use parametrisation " << std::endl << std::endl;
+  // outside DD, use parametrised radius as default
+  // it is OK, but choice should be left to the user
+  if (std::abs(radius) < 10.) {
+    radius = egparametrized(sample, eta, phi, caloDD);
   }
 
   return radius;
 }
 
-double  
-CaloDepthTool::deta (const CaloCell_ID::SUBCALO subcalo, const int sampling_or_module,const bool barrel, 
-			const double eta ) const
+double
+CaloDepthTool::deta(const CaloCell_ID::SUBCALO subcalo,
+                    const int sampling_or_module,
+                    const bool barrel,
+                    const double eta,
+                    const CaloDetDescrManager* caloDD) 
 {
   CaloCell_ID::CaloSample sample;
-  CaloDetDescrManager::build_sample ( subcalo, barrel,sampling_or_module, sample);
-  return deta(sample, eta);
+  CaloDetDescrManager::build_sample(
+    subcalo, barrel, sampling_or_module, sample);
+  return deta(sample, eta, caloDD);
 }
 
-double  
-CaloDepthTool::deta (const CaloCell_ID::CaloSample sample,
-                     const double eta ) const
+double
+CaloDepthTool::deta(const CaloCell_ID::CaloSample sample,
+                    const double eta,
+                    const CaloDetDescrManager* caloDD) 
 {
-  // FIXME : m_calo_dd->is_in not implemented for Tiles => will return 99999.
   double deta = 99999.;
-  /*bool result =*/ caloMgr()->is_in(eta, 0., sample,deta);
+  /*bool result =*/caloDD->is_in(eta, 0., sample, deta);
   return deta;
 }
 
@@ -184,68 +170,82 @@ CaloDepthTool::deta (const CaloCell_ID::CaloSample sample,
 // the really dirty ones :
 // -----------------------
 
-double 
-CaloDepthTool::egparametrized(const CaloCell_ID::SUBCALO subcalo,const  int sampling_or_module,  const bool barrel,
-		      const double eta, const double phi ) const
+double
+CaloDepthTool::egparametrized(const CaloCell_ID::SUBCALO subcalo,
+                              const int sampling_or_module,
+                              const bool barrel,
+                              const double eta,
+                              const double phi,
+                              const CaloDetDescrManager* caloDD) 
 {
   CaloCell_ID::CaloSample sample;
-  CaloDetDescrManager::build_sample ( subcalo, barrel,sampling_or_module, sample);
-  return egparametrized(sample, eta, phi);
+  CaloDetDescrManager::build_sample(
+    subcalo, barrel, sampling_or_module, sample);
+  return egparametrized(sample, eta, phi, caloDD);
 }
 
-double 
-CaloDepthTool::egparametrized(const CaloCell_ID::CaloSample sample,const double eta, const double /*phi*/ ) const
+double
+CaloDepthTool::egparametrized(const CaloCell_ID::CaloSample sample,
+                              const double eta,
+                              const double /*phi*/,
+                              const CaloDetDescrManager* caloDD) 
 {
-  double radius = m_default;
+  double radius = s_default;
 
   // note that only LAREM was foreseen in egammaqdepth
-  // here we go ... cut and paste the code as is, including hardcoded parametrisation :-(
+  // here we go ... cut and paste the code as is, including hardcoded
+  // parametrisation :-(
 
-  float aeta = static_cast<float> (std::abs(eta));
+  float aeta = static_cast<float>(std::abs(eta));
 
   if (sample == CaloCell_ID::PreSamplerB) {
-    radius = 1422.3*Gaudi::Units::millimeter;
-  }
-  else if (sample == CaloCell_ID::EMB1) {
+    radius = 1422.3 * Gaudi::Units::millimeter;
+  } else if (sample == CaloCell_ID::EMB1) {
     if (aeta < 0.8)
-      radius = (1567.8 - 18.975*aeta - 17.668*aeta*aeta)*Gaudi::Units::millimeter;
+      radius = (1567.8 - 18.975 * aeta - 17.668 * aeta * aeta) *
+               Gaudi::Units::millimeter;
     else
-      radius = (1503.2 + 71.716*aeta - 41.008*aeta*aeta)*Gaudi::Units::millimeter;
-  }
-  else if (sample == CaloCell_ID::EMB2) {
-    if (aeta < 0.8) 
-      radius = (1697.1 - 15.311*aeta - 64.153*aeta*aeta)*Gaudi::Units::millimeter;
+      radius = (1503.2 + 71.716 * aeta - 41.008 * aeta * aeta) *
+               Gaudi::Units::millimeter;
+  } else if (sample == CaloCell_ID::EMB2) {
+    if (aeta < 0.8)
+      radius = (1697.1 - 15.311 * aeta - 64.153 * aeta * aeta) *
+               Gaudi::Units::millimeter;
     else
-      radius = (1739.1 - 75.648*aeta - 18.501*aeta*aeta)*Gaudi::Units::millimeter;
-  }
-  else if (sample == CaloCell_ID::EMB3) {
-    if (aeta < 0.8) 
-      radius = (1833.88 - 106.25*aeta)*Gaudi::Units::millimeter;
-    else 
-      radius = (2038.40-286.*aeta)*Gaudi::Units::millimeter;
+      radius = (1739.1 - 75.648 * aeta - 18.501 * aeta * aeta) *
+               Gaudi::Units::millimeter;
+  } else if (sample == CaloCell_ID::EMB3) {
+    if (aeta < 0.8)
+      radius = (1833.88 - 106.25 * aeta) * Gaudi::Units::millimeter;
+    else
+      radius = (2038.40 - 286. * aeta) * Gaudi::Units::millimeter;
   }
 
   else if (sample == CaloCell_ID::PreSamplerE) {
-    radius = 3600.*Gaudi::Units::millimeter;
-    if (eta < 0.) radius = -radius;
-  }
-  else if (sample == CaloCell_ID::EME1) {
-    radius = 3760.*Gaudi::Units::millimeter;
-    if (eta < 0.) radius = -radius;
-  }
-  else if (sample == CaloCell_ID::EME2) {
-    radius = 3880.*Gaudi::Units::millimeter;
-    if (eta < 0.) radius = -radius;
-  }
-  else if (sample == CaloCell_ID::EME3) {
-    radius = 4150.*Gaudi::Units::millimeter;
-    if (eta < 0.) radius = -radius;
+    radius = 3600. * Gaudi::Units::millimeter;
+    if (eta < 0.)
+      radius = -radius;
+  } else if (sample == CaloCell_ID::EME1) {
+    radius = 3760. * Gaudi::Units::millimeter;
+    if (eta < 0.)
+      radius = -radius;
+  } else if (sample == CaloCell_ID::EME2) {
+    radius = 3880. * Gaudi::Units::millimeter;
+    if (eta < 0.)
+      radius = -radius;
+  } else if (sample == CaloCell_ID::EME3) {
+    radius = 4150. * Gaudi::Units::millimeter;
+    if (eta < 0.)
+      radius = -radius;
   }
 
-  // This was not in the egamma parametrization, but it does not cost much to add it :
+  // This was not in the egamma parametrization, but it does not cost much to
+  // add it :
   else {
-    if (eta > 0.) radius = flat (sample, 1);
-    else radius = flat (sample, -1);
+    if (eta > 0.)
+      radius = flat(sample, 1, caloDD);
+    else
+      radius = flat(sample, -1, caloDD);
   }
 
   return radius;
@@ -254,62 +254,67 @@ CaloDepthTool::egparametrized(const CaloCell_ID::CaloSample sample,const double 
 // Depths of samplings 1 and 2 found by finding the depth where the
 // eta resolution is optimal.  Done for CSC data.  These coefficents
 // are from the E=100 GeV single-photon sample.
-double 
+double
 CaloDepthTool::cscopt_parametrized(const CaloCell_ID::CaloSample sample,
-                                   const double eta, const double /*phi*/ )
-  const
+                                   const double eta,
+                                   const double /*phi*/,
+                                   const CaloDetDescrManager* caloDD) 
 {
-  double radius = m_default;
+  double radius = s_default;
 
-  float aeta = static_cast<float> (std::abs(eta));
+  float aeta = static_cast<float>(std::abs(eta));
 
   if (sample == CaloCell_ID::PreSamplerB) {
-    radius = 1422.3*Gaudi::Units::millimeter;
-  }
-  else if (sample == CaloCell_ID::EMB1) {
+    radius = 1422.3 * Gaudi::Units::millimeter;
+  } else if (sample == CaloCell_ID::EMB1) {
     if (aeta < 0.8)
-      radius = (1558.859292 - 4.990838*aeta - 21.144279*aeta*aeta)*Gaudi::Units::millimeter;
+      radius = (1558.859292 - 4.990838 * aeta - 21.144279 * aeta * aeta) *
+               Gaudi::Units::millimeter;
     else
-      radius = (1522.775373 + 27.970192*aeta - 21.104108*aeta*aeta)*Gaudi::Units::millimeter;
-  }
-  else if (sample == CaloCell_ID::EMB2) {
-    radius = (1689.621619 + 2.682993*aeta - 70.165741*aeta*aeta)*Gaudi::Units::millimeter;
-  }
-  else if (sample == CaloCell_ID::EMB3) {
-    if (aeta < 0.8) 
-      radius = (1833.88 - 106.25*aeta)*Gaudi::Units::millimeter;
-    else 
-      radius = (2038.40-286.*aeta)*Gaudi::Units::millimeter;
+      radius = (1522.775373 + 27.970192 * aeta - 21.104108 * aeta * aeta) *
+               Gaudi::Units::millimeter;
+  } else if (sample == CaloCell_ID::EMB2) {
+    radius = (1689.621619 + 2.682993 * aeta - 70.165741 * aeta * aeta) *
+             Gaudi::Units::millimeter;
+  } else if (sample == CaloCell_ID::EMB3) {
+    if (aeta < 0.8)
+      radius = (1833.88 - 106.25 * aeta) * Gaudi::Units::millimeter;
+    else
+      radius = (2038.40 - 286. * aeta) * Gaudi::Units::millimeter;
   }
 
   else if (sample == CaloCell_ID::PreSamplerE) {
-    radius = 3600.*Gaudi::Units::millimeter;
-    if (eta < 0.) radius = -radius;
-  }
-  else if (sample == CaloCell_ID::EME1) {
+    radius = 3600. * Gaudi::Units::millimeter;
+    if (eta < 0.)
+      radius = -radius;
+  } else if (sample == CaloCell_ID::EME1) {
     if (aeta < 1.5)
-      radius = (12453.297448 - 5735.787116*aeta)*Gaudi::Units::millimeter;
+      radius = (12453.297448 - 5735.787116 * aeta) * Gaudi::Units::millimeter;
     else
-      radius = 3790.671754*Gaudi::Units::millimeter;
-    if (eta < 0.) radius = -radius;
-  }
-  else if (sample == CaloCell_ID::EME2) {
+      radius = 3790.671754 * Gaudi::Units::millimeter;
+    if (eta < 0.)
+      radius = -radius;
+  } else if (sample == CaloCell_ID::EME2) {
     if (aeta < 1.5)
-      radius = (8027.574119 - 2717.653528*aeta)*Gaudi::Units::millimeter;
+      radius = (8027.574119 - 2717.653528 * aeta) * Gaudi::Units::millimeter;
     else
-      radius = (3473.473909 + 453.941515*aeta - 119.101945*aeta*aeta)*Gaudi::Units::millimeter;
-    if (eta < 0.) radius = -radius;
-  }
-  else if (sample == CaloCell_ID::EME3) {
-    radius = 4150.*Gaudi::Units::millimeter;
-    if (eta < 0.) radius = -radius;
+      radius = (3473.473909 + 453.941515 * aeta - 119.101945 * aeta * aeta) *
+               Gaudi::Units::millimeter;
+    if (eta < 0.)
+      radius = -radius;
+  } else if (sample == CaloCell_ID::EME3) {
+    radius = 4150. * Gaudi::Units::millimeter;
+    if (eta < 0.)
+      radius = -radius;
   }
 
   // This was not in the egamma parametrization,
   // but it does not cost much to add it :
   else {
-    if (eta > 0.) radius = flat (sample, 1);
-    else radius = flat (sample, -1);
+    if (eta > 0.)
+      radius = flat(sample, 1, caloDD);
+    else
+      radius = flat(sample, -1, caloDD);
   }
 
   return radius;
@@ -319,99 +324,107 @@ CaloDepthTool::cscopt_parametrized(const CaloCell_ID::CaloSample sample,
 // excluded.  That point was influenced by edge effects and was distorting
 // the fit, pulling it down too much at the end.  Excluding it is shown
 // to somewhat improve the measured resolution.
-double 
+double
 CaloDepthTool::cscopt2_parametrized(const CaloCell_ID::CaloSample sample,
-                                    const double eta, const double /*phi*/ )
-  const
+                                    const double eta,
+                                    const double /*phi*/,
+                                    const CaloDetDescrManager* caloDD) 
 {
-  double radius = m_default;
+  double radius = s_default;
 
-  float aeta = static_cast<float> (std::abs(eta));
+  float aeta = static_cast<float>(std::abs(eta));
 
   if (sample == CaloCell_ID::PreSamplerB) {
-    radius = 1422.3*Gaudi::Units::millimeter;
-  }
-  else if (sample == CaloCell_ID::EMB1) {
+    radius = 1422.3 * Gaudi::Units::millimeter;
+  } else if (sample == CaloCell_ID::EMB1) {
     if (aeta < 0.8)
-      radius = (1558.859292 - 4.990838*aeta - 21.144279*aeta*aeta)*Gaudi::Units::millimeter;
+      radius = (1558.859292 - 4.990838 * aeta - 21.144279 * aeta * aeta) *
+               Gaudi::Units::millimeter;
     else
-      radius = (1522.775373 + 27.970192*aeta - 21.104108*aeta*aeta)*Gaudi::Units::millimeter;
-  }
-  else if (sample == CaloCell_ID::EMB2) {
-    radius = (1698.990944 - 49.431767*aeta - 24.504976*aeta*aeta)*Gaudi::Units::millimeter;
-  }
-  else if (sample == CaloCell_ID::EMB3) {
-    if (aeta < 0.8) 
-      radius = (1833.88 - 106.25*aeta)*Gaudi::Units::millimeter;
-    else 
-      radius = (2038.40-286.*aeta)*Gaudi::Units::millimeter;
+      radius = (1522.775373 + 27.970192 * aeta - 21.104108 * aeta * aeta) *
+               Gaudi::Units::millimeter;
+  } else if (sample == CaloCell_ID::EMB2) {
+    radius = (1698.990944 - 49.431767 * aeta - 24.504976 * aeta * aeta) *
+             Gaudi::Units::millimeter;
+  } else if (sample == CaloCell_ID::EMB3) {
+    if (aeta < 0.8)
+      radius = (1833.88 - 106.25 * aeta) * Gaudi::Units::millimeter;
+    else
+      radius = (2038.40 - 286. * aeta) * Gaudi::Units::millimeter;
   }
 
   else if (sample == CaloCell_ID::PreSamplerE) {
-    radius = 3600.*Gaudi::Units::millimeter;
-    if (eta < 0.) radius = -radius;
-  }
-  else if (sample == CaloCell_ID::EME1) {
+    radius = 3600. * Gaudi::Units::millimeter;
+    if (eta < 0.)
+      radius = -radius;
+  } else if (sample == CaloCell_ID::EME1) {
     if (aeta < 1.5)
-      radius = (12453.297448 - 5735.787116*aeta)*Gaudi::Units::millimeter;
+      radius = (12453.297448 - 5735.787116 * aeta) * Gaudi::Units::millimeter;
     else
-      radius = 3790.671754*Gaudi::Units::millimeter;
-    if (eta < 0.) radius = -radius;
-  }
-  else if (sample == CaloCell_ID::EME2) {
+      radius = 3790.671754 * Gaudi::Units::millimeter;
+    if (eta < 0.)
+      radius = -radius;
+  } else if (sample == CaloCell_ID::EME2) {
     if (aeta < 1.5)
-      radius = (8027.574119 - 2717.653528*aeta)*Gaudi::Units::millimeter;
+      radius = (8027.574119 - 2717.653528 * aeta) * Gaudi::Units::millimeter;
     else
-      radius = (3473.473909 + 453.941515*aeta - 119.101945*aeta*aeta)*Gaudi::Units::millimeter;
-    if (eta < 0.) radius = -radius;
-  }
-  else if (sample == CaloCell_ID::EME3) {
-    radius = 4150.*Gaudi::Units::millimeter;
-    if (eta < 0.) radius = -radius;
+      radius = (3473.473909 + 453.941515 * aeta - 119.101945 * aeta * aeta) *
+               Gaudi::Units::millimeter;
+    if (eta < 0.)
+      radius = -radius;
+  } else if (sample == CaloCell_ID::EME3) {
+    radius = 4150. * Gaudi::Units::millimeter;
+    if (eta < 0.)
+      radius = -radius;
   }
 
   // This was not in the egamma parametrization,
   // but it does not cost much to add it :
   else {
-    if (eta > 0.) radius = flat (sample, 1);
-    else radius = flat (sample, -1);
+    if (eta > 0.)
+      radius = flat(sample, 1, caloDD);
+    else
+      radius = flat(sample, -1, caloDD);
   }
 
   return radius;
 }
 
-double 
-CaloDepthTool::TBparametrized(const CaloCell_ID::SUBCALO subcalo,const  int sampling_or_module,  const bool barrel,
-		      const double eta, const double phi ) const
+double
+CaloDepthTool::TBparametrized(const CaloCell_ID::SUBCALO subcalo,
+                              const int sampling_or_module,
+                              const bool barrel,
+                              const double eta,
+                              const double phi,
+                              const CaloDetDescrManager* caloDD) 
 {
   CaloCell_ID::CaloSample sample;
-  CaloDetDescrManager::build_sample ( subcalo, barrel,sampling_or_module, sample);
-  return TBparametrized(sample, eta, phi);
+  CaloDetDescrManager::build_sample(
+    subcalo, barrel, sampling_or_module, sample);
+  return TBparametrized(sample, eta, phi, caloDD);
 }
 
-double 
-CaloDepthTool::TBparametrized(const CaloCell_ID::CaloSample sample,const double eta, const double phi ) const
+double
+CaloDepthTool::TBparametrized(const CaloCell_ID::CaloSample sample,
+                              const double eta,
+                              const double phi,
+                              const CaloDetDescrManager* caloDD) 
 {
-  double radius = m_default;
+  double radius = s_default;
 
-  // FIXME
-  // release 10.0.1 : the analysis is not advanced enough to know what is needed.  
-  // right now, use the eg parametrisation everywhere possible, entrance elsewere.
-
+  // release 10.0.1 : the analysis is not advanced enough to know what is
+  // needed. right now, use the eg parametrisation everywhere possible, entrance
+  // elsewere.
   if (sample == CaloCell_ID::PreSamplerB) {
-    return egparametrized(sample,eta,phi );
-  }
-  else if (sample == CaloCell_ID::EMB1) {
-    return egparametrized(sample,eta,phi );
-  }
-  else if (sample == CaloCell_ID::EMB2) {
-    return egparametrized(sample,eta,phi );
-  }
-  else if (sample == CaloCell_ID::EMB3) {
-    return egparametrized(sample,eta,phi);
-  }
-  else {
-    return entrance(sample,eta,phi);
+    return egparametrized(sample, eta, phi, caloDD);
+  } else if (sample == CaloCell_ID::EMB1) {
+    return egparametrized(sample, eta, phi, caloDD);
+  } else if (sample == CaloCell_ID::EMB2) {
+    return egparametrized(sample, eta, phi, caloDD);
+  } else if (sample == CaloCell_ID::EMB3) {
+    return egparametrized(sample, eta, phi, caloDD);
+  } else {
+    return entrance(sample, eta, phi, caloDD);
   }
 
   return radius;
@@ -421,240 +434,312 @@ CaloDepthTool::TBparametrized(const CaloCell_ID::CaloSample sample,const double 
 // the cleaner ones :
 // ------------------
 
-double 
-CaloDepthTool::entrance(const CaloCell_ID::SUBCALO subcalo,const int sampling_or_module, const bool barrel, 
-			  const double eta, const double phi ) const
+double
+CaloDepthTool::entrance(const CaloCell_ID::SUBCALO subcalo,
+                        const int sampling_or_module,
+                        const bool barrel,
+                        const double eta,
+                        const double phi,
+                        const CaloDetDescrManager* caloDD) 
 {
   CaloCell_ID::CaloSample sample;
-  CaloDetDescrManager::build_sample ( subcalo, barrel,sampling_or_module, sample);
-  return entrance(sample, eta, phi);
+  CaloDetDescrManager::build_sample(
+    subcalo, barrel, sampling_or_module, sample);
+  return entrance(sample, eta, phi, caloDD);
 }
 
 double
-CaloDepthTool::entrance(const CaloCell_ID::CaloSample sample, const double eta, const double phi ) const
+CaloDepthTool::entrance(const CaloCell_ID::CaloSample sample,
+                        const double eta,
+                        const double phi,
+                        const CaloDetDescrManager* caloDD) 
 {
-  double radius = m_default;
-
+  double radius = s_default;
 
   // FIXME : the calodetdescr manager misses 1 generic get_entrance method
-  if ( sample == CaloCell_ID::PreSamplerE || sample == CaloCell_ID::EME1 ||
-       sample == CaloCell_ID::EME2 || sample == CaloCell_ID::EME3 ||
-       sample == CaloCell_ID::HEC0 || sample == CaloCell_ID::HEC1 ||
-       sample == CaloCell_ID::HEC2 || sample == CaloCell_ID::HEC3 ||
-       sample == CaloCell_ID::FCAL0 || sample == CaloCell_ID::FCAL1 ||
-       sample == CaloCell_ID::FCAL2       )
-    radius = get_entrance_z(sample,eta,phi);
+  if (sample == CaloCell_ID::PreSamplerE || sample == CaloCell_ID::EME1 ||
+      sample == CaloCell_ID::EME2 || sample == CaloCell_ID::EME3 ||
+      sample == CaloCell_ID::HEC0 || sample == CaloCell_ID::HEC1 ||
+      sample == CaloCell_ID::HEC2 || sample == CaloCell_ID::HEC3 ||
+      sample == CaloCell_ID::FCAL0 || sample == CaloCell_ID::FCAL1 ||
+      sample == CaloCell_ID::FCAL2)
+    radius = get_entrance_z(sample, eta, phi, caloDD);
   else
-    radius = get_entrance_radius(sample,eta,phi);
+    radius = get_entrance_radius(sample, eta, phi, caloDD);
 
   return radius;
 }
 
-double 
-CaloDepthTool::middle(const CaloCell_ID::SUBCALO subcalo,const int sampling_or_module, const bool barrel, 
-			  const double eta, const double phi ) const
+double
+CaloDepthTool::middle(const CaloCell_ID::SUBCALO subcalo,
+                      const int sampling_or_module,
+                      const bool barrel,
+                      const double eta,
+                      const double phi,
+                      const CaloDetDescrManager* caloDD) 
 {
   CaloCell_ID::CaloSample sample;
-  CaloDetDescrManager::build_sample ( subcalo, barrel,sampling_or_module, sample);
-  return middle(sample, eta, phi);
+  CaloDetDescrManager::build_sample(
+    subcalo, barrel, sampling_or_module, sample);
+  return middle(sample, eta, phi, caloDD);
 }
 
 double
-CaloDepthTool::middle(const CaloCell_ID::CaloSample sample, const double eta, const double phi ) const
+CaloDepthTool::middle(const CaloCell_ID::CaloSample sample,
+                      const double eta,
+                      const double phi,
+                      const CaloDetDescrManager* caloDD) 
 {
-  double radius = m_default;
+  double radius = s_default;
 
-  if ( sample == CaloCell_ID::PreSamplerE || sample == CaloCell_ID::EME1 ||
-       sample == CaloCell_ID::EME2 || sample == CaloCell_ID::EME3 ||
-       sample == CaloCell_ID::HEC0 || sample == CaloCell_ID::HEC1 ||
-       sample == CaloCell_ID::HEC2 || sample == CaloCell_ID::HEC3 ||
-       sample == CaloCell_ID::FCAL0 || sample == CaloCell_ID::FCAL1 ||
-       sample == CaloCell_ID::FCAL2       )
-    radius = get_middle_z(sample,eta,phi);
+  if (sample == CaloCell_ID::PreSamplerE || sample == CaloCell_ID::EME1 ||
+      sample == CaloCell_ID::EME2 || sample == CaloCell_ID::EME3 ||
+      sample == CaloCell_ID::HEC0 || sample == CaloCell_ID::HEC1 ||
+      sample == CaloCell_ID::HEC2 || sample == CaloCell_ID::HEC3 ||
+      sample == CaloCell_ID::FCAL0 || sample == CaloCell_ID::FCAL1 ||
+      sample == CaloCell_ID::FCAL2)
+    radius = get_middle_z(sample, eta, phi, caloDD);
   else
-    radius = get_middle_radius(sample,eta,phi);
+    radius = get_middle_radius(sample, eta, phi, caloDD);
 
   return radius;
 }
 
-double 
-CaloDepthTool::exit(const CaloCell_ID::SUBCALO subcalo,const int sampling_or_module, const bool barrel, 
-			  const double eta, const double phi ) const
+double
+CaloDepthTool::exit(const CaloCell_ID::SUBCALO subcalo,
+                    const int sampling_or_module,
+                    const bool barrel,
+                    const double eta,
+                    const double phi,
+                    const CaloDetDescrManager* caloDD) 
 {
   CaloCell_ID::CaloSample sample;
-  CaloDetDescrManager::build_sample ( subcalo, barrel,sampling_or_module, sample);
-  return exit(sample, eta, phi);
+  CaloDetDescrManager::build_sample(
+    subcalo, barrel, sampling_or_module, sample);
+  return exit(sample, eta, phi, caloDD);
 }
 
 double
-CaloDepthTool::exit(const CaloCell_ID::CaloSample sample, const double eta, const double phi ) const
+CaloDepthTool::exit(const CaloCell_ID::CaloSample sample,
+                    const double eta,
+                    const double phi,
+                    const CaloDetDescrManager* caloDD) 
 {
-  double radius = m_default;
+  double radius = s_default;
 
-  if ( sample == CaloCell_ID::PreSamplerE || sample == CaloCell_ID::EME1 ||
-       sample == CaloCell_ID::EME2 || sample == CaloCell_ID::EME3 ||
-       sample == CaloCell_ID::HEC0 || sample == CaloCell_ID::HEC1 ||
-       sample == CaloCell_ID::HEC2 || sample == CaloCell_ID::HEC3 ||
-       sample == CaloCell_ID::FCAL0 || sample == CaloCell_ID::FCAL1 ||
-       sample == CaloCell_ID::FCAL2       )
-    radius = get_exit_z(sample,eta,phi);
+  if (sample == CaloCell_ID::PreSamplerE || sample == CaloCell_ID::EME1 ||
+      sample == CaloCell_ID::EME2 || sample == CaloCell_ID::EME3 ||
+      sample == CaloCell_ID::HEC0 || sample == CaloCell_ID::HEC1 ||
+      sample == CaloCell_ID::HEC2 || sample == CaloCell_ID::HEC3 ||
+      sample == CaloCell_ID::FCAL0 || sample == CaloCell_ID::FCAL1 ||
+      sample == CaloCell_ID::FCAL2)
+    radius = get_exit_z(sample, eta, phi, caloDD);
   else
-    radius = get_exit_radius(sample,eta,phi);
+    radius = get_exit_radius(sample, eta, phi, caloDD);
 
   return radius;
 }
 
-double 
-CaloDepthTool::flat(const CaloCell_ID::SUBCALO subcalo,const int sampling_or_module, const bool barrel,
-		      const int side ) const
+double
+CaloDepthTool::flat(const CaloCell_ID::SUBCALO subcalo,
+                    const int sampling_or_module,
+                    const bool barrel,
+                    const int side,
+                    const CaloDetDescrManager* caloDD) 
 {
   CaloCell_ID::CaloSample sample;
-  CaloDetDescrManager::build_sample ( subcalo, barrel,sampling_or_module, sample);
-  return flat(sample, side);
+  CaloDetDescrManager::build_sample(
+    subcalo, barrel, sampling_or_module, sample);
+  return flat(sample, side, caloDD);
 }
 
 double
-CaloDepthTool::flat(const CaloCell_ID::CaloSample sample, const int side )
-  const
+CaloDepthTool::flat(const CaloCell_ID::CaloSample sample,
+                    const int side,
+                    const CaloDetDescrManager* caloDD) 
 {
   // FIXME : tiles is hardcoded !!!
   double radius = 2280.;
 
-  if ( sample == CaloCell_ID::TileBar0 )  return false;
-  if ( sample == CaloCell_ID::TileBar1 )  return false;
-  if ( sample == CaloCell_ID::TileBar2 )  return false;
-  if ( sample == CaloCell_ID::TileGap1 )  return false;
-  if ( sample == CaloCell_ID::TileGap2 )  return false;
-  if ( sample == CaloCell_ID::TileExt0 )  return false;
-  if ( sample == CaloCell_ID::TileExt1 )  return false;
-  if ( sample == CaloCell_ID::TileExt2 )  return false;
+  if (sample == CaloCell_ID::TileBar0)
+    return false;
+  if (sample == CaloCell_ID::TileBar1)
+    return false;
+  if (sample == CaloCell_ID::TileBar2)
+    return false;
+  if (sample == CaloCell_ID::TileGap1)
+    return false;
+  if (sample == CaloCell_ID::TileGap2)
+    return false;
+  if (sample == CaloCell_ID::TileExt0)
+    return false;
+  if (sample == CaloCell_ID::TileExt1)
+    return false;
+  if (sample == CaloCell_ID::TileExt2)
+    return false;
 
-  radius = m_default;
-
-  for (const CaloDetDescriptor* reg : caloMgr()->calo_descriptors_range()) {
+  radius = s_default;
+  for (const CaloDetDescriptor* reg : caloDD->calo_descriptors_range()) {
     if (reg) {
-      if ( reg->getSampling(0) == sample && reg->calo_sign()*side > 0) {
-	std::vector<double> depth;
-	reg->get_depth_in(depth);
-	for ( unsigned int j = 0; j<depth.size(); j++ )
-	  if (radius < depth[j] ) radius = depth[j];
+      if (reg->getSampling(0) == sample && reg->calo_sign() * side > 0) {
+        std::vector<double> depth;
+        reg->get_depth_in(depth);
+        for (unsigned int j = 0; j < depth.size(); j++)
+          if (radius < depth[j])
+            radius = depth[j];
       }
     }
   }
-  
-// depth in are positive values, so should multiply by -1 for the HEC and FCAL at eta<0. to get the corresponding z
 
-  if (side<0) {
-     if (sample == CaloCell_ID::PreSamplerE ||
-         sample == CaloCell_ID::EME1 ||
-         sample == CaloCell_ID::EME2 ||
-         sample == CaloCell_ID::EME3 ||
-         sample == CaloCell_ID::HEC0 ||
-         sample == CaloCell_ID::HEC1 ||
-         sample == CaloCell_ID::HEC2 ||
-         sample == CaloCell_ID::HEC3 ||
-         sample == CaloCell_ID::FCAL0 ||
-         sample == CaloCell_ID::FCAL1 ||
-         sample == CaloCell_ID::FCAL2)    radius = -1.*radius;
+  // depth in are positive values, so should multiply by -1 for the HEC and FCAL
+  // at eta<0. to get the corresponding z
+
+  if (side < 0) {
+    if (sample == CaloCell_ID::PreSamplerE || sample == CaloCell_ID::EME1 ||
+        sample == CaloCell_ID::EME2 || sample == CaloCell_ID::EME3 ||
+        sample == CaloCell_ID::HEC0 || sample == CaloCell_ID::HEC1 ||
+        sample == CaloCell_ID::HEC2 || sample == CaloCell_ID::HEC3 ||
+        sample == CaloCell_ID::FCAL0 || sample == CaloCell_ID::FCAL1 ||
+        sample == CaloCell_ID::FCAL2)
+      radius = -1. * radius;
   }
   return radius;
 }
 
-double 
-CaloDepthTool::depth(const CaloCell_ID::SUBCALO subcalo,const int sampling_or_module, const bool barrel,
-		      const int side ) const
+double
+CaloDepthTool::depth(const CaloCell_ID::SUBCALO subcalo,
+                     const int sampling_or_module,
+                     const bool barrel,
+                     const int side,
+                     const CaloDetDescrManager* caloDD) 
 {
   CaloCell_ID::CaloSample sample;
-  CaloDetDescrManager::build_sample ( subcalo, barrel,sampling_or_module, sample);
-  return depth(sample, side);
+  CaloDetDescrManager::build_sample(
+    subcalo, barrel, sampling_or_module, sample);
+  return depth(sample, side, caloDD);
 }
 
 double
-CaloDepthTool::depth(const CaloCell_ID::CaloSample sample, const int side )
-  const
+CaloDepthTool::depth(const CaloCell_ID::CaloSample sample,
+                     const int side,
+                     const CaloDetDescrManager* caloDD) 
 {
   // FIXME : tiles is hardcoded !!!
   double radius = 1970.;
 
-  if ( sample == CaloCell_ID::TileBar0 )  return false;
-  if ( sample == CaloCell_ID::TileBar1 )  return false;
-  if ( sample == CaloCell_ID::TileBar2 )  return false;
-  if ( sample == CaloCell_ID::TileGap1 )  return false;
-  if ( sample == CaloCell_ID::TileGap2 )  return false;
-  if ( sample == CaloCell_ID::TileExt0 )  return false;
-  if ( sample == CaloCell_ID::TileExt1 )  return false;
-  if ( sample == CaloCell_ID::TileExt2 )  return false;
+  if (sample == CaloCell_ID::TileBar0)
+    return false;
+  if (sample == CaloCell_ID::TileBar1)
+    return false;
+  if (sample == CaloCell_ID::TileBar2)
+    return false;
+  if (sample == CaloCell_ID::TileGap1)
+    return false;
+  if (sample == CaloCell_ID::TileGap2)
+    return false;
+  if (sample == CaloCell_ID::TileExt0)
+    return false;
+  if (sample == CaloCell_ID::TileExt1)
+    return false;
+  if (sample == CaloCell_ID::TileExt2)
+    return false;
 
-  radius = m_default;
-    
-  for (const CaloDetDescriptor* reg : caloMgr()->calo_descriptors_range()) {
+  radius = s_default;
+
+  for (const CaloDetDescriptor* reg : caloDD->calo_descriptors_range()) {
     if (reg) {
-      if ( reg->getSampling(0) == sample && reg->calo_sign()*side > 0) {
-	std::vector<double> depth;
-	reg->get_depth_out(depth);
-	for ( unsigned int j = 0; j<depth.size(); j++ )
-	  if (radius > depth[j] ) radius = depth[j];
+      if (reg->getSampling(0) == sample && reg->calo_sign() * side > 0) {
+        std::vector<double> depth;
+        reg->get_depth_out(depth);
+        for (unsigned int j = 0; j < depth.size(); j++)
+          if (radius > depth[j])
+            radius = depth[j];
       }
     }
   }
-  
+
   return radius;
 }
 
-// Methods transfered here for release 11 :
-
-double 
+double
 CaloDepthTool::get_entrance_radius(CaloCell_ID::CaloSample sample,
-					 double eta, double phi) const
+                                   double eta,
+                                   double phi,
+                                   const CaloDetDescrManager* caloDD) 
 {
-
-  const CaloDetDescrElement* elt = caloMgr()->get_element(sample, eta, phi);
-  if (!elt) return m_default;
-  return (elt->r()-elt->dr());
+  const CaloDetDescrElement* elt = caloDD->get_element(sample, eta, phi);
+  if (!elt) {
+    return s_default;
+  }
+  return (elt->r() - elt->dr());
 }
 
-double 
+double
 CaloDepthTool::get_entrance_z(CaloCell_ID::CaloSample sample,
-				    double eta, double phi) const
+                              double eta,
+                              double phi,
+                              const CaloDetDescrManager* caloDD) 
 {
-  const CaloDetDescrElement* elt = caloMgr()->get_element(sample, eta, phi);
-  if (!elt) return m_default;
-  return (elt->z()-(elt->z()<0?-elt->dz():elt->dz()));
+  const CaloDetDescrElement* elt = caloDD->get_element(sample, eta, phi);
+  if (!elt) {
+    return s_default;
+  }
+  return (elt->z() - (elt->z() < 0 ? -elt->dz() : elt->dz()));
 }
 
-double 
+double
 CaloDepthTool::get_middle_radius(CaloCell_ID::CaloSample sample,
-					 double eta, double phi) const
+                                 double eta,
+                                 double phi,
+                                 const CaloDetDescrManager* caloDD) 
 {
-  const CaloDetDescrElement* elt = caloMgr()->get_element(sample, eta, phi);
-  if (!elt) return m_default;
+
+  const CaloDetDescrElement* elt = caloDD->get_element(sample, eta, phi);
+  if (!elt) {
+    return s_default;
+  }
   return elt->r();
 }
 
-double 
+double
 CaloDepthTool::get_middle_z(CaloCell_ID::CaloSample sample,
-				    double eta, double phi) const
+                            double eta,
+                            double phi,
+                            const CaloDetDescrManager* caloDD) 
 {
-  const CaloDetDescrElement* elt = caloMgr()->get_element(sample, eta, phi);
-  if (!elt) return m_default;
+
+  const CaloDetDescrElement* elt = caloDD->get_element(sample, eta, phi);
+  if (!elt) {
+    return s_default;
+  }
   return elt->z();
 }
 
-double 
+double
 CaloDepthTool::get_exit_radius(CaloCell_ID::CaloSample sample,
-			       double eta, double phi) const
+                               double eta,
+                               double phi,
+                               const CaloDetDescrManager* caloDD) 
 {
-  const CaloDetDescrElement* elt = caloMgr()->get_element(sample, eta, phi);
-  if (!elt) return m_default;
-  return (elt->r()+elt->dr());
+
+  const CaloDetDescrElement* elt = caloDD->get_element(sample, eta, phi);
+  if (!elt) {
+    return s_default;
+  }
+  return (elt->r() + elt->dr());
 }
 
-double 
+double
 CaloDepthTool::get_exit_z(CaloCell_ID::CaloSample sample,
-				    double eta, double phi) const
+                          double eta,
+                          double phi,
+                          const CaloDetDescrManager* caloDD) 
 {
-  const CaloDetDescrElement* elt = caloMgr()->get_element(sample, eta, phi);
-  if (!elt) return m_default;
-  return (elt->z()+(elt->z()<0?-elt->dz():elt->dz()));
+
+  const CaloDetDescrElement* elt = caloDD->get_element(sample, eta, phi);
+  if (!elt) {
+    return s_default;
+  }
+  return (elt->z() + (elt->z() < 0 ? -elt->dz() : elt->dz()));
 }
 

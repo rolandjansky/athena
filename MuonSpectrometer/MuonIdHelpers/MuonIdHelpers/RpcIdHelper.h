@@ -15,9 +15,9 @@ class MsgStream;
 // Description
 // -----------
 // This factory class constructs RPC identifiers and ranges and provides access
-// to the levels.  ATLAS note ATL-MUON-2002-??? provides a complete description
-// of the hierarchical identifier scheme.  RpcIdHelper provides an interface to the
-// following fields of the identifier.
+// to the levels.  ATLAS note ATL-MUON-2002-??? (https://cds.cern.ch/record/681542?ln=de)
+// provides a complete description of the hierarchical identifier scheme.  
+// RpcIdHelper provides an interface to the following fields of the identifier.
 //
 // Field           Range               Notes
 // ==============================================================================
@@ -157,8 +157,8 @@ private:
     int init_id_to_hashes();
     int zIndex(const Identifier& id) const;
     int zIndex(const std::string& name, int eta, int dR, int dZ, int dP) const;
-    unsigned int m_module_hashes[60][20][8][2];
-    unsigned int m_detectorElement_hashes[60][20][8][2][4];
+    unsigned int m_module_hashes[60][20][8][2]{};
+    unsigned int m_detectorElement_hashes[60][20][8][2][4]{};
 
     // compact id indices
     size_type m_DOUBLETR_INDEX;

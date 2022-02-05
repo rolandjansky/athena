@@ -46,10 +46,6 @@ namespace VKalVrtAthena {
     m_extrapolator                 ( "Trk::Extrapolator/AtlasExtrapolator" ),
     m_vertexMapper                 ( "" ),
     
-    // Services
-    //m_pixelCondSummaryTool          ( "PixelConditionsSummaryTool", "VrtSecInclusive" ),
-    //m_sctCondSummaryTool            ( "InDetSCT_ConditionsSummaryTool", "VrtSecInclusive" ),
-    
     m_checkPatternStrategy         ( "Classical" ),
     
     // Pointers of Ntuple variable vectors
@@ -124,13 +120,24 @@ namespace VKalVrtAthena {
       ATH_MSG_INFO("initialize: Retrieved Trk::TrackToVertexIPEstimator Tool" << m_trackToVertexIPEstimatorTool);
     }
     
-    
     if( detStore()->retrieve(m_atlasId, "AtlasID").isFailure() ) return StatusCode::FAILURE;
     if( detStore()->retrieve(m_pixelId, "PixelID").isFailure() ) return StatusCode::FAILURE;
     if( detStore()->retrieve(m_sctId,   "SCT_ID") .isFailure() ) return StatusCode::FAILURE;
 
-    ATH_CHECK( m_pixelCondSummaryTool.retrieve() );
-    ATH_CHECK( m_sctCondSummaryTool.retrieve() );
+    if ( m_pixelCondSummaryTool.retrieve().isFailure() ) {
+      ATH_MSG_ERROR("initialize: failed to retrieve PixelConditionsSummaryTool");
+      return StatusCode::SUCCESS;
+    }
+    else {
+      ATH_MSG_INFO("initialize: Retrieved PixelConditionsSummaryTool" << m_pixelCondSummaryTool);
+    }
+    if ( m_sctCondSummaryTool.retrieve().isFailure() ) {
+      ATH_MSG_ERROR("initialize: failed to retrieve SCTConditionsSummaryTool");
+      return StatusCode::SUCCESS;
+    }
+    else {
+      ATH_MSG_INFO("initialize: Retrieved SCTConditionsSummaryTool" << m_sctCondSummaryTool);
+    }
     
     ATH_CHECK( m_extrapolator.retrieve() );
     

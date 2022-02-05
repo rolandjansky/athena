@@ -30,6 +30,9 @@
 #include "EventKernel/IParticle.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
@@ -90,6 +93,13 @@ class egammaForwardBuilder : public AthReentrantAlgorithm
      "CaloCalTopoClusters",
      "Name of the input cluster collection"
    };
+
+   SG::ReadCondHandleKey<CaloDetDescrManager> m_caloDetDescrMgrKey {
+    this,
+    "CaloDetDescrManager",
+    "CaloDetDescrManager",
+    "SG Key for CaloDetDescrManager in the Condition Store"
+  };
 
    /** @brief output electron container */
    SG::WriteHandleKey<xAOD::ElectronContainer> m_electronOutputKey{

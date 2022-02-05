@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # art-description: Run digitization combining a heavy ion sample produced with MC15 using 2015 geometry and conditions with Zmumu events
 # art-include: 21.0/Athena
@@ -19,7 +19,7 @@ Digi_tf.py \
 --maxEvents 10 \
 --skipEvents 0 \
 --numberOfCavernBkg 1 \
---preExec 'all:rec.doHIP.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(0.0);jobproperties.Beam.bunchSpacing.set_Value_and_Lock(25);' 'HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.overrideMetadata+=["PhysicsList"]' \
+--preExec 'all:rec.doHIP.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(0.0);jobproperties.Beam.bunchSpacing.set_Value_and_Lock(25);' 'HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.overrideMetadata+=["PhysicsList"];digitizationFlags.TRTRangeCut.set_Value_and_Lock(0.05);' \
 --preInclude 'all:LArConfiguration/LArConfigRun2Old_NoPileup.py' 'HITtoRDO:Digitization/ForceUseOfPileUpTools.py' \
 --postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' 'HITtoRDO:from AthenaCommon import CfgGetter;mergeMcEventCollTool=CfgGetter.getPublicTool("MergeMcEventCollTool").DoSlimming=False' \
 --postInclude 'all:PyJobTransforms/UseFrontier.py,SimulationJobOptions/postInclude.HijingPars.py,PixelConditionsAlgorithms/postInclude.UsePixelModuleLevelMask.py' \
@@ -33,6 +33,6 @@ Digi_tf.py \
 
 rc=$?
 status=$rc
-echo  "art-result: $rc Digi_tf.py"
+echo "art-result: $rc Digi_tf.py"
 
 exit $status

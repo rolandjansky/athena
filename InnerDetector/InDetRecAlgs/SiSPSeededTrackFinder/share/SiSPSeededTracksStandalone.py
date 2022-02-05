@@ -192,18 +192,7 @@ if doPixel:
 
         IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
         if (globalflags.DataSource()=='geant4'):
-            # ITk:
-            if geoFlags.isSLHC():
-                IdMappingDat = "ITk_Atlas_IdMapping.dat"
-                if "BrlIncl4.0_ref" == commonGeoFlags.GeoType():
-                    IdMappingDat = "ITk_Atlas_IdMapping_InclBrl4.dat"
-                elif "IBrlExt4.0ref" == commonGeoFlags.GeoType():
-                    IdMappingDat = "ITk_Atlas_IdMapping_IExtBrl4.dat"
-                elif "BrlExt4.0_ref" == commonGeoFlags.GeoType():
-                    IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl4.dat"
-                elif "BrlExt3.2_ref" == commonGeoFlags.GeoType():
-                    IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl32.dat"
-            elif (geoFlags.isIBL() == False):
+            if (geoFlags.isIBL() == False):
                 IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping.dat"
             else:
                 # Planar IBL
@@ -546,7 +535,9 @@ topSequence += InDetSiTrackerSpacePointFinder
 # Taken from InDetRecExample/share/InDetRec_jobOptions.py
 from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
 NewTrackingCuts = None
-if doPixel and doSCT:
+if doPixel and doSCT and InDetFlags.doBLS():
+    NewTrackingCuts = ConfiguredNewTrackingCuts("BLS")
+elif doPixel and doSCT:
     NewTrackingCuts = ConfiguredNewTrackingCuts("Offline")
 elif doPixel:
     NewTrackingCuts = ConfiguredNewTrackingCuts("Pixel")
@@ -560,10 +551,7 @@ if (NewTrackingCuts.mode() == "LowPt" or
     NewTrackingCuts.mode() == "LowPtLargeD0" or
     NewTrackingCuts.mode() == "BeamGas" or
     NewTrackingCuts.mode() == "ForwardTracks" or
-    NewTrackingCuts.mode() == "ForwardSLHCTracks" or
-    NewTrackingCuts.mode() == "Disappearing" or
-    NewTrackingCuts.mode() == "VeryForwardSLHCTracks" or
-    NewTrackingCuts.mode() == "SLHCConversionFinding"):
+    NewTrackingCuts.mode() == "Disappearing"):
 
     usePrdAssociationTool = True
 
@@ -646,9 +634,9 @@ if doPixel:
                                                              LorentzAngleTool   = ToolSvc.PixelLorentzAngleTool,
                                                              DisableDistortions = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone()),
                                                              applyNNcorrection = ( InDetFlags.doPixelClusterSplitting() and
-                                                                                   InDetFlags.pixelClusterSplittingType() == "NeuralNet" and not InDetFlags.doSLHC()),
+                                                                                   InDetFlags.pixelClusterSplittingType() == "NeuralNet"),
                                                              NNIBLcorrection = ( InDetFlags.doPixelClusterSplitting() and
-                                                                                 InDetFlags.pixelClusterSplittingType() == "NeuralNet" and not InDetFlags.doSLHC()),
+                                                                                 InDetFlags.pixelClusterSplittingType() == "NeuralNet"),
                                                              SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap(),
                                                              RunningTIDE_Ambi = InDetFlags.doTIDE_Ambi())
     PixelClusterOnTrackTool.NnClusterizationFactory  = NnClusterizationFactory
@@ -691,7 +679,7 @@ InDetSiComTrackFinder = InDet__SiCombinatorialTrackFinder_xk(name               
 
 # Set up SiTrackMaker_xk (private)
 # Taken from InDetRecExample/share/ConfiguredNewTrackingSiPattern.py
-# useBremMode = NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "SLHC"
+# useBremMode = NewTrackingCuts.mode() == "Offline"
 useBremMode = False ###
 InDetFlags.doCaloSeededBrem.set_Value_and_Lock(False) ###
 InDetFlags.doHadCaloSeededSSS.set_Value_and_Lock(False) ###

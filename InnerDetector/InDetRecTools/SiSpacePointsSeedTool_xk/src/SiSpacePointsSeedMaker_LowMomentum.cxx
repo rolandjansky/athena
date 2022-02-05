@@ -1176,7 +1176,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::fillSeeds(EventData& data)
 }
 
 void InDet::SiSpacePointsSeedMaker_LowMomentum::initializeEventData(EventData& data) const {
-  data.initialize(EventData::LowMomentum,
+  data.initialize(EventData::ToolType::LowMomentum,
                   m_maxsizeSP,
                   m_maxOneSize,
                   0, // maxsize not used

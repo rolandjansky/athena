@@ -1,9 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StripDigitization.h"
 #include "PileUpTools/IPileUpTool.h"
+
+namespace ITk
+{
 
 //----------------------------------------------------------------------
 // Constructor with parameters:
@@ -29,3 +32,5 @@ StatusCode StripDigitization::execute() {
   ATH_MSG_DEBUG("execute()");
   return m_stripDigitizationTool->processAllSubEvents(Gaudi::Hive::currentContext());
 }
+
+} // namespace ITk

@@ -313,7 +313,7 @@ if primDPDAlignTrigMu.ApplySkimming():
 #AlignmentTriggerMuonStream.Stream.TakeItemsFromInput = True
 from PrimaryDPDMaker import PrimaryDPD_OutputDefinitions as dpdOutput
 
-trackParticleAuxExclusions="-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
+trackParticleAuxExclusions="-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
 
 if primDPDAlignTrigMu.doAlignmentFormat():
 		trackParticleAuxExclusions=""
@@ -337,6 +337,8 @@ AlignmentTriggerMuonStream.AddItem(["xAOD::TrigNavigation#TrigNavigation"])
 AlignmentTriggerMuonStream.AddItem(["xAOD::TrigNavigationAuxInfo#TrigNavigationAux."])
 AlignmentTriggerMuonStream.AddItem(["xAOD::TrigDecision#xTrigDecision"])
 AlignmentTriggerMuonStream.AddItem(["xAOD::TrigDecisionAuxInfo#xTrigDecisionAux."])
+AlignmentTriggerMuonStream.AddItem(["xAOD::TrigConfKeys#TrigConfKeys"])
+AlignmentTriggerMuonStream.AddItem(["HLT::HLTResult#HLTResult_HLT"])
 AlignmentTriggerMuonStream.AddItem(["xAOD::MuonRoIContainer#LVL1MuonRoIs"])
 AlignmentTriggerMuonStream.AddItem(["xAOD::MuonRoIAuxContainer#LVL1MuonRoIsAux."])
 AlignmentTriggerMuonStream.AddItem(["Muon::RpcPrepDataContainer#*"])

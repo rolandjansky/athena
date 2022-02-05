@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MM_Technology_H
@@ -28,11 +28,13 @@ public:
 	// inner structure parameters (to be defined)
 
 	// constructor
-	inline MM_Technology(std::string s);
+	inline MM_Technology(const std::string& s,
+                             AGDDDetectorStore& ds);
 	inline double Thickness() const;
 };
 
-MM_Technology::MM_Technology(std::string s): AGDDTechnology(s),
+MM_Technology::MM_Technology(const std::string& s,
+                             AGDDDetectorStore& ds): AGDDTechnology(s, ds),
   thickness(0.), nlayers(0), gasThickness(0.), pcbThickness(0.),
   roThickness(0), f1Thickness(0.), f2Thickness(0.), f3Thickness(0.),
   geoLevel(0)

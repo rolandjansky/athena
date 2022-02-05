@@ -9,9 +9,10 @@
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 ZDC_DetTool::ZDC_DetTool(const std::string& type, const std::string& name, const IInterface* parent)
- : GeoModelTool(type, name, parent)
+  : GeoModelTool(type, name, parent)
 {
 
   if (msgLevel(MSG::DEBUG))

@@ -74,6 +74,9 @@ def fromRunArgs(runArgs):
     from SimuJobTransforms.ISF_Skeleton import defaultSimulationFlags
     defaultSimulationFlags(ConfigFlags, detectors)
 
+    # To get alignment conditions folder
+    ConfigFlags.GeoModel.Align.LegacyConditionsAccess = True
+
     # Setup digitization flags
     from Digitization.DigitizationConfigFlags import digitizationRunArgsToFlags
     digitizationRunArgsToFlags(runArgs, ConfigFlags)
@@ -93,6 +96,11 @@ def fromRunArgs(runArgs):
     # Load pile-up stuff after pre-include/exec to ensure everything is up-to-date
     from Digitization.DigitizationConfigFlags import pileupRunArgsToFlags
     pileupRunArgsToFlags(runArgs, ConfigFlags)
+
+    # Setup pile-up profile
+    if ConfigFlags.Digitization.PileUp:
+        from Digitization.PileUpUtils import setupPileUpProfile
+        setupPileUpProfile(ConfigFlags)
 
     ConfigFlags.Sim.DoFullChain = True
     # FastChain Flags
@@ -114,10 +122,6 @@ def fromRunArgs(runArgs):
 
     from BeamEffects.BeamEffectsAlgConfig import BeamEffectsAlgCfg
     cfg.merge(BeamEffectsAlgCfg(ConfigFlags))
-
-    from ISF_Algorithms.CollectionMergerConfig import ISFCollectionMergerCfg
-    algo = ISFCollectionMergerCfg(ConfigFlags)
-    cfg.addEventAlgo(algo)
 
     from ISF_Config.ISF_MainConfigNew import ISF_KernelCfg
     cfg.merge(ISF_KernelCfg(ConfigFlags))

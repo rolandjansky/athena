@@ -122,7 +122,7 @@ namespace Trk {
     bool inside(const Amg::Vector3D& , double tol=0.) const override;
 
     /** Method to decompose the Bounds into boundarySurfaces */
-    const std::vector<const Trk::Surface*>* decomposeToSurfaces ATLAS_NOT_THREAD_SAFE (const Amg::Transform3D& transform) const override;
+    const std::vector<const Trk::Surface*>* decomposeToSurfaces (const Amg::Transform3D& transform) override;
 
     /** Provide accessor for BoundarySurfaces */
     ObjectAccessor boundarySurfaceAccessor(const Amg::Vector3D& gp,

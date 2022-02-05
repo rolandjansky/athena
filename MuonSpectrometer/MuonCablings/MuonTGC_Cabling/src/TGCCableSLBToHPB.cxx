@@ -13,7 +13,7 @@
 namespace MuonTGC_Cabling {
 
 // Constructor & Destructor
-TGCCableSLBToHPB::TGCCableSLBToHPB(std::string filename)
+TGCCableSLBToHPB::TGCCableSLBToHPB(const std::string& filename)
   : TGCCable(TGCCable::SLBToHPB)
 {
   m_database[TGCIdBase::Endcap][TGCIdBase::WT] = 
@@ -54,7 +54,7 @@ TGCChannelId* TGCCableSLBToHPB::getChannel(const TGCChannelId* channelId,
     if(channelId->getChannelIdType()==TGCIdBase::HPBIn)
       return getChannelIn(channelId,orChannel);
   }
-  return 0;
+  return nullptr;
 }
 
 TGCModuleMap* TGCCableSLBToHPB::getModule(const TGCModuleId* moduleId) const {
@@ -64,36 +64,36 @@ TGCModuleMap* TGCCableSLBToHPB::getModule(const TGCModuleId* moduleId) const {
     if(moduleId->getModuleIdType()==TGCModuleId::HPB)
       return getModuleIn(moduleId);
   }
-  return 0;
+  return nullptr;
 }
 
 TGCChannelId* TGCCableSLBToHPB::getChannelIn(const TGCChannelId* hpbin,
 					     bool orChannel) const {
-  if(orChannel) return 0;
-  if(hpbin->isValid()==false) return 0;
-  TGCChannelSLBOut* slbout = 0;
+  if(orChannel) return nullptr;
+  if(hpbin->isValid()==false) return nullptr;
+  TGCChannelSLBOut* slbout = nullptr;
 
   // HPB module
   TGCModuleId* hpb = hpbin->getModule();
-  if(!hpb) return 0;
+  if(!hpb) return nullptr;
   
   // HPB -> SLB module connection
   TGCModuleMap* mapId = getModule(hpb);
   delete hpb;
-  if(!mapId) return 0;
+  if(!mapId) return nullptr;
   
   int numOfBlock = TGCChannelSLBOut::getNumberOfBlock(TGCIdBase::WD);//SD
   if(numOfBlock==0) {
     delete mapId;
-    mapId = 0;
-    return 0;
+    mapId = nullptr;
+    return nullptr;
   }
 
   int chInBlock = TGCChannelSLBOut::getChannelInBlock(TGCIdBase::WD);//SD
   int slbInBlock = TGCChannelHPBIn::getSlbInBlock();
 
   // SLB module
-  TGCModuleId* slb = 0;
+  TGCModuleId* slb = nullptr;
   int blockInHPB = hpbin->getBlock();
   int nSlb       = hpbin->getChannel()/(numOfBlock*2); // half block
   int port       = blockInHPB*slbInBlock+nSlb;
@@ -106,7 +106,7 @@ TGCChannelId* TGCCableSLBToHPB::getChannelIn(const TGCChannelId* hpbin,
   }
   
   delete mapId;
-  if(!slb) return 0;
+  if(!slb) return nullptr;
   
   // HPB ->SLB channel connection
   int nInSlb     = hpbin->getChannel()/(numOfBlock*2); // half block
@@ -130,35 +130,35 @@ TGCChannelId* TGCCableSLBToHPB::getChannelInforHPB(const TGCChannelId* hpbin,
 						   TGCIdBase::ModuleType moduleType,
 						   bool orChannel) const 
 {
-  if(orChannel) return 0;
-  if(hpbin->isValid()==false) return 0;
+  if(orChannel) return nullptr;
+  if(hpbin->isValid()==false) return nullptr;
 
-  TGCChannelSLBOut* slbout = 0;
+  TGCChannelSLBOut* slbout = nullptr;
 
   // HPB module
   TGCModuleId* hpb = hpbin->getModule();//This function is defined in TGCChannelHPBIn
                                         //set current SideType,SignalType... 
                                         //ChannelID(HPBIn) is set in HPBIn constructor
-  if(!hpb) return 0;
+  if(!hpb) return nullptr;
 
   // HPB -> SLB module connection
   TGCModuleMap* mapId = getModuleInforHPB(hpb,moduleType);
   delete hpb;
-  if(!mapId) return 0;
+  if(!mapId) return nullptr;
   
   // need to check
   int numOfBlock = TGCChannelSLBOut::getNumberOfBlock(moduleType);
   if(numOfBlock==0) {
     delete mapId;
-    mapId = 0;
-    return 0;
+    mapId = nullptr;
+    return nullptr;
   }
 
   int chInBlock = TGCChannelSLBOut::getChannelInBlock(moduleType);
   int slbInBlock = 0;
     
   // SLB module
-  TGCModuleId* slb = 0;
+  TGCModuleId* slb = nullptr;
   int blockInHPB = 0;
   int nSlb = 0; // half block
   int port = 0; // input position for HPT
@@ -226,8 +226,8 @@ TGCChannelId* TGCCableSLBToHPB::getChannelInforHPB(const TGCChannelId* hpbin,
 
   }
 
-  delete mapId; mapId = 0;
-  if(!slb) return 0;
+  delete mapId; mapId = nullptr;
+  if(!slb) return nullptr;
 
   const int offset =6; // offset to get center of block
   channel += offset;
@@ -257,31 +257,31 @@ TGCChannelId* TGCCableSLBToHPB::getChannelInforHPB(const TGCChannelId* hpbin,
 
 TGCChannelId* TGCCableSLBToHPB::getChannelOut(const TGCChannelId* slbout,
 					      bool orChannel) const {
-  if(orChannel) return 0;
-  if(slbout->isValid()==false) return 0;
-  if(slbout->getMultipletType()==TGCIdBase::Triplet) return 0;
-  TGCChannelHPBIn* hpbin = 0;
+  if(orChannel) return nullptr;
+  if(slbout->isValid()==false) return nullptr;
+  if(slbout->getMultipletType()==TGCIdBase::Triplet) return nullptr;
+  TGCChannelHPBIn* hpbin = nullptr;
   
   // SLB module
   TGCModuleId* slb = slbout->getModule();
-  if(!slb) return 0;
+  if(!slb) return nullptr;
   
   // SLB -> HPB module connection
   TGCModuleMap* mapId = getModule(slb);
   delete slb;
-  if(!mapId) return 0;
+  if(!mapId) return nullptr;
   
   // HPB module
   int port = mapId->connector(0);
   TGCModuleId* hpb = mapId->popModuleId(0);
   delete mapId;
-  if(!hpb) return 0;
+  if(!hpb) return nullptr;
 
   int chInBlock = TGCChannelSLBOut::getChannelInBlock(slbout->getModuleType());
   if(chInBlock<=1) {
     delete hpb;
-    hpb = 0;
-    return 0;
+    hpb = nullptr;
+    return nullptr;
   }
   int slbInBlock = TGCChannelHPBIn::getSlbInBlock();
  
@@ -304,7 +304,7 @@ TGCChannelId* TGCCableSLBToHPB::getChannelOut(const TGCChannelId* slbout,
 }
 
 TGCModuleMap* TGCCableSLBToHPB::getModuleIn(const TGCModuleId* hpb) const {
-  if(hpb->isValid()==false) return 0;
+  if(hpb->isValid()==false) return nullptr;
   const int hpbId = hpb->getId();
 
   TGCIdBase::ModuleType doublet=TGCIdBase::NoModuleType;
@@ -319,13 +319,13 @@ TGCModuleMap* TGCCableSLBToHPB::getModuleIn(const TGCModuleId* hpb) const {
   }
 
   if(doublet==TGCIdBase::NoModuleType || triplet==TGCIdBase::NoModuleType) { 
-    return 0;
+    return nullptr;
   }
   
   TGCDatabase* doubletP = m_database[hpb->getRegionType()][doublet];
   TGCDatabase* tripletP = m_database[hpb->getRegionType()][triplet];
   
-  TGCModuleMap* mapId = 0;
+  TGCModuleMap* mapId = nullptr;
   const int doubletMaxEntry = doubletP->getMaxEntry();
   for(int i=0; i<doubletMaxEntry; i++){
     if(doubletP->getEntry(i,1)==hpbId)
@@ -337,7 +337,7 @@ TGCModuleMap* TGCCableSLBToHPB::getModuleIn(const TGCModuleId* hpb) const {
 					     hpb->getRegionType(),
 					     hpb->getSector(),
 					     id);
-	if(mapId==0) mapId = new TGCModuleMap();
+	if(mapId==nullptr) mapId = new TGCModuleMap();
 	mapId->insert(block,slb);
       } 
   }
@@ -352,7 +352,7 @@ TGCModuleMap* TGCCableSLBToHPB::getModuleIn(const TGCModuleId* hpb) const {
 					     hpb->getRegionType(),
 					     hpb->getSector(),
 					     id);
-	if(mapId==0) mapId = new TGCModuleMap();
+	if(mapId==nullptr) mapId = new TGCModuleMap();
 	mapId->insert(block,slb);
       } 
   }
@@ -362,13 +362,13 @@ TGCModuleMap* TGCCableSLBToHPB::getModuleIn(const TGCModuleId* hpb) const {
 
 TGCModuleMap* TGCCableSLBToHPB::getModuleInforHPB(const TGCModuleId* hpb, 
 						  TGCIdBase::ModuleType moduleType) const {
-  if(hpb->isValid()==false) return 0;
+  if(hpb->isValid()==false) return nullptr;
 
   const int hpbId = hpb->getId();
 
   TGCDatabase* databaseP = m_database[hpb->getRegionType()][moduleType];
 
-  TGCModuleMap* mapId = 0;
+  TGCModuleMap* mapId = nullptr;
   const int MaxEntry = databaseP->getMaxEntry();
   for(int i=0; i<MaxEntry; i++){
     if(databaseP->getEntry(i,1)==hpbId)
@@ -394,7 +394,7 @@ TGCModuleMap* TGCCableSLBToHPB::getModuleInforHPB(const TGCModuleId* hpb,
 					     hpb->getRegionType(),
 					     hpb->getSector(),
 					     id);
-	if(mapId==0) mapId = new TGCModuleMap();
+	if(mapId==nullptr) mapId = new TGCModuleMap();
 	mapId->insert(block,slb);
       } 
   }
@@ -403,13 +403,13 @@ TGCModuleMap* TGCCableSLBToHPB::getModuleInforHPB(const TGCModuleId* hpb,
 }
 
 TGCModuleMap* TGCCableSLBToHPB::getModuleOut(const TGCModuleId* slb) const {
-  if(slb->isValid()==false) return 0;
+  if(slb->isValid()==false) return nullptr;
 
   const int slbId = slb->getId();
 
   TGCDatabase* databaseP =m_database[slb->getRegionType()][slb->getModuleType()];
   
-  TGCModuleMap* mapId = 0;
+  TGCModuleMap* mapId = nullptr;
   const int MaxEntry = databaseP->getMaxEntry();
   for(int i=0; i<MaxEntry; i++){
     if(databaseP->getEntry(i,0)==slbId)

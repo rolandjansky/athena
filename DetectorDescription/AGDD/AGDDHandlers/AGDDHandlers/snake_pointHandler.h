@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef snake_pointHandler_H
@@ -13,11 +13,13 @@
 
 class snake_pointHandler:public XMLHandler {
 public:
-	snake_pointHandler(std::string);
-	void ElementHandle();
-	static GeoTrf::Vector3D CurrentPoint() {return s_point;}
+	snake_pointHandler(const std::string&,
+                           AGDDController& c);
+	virtual void ElementHandle(AGDDController& c,
+                                   xercesc::DOMNode *t) override;
+	GeoTrf::Vector3D CurrentPoint() {return m_point;}
 private:
-	static GeoTrf::Vector3D s_point;
+	GeoTrf::Vector3D m_point;
 };
 
 #endif

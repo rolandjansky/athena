@@ -17,6 +17,7 @@ LArCaliWaveSubsetCnv_p1::persToTrans(const LArCWPersType* persObj,
   transObj->initialize (persObj->m_subset.m_febIds, persObj->m_subset.m_gain);
 
   unsigned int nfebids = persObj->m_subset.m_febIds.size();
+  const unsigned int nChannelsPerFeb  = persObj->m_subset.subsetSize();
   log<<MSG::DEBUG<<"Total febs:"<<nfebids<<endmsg;
     
   unsigned int waveIndex    = 0;
@@ -45,7 +46,7 @@ LArCaliWaveSubsetCnv_p1::persToTrans(const LArCWPersType* persObj,
       
     //log<<MSG::DEBUG<<" Feb sparse? -> "<< hasSparseData <<endmsg;
   
-    for (unsigned int j = 0; j < NCHANNELPERFEB; ++j){
+    for (unsigned int j = 0; j < nChannelsPerFeb; ++j){
       bool copyChannel = true;
       if (hasSparseData) {			
         if (!(chansSet & (1 << (j - chansOffset)))) {
@@ -54,7 +55,7 @@ LArCaliWaveSubsetCnv_p1::persToTrans(const LArCWPersType* persObj,
         }
         //else std::cout<<"1";
 				
-        if (j%32 == 31 && j < 126) {
+        if (j%32 == 31 && j < nChannelsPerFeb-2) {
           chansSet     = persObj->m_subset.m_febsWithSparseData[ifebWithData];
           chansOffset += 32;
 	    ifebWithData++;
@@ -156,6 +157,7 @@ LArCaliWaveSubsetCnv_p1::transToPers(const LArCWTransType* transObj,  LArCWPersT
 
   unsigned int nsubsetsNotEmpty = 0;
   unsigned int nchans           = 0;
+  const unsigned int nChannelsPerFeb  = transObj->channelVectorSize();
 
   persObj->m_samples=0; //for now
 
@@ -169,7 +171,7 @@ LArCaliWaveSubsetCnv_p1::transToPers(const LArCWTransType* transObj,  LArCWPersT
     unsigned int nfebChans = subsetIt->second.size();
     //		std::cout<<"feb index: "<<i<<" has "<<nfebChans<<" channels. "<<std::endl;
 
-    if (nfebChans != 0 && nfebChans != NCHANNELPERFEB) {
+    if (nfebChans != 0 && nfebChans != nChannelsPerFeb) {
       log << MSG::ERROR << "LArCaliWaveSubsetCnv_p1::transToPers - found incorrect number of channels per feb: " << nfebChans<< endmsg;
       return;
     }

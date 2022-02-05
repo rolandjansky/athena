@@ -16,15 +16,24 @@ namespace Trk {
       TrackPtr &operator=(const TrackPtr &) = delete;
 
       // allow moving
-      TrackPtr( TrackPtr &&a) : m_track(a.m_track),m_owner(a.m_owner), m_fitted(a.m_fitted) {
+      TrackPtr( TrackPtr &&a) : m_track(a.m_track), m_uid(a.m_uid), m_owner(a.m_owner), m_fitted(a.m_fitted) {
          if (a.m_owner) {
             a.m_owner              = false;
             a.m_track.m_ownedTrack = nullptr;
          }
       }
 
-      TrackPtr( const Trk::Track *orig_track)       : m_owner(false), m_fitted(false)  { m_track.m_origTrack  = orig_track; }
-      TrackPtr( Trk::Track *new_track, bool fitted) : m_owner(true),  m_fitted(fitted) { m_track.m_ownedTrack = new_track;  }
+      TrackPtr( TrackPtr &&a, int uid) : m_track(a.m_track), m_uid(uid), m_owner(a.m_owner), m_fitted(a.m_fitted) {
+         if (a.m_owner) {
+            a.m_owner              = false;
+            a.m_track.m_ownedTrack = nullptr;
+         }
+      }
+
+      TrackPtr( const Trk::Track *orig_track)       : m_uid(-1), m_owner(false), m_fitted(false) { m_track.m_origTrack  = orig_track; }
+      TrackPtr( Trk::Track *new_track, bool fitted) : m_uid(-1), m_owner(true), m_fitted(fitted) { m_track.m_ownedTrack = new_track; }
+      TrackPtr( const Trk::Track *orig_track, int uid)       : m_uid(uid), m_owner(false), m_fitted(false)  { m_track.m_origTrack  = orig_track; }
+      TrackPtr( Trk::Track *new_track, bool fitted, int uid) : m_uid(uid), m_owner(true),  m_fitted(fitted) { m_track.m_ownedTrack = new_track; }
       ~TrackPtr() {
          if (m_owner) delete m_track.m_ownedTrack;
       }
@@ -66,12 +75,14 @@ namespace Trk {
       }
       bool fitted() const { return m_fitted; }
       void forceFitted() { m_fitted=true; }
+      int getUid() const { return m_uid; }
 
    private:
       union {
          Trk::Track *m_ownedTrack;
          const Trk::Track *m_origTrack;
       } m_track;
+      const int m_uid;
       bool m_owner;
       bool m_fitted;
    };

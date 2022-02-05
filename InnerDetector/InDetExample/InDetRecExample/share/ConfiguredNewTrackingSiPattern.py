@@ -33,7 +33,7 @@ class  ConfiguredNewTrackingSiPattern:
       #
       # --- decide if use the association tool
       #
-      if (len(InputCollections) > 0) and (NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or NewTrackingCuts.mode() == "LargeD0" or NewTrackingCuts.mode() == "R3LargeD0" or NewTrackingCuts.mode() == "LowPtLargeD0" or NewTrackingCuts.mode() == "BeamGas" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "ForwardSLHCTracks"  or NewTrackingCuts.mode() == "Disappearing" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks" or NewTrackingCuts.mode() == "SLHCConversionFinding"):
+      if (len(InputCollections) > 0) and (NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or NewTrackingCuts.mode() == "LargeD0" or NewTrackingCuts.mode() == "R3LargeD0" or NewTrackingCuts.mode() == "LowPtLargeD0" or NewTrackingCuts.mode() == "BeamGas" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "Disappearing"):
          usePrdAssociationTool = True
       else:
          usePrdAssociationTool = False
@@ -78,8 +78,6 @@ class  ConfiguredNewTrackingSiPattern:
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_LowMomentum as SiSpacePointsSeedMaker
          elif NewTrackingCuts.mode() == "BeamGas":
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_BeamGas as SiSpacePointsSeedMaker
-         elif NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks" :
-            from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_ITK as SiSpacePointsSeedMaker
          else:
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_ATLxk as SiSpacePointsSeedMaker
 
@@ -110,7 +108,7 @@ class  ConfiguredNewTrackingSiPattern:
 
            ServiceMgr.THistSvc.Output  = ["valNtuples DATAFILE='SeedMakerValidation.root' OPT='RECREATE'"]
             
-         if NewTrackingCuts.mode() == "Offline" or InDetFlags.doHeavyIon() or  NewTrackingCuts.mode() == "ForwardTracks":
+         if NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "BLS" or InDetFlags.doHeavyIon() or  NewTrackingCuts.mode() == "ForwardTracks":
             InDetSiSpacePointsSeedMaker.maxdImpactPPS = NewTrackingCuts.maxdImpactPPSSeeds()
             InDetSiSpacePointsSeedMaker.maxdImpactSSS = NewTrackingCuts.maxdImpactSSSSeeds()
             
@@ -150,14 +148,7 @@ class  ConfiguredNewTrackingSiPattern:
             except:
                pass 
             InDetSiSpacePointsSeedMaker.mindRadius         = 4.0
-         if NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "SLHCConversionFinding":
-            InDetSiSpacePointsSeedMaker.minRadius1         = 0
-            InDetSiSpacePointsSeedMaker.minRadius2         = 0
-            InDetSiSpacePointsSeedMaker.minRadius3         = 0
-            InDetSiSpacePointsSeedMaker.maxRadius1         =1000.*Units.mm
-            InDetSiSpacePointsSeedMaker.maxRadius2         =1000.*Units.mm
-            InDetSiSpacePointsSeedMaker.maxRadius3         =1000.*Units.mm
-         if NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks":
+         if NewTrackingCuts.mode() == "ForwardTracks":
             InDetSiSpacePointsSeedMaker.checkEta           = True
             InDetSiSpacePointsSeedMaker.etaMin             = NewTrackingCuts.minEta()
             InDetSiSpacePointsSeedMaker.etaMax             = NewTrackingCuts.maxEta()
@@ -252,7 +243,7 @@ class  ConfiguredNewTrackingSiPattern:
                                                              useSCT                = DetFlags.haveRIO.SCT_on() if not is_dbm else False,
                                                              PixelClusterContainer = InDetKeys.PixelClusters(),
                                                              SCT_ClusterContainer  = InDetKeys.SCT_Clusters())
-         if NewTrackingCuts.mode() == "Offline": 
+         if NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "BLS": 
              track_finder.writeHolesFromPattern = InDetFlags.useHolesFromPattern()
          if is_dbm :
             track_finder.MagneticFieldMode     = "NoField"
@@ -265,7 +256,7 @@ class  ConfiguredNewTrackingSiPattern:
 
          ToolSvc += track_finder
 
-         useBremMode = NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "DBM"
+         useBremMode = NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "BLS" or NewTrackingCuts.mode() == "DBM"
          from SiTrackMakerTool_xk.SiTrackMakerTool_xkConf import InDet__SiTrackMaker_xk as SiTrackMaker
          InDetSiTrackMaker = SiTrackMaker(name                      = 'InDetSiTrackMaker'+NewTrackingCuts.extension(),
                                           useSCT                    = NewTrackingCuts.useSCT(),
@@ -294,9 +285,6 @@ class  ConfiguredNewTrackingSiPattern:
                                           InputClusterContainerName = InDetKeys.CaloClusterROIContainer(), # "InDetCaloClusterROIs" 
                                           InputHadClusterContainerName = InDetKeys.HadCaloClusterROIContainer(), # "InDetCaloClusterROIs" 
                                           UseAssociationTool        = usePrdAssociationTool)
-
-         if NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks" :
-            InDetSiTrackMaker.ITKGeometry = True
 
          if NewTrackingCuts.mode() == "DBM":
             InDetSiTrackMaker.MagneticFieldMode = "NoField"
@@ -327,15 +315,6 @@ class  ConfiguredNewTrackingSiPattern:
          elif NewTrackingCuts.mode() == "ForwardTracks":
            InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_ForwardTracks'
 
-         elif NewTrackingCuts.mode() == "ForwardSLHCTracks":
-           InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_ForwardSLHCTracks'
-
-         elif NewTrackingCuts.mode() == "VeryForwardSLHCTracks": 
-           InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_VeryForwardSLHCTracks' 
-
-         elif NewTrackingCuts.mode() == "SLHCConversionFinding":
-           InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_SLHCConversionTracks'
-
          elif NewTrackingCuts.mode() == "LargeD0" or NewTrackingCuts.mode() == "R3LargeD0" or NewTrackingCuts.mode() == "LowPtLargeD0":
            InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_LargeD0'
         
@@ -345,6 +324,7 @@ class  ConfiguredNewTrackingSiPattern:
          if InDetFlags.doStoreTrackSeeds():
               from SeedToTrackConversionTool.SeedToTrackConversionToolConf import InDet__SeedToTrackConversionTool
               InDet_SeedToTrackConversion = InDet__SeedToTrackConversionTool(name = "InDet_SeedToTrackConversion",
+                                                                             Extrapolator = TrackingCommon.getInDetExtrapolator(),
                                                                              OutputName = InDetKeys.SiSPSeedSegments()+NewTrackingCuts.extension())
               InDetSiTrackMaker.SeedToTrackConversion = InDet_SeedToTrackConversion
               InDetSiTrackMaker.SeedSegmentsWrite = True
@@ -363,7 +343,7 @@ class  ConfiguredNewTrackingSiPattern:
 
          from SiSPSeededTrackFinder.SiSPSeededTrackFinderConf import InDet__SiSPSeededTrackFinder
 
-         if NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks":
+         if NewTrackingCuts.mode() == "ForwardTracks":
 
           InDetSiSPSeededTrackFinder = InDet__SiSPSeededTrackFinder(name             = 'InDetSiSpTrackFinder'+NewTrackingCuts.extension(),
                                                                     TrackTool        = InDetSiTrackMaker,
@@ -396,7 +376,7 @@ class  ConfiguredNewTrackingSiPattern:
 
           if InDetFlags.doHeavyIon() :
            InDetSiSPSeededTrackFinder.FreeClustersCut = 2 #Heavy Ion optimization from Igor
-          if NewTrackingCuts.mode() == "Offline": 
+          if NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "BLS": 
              InDetSiSPSeededTrackFinder.writeHolesFromPattern = InDetFlags.useHolesFromPattern()
 
          #InDetSiSPSeededTrackFinder.OutputLevel =VERBOSE 
@@ -445,7 +425,7 @@ class  ConfiguredNewTrackingSiPattern:
 
          drift_circle_cut_tool = TrackingCommon.getInDetTRTDriftCircleCutForPatternReco() if use_parameterization else ''
 
-         if InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "DBM"):
+         if InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "DBM"):
            from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetDenseEnvAmbiTrackSelectionTool as AmbiTrackSelectionTool
          else:
            from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetAmbiTrackSelectionTool as AmbiTrackSelectionTool
@@ -460,7 +440,7 @@ class  ConfiguredNewTrackingSiPattern:
                                                               UseParameterization = use_parameterization,
                                                               Cosmics             = InDetFlags.doCosmics(),
                                                               doPixelSplitting    = InDetFlags.doPixelClusterSplitting() and NewTrackingCuts.mode != "DBM")
-         if InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "DBM"):
+         if InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "DBM"):
            InDetAmbiTrackSelectionTool.sharedProbCut             = prob1
            InDetAmbiTrackSelectionTool.sharedProbCut2            = prob2
            InDetAmbiTrackSelectionTool.minSiHitsToAllowSplitting = nhitsToAllowSplitting
@@ -493,7 +473,14 @@ class  ConfiguredNewTrackingSiPattern:
            InDetAmbiTrackSelectionTool.minScoreShareTracks   = 0.0
            InDetAmbiTrackSelectionTool.minTRTHits            = 0
            InDetAmbiTrackSelectionTool.sharedProbCut         = 0.1
-        
+
+         if InDetFlags.doTIDE_AmbiTrackMonitoring() and InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or
+                                                                                          NewTrackingCuts.mode() == "ForwardTracks" or
+                                                                                          NewTrackingCuts.mode() == "PixelPrdAssociation" or
+                                                                                          NewTrackingCuts.mode() == "DBM" or
+                                                                                          NewTrackingCuts.mode() == "PixelFourLayer" or
+                                                                                          NewTrackingCuts.mode() == "PixelThreeLayer"):
+           InDetAmbiTrackSelectionTool.ObserverTool = TrackingCommon.getTrackObserverTool()
          # if NewTrackingCuts.mode() == "ForwardTracks":
          #    InDetAmbiTrackSelectionTool.OutputLevel = VERBOSE
 
@@ -514,13 +501,13 @@ class  ConfiguredNewTrackingSiPattern:
          #
          # --- load Ambiguity Processor
          #
-         useBremMode = NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "SLHC"
+         useBremMode = NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "BLS"
 
          # @TODO is the cluster split probability container needed here ?
          ambi_track_summary_tool = TrackingCommon.getInDetTrackSummaryTool(namePrefix                 = 'InDetAmbiguityProcessorSplitProb',
                                                                            nameSuffix                 = NewTrackingCuts.extension(),
                                                                            ClusterSplitProbabilityName= 'InDetAmbiguityProcessorSplitProb'+NewTrackingCuts.extension())
-         if InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "DBM"):
+         if InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "DBM"):
            # DenseEnvironmentsAmbiguityScoreProcessorTool
            from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__DenseEnvironmentsAmbiguityScoreProcessorTool as ScoreProcessorTool
            InDetAmbiguityScoreProcessor = ScoreProcessorTool(name               = 'InDetAmbiguityScoreProcessor'+NewTrackingCuts.extension(),
@@ -595,14 +582,12 @@ class  ConfiguredNewTrackingSiPattern:
                                                  RefitPrds          = True)
            InDetAmbiguityScoreProcessor = None
 
-         if InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "DBM") and 'NnPixelClusterSplitProbTool' in globals() :
+         if InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "DBM") and 'NnPixelClusterSplitProbTool' in globals() :
            if InDetAmbiguityScoreProcessor is not None :
               InDetAmbiguityScoreProcessor.sharedProbCut             = prob1
               InDetAmbiguityScoreProcessor.sharedProbCut2            = prob2
               if NewTrackingCuts.extension() == "":
                  InDetAmbiguityScoreProcessor.SplitClusterMap_old  = ""
-              elif NewTrackingCuts.extension() == "Disappearing":
-                 InDetAmbiguityScoreProcessor.SplitClusterMap_old  = InDetKeys.SplitClusterAmbiguityMap()
               InDetAmbiguityScoreProcessor.SplitClusterMap_new  = InDetKeys.SplitClusterAmbiguityMap()+NewTrackingCuts.extension()
 
          if NewTrackingCuts.mode() == "Pixel" or NewTrackingCuts.mode() == "DBM":
@@ -621,7 +606,16 @@ class  ConfiguredNewTrackingSiPattern:
 
          # if NewTrackingCuts.mode() == "ForwardTracks":
          #    InDetAmbiguityProcessor.OutputLevel = VERBOSE
-         
+         if InDetFlags.doTIDE_AmbiTrackMonitoring() and InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or
+                                                                                          NewTrackingCuts.mode() == "ForwardTracks" or
+                                                                                          NewTrackingCuts.mode() == "PixelPrdAssociation" or
+                                                                                          NewTrackingCuts.mode() == "DBM" or
+                                                                                          NewTrackingCuts.mode() == "PixelFourLayer" or
+                                                                                          NewTrackingCuts.mode() == "PixelThreeLayer"):
+            InDetAmbiguityProcessor.ObserverTool = TrackingCommon.getTrackObserverTool()
+            InDetAmbiguityProcessor.ObserverToolWriter = TrackingCommon.getTrackObserverTool(name = 'TrackObserverToolWriter', write_tracks = True)
+            InDetAmbiguityScoreProcessor.ObserverTool = TrackingCommon.getTrackObserverTool()
+
          ToolSvc += InDetAmbiguityProcessor
          if (InDetFlags.doPrintConfigurables()):
             printfunc (InDetAmbiguityProcessor)
@@ -687,7 +681,22 @@ class  ConfiguredNewTrackingSiPattern:
                TrackCollectionTruthKeys += [ InDetTracksTruth.TracksTruth() ]
             else:
                TrackCollectionKeys      += [ self.__SiTrackCollection ]
-      
+
+         if InDetFlags.doTIDE_AmbiTrackMonitoring() and InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or
+                                                                                          NewTrackingCuts.mode() == "ForwardTracks" or
+                                                                                          NewTrackingCuts.mode() == "PixelPrdAssociation" or
+                                                                                          NewTrackingCuts.mode() == "DBM" or
+                                                                                          NewTrackingCuts.mode() == "PixelFourLayer" or
+                                                                                          NewTrackingCuts.mode() == "PixelThreeLayer"):
+           # add truth and trackParticles
+           include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
+           InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.ObservedTracks(),
+                                                           InDetKeys.ObservedDetailedTracksTruth(),
+                                                           InDetKeys.ObservedTracksTruth())
+           include ("InDetRecExample/ConfiguredxAODTrackParticleCreation.py")
+           InDetxAOD = ConfiguredxAODTrackParticleCreation(InDetKeys.ObservedTracks(),
+                                                           InDetKeys.ObservedTracksTruth(),
+                                                           InDetKeys.xAODObservedTrackParticleContainer())
    def SiTrackCollection ( self ):
       try:
          return self.__SiTrackCollection

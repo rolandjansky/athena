@@ -197,14 +197,14 @@ void CaloCell::set4Mom (const CLHEP::HepLorentzVector & )
 }
 
 
-CaloCell* CaloCell::clone() const
+std::unique_ptr<CaloCell> CaloCell::clone() const
 {
-  return new CaloCell(this->caloDDE(),
-		      this->energy(),
-		      this->time(),
-		      this->quality(),
-		      this->provenance(),
-		      this->gain() ); 
+  return std::make_unique<CaloCell>(this->caloDDE(),
+				    this->energy(),
+				    this->time(),
+				    this->quality(),
+				    this->provenance(),
+				    this->gain() ); 
 }
 
 bool CaloCell::badcell() const

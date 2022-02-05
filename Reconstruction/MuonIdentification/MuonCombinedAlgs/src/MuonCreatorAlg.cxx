@@ -6,6 +6,7 @@
 
 #include <vector>
 
+#include "AthContainers/ConstDataVector.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "MuonSegment/MuonSegment.h"
 #include "TrkSegment/SegmentCollection.h"
@@ -19,12 +20,11 @@
 #include "xAODMuon/SlowMuonContainer.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
-
 namespace {
     constexpr const double MeVtoGeV = 1 / Gaudi::Units::GeV;
 }
 
-MuonCreatorAlg::MuonCreatorAlg(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator) {}
+MuonCreatorAlg::MuonCreatorAlg(const std::string& name, ISvcLocator* pSvcLocator) : AthReentrantAlgorithm(name, pSvcLocator) {}
 
 StatusCode MuonCreatorAlg::initialize() {
     ATH_CHECK(m_muonCreatorTool.retrieve());
@@ -35,7 +35,7 @@ StatusCode MuonCreatorAlg::initialize() {
     ATH_CHECK(m_muonCollectionName.initialize());
     ATH_CHECK(m_slowMuonCollectionName.initialize(m_buildSlowMuon));
     ATH_CHECK(m_indetCandidateCollectionName.initialize(!m_doSA));
-    ATH_CHECK(m_muonCandidateCollectionName.initialize(!m_buildSlowMuon));
+    ATH_CHECK(m_muonCandidateKeys.initialize(!m_buildSlowMuon));
     // Can't use a flag in intialize for an array of keys
     if (!m_doSA) ATH_CHECK(m_tagMaps.initialize());
     ATH_CHECK(m_inputSegContainerName.initialize(m_copySegs));
@@ -58,131 +58,129 @@ StatusCode MuonCreatorAlg::initialize() {
     ATH_CHECK(m_clusterContainerLinkName.initialize(m_makeClusters));
 
     if (not m_monTool.name().empty()) { ATH_CHECK(m_monTool.retrieve()); }
-    ATH_MSG_DEBUG("MuonCreatorAlg has been setup  successfully");
-    ATH_MSG_DEBUG("    *** SegmentTrackContainer:            " << m_segTrkContainerName);
-    ATH_MSG_DEBUG("    *** SegmentContainer:                 " << m_segContainerName);
-    ATH_MSG_DEBUG("    *** CombinedTrackContainer:           " << m_combinedTrkCollectionName);
-    ATH_MSG_DEBUG("    *** xAOD::CombinedTrackContainer:     " << m_combinedCollectionName);
+    ATH_MSG_INFO("MuonCreatorAlg has been setup  successfully");
+    ATH_MSG_INFO("    *** SegmentTrackContainer:            " << m_segTrkContainerName);
+    ATH_MSG_INFO("    *** SegmentContainer:                 " << m_segContainerName);
+    ATH_MSG_INFO("    *** CombinedTrackContainer:           " << m_combinedTrkCollectionName);
+    ATH_MSG_INFO("    *** xAOD::CombinedTrackContainer:     " << m_combinedCollectionName);
 
-    ATH_MSG_DEBUG("    *** xAOD::ExtrpolatedTrackContainer:  " << m_extrapolatedCollectionName);
-    ATH_MSG_DEBUG("    *** ExtrpolatedTrackContainer:        " << m_extrapolatedTrkCollectionName);
-    ATH_MSG_DEBUG("    *** xAOD::MSOnlyTrackContainer:       " << m_msOnlyExtrapolatedCollectionName);
-    ATH_MSG_DEBUG("    *** ExtrpolatedTackContainer:         " << m_msOnlyExtrapolatedTrkCollectionName);
+    ATH_MSG_INFO("    *** xAOD::ExtrpolatedTrackContainer:  " << m_extrapolatedCollectionName);
+    ATH_MSG_INFO("    *** ExtrpolatedTrackContainer:        " << m_extrapolatedTrkCollectionName);
+    ATH_MSG_INFO("    *** xAOD::MSOnlyTrackContainer:       " << m_msOnlyExtrapolatedCollectionName);
+    ATH_MSG_INFO("    *** ExtrpolatedTackContainer:         " << m_msOnlyExtrapolatedTrkCollectionName);
 
     return StatusCode::SUCCESS;
 }
 
-StatusCode MuonCreatorAlg::execute() {
-    const InDetCandidateCollection* indetCandidateCollection = nullptr;
+StatusCode MuonCreatorAlg::execute(const EventContext& ctx) const {
+    
     std::vector<const MuonCombined::InDetCandidateToTagMap*> tagMaps;
+    tagMaps.reserve(m_tagMaps.size());
     if (!m_doSA) {
-        SG::ReadHandle<InDetCandidateCollection> indetRH(m_indetCandidateCollectionName);
-        if (!indetRH.isValid()) {
-            ATH_MSG_ERROR("Could not read " << m_indetCandidateCollectionName);
-            return StatusCode::FAILURE;
-        } else {
-            indetCandidateCollection = indetRH.cptr();
-        }
-        std::vector<SG::ReadHandle<MuonCombined::InDetCandidateToTagMap> > mapHandles = m_tagMaps.makeHandles();
-        for (auto& h : mapHandles) tagMaps.push_back(h.cptr());
+        for (SG::ReadHandle<MuonCombined::InDetCandidateToTagMap>& h : m_tagMaps.makeHandles(ctx)) tagMaps.push_back(h.cptr());
     }
 
     // Create the xAOD container and its auxiliary store:
-    SG::WriteHandle<xAOD::MuonContainer> wh_muons(m_muonCollectionName);
+    SG::WriteHandle<xAOD::MuonContainer> wh_muons(m_muonCollectionName, ctx);
     ATH_CHECK(wh_muons.record(std::make_unique<xAOD::MuonContainer>(), std::make_unique<xAOD::MuonAuxContainer>()));
     ATH_MSG_DEBUG("Recorded Muons with key: " << m_muonCollectionName.key());
     MuonCombined::IMuonCreatorTool::OutputData output(*(wh_muons.ptr()));
 
     // Create and record track particles:
     // combined tracks
-    SG::WriteHandle<xAOD::TrackParticleContainer> wh_combtp(m_combinedCollectionName);
-    SG::WriteHandle<TrackCollection> wh_combtrk(m_combinedTrkCollectionName);
+    SG::WriteHandle<xAOD::TrackParticleContainer> wh_combtp(m_combinedCollectionName, ctx);
+    SG::WriteHandle<TrackCollection> wh_combtrk(m_combinedTrkCollectionName, ctx);
     ATH_CHECK(wh_combtp.record(std::make_unique<xAOD::TrackParticleContainer>(), std::make_unique<xAOD::TrackParticleAuxContainer>()));
     ATH_CHECK(wh_combtrk.record(std::make_unique<TrackCollection>()));
     output.combinedTrackParticleContainer = wh_combtp.ptr();
     output.combinedTrackCollection = wh_combtrk.ptr();
 
     // extrapolated tracks
-    SG::WriteHandle<xAOD::TrackParticleContainer> wh_extrtp(m_extrapolatedCollectionName);
-    SG::WriteHandle<TrackCollection> wh_extrtrk(m_extrapolatedTrkCollectionName);
+    SG::WriteHandle<xAOD::TrackParticleContainer> wh_extrtp(m_extrapolatedCollectionName, ctx);
+    SG::WriteHandle<TrackCollection> wh_extrtrk(m_extrapolatedTrkCollectionName, ctx);
     ATH_CHECK(wh_extrtp.record(std::make_unique<xAOD::TrackParticleContainer>(), std::make_unique<xAOD::TrackParticleAuxContainer>()));
     ATH_CHECK(wh_extrtrk.record(std::make_unique<TrackCollection>()));
     output.extrapolatedTrackParticleContainer = wh_extrtp.ptr();
     output.extrapolatedTrackCollection = wh_extrtrk.ptr();
 
     // msonly tracks
-    SG::WriteHandle<xAOD::TrackParticleContainer> wh_msextrtp(m_msOnlyExtrapolatedCollectionName);
-    SG::WriteHandle<TrackCollection> wh_msextrtrk(m_msOnlyExtrapolatedTrkCollectionName);
+    SG::WriteHandle<xAOD::TrackParticleContainer> wh_msextrtp(m_msOnlyExtrapolatedCollectionName, ctx);
+    SG::WriteHandle<TrackCollection> wh_msextrtrk(m_msOnlyExtrapolatedTrkCollectionName, ctx);
     ATH_CHECK(wh_msextrtp.record(std::make_unique<xAOD::TrackParticleContainer>(), std::make_unique<xAOD::TrackParticleAuxContainer>()));
     ATH_CHECK(wh_msextrtrk.record(std::make_unique<TrackCollection>()));
     output.msOnlyExtrapolatedTrackParticleContainer = wh_msextrtp.ptr();
     output.msOnlyExtrapolatedTrackCollection = wh_msextrtrk.ptr();
 
     // segments
-    SG::WriteHandle<xAOD::MuonSegmentContainer> wh_segment(m_segContainerName);
+    SG::WriteHandle<xAOD::MuonSegmentContainer> wh_segment(m_segContainerName, ctx);
     ATH_CHECK(wh_segment.record(std::make_unique<xAOD::MuonSegmentContainer>(), std::make_unique<xAOD::MuonSegmentAuxContainer>()));
     output.xaodSegmentContainer = wh_segment.ptr();
-    SG::WriteHandle<Trk::SegmentCollection> wh_segmentTrk(m_segTrkContainerName);
+    SG::WriteHandle<Trk::SegmentCollection> wh_segmentTrk(m_segTrkContainerName, ctx);
     ATH_CHECK(wh_segmentTrk.record(std::make_unique<Trk::SegmentCollection>()));
     output.muonSegmentCollection = wh_segmentTrk.ptr();
     if (m_copySegs) {
         // now copy the input segments to the final container
-        SG::ReadHandle<Trk::SegmentCollection> inputSegs(m_inputSegContainerName);
+        SG::ReadHandle<Trk::SegmentCollection> inputSegs(m_inputSegContainerName, ctx);
         if (inputSegs.isValid()) {
-            for (auto it = inputSegs->begin(); it != inputSegs->end(); ++it) {
+            for (const Trk::Segment* seg : *inputSegs) {
                 // have to cast because the collection stores Trk::Segments
-                const Muon::MuonSegment* muonSegment = dynamic_cast<const Muon::MuonSegment*>(&(**it));
+                const Muon::MuonSegment* muonSegment = dynamic_cast<const Muon::MuonSegment*>(seg);
                 if (muonSegment) wh_segmentTrk->push_back(new Muon::MuonSegment(*muonSegment));
             }
         }
         // now convert
         unsigned int index = 0;
-        for (auto it = wh_segmentTrk->begin(); it != wh_segmentTrk->end(); ++it, ++index) {
+        for (const Trk::Segment* seg : *wh_segmentTrk) {
             // have to cast because the collection stores Trk::Segments
-            const Muon::MuonSegment* muonSegment = dynamic_cast<const Muon::MuonSegment*>(&(**it));
-            if (!muonSegment) continue;
+            const Muon::MuonSegment* muonSegment = dynamic_cast<const Muon::MuonSegment*>(seg);
+            if (!muonSegment) {
+                ++index;
+                continue;
+            }
             ElementLink<Trk::SegmentCollection> link(*wh_segmentTrk, index);
+            ++index;
             m_muonSegmentConverterTool->convert(link, wh_segment.ptr());
         }
     }
 
     // calo clusters
-    SG::WriteHandle<xAOD::CaloClusterContainer> wh_clusters;
-    SG::WriteHandle<CaloClusterCellLinkContainer> wh_clusterslink;
+    std::unique_ptr<xAOD::CaloClusterContainer> caloclusters{nullptr};
+    std::unique_ptr<xAOD::CaloClusterAuxContainer> caloclustersaux{nullptr};
+
     if (m_makeClusters) {
-        xAOD::CaloClusterContainer* caloclusters = new xAOD::CaloClusterContainer();
-        xAOD::CaloClusterAuxContainer* caloclustersaux = new xAOD::CaloClusterAuxContainer();
-        caloclusters->setStore(caloclustersaux);
-        wh_clusters = SG::WriteHandle<xAOD::CaloClusterContainer>(m_clusterContainerName);
-        wh_clusterslink = SG::WriteHandle<CaloClusterCellLinkContainer>(m_clusterContainerLinkName);
-        ATH_CHECK(wh_clusters.record(std::unique_ptr<xAOD::CaloClusterContainer>(caloclusters),
-                                     std::unique_ptr<xAOD::CaloClusterAuxContainer>(caloclustersaux)));
-        output.clusterContainer = wh_clusters.ptr();
+        caloclusters = std::make_unique<xAOD::CaloClusterContainer>();
+        caloclustersaux = std::make_unique<xAOD::CaloClusterAuxContainer>();
+        caloclusters->setStore(caloclustersaux.get());
+        output.clusterContainer = caloclusters.get();
     }
 
-    const MuonCandidateCollection* muonCandidateCollection = nullptr;
-
     SG::WriteHandle<xAOD::SlowMuonContainer> wh_slowmuon;
+    /// Use the ConstDataVector pipe all MuonCandidate collections into a single vector
+    ConstDataVector<MuonCandidateCollection> muon_candidates{SG::VIEW_ELEMENTS};
+
     if (m_buildSlowMuon) {
-        wh_slowmuon = SG::WriteHandle<xAOD::SlowMuonContainer>(m_slowMuonCollectionName);
+        wh_slowmuon = SG::WriteHandle<xAOD::SlowMuonContainer>(m_slowMuonCollectionName, ctx);
         ATH_CHECK(wh_slowmuon.record(std::make_unique<xAOD::SlowMuonContainer>(), std::make_unique<xAOD::SlowMuonAuxContainer>()));
         output.slowMuonContainer = wh_slowmuon.ptr();
     } else {
-        SG::ReadHandle<MuonCandidateCollection> muonCandidateRH(m_muonCandidateCollectionName);
-        if (!muonCandidateRH.isValid()) {
-            ATH_MSG_ERROR("Could not read " << m_muonCandidateCollectionName);
-            return StatusCode::FAILURE;
+        for (SG::ReadHandle<MuonCandidateCollection>& muonCandidateRH : m_muonCandidateKeys.makeHandles(ctx)) {
+            if (!muonCandidateRH.isValid()) {
+                ATH_MSG_ERROR("Could not read " << muonCandidateRH.fullKey());
+                return StatusCode::FAILURE;
+            }
+            muon_candidates.insert(muon_candidates.end(), muonCandidateRH->begin(), muonCandidateRH->end());
         }
-        muonCandidateCollection = muonCandidateRH.cptr();
     }
-
-    m_muonCreatorTool->create(muonCandidateCollection, indetCandidateCollection, tagMaps, output);
+    m_muonCreatorTool->create(ctx, muon_candidates.asDataVector(), tagMaps, output);
 
     if (m_makeClusters) {
-        CaloClusterCellLinkContainer* clusterlinks = new CaloClusterCellLinkContainer();
-        auto *sg = wh_clusters.storeHandle().get();
-        for (xAOD::CaloCluster* cl : *(wh_clusters.ptr())) { cl->setLink(clusterlinks, sg); }
-        ATH_CHECK(wh_clusterslink.record(std::unique_ptr<CaloClusterCellLinkContainer>(clusterlinks)));
+        SG::WriteHandle<CaloClusterCellLinkContainer> wh_clusterslink{m_clusterContainerLinkName, ctx};
+        SG::WriteHandle<xAOD::CaloClusterContainer> wh_clusters{m_clusterContainerName, ctx};
+        std::unique_ptr<CaloClusterCellLinkContainer> clusterlinks = std::make_unique<CaloClusterCellLinkContainer>();
+        auto* sg = wh_clusters.storeHandle().get();
+        for (xAOD::CaloCluster* cl : *output.clusterContainer) { cl->setLink(clusterlinks.get(), sg); }
+        ATH_CHECK(wh_clusterslink.record(std::move(clusterlinks)));
+        ATH_CHECK(wh_clusters.record(std::move(caloclusters), std::move(caloclustersaux)));
     }
 
     //---------------------------------------------------------------------------------------------------------------------//
@@ -213,6 +211,8 @@ StatusCode MuonCreatorAlg::execute() {
         auto cbtrks_phi = Monitored::Collection("cbtrks_phi", *(wh_combtp.ptr()), &xAOD::TrackParticle_v1::phi);
 
         if (!m_doSA) {
+            SG::ReadHandle<InDetCandidateCollection> indetCandidateCollection{m_indetCandidateCollectionName, ctx};
+
             auto idtrks_n = Monitored::Scalar<int>("idtrks_n", indetCandidateCollection->size());
             auto idtrks_pt = Monitored::Collection("idtrks_pt", *indetCandidateCollection,
                                                    [](auto const& idtrk) { return idtrk->indetTrackParticle().pt() * MeVtoGeV; });

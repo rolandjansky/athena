@@ -194,7 +194,9 @@ def create_dep_graph(target, deps, pydeps, args):
    if args.regex:
       r = re.compile(target)
       targets = [getnode(n) for n in deps.graph.nodes_iter() if r.match(n.attr['label'])]
-      targets = list(filter(lambda t : t is not None, targets))
+      if args.py:
+         targets += [n for n in pydeps.nodes_iter() if r.match(n)]
+      targets = sorted(set(filter(lambda t : t is not None, targets)))
    else:
       targets = [target]
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModel/MuonDetectorFactory001.h"
@@ -72,11 +72,9 @@ using namespace GeoXF;
 
 namespace MuonGM {
 
-    MuonDetectorFactory001::MuonDetectorFactory001(StoreGateSvc *pDetStore)
-        : m_includeCutouts(0), m_includeCutoutsBog(0), m_includeCtbBis(0), m_rdb(1), m_controlAlines(0), m_minimalGeoFlag(0), m_controlCscIntAlines(0), m_dumpAlines(false),
-          m_dumpCscIntAlines(false), m_useCscIntAlinesFromGM(true), m_caching(0), m_cacheFillingFlag(0), m_mdtDeformationFlag(0), m_mdtAsBuiltParaFlag(0),
-          m_dumpMemoryBreakDown(false), m_hasCSC(true), m_hasSTgc(true), m_hasMM(true), m_muon(NULL), m_manager(NULL), m_pDetStore(pDetStore), m_pRDBAccess(0) {
-        m_muon = new MuonSystemDescription("MuonSystem");
+    MuonDetectorFactory001::MuonDetectorFactory001(StoreGateSvc *pDetStore):
+        m_muon (std::make_unique< MuonSystemDescription>("MuonSystem")),
+        m_pDetStore{pDetStore} {
         m_muon->barrelInnerRadius = 4.30 * Gaudi::Units::m;
         m_muon->innerRadius = 0.07 * Gaudi::Units::m;
         m_muon->outerRadius = 13.00 * Gaudi::Units::m;
@@ -87,20 +85,15 @@ namespace MuonGM {
         m_muon->extraZ = 12.9 * Gaudi::Units::m;
         m_muon->extraR = 12.5 * Gaudi::Units::m;
 
-        m_selectedStations = std::vector<std::string>(0);
-        m_selectedStEta = std::vector<int>(0);
-        m_selectedStPhi = std::vector<int>(0);
-
-        m_enableFineClashFixing = 0;
-
         MsgStream log(Athena::getMessageSvc(), "MuonGeoModel");
         log << MSG::INFO << "MuonDetectorFactory - constructor "
             << " MuonSystem OuterRadius " << m_muon->outerRadius << " Length " << m_muon->length << endmsg;
     }
 
-    MuonDetectorFactory001::~MuonDetectorFactory001() { delete m_muon; }
+    MuonDetectorFactory001::~MuonDetectorFactory001() =default;
 
-    MuonDetectorManager *MuonDetectorFactory001::getDetectorManager() const { return m_manager; }
+    const MuonDetectorManager *MuonDetectorFactory001::getDetectorManager() const { return m_manager; }
+    MuonDetectorManager *MuonDetectorFactory001::getDetectorManager() { return m_manager; }
 
     void MuonDetectorFactory001::create(GeoPhysVol *world) {
         MsgStream log(Athena::getMessageSvc(), "MuGM:MuonFactory");
@@ -126,7 +119,7 @@ namespace MuonGM {
         } // if (m_dumpMemoryBreakDown) {
 
         if (!m_manager)
-            m_manager = new MuonDetectorManager();
+            m_manager = new  MuonDetectorManager();
 
         // check consistency of flags coming from the tool
         m_includeCutouts = 1;
@@ -139,6 +132,7 @@ namespace MuonGM {
         m_manager->setControlAlinesFlag(m_controlAlines);
         m_manager->setNSWABLinesAsciiSideA(m_NSWABLinesSideA);
         m_manager->setNSWABLinesAsciiSideC(m_NSWABLinesSideC);
+        m_manager->setMMAsBuiltCalculator(m_MMAsBuiltJsonPath);
         // set here the flag defining the geometry granularity
         // minimalgeo = 1 => The geo tree is built up to the Detector Level (Full PhysVol)
         //                     no internal structure of the Detector is built
@@ -160,7 +154,7 @@ namespace MuonGM {
         log << MSG::INFO << "Manager created for geometry version " << m_manager->geometryVersion() << " from DB MuonVersion <" << m_manager->get_DBMuonVersion() << ">" << endmsg;
 
         // here create the MYSQL singleton and assign to it the geometry version
-        MYSQL *mysql = MYSQL::GetPointer();
+        MYSQL::LockedMYSQL mysql = MYSQL::GetPointer();
         mysql->setGeometryVersion(m_layout);
         mysql->set_amdb_from_RDB(m_rdb == 1);
         mysql->set_DBMuonVersion(m_DBMuonVersion);
@@ -240,7 +234,7 @@ namespace MuonGM {
         if (log.level() <= MSG::DEBUG)
             log << MSG::DEBUG << "calling RDBReaderAtlas with m_altAsciiDBMap" << endmsg;
 
-        RDBReaderAtlas *dbr = new RDBReaderAtlas(m_pDetStore, m_pRDBAccess, OracleTag, OracleNode, m_dumpAlines, m_useCscIntAlinesFromGM, m_dumpCscIntAlines, &m_altAsciiDBMap);
+        std::unique_ptr<RDBReaderAtlas> dbr =std::make_unique< RDBReaderAtlas>(m_pDetStore, m_pRDBAccess, OracleTag, OracleNode, m_dumpAlines, m_useCscIntAlinesFromGM, m_dumpCscIntAlines, &m_altAsciiDBMap);
 
         dbr->setControlCscIntAlines(m_controlCscIntAlines);
 
@@ -254,16 +248,13 @@ namespace MuonGM {
         mysql->setControlAlines(m_controlAlines);
 
         dbr->setGeometryVersion(m_layout);
-        dbr->setManager(m_manager);
-        sc = dbr->ProcessDB();
+        dbr->setManager(getDetectorManager());
+        sc = dbr->ProcessDB(*mysql);
         if (sc != StatusCode::SUCCESS) {
             log << MSG::ERROR << " FAILURE in DB access; Muon node will not be built" << endmsg;
             return;
         }
-        // release memory
-        delete dbr;
-        dbr = nullptr;
-
+       
         if (m_dumpMemoryBreakDown) {
             umem = GeoPerfUtils::getMem();
             ucpu = int(GeoPerfUtils::getCpu() / 100.);
@@ -274,7 +265,7 @@ namespace MuonGM {
         }
 
         // now store detector-generic-descriptors into the manager
-        RPC *r = (RPC *)mysql->GetATechnology("RPC0");
+        const RPC *r = dynamic_cast<const RPC*>(mysql->GetATechnology("RPC0"));
         GenericRPCCache rpcCache;
         rpcCache.stripSeparation = r->stripSeparation;
         rpcCache.stripPanelThickness = r->stripPanelThickness;
@@ -284,14 +275,14 @@ namespace MuonGM {
         rpcCache.frontendBoardWidth = r->frontendBoardWidth;
         m_manager->setGenericRpcDescriptor(rpcCache);
 
-        MDT *mdtobj = (MDT *)mysql->GetATechnology("MDT0");
+        const MDT *mdtobj = dynamic_cast<const MDT*>(mysql->GetATechnology("MDT0"));
         GenericMDTCache mdtCache;
         mdtCache.innerRadius = mdtobj->innerRadius;
         mdtCache.outerRadius = mdtobj->innerRadius + mdtobj->tubeWallThickness;
 
         m_manager->setGenericMdtDescriptor(mdtCache);
 
-        TGC *t = (TGC *)mysql->GetATechnology("TGC0");
+        const TGC *t = dynamic_cast<const TGC*>(mysql->GetATechnology("TGC0"));
         GenericTGCCache tgcCache;
         tgcCache.frame_h = t->frame_h;
         tgcCache.frame_ab = t->frame_ab;
@@ -337,8 +328,6 @@ namespace MuonGM {
         } else {
             log << MSG::INFO << " theMaterialManager retrieven successfully from the DetStore" << endmsg;
         }
-
-        DetectorElement::setMaterialManager(*theMaterialManager);
 
         const GeoMaterial *m4 = theMaterialManager->getMaterial("std::Air");
         GeoLogVol *l4;
@@ -463,13 +452,13 @@ namespace MuonGM {
         log << MSG::INFO << " Muon Layout " << m_layout << endmsg;
 
         std::vector<std::string> slist;
-        if (m_selectedStations.size() <= 0)
+        if (m_selectedStations.empty())
             slist.push_back("*");
         else
             slist = m_selectedStations;
 
         // create the fullphysvol map to allow cloning and save memory
-        FPVMAP *savemem = new FPVMAP();
+        std::unique_ptr<FPVMAP> savemem = std::make_unique< FPVMAP>();
 
         int nstat_ss = 0;
         int ntpos_ss = 0;
@@ -481,10 +470,10 @@ namespace MuonGM {
             log << MSG::INFO << "Fine Clash Fixing disabled: (should be ON/OFF for Simulation/Reconstruction)" << endmsg;
         }
 
-        StationSelector sel(slist);
+        StationSelector sel(*mysql, slist);
         StationSelector::StationIterator it;
 
-        for (it = sel.begin(); it != sel.end(); it++) {
+        for (it = sel.begin(); it != sel.end(); ++it) {
             Station *station = (*it).second;
             std::string stname(station->GetName(), 0, 3);
             if (m_selectedStations.size() <= 0) {
@@ -504,8 +493,8 @@ namespace MuonGM {
             if (stname == "BIR")
                 isAssembly = true;
 
-            MuonChamber l(station); // here is where we start to create a MuonChamber with all readoutelements
-            l.setFPVMAP(savemem);
+            MuonChamber l(*mysql, station); // here is where we start to create a MuonChamber with all readoutelements
+            l.setFPVMAP(savemem.get());
             l.setFineClashFixingFlag(m_enableFineClashFixing);
 
             PositionIterator pit;
@@ -568,7 +557,7 @@ namespace MuonGM {
                     isAssembly = true;
 
                 // CSL because coffin shape of the station mother volume
-                GeoVPhysVol *pv = l.build(m_manager, zi, fi, is_mirrored, isAssembly);
+                GeoVPhysVol *pv = l.build(*theMaterialManager, *mysql, getDetectorManager(), zi, fi, is_mirrored, isAssembly);
                 if (isAssembly)
                     nAssemblies++;
 
@@ -594,7 +583,7 @@ namespace MuonGM {
 
                 // here define the GeoAlignableTransform associated to the chamber
                 // nominal transform first
-                GeoAlignableTransform *xf = new GeoAlignableTransform(station->getNominalTransform((*pit).second));
+                GeoAlignableTransform *xf = new GeoAlignableTransform(station->getNominalTransform(*mysql, (*pit).second));
 
                 // add tag, transform and physicalvolume associated to the chamber to the mother-volume
                 p4->add(nm);
@@ -603,7 +592,7 @@ namespace MuonGM {
 
                 // alignment issues and readout geometry for station
                 MuonStation *mst = m_manager->getMuonStation(station->GetName(), zi, fi + 1);
-                if (mst == NULL) {
+                if (!mst) {
                     log << MSG::WARNING << "For Station with nameTag=<" << station->GetName() << "> at zi/fi = " << zi << "/" << fi
                         << " no MuonStation found => no possibility to align" << endmsg;
                     continue;
@@ -612,9 +601,9 @@ namespace MuonGM {
                 mst->setTransform(xf);
                 GeoTrf::Transform3D tsz_to_szt = GeoTrf::RotateZ3D(-90 * Gaudi::Units::degree) * GeoTrf::RotateY3D(-90 * Gaudi::Units::degree);
 
-                mst->setNativeToAmdbLRS(Amg::EigenTransformToCLHEP(tsz_to_szt * station->native_to_tsz_frame((*pit).second)));
+                mst->setNativeToAmdbLRS(Amg::EigenTransformToCLHEP(tsz_to_szt * station->native_to_tsz_frame(*mysql, (*pit).second)));
 
-                mst->setNominalAmdbLRSToGlobal(Amg::EigenTransformToCLHEP(station->tsz_to_global_frame((*pit).second) * tsz_to_szt.inverse()));
+                mst->setNominalAmdbLRSToGlobal(Amg::EigenTransformToCLHEP(station->tsz_to_global_frame(*mysql, (*pit).second) * tsz_to_szt.inverse()));
 
                 // find correct alignment information for this position
                 // xf->setDelta(DummyAline); // just in case we don't find one
@@ -690,13 +679,9 @@ namespace MuonGM {
             cpu = ucpu;
         }
 
-        // delete the fullphysvol map
-        delete savemem;
-        savemem = nullptr;
-
+      
         // delete the station and technology map
-        delete mysql;
-        mysql = nullptr;
+        delete mysql.get();
 
         if (m_dumpMemoryBreakDown) {
             umem = GeoPerfUtils::getMem();

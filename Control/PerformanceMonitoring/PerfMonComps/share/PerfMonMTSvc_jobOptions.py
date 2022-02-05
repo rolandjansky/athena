@@ -28,14 +28,3 @@ if not hasattr(svcMgr, 'PerfMonMTSvc'):
     # Set number of threads/slots
     svcMgr.PerfMonMTSvc.numberOfThreads = max(1,jp.ConcurrencyFlags.NumThreads())
     svcMgr.PerfMonMTSvc.numberOfSlots = max(1,jp.ConcurrencyFlags.NumConcurrentEvents())
-
-###############################
-# Load PerfMonMTAlg
-###############################
-from AthenaCommon.AlgSequence import AthSequencer
-algSeq = AthSequencer("AthAlgSeq")
-if not hasattr(algSeq, "PerfMonMTAlg"):
-    from PerfMonComps.PerfMonCompsConf import PerfMonMTAlg
-    algSeq += PerfMonMTAlg("PerfMonMTAlg")
-    pass
-del algSeq

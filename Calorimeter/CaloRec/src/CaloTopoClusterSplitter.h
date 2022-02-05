@@ -37,8 +37,6 @@
  * energy content. */
 
 class Identifier; 
-class CaloDetDescrManager; 
-class CaloDetDescrElement;
 
 #include "CaloIdentifier/CaloCell_ID.h"
 

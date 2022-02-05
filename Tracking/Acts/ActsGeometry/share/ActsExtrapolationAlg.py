@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 This job options file will run an example extrapolation using the
 Acts tracking geometry and the Acts extrapolation toolchain.
@@ -10,25 +11,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-from ActsGeometry.ActsGeometryConfig import ActsExtrapolationToolCfg
-from ActsGeometry.ActsGeometryConfig import ActsAlignmentCondAlgCfg, ActsPropStepRootWriterSvcCfg
-
-def ActsExtrapolationAlgCfg(configFlags, name = "ActsExtrapolationAlg", **kwargs):
-  result = ComponentAccumulator()
-
-  if "ExtrapolationTool" not in kwargs:
-    extrapTool = ActsExtrapolationToolCfg(configFlags)
-    kwargs["ExtrapolationTool"] = extrapTool.getPrimary()
-    result.merge(extrapTool)
-
-  propStepWriterSvc = ActsPropStepRootWriterSvcCfg(configFlags)
-  result.merge(propStepWriterSvc)
-
-  ActsExtrapolationAlg = CompFactory.ActsExtrapolationAlg
-  alg = ActsExtrapolationAlg(name, **kwargs)
-  result.addEventAlgo(alg)
-
-  return result
+from ActsGeometry.ActsGeometryConfig import ActsPropStepRootWriterSvcCfg, ActsExtrapolationAlgCfg, ActsExtrapolationToolCfg
 
 if "__main__" == __name__:
   from AthenaCommon.Configurable import Configurable
@@ -51,7 +34,8 @@ if "__main__" == __name__:
   ConfigFlags.Detector.GeometryCalo  = True
   ConfigFlags.Detector.GeometryMuon  = False
   ConfigFlags.Detector.GeometryTRT   = True
-  ConfigFlags.TrackingGeometry.MaterialSource = "None"
+  ConfigFlags.Acts.TrackingGeometry.MaterialSource = "None"
+  ConfigFlags.Acts.TrackingGeometry.buildAllAvailableSubDetectors = True
 
   ConfigFlags.Concurrency.NumThreads = 10
   ConfigFlags.Concurrency.NumConcurrentEvents = 10
@@ -64,9 +48,6 @@ if "__main__" == __name__:
   from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
   cfg.merge(BeamPipeGeometryCfg(ConfigFlags))
 
-  alignCondAlgCfg = ActsAlignmentCondAlgCfg(ConfigFlags)
-
-  cfg.merge(alignCondAlgCfg)
 
   alg = ActsExtrapolationAlgCfg(ConfigFlags,
                                 OutputLevel=INFO,
@@ -76,6 +57,18 @@ if "__main__" == __name__:
                                 PtRange = [20, 100])
 
   cfg.merge(alg)
+
+  tgSvc = cfg.getService("ActsTrackingGeometrySvc")
+
+  # Service will have removed TRT and Calo
+  # We want them enabled for testing
+  tgSvc.BuildSubDetectors += [
+    "TRT",
+    "Calo"
+  ]
+  # needed to construct the calo geometry in ACTS
+  tgSvc.CaloVolumeBuilder = CompFactory.ActsCaloTrackingVolumeBuilder()
+
 
   cfg.printConfig()
 

@@ -1,14 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef SRC_LARCELLCONTFAKEREADER_H
-# define SRC_LARCELLCONTFAKEREADER_H
+#ifndef ATHENAPOOLTEST_LARCELLCONTFAKEREADER_H
+#define ATHENAPOOLTEST_LARCELLCONTFAKEREADER_H
 
 /**
  * @file LArCellContFakeReader.h
  *
- * @brief Test Algorithm for POOL I/O uses LArCellContainer as test
+ * @brief Test Algorithm for POOL I/O uses CaloCellContainer as test
  * data
  *
  * @author RD Schaffer <R.D.Schaffer@cern.ch>
@@ -20,16 +20,16 @@
 /**
  * @class LArCellContFakeReader
  *
- * @brief Test Algorithm for POOL I/O uses LArCellContainer as test
+ * @brief Test Algorithm for POOL I/O uses CaloCellContainer as test
  * data
  *
  */
 
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
-
-class CaloDetDescrManager;
 class CaloCell_ID;
 class CaloCellContainer;
 
@@ -41,13 +41,13 @@ public:
     LArCellContFakeReader(const std::string &name,ISvcLocator *pSvcLocator);
   
     /// Algorithm initialize at begin of job
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
 
     /// Algorithm execute once per event
-    virtual StatusCode execute(); 
+    virtual StatusCode execute() override;
 
     /// Algorithm finalize at end of job
-    virtual StatusCode finalize();
+    virtual StatusCode finalize() override;
   
     ///////////////////////////////////////////////////////////////////
     // Private methods:
@@ -72,7 +72,10 @@ private:
     void printCells(const CaloCellContainer* larCont) const;
 
     /// Need DD mgr to create cells
-    const CaloDetDescrManager* 	m_caloMgr;
+    SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+	, "CaloDetDescrManager"
+	, "CaloDetDescrManager"
+	, "SG Key for CaloDetDescrManager in the Condition Store" };
 
     /// Need id helper to create cells
     const CaloCell_ID*          m_calocellId;

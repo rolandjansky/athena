@@ -1,23 +1,18 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #include "AGDDModel/AGDDIbeam.h"
 #include "AGDDKernel/AGDDBuilder.h"
 
-void AGDDIbeam::CreateSolid() 
+void AGDDIbeam::CreateSolid (const AGDDBuilder& builder)
 {
-	AGDDBuilder* builder=AGDDBuilder::CurrentBuilder();
-
-	builder->CreateIbeam(this);
+	builder.CreateIbeam(this);
 }
 
-void AGDDIbeam::CreateVolume() 
+void AGDDIbeam::CreateVolume (AGDDBuilder& builder)
 {
-	AGDDBuilder* builder=AGDDBuilder::CurrentBuilder();
-
-	CreateSolid();
-
- 	builder->CreateVolume(this);
+	CreateSolid (builder);
+ 	builder.CreateVolume(this);
 }

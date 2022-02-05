@@ -426,9 +426,9 @@ bool FilterParams::passHash(unsigned int hashId) const
 
 bool FilterParams::passEvent(const Data& data) const
 {
-  for (std::map<TString, FuncCut>::const_iterator cut = m_cuts.begin();
-       cut != m_cuts.end(); cut++)
-    if (!cut->second.pass(data)) return false;
+  for (const auto& p : m_cuts) {
+    if (!p.second.pass(data)) return false;
+  }
   
   if (m_requireConvergence && data.adcMax() < 0) return false;
   if (!(m_status & data.status()) && data.status()) return false;

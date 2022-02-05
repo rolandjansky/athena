@@ -34,11 +34,51 @@ DetFlags.detdescr.all_setOff()
 DetFlags.detdescr.Calo_setOn()
 include("RecExCond/AllDet_detDescr.py")
 
+# menu with default configuration for testing
+from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
+flags.Input.Files = athenaCommonFlags.FilesInput()
+flags.Trigger.triggerConfig = "FILE"
+flags.lock()
+CAtoGlobalWrapper(L1ConfigSvcCfg,flags)
+
+from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu
+generateL1Menu(flags)
+
+
 svcMgr += CfgMgr.THistSvc()
 svcMgr.THistSvc.Output += ["ANALYSIS DATAFILE='myfile.root' OPT='RECREATE'"]
+
+
+from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
+StreamAOD_Augmented = MSMgr.NewPoolRootStream( "StreamAOD", "xAOD.gFEX.output.root" )
+StreamAOD = StreamAOD_Augmented.GetEventStream()
+
+# Generic event info
+StreamAOD.ItemList+=["xAOD::EventInfo#*"]
+StreamAOD.ItemList+=["xAOD::EventAuxInfo#*"]
+
+# # the gFex containers
+StreamAOD.ItemList+=["xAOD::gFexJetRoIContainer#*"]
+StreamAOD.ItemList+=["xAOD::gFexJetRoIAuxContainer#*"]
+StreamAOD.ItemList+=["xAOD::gFexGlobalRoIContainer#*"]
+StreamAOD.ItemList+=["xAOD::gFexGlobalRoIAuxContainer#*"]
+StreamAOD.ItemList+=["xAOD::TriggerTowerContainer#*"]
+
+#Physics Objects
+StreamAOD.ItemList+=["xAOD::JetContainer#*"]
+StreamAOD.ItemList+=["xAOD::JetAuxContainer#*"]
+StreamAOD.ItemList+=["xAOD::MissingETContainer#MET_Reference_AntiKt4EMTopo"]
+StreamAOD.ItemList+=["xAOD::MissingETAuxContainer#MET_Reference_AntiKt4EMTopoAux.-ConstitObjectLinks.-ConstitObjectWeights"]
+
+
+
+
 #######################################################
 log.info("==========================================================")
 log.info("Scheduling gFEXDriver")
 athAlgSeq += CfgMgr.LVL1__gFEXDriver('MygFEXDriver')
+athAlgSeq += CfgMgr.LVL1__gFEXNtupleWriter('MygFEXNtupleWriter')
 log.info("==========================================================")
 #######################################################

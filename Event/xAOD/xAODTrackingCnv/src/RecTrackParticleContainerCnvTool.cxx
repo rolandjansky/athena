@@ -61,6 +61,13 @@ namespace xAODMaker {
     return StatusCode::SUCCESS;    
   }
 
+  StatusCode RecTrackParticleContainerCnvTool::convertAndAugment( const Rec::TrackParticleContainer* aod,
+							xAOD::TrackParticleContainer* xaod, const ObservedTrackMap* trk_map ) const {
+    
+    ATH_MSG_DEBUG( "Sizes of containers before conversion: aod, xaod, trk_map: " << aod->size() << ", " << xaod->size() << ", "<< trk_map->size() );
+    ATH_MSG_DEBUG( "convertAndAugment should not be called using IRecTrackParticleContainerCnvTool!" );
+    return StatusCode::FAILURE;    
+  }
 
   xAOD::TrackParticle* RecTrackParticleContainerCnvTool::createParticle( xAOD::TrackParticleContainer* xaod, 
 									 const Rec::TrackParticleContainer* /**container*/, 

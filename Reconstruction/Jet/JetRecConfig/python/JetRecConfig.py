@@ -65,7 +65,13 @@ def JetRecCfg( configFlags, jetdef,  returnConfiguredDef=False):
     elif isinstance(jetdef, GroomingDefinition):
         algs, jetdef_i = getJetGroomAlgs(configFlags, jetdef, True)
 
+    # FIXME temporarily reorder for serial running
+    if configFlags.Concurrency.NumThreads <= 0:
+        jetlog.info("Reordering algorithms in sequence {0}".format(sequenceName))
+        algs = reOrderAlgs(algs)
+
     for a in algs:
+
         if isinstance(a, ComponentAccumulator):
             components.merge(a )
         else:
@@ -89,7 +95,11 @@ def JetInputCfg(configFlags,jetOrConstitdef , context="default"):
     algs = getInputAlgs(jetOrConstitdef, configFlags, context)
 
     for a in algs:
-        components.addEventAlgo( a )
+
+        if isinstance(a, ComponentAccumulator):
+            components.merge(a)
+        else:
+            components.addEventAlgo(a)
     
     return components
 
@@ -195,6 +205,16 @@ def getJetGroomAlgs(configFlags, groomdef, returnConfiguredDef=False, monTool=No
     return algs
 
 
+def getJetAlgs(configFlags, jetdef, returnConfiguredDef=False, monTool=None):
+    # Useful helper function For Run-II config style
+    if isinstance(jetdef, JetDefinition):
+        func = getJetDefAlgs
+    elif isinstance(jetdef, GroomingDefinition):
+        func = getJetGroomAlgs
+
+    return func(configFlags, jetdef, returnConfiguredDef, monTool)
+
+
 ########################################################################
 #
 # Mid level functions returning specific type of algs out of JetDefinition
@@ -295,18 +315,16 @@ def getInputAlgs(jetOrConstitdef, configFlags=None, context="default", monTool=N
         if isInInput( inputInstance ):
             jetlog.info(f"Input container for {inputInstance} already in input file.")
             continue
-        
+
+        # Get the input or external alg
         if isinstance(inputInstance, JetInputConstit):
-            constitalg = getConstitModAlg(jetdef, inputInstance, monTool=monTool)
-            if constitalg:
-                algs +=[ constitalg ]
+            alg = getConstitModAlg(jetdef, inputInstance, monTool=monTool)
         else: # it must be a JetInputExternal
-            # check if it has something to build an Algorithm
-            if inputInstance.algoBuilder:
-                algs+=[ inputInstance.algoBuilder( jetdef, inputInstance.specs ) ]
-            else:
-                # for now just hope the input will be present... 
-                pass
+            alg = inputInstance.algoBuilder( jetdef, inputInstance.specs ) 
+
+        if alg is not None:
+            algs.append(alg)
+
     return algs
 
 
@@ -323,7 +341,7 @@ def getConstitPJGAlg(constitdef,suffix=None):
     jetlog.debug("Getting PseudoJetAlg for label {0} from {1}".format(constitdef.name,constitdef.inputname))
 
     full_label = constitdef.label + '' if suffix is None else f'_{suffix}'
-    
+
     pjgalg = CompFactory.PseudoJetAlgorithm(
         "pjgalg_"+full_label,
         InputContainer = constitdef.containername,
@@ -331,6 +349,11 @@ def getConstitPJGAlg(constitdef,suffix=None):
         Label = full_label,
         SkipNegativeEnergy=True
         )
+
+    if suffix == 'EMPFlowPUSB':
+        pjgalg.UseChargedPV=False
+        pjgalg.UseChargedPUsideband=True
+
     return pjgalg
 
 def getGhostPJGAlg(ghostdef):
@@ -503,7 +526,7 @@ def getConstitModAlg(parentjetdef, constitSeq, monTool=None):
         
         tool =  toolclass(modInstance.name,**modInstance.properties)
         
-        if inputtype == xAODType.ParticleFlow and modInstance.tooltype not in ["CorrectPFOTool","ChargedHadronSubtractionTool"]:
+        if (inputtype == xAODType.FlowElement or inputtype == xAODType.ParticleFlow) and modInstance.tooltype not in ["CorrectPFOTool","ChargedHadronSubtractionTool"]:
             tool.IgnoreChargedPFO=True
             tool.ApplyToChargedPFO=False
         tool.InputType = inputtype
@@ -513,7 +536,7 @@ def getConstitModAlg(parentjetdef, constitSeq, monTool=None):
     seqname = "ConstitMod{0}_{1}".format(sequenceshort,constitSeq.name)
     inputcontainer = str(constitSeq.inputname)
     outputcontainer = str(constitSeq.containername)
-    if inputtype==xAODType.ParticleFlow:
+    if (inputtype == xAODType.FlowElement or inputtype == xAODType.ParticleFlow):
         # Tweak PF names because ConstModSequence needs to work with
         # up to 4 containers
         def chopPFO(thestring):
@@ -630,7 +653,7 @@ def removeComponentFailingConditions(jetdef, configflags=None, raiseOnFailure=Tr
                 jetlog.info(f"{fullname} : removing {compType}  {comp}  reason={reason}")
                 if fullkey in jetdef._prereqOrder: 
                     jetdef._prereqOrder.remove(fullkey)
-                if compType=='ghost':
+                if compType=='ghost' and 'input:'+comp in jetdef._prereqOrder :
                     jetdef._prereqOrder.remove('input:'+comp)
             else:
                 outList.append(comp)
@@ -690,6 +713,24 @@ def isAnalysisRelease():
     return 'Analysis' in os.environ.get("AtlasProject", "")
 
 
+def reOrderAlgs(algs):
+    """In runIII the scheduler automatically orders algs, so the JetRecConfig helpers do not try to enforce the correct ordering.
+    This is not the case in runII config for which this jobO is intended --> This function makes sure some jet-related algs are well ordered.
+    """
+    algs = [ a for a in algs if not isinstance(a, ComponentAccumulator)] 
+    evtDensityAlgs = [(i, alg) for (i, alg) in enumerate(algs) if alg and alg.getType() == 'EventDensityAthAlg' ]
+    pjAlgs = [(i, alg) for (i, alg) in enumerate(algs) if alg and alg.getType() == 'PseudoJetAlgorithm' ]
+    pairsToswap = []
+    for i, edalg in evtDensityAlgs:
+        edInput = edalg.EventDensityTool.InputContainer
+        for j, pjalg in pjAlgs:
+            if j < i:
+                continue 
+            if edInput == str(pjalg.OutputContainer):
+                pairsToswap.append((i, j))
+    for i, j in pairsToswap:
+        algs[i], algs[j] = algs[j], algs[i]
+    return algs
 
 
 
@@ -716,7 +757,7 @@ if __name__=="__main__":
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     # Add the components from our jet reconstruction job
-    from StandardJetDefs import AntiKt4EMTopo
+    from StandardSmallRJets import AntiKt4EMTopo
     AntiKt4EMTopo.modifiers = ["Calib:T0:mc","Filter:15000","Sort"] + ["JVT"] + ["PartonTruthLabel"]
     cfg.merge(JetRecCfg(AntiKt4EMTopo,ConfigFlags,jetnameprefix="New"))
 

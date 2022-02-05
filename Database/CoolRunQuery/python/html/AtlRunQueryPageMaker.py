@@ -8,7 +8,6 @@ class PageMaker:
     @classmethod
     def makePage(cls, body, origQuery=None, extraReplace=None, removeExamples=False):
         from CoolRunQuery.AtlRunQueryQueryConfig import QC
-        
         (top, bottom) = cls.getBlankPage(removeExamples=removeExamples)
         # put in the original query
         if origQuery is not None:

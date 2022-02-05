@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CABLING_TGCDATABASEASDTOPP_HH
@@ -44,16 +44,16 @@ public:
   /** Destructor */
   virtual ~TGCDatabaseASDToPP(void);
 
-  virtual bool update(const std::vector<int>&);
+  virtual bool update(const std::vector<int>&) override;
  
-  virtual int find(const std::vector<int>&) const;
+  virtual int find(const std::vector<int>&) const override;
 
   /** Get IndexDBIn (position in the databse between 0 and database.size()-1) 
       from indexIn which is NIndexIn-dimension array */
-  virtual int getIndexDBIn(int* indexIn); 
+  virtual int getIndexDBIn(int* indexIn) const override; 
   /** Get IndexDBOut (position in the databse between 0 and database.size()-1) 
       from indexOut which is NIndexOut-dimension array */
-  virtual int getIndexDBOut(int* indexOut);
+  virtual int getIndexDBOut(int* indexOut) const override;
 
   /** Get the IndexDBIn table */
   virtual void getindexDBVectorIn(std::vector<int>& tmpindexDBIn) const;
@@ -77,7 +77,7 @@ public:
   bool isCommon() const;
 
 private:
-  virtual void readDB(void);
+  virtual void readDB(void) override;
   TGCDatabaseASDToPP(void) {}
 
   /** Make the IndexDBIn table */
@@ -86,9 +86,9 @@ private:
   virtual int convertIndexDBIn(int* indexIn) const;
 
   std::vector<int> m_indexDBIn;
-  int m_NIndexDBIn;
-  int m_maxIndexIn[NIndexIn];
-  int m_minIndexIn[NIndexIn];
+  int m_NIndexDBIn = 0;
+  int m_maxIndexIn[NIndexIn]{};
+  int m_minIndexIn[NIndexIn]{};
 
   /** Make the IndexDBOut table */
   virtual void makeIndexDBOut(void);
@@ -96,9 +96,9 @@ private:
   virtual int convertIndexDBOut(int* indexOut) const;
 
   std::vector<int> m_indexDBOut;
-  int m_NIndexDBOut;
-  int m_maxIndexOut[NIndexOut];
-  int m_minIndexOut[NIndexOut];
+  int m_NIndexDBOut = 0;
+  int m_maxIndexOut[NIndexOut]{};
+  int m_minIndexOut[NIndexOut]{};
 
   /** This bool variable is used to know the database is common or sector specific */
   bool m_isCommon; 

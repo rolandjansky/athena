@@ -83,36 +83,29 @@ void test1()
   assert (!k2.storeHandle().isSet());
   assert (k2.isCondition());
 
-  SG::VarHandleKey k3 (1236, "BarSvc+ccc", Gaudi::DataHandle::Updater, "FooSvc");
-  assert (k3.clid() == 1236);
-  assert (k3.key() == "ccc");
-  assert (k3.mode() == Gaudi::DataHandle::Updater);
-  assert (k3.storeHandle().name() == "BarSvc");
+  SG::VarHandleKey k3 (1237, "", Gaudi::DataHandle::Reader);
+  assert (k3.clid() == 1237);
+  assert (k3.key() == "");
+  assert (k3.mode() == Gaudi::DataHandle::Reader);
+  assert (k3.storeHandle().name() == "StoreGateSvc");
   assert (!k3.storeHandle().isSet());
-
-  SG::VarHandleKey k4 (1237, "", Gaudi::DataHandle::Updater);
-  assert (k4.clid() == 1237);
-  assert (k4.key() == "");
-  assert (k4.mode() == Gaudi::DataHandle::Updater);
-  assert (k4.storeHandle().name() == "StoreGateSvc");
-  assert (!k4.storeHandle().isSet());
-  assert (k4.initialize().isFailure());
-  assert (k4.initialize(false).isSuccess());
-  assert (k4.initialize(SG::AllowEmpty).isSuccess());
-  assert (k4.empty());
+  assert (k3.initialize().isFailure());
+  assert (k3.initialize(false).isSuccess());
+  assert (k3.initialize(SG::AllowEmpty).isSuccess());
+  assert (k3.empty());
 
   EXPECT_EXCEPTION (SG::ExcBadHandleKey,
-                    SG::VarHandleKey (1237, "a/b/c", Gaudi::DataHandle::Updater));
+                    SG::VarHandleKey (1237, "a/b/c", Gaudi::DataHandle::Reader));
 
-  SG::VarHandleKey k5 (1236, "BarSvc+ccc", Gaudi::DataHandle::Updater, "FooSvc");
-  assert (k5.key() == "ccc");
-  assert (k5.initialize(false).isSuccess());
-  assert (k5.key() == "");
+  SG::VarHandleKey k4 (1236, "BarSvc+ccc", Gaudi::DataHandle::Reader, "FooSvc");
+  assert (k4.key() == "ccc");
+  assert (k4.initialize(false).isSuccess());
+  assert (k4.key() == "");
 
-  assert (k5.owningHandle() == nullptr);
+  assert (k4.owningHandle() == nullptr);
   SG::VarHandleBase base;
-  base.setOwner_test (k5);
-  assert (k5.owningHandle() == &base);
+  base.setOwner_test (k4);
+  assert (k4.owningHandle() == &base);
 }
 
 

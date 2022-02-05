@@ -575,7 +575,8 @@ const Trk::RIO_OnTrack* InDet::TRT_TrajectoryElement_xk::rioOnTrack()
 // Build simple RIOnTrack
 ///////////////////////////////////////////////////////////////////
 
-const Trk::RIO_OnTrack* InDet::TRT_TrajectoryElement_xk::rioOnTrackSimple()
+std::unique_ptr<const Trk::RIO_OnTrack>
+InDet::TRT_TrajectoryElement_xk::rioOnTrackSimple() const 
 {
   if(m_bestlink < 0 || m_status<=0) return nullptr;
 
@@ -585,9 +586,9 @@ const Trk::RIO_OnTrack* InDet::TRT_TrajectoryElement_xk::rioOnTrackSimple()
   Amg::MatrixX cov(1,1);
   cov(0,0) = 1.;
   if(m_status==2) {
-    return new InDet::TRT_DriftCircleOnTrack(m_link[l].cluster(),Trk::LocalParameters(radius),cov,0,0.,dir,Trk::DECIDED);
+    return std::make_unique<const InDet::TRT_DriftCircleOnTrack>(m_link[l].cluster(),Trk::LocalParameters(radius),cov,0,0.,dir,Trk::DECIDED);
   }
-  return new InDet::TRT_DriftCircleOnTrack(m_link[l].cluster(),Trk::LocalParameters(radius),cov,0,0.,dir,Trk::NODRIFTTIME);
+  return  std::make_unique<const InDet::TRT_DriftCircleOnTrack>(m_link[l].cluster(),Trk::LocalParameters(radius),cov,0,0.,dir,Trk::NODRIFTTIME);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -600,7 +601,8 @@ bool InDet::TRT_TrajectoryElement_xk::propagate
   if(m_bestlink<0) return false;
 
   return m_proptool->propagate
-    (Ta,m_link[m_bestlink].surface(),Tb,Trk::anyDirection,m_fieldprop,Trk::pion);
+    (Gaudi::Hive::currentContext(),
+     Ta,m_link[m_bestlink].surface(),Tb,Trk::anyDirection,m_fieldprop,Trk::pion);
 }
 
 ///////////////////////////////////////////////////////////////////

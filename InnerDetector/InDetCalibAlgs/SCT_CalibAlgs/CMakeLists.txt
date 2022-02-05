@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( SCT_CalibAlgs )
@@ -6,6 +6,7 @@ atlas_subdir( SCT_CalibAlgs )
 # External dependencies:
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 find_package( ROOT COMPONENTS MathCore Core Tree Hist RIO pthread )
+find_package( Boost )
 
 # Component(s) in the package:
 atlas_add_component( SCT_CalibAlgs

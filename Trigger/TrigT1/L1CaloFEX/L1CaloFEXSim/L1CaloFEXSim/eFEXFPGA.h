@@ -52,13 +52,15 @@ namespace LVL1 {
     virtual int getID() override {return m_id;}
 
     virtual void SetTowersAndCells_SG( int [][6] ) override ;
-    virtual void SetIsoWP(std::vector<unsigned int> &, std::vector<unsigned int> &, unsigned int &) override ;
+    virtual void SetIsoWP(std::vector<unsigned int> &, std::vector<unsigned int> &, unsigned int &, unsigned int &) override ;
 
     virtual std::vector <uint32_t> getEmTOBs() override ;
     virtual std::vector <uint32_t> getTauTOBs() override ;
 
     /** Internal data */
   private:
+    const unsigned int m_eFexStep = 25;
+
     static bool etSort (uint32_t i,uint32_t j) { return (((i >> 0 ) & 0xfff)>((j >> 0 ) & 0xfff)); }
 
     int m_id;

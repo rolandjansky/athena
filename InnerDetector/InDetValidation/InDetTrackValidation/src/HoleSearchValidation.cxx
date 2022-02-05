@@ -21,6 +21,7 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/TRT_ID.h"
 #include "InDetIdentifier/SiliconID.h"
+#include "AthenaKernel/RNGWrapper.h"
 
 #include "CLHEP/Random/RandFlat.h"
 
@@ -41,8 +42,7 @@ HoleSearchValidation::HoleSearchValidation(const std::string& name, ISvcLocator*
     m_ignoreTrackEnds(true),
 	m_randomRemovalMode(false),
     m_maxNumberOfHoles(3),
-  	m_rndmGenSvc("AtRndmGenSvc", name),
-  	m_randomEngine(nullptr),
+  	m_rndmGenSvc("AthRNGSvc", name),
   	m_randomEngineName("HoleSearchRnd")
 
 {
@@ -138,12 +138,6 @@ StatusCode HoleSearchValidation::initialize() {
     ATH_MSG_FATAL( "Could not retrieve " << m_rndmGenSvc );
     return StatusCode::FAILURE;
   }
-  //Get own engine with own seeds:
-  m_randomEngine = m_rndmGenSvc->GetEngine(m_randomEngineName);
-  if (!m_randomEngine) {
-      ATH_MSG_FATAL( "Could not get random engine '" << m_randomEngineName << "'" );
-      return StatusCode::FAILURE;
-  }
 
   ATH_CHECK(m_trackCollectionKey.initialize());
   if (m_saveNewTracksInSG) {
@@ -155,6 +149,10 @@ StatusCode HoleSearchValidation::initialize() {
 }
 
 StatusCode HoleSearchValidation::execute(const EventContext& ctx) const {
+
+  ATHRNG::RNGWrapper* wrapper = m_rndmGenSvc->getEngine(this, m_randomEngineName);
+  wrapper->setSeed (this->name(), ctx);
+  CLHEP::HepRandomEngine* engine = wrapper->getEngine (ctx);
 
   std::array<bool,Parts::kNParts> remove_parts{};
   for (unsigned int part_i=0; part_i<Parts::kNParts; ++part_i) {
@@ -254,7 +252,7 @@ StatusCode HoleSearchValidation::execute(const EventContext& ctx) const {
         unsigned int randomHoles = 0;
         if (m_randomRemovalMode){
           // ---------------------------------------------------------------------------------------
-          randomHoles = (unsigned int)(m_maxNumberOfHoles*CLHEP::RandFlat::shoot(m_randomEngine));
+          randomHoles = (unsigned int)(m_maxNumberOfHoles*CLHEP::RandFlat::shoot(engine));
           ATH_MSG_VERBOSE("Random mode chosen: will create " << randomHoles << " holes on the track.");
 
           // max int pixel  
@@ -270,7 +268,7 @@ StatusCode HoleSearchValidation::execute(const EventContext& ctx) const {
           // make the switch
           for (unsigned int ihole = 0; ihole < randomHoles && holesTriggered < int(randomHoles); ++ihole){
             // throw the dices
-            unsigned int holeId = (unsigned int)(maxHit*CLHEP::RandFlat::shoot(m_randomEngine));
+            unsigned int holeId = (unsigned int)(maxHit*CLHEP::RandFlat::shoot(engine));
             ATH_MSG_VERBOSE( "Random mode : layer identifier " << holeId << " chosen." );
             {
               // now switch between --------
@@ -291,7 +289,7 @@ StatusCode HoleSearchValidation::execute(const EventContext& ctx) const {
               }
               // make the side decision on the side
               if (holeId > 2) {
-                double sideDecision = CLHEP::RandFlat::shoot(m_randomEngine);
+                double sideDecision = CLHEP::RandFlat::shoot(engine);
                 if ( sideDecision < 1./3. )
                   remove_parts[Parts::kSctSide0] = true;
                 else if ( sideDecision < 2./3. )
@@ -482,8 +480,8 @@ unsigned int HoleSearchValidation::doHoleSearch( const Trk::Track* track) const
   ATH_MSG_VERBOSE(  "start hole search for track ( " << track << ")" ) ;
   unsigned int nHoles(0);
 
-  const DataVector<const Trk::TrackStateOnSurface>* holesOnTrack 
-    = m_holeSearchTool->getHolesOnTrack(*track, track->info().particleHypothesis());
+  std::unique_ptr<const Trk::TrackStates> holesOnTrack
+    (m_holeSearchTool->getHolesOnTrack(*track, track->info().particleHypothesis()));
   // loop over holes
   if (!holesOnTrack) {
     ATH_MSG_WARNING(  "HoleSearchTool returned NULL !" ) ;
@@ -501,7 +499,6 @@ unsigned int HoleSearchValidation::doHoleSearch( const Trk::Track* track) const
       printInfoTSoS( *it );
     } // end loop on holes
   }
-  delete holesOnTrack;
   return nHoles;
 }
 

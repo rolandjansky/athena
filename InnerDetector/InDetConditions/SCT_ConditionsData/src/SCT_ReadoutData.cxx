@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_ConditionsData/SCT_ReadoutData.h"
@@ -35,8 +35,9 @@ static bool modified1(Identifier moduleId) {
 using namespace SCT_Parameters;
 
 // Constructor
-SCT_ReadoutData::SCT_ReadoutData(IMessageSvc* msgSvc) {
-  if (msgSvc) m_msg = std::make_unique<Athena::MsgStreamMember>(msgSvc, "SCT_ReadoutData");
+SCT_ReadoutData::SCT_ReadoutData(IMessageSvc* msgSvc)
+  : AthMessaging (msgSvc, "SCT_ReadoutData")
+{
 }
 
 void SCT_ReadoutData::setModuleType(const Identifier& moduleId, int bec) {
@@ -119,7 +120,7 @@ void SCT_ReadoutData::checkLink(int link) {
   // and if readout is sane. 
 
   // Follow chip from the start chip for each side
-  SCT_Chip& startChip{m_chips->at(link*6)};
+  const SCT_Chip& startChip{m_chips->at(link*6)};
   bool linkSane{followReadoutUpstream(link, startChip)};
 
   if (not linkSane) {
@@ -129,7 +130,7 @@ void SCT_ReadoutData::checkLink(int link) {
     for (const int linkItr: chipsOnThisLink) setChipOut(m_chips->at(linkItr));
 
     // We do not have ERROR/FAILURE if the readout is not sane as it possibly only affects one of the SCT modules
-    if (m_msg) ATH_MSG_WARNING("Readout for link " << link << " not sane");
+    ATH_MSG_WARNING("Readout for link " << link << " not sane");
   }
 }
 
@@ -144,14 +145,15 @@ bool SCT_ReadoutData::hasConnectedInput(const SCT_Chip& chip) const {
   // The port the chip is listening on should be mapped to an input (if the chip is not an end)
   // Otherwise it'll never get to an end giving a timeout
   if (inChipId == None) {
-    if (m_msg) ATH_MSG_WARNING("Chip " << chip.id() << " is not an end but port " << chip.inPort() << " is not mapped to anything");
+    ATH_MSG_WARNING("Chip " << chip.id() << " is not an end but port " << chip.inPort() << " is not mapped to anything");
     return false;
   }
   
   // The mapped chip should be talking on the same port as this chip is listening (if the chip is not an end)
   // Again, otherwise it'll never get to an end giving a timeout
-  if (m_chips->at(inChipId).outPort()!=chip.inPort()) {
-    if (m_msg) ATH_MSG_WARNING("Chip" << chip.id() << " is not an end and is listening on Port " << chip.inPort() << " but nothing is talking to it");
+  const std::vector<SCT_Chip>& chips = *m_chips;
+  if (chips.at(inChipId).outPort()!=chip.inPort()) {
+    ATH_MSG_WARNING("Chip" << chip.id() << " is not an end and is listening on Port " << chip.inPort() << " but nothing is talking to it");
     return false;
   }
   return true;
@@ -165,9 +167,10 @@ bool SCT_ReadoutData::isEndBeingTalkedTo(const SCT_Chip& chip) const {
   if (not chip.isEnd()) return false;
 
   // Is anything trying to talk to the end.
-  for (SCT_Chip& thisChip: *m_chips) {
+  const std::vector<SCT_Chip>& chips = *m_chips;
+  for (const SCT_Chip& thisChip: chips) {
     if (outputChip(thisChip) == chip.id()) {
-      if (m_msg) ATH_MSG_WARNING("Chip " << chip.id() << " is configured as end but something is trying to talk to it");
+      ATH_MSG_WARNING("Chip " << chip.id() << " is configured as end but something is trying to talk to it");
       return true;
     }
   }
@@ -179,7 +182,7 @@ void SCT_ReadoutData::maskChipsNotInReadout() {
   // If the readout of a particular link is not sane mask all chips on that link
   for (SCT_Chip& thisChip: *m_chips) {
     if (not isChipReadOut(thisChip)) {
-      if (m_msg) ATH_MSG_DEBUG("Masking chip " <<  thisChip.id());
+      ATH_MSG_DEBUG("Masking chip " <<  thisChip.id());
       uint32_t masked{0};
       thisChip.initializeMaskFromInts(masked, masked, masked, masked);
     }
@@ -191,7 +194,7 @@ bool SCT_ReadoutData::followReadoutUpstream(int link, const SCT_Chip& chip, int 
   // The "error" cases are only warnings since they possibly only affect one module of the SCT
   // Have we gone though all 12 chips -> infinite loop
   if (remainingDepth < 0) {
-    if (m_msg) ATH_MSG_WARNING("Infinite loop detected in readout");
+    ATH_MSG_WARNING("Infinite loop detected in readout");
     return false;
   }
 
@@ -199,7 +202,7 @@ bool SCT_ReadoutData::followReadoutUpstream(int link, const SCT_Chip& chip, int 
   if (chip.canBeMaster()) {
 
     if (chip.id()==link*6) {
-      if (m_msg) ATH_MSG_DEBUG("Link " << link << " is " << (m_linkActive[link] ? "ENABLED" : "DISABLED"));
+      ATH_MSG_DEBUG("Link " << link << " is " << (m_linkActive[link] ? "ENABLED" : "DISABLED"));
     }
 
     // Is the link enabled. If not the readout is still sane so return true
@@ -207,23 +210,23 @@ bool SCT_ReadoutData::followReadoutUpstream(int link, const SCT_Chip& chip, int 
 
     // Is the chip actually configured as a master
     if (chip.isMaster()) {
-      if (m_msg) ATH_MSG_DEBUG("MasterChip");
+      ATH_MSG_DEBUG("MasterChip");
       // Chip will be set in readout below
     } else if (chip.id() == link*6) {
       // Link is active but the master position for THAT link does not contain a master 
       // This can happen if everything is readout via other link, therefore the readout is still sane.
 
-      if (m_msg) ATH_MSG_DEBUG("Link " << link << " is enabled but chip " << chip.id() << " is not a master");
+      ATH_MSG_DEBUG("Link " << link << " is enabled but chip " << chip.id() << " is not a master");
 
       return true;
     }
   }
 
-  if (m_msg) ATH_MSG_DEBUG("Looking at chip " << chip.id());
+  ATH_MSG_DEBUG("Looking at chip " << chip.id());
 
   // Is a slave chip mistakenly configured as a master 
   if (chip.slaveConfiguredAsMaster()) {
-    if (m_msg) ATH_MSG_WARNING("Found master chip in slave position " << chip.id());
+    ATH_MSG_WARNING("Found master chip in slave position " << chip.id());
     return false;
   }
 
@@ -232,7 +235,7 @@ bool SCT_ReadoutData::followReadoutUpstream(int link, const SCT_Chip& chip, int 
 
   // Is the chip configured as an end (can be master and end)
   if (chip.isEnd()) {
-    if (m_msg) ATH_MSG_DEBUG("End Chip");
+    ATH_MSG_DEBUG("End Chip");
 
     // End chip is in readout and readout is sane
     return true;
@@ -240,7 +243,7 @@ bool SCT_ReadoutData::followReadoutUpstream(int link, const SCT_Chip& chip, int 
 
   // Find the next chip if there is one connected
   if (not hasConnectedInput(chip)) return false;
-  SCT_Chip& nextChip{m_chips->at(inputChip(chip))};
+  const SCT_Chip& nextChip{m_chips->at(inputChip(chip))};
   return followReadoutUpstream(link, nextChip, remainingDepth-1);
 }
 
@@ -268,7 +271,6 @@ bool SCT_ReadoutData::isLinkStandard(int link) const {
 
 void SCT_ReadoutData::printStatus(const Identifier& moduleId) const {
   // Print status for module (a la online) and whether it is standard or not
-  if (not m_msg) return;
   if (not msgLvl(MSG::DEBUG)) return;
 
   bool standard{isLinkStandard(0) and isLinkStandard(1)};
@@ -303,8 +305,8 @@ void SCT_ReadoutData::printStatus(const Identifier& moduleId) const {
 
 void SCT_ReadoutData::setChips(std::vector<SCT_Chip>& chips) {
   // Set the chips and sort in order of ID
+  std::sort(chips.begin(), chips.end(), [](SCT_Chip& a, SCT_Chip& b) { return a.id() < b.id(); });
   m_chips = &chips;
-  std::sort(m_chips->begin(), m_chips->end(), [](SCT_Chip& a, SCT_Chip& b) { return a.id() < b.id(); });
 }
 
 void SCT_ReadoutData::setLinkStatus(bool link0ok, bool link1ok) {

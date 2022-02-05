@@ -60,7 +60,7 @@ class NSWPRDValAlg: public AthAlgorithm
   // Matching algorithm
   StatusCode NSWMatchingAlg();  // First set up which object should be matched, given the input used to fill the NSW Ntuple
   StatusCode NSWMatchingAlg (EDM_object data0, EDM_object data1); // This part of the matching algortihm does the actual comparison given two EDM obects
-  StatusCode setDataAdress (EDM_object &oData, TString branch_name); // This function couples the branch of the NSW validation Ntuple with the EDM object. 
+  StatusCode setDataAdress (EDM_object &oData, const TString& branch_name); // This function couples the branch of the NSW validation Ntuple with the EDM object. 
 
  private:
 
@@ -146,7 +146,7 @@ class NSWPRDValAlg: public AthAlgorithm
   Gaudi::Property<std::string> m_TGC_SDOContainerName{this, "TGC_SDOContainerName", "TGC_SDO" };
   Gaudi::Property<std::string> m_TGC_DigitContainerName{this, "TGC_DigitContainerName","TGC_DIGITS"  };
   Gaudi::Property<std::string> m_TGC_RDOContainerName{this,"TGC_RDOContainerName", "TGCRDO" };
-  Gaudi::Property<std::string> m_TGC_PRDContainerName{this, "TGC_PRDContainerName","TGCPRD" };
+  Gaudi::Property<std::string> m_TGC_PRDContainerName{this, "TGC_PRDContainerName","TGC_Measurements" };
 
   // Matching algorithm
  

@@ -24,33 +24,33 @@
 
 namespace MuonGM {
 
-    DriftTube::DriftTube(std::string n)
-        : DetectorElement(std::move(n)), length(0.) // length is set in MultiLayer.cxx
+    DriftTube::DriftTube(const MYSQL& mysql, const std::string& n)
+        : DetectorElement(n),
+          gasMaterial ("muo::ArCO2"),
+          tubeMaterial ("std::Aluminium"),
+          plugMaterial ("std::Bakelite"),
+          wireMaterial ("std::Aluminium"),
+          length(0.) // length is set in MultiLayer.cxx
     {
-        gasMaterial = "muo::ArCO2";
-        tubeMaterial = "std::Aluminium";
-        plugMaterial = "std::Bakelite";
-        wireMaterial = "std::Aluminium";
-        MYSQL *amdb = MYSQL::GetPointer();
-        MDT *md = (MDT *)amdb->GetTechnology(name.substr(0, 5));
+        const MDT *md = dynamic_cast<const MDT*>(mysql.GetTechnology(name.substr(0, 5)));
         gasRadius = md->innerRadius;
         outerRadius = gasRadius + md->tubeWallThickness;
         plugLength = md->tubeEndPlugLength;
     }
 
-    GeoVPhysVol *DriftTube::build() {
+    GeoVPhysVol *DriftTube::build(const StoredMaterialManager& matManager) {
         const GeoTube *stube = new GeoTube(0.0, outerRadius, length / 2.0);
-        const GeoMaterial *mtube = getMaterialManager()->getMaterial(tubeMaterial);
+        const GeoMaterial *mtube = matManager.getMaterial(tubeMaterial);
         const GeoLogVol *ltube = new GeoLogVol("MDTDriftWall", stube, mtube);
         GeoPhysVol *ptube = new GeoPhysVol(ltube);
 
         const GeoTube *splug = new GeoTube(0.0, outerRadius, plugLength / 2.0);
-        const GeoMaterial *mplug = getMaterialManager()->getMaterial(plugMaterial);
+        const GeoMaterial *mplug = matManager.getMaterial(plugMaterial);
         const GeoLogVol *lplug = new GeoLogVol("Endplug", splug, mplug);
         GeoPhysVol *pplug = new GeoPhysVol(lplug);
 
         const GeoTube *sgas = new GeoTube(0, gasRadius, length / 2.0 - plugLength);
-        const GeoMaterial *mgas = getMaterialManager()->getMaterial(gasMaterial);
+        const GeoMaterial *mgas = matManager.getMaterial(gasMaterial);
         const GeoLogVol *lgas = new GeoLogVol("SensitiveGas", sgas, mgas);
         GeoPhysVol *pgas = new GeoPhysVol(lgas);
 

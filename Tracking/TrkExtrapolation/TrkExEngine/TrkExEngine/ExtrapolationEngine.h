@@ -8,10 +8,10 @@
 
 #ifndef TRKEXINTERFACES_EXTRAPOLATIONENGINE_H
 #define TRKEXINTERFACES_EXTRAPOLATIONENGINE_H
-#define LEGACY_TRKGEOM
 
 // Gaudi
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "AthenaBaseComps/AthCheckedComponent.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 // Trk
@@ -48,7 +48,7 @@ namespace Trk {
   
       @author Andreas.Salzburger -at- cern.ch 
   */
-  class ExtrapolationEngine : public AthAlgTool, virtual public IExtrapolationEngine {
+  class ExtrapolationEngine : public AthCheckedComponent<AthAlgTool>, virtual public IExtrapolationEngine {
       
       friend class NavigationInitTest;
       

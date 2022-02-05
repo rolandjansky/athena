@@ -6,8 +6,9 @@ namespace Trk {
 inline const TrackingGeometry*
 Extrapolator::trackingGeometry() const
 {
-  if (m_navigator)
-    return m_navigator->trackingGeometry();
+  if (m_navigator){
+    return m_navigator->trackingGeometry(Gaudi::Hive::currentContext());
+  }
   return nullptr;
 }
 
@@ -43,7 +44,7 @@ inline IMaterialEffectsUpdator::ICache&
 Extrapolator::subMaterialEffectsUpdatorCache(Cache& cache,
                                              const TrackingVolume& tvol) const
 {
-  return *(cache.m_MaterialUpCache[tvol.geometrySignature()]);
+  return cache.m_MaterialUpCache[tvol.geometrySignature()];
 }
 
 inline void

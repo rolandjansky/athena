@@ -1,67 +1,69 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONSIMHITTOPRD_H
 #define MUONSIMHITTOPRD_H
 
 #include <string.h>
+
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
-
-#include "MuonIdHelpers/IMuonIdHelperSvc.h"
-
-#include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "EventPrimitives/EventPrimitives.h"
+#include "EventPrimitives/EventPrimitivesHelpers.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GeneratorObjects/McEventCollection.h"
+#include "MuonDigitContainer/RpcDigitContainer.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonPrepRawData/RpcPrepDataContainer.h"
+#include "MuonRDO/RpcPadContainer.h"
+#include "MuonSimEvent/RPCSimHitCollection.h"
+#include "StoreGate/ReadHandleKey.h"
+class RpcHitIdHelper;
 
-class RpcHitIdHelper; 
-
-namespace MuonGM
-{
+namespace MuonGM {
     class MuonDetectorManager;
 }
 
+class RPC_SimHitToPrdCBNTAlgo : public AthAlgorithm {
+public:
+    // Agorithm constructor
+    RPC_SimHitToPrdCBNTAlgo(const std::string &name, ISvcLocator *pSvcLocator);
 
-class RPC_SimHitToPrdCBNTAlgo : public AthAlgorithm 
-{
- public:
-  // Agorithm constructor
-  RPC_SimHitToPrdCBNTAlgo (const std::string &name, ISvcLocator *pSvcLocator); 
-  
-  ~RPC_SimHitToPrdCBNTAlgo()=default;
+    ~RPC_SimHitToPrdCBNTAlgo();
 
-  // Gaudi hooks
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
+    // Gaudi hooks
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute() override;
 
-  StatusCode clearNTuple();
- 
- protected:  
-  std::string m_HitCollectionName   ; // name of the input hits
-  std::string m_DigitCollectionName ; // name of the digits
-  std::string m_RDOCollectionName   ; // name of the RDO
-  std::string m_PrdCollectionName   ; // name of the Prd
- 
- private: 
-  // Private function to add the clusters to the ntuple
-  StatusCode doMCtruth  ();
-  StatusCode doRPCSimHit();
-  StatusCode doRPCDigit ();
-  StatusCode doRPCRDO   ();
-  StatusCode doRPCPrep  ();
+protected:
+    void clearNTuple();
 
-  const MuonGM::MuonDetectorManager*           m_muonMgr     ;
-  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-  RpcHitIdHelper*                              m_muonHelper; // simulation id helper
- 
-  bool m_doMCtruth;
-  bool m_doRPCSimHit;
-  bool m_doRPCDigit ;
-  bool m_doRPCRDO   ;
-  bool m_doRPCPrep  ; 
+    SG::ReadHandleKey<McEventCollection> m_mcEvtKey{this, "mcEventKey", "TruthEvent"};
+    SG::ReadHandleKey<RPCSimHitCollection> m_HitCollKey{this, "HitCollectionName", "RPC_Hits"};
+    SG::ReadHandleKey<RpcDigitContainer> m_DigiCollKey{this, "DigitCollectionName", "RPC_DIGITS"};
+    SG::ReadHandleKey<RpcPadContainer> m_RDOKey{this, "RDOCollectionName", "RPCPAD"};
+    SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_PrepKey{this, "PrdCollectionName", "RPC_Measurements"};
 
-  class Clockwork;
-  Clockwork *m_c;
+private:
+    // Private function to add the clusters to the ntuple
+    StatusCode doMCtruth(const EventContext &ctx);
+    StatusCode doRPCSimHit(const EventContext &ctx);
+    StatusCode doRPCDigit(const EventContext &ctx);
+    StatusCode doRPCRDO(const EventContext &ctx);
+    StatusCode doRPCPrep(const EventContext &ctx);
 
+    const MuonGM::MuonDetectorManager *m_muonMgr{nullptr};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+    RpcHitIdHelper *m_muonHelper{nullptr};  // simulation id helper
+
+    Gaudi::Property<bool> m_doMCtruth{this, "doMCtruth", true};
+    Gaudi::Property<bool> m_doRPCSimHit{this, "doRPCSimHit", true};
+    Gaudi::Property<bool> m_doRPCDigit{this, "doRPCDigit", true};
+    Gaudi::Property<bool> m_doRPCRDO{this, "doRPCRDO", true};
+    Gaudi::Property<bool> m_doRPCPrep{this, "doRPCPrep", true};
+
+    class Clockwork;
+
+    std::unique_ptr<Clockwork> m_c;
 };
-#endif     // MUONSIMHITTOPRD_H
+#endif  // MUONSIMHITTOPRD_H

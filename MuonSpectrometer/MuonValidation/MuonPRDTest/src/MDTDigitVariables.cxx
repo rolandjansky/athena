@@ -40,6 +40,7 @@ StatusCode MdtDigitVariables::fillVariables(const MuonGM::MuonDetectorManager* M
       int multilayer       = m_MdtIdHelper->multilayer(Id);
       int channel          = m_MdtIdHelper->channel(Id);
       int NofMultilayers   = m_MdtIdHelper->numberOfMultilayers(Id);
+      bool measuresPhi     = m_MdtIdHelper->measuresPhi(Id);
 
       ATH_MSG_DEBUG(     "MDT Digit Offline id:  Station Name [" << stName << " ]"
                          << " Station Eta ["  << stationEta      << "]"
@@ -49,18 +50,17 @@ StatusCode MdtDigitVariables::fillVariables(const MuonGM::MuonDetectorManager* M
 
       const MuonGM::MdtReadoutElement* rdoEl = MuonDetMgr->getMdtReadoutElement(Id);
       if (!rdoEl) return StatusCode::FAILURE;
-
-      Amg::Vector3D gpos(0.,0.,0.);
-      Amg::Vector2D lpos(0.,0.);
-
-      rdoEl->surface(Id).globalToLocal(gpos, gpos, lpos);
       
-      m_MDT_dig_localPosX.push_back( lpos.x() );
-      m_MDT_dig_localPosY.push_back( lpos.y() );
-      m_MDT_dig_globalPosX.push_back( gpos.x() );
-      m_MDT_dig_globalPosY.push_back( gpos.y() );
-      m_MDT_dig_globalPosZ.push_back( gpos.z() );
-      
+      Amg::Vector3D localTubePos=rdoEl->localTubePos(Id);
+      Amg::Vector3D globalpos=rdoEl->localToGlobalCoords(localTubePos, Id);
+
+      m_MDT_dig_globalPosX.push_back( globalpos.x() );
+      m_MDT_dig_globalPosY.push_back( globalpos.y() );
+      m_MDT_dig_globalPosZ.push_back( globalpos.z() );
+      m_MDT_dig_localTubePosX.push_back( localTubePos.x() );
+      m_MDT_dig_localTubePosY.push_back( localTubePos.y() );
+      m_MDT_dig_localTubePosZ.push_back( localTubePos.z() );
+      m_MDT_dig_measuresPhi.push_back(measuresPhi);
       m_MDT_dig_time.push_back(digit->tdc());
       m_MDT_dig_charge.push_back(digit->adc());
       m_MDT_dig_stationName.push_back(stName);
@@ -89,6 +89,7 @@ StatusCode MdtDigitVariables::clearVariables()
   m_MDT_dig_stationName.clear();
   m_MDT_dig_stationEta.clear();
   m_MDT_dig_stationPhi.clear();
+  m_MDT_dig_measuresPhi.clear();
   m_MDT_dig_tube.clear();
   m_MDT_dig_tubeLayer.clear();
   m_MDT_dig_multilayer.clear();
@@ -99,7 +100,9 @@ StatusCode MdtDigitVariables::clearVariables()
   m_MDT_dig_globalPosX.clear();
   m_MDT_dig_globalPosY.clear();
   m_MDT_dig_globalPosZ.clear();
-
+  m_MDT_dig_localTubePosX.clear();
+  m_MDT_dig_localTubePosY.clear();
+  m_MDT_dig_localTubePosZ.clear();
   return StatusCode::SUCCESS;
 }
 
@@ -117,6 +120,7 @@ StatusCode MdtDigitVariables::initializeVariables()
     m_tree->Branch("Digits_MDT_stationEta",  &m_MDT_dig_stationEta);
     m_tree->Branch("Digits_MDT_stationPhi",  &m_MDT_dig_stationPhi);
     m_tree->Branch("Digits_MDT_numberOfMultilayers",  &m_MDT_dig_numberOfMultilayers);
+    m_tree->Branch("Digits_MDT_measuresPhi",  &m_MDT_dig_measuresPhi);
     m_tree->Branch("Digits_MDT_tube",  &m_MDT_dig_tube);
     m_tree->Branch("Digits_MDT_tubeLayer",  &m_MDT_dig_tubeLayer);
     m_tree->Branch("Digits_MDT_multilayer",  &m_MDT_dig_multilayer);
@@ -125,6 +129,9 @@ StatusCode MdtDigitVariables::initializeVariables()
     m_tree->Branch("Digits_MDT_globalPosX", &m_MDT_dig_globalPosX);
     m_tree->Branch("Digits_MDT_globalPosY",  &m_MDT_dig_globalPosY);
     m_tree->Branch("Digits_MDT_globalPosZ",  &m_MDT_dig_globalPosZ);
+    m_tree->Branch("Digits_MDT_localTubePosX", &m_MDT_dig_localTubePosX);
+    m_tree->Branch("Digits_MDT_localTubePosY", &m_MDT_dig_localTubePosY);
+    m_tree->Branch("Digits_MDT_localTubePosZ", &m_MDT_dig_localTubePosZ);
   }
 
   return StatusCode::SUCCESS;

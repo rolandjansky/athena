@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 '''
 @file TileRawChannelTimeMonitorAlgorithm.py
@@ -145,6 +145,8 @@ if __name__=='__main__':
     ConfigFlags.Tile.doOverflowFit = False
     ConfigFlags.Tile.BestPhaseFromCOOL = True
     ConfigFlags.Tile.NoiseFilter = 1
+    ConfigFlags.Exec.MaxEvents = 3
+    ConfigFlags.fillFromArgs()
 
     ConfigFlags.lock()
 
@@ -168,7 +170,7 @@ if __name__=='__main__':
 
     cfg.store( open('TileRawChannelTimeMonitorAlgorithm.pkl','wb') )
 
-    sc = cfg.run(maxEvents=3)
+    sc = cfg.run()
 
     import sys
     # Success should be 0

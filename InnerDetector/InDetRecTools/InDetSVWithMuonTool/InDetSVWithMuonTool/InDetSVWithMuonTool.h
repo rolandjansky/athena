@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -31,6 +31,7 @@
 
 class TH1D;
 class TH2D;
+class ITHistSvc;
 namespace Trk{
   class TrkVKalVrtFitter;
   class IVKalState;
@@ -87,19 +88,25 @@ namespace InDet {
 
     private:
 
+      struct Hists {
+        StatusCode book (ITHistSvc& histSvc);
+        TH1D* m_hb_muonPt{};
+        TH1D* m_hb_massPiPi{};
+        TH1D* m_hb_nvrt2{};
+        TH1D* m_hb_nseltrk{};
+        TH1D* m_hb_totmass{};
+        TH1D* m_hb_impact{};
+        TH1D* m_hb_impactR{};
+        TH1D* m_hb_ntrkjet{};
+        TH1D* m_hb_impactZ{};
+        TH1D* m_hb_signif3D{};
+        TH1D* m_hb_r2d{};
+        TH1D* m_hb_r2dc{};
+      };
+      std::unique_ptr<Hists> m_h;
+      Hists& getHists() const;
+
       double m_w_1{};
-      TH1D* m_hb_muonPt{};
-      TH1D* m_hb_massPiPi{};
-      TH1D* m_hb_nvrt2{};
-      TH1D* m_hb_nseltrk{};
-      TH1D* m_hb_totmass{};
-      TH1D* m_hb_impact{};
-      TH1D* m_hb_impactR{};
-      TH1D* m_hb_ntrkjet{};
-      TH1D* m_hb_impactZ{};
-      TH1D* m_hb_signif3D{};
-      TH1D* m_hb_r2d{};
-      TH1D* m_hb_r2dc{};
       long int m_iflag{};
 
       SimpleProperty<int>    m_Robustness;

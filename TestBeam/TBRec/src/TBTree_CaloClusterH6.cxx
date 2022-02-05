@@ -111,8 +111,6 @@ TBTree_CaloClusterH6::TBTree_CaloClusterH6(const std::string& name,
   m_rootfile_name("tbh6tree.root"),
   m_rootfile(0),
   m_tree(0),
-  m_calo_id(0),
-  m_calo_dd_man(0),
   m_txtFileWithXY("xcryo_ytable.txt")
 { 
   declareProperty("ClusterContainer",m_clusterContainerName);
@@ -276,9 +274,8 @@ StatusCode TBTree_CaloClusterH6::initialize()
     m_tree->Branch(("wtc_signal"+m_suffix).c_str(), &m_wtcSignal);
   }
 
-  // pointer to detector manager:
-  m_calo_dd_man = CaloDetDescrManager::instance(); 
-  m_calo_id   = m_calo_dd_man->getCaloCell_ID();
+  // pointer to Cell ID helper:
+  ATH_CHECK(detStore()->retrieve(m_calo_id,"CaloCell_ID"));
 
   ATH_CHECK( m_elecNoiseKey.initialize() );
   

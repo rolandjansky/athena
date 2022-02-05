@@ -90,9 +90,12 @@ protected:
   bool matchesInWindow(const xAOD::CaloCluster* ref,
                        const xAOD::CaloCluster* clus) const;
 
-  /** Creates a new supercluster out of the input clusters.
+  /** 
+   * Add  new supercluster ,created out of the input clusters,
+   * to the newClusters collections.
+   *
    * It decides which cells of the seed and the satellite clusters
-   *  to add (boxing / cookie cutter).
+   * to add (boxing / cookie cutter).
    *
    * The reference point is computed with findCentralPosition
    * which returns the hottest cells looping on the cells of all the
@@ -109,20 +112,21 @@ protected:
    * of the cells.
    *
    * If the supercluster has a cluster energy less then EtThresholdCut (also
-   * used as threshould for the seed) a null pointer is returned.
-   *
+   * used as threshould for the seed) false returned, and the cluster is not added.
    * The supercluster need to pass
-   * egammaCheckEnergyDepositTool::checkFractioninSamplingCluster.
+   * egammaCheckEnergyDepositTool::checkFractioninSamplingCluster 
+   * if not false is returned  and the cluster is not added. 
    *
    * Calibrations on eta1, energy are applied with
    * egammaSuperClusterBuilderBase::calibrateCluster
    *
    */
-  std::unique_ptr<xAOD::CaloCluster> createNewCluster(
+  bool createNewCluster(
     const EventContext& ctx,
     const std::vector<const xAOD::CaloCluster*>& clusters,
     const CaloDetDescrManager& mgr,
     xAOD::EgammaParameters::EgammaType egType,
+    xAOD::CaloClusterContainer* newClusters,
     xAOD::CaloClusterContainer* precorrClusters) const;
 
   /** check if we pass the basic criteria for
@@ -243,6 +247,14 @@ private:
   float m_extraL3EtaSize;
 
   /** @brief Size of topocluster search window in eta for the barrel */
+  Gaudi::Property<bool> m_linkToConstituents{
+    this,
+    "LinkToConstituents",
+    true,
+    "Link sister clusters to new cluster"
+  };
+
+  /** @brief Size of topocluster search window in eta for the barrel */
   Gaudi::Property<int> m_searchWindowEtaCellsBarrel{
     this,
     "SearchWindowEtaCellsBarrel",
@@ -336,6 +348,9 @@ private:
     "",
     "Optional tool that performs basic checks of viability of cluster"
   };
+
+
+  
 };
 
 #endif

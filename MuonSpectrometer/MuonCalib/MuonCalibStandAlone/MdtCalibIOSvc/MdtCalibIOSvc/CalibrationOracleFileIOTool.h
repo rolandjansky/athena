@@ -8,13 +8,13 @@
 // MuonCalibStandAloneBase
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "MdtCalibUtils/RtDataFromFile.h"
-#include "MuonCalibStandAloneBase/CalibrationIOTool.h"
+#include "MuonCalibStandAloneBase/ICalibrationIOTool.h"
 
 namespace MuonCalib {
 
     class RtRelation;
 
-    class CalibrationOracleFileIOTool : public AthAlgTool, virtual public CalibrationIOTool {
+    class CalibrationOracleFileIOTool : public AthAlgTool, virtual public ICalibrationIOTool {
     public:
         /** constructor*/
         CalibrationOracleFileIOTool(const std::string &t, const std::string &n, const IInterface *p);
@@ -35,8 +35,8 @@ namespace MuonCalib {
         //! path to calibration directory - job option
         std::string m_calib_dir;
         //! fill rt relation
-        inline bool fill_rt(std::unique_ptr<RtDataFromFile::RtRelation> &rt, std::shared_ptr<const IRtRelation> new_rt,
-                            std::shared_ptr<const MuonCalib::IRtResolution> resolut);
+        inline bool fill_rt(std::unique_ptr<RtDataFromFile::RtRelation> &rt, const std::shared_ptr<const IRtRelation>& new_rt,
+                            const std::shared_ptr<const MuonCalib::IRtResolution>& resolut);
     };
 
 }  // namespace MuonCalib

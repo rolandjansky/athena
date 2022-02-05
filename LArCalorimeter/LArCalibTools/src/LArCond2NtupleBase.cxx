@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArCond2NtupleBase.h"
@@ -12,10 +12,18 @@
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 
-LArCond2NtupleBase::LArCond2NtupleBase(const std::string& name, ISvcLocator* pSvcLocator): 
-  AthAlgorithm(name, pSvcLocator), m_initialized(false), m_nt(NULL),  
-  m_detStore(NULL), m_emId(NULL), m_hecId(NULL), m_fcalId(NULL),m_onlineId(NULL),m_caloId(NULL),
-  m_FEBTempTool("LArFEBTempTool"), m_isSC(false)
+LArCond2NtupleBase::LArCond2NtupleBase(const std::string& name, ISvcLocator* pSvcLocator)
+  : AthAlgorithm(name, pSvcLocator)
+  , m_initialized(false)
+  , m_nt(nullptr)
+  , m_detStore(nullptr)
+  , m_emId(nullptr)
+  , m_hecId(nullptr)
+  , m_fcalId(nullptr)
+  , m_onlineId(nullptr)
+  , m_caloId(nullptr)
+  , m_FEBTempTool("LArFEBTempTool")
+  , m_isSC(false)
 {
   declareProperty("AddBadChannelInfo",m_addBC=true);
   declareProperty("AddFEBTempInfo",m_addFEBTemp=false);
@@ -83,15 +91,7 @@ StatusCode LArCond2NtupleBase::initialize() {
     }
     m_caloId = calo_id_manager->getCaloCell_SuperCell_ID();
     if(m_realgeom) {
-      const CaloSuperCellDetDescrManager* cddm=nullptr;
-      sc = detStore()->retrieve(cddm);
-      if ((!cddm) || sc.isFailure()) {
-         ATH_MSG_ERROR( "Could not get CaloSuperCellDetDescrManager !" );
-         return StatusCode::FAILURE;
-      } else {
-         m_dd_man = (const CaloDetDescrManager_Base*) cddm;
-         ATH_MSG_DEBUG("Found the CaloSuperCellDetDescrManager !" << m_dd_man);
-      }
+      ATH_CHECK(m_caloSuperCellMgrKey.initialize());
     }
   } else { // m_isSC
     const LArOnlineID* ll;
@@ -105,15 +105,7 @@ StatusCode LArCond2NtupleBase::initialize() {
     }
     m_caloId = calo_id_manager->getCaloCell_ID();
     if(m_realgeom) {
-      const CaloDetDescrManager* cddm=nullptr;
-      sc = detStore()->retrieve(cddm);
-      if ((!cddm) || sc.isFailure()) {
-         ATH_MSG_ERROR( "Could not get CaloDetDescrManager !" );
-         return StatusCode::FAILURE;
-      } else {
-         m_dd_man = (const CaloDetDescrManager_Base*) cddm;
-         ATH_MSG_DEBUG("Found the CaloDetDescrManager !" << m_dd_man );
-      }
+      ATH_CHECK(m_caloMgrKey.initialize());
     }
   } // end of m_isSC if
 
@@ -254,32 +246,28 @@ StatusCode LArCond2NtupleBase::initialize() {
         ATH_MSG_ERROR( "addItem 'phi' failed" );
         return StatusCode::FAILURE;
       }
-    } else {  
-      sc=nt->addItem("ieta",m_eta,0,510);
-      if (sc!=StatusCode::SUCCESS) {
-       ATH_MSG_ERROR( "addItem 'ieta' failed" );
-       return StatusCode::FAILURE;
-      }
-      sc=nt->addItem("iphi",m_phi,0,1023);
-      if (sc!=StatusCode::SUCCESS) {
-        ATH_MSG_ERROR( "addItem 'iphi' failed" );
-        return StatusCode::FAILURE;
-      }
-      sc=nt->addItem("layer",m_layer,0,4);
-      if (sc!=StatusCode::SUCCESS) {
-        ATH_MSG_ERROR( "addItem 'layer' failed" );
-        return StatusCode::FAILURE;
-      }
-      sc=nt->addItem("region",m_region,0,5);
-      if (sc!=StatusCode::SUCCESS) {
-        ATH_MSG_ERROR( "addItem 'region' failed" );
-        return StatusCode::FAILURE;
-      }
-      sc=nt->addItem("detector",m_detector,0,2);
-      if (sc!=StatusCode::SUCCESS) {
-        ATH_MSG_ERROR( "addItem 'detector' failed" );
-        return StatusCode::FAILURE;
-      }
+    }
+    sc=nt->addItem("ieta",m_eta,0,510);
+    if (sc!=StatusCode::SUCCESS) {
+      ATH_MSG_ERROR( "addItem 'ieta' failed" );
+      return StatusCode::FAILURE;
+    }
+    sc=nt->addItem("iphi",m_phi,0,1023);
+    if (sc!=StatusCode::SUCCESS) {
+      ATH_MSG_ERROR( "addItem 'iphi' failed" );
+      return StatusCode::FAILURE;
+    }
+
+    sc=nt->addItem("region",m_region,0,5);
+    if (sc!=StatusCode::SUCCESS) {
+      ATH_MSG_ERROR( "addItem 'region' failed" );
+      return StatusCode::FAILURE;
+    }
+    sc=nt->addItem("detector",m_detector,0,2);
+    if (sc!=StatusCode::SUCCESS) {
+      ATH_MSG_ERROR( "addItem 'detector' failed" );
+      return StatusCode::FAILURE;
+      
     }
   } // m_OffId
 
@@ -367,23 +355,33 @@ bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
  
 
  if ( m_OffId ) {
-  if(!m_realgeom) {
    m_detector=NOT_VALID; 
    m_region=NOT_VALID;
    m_eta=NOT_VALID;
    m_phi=NOT_VALID;
-  } else {
-    //ATH_MSG_DEBUG(&m_reta << " " << &m_rphi << " " << &m_layer);
-   m_reta=NOT_VALID;
-   m_rphi=NOT_VALID;
-  } 
+
+   if(m_realgeom){  
+      m_reta=NOT_VALID;
+      m_rphi=NOT_VALID;
+   } 
   m_layer=NOT_VALID;
   m_oflChanId=NOT_VALID;
   if (m_addHash) m_oflHash=NOT_VALID;
  }
  if (m_addBC) m_badChanWord=0;
  bool connected=false;
-
+ 
+  const CaloDetDescrManager_Base* dd_man = nullptr;
+ if (m_realgeom) {
+   if(m_isSC) {
+     SG::ReadCondHandle<CaloSuperCellDetDescrManager> caloSuperCellMgrHandle{m_caloSuperCellMgrKey};
+     dd_man = *caloSuperCellMgrHandle;
+   }
+   else {
+     SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+     dd_man = *caloMgrHandle;
+   }
+ }
  try {
    if (cabling->isOnlineConnected(hwid)) {
      Identifier id=cabling->cnvToIdentifier(hwid);
@@ -391,46 +389,36 @@ bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
        m_oflChanId = id.get_identifier32().get_compact();
        if (m_addHash) m_oflHash=m_caloId->calo_cell_hash(id);
 
-       if (m_realgeom) {
-          const CaloDetDescrElement *elem = m_dd_man->get_element(id);
+       if (dd_man) {
+          const CaloDetDescrElement *elem = dd_man->get_element(id);
           if(!elem) {
              ATH_MSG_WARNING("Do not have CDDE for "<<id.getString());
           } else {
             m_reta = elem->eta_raw();
             m_rphi = elem->phi_raw();
-          }  
-          if (m_emId->is_lar_em(id)) {
-            m_layer     = m_emId->sampling(id);
           }
-          else if (m_hecId->is_lar_hec(id)) {
-            m_layer     = m_hecId->sampling(id);
-          }
-          else if (m_fcalId->is_lar_fcal(id)) {
-            m_layer     = m_fcalId->module(id);
-          }
-       } else {
+       }
       
-          if (m_emId->is_lar_em(id)) {
-            m_eta       = m_emId->eta(id);
-            m_phi       = m_emId->phi(id);
-            m_layer     = m_emId->sampling(id);
-            m_region    = m_emId->region(id);
-            m_detector  = std::abs(m_emId->barrel_ec(id)) - 1; //0-barrel, 1-EMEC-OW, 2-EMEC-IW
-          }
-          else if (m_hecId->is_lar_hec(id)) {
-            m_eta       = m_hecId->eta(id);
-            m_phi       = m_hecId->phi(id);
-            m_layer     = m_hecId->sampling(id);
-            m_region    = m_hecId->region(id);
-            m_detector  = 3;
-          }
-          else if (m_fcalId->is_lar_fcal(id)) {
-            m_eta       = m_fcalId->eta(id);
-            m_phi       = m_fcalId->phi(id);
-            m_layer     = m_fcalId->module(id);
-            m_region    = 0;
-            m_detector  = 4;
-          }
+       if (m_emId->is_lar_em(id)) {
+         m_eta       = m_emId->eta(id);
+         m_phi       = m_emId->phi(id);
+         m_layer     = m_emId->sampling(id);
+         m_region    = m_emId->region(id);
+         m_detector  = std::abs(m_emId->barrel_ec(id)) - 1; //0-barrel, 1-EMEC-OW, 2-EMEC-IW
+       }
+       else if (m_hecId->is_lar_hec(id)) {
+         m_eta       = m_hecId->eta(id);
+         m_phi       = m_hecId->phi(id);
+         m_layer     = m_hecId->sampling(id);
+         m_region    = m_hecId->region(id);
+         m_detector  = 3;
+       }
+       else if (m_fcalId->is_lar_fcal(id)) {
+         m_eta       = m_fcalId->eta(id);
+         m_phi       = m_fcalId->phi(id);
+         m_layer     = m_fcalId->module(id);
+         m_region    = 0;
+         m_detector  = 4;
        }
      } // m_OffId
      connected=true;

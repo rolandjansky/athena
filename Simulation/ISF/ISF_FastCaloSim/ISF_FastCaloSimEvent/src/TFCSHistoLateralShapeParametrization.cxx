@@ -31,6 +31,36 @@ TFCSHistoLateralShapeParametrization::~TFCSHistoLateralShapeParametrization()
 {
 }
 
+void TFCSHistoLateralShapeParametrization::set_geometry(ICaloGeometry* geo)
+{
+  TFCSLateralShapeParametrizationHitBase::set_geometry(geo);
+  if(m_hist.get_HistoContents().size()>0) {
+    int first_fix_bin=-1;
+    for(int i=(int)(m_hist.get_HistoContents().size()-1);i>=0;--i) {
+      if(isnan(m_hist.get_HistoContents()[i])) {
+        ATH_MSG_DEBUG("nan in histo content for "<<GetTitle()<<", bin["<<i<<"]="<<m_hist.get_HistoContents()[i]<<" -> 1");
+        m_hist.get_HistoContents()[i]=1;
+        first_fix_bin=i;
+      }
+    }
+    if(first_fix_bin<0) return;
+    
+    if(first_fix_bin==0) {
+      ATH_MSG_WARNING("nan in histo content for "<<GetTitle()<<" for all bins. Fixed to probability 1 causing hits to be deposited in the shower center");
+    } else {
+      int last_fix_bin=-1;
+      for(size_t i=0;i<m_hist.get_HistoContents().size();++i) {
+        if(isnan(m_hist.get_HistoContents()[i])) {
+          ATH_MSG_DEBUG("nan in histo content for "<<GetTitle()<<", bin["<<i<<"]="<<m_hist.get_HistoContents()[i]<<" -> 0");
+          m_hist.get_HistoContents()[i]=0;
+          last_fix_bin=i;
+        }
+      }    
+      ATH_MSG_WARNING("nan in histo content for "<<GetTitle()<<". Fixed up to bin "<<last_fix_bin<<" with probability 0 and beyond bin "<<first_fix_bin<<" with probability 1.");
+    }  
+  }
+}
+
 double TFCSHistoLateralShapeParametrization::get_sigma2_fluctuation(TFCSSimulationState& /*simulstate*/,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/) const
 {
   //Limit to factor 1000 fluctuations

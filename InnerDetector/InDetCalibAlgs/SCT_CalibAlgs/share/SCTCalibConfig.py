@@ -94,8 +94,8 @@ NoisyModuleAverageInDB = -1.
 NoisyStripLastRunInDB  = -999
 NoisyStripAverageInDB  = -999.
 NoisyModuleList        = 5000
-NoisyModuleDiff        = 0.500
-NoisyStripDiff         = 5120
+NoisyModuleDiff        = 0.300
+NoisyStripDiff         = 0.300
             
 #--- Dead strips/chips
 DeadStripMinStat      = 5000

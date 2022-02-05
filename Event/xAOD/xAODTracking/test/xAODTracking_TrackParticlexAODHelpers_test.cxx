@@ -126,7 +126,7 @@ namespace {
     double y() const { return m_cov[1]; }
     double xy() const { return m_cov[2]; }
   private:
-    double m_cov[3];
+    double m_cov[3]{};
   };
 
   template <class T>

@@ -19,8 +19,6 @@
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloID.h"
 #include "CaloIdentifier/LArID_Exception.h"
-//#include "LArIdentifier/LArIdManager.h"
-//#include "LArIdentifier/LArOnlineID.h"
 #include "CaloTriggerTool/CaloTriggerTowerService.h"
 #include "CaloTriggerTool/LArTTCell.h"
 #include "CaloTriggerTool/LArTTCellMap.h"

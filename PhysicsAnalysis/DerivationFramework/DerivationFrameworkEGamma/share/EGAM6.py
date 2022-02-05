@@ -149,7 +149,7 @@ EGAM6_ZEGMassTool = DerivationFramework__EGInvariantMassTool( name = "EGAM6_ZEGM
                                                               Mass2Hypothesis = 0.511*MeV,
                                                               Container1Name = "Electrons",
                                                               Container2Name = "Photons",
-                                                              Pt2BranchName = "DFCommonPhotons_pt",
+                                                              Pt2BranchName = "DFCommonPhotons_et",
                                                               Eta2BranchName = "DFCommonPhotons_eta",
                                                               Phi2BranchName = "DFCommonPhotons_phi",
                                                               CheckCharge = False,
@@ -357,8 +357,9 @@ egam6Seq += CfgMgr.DerivationFramework__DerivationKernel("EGAM6Kernel",
 #====================================================================
 # JET/MET
 #====================================================================
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addAntiKt4TruthJets
-addAntiKt4TruthJets(EGAM6Sequence,"EGAM6")
+from DerivationFrameworkJetEtMiss.JetCommon import addDAODJets
+from JetRecConfig.StandardSmallRJets import AntiKt4Truth
+addDAODJets([AntiKt4Truth], EGAM6Sequence)
 
 
 #====================================================================

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include "TestHypoTool.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
@@ -35,7 +35,7 @@ namespace HLTTest {
     size_t counter = 0;
     for ( const auto d: *decisions )  {
       //get previous decisions
-      ElementLinkVector<DecisionContainer> inputLinks = getLinkToPrevious(d);
+      std::vector<ElementLink<DecisionContainer>> inputLinks = getLinkToPrevious(d);
       ATH_MSG_DEBUG("Decision "<< counter <<": Got "<<inputLinks.size()<<" input decisions");
       for (const auto& previousDecisions: inputLinks){
 

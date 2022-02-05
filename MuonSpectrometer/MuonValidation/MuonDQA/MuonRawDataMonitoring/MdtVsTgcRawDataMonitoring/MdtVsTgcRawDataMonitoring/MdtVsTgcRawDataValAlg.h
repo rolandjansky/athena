@@ -91,7 +91,7 @@ public:
   
   // Array of all TREs, indexed by location.  Used to find which sectors tracks pass through in tgceffcalc
   void prepareTREarray(const MuonGM::MuonDetectorManager* MuonDetMgrDS);
-  const MuonGM::TgcReadoutElement* m_TREarray[8][2][9][49]; // [StationName][AC][StationEta][StationPhi]
+  const MuonGM::TgcReadoutElement* m_TREarray[8][2][9][49]{}; // [StationName][AC][StationEta][StationPhi]
   // Functions used to standardize the way TGC stations are indexed by the program
   int  TGCgetlayer(int stationName, int g);
   int  TGClayer2stationindex(int l);
@@ -106,9 +106,9 @@ public:
 
   void maphistsfinalize();                                                  // Finalize histograms used in maphists
   // number of~ hists
-  TH1 *m_mvt_cutspassed[2];        // [AC]
+  TH1 *m_mvt_cutspassed[2]{};        // [AC]
   // distributions
-  TH2 *m_mdt_segmmap[2][4];        // [AC][StationIndex]
+  TH2 *m_mdt_segmmap[2][4]{};        // [AC][StationIndex]
   
   /////////////////////////
   // Functions to Calculate Efficiency
@@ -140,17 +140,17 @@ public:
   void BlankStationMap(TH2 *h2, int ws);
   
   // efficiencies
-  TH2* m_eff_stationmapbase[2][2][4];     // [AC][WireStrip][EffNumDenomError]
-  TH2* m_eff_stationmapmid[2][2][4];      // [AC][WireStrip][EffNumDenomError]
-  TH2* m_eff_stationmap[2][2][4];         // [AC][WireStrip][EffNumDenomError] //Filled in postprocessor
+  TH2* m_eff_stationmapbase[2][2][4]{};     // [AC][WireStrip][EffNumDenomError]
+  TH2* m_eff_stationmapmid[2][2][4]{};      // [AC][WireStrip][EffNumDenomError]
+  TH2* m_eff_stationmap[2][2][4]{};         // [AC][WireStrip][EffNumDenomError] //Filled in postprocessor
   // sagittas
-  TH1* m_mvt_extrprdsag[2][4][2][2][4];   // [AC][TGCStation][FE][WireStrip][RhoEtaPhi]
-  TH1* m_mvt_extrprdsag2[2][4][2][2][4];  // [AC][TGCStation][FE][WireStrip][RhoEtaPhi]
-  TH1* m_tgc_prdcompsag[2][2][4];         // [AC][TGCStation][RhoEtaPhiZ]
-  TH1* m_mdt_segmmatchsag[2][4][4][4];    // [AC][MDTStation][MDTStation][RhoEtaPhiThe]
-  TH1* m_mdt_segmposdirsag[2][4][4];      // [AC][MDTStation][RhoEtaPhiThe]
-  TH1* m_mdt_trackdirdirsag[2][4][4][4];  // [AC][MDTStation][MDTStation][RhoEtaPhiThe]
-  TH1* m_mdt_trackchecksag[2][4][4][4][2];// [AC][MDTStation][MDTStation][RhoEtaPhiThe]
+  TH1* m_mvt_extrprdsag[2][4][2][2][4]{};   // [AC][TGCStation][FE][WireStrip][RhoEtaPhi]
+  TH1* m_mvt_extrprdsag2[2][4][2][2][4]{};  // [AC][TGCStation][FE][WireStrip][RhoEtaPhi]
+  TH1* m_tgc_prdcompsag[2][2][4]{};         // [AC][TGCStation][RhoEtaPhiZ]
+  TH1* m_mdt_segmmatchsag[2][4][4][4]{};    // [AC][MDTStation][MDTStation][RhoEtaPhiThe]
+  TH1* m_mdt_segmposdirsag[2][4][4]{};      // [AC][MDTStation][RhoEtaPhiThe]
+  TH1* m_mdt_trackdirdirsag[2][4][4][4]{};  // [AC][MDTStation][MDTStation][RhoEtaPhiThe]
+  TH1* m_mdt_trackchecksag[2][4][4][4][2]{};// [AC][MDTStation][MDTStation][RhoEtaPhiThe]
 };
 
 #endif

@@ -32,7 +32,9 @@ void jTowerContainer::print() const {
 const LVL1::jTower * jTowerContainer::findTower(int towerID) const
 {
     const auto it = m_map_towerID_containerIndex.find(towerID);
-    
+    if (it==m_map_towerID_containerIndex.cend()) {
+         return nullptr;
+    }
     const int container_index = it->second;
     if (container_index < 0) {
         return nullptr;
@@ -43,7 +45,9 @@ const LVL1::jTower * jTowerContainer::findTower(int towerID) const
 LVL1::jTower * jTowerContainer::findTower(int towerID)
 {
     const auto it = m_map_towerID_containerIndex.find(towerID);
-    
+    if (it==m_map_towerID_containerIndex.cend()) {
+         return nullptr;
+    }    
     const int container_index = it->second;
     if (container_index < 0) {
         return nullptr;

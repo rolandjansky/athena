@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -22,7 +22,7 @@ namespace MuonGM
 DblQ00IAcsc::DblQ00IAcsc()
 {
     m_nObj = 0;
-    m_d = 0;    
+    m_d = nullptr;    
 }
 
 DblQ00IAcsc::DblQ00IAcsc(std::unique_ptr<IRDBQuery>&& iacsc) :
@@ -70,7 +70,7 @@ DblQ00IAcsc::DblQ00IAcsc(AmdcDb* iacsc) :
   if (m_nObj == 0) std::cerr<<"NO IAcsc banks in the AmdcDbRecord"<<std::endl;
 
   const AmdcDbRecord* pAmdcDbRecord = dynamic_cast<const AmdcDbRecord*>((*it));
-  if (pAmdcDbRecord == 0){
+  if (pAmdcDbRecord == nullptr){
     std::cerr << "No way to cast in AmdcDbRecord for " << getObjName() << std::endl;
     return;
   }
@@ -83,9 +83,9 @@ DblQ00IAcsc::DblQ00IAcsc(AmdcDb* iacsc) :
 
   int i = -1;
   it = pIRDBRecordset->begin();
-  for( ; it<pIRDBRecordset->end(); it++){
+  for( ; it<pIRDBRecordset->end(); ++it){
      pAmdcDbRecord = dynamic_cast<const AmdcDbRecord*>((*it));
-     if(pAmdcDbRecord == 0){
+     if(pAmdcDbRecord == nullptr){
        std::cerr << "No way to cast in AmdcDbRecord for " << getObjName() << std::endl;
        return;
      }
@@ -108,7 +108,7 @@ DblQ00IAcsc::DblQ00IAcsc(AmdcDb* iacsc) :
   }
 }
 
-DblQ00IAcsc::DblQ00IAcsc(std::string asciiFileName) {
+DblQ00IAcsc::DblQ00IAcsc(const std::string& asciiFileName) {
   std::cerr<<"IAcsc with asciiFileName = : <"<<asciiFileName<<"> "<<std::endl;
   // open file and count number of lines
   m_nObj=0;
@@ -166,7 +166,7 @@ DblQ00IAcsc::~DblQ00IAcsc()
     if  (m_nObj > 0) delete [] m_d;
 }
 
-void DblQ00IAcsc::WriteIAcscToAsciiFile(std::string filename)
+void DblQ00IAcsc::WriteIAcscToAsciiFile(const std::string& filename)
 {
   std::ofstream iacscFile;
   iacscFile.open(filename.c_str());

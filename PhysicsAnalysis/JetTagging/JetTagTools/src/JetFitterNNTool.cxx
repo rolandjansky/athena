@@ -176,9 +176,9 @@ StatusCode JetFitterNNTool::finalize() {
 					       const std::string & jetauthor,
 					       const std::string& inputbasename,
 					       const std::string& outputbasename,
-					       ftagfloat_t jetpT,
-					       ftagfloat_t jeteta,
-					       ftagfloat_t IP3dlike) const
+					       float jetpT,
+					       float jeteta,
+					       float IP3dlike) const
   {
   if (jetauthor=="") {
     ATH_MSG_WARNING(" Hypothesis or jetauthor is empty. No likelihood value given back. ");
@@ -246,9 +246,9 @@ StatusCode JetFitterNNTool::finalize() {
   if (!status) {
      ATH_MSG_DEBUG(" Missing input data: cannot compute desired results. Assigning default light values.");
 
-     ftagfloat_t defaultB=1e-10;
-     ftagfloat_t defaultC=1e-10;
-     ftagfloat_t defaultL=1.-defaultB-defaultC;
+     float defaultB=1e-10;
+     float defaultC=1e-10;
+     float defaultL=1.-defaultB-defaultC;
 
      if("JetFitter" == outputbasename)
      {
@@ -258,9 +258,9 @@ StatusCode JetFitterNNTool::finalize() {
      }
      else
      {
-       BTag->setVariable<ftagfloat_t>(outputbasename, "pb", defaultB);
-       BTag->setVariable<ftagfloat_t>(outputbasename, "pc", defaultC);
-       BTag->setVariable<ftagfloat_t>(outputbasename, "pu", defaultL);
+       BTag->setVariable<float>(outputbasename, "pb", defaultB);
+       BTag->setVariable<float>(outputbasename, "pc", defaultC);
+       BTag->setVariable<float>(outputbasename, "pu", defaultL);
      }
      
 
@@ -296,9 +296,9 @@ StatusCode JetFitterNNTool::finalize() {
        << " cat " << norm_cat_pT(getPtCategory(jetpT).first)
        << ". (Check scale...!) ");
 
-  //std::vector<ftagfloat_t> outputValues=NN->calculateOutputValues(inputData);
+  //std::vector<float> outputValues=NN->calculateOutputValues(inputData);
   std::vector<double> outputValuesD=NN->calculateOutputValues(inputData);
-  std::vector<ftagfloat_t> outputValues(begin(outputValuesD), end(outputValuesD));
+  std::vector<float> outputValues(begin(outputValuesD), end(outputValuesD));
 
   ATH_MSG_DEBUG(" NN Discriminator b: " << outputValues[0] << 
       " c: " << outputValues[1] << " u: " <<  outputValues[2]);
@@ -310,9 +310,9 @@ StatusCode JetFitterNNTool::finalize() {
     BTag->setJetFitter_pu(outputValues[2]);
   }
   else{
-    BTag->setVariable<ftagfloat_t>(outputbasename, "pb", outputValues[0]);
-    BTag->setVariable<ftagfloat_t>(outputbasename, "pc", outputValues[1]);
-    BTag->setVariable<ftagfloat_t>(outputbasename, "pu", outputValues[2]);
+    BTag->setVariable<float>(outputbasename, "pb", outputValues[0]);
+    BTag->setVariable<float>(outputbasename, "pc", outputValues[1]);
+    BTag->setVariable<float>(outputbasename, "pu", outputValues[2]);
   }
   return StatusCode::SUCCESS;
 }

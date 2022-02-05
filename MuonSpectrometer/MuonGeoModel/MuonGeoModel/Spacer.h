@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef Spacer_H
@@ -11,6 +11,7 @@
 class GeoVPhysVol;
 
 namespace MuonGM {
+    class MYSQL;
 
     class Spacer : public DetectorElement {
 
@@ -20,10 +21,10 @@ namespace MuonGM {
         double thickness;
         double longWidth; // for trapezoidal layers
 
-        Spacer(Component *s);
-        GeoVPhysVol *build();
-        GeoVPhysVol *build(int cutoutson);
-        void print();
+        Spacer(const MYSQL& mysql, Component *s);
+        GeoVPhysVol *build(const StoredMaterialManager& matManager);
+        GeoVPhysVol *build(const StoredMaterialManager& matManager, int cutoutson);
+        virtual void print() override;
 
       private:
         SpaComponent m_component;

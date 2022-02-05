@@ -18,14 +18,13 @@
 #include <vector>
 
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 #include "CaloUtils/CaloCellCorrection.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/IAthRNGSvc.h"
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -52,14 +51,14 @@ class LArCellEmMiscalib :  public CaloCellCorrection
  private:
 
   int region(int barrelec, double eta, double phi);
-  void smearingPerRegion();
+  void smearingPerRegion (CLHEP::HepRandomEngine* engine);
 
   const LArEM_ID*   m_larem_id;
   const CaloIdManager* m_caloIdMgr = nullptr;
   const CaloDetDescrManager* m_calodetdescrmgr = nullptr;
 
-  IAtRndmGenSvc* m_AtRndmGenSvc;
-  CLHEP::HepRandomEngine* m_engine;
+  ServiceHandle<IAthRNGSvc> m_rngSvc
+    { this, "RndmSvc", "AthRNGSvc", "" };
 
   int m_seed;
   double m_sigmaPerRegion;
@@ -70,6 +69,9 @@ class LArCellEmMiscalib :  public CaloCellCorrection
   std::vector<float> m_spread1;
   std::vector<float> m_calib;
 
+  mutable std::once_flag m_initOnce;
+  void initOnce (const EventContext& ctx); 
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager", "CaloDetDescrManager"};
 };
 
 #endif // not LARCELLREC_LARCELLEMMISCALIB_H

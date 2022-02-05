@@ -23,7 +23,7 @@ namespace MuonCalib {
 
   CscCalcPed::CscCalcPed(const std::string& name, ISvcLocator* pSvcLocator) :
     AthAlgorithm(name,pSvcLocator),
-    m_chronoSvc(0),
+    m_chronoSvc(nullptr),
     m_maxStripHash(0),
     m_numBits(12),
     m_ampHists(nullptr),

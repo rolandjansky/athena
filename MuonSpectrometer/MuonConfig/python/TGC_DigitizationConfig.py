@@ -46,6 +46,15 @@ def TGC_DigitizationToolCfg(flags, name="TgcDigitizationTool", **kwargs):
         kwargs.setdefault("OutputSDOName", flags.Overlay.BkgPrefix + "TGC_SDO")
     else:
         kwargs.setdefault("OutputSDOName", "TGC_SDO")
+
+    if flags.Digitization.UseUpdatedTGCConditions:
+        from MuonConfig.MuonCondAlgConfig import TgcDigitASDposCondAlgCfg
+        acc.merge(TgcDigitASDposCondAlgCfg(flags))
+        kwargs.setdefault("TGCDigitASDposKey", "TGCDigitASDposData")
+
+    from RngComps.RandomServices import AthRNGSvcCfg
+    kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
+
     TgcDigitizationTool = CompFactory.TgcDigitizationTool
     acc.setPrivateTools(TgcDigitizationTool(name, **kwargs))
     return acc
@@ -57,6 +66,15 @@ def TGC_OverlayDigitizationToolCfg(flags, name="Tgc_OverlayDigitizationTool", **
     kwargs.setdefault("OnlyUseContainerName", False)
     kwargs.setdefault("OutputObjectName", flags.Overlay.SigPrefix + "TGC_DIGITS")
     kwargs.setdefault("OutputSDOName", flags.Overlay.SigPrefix + "TGC_SDO")
+
+    if flags.Digitization.UseUpdatedTGCConditions:
+        from MuonConfig.MuonCondAlgConfig import TgcDigitASDposCondAlgCfg
+        acc.merge(TgcDigitASDposCondAlgCfg(flags))
+        kwargs.setdefault("TGCDigitASDposKey", "TGCDigitASDposData")
+
+    from RngComps.RandomServices import AthRNGSvcCfg
+    kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
+
     TgcDigitizationTool = CompFactory.TgcDigitizationTool
     acc.setPrivateTools(TgcDigitizationTool(name, **kwargs))
     return acc

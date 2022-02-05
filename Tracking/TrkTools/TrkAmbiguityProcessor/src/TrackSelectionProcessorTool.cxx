@@ -185,7 +185,7 @@ Trk::TrackSelectionProcessorTool::solveTracks(TrackScoreMap &trackScoreTrackMap,
     trackScoreTrackMap.erase(itnext);
     ATH_MSG_VERBOSE ("--- Trying next track "<<atrack.track()<<"\t with score "<<-ascore);
     std::unique_ptr<Trk::Track> cleanedTrack;
-    const auto &[cleanedTrack_tmp, keepOriginal]  = m_selectionTool->getCleanedOutTrack( atrack.track() , -(ascore), *splitProbContainer, prdToTrackMap);
+    const auto &[cleanedTrack_tmp, keepOriginal]  = m_selectionTool->getCleanedOutTrack( atrack.track() , -(ascore), *splitProbContainer, prdToTrackMap, -1, -1);
     cleanedTrack.reset(cleanedTrack_tmp);
     if (keepOriginal ){
       // track can be kept as identical to the input track

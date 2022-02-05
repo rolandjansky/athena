@@ -7,6 +7,7 @@
 
 // Athena Includes
 #include "AsgTools/AsgTool.h"
+#include "TrigT1CaloCalibToolInterfaces/IL1CaloMatchCell2Tower.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
@@ -85,9 +86,6 @@ public:
   virtual float energy(const Identifier& ttId) const override;
   virtual float et(const Identifier& ttId) const override;
 
-  virtual void matchCell2Tower(const CaloCell* caloCell, Identifier& ttId1, Identifier& ttId2) const override;
-  virtual void matchCell2Tower(const LArOnOffIdMapping& cabling, const CaloCell* caloCell, Identifier& ttId1, Identifier& ttId2) const override;
-
   // Return a vector digits belonging the to requested trigger tower
   virtual std::vector<double> samples(const Identifier& ttId) const override;
   virtual std::vector<const LArDigit*> larDigits(const Identifier& ttId) const override;
@@ -118,10 +116,6 @@ protected:
   virtual void dump(const std::vector<const TileDigits*>& vCells) const override;
 
 private:
-
-  // Id managers
-  const CaloIdManager* m_caloMgr;
-
   // Id helpers
   const CaloLVL1_ID* m_lvl1Helper;
   const TileID* m_tileID;
@@ -130,6 +124,8 @@ private:
   // Services
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey
     {this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+  ToolHandle<LVL1::IL1CaloMatchCell2Tower> m_cellMatch
+    { this, "L1CaloMatchCell2Tower",  "LVL1::L1CaloMatchCell2Tower",  "L1CaloMatchCell2Tower" };
   const TileCablingService * m_tileCablingService;
   CaloTriggerTowerService* m_ttSvc;
 

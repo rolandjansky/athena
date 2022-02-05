@@ -125,7 +125,7 @@ public:
 
     // Access to name and technology maps
 
-    int stationNameIndex(const std::string& name) const;
+    int stationNameIndex(std::string_view name) const;
     int technologyIndex(const std::string& name) const;
     const std::string& stationNameString(const int& index) const;
     const std::string& technologyString(const int& index) const;

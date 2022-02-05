@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AGDDSubtraction_H
@@ -12,9 +12,12 @@
 
 class AGDDSubtraction: public AGDDVolume {
 public:
-	AGDDSubtraction(std::string s):AGDDVolume(s) {}
-	void CreateVolume();
-	void CreateSolid();
+	AGDDSubtraction(const std::string& s,
+                        AGDDVolumeStore& vs,
+                        AGDDSectionStore& ss)
+          : AGDDVolume(s,vs,ss) {}
+        virtual void CreateVolume (AGDDBuilder& builder) override;
+	virtual void CreateSolid (const AGDDBuilder& builder) override;
 private:
 };
 

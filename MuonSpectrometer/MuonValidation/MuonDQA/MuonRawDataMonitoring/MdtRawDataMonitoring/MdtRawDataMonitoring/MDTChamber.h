@@ -22,7 +22,7 @@ class TH2F; // no TH2Fs are ever allocated by this class or owned
 class MDTChamber {
 
  public:
-  MDTChamber( std::string name );
+  MDTChamber( std::string_view name );
   ~MDTChamber();
 
   TH1F_LW* mdttdc;

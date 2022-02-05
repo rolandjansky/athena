@@ -17,6 +17,7 @@ from ISF_FatrasServices.ISF_FatrasJobProperties import ISF_FatrasFlags
 from ISF_FatrasServices.FatrasTuning import FatrasTuningFlags
 from ISF_Algorithms.collection_merger_helpers import generate_mergeable_collection_name
 
+
 #################################################################################
 # Material for the Geometry
 #
@@ -57,13 +58,6 @@ def initialiseCoolDataBaseFolder():
             # make sure that the pool files are in the catalog
             #from PoolSvc.PoolSvcConf import PoolSvc
             #PoolSvc.ReadCatalog += [ DataBasePath+'PoolFileCatalog.xml' ]
-        elif TrkDetFlags.SLHC_Geometry() :
-            # set the folder to the SLHC location
-            CoolDataBaseFolder = '/GLOBAL/TrackingGeo/SLHC_LayerMaterial'
-            ctag = AtlasMaterialTag+TrkDetFlags.MaterialMagicTag()
-            cfoldertag = CoolDataBaseFolder+' <tag>'+ctag+'</tag>'
-            conddb.addFolderSplitMC('GLOBAL',cfoldertag,cfoldertag,
-                                    className = 'Trk::LayerMaterialMap')
         else :
             # load the right folders (preparation for calo inclusion)
             cfolder = CoolDataBaseFolder +'<tag>TagInfoMajor/'+AtlasMaterialTag+'/GeoAtlas</tag>'
@@ -93,11 +87,8 @@ def getInDetTrackingGeometryBuilder(name="ISF_InDetTrackingGeometryBuilder", **k
     kwargs.setdefault("namePrefix"              , 'Fatras')
     kwargs.setdefault("setLayerAssociation"     , False)
     #kwargs.setdefault("VolumeEnclosureOuterR"   , 1148.) ### HACK: Cannot set via imput arguments. Is this right?? -kg
-    if not TrkDetFlags.SLHC_Geometry() :
-        kwargs.setdefault("buildTrtStrawLayers" , True)
-        from InDetTrackingGeometry.ConfiguredInDetTrackingGeometryBuilder import ConfiguredInDetTrackingGeometryBuilder as IDGeometryBuilder
-    else :
-        from InDetTrackingGeometry.ConfiguredSLHC_InDetTrackingGeometryBuilder import ConfiguredSLHC_InDetTrackingGeometryBuilder as IDGeometryBuilder
+    kwargs.setdefault("buildTrtStrawLayers" , True)
+    from InDetTrackingGeometry.ConfiguredInDetTrackingGeometryBuilder import ConfiguredInDetTrackingGeometryBuilder as IDGeometryBuilder
     t = IDGeometryBuilder(name, **kwargs )
     t.VolumeEnclosureOuterR = 1148.
     #t.EnvelopeDefinitionSvc = 'ISF_EnvelopeDefSvc'
@@ -174,21 +165,36 @@ def getFatrasTrackingGeometrySvc(name="ISF_FatrasTrackingGeometrySvc", **kwargs)
 #         needs new ExtrapolationEngine for this
 ################################################################################
 
+
 def getFatrasNavigator(name="ISF_FatrasNavigator", **kwargs):
     # the Navigator (needed for several instances)
 
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
 
-    if not hasattr (condSeq, 'AtlasTrackingGeometryCondAlg'):
-      from InDetCondFolders import InDetAlignFolders_FATRAS  # noqa: F401
-      from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg
-      TrkGeoCondAlg = ConfiguredTrackingGeometryCondAlg('AtlasTrackingGeometryCondAlg')
-      condSeq+= TrkGeoCondAlg
+    # Decide if we want to use the Tracking Geometry 
+    # from conditions or not 
+    if (ISF_Flags.UseTrackingGeometryCond 
+            and 'TrackingGeometryKey' not in kwargs):
+        if not hasattr(condSeq, 'AtlasTrackingGeometryCondAlg'):
+            from InDetCondFolders import InDetAlignFolders_FATRAS  # noqa: F401
+            from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import (
+                ConfiguredTrackingGeometryCondAlg)
+            TrkGeoCondAlg = ConfiguredTrackingGeometryCondAlg(
+                'AtlasTrackingGeometryCondAlg')
+            condSeq += TrkGeoCondAlg
+
+        kwargs.setdefault('TrackingGeometryKey',
+                          condSeq.AtlasTrackingGeometryCondAlg.TrackingGeometryWriteKey)
+    elif 'TrackingGeometrySvc' not in kwargs:
+        from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
+        kwargs.setdefault('TrackingGeometrySvc', AtlasTrackingGeometrySvc)
+        kwargs.setdefault('TrackingGeometryKey', '')
 
     from TrkExTools.TrkExToolsConf import Trk__Navigator
-    return Trk__Navigator(name, **kwargs )
-
+    return Trk__Navigator(name, **kwargs)
+    
+  
 # Not used anywhere - not migrated to CA config
 def getFatrasNeutralPropagatorID(name="ISF_FatrasNeutralPropagatorID", **kwargs):
     # the neutral particle propagator
@@ -419,11 +425,24 @@ def getFatrasMaterialUpdator(name="ISF_FatrasMaterialUpdator", **kwargs):
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
 
-    if not hasattr (condSeq, 'AtlasTrackingGeometryCondAlg'):
-      from InDetCondFolders import InDetAlignFolders_FATRAS  # noqa: F401
-      from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg
-      TrkGeoCondAlg = ConfiguredTrackingGeometryCondAlg('AtlasTrackingGeometryCondAlg')
-      condSeq+= TrkGeoCondAlg
+    # Decide if we want to use the Tracking Geometry
+    # from conditions or not
+    if (ISF_Flags.UseTrackingGeometryCond
+            and 'TrackingGeometryReadKey' not in kwargs):
+        if not hasattr(condSeq, 'AtlasTrackingGeometryCondAlg'):
+            from InDetCondFolders import InDetAlignFolders_FATRAS  # noqa: F401
+            from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import (
+                ConfiguredTrackingGeometryCondAlg)
+            TrkGeoCondAlg = ConfiguredTrackingGeometryCondAlg(
+                'AtlasTrackingGeometryCondAlg')
+            condSeq += TrkGeoCondAlg
+
+        kwargs.setdefault('TrackingGeometryReadKey',
+                          condSeq.AtlasTrackingGeometryCondAlg.TrackingGeometryWriteKey)
+    elif 'TrackingGeometrySvc' not in kwargs:
+        from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
+        kwargs.setdefault('TrackingGeometrySvc', AtlasTrackingGeometrySvc)
+        kwargs.setdefault('TrackingGeometryReadKey', '')
 
     kwargs.setdefault("RandomNumberService" , simFlags.RandomSvc() )
     kwargs.setdefault("RandomStreamName"    , ISF_FatrasFlags.RandomStreamName())

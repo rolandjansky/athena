@@ -17,7 +17,7 @@ class RpcDigitVariables : public ValAlgVariables
                      const MuonGM::MuonDetectorManager* detManager,
                      const MuonIdHelper* idhelper,
                      TTree* tree,
-							std::string containername,
+							const std::string & containername,
 							MSG::Level msglvl) :
     ValAlgVariables(evtStore, detManager, tree, containername, msglvl)
   {
@@ -41,10 +41,11 @@ class RpcDigitVariables : public ValAlgVariables
   void deleteVariables(){};
   StatusCode clearVariables();
   
-  const RpcIdHelper* m_RpcIdHelper;
+  const RpcIdHelper* m_RpcIdHelper{};
 
-  int m_RPC_nDigits;
+  int m_RPC_nDigits{};
   std::vector<std::string> m_RPC_dig_stationName;
+  std::vector<int> m_RPC_dig_stationIndex; // stationIndex = 1 for BIS
   std::vector<double> m_RPC_dig_time;
   std::vector<int> m_RPC_dig_stationEta;
   std::vector<int> m_RPC_dig_stationPhi;
@@ -53,8 +54,8 @@ class RpcDigitVariables : public ValAlgVariables
   std::vector<int> m_RPC_dig_doubletZ;
   std::vector<int> m_RPC_dig_doubletPhi;
   std::vector<int> m_RPC_dig_strip; 
-  std::vector<int> m_RPC_dig_channel;
   std::vector<int> m_RPC_dig_stripNumber;
+  std::vector<bool> m_RPC_dig_stripPosition;
   std::vector<bool> m_RPC_dig_measuresPhi;
   
   std::vector< double > m_RPC_dig_localPosX;

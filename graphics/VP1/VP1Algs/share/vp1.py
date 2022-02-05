@@ -388,6 +388,9 @@ if (vp1Calo):
         include ("LArConditionsCommon/LArConditionsCommon_MC_jobOptions.py")
         include ("LArConditionsCommon/LArIdMap_MC_jobOptions.py")
 
+    from LArCabling.LArCablingAccess import LArOnOffIdMapping
+    LArOnOffIdMapping()
+
 #Extrapolator:
 if vp1Extrapolator and (vp1ID or vp1Muon):
     # Force tool initializations needed by the extrapolator
@@ -558,6 +561,9 @@ if ( vp1LarHvData ):
                            ('CondAttrListCollection', 'ConditionStore+/LAR/DCS/HV/BARREl/I16'),
                            ('CondAttrListCollection', 'ConditionStore+/LAR/DCS/HV/BARREL/I8'),
                            ]
+
+if (vp1Calo):
+    vp1Alg.ExtraInputs += [('LArOnOffIdMapping', 'ConditionStore+LArOnOffIdMap')]
 
 
 topSequence.TimeOut=0

@@ -63,6 +63,9 @@ StatusCode RoIBResultToxAOD::initialize() {
       // Get the TGC RecRoI tool
       ATH_CHECK( m_recTGCRoiTool.retrieve() );
       ATH_MSG_DEBUG( "Connected to " << m_recTGCRoiTool.typeAndName() );
+   } else {
+      m_recRPCRoiTool.disable();
+      m_recTGCRoiTool.disable();
    }
 
    if( m_doCalo ) {
@@ -72,6 +75,9 @@ StatusCode RoIBResultToxAOD::initialize() {
 
       ATH_CHECK( m_jetTool.retrieve() );
       ATH_MSG_DEBUG( "Got " << m_jetTool.typeAndName() );
+   } else {
+      m_emTauTool.disable();
+      m_jetTool.disable();
    }
 
    // Initialise the keys.
@@ -200,7 +206,7 @@ StatusCode RoIBResultToxAOD::createEmTauRoI( const ROIB::RoIBResult& result,
 
          // Cluster ET values, reconstructed from TriggerTowers
          if( m_emTauTool.isEnabled() ) {
-            LVL1::CPMTobAlgorithm roiSums = m_emTauTool->formSums( roIWord, &cpmtowers );
+	     LVL1::CPMTobAlgorithm roiSums = m_emTauTool->formSums(l1menu, roIWord, &cpmtowers );
             roi->setCore( roiSums.CoreET() * caloTrigScale );
             roi->setEmClus( roiSums.EMClusET() * caloTrigScale );
             roi->setTauClus( roiSums.TauClusET() * caloTrigScale );
@@ -389,12 +395,6 @@ RoIBResultToxAOD::createJetEnergyRoI( const ROIB::RoIBResult& result,
 
             // RecRoI
             LVL1::RecEnergyRoI recRoI( roiWord0, roiWord1, roiWord2, l1menu );
-
-            // Overflow bits  
-            unsigned int overflows = 0;  
-            if (conv.energyOverflow(roiWord0)) overflows |= 0x1;  
-            if (conv.energyOverflow(roiWord1)) overflows |= 0x2;  
-            if (conv.energyOverflow(roiWord2)) overflows |= 0x4;
 
             // xAOD component
             esum_xaod->initialize( roiWord0, roiWord1, roiWord2,

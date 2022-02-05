@@ -112,42 +112,84 @@ TrigConf::L1Threshold_ZB::load()
  *
  ******************************************/
 
-/**
- * eEM
- */
 void
 TrigConf::L1Threshold_eEM::load()
 {
    // read the isolation requirements
-   m_reta  = Selection::stringToWP(getAttribute("reta"));
-   m_rhad  = Selection::stringToWP(getAttribute("rhad"));
-   m_wstot = Selection::stringToWP(getAttribute("wstot"));
+   m_reta  = Selection::stringToWP(getAttribute_optional<std::string>("reta").value_or("None"));
+   m_rhad  = Selection::stringToWP(getAttribute_optional<std::string>("rhad").value_or("None"));
+   m_wstot = Selection::stringToWP(getAttribute_optional<std::string>("wstot").value_or("None"));
+}
+
+void
+TrigConf::L1Threshold_jEM::load()
+{
+   // read the isolation requirements
+   m_iso  = Selection::stringToWP(getAttribute_optional<std::string>("iso").value_or("None"));
+   m_frac  = Selection::stringToWP(getAttribute_optional<std::string>("frac").value_or("None"));
+   m_frac2 = Selection::stringToWP(getAttribute_optional<std::string>("frac2").value_or("None"));
 }
 
 void
 TrigConf::L1Threshold_eTAU::load()
 {
    // read the isolation requirements
-   m_isoConeRel  = Selection::stringToWP(getAttribute("isoConeRel"));
-   m_fEM  = Selection::stringToWP(getAttribute("fEM"));
+   m_rCore = Selection::stringToWP(getAttribute_optional<std::string>("rCore").value_or("None"));
+   m_rHad  = Selection::stringToWP(getAttribute_optional<std::string>("rHad").value_or("None"));
 }
 
 void
 TrigConf::L1Threshold_jTAU::load()
 {
    // read the isolation requirements
-   m_isolation  = Selection::stringToWP(getAttribute("isolation"));
+   m_isolation  = Selection::stringToWP(getAttribute_optional<std::string>("isolation").value_or("None"));
 }
 
 void
 TrigConf::L1Threshold_cTAU::load()
 {
    // read the isolation requirements
-   m_isolation  = Selection::stringToWP(getAttribute("isolation"));
+   m_isolation  = Selection::stringToWP(getAttribute_optional<std::string>("isolation").value_or("None"));
 }
 
 void
 TrigConf::L1Threshold_jJ::load()
+{
+   m_etaDepThrValue.setOutsideRangeValue(getAttribute("maxValue", true, 14000000));
+}
+
+void
+TrigConf::L1Threshold_jLJ::load()
+{
+   m_etaDepThrValue.setOutsideRangeValue(getAttribute("maxValue", true, 14000000));
+}
+
+void
+TrigConf::L1Threshold_gJ::load()
+{
+   m_etaDepThrValue.setOutsideRangeValue(getAttribute("maxValue", true, 14000000));
+}
+
+void
+TrigConf::L1Threshold_gLJ::load()
+{
+   m_etaDepThrValue.setOutsideRangeValue(getAttribute("maxValue", true, 14000000));
+}
+
+void
+TrigConf::L1Threshold_jXE::load()
+{}
+
+void
+TrigConf::L1Threshold_jTE::load()
+{}
+
+void
+TrigConf::L1Threshold_gXE::load()
+{}
+
+void
+TrigConf::L1Threshold_gTE::load()
 {}
 
 /******************************************

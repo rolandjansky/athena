@@ -307,15 +307,15 @@ StatusCode iGeant4::G4LegacyTransportTool::simulateVector( const ISF::ConstISFPa
 }
 
 //________________________________________________________________________
-StatusCode iGeant4::G4LegacyTransportTool::setupEvent()
+StatusCode iGeant4::G4LegacyTransportTool::setupEvent(const EventContext& ctx)
 {
   ATH_MSG_DEBUG ( "setup Event" );
 
   // Set the RNG to use for this event. We need to reset it for MT jobs
   // because of the mismatch between Gaudi slot-local and G4 thread-local RNG.
   ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this, m_randomStreamName);
-  rngWrapper->setSeed( m_randomStreamName, Gaudi::Hive::currentContext() );
-  G4Random::setTheEngine(*rngWrapper);
+  rngWrapper->setSeed( m_randomStreamName, ctx );
+  G4Random::setTheEngine(rngWrapper->getEngine(ctx));
 
   ATH_CHECK(m_senDetTool->BeginOfAthenaEvent());
 
@@ -329,7 +329,7 @@ StatusCode iGeant4::G4LegacyTransportTool::setupEvent()
 }
 
 //________________________________________________________________________
-StatusCode iGeant4::G4LegacyTransportTool::releaseEvent()
+StatusCode iGeant4::G4LegacyTransportTool::releaseEvent(const EventContext&)
 {
   ATH_MSG_DEBUG ( "release Event" );
   /** @todo : strip hits of the tracks ... */

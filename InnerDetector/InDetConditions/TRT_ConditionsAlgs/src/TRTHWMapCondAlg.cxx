@@ -311,32 +311,27 @@ StatusCode TRTHWMapCondAlg::build_BarrelHVLinePadMaps(EventIDRange& range, TRTCo
     const int* pads_3D5 = pads_3B5;
     theVector = std::vector<int>( pads_3D5, pads_3D5+10 );
     fuseBoxPadMapOdd.insert( make_pair("3_B5", theVector) );
+    std::string chanName;
+    chanName.reserve(40);
     // Loop through sectors
     for ( int sector = 0; sector < 32; ++sector ) {
       // Odd Stacks = Side A (1) Fusebox C & D, Even = Side C (0) Fusebox A & B
       int side = (sector+1)%2;
       // Pick the appropriate Fusebox/Pad map
-      std::map<std::string,std::vector<int> >* fuseBoxPadMap = nullptr;
-      if ( side == 1 ) fuseBoxPadMap = &fuseBoxPadMapOdd;
-      else fuseBoxPadMap = &fuseBoxPadMapEven;
+      const auto & fuseBoxPadMap = (side == 1)? fuseBoxPadMapOdd : fuseBoxPadMapEven;
       // Loop through all fusebox lines in this stack
-      std::map<std::string,std::vector<int> >::const_iterator mapItr;
-      for ( mapItr = fuseBoxPadMap->begin(); mapItr != fuseBoxPadMap->end(); ++mapItr ) {
-	std::string fuseBoxName = (*mapItr).first;
-	int module = atoi( &(fuseBoxName.at(0)) ) - 1;
-	std::stringstream chanName;
-	chanName << "HVB_S" << sector+1 << "_M" << fuseBoxName << "_OutputVoltage";
-	// Loop through pads
-	const std::vector<int>* padVec = &((*mapItr).second);
-	std::vector<int>::const_iterator padItr;
-	for ( padItr = padVec->begin(); padItr != padVec->end(); ++padItr ) {
-	  int hashedPad = hashThisBarrelPad( sector, module, *padItr );
+      for (const auto& [fuseBoxName, padVec] : fuseBoxPadMap){
+        int module = fuseBoxName.front() - '0' - 1;
+        // Loop through pads
+        for ( const auto & pad: padVec ) {
+          int hashedPad = hashThisBarrelPad( sector, module, pad );
           if ( hashedPad >= (int)writeCdo->get_Barrel_HV_Names()->size() || hashedPad<0) {
-	    ATH_MSG_INFO("channel request for invalid barrel HV pad.");
-          }else{
-	    writeCdo->setBarrelName(hashedPad,chanName.str());
+            ATH_MSG_INFO("channel request for invalid barrel HV pad.");
+          } else {
+            chanName = "HVB_S" + std::to_string(sector+1) + "_M" + fuseBoxName + "_OutputVoltage";
+            writeCdo->setBarrelName(hashedPad,chanName);
           }
-	}
+        }
       }  
     }
 

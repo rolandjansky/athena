@@ -48,11 +48,9 @@ StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::initialize() {
 
     ATH_CHECK(m_offElectronKey.initialize());
     ATH_CHECK(m_jetKey.initialize());
-   
-
+    
     ATH_MSG_INFO("Now configuring chains for analysis: " << name() );
-    std::vector<std::string> chains  = tdt()->getListOfTriggers("HLT_e.*, L1_EM.*, HLT_g.*");
-    for(const auto& trigName:m_trigInputList)
+    for(auto& trigName : m_trigInputList)
     {
       if(getTrigInfoMap().count(trigName) != 0){
         ATH_MSG_WARNING("Trigger already booked, removing from trigger list " << trigName);
@@ -61,7 +59,6 @@ StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::initialize() {
         setTrigInfo(trigName);
       }
     }
-   
     return StatusCode::SUCCESS;
 }
 
@@ -83,7 +80,7 @@ StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::fillHistograms( const EventCon
 
 
     // Check HLTResult
-    if(tdt()->ExperimentalAndExpertMethods().isHLTTruncated()){
+    if(isHLTTruncated()){
         ATH_MSG_WARNING("HLTResult truncated, skip trigger analysis");
         return StatusCode::SUCCESS;
     }
@@ -103,7 +100,7 @@ StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::fillHistograms( const EventCon
         const TrigInfo info = getTrigInfo(probeTrigger);
         const std::string& trigName=probeTrigger;
 
-        ATH_MSG_DEBUG("Trigger " << probeTrigger << " pidword " << info.trigPidDecorator << " threshold " << info.trigThrHLT);
+        ATH_MSG_DEBUG("Trigger " << probeTrigger << " pidword " << info.pidname << " threshold " << info.etthr);
         matchObjects(trigName, probes, pairObjs);
 
 
@@ -173,9 +170,9 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::executeTandP( const EventContext& ct
  
  
 
-
+    
     SG::ReadHandle<xAOD::JetContainer> jets(m_jetKey,ctx);
-    if(!jets.isValid()){
+    if(!jets.isValid() && m_applyJetNearProbeSelection){
       ATH_MSG_WARNING("Failed to retrieve JetContainer");
       return false;
     }
@@ -385,24 +382,14 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::isTagElectron( const ToolHandle<Gene
     // Check matching to a given trigger
     // The statement below is more general
     bool tagPassed=false;
-    for(unsigned int ilist = 0; ilist != m_tagTrigList.size(); ilist++) {
-      std::string tag = m_tagTrigList[ilist];
+    for( auto& tag : m_tagTrigList){
       if(tdt()->isPassed(tag)){ 
-        if(m_tp){
-          std::string p1trigger;
-          std::string p2trigger;
-          if(splitTriggerName(tag,p1trigger,p2trigger)){
-            if(fabs(p1trigger.find("tight"))<14) tag=p1trigger;
-            if(fabs(p2trigger.find("tight"))<14) tag=p2trigger;
-          }
-          if( match()->isPassed(el,tag) )
-            tagPassed=true;
-        }
-        else{
-          tagPassed=true; 
-        }
+        tagPassed=true;
+        break;
       }
     }
+
+
     if(!tagPassed) {
         ATH_MSG_DEBUG("Failed tag trigger "); 
         return false;

@@ -5,6 +5,7 @@
 #include "MuonCalibEventBase/MuonCalibRawHitCollection.h"
 
 #include <algorithm>
+#include <utility>
 
 #include "MuonCalibEventBase/MuonCalibRawCscHit.h"
 #include "MuonCalibEventBase/MuonCalibRawMdtHit.h"
@@ -15,83 +16,83 @@
 
 namespace MuonCalib {
 
-    MuonCalibRawHitCollection::MuonCalibRawHitCollection() {
-        MuonCalibRawMdtHitVec newMdt(0);
-        m_rawMdtHitVec = newMdt;
-        MuonCalibRawRpcHitVec newRpc(0);
-        m_rawRpcHitVec = newRpc;
-        MuonCalibRawTgcHitVec newTgc(0);
-        m_rawTgcHitVec = newTgc;
-        MuonCalibRawTgcCoinVec newTgcCoin(0);
-        m_rawTgcCoinVec = newTgcCoin;
-        MuonCalibRawCscHitVec newCsc(0);
-        m_rawCscHitVec = newCsc;
-    }
+    MuonCalibRawHitCollection::MuonCalibRawHitCollection(MuonCalibRawMdtHitVec rawMdtHitVec, MuonCalibRawRpcHitVec rawRpcHitVec,
+                                                         MuonCalibRawTgcHitVec rawTgcHitVec, MuonCalibRawTgcCoinVec rawTgcCoinVec,
+                                                         MuonCalibRawCscHitVec rawCscHitVec) :
+        m_rawMdtHitVec{std::move(rawMdtHitVec)},
+        m_rawRpcHitVec{std::move(rawRpcHitVec)},
+        m_rawTgcHitVec{std::move(rawTgcHitVec)},
+        m_rawTgcCoinVec{std::move(rawTgcCoinVec)},
+        m_rawCscHitVec{std::move(rawCscHitVec)} {}
 
-    MuonCalibRawHitCollection::~MuonCalibRawHitCollection() {
-        std::for_each(rawMdtHitCollectionBegin(), rawMdtHitCollectionEnd(), DeleteObject());
+    const MuonCalibRawHitCollection::MuonCalibRawMdtHitVec& MuonCalibRawHitCollection::MdtContainer() const { return m_rawMdtHitVec; }
+    MuonCalibRawHitCollection::MuonCalibRawMdtHitVec& MuonCalibRawHitCollection::MdtContainer() { return m_rawMdtHitVec; }
+
+    const MuonCalibRawHitCollection::MuonCalibRawRpcHitVec& MuonCalibRawHitCollection::RpcContainer() const { return m_rawRpcHitVec; }
+    MuonCalibRawHitCollection::MuonCalibRawRpcHitVec& MuonCalibRawHitCollection::RpcContainer() { return m_rawRpcHitVec; }
+
+    const MuonCalibRawHitCollection::MuonCalibRawTgcHitVec& MuonCalibRawHitCollection::TgcContainer() const { return m_rawTgcHitVec; }
+    MuonCalibRawHitCollection::MuonCalibRawTgcHitVec& MuonCalibRawHitCollection::TgcContainer() { return m_rawTgcHitVec; }
+
+    const MuonCalibRawHitCollection::MuonCalibRawCscHitVec& MuonCalibRawHitCollection::CscContainer() const { return m_rawCscHitVec; }
+    MuonCalibRawHitCollection::MuonCalibRawCscHitVec& MuonCalibRawHitCollection::CscContainer() { return m_rawCscHitVec; }
+
+    const MuonCalibRawHitCollection::MuonCalibRawTgcCoinVec& MuonCalibRawHitCollection::TgcCoinContainer() const { return m_rawTgcCoinVec; }
+    MuonCalibRawHitCollection::MuonCalibRawTgcCoinVec& MuonCalibRawHitCollection::TgcCoinContainer() { return m_rawTgcCoinVec; }
+
+    void MuonCalibRawHitCollection::copy(const MuonCalibRawHitCollection& other) {
         m_rawMdtHitVec.clear();
-        std::for_each(rawRpcHitCollectionBegin(), rawRpcHitCollectionEnd(), DeleteObject());
         m_rawRpcHitVec.clear();
-        std::for_each(rawTgcHitCollectionBegin(), rawTgcHitCollectionEnd(), DeleteObject());
         m_rawTgcHitVec.clear();
-        std::for_each(rawTgcCoinCollectionBegin(), rawTgcCoinCollectionEnd(), DeleteObject());
         m_rawTgcCoinVec.clear();
-        std::for_each(rawCscHitCollectionBegin(), rawCscHitCollectionEnd(), DeleteObject());
         m_rawCscHitVec.clear();
+
+        for (const MdtCalibRawHitPtr& mdt_it : other.m_rawMdtHitVec) { m_rawMdtHitVec.emplace_back(new MuonCalibRawMdtHit(*mdt_it)); }
+        for (const RpcCalibRawHitPtr& rpc_it : other.m_rawRpcHitVec) { m_rawRpcHitVec.emplace_back(rpc_it); }
+        for (const TgcCalibRawHitPtr& tgc_it : other.m_rawTgcHitVec) { m_rawTgcHitVec.emplace_back(tgc_it); }
+        for (const TgcCoinRawPtr& tgcCoin_it : other.m_rawTgcCoinVec) { m_rawTgcCoinVec.emplace_back(tgcCoin_it); }
+        for (const CscCalibRawHitPtr& csc_it : other.m_rawCscHitVec) { m_rawCscHitVec.emplace_back(csc_it); }
     }
+    MuonCalibRawHitCollection::MuonCalibRawHitCollection(const MuonCalibRawHitCollection& other) { copy(other); }
 
-    MuonCalibRawHitCollection::MuonCalibRawHitCollection(const MuonCalibRawHitCollection &muonRawHitCollection) {
-        MuonCalibRawMdtHitVecCit mdt_it = muonRawHitCollection.rawMdtHitCollectionBegin();
-        MuonCalibRawMdtHitVecCit mdt_it_end = muonRawHitCollection.rawMdtHitCollectionEnd();
-        for (; mdt_it != mdt_it_end; ++mdt_it) { m_rawMdtHitVec.push_back(new MuonCalibRawMdtHit(**mdt_it)); }
-        MuonCalibRawRpcHitVecCit rpc_it = muonRawHitCollection.rawRpcHitCollectionBegin();
-        MuonCalibRawRpcHitVecCit rpc_it_end = muonRawHitCollection.rawRpcHitCollectionEnd();
-        for (; rpc_it != rpc_it_end; ++rpc_it) { m_rawRpcHitVec.push_back(new MuonCalibRawRpcHit(**rpc_it)); }
-        MuonCalibRawTgcHitVecCit tgc_it = muonRawHitCollection.rawTgcHitCollectionBegin();
-        MuonCalibRawTgcHitVecCit tgc_it_end = muonRawHitCollection.rawTgcHitCollectionEnd();
-        for (; tgc_it != tgc_it_end; ++tgc_it) { m_rawTgcHitVec.push_back(new MuonCalibRawTgcHit(**tgc_it)); }
-        MuonCalibRawTgcCoinVecCit tgcCoin_it = muonRawHitCollection.rawTgcCoinCollectionBegin();
-        MuonCalibRawTgcCoinVecCit tgcCoin_it_end = muonRawHitCollection.rawTgcCoinCollectionEnd();
-        for (; tgcCoin_it != tgcCoin_it_end; ++tgcCoin_it) { m_rawTgcCoinVec.push_back(new MuonCalibRawTgcCoin(**tgcCoin_it)); }
-        MuonCalibRawCscHitVecCit csc_it = muonRawHitCollection.rawCscHitCollectionBegin();
-        MuonCalibRawCscHitVecCit csc_it_end = muonRawHitCollection.rawCscHitCollectionEnd();
-        for (; csc_it != csc_it_end; ++csc_it) { m_rawCscHitVec.push_back(new MuonCalibRawCscHit(**csc_it)); }
-    }
-
-    MuonCalibRawHitCollection &MuonCalibRawHitCollection::operator=(const MuonCalibRawHitCollection &rhs) {
-        if (this != &rhs) {
-            MuonCalibRawMdtHitVec temp_rawMdtHitVec;
-            MuonCalibRawMdtHitVecCit mdt_it = rhs.rawMdtHitCollectionBegin();
-            MuonCalibRawMdtHitVecCit mdt_it_end = rhs.rawMdtHitCollectionEnd();
-            for (; mdt_it != mdt_it_end; ++mdt_it) { temp_rawMdtHitVec.push_back(new MuonCalibRawMdtHit(**mdt_it)); }
-            m_rawMdtHitVec = temp_rawMdtHitVec;
-
-            MuonCalibRawRpcHitVec temp_rawRpcHitVec;
-            MuonCalibRawRpcHitVecCit rpc_it = rhs.rawRpcHitCollectionBegin();
-            MuonCalibRawRpcHitVecCit rpc_it_end = rhs.rawRpcHitCollectionEnd();
-            for (; rpc_it != rpc_it_end; ++rpc_it) { temp_rawRpcHitVec.push_back(new MuonCalibRawRpcHit(**rpc_it)); }
-            m_rawRpcHitVec = temp_rawRpcHitVec;
-
-            MuonCalibRawTgcHitVec temp_rawTgcHitVec;
-            MuonCalibRawTgcHitVecCit tgc_it = rhs.rawTgcHitCollectionBegin();
-            MuonCalibRawTgcHitVecCit tgc_it_end = rhs.rawTgcHitCollectionEnd();
-            for (; tgc_it != tgc_it_end; ++tgc_it) { temp_rawTgcHitVec.push_back(new MuonCalibRawTgcHit(**tgc_it)); }
-            m_rawTgcHitVec = temp_rawTgcHitVec;
-
-            MuonCalibRawTgcCoinVec temp_rawTgcCoinVec;
-            MuonCalibRawTgcCoinVecCit tgcCoin_it = rhs.rawTgcCoinCollectionBegin();
-            MuonCalibRawTgcCoinVecCit tgcCoin_it_end = rhs.rawTgcCoinCollectionEnd();
-            for (; tgcCoin_it != tgcCoin_it_end; ++tgcCoin_it) { temp_rawTgcCoinVec.push_back(new MuonCalibRawTgcCoin(**tgcCoin_it)); }
-            m_rawTgcCoinVec = temp_rawTgcCoinVec;
-
-            MuonCalibRawCscHitVec temp_rawCscHitVec;
-            MuonCalibRawCscHitVecCit csc_it = rhs.rawCscHitCollectionBegin();
-            MuonCalibRawCscHitVecCit csc_it_end = rhs.rawCscHitCollectionEnd();
-            for (; csc_it != csc_it_end; ++csc_it) { temp_rawCscHitVec.push_back(new MuonCalibRawCscHit(**csc_it)); }
-            m_rawCscHitVec = temp_rawCscHitVec;
-        }
+    MuonCalibRawHitCollection& MuonCalibRawHitCollection::operator=(const MuonCalibRawHitCollection& other) {
+        if (this != &other) { copy(other); }
         return (*this);
     }
+    int MuonCalibRawHitCollection::numberOfMuonCalibRawMdtHits() const { return m_rawMdtHitVec.size(); }
+    int MuonCalibRawHitCollection::numberOfMuonCalibRawRpcHits() const { return m_rawRpcHitVec.size(); }
+    int MuonCalibRawHitCollection::numberOfMuonCalibRawTgcHits() const { return m_rawTgcHitVec.size(); }
+    int MuonCalibRawHitCollection::numberOfMuonCalibRawTgcCoins() const { return m_rawTgcCoinVec.size(); }
+    int MuonCalibRawHitCollection::numberOfMuonCalibRawCscHits() const { return m_rawCscHitVec.size(); }
 
+    void MuonCalibRawHitCollection::addMuonCalibRawHit(MuonCalibRawMdtHit* rawHit) {
+        if (rawHit) { m_rawMdtHitVec.emplace_back(rawHit); }
+    }
+    void MuonCalibRawHitCollection::addMuonCalibRawHit(MuonCalibRawRpcHit* rawHit) {
+        if (rawHit) { m_rawRpcHitVec.emplace_back(rawHit); }
+    }
+    void MuonCalibRawHitCollection::addMuonCalibRawHit(MuonCalibRawTgcHit* rawHit) {
+        if (rawHit) { m_rawTgcHitVec.emplace_back(rawHit); }
+    }
+    void MuonCalibRawHitCollection::addMuonCalibRawHit(MuonCalibRawTgcCoin* rawHit) {
+        if (rawHit) { m_rawTgcCoinVec.emplace_back(rawHit); }
+    }
+    void MuonCalibRawHitCollection::addMuonCalibRawHit(MuonCalibRawCscHit* rawHit) {
+        if (rawHit) { m_rawCscHitVec.emplace_back(rawHit); }
+    }
+    void MuonCalibRawHitCollection::addMuonCalibRawHit(const MdtCalibRawHitPtr& rawHit) {
+        if (rawHit) { m_rawMdtHitVec.emplace_back(rawHit); }
+    }
+    void MuonCalibRawHitCollection::addMuonCalibRawHit(const RpcCalibRawHitPtr& rawHit) {
+        if (rawHit) { m_rawRpcHitVec.emplace_back(rawHit); }
+    }
+    void MuonCalibRawHitCollection::addMuonCalibRawHit(const TgcCalibRawHitPtr& rawHit) {
+        if (rawHit) { m_rawTgcHitVec.emplace_back(rawHit); }
+    }
+    void MuonCalibRawHitCollection::addMuonCalibRawHit(const TgcCoinRawPtr& rawHit) {
+        if (rawHit) { m_rawTgcCoinVec.emplace_back(rawHit); }
+    }
+    void MuonCalibRawHitCollection::addMuonCalibRawHit(const CscCalibRawHitPtr& rawHit) {
+        if (rawHit) { m_rawCscHitVec.emplace_back(rawHit); }
+    }
 }  // namespace MuonCalib

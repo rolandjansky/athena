@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackPRD_Association/InDetTrackPRD_Association.h"
@@ -46,7 +46,7 @@ StatusCode InDet::InDetTrackPRD_Association::execute(const EventContext& ctx) co
 
     }
     ATH_MSG_DEBUG("Collection " << collKey.key() << ": tracks with PRD "<< tracksPRD
-                  << ",  without PRD " << tracksPRD);
+                  << ",  without PRD " << tracksPRDn);
   }
   SG::WriteHandle<Trk::PRDtoTrackMap> write_handle(m_assoMapName, ctx);
   if (write_handle.record( m_assoTool->reduceToStorableMap(std::move(prd_to_track_map))).isFailure()) {

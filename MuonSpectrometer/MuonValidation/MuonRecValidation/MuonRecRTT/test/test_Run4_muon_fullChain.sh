@@ -12,8 +12,8 @@
 # run simulation on 50 Zmumu events using the Run4 muon layout on top of the latest Run3 setup (s3680) with the symmetric layout ATLAS-R3S-2021-01-00-02
 # the postExec overrides the muon geometry to use the Run4 muon layout
 Sim_tf.py --inputEVNTFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.merge.EVNT.e3601_e5984/EVNT.12228944._002158.pool.root.1 \
-          --preInclude "EVNTtoHITS:SimulationJobOptions/preInclude.Run3G4Optimizations.py,SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py" \
-          --postInclude "EVNTtoHITS:SimulationJobOptions/postInclude.Run3G4Optimizations.py" \
+          --preInclude "EVNTtoHITS:SimulationJobOptions/preInclude.G4Optimizations.py,SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py" \
+          --postInclude "EVNTtoHITS:SimulationJobOptions/postInclude.G4Optimizations.py" \
           --geometryVersion 'default:ATLAS-R3S-2021-01-00-02_VALIDATION' \
           --maxEvents 50 \
           --imf False \

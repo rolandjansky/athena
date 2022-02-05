@@ -46,12 +46,6 @@ int PixelModuleData::getChipStatus(const int chanNum) const {
 void PixelModuleData::setBunchSpace(double bunchSpace) { m_bunchSpace = bunchSpace; }
 double PixelModuleData::getBunchSpace() const { return m_bunchSpace; }
 
-void PixelModuleData::setUseComTime(bool UseComTime) { m_UseComTime = UseComTime; }
-bool PixelModuleData::getUseComTime() const { return m_UseComTime; }
-
-void PixelModuleData::setComTime(double ComTime) { m_ComTime = ComTime; }
-double PixelModuleData::getComTime() const { return m_ComTime; }
-
 void PixelModuleData::setBarrelNumberOfBCID(std::vector<int> BarrelNumberOfBCID) { m_BarrelNumberOfBCID = std::move(BarrelNumberOfBCID); }
 void PixelModuleData::setEndcapNumberOfBCID(std::vector<int> EndcapNumberOfBCID) { m_EndcapNumberOfBCID = std::move(EndcapNumberOfBCID); }
 void PixelModuleData::setDBMNumberOfBCID(std::vector<int>    DBMNumberOfBCID)    { m_DBMNumberOfBCID    = std::move(DBMNumberOfBCID); }

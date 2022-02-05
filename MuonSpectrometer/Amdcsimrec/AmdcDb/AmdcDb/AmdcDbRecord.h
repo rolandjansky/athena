@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AMDCDB_AMDCDBRECORD_H
@@ -22,7 +22,7 @@
 
 class AmdcDbRecord : public IRDBRecord{
 public:
-    AmdcDbRecord(long UniversalId,std::string NameOfTheRecord);
+    AmdcDbRecord(long UniversalId,const std::string& NameOfTheRecord);
     virtual ~AmdcDbRecord();
 
 public:

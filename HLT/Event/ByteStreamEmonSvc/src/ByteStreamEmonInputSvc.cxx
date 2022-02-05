@@ -20,8 +20,6 @@
 
 #include "GaudiKernel/ITHistSvc.h"
 
-#include "TrigConfL1ItemsNamed.h"
-
 #include "StoreGate/StoreGateSvc.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEventInfo/EventAuxInfo.h"
@@ -30,39 +28,16 @@
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
 #include "CxxUtils/checker_macros.h"
 #include "PersistentDataModel/DataHeader.h"
+#include "./extract_histogram_tag.h"
 
 #include <cstdlib>
 #include <csignal>
+#include <sstream>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/preprocessor/repetition.hpp>
 
 #include <memory>
-
-namespace {
-
-    // pure madness...
-
-#define PARSE_ITEM(z, n, unused) \
-    {  \
-        std::vector<std::string> result;  \
-        split(result, l1info.Item##n, boost::algorithm::is_space());    \
-        if(!result.empty()) { \
-            boost::trim_if(result[0], boost::algorithm::is_any_of("'"));  \
-            l1map[result[0]] = n;                               \
-        } \
-    }
-
-    std::map<std::string,int> 
-    convert_names_bits(const ByteStreamEmon::TrigConfL1ItemsNamed& l1info)
-    {
-        std::map<std::string,int> l1map;
-        BOOST_PP_REPEAT(256, PARSE_ITEM, ~)
-        return l1map;
-    }
-#undef PARSE_ITEM
-
-}
 
 namespace {
     
@@ -235,7 +210,15 @@ StatusCode ByteStreamEmonInputSvc::initialize()
     ATH_CHECK( m_inputMetaDataStore.retrieve() );
     ATH_CHECK( m_robProvider.retrieve() );
 
+    // Initialise the L1Menu read handle if we need to map L1 item names to IDs
+    ATH_CHECK(m_l1MenuKey.initialize(not m_l1names.value().empty()));
+
     signal(SIGTERM, handle_terminate);
+
+    // Read run parameters from the partition
+    if (m_readDetectorMask) {
+        get_runparams();
+    }
 
     ATH_MSG_INFO("initialized for: " << m_partition << " " << m_key << "/" << m_value);
 
@@ -308,32 +291,23 @@ bool ByteStreamEmonInputSvc::getIterator()
 
     std::vector<unsigned short> l1bits(m_l1items.begin(), m_l1items.end());
 
-    // if names are given, try to read information from IS.
-    if(m_l1names.size() > 0) {
-        bool retry = true;
-        ByteStreamEmon::TrigConfL1ItemsNamed l1info(partition, "L1CT.TrigConfL1Items");
-
-        while (retry) {
-            try {
-                l1info.checkout();
-                retry = false;
-            } catch(...) {
-                // might not exist yet...
-                ATH_MSG_INFO("No L1CT information, waiting 5 sec");
-                sleep(5);
+    // if names are given, read the mapping information from L1Menu
+    if (not m_l1names.value().empty()) {
+        ATH_MSG_DEBUG("Reading L1Menu to map " << m_l1names.name() << " to CTP IDs");
+        SG::ReadHandle<TrigConf::L1Menu> l1Menu = SG::makeHandle(m_l1MenuKey);
+        if (not l1Menu.isValid()) {
+            ATH_MSG_ERROR("Cannot read L1Menu to map L1 item names to IDs. The property " << m_l1names.name() << " will be ignored!");
+        } else {
+            for (const std::string& l1name : m_l1names) {
+                try {
+                    const unsigned int id = l1Menu->item(l1name).ctpId();
+                    ATH_MSG_DEBUG("Item " << l1name << " mapped to CTP ID " << id);
+                    l1bits.push_back(static_cast<unsigned short>(id));
+                } catch (const std::exception& ex) {
+                    ATH_MSG_ERROR(ex.what());
+                    continue;
+                }
             }
-        }
-
-        // Now translate names into bits. 
-        std::map<std::string,int> l1mapping = convert_names_bits(l1info);
-
-        for(const std::string& l1name : m_l1names) {
-            if(l1mapping.find(l1name) == l1mapping.end()) {
-                ATH_MSG_ERROR("Invalid L1 name in trigger mask: " << l1name);
-                continue;
-            }
-            int bit = l1mapping[l1name];
-            l1bits.push_back(bit);
         }
     }
 
@@ -435,11 +409,12 @@ const RawEvent* ByteStreamEmonInputSvc::nextEvent()
             try {
                 m_re->check_tree();
                 ATH_MSG_INFO("nextEvent: Got valid fragment of size:" << event.size());
-                m_robProvider->setNextEvent(m_re.get());
-                m_robProvider->setEventStatus(0);
             } catch (ers::Issue& ex) {
+	      
                 // log in any case
-                ATH_MSG_ERROR("nextEvent: Invalid event fragment");
+		std::stringstream ss;
+		ss << ex;
+                ATH_MSG_ERROR("nextEvent: Invalid event fragment: " << ss.str());
                
                 if(!m_corrupted_events) {
 
@@ -448,6 +423,8 @@ const RawEvent* ByteStreamEmonInputSvc::nextEvent()
                     continue;
                 } // else fall through
             }
+	    m_robProvider->setNextEvent(m_re.get());
+	    m_robProvider->setEventStatus(0);	    
 
         } else {
             // We got something we didn't expect.
@@ -565,7 +542,8 @@ void ByteStreamEmonInputSvc::check_publish()
             TH1 *h = nullptr;
             if(m_histSvc->getHist(name, h)) {
                 // might throw...
-                m_provider->publish(*h, name);
+                auto name_tag = detail::extract_histogram_tag(name);
+                m_provider->publish(*h, name_tag.first, name_tag.second);
             };
         }
         for(const std::string& name : m_histSvc->getEfficiencies()) {
@@ -588,8 +566,9 @@ void ByteStreamEmonInputSvc::check_publish()
                         p = create2DProfile(h);
                     }
                     // might throw...
-                    m_provider->publish(*p, name);
-                    //m_provider->publish(*h, name);
+                    auto name_tag = detail::extract_histogram_tag(name);
+                    m_provider->publish(*p, name_tag.first, name_tag.second);
+                    //m_provider->publish(*h, name_tag.first, name_tag.second);
                 } // tdaq doesn't currently support publishing efficiencies, will change in the future
             };
         }
@@ -642,10 +621,6 @@ void ByteStreamEmonInputSvc::get_runparams()
 // start of run
 StatusCode ByteStreamEmonInputSvc::start()
 {
-    if(m_readDetectorMask) {
-        get_runparams();
-    }
-
     if(m_clearHistograms) {
         ATH_MSG_INFO("Resetting histograms...");
         for(const std::string& name : m_histSvc->getHists()) {

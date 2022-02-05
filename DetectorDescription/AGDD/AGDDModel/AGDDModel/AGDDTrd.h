@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AGDDTrd_H
@@ -12,27 +12,30 @@
 
 class AGDDTrd: public AGDDVolume {
 public:
-	AGDDTrd(std::string s):AGDDVolume(s),_x1(0),_x2(0),_y1(0),_y2(0),_z(0) {}
-	void SetXYZ(std::vector<double> v) 
+	AGDDTrd(const std::string& s,
+                AGDDVolumeStore& vs,
+                AGDDSectionStore& ss)
+          : AGDDVolume(s,vs,ss),m_x1(0),m_x2(0),m_y1(0),m_y2(0),m_z(0) {}
+	void SetXYZ(const std::vector<double>& v) 
 	{
-		_x1=v[0];
-		_x2=v[1];
-		_y1=v[2];
-		_y2=v[3];
-		_z=v[4];
+		m_x1=v[0];
+		m_x2=v[1];
+		m_y1=v[2];
+		m_y2=v[3];
+		m_z=v[4];
 	}
-	double x1() {return _x1;}
-	double x2() {return _x2;}
-	double y1() {return _y1;}
-	double y2() {return _y2;}
-	double z() {return _z;}
-	void CreateVolume();
-	void CreateSolid();
-	double _x1;
-	double _x2;
-	double _y1;
-	double _y2;
-	double _z;
+	double x1() const {return m_x1;}
+	double x2() const {return m_x2;}
+	double y1() const {return m_y1;}
+	double y2() const {return m_y2;}
+	double z() const {return m_z;}
+        virtual void CreateVolume (AGDDBuilder& builder) override;
+	virtual void CreateSolid (const AGDDBuilder& builder) override;
+	double m_x1;
+	double m_x2;
+	double m_y1;
+	double m_y2;
+	double m_z;
 };
 
 #endif

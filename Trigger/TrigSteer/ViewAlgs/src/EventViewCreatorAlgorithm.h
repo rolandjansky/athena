@@ -104,6 +104,10 @@ class EventViewCreatorAlgorithm : public ::InputMakerBase
     Gaudi::Property< bool > m_placeJetInView { this, "PlaceJetInView", false, 
       "Jet slice specific option. Place Jet inside newly spawned View instance. See also InViewJets" };
 
+    //switch off the use of cached EventViews
+     Gaudi::Property< bool > m_cacheDisabled { this, "CacheDisabled", false,
+      "Set whether cached EventViews are to be accessed" };
+
     // TODO. In the next iteration, start to use this. Remove "_PROPERTY" which is there to catch against algs with identical properties
     SG::WriteHandleKey< xAOD::JetContainer > m_inViewJets {this,"InViewJets","", 
       "Name with which the Jet should be inserted into the views"};
@@ -132,12 +136,19 @@ class EventViewCreatorAlgorithm : public ::InputMakerBase
     /**
      * @brief Allow for the re-use of EventViews run in a previous Step in another EVCA instance configured
      * to spawn EventViews using the same reconstruction sequence (i.e. both algs should share a common ViewNodeName).
-     *
-     * NOTE: This is a potential future CPU saving feature. Nothing currently uses this.
      **/
     bool checkCache(const TrigCompositeUtils::DecisionContainer* cachedViews, 
       const TrigCompositeUtils::Decision* outputDecision, 
-      size_t& cachedIndex) const;
+      size_t& cachedIndex,
+      MatchingCache& matchingCache) const;
+
+    /**
+     * @brief We look for matching Decision Objects in a matchingCache.
+     * When we are trying in a PROBE InputMaker to match against the Decision Objects created prior in a TAG InputMaker
+     * then we need to pre-populate the cache with the data from the TAG InputMaker.
+     **/
+    StatusCode populateMatchingCacheWithCachedViews(const TrigCompositeUtils::DecisionContainer* cachedViews, MatchingCache& matchingCache) const;
+
 
 };
 

@@ -29,10 +29,6 @@ else:
    athenaCommonFlags.isOnline.set_Value_and_Lock(True)
    del athenaCommonFlags
 
-   ### TriggerFlags
-   from TriggerJobOpts.TriggerFlags import TriggerFlags
-   TriggerFlags.doHLT.set_Value_and_Lock(True)
-
    ### Athena configuration -----------------------------------------------------
    from GaudiPython import *                   # noqa: F401, F403
    from AthenaCommon.Configurable import *     # noqa: F401, F403

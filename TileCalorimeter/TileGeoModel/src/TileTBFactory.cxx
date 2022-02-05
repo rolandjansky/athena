@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileTBFactory.h"
@@ -1037,7 +1037,7 @@ void TileTBFactory::create(GeoPhysVol *world)
     }
   }
   
-  TileCablingService * cabling = TileCablingService::getInstance(); 
+  TileCablingService * cabling = TileCablingService::getInstance_nc(); 
   const TileID* tileID = m_detectorManager->get_id();
 
   int dete[6] = {TILE_REGION_CENTRAL,TILE_REGION_CENTRAL,

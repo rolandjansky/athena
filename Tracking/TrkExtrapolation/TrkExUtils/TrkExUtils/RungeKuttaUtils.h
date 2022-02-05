@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -91,9 +91,16 @@ namespace RungeKuttaUtils {
 /////////////////////////////////////////////////////////////////////////////////
 
 double
-stepEstimator(int, double*, const double*, bool&);
+stepEstimator(int,
+              double* ATH_RESTRICT,
+              const double* ATH_RESTRICT,
+              bool&);
+
 double
-stepEstimatorToCone(double* ATH_RESTRICT, const double* ATH_RESTRICT, bool&);
+stepEstimatorToCone(double* ATH_RESTRICT,
+                    const double* ATH_RESTRICT,
+                    bool&);
+
 double
 stepEstimatorToPlane(const double* ATH_RESTRICT,
                      const double* ATH_RESTRICT,
@@ -113,8 +120,8 @@ stepEstimatorToStraightLine(const double* ATH_RESTRICT,
 std::pair<double, int>
 stepEstimator(std::vector<std::pair<const Trk::Surface*, Trk::BoundaryCheck>>&,
               std::multimap<double, int>&,
-              const double*,
-              const double*,
+              const double* ATH_RESTRICT,
+              const double* ATH_RESTRICT,
               double,
               double,
               int Nv,
@@ -140,9 +147,8 @@ bool
 transformLocalToGlobal(bool, const Trk::NeutralParameters&, double*);
 
 /////////////////////////////////////////////////////////////////////////////////
-// Transformations from local to local system coordinates
+// Transformations from local to global system coordinates
 /////////////////////////////////////////////////////////////////////////////////
-
 bool
 transformLocalToGlobal(bool,
                        const Trk::Surface*,
@@ -153,14 +159,12 @@ transformLocalToGlobal(bool,
 // Transformations from local to global system coordinates
 // for Trk::PatternTrackParameters
 /////////////////////////////////////////////////////////////////////////////////
-
 bool
 transformLocalToGlobal(bool, const Trk::PatternTrackParameters&, double*);
 
 /////////////////////////////////////////////////////////////////////////////////
 // Transformations from global to local system coordinates
 /////////////////////////////////////////////////////////////////////////////////
-
 void
 transformGlobalToLocal(double* ATH_RESTRICT, double* ATH_RESTRICT);
 void
@@ -169,10 +173,10 @@ transformGlobalToLocal(const Trk::Surface*,
                        double* ATH_RESTRICT,
                        double* ATH_RESTRICT,
                        double* ATH_RESTRICT);
+
 ////////////////////////////////////////////////////////////////////////////////
 // Covariance matrix production for Trk::TrackParameters
 /////////////////////////////////////////////////////////////////////////////////
-
 AmgSymMatrix(5)
   newCovarianceMatrix(const double* ATH_RESTRICT, const AmgSymMatrix(5) &);
 
@@ -180,7 +184,6 @@ AmgSymMatrix(5)
 // Transformations from curvilinear to global system coordinates
 // covariance matrix only
 /////////////////////////////////////////////////////////////////////////////////
-
 void
 transformCurvilinearToGlobal(double* ATH_RESTRICT, double* ATH_RESTRICT);
 
@@ -188,7 +191,6 @@ transformCurvilinearToGlobal(double* ATH_RESTRICT, double* ATH_RESTRICT);
 // Transformations from global to curvilinear system coordinates
 // covariance matrix only
 /////////////////////////////////////////////////////////////////////////////////
-
 void
 transformGlobalToCurvilinear(bool,
                              double* ATH_RESTRICT,
@@ -198,7 +200,6 @@ transformGlobalToCurvilinear(bool,
 /////////////////////////////////////////////////////////////////////////////////
 // Jacobian of transformations from curvilinear to local system coordinates
 /////////////////////////////////////////////////////////////////////////////////
-
 void
 jacobianTransformCurvilinearToLocal(const Trk::TrackParameters&, double*);
 void
@@ -208,16 +209,6 @@ void
 jacobianTransformCurvilinearToLocal(double* ATH_RESTRICT,
                                     const Trk::Surface*,
                                     double* ATH_RESTRICT);
-void
-jacobianTransformCurvilinearToDisc(double* ATH_RESTRICT, double* ATH_RESTRICT);
-void
-jacobianTransformCurvilinearToPlane(double* ATH_RESTRICT, double* ATH_RESTRICT);
-void
-jacobianTransformCurvilinearToCylinder(double* ATH_RESTRICT,
-                                       double* ATH_RESTRICT);
-void
-jacobianTransformCurvilinearToStraightLine(const double* ATH_RESTRICT,
-                                           double* ATH_RESTRICT);
 
 }
 }

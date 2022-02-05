@@ -128,8 +128,6 @@ recAlgs.doMuonSpShower.set_Value_and_Lock    (False)
 recAlgs.doStaco.set_Value_and_Lock           (False)
 recAlgs.doCaloTrkMuId.set_Value_and_Lock     (False)
 recAlgs.doTileMuID.set_Value_and_Lock        (False)
-# --- trigger
-recAlgs.doTrigger.set_Value_and_Lock         (False)
 
 #--------------------------------------------------------------
 # Printout config

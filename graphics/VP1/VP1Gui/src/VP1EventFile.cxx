@@ -14,6 +14,7 @@
 
 #include "VP1Gui/VP1EventFile.h"
 #include <QStringList>
+#include <QtCoreVersion>
 
 //____________________________________________________________________
 class VP1EventFile::Imp {

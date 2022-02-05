@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 namespace MuonCalib {
@@ -18,9 +18,10 @@ namespace MuonCalib {
     if( itr == m_parNameMap.end())
     {
       if(parName == "t0phase" || parName == "t0base"){
-        static bool firstTime = true;
-        if(firstTime) ATH_MSG_WARNING("Attempted to request t0 parameters (t0phase or t0base) from CscCoolStrSvc. These are not yet implemented but will be in the near future. You can probably ignore this WARNING.");
-        firstTime = false;
+        static std::atomic_flag firstTime = ATOMIC_FLAG_INIT;
+        if(!firstTime.test_and_set()) {
+          ATH_MSG_WARNING("Attempted to request t0 parameters (t0phase or t0base) from CscCoolStrSvc. These are not yet implemented but will be in the near future. You can probably ignore this WARNING.");
+        }
         return StatusCode::RECOVERABLE;
       }
       
@@ -60,11 +61,12 @@ namespace MuonCalib {
         condData = coll->at(newHash);
         if(condData)  
         {
-          if(m_numFailedRequests < m_maxFailedRequests)
+          int numFailedRequests = m_numFailedRequests++;
+          if(numFailedRequests < m_maxFailedRequests)
             ATH_MSG_WARNING("Invalid chamber layer requested when retrieveing "
                   << parName
                   << ". Tried corresponding channel in valid chamber layer and found good data.");
-          if(m_numFailedRequests++ == m_maxFailedRequests)
+          if(numFailedRequests == m_maxFailedRequests)
             ATH_MSG_WARNING("Reached maximum number of problematic requests to CscCoolStrSvc. No further warnings will be printed.");
         }
       }
@@ -76,10 +78,11 @@ namespace MuonCalib {
     {
       //Return a default value
       retData = coll->getParDefault();
-      if(m_numFailedRequests < m_maxFailedRequests) {
+      int numFailedRequests = m_numFailedRequests++;
+      if(numFailedRequests < m_maxFailedRequests) {
         ATH_MSG_WARNING("Requested index " << index << " has no data cached for parameter " << parName << ". Either its not valid (such as a hash Id for a chamber never installed) or there was a problem caching the database to memory. Returning default value of " << retData);
       }
-      if(m_numFailedRequests++ == m_maxFailedRequests) ATH_MSG_WARNING("Reached maximum number of failed requests to CscCoolStrSvc. No further warnings will be printed."); 
+      if(numFailedRequests == m_maxFailedRequests) ATH_MSG_WARNING("Reached maximum number of failed requests to CscCoolStrSvc. No further warnings will be printed."); 
     }
     else
     {
@@ -141,11 +144,9 @@ namespace MuonCalib {
     //initialize all strings with metadata. Right now, the only meta data is the
     //version number of the string. Eventually we may add extra data such as 
     //category and such
-    std::vector<std::string>::iterator strItr = strVec.begin();
-    std::vector<std::string>::iterator strEnd = strVec.end();
-    for(; strItr != strEnd ; strItr++) {
-      *strItr += version_number;
-      *strItr += " <BEGIN_DATA>";
+    for (std::string& s : strVec) {
+      s += version_number;
+      s += " <BEGIN_DATA>";
     }
 
     std::vector<bool> chansToUpdate(maxCoolChan,false);
@@ -358,7 +359,6 @@ namespace MuonCalib {
 
 
     //Now end each string, and submit it to the database;
-    strItr = strVec.begin();
     for(unsigned int coolChan =1; coolChan <= maxCoolChan ; coolChan++) {
       //If we don't have new data for this channel, don't update it.
       if(!chansToUpdate.at(coolChan-1))

@@ -418,7 +418,7 @@ namespace Muon {
             std::vector<const Trk::MeasurementBase*>::const_iterator mit_end = (*sit)->containedMeasurements().end();
             for (; mit != mit_end; ++mit) {
                 const Trk::MeasurementBase* meas = *mit;
-                const Trk::RIO_OnTrack* rot = 0;
+                const Trk::RIO_OnTrack* rot = nullptr;
                 rotExtractor.extract(rot, meas);
                 if (!rot) {
                     if (!dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(meas)) ATH_MSG_WARNING(" Could not get rot from measurement ");
@@ -437,8 +437,8 @@ namespace Muon {
     MuonTrackTruth MuonTrackTruthTool::getTruth(const TruthTree& truth_tree, const std::vector<const Trk::MeasurementBase*>& measurements,
                                                 bool restrictedTruth) const {
         MuonTrackTruth bestMatch;
-        bestMatch.truthTrack = 0;
-        bestMatch.truthTrajectory = 0;
+        bestMatch.truthTrack = nullptr;
+        bestMatch.truthTrajectory = nullptr;
 
         unsigned int nmatchedHitsBest = 0;
         // loop over muons and match hits
@@ -625,7 +625,7 @@ namespace Muon {
             }
         } else {
             // Find SimData corresponding to identifier
-            const Trk::RIO_OnTrack* rot = 0;
+            const Trk::RIO_OnTrack* rot = nullptr;
             rotExtractor.extract(rot, &meas);
             const Trk::PrepRawData* prd = rot->prepRawData();
             if (prd) {
@@ -683,7 +683,7 @@ namespace Muon {
         ATH_MSG_DEBUG("getMother() : size = " << traj.size());
         int pdgFinal = ((traj.size() == 0) ? -999 : traj.front()->pdg_id());
         bool foundBC = false;
-        for (auto pit : traj) {
+        for (const auto& pit : traj) {
             if (!pit) continue;
             if (HepMC::barcode(pit) == barcodeIn || foundBC) {
                 foundBC = true;
@@ -704,7 +704,7 @@ namespace Muon {
 
     HepMC::ConstGenParticlePtr MuonTrackTruthTool::getAncestor(const TruthTrajectory& traj, const int barcodeIn) const {
         bool foundBC = false;
-        for (auto pit : traj) {
+        for (const auto& pit : traj) {
             if (!pit) continue;
             if (HepMC::barcode(pit) == barcodeIn || foundBC) {
                 foundBC = true;

@@ -22,6 +22,9 @@
 #include "AthenaKernel/ThinningDecisionBase.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/ReadCondHandle.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 //============================================================================
 // Common methods.
@@ -219,7 +222,10 @@ void CaloCellPacker_400_500::pack_time
   CaloCompactCell::value_type data = pars.m_logat_field.in (ltime);
 
   // Set the sign bit.
-  if ( time < 0 )
+  // Only set the sign bit if saved value is non-zero.
+  // Otherwise, it'll be read as zero regardless, and if we write
+  // again, the sign bit'll be different.
+  if ( time < 0 && data != 0 )
     data |= pars.m_tsign_mask;
 
   // Fill output.
@@ -294,14 +300,18 @@ void CaloCellPacker_400_500::pack_lar
     // Pack the energy, gain, and quality into the output word.
     double crtae = cbrt(fabs(energy));
     CaloCompactCell::value_type data =
-      pars.m_egain_field.in (gainflag) |
-      pars.m_qualy_field.in (qualflag) |
       (cbrt_flag ? pars.m_crtae_high_field.in (crtae)
        : pars.m_crtae_norm_field.in (crtae));
 
     // Set the sign bit.
-    if (energy < 0)
+    // Only set the sign bit if saved value is non-zero.
+    // Otherwise, it'll be read as zero regardless, and if we write
+    // again, the sign bit'll be different.
+    if (energy < 0 && data != 0)
       data |= pars.m_esign_mask;
+
+    data |= pars.m_egain_field.in (gainflag) |
+            pars.m_qualy_field.in (qualflag);
 
     if (data == pars.m_lar_dummy)
       data = pars.m_lar_dummy_subst;
@@ -371,14 +381,17 @@ void CaloCellPacker_400_500::pack_tile
       else
         data = pars.m_crtae_tile_low_field.in (crtae);
 
+      // Add the sign bit.
+      // Only set the sign bit if saved value is non-zero.
+      // Otherwise, it'll be read as zero regardless, and if we write
+      // again, the sign bit'll be different.
+      if (ene[ipmt] < 0 && data != 0)
+        data |= pars.m_esign_tile_mask;
+
       // Add in the gain and quality.
       data |=
         pars.m_egain_tile_field.in (gain[ipmt]) |
         pars.m_qualy_field.in (qualflag);
-
-      // Add the sign bit.
-      if (ene[ipmt] < 0)
-        data |= pars.m_esign_tile_mask;
 
       if (data == pars.m_tile_dummy)
         data = pars.m_tile_dummy_subst;
@@ -945,10 +958,22 @@ void CaloCellPacker_400_500::unpack
   // We need the detector description.
   const CaloDetDescrManager_Base *ddmgr = nullptr;
   if (is_SC){
-    ddmgr = CaloSuperCellDetDescrManager::instance();
-  }else
-  {
-    ddmgr = CaloDetDescrManager::instance();
+    SG::ReadCondHandleKey<CaloSuperCellDetDescrManager> caloSuperCellMgrKey {"CaloSuperCellDetDescrManager"};
+    StatusCode sc = caloSuperCellMgrKey.initialize();
+    if(sc.isFailure()) {
+      throw std::runtime_error("Failed to initialize ReadCondHandleKey for CaloSuperCellDetDescrManager");
+    }
+    SG::ReadCondHandle<CaloSuperCellDetDescrManager> caloSuperCellMgrHandle{caloSuperCellMgrKey};
+    ddmgr = *caloSuperCellMgrHandle;
+  }
+  else {
+    SG::ReadCondHandleKey<CaloDetDescrManager> caloMgrKey {"CaloDetDescrManager"};
+    StatusCode sc = caloMgrKey.initialize();
+    if(sc.isFailure()) {
+      throw std::runtime_error("Failed to initialize ReadCondHandleKey for CaloDetDescrManager");
+    }
+    SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{caloMgrKey};
+    ddmgr = *caloMgrHandle;
   }
   const CaloCell_Base_ID *calo_id = ddmgr->getCaloCell_ID();
 

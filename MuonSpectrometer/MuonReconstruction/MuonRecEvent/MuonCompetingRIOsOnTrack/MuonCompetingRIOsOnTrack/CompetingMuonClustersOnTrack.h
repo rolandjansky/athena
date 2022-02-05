@@ -22,6 +22,7 @@
 #include "CxxUtils/CachedUniquePtr.h"
 
 #include <ostream>
+#include <utility>
 
 class MsgStream;
 
@@ -182,7 +183,7 @@ CompetingMuonClustersOnTrack::associatedSurface() const
   if (m_associatedSurface) {
     return *m_associatedSurface;
   }
-  return ((*(m_containedChildRots->begin()))->associatedSurface());
+  return ((*(std::as_const(*m_containedChildRots).begin()))->associatedSurface());
 }
 
 inline const Trk::Surface*
@@ -206,7 +207,7 @@ CompetingMuonClustersOnTrack::containedROTs() const
 inline const MuonClusterOnTrack&
 CompetingMuonClustersOnTrack::rioOnTrack(unsigned int indx) const
 {
-  return *m_containedChildRots->operator[](indx);
+  return *std::as_const(*m_containedChildRots)[indx];
 }
 
 inline const Amg::Vector3D&

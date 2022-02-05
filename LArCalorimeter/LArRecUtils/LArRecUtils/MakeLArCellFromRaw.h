@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCELLREC_MAKELARCELLFROMRAW_H
@@ -18,14 +18,14 @@
 #include "CaloUtils/CaloCellCorrection.h"
 #include "CaloIdentifier/CaloGain.h" 
 #include "AthAllocators/DataPool.h"
-#include "CxxUtils/checker_macros.h"
 
 #include <map>
 #include <vector>
 class CaloDetDescrElement ; 
-class LArCablingLegacyService ;
 
-class LArRoI_Map; 
+class LArRoIMap;
+class LArOnOffIdMapping;
+class CaloDetDescrManager;
 
 class MakeLArCellFromRaw
 {
@@ -56,7 +56,9 @@ public:
 
   /** initialize the internal map
   */ 
-  void initialize ATLAS_NOT_THREAD_SAFE ( const LArRoI_Map* map,
+  void initialize ( const LArRoIMap& roiMap,
+                    const LArOnOffIdMapping& onOffMap,
+                    const CaloDetDescrManager& man,
        const std::vector<const CaloCellCorrection*>*  pCorr, unsigned int poolMaxSize =190000);
 
   /** access by Identifier 
@@ -94,8 +96,6 @@ private:
  size_t m_poolMaxSize;
  IMessageSvc * m_msgSvc ;
  
- LArCablingLegacyService* m_cablingSvc ;
-
  const LArOnlineID* m_onlineID;
 
  float m_ethreshold ; // common threshold in MeV

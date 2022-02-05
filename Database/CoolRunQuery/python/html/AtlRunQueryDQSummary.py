@@ -97,16 +97,18 @@ def GetLBLumi(dic,run):
 def GetLBLiveFraction(dic,run):
     global livetrigger
     livefraction = {}
-    try:
-        #trigrate = dic[DataKey('TriggerRates')][run][0].value['L1_EM5']
-        trigrate = dic[DataKey('TriggerRates')][run][0].value[livetrigger]
-        for item in trigrate:
-            (lb, tbp, tap, tav) = map(int, item)
-            livefraction[lb]= 0.
-            if tap != 0:
-                livefraction[lb] = float(tav)/tap
-    except KeyError:
-        print ("%s trigger not found - no live fraction computation" % livetrigger)
+    #trigrate = dic[DataKey('TriggerRates')][run][0].value['L1_EM5']
+    triggerRates = dic[DataKey('TriggerRates')][run][0].value
+    if triggerRates != "No match":
+        try:
+            trigrate = triggerRates[livetrigger]
+            for item in trigrate:
+                (lb, tbp, tap, tav) = map(int, item)
+                livefraction[lb]= 0.
+                if tap != 0:
+                    livefraction[lb] = float(tav)/tap
+        except KeyError:
+            print ("%s trigger not found - no live fraction computation" % livetrigger)
     return livefraction
 
 def GetLBReady(dic,run):
@@ -736,7 +738,8 @@ class DQSummary:
                     if lbl not in readylb:
                         continue
                     if lbl not in livefrac:
-                        print ("--> Warning: live fraction not available for LB %i. Setting live fraction to 1." % lbl)
+                        pass # in run 3 we don't have trigger rates yet, as they are no longer in COOL
+                        # print ("--> Warning: live fraction not available for LB %i. Setting live fraction to 1." % lbl)
                     else:
                         lumiperlb[lbl]*=livefrac[lbl]
 
@@ -1104,9 +1107,9 @@ class DQSummary:
             summarytable += '</table></div><br>'            
             ### end of results table ###
             if runsWithoutReadyForPhysics:
-                warning += '<font color="red">WARNING! The following runs have 0 ATLAS Ready LB: %s</font><br>' % ", ".join(runsWithoutReadyForPhysics)
+                warning += '<div style="margin-left: 13px; color: darkred; width: 90%%;">WARNING! The following runs have no lumi block with ATLAS Ready: %s</div><br>' % ", ".join(runsWithoutReadyForPhysics)
             if runsWithoutOfflineLumiInfo:
-                warning += '<font color="red">WARNING! The following runs have no offline lumi info: %s</font><br>' % ", ".join(runsWithoutOfflineLumiInfo)
+                warning += '<div style="margin-left: 13px; color: darkred; width: 90%%;">WARNING! The following runs have no offline lumi info: %s</div><br>' % ", ".join(runsWithoutOfflineLumiInfo)
 
 
 
@@ -1116,11 +1119,11 @@ class DQSummary:
 
         summaryplot = ''
         plots = []
-
-        plots.append(MakePlot_SummaryLumiLoss(detectors_lumiloss,detectors_color,dicsum,'detectors'))
-        plots.append(MakePlot_SummaryLumiLoss(performances_lumiloss,performances_color,dicsum,'performances'))
-        plots.append(MakePlot_PerRunLumiLoss(detectors_lumiloss,detectors_color,dicsum,'detectors'))
-        plots.append(MakePlot_PerRunLumiLoss(performances_lumiloss,performances_color,dicsum,'performances'))        
+        if totalNumberOfReadyLB > 0:
+            plots.append(MakePlot_SummaryLumiLoss(detectors_lumiloss,detectors_color,dicsum,'detectors'))
+            plots.append(MakePlot_SummaryLumiLoss(performances_lumiloss,performances_color,dicsum,'performances'))
+            plots.append(MakePlot_PerRunLumiLoss(detectors_lumiloss,detectors_color,dicsum,'detectors'))
+            plots.append(MakePlot_PerRunLumiLoss(performances_lumiloss,performances_color,dicsum,'performances'))        
         
         imgsize=500
         thumbsize=300

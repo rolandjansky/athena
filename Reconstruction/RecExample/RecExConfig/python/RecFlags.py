@@ -349,27 +349,6 @@ class doDumpTES(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
-class oldFlagCompatibility(JobProperty):
-    """ If True old flags are available
-    """
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=False
-
-class oldFlagLandMine(JobProperty):
-    """ If True reusing old flags will cause failure
-    """
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=False
-
-class oldFlagTopSteering(JobProperty):
-    """ If True old flags are used to steer reconstruction
-    """
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=True
-
 class doFloatingPointException(JobProperty):
     """ If True enable Floating Point exception
     """
@@ -701,7 +680,7 @@ class doZdc(JobProperty):
     """
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=True
+    StoredValue=False
     def _undo_action(self):
         if not jobproperties.Rec.doLucid and not jobproperties.Rec.doAlfa and not jobproperties.Rec.doAFP and not jobproperties.Rec.doFwdRegion and jobproperties.Rec.doForwardDet  :
             jobproperties.Rec.doForwardDet=False
@@ -724,7 +703,7 @@ class doAFP(JobProperty):
     """
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=False
+    StoredValue=True
     def _undo_action(self):
         if not jobproperties.Rec.doLucid and not jobproperties.Rec.doZdc and not jobproperties.Rec.doAlfa and not jobproperties.Rec.doFwdRegion and jobproperties.Rec.doForwardDet  :
             jobproperties.Rec.doForwardDet=False
@@ -1019,7 +998,7 @@ _list_Rec=[TAGFromRDO, doTagRawSummary , doBeamBackgroundFiller, \
 OutputLevel, RootHistoOutput, RootNtupleOutput, UserAlgs, UserExecs, UserFlags, doDPD, DPDMakerScripts, LoadGeometry, doAOD, doAODCaloCells, doESD,\
 doAODall, doCBNT, doPyDump, doMonitoring, doCheckDictionary, doCheckJOT,CBNTAthenaAware,\
 doDetailedAuditor, doSGAuditor, doFastMemoryAuditor, doMemoryAuditor, OutputSuffix, OutputFileNameForRecoStep, doPerfMon, doDetailedPerfMon, doSemiDetailedPerfMon, doDetailedPerfMonMT, doRecoTiming, doDumpMC, doDumpPoolInputContent, doDumpProperties,\
-doDumpTDS, doDumpTES, doFloatingPointException, oldFlagCompatibility, oldFlagTopSteering,oldFlagLandMine,\
+doDumpTDS, doDumpTES, doFloatingPointException, \
 doEdmMonitor, doHist, doJiveXML, doPersint,doVP1, doNameAuditor, \
 doRestrictedESD, doShowSizeStatistics, doTimeLimit, doTruth,\
 doWriteAOD, doWritexAOD, doWriteESD, doWriteDPD, doWriteBS, doWriteRDO, doWriteTAG, doWriteTAGCOM, PoolTAGCOMOutput, readAOD, readTAG, readRDO, \

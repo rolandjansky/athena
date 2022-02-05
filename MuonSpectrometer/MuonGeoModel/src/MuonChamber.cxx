@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaKernel/getMessageSvc.h"
@@ -93,10 +93,10 @@ namespace MuonGM {
 
     // cutouts for BMS at eta=+-1 and phi=4 (RPC/DED/MDT) ok //16 tubes shorter + entire RPC and DED (of dbz1) narrower
 
-    MuonChamber::MuonChamber(Station *s) : DetectorElement(s->GetName()) {
+    MuonChamber::MuonChamber(const MYSQL& mysql, Station *s) : DetectorElement(s->GetName()) {
         width = s->GetWidth1();
         longWidth = s->GetWidth2();
-        thickness = s->GetThickness();
+        thickness = s->GetThickness(mysql);
         length = s->GetLength();
         m_station = s;
 
@@ -109,7 +109,9 @@ namespace MuonGM {
         m_enableFineClashFixing = 0;
     }
 
-    GeoVPhysVol *MuonChamber::build(MuonDetectorManager *manager, int zi, int fi, bool is_mirrored, bool &isAssembly) {
+    GeoVPhysVol *MuonChamber::build(const StoredMaterialManager& matManager,
+                                    const MYSQL& mysql,
+                                    MuonDetectorManager *manager, int zi, int fi, bool is_mirrored, bool &isAssembly) {
         MsgStream log(m_msgSvc, "MuGM:MuonChamber");
         bool debug = log.level() <= MSG::DEBUG;
         bool verbose = log.level() <= MSG::VERBOSE;
@@ -118,13 +120,13 @@ namespace MuonGM {
                 << " is assembly = " << isAssembly << endmsg;
         }
         std::string stname(m_station->GetName(), 0, 3);
-        MYSQL *mysql = MYSQL::GetPointer();
 
-        double halfpitch = m_station->mdtHalfPitch();
-        std::string stName = m_station->GetName();
+        double halfpitch = m_station->mdtHalfPitch(mysql);
+        const std::string stName = m_station->GetName();
+
         const MdtIdHelper *mdt_id = manager->mdtIdHelper();
         int stationType = mdt_id->stationNameIndex(stName.substr(0, 3));
-        bool is_barrel = (stName.substr(0, 1) == "B");
+        bool is_barrel = (stName.compare(0, 1, "B") == 0);
 
         std::string geometry_version = manager->geometryVersion();
         double extratop = m_station->GetExtraTopThickness();
@@ -142,7 +144,7 @@ namespace MuonGM {
             log << MSG::VERBOSE << " MuonChamber size thick,w,lw,l " << totthick << ", " << width << ", " << longWidth << ", " << length << endmsg;
         }
 
-        const GeoShape *strd = 0;
+        const GeoShape *strd = nullptr;
         double dx = 0.;
         if ((extratop + extrabottom) != 0.) {
             // sup on top & bottom
@@ -157,20 +159,20 @@ namespace MuonGM {
         }
 
         double amdbOrigine_along_length = m_station->getAmdbOrigine_along_length();
-        double amdbOrigine_along_thickness = m_station->getAmdbOrigine_along_thickness();
+        double amdbOrigine_along_thickness = m_station->getAmdbOrigine_along_thickness(mysql);
 
         // Fix clash of EIS1 and CSS1.  Cut out upper corner of CSS1 envelope (along long width)
         if (stname == "CSS") {
-            StandardComponent *comp = 0;
+            StandardComponent *comp = nullptr;
             double clen = 0;
             double cthick = 0;
             double cypos = 0;
             double cxpos = 0;
             for (int i = 0; i < m_station->GetNrOfComponents(); i++) {
                 comp = (StandardComponent *)m_station->GetComponent(i);
-                if ((comp->name).substr(0, 3) == "CSC") {
+                if ((comp->name).compare(0, 3, "CSC") == 0) {
                     clen = comp->dy;
-                    cthick = comp->GetThickness();
+                    cthick = comp->GetThickness(mysql);
                     cypos = clen - comp->posy + 1.0 - length / 2.;
                     cxpos = -totthick / 2. + comp->posz + cthick / 2. + 0.1;
                     break;
@@ -187,7 +189,7 @@ namespace MuonGM {
 
             // Fix clashes of non-cutout BMS with BTWingRib
             if ((stname == "BMS" && std::abs(zi) == 5) || (stname == "BMS" && std::abs(zi) == 1 && fi != 3)) {
-                StandardComponent *comp = 0;
+                StandardComponent *comp = nullptr;
                 double cutlen = 0.;
                 double cutthick = 0.;
                 double top_edge = 0.;
@@ -196,7 +198,7 @@ namespace MuonGM {
                     top_edge = comp->posy + comp->dy;
                     cutlen = length - top_edge;
                     if ((comp->posy != 0 && cutlen > 0.1) || comp->dy > 0.75 * length) {
-                        cutthick = comp->GetThickness() + 1.;
+                        cutthick = comp->GetThickness(mysql) + 1.;
                         break;
                     }
                 }
@@ -213,7 +215,7 @@ namespace MuonGM {
 
             if ((m_enableFineClashFixing && (stname == "BML" || stname == "BIL" || stname == "BOL" || stname == "BMS" || stname == "BIS" || stname == "BOS")) || testEIL) {
                 double root3 = 1.7320508;
-                StandardComponent *comp = 0;
+                StandardComponent *comp = nullptr;
                 double mdt_half_thick = -1.;
                 double mdt_pos = 0.;
                 double xtube1 = 0;
@@ -223,8 +225,7 @@ namespace MuonGM {
                 int mdt_index[4] = {0, 0, 0, 0};
                 for (int i = 0; i < m_station->GetNrOfComponents(); i++) {
                     comp = (StandardComponent *)m_station->GetComponent(i);
-                    std::string compName = (comp->name).substr(0, 3);
-                    if (compName == "MDT") {
+                    if (comp->name.compare(0,3,"MDT") == 0) {
                         mdt_index[index] = i;
                         index += 1;
                     }
@@ -246,7 +247,7 @@ namespace MuonGM {
                     double sign = 1.;
                     for (int i = 0; i < index; i++) {
                         comp = (StandardComponent *)m_station->GetComponent(mdt_index[i]);
-                        mdt_half_thick = comp->GetThickness() / 2.;
+                        mdt_half_thick = comp->GetThickness(mysql) / 2.;
                         mdt_pos = -totthick / 2. + comp->posz + mdt_half_thick;
                         mdt_pos += amdbOrigine_along_thickness;
                         xtube1 = sign * (mdt_half_thick - (root3 + 1.) * halfpitch);
@@ -296,7 +297,7 @@ namespace MuonGM {
         // double lengthShiftCP = 0.;
 
         // if this is a BOG, we want to make cutouts in the MOTHER VOLUME
-        if (stName.substr(0, 3) == "BOG" && (manager->IncludeCutoutsBogFlag() || manager->IncludeCutoutsFlag())) {
+        if (stName.compare(0, 3, "BOG") == 0 && (manager->IncludeCutoutsBogFlag() || manager->IncludeCutoutsFlag())) {
 
             if (verbose) {
                 log << MSG::VERBOSE << "amdb org: length= " << amdbOrigine_along_length << " thickness= " << amdbOrigine_along_thickness << endmsg;
@@ -339,7 +340,7 @@ namespace MuonGM {
                             }
                             // create the cutout with the full thickness of the STATION
                             cut->setThickness(totthick * 1.01); // extra to be sure
-                            if ((cut->subtype == mysql->allocPosFindSubtype(statType, fi, zi)) && (cut->icut == mysql->allocPosFindCutout(statType, fi, zi)) &&
+                            if ((cut->subtype == mysql.allocPosFindSubtype(std::string(statType), fi, zi)) && (cut->icut == mysql.allocPosFindCutout(std::string(statType), fi, zi)) &&
                                 (cut->ijob == c->index)) {
 
                                 foundCutouts = true;
@@ -352,18 +353,18 @@ namespace MuonGM {
 
         // remove overlaps between end-cap and forward region of TGC stations,
         // T[1-3]E1_station and T[1-3]F1_station
-        if (stName.substr(0, 1) == "T" && stName.substr(2, 1) == "E" && stName.substr(1, 1) != "4") {
+        if (stName.compare(0, 1, "T") == 0 && stName.compare(2, 1, "E") == 0 && stName.compare(1, 1, "4") != 0) {
             GeoTrd *strdoverlap = new GeoTrd(totthick / 4, totthick / 4, width / 2, longWidth / 2, 400. / 2);
             strd = &(strd->subtract((*strdoverlap) << GeoTrf::Translate3D(-totthick / 4., 0., -length / 2 + 400. / 2.)));
         }
 
-        const GeoMaterial *mtrd = 0;
+        const GeoMaterial *mtrd = nullptr;
         if (useAssemblies || isAssembly) {
-            mtrd = getMaterialManager()->getMaterial("special::Ether");
+            mtrd = matManager.getMaterial("special::Ether");
         } else {
-            mtrd = getMaterialManager()->getMaterial("std::Air");
+            mtrd = matManager.getMaterial("std::Air");
         }
-        GeoLogVol *ltrd = new GeoLogVol(stName + "_Station", strd, mtrd);
+        GeoLogVol *ltrd = new GeoLogVol(std::string(stName) + "_Station", strd, mtrd);
         GeoPhysVol *ptrd = new GeoPhysVol(ltrd);
 
         double ypos;
@@ -385,16 +386,16 @@ namespace MuonGM {
 
         for (int j = 0; j < m_station->GetNrOfComponents(); j++) {
             StandardComponent *d = (StandardComponent *)m_station->GetComponent(j);
-            std::string cn = (d->name).substr(0, 3);
+            std::string_view cn = std::string_view(d->name).substr(0, 3);
             if (cn == "RPC") {
                 nRpc++;
                 if (nRpc == 1)
                     nDoubletR++;
-                double depth = -thickness / 2. + d->posz + d->GetThickness() / 2.;
+                double depth = -thickness / 2. + d->posz + d->GetThickness(mysql) / 2.;
                 // std::cerr << " nRpc, nDoubletR, depth " << nRpc << " " << nDoubletR
                 //           << " " << depth;
                 // BI RPC Chambers have one one doubletR
-                if (!(stname.substr(0, 2) == "BI") && nDoubletR == 1 && nRpc > 1 && depth * previous_depth < 0)
+                if (!(stname.compare(0, 2, "BI") == 0) && nDoubletR == 1 && nRpc > 1 && depth * previous_depth < 0)
                     nDoubletR++;
                 // std::cerr<<" updated to "<<nDoubletR<<std::endl;
 
@@ -424,9 +425,9 @@ namespace MuonGM {
         double LBpos[2] = {-1, -1};
         for (int i = 0; i < m_station->GetNrOfComponents(); i++) {
             StandardComponent *c = (StandardComponent *)m_station->GetComponent(i);
-            std::string cname = (c->name).substr(0, 2);
+            std::string_view cname = std::string_view(c->name).substr(0, 2);
             if (cname == "LB") {
-                LBI *lb = (LBI *)mysql->GetTechnology(c->name);
+                const LBI *lb = dynamic_cast<const LBI *>(mysql.GetTechnology(c->name));
                 LByShift = lb->yShift;
 
                 numLB++;
@@ -440,7 +441,7 @@ namespace MuonGM {
 
         for (int i = 0; i < m_station->GetNrOfComponents(); i++) {
             StandardComponent *c = (StandardComponent *)m_station->GetComponent(i);
-            std::string cname = (c->name).substr(0, 3);
+            std::string_view cname = std::string_view(c->name).substr(0, 3);
             if (cname == "CRO" || cname == "CMI" || cname == "CHV") {
                 CbmComponent *ccbm = (CbmComponent *)c;
                 ccbm->lb_height = LBheight;
@@ -454,7 +455,7 @@ namespace MuonGM {
         std::string CMIcomponentNumber = "";
         for (int j = 0; j < m_station->GetNrOfComponents(); j++) {
             StandardComponent *d = (StandardComponent *)m_station->GetComponent(j);
-            std::string cn = (d->name).substr(0, 3);
+            std::string_view cn = std::string_view(d->name).substr(0, 3);
             if (cn == "CMI") {
                 CMIcomponentNumber = (d->name).substr(3, 2);
                 break;
@@ -463,7 +464,7 @@ namespace MuonGM {
 
         for (int j = 0; j < m_station->GetNrOfComponents(); j++) {
             StandardComponent *d = (StandardComponent *)m_station->GetComponent(j);
-            std::string cn = (d->name).substr(0, 2);
+            std::string_view cn = std::string_view(d->name).substr(0, 2);
             if (cn == "LB") {
                 LbiComponent *lbic = (LbiComponent *)d;
                 if (lbic) {
@@ -475,7 +476,7 @@ namespace MuonGM {
 
         // Build the MuonStation(readout-geometry) corresponding to this MuonChamber(raw-geometry)
         MuonStation *mstat;
-        if (stName.substr(0, 1) == "B") {
+        if (stName.compare(0, 1, "B") == 0) {
             mstat = new MuonStation(stName.substr(0, 3), width, totthick, length, longWidth, totthick, length, zi, fi + 1,
                                     (zi < 0 && !is_mirrored)); //!< fi here goes from 0 to 7; in amdb from 1 to 8;
         } else {
@@ -494,20 +495,20 @@ namespace MuonGM {
             StandardComponent *c = (StandardComponent *)m_station->GetComponent(i);
             if (verbose) {
                 log << MSG::VERBOSE << " Component index " << c->index << " in loop for " << stName << " " << stationType << " at zi, fi " << zi << " " << fi + 1 << "  cName "
-                    << c->name << " thickness " << c->GetThickness() << " length " << c->dy << " w, lw " << c->dx1 << " " << c->dx2 << endmsg;
+                    << c->name << " thickness " << c->GetThickness(mysql) << " length " << c->dy << " w, lw " << c->dx1 << " " << c->dx2 << endmsg;
                 log << MSG::VERBOSE << " Component local (amdb) coords " << c->posx << " " << c->posy << " " << c->posz << endmsg;
             }
 
-            ypos = -thickness / 2. + c->posz + c->GetThickness() / 2.;
+            ypos = -thickness / 2. + c->posz + c->GetThickness(mysql) / 2.;
             zpos = 0.;
             xpos = 0.;
 
-            ypos = -thickness / 2. + (c->posz + amdbOrigine_along_thickness) + c->GetThickness() / 2.;
+            ypos = -thickness / 2. + (c->posz + amdbOrigine_along_thickness) + c->GetThickness(mysql) / 2.;
             zpos = -length / 2. + amdbOrigine_along_length + c->posy + c->dy / 2.;
             xpos = c->posx;
 
-            std::string techname = c->name;
-            std::string type = techname.substr(0, 3);
+            const std::string &techname = c->name;
+            std::string_view type = std::string_view(techname).substr(0, 3);
 
             GeoVPhysVol *lv = nullptr;
             GeoVPhysVol *lvd = nullptr;
@@ -522,7 +523,7 @@ namespace MuonGM {
 
             // Are there cutouts?
             std::string statType = stName.substr(0, 3);
-            double cthickness = c->GetThickness();
+            double cthickness = c->GetThickness(mysql);
             int ncutouts = 0;
             std::vector<Cutout *> vcutdef;
             std::vector<Cutout *> vcutdef_todel;
@@ -530,7 +531,7 @@ namespace MuonGM {
                 Cutout *cut = m_station->GetCutout(ii);
                 cut->setThickness(cthickness * 1.01); // extra thickness to be sure
 
-                if ((cut->subtype == mysql->allocPosFindSubtype(statType, fi, zi)) && (cut->icut == mysql->allocPosFindCutout(statType, fi, zi)) && (cut->ijob == c->index)) {
+                if ((cut->subtype == mysql.allocPosFindSubtype(std::string(statType), fi, zi)) && (cut->icut == mysql.allocPosFindCutout(std::string(statType), fi, zi)) && (cut->ijob == c->index)) {
 
                     double tempdx = cut->dx;
                     double tempdy = cut->dy;
@@ -538,7 +539,7 @@ namespace MuonGM {
                     cut->dx = 0.;
                     cut->dy = 0.;
 
-                    if (stName.substr(0, 3) == "BOG") {
+                    if (stName.compare(0, 3, "BOG") == 0) {
                         // make the cutouts a bit longer
                         cut->lengthY = templengthY + 31.;
                     }
@@ -568,7 +569,7 @@ namespace MuonGM {
                     }
 
                     // Corrected cutout values for BMS7, BMS14
-                    if (stName.substr(0, 3) == "BMS") {
+                    if (stName.compare(0, 3, "BMS") == 0) {
                         if (fi == 3) {               // stationPhi = 4
                             if (std::abs(zi) == 1) { // stationEta = +-1
                                 double margin = 1.0; // make cutout a little bigger to avoid coincident boundaries
@@ -592,7 +593,7 @@ namespace MuonGM {
                     }
 
                     // the following is a fine tuning ----- MUST CHECK for a better solution
-                    if (stName.substr(0, 3) == "BOS" && zi == -6 && type == "MDT") {
+                    if (stName.compare(0, 3,"BOS") == 0 && zi == -6 && type == "MDT") {
                         cut->dy = c->dy - cut->dy - cut->lengthY - halfpitch;
                         cut->dead1 = 30.; // why this is not 30. or -30. already ?????
                         if (techname == "MDT03")
@@ -605,7 +606,7 @@ namespace MuonGM {
                     // this mirroring of the cutout is necessary only for barrel MDT chambers; for EC the cutout will be automatically mirrored
                     // this fix cannot be applied in 15.6.X.Y for layout < r.04.04 due to the frozen tier0 policy
 
-                    if (type == "MDT" && (is_mirrored || zi < 0) && stName.substr(0, 1) == "B") {
+                    if (type == "MDT" && (is_mirrored || zi < 0) && stName.compare(0, 1, "B") == 0) {
                         // MDT in chambers explicitly described at z<0 have to be
                         // rotated by 180deg to adj. tube staggering
                         // reverse the position (x amdb) of the cutout if the m_station is mirrored
@@ -621,11 +622,11 @@ namespace MuonGM {
                     } else if (type == "RPC" || type == "DED") {
                         Cutout *cutRpcType = new Cutout(*cut);
                         // temporary for testing fixes to r.03.09
-                        if (stName.substr(0, 3) == "BMS" && zi == 4 && (c->index == 20 || c->index == 21 || c->index == 24 || c->index == 25)) {
+                        if (stName.compare(0, 3, "BMS") == 0 && zi == 4 && (c->index == 20 || c->index == 21 || c->index == 24 || c->index == 25)) {
                             cutRpcType->dy = 1102.5;
                         }
 
-                        if (stName.substr(0, 3) == "BOS" && zi == 6 && type == "DED")
+                        if (stName.compare(0, 3, "BOS") == 0 && zi == 6 && type == "DED")
                             cutRpcType->dy = 706.;
 
                         cutRpcType->dy = cutRpcType->dy - c->posy;
@@ -671,10 +672,9 @@ namespace MuonGM {
             GeoTransform *xfcomponent{nullptr};
             GeoAlignableTransform *xfaligncomponent{nullptr};
             // for RPCs we need a vector of transforms for M28 geometry...
-            // std::vector<GeoTransform*> xfrpccomponent;
 
             if (type == "CRO") {
-                if (stName.substr(0, 1) != "B" && is_mirrored)
+                if (stName.compare(0, 1, "B") != 0 && is_mirrored)
                     mstat->setxAmdbCRO(-xpos);
                 else
                     mstat->setxAmdbCRO(xpos);
@@ -691,7 +691,7 @@ namespace MuonGM {
 
                 // ss - 24-05-2006 I don't really understand if this is needed at all
                 //      it was introduced by Isabel T.
-                if (zi < 0 && stName.substr(0, 3) == "BOG" && is_mirrored) {
+                if (zi < 0 && stName.compare(0, 3, "BOG") == 0 && is_mirrored) {
                     //      htcomponent = htcomponent*GeoTrf::RotateX3D(180.*Gaudi::Units::deg);
                     //      tubes OK but chambers wrong
                     //      htcomponent = GeoTrf::RotateX3D(180.*Gaudi::Units::deg)*htcomponent;
@@ -700,35 +700,35 @@ namespace MuonGM {
                 } // ss - 24-05-2006 I don't really understand if this is needed at all
 
                 xfaligncomponent = new GeoAlignableTransform(htcomponent);
-                std::string key = stName + techname;
+                std::string key =std::string( stName) + techname;
 
                 // for cutouts:
                 // MDT cutouts for BOS1,5, BMS7,14, (problem with BMS4,10), EMS, BMG and BIS MDT14
                 bool mdtCutoutFlag = ((stname == "BOS" && std::abs(zi) == 6) || stname == "BMG" || techname == "MDT14" || (stname == "BMS" && (std::abs(zi) == 1 && fi == 3)) ||
                                       (stname == "EMS" && (std::abs(zi) == 1 || std::abs(zi) == 3)));
-                if (((manager->IncludeCutoutsFlag() && mdtCutoutFlag) || (manager->IncludeCutoutsBogFlag() && stName.substr(0, 3) == "BOG")) && zi >= 0) {
-                    key += "p" + buildString(mysql->allocPosFindSubtype(statType, fi, zi), 0) + "_" + buildString(mysql->allocPosFindCutout(statType, fi, zi), 0);
-                } else if (((manager->IncludeCutoutsFlag() && mdtCutoutFlag) || (manager->IncludeCutoutsBogFlag() && stName.substr(0, 3) == "BOG")) && zi < 0) {
-                    key += "m" + buildString(mysql->allocPosFindSubtype(statType, fi, zi), 0) + "_" + buildString(mysql->allocPosFindCutout(statType, fi, zi), 0);
+                if (((manager->IncludeCutoutsFlag() && mdtCutoutFlag) || (manager->IncludeCutoutsBogFlag() && stName.compare(0, 3, "BOG") == 0)) && zi >= 0) {
+                    key += "p" + buildString(mysql.allocPosFindSubtype(statType, fi, zi), 0) + "_" + buildString(mysql.allocPosFindCutout(statType, fi, zi), 0);
+                } else if (((manager->IncludeCutoutsFlag() && mdtCutoutFlag) || (manager->IncludeCutoutsBogFlag() && stName.compare(0, 3, "BOG")) == 0) && zi < 0) {
+                    key += "m" + buildString(mysql.allocPosFindSubtype(statType, fi, zi), 0) + "_" + buildString(mysql.allocPosFindCutout(statType, fi, zi), 0);
                 }
 
                 GeoVPhysVol *fpv = m_FPVMAP->GetDetector(key);
-                if (fpv == 0) {
-                    Mdt *r = new Mdt(c, stName + techname);
+                if (fpv == nullptr) {
+                    Mdt *r = new Mdt(mysql, c, stName + techname);
                     if (debug) {
                         log << MSG::DEBUG << " Building an MDT for station " << key << " component name is " << c->name << " manager->IncludeCutoutsFlag() "
                             << manager->IncludeCutoutsFlag() << " manager->IncludeCutoutsBogFlag() " << manager->IncludeCutoutsBogFlag() << endmsg;
                     }
 
-                    if ((manager->IncludeCutoutsFlag() && mdtCutoutFlag) || (manager->IncludeCutoutsBogFlag() && stName.substr(0, 3) == "BOG")) {
-                        lvm = r->build(vcutdef);
+                    if ((manager->IncludeCutoutsFlag() && mdtCutoutFlag) || (manager->IncludeCutoutsBogFlag() && stName.compare(0, 3, "BOG") == 0)) {
+                        lvm = r->build(matManager, mysql, vcutdef);
                     } else {
-                        lvm = r->build();
+                        lvm = r->build(matManager, mysql);
                     }
 
                     m_FPVMAP->StoreDetector(lvm, key);
                     delete r;
-                    r = 0;
+                    r = nullptr;
                 } else {
                     GeoFullPhysVol *rfpv = (GeoFullPhysVol *)fpv;
                     if (verbose) {
@@ -738,7 +738,7 @@ namespace MuonGM {
                 }
 
             } else if (type == "SPA" && manager->MinimalGeoFlag() == 0) {
-                if (techname == "SPA01" && stName.substr(0, 1) == "C") {
+                if (techname == "SPA01" && stName.compare(0, 1, "C") == 0) {
                     if (debug) {
                         log << MSG::DEBUG << "Ficticious spacer SPA01 in CSC chamber - skip it " << endmsg;
                     }
@@ -749,36 +749,36 @@ namespace MuonGM {
 
                 htcomponent = GeoTrf::TranslateX3D(ypos) * GeoTrf::TranslateZ3D(zpos);
                 xfcomponent = new GeoTransform(htcomponent);
-                std::string key = stName + techname;
-                if ((manager->IncludeCutoutsFlag() || (manager->IncludeCutoutsBogFlag() && stName.substr(0, 3) == "BOG")) && zi >= 0) {
-                    key += "p" + buildString(mysql->allocPosFindSubtype(statType, fi, zi), 0) + "_" + buildString(mysql->allocPosFindCutout(statType, fi, zi), 0);
-                } else if ((manager->IncludeCutoutsFlag() || (manager->IncludeCutoutsBogFlag() && stName.substr(0, 3) == "BOG")) && zi < 0) {
-                    key += "m" + buildString(mysql->allocPosFindSubtype(statType, fi, zi), 0) + "_" + buildString(mysql->allocPosFindCutout(statType, fi, zi), 0);
+                std::string key = std::string(stName) + techname;
+                if ((manager->IncludeCutoutsFlag() || (manager->IncludeCutoutsBogFlag() && stName.compare(0, 3, "BOG") == 0)) && zi >= 0) {
+                    key += "p" + buildString(mysql.allocPosFindSubtype(statType, fi, zi), 0) + "_" + buildString(mysql.allocPosFindCutout(statType, fi, zi), 0);
+                } else if ((manager->IncludeCutoutsFlag() || (manager->IncludeCutoutsBogFlag() && stName.compare(0, 3,"BOG") == 0)) && zi < 0) {
+                    key += "m" + buildString(mysql.allocPosFindSubtype(statType, fi, zi), 0) + "_" + buildString(mysql.allocPosFindCutout(statType, fi, zi), 0);
                 }
 
                 GeoVPhysVol *fpv = m_FPVMAP->GetDetector(key);
-                if (fpv == 0) {
-                    Spacer *r = new Spacer(c);
+                if (fpv == nullptr) {
+                    Spacer *r = new Spacer(mysql, c);
                     // log << MSG::DEBUG << " Building a SPA for m_station "
                     //     << key << " component name is " << c->name << endmsg;
-                    if (manager->IncludeCutoutsFlag() || (manager->IncludeCutoutsBogFlag() && stName.substr(0, 3) == "BOG")) {
-                        lv = r->build(1);
+                    if (manager->IncludeCutoutsFlag() || (manager->IncludeCutoutsBogFlag() && stName.compare(0, 3, "BOG") == 0)) {
+                        lv = r->build(matManager, 1);
                     } else {
-                        lv = r->build();
+                        lv = r->build(matManager);
                     }
                     // log << MSG::DEBUG << " Storing in FPVMAP with key " << key << endmsg;
                     m_FPVMAP->StoreDetector(lv, key);
                     delete r;
-                    r = 0;
+                    r = nullptr;
                 } else {
                     lv = fpv;
                 }
             } else if ((type == "CHV" || type == "CRO" || type == "CMI" || type == "LB0" || type == "LBI") && manager->MinimalGeoFlag() == 0) {
-                SpacerBeam *r = new SpacerBeam(c);
+                SpacerBeam *r = new SpacerBeam(mysql, c);
                 BeamHeight = r->height;
                 ypos = c->posx;
                 double xpos = (c->posz + amdbOrigine_along_thickness) - thickness / 2. + BeamHeight / 2.;
-                if (type.substr(0, 2) == "LB")
+                if (type.compare(0, 2, "LB") == 0)
                     xpos -= LByShift;
 
                 double angle = 0.;
@@ -818,10 +818,10 @@ namespace MuonGM {
                 xfcomponent = new GeoTransform(htcomponent);
 
                 std::string key = stName + techname;
-                if ((manager->IncludeCutoutsFlag() || (manager->IncludeCutoutsBogFlag() && stName.substr(0, 3) == "BOG")) && zi >= 0) {
-                    key += "p" + buildString(mysql->allocPosFindSubtype(statType, fi, zi), 0) + "_" + buildString(mysql->allocPosFindCutout(statType, fi, zi), 0);
-                } else if ((manager->IncludeCutoutsFlag() || (manager->IncludeCutoutsBogFlag() && stName.substr(0, 3) == "BOG")) && zi < 0) {
-                    key += "m" + buildString(mysql->allocPosFindSubtype(statType, fi, zi), 0) + "_" + buildString(mysql->allocPosFindCutout(statType, fi, zi), 0);
+                if ((manager->IncludeCutoutsFlag() || (manager->IncludeCutoutsBogFlag() && stName.compare(0, 3, "BOG") == 0)) && zi >= 0) {
+                    key += "p" + buildString(mysql.allocPosFindSubtype(statType, fi, zi), 0) + "_" + buildString(mysql.allocPosFindCutout(statType, fi, zi), 0);
+                } else if ((manager->IncludeCutoutsFlag() || (manager->IncludeCutoutsBogFlag() && stName.compare(0, 3, "BOG") == 0)) && zi < 0) {
+                    key += "m" + buildString(mysql.allocPosFindSubtype(statType, fi, zi), 0) + "_" + buildString(mysql.allocPosFindCutout(statType, fi, zi), 0);
                 }
                 // can have LB of different length in same m_station:
                 if (type.substr(0, 2) == "LB")
@@ -831,29 +831,29 @@ namespace MuonGM {
                 //                   << key << " component name is "
                 //                   << c->name << endmsg;
                 GeoVPhysVol *fpv = m_FPVMAP->GetDetector(key);
-                if (fpv == 0 || (stName.substr(0, 3) == "BOG" && type == "CMI")) {
-                    if (stName.substr(0, 3) == "BOG") {
+                if (fpv == nullptr || (stName.compare(0, 3, "BOG") == 0 && type == "CMI")) {
+                    if (stName.compare(0, 3, "BOG") == 0) {
                         if (verbose) {
                             log << MSG::VERBOSE << " Building a SpacerBeam for station " << key << " component name is " << c->name << endmsg;
                         }
                     }
-                    if (manager->IncludeCutoutsFlag() || (manager->IncludeCutoutsBogFlag() && stName.substr(0, 3) == "BOG")) {
-                        lvo = r->build(1, is_barrel);
+                    if (manager->IncludeCutoutsFlag() || (manager->IncludeCutoutsBogFlag() && stName.compare(0, 3, "BOG") == 0)) {
+                        lvo = r->build(matManager, 1, is_barrel);
                     } else {
-                        lvo = r->build(is_barrel);
+                        lvo = r->build(matManager, is_barrel);
                     }
                     m_FPVMAP->StoreDetector(lvo, key);
                     // AMDB origin is in bottom centre of bottom cross-piece at
                     // end of bar.
                     // From centre, it is -height/2 in x, 0 in y, -length/2 in z
                 } else {
-                    if (stName.substr(0, 3) == "BOG")
+                    if (stName.compare(0, 3,"BOG") == 0)
                         if (verbose)
                             log << MSG::VERBOSE << " This spacerbeam for station " << key << " component name is " << c->name << " already exists; re-use it " << endmsg;
                     lvo = fpv;
                 }
                 delete r;
-                r = 0;
+                r = nullptr;
 
             } else if (type == "RPC") {
                 // position stuff needed for cutout, used to be below:
@@ -886,17 +886,17 @@ namespace MuonGM {
                 bool rpcCutoutFlag = (stname == "BOS" && std::abs(zi) == 6) || (stname == "BMS" && (std::abs(zi) == 2 || std::abs(zi) == 4 || std::abs(zi) == 6)) ||
                                      (stname == "BMS" && std::abs(zi) == 1 && fi == 3);
                 std::string key = stName + techname;
-                if (((manager->IncludeCutoutsFlag() && rpcCutoutFlag) || (manager->IncludeCutoutsBogFlag() && stName.substr(0, 3) == "BOG")) && zi >= 0) {
-                    key += "p" + buildString(mysql->allocPosFindSubtype(statType, fi, zi), 0) + "_" + buildString(mysql->allocPosFindCutout(statType, fi, zi), 0) + "_" +
+                if (((manager->IncludeCutoutsFlag() && rpcCutoutFlag) || (manager->IncludeCutoutsBogFlag() && stName.compare(0, 3, "BOG") == 0)) && zi >= 0) {
+                    key += "p" + buildString(mysql.allocPosFindSubtype(statType, fi, zi), 0) + "_" + buildString(mysql.allocPosFindCutout(statType, fi, zi), 0) + "_" +
                            buildString(vcutdef.size(), 0) + "_" + buildString(rp->iswap, 0);
-                } else if (((manager->IncludeCutoutsFlag() && rpcCutoutFlag) || (manager->IncludeCutoutsBogFlag() && stName.substr(0, 3) == "BOG")) && zi < 0) {
-                    key += "m" + buildString(mysql->allocPosFindSubtype(statType, fi, zi), 0) + "_" + buildString(mysql->allocPosFindCutout(statType, fi, zi), 0) + "_" +
+                } else if (((manager->IncludeCutoutsFlag() && rpcCutoutFlag) || (manager->IncludeCutoutsBogFlag() && stName.compare(0, 3, "BOG") == 0)) && zi < 0) {
+                    key += "m" + buildString(mysql.allocPosFindSubtype(statType, fi, zi), 0) + "_" + buildString(mysql.allocPosFindCutout(statType, fi, zi), 0) + "_" +
                            buildString(vcutdef.size(), 0) + "_" + buildString(rp->iswap, 0);
                 }
                 GeoVPhysVol *fpv = m_FPVMAP->GetDetector(key);
-                if (fpv == 0) {
-                    Rpc *r = new Rpc(c);
-                    r->setLogVolName(stName + techname);
+                if (fpv == nullptr) {
+                    Rpc *r = new Rpc(mysql, c);
+                    r->setLogVolName(std::string(stName) + techname);
                     if (stName.find("BI") != std::string::npos) {
                         std::map<std::string, float>::const_iterator yItr = rpcYTrans.find(techname);
                         if (yItr != rpcYTrans.end())
@@ -906,15 +906,15 @@ namespace MuonGM {
                             r->z_translation = zItr->second;
                     }
 
-                    if ((manager->IncludeCutoutsFlag() && rpcCutoutFlag) || (manager->IncludeCutoutsBogFlag() && stName.substr(0, 3) == "BOG")) {
-                        lvr = r->build(manager->MinimalGeoFlag(), 1, vcutdef);
+                    if ((manager->IncludeCutoutsFlag() && rpcCutoutFlag) || (manager->IncludeCutoutsBogFlag() && stName.compare(0, 3, "BOG") == 0)) {
+                        lvr = r->build(matManager, mysql, manager->MinimalGeoFlag(), 1, vcutdef);
                     } else {
-                        lvr = r->build(manager->MinimalGeoFlag());
+                        lvr = r->build(matManager, mysql, manager->MinimalGeoFlag());
                     }
 
                     m_FPVMAP->StoreDetector(lvr, key);
                     delete r;
-                    r = 0;
+                    r = nullptr;
 
                 } else {
                     GeoFullPhysVol *rfpv = (GeoFullPhysVol *)fpv;
@@ -931,30 +931,30 @@ namespace MuonGM {
 
                 bool dedCutoutFlag = (stname == "BOS" && std::abs(zi) == 6) || (stname == "BMS" && (std::abs(zi) == 2 || std::abs(zi) == 4 || std::abs(zi) == 6)) ||
                                      (stname == "BMS" && std::abs(zi) == 1 && fi == 3);
-                std::string key = stName + techname;
-                if (((manager->IncludeCutoutsFlag() && dedCutoutFlag) || (manager->IncludeCutoutsBogFlag() && stName.substr(0, 3) == "BOG")) && zi >= 0) {
-                    key += "p" + buildString(mysql->allocPosFindSubtype(statType, fi, zi), 0) + "_" + buildString(mysql->allocPosFindCutout(statType, fi, zi), 0) + "_" +
+                std::string key = std::string(stName) + techname;
+                if (((manager->IncludeCutoutsFlag() && dedCutoutFlag) || (manager->IncludeCutoutsBogFlag() && stName.compare(0, 3,"BOG") == 0)) && zi >= 0) {
+                    key += "p" + buildString(mysql.allocPosFindSubtype(statType, fi, zi), 0) + "_" + buildString(mysql.allocPosFindCutout(statType, fi, zi), 0) + "_" +
                            buildString(vcutdef.size(), 0);
-                } else if (((manager->IncludeCutoutsFlag() && dedCutoutFlag) || (manager->IncludeCutoutsBogFlag() && stName.substr(0, 3) == "BOG")) && zi < 0) {
-                    key += "m" + buildString(mysql->allocPosFindSubtype(statType, fi, zi), 0) + "_" + buildString(mysql->allocPosFindCutout(statType, fi, zi), 0) + "_" +
+                } else if (((manager->IncludeCutoutsFlag() && dedCutoutFlag) || (manager->IncludeCutoutsBogFlag() && stName.compare(0, 3, "BOG") == 0)) && zi < 0) {
+                    key += "m" + buildString(mysql.allocPosFindSubtype(statType, fi, zi), 0) + "_" + buildString(mysql.allocPosFindCutout(statType, fi, zi), 0) + "_" +
                            buildString(vcutdef.size(), 0);
                 }
                 key += buildString(int(c->dy), 0) + "_" + buildString(int(c->dx1), 0);
                 GeoVPhysVol *fpv = m_FPVMAP->GetDetector(key);
 
-                if (fpv == 0) {
-                    Ded *r = new Ded(c);
+                if (fpv == nullptr) {
+                    Ded *r = new Ded(mysql, c);
                     if (verbose)
                         log << MSG::VERBOSE << " Building a DED for station " << key << " component name is " << c->name << endmsg;
-                    if ((manager->IncludeCutoutsFlag() && dedCutoutFlag) || (manager->IncludeCutoutsBogFlag() && stName.substr(0, 3) == "BOG")) {
-                        lvd = r->build(1, vcutdef);
+                    if ((manager->IncludeCutoutsFlag() && dedCutoutFlag) || (manager->IncludeCutoutsBogFlag() && stName.compare(0, 3, "BOG") == 0)) {
+                        lvd = r->build(matManager, mysql, 1, vcutdef);
                     } else {
-                        lvd = r->build();
+                        lvd = r->build(matManager, mysql);
                     }
 
                     m_FPVMAP->StoreDetector(lvd, key);
                     delete r;
-                    r = 0;
+                    r = nullptr;
                 } else {
                     lvd = fpv;
                     if (verbose)
@@ -963,20 +963,20 @@ namespace MuonGM {
 
             } else if (type == "SUP" && manager->MinimalGeoFlag() == 0) {
                 ypos = -thickness / 2. + c->posz;
-                double zpos = -length / 2. + c->posy + c->dy / 2. - SupComponent::zAMDB0(*c);
-                ypos = ypos - SupComponent::xAMDB0(*c);
-                double xpos = c->posx - SupComponent::yAMDB0(*c);
+                double zpos = -length / 2. + c->posy + c->dy / 2. - SupComponent::zAMDB0(mysql, *c);
+                ypos = ypos - SupComponent::xAMDB0(mysql, *c);
+                double xpos = c->posx - SupComponent::yAMDB0(mysql, *c);
 
                 htcomponent = GeoTrf::TranslateX3D(ypos) * GeoTrf::TranslateY3D(xpos) * GeoTrf::TranslateZ3D(zpos);
-                std::string key = stName + techname;
-                if ((manager->IncludeCutoutsFlag() || (manager->IncludeCutoutsBogFlag() && stName.substr(0, 3) == "BOG")) && zi >= 0) {
-                    key += "p" + buildString(mysql->allocPosFindSubtype(statType, fi, zi), 0) + "_" + buildString(mysql->allocPosFindCutout(statType, fi, zi), 0);
-                } else if ((manager->IncludeCutoutsFlag() || (manager->IncludeCutoutsBogFlag() && stName.substr(0, 3) == "BOG")) && zi < 0) {
-                    key += "m" + buildString(mysql->allocPosFindSubtype(statType, fi, zi), 0) + "_" + buildString(mysql->allocPosFindCutout(statType, fi, zi), 0);
+                std::string key = std::string(stName) + techname;
+                if ((manager->IncludeCutoutsFlag() || (manager->IncludeCutoutsBogFlag() && stName.compare(0, 3,"BOG") == 0)) && zi >= 0) {
+                    key += "p" + buildString(mysql.allocPosFindSubtype(statType, fi, zi), 0) + "_" + buildString(mysql.allocPosFindCutout(statType, fi, zi), 0);
+                } else if ((manager->IncludeCutoutsFlag() || (manager->IncludeCutoutsBogFlag() && stName.compare(0, 3,"BOG") == 0)) && zi < 0) {
+                    key += "m" + buildString(mysql.allocPosFindSubtype(statType, fi, zi), 0) + "_" + buildString(mysql.allocPosFindCutout(statType, fi, zi), 0);
                 }
 
                 GeoVPhysVol *fpv = m_FPVMAP->GetDetector(key);
-                if (fpv == 0) {
+                if (fpv == nullptr) {
                     m_FPVMAP->StoreDetector(lvs, key);
                 } else {
                     lvs = fpv;
@@ -989,19 +989,19 @@ namespace MuonGM {
                 TgcComponent *tgOuter = (TgcComponent *)m_station->GetComponent(m_station->GetNrOfComponents() - 1);
                 double orad = tgOuter->posy + tgOuter->dy;
                 double start = -(orad - irad) / 2. + (tg->posy - irad) + tg->dy / 2;
-                double xstart = -thickness / 2. + tg->GetThickness() / 2.;
+                double xstart = -thickness / 2. + tg->GetThickness(mysql) / 2.;
                 htcomponent = GeoTrf::TranslateX3D(xstart + tg->posz) * GeoTrf::TranslateZ3D(start);
                 xfaligncomponent = new GeoAlignableTransform(htcomponent);
 
                 // Define key for this TGC component
-                std::string key = stName + techname;
+                std::string key = std::string(stName) + techname;
                 if (manager->IncludeCutoutsFlag()) {
-                    if (mysql->allocPosFindCutout(statType, fi, zi) > 0) {
+                    if (mysql.allocPosFindCutout(statType, fi, zi) > 0) {
                         // If there is a cutout for this chamber, give it a special key
                         if (zi >= 0) {
-                            key += "p" + buildString(mysql->allocPosFindSubtype(statType, fi, zi), 0) + "_" + buildString(mysql->allocPosFindCutout(statType, fi, zi), 0);
+                            key += "p" + buildString(mysql.allocPosFindSubtype(statType, fi, zi), 0) + "_" + buildString(mysql.allocPosFindCutout(statType, fi, zi), 0);
                         } else if (zi < 0) {
-                            key += "m" + buildString(mysql->allocPosFindSubtype(statType, fi, zi), 0) + "_" + buildString(mysql->allocPosFindCutout(statType, fi, zi), 0);
+                            key += "m" + buildString(mysql.allocPosFindSubtype(statType, fi, zi), 0) + "_" + buildString(mysql.allocPosFindCutout(statType, fi, zi), 0);
                         }
                     }
                 }
@@ -1011,17 +1011,17 @@ namespace MuonGM {
                 key += chswidth;
 
                 GeoVPhysVol *fpv = m_FPVMAP->GetDetector(key);
-                if (fpv == 0) {
-                    Tgc *t = new Tgc(c);
-                    t->setLogVolName(stName + techname);
+                if (fpv == nullptr) {
+                    Tgc *t = new Tgc(mysql, c);
+                    t->setLogVolName(std::string(stName) + techname);
                     if (manager->IncludeCutoutsFlag()) {
-                        lvt = t->build(manager->MinimalGeoFlag(), 1, vcutdef);
+                        lvt = t->build(matManager, mysql, manager->MinimalGeoFlag(), 1, vcutdef);
                     } else {
-                        lvt = t->build(manager->MinimalGeoFlag());
+                        lvt = t->build(matManager, mysql, manager->MinimalGeoFlag());
                     }
                     m_FPVMAP->StoreDetector(lvt, key);
                     delete t;
-                    t = 0;
+                    t = nullptr;
                 } else {
                     GeoFullPhysVol *rfpv = (GeoFullPhysVol *)fpv;
                     lvt = rfpv->clone();
@@ -1031,27 +1031,27 @@ namespace MuonGM {
                 htcomponent = GeoTrf::TranslateX3D(ypos) * GeoTrf::TranslateZ3D(zpos);
                 xfaligncomponent = new GeoAlignableTransform(htcomponent);
                 // Here define the key for this CSC component
-                std::string key = stName + techname;
+                std::string key = std::string(stName) + techname;
                 if (manager->IncludeCutoutsFlag() && zi >= 0) {
-                    key += "p" + buildString(mysql->allocPosFindSubtype(statType, fi, zi), 0) + "_" + buildString(mysql->allocPosFindCutout(statType, fi, zi), 0);
+                    key += "p" + buildString(mysql.allocPosFindSubtype(statType, fi, zi), 0) + "_" + buildString(mysql.allocPosFindCutout(statType, fi, zi), 0);
                 } else if (manager->IncludeCutoutsFlag() && zi < 0) {
-                    key += "m" + buildString(mysql->allocPosFindSubtype(statType, fi, zi), 0) + "_" + buildString(mysql->allocPosFindCutout(statType, fi, zi), 0);
+                    key += "m" + buildString(mysql.allocPosFindSubtype(statType, fi, zi), 0) + "_" + buildString(mysql.allocPosFindCutout(statType, fi, zi), 0);
                 }
 
                 GeoVPhysVol *fpv = m_FPVMAP->GetDetector(key);
-                if (fpv == 0) {
-                    Csc *t = new Csc(c);
-                    t->setLogVolName(stName + techname);
+                if (fpv == nullptr) {
+                    Csc *t = new Csc(mysql, c);
+                    t->setLogVolName(std::string(stName) + techname);
 
                     if (manager->IncludeCutoutsFlag()) {
-                        lvc = t->build(manager->MinimalGeoFlag(), 1, vcutdef);
+                        lvc = t->build(matManager, mysql, manager->MinimalGeoFlag(), 1, vcutdef);
                     } else {
-                        lvc = t->build(manager->MinimalGeoFlag());
+                        lvc = t->build(matManager, mysql, manager->MinimalGeoFlag());
                     }
 
                     m_FPVMAP->StoreDetector(lvc, key);
                     delete t;
-                    t = 0;
+                    t = nullptr;
                 } else {
                     GeoFullPhysVol *rfpv = (GeoFullPhysVol *)fpv;
                     lvc = rfpv->clone();
@@ -1085,8 +1085,8 @@ namespace MuonGM {
                 ptrd->add(lvm);
                 const MdtIdHelper *mdt_id = manager->mdtIdHelper();
                 MdtReadoutElement *det = new MdtReadoutElement(lvm, stName, zi, fi + 1, is_mirrored, manager);
-                Position ip = mysql->GetStationPosition(stName.substr(0, 3), fi, zi);
-                setMdtReadoutGeom(det, (MdtComponent *)c, ip);
+                Position ip = mysql.GetStationPosition(stName.substr(0, 3), fi, zi);
+                setMdtReadoutGeom(mysql, det, (MdtComponent *)c, ip);
                 det->setHasCutouts(ncutouts > 0);
                 det->setNofREinStation(nMdt, nRpc, nTgc, nCsc);
                 det->setStationEta(stationEta);
@@ -1144,8 +1144,8 @@ namespace MuonGM {
                 ptrd->add(lvc);
 
                 CscReadoutElement *det = new CscReadoutElement(lvc, stName, zi, fi + 1, is_mirrored, manager);
-                Position ip = mysql->GetStationPosition(stName.substr(0, 3), fi, zi);
-                setCscReadoutGeom(det, cs, ip, geometry_version, stName);
+                Position ip = mysql.GetStationPosition(stName.substr(0, 3), fi, zi);
+                setCscReadoutGeom(mysql, det, cs, ip);
 
                 const CscIdHelper *csc_id = manager->cscIdHelper();
                 det->setHasCutouts(ncutouts > 0);
@@ -1180,7 +1180,7 @@ namespace MuonGM {
 
                 TgcComponent *tg = (TgcComponent *)m_station->GetComponent(i);
                 if (verbose) {
-                    log << MSG::VERBOSE << "There's a TGC named " << techname << " of thickness " << tg->GetThickness() << endmsg;
+                    log << MSG::VERBOSE << "There's a TGC named " << techname << " of thickness " << tg->GetThickness(mysql) << endmsg;
                 }
 
                 const TgcIdHelper *tgc_id = manager->tgcIdHelper();
@@ -1211,8 +1211,8 @@ namespace MuonGM {
                 ptrd->add(lvt);
 
                 TgcReadoutElement *det = new TgcReadoutElement(lvt, stName, zi, fi + 1, is_mirrored, manager);
-                Position ip = mysql->GetStationPosition(stName.substr(0, 3), fi, zi);
-                setTgcReadoutGeom(det, tg, ip, geometry_version, stName);
+                Position ip = mysql.GetStationPosition(stName.substr(0, 3), fi, zi);
+                setTgcReadoutGeom(mysql, det, tg, ip, stName);
                 det->setHasCutouts(ncutouts > 0);
                 det->setNofREinStation(nMdt, nRpc, nTgc, nCsc);
                 det->setStationEta(stationEta);
@@ -1351,8 +1351,8 @@ namespace MuonGM {
                 ptrd->add(lvr);
 
                 RpcReadoutElement *det = new RpcReadoutElement(lvr, stName, zi, fi + 1, is_mirrored, manager);
-                Position ip = mysql->GetStationPosition(stName.substr(0, 3), fi, zi);
-                setRpcReadoutGeom(det, rp, ip, geometry_version, manager);
+                Position ip = mysql.GetStationPosition(stName.substr(0, 3), fi, zi);
+                setRpcReadoutGeom(mysql, det, rp, ip, geometry_version, manager);
                 det->setHasCutouts(ncutouts > 0);
                 det->setNofREinStation(nMdt, nRpc, nTgc, nCsc);
                 det->setStationEta(stationEta);
@@ -1454,15 +1454,16 @@ namespace MuonGM {
         return ptrd;
     }
 
-    void MuonChamber::setCscReadoutGeom(CscReadoutElement *re, const CscComponent *cc, const Position &ip, const std::string& /*gVersion*/, const std::string& /*stName*/) {
+    void MuonChamber::setCscReadoutGeom(const MYSQL& mysql,
+                                        CscReadoutElement *re, const CscComponent *cc, const Position &ip) {
         MsgStream log(m_msgSvc, "MuGM:MuonChamber:setCscReadoutGeom");
 
         re->m_Ssize = cc->dx1;
         re->m_LongSsize = cc->dx2;
         re->m_Rsize = cc->dy;
         re->m_LongRsize = cc->dy;
-        re->m_Zsize = cc->GetThickness();
-        re->m_LongZsize = cc->GetThickness();
+        re->m_Zsize = cc->GetThickness(mysql);
+        re->m_LongZsize = cc->GetThickness(mysql);
         re->m_RlengthUpToMaxWidth = cc->maxwdy;
         re->m_excent = cc->excent;
 
@@ -1477,8 +1478,7 @@ namespace MuonGM {
             assert(0);
         }
 
-        MYSQL *mysql = MYSQL::GetPointer();
-        CSC *thisc = (CSC *)mysql->GetTechnology(tname);
+        const CSC *thisc = dynamic_cast<const CSC*>(mysql.GetTechnology(tname));
         re->m_anodecathode_distance = thisc->anocathodist;
         re->m_ngasgaps = thisc->numOfLayers;
         re->m_nstriplayers = thisc->numOfLayers;
@@ -1492,22 +1492,23 @@ namespace MuonGM {
         re->m_Phistripwidth = re->m_Phistrippitch;
     }
 
-    void MuonChamber::setMdtReadoutGeom(MdtReadoutElement *re, const MdtComponent *cc, const Position &ip) {
+    void MuonChamber::setMdtReadoutGeom(const MYSQL& mysql,
+                                        MdtReadoutElement *re, const MdtComponent *cc, const Position &ip) {
         MsgStream log(m_msgSvc, "MuGM:MuonChamber:setMdtReadoutGeom");
 
         re->m_Ssize = cc->dx1;
         re->m_LongSsize = cc->dx2;
 
         if (re->m_inBarrel) {
-            re->m_Rsize = cc->GetThickness();
-            re->m_LongRsize = cc->GetThickness();
+            re->m_Rsize = cc->GetThickness(mysql);
+            re->m_LongRsize = cc->GetThickness(mysql);
             re->m_Zsize = cc->dy;
             re->m_LongZsize = cc->dy;
         } else {
             re->m_Rsize = cc->dy;
             re->m_LongRsize = cc->dy;
-            re->m_Zsize = cc->GetThickness();
-            re->m_LongZsize = cc->GetThickness();
+            re->m_Zsize = cc->GetThickness(mysql);
+            re->m_LongZsize = cc->GetThickness(mysql);
         }
 
         re->m_cutoutShift = cc->cutoutTubeXShift;
@@ -1522,8 +1523,7 @@ namespace MuonGM {
 
         std::string tname = cc->name;
         re->setTechnologyName(tname);
-        MYSQL *mysql = MYSQL::GetPointer();
-        MDT *thism = (MDT *)mysql->GetTechnology(tname);
+        const MDT *thism = dynamic_cast<const MDT*>(mysql.GetTechnology(tname));
         re->m_nlayers = thism->numOfLayers;
         re->m_tubepitch = thism->pitch;
         re->m_tubelayerpitch = thism->y[1] - thism->y[0];
@@ -1555,12 +1555,13 @@ namespace MuonGM {
         }
     }
 
-    void MuonChamber::setRpcReadoutGeom(RpcReadoutElement *re, const RpcComponent *cc, const Position &ip, const std::string& /*gVersion*/, MuonDetectorManager *manager) {
+    void MuonChamber::setRpcReadoutGeom(const MYSQL& mysql,
+                                        RpcReadoutElement *re, const RpcComponent *cc, const Position &ip, const std::string& /*gVersion*/, MuonDetectorManager *manager) {
         MsgStream log(m_msgSvc, "MuGM:MuonChamber:setRpcReadoutGeom");
         re->m_Ssize = cc->dx1;
         re->m_LongSsize = cc->dx2;
-        re->m_Rsize = cc->GetThickness();
-        re->m_LongRsize = cc->GetThickness();
+        re->m_Rsize = cc->GetThickness(mysql);
+        re->m_LongRsize = cc->GetThickness(mysql);
         re->m_Zsize = cc->dy;
         re->m_LongZsize = cc->dy;
 
@@ -1577,8 +1578,7 @@ namespace MuonGM {
 
         std::string tname = cc->name;
         re->setTechnologyName(tname);
-        MYSQL *mysql = MYSQL::GetPointer();
-        RPC *thisr = (RPC *)mysql->GetTechnology(tname);
+        const RPC *thisr = dynamic_cast<const RPC*>(mysql.GetTechnology(tname));
         re->m_nphigasgaps = thisr->NGasGaps_in_s;
         re->m_netagasgaps = thisr->NGasGaps_in_z;
         re->m_gasgapssize = re->m_Ssize / re->m_nphigasgaps - 2. * thisr->bakeliteframesize;
@@ -1593,7 +1593,7 @@ namespace MuonGM {
         re->m_phistripwidth = re->m_phistrippitch - rc->stripSeparation;
         re->m_etastripwidth = re->m_etastrippitch - rc->stripSeparation;
         re->m_nphistripsperpanel = int((re->m_Ssize / re->m_nphistrippanels) / re->m_phistrippitch);
-        if (re->getStationName().substr(0, 3) != "BME")
+        if (re->getStationName().compare(0, 3, "BME") != 0)
             while ((re->m_nphistripsperpanel % 8) != 0) {
                 re->m_nphistripsperpanel--;
             }
@@ -1642,17 +1642,18 @@ namespace MuonGM {
         }
     }
 
-    void MuonChamber::setTgcReadoutGeom(TgcReadoutElement *re, const TgcComponent *cc, const Position &ip, const std::string& /*gVersion*/, const std::string& stName) {
+    void MuonChamber::setTgcReadoutGeom(const MYSQL& mysql,
+                                        TgcReadoutElement *re, const TgcComponent *cc, const Position &ip, const std::string& stName) {
         MsgStream log(m_msgSvc, "MuGM:MuonChamber:setTgcReadoutGeom");
 
         re->m_Ssize = cc->dx1;
         re->m_LongSsize = cc->dx2;
         re->m_Rsize = cc->dy;
         re->m_LongRsize = cc->dy;
-        re->m_Zsize = cc->GetThickness();
-        re->m_LongZsize = cc->GetThickness();
+        re->m_Zsize = cc->GetThickness(mysql);
+        re->m_LongZsize = cc->GetThickness(mysql);
 
-        std::string tname = cc->name;
+        const std::string &tname = cc->name;
         int tname_index = MuonGM::strtoint(tname, 3, 2);
         re->setTechnologyName(tname);
 
@@ -1663,20 +1664,19 @@ namespace MuonGM {
             assert(0);
         }
 
-        MYSQL *mysql = MYSQL::GetPointer();
         char index[2];
         sprintf(index, "%i", cc->index);
 
-        re->m_readout_name = stName.substr(0, 4) + "_" + index;
-        re->m_readoutParams = mysql->GetTgcRPars(tname_index);
+        re->m_readout_name = stName.substr(0, 4) + '_' + index;
+        re->m_readoutParams = mysql.GetTgcRPars(tname_index);
 
-        if (re->m_readoutParams == 0) {
+        if (re->m_readoutParams == nullptr) {
             log << MSG::WARNING << " MuonChamber::setTgcReadoutGeometry: no readoutParams found for key <" << re->m_readout_name << ">" << endmsg;
         } else {
             re->m_readout_type = re->m_readoutParams->chamberType();
         }
 
-        TGC *thist = (TGC *)(mysql->GetTechnology(tname));
+        const TGC *thist = dynamic_cast<const TGC*>(mysql.GetTechnology(tname));
         const std::size_t ncomp = (thist->materials).size();
         std::string::size_type npos;
         for (std::size_t i = 0; i < ncomp; ++i) {
@@ -1697,7 +1697,7 @@ namespace MuonGM {
                 re->m_nwiregangs_per_plane[Nwireplanes - 1] = 0;
                 re->m_strippitch[Nstripplanes - 1] = 0.;
                 re->m_stripwidth[Nstripplanes - 1] = 0.;
-                if (re->m_readoutParams != 0)
+                if (re->m_readoutParams != nullptr)
                     re->m_wirepitch[Nwireplanes - 1] = re->m_readoutParams->wirePitch();
                 else
                     re->m_wirepitch[Nwireplanes - 1] = 0;
@@ -1714,8 +1714,8 @@ namespace MuonGM {
         log << MSG::INFO << "MuonChamber " << name << " :" << endmsg;
     }
 
-    int MuonChamber::stationPhiTGC(const std::string& stName, int fi, int zi_input, const std::string& geometry_version) const {
-        std::string stName3 = stName.substr(0, 3);
+    int MuonChamber::stationPhiTGC(std::string_view stName, int fi, int zi_input, std::string_view geometry_version) const {
+        std::string_view stName3 = stName.substr(0, 3);
         int stphi = 0;
 
         int zi = abs(zi_input);

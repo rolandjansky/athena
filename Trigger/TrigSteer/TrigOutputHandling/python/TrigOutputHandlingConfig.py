@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -69,15 +69,6 @@ def TriggerEDMSerialiserToolCfg(name="Serialiser"):
 
    # Create and return a serialiser tool object
    serialiser = TriggerEDMSerialiserTool(name)
-
-   # Allow appending to the collections list
-   def merge_collection_list(a, b):
-      for item in b:
-         if item not in a:
-               a.append(item)
-      return a
-   serialiser._descriptors['CollectionsToSerialize'].semantics.merge = merge_collection_list
-
 
    from TrigEDMConfig.TriggerEDMRun3 import tpMap
    tpTool = CompFactory.TrigSerTPTool()

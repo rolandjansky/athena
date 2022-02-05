@@ -71,7 +71,7 @@ namespace DerivationFramework {
         ToolHandle < DerivationFramework::CascadeTools > m_CascadeTools;
 
         bool        m_refitPV;
-        std::string m_refPVContainerName;
+        SG::WriteHandleKey<xAOD::VertexContainer> m_refPVContainerName;
         std::string m_hypoName;               //!< name of the mass hypothesis. E.g. Jpis, Upsi, etc. Will be used as a prefix for decorations
         //This parameter will allow us to optimize the number of PVs under consideration as the probability
         //of a useful primary vertex drops significantly the higher you go

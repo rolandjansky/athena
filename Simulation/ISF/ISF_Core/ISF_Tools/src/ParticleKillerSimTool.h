@@ -32,9 +32,9 @@ public:
   /** */
   virtual StatusCode simulateVector(const ConstISFParticleVector& particles, ISFParticleContainer&, McEventCollection* ) const override;
 
-  virtual StatusCode setupEvent() override { return StatusCode::SUCCESS; };
+  virtual StatusCode setupEvent(const EventContext&) override { return StatusCode::SUCCESS; };
 
-  virtual StatusCode releaseEvent() override { return StatusCode::SUCCESS; };
+  virtual StatusCode releaseEvent(const EventContext&) override { return StatusCode::SUCCESS; };
 
   virtual ISF::SimulationFlavor simFlavor() const override { return ISF::ParticleKiller; };
 };

@@ -133,7 +133,7 @@ RootTreeContainer::RootTreeContainer()
 
 /// Standard destructor
 RootTreeContainer::~RootTreeContainer()   {
-  close();
+  RootTreeContainer::close();
 }
 
 /// Ask if a given shape is supported
@@ -235,12 +235,18 @@ DbStatus RootTreeContainer::writeObject( ActionList::value_type& action )
           break;
        case DbColumn::STRING:
        case DbColumn::LONG_STRING:
-          p.cptr                = p.string();
+          {
+            const char* s = p.string();
+            p.cptr        = s;
+          }
           break;
        case DbColumn::NTCHAR:
        case DbColumn::LONG_NTCHAR:
           //case DbColumn::TOKEN: PvG not sure wether we should pass *char[]
-          p.ptr                 = p.deref();
+          {
+            void *d = p.deref();
+            p.ptr   = d;
+          }
           break;
        default:
           break;
@@ -379,7 +385,7 @@ RootTreeContainer::loadObject(void** obj_p, ShapeH /*shape*/, Token::OID_t& oid)
      for( auto& dsc : m_branches ) {
         RootDataPtr p(nullptr), q(nullptr);
         int typ = dsc.column->typeID();
-        // cout << "LOAD: object=" << object << " p.ptr=" << p.ptr << " col offset=" << dsc.column->offset() << endl;
+        // cout << "LOAD object, typ=" << typ << ",  col offset=" << dsc.column->offset() << endl;
         // associate branch with an object
         switch ( typ )    {
          case DbColumn::STRING:
@@ -575,7 +581,8 @@ DbStatus RootTreeContainer::open( DbDatabase& dbH,
                const DbColumn* c = *i;
                BranchDesc& dsc = m_branches[count];
                TClass* cl = nullptr;
-               TLeaf* leaf = pBranch->GetLeaf(colnam.c_str());
+               TLeaf* leaf = pBranch->GetLeaf( (*i)->name().c_str() );
+               // cout << "GetLeaf for "<<  (*i)->name().c_str()  << " = " << leaf << endl;
                switch ( (*i)->typeID() )    {
                 case DbColumn::ANY:
                 case DbColumn::BLOB:
@@ -1224,7 +1231,8 @@ DbStatus RootTreeContainer::transAct(Transaction::Action action)
       } else if (branchEntries < treeEntries) {
          DbPrint log(m_name);
          log << DbPrintLvl::Error << "Every branch must have the same number of entries."
-             << DbPrint::endmsg;
+             << " Tree entries=" << treeEntries << " but this branch shows " << branchEntries
+             << " entries" << DbPrint::endmsg;
          return Error;
       }
       BranchDesc& dsc = (*k);

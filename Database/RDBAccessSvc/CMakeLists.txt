@@ -6,13 +6,14 @@ atlas_subdir( RDBAccessSvc )
 # External dependencies:
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 find_package( SQLite3 )
+find_package( Boost )
 
 # Component(s) in the package:
 atlas_add_library( RDBAccessSvcLib
                    RDBAccessSvc/*.h
                    INTERFACE
                    PUBLIC_HEADERS RDBAccessSvc
-                   INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
+                   INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
                    LINK_LIBRARIES ${CORAL_LIBRARIES} GaudiKernel DBLock )
 
 atlas_add_component( RDBAccessSvc

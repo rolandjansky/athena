@@ -38,6 +38,25 @@ namespace TrigL2MuonSA {
 
     StatusCode calcWeightedSumHit(TrigL2MuonSA::TrackPattern& trackPattern) const;
 
+    StatusCode findStgcHitsInSegment(TrigL2MuonSA::StgcHits& stgcHits) const;
+
+    void findSetOfStgcHitIds(TrigL2MuonSA::StgcHits& stgcHits,
+                             std::array<std::vector<int>,8> hitIdByLayer,
+                             std::vector<std::array<int, 8>>& hitIdsCandidate) const;
+
+    StatusCode findMmHitsInSegment(TrigL2MuonSA::MmHits& mmHits) const;
+
+    void findSetOfMmHitIds(TrigL2MuonSA::MmHits& mmHits,
+                           std::array<std::vector<int>,8> hitIdByLayer,
+                           std::vector<std::array<int, 8>>& hitIdsCandidate) const;
+
+    StatusCode calcMergedHit(TrigL2MuonSA::TrackPattern& trackPattern) const;
+
+    void LinearFit(std::vector<double>& x,std::vector<double>& y,
+                   double* slope, double* intercept, double* mse) const;
+		void LinearFitWeight(std::vector<double>& x,std::vector<double>& y,std::vector<bool>& isStgc,
+                   double* slope, double* intercept, double* mse) const;
+
   private :
 
   };

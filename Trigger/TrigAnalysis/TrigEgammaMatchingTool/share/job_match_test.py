@@ -20,7 +20,7 @@ rec.doInDet=False
 rec.doCalo=False
 rec.doMuon=False
 rec.doEgamma=False
-rec.doTrigger = True; recAlgs.doTrigger=False # disable trigger (maybe necessary if detectors switched off)
+rec.doTrigger = True
 rec.doMuon=False
 rec.doMuonCombined=False
 rec.doWriteAOD=False

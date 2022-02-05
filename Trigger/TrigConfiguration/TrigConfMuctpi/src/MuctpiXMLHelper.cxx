@@ -1,13 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfMuctpi/MuctpiXMLHelper.h"
-#include "TrigConfMuctpi/Logging.h"
 #include <boost/lexical_cast.hpp>
+#include <iostream>
 
 using namespace std;
 using boost::property_tree::ptree;
+
+MuctpiXMLHelper::MuctpiXMLHelper() :
+  TrigConf::TrigConfMessaging("MuctpiXML")
+{}
 
 void
 MuctpiXMLHelper::printAttributes(const ptree & tree) {
@@ -19,7 +23,7 @@ MuctpiXMLHelper::printAttributes(const ptree & tree) {
    for(const ptree::value_type & a: attributes) {
       string attrName = a.first;
       string attrVal = a.second.data();
-      cout << attrName << " : " << attrVal << endl;
+      std::cout << attrName << " : " << attrVal << std::endl;
    }
 }
 
@@ -59,8 +63,8 @@ MuctpiXMLHelper::readAttribute(const ptree & tree, const string & attr) {
 std::string
 MuctpiXMLHelper::getAttribute(const ptree & tree, const string & attr) {
    if( ! hasAttribute(tree, attr) ) {
-      REPORT_WARNING( "MuctpiXML","attribute " << attr << " does not exist");
-      return 0;
+      TRG_MSG_WARNING("attribute " << attr << " does not exist");
+      return "";
    }
    return readAttribute(tree,attr);
 }
@@ -76,7 +80,7 @@ MuctpiXMLHelper::getAttribute(const ptree & tree, const string & attr, const std
 int
 MuctpiXMLHelper::getIntAttribute(const ptree & tree, const string & attr) {
    if( ! hasAttribute(tree, attr) ) {
-      REPORT_WARNING( "MuctpiXML","attribute " << attr << " does not exist");
+      TRG_MSG_WARNING("attribute " << attr << " does not exist");
       return 0;
    }
 
@@ -85,7 +89,7 @@ MuctpiXMLHelper::getIntAttribute(const ptree & tree, const string & attr) {
       ret_value = boost::lexical_cast<int, string>(readAttribute(tree,attr));
    }
    catch(const boost::bad_lexical_cast & bc) {
-      REPORT_ERROR( "MuctpiXML","attribute '" << attr << "' is not an int (it is '" << readAttribute(tree,attr) << "')");
+      TRG_MSG_ERROR("attribute '" << attr << "' is not an int (it is '" << readAttribute(tree,attr) << "')");
    }
    return ret_value;
 }
@@ -99,7 +103,7 @@ MuctpiXMLHelper::getIntAttribute(const ptree & tree, const string & attr, int de
       ret_value = boost::lexical_cast<int, string>(readAttribute(tree,attr));
    }
    catch(const boost::bad_lexical_cast & bc) {
-      REPORT_ERROR( "MuctpiXML","attribute '" << attr << "' is not an int (it is '" << readAttribute(tree,attr) << "')");
+     TRG_MSG_ERROR("attribute '" << attr << "' is not an int (it is '" << readAttribute(tree,attr) << "')");
    }
    return ret_value;
 }
@@ -108,7 +112,7 @@ MuctpiXMLHelper::getIntAttribute(const ptree & tree, const string & attr, int de
 unsigned int
 MuctpiXMLHelper::getUIntAttribute(const ptree & tree, const string & attr) {
    if( ! hasAttribute(tree, attr) ) {
-      REPORT_WARNING( "MuctpiXML","attribute " << attr << " does not exist");
+      TRG_MSG_WARNING("attribute " << attr << " does not exist");
       return 0;
    }
    unsigned int ret_value{0};
@@ -116,7 +120,7 @@ MuctpiXMLHelper::getUIntAttribute(const ptree & tree, const string & attr) {
       ret_value = boost::lexical_cast<unsigned int, string>(readAttribute(tree,attr));
    }
    catch(const boost::bad_lexical_cast & bc) {
-      REPORT_ERROR( "MuctpiXML","attribute '" << attr << "' is not an unsigned int (it is " << readAttribute(tree,attr) << ")");
+      TRG_MSG_ERROR("attribute '" << attr << "' is not an unsigned int (it is " << readAttribute(tree,attr) << ")");
    }
    return ret_value;
 }
@@ -132,7 +136,7 @@ MuctpiXMLHelper::getUIntAttribute(const ptree & tree, const string & attr, unsig
 float
 MuctpiXMLHelper::getFloatAttribute(const ptree & tree, const string & attr) {
    if( ! hasAttribute(tree, attr) ) {
-      REPORT_WARNING( "MuctpiXML","attribute " << attr << " does not exist");
+      TRG_MSG_WARNING("attribute " << attr << " does not exist");
       return 0;
    }
    float ret_value{0};
@@ -140,7 +144,7 @@ MuctpiXMLHelper::getFloatAttribute(const ptree & tree, const string & attr) {
       ret_value = boost::lexical_cast<float, string>(readAttribute(tree,attr));
    }
    catch(const boost::bad_lexical_cast & bc) {
-      REPORT_ERROR( "MuctpiXML","attribute '" << attr << "' is not an float (it is " << readAttribute(tree,attr) << ")");
+      TRG_MSG_ERROR("attribute '" << attr << "' is not an float (it is " << readAttribute(tree,attr) << ")");
       printAttributes(tree);
    }
    return ret_value;

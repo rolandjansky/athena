@@ -9,7 +9,7 @@ namespace IDPVM {
 // Taken directly from InDetPhysValLargeD0Tool.cxx
   const xAOD::TruthParticle*
   getTruthPointer(const xAOD::TrackParticle& track) {
-    typedef ElementLink<xAOD::TruthParticleContainer> ElementTruthLink_t;
+    using ElementTruthLink_t = ElementLink<xAOD::TruthParticleContainer>;
     const xAOD::TruthParticle* result(nullptr);
 
     // Check whether truthParticleLink exists.
@@ -70,8 +70,7 @@ namespace IDPVM {
         }
       }
     }
-    return;
-  }
+     }
 
   void
   TrackTruthLookup::cacheTruth(const xAOD::TruthParticleContainer* truthParticles) {
@@ -81,8 +80,7 @@ namespace IDPVM {
         m_mapTruth[truth] = {};
       }
     }
-    return;
-  }
+     }
 
   void
   TrackTruthLookup::cacheTruth(const std::vector<const xAOD::TruthParticle*>* truthParticlesVec) {
@@ -92,8 +90,7 @@ namespace IDPVM {
         m_mapTruth[truth] = {};
       }
     }
-    return;
-  }
+     }
 
   void
   TrackTruthLookup::cache(const xAOD::TrackParticleContainer* trackParticles,
@@ -102,8 +99,7 @@ namespace IDPVM {
     clear();
     cacheTracks(trackParticles);
     cacheTruth(truthParticles);
-    return;
-  }
+ }
 
   void
   TrackTruthLookup::cache(const xAOD::TrackParticleContainer* trackParticles,
@@ -112,6 +108,5 @@ namespace IDPVM {
     clear();
     cacheTracks(trackParticles);
     cacheTruth(truthParticlesVec);
-    return;
-  }
+ }
 } // namespace

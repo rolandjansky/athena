@@ -236,7 +236,6 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
     /// for shifter histograms, only want m_shifterMaxChains of each
     int shifter_efid      = 0;
     int shifter_ftf       = 0;
-    int shifter_l2star    = 0;
     int shifter_efid_run1 = 0;
 
     std::string lastvtx = "";
@@ -325,13 +324,12 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 	  //	  std::cout << "^[[91;1m" << "\tChain count matched\tchain input " << chainName.head() << "  :  " << chainName.tail() << "^[[m"<< std::endl;
 
 	  for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
-	    
-            if ( chainName.tail()!="" )    selectChains[iselected] += ":key="+chainName.tail();
-            if ( chainName.extra()!="" )   selectChains[iselected] += ":index="+chainName.extra();
+	    if ( chainName.tail()!="" )    selectChains[iselected] += ":key="+chainName.tail();
+            if ( chainName.extra()!="" )   selectChains[iselected] += ":extra="+chainName.extra();
             if ( chainName.element()!="" ) selectChains[iselected] += ":te="+chainName.element();
 	    if ( chainName.roi()!="" )     selectChains[iselected] += ":roi="+chainName.roi();
 	    if ( chainName.vtx()!="" )     selectChains[iselected] += ":vtx="+chainName.vtx();
-            if ( !chainName.passed() )     selectChains[iselected] += ":DTE";
+            if ( !chainName.passed() )     selectChains[iselected] += ":DTE"; 
 	    //            if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
 
 	    if ( chainName.postcount() )     selectChains[iselected] += ":post:"+chainName.post();
@@ -376,21 +374,12 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 		  continue;
 		}
 	      }
-	      else if ( chainName.tail().find("L2SiTrackFinder")!=std::string::npos ) { 
-		/// EFID chain
-		shifter_l2star++;
-		if ( shifter_l2star>shifterChains ) {
-		  msg(MSG::DEBUG) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endmsg;
-		  continue;
-		}
-	      }
 	    }
 	    
             /// replace wildcard with actual matching chains ...
-	    //            chains.push_back( ChainString(selectChains[iselected]) );
-      if (std::find(chains.begin(), chains.end(), selectChains[iselected]) == chains.end()) { // deduplicate
-            chains.push_back( selectChains[iselected] );
-      }
+	    if (std::find(chains.begin(), chains.end(), selectChains[iselected]) == chains.end()) { 
+	      chains.push_back( selectChains[iselected] );
+	    }
 
             msg(MSG::DEBUG) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << "^[[m" << endmsg;
 
@@ -403,14 +392,47 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
       }
 	
       m_chainNames = chains;
-      
-      //      std::cout << "TrigTestBase::book() chains " << m_chainNames.size() << std::endl;
-      
-      for (unsigned i=0; i<m_chainNames.size(); ++i) {
-	
-	//	std::cout << "\tcreating analysis : " << m_chainNames[i] << std::endl;
 
-	if ( m_tdt->getNavigationFormat() == "TriggerElement" ) { 
+      // reserving m_chainNames size for m_TnP_tools vector
+      m_TnP_tools.reserve( m_chainNames.size() ) ;
+      
+      // tag and probe object creation
+      for (unsigned i=0; i<m_chainNames.size(); ++i) {
+
+	m_TnP_tools[i] = 0 ;
+	ChainString probeChainName = m_chainNames[i] ;
+
+	// probe can be the .head() so convert m_chainNames to a ChainString and search the .extra() specifically
+	if ( probeChainName.extra().find("_probe")!=std::string::npos ) {
+	  for ( unsigned j = 0; j<m_chainNames.size(); ++j) {
+	    ChainString tagChainName = m_chainNames[j] ;
+	    if (tagChainName == probeChainName) continue ; // skips if the same chain
+
+	    // need to compare just the 'el1' part of of .extra() so create variables without '_probe/_tag' part
+	    std::string probe_extra_key = probeChainName.extra().erase((size_t)(probeChainName.extra().find("_probe")), 6) ;
+	    std::string tag_extra_key = "" ;
+	    
+	    if ( tagChainName.extra().find("_tag")==std::string::npos ) { continue ; } // skip if not a tag chain
+	    tag_extra_key = tagChainName.extra().erase((size_t)(tagChainName.extra().find("_tag")), 4) ;
+
+	    // tag chain must be the same as probe chain but with te=0 and extra=*_tag
+	    if ( tagChainName.head() == probeChainName.head() 
+		 && tagChainName.tail() == probeChainName.tail() 
+		 && tagChainName.roi() == probeChainName.roi() 
+		 && tagChainName.element() != probeChainName.element() 
+		 && tagChainName.extra() != probeChainName.extra() 
+		 && tag_extra_key == probe_extra_key ) {
+	      // if matching tag found then initialise tag and probe object and store tag and probe chains in there
+	      m_TnP_tools[i] = new TagNProbe() ;
+	      m_TnP_tools[i]->tag(tagChainName) ;
+	      m_TnP_tools[i]->probe(probeChainName) ;
+	      ATH_MSG_DEBUG( "Tag and probe pair found" ); 
+	      break ;
+	    }
+	  }
+	}
+	
+	if ( m_tdt->getNavigationFormat() == "TriggerElement" ) {
 
 	  AnalysisConfig_Tier0* analysis = new AnalysisConfig_Tier0( m_sliceTag, // m_chainNames[i],
 								     m_chainNames[i], "", "",
@@ -427,14 +449,23 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 	  m_sequences.push_back( analysis );
 
 	}
-	else { 
+	else {
+	  
+	  // skip AnalysisConfigMT_Tier0 instance if it's a tag chain as we're not interested in this for tag and probe analysis
+	  ChainString chainName( m_chainNames[i] ) ;
+	  if ( chainName.extra().find("_tag")!=std::string::npos && m_TnP_tools[i] == 0 ) {
+	    continue ;
+	  }
+	  
 	  AnalysisConfigMT_Tier0* analysis = new AnalysisConfigMT_Tier0( m_sliceTag, // m_chainNames[i],
 									 m_chainNames[i], "", "",
 									 m_chainNames[i], "", "",
 									 &m_roiInfo,
 									 filterTest, filterRef,
 									 dR_matcher,
-									 new Analysis_Tier0( m_chainNames[i], m_pTCut, m_etaCut, m_d0Cut, m_z0Cut ) );
+									 new Analysis_Tier0( m_chainNames[i], m_pTCut, m_etaCut, m_d0Cut, m_z0Cut ),
+									 m_TnP_tools[i]
+									 );
 
 	  analysis->setRunPurity(m_runPurity);
 	  analysis->setShifter(m_shifter);
@@ -485,6 +516,11 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
       msg(MSG::VERBOSE) << " ----- booking for analysis " << m_sequences[i]->name() << " -----" << endmsg;
       m_sequences[i]->initialize(this, &m_tdt);
       m_sequences[i]->setGenericFlag(m_genericFlag);
+
+      // skip booking of tag chain as we're not interested in this for tag and probe analysis
+      ChainString chainName( m_sequences[i]->testChains() ) ;
+      if ( chainName.extra().find("_tag")!=std::string::npos ) continue ;
+      
       m_sequences[i]->book();
     }
     m_firstRun = false;
@@ -577,6 +613,11 @@ StatusCode TrigTestBase::proc(bool /*endOfEventsBlock*/, bool /*endOfLumiBlock*/
   if ( m_initialisePerRun && endOfRun ) {
     for ( unsigned i=0 ; i<m_sequences.size() ; i++ ) m_sequences[i]->finalize();
     m_fileopen = false;
+
+    // deleting the instances of the initialised TnP_tool
+    for ( unsigned i=0 ; i<m_TnP_tools.size() ; i++ ) {
+      if ( m_TnP_tools[i] != 0 ) delete m_TnP_tools[i] ;
+    }
   }
   msg(MSG::DEBUG) << " ====== exit proc() ====== " << endmsg;
   return StatusCode::SUCCESS;

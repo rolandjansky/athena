@@ -1,34 +1,10 @@
 """Define methods to construct configured TRT overlay algorithms
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-
-
-def TRTRawDataProviderAlgCfg(flags, name="TRTRawDataProvider", **kwargs):
-    """Return a ComponentAccumulator for TRT raw data provider"""
-    # Temporary until available in the central location
-    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-    acc = TRT_GeometryCfg(flags)
-
-    kwargs.setdefault("RDOKey", flags.Overlay.BkgPrefix + "TRT_RDOs")
-
-    from RegionSelector.RegSelToolConfig import regSelTool_TRT_Cfg
-    kwargs.setdefault("RegSelTool", acc.popToolsAndMerge(regSelTool_TRT_Cfg(flags)))
-
-    TRTRawDataProvider = CompFactory.TRTRawDataProvider
-    alg = TRTRawDataProvider(name, **kwargs)
-    acc.addEventAlgo(alg)
-
-    ByteStreamAddressProviderSvc = CompFactory.ByteStreamAddressProviderSvc
-    bsAddressProviderSvc = ByteStreamAddressProviderSvc(TypeNames=[
-        "InDet::TRT_DriftCircleContainer/TRT_DriftCircle",
-    ])
-    acc.addService(bsAddressProviderSvc)
-
-    return acc
 
 
 def TRTDataOverlayExtraCfg(flags, **kwargs):
@@ -36,12 +12,8 @@ def TRTDataOverlayExtraCfg(flags, **kwargs):
     acc = ComponentAccumulator()
 
     # We need to convert BS to RDO for data overlay
-    acc.merge(TRTRawDataProviderAlgCfg(flags))
-
-    # Add additional conditions infrastructure
-    from InDetOverlay.TRT_ConditionsConfig import TRT_CablingSvcCfg, TRT_OnlineFoldersCfg
-    acc.merge(TRT_CablingSvcCfg(flags))
-    acc.merge(TRT_OnlineFoldersCfg(flags))
+    from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConfig import TRTOverlayRawDataProviderAlgCfg
+    acc.merge(TRTOverlayRawDataProviderAlgCfg(flags))
 
     return acc
 
@@ -49,10 +21,8 @@ def TRTDataOverlayExtraCfg(flags, **kwargs):
 def TRTOverlayAlgCfg(flags, name="TRTOverlay", **kwargs):
     """Return a ComponentAccumulator for TRTOverlay algorithm"""
     acc = ComponentAccumulator()
-    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-    acc.merge(TRT_GeometryCfg(flags))
-    from InDetOverlay.TRT_ConditionsConfig import TRTStrawCondAlgCfg
-    acc.merge(TRTStrawCondAlgCfg(flags))
+    from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
+    acc.merge(TRT_ReadoutGeometryCfg(flags))
 
     kwargs.setdefault("SortBkgInput", flags.Overlay.DataOverlay)
     kwargs.setdefault("BkgInputKey", flags.Overlay.BkgPrefix + "TRT_RDOs")
@@ -66,15 +36,19 @@ def TRTOverlayAlgCfg(flags, name="TRTOverlay", **kwargs):
     kwargs.setdefault("TRT_HT_OccupancyCorrectionBarrelNoE", 0.060)
     kwargs.setdefault("TRT_HT_OccupancyCorrectionEndcapNoE", 0.050)
 
-    # Do TRT overlay
-    TRTOverlay = CompFactory.TRTOverlay
-    alg = TRTOverlay(name, **kwargs)
+    from InDetConfig.TRT_ElectronPidToolsConfig import TRT_OverlayLocalOccupancyCfg
+    kwargs.setdefault("TRT_LocalOccupancyTool", acc.popToolsAndMerge(TRT_OverlayLocalOccupancyCfg(flags)))
 
-    from InDetOverlay.TRT_ConditionsConfig import TRT_LocalOccupancyCfg, TRT_StrawStatusSummaryToolCfg
-    alg.TRT_LocalOccupancyTool = acc.popToolsAndMerge(
-        TRT_LocalOccupancyCfg(flags))
-    alg.TRTStrawSummaryTool = acc.popToolsAndMerge(
-        TRT_StrawStatusSummaryToolCfg(flags))
+    from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_StrawStatusSummaryToolCfg
+    StrawStatusTool = acc.popToolsAndMerge(TRT_StrawStatusSummaryToolCfg(flags))
+    acc.addPublicTool(StrawStatusTool)  # public as it is has many clients to save some memory
+    kwargs.setdefault("TRTStrawSummaryTool", StrawStatusTool)
+
+    from RngComps.RandomServices import AthRNGSvcCfg
+    kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
+
+    # Do TRT overlay
+    alg = CompFactory.TRTOverlay(name, **kwargs)
     acc.addEventAlgo(alg)
 
     # Setup output

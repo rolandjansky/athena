@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGGER_DECISION_TOOL_CACHE_GLOBAL_MEMORY_H
@@ -36,13 +36,15 @@
 #include "TrigDecisionTool/IDecisionUnpacker.h"
 #include "TrigDecisionTool/Logger.h"
 
+#include "CxxUtils/checker_macros.h"
 #include "AsgDataHandles/ReadHandleKey.h"
+#include "AsgTools/EventStoreType.h"
 
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "xAODTrigger/TrigDecision.h"
 #include "xAODTrigger/TrigNavigation.h"
 
-#ifndef XAOD_ANALYSIS
+#ifndef XAOD_ANALYSIS // Full Athena only
 #include "EventInfo/EventInfo.h"
 #include "TrigDecisionEvent/TrigDecision.h"
 #endif
@@ -56,8 +58,6 @@ namespace LVL1CTP {
   class Lvl1Result;
 }
 
-
-#include "TrigDecisionTool/EventPtrDef.h"
 
 namespace Trig {
 
@@ -101,52 +101,55 @@ namespace Trig {
     const TrigConf::HLTChain* config_chain(const std::string& name) const;   //!< HLT config chain from given name
 
     const HLT::TrigNavStructure* navigation() const {   //!< gives back pointer to navigation object (unpacking if necessary)
-      if(!m_unpacker->unpacked_navigation()){
-        if(const_cast<CacheGlobalMemory*>(this)->unpackNavigation().isFailure()){
+      if(!m_navigationUnpacked){
+        // CGM is slot-specific and unpackNavigation is locked
+        auto cgm ATLAS_THREAD_SAFE = const_cast<CacheGlobalMemory*>(this);
+        if(cgm->unpackNavigation().isFailure()){
           ATH_MSG_WARNING("unpack Navigation failed");
-	      }
+        }
       }
       return m_navigation;
     }
     void navigation(HLT::TrigNavStructure* nav) { m_navigation = nav; }       //!< sets navigation object pointer
 
-    std::map< std::vector< std::string >, Trig::ChainGroup* >& getChainGroups() {return m_chainGroupsRef;};
+    const std::map< std::vector< std::string >, Trig::ChainGroup* >& getChainGroups() const {return m_chainGroupsRef;};
     //    std::map<unsigned, const LVL1CTP::Lvl1Item*>  getItems() {return m_items;};
     //    std::map<unsigned, const LVL1CTP::Lvl1Item*>  getItems() const {return m_items;};
     //    std::map<unsigned, const HLT::Chain*>         getL2chains() {return m_l2chains;};
     //    std::map<unsigned, const HLT::Chain*>         getL2chains() const {return m_l2chains;};
     //    std::map<unsigned, const HLT::Chain*>         getEFchains() {return m_efchains;};
     //    std::map<unsigned, const HLT::Chain*>         getEFchains() const {return m_efchains;};
-    std::map<std::string, std::vector<std::string> > getStreams() {return m_streams;};
-    std::map<std::string, std::vector<std::string> > getStreams() const {return m_streams;};
-
-    const xAOD::TrigCompositeContainer* expressStreamContainer() const;
+    const std::map<std::string, std::vector<std::string> >& getStreams() const {return m_streams;};
 
     /**
-     * @brief cheks if new event arrived with the decision
-     * Need tu use before any call to CacheGlobalMemory.
+     * @brief checks if new event arrived with the decision
+     * Need to use before any call to CacheGlobalMemory.
      * @return true if all went fine about decision, false otherwise
      **/
     bool assert_decision();
 
-    Trig::IDecisionUnpacker* unpacker(){ return m_unpacker.get(); }
+    /**
+     * @brief invalidate previously unpacked decision
+     * Needs to be called at the start of a new event.
+     */
+    void reset_decision();
 
     /// Set the event store to be used by the object
-    void setStore( EventPtr_t store ) { m_store = store; }
+    void setStore( asg::EventStoreType* store ) { m_store = store; }
     /// Get the event store that the object is using
-    EventPtr_t store() const { return m_store; }
+    const asg::EventStoreType* store() const { return m_store; }
 
     void setDecisionKeyPtr(SG::ReadHandleKey<xAOD::TrigDecision>* k) { m_decisionKeyPtr = k; }
     void setRun2NavigationKeyPtr(SG::ReadHandleKey<xAOD::TrigNavigation>* k) { m_run2NavigationKeyPtr = k; }
     void setRun3NavigationKeyPtr(SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer>* k) { m_run3NavigationKeyPtr = k; }
-    SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer>& getRun3NavigationKeyPtr() { return *m_run3NavigationKeyPtr; }
+    const SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer>& getRun3NavigationKey() const { return *m_run3NavigationKeyPtr; }
 
-#ifndef XAOD_ANALYSIS // Full Athena
+#ifndef XAOD_ANALYSIS // Full Athena only
     void setOldDecisionKeyPtr(SG::ReadHandleKey<TrigDec::TrigDecision>* k) { m_oldDecisionKeyPtr = k; }
     void setOldEventInfoKeyPtr(SG::ReadHandleKey<EventInfo>* k) { m_oldEventInfoKeyPtr = k; }
 #endif
 
-    SG::ReadHandleKey<xAOD::TrigDecision>* xAODTrigDecisionKey() { return m_decisionKeyPtr; }
+    const SG::ReadHandleKey<xAOD::TrigDecision>* xAODTrigDecisionKey() const { return m_decisionKeyPtr; }
 
     //
     template<class T>
@@ -161,7 +164,7 @@ namespace Trig {
     /**
      * @brief unpacks whole trigger decision for the event
      */
-    StatusCode unpackDecision();
+    StatusCode unpackDecision(const EventContext& ctx);
     /**
      * @brief unpacks HLT navigation structure (object access)
      */
@@ -177,12 +180,15 @@ namespace Trig {
     //
 
     /// Pointer to the event store in use
-    EventPtr_t m_store{nullptr};
+    const asg::EventStoreType* m_store{nullptr};
 
     /// Trigger decision unpacker helper
     std::unique_ptr<IDecisionUnpacker> m_unpacker;
 
-    // Navigation owned by CGM
+    bool m_decisionUnpacked{false};   //!< Was decision unpacked for this event?
+    bool m_navigationUnpacked{false}; //!< Was navigation unpacked for this event?
+
+    /// Navigation owned by CGM
     HLT::TrigNavStructure* m_navigation{nullptr};
 
     // chain groups
@@ -208,7 +214,6 @@ namespace Trig {
 
     const TrigConf::ItemContainer* m_confItems{nullptr};             //!< items configuration
     const TrigConf::HLTChainList*  m_confChains{nullptr};            //!< all chains configuration
-    mutable const xAOD::TrigCompositeContainer* m_expressStreamContainer{nullptr};
 
     SG::ReadHandleKey<xAOD::TrigDecision>* m_decisionKeyPtr{nullptr}; //!< Parent TDT's read handle key
 
@@ -231,7 +236,7 @@ namespace Trig {
 
       struct iholder {
         virtual ~iholder() {}
-        virtual void* ptr() const { return 0;}
+        virtual const void* ptr() const { return nullptr;}
       };
 
       struct holder_comp {
@@ -245,7 +250,7 @@ namespace Trig {
         virtual ~holder() {
           delete m_held;
           m_held = 0; }
-        virtual void* ptr() const { return (void*)m_held;}
+        virtual const void* ptr() const { return m_held;}
       private:
         T m_held;
       };
@@ -266,7 +271,8 @@ namespace Trig {
       std::set< iholder*, holder_comp > m_todel;
     };  // end of deleter
 
-    mutable AnyTypeDeleter m_deleteAtEndOfEvent;
+    // Thread-safe because CacheGlobalMemory is slot-specific
+    mutable AnyTypeDeleter m_deleteAtEndOfEvent ATLAS_THREAD_SAFE;
 
     mutable std::recursive_mutex m_cgmMutex; //!< R3 MT protection only against --threads > 1. Needs refacotring...
 

@@ -57,6 +57,9 @@ namespace CLHEP {
 
 template <class HIT> class TimedHitPtr;
 
+namespace ITk
+{
+
 class StripSurfaceChargesGenerator : public extends<AthAlgTool, ISurfaceChargesGenerator> {
  public:
 
@@ -79,12 +82,12 @@ class StripSurfaceChargesGenerator : public extends<AthAlgTool, ISurfaceChargesG
   /** create a list of surface charges from a hit */
   virtual void process(const InDetDD::SiDetectorElement* element, 
 		       const TimedHitPtr<SiHit>& phit, 
-		       const ISiSurfaceChargesInserter& inserter, 
+		       ISiSurfaceChargesInserter& inserter, 
 		       CLHEP::HepRandomEngine * rndmEngine, 
-		       const EventContext& ctx) const override;
+		       const EventContext& ctx) override;
   void processSiHit(const InDetDD::SiDetectorElement* element, 
 		    const SiHit& phit, 
-		    const ISiSurfaceChargesInserter& inserter, 
+		    ISiSurfaceChargesInserter& inserter, 
 		    float eventTime, unsigned short eventID, 
 		    CLHEP::HepRandomEngine * rndmEngine, 
 		    const EventContext& ctx) const;
@@ -119,11 +122,11 @@ class StripSurfaceChargesGenerator : public extends<AthAlgTool, ISurfaceChargesG
   BooleanProperty m_doInducedChargeModel{this, "doInducedChargeModel", false, "Flag for Induced Charge Model"};
 
   //ToolHandles
-  ToolHandle<ISCT_ModuleDistortionsTool> m_distortionsTool{this, "SCTDistortionsTool", "StripDistortionsTool", "Tool to retrieve SCT distortions"};
+  ToolHandle<ISCT_ModuleDistortionsTool> m_distortionsTool{this, "DistortionsTool", "StripDistortionsTool", "Tool to retrieve SCT distortions"};
   ToolHandle<ISiPropertiesTool> m_siPropertiesTool{this, "SiPropertiesTool", "StripSiPropertiesTool", "Tool to retrieve SCT silicon properties"};
   ToolHandle<ISCT_RadDamageSummaryTool> m_radDamageTool{this, "RadDamageSummaryTool", "StripRadDamageSummaryTool", "Tool to retrieve SCT radiation damages"};
   ToolHandle<ISiliconConditionsTool> m_siConditionsTool{this, "SiConditionsTool", "StripSiliconConditionsTool", "Tool to retrieve SCT silicon information"};
-  ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool/SCTLorentzAngleTool", "Tool to retreive Lorentz angle"};
+  ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool/ITkStripLorentzAngleTool", "Tool to retreive Lorentz angle"};
 
   ServiceHandle<ITHistSvc> m_thistSvc{this, "THistSvc", "THistSvc"};
 
@@ -163,5 +166,7 @@ class StripSurfaceChargesGenerator : public extends<AthAlgTool, ISurfaceChargesG
   // For Induced Charge Module, M.Togawa
   std::unique_ptr<InducedChargeModel> m_InducedChargeModel;
 };
+
+} // namespace ITk
 
 #endif // STRIPSURFACECHARGESGENERATOR_H

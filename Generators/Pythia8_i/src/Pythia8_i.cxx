@@ -564,15 +564,28 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
   if (!evt->run_info()) evt->set_run_info(m_runinfo);
   evt->run_info()->set_weight_names(names);
 // added conversion GeV ->  MeV to ensure correct units
-  GeVToMeV(evt);
+  
+  evt->set_units(HepMC3::Units::MEV, HepMC3::Units::MM);
 
   for (auto w: fWeights) {
       evt->weight(w.first)=w.second;}
+  auto beams=evt->beams();
+  ATH_MSG_DEBUG( " Energy of the beams " << beams[0]->momentum().e() );
+
+//uncomment to list HepMC events
+//    std::cout << " print::listing Pythia8 " << std::endl;
+//    HepMC3::Print::listing(std::cout, *evt); 
+
 #else
   evt->weights().clear();
   for (auto w: fWeights) {evt->weights()[w.first]=w.second;}
-#endif
+  auto beams=evt->beam_particles();
+  ATH_MSG_DEBUG( " Energy of the beams " << beams.first->momentum().e() );
 
+//uncomment to list HepMC events
+//    std::cout << " print::listing Pythia8 " << std::endl;
+//    evt->print();
+#endif
 
   return StatusCode::SUCCESS;
 }

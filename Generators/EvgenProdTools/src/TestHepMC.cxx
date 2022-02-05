@@ -51,6 +51,7 @@ TestHepMC::TestHepMC(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("Pi0NoVtxTest",             m_pi0NoVtxTest = true);
   declareProperty("UndisplacedDaughtersTest", m_undisplacedDaughtersTest = true);
   declareProperty("UknownPDGIDTest",          m_unknownPDGIDTest = true);
+  declareProperty("AllowMissingCrossSection", m_allowMissingXSec = false);
 
   m_vertexStatuses.push_back( 1 );
   m_vertexStatuses.push_back( 3 );
@@ -66,7 +67,6 @@ TestHepMC::TestHepMC(const std::string& name, ISvcLocator* pSvcLocator)
 
   m_TotalTaus = 0;
   m_FastDecayedTau = 0;
-
 
   // Check counters
   m_invalidBeamParticlesCheckRate = 0;
@@ -94,6 +94,7 @@ TestHepMC::TestHepMC(const std::string& name, ISvcLocator* pSvcLocator)
   m_undisplacedDecayDaughtersOfDisplacedVtxCheckRate = 0;
   m_nonG4_energyCheckRate = 0;
   m_unknownPDGIDCheckRate = 0;
+  m_noXSECset = 0;
 
   m_h_energy_dispVtxCheck =      0;
   m_h_energy_dispVtxCheck_lt10 = 0;
@@ -267,7 +268,8 @@ StatusCode TestHepMC::execute() {
   // Loop over all events in McEventCollection
   /// @todo Use C++ for(:)
   for (McEventCollection::const_iterator itr = events_const()->begin(); itr != events_const()->end(); ++itr) {
-    const HepMC::GenEvent* evt = *itr;
+    //const HepMC::GenEvent* evt = *itr;
+    HepMC::GenEvent* evt = const_cast<HepMC::GenEvent*>(*itr);
 
     double totalPx = 0;
     double totalPy = 0;
@@ -280,12 +282,34 @@ StatusCode TestHepMC::execute() {
     std::vector<int> unDecPi0;
     std::vector<int> undisplaceds;
 
-    // Check beams and work out per-event beam energy
 #ifdef HEPMC3
+    const auto xsec = evt->cross_section();
+    if (!xsec) {
+      ATH_MSG_WARNING("WATCH OUT: event is missing the generator cross-section!");
+      ++m_noXSECset;
+      if (m_allowMissingXSec) {
+        ATH_MSG_WARNING("-> Adding a dummy cross-section for debugging purposes.");
+        // for debugging purposes only -> set a dummy cross-section to make TestHepMC happy
+        std::shared_ptr<HepMC3::GenCrossSection> dummy_xsec = std::make_shared<HepMC3::GenCrossSection>();
+        dummy_xsec->set_cross_section(1.0,0.0);
+        evt->set_cross_section(dummy_xsec);
+      }
+      else {
+        ATH_MSG_WARNING("-> Will report this as failure.");
+      }
+    }
+
+    // Check beams and work out per-event beam energy
     auto beams_t = evt->beams();
     std::pair<std::shared_ptr<const HepMC3::GenParticle>,std::shared_ptr<const HepMC3::GenParticle>> beams;
-    beams.first=beams_t.at(0);
-    beams.second=beams_t.at(1);
+    if (beams_t.size() == 2) {
+      beams.first=beams_t.at(0);
+      beams.second=beams_t.at(1);
+    } else {
+      ATH_MSG_WARNING("Invalid number of beam particles " << beams_t.size() << " this generator interface should be fixed");
+      /// Uncomment for full debug HepMC3::Print::content(*evt);
+      for (auto part: beams_t) HepMC3::Print::line(part);
+    }
 #else
     auto beams = evt->beam_particles();
 #endif
@@ -795,6 +819,15 @@ StatusCode TestHepMC::finalize() {
     return StatusCode::FAILURE;
   }
 
+  if (m_noXSECset) {
+    if (m_allowMissingXSec) {
+      ATH_MSG_WARNING(m_noXSECset << " EVENTS WITHOUT CROSS-SECTION!!! Added dummy cross-section instead.");
+    }
+    else {
+      ATH_MSG_FATAL(m_noXSECset << " EVENTS WITHOUT CROSS-SECTION!! Check the setup before production!");
+      return StatusCode::FAILURE;
+    }
+  }
 
   const double efficiency = double(m_nPass) / double(m_nPass + m_nFail);
   ATH_MSG_INFO("Efficiency = " << efficiency * 100 << "%");

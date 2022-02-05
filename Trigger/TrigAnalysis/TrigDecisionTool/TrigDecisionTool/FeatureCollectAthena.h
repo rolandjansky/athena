@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef XAOD_ANALYSIS
+#ifndef XAOD_ANALYSIS // Full Athena only
 
 // -*- c++ -*-
 #ifndef TRIGGER_DECISION_TOOL_FeatureCollectAthena_H
@@ -25,6 +25,8 @@
 #include "boost/type_traits/is_same.hpp"
 #include "boost/shared_ptr.hpp"
 #include "boost/lexical_cast.hpp"
+
+#include "AthContainers/ConstDataVector.h"
 
 #include "TrigNavigation/NavigationCore.h"
 #include "TrigNavigation/NavigationCore.icc"
@@ -68,9 +70,9 @@ namespace Trig {
   
   namespace FeatureAccessImpl {
     // function declaration (see cxx for the deifinition) wanted to have this freedom in case of patches needed
-    const TrigPassBits* getBits(size_t sz, const HLT::TriggerElement* te, const std::string& label, HLT::NavigationCore* navigation );
+    const TrigPassBits* getBits(size_t sz, const HLT::TriggerElement* te, const std::string& label, const HLT::NavigationCore* navigation );
 
-    const TrigPassFlags* getFlags(size_t sz, const HLT::TriggerElement* te, const std::string& label, HLT::NavigationCore* navigation );
+    const TrigPassFlags* getFlags(size_t sz, const HLT::TriggerElement* te, const std::string& label, const HLT::NavigationCore* navigation );
   
 
     // compile time check if the type T displays type ElementProxy (this is specific to the DataVectors only)
@@ -92,7 +94,7 @@ namespace Trig {
     // is not substituded for DataVectors
     template<class T>
     const typename boost::disable_if_c<isDataVector<T>::value, T>::type* 
-    use_or_construct(const T* source, const HLT::TriggerElement*, const std::string&, unsigned int, HLT::NavigationCore*  ) {
+    use_or_construct(const T* source, const HLT::TriggerElement*, const std::string&, unsigned int, const HLT::NavigationCore*  ) {
       return source;
     }
 
@@ -100,24 +102,20 @@ namespace Trig {
     template<class T>
     const typename
     boost::enable_if_c<isDataVector<T>::value, T>::type*
-    use_or_construct(const T* source, const HLT::TriggerElement* te, const std::string& label, unsigned int condition, HLT::NavigationCore* navigation ) {
+    use_or_construct(const T* source, const HLT::TriggerElement* te, const std::string& label, unsigned int condition, const HLT::NavigationCore* navigation ) {
 
       const TrigPassBits* bits(0);
       if ( condition == TrigDefs::Physics ) {// only passing objects
-	bits = getBits(source->size(), te, label , navigation);
+        bits = getBits(source->size(), te, label , navigation);
       }
       if ( bits ) { // the actual filtering
-	T* destination = new T();      
-	destination->clear(SG::VIEW_ELEMENTS);
-	//      std::string name = "TDT_temporary_"+label+"_"+boost::lexical_cast<std::string>( (void*) destination);
-	//navigation->getAccessProxy()->record(destination, name);
+        auto destination = new ConstDataVector<T>(SG::VIEW_ELEMENTS);
 
-      
-	for(const typename T::base_value_type *obj : *source) {	
-	  if ( HLT::isPassing(bits, obj, source)  ) // if bits are missing or obj is realy marked as passing
-	    destination->push_back(const_cast<typename T::value_type>(obj));
-	}
-	return destination;
+        for(const typename T::base_value_type *obj : *source) {
+          if ( HLT::isPassing(bits, obj, source)  ) // if bits are missing or obj is realy marked as passing
+            destination->push_back(obj);
+        }
+        return destination->asDataVector();
       }
       // else
       return source;
@@ -140,7 +138,7 @@ namespace Trig {
     template<class T, class STORED,class LINK>
     struct insert_and_flatten<T,STORED, false, LINK> {
       static void do_it(std::vector<Trig::Feature<T> >& destination, const STORED* source, const HLT::TriggerElement* te, const std::string& label,
-			unsigned int condition, HLT::NavigationCore* navigation, const LINK& lnk) {
+			unsigned int condition, const HLT::NavigationCore* navigation, const LINK& lnk) {
 
 	const T* possibly_reduced_possibly_container = use_or_construct<T>(source, te, label, condition, navigation);
 	destination.push_back(Trig::Feature<T>(possibly_reduced_possibly_container, te, label, possibly_reduced_possibly_container != source,lnk)); // by 2nd to the last arg == true tell the Feature<T> to delete container at deletion
@@ -152,7 +150,7 @@ namespace Trig {
     template<class T, class CONT, class LINK>
     struct insert_and_flatten<T, CONT, true, LINK> {
       static void do_it(std::vector<Trig::Feature<T> >& destination, const CONT* source, const HLT::TriggerElement* te, const std::string& label, 
-			unsigned int condition, HLT::NavigationCore* navigation,const LINK& /*lnk*/) {	
+			unsigned int condition, const HLT::NavigationCore* navigation,const LINK& /*lnk*/) {
 
 	//std::cout << "insert_and_flatten<true> " << label << " of container of size " << source->size() <<  std::endl;
       
@@ -213,7 +211,7 @@ namespace Trig {
 		 std::vector<Trig::Feature<REQUESTED> >* data, 
 		 const std::string& label, unsigned int condition,
 		 const std::string& teName, 
-		 HLT::NavigationCore* navigation,
+		 const HLT::NavigationCore* navigation,
 		 bool* result, 
 		 const HLT::TriggerElement** sourceTE):
 	m_te(te), m_data(data), m_label(label), m_condition(condition), m_teName(teName), m_navigation(navigation), m_result(result), m_sourceTE(sourceTE){}
@@ -252,7 +250,7 @@ namespace Trig {
 
       
 	link_type link;
-	bool new_result = m_navigation->getRecentFeatureDataOrElementLink( m_te, link, m_label, *m_sourceTE, sourceLabel );
+	bool new_result = const_cast<HLT::NavigationCore*>(m_navigation)->getRecentFeatureDataOrElementLink( m_te, link, m_label, *m_sourceTE, sourceLabel );
 
 	if (new_result) {
 	  if (m_teName == "" || m_teName == Trig::getTEName(**m_sourceTE)) {
@@ -273,7 +271,7 @@ namespace Trig {
       const std::string m_label;
       unsigned int m_condition;
       std::string m_teName;
-      HLT::NavigationCore* m_navigation;
+      const HLT::NavigationCore* m_navigation;
       bool* m_result;
       const HLT::TriggerElement** m_sourceTE;
     };
@@ -284,9 +282,9 @@ namespace Trig {
      **/
     template<class T>
     void collect(const HLT::TriggerElement* te, std::vector<Trig::Feature<T> >& data, const std::string& label, unsigned int condition, 
-		 const std::string& teName, HLT::TrigNavStructure* navstructure) {
+		 const std::string& teName, const HLT::TrigNavStructure* navstructure) {
 
-      auto navigation = dynamic_cast<HLT::NavigationCore*>(navstructure);
+      auto navigation = dynamic_cast<const HLT::NavigationCore*>(navstructure);
 
       //std::cout << "Collecting " << label << " for TE " << te << std::endl;
 
@@ -321,22 +319,22 @@ namespace Trig {
   
 
     template<>
-    void collect<Muon_ROI>(const HLT::TriggerElement* te, std::vector<Trig::Feature<Muon_ROI> >& data, const std::string&, unsigned int, const std::string&, HLT::TrigNavStructure* navigation);
+    void collect<Muon_ROI>(const HLT::TriggerElement* te, std::vector<Trig::Feature<Muon_ROI> >& data, const std::string&, unsigned int, const std::string&, const HLT::TrigNavStructure* navigation);
 
     template<>
-    void collect<EmTau_ROI>(const HLT::TriggerElement* te, std::vector<Trig::Feature<EmTau_ROI> >& data, const std::string&, unsigned int, const std::string&, HLT::TrigNavStructure* navigation);
+    void collect<EmTau_ROI>(const HLT::TriggerElement* te, std::vector<Trig::Feature<EmTau_ROI> >& data, const std::string&, unsigned int, const std::string&, const HLT::TrigNavStructure* navigation);
 
     template<>
-    void collect<Jet_ROI>(const HLT::TriggerElement* te, std::vector<Trig::Feature<Jet_ROI> >& data, const std::string&, unsigned int, const std::string&, HLT::TrigNavStructure* navigation);
+    void collect<Jet_ROI>(const HLT::TriggerElement* te, std::vector<Trig::Feature<Jet_ROI> >& data, const std::string&, unsigned int, const std::string&, const HLT::TrigNavStructure* navigation);
 
     template<>
-    void collect<xAOD::EmTauRoI>(const HLT::TriggerElement* te, std::vector<Trig::Feature<xAOD::EmTauRoI> >& data, const std::string&, unsigned int, const std::string&, HLT::TrigNavStructure* navigation);
+    void collect<xAOD::EmTauRoI>(const HLT::TriggerElement* te, std::vector<Trig::Feature<xAOD::EmTauRoI> >& data, const std::string&, unsigned int, const std::string&, const HLT::TrigNavStructure* navigation);
 
     template<>
-    void collect<xAOD::MuonRoI>(const HLT::TriggerElement* te, std::vector<Trig::Feature<xAOD::MuonRoI> >& data, const std::string&, unsigned int, const std::string&, HLT::TrigNavStructure* navigation);
+    void collect<xAOD::MuonRoI>(const HLT::TriggerElement* te, std::vector<Trig::Feature<xAOD::MuonRoI> >& data, const std::string&, unsigned int, const std::string&, const HLT::TrigNavStructure* navigation);
 
     template<>
-    void collect<xAOD::JetRoI>(const HLT::TriggerElement* te, std::vector<Trig::Feature<xAOD::JetRoI> >& data, const std::string&, unsigned int, const std::string&, HLT::TrigNavStructure* navigation);
+    void collect<xAOD::JetRoI>(const HLT::TriggerElement* te, std::vector<Trig::Feature<xAOD::JetRoI> >& data, const std::string&, unsigned int, const std::string&, const HLT::TrigNavStructure* navigation);
 
     // ==============
     //

@@ -27,6 +27,8 @@ class TrigTauCaloRoiUpdater : public AthAlgorithm {
 
  private:
   Gaudi::Property< float > m_dRForCenter {this,"dRForCenter",0.2,"Delta R from the center of ROI"};
+  Gaudi::Property< float > m_etaHalfWidth {this,"etaHalfWidth",0.1,"eta Half width for tracking"};
+  Gaudi::Property< float > m_phiHalfWidth {this,"phiHalfWidth",0.1,"phi Half width for tracking"};
 
   //SG::ReadHandleKey< xAOD::JetContainer > m_jetInputKey {this,"JetInputKey","TrigJetRec","Input Jet Collection Key, retrieved from reconstructed jets"};
   SG::ReadHandleKey< TrigRoiDescriptorCollection > m_roIInputKey {this,"RoIInputKey","InputRoI","RoI input collection key"};

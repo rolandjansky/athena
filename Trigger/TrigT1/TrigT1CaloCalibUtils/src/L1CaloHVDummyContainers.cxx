@@ -12,7 +12,6 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloDetDescr/CaloDetDescriptor.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/CaloIdManager.h"
 
@@ -20,9 +19,8 @@ L1CaloHVDummyContainers::L1CaloHVDummyContainers(const std::string& name, ISvcLo
   : AthAlgorithm(name, pSvcLocator),
     m_triggerTowerCollectionName("TriggerTowers"),
     m_caloCellContainerName("AllCalo"),
-    m_caloMgr(0),
-    m_caloCellHelper(0),
-    m_caloDetDescrMgr(0),
+    m_caloMgr(nullptr),
+    m_caloCellHelper(nullptr),
     m_firstEvent(true)
 {
     declareProperty("TriggerTowerCollectionName", m_triggerTowerCollectionName);
@@ -35,34 +33,24 @@ L1CaloHVDummyContainers::~L1CaloHVDummyContainers()
 
 StatusCode L1CaloHVDummyContainers::initialize()
 {
-    StatusCode sc;
+  ATH_CHECK(detStore()->retrieve(m_caloMgr));
+  m_caloCellHelper = m_caloMgr->getCaloCell_ID();
+  if ( !m_caloCellHelper ) {
+    ATH_MSG_ERROR("Cannot retrieve CaloCell_ID");
+    return StatusCode::FAILURE;
+  }
+  ATH_CHECK(m_caloMgrKey.initialize());
 
-    sc = detStore()->retrieve(m_caloMgr);
-    if (sc.isFailure()) {
-        msg(MSG::ERROR) << "Cannot retrieve CaloMgr" << endmsg;
-	return sc;
-    }
-    else {
-        m_caloCellHelper = m_caloMgr->getCaloCell_ID();
-	if ( !m_caloCellHelper ) {
-	    msg(MSG::ERROR) << "Cannot retrieve CaloCell_ID" << endmsg;
-	    return StatusCode::FAILURE;
-        }
-    }
-    sc = detStore()->retrieve(m_caloDetDescrMgr);
-    if (sc.isFailure()) {
-        msg(MSG::ERROR) << "Cannot retrieve CaloDetDescrMgr" << endmsg;
-	return sc;
-    }
-
-    return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode L1CaloHVDummyContainers::execute()
 {
     if (m_firstEvent) {
 
-	StatusCode sc;
+      SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+      ATH_CHECK(caloMgrHandle.isValid());
+      const CaloDetDescrManager* caloDetDescrMgr = *caloMgrHandle;
 
         // Create dummy TriggerTower collection
 	TriggerTowerCollection* ttCol = new TriggerTowerCollection();
@@ -85,7 +73,7 @@ StatusCode L1CaloHVDummyContainers::execute()
                 }
             }
         }
-	msg(MSG::INFO) << "Size of TriggerTowerCollection is " << ttCol->size() << endmsg;
+	ATH_MSG_INFO("Size of TriggerTowerCollection is " << ttCol->size());
 	
 	// Create dummy CaloCellCollection
 	CaloCellContainer* ccCol = new CaloCellContainer();
@@ -95,35 +83,35 @@ StatusCode L1CaloHVDummyContainers::execute()
 	std::vector<Identifier>::const_iterator cellEnd(m_caloCellHelper->cell_end(CaloCell_ID::LAREM));
 	for (; cellItr != cellEnd; ++cellItr) {
 	    CaloCell* cell = new CaloCell();
-	    cell->set(m_caloDetDescrMgr->get_element(*cellItr), *cellItr);
+	    cell->set(caloDetDescrMgr->get_element(*cellItr), *cellItr);
 	    ccCol->push_back(cell);
         }
         cellItr = m_caloCellHelper->cell_begin(CaloCell_ID::LARHEC);
 	cellEnd = m_caloCellHelper->cell_end(CaloCell_ID::LARHEC);
 	for (; cellItr != cellEnd; ++cellItr) {
 	    CaloCell* cell = new CaloCell();
-	    cell->set(m_caloDetDescrMgr->get_element(*cellItr), *cellItr);
+	    cell->set(caloDetDescrMgr->get_element(*cellItr), *cellItr);
 	    ccCol->push_back(cell);
         }
 	cellItr = m_caloCellHelper->cell_begin(CaloCell_ID::LARFCAL);
 	cellEnd = m_caloCellHelper->cell_end(CaloCell_ID::LARFCAL);
 	for (; cellItr != cellEnd; ++cellItr) {
 	    CaloCell* cell = new CaloCell();
-	    cell->set(m_caloDetDescrMgr->get_element(*cellItr), *cellItr);
+	    cell->set(caloDetDescrMgr->get_element(*cellItr), *cellItr);
 	    ccCol->push_back(cell);
         }
-	msg(MSG::INFO) << "Size of CaloCellContainer is " << ccCol->size() << endmsg;
+	ATH_MSG_INFO("Size of CaloCellContainer is " << ccCol->size());
 
 	// Save in StoreGate
-	sc = evtStore()->record(ttCol, m_triggerTowerCollectionName);
+	StatusCode sc = evtStore()->record(ttCol, m_triggerTowerCollectionName);
 	if (sc.isFailure()) {
-	    msg(MSG::ERROR) << "Failed to store TriggerTowerCollection in StoreGate" << endmsg;
-	    return sc;
+	  ATH_MSG_ERROR("Failed to store TriggerTowerCollection in StoreGate");
+	  return sc;
         }
 	sc = evtStore()->record(ccCol, m_caloCellContainerName);
 	if (sc.isFailure()) {
-	    msg(MSG::ERROR) << "Failed to store CaloCellContainer in StoreGate" << endmsg;
-	    return sc;
+	  ATH_MSG_ERROR("Failed to store CaloCellContainer in StoreGate");
+	  return sc;
         }
 
 	m_firstEvent = false;

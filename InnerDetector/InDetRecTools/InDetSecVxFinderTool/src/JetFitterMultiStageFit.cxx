@@ -45,8 +45,6 @@ Trk::VxJetCandidate* JetFitterMultiStageFit::doTwoStageFit(const Trk::RecVertex 
                                                         const std::vector<const Trk::ITrackLink*> & secondInputTracks,
                                                         const Amg::Vector3D & vtxSeedDirection) const {
 
-    msg(MSG::VERBOSE) << " entered findSecVertex(). Applying JetFitter finding to the found sets of tracks and performing clustering (pattern recognition)  " << endmsg;
-
     Amg::Vector3D myDirection(jetMomentum.X(),jetMomentum.Y(),jetMomentum.Z());
 
     std::vector<std::vector<const Trk::ITrackLink*> > bunchesOfTracks; // vector of vector of tracks
@@ -57,7 +55,6 @@ Trk::VxJetCandidate* JetFitterMultiStageFit::doTwoStageFit(const Trk::RecVertex 
     std::vector<const Trk::ITrackLink*>::const_iterator tracks2End=firstInputTracks.end();
     for (std::vector<const Trk::ITrackLink*>::const_iterator tracks2Iter=tracks2Begin;
          tracks2Iter!=tracks2End;++tracks2Iter) {
-        //msg(MSG::VERBOSE) <<" adding track to fit " << endmsg;
         tracksToAdd.push_back(*tracks2Iter);
     }
 
@@ -68,7 +65,6 @@ Trk::VxJetCandidate* JetFitterMultiStageFit::doTwoStageFit(const Trk::RecVertex 
     std::vector<const Trk::ITrackLink*>::const_iterator tracks3End=secondInputTracks.end();
     for (std::vector<const Trk::ITrackLink*>::const_iterator tracks3Iter=tracks3Begin;
          tracks3Iter!=tracks3End;++tracks3Iter) {
-        if (msgLvl(MSG::VERBOSE)) msg() <<" adding track to fit " << endmsg;
         tracksToAdd.push_back(*tracks3Iter);
     }
 
@@ -97,7 +93,7 @@ Trk::VxJetCandidate* JetFitterMultiStageFit::doTwoStageFit(const Trk::RecVertex 
          BunchesIter!=BunchesEnd;++BunchesIter) {
 
         if (BunchesIter == BunchesBegin) { // this simply means we are only using tracksToUseInFirstFit
-            msg(MSG::VERBOSE) << " initial fit with  " << (*BunchesIter).size() << " tracks " << endmsg;
+            ATH_MSG_VERBOSE(" initial fit with  " << (*BunchesIter).size() << " tracks ");
             myJetCandidate = m_initializationHelper->initializeJetCandidate(*BunchesIter, &primaryVertex, &myDirection,
                                                                             &vtxSeedDirection);
             m_routines->initializeToMinDistancesToJetAxis(myJetCandidate);
@@ -110,7 +106,7 @@ Trk::VxJetCandidate* JetFitterMultiStageFit::doTwoStageFit(const Trk::RecVertex 
 
         // second stage using all tracks, why is it done this way with an if-else in a for loop...
         else {
-            msg(MSG::VERBOSE) <<" other fit with " << (*BunchesIter).size() << " tracks " << endmsg;
+            ATH_MSG_VERBOSE(" other fit with " << (*BunchesIter).size() << " tracks ");
             std::vector<Trk::VxVertexOnJetAxis*> setOfVertices=myJetCandidate->getVerticesOnJetAxis();
             std::vector<Trk::VxTrackAtVertex*>* setOfTracks=myJetCandidate->vxTrackAtVertex();
             tracksToAddBegin=(*BunchesIter).begin();
@@ -126,7 +122,7 @@ Trk::VxJetCandidate* JetFitterMultiStageFit::doTwoStageFit(const Trk::RecVertex 
                 //add new vertex with all the *BunchesIter tracks attached to it
             }
 
-            msg(MSG::VERBOSE) <<" new overall number of tracks (vertices?) to fit : " << setOfVertices.size() << endmsg;
+            ATH_MSG_VERBOSE(" new overall number of tracks (vertices?) to fit : " << setOfVertices.size());
             myJetCandidate->setVerticesOnJetAxis(setOfVertices);
             m_initializationHelper->updateTrackNumbering(myJetCandidate);
             //question: should this be done???
@@ -151,9 +147,6 @@ void JetFitterMultiStageFit::doTheFit(Trk::VxJetCandidate* myJetCandidate,
 
     do {//regards clustering
 
-        if (msgLvl(MSG::VERBOSE))
-            msg() << "InDetImprovedJetFitterVxFinder:      ------>>>>         new cycle of fit" << endmsg;
-
         int numLoops = 0;
         bool noMoreTracksToDelete(false);
         do {//regards eliminating incompatible tracks...
@@ -172,9 +165,7 @@ void JetFitterMultiStageFit::doTheFit(Trk::VxJetCandidate* myJetCandidate,
             for (std::vector<Trk::VxVertexOnJetAxis *>::const_iterator verticesIter = verticesBegin;
                  verticesIter != verticesEnd; ++verticesIter) {
                 if (*verticesIter == 0) {
-                    msg(MSG::WARNING)
-                            << "One vertex is empy. Problem when trying to delete incompatible vertices. No further vertices deleted."
-                            << endmsg;
+                    ATH_MSG_WARNING("One vertex is empy. Problem when trying to delete incompatible vertices. No further vertices deleted.");
                 } else {
                     const Trk::FitQuality &fitQuality = (*verticesIter)->fitQuality();
                     if (TMath::Prob(fitQuality.chiSquared(), (int) std::floor(fitQuality.numberDoF() + 0.5)) <
@@ -185,12 +176,10 @@ void JetFitterMultiStageFit::doTheFit(Trk::VxJetCandidate* myJetCandidate,
                 }
             }
             if (max_prob < m_vertexProbCut) {
-                if (msgLvl(MSG::DEBUG))
-                    msg() << "Deleted vertex " << worseVertex->getNumVertex() << " with probability " << max_prob
-                          << endmsg;
+                    ATH_MSG_DEBUG("Deleted vertex " << worseVertex->getNumVertex() << " with probability " << max_prob);
                 //	  std::cout << "Deleted vertex " << worseVertex->getNumVertex() << " with probability " << max_prob << std::endl;
                 if (worseVertex == myJetCandidate->getPrimaryVertex()) {
-                    if (msgLvl(MSG::VERBOSE)) msg() << " It's the primary" << endmsg;
+                    ATH_MSG_VERBOSE(" It's the primary");
                 }
 
                 m_routines->deleteVertexFromJetCandidate(worseVertex, myJetCandidate);
@@ -198,7 +187,7 @@ void JetFitterMultiStageFit::doTheFit(Trk::VxJetCandidate* myJetCandidate,
             }
             else {
                 noMoreTracksToDelete = true;
-                if (msgLvl(MSG::VERBOSE)) msg() << "No tracks to delete: maximum probability is " << max_prob << endmsg;
+                ATH_MSG_VERBOSE("No tracks to delete: maximum probability is " << max_prob);
             }
 
             numLoops += 1;
@@ -215,16 +204,15 @@ void JetFitterMultiStageFit::doTheFit(Trk::VxJetCandidate* myJetCandidate,
             m_routines->fillTableWithFastProbOfMerging(myJetCandidate);
         }
         const Trk::VxClusteringTable* clusteringTablePtr(myJetCandidate->getClusteringTable());
-        msg(MSG::VERBOSE) << "clustering table retrieved" << endmsg;
 
 
         if (clusteringTablePtr==nullptr) {
-            msg(MSG::WARNING) << " No Clustering Table while it should have been calculated... no more clustering performed during vertexing " << endmsg;
+            ATH_MSG_WARNING(" No Clustering Table while it should have been calculated... no more clustering performed during vertexing ");
             noMoreVerticesToCluster=true;
         }
         // why else here? why not just continue in if above?
         else {
-            msg(MSG::VERBOSE) <<" clustering table is " << *clusteringTablePtr << endmsg; //suppress this?
+            ATH_MSG_VERBOSE(" clustering table is " << *clusteringTablePtr); //suppress this?
 
             //now iterate over the full map and decide wether you want to do the clustering OR not...
             float probVertex(0.);
@@ -242,8 +230,8 @@ void JetFitterMultiStageFit::doTheFit(Trk::VxJetCandidate* myJetCandidate,
 
             // merging vertex with primary (if cond satisfied
             if (probVertex>0.&&probVertex>m_vertexClusteringProbabilityCut&&firstProbIsWithPrimary) {
-                msg(MSG::VERBOSE) <<" merging vtx number " << (*pairOfVxVertexOnJetAxis.first).getNumVertex() <<
-                                                " and " << (*pairOfVxVertexOnJetAxis.second).getNumVertex() << " (should be PV)." << endmsg;  // what do these numVertex mean? e.g. -10, 0, 1, ...?
+                ATH_MSG_VERBOSE(" merging vtx number " << (*pairOfVxVertexOnJetAxis.first).getNumVertex() <<
+                                                " and " << (*pairOfVxVertexOnJetAxis.second).getNumVertex() << " (should be PV).");  // what do these numVertex mean? e.g. -10, 0, 1, ...?
 
                 m_helper->mergeVerticesInJetCandidate(*pairOfVxVertexOnJetAxis.first,
                                                       *pairOfVxVertexOnJetAxis.second,
@@ -300,8 +288,8 @@ void JetFitterMultiStageFit::doTheFit(Trk::VxJetCandidate* myJetCandidate,
                 if (doMerge)
                 {
 
-                    msg(MSG::VERBOSE) <<" merging vtx number " << (*pairOfVxVertexOnJetAxis.first).getNumVertex() <<
-                                                    " and " << (*pairOfVxVertexOnJetAxis.second).getNumVertex() << " mass merged vertex: " << massTwoVertex << endmsg;
+                    ATH_MSG_VERBOSE(" merging vtx number " << (*pairOfVxVertexOnJetAxis.first).getNumVertex() <<
+                                                    " and " << (*pairOfVxVertexOnJetAxis.second).getNumVertex() << " mass merged vertex: " << massTwoVertex);
 
                     m_helper->mergeVerticesInJetCandidate(*pairOfVxVertexOnJetAxisExcludingPrimary.first,
                                                           *pairOfVxVertexOnJetAxisExcludingPrimary.second,

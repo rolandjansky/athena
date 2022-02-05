@@ -1,7 +1,7 @@
 #!/bin/bash
 # art-description: art job for InDetPhysValMonitoring, Single ele 5GeV
 # art-type: grid
-# art-input: user.keli.mc16_13TeV.422028.ParticleGun_single_ele_Pt5.recon.RDO.e7967_e5984_s3126_r11774_tid20254991_00
+# art-input: user.keli:user.keli.mc16_13TeV.422028.ParticleGun_single_ele_Pt5GeV
 # art-input-nfiles: 10
 # art-cores: 4
 # art-memory: 4096
@@ -71,7 +71,7 @@ case $ArtProcess in
       --outputNTUP_PHYSVALFile physval.ntuple.root \
       --outputAODFile   physval.AOD.root \
       --steering        doRAWtoALL \
-      --conditionsTag   'CONDBR2-BLKPA-RUN2-06' \
+      --conditionsTag   'OFLCOND-MC16-SDR-RUN2-08' \
       --checkEventCount False \
       --ignoreErrors    True \
       --maxEvents       -1 \
@@ -85,7 +85,7 @@ case $ArtProcess in
       InDetPhysValFlags.doValidateTightPrimaryTracks.set_Value_and_Lock(True); \
       InDetPhysValFlags.doValidateTracksInJets.set_Value_and_Lock(False); \
       InDetPhysValFlags.doValidateGSFTracks.set_Value_and_Lock(True); \
-      InDetPhysValFlags.doPhysValOutput.set_Value_and_Lock(True); \
+      InDetPhysValFlags.doExpertOutput.set_Value_and_Lock(True); \
       rec.doDumpProperties=True; rec.doCalo=True; rec.doEgamma=True; \
       rec.doForwardDet=False; rec.doInDet=True; rec.doJetMissingETTag=True; \
       rec.doLArg=True; rec.doLucid=True; rec.doMuon=True; rec.doMuonCombined=True; \

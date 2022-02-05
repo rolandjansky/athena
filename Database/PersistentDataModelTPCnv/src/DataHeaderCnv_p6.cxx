@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file DataHeaderCnv_p6.cxx
@@ -35,6 +35,10 @@ void DataHeaderCnv_p6::persToElem( const DataHeader_p6* pers, unsigned p_idx,
          obj_idx = full_el.objIdx;
          oid2 = full_el.oid2;
       }
+
+      if( form.sizeDb() <= db_idx || form.sizeObj() <= (size_t)obj_idx ) {
+         throw std::runtime_error("DataHeader/DataHeaderForm indices out of range. DataHeader can NOT be read!");
+      }
       // Append DbGuid
       token->setDb(         form.getDbGuid( db_idx ) );
       token->setCont(       form.getObjContainer( obj_idx ) );
@@ -57,8 +61,7 @@ DataHeader* DataHeaderCnv_p6::createTransient(const DataHeader_p6* pers, const D
    DataHeader* trans = new DataHeader();
    const unsigned int provSize = pers->m_provenanceSize;
    trans->m_inputDataHeader.resize(provSize);
-   trans->m_dataHeader.resize(pers->m_shortElements.size() - provSize);
-
+   trans->m_dataHeader.resize(pers->m_shortElements.size() - provSize - 1); // Take into account self reference
    unsigned i = 0;
    for( auto& elem : trans->m_dataHeader ) {
       persToElem( pers, i++, &elem, form );
@@ -66,6 +69,9 @@ DataHeader* DataHeaderCnv_p6::createTransient(const DataHeader_p6* pers, const D
    for( auto& elem : trans->m_inputDataHeader ) {
       persToElem( pers, i++, &elem, form );
    }
+   trans->m_dataHeader.resize(pers->m_shortElements.size() - provSize); // Add self reference, which was appended to end
+   auto& elem = trans->m_dataHeader.back();
+   persToElem( pers, i++, &elem, form );
    trans->setStatus(DataHeader::Input);
    return trans;
 }

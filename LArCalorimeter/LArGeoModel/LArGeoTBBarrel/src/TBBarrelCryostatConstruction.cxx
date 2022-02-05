@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // TBBarrelCryostatConstruction
@@ -56,12 +56,12 @@ LArGeo::TBBarrelCryostatConstruction::TBBarrelCryostatConstruction():
 
 LArGeo::TBBarrelCryostatConstruction::~TBBarrelCryostatConstruction() {}
 
-GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope()
+GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope(const VDetectorParameters* params)
 {
 
   if (cryoMotherPhysical) return cryoMotherPhysical;
 
-// Get access to the matarial manager
+// Get access to the material manager
 
   ISvcLocator *svcLocator = Gaudi::svcLocator();
   IMessageSvc * msgSvc;
@@ -620,7 +620,7 @@ GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope()
 // --------------------------------------------------------------------
 
 #ifdef BUILD_LARMODULE
-    BarrelConstruction barrelConstruction(true); // full geometry
+       BarrelConstruction barrelConstruction(true, params); // full geometry
     barrelConstruction.setBarrelSagging(_barrelSagging);
     barrelConstruction.setBarrelCellVisLimit(_barrelVisLimit);
     GeoFullPhysVol* barrelEnvelope = barrelConstruction.GetPositiveEnvelope();
@@ -645,7 +645,7 @@ GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope()
 // Place the Presampler test module inside the LAr volume (moth_phys)
 // ------------------------------------------------------------------------
 #ifdef BUILD_PRESAMPLER
-     BarrelPresamplerConstruction barrelPSConstruction(1);
+     BarrelPresamplerConstruction barrelPSConstruction(1, params);
      GeoFullPhysVol* barrelPSEnvelope = barrelPSConstruction.GetPositiveEnvelope();
 // PS lenght = 2*1582.5
 // start should be a z=0 in Atlas  => z = -LAr_z_max/2.+Cryo_z0 in moth_phys

@@ -29,17 +29,19 @@ def InDetRttTruthSelectionToolCfg(flags, name="InDetRttTruthSelectionTool", **kw
     kwargs.setdefault("requireCharged", True)
     kwargs.setdefault("maxBarcode", (200*1000 if kwargs.pop("OnlyDressPrimaryTracks", True) else 2**31-1))
     kwargs.setdefault("maxProdVertRadius", 300.)
-    kwargs.setdefault("maxEta", 2.5)
+    if flags.Detector.GeometryITk:
+        kwargs.setdefault("maxEta", 4.)
+    else:
+        kwargs.setdefault("maxEta", 2.5)
     kwargs.setdefault("minPt", 500.)
 
-    Extrapolator = None
-    if flags.Detector.GeometryITk:
-        from  InDetConfig.ITkRecToolConfig import ITkExtrapolatorCfg
-        Extrapolator = acc.getPrimaryAndMerge(ITkExtrapolatorCfg(flags))
+    if "radiusCylinder" in kwargs or "zDisc" in kwargs:
+        from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+        extrapolator = acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
+        acc.addPublicTool(extrapolator)  # TODO: migrate to private?
+        kwargs.setdefault("Extrapolator", extrapolator)
     else:
-        from  InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
-        Extrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
-    kwargs.setdefault("Extrapolator", Extrapolator)
+        kwargs.setdefault("Extrapolator", None)
 
     tool = CompFactory.AthTruthSelectionTool(name = name, **kwargs)
     acc.setPrivateTools(tool)
@@ -96,7 +98,7 @@ def InDetPhysValMonitoringToolCfg(flags, **kwargs):
         kwargs.setdefault("doPerAuthorPlots",      flags.IDPVM.doPerAuthorPlots)
         kwargs.setdefault("doHitLevelPlots",       flags.IDPVM.doHitLevelPlots)
 
-        # adding the VeretxTruthMatchingTool
+        # adding the VertexTruthMatchingTool
         VertexTruthMatchTool = acc.popToolsAndMerge(InDetVertexTruthMatchToolCfg(flags))
         kwargs.setdefault("useVertexTruthMatchTool", True)
         kwargs.setdefault("VertexTruthMatchTool", VertexTruthMatchTool)
@@ -123,11 +125,10 @@ def InDetPhysValMonitoringToolCfg(flags, **kwargs):
         kwargs.setdefault("JetContainerName", '')
         kwargs.setdefault("FillTrackInJetPlots", False)
         kwargs.setdefault("FillTrackInBJetPlots", False)
-        kwargs.setdefault("FillTruthToRecoNtuple ", False)
+        kwargs.setdefault("FillTruthToRecoNtuple", False)
 
     if flags.Detector.GeometryITk:
         #Disable vertex container for now
-        kwargs.setdefault("VertexContainerName", '')
         kwargs.setdefault("doTRTExtensionPlots", False)
 
     # Control the number of output histograms

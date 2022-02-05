@@ -538,9 +538,9 @@ StatusCode AmdcsimrecAthenaSvc::GetAmdcAliStores(
                                const AmdcIlineStore*& pAmdcIlineStore
 ){
 
-  pAmdcAlineStore = 0 ;
-  pAmdcBlineStore = 0 ;
-  pAmdcIlineStore = 0 ;
+  pAmdcAlineStore = nullptr ;
+  pAmdcBlineStore = nullptr ;
+  pAmdcIlineStore = nullptr ;
   
   if ( m_AlignmentCorr != 0 ) {
     if ( m_AlignmentSource == 2 ) {
@@ -1601,7 +1601,7 @@ int AmdcsimrecAthenaSvc::GetAGDD2GeoSwitchesStamp() { return m_AGDD2GeoSwitchesS
 std::vector<std::string> AmdcsimrecAthenaSvc::GetAGDD2GeoSwitches()  {return m_AGDD2GeoSwitches;}
 
 
-StatusCode AmdcsimrecAthenaSvc::SetLocation(std::string NameFile, std::string& FileLocation)
+StatusCode AmdcsimrecAthenaSvc::SetLocation(const std::string& NameFile, std::string& FileLocation)
 {
 
   ATH_MSG_DEBUG( "----> SetLocation is called " ) ;

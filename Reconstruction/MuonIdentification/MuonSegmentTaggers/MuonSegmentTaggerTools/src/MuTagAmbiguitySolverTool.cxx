@@ -37,7 +37,7 @@ StatusCode MuTagAmbiguitySolverTool::initialize() {
 }
 
 std::vector<MuonCombined::MuonSegmentInfo> MuTagAmbiguitySolverTool::solveAmbiguities(
-    std::vector<MuonCombined::MuonSegmentInfo> mtos) const {
+    const EventContext& ctx, std::vector<MuonCombined::MuonSegmentInfo> mtos) const {
     ATH_MSG_DEBUG("mtos size before any cuts " << mtos.size());
     // Store the number of segments associated to one track (pointer)
     for (unsigned int ns1 = 0; ns1 < mtos.size(); ns1++) {
@@ -75,7 +75,7 @@ std::vector<MuonCombined::MuonSegmentInfo> MuTagAmbiguitySolverTool::solveAmbigu
                                             << " stationLayer " << mtos[ns1].stationLayer << " selected " << mtos[ns1].selected);
 
         for (unsigned int ns2 = ns1 + 1; ns2 < mtos.size(); ns2++) {
-            if (mtos[ns1].segment == mtos[ns2].segment || ambiguousSegment(*mtos[ns1].segment, *mtos[ns2].segment)) {
+            if (mtos[ns1].segment == mtos[ns2].segment || ambiguousSegment(ctx, *mtos[ns1].segment, *mtos[ns2].segment)) {
                 double R1 = std::abs(mtos[ns1].pullCY * Rseg(mtos[ns1].nsegments));
                 double R2 = std::abs(mtos[ns2].pullCY * Rseg(mtos[ns2].nsegments));
                 ATH_MSG_DEBUG(" Ambiguous segment at index " << ns1 << " and " << ns2);
@@ -235,7 +235,7 @@ std::vector<MuonCombined::MuonSegmentInfo> MuTagAmbiguitySolverTool::solveAmbigu
     return mtosOutput;
 }
 
-int MuTagAmbiguitySolverTool::ambiguousSegment(const Muon::MuonSegment& seg1, const Muon::MuonSegment& seg2) const {
+int MuTagAmbiguitySolverTool::ambiguousSegment(const EventContext& ctx, const Muon::MuonSegment& seg1, const Muon::MuonSegment& seg2) const {
     // first check pointer
     if (&seg1 == &seg2) return 1;
 
@@ -262,7 +262,7 @@ int MuTagAmbiguitySolverTool::ambiguousSegment(const Muon::MuonSegment& seg1, co
 
             if (sectorOk) {
                 // check whether the two segments actually belong to the same particle
-                bool match = p_segmentMatchingTool->match(seg1, seg2);
+                bool match = p_segmentMatchingTool->match(ctx, seg1, seg2);
                 if (match) {
                     ATH_MSG_VERBOSE("Found matching segment pair: " << std::endl
                                                                     << p_muonPrinter->print(seg1) << std::endl
@@ -299,7 +299,7 @@ int MuTagAmbiguitySolverTool::ambiguousSegment(const Muon::MuonSegment& seg1, co
 }
 
 std::vector<MuonCombined::MuonSegmentInfo> MuTagAmbiguitySolverTool::selectBestMuTaggedSegments(
-    std::vector<MuonCombined::MuonSegmentInfo> mtss) const {
+    const EventContext& ctx, std::vector<MuonCombined::MuonSegmentInfo> mtss) const {
     ATH_MSG_DEBUG("cleaning set of MTSs");
 
     std::vector<MuonCombined::MuonSegmentInfo> outputMTSs;
@@ -329,7 +329,7 @@ std::vector<MuonCombined::MuonSegmentInfo> MuTagAmbiguitySolverTool::selectBestM
             int eta2 = m_idHelperSvc->stationEta(ch2);
             if (eta1 != eta2) continue;
 
-            if (ambiguousSegment(*museg1, *museg2)) {
+            if (ambiguousSegment(ctx, *museg1, *museg2)) {
                 if (museg1->numberOfContainedROTs() > museg2->numberOfContainedROTs() - 1) {
                     ATH_MSG_DEBUG("segments in the same station with rots keep First " << museg1->numberOfContainedROTs() << " and "
                                                                                        << museg2->numberOfContainedROTs());

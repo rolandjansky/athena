@@ -91,7 +91,7 @@ TestDriver::write ATLAS_NOT_THREAD_SAFE ()
    cout << "Adding 20 elements to the collection." << endl;
    pool::CollectionRowBuffer rowBuffer = collection->dataEditor().rowBuffer();
 
-   for( int i=100; i<105; i++ )   {
+   for( unsigned int i=100; i<105; i++ )   {
       rowBuffer.attributeList()[ "attr1" ].data<int>() = i ;
       char s[20];
       ::sprintf( s, "%s_%d", "testString", i );
@@ -170,7 +170,7 @@ TestDriver::update ATLAS_NOT_THREAD_SAFE ()
    cout << "Adding new 10 elements to the collection." << endl;
    pool::CollectionRowBuffer rowBuffer = collection->dataEditor().rowBuffer();
    
-   for( int i=120; i<130; i++ )   {
+   for( unsigned int i=120; i<130; i++ )   {
      rowBuffer.attributeList()[ "attr1" ].data<int>() = i ;
       char s[20];
       ::sprintf( s, "%s_%d", "testString", i );

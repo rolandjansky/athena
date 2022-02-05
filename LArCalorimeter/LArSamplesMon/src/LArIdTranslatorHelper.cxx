@@ -31,23 +31,21 @@
 #include "TKey.h"
 
 LArIdTranslatorHelper::LArIdTranslatorHelper(const TString& file)
+  : bec(0),side(0),ft(0),sl(0),ch(0),sa(0),part(0),
+    eta(0),phi(0),x(-99999),y(-99999),z(-99999),
+    onlid(0),offlid(0),ttid(0),
+    hvid(nullptr),
+    entry(0),
+    binetadqm(0),binphidqm1(0),binphidqm2(0),
+    m_kInitialized(false),
+    m_tree(nullptr),
+    m_file( nullptr),
+    m_ntotal(0),m_extrabins(0),
+    m_canvas_counts(0),
+    m_clonemap_counts(0),
+    m_nPartitionLayers(30),
+    m_nHistCategories(5)
 {
-  // class constructor - set your class variables to default values here
-
-  m_kInitialized = false;
-
-  bec=0,side=0,ft=0,sl=0,ch=0,sa=0,part=0;
-  eta=0.,phi=0.,x=-99999.,y=-99999.,z=-99999.;
-  onlid=0,offlid=0,ttid=0;
-  hvid=nullptr;
-  entry=0;
-  binetadqm=0,binphidqm1=0,binphidqm2=0,m_ntotal=0,m_extrabins=0;
-  m_map_ft=0,m_map_sl=0,m_map_ch=0,m_map_onlid=0,m_map_entry=0;
-  m_tree = nullptr;
-  m_file = nullptr;
-  m_canvas_counts = 0;
-  m_clonemap_counts = 0;
-
   // some hardcoded identifiers
   const Char_t* pl[30] = {
      "EMBPA","EMB1A","EMB2A","EMB3A","EMBPC","EMB1C","EMB2C","EMB3C",
@@ -55,25 +53,20 @@ LArIdTranslatorHelper::LArIdTranslatorHelper(const TString& file)
      "HEC0A","HEC1A","HEC2A","HEC3A","HEC0C","HEC1C","HEC2C","HEC3C",
      "FCAL1A","FCAL2A","FCAL3A","FCAL1C","FCAL2C","FCAL3C"
   };
-  m_nPartitionLayers = 30;
-  m_PartitionLayers = new Char_t*[m_nPartitionLayers];
+  m_PartitionLayers.resize (m_nPartitionLayers);
 
   const Char_t* ch[5] = {
     "FT","SL","CH","ONLID","Entry"
   };
-  m_nHistCategories = 5;
-  m_HistCategories = new Char_t*[m_nHistCategories];
+  m_HistCategories.resize (m_nHistCategories);
 
-  m_HistCellmaps = new TH2I**[m_nPartitionLayers];
+  m_HistCellmaps.resize (m_nPartitionLayers);
   for(int ipl=0;ipl<m_nPartitionLayers;ipl++){
-    m_PartitionLayers[ipl] = new Char_t[8];
-    sprintf(m_PartitionLayers[ipl],"%s",pl[ipl]);
-    m_HistCellmaps[ipl] = new TH2I*[m_nHistCategories];
-    for(int ic=0;ic<m_nHistCategories;ic++) m_HistCellmaps[ipl][ic] = nullptr;
+    m_PartitionLayers[ipl] = pl[ipl];
+    m_HistCellmaps[ipl].resize (m_nHistCategories);
   }
   for(int ic=0;ic<m_nHistCategories;ic++){
-    m_HistCategories[ic] = new Char_t[8];
-    sprintf(m_HistCategories[ic],"%s",ch[ic]);
+    m_HistCategories[ic] = ch[ic];
   }
   
   printf("Initialized LArIdTranslatorHelper object with %d Partition/Layers and %d histogram frame categories.\n",
@@ -92,15 +85,6 @@ LArIdTranslatorHelper::~LArIdTranslatorHelper()
   // class destructor - delete your created objects here
 
   if(m_kInitialized && m_file && m_file->IsOpen()){ m_file->Close(); delete m_file; }
-  if(m_HistCellmaps){
-    for(int ipl=0;ipl<m_nPartitionLayers;ipl++){
-      for(int ic=0;ic<m_nHistCategories;ic++){ if(m_HistCellmaps[ipl][ic]) delete m_HistCellmaps[ipl][ic]; }
-      if(m_HistCellmaps[ipl]) delete [] m_HistCellmaps[ipl];
-    }
-    delete [] m_HistCellmaps;
-  }
-  for(int ipl=0;ipl<m_nPartitionLayers;ipl++){ delete [] m_PartitionLayers[ipl]; }
-  for(int ic=0;ic<m_nHistCategories;ic++){ delete [] m_HistCategories[ic]; }
 }
 
 //____________________________________________________________________________________________________
@@ -143,9 +127,8 @@ bool LArIdTranslatorHelper::LoadIdTranslator(const TString& file)
   Char_t name[128];
   for(i=0;i<m_nPartitionLayers;i++){
     for(j=0;j<m_nHistCategories;j++){
-      sprintf(name,"%s_%s",m_PartitionLayers[i],m_HistCategories[j]);
-      if(m_HistCellmaps[i][j]) delete m_HistCellmaps[i][j];
-      m_HistCellmaps[i][j] = (TH2I*)m_file->Get(name);
+      sprintf(name,"%s_%s",m_PartitionLayers[i].c_str(),m_HistCategories[j].c_str());
+      m_HistCellmaps[i][j] = std::unique_ptr<TH2I> ((TH2I*)m_file->Get(name));
     }
     
     nbins += (m_HistCellmaps[i][0]->GetXaxis()->GetNbins())*(m_HistCellmaps[i][0]->GetYaxis()->GetNbins());
@@ -249,7 +232,7 @@ const Char_t* LArIdTranslatorHelper::GetPartitonLayerName(const int index)
     return nullptr;
   }
 
-  return m_PartitionLayers[index];
+  return m_PartitionLayers[index].c_str();
 }
 
 //____________________________________________________________________________________________________
@@ -270,7 +253,7 @@ TH2* LArIdTranslatorHelper::GetCaloPartitionLayerMap(const int index,bool kProfi
     printf("LArIdTranslatorHelper::GetCaloPartitionLayerMap : Could not clone map for index %d. Check that maps were loaded from input rootfile.\n",index);
     return nullptr;
   } else {
-    sprintf(m_namebuf,"%s_Cloned_%d",m_PartitionLayers[index],m_clonemap_counts);
+    sprintf(m_namebuf,"%s_Cloned_%d",m_PartitionLayers[index].c_str(),m_clonemap_counts);
     if(kProfile){
       th2 = new TProfile2D(m_namebuf,"",m_HistCellmaps[index][0]->GetXaxis()->GetNbins(),(m_HistCellmaps[index][0]->GetXaxis()->GetXbins())->GetArray(),m_HistCellmaps[index][0]->GetYaxis()->GetNbins(),(m_HistCellmaps[index][0]->GetYaxis()->GetXbins())->GetArray());
     } else {
@@ -337,7 +320,7 @@ TCanvas* LArIdTranslatorHelper::CaloPartitionLayerDisplay(TH1** h,const Char_t* 
   for(i=0;i<n;i++){
     c->cd(cmapping[i]);
     j = larmapping[i];
-    h[j]->SetTitle(m_PartitionLayers[j]);
+    h[j]->SetTitle(m_PartitionLayers[j].c_str());
     h[j]->SetStats(0);
     subpad = (TPad*)c->GetPad(cmapping[i]);
     // choose between dimensions
@@ -401,7 +384,7 @@ void LArIdTranslatorHelper::MakeTranslatorMapping(const char* inputtreefile,cons
   Char_t name[1024];
   TH2F** h2 = new TH2F*[m_nPartitionLayers];
   for(i=0;i<m_nPartitionLayers;i++){
-    sprintf(name,Pattern,run,m_PartitionLayers[i]);
+    sprintf(name,Pattern,run,m_PartitionLayers[i].c_str());
     h2[i] = (TH2F*)fdqm->Get(name);
     if(!h2[i]){ printf("LArIdTranslatorHelper::MakeTranslatorMapping : Could not read input histograms.\n"); exit(-1); }
   }
@@ -428,9 +411,9 @@ void LArIdTranslatorHelper::MakeTranslatorMapping(const char* inputtreefile,cons
     h2map[i] = new TH2I*[m_nHistCategories];
     h2count[i] = new TH2I*[m_nHistCategories];
     for(j=0;j<m_nHistCategories;j++){
-      sprintf(name,"%s_%s",m_PartitionLayers[i],m_HistCategories[j]);
+      sprintf(name,"%s_%s",m_PartitionLayers[i].c_str(),m_HistCategories[j].c_str());
       h2map[i][j] = new TH2I(name,"",nbinsx,xbins,nbinsy,ybins);
-      sprintf(name,"%s_%s_counts",m_PartitionLayers[i],m_HistCategories[j]);
+      sprintf(name,"%s_%s_counts",m_PartitionLayers[i].c_str(),m_HistCategories[j].c_str());
       h2count[i][j] = (TH2I*)h2map[i][j]->Clone(name);
 
       // initialize to -1
@@ -597,11 +580,11 @@ void LArIdTranslatorHelper::MakeTranslatorMapping(const char* inputtreefile,cons
     }
 
     // check for bins out of range
-    if(binetadqm<=0 || binphidqm1<=0 || binetadqm > h2map[j][0]->GetXaxis()->GetNbins() || binphidqm1 > h2map[j][0]->GetYaxis()->GetNbins()) printf("Warning at entry %s, %d, %+.4f %+.4f, %d %d\n",m_PartitionLayers[j],Sampling,celleta,cellphi,binetadqm,binphidqm1);
+    if(binetadqm<=0 || binphidqm1<=0 || binetadqm > h2map[j][0]->GetXaxis()->GetNbins() || binphidqm1 > h2map[j][0]->GetYaxis()->GetNbins()) printf("Warning at entry %s, %d, %+.4f %+.4f, %d %d\n",m_PartitionLayers[j].c_str(),Sampling,celleta,cellphi,binetadqm,binphidqm1);
 
     if(!success){
       printf("LArIdTranslatorHelper::MakeTranslatorMapping : Orphan at %s %d %d (ft/sl/ch: %d %d %d) : eta,phi = %+.2f,%+.2f with bins [%+.2f,%+.2f]  [%+.2f,%+.2f]. Prevented overwrite on ft/ch/sl %d %d %d\n",
-             m_PartitionLayers[j],binetadqm,binphidqm1,FT,SL,CH,celleta,cellphi,
+             m_PartitionLayers[j].c_str(),binetadqm,binphidqm1,FT,SL,CH,celleta,cellphi,
              h2map[j][0]->GetXaxis()->GetBinLowEdge(binetadqm),h2map[j][0]->GetXaxis()->GetBinUpEdge(binetadqm),
              h2map[j][0]->GetYaxis()->GetBinLowEdge(binphidqm1),h2map[j][0]->GetYaxis()->GetBinUpEdge(binphidqm1),
              (int)h2map[j][0]->GetBinContent(binetadqm,binphidqm1),
@@ -625,7 +608,7 @@ void LArIdTranslatorHelper::MakeTranslatorMapping(const char* inputtreefile,cons
       for(iy=0;iy<nbinsy;iy++){
           
         if(h2count[i][0]->GetBinContent(ix+1,iy+1)>1){
-          printf("LArIdTranslatorHelper::MakeTranslatorMapping : Duplicate at %s %d %d (last ft/sl/ch: %d %d %d) : [%+.4f,%+.4f]  [%+.4f,%+.4f]\n",m_PartitionLayers[i],ix+1,iy+1,(int)h2map[i][0]->GetBinContent(ix+1,iy+1),(int)h2map[i][1]->GetBinContent(ix+1,iy+1),(int)h2map[i][2]->GetBinContent(ix+1,iy+1),h2map[i][0]->GetXaxis()->GetBinLowEdge(ix+1),h2map[i][0]->GetXaxis()->GetBinUpEdge(ix+1),h2map[i][0]->GetYaxis()->GetBinLowEdge(iy+1),h2map[i][0]->GetYaxis()->GetBinUpEdge(iy+1));
+          printf("LArIdTranslatorHelper::MakeTranslatorMapping : Duplicate at %s %d %d (last ft/sl/ch: %d %d %d) : [%+.4f,%+.4f]  [%+.4f,%+.4f]\n",m_PartitionLayers[i].c_str(),ix+1,iy+1,(int)h2map[i][0]->GetBinContent(ix+1,iy+1),(int)h2map[i][1]->GetBinContent(ix+1,iy+1),(int)h2map[i][2]->GetBinContent(ix+1,iy+1),h2map[i][0]->GetXaxis()->GetBinLowEdge(ix+1),h2map[i][0]->GetXaxis()->GetBinUpEdge(ix+1),h2map[i][0]->GetYaxis()->GetBinLowEdge(iy+1),h2map[i][0]->GetYaxis()->GetBinUpEdge(iy+1));
           dupl2+=1;
         }
           

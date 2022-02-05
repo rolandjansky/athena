@@ -104,8 +104,8 @@ from AtlasGeoModel import SetupRecoGeometry
 #Get identifier mapping (needed by LArConditionsContainer)
 include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" )
 
-conddb.addFolder("LAR_OFL","/LAR/BadChannelsOfl/BadChannels<key>/LAR/BadChannels/BadChannels</key>")
-conddb.addFolder("LAR_OFL","/LAR/BadChannelsOfl/MissingFEBs<key>/LAR/BadChannels/MissingFEBs</key>")
+conddb.addFolder("LAR_OFL","/LAR/BadChannelsOfl/BadChannels<key>/LAR/BadChannelsOfl/BadChannels</key>")
+conddb.addFolder("LAR_OFL","/LAR/BadChannelsOfl/MissingFEBs<key>/LAR/BadChannelsOfl/MissingFEBs</key>")
 svcMgr.IOVDbSvc.GlobalTag=globaltag
 try:
    svcMgr.IOVDbSvc.DBInstance=""

@@ -54,7 +54,7 @@ def test_trigP1_preload(menu):
     ex.input = ''
     ex.explicit_input = True
     ex.args = '-M -f ./raw._0001.data'
-    ex.args += ' -R 999999 --sor-time=now --detector-mask=all'  # to avoid COOL lookup of non-existent run
+    ex.args += ' -R 999999 -L 999 --sor-time=now --detector-mask=all'  # to avoid COOL lookup of non-existent run
     ex.args += ' --imf --threads=1 --concurrent-events=1 --nprocs=1'
     ex.args += ' HLTJobOptions.fixPS.json'
     ex.perfmon = False  # Cannot use PerfMon with -M

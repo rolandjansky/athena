@@ -34,11 +34,12 @@ class GTower_ID;
 
 
 /**
-*  @brief This class initializes the Calo (LAr and Tile) offline identifiers.
-*
-*  For subdetector specific functionality (online identifiers and
-*  cabling for example, or Regions), one should use the LArIdManager and TileIdManager
-*
+ *  @brief This class initializes the Calo (LAr and Tile) offline identifiers.
+ *
+ *  For subdetector specific functionality (online identifiers and
+ *  cabling for example, or Regions), one should use TileIdManager (for Tile)
+ *  or retrieve ID helpers from the Detector Store (LAr)
+ *
 */
 class CaloIdManager
 {

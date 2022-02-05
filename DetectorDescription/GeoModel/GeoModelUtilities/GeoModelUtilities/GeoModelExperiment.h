@@ -14,6 +14,10 @@
 
 #ifndef GEOMODELSVC_GEOMODELEXPERIMENT_H
 #define GEOMODELSVC_GEOMODELEXPERIMENT_H
+
+/// Ensure that the extensions for the Vector3D are properly loaded
+#include "GeoPrimitives/GeoPrimitives.h"
+
 #include "GeoModelKernel/GeoVPhysVol.h"
 #ifndef BUILDVP1LIGHT
     #include "AthenaKernel/CLASS_DEF.h"

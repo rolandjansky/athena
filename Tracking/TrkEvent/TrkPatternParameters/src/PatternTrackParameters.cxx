@@ -474,7 +474,7 @@ void Trk::PatternTrackParameters::changeDirection()
 
 Amg::Vector3D Trk::PatternTrackParameters::calculatePosition(void) const {
   if (!m_surface) {
-    return Amg::Vector3D(0, 0, 0);
+    return {0, 0, 0};
   }
   switch ( m_surface->type()){
   case Trk::SurfaceType::Plane:
@@ -496,7 +496,7 @@ Amg::Vector3D Trk::PatternTrackParameters::calculatePosition(void) const {
     return localToGlobal(static_cast<const Trk::ConeSurface*>(m_surface.get()));
     break;
   default:
-    return Amg::Vector3D(0, 0, 0);
+    return {0, 0, 0};
   }
 }
 
@@ -506,7 +506,7 @@ Amg::Vector3D Trk::PatternTrackParameters::calculateMomentum(void) const {
   double Sf = std::sin(m_parameters[2]), Cf = std::cos(m_parameters[2]);
   double Se = std::sin(m_parameters[3]), Ce = std::cos(m_parameters[3]);
 
-  return Amg::Vector3D(p * Se * Cf, p * Se * Sf, p * Ce);
+  return {p * Se * Cf, p * Se * Sf, p * Ce};
 }
 
 bool Trk::PatternTrackParameters::hasSurface() const {

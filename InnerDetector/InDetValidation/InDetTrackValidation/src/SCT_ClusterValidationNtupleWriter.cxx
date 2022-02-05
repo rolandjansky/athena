@@ -358,7 +358,7 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::execute() {
             ATH_MSG_WARNING("for current track is TrackStateOnSurfaces == Null, no data will be written for this track");
           } else {
             // Loop over all track states on surfaces
-            for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it=trackStates->begin(); it!=trackStates->end(); it++) {
+            for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it=trackStates->begin(); it!=trackStates->end(); ++it) {
               // Get pointer to RIO of right type
               const InDet::SiClusterOnTrack *clus =
                 dynamic_cast<const InDet::SiClusterOnTrack*>((*it)->measurementOnTrack());
@@ -393,14 +393,14 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::execute() {
     // -----------------------
     // get all the RIO_Collections in the container
     InDet::SCT_ClusterContainer::const_iterator containerIterator = m_riocontainer->begin();
-    for( ; containerIterator != m_riocontainer->end(); containerIterator++) {
+    for( ; containerIterator != m_riocontainer->end(); ++containerIterator) {
       ATH_MSG_DEBUG( "There are "  << (*containerIterator)->size() << " entries in the PrepRawDataCollection" );
  
       // ---------------------------------
       //get all the RIOs in the collection
 
       InDet::SCT_ClusterCollection::const_iterator rioIterator = (*containerIterator)->begin();
-      for (; rioIterator != (*containerIterator)->end(); rioIterator++) {
+      for (; rioIterator != (*containerIterator)->end(); ++rioIterator) {
         // get the surface center of the RIO
         if (!(*rioIterator)) {
           ATH_MSG_WARNING( "nullptr to RIO" );

@@ -2,9 +2,8 @@
 # Package filtering rules for the AthGeneration project build.
 #
 
-# Temporarily disable Rivet_i until we have LCG_97_ATLAS_2
-
 + AsgExternal/Asg_Test
++ AtlasTest/CITest
 + AtlasTest/TestTools
 + Calorimeter/CaloConditions
 + Calorimeter/CaloCondBlobObjs
@@ -156,6 +155,7 @@
 - Generators/MCTester_i
 - Generators/ProtosLHEF_i
 - Generators/TrackRecordGenerator
+- Generators/QGSJet_i
 + Generators/.*
 + InnerDetector/InDetExample/InDetRecExample
 #+ InnerDetector/InDetRecTools/InDetTrackSelectionTool

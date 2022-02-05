@@ -5,35 +5,36 @@
 def load_files_for_qball_scenario(MASS, CHARGE):
     import os, shutil, sys
 
-    import ExtraParticles.PDGHelpers
+    from G4AtlasApps.SimFlags import simFlags
+    from ExtraParticles.PDGHelpers import getPDGTABLE
+    if getPDGTABLE(simFlags.ExtraParticlesPDGTABLE.get_Value()):
+        CODE=10000000+int(float(CHARGE)*100)
 
-    CODE=10000000+int(float(CHARGE)*100)
+        ALINE1="M {code}                         {intmass}.E+03       +0.0E+00 -0.0E+00 Qball           +".format(code=CODE,intmass=int(MASS))
+        ALINE2="W {code}                         0.E+00         +0.0E+00 -0.0E+00 Qball           +".format(code=CODE)
+        BLINE1="{code}  {intmass}.00  {charge}  0.0 # Qball".format(code=CODE,intmass=int(MASS), charge=CHARGE)
+        BLINE2="-{code}  {intmass}.00  -{charge}  0.0 # QballBar".format(code=CODE,intmass=int(MASS), charge=CHARGE)
 
-    ALINE1="M {code}                         {intmass}.E+03       +0.0E+00 -0.0E+00 Qball           +".format(code=CODE,intmass=int(MASS))
-    ALINE2="W {code}                         0.E+00         +0.0E+00 -0.0E+00 Qball           +".format(code=CODE)
-    BLINE1="{code}  {intmass}.00  {charge}  0.0 # Qball".format(code=CODE,intmass=int(MASS), charge=CHARGE)
-    BLINE2="-{code}  {intmass}.00  -{charge}  0.0 # QballBar".format(code=CODE,intmass=int(MASS), charge=CHARGE)
+        f=open('PDGTABLE.MeV','a')
+        f.writelines(str(ALINE1))
+        f.writelines('\n')
+        f.writelines(str(ALINE2))
+        f.writelines('\n')
+        f.close()
+        partmod = os.path.isfile('particles.txt')
+        if partmod is True:
+            os.remove('particles.txt')
+        f=open('particles.txt','w')
+        f.writelines(str(BLINE1))
+        f.writelines('\n')
+        f.writelines(str(BLINE2))
+        f.writelines('\n')
+        f.close()
 
-    f=open('PDGTABLE.MeV','a')
-    f.writelines(str(ALINE1))
-    f.writelines('\n')
-    f.writelines(str(ALINE2))
-    f.writelines('\n')
-    f.close()
-    partmod = os.path.isfile('particles.txt')
-    if partmod is True:
-        os.remove('particles.txt')
-    f=open('particles.txt','w')
-    f.writelines(str(BLINE1))
-    f.writelines('\n')
-    f.writelines(str(BLINE2))
-    f.writelines('\n')
-    f.close()
-
-    del ALINE1
-    del ALINE2
-    del BLINE1
-    del BLINE2
+        del ALINE1
+        del ALINE2
+        del BLINE1
+        del BLINE2
 
 doG4SimConfig = True
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags

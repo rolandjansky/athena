@@ -15,18 +15,18 @@ namespace Muon{
   
 class MuonResolutionPlots:public PlotBase {
  public:
-  MuonResolutionPlots(PlotBase* pParent, std::string sDir, std::string sType="", bool doBinnedResolutions=false);
+  MuonResolutionPlots(PlotBase* pParent, const std::string& sDir, const std::string& sType="", bool doBinnedResolutions=false);
   void fill(const xAOD::TrackParticle& muontp, const xAOD::TruthParticle& truthprt, float weight=1.0);
 
   Trk::ResolutionPlots m_oResolutionPlots;
-  TH2* Res_pT_vs_lowpT;
-  TH2* Res_pT_vs_highpT;
-  TH2* Res_pT_vs_pT;
-  TH2* Res_pT_vs_eta;
-  TH2* Res_pT_vs_phi;
+  TH2* Res_pT_vs_lowpT{nullptr};
+  TH2* Res_pT_vs_highpT{nullptr};
+  TH2* Res_pT_vs_pT{nullptr};
+  TH2* Res_pT_vs_eta{nullptr};
+  TH2* Res_pT_vs_phi{nullptr};
 
-  TH2* Res_eta_vs_pT;
-  TH2* Res_phi_vs_pT;
+  TH2* Res_eta_vs_pT{nullptr};
+  TH2* Res_phi_vs_pT{nullptr};
 
  private:
   std::string m_sType;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -8,7 +8,6 @@
 #include "StoreGate/WriteDecorHandle.h"
 #include "PathResolver/PathResolver.h"
 
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloEvent/CaloCellContainer.h"
 
@@ -182,9 +181,6 @@ StatusCode JetBadChanCorrTool::correctionFromCellsInJet(const xAOD::JetContainer
     double corr_cell=0;
     double corr_dotx=0;
 
-    // jet energy
-    double total_energy=0;//for calib, with h1 weight but without jet-scale corr.
-
     jet::JetCellAccessor::const_iterator cellIt =  jet::JetCellAccessor::begin(jet);
     jet::JetCellAccessor::const_iterator cellItE = jet::JetCellAccessor::end(jet);
 
@@ -195,7 +191,6 @@ StatusCode JetBadChanCorrTool::correctionFromCellsInJet(const xAOD::JetContainer
       double cellWeight = cellIt.weight();
 
       double cell_energy = cell->e() * cellWeight;
-      total_energy += cell_energy;
 
       CaloCell_ID::CaloSample sampling = dde->getSampling();
 

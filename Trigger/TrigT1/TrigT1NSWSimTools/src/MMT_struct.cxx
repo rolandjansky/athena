@@ -13,6 +13,7 @@
 
 #include <stdexcept>
 #include <utility>
+#include <cmath>
 
 using std::vector;
 using std::string;
@@ -304,7 +305,7 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
   //x = horizontal distance from beam looking down
 
   if (sector == 'L') {
-    ATH_MSG_INFO("LM1 \n" <<
+    ATH_MSG_DEBUG("LM1 \n" <<
                  "\t\t\t\t Total Strips: " << roParam_bottom_mult1.tStrips << " with pitch: " << roParam_bottom_mult1.stripPitch << "\n" <<
                  "\t\t\t\t KO strips TopEta: " << roParam_bottom_mult1.nMissedTopEta << " - BottomEta: " << roParam_bottom_mult1.nMissedBottomEta << "\n" <<
                  "\t\t\t\t KO strips TopStereo: " << roParam_bottom_mult1.nMissedTopStereo << " - BottomStereo: " << roParam_bottom_mult1.nMissedBottomStereo << "\n" <<
@@ -313,7 +314,7 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
                  "\t\t\t\t dlStereoTop/Bottom: " << roParam_bottom_mult1.dlStereoTop << " " << roParam_bottom_mult1.dlStereoBottom << "\n" <<
                  "\t\t\t\t Active area --> (Bottom, Top, Height) : (" << roParam_bottom_mult1.activeBottomLength << ", " << roParam_bottom_mult1.activeTopLength << ", " << roParam_bottom_mult1.activeH << ")");
   } else if (sector == 'S') {
-    ATH_MSG_INFO("SM1 \n" <<
+    ATH_MSG_DEBUG("SM1 \n" <<
                  "\t\t\t\t KO strips TopEta: " << roParam_bottom_mult1.nMissedTopEta << " - BottomEta: " << roParam_bottom_mult1.nMissedBottomEta << "\n" <<
                  "\t\t\t\t KO strips TopStereo: " << roParam_bottom_mult1.nMissedTopStereo << " - BottomStereo: " << roParam_bottom_mult1.nMissedBottomStereo << "\n" <<
                  "\t\t\t\t Total Strips: " << roParam_bottom_mult1.tStrips << " with pitch: " << roParam_bottom_mult1.stripPitch << "\n" <<
@@ -324,7 +325,7 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
   }
 
   if (sector == 'L') {
-    ATH_MSG_INFO("LM2 \n" <<
+    ATH_MSG_DEBUG("LM2 \n" <<
                  "\t\t\t\t Total Strips: " << roParam_top_mult1.tStrips << " with pitch: " << roParam_top_mult1.stripPitch << "\n" <<
                  "\t\t\t\t KO strips TopEta: " << roParam_top_mult1.nMissedTopEta << " - BottomEta: " << roParam_top_mult1.nMissedBottomEta << "\n" <<
                  "\t\t\t\t KO strips TopStereo: " << roParam_top_mult1.nMissedTopStereo << " - BottomStereo: " << roParam_top_mult1.nMissedBottomStereo << "\n" <<
@@ -333,14 +334,14 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
                  "\t\t\t\t dlStereoTop/Bottom: " << roParam_top_mult1.dlStereoTop << " " << roParam_top_mult1.dlStereoBottom << "\n" <<
                  "\t\t\t\t Active area --> (Top, Bottom, Height) : (" << roParam_top_mult1.activeTopLength << ", " << roParam_top_mult1.activeBottomLength << ", " << roParam_top_mult1.activeH << ")");
   } else if (sector == 'S') {
-    ATH_MSG_INFO("SM2 " <<
+    ATH_MSG_DEBUG("SM2 \n" <<
                  "\t\t\t\t KO strips TopEta: " << roParam_top_mult1.nMissedTopEta << " - BottomEta: " << roParam_top_mult1.nMissedBottomEta << "\n" <<
                  "\t\t\t\t KO strips TopStereo: " << roParam_top_mult1.nMissedTopStereo << " - BottomStereo: " << roParam_top_mult1.nMissedBottomStereo << "\n" <<
                  "\t\t\t\t (Top, Bottom, Length): (" << mm_top_mult1->lWidth() << ", " << mm_top_mult1->sWidth() << ", " << mm_top_mult1->Length() << ")\n" <<
                  "\t\t\t\t Zpos - Distance from ZAxis: " << roParam_top_mult1.zpos << " - " << roParam_top_mult1.distanceFromZAxis << "\n" <<
                  "\t\t\t\t dlStereoTop/Bottom: " << roParam_top_mult1.dlStereoTop << " " << roParam_top_mult1.dlStereoBottom << "\n" <<
                  "\t\t\t\t Active area --> (Top, Bottom, Height) : (" << roParam_top_mult1.activeTopLength << ", " << roParam_top_mult1.activeBottomLength << ", " << roParam_top_mult1.activeH << ")");
-    for (const auto &angle : roParam_top_mult1.stereoAngle) ATH_MSG_INFO("Stereo angle: " << angle);
+    for (const auto &angle : roParam_top_mult1.stereoAngle) ATH_MSG_DEBUG("Stereo angle: " << angle);
   }
 
   ////////////  Define the large wedge /////////////////
@@ -396,8 +397,8 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
   // MM_firststrip_positions returns the position for phi sector 1.
   // => for the small sectors, rotate this by -1/16 of a rotation to make our lives easier.
   // in this coordinate basis, x is up/down the wedge (radial), and y is left/right (phi).
-  float cos_rotation = std::cos(-2*TMath::Pi() / 16.0);
-  float sin_rotation = std::sin(-2*TMath::Pi() / 16.0);
+  float cos_rotation = std::cos(-2*M_PI / 16.0);
+  float sin_rotation = std::sin(-2*M_PI / 16.0);
   float x_rotated = 0.0;
   float y_rotated = 0.0;
 
@@ -420,13 +421,13 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
         y_rotated = pos.y();
       }
 
-      if      (is_u(layer)) st_angle = -1*abs(stereo_degree);
-      else if (is_v(layer)) st_angle =    abs(stereo_degree);
+      if      (is_u(layer)) st_angle = -1*std::abs(stereo_degree);
+      else if (is_v(layer)) st_angle =    std::abs(stereo_degree);
       else                  st_angle = 0;
 
       // walk from the center of the strip to the position of the strip at the center of the wedge.
       // NB: for X-planes, this is simply the center of the strip: tan(0) = 0.
-      radial_pos = abs(x_rotated - y_rotated*std::tan(st_angle * TMath::Pi()/180.0));
+      radial_pos = std::abs(x_rotated - y_rotated*std::tan(st_angle * M_PI/180.0));
 
       if (is_x(layer) && eta==1) radial_pos_xx_1 = radial_pos;
       if (is_x(layer) && eta==2) radial_pos_xx_2 = radial_pos;
@@ -452,11 +453,12 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
   //now put in the positions at `ly spaced points for a y dependent z
   bool hack=false;
   z_large=vector<vector<double > >(ybins,z_nominal);
-  double pitch_f=1.*std::sin(correct.rotate.X())*h1/ybins, pitch_b=0, bumper_up=0.0;
+  double pitch_f=1.*std::sin(correct.rotate.X())*h1/ybins, bumper_up=0.0;
+  //double pitch_b = 0;
   if(hack) {
     double factor=-1;
     pitch_f*=factor;
-    pitch_b*=factor;
+    //pitch_b*=factor;
   }
   ATH_MSG_DEBUG("Specs: correct.rotate.X()=" << correct.rotate.X() << ",correct.translate.Z()=" << correct.translate.Z() << ",pitch_f=" << pitch_f);
   for(int iy=0;iy<ybins;iy++){
@@ -490,8 +492,8 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
   //BLC had some interesting bounds...let's do the ones that make sense to me
   minimum_large_theta = std::atan(H/z_nominal.back()) + tol;
   maximum_large_theta = std::atan(std::sqrt(std::pow( (Hnom+h1),2) + 0.25*std::pow(w1,2))/z_nominal.back()) - tol;
-  minimum_large_phi = -TMath::DegToRad()*0.5*wedge_opening_angle + tol;
-  maximum_large_phi = TMath::DegToRad()*(0.5*wedge_opening_angle) - tol;
+  minimum_large_phi = -M_PI/180.0*0.5*wedge_opening_angle + tol;
+  maximum_large_phi = M_PI/180.0*(0.5*wedge_opening_angle) - tol;
   ///////////////////////////////////////////////////
 
   double phiseg= ((maximum_large_phi-minimum_large_phi)/n_phibins);
@@ -611,13 +613,13 @@ par_par MMT_Parameters::param_par() const{
 double MMT_Parameters::y_from_eta_wedge(double eta,int plane)const{
   //assumes wedge geometry--average x^2, is 1/3 y^2*tan^2(stereo_degree), for eta/y correspondence
   double z=z_nominal[plane]; 
-  double zeta=TMath::DegToRad()*(0.5*stereo_degree);
+  double zeta=M_PI/180.0*(0.5*stereo_degree);
   return z*std::tan(2*std::atan(std::exp(-1.*eta)))/std::sqrt(1+std::tan(zeta)*std::tan(zeta)/3.);
 }
 
 double MMT_Parameters::eta_wedge_from_y(double y,int plane)const{
   double z=z_nominal[plane];
-  double zeta=TMath::DegToRad()*(0.5*stereo_degree);
+  double zeta=M_PI/180.0*(0.5*stereo_degree);
   return -1.*std::log(std::tan(0.5*std::atan(y/z*std::sqrt(1+std::tan(zeta)*std::tan(zeta)/3.))));
 }
 
@@ -1084,16 +1086,16 @@ void hitData_key::print()const{
 }
 
 
-hitData_info::hitData_info(int pl,int station_eta,int strip,MMT_Parameters *par,const ROOT::Math::XYZVector &tru,double tpos,double ppos):plane(pl){
+hitData_info::hitData_info(int pl,int station_eta,int strip,std::shared_ptr<MMT_Parameters> par,const ROOT::Math::XYZVector &tru,double tpos,double ppos):plane(pl){
   (void) tru;
   //The idea here is to calculate/assign a y and a z to a given hit based on its pl/station/strip, the geometry of the detector (in par), and misalignment based on position.
   //We start by assigning the plane dependent strip width (the stereo planes come in skew and so get divided by cos(stereo_angle)
   char schar=par->setup[plane];
   bool horizontal=(schar=='x'||schar=='X');
   double swidth=par->strip_width;
-  int eta = TMath::Abs(station_eta) -1;
+  int eta = std::abs(station_eta) -1;
   double base=par->ybases[plane][eta];
-  if(!horizontal) swidth/=std::cos(TMath::DegToRad()*(par->stereo_degree));
+  if(!horizontal) swidth/=std::cos(M_PI/180.0*(par->stereo_degree));
   //Next, we initialize some constants--y will eventually be calculated as y=base+scale*(width*strip+delta_y(misalignment,correction)).
   //The correction portion of delta_y is done in in the calculations on the ybases object in par
   //yup, or "y up" is the portion of y above the base of the plane (i.e. in the detector)
@@ -1120,7 +1122,7 @@ hitData_info::hitData_info(int pl,int station_eta,int strip,MMT_Parameters *par,
   slope =  (zflt!=0.) ? yflt / zflt : 0.;
 }
 
-double hitData_info::mis_dy(int plane,MMT_Parameters *par,double tpos,double ppos)const{
+double hitData_info::mis_dy(int plane,std::shared_ptr<MMT_Parameters> par,double tpos,double ppos)const{
   if(par->misal.type!=1 || plane>3) return 0.;
   double zplane=par->z_nominal[plane];
   double base=par->ybases[plane].front();
@@ -1148,7 +1150,7 @@ double hitData_info::mis_dy(int plane,MMT_Parameters *par,double tpos,double ppo
   char schar=par->setup[plane];
   if(!(schar=='x'||schar=='X')){
     //if we're in a stereo plane, calculate different coefficients.
-    double omega=TMath::DegToRad()*(par->stereo_degree);
+    double omega=M_PI/180.0*(par->stereo_degree);
     double pm=(schar=='u'||schar=='U'?1.:-1.);
     yhat_x=pm*std::cos(alpha)*std::cos(beta)*std::sin(omega)-std::sin(alpha)*std::cos(beta)*std::cos(omega);
     yhat_y=pm*std::sin(omega)*(std::sin(alpha)*std::cos(gamma)+std::cos(alpha)*std::sin(beta)*std::sin(gamma))+std::cos(omega)*(std::cos(alpha)*std::cos(gamma)-std::sin(alpha)*std::sin(beta)*std::sin(gamma));
@@ -1208,14 +1210,14 @@ hitData_entry::hitData_entry(int ev, double gt, double q, int vmm, int mmfe, int
   event(ev),gtime(gt),charge(q),VMM_chip(vmm),MMFE_VMM(mmfe),plane(pl),strip(st),station_eta(est),station_phi(phi),multiplet(mult),gasgap(gg),localX(locX),tru_theta_ip(tr_the),tru_phi_ip(tru_phi),truth_nbg(q_tbg),BC_time(bct),time(t),truth(tru),recon(rec),fit_theta(fit_the),fit_phi(fit_ph),fit_dtheta(fit_dth),tru_dtheta(tru_dth),
   /*tru_theta_local(tru_thl),tru_theta_global(tru_thg),*/M_x_global(mxg),M_u_global(mug),M_v_global(mvg),M_x_local(mxl),mx(the_mx),my(the_my),roi(the_roi) {}
 
-Hit hitData_entry::entry_hit(MMT_Parameters *par)const{
+Hit hitData_entry::entry_hit(std::shared_ptr<MMT_Parameters> par)const{
   return Hit(entry_key(),entry_info(par));
 }
 hitData_key hitData_entry::entry_key() const{
   return hitData_key(BC_time,time,gtime,VMM_chip,event);
 }
 
-hitData_info hitData_entry::entry_info(MMT_Parameters *par)const{
+hitData_info hitData_entry::entry_info(std::shared_ptr<MMT_Parameters> par)const{
   hitData_info spade(plane,station_eta,strip,par,recon,tru_theta_ip,tru_phi_ip);//truth or recon? doesn't matter too much--it's for misalignment
   return spade;
 }
@@ -1233,15 +1235,15 @@ void hitData_entry::fit_fill(double fthe,double fphi, double fdth, double mxg, d
 }
 
 void hitData_entry::print() const{
-  // ATH_MSG_INFO( "%%%%%%%%%%%%%%%%HDST_ENTRY%%%%%%%%%%%%%%%%%%"<<endl
+  // ATH_MSG_DEBUG( "%%%%%%%%%%%%%%%%HDST_ENTRY%%%%%%%%%%%%%%%%%%"<<endl
   //     <<"(Event,BC_time,time): ("<<event<<","<<BC_time<<","<<time<<"), "<<(truth_nbg?"truth":"bg")<<", charge: "<<charge<<endl
   //     <<"Wedge Coord---plane: "<<plane<<", strip: "<<strip<<", est: "<<station_eta<<", vmm: "<<VMM_chip<<", ip theta: "<<tru_theta_ip<<", ip phi: "<<tru_phi_ip<<endl
   //     <<"truth angles---dtheta: "<<tru_dtheta<<endl//", theta(loc): "<<tru_theta_local<<", theta(glo): "<<tru_theta_global<<endl
   //     <<"Truth vertex: \n");
   // truth.Print();
-  // ATH_MSG_INFO( "Recon vertex: \n");
+  // ATH_MSG_DEBUG( "Recon vertex: \n");
   // recon.Print();
-  // ATH_MSG_INFO( "FIT---roi: "<<roi<<endl
+  // ATH_MSG_DEBUG( "FIT---roi: "<<roi<<endl
   //     <<"        angles---theta: "<<fit_theta.getValue()<<", phi: "<<fit_phi.getValue()<<", dtheta: "<<fit_dtheta.getValue()<<endl
   //     <<"slopes, global---x: "<<M_x_global.getValue()<<", u: "<<M_u_global.getValue()<<", v: "<<M_v_global.getValue()<<endl
   //     <<"slopes,  other---x(loc): "<<M_x_local.getValue()<<", x(coord): "<<mx.getValue()<<", y(coord): "<<my.getValue()<<endl

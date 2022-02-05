@@ -134,7 +134,7 @@ namespace LVL1
         const bool isSideC = (side == LVL1MUONIF::Lvl1MuCTPIInputPhase1::idSideC());
         if (isExcludedRPCROI(muThrExtraInfo, thr->rpcExclROIList(), roi, sectorID, isSideC)) continue;
 
-        if (ptword >= thr->idxBarrel()+1) {
+        if (ptword >= thr->idxBarrel()) {
           // mark this threshold as passed
           passed = true;
         }
@@ -147,7 +147,7 @@ namespace LVL1
           if (thr->region().find("ALL") == std::string::npos &&
               thr->region().find("EC") == std::string::npos) continue;
 
-          if (ptword >= thr->idxEndcap()+1) {
+          if (ptword >= thr->idxEndcap()) {
             // mark this threshold as passed
             passed = true;
           }
@@ -157,7 +157,7 @@ namespace LVL1
           if (thr->region().find("ALL") == std::string::npos &&
               thr->region().find("FW") == std::string::npos) continue;
 
-          if (ptword >= thr->idxForward()+1) {
+          if (ptword >= thr->idxForward()) {
             // mark this threshold as passed
             passed = true;
           }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArDetectorFactory.cxx
@@ -49,9 +49,8 @@ LArGeo::LArDetectorFactoryTBEC::~LArDetectorFactoryTBEC()
 void LArGeo::LArDetectorFactoryTBEC::create( GeoPhysVol* a_container )
 {
 
-  // V.N :  Patch LAr materials
-  VDetectorParameters* parameters = (VDetectorParameters *) new  LArGeo::RAL();
-  VDetectorParameters::SetInstance(parameters);
+  // V.N :  Patch LAr materials ??? is this needed?
+  VDetectorParameters::SetInstance(std::make_unique<LArGeo::RAL>());
 
   EMECDetectorManager *emecDetectorManager = new EMECDetectorManager();
   

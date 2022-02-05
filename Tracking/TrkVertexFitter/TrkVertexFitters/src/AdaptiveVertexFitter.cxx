@@ -9,14 +9,6 @@
 
 #include "TrkVertexFitters/AdaptiveVertexFitter.h"
 
-#include "TrkVertexFitterInterfaces/IVertexSeedFinder.h"
-#include "TrkVertexFitterInterfaces/IVertexLinearizedTrackFactory.h"
-#include "TrkVertexFitterInterfaces/IVertexTrackCompatibilityEstimator.h"
-#include "TrkVertexFitterInterfaces/IVertexUpdator.h"
-#include "TrkVertexFitterInterfaces/IVertexSmoother.h"
-#include "TrkVertexFitterInterfaces/IVertexAnnealingMaker.h"
-#include "TrkVertexFitterInterfaces/IImpactPoint3dEstimator.h"
-
 #include "VxVertex/LinearizedTrack.h"
 #include "TrkParametersBase/ParametersBase.h"
 #include "VxVertex/VxTrackAtVertex.h"
@@ -36,13 +28,6 @@ namespace Trk
   
   AdaptiveVertexFitter::AdaptiveVertexFitter(const std::string& t, const std::string& n, const IInterface*  p) : 
     base_class(t,n,p),
-    m_SeedFinder("Trk::CrossDistancesSeedFinder"),
-    m_LinearizedTrackFactory("Trk::FullLinearizedTrackFactory"),
-    m_TrackCompatibilityEstimator("Trk::Chi2TrackCompatibilityEstimator"),
-    m_ImpactPoint3dEstimator("Trk::ImpactPoint3dEstimator/ImpactPoint3dEstimator"),
-    m_VertexUpdator("Trk::KalmanVertexUpdator"),
-    m_VertexSmoother("Trk::DummyVertexSmoother"),
-    m_AnnealingMaker("Trk::DetAnnealingMaker"),
     m_maxIterations(50),
     m_maxDistToLinPoint(0.5),
     m_initialError(0.0001),
@@ -52,13 +37,6 @@ namespace Trk
     declareProperty("MaxIterations",        m_maxIterations);
     declareProperty("MaxDistToLinPoint",    m_maxDistToLinPoint);
     declareProperty("InitialError",m_initialError);
-    declareProperty("SeedFinder",m_SeedFinder);
-    declareProperty("LinearizedTrackFactory",m_LinearizedTrackFactory);
-    declareProperty("TrackCompatibilityEstimator",m_TrackCompatibilityEstimator);
-    declareProperty("ImpactPoint3dEstimator",m_ImpactPoint3dEstimator);
-    declareProperty("VertexUpdator",m_VertexUpdator);
-    declareProperty("VertexSmoother",m_VertexSmoother);
-    declareProperty("AnnealingMaker",m_AnnealingMaker);
     declareProperty("onlyzseed",m_onlyzseed);
     declareProperty("DoSmoothing",m_doSmoothing);
     declareInterface<IVertexFitter>(this);
@@ -351,7 +329,6 @@ namespace Trk
 
     //Count the steps for the fit and the number of relinearizations needed in the fit
     int num_steps(0);
-    int num_relinearizations(0);
 
 
     xAOD::Vertex* ActualVertex = new xAOD::Vertex();
@@ -418,7 +395,6 @@ namespace Trk
           }
         }
         
-        num_relinearizations+=1;
       }
 
 
@@ -537,8 +513,6 @@ namespace Trk
                       << "the ndf of the vertex is at fit end: " << ActualVertex->numberDoF() << endmsg;
     }
 
-    // TODO: get rid of following line
-    //std::cout << "Number of steps: " << num_steps << ". Number of relinearizations: " << num_relinearizations << "." << std::endl << std::endl;
 
     //Give back all info into the ActualVertex xAOD::Vertex
     return ActualVertex;

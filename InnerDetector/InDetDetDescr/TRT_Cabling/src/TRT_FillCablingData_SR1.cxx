@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -13,7 +13,7 @@
  *    We need to map between phi sector index used in the offline and
  *       the Source IDs programmed in the hardware.
  *
- * The m_identfier* and m_collID vectors are indexed by ROB source ID - 1.
+ * The m_identifier* and m_collID vectors are indexed by ROB source ID - 1.
  * The magic mapping between ROB source IDs and phi sector indices is in 
  * getRobID() and in fillCollID().  Everything else should just fall 
  * through and gets the Right Answer.
@@ -603,7 +603,7 @@ void TRT_FillCablingData_SR1::defineTables()
 
 	    if ( map_it == con_map.end() )
 	    {
-	      m_cabling->set_identfierForAllStraws( pos->first, 
+	      m_cabling->set_identifierForAllStraws( pos->first, 
 						    i + ConnectorCount*444,
 						    NULLstrawID );
 	      continue;
@@ -649,7 +649,7 @@ void TRT_FillCablingData_SR1::defineTables()
 					     strawInLayerId );
 
 
-	    m_cabling->set_identfierForAllStraws( pos->first, BufferLocation,
+	    m_cabling->set_identifierForAllStraws( pos->first, BufferLocation,
 						  strawID );
 
 
@@ -675,7 +675,7 @@ void TRT_FillCablingData_SR1::defineTables()
 	    }  
 
 
-	    m_cabling->set_identfierHashForAllStraws( pos->first,
+	    m_cabling->set_identifierHashForAllStraws( pos->first,
 						      BufferLocation,
 						      hashId );
 	  }
@@ -688,7 +688,7 @@ void TRT_FillCablingData_SR1::defineTables()
 
 	    if ( map_it == con_map.end() )
 	    {
-	      m_cabling->set_identfierForAllStraws( pos->first, i,
+	      m_cabling->set_identifierForAllStraws( pos->first, i,
 						    NULLstrawID );
 	      continue;
 	    }
@@ -717,7 +717,7 @@ void TRT_FillCablingData_SR1::defineTables()
 					     strawInLayerId );
 
 
-	    m_cabling->set_identfierForAllStraws( pos->first, BufferLocation,
+	    m_cabling->set_identifierForAllStraws( pos->first, BufferLocation,
 						  strawID );
 
 
@@ -743,9 +743,9 @@ void TRT_FillCablingData_SR1::defineTables()
 	    }
 
 
-	    m_cabling->set_identfierHashForAllStraws( pos->first,
-						      BufferLocation,
-						      hashId );
+	    m_cabling->set_identifierHashForAllStraws( pos->first,
+                                                       BufferLocation,
+                                                       hashId );
 	  } // loop over bufferOffsets
 	}   // Endcap
      }      // loop over GCM
@@ -988,7 +988,7 @@ std::vector<IdentifierHash> & ids)
  * Input : Straw ID
  * Output: list of ROB Source IDs
  */
-std::vector<uint32_t> TRT_FillCablingData_SR1::getRobID(Identifier id) 
+std::vector<uint32_t> TRT_FillCablingData_SR1::getRobID(Identifier id) const
 {
   std::vector<uint32_t> v;
 
@@ -1009,17 +1009,12 @@ std::vector<uint32_t> TRT_FillCablingData_SR1::getRobID(Identifier id)
 
   id_phi_module = id_phi_module + 32 * id_barrel_ec;
 
-  std::vector<u_int32_t> SourceList = m_phi_to_source[id_phi_module];
-
-  vector<uint32_t>::iterator it1 = SourceList.begin();
-  vector<uint32_t>::iterator it2 = SourceList.end();
-
-  while( it1 != it2 )
-  {
-     eformat::helper::SourceIdentifier sid( *it1 );
-     v.push_back(sid.code());
-
-     ++it1;
+  const auto& it = m_phi_to_source.find (id_phi_module);
+  if (it != m_phi_to_source.end()) {
+    for (u_int32_t id : it->second) {
+      eformat::helper::SourceIdentifier sid( id );
+      v.push_back(sid.code());
+    }
   }
 
   return v;

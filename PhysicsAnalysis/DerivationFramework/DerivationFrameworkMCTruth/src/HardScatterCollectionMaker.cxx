@@ -229,12 +229,25 @@ StatusCode DerivationFramework::HardScatterCollectionMaker::addBranches() const
 
     // Get the signal process vertex.  Get the incoming particles and outgoing particles and 
     // make a mini truth collection based on those
-    // Let's assume a reasonable case...
-    CollectionMakerHelpers::addTruthParticle( *(my_tv->incomingParticle(0)), newParticleCollection, newVertexCollection, seen_particles, m_generations );
+    bool first_particle=true;
+
     // Are there any other incoming particles we need to add?
-    for (size_t i=1;i<my_tv->nIncomingParticles();++i){
+    for (size_t i=0;i<my_tv->nIncomingParticles();++i){
+        // Check for a null pointer
+        if (!my_tv->incomingParticle(i)) continue;
+        // See if this is the first particle we're adding
+        if (first_particle){
+          CollectionMakerHelpers::addTruthParticle( *(my_tv->incomingParticle(i)), newParticleCollection, newVertexCollection, seen_particles, m_generations );
+          first_particle=false;
+          continue;
+        }
+        // Otherwise we're going to be adding to the existing collection
         // Set up the truth particle
         xAOD::TruthParticle* xTruthParticle = CollectionMakerHelpers::setupTruthParticle(*(my_tv->incomingParticle(i)),newParticleCollection);
+        if (!xTruthParticle){
+          ATH_MSG_WARNING("setupTruthParticle returned nullptr...");
+          continue;
+        }
         // Make a link to this particle
         int my_index = newParticleCollection->size()-1;
         ElementLink<xAOD::TruthParticleContainer> eltp(*newParticleCollection, my_index);
@@ -255,6 +268,12 @@ StatusCode DerivationFramework::HardScatterCollectionMaker::addBranches() const
         // Attach based on status codes!
         // status 21 means incoming
         if (tp->status()!=21) continue;
+        // See if it's the first particle
+        if (first_particle){
+          CollectionMakerHelpers::addTruthParticle( *tp, newParticleCollection, newVertexCollection, seen_particles, m_generations );
+          first_particle=false;
+          continue;
+        }
         // See if we already got this one
         if (std::find(seen_particles.begin(),seen_particles.end(),tp->barcode())!=seen_particles.end()){
             continue;

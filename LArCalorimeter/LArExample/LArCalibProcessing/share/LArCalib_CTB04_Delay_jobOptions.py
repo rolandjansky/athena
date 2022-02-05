@@ -133,7 +133,6 @@ DetDescrCnvSvc.DoIdChecks
 DetDescrCnvSvc.LArIDFileName = "IdDictParser/IdDictLArCalorimeter_H8_2004.xml"
 
 ToolSvc = Service( "ToolSvc" )
-ToolSvc.LArRoI_Map.Print=False
 
 #
 # Conditions DB

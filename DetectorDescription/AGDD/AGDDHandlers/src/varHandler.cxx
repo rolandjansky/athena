@@ -1,20 +1,24 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDHandlers/varHandler.h"
+#include "AGDDControl/AGDDController.h"
 #include "AGDDControl/XMLHandler.h"
 #include <iostream>
 
 
-varHandler::varHandler(std::string s):XMLHandler(s)
+varHandler::varHandler(const std::string& s,
+                       AGDDController& c)
+  : XMLHandler(s, c)
 {
 }
 
-void varHandler::ElementHandle()
+void varHandler::ElementHandle(AGDDController& c,
+                               xercesc::DOMNode *t)
 {
 	bool bres;
-	std::string name=getAttributeAsString("name",bres);
-	double res=getAttributeAsDouble("value",bres);
-	Evaluator().RegisterConstant(name,res);
+	std::string name=getAttributeAsString(c, t, "name",bres);
+	double res=getAttributeAsDouble(c, t, "value",bres);
+	c.Evaluator().RegisterConstant(name,res);
 }

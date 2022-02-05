@@ -7,7 +7,7 @@ tdaq_package ()
 tdaq_add_library (MuonNSWCommonDecode 
 		    src/NSWCommonDecoder.cxx 
 		    src/NSWElink.cxx
-		    src/VMMChannel.cxx
+		    src/NSWOfflineHelper.cxx
 		    src/sTGCMapper.cxx
 		  LINK_LIBRARIES
 		    tdaq-common::DataReader
@@ -15,9 +15,14 @@ tdaq_add_library (MuonNSWCommonDecode
 		    tdaq-common::eformat
 		    tdaq-common::ers)
 
-# Test application
+# Test applications
 
 tdaq_add_executable (test_nsw_common_decoder
 		     src/test/test_nsw_common_decoder.cxx
+		     LINK_LIBRARIES
+		       MuonNSWCommonDecode)
+
+tdaq_add_executable (test_nsw_online2offline
+		     src/test/test_nsw_online2offline.cxx
 		     LINK_LIBRARIES
 		       MuonNSWCommonDecode)

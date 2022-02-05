@@ -79,7 +79,6 @@ namespace LVL1{
       virtual float                                      emTTCellsEt(const TriggerTower* tt) const = 0;
       virtual std::vector<float>                         emTTCellsEtByLayer(const TriggerTower* tt) const = 0;
       virtual std::vector<float>                         emTTCellsEtByReceiver(const TriggerTower* tt,const int mode=0) const = 0;
-      virtual float                                      emLArTowerEnergy(const TriggerTower* tt) const = 0;
 
       virtual std::vector<const CaloCell*>               hadCells(const TriggerTower* tt) const = 0;
       virtual int                                        hadNCells(const TriggerTower* tt) const = 0;
@@ -94,7 +93,6 @@ namespace LVL1{
       virtual float                                      hadTTCellsEt(const TriggerTower* tt) const = 0;
       virtual std::vector<float>                         hadTTCellsEtByLayer(const TriggerTower* tt) const = 0;
       virtual std::vector<float>                         hadTTCellsEtByReceiver(const TriggerTower* tt,const int mode=0) const = 0;
-      virtual float                                      hadLArTowerEnergy(const TriggerTower* tt) const = 0;
       virtual float                                      tileCellEnergy(const TriggerTower* tt,IdTTL1CellMapType& map) const = 0;
 
       //  High Voltage Information
@@ -168,9 +166,6 @@ namespace LVL1{
       virtual void                                       LArHV(const SG::ReadCondHandleKey<ILArHVScaleCorr>& scaleCorrKey,
                                                                const SG::ReadCondHandleKey<LArOnOffIdMapping>& cablingKey) = 0;
       virtual void                                       caloCells(const CaloCellContainer* cells) = 0;
-      virtual void                                       larDigits(const LArDigitContainer* lar) = 0;
-      virtual void                                       tileDigits(const TileDigitsContainer* tile) = 0;
-      virtual void                                       l1CaloLArTowerEnergy(const CaloCellContainer* cells, const TriggerTowerCollection* ttc) = 0;
       virtual Identifier                                 emID(const double eta,const double phi) const = 0;
       virtual Identifier                                 hadID(const double eta,const double phi) const = 0;
 

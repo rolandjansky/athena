@@ -20,6 +20,8 @@ StatusCode TrigTauCaloRoiUpdater::initialize() {
 
   ATH_MSG_DEBUG( "declareProperty review:"   );
   ATH_MSG_DEBUG( "    " << m_dRForCenter     );
+  ATH_MSG_DEBUG( "    " << m_etaHalfWidth    );
+  ATH_MSG_DEBUG( "    " << m_phiHalfWidth    );
 
   ATH_MSG_DEBUG( "Initialising HandleKeys" );
   CHECK( m_roIInputKey.initialize()        );
@@ -61,11 +63,10 @@ StatusCode TrigTauCaloRoiUpdater::execute() {
   const TrigRoiDescriptor *roiDescriptor = roisHandle->at(0);
 
   // fill local variables for RoI reference position
-  // Preserve the dEta and dPhi requirements from the original RoI
   float eta  = roiDescriptor->eta();
   float phi  = roiDescriptor->phi();
-  float dEta = fabs(roiDescriptor->etaPlus() - eta);
-  float dPhi = fabs(CxxUtils::wrapToPi(roiDescriptor->phiPlus()-phi));
+  float dEta = m_etaHalfWidth; 
+  float dPhi = m_phiHalfWidth;
 
   ATH_MSG_DEBUG( "; RoI ID = " << roiDescriptor->roiId()
                  << ": Eta = " << eta
@@ -87,9 +88,14 @@ StatusCode TrigTauCaloRoiUpdater::execute() {
   // Determine the LC tau pT at detector axis
   TLorentzVector TauDetectorAxis(0.,0.,0.,0.);
   for (clusterIt=RoICaloClusterContainer->begin(); clusterIt != RoICaloClusterContainer->end(); ++clusterIt) {
+
+    if((*clusterIt)->e() < 0)
+      continue;
+
     myCluster.SetPtEtaPhiE((*clusterIt)->pt(), (*clusterIt)->eta(), (*clusterIt)->phi(), (*clusterIt)->e());
     if(TauBarycenter.DeltaR(myCluster) > m_dRForCenter)
       continue;
+
     TauDetectorAxis += myCluster;
   } // end loop on clusters
 

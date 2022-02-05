@@ -91,7 +91,7 @@
 
   <class name="Muon::MM_RawDataContainer" />
   <class name="std::vector<Muon::MM_RawDataCollection * >" />
-  <class name="DataVector<Muon::MM_RawDataCollection>" id="5F202045-CE2C-4AD4-96BA-7DA18053B90F" />
+  <class name="DataVector<Muon::MM_RawDataCollection>" id="A49EBDAC-A190-4198-95DF-BF75FBBB487F" />
   <class name="MM_RawDataCollection_Cache" />
 
   <class name="Muon::STGC_RawDataContainer" />

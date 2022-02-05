@@ -75,8 +75,7 @@ Trk::AbstractVolume::boundarySurfaces() const
   return (*m_boundarySurfaces);
 }
 
-void Trk::AbstractVolume::createBoundarySurfaces
-ATLAS_NOT_THREAD_SAFE()
+void Trk::AbstractVolume::createBoundarySurfaces()
 {
   // prepare the BoundarySurfaces
   m_boundarySurfaces = new std::vector<

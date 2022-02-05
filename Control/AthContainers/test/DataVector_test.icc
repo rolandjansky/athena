@@ -70,6 +70,7 @@ void throw_dv_test_err (const char* file, int line, const char* what)
 
 #include "AthContainers/DataVector.h"
 #include "AthContainers/ConstDataVector.h"
+#include "AthContainers/DataVectorWithAlloc.h"
 #include "AthContainers/AuxStoreInternal.h"
 #include "TestTools/random.h"
 
@@ -105,6 +106,40 @@ void check_dtor_log(int a=-1,int b=-1,int c=-1,int d=-1, int e=-1, int f=-1)
   std::sort (v.begin(), v.end());
   std::vector<int> vv = get_dtor_log();
   myassert (vv == v);
+}
+
+
+template <class DV, class... Args>
+auto allocate (DV& /*dv*/, Args&&... args)
+{
+  return new std::remove_const_t<typename DV::base_value_type> (std::forward<Args>(args)...);
+}
+
+
+template <class DV, class... Args>
+auto allocate (DataVectorWithAlloc<DV>& dv, Args&&... args)
+{
+  return dv.allocate (std::forward<Args>(args)...);
+}
+
+
+template <class T, class DV, class... Args>
+// Shouldn't really need the enable_if here, but otherwise gcc8 complains
+// about ambiguities.  (gcc11 is ok.)
+//auto
+std::enable_if_t<std::is_same_v<DV, typename DV::base_data_vector> ||
+                 std::is_same_v<DV, ConstDataVector<typename DV::base_data_vector> >, T*>
+allocateT (DV& /*dv*/, Args&&... args)
+{
+  return new T (std::forward<Args>(args)...);
+}
+
+
+template <class T, class DV, class... Args>
+auto allocateT (DataVectorWithAlloc<DV>& dv, Args&&... args)
+{
+  static_assert (std::is_same_v<T, typename DV::base_value_type>);
+  return dv.allocate (std::forward<Args>(args)...);
 }
 
 
@@ -419,6 +454,13 @@ void checkaux1 (const DataVector<T>& v, const SG::AuxElement*)
 }
 
 
+template <class DV>
+void checkaux1 (const DataVectorWithAlloc<DV>& v, const SG::AuxElement* e)
+{
+  checkAux1 (*v.asDataVector(), e);
+}
+
+
 template <class T>
 void checkaux1 (const DataVector<T>&, const void*)
 {
@@ -429,6 +471,13 @@ template <class T>
 void checkaux (const DataVector<T>& v)
 {
   checkaux1 (v, typename DataVector<T>::value_type());
+}
+
+
+template <class DV>
+void checkaux (const DataVectorWithAlloc<DV>& v)
+{
+  checkaux1 (*v.asDataVector(), typename DV::value_type());
 }
 
 
@@ -478,6 +527,13 @@ template <class T>
 void setaux (DataVector<T>& v, SG::IAuxStore& store)
 {
   setaux1 (v, store, typename DataVector<T>::value_type());
+}
+
+
+template <class DV>
+void setaux (DataVectorWithAlloc<DV>& v, SG::IAuxStore& store)
+{
+  setaux1 (v, store, typename DV::value_type());
 }
 
 
@@ -566,6 +622,13 @@ void checkauxZero (const SG::AuxVectorBase& v, size_t index)
 }
 
 
+template <class DV>
+void checkauxZero (const DataVectorWithAlloc<DV>& v, size_t index)
+{
+  checkauxZero (*v.asDataVector(), index);
+}
+
+
 template <class T, class hasaux>
 struct test2_maybeconst1
 {
@@ -613,21 +676,29 @@ void test2_initial()
 
 // Test default ctor
 template <class DV>
-void test2_default_ctor1()
+void test2_default_ctor1a()
 {
-  typedef typename DV::base_value_type T;
   clear_dtor_log();
   {
     DV v1;
-    v1.push_back (new T(1));
+    v1.push_back (allocate (v1, 1));
     myassert (v1.ownPolicy() == SG::OWN_ELEMENTS);
-    DV v2 (SG::VIEW_ELEMENTS);
-    v2.push_back (new T(2));
-    myassert (v2.ownPolicy() == SG::VIEW_ELEMENTS);
     CHECK_INDICES(v1);
-    CHECK_INDICES(v2);
   }
   check_dtor_log (1);
+}
+template <class DV>
+void test2_default_ctor1()
+{
+  test2_default_ctor1a<DV>();
+  clear_dtor_log();
+  {
+    DV v2 (SG::VIEW_ELEMENTS);
+    v2.push_back (allocate (v2, 2));
+    myassert (v2.ownPolicy() == SG::VIEW_ELEMENTS);
+    CHECK_INDICES(v2);
+  }
+  check_dtor_log();
 }
 template <class DV>
 void test2_default_ctor2()
@@ -666,28 +737,37 @@ void test2_default_ctor()
   test2_default_ctor2<DataVector<D> > ();
   test2_default_ctor1<DataVector<typename test2_maybeconst<D>::type> > ();
   test2_default_ctor1<ConstDataVector<DataVector<D> > > ();
+  test2_default_ctor1a<DataVectorWithAlloc<DataVector<D> > > ();
 }
 
 
 // Test sized ctor
 template <class DV>
-void test2_sized_ctor1()
+void test2_sized_ctor1a()
 {
-  typedef typename DV::base_value_type T;
   clear_dtor_log();
   {
     DV v1 (10);
     myassert (v1.size() == 10);
     myassert (v1[0] == 0);
-    v1.push_back (new T(1));
+    v1.push_back (allocate (v1, 1));
     CHECK_INDICES (v1);
+  }
+  check_dtor_log (1);
+}
+template <class DV>
+void test2_sized_ctor1()
+{
+  test2_sized_ctor1a<DV>();
+  clear_dtor_log();
+  {
     DV v2 (10, SG::VIEW_ELEMENTS);
     myassert (v2.size() == 10);
     myassert (v2[0] == 0);
-    v2.push_back (new T(2));
+    v2.push_back (allocate (v2, 2));
     CHECK_INDICES (v2);
   }
-  check_dtor_log (1);
+  check_dtor_log();
 }
 template <class DV>
 void test2_sized_ctor2()
@@ -717,6 +797,7 @@ void test2_sized_ctor()
   test2_sized_ctor2<DataVector<D> > ();
   test2_sized_ctor1<DataVector<typename test2_maybeconst<D>::type> > ();
   test2_sized_ctor1<ConstDataVector<DataVector<D> > > ();
+  test2_sized_ctor1a<DataVectorWithAlloc<DataVector<D> > > ();
 }
 
 
@@ -893,16 +974,22 @@ void test2_copy_ctor()
 
 // Test destructor.
 template <class DV>
-void test2_dtor1()
+void test2_dtor1a()
 {
-  typedef typename DV::base_value_type T;
   clear_dtor_log();
   {
     DV v1;
-    v1.push_back (new T(1));
-    v1.push_back (new T(2));
+    v1.push_back (allocate (v1, 1));
+    v1.push_back (allocate (v1, 2));
   }
   check_dtor_log (1, 2);
+}
+template <class DV>
+void test2_dtor1()
+{
+  typedef typename DV::base_value_type T;
+  test2_dtor1a<DV>();
+  clear_dtor_log();
   {
     DV v1 (SG::VIEW_ELEMENTS);
     v1.push_back (new T(1));
@@ -926,6 +1013,7 @@ void test2_dtor()
   test2_dtor1<DataVector<D> > ();
   test2_dtor1<DataVector<typename test2_maybeconst<D>::type> > ();
   test2_dtor1<ConstDataVector<DataVector<D> > > ();
+  test2_dtor1a<DataVectorWithAlloc<DataVector<D> > > ();
 }
 
 
@@ -980,6 +1068,14 @@ void test2_push_back()
   myassert (cvd.size() == 1);
   myassert (cvd[0]->x == 3);
   CHECK_INDICES(cvd);
+
+  {
+    DataVectorWithAlloc<DataVector<D> > tvd;
+    tvd.push_back (tvd.allocate (3));
+    myassert (tvd.size() == 1);
+    myassert (tvd[0]->x == 3);
+    CHECK_INDICES(tvd);
+  }
 
   typedef typename test2_maybeconst<D>::type Dconst;
   DataVector<Dconst> vcd;
@@ -1094,6 +1190,14 @@ void test2_operator_index_const()
   }
 
   {
+    DataVectorWithAlloc<DataVector<D> > vd;
+    vd.push_back (vd.allocate (3));
+    const DataVectorWithAlloc<DataVector<D> >& cvd = vd;
+    const D* dd = cvd[0];
+    myassert (dd->x == 3);
+  }
+
+  {
     typedef typename test2_maybeconst<D>::type Dconst;
     DataVector<Dconst> vcd;
     vcd.push_back (new D(3));
@@ -1109,8 +1213,8 @@ template <class DV, class B, class D>
 void test2_at_const1()
 {
   DV vb;
-  vb.push_back (new B(1));
-  vb.push_back (new D(2));
+  vb.push_back (allocateT<B> (vb, 1));
+  vb.push_back (allocateT<D> (vb, 2));
   const DV& cvb = vb;
   myassert (cvb.at(0)->x == 1);
   myassert (cvb.at(1)->x == 2);
@@ -1133,6 +1237,7 @@ void test2_at_const()
   typedef typename test2_maybeconst<D>::type Dconst;
   test2_at_const1<DataVector<Dconst>, Dconst, Dconst>();
   test2_at_const1<ConstDataVector<DataVector<D> >, D, D>();
+  test2_at_const1<DataVectorWithAlloc<DataVector<D> >, D, D>();
 }
 
 
@@ -1142,8 +1247,8 @@ void test2_size1()
 {
   DV vb;
   myassert (vb.size() == 0);
-  vb.push_back (new B(1));
-  vb.push_back (new D(2));
+  vb.push_back (allocateT<B> (vb, 1));
+  vb.push_back (allocateT<D> (vb, 2));
   myassert (vb.size() == 2);
 }
 template <class B, class D>
@@ -1151,6 +1256,7 @@ void test2_size()
 {
   test2_size1<DataVector<B>, B, D>();
   test2_size1<ConstDataVector<DataVector<B> >, B, D>();
+  test2_size1<DataVectorWithAlloc<DataVector<D> >, D, D>();
 
   typedef typename test2_maybeconst<D>::type Dconst;
   test2_size1<DataVector<Dconst>, Dconst, Dconst>();
@@ -1174,10 +1280,9 @@ void test2_stdcont()
 template <class DV>
 void test2_empty1()
 {
-  typedef typename DV::base_value_type T;
   DV vb;
   myassert (vb.empty());
-  vb.push_back (new T(1));
+  vb.push_back (allocate (vb, 1));
   myassert (!vb.empty());
 }
 template <class B, class D>
@@ -1186,6 +1291,7 @@ void test2_empty()
   test2_empty1<DataVector<B> >();
   test2_empty1<DataVector<typename test2_maybeconst<B>::type> > ();
   test2_empty1<ConstDataVector<DataVector<B> > >();
+  test2_empty1<DataVectorWithAlloc<DataVector<B> > >();
 }
 
 
@@ -1208,6 +1314,7 @@ void test2_reserve_capacity()
   test2_reserve_capacity1<DataVector<B> >();
   test2_reserve_capacity1<DataVector<typename test2_maybeconst<D>::type> > ();
   test2_reserve_capacity1<ConstDataVector<DataVector<B> > >();
+  test2_reserve_capacity1<DataVectorWithAlloc<DataVector<B> > >();
 }
 
 
@@ -1219,6 +1326,10 @@ void test2_max_size()
   myassert (vb.max_size() == std::vector<void*>().max_size());
   ConstDataVector<DataVector<B> > cvb;
   myassert (cvb.max_size() == std::vector<void*>().max_size());
+  {
+    DataVectorWithAlloc<DataVector<B> > tvb;
+    myassert (tvb.max_size() == std::vector<void*>().max_size());
+  }
 
   typedef typename test2_maybeconst<B>::type Bconst;
   DataVector<Bconst> vcb;
@@ -1231,8 +1342,8 @@ template <class DV, class B, class D>
 void test2_front_back_const1()
 {
   DV vd;
-  vd.push_back (new B(1));
-  vd.push_back (new D(2));
+  vd.push_back (allocateT<B> (vd, 1));
+  vd.push_back (allocateT<D> (vd, 2));
   const DV& cvd = vd;
   const B* dd = cvd.front();
   myassert (dd->x == 1);
@@ -1247,6 +1358,7 @@ void test2_front_back_const()
   typedef typename test2_maybeconst<D>::type Dconst;
   test2_front_back_const1<DataVector<Dconst>, Dconst, Dconst>();
   test2_front_back_const1<ConstDataVector<DataVector<D> >, D, D>();
+  test2_front_back_const1<DataVectorWithAlloc<DataVector<D> >, D, D>();
 }
 
 
@@ -1256,8 +1368,8 @@ void test2_begin_end_const1()
 {
   typedef typename DV::base_value_type T;
   DV v;
-  v.push_back (new T(1));
-  v.push_back (new T(2));
+  v.push_back (allocate (v, 1));
+  v.push_back (allocate (v, 2));
   const DV& cv = v;
   myassert (cv.end() - cv.begin() == 2);
   myassert (cv.cend() - cv.cbegin() == 2);
@@ -1287,6 +1399,7 @@ void test2_begin_end_const()
   test2_begin_end_const1<DataVector<D> > ();
   test2_begin_end_const1<DataVector<typename test2_maybeconst<D>::type> > ();
   test2_begin_end_const1<ConstDataVector<DataVector<D> > > ();
+  test2_begin_end_const1<DataVectorWithAlloc<DataVector<D> > > ();
 }
 
 
@@ -1296,8 +1409,8 @@ void test2_rbegin_rend_const1()
 {
   typedef typename DV::base_value_type T;
   DV v;
-  v.push_back (new T(1));
-  v.push_back (new T(2));
+  v.push_back (allocate (v, 1));
+  v.push_back (allocate (v, 2));
   const DV& cv = v;
   myassert (cv.rend() - cv.rbegin() == 2);
   myassert (cv.crend() - cv.crbegin() == 2);
@@ -1333,6 +1446,28 @@ void test2_rbegin_rend_const()
 
 
 // Test ElementProxy operations.
+template <class T>
+void test2_elementproxy_walloc()
+{
+  clear_dtor_log();
+  {
+    SG::AuxStoreInternal store1;
+    DataVectorWithAlloc<DataVector<T> > v1;
+    v1.push_back (v1.allocate (1));
+    v1.push_back (v1.allocate (2));
+    setaux (v1, store1);
+    CHECK_INDICES (v1);
+    checkaux(v1);
+
+    myassert (v1[0]->x == 1);
+    myassert ((*v1[1]).x == 2);
+
+    v1[0] = v1.allocate (9);
+    check_dtor_log (1);
+    CHECK_INDICES (v1);
+  }
+  check_dtor_log (9, 2);
+}
 template <class B, class D>
 void test2_elementproxy()
 {
@@ -1580,6 +1715,8 @@ void test2_elementproxy()
     vd2[1] = vd1[0];
     CHECK_INDICES (vd1);
   }
+
+  test2_elementproxy_walloc<D>();
 }
 
 
@@ -1587,15 +1724,14 @@ void test2_elementproxy()
 template <class DV>
 void test2_operator_index1()
 {
-  typedef typename DV::base_value_type T;
   clear_dtor_log();
   DV v (2);
-  v[0] = new T(1);
-  v[1] = new T(2);
+  v[0] = allocate (v, 1);
+  v[1] = allocate (v, 2);
   myassert (v[0]->x == 1);
   myassert (v[1]->x == 2);
   CHECK_INDICES(v);
-  v[0] = new T(3);
+  v[0] = allocate (v, 3);
   myassert (v[0]->x == 3);
   check_dtor_log (1);
   CHECK_INDICES(v);
@@ -1667,6 +1803,7 @@ void test2_operator_index()
   test2_operator_index2<DataVector<D> > ();
   test2_operator_index1<DataVector<typename test2_maybeconst<D>::type> > ();
   test2_operator_index1<ConstDataVector<DataVector<D> > > ();
+  test2_operator_index1<DataVectorWithAlloc<DataVector<D> > > ();
 }
 
 
@@ -1674,15 +1811,14 @@ void test2_operator_index()
 template <class DV>
 void test2_at1()
 {
-  typedef typename DV::base_value_type T;
   clear_dtor_log();
   DV v (2);
-  v.at(0) = new T(1);
-  v.at(1) = new T(2);
+  v.at(0) = allocate (v, 1);
+  v.at(1) = allocate (v, 2);
   myassert (v.at(0)->x == 1);
   myassert (v.at(1)->x == 2);
   CHECK_INDICES(v);
-  v.at(0) = new T(3);
+  v.at(0) = allocate (v, 3);
   myassert (v.at(0)->x == 3);
   check_dtor_log (1);
   CHECK_INDICES(v);
@@ -1766,6 +1902,7 @@ void test2_at()
   test2_at2<DataVector<D> > ();
   test2_at1<DataVector<typename test2_maybeconst<D>::type> > ();
   test2_at1<ConstDataVector<DataVector<D> > > ();
+  test2_at1<DataVectorWithAlloc<DataVector<D> > > ();
 }
 
 
@@ -2345,22 +2482,54 @@ void test2_swapelement_iter_unique()
 }
 
 
+// Test swapElement with DataVectorWithAlloc.
+template <class T>
+void test2_swapelement_walloc()
+{
+  using CDV = DataVectorWithAlloc<DataVector<T> >;
+  using Ptr = typename CDV::Ptr;
+
+  clear_dtor_log();
+  {
+    CDV cv;
+    cv.push_back (cv.allocate (1));
+    cv.push_back (cv.allocate (2));
+    cv.push_back (cv.allocate (3));
+    cv.push_back (cv.allocate (4));
+
+    {
+      Ptr cdold;
+      cv.swapElement (1, cv.allocate(5), cdold);
+      myassert (cv[1]->x == 5);
+      myassert (cdold->x == 2);
+    }
+
+    check_dtor_log (2);
+    CHECK_INDICES(cv);
+
+    {
+      Ptr cdold;
+      cv.swapElement (cv.begin()+2, cv.allocate(6), cdold);
+      myassert (cv[2]->x == 6);
+      myassert (cdold->x == 3);
+    }
+
+    check_dtor_log (3);
+    CHECK_INDICES(cv);
+  }
+
+  check_dtor_log (1, 5, 6, 4);
+}
+
+
 // Test resize
 template <class DV>
-void test2_resize1()
+void test2_resize1a()
 {
-  typedef typename DV::base_value_type T;
   clear_dtor_log();
   DV v1;
-  v1.push_back (new T(1));
-  v1.push_back (new T(2));
-  DV v2 (v1);
-  myassert (v2.size() == 2);
-  v2.resize (1);
-  CHECK_INDICES(v2);
-  check_dtor_log();
-  myassert (v2.size() == 1);
-  myassert (v2[0]->x == 1);
+  v1.push_back (allocate (v1, 1));
+  v1.push_back (allocate (v1, 2));
   myassert (v1.size() == 2);
   v1.resize (1);
   CHECK_INDICES(v1);
@@ -2373,6 +2542,24 @@ void test2_resize1()
   myassert (v1[1] == 0);
   myassert (v1[2] == 0);
   CHECK_INDICES(v1);
+}
+template <class DV>
+void test2_resize1()
+{
+  test2_resize1a<DV>();
+  clear_dtor_log();
+  DV v1;
+  v1.push_back (allocate (v1, 1));
+  v1.push_back (allocate (v1, 2));
+  DV v2 (v1);
+  myassert (v2.size() == 2);
+  v2.resize (1);
+  CHECK_INDICES(v1);
+  CHECK_INDICES(v2);
+  check_dtor_log();
+  myassert (v2.size() == 1);
+  myassert (v2[0]->x == 1);
+  myassert (v1.size() == 2);
 }
 template <class DV>
 void test2_resize2()
@@ -2434,10 +2621,24 @@ void test2_resize()
   test2_resize2<DataVector<D> >();
   test2_resize1<DataVector<typename test2_maybeconst<D>::type> > ();
   test2_resize1<ConstDataVector<DataVector<D> > >();
+  test2_resize1a<DataVectorWithAlloc<DataVector<D> > >();
 }
 
 
 // Test pop_back
+template <class DV>
+void test2_pop_back_walloc()
+{
+  clear_dtor_log();
+  DV v1;
+  v1.push_back (v1.allocate (1));
+  v1.push_back (v1.allocate (2));
+  myassert (v1.size() == 2);
+  v1.pop_back();
+  myassert (v1.size() == 1);
+  check_dtor_log(2);
+  CHECK_INDICES(v1);
+}
 template <class DV>
 void test2_pop_back1()
 {
@@ -2514,6 +2715,7 @@ void test2_pop_back()
   test2_pop_back2<DataVector<D> > ();
   test2_pop_back1<DataVector<typename test2_maybeconst<D>::type> > ();
   test2_pop_back1<ConstDataVector<DataVector<D> > > ();
+  test2_pop_back_walloc<DataVectorWithAlloc<DataVector<D> > > ();
 
   DataVector<D> vd  (SG::VIEW_ELEMENTS, SG::ALWAYS_TRACK_INDICES);
   D* d = new D(1);
@@ -2538,56 +2740,27 @@ void test2_pop_back()
 
 // Test begin, end
 template <class DV>
-void test2_begin_end1()
+void test2_begin_end1a()
 {
-  typedef typename DV::base_value_type T;
   clear_dtor_log();
   DV v1;
-  v1.push_back (new T(1));
-  v1.push_back (new T(2));
+  v1.push_back (allocate (v1, 1));
+  v1.push_back (allocate (v1, 2));
   myassert (v1.end() - v1.begin() == 2);
   typename DV::value_type tt = *v1.begin();
   myassert (tt->x == 1);
   myassert (v1.begin()[1]->x == 2);
-  *v1.begin() = new T(3);
+  *v1.begin() = allocate(v1, 3);
   check_dtor_log(1);
   myassert (v1[0]->x == 3);
   CHECK_INDICES(v1);
 
-  DV v2 (SG::VIEW_ELEMENTS);
-  v2.push_back (new T(4));
-  v2.push_back (new T(5));
-  *v2.begin() = *v1.begin();
-  CHECK_INDICES(v2);
-  check_dtor_log();
-  myassert (v2[0]->x == 3);
-  // (3,2)  (3,5)
-  *(v1.end()-1) = v2.end()[-1];
-  check_dtor_log(2);
-  myassert (v1[1]->x == 5);
-  CHECK_INDICES(v2);
-  // (3,5)  (3,5)
-  v2.begin()[0] = v2.begin()[1];
-  check_dtor_log();
-  myassert (v2[0]->x == 5);
-  CHECK_INDICES(v2);
-
-  bool caught = false;
-  try {
-    v1.begin()[0] = v1.begin()[1];
-  }
-  catch (dv_test_err&) {
-    caught = true;
-  }
-  myassert (caught);
-  CHECK_INDICES(v1);
-
   // Check creating a const_iterator from an iterator.
-  typename DV::const_iterator ci = v2.begin();
-  myassert ((*ci)->x == 5);
+  typename DV::const_iterator ci = v1.begin();
+  myassert ((*ci)->x == 3);
 
   // Check comparing iterators and const_iterators.
-  typename DV::iterator i = v2.begin();
+  typename DV::iterator i = v1.begin();
   myassert (i == ci);
   myassert (ci == i);
   myassert (! (i != ci));
@@ -2604,8 +2777,47 @@ void test2_begin_end1()
   myassert (ci - i == 0);
   myassert (i - ci == 0);
 
-  std::sort (v2.begin(), v2.end());
+  std::sort (v1.begin(), v1.end());
+  CHECK_INDICES(v1);
+}
+template <class DV>
+void test2_begin_end1()
+{
+  test2_begin_end1a<DV>();
+  typedef typename DV::base_value_type T;
+  clear_dtor_log();
+  DV v1;
+  v1.push_back (new T(1));
+  v1.push_back (new T(2));
+  CHECK_INDICES(v1);
+
+  DV v2 (SG::VIEW_ELEMENTS);
+  v2.push_back (new T(4));
+  v2.push_back (new T(5));
+  *v2.begin() = *v1.begin();
   CHECK_INDICES(v2);
+  check_dtor_log();
+  myassert (v2[0]->x == 1);
+  // (1,2)  (1,5)
+  *(v1.end()-1) = v2.end()[-1];
+  check_dtor_log(2);
+  myassert (v1[1]->x == 5);
+  CHECK_INDICES(v2);
+  // (1,5)  (1,5)
+  v2.begin()[0] = v2.begin()[1];
+  check_dtor_log();
+  myassert (v2[0]->x == 5);
+  CHECK_INDICES(v2);
+
+  bool caught = false;
+  try {
+    v1.begin()[0] = v1.begin()[1];
+  }
+  catch (dv_test_err&) {
+    caught = true;
+  }
+  myassert (caught);
+  CHECK_INDICES(v1);
 }
 template <class DV>
 void test2_begin_end2()
@@ -2674,6 +2886,7 @@ void test2_begin_end()
   test2_begin_end2<DataVector<D> > ();
   test2_begin_end1<DataVector<typename test2_maybeconst<D>::type> > ();
   test2_begin_end1<ConstDataVector<DataVector<D> > > ();
+  test2_begin_end1a<DataVectorWithAlloc<DataVector<D> > > ();
 
   DataVector<D> vd (1);
   DataVector<B>& vb = vd;
@@ -2689,6 +2902,21 @@ void test2_begin_end()
 
 
 // Test front, back
+template <class DV>
+void test2_front_back_walloc()
+{
+  clear_dtor_log();
+  DV v1;
+  v1.push_back (v1.allocate (1));
+  v1.push_back (v1.allocate (2));
+  typename DV::value_type tt = v1.front();
+  myassert (tt->x == 1);
+  myassert (v1.back()->x == 2);
+  v1.front() = v1.allocate (3);
+  check_dtor_log(1);
+  myassert (v1[0]->x == 3);
+  CHECK_INDICES(v1);
+}
 template <class DV>
 void test2_front_back1()
 {
@@ -2799,6 +3027,7 @@ void test2_front_back()
   test2_front_back2<DataVector<D> > ();
   test2_front_back1<DataVector<typename test2_maybeconst<D>::type> > ();
   test2_front_back1<ConstDataVector<DataVector<D> > > ();
+  test2_front_back_walloc<DataVectorWithAlloc<DataVector<D> > > ();
 
   DataVector<D> vd (1);
   DataVector<B>& vb = vd;
@@ -2815,20 +3044,34 @@ void test2_front_back()
 
 // Test rbegin, rend
 template <class DV>
-void test2_rbegin_rend1()
+void test2_rbegin_rend1a()
 {
-  typedef typename DV::base_value_type T;
   clear_dtor_log();
   DV v1;
-  v1.push_back (new T(1));
-  v1.push_back (new T(2));
+  v1.push_back (allocate (v1, 1));
+  v1.push_back (allocate (v1, 2));
   myassert (v1.rend() - v1.rbegin() == 2);
   typename DV::value_type tt = *v1.rbegin();
   myassert (tt->x == 2);
   myassert (v1.rbegin()[1]->x == 1);
-  *v1.rbegin() = new T(3);
+  *v1.rbegin() = allocate (v1, 3);
   check_dtor_log(2);
   myassert (v1[1]->x == 3);
+  CHECK_INDICES(v1);
+
+  // Check creating a const_iterator from an iterator.
+  typename DV::const_reverse_iterator ci = v1.rbegin();
+  myassert ((*ci)->x == 3);
+}
+template <class DV>
+void test2_rbegin_rend1()
+{
+  test2_rbegin_rend1a<DV>();
+  typedef typename DV::base_value_type T;
+  clear_dtor_log();
+  DV v1;
+  v1.push_back (new T(1));
+  v1.push_back (new T(3));
   CHECK_INDICES(v1);
 
   DV v2 (SG::VIEW_ELEMENTS);
@@ -2938,6 +3181,7 @@ void test2_rbegin_rend()
   test2_rbegin_rend2<DataVector<D> > ();
   test2_rbegin_rend1<DataVector<typename test2_maybeconst<D>::type> > ();
   test2_rbegin_rend1<ConstDataVector<DataVector<D> > > ();
+  test2_rbegin_rend1a<DataVectorWithAlloc<DataVector<D> > > ();
 
   DataVector<D> vd (1);
   DataVector<B>& vb = vd;
@@ -2954,13 +3198,12 @@ void test2_rbegin_rend()
 
 // Test erase(it, it)
 template <class DV>
-void test2_erase_range1()
+DV test2_erase_range1a()
 {
-  typedef typename DV::base_value_type T;
   clear_dtor_log();
   DV v;
   for (int i=0; i < 10; i++)
-    v.push_back (new T(i));
+    v.push_back (allocate (v, i));
   myassert (v.size() == 10);
   typename DV::iterator i1 = v.erase (v.begin()+3, v.end()-3);
   myassert ((*i1)->x == 7);
@@ -2969,7 +3212,12 @@ void test2_erase_range1()
   myassert (v[2]->x == 2);
   myassert (v[3]->x == 7);
   CHECK_INDICES(v);
-
+  return v;
+}
+template <class DV>
+void test2_erase_range1()
+{
+  DV v = test2_erase_range1a<DV>();
   DV v2 (v);
   myassert (v2.size() == 6);
   typename DV::iterator i2 = v2.erase (v2.begin()+2, v2.end()-2);
@@ -3043,24 +3291,30 @@ void test2_erase_range()
   test2_erase_range2<DataVector<D> > ();
   test2_erase_range1<DataVector<typename test2_maybeconst<D>::type> > ();
   test2_erase_range1<ConstDataVector<DataVector<D> > > ();
+  test2_erase_range1a<DataVectorWithAlloc<DataVector<D> > > ();
 }
 
 
 // Test erase(it)
 template <class DV>
-void test2_erase_single1()
+void test2_erase_single1a()
 {
-  typedef typename DV::base_value_type T;
   clear_dtor_log();
   DV v1;
-  v1.push_back (new T(1));
-  v1.push_back (new T(2));
+  v1.push_back (allocate (v1, 1));
+  v1.push_back (allocate (v1, 2));
   v1.erase (v1.begin());
   myassert (v1.size() == 1);
   myassert (v1[0]->x == 2);
   check_dtor_log (1);
   CHECK_INDICES(v1);
-
+}
+template <class DV>
+void test2_erase_single1()
+{
+  typedef typename DV::base_value_type T;
+  test2_erase_single1a<DV>();
+  clear_dtor_log();
   DV v2 (SG::VIEW_ELEMENTS);
   v2.push_back (new T(1));
   v2.push_back (new T(2));
@@ -3116,6 +3370,7 @@ void test2_erase_single()
   test2_erase_single2<DataVector<D> > ();
   test2_erase_single1<DataVector<typename test2_maybeconst<D>::type> > ();
   test2_erase_single1<ConstDataVector<DataVector<D> > > ();
+  test2_erase_single1a<DataVectorWithAlloc<DataVector<D> > > ();
 }
 
 
@@ -3217,6 +3472,24 @@ void test2_operator_assign()
 
 
 // Test insert(it, val)
+template <class DV>
+void test2_insert_value_walloc()
+{
+  clear_dtor_log();
+  {
+    DV v1;
+    v1.push_back (v1.allocate(1));
+    v1.push_back (v1.allocate(2));
+    typename DV::iterator i1 = v1.insert (v1.begin()+1, v1.allocate(3));
+    myassert (v1.size() == 3);
+    myassert ((*i1)->x == 3);
+    myassert (v1[0]->x == 1);
+    myassert (v1[1]->x == 3);
+    myassert (v1[2]->x == 2);
+    CHECK_INDICES(v1);
+  }
+  check_dtor_log (1, 3, 2);
+}
 template <class DV>
 void test2_insert_value1()
 {
@@ -3321,6 +3594,7 @@ void test2_insert_value()
   test2_insert_value2<DataVector<D> > ();
   test2_insert_value1<DataVector<typename test2_maybeconst<D>::type> > ();
   test2_insert_value1<ConstDataVector<DataVector<D> > > ();
+  test2_insert_value_walloc<DataVectorWithAlloc<DataVector<D> > > ();
 
   DataVector<D> vd;
   DataVector<B>& vb = vd;
@@ -3522,15 +3796,22 @@ void test2_insertMove()
 
 // Test clear()
 template <class DV>
+void test2_clear1a()
+{
+  clear_dtor_log();
+  DV v1;
+  v1.push_back (allocate (v1, 1));
+  v1.push_back (allocate (v1, 2));
+  v1.clear();
+  CHECK_INDICES(v1);
+  check_dtor_log (1, 2);
+}
+template <class DV>
 void test2_clear1()
 {
   typedef typename DV::base_value_type T;
+  test2_clear1a<DV>();
   clear_dtor_log();
-  DV v1;
-  v1.push_back (new T(1));
-  v1.push_back (new T(2));
-  v1.clear();
-  check_dtor_log (1, 2);
   DV v2 (SG::VIEW_ELEMENTS);
   v2.push_back (new T(1));
   v2.push_back (new T(2));
@@ -3544,7 +3825,6 @@ void test2_clear1()
   v2.clear(SG::VIEW_ELEMENTS);
   myassert (v2.ownPolicy() == SG::VIEW_ELEMENTS);
   check_dtor_log (1, 2);
-  CHECK_INDICES(v1);
   CHECK_INDICES(v2);
 }
 template <class DV>
@@ -3615,6 +3895,7 @@ void test2_clear()
   test2_clear2<DataVector<D> > ();
   test2_clear1<DataVector<typename test2_maybeconst<D>::type> > ();
   test2_clear1<ConstDataVector<DataVector<D> > > ();
+  test2_clear1a<DataVectorWithAlloc<DataVector<D> > > ();
 }
 
 
@@ -3622,16 +3903,15 @@ void test2_clear()
 template <class DV>
 void test2_swap1()
 {
-  typedef typename DV::base_value_type T;
   clear_dtor_log();
   {
-    DV v1;
     SG::AuxStoreInternal store1;
-    v1.push_back (new T(1));
-    v1.push_back (new T(2));
+    SG::AuxStoreInternal store2;
+    DV v1;
+    v1.push_back (allocate (v1, 1));
+    v1.push_back (allocate (v1, 2));
     setaux(v1, store1);
     DV v2;
-    SG::AuxStoreInternal store2;
     setaux(v2, store2);
     v1.swap (v2);
     myassert (v1.size() == 0);
@@ -3646,13 +3926,13 @@ void test2_swap1()
   }
   check_dtor_log(1,2);
   {
-    DV v1;
     SG::AuxStoreInternal store1;
-    v1.push_back (new T(1));
-    v1.push_back (new T(2));
+    SG::AuxStoreInternal store2;
+    DV v1;
+    v1.push_back (allocate (v1, 1));
+    v1.push_back (allocate (v1, 2));
     setaux(v1, store1);
     DV v2;
-    SG::AuxStoreInternal store2;
     setaux(v2, store2);
     swap (v1, v2);
     myassert (v1.size() == 0);
@@ -3672,6 +3952,7 @@ void test2_swap()
 {
   test2_swap1<DataVector<B> > ();
   test2_swap1<DataVector<D> > ();
+  test2_swap1<DataVectorWithAlloc<DataVector<D> > > ();
 
   DataVector<D> vd;
   DataVector<B>& vb = vd;
@@ -3839,6 +4120,46 @@ void test2_assign()
 
 
 template <class DV>
+void test2_relops_walloc()
+{
+  DV v1;
+  v1.push_back (allocate(v1, 1));
+  v1.push_back (allocate(v1, 2));
+  DV v2;
+  v2.push_back (allocate(v2, 1));
+  v2.push_back (allocate(v2, 2));
+
+  assert (v1 == v1);
+  assert (!(v1 != v1));
+  assert (!(v1 == v2));
+  assert (v1 <= v1);
+  assert (v1 >= v1);
+
+  assert (!(v1 < v1));
+  if (v1 < v2) {
+    assert (v1 < v2);
+    assert (!(v2 < v1));
+    assert (v2 > v1);
+    assert (!(v1 > v2));
+
+    assert (v1 <= v2);
+    assert (!(v2 <= v1));
+    assert (v2 >= v1);
+    assert (!(v1 >= v2));
+  }
+  else {
+    assert (v1 > v2);
+    assert (!(v2 > v1));
+    assert (v2 < v1);
+    assert (!(v1 < v2));
+
+    assert (v1 >= v2);
+    assert (!(v2 >= v1));
+    assert (v2 <= v1);
+    assert (!(v1 <= v2));
+  }
+}
+template <class DV>
 void test2_relops1()
 {
   typedef typename DV::base_value_type T;
@@ -3877,42 +4198,64 @@ void test2_relops()
   test2_relops1<DataVector<D> > ();
   test2_relops1<DataVector<typename test2_maybeconst<D>::type> > ();
   test2_relops1<ConstDataVector<DataVector<D> > > ();
+  test2_relops_walloc<DataVectorWithAlloc<DataVector<D> > > ();
 }
 
 
-template <class T>
+template <class DV>
 struct Comp
 {
-  bool operator() (const T* a, const T* b) const
+  using Ptr = typename DV::const_value_type;
+  bool operator() (Ptr a, Ptr b) const
   { return *b < *a; }
 };
 
 template <class DV, int N>
 void test2_sort1_prepare1 (DV& v)
 {
-  typedef typename
-    boost::remove_const<typename DV::base_value_type>::type T;
-  T* tmp[N];
+  decltype(allocate(v,99)) tmp[N];
   for (int i=0; i<N; i++)
-    tmp[i] = new T(i);
+    tmp[i] = allocate (v, i);
   std::sort (tmp, tmp+N);
   for (int i=0; i<N; i++)
     tmp[i]->x = i;
   for (int i=0; i<N; i++)
-    v.push_back (tmp[N-1-i]);
+    v.push_back (std::move (tmp[N-1-i]));
+}
+// Used to check that permuting a view vector doesn't affect auxdata
+// for the parent.  But we can't do this for DataVectorWithAlloc,
+// which doesn't allow view containers.
+template <class DV, class FUNC>
+void test2_perm_copy (DV& v, FUNC f,
+                      std::function<int(int)> cf = [](int i) { return i; },
+                      int ilo = 0,
+                      int ihi = -1)
+{
+  DV v2 (v);
+  f (v2);
+  if (ihi < 0) ihi = static_cast<int>(v2.size());
+  for (int i = ilo; i < ihi; i++) {
+    assert (v2[i]->x == cf(i));
+  }
+}
+template <class DV, class FUNC>
+void test2_perm_copy (DataVectorWithAlloc<DV>&, FUNC,
+                      std::function<int(int)> = [](int i) { return i; },
+                      int = 0, int = -1)
+{
 }
 template <class DV>
 void test2_sort1()
 {
-  typedef typename DV::base_value_type T;
   const int N=10;
+  auto cf = [](int i) { return i; };
+  auto cf_rev = [](int i) { return N-1-i; };
   {
-    DV v;
     SG::AuxStoreInternal store;
+    DV v;
     test2_sort1_prepare1<DV, N> (v);
     setaux(v, store);
-    DV v2(v);
-    v2.sort(); // Check that this doesn't affect v's auxdata.
+    test2_perm_copy (v, [](DV& v2) { v2.sort(); });
     checkaux(v);
     v.sort();
     CHECK_INDICES(v);
@@ -3925,17 +4268,15 @@ void test2_sort1()
 
     for (int i=0; i<N; i++) {
       myassert (v[i]->x == i);
-      myassert (v2[i]->x == i);
       myassert (v3[i]->x == i);
     }
   }
   {
-    DV v;
     SG::AuxStoreInternal store;
+    DV v;
     test2_sort1_prepare1<DV, N> (v);
     setaux(v, store);
-    DV v2(v);
-    std::sort (v2.begin(), v2.end()); // Check that this doesn't affect v's auxdata.
+    test2_perm_copy (v, [](DV& v2) { std::sort(v2.begin(), v2.end()); });
     checkaux(v);
     std::sort (v.begin(), v.end());
     CHECK_INDICES(v);
@@ -3948,17 +4289,16 @@ void test2_sort1()
 
     for (int i=0; i<N; i++) {
       myassert (v[i]->x == i);
-      myassert (v2[i]->x == i);
       myassert (v3[i]->x == i);
     }
   }
   {
-    DV v;
     SG::AuxStoreInternal store;
+    DV v;
     test2_sort1_prepare1<DV, N> (v);
     setaux(v, store);
-    DV v2(v);
-    std::sort (v2.rbegin(), v2.rend()); // Check that this doesn't affect v's auxdata.
+    test2_perm_copy (v, [](DV& v2) { std::sort(v2.rbegin(), v2.rend()); },
+                     cf_rev);
     checkaux(v);
     std::sort (v.rbegin(), v.rend());
     CHECK_INDICES(v);
@@ -3971,18 +4311,16 @@ void test2_sort1()
 
     for (int i=0; i<N; i++) {
       myassert (v[i]->x == N-1-i);
-      myassert (v2[i]->x == N-1-i);
       myassert (v3[i]->x == N-1-i);
     }
   }
 
   {
-    DV v;
     SG::AuxStoreInternal store;
+    DV v;
     test2_sort1_prepare1<DV, N> (v);
     setaux(v, store);
-    DV v2(v);
-    std::stable_sort (v2.begin(), v2.end()); // Check that this doesn't affect v's auxdata.
+    test2_perm_copy (v, [](DV& v2) { std::stable_sort(v2.begin(), v2.end()); });
     checkaux(v);
     std::stable_sort (v.begin(), v.end());
     CHECK_INDICES(v);
@@ -3995,17 +4333,16 @@ void test2_sort1()
 
     for (int i=0; i<N; i++) {
       myassert (v[i]->x == i);
-      myassert (v2[i]->x == i);
       myassert (v3[i]->x == i);
     }
   }
   {
-    DV v;
     SG::AuxStoreInternal store;
+    DV v;
     test2_sort1_prepare1<DV, N> (v);
     setaux(v, store);
-    DV v2(v);
-    std::stable_sort (v2.rbegin(), v2.rend()); // Check that this doesn't affect v's auxdata.
+    test2_perm_copy (v, [](DV& v2) { std::stable_sort(v2.rbegin(), v2.rend()); },
+                     cf_rev);
     checkaux(v);
     std::stable_sort (v.rbegin(), v.rend());
     CHECK_INDICES(v);
@@ -4018,18 +4355,19 @@ void test2_sort1()
 
     for (int i=0; i<N; i++) {
       myassert (v[i]->x == N-1-i);
-      myassert (v2[i]->x == N-1-i);
       myassert (v3[i]->x == N-1-i);
     }
   }
 
   {
-    DV v;
     SG::AuxStoreInternal store;
+    DV v;
     test2_sort1_prepare1<DV, N> (v);
     setaux(v, store);
-    DV v2(v);
-    std::partial_sort (v2.begin(), v2.begin()+N/2, v2.end()); // Check that this doesn't affect v's auxdata.
+    test2_perm_copy (v, [&](DV& v2) { std::partial_sort(v2.begin(),
+                                                        v2.begin()+N/2,
+                                                        v2.end()); },
+                     cf, 0, N/2);
     checkaux(v);
     std::partial_sort (v.begin(), v.begin()+N/2, v.end());
     CHECK_INDICES(v);
@@ -4042,17 +4380,18 @@ void test2_sort1()
 
     for (int i=0; i<N/2; i++) {
       myassert (v[i]->x == i);
-      myassert (v2[i]->x == i);
       myassert (v3[i]->x == i);
     }
   }
   {
-    DV v;
     SG::AuxStoreInternal store;
+    DV v;
     test2_sort1_prepare1<DV, N> (v);
     setaux(v, store);
-    DV v2(v);
-    std::partial_sort (v2.rbegin(), v2.rend()-N/2, v2.rend()); // Check that this doesn't affect v's auxdata.
+    test2_perm_copy (v, [&](DV& v2) { std::partial_sort(v2.rbegin(),
+                                                        v2.rend()-N/2,
+                                                        v2.rend()); },
+                     cf_rev, N/2, N);
     checkaux(v);
     std::partial_sort (v.rbegin(), v.rend()-N/2, v.rend());
     CHECK_INDICES(v);
@@ -4065,192 +4404,188 @@ void test2_sort1()
 
     for (int i=N/2; i<N; i++) {
       myassert (v[i]->x == N-1-i);
-      myassert (v2[i]->x == N-1-i);
       myassert (v3[i]->x == N-1-i);
     }
   }
 
   {
-    DV v;
     SG::AuxStoreInternal store;
+    DV v;
     for (int i=0; i<N; i++)
-      v.push_back (new T(i));
+      v.push_back (allocate (v, i));
     setaux(v, store);
-    DV v2(v);
-    v2.sort(Comp<T>());; // Check that this doesn't affect v's auxdata.
+    test2_perm_copy (v, [](DV& v2) { v2.sort(Comp<DV>()); }, cf_rev);
     checkaux(v);
-    v.sort(Comp<T>());
+    v.sort(Comp<DV>());
     CHECK_INDICES(v);
     checkaux(v);
 
     DV v3;
     for (int i=0; i<N; i++)
-      v3.push_back (new T(i));
-    v3.sort(Comp<T>());
+      v3.push_back (allocate (v3, i));
+    v3.sort(Comp<DV>());
     CHECK_INDICES(v3);
 
     for (int i=0; i<N; i++) {
       myassert (v[i]->x == N-1-i);
-      myassert (v2[i]->x == N-1-i);
       myassert (v3[i]->x == N-1-i);
     }
   }
   {
-    DV v;
     SG::AuxStoreInternal store;
+    DV v;
     for (int i=0; i<N; i++)
-      v.push_back (new T(i));
+      v.push_back (allocate (v, i));
     setaux(v, store);
-    DV v2(v);
-    std::sort (v2.begin(), v2.end(), Comp<T>()); // Check that this doesn't affect v's auxdata.
+    test2_perm_copy (v, [](DV& v2) { std::sort (v2.begin(), v2.end(), Comp<DV>()); },
+                     cf_rev);
     checkaux(v);
-    std::sort (v.begin(), v.end(), Comp<T>());
+    std::sort (v.begin(), v.end(), Comp<DV>());
     CHECK_INDICES(v);
     checkaux(v);
 
     DV v3;
     for (int i=0; i<N; i++)
-      v3.push_back (new T(i));
-    std::sort (v3.begin(), v3.end(), Comp<T>());
+      v3.push_back (allocate (v3, i));
+    std::sort (v3.begin(), v3.end(), Comp<DV>());
     CHECK_INDICES(v3);
 
     for (int i=0; i<N; i++) {
       myassert (v[i]->x == N-1-i);
-      myassert (v2[i]->x == N-1-i);
       myassert (v3[i]->x == N-1-i);
     }
   }
   {
-    DV v;
     SG::AuxStoreInternal store;
+    DV v;
     for (int i=0; i<N; i++)
-      v.push_back (new T(i));
+      v.push_back (allocate (v, i));
     setaux(v, store);
-    DV v2(v);
-    std::sort (v2.rbegin(), v2.rend(), Comp<T>()); // Check that this doesn't affect v's auxdata.
+    test2_perm_copy (v, [](DV& v2) { std::sort (v2.rbegin(), v2.rend(), Comp<DV>()); });
     checkaux(v);
-    std::sort (v.rbegin(), v.rend(), Comp<T>());
+    std::sort (v.rbegin(), v.rend(), Comp<DV>());
     CHECK_INDICES(v);
     checkaux(v);
 
     DV v3;
     for (int i=0; i<N; i++)
-      v3.push_back (new T(i));
-    std::sort (v3.rbegin(), v3.rend(), Comp<T>());
+      v3.push_back (allocate (v3, i));
+    std::sort (v3.rbegin(), v3.rend(), Comp<DV>());
     CHECK_INDICES(v3);
 
     for (int i=0; i<N; i++) {
       myassert (v[i]->x == i);
-      myassert (v2[i]->x == i);
       myassert (v3[i]->x == i);
     }
   }
 
   {
-    DV v;
     SG::AuxStoreInternal store;
+    DV v;
     for (int i=0; i<N; i++)
-      v.push_back (new T(i));
+      v.push_back (allocate (v, i));
     setaux(v, store);
-    DV v2(v);
-    std::stable_sort (v2.begin(), v2.end(), Comp<T>()); // Check that this doesn't affect v's auxdata.
+    test2_perm_copy (v, [](DV& v2) { std::stable_sort (v2.begin(), v2.end(), Comp<DV>()); },
+                     cf_rev);
+      
     checkaux(v);
-    std::stable_sort (v.begin(), v.end(), Comp<T>());
+    std::stable_sort (v.begin(), v.end(), Comp<DV>());
     CHECK_INDICES(v);
     checkaux(v);
 
     DV v3;
     for (int i=0; i<N; i++)
-      v3.push_back (new T(i));
-    std::stable_sort (v3.begin(), v3.end(), Comp<T>());
+      v3.push_back (allocate (v3, i));
+    std::stable_sort (v3.begin(), v3.end(), Comp<DV>());
     CHECK_INDICES(v3);
 
     for (int i=0; i<N; i++) {
       myassert (v[i]->x == N-1-i);
-      myassert (v2[i]->x == N-1-i);
       myassert (v3[i]->x == N-1-i);
     }
   }
   {
-    DV v;
     SG::AuxStoreInternal store;
+    DV v;
     for (int i=0; i<N; i++)
-      v.push_back (new T(i));
+      v.push_back (allocate (v, i));
     setaux(v, store);
-    DV v2(v);
-    std::stable_sort (v2.rbegin(), v2.rend(), Comp<T>()); // Check that this doesn't affect v's auxdata.
+    test2_perm_copy (v, [](DV& v2) { std::stable_sort (v2.rbegin(), v2.rend(), Comp<DV>()); });
     checkaux(v);
-    std::stable_sort (v.rbegin(), v.rend(), Comp<T>());
+    std::stable_sort (v.rbegin(), v.rend(), Comp<DV>());
     CHECK_INDICES(v);
     checkaux(v);
 
     DV v3;
     for (int i=0; i<N; i++)
-      v3.push_back (new T(i));
-    std::stable_sort (v3.rbegin(), v3.rend(), Comp<T>());
+      v3.push_back (allocate (v3, i));
+    std::stable_sort (v3.rbegin(), v3.rend(), Comp<DV>());
     CHECK_INDICES(v3);
 
     for (int i=0; i<N; i++) {
       myassert (v[i]->x == i);
-      myassert (v2[i]->x == i);
       myassert (v3[i]->x == i);
     }
   }
 
   {
-    DV v;
     SG::AuxStoreInternal store;
+    DV v;
     for (int i=0; i<N; i++)
-      v.push_back (new T(i));
+      v.push_back (allocate (v, i));
     setaux(v, store);
-    DV v2(v);
-    std::partial_sort (v2.begin(), v2.begin()+N/2, v2.end(), Comp<T>()); // Check that this doesn't affect v's auxdata.
+    test2_perm_copy (v, [&](DV& v2) { std::partial_sort (v2.begin(),
+                                                         v2.begin()+N/2,
+                                                         v2.end(),
+                                                         Comp<DV>()); },
+                     cf_rev, 0, N/2);
     checkaux(v);
-    std::partial_sort (v.begin(), v.begin()+N/2, v.end(), Comp<T>());
+    std::partial_sort (v.begin(), v.begin()+N/2, v.end(), Comp<DV>());
     CHECK_INDICES(v);
     checkaux(v);
 
     DV v3;
     for (int i=0; i<N; i++)
-      v3.push_back (new T(i));
-    std::partial_sort (v3.begin(), v3.begin()+N/2, v3.end(), Comp<T>());
+      v3.push_back (allocate (v3, i));
+    std::partial_sort (v3.begin(), v3.begin()+N/2, v3.end(), Comp<DV>());
     CHECK_INDICES(v3);
 
     for (int i=0; i<N/2; i++) {
       myassert (v[i]->x == N-1-i);
-      myassert (v2[i]->x == N-1-i);
       myassert (v3[i]->x == N-1-i);
     }
   }
   {
-    DV v;
     SG::AuxStoreInternal store;
+    DV v;
     for (int i=0; i<N; i++)
-      v.push_back (new T(i));
+      v.push_back (allocate (v, i));
     setaux(v, store);
-    DV v2(v);
-    std::partial_sort (v2.rbegin(), v2.rend()-N/2, v2.rend(), Comp<T>()); // Check that this doesn't affect v's auxdata.
+    test2_perm_copy (v, [&](DV& v2) { std::partial_sort (v2.rbegin(),
+                                                         v2.rend()-N/2,
+                                                         v2.rend(),
+                                                         Comp<DV>()); },
+                     cf, N/2, N);
     checkaux(v);
-    std::partial_sort (v.rbegin(), v.rend()-N/2, v.rend(), Comp<T>());
+    std::partial_sort (v.rbegin(), v.rend()-N/2, v.rend(), Comp<DV>());
     CHECK_INDICES(v);
     checkaux(v);
 
     DV v3;
     for (int i=0; i<N; i++)
-      v3.push_back (new T(i));
-    std::partial_sort (v3.rbegin(), v3.rend()-N/2, v3.rend(), Comp<T>());
+      v3.push_back (allocate (v3, i));
+    std::partial_sort (v3.rbegin(), v3.rend()-N/2, v3.rend(), Comp<DV>());
     CHECK_INDICES(v3);
 
     for (int i=N/2; i<N; i++) {
       myassert (v[i]->x == i);
-      myassert (v2[i]->x == i);
       myassert (v3[i]->x == i);
     }
   }
 
   {
-    DV v;
     SG::AuxStoreInternal store;
+    DV v;
     test2_sort1_prepare1<DV, N> (v);
     setaux(v, store);
     v.setStore (v.getConstStore());
@@ -4261,6 +4596,7 @@ void test2_sort1()
     catch (SG::ExcConstAuxData&) {
       caught = true;
     }
+    typedef typename DV::base_value_type T;
     myassert (caught ||
               !typename SG::AuxStore_traits<T>::flag() ||
               !v.trackIndices());
@@ -4275,6 +4611,7 @@ void test2_sort()
   test2_sort1<DataVector<D> > ();
   test2_sort1<DataVector<typename test2_maybeconst<D>::type> > ();
   test2_sort1<ConstDataVector<DataVector<D> > > ();
+  test2_sort1<DataVectorWithAlloc<DataVector<D> > > ();
 }
 
 template <class Iterator>
@@ -4294,15 +4631,14 @@ void test2_call_inplace_merge (Iterator beg, Iterator end, Compare comp)
 template <class DV>
 void test2_inplace_merge1()
 {
-  typedef typename DV::base_value_type T;
   const int N=10;
+  auto cf_rev = [](int i) { return N-1-i; };
   {
-    DV v;
     SG::AuxStoreInternal store;
+    DV v;
     test2_sort1_prepare1<DV, N> (v);
     setaux(v, store);
-    DV v2(v);
-    test2_call_inplace_merge (v2.begin(), v2.end());
+    test2_perm_copy (v, [](DV& v2) { test2_call_inplace_merge (v2.begin(), v2.end()); } );
     checkaux(v);
     test2_call_inplace_merge (v.begin(), v.end());
     CHECK_INDICES(v);
@@ -4315,17 +4651,16 @@ void test2_inplace_merge1()
 
     for (int i=0; i<N; i++) {
       myassert (v[i]->x == i);
-      myassert (v2[i]->x == i);
       myassert (v3[i]->x == i);
     }
   }
   {
-    DV v;
     SG::AuxStoreInternal store;
+    DV v;
     test2_sort1_prepare1<DV, N> (v);
     setaux(v, store);
-    DV v2(v);
-    test2_call_inplace_merge (v2.rbegin(), v2.rend());
+    test2_perm_copy (v, [](DV& v2) { test2_call_inplace_merge (v2.rbegin(), v2.rend()); },
+                     cf_rev);
     checkaux(v);
     test2_call_inplace_merge (v.rbegin(), v.rend());
     CHECK_INDICES(v);
@@ -4338,65 +4673,61 @@ void test2_inplace_merge1()
 
     for (int i=0; i<N; i++) {
       myassert (v[i]->x == N-1-i);
-      myassert (v2[i]->x == N-1-i);
       myassert (v3[i]->x == N-1-i);
     }
   }
 
   {
-    DV v;
     SG::AuxStoreInternal store;
+    DV v;
     for (int i=0; i<N; i++)
-      v.push_back (new T(i));
+      v.push_back (allocate (v, i));
     setaux(v, store);
-    DV v2(v);
-    test2_call_inplace_merge (v2.begin(), v2.end(), Comp<T>());
+    test2_perm_copy (v, [](DV& v2) { test2_call_inplace_merge (v2.begin(), v2.end(), Comp<DV>()); },
+                     cf_rev);
     checkaux(v);
-    test2_call_inplace_merge (v.begin(), v.end(), Comp<T>());
+    test2_call_inplace_merge (v.begin(), v.end(), Comp<DV>());
     CHECK_INDICES(v);
     checkaux(v);
 
     DV v3;
     for (int i=0; i<N; i++)
-      v3.push_back (new T(i));
-    test2_call_inplace_merge (v3.begin(), v3.end(), Comp<T>());
+      v3.push_back (allocate (v3, i));
+    test2_call_inplace_merge (v3.begin(), v3.end(), Comp<DV>());
     CHECK_INDICES(v3);
 
     for (int i=0; i<N; i++) {
       myassert (v[i]->x == N-1-i);
-      myassert (v2[i]->x == N-1-i);
       myassert (v3[i]->x == N-1-i);
     }
   }
   {
-    DV v;
     SG::AuxStoreInternal store;
+    DV v;
     for (int i=0; i<N; i++)
-      v.push_back (new T(i));
+      v.push_back (allocate (v, i));
     setaux(v, store);
-    DV v2(v);
-    test2_call_inplace_merge (v2.rbegin(), v2.rend(), Comp<T>());
+    test2_perm_copy (v, [](DV& v2) { test2_call_inplace_merge (v2.rbegin(), v2.rend(), Comp<DV>()); });
     checkaux(v);
-    test2_call_inplace_merge (v.rbegin(), v.rend(), Comp<T>());
+    test2_call_inplace_merge (v.rbegin(), v.rend(), Comp<DV>());
     CHECK_INDICES(v);
     checkaux(v);
 
     DV v3;
     for (int i=0; i<N; i++)
-      v3.push_back (new T(i));
-    test2_call_inplace_merge (v3.rbegin(), v3.rend(), Comp<T>());
+      v3.push_back (allocate (v3, i));
+    test2_call_inplace_merge (v3.rbegin(), v3.rend(), Comp<DV>());
     CHECK_INDICES(v3);
 
     for (int i=0; i<N; i++) {
       myassert (v[i]->x == i);
-      myassert (v2[i]->x == i);
       myassert (v3[i]->x == i);
     }
   }
 
   {
-    DV v;
     SG::AuxStoreInternal store;
+    DV v;
     test2_sort1_prepare1<DV, N> (v);
     setaux(v, store);
     v.setStore (v.getConstStore());
@@ -4408,6 +4739,7 @@ void test2_inplace_merge1()
     catch (SG::ExcConstAuxData&) {
       caught = true;
     }
+    typedef typename DV::base_value_type T;
     myassert (caught ||
               !typename SG::AuxStore_traits<T>::flag() ||
               !v.trackIndices());
@@ -4422,6 +4754,7 @@ void test2_inplace_merge()
   test2_inplace_merge1<DataVector<D> > ();
   test2_inplace_merge1<DataVector<typename test2_maybeconst<D>::type> > ();
   test2_inplace_merge1<ConstDataVector<DataVector<D> > > ();
+  test2_inplace_merge1<DataVectorWithAlloc<DataVector<D> > > ();
 }
 
 
@@ -4437,32 +4770,35 @@ void test2_iter_swap_memb2 (DV& v, It beg, It end)
   CHECK_INDICES(v);
 }
 template <class DV>
+void test2_iter_swap_memb_walloc()
+{
+  DV v;
+  for (int i=0; i<10; i++)
+    v.push_back (allocate (v, i));
+  test2_iter_swap_memb2 (v, v.begin(), v.end()-1);
+  test2_iter_swap_memb2 (v, v.begin(), v.end()-1);
+
+  DV v2;
+  for (int i=0; i<10; i++)
+    v2.push_back (allocate (v2, i));
+  test2_iter_swap_memb2 (v2, v2.begin(), v2.end()-1);
+  test2_iter_swap_memb2 (v2, v2.begin(), v2.end()-1);
+
+  EXPECT_EXCEPTION (SG::ExcBadIterSwap, DV::iter_swap (v.begin(), v2.begin()));
+}
+template <class DV>
 void test2_iter_swap_memb1()
 {
   typedef typename DV::base_value_type T;
+
   DV v;
   for (int i=0; i<10; i++)
-    v.push_back (new T(i));
+    v.push_back (allocate (v, i));
   test2_iter_swap_memb2 (v, v.begin(), v.end()-1);
   test2_iter_swap_memb2 (v, v.begin(), v.end()-1);
 
   DV v2 (v);
-  bool caught = false;
-  try {
-    test2_iter_swap_memb2 (v, v.begin(), v2.end()-1);
-  }
-  catch (dv_test_err&) {
-    caught = true;
-  }
-  myassert (caught);
-  caught = false;
-  try {
-    test2_iter_swap_memb2 (v, v.begin(), v2.end()-1);
-  } 
-  catch (dv_test_err&) {
-    caught = true;
-  }
-  myassert (caught);
+  EXPECT_EXCEPTION (SG::ExcBadIterSwap, test2_iter_swap_memb2 (v, v.begin(), v2.end()-1));
 
   DV v3;
   v3.push_back (new T(100));
@@ -4645,6 +4981,7 @@ void test2_iter_swap_memb()
   test2_iter_swap_memb3<DataVector<D> > ();
   test2_iter_swap_memb1<DataVector<typename test2_maybeconst<D>::type> > ();
   test2_iter_swap_memb1<ConstDataVector<DataVector<D> > > ();
+  test2_iter_swap_memb_walloc<DataVectorWithAlloc<DataVector<D> > > ();
 
   DataVector<D> v;
   for (int i=0; i<10; i++)
@@ -4673,6 +5010,23 @@ void test2_iter_swap2 (DV& v, It beg, It end)
   CHECK_INDICES(v);
 }
 template <class DV>
+void test2_iter_swap_walloc()
+{
+  DV v;
+  for (int i=0; i<10; i++)
+    v.push_back (allocate (v, i));
+  test2_iter_swap2 (v, v.begin(), v.end()-1);
+  test2_iter_swap2 (v, v.rbegin(), v.rend()-1);
+
+  DV v2;
+  for (int i=0; i<10; i++)
+    v2.push_back (allocate (v2, i));
+  test2_iter_swap2 (v2, v2.begin(), v2.end()-1);
+  test2_iter_swap2 (v2, v2.begin(), v2.end()-1);
+
+  EXPECT_EXCEPTION (SG::ExcBadIterSwap, std::iter_swap (v.begin(), v2.begin()));
+}
+template <class DV>
 void test2_iter_swap1()
 {
   typedef typename DV::base_value_type T;
@@ -4683,22 +5037,8 @@ void test2_iter_swap1()
   test2_iter_swap2 (v, v.rbegin(), v.rend()-1);
 
   DV v2 (v);
-  bool caught = false;
-  try {
-    test2_iter_swap2 (v, v.begin(), v2.end()-1);
-  }
-  catch (dv_test_err&) {
-    caught = true;
-  }
-  myassert (caught);
-  caught = false;
-  try {
-    test2_iter_swap2 (v, v.rbegin(), v2.rend()-1);
-  }
-  catch (dv_test_err&) {
-    caught = true;
-  }
-  myassert (caught);
+  EXPECT_EXCEPTION (SG::ExcBadIterSwap, test2_iter_swap2 (v, v.begin(), v2.end()-1));
+  EXPECT_EXCEPTION (SG::ExcBadIterSwap, test2_iter_swap2 (v, v.rbegin(), v2.rend()-1));
 
   DV v3;
   v3.push_back (new T(100));
@@ -4783,6 +5123,7 @@ void test2_iter_swap()
   test2_iter_swap3<DataVector<D> > ();
   test2_iter_swap1<DataVector<typename test2_maybeconst<D>::type> > ();
   test2_iter_swap1<ConstDataVector<DataVector<D> > > ();
+  test2_iter_swap_walloc<DataVectorWithAlloc<DataVector<D> > > ();
 
   DataVector<D> v;
   for (int i=0; i<10; i++)
@@ -4828,6 +5169,10 @@ void test2_set_ownership (ConstDataVector<DV>& v, bool testClearIndex)
     v.clear (SG::VIEW_ELEMENTS);
 }
 template <class DV>
+void test2_set_ownership (DataVectorWithAlloc<DV>&, bool)
+{
+}
+template <class DV>
 void test2_remove1 (bool testClearIndex)
 {
   typedef typename DV::base_value_type T;
@@ -4838,7 +5183,7 @@ void test2_remove1 (bool testClearIndex)
     DV v;
     test2_set_ownership (v, testClearIndex);
     for (int i=0; i<N; i++)
-      v.push_back (new T(i));
+      v.push_back (allocate (v, i));
     std::vector<const T*> v2 (v.begin(), v.end());
     typename DV::iterator it = 
       std::remove (v.begin(), v.end(), v[5]);
@@ -4882,7 +5227,7 @@ void test2_remove1 (bool testClearIndex)
     DV v;
     test2_set_ownership (v, testClearIndex);
     for (int i=0; i<N; i++)
-      v.push_back (new T(i));
+      v.push_back (allocate (v, i));
     std::vector<const T*> v2 (v.begin(), v.end());
     typename DV::iterator it = 
       std::remove_if (v.begin(), v.end(), Pred<T>(5));
@@ -4926,7 +5271,7 @@ void test2_remove1 (bool testClearIndex)
     DV v;
     test2_set_ownership (v, testClearIndex);
     for (int i=0; i<N; i++)
-      v.push_back (new T(i));
+      v.push_back (allocate (v, i));
     std::vector<const T*> v2 (v.begin(), v.end());
     typename DV::reverse_iterator it = 
       std::remove (v.rbegin(), v.rend(), v[5]);
@@ -4971,7 +5316,7 @@ void test2_remove1 (bool testClearIndex)
     DV v;
     test2_set_ownership (v, testClearIndex);
     for (int i=0; i<N; i++)
-      v.push_back (new T(i));
+      v.push_back (allocate (v, i));
     std::vector<const T*> v2 (v.begin(), v.end());
     typename DV::reverse_iterator it = 
       std::remove_if (v.rbegin(), v.rend(), Pred<T>(5));
@@ -5123,17 +5468,85 @@ void test2_remove()
   test2_remove2<DataVector<D> > (true);
   test2_remove1<DataVector<typename test2_maybeconst<D>::type> > (false);
   test2_remove1<ConstDataVector<DataVector<D> > > (false);
+  test2_remove1<DataVectorWithAlloc<DataVector<D> > > (false);
 }
 
-template <class T>
+template <class DV>
 struct BPred
 {
-  bool operator() (const T* a, const T* b) const
+  using Ptr = typename DV::const_value_type;
+  bool operator() (Ptr a, Ptr b) const
   { return a->x == b->x; }
 };
 template <class DV>
+void test2_unique1a()
+{
+  auto cf = [](int i) { return i; };
+  {
+    clear_dtor_log();
+    SG::AuxStoreInternal store;
+    DV v;
+    v.push_back (allocate (v, 0));
+    v.push_back (allocate (v, 1));
+    v.push_back (allocate (v, 1));
+    v.push_back (allocate (v, 2));
+    v.push_back (allocate (v, 3));
+    v.push_back (allocate (v, 3));
+    setaux (v, store);
+    checkaux(v);
+    CHECK_INDICES(v);
+
+    test2_perm_copy (v, [](DV& v2) { (void)std::unique (v2.begin(), v2.end(), BPred<DV>()); },
+                     cf, 0, 4);
+    checkaux(v);
+    CHECK_INDICES(v);
+
+    typename DV::iterator it =
+      std::unique (v.begin(), v.end(), BPred<DV>());
+    myassert (it - v.begin() == 4);
+    for (int i = 0; i < 4; i++)
+      myassert (v[i]->x == i);
+    myassert (v[4] == 0);
+    myassert (v[5] == 0);
+    checkauxZero (v, 4);
+    checkauxZero (v, 5);
+    check_dtor_log (1, 3);
+    checkaux(v);
+    CHECK_INDICES(v);
+  }
+
+  {
+    clear_dtor_log();
+    SG::AuxStoreInternal store;
+    DV v;
+    v.push_back (allocate (v, 0));
+    v.push_back (allocate (v, 1));
+    v.push_back (allocate (v, 1));
+    v.push_back (allocate (v, 2));
+    v.push_back (allocate (v, 3));
+    v.push_back (allocate (v, 3));
+    setaux (v, store);
+    checkaux(v);
+    CHECK_INDICES(v);
+
+    typename DV::reverse_iterator it =
+      std::unique (v.rbegin(), v.rend(), BPred<DV>());
+    myassert (it - v.rbegin() == 4);
+    for (int i = 2; i < 6; i++)
+      myassert (v[i]->x == i-2);
+    myassert (v[0] == 0);
+    myassert (v[1] == 0);
+    checkauxZero (v, 0);
+    checkauxZero (v, 1);
+    check_dtor_log (1, 3);
+    checkaux(v);
+    CHECK_INDICES(v);
+  }
+}
+template <class DV>
 void test2_unique1()
 {
+  test2_unique1a<DV>();
   typedef typename DV::base_value_type T;
   {
     DV v (SG::VIEW_ELEMENTS);
@@ -5146,39 +5559,6 @@ void test2_unique1()
     for (int i = 0; i < 3; i++)
       myassert (v[i]->x == i);
     myassert (v[3] == 0);
-    CHECK_INDICES(v);
-  }
-
-  {
-    clear_dtor_log();
-    DV v;
-    SG::AuxStoreInternal store;
-    v.push_back (new T(0));
-    v.push_back (new T(1));
-    v.push_back (new T(1));
-    v.push_back (new T(2));
-    v.push_back (new T(3));
-    v.push_back (new T(3));
-    setaux (v, store);
-    checkaux(v);
-    CHECK_INDICES(v);
-
-    DV v2 = v;
-    (void)std::unique (v2.begin(), v2.end(), BPred<T>());
-    checkaux(v);
-    CHECK_INDICES(v);
-
-    typename DV::iterator it =
-      std::unique (v.begin(), v.end(), BPred<T>());
-    myassert (it - v.begin() == 4);
-    for (int i = 0; i < 4; i++)
-      myassert (v[i]->x == i);
-    myassert (v[4] == 0);
-    myassert (v[5] == 0);
-    checkauxZero (v, 4);
-    checkauxZero (v, 5);
-    check_dtor_log (1, 3);
-    checkaux(v);
     CHECK_INDICES(v);
   }
 
@@ -5198,7 +5578,7 @@ void test2_unique1()
 
     std::vector<T*> v2 (v.begin(), v.end());
     typename DV::iterator it =
-      std::unique (v.begin(), v.end(), BPred<T>());
+      std::unique (v.begin(), v.end(), BPred<DV>());
     myassert (it - v.begin() == 4);
     for (int i = 0; i < 4; i++)
       myassert (v[i]->x == i);
@@ -5234,34 +5614,6 @@ void test2_unique1()
 
   {
     clear_dtor_log();
-    DV v;
-    SG::AuxStoreInternal store;
-    v.push_back (new T(0));
-    v.push_back (new T(1));
-    v.push_back (new T(1));
-    v.push_back (new T(2));
-    v.push_back (new T(3));
-    v.push_back (new T(3));
-    setaux (v, store);
-    checkaux(v);
-    CHECK_INDICES(v);
-
-    typename DV::reverse_iterator it =
-      std::unique (v.rbegin(), v.rend(), BPred<T>());
-    myassert (it - v.rbegin() == 4);
-    for (int i = 2; i < 6; i++)
-      myassert (v[i]->x == i-2);
-    myassert (v[0] == 0);
-    myassert (v[1] == 0);
-    checkauxZero (v, 0);
-    checkauxZero (v, 1);
-    check_dtor_log (1, 3);
-    checkaux(v);
-    CHECK_INDICES(v);
-  }
-
-  {
-    clear_dtor_log();
     DV v (SG::VIEW_ELEMENTS, SG::ALWAYS_TRACK_INDICES);
     SG::AuxStoreInternal store;
     v.push_back (new T(0));
@@ -5276,7 +5628,7 @@ void test2_unique1()
     std::vector<T*> v2 (v.begin(), v.end());
 
     typename DV::reverse_iterator it =
-      std::unique (v.rbegin(), v.rend(), BPred<T>());
+      std::unique (v.rbegin(), v.rend(), BPred<DV>());
     myassert (it - v.rbegin() == 4);
     for (int i = 2; i < 6; i++)
       myassert (v[i]->x == i-2);
@@ -5302,7 +5654,7 @@ void test2_unique1()
     v.setStore (v.getConstStore());
     bool caught = false;
     try {
-      (void)std::unique (v.begin(), v.end(), BPred<T>());
+      (void)std::unique (v.begin(), v.end(), BPred<DV>());
     }
     catch (SG::ExcConstAuxData&) {
       caught = true;
@@ -5320,22 +5672,23 @@ void test2_unique()
 {
   test2_unique2<DataVector<B> > ();
   test2_unique2<DataVector<D> > ();
+  test2_unique1a<DataVectorWithAlloc<DataVector<D> > > ();
 }
 
 template <class DV>
 void test2_reverse()
 {
-  typedef typename DV::base_value_type T;
-  int N=5;
+  const int N=5;
+  auto cf_rev = [](int i) { return N-1-i; };
   {
     clear_dtor_log();
-    DV v;
     SG::AuxStoreInternal store;
+    DV v;
     for (int i=0; i<N; i++)
-      v.push_back (new T(i));
+      v.push_back (allocate (v, i));
     setaux(v, store);
-    DV v2(v);
-    std::reverse (v2.begin(), v2.end()); // Check that this doesn't affect v's auxdata.
+    test2_perm_copy (v, [](DV& v2) { std::reverse (v2.begin(), v2.end()); },
+                     cf_rev);
     checkaux(v);
     std::reverse (v.begin(), v.end());
     for (int i=0; i<N; i++)
@@ -5343,7 +5696,7 @@ void test2_reverse()
     CHECK_INDICES(v);
     checkaux(v);
 
-    std::reverse (v2.rbegin(), v2.rend()); // Check that this doesn't affect v's auxdata.
+    test2_perm_copy (v, [](DV& v2) { std::reverse (v2.rbegin(), v2.rend()); });
     checkaux(v);
 
     std::reverse (v.rbegin(), v.rend());
@@ -5355,7 +5708,7 @@ void test2_reverse()
 
     DV v3;
     for (int i=0; i<N; i++)
-      v3.push_back (new T(i));
+      v3.push_back (allocate (v3, i));
     std::reverse (v3.begin(), v3.end());
     CHECK_INDICES(v3);
     std::reverse (v3.rbegin(), v3.rend());
@@ -5369,6 +5722,7 @@ void test2_reverse()
     catch (SG::ExcConstAuxData&) {
       caught = true;
     }
+    typedef typename DV::base_value_type T;
     myassert (caught ||
               !typename SG::AuxStore_traits<T>::flag() ||
               !v.trackIndices());
@@ -5381,23 +5735,24 @@ void test2_reverse()
   test2_reverse<DataVector<D> > ();
   test2_reverse<DataVector<typename test2_maybeconst<D>::type> > ();
   test2_reverse<ConstDataVector<DataVector<D> > > ();
+  test2_reverse<DataVectorWithAlloc<DataVector<D> > > ();
 }
 
 
 template <class DV>
 void test2_rotate()
 {
-  typedef typename DV::base_value_type T;
   const int N=5;
   {
     clear_dtor_log();
-    DV v;
     SG::AuxStoreInternal store;
+    DV v;
     for (int i=0; i<N; i++)
-      v.push_back (new T(i));
+      v.push_back (allocate (v, i));
     setaux(v, store);
-    DV v2(v);
-    std::rotate (v2.begin(), v2.begin()+2, v2.end()); // Check that this doesn't affect v's auxdata.
+    test2_perm_copy (v, [](DV& v2) { std::rotate (v2.begin(), v2.begin()+2, v2.end()); },
+                     [](int i) { return (i+2)%5; });
+
     checkaux(v);
     std::rotate (v.begin(), v.begin()+2, v.end());
     for (int i=0; i<N; i++)
@@ -5405,7 +5760,7 @@ void test2_rotate()
     CHECK_INDICES(v);
     checkaux(v);
 
-    std::rotate (v2.rbegin(), v2.rbegin()+2, v2.rend()); // Check that this doesn't affect v's auxdata.
+    test2_perm_copy (v, [](DV& v2) { std::rotate (v2.rbegin(), v2.rbegin()+2, v2.rend()); } );
     checkaux(v);
     std::rotate (v.rbegin(), v.rbegin()+2, v.rend());
     for (int i=0; i<N; i++)
@@ -5416,7 +5771,7 @@ void test2_rotate()
 
     DV v3;
     for (int i=0; i<N; i++)
-      v3.push_back (new T(i));
+      v3.push_back (allocate (v3, i));
     std::rotate (v3.begin(), v3.begin()+2, v3.end());
     CHECK_INDICES(v3);
     std::rotate (v3.rbegin(), v3.rbegin()+2, v3.rend());
@@ -5430,6 +5785,7 @@ void test2_rotate()
     catch (SG::ExcConstAuxData&) {
       caught = true;
     }
+    typedef typename DV::base_value_type T;
     myassert (caught ||
               !typename SG::AuxStore_traits<T>::flag() ||
               !v.trackIndices());
@@ -5442,13 +5798,13 @@ void test2_rotate()
   test2_rotate<DataVector<D> > ();
   test2_rotate<DataVector<typename test2_maybeconst<D>::type> > ();
   test2_rotate<ConstDataVector<DataVector<D> > > ();
+  test2_rotate<DataVectorWithAlloc<DataVector<D> > > ();
 }
 
 
 template <class DV>
 void test2_shuffle()
 {
-  typedef typename DV::base_value_type T;
   const int N=5;
 
   {
@@ -5457,13 +5813,13 @@ void test2_shuffle()
     Athena_test::URNG stlurand2;
     stlurand2.seed = 293847;
     clear_dtor_log();
-    DV v;
     SG::AuxStoreInternal store;
+    DV v;
     for (int i=0; i<N; i++)
-      v.push_back (std::make_unique<T>(i));
+      v.push_back (allocate (v, i));
     setaux(v, store);
-    DV v2(v);
-    std::shuffle (v2.begin(), v2.end(), stlurand2); // Check that this doesn't affect v's auxdata.
+    test2_perm_copy (v, [&](DV& v2) { std::shuffle (v2.begin(), v2.end(), stlurand2); },
+                     [](int){return 0;}, 0, 0);
     checkaux(v);
     std::shuffle (v.begin(), v.end(), stlurand);
     std::vector<int> res;
@@ -5474,7 +5830,8 @@ void test2_shuffle()
     CHECK_INDICES(v);
     checkaux(v);
 
-    std::shuffle (v2.rbegin(), v2.rend(), stlurand2); // Check that this doesn't affect v's auxdata.
+    test2_perm_copy (v, [&](DV& v2) { std::shuffle (v2.rbegin(), v2.rend(), stlurand2); },
+                     [](int){return 0;}, 0, 0);
     checkaux(v);
 
     stlurand.seed = 1;
@@ -5490,7 +5847,7 @@ void test2_shuffle()
 
     DV v3;
     for (int i=0; i<N; i++)
-      v3.push_back (std::make_unique<T>(i));
+      v3.push_back (allocate (v3, i));
     std::shuffle (v3.begin(), v3.end(), stlurand);
     CHECK_INDICES(v3);
     std::shuffle (v3.rbegin(), v3.rend(), stlurand);
@@ -5504,6 +5861,7 @@ void test2_shuffle()
     catch (SG::ExcConstAuxData&) {
       caught = true;
     }
+    typedef typename DV::base_value_type T;
     myassert (caught ||
               !typename SG::AuxStore_traits<T>::flag() ||
               !v.trackIndices());
@@ -5516,21 +5874,22 @@ void test2_shuffle()
   test2_shuffle<DataVector<D> > ();
   test2_shuffle<DataVector<typename test2_maybeconst<D>::type> > ();
   test2_shuffle<ConstDataVector<DataVector<D> > > ();
+  test2_shuffle<DataVectorWithAlloc<DataVector<D> > > ();
 }
 
 
-template <class T>
+template <class DV>
 struct PPred
 {
+  using Ptr = typename DV::const_value_type;
   PPred (int the_v) : v (the_v) {}
-  bool operator() (const T* a) const
+  bool operator() (Ptr a) const
   { return a->x < v; }
   int v;
 };
 template <class DV>
 void test2_partition()
 {
-  typedef typename DV::base_value_type T;
   const int N=10;
   {
     Athena_test::URNG stlurand;
@@ -5541,16 +5900,17 @@ void test2_partition()
     DV v;
     SG::AuxStoreInternal store;
     for (int i=0; i<N; i++)
-      v.push_back (new T(i));
+      v.push_back (allocate (v, i));
     setaux(v, store);
     std::shuffle (v.begin(), v.end(), stlurand);
     CHECK_INDICES(v);
     checkaux(v);
-    DV v2(v);
-    std::partition (v2.begin(), v2.end(), PPred<T>(5)); // Check that this doesn't affect v's auxdata.
+
+    test2_perm_copy (v, [&](DV& v2) { std::partition (v2.begin(), v2.end(), PPred<DV>(5)); },
+                     [](int){return 0;}, 0, 0);
     checkaux(v);
     typename DV::iterator it =
-      std::partition (v.begin(), v.end(), PPred<T>(5));
+      std::partition (v.begin(), v.end(), PPred<DV>(5));
     for (int i=0; i < it-v.begin(); i++)
       myassert (v[i]->x < 5);
     for (int i=it-v.begin(); i<N; i++)
@@ -5560,11 +5920,13 @@ void test2_partition()
 
     std::shuffle (v.begin(), v.end(), stlurand);
     CHECK_INDICES(v);
-    std::shuffle (v2.begin(), v2.end(), stlurand2);
-    std::partition (v2.rbegin(), v2.rend(), PPred<T>(5)); // Check that this doesn't affect v's auxdata.
+
+    test2_perm_copy (v, [&](DV& v2) { std::shuffle (v2.begin(), v2.end(), stlurand2);
+                                      std::partition (v2.rbegin(), v2.rend(), PPred<DV>(5)); },
+                     [](int){return 0;}, 0, 0);
     checkaux(v);
     typename DV::reverse_iterator rit =
-      std::partition (v.rbegin(), v.rend(), PPred<T>(5));
+      std::partition (v.rbegin(), v.rend(), PPred<DV>(5));
     for (int i=0; i < rit-v.rbegin(); i++)
       myassert (v[N-1-i]->x < 5);
     for (int i=rit-v.rbegin(); i<N; i++)
@@ -5575,22 +5937,23 @@ void test2_partition()
 
     DV v3;
     for (int i=0; i<N; i++)
-      v3.push_back (new T(i));
+      v3.push_back (allocate (v3, i));
     std::shuffle (v3.begin(), v3.end(), stlurand2);
-    std::partition (v3.begin(), v3.end(), PPred<T>(5)); // Check that this doesn't affect v's auxdata.
+    std::partition (v3.begin(), v3.end(), PPred<DV>(5)); // Check that this doesn't affect v's auxdata.
     CHECK_INDICES(v3);
     std::shuffle (v3.begin(), v3.end(), stlurand2);
-    std::partition (v3.rbegin(), v3.rend(), PPred<T>(5)); // Check that this doesn't affect v's auxdata.
+    std::partition (v3.rbegin(), v3.rend(), PPred<DV>(5)); // Check that this doesn't affect v's auxdata.
     CHECK_INDICES(v3);
 
     v.setStore (v.getConstStore());
     bool caught = false;
     try {
-      std::partition (v.begin(), v.end(), PPred<T>(5));
+      std::partition (v.begin(), v.end(), PPred<DV>(5));
     }
     catch (SG::ExcConstAuxData&) {
       caught = true;
     }
+    typedef typename DV::base_value_type T;
     myassert (caught ||
               !typename SG::AuxStore_traits<T>::flag() ||
               !v.trackIndices());
@@ -5605,16 +5968,17 @@ void test2_partition()
     DV v;
     SG::AuxStoreInternal store;
     for (int i=0; i<N; i++)
-      v.push_back (new T(i));
+      v.push_back (allocate (v, i));
     setaux(v, store);
     std::shuffle (v.begin(), v.end(), stlurand);
     CHECK_INDICES(v);
     checkaux(v);
-    DV v2(v);
-    std::stable_partition (v2.begin(), v2.end(), PPred<T>(5)); // Check that this doesn't affect v's auxdata.
+
+    test2_perm_copy (v, [&](DV& v2) { std::partition (v2.begin(), v2.end(), PPred<DV>(5)); },
+                     [](int){return 0;}, 0, 0);
     checkaux(v);
     typename DV::iterator it =
-      std::stable_partition (v.begin(), v.end(), PPred<T>(5));
+      std::stable_partition (v.begin(), v.end(), PPred<DV>(5));
     for (int i=0; i < it-v.begin(); i++)
       myassert (v[i]->x < 5);
     for (int i=it-v.begin(); i<N; i++)
@@ -5624,11 +5988,13 @@ void test2_partition()
 
     std::shuffle (v.begin(), v.end(), stlurand);
     CHECK_INDICES(v);
-    std::shuffle (v2.begin(), v2.end(), stlurand2);
-    std::stable_partition (v2.rbegin(), v2.rend(), PPred<T>(5)); // Check that this doesn't affect v's auxdata.
+
+    test2_perm_copy (v, [&](DV& v2) { std::shuffle (v2.begin(), v2.end(), stlurand2);
+                                      std::partition (v2.rbegin(), v2.rend(), PPred<DV>(5)); },
+                     [](int){return 0;}, 0, 0);
     checkaux(v);
     typename DV::reverse_iterator rit =
-      std::stable_partition (v.rbegin(), v.rend(), PPred<T>(5));
+      std::stable_partition (v.rbegin(), v.rend(), PPred<DV>(5));
     for (int i=0; i < rit-v.rbegin(); i++)
       myassert (v[N-1-i]->x < 5);
     for (int i=rit-v.rbegin(); i<N; i++)
@@ -5639,12 +6005,12 @@ void test2_partition()
 
     DV v3;
     for (int i=0; i<N; i++)
-      v3.push_back (new T(i));
+      v3.push_back (allocate (v3, i));
     std::shuffle (v3.begin(), v3.end(), stlurand2);
-    std::stable_partition (v3.begin(), v3.end(), PPred<T>(5)); // Check that this doesn't affect v's auxdata.
+    std::stable_partition (v3.begin(), v3.end(), PPred<DV>(5)); // Check that this doesn't affect v's auxdata.
     CHECK_INDICES(v3);
     std::shuffle (v3.begin(), v3.end(), stlurand2);
-    std::stable_partition (v3.rbegin(), v3.rend(), PPred<T>(5)); // Check that this doesn't affect v's auxdata.
+    std::stable_partition (v3.rbegin(), v3.rend(), PPred<DV>(5)); // Check that this doesn't affect v's auxdata.
     CHECK_INDICES(v3);
   }
 }
@@ -5655,42 +6021,67 @@ void test2_partition()
   test2_partition<DataVector<D> > ();
   test2_partition<DataVector<typename test2_maybeconst<D>::type> > ();
   test2_partition<ConstDataVector<DataVector<D> > > ();
+  test2_partition<DataVectorWithAlloc<DataVector<D> > > ();
 }
 
 
 template <class D>
 void test2_asdatavector()
 {
-  typedef ConstDataVector<DataVector<D> > cdv_t;
-  cdv_t cv;
-  cv.push_back (new D(1));
-  const DataVector<D>* dv = cv.asDataVector();
-  myassert (dv->size() == 1);
+  {
+    typedef ConstDataVector<DataVector<D> > cdv_t;
+    cdv_t cv;
+    cv.push_back (new D(1));
+    const DataVector<D>* dv = cv.asDataVector();
+    myassert (dv->size() == 1);
 
-  myassert (cdv_t::fromDataVector (dv) == &cv);
-  DataVector<D> dv2;
-  myassert (cdv_t::fromDataVector (&dv2) == nullptr);
+    myassert (cdv_t::fromDataVector (dv) == &cv);
+    DataVector<D> dv2;
+    myassert (cdv_t::fromDataVector (&dv2) == nullptr);
+  }
+
+  {
+    typedef DataVectorWithAlloc<DataVector<D> > cdv_t;
+    cdv_t cv;
+    cv.push_back (cv.allocate (1));
+    const DataVector<D>* dv = cv.asDataVector();
+    myassert (dv->size() == 1);
+
+    myassert (cdv_t::fromDataVector (dv) == &cv);
+    DataVector<D> dv2;
+    myassert (cdv_t::fromDataVector (&dv2) == nullptr);
+  }
 }
 
 
 template <class DV>
+void test2_assignelement1a()
+{
+  clear_dtor_log();
+  DV v;
+  v.push_back (allocate (v, 1));
+  v.push_back (allocate (v, 2));
+  CHECK_INDICES(v);
+  v.assignElement ((v.begin()+1).base(), allocate (v, 3));
+  check_dtor_log (2);
+  CHECK_INDICES(v);
+  v.assignElement ((v.begin()+1).base(), allocate (v, 4));
+  check_dtor_log (3);
+  CHECK_INDICES(v);
+  v.assignElement ((v.begin()+1).base(), allocate (v, 5));
+  check_dtor_log (4);
+  CHECK_INDICES(v);
+}
+template <class DV>
 void test2_assignelement1()
 {
   typedef typename DV::base_value_type T;
+  test2_assignelement1a<DV>();
   clear_dtor_log();
   DV v;
-  v.push_back (new T(1));
-  v.push_back (new T(2));
-  CHECK_INDICES(v);
-  v.assignElement ((v.begin()+1).base(), new T(3));
-  check_dtor_log (2);
-  CHECK_INDICES(v);
-  v.assignElement ((v.begin()+1).base(), new T(4));
-  check_dtor_log (3);
-  CHECK_INDICES(v);
-  v.assignElement ((v.begin()+1).base(), std::make_unique<T>(5));
-  check_dtor_log (4);
-  CHECK_INDICES(v);
+  v.push_back (allocate (v, 1));
+  v.assignElement (v.begin().base(), std::make_unique<T>(5));
+  check_dtor_log (1);
 
   DV v2 (SG::VIEW_ELEMENTS);
   v2.push_back (new T(11));
@@ -5755,6 +6146,7 @@ void test2_assignelement()
   test2_assignelement2<DataVector<D> > ();
   test2_assignelement1<DataVector<typename test2_maybeconst<D>::type> > ();
   test2_assignelement1<ConstDataVector<DataVector<D> > > ();
+  test2_assignelement1a<DataVectorWithAlloc<DataVector<D> > > ();
 }
 
 template <class DV>
@@ -5831,9 +6223,14 @@ typename DV::BaseContainer& test2_resortaux_ptrvector (ConstDataVector<DV>& v)
   return p;
 }
 template <class DV>
+typename DV::BaseContainer& test2_resortaux_ptrvector (DataVectorWithAlloc<DV>& v)
+{
+  typename DV::BaseContainer& p ATLAS_THREAD_SAFE = const_cast<typename DV::BaseContainer&>(v.asDataVector()->stdcont());
+  return p;
+}
+template <class DV>
 void test2_resortaux1()
 {
-  typedef typename DV::base_value_type T;
   const int N=10;
   Athena_test::URNG stlurand;
   stlurand.seed = 2;
@@ -5841,7 +6238,7 @@ void test2_resortaux1()
   DV v;
   SG::AuxStoreInternal store;
   for (int i=0; i<N; i++)
-    v.push_back (new T(i));
+    v.push_back (allocate (v, i));
   setaux(v, store);
 
   typename DV::BaseContainer& pv = test2_resortaux_ptrvector (v);
@@ -5859,19 +6256,22 @@ void test2_resortaux1()
     checkaux(v);
   }
 
-  DV v2(v);
-  typename DV::BaseContainer& pv2 = test2_resortaux_ptrvector (v2);
-  for (int j=0; j < 10; j++) {
-    std::shuffle (pv2.begin(), pv2.end(), stlurand);
-    v.resortAux (v2.begin(), v2.end());
-    CHECK_INDICES(v);
-    checkaux(v);
-  }
+    test2_perm_copy (v, [&](DV& v2)
+    {
+      typename DV::BaseContainer& pv2 = test2_resortaux_ptrvector (v2);
+      for (int j=0; j < 10; j++) {
+        std::shuffle (pv2.begin(), pv2.end(), stlurand);
+        v.resortAux (v2.begin(), v2.end());
+        CHECK_INDICES(v);
+        checkaux(v);
+      }
+    },
+      [](int){return 0;}, 0, 0);
   
   DV v3;
   typename DV::BaseContainer& pv3 = test2_resortaux_ptrvector (v3);
   for (int i=0; i<N; i++)
-    v3.push_back (new T(i));
+    v3.push_back (allocate (v3, i));
   for (int j=0; j < 10; j++) {
     std::shuffle (pv3.begin(), pv3.end(), stlurand);
     v3.resortAux (v3.begin(), v3.end());
@@ -5886,10 +6286,10 @@ void test2_resortaux1()
   catch (SG::ExcConstAuxData&) {
     caught = true;
   }
+  typedef typename DV::base_value_type T;
   myassert (caught ||
             !typename SG::AuxStore_traits<T>::flag() ||
             !v.trackIndices());
-
 }
 template <class B, class D>
 void test2_resortaux()
@@ -5898,8 +6298,37 @@ void test2_resortaux()
   test2_resortaux1<DataVector<D> > ();
   test2_resortaux1<DataVector<typename test2_maybeconst<D>::type> > ();
   test2_resortaux1<ConstDataVector<DataVector<D> > > ();
+  test2_resortaux1<DataVectorWithAlloc<DataVector<D> > > ();
 }
 
+template <class DV>
+void test2_move_walloc()
+{
+  clear_dtor_log();
+  {
+    DV v1;
+    SG::AuxStoreInternal store1;
+    v1.push_back (allocate (v1, 1));
+    v1.push_back (allocate (v1, 2));
+    v1.push_back (allocate (v1, 3));
+    setaux (v1, store1);
+    checkaux (v1);
+    CHECK_INDICES (v1);
+
+    {
+      DV v2 (std::move (v1));
+      assert (v2.size() == 3);
+      assert (v2[0]->x == 1);
+      assert (v2[1]->x == 2);
+      assert (v2[2]->x == 3);
+      checkaux (v2);
+      CHECK_INDICES (v2);
+      assert (v1.size() == 0);
+    }
+    check_dtor_log (1, 2, 3);
+  }
+  check_dtor_log();
+}
 template <class DV>
 void test2_move1()
 {
@@ -5909,9 +6338,9 @@ void test2_move1()
   {
     DV v1;
     SG::AuxStoreInternal store1;
-    v1.push_back (std::make_unique<T>(1));
-    v1.push_back (std::make_unique<T>(2));
-    v1.push_back (std::make_unique<T>(3));
+    v1.push_back (allocate (v1, 1));
+    v1.push_back (allocate (v1, 2));
+    v1.push_back (allocate (v1, 3));
     setaux (v1, store1);
     checkaux (v1);
     CHECK_INDICES (v1);
@@ -5952,6 +6381,7 @@ void test2_move()
   test2_move1<DataVector<D> > ();
   test2_move1<DataVector<typename test2_maybeconst<D>::type> > ();
   test2_move1<ConstDataVector<DataVector<D> > > ();
+  test2_move_walloc<DataVectorWithAlloc<DataVector<D> > > ();
 }
 
 
@@ -6022,6 +6452,95 @@ void test2_elconversions()
 }
 
 
+template <class DV>
+class TestDeleter
+  : public DV::Deleter
+{
+public:
+  using value_type = typename DV::Deleter::value_type;
+  using PtrVector = typename DV::Deleter::PtrVector;
+
+  TestDeleter (std::vector<int>& the_v) : v(the_v) {}
+
+  virtual void doDelete (value_type p) override
+  {
+    v.push_back (p->x);
+    delete p;
+  }
+  virtual void doDelete (typename PtrVector::iterator first,
+                         typename PtrVector::iterator last) override
+  {
+    for (; first != last; ++first) {
+      v.push_back ((*first)->x);
+      delete *first;
+    }
+  }
+
+  std::vector<int>& v;
+};
+template <class T>
+void test2_deleter1()
+{
+  std::vector<int> v;
+  DataVector<T> dv;
+  dv.clear (std::make_unique<TestDeleter<DataVector<T> > > (v));
+  dv.push_back (new T(1));
+  dv.push_back (new T(2));
+  dv.push_back (new T(3));
+  assert (v.empty());
+  dv.pop_back();
+  assert (v == std::vector<int>{3});
+  v.clear();
+  dv.clear();
+  assert (v == (std::vector<int>{1, 2}));
+}
+
+
+template <class T>
+void test2_deleter2()
+{
+  std::vector<int> v;
+  DataVector<T> dv1;
+  dv1.clear (std::make_unique<TestDeleter<DataVector<T> > > (v));
+  dv1.push_back (new T(1));
+  dv1.push_back (new T(2));
+  dv1.push_back (new T(3));
+
+  DataVector<T> dv2 (std::move (dv1));
+  assert (v.empty());
+  assert (dv1.empty());
+  assert (dv2.size() == 3);
+  dv2.pop_back();
+  assert (v == std::vector<int>{3});
+  v.clear();
+
+  dv1 = std::move (dv2);
+  assert (v.empty());
+  assert (dv1.size() == 2);
+  assert (dv2.empty());
+  dv1.pop_back();
+  assert (v == std::vector<int>{2});
+  v.clear();
+
+  dv1.swap (dv2);
+  assert (v.empty());
+  assert (dv1.empty());
+  assert (dv2.size() == 1);
+  dv2.pop_back();
+  assert (v == std::vector<int>{1});
+}
+
+
+template <class B, class D>
+void test2_deleter()
+{
+  test2_deleter1<B>();
+  test2_deleter1<D>();
+  test2_deleter2<B>();
+  test2_deleter2<D>();
+}
+
+
 template <class B, class D>
 void do_test2()
 {
@@ -6052,6 +6571,7 @@ void do_test2()
   test2_swapelement_unique<B,D> ();
   test2_swapelement_iter<B,D> ();
   test2_swapelement_iter_unique<B,D> ();
+  test2_swapelement_walloc<D> ();
   test2_resize<B,D> ();
   test2_pop_back<B,D> ();
   test2_front_back<B,D> ();
@@ -6084,6 +6604,7 @@ void do_test2()
   test2_move<B,D> ();
   test2_offset<B,D> ();
   test2_elconversions<B,D>();
+  test2_deleter<B,D>();
 }
 
 

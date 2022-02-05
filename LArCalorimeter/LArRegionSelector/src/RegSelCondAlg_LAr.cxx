@@ -8,7 +8,7 @@
  **   @date   Sun 22 Sep 2019 10:21:50 BST
  **
  **
- **   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ **   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  **/
 
 
@@ -21,7 +21,7 @@
 
 #include "CaloTTDetDescr/CaloTTDescrManager.h"
 #include "CaloTTDetDescr/CaloTTDescrRegion.h"
-#include "LArRawUtils/LArRoI_Map.h"
+#include "CaloIdentifier/CaloLVL1_ID.h" 
 
 #include "eformat/SourceIdentifier.h"
 #include "LArIdentifier/LArReadoutModuleService.h"
@@ -36,7 +36,7 @@ RegSelCondAlg_LAr::RegSelCondAlg_LAr(const std::string& name, ISvcLocator* pSvcL
   m_managerName(""),
   m_printTable(false)
 { 
-  ATH_MSG_INFO( "RegSelCondAlg_LAr::RegSelCondAlg_LAr() " << name );
+  ATH_MSG_DEBUG( "RegSelCondAlg_LAr::RegSelCondAlg_LAr() " << name );
   declareProperty( "PrintTable",  m_printTable=false );  
   declareProperty( "ManagerName", m_managerName );  
 }
@@ -46,8 +46,9 @@ RegSelCondAlg_LAr::RegSelCondAlg_LAr(const std::string& name, ISvcLocator* pSvcL
 
 StatusCode RegSelCondAlg_LAr::initialize() {
   ATH_MSG_DEBUG("RegSelCondAlg_LAr::initialize() ");
-  ATH_CHECK(m_cablingKey.initialize());
   ATH_CHECK(m_tableKey.initialize());
+  ATH_CHECK(m_roiMapKey.initialize());
+  ATH_CHECK(m_caloMgrKey.initialize());
   ATH_MSG_INFO("RegSelCondAlg_LAr::initialize() " << m_tableKey );
   return StatusCode::SUCCESS;
 }
@@ -73,32 +74,21 @@ StatusCode RegSelCondAlg_LAr::execute(const EventContext& ctx)  const {
   }
 
 
-  /// annoyingly take the pixel cabling to determine whether to build this
-  /// calorimeter table using the EventIDRange.
-  /// Once the calorimeter has it own conditions data cabling, then we can
-  /// dispense with this and use the calorimeter conditions data directly
+  SG::ReadCondHandle<LArRoIMap> roiMap (m_roiMapKey, ctx);
+  lutCondData.addDependency (roiMap);
 
-  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl(m_cablingKey,ctx);
-  const LArOnOffIdMapping* cabling{*cablingHdl};
-  if(!cabling) {
-     ATH_MSG_ERROR( "Do not have cabling mapping from key " << m_cablingKey.key() );
-     return StatusCode::FAILURE;
-  }
-
-  EventIDRange id_range;
-  
-  if( !cablingHdl.range( id_range ) ) {
-    ATH_MSG_ERROR("Failed to retrieve validity range for " << cablingHdl.key());
+  EventIDRange range;
+  if( !roiMap.range( range ) ) {
+    ATH_MSG_ERROR("Failed to retrieve validity range for " << roiMap.key());
     return StatusCode::FAILURE;
-  }   
-
-  ATH_MSG_DEBUG( "RegSelConfAlg_LAr: " << name() << " found range: " << id_range );
+  }
+  ATH_MSG_DEBUG( "RegSelCondAlg_LAr: " << name() << " found range: " << range );
 
   ATH_MSG_INFO( "creating new LAr table" );
 
   /// create the new lookup table
 
-  std::unique_ptr<IRegSelLUT> rd = createTable();
+  std::unique_ptr<IRegSelLUT> rd = createTable (**roiMap);
 
   if ( !rd ) return StatusCode::FAILURE;
 
@@ -113,10 +103,10 @@ StatusCode RegSelCondAlg_LAr::execute(const EventContext& ctx)  const {
     /// but we had to move it up in the code to handle the flawed conditions 
     /// handling in the serial athena use case
     ///    SG::WriteCondHandle<IRegSelLUTCondData> lutCondData( m_tableKey, ctx );
-    if( lutCondData.record( id_range, rcd ).isFailure() ) {
+    if( lutCondData.record( rcd ).isFailure() ) {
       ATH_MSG_ERROR( "Could not record " << m_tableKey 
 		     << " " << lutCondData.key()
-		     << " with range " << id_range );  
+		     << " with range " << range );  
       return StatusCode::FAILURE;   
     } 
     ATH_MSG_INFO( "RegSelCondAlg LUT recorded: " << m_tableKey);
@@ -135,7 +125,7 @@ StatusCode RegSelCondAlg_LAr::execute(const EventContext& ctx)  const {
 
 
 
-std::unique_ptr<RegSelectorHashMap> RegSelCondAlg_LAr::createTable() const {
+std::unique_ptr<RegSelectorHashMap> RegSelCondAlg_LAr::createTable (const LArRoIMap& roiMap) const {
 
   std::unique_ptr<RegSelectorHashMap> lut(nullptr);
 
@@ -144,13 +134,12 @@ std::unique_ptr<RegSelectorHashMap> RegSelCondAlg_LAr::createTable() const {
 
   IToolSvc* toolSvc = nullptr;
   if ( service( "ToolSvc", toolSvc).isFailure() ) { 
-    ATH_MSG_ERROR( " Successfully retrieved ToolSvc ");
+    ATH_MSG_ERROR( "Failed to retrieve ToolSvc ");
     return lut;
   }
 
-  const CaloTTDescrManager* manager; 
-  const CaloLVL1_ID*        helper; 
-  const LArRoI_Map*         roi_map;
+  const CaloTTDescrManager* manager = nullptr; 
+  const CaloLVL1_ID*        helper = nullptr;
 
   if ( detStore()->retrieve(manager).isFailure() ) {
     ATH_MSG_ERROR( "CaloTTMgr Manager not found" );
@@ -162,11 +151,6 @@ std::unique_ptr<RegSelectorHashMap> RegSelCondAlg_LAr::createTable() const {
     return lut;
   }
 
-  if ( toolSvc->retrieveTool( "LArRoI_Map", roi_map ).isFailure() ) {
-    ATH_MSG_ERROR( "roi map not found" );
-    return lut;
-  }
-  
   int   lut_size = 0;
 
   int   sampling  = 0; 
@@ -304,7 +288,7 @@ std::unique_ptr<RegSelectorHashMap> RegSelCondAlg_LAr::createTable() const {
     } // end of isFcal hadronic
 
     // get the RODID for this TT
-    const std::vector<HWIdentifier>& vROBID = roi_map->CollectionID((unsigned int)hashid);
+    const std::vector<HWIdentifier>& vROBID = roiMap.collectionID((unsigned int)hashid);
  
     // skip the TT that does not have readout, i.e., invalid.
     if( vROBID.size() > 0 ) { 

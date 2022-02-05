@@ -1,5 +1,6 @@
 #include "TrigT1NSWSimTools/MMT_Road.h"
 #include "AthenaKernel/getMessageSvc.h"
+#include <cmath>
 
 MMT_Road::MMT_Road(const char sector, const MuonGM::MuonDetectorManager* detManager, const micromegas_t mm, int xthr, int uvthr, int iroadx, int iroadu, int iroadv): AthMessaging(Athena::getMessageSvc(), "MMT_Road") {
   m_sector = sector;
@@ -20,14 +21,14 @@ MMT_Road::MMT_Road(const char sector, const MuonGM::MuonDetectorManager* detMana
   m_roadSizeDownX = mm.nstrip_dn_XX;
   m_roadSizeUpUV = mm.nstrip_up_UV;
   m_roadSizeDownUV = mm.nstrip_dn_UV;
-  m_B = (1./TMath::Tan(1.5/180.*TMath::Pi()));
+  m_B = (1./std::tan(1.5/180.*M_PI));
 }
 
 MMT_Road::~MMT_Road() {
   this->reset();
 }
 
-void MMT_Road::addHits(std::vector<MMT_Hit*> &hits) {
+void MMT_Road::addHits(std::vector<std::shared_ptr<MMT_Hit> > &hits) {
   for (auto hit_i : hits) {
     int bo = hit_i->getPlane();
     bool has_hit = false;
@@ -68,10 +69,10 @@ bool MMT_Road::containsNeighbors(const MMT_Hit &hit) {
   }
 
   double pitch = this->getMM().pitch;
-  double R = (TMath::Abs(hit.getStationEta()) == 1) ? this->getMM().innerRadiusEta1 : this->getMM().innerRadiusEta2;
+  double R = (std::abs(hit.getStationEta()) == 1) ? this->getMM().innerRadiusEta1 : this->getMM().innerRadiusEta2;
   double Z = hit.getZ();
 
-  double index = std::round((TMath::Abs(hit.getRZSlope())-0.1)/5e-04); // 0.0005 is approx. the step in slope achievable with a road size of 8 strips
+  double index = std::round((std::abs(hit.getRZSlope())-0.1)/5e-04); // 0.0005 is approx. the step in slope achievable with a road size of 8 strips
   double roundedSlope = 0.1 + index*((0.6 - 0.1)/1000.);
   double shift = roundedSlope*(this->getMM().planeCoordinates[hit.getPlane()].Z() - this->getMM().planeCoordinates[0].Z());
 
@@ -164,6 +165,15 @@ unsigned int MMT_Road::countXHits(bool flag) {
   return nx;
 }
 
+bool MMT_Road::evaluateLowRes() {
+  unsigned int nhits1 = 0, nhits2 = 0;
+  for (const auto &hit : m_road_hits) {
+    if (hit.getPlane() < 4 && !hit.isNoise()) nhits1++;
+    else if (hit.getPlane() > 3 && !hit.isNoise()) nhits2++;
+  }
+  return (nhits1 < 4 || nhits2 < 4) ? true : false;
+}
+
 bool MMT_Road::horizontalCheck() {
   int nx1 = 0, nx2 = 0;
   for (const auto &hit : m_road_hits) {
@@ -202,7 +212,7 @@ double MMT_Road::mxl() {
   double mxl = 0;
   double avg_z = std::accumulate(zs.begin(), zs.end(), 0.0)/(double)zs.size();
   double sum_sq_z = std::inner_product(zs.begin(), zs.end(), zs.begin(), 0.0);
-  for (unsigned int i = 0; i < ys.size(); i++) mxl += ys[i]*( (zs[i]-avg_z) / (sum_sq_z - zs.size()*TMath::Power(avg_z,2)) );
+  for (unsigned int i = 0; i < ys.size(); i++) mxl += ys[i]*( (zs[i]-avg_z) / (sum_sq_z - zs.size()*std::pow(avg_z,2)) );
 
   return mxl;
 }

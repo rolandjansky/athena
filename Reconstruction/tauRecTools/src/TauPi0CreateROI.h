@@ -13,8 +13,9 @@
 #include "tauRecTools/TauRecToolBase.h"
 
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
-
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "xAODTau/TauJet.h"
 
 /**
@@ -40,7 +41,7 @@ public:
 private:
     
   SG::ReadHandleKey<CaloCellContainer> m_caloCellInputContainer{this,"Key_caloCellInputContainer", "AllCalo", "input vertex container key"};
-
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager", "CaloDetDescrManager"};
 };
 
 #endif	// TAURECTOOLS_TAUPI0CREATEROI_H

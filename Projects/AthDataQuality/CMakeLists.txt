@@ -8,7 +8,7 @@ project( AthDataQuality VERSION ${_version} LANGUAGES C CXX )
 unset( _version )
 
 # Set the version of tdaq-common to use for the build:
-set( TDAQ-COMMON_VERSION "04-03-00" CACHE STRING
+set( TDAQ-COMMON_VERSION "04-04-00" CACHE STRING
    "The version of tdaq-common to use for the build" )
 set( TDAQ-COMMON_ATROOT
    "$ENV{TDAQ_RELEASE_BASE}/tdaq-common/tdaq-common-${TDAQ-COMMON_VERSION}"
@@ -18,9 +18,9 @@ set( TDAQ-COMMON_ATROOT
 find_package( AtlasCMake REQUIRED )
 
 # Build the project against LCG:
-set( LCG_VERSION_POSTFIX "_ATLAS_7"
+set( LCG_VERSION_POSTFIX "_ATLAS_10"
    CACHE STRING "Version postfix for the LCG release to use" )
-set( LCG_VERSION_NUMBER 100
+set( LCG_VERSION_NUMBER 101
    CACHE STRING "Version number for the LCG release to use" )
 find_package( LCG ${LCG_VERSION_NUMBER} EXACT REQUIRED )
 

@@ -264,8 +264,12 @@ class isoGetter ( Configured ) :
     mlog.info('entering')        
     
     # configure iso here:
+    self._isoBuilderHandle = []
     try:
-      self._isoBuilderHandle = [egcisoBuilder(),eltisoBuilder(),phtisoBuilder(),muisoBuilder()]
+      if rec.doEgamma():
+        self._isoBuilderHandle.extend([egcisoBuilder(),eltisoBuilder(),phtisoBuilder()])
+      if rec.doMuonCombined():
+        self._isoBuilderHandle.append(muisoBuilder())
     except Exception:
       mlog.error("could not get handle to IsolationBuilder")
       import traceback

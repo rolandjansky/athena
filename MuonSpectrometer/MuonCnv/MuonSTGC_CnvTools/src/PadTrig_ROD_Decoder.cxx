@@ -12,14 +12,14 @@ namespace Muon {
 
 //=====================================================================
 PadTrig_ROD_Decoder::PadTrig_ROD_Decoder(const std::string& type, const std::string& name, const IInterface* parent)
-: AthAlgTool(type, name, parent) 
+: AthAlgTool(type, name, parent)
 {
   declareInterface<IPadTrig_ROD_Decoder>(this);
 }
 
 
 //=====================================================================
-StatusCode PadTrig_ROD_Decoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& fragment, NSW_PadTriggerDataContainer& rdo) const 
+StatusCode PadTrig_ROD_Decoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& fragment, NSW_PadTriggerDataContainer& rdo) const
 {
   try {
     fragment.check();
@@ -27,7 +27,7 @@ StatusCode PadTrig_ROD_Decoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE
     ATH_MSG_ERROR(ex.what());
     return StatusCode::FAILURE;
   }
-  
+
   eformat::helper::SourceIdentifier sourceID{fragment.rob_source_id()};
 
   // FIXME this hash calculation MUST be done in an IdHelper!
@@ -42,20 +42,20 @@ StatusCode PadTrig_ROD_Decoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE
     ATH_MSG_ERROR("Collection ID " << hashID << " already found in RDO container, skipping");
     return StatusCode::FAILURE;
   }
-  
+
   OFFLINE_FRAGMENTS_NAMESPACE::PointerType data{};
   fragment.rod_data(data);
   if (!data) {
     ATH_MSG_WARNING("No data found for this ROBFragment, skipping");
     return StatusCode::FAILURE;
   }
-  
+
   // TODO better error handling?
   return parseBytestream(data, fragment.rod_ndata(), rdo, hashID);
 }
 
 //=====================================================================
-StatusCode PadTrig_ROD_Decoder::parseBytestream(OFFLINE_FRAGMENTS_NAMESPACE::PointerType data, std::size_t size, NSW_PadTriggerDataContainer& rdo, const IdentifierHash hashID) const 
+StatusCode PadTrig_ROD_Decoder::parseBytestream(OFFLINE_FRAGMENTS_NAMESPACE::PointerType data, std::size_t size, NSW_PadTriggerDataContainer& rdo, const IdentifierHash hashID) const
 {
   // Refer to:
   // https://espace.cern.ch/ATLAS-NSW-ELX/Shared%20Documents/Pad%20Trigger/PadTrig_Raw_Format.pdf
@@ -72,7 +72,7 @@ StatusCode PadTrig_ROD_Decoder::parseBytestream(OFFLINE_FRAGMENTS_NAMESPACE::Poi
     ATH_MSG_ERROR("Corrupted ROBFragment, skipping! Expected " << EXPECTED_SIZE << " words, got " << size);
     return StatusCode::FAILURE;
   }
-  
+
   const uint16_t bcid       = (extractByte(data, 2) >> 4 & 0xf) << 8 | extractByte(data, 3);
   const uint32_t l1id       = __builtin_bswap32(data[3]);
   const uint8_t  endcap     = (data[2] & (0b1 << 7)) ? 1 : 0; // 1 = Endcap A, 0 = Endcap C
@@ -98,11 +98,12 @@ StatusCode PadTrig_ROD_Decoder::parseBytestream(OFFLINE_FRAGMENTS_NAMESPACE::Poi
     if (observedHits != (hitMultiplicity & 0xfff)) {
       ATH_MSG_WARNING("Expected " << static_cast<uint32_t>(hitMultiplicity & 0xfff) << " set bits, observed " << observedHits);
     }
-    
+
     byteIndex += BITMAP_SIZE;
   }
-  
-  auto collection = new NSW_PadTriggerData{ hashID, sectorID, sectorSize, endcap, bcid, l1id, hitAddresses};
+
+  auto collection = new NSW_PadTriggerData{ hashID, sectorID, static_cast<NSW_PadTriggerData::SectorSize>(sectorSize),
+                                           static_cast<NSW_PadTriggerData::Endcap>(endcap), bcid, l1id, hitAddresses};
 
   // Status word length
   byteIndex += 2;
@@ -118,7 +119,7 @@ StatusCode PadTrig_ROD_Decoder::parseBytestream(OFFLINE_FRAGMENTS_NAMESPACE::Poi
 
 
 //=====================================================================
-std::vector<uint16_t> PadTrig_ROD_Decoder::parseBitmap(OFFLINE_FRAGMENTS_NAMESPACE::PointerType data, std::size_t byteIndex, std::size_t& hitCount, bool isSmallSector) const 
+std::vector<uint16_t> PadTrig_ROD_Decoder::parseBitmap(OFFLINE_FRAGMENTS_NAMESPACE::PointerType data, std::size_t byteIndex, std::size_t& hitCount, bool isSmallSector) const
 {
   std::vector<uint16_t> addressList{};
   constexpr std::size_t PFEB_COUNT = 24;
@@ -127,16 +128,16 @@ std::vector<uint16_t> PadTrig_ROD_Decoder::parseBitmap(OFFLINE_FRAGMENTS_NAMESPA
 
   size_t Nchannels{85}; // default value
   for (std::size_t pfeb{}; pfeb < PFEB_COUNT; pfeb++) {
-  
+
     // pFEBs are sent in reverse order: last pFEB (pFEB23) sent first
     auto& currentBitmap = bitmaps[PFEB_COUNT - pfeb - 1];
 
-    // Size of the current pFEB bitmap   
+    // Size of the current pFEB bitmap
     if (m_channelMapping) Nchannels = isSmallSector ? SMALL_PFEB_SIZES[PFEB_COUNT - pfeb - 1] : LARGE_PFEB_SIZES[PFEB_COUNT - pfeb - 1];
-    
+
     for (std::size_t channel{}; channel < Nchannels; channel++)
       currentBitmap.push_back(extractBit(data, byteIndex * 8 + (bitOffset + channel) + 8));
-    
+
     bitOffset += currentBitmap.size();
   }
 
@@ -161,7 +162,7 @@ std::vector<uint16_t> PadTrig_ROD_Decoder::parseBitmap(OFFLINE_FRAGMENTS_NAMESPA
       chOffset += bitmaps[pfeb].size();
       continue;
     }
-    
+
     for (std::size_t ch{}; ch < bitmaps[pfeb].size(); ch++) {
       if (bitmaps[pfeb][ch]) {
         // TODO The address is a simple running counter for now.
@@ -176,12 +177,12 @@ std::vector<uint16_t> PadTrig_ROD_Decoder::parseBitmap(OFFLINE_FRAGMENTS_NAMESPA
 
 
 //=====================================================================
-void PadTrig_ROD_Decoder::parseSegments(OFFLINE_FRAGMENTS_NAMESPACE::PointerType data, std::size_t byteIndex, NSW_PadTriggerData& collection) const 
+void PadTrig_ROD_Decoder::parseSegments(OFFLINE_FRAGMENTS_NAMESPACE::PointerType data, std::size_t byteIndex, NSW_PadTriggerData& collection) const
 {
   // Refer to:
   // https://espace.cern.ch/ATLAS-NSW-ELX/Shared%20Documents/Pad%20Trigger/Pad_to_TP_data_format.pdf
   // const uint16_t bcidAndFlags = extractByte(data, byteIndex) << 8 | extractByte(data, byteIndex + 1);
- 
+
   // TODO compare BCID with one found in header? Do something with flags?
   //const uint8_t flags = (bcidAndFlags & 0xf000) >> 12;
   //const uint16_t bcid = bcidAndFlags & 0xfff;
@@ -194,7 +195,7 @@ void PadTrig_ROD_Decoder::parseSegments(OFFLINE_FRAGMENTS_NAMESPACE::PointerType
     if (bandID == 0xff) {
       continue;
     }
-    
+
     // FIXME phiID currently bit-packed (6 bits * 4), should be 8 bits * 4?
     const uint8_t phiID = extractByte(data, byteIndex + 4 + i);
     const auto wedge0ActiveLayers = extractByte(data, byteIndex + 8);
@@ -210,7 +211,7 @@ void PadTrig_ROD_Decoder::parseSegments(OFFLINE_FRAGMENTS_NAMESPACE::PointerType
 
 
 //=====================================================================
-bool PadTrig_ROD_Decoder::extractBit(OFFLINE_FRAGMENTS_NAMESPACE::PointerType data, std::size_t index) const 
+bool PadTrig_ROD_Decoder::extractBit(OFFLINE_FRAGMENTS_NAMESPACE::PointerType data, std::size_t index) const
 {
   // Swap to big endian, as we're dealing with a contiguous bit vector
   const uint32_t word = __builtin_bswap32(data[index / 32]);
@@ -221,11 +222,16 @@ bool PadTrig_ROD_Decoder::extractBit(OFFLINE_FRAGMENTS_NAMESPACE::PointerType da
 
 
 //=====================================================================
-uint8_t PadTrig_ROD_Decoder::extractByte(OFFLINE_FRAGMENTS_NAMESPACE::PointerType data, std::size_t index) const 
+uint8_t PadTrig_ROD_Decoder::extractByte(OFFLINE_FRAGMENTS_NAMESPACE::PointerType data, std::size_t index) const
 {
   // Swap to big endian, so byte extracted will match the byte at the given index in the contiguous packet
-  const uint32_t word = data[index / 4];
-  return reinterpret_cast<const uint8_t*>(&word)[index % 4];
+  union Conv
+  {
+    uint32_t u32;
+    uint8_t u8[4];
+  } c{};
+  c.u32 = data[index / 4];
+  return c.u8[index % 4];
 }
 
 }  // namespace Muon

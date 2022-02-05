@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonAGDDDescription/MMDetectorDescription.h"
@@ -8,18 +8,18 @@
 
 #include <sstream>
 
-MMDetectorDescription* MMDetectorDescription::s_current=0;
 
 
-MMDetectorDescription::MMDetectorDescription(std::string s): 
-	AGDDDetector(s,"Micromegas")
+MMDetectorDescription::MMDetectorDescription(const std::string& s,
+                                             AGDDDetectorStore& ds):
+	AGDDDetector(s,"Micromegas"),
+        m_ds (ds)
 {
 }
 
 void MMDetectorDescription::Register()
 {
-	AGDDDetectorStore *s = AGDDDetectorStore::GetDetectorStore();
-	s->RegisterDetector(this);
+	m_ds.RegisterDetector(this);
 }
 
 
@@ -44,8 +44,7 @@ void MMDetectorDescription::SetDetectorAddress(AGDDDetectorPositioner* p)
 
 MuonGM::MM_Technology* MMDetectorDescription::GetTechnology()
 {
-   AGDDDetectorStore *ds=AGDDDetectorStore::GetDetectorStore();    
    MuonGM::MM_Technology* t =
-     dynamic_cast<MuonGM::MM_Technology*>(ds->GetTechnology(GetName()));
+     dynamic_cast<MuonGM::MM_Technology*>(m_ds.GetTechnology(GetName()));
    return t;
 }

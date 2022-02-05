@@ -5,20 +5,13 @@
 #include "LArCalibTools/LArAverages2Ntuple.h"
 
 #include "LArRawEvent/LArAccumulatedCalibDigitContainer.h"
-#include "CaloIdentifier/CaloCell_ID.h"
-#include "LArIdentifier/LArOnline_SuperCellID.h"
-
-#include "GaudiKernel/ToolHandle.h"
 
 LArAverages2Ntuple::LArAverages2Ntuple(const std::string& name, ISvcLocator* pSvcLocator): 
-  AthAlgorithm(name, pSvcLocator),
-  m_emId(NULL), m_onlineHelper(NULL)
-  //  m_eventCounter(0)
+  LArCond2NtupleBase(name, pSvcLocator)
 {
   declareProperty("ContainerKey",m_contKey);
   declareProperty("NSamples",m_Nsamples=50);
   declareProperty("KeepOnlyPulsed",m_keepPulsed=true);
-  declareProperty("isSC",m_isSC=false);
   m_ipass=0;
 }
 
@@ -29,88 +22,25 @@ LArAverages2Ntuple::~LArAverages2Ntuple()
 StatusCode LArAverages2Ntuple::initialize()
 {
   ATH_MSG_INFO ( "in initialize" );
+  m_ntName = "AVERAGES";
+  m_ntTitle="Averages";
+  m_ntpath=std::string("/NTUPLES/FILE1/")+m_ntName+m_contKey;
 
-  const CaloCell_ID* idHelper = nullptr;
-  ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
-  m_emId = idHelper->em_idHelper();
-  if (!m_emId) {
-    ATH_MSG_ERROR ( "Could not access lar EM ID helper" );
-    return StatusCode::FAILURE;
-  }
-  
-  StatusCode sc;
-  if ( m_isSC ){
-    const LArOnline_SuperCellID* ll;
-    sc = detStore()->retrieve(ll, "LArOnline_SuperCellID");
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR( "Could not get LArOnlineID helper !" );
-      return StatusCode::FAILURE;
-    }
-    else {
-      m_onlineHelper = (const LArOnlineID_Base*)ll;
-      ATH_MSG_DEBUG("Found the LArOnlineID helper");
-    }
+  ATH_CHECK(LArCond2NtupleBase::initialize());
 
-  } else { // m_isSC
-    const LArOnlineID* ll;
-    sc = detStore()->retrieve(ll, "LArOnlineID");
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR( "Could not get LArOnlineID helper !" );
-      return StatusCode::FAILURE;
-    }
-    else {
-      m_onlineHelper = (const LArOnlineID_Base*)ll;
-      ATH_MSG_DEBUG(" Found the LArOnlineID helper. ");
-    }
-  }
-
-  ATH_CHECK( m_cablingKey.initialize() );
-  ATH_CHECK( m_calibMapKey.initialize() );
-
-  NTupleFilePtr file1(ntupleSvc(),"/NTUPLES/FILE1");
-  if (!file1) {
-    ATH_MSG_ERROR ( "Booking of NTuple failed" );
-    return StatusCode::FAILURE;
-  }
-
-  m_ntuplePath="/NTUPLES/FILE1/AVERAGES"+m_contKey;
-  const std::string ntupleTitle="Averages "+m_contKey;
-  NTuplePtr nt(ntupleSvc(),m_ntuplePath);
-  if (!nt) {
-    nt=ntupleSvc()->book(m_ntuplePath,CLID_ColumnWiseTuple,ntupleTitle);
-  }
-  
-  if (!nt) {
-    ATH_MSG_ERROR ( "Booking of NTuple failed" );
-    return StatusCode::FAILURE;
-  }
-
-
-  ATH_CHECK( nt->addItem("channelId",m_onlChanId,0x38000000,0x3A000000) );
-  ATH_CHECK( nt->addItem("DAC",m_DAC,0,65535) );
-  ATH_CHECK( nt->addItem("isPulsed",m_isPulsed,0,1) );
-  ATH_CHECK( nt->addItem("delay",m_delay,0,240) );
-  ATH_CHECK( nt->addItem("Ntrigger",m_Ntrigger,0,500) );
-  ATH_CHECK( nt->addItem("Nsamples",m_ntNsamples,0,32) );
-  ATH_CHECK( nt->addItem("Nsteps",m_Nsteps,0,50) );
-  ATH_CHECK( nt->addItem("StepIndex",m_StepIndex,0,100) );
+  ATH_CHECK( m_nt->addItem("DAC",m_DAC,0,65535) );
+  ATH_CHECK( m_nt->addItem("isPulsed",m_isPulsed,0,1) );
+  ATH_CHECK( m_nt->addItem("delay",m_delay,0,240) );
+  ATH_CHECK( m_nt->addItem("Ntrigger",m_Ntrigger,0,500) );
+  ATH_CHECK( m_nt->addItem("Nsamples",m_ntNsamples,0,32) );
+  ATH_CHECK( m_nt->addItem("Nsteps",m_Nsteps,0,50) );
+  ATH_CHECK( m_nt->addItem("StepIndex",m_StepIndex,0,100) );
 
   static const int maxSamples = m_Nsamples;
-  ATH_CHECK( nt->addItem("Sum",maxSamples,m_Sum) );
-  ATH_CHECK( nt->addItem("SumSq",maxSamples,m_SumSq) );
-  ATH_CHECK( nt->addItem("Mean",maxSamples,m_Mean) );
-  ATH_CHECK( nt->addItem("RMS",maxSamples,m_RMS) );
-  ATH_CHECK( nt->addItem("Layer",m_layer,0,4) );
-  ATH_CHECK( nt->addItem("Region",m_region,0,1) );
-  ATH_CHECK( nt->addItem("Eta",m_eta,0,510) );
-  ATH_CHECK( nt->addItem("Phi",m_phi,0,1023) );
-  ATH_CHECK( nt->addItem("Slot",m_slot,0,127) );
-  ATH_CHECK( nt->addItem("barrel_ec",m_barrel_ec,0,1) );
-  ATH_CHECK( nt->addItem("pos_neg",m_pos_neg,0,1) );
-  ATH_CHECK( nt->addItem("FT",m_FT,0,31) );
-  ATH_CHECK( nt->addItem("calibLine",m_calibLine,0,127) );
-  ATH_CHECK( nt->addItem("isConnected",m_isConnected,0,1) );
-  ATH_CHECK( nt->addItem("Channel",m_channel,0,127) );
+  ATH_CHECK( m_nt->addItem("Sum",maxSamples,m_Sum) );
+  ATH_CHECK( m_nt->addItem("SumSq",maxSamples,m_SumSq) );
+  ATH_CHECK( m_nt->addItem("Mean",maxSamples,m_Mean) );
+  ATH_CHECK( m_nt->addItem("RMS",maxSamples,m_RMS) );
 
   return StatusCode::SUCCESS;
 
@@ -119,19 +49,6 @@ StatusCode LArAverages2Ntuple::initialize()
 StatusCode LArAverages2Ntuple::execute()
 {
   ATH_MSG_DEBUG ( "in execute" );
-
-  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
-  const LArOnOffIdMapping* cabling{*cablingHdl};
-  if(!cabling) {
-     ATH_MSG_ERROR( "DO not have cabling from the key " << m_cablingKey.key() );
-     return StatusCode::FAILURE;
-  }
-  SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_calibMapKey};
-  const LArCalibLineMapping *clcabling {*clHdl};
-  if(!clcabling) {
-     ATH_MSG_ERROR( "Do not have calib line mapping !!!" );
-     return StatusCode::FAILURE;
-  }
   
   const LArAccumulatedCalibDigitContainer* accuDigitContainer = NULL;
   StatusCode sc=evtStore()->retrieve(accuDigitContainer,m_contKey);  
@@ -144,27 +61,30 @@ StatusCode LArAverages2Ntuple::execute()
  
  if (accuDigitContainer) { 
    
-   if(accuDigitContainer->empty()) {
-     ATH_MSG_DEBUG ( "LArAccumulatedCalibDigitContainer with key=" << m_contKey << " is empty " );
-     return StatusCode::SUCCESS;
-   }else{
-     ATH_MSG_DEBUG ( "LArAccumulatedCalibDigitContainer with key=" << m_contKey << " has " <<accuDigitContainer->size() << " entries" );
-   }
+   LArAccumulatedCalibDigitContainer::const_iterator it=accuDigitContainer->begin();
+   LArAccumulatedCalibDigitContainer::const_iterator it_e=accuDigitContainer->end();
+
+    if(it == it_e) {
+      ATH_MSG_DEBUG ( "LArAccumulatedCalibDigitContainer with key=" << m_contKey << " is empty " );
+      return StatusCode::SUCCESS;
+    }else{
+      ATH_MSG_DEBUG ( "LArAccumulatedCalibDigitContainer with key=" << m_contKey << " has " <<accuDigitContainer->size() << " entries" );
+    }
 
    unsigned cellCounter=0;
-   for (const LArAccumulatedCalibDigit* digit : *accuDigitContainer) {
+   for (;it!=it_e;++it) {   
      // Add protection - Modif from JF. Marchand
-     if ( !digit ) continue;
+     if ( !(*it) ) continue;
 
-     m_isPulsed = (long)digit->isPulsed();
-     if(m_keepPulsed && !digit->isPulsed()) continue;
-     m_DAC = digit->DAC();
-     m_Nsteps = digit->nSteps();
-     m_Ntrigger = digit->nTriggers();
-     m_delay = digit->delay();
-     m_StepIndex=digit->stepIndex();
-     //unsigned int max = (m_Nsteps == 1) ? 1 : (m_Nsteps+1);
-     unsigned int trueMaxSample = digit->nsamples();
+     HWIdentifier chid=(*it)->channelID();
+     m_isPulsed = (long)(*it)->isPulsed();
+     if(m_keepPulsed && !(*it)->isPulsed()) continue;
+     m_DAC = (*it)->DAC();
+     m_Nsteps = (*it)->nSteps();
+     m_Ntrigger = (*it)->nTriggers();
+     m_delay = (*it)->delay();
+     m_StepIndex=(*it)->stepIndex();
+     unsigned int trueMaxSample = (*it)->nsamples();
      m_ntNsamples = trueMaxSample;
 
      if(trueMaxSample>m_Nsamples){
@@ -175,50 +95,21 @@ StatusCode LArAverages2Ntuple::execute()
        trueMaxSample = m_Nsamples;
      }
    
-     // std::cout << " ==> DAC Nsteps Ntrigger max " << m_DAC << " " << m_Nsteps << " " << m_Ntrigger << " " << max << " m_ntNsamples " << trueMaxSample << "/" << digit->nSamples() << std::endl;
-
   
-     const std::vector<uint32_t>& sampleSum = digit->sampleSum();
-     const std::vector<uint32_t>& sampleSum2 = digit->sample2Sum();
-     const std::vector<float>& mean = digit->mean();
-     const std::vector<float>& RMSv = digit->RMS();
+     const std::vector<uint64_t>& sampleSum = (*it)->sampleSum();
+     const std::vector<uint64_t>& sampleSum2 = (*it)->sample2Sum();
+     const std::vector<float>& mean = (*it)->mean();
+     const std::vector<float>& RMSv = (*it)->RMS();
 
      for(unsigned int j=0;j<trueMaxSample;j++){
        m_Sum[j]   = sampleSum[j];
        m_SumSq[j] = sampleSum2[j];
        m_Mean[j]  = mean[j];
        m_RMS[j]   = RMSv[j];
-       //std::cout << " i/j=" << i << "/" << j << " " << mean[j] << std::endl; 
      }
 
-     HWIdentifier chid=digit->channelID();
-     m_onlChanId = chid.get_identifier32().get_compact();
-     m_channel=m_onlineHelper->channel(chid);
-     m_slot=m_onlineHelper->slot(chid);
-     m_FT=m_onlineHelper->feedthrough(chid);
-     m_barrel_ec = m_onlineHelper->barrel_ec(chid);
-     m_pos_neg   = m_onlineHelper->pos_neg(chid);
-
-     bool isConnected = cabling->isOnlineConnected(chid);
-     if(isConnected){
-       Identifier id=cabling->cnvToIdentifier(chid);
-       const std::vector<HWIdentifier>& calibLineV=clcabling->calibSlotLine(chid);
-       std::vector<HWIdentifier>::const_iterator calibLineIt=calibLineV.begin();
-       m_calibLine = m_onlineHelper->channel(*calibLineIt);
-       m_eta=m_emId->eta(id); 
-       m_phi=m_emId->phi(id);
-       m_layer=m_emId->sampling(id);
-       m_region=m_emId->region(id);
-     } else {
-       m_calibLine=-999;
-       m_eta=-999;
-       m_phi=-999;
-       m_layer=-999;
-       m_region=-999;
-     }
-     m_isConnected = (long)isConnected;
-
-     ATH_CHECK( ntupleSvc()->writeRecord(m_ntuplePath) );
+     fillFromIdentifier(chid);       
+     ATH_CHECK( ntupleSvc()->writeRecord(m_nt) );
      cellCounter++;
    }//end loop over cells
  }//end if have accumulatedDigitContainer 

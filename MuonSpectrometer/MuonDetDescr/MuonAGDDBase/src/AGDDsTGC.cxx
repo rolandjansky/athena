@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -8,6 +8,7 @@
 #include "AGDDModel/AGDDParameterStore.h"
 #include "AGDDKernel/AGDDDetectorStore.h"
 #include "AGDDKernel/AGDDVolume.h"
+#include "AGDDKernel/AGDDBuilder.h"
 
 #include "GeoModelKernel/GeoTrd.h"
 #include "GeoModelKernel/GeoShape.h"
@@ -30,19 +31,21 @@
 using MuonGM::MYSQL;
 
 
-AGDDsTGC::AGDDsTGC(std::string s):
-    sTGCDetectorDescription(s),AGDDVolume(s,true)
+AGDDsTGC::AGDDsTGC(const std::string& s,
+                   AGDDDetectorStore& ds,
+                   AGDDVolumeStore& vs,
+                   AGDDSectionStore& ss)
+  : sTGCDetectorDescription(s,ds),AGDDVolume(s,vs,ss,true)
 {
-    s_current=this;
     Register();
 }
 
-void AGDDsTGC::CreateSolid() 
+void AGDDsTGC::CreateSolid (const AGDDBuilder& /*builder*/)
 {
 
 }
 
-void AGDDsTGC::CreateVolume() 
+void AGDDsTGC::CreateVolume (AGDDBuilder& builder)
 {
 	
 	MuonGM::sTGCComponent *stgc_comp=new MuonGM::sTGCComponent;
@@ -55,9 +58,9 @@ void AGDDsTGC::CreateVolume()
 	stgc_comp->yCutoutCathode=yCutoutCathode();
 	
 	MuonGM::sTGC *cham=new MuonGM::sTGC(stgc_comp);
-	GeoPhysVol *vvv=(GeoPhysVol*)cham->build(1);
+	GeoPhysVol *vvv=(GeoPhysVol*)cham->build(builder.GetMaterialManager(), 1);
 
-	CreateSolid();
+	CreateSolid (builder);
 
 	if (!GetVolume())
 	{

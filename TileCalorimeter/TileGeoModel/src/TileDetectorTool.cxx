@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileGeoModel/TileDetectorTool.h"
@@ -181,8 +181,8 @@ StatusCode TileDetectorTool::initIds()
   m_manager->set_helper(cellID);
   m_manager->set_helper(tileHWID);
 
-  // instanciate Cabling Svc to initialize pointers to helpers there
-  TileCablingService * cabling = TileCablingService::getInstance();
+  // instantiate Cabling Svc to initialize pointers to helpers there
+  TileCablingService * cabling = TileCablingService::getInstance_nc();
   if(cabling==0)
   {
     ATH_MSG_ERROR("Could not get instance of TileCablingService");

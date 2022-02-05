@@ -2,12 +2,16 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef SIMULATIONBASE
 // ISF_Algs includes
 #include "SimEventFilter.h"
 // FrameWork includes
 #include "Gaudi/Property.h"
 // McEventCollection
 #include "GeneratorObjects/McEventCollection.h"
+//
+#include "EventBookkeeperTools/FilterReporter.h"
+
 
 ///////////////////////////////////////////////////////////////////
 // Public methods:
@@ -16,17 +20,15 @@
 // Constructors
 ////////////////
 ISF::SimEventFilter::SimEventFilter( const std::string& name, ISvcLocator* pSvcLocator ) :
-  ::AthFilterAlgorithm( name, pSvcLocator )
+  ::AthReentrantAlgorithm( name, pSvcLocator )
 {
-  setFilterDescription("Filter to select events where two particle filter chains gave different selection results for at least one particle");
-
 }
 
 // Athena Algorithm's Hooks
 ////////////////////////////
 StatusCode ISF::SimEventFilter::initialize()
 {
-
+  ATH_CHECK(m_filterParams.initialize(false));
   ATH_MSG_VERBOSE ( "--------------------------------------------------------" );
   ATH_MSG_VERBOSE ( "Initializing the ISF Sim Filter " );
 
@@ -44,16 +46,14 @@ StatusCode ISF::SimEventFilter::finalize()
 {
   ATH_MSG_VERBOSE ( "Finalizing ..." );
 
-  //TODO: thread safe output of filter decisions
-
-  ATH_MSG_INFO(" pass = "<<m_pass<<" / "<<m_total<<" = "<<(m_total>0 ? (100.0*m_pass)/m_total : 0)<<"%");
+  ATH_MSG_INFO(m_filterParams.summary());
   ATH_MSG_VERBOSE(" =====================================================================");
 
   return StatusCode::SUCCESS;
 }
 
 /** check if the given particle passes all filters */
-bool ISF::SimEventFilter::passesFilters(HepMC::ConstGenParticlePtr part, ToolHandleArray<IGenParticleFilter>& filters) const
+bool ISF::SimEventFilter::passesFilters(HepMC::ConstGenParticlePtr part, const ToolHandleArray<IGenParticleFilter>& filters) const
 {
   // TODO: implement this as a std::find_if with a lambda function
   for ( const auto& filter : filters ) {
@@ -73,11 +73,12 @@ bool ISF::SimEventFilter::passesFilters(HepMC::ConstGenParticlePtr part, ToolHan
   return true;
 }
 
-StatusCode ISF::SimEventFilter::execute()
+StatusCode ISF::SimEventFilter::execute(const EventContext &ctx) const
 {
   ATH_MSG_DEBUG ("Executing ...");
 
-  SG::ReadHandle<McEventCollection> inputHardScatterEvgen(m_inputHardScatterEvgenKey);
+  FilterReporter filter(m_filterParams, false, ctx);
+  SG::ReadHandle<McEventCollection> inputHardScatterEvgen(m_inputHardScatterEvgenKey, ctx);
   if (!inputHardScatterEvgen.isValid()) {
     ATH_MSG_FATAL("Unable to read input GenEvent collection '" << inputHardScatterEvgen.key() << "'");
     return StatusCode::FAILURE;
@@ -85,7 +86,7 @@ StatusCode ISF::SimEventFilter::execute()
 
   bool pass = false;
 
-  for ( const auto& eventPtr : *inputHardScatterEvgen ) {
+  for ( const HepMC::GenEvent* eventPtr : *inputHardScatterEvgen ) {
     // skip empty events
     if (eventPtr == nullptr) { continue; }
 
@@ -162,13 +163,8 @@ StatusCode ISF::SimEventFilter::execute()
     pass =! pass;
   }
 
-  if (pass) {
-    ++m_pass;
-  }
-
-  ++m_total;
-
-  setFilterPassed(pass);
+  filter.setPassed(pass);
 
   return StatusCode::SUCCESS;
 }
+#endif // SimEventFilter currently will not compile in the AthSimulation Project

@@ -120,6 +120,15 @@ namespace TrigConf {
        */
       bool hasAttribute(const std::string & key) const;
 
+      /** Check if an attribute is null
+       * @param key The path to the attribute name, relative to the current one in form "path.to.child"
+       * @return true if path @c key exists and is null
+       * 
+       * If the attribute doesn't exist, the function returns false. To check if an attribute exists and 
+       * is null, use it together with @c hasAttribute.
+       */
+      bool isNull(const std::string & key) const;
+
       /** Check if child exists
        * @param path The path to the child, relative to the current one in form "path.to.child"
        * @return true if path exists

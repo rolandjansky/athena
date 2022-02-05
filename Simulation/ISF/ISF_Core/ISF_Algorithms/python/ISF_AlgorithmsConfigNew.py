@@ -3,10 +3,12 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-from ISF_HepMC_Tools import ParticleSimWhiteList_ExtraParticlesCfg, ParticleFinalStateFilterCfg, GenParticleInteractingFilterCfg, EtaPhiFilterCfg, ParticlePositionFilterDynamicCfg
+from ISF_HepMC_Tools.ISF_HepMC_ToolsConfigNew import ParticleSimWhiteList_ExtraParticlesCfg, ParticleFinalStateFilterCfg, GenParticleInteractingFilterCfg, EtaPhiFilterCfg, ParticlePositionFilterDynamicCfg
+AthSequencer=CompFactory.AthSequencer
 
 def SimEventFilterCfg(flags, name="ISF_SimEventFilter", sequenceName='SimSequence', **kwargs):
     result = ComponentAccumulator()
+    result.addSequence(AthSequencer(sequenceName), parentName='AthAlgSeq')
     kwargs.setdefault( "InputHardScatterCollection", "BeamTruthEvent")
     kwargs.setdefault( "GenParticleCommonFilters", [result.popToolsAndMerge(ParticlePositionFilterDynamicCfg(flags)),
                                                     result.popToolsAndMerge(EtaPhiFilterCfg(flags)),
@@ -18,11 +20,13 @@ def SimEventFilterCfg(flags, name="ISF_SimEventFilter", sequenceName='SimSequenc
     return result
 
 def InvertedSimEventFilterCfg(flags, name="ISF_InvertedSimEventFilter", sequenceName='CopyHitSequence', **kwargs):
+    kwargs.setdefault("FilterKey", "ISF_InvertedSimEventFilter")
     kwargs.setdefault("InvertFilter", True)
     return SimEventFilterCfg(flags, name, sequenceName, **kwargs)
 
 def RenameHitCollectionsCfg(flags, name="RenameHitCollections", sequenceName='CopyHitSequence', **kwargs):
     result = ComponentAccumulator()
+    result.addSequence(AthSequencer(sequenceName), parentName='AthAlgSeq')
     kwargs.setdefault( "InputMcEventCollection",    "TruthEventOLD" )
     kwargs.setdefault( "OutputMcEventCollection",   "TruthEvent"          )
     kwargs.setdefault( "InputCaloEntryLayer",       "CaloEntryLayerOLD" )

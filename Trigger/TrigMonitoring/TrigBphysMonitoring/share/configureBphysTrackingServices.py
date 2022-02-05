@@ -165,14 +165,6 @@ printfunc (TrkV0Fitter)
 #printfunc (myVertexUpdator)
 
 
-
-## timing
-#from PrimaryDPDMaker.PrimaryDPDMakerConf import MBTSTimeFilterTool
-#ToolSvc += MBTSTimeFilterTool()
-#MBTSTimeFilterTool.ChargeThreshold   = 60.0/222.0
-#MBTSTimeFilterTool.MinHitsPerSide    = 2
-#MBTSTimeFilterTool.MaxTimeDifference = 10.0
-
 #from TrkVertexAnalysisUtils.TrkVertexAnalysisUtilsConf import Trk__V0Tools
 #InDetV0Tools = Trk__V0Tools(name = "InDetV0Tools")
 #ToolSvc += InDetV0Tools

@@ -54,6 +54,7 @@ public:
   VP1Interval last_cutAllowedEta;
   QList<VP1Interval> last_cutAllowedPhi;
   QList<unsigned> last_cutRequiredNHits;
+  QString last_cutRequiredDetectorElement;
   bool last_cutTruthFromIROnly;
   bool last_cutExcludeBarcodeZero;
   bool last_cutTruthExcludeNeutrals;
@@ -155,6 +156,10 @@ TrackCollectionSettingsButton::TrackCollectionSettingsButton(QWidget * parent,in
   connect(m_d->editwindow_ui.spinBox_cut_nhits_trt,SIGNAL(valueChanged(int)),this,SLOT(possibleChange_cutRequiredNHits()));
   connect(m_d->editwindow_ui.spinBox_cut_nhits_muon,SIGNAL(valueChanged(int)),this,SLOT(possibleChange_cutRequiredNHits()));
   connect(m_d->editwindow_ui.spinBox_cut_nprecisionhits_muon,SIGNAL(valueChanged(int)),this,SLOT(possibleChange_cutRequiredNHits()));
+
+  // Required detector element
+  connect(m_d->editwindow_ui.checkBox_requireDetectorElement,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutRequiredDetectorElement()));
+  connect(m_d->editwindow_ui.lineEdit_detectorElementId,SIGNAL(textChanged(QString)),this,SLOT(possibleChange_cutRequiredDetectorElement()));
 
   // -> cutTruthFromIROnly
   connect(m_d->editwindow_ui.checkBox_cut_truthtracks_creationvertexinIR,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutTruthFromIROnly()));
@@ -542,6 +547,10 @@ QList<unsigned> TrackCollectionSettingsButton::cutRequiredNHits() const
   return l;
 }
 
+QString TrackCollectionSettingsButton::cutRequiredDetectorElement() const {
+  return m_d->editwindow_ui.checkBox_requireDetectorElement->isChecked() ? m_d->editwindow_ui.lineEdit_detectorElementId->text(): QString();
+}
+
 //____________________________________________________________________
 bool TrackCollectionSettingsButton::cutTruthFromIROnly() const
 {
@@ -605,6 +614,15 @@ void TrackCollectionSettingsButton::possibleChange_cutRequiredNHits()
   messageVerbose("cutRequiredNHits() changed");
   m_d->last_cutRequiredNHits=cutRequiredNHits();
   emit cutRequiredNHitsChanged(m_d->last_cutRequiredNHits);
+}
+//____________________________________________________________________
+void TrackCollectionSettingsButton::possibleChange_cutRequiredDetectorElement()
+{  
+  messageVerbose("TrackCollectionSettingsButton::possibleChange_cutRequiredDetectorElement");
+  if (m_d->last_cutRequiredDetectorElement==cutRequiredDetectorElement()) return;
+  messageVerbose("cutRequiredDetectorElement() changed");
+  m_d->last_cutRequiredDetectorElement=cutRequiredDetectorElement();
+  emit cutRequiredDetectorElementChanged(m_d->last_cutRequiredDetectorElement);
 }
 //____________________________________________________________________
 void TrackCollectionSettingsButton::possibleChange_cutTruthFromIROnly()

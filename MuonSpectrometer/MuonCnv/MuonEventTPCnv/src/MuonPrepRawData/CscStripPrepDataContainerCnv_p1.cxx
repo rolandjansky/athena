@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonPrepRawData/CscStripPrepData.h"
@@ -8,9 +8,9 @@
 #include "MuonEventTPCnv/MuonPrepRawData/MuonPRD_Container_p1.h"
 
 #include "MuonIdHelpers/CscIdHelper.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonEventTPCnv/MuonPrepRawData/CscStripPrepDataCnv_p1.h"
 #include "MuonEventTPCnv/MuonPrepRawData/CscStripPrepDataContainerCnv_p1.h"
+#include "TrkEventCnvTools/ITrkEventCnvTool.h"
 
 // Gaudi
 #include "GaudiKernel/ISvcLocator.h"
@@ -58,15 +58,19 @@ StatusCode Muon::CscStripPrepDataContainerCnv_p1::initialize(MsgStream &log) {
         if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the CscStrip ID helper." << endmsg;
     }
 
-    sc = detStore->retrieve(m_muonDetMgr);
-    if (sc.isFailure()) {
+    if (m_eventCnvTool.retrieve().isFailure()) {
         log << MSG::FATAL << "Could not get PixelDetectorDescription" << endmsg;
-        return sc;
+        return StatusCode::FAILURE;
     }
 
     if (log.level() <= MSG::DEBUG) 
       log << MSG::DEBUG << "Converter initialized." << endmsg;
     return StatusCode::SUCCESS;
+}
+const MuonGM::CscReadoutElement* Muon::CscStripPrepDataContainerCnv_p1::getReadOutElement(const Identifier& id ) const {
+    const Trk::ITrkEventCnvTool* cnv_tool = m_eventCnvTool->getCnvTool(id);
+    if (!cnv_tool) return nullptr; 
+    return dynamic_cast<const MuonGM::CscReadoutElement*>(cnv_tool->getDetectorElement(id));
 }
 
 void Muon::CscStripPrepDataContainerCnv_p1::transToPers(const Muon::CscStripPrepDataContainer* transCont,  Muon::MuonPRD_Container_p1* persCont, MsgStream &log) 
@@ -99,7 +103,7 @@ void Muon::CscStripPrepDataContainerCnv_p1::transToPers(const Muon::CscStripPrep
     persCont->m_collections.resize(transCont->numberOfCollections());
     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Preparing " << persCont->m_collections.size() << "Collections" << endmsg;
 
-    for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, it_Coll++)  {
+    for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, ++it_Coll)  {
         // Add in new collection
         if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " New collection" << endmsg;
         const Muon::CscStripPrepDataCollection& collection = (**it_Coll);
@@ -164,7 +168,7 @@ void  Muon::CscStripPrepDataContainerCnv_p1::persToTrans(const Muon::MuonPRD_Con
                log << MSG::ERROR << "AthenaPoolTPCnvIDCont::persToTrans: Cannot get CscStripPrepData!" << endmsg;
                continue;
             }
-            const MuonGM::CscReadoutElement * de = m_muonDetMgr->getCscReadoutElement(chan->identify());
+            const MuonGM::CscReadoutElement * de = getReadOutElement(chan->identify());
             chan->m_detEl = de;
             (*coll)[ichan] = chan;
         }

@@ -16,7 +16,6 @@
 #include "CxxUtils/CachedUniquePtr.h"
 #include "GaudiKernel/EventContext.h"
 #include <vector>
-class CaloDetDescrManager;
 class CaloDetDescrElement;
 
 
@@ -143,17 +142,17 @@ public:
   /// tabulated values, and @c energy_degree is the degree of the
   /// polynomial interpolation in energy.
   /// 
-  float energy_interpolation (float energy,
+  static float energy_interpolation (float energy,
                               const TableBuilder& builder,
                               const CaloRec::Array<1>& energies,
-                              int energy_degree) const;
+                              int energy_degree) ;
 
 
 
 private:
   /// Retrieve the detector description helper,
   /// creating it if needed.
-  const CaloClusterCorr::DDHelper& ddhelper() const;
+  const CaloClusterCorr::DDHelper& ddhelper(const CaloDetDescrManager* dd_man) const;
 
   /// Calibration constant: The calorimeter region for which this correction
   /// is intended.  This should be one of the constants above.

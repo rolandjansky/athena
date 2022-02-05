@@ -10,7 +10,7 @@
  */
 
 #include "TrkGaussianSumFilter/GsfMaterialMixtureConvolution.h"
-#include "TrkGaussianSumFilter/IMultiStateMaterialEffectsUpdator.h"
+#include "TrkGaussianSumFilterUtils/GsfConstants.h"
 #include "TrkGaussianSumFilterUtils/KLGaussianMixtureReduction.h"
 #include "TrkGaussianSumFilterUtils/MultiComponentState.h"
 #include "TrkGaussianSumFilterUtils/MultiComponentStateAssembler.h"
@@ -49,10 +49,12 @@ Trk::GsfMaterialMixtureConvolution::~GsfMaterialMixtureConvolution() = default;
 StatusCode
 Trk::GsfMaterialMixtureConvolution::initialize()
 {
-  if (m_maximumNumberOfComponents > 16) {
-    ATH_MSG_FATAL("Requested MaximumNumberOfComponents > 16");
+  if (m_maximumNumberOfComponents > GSFConstants::maxNumberofStateComponents) {
+    ATH_MSG_FATAL("Requested MaximumNumberOfComponents > "
+                  << GSFConstants::maxNumberofStateComponents);
     return StatusCode::FAILURE;
   }
+
   m_materialEffects = GsfCombinedMaterialEffects(
     m_parameterisationFileName, m_parameterisationFileNameHighX0);
   return StatusCode::SUCCESS;
@@ -356,7 +358,7 @@ Trk::GsfMaterialMixtureConvolution::update(
     return returnMultiState;
   }
 
-  // Gather the merges -- order is important -- RHS is smaller than LHS
+  // Gather the merges
   GSFUtils::MergeArray KL;
   if (n > m_maximumNumberOfComponents) {
     KL = findMerges(componentsArray, m_maximumNumberOfComponents);
@@ -364,14 +366,14 @@ Trk::GsfMaterialMixtureConvolution::update(
   // Merge components
   MultiComponentStateAssembler::Cache assemblerCache;
   int nMerges(0);
-  GSFUtils::IsMergedArray isMerged = {};
+  std::array<bool, GSFConstants::maxComponentsAfterConvolution> isMerged = {};
   int32_t returnedMerges = KL.numMerges;
 
   for (int32_t i = 0; i < returnedMerges; ++i) {
     const int8_t mini = KL.merges[i].To;
     const int8_t minj = KL.merges[i].From;
     if (isMerged[minj]) {
-      ATH_MSG_WARNING("Component is already merged " << minj);
+      ATH_MSG_WARNING("Component is already merged " << static_cast<int>(minj));
       continue;
     }
     // Get the first TP

@@ -7,6 +7,7 @@
 
 // System include(s):
 #include <string>
+#include <vector>
 
 // Infrastructure include(s):
 #include "AsgTools/AsgMetadataTool.h"

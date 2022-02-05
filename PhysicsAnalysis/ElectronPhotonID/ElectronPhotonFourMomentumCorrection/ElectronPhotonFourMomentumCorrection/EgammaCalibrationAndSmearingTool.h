@@ -12,6 +12,7 @@
 #include <memory>
 
 #include "EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h"
+#include "EgammaAnalysisInterfaces/IegammaMVASvc.h"
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/AsgMetadataTool.h"
 #include "AsgMessaging/AsgMessaging.h"
@@ -23,11 +24,12 @@
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "AsgTools/AnaToolHandle.h"
+#include "AsgServices/ServiceHandle.h"
+
 
 #include "ElectronPhotonFourMomentumCorrection/egammaEnergyCorrectionTool.h"
 
 // Forward declarations
-class egammaMVATool;
 class egammaLayerRecalibTool;
 namespace egGain { class GainTool; }
 
@@ -220,8 +222,11 @@ public:
 
 
 private:
-  // use raw pointer to use forward declaration, TODO: better solution?
-  mutable egammaMVATool* m_mva_tool = nullptr; //!
+  ServiceHandle<IegammaMVASvc> m_MVACalibSvc{ this,
+                                              "MVACalibSvc",
+                                              "egammaMVASvc",
+                                              "calibration service" };
+
   egGain::GainTool* m_gain_tool = nullptr; //!
   egammaLayerRecalibTool* m_layer_recalibration_tool = nullptr; //!
   std::string m_layer_recalibration_tune; //!

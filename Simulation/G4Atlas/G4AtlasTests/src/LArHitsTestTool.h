@@ -1,12 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef G4AT_LARHITSTESTTOOL
-#define G4AT_LARHITSTESTTOOL
+#ifndef G4ATLASTESTS_LARHITSTESTTOOL
+#define G4ATLASTESTS_LARHITSTESTTOOL
 
 #include "SimTestToolBase.h"
-
+#include "CaloDetDescr/CaloDetDescrManager.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class LArHitsTestTool : public SimTestToolBase {
 
@@ -15,9 +16,9 @@ public:
 
   LArHitsTestTool(const std::string& type, const std::string& name, const IInterface* parent);
 
-  virtual StatusCode initialize(); 
+  virtual StatusCode initialize() override; 
 
-  StatusCode processEvent();
+  virtual StatusCode processEvent() override;
 
  protected:
   std::string m_detname;
@@ -42,6 +43,13 @@ public:
   TH1 *m_edep_eta, *m_edep_phi;
   TH1 *m_edep_z, *m_edep_r;
   TH1 *m_etot_eta, *m_etot_phi;
+
+ private:
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+      , "CaloDetDescrManager"
+      , "CaloDetDescrManager"
+      , "SG Key for CaloDetDescrManager in the Condition Store" };
+
 };
 
 #endif

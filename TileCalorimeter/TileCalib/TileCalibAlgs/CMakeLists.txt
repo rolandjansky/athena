@@ -20,4 +20,14 @@ atlas_add_component( TileCalibAlgs
 # Install files from the package:
 atlas_install_headers( TileCalibAlgs )
 atlas_install_joboptions( share/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
+atlas_add_test( TileDigiNoiseCalibAlgConfig_test
+                SCRIPT python -m TileCalibAlgs.TileDigiNoiseCalibAlgConfig
+                PROPERTIES TIMEOUT 300
+                POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( TileRawChNoiseCalibAlgConfig_test
+                SCRIPT python -m TileCalibAlgs.TileRawChNoiseCalibAlgConfig
+                PROPERTIES TIMEOUT 300
+                POST_EXEC_SCRIPT nopost.sh)

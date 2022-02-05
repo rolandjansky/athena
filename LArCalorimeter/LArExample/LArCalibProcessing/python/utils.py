@@ -25,10 +25,11 @@ class FolderTagResolver:
         try:
           folder=self._db.getFolder(foldername)
           return folder.resolveTag(globalTag)
-        except Exception:
+        except Exception as e:
           print ("Could not resolve tag",globalTag)
+          print (e)
           # new folder, should "create a tag"
-          return ''.join(foldername.split('/')) + '-UPD3-00'
+          return ''.join(foldername.split('/')) + '-RUN2-UPD3-00'
           
             
     def getFolderTagSuffix(self,foldername,globalTag=None):

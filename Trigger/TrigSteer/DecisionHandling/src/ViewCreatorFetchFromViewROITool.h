@@ -45,6 +45,8 @@ public:
   Gaudi::Property< std::string > m_viewToFetchFrom {this,"ViewToFetchFrom","", 
       "Optional name of EventView to fetch ROI from. Must be in the history of the DecisionObject. If not supplied, the most recent EventView will be used."};
 
+  private:
+    std::string m_viewToFetchFromProbe;
 };
 
 #endif //> !DESICIONHANDLING_VIEWCREATORFETCHFROMVIEWROITOOL_H

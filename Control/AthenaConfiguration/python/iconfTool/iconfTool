@@ -47,7 +47,7 @@ if __name__ == '__main__':
                                           checked_elements)
         gui_loader = DoublePad(loader)
     else:
-        loader = ComponentsFileLoader(args.input)
+        loader = ComponentsFileLoader(args.input, args)
         gui_loader = GuiLoader(loader)
 
     gui_loader.load_gui()

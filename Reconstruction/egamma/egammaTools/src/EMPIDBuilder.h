@@ -12,19 +12,20 @@
   @author Jovan Mitrevski Jovan.Mitrevski@cern.ch
 
 */
-#include "GaudiKernel/EventContext.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "egammaBaseTool.h"
 
-#include <string>
-#include <vector>
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ToolHandle.h"
 
 #include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 #include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 #include "LumiBlockComps/ILumiBlockMuTool.h"
 
-class EMPIDBuilder : public egammaBaseTool
+#include <string>
+#include <vector>
+
+class EMPIDBuilder final : public egammaBaseTool
 {
 public:
   /** @brief Default constructor*/

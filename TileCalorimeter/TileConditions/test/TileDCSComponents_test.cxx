@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -237,7 +237,7 @@ void prepareDCSFolder(const std::string& key, const FolderData<T>& folderData) {
 
 void prepareDCSHVFolder(void) {
 
-  TileCablingService* cabling = TileCablingService::getInstance();
+  const TileCablingService* cabling = TileCablingService::getInstance();
 
   FolderData<float> hvFolder;
 
@@ -273,7 +273,7 @@ void prepareDCSHVFolder(void) {
 
 void prepareDCSHVSetFolder(void) {
 
-  TileCablingService* cabling = TileCablingService::getInstance();
+  const TileCablingService* cabling = TileCablingService::getInstance();
 
   FolderData<float> hvSetFolder;
 
@@ -665,7 +665,7 @@ void testTileDCSCondAlg(ISvcLocator* svcLoc) {
 
   assert( (alg->initialize()).isSuccess() );
 
-  TileCablingService* cabling = TileCablingService::getInstance();
+  const TileCablingService* cabling = TileCablingService::getInstance();
   std::cout << "Tile cabling type: " << cabling->getCablingType() << std::endl;
 
   prepareDCSHVFolder();

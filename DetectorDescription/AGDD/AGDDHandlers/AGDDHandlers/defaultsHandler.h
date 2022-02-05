@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef defaultsHandler_H
@@ -10,9 +10,10 @@
 
 class defaultsHandler:public XMLHandler {
 public:
-	defaultsHandler(std::string);
-	void ElementHandle();
-
+	defaultsHandler(const std::string&,
+                        AGDDController& c);
+	virtual void ElementHandle(AGDDController& c,
+                                   xercesc::DOMNode *t) override;
 };
 
 #endif

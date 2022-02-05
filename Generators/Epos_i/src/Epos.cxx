@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ---------------------------------------------------------------------- 
@@ -22,12 +22,14 @@
 #include "AtlasHepMC/IO_HEPEVT.h"
 #include "AtlasHepMC/GenEvent.h"
 #include "AtlasHepMC/HeavyIon.h"
+#include "AtlasHepMC/SimpleVector.h"
 
 
 #include "Epos_i/Epos.h"
-#include "Epos_i/EposFort.h"
 
-
+#ifdef HEPMC3
+#include "CRMChepevt.h"
+#endif
 
 namespace{
   static std::string epos_rndm_stream = "EPOS_INIT";
@@ -46,10 +48,10 @@ extern "C" double atl_epos_rndm_( int* )
 extern "C" 
 {
     // generator initialization
-  void crmc_set_f_(int &nEvents,int &iSeed,double &beamMomentum, double &targetMomentum, int &primaryParticle, int &targetParticle, int &model, int &itab, int &itypout, const char *paramFile);
+   void crmc_init_f_( double &m_degymx, int &iSeed, int &model, int &itab, int &itypout, const char *paramFile, const char *output , int &lout);
 
-  void crmc_init_f_();
-  //  void crmc_init_f_( int &iSeed, double &beamMomentum, double &targetMomentum, int &primaryParticle, int &targetParticle, int &model, const char *paramFile );
+   void crmc_set_f_( int &nEvents,double &beamMomentum, double &targetMomentum, int &primaryParticle, int &targetParticle);
+
     // event generation
   void crmc_f_( int &iout, int &ievent, int &nParticles, double &impactParam, int &partPdg, 
 		double &partPx, double &partPy, double &partPz, double &partEnergy, double &partMass, int &outstat );
@@ -57,111 +59,18 @@ extern "C"
     // cross section info 
   void crmc_xsection_f_(double &xsigtot, double &xsigine, double &xsigela, double &xsigdd, 
       double &xsigsd, double &xsloela, double &xsigtotaa, double &xsigineaa, double &xsigelaaa);
-}
-/*
-extern "C"
-{
-  extern struct
-  {
-    float sigtot;
-    float sigcut;
-    float sigela;
-    float sloela;
-    float sigsd;
-    float sigine;
-    float sigdif;
-    float sigineaa;
-    float sigtotaa;
-    float sigelaaa;
-    float sigcutaa;
-  } hadr5_; //crmc-aaa.f
-}
 
-extern "C"
-{
-  extern struct
-  {
-    // nevt .......... error code. 1=valid event, 0=invalid event
-    // bimevt ........ absolute value of impact parameter
-    // phievt ........ angle of impact parameter
-    // kolevt ........ number of collisions
-    // koievt ........ number of inelastic collisions
-    // pmxevt ........ reference momentum
-    // egyevt ........ pp cm energy (hadron) or string energy (lepton)
-    // npjevt ........ number of primary projectile participants
-    // ntgevt ........ number of primary target participants
-    // npnevt ........ number of primary projectile neutron spectators
-    // nppevt ........ number of primary projectile proton spectators
-    // ntnevt ........ number of primary target neutron spectators
-    // ntpevt ........ number of primary target proton spectators
-    // jpnevt ........ number of absolute projectile neutron spectators
-    // jppevt ........ number of absolute projectile proton spectators
-    // jtnevt ........ number of absolute target neutron spectators
-    // jtpevt ........ number of absolute target proton spectators
-    // xbjevt ........ bjorken x for dis
-    // qsqevt ........ q**2 for dis
-    // sigtot ........ total cross section
-    // nglevt ........ number of collisions acc to  Glauber
-    // zppevt ........ average Z-parton-proj
-    // zptevt ........ average Z-parton-targ
-    // ng1evt ........ number of Glauber participants with at least one IAs
-    // ng2evt ........ number of Glauber participants with at least two IAs
-    // ikoevt ........ number of elementary parton-parton scatterings
-    // typevt ........ type of event (1=Non Diff, 2=Double Diff, 3=Single Diff
-    float phievt;
-    int nevt;
-    float bimevt;
-    int kolevt;
-    int koievt;
-    float pmxevt;
-    float egyevt;
-    int npjevt;
-    int ntgevt;
-    int npnevt;
-    int nppevt;
-    int ntnevt;
-    int ntpevt;
-    int jpnevt;
-    int jppevt;
-    int jtnevt;
-    int jtpevt;
-    float xbjevt;
-    float qsqevt;
-    int nglevt;
-    float zppevt;
-    float zptevt;
-    int minfra;
-    int maxfra;
-    int kohevt;
-  } cevt_; //epos.inc
 }
-
-extern "C"
-{
-  extern struct
-  {
-    int ng1evt;
-    int ng2evt;
-    float rglevt;
-    float sglevt;
-    float eglevt;
-    float fglevt;
-    int ikoevt;
-    float typevt;
-  } c2evt_; //epos.inc
-}
-
-*/
-
 
 // ----------------------------------------------------------------------
 Epos::Epos( const std::string &name, ISvcLocator *pSvcLocator ): 
   GenModule( name, pSvcLocator )
 {
+  m_interface = nullptr;
   epos_rndm_stream = "EPOS_INIT";
   
-  declareProperty( "BeamMomentum",    m_beamMomentum    = -3500.0 );      // GeV
-  declareProperty( "TargetMomentum",  m_targetMomentum  = 3500.0 );
+  declareProperty( "BeamMomentum",    m_beamMomentum    = -6500.0 );      // GeV
+  declareProperty( "TargetMomentum",  m_targetMomentum  = 6500.0 );
   declareProperty( "Model",           m_model           = 7 );            // 0=EPOS 1.99 LHC, 1=EPOS 1.99
   declareProperty( "PrimaryParticle", m_primaryParticle = 1 );            // 1=p, 12=C, 120=pi+, 207=Pb 
   declareProperty( "TargetParticle",  m_targetParticle  = 1 );
@@ -170,12 +79,14 @@ Epos::Epos( const std::string &name, ISvcLocator *pSvcLocator ):
   declareProperty( "LheFile",         m_lheout       = "epos.lhe" );
   declareProperty( "TabCreate",       m_itab       = 0 );
   declareProperty( "nEvents",         m_nEvents    = 5500 );
+  declareProperty( "maxCMEnergy",     m_degymx     = 13000.0 ); // maximum center-of-mass energy which will be call in the run [GeV]
   
   m_events = 0; // current event number (counted by interface)
   m_ievent = 0;  // current event number counted by Epos
   m_iout = 0; // output type (output)
 
   // initialize internally used arrays
+  ATH_MSG_INFO( "max number of Particles  " << kMaxParticles );
   m_partID.resize (kMaxParticles);
   m_partPx.resize (kMaxParticles);
   m_partPy.resize (kMaxParticles);
@@ -215,16 +126,12 @@ StatusCode Epos::genInitialize()
   long int si2 = sip[1];
 
   int iSeed = si1%1000000000;     // FIXME ?
+  int lout = 50;     //lenght of the output string (useful only for LHE output)
+  // initialise Epos and set up initial values 
 
-  // set up initial values
+    crmc_init_f_( m_degymx, iSeed, m_model, m_itab, m_ilheout, (m_paramFile + " ").c_str(), m_lheout.c_str() , lout);
+    crmc_set_f_(m_nEvents,m_beamMomentum, m_targetMomentum, m_primaryParticle, m_targetParticle);
 
-  //   std::cout << "parameters " << m_nEvents << " " << iSeed << " " << m_beamMomentum << " " << m_targetMomentum << " " << m_primaryParticle << " " << m_targetParticle << " " << m_model << " " << m_itab << " " << m_ilheout << " " <<  m_lheout.c_str()<< " " <<  m_paramFile.c_str() << std::endl;
-
-    crmc_set_f_(m_nEvents, iSeed, m_beamMomentum, m_targetMomentum, m_primaryParticle, m_targetParticle, m_model, m_itab, m_ilheout, (m_paramFile + " ").c_str() );
-
-    // initialize Epos
-  //  crmc_init_f_( iSeed, m_beamMomentum, m_targetMomentum, m_primaryParticle, m_targetParticle, m_model, m_paramFile.c_str() );
-  crmc_init_f_();
 
     // ... and set them back to the stream for proper save
   p_AtRndmGenSvcEpos->CreateStream( si1, si2, epos_rndm_stream );
@@ -233,8 +140,7 @@ StatusCode Epos::genInitialize()
 
     // setup HepMC
 #ifdef HEPMC3
-     /* This ifdef is used for consistency */
-     /* HepMC3 does not need this setup */
+    /// Not needed anymore
 #else    
     HepMC::HEPEVT_Wrapper::set_sizeof_int(sizeof( int ));
     HepMC::HEPEVT_Wrapper::set_sizeof_real( 8 );
@@ -309,29 +215,32 @@ StatusCode Epos::genFinalize()
 // ---------------------------------------------------------------------- 
 StatusCode Epos::fillEvt( HepMC::GenEvent* evt ) 
 {
-  //  ATH_MSG_INFO( " EPOS Filling.\n" );
-
-    // debug printout
-
-
-  HepMC::HEPEVT_Wrapper::set_event_number(m_events);
 #ifdef HEPMC3
-  HepMC::HEPEVT_Wrapper::HEPEVT_to_GenEvent(evt);
-#else  
+  CRMChepevt<HepMC3::GenParticlePtr, HepMC3::GenVertexPtr, HepMC3::FourVector, HepMC3::GenEvent> hepevtconverter;
+  hepevtconverter.convert(*evt);
+#else
+  /// We use the old approach for HepMC2, as the CRMC 2.0.1 has a bug that prevents us from using the same approach as for HepMC3.
+  /// This should be changed once the bug is fixed.
   HepMC::IO_HEPEVT hepio;
-
- 
   hepio.set_trust_mothers_before_daughters(0);
   hepio.set_print_inconsistency_errors(0);
   hepio.fill_next_event(evt);
 #endif
-  // evt->print();
- 
+  evt->set_event_number(m_events);
 
   HepMC::set_random_states(evt, m_seeds );
 
   evt->weights().push_back(1.0); 
-  GeVToMeV(evt);
+  //correct units, for hepMC printing uncomment lines below
+#ifdef HEPMC3
+    evt->set_units(HepMC3::Units::MEV, HepMC3::Units::MM);
+//    std::cout << " print::listing Epos " << std::endl;
+//    HepMC3::Print::listing(std::cout, *evt);
+#else
+    GeVToMeV(evt);
+//    std::cout << " print::printing Epos " << std::endl;
+//    evt->print();
+#endif
   
   std::vector<HepMC::GenParticlePtr> beams;
 
@@ -341,8 +250,10 @@ StatusCode Epos::fillEvt( HepMC::GenEvent* evt )
    }
   }
 
-  if (beams.size()>=2) {
+  if (beams.size() >= 2) {
   evt->set_beam_particles(beams[0], beams[1]); 
+  } else {
+    ATH_MSG_INFO( "EPOS event has only " << beams.size() << " beam particles" );
   }
 
   // Heavy Ion and Signal ID from Epos to HepMC
@@ -398,6 +309,18 @@ StatusCode Epos::fillEvt( HepMC::GenEvent* evt )
 
   HepMC::set_signal_process_id(evt,sig_id);
 
+  double xsigtot, xsigine, xsigela, xsigdd, xsigsd, xsloela, xsigtotaa, xsigineaa, xsigelaaa;
+  xsigtot = xsigine = xsigela = xsigdd = xsigsd = xsloela = xsigtotaa = xsigineaa = xsigelaaa = 0.0;
+  crmc_xsection_f_(xsigtot, xsigine, xsigela, xsigdd, xsigsd, xsloela, xsigtotaa, xsigineaa, xsigelaaa);
+  xsigtot *= 1000000;         // [mb] to [nb] conversion
+#ifdef HEPMC3
+  std::shared_ptr<HepMC3::GenCrossSection> xsec = std::make_shared<HepMC3::GenCrossSection>();
+  xsec->set_cross_section(xsigine, 0.0);
+#else
+  HepMC::GenCrossSection xsec;
+  xsec.set_cross_section(xsigine, 0.0);
+#endif
+  evt->set_cross_section(xsec);
 
  return StatusCode::SUCCESS;
 }

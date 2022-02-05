@@ -64,24 +64,23 @@ namespace MuonGM {
         return os;
     }
 
-    double StandardComponent::GetThickness() const {
-        MYSQL *mysql = MYSQL::GetPointer();
-        Technology *tec = mysql->GetTechnology(name);
+    double StandardComponent::GetThickness(const MYSQL& mysql) const {
+        const Technology *tec = mysql.GetTechnology(name);
 
-        if (name.substr(0, 3) == "CHV") {
-            CHV *chv = (CHV *)tec;
+        if (name.compare(0, 3,"CHV") == 0) {
+            const CHV *chv = dynamic_cast<const CHV*>(tec);
             return chv->height;
-        } else if (name.substr(0, 3) == "CRO") {
-            CRO *chv = (CRO *)tec;
+        } else if (name.compare(0, 3,"CRO") == 0) {
+            const CRO *chv = dynamic_cast<const CRO*>(tec);
             return chv->height;
-        } else if (name.substr(0, 3) == "CMI") {
-            CMI *chv = (CMI *)tec;
+        } else if (name.compare(0, 3,"CMI") == 0) {
+            const CMI *chv = dynamic_cast<const CMI*>(tec);
             return chv->height;
-        } else if (name.substr(0, 3) == "LBI" || name.substr(0, 2) == "LB") {
-            LBI *chv = (LBI *)tec;
+        } else if (name.compare(0, 3,"LBI") == 0 || name.compare(0, 2,"LB") == 0) {
+            const LBI *chv = dynamic_cast<const LBI*>(tec);
             return chv->height;
         }
-        return mysql->GetTechnology(name)->thickness;
+        return mysql.GetTechnology(name)->thickness;
     }
 
 } // namespace MuonGM

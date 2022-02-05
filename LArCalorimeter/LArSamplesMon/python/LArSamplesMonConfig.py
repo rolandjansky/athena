@@ -11,6 +11,9 @@ class DefaultLArShapeCompleteMaker(LArShapeCompleteMaker) :
                outputKey = '', nSamples = 5, nPhases = 17, iPhase = 8) :
     super(LArShapeCompleteMaker, self).__init__(name)
 
+    from LArCabling.LArCablingAccess import LArOnOffIdMapping
+    LArOnOffIdMapping()
+
     from AthenaCommon.AppMgr import ToolSvc
     theDumperTool = DefaultShapeDumperTool(doShape=False)
     ToolSvc += theDumperTool

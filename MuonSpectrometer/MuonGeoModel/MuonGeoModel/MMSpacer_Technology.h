@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MMSpacer_Technology_H
@@ -14,11 +14,9 @@ namespace MuonGM {
 
     class MMSpacer_Technology : public Technology {
       public:
-        double thickness;
-
         // constructor
-        inline MMSpacer_Technology(std::string s);
-        inline double Thickness();
+        inline MMSpacer_Technology(MYSQL& mysql, const std::string& s);
+        inline double Thickness() const;
 
         int lowZCutOuts;
         double lowZCutOutWidth;
@@ -28,10 +26,10 @@ namespace MuonGM {
         double highZCutOutDZ;
     };
 
-    MMSpacer_Technology::MMSpacer_Technology(std::string s)
-        : Technology(s), thickness(0.), lowZCutOuts(0), lowZCutOutWidth(0.), lowZCutOutDZ(0.), highZCutOuts(0), highZCutOutWidth(0.), highZCutOutDZ(0.) {}
+    MMSpacer_Technology::MMSpacer_Technology(MYSQL& mysql, const std::string& s)
+        : Technology(mysql, s), lowZCutOuts(0), lowZCutOutWidth(0.), lowZCutOutDZ(0.), highZCutOuts(0), highZCutOutWidth(0.), highZCutOutDZ(0.) {}
 
-    double MMSpacer_Technology::Thickness() { return thickness; }
+    double MMSpacer_Technology::Thickness() const { return thickness; }
 
 } // namespace MuonGM
 

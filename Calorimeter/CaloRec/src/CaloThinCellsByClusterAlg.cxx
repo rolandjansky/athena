@@ -22,6 +22,7 @@ StatusCode CaloThinCellsByClusterAlg::initialize()
 {
   ATH_CHECK( m_cells.initialize (m_streamName) );
   ATH_CHECK( m_clusters.initialize() );
+  ATH_CHECK(m_caloMgrKey.initialize());
 
   if (!m_samplingNames.empty()) {
     ATH_CHECK( decodeSamplings() );
@@ -44,8 +45,12 @@ StatusCode CaloThinCellsByClusterAlg::execute (const EventContext& ctx) const
      ATH_MSG_WARNING( "Collection  " << m_clusters.key()<<" is not valid");
      return StatusCode::SUCCESS;
   }
-  const CaloDetDescrManager* caloDDMgr = nullptr;
-  ATH_CHECK(  detStore()->retrieve(caloDDMgr, "CaloMgr") );
+
+
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,ctx};
+  const CaloDetDescrManager* caloDDMgr = *caloMgrHandle;
+
+
   for (const xAOD::CaloCluster* clust : *clusters) {
     const CaloClusterCellLink* cellLinks = clust->getCellLinks();
     if (!cellLinks) {
@@ -84,8 +89,8 @@ StatusCode CaloThinCellsByClusterAlg::execute (const EventContext& ctx) const
       double dphi = clust->getClusterPhiSize() * 0.025;
       // get cell lists for each sampling we want to add
       for (int isamp : m_validSamplings) {
-        CaloCellList cell_list (cells.cptr());
-        cell_list.select (*caloDDMgr,eta, phi, deta, dphi, isamp);
+        CaloCellList cell_list (caloDDMgr,cells.cptr());
+        cell_list.select (eta, phi, deta, dphi, isamp);
 
         ATH_MSG_DEBUG( "sampling " << isamp
                        << ", size of list = " << cell_list.ncells()

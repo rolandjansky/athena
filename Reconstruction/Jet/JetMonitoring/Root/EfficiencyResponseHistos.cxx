@@ -46,6 +46,10 @@ int EfficiencyResponseHistos::buildHistos(){
   m_etres_eta =bookHisto( hbuilder.build<TProfile>("erhResponseVsEta") );
   m_etres_pt =bookHisto( hbuilder.build<TProfile>("erhResponseVsPt") );
 
+  m_etres_noShift = bookHisto( hbuilder.build<TH1F>("erhResponse_noShift") );
+  m_etres_noShift_eta =bookHisto( hbuilder.build<TProfile>("erhResponseVsEta_noShift") );
+  m_etres_noShift_pt =bookHisto( hbuilder.build<TProfile>("erhResponseVsPt_noShift") );
+
   m_deltaRclosest = bookHisto( hbuilder.build<TH1F>("erhDeltaR") );
 
 
@@ -85,11 +89,18 @@ int EfficiencyResponseHistos::fillHistosFromContainer(const xAOD::JetContainer &
 
     if( dr < 0.3) {
       double relDiff = -999;
-      if (refPt > 0.) relDiff = ( matched->pt()* toGeV - refPt )/refPt;
+      double response = -999;
+      if (refPt > 0.){
+	relDiff = ( matched->pt()* toGeV - refPt )/refPt;
+	response = (matched->pt()* toGeV)/refPt;
+      }
       m_etres->Fill( relDiff, weight );
       m_etres_eta->Fill( refjet->eta(), relDiff, weight);
       m_etres_pt->Fill( refPt, relDiff, weight);
 
+      m_etres_noShift->Fill( response, weight );
+      m_etres_noShift_eta->Fill( refjet->eta(), response, weight);
+      m_etres_noShift_pt->Fill( refPt, response, weight);
     }
 
   }

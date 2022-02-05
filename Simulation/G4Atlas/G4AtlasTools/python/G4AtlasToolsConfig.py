@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
 from AthenaCommon import CfgMgr
@@ -68,28 +68,17 @@ def generateTrackFastSimSensitiveDetectorList():
 
 def generateInDetSensitiveDetectorList():
     SensitiveDetectorList=[]
-
-    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
-    from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
-    isUpgrade = commonGeoFlags.Run()=="RUN4" or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isSLHC())
-    isRUN2 = (commonGeoFlags.Run() in ["RUN2", "RUN3"]) or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isIBL())
-    isRUN1 = not (isRUN2 or isUpgrade)
-
     from AthenaCommon.DetFlags import DetFlags
     #if isRUN2 and DetFlags.simulation.DBM_on():
     #    SensitiveDetectorList += [ 'DBMSensorSD' ]
     if DetFlags.simulate.pixel_on():
-        if isRUN1 or isRUN2:
-            if DetFlags.simulate.BCM_on():
-                SensitiveDetectorList += [ 'BCMSensorSD' ]
-                SensitiveDetectorList += [ 'BLMSensorSD' ]
+        if DetFlags.simulate.BCM_on():
+            SensitiveDetectorList += [ 'BCMSensorSD' ]
+            SensitiveDetectorList += [ 'BLMSensorSD' ]
         SensitiveDetectorList += [ 'PixelSensorSD' ]
     if DetFlags.simulate.SCT_on():
-        if isUpgrade:
-            SensitiveDetectorList += [ 'SLHC_SctSensorSD' ]
-        else:
-            SensitiveDetectorList += [ 'SctSensorSD' ]
-    if DetFlags.simulate.TRT_on() and not isUpgrade:
+        SensitiveDetectorList += [ 'SctSensorSD' ]
+    if DetFlags.simulate.TRT_on():
         SensitiveDetectorList += [ 'TRTSensitiveDetector' ]
     return SensitiveDetectorList
 

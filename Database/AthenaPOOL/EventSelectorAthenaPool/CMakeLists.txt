@@ -1,10 +1,11 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( EventSelectorAthenaPool )
 
 # External dependencies:
 find_package( CORAL COMPONENTS CoralBase )
+find_package( Boost )
 
 # Component(s) in the package:
 atlas_add_component( EventSelectorAthenaPool
@@ -15,7 +16,7 @@ atlas_add_component( EventSelectorAthenaPool
                      src/PoolCollectionConverter.cxx
                      src/registerKeys.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
+                     INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
                      LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolCnvSvcLib AthenaPoolUtilities CollectionBase GaudiKernel PersistencySvc PersistentDataModel PoolSvcLib StoreGateLib )
 
 # Install files from the package:

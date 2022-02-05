@@ -28,9 +28,7 @@ def hltConfigSvcCfg(menuFile):
     acc = ComponentAccumulator()
 
     hltConfigSvc = CompFactory.getComp("TrigConf::HLTConfigSvc")("HLTConfigSvc")
-    hltConfigSvc.ConfigSource = "None"
-    hltConfigSvc.InputType = "file"
-    hltConfigSvc.XMLMenuFile = "None"
+    hltConfigSvc.InputType = "FILE"
     hltConfigSvc.JsonFileName = menuFile
 
     acc.addService(hltConfigSvc, False, True)
@@ -139,9 +137,9 @@ if __name__=='__main__':
 
     # TDT will be used until we get Run3 RAW EB data
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    from AthenaMonitoring.TriggerInterface import getTrigDecisionTool
+    from AthenaMonitoring.TriggerInterface import TrigDecisionToolCfg
     cfg.merge(PoolReadCfg(ConfigFlags))
-    cfg.merge(getTrigDecisionTool(ConfigFlags))
+    cfg.merge(TrigDecisionToolCfg(ConfigFlags))
 
     cfg.merge(ebComputingAlg(ConfigFlags))
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RootCollection.h"
@@ -442,7 +442,7 @@ namespace pool {
     }
 
      
-    string  RootCollection::retrieveFID() const {
+    string  RootCollection::retrieveFID() {
 
       FileCatalog::FileID fid="";
       string fileType="";        
@@ -469,7 +469,7 @@ namespace pool {
     }
 
 
-   string RootCollection::retrieveUniquePFN(const FileCatalog::FileID& fid) const
+   string RootCollection::retrieveUniquePFN(const FileCatalog::FileID& fid)
    {
       IFileCatalog::Files       pfns;
       m_fileCatalog->start();

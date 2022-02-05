@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMETMONITORING_TRIGMETMONITORALGORITHM_H
@@ -17,7 +17,14 @@
 #include "xAODMuon/Muon.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/Electron.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
+#include "xAODCaloEvent/CaloCluster.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/TrackParticle.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/Vertex.h"
 
+#include "xAODEventInfo/EventInfo.h"
 
 #include "TrigDecisionInterface/ITrigDecisionTool.h"
 
@@ -31,9 +38,16 @@ class TrigMETMonitorAlgorithm : public AthMonitorAlgorithm {
  private:
   double signed_log(double e, double epsilon) const;
 
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventinfo_key;
+
   SG::ReadHandleKey<xAOD::MissingETContainer> m_offline_met_key;
+  
   SG::ReadHandleKey<xAOD::ElectronContainer> m_hlt_electron_key;
   SG::ReadHandleKey<xAOD::MuonContainer> m_hlt_muon_key;
+
+  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_topoclusters_key;
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_tracks_key;
+  SG::ReadHandleKey<xAOD::VertexContainer> m_vertex_key;
 
   SG::ReadHandleKey<xAOD::EnergySumRoI> m_lvl1_roi_key;
   SG::ReadHandleKey<xAOD::EnergySumRoI> m_lvl1_jnc_key;
@@ -57,26 +71,16 @@ class TrigMETMonitorAlgorithm : public AthMonitorAlgorithm {
   SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_mhtpufit_pf_met_key;
   SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_mhtpufit_em_met_key;
 
-  std::string m_L1Chain01;
-  std::string m_L1Chain02;
-  std::string m_L1Chain03;
-  std::string m_L1Chain04;
-  std::string m_L1Chain05;
-  std::string m_L1Chain06;
-  std::string m_L1Chain07;
-  std::string m_HLTChain01;
-  std::string m_HLTChain02;
-  std::string m_HLTChain03;
-  std::string m_HLTChain04;
-  std::string m_HLTChain05;
-  std::string m_HLTChain06;
-  std::string m_HLTChain07;
-  std::string m_HLTChain08;
-  std::string m_HLTChain09;
-  std::string m_HLTChain10;
-  std::string m_HLTChain11;
-  std::string m_HLTChain12;
-  std::string m_HLTChain13;
-  std::string m_HLTChain14;
+  Gaudi::Property<std::vector<std::string>> m_l1Chains{this, "L1Chains", {}, "The L1 chains to monitor"};
+  Gaudi::Property<std::vector<std::string>> m_hltChains{this, "HLTChains", {}, "The HLT shifter chains to monitor"};
+  Gaudi::Property<std::vector<std::string>> m_hltChainsVal{this, "HLTChainsVal", {}, "The HLT val chains to monitor"};
+  Gaudi::Property<std::vector<std::string>> m_hltChainsT0{this, "HLTChainsT0", {}, "The HLT t0 chains to monitor"};
+  Gaudi::Property<std::vector<std::string>> m_algsL1{this, "algsL1", {}, "L1 algorithms to monitor"};
+  Gaudi::Property<std::vector<std::string>> m_algsHLT{this, "algsHLT", {}, "HLT algorithms to monitor"};
+  Gaudi::Property<std::vector<std::string>> m_algsHLT2d{this, "algsHLT2d", {}, "HLT algorithms for 2d eta-phi plots"};
+  Gaudi::Property<std::vector<std::string>> m_algsHLTExpert{this, "algsHLTExpert", {}, "HLT algorithms for Expert"};
+  Gaudi::Property<std::vector<std::string>> m_compNames{this, "compNames", {}, "Calorimeter component names"};
+  Gaudi::Property<std::vector<std::string>> m_bitNames{this, "bitNames", {}, "Status bit names"};
+
 };
 #endif

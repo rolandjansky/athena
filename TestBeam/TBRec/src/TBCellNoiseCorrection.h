@@ -12,6 +12,7 @@ PURPOSE:  Read the weighted noise events and add them
 
 ********************************************************************/
 #include "CaloUtils/CaloCellCorrection.h"
+#include "AthenaKernel/IAthRNGSvc.h"
 
 #include "CLHEP/Random/RandomEngine.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -19,7 +20,6 @@ PURPOSE:  Read the weighted noise events and add them
 
 class LArCell;
 class MsgStream;
-class IAtRndmGenSvc;
 class TFile;
 class TChain;
 
@@ -46,8 +46,9 @@ class TBCellNoiseCorrection : public CaloCellCorrection, virtual public IInciden
   std::vector<std::string>  m_noise_file;
 
   // Data members:
-  ServiceHandle <IAtRndmGenSvc> m_rndmSvc;
-  CLHEP::HepRandomEngine * m_engine;
+  ServiceHandle <IAthRNGSvc> m_rndmSvc
+    { this, "RndmSvc", "AthRNGSvc", "" };
+  ATHRNG::RNGWrapper* m_engine;
   //TFile *m_root; // File with noise tree
   TChain *m_tree;
   float m_xcryo;  // if given, try to find run number from xcryo_ytable.txt file

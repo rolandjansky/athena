@@ -181,8 +181,8 @@ namespace xAOD {
     SiSPSeededFinderSimple                 = 48,
     // Large d0 for displaced vertex searches
     SiSpacePointsSeedMaker_LargeD0         = 49,
-    // SLHCConversion Track flag
-    SiSpacePointsSeedMaker_SLHCConversionTracks = 50,
+    // ITkConversion Track flag
+    SiSpacePointsSeedMaker_ITkConversionTracks = 50,
     // Pseudotracking
     Pseudotracking			   = 51,
      ///maximum number of enums
@@ -427,6 +427,96 @@ namespace xAOD {
 
     // -- numbers...
     numberOfMuonSummaryTypes       = 89
+  };
+
+  // Enums for rejection locations
+  enum RejectionStep {
+    // Rejections within DenseEnvironmentsAmbiguityProcessorTool::solveTracks
+    solveTracks,
+    // Rejections within DenseEnvironmentsAmbiguityScoreProcessorTool::addNewTracks
+    addNewTracks,
+    // Rejections within AmbiguityProcessorBase::refitTrack
+    refitTrack,
+    // Rejections within AmbiguityProcessorBase::addTrack
+    addTrack,
+    // Rejections within InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep
+    decideWhichHitsToKeep,
+    // Rejections within InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack
+    getCleanedOutTrack
+  };
+  enum RejectionReason {
+    acceptedTrack,
+    // Reason for rejection within DenseEnvironmentsAmbiguityProcessorTool::solveTracks
+    stillBeingProcessed,
+    // Reason for rejection within DenseEnvironmentsAmbiguityScoreProcessorTool::addNewTracks
+    trackScoreZero,
+    duplicateTrack,
+    // Reason for rejection within AmbiguityProcessorBase::refitTrack
+    subtrackCreated,
+    refitFailed,
+    // Reason for rejection within AmbiguityProcessorBase::addTrack
+    bremRefitFailed,
+    bremRefitSubtrackCreated,
+    bremRefitTrackScoreZero,
+    refitTrackScoreZero,
+    // Reason for rejection within decideWhichHitsToKeep
+    TSOSRejectedHit,
+    TSOSOutlierShared,
+    pixelSplitButTooManyShared2Ptc,
+    pixelSplitButTooManyShared3Ptc,
+    tooManySharedRecoverable,
+    tooManySharedNonRecoverable,
+    sharedSCT,
+    sharedHitsBadChi2,
+    sharedHitsNotEnoughUniqueHits,
+    firstHitSharedAndPixIBL,
+    firstHitSharedAndExtraShared,
+    sharedHitsNotEnoughUniqueSiHits,
+    sharedIBLSharedWithNoIBLTrack,
+    sharedPixelSharedWithDifferentIBLTrack,
+    tooManySharedAfterIncreasingShared,
+    // Reason for rejection within getCleanedOutTrack
+    notEnoughSiHits,
+    notEnoughTRTHits,
+    notEnoughUniqueSiHits,
+    tooFewHits,
+    failedSubtrackCreation,
+    subtrackCreatedWithRecoveredShared,
+    other
+  };
+  enum ObserverToolIndex {
+    track,
+    score,
+    rejectStep,
+    rejectReason,
+    parentId,
+    numPixelHoles,
+    numSCTHoles,
+    numSplitSharedPixel,
+    numSplitSharedSCT,
+    numSharedOrSplit,
+    numSharedOrSplitPixels,
+    numShared,
+    isPatternTrack,
+    totalSiHits,
+    inROI,
+    hasIBLHit,
+    hasSharedIBLHit,
+    hasSharedPixel,
+    firstPixIsShared,
+    numPixelDeadSensor,
+    numSCTDeadSensor,
+    numPixelHits,
+    numSCTHits,
+    numUnused,
+    numTRT_Unused,
+    numSCT_Unused,
+    numPseudo,
+    averageSplit1,
+    averageSplit2,
+    numWeightedShared,
+    rejectStep_full,
+    rejectReason_full,
   };
 
   /// A convenience namespace to make the client code easier to understand

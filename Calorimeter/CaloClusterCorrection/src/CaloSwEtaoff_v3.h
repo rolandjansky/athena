@@ -190,25 +190,25 @@ private:
 
   private:
     /// Evaluate the function Form 0.
-    float calc0 (float aeta, float u, const CaloRec::Array<2>& coef) const;
+    static float calc0 (float aeta, float u, const CaloRec::Array<2>& coef) ;
 
     /// Evaluate the function Form 3.
-    float calc3 (float aeta, float u, const CaloRec::Array<2>& coef) const;
+    static float calc3 (float aeta, float u, const CaloRec::Array<2>& coef) ;
 
     /// Evaluate the function Form 4.
-    float calc4 (float aeta, float u, const CaloRec::Array<2>& coef) const;
+    static float calc4 (float aeta, float u, const CaloRec::Array<2>& coef) ;
 
     /// Evaluate the function Form 5.
-    float calc5 (float aeta, float u, const CaloRec::Array<2>& coef) const;
+    static float calc5 (float aeta, float u, const CaloRec::Array<2>& coef) ;
 
     /// Evaluate the function Form 10.
-    float calc10 (float aeta, float u, const CaloRec::Array<2>& coef) const;
+    static float calc10 (float aeta, float u, const CaloRec::Array<2>& coef) ;
 
     /// Evaluate the function Form 11.
-    float calc11 (float aeta, float u, const CaloRec::Array<2>& coef) const;
+    static float calc11 (float aeta, float u, const CaloRec::Array<2>& coef) ;
 
     /// Evaluate the function Form 13.
-    float calc13 (float aeta, float u, const CaloRec::Array<2>& coef, float xlo, float xhi) const;
+    static float calc13 (float aeta, float u, const CaloRec::Array<2>& coef, float xlo, float xhi) ;
 
     // Tabulated arrays of function parameters.
     const CxxUtils::Array<4>& m_correction;
@@ -235,8 +235,8 @@ private:
   friend class Builder;
 
   /// Find the index of the region containing a given @f$\eta@f$ value.
-  int find_region (const CxxUtils::Array<2>& regions,
-                   float aeta) const;
+  static int find_region (const CxxUtils::Array<2>& regions,
+                   float aeta) ;
 
   /// Calibration constant: tabulated arrays of function parameters.
   /// Index 0: energy

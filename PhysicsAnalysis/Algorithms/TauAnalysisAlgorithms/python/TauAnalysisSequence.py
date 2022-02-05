@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # AnaAlgorithm import(s):
+from AsgAnalysisAlgorithms.AnalysisObjectSharedSequence import makeSharedObjectSequence
 from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool, \
                                        createPublicTool
@@ -41,6 +42,91 @@ def makeTauAnalysisSequence( dataType, workingPoint, postfix = '',
     if deepCopyOutput and shallowViewOutput:
         raise ValueError ("deepCopyOutput and shallowViewOutput can't both be true!")
 
+    # Create the analysis algorithm sequence object:
+    seq = AnaAlgSequence( "TauAnalysisSequence" + postfix )
+
+    seq.addMetaConfigDefault ("selectionDecorNames", [])
+    seq.addMetaConfigDefault ("selectionDecorNamesOutput", [])
+    seq.addMetaConfigDefault ("selectionDecorCount", [])
+
+    makeTauCalibrationSequence (seq, dataType, postfix=postfix,
+                                rerunTruthMatching = rerunTruthMatching)
+    makeTauWorkingPointSequence (seq, dataType, workingPoint, postfix=postfix,
+                                 legacyRecommendations = legacyRecommendations)
+    makeSharedObjectSequence (seq, deepCopyOutput = deepCopyOutput,
+                              shallowViewOutput = shallowViewOutput,
+                              postfix = '_Tau' + postfix,
+                              enableCutflow = enableCutflow,
+                              enableKinematicHistograms = enableKinematicHistograms )
+
+    # Return the sequence:
+    return seq
+
+
+
+
+def makeTauCalibrationSequence( seq, dataType,
+                                 postfix = '',
+                             rerunTruthMatching = True):
+    """Create tau calibration analysis algorithms
+
+    This makes all the algorithms that need to be run first befor
+    all working point specific algorithms and that can be shared
+    between the working points.
+
+    Keyword arguments:
+      dataType -- The data type to run on ("data", "mc" or "afii")
+      postfix -- a postfix to apply to decorations and algorithm
+                 names.  this is mostly used/needed when using this
+                 sequence with multiple working points to ensure all
+                 names are unique.
+      rerunTruthMatching -- Whether or not to rerun truth matching
+    """
+
+    if dataType not in ["data", "mc", "afii"] :
+        raise ValueError ("invalid data type: " + dataType)
+
+    # Set up the tau truth matching algorithm:
+    if rerunTruthMatching and dataType != 'data':
+        alg = createAlgorithm( 'CP::TauTruthMatchingAlg',
+                               'TauTruthMatchingAlg' + postfix )
+        addPrivateTool( alg, 'matchingTool',
+                        'TauAnalysisTools::TauTruthMatchingTool' )
+        alg.matchingTool.WriteTruthTaus = 1
+        seq.append( alg, inputPropName = 'taus',
+                    stageName = 'selection',
+                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
+        pass
+
+    # Set up the tau 4-momentum smearing algorithm:
+    alg = createAlgorithm( 'CP::TauSmearingAlg', 'TauSmearingAlg' + postfix )
+    addPrivateTool( alg, 'smearingTool', 'TauAnalysisTools::TauSmearingTool' )
+    seq.append( alg, inputPropName = 'taus', outputPropName = 'tausOut',
+                stageName = 'calibration',
+                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
+
+    pass
+
+
+
+
+
+def makeTauWorkingPointSequence( seq, dataType, workingPoint, postfix = '',
+                             legacyRecommendations = False):
+    """Create tau analysis algorithms for a single working point
+
+    Keyword arguments:
+      dataType -- The data type to run on ("data", "mc" or "afii")
+      legacyRecommendations -- use legacy tau BDT and electron veto recommendations
+      postfix -- a postfix to apply to decorations and algorithm
+                 names.  this is mostly used/needed when using this
+                 sequence with multiple working points to ensure all
+                 names are unique.
+    """
+
+    if dataType not in ["data", "mc", "afii"] :
+        raise ValueError ("invalid data type: " + dataType)
+
     splitWP = workingPoint.split ('.')
     if len (splitWP) != 1 :
         raise ValueError ('working point should be of format "quality", not ' + workingPoint)
@@ -55,35 +141,11 @@ def makeTauAnalysisSequence( dataType, workingPoint, postfix = '',
                           "VeryLoose, NoID, Baseline")
     inputfile = nameFormat.format(splitWP[0].lower())
 
-    # Create the analysis algorithm sequence object:
-    seq = AnaAlgSequence( "TauAnalysisSequence" + postfix )
-
-    # Variables keeping track of the selections being applied.
-    selectionDecorNames = []
-    selectionDecorCount = []
-
     # Setup the tau selection tool
     selectionTool = createPublicTool( 'TauAnalysisTools::TauSelectionTool',
                                       'TauSelectionTool' + postfix)
     selectionTool.ConfigPath = inputfile
     seq.addPublicTool( selectionTool, stageName = 'selection' )
-
-    # Set up the tau truth matching algorithm:
-    if rerunTruthMatching and dataType != 'data':
-        alg = createAlgorithm( 'CP::TauTruthMatchingAlg',
-                               'TauTruthMatchingAlg' + postfix )
-        addPrivateTool( alg, 'matchingTool',
-                        'TauAnalysisTools::TauTruthMatchingTool' )
-        alg.matchingTool.WriteTruthTaus = 1
-        seq.append( alg, inputPropName = 'taus', outputPropName = 'tausOut',
-                    stageName = 'selection' )
-        pass
-
-    # Set up the tau 4-momentum smearing algorithm:
-    alg = createAlgorithm( 'CP::TauSmearingAlg', 'TauSmearingAlg' + postfix )
-    addPrivateTool( alg, 'smearingTool', 'TauAnalysisTools::TauSmearingTool' )
-    seq.append( alg, inputPropName = 'taus', outputPropName = 'tausOut',
-                stageName = 'calibration' )
 
     # Set up the algorithm selecting taus:
     alg = createAlgorithm( 'CP::AsgSelectionAlg', 'TauSelectionAlg' + postfix )
@@ -91,9 +153,11 @@ def makeTauAnalysisSequence( dataType, workingPoint, postfix = '',
     alg.selectionTool.ConfigPath = inputfile
     alg.selectionDecoration = 'selected_tau' + postfix + ',as_bits'
     seq.append( alg, inputPropName = 'particles',
-                stageName = 'selection' )
-    selectionDecorNames.append( alg.selectionDecoration )
-    selectionDecorCount.append( 6 )
+                stageName = 'selection',
+                metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
+                              'selectionDecorNamesOutput' : [alg.selectionDecoration],
+                              'selectionDecorCount' : [6]},
+                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
 
     # Set up the algorithm calculating the efficiency scale factors for the
     # taus:
@@ -108,50 +172,16 @@ def makeTauAnalysisSequence( dataType, workingPoint, postfix = '',
         alg.outOfValidity = 2 #silent
         alg.outOfValidityDeco = 'bad_eff' + postfix
         seq.append( alg, inputPropName = 'taus',
-                    stageName = 'efficiency' )
-
-    # Set up an algorithm used to create tau selection cutflow:
-    if enableCutflow:
-        alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'TauCutFlowDumperAlg' + postfix )
-        alg.histPattern = 'tau_cflow_%SYS%'
-        alg.selection = selectionDecorNames[ : ]
-        alg.selectionNCuts = selectionDecorCount[ : ]
-        seq.append( alg, inputPropName = 'input', stageName = 'selection' )
+                    stageName = 'efficiency',
+                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
 
     # Set up an algorithm used for decorating baseline tau selection:
     alg = createAlgorithm( 'CP::AsgSelectionAlg',
                            'TauSelectionSummary' + postfix )
     addPrivateTool( alg, 'selectionTool', 'CP::AsgFlagSelectionTool' )
-    alg.selectionTool.selectionFlags = selectionDecorNames[ : ]
     alg.selectionDecoration = 'baselineSelection' + postfix + ',as_char'
     seq.append( alg, inputPropName = 'particles',
-                stageName = 'selection' )
+                stageName = 'selection',
+                dynConfig = {'selectionTool.selectionFlags' : lambda meta : meta["selectionDecorNames"][:]} )
 
-    # Set up an algorithm that makes a view container using the selections
-    # performed previously:
-    if shallowViewOutput:
-        alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
-                            'TauViewFromSelectionAlg' + postfix )
-        alg.selection = selectionDecorNames[ : ]
-        seq.append( alg, inputPropName = 'input', outputPropName = 'output',
-                    stageName = 'selection' )
-
-    # Set up an algorithm dumping the kinematic properties of the taus:
-    if enableKinematicHistograms:
-        alg = createAlgorithm( 'CP::KinematicHistAlg', 'TauKinematicDumperAlg' + postfix )
-        alg.preselection = '&&'.join (selectionDecorNames)
-        alg.histPattern = 'tau_%VAR%_%SYS%'
-        seq.append( alg, inputPropName = 'input', stageName = 'selection' )
-
-    # Set up a final deep copy making algorithm if requested:
-    if deepCopyOutput:
-        alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
-                               'TauDeepCopyMaker' + postfix )
-        alg.deepCopy = True
-        alg.selection = selectionDecorNames[ : ]
-        seq.append( alg, inputPropName = 'input', outputPropName = 'output',
-                    stageName = 'selection' )
-        pass
-
-    # Return the sequence:
-    return seq
+    pass

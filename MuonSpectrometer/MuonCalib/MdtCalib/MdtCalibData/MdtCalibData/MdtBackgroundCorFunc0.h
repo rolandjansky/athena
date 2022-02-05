@@ -9,22 +9,16 @@
 
 namespace MuonCalib {
 
-  /** implementation of a background correction function */
+    /** implementation of a background correction function */
 
-class MdtBackgroundCorFunc0 : public IMdtBackgroundCorFunc {
- public:
-  explicit MdtBackgroundCorFunc0( const CalibFunc::ParVec& vec ) : IMdtBackgroundCorFunc(vec) {};
-  virtual std::string name() const {
-    return "MdtBackgroundCorFunc0"; 
-  }
-  static unsigned int nUsedPar() { 
-    return 0; 
-  }
-  virtual double correction( double /*t*/, double /*bgRate*/ ) const { 
-    return 0.0; 
-  }
-};
+    class MdtBackgroundCorFunc0 : public IMdtBackgroundCorFunc {
+    public:
+        explicit MdtBackgroundCorFunc0(const CalibFunc::ParVec& vec) : IMdtBackgroundCorFunc(vec){};
+        virtual std::string name() const { return "MdtBackgroundCorFunc0"; }
+        static unsigned int nUsedPar() { return 0; }
+        virtual double correction(double /*t*/, double /*bgRate*/) const { return 0.0; }
+    };
 
-}  //namespace MuonCalib
+}  // namespace MuonCalib
 
 #endif

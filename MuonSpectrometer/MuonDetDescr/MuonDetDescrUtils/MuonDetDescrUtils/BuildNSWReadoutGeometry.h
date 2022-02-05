@@ -7,21 +7,17 @@
 
 #include <vector>
 
-namespace MuonGM 
-{
-	class MuonDetectorManager;
+namespace MuonGM {
+    class MuonDetectorManager;
 }
 
-class BuildNSWReadoutGeometry
-{
+class BuildNSWReadoutGeometry {
 public:
-  BuildNSWReadoutGeometry();
-	
-  bool BuildReadoutGeometry(MuonGM::MuonDetectorManager* mgr) const;
+    BuildNSWReadoutGeometry();
+
+    bool BuildReadoutGeometry(MuonGM::MuonDetectorManager* mgr) const;
 
 private:
-
-	
 };
 
 #endif

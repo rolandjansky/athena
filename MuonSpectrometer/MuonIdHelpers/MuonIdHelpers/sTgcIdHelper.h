@@ -72,7 +72,7 @@ public:
 
     // Identifier builders
     Identifier elementID(int stationName, int stationEta, int stationPhi, bool check = false, bool* isValid = 0) const;
-    Identifier elementID(const std::string& stationNameStr, int stationEta, int stationPhi, bool check = false, bool* isValid = 0) const;
+    Identifier elementID(std::string_view stationNameStr, int stationEta, int stationPhi, bool check = false, bool* isValid = 0) const;
     Identifier elementID(const Identifier& channelID) const;
 
     Identifier channelID(int stationName, int stationEta, int stationPhi, int multilayer, int gasGap, int channelType, int channel,
@@ -149,8 +149,8 @@ public:
 
 private:
     int init_id_to_hashes();
-    unsigned int m_module_hashes[60][20][48];             // ED Probably need to change this
-    unsigned int m_detectorElement_hashes[60][20][8][3];  // Nektar Probably need to change this
+    unsigned int m_module_hashes[60][20][48]{};             // ED Probably need to change this
+    unsigned int m_detectorElement_hashes[60][20][8][3]{};  // Nektar Probably need to change this
 
     // compact id indices
     size_type m_GASGAP_INDEX;

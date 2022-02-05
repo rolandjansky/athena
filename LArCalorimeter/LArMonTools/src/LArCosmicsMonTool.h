@@ -45,7 +45,6 @@
 
 class LArEM_ID;
 class LArOnlineID;
-class CaloDetDescrManager;
 class CaloDetDescrElement;
 class StoreGateSvc;
 class ITHistSvc;
@@ -67,18 +66,18 @@ class LArCosmicsMonTool: public ManagedMonitorToolBase
   virtual ~LArCosmicsMonTool();
 
   /** @brief Overwrite dummy method from AlgTool */
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   /** Book general histograms
    *  Implement pure virtual methods of IMonitorToolBase */
-  StatusCode bookHistograms();
+  virtual StatusCode bookHistograms() override;
 
   /** Called each event */
-  StatusCode fillHistograms();
+  virtual StatusCode fillHistograms() override;
 
   /** Regularly called to fill noise maps
    *  Overwrite dummy method from MonitorToolBase */
-  StatusCode procHistograms();
+  virtual StatusCode procHistograms() override;
 
  protected:
 
@@ -108,6 +107,10 @@ class LArCosmicsMonTool: public ManagedMonitorToolBase
   { this, "LArPedestalKey", "Pedestal", "" };
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey
     {this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+      , "CaloDetDescrManager"
+      , "CaloDetDescrManager"
+      , "SG Key for CaloDetDescrManager in the Condition Store" };
   std::string m_channelKey;
   float m_muonADCthreshold_EM_barrel;
   float m_muonADCthreshold_EM_endcap;

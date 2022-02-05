@@ -24,7 +24,7 @@ FastChain_tf.py \
     --skipEvents 0 \
     --geometryVersion default:ATLAS-R2-2016-01-00-01 \
     --conditionsTag default:OFLCOND-MC16-SDR-16 \
-    --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True;from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.experimentalDigi=["NewMerge"]' \
+    --preSimExec 'from AthenaCommon.DetFlags import DetFlags;DetFlags.simulate.BCM_setOff();from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True;from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.experimentalDigi=["NewMerge"]' \
     --postInclude='PyJobTransforms/UseFrontier.py' \
     --DataRunNumber '284500' \
     --inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles} \
@@ -33,6 +33,8 @@ FastChain_tf.py \
     --numberOfHighPtMinBias '0.116075313' \
     --numberOfLowPtMinBias '44.3839246425' \
     --numberOfCavernBkg 0 \
+    --bunchSpacing 25 \
+    --physicsList 'FTFP_BERT_ATL' \
     --imf False
 cg=$?
 echo "art-result: $cg SimDigi_CG"
@@ -60,6 +62,8 @@ FastChain_tf.py \
     --numberOfHighPtMinBias '0.116075313' \
     --numberOfLowPtMinBias '44.3839246425' \
     --numberOfCavernBkg 0 \
+    --bunchSpacing 25 \
+    --physicsList 'FTFP_BERT_ATL' \
     --imf False
 ca=$?
 echo  "art-result: $ca SimDigi_CA"

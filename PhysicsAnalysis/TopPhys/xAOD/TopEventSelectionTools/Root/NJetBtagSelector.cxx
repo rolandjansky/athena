@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopEventSelectionTools/NJetBtagSelector.h"
@@ -14,20 +14,19 @@ namespace top {
     SignValueSelector((doTrackJets ? "TJET_N_BTAG" : "JET_N_BTAG"), params, true, true, ":", "_", "DL1r"),
     m_doTrackJets(doTrackJets) {
     checkMultiplicityIsInteger();
+
     // check if the provided btag WP is really available - need to replace : with _ to match the naming of variables
     bool bTagWP_exists = false;
     if (m_doTrackJets) bTagWP_exists =
-        (std::find(config->bTagWP_available_trkJet().begin(), config->bTagWP_available_trkJet().end(),
-                   valueStringDelimReplace()) != config->bTagWP_available_trkJet().end());
+        (std::find(config->bTagWP_trkJet().begin(), config->bTagWP_trkJet().end(), valueStringDelimReplace()) != config->bTagWP_trkJet().end());
     else bTagWP_exists =
-        (std::find(config->bTagWP_available().begin(), config->bTagWP_available().end(),
-                   valueStringDelimReplace()) != config->bTagWP_available().end());
+        (std::find(config->bTagWP().begin(), config->bTagWP().end(), valueStringDelimReplace()) != config->bTagWP().end());
 
     if (!bTagWP_exists) {
       ATH_MSG_ERROR("NJetBtagSelector is confused\n"
-          << "B-tagging working point " << valueString() << " doesn't seem to be supported.\n"
-          << "Please note that you should provide the argument as ==> bTagAlgorithm:bTagWP now. \n "
-          << "Please provide a real one! Did you specified it in the \"BTaggingWP\" field of your cutfile?\n");
+          << "B-tagging working point " << valueString() << " doesn't seem to be configured.\n"
+          << "Did you provide the argument as  bTagAlgorithm:bTagWP ? \n "
+          << "Did you specified it in the \"BTaggingCaloWP\" or \"BTaggingTrackJetWP\" field of your cutfile?\n");
       throw std::runtime_error("NJetBtagSelector: Invalid btagging selector WP: " + name());
     }
   }
@@ -36,7 +35,7 @@ namespace top {
     auto func = [&](const xAOD::Jet* jetPtr) {
                   if (!jetPtr->isAvailable<char>("isbtagged_" + valueStringDelimReplace())) {
                     throw std::runtime_error("NJetBtagSelector: Jet doesn't have decoration \"isbtagged_" +
-        valueStringDelimReplace() + "\"");
+                                             valueStringDelimReplace() + "\"");
                   }
                   return jetPtr->auxdataConst<char>("isbtagged_" + valueStringDelimReplace());
                 };

@@ -120,6 +120,7 @@ StatusCode CaloRingsBuilder::initialize()
   ATH_CHECK( m_crContName.initialize() );
   ATH_CHECK( m_rsContName.initialize() );
   ATH_CHECK( m_cellsContName.initialize() );
+  ATH_CHECK( m_caloMgrKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -319,7 +320,11 @@ StatusCode CaloRingsBuilder::buildRingSet(
     ATH_MSG_FATAL("Failed to retrieve "<< m_cellsContName.key());
     return StatusCode::FAILURE;
   }
-  CaloCellList cells( cellsCont.ptr() );
+
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+  const CaloDetDescrManager* caloMgr=*caloMgrHandle;
+
+  CaloCellList cells(caloMgr,cellsCont.ptr() );
 
   // loop over cells
   for ( const int layer : rawConf.layers) { // We use int here because the

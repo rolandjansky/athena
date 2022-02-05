@@ -20,8 +20,12 @@ atlas_install_python_modules( python/*.py
 # Setup and run tests
 atlas_add_test( OverlayCopyAlgsConfigTest
                 SCRIPT test/OverlayCopyAlgs_test.py
-                PROPERTIES TIMEOUT 300 )
+                PRIVATE_WORKING_DIRECTORY
+                PROPERTIES TIMEOUT 300
+                POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( OverlayCopyAlgsConfigTestMT
                 SCRIPT test/OverlayCopyAlgs_test.py -n 20 -t 3
-                PROPERTIES TIMEOUT 300 )
+                PRIVATE_WORKING_DIRECTORY
+                PROPERTIES TIMEOUT 300
+                POST_EXEC_SCRIPT nopost.sh )

@@ -58,10 +58,14 @@
   //---------------------------------------------------
   // Member variables
   //---------------------------------------------------
-  ITHistSvc* m_thistSvc;
+    ITHistSvc* m_thistSvc{nullptr};
 
-  const CaloDetDescrManager* m_calodetdescrmgr;
-  const CaloCell_ID*       m_calo_id;
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+      , "CaloDetDescrManager"
+      , "CaloDetDescrManager"
+      , "SG Key for CaloDetDescrManager in the Condition Store" };
+
+  const CaloCell_ID*       m_calo_id{nullptr};
   SG::ReadCondHandleKey<ILArNoise>    m_noiseKey{this,"NoiseKey","LArNoiseSym","SG Key of ILArNoise object"};
   SG::ReadCondHandleKey<ILArPedestal> m_pedestalKey{this,"PedestalKey","LArPedestal","SG Key of LArPedestal object"};
   SG::ReadCondHandleKey<LArADC2MeV> m_adc2mevKey

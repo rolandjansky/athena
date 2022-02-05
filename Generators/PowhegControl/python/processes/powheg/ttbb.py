@@ -72,6 +72,7 @@ class ttbb(PowhegRES):
         self.add_keyword("alphas_from_lhapdf", 1)
         self.add_keyword("bornsuppfact")
         self.add_keyword("bornzerodamp")
+        self.add_keyword("bornzerodampcut", 5.)
         self.add_keyword("btlscalect", 1)
         self.add_keyword("btlscalereal", 1)
         self.add_keyword("clobberlhe")

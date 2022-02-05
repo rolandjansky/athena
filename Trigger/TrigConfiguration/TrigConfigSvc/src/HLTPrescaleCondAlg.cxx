@@ -175,7 +175,8 @@ TrigConf::HLTPrescaleCondAlg::execute(const EventContext& ctx) const {
          
          bool isRun3 = range.start().run_number()>350000;
 
-         pss = m_pssMap[hltPsk] = createFromDB( hltPsk, isRun3 );
+         const auto p = m_pssMap.insert(std::make_pair( hltPsk, createFromDB(hltPsk, isRun3) ));
+         pss = p.first->second;
 
          if( pss == nullptr ) {
             ATH_MSG_ERROR( "Failed loading HLT prescales set from the database" );

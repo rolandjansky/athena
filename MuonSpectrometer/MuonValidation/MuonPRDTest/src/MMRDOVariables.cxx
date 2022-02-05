@@ -66,6 +66,7 @@ StatusCode MMRDOVariables::fillVariables(const MuonGM::MuonDetectorManager* Muon
       m_NSWMM_rdo_gas_gap->push_back(gas_gap);
       m_NSWMM_rdo_channel->push_back(channel);
       m_NSWMM_rdo_time->push_back(rdo->time());
+      m_NSWMM_rdo_relBcid->push_back(rdo->relBcid());
       m_NSWMM_rdo_charge->push_back(rdo->charge());
 
       // get the readout element class where the RDO is recorded
@@ -114,6 +115,7 @@ StatusCode MMRDOVariables::clearVariables()
   m_NSWMM_rdo_gas_gap->clear();
   m_NSWMM_rdo_channel->clear();
   m_NSWMM_rdo_time->clear();
+  m_NSWMM_rdo_relBcid->clear();
   m_NSWMM_rdo_charge->clear();
 
   m_NSWMM_rdo_globalPosX->clear();
@@ -140,6 +142,7 @@ StatusCode MMRDOVariables::initializeVariables()
   m_NSWMM_rdo_gas_gap     = new std::vector<int>();
   m_NSWMM_rdo_channel     = new std::vector<int>();
   m_NSWMM_rdo_time        = new std::vector<int>();
+  m_NSWMM_rdo_relBcid     = new std::vector<uint16_t>();
   m_NSWMM_rdo_charge      = new std::vector<int>();
 
   m_NSWMM_rdo_localPosX   = new std::vector<double>();
@@ -159,6 +162,7 @@ StatusCode MMRDOVariables::initializeVariables()
     m_tree->Branch("RDO_MM_gas_gap",     &m_NSWMM_rdo_gas_gap);
     m_tree->Branch("RDO_MM_channel",     &m_NSWMM_rdo_channel);
     m_tree->Branch("RDO_MM_time",        &m_NSWMM_rdo_time);
+    m_tree->Branch("RDO_MM_relBcid",     &m_NSWMM_rdo_relBcid);
     m_tree->Branch("RDO_MM_charge",      &m_NSWMM_rdo_charge);
     
     m_tree->Branch("RDO_MM_localPosX",   &m_NSWMM_rdo_localPosX);
@@ -185,6 +189,7 @@ void MMRDOVariables::deleteVariables()
   delete m_NSWMM_rdo_gas_gap;
   delete m_NSWMM_rdo_channel;
   delete m_NSWMM_rdo_time;
+  delete m_NSWMM_rdo_relBcid;
   delete m_NSWMM_rdo_charge;
   delete m_NSWMM_rdo_localPosX;
   delete m_NSWMM_rdo_localPosY;
@@ -201,6 +206,7 @@ void MMRDOVariables::deleteVariables()
   m_NSWMM_rdo_gas_gap = nullptr;
   m_NSWMM_rdo_channel = nullptr;
   m_NSWMM_rdo_time = nullptr;
+  m_NSWMM_rdo_relBcid = nullptr;
   m_NSWMM_rdo_charge = nullptr;
   m_NSWMM_rdo_localPosX = nullptr;
   m_NSWMM_rdo_localPosY = nullptr;

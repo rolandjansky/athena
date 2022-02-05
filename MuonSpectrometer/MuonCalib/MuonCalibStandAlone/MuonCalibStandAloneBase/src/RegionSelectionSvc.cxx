@@ -19,29 +19,19 @@
 #include "MuonCalibStandAloneBase/RegionSelectorBase.h"
 
 // root
-#include "TChain.h"
 #include "TDirectory.h"
 #include "TFile.h"
 #include "TKey.h"
 #include "TTree.h"
 
 using namespace MuonCalib;
-
-RegionSelectionSvc ::RegionSelectionSvc(const std::string &name, ISvcLocator *svc_locator) :
-    AthService(name, svc_locator),
-    m_region_string(),
-    m_print_list_of_selected_chambers(false),
-    m_master_region(nullptr),
-    m_detStore(nullptr),
-    m_detMgr(nullptr) {
-    declareProperty("Region", m_region_string);
-    declareProperty("PrintList", m_print_list_of_selected_chambers);
-}
+RegionSelectionSvc::~RegionSelectionSvc() = default;
+RegionSelectionSvc ::RegionSelectionSvc(const std::string &name, ISvcLocator *svc_locator) : AthService(name, svc_locator) {}
 
 StatusCode RegionSelectionSvc::queryInterface(const InterfaceID &riid, void **ppvUnknown) {
     ATH_MSG_VERBOSE("StatusCode RegionSelectionSvc::queryInterface");
 
-    if (IID_IRegionSelectionSvc.versionMatch(riid)) {
+    if (interfaceID().versionMatch(riid)) {
         *ppvUnknown = (RegionSelectionSvc *)this;
     } else {
         return AthService::queryInterface(riid, ppvUnknown);
@@ -56,10 +46,11 @@ StatusCode RegionSelectionSvc ::initialize() {
     if (!ProcessString(m_region_string)) return StatusCode::FAILURE;
 
     // detector stre - id to fixed id ...
-    ATH_CHECK(serviceLocator()->service("DetectorStore", m_detStore));
+    StoreGateSvc *detStore{nullptr};
+    ATH_CHECK(serviceLocator()->service("DetectorStore", detStore));
     ATH_MSG_DEBUG("Retrieved DetectorStore");
     ATH_CHECK(m_idHelperSvc.retrieve());
-    ATH_CHECK(m_detStore->retrieve(m_detMgr));
+    ATH_CHECK(detStore->retrieve(m_detMgr));
     ATH_CHECK(m_idToFixedIdTool.retrieve());
     ATH_MSG_INFO("Retrieved " << m_idToFixedIdTool);
 
@@ -71,12 +62,18 @@ StatusCode RegionSelectionSvc ::initialize() {
 
 bool RegionSelectionSvc ::isInRegion(const MuonCalib::MuonFixedId &id) const { return m_master_region->Result(id); }
 
-int RegionSelectionSvc ::AddRegionNtuples(const char *infile, TChain *chain, std::list<std::string> &dirnames) const {
+std::string RegionSelectionSvc ::GetRegionSelection() const { return m_region_string; }
+const std::vector<MuonCalib ::NtupleStationId> &RegionSelectionSvc ::GetStationsInRegions() const { return m_stations_in_region; }
+int RegionSelectionSvc ::AddRegionNtuples(const std::string &infile, TChain *chain) const {
+    std::list<std::string> dirnames;
+    return AddRegionNtuples(infile, chain, dirnames);
+}
+int RegionSelectionSvc ::AddRegionNtuples(const std::string &infile, TChain *chain, std::list<std::string> &dirnames) const {
     int n_trees(0);
-    if (dirnames.size() == 0) {
+    if (dirnames.empty()) {
         // open file
-        TFile inf(infile);
-        TIter nextkey(inf.GetListOfKeys());
+        std::unique_ptr<TFile> inf{TFile::Open(infile.c_str(), "READ")};
+        TIter nextkey(inf->GetListOfKeys());
         TKey *key;
         // take a list here because erase does not invalidate iterators
         while ((key = (TKey *)nextkey())) { dirnames.push_back(key->GetName()); }
@@ -87,7 +84,7 @@ int RegionSelectionSvc ::AddRegionNtuples(const char *infile, TChain *chain, std
             // truncate region name
             std::string regname(it->regionId(), 0, nt_it->size());
             if (regname == (*nt_it)) {
-                chain->AddFile(infile, TChain::kBigNumber, ((*nt_it) + "/" + "Segments").c_str());
+                chain->AddFile(infile.c_str(), TChain::kBigNumber, ((*nt_it) + "/" + "Segments").c_str());
                 std::list<std::string>::iterator new_it = nt_it;
                 new_it--;
                 dirnames.erase(nt_it);
@@ -99,14 +96,14 @@ int RegionSelectionSvc ::AddRegionNtuples(const char *infile, TChain *chain, std
 }
 
 void RegionSelectionSvc ::Print(std::ostream &os) const {
-    if (m_master_region == NULL) {
+    if (!m_master_region) {
         os << "ERROR";
         return;
     }
     m_master_region->Print(os);
 }
 
-inline void RegionSelectionSvc ::search_chambers_in_region() {
+void RegionSelectionSvc ::search_chambers_in_region() {
     MdtIdHelper::const_id_iterator it = m_idHelperSvc->mdtIdHelper().module_begin();
     MdtIdHelper::const_id_iterator it_end = m_idHelperSvc->mdtIdHelper().module_end();
     for (; it != it_end; ++it) {
@@ -144,9 +141,9 @@ inline void RegionSelectionSvc ::search_chambers_in_region() {
     }
 }
 
-inline bool RegionSelectionSvc ::ProcessString(const std::string &input) {
+bool RegionSelectionSvc ::ProcessString(const std::string &input) {
     m_master_region = RegionSelectorBase::GetRegion(input);
-    return (m_master_region != NULL);
+    return (m_master_region != nullptr);
 }
 
 void RegionSelectionSvc ::print_list_of_selected_chambers() const {

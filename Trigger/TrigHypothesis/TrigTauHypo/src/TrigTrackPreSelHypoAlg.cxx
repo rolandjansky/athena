@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Gaudi/Property.h"
@@ -56,11 +56,6 @@ StatusCode TrigTrackPreSelHypoAlg::execute( const EventContext& context ) const 
     ATH_CHECK( tracksHandle.isValid() );
     ATH_MSG_DEBUG ( "tracks handle size: " << tracksHandle->size() << "..." );
 
-    if( tracksHandle->size() == 0 ) {
-      ATH_MSG_DEBUG("No tracks were found, skipping this view");
-      continue;
-    }
-
     const TrigRoiDescriptor *roi = nullptr;
     //get RoI
     if(m_roiForID2ReadKey.key().empty()) {
@@ -76,13 +71,20 @@ StatusCode TrigTrackPreSelHypoAlg::execute( const EventContext& context ) const 
        }
        roi = roiHandle->at(0);
     }
+
     // create new decision
     auto d = newDecisionIn( decisions, hypoAlgNodeName() );
     TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
 
-    auto el = ViewHelper::makeLink( *viewEL, tracksHandle, 0 );
-    ATH_CHECK( el.isValid() );
-    d->setObjectLink( featureString(),  el );
+    if (tracksHandle->size()) {
+      auto el = ViewHelper::makeLink( *viewEL, tracksHandle, 0 );
+      ATH_CHECK( el.isValid() );
+      d->setObjectLink( featureString(),  el );
+    } else {
+      auto el = TrigCompositeUtils::decisionToElementLink(d, context);
+      ATH_CHECK( el.isValid() );
+      d->setObjectLink( featureString(),  el );
+    }
     
     toolInput.emplace_back( d, roi, tracksHandle.cptr(), previousDecision );
 

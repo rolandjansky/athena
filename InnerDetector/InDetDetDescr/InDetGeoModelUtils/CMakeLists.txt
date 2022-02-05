@@ -4,11 +4,14 @@
 atlas_subdir( InDetGeoModelUtils )
 
 # External dependencies:
-find_package( GeoModel COMPONENTS GeoModelKernel )
+
+find_package( GeoModel COMPONENTS GeoModelKernel GeoModelXml )
+find_package( XercesC  )
 
 # Component(s) in the package:
 atlas_add_library( InDetGeoModelUtils
                    src/*.cxx
                    PUBLIC_HEADERS InDetGeoModelUtils
-                   LINK_LIBRARIES ${GEOMODEL_LIBRARIES} AthenaKernel CxxUtils GaudiKernel RDBAccessSvcLib GeoPrimitives
+                   INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${GEOMODEL_LIBRARIES} ${XERCESC_LIBRARIES} AthenaKernel CxxUtils GaudiKernel RDBAccessSvcLib GeoPrimitives PathResolver AthenaBaseComps
                    PRIVATE_LINK_LIBRARIES GeoModelInterfaces GeoModelUtilities GeometryDBSvcLib StoreGateLib )

@@ -26,18 +26,20 @@
            2020 Athena Mt migration.
 */
 
-// INCLUDE HEADER FILES:
+#include "egammaInterfaces/IEMConversionBuilder.h"
+
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/ToolHandle.h"
+
 #include "StoreGate/ReadHandleKey.h"
-#include "egammaInterfaces/IEMConversionBuilder.h"
+
 #include "egammaInterfaces/IEMExtrapolationTools.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "xAODTracking/VertexContainerFwd.h"
 
-class EMConversionBuilder
+class EMConversionBuilder final
   : public AthAlgTool
   , virtual public IEMConversionBuilder
 {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -9,23 +9,24 @@
 #include <string>
 #include "GaudiKernel/StatusCode.h"
 #include "LArIdentifier/LArOnlineID.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
 // Forward delcarations
 class MsgStream;
 
 
-class LArCondFlatBase {
+class LArCondFlatBase
+  : public AthMessaging
+{
 
  public:
-  LArCondFlatBase();
+  LArCondFlatBase(const std::string& name);
   ~LArCondFlatBase();
-  StatusCode initializeBase(const char* context);
+  StatusCode initializeBase();
   
  protected:
   bool 	m_isInitialized;
   const LArOnlineID*          m_onlineHelper;
-  MsgStream*                  m_log;
-
 };
 
 #endif

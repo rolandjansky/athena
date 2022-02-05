@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef Ded_H
@@ -13,6 +13,7 @@ class GeoVPhysVol;
 namespace MuonGM {
 
     class Cutout;
+    class MYSQL;
 
     class Ded : public DetectorElement {
 
@@ -22,10 +23,14 @@ namespace MuonGM {
         double thickness;
         double longWidth; // for trapezoidal layers
 
-        Ded(Component *s);
-        GeoVPhysVol *build();
-        GeoVPhysVol *build(int cutoutson, std::vector<Cutout *>);
-        void print();
+        Ded(const MYSQL& mysql, Component *s);
+        GeoVPhysVol *build(const StoredMaterialManager& matManager,
+                           const MYSQL& mysql);
+        GeoVPhysVol *build(const StoredMaterialManager& matManager,
+                           const MYSQL& mysql,
+                           int cutoutson,
+                           const std::vector<Cutout *>&);
+        virtual void print() override;
 
       private:
         DedComponent *m_component;

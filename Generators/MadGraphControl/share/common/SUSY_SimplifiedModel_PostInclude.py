@@ -22,6 +22,22 @@ run_settings.update({'nevents':int(nevts)})
 if ktdurham is not None:
     run_settings.update({'ktdurham':ktdurham})
 
+if flavourScheme not in [4,5]:
+    raise RuntimeError('flavourScheme must be 4 or 5.')
+
+if flavourScheme == 4:
+    run_settings.update({
+        'pdgs_for_merging_cut': '1, 2, 3, 4, 21' # Terrible default in MG
+    })
+    _nQuarksMerge = 5 if finalStateB else 4
+else:
+    run_settings.update({
+        'pdgs_for_merging_cut': '1, 2, 3, 4, 5, 21',
+        'asrwgtflavor': 5,
+        'maxjetflavor': 5
+    })
+    _nQuarksMerge = 5
+
 # systematic variation
 if 'scup' in phys_short:
     syst_mod=dict_index_syst[0]
@@ -52,7 +68,8 @@ argdict = {'runArgs'        : runArgs,
            'writeGridpack'  : writeGridpack,
            'syst_mod'       : syst_mod,
            'param_card'     : param_card, # Only set if you *can't* modify the default param card to get your settings
-            'add_lifetimes_lhe' : add_lifetimes_lhe
+           'add_lifetimes_lhe' : add_lifetimes_lhe,
+           'usePMGSettings' : usePMGSettings
            }
 
 # First the standard case: No input LHE file
@@ -110,7 +127,7 @@ if njets>0 and njets!=njets_min and hasattr(genSeq,'Pythia8'):
                                 "Merging:TMS = "+str(ktdurham),
                                 "Merging:ktType = 1",
                                 "Merging:Dparameter = 0.4",
-                                "Merging:nQuarksMerge = 4"]
+                                "Merging:nQuarksMerge = {0:d}".format(_nQuarksMerge)]
 
 # Configuration for EvgenJobTransforms
 #--------------------------------------------------------------

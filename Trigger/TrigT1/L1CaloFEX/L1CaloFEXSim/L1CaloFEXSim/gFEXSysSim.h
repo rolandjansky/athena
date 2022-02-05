@@ -47,7 +47,7 @@ namespace LVL1 {
     /** standard Athena-Algorithm method */
     virtual StatusCode initialize() override;
 
-    virtual StatusCode execute() override ;
+    virtual StatusCode execute(gFEXOutputCollection* gFEXOutputs) override ;
 
     virtual void cleanup() override;
 
@@ -60,7 +60,14 @@ namespace LVL1 {
 
     virtual StatusCode fillgJetEDM(uint32_t tobWord) override ;
 
-    virtual StatusCode fillgGlobalEDM(uint32_t tobWord) override ;
+    virtual StatusCode fillgScalarEJwojEDM(uint32_t tobWord) override ;
+
+    virtual StatusCode fillgMETComponentsJwojEDM(uint32_t tobWord) override ;
+
+    virtual StatusCode fillgMHTComponentsJwojEDM(uint32_t tobWord) override ;
+
+    virtual StatusCode fillgMSTComponentsJwojEDM(uint32_t tobWord) override ;
+
 
     /** Internal data */
   private:
@@ -73,8 +80,17 @@ namespace LVL1 {
     std::unique_ptr< xAOD::gFexJetRoIContainer > m_gJetContainer;
     std::unique_ptr< xAOD::gFexJetRoIAuxContainer > m_gJetAuxContainer;
 
-    std::unique_ptr< xAOD::gFexGlobalRoIContainer > m_gGlobalContainer;
-    std::unique_ptr< xAOD::gFexGlobalRoIAuxContainer > m_gGlobalAuxContainer;
+    std::unique_ptr< xAOD::gFexGlobalRoIContainer > m_gScalarEJwojContainer;
+    std::unique_ptr< xAOD::gFexGlobalRoIAuxContainer > m_gScalarEJwojAuxContainer;
+
+    std::unique_ptr< xAOD::gFexGlobalRoIContainer > m_gMETComponentsJwojContainer;
+    std::unique_ptr< xAOD::gFexGlobalRoIAuxContainer > m_gMETComponentsJwojAuxContainer;
+
+    std::unique_ptr< xAOD::gFexGlobalRoIContainer > m_gMHTComponentsJwojContainer;
+    std::unique_ptr< xAOD::gFexGlobalRoIAuxContainer > m_gMHTComponentsJwojAuxContainer;
+
+    std::unique_ptr< xAOD::gFexGlobalRoIContainer > m_gMSTComponentsJwojContainer;
+    std::unique_ptr< xAOD::gFexGlobalRoIAuxContainer > m_gMSTComponentsJwojAuxContainer;
 
 
     std::vector<gFEXSim*> m_gFEXCollection;
@@ -84,13 +100,25 @@ namespace LVL1 {
     SG::ReadHandleKey<LVL1::gTowerContainer> m_gTowerContainerSGKey {this, "MyGTowers", "gTowerContainer", "Input container for gTowers"};
     SG::ReadHandleKey<CaloCellContainer> m_scellsCollectionSGKey {this, "SCell", "SCell", "SCell"};
 
-    SG::WriteHandleKey< xAOD::gFexJetRoIContainer > m_gFexJetOutKey {this,"Key_gFexJetOutputContainer","L1_gJetRoI","Output gFexJet container"};
-    SG::WriteHandleKey< xAOD::gFexGlobalRoIContainer > m_gFexGlobalOutKey {this,"Key_gFexGlobalOutputContainer","L1_gJetRoI","Output gFexGlobal container"};
+    SG::WriteHandleKey< xAOD::gFexJetRoIContainer > m_gFexRhoOutKey {this,"Key_gFexRhoOutputContainer","L1_gFexRhoRoI","Output gFexRho (energy density) container"};
+    SG::WriteHandleKey< xAOD::gFexJetRoIContainer > m_gFexBlockOutKey {this,"Key_gFexSRJetOutputContainer","L1_gFexSRJetRoI","Output gFexBlock (small-R jet) container"};
+    SG::WriteHandleKey< xAOD::gFexJetRoIContainer > m_gFexJetOutKey {this,"Key_gFexLRJetOutputContainer","L1_gFexLRJetRoI","Output gFexJet (large-R jet) container"};
+    
+    SG::WriteHandleKey< xAOD::gFexGlobalRoIContainer > m_gScalarEJwojOutKey {this,"Key_gScalarEJwojOutputContainer","L1_gScalarEJwoj","Output Scalar MET and SumET (from Jets without Jets algo) container"};
+    SG::WriteHandleKey< xAOD::gFexGlobalRoIContainer > m_gMETComponentsJwojOutKey {this,"Key_gMETComponentsJwojOutputContainer","L1_gMETComponentsJwoj","Output total MET components (from Jets without Jets algo) container"};
+    SG::WriteHandleKey< xAOD::gFexGlobalRoIContainer > m_gMHTComponentsJwojOutKey {this,"Key_gMHTComponentsJwojOutputContainer","L1_gMHTComponentsJwoj","Output hard MET components (from Jets without Jets algo) container"};
+    SG::WriteHandleKey< xAOD::gFexGlobalRoIContainer > m_gMSTComponentsJwojOutKey {this,"Key_gMSTComponentsJwojOutputContainer","L1_gMSTComponentsJwoj","Output soft MET components (from Jets without Jets algo) container"};
+
+
 
     std::vector<uint32_t>  m_allgRhoTobs;
     std::vector<uint32_t>  m_allgBlockTobs;
     std::vector<uint32_t>  m_allgJetTobs;
-    std::vector<uint32_t>  m_allgGlobalTobs;
+
+    std::vector<uint32_t>  m_allgScalarEJwojTobs;
+    std::vector<uint32_t>  m_allgMETComponentsJwojTobs;
+    std::vector<uint32_t>  m_allgMHTComponentsJwojTobs;
+    std::vector<uint32_t>  m_allgMSTComponentsJwojTobs;
 
   };
 

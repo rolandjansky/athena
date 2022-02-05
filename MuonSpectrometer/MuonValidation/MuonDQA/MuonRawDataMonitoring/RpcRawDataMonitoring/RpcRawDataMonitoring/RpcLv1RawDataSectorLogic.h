@@ -67,53 +67,53 @@ class RpcLv1RawDataSectorLogic: public ManagedMonitorToolBase {
   
   StatusCode StoreTriggerType();
   int GetTriggerType() { return m_trigtype; }
-  int m_trigtype;
+  int m_trigtype = 0;
 
   SG::ReadHandleKey<RpcSectorLogicContainer> m_sectorLogicContainerKey{this,"RPCSec","RPC_SECTORLOGIC","RPC sector logic"};
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","EventInfo","event info"};
 
-  int m_rpc_eventstotal;
-  int m_rpc_event_inarea;  
+  int m_rpc_eventstotal = 0;
+  int m_rpc_event_inarea = 0;  
   
   bool m_lumiblockhist			;
   bool m_isMC;
   
   // Declare Histograms
-  TH1* m_rpclv1_Hits_per_TriggerSector;
-  TH1* m_rpclv1_TriggerHitsperEvent;
-  TH2* m_rpclv1_TriggerHitsperEventperTriggerSector;
-  TH1* m_rpclv1_Hits_per_TriggerSector_LB;
-  TH2* m_rpclv1_TriggerHitsperEventperTriggerSector_LB;
-  TH1* m_rpclv1_triggerBCid_inout_LB;
+  TH1* m_rpclv1_Hits_per_TriggerSector = nullptr;
+  TH1* m_rpclv1_TriggerHitsperEvent = nullptr;
+  TH2* m_rpclv1_TriggerHitsperEventperTriggerSector = nullptr;
+  TH1* m_rpclv1_Hits_per_TriggerSector_LB = nullptr;
+  TH2* m_rpclv1_TriggerHitsperEventperTriggerSector_LB = nullptr;
+  TH1* m_rpclv1_triggerBCid_inout_LB = nullptr;
  
-  TH2* m_rpclv1_TriggerSector_vs_Pad_triggerBCid_inout;
-  TH2* m_rpclv1_TriggerSector_vs_Pad;
-  TH2* m_rpclv1_TriggerSector_vs_Pad_Pt1;
-  TH2* m_rpclv1_TriggerSector_vs_Pad_Pt2;
-  TH2* m_rpclv1_TriggerSector_vs_Pad_Pt3;
-  TH2* m_rpclv1_TriggerSector_vs_Pad_Pt4;
-  TH2* m_rpclv1_TriggerSector_vs_Pad_Pt5;
-  TH2* m_rpclv1_TriggerSector_vs_Pad_Pt6;
-  TH2* m_rpclv1_rowinBCid_vs_TriggerSector;
-  TH1* m_rpclv1_triggerBCid_inout;
+  TH2* m_rpclv1_TriggerSector_vs_Pad_triggerBCid_inout = nullptr;
+  TH2* m_rpclv1_TriggerSector_vs_Pad = nullptr;
+  TH2* m_rpclv1_TriggerSector_vs_Pad_Pt1 = nullptr;
+  TH2* m_rpclv1_TriggerSector_vs_Pad_Pt2 = nullptr;
+  TH2* m_rpclv1_TriggerSector_vs_Pad_Pt3 = nullptr;
+  TH2* m_rpclv1_TriggerSector_vs_Pad_Pt4 = nullptr;
+  TH2* m_rpclv1_TriggerSector_vs_Pad_Pt5 = nullptr;
+  TH2* m_rpclv1_TriggerSector_vs_Pad_Pt6 = nullptr;
+  TH2* m_rpclv1_rowinBCid_vs_TriggerSector = nullptr;
+  TH1* m_rpclv1_triggerBCid_inout = nullptr;
 
 
-  TH2* m_rpclv1_ptid_vs_Tower;
-  TH2* m_rpclv1_triggerBCid_inout_vs_TriggerSector;
+  TH2* m_rpclv1_ptid_vs_Tower = nullptr;
+  TH2* m_rpclv1_triggerBCid_inout_vs_TriggerSector = nullptr;
 
-  TH2* m_rpclv1_triggerBCid_inout_vs_Tower;
+  TH2* m_rpclv1_triggerBCid_inout_vs_Tower = nullptr;
 
-  int m_nTriggerHits;
-  int m_nTriggerHits_out;
-  int m_nTriggerHitsperSector;
-  int m_Diff_triggerBCid;
-  int m_in_triggerBCid;
-  int m_out_triggerBCid;
-  int m_in_rowinBCid;
-  int m_out_rowinBCid;
-  int m_Tower_out;
-  int m_Tower_in;
-  int m_in_sectorid;
+  int m_nTriggerHits = 0;
+  int m_nTriggerHits_out = 0;
+  int m_nTriggerHitsperSector = 0;
+  int m_Diff_triggerBCid = 0;
+  int m_in_triggerBCid = 0;
+  int m_out_triggerBCid = 0;
+  int m_in_rowinBCid = 0;
+  int m_out_rowinBCid = 0;
+  int m_Tower_out = 0;
+  int m_Tower_in = 0;
+  int m_in_sectorid = 0;
 
  };
 

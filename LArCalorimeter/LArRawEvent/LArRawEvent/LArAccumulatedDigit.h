@@ -53,8 +53,8 @@ public:
   /** @brief Constructor (first type)*/      
   LArAccumulatedDigit(HWIdentifier & channel_value, 
 		      CaloGain::CaloGain gain_value, 
-		      const std::vector<uint32_t>& sampleSum_value, 
-		      const std::vector<uint32_t>& sampleSquare_value,
+		      const std::vector<uint64_t>& sampleSum_value, 
+		      const std::vector<uint64_t>& sampleSquare_value,
 		      uint32_t nTrigger_value);
   
   /** @brief Constructor (second type)*/      
@@ -108,10 +108,10 @@ public:
                      const std::vector <uint64_t>& sampleSquare, 
 		     const unsigned nTrigger);
 
-  void setAddSubStep(CaloGain::CaloGain gain_value, std::vector<uint32_t> sampleSum, 
- 		     std::vector < uint32_t > sampleSquare, unsigned nTrigger); 
-  void setAddSubStep(CaloGain::CaloGain gain_value, std::vector<int32_t> sampleSum, 
- 		     std::vector < int32_t > sampleSquare, unsigned nTrigger, int32_t base); 
+  void setAddSubStep(CaloGain::CaloGain gain_value, std::vector<uint64_t> sampleSum, 
+ 		     std::vector < uint64_t > sampleSquare, unsigned nTrigger); 
+  void setAddSubStep(CaloGain::CaloGain gain_value, std::vector<int64_t> sampleSum, 
+ 		     std::vector < int64_t > sampleSquare, unsigned nTrigger, int32_t base); 
 
 
   bool setAddSubStep(const LArAccumulatedDigit& ad) {

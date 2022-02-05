@@ -28,8 +28,6 @@
 
 #include "GaudiKernel/ToolHandle.h"
 
-class CaloDetDescrManager; 
-class CaloDetDescrElement;
 class CaloCell_ID;
 class LArHVFraction;
 
@@ -37,6 +35,7 @@ class LArHVFraction;
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "CaloRec/CaloClusterCollectionProcessor.h"
 #include "CaloDetDescr/CaloDepthTool.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloInterface/ILArHVFraction.h"
 #include "CaloConditions/CaloNoise.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -121,6 +120,15 @@ class CaloClusterMomentsMaker_DigiHSTruth: public AthAlgTool, virtual public Cal
   bool m_twoGaussianNoise;
 
   ToolHandle<CaloDepthTool> m_caloDepthTool;
+
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{
+    this,
+    "CaloDetDescrManager",
+    "CaloDetDescrManager"
+  };
+
+
+
  /** @brief Key of the CaloNoise Conditions data object. Typical values 
      are '"electronicNoise', 'pileupNoise', or '"totalNoise' (default) */
   SG::ReadCondHandleKey<CaloNoise> m_noiseCDOKey{this,"CaloNoiseKey","totalNoise","SG Key of CaloNoise data object"};

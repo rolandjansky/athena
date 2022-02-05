@@ -75,8 +75,6 @@ if rec.readESD and rec.doESD:
         objKeyStore['inputFile'].removeItem(["TileCosmicMuon:TileCosmicMuonMF"])
         objKeyStore['inputFile'].removeItem(["TileCosmicMuonContainer:TileCosmicMuonHT"])
 
-    if jobproperties.CaloRecFlags.doTileCellCorrection() :
-        include( "TileRecAlgs/TileCellCorrection_jobOptions.py" )
 
 if rec.readESD and not rec.doESD:
 
@@ -356,7 +354,7 @@ if rec.doWritexAOD():
     from xAODCaloEventCnv.xAODCaloEventCnvConf import ClusterCreator
     topSequence+=ClusterCreator("CaloCluster2xAOD")
 
-    #CaloClusterKeys=("CaloCalTopoCluster", "CaloTopoCluster", "EMTopoCluster430", "LArClusterEM", "LArClusterEM7_11Nocorr",
+    #CaloClusterKeys=("CaloCalTopoClusters", "CaloTopoClusters", "EMTopoCluster430", "LArClusterEM", "LArClusterEM7_11Nocorr",
     #                 "CombinedCluster","EMTopoSW35","egClusterCollection","LArClusterEMSofte")
     #for k in CaloClusterKeys:
     #    itemname="CaloClusterContainer#"+k

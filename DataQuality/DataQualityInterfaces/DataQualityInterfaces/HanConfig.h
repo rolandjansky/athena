@@ -97,7 +97,7 @@ protected:
   protected:
 
     void GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
-                                    std::string assessorName = "" ) const;
+                                    const std::string& assessorName = "" ) const;
 
     HanConfigGroup* m_root;
     const MiniConfig& m_algConfig;
@@ -172,7 +172,7 @@ protected:
   };
 
 
-  bool Initialize( std::string configName );
+  bool Initialize( const std::string& configName );
 
 
   TFile*             m_config;
@@ -190,8 +190,8 @@ protected:
 private:
 
   static TKey* GetObjKey( TDirectory* dir, std::string path );
-  static TDirectory* ChangeInputDir( TDirectory* dir, std::string path );
-  static TDirectory* ChangeOutputDir( TFile* file, std::string path, DirMap_t& directories );
+  static TDirectory* ChangeInputDir( TDirectory* dir, const std::string& path );
+  static TDirectory* ChangeOutputDir( TFile* file, const std::string& path, DirMap_t& directories );
 
 };
 

@@ -14,32 +14,31 @@ using std::pair;
 using std::string;
 
 
-MMT_Fitter::MMT_Fitter(MMT_Parameters *par, int nlg, double lgmin, double lgmax):
+MMT_Fitter::MMT_Fitter(int nlg, double lgmin, double lgmax):
   AthMessaging(Athena::getMessageSvc(), "MMT_Fitter"),
   m_number_LG_regions(nlg), m_LG_min(lgmin), m_LG_max(lgmax)
 {
-  ATH_MSG_DEBUG("MMT_F::building fitter");
-  m_par=par;
+  ATH_MSG_DEBUG("MMT_Fitter start building");
   m_last=0;
   m_n_fit=0;
-  ATH_MSG_DEBUG("MMT_F::built fitter");
+  ATH_MSG_DEBUG("MMT_Fitter built");
 }
 
 
-evFit_entry MMT_Fitter::fit_event(int event, vector<Hit>& track, vector<hitData_entry>& hitDatas, int& nfit,vector<pair<double,double> >&mxmy, double& mxl, double& mv, double& mu) const{
+evFit_entry MMT_Fitter::fit_event(int event, vector<Hit>& track, vector<hitData_entry>& hitDatas, int& nfit,vector<pair<double,double> >&mxmy, double& mxl, double& mv, double& mu, std::shared_ptr<MMT_Parameters> par) const{
   ATH_MSG_DEBUG("Begin fit event!");
   bool did_fit=false;
-  int check=Filter_UV(track);
-  vector<int> xpl=m_par->q_planes("x");
-  vector<int> upl=m_par->q_planes("u");
-  vector<int> vpl=m_par->q_planes("v");
+  int check=Filter_UV(track,par);
+  vector<int> xpl=par->q_planes("x");
+  vector<int> upl=par->q_planes("u");
+  vector<int> vpl=par->q_planes("v");
   //---- Calc global slopes and local X slope -----
-  double M_x_global = Get_Global_Slope(track,"x");
-  double M_u_global = (check>=10?(-999.):Get_Global_Slope(track,"u"));
-  double M_v_global = (check%10==1?(-999.):Get_Global_Slope(track,"v"));
+  double M_x_global = Get_Global_Slope(track,"x",par);
+  double M_u_global = (check>=10?(-999.):Get_Global_Slope(track,"u",par));
+  double M_v_global = (check%10==1?(-999.):Get_Global_Slope(track,"v",par));
   //----  Calc delta theta ----------
   //----- Calc ROI ----------
-  ROI ROI = Get_ROI(M_x_global,M_u_global,M_v_global,track);
+  ROI ROI = Get_ROI(M_x_global,M_u_global,M_v_global,track,par);
   mxmy.push_back(pair<double,double>(ROI.m_x,ROI.m_y));
   mu  = M_u_global;
   mv  = M_v_global;
@@ -47,20 +46,20 @@ evFit_entry MMT_Fitter::fit_event(int event, vector<Hit>& track, vector<hitData_
   if(ROI.theta==-999){
     for(unsigned int i=0;i<track.size();i++)  track[i].print();
     ATH_MSG_WARNING("SOMETHING IS OFF!  fit_event, ROI has theta=-999 (bad reconstruction) \n");
-    evFit_entry empty(event,-999,-999,-999,ROI.roi,-999,-999,-999,-999,-999,track_to_index(track));
+    evFit_entry empty(event,-999,-999,-999,ROI.roi,-999,-999,-999,-999,-999,track_to_index(track, par));
     return empty;
     //throw std::runtime_error("MMT_Fitter::fit_event: invalid ROI.theta");
   }
   static_assert(std::is_trivially_copyable<double>::value);
   static_assert(std::is_trivially_destructible<double>::value);
-  double M_x_local   = Get_Local_Slope(track, ROI.theta, ROI.phi);
+  double M_x_local   = Get_Local_Slope(track, ROI.theta, ROI.phi, par);
   double Delta_Theta_division = Get_Delta_Theta_division(M_x_local, M_x_global, 1.);
-  double Delta_Theta = Get_Delta_Theta(M_x_local, M_x_global);
-  double dtheta_idl  = Get_Delta_Theta_division(ideal_local_slope(track), M_x_global);
+  double Delta_Theta = Get_Delta_Theta(M_x_local, M_x_global, par);
+  double dtheta_idl  = Get_Delta_Theta_division(ideal_local_slope(track,par), M_x_global, 1.);
 
   mxl = M_x_local;
 
-  if(dtheta_idl-std::abs(Delta_Theta_division) > 2.e-3) m_par->fill0 = true;
+  if(dtheta_idl-std::abs(Delta_Theta_division) > 2.e-3) par->fill0 = true;
   ATH_MSG_DEBUG("Mxg=" << M_x_global << ", Mug=" << M_u_global << ", Mvg=" << M_v_global << ", Mxl=" << M_x_local << ", dth=" <<Delta_Theta);
   //@@@@@@@@ Begin Info Storage for Later Analysis @@@@@@@@@@@@@@@@@@@@@@@
   vector<bool> planes_hit_tr(8,false), planes_hit_bg(8,false);
@@ -94,17 +93,17 @@ evFit_entry MMT_Fitter::fit_event(int event, vector<Hit>& track, vector<hitData_
   //FINISH ME!!!!!!!
   double candtheta=ROI.theta,candphi=ROI.phi;
   /* I think this bit appears redundant but could end up being stupid; the fitter shouldn't care about CT stuff (beyond having min num hits to do fit, which the -999 or w/e is responsible for taking care of)
-  bool xfail=(n_xpl_tr+n_xpl_bg<m_par->CT_x),uvfail= (n_uvpl_tr+n_uvpl_bg<m_par->CT_uv);
+  bool xfail=(n_xpl_tr+n_xpl_bg<par->CT_x),uvfail= (n_uvpl_tr+n_uvpl_bg<par->CT_uv);
   msg(MSG::DEBUG) << n_xpl_tr+n_xpl_bg<<" x hits");
   if(xfail)candtheta=-999.;
   if(uvfail)candphi=-999.;
   */
   bool fitkill = (ROI.theta==-999 || Delta_Theta==-999||Delta_Theta==-4);// ||xfail||uvfail);
-  ATH_MSG_DEBUG("HIT CODE: " << track_to_index(track));
-  evFit_entry aemon(event,candtheta,candphi,Delta_Theta_division,ROI.roi,n_xpl_tr,n_uvpl_tr,n_xpl_bg,n_uvpl_bg,Delta_Theta,track_to_index(track));
+  ATH_MSG_DEBUG("HIT CODE: " << track_to_index(track, par));
+  evFit_entry aemon(event,candtheta,candphi,Delta_Theta_division,ROI.roi,n_xpl_tr,n_uvpl_tr,n_xpl_bg,n_uvpl_bg,Delta_Theta,track_to_index(track, par));
   if(fitkill) return aemon;
 
-  int nplanes = m_par->setup.size();
+  int nplanes = par->setup.size();
   for(int plane=0; plane<nplanes; plane++){
     if(track[plane].info.slope == -999) continue; //&& Delta_Theta_division~=-999
     int hitData_pos = find_hitData(hitDatas, track[plane].key);
@@ -127,11 +126,11 @@ int MMT_Fitter::find_hitData(const vector<hitData_entry>& hitDatas, const hitDat
 }
 
 
-int MMT_Fitter::Filter_UV(vector<Hit>& track) const{
+int MMT_Fitter::Filter_UV(vector<Hit>& track, std::shared_ptr<MMT_Parameters> par) const{
   return 0;
-  double h=m_par->h, tolerance = h;//*2;  //Can be optimized...
-  vector<int> u_planes = m_par->q_planes("u"), v_planes = m_par->q_planes("v");
-  vector<Hit> u_hits = q_hits("u",track), v_hits = q_hits("v",track);
+  double h=par->h, tolerance = h;//*2;  //Can be optimized...
+  vector<int> u_planes = par->q_planes("u"), v_planes = par->q_planes("v");
+  vector<Hit> u_hits = q_hits("u",track,par), v_hits = q_hits("v",track,par);
   bool pass_u =! u_hits.empty(), pass_v =! v_hits.empty();
 
   //if the difference in slope between the first and last u/v planes is too great don't pass, set track hits to zero
@@ -153,9 +152,9 @@ int MMT_Fitter::Filter_UV(vector<Hit>& track) const{
   return return_val;
 }
 
-double MMT_Fitter::Get_Global_Slope (const vector<Hit>& track, const string& type) const
+double MMT_Fitter::Get_Global_Slope (const vector<Hit>& track, const string& type, std::shared_ptr<MMT_Parameters> par) const
 {
-  vector<Hit> qhits = q_hits(type,track);
+  vector<Hit> qhits = q_hits(type,track,par);
   double sum = 0.;
   if(qhits.size()==0) return -999;
   double nhitdiv= 1./qhits.size();
@@ -166,71 +165,66 @@ double MMT_Fitter::Get_Global_Slope (const vector<Hit>& track, const string& typ
 }
 
 //CHANGE!
-double MMT_Fitter::Get_Local_Slope (const vector<Hit>& Track,double theta,double phi) const
+double MMT_Fitter::Get_Local_Slope (const vector<Hit>& Track,double theta,double phi,std::shared_ptr<MMT_Parameters> par) const
 {
-  vector<int> x_planes = m_par->q_planes("x"), ybin_hits(x_planes.size(),-1);
+  vector<int> x_planes = par->q_planes("x"), ybin_hits(x_planes.size(),-1);
   int nxp=x_planes.size();
   for(int ipl=0; ipl<nxp; ipl++){
-    ybin_hits[ipl]=(((Track[x_planes[ipl]].info.slope==-999) || (Track[x_planes[ipl]].info.slope==-4)) ? -1 : m_par->ybin(Track[x_planes[ipl]].info.y,x_planes[ipl]));
+    ybin_hits[ipl]=(((Track[x_planes[ipl]].info.slope==-999) || (Track[x_planes[ipl]].info.slope==-4)) ? -1 : par->ybin(Track[x_planes[ipl]].info.y,x_planes[ipl]));
   }
   bool hit=false;
-  double yzsum=0;
   double ysum=0;//added to try alternative calculus
   double zsum=0;//added to try alternative calculus
-  float mxlf=0;
   int xdex=-1;
   int ybin=-1;
   int which=-1;
-  m_par->key_to_indices(ybin_hits, xdex, ybin, which);
+  par->key_to_indices(ybin_hits, xdex, ybin, which);
   if(xdex<0 || ybin<0 || which<0) return -999;
 
-  double zbar=m_par->Ak_local_slim[xdex][ybin][which];
-  double bk=m_par->Bk_local_slim[xdex][ybin][which];
+  double zbar=par->Ak_local_slim[xdex][ybin][which];
+  double bk=par->Bk_local_slim[xdex][ybin][which];
   ATH_MSG_DEBUG("zbar is " << zbar << ", and bk is " << bk);
-  int ebin = m_par->eta_bin(theta);
-  int pbin = m_par->phi_bin(phi);
+  int ebin = par->eta_bin(theta);
+  int pbin = par->phi_bin(phi);
   for(int ipl=0; ipl<nxp; ipl++){
     double z = Track[x_planes[ipl]].info.z;
     double y = Track[x_planes[ipl]].info.y;
     double zfirst = Track[x_planes[0]].info.z;
     double yfirst = Track[x_planes[0]].info.y;
     if(ebin != -1){
-      z = z+m_par->zmod[ebin][pbin][ipl];
-      y = y+m_par->ymod[ebin][pbin][ipl];
+      z = z+par->zmod[ebin][pbin][ipl];
+      y = y+par->ymod[ebin][pbin][ipl];
     }
     if(Track[x_planes[ipl]].info.slope == -999 || Track[x_planes[ipl]].info.slope == -4) continue;
     hit=true;
-    yzsum+=y*(z*zbar-1.);
-    mxlf += bk*y*(z*zbar-1.);
     //alternative calculus
     ysum += y-yfirst;
     zsum += z-zfirst;
   }
-  //double mxl=double(bk*yzsum); //old calculus
-  double mxl=(ysum/zsum); //new calculus
+  double mxl=(ysum/zsum);
   if(!hit) {return double(999);}
   return mxl;
 }
 
-int MMT_Fitter::track_to_index(const vector<Hit>&track)const{
-  vector<bool>hits(m_par->setup.size(),false);
+int MMT_Fitter::track_to_index(const vector<Hit>&track, std::shared_ptr<MMT_Parameters> par)const{
+  vector<bool>hits(par->setup.size(),false);
   for(int ihit=0; ihit<(int)track.size(); ihit++) hits[track[ihit].info.plane] = (hits[track[ihit].info.plane] ? true : track[ihit].info.slope>-2.);
-  return m_par->bool_to_index(hits);
+  return par->bool_to_index(hits);
 }
 
-double MMT_Fitter::ideal_local_slope(const vector<Hit>& Track)const{
+double MMT_Fitter::ideal_local_slope(const vector<Hit>& Track, std::shared_ptr<MMT_Parameters> par)const{
   vector<vector<double> > z_hit;
-  for(unsigned int i = 0; i<m_par->z_large.size(); i++){
+  for(unsigned int i = 0; i<par->z_large.size(); i++){
     vector<double> temp;
-    for(unsigned int j = 0; j<m_par->z_large[i].size(); j++) temp.push_back(m_par->z_large[i][j]);
+    for(unsigned int j = 0; j<par->z_large[i].size(); j++) temp.push_back(par->z_large[i][j]);
     z_hit.push_back(temp);
   }
-  vector<int> x_planes=m_par->q_planes("x");
+  vector<int> x_planes=par->q_planes("x");
   int nxp=x_planes.size();
   bool hit=false;
   double sum_xy=0, sum_y=0;
-  double ak_idl = ideal_ak(Track);
-  double bk_idl = ak_idl*ideal_zbar(Track);
+  double ak_idl = ideal_ak(Track, par);
+  double bk_idl = ak_idl*ideal_zbar(Track,par);
   for(int ipl=0; ipl<nxp; ipl++){
     double y = Track[x_planes[ipl]].info.y;
     double z = Track[x_planes[ipl]].info.z;
@@ -244,23 +238,23 @@ double MMT_Fitter::ideal_local_slope(const vector<Hit>& Track)const{
   return ls_idl;
 }
 
-double MMT_Fitter::ideal_z(const Hit& hit)const{
+double MMT_Fitter::ideal_z(const Hit& hit, std::shared_ptr<MMT_Parameters> par)const{
   int plane=hit.info.plane;
-  double tilt = (plane<4 ? m_par->correct.rotate.X() : 0);
-  double dz   = (plane<4 ? m_par->correct.translate.Z() : 0);
-  double nominal = m_par->z_nominal[plane];
-  double y = hit.info.y - m_par->ybases[plane].front();
+  double tilt = (plane<4 ? par->correct.rotate.X() : 0);
+  double dz   = (plane<4 ? par->correct.translate.Z() : 0);
+  double nominal = par->z_nominal[plane];
+  double y = hit.info.y - par->ybases[plane].front();
   double z = nominal+dz+y*std::tan(tilt);
   return z;
 }
 
-double MMT_Fitter::ideal_ak(const vector<Hit>& Track)const{
-  vector<int> x_planes=m_par->q_planes("x");//this tells us which planes are x planes
+double MMT_Fitter::ideal_ak(const vector<Hit>& Track, std::shared_ptr<MMT_Parameters> par)const{
+  vector<int> x_planes=par->q_planes("x");//this tells us which planes are x planes
   int n_xplanes=x_planes.size(),hits=0;
   double sum_x=0,sum_xx=0;
   for(int ip=0; ip<n_xplanes; ip++){
     if(Track[x_planes[ip]].info.slope==-999) continue;
-    double addme=ideal_z(Track[x_planes[ip]]);//z_hit[x_planes[plane]];
+    double addme=ideal_z(Track[x_planes[ip]],par);//z_hit[x_planes[plane]];
     hits++;//there's a hit
     sum_x  += addme;
     sum_xx += addme*addme;
@@ -270,34 +264,34 @@ double MMT_Fitter::ideal_ak(const vector<Hit>& Track)const{
   return hits/diff;
 }
 
-double MMT_Fitter::ideal_zbar(const vector<Hit>& Track)const{
-  vector<int> x_planes = m_par->q_planes("x");//this tells us which planes are x planes
+double MMT_Fitter::ideal_zbar(const vector<Hit>& Track, std::shared_ptr<MMT_Parameters> par)const{
+  vector<int> x_planes = par->q_planes("x");//this tells us which planes are x planes
   double ztot=0;
   int nhit=0;
   for(unsigned int ip=0; ip<x_planes.size(); ip++) {
     if(Track[x_planes[ip]].info.slope == -999) continue;
     nhit++;
-    ztot += ideal_z(Track[x_planes[ip]]);
+    ztot += ideal_z(Track[x_planes[ip]],par);
   }
   return ztot/nhit;
 }
 
-double MMT_Fitter::Get_Delta_Theta(double M_local, double M_global) const{
+double MMT_Fitter::Get_Delta_Theta(double M_local, double M_global, std::shared_ptr<MMT_Parameters> par) const{
   int region=-1;
   double LG = M_local * M_global;
   for(int j=0;j<m_number_LG_regions;j++){   //m_number_LG_regions
-    if(LG <= DT_Factors_val(j,0)){
+    if(LG <= DT_Factors_val(j,0,par)){
       region = j;
       break;
     }
   }
   if(region==-1) return -999;
-  return DT_Factors_val(region,1)*(M_local - M_global);
+  return DT_Factors_val(region,1,par)*(M_local - M_global);
 }
 
-double MMT_Fitter::DT_Factors_val(int i, int j) const{
-  if(m_par->val_tbl){
-    return m_par->DT_Factors[i][j];
+double MMT_Fitter::DT_Factors_val(int i, int j, std::shared_ptr<MMT_Parameters> par) const{
+  if(par->val_tbl){
+    return par->DT_Factors[i][j];
   }
   if(j<0 || j>1){
     ATH_MSG_WARNING("DT_Factors only has two entries on the second index (for LG and mult_factor); you inputed an index of " << j );
@@ -312,8 +306,7 @@ double MMT_Fitter::DT_Factors_val(int i, int j) const{
   return LG_lgr(i,a,m_number_LG_regions,m_LG_min,m_LG_max);
 }
 
-double MMT_Fitter::LG_lgr(int ilgr, double a, int number_LG_regions, double min, double max) const{
-  a+=0;
+double MMT_Fitter::LG_lgr(int ilgr, double /*a*/, int number_LG_regions, double min, double max) const{
   return min+double(ilgr/number_LG_regions)*(max-min);
 }
 
@@ -329,13 +322,13 @@ double MMT_Fitter::Get_Delta_Theta_division(double M_local, double M_global, dou
   return double( (M_local - M_global) / ( (M_local*M_global) / a  +  a  ));
 }
 
-vector<Hit> MMT_Fitter::q_hits(const string& type,const vector<Hit>& track) const{
-  string setup(m_par->setup);
+vector<Hit> MMT_Fitter::q_hits(const string& type,const vector<Hit>& track, std::shared_ptr<MMT_Parameters> par) const{
+  string setup(par->setup);
   if(setup.length()!=track.size()){
     ATH_MSG_WARNING("Setup has length: "<<setup.length()<<", but there are "<<track.size()<<" hits in the track");
     throw std::runtime_error("MMT_Fitter::q_hits: inconsistent setup");
   }
-  vector<int> qpl(m_par->q_planes(type));
+  vector<int> qpl(par->q_planes(type));
   vector<Hit> q_hits;
   for(unsigned int ihit=0; ihit<qpl.size(); ihit++){
     if( !(track[qpl[ihit]].info.slope==-999) )  {q_hits.push_back(track[qpl[ihit]]);
@@ -345,12 +338,12 @@ vector<Hit> MMT_Fitter::q_hits(const string& type,const vector<Hit>& track) cons
 }
 
 //change this to take u and/or v out of the roi calculation
-ROI MMT_Fitter::Get_ROI(double M_x, double M_u, double M_v, const vector<Hit>&track) const{
+ROI MMT_Fitter::Get_ROI(double M_x, double M_u, double M_v, const vector<Hit>&track, std::shared_ptr<MMT_Parameters> par) const{
   //M_* are all global slopes
   ATH_MSG_DEBUG("\nGet_ROI(" << M_x << "," << M_u << "," << M_v << ") ");
 
   //--- calc constants ------
-  double b=TMath::DegToRad()*(m_par->stereo_degree);
+  double b=M_PI/180.0*(par->stereo_degree);
   double A=1./std::tan(b);
   double B=1./std::tan(b);
 
@@ -375,49 +368,49 @@ ROI MMT_Fitter::Get_ROI(double M_x, double M_u, double M_v, const vector<Hit>&tr
   //--- average of 2 mx slope values ----if both u and v were bad, give it a -999 value to know not to use m_x
   //*** check to see if U and V are necessary for fit
   double mx = (nu+nv==0 ? 0 : (mxv+mxu)/(nu+nv));
-  if(m_par->correct.translate.X()!=0 && m_par->correct.type==2){
-    mx += phi_correct_factor(track)*m_par->correct.translate.X()/m_par->z_nominal[3];
+  if(par->correct.translate.X()!=0 && par->correct.type==2){
+    mx += phi_correct_factor(track,par)*par->correct.translate.X()/par->z_nominal[3];
   }
   ATH_MSG_DEBUG("(b,A,B,my,mxu,mxv,mx)=(" << b << "," << A << "," << B << "," << my << "," << mxu << "," << mxv << "," << mx << ")\n");
 
   //Get mx and my in parameterized values
-  int a_x = round((mx-m_par->m_x_min)/m_par->h_mx);
-  int a_y = round((my-m_par->m_y_min)/m_par->h_my);
+  int a_x = std::round((mx-par->m_x_min)/par->h_mx);
+  int a_y = std::round((my-par->m_y_min)/par->h_my);
   // Generally, this offers a reality check or cut.  The only reason a slope
   // should be "out of bounds" is because it represents a weird UV combination
   // -- ie. highly background influenced
-  if(a_y>m_par->n_y || a_y<0){
-    ATH_MSG_DEBUG( "y slope (theta) out of bounds in Get_ROI....(a_x,a_y,m_par->n_x,m_par->n_y)=("<< a_x << "," << a_y << "," << m_par->n_x << "," << m_par->n_y << ")");
+  if(a_y>par->n_y || a_y<0){
+    ATH_MSG_DEBUG( "y slope (theta) out of bounds in Get_ROI....(a_x,a_y,par->n_x,par->n_y)=("<< a_x << "," << a_y << "," << par->n_x << "," << par->n_y << ")");
     return ROI(-999,-999,-999,-999,-999);
   }
 
-  if(a_x>m_par->n_x || a_x<0){
-    ATH_MSG_DEBUG( "x slope (phi) out of bounds in Get_ROI....(a_x,a_y,m_par->n_x,m_par->n_y)=(" << a_x << "," << a_y << "," << m_par->n_x << "," <<m_par->n_y << ")");
+  if(a_x>par->n_x || a_x<0){
+    ATH_MSG_DEBUG( "x slope (phi) out of bounds in Get_ROI....(a_x,a_y,par->n_x,par->n_y)=(" << a_x << "," << a_y << "," << par->n_x << "," <<par->n_y << ")");
     return ROI(-999,-999,-999,-999,-999);
   }
 
   ATH_MSG_DEBUG("fv_angles...(a_x,a_y)=("<<a_x<<","<<a_y<<")");
   double phicor=0.;
-  if(m_par->correct.rotate.Z()!=0 && m_par->correct.type==2){
-    phicor=-0.2*m_par->correct.rotate.Z();
+  if(par->correct.rotate.Z()!=0 && par->correct.type==2){
+    phicor=-0.2*par->correct.rotate.Z();
   }
 
-  double fv_theta = Slope_Components_ROI_theta(a_y,a_x);
-  double fv_phi = (mx==0) ? -999 : Slope_Components_ROI_phi(a_y,a_x)+phicor;
+  double fv_theta = Slope_Components_ROI_theta(a_y,a_x,par);
+  double fv_phi = (mx==0) ? -999 : Slope_Components_ROI_phi(a_y,a_x,par)+phicor;
   ATH_MSG_DEBUG("fv_theta=" << fv_theta << ", fv_phi=" << fv_phi);
 
   //--- More hardware realistic approach but need fine tuning ----
-  int roi = Rough_ROI_temp(fv_theta,fv_phi);
+  int roi = Rough_ROI_temp(fv_theta,fv_phi,par);
 
   //--- current "roi" which is not an actual roi but an approx phi and theta
   return ROI(fv_theta,fv_phi,mx,my,roi);
 }
 
-double MMT_Fitter::phi_correct_factor(const vector<Hit>&track)const{
-  if((m_par->correct.rotate.Z()==0 && m_par->correct.translate.X()==0) || m_par->correct.type!=2) return 0.;
+double MMT_Fitter::phi_correct_factor(const vector<Hit>&track, std::shared_ptr<MMT_Parameters> par)const{
+  if((par->correct.rotate.Z()==0 && par->correct.translate.X()==0) || par->correct.type!=2) return 0.;
   int nxmis=0, nx=0, numis=0, nu=0, nvmis=0, nv=0;
   double xpart=0.5, upart=0.5, vpart=0.5;
-  string set=m_par->setup;
+  string set=par->setup;
   for(int ihit=0;ihit<(int)track.size();ihit++){
     int n_pln=track[ihit].info.plane;
     bool ismis=n_pln<4;
@@ -440,74 +433,74 @@ double MMT_Fitter::phi_correct_factor(const vector<Hit>&track)const{
   return xpart*1.*nxmis/nx+upart*1.*numis/nu+vpart*1.*nvmis/nv;
 }
 
-double MMT_Fitter::Slope_Components_ROI_val(int jy, int ix, int thetaphi) const{
-  if(m_par->val_tbl){
-    return m_par->Slope_to_ROI[jy][ix][thetaphi];
+double MMT_Fitter::Slope_Components_ROI_val(int jy, int ix, int thetaphi, std::shared_ptr<MMT_Parameters> par) const{
+  if(par->val_tbl){
+    return par->Slope_to_ROI[jy][ix][thetaphi];
   }
   if(thetaphi<0 || thetaphi>1){
     ATH_MSG_WARNING("Slope_Components_ROI only has two entries on the third index (for theta and phi); you inputed an index of " << thetaphi);
     throw std::runtime_error("MMT_Fitter::Slope_Components_ROI_val: invalid number of entries");
   }
-  if(thetaphi==0) return Slope_Components_ROI_theta(jy,ix);
-  return Slope_Components_ROI_phi(jy,ix);
+  if(thetaphi==0) return Slope_Components_ROI_theta(jy,ix,par);
+  return Slope_Components_ROI_phi(jy,ix,par);
 }
 
-double MMT_Fitter::Slope_Components_ROI_theta(int jy, int ix) const{
+double MMT_Fitter::Slope_Components_ROI_theta(int jy, int ix, std::shared_ptr<MMT_Parameters> par) const{
   //get some parameter information
-  if(jy<0 || jy>=m_par->n_y){
-    ATH_MSG_WARNING("You picked a y slope road index of " << jy << " in Slope_Components_ROI_theta; there are only " << m_par->n_y << " of these.\n");
-    if(jy >= m_par->n_y) jy=m_par->n_y-1;
+  if(jy<0 || jy>=par->n_y){
+    ATH_MSG_WARNING("You picked a y slope road index of " << jy << " in Slope_Components_ROI_theta; there are only " << par->n_y << " of these.\n");
+    if(jy >= par->n_y) jy=par->n_y-1;
     else jy=0;
   }
-  if(ix<0||ix>=m_par->n_x){
-    ATH_MSG_WARNING("You picked an x slope road index of " << ix << " in Slope_Components_ROI_theta; there are only " << m_par->n_x << " of these.\n");
-    if(ix >= m_par->n_x) ix=m_par->n_x-1;
+  if(ix<0||ix>=par->n_x){
+    ATH_MSG_WARNING("You picked an x slope road index of " << ix << " in Slope_Components_ROI_theta; there are only " << par->n_x << " of these.\n");
+    if(ix >= par->n_x) ix=par->n_x-1;
     else ix=0;
   }
   int xdex=ix, ydex=jy+1;
   if(xdex==0) xdex++;
-  double mx = m_par->m_x_min+m_par->h_mx*xdex;
-  double my = m_par->m_y_min+m_par->h_my*ydex;
+  double mx = par->m_x_min+par->h_mx*xdex;
+  double my = par->m_y_min+par->h_my*ydex;
   double theta = std::atan(sqrt( (mx*mx+my*my) ));
-  if(theta<m_par->minimum_large_theta || theta>m_par->maximum_large_theta){
+  if(theta<par->minimum_large_theta || theta>par->maximum_large_theta){
     theta=0;
   }
   return theta;
 }
 
-double MMT_Fitter::Slope_Components_ROI_phi(int jy, int ix) const{
-  if(jy<0 || jy>=m_par->n_y){
-    ATH_MSG_WARNING("You picked a y slope road index of " << jy << " in Slope_Components_ROI_phi; there are only " << m_par->n_y << " of these.\n");
-    if(jy >= m_par->n_y) jy=m_par->n_y-1;
+double MMT_Fitter::Slope_Components_ROI_phi(int jy, int ix, std::shared_ptr<MMT_Parameters> par) const{
+  if(jy<0 || jy>=par->n_y){
+    ATH_MSG_WARNING("You picked a y slope road index of " << jy << " in Slope_Components_ROI_phi; there are only " << par->n_y << " of these.\n");
+    if(jy >= par->n_y) jy=par->n_y-1;
     else jy=0;
   }
-  if(ix<0 || ix>=m_par->n_x){
-    ATH_MSG_WARNING("You picked an x slope road index of " << ix << " in Slope_Components_ROI_phi; there are only " << m_par->n_x << " of these.\n");
+  if(ix<0 || ix>=par->n_x){
+    ATH_MSG_WARNING("You picked an x slope road index of " << ix << " in Slope_Components_ROI_phi; there are only " << par->n_x << " of these.\n");
     //right now we're assuming these are cases just on the edges and so put the values to the okay limits
-    if(ix >= m_par->n_x) ix=m_par->n_x-1;
+    if(ix >= par->n_x) ix=par->n_x-1;
     else ix=0;
   }
   int xdex=ix, ydex=jy+1;
-  double mx=m_par->m_x_min+m_par->h_mx*xdex;
-  double my=m_par->m_y_min+m_par->h_my*ydex;
-  ATH_MSG_DEBUG("m_par->m_x_min+m_par->h_mx*xdex=" << m_par->m_x_min << "+" << m_par->h_mx << "*" << xdex << "=" << mx << ", ");
-  ATH_MSG_DEBUG("m_par->m_y_min+m_par->h_my*ydex=" << m_par->m_y_min << "+" << m_par->h_my << "*" << ydex << "=" << my << ", ");
+  double mx=par->m_x_min+par->h_mx*xdex;
+  double my=par->m_y_min+par->h_my*ydex;
+  ATH_MSG_DEBUG("par->m_x_min+par->h_mx*xdex=" << par->m_x_min << "+" << par->h_mx << "*" << xdex << "=" << mx << ", ");
+  ATH_MSG_DEBUG("par->m_y_min+par->h_my*ydex=" << par->m_y_min << "+" << par->h_my << "*" << ydex << "=" << my << ", ");
 
   double phi = std::atan2(mx,my);//the definition is flipped from what you'd normally think
   ATH_MSG_DEBUG("for a phi of " << phi);
-  if(phi < m_par->minimum_large_phi || phi > m_par->maximum_large_phi){
-    ATH_MSG_DEBUG("Chucking phi of " << phi <<" which registers as not in [" << m_par->minimum_large_phi << "," << m_par->maximum_large_phi << "]");
+  if(phi < par->minimum_large_phi || phi > par->maximum_large_phi){
+    ATH_MSG_DEBUG("Chucking phi of " << phi <<" which registers as not in [" << par->minimum_large_phi << "," << par->maximum_large_phi << "]");
     phi=999;
   }
   return phi;
 }
 
-int MMT_Fitter::Rough_ROI_temp(double theta, double phi) const{
+int MMT_Fitter::Rough_ROI_temp(double theta, double phi, std::shared_ptr<MMT_Parameters> par) const{
   //temporary function to identify areas of the wedge.
-  double minimum_large_theta = m_par->minimum_large_theta;
-  double maximum_large_theta = m_par->maximum_large_theta;
-  double minimum_large_phi = m_par->minimum_large_phi;
-  double maximum_large_phi = m_par->maximum_large_phi;
+  double minimum_large_theta = par->minimum_large_theta;
+  double maximum_large_theta = par->maximum_large_theta;
+  double minimum_large_phi = par->minimum_large_phi;
+  double maximum_large_phi = par->maximum_large_phi;
   int n_theta_rois=32, n_phi_rois=16;//*** ASK BLC WHAT THESE VALUES OUGHT TO BE!
 
   double h_theta = (maximum_large_theta - minimum_large_theta)/n_theta_rois;

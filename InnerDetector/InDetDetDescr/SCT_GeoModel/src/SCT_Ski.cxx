@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_Ski.h"
@@ -49,7 +49,7 @@ SCT_Ski::SCT_Ski(const std::string & name,
     m_module(module)
 {
   getParameters();
-  m_logVolume = preBuild();
+  m_logVolume = SCT_Ski::preBuild();
 }
 
 

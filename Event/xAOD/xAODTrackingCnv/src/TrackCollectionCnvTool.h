@@ -17,6 +17,7 @@
 
 // Local include(s):
 #include "xAODTrackingCnv/ITrackCollectionCnvTool.h"
+#include "TrkValInterfaces/ITrkObserverTool.h"
 
 namespace xAODMaker {
 
@@ -35,6 +36,10 @@ namespace xAODMaker {
     virtual StatusCode convert( const TrackCollection* aod,
 			       xAOD::TrackParticleContainer* xaod ) const override;
     
+    /// Function that fills an existing xAOD::TrackParticleContainer and augments track particles
+    virtual StatusCode convertAndAugment( const TrackCollection* aod,
+				xAOD::TrackParticleContainer* xaod, const ObservedTrackMap* trk_map ) const override;
+
     /// allow other algorithms to pass the tool in order to preserve initialisation
     virtual StatusCode setParticleCreatorTool(ToolHandle<Trk::ITrackParticleCreatorTool> *tool) override;
 

@@ -69,13 +69,15 @@ print(BPHY6JpsiFinder)
 
 
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_Vertex
-
+from InDetRecExample import TrackingCommon
 
 
 BPHY6_Reco_mumu = DerivationFramework__Reco_Vertex(
   name                   = "BPHY6_Reco_mumu",
   VertexSearchTool             = BPHY6JpsiFinder,
   OutputVtxContainerName = "BPHY6OniaCandidates",
+  V0Tools                = TrackingCommon.getV0Tools(),
+  PVRefitter             = BPHY6_VertexTools.PrimaryVertexRefitter,
   PVContainerName        = "PrimaryVertices",
   RefPVContainerName     = "BPHY6RefittedPrimaryVertices")
   
@@ -90,6 +92,7 @@ BPHY6_Select_Jpsi2mumu = DerivationFramework__Select_onia2mumu(
   name                  = "BPHY6_Select_Jpsi2mumu",
   HypothesisName        = "Jpsi",
   InputVtxContainerName = "BPHY6OniaCandidates",
+  V0Tools               = TrackingCommon.getV0Tools(),
   VtxMassHypo           = 3096.916,
   MassMin               = 2700.0,
   MassMax               = 3500.0,
@@ -104,6 +107,7 @@ BPHY6_Select_Psi2mumu = DerivationFramework__Select_onia2mumu(
   name                  = "BPHY6_Select_Psi2mumu",
   HypothesisName        = "Psi",
   InputVtxContainerName = "BPHY6OniaCandidates",
+  V0Tools               = TrackingCommon.getV0Tools(),
   VtxMassHypo           = 3686.09,
   MassMin               = 3200.0,
   MassMax               = 4200.0,
@@ -118,6 +122,7 @@ BPHY6_Select_Upsi2mumu = DerivationFramework__Select_onia2mumu(
   name                  = "BPHY6_Select_Upsi2mumu",
   HypothesisName        = "Upsi",
   InputVtxContainerName = "BPHY6OniaCandidates",
+  V0Tools               = TrackingCommon.getV0Tools(),
   VtxMassHypo           = 9460.30,
   MassMin               = 8000.0,
   MassMax               = 12000.0,
@@ -130,6 +135,7 @@ BPHY6_Select_Bmumu2mumu = DerivationFramework__Select_onia2mumu(
   name                  = "BPHY6_Select_Bmumu2mumu",
   HypothesisName        = "Bmumu",
   InputVtxContainerName = "BPHY6OniaCandidates",
+  V0Tools               = TrackingCommon.getV0Tools(),
   VtxMassHypo           = 5366.77,
   MassMin               = 4200.0,
   MassMax               = 8000.0,
@@ -142,6 +148,7 @@ BPHY6_Select_Zmumu2mumu = DerivationFramework__Select_onia2mumu(
   name                  = "BPHY6_Select_Zmumu2mumu",
   HypothesisName        = "Zmumu",
   InputVtxContainerName = "BPHY6OniaCandidates",
+  V0Tools               = TrackingCommon.getV0Tools(),
   VtxMassHypo           = 91187.6,
   MassMin               = 60000.0,
   MassMax               = 120000.0,
@@ -154,6 +161,7 @@ BPHY6_Select_Onia2mumu = DerivationFramework__Select_onia2mumu(
   name                  = "BPHY6_Select_Onia2mumu",
   HypothesisName        = "Onia",
   InputVtxContainerName = "BPHY6OniaCandidates",
+  V0Tools               = TrackingCommon.getV0Tools(),
   VtxMassHypo           = 3096.916,
   MassMin               = dimuon_mass_min,
   MassMax               = dimuon_mass_max,

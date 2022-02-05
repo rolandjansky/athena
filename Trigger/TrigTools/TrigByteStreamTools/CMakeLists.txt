@@ -31,7 +31,8 @@ atlas_add_test( dumpHLTContentInBS_run3
                 LOG_IGNORE_PATTERN "^----.*(bytes|B/ev)" )
 
 atlas_add_test( dumpHLTNav
-                SCRIPT trigbs_dumpHLTNav.py -n 3 -s 371 ${trigbs_testFileRun3} )
+                SCRIPT trigbs_dumpHLTNav.py -n 3 -s 371 ${trigbs_testFileRun3}
+                LOG_IGNORE_PATTERN "no dictionary for class" )
 
 atlas_add_test( updateMetadata
                 SCRIPT rm -f newMeta.*.data

@@ -153,8 +153,12 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
   BooleanProperty m_useNonMuonTriggers{this,"UseNonMuonTriggers",true,"muon-orthogonal triggers for muon-unbiased measurement"};
   BooleanProperty m_TagAndProbe{this,"TagAndProbe",true,"switch to perform tag-and-probe method"};
   BooleanProperty m_TagAndProbeZmumu{this,"TagAndProbeZmumu",false,"switch to perform tag-and-probe method Z->mumu"};
-  BooleanProperty m_anaTgcPrd{this,"AnaTgcPrd",false,"switch to perform analysis on TGC PRD/Coin"};
+  BooleanProperty m_anaTgcPrd{this,"AnaTgcPrd",false,"switch to perform analysis on TGC PRD"};
+  BooleanProperty m_fillGapByGapHistograms{this,"FillGapByGapHistograms",true,"filling gap-by-gap histograms (many many)"};
   BooleanProperty m_anaOfflMuon{this,"AnaOfflMuon",true,"switch to perform analysis on xAOD::Muon"};
+  BooleanProperty m_offlMuonCutOnMuonType{this,"OfflMuonCutOnMuonType",true,"applying cut on offline muon muonType"};
+  BooleanProperty m_offlMuonCutOnAuthor{this,"OfflMuonCutOnAuthor",true,"applying cut on offline muon author"};
+  BooleanProperty m_offlMuonCutOnQuality{this,"OfflMuonCutOnQuality",true,"applying cut on offline muon quality"};
   BooleanProperty m_anaMuonRoI{this,"AnaMuonRoI",true,"switch to perform analysis on xAOD::LVL1MuonRoI"};
   DoubleProperty m_trigMatchWindow{this,"TrigMatchingWindow",0.005,"Window size in R for trigger matching"};
   DoubleProperty m_l1trigMatchWindow1{this,"L1TrigMatchingWindow1",0.15,"Window size in R for L1 trigger matching: param 1"};

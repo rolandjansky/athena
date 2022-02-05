@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 
 
@@ -108,8 +108,6 @@ recAlgs.doMuonSpShower.set_Value_and_Lock    (False)
 recAlgs.doStaco.set_Value_and_Lock           (False)
 recAlgs.doCaloTrkMuId.set_Value_and_Lock     (False)
 recAlgs.doTileMuID.set_Value_and_Lock        (False)
-# --- trigger
-recAlgs.doTrigger.set_Value_and_Lock         (False)
 rec.doTagRawSummary.set_Value_and_Lock   (False)
 
 

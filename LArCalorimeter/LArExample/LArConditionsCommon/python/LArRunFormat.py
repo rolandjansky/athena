@@ -100,7 +100,7 @@ if __name__=='__main__':
         print("Syntax",sys.argv[0],'<run>')
         sys.exit(-1)
     run=int(sys.argv[1])
-    myformat=getLArFormatForRun(run)
+    myformat=getLArFormatForRun(run, connstring="COOLONL_LAR/CONDBR2")
     if (myformat is not None):
       print(" LAr run configuration: Nsamples:%d  GainType:%d  Latency:%d  FirstSample:%d  Format:%s  runType:%s" % (myformat.nSamples(),myformat.gainType(),myformat.latency(),myformat.firstSample(),myformat.stringFormat(),myformat.stringRunType()))
     else:

@@ -14,18 +14,18 @@
 #define MUONCALIB_MDTCORFUNCSETCOLLECTION_H
 
 #include "AthContainers/DataVector.h"
-#include "MdtCalibData/MdtCorFuncSet.h"
 #include "AthenaKernel/CLASS_DEF.h"
+#include "MdtCalibData/MdtCorFuncSet.h"
 
 /**
 This typedef representing:
-- a collection of MdtCorFuncSet objects. 
+- a collection of MdtCorFuncSet objects.
 It is a DataVector. It can be saved to storegate.
 */
 typedef DataVector<MuonCalib::MdtCorFuncSet> MdtCorFuncSetCollection;
-CLASS_DEF(MdtCorFuncSetCollection , 1176811704 , 1 )
+CLASS_DEF(MdtCorFuncSetCollection, 1176811704, 1)
 
 #include "AthenaKernel/CondCont.h"
-CONDCONT_DEF( MdtCorFuncSetCollection, 1338477494 );
+CONDCONT_DEF(MdtCorFuncSetCollection, 1338477494);
 
 #endif

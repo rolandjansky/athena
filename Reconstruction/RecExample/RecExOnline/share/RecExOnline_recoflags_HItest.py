@@ -56,7 +56,6 @@ rec.doForwardDet.set_Value_and_Lock(doLucid or doZdc or doAlfa)
 rec.doTrigger.set_Value_and_Lock(doTrigger)
 
 from RecExConfig.RecAlgsFlags import recAlgs
-#recAlgs.doTrigger.set_Value_and_Lock(doTrigger)                                
 
 rec.doHeavyIon.set_Value_and_Lock(doHIRec)
 

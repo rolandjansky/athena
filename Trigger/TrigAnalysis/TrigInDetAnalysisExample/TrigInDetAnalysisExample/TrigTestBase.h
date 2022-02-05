@@ -27,6 +27,7 @@
 #include "TrigInDetAnalysisUtils/Associator_BestMatch.h"
 #include "TrigInDetAnalysisUtils/TrackMatchDeltaR.h"
 #include "TrigInDetAnalysisUtils/TrackMatchDeltaRCosmic.h"
+#include "TrigInDetAnalysisUtils/TagNProbe.h"
 
 #include "TrigInDetAnalysisExample/SigAnalysis.h"
 #include "TrigInDetAnalysisExample/TrackEfficiency.h"
@@ -125,6 +126,8 @@ protected:
   std::vector<TrackAssociator*>                 m_associators;
 
   std::vector<T_AnalysisConfig<IHLTMonTool>*>   m_sequences;
+
+  std::vector<TagNProbe*> m_TnP_tools;
 
   std::vector<std::string> m_chainNames;
   std::vector<std::string> m_ntupleChainNames;

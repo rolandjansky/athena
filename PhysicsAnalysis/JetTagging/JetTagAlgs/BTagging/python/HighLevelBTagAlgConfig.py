@@ -3,13 +3,17 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-FlavorTagDiscriminants__DL2Tool=CompFactory.FlavorTagDiscriminants.DL2Tool
 
-def DL2ToolCfg(ConfigFlags, NNFile = '', **options):
+def DL2ToolCfg(ConfigFlags, NNFile = '', FlipConfig='STANDARD' , **options):
     acc = ComponentAccumulator()
 
     options['nnFile'] = NNFile
     options['name'] = "decorator"
+
+    # default is "STANDARD" in case of a setup of the standard b-taggers. "NEGATIVE_IP_ONLY" [and "FLIP_SIGN"] if want to set up the flip taggers
+    # naming convention, see here: https://gitlab.cern.ch/atlas/athena/-/blob/master/PhysicsAnalysis/JetTagging/FlavorTagDiscriminants/Root/FlipTagEnums.cxx
+
+    options['flipTagConfig'] = FlipConfig
 
     # This is a hack to accomodate the older b-tagging training with
     # old names for variables. We should be able to remove it when we
@@ -21,27 +25,31 @@ def DL2ToolCfg(ConfigFlags, NNFile = '', **options):
                 f'JetFitterSecondaryVertex_{aggragate}AllJetTrackRelativeEta')
         options['variableRemapping'] = remap
 
-    dl2 = FlavorTagDiscriminants__DL2Tool(**options)
+    dl2 = CompFactory.FlavorTagDiscriminants.DL2Tool(**options)
 
     acc.setPrivateTools(dl2)
 
     return acc
 
-def HighLevelBTagAlgCfg(ConfigFlags, BTaggingCollection, TrackCollection, NNFile = "", **options):
-
+def GNNToolCfg(ConfigFlags, NNFile = '', **options):
     acc = ComponentAccumulator()
 
-    nn_name = NNFile.replace("/", "_").replace("_network.json", "")
-    dl2 = acc.popToolsAndMerge(DL2ToolCfg(ConfigFlags, NNFile, **options))
+    options['nnFile'] = NNFile
+    options['name'] = "decorator"
 
-    name = '_'.join([nn_name.lower(), BTaggingCollection])
+    gnntool = CompFactory.FlavorTagDiscriminants.GNNTool(**options)
 
+    acc.setPrivateTools(gnntool)
+
+    return acc
+
+def getStaticTrackVars(TrackCollection):
     # some things should not be declared as date dependencies: it will
     # make the trigger sad.
     #
     # In the case of tracking it's mostly static variables that are a
     # problem.
-    static_track_vars = {
+    static_track_vars = [
         'numberOfInnermostPixelLayerHits',
         'numberOfInnermostPixelLayerSharedHits',
         'numberOfInnermostPixelLayerSplitHits',
@@ -55,8 +63,10 @@ def HighLevelBTagAlgCfg(ConfigFlags, BTaggingCollection, TrackCollection, NNFile
         'numberOfSCTHits',
         'numberOfSCTHoles',
         'numberOfSCTSharedHits',
-    }
-    veto_list = [f'{TrackCollection}.{x}' for x in static_track_vars]
+    ]
+    return [f'{TrackCollection}.{x}' for x in static_track_vars]
+
+def getUndeclaredBtagVars(BTaggingCollection):
     #
     # In the case of b-tagging we should really declare these
     # variables using WriteDecorHandle, but this is very much a work
@@ -85,14 +95,38 @@ def HighLevelBTagAlgCfg(ConfigFlags, BTaggingCollection, TrackCollection, NNFile
         'SV1_significance3d',
         'BTagTrackToJetAssociator',
     ]
-    veto_list += [f'{BTaggingCollection}.{x}' for x in undeclared_btag]
+    return [f'{BTaggingCollection}.{x}' for x in undeclared_btag]
+
+def HighLevelBTagAlgCfg(ConfigFlags, BTaggingCollection, TrackCollection, NNFile = "", FlipConfig="STANDARD" , **options):
+
+    acc = ComponentAccumulator()
+
+    NNFile_extension = NNFile.split(".")[-1]
+    if NNFile_extension == "json":
+        nn_name = NNFile.replace("/", "_").replace("_network.json", "")
+        decorator = acc.popToolsAndMerge(DL2ToolCfg(ConfigFlags, NNFile,FlipConfig=FlipConfig ,**options))
+    elif NNFile_extension == "onnx":
+        nn_name = NNFile.replace("/", "_").replace(".onnx", "")
+        decorator = acc.popToolsAndMerge(GNNToolCfg(ConfigFlags, NNFile, **options))
+    else:
+        raise ValueError("HighLevelBTagAlgCfg: Wrong NNFile extension. Please check the NNFile argument")
+
+    name = '_'.join([nn_name.lower(), BTaggingCollection])
+
+    # Ensure different names for standard and flip taggers
+    if FlipConfig != "STANDARD":
+        FlipConfig_name = FlipConfig
+        name = name + FlipConfig_name
+
+    veto_list = getStaticTrackVars(TrackCollection)
+    veto_list += getUndeclaredBtagVars(BTaggingCollection)
 
     decorAlg = CompFactory.FlavorTagDiscriminants.BTagDecoratorAlg(
         name=name,
-        btagContainer=BTaggingCollection,
-        trackContainer=TrackCollection,
-        decorator=dl2,
-        undeclaredReadDecorKeys=sorted(veto_list),
+        container=BTaggingCollection,
+        constituentContainer=TrackCollection,
+        decorator=decorator,
+        undeclaredReadDecorKeys=veto_list,
     )
 
     # -- create the association algorithm

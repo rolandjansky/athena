@@ -25,7 +25,7 @@ Trig::TrigDecisionToolCore::TrigDecisionToolCore() :
 {
 }
 
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
+#ifndef XAOD_STANDALONE // AtheAnalysis or full Athena
 
 Trig::CacheGlobalMemory* Trig::TrigDecisionToolCore::cgm() const { 
   const Trig::CacheGlobalMemory* ptr = m_cacheGlobalMemory.get();
@@ -35,7 +35,7 @@ Trig::CacheGlobalMemory* Trig::TrigDecisionToolCore::cgm() const {
   return p;
 }
 
-#else // Analysis or Standalone
+#else // AnalysisBase
 
 Trig::CacheGlobalMemory* Trig::TrigDecisionToolCore::cgm() const {
   return const_cast<Trig::CacheGlobalMemory*>(&m_cacheGlobalMemory);

@@ -92,10 +92,10 @@ CaloCellContainerMergerTool::process (CaloCellContainer* theCont,
 
   for (const CaloCell* cell : *theCellContainer) {
     //copy cell with the correct concrete type (LAr and Tile)
-    CaloCell * theCaloCell=cell->clone();
+    std::unique_ptr<CaloCell> theCaloCell=cell->clone();
 
     //copy each cell with the correct concrete type
-    theCont->push_back(theCaloCell);
+    theCont->push_back(std::move(theCaloCell));
   }
 
   //set hasCalo(caloNum) bools

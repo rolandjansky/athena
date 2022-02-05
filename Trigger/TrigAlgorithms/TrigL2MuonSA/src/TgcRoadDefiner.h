@@ -50,9 +50,9 @@ class TgcRoadDefiner: public AthAlgTool
                         TrigL2MuonSA::TgcFit::PointArray& tgcWireMidPoints) const;
 
  private:
-  // setted in MuFastSteering::hltInitialize, setExtrapolatorTool
-  ToolHandle<ITrigMuonBackExtrapolator>* m_backExtrapolatorTool {nullptr};
-  // setted in MuFastSteering::hltInitialize, setMCFlag  
+  // set in MuFastSteering::hltInitialize, setExtrapolatorTool
+  const ToolHandle<ITrigMuonBackExtrapolator>* m_backExtrapolatorTool {nullptr};
+  // set in MuFastSteering::hltInitialize, setMCFlag  
   const ToolHandle<PtEndcapLUT>*         m_ptEndcapLUT {nullptr};
 
   ToolHandle<TgcFit>                     m_tgcFit {"TrigL2MuonSA::TgcFit"};

@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2021 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef INDET__PERF__NTUPLE_TRUTHTORECO__H
 #define INDET__PERF__NTUPLE_TRUTHTORECO__H
 
@@ -39,6 +43,7 @@ private:
     InDetPerfNtupleBranch<float> m_truth_z0sin; 
 
     //Track variables
+    InDetPerfNtupleBranch<unsigned long>   m_track_patternInfo;
     InDetPerfNtupleBranch<int>   m_track_truthMatchRanking;
     InDetPerfNtupleBranch<float> m_track_truthMatchProb;
     InDetPerfNtupleBranch<float> m_track_charge;

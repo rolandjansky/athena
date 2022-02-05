@@ -103,8 +103,9 @@
 
 //===================constructor
 
-LArGeo::BarrelConstruction::BarrelConstruction(bool fullGeo)
-  :m_parameters(LArGeo::VDetectorParameters::GetInstance()),
+LArGeo::BarrelConstruction::BarrelConstruction(bool fullGeo,
+                                               const VDetectorParameters* params)
+  :m_parameters(params),
    m_A_SAGGING(false),
    m_NVISLIM(-1),
    m_ecamPhysicalPos(NULL),

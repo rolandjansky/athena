@@ -49,7 +49,9 @@ if "__main__" == __name__:
   ConfigFlags.Detector.GeometryCalo  = True
   ConfigFlags.Detector.GeometryMuon  = False
   ConfigFlags.Detector.GeometryTRT   = True
-  ConfigFlags.TrackingGeometry.MaterialSource = "material-maps.json"
+  ConfigFlags.Acts.TrackingGeometry.MaterialSource = "material-maps.json"
+  # ConfigFlags.Acts.TrackingGeometry.MaterialSource = "/eos/project-a/acts/public/MaterialMaps/ATLAS/material-maps.json"
+  ConfigFlags.Acts.TrackingGeometry.buildAllAvailableSubDetectors = True
 
   ConfigFlags.Concurrency.NumThreads = 10
   ConfigFlags.Concurrency.NumConcurrentEvents = 10
@@ -86,6 +88,18 @@ if "__main__" == __name__:
                                 ExtrapolationTool=extrapol.getPrimary())
 
   cfg.merge(alg)
+
+  tgSvc = cfg.getService("ActsTrackingGeometrySvc")
+
+  # Service will have removed TRT and Calo
+  # We want them enabled for testing
+  tgSvc.BuildSubDetectors += [
+    "TRT",
+    "Calo"
+  ]
+  # needed to construct the calo geometry in ACTS
+  tgSvc.CaloVolumeBuilder = CompFactory.ActsCaloTrackingVolumeBuilder()
+
 
   cfg.printConfig()
 

@@ -45,9 +45,6 @@ if (globalflags.DataSource == 'geant4'):
 if ( 'dumpTruthInfo' in dir() ):
     dumpTruthInfo = dumpTruthInfo and isIdTrkDxAODSimulation
 
-if InDetFlags.doSLHC():
-    dumpTrtInfo=False
-
 ## Other settings
 # Prefix for decoration, if any
 prefixName = ""
@@ -138,8 +135,6 @@ if dumpPixInfo:
     xAOD_PixelPrepDataToxAOD.WriteNNinformation   = False
     #xAOD_PixelPrepDataToxAOD.WriteSDOs            = True
     #xAOD_PixelPrepDataToxAOD.WriteSiHits          = True # if available
-    if InDetFlags.doSLHC():
-        xAOD_PixelPrepDataToxAOD.WriteNNinformation=False
 
     topSequence += xAOD_PixelPrepDataToxAOD
     if (printIdTrkDxAODConf):
@@ -332,7 +327,7 @@ svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TriggerMenuMetaDataTool ]
 
 
 
-excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
+excludedAuxData = "-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
 excludedTRTData = "-T0.-TRTboard.-TRTchip.-bitPattern.-driftTimeToTCorrection.-driftTimeHTCorrection.-highThreshold.-strawnumber"
 excludedSCTData = "-detectorElementID.-hitsInThirdTimeBin.-rdo_groupsize"
 

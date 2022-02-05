@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCOOLConditions/LArDSPThresholdsFlat.h"
@@ -8,7 +8,8 @@
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeList.h"
 
-LArDSPThresholdsFlat::LArDSPThresholdsFlat(): 
+LArDSPThresholdsFlat::LArDSPThresholdsFlat():
+  LArCondFlatBase("LArDSPThresholdsFlat"),
   m_nChannels(0),
   m_ptQThr(NULL),
   m_psamplesThr(NULL),
@@ -17,16 +18,13 @@ LArDSPThresholdsFlat::LArDSPThresholdsFlat():
 {}
 
 LArDSPThresholdsFlat::LArDSPThresholdsFlat(const AthenaAttributeList* attrList):
+  LArCondFlatBase("LArDSPThresholdsFlat"),
   m_nChannels(0),
   m_ptQThr(NULL),
   m_psamplesThr(NULL),
   m_ptrigSumThr(NULL) 
 {
-
-
-  StatusCode sc=initializeBase("LArDSPThresholdsFlat");
-  if (sc.isFailure()) return;
- 
+  if (initializeBase().isFailure()) return;
   readBlob(attrList);
   return;
 }
@@ -40,7 +38,7 @@ float LArDSPThresholdsFlat::tQThr(const HWIdentifier&  CellID) const {
   
 float LArDSPThresholdsFlat::tQThrByHash(const IdentifierHash& h) const {
   if (h>=m_nChannels) {
-    (*m_log) << MSG::ERROR << "tQThrByHash: Hash out of range ( " << h << ", max=" << m_nChannels << ")" << endmsg;
+    ATH_MSG_ERROR ("tQThrByHash: Hash out of range ( " << h << ", max=" << m_nChannels << ")" );
     return 0;
   }
   return m_ptQThr[h];
@@ -52,7 +50,7 @@ float LArDSPThresholdsFlat::samplesThr(const HWIdentifier&  CellID) const {
   
 float LArDSPThresholdsFlat::samplesThrByHash(const IdentifierHash& h) const {
   if (h>=m_nChannels) {
-    (*m_log) << MSG::ERROR << "samplesThrByHash: Hash out of range ( " << h << ", max=" << m_nChannels << ")" << endmsg;
+    ATH_MSG_ERROR( "samplesThrByHash: Hash out of range ( " << h << ", max=" << m_nChannels << ")" );
     return 0;
   }
   return m_psamplesThr[h];
@@ -64,7 +62,7 @@ float LArDSPThresholdsFlat::trigSumThr(const HWIdentifier&  CellID) const {
   
 float LArDSPThresholdsFlat::trigSumThrByHash(const IdentifierHash& h) const {
   if (h>=m_nChannels) {
-    (*m_log) << MSG::ERROR << "trigSumThrByHash: Hash out of range ( " << h << ", max=" << m_nChannels << ")" << endmsg;
+    ATH_MSG_ERROR( "trigSumThrByHash: Hash out of range ( " << h << ", max=" << m_nChannels << ")" );
     return 0;
   }
   return m_ptrigSumThr[h];
@@ -88,22 +86,19 @@ void LArDSPThresholdsFlat::readBlob(const AthenaAttributeList* attrList) {
   //const coral::Blob *trigSumThrBlob = new coral::Blob(attr["trigSumThr"].data<coral::Blob>());
 
   if (!(tQThrBlob.size()==samplesThrBlob.size() && samplesThrBlob.size()==trigSumThrBlob.size())) {
-    (*m_log) << MSG::ERROR << "Unequal blob size tQThr/samplesThr/trigSumThr = " 
-	   << tQThrBlob.size() << "/" << samplesThrBlob.size()  << "/" << trigSumThrBlob.size() 
-	   << endmsg;
+    ATH_MSG_ERROR( "Unequal blob size tQThr/samplesThr/trigSumThr = " 
+                   << tQThrBlob.size() << "/" << samplesThrBlob.size()  << "/" << trigSumThrBlob.size() );
     return;
   }
 
   m_nChannels=tQThrBlob.size()/sizeof(float);
   
 
-  //(*m_log) << MSG::INFO << "Blob sizes:" << tQThrBlob.size() << "/" << samplesThrBlob.size()  << "/" << trigSumThrBlob.size() << endmsg;
-
   if (m_nChannels!=m_onlineHelper->channelHashMax()) {
-    (*m_log) << MSG::WARNING << "Found data for " << m_nChannels << " but expected " << m_onlineHelper->channelHashMax() << endmsg;
+    ATH_MSG_WARNING( "Found data for " << m_nChannels << " but expected " << m_onlineHelper->channelHashMax() );
   }
 
-  (*m_log) << MSG::DEBUG << "Found data for " << m_nChannels << endmsg;
+  ATH_MSG_DEBUG( "Found data for " << m_nChannels );
   m_ptQThr=static_cast<const float*>(tQThrBlob.startingAddress());
   m_psamplesThr=static_cast<const float*>(samplesThrBlob.startingAddress());
   m_ptrigSumThr=static_cast<const float*>(trigSumThrBlob.startingAddress());

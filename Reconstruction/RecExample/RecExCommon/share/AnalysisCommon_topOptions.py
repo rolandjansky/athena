@@ -48,7 +48,6 @@ excludeTracePattern.append("*/GaudiKernel/GaudiHandles.py")
 excludeTracePattern.append ( "*/MuonRecExample/MuonRecUtils.py")
 excludeTracePattern.append ("athfile-cache.ascii")
 excludeTracePattern.append ("*/IOVDbSvc/CondDB.py")
-excludeTracePattern.append("*/TrigConfigSvcConfig.py")
 excludeTracePattern.append("*/LArCalib.py")
 excludeTracePattern.append("*/_xmlplus/*")
 excludeTracePattern.append("*/CaloClusterCorrection/CaloSwEtaoff*")
@@ -77,12 +76,13 @@ protectedInclude( "PartPropSvc/PartPropSvc.py" )
 include.block( "PartPropSvc/PartPropSvc.py" )
 
 #Output file TagInfo and metadata
+# from PyUtils import AMITagHelper
+# AMITagHelper.SetAMITag(outputTag = rec.AMITag())
 #from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 #svcMgr.TagInfoMgr.ExtraTagValuePairs += ["beam_type", jobproperties.Beam.beamType()]
 #svcMgr.TagInfoMgr.ExtraTagValuePairs += ["beam_energy", str(jobproperties.Beam.energy())]
 #svcMgr.TagInfoMgr.ExtraTagValuePairs += ["triggerStreamOfFile", str(rec.triggerStream())]
 #svcMgr.TagInfoMgr.ExtraTagValuePairs += ["project_name", str(rec.projectName())]
-#if rec.AMITag()!="": svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", rec.AMITag() ]
 #svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AtlasRelease_" + rec.OutputFileNameForRecoStep(), rec.AtlasReleaseVersion() ]
 
 

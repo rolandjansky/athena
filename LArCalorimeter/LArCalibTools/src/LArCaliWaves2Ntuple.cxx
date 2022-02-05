@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArCaliWaves2Ntuple.h"
@@ -72,7 +72,7 @@ StatusCode LArCaliWaves2Ntuple::stop()
   }
 
   StatusCode sc;
-  sc=m_nt->addItem("DAC",m_dac,0,64000);
+  sc=m_nt->addItem("DAC",m_dac,0,600000);
   if (sc!=StatusCode::SUCCESS) {
     ATH_MSG_ERROR( "addItem 'DAC' failed" );
     return StatusCode::FAILURE;
@@ -135,17 +135,17 @@ StatusCode LArCaliWaves2Ntuple::stop()
 
 
     ATH_MSG_INFO( "Processing WaveContainer from StoreGate! key=" << m_keylist[k] ); 
-    const LArCaliWaveContainer* caliWaveContainer;
+    const LArCaliWaveContainer* caliWaveContainer = nullptr;
     StatusCode sc = m_detStore->retrieve(caliWaveContainer,key);	    
     if (sc.isFailure()) {
       ATH_MSG_ERROR( "Cannot read LArCaliWaveContainer from StoreGate! key=" << key );
       return StatusCode::FAILURE;
     } else 
       ATH_MSG_INFO( "Read LArCaliWaveContainer from StoreGate! key= "  << key );
-    
+    LArCaliWaveContainer* caliWaveContainer_nc=nullptr;
     if (m_applyCorr) {
       if (!caliWaveContainer->correctionsApplied()) {
-	LArCaliWaveContainer* caliWaveContainer_nc=const_cast<LArCaliWaveContainer*>(caliWaveContainer);
+	caliWaveContainer_nc=const_cast<LArCaliWaveContainer*>(caliWaveContainer);
 	sc=caliWaveContainer_nc->applyCorrections();
 	if (sc.isFailure()) {
 	  ATH_MSG_ERROR( "Failed to apply corrections to LArCaliWaveContainer!" );
@@ -210,7 +210,11 @@ StatusCode LArCaliWaves2Ntuple::stop()
 	}//end loop over corrections
       }//end loop over gain
     }//end if addUndoCorr
-  }//end loop over container keys
+    if (caliWaveContainer_nc) {
+      ATH_CHECK(caliWaveContainer_nc->undoCorrections());
+      ATH_MSG_INFO("Reverted corrections of CaliWave container");
+    }
+  }
   ATH_MSG_INFO( "LArWave2Ntuple has finished." );
   return StatusCode::SUCCESS;
 } // end finalize-method.

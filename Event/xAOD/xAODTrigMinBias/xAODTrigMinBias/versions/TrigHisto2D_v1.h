@@ -108,10 +108,10 @@ namespace xAOD {
     static const int EXTRA_BINS=2;
     
     /*width of x bins*/
-    float m_binWidthX;
+    float m_binWidthX = 0.0F;
    
     /*width of y bins*/
-    float m_binWidthY;
+    float m_binWidthY = 0.0F;
   };
   
 }

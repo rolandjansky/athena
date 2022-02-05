@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CPMTobRoI_v1.cxx 687286 2015-08-04 11:20:22Z amazurov $
@@ -21,7 +21,7 @@ namespace xAOD{
   
   void CPMTobRoI_v1::initialize(int crate, int cpm, int chip, int location,
       						  int type, int energy, int isol) {
-  	  uint32_t roiWord  =  s_wordIdVal           << s_wordIdBit;
+          uint32_t roiWord  =  static_cast<uint32_t>(s_wordIdVal) << s_wordIdBit;
 	  roiWord |= (type       & s_typeMask)       << s_wordIdBit;
 	  roiWord |= (crate      & s_crateMask)      << s_crateBit;
 	  roiWord |= (cpm        & s_cpmMask)        << s_cpmBit;

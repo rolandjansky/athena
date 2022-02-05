@@ -652,10 +652,12 @@ namespace top {
     ATH_CHECK(evtStore()->retrieve(truthParticles, m_config->sgKeyMCParticle()));
 
     // Create the partonHistory xAOD object
+    //cppcheck-suppress uninitvar
     xAOD::PartonHistoryAuxContainer* partonAuxCont = new xAOD::PartonHistoryAuxContainer {};
+    //cppcheck-suppress uninitvar
     xAOD::PartonHistoryContainer* partonCont = new xAOD::PartonHistoryContainer {};
     partonCont->setStore(partonAuxCont);
-
+    //cppcheck-suppress uninitvar
     xAOD::PartonHistory* partonHistory = new xAOD::PartonHistory {};
     partonCont->push_back(partonHistory);
 

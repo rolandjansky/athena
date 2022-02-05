@@ -27,14 +27,15 @@ ciRefFileMap = {
                 's3505-21.0'           : 'v2',
                 's3505-21.3'           : 'v1',
                 's3505-21.9'           : 'v1',
-                's3505-22.0'           : 'v12',
+                's3505-22.0'           : 'v13',
                 # OverlayTier0Test_required-test
                 'overlay-d1498-21.0'   : 'v2',
                 'overlay-d1498-22.0'   : 'v38',
                 'overlay-d1592-22.0'   : 'v14',
+                'overlay-d1726-22.0'   : 'v4',
                 'overlay-bkg-21.0'     : 'v1',
                 'overlay-bkg-22.0'     : 'v4',
-                'dataoverlay-d1590-22.0' : 'v14',
+                'dataoverlay-d1590-22.0' : 'v18',
                 'dataoverlay-hits-22.0'  : 'v1',
                }
 
@@ -48,5 +49,5 @@ SimInput = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/ttbar
 # Overlay tests
 OverlayInputHits = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc16_13TeV.424000.ParticleGun_single_mu_Pt100.simul.HITS.e3580_s3126/HITS.11330296._000376.pool.root.1"
 OverlayInputHitsData = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.OverlaySim/{}/{}/HITS.pool.root"
-OverlayInputBkg = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/{}/{}/RDO.merged-pileup-MT.100events.pool.root"
+OverlayInputBkg = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayTests/PresampledPileUp/22.0/Run2/large/mc20_13TeV.900149.PG_single_nu_Pt50.digit.RDO.e8307_s3482_s3136_d1715/RDO.26811908._031801.pool.root.1"
 OverlayInputBkgData = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc15_valid.00200010.overlay_streamsAll_2016_pp_1.skim.DRAW.r8381/DRAW.09331084._000146.pool.root.1"

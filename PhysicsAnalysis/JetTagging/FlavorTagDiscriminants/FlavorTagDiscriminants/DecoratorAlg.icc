@@ -1,0 +1,97 @@
+// In case the extension is confusing, this is a -*- C++ -*- file
+/*
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "StoreGate/ReadDecorHandle.h"
+
+#include <exception>
+
+namespace FlavorTagDiscriminants {
+  template <typename C, typename D, typename N>
+  DecoratorAlg<C,D,N>::DecoratorAlg(
+    const std::string& name, ISvcLocator* svcloc):
+    AthReentrantAlgorithm(name, svcloc)
+  {
+  }
+
+  template <typename C, typename D, typename N>
+  StatusCode DecoratorAlg<C,D,N>::initialize()
+  {
+    return initializeInternal();
+  }
+
+  template <typename C, typename D, typename N>
+  StatusCode DecoratorAlg<C,D,N>::initializeInternal(
+    DecoratorAlg::ExtraDependencies extraDeps)
+  {
+    ATH_CHECK(m_containerKey.initialize());
+    ATH_CHECK(m_constituentKey.initialize());
+
+    ATH_CHECK(m_decorator.retrieve());
+
+    std::set<std::string> veto(
+      m_undeclaredReadDecorKeys.begin(),
+      m_undeclaredReadDecorKeys.end());
+
+    // now we build data dependencies from the internal tools. We have
+    // to reserve the vectors here to prevent a segfault since read /
+    // write handles aren't movable once declaired as a property.
+    auto auxKeys = m_decorator->getAuxInputKeys();
+    auxKeys.merge(extraDeps);
+    m_aux.reserve(auxKeys.size());
+    for (const std::string& key: auxKeys) {
+      const std::string full = m_containerKey.key() + "." + key;
+      if (veto.count(full)) {
+        ATH_MSG_DEBUG("Not declaring accessor: " + full);
+        continue;
+      }
+      ATH_MSG_DEBUG("Adding accessor: " + full);
+      m_aux.emplace_back(this, key, full, "");
+      ATH_CHECK(m_aux.back().initialize());
+    }
+    m_constituentAux.reserve(m_decorator->getConstituentAuxInputKeys().size());
+    for (const std::string& key: m_decorator->getConstituentAuxInputKeys()) {
+      const std::string full = m_constituentKey.key() + "." + key;
+      if (veto.count(full)) {
+        ATH_MSG_DEBUG("Not declaring accessor: " + full);
+        continue;
+      }
+      ATH_MSG_DEBUG("Adding constituent accessor: " + full);
+      m_constituentAux.emplace_back(this, key, full, "");
+      ATH_CHECK(m_constituentAux.back().initialize());
+    }
+    m_decor.reserve(m_decorator->getDecoratorKeys().size());
+    for (const std::string& key: m_decorator->getDecoratorKeys()) {
+      const std::string full = m_containerKey.key() + "." + key;
+      ATH_MSG_DEBUG("Adding decorator: " + full);
+      m_decor.emplace_back(this, key, full, "");
+      ATH_CHECK(m_decor.back().initialize());
+    }
+    ATH_MSG_DEBUG("Finished setting up");
+    return StatusCode::SUCCESS;
+  }
+
+
+  template <typename C, typename D, typename N>
+  StatusCode DecoratorAlg<C,D,N>::execute(const EventContext& cxt ) const {
+    SG::ReadHandle<C> container(
+      m_containerKey, cxt);
+    if (!container.isValid()) {
+      ATH_MSG_ERROR("no container " << container.key());
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_DEBUG(
+      "Decorating " + std::to_string(container->size()) + " elements");
+    for (const auto* element: *container) {
+      m_decorator->decorate(*element);
+    }
+    return StatusCode::SUCCESS;
+  }
+
+  template <typename C, typename D, typename N>
+  StatusCode DecoratorAlg<C,D,N>::finalize() {
+    return StatusCode::SUCCESS;
+  }
+
+}

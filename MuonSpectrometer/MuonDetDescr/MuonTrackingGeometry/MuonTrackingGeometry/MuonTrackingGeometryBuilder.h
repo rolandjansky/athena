@@ -64,7 +64,7 @@ namespace Muon {
         /** AlgTool finalize method */
         StatusCode finalize();
         /** TrackingGeometry Interface methode */
-        const Trk::TrackingGeometry* trackingGeometry(const Trk::TrackingVolume* tvol = 0) const;
+        Trk::TrackingGeometry* trackingGeometry(const Trk::TrackingVolume* tvol = 0) const;
 
         /** The unique signature */
         Trk::GeometrySignature geometrySignature() const { return Trk::MS; }
@@ -102,8 +102,8 @@ namespace Muon {
         const std::vector<std::vector<std::pair<const Trk::DetachedTrackingVolume*, const Span*> >*>* findVolumesSpan(
             const std::vector<const Trk::DetachedTrackingVolume*>* objs, double zTol, double phiTol, LocalVariablesContainer& aLVC) const;
         /** Private methods to define subvolumes and fill them with detached volumes */
-        const Trk::TrackingVolume* processVolume(const Trk::Volume*, int, int, const std::string&, LocalVariablesContainer& aLVC) const;
-        const Trk::TrackingVolume* processVolume(const Trk::Volume*, int, const std::string&, LocalVariablesContainer& aLVC) const;
+        Trk::TrackingVolume* processVolume(const Trk::Volume*, int, int, const std::string&, LocalVariablesContainer& aLVC) const;
+        Trk::TrackingVolume* processVolume(const Trk::Volume*, int, const std::string&, LocalVariablesContainer& aLVC) const;
         const Trk::TrackingVolume* processShield(const Trk::Volume*, int, const std::string&, LocalVariablesContainer& aLVC) const;
         /** Private method to check volume properties */
         static void checkVolume(const Trk::TrackingVolume*) ;

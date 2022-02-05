@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -18,6 +18,7 @@
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkToolInterfaces/IUpdator.h"
 #include "TrkFitterUtils/ProtoMaterialEffects.h"
+#include "TrkFitterUtils/DNA_MaterialEffects.h"
 
 // using __gnu_cxx::is_sorted;
 
@@ -496,7 +497,7 @@ void Trk::TrackFitInputPreparator::insertStateIntoTrajectory(Trajectory& traject
                             const TrackParameters* initialParameters,
                             const ParticleHypothesis&  partHypo ) const {
     const TrackParameters* trkPar = nullptr;
-    Trk::ProtoMaterialEffects* matEffOnMeasurementSurface = nullptr;
+    std::unique_ptr<Trk::ProtoMaterialEffects> matEffOnMeasurementSurface;
     /// collect material layers between previous state and state to insert:
     if (m_extrapolator) {
         if (!trajectory.empty()) {
@@ -506,12 +507,12 @@ void Trk::TrackFitInputPreparator::insertStateIntoTrajectory(Trajectory& traject
               prevPar = CREATE_PARAMETERS(*prevPar,prevPar->parameters(),std::nullopt).release();
             }
             const std::vector< const Trk::TrackStateOnSurface * >* collectedTSOS = m_extrapolator->extrapolateM(
-                        *prevPar,
-                        measurement->associatedSurface(),
-                        Trk::alongMomentum,
-                        false,
-                        partHypo
-
+                Gaudi::Hive::currentContext(),
+                *prevPar,
+                measurement->associatedSurface(),
+                Trk::alongMomentum,
+                false,
+                partHypo
             );
             if (trajectory.back().referenceParameters()->covariance()) delete prevPar; // balance CREATE_PARS from a few lines earlier
             if (collectedTSOS) {
@@ -529,7 +530,7 @@ void Trk::TrackFitInputPreparator::insertStateIntoTrajectory(Trajectory& traject
                                                     nullptr,
                                                     tsos->trackParameters()->clone()
                                                   ));
-                            trajectory.back().checkinMaterialEffects(new Trk::ProtoMaterialEffects(meot));
+                            trajectory.back().checkinMaterialEffects(std::make_unique<Trk::ProtoMaterialEffects>(meot));
                             trajectory.back().isOutlier(TrackState::Scatterer);
                         } // end if meot
                     }
@@ -539,7 +540,7 @@ void Trk::TrackFitInputPreparator::insertStateIntoTrajectory(Trajectory& traject
                 if (collectedTSOS->back()->materialEffectsOnTrack()) {
                     const MaterialEffectsOnTrack* meot = dynamic_cast<const MaterialEffectsOnTrack*>(collectedTSOS->back()->materialEffectsOnTrack());
                     if (meot) {
-                        matEffOnMeasurementSurface = new Trk::ProtoMaterialEffects(meot);
+                        matEffOnMeasurementSurface = std::make_unique<Trk::ProtoMaterialEffects>(meot);
                     }
                 } // end if last TSoS has material effects
                 delete collectedTSOS->back();
@@ -548,13 +549,14 @@ void Trk::TrackFitInputPreparator::insertStateIntoTrajectory(Trajectory& traject
         } // end if trajectory.size()>0
         if (!trkPar) {
             /// extrapolate to first state in trajectory
-            trkPar = m_extrapolator->extrapolate(   *initialParameters,
-                                                    measurement->associatedSurface(),
-                                                    Trk::alongMomentum,
-                                                    false,
-                                                    partHypo
-                                                 
-                                                );
+            trkPar = m_extrapolator->extrapolate(   
+              Gaudi::Hive::currentContext(),
+              *initialParameters,
+              measurement->associatedSurface(),
+              Trk::alongMomentum,
+              false,
+              partHypo
+              ).release();
             if (!trkPar) {
                 std::cout << "TrackFitInputPreparator: WARNING, extrapolation problem." << std::endl;
             }
@@ -570,7 +572,7 @@ void Trk::TrackFitInputPreparator::insertStateIntoTrajectory(Trajectory& traject
                                                   ));
     trajectory.back().identifier(Trk::IdentifierExtractor::extract(measurement));
     if (matEffOnMeasurementSurface) {
-        trajectory.back().checkinMaterialEffects(matEffOnMeasurementSurface);
+        trajectory.back().checkinMaterialEffects(std::move(matEffOnMeasurementSurface));
     }
 
 }

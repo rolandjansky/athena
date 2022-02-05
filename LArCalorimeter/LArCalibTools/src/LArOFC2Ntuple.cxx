@@ -46,8 +46,8 @@ StatusCode LArOFC2Ntuple::stop() {
   ATH_CHECK( m_nt->addItem("OFCb",m_nSamples,OFCb) );
   
   // retrieve OFC object
-
   const ILArOFC* larOFC=nullptr;
+  
   //Try Det-Store (real data, elec-calib case)
   if (detStore()->contains<ILArOFC>(m_ofcKey.key())) {
     ATH_CHECK(detStore()->retrieve(larOFC,m_ofcKey.key()));
@@ -57,7 +57,6 @@ StatusCode LArOFC2Ntuple::stop() {
     larOFC=larOFCHdl.cptr();
   }
 
-  
   const LArOnOffIdMapping *cabling=0;
   if(m_isSC) {
     ATH_MSG_DEBUG( "LArOFC2Ntuple: using SC cabling" );

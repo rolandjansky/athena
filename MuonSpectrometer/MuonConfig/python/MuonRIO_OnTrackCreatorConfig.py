@@ -4,12 +4,6 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from MuonConfig.MuonCalibrationConfig import MdtCalibrationToolCfg, MdtCalibrationDbToolCfg
 
-Muon__MdtDriftCircleOnTrackCreator=CompFactory.Muon.MdtDriftCircleOnTrackCreator
-Muon__CscClusterOnTrackCreator=CompFactory.Muon.CscClusterOnTrackCreator
-Muon__MuonClusterOnTrackCreator=CompFactory.Muon.MuonClusterOnTrackCreator
-Trk__RIO_OnTrackCreator=CompFactory.Trk.RIO_OnTrackCreator
-Muon__TriggerChamberClusterOnTrackCreator=CompFactory.Muon.TriggerChamberClusterOnTrackCreator
-
 ### Simple function holding connecting names to the different calibration window options
 # The window values themselves are defined in C++ in MdtCalibSvc/MdtCalibrationSvcSettings.h
 # Author: Mike Flowerdew <michael.flowerdew@cern.ch>
@@ -33,7 +27,7 @@ def TriggerChamberClusterOnTrackCreatorCfg(flags, name="TriggerChamberClusterOnT
     muon_cluster_creator=acc.getPrimary()
     result.merge(acc)
     kwargs.setdefault("ClusterCreator", muon_cluster_creator)
-    result.setPrivateTools(Muon__TriggerChamberClusterOnTrackCreator(name, **kwargs))
+    result.setPrivateTools(CompFactory.Muon.TriggerChamberClusterOnTrackCreator(name, **kwargs))
     return result
 
 def CscClusterOnTrackCreatorCfg(flags,name="CscClusterOnTrackCreator", **kwargs):
@@ -59,7 +53,7 @@ def CscClusterOnTrackCreatorCfg(flags,name="CscClusterOnTrackCreator", **kwargs)
         # scale CSC and hit errors 
         kwargs.setdefault("ErrorScalerBeta", 0.070 )
 
-    result.setPrivateTools(Muon__CscClusterOnTrackCreator(name,**kwargs))
+    result.setPrivateTools(CompFactory.Muon.CscClusterOnTrackCreator(name,**kwargs))
     
     return result
 
@@ -98,7 +92,7 @@ def MdtDriftCircleOnTrackCreatorCfg(flags,name="MdtDriftCircleOnTrackCreator", *
     
     kwargs.setdefault("IsMC", flags.Input.isMC)
 
-    result.addPublicTool(Muon__MdtDriftCircleOnTrackCreator(name, WasConfigured=True, **kwargs),primary=True)
+    result.setPrivateTools(CompFactory.Muon.MdtDriftCircleOnTrackCreator(name, WasConfigured=True, **kwargs))
     return result
     
 def MuonClusterOnTrackCreatorCfg(flags,name="MuonClusterOnTrackCreator", **kwargs):
@@ -108,8 +102,8 @@ def MuonClusterOnTrackCreatorCfg(flags,name="MuonClusterOnTrackCreator", **kwarg
         kwargs.setdefault("DoFixedErrorTgcEta", True)
         kwargs.setdefault("FixedErrorTgcEta", 15.)
     
-    muon_cluster_rot_creator = Muon__MuonClusterOnTrackCreator(name, **kwargs)
-    result.addPublicTool(muon_cluster_rot_creator, primary=True)
+    muon_cluster_rot_creator = CompFactory.Muon.MuonClusterOnTrackCreator(name, **kwargs)
+    result.setPrivateTools(muon_cluster_rot_creator)
     return result
 
     
@@ -143,7 +137,7 @@ def MuonRotCreatorCfg(flags, name="MuonRotCreator", **kwargs):
     kwargs.setdefault("ToolTRT_DriftCircle", None)
     kwargs.setdefault("Mode", 'muon' )
     
-    muon_rot_creator = Trk__RIO_OnTrackCreator(name, **kwargs)
-    result.addPublicTool(muon_rot_creator,primary=True)
+    muon_rot_creator = CompFactory.Trk.RIO_OnTrackCreator(name, **kwargs)
+    result.setPrivateTools(muon_rot_creator)
     return result
     

@@ -19,6 +19,7 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ThinningHandleKey.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include <vector>
 
 
@@ -70,6 +71,8 @@ private:
   StringArrayProperty m_samplingNames
   { this, "SamplingCellsName", {},
     "List of names of samplings for which all cluster cells in a rectangular window should be saved" };
+
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager", "CaloDetDescrManager"};      
 
   /// Decoded list of samplings.
   std::vector<int> m_validSamplings;

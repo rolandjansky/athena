@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonAGDDDescription/sTGCDetectorHelper.h"
@@ -7,15 +7,19 @@
 #include "AGDDKernel/AGDDDetectorStore.h"
 #include "AGDDKernel/AGDDPositionerStore.h"
 #include "AGDDKernel/AGDDDetectorPositioner.h"
+#include "AGDDControl/AGDDController.h"
 
 #include <vector>
 
 sTGCDetectorHelper::sTGCDetectorHelper()
 {
-	AGDDDetectorStore* ds=AGDDDetectorStore::GetDetectorStore();
-	detectorList vl= ds->GetDetectorList();
+        if (m_svc.retrieve().isFailure()) {
+          std::abort();
+        }
+        IAGDDtoGeoSvc::LockedController c = m_svc->getController();
+	detectorList vl= c->GetDetectorStore().GetDetectorList();
 	
-	for ( auto vl_iter: vl)
+	for ( const auto& vl_iter: vl)
 	{
 		sTGCDetectorDescription* st=dynamic_cast<sTGCDetectorDescription*>(vl_iter.second);
 		if (st) {
@@ -28,13 +32,13 @@ sTGCDetectorHelper::sTGCDetectorHelper()
 
 sTGCDetectorDescription* sTGCDetectorHelper::Get_sTGCDetector(char type,int ieta,int iphi,int layer,char side) 
 {
-	AGDDPositionerStore *ps=AGDDPositionerStore::GetPositionerStore();
+	sTGCDetectorDescription* tgc=nullptr;
 	
-	sTGCDetectorDescription* tgc=0;
-	
-	for (unsigned int i=0;i<ps->size();i++)
+        IAGDDtoGeoSvc::LockedController c = m_svc->getController();
+        AGDDPositionerStore& ps = c->GetPositionerStore();
+	for (unsigned int i=0;i<ps.size();i++)
 	{
-		AGDDDetectorPositioner* dp=dynamic_cast<AGDDDetectorPositioner*>((*ps)[i]);
+                AGDDDetectorPositioner* dp=dynamic_cast<AGDDDetectorPositioner*>(ps[i]);
 		if (dp)
 		{
 			if (dp->ID.detectorType != "sTGC") continue;
@@ -63,14 +67,14 @@ sTGCDetectorDescription* sTGCDetectorHelper::Get_sTGCDetector(char type,int ieta
 
 AGDDPositionedDetector sTGCDetectorHelper::Get_sTGCPositionedDetector(char type,int ieta,int iphi,int layer,char side) 
 {
-	AGDDPositionerStore *ps=AGDDPositionerStore::GetPositionerStore();
+	sTGCDetectorDescription* tgc=nullptr;
+	AGDDDetectorPositioner* dp=nullptr;
 	
-	sTGCDetectorDescription* tgc=0;
-	AGDDDetectorPositioner* dp=0;
-	
-	for (unsigned int i=0;i<ps->size();i++)
+        IAGDDtoGeoSvc::LockedController c = m_svc->getController();
+        AGDDPositionerStore& ps = c->GetPositionerStore();
+	for (unsigned int i=0;i<ps.size();i++)
 	{
-		dp=dynamic_cast<AGDDDetectorPositioner*>((*ps)[i]);
+                dp=dynamic_cast<AGDDDetectorPositioner*>(ps[i]);
 		if (dp)
 		{
 			if (dp->ID.detectorType != "sTGC") continue;
@@ -100,13 +104,33 @@ AGDDPositionedDetector sTGCDetectorHelper::Get_sTGCPositionedDetector(char type,
 
 sTGCDetectorDescription* sTGCDetectorHelper::Get_sTGCDetectorType(const std::string& type)
 {
-	if (m_sTGCList.find(type) != m_sTGCList.end()) return m_sTGCList[type];
+	if (auto itr = m_sTGCList.find(type); itr != m_sTGCList.end()) return itr->second;
 	return nullptr;
 }
 
 sTGCDetectorDescription* sTGCDetectorHelper::Get_sTGCDetectorSubType(const std::string& type)
 {
-	if (m_sTGCListSubType.find(type) != m_sTGCListSubType.end()) return m_sTGCListSubType[type];
+	if (auto itr = m_sTGCListSubType.find(type); itr != m_sTGCListSubType.end()) return itr->second;
 	return nullptr;
 }
 
+sTGCDetectorDescription* sTGCDetectorHelper::Get_sTGCDetectorType(std::string_view type)
+{
+	for(const auto &pair : m_sTGCList){
+     if(pair.first == type) return pair.second;
+	}
+	return nullptr;
+}
+
+sTGCDetectorDescription* sTGCDetectorHelper::Get_sTGCDetectorSubType(std::string_view type)
+{
+	for(const auto &pair : m_sTGCListSubType){
+     if(pair.first == type) return pair.second;
+	}
+	return nullptr;
+}
+
+IAGDDtoGeoSvc::LockedController sTGCDetectorHelper::Get_Controller()
+{
+  return m_svc->getController();
+}

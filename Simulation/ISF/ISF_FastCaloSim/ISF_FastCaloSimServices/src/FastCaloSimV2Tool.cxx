@@ -85,25 +85,25 @@ StatusCode ISF::FastCaloSimV2Tool::setupEventST()
 
   ATH_CHECK(evtStore()->record(m_theContainer, m_caloCellsOutputName));
 
-  return this->commonSetup();
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  return this->commonSetup(ctx);
 }
 
-StatusCode ISF::FastCaloSimV2Tool::setupEvent()
+StatusCode ISF::FastCaloSimV2Tool::setupEvent(const EventContext& ctx)
 {
   ATH_MSG_DEBUG ("setupEvent");
 
   m_theContainer = new CaloCellContainer(SG::VIEW_ELEMENTS);
 
-  return this->commonSetup();
+  return this->commonSetup(ctx);
 }
 
-StatusCode ISF::FastCaloSimV2Tool::commonSetup()
+StatusCode ISF::FastCaloSimV2Tool::commonSetup(const EventContext& ctx)
 {
-  const EventContext& ctx = Gaudi::Hive::currentContext();
-  // Set the RNG to use for this event. We need to reset it for MT jobs
+  // Set the RNGs to use for this event. We need to reset it for MT jobs
   // because of the mismatch between Gaudi slot-local and G4 thread-local RNG.
   ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this, m_randomEngineName);
-  rngWrapper->setSeed( m_randomEngineName, Gaudi::Hive::currentContext() );
+  rngWrapper->setSeed( m_randomEngineName, ctx );
 
   for (const ToolHandle<ICaloCellMakerTool>& tool : m_caloCellMakerToolsSetup)
     {
@@ -125,7 +125,7 @@ StatusCode ISF::FastCaloSimV2Tool::commonSetup()
   return StatusCode::SUCCESS;
 }
 
-StatusCode ISF::FastCaloSimV2Tool::releaseEvent()
+StatusCode ISF::FastCaloSimV2Tool::releaseEvent(const EventContext& ctx)
 {
   ATH_MSG_VERBOSE( "FastCaloSimV2Tool " << name() << " releaseEvent() " );
   // Run the version of releaseEvent that returns the output collection
@@ -134,7 +134,7 @@ StatusCode ISF::FastCaloSimV2Tool::releaseEvent()
   if ( m_theContainer ) {
 
     // Record with WriteHandle
-    SG::WriteHandle< CaloCellContainer > caloCellHandle( m_caloCellKey, Gaudi::Hive::currentContext() );
+    SG::WriteHandle< CaloCellContainer > caloCellHandle( m_caloCellKey, ctx );
     ATH_CHECK( caloCellHandle.record( std::make_unique< CaloCellContainer >( *m_theContainer ) ) );
     return StatusCode::SUCCESS;
   }
@@ -167,10 +167,12 @@ StatusCode ISF::FastCaloSimV2Tool::simulate(const ISF::ISFParticle& isfp, ISFPar
   Amg::Vector3D particle_position =  isfp.position();
   Amg::Vector3D particle_direction(isfp.momentum().x(),isfp.momentum().y(),isfp.momentum().z());
 
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this, m_randomEngineName); // TODO ideally would pass the event context to this method
+
   if (m_doPunchThrough) {
     Barcode::PhysicsProcessCode process = 201;
     // call punch-through simulation
-    const ISF::ISFParticleVector *someSecondaries = m_punchThroughTool->computePunchThroughParticles(isfp);
+    const ISF::ISFParticleVector *someSecondaries = m_punchThroughTool->computePunchThroughParticles(isfp, *rngWrapper);
     if (someSecondaries) {
       //Record truth incident for created punch through particles
       ISF::ISFTruthIncident truth( const_cast<ISF::ISFParticle&>(isfp),
@@ -214,7 +216,6 @@ StatusCode ISF::FastCaloSimV2Tool::simulate(const ISF::ISFParticle& isfp, ISFPar
   //only simulate if extrapolation to calo surface succeeded
   if(extrapol.CaloSurface_eta() != -999){
 
-    ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this, m_randomEngineName);
     TFCSSimulationState simulstate(*rngWrapper);
 
     ATH_CHECK(m_paramSvc->simulate(simulstate, &truth, &extrapol));

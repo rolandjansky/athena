@@ -124,12 +124,12 @@ int Trk::ProtoTrajectoryUtility::numberOfMeasurements(const Trk::Trajectory& T, 
 int Trk::ProtoTrajectoryUtility::rankedNumberOfMeasurements(const Trk::Trajectory& T) 
 {
   int number=0;
-  for (Trk::Trajectory::const_iterator it=T.begin(); it!=T.end(); it++)
-    if (!it->isOutlier() && it->measurement()) {
+  for (const auto & meas: T)
+    if (!meas.isOutlier() && meas.measurement()) {
       if ( dynamic_cast<const Trk::TrapezoidBounds*>
-           (&it->measurement()->associatedSurface().bounds()) ) ++number;
+           (&meas.measurement()->associatedSurface().bounds()) ) ++number;
       else
-        number += it->measurement()->localCovariance().cols();
+        number += meas.measurement()->localCovariance().cols();
     }
   return number;
 }
@@ -161,23 +161,23 @@ int Trk::ProtoTrajectoryUtility::numberOfSpecificStates
   using namespace Trk::TrackState;
   int number=0;
   if (ttype == AnyState)
-    for (Trk::Trajectory::const_iterator it=T.begin(); it!=T.end(); it++) {
-      if ( mtype==it->measurementType() ) ++number;
+    for (const auto & it:T) {
+      if ( mtype==it.measurementType() ) ++number;
     }
   else if (ttype == Fittable)
-    for (Trk::Trajectory::const_iterator it=T.begin(); it!=T.end(); it++) {
-      if (it->isOutlier()) continue;
-      if (mtype==unidentified ||  mtype==it->measurementType() ) ++number;
+    for (const auto & it: T) {
+      if (it.isOutlier()) continue;
+      if (mtype==unidentified ||  mtype==it.measurementType() ) ++number;
     }
   else 
-    for (Trk::Trajectory::const_iterator it=T.begin(); it!=T.end(); it++) {
-      if (!it->isNewOutlier()) continue;
+    for (const auto & it: T) {
+      if (!it.isNewOutlier()) continue;
       if ( (iterationNumber==0 
-            || iterationNumber==it->iterationShowingThisOutlier())
+            || iterationNumber==it.iterationShowingThisOutlier())
            &&
-           (mtype==unidentified   ||  mtype==it->measurementType() )
+           (mtype==unidentified   ||  mtype==it.measurementType() )
            &&
-           (ttype==GeneralOutlier ||  ttype==it->trackStateType() ) ) ++number;
+           (ttype==GeneralOutlier ||  ttype==it.trackStateType() ) ) ++number;
     }
   return number;
 }
@@ -204,19 +204,6 @@ void Trk::ProtoTrajectoryUtility::clearFitResultsAfterOutlier(Trk::Trajectory& T
   int c=1;
   for (Trk::Trajectory::iterator it=T.begin(); it!=T.end(); ++it, ++c) {
     // MBase pointer: never touch during outlier iterations.
-
-    if (it->dnaMaterialEffects()) {
-      // clear all dna after outlier and backward-dna also before outlier
-      if ( ! it->dnaMaterialEffects()->foundByForwardFilter()
-           || (c>=firststate) ) delete it->checkoutDNA_MaterialEffects();
-    }
-    if (it->smoothedTrackParameters()) delete it->checkoutSmoothedPar();
-    if (c>=firststate) {
-      if (it->forwardTrackParameters()) delete it->checkoutForwardPar();
-      if (it->parametersDifference())   delete it->checkoutParametersDifference();
-      if (it->parametersCovariance())   delete it->checkoutParametersCovariance();
-    }
-    if (it->fitQuality()) delete it->checkoutFitQuality();
     if (c>=firststate) it->setForwardStateFitQuality(0.0, 0.0);
     it->backwardStateChiSquared(0.0);
   }
@@ -234,20 +221,10 @@ void Trk::ProtoTrajectoryUtility::clearFitResultsAndReference(Trk::Trajectory& T
   for (Trk::Trajectory::iterator it=T.begin(); it!=T.end(); ++it, ++c) {
     // MBase pointer: never touch during outlier iterations.
 
-    if (it->dnaMaterialEffects()) {
-      // clear all dna after outlier and backward-dna also before outlier
-      if ( ! it->dnaMaterialEffects()->foundByForwardFilter()
-           || (c>=firststate) ) delete it->checkoutDNA_MaterialEffects();
-    }
     if (c>=firststate) {
-      if (it->forwardTrackParameters()) delete it->checkoutForwardPar();
-      if (it->parametersDifference())   delete it->checkoutParametersDifference();
-      if (it->parametersCovariance())   delete it->checkoutParametersCovariance();
       if (it->referenceParameters())    delete it->checkoutReferenceParameters();
       if (it->jacobian())               delete it->checkoutTransportJacobian();
     }
-    if (it->smoothedTrackParameters()) delete it->checkoutSmoothedPar();
-    if (it->fitQuality()) delete it->checkoutFitQuality();
     if (c>=firststate) it->setForwardStateFitQuality(0.0, 0.0);
     it->backwardStateChiSquared(0.0);
   }
@@ -261,9 +238,9 @@ void Trk::ProtoTrajectoryUtility::clearFitResultsAndReference(Trk::Trajectory& T
 void Trk::ProtoTrajectoryUtility::defineMeasurementsExceptThis(Trk::Trajectory& T,
                                                                int outlierState) 
 {
-  for (Trk::Trajectory::iterator it=T.begin(); it!=T.end(); it++) {
-    if (it->isNewOutlier() && it->positionOnTrajectory()!=outlierState) it->isOutlier(false);
-    if (it->positionOnTrajectory()==outlierState) it->isOutlier(Trk::TrackState::PredictedOutlier,1);
+  for (auto & it: T) {
+    if (it.isNewOutlier() && it.positionOnTrajectory()!=outlierState) it.isOutlier(false);
+    if (it.positionOnTrajectory()==outlierState) it.isOutlier(Trk::TrackState::PredictedOutlier,1);
   }
 }
 
@@ -273,16 +250,16 @@ Trk::ProtoTrajectoryUtility::forwardFilterQuality(const Trk::Trajectory& T,
 {
   double chisquared=0.0;
   double ndof = 0.0;
-  for (Trk::Trajectory::const_iterator it=T.begin(); it!=T.end(); it++) {
-    if (!it->isOutlier()
+  for (const auto & it: T) {
+    if (!it.isOutlier()
         && (select == Trk::TrackState::unidentified
-            || select == it->measurementType())) {
-      if (it->forwardStateChiSquared() >= 0.0) chisquared += it->forwardStateChiSquared();
-      ndof       += it->forwardStateNumberDoF();
+            || select == it.measurementType())) {
+      if (it.forwardStateChiSquared() >= 0.0) chisquared += it.forwardStateChiSquared();
+      ndof       += it.forwardStateNumberDoF();
     }
   }
   int    ndof_int = ndof>5 ? (int)(ndof-5.0) : 0;
-  return FitQuality(chisquared,ndof_int);
+  return {chisquared,ndof_int};
 }
 
 
@@ -298,45 +275,44 @@ void Trk::ProtoTrajectoryUtility::identifyMeasurements(Trk::Trajectory& T) const
 {
   if (m_idHelper==nullptr) return;
   Trk::MeasurementTypeID helper = MeasurementTypeID(m_idHelper);
-  for( Trk::Trajectory::iterator it = T.begin(); it!=T.end(); it++) {
-    Trk::TrackState::MeasurementType measType = helper.defineType(it->measurement());
-    it->setMeasurementType(measType, Trk::TrackState::CalibrationNotKnown);
+  for( auto & it: T) {
+    Trk::TrackState::MeasurementType measType = helper.defineType(it.measurement());
+    it.setMeasurementType(measType, Trk::TrackState::CalibrationNotKnown);
   }
 }
 
 void Trk::ProtoTrajectoryUtility::dumpTrajectory(const Trk::Trajectory& T, const std::string& name) const
 {
   std::cout << name << "'s internal trajectory:" << std::endl;
-  for (Trk::Trajectory::const_iterator it=T.begin(); it!=T.end(); it++) {
-    std::cout<< (it->positionOnTrajectory()>9?" T":" T0") << it->positionOnTrajectory()
-             << (it->measurement()? (it->isOutlier()?(it->isNewOutlier()? " Ou ":" Ol "):" Ms "):" -- ");
-    if ( it->dnaMaterialEffects() )
-      std::cout << (it->dnaMaterialEffects()->foundByForwardFilter() ? "dnaF " : "dnaB ");
-    else if ( it->materialEffects() )
+  for (const auto & it: T) {
+    std::cout<< (it.positionOnTrajectory()>9?" T":" T0") << it.positionOnTrajectory()
+             << (it.measurement()? (it.isOutlier()?(it.isNewOutlier()? " Ou ":" Ol "):" Ms "):" -- ");
+    if ( it.dnaMaterialEffects() )
+      std::cout << (it.dnaMaterialEffects()->foundByForwardFilter() ? "dnaF " : "dnaB ");
+    else if ( it.materialEffects() )
       std::cout    << "MatL ";
     else std::cout << "--   ";
-    std::cout<< (it->referenceParameters()?"R":"-") << (it->jacobian()?"J ":"- ") ;
-    if (it->forwardTrackParameters()) std::cout<< "fP ";
-    else if (it->parametersDifference()) std::cout << (it->parametersCovariance()?"dC ":"d- ");
+    std::cout<< (it.referenceParameters()?"R":"-") << (it.jacobian()?"J ":"- ") ;
+    if (it.forwardTrackParameters()) std::cout<< "fP ";
+    else if (it.parametersDifference()) std::cout << (it.parametersCovariance()?"dC ":"d- ");
     else std::cout << "-- ";
-    std::cout<< (it->smoothedTrackParameters()? "sP ":"-- ")
-             << (it->fitQuality()? "fQ  ":"--  ");
+    std::cout<< (it.smoothedTrackParameters()? "sP ":"-- ")
+             << (it.fitQuality()? "fQ  ":"--  ");
 
     // FIXME decide if this stays in or not
-    if (it->backwardStateChiSquared() > 0.0)
+    if (it.backwardStateChiSquared() > 0.0)
       std::cout << "% "
                 << std::setiosflags(std::ios::fixed | std::ios::showpoint | std::ios::right )
-                << std::setw(5) << /*std::setprecision(1) <<*/ it->forwardStateChiSquared() << "  "
-                << std::setw(5) << /*std::setprecision(1) <<*/ it->backwardStateChiSquared() << " % ";
-    //                << (it->fitQuality()? it->fitQuality()->chiSquared() : 0.0 ) << "  ";
+                << std::setw(5) << it.forwardStateChiSquared() << "  "
+                << std::setw(5) << it.backwardStateChiSquared() << " % ";
 
     // identify the type of measurement
-    if ( it->identify().is_valid() && m_idHelper!=nullptr) {
-      std::string detIdString = m_idHelper->print_to_string(it->identify());
+    if ( it.identify().is_valid() && m_idHelper!=nullptr) {
+      std::string detIdString = m_idHelper->print_to_string(it.identify());
       int iCutStart = (detIdString.substr(0,10) == "InnerDetec" ) ? 14 : 17;
-      std::cout /*<<it->identify()<<","*/ << detIdString.substr(iCutStart,85) << std::endl;
-    } else if (nullptr != dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(it->measurement())) {
-      const Trk::LocalParameters& P = it->measurement()->localParameters();
+      std::cout << detIdString.substr(iCutStart,85) << std::endl;
+    } else if (nullptr != dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(it.measurement())) {
+      const Trk::LocalParameters& P = it.measurement()->localParameters();
       std::cout << "PseudoMeasurement of dim " << P.dimension() << " containing ( ";
       if (P.contains(Trk::locX)) std::cout << "loc1 ";
       if (P.contains(Trk::locY)) std::cout << "loc2 ";
@@ -344,16 +320,16 @@ void Trk::ProtoTrajectoryUtility::dumpTrajectory(const Trk::Trajectory& T, const
       if (P.contains(Trk::theta)) std::cout << "theta ";
       if (P.contains(Trk::qOverP)) std::cout << "qOvP";
       std::cout << ")" << std::endl;
-    } else if (nullptr != dynamic_cast<const Trk::Segment*>(it->measurement())) {
-      const Trk::Segment* S = dynamic_cast<const Trk::Segment*>(it->measurement());
-      const Trk::LocalParameters& P = it->measurement()->localParameters();
+    } else if (nullptr != dynamic_cast<const Trk::Segment*>(it.measurement())) {
+      const Trk::Segment* S = dynamic_cast<const Trk::Segment*>(it.measurement());
+      const Trk::LocalParameters& P = it.measurement()->localParameters();
       std::cout << "Track Segment with of rank " << P.dimension() << " containing "
                 << S->numberOfMeasurementBases() << " internal meas'ts."<<std::endl;
-    } else if (it->materialEffects()) {
-      std::cout << "Material layer thick="<<it->materialEffects()->x0()<<" with dE="
-                << it->materialEffects()->deltaE()<<" +- "<<it->materialEffects()->sigmaDeltaE()
-                << ", dPhi=" << it->materialEffects()->deltaPhi()<<" +- "<<it->materialEffects()->sigmaDeltaPhi()
-                << ", dTheta="<< it->materialEffects()->deltaTheta()<<" +- "<<it->materialEffects()->sigmaDeltaTheta()<<std::endl;
+    } else if (it.materialEffects()) {
+      std::cout << "Material layer thick="<<it.materialEffects()->x0()<<" with dE="
+                << it.materialEffects()->deltaE()<<" +- "<<it.materialEffects()->sigmaDeltaE()
+                << ", dPhi=" << it.materialEffects()->deltaPhi()<<" +- "<<it.materialEffects()->sigmaDeltaPhi()
+                << ", dTheta="<< it.materialEffects()->deltaTheta()<<" +- "<<it.materialEffects()->sigmaDeltaTheta()<<std::endl;
     } else std::cout << std::endl;
   }
 }

@@ -1,23 +1,25 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCOOLConditions/LArRampSC.h" 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
-LArRampSC::LArRampSC() {}
+LArRampSC::LArRampSC()
+  : LArCondSuperCellBase ("LArRampSC")
+{}
 
 LArRampSC::~LArRampSC()  {}
 
 
-LArRampSC::LArRampSC(const CondAttrListCollection* attrList) {
-
-  StatusCode sc=initializeBase("LArRampSC");
-  if (sc.isFailure()) return;
+LArRampSC::LArRampSC(const CondAttrListCollection* attrList)
+  : LArCondSuperCellBase ("LArRampSC")
+{
+  if (initializeBase().isFailure()) return;
  
   if (!attrList) return;
 
-  readBlob(attrList,*m_log);
+  readBlob(attrList,msg());
 
 }
 

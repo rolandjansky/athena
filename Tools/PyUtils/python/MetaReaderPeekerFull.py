@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-__all__ = ['metadata', 'metadata_all_files', 'convert_itemList', 'convert_metadata_items']
+__all__ = ['metadata','convert_itemList', 'convert_metadata_items']
 
 metadata = {}
-metadata_all_files = {}
 
 
 def _setup():
@@ -12,10 +11,9 @@ def _setup():
     from PyUtils.MetaReader import read_metadata
 
     from AthenaCommon.Logging import logging
-    msg = logging.getLogger('MetaReader')
+    msg = logging.getLogger('MetaReaderPeekerFull')
 
     global metadata
-    global metadata_all_files
     
     # get input file name
     from RecExConfig.RecoFunctions import InputFileNames
@@ -34,13 +32,22 @@ def _setup():
             msg.warning("No input files specified yet! Cannot do anything.")
             return
 
-        metadata_all_files = read_metadata(inFiles, mode='full', ignoreNonExistingLocalFiles=True)
 
-        first_filename = inFiles[-1]  # take only the last input file from the infiles
+        for inFile in reversed(inFiles):
 
-        metadata = metadata_all_files[first_filename]
-        metadata['file_name'] = first_filename
+            metadatas = read_metadata(inFile, mode='full', ignoreNonExistingLocalFiles=True)
 
+            for foundFile, metadata in metadatas.items():
+                
+                metadata['file_name'] = inFile
+                if metadata.get("nentries"):
+                    break
+            else:
+                continue # This make the previous break to exit from both for loops
+            break
+
+            # if no nentries > 0 metadata is found, it will keep the first
+            
 
 # convert_itemList and convert_metadata_items have the same implementation as the one in MetaReaderPeeker.
 # If there are changes, these must be modified in both files.

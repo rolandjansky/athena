@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibEventBase/MuonCalibPattern.h"
@@ -12,83 +12,42 @@
 
 namespace MuonCalib {
 
-    MuonCalibPattern::MuonCalibPattern() :
-        m_chi2(std::numeric_limits<double>::max()),
-        m_z0(std::numeric_limits<double>::max()),
-        m_dist0(std::numeric_limits<double>::max()),
-        m_invP(std::numeric_limits<double>::max()),
-        m_phi(std::numeric_limits<double>::max()),
-        m_theta(std::numeric_limits<double>::max()),
-        m_nmdt(0),
-        m_nrpc(0),
-        m_ntgc(0),
-        m_ncsc(0) {}
+    unsigned int MuonCalibPattern::muonSegments() const { return m_muonSegments.size(); }
+    const MuonCalibPattern::MuonSegmentVec& MuonCalibPattern::muonSegs() const { return m_muonSegments; }
+    MuonCalibPattern::MuonSegmentVec& MuonCalibPattern::muonSegs() { return m_muonSegments; }
 
-    MuonCalibPattern::MuonCalibPattern(double chi2, double z0, double r0, double invP, double phi, double theta) :
-        m_chi2(chi2), m_z0(z0), m_dist0(r0), m_invP(invP), m_phi(phi), m_theta(theta), m_nmdt(0), m_nrpc(0), m_ntgc(0), m_ncsc(0) {}
+    // track parameters
+    double MuonCalibPattern::chi2() const { return m_pars.chi2; }
+    double MuonCalibPattern::z0() const { return m_pars.z0; }
+    double MuonCalibPattern::r0() const { return m_pars.dist0; }
+    double MuonCalibPattern::invP() const { return m_pars.invP; }
+    double MuonCalibPattern::phi() const { return m_pars.phi; }
+    double MuonCalibPattern::theta() const { return m_pars.theta; }
 
-    MuonCalibPattern::MuonCalibPattern(double chi2, double z0, double r0, double invP, double phi, double theta, unsigned int nmdt,
-                                       unsigned int nrpc, unsigned int ntgc, unsigned int ncsc) :
-        m_chi2(chi2),
-        m_z0(z0),
-        m_dist0(r0),
-        m_invP(invP),
-        m_phi(phi),
-        m_theta(theta),
-        m_nmdt(nmdt),
-        m_nrpc(nrpc),
-        m_ntgc(ntgc),
-        m_ncsc(ncsc) {}
+    unsigned int MuonCalibPattern::nmdtHits() const { return m_pars.nmdt; }
+    unsigned int MuonCalibPattern::nrpcHits() const { return m_pars.nrpc; }
+    unsigned int MuonCalibPattern::ntgcHits() const { return m_pars.ntgc; }
+    unsigned int MuonCalibPattern::ncscHits() const { return m_pars.ncsc; }
 
-    MuonCalibPattern::MuonCalibPattern(const MuonCalibPattern& pat) {
-        m_chi2 = pat.chi2();
-        m_z0 = pat.z0();
-        m_dist0 = pat.r0();
-        m_invP = pat.invP();
-        m_phi = pat.phi();
-        m_theta = pat.theta();
-        m_nmdt = pat.nmdtHits();
-        m_nrpc = pat.nrpcHits();
-        m_ntgc = pat.ntgcHits();
-        m_ncsc = pat.ncscHits();
+    // methodes for adding segments
+    void MuonCalibPattern::addMuonSegment(MuonCalibSegPtr seg) { m_muonSegments.emplace_back(std::move(seg)); }
 
-        MuonSegCit pat_it = pat.muonSegBegin();
-        MuonSegCit pat_it_end = pat.muonSegEnd();
-        for (; pat_it != pat_it_end; ++pat_it) {
-            MuonCalibSegment* seg = new MuonCalibSegment(**pat_it);
+    MuonCalibPattern::MuonCalibPattern(MuonCalibPattern::defineParams pars) : m_pars{pars} {
+        std::cout << "Consider to add NSW information here " << __FILE__ << ":" << __LINE__ << std::endl;
+    }
+
+    void MuonCalibPattern::copy(const MuonCalibPattern& other) {
+        m_pars = other.m_pars;
+        /// Need to find out whether the segment should be copied or not
+        for (const MuonCalibSegPtr& other_seg : other.muonSegs()) {
+            MuonCalibSegPtr seg{new MuonCalibSegment(*other_seg)};
             addMuonSegment(seg);
         }
     }
-
+    MuonCalibPattern::MuonCalibPattern(const MuonCalibPattern& other) { copy(other); }
     MuonCalibPattern& MuonCalibPattern::operator=(const MuonCalibPattern& pat) {
-        if (this != &pat) {
-            m_chi2 = pat.chi2();
-            m_z0 = pat.z0();
-            m_dist0 = pat.r0();
-            m_invP = pat.invP();
-            m_phi = pat.phi();
-            m_theta = pat.theta();
-            m_nmdt = pat.nmdtHits();
-            m_nrpc = pat.nrpcHits();
-            m_ntgc = pat.ntgcHits();
-            m_ncsc = pat.ncscHits();
-
-            std::for_each(muonSegBegin(), muonSegEnd(), DeleteObject());
-            m_muonSegments.clear();
-            MuonSegCit pat_it = pat.muonSegBegin();
-            MuonSegCit pat_it_end = pat.muonSegEnd();
-            for (; pat_it != pat_it_end; ++pat_it) {
-                MuonCalibSegment* seg = new MuonCalibSegment(**pat_it);
-                addMuonSegment(seg);
-            }
-        }
+        if (this != &pat) { copy(pat); }
         return *this;
-    }
-
-    MuonCalibPattern::~MuonCalibPattern() {
-        // MuonCalibPattern owns the segments
-        std::for_each(muonSegBegin(), muonSegEnd(), DeleteObject());
-        m_muonSegments.clear();
     }
 
     std::ostream& MuonCalibPattern::dump(std::ostream& os) const {

@@ -1,6 +1,6 @@
 """Define method to configure and test SCT_ByteStreamErrorsTestAlg
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -8,9 +8,9 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 def SCT_ByteStreamErrorsTestAlgCfg(flags, name="SCT_ByteStreamErrorsTestAlg", **kwargs):
     """Return a configured SCT_ByteStreamErrorsTestAlg"""
     acc = ComponentAccumulator()
-    from InDetConfig.InDetRecToolConfig import SCT_ByteStreamErrorsToolCfg
+    from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_ByteStreamErrorsToolCfg
     kwargs.setdefault("ByteStreamErrorsTool", acc.popToolsAndMerge(SCT_ByteStreamErrorsToolCfg(flags)))
-    acc.addEventAlgo(CompFactory.SCT_ByteStreamErrorsTestAlg(**kwargs))
+    acc.addEventAlgo(CompFactory.SCT_ByteStreamErrorsTestAlg(name, **kwargs))
     return acc
 
 if __name__=="__main__":

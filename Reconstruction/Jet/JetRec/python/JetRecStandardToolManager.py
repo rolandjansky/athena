@@ -55,6 +55,7 @@ jetlog.info( myname + "jetFlags.useCaloQualityTool: " + str(jetFlags.useCaloQual
 jetlog.info( myname + "jetFlags.additionalTopoGetters: " + str(jetFlags.additionalTopoGetters()) )
 jetlog.info( myname + "jetFlags.truthFlavorTags: " + str(jetFlags.truthFlavorTags()) )
 jetlog.info( myname + "jetFlags.skipTools: " + str(jetFlags.skipTools()) )
+jetlog.info( myname + "jetFlags.useTrackVertexTool: " + str(jetFlags.useTrackVertexTool()) )
 
 #########################################################
 # Create standard tool manager.
@@ -114,6 +115,9 @@ if jetFlags.useTracks():
   lcgetters += [jtm.gtrackget]
   empfgetters += [jtm.gtrackget]
 
+if jetFlags.useLargeD0Tracks():
+  emgetters += [jtm.gtracklrtget]
+
 if jetFlags.useMuonSegments():
   emgetters += [jtm.gmusegget]
   lcgetters += [jtm.gmusegget]
@@ -155,6 +159,7 @@ if jetFlags.useTracks():
   lcgetters += trackjetgetters
   empfgetters += trackjetgetters
 
+empfgetters += [jtm.gtowerget]
 
 # Add getter lists to jtm indexed by input type name.
 jtm.gettersMap["emtopo"]    = list(emgetters)

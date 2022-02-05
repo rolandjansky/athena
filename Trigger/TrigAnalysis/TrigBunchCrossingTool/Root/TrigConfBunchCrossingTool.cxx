@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigConfBunchCrossingTool.cxx 762070 2016-07-15 08:39:37Z krasznaa $
 
 // STL include(s):
 #include <algorithm>
@@ -46,7 +45,7 @@ namespace Trig {
    TrigConfBunchCrossingTool( const std::string& name )
       : BunchCrossingToolBase( name ), m_bgId( -1 ),
 #ifndef XAOD_STANDALONE
-        m_configSvc( "TrigConf::TrigConfigSvc/TrigConfigSvc", name ),
+        m_configSvc( "TrigConf::xAODConfigSvc/xAODConfigSvc", name ),
 #endif // not XAOD_STANDALONE
         m_configTool( "TrigConf::xAODConfigTool" ) {
 
@@ -79,7 +78,7 @@ namespace Trig {
         ATH_MSG_DEBUG( "  xAODConfigTool is set - will read from xAOD metadata" );
         ATH_CHECK( m_configTool.retrieve() );
       } else {
-        ATH_MSG_DEBUG( "  xAODConfigTool is not set - will read from TrigConfigSvc" );
+        ATH_MSG_DEBUG( "  xAODConfigTool is not set - will read from xAODConfigSvc" );
         ATH_CHECK( m_configSvc.retrieve() );
       }
 #else

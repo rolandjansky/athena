@@ -427,7 +427,7 @@ void DataProxy::setAddress(IOpaqueAddress* address)
  *
  * Returns a null pointer on failure.
  */
-std::unique_ptr<DataObject> DataProxy::readData() const
+std::unique_ptr<DataObject> DataProxy::readData()
 {
   // Public wrapper for readData().
   objLock_t objLock (m_objMutex);
@@ -446,7 +446,7 @@ std::unique_ptr<DataObject> DataProxy::readData() const
  * This will fail if the proxy does not refer to an object read from an
  * input file.
  */
-std::unique_ptr<DataObject> DataProxy::readData (objLock_t&, ErrNo* errNo) const
+std::unique_ptr<DataObject> DataProxy::readData (objLock_t&, ErrNo* errNo)
 {
   if (errNo) *errNo = ALLOK;
 

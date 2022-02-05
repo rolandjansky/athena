@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -12,7 +12,6 @@
 #include <iostream>
 #include <cstdlib>
 #include "POOLCore/Exception.h"
-#include "POOLCore/SystemTools.h"
 #include "FileCatalog/IFileCatalog.h"
 
 using namespace pool;
@@ -45,7 +44,6 @@ public:
     mysql
   };
   void setUp(){
-    SystemTools::initGaudi();
     mycatalog=new IFileCatalog;
     source=new IFileCatalog;
     dest=new IFileCatalog;

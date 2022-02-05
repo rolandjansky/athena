@@ -8,7 +8,7 @@ class TDQ(DCSC_Subdetector):
     
     mapping = {
         401: list(range( 5, 32)),
-        402: list(range(51, 67)),
+        402: list(range(51, 68)),
         403: list(range(32, 45)),
         404: list(range( 1,  5)) + list(range(45, 51)),
     }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CscMultiLayer_H
@@ -12,6 +12,7 @@
 namespace MuonGM {
 
     class Cutout;
+    class MYSQL;
 
     class CscMultiLayer : public DetectorElement {
 
@@ -29,13 +30,17 @@ namespace MuonGM {
 
         double thickness;
         double cscthickness;
-        double dim[8];
+        double dim[8]{};
 
       public: // methods
-        CscMultiLayer(std::string n);
-        GeoVPhysVol *build();
-        GeoVPhysVol *build(int cutoutson, const std::vector<Cutout *>& vcutdef);
-        void print();
+        CscMultiLayer(const MYSQL& mysql, const std::string& n);
+        GeoVPhysVol *build(const StoredMaterialManager& matManager,
+                           const MYSQL& mysql);
+        GeoVPhysVol *build(const StoredMaterialManager& matManager,
+                           const MYSQL& mysql,
+                           int cutoutson,
+                           const std::vector<Cutout *>& vcutdef);
+        virtual void print() override;
     };
 
 } // namespace MuonGM

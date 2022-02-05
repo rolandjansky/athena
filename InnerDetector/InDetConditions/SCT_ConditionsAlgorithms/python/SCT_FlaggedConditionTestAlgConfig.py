@@ -1,6 +1,6 @@
 """Define method to configure and test SCT_FlaggedConditionTestAlg
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -8,7 +8,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 def SCT_FlaggedConditionTestAlgCfg(flags, name="SCT_FlaggedConditionTestAlg", **kwargs):
     """Return a configured SCT_FlaggedConditionTestAlg"""
     acc = ComponentAccumulator()
-    from InDetConfig.InDetRecToolConfig import SCT_FlaggedConditionToolCfg
+    from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_FlaggedConditionToolCfg
     kwargs.setdefault("FlaggedConditionTool", acc.popToolsAndMerge(SCT_FlaggedConditionToolCfg(flags)))
     acc.addEventAlgo(CompFactory.SCT_FlaggedConditionTestAlg(**kwargs))
     return acc

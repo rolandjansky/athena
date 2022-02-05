@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ###############################################################
 #
@@ -165,6 +165,8 @@ do_runI = commonGeoFlags.Run() not in ["RUN2", "RUN3"]
 if do_runI:
     sys.exit("RUN1 is not supported. Bye.")
 
+from InDetRecExample import TrackingCommon as TrackingCommon
+
 # Set up cabling
 include("InDetRecExample/InDetRecCabling.py")
 
@@ -183,18 +185,7 @@ if doPixel:
 
         IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
         if (globalflags.DataSource()=='geant4'):
-            # ITk:
-            if geoFlags.isSLHC():
-                IdMappingDat = "ITk_Atlas_IdMapping.dat"
-                if "BrlIncl4.0_ref" == commonGeoFlags.GeoType():
-                    IdMappingDat = "ITk_Atlas_IdMapping_InclBrl4.dat"
-                elif "IBrlExt4.0ref" == commonGeoFlags.GeoType():
-                    IdMappingDat = "ITk_Atlas_IdMapping_IExtBrl4.dat"
-                elif "BrlExt4.0_ref" == commonGeoFlags.GeoType():
-                    IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl4.dat"
-                elif "BrlExt3.2_ref" == commonGeoFlags.GeoType():
-                    IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl32.dat"
-            elif (geoFlags.isIBL() == False):
+            if (geoFlags.isIBL() == False):
                 IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping.dat"
             else:
                 # Planar IBL
@@ -255,7 +246,7 @@ if doPixel:
     #####################
     # Calibration Setup #
     #####################
-    if commonGeoFlags.Run()=="RUN3":
+    if commonGeoFlags.Run()=="RUN3" and 'UseOldIBLCond' not in digitizationFlags.experimentalDigi():
         if not conddb.folderRequested("/PIXEL/ChargeCalibration"):
             conddb.addFolder("PIXEL_OFL", "/PIXEL/ChargeCalibration", className="CondAttrListCollection")
         if not hasattr(condSeq, 'PixelChargeLUTCalibCondAlg'):
@@ -416,6 +407,10 @@ if doPixel:
                                                              NnCollectionWithTrackReadKey = "PixelClusterNNWithTrack")
     ToolSvc += NnClusterizationFactory
 
+# Set up tracking geometry
+from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg
+condSeq += ConfiguredTrackingGeometryCondAlg('AtlasTrackingGeometryCondAlg')
+
 # Set up InDet__SiTrackerSpacePointFinder (alg)
 # Taken from InDetRecExample/share/InDetRecPreProcessingSilicon.py
 from SiSpacePointTool.SiSpacePointToolConf import InDet__SiSpacePointMakerTool
@@ -440,7 +435,9 @@ topSequence += InDetSiTrackerSpacePointFinder
 # Taken from InDetRecExample/share/InDetRec_jobOptions.py
 from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
 NewTrackingCuts = None
-if doPixel and doSCT:
+if doPixel and doSCT and InDetFlags.doBLS():
+    NewTrackingCuts = ConfiguredNewTrackingCuts("BLS")
+elif doPixel and doSCT:
     NewTrackingCuts = ConfiguredNewTrackingCuts("Offline")
 elif doPixel:
     NewTrackingCuts = ConfiguredNewTrackingCuts("Pixel")
@@ -454,10 +451,7 @@ if (NewTrackingCuts.mode() == "LowPt" or
     NewTrackingCuts.mode() == "LowPtLargeD0" or
     NewTrackingCuts.mode() == "BeamGas" or
     NewTrackingCuts.mode() == "ForwardTracks" or
-    NewTrackingCuts.mode() == "ForwardSLHCTracks" or
-    NewTrackingCuts.mode() == "Disappearing" or
-    NewTrackingCuts.mode() == "VeryForwardSLHCTracks" or
-    NewTrackingCuts.mode() == "SLHCConversionFinding"):
+    NewTrackingCuts.mode() == "Disappearing"):
 
     usePrdAssociationTool = True
 
@@ -540,9 +534,9 @@ if doPixel:
                                                              LorentzAngleTool   = ToolSvc.PixelLorentzAngleTool,
                                                              DisableDistortions = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone()),
                                                              applyNNcorrection = ( InDetFlags.doPixelClusterSplitting() and
-                                                                                   InDetFlags.pixelClusterSplittingType() == "NeuralNet" and not InDetFlags.doSLHC()),
+                                                                                   InDetFlags.pixelClusterSplittingType() == "NeuralNet"),
                                                              NNIBLcorrection = ( InDetFlags.doPixelClusterSplitting() and
-                                                                                 InDetFlags.pixelClusterSplittingType() == "NeuralNet" and not InDetFlags.doSLHC()),
+                                                                                 InDetFlags.pixelClusterSplittingType() == "NeuralNet"),
                                                              SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap(),
                                                              RunningTIDE_Ambi = InDetFlags.doTIDE_Ambi())
     PixelClusterOnTrackTool.NnClusterizationFactory  = NnClusterizationFactory
@@ -568,8 +562,14 @@ InDetRotCreator = Trk__RIO_OnTrackCreator(name             = "InDetRotCreator",
                                           Mode             = "indet")
 ToolSvc += InDetRotCreator
 
+# Set up Boundary check tool
+
+
 # Set up SiCombinatorialTrackFinder_xk (private)
 # Taken from InDetRecExample/share/InDetRecLoadTools.py
+# Need to make sure the InDetExtrapolator is configured
+InDetExtrap     = TrackingCommon.getInDetExtrapolator()
+
 from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiCombinatorialTrackFinder_xk
 InDetSiComTrackFinder = InDet__SiCombinatorialTrackFinder_xk(name                  = "InDetSiComTrackFinder",
                                                              PropagatorTool        = InDetPatternPropagator,
@@ -579,11 +579,12 @@ InDetSiComTrackFinder = InDet__SiCombinatorialTrackFinder_xk(name               
                                                              usePixel              = DetFlags.haveRIO.pixel_on(),
                                                              useSCT                = DetFlags.haveRIO.SCT_on(),
                                                              PixelClusterContainer = InDetKeys.PixelClusters(),
-                                                             SCT_ClusterContainer  = InDetKeys.SCT_Clusters())
+                                                             SCT_ClusterContainer  = InDetKeys.SCT_Clusters(),
+                                                             BoundaryCheckTool     = TrackingCommon.getInDetBoundaryCheckTool())
 
 # Set up SiTrackMaker_xk (private)
 # Taken from InDetRecExample/share/ConfiguredNewTrackingSiPattern.py
-# useBremMode = NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "SLHC"
+# useBremMode = NewTrackingCuts.mode() == "Offline"
 useBremMode = False ###
 InDetFlags.doCaloSeededBrem.set_Value_and_Lock(False) ###
 InDetFlags.doHadCaloSeededSSS.set_Value_and_Lock(False) ###
@@ -623,7 +624,6 @@ if not doBeamSpot:
 
 # Set up SiSPSeededTrackFinder (alg)
 # InDetRecExample/share/ConfiguredNewTrackingSiPattern.py
-from InDetRecExample import TrackingCommon as TrackingCommon
 from SiSPSeededTrackFinder.SiSPSeededTrackFinderConf import InDet__SiSPSeededTrackFinder
 InDetSiSPSeededTrackFinder = InDet__SiSPSeededTrackFinder(name           = "InDetSiSpTrackFinder"+NewTrackingCuts.extension(),
                                                           TrackTool      = InDetSiTrackMaker,

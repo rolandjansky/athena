@@ -60,7 +60,7 @@ print      (BPHY1JpsiFinder)
 ##    decorations which do not depend on the vertex mass hypothesis (e.g. lxy, ptError, etc).
 ##    There should be one tool per topology, i.e. Jpsi and Psi(2S) do not need two instance of the
 ##    Reco tool is the JpsiFinder mass window is wide enough.
-
+from InDetRecExample import TrackingCommon
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_Vertex
 BPHY1_Reco_mumu = DerivationFramework__Reco_Vertex(
   name                   = "BPHY1_Reco_mumu",
@@ -70,6 +70,8 @@ BPHY1_Reco_mumu = DerivationFramework__Reco_Vertex(
   RefPVContainerName     = "BPHY1RefittedPrimaryVertices",
   RefitPV                = True,
   MaxPVrefit             = 100000,
+  V0Tools                = TrackingCommon.getV0Tools(),
+  PVRefitter             = BPHY1_VertexTools.PrimaryVertexRefitter,
   DoVertexType           = 7)
   
 ToolSvc += BPHY1_Reco_mumu
@@ -92,6 +94,7 @@ BPHY1_Select_Jpsi2mumu = DerivationFramework__Select_onia2mumu(
   name                  = "BPHY1_Select_Jpsi2mumu",
   HypothesisName        = "Jpsi",
   InputVtxContainerName = "BPHY1OniaCandidates",
+  V0Tools               = TrackingCommon.getV0Tools(),
   VtxMassHypo           = 3096.916,
   MassMin               = 2000.0,
   MassMax               = 3600.0,
@@ -106,6 +109,7 @@ BPHY1_Select_Psi2mumu = DerivationFramework__Select_onia2mumu(
   name                  = "BPHY1_Select_Psi2mumu",
   HypothesisName        = "Psi",
   InputVtxContainerName = "BPHY1OniaCandidates",
+  V0Tools               = TrackingCommon.getV0Tools(),
   VtxMassHypo           = 3686.09,
   MassMin               = 3300.0,
   MassMax               = 4500.0,
@@ -121,6 +125,7 @@ BPHY1_Select_Upsi2mumu = DerivationFramework__Select_onia2mumu(
   name                  = "BPHY1_Select_Upsi2mumu",
   HypothesisName        = "Upsi",
   InputVtxContainerName = "BPHY1OniaCandidates",
+  V0Tools               = TrackingCommon.getV0Tools(),
   VtxMassHypo           = 9460.30,
   MassMin               = 7000.0,
   MassMax               = 12500.0,

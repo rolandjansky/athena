@@ -13,10 +13,12 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "PersistentDataModel/DataHeader.h"
 #include "AthenaPoolExampleData/ExampleTrackContainer.h"
 #include "AthenaPoolExampleData/ExampleHitContainer.h"
 #include "StoreGate/ReadHandleKey.h"
 
+class DataHeader;
 class StoreGateSvc;
 
 namespace AthPoolEx {
@@ -40,6 +42,7 @@ public:
 private:
    ServiceHandle<StoreGateSvc> p_SGinMeta;
    ServiceHandle<StoreGateSvc> p_SGmeta;
+   SG::ReadHandleKey<DataHeader> m_dataHeaderKey { this, "DataHeaderKey", "EventSelector" };
    SG::ReadHandleKey<ExampleTrackContainer> m_exampleTrackKey { this, "ExampleTrackKey", "MyTracks" };
    SG::ReadHandleKey<ExampleHitContainer> m_exampleHitKey { this, "ExampleHitKey", "MyHits" };
 };

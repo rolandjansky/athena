@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -41,34 +41,34 @@
 #include <map>
 
 namespace {
-  template <class T>
-  class PtrVectorWrapper
+template<class T>
+class PtrVectorWrapper
+{
+public:
+  PtrVectorWrapper()
+    : m_ptr(new std::vector<T*>)
+  {}
+
+  ~PtrVectorWrapper()
   {
-  public:
-    PtrVectorWrapper ()
-      : m_ptr(new std::vector<const T *>)
-    {
-    }
-
-    ~PtrVectorWrapper() {
-      if (m_ptr) {
-	for (const T *elm : *m_ptr ) {
-	  delete elm;
-	}
-	m_ptr->clear();
+    if (m_ptr) {
+      for (const T* elm : *m_ptr) {
+        delete elm;
       }
+      m_ptr->clear();
     }
-    std::vector<const T *> &operator*() { return *m_ptr; }
-    const std::vector<const T *> &operator*() const { return *m_ptr; }
+  }
+  std::vector<T*>& operator*() { return *m_ptr; }
+  const std::vector<const T*>& operator*() const { return *m_ptr; }
 
-    std::vector<const T *> *operator->() { return m_ptr.get(); }
-    const std::vector<const T *> *operator->() const { return m_ptr.get(); }
+  std::vector<T*>* operator->() { return m_ptr.get(); }
+  const std::vector<const T*>* operator->() const { return m_ptr.get(); }
 
-    std::vector<const T *> *release() { return m_ptr.release(); }
+  std::vector<T*>* release() { return m_ptr.release(); }
 
-  private:
-    std::unique_ptr<std::vector<const T *> > m_ptr;
-  };
+private:
+  std::unique_ptr<std::vector<T*>> m_ptr;
+};
 
 }
 
@@ -125,9 +125,9 @@ StatusCode InDet::TRT_LayerBuilderCond::initialize()
 
 
 /** LayerBuilderCond interface method - returning Barrel-like layers */
-std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet::TRT_LayerBuilderCond::cylindricalLayers(const EventContext& ctx) const
+std::pair<EventIDRange, const std::vector<Trk::CylinderLayer*>*>
+InDet::TRT_LayerBuilderCond::cylindricalLayers(const EventContext& ctx) const
 {
-
 
   ATH_MSG_DEBUG( "Building cylindrical layers for the TRT " );
 
@@ -141,7 +141,7 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
   const InDetDD::TRT_DetElementContainer* trtContainer{*readHandleTRTContainer};
   if(trtContainer == nullptr){
     ATH_MSG_ERROR("Aligned TRT could not be retrieved from CondStore: " << m_readKeyTRTContainer);
-    std::pair<EventIDRange,const std::vector<const Trk::CylinderLayer* >* >(range,nullptr);
+    std::pair<EventIDRange,const std::vector<Trk::CylinderLayer* >* >(range,nullptr);
   }
   
   // get Numerology and Id HElper
@@ -151,7 +151,7 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
   const TRT_ID* trtIdHelper = nullptr;
   if (detStore()->retrieve(trtIdHelper, "TRT_ID").isFailure()) {
      ATH_MSG_ERROR("Could not get TRT ID helper");
-     return std::pair<EventIDRange,const std::vector<const Trk::CylinderLayer* >* >(range,nullptr);
+     return std::pair<EventIDRange,const std::vector<Trk::CylinderLayer* >* >(range,nullptr);
   }
 
   int    nBarrelRings  = trtNums->getNBarrelRings();
@@ -206,7 +206,7 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
 
   if (nTotalBarrelLayers==0) {
       ATH_MSG_WARNING( "nTotalBarrelLayers = 0 ... aborting and returning 0 !" );
-      return std::pair<EventIDRange,const std::vector<const Trk::CylinderLayer* >* >(range,nullptr);
+      return std::pair<EventIDRange,const std::vector<Trk::CylinderLayer* >* >(range,nullptr);
   }
 
   // calculate delta(R) steps and delta(R)
@@ -215,8 +215,8 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
   double layerHalflength = layerZmax;
 
   // prepare the material
-  if ( fabs(rDiff) <= 0.1 ){
-    return std::pair<EventIDRange,const std::vector<const Trk::CylinderLayer* >* >(range,nullptr);
+  if ( std::abs(rDiff) <= 0.1 ){
+    return std::pair<EventIDRange,const std::vector<Trk::CylinderLayer* >* >(range,nullptr);
   }
 
   // ilay - for accessing the straw layers and for material decission
@@ -294,7 +294,7 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
               double layerPhiMax         = -10;
 
               // per phi sector we make a 2D binnin in phi-z
-              std::vector< std::pair<Trk::BinnedArray<Trk::Surface>*, Amg::Vector3D >  > layerSectorArrays;
+              std::vector< std::pair<Trk::BinnedArray<const Trk::Surface>*, Amg::Vector3D >  > layerSectorArrays;
               Amg::Vector3D layerSectorPosition(0.,0.,0.);
 
               // the sector approaching surfaces
@@ -379,7 +379,7 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
                  // prepare the
                  // fix to CID 24918
                  if (!sectorStraws) {
-                   return std::pair<EventIDRange,const std::vector<const Trk::CylinderLayer* >* >(range,nullptr);
+                   return std::pair<EventIDRange,const std::vector<Trk::CylinderLayer* >* >(range,nullptr);
                  }
                  double deltaPhi  = (phiMax-phiMin);
                  double phiStep   = deltaPhi/(0.5*sectorStraws-1);
@@ -392,7 +392,7 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
                  Trk::BinUtility* layerStrawPhiZUtility     = new Trk::BinUtility(sectorStraws/2,phiMin,phiMax,Trk::open, Trk::binPhi);
                                  (*layerStrawPhiZUtility)  += Trk::BinUtility(2,-layerZmax, layerZmax, Trk::open, Trk::binZ);
                  // create the 2D BinnedArray
-                 Trk::BinnedArray2D<Trk::Surface>* layerStrawPhiSector = new Trk::BinnedArray2D<Trk::Surface>(strawsPerPhiSecLayer,layerStrawPhiZUtility);
+                 Trk::BinnedArray2D<const Trk::Surface>* layerStrawPhiSector = new Trk::BinnedArray2D<const Trk::Surface>(strawsPerPhiSecLayer,layerStrawPhiZUtility);
                  ATH_MSG_VERBOSE("---> Sector " << phisec << " - BinnedArray for straws prepared for " << strawsPerPhiSecLayer.size() << " straws.");
                  // fill the array
                  layerSectorArrays.emplace_back(layerStrawPhiSector, layerSectorPosition);
@@ -427,7 +427,7 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
 
               // the sector surfaces
               Trk::BinUtility* layerSectorBinUtility = new Trk::BinUtility(nBarrelPhiSectors,layerPhiMinCorrected,layerPhiMaxCorrected,Trk::closed,Trk::binPhi);
-              Trk::BinnedArrayArray<Trk::Surface>* strawArray = new Trk::BinnedArrayArray<Trk::Surface>(layerSectorArrays, layerSectorBinUtility );
+              Trk::BinnedArrayArray<const Trk::Surface>* strawArray = new Trk::BinnedArrayArray<const Trk::Surface>(layerSectorArrays, layerSectorBinUtility );
 
               ATH_MSG_VERBOSE("--> Layer " << layer << " has been built with " << strawArray->arrayObjects().size() << " straws.");
 
@@ -436,7 +436,7 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
               Trk::BinUtility* aDescriptorBinUtility = new Trk::BinUtility(nBarrelPhiSectors,layerPhiMinCorrected,layerPhiMaxCorrected,Trk::closed,Trk::binPhi);
                            (*aDescriptorBinUtility) += Trk::BinUtility(2,-layerHalflength,layerHalflength,Trk::open, Trk::binZ);
 
-              auto aDescriptorBinnedArray = std::make_unique<Trk::BinnedArray2D<Trk::ApproachSurfaces>> (layerApproachSurfaces, aDescriptorBinUtility);
+              auto aDescriptorBinnedArray = std::make_unique<Trk::BinnedArray2D<const Trk::ApproachSurfaces>> (layerApproachSurfaces, aDescriptorBinUtility);
 
               // build an approach surface
               auto approachSurface = std::make_unique<Trk::CylinderSurface> (barrelLayerBounds->clone());
@@ -495,7 +495,7 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
   return std::make_pair(range,barrelLayers.release());
 }
 
-std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT_LayerBuilderCond::discLayers(const EventContext& ctx) const
+std::pair<EventIDRange, const std::vector<Trk::DiscLayer* >* > InDet::TRT_LayerBuilderCond::discLayers(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG( "Building disc-like layers for the TRT " );
 
@@ -506,7 +506,7 @@ std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT
   const InDetDD::TRT_DetElementContainer* trtContainer{*readHandleTRTContainer};
   if(trtContainer == nullptr){
     ATH_MSG_ERROR("Aligned TRT could not be retrieved from CondStore: " << m_readKeyTRTContainer);
-    std::pair<EventIDRange,const std::vector<const Trk::CylinderLayer* >* >(range,nullptr);
+    return std::pair<EventIDRange,const std::vector<Trk::DiscLayer* >* >(range,nullptr);
   }
 
   const InDetDD::TRT_Numerology* trtNums = trtContainer->getTRTNumerology();
@@ -514,7 +514,7 @@ std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT
   const TRT_ID* trtIdHelper = nullptr;
   if (detStore()->retrieve(trtIdHelper, "TRT_ID").isFailure()) {
      ATH_MSG_ERROR("Could not get TRT ID helper");
-     return std::pair<EventIDRange,const std::vector<const Trk::DiscLayer* >* >(range,nullptr);
+     return std::pair<EventIDRange,const std::vector<Trk::DiscLayer* >* >(range,nullptr);
   }
   unsigned int nEndcapWheels = trtNums->getNEndcapWheels();
   unsigned int nEndcapPhiSectors = trtNums->getNEndcapPhi();
@@ -548,13 +548,13 @@ std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT
     }
   if (numTotalLayers==0) {
       ATH_MSG_WARNING( "numTotalLayers = 0 ... aborting and returning 0 !" );
-      return std::pair<EventIDRange,const std::vector<const Trk::DiscLayer* >* >(range,nullptr);
+      return std::pair<EventIDRange,const std::vector<Trk::DiscLayer* >* >(range,nullptr);
   }
 
   Trk::DiscBounds* fullDiscBounds = sectorDiscBounds ? new Trk::DiscBounds(sectorDiscBounds->rMin(), sectorDiscBounds->rMax()) : nullptr;
   if (!fullDiscBounds) {
       ATH_MSG_WARNING( "fullDiscBounds do not exist ... aborting and returning 0 !" );
-      return std::pair<EventIDRange,const std::vector<const Trk::DiscLayer* >* >(range,nullptr);
+      return std::pair<EventIDRange,const std::vector<Trk::DiscLayer* >* >(range,nullptr);
   }
 
   PtrVectorWrapper<Trk::DiscLayer> endcapLayers;
@@ -688,10 +688,10 @@ std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT
            if (!numberOfStraws){
              //fix coverity 118656
              delete fullDiscBounds;
-             return std::pair<EventIDRange,const std::vector<const Trk::DiscLayer* >* >(range,nullptr);
+             return std::pair<EventIDRange,const std::vector<Trk::DiscLayer* >* >(range,nullptr);
            }
            Trk::BinUtility* currentBinUtility = new Trk::BinUtility(numberOfStraws, -M_PI, M_PI, Trk::closed, Trk::binPhi);
-           Trk::BinnedArray<Trk::Surface>*  strawArray = new Trk::BinnedArray1D<Trk::Surface>(strawPerEndcapLayer, currentBinUtility);
+           Trk::BinnedArray<const Trk::Surface>*  strawArray = new Trk::BinnedArray1D<const Trk::Surface>(strawPerEndcapLayer, currentBinUtility);
            Trk::DiscLayer* currentLayer = nullptr;
 
            // redefine the discZ

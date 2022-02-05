@@ -27,13 +27,13 @@ class RecMuonRoIUtils
         return (p_roi->getThresholdNumber() <4) ? true : false;
       };
       bool isLowPt(const xAOD::MuonRoI* p_roi) const {
-        return (p_roi->getThrNumber() <4) ? true : false;
+        return !(p_roi->getBW3Coincidence());
       };
       bool isHighPt(const LVL1::RecMuonRoI* p_roi) const {
         return (p_roi->getThresholdNumber()>=4) ? true : false;
       };
       bool isHighPt(const xAOD::MuonRoI* p_roi) const {
-        return (p_roi->getThrNumber()>=4) ? true : false;
+        return p_roi->getBW3Coincidence();
       };
 };
 

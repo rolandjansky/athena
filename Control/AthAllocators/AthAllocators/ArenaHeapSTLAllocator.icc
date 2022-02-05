@@ -202,19 +202,6 @@ ArenaHeapSTLAllocator<T, VETO>::address (reference x) const
 
 
 /**
- * @brief Convert a reference to an address.
- */
-template <class T, class VETO>
-inline
-typename ArenaHeapSTLAllocator<T, VETO>::const_pointer
-ArenaHeapSTLAllocator<T, VETO>::address (const_reference x) const
-{
-  return &x;
-}
-
-
-
-/**
  * @brief Allocate new objects.
  * @param n Number of objects to allocate.  Must be 1.
  * @param hint Allocation hint.  Not used.
@@ -248,7 +235,9 @@ void ArenaHeapSTLAllocator<T, VETO>::deallocate (pointer p, size_type
                              )
 {
   assert (n == 1);
-  m_pool.free (reinterpret_cast<ArenaHeapAllocator::pointer> (p));
+  using pointer_nc = std::remove_const_t<T>*;
+  pointer_nc pp ATLAS_THREAD_SAFE = const_cast<pointer_nc>(p);
+  m_pool.free (reinterpret_cast<ArenaHeapAllocator::pointer> (pp));
 }
 
 
@@ -269,13 +258,14 @@ ArenaHeapSTLAllocator<T, VETO>::max_size() const throw()
 /**
  * @brief Call the @c T constructor.
  * @param p Location of the memory.
- * @param val Parameter to pass to the constructor.
+ * @param args Arguments to pass to the constructor.
  */
 template <class T, class VETO>
+template <class... Args>
 inline
-void ArenaHeapSTLAllocator<T, VETO>::construct (pointer p, const T& val)
+void ArenaHeapSTLAllocator<T, VETO>::construct (pointer p, Args&&... args)
 {
-  new (reinterpret_cast<void*>(p)) T(val);
+  new (p) T(std::forward<Args>(args)...);
 }
 
 

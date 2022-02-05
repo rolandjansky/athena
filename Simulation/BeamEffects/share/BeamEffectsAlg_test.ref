@@ -13,7 +13,7 @@ ApplicationMgr Ready
 [----------] 7 tests from BeamEffectsAlg_test
 [ RUN      ] BeamEffectsAlg_test.empty_alg_execute
 ClassIDSvc           INFO  getRegistryEntries: read 2101 CLIDRegistry entries for module ALL
-BeamEffectsAlg      FATAL No input McEventCollection called GEN_EVENT in StoreGate.
+BeamEffectsAlg      FATAL No input McEventCollection called GEN_EVENT in StoreGateSvc
 [       OK ] BeamEffectsAlg_test.empty_alg_execute (16 ms)
 [ RUN      ] BeamEffectsAlg_test.set_properties
 ClassIDSvc           INFO  getRegistryEntries: read 430 CLIDRegistry entries for module ALL

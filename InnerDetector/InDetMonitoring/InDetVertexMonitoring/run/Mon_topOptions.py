@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.GlobalFlags  import globalflags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as af
@@ -91,11 +91,6 @@ if DQMonFlags.useTrigger():
       from RecExConfig.RecFlags import rec
 
    if rec.readESD() and (DQMonFlags.monManEnvironment=='tier0ESD'):
-      # for ESD->AOD use trigger config stored as in-file meta-data,
-      if not 'TriggerFlags' in dir():
-         from TriggerJobOpts.TriggerFlags import TriggerFlags
-      TriggerFlags.configurationSourceList = ['ds']
-
       # set up trigger config service
       if not 'TriggerConfigGetter' in dir():
          from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter

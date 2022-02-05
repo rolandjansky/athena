@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -22,6 +22,7 @@
 #include "LArRawEvent/LArRawSCContainer.h"
 #include "LArRawEvent/LArSCDigit.h"
 #include "LArRawEvent/LArLATOMEHeaderContainer.h"
+#include "LArCabling/LArLATOMEMapping.h"
 #include "ByteStreamData/RawEvent.h"
 #include "CxxUtils/unused.h"
 #include "eformat/Version.h"
@@ -30,6 +31,7 @@
 #include <string>
 #include <fstream>
 #include "eformat/index.h"
+
 
 /**
  * @brief Byte stream converter of LATOME.
@@ -66,7 +68,8 @@ public:
   /** @brief Finalize the converter*/
   virtual StatusCode finalize();
   /** @brief Converter*/
-  StatusCode convert(const RawEvent* re, LArDigitContainer* adc_coll,
+  StatusCode convert(const RawEvent* re, const LArLATOMEMapping *map,
+                     LArDigitContainer* adc_coll,
 		     LArDigitContainer* adc_bas_coll,
 		     LArRawSCContainer* et_coll,
 		     LArRawSCContainer* et_id_coll,
@@ -97,17 +100,18 @@ private:
     typedef int Packet;
     typedef int SuperCell;
     typedef int Sample;
-    typedef int NumLATOME;
     typedef std::string Path;
 
-    EventProcess(const LArLATOMEDecoder* decoderInput, LArDigitContainer* adc_coll,
+    EventProcess(const LArLATOMEDecoder* decoderInput, const LArLATOMEMapping *map,
+                 LArDigitContainer* adc_coll,
 		 LArDigitContainer* adc_bas_coll,
 		 LArRawSCContainer* et_coll,
 		 LArRawSCContainer* et_id_coll,
 		 LArLATOMEHeaderContainer* header_coll);
     
     /** @brief Execute decoding for an event*/
-    void fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* pROB);
+
+    void fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* pROB, const LArLATOMEMapping *map);
 
   private:
     bool compareOrSet(Word& param, Word value, bool compare);
@@ -122,11 +126,9 @@ private:
 		       MonDataType at0, MonDataType at1,
 		       unsigned int& at0Data, unsigned int& at1Data, unsigned int& satData,
 		       bool& at0val, bool& at1val);
-    
-    /** @brief Determine LATOME using applicable word.*/
-    NumLATOME determinedLATOMENum(uint32_t RODSourceID);
+    int signEnergy(unsigned int energy);
     /** @brief Pass ADC values from an event*/
-    void fillRaw(const std::map<SuperCell, HWIdentifier>& theMap);
+    void fillRaw(const LArLATOMEMapping *map);
     void fillHeader();
     
     enum MODE {
@@ -142,8 +144,7 @@ private:
     std::vector<Word> m_packetEnd;
 
     // rod header
-    uint32_t m_latomeSourceID = 0U;
-    Word m_latomeBCID = 0U;
+    Word m_latomeBCID;
     //// mon header
     Word m_latomeID;
     Word m_l1ID;
@@ -185,30 +186,25 @@ private:
     bool m_hasEID;
 
     
-    const LArLATOMEDecoder* m_decoder;
+    const LArLATOMEDecoder *m_decoder;
     LArDigitContainer* m_adc_coll;
     LArDigitContainer* m_adc_bas_coll;
     LArRawSCContainer* m_et_coll;
     LArRawSCContainer* m_et_id_coll;
     LArLATOMEHeaderContainer* m_header_coll;
     
-    NumLATOME m_nthLATOME = 0;
+    // LATOME source ID is stored here:
+    unsigned int m_nthLATOME = 0;
+
     std::vector<unsigned short> m_BCIDsInEvent;
     std::vector<LatomeRawData> m_rawValuesInEvent;
   };
 
   // propary of tool
-  Path m_LATOMEInfoFileName;
-  Path m_LATOMEInfoFilePath;
   Path m_detailDumpFileName;
   Path m_ADCDumpFileName;  
   bool m_protectSourceId;
   
-  std::vector<uint32_t> m_LATOMEsourceID;
-  /** @brief Map that associate SCs with SCIDs*/
-  std::vector< std::map<SuperCell, HWIdentifier> > m_SCIDMap;
-  std::vector<Path> m_LATOMEMapPath;
-
   /** @brief Detail dump file*/
   std::ofstream* ATH_UNUSED_MEMBER(m_detailDumpFile) = nullptr;
   /** @brief ADC dump file*/

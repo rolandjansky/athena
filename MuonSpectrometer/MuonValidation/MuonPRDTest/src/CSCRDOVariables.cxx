@@ -19,7 +19,7 @@ CSCRDOVariables::CSCRDOVariables(StoreGateSvc* evtStore,
 		const MuonGM::MuonDetectorManager* detManager,
 		const MuonIdHelper* idhelper,
 		TTree* tree,
-	 	std::string containername,
+	 	const std::string& containername,
 	 	MSG::Level msglvl,     
    const Muon::ICSC_RDO_Decoder* rdo_decoder
      ) :
@@ -89,31 +89,46 @@ StatusCode CSCRDOVariables::fillVariables(const MuonGM::MuonDetectorManager* Muo
       m_Csc_rdo_measuresPhi.push_back(measuresPhi);
       m_Csc_rdo_time.push_back(rdo->time());
       
-  
+      Amg::Vector2D localPos(0.,0.);
+      Amg::Vector3D globalPos(0., 0., 0.);
 
-      Amg::Vector2D localStripPos(0.,0.);
-      if ( rdoEl->stripPosition(Id,localStripPos) )  {
-        m_Csc_rdo_localPosX.push_back(localStripPos.x());
-        m_Csc_rdo_localPosY.push_back(localStripPos.y());
-        ATH_MSG_DEBUG("CSC RDO: local pos.:  x=" << localStripPos[0] << ",  y=" << localStripPos[1]);
-      } else { 
-        ATH_MSG_WARNING("CSC RDO: local Strip position not defined"); 
-      }
-      
-      // asking the detector element to transform this local to the global position
-      Amg::Vector3D globalStripPos(0., 0., 0.);
-      static const Amg::Vector3D null_vec{0,0,0};
-      rdoEl->surface(Id).localToGlobal(localStripPos,null_vec, globalStripPos);
-      m_Csc_rdo_globalPosX.push_back(globalStripPos.x());
-      m_Csc_rdo_globalPosY.push_back(globalStripPos.y());
-      m_Csc_rdo_globalPosZ.push_back(globalStripPos.z());
+      rdoEl->surface(Id).localToGlobal(localPos,globalPos,globalPos);
+      m_Csc_rdo_globalPosX.push_back(globalPos.x());
+      m_Csc_rdo_globalPosY.push_back(globalPos.y());
+      m_Csc_rdo_globalPosZ.push_back(globalPos.z());
+
 
       // rdo counter for the ntuple
       m_Csc_nrdo++;
     }
+     // Local RDO position information loss after localToGlobal transformation, fill the local positions in another loop for retrieving the local positions
+    for (const CscRawData* rdo: *coll) {
+      const Identifier Id { m_rdo_decoder->channelIdentifier(rdo, m_CscIdHelper,strip_num)};
+      ++strip_num;
+
+      const MuonGM::CscReadoutElement* rdoEl = nullptr;
+      try{
+         rdoEl =  MuonDetMgr->getCscReadoutElement(Id);	   
+      } catch (const std::runtime_error&) {
+        ATH_MSG_WARNING("CSCRDOVariables::fillVariables() - Failed to retrieve CscReadoutElement for" << __FILE__ << __LINE__ <<" "<< m_CscIdHelper->print_to_string(Id));
+        continue;
+      }
+      if (!rdoEl) {
+          ATH_MSG_ERROR("CSCRDOVariables::fillVariables() - Failed to retrieve CscReadoutElement for" << __FILE__ << __LINE__ << m_CscIdHelper->print_to_string(Id));
+          return StatusCode::FAILURE;
+      }
+
+      Amg::Vector2D lPos(0.,0.);
+      Amg::Vector3D gPos(0., 0., 0.);
+
+      rdoEl->surface(Id).globalToLocal(gPos,gPos,lPos);
+      m_Csc_rdo_localPosX.push_back(lPos.x());
+      m_Csc_rdo_localPosY.push_back(lPos.y());
+    }
+
   }
 
-  ATH_MSG_DEBUG("processed " << m_Csc_nrdo << " MicroMegas rdo");
+  ATH_MSG_DEBUG("processed " << m_Csc_nrdo << " csc rdo");
   return StatusCode::SUCCESS;
 }
 

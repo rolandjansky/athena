@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArByteStream/LArRawDataContByteStreamTool.h"
@@ -15,7 +15,6 @@
 #include "LArCabling/LArOnOffIdMapping.h"
 
 #include "LArByteStream/LArRodBlockStructure.h"
-//#include "LArByteStream/LArRodBlockStructure_0.h"
 #include "LArByteStream/LArRodBlockTransparentV0.h"
 #include "LArByteStream/LArRodBlockCalibrationV0.h"
 #include "LArByteStream/LArRodBlockPhysicsV0.h"
@@ -63,7 +62,7 @@ LArRawDataContByteStreamTool::initialize()
   ATH_CHECK( AthAlgTool::initialize() );
   ATH_MSG_DEBUG ( "Initializing LArRawDataContByteStream" );
 
-  ATH_CHECK( toolSvc()->retrieveTool("LArRodDecoder",m_decoder) );
+  ATH_CHECK( m_decoder.retrieve() );
 
   if (m_initializeForWriting) {
    if (m_DSPRunMode == 0) {
@@ -83,6 +82,7 @@ LArRawDataContByteStreamTool::initialize()
   ATH_CHECK( m_caloNoiseKey.initialize (m_initializeForWriting) );
   ATH_CHECK( m_onOffIdMappingKey.initialize (m_initializeForWriting) );
   ATH_CHECK( m_febRodMappingKey.initialize (m_initializeForWriting) );
+  ATH_CHECK( m_caloMgrKey.initialize (m_initializeForWriting) );
 
   return StatusCode::SUCCESS;  
 }
@@ -130,11 +130,10 @@ LArRawDataContByteStreamTool::WriteLArDigits(const LArDigitContainer* digitCont,
    return StatusCode::SUCCESS;
  }
 
- const CaloDetDescrManager* calodd = nullptr;
- ATH_CHECK( detStore()->retrieve (calodd, "CaloMgr") );
  const EventContext& ctx = Gaudi::Hive::currentContext();
  SG::ReadCondHandle<LArOnOffIdMapping> onOffMapping (m_onOffIdMappingKey, ctx);
  SG::ReadCondHandle<LArFebRodMapping> febRodMapping (m_febRodMappingKey, ctx);
+ SG::ReadCondHandle<CaloDetDescrManager> caloMgr (m_caloMgrKey, ctx);
  const Hid2RESrcID& hid2re = getHid2RESrcID (**febRodMapping);
 
  std::map<uint32_t, LArRodEncoder> mapEncoder; 
@@ -142,7 +141,7 @@ LArRawDataContByteStreamTool::WriteLArDigits(const LArDigitContainer* digitCont,
  auto getEncoder = [&] (uint32_t reid) -> LArRodEncoder&
                    { return mapEncoder.try_emplace (reid,
                                                     *m_onlineHelper,
-                                                    *calodd,
+                                                    **caloMgr,
                                                     **onOffMapping,
                                                     blstruct.get()).first->second; };
 
@@ -235,11 +234,10 @@ LArRawDataContByteStreamTool::WriteLArCalibDigits(const LArCalibDigitContainer* 
    return StatusCode::FAILURE;
  }
 
- const CaloDetDescrManager* calodd = nullptr;
- ATH_CHECK( detStore()->retrieve (calodd, "CaloMgr") );
  const EventContext& ctx = Gaudi::Hive::currentContext();
  SG::ReadCondHandle<LArOnOffIdMapping> onOffMapping (m_onOffIdMappingKey, ctx);
  SG::ReadCondHandle<LArFebRodMapping> febRodMapping (m_febRodMappingKey, ctx);
+ SG::ReadCondHandle<CaloDetDescrManager> caloMgr (m_caloMgrKey, ctx);
  const Hid2RESrcID& hid2re = getHid2RESrcID (**febRodMapping);
 
  std::map<uint32_t, LArRodEncoder> mapEncoder; 
@@ -247,7 +245,7 @@ LArRawDataContByteStreamTool::WriteLArCalibDigits(const LArCalibDigitContainer* 
  auto getEncoder = [&] (uint32_t reid) -> LArRodEncoder&
                    { return mapEncoder.try_emplace (reid,
                                                     *m_onlineHelper,
-                                                    *calodd,
+                                                    **caloMgr,
                                                     **onOffMapping,
                                                     blstruct.get()).first->second; };
 
@@ -314,11 +312,10 @@ LArRawDataContByteStreamTool::WriteLArRawChannels(const LArRawChannelContainer* 
    return StatusCode::SUCCESS;
  }
 
- const CaloDetDescrManager* calodd = nullptr;
- ATH_CHECK( detStore()->retrieve (calodd, "CaloMgr") );
  const EventContext& ctx = Gaudi::Hive::currentContext();
  SG::ReadCondHandle<LArOnOffIdMapping> onOffMapping (m_onOffIdMappingKey, ctx);
  SG::ReadCondHandle<LArFebRodMapping> febRodMapping (m_febRodMappingKey, ctx);
+ SG::ReadCondHandle<CaloDetDescrManager> caloMgr (m_caloMgrKey, ctx);
  const Hid2RESrcID& hid2re = getHid2RESrcID (**febRodMapping);
 
  std::map<uint32_t, LArRodEncoder> mapEncoder; 
@@ -326,7 +323,7 @@ LArRawDataContByteStreamTool::WriteLArRawChannels(const LArRawChannelContainer* 
  auto getEncoder = [&] (uint32_t reid) -> LArRodEncoder&
                    { return mapEncoder.try_emplace (reid,
                                                     *m_onlineHelper,
-                                                    *calodd,
+                                                    **caloMgr,
                                                     **onOffMapping,
                                                     blstruct.get()).first->second; };
 

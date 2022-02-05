@@ -690,27 +690,13 @@ namespace top {
   std::string EgammaCPTools::electronSFMapFilePath(const std::string& type) {
     // Store here the paths to maps which may be updated with new recommendations
     // Currently can use maps for reco, id, iso, trigger but not ChargeID
-    const std::string el_calib_path = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/";
+    const std::string el_calib_path = "ElectronEfficiencyCorrection/2015_2018/rel21.2/Precision_Summer2020_v1/map0.txt";
 
-    std::string file_path;
-    if (type == "reco") {
-      file_path = "map3.txt";
-    } else if (type == "ID") {
-      file_path = "map3.txt";
-    } else if (type == "FWDID") {
-      file_path = "map3.txt";
-    } else if (type == "isolation") {
-      file_path = "map3.txt";
-    } else if (type == "trigger") {
-      file_path = "map3.txt";
-    } else if (type == "ChargeID") {
-      ATH_MSG_ERROR("Use electronSFFilePath method until ChargeID is supported by maps");
-    } else if (type == "ChargeMisID") {
-      ATH_MSG_ERROR("Use electronSFFilePath method until ChargeMisID is supported by maps");
-    } else {
-      ATH_MSG_ERROR("Unknown electron SF type");
+    if (type == "FWDID") {
+      return PathResolverFindCalibFile("ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/map3.txt");
     }
-    return PathResolverFindCalibFile(el_calib_path + file_path);
+
+    return PathResolverFindCalibFile(el_calib_path);
   }
 
   std::string EgammaCPTools::mapWorkingPoints(const std::string& type) {

@@ -22,7 +22,7 @@
 //-----------------------------------------------------------------------------
 StandardFieldSvc::StandardFieldSvc(const std::string& name,
                                    ISvcLocator* pSvcLocator)
-    : G4MagFieldSvcBase(name, pSvcLocator)
+    : G4MagFieldSvcBase(name, pSvcLocator)     
 {}
 
 
@@ -58,10 +58,12 @@ G4MagneticField* StandardFieldSvc::makeField()
   
   // Either initialize the field map - used for solenoid and toroid, or the field service for the forward field
   if (m_useMagFieldSvc) {
-      af = new AtlasField( &*m_magFieldSvc );
+    af = new AtlasField( &*m_magFieldSvc );
   }
   else {
-      af = new AtlasField(m_fieldMap.get());
+    const double scaleSolenoid = m_mapSoleCurrent>0 ? m_useSoleCurrent / m_mapSoleCurrent : 1. ;
+    const double scaleToroid    = m_mapToroCurrent>0 ? m_useToroCurrent / m_mapToroCurrent : 1. ;
+    af = new AtlasField(scaleSolenoid, scaleToroid, m_fieldMap.get());
   }
   
   return (af);
@@ -87,11 +89,10 @@ StatusCode StandardFieldSvc::createFieldMap()
         // all magnets OFF. no need to read map
         return StatusCode::SUCCESS;
     }
-        
-    ATH_MSG_INFO ( "StandardFieldSvc::createFieldMap: Set map currents from FieldSvc: solenoid/toroid " 
-                   << m_mapSoleCurrent << "," << m_mapToroCurrent);
-    ATH_MSG_INFO ( "StandardFieldSvc::createFieldMap: Use map file " << mapFile);
 
+    ATH_MSG_INFO ( "StandardFieldSvc::createFieldMap: Set map currents from FieldSvc: solenoid/toroid " 
+                <<  m_useSoleCurrent  << "," << m_useToroCurrent );
+    ATH_MSG_INFO ( "StandardFieldSvc::createFieldMap: Use map file " << mapFile);
         
     // find the path to the map file
     std::string resolvedMapFile = PathResolver::find_file( mapFile.c_str(), "DATAPATH" );
@@ -129,7 +130,7 @@ StatusCode StandardFieldSvc::createFieldMap()
     m_fieldMap = std::make_unique<MagField::AtlasFieldMap>();
 
     // initialize map
-    if (!m_fieldMap->initializeMap( rootfile.get(), m_mapSoleCurrent, m_mapToroCurrent )) {
+    if (!m_fieldMap->initializeMap( rootfile.get(), m_useSoleCurrent , m_useToroCurrent) ) {
         // failed to initialize the map
         ATH_MSG_ERROR("StandardFieldSvc::createFieldMap: unable to initialize the map for AtlasFieldMap for file " << resolvedMapFile);
         rootfile->Close();

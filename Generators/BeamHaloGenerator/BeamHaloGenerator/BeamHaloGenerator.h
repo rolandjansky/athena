@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BEAMHALOGENERATOR_H
@@ -33,8 +33,8 @@ class BeamHaloGenerator {
 
   BeamHaloGenerator(const HepPDT::ParticleDataTable* particleTable,
 		    CLHEP::HepRandomEngine* engine, 
-		    std::string inputFile,
-		    std::vector<std::string> generatorSettings);
+		    const std::string& inputFile,
+		    const std::vector<std::string>& generatorSettings);
 
   virtual ~BeamHaloGenerator();
 
@@ -72,7 +72,7 @@ class BeamHaloGenerator {
 
   /** Set the name of the binary buffer file, needed for sampling from a
       converted file. */
-  void setBufferFileName(std::string bufferFileName) { m_bufferFileName = bufferFileName; }
+  void setBufferFileName(const std::string& bufferFileName) { m_bufferFileName = bufferFileName; }
 
   /** A function to turn on or off debug print out. */
   void setDebugEnable(bool debug) { m_debug = debug; }

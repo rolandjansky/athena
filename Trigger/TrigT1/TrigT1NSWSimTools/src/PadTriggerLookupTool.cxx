@@ -36,12 +36,12 @@ PadTriggerLookupTool::PadTriggerLookupTool(const std::string& type, const std::s
 }
 
 StatusCode PadTriggerLookupTool::initialize() {
-    ATH_MSG_INFO( "initializing " << name() );
-    ATH_MSG_INFO( name() << " configuration:");
+    ATH_MSG_DEBUG( "initializing " << name() );
+    ATH_MSG_DEBUG( name() << " configuration:");
     ATH_CHECK( detStore()->retrieve( m_detManager ));
     ATH_CHECK(loadCoincidenceTable("TriggerPatterns.dat") );
     if(m_dumpSectorGeometry){
-        ATH_MSG_INFO(" Will dump  3D pad geometry / sector");
+        ATH_MSG_DEBUG(" Will dump  3D pad geometry / sector");
         std::ofstream padGeoFile("NSWSectorPadsGeoDump.dat");//use local variables in order not to contaminate members
         //grab full sector pads
         std::vector<std::shared_ptr<PadOfflineData>> smallSectorPads=fetchSmallSectorPads();
@@ -96,7 +96,7 @@ StatusCode PadTriggerLookupTool::lookup_pad_triggers(const std::vector<std::shar
 StatusCode PadTriggerLookupTool::loadCoincidenceTable(const std::string& padCoincidenceFileName){
     
     std::string file = PathResolver::find_file (padCoincidenceFileName, "DATAPATH");
-    ATH_MSG_INFO("Loading coincidence table from "<<file);
+    ATH_MSG_DEBUG("Loading coincidence table from "<<file);
     std::ifstream infile(file.c_str());
     if(!infile){
         ATH_MSG_FATAL("Can't open file " << file);
@@ -121,7 +121,7 @@ StatusCode PadTriggerLookupTool::loadCoincidenceTable(const std::string& padCoin
     }
 
     ATH_CHECK(expandCoincidenceTable() );
-    ATH_MSG_INFO(" Load "<<m_pats.size()<<" coincidence patterns...");
+    ATH_MSG_DEBUG(" Load "<<m_pats.size()<<" coincidence patterns...");
     return StatusCode::SUCCESS;
 }
 
@@ -141,6 +141,9 @@ StatusCode PadTriggerLookupTool::expandCoincidenceTable(){//There we append 3o4s
             int phiid=kv.second.second;
             for(const int& in : innerIndices ){
                 std::vector<int> pattern=kv.first;//copy
+                if(pattern.at(in)==nullPadNumber || pattern.at(in+4)==nullPadNumber){
+                    continue;
+                }
                 pattern.at(in)=nullPadNumber;
                 for(const int& out :outerIndices){
                     int thispattern=pattern.at(out);
@@ -158,7 +161,7 @@ StatusCode PadTriggerLookupTool::expandCoincidenceTable(){//There we append 3o4s
         }
 
         m_pats.insert(derivedCoincidencePatterns.begin(),derivedCoincidencePatterns.end());
-        ATH_MSG_INFO(" Picked up "<<m_pats.size()<<" pad coincidences");
+        ATH_MSG_DEBUG(" Picked up "<<m_pats.size()<<" pad coincidences");
         return StatusCode::SUCCESS;
 }
 

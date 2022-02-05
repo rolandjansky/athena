@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 from InDetConfig.TrackRecoConfig 	import BCM_ZeroSuppressionCfg, PixelClusterizationCfg, \
@@ -16,10 +16,10 @@ def InDetClusterizationAlgorithmsCfg(flags, **kwargs) :
     top_acc.merge(PoolReadCfg(flags))
    
     ### obtain pixel and SCT geometry
-    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-    from SCT_GeoModel.SCT_GeoModelConfig	import SCT_GeometryCfg
-    top_acc.merge( PixelGeometryCfg(flags) )
-    top_acc.merge( SCT_GeometryCfg(flags) )
+    from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
+    from SCT_GeoModel.SCT_GeoModelConfig   import SCT_ReadoutGeometryCfg
+    top_acc.merge( PixelReadoutGeometryCfg(flags) )
+    top_acc.merge( SCT_ReadoutGeometryCfg(flags) )
 
 
     #redoPatternRecoAndTracking = kwargs.pop('redoPatternRecoAndTracking')
@@ -61,10 +61,10 @@ if __name__ == "__main__":
 
     ConfigFlags.Detector.GeometryPixel   = True 
     ConfigFlags.Detector.GeometrySCT   = True
-    ConfigFlags.InDet.doPixelClusterSplitting = True
+    ConfigFlags.InDet.Tracking.doPixelClusterSplitting = True
 
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.Input.Files = defaultTestFiles.RDO
+    ConfigFlags.Input.Files = defaultTestFiles.RDO_RUN2
     ConfigFlags.lock()
     ConfigFlags.dump()
 

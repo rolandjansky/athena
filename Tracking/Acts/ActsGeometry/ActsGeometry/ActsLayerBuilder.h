@@ -15,6 +15,7 @@
 #include "Acts/Utilities/Logger.hpp"
 #include "Acts/Utilities/BinningType.hpp"
 #include "Acts/Geometry/GeometryContext.hpp"
+#include "Acts/Definitions/Units.hpp"
 
 class ActsTrackingGeomtrySvc;
 
@@ -31,6 +32,10 @@ class LayerCreator;
 class ActsLayerBuilder : public Acts::ILayerBuilder
 {
 public:
+  enum class Mode {
+    Undefined, Pixel, SCT, TRT, ITkPixelInner, ITkPixelOuter, ITkStrip,
+  };
+
   using ElementVector
       = std::vector<std::shared_ptr<const ActsDetectorElement>>;
 
@@ -41,8 +46,7 @@ public:
   {
     /// string based identification
     std::string                          configurationName = "undefined";
-    ActsDetectorElement::Subdetector subdetector
-        = ActsDetectorElement::Subdetector::Pixel;
+    Mode mode = Mode::Undefined;
     const InDetDD::SiDetectorManager*   mng;
     std::shared_ptr<const Acts::LayerCreator> layerCreator = nullptr;
     /// the binning type of the contained surfaces in phi
@@ -56,8 +60,26 @@ public:
     Acts::BinningType                    bTypeZ = Acts::equidistant;
     std::shared_ptr<ElementVector> elementStore;
 
+    std::pair<double, double> endcapEnvelopeR = {2 * Acts::UnitConstants::mm,
+                                                 2 * Acts::UnitConstants::mm};
+    std::pair<double, double> endcapEnvelopeZ = {2 * Acts::UnitConstants::mm,
+                                                 2 * Acts::UnitConstants::mm};
+
+    std::pair<double, double> barrelEnvelopeR = {2 * Acts::UnitConstants::mm,
+                                                 2 * Acts::UnitConstants::mm};
+    std::pair<double, double> barrelEnvelopeZ = {2 * Acts::UnitConstants::mm,
+                                                 2 * Acts::UnitConstants::mm};
+
     std::pair<size_t, size_t> endcapMaterialBins = {20, 5};
     std::pair<size_t, size_t> barrelMaterialBins = {10, 10};
+
+    std::function<bool(const Acts::GeometryContext &, Acts::BinningValue,
+                       const Acts::Surface *, const Acts::Surface *)>
+        surfaceMatcher;
+
+    bool doEndcapLayerMerging = true;
+
+    bool objDebugOutput = false;
   };
 
   /// Constructor
@@ -65,12 +87,7 @@ public:
   /// @param logger the local logging instance
   ActsLayerBuilder(const Config&                cfg,
                        std::unique_ptr<const Acts::Logger> logger
-                       = Acts::getDefaultLogger("GMLayBldr", Acts::Logging::INFO))
-    : m_logger(std::move(logger))
-  {
-    // std::cout << "GMLB construct" << std::endl;
-    m_cfg = cfg;
-  }
+                       = Acts::getDefaultLogger("GMLayBldr", Acts::Logging::INFO));
 
   /// Destructor
   ~ActsLayerBuilder() {}
@@ -83,6 +100,7 @@ public:
 
   const Acts::LayerVector
   positiveLayers(const Acts::GeometryContext& gctx) const override;
+
 
   /// Name identification
   // const std::string&
@@ -139,7 +157,13 @@ private:
   // @param layers is goint to be filled
   // @param type is the indication which ones to build -1 | 0 | 1
   void
-  buildLayers(const Acts::GeometryContext& gctx, Acts::LayerVector& layersOutput, int type = 0);
+  buildBarrel(const Acts::GeometryContext& gctx, Acts::LayerVector& layersOutput);
+
+  void
+  buildEndcap(const Acts::GeometryContext& gctx, Acts::LayerVector& layersOutput, int type = 0);
+
 };
+
+std::ostream& operator<<(std::ostream& os, const ActsLayerBuilder::Mode& mode);
 
 #endif

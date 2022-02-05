@@ -157,18 +157,7 @@ doAllReco   = False
 
 #doCommissioning = False
 
-# Found that this must be true for REB runs but not for SFI
-if (partitionName == "L1CaloStandalone"):
-   doTrigger = False #True #Default: False
-else:
-   doTrigger = False
-   #doTrigger = True
-   #doTriggerConfigOnly=True
-   #TriggerModernConfig=True
-   #from TriggerJobOpts.TriggerFlags import TriggerFlags
-   #TriggerFlags.doTriggerConfigOnly=True
-   
-
+doTrigger = False
 
 ################
 ## -- flags set in: RecExOnline_monitoring.py (from RecExOnline_jobOptions.py)
@@ -441,13 +430,6 @@ if (partitionName.find("L1CaloStandalone") >= 0) or (partitionName.find("ATLAS")
    #conddb.addFolder("", "<dbConnection>sqlite://;schema=/det/l1calo/calib/tdaq-05/calib.sqlite;dbname=L1CALO</dbConnection>/TRIGGER/Receivers/Factors/CalibGains<tag>HEAD</tag>")
 
 
-#from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
-#cfg = TriggerConfigGetter()
-#if rec.doLArg and rec.doTile:
-#  from AthenaCommon.AlgSequence import AlgSequence
-#  TTjob = AlgSequence()
-#  TTjob.TriggerTowerMaker.LVL1ConfigSvc = "Trig::TrigConfigSvc/TrigConfigSvc"
- 
 #M6
 #rec.doTau=False;
 #rec.doEgamma=False;

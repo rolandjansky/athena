@@ -15,7 +15,9 @@
 namespace Trk{
   class Track;
 }
-
+namespace CLHEP {
+  class HepRandomEngine;
+}
 namespace ISF {
 
   /**
@@ -37,7 +39,7 @@ namespace ISF {
         DeclareInterfaceID(IPunchThroughTool, 1, 0);
 
         /** Creates new vector of ISFParticle out of a given ISFParticle */
-        virtual const ISF::ISFParticleVector* computePunchThroughParticles(const ISFParticle& isfp ) const = 0;
+   virtual const ISF::ISFParticleVector* computePunchThroughParticles(const ISFParticle& isfp, CLHEP::HepRandomEngine* rndmEngine) const = 0;
  };
 
 } // end of namespace

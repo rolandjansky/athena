@@ -286,10 +286,11 @@ StatusCode TileTBDump::execute() {
     eformat::helper::SourceIdentifier id = eformat::helper::SourceIdentifier(source_id);
     unsigned int subdet_id = id.subdetector_id();
     unsigned int module_id = id.module_id();
-//    int robsourceid = robf.source_id();
+    int robsourceid = robf.source_id();
 
     bool known = m_dumpUnknown || subdet_id == 0x70  // COMMON BEAM ROD in CTB2004
-                 || (subdet_id >= 0x50 && subdet_id < 0x60); // TileCal IDs
+                 || (subdet_id >= 0x50 && subdet_id < 0x60) // TileCal IDs
+                 || (robsourceid >= 0x510000 && robsourceid < 0x550000); // TileCal ROBs
 
     if (!(known || m_showUnknown)) {
       continue;
@@ -396,6 +397,13 @@ StatusCode TileTBDump::execute() {
         
         if (subdet_id == 0) {
           std::cout<<" Problem with ROD frag - SubDetector ID is 0" <<std::endl;
+          if (source_id >= 0x5100 && source_id < 0x5500 && robsourceid >= 0x510000 && robsourceid < 0x550000) { // buggy ROD fragment
+            std::cout<<" Looks like ROD frag is in old format, ROD Source ID is 0x" << std::hex << source_id
+                     <<" assuming that ROD Source ID is 0x" << robsourceid << std::dec << std::endl;
+            source_id = robsourceid;
+            subdet_id = robsourceid>>16;
+            dump_data(data, size, version, verbosity);
+          }
         }
         if ((subdet_id >= 0x50 && subdet_id < 0x60) || // TileCal IDs
             subdet_id == 0x63 || // wrong id in first testbeam test runs 
@@ -1864,7 +1872,7 @@ void TileTBDump::find_frag(const uint32_t* data, unsigned int size, unsigned int
       
       for (; offset < size; ++offset) {
         std::cout << "\t"  << offset << "\t" << data[offset] << "\t0x" << std::hex << data[offset] << std::dec << std::endl;
-        if (data[offset] == 0xff1234ff) break;
+        if (data[offset] == 0xff1234ff || data[offset] == 0x00123400) break;
       }
       if (offset == size) {
         std::cout << "After:\t"  << offset << "\t" << data[offset] << "\t0x" << std::hex << data[offset] << std::dec << std::endl;
@@ -1873,7 +1881,7 @@ void TileTBDump::find_frag(const uint32_t* data, unsigned int size, unsigned int
         ++offset; // go to next good frag or jump outside ROD, if at the end
       }
       
-    } else if (frag[*nfrag]->size < size - offset && m_v3Format && data[offset + frag[*nfrag]->size - 1] != 0xff1234ff) {
+    } else if (frag[*nfrag]->size < size - offset && m_v3Format && data[offset + frag[*nfrag]->size - 1] != 0xff1234ff && data[offset + frag[*nfrag]->size - 1] != 0x00123400) {
 
       std::cout << "\nWarning: frag "  << *nfrag << " of current ROD is damaged"  << std::endl;
       std::cout << "Size:         \t"  << std::setw(10) << (frag[*nfrag]->size) << "\tMin/Max Size: \t" << std::setw(10) << m_sizeOverhead << "\t" <<  std::setw(10) << size - offset + m_sizeOverhead - 2 << std::endl;
@@ -1883,7 +1891,7 @@ void TileTBDump::find_frag(const uint32_t* data, unsigned int size, unsigned int
       std::cout << "Before:\t"  << offset-1 << "\t" << data[offset-1] << "\t0x" << std::hex << data[offset-1] << std::dec << std::endl;
       for (; offset < size; ++offset, ++newsize) {
         std::cout << "\t"  << offset << "\t" << data[offset] << "\t0x" << std::hex << data[offset] << std::dec << std::endl;
-        if (data[offset] == 0xff1234ff) break;
+        if (data[offset] == 0xff1234ff || data[offset] == 0x00123400) break;
       }
       if (offset == size) {
         std::cout << "After:\t"  << offset << "\t" << data[offset] << "\t0x" << std::hex << data[offset] << std::dec << std::endl;

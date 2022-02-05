@@ -1,11 +1,12 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef _UTILS_TOKENIZE_H_
 #define _UTILS_TOKENIZE_H_
 
 #include <string>
+#include <set>
 
 namespace top {
   /*!
@@ -39,6 +40,35 @@ namespace top {
 
       if (pos != last_pos || not trim_empty) {
         output.emplace_back(input.data() + last_pos, pos - last_pos);
+      }
+
+      last_pos = pos + 1;
+    }
+  }
+
+  /**
+   * @brief Same as tokenize() method, but accepts std::set-like containers, with emplace method
+   */
+  template <typename Container>
+  void tokenize_set(const std::string& input, Container& output,
+                    const std::string& delimiters = " ", bool trim_empty = false) {
+    const auto size = input.size();
+
+    std::string::size_type pos {
+      0
+    };
+    std::string::size_type last_pos {
+      0
+    };
+
+    while (last_pos < size + 1) {
+      pos = input.find_first_of(delimiters, last_pos);
+      if (pos == std::string::npos) {
+        pos = size;
+      }
+
+      if (pos != last_pos || not trim_empty) {
+        output.emplace(input.data() + last_pos, pos - last_pos);
       }
 
       last_pos = pos + 1;

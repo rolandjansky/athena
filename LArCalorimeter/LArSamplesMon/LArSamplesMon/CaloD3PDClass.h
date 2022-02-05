@@ -19,12 +19,14 @@
 // Header file for the classes stored in the TTree if any.
 #include <vector>
 
-using std::vector;
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
 class CaloD3PDClass {
 public :
+   template <class T>
+   using vector = std::vector<T>;
+
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
 
@@ -452,7 +454,7 @@ CaloD3PDClass::CaloD3PDClass(TTree *tree) : fChain(0)
       f->GetObject("caloD3PD",tree);
 
    }
-   Init(tree);
+   CaloD3PDClass::Init(tree);
 }
 
 CaloD3PDClass::~CaloD3PDClass()

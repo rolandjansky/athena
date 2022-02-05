@@ -72,8 +72,8 @@
 ///  globals for communicating with *Analyses
 #include "globals.h"
 
-///  TagNProbe routine class
-#include "TagNProbe.h"
+///  TagNProbe class
+#include "TrigInDetAnalysisUtils/TagNProbe.h"
 
 // in ConfAnalysis
 
@@ -242,7 +242,7 @@ const std::vector<TIDA::Track> ibl_filter( const std::vector<TIDA::Track>& tv ) 
     double z = tv[i].z0() + ribl/std::tan(theta);
 
     if ( !tv[i].expectBL() ) { 
-      std::cout << "missing IBL: phi: " << tv[i].phi() << "\tz: " << z << " (" << eta << " " << theta*180/3.14159 << ")" << std::endl; 
+      std::cout << "missing IBL: phi: " << tv[i].phi() << "\tz: " << z << " (" << eta << " " << theta*180/M_PI << ")" << std::endl; 
       if ( h ) h->Fill( z, tv[i].phi() );
     }
     else { 

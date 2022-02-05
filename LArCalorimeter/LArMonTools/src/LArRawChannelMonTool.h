@@ -4,9 +4,10 @@
 
 #ifndef LARMONTOOLS_LARRAWCHANNELMONTOOL_H
 #define LARMONTOOLS_LARRAWCHANNELMONTOOL_H
-/*!
-  \class LArRawChannelMonTool
-  \author Frank Berghaus <Frank.Olaf.Berghaus@cern.ch>
+
+/**
+ * @class  LArRawChannelMonTool
+ * @author Frank Berghaus <Frank.Olaf.Berghaus@cern.ch>
  */
 
 #include "LArRawChannelMonTools.h"
@@ -15,13 +16,13 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "AthenaMonitoring/DQAtlasReadyFilterTool.h"
-//#include "AthenaMonitoring/IDQFilterTool.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "LArRecConditions/LArBadChannelMask.h"
 #include "LArRecConditions/LArBadChannelCont.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 // --- boost ---
 #include <boost/shared_ptr.hpp>
@@ -33,11 +34,9 @@
 
 
 // --- forward declarations ---
-class CaloDetDescrManager;
 class CaloIdManager;
 class LArOnlineID;
 class LArOnlineIDStrHelper;
-//class DQAtlasReadyFilterTool;
 
 class TProfile_LW;
 class TProfile2D_LW;
@@ -75,7 +74,7 @@ class LArRawChannelMonTool: public ManagedMonitorToolBase
     from superslot (Halfcrate+slot number) to sparcified axis bin are
     created.
   */
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
 
   //! Book and register histograms
@@ -88,7 +87,7 @@ class LArRawChannelMonTool: public ManagedMonitorToolBase
     \param isNewLumiBlock true if bookHistograms was called because a new luminosity block has begun
     \param isNewRun true if bookHistograms was called because a new run has begun
   */
-  virtual StatusCode bookHistograms();
+  virtual StatusCode bookHistograms() override;
 
 
   //! Fill histograms with monitoring quantities
@@ -98,7 +97,7 @@ class LArRawChannelMonTool: public ManagedMonitorToolBase
    ID from the EventInfo, then loops over all LArRawChannels in the
    LArRawChannelContainer and fills requested monitoring histograms.
   */
-  virtual StatusCode fillHistograms();
+  virtual StatusCode fillHistograms() override;
 
 
   //! Fill RMS histograms
@@ -106,7 +105,7 @@ class LArRawChannelMonTool: public ManagedMonitorToolBase
     Fills histograms that use information from many events such as the
     histograms of noise RMS.
    */
-  virtual StatusCode procHistograms();
+  virtual StatusCode procHistograms() override;
 
 
  private:
@@ -158,6 +157,8 @@ class LArRawChannelMonTool: public ManagedMonitorToolBase
     { this, "NoiseKey", "totalNoise", "SG key for noise" };
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey
     {this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey 
+    { this,"CaloDetDescrManager","CaloDetDescrManager","SG Key for CaloDetDescrManager in the Condition Store" };
 
   // -- for ATLAS Ready Filter
   bool isATLASReady() { return m_atlas_ready; }

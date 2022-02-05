@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetGeoModelUtils_InDetDDAthenaComps_H
 #define InDetGeoModelUtils_InDetDDAthenaComps_H
 
-// Message Stream Member
-#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMessaging.h"
 #include "CxxUtils/checker_macros.h"
 class  StoreGateSvc;
 class  IGeoDbTagSvc;
@@ -17,17 +16,12 @@ class  IGeometryDBSvc;
 namespace InDetDD {
 
 /// Class to hold various Athena components.
-class AthenaComps {
-
+class AthenaComps
+  : public AthMessaging
+{
 public:
 
   AthenaComps(const std::string & msgStreamName);
-
-  //Declaring the Message method for further use
-  MsgStream& msg (MSG::Level lvl) { return m_msg << lvl; }
-
-  //Declaring the Method providing Verbosity Level
-  bool msgLvl (MSG::Level lvl) { return m_msg.get().level() <= lvl; }
 
   void setDetStore(StoreGateSvc *);
   void setGeoDbTagSvc(IGeoDbTagSvc *);
@@ -44,9 +38,6 @@ public:
   IGeometryDBSvc * geomDB();
   
 private:
-  //Declaring private message stream member.
-  Athena::MsgStreamMember m_msg;
-  
   StoreGateSvc * m_detStore;
   IGeoDbTagSvc * m_geoDbTagSvc;
   IRDBAccessSvc * m_rdbAccessSvc;

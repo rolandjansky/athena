@@ -96,8 +96,6 @@ xAOD_PixelPrepDataToxAOD.WriteRDOinformation  = True
 xAOD_PixelPrepDataToxAOD.WriteNNinformation   = InDetDxAODFlags.DumpPixelNNInfo()
 #xAOD_PixelPrepDataToxAOD.WriteSDOs            = True
 #xAOD_PixelPrepDataToxAOD.WriteSiHits          = True # if available
-if InDetFlags.doSLHC():
-    xAOD_PixelPrepDataToxAOD.WriteNNinformation=False
 
 IDDerivationSequence += xAOD_PixelPrepDataToxAOD
 if (printIdTrkDxAODConf):
@@ -212,7 +210,7 @@ fileName   = buildFileName( primDPD.WriteDAOD_PIXELVALIDStream )
 PIXELVALIDStream = MSMgr.NewPoolRootStream( streamName, fileName )
 PIXELVALIDStream.AcceptAlgs(["PixelxAOD_DF_KERN"])
 
-excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition.-definingParametersCovMatrix.-vertexLink.-msosLink.-trackLink"
+excludedAuxData = "-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition.-definingParametersCovMatrix.-vertexLink.-msosLink.-trackLink"
 
 # Add generic event information
 PIXELVALIDStream.AddItem("xAOD::EventInfo#*")

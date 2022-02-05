@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 from __future__ import print_function
@@ -18,11 +18,12 @@ if not 'FileNameVec' in dir():
             for f in popen('nsls %(path)s | grep %(run)s' % {'path': InputDirectory, 'run':RunNumber }):
                 files.append(f)
         elif InputDirectory.startswith("/eos") :
-            for f in popen('xrd eosatlas dirlist %(path)s | grep %(run)s | sed "s|^.*/||" ' % {'path': InputDirectory, 'run':RunNumber }):
+            for f in popen('xrdfs eosatlas ls %(path)s | grep -v "#" | sed "s|^.*/||" | grep %(run)s ' % {'path': InputDirectory, 'run':RunNumber }):
                 files.append(f)
         else:
             for f in popen('ls %(path)s | grep %(run)s' % {'path': InputDirectory, 'run':RunNumber }):
                 files.append(f)
+        files=list(dict.fromkeys(files))
         for nn in range(len(files)):
             temp = files[nn].split('\n')
             if not 'FileFilter' in dir() or FileFilter in temp[0]:
@@ -84,6 +85,9 @@ if not 'storeHisto' in dir():
 
 if not 'doTileFlat' in dir():
     doTileFlat = False
+
+if not 'doTileOpt' in dir():
+    doTileOpt = False
 
 if not 'doTileOpt2' in dir():
     doTileOpt2 = True

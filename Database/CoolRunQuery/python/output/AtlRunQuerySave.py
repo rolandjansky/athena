@@ -17,19 +17,15 @@ from __future__ import with_statement, print_function
 from CoolRunQuery.AtlRunQueryQueryConfig import QC
 from CoolRunQuery.selector.AtlRunQuerySelectorBase import DataKey
 
-import pickle,sys,os
-from CoolRunQuery.AtlRunQueryRun import Run
+import pickle,sys
+from CoolRunQuery.AtlRunQueryRun import DataEntry, DataEntryList, Run
 
 def CreateResultDict( runlist ):
 
     if len(runlist)==0:
         return {}, {}
 
-    print("Creating result in path '%s'" % QC.datapath )
-
-    # output directory
-    if QC.datapath=='' and 'data' not in os.listdir('.'):
-        os.mkdir('data')
+    print("Creating results in path '%s'" % QC.datapath )
 
     # define the header
     header = []
@@ -47,12 +43,14 @@ def CreateResultDict( runlist ):
     SaveResultTxt(runlist, header)
 
     dic = CreateDic(runlist, header)
-    
-    dic_basic = CreateDicBasicTypes(dic)
 
-    SaveTypelessPickleResult(dic_basic)
+    SaveResultAsJson(dic)
 
     summary = CreateSummary(dic)
+
+    dic_basic = CreateDictForPickling(dic)
+
+    SaveTypelessPickleResult(dic_basic)
 
     return dic, summary
 
@@ -104,6 +102,45 @@ def SaveTypelessPickleResult(pdic, filename = 'atlrunquery.pickle'):
         sys.exit(1)
     pf.close()
 
+def SaveResultAsJson( result, filename = 'atlrunquery.json'):
+    # write json output
+
+    # ignoring a few large ones for now and one that is not working
+    # large ones should be stored better
+    ignoreForNow = [
+        # "lhc:fillnumber",
+        # "lhc:stablebeams",
+        "lhc:beamenergy", # large
+        "olc:lumi:0", # large
+        "olc:beam1intensity", # large
+        "olc:beam2intensity", # large 
+        # "olc:beam1bunches",
+        # "olc:beam2bunches",
+        # "olc:collbunches",
+        "olc:bcidmask" # broken
+    ]
+
+    runs = [r["runNr"] for r in result[DataKey("Run")]]
+    store = { runNr:{} for runNr in runs}
+
+    for datakey in result:
+        key = datakey.pickled()
+        if key in ignoreForNow:
+            print("Not storing in json file: ", key)
+            continue
+
+        for (runNr, x) in zip(runs, result[datakey]):
+            if isinstance(x, (DataEntry,DataEntryList)):
+                store[runNr][key] = x.json()
+            else:
+                store[runNr][key] = x
+
+    with open( '%s/atlrunquery.json' % QC.datapath, 'w' ) as pf:
+        try:
+            import json
+            json.dump(store, pf)
+        except Exception as e:
+            print ('ERROR: could not create json file with results: "%r"' % e)
 
 
 def CreateDic(runlist, header):
@@ -112,7 +149,7 @@ def CreateDic(runlist, header):
     for r in runlist:
         for k in header:
             if   k == 'Run':
-                scontent = r.runNr
+                scontent = {"runNr": r.runNr, "lastLB": r.lastlb, "dataPeriod": "tbd", "lhcRun": r.lhcRun}
             elif k == 'Links':
                 scontent = ""
             elif k == '#LB':
@@ -132,8 +169,8 @@ def basic(v):
         return v.pickled()
     return v
 
-def CreateDicBasicTypes(dic):
-    dic_basic = {'Run':dic[DataKey('Run')]}
+def CreateDictForPickling(dic):
+    dic_basic = {'Run': [ r["runNr"] for r in dic[DataKey('Run')]]}
 
     for i,r in enumerate(dic_basic['Run']):
         dic_basic[r] = dict([ ( k.pickled(), basic(v[i]) ) for k,v in dic.items()])

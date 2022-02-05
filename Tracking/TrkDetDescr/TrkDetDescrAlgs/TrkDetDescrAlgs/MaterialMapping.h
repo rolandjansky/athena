@@ -21,6 +21,17 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "TrkGeometry/MaterialStepCollection.h"
+//TrkDetDescr Algs, Interfaces, Utils
+#include "TrkDetDescrInterfaces/IMaterialMapper.h"
+#include "TrkDetDescrInterfaces/ILayerMaterialCreator.h"
+#include "TrkDetDescrInterfaces/ILayerMaterialAnalyser.h"
+// TrkExtrapolation
+#include "TrkExInterfaces/IExtrapolationEngine.h"
+// TrkGeometry
+#include "TrkGeometry/TrackingGeometry.h"
+#ifdef LEGACY_TRKGEOM
+#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
+#endif
 
 #ifdef TRKDETDESCR_MEMUSAGE   
 #include "TrkDetDescrUtils/MemoryLogger.h"
@@ -43,7 +54,6 @@ namespace Trk {
 
     class Layer;
     class TrackingVolume;
-    class TrackingGeometry;
     class SurfaceMaterialRecord;
     class LayerMaterialRecord;
     class LayerMaterialMap;
@@ -52,11 +62,6 @@ namespace Trk {
     class BinnedLayerMaterial;
     class CompressedLayerMaterial;
     class ElementTable;
-    class IExtrapolationEngine;
-    class IMaterialMapper;
-    class ILayerMaterialAnalyser;
-    class ILayerMaterialCreator;
-    class ITrackingGeometrySvc;
 
     /** @class MaterialMapping
 
@@ -85,7 +90,7 @@ namespace Trk {
         
         /** standard Athena-Algorithm method */
         StatusCode          finalize();
-
+        
       private:
 
         /** Associate the Step to the Layer */
@@ -104,15 +109,13 @@ namespace Trk {
         //!< create the LayerMaterialRecord */
         void insertLayerMaterialRecord(const Trk::Layer& lay);
 
-        /** Retrieve the TrackingGeometry */
-        StatusCode retrieveTrackingGeometry();
-
-        /** Tracking Geometry */
-        ServiceHandle<Trk::ITrackingGeometrySvc>             m_trackingGeometrySvc;       //!< Name of the TrackingGeometrySvc
-        mutable const TrackingGeometry*                      m_trackingGeometry;          //!< The underlying TrackingGeometry
+        /** Retrieve the TrackingGeometry and its informations */
+        StatusCode handleTrackingGeometry();
+        
+        const TrackingGeometry& trackingGeometry() const;
 
         bool                                                 m_checkForEmptyHits;         //!< use extrapoaltion engine to check for empty hits
-        ToolHandle<IExtrapolationEngine>                     m_extrapolationEngine;       //!< cross-check for empty hit scaling
+        ToolHandle<IExtrapolationEngine> m_extrapolationEngine {this, "ExtrapolationEngine", "", "Extrapolation Engine"};
         
         std::string                                          m_mappingVolumeName;
         const Trk::TrackingVolume*                           m_mappingVolume;
@@ -127,13 +130,13 @@ namespace Trk {
         bool                                                 m_useLayerThickness;             //!< use the actual layer thickness
         int                                                  m_associationType;
 
-        ToolHandle<ILayerMaterialAnalyser>                   m_layerMaterialRecordAnalyser;   //!< the layer material analyser for the layer material record
-        ToolHandleArray<ILayerMaterialAnalyser>              m_layerMaterialAnalysers;        //!< the layer material analysers per creator (if wanted)
-        ToolHandleArray<ILayerMaterialCreator>               m_layerMaterialCreators;         //!< the layer material creators
+        ToolHandle<ILayerMaterialAnalyser>       m_layerMaterialRecordAnalyser {this, "LayerMaterialRecordAnalyser", "", "Layer material analyser for the layer material record"};
+        ToolHandleArray<ILayerMaterialAnalyser>  m_layerMaterialAnalysers {this, "LayerMaterialAnalysers", {}, "Layer material analysers per creator (if wanted)"};
+        ToolHandleArray<ILayerMaterialCreator>   m_layerMaterialCreators {this, "LayerMaterialCreators", {}, "Layer material creators"};
                                                              
         /** Mapper and Inspector */                          
         bool                                                 m_mapMaterial;
-        ToolHandle<IMaterialMapper>                          m_materialMapper;                //!< Pointer to an IMaterialMapper algTool
+        ToolHandle<IMaterialMapper>  m_materialMapper {this, "MaterialMapper", "" , "IMaterialMapper algTool"};
         bool                                                 m_mapComposition;                //!< map the composition of the material
         double                                               m_minCompositionFraction;        //!< minimal fraction to be accounted for the composition recording
         
@@ -154,12 +157,44 @@ namespace Trk {
         
         int                                                  m_layerMaterialScreenOutput;
         
+        
+#ifdef LEGACY_TRKGEOM
+        ServiceHandle<ITrackingGeometrySvc> m_trackingGeometrySvc {this, "TrackingGeometrySvc", "",""};
+#endif
+        void throwFailedToGetTrackingGeometry() const;
+        const TrackingGeometry* retrieveTrackingGeometry(const EventContext& ctx) const {
+#ifdef LEGACY_TRKGEOM
+           if (m_trackingGeometryReadKey.key().empty()) {
+              return m_trackingGeometrySvc->trackingGeometry();
+           }
+#endif
+           SG::ReadCondHandle<TrackingGeometry>  handle(m_trackingGeometryReadKey,ctx);
+           if (!handle.isValid()) {
+              ATH_MSG_FATAL("Could not load TrackingGeometry with name '" << m_trackingGeometryReadKey.key() << "'. Aborting." );
+              throwFailedToGetTrackingGeometry();
+           }
+           return handle.cptr();
+        }
+
+        SG::ReadCondHandleKey<TrackingGeometry>   m_trackingGeometryReadKey
+           {this, "TrackingGeometryReadKey", "", "Key of the TrackingGeometry conditions data."};
+
+        
 #ifdef TRKDETDESCR_MEMUSAGE      
         MemoryLogger                                         m_memoryLogger;                //!< in case the memory is logged        
 #endif 
         
 
     };
+    
+    inline const Trk::TrackingGeometry& Trk::MaterialMapping::trackingGeometry() const {
+       const Trk::TrackingGeometry *tracking_geometry = retrieveTrackingGeometry(Gaudi::Hive::currentContext());
+       if (!tracking_geometry){
+          ATH_MSG_FATAL("Did not get valid TrackingGeometry. Aborting." );
+          throw GaudiException("MaterialMapping", "Problem with TrackingGeometry loading.", StatusCode::FAILURE);
+       }
+       return *tracking_geometry;
+    }
 }
 
 #endif

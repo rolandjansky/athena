@@ -16,7 +16,7 @@
 namespace xAOD {
 
   /// Constants used in converting to ATLAS units
-  const float gFexGlobalRoI_v1::s_tobEtScale = 3200.; ///3.2 GeV is the energy range size (step between two adjiacent bits)
+  const float gFexGlobalRoI_v1::s_globaltobEtScale = 800.; //800 MeV is the energy resolution for global TOBs
  
 
    gFexGlobalRoI_v1::gFexGlobalRoI_v1()
@@ -40,11 +40,11 @@ namespace xAOD {
    /// Raw data words
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexGlobalRoI_v1, uint32_t, word,
                                          setWord )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexGlobalRoI_v1, char, statusOne,
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexGlobalRoI_v1, uint8_t, statusOne,
                                          setStatusOne )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexGlobalRoI_v1, char, statusTwo,
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexGlobalRoI_v1, uint8_t, statusTwo,
                                          setStatusTwo )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexGlobalRoI_v1, char, saturated,
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexGlobalRoI_v1, uint8_t, saturated,
                                          setSaturated )
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexGlobalRoI_v1, int, globalType,
                                          setGlobalType )
@@ -118,21 +118,21 @@ namespace xAOD {
    /// MET/SumEt on TOB scale
    float gFexGlobalRoI_v1::METquantityOne() const {
     if (globalType() != gNull){
-        return quantityOne()*s_tobEtScale;
+        return quantityOne()*s_globaltobEtScale;
     }
     return -999;
    }
 
    float gFexGlobalRoI_v1::METquantityTwo() const {
     if (globalType() != gNull){
-        return quantityTwo()*s_tobEtScale;
+        return quantityTwo()*s_globaltobEtScale;
     }
     return -999;
    }
 
    float gFexGlobalRoI_v1::SumEt() const {
     if (globalType() == gScalar ){
-        return quantityTwo()*s_tobEtScale;
+        return quantityTwo()*s_globaltobEtScale;
     }
     return -999;
    }

@@ -1664,10 +1664,10 @@ def bind_port(host, port):
 def reportEventsPassedSimFilter(log):
 
     # Currently the pattern which contains the information for passed events is for example like:
-    # ISF_SimEventFilter   INFO  pass = 0 / 0 = 0%
+    #  ISF_SimEventFilter   INFO accepted 1 out of 10 events for filter ISF_SimEventFilter (SimEventFilter)
     # In case the filter name truncated by ... due to long timestamps, the pattern could still match
     # e.g. ISF_SimEventFi... or ISF_SimEventFil...
-    regExp = re.compile(r'ISF_SimEventFi[lter|...]+\s.*INFO.*pass\s*=\s*(?P<events>[0-9]*)\s*\/\s*(?P<total>[0-9]*).*')
+    regExp = re.compile(r'ISF_SimEventFi[lter|...]+\s.*INFO.*accepted\s*(?P<events>[0-9]*)\s*out of\s*(?P<total>[0-9]*).*')
     try:
         myGen = lineByLine(log)
     except IOError as e:

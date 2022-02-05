@@ -267,14 +267,14 @@ size_t TMemberAdapter::FunctionParameterSize( Bool_t required ) const
 }
 
 //____________________________________________________________________________
-TMemberAdapter TMemberAdapter::FunctionParameterAt( size_t nth ) const
+TMemberAdapter TMemberAdapter::FunctionParameterAt( size_t nth )
 {
 // get the type info of the function parameter at position nth
    return (TMethodArg*)((TFunction*)fMember)->GetListOfMethodArgs()->At( nth );
 }
 
 //____________________________________________________________________________
-std::string TMemberAdapter::FunctionParameterNameAt( size_t nth ) const
+std::string TMemberAdapter::FunctionParameterNameAt( size_t nth )
 {
 // get the formal name, if available, of the function parameter at position nth
    const char* name =
@@ -286,7 +286,7 @@ std::string TMemberAdapter::FunctionParameterNameAt( size_t nth ) const
 }
 
 //____________________________________________________________________________
-std::string TMemberAdapter::FunctionParameterDefaultAt( size_t nth ) const
+std::string TMemberAdapter::FunctionParameterDefaultAt( size_t nth )
 {
 // get the default value, if available, of the function parameter at position nth
    TMethodArg* arg = (TMethodArg*)((TFunction*)fMember)->GetListOfMethodArgs()->At( nth );

@@ -64,7 +64,16 @@ inline McEventCollection& McEventCollection::operator=(const McEventCollection& 
   //
   for (const HepMC::GenEvent* ev : in)
   {
-    DataVector<HepMC::GenEvent>::push_back(new HepMC::GenEvent(*ev));
+    HepMC::GenEvent* nev = new HepMC::GenEvent(*ev);
+#ifdef HEPMC3
+    auto ri = ev->run_info();
+    if (ri) {
+      std::shared_ptr<HepMC3::GenRunInfo> nri =  std::make_shared<HepMC3::GenRunInfo>(*(ri.get()));
+      nev->set_run_info(nri);
+    }
+#endif
+    DataVector<HepMC::GenEvent>::push_back(nev);
+    
   }
 
   return *this;

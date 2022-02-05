@@ -55,6 +55,3 @@ StreamDet.OutputFile = "LArIdMap_H6.pool.root"
 
 # StreamDet.OutputFile =  "oracle://devdb/hma"
 
-ToolSvc=Service("ToolSvc")
-ToolSvc.LArRoI_Map.Print=False
-

@@ -124,80 +124,80 @@ SimplePoolFile1...  DEBUG --> Access   DbContainer  CREATE    [ROOT_All] ##Param
 ##Params            DEBUG Opening
 ##Params            DEBUG    attributes# = 1
 ##Params            DEBUG Opened container ##Params of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/##Params [200]  (2 , ffffffff)
-SimplePoolFile1...  DEBUG ---->ClassID:????
+SimplePoolFile1...  DEBUG --->Adding Assoc :F2313678-C96A-964F-89E8-08BAB39F2DA7/##Params [200]  (2 , ffffffffffffffff)
+SimplePoolFile1...  DEBUG ---->ClassID:DA8F479C-09BC-49D4-94BC-99D025A23A3B
 ##Params            DEBUG No objects passing selection criteria... Container has 0 Entries in total.
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
-StorageSvc           INFO EventInfo_p4 [????]
-SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] CollectionTree(EventInfo_p4/McEventInfo)
+StorageSvc           INFO EventInfo_p4 [C634FDB6-CC4B-4BA2-B8F9-A84BE6A786C7]
+SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_TreeIndex] CollectionTree(EventInfo_p4/McEventInfo)
 CollectionTree(...  DEBUG Opening
 CollectionTree(...  DEBUG    attributes# = 1
 CollectionTree(...  DEBUG Branch container 'EventInfo_p4_McEventInfo'
 CollectionTree(...  DEBUG Opened container CollectionTree(EventInfo_p4/McEventInfo) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/CollectionTree(EventInfo_p4/McEventInfo) [203]  (3 , ffffffff)
-SimplePoolFile1...  DEBUG ---->ClassID:????
-SimplePoolFile1...  DEBUG --->Adding Shape[0 , ????]:  [1 Column(s)] 
+SimplePoolFile1...  DEBUG --->Adding Assoc :F2313678-C96A-964F-89E8-08BAB39F2DA7/CollectionTree(EventInfo_p4/McEventInfo) [203]  (3 , ffffffffffffffff)
+SimplePoolFile1...  DEBUG ---->ClassID:C634FDB6-CC4B-4BA2-B8F9-A84BE6A786C7
+SimplePoolFile1...  DEBUG --->Adding Shape[0 , C634FDB6-CC4B-4BA2-B8F9-A84BE6A786C7]:  [1 Column(s)] 
 SimplePoolFile1...  DEBUG ---->Class:EventInfo_p4
 SimplePoolFile1...  DEBUG ---->[0]:EventInfo_p4 Typ:EventInfo_p4 [21] Size:0 Offset:0 #Elements:1
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
-StorageSvc           INFO ExampleHitContainer_p1 [????]
-SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] CollectionTree(ExampleHitContainer_p1/MyHits)
+StorageSvc           INFO ExampleHitContainer_p1 [6BB89FA1-EB62-4641-97CA-3F8DB6588053]
+SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_TreeIndex] CollectionTree(ExampleHitContainer_p1/MyHits)
 CollectionTree(...  DEBUG Opening
 CollectionTree(...  DEBUG    attributes# = 1
 CollectionTree(...  DEBUG Branch container 'ExampleHitContainer_p1_MyHits'
 CollectionTree(...  DEBUG Opened container CollectionTree(ExampleHitContainer_p1/MyHits) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/CollectionTree(ExampleHitContainer_p1/MyHits) [203]  (4 , ffffffff)
-SimplePoolFile1...  DEBUG ---->ClassID:????
-SimplePoolFile1...  DEBUG --->Adding Shape[1 , ????]:  [1 Column(s)] 
+SimplePoolFile1...  DEBUG --->Adding Assoc :F2313678-C96A-964F-89E8-08BAB39F2DA7/CollectionTree(ExampleHitContainer_p1/MyHits) [203]  (4 , ffffffffffffffff)
+SimplePoolFile1...  DEBUG ---->ClassID:6BB89FA1-EB62-4641-97CA-3F8DB6588053
+SimplePoolFile1...  DEBUG --->Adding Shape[1 , 6BB89FA1-EB62-4641-97CA-3F8DB6588053]:  [1 Column(s)] 
 SimplePoolFile1...  DEBUG ---->Class:ExampleHitContainer_p1
 SimplePoolFile1...  DEBUG ---->[0]:ExampleHitContainer_p1 Typ:ExampleHitContainer_p1 [21] Size:0 Offset:0 #Elements:1
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
-StorageSvc           INFO DataHeader_p6 [????]
-SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLContainer(DataHeader)
+StorageSvc           INFO DataHeader_p6 [4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D]
+SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_TreeIndex] POOLContainer(DataHeader)
 POOLContainer(D...  DEBUG Opening
 POOLContainer(D...  DEBUG    attributes# = 1
 POOLContainer(D...  DEBUG Branch container 'DataHeader'
 POOLContainer(D...  DEBUG Opened container POOLContainer(DataHeader) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLContainer(DataHeader) [203]  (5 , ffffffff)
-SimplePoolFile1...  DEBUG ---->ClassID:????
-SimplePoolFile1...  DEBUG --->Adding Shape[2 , ????]:  [1 Column(s)] 
+SimplePoolFile1...  DEBUG --->Adding Assoc :F2313678-C96A-964F-89E8-08BAB39F2DA7/POOLContainer(DataHeader) [203]  (5 , ffffffffffffffff)
+SimplePoolFile1...  DEBUG ---->ClassID:4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D
+SimplePoolFile1...  DEBUG --->Adding Shape[2 , 4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D]:  [1 Column(s)] 
 SimplePoolFile1...  DEBUG ---->Class:DataHeader_p6
 SimplePoolFile1...  DEBUG ---->[0]:DataHeader_p6 Typ:DataHeader_p6 [21] Size:0 Offset:0 #Elements:1
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
-StorageSvc           INFO DataHeaderForm_p6 [????]
-SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLContainerForm(DataHeaderForm)
+StorageSvc           INFO DataHeaderForm_p6 [7BE56CEF-C866-4BEE-9348-A5F34B5F1DAD]
+SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_TreeIndex] POOLContainerForm(DataHeaderForm)
 POOLContainerFo...  DEBUG Opening
 POOLContainerFo...  DEBUG    attributes# = 1
 POOLContainerFo...  DEBUG Branch container 'DataHeaderForm'
 POOLContainerFo...  DEBUG Opened container POOLContainerForm(DataHeaderForm) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLContainerForm(DataHeaderForm) [203]  (6 , ffffffff)
-SimplePoolFile1...  DEBUG ---->ClassID:????
-SimplePoolFile1...  DEBUG --->Adding Shape[3 , ????]:  [1 Column(s)] 
+SimplePoolFile1...  DEBUG --->Adding Assoc :F2313678-C96A-964F-89E8-08BAB39F2DA7/POOLContainerForm(DataHeaderForm) [203]  (6 , ffffffffffffffff)
+SimplePoolFile1...  DEBUG ---->ClassID:7BE56CEF-C866-4BEE-9348-A5F34B5F1DAD
+SimplePoolFile1...  DEBUG --->Adding Shape[3 , 7BE56CEF-C866-4BEE-9348-A5F34B5F1DAD]:  [1 Column(s)] 
 SimplePoolFile1...  DEBUG ---->Class:DataHeaderForm_p6
 SimplePoolFile1...  DEBUG ---->[0]:DataHeaderForm_p6 Typ:DataHeaderForm_p6 [21] Size:0 Offset:0 #Elements:1
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
-StorageSvc           INFO Token [????]
+StorageSvc           INFO Token [E013D4B1-CA9C-4E3C-9BE2-8691BBAFCB9A]
 SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(Token)
 POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'Token'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(Token) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(Token) [202]  (7 , ffffffff)
-SimplePoolFile1...  DEBUG ---->ClassID:????
-SimplePoolFile1...  DEBUG --->Adding Shape[4 , ????]:  [1 Column(s)] 
+SimplePoolFile1...  DEBUG --->Adding Assoc :F2313678-C96A-964F-89E8-08BAB39F2DA7/POOLCollectionTree(Token) [202]  (7 , ffffffffffffffff)
+SimplePoolFile1...  DEBUG ---->ClassID:E013D4B1-CA9C-4E3C-9BE2-8691BBAFCB9A
+SimplePoolFile1...  DEBUG --->Adding Shape[4 , E013D4B1-CA9C-4E3C-9BE2-8691BBAFCB9A]:  [1 Column(s)] 
 SimplePoolFile1...  DEBUG ---->Class:Token
 SimplePoolFile1...  DEBUG ---->[0]:Token Typ:Token [18] Size:0 Offset:0 #Elements:1
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
-StorageSvc           INFO bool [????]
+StorageSvc           INFO bool [13FF06C5-AB4B-6EDD-68AB-3E6350E95305]
 SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(IsSimulation)
 POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'IsSimulation'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(IsSimulation) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(IsSimulation) [202]  (8 , ffffffff)
-SimplePoolFile1...  DEBUG ---->ClassID:????
-SimplePoolFile1...  DEBUG --->Adding Shape[5 , ????]:  [1 Column(s)] 
+SimplePoolFile1...  DEBUG --->Adding Assoc :F2313678-C96A-964F-89E8-08BAB39F2DA7/POOLCollectionTree(IsSimulation) [202]  (8 , ffffffffffffffff)
+SimplePoolFile1...  DEBUG ---->ClassID:13FF06C5-AB4B-6EDD-68AB-3E6350E95305
+SimplePoolFile1...  DEBUG --->Adding Shape[5 , 13FF06C5-AB4B-6EDD-68AB-3E6350E95305]:  [1 Column(s)] 
 SimplePoolFile1...  DEBUG ---->Class:bool
 SimplePoolFile1...  DEBUG ---->[0]:bool Typ:bool [9] Size:0 Offset:0 #Elements:1
 SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(IsCalibration)
@@ -205,25 +205,25 @@ POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'IsCalibration'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(IsCalibration) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(IsCalibration) [202]  (9 , ffffffff)
-SimplePoolFile1...  DEBUG ---->ClassID:????
+SimplePoolFile1...  DEBUG --->Adding Assoc :F2313678-C96A-964F-89E8-08BAB39F2DA7/POOLCollectionTree(IsCalibration) [202]  (9 , ffffffffffffffff)
+SimplePoolFile1...  DEBUG ---->ClassID:13FF06C5-AB4B-6EDD-68AB-3E6350E95305
 SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(IsTestBeam)
 POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'IsTestBeam'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(IsTestBeam) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(IsTestBeam) [202]  (a , ffffffff)
-SimplePoolFile1...  DEBUG ---->ClassID:????
+SimplePoolFile1...  DEBUG --->Adding Assoc :F2313678-C96A-964F-89E8-08BAB39F2DA7/POOLCollectionTree(IsTestBeam) [202]  (a , ffffffffffffffff)
+SimplePoolFile1...  DEBUG ---->ClassID:13FF06C5-AB4B-6EDD-68AB-3E6350E95305
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
-StorageSvc           INFO unsigned int [????]
+StorageSvc           INFO unsigned int [BBACA313-D7B0-3A4C-9161-089CACF4B1CC]
 SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(McChannel)
 POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'McChannel'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(McChannel) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(McChannel) [202]  (b , ffffffff)
-SimplePoolFile1...  DEBUG ---->ClassID:????
-SimplePoolFile1...  DEBUG --->Adding Shape[6 , ????]:  [1 Column(s)] 
+SimplePoolFile1...  DEBUG --->Adding Assoc :F2313678-C96A-964F-89E8-08BAB39F2DA7/POOLCollectionTree(McChannel) [202]  (b , ffffffffffffffff)
+SimplePoolFile1...  DEBUG ---->ClassID:BBACA313-D7B0-3A4C-9161-089CACF4B1CC
+SimplePoolFile1...  DEBUG --->Adding Shape[6 , BBACA313-D7B0-3A4C-9161-089CACF4B1CC]:  [1 Column(s)] 
 SimplePoolFile1...  DEBUG ---->Class:unsigned int
 SimplePoolFile1...  DEBUG ---->[0]:unsigned int Typ:unsigned int [3] Size:0 Offset:0 #Elements:1
 SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(RunNumber)
@@ -231,18 +231,18 @@ POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'RunNumber'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(RunNumber) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(RunNumber) [202]  (c , ffffffff)
-SimplePoolFile1...  DEBUG ---->ClassID:????
+SimplePoolFile1...  DEBUG --->Adding Assoc :F2313678-C96A-964F-89E8-08BAB39F2DA7/POOLCollectionTree(RunNumber) [202]  (c , ffffffffffffffff)
+SimplePoolFile1...  DEBUG ---->ClassID:BBACA313-D7B0-3A4C-9161-089CACF4B1CC
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
-StorageSvc           INFO unsigned long long [????]
+StorageSvc           INFO unsigned long long [388BE2E0-4452-7BB9-2563-DA3365C64623]
 SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(EventNumber)
 POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'EventNumber'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(EventNumber) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(EventNumber) [202]  (d , ffffffff)
-SimplePoolFile1...  DEBUG ---->ClassID:????
-SimplePoolFile1...  DEBUG --->Adding Shape[7 , ????]:  [1 Column(s)] 
+SimplePoolFile1...  DEBUG --->Adding Assoc :F2313678-C96A-964F-89E8-08BAB39F2DA7/POOLCollectionTree(EventNumber) [202]  (d , ffffffffffffffff)
+SimplePoolFile1...  DEBUG ---->ClassID:388BE2E0-4452-7BB9-2563-DA3365C64623
+SimplePoolFile1...  DEBUG --->Adding Shape[7 , 388BE2E0-4452-7BB9-2563-DA3365C64623]:  [1 Column(s)] 
 SimplePoolFile1...  DEBUG ---->Class:unsigned long long
 SimplePoolFile1...  DEBUG ---->[0]:unsigned long long Typ:unsigned long long [23] Size:0 Offset:0 #Elements:1
 SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(LumiBlockN)
@@ -250,50 +250,54 @@ POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'LumiBlockN'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(LumiBlockN) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(LumiBlockN) [202]  (e , ffffffff)
-SimplePoolFile1...  DEBUG ---->ClassID:????
+SimplePoolFile1...  DEBUG --->Adding Assoc :F2313678-C96A-964F-89E8-08BAB39F2DA7/POOLCollectionTree(LumiBlockN) [202]  (e , ffffffffffffffff)
+SimplePoolFile1...  DEBUG ---->ClassID:BBACA313-D7B0-3A4C-9161-089CACF4B1CC
 SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(ConditionsRun)
 POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'ConditionsRun'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(ConditionsRun) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(ConditionsRun) [202]  (f , ffffffff)
-SimplePoolFile1...  DEBUG ---->ClassID:????
+SimplePoolFile1...  DEBUG --->Adding Assoc :F2313678-C96A-964F-89E8-08BAB39F2DA7/POOLCollectionTree(ConditionsRun) [202]  (f , ffffffffffffffff)
+SimplePoolFile1...  DEBUG ---->ClassID:BBACA313-D7B0-3A4C-9161-089CACF4B1CC
 SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(EventTime)
 POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'EventTime'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(EventTime) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(EventTime) [202]  (10 , ffffffff)
-SimplePoolFile1...  DEBUG ---->ClassID:????
+SimplePoolFile1...  DEBUG --->Adding Assoc :F2313678-C96A-964F-89E8-08BAB39F2DA7/POOLCollectionTree(EventTime) [202]  (10 , ffffffffffffffff)
+SimplePoolFile1...  DEBUG ---->ClassID:BBACA313-D7B0-3A4C-9161-089CACF4B1CC
 SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(EventTimeNanoSec)
 POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'EventTimeNanoSec'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(EventTimeNanoSec) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(EventTimeNanoSec) [202]  (11 , ffffffff)
-SimplePoolFile1...  DEBUG ---->ClassID:????
+SimplePoolFile1...  DEBUG --->Adding Assoc :F2313678-C96A-964F-89E8-08BAB39F2DA7/POOLCollectionTree(EventTimeNanoSec) [202]  (11 , ffffffffffffffff)
+SimplePoolFile1...  DEBUG ---->ClassID:BBACA313-D7B0-3A4C-9161-089CACF4B1CC
 SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(BunchId)
 POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'BunchId'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(BunchId) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(BunchId) [202]  (12 , ffffffff)
-SimplePoolFile1...  DEBUG ---->ClassID:????
+SimplePoolFile1...  DEBUG --->Adding Assoc :F2313678-C96A-964F-89E8-08BAB39F2DA7/POOLCollectionTree(BunchId) [202]  (12 , ffffffffffffffff)
+SimplePoolFile1...  DEBUG ---->ClassID:BBACA313-D7B0-3A4C-9161-089CACF4B1CC
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
-StorageSvc           INFO float [????]
+StorageSvc           INFO float [64DE6A54-6E0B-BCDF-8A08-6EF31347E768]
 SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(EventWeight)
 POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'EventWeight'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(EventWeight) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(EventWeight) [202]  (13 , ffffffff)
-SimplePoolFile1...  DEBUG ---->ClassID:????
-SimplePoolFile1...  DEBUG --->Adding Shape[8 , ????]:  [1 Column(s)] 
+SimplePoolFile1...  DEBUG --->Adding Assoc :F2313678-C96A-964F-89E8-08BAB39F2DA7/POOLCollectionTree(EventWeight) [202]  (13 , ffffffffffffffff)
+SimplePoolFile1...  DEBUG ---->ClassID:64DE6A54-6E0B-BCDF-8A08-6EF31347E768
+SimplePoolFile1...  DEBUG --->Adding Shape[8 , 64DE6A54-6E0B-BCDF-8A08-6EF31347E768]:  [1 Column(s)] 
 SimplePoolFile1...  DEBUG ---->Class:float
 SimplePoolFile1...  DEBUG ---->[0]:float Typ:float [10] Size:0 Offset:0 #Elements:1
 Stream1.FileMet...  DEBUG beam energy "" tag could not be converted to float
 Stream1.FileMet...  DEBUG Failed to retrieve  'SimInfoKey':'/Simulation/Parameters' => cannot set: xAOD::FileMetaData::simFlavour, and xAOD::FileMetaData::isDataOverlay
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG added 1 to list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
+Stream1.FileMet...  DEBUG added 0 to list of lumiBlocks
 Stream1.FileMet...  DEBUG Retrieved  'EventInfoKey':'EventInfo'
 Stream1.FileMet...  DEBUG setting xAOD::FileMetaData::mcProcID to 0
 Stream1.FileMet...  DEBUG Retrieved  'StreamName':'Stream1'
@@ -325,50 +329,50 @@ SimplePoolFile3...  DEBUG --> Access   DbContainer  CREATE    [ROOT_All] ##Param
 ##Params            DEBUG Opening
 ##Params            DEBUG    attributes# = 1
 ##Params            DEBUG Opened container ##Params of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/##Params [200]  (2 , ffffffff)
-SimplePoolFile3...  DEBUG ---->ClassID:????
+SimplePoolFile3...  DEBUG --->Adding Assoc :A811B014-0297-AD47-AF4C-B75EF418982D/##Params [200]  (2 , ffffffffffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:DA8F479C-09BC-49D4-94BC-99D025A23A3B
 ##Params            DEBUG No objects passing selection criteria... Container has 0 Entries in total.
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
-SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] CollectionTree(EventInfo_p4/McEventInfo)
+SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_TreeIndex] CollectionTree(EventInfo_p4/McEventInfo)
 CollectionTree(...  DEBUG Opening
 CollectionTree(...  DEBUG    attributes# = 1
 CollectionTree(...  DEBUG Branch container 'EventInfo_p4_McEventInfo'
 CollectionTree(...  DEBUG Opened container CollectionTree(EventInfo_p4/McEventInfo) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/CollectionTree(EventInfo_p4/McEventInfo) [203]  (3 , ffffffff)
-SimplePoolFile3...  DEBUG ---->ClassID:????
-SimplePoolFile3...  DEBUG --->Adding Shape[0 , ????]:  [1 Column(s)] 
+SimplePoolFile3...  DEBUG --->Adding Assoc :A811B014-0297-AD47-AF4C-B75EF418982D/CollectionTree(EventInfo_p4/McEventInfo) [203]  (3 , ffffffffffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:C634FDB6-CC4B-4BA2-B8F9-A84BE6A786C7
+SimplePoolFile3...  DEBUG --->Adding Shape[0 , C634FDB6-CC4B-4BA2-B8F9-A84BE6A786C7]:  [1 Column(s)] 
 SimplePoolFile3...  DEBUG ---->Class:EventInfo_p4
 SimplePoolFile3...  DEBUG ---->[0]:EventInfo_p4 Typ:EventInfo_p4 [21] Size:0 Offset:0 #Elements:1
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
-StorageSvc           INFO ExampleTrackContainer_p1 [????]
-SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] CollectionTree(ExampleTrackContainer_p1/MyTracks)
+StorageSvc           INFO ExampleTrackContainer_p1 [FF777FDA-721C-4756-BBF3-4CE28C2A3AF5]
+SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_TreeIndex] CollectionTree(ExampleTrackContainer_p1/MyTracks)
 CollectionTree(...  DEBUG Opening
 CollectionTree(...  DEBUG    attributes# = 1
 CollectionTree(...  DEBUG Branch container 'ExampleTrackContainer_p1_MyTracks'
 CollectionTree(...  DEBUG Opened container CollectionTree(ExampleTrackContainer_p1/MyTracks) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/CollectionTree(ExampleTrackContainer_p1/MyTracks) [203]  (4 , ffffffff)
-SimplePoolFile3...  DEBUG ---->ClassID:????
-SimplePoolFile3...  DEBUG --->Adding Shape[1 , ????]:  [1 Column(s)] 
+SimplePoolFile3...  DEBUG --->Adding Assoc :A811B014-0297-AD47-AF4C-B75EF418982D/CollectionTree(ExampleTrackContainer_p1/MyTracks) [203]  (4 , ffffffffffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:FF777FDA-721C-4756-BBF3-4CE28C2A3AF5
+SimplePoolFile3...  DEBUG --->Adding Shape[1 , FF777FDA-721C-4756-BBF3-4CE28C2A3AF5]:  [1 Column(s)] 
 SimplePoolFile3...  DEBUG ---->Class:ExampleTrackContainer_p1
 SimplePoolFile3...  DEBUG ---->[0]:ExampleTrackContainer_p1 Typ:ExampleTrackContainer_p1 [21] Size:0 Offset:0 #Elements:1
-SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLContainer(DataHeader)
+SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_TreeIndex] POOLContainer(DataHeader)
 POOLContainer(D...  DEBUG Opening
 POOLContainer(D...  DEBUG    attributes# = 1
 POOLContainer(D...  DEBUG Branch container 'DataHeader'
 POOLContainer(D...  DEBUG Opened container POOLContainer(DataHeader) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/POOLContainer(DataHeader) [203]  (5 , ffffffff)
-SimplePoolFile3...  DEBUG ---->ClassID:????
-SimplePoolFile3...  DEBUG --->Adding Shape[2 , ????]:  [1 Column(s)] 
+SimplePoolFile3...  DEBUG --->Adding Assoc :A811B014-0297-AD47-AF4C-B75EF418982D/POOLContainer(DataHeader) [203]  (5 , ffffffffffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D
+SimplePoolFile3...  DEBUG --->Adding Shape[2 , 4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D]:  [1 Column(s)] 
 SimplePoolFile3...  DEBUG ---->Class:DataHeader_p6
 SimplePoolFile3...  DEBUG ---->[0]:DataHeader_p6 Typ:DataHeader_p6 [21] Size:0 Offset:0 #Elements:1
-SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLContainerForm(DataHeaderForm)
+SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_TreeIndex] POOLContainerForm(DataHeaderForm)
 POOLContainerFo...  DEBUG Opening
 POOLContainerFo...  DEBUG    attributes# = 1
 POOLContainerFo...  DEBUG Branch container 'DataHeaderForm'
 POOLContainerFo...  DEBUG Opened container POOLContainerForm(DataHeaderForm) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/POOLContainerForm(DataHeaderForm) [203]  (6 , ffffffff)
-SimplePoolFile3...  DEBUG ---->ClassID:????
-SimplePoolFile3...  DEBUG --->Adding Shape[3 , ????]:  [1 Column(s)] 
+SimplePoolFile3...  DEBUG --->Adding Assoc :A811B014-0297-AD47-AF4C-B75EF418982D/POOLContainerForm(DataHeaderForm) [203]  (6 , ffffffffffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:7BE56CEF-C866-4BEE-9348-A5F34B5F1DAD
+SimplePoolFile3...  DEBUG --->Adding Shape[3 , 7BE56CEF-C866-4BEE-9348-A5F34B5F1DAD]:  [1 Column(s)] 
 SimplePoolFile3...  DEBUG ---->Class:DataHeaderForm_p6
 SimplePoolFile3...  DEBUG ---->[0]:DataHeaderForm_p6 Typ:DataHeaderForm_p6 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(Token)
@@ -376,9 +380,9 @@ POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'Token'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(Token) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/POOLCollectionTree(Token) [202]  (7 , ffffffff)
-SimplePoolFile3...  DEBUG ---->ClassID:????
-SimplePoolFile3...  DEBUG --->Adding Shape[4 , ????]:  [1 Column(s)] 
+SimplePoolFile3...  DEBUG --->Adding Assoc :A811B014-0297-AD47-AF4C-B75EF418982D/POOLCollectionTree(Token) [202]  (7 , ffffffffffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:E013D4B1-CA9C-4E3C-9BE2-8691BBAFCB9A
+SimplePoolFile3...  DEBUG --->Adding Shape[4 , E013D4B1-CA9C-4E3C-9BE2-8691BBAFCB9A]:  [1 Column(s)] 
 SimplePoolFile3...  DEBUG ---->Class:Token
 SimplePoolFile3...  DEBUG ---->[0]:Token Typ:Token [18] Size:0 Offset:0 #Elements:1
 SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(IsSimulation)
@@ -386,9 +390,9 @@ POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'IsSimulation'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(IsSimulation) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/POOLCollectionTree(IsSimulation) [202]  (8 , ffffffff)
-SimplePoolFile3...  DEBUG ---->ClassID:????
-SimplePoolFile3...  DEBUG --->Adding Shape[5 , ????]:  [1 Column(s)] 
+SimplePoolFile3...  DEBUG --->Adding Assoc :A811B014-0297-AD47-AF4C-B75EF418982D/POOLCollectionTree(IsSimulation) [202]  (8 , ffffffffffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:13FF06C5-AB4B-6EDD-68AB-3E6350E95305
+SimplePoolFile3...  DEBUG --->Adding Shape[5 , 13FF06C5-AB4B-6EDD-68AB-3E6350E95305]:  [1 Column(s)] 
 SimplePoolFile3...  DEBUG ---->Class:bool
 SimplePoolFile3...  DEBUG ---->[0]:bool Typ:bool [9] Size:0 Offset:0 #Elements:1
 SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(IsCalibration)
@@ -396,23 +400,23 @@ POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'IsCalibration'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(IsCalibration) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/POOLCollectionTree(IsCalibration) [202]  (9 , ffffffff)
-SimplePoolFile3...  DEBUG ---->ClassID:????
+SimplePoolFile3...  DEBUG --->Adding Assoc :A811B014-0297-AD47-AF4C-B75EF418982D/POOLCollectionTree(IsCalibration) [202]  (9 , ffffffffffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:13FF06C5-AB4B-6EDD-68AB-3E6350E95305
 SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(IsTestBeam)
 POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'IsTestBeam'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(IsTestBeam) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/POOLCollectionTree(IsTestBeam) [202]  (a , ffffffff)
-SimplePoolFile3...  DEBUG ---->ClassID:????
+SimplePoolFile3...  DEBUG --->Adding Assoc :A811B014-0297-AD47-AF4C-B75EF418982D/POOLCollectionTree(IsTestBeam) [202]  (a , ffffffffffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:13FF06C5-AB4B-6EDD-68AB-3E6350E95305
 SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(McChannel)
 POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'McChannel'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(McChannel) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/POOLCollectionTree(McChannel) [202]  (b , ffffffff)
-SimplePoolFile3...  DEBUG ---->ClassID:????
-SimplePoolFile3...  DEBUG --->Adding Shape[6 , ????]:  [1 Column(s)] 
+SimplePoolFile3...  DEBUG --->Adding Assoc :A811B014-0297-AD47-AF4C-B75EF418982D/POOLCollectionTree(McChannel) [202]  (b , ffffffffffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:BBACA313-D7B0-3A4C-9161-089CACF4B1CC
+SimplePoolFile3...  DEBUG --->Adding Shape[6 , BBACA313-D7B0-3A4C-9161-089CACF4B1CC]:  [1 Column(s)] 
 SimplePoolFile3...  DEBUG ---->Class:unsigned int
 SimplePoolFile3...  DEBUG ---->[0]:unsigned int Typ:unsigned int [3] Size:0 Offset:0 #Elements:1
 SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(RunNumber)
@@ -420,16 +424,16 @@ POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'RunNumber'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(RunNumber) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/POOLCollectionTree(RunNumber) [202]  (c , ffffffff)
-SimplePoolFile3...  DEBUG ---->ClassID:????
+SimplePoolFile3...  DEBUG --->Adding Assoc :A811B014-0297-AD47-AF4C-B75EF418982D/POOLCollectionTree(RunNumber) [202]  (c , ffffffffffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:BBACA313-D7B0-3A4C-9161-089CACF4B1CC
 SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(EventNumber)
 POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'EventNumber'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(EventNumber) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/POOLCollectionTree(EventNumber) [202]  (d , ffffffff)
-SimplePoolFile3...  DEBUG ---->ClassID:????
-SimplePoolFile3...  DEBUG --->Adding Shape[7 , ????]:  [1 Column(s)] 
+SimplePoolFile3...  DEBUG --->Adding Assoc :A811B014-0297-AD47-AF4C-B75EF418982D/POOLCollectionTree(EventNumber) [202]  (d , ffffffffffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:388BE2E0-4452-7BB9-2563-DA3365C64623
+SimplePoolFile3...  DEBUG --->Adding Shape[7 , 388BE2E0-4452-7BB9-2563-DA3365C64623]:  [1 Column(s)] 
 SimplePoolFile3...  DEBUG ---->Class:unsigned long long
 SimplePoolFile3...  DEBUG ---->[0]:unsigned long long Typ:unsigned long long [23] Size:0 Offset:0 #Elements:1
 SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(LumiBlockN)
@@ -437,48 +441,52 @@ POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'LumiBlockN'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(LumiBlockN) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/POOLCollectionTree(LumiBlockN) [202]  (e , ffffffff)
-SimplePoolFile3...  DEBUG ---->ClassID:????
+SimplePoolFile3...  DEBUG --->Adding Assoc :A811B014-0297-AD47-AF4C-B75EF418982D/POOLCollectionTree(LumiBlockN) [202]  (e , ffffffffffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:BBACA313-D7B0-3A4C-9161-089CACF4B1CC
 SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(ConditionsRun)
 POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'ConditionsRun'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(ConditionsRun) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/POOLCollectionTree(ConditionsRun) [202]  (f , ffffffff)
-SimplePoolFile3...  DEBUG ---->ClassID:????
+SimplePoolFile3...  DEBUG --->Adding Assoc :A811B014-0297-AD47-AF4C-B75EF418982D/POOLCollectionTree(ConditionsRun) [202]  (f , ffffffffffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:BBACA313-D7B0-3A4C-9161-089CACF4B1CC
 SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(EventTime)
 POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'EventTime'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(EventTime) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/POOLCollectionTree(EventTime) [202]  (10 , ffffffff)
-SimplePoolFile3...  DEBUG ---->ClassID:????
+SimplePoolFile3...  DEBUG --->Adding Assoc :A811B014-0297-AD47-AF4C-B75EF418982D/POOLCollectionTree(EventTime) [202]  (10 , ffffffffffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:BBACA313-D7B0-3A4C-9161-089CACF4B1CC
 SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(EventTimeNanoSec)
 POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'EventTimeNanoSec'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(EventTimeNanoSec) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/POOLCollectionTree(EventTimeNanoSec) [202]  (11 , ffffffff)
-SimplePoolFile3...  DEBUG ---->ClassID:????
+SimplePoolFile3...  DEBUG --->Adding Assoc :A811B014-0297-AD47-AF4C-B75EF418982D/POOLCollectionTree(EventTimeNanoSec) [202]  (11 , ffffffffffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:BBACA313-D7B0-3A4C-9161-089CACF4B1CC
 SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(BunchId)
 POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'BunchId'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(BunchId) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/POOLCollectionTree(BunchId) [202]  (12 , ffffffff)
-SimplePoolFile3...  DEBUG ---->ClassID:????
+SimplePoolFile3...  DEBUG --->Adding Assoc :A811B014-0297-AD47-AF4C-B75EF418982D/POOLCollectionTree(BunchId) [202]  (12 , ffffffffffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:BBACA313-D7B0-3A4C-9161-089CACF4B1CC
 SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(EventWeight)
 POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'EventWeight'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(EventWeight) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/POOLCollectionTree(EventWeight) [202]  (13 , ffffffff)
-SimplePoolFile3...  DEBUG ---->ClassID:????
-SimplePoolFile3...  DEBUG --->Adding Shape[8 , ????]:  [1 Column(s)] 
+SimplePoolFile3...  DEBUG --->Adding Assoc :A811B014-0297-AD47-AF4C-B75EF418982D/POOLCollectionTree(EventWeight) [202]  (13 , ffffffffffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:64DE6A54-6E0B-BCDF-8A08-6EF31347E768
+SimplePoolFile3...  DEBUG --->Adding Shape[8 , 64DE6A54-6E0B-BCDF-8A08-6EF31347E768]:  [1 Column(s)] 
 SimplePoolFile3...  DEBUG ---->Class:float
 SimplePoolFile3...  DEBUG ---->[0]:float Typ:float [10] Size:0 Offset:0 #Elements:1
 Stream2.FileMet...  DEBUG beam energy "" tag could not be converted to float
 Stream2.FileMet...  DEBUG Failed to retrieve  'SimInfoKey':'/Simulation/Parameters' => cannot set: xAOD::FileMetaData::simFlavour, and xAOD::FileMetaData::isDataOverlay
+Stream2.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream2.FileMet...  DEBUG added 1 to list of runNumbers
+Stream2.FileMet...  DEBUG retrieved existing list of lumiBlocks
+Stream2.FileMet...  DEBUG added 0 to list of lumiBlocks
 Stream2.FileMet...  DEBUG Retrieved  'EventInfoKey':'EventInfo'
 Stream2.FileMet...  DEBUG setting xAOD::FileMetaData::mcProcID to 0
 Stream2.FileMet...  DEBUG Retrieved  'StreamName':'Stream2'
@@ -529,6 +537,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 2
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 2
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr 0 with 7 mantissa bits.
@@ -543,6 +553,8 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 2
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 2
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
+Stream2.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream2.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #1 2 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #1 2 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -589,6 +601,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 3
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 3
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr 0 with 7 mantissa bits.
@@ -603,6 +617,8 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 3
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 3
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
+Stream2.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream2.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #1 3 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #1 3 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -649,6 +665,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 4
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 4
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr 0 with 7 mantissa bits.
@@ -663,6 +681,8 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 4
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 4
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
+Stream2.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream2.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #1 4 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #1 4 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -709,6 +729,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 5
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 5
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr 0 with 7 mantissa bits.
@@ -723,6 +745,8 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 5
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 5
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
+Stream2.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream2.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #1 5 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #1 5 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -769,6 +793,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 6
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 6
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr 0 with 7 mantissa bits.
@@ -783,6 +809,8 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 6
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 6
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
+Stream2.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream2.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #1 6 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #6, run #1 6 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -829,6 +857,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 7
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 7
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr 0 with 7 mantissa bits.
@@ -843,6 +873,8 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 7
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 7
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
+Stream2.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream2.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #6, run #1 7 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #7, run #1 7 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -889,6 +921,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 8
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 8
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr 0 with 7 mantissa bits.
@@ -903,6 +937,8 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 8
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 8
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
+Stream2.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream2.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #7, run #1 8 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #8, run #1 8 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -949,6 +985,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 9
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 9
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr 0 with 7 mantissa bits.
@@ -963,6 +1001,8 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 9
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 9
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
+Stream2.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream2.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #8, run #1 9 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #9, run #1 9 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -1009,6 +1049,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 10
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 10
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr 0 with 7 mantissa bits.
@@ -1023,6 +1065,8 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 10
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 10
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
+Stream2.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream2.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #9, run #1 10 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #10, run #1 10 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -1069,6 +1113,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 11
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 11
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr 0 with 7 mantissa bits.
@@ -1083,6 +1129,8 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 11
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 11
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
+Stream2.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream2.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #10, run #1 11 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #11, run #1 11 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -1129,6 +1177,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 12
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 12
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr 0 with 7 mantissa bits.
@@ -1143,6 +1193,8 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 12
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 12
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
+Stream2.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream2.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #11, run #1 12 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #12, run #1 12 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -1189,6 +1241,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 13
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 13
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr 0 with 7 mantissa bits.
@@ -1203,6 +1257,8 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 13
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 13
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
+Stream2.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream2.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #12, run #1 13 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #13, run #1 13 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -1249,6 +1305,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 14
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 14
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr 0 with 7 mantissa bits.
@@ -1263,6 +1321,8 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 14
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 14
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
+Stream2.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream2.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #13, run #1 14 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #14, run #1 14 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -1310,6 +1370,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 15
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 15
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr 0 with 7 mantissa bits.
@@ -1324,6 +1386,8 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 15
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 15
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
+Stream2.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream2.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #14, run #1 15 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #15, run #1 15 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -1370,6 +1434,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 16
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 16
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr 0 with 7 mantissa bits.
@@ -1384,6 +1450,8 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 16
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 16
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
+Stream2.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream2.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #15, run #1 16 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #16, run #1 16 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -1430,6 +1498,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 17
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 17
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr 0 with 7 mantissa bits.
@@ -1444,6 +1514,8 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 17
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 17
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
+Stream2.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream2.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #16, run #1 17 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #17, run #1 17 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -1490,6 +1562,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 18
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 18
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr 0 with 7 mantissa bits.
@@ -1504,6 +1578,8 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 18
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 18
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
+Stream2.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream2.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #17, run #1 18 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #18, run #1 18 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -1550,6 +1626,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 19
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 19
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr 0 with 7 mantissa bits.
@@ -1564,6 +1642,8 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 19
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 19
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
+Stream2.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream2.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #18, run #1 19 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #19, run #1 19 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -1610,6 +1690,8 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 20
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 20
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
+Stream1.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream1.FileMet...  DEBUG retrieved existing list of lumiBlocks
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr 0 with 7 mantissa bits.
@@ -1624,6 +1706,8 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 20
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 20
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
+Stream2.FileMet...  DEBUG retrieved existing list of runNumbers
+Stream2.FileMet...  DEBUG retrieved existing list of lumiBlocks
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #1 20 events processed so far  <<<===
 Stream1             DEBUG AthenaOutputStream Stream1 ::stop()
 Stream2             DEBUG AthenaOutputStream Stream2 ::stop()
@@ -1655,82 +1739,81 @@ Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 1316383046,"/TagInfo"
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
-StorageSvc           INFO xAOD::FileMetaDataAuxInfo_v1 [????]
-SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaData(xAOD::FileMetaDataAuxInfo_v1/FileMetaDataAux.)
+StorageSvc           INFO xAOD::FileMetaDataAuxInfo_v1 [BEE2BECF-A936-4078-9FDD-AD703C9ADF9F]
+SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_TreeIndex] MetaData(xAOD::FileMetaDataAuxInfo_v1/FileMetaDataAux.)
 MetaData(xAOD::...  DEBUG Opening
 MetaData(xAOD::...  DEBUG    attributes# = 1
 MetaData(xAOD::...  DEBUG Branch container 'xAOD::FileMetaDataAuxInfo_v1_FileMetaDataAux.'
 MetaData(xAOD::...  DEBUG Opened container MetaData(xAOD::FileMetaDataAuxInfo_v1/FileMetaDataAux.) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/MetaData(xAOD::FileMetaDataAuxInfo_v1/FileMetaDataAux.) [203]  (14 , ffffffff)
-SimplePoolFile1...  DEBUG ---->ClassID:????
-SimplePoolFile1...  DEBUG --->Adding Shape[9 , ????]:  [1 Column(s)] 
+SimplePoolFile1...  DEBUG --->Adding Assoc :F2313678-C96A-964F-89E8-08BAB39F2DA7/MetaData(xAOD::FileMetaDataAuxInfo_v1/FileMetaDataAux.) [203]  (14 , ffffffffffffffff)
+SimplePoolFile1...  DEBUG ---->ClassID:BEE2BECF-A936-4078-9FDD-AD703C9ADF9F
+SimplePoolFile1...  DEBUG --->Adding Shape[9 , BEE2BECF-A936-4078-9FDD-AD703C9ADF9F]:  [1 Column(s)] 
 SimplePoolFile1...  DEBUG ---->Class:xAOD::FileMetaDataAuxInfo_v1
 SimplePoolFile1...  DEBUG ---->[0]:xAOD::FileMetaDataAuxInfo_v1 Typ:xAOD::FileMetaDataAuxInfo_v1 [21] Size:0 Offset:0 #Elements:1
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
-StorageSvc           INFO EventStreamInfo_p3 [????]
-SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaData(EventStreamInfo_p3/Stream1)
+StorageSvc           INFO EventStreamInfo_p3 [11DF1B8C-0DEE-4687-80D7-E74B520ACBB4]
+SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_TreeIndex] MetaData(EventStreamInfo_p3/Stream1)
 MetaData(EventS...  DEBUG Opening
 MetaData(EventS...  DEBUG    attributes# = 1
 MetaData(EventS...  DEBUG Branch container 'EventStreamInfo_p3_Stream1'
 MetaData(EventS...  DEBUG Opened container MetaData(EventStreamInfo_p3/Stream1) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/MetaData(EventStreamInfo_p3/Stream1) [203]  (15 , ffffffff)
-SimplePoolFile1...  DEBUG ---->ClassID:????
-SimplePoolFile1...  DEBUG --->Adding Shape[10 , ????]:  [1 Column(s)] 
+SimplePoolFile1...  DEBUG --->Adding Assoc :F2313678-C96A-964F-89E8-08BAB39F2DA7/MetaData(EventStreamInfo_p3/Stream1) [203]  (15 , ffffffffffffffff)
+SimplePoolFile1...  DEBUG ---->ClassID:11DF1B8C-0DEE-4687-80D7-E74B520ACBB4
+SimplePoolFile1...  DEBUG --->Adding Shape[10 , 11DF1B8C-0DEE-4687-80D7-E74B520ACBB4]:  [1 Column(s)] 
 SimplePoolFile1...  DEBUG ---->Class:EventStreamInfo_p3
 SimplePoolFile1...  DEBUG ---->[0]:EventStreamInfo_p3 Typ:EventStreamInfo_p3 [21] Size:0 Offset:0 #Elements:1
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
-StorageSvc           INFO xAOD::FileMetaData_v1 [????]
-SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaData(xAOD::FileMetaData_v1/FileMetaData)
+StorageSvc           INFO xAOD::FileMetaData_v1 [C87E3828-4A7A-480A-95DE-0339539F6A0F]
+SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_TreeIndex] MetaData(xAOD::FileMetaData_v1/FileMetaData)
 MetaData(xAOD::...  DEBUG Opening
 MetaData(xAOD::...  DEBUG    attributes# = 1
 MetaData(xAOD::...  DEBUG Branch container 'xAOD::FileMetaData_v1_FileMetaData'
 MetaData(xAOD::...  DEBUG Opened container MetaData(xAOD::FileMetaData_v1/FileMetaData) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/MetaData(xAOD::FileMetaData_v1/FileMetaData) [203]  (16 , ffffffff)
-SimplePoolFile1...  DEBUG ---->ClassID:????
-SimplePoolFile1...  DEBUG --->Adding Shape[11 , ????]:  [1 Column(s)] 
+SimplePoolFile1...  DEBUG --->Adding Assoc :F2313678-C96A-964F-89E8-08BAB39F2DA7/MetaData(xAOD::FileMetaData_v1/FileMetaData) [203]  (16 , ffffffffffffffff)
+SimplePoolFile1...  DEBUG ---->ClassID:C87E3828-4A7A-480A-95DE-0339539F6A0F
+SimplePoolFile1...  DEBUG --->Adding Shape[11 , C87E3828-4A7A-480A-95DE-0339539F6A0F]:  [1 Column(s)] 
 SimplePoolFile1...  DEBUG ---->Class:xAOD::FileMetaData_v1
 SimplePoolFile1...  DEBUG ---->[0]:xAOD::FileMetaData_v1 Typ:xAOD::FileMetaData_v1 [21] Size:0 Offset:0 #Elements:1
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
-StorageSvc           INFO xAOD::EventFormat_v1 [????]
-SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaData(xAOD::EventFormat_v1/EventFormatStream1)
+StorageSvc           INFO xAOD::EventFormat_v1 [0EFE2D2C-9E78-441D-9A87-9EE2B908AC81]
+SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_TreeIndex] MetaData(xAOD::EventFormat_v1/EventFormatStream1)
 MetaData(xAOD::...  DEBUG Opening
 MetaData(xAOD::...  DEBUG    attributes# = 1
 MetaData(xAOD::...  DEBUG Branch container 'xAOD::EventFormat_v1_EventFormatStream1'
 MetaData(xAOD::...  DEBUG Opened container MetaData(xAOD::EventFormat_v1/EventFormatStream1) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/MetaData(xAOD::EventFormat_v1/EventFormatStream1) [203]  (17 , ffffffff)
-SimplePoolFile1...  DEBUG ---->ClassID:????
-SimplePoolFile1...  DEBUG --->Adding Shape[12 , ????]:  [1 Column(s)] 
+SimplePoolFile1...  DEBUG --->Adding Assoc :F2313678-C96A-964F-89E8-08BAB39F2DA7/MetaData(xAOD::EventFormat_v1/EventFormatStream1) [203]  (17 , ffffffffffffffff)
+SimplePoolFile1...  DEBUG ---->ClassID:0EFE2D2C-9E78-441D-9A87-9EE2B908AC81
+SimplePoolFile1...  DEBUG --->Adding Shape[12 , 0EFE2D2C-9E78-441D-9A87-9EE2B908AC81]:  [1 Column(s)] 
 SimplePoolFile1...  DEBUG ---->Class:xAOD::EventFormat_v1
 SimplePoolFile1...  DEBUG ---->[0]:xAOD::EventFormat_v1 Typ:xAOD::EventFormat_v1 [21] Size:0 Offset:0 #Elements:1
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
-StorageSvc           INFO IOVMetaDataContainer_p1 [????]
-SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaData(IOVMetaDataContainer_p1//TagInfo)
+StorageSvc           INFO IOVMetaDataContainer_p1 [6C2DE6DF-6D52-43F6-B435-9F29812F40C0]
+SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_TreeIndex] MetaData(IOVMetaDataContainer_p1//TagInfo)
 MetaData(IOVMet...  DEBUG Opening
 MetaData(IOVMet...  DEBUG    attributes# = 1
 MetaData(IOVMet...  DEBUG Branch container 'IOVMetaDataContainer_p1__TagInfo'
 MetaData(IOVMet...  DEBUG Opened container MetaData(IOVMetaDataContainer_p1//TagInfo) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/MetaData(IOVMetaDataContainer_p1//TagInfo) [203]  (18 , ffffffff)
-SimplePoolFile1...  DEBUG ---->ClassID:????
-SimplePoolFile1...  DEBUG --->Adding Shape[13 , ????]:  [1 Column(s)] 
+SimplePoolFile1...  DEBUG --->Adding Assoc :F2313678-C96A-964F-89E8-08BAB39F2DA7/MetaData(IOVMetaDataContainer_p1//TagInfo) [203]  (18 , ffffffffffffffff)
+SimplePoolFile1...  DEBUG ---->ClassID:6C2DE6DF-6D52-43F6-B435-9F29812F40C0
+SimplePoolFile1...  DEBUG --->Adding Shape[13 , 6C2DE6DF-6D52-43F6-B435-9F29812F40C0]:  [1 Column(s)] 
 SimplePoolFile1...  DEBUG ---->Class:IOVMetaDataContainer_p1
 SimplePoolFile1...  DEBUG ---->[0]:IOVMetaDataContainer_p1 Typ:IOVMetaDataContainer_p1 [21] Size:0 Offset:0 #Elements:1
-SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaDataHdr(DataHeader)
+SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_TreeIndex] MetaDataHdr(DataHeader)
 MetaDataHdr(Dat...  DEBUG Opening
 MetaDataHdr(Dat...  DEBUG    attributes# = 1
 MetaDataHdr(Dat...  DEBUG Branch container 'DataHeader'
 MetaDataHdr(Dat...  DEBUG Opened container MetaDataHdr(DataHeader) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/MetaDataHdr(DataHeader) [203]  (19 , ffffffff)
-SimplePoolFile1...  DEBUG ---->ClassID:????
-SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaDataHdrForm(DataHeaderForm)
+SimplePoolFile1...  DEBUG --->Adding Assoc :F2313678-C96A-964F-89E8-08BAB39F2DA7/MetaDataHdr(DataHeader) [203]  (19 , ffffffffffffffff)
+SimplePoolFile1...  DEBUG ---->ClassID:4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D
+SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_TreeIndex] MetaDataHdrForm(DataHeaderForm)
 MetaDataHdrForm...  DEBUG Opening
 MetaDataHdrForm...  DEBUG    attributes# = 1
 MetaDataHdrForm...  DEBUG Branch container 'DataHeaderForm'
 MetaDataHdrForm...  DEBUG Opened container MetaDataHdrForm(DataHeaderForm) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm) [203]  (1a , ffffffff)
-SimplePoolFile1...  DEBUG ---->ClassID:????
+SimplePoolFile1...  DEBUG --->Adding Assoc :F2313678-C96A-964F-89E8-08BAB39F2DA7/MetaDataHdrForm(DataHeaderForm) [203]  (1a , ffffffffffffffff)
+SimplePoolFile1...  DEBUG ---->ClassID:7BE56CEF-C866-4BEE-9348-A5F34B5F1DAD
 MetaData(xAOD::...  DEBUG  SG::IAuxStoreIO* detected in xAOD::FileMetaDataAuxInfo_v1_FileMetaDataAux.
 MetaData(xAOD::...  DEBUG        Attributes= 1
-MetaData(xAOD::...  DEBUG    Creating branch for new dynamic attribute, Id=52: type=float, mcProcID
 MetaData(xAOD::...  DEBUG createBasicAuxBranch: xAOD::FileMetaDataAuxInfo_v1_FileMetaDataAuxDyn.mcProcID, leaf:mcProcID/F
 Stream1              INFO Metadata records written: 21
 Stream1             DEBUG Leaving incident handler for MetaDataStop
@@ -1761,85 +1844,84 @@ Stream2             DEBUG      Comp Attr 0 with 7 mantissa bits.
 Stream2             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream2             DEBUG  Added object 1316383046,"/TagInfo"
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
-SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaData(xAOD::FileMetaDataAuxInfo_v1/FileMetaDataAux.)
+SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_TreeIndex] MetaData(xAOD::FileMetaDataAuxInfo_v1/FileMetaDataAux.)
 MetaData(xAOD::...  DEBUG Opening
 MetaData(xAOD::...  DEBUG    attributes# = 1
 MetaData(xAOD::...  DEBUG Branch container 'xAOD::FileMetaDataAuxInfo_v1_FileMetaDataAux.'
 MetaData(xAOD::...  DEBUG Opened container MetaData(xAOD::FileMetaDataAuxInfo_v1/FileMetaDataAux.) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaData(xAOD::FileMetaDataAuxInfo_v1/FileMetaDataAux.) [203]  (14 , ffffffff)
-SimplePoolFile3...  DEBUG ---->ClassID:????
-SimplePoolFile3...  DEBUG --->Adding Shape[9 , ????]:  [1 Column(s)] 
+SimplePoolFile3...  DEBUG --->Adding Assoc :A811B014-0297-AD47-AF4C-B75EF418982D/MetaData(xAOD::FileMetaDataAuxInfo_v1/FileMetaDataAux.) [203]  (14 , ffffffffffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:BEE2BECF-A936-4078-9FDD-AD703C9ADF9F
+SimplePoolFile3...  DEBUG --->Adding Shape[9 , BEE2BECF-A936-4078-9FDD-AD703C9ADF9F]:  [1 Column(s)] 
 SimplePoolFile3...  DEBUG ---->Class:xAOD::FileMetaDataAuxInfo_v1
 SimplePoolFile3...  DEBUG ---->[0]:xAOD::FileMetaDataAuxInfo_v1 Typ:xAOD::FileMetaDataAuxInfo_v1 [21] Size:0 Offset:0 #Elements:1
-SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaData(EventStreamInfo_p3/Stream2)
+SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_TreeIndex] MetaData(EventStreamInfo_p3/Stream2)
 MetaData(EventS...  DEBUG Opening
 MetaData(EventS...  DEBUG    attributes# = 1
 MetaData(EventS...  DEBUG Branch container 'EventStreamInfo_p3_Stream2'
 MetaData(EventS...  DEBUG Opened container MetaData(EventStreamInfo_p3/Stream2) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaData(EventStreamInfo_p3/Stream2) [203]  (15 , ffffffff)
-SimplePoolFile3...  DEBUG ---->ClassID:????
-SimplePoolFile3...  DEBUG --->Adding Shape[10 , ????]:  [1 Column(s)] 
+SimplePoolFile3...  DEBUG --->Adding Assoc :A811B014-0297-AD47-AF4C-B75EF418982D/MetaData(EventStreamInfo_p3/Stream2) [203]  (15 , ffffffffffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:11DF1B8C-0DEE-4687-80D7-E74B520ACBB4
+SimplePoolFile3...  DEBUG --->Adding Shape[10 , 11DF1B8C-0DEE-4687-80D7-E74B520ACBB4]:  [1 Column(s)] 
 SimplePoolFile3...  DEBUG ---->Class:EventStreamInfo_p3
 SimplePoolFile3...  DEBUG ---->[0]:EventStreamInfo_p3 Typ:EventStreamInfo_p3 [21] Size:0 Offset:0 #Elements:1
-SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaData(xAOD::FileMetaData_v1/FileMetaData)
+SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_TreeIndex] MetaData(xAOD::FileMetaData_v1/FileMetaData)
 MetaData(xAOD::...  DEBUG Opening
 MetaData(xAOD::...  DEBUG    attributes# = 1
 MetaData(xAOD::...  DEBUG Branch container 'xAOD::FileMetaData_v1_FileMetaData'
 MetaData(xAOD::...  DEBUG Opened container MetaData(xAOD::FileMetaData_v1/FileMetaData) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaData(xAOD::FileMetaData_v1/FileMetaData) [203]  (16 , ffffffff)
-SimplePoolFile3...  DEBUG ---->ClassID:????
-SimplePoolFile3...  DEBUG --->Adding Shape[11 , ????]:  [1 Column(s)] 
+SimplePoolFile3...  DEBUG --->Adding Assoc :A811B014-0297-AD47-AF4C-B75EF418982D/MetaData(xAOD::FileMetaData_v1/FileMetaData) [203]  (16 , ffffffffffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:C87E3828-4A7A-480A-95DE-0339539F6A0F
+SimplePoolFile3...  DEBUG --->Adding Shape[11 , C87E3828-4A7A-480A-95DE-0339539F6A0F]:  [1 Column(s)] 
 SimplePoolFile3...  DEBUG ---->Class:xAOD::FileMetaData_v1
 SimplePoolFile3...  DEBUG ---->[0]:xAOD::FileMetaData_v1 Typ:xAOD::FileMetaData_v1 [21] Size:0 Offset:0 #Elements:1
-SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaData(xAOD::EventFormat_v1/EventFormatStream2)
+SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_TreeIndex] MetaData(xAOD::EventFormat_v1/EventFormatStream2)
 MetaData(xAOD::...  DEBUG Opening
 MetaData(xAOD::...  DEBUG    attributes# = 1
 MetaData(xAOD::...  DEBUG Branch container 'xAOD::EventFormat_v1_EventFormatStream2'
 MetaData(xAOD::...  DEBUG Opened container MetaData(xAOD::EventFormat_v1/EventFormatStream2) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaData(xAOD::EventFormat_v1/EventFormatStream2) [203]  (17 , ffffffff)
-SimplePoolFile3...  DEBUG ---->ClassID:????
-SimplePoolFile3...  DEBUG --->Adding Shape[12 , ????]:  [1 Column(s)] 
+SimplePoolFile3...  DEBUG --->Adding Assoc :A811B014-0297-AD47-AF4C-B75EF418982D/MetaData(xAOD::EventFormat_v1/EventFormatStream2) [203]  (17 , ffffffffffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:0EFE2D2C-9E78-441D-9A87-9EE2B908AC81
+SimplePoolFile3...  DEBUG --->Adding Shape[12 , 0EFE2D2C-9E78-441D-9A87-9EE2B908AC81]:  [1 Column(s)] 
 SimplePoolFile3...  DEBUG ---->Class:xAOD::EventFormat_v1
 SimplePoolFile3...  DEBUG ---->[0]:xAOD::EventFormat_v1 Typ:xAOD::EventFormat_v1 [21] Size:0 Offset:0 #Elements:1
-SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaData(IOVMetaDataContainer_p1//TagInfo)
+SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_TreeIndex] MetaData(IOVMetaDataContainer_p1//TagInfo)
 MetaData(IOVMet...  DEBUG Opening
 MetaData(IOVMet...  DEBUG    attributes# = 1
 MetaData(IOVMet...  DEBUG Branch container 'IOVMetaDataContainer_p1__TagInfo'
 MetaData(IOVMet...  DEBUG Opened container MetaData(IOVMetaDataContainer_p1//TagInfo) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaData(IOVMetaDataContainer_p1//TagInfo) [203]  (18 , ffffffff)
-SimplePoolFile3...  DEBUG ---->ClassID:????
-SimplePoolFile3...  DEBUG --->Adding Shape[13 , ????]:  [1 Column(s)] 
+SimplePoolFile3...  DEBUG --->Adding Assoc :A811B014-0297-AD47-AF4C-B75EF418982D/MetaData(IOVMetaDataContainer_p1//TagInfo) [203]  (18 , ffffffffffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:6C2DE6DF-6D52-43F6-B435-9F29812F40C0
+SimplePoolFile3...  DEBUG --->Adding Shape[13 , 6C2DE6DF-6D52-43F6-B435-9F29812F40C0]:  [1 Column(s)] 
 SimplePoolFile3...  DEBUG ---->Class:IOVMetaDataContainer_p1
 SimplePoolFile3...  DEBUG ---->[0]:IOVMetaDataContainer_p1 Typ:IOVMetaDataContainer_p1 [21] Size:0 Offset:0 #Elements:1
-SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaDataHdr(DataHeader)
+SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_TreeIndex] MetaDataHdr(DataHeader)
 MetaDataHdr(Dat...  DEBUG Opening
 MetaDataHdr(Dat...  DEBUG    attributes# = 1
 MetaDataHdr(Dat...  DEBUG Branch container 'DataHeader'
 MetaDataHdr(Dat...  DEBUG Opened container MetaDataHdr(DataHeader) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaDataHdr(DataHeader) [203]  (19 , ffffffff)
-SimplePoolFile3...  DEBUG ---->ClassID:????
-SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaDataHdrForm(DataHeaderForm)
+SimplePoolFile3...  DEBUG --->Adding Assoc :A811B014-0297-AD47-AF4C-B75EF418982D/MetaDataHdr(DataHeader) [203]  (19 , ffffffffffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D
+SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_TreeIndex] MetaDataHdrForm(DataHeaderForm)
 MetaDataHdrForm...  DEBUG Opening
 MetaDataHdrForm...  DEBUG    attributes# = 1
 MetaDataHdrForm...  DEBUG Branch container 'DataHeaderForm'
 MetaDataHdrForm...  DEBUG Opened container MetaDataHdrForm(DataHeaderForm) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm) [203]  (1a , ffffffff)
-SimplePoolFile3...  DEBUG ---->ClassID:????
+SimplePoolFile3...  DEBUG --->Adding Assoc :A811B014-0297-AD47-AF4C-B75EF418982D/MetaDataHdrForm(DataHeaderForm) [203]  (1a , ffffffffffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:7BE56CEF-C866-4BEE-9348-A5F34B5F1DAD
 MetaData(xAOD::...  DEBUG  SG::IAuxStoreIO* detected in xAOD::FileMetaDataAuxInfo_v1_FileMetaDataAux.
 MetaData(xAOD::...  DEBUG        Attributes= 1
-MetaData(xAOD::...  DEBUG    Creating branch for new dynamic attribute, Id=52: type=float, mcProcID
 MetaData(xAOD::...  DEBUG createBasicAuxBranch: xAOD::FileMetaDataAuxInfo_v1_FileMetaDataAuxDyn.mcProcID, leaf:mcProcID/F
 Stream2              INFO Metadata records written: 21
 Stream2             DEBUG Leaving incident handler for MetaDataStop
 PoolSvc             DEBUG Disconnect request for contextId=0
 PoolSvc             DEBUG Disconnected PersistencySvc session
 PoolSvc             DEBUG Disconnect request for contextId=1
-StorageSvc          DEBUG Disconnect request for database: FID=???? PFN=SimplePoolFile1.root
-StorageSvc          DEBUG Closing database: FID=????
+StorageSvc          DEBUG Disconnect request for database: FID=F2313678-C96A-964F-89E8-08BAB39F2DA7 PFN=SimplePoolFile1.root
+StorageSvc          DEBUG Closing database: FID=F2313678-C96A-964F-89E8-08BAB39F2DA7
 PoolSvc             DEBUG Disconnected PersistencySvc session
 PoolSvc             DEBUG Disconnect request for contextId=2
-StorageSvc          DEBUG Disconnect request for database: FID=???? PFN=SimplePoolFile3.root
-StorageSvc          DEBUG Closing database: FID=????
+StorageSvc          DEBUG Disconnect request for database: FID=A811B014-0297-AD47-AF4C-B75EF418982D PFN=SimplePoolFile3.root
+StorageSvc          DEBUG Closing database: FID=A811B014-0297-AD47-AF4C-B75EF418982D
 PoolSvc             DEBUG Disconnected PersistencySvc session
 ApplicationMgr       INFO Application Manager Stopped successfully
 WriteData            INFO in finalize()

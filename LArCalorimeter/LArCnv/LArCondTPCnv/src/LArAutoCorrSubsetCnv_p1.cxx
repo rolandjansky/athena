@@ -46,7 +46,7 @@ LArAutoCorrSubsetCnv_p1::persToTrans(const LArAutoCorrPersType* persObj,
           // Channel is missing data - skip
           copyChannel = false;
         }
-        if (j%32 == 31 && j < 126) {
+        if (j%32 == 31 && j < nChannelsPerFeb-2) {
           chansSet     = persObj->m_subset.m_febsWithSparseData[ifebWithData];
           chansOffset += 32;
           ifebWithData++;

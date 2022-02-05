@@ -17,7 +17,7 @@ class TGCDigitVariables : public ValAlgVariables
                    const MuonGM::MuonDetectorManager* detManager,
                    const MuonIdHelper* idhelper,
                    TTree* tree,
-						 std::string containername,
+						 const std::string & containername,
 						 MSG::Level msglvl) :
 ValAlgVariables(evtStore, detManager, tree, containername, msglvl)
   {
@@ -35,16 +35,16 @@ ValAlgVariables(evtStore, detManager, tree, containername, msglvl)
     m_TgcIdHelper = dynamic_cast<const TgcIdHelper*>(idhelper);
     if(m_TgcIdHelper == 0) {
        ATH_MSG_ERROR("casting IdHelper to TgcIdhelper failed");
-       throw;
+       throw std::runtime_error("Casting failed in TGCDigitVariables::setHelper");
     }
   }
 
   void deleteVariables();
   StatusCode clearVariables();
 
-  const TgcIdHelper* m_TgcIdHelper;
+  const TgcIdHelper* m_TgcIdHelper{};
 
-  int m_TGC_nDigits;
+  int m_TGC_nDigits{};
   std::vector<std::string> m_TGC_dig_stationName;
   std::vector<int> m_TGC_dig_stationEta;
   std::vector<int> m_TGC_dig_stationPhi;

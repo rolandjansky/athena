@@ -136,7 +136,7 @@ class MuonPatternSegmentMaker : virtual public IMuonPatternSegmentMaker, public 
         "ClusterCreator",
         "Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator",
     };  //<! pointer to muon cluster rio ontrack creator
-    ToolHandle<MuonEDMPrinterTool> m_printer{
+    PublicToolHandle<MuonEDMPrinterTool> m_printer{
         this,
         "Printer",
         "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",

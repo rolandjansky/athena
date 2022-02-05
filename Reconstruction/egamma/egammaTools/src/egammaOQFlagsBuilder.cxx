@@ -23,7 +23,6 @@
 namespace {
 bool
 isbadtilecell(CaloCellList& ccl,
-              const CaloDetDescrManager& cmgr,
               const float clusterEta,
               const float clusterPhi,
               const double sizeEta,
@@ -32,7 +31,7 @@ isbadtilecell(CaloCellList& ccl,
 {
 
   bool isbadtilecell = false;
-  ccl.select(cmgr, clusterEta, clusterPhi, sizeEta, sizePhi, sample);
+  ccl.select(clusterEta, clusterPhi, sizeEta, sizePhi, sample);
   CaloCellList::list_iterator cclIter = ccl.begin();
   CaloCellList::list_iterator cclIterEnd = ccl.end();
   for (; cclIter != cclIterEnd; cclIter++) {
@@ -85,9 +84,9 @@ egammaOQFlagsBuilder::egammaOQFlagsBuilder(const std::string& type,
                                            const IInterface* parent)
   : AthAlgTool(type, name, parent)
   , m_emHelper(nullptr)
+  , m_calocellId(nullptr)
 {
   declareInterface<IegammaOQFlagsBuilder>(this);
-  m_calocellId = nullptr;
 }
 
 egammaOQFlagsBuilder::~egammaOQFlagsBuilder() = default;
@@ -534,14 +533,14 @@ egammaOQFlagsBuilder::execute(const EventContext& ctx,
   }
   CaloCell_ID::SUBCALO HADCal =
     static_cast<CaloCell_ID::SUBCALO>(CaloCell_ID::TILE);
-  CaloCellList ccl(cellcoll.cptr(), HADCal);
+  CaloCellList ccl(&cmgr,cellcoll.cptr(), HADCal);
   double size = 0.12;
   // TileBar0  or TileExt0
   bool isDeadCellTileS0 =
     (isbadtilecell(
-       ccl, cmgr, clusterEta, clusterPhi, size, size, CaloSampling::TileBar0) ||
+       ccl, clusterEta, clusterPhi, size, size, CaloSampling::TileBar0) ||
      isbadtilecell(
-       ccl, cmgr, clusterEta, clusterPhi, size, size, CaloSampling::TileExt0));
+       ccl, clusterEta, clusterPhi, size, size, CaloSampling::TileExt0));
 
   if (isDeadCellTileS0) {
     iflag |= (0x1 << xAOD::EgammaParameters::DeadCellTileS0);
@@ -549,17 +548,17 @@ egammaOQFlagsBuilder::execute(const EventContext& ctx,
   // TileBar1 TileExt1 TileGap1 TileBar2 TileExt2 TileGap2
   bool isDeadCellTileS1S2 =
     (isbadtilecell(
-       ccl, cmgr, clusterEta, clusterPhi, size, size, CaloSampling::TileBar1) ||
+       ccl, clusterEta, clusterPhi, size, size, CaloSampling::TileBar1) ||
      isbadtilecell(
-       ccl, cmgr, clusterEta, clusterPhi, size, size, CaloSampling::TileExt1) ||
+       ccl, clusterEta, clusterPhi, size, size, CaloSampling::TileExt1) ||
      isbadtilecell(
-       ccl, cmgr, clusterEta, clusterPhi, size, size, CaloSampling::TileGap1) ||
+       ccl, clusterEta, clusterPhi, size, size, CaloSampling::TileGap1) ||
      isbadtilecell(
-       ccl, cmgr, clusterEta, clusterPhi, size, size, CaloSampling::TileBar2) ||
+       ccl, clusterEta, clusterPhi, size, size, CaloSampling::TileBar2) ||
      isbadtilecell(
-       ccl, cmgr, clusterEta, clusterPhi, size, size, CaloSampling::TileExt2) ||
+       ccl, clusterEta, clusterPhi, size, size, CaloSampling::TileExt2) ||
      isbadtilecell(
-       ccl, cmgr, clusterEta, clusterPhi, size, size, CaloSampling::TileGap2));
+       ccl, clusterEta, clusterPhi, size, size, CaloSampling::TileGap2));
   if (isDeadCellTileS1S2) {
     iflag |= (0x1 << xAOD::EgammaParameters::DeadCellTileS1S2);
   }

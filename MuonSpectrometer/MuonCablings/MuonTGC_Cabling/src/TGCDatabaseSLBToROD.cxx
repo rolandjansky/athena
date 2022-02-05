@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTGC_Cabling/TGCDatabaseSLBToROD.h"
@@ -15,7 +15,7 @@ TGCDatabaseSLBToROD::TGCDatabaseSLBToROD(const std::string& filename,
    : TGCDatabase(TGCDatabase::SLBToROD, filename, blockname)
 {
   // read out ascii file and fill database
-  if(m_database.size()==0) readDB();
+  TGCDatabaseSLBToROD::readDB();
 }
 
 TGCDatabaseSLBToROD::TGCDatabaseSLBToROD(const TGCDatabaseSLBToROD& right)
@@ -27,20 +27,20 @@ void TGCDatabaseSLBToROD::readDB(void) {
   std::ifstream file(m_filename.c_str());
   std::string buf;
 
-  unsigned int space = m_blockname.find(" ");
-  std::string module = m_blockname.substr(0,space);
-  std::string type = m_blockname.substr(space+1);
+  unsigned int space = m_blockname.find(' ');
+  std::string_view module = std::string_view(m_blockname).substr(0,space);
+  std::string_view type = std::string_view(m_blockname).substr(space+1);
 
   while(getline(file,buf)){
-    if(buf.substr(0,module.size())==module) break;
+    if(buf.compare(0,module.size(),module)==0) break;
   }
 
   while(getline(file,buf)){
-    if(buf.substr(1,type.size())==type) break;
+    if(buf.compare(1,type.size(),type)==0) break;
   }
 
   while(getline(file,buf)){
-    if(buf.substr(0,2)!="  ") break;
+    if(buf.compare(0,2,"  ")!=0) break;
     std::istringstream line(buf);
     std::vector<int> entry;
     for(int i=0; i<6; i++){
@@ -48,7 +48,7 @@ void TGCDatabaseSLBToROD::readDB(void) {
       line >> temp; 
       entry.push_back(temp);
     }
-    m_database.push_back(entry);
+    m_database.emplace_back(std::move(entry));
   }
   
   file.close();

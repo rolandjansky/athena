@@ -14,10 +14,10 @@ from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 from TrigAnalysisTest.TrigAnalysisSteps import add_analysis_steps
 
 preExec = ';'.join([
-  'setMenu=\'LS2_v1_TriggerValidation_prescale\'',
-  'from TriggerJobOpts.TriggerFlags import TriggerFlags',
+  'setMenu=\'Dev_pp_run3_v1_TriggerValidation_prescale\'',
+  'from AthenaConfiguration.AllConfigFlags import ConfigFlags',
+  'ConfigFlags.Trigger.AODEDMSet=\'AODFULL\'',
   'from JetRec.JetRecFlags import jetFlags; jetFlags.writeJetsToAOD = True',
-  'TriggerFlags.AODEDMSet.set_Value_and_Lock(\\\"AODFULL\\\")',
 ])
 
 rdo2aod = ExecStep.ExecStep("rdo2aod")

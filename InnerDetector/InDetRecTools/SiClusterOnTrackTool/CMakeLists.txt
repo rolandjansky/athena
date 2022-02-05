@@ -7,4 +7,4 @@ atlas_subdir( SiClusterOnTrackTool )
 atlas_add_component( SiClusterOnTrackTool
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps AthenaPoolUtilities EventPrimitives GaudiKernel GeoPrimitives Identifier InDetCondTools InDetIdentifier InDetPrepRawData InDetRIO_OnTrack InDetReadoutGeometry PixelConditionsData PixelGeoModelLib PixelReadoutGeometryLib SCT_ModuleDistortionsLib SiClusterizationToolLib StoreGateLib TrkEventUtils TrkParameters TrkRIO_OnTrack TrkSurfaces TrkToolInterfaces )
+                     LINK_LIBRARIES AthenaBaseComps AthenaPoolUtilities EventPrimitives GaudiKernel GeoPrimitives Identifier InDetCondTools InDetIdentifier InDetPrepRawData InDetRIO_OnTrack InDetReadoutGeometry PixelConditionsData PixelGeoModelLib PixelReadoutGeometryLib SCT_ModuleDistortionsLib SCT_ReadoutGeometry SiClusterizationToolLib StoreGateLib TrkEventUtils TrkParameters TrkRIO_OnTrack TrkSurfaces TrkToolInterfaces )

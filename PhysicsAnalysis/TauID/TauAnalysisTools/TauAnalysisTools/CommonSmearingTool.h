@@ -1,7 +1,5 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUANALYSISTOOLS_COMMONSMEARINGTOOL_H
@@ -30,12 +28,8 @@
 #include "TauAnalysisTools/HelperFunctions.h"
 
 // ROOT include(s):
-#include "TROOT.h"
-#include "TClass.h"
 #include "TFile.h"
 #include "TH1.h"
-#include "TKey.h"
-
 
 // tauRecTools include(s)
 #include "tauRecTools/ITauToolBase.h"
@@ -62,12 +56,13 @@ public:
   //__________________________________________________________________________
 
   /// Apply the correction on a modifyable object
-  virtual CP::CorrectionCode applyCorrection( xAOD::TauJet& xTau );
+  virtual CP::CorrectionCode applyCorrection( xAOD::TauJet& xTau ) const;
+
   /// Create a corrected copy from a constant tau
   virtual CP::CorrectionCode correctedCopy( const xAOD::TauJet& xTau,
-      xAOD::TauJet*& xTauCopy);
+      xAOD::TauJet*& xTauCopy) const;
 
-  /// returns: whether this tool is affected by the given systematis
+  /// returns: whether this tool is affected by the given systematics
   virtual bool isAffectedBySystematic( const CP::SystematicVariation& systematic ) const;
 
   /// returns: the list of all systematics this tool can be affected by
@@ -77,16 +72,14 @@ public:
   virtual CP::SystematicSet recommendedSystematics() const;
 
   /// configure this tool for the given list of systematic variations.  any
-  /// requested systematics that are not affecting this tool will be silently
-  /// ignored (unless they
+  /// requested systematics that are not affecting this tool will be silently ignored
   virtual StatusCode applySystematicVariation ( const CP::SystematicSet& sSystematicSet);
 
 protected:
 
-  std::string ConvertProngToString(const int& iProngness);
+  std::string ConvertProngToString(const int iProngness) const;
 
-  typedef std::map<std::string, TH1*> SFMAP;
-  SFMAP* m_mSF;
+  std::map<std::string, TH1*> m_mSF;
   std::unordered_map < CP::SystematicSet, std::string > m_mSystematicSets;
   const CP::SystematicSet* m_sSystematicSet;
   std::map<std::string, int> m_mSystematics;
@@ -97,36 +90,27 @@ protected:
   double (*m_fY)(const xAOD::TauJet& xTau);
 
   template<class T>
-  void ReadInputs(TFile* fFile, std::map<std::string, T>* mMap);
+  void ReadInputs(TFile* fFile, std::map<std::string, T>& mMap);
+
   virtual CP::CorrectionCode getValue(const std::string& sHistName,
                                       const xAOD::TauJet& xTau,
                                       double& dEfficiencyScaleFactor) const;
+
   void generateSystematicSets();
 
   std::string m_sInputFilePath;
-  std::string m_sInputFileName;
   bool m_bIsData;
   bool m_bIsConfigured;
   bool m_bSkipTruthMatchCheck;
   bool m_bApplyFading;
-  bool m_bApplyMVATES;
-  bool m_bApplyCombinedTES;
   bool m_bApplyMVATESQualityCheck;
   bool m_bApplyInsituCorrection;
 
-  asg::AnaToolHandle<ITauToolBase> m_tMvaTESVariableDecorator;
-  asg::AnaToolHandle<ITauToolBase> m_tMvaTESEvaluator;
   asg::AnaToolHandle<ITauToolBase> m_tTauCombinedTES;
 
   e_TruthMatchedParticleType m_eCheckTruth;
-  bool m_bNoMultiprong;
   CP::SystematicSet m_sAffectingSystematics;
   CP::SystematicSet m_sRecommendedSystematics;
-
-  bool m_bPtFinalCalibIsAvailable;
-  bool m_bPtFinalCalibIsAvailableIsChecked;
-  bool m_bPtTauEtaCalibIsAvailable;
-  bool m_bPtTauEtaCalibIsAvailableIsChecked;
   
 private:
 
@@ -136,4 +120,4 @@ private:
 };
 } // namespace TauAnalysisTools
 
-#endif // TAUANALYSISTOOLS_COMMONEFFICIENCYTOOL_H
+#endif // TAUANALYSISTOOLS_COMMONSMEARINGTOOL_H

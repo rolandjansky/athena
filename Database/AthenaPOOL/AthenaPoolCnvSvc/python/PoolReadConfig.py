@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -66,7 +66,7 @@ def PoolReadCfg(configFlags):
     
     StoreGateSvc=CompFactory.StoreGateSvc
 
-    result.addService(PoolSvc(MaxFilesOpen=0))
+    result.addService(PoolSvc(MaxFilesOpen=configFlags.PoolSvc.MaxFilesOpen))
     apcs=AthenaPoolCnvSvc()
     apcs.InputPoolAttributes += ["DatabaseName = '*'; ContainerName = 'CollectionTree'; TREE_CACHE = '-1'"]
     result.addService(apcs)
@@ -76,13 +76,19 @@ def PoolReadCfg(configFlags):
     result.addService(StoreGateSvc("MetaDataStore"))
 
     if filenamesSecondary:
+        skipEventsPrimary=configFlags.Exec.SkipEvents
+        skipEventsSecondary=configFlags.Exec.SkipEvents
+        if configFlags.Overlay.SkipSecondaryEvents >= 0:
+            skipEventsSecondary = configFlags.Overlay.SkipSecondaryEvents
+
         # Create DoubleEventSelector (universal for any seconday input type)
         evSel = DoubleEventSelectorAthenaPool("EventSelector",
-                                              InputCollections=filenames,
-                                              SkipEvents=configFlags.Exec.SkipEvents)
-
+                                              InputCollections=filenames)
 
         if configFlags.Overlay.DataOverlay:
+            # In case of data overlay HITS are primary input
+            evSel.SkipEvents = skipEventsPrimary
+
             # We have to check if we're running data overlay - BS is needed in this case
             from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
             result.merge(ByteStreamReadCfg(configFlags))
@@ -96,7 +102,11 @@ def PoolReadCfg(configFlags):
                 apapsPrimary.getFullJobOptName(),
             ])) #No service handle yet???
         else:
+            # In case of MC overlay RDOs are primary input
+            evSel.SkipEvents = skipEventsSecondary
+            # Do not process secondary input metadata
             evSel.ProcessMetadata = False
+
             # We have primary and secondary pool inputs, create two address providers
             apapsPrimary = AthenaPoolAddressProviderSvc("AthenaPoolAddressProviderSvcPrimary")
             apapsPrimary.DataHeaderKey = "EventSelector"
@@ -113,7 +123,8 @@ def PoolReadCfg(configFlags):
 
             secondarySel = EventSelectorAthenaPool("SecondaryEventSelector",
                                                    IsSecondary=True,
-                                                   InputCollections=filenamesSecondary)
+                                                   InputCollections=filenamesSecondary,
+                                                   SkipEvents=skipEventsPrimary)
             result.addService(secondarySel)
         result.addService(evSel)
     else:

@@ -1,0 +1,33 @@
+/*
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef ATHENABASECOMPS_ATHCHECKEDCOMPONENT_ICC
+#define ATHENABASECOMPS_ATHCHECKEDCOMPONENT_ICC
+
+#include "Gaudi/Interfaces/IOptionsSvc.h"
+#include "GaudiKernel/ISvcLocator.h"
+
+template <class PBASE>
+StatusCode AthCheckedComponent<PBASE>::sysInitialize()
+{
+  ATH_CHECK( PBASE::sysInitialize() );
+  ATH_CHECK( isConfigured() );
+  return StatusCode::SUCCESS;
+}
+
+template <class PBASE>
+StatusCode AthCheckedComponent<PBASE>::isConfigured()
+{
+  Gaudi::Interfaces::IOptionsSvc& joSvc = this->serviceLocator()->getOptsSvc();
+
+  // Check that at least one of my properties has been set:
+  for (const auto prop : this->getProperties()) {
+    if (joSvc.isSet(this->name() + "." + prop->name())) return StatusCode::SUCCESS;
+  }
+
+  ATH_MSG_ERROR("No job properties found. This is not allowed for an AthCheckedComponent.");
+  return StatusCode::FAILURE;
+}
+
+#endif

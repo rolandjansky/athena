@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "MuonTrackExtrapolationTool.h"
@@ -37,7 +37,7 @@ namespace Muon {
         if (!m_trackingGeometryReadKey.empty()) {
             ATH_CHECK(m_trackingGeometryReadKey.initialize());
         } else {
-            ATH_CHECK(m_trackingGeometrySvc.retrieve());
+            ATH_MSG_ERROR("Could not retrieve a valid tracking geometry");
         }
         ATH_CHECK(m_fieldCacheCondObjInputKey.initialize());
 
@@ -46,7 +46,7 @@ namespace Muon {
         return StatusCode::SUCCESS;
     }
 
-    const Trk::TrackParameters *MuonTrackExtrapolationTool::extrapolateToMuonEntryRecord(const EventContext& ctx ,const Trk::TrackParameters &pars,
+    const Trk::TrackParameters *MuonTrackExtrapolationTool::extrapolateToMuonEntryRecord(const EventContext& ctx, const Trk::TrackParameters &pars,
                                                                                          Trk::ParticleHypothesis particleHypo) const {
         if (m_muonExtrapolator.empty()) return nullptr;
         const Trk::TrackingVolume *msEntrance = getVolume(m_msEntranceName, ctx);
@@ -62,23 +62,23 @@ namespace Muon {
         if (m_cosmics) {
             // for cosmics try both directions
             const Trk::TrackParameters *entryPars =
-                m_muonExtrapolator->extrapolateToVolume(pars, *msEntrance, Trk::oppositeMomentum, particleHypo);
+                m_muonExtrapolator->extrapolateToVolume(ctx, pars, *msEntrance, Trk::oppositeMomentum, particleHypo).release();
             if (!entryPars) {
                 ATH_MSG_VERBOSE(" failed to extrapolate opposite momentum");
                 // retry in other direction
-                entryPars = m_muonExtrapolator->extrapolateToVolume(pars, *msEntrance, Trk::alongMomentum, particleHypo);
+                entryPars = m_muonExtrapolator->extrapolateToVolume(ctx, pars, *msEntrance, Trk::alongMomentum, particleHypo).release();
                 if (!entryPars) ATH_MSG_VERBOSE(" failed to extrapolate along momentum for the second trial");
             }
             return entryPars;
         }
 
-        return m_muonExtrapolator->extrapolateToVolume(pars, *msEntrance, dir, particleHypo);
+        return m_muonExtrapolator->extrapolateToVolume(ctx, pars, *msEntrance, dir, particleHypo).release();
     }
 
     const Trk::TrackParameters *MuonTrackExtrapolationTool::extrapolateToIP(const Trk::TrackParameters &pars,
                                                                             Trk::ParticleHypothesis particleHypo) const {
         if (m_atlasExtrapolator.empty()) return nullptr;
-
+        const EventContext& ctx = Gaudi::Hive::currentContext(); 
         // temporary hack to avoid crashes in Muid.
         Amg::Vector3D refPos(0.1, 0.1, 0.1);
         Trk::PerigeeSurface persurf(refPos);
@@ -93,13 +93,13 @@ namespace Muon {
                                                                                         : ""));
 
         // for cosmics try both directions
-        const Trk::TrackParameters *entryPars = m_atlasExtrapolator->extrapolate(pars, persurf, propDir, false, particleHypo);
+        const Trk::TrackParameters *entryPars = m_atlasExtrapolator->extrapolate(ctx, pars, persurf, propDir, false, particleHypo).release();
         if (!entryPars) ATH_MSG_VERBOSE(" failed to extrapolate to IP");
 
         if (m_cosmics && !entryPars) {
             // flip propagation direction and retry in other direction
             propDir = propDir == Trk::alongMomentum ? Trk::oppositeMomentum : Trk::alongMomentum;
-            entryPars = m_atlasExtrapolator->extrapolate(pars, persurf, propDir, false, particleHypo);
+            entryPars = m_atlasExtrapolator->extrapolate(ctx, pars, persurf, propDir, false, particleHypo).release();
             if (!entryPars) ATH_MSG_VERBOSE(" failed to extrapolate to IP in opposite direction");
         }
 
@@ -435,7 +435,7 @@ namespace Muon {
 
                                 // collect the material going in opposite direction
                                 const std::vector<const Trk::TrackStateOnSurface *> *matvec = m_muonExtrapolator->extrapolateM(
-                                    *perigee, meas->associatedSurface(), Trk::oppositeMomentum, false, particleHypo);
+                                    ctx, *perigee, meas->associatedSurface(), Trk::oppositeMomentum, false, particleHypo);
                                 if (matvec && !matvec->empty()) {
                                     ATH_MSG_VERBOSE(" got material layers " << matvec->size());
 
@@ -466,7 +466,7 @@ namespace Muon {
                         if (meas) {
                             ATH_MSG_VERBOSE(" trying to add material layers extrapolating to next measurement  ");
                             const std::vector<const Trk::TrackStateOnSurface *> *matvec = m_muonExtrapolator->extrapolateM(
-                                *perigee, meas->associatedSurface(), Trk::alongMomentum, false, particleHypo);
+                                ctx, *perigee, meas->associatedSurface(), Trk::alongMomentum, false, particleHypo);
                             if (matvec && !matvec->empty()) {
                                 ATH_MSG_VERBOSE(" got material layers " << matvec->size());
 
@@ -509,7 +509,7 @@ namespace Muon {
 
                                 // collect the material going in opposite direction
                                 const std::vector<const Trk::TrackStateOnSurface *> *matvec = m_muonExtrapolator->extrapolateM(
-                                    *secondPerigee, meas->associatedSurface(), Trk::oppositeMomentum, false, particleHypo);
+                                  ctx, *secondPerigee, meas->associatedSurface(), Trk::oppositeMomentum, false, particleHypo);
                                 if (matvec && !matvec->empty()) {
                                     ATH_MSG_VERBOSE(" got material layers " << matvec->size());
 
@@ -537,7 +537,7 @@ namespace Muon {
                         if (meas) {
                             ATH_MSG_VERBOSE(" trying to add material layers extrapolating to next measurement  ");
                             const std::vector<const Trk::TrackStateOnSurface *> *matvec = m_muonExtrapolator->extrapolateM(
-                                *secondPerigee, meas->associatedSurface(), Trk::alongMomentum, false, particleHypo);
+                                ctx, *secondPerigee, meas->associatedSurface(), Trk::alongMomentum, false, particleHypo);
                             if (matvec && !matvec->empty()) {
                                 ATH_MSG_VERBOSE(" got material layers " << matvec->size());
 
@@ -574,7 +574,8 @@ namespace Muon {
 
                     // collect the material going in opposite direction
                     const std::vector<const Trk::TrackStateOnSurface *> *matvec =
-                        m_muonExtrapolator->extrapolateM(*perigee, meas->associatedSurface(), Trk::oppositeMomentum, false, particleHypo);
+                        m_muonExtrapolator->extrapolateM(
+                          ctx, *perigee, meas->associatedSurface(), Trk::oppositeMomentum, false, particleHypo);
                     if (matvec && !matvec->empty()) {
                         ATH_MSG_VERBOSE(" got material layers " << matvec->size());
 
@@ -597,7 +598,7 @@ namespace Muon {
 
                     // collect the material going in opposite direction
                     const std::vector<const Trk::TrackStateOnSurface *> *matvec = m_muonExtrapolator->extrapolateM(
-                        *secondPerigee, meas->associatedSurface(), Trk::oppositeMomentum, false, particleHypo);
+                        ctx, *secondPerigee, meas->associatedSurface(), Trk::oppositeMomentum, false, particleHypo);
                     if (matvec && !matvec->empty()) {
                         ATH_MSG_VERBOSE(" got material layers " << matvec->size());
 
@@ -636,7 +637,7 @@ namespace Muon {
     const Trk::Perigee *MuonTrackExtrapolationTool::createPerigee(const Trk::TrackParameters &pars) const {
         if (m_muonExtrapolator2.empty()) { return nullptr; }
         Trk::PerigeeSurface persurf(pars.position());
-        const Trk::TrackParameters *exPars = m_muonExtrapolator2->extrapolateDirectly(pars, persurf);
+        const Trk::TrackParameters *exPars = m_muonExtrapolator2->extrapolateDirectly(Gaudi::Hive::currentContext(),pars, persurf).release();
         const Trk::Perigee *pp = dynamic_cast<const Trk::Perigee *>(exPars);
         if (!pp) {
             ATH_MSG_WARNING(" Extrapolation to Perigee surface did not return a perigee!! ");

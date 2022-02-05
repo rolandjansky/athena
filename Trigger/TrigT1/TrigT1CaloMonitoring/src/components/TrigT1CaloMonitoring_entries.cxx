@@ -1,11 +1,7 @@
 // Run 3
 #include "../CpmMonitorAlgorithm.h"
-//#include "../CpmSimMonitorAlgorithm.h"
-//#include "../PpmSimBsMonitorAlgorithm.h"
+#include "../CpmSimMonitorAlgorithm.h"
 #include "../PprMonitorAlgorithm.h"
-//#include "../PprSpareMonitorAlgorithm.h"
-//#include "../PprStabilityMonitorAlgorithm.h"
-//#include "../LVL1_TagProbeEffMonitorAlgorithm.h"
 #include "../JepJemMonitorAlgorithm.h"
 
 // Run 2
@@ -28,12 +24,8 @@
 
 // Run 3
 DECLARE_COMPONENT( CpmMonitorAlgorithm )
-//DECLARE_COMPONENT( CpmSimMonitorAlgorithm )
-//DECLARE_COMPONENT( PpmSimBsMonitorAlgorithm )
+DECLARE_COMPONENT( CpmSimMonitorAlgorithm )
 DECLARE_COMPONENT( PprMonitorAlgorithm )
-//DECLARE_COMPONENT( PprSpareMonitorAlgorithm )
-//DECLARE_COMPONENT( PprStabilityMonitorAlgorithm )
-//DECLARE_COMPONENT( LVL1_TagProbeEffMonitorAlgorithm )
 DECLARE_COMPONENT( JepJemMonitorAlgorithm )
 
 // Run 2

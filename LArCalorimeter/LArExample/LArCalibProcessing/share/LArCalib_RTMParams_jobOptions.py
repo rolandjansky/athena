@@ -245,20 +245,14 @@ if not 'StoreResOscill' in dir():
 # FT/Slot selection
 #
 
-if not 'FTSelection' in dir():
-   FTSelection   = False
-
 if not 'PosNeg' in dir():
    PosNeg        = 0
 	
 if not 'FT' in dir():
-   FT            = [ 0 ]
-
-if not 'SlotSelection' in dir():
-   SlotSelection = False
+   FT            = []
 
 if not 'Slot' in dir():
-   Slot          = [ 0 ]
+   Slot          = []
 
 #
 # Input wave type
@@ -286,7 +280,10 @@ if not 'CheckBadEvents' in dir():
 ###########################################################################
 
 if not 'GroupingType' in dir():
-   GroupingType = "ExtendedSubDetector"
+   if SuperCells:
+      GroupingType = "SuperCells"
+   else:
+      GroupingType = "ExtendedSubDetector"
    
 if not 'WriteNtuple' in dir():
    WriteNtuple = LArCalib_Flags.WriteNtuple
@@ -446,7 +443,7 @@ condSeq = AthSequencer("AthCondSeq")
 
 
 ## get a handle to the ApplicationManager, to the ServiceManager and to the ToolSvc
-from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
+from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr)
 
 include("LArCalibProcessing/LArCalib_MinimalSetup.py")
 if SuperCells:
@@ -469,9 +466,9 @@ PoolFileList = []
 ## Bad Channel   
 
 if 'BadChannelsFolder' not in dir():
-   BadChannelsFolder="/LAR/BadChannels/BadChannels"
+   BadChannelsFolder="/LAR/BadChannelsOfl/BadChannels"
 if 'MissingFEBsFolder' not in dir():
-   MissingFEBsFolder="/LAR/BadChannels/MissingFEBs"
+   MissingFEBsFolder="/LAR/BadChannelsOfl/MissingFEBs"
 
 if not 'InputBadChannelSQLiteFile' in dir():
    RTMParamsLog.info( "Read Bad Channels from Oracle DB")
@@ -630,11 +627,9 @@ LArRTMParamExtractor.SuffixRetrievedDetCell   = SuffixRetrievedDetCell
 LArRTMParamExtractor.SuffixExtractedCaliPulse = SuffixExtractedCaliPulse
 LArRTMParamExtractor.SuffixExtractedDetCell   = SuffixExtractedDetCell
 
-LArRTMParamExtractor.FTSelection   = FTSelection
 LArRTMParamExtractor.FT            = FT
 LArRTMParamExtractor.PosNeg        = PosNeg
 
-LArRTMParamExtractor.SlotSelection = SlotSelection
 LArRTMParamExtractor.Slot          = Slot
 	
 LArRTMParamExtractor.DumpOmegaScan = DumpOmegaScan
@@ -680,9 +675,8 @@ if 'NpointScan' in dir():
 if 'StoreResOscill' in dir():
    theLArWFParamTool.StoreResOscill = StoreResOscill
 
-ToolSvc += theLArWFParamTool
+LArRTMParamExtractor.LArWFParamTool=theLArWFParamTool
 
-topSequence += LArRTMParamExtractor
 
 ###########################################################################
 

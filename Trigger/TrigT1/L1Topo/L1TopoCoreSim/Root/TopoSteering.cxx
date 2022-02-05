@@ -47,17 +47,6 @@ TopoSteering::~TopoSteering() {
 }
 
 TCS::StatusCode
-TopoSteering::setupFromConfiguration(const TXC::L1TopoMenu&){
-  
-  // Keep this method to avoid crashes. TO-DO: Switch menu loading in L1TopoSimulation.cxx
-  TRG_MSG_WARNING("Cannot configure simulation from XML. Use JSON format");
-
-  return TCS::StatusCode::SUCCESS;
-
-}
-
-
-TCS::StatusCode
 TopoSteering::setupFromConfiguration(const TrigConf::L1Menu& l1menu){
 
   TCS::StatusCode sc = m_structure.setupFromMenu( l1menu, m_isLegacyTopo );
@@ -502,7 +491,7 @@ void TopoSteering::propagateHardwareBitsToAlgos()
         outCon->decisionAlgorithm()->resetHardwareBits();
         unsigned int pos = 0; // for multi-output algorithms pos is the output index
         for(const TrigConf::TriggerLine &trigger : outCon->triggers()){
-	    unsigned int bitNumber = trigger.startbit() + 32*trigger.fpga() + 16*clock();
+	    unsigned int bitNumber = trigger.flatindex();
             outCon->decisionAlgorithm()->setHardwareBits(pos,
                                                          m_triggerHdwBits[bitNumber],
                                                          m_ovrflowHdwBits[bitNumber]);

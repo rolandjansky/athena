@@ -57,10 +57,6 @@ void LArGeo::LArDetectorFactoryLite::create(GeoPhysVol* world)
 
   std::string errorMessage{""};
 
-  // Instantiate VDetectorParameters (needed for some clients)
-  VDetectorParameters* parameters = new  LArGeo::RAL();
-  VDetectorParameters::SetInstance(parameters);
-
   if(LArGeo::buildFcalChannelMap(m_detStore,m_paramSvc,Athena::getMessageSvc()).isFailure()) {
     errorMessage="Failed to build FCAL Channel Map";
     ATH_MSG_FATAL(errorMessage);

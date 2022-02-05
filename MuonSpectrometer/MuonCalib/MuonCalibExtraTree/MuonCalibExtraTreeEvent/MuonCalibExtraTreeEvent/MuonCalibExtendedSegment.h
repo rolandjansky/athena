@@ -5,74 +5,69 @@
 #ifndef MUONCALIBEXTENDEDSEGMENT_H
 #define MUONCALIBEXTENDEDSEGMENT_H
 
-#include "MuonCalibEventBase/MuonCalibSegment.h"
-
-#include "MuonCalibExtraTreeEvent/MuonCalibTrackSummary.h"
-#include "MuonCalibExtraUtils/MuonCalibLayerMapping.h"
-#include "MuonCalibExtraTreeEvent/MuonCalibRawHitAssociationMap.h"
-#include "CxxUtils/checker_macros.h"
-
-#include <vector>
 #include <map>
 #include <string>
+#include <vector>
+
+#include "CxxUtils/checker_macros.h"
+#include "MuonCalibEventBase/MuonCalibSegment.h"
+#include "MuonCalibExtraTreeEvent/MuonCalibLayerMapping.h"
+#include "MuonCalibExtraTreeEvent/MuonCalibRawHitAssociationMap.h"
+#include "MuonCalibExtraTreeEvent/MuonCalibTrackSummary.h"
 
 namespace MuonCalib {
-  
-  class MuonCalibExtendedTrack;
-  
-  /**
-     @class MuonCalibExtendedSegment
 
-     A segment plus everything one can dream of knowing about it.
+    class MuonCalibExtendedTrack;
 
-     @author niels.van.eldik@cern.ch
-  */
-  class ATLAS_NOT_THREAD_SAFE MuonCalibExtendedSegment : public MuonCalibSegment {
-  public:
-    /**  Constructor taking input track. */
-    MuonCalibExtendedSegment( const MuonCalibSegment& segment );
+    /**
+       @class MuonCalibExtendedSegment
+       A segment plus everything one can dream of knowing about it.
 
-    /** access to hit counts */
-    const MuonCalibTrackSummary& summary() const { return m_summary; }
+    */
+    class MuonCalibExtendedSegment : public MuonCalibSegment {
+    public:
+        /**  Constructor taking input track. */
+        MuonCalibExtendedSegment(const MuonCalibSegment& segment);
 
-    /** access hit identifier map (hits give the MuonFixedId */
-    const IdSet& idSet() const { return m_idSet; }
+        /** access to hit counts */
+        const MuonCalibTrackSummary& summary() const { return m_summary; }
 
-    /** dump all information to string */
-    std::string dump() const;
+        /** access hit identifier map (hits give the MuonFixedId */
+        const IdSet& idSet() const { return m_idSet; }
 
-    /** dump track parameters to string */
-    std::string dumpPars() const;
+        /** dump all information to string */
+        std::string dump() const;
 
-    /** dump track summary to string */
-    std::string dumpSummary() const;
+        /** dump track parameters to string */
+        std::string dumpPars() const;
 
-    /** access to list of tracks the segment was associated to */
-    const std::vector<const MuonCalibExtendedTrack*>& associatedTracks() const { return m_associatedTracks; }
+        /** dump track summary to string */
+        std::string dumpSummary() const;
 
-    /** add associated track */
-    void addTrack( const MuonCalibExtendedTrack* track ) const { m_associatedTracks.push_back(track); }
+        /** access to list of tracks the segment was associated to */
+        // const std::vector<const MuonCalibExtendedTrack*>& associatedTracks() const { return m_associatedTracks; }
 
-    /** access raw hit assocation map */ 
-    const MuonCalibRawHitAssociationMap& rawHitAssociationMap() const { return m_rawHitAssociationMap; }
+        /** add associated track */
+        //  void addTrack(const MuonCalibExtendedTrack* track) { m_associatedTracks.emplace_back(track); }
 
-  private:
+        /** access raw hit assocation map */
+        const MuonCalibRawHitAssociationMap& rawHitAssociationMap() const { return m_rawHitAssociationMap; }
+        MuonCalibRawHitAssociationMap& rawHitAssociationMap() { return m_rawHitAssociationMap; }
 
-    /** track summary */
-    MuonCalibTrackSummary m_summary;
+    private:
+        /** track summary */
+        MuonCalibTrackSummary m_summary;
 
-    /** set with Identifiers on segment */
-    IdSet m_idSet;
+        /** set with Identifiers on segment */
+        IdSet m_idSet;
 
-    /** list of tracks to which the segment was associated */
-    mutable std::vector<const MuonCalibExtendedTrack*> m_associatedTracks;
+        /** list of tracks to which the segment was associated */
+        // std::vector<const MuonCalibExtendedTrack*> m_associatedTracks;
 
-    /** raw hit association map */
-    MuonCalibRawHitAssociationMap m_rawHitAssociationMap;
+        /** raw hit association map */
+        MuonCalibRawHitAssociationMap m_rawHitAssociationMap;
+    };
 
-  };
-
-}
-
+}  // namespace MuonCalib
 
 #endif

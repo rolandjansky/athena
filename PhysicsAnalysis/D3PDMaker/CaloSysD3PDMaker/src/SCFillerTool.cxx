@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaKernel/errorcheck.h"
@@ -47,7 +47,7 @@ SCFillerTool::SCFillerTool
   declareProperty( "CaloDetectors", m_caloNums ); 
   declareProperty( "TileDLayerOption", m_tileDLayerOption);
 
-  book().ignore(); // Avoid coverity warnings.
+  SCFillerTool::book().ignore(); // Avoid coverity warnings.
 }
 
 StatusCode SCFillerTool::initialize() {

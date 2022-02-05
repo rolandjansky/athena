@@ -62,7 +62,7 @@ protected:
         std::vector<std::vector<int>> m_FPGA_phi02;
         std::vector<std::vector<int>> m_FPGA_fcal;
         std::vector<int> m_met;
-        std::vector<int> m_met_angle;
+        std::vector<float> m_met_angle;
         std::vector<int> m_met_Xcoord;
         std::vector<int> m_met_Ycoord;
         int m_Totalmet_Xcoord;

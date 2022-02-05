@@ -82,32 +82,6 @@ RingSetLinks::const_iterator CaloRings_v1::end() const
 }
 
 //==============================================================================
-RingSet *CaloRings_v1::at(const unsigned int i)
-{
-  if ( i > nRingSets() ) 
-    return nullptr;
-  ElementLink<RingSetContainer_v1> &rsEL = accRingSetLinks( *this ).at(i);
-  if ( !rsEL.isValid() ) {
-    return nullptr;
-  }
-  // If we want to use it as an left operand, we must do this:
-  return const_cast<RingSet*>(*rsEL);
-}
-
-//==============================================================================
-RingSet *CaloRings_v1::operator[](const unsigned int i)
-{
-  if ( i > nRingSets() ) 
-    return nullptr;
-  ElementLink<RingSetContainer_v1> &rsEL = accRingSetLinks( *this )[i];
-  if ( !rsEL.isValid() ) {
-    return nullptr;
-  }
-  // If we want to use it as an left operand, we must do this:
-  return const_cast<RingSet*>(*rsEL);
-}
-
-//==============================================================================
 const RingSet *CaloRings_v1::at(const unsigned int i) const
 {
   if ( i > nRingSets() ) 

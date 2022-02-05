@@ -25,10 +25,10 @@ class DumpPixelInfo(JobProperty):
 jobproperties.DxAODPixLumiJobPropertyContainer.add_JobProperty(DumpPixelInfo)
 
 class ModulesSelection(JobProperty):
-    """Z event selection based on DRAW ZMUMU"""
+    """Selects IBL 3D modules, rejecting clusters going over the sensor edge"""
     statusOn = True
     allowedTypes = ['str']
-    StoredValue = "(PixelClusters.layer == 0) && ((PixelClusters.eta_module >= -10 && PixelClusters.eta_module <= -6) || (PixelClusters.eta_module >= 5 && PixelClusters.eta_module <= 9)) && (((PixelClusters.eta_module <= -7||PixelClusters.eta_module >= 6) && (PixelClusters.eta_pixel_index > 0 && (PixelClusters.eta_pixel_index + PixelClusters.sizeZ-1) < 79)) || ((PixelClusters.eta_module > -7 && PixelClusters.eta_module < 6) && (PixelClusters.eta_pixel_index > 0 && (PixelClusters.eta_pixel_index + PixelClusters.sizeZ - 1) < 159))) && (PixelClusters.phi_pixel_index > 0 && (PixelClusters.phi_pixel_index + PixelClusters.sizePhi-1) < 335)"
+    StoredValue = "(xAOD_PixelClusters.layer == 0) && ((xAOD_PixelClusters.eta_module >= -10 && xAOD_PixelClusters.eta_module <= -6) || (xAOD_PixelClusters.eta_module >= 5 && xAOD_PixelClusters.eta_module <= 9)) && (((xAOD_PixelClusters.eta_module <= -7||xAOD_PixelClusters.eta_module >= 6) && (xAOD_PixelClusters.eta_pixel_index > 0 && (xAOD_PixelClusters.eta_pixel_index + xAOD_PixelClusters.sizeZ-1) < 79)) || ((xAOD_PixelClusters.eta_module > -7 && xAOD_PixelClusters.eta_module < 6) && (xAOD_PixelClusters.eta_pixel_index > 0 && (xAOD_PixelClusters.eta_pixel_index + xAOD_PixelClusters.sizeZ - 1) < 159))) && (xAOD_PixelClusters.phi_pixel_index > 0 && (xAOD_PixelClusters.phi_pixel_index + xAOD_PixelClusters.sizePhi-1) < 335)"
 jobproperties.DxAODPixLumiJobPropertyContainer.add_JobProperty(ModulesSelection)
 
 DxAODPixLumiFlags = jobproperties.DxAODPixLumiJobPropertyContainer

@@ -45,6 +45,7 @@ obtained with caloDDE() method.
 #include <math.h>
 #include <iostream>
 #include <functional>
+#include <memory>
 
 //class CaloDetDescrElement;
 #include "CaloDetDescr/CaloDetDescrElement.h"
@@ -188,7 +189,7 @@ public:
 
 
   /** @brief clone a CaloCell */ 
-  virtual CaloCell* clone() const;
+  virtual std::unique_ptr<CaloCell> clone() const;
 
   /** @brief Fast method to change the identity of a cell. */
   void set (const CaloDetDescrElement* caloDDE,

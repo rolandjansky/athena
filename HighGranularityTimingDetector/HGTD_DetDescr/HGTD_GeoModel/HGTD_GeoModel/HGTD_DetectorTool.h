@@ -9,7 +9,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GeoModelUtilities/GeoModelTool.h"
 #include "HGTD_GeoModel/HGTD_GeoModelAthenaComps.h" 
-#include "GeometryDBSvc/IGeometryDBSvc.h"
 #include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 
@@ -47,7 +46,6 @@ class HGTD_DetectorTool : public GeoModelTool {
 
     ServiceHandle<IGeoDbTagSvc> m_geoDbTagSvc;
     ServiceHandle<IRDBAccessSvc> m_rdbAccessSvc;
-    ServiceHandle<IGeometryDBSvc> m_geometryDBSvc;
 
     const HGTD_DetectorManager* m_detectorManager;
 

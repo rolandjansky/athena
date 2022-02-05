@@ -1,24 +1,30 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #include "TrigT2CaloCommon/LArCellCont.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "LArRawUtils/LArRoI_Map.h"
 #include "LArRecUtils/MakeLArCellFromRaw.h"
+#include "LArRecConditions/LArRoIMap.h"
 #include "LArBadChannelTool/LArBadFebMasker.h"
 #include "CaloUtils/CaloCellCorrection.h"
 #include "GaudiKernel/EventContext.h"
 #include "CaloEvent/CaloBCIDAverage.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include <iostream>
 
 LArCellCont::LArCellCont() : m_event(0), m_lumi_block(0), m_bcid(5000), m_bcidEvt(5000), m_BCIDcache(false)
 {}
 
 StatusCode
-LArCellCont::initialize( const LArMCSym& mcsym, const LArFebRodMapping& febrod ) {
+LArCellCont::initialize( const LArRoIMap& roiMap,
+                         const LArOnOffIdMapping& onOffMap,
+                         const LArMCSym& mcsym, 
+                         const LArFebRodMapping& febrod, 
+                         const LArBadChannelCont& badchannel, 
+                         const CaloDetDescrManager& man) {
 
 #ifdef TRIGLARCELLDEBUG
 std::cout << "LArCellCont \t\t DEBUG \t in initialize" << std::endl;
@@ -26,28 +32,28 @@ std::cout << "LArCellCont \t\t DEBUG \t in initialize" << std::endl;
 
  StatusCode sc;
  ISvcLocator* svcLoc = Gaudi::svcLocator( );
- IToolSvc* toolSvc;
+ IToolSvc* toolSvc = nullptr;
  sc = svcLoc->service( "ToolSvc",toolSvc);
  if(sc.isFailure()){
    std::cout << "LArCellCont:initialize ERROR: Can not retrieve ToolSvc" << std::endl;
    return StatusCode::FAILURE;
 }
  
- StoreGateSvc* detStore;
+ StoreGateSvc* detStore = nullptr;
  sc=svcLoc->service("DetectorStore",detStore);
  if(sc.isFailure()){
    std::cout << "LArCellCont:initialize ERROR: Can not retrieve DetectorStore" << std::endl;
    return StatusCode::FAILURE;
  }
 
- const LArOnlineID* onlineId;
+ const LArOnlineID* onlineId = nullptr;
  sc=detStore->retrieve(onlineId,"LArOnlineID");
  if(sc.isFailure()){
    std::cout << "LArCellCont:initialize ERROR: Can not retrieve LArOnlineID" << std::endl;
    return StatusCode::FAILURE;
  }
 
- sc = m_conv.initialize(); 
+ sc = m_conv.initialize(febrod);
  if(sc.isFailure()){
    std::cout << "Problems to initialize Hid2RESrcID" << std::endl;
    return StatusCode::FAILURE;
@@ -71,16 +77,11 @@ std::cout << "LArCellCont \t\t DEBUG \t in initialize" << std::endl;
  // Not anymore necessary
  //delete larrodid;
 
-LArRoI_Map* roiMap;
-if(StatusCode::SUCCESS != toolSvc->retrieveTool("LArRoI_Map", roiMap ) )
-     {std::cout << " Can't get AlgTool LArRoI_Map " << std::endl;
-      return StatusCode::FAILURE; 
-     }
 std::vector<const CaloCellCorrection*> LArCellCorrTools;
      
 MakeLArCellFromRaw makeCell;
 makeCell.setThreshold(-100);
-makeCell.initialize( roiMap, &LArCellCorrTools, 0 ); 
+makeCell.initialize( roiMap, onOffMap, man, &LArCellCorrTools, 0 ); 
 
 
 //sc = toolSvc->retrieveTool("LArBadChannelMasker", m_masker);
@@ -120,7 +121,7 @@ m_hashSym.resize(onlineId->febHashMax());
  for (unsigned iFeb=0;iFeb<onlineId->febHashMax();++iFeb) {
    const HWIdentifier febid=onlineId->feb_Id(IdentifierHash(iFeb));
     if( (toolAvailable && (m_badFebMasker->febMissing(febid)) ) || !toolAvailable ){
-	RobsFromMissingFeb.push_back( m_conv.getRobID( m_conv.getRodID( febid ) ) );
+	RobsFromMissingFeb.push_back( m_conv.getRobID( m_conv.getRodID( febrod, febid ) ) );
     }
     if( (toolAvailable && !(m_badFebMasker->febMissing(febid)) ) || !toolAvailable ){
 	// get RodID associated with the collection
@@ -134,7 +135,7 @@ m_hashSym.resize(onlineId->febHashMax());
 	<< std::endl;
 #endif
 	// get all channels for a FEB
-	std::map<LArRoI_Map::TT_ID,std::vector<LArCell* > > collMap;
+	std::map<LArRoIMap::TT_ID,std::vector<LArCell* > > collMap;
 	if ( (*this)[idx]->size() != 0 ) { // This is the second FEB
 		m_second[idx] = febid;
 	}
@@ -142,13 +143,23 @@ m_hashSym.resize(onlineId->febHashMax());
 	hashTab.reserve(256);
 	unsigned int febidcomp = febid.get_identifier32().get_compact();
 	for(int ch=0;ch<128;ch++){
-	LArRoI_Map::TT_ID ttId;
+	LArRoIMap::TT_ID ttId;
 	LArCell* larcell = makeCell.getLArCell(febidcomp,ch,0,0,0,ttId);
 	if ( larcell ) { // if it is a good cell
 		// Fixes default value
 		larcell->setGain(CaloGain::LARHIGHGAIN);
 		(*this)[idx]->push_back(larcell);	
-		collMap[ttId].push_back(larcell);
+                LArBadChannel bc = badchannel.offlineStatus(larcell->ID());
+                bool good(true);
+		if (! bc.good() ){
+		   // cell has some specific problems
+		   if ( bc.unstable() ) good=false;
+		   if ( bc.highNoiseHG() ) good=false;
+		   if ( bc.highNoiseMG() ) good=false;
+		   if ( bc.highNoiseLG() ) good=false;
+		   if ( bc.problematicForUnknownReason() ) good=false;
+		}
+		if ( good ) collMap[ttId].push_back(larcell); // cell masked if not know to be good
 		HWIdentifier hwsym = mcsym.ZPhiSymOnl(onlineId->channel_Id(febid,ch));
 		if ( m_indexset.find( hwsym ) != m_indexset.end() ){
 		  int index = (m_indexset.find( hwsym ))->second;
@@ -170,9 +181,9 @@ m_hashSym.resize(onlineId->febHashMax());
 		hashTab.push_back( indexsetmax);
 	} // end of if bad cell
 	} // end of for ch loop
-	std::map<LArRoI_Map::TT_ID,std::vector<LArCell* > >::const_iterator
+	std::map<LArRoIMap::TT_ID,std::vector<LArCell* > >::const_iterator
 	mapIt = collMap.begin();
-	std::map<LArRoI_Map::TT_ID,std::vector<LArCell* > >::const_iterator
+	std::map<LArRoIMap::TT_ID,std::vector<LArCell* > >::const_iterator
 	mapItEnd = collMap.end();
 	for (;mapIt!=mapItEnd;++mapIt) {
 		// Ones needs to dump the mapped vector to an allocated vector

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -22,6 +22,7 @@
 
 // Containers
 #include <set>
+#include <deque>
 
 // Input/Output includes
 #include <fstream>
@@ -32,6 +33,8 @@
 #include <algorithm>
 #include <cmath>
 #include <functional>
+#include <memory>
+#include <mutex>
 
 class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListener, public AthService {
  public:
@@ -58,12 +61,6 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListe
 
   /// Stop Auditing
   virtual void stopAud(const std::string& stepName, const std::string& compName) override;
-
-  /// Count the number of processed events
-  void incrementEventCounter();
-
-  // Do event level monitoring
-  virtual void eventLevelMon() override;
 
   /// Snapshot Auditing: Take snapshots at the beginning and at the end of each step
   void startSnapshotAud(const std::string& stepName, const std::string& compName);
@@ -114,10 +111,10 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListe
 
  private:
   /// Measurement to capture snapshots
-  PMonMT::Measurement m_measurement_snapshots;
+  PMonMT::SnapshotMeasurement m_measurementSnapshots;
 
   /// Measurement to capture events
-  PMonMT::Measurement m_measurement_events;
+  PMonMT::SnapshotMeasurement m_measurementEvents;
 
   /// Do event loop monitoring
   Gaudi::Property<bool> m_doEventLoopMonitoring{
@@ -141,6 +138,10 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListe
   Gaudi::Property<std::string> m_checkPointType{
       this, "checkPointType", "Arithmetic",
       "Type of the check point sequence: Arithmetic(0, k, 2k...) or Geometric(0,k,k^2...)."};
+  /// Lower limit (in number of events) for the memory fit
+  Gaudi::Property<uint64_t> m_memFitLowerLimit{
+      this, "memFitLowerLimit", 25,
+      "Lower limit (in number of events) for the memory fit."};
   /// Frequency of event level monitoring
   Gaudi::Property<uint64_t> m_checkPointFactor{
       this, "checkPointFactor", 50,
@@ -157,16 +158,25 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListe
   /// Set the number of messages for the event-level report
   Gaudi::Property<uint64_t> m_eventLoopMsgLimit{this, "eventLoopMsgLimit", 10, "Maximum number of event-level messages."};
 
+  /// Exclude some common components from monitoring
+  /// In the future this might be converted to a inclusion set
+  /// which would allow user to monitor only a set of algorithms...
+  const std::set<std::string> m_exclusionSet = {"AthMasterSeq", "AthAlgEvtSeq", "AthAllAlgSeq", "AthAlgSeq", "AthOutSeq",
+    "AthCondSeq", "AthBeginSeq", "AthEndSeq", "AthenaEventLoopMgr", "AthenaHiveEventLoopMgr", "PerfMonMTSvc"};
+
   /// Snapshots data
-  std::vector<PMonMT::MeasurementData> m_snapshotData;
-  std::vector<std::string> m_snapshotStepNames = {"Configure", "Initialize", "Execute", "Finalize"};
-  enum Snapshots {CONFIGURE, INITIALIZE, EXECUTE, FINALIZE, NSNAPSHOTS};
+  std::vector<PMonMT::SnapshotData> m_snapshotData;
+  std::vector<std::string> m_snapshotStepNames = {"Configure", "Initialize", "FirstEvent", "Execute", "Finalize"};
+  enum Snapshots {CONFIGURE, INITIALIZE, FIRSTEVENT, EXECUTE, FINALIZE, NSNAPSHOTS};
 
   // Store event level measurements
-  PMonMT::MeasurementData m_eventLevelData;
+  PMonMT::EventLevelData m_eventLevelData;
 
   // Lock for capturing event loop measurements
   std::mutex m_mutex_capture;
+
+  // Are we processing the first event?
+  std::atomic<bool> m_isFirstEvent;
 
   // Count the number of events processed
   std::atomic<uint64_t> m_eventCounter;
@@ -174,11 +184,11 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListe
   // Instant event-loop report counter
   std::atomic<uint64_t> m_eventLoopMsgCounter;
 
-  /* 
+  /*
    * Data structure  to store component level measurements
-   * We use pointer to the MeasurementData, because we use new keyword while creating them. Clear!
    */
-  typedef std::map<PMonMT::StepComp, PMonMT::MeasurementData*> data_map_t;
+  typedef std::map<PMonMT::StepComp, PMonMT::ComponentData*> data_map_t;
+  typedef std::map<PMonMT::StepComp, std::unique_ptr<PMonMT::ComponentData>> data_map_unique_t;
   // Here I'd prefer to use SG::SlotSpecificObj<data_map_t>
   // However, w/ invalid context it seems to segfault
   // Can investigate in the future, for now std::vector should be OK
@@ -186,8 +196,9 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListe
 
   // m_compLevelDataMap is divided into following maps and these are stored in the m_stdoutVec_serial.
   // There should be a more clever way!
-  std::vector<data_map_t> m_compLevelDataMapVec; // all
+  std::vector<data_map_unique_t> m_compLevelDataMapVec; // all
   data_map_t m_compLevelDataMap_ini;  // initialize
+  data_map_t m_compLevelDataMap_1stevt;  // first event
   data_map_t m_compLevelDataMap_evt;  // execute
   data_map_t m_compLevelDataMap_fin;  // finalize
   data_map_t m_compLevelDataMap_plp;  // preLoadProxy

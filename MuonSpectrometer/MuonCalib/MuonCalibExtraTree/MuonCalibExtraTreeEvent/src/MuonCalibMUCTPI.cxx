@@ -6,11 +6,23 @@
 
 #include <iostream>
 
-namespace MuonCalib{
-  
-  MuonCalibMUCTPI::MuonCalibMUCTPI( int roiWord, int bcID, int sysID, int subsysID, int sectorID, int thresholdNumber, int thresholdValue, int roINumber, int overlap, int firstCandidate, int sectorOverflow, int padOverflow, float phi, float eta ) :
-    m_roiWord(roiWord), m_bcID(bcID), m_sysID(sysID), m_subsysID(subsysID), m_sectorID(sectorID), m_thresholdNumber(thresholdNumber), m_thresholdValue(thresholdValue), m_roINumber(roINumber), m_overlap(overlap), m_firstCandidate(firstCandidate), m_sectorOverflow(sectorOverflow), m_padOverflow(padOverflow), m_phi(phi), m_eta(eta)
-  {
-  }
-  
-}//namespace MuonCalib
+namespace MuonCalib {
+
+    int MuonCalibMUCTPI::roiWord() const { return m_params.roiWord; }
+    int MuonCalibMUCTPI::bcID() const { return m_params.bcID; }
+    int MuonCalibMUCTPI::sysID() const { return m_params.sysID; }
+    int MuonCalibMUCTPI::subsysID() const { return m_params.subsysID; }
+    int MuonCalibMUCTPI::sectorID() const { return m_params.sectorID; }
+    int MuonCalibMUCTPI::thresholdNumber() const { return m_params.thresholdNumber; }
+    int MuonCalibMUCTPI::thresholdValue() const { return m_params.thresholdValue; }
+    int MuonCalibMUCTPI::roINumber() const { return m_params.roINumber; }
+    int MuonCalibMUCTPI::overlap() const { return m_params.overlap; }
+    int MuonCalibMUCTPI::firstCandidate() const { return m_params.firstCandidate; }
+    int MuonCalibMUCTPI::sectorOverflow() const { return m_params.sectorOverflow; }
+    int MuonCalibMUCTPI::padOverflow() const { return m_params.padOverflow; }
+    float MuonCalibMUCTPI::phi() const { return m_params.phi; }
+    float MuonCalibMUCTPI::eta() const { return m_params.eta; }
+
+    MuonCalibMUCTPI::MuonCalibMUCTPI(MuonCalibMUCTPI::defineParams pars) : m_params{pars} {}
+
+}  // namespace MuonCalib

@@ -26,9 +26,8 @@
 using namespace std;
 
 
-bool file_exists(const string p_name) {
-  return (gSystem->AccessPathName(p_name.c_str(), kFileExists))?
-    false : true;    
+bool file_exists(const string & p_name) {
+  return !gSystem->AccessPathName(p_name.c_str(), kFileExists);    
 }
 
 // check if the name of an object matches what we expect from a resolution helper 
@@ -57,12 +56,12 @@ std::string getResoType(const TObject* resHelper){
 
 // clone an existing histogram of a known name 
 TH1* cloneExisting(const std::string & name){
-    auto h = gDirectory->Get(name.c_str()); 
+    auto *h = gDirectory->Get(name.c_str()); 
     if (!h){ 
         std::cerr << "Could not find existing histogram "<<name<<" - will not postprocess "<<std::endl; 
         return nullptr;
     }
-    auto ret = dynamic_cast<TH1*>(h->Clone(name.c_str()));
+    auto *ret = dynamic_cast<TH1*>(h->Clone(name.c_str()));
     if (!ret){ 
         std::cerr << "Found an existing object "<<name<<", but it is not a histogram ("<<h->IsA()->GetName()<<") - will not postprocess "<<std::endl; 
     }
@@ -113,8 +112,8 @@ int postProcessDir(TDirectory* dir, IDPVM::ResolutionHelper & theHelper){
   auto theCWD = gDirectory; 
   // walk through all keys in this directory 
   dir->cd();
-  auto keys = dir->GetListOfKeys();
-  for (const auto key : *keys){
+  auto *keys = dir->GetListOfKeys();
+  for (auto *const key : *keys){
     TObject* gotIt = dir->Get(key->GetName()); 
     
     // if we encounter a directory, descend into it and repeat the process

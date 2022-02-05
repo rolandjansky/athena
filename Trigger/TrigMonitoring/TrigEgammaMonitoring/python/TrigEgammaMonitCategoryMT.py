@@ -8,27 +8,49 @@
 
 
 monitoring_photon = [
-        'HLT_g35_medium_L1EM20VH',
-        'HLT_g35_loose_L1EM22VHI', 
-        'HLT_g35_tight_L1EM22VHI',
-        'HLT_g35_tight_icaloloose_L1EM22VHI',
-        'HLT_g20_loose_L1EM15VH'
+    'HLT_g20_tight_icaloloose_L1EM15VHI',
+    'HLT_g22_tight_L1EM15VHI',
+    'HLT_g22_tight_L1eEM18M'
+    'HLT_g35_medium_L1EM20VH',
+    'HLT_g25_medium_L1EM20VH',
+    'HLT_g25_medium_L1eEM24L'
+    'HLT_g50_loose_L1EM20VH',
+    'HLT_g140_loose_L1EM22VHI',
+    'HLT_g300_etcut_L1EM22VHI',
         ]
 
 monitoring_electron = [
-        'HLT_e5_etcut_L1EM3',
-        'HLT_e5_lhtight_L1EM3'
+    'HLT_e5_etcut_L1EM3',
+    'HLT_e60_lhmedium_gsf_L1EM22VHI',
+    'HLT_e60_lhmedium_L1EM22VHI',
+    'HLT_e300_etcut_L1EM22VHI'
+    
         ]
 
 monitoringTP_electron = [
-        'HLT_e17_lhvloose_L1EM15VHI',
-        'HLT_e26_dnnloose_L1EM22VHI',
-        'HLT_e26_dnnmedium_L1EM22VHI',
-        'HLT_e26_dnntight_L1EM22VHI',
-        'HLT_e26_lhtight_L1EM22VHI',
-        'HLT_e26_lhtight_ivarloose_L1EM22VHI',
-        'HLT_e26_lhtight_ivarmedium_L1EM22VHI',
+
+    'HLT_e24_lhvloose_L1EM20VH',
+    'HLT_e26_lhtight_ivarloose_L1EM22VHI',    
+    'HLT_e26_dnnloose_L1EM22VHI',
+    'HLT_e26_dnnmedium_L1EM22VHI',
+    'HLT_e26_dnntight_L1EM22VHI',
+    'HLT_e26_lhtight_L1EM22VHI',
+    'HLT_e26_lhtight_ivarmedium_L1EM22VHI',
+    'HLT_e26_lhtight_gsf_L1EM22VHI',
+    'HLT_e26_lhtight_gsf_ivarloose_L1EM22VHI',
+    'HLT_e26_lhtight_ivarloose_L1eEM26M',
+    'HLT_e26_lhtight_ivarloose_L1eEM26T',
+
+
         ]
+
+
+monitoring_tags = [
+    'HLT_e24_lhtight_ivarloose_L1EM22VHI'
+]
+
+
+
 
 validation_photon = [
         'HLT_g20_loose_L1EM15VHI',
@@ -36,10 +58,8 @@ validation_photon = [
         'HLT_g20_tight_L1EM15VHI',
         'HLT_g20_tight_icalotight_L1EM15VHI',
         'HLT_g20_tight_icalomedium_L1EM15VHI',
-        'HLT_g20_tight_icaloloose_L1EM15VHI',
         'HLT_g25_etcut_L1EM20VH',
         'HLT_g25_loose_L1EM20VH',
-        'HLT_g35_medium_L1EM22VHI',
         'HLT_g120_loose_L1EM22VHI',
         'HLT_g140_etcut_L1EM22VHI'
         ]
@@ -61,8 +81,6 @@ validationTP_electron = [
         'HLT_e26_lhtight_ivarmedium_L1EM15VH',
         'HLT_e26_lhtight_ivartight_L1EM15VH',
         'HLT_e26_lhtight_L1EM22VHI',
-        'HLT_e26_lhtight_gsf_L1EM22VHI',
-        'HLT_e26_lhtight_gsf_ivarloose_L1EM22VHI',
         'HLT_e26_lhtight_ivarloose_L1EM22VHI',
         'HLT_e26_lhtight_ivarmedium_L1EM22VHI',
         'HLT_e26_lhtight_ivartight_L1EM22VHI',
@@ -95,4 +113,30 @@ validation_Zee = [
 #
 single_electron_triggers = set(monitoring_electron + monitoringTP_electron + validation_electron + validationTP_electron)
 single_photon_triggers = set(monitoring_photon + validation_photon)
+
+
+
+#
+# Topo chains
+#
+
+topo_config = {
+                    'Zee'   : {'mass':(50 , 130) , 'dphi':(1.5,   5) },
+                    'Jpsiee': {'mass':( 1 ,   5) , 'dphi':(1.5,   5) },
+                    'Heg'   : {'mass':(90 , 140) , 'dphi':(1.5,   5) },
+              }
+
+monitoring_topo = [
+
+        # HLT_e26_lhtight_e15_etcut_Zee_L1EM22VHI
+        {# leg0 e26_lhtight, leg1 e15_etcut
+          "trigger_num" : "HLT_e26_lhtight_e15_etcut_Zee_L1EM22VHI",
+          "trigger_den" : "HLT_e26_lhtight_e15_etcut_L1EM22VHI",
+          "leg0_key"    : "Electrons", # HLT/Offline key
+          "leg1_key"    : "Electrons", # HLT/Offline key
+          "topo"        : "Zee",
+        },
+
+        ]
+
 

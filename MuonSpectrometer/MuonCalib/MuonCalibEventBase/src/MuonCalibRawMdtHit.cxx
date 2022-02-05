@@ -8,32 +8,27 @@
 
 namespace MuonCalib {
 
-    MuonCalibRawMdtHit::MuonCalibRawMdtHit(const MuonCalibRawMdtHit &hit) {
-        m_id = hit.identify();
-        m_Lpos = hit.localPosition();
-        m_Gpos = hit.globalPosition();
-        m_adc = hit.adcCount();
-        m_tdc = hit.tdcCount();
-        m_occupancy = hit.occupancy();
-        m_t = hit.driftTime();
-        m_r = hit.driftRadius();
-        m_dr = hit.driftRadiusError();
-    }
+    const MuonFixedId &MuonCalibRawMdtHit::identify() const { return m_id; }
+    const Amg::Vector3D &MuonCalibRawMdtHit::localPosition() const { return m_Lpos; }
+    const Amg::Vector3D &MuonCalibRawMdtHit::globalPosition() const { return m_Gpos; }
+    int MuonCalibRawMdtHit::adcCount() const { return m_adc; }
+    int MuonCalibRawMdtHit::tdcCount() const { return m_tdc; }
+    int MuonCalibRawMdtHit::occupancy() const { return m_occupancy; }
+    double MuonCalibRawMdtHit::driftTime() const { return m_t; }
+    double MuonCalibRawMdtHit::driftRadius() const { return m_r; }
+    double MuonCalibRawMdtHit::driftRadiusError() const { return m_dr; }
+    void MuonCalibRawMdtHit::setId(MuonFixedId Id) { m_id = Id; }
+    void MuonCalibRawMdtHit::setLocalPosition(const Amg::Vector3D &loc) { m_Lpos = loc; }
+    void MuonCalibRawMdtHit::setGlobalPosition(const Amg::Vector3D &glob) { m_Gpos = glob; }
+    void MuonCalibRawMdtHit::setAdc(int adc) { m_adc = adc; }
+    void MuonCalibRawMdtHit::setTdc(int tdc) { m_tdc = tdc; }
+    void MuonCalibRawMdtHit::setOccupancy(int occ) { m_occupancy = occ; }
+    void MuonCalibRawMdtHit::setDriftTime(double t) { m_t = t; }
+    void MuonCalibRawMdtHit::setDriftRadius(double r) { m_r = r; }
+    void MuonCalibRawMdtHit::setDriftRadiusError(double dr) { m_dr = dr; }
 
-    MuonCalibRawMdtHit &MuonCalibRawMdtHit::operator=(const MuonCalibRawMdtHit &rhs) {
-        if (this != &rhs) {
-            m_id = rhs.identify();
-            m_Lpos = rhs.localPosition();
-            m_Gpos = rhs.globalPosition();
-            m_adc = rhs.adcCount();
-            m_tdc = rhs.tdcCount();
-            m_occupancy = rhs.occupancy();
-            m_t = rhs.driftTime();
-            m_r = rhs.driftRadius();
-            m_dr = rhs.driftRadiusError();
-        }
-        return (*this);
-    }
+    MuonCalibRawMdtHit::MuonCalibRawMdtHit(const MuonFixedId &id, const Amg::Vector3D &loc, const Amg::Vector3D &glob, int occ) :
+        m_id{id}, m_Lpos{loc}, m_Gpos{glob}, m_occupancy{occ} {}
 
     std::ostream &MuonCalibRawMdtHit::dump(std::ostream &stream) const {
         stream << "MuonCalibRawMdtHit with" << std::endl;

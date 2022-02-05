@@ -29,7 +29,7 @@ private:
   Gaudi::Property<std::string> m_jetContainerName{this, "JetContainer", "", "SG key for the input jet container"};
   // Should be false except if running on topoclusters except for the (legacy/cosmics?) case where
   // jets were built from the CaloCalTopoClusters at EM scale
-  Gaudi::Property<bool> m_useUncalibConstits{this, "UseUncalibConstits", "", "Toggle for extracting the EMScale momentum from uncalibrated topoclusters"};
+  Gaudi::Property<bool> m_useUncalibConstits{this, "UseUncalibConstits", true, "Toggle for extracting the EMScale momentum from uncalibrated topoclusters"};
 
   SG::WriteDecorHandleKey<xAOD::JetContainer> m_emscalePtKey{this,   "EMScalePtName",   "JetEMScaleMomentum_pt",  "SG key for the EMScale pt attribute"};
   SG::WriteDecorHandleKey<xAOD::JetContainer> m_emscaleEtaKey{this,  "EMScaleEtaName",  "JetEMScaleMomentum_eta", "SG key for the EMScale eta attribute"};

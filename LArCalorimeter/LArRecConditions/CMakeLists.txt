@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( LArRecConditions )
@@ -23,4 +23,9 @@ atlas_add_dictionary( LArRecConditionsDict
 atlas_add_test (test_LArBadChannelCont
                 SOURCES
 	            test/test_LArBadChannelCont.cxx
+                LINK_LIBRARIES LArRecConditions )
+
+atlas_add_test (LArRoIMap_test
+                SOURCES
+	        test/LArRoIMap_test.cxx
                 LINK_LIBRARIES LArRecConditions )

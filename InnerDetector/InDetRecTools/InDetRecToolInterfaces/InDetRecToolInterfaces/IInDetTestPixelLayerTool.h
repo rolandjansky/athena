@@ -31,8 +31,6 @@ public:
     return IID_IInDetTestPixelLayerTool;
   };
 
-  virtual ~IInDetTestPixelLayerTool(){};
-
   virtual bool expectHitInPixelLayer(const Trk::TrackParticleBase*,
                                      int pixel_layer,
                                      bool recompute = false) const = 0;

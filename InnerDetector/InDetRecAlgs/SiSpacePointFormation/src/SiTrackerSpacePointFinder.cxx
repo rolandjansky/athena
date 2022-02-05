@@ -124,10 +124,10 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
   const InDetDD::SiDetectorElementCollection* elements = nullptr;
   const SiElementPropertiesTable* properties = nullptr;
   
-  auto nReceivedClustersSCT = Monitored::Scalar<int>( "numSctClusters" , 0 );
-  auto nReceivedClustersPIX = Monitored::Scalar<int>( "numPixClusters" , 0 );
+  auto nReceivedSPsSCT = Monitored::Scalar<int>( "numSctSpacePoints" , 0 );
+  auto nReceivedSPsPIX = Monitored::Scalar<int>( "numPixSpacePoints" , 0 );
 
-  auto mon = Monitored::Group( m_monTool, nReceivedClustersPIX,nReceivedClustersSCT );
+  auto mon = Monitored::Group( m_monTool, nReceivedSPsPIX,nReceivedSPsSCT );
 
   if (m_selectSCTs) {
     SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey, ctx);
@@ -211,7 +211,6 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
 
     for (; it != itend; ++it){
       const SCT_ClusterCollection *colNext=&(**it);
-      nReceivedClustersSCT = colNext->size();
 
       // Create SpacePointCollection
       IdentifierHash idHash = colNext->identifyHash();
@@ -244,6 +243,7 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
           return StatusCode::RECOVERABLE;
         }
         ATH_MSG_VERBOSE( size << " SpacePoints successfully added to Container !" );
+	nReceivedSPsSCT += size;
       }
     }
     m_numberOfSCT+= sct_clcontainer->size();
@@ -269,7 +269,6 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
     for (; colNext != lastCol; ++colNext)
     {
       ATH_MSG_VERBOSE( "Collection num " << numColl++ );
-      nReceivedClustersPIX = (*colNext)->size();
       IdentifierHash idHash = (*colNext)->identifyHash();
       SpacePointContainer::IDC_WriteHandle lock = spacePointContainerPixel->getWriteHandle(idHash);
       if(lock.OnlineAndPresentInAnotherView()){
@@ -305,6 +304,7 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
         }
         ATH_MSG_VERBOSE( size
             << " SpacePoints successfully added to Container !" );
+	nReceivedSPsPIX += size;
       }
     }
     m_numberOfPixel+= pixel_clcontainer->size();

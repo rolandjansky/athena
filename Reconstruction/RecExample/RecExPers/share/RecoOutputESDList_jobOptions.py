@@ -63,7 +63,7 @@ if rec.doTruth():
                                           "xAOD::TruthEventContainer#TruthEvents",
                                           "xAOD::TruthEventAuxContainer#TruthEventsAux.",
                                           "xAOD::TruthParticleContainer#TruthParticles",
-                                          "xAOD::TruthParticleAuxContainer#TruthParticlesAux.-caloExtension",
+                                          "xAOD::TruthParticleAuxContainer#TruthParticlesAux.",
                                           "xAOD::TruthParticleContainer#TruthPileupParticles",
                                           "xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux.",
                                           "xAOD::TruthVertexContainer#TruthVertices", 
@@ -100,7 +100,7 @@ if DetFlags.detdescr.FTK_on():
 
 # Calorimeters 
 if DetFlags.detdescr.Calo_on():
-    protectedInclude ("CaloRecEx/CaloRecOutputItemList_jobOptions.py") 
+    protectedInclude ("CaloRec/CaloRecOutputItemList_jobOptions.py") 
     fullESDList += CfgItemList( "CaloEsd", items = CaloESDList )
 
 # Muon Spectrometer

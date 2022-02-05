@@ -89,11 +89,7 @@ namespace LVL1 {
 
 
 
-  StatusCode jFEXSim::ExecuteForwardASide(int tmp_jTowersIDs_subset[2*FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width]){
-
-
-  m_smallRJet_tobWords.clear();
-  m_largeRJet_tobWords.clear();
+  StatusCode jFEXSim::ExecuteForwardASide(int tmp_jTowersIDs_subset[2*FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width], jFEXOutputCollection* inputOutputCollection){
 
   const int nrows = FEXAlgoSpaceDefs::jFEX_algoSpace_height;
   const int ncols = FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width;
@@ -162,7 +158,7 @@ namespace LVL1 {
   }
   ATH_CHECK(m_jFEXFPGATool->init(0, m_id));
   m_jFEXFPGATool->SetTowersAndCells_SG(tmp_jTowersIDs_subset_FPGA);
-  ATH_CHECK(m_jFEXFPGATool->execute());
+  ATH_CHECK(m_jFEXFPGATool->execute(inputOutputCollection));
   m_smallRJet_tobWords.push_back(m_jFEXFPGATool->getSmallRJetTOBs());
   m_largeRJet_tobWords.push_back(m_jFEXFPGATool->getLargeRJetTOBs());
   m_tau_tobWords.push_back(m_jFEXFPGATool->getTauTOBs());
@@ -216,7 +212,7 @@ namespace LVL1 {
   }
   ATH_CHECK(m_jFEXFPGATool->init(1, m_id));
   m_jFEXFPGATool->SetTowersAndCells_SG(tmp_jTowersIDs_subset_FPGA);
-  ATH_CHECK(m_jFEXFPGATool->execute());
+  ATH_CHECK(m_jFEXFPGATool->execute(inputOutputCollection));
   m_smallRJet_tobWords.push_back(m_jFEXFPGATool->getSmallRJetTOBs());
   m_largeRJet_tobWords.push_back(m_jFEXFPGATool->getLargeRJetTOBs());
   m_tau_tobWords.push_back(m_jFEXFPGATool->getTauTOBs());
@@ -269,7 +265,7 @@ namespace LVL1 {
   }
   ATH_CHECK(m_jFEXFPGATool->init(2, m_id));
   m_jFEXFPGATool->SetTowersAndCells_SG(tmp_jTowersIDs_subset_FPGA);
-  ATH_CHECK(m_jFEXFPGATool->execute());
+  ATH_CHECK(m_jFEXFPGATool->execute(inputOutputCollection));
   m_smallRJet_tobWords.push_back(m_jFEXFPGATool->getSmallRJetTOBs());
   m_largeRJet_tobWords.push_back(m_jFEXFPGATool->getLargeRJetTOBs());
   m_tau_tobWords.push_back(m_jFEXFPGATool->getTauTOBs());
@@ -323,7 +319,7 @@ namespace LVL1 {
   }
   ATH_CHECK(m_jFEXFPGATool->init(3, m_id));
   m_jFEXFPGATool->SetTowersAndCells_SG(tmp_jTowersIDs_subset_FPGA);
-  ATH_CHECK(m_jFEXFPGATool->execute());
+  ATH_CHECK(m_jFEXFPGATool->execute(inputOutputCollection));
   m_smallRJet_tobWords.push_back(m_jFEXFPGATool->getSmallRJetTOBs());
   m_largeRJet_tobWords.push_back(m_jFEXFPGATool->getLargeRJetTOBs());
   m_tau_tobWords.push_back(m_jFEXFPGATool->getTauTOBs());
@@ -334,9 +330,7 @@ namespace LVL1 {
 
 }
 
-  StatusCode jFEXSim::ExecuteForwardCSide(int tmp_jTowersIDs_subset[2*FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width]){
-    m_smallRJet_tobWords.clear();
-    m_largeRJet_tobWords.clear();
+  StatusCode jFEXSim::ExecuteForwardCSide(int tmp_jTowersIDs_subset[2*FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width], jFEXOutputCollection* inputOutputCollection){
 
     const int nrows = FEXAlgoSpaceDefs::jFEX_algoSpace_height;
     const int ncols = FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width;
@@ -405,7 +399,7 @@ namespace LVL1 {
     }
     ATH_CHECK(m_jFEXFPGATool->init(0, m_id));
     m_jFEXFPGATool->SetTowersAndCells_SG(tmp_jTowersIDs_subset_FPGA);
-    ATH_CHECK(m_jFEXFPGATool->execute());
+    ATH_CHECK(m_jFEXFPGATool->execute(inputOutputCollection));
     m_smallRJet_tobWords.push_back(m_jFEXFPGATool->getSmallRJetTOBs());
     m_largeRJet_tobWords.push_back(m_jFEXFPGATool->getLargeRJetTOBs());
     m_tau_tobWords.push_back(m_jFEXFPGATool->getTauTOBs());
@@ -459,7 +453,7 @@ namespace LVL1 {
     }
     ATH_CHECK(m_jFEXFPGATool->init(1, m_id));
     m_jFEXFPGATool->SetTowersAndCells_SG(tmp_jTowersIDs_subset_FPGA);
-    ATH_CHECK(m_jFEXFPGATool->execute());
+    ATH_CHECK(m_jFEXFPGATool->execute(inputOutputCollection));
     m_smallRJet_tobWords.push_back(m_jFEXFPGATool->getSmallRJetTOBs());
     m_largeRJet_tobWords.push_back(m_jFEXFPGATool->getLargeRJetTOBs());
     m_tau_tobWords.push_back(m_jFEXFPGATool->getTauTOBs());
@@ -511,7 +505,7 @@ namespace LVL1 {
     }
     ATH_CHECK(m_jFEXFPGATool->init(2, m_id));
     m_jFEXFPGATool->SetTowersAndCells_SG(tmp_jTowersIDs_subset_FPGA);
-    ATH_CHECK(m_jFEXFPGATool->execute());
+    ATH_CHECK(m_jFEXFPGATool->execute(inputOutputCollection));
     m_smallRJet_tobWords.push_back(m_jFEXFPGATool->getSmallRJetTOBs());
     m_largeRJet_tobWords.push_back(m_jFEXFPGATool->getLargeRJetTOBs());
     m_tau_tobWords.push_back(m_jFEXFPGATool->getTauTOBs());
@@ -565,7 +559,7 @@ namespace LVL1 {
     }
     ATH_CHECK(m_jFEXFPGATool->init(3, m_id));
     m_jFEXFPGATool->SetTowersAndCells_SG(tmp_jTowersIDs_subset_FPGA);
-    ATH_CHECK(m_jFEXFPGATool->execute());
+    ATH_CHECK(m_jFEXFPGATool->execute(inputOutputCollection));
     m_smallRJet_tobWords.push_back(m_jFEXFPGATool->getSmallRJetTOBs());
     m_largeRJet_tobWords.push_back(m_jFEXFPGATool->getLargeRJetTOBs());
     m_tau_tobWords.push_back(m_jFEXFPGATool->getTauTOBs());
@@ -577,7 +571,7 @@ namespace LVL1 {
   }
 
 
-StatusCode jFEXSim::ExecuteBarrel(int tmp_jTowersIDs_subset[FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width]){
+StatusCode jFEXSim::ExecuteBarrel(int tmp_jTowersIDs_subset[FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width], jFEXOutputCollection* inputOutputCollection){
 
 
   const int nrows = FEXAlgoSpaceDefs::jFEX_algoSpace_height;
@@ -608,7 +602,7 @@ StatusCode jFEXSim::ExecuteBarrel(int tmp_jTowersIDs_subset[FEXAlgoSpaceDefs::jF
   }
   ATH_CHECK(m_jFEXFPGATool->init(0, m_id));
   m_jFEXFPGATool->SetTowersAndCells_SG(tmp_jTowersIDs_subset_FPGA);
-  ATH_CHECK(m_jFEXFPGATool->execute());
+  ATH_CHECK(m_jFEXFPGATool->execute(inputOutputCollection));
   m_smallRJet_tobWords.push_back(m_jFEXFPGATool->getSmallRJetTOBs());
   m_largeRJet_tobWords.push_back(m_jFEXFPGATool->getLargeRJetTOBs());
   m_tau_tobWords.push_back(m_jFEXFPGATool->getTauTOBs());
@@ -627,7 +621,7 @@ StatusCode jFEXSim::ExecuteBarrel(int tmp_jTowersIDs_subset[FEXAlgoSpaceDefs::jF
   }
   ATH_CHECK(m_jFEXFPGATool->init(1, m_id));
   m_jFEXFPGATool->SetTowersAndCells_SG(tmp_jTowersIDs_subset_FPGA);
-  ATH_CHECK(m_jFEXFPGATool->execute());
+  ATH_CHECK(m_jFEXFPGATool->execute(inputOutputCollection));
   m_smallRJet_tobWords.push_back(m_jFEXFPGATool->getSmallRJetTOBs());
   m_largeRJet_tobWords.push_back(m_jFEXFPGATool->getLargeRJetTOBs());
   m_tau_tobWords.push_back(m_jFEXFPGATool->getTauTOBs());
@@ -645,7 +639,7 @@ StatusCode jFEXSim::ExecuteBarrel(int tmp_jTowersIDs_subset[FEXAlgoSpaceDefs::jF
   }
   ATH_CHECK(m_jFEXFPGATool->init(2, m_id));
   m_jFEXFPGATool->SetTowersAndCells_SG(tmp_jTowersIDs_subset_FPGA);
-  ATH_CHECK(m_jFEXFPGATool->execute());
+  ATH_CHECK(m_jFEXFPGATool->execute(inputOutputCollection));
   m_smallRJet_tobWords.push_back(m_jFEXFPGATool->getSmallRJetTOBs());
   m_largeRJet_tobWords.push_back(m_jFEXFPGATool->getLargeRJetTOBs());
   m_tau_tobWords.push_back(m_jFEXFPGATool->getTauTOBs());
@@ -669,7 +663,7 @@ StatusCode jFEXSim::ExecuteBarrel(int tmp_jTowersIDs_subset[FEXAlgoSpaceDefs::jF
   }
   ATH_CHECK(m_jFEXFPGATool->init(3, m_id));
   m_jFEXFPGATool->SetTowersAndCells_SG(tmp_jTowersIDs_subset_FPGA);
-  ATH_CHECK(m_jFEXFPGATool->execute());
+  ATH_CHECK(m_jFEXFPGATool->execute(inputOutputCollection));
   m_smallRJet_tobWords.push_back(m_jFEXFPGATool->getSmallRJetTOBs());
   m_largeRJet_tobWords.push_back(m_jFEXFPGATool->getLargeRJetTOBs());
   m_tau_tobWords.push_back(m_jFEXFPGATool->getTauTOBs());
@@ -733,17 +727,17 @@ void jFEXSim::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[FEXAlgoSpaceDefs::j
   
 }
 
-std::vector<std::vector<uint32_t>> jFEXSim::getSmallRJetTOBs()
+std::vector<std::vector<std::vector<uint32_t>>> jFEXSim::getSmallRJetTOBs()
 { 
   return m_smallRJet_tobWords;
 }
 
-std::vector<std::vector<uint32_t>> jFEXSim::getLargeRJetTOBs()
+std::vector<std::vector<std::vector<uint32_t>>> jFEXSim::getLargeRJetTOBs()
 {
    return m_largeRJet_tobWords;
 }
 
-std::vector<std::vector<uint32_t>> jFEXSim::getTauTOBs()
+std::vector<std::vector<std::vector<uint32_t>>> jFEXSim::getTauTOBs()
 {
   return m_tau_tobWords;
 }

@@ -59,7 +59,6 @@ recFlags.doJetMissingETTag                         = False
 recFlags.doEgamma                                  = False
 recFlags.doTau                                     = False
 recFlags.doTrigger                                 = False
-recFlags.oldFlagTopSteering                        = False
 recFlags.oldRecExCommissionConfig                  = False
 recFlags.doWriteCalibHits                          = False
 recFlags.doWriteESD                                = False

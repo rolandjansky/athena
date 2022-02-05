@@ -12,7 +12,6 @@
 #include "TileSimAlgs/TileHitVecToCntTool.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileDetDescr/TileDetDescrManager.h"
-#include "TileEvent/TileHitNonConstContainer.h"
 #include "TileConditions/TileInfo.h"
 #include "TileConditions/TileCablingService.h"
 
@@ -284,7 +283,7 @@ StatusCode TileHitVecToCntTool::createContainers() {
   ATH_MSG_VERBOSE("TileHitVecToCntTool createContainers started");
 
   if (m_pileUp) {
-    m_hits = new TileHitNonConstContainer(SG::VIEW_ELEMENTS);
+    m_hits = std::make_unique<TileHitNonConstContainer>(SG::VIEW_ELEMENTS);
     std::vector<TileHit *>::iterator iHit = m_allHits.begin();
     std::vector<TileHit *>::iterator lastHit = m_allHits.end();
     for (; iHit != lastHit; ++iHit) {
@@ -293,7 +292,7 @@ StatusCode TileHitVecToCntTool::createContainers() {
     }
 
     if(m_doDigiTruth){
-      m_hits_DigiHSTruth = new TileHitNonConstContainer(SG::OWN_ELEMENTS);
+      m_hits_DigiHSTruth = std::make_unique<TileHitNonConstContainer>(SG::OWN_ELEMENTS);
       iHit = m_allHits_DigiHSTruth.begin();
       lastHit = m_allHits_DigiHSTruth.end();
       for (; iHit != lastHit; ++iHit) {
@@ -304,8 +303,8 @@ StatusCode TileHitVecToCntTool::createContainers() {
       }
     }
   } else {
-    m_hits = new TileHitNonConstContainer(SG::OWN_ELEMENTS);
-    if(m_doDigiTruth) m_hits_DigiHSTruth = new TileHitNonConstContainer(SG::OWN_ELEMENTS);
+    m_hits = std::make_unique<TileHitNonConstContainer>(SG::OWN_ELEMENTS);
+    if(m_doDigiTruth) m_hits_DigiHSTruth = std::make_unique<TileHitNonConstContainer>(SG::OWN_ELEMENTS);
 
   }
 
@@ -402,6 +401,11 @@ void TileHitVecToCntTool::processHitVectorForPileUp(const TileHitVector* inputHi
         hit_idhash = e4pr_index(phi);
     } else {
       m_tileID->get_hash(hit_id, hit_idhash, &pmt_context);
+    }
+
+    if (hit_idhash >= m_allHits.size()) {
+      // Seems to be E4pr or MBTS hit in minimum bias while geometry is used without them => skipping
+      continue;
     }
 
     double ener = cinp->energy();
@@ -505,7 +509,7 @@ void TileHitVecToCntTool::processHitVectorForPileUp(const TileHitVector* inputHi
   return;
 }
 
-void TileHitVecToCntTool::processHitVectorWithoutPileUp(const TileHitVector* inputHits, int& nHit, double& eHitTot, TileHitNonConstContainer* &hitCont, CLHEP::HepRandomEngine * engine) {
+void TileHitVecToCntTool::processHitVectorWithoutPileUp(const TileHitVector* inputHits, int& nHit, double& eHitTot, TileHitNonConstContainer* hitCont, CLHEP::HepRandomEngine * engine) {
 
   TileHitVecConstIterator inpItr = inputHits->begin();
   TileHitVecConstIterator end = inputHits->end();
@@ -757,8 +761,8 @@ StatusCode TileHitVecToCntTool::processBunchXing(int bunchXing
 	  ATH_MSG_ERROR(" Tile Hit container not found for event key " << hitVectorName);
 	}
 
-	this->processHitVectorWithoutPileUp(inputHits, nHit, eHitTot, m_hits, engine);
-        if(m_doDigiTruth) this->processHitVectorWithoutPileUp(inputHits, nHit, eHitTot, m_hits_DigiHSTruth, engine);
+	this->processHitVectorWithoutPileUp(inputHits, nHit, eHitTot, m_hits.get(), engine);
+        if(m_doDigiTruth) this->processHitVectorWithoutPileUp(inputHits, nHit, eHitTot, m_hits_DigiHSTruth.get(), engine);
       } // to pile-up or not
 
     } // end of the loop over different input hitVectorNames (normal hits and MBTS hits)
@@ -798,7 +802,7 @@ StatusCode TileHitVecToCntTool::processAllSubEvents(const EventContext& ctx) {
       // get HitVector for this subevent
       ATH_MSG_DEBUG(" New HitCont.  TimeOffset=" << SubEvtTimeOffset << ", size =" << inputHits->size());
       this->processHitVectorForOverlay(inputHits.cptr(), nHit, eHitTot);
-      if(m_doDigiTruth) this->processHitVectorWithoutPileUp(inputHits.cptr(), nHit, eHitTot, m_hits_DigiHSTruth, engine);
+      if(m_doDigiTruth) this->processHitVectorWithoutPileUp(inputHits.cptr(), nHit, eHitTot, m_hits_DigiHSTruth.get(), engine);
     }
     ATH_CHECK(this->mergeEvent(ctx));
     return StatusCode::SUCCESS;
@@ -829,7 +833,7 @@ StatusCode TileHitVecToCntTool::processAllSubEvents(const EventContext& ctx) {
             const TileHitVector* inputHits = &(*(iCont->second));
             ATH_MSG_DEBUG(" New HitCont.  TimeOffset=" << SubEvtTimeOffset << ", size =" << inputHits->size());
             this->processHitVectorForOverlay(inputHits, nHit, eHitTot);
-            if(m_doDigiTruth) this->processHitVectorWithoutPileUp(inputHits, nHit, eHitTot, m_hits_DigiHSTruth, engine);
+            if(m_doDigiTruth) this->processHitVectorWithoutPileUp(inputHits, nHit, eHitTot, m_hits_DigiHSTruth.get(), engine);
           }
         }
       } else if (m_pileUp) {  // pileup code
@@ -855,8 +859,8 @@ StatusCode TileHitVecToCntTool::processAllSubEvents(const EventContext& ctx) {
         ATH_MSG_WARNING("Hit Vector "<< hitVectorName << " not found in StoreGate");
         continue; // continue to the next hit vector
       }
-      this->processHitVectorWithoutPileUp(inputHits.cptr(), nHit, eHitTot, m_hits, engine);
-      if(m_doDigiTruth) this->processHitVectorWithoutPileUp(inputHits.cptr(), nHit, eHitTot, m_hits_DigiHSTruth, engine);
+      this->processHitVectorWithoutPileUp(inputHits.cptr(), nHit, eHitTot, m_hits.get(), engine);
+      if(m_doDigiTruth) this->processHitVectorWithoutPileUp(inputHits.cptr(), nHit, eHitTot, m_hits_DigiHSTruth.get(), engine);
     }
 
   } // end of the loop over different input hitVectorNames (normal hits and MBTS hits)
@@ -910,8 +914,8 @@ StatusCode TileHitVecToCntTool::mergeEvent(const EventContext& ctx) {
       int frag_id = coll->identify();
       IdentifierHash frag_hash = m_fragHashFunc(frag_id);
       if (m_E1merged[frag_hash])
-        findAndMergeE1(coll.get(), frag_id, m_hits);
-      else if (m_MBTSmerged[frag_hash]) findAndMergeMBTS(coll.get(), frag_id, m_hits);
+        findAndMergeE1(coll.get(), frag_id, m_hits.get());
+      else if (m_MBTSmerged[frag_hash]) findAndMergeMBTS(coll.get(), frag_id, m_hits.get());
     }
     if(m_doDigiTruth){
       TileHitNonConstContainer::iterator collIt = m_hits_DigiHSTruth->begin();
@@ -920,8 +924,8 @@ StatusCode TileHitVecToCntTool::mergeEvent(const EventContext& ctx) {
       for (; collIt != endcollIt; ++collIt) {
         int frag_id = (*collIt)->identify();
         IdentifierHash frag_hash = m_fragHashFunc(frag_id);
-        if (m_E1merged[frag_hash]) findAndMergeE1((*collIt).get(), frag_id, m_hits_DigiHSTruth);
-        else if (m_MBTSmerged[frag_hash]) findAndMergeMBTS((*collIt).get(), frag_id, m_hits_DigiHSTruth);
+        if (m_E1merged[frag_hash]) findAndMergeE1((*collIt).get(), frag_id, m_hits_DigiHSTruth.get());
+        else if (m_MBTSmerged[frag_hash]) findAndMergeMBTS((*collIt).get(), frag_id, m_hits_DigiHSTruth.get());
       }
     }
   }
@@ -966,13 +970,7 @@ StatusCode TileHitVecToCntTool::mergeEvent(const EventContext& ctx) {
       pHit->scale(scaleFactor);
 
       if(m_doDigiTruth){
-        double ehit_DigiHSTruth = 0.0;
         TileHit *pHit_DigiHSTruth = (*hitItr_DigiHSTruth);
-        int hitsize_DigiHSTruth = pHit_DigiHSTruth->size();
-        for (int i = 0; i < hitsize_DigiHSTruth; ++i) {
-          double thit = pHit_DigiHSTruth->time(i);
-          if (fabs(thit) < m_photoStatisticsWindow) ehit_DigiHSTruth += pHit_DigiHSTruth->energy(i);
-        }
         pHit_DigiHSTruth->scale(scaleFactor);
 
         ++hitItr_DigiHSTruth;
@@ -1115,7 +1113,7 @@ double TileHitVecToCntTool::applyPhotoStatistics(double energy, Identifier pmt_i
 }
 
 
-void TileHitVecToCntTool::findAndMergeE1(TileHitCollection* coll, int frag_id, TileHitNonConstContainer* &hitCont) {
+void TileHitVecToCntTool::findAndMergeE1(TileHitCollection* coll, int frag_id, TileHitNonConstContainer* hitCont) {
   int module = frag_id & 0x3F;
 
   TileHitCollection::iterator hitIt = coll->begin();
@@ -1168,7 +1166,7 @@ void TileHitVecToCntTool::findAndMergeE1(TileHitCollection* coll, int frag_id, T
 }
 
 
-void TileHitVecToCntTool::findAndMergeMBTS(TileHitCollection* coll, int frag_id, TileHitNonConstContainer* &hitCont) {
+void TileHitVecToCntTool::findAndMergeMBTS(TileHitCollection* coll, int frag_id, TileHitNonConstContainer* hitCont) {
   int module = frag_id & 0x3F;
 
   TileHitCollection::iterator hitIt = coll->begin();

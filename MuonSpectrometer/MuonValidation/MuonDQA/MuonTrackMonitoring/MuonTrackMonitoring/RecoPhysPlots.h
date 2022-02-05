@@ -11,9 +11,9 @@
 
 class RecoPhysPlots:public PlotBase {
   public:
-    RecoPhysPlots(PlotBase *pParent, std::string sDir, std::string recObj);
+    RecoPhysPlots(PlotBase *pParent, const std::string& sDir, std::string recObj);
 
-    void fill(std::vector<std::pair<const xAOD::Muon*, const xAOD::Muon*> > mumucandidates);
+    void fill(const std::vector<std::pair<const xAOD::Muon*, const xAOD::Muon*> >& mumucandidates);
     void fill(const float eta_mu_plus, const float eta_mu_minus, const float invariant_mass);
     
     float EtaRegionFine(double eta);

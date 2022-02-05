@@ -3,7 +3,10 @@
 
 from GeneratorModules.EvgenAlg import EvgenAlg
 from AthenaPython.PyAthena import StatusCode
-from AthenaPython.PyAthena import HepMC
+try:
+   from AthenaPython.PyAthena import HepMC3  as HepMC
+except ImportError:
+   from AthenaPython.PyAthena import HepMC   as HepMC
 
 import os
 import ROOT

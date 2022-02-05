@@ -455,18 +455,18 @@ namespace xAOD {
       /// Set the beam spot position
       void setBeamPos( float x, float y, float z );
 
-      /// The uncertainty on the X position of the beam spot
+      /// The width of the beam spot in the X direction
       float beamPosSigmaX() const;
-      /// The uncertainty on the Y position of the beam spot
+      /// The width of the beam spot in the Y direction
       float beamPosSigmaY() const;
-      /// The uncertainty on the Z position of the beam spot
+      /// The length of the beam spot in the Z direction
       float beamPosSigmaZ() const;
-      /// Set the uncertainties on the beam spot position
+      /// Set the size of the beam spot
       void setBeamPosSigma( float x, float y, float z );
 
-      /// The beam spot uncertainty's X-Y correlation
+      /// The beam spot shape's X-Y correlation
       float beamPosSigmaXY() const;
-      /// Set the beam spot uncertainty's X-Y correlation
+      /// Set the beam spot shape's X-Y correlation
       void setBeamPosSigmaXY( float value );
 
       /// The beam's tilt in radians in XZ

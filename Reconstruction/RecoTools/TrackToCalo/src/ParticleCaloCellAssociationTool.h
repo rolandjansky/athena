@@ -16,6 +16,8 @@ authors : Niels van Eldik (CERN PH-ATC),Christos (MT)
 #include "PathLengthUtils.h"
 #include "RecoToolInterfaces/IParticleCaloCellAssociationTool.h"
 #include "StoreGate/ReadHandle.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "TrackToCalo/CaloCellSelectorLayerdR.h"
 
 namespace Trk {
@@ -100,6 +102,8 @@ private:
                                                             "AllCalo" };
 
   Gaudi::Property<double> m_coneSize{ this, "ConeSize", 0.2 };
+
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager", "CaloDetDescrManager"};
 
   Trk::CaloCellSelectorLayerdR m_defaultSelector;
 

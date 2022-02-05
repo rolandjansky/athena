@@ -1,10 +1,10 @@
 from AthenaCommon.Logging import logging
 
 
-mlog = logging.getLogger( 'CombinedRec_config' )
+mlog = logging.getLogger('CombinedRec_config')
 
 
-from AthenaCommon.GlobalFlags  import globalflags
+from AthenaCommon.GlobalFlags import globalflags
 from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
 from RecExConfig.RecFlags import rec
 from RecExConfig.RecAlgsFlags import recAlgs
@@ -12,6 +12,10 @@ from RecExConfig.ObjKeyStore import objKeyStore
 
 from AthenaCommon.Resilience import treatException,protectedInclude
 
+# Import the new style config flags, for those domains using them.
+# Note they are locked at this stage and one cannot modify them.
+# Adjustments should be made before the locking in RecExCommon_topOptions.py
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 # use to flag domain
 import PerfMonComps.DomainsRegistry as pdr
@@ -20,38 +24,42 @@ from AODFix.AODFix import *
 AODFix_Init()
 
 from CaloRec.CaloRecFlags import jobproperties
+from InDetRecExample.InDetJobProperties import InDetFlags
+#
+# functionality : electron photon Reconstruction
+#
+#
+
+pdr.flag_domain('egamma')
+if rec.doEgamma() and rec.doESD():
+    from egammaConfig.egammaReconstructionConfig import (
+        egammaReconstructionCfg)
+    CAtoGlobalWrapper(egammaReconstructionCfg, ConfigFlags)
+    if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
+        from egammaConfig.egammaLRTReconstructionConfig import (
+            egammaLRTReconstructionCfg)
+        CAtoGlobalWrapper(egammaLRTReconstructionCfg, ConfigFlags)
+AODFix_postEgammaRec()
 
 #
 # functionality : CaloExtensionBuilder setup
 # to be used  in tau, pflow, e/gamma
 #
 pdr.flag_domain('CaloExtensionBuilder')
-if (rec.doESD()) and (recAlgs.doEFlow() or rec.doTau() or rec.doEgamma()) : #   or rec.readESD()
+if  (rec.doESD()) and (recAlgs.doEFlow() or rec.doTau() or rec.doMuonCombined()):  # or rec.readESD()
     try:
         from TrackToCalo.CaloExtensionBuilderAlgConfig import CaloExtensionBuilder
         CaloExtensionBuilder(False)
     except Exception:
         treatException("Cannot include CaloExtensionBuilder !")
 
-    #Now setup Large Radius Tracks version (LRT), only if LRT enabled    
+    # Now setup Large Radius Tracks version (LRT), only if LRT enabled
     from InDetRecExample.InDetJobProperties import InDetFlags
     if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
-        #CaloExtensionBuilder was already imported above, and an exception would have been thrown
-        #if that had failed.
+        # CaloExtensionBuilder was already imported above,
+        # and an exception would have been thrown
+        # if that had failed.
         CaloExtensionBuilder(True)
-
-#
-# functionality : electron photon identification
-#
-#
-from InDetRecExample.InDetJobProperties import InDetFlags
- 
-pdr.flag_domain('egamma')
-if rec.doEgamma():
-    protectedInclude( "egammaRec/egammaRec_jobOptions.py" )
-    if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
-        protectedInclude( "egammaRec/egammaLRTRec_jobOptions.py" )
-AODFix_postEgammaRec()
 
 
 #
@@ -85,8 +93,10 @@ if rec.doESD() and recAlgs.doTrackParticleCellAssociation() and DetFlags.ID_on()
 #
 pdr.flag_domain('eflow')
 if recAlgs.doEFlow() and (rec.readESD() or (DetFlags.haveRIO.ID_on() and DetFlags.haveRIO.Calo_allOn() and rec.doMuonCombined())):
-    try:
-        include( "eflowRec/eflowRec_jobOptions.py" )
+    try:        
+        from eflowRec.PFRun3Config import PFCfg
+        CAtoGlobalWrapper(PFCfg, ConfigFlags)
+        from eflowRec import ScheduleCHSPFlowMods
     except Exception:
         treatException("Could not set up EFlow. Switched off !")
         recAlgs.doEFlow=False
@@ -140,13 +150,7 @@ if rec.readESD():
 if (jetOK or rec.readESD()) and rec.doBTagging() and  DetFlags.ID_on() and DetFlags.Muon_on():
     try:
         from AthenaCommon.Configurable import Configurable
-        Configurable.configurableRun3Behavior=1
-        from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
-        # Translate all needed flags from old jobProperties to a new AthConfigFlag Container
-        ConfigFlags = getNewConfigFlags()
-        # Additional b-tagging related flags
-        ConfigFlags.BTagging.SaveSV1Probabilities = True
-        ConfigFlags.BTagging.RunJetFitterNN = True
+        Configurable.configurableRun3Behavior=1  # TODO: remove once ATLASRECTS-6635 is fixed
         # Configure BTagging algorithm
         from BTagging.BTagRun3Config import BTagRecoSplitCfg
         CAtoGlobalWrapper(BTagRecoSplitCfg, ConfigFlags)
@@ -166,20 +170,23 @@ if (jetOK or rec.readESD()) and DetFlags.ID_on() and rec.doWriteAOD() and BTaggi
         treatException("Could not set up jet hit association")
 
 #
-# functionality : tau identification
+# functionality : tau reconstruction
 #
 pdr.flag_domain('tau')
-if jetOK and rec.doTau():
-    protectedInclude ("tauRec/tauRec_config.py")
+from tauRec.tauRecFlags import tauFlags
+if (jetOK or tauFlags.isStandalone) and rec.doTau():
+    protectedInclude ("tauRec/tauRec_config.py")    
 AODFix_posttauRec()
 
 #
 # functionality: Flow element tau links
 #
 pdr.flag_domain('eflow')
-if recAlgs.doEFlow():
+from eflowRec.eflowRecFlags import jobproperties
+if recAlgs.doEFlow() and jobproperties.eflowRecFlags.usePFFlowElementAssoc:
     try:
-        include( "eflowRec/tauFELinkConfig.py" )
+        from eflowRec.PFCfg import PFTauFlowElementLinkingCfg
+        CAtoGlobalWrapper(PFTauFlowElementLinkingCfg,ConfigFlags)        
     except Exception:
         treatException("Could not set up tau-FE links")
 

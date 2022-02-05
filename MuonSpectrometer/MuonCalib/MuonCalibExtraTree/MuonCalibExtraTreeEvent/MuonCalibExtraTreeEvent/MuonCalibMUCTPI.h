@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCALIBMUCTPI_H
@@ -8,54 +8,53 @@
 #include <string>
 #include <vector>
 
-namespace MuonCalib{
+namespace MuonCalib {
 
-  /**
-     Simplified class designed to store information from MuCTPi processor. It has :
-     
-     @author Giuseppe Salamanna
-  */
-  class MuonCalibMUCTPI{
-  public:
-    MuonCalibMUCTPI();                                                                               //!< default constructor
-    MuonCalibMUCTPI( int roiWord, int bcID, int sysID, int subsysID, int sectorID, int thresholdNumber, int thresholdValue, int roINumber,
-		     int overlap, int firstCandidate, int sectorOverflow, int padOverflow,
-		     float phi, float eta ); //!< constructor setting all trackparameters and position
-    ~MuonCalibMUCTPI() {} ;                                                                          //!< destructor
-    
-    int roiWord()  const   { return m_roiWord; }
-    int bcID()     const   { return m_bcID; };
-    int sysID()    const   { return m_sysID; };
-    int subsysID() const   { return m_subsysID; };
-    int sectorID() const   { return m_sectorID; };
-    int thresholdNumber() const   { return m_thresholdNumber; };
-    int thresholdValue()  const   { return m_thresholdValue; };
-    int roINumber() const   { return m_roINumber; };
-    int overlap()   const   { return m_overlap; };
-    int firstCandidate() const   { return m_firstCandidate; };
-    int sectorOverflow() const   { return m_sectorOverflow; };
-    int padOverflow() const   { return m_padOverflow; };
-    float phi() const   { return m_phi; };
-    float eta() const   { return m_eta; };
-    
-  private:
-    int m_roiWord;
-    int m_bcID;
-    int m_sysID;
-    int m_subsysID;
-    int m_sectorID;
-    int m_thresholdNumber;
-    int m_thresholdValue;
-    int m_roINumber;
-    int m_overlap;
-    int m_firstCandidate;
-    int m_sectorOverflow;
-    int m_padOverflow;
-    float m_phi;
-    float m_eta;
-    
-  } ;
+    /**
+       Simplified class designed to store information from MuCTPi processor. It has :
+    */
+    class MuonCalibMUCTPI {
+    public:
+        MuonCalibMUCTPI() = default;  //!< default constructor
+        struct defineParams {
+            int roiWord{0};
+            int bcID{0};
+            int sysID{0};
+            int subsysID{0};
+            int sectorID{0};
+            int thresholdNumber{0};
+            int thresholdValue{0};
+            int roINumber{0};
+            int overlap{0};
+            int firstCandidate{0};
+            int sectorOverflow{0};
+            int padOverflow{0};
+            float phi{0.};
+            float eta{0.};
+        };
 
-}//namespace MuonCalib
+        MuonCalibMUCTPI(defineParams pars);  //!< constructor setting all trackparameters and position
+        ~MuonCalibMUCTPI() = default;        //!< destructor
 
-#endif 
+        int roiWord() const;
+        int bcID() const;
+        int sysID() const;
+        int subsysID() const;
+        int sectorID() const;
+        int thresholdNumber() const;
+        int thresholdValue() const;
+        int roINumber() const;
+        int overlap() const;
+        int firstCandidate() const;
+        int sectorOverflow() const;
+        int padOverflow() const;
+        float phi() const;
+        float eta() const;
+
+    private:
+        defineParams m_params{};
+    };
+
+}  // namespace MuonCalib
+
+#endif

@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2021 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "InDetPerfNtuple_TruthToReco.h" 
 
 InDetPerfNtuple_TruthToReco::InDetPerfNtuple_TruthToReco(InDetPlotBase* pParent, const std::string & dirName, const std::string & treeName):
@@ -15,6 +19,7 @@ InDetPerfNtuple_TruthToReco::InDetPerfNtuple_TruthToReco(InDetPlotBase* pParent,
     m_truth_qOverP("truth_qOverP",m_undefinedValue,*this),
     m_truth_qOverPt("truth_qOverPt",m_undefinedValue,*this),    
     m_truth_z0sin("truth_z0sin",m_undefinedValue,*this),
+    m_track_patternInfo("track_patternInfo",-1,*this),
     m_track_truthMatchRanking("track_truthMatchRanking",-1,*this),
     m_track_truthMatchProb("track_truthMatchProb",m_undefinedValue,*this),
     m_track_charge("track_charge",m_undefinedValue,*this),
@@ -116,6 +121,17 @@ void InDetPerfNtuple_TruthToReco::fillTrack(const xAOD::TrackParticle& track, co
     //                 This is the most likely case when there is a linked truth because most associations are one-to-one
     // n = 1, 2, ... : Assoicated truth available and this is the second, third, ... 'best matched' associated track
     //                 This handles rare cases where there are multiple tracks associated to the same truth
+    try{
+        m_track_patternInfo = track.patternRecoInfo().to_ulong();
+    }
+    // to_ulong may throw if the bitset can not be represented by an unsigned long
+    catch (std::overflow_error & err){
+        // we print a warning and reset the pattern info to the value that would be written in case of no 
+        // reco track. 
+        // Not deserving of an ERROR since it is a single branch of a validation ntuple not written in production use
+        ATH_MSG_WARNING("Track pattern info can not be represented by an unsigned long on your system - branch in IDPVM ntuple will be invalid."); 
+        m_track_patternInfo = -1; 
+    }
     m_track_truthMatchRanking = truthMatchRanking;
 
     float prob = (track.isAvailable<float>("truthMatchProbability") ? track.auxdata<float>("truthMatchProbability") : m_undefinedValue);

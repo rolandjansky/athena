@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -315,7 +315,7 @@ namespace HLT {
      * @param activeOnly optional parameter specifying whether inactive TEs should be discarded from the search; true by default
      */
     bool getTopologicallySpannedBy( const TriggerElement* te, const std::vector<unsigned int>& types,
-				    std::vector<TriggerElement*>& children, const bool activeOnly = true ) const;
+				    std::vector<const TriggerElement*>& children, const bool activeOnly = true ) const;
 
     /**
      * @brief gets all features from the sourceTE and copies a reference (FeatureAccessHelper) to the destTE

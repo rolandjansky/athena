@@ -45,8 +45,12 @@ TrigConf::L1TopoAlgorithm::load()
          m_outputs.push_back(o.getValue());
       }
    } else if( m_type == AlgorithmType::MULTIPLICITY ) { // MULTIPLICITY algo
+
       if(auto & input = getAttribute("input"); input!="null") {
          m_inputs.push_back(input);
+      }
+      if(hasAttribute("flavour")){ // EnergyThreshold
+         m_parameters.emplace_back("flavour", TrigConf::XEFlavour::flavourStrToInt(getAttribute("flavour")));     
       }
       m_outputs.push_back(getAttribute("output"));
    } else { // SORTING algo
@@ -79,13 +83,6 @@ TrigConf::L1TopoAlgorithm::load()
       }
    }
 
-}
-
-
-unsigned int
-TrigConf::L1TopoAlgorithm::algId() const
-{
-   return getAttribute<unsigned int>("algId");
 }
 
 TrigConf::L1TopoAlgorithm::AlgorithmType

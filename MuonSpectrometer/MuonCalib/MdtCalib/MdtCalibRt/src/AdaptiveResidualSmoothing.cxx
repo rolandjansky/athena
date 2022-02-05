@@ -82,12 +82,11 @@ bool AdaptiveResidualSmoothing::addResidualsFromSegment(MuonCalibSegment &seg, b
     }
 
     // store the residuals //
-    std::vector<const MdtCalibHitBase *> trackHits = curved ? curved_track.trackHits() : straight_track.trackHits();
+    const MuonCalibSegment::MdtHitVec &trackHits = curved ? curved_track.trackHits() : straight_track.trackHits();
     for (unsigned int k = 0; k < trackHits.size(); k++) {
         point[0] = trackHits[k]->driftRadius();
         point[1] = trackHits[k]->driftRadius() - std::abs(trackHits[k]->signedDistanceToTrack());
-        DataPoint residual_point(point, 0);
-        m_residual_point.push_back(residual_point);
+        m_residual_point.emplace_back(point, 0);
     }
 
     return true;

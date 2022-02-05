@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import ProductionStep
 LArRawChannelBuilderAlg=CompFactory.LArRawChannelBuilderAlg
@@ -46,10 +46,11 @@ def LArRawChannelBuilderAlgCfg(configFlags, **kwargs):
             obj='LArDSPThresholdsComplete'
             dspkey = 'Run1DSPThresholdsKey'
             sgkey='LArDSPThresholds'
+            dbString = 'COMP200'
         else:
             fld="/LAR/Configuration/DSPThresholdFlat/Thresholds"
             sgkey=fld
-        dbString="CONDBR2"
+            dbString="CONDBR2"
         dbInstance="LAR_ONL"
         acc.merge(addFolders(configFlags,fld, dbInstance, className=obj, db=dbString))
 
@@ -66,7 +67,11 @@ def LArRawChannelBuilderAlgCfg(configFlags, **kwargs):
        nominalPeakSample=2
        from LArConditionsCommon.LArRunFormat import getLArFormatForRun
        larformat=getLArFormatForRun(configFlags.Input.RunNumber[0],connstring="COOLONL_LAR/"+configFlags.IOVDb.DatabaseInstance)
-       nominalPeakSample = larformat.firstSample()
+       if larformat is not None:
+          nominalPeakSample = larformat.firstSample()
+       else:
+          print("WARNING: larformat not found, use nominalPeakSample = 2")
+          nominalPeakSample = 2
        if (nominalPeakSample > 1) :
           kwargs.setdefault('DefaultShiftTimeSample',nominalPeakSample-2)
        else :
@@ -94,6 +99,7 @@ if __name__=="__main__":
     # in case of testing iterative OFC:
     #ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecJobTransformTests/data15_1beam/data15_1beam.00260466.physics_L1Calo.merge.RAW._lb1380._SFO-ALL._0001.1']
     ConfigFlags.Input.isMC = False
+    ConfigFlags.Detector.GeometryTile = False
     ConfigFlags.lock()
 
 

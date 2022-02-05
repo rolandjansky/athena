@@ -17,7 +17,7 @@ class TGCPRDVariables : public ValAlgVariables
                        const MuonGM::MuonDetectorManager* detManager,
                        const MuonIdHelper* idhelper,
                        TTree* tree,
-						  	  std::string containername,
+						  	  const std::string & containername,
 						 	  MSG::Level msglvl) :
     ValAlgVariables(evtStore, detManager, tree, containername, msglvl)
   {
@@ -41,9 +41,9 @@ class TGCPRDVariables : public ValAlgVariables
   void deleteVariables(){};
   StatusCode clearVariables();
 
-  const TgcIdHelper* m_TgcIdHelper;
+  const TgcIdHelper* m_TgcIdHelper{};
 
-  int m_TGC_PRD_nPRDs;
+  int m_TGC_PRD_nPRDs{};
   std::vector<std::string> m_TGC_PRD_stationName;
   std::vector<int> m_TGC_PRD_stationEta;
   std::vector<int> m_TGC_PRD_stationPhi;

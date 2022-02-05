@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Test various ComponentAccumulator Digitization configuration modules
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 import sys
 from AthenaCommon.Logging import log
@@ -16,7 +16,7 @@ log.setLevel(DEBUG)
 Configurable.configurableRun3Behavior = True
 
 # Configure
-ConfigFlags.Input.Files = defaultTestFiles.HITS_SPECIAL
+ConfigFlags.Input.Files = defaultTestFiles.HITS_RUN2
 ConfigFlags.Output.RDOFileName = "myRDO.pool.root"
 ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-25-02"
 ConfigFlags.GeoModel.Align.Dynamic = False

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDSVC_ITRIGGERCOOLSVC_H
@@ -9,12 +9,13 @@
 
 #include <string>
 #include "GaudiKernel/IInterface.h"
+#include "CxxUtils/checker_macros.h"
 
 
 namespace MuonCalib {
 
    
-class ITriggerCoolSvc : virtual public IInterface {
+class ATLAS_NOT_THREAD_SAFE ITriggerCoolSvc : virtual public IInterface {
   
  public:
   static const InterfaceID& interfaceID();

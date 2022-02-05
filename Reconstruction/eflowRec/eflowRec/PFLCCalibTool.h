@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PFLCCALIBTOOL_H
@@ -9,6 +9,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "CaloRec/CaloClusterProcessor.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "eflowRec/IPFBaseTool.h"
 #include "eflowRec/IPFClusterCollectionTool.h"
 
@@ -34,7 +35,7 @@ class PFLCCalibTool : public extends<AthAlgTool, IPFBaseTool> {
 
   void apply(ToolHandle<CaloClusterProcessor>& calibTool, xAOD::CaloCluster* cluster);
   void applyLocal(ToolHandle<CaloClusterProcessor>& calibTool, eflowRecCluster *cluster);
-  void applyLocalWeight(eflowRecCluster* theEFRecCluster);
+  static void applyLocalWeight(eflowRecCluster* theEFRecCluster, const CaloDetDescrManager& calo_dd_man);
 
   /** Tool to put all clusters into a temporary container - then we use this to calculate moments, some of which depend on configuration of nearby clusters */
   ToolHandle<IPFClusterCollectionTool> m_clusterCollectionTool{this,"eflowRecClusterCollectionTool","eflowRecClusterCollectionTool","Tool to put all clusters into a temporary container - then we use this to calculate moments, some of which depend on configuration of nearby clusters"};
@@ -53,6 +54,12 @@ class PFLCCalibTool : public extends<AthAlgTool, IPFBaseTool> {
 
   /** Toggle which LC weights scheme to use - default is to recalculate weights, rather than use saved weights */
   Gaudi::Property<bool> m_useLocalWeight{this,"UseLocalWeight",false,"Toggle which LC weights scheme to use - default is to recalculate weights, rather than use saved weights"};
+
+  /** ReadCondHandleKey for CaloDetDescrManager */
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+	, "CaloDetDescrManager"
+	, "CaloDetDescrManager"
+	, "SG Key for CaloDetDescrManager in the Condition Store" };
 
 };
 

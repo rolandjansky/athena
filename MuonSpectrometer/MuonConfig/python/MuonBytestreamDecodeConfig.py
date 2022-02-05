@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -16,15 +16,14 @@ class MuonCacheNames(object):
 #
 # The function returns a ComponentAccumulator which should be loaded first
 # If a configuration wants to use the cache, they need to use the same names as defined here
-def MuonCacheCfg():
+def MuonCacheCfg(flags):
 
-    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
     acc = ComponentAccumulator()
 
     MuonCacheCreator=CompFactory.MuonCacheCreator
     cacheCreator = MuonCacheCreator(MdtCsmCacheKey = MuonCacheNames.MdtCsmCache,
-                                    CscCacheKey    = (MuonCacheNames.CscCache if MuonGeometryFlags.hasCSC() else ""),
+                                    CscCacheKey    = (MuonCacheNames.CscCache if flags.Detector.GeometryCSC else ""),
                                     RpcCacheKey    = MuonCacheNames.RpcCache,
                                     TgcCacheKey    = MuonCacheNames.TgcCache)
 
@@ -341,14 +340,13 @@ def MuonByteStreamDecodersCfg(flags):
     mdtdecodingAcc  = MdtBytestreamDecodeCfg( flags )
     cfg.merge( mdtdecodingAcc )
 
-    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
-    if MuonGeometryFlags.hasCSC():
+    if flags.Detector.GeometryCSC:
         # Schedule Csc data decoding
         cscdecodingAcc = CscBytestreamDecodeCfg( flags ) 
         cfg.merge( cscdecodingAcc )
 
-    if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
+    if (flags.Detector.GeometrysTGC and flags.Detector.GeometryMM):
         # Schedule MM data decoding
         mmdecodingAcc  = MmBytestreamDecodeCfg( flags )
         cfg.merge( mmdecodingAcc )
@@ -368,9 +366,8 @@ if __name__=="__main__":
     Configurable.configurableRun3Behavior=1
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"]
-    #from AthenaConfiguration.TestDefaults import defaultTestFiles
-    #ConfigFlags.Input.Files = defaultTestFiles.RAW
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+    ConfigFlags.Input.Files = defaultTestFiles.RAW
     # Set global tag by hand for now
     ConfigFlags.IOVDb.GlobalTag = "CONDBR2-BLKPA-2018-13"#"CONDBR2-BLKPA-2015-17"
     ConfigFlags.GeoModel.AtlasVersion = "ATLAS-R2-2016-01-00-01"#"ATLAS-R2-2015-03-01-00"

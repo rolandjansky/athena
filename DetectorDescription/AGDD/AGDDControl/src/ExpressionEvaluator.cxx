@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDControl/ExpressionEvaluator.h"
@@ -11,6 +11,8 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
+
+using namespace AGDD;
 
 ExpressionEvaluator::ExpressionEvaluator()
 {
@@ -43,7 +45,7 @@ bool ExpressionEvaluator::RegisterConstant( std::string& c, double v )
   RegisterVariable( c, value );
   return true;
 }
-bool ExpressionEvaluator::RegisterArray( std::string& c, std::vector<double> v)
+bool ExpressionEvaluator::RegisterArray( std::string& c, const std::vector<double>& v)
 {  
    for(unsigned int i=0; i<v.size(); i++)
    {
@@ -145,7 +147,7 @@ double ExpressionEvaluator::EvaluateString(const std::string& str)
 /*********************************************************************************************************/
 
 
-bool ExpressionEvaluator::RegisterPhysConstant( std::string& c, std::string value, std::string unit  )
+bool ExpressionEvaluator::RegisterPhysConstant( std::string& c, const std::string& value, const std::string& unit  )
 {
   std::string expr = value;
   expr += "*(";
@@ -167,7 +169,7 @@ bool ExpressionEvaluator::RegisterPhysConstant( std::string& c, std::string valu
   return true;
 }
 
-bool ExpressionEvaluator::RegisterExpression( std::string& name, std::string text )
+bool ExpressionEvaluator::RegisterExpression( std::string& name, const std::string& text )
 {
   std::string expr = "(";
   expr += text;
@@ -271,16 +273,14 @@ double ExpressionEvaluator::Eval( const char* expr_mod )
   return result;
 }
 
-std::string ExpressionEvaluator::trim (const std::string s)
+std::string ExpressionEvaluator::trim (const std::string& s)
 //-------------------------------------------------------------
 {
-        static const std::string null_string;
         if (s.size () == 0) return (s);
-        static std::string temp = "";
-	temp=s;
+        std::string temp = s;
         std::string::size_type i;
         i = temp.find_first_not_of (' ');
-        if (i == std::string::npos) return (null_string);
+        if (i == std::string::npos) return std::string();
 // There is at least 1 non blank character in s.
         if (i > 0)
         {
@@ -294,10 +294,9 @@ std::string ExpressionEvaluator::trim (const std::string s)
         return (temp);
 }
     
-std::vector<std::string>& ExpressionEvaluator::tokenize(const std::string& sep,const std::string& expr)
+std::vector<std::string> ExpressionEvaluator::tokenize(const std::string& sep,const std::string& expr)
 {
-	static std::vector<std::string> tempvect;
-	tempvect.clear();
+	std::vector<std::string> tempvect;
 	AGDDTokenizer aa(sep,expr);
 	for (unsigned int i=0;i<aa.size();i++) tempvect.push_back(trim(aa[i]));
 	return tempvect;

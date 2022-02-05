@@ -4,7 +4,7 @@
 
 /**
  * @author Tadej Novak
- * @brief Tests for ITkPixelReadoutManager.
+ * @brief Tests for ITk::PixelReadoutManager.
  */
 
 #undef NDEBUG
@@ -39,10 +39,10 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 namespace InDetDD
 {
-namespace PixelTesting
+namespace ITk
 {
 
-  class ITkPixelReadoutManager_test : public ::testing::Test {
+  class PixelReadoutManager_test : public ::testing::Test {
 
   protected:
     virtual void SetUp() override {
@@ -69,9 +69,9 @@ namespace PixelTesting
       ASSERT_TRUE( m_appMgr->initialize().isSuccess() );
 
       // the tested AthenaService
-      const auto& svcTypeAndName = "InDetDD::ITkPixelReadoutManager/ITkPixelReadoutManager";
+      const auto& svcTypeAndName = "InDetDD::ITk::PixelReadoutManager/ITkPixelReadoutManager";
       SmartIF<IService> svc = m_svcLoc->service(svcTypeAndName);
-      m_svc = dynamic_cast<ITkPixelReadoutManager *>(svc.get());
+      m_svc = dynamic_cast<PixelReadoutManager *>(svc.get());
       ASSERT_NE(nullptr, m_svc);
 
       ASSERT_TRUE( m_svc->configure().isSuccess() );
@@ -99,7 +99,7 @@ namespace PixelTesting
     }
 
     // the tested service
-    ITkPixelReadoutManager* m_svc{};
+    PixelReadoutManager* m_svc{};
 
     // Core Gaudi components
     IAppMgrUI*               m_appMgr{};
@@ -107,14 +107,14 @@ namespace PixelTesting
     SmartIF<ISvcManager>     m_svcMgr;
     SmartIF<IToolSvc>        m_toolSvc;
     SmartIF<IProperty>       m_propMgr;
-  };   // ITkPixelReadoutManager_test fixture
+  };   // PixelReadoutManager_test fixture
 
 
-  // TEST_F(ITkPixelReadoutManager_test, initialize_empty) {
+  // TEST_F(PixelReadoutManager_test, initialize_empty) {
   //   ASSERT_TRUE( m_svc->initialize().isSuccess() );
   // }
 
-  TEST_F(ITkPixelReadoutManager_test, barrel) {
+  TEST_F(PixelReadoutManager_test, barrel) {
     ASSERT_TRUE( m_svc->initialize().isSuccess() );
 
     ServiceHandle<StoreGateSvc> detectorStore("DetectorStore", "ITkPixelReadoutManager_test");
@@ -265,7 +265,7 @@ namespace PixelTesting
     ASSERT_EQ( m_svc->getPixelId(moduleId, 0, p_designS->rows() / 2, p_designS->columns() / 2), centers );
   }
 
-} // namespace PixelTesting
+} // namespace ITk
 } // namespace InDetDD
 
 

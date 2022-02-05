@@ -1,10 +1,12 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef sTGCDetectorHelper_H
 #define sTGCDetectorHelper_H
 
+#include "AGDDControl/IAGDD2GeoSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include <map>
 #include <string>
 
@@ -26,12 +28,16 @@ public:
 	sTGCDetectorDescription* Get_sTGCDetector(char type,int ieta,int iphi,int layer=1,char side='A');
 	sTGCDetectorDescription* Get_sTGCDetectorType(const std::string& type);
 	sTGCDetectorDescription* Get_sTGCDetectorSubType(const std::string& type);
+	sTGCDetectorDescription* Get_sTGCDetectorType(std::string_view type);
+	sTGCDetectorDescription* Get_sTGCDetectorSubType(std::string_view type);
 	AGDDPositionedDetector Get_sTGCPositionedDetector(char type,int ieta,int iphi,int layer=1,char side='A');
-	
+        IAGDDtoGeoSvc::LockedController Get_Controller();
+
+
 private:
 	sTGCMap m_sTGCList;
 	sTGCMapSubType m_sTGCListSubType;
-
+        ServiceHandle<IAGDDtoGeoSvc> m_svc {"AGDDtoGeoSvc", "MMDetectorHelper"};
 };
 
 #endif

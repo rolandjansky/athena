@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -97,7 +97,7 @@ public:
               bool mpv = false);
 
   // update
-  void update(EnergyLoss&, bool mpv = false);
+  void update(const EnergyLoss&, bool mpv = false);
 
   // set
   void set(double eLoss,
@@ -201,7 +201,7 @@ EnergyLoss::update(double ioni, double sigi, double rad, double sigr, bool mpv)
 }
 
 inline void
-EnergyLoss::update(EnergyLoss& eloss, bool mpv)
+EnergyLoss::update(const EnergyLoss& eloss, bool mpv)
 {
   m_mean_ioni += eloss.meanIoni();
   m_mean_rad += eloss.meanRad();

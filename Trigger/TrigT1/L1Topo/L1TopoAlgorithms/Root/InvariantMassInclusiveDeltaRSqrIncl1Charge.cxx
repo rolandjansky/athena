@@ -119,11 +119,11 @@ TCS::InvariantMassInclusiveDeltaRSqrIncl1Charge::initialize() {
 
    // book histograms
    for(unsigned int i=0; i<numberOutputBits(); ++i) {
-       std::string hname_accept = "hInvariantMassDeltaRSqrIncl1Charge_accept_bit"+std::to_string(static_cast<int>(i));
-       std::string hname_reject = "hInvariantMassDeltaRSqrIncl1Charge_reject_bit"+std::to_string(static_cast<int>(i));
+       std::string hname_accept = "hInvariantMassInclusiveDeltaRSqrIncl1Charge_accept_bit"+std::to_string(static_cast<int>(i));
+       std::string hname_reject = "hInvariantMassInclusiveDeltaRSqrIncl1Charge_reject_bit"+std::to_string(static_cast<int>(i));
        // mass
-       bookHist(m_histAcceptM, hname_accept, "INVM vs DR", 100, std::sqrt(p_InvMassMin[i]), std::sqrt(p_InvMassMax[i]), 100, p_DeltaRMin[i], p_DeltaRMax[i]);
-       bookHist(m_histRejectM, hname_reject, "INVM vs DR", 100, std::sqrt(p_InvMassMin[i]), std::sqrt(p_InvMassMax[i]), 100, p_DeltaRMin[i], p_DeltaRMax[i]);
+       bookHist(m_histAcceptM, hname_accept, "INVM vs DR", 100, std::sqrt(p_InvMassMin[i]), std::sqrt(p_InvMassMax[i]), 100, std::sqrt(p_DeltaRMin[i]), std::sqrt(p_DeltaRMax[i]));
+       bookHist(m_histRejectM, hname_reject, "INVM vs DR", 100, std::sqrt(p_InvMassMin[i]), std::sqrt(p_InvMassMax[i]), 100, std::sqrt(p_DeltaRMin[i]), std::sqrt(p_DeltaRMax[i]));
        // eta2 vs. eta1
        bookHist(m_histAcceptEta1Eta2, hname_accept, "ETA vs ETA", 100, -70, 70, 100, -70, 70);
        bookHist(m_histRejectEta1Eta2, hname_reject, "ETA vs ETA", 100, -70, 70, 100, -70, 70);
@@ -159,9 +159,9 @@ TCS::InvariantMassInclusiveDeltaRSqrIncl1Charge::processBitCorrect( const std::v
                if (p_OneBarrel && parType_t(std::abs((*tob1)->eta())) > 10 && parType_t(std::abs((*tob2)->eta())) > 10 ) continue;
                
                // Inv Mass calculation
-               unsigned int invmass2 = TSU::Kinematics::calcInvMassBW( *tob1, *tob2 );
+               unsigned int invmass2 = calcInvMassBW( *tob1, *tob2 );
 	       // test DeltaR2Min, DeltaR2Max                                                                                                
-	       unsigned int deltaR2 = TSU::Kinematics::calcDeltaR2BW( *tob1, *tob2 );
+	       unsigned int deltaR2 = calcDeltaR2BW( *tob1, *tob2 );
 	       TRG_MSG_DEBUG("Jet1 = " << **tob1 << ", Jet2 = " << **tob2 << ", invmass2 = " << invmass2 << ", deltaR2 = " << deltaR2);
                 // Charge cut ( 1 = positive, -1 = negative, 0 = undefined (RPC) )
                int charge1 = (*tob1)->charge();
@@ -226,9 +226,9 @@ TCS::InvariantMassInclusiveDeltaRSqrIncl1Charge::process( const std::vector<TCS:
                if (p_OneBarrel && parType_t(std::abs((*tob1)->eta())) > 10 && parType_t(std::abs((*tob2)->eta())) > 10 ) continue;
                
                // Inv Mass calculation
-	       unsigned int invmass2 = TSU::Kinematics::calcInvMass( *tob1, *tob2 );
+	       unsigned int invmass2 = calcInvMass( *tob1, *tob2 );
 	       // test DeltaR2Min, DeltaR2Max                                                                                                  
-	       unsigned int deltaR2 = TSU::Kinematics::calcDeltaR2( *tob1, *tob2 );
+	       unsigned int deltaR2 = calcDeltaR2( *tob1, *tob2 );
 	       TRG_MSG_DEBUG("Jet1 = " << **tob1 << ", Jet2 = " << **tob2 << ", invmass2 = " << invmass2 << ", deltaR2 = " << deltaR2);
                // Charge cut ( 1 = positive, -1 = negative, 0 = undefined (RPC) )
                int charge1 = (*tob1)->charge();

@@ -160,15 +160,16 @@ namespace TrigConf {
       Selection::WP m_wstot { Selection::WP::NONE };
    };
 
-   class L1Threshold_eTAU final : public L1Threshold_Calo {
+   class L1Threshold_jEM final : public L1Threshold_Calo {
    public:
-      L1Threshold_eTAU( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
+      L1Threshold_jEM( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
          L1Threshold_Calo(name, type, extraInfo, data) { load(); }
-      virtual ~L1Threshold_eTAU() = default;
-      virtual std::string className() const override { return "L1Threshold_eTAU"; }
+      virtual ~L1Threshold_jEM() = default;
+      virtual std::string className() const override { return "L1Threshold_jEM"; }
       // access functions
-      Selection::WP isoConeRel() const { return m_isoConeRel; }
-      Selection::WP fEM() const { return m_fEM; }
+      Selection::WP iso() const { return m_iso; }
+      Selection::WP frac() const { return m_frac; }
+      Selection::WP frac2() const { return m_frac2; }
    protected:
       virtual void update() override {
          L1Threshold_Calo::update();
@@ -177,8 +178,30 @@ namespace TrigConf {
    private:
       void load();
       // the isolation requirement
-      Selection::WP m_isoConeRel { Selection::WP::NONE };
-      Selection::WP m_fEM { Selection::WP::NONE };
+      Selection::WP m_iso { Selection::WP::NONE };
+      Selection::WP m_frac { Selection::WP::NONE };
+      Selection::WP m_frac2 { Selection::WP::NONE };
+   };
+      
+   class L1Threshold_eTAU final : public L1Threshold_Calo {
+   public:
+      L1Threshold_eTAU( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
+         L1Threshold_Calo(name, type, extraInfo, data) { load(); }
+      virtual ~L1Threshold_eTAU() = default;
+      virtual std::string className() const override { return "L1Threshold_eTAU"; }
+      // access functions
+      Selection::WP rCore() const { return m_rCore; }
+      Selection::WP rHad() const { return m_rHad; }
+   protected:
+      virtual void update() override {
+         L1Threshold_Calo::update();
+         load();
+      }
+   private:
+      void load();
+      // the isolation requirement
+      Selection::WP m_rCore { Selection::WP::NONE };
+      Selection::WP m_rHad { Selection::WP::NONE };
    };
 
    class L1Threshold_jTAU final : public L1Threshold_Calo {
@@ -234,6 +257,110 @@ namespace TrigConf {
       void load();
    };
 
+   class L1Threshold_jLJ final : public L1Threshold_Calo {
+   public:
+      L1Threshold_jLJ( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
+         L1Threshold_Calo(name, type, extraInfo, data) { load(); }
+      virtual ~L1Threshold_jLJ() = default;
+      virtual std::string className() const override { return "L1Threshold_jLJ"; }
+   protected:
+      virtual void update() override {
+         L1Threshold_Calo::update();
+         load();
+      }
+   private:
+      void load();
+   };
+
+   class L1Threshold_gJ final : public L1Threshold_Calo {
+   public:
+      L1Threshold_gJ( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
+         L1Threshold_Calo(name, type, extraInfo, data) { load(); }
+      virtual ~L1Threshold_gJ() = default;
+      virtual std::string className() const override { return "L1Threshold_gJ"; }
+   protected:
+      virtual void update() override {
+         L1Threshold_Calo::update();
+         load();
+      }
+   private:
+      void load();
+   };
+
+   class L1Threshold_gLJ final : public L1Threshold_Calo {
+   public:
+      L1Threshold_gLJ( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
+         L1Threshold_Calo(name, type, extraInfo, data) { load(); }
+      virtual ~L1Threshold_gLJ() = default;
+      virtual std::string className() const override { return "L1Threshold_gLJ"; }
+   protected:
+      virtual void update() override {
+         L1Threshold_Calo::update();
+         load();
+      }
+   private:
+      void load();
+   };
+
+   class L1Threshold_jXE final : public L1Threshold_Calo {
+   public:
+      L1Threshold_jXE( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
+         L1Threshold_Calo(name, type, extraInfo, data) { load(); }
+      virtual ~L1Threshold_jXE() = default;
+      virtual std::string className() const override { return "L1Threshold_jXE"; }
+   protected:
+      virtual void update() override {
+         L1Threshold_Calo::update();
+         load();
+      }
+   private:
+      void load();
+   };
+
+   class L1Threshold_jTE final : public L1Threshold_Calo {
+   public:
+      L1Threshold_jTE( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
+         L1Threshold_Calo(name, type, extraInfo, data) { load(); }
+      virtual ~L1Threshold_jTE() = default;
+      virtual std::string className() const override { return "L1Threshold_jTE"; }
+   protected:
+      virtual void update() override {
+         L1Threshold_Calo::update();
+         load();
+      }
+   private:
+      void load();
+   };
+
+   class L1Threshold_gXE final : public L1Threshold_Calo {
+   public:
+      L1Threshold_gXE( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
+         L1Threshold_Calo(name, type, extraInfo, data) { load(); }
+      virtual ~L1Threshold_gXE() = default;
+      virtual std::string className() const override { return "L1Threshold_gXE"; }
+   protected:
+      virtual void update() override { 
+         L1Threshold_Calo::update();
+         load();
+      }  
+   private:
+      void load();
+   };
+
+   class L1Threshold_gTE final : public L1Threshold_Calo {
+   public:
+      L1Threshold_gTE( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
+         L1Threshold_Calo(name, type, extraInfo, data) { load(); }
+      virtual ~L1Threshold_gTE() = default;
+      virtual std::string className() const override { return "L1Threshold_gTE"; }
+   protected:
+      virtual void update() override {
+         L1Threshold_Calo::update();
+         load();
+      }
+   private:
+      void load();
+   };
 
    /************************************
     *

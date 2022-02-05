@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AmbiguityProcessorBase_h
@@ -14,6 +14,9 @@
 #include "TrackPtr.h"
 #include "TrkEventPrimitives/TrackScore.h"
 #include "TrkEventUtils/ClusterSplitProbabilityContainer.h"
+#include "TrkValInterfaces/ITrkObserverTool.h"
+#include "TrackScoringTool.h"
+#include "AmbiguityProcessorUtility.h"
 
 #include <vector>
 #include <map> //multimap
@@ -24,7 +27,6 @@
 
 namespace Trk {
   //fwd declare
-  class ITrackScoringTool;
   class Track;
   class PRDtoTrackMap;
 
@@ -73,7 +75,7 @@ namespace Trk {
     
     /** refit track */
     Track * 
-    refitTrack( const Trk::Track* track,Trk::PRDtoTrackMap &prdToTrackMap, Counter &stat) const;
+    refitTrack( const Trk::Track* track,Trk::PRDtoTrackMap &prdToTrackMap, Counter &stat, int trackId, int subtrackId) const;
                        
     //refit PRD
     virtual Trk::Track* 
@@ -92,7 +94,8 @@ namespace Trk {
              TrackScoreMap &trackScoreTrackMap,
              Trk::PRDtoTrackMap &prdToTrackMap,
              std::vector<std::unique_ptr<const Trk::Track> >& trackDustbin,
-             Counter &stat) const;
+             Counter &stat,
+             int parentTrackId) const;
                                                  
     const TrackParameters *
     getTrackParameters(const Trk::Track* track) const;
@@ -123,7 +126,9 @@ namespace Trk {
     /**Scoring tool
        This tool is used to 'score' the tracks, i.e. to quantify what a good track is.
        @todo The actual tool that is used should be configured through job options*/
-    ToolHandle<ITrackScoringTool> m_scoringTool;
+    ToolHandle<ITrackScoringTool> m_scoringTool{this, "ScoringTool", "", "track scoring tool"};
+    /**Observer tool      This tool is used to observe the tracks and their 'score' */
+    PublicToolHandle<Trk::ITrkObserverTool> m_observerTool{this, "TrackObserverTool", "", "track observer within ambiguity solver"};
     ToolHandle<Trk::IExtendedTrackSummaryTool> m_trackSummaryTool{this, "TrackSummaryTool", "InDetTrackSummaryToolNoHoleSearch"};
 
   private:

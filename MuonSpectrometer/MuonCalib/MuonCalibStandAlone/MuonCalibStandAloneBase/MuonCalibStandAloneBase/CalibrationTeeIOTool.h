@@ -7,7 +7,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "MuonCalibStandAloneBase/CalibrationIOTool.h"
+#include "MuonCalibStandAloneBase/ICalibrationIOTool.h"
 
 namespace MuonCalib {
 
@@ -15,7 +15,7 @@ namespace MuonCalib {
     Wites to two calibtaion IO Tools. Reads from the first one.
     */
 
-    class CalibrationTeeIOTool : public AthAlgTool, virtual public CalibrationIOTool {
+    class CalibrationTeeIOTool : public AthAlgTool, virtual public ICalibrationIOTool {
     public:
         /** constructor*/
         CalibrationTeeIOTool(const std::string &t, const std::string &n, const IInterface *p);
@@ -31,8 +31,8 @@ namespace MuonCalib {
 
     private:
         //! two calibration IO Tools
-        ToolHandle<CalibrationIOTool> m_tool1{this, "IOTool1", "MuonCalib::CalibrationDummyIOTool"};
-        ToolHandle<CalibrationIOTool> m_tool2{this, "IOTool2", "MuonCalib::CalibrationDummyIOTool"};
+        ToolHandle<ICalibrationIOTool> m_tool1{this, "IOTool1", "MuonCalib::CalibrationDummyIOTool"};
+        ToolHandle<ICalibrationIOTool> m_tool2{this, "IOTool2", "MuonCalib::CalibrationDummyIOTool"};
     };
 
 }  // namespace MuonCalib

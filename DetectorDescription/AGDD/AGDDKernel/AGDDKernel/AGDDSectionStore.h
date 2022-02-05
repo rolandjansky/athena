@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AGDDSectionStore_H
@@ -14,14 +14,13 @@ typedef std::map<std::string,AGDDSection*> sectionList;
 
 class AGDDSectionStore {
 public:
-	static AGDDSectionStore* GetSectionStore();
-	AGDDSection* GetSection(std::string);
+	AGDDSectionStore();
+	AGDDSection* GetSection(const std::string&);
 	AGDDSection* GetCurrentSection() {return m_currentSection;}
 	void RegisterSection(AGDDSection*);
-	void PrintAllSections();
+	void PrintAllSections() const;
 	void Clean();
 private:
-	AGDDSectionStore();
 	AGDDSection* m_currentSection;
 	sectionList m_theSections;
 };

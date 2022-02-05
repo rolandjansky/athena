@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -50,7 +50,7 @@ def JetFitterV0FinderToolCfg(flags, name, suffix="", useBTagFlagsDefaults = True
     if useBTagFlagsDefaults:
         inDetJetFitterUtils = acc.popToolsAndMerge(InDetJetFitterUtilsCfg(flags,'InDetJFUtils'+suffix))
         jetFitterMode3dTo1dFinder = acc.popToolsAndMerge(JetFitterMode3dTo1dFinderCfg('JFMode3dTo1dFinder'+suffix))
-        defaults = { 'revertFromPositiveToNegativeTags' : False ,
+        defaults = { 'revertFromPositiveToNegativeTags' : True if (suffix=="FLIP_SIGN") else False,
                      'cutTwoTrkVtxVtxProbForBFirstSelectCriteriumA' : 0.05 ,
                      'cutTwoTrkVtxVtxProbForBFirstSelectCriteriumB' : 0.034 ,
                      'cutCompatibilityPrimaryVertexSingleTrackForBFirstSelection' : 1e-1 ,
@@ -78,9 +78,11 @@ def JetFitterV0FinderToolCfg(flags, name, suffix="", useBTagFlagsDefaults = True
                      'cutIPZ0SingleTrackForBSecondSelection' : 3. ,
                      'cutPtSingleTrackForBSecondSelection' : 750,
                      'InDetJetFitterUtils' : inDetJetFitterUtils,
-                     'Mode3dFinder' : jetFitterMode3dTo1dFinder }
+                     'Mode3dFinder' : jetFitterMode3dTo1dFinder,
+                     'useITkMaterialRejection' : flags.GeoModel.Run not in ['RUN1', 'RUN2', 'RUN3'] }
         for option in defaults:
             options.setdefault(option, defaults[option])
+
 
     options['name'] = name
     acc.setPrivateTools( InDet__JetFitterV0FinderTool(**options) )

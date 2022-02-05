@@ -1,9 +1,0 @@
-
-doHistoComparison=False
-doTruth=False
-doMemLeak=True
-doextractRec=False
-docheckAODESDcontent=True
-docheckAODESDcontentAOD=False
-docheckAODESDcontentESD=True
-

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef polyplaneHandler_H
@@ -11,11 +11,13 @@
 
 class polyplaneHandler:public XMLHandler {
 public:
-	polyplaneHandler(std::string);
-	void ElementHandle();
-	static Polyplane CurrentPolyplane() {return s_pPlane;}
+	polyplaneHandler(const std::string&,
+                         AGDDController& c);
+	virtual void ElementHandle(AGDDController& c,
+                                   xercesc::DOMNode *t) override;
+	Polyplane CurrentPolyplane() {return m_pPlane;}
 private:
-	static Polyplane s_pPlane;
+	Polyplane m_pPlane;
 };
 
 #endif

@@ -28,8 +28,8 @@ def makeEGammaDFCommon():
     ToolSvc += DFCommonPhotonsDirection
 
     # ====================================================================
-    # SHOWER SHAPE FUDGING IN MC
-    # (TUNE22: FUDGE FACTORS RUN2 2015+2016 DATA, Rel 21)
+    # SHOWER SHAPE CORRECTIONS IN MC
+    # (TUNE23: FUDGE FACTORS RUN2 FULL DATA, derived with rel 21.2)
     # ====================================================================
 
     from PyUtils import AthFile
@@ -54,7 +54,7 @@ def makeEGammaDFCommon():
             ElectronPhotonVariableCorrectionTool)
         EGVariableCorrectionTool = ElectronPhotonVariableCorrectionTool(
             name='EGVariableCorrectionTool',
-            ConfigFile='EGammaVariableCorrection/TUNE22/ElPhVariableNominalCorrection.conf')
+            ConfigFile='EGammaVariableCorrection/TUNE23/ElPhVariableNominalCorrection.conf')
         ToolSvc += EGVariableCorrectionTool
         print(EGVariableCorrectionTool)
 
@@ -412,10 +412,6 @@ def makeEGammaDFCommon():
         isMC=(globalflags.DataSource() != 'data'))
     ToolSvc += ElectronAmbiguity
 
-    #
-    # Commented ForwardElectronPassLHLoose, ForwardElectronPassLHMedium,
-    # ForwardElectronPassLHTight tools due to they are not available in R22 yet
-    #
     # list of all the decorators so far
     EGAugmentationTools = [DFCommonPhotonsDirection,
                            ElectronPassLHVeryLoose,
@@ -488,8 +484,25 @@ def makeEGammaDFCommon():
         # Compute the truth-particle-level energy density in the central eta region
         from EventShapeTools.EventDensityConfig import (
             configEventDensityTool, EventDensityAthAlg)
-        from JetRec.JetRecStandard import jtm
-        tc = configEventDensityTool("EDTruthCentralTool", jtm.truthget.Label,
+
+        # Schedule PseudoJetTruth
+        from JetRecConfig.JetRecConfig import getInputAlgs,getConstitPJGAlg,reOrderAlgs
+        from JetRecConfig.StandardJetConstits import stdConstitDic as cst
+        from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+
+        constit_algs = getInputAlgs(cst.Truth, configFlags=ConfigFlags)
+        constit_algs = reOrderAlgs( [a for a in constit_algs if a is not None])
+
+        for a in constit_algs:
+            if not hasattr(DerivationFrameworkJob,a.getName()):
+                DerivationFrameworkJob += conf2toConfigurable(a)
+
+        constitPJAlg = getConstitPJGAlg(cst.Truth, suffix=None)
+        if not hasattr(DerivationFrameworkJob,constitPJAlg.getName()):
+            DerivationFrameworkJob += conf2toConfigurable(constitPJAlg)
+
+        tc = configEventDensityTool("EDTruthCentralTool", cst.Truth.label,
                                     0.5,
                                     AbsRapidityMin=0.0,
                                     AbsRapidityMax=1.5,
@@ -499,7 +512,7 @@ def makeEGammaDFCommon():
         ToolSvc += tc
 
         # Compute the truth-particle-level energy density in the forward eta region
-        tf = configEventDensityTool("EDTruthForwardTool", jtm.truthget.Label,
+        tf = configEventDensityTool("EDTruthForwardTool", cst.Truth.label,
                                     0.5,
                                     AbsRapidityMin=1.5,
                                     AbsRapidityMax=3.0,
@@ -508,15 +521,8 @@ def makeEGammaDFCommon():
                                     )
         ToolSvc += tf
 
-        # Schedule the two energy density tools for running
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-        topSequence += EventDensityAthAlg(
-            "EDTruthCentralAlg",
-            EventDensityTool=tc)
-        topSequence += EventDensityAthAlg(
-            "EDTruthForwardAlg",
-            EventDensityTool=tf)
+        DerivationFrameworkJob += EventDensityAthAlg("EDTruthCentralAlg", EventDensityTool=tc)
+        DerivationFrameworkJob += EventDensityAthAlg("EDTruthForwardAlg", EventDensityTool=tf)
 
     # =======================================
     # CREATE THE DERIVATION KERNEL ALGORITHM

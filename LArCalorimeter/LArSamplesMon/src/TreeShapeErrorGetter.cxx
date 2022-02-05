@@ -207,10 +207,9 @@ bool TreeShapeErrorGetter::merge(const TString& listFile, const TString& outputF
     getters.push_back(getter);
   }
   bool result = merge(getters, outputFile);
-  
-  for (std::vector<const TreeShapeErrorGetter*>::iterator getter = getters.begin();
-       getter != getters.end(); getter++)
-     delete *getter;
+
+  for (const TreeShapeErrorGetter* getter : getters)
+     delete getter;
   
   return result;
 }
@@ -222,16 +221,15 @@ bool TreeShapeErrorGetter::merge(const std::vector<const TreeShapeErrorGetter*>&
   for (unsigned int i = 0; i < Definitions::nChannels; i++) {
     for (unsigned int g = 0; g < 3; g++) {
       bool gotResult = false;
-      for (std::vector<const TreeShapeErrorGetter*>::const_iterator getter = getters.begin();
-           getter != getters.end(); getter++) {
-        if ((*getter)->shapeErrorData(i, (CaloGain::CaloGain)g)) {
+      for (const TreeShapeErrorGetter* getter : getters) {
+        if (getter->shapeErrorData(i, (CaloGain::CaloGain)g)) {
           if (gotResult) {
             cout << "TreeShapeErrorGetter::merge : input getters have non-zero overlap for cell " << i << " -- not supported, exiting." << endl;
             return false;          
           }
           gotResult = true;
-          cout << "Adding " << i << " " << g << " " << (*getter)->cellCalc()->size() << endl;
-          output->addCell(*(*getter)->cellCalc(), (CaloGain::CaloGain)g);
+          cout << "Adding " << i << " " << g << " " << getter->cellCalc()->size() << endl;
+          output->addCell(*getter->cellCalc(), (CaloGain::CaloGain)g);
         }
       }
       if (!gotResult) output->addCell(ResidualCalculator(), (CaloGain::CaloGain)g);
@@ -241,16 +239,15 @@ bool TreeShapeErrorGetter::merge(const std::vector<const TreeShapeErrorGetter*>&
   for (int i = 0; i < Geo::nPhiRings(); i++) {
     for (unsigned int g = 0; g < 3; g++) {
       bool gotResult = false;
-      for (std::vector<const TreeShapeErrorGetter*>::const_iterator getter = getters.begin();
-           getter != getters.end(); getter++) {
-        if ((*getter)->phiSymShapeErrorData(i, (CaloGain::CaloGain)g)) {
+      for (const TreeShapeErrorGetter* getter : getters) {
+        if (getter->phiSymShapeErrorData(i, (CaloGain::CaloGain)g)) {
           if (gotResult) {
             cout << "TreeShapeErrorGetter::merge : input getters have non-zero overlap for ring " << i << " -- not supported, exiting." << endl;
             return false;    
           }
           gotResult = true;
           cout << "Adding ring " << i << " " << g << endl;
-          output->addRing(*(*getter)->ringCalc(), (CaloGain::CaloGain)g);
+          output->addRing(*getter->ringCalc(), (CaloGain::CaloGain)g);
         }        
       }
       if (!gotResult) output->addRing(ResidualCalculator(), (CaloGain::CaloGain)g);

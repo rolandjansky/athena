@@ -1,19 +1,20 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSimEvent/sTgcHitIdHelper.h"
 
 #include <iostream>
-#include <iomanip> // for std::array
+#include <iomanip>
+#include <array>
 
 sTgcHitIdHelper* sTgcHitIdHelper::m_help = nullptr;
 
 namespace {
-    const static std::array<char, 1> v1 = {'T'};
+    const static std::array<char, 1> v1 = {'Q'};
     const static std::array<char, 2> v2 = {'S','L'};
     const static std::array<char, 5> v3 = {'0','1','2','3','4'};
-    const static std::array<char, 2> v4 = {'1','2'};
+    const static std::array<char, 2> v4 = {'P','C'};
 }
 
 //private constructor
@@ -87,7 +88,7 @@ int sTgcHitIdHelper::GetSide(const int& hid) const {
 
 
 //packing method
-int sTgcHitIdHelper::BuildsTgcHitId(const std::string statName, const int phiSect,
+int sTgcHitIdHelper::BuildsTgcHitId(const std::string& statName, const int phiSect,
                                     const int zSect, const int multiLayer, const int layer, const int side) const {
 
   int theID(0);

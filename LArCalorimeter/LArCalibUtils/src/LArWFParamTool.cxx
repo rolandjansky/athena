@@ -200,9 +200,9 @@ StatusCode LArWFParamTool::getLArWaveParams(const LArCaliWave& larCaliWave,
 					    const CaloGain::CaloGain gain,
                                             LArWFParams& wfParams,
                                             const LArOnOffIdMapping *cabling,
-					    LArCaliWave* omegaScanWave,
-					    LArCaliWave* resOscill0,
-					    LArCaliWave* resOscill1)  const
+					    std::optional<LArCaliWave>& omegaScanWave,
+					    std::optional<LArCaliWave>& resOscill0,
+					    std::optional<LArCaliWave>& resOscill1)  const
 {
 
 
@@ -424,7 +424,7 @@ LArWave LArWFParamTool::dstepCorrDfstep(const LArWave& gCali, const double& fste
   return w ;
 }
 
-StatusCode LArWFParamTool::RTM_Omega0(const LArWave& gCali, const HWIdentifier chid, LArWFParams& wfParams, const WaveTiming_t& wt, const LArOnOffIdMapping *cabling, LArCaliWave* omegaScanWave) const
+StatusCode LArWFParamTool::RTM_Omega0(const LArWave& gCali, const HWIdentifier chid, LArWFParams& wfParams, const WaveTiming_t& wt, const LArOnOffIdMapping *cabling, std::optional<LArCaliWave>& omegaScanWave) const
 {
   /*  begin of the COSINE RESPONSE analysis */
    

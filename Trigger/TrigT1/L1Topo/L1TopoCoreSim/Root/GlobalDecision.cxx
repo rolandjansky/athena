@@ -79,8 +79,7 @@ GlobalDecision::collectDecision(const set<DecisionConnector*> & outconn) {
 
       unsigned int pos = 0; // for multi-output algorithms pos is the output index
       for(const TrigConf::TriggerLine & trigger : conn->triggers() ) {
-         
-	      unsigned int position = trigger.startbit() + 32*trigger.fpga() + 16*trigger.clock();
+         unsigned int position = trigger.flatindex();
 
          uint64_t & connectorDec = m_decision[trigger.connName()];
          uint64_t & connectorOvf = m_overflow[trigger.connName()];
@@ -123,7 +122,7 @@ operator<<(std::ostream& o, const TCS::GlobalDecision & dec) {
    
    if(dec.isValid()) {
      for(const TrigConf::TriggerLine & trigger : dec.m_triggers){
-	 unsigned int position = trigger.startbit() + 32*trigger.fpga() + 16*trigger.clock();
+         unsigned int position = trigger.flatindex();
 	 o << "  " << setw(30) << left << trigger.name() << "  " << (dec.passed(trigger.connName(), position) ? "pass" : "fail") << endl;}
    } else {
       for(const TrigConf::TriggerLine & trigger : dec.m_triggers)
@@ -143,7 +142,7 @@ GlobalDecision::print() const {
 
    if(isValid()) {
       for(const TrigConf::TriggerLine & trigger : m_triggers){
-	 unsigned int position = trigger.startbit() + 32*trigger.fpga() + 16*trigger.clock();
+         unsigned int position = trigger.flatindex();
  	 TRG_MSG_INFO("      " << setw(30) << left << trigger.name() << "  " << (passed(trigger.connName(), position) ? "pass" : "fail") );}
    } else {
       for(const TrigConf::TriggerLine & trigger : m_triggers)

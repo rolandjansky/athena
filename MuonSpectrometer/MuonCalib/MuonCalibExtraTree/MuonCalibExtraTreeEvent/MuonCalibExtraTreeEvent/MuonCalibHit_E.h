@@ -1,59 +1,68 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MUONCALIBHIT_E_H
-#define MUONCALIBHIT_E_H
+#ifndef MuonCalibExtraEvt_MUONCALIBHIT_E_H
+#define MuonCalibExtraEvt_MUONCALIBHIT_E_H
 
-#include "MuonCalibIdentifier/MuonFixedId.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "MuonCalibEventBase/MuonCalibRawMdtHit.h"
+#include "MuonCalibIdentifier/MuonFixedId.h"
+namespace MuonCalib {
+    /**
+       @class MuonCalibHit_E
+       Simplified class designed to store information of a MDT hit. It has :
+       - a position
+       - a MuonCalib::MuonFixedId identifier
+       - driftradius and its error
+    */
+    // using MuonCalibHit_E = MuonCalibRawMdtHit;
 
-namespace MuonCalib{
-  /**
-     @class MuonCalibHit_E
-     Simplified class designed to store information of a MDT hit. It has :
-     - a position
-     - a MuonCalib::MuonFixedId identifier
-     - driftradius and its error
-     
-     @author Zdenko.Van.Kesteren
-  */
-  class MuonCalibHit_E{
-  public:
-    MuonCalibHit_E();                                                                               //!< default constructor
-    MuonCalibHit_E( const MuonFixedId& id, const Amg::Vector3D& pos);                                  //!< constructor initializing its ID and position
-    MuonCalibHit_E( const MuonFixedId& id, const Amg::Vector3D& pos, double driftRadius, double error);//!< constructor initializing all members
-    MuonCalibHit_E( const MuonFixedId& id, const Amg::Vector3D& pos, double driftRadius, double error,
-		    double resi, double pull, int measType);
-    ~MuonCalibHit_E() {} ;                                                                          //!< destructor
+    class MuonCalibHit_E {
+    public:
+        struct definePars {
+            float driftRadius{0.};          //!< driftRadius
+            float error{0.};                //!< error on the driftRadius
+            float resi{-9999.};             //!< residual
+            float pull{-9999.};             //!< pull including track error
+            int measType{-9999};            //!< error on the driftRadius
+            Amg::Vector3D pos{0., 0., 0.};  //!< Global position
+        };
 
+        MuonCalibHit_E() = default;                             //!< default constructor
+        MuonCalibHit_E(const MuonFixedId& id, definePars pos);  //!< constructor initializing its ID and position
 
-    const MuonFixedId& identify() const { return m_id ; }                    //!< return the MuonCalib::MuonFixedId of the MuonCalibHit
-    const Amg::Vector3D&  position() const { return m_pos ; }                   //!< return the (global) position of the MuonCalibHit
-    double       driftRadius() const { return m_driftRadius ; }        //!< return the driftradius of the MuonCalibHit 
-    double       error() const { return m_error ; }                    //!< return the error on the driftradius of the MuonCalibHit 
-    double       residual() const { return m_resi ; }                  //!< return the residual
-    double       pull() const { return m_pull ; }                      //!< return the pull
-    int          type() const { return m_measType ; }                  //!< return the type of measurement
+        virtual ~MuonCalibHit_E() = default;  //!< destructor
 
-    void setId( const MuonFixedId& id ) { m_id = id ; }                        //!< sets the MuonCalib::MuonFixedId of the MuonCalibHit
-    void setPosition( const Amg::Vector3D& pos ) { m_pos = pos ; }                //!< sets the (global) position of the MuonCalibHit
-    void setDriftRadius( double driftRadius ) { m_driftRadius = driftRadius ; }//!< sets the driftradius of the MuonCalibHit 
-    void setError( double error ) { m_error = error ; }                        //!< sets the error on the driftradius of the MuonCalibHit 
-    void setResidual( double res ) { m_resi = res ; }                        //!< sets the error on the driftradius of the MuonCalibHit 
-    void setPull( double pull ) { m_pull = pull ; }                        //!< sets the error on the driftradius of the MuonCalibHit 
-    void setType( int type ) { m_measType = type ; }                        //!< sets the error on the driftradius of the MuonCalibHit 
+        const MuonFixedId& identify() const;    //!< return the MuonCalib::MuonFixedId of the MuonCalibHit
+        const Amg::Vector3D& position() const;  //!< return the (global) position of the MuonCalibHit
+        float driftRadius() const;              //!< return the driftradius of the MuonCalibHit
+        float error() const;                    //!< return the error on the driftradius of the MuonCalibHit
+        float residual() const;                 //!< return the residual
+        float pull() const;                     //!< return the pull
+        int type() const;                       //!< return the type of measurement
 
-  private:
-    MuonFixedId m_id;	       //!< Identifier of the (athena-independent) type MuonCalib::MuonFixedId		       
-    Amg::Vector3D  m_pos;         //!< Global position
-    double      m_driftRadius; //!< driftRadius
-    double      m_error;       //!< error on the driftRadius
-    float       m_resi;        //!< residual
-    float       m_pull;        //!< pull including track error
-    int         m_measType;    //!< error on the driftRadius
-  } ;
+        //!< sets the MuonCalib::MuonFixedId of the MuonCalibHit
+        void setId(const MuonFixedId& id);
+        //!< sets the (global) position of the MuonCalibHit
+        void setPosition(const Amg::Vector3D& pos);
+        //!< sets the driftradius of the MuonCalibHit
 
-}//namespace MuonCalib
+        void setDriftRadius(float driftRadius);
+        //!< sets the error on the driftradius of the MuonCalibHit
+        void setError(float error);
+        //!< sets the error on the driftradius of the MuonCalibHit
+        void setResidual(float res);
+        //!< sets the error on the driftradius of the MuonCalibHit
 
-#endif //MUONCALIBHIT_E_H
+        void setPull(float pull);
+        //!< sets  the error on the driftradius of the MuonCalibHit
+        void setType(int type);
+
+    private:
+        MuonFixedId m_id{0};  //!< Identifier of the (athena-independent) type MuonCalib::MuonFixedId
+        definePars m_pars{};
+    };
+}  // namespace MuonCalib
+
+#endif  // MUONCALIBHIT_E_H

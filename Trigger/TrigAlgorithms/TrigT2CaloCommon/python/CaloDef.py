@@ -2,7 +2,7 @@
 
 from AthenaCommon.CFElements import seqAND, parOR
 from AthenaConfiguration.ComponentFactory import CompFactory
-from TriggerMenuMT.HLTMenuConfig.CommonSequences.FullScanDefs import caloFSRoI
+from TriggerMenuMT.HLT.CommonSequences.FullScanDefs import caloFSRoI
 
 def setMinimalCaloSetup() :
   from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -27,7 +27,7 @@ def _algoHLTCaloCell(name="HLTCaloCellMaker", inputEDM='', outputEDM='CellsClust
    algo.RoIs=inputEDM
    algo.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
    algo.CellsName=outputEDM
-   algo.ExtraInputs+=[  ( 'LArMCSym', 'ConditionStore+LArMCSym'), ('LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' ), ('LArFebRodMapping'  , 'ConditionStore+LArFebRodMap' ) ]
+   algo.ExtraInputs+=[  ( 'LArBadChannelCont', 'ConditionStore+LArBadChannel'), ( 'LArMCSym', 'ConditionStore+LArMCSym'), ('LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' ), ('LArFebRodMapping'  , 'ConditionStore+LArFebRodMap' ), ('CaloDetDescrManager', 'ConditionStore+CaloDetDescrManager') ]
    return algo
 
 def _algoHLTHIEventShape(name='HLTEventShapeMaker', inputEDM='CellsClusters', outputEDM='HIEventShape'):
@@ -35,8 +35,9 @@ def _algoHLTHIEventShape(name='HLTEventShapeMaker', inputEDM='CellsClusters', ou
     from HIGlobal.HIGlobalConf import HIEventShapeFillerTool
 
     algo = HIEventShapeMaker(name)
-    algo.UseCaloCell = True
     algo.InputCellKey = inputEDM
+    algo.InputTowerKey=""
+    algo.NaviTowerKey=""
     algo.OutputContainerKey = outputEDM
     algo.HIEventShapeFillerTool = HIEventShapeFillerTool()
 
@@ -95,7 +96,7 @@ def _algoL2Egamma(inputEDM="", doRinger=False, ClustersName="HLT_FastCaloEMClust
             from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_All
             algo=T2CaloEgamma_All("L2CaloLayersFex")
             algo.RoIs=inputEDM
-    algo.ExtraInputs+=[ ( 'LArMCSym', 'ConditionStore+LArMCSym'), ('LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' ), ('LArFebRodMapping'  , 'ConditionStore+LArFebRodMap' ) ]
+    algo.ExtraInputs+=[ ( 'LArBadChannelCont', 'ConditionStore+LArBadChannel'), ( 'LArMCSym', 'ConditionStore+LArMCSym'), ('LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' ), ('LArFebRodMapping'  , 'ConditionStore+LArFebRodMap' ), ('CaloDetDescrManager', 'ConditionStore+CaloDetDescrManager') ]
     from TrigEDMConfig.TriggerEDMRun3 import recordable
     algo.ClustersName=recordable(ClustersName)
     return algo
@@ -253,8 +254,10 @@ def HLTRoITopoRecoSequence(ConfigFlags, RoIs, algSuffix=''):
 
 
 def HLTHIRoITopoRecoSequence(ConfigFlags, RoIs, algSuffix=''):
-    from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloMenuSequences import precisionCaloMenuDefs
-    eventShape = precisionCaloMenuDefs.egEventShape
+
+    from TriggerMenuMT.HLT.Egamma.TrigEgammaKeys import  getTrigEgammaKeys
+    TrigEgammaKeys = getTrigEgammaKeys()
+    eventShape = TrigEgammaKeys.egEventShape
 
     import AthenaCommon.CfgMgr as CfgMgr
     HLTRoITopoRecoSequenceVDV = CfgMgr.AthViews__ViewDataVerifier("HLTHIRoITopoRecoSequenceVDV")
@@ -276,6 +279,7 @@ def HLTHIRoITopoRecoSequence(ConfigFlags, RoIs, algSuffix=''):
 
 def HLTLCTopoRecoSequence(ConfigFlags, RoIs='InViewRoIs'):
     cellMaker = HLTCellMaker(ConfigFlags, RoIs, outputName="CaloCellsLC", algSuffix="LC")
+    cellMaker.TileCellsInROI = True
     topoClusterMaker = _algoHLTTopoClusterLC(inputEDM = cellMaker.CellsName, algSuffix="LC")
     RecoSequence = parOR("TopoClusterRecoSequenceLC",[cellMaker,topoClusterMaker])
     return (RecoSequence, topoClusterMaker.CaloClusters)

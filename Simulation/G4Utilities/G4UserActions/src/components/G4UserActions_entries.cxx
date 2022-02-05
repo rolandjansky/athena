@@ -14,6 +14,7 @@
 #include "../HIPLArVolumeAcceptTool.h"
 #include "../HitWrapperTool.h"
 #include "../PhotonKillerTool.h"
+#include "../FixG4CreatorProcessTool.h"
 #include "../ScoringVolumeTrackKillerTool.h"
 #include "../StoppedParticleActionTool.h"
 #include "../FluxRecorderTool.h"
@@ -37,6 +38,7 @@ DECLARE_COMPONENT( G4UA::LengthIntegratorTool )
 DECLARE_COMPONENT( G4UA::HIPLArVolumeAcceptTool )
 DECLARE_COMPONENT( G4UA::HitWrapperTool )
 DECLARE_COMPONENT( G4UA::PhotonKillerTool )
+DECLARE_COMPONENT( G4UA::FixG4CreatorProcessTool )
 DECLARE_COMPONENT( G4UA::ScoringVolumeTrackKillerTool )
 DECLARE_COMPONENT( G4UA::StoppedParticleActionTool )
 DECLARE_COMPONENT( G4UA::FluxRecorderTool )

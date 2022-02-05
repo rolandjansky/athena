@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/IPartPropSvc.h"
@@ -88,7 +88,18 @@ StatusCode InDet::TrackClusterAssValidation::initialize()
 
   StatusCode sc;
 
-  m_rapcut ? m_tcut = 1./tan(2.*atan(exp(-m_rapcut))) : m_tcut = 0.;
+  if (m_rapcut == 0) {
+    m_tcut = 0;
+  }
+  else {
+    double den = tan(2.*atan(exp(-m_rapcut)));
+    if (den > 0) {
+      m_tcut = 1./den;
+    }
+    else {
+      m_tcut = std::numeric_limits<double>::max();
+    }
+  }
 
   // get the Particle Properties Service
   //

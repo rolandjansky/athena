@@ -18,7 +18,6 @@
 class TFile;
 class TTree;
 class CaloCell_ID;
-class CaloDetDescrManager;
 class CaloCluster;
 class IToolSvc;
 class LArDigitContainer;
@@ -133,8 +132,7 @@ class TBTree_CaloClusterH6: public AthAlgorithm {
   TFile* m_rootfile;                      // and its pointer
   TTree* m_tree;                          // TBTree pointer
 
-  const CaloCell_ID* m_calo_id;
-  const CaloDetDescrManager* m_calo_dd_man; 
+  const CaloCell_ID* m_calo_id{nullptr};
 
   SG::ReadCondHandleKey<CaloNoise> m_elecNoiseKey
     { this, "ElecNoiseKey", "electronicNoise", "SG key for electronic noise" };

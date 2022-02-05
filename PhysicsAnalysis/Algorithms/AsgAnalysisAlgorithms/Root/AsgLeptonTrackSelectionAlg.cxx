@@ -116,9 +116,9 @@ namespace CP
 
     for (const auto& sys : m_systematicsList.systematicsVector())
     {
-      xAOD::IParticleContainer *particles = nullptr;
-      ANA_CHECK (m_particlesHandle.getCopy (particles, sys));
-      for (xAOD::IParticle *particle : *particles)
+      const xAOD::IParticleContainer *particles = nullptr;
+      ANA_CHECK (m_particlesHandle.retrieve (particles, sys));
+      for (const xAOD::IParticle *particle : *particles)
       {
         asg::AcceptData acceptData (&m_accept);
 
@@ -127,9 +127,9 @@ namespace CP
           std::size_t cutIndex {0};
 
           const xAOD::TrackParticle *track {nullptr};
-          if (const xAOD::Muon *muon = dynamic_cast<xAOD::Muon*>(particle))
+          if (const xAOD::Muon *muon = dynamic_cast<const xAOD::Muon *>(particle))
             track = muon->primaryTrackParticle();
-          else if (const xAOD::Electron *electron = dynamic_cast<xAOD::Electron*>(particle))
+          else if (const xAOD::Electron *electron = dynamic_cast<const xAOD::Electron *>(particle))
             track = electron->trackParticle();
           else
           {

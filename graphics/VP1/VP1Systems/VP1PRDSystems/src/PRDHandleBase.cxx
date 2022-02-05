@@ -295,7 +295,7 @@ Amg::Vector3D PRDHandleBase::Imp::positionPRD(const Trk::PrepRawData* prd)
 
   const Amg::Vector3D hitpos = theSurface.localToGlobal(prd->localPosition());
 
-  const Amg::Vector3D pos(hitpos);
+  const Amg::Vector3D& pos(hitpos);
   return pos;
 }
 

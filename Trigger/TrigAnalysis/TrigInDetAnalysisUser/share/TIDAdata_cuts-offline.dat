@@ -12,6 +12,8 @@ eta    = 2.5;
    a0=4.;
 #elif defined(LRT) || defined (FSLRT)
    a0=200.;
+#elif defined(COSMIC)
+   a0 = 1000;
 #else
    a0=3.;
 #endif
@@ -20,10 +22,13 @@ eta    = 2.5;
    a0min=2.;
 #endif
 
-// npix   = 1;
-// nsct   = 2;
-npix   = 1;
-nsct   = 2;
+#if defined(COSMIC)
+   npix=-1;
+   nsct=1; 
+#else 
+   npix   = 1;
+   nsct   = 2;
+#endif
 
 expectIBL = 1;
 
@@ -34,6 +39,9 @@ Rmatch = 0.05;
 #if defined(LRT) || defined (FSLRT)
 	a0v = 200.;
 	z0v = 300.5;
+#elif defined(COSMIC)   
+    a0v = 1000;
+    z0v = 1000;
 #else
 
 #ifdef OFFVTX

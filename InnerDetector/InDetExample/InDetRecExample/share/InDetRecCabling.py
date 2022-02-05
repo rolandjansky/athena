@@ -111,7 +111,7 @@ if DetFlags.detdescr.pixel_on() and not 'PixelCabling' in dir():
     condSeq += alg
 
   from PixelReadoutGeometry.PixelReadoutGeometryConf import InDetDD__PixelReadoutManager
-  PixelReadoutManager = InDetDD__PixelReadoutManager()
+  PixelReadoutManager = InDetDD__PixelReadoutManager("PixelReadoutManager")
   ServiceMgr += PixelReadoutManager
   if (InDetFlags.doPrintConfigurables()):
     printfunc  (PixelReadoutManager)

@@ -48,7 +48,7 @@ def RT_Relation_DB_DigiToolCfg(flags, name="RT_Relation_DB_DigiTool", **kwargs):
 def MDT_Response_DigiToolCfg(flags, name="MDT_Response_DigiTool",**kwargs):
     """Return a configured MDT_Response_DigiTool"""
     acc = ComponentAccumulator()
-    QballConfig = (flags.Digitization.SpecialConfiguration.get("MDT_QballConfig", "False") == "True")
+    QballConfig = (flags.Input.SpecialConfiguration.get("MDT_QballConfig", "False") == "True")
     kwargs.setdefault("DoQballGamma", QballConfig)
     MDT_Response_DigiTool = CompFactory.MDT_Response_DigiTool
     acc.setPrivateTools(MDT_Response_DigiTool(name, **kwargs))
@@ -68,11 +68,13 @@ def MDT_DigitizationToolCommonCfg(flags, name="MdtDigitizationTool", **kwargs):
     # "RT_Relation_DB_DigiTool" in jobproperties.Digitization.experimentalDigi() not migrated
     digiTool = acc.popToolsAndMerge(MDT_Response_DigiToolCfg(flags))
     kwargs.setdefault("DigitizationTool", digiTool)
-    QballConfig = (flags.Digitization.SpecialConfiguration.get("MDT_QballConfig") == "True")
+    QballConfig = (flags.Input.SpecialConfiguration.get("MDT_QballConfig", "False") == "True")
     kwargs.setdefault("DoQballCharge", QballConfig)
     if flags.Digitization.DoXingByXingPileUp:
         kwargs.setdefault("FirstXing", MDT_FirstXing())
         kwargs.setdefault("LastXing", MDT_LastXing())
+    from RngComps.RandomServices import AthRNGSvcCfg
+    kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
     MdtDigitizationTool = CompFactory.MdtDigitizationTool
     acc.setPrivateTools(MdtDigitizationTool(name, **kwargs))
     return acc

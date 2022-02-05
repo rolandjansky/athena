@@ -52,6 +52,7 @@ public:
   virtual unsigned getNTGCHits() const { ensureInitSubSysHitInfo(); return m_nhits_tgc; }
   virtual unsigned getNCSCHits() const { ensureInitSubSysHitInfo(); return m_nhits_csc; }
   virtual const Trk::FitQuality* getFitQuality() const ;
+  virtual bool containsDetElement(const QString&) const;
 
   virtual void fillObjectBrowser(QList<QTreeWidgetItem *>& list); 
   void updateObjectBrowser();

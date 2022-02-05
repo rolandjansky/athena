@@ -159,7 +159,7 @@ StatusCode TauRecToolBase::executeVertexFinder(xAOD::TauJet&, const xAOD::Vertex
   return StatusCode::FAILURE;
 }
 
-StatusCode TauRecToolBase::executeTrackFinder(xAOD::TauJet&, xAOD::TauTrackContainer&, const xAOD::TrackParticleContainer*) const {
+StatusCode TauRecToolBase::executeTrackFinder(xAOD::TauJet&, xAOD::TauTrackContainer&) const {
   ATH_MSG_ERROR("function not implemented");
   return StatusCode::FAILURE;
 }

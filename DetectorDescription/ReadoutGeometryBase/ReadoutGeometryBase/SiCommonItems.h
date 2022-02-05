@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -15,9 +15,9 @@ class AtlasDetectorID;
  * Message Stream Member
  */
 #include "AthenaKernel/MsgStreamMember.h"
-#include "CxxUtils/checker_macros.h"
 #include "InDetCondTools/ISiLorentzAngleTool.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
 
 #include "GaudiKernel/ServiceHandle.h"
@@ -42,6 +42,7 @@ namespace InDetDD {
    */
 
   class SiCommonItems
+    : public AthMessaging
   {
     
   public:
@@ -66,27 +67,7 @@ namespace InDetDD {
     void setLorentzAngleTool(const ISiLorentzAngleTool* lorentzAngleTool);
     //@}
 
-    /**
-     * @name Message methods
-     */
-    //@{
-    /**
-     * The message method for further use
-     */
-    MsgStream& msg (MSG::Level lvl) const { return m_msg.get() << lvl; }
-    /**
-     * The method providing Verbosity Level
-     */
-    bool msgLvl (MSG::Level lvl) const { return m_msg.get().level() <= lvl; }
-    //@}      
-  
   private:
-
-    /**
-     * Message stream member
-     */
-    mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
-          
     /**
      * IdHelper
      */

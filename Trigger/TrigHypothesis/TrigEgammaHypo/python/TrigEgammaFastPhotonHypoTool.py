@@ -18,13 +18,14 @@ class TrigEgammaFastPhotonHypoToolConfig:
   def same( self, val ):
     return [val]*( len( self.tool().EtaBins ) - 1 )
 
-  def __init__(self, name, cpart, tool=None):
+  def __init__(self, name,monGroups, cpart, tool=None):
 
     from AthenaCommon.Logging import logging
     self.__log = logging.getLogger('TrigEgammaFastPhotonHypoTool')
     self.__name       = name
     self.__threshold  = float(cpart['threshold']) 
-    self.__sel        = cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
+    self.__sel        = 'ion' if 'ion' in cpart['extra'] else (cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo'])
+    self.__monGroups  = monGroups
 
     if not tool:
       from AthenaConfiguration.ComponentFactory import CompFactory
@@ -86,7 +87,7 @@ class TrigEgammaFastPhotonHypoToolConfig:
   # Compile the chain
   #
   def compile(self):
-    if 'etcut' == self.pidname() or 'ion' in self.pidname():       
+    if self.pidname() in ('etcut', 'ion'):
         self.etcut()
     elif 'noalg' == self.pidname():
         self.nocut()
@@ -98,7 +99,12 @@ class TrigEgammaFastPhotonHypoToolConfig:
 
     # add mon tool
     if hasattr(self.tool(), "MonTool"):
-      self.addMonitoring()
+      from TrigEgammaMonitoring.TrigEgammaMonitoringMTConfig import doOnlineMonForceCfg
+      doOnlineMonAllChains = doOnlineMonForceCfg()
+      monGroups = self.__monGroups
+
+      if (any('egammaMon:online' in group for group in monGroups) or doOnlineMonAllChains):
+        self.addMonitoring()
 
 
   #
@@ -121,8 +127,8 @@ class TrigEgammaFastPhotonHypoToolConfig:
 
 
 
-def _IncTool(name, cpart, tool=None):
-  config = TrigEgammaFastPhotonHypoToolConfig(name, cpart, tool=tool)
+def _IncTool(name, monGroups, cpart, tool=None):
+  config = TrigEgammaFastPhotonHypoToolConfig(name,monGroups, cpart, tool=tool)
   config.compile()
   return config.tool()
 
@@ -132,7 +138,8 @@ def TrigEgammaFastPhotonHypoToolFromDict( d , tool=None):
     """ Use menu decoded chain dictionary to configure the tool """
     cparts = [i for i in d['chainParts'] if i['signature']=='Photon' ]
     name = d['chainName']
-    return _IncTool( name,  cparts[0] , tool=tool)
+    monGroups = d['monGroups']
+    return _IncTool( name, monGroups, cparts[0] , tool=tool)
 
 
 
@@ -141,7 +148,7 @@ def TrigEgammaFastPhotonHypoToolFromName( name, conf , tool=None):
     The argument will be replaced by "parsed" chain dict. For now it only serves simplest chain HLT_eXYZ.
     """
 
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
+    from TriggerMenuMT.HLT.Menu.DictFromChainName import dictFromChainName
     decodedDict = dictFromChainName(conf)
     return TrigEgammaFastPhotonHypoToolFromDict( decodedDict, tool=tool )
 

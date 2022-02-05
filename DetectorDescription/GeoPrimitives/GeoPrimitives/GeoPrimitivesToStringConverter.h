@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@ namespace Amg {
   }
 
 
-  inline std::string toString( const Amg::Transform3D& transform, int precision = 4, std::string offset="" ){
+  inline std::string toString( const Amg::Transform3D& transform, int precision = 4, const std::string& offset="" ){
     std::ostringstream sout;
     sout << "Translation : " << toString( transform.translation(), precision ) << std::endl;
     std::string rotationOffset = offset + "              ";
@@ -54,7 +54,7 @@ namespace Amg {
 
 #ifndef XAOD_STANDALONE
 
-  inline std::string toString( const CLHEP::HepRotation& rot, int precision = 4, std::string offset="" ){
+  inline std::string toString( const CLHEP::HepRotation& rot, int precision = 4, const std::string& offset="" ){
     std::ostringstream sout;
 
     sout << std::setiosflags(std::ios::fixed) << std::setprecision(precision);
@@ -101,7 +101,7 @@ namespace Amg {
     return sout.str();
   }
 
-  inline std::string toString( const HepGeom::Transform3D& transf, int precision = 4, std::string offset=""){
+  inline std::string toString( const HepGeom::Transform3D& transf, int precision = 4, const std::string& offset=""){
     std::ostringstream sout;
     sout << "Translation : " << toString( transf.getTranslation(), precision ) << std::endl;
     std::string rotationOffset = offset + "              ";

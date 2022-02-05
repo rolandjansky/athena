@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s", __name__)
@@ -23,7 +23,7 @@ from RecExConfig.RecFlags import rec
 
 from AthenaCommon.CfgGetter import getPrivateTool, getPrivateToolClone, getPublicTool, getService
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
-from TriggerJobOpts.TriggerFlags import TriggerFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from InDetRecExample import TrackingCommon
 
 #--------------------------------------------------------------------------------
@@ -103,7 +103,7 @@ def MdtDriftCircleOnTrackCreator(name="MdtDriftCircleOnTrackCreator",**kwargs):
     else:
         kwargs.setdefault("IsMC", True)
 
-    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+    if ConfigFlags.Muon.MuonTrigger:
         kwargs.setdefault("doMDT", True)
 
     return CfgMgr.Muon__MdtDriftCircleOnTrackCreator(name, WasConfigured=True, **kwargs)
@@ -178,7 +178,7 @@ def MuonHoughPatternFinderTool(name="MuonHoughPatternFinderTool",**kwargs):
     getPublicTool("MuonHoughPatternTool")
     if muonStandaloneFlags.reconstructionMode() == 'collisions':
         kwargs.setdefault("MDT_TDC_cut", False)
-    if muonStandaloneFlags.reconstructionMode() == 'collisions' or TriggerFlags.MuonSlice.doTrigMuonConfig:
+    if muonStandaloneFlags.reconstructionMode() == 'collisions' or ConfigFlags.Muon.MuonTrigger:
         kwargs.setdefault("RecordAll",False)
     return CfgMgr.Muon__MuonHoughPatternFinderTool(name,**kwargs)
 
@@ -187,9 +187,6 @@ def MuonHoughPatternFinderTool(name="MuonHoughPatternFinderTool",**kwargs):
 #--------------------------------------------------------------------------------
 
 # combined tracking geometry service
-def AtlasTrackingGeometrySvc(name="AtlasTrackingGeometrySvc",**kwargs):
-    from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
-    return AtlasTrackingGeometrySvc
 
 def TrackingVolumesSvc(name="TrackingVolumesSvc",**kwargs):
     from TrkDetDescrSvc.TrkDetDescrSvcConf import Trk__TrackingVolumesSvc
@@ -278,14 +275,14 @@ def MuonParticleCreatorTool(name="MuonParticleCreatorTool",**kwargs):
     from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
     kwargs.setdefault("TrackSummaryTool", "MuonTrackSummaryTool" )
     kwargs.setdefault("KeepAllPerigee", True )
-    kwargs.setdefault("UseMuonSummaryTool", True)
+    from MuonTrackSummaryHelperTool.MuonTrackSummaryHelperToolConf import Muon__MuonHitSummaryTool
+    kwargs.setdefault("MuonSummaryTool", Muon__MuonHitSummaryTool("MuonHitSummaryTool"))
     kwargs.setdefault("PerigeeExpression", "Origin" )
     return Trk__TrackParticleCreatorTool(name, **kwargs)
 # end of class MuonParticleCreatorTool
 
 def MuonChi2TrackFitter(name='MuonChi2TrackFitter',**kwargs):
     from TrkGlobalChi2Fitter.TrkGlobalChi2FitterConf import Trk__GlobalChi2Fitter
-    from AthenaCommon.AppMgr import ServiceMgr
     kwargs.setdefault("ExtrapolationTool"    , "MCTBExtrapolator")
     kwargs.setdefault("RotCreatorTool"       , "MuonRotCreator")
     kwargs.setdefault("MeasurementUpdateTool", "MuonMeasUpdator")
@@ -299,11 +296,8 @@ def MuonChi2TrackFitter(name='MuonChi2TrackFitter',**kwargs):
     kwargs.setdefault("PropagatorTool",Extrapolator.Propagators[0].getName())
     kwargs.setdefault("NavigatorTool",TrackingCommon.getInDetNavigator())
     
-    cond_alg = None
-    if TrackingCommon.use_tracking_geometry_cond_alg :
-        cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
-        kwargs.setdefault("TrackingGeometryReadKey",cond_alg.TrackingGeometryWriteKey if cond_alg is not None else '')
-    kwargs.setdefault("TrackingGeometrySvc", ServiceMgr.AtlasTrackingGeometrySvc if not cond_alg else '')
+    cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
+    kwargs.setdefault("TrackingGeometryReadKey",cond_alg.TrackingGeometryWriteKey)
     return Trk__GlobalChi2Fitter(name,**kwargs)
 
 
@@ -370,13 +364,16 @@ def MdtMathT0FitSegmentFinder(name="MdtMathT0FitSegmentFinder",extraFlags=None,*
 
 def MuonClusterSegmentFinder(name="MuonClusterSegmentFinder", extraFlags=None,**kwargs):
     kwargs.setdefault("AmbiguityProcessor",getPublicTool("MuonAmbiProcessor"))
+    if ConfigFlags.Muon.MuonTrigger:
+        kwargs.setdefault("TrackToSegmentTool", getPublicTool("MuonTrackToSegmentTool") )
     return CfgMgr.Muon__MuonClusterSegmentFinder(name,**kwargs)
 
 def MuonClusterSegmentFinderTool(name="MuonClusterSegmentFinderTool", extraFlags=None,**kwargs):
     kwargs.setdefault("SLFitter","Trk::GlobalChi2Fitter/MCTBSLFitterMaterialFromTrack")
     import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401
     from AthenaCommon.AppMgr import ToolSvc
-    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+    if ConfigFlags.Muon.MuonTrigger:
+        kwargs.setdefault("TrackToSegmentTool", getPublicTool("MuonTrackToSegmentTool") )
         kwargs.setdefault("TrackSummaryTool", "MuonTrackSummaryTool" )
     else:
         kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
@@ -438,8 +435,8 @@ def DCMathT0FitSegmentMaker(name='DCMathT0FitSegmentMaker',extraFlags=None,**kwa
 
 # end of factory function DCMathSegmentMaker
 
-def MuonLayerHoughTool(name='MuonLayerHoughTool',extraFlags=None,**kwargs):
-    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+def MuonLayerHoughTool(name='MuonLayerHoughTool', **kwargs):
+    if ConfigFlags.Muon.MuonTrigger:
         kwargs.setdefault("DoTruth", False)
     else:
         kwargs.setdefault("DoTruth", rec.doTruth())

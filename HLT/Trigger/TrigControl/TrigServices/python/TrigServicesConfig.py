@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -7,7 +7,6 @@ from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
 # old-JO style function
 def setupMessageSvc():
-   import os
    from AthenaCommon.AppMgr import theApp
    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
    from AthenaCommon.Constants import DEBUG, WARNING
@@ -16,11 +15,7 @@ def setupMessageSvc():
    MessageSvc = svcMgr.MessageSvc
    MessageSvc.OutputLevel = theApp.OutputLevel
 
-   MessageSvc.Format       = "% F%40W%C%4W%R%e%s%8W%R%T %0W%M"
-   # Add timestamp when running in partition
-   if os.environ.get('TDAQ_PARTITION','') != 'athenaHLT':
-      MessageSvc.Format = "%t  " + MessageSvc.Format
-
+   MessageSvc.Format       = "%t  % F%40W%C%4W%R%e%s%8W%R%T %0W%M"
    MessageSvc.ErsFormat    = "%S: %M"
    MessageSvc.printEventIDLevel = WARNING
 
@@ -186,8 +181,8 @@ def TrigServicesCfg(flags):
    from TrigOutputHandling.TrigOutputHandlingConfig import HLTResultMTMakerCfg
    loop_mgr.ResultMaker = HLTResultMTMakerCfg()
 
-   from TrigByteStreamCnvSvc.TrigByteStreamConfig import TrigByteStreamCfg
-   acc.merge(TrigByteStreamCfg(flags))
+   from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
+   acc.merge(ByteStreamReadCfg(flags))
    loop_mgr.EvtSel = acc.getService('EventSelectorByteStream')
    loop_mgr.OutputCnvSvc = acc.getService('ByteStreamCnvSvc')
 

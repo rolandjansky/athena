@@ -186,6 +186,8 @@ protected:
 
   bool m_doResMonitoring;
 
+  bool m_useBeamSpotForRoiZwidth;
+
   // Cuts and settings
   TrigCombinatorialSettings m_tcs;
 
@@ -248,8 +250,8 @@ protected:
   bool m_doHitDV;
   bool m_doHitDV_Seeding;
   StatusCode findHitDV(const EventContext&, const std::vector<TrigSiSpacePointBase>&, const TrackCollection&) const;
-  StatusCode findSPSeeds( const std::vector<float>&, const std::vector<float>&, const std::vector<int>&, const std::vector<int>&,
-			  std::vector<float>&, std::vector<float>& ) const;
+  StatusCode findSPSeeds( const EventContext&, const std::vector<float>&, const std::vector<float>&, const std::vector<int>&, 
+			  const std::vector<int>&, std::vector<float>&, std::vector<float>& ) const;
   int   getSPLayer(int, float) const;
   float deltaR(float, float, float, float) const;
 

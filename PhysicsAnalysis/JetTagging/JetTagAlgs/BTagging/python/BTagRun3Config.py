@@ -54,15 +54,6 @@ def PrepareStandAloneBTagCfg(inputFlags):
     acc = TrackingGeometrySvcCfg(inputFlags)
     result.merge(acc)
 
-    from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
-    result.merge(MuonGeoModelCfg(inputFlags))    
-
-    GeometryDBSvc=CompFactory.GeometryDBSvc
-    result.addService(GeometryDBSvc("InDetGeometryDBSvc"))
-    
-    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-    result.merge(PixelGeometryCfg( inputFlags ))
-
     # get standard config for magnetic field - map and cache
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     result.merge(MagneticFieldSvcCfg( inputFlags ))
@@ -70,15 +61,10 @@ def PrepareStandAloneBTagCfg(inputFlags):
     #Beamspot conditions
     from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
     result.merge(BeamSpotCondAlgCfg(inputFlags))
-
-    from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline
     
     #load folders needed for Run2 ID alignment
-    result.merge(addFoldersSplitOnline(inputFlags,"INDET","/Indet/Onl/Align","/Indet/Align",className="AlignableTransformContainer"))
+    from IOVDbSvc.IOVDbSvcConfig import addFolders
     result.merge(addFolders(inputFlags,['/TRT/Align'],'TRT_OFL'))
-
-    #load folders needed for IBL
-    result.merge(addFolders(inputFlags,['/Indet/IBLDist'],'INDET_OFL'))
 
     return result
 
@@ -124,26 +110,26 @@ def JetBTaggerSplitAlgsCfg(inputFlags, JetCollection="", TaggerList=[], SecVerte
         'AntiKt4EMPFlow': [
            'BTagging/201903/rnnip/antikt4empflow/network.json',
            'BTagging/201903/dl1r/antikt4empflow/network.json',
-           'BTagging/201903/dl1/antikt4empflow/network.json',
-           'BTagging/20210517/dipsLoose/antikt4empflow/network.json',
-           'BTagging/20210517/dips/antikt4empflow/network.json',
-           'BTagging/20210519r22/dl1r/antikt4empflow/network.json',
-           'BTagging/20210528r22/dl1d/antikt4empflow/network.json',
+           'BTagging/20210729/dipsLoose/antikt4empflow/network.json', #new r22 trainings
+           'BTagging/20210729/dips/antikt4empflow/network.json',
+           'BTagging/20210824r22/dl1dLoose/antikt4empflow/network.json', #“recommended tagger” which is DL1dLoose20210824r22 named DL1dv00 in EDM
+           'BTagging/20210824r22/dl1d/antikt4empflow/network.json',
+           'BTagging/20210824r22/dl1r/antikt4empflow/network.json',
         ],
         'AntiKt4EMTopo': [
            'BTagging/201903/rnnip/antikt4empflow/network.json',
            'BTagging/201903/dl1r/antikt4empflow/network.json',
-           'BTagging/201903/dl1/antikt4empflow/network.json',
-           'BTagging/20210517/dipsLoose/antikt4empflow/network.json',
-           'BTagging/20210517/dips/antikt4empflow/network.json',
-           'BTagging/20210519r22/dl1r/antikt4empflow/network.json',
-           'BTagging/20210528r22/dl1d/antikt4empflow/network.json',
+           'BTagging/20210729/dipsLoose/antikt4empflow/network.json', #new r22 trainings
+           'BTagging/20210729/dips/antikt4empflow/network.json',
+           'BTagging/20210824r22/dl1dLoose/antikt4empflow/network.json', #“recommended tagger” which is DL1dLoose20210824r22 named DL1dv00 in EDM
+           'BTagging/20210824r22/dl1d/antikt4empflow/network.json',
+           'BTagging/20210824r22/dl1r/antikt4empflow/network.json',
         ]
     }
 
     #Track Association
-    result.merge(JetParticleAssociationAlgCfg(inputFlags, jet, "InDetTrackParticles", "TracksForBTagging", **kwargs))
-    result.merge(JetParticleAssociationAlgCfg(inputFlags, jet, "Muons", "MuonsForBTagging", **kwargs))
+    result.merge(JetParticleAssociationAlgCfg(inputFlags, jet+'Jets', "InDetTrackParticles", "TracksForBTagging", **kwargs))
+    result.merge(JetParticleAssociationAlgCfg(inputFlags, jet+'Jets', "Muons", "MuonsForBTagging", **kwargs))
 
     for sv in SecVertexers:
         result.merge(JetSecVtxFindingAlgCfg(inputFlags, jet, "PrimaryVertices", sv, "TracksForBTagging"))

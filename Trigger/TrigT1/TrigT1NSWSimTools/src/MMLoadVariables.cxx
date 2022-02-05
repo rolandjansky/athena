@@ -30,17 +30,17 @@ using std::map;
 using std::vector;
 using std::string;
 
-MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetectorManager* detManager, const MmIdHelper* idhelper, std::map<std::string,MMT_Parameters*> pars):
+MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetectorManager* detManager, const MmIdHelper* idhelper):
    AthMessaging(Athena::getMessageSvc(), "MMLoadVariables") {
-      m_pars = pars;
       m_evtStore = evtStore;
       m_detManager = detManager;
       m_MmIdHelper = idhelper;
 }
 
-  StatusCode MMLoadVariables::getMMDigitsInfo(map<std::pair<int,unsigned int>,std::vector<digitWrapper> >& entries,
-                                        map<std::pair<int,unsigned int>,map<hitData_key,hitData_entry> >& Hits_Data_Set_Time,
-                                        map<std::pair<int,unsigned int>,evInf_entry>& Event_Info) {
+  StatusCode MMLoadVariables::getMMDigitsInfo(std::map<std::pair<int,unsigned int>,std::vector<digitWrapper> >& entries,
+                                        std::map<std::pair<int,unsigned int>,map<hitData_key,hitData_entry> >& Hits_Data_Set_Time,
+                                        std::map<std::pair<int,unsigned int>,evInf_entry>& Event_Info,
+                                        std::map<std::string, std::shared_ptr<MMT_Parameters> > &pars) {
       //*******Following MuonPRD code to access all the variables**********
 
       histogramVariables fillVars;
@@ -60,6 +60,7 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
       // get digit container (a container corresponds to a multilayer of a module)
       const MmDigitContainer *nsw_MmDigitContainer = nullptr;
       ATH_CHECK( m_evtStore->retrieve(nsw_MmDigitContainer,"MM_DIGITS") );
+      if (nsw_MmDigitContainer->digit_size() == 0) return StatusCode::SUCCESS;
 
       std::vector<ROOT::Math::PtEtaPhiEVector> truthParticles, truthParticles_ent, truthParticles_pos;
       std::vector<int> pdg;
@@ -135,10 +136,9 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
 
         } //end particle loop
       } //end truth container loop (should be only 1 container per event)
-      const EventInfo* pevt = 0;
-      ATH_CHECK( m_evtStore->retrieve(pevt) );
+      auto ctx = Gaudi::Hive::currentContext();
+      int event = ctx.eventID().event_number();
 
-      int event = pevt->event_ID()->event_number();
       int TruthParticle_n = j;
       evFit_entry fit;
       fit.athena_event=event;
@@ -170,8 +170,8 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
             int gas_gap          = m_MmIdHelper->gasGap(id);
             int channel          = m_MmIdHelper->channel(id);
 
-            if (stName.substr(0,2) != "MM") continue;
-            int isSmall = (stName[2] == 'S');
+            if (!m_MmIdHelper->is_mm(id)) continue;
+            bool isSmall = (m_MmIdHelper->isSmall(id));
             const MuonGM::MMReadoutElement* rdoEl = m_detManager->getMMRElement_fromIdFields(isSmall, stationEta, stationPhi, multiplet );
 
             std::vector<float>  time          = digit->stripTimeForTrigger();
@@ -351,7 +351,7 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
         }
 
         std::string station = it->second[0].stName;
-        m_uvxxmod=(m_pars[station]->setup.compare("xxuvuvxx")==0);
+        m_uvxxmod=(pars[station]->setup.compare("xxuvuvxx")==0);
 
         map<hitData_key,hitData_entry> hit_info;
         vector<hitData_key> keys;
@@ -381,7 +381,7 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
           ROOT::Math::XYZVector recon(athena_rec.Y(),-athena_rec.X(),athena_rec.Z());
 
           if(m_uvxxmod){
-            xxuv_to_uvxx(recon,thisPlane,m_pars[station]);
+            xxuv_to_uvxx(recon,thisPlane,pars[station]);
           }
 
           //We're doing everything by the variable known as "athena_event" to reflect C++ vs MATLAB indexing
@@ -428,7 +428,7 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
         m_VMM_ChipLastHitTime=vector<vector<int> >(m_numVMM_PerPlane,vector<int>(8,0));
 
         int xhit=0,uvhit=0;
-        vector<bool>plane_hit(m_pars[station]->setup.size(),false);
+        vector<bool>plane_hit(pars[station]->setup.size(),false);
 
         for(map<hitData_key,hitData_entry>::iterator it=hit_info.begin(); it!=hit_info.end(); ++it){
           int plane=it->second.plane;
@@ -439,8 +439,8 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
 
         for(unsigned int ipl=0;ipl<plane_hit.size();ipl++){
           if(plane_hit[ipl]){
-            if(m_pars[station]->setup.substr(ipl,1)=="x") xhit++;
-            else if(m_pars[station]->setup.substr(ipl,1)=="u" || m_pars[station]->setup.substr(ipl,1)=="v") uvhit++;
+            if(pars[station]->setup.substr(ipl,1)=="x") xhit++;
+            else if(pars[station]->setup.substr(ipl,1)=="u" || pars[station]->setup.substr(ipl,1)=="v") uvhit++;
           }
         }
 
@@ -462,7 +462,7 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
     else return athena_phi;
 
   }
-  void MMLoadVariables::xxuv_to_uvxx(ROOT::Math::XYZVector& hit,const int plane, const MMT_Parameters *par) const{
+  void MMLoadVariables::xxuv_to_uvxx(ROOT::Math::XYZVector& hit,const int plane, std::shared_ptr<MMT_Parameters> par) const{
     if(plane<4)return;
     else if(plane==4)hit_rot_stereo_bck(hit, par);//x to u
     else if(plane==5)hit_rot_stereo_fwd(hit, par);//x to v
@@ -470,8 +470,8 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
     else if(plane==7)hit_rot_stereo_bck(hit, par);//v to x
   }
 
-  void MMLoadVariables::hit_rot_stereo_fwd(ROOT::Math::XYZVector& hit, const MMT_Parameters *par)const{
-    double degree=TMath::DegToRad()*(par->stereo_degree);
+  void MMLoadVariables::hit_rot_stereo_fwd(ROOT::Math::XYZVector& hit, std::shared_ptr<MMT_Parameters> par)const{
+    double degree=M_PI/180.0*(par->stereo_degree);
     if(m_striphack) hit.SetY(hit.Y()*cos(degree));
     else{
       double xnew=hit.X()*std::cos(degree)+hit.Y()*std::sin(degree),ynew=-hit.X()*std::sin(degree)+hit.Y()*std::cos(degree);
@@ -479,8 +479,8 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
     }
   }
 
-  void MMLoadVariables::hit_rot_stereo_bck(ROOT::Math::XYZVector& hit, const MMT_Parameters *par)const{
-    double degree=-TMath::DegToRad()*(par->stereo_degree);
+  void MMLoadVariables::hit_rot_stereo_bck(ROOT::Math::XYZVector& hit, std::shared_ptr<MMT_Parameters> par)const{
+    double degree=-M_PI/180.0*(par->stereo_degree);
     if(m_striphack) hit.SetY(hit.Y()*std::cos(degree));
     else{
       double xnew=hit.X()*std::cos(degree)+hit.Y()*std::sin(degree),ynew=-hit.X()*std::sin(degree)+hit.Y()*std::cos(degree);
@@ -495,7 +495,7 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
   }
 
   int 
-  MMLoadVariables::strip_number(int station, int plane, int spos, const MMT_Parameters *par)const{
+  MMLoadVariables::strip_number(int station, int plane, int spos, std::shared_ptr<MMT_Parameters> par)const{
     if (station<=0||station>par->n_stations_eta) {
       int base_strip = 0;
       return base_strip;

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = "Configure the electron and photon selectors."
 
@@ -6,7 +6,6 @@ from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from ElectronPhotonSelectorTools.EgammaPIDdefs import egammaPID
-EMPIDBuilder = CompFactory.EMPIDBuilder
 
 
 def EMPIDBuilderElectronCfg(flags, name='EMPIDBuilderElectron', **kwargs):
@@ -19,7 +18,8 @@ def EMPIDBuilderElectronCfg(flags, name='EMPIDBuilderElectron', **kwargs):
     # Electron Selectors
     # Cut based
     from ROOT import LikeEnum
-    from ElectronPhotonSelectorTools.AsgElectronIsEMSelectorsConfig import AsgElectronIsEMSelectorCfg
+    from ElectronPhotonSelectorTools.AsgElectronIsEMSelectorsConfig import (
+        AsgElectronIsEMSelectorCfg)
     if "electronIsEMselectors" not in kwargs:
         LooseElectronSelectorAcc = AsgElectronIsEMSelectorCfg(
             flags, "LooseElectronSelector", egammaPID.ElectronIDLoosePP)
@@ -28,9 +28,10 @@ def EMPIDBuilderElectronCfg(flags, name='EMPIDBuilderElectron', **kwargs):
         TightElectronSelectorAcc = AsgElectronIsEMSelectorCfg(
             flags, "TightElectronSelector", egammaPID.ElectronIDTightPP)
 
-        kwargs["electronIsEMselectors"] = [LooseElectronSelectorAcc.popPrivateTools(),
-                                           MediumElectronSelectorAcc.popPrivateTools(),
-                                           TightElectronSelectorAcc.popPrivateTools()]
+        kwargs["electronIsEMselectors"] = [
+            LooseElectronSelectorAcc.popPrivateTools(),
+            MediumElectronSelectorAcc.popPrivateTools(),
+            TightElectronSelectorAcc.popPrivateTools()]
         kwargs["electronIsEMselectorResultNames"] = [
             "Loose", "Medium", "Tight"]
         acc.merge(LooseElectronSelectorAcc)
@@ -38,7 +39,8 @@ def EMPIDBuilderElectronCfg(flags, name='EMPIDBuilderElectron', **kwargs):
         acc.merge(TightElectronSelectorAcc)
 
     # Likelihood
-    from ElectronPhotonSelectorTools.AsgElectronLikelihoodToolsConfig import AsgElectronLikelihoodToolCfg
+    from ElectronPhotonSelectorTools.AsgElectronLikelihoodToolsConfig import (
+        AsgElectronLikelihoodToolCfg)
     if "electronLHselectors" not in kwargs:
         LooseLHSelectorAcc = AsgElectronLikelihoodToolCfg(
             flags, "LooseLHSelector", LikeEnum.Loose)
@@ -58,7 +60,7 @@ def EMPIDBuilderElectronCfg(flags, name='EMPIDBuilderElectron', **kwargs):
         acc.merge(MediumLHSelectorAcc)
         acc.merge(TightLHSelectorAcc)
 
-    tool = EMPIDBuilder(name, **kwargs)
+    tool = CompFactory.EMPIDBuilder(name, **kwargs)
 
     acc.setPrivateTools(tool)
     return acc
@@ -72,20 +74,53 @@ def EMPIDBuilderPhotonCfg(flags, name='EMPIDBuilderPhoton', **kwargs):
     acc = ComponentAccumulator()
 
     # photon Selectors
-    from ElectronPhotonSelectorTools.AsgPhotonIsEMSelectorsConfig import AsgPhotonIsEMSelectorCfg
+    from ElectronPhotonSelectorTools.AsgPhotonIsEMSelectorsConfig import (
+        AsgPhotonIsEMSelectorCfg)
     LoosePhotonSelectorAcc = AsgPhotonIsEMSelectorCfg(
         flags, "LoosePhotonSelector", egammaPID.PhotonIDLoose)
     TightPhotonSelectorAcc = AsgPhotonIsEMSelectorCfg(
         flags, "TightPhotonSelector", egammaPID.PhotonIDTight)
 
     if "photonIsEMselectors" not in kwargs:
-        kwargs["photonIsEMselectors"] = [LoosePhotonSelectorAcc.popPrivateTools(),
-                                         TightPhotonSelectorAcc.popPrivateTools()]
+        kwargs["photonIsEMselectors"] = [
+            LoosePhotonSelectorAcc.popPrivateTools(),
+            TightPhotonSelectorAcc.popPrivateTools()]
         kwargs["photonIsEMselectorResultNames"] = ["Loose", "Tight"]
 
         acc.merge(LoosePhotonSelectorAcc)
         acc.merge(TightPhotonSelectorAcc)
 
-    tool = EMPIDBuilder(name, **kwargs)
+    tool = CompFactory.EMPIDBuilder(name, **kwargs)
     acc.setPrivateTools(tool)
     return acc
+
+
+if __name__ == "__main__":
+
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from AthenaConfiguration.ComponentAccumulator import printProperties
+    from AthenaCommon.Configurable import Configurable
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+    Configurable.configurableRun3Behavior = True
+
+    ConfigFlags.Input.Files = defaultTestFiles.RDO_RUN2
+    ConfigFlags.fillFromArgs()
+    ConfigFlags.lock()
+    ConfigFlags.dump()
+
+    cfg = ComponentAccumulator()
+    mlog = logging.getLogger("EMPIDBuilderConfigTest")
+    mlog.info("Configuring  EMPIDBuilderElectron: ")
+    printProperties(mlog, cfg.popToolsAndMerge(
+        EMPIDBuilderElectronCfg(ConfigFlags)),
+        nestLevel=1,
+        printDefaults=True)
+    mlog.info("Configuring  EMPIDBuilderPhoton: ")
+    printProperties(mlog, cfg.popToolsAndMerge(
+        EMPIDBuilderPhotonCfg(ConfigFlags)),
+        nestLevel=1,
+        printDefaults=True)
+
+    f = open("empidbuilder.pkl", "wb")
+    cfg.store(f)
+    f.close()

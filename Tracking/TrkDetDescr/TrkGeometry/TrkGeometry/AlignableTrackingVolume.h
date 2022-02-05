@@ -41,12 +41,14 @@ namespace Trk {
 
         /**Constructor*/
         AlignableTrackingVolume(Amg::Transform3D* htrans,
-				Amg::Transform3D* align,
-				VolumeBounds*   volbounds,
-				const BinnedMaterial* matprop,
+                                Amg::Transform3D* align,
+                                VolumeBounds* volbounds,
+                                const BinnedMaterial* matprop,
                                 int sampleID,
-                                const std::string& volumeName="undefined");
-             
+                                const std::string& volumeName = "undefined")
+          ATLAS_CTORDTOR_NOT_THREAD_SAFE;
+        // unsafe cloneTV
+
         /**Destructor*/
         virtual ~AlignableTrackingVolume() override;
         

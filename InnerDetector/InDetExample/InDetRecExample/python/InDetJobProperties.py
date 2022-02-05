@@ -94,6 +94,12 @@ class InDetFlagsJobProperty(JobProperty):
 ##-----------------------------------------------------------------------------
 ## 1st step: define JobProperty classes
 
+class doBLS(InDetFlagsJobProperty):
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+
 class doDBMstandalone(InDetFlagsJobProperty):
     statusOn     = True
     allowedTypes = ['bool']
@@ -177,12 +183,6 @@ class doRefit(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
 
-class doSLHC(InDetFlagsJobProperty):
-    """Turn running of SLHC reconstruction on and off"""
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-
 class doIBL(InDetFlagsJobProperty):
     """Turn running of IBL reconstruction on and off"""
     statusOn     = True
@@ -252,12 +252,6 @@ class doLowPt(InDetFlagsJobProperty):
                   
 class doVeryLowPt(InDetFlagsJobProperty):
     """Turn running of doVeryLowPt thrid pass on and off"""
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-
-class doSLHCConversionFinding(InDetFlagsJobProperty):
-    """Turn running of doSLHCConversionFinding second pass on and off"""
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
@@ -1114,12 +1108,6 @@ class doTrackSegmentsDisappearing(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = True
 
-class doSLHCVeryForward(InDetFlagsJobProperty): 
-  """Turn running of SLHC reconstruction for Very Forward extension on and off""" 
-  statusOn     = True 
-  allowedTypes = ['bool']
-  StoredValue  = False 
-
 class doTRTGlobalOccupancy(InDetFlagsJobProperty): 
   """Turn running of Event Info TRT Occupancy Filling Alg on and off (also whether it is used in TRT PID calculation)""" 
   statusOn     = True 
@@ -1204,6 +1192,11 @@ class doTTVADecos(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = True
 
+class doTIDE_AmbiTrackMonitoring(InDetFlagsJobProperty):
+    """run track monitoring for dense environments"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
 ## Decide whether to wrap the new configuration in the old.
 class useNewConfig(JobProperty):
     statusOn=True
@@ -1253,16 +1246,11 @@ class InDetJobProperties(JobPropertyContainer):
     if self.doHIP300 :
        self.checkThenSet(self.doRejectInvalidCov      ,True)
 
-    if self.doSLHCVeryForward():
-       self.checkThenSet(self.doSLHC            , True)
-       self.checkThenSet(self.doForwardTracks   , True)
-
     if (jobproperties.Beam.beamType()=="singlebeam"):
        self.checkThenSet(self.useHVForSctDCS         , True)    
        self.checkThenSet(self.doNewTracking          , False)
        self.checkThenSet(self.doLowPt                , False)
        self.checkThenSet(self.doVeryLowPt            , False)
-       self.checkThenSet(self.doSLHCConversionFinding, False)
        self.checkThenSet(self.doBeamGas              , True )
        self.checkThenSet(self.doBeamHalo             , True )
        self.checkThenSet(self.doParticleCreation     , True )
@@ -1285,7 +1273,6 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doNewTracking          , True )
        self.checkThenSet(self.doLowPt                , False)
        self.checkThenSet(self.doVeryLowPt            , False)
-       self.checkThenSet(self.doSLHCConversionFinding, False)
        self.checkThenSet(self.doBeamGas              , False)
        self.checkThenSet(self.doBeamHalo             , False)
        self.checkThenSet(self.doBackTracking         , False)
@@ -1318,7 +1305,6 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.useZvertexTool         , True )
        self.checkThenSet(self.doLowPt                , False)
        self.checkThenSet(self.doVeryLowPt            , False)
-       self.checkThenSet(self.doSLHCConversionFinding, False)
        self.checkThenSet(self.doBackTracking         , False)
        self.checkThenSet(self.doTRTStandalone        , False)
        self.checkThenSet(self.doTrackSegmentsPixel   , False)
@@ -1345,38 +1331,6 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doTrackSegmentsDisappearing, False)
        self.checkThenSet(self.perigeeExpression      , 'Vertex')
        #self.checkThenSet(self.doRefitInvalidCov      ,True) temporarily commenting out due to ATLASRECTS-4691
-
-    # --- special case SLHC
-    elif (self.doSLHC()):
-       print("----> InDetJobProperties for SLHC")
-       self.checkThenSet(self.doNewTracking          , True )
-       self.checkThenSet(self.doLowPt                , False)
-       self.checkThenSet(self.doVeryLowPt            , False)
-       self.checkThenSet(self.doSLHCConversionFinding, True )
-       self.checkThenSet(self.doBeamGas              , False)
-       self.checkThenSet(self.doBeamHalo             , False)
-       self.checkThenSet(self.doBackTracking         , False)
-       self.checkThenSet(self.doTRTStandalone        , False)
-       self.checkThenSet(self.doForwardTracks        , False)
-       self.checkThenSet(self.doR3LargeD0            , False)
-       self.checkThenSet(self.doVertexFinding        , True)
-       self.checkThenSet(self.primaryVertexSetup     , "IterativeFinding")
-       self.checkThenSet(self.primaryVertexCutSetup  , "SLHC")
-       self.checkThenSet(self.secondaryVertexCutSetup, "PileUp") 
-       self.checkThenSet(self.vertexSeedFinder       , "SlidingWindowMultiSeedFinder")
-       self.checkThenSet(self.doV0Finder             , False)
-       self.checkThenSet(self.doSimpleV0Finder       , False)
-       self.checkThenSet(self.doConversions          , False)
-       self.checkThenSet(self.doStatistics           , False)
-       self.checkThenSet(self.doTrackSegmentsPixel   , False)
-       self.checkThenSet(self.doTrackSegmentsSCT     , False)
-       self.checkThenSet(self.doTrackSegmentsTRT     , False)
-       self.checkThenSet(self.doSlimming             , False)
-       self.checkThenSet(self.doSGDeletion           , True )
-       # TEMPORARY FIX TO STOP SEG FAULT
-       self.checkThenSet(self.doPixelClusterSplitting, False)
-       self.checkThenSet(self.doTIDE_Ambi, False)
-       self.checkThenSet(self.doTrackSegmentsDisappearing, False)
 
     elif (self.doIBL()):
        print("----> InDetJobProperties for IBL")
@@ -1409,7 +1363,6 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doNewTracking          , True )
        self.checkThenSet(self.doLowPt                , False)
        self.checkThenSet(self.doVeryLowPt            , False)
-       self.checkThenSet(self.doSLHCConversionFinding, False)
        self.checkThenSet(self.doBeamGas              , False)
        self.checkThenSet(self.doBeamHalo             , False)
        self.checkThenSet(self.doBackTracking         , False)
@@ -1437,7 +1390,6 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doNewTracking          , True )
        self.checkThenSet(self.doLowPt                , False)
        self.checkThenSet(self.doVeryLowPt            , False)
-       self.checkThenSet(self.doSLHCConversionFinding, False)
        self.checkThenSet(self.doBeamGas              , False)
        self.checkThenSet(self.doBeamHalo             , False)
        self.checkThenSet(self.doBackTracking         , False)
@@ -1477,7 +1429,6 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doNewTracking          , True )
        self.checkThenSet(self.doLowPt                , False)
        self.checkThenSet(self.doVeryLowPt            , False)
-       self.checkThenSet(self.doSLHCConversionFinding, False)
        self.checkThenSet(self.doBeamGas              , False)
        self.checkThenSet(self.doBeamHalo             , False)
        self.checkThenSet(self.doBackTracking         , False)
@@ -1516,7 +1467,6 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doNewTracking          , False )
        self.checkThenSet(self.doLowPt                , False )
        self.checkThenSet(self.doVeryLowPt            , False )
-       self.checkThenSet(self.doSLHCConversionFinding, False)
        self.checkThenSet(self.doForwardTracks        , False )
        self.checkThenSet(self.doR3LargeD0            , False )
        self.checkThenSet(self.doBeamGas              , False )
@@ -1675,10 +1625,6 @@ class InDetJobProperties(JobPropertyContainer):
         self.checkThenSet(self.doTrackSegmentsTRT  , True )
         self.checkThenSet(self.doPixelClusterSplitting, False)
         self.checkThenSet(self.doTIDE_Ambi, False)
-        if not self.doTIDE_Ambi:
-           # Need to also set new config flag consistently.
-           from AthenaConfiguration.AllConfigFlags import ConfigFlags
-           ConfigFlags.InDet.doTIDE_Ambi = False
         self.checkThenSet(self.doTrackSegmentsDisappearing, False)
 
     if rec.doExpressProcessing() :
@@ -1760,8 +1706,6 @@ class InDetJobProperties(JobPropertyContainer):
       self.doLowPt       = self.doLowPt() and self.doNewTracking() and ( DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on() ) and not self.doCosmics()
       # no low pt tracking if no new tracking before or if pixels are off (since low-pt tracking is pixel seeded)!      
       self.doVeryLowPt   = self.doVeryLowPt() and self.doLowPt()
-      #
-      self.doSLHCConversionFinding = self.doSLHCConversionFinding() and self.doSLHC() and self.doNewTracking() and ( DetFlags.haveRIO.pixel_on() and DetFlags.haveRIO.SCT_on() ) and not self.doCosmics()
       # new forward tracklets
       self.doForwardTracks = self.doForwardTracks() and self.doNewTracking()
       #
@@ -2168,15 +2112,13 @@ class InDetJobProperties(JobPropertyContainer):
        print('*')
        print('* --------------------> write AOD classes for all trackers!')
        print('*')
-    if self.doSLHC() :
-       print('*')
-       print('* --------------------> Special reconstruction for SLHC !')
-       if self.doSLHCVeryForward():
-          print('* --------------------> Including Very Forward Extension !')
-       print('*')
     if self.doIBL() :
        print('*')
        print('* --------------------> Special reconstruction for IBL !')
+       print('*')
+    if self.doBLS() :
+       print('*')
+       print('* --------------------> Special reconstruction for BLS physics !')
        print('*')
     if self.doDBM() :
        print('*')
@@ -2353,10 +2295,6 @@ class InDetJobProperties(JobPropertyContainer):
        print('* LowPtTracking is ON')
        if self.doVeryLowPt() :
           print('* and VeryLowPtTracking is ON')
-    # -----------------------------------------
-    if self.doSLHCConversionFinding() :
-       print('*')
-       print('* SLHCConversionFinding is ON')
     # -----------------------------------------
     if self.doForwardTracks():
        print('*')
@@ -2647,7 +2585,6 @@ _list_InDetJobProperties = [Enabled,
                             doTRT_PRDFormation,
                             doSpacePointFormation,
                             doRefit,
-                            doSLHC,
                             doIBL,
                             doHighPileup,
                             doMinimalReco,
@@ -2658,7 +2595,6 @@ _list_InDetJobProperties = [Enabled,
                             doBackTracking,
                             doLowPt,
                             doVeryLowPt,
-                            doSLHCConversionFinding,
                             doForwardTracks,
                             doLowPtLargeD0,
                             doLargeD0,
@@ -2798,13 +2734,13 @@ _list_InDetJobProperties = [Enabled,
                             ForceCoraCool,
                             ForceCoolVectorPayload,
                             doTrackSegmentsDisappearing,
-                            doSLHCVeryForward,
                             doTRTGlobalOccupancy,
                             doNNToTCalibration,
                             useNNTTrainedNetworks,
                             keepAdditionalHitsOnTrackParticle,
                             doSCTModuleVeto,
                             doDBMstandalone,
+                            doBLS,
                             doDBM,
                             doParticleConversion,
                             doStoreTrackSeeds,
@@ -2816,6 +2752,7 @@ _list_InDetJobProperties = [Enabled,
                             writeSeedValNtuple,
                             doTRTPIDNN,
                             doTTVADecos,
+                            doTIDE_AmbiTrackMonitoring,
                             useNewConfig
                            ]
 for j in _list_InDetJobProperties: 

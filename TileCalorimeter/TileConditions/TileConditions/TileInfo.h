@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_TILEINFO_H
@@ -46,14 +46,14 @@ class IdContext;
 class TileCalibDrawerFlt;
 
 
-class ATLAS_CHECK_THREAD_SAFETY TileInfo {
+class TileInfo {
   friend class TileInfoLoader;
 
  public:
 
   typedef std::vector<const TileCalibDrawerFlt*> DrawerVecFlt;
 
-  TileInfo(ISvcLocator *svcLocator);
+  TileInfo();
   ~TileInfo();
 
 
@@ -259,10 +259,10 @@ class ATLAS_CHECK_THREAD_SAFETY TileInfo {
   //==================================================================
 
   /** Return pointer to TilePulseShapes*/
-  TilePulseShapesStruct * getPulseShapes() const {return m_pulseShapes->TilePSstruct();}
+  const TilePulseShapesStruct * getPulseShapes() const {return m_pulseShapes->TilePSstruct();}
 
   /** Return pointer to TileWienerFilterWeights */
-  TileWienerFilterWeightsStruct * getWienerFilterWeights() const {return m_WienerFilterWeights->TileWFstruct();}
+  const TileWienerFilterWeightsStruct * getWienerFilterWeights() const {return m_WienerFilterWeights->TileWFstruct();}
 
   //==================================================================
   //==
@@ -293,9 +293,6 @@ class ATLAS_CHECK_THREAD_SAFETY TileInfo {
 
   /** Initialization of the TileInfo object. */
   StatusCode initialize();
-
-  /** Pointer to ServiceLocator */
-  ISvcLocator *m_svcLocator;
 
   /** Returns a handle to the MessageSvc */
   IMessageSvc* msgSvc() const;

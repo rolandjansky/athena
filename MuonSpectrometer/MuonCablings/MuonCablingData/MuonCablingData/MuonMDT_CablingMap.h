@@ -5,20 +5,17 @@
 #ifndef MUONMDT_CABLING_MUONMDT_CABLINGMAP_H
 #define MUONMDT_CABLING_MUONMDT_CABLINGMAP_H
 
+#include "Identifier/Identifier.h"
 #include "MuonCablingData/MdtSubdetectorMap.h"
 #include "MuonCablingData/MdtRODMap.h"
 #include "MuonCablingData/MdtCsmMap.h"
 #include "MuonCablingData/MdtAmtMap.h"
-
 #include "MuonCablingData/MdtMapBase.h"
-
 #include "AthenaKernel/CLASS_DEF.h"
 
 /**********************************************
  *
  * @brief MDT map data object
- *
- * @author Stefano Rosati <Stefano.Rosati@roma1.infn.it>
  *
  **********************************************/
 
@@ -43,11 +40,62 @@ class MuonMDT_CablingMap : public MdtMapBase<MdtSubdetectorMap> {
 
  public:
   
+struct CablingData{
+      CablingData()=default;
+     
+      int stationIndex{-1};/// Station of the chamber (i.e, BIL,BIS,etc.) 
+      int eta{0};          /// Eta of the MDT station
+      int phi{0};          /// Phi sector of the MDT station
+      int multilayer{-99}; /// Multilayer inside the MDT station
+      int layer{-99};      /// Layer inside the multilayer
+      int tube{-99};       /// Tube number in the layer
+
+      uint8_t  mrod{0};           /// MROD number
+      uint8_t  csm{0};            ///  CSM number
+      uint8_t  mezzanine_type{0}; /// Mezzanine type
+      uint8_t subdetectorId{0}; /// Subdetector number     
+      
+      /// the 0xff used to convert the full station)
+      uint8_t tdcId{0xFF};          /// Identifier of the corresponding tdc
+      uint8_t channelId{0xff};      /// Identifier of the corresponding channel
+  
+
+
+      /// In the Muon spectrometer layouts, before Run 2, no chamber had more than 100 tubes per multilayer. Hence, the 
+      /// the tube layer and multilayer information is encoded into a 4 digit long number
+      ///           MLTT
+      /// where M represents the multilayer number, L the layer number and TT is the tube numbering per each multilayer
+      static constexpr int legacy_tube_block_size = 100;
+      static  constexpr int legacy_layer_block_size = 10;
+
+      /// Helper constants to extract tube,layer, multilayer information
+      int tubes_per_layer{legacy_tube_block_size};
+      int layer_block{legacy_layer_block_size};
+
+      /// Equality operator 
+      bool operator ==(const CablingData& other) const{
+         return stationIndex == other.stationIndex &&
+                eta == other. eta &&
+                phi == other.phi &&
+                multilayer==other.multilayer &&
+                layer == other.layer &&
+                tube == other.tube &&
+                mrod == other.mrod &&
+                csm == other.csm &&
+                mezzanine_type == other.mezzanine_type &&
+                subdetectorId == other.subdetectorId &&
+                tdcId == other.tdcId &&
+                channelId == other.channelId; 
+      }
+      bool operator !=(const CablingData& other ) const{
+          return ! ((*this) == other);
+      }
+  };
+
   MuonMDT_CablingMap();
   ~MuonMDT_CablingMap();
 
-  /** cleanup function */
-  static bool cleanup();
+
   
   /** Set functions */
   bool setSubdetectorMap(uint8_t subdetectorId,MdtSubdetectorMap* mdtSubdetectorMap, MsgStream &log);
@@ -57,10 +105,7 @@ class MuonMDT_CablingMap : public MdtMapBase<MdtSubdetectorMap> {
 
   /** Add a new mezzanine */
   /** the indexes multilayer, layer, tube refer to the tube connected to the channelZero */
-  bool addMezzanine(uint8_t mezzanineType, int station, int eta, int phi,
-		    int multilayer, int layerZero, int tubeZero,
-		    uint8_t subdetectorId, uint8_t rodId, uint8_t csmId,
-		    uint8_t tdcId, uint8_t channelZero, MsgStream &log);
+  bool addMezzanine(const CablingData& cabling_data, MsgStream &log);
 
   /** Get function */
   MdtSubdetectorMap* getSubdetectorMap(uint8_t subdetectorId) const;
@@ -84,17 +129,15 @@ class MuonMDT_CablingMap : public MdtMapBase<MdtSubdetectorMap> {
   std::vector<uint32_t> getAllROBId() const;
 
   /** return the offline id given the online id */
-  bool getOfflineId(uint8_t subdetectorId,uint8_t rodId,uint8_t csmId,
-		    uint8_t tdcId,uint8_t channelId,
-		    int& stationName, int& stationEta, int& stationPhi,
-		    int& multiLayer, int& layer, int& tube, MsgStream &log) const;
+  bool getOfflineId(CablingData& cabling_data, MsgStream &log) const;
 
   /** return the online id given the offline id */
-  bool getOnlineId(int stationName, int stationEta, int stationPhi,
-		   int multiLayer, int layer, int tube,
-		   uint8_t& subdetectorId, uint8_t& rodId, uint8_t& csmId,
-		   uint8_t& tdcId, uint8_t& channelId, MsgStream &log) const;
-
+  bool getOnlineId(CablingData& cabling_data, MsgStream &log) const;
+  /** converts the cabling data into an identifier. The check valid argument optionally enables the check that the returned identifier is actually well defined within the ranges but is also slow */
+  bool convert(const CablingData& cabling_data, Identifier& id, bool check_valid = true )const;
+  /** converts the identifier into a cabling data object. Returns false if the Identifier is not Mdt */
+  bool convert(const Identifier&id , CablingData& cabling_data) const;
+  
  private:
 
   /** private function to add a chamber to the ROD map */
@@ -126,6 +169,9 @@ class MuonMDT_CablingMap : public MdtMapBase<MdtSubdetectorMap> {
   MuonMDT_CablingMap(const  MuonMDT_CablingMap&) =delete;
 
 };
+
+
+std::ostream& operator<<(std::ostream& ostr, const MuonMDT_CablingMap::CablingData & obj);
 
 //#include "CLIDSvc/CLASS_DEF.h"
 CLASS_DEF( MuonMDT_CablingMap , 51038731 , 1 )

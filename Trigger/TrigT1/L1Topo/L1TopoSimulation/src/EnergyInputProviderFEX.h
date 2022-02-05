@@ -9,7 +9,9 @@
 #include "L1TopoSimulation/IInputTOBConverter.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/LockedHandle.h"
-#include "xAODTrigger/EnergySumRoI.h"
+
+//EM/Tau EDMs
+#include "xAODTrigger/jFexMETRoIContainer.h"
 
 #include "TH1.h"
 
@@ -34,10 +36,10 @@ namespace LVL1 {
 
       ServiceHandle<ITHistSvc> m_histSvc;
 
-      StringProperty m_gFEXMETLoc;    //!<  EnergyROI SG key
+      SG::ReadHandleKey<xAOD::jFexMETRoIContainer> m_jMet_EDMKey {this, "L1_jFexMETRoI", "L1_jFexMETRoI", "jFEX Met EDM"};
 
-      mutable LockedHandle<TH1> m_hPt ATLAS_THREAD_SAFE;
-      mutable LockedHandle<TH1> m_hPhi ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_h_met_Pt ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_h_met_Phi ATLAS_THREAD_SAFE;
 
    };
 }

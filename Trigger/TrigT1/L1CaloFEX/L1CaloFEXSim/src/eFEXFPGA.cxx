@@ -29,7 +29,7 @@
 #include "StoreGate/ReadHandle.h"
 #include "SGTools/TestStore.h"
 #include "TrigConfData/L1Menu.h"
-
+#include <unordered_map>
 
 #include <iostream>
 #include <fstream>
@@ -98,9 +98,7 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
   ATH_CHECK(l1Menu.isValid());
 
   auto & thr_eEM = l1Menu->thrExtraInfo().eEM();
-
-  const unsigned int eFexstep = 25;
-  const unsigned int eFexTobstep = 100;
+  auto & thr_eTAU = l1Menu->thrExtraInfo().eTAU();
 
   for(int ieta = 1; ieta < 5; ieta++) {
     for(int iphi = 1; iphi < 9; iphi++) {
@@ -122,13 +120,10 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
       unsigned int ptMinToTopoCounts = 0;
       ptMinToTopoCounts = thr_eEM.ptMinToTopoCounts(); 
 
-      //returns a unsigned integer et value corresponding to the... eFEX EM cluster? in 1 MeV scale
+      //returns a unsigned integer et value corresponding to the... eFEX EM cluster in 25 MeV internal calculation scale
       unsigned int eEMTobEt = 0;
       eEMTobEt = m_eFEXegAlgoTool->getET();
-      
-      unsigned int eEMTobEtCounts = 0;
-      eEMTobEtCounts = eEMTobEt*eFexstep/eFexTobstep; //rescale from 25 MeV eFEX steps to 100 MeV for the TOB
-      
+            
       // thresholds from Trigger menu
       auto iso_loose  = thr_eEM.isolation(TrigConf::Selection::WP::LOOSE, ieta);
       auto iso_medium = thr_eEM.isolation(TrigConf::Selection::WP::MEDIUM, ieta);
@@ -165,15 +160,29 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
       unsigned int RetaWP = 0;
       unsigned int RhadWP = 0;
       unsigned int WstotWP = 0;
-      SetIsoWP(RetaCoreEnv,threshReta,RetaWP);
-      SetIsoWP(RhadCoreEnv,threshRhad,RhadWP);
-      SetIsoWP(WstotCoreEnv,threshWstot,WstotWP);
+      
+      // bitshifts for the different iso vars
+      unsigned int RetaBitS = 3;
+      unsigned int RhadBitS = 3;
+      unsigned int WstotBitS = 5;
+
+      unsigned int maxEtCounts = thr_eEM.maxEtCounts(m_eFexStep);
+      if (eEMTobEt >= maxEtCounts){
+	RetaWP = 3;
+	RhadWP = 3;
+	WstotWP = 3;
+      }
+      else{
+	SetIsoWP(RetaCoreEnv,threshReta,RetaWP,RetaBitS);
+	SetIsoWP(RhadCoreEnv,threshRhad,RhadWP,RhadBitS);
+	SetIsoWP(WstotCoreEnv,threshWstot,WstotWP,WstotBitS);
+      }
       int eta_ind = ieta; // No need to offset eta index with new 0-5 convention
       int phi_ind = iphi - 1;
 
       //form the egamma tob word
-      uint32_t tobword = m_eFEXFormTOBsTool->formEmTOBWord(m_id,eta_ind,phi_ind,RhadWP,WstotWP,RetaWP,seed,eEMTobEtCounts,ptMinToTopoCounts);
-      if ( (tobword != 0) && (eEMTobEtCounts != 0) ) m_emTobwords.push_back(tobword);
+      uint32_t tobword = m_eFEXFormTOBsTool->formEmTOBWord(m_id,eta_ind,phi_ind,RhadWP,WstotWP,RetaWP,seed,eEMTobEt,ptMinToTopoCounts);
+      if ( (tobword != 0) && (eEMTobEt != 0) ) m_emTobwords.push_back(tobword);
 
       std::unique_ptr<eFEXegTOB> tmp_tob = m_eFEXegAlgoTool->geteFEXegTOB();
       
@@ -212,9 +221,6 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
     }
   }
 
-
-  //ATH_CHECK(store())
-
   // --------------- TAU -------------
   for(int ieta = 1; ieta < 5; ieta++)
   {
@@ -231,20 +237,70 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
 
       if (!m_eFEXtauAlgoTool->isCentralTowerSeed()){ continue; }
 
-      // Get Et of eFEX tau object in MeV
+      // the minimum energy to send to topo (not eta dependent yet, but keep inside loop as it will be eventually?)
+      unsigned int ptTauMinToTopoCounts = 0;
+      ptTauMinToTopoCounts = thr_eTAU.ptMinToTopoCounts();
+
+      // Get Et of eFEX tau object in internal units (25 MeV)
       unsigned int eTauTobEt = 0;
       eTauTobEt = m_eFEXtauAlgoTool->getEt();
-      unsigned int eTauTobEtCounts = 0;
-      eTauTobEtCounts = eTauTobEt / eFexTobstep; // steps of 100 MeV for the TOB
+
+      // thresholds from Trigger menu
+      auto iso_loose  = thr_eTAU.isolation(TrigConf::Selection::WP::LOOSE, ieta);
+      auto iso_medium = thr_eTAU.isolation(TrigConf::Selection::WP::MEDIUM, ieta);
+      auto iso_tight  = thr_eTAU.isolation(TrigConf::Selection::WP::TIGHT, ieta);  
+
+      std::vector<unsigned int> threshRCore;
+      threshRCore.push_back(iso_loose.rCore_fw());
+      threshRCore.push_back(iso_medium.rCore_fw());
+      threshRCore.push_back(iso_tight.rCore_fw());
+
+      std::vector<unsigned int> threshRHad;
+      threshRHad.push_back(iso_loose.rHad_fw());
+      threshRHad.push_back(iso_medium.rHad_fw());
+      threshRHad.push_back(iso_tight.rHad_fw());
+
+      // Get isolation values
+      std::vector<unsigned int> rCoreVec; 
+      m_eFEXtauAlgoTool->getRCore(rCoreVec);
+
+      std::vector<unsigned int> rHadVec;
+      m_eFEXtauAlgoTool->getRHad(rHadVec);
+
+      // Set isolation WP
+      unsigned int rCoreWP = 0;
+      unsigned int rHadWP = 0;
+
+      // Isolation bitshift value
+      unsigned int RcoreBitS = 3;
+      unsigned int RhadBitS = 3;
+
+      SetIsoWP(rCoreVec,threshRCore,rCoreWP,RcoreBitS);
+      SetIsoWP(rHadVec,threshRHad,rHadWP,RhadBitS);
+
+      // Currently only one WP defined for tau rCore iso, decided to set as Medium WP for freedom to add looser and tighter WPs in the future 
+      if (rCoreWP >= 2) {
+        rCoreWP = 2;
+      } else {
+        rCoreWP = 0;
+      }
+
+      unsigned int seed = 0;
+      seed = m_eFEXtauAlgoTool->getSeed();
+      // Seed as returned is supercell value within 3x3 area, here want it within central cell
+      seed = seed - 4;      
+
+      unsigned int und = 0;
+      und = m_eFEXtauAlgoTool->getUnD();
 
       int eta_ind = ieta; // No need to offset eta index with new 0-5 convention
       int phi_ind = iphi - 1;
       
-      uint32_t tobword = m_eFEXFormTOBsTool->formTauTOBWord(m_id, eta_ind, phi_ind, eTauTobEtCounts);
+      uint32_t tobword = m_eFEXFormTOBsTool->formTauTOBWord(m_id, eta_ind, phi_ind, eTauTobEt, rHadWP, rCoreWP, seed, und, ptTauMinToTopoCounts);
       if ( tobword != 0 ) m_tauTobwords.push_back(tobword);
 
       // for plotting
-      if (inputOutputCollection->getdooutput()) {
+      if ((inputOutputCollection->getdooutput()) && ( tobword != 0 )) {
         inputOutputCollection->addValue_tau("isCentralTowerSeed", m_eFEXtauAlgoTool->isCentralTowerSeed());
         inputOutputCollection->addValue_tau("Et", m_eFEXtauAlgoTool->getEt());
         inputOutputCollection->addValue_tau("Eta", ieta);
@@ -252,7 +308,16 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
         const LVL1::eTower * centerTower = jk_eFEXFPGA_eTowerContainer->findTower(m_eTowersIDs[iphi][ieta]);
         inputOutputCollection->addValue_tau("FloatEta", centerTower->eta() * centerTower->getPosNeg());
         inputOutputCollection->addValue_tau("FloatPhi", centerTower->phi());
-        inputOutputCollection->addValue_tau("Iso", m_eFEXtauAlgoTool->getIso());
+        inputOutputCollection->addValue_tau("RCoreCore", rCoreVec[0]);
+        inputOutputCollection->addValue_tau("RCoreEnv", rCoreVec[1]);
+        inputOutputCollection->addValue_tau("RealRCore", m_eFEXtauAlgoTool->getRealRCore());
+        inputOutputCollection->addValue_tau("RCoreWP", rCoreWP);
+        inputOutputCollection->addValue_tau("RHadCore", rHadVec[0]);
+        inputOutputCollection->addValue_tau("RHadEnv", rHadVec[1]);
+        inputOutputCollection->addValue_tau("RealRHad", m_eFEXtauAlgoTool->getRealRHad());
+        inputOutputCollection->addValue_tau("RHadWP", rHadWP);
+        inputOutputCollection->addValue_tau("Seed", seed);
+        inputOutputCollection->addValue_tau("UnD", und);
         
         inputOutputCollection->fill_tau();
       }
@@ -303,7 +368,7 @@ void eFEXFPGA::SetTowersAndCells_SG(int tmp_eTowersIDs_subset[][6]){
   std::copy(&tmp_eTowersIDs_subset[0][0], &tmp_eTowersIDs_subset[0][0]+(10*6),&m_eTowersIDs[0][0]);
   
   if(false){ //this prints out the eTower IDs that each FPGA is responsible for
-    ATH_MSG_DEBUG("\n---- eFEXFPGA --------- FPGA (" << m_id << ") IS RESPONSIBLE FOR eTOWERS :");
+    ATH_MSG_DEBUG("\n---- eFEXFPGA --------- eFEX (" << m_efexid << " ----- FPGA (" << m_id << ") IS RESPONSIBLE FOR eTOWERS :");
     for (int thisRow=rows-1; thisRow>=0; thisRow--){
       for (int thisCol=0; thisCol<cols; thisCol++){
 	if(thisCol != cols-1){ ATH_MSG_DEBUG("|  " << m_eTowersIDs[thisRow][thisCol] << "  "); }
@@ -340,40 +405,44 @@ void eFEXFPGA::SetTowersAndCells_SG(int tmp_eTowersIDs_subset[][6]){
 }
 
 
-void eFEXFPGA::SetIsoWP(std::vector<unsigned int> & CoreEnv, std::vector<unsigned int> & thresholds, unsigned int & workingPoint) {
-
+void eFEXFPGA::SetIsoWP(std::vector<unsigned int> & CoreEnv, std::vector<unsigned int> & thresholds, unsigned int & workingPoint, unsigned int & bitshift) {
+  // Working point evaluted by Core * 2^bitshift > Threshold * Environment conditions
   bool CoreOverflow = false;
   bool EnvOverflow = false;
   bool ThrEnvOverflowL = false;
   bool ThrEnvOverflowM = false;
   bool ThrEnvOverflowT = false;
 
-  if (CoreEnv[0] > 0xffff) CoreOverflow = true;
+  std::unordered_map<unsigned int, unsigned int> bsmap { {3, 8}, {5, 32}};
+
+  if (CoreEnv[0]*bsmap[bitshift] > 0xffff) CoreOverflow = true;
   if (CoreEnv[1] > 0xffff) EnvOverflow = true;
   if (CoreEnv[1]*thresholds[0] > 0xffff) ThrEnvOverflowL = true;
   if (CoreEnv[1]*thresholds[1] > 0xffff) ThrEnvOverflowM = true;
   if (CoreEnv[1]*thresholds[2] > 0xffff) ThrEnvOverflowT = true;
 
-  if (CoreOverflow == false) {
+  if (CoreOverflow ==  false) {
     if (EnvOverflow == false) {
-      if ( (CoreEnv[0] > (thresholds[0]*CoreEnv[1])) && ThrEnvOverflowL == false ) {
-	workingPoint = 1;
-      } 
-      else if ( (CoreEnv[0] > (thresholds[1]*CoreEnv[1])) && ThrEnvOverflowM == false ) {
-	workingPoint = 2;
-      } 
-      else if ( (CoreEnv[0] > (thresholds[2]*CoreEnv[1])) && ThrEnvOverflowT == false ) {
-	workingPoint = 3;
-      }
-      else { 
+      if ( (CoreEnv[0]*bsmap[bitshift] < (thresholds[0]*CoreEnv[1])) || ThrEnvOverflowL == true ) {
 	workingPoint = 0;
       }
+      else if ( (CoreEnv[0]*bsmap[bitshift] < (thresholds[1]*CoreEnv[1])) || ThrEnvOverflowM == true ) {
+	workingPoint = 1;
+      }
+      else if ( (CoreEnv[0]*bsmap[bitshift] < (thresholds[2]*CoreEnv[1])) || ThrEnvOverflowT == true ) {
+        workingPoint = 2;
+      }
+      else {
+        workingPoint = 3;
+      }
     } else {
-      workingPoint = 0; //env overflow
+      //env overflow
+      workingPoint = 0;
     }
   } 
   else {
-    workingPoint = 3; // core overflow 
+    // core overflow
+    workingPoint = 3;
   }
 
 }

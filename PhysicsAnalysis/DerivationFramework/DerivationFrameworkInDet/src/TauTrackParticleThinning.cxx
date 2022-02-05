@@ -106,6 +106,9 @@ StatusCode DerivationFramework::TauTrackParticleThinning::doThinning() const
         	// identify which taus to keep for the thinning check
         	for (unsigned int i=0; i<nTaus; ++i) if (entries[i]==1) tauToCheck.push_back((*importedTaus)[i]);
         }
+    } else {
+      // use all taus if no selection string is passed
+      for (unsigned int i=0; i<nTaus; ++i) tauToCheck.push_back((*importedTaus)[i]);
     }
     
     // Set elements in the mask to true if there is a corresponding ElementLink from a reconstructed object

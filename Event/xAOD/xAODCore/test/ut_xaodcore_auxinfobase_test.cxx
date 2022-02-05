@@ -26,8 +26,8 @@ class AuxInfoTest
 public:
   AuxInfoTest();
 
-  int i1;
-  int a1;
+  int i1 = 0;
+  int a1 = 0;
 };
 
 

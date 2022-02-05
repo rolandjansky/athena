@@ -23,6 +23,7 @@ class StoreGateSvc;
 class LArHVManager;
 
 namespace LArGeo {
+  class VDetectorParameters;
 
   class LArDetectorFactory : public GeoVDetectorFactory  {
 
@@ -42,6 +43,8 @@ namespace LArGeo {
 
     // Access to the results:
     virtual const LArDetectorManager* getDetectorManager() const;
+
+    std::unique_ptr<LArGeo::VDetectorParameters> moveParameters();
 
 
     // Set parameters:
@@ -84,6 +87,8 @@ namespace LArGeo {
 
     bool                      m_activateFT;
     bool                      m_enableMBTS;
+
+    std::unique_ptr<VDetectorParameters> m_parameters;
   };
 
 } // namespace LArGeo

@@ -13,9 +13,6 @@
 #ifndef TBREC_TBEXTRAPOLTRACKTOCALO_H
 #define TBREC_TBEXTRAPOLTRACKTOCALO_H
 
-//#include "ITrackToCalo/IExtrapolTrackToCaloTool.h"
-//#include "RecoToolInterfaces/IExtrapolateToCaloTool.h"
-
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/NeutralParticle.h"
 
@@ -27,14 +24,15 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 
-class CaloDetDescrManager;
+#include "CaloDetDescr/CaloDetDescrManager.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 class ICaloCoordinateTool;
 class IMessageSvc;
 class CaloDepthTool;
 class ICaloSurfaceBuilder;
 class ImpactInCalo;
 
-//#include "CLHEP/Geometry/Transform3D.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkDetDescrUtils/Intersection.h"
 
@@ -106,20 +104,18 @@ public:
 		       Amg::Vector3D* pt_ctb,
                        Amg::Vector3D* pt_local);
 
-
   /** The "do-it-all" method which combines the 3 steps */
-  bool TrackSeenByCalo (const Trk::Track* trk, 
-			const CaloCell_ID::CaloSample sample,
-			const double offset, 
-			Amg::Vector3D* pt_ctb,
-                        Amg::Vector3D* pt_local);
+  bool TrackSeenByCalo(const Trk::Track* trk,
+                       const CaloCell_ID::CaloSample sample,
+                       const double offset,
+                       Amg::Vector3D* pt_ctb,
+                       Amg::Vector3D* pt_local);
 
-  bool TrackSeenByCalo (const Trk::TrackParameters* parm, 
-			const CaloCell_ID::CaloSample sample,
-			const double offset, 
-			Amg::Vector3D* pt_ctb,
-                        Amg::Vector3D* pt_local);
-
+  bool TrackSeenByCalo(const Trk::TrackParameters* parm,
+                       const CaloCell_ID::CaloSample sample,
+                       const double offset,
+                       Amg::Vector3D* pt_ctb,
+                       Amg::Vector3D* pt_local);
 
   bool TrackSeenByCalo (const Trk::Track* trk, 
 			const bool barrel,
@@ -243,10 +239,14 @@ private:
 
 
 
-  // CaloDetDescr usal stuff
-  const CaloCell_ID* m_calo_id;
-  const CaloDetDescrManager* m_calo_dd;
-  ICaloCoordinateTool* m_calo_tb_coord;
+  // CaloDetDescr usual stuff
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+      , "CaloDetDescrManager"
+      , "CaloDetDescrManager"
+      , "SG Key for CaloDetDescrManager in the Condition Store" };
+
+  const CaloCell_ID* m_calo_id{nullptr};
+  ICaloCoordinateTool* m_calo_tb_coord{nullptr};
 
   CaloPhiRange m_range;
 

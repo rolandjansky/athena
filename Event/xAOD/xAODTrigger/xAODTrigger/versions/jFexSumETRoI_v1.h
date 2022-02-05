@@ -26,43 +26,43 @@ namespace xAOD {
       jFexSumETRoI_v1();
 
       /// In future initialze the xTOB as well, word1
-      void initialize( uint8_t jFexNumber,uint8_t fpgaNumber, uint32_t word0) ;
+      void initialize( uint8_t jFexNumber,uint8_t fpgaNumber, uint32_t tobWord) ;
 
       /// The "raw" 32-bit word describing the object candidate
-      uint32_t word0() const;
-      uint8_t fpgaNumber() const;
-      uint8_t jFexNumber() const;
-      uint16_t Et_lower() const;
-      uint8_t Sat_lower() const;
-      uint16_t Et_upper() const;
-      uint8_t Sat_upper() const;
+      uint32_t  tobWord()      const;
+      uint8_t   fpgaNumber()   const;
+      uint8_t   jFexNumber()   const;
+      uint16_t  tobEt_lower()  const;
+      uint8_t   tobSat_lower() const;
+      uint16_t  tobEt_upper()  const;
+      uint8_t   tobSat_upper() const;
 
       /// Set the "raw" 32-bit words describing the object candidate
-      void setWord0( uint32_t value );
-      void setfpgaNumber( uint8_t fpgaNumber );      
-      void setjFexNumber( uint8_t jFexNumber );      
-      void setEt_lower(uint16_t value);
-      void setSat_lower(uint8_t value);
-      void setEt_upper(uint16_t value);
-      void setSat_upper(uint8_t value); 
-
+      void setTobWord   ( uint32_t tobWord   ) ;
+      void setjFexNumber( uint8_t  jFexNumber) ;
+      void setfpgaNumber( uint8_t  fpgaNumber) ;
       
-      //get the variables from the 32-bit tob word
-      uint32_t gettob() const;
-      unsigned int getjFexNumber() const;
-      unsigned int getfpgaNumber() const;
-      unsigned int getEt_lower() const;
-      unsigned int getSat_lower() const;
-      unsigned int getEt_upper() const;
-      unsigned int getSat_upper() const;
+      //Unpack Et_lower from the SumEt TOB word     
+      uint16_t unpackEt_lower() const;
+      void setTobEt_lower( uint16_t value) ; 
+      int Et_lower() const;
+      
+      //Unpack Et_upper from the SumEt TOB word     
+      uint16_t unpackEt_upper() const;
+      void setTobEt_upper( uint16_t value) ; 
+      int Et_upper() const;
+      
+      //Unpack saturation for lower from the SumEt TOB word     
+      uint8_t unpackSat_lower() const;
+      void setTobSat_lower( uint8_t value) ; 
+      
+      //Unpack saturation for upper from the SumEt TOB word     
+      uint8_t unpackSat_upper() const;
+      void setTobSat_upper( uint8_t value) ; 
     
    private:
       //Constants used in converting to ATLAS units
       static const float s_tobEtScale;
-      static const float s_tobIsoScale;
-      static const float s_towerEtaWidth;
-      static const float s_towerPhiWidth;
-      static const float s_minEta;
 
       // Data locations within word
       static const int s_Et_lowerBit  = 17; 

@@ -17,9 +17,10 @@
 //
 #include <math.h>
 #include <fstream>
+#include "AthenaKernel/RNGWrapper.h"
+
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandomEngine.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "LArSimEvent/LArHitContainer.h"
@@ -31,7 +32,6 @@
 #include "CaloIdentifier/LArID.h"
 #include "CaloIdentifier/CaloID_Exception.h"
 #include "CaloIdentifier/CaloLVL1_ID.h"
-#include "LArIdentifier/LArIdManager.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -62,9 +62,6 @@ using CLHEP::RandGaussZiggurat;
 
 LArSCL1Maker::LArSCL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
   AthReentrantAlgorithm(name, pSvcLocator)
-  , m_atRndmGenSvc("AtRndmGenSvc",name)
-  , m_rndmEngineName("LArSCL1Maker")
-  , m_rndmEngine(0)
   //, p_triggerTimeTool()
   , m_scidtool("CaloSuperCellIDTool")
   , m_scHelper(0)
@@ -86,10 +83,6 @@ LArSCL1Maker::LArSCL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
   //m_ttSvc                 = 0;
   m_scHelper            = 0;
 
-  m_SubDetectors             = "LAr_All";
-  m_SCL1ContainerName        = "LArDigitSCL1";
-  
-
   m_NoiseOnOff               = true;
   m_PileUp                   = false;
   m_noEmCalibMode            = false;
@@ -100,8 +93,7 @@ LArSCL1Maker::LArSCL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
   // ........ declare the private data as properties
   //
 
-  declareProperty("SubDetectors",m_SubDetectors);
-  declareProperty("RndmSvc", m_atRndmGenSvc);
+  declareProperty("SubDetectors",m_SubDetectors = "LAr_All");
 
   declareProperty("NoiseOnOff",m_NoiseOnOff);
 
@@ -222,12 +214,6 @@ StatusCode LArSCL1Maker::initialize()
 
   CHECK( m_atRndmGenSvc.retrieve() );
   
-  m_rndmEngine = m_atRndmGenSvc->GetEngine(m_rndmEngineName);
-  if(!m_rndmEngine) {
-    ATH_MSG_ERROR( "Could not find RndmEngine : " << m_rndmEngineName );
-    return StatusCode::FAILURE ;
-  }
-
   CHECK( detStore()->retrieve (m_sem_mgr, "CaloSuperCellMgr") );
 
   return StatusCode::SUCCESS;
@@ -266,7 +252,7 @@ StatusCode LArSCL1Maker::execute(const EventContext& context) const
 
 
   SG::WriteHandle<LArDigitContainer> scContainerHandle( m_sLArDigitsContainerKey, context);
-  auto scContainer = std::make_unique<LArDigitContainer> (SG::VIEW_ELEMENTS);
+  auto scContainer = std::make_unique<LArDigitContainer> ();
 
   unsigned int nbSC = (unsigned int)m_scHelper->calo_cell_hash_max() ;
   scContainer->reserve(nbSC);
@@ -375,6 +361,10 @@ StatusCode LArSCL1Maker::execute(const EventContext& context) const
   double Rndm[32];
   std::vector<float> zeroSamp; 
   zeroSamp.assign(m_nSamples,0); // for empty channels 
+  ATHRNG::RNGWrapper* rngWrapper = m_atRndmGenSvc->getEngine(this, m_randomStreamName);
+  ATHRNG::RNGWrapper::SeedingOptionType seedingmode=m_useLegacyRandomSeeds ? ATHRNG::RNGWrapper::MC16Seeding : ATHRNG::RNGWrapper::SeedingDefault;
+  rngWrapper->setSeedLegacy( m_randomStreamName, context, m_randomSeedOffset, seedingmode );
+  CLHEP::HepRandomEngine *rndmEngine = rngWrapper->getEngine(context);
   for( ; it != it_end; ++it){
       std::vector< float > *vecPtr = &zeroSamp; 
       if ( alreadyThere[it] ) vecPtr= &(scFloatContainerTmp.at(it)); 
@@ -393,7 +383,7 @@ StatusCode LArSCL1Maker::execute(const EventContext& context) const
          int index;
          const std::vector<float>& CorrGen = (autoCorrNoise->autoCorrSqrt(id,0));
 
-         RandGaussZiggurat::shootArray(m_rndmEngine,m_nSamples,Rndm,0.,1.);
+         RandGaussZiggurat::shootArray(rndmEngine,static_cast<int>(m_nSamples),Rndm,0.,1.);
 
          for(int i=0;i<(int)m_nSamples;i++){
          noise[i]=0.;

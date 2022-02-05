@@ -152,6 +152,8 @@ private:
     /// Internal InDet id tag
     std::string   m_inDetIDTag;
     
+    // Flag to read InDet geometry from the Geom DB
+    bool          m_useGeomDB_InDet;
 };
 
 

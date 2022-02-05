@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SimHitCreatorMS.h"
@@ -261,13 +261,19 @@ void iFatras::SimHitCreatorMS::createHits(const ISF::ISFParticle& isp,
       double energyDeposit = 1.;
       const Amg::Vector3D& pos=parm->position();
       const Amg::Vector3D unitMom=parm->momentum().normalized();
+      // cos of incident angle
+      float cosAngle = std::abs(unitMom.dot(parm->associatedSurface().normal()));
+      float segLengthSTGC = 2.85/cosAngle; // segment length in sTGC gas gap
+      // positions where particle enters and exits the sTGC gas gap
+      const Amg::Vector3D& entryPos(pos - 0.5*segLengthSTGC*unitMom);
+      const Amg::Vector3D& exitPos(pos + 0.5*segLengthSTGC*unitMom);
 
       MMSimHit nswMMHit = MMSimHit(simID,timeInfo, pos, 
 				 isp.pdgCode(),eKin,unitMom, 
 				 energyDeposit, isp.barcode()) ;
-      sTGCSimHit nswsTGCHit = sTGCSimHit(simID,timeInfo, pos, 
+      sTGCSimHit nswsTGCHit = sTGCSimHit(simID,timeInfo, exitPos, 
 				     isp.pdgCode(), unitMom, 
-				     energyDeposit, isp.barcode()) ;
+				     energyDeposit, isp.barcode(), eKin, entryPos) ;
       
       if ( m_idHelperSvc->isMM(id) )  m_mmSimHitCollection->Insert(nswMMHit); 
       else  m_stgcSimHitCollection->Insert(nswsTGCHit); 
@@ -361,7 +367,7 @@ bool iFatras::SimHitCreatorMS::createHit(const ISF::ISFParticle& isp,
      const Amg::Vector3D  localPos = m_muonMgr->getMdtReadoutElement(id)->globalToLocalCoords(parm->position(),id);
      // drift radius
      double residual = m_measTool->residual(lay,parm,id);     
-     if (fabs(residual)<15.075) {
+     if (std::abs(residual)<15.075) {
 
        double dlh = sqrt(15.075*15.075-residual*residual); 
        double de = 0.02*dlh/15.075;
@@ -370,7 +376,7 @@ bool iFatras::SimHitCreatorMS::createHit(const ISF::ISFParticle& isp,
     
        // a new simhit                                            
        MDTSimHit mdtHit = MDTSimHit(simId,globalTimeEstimate,
-				    fabs(residual),
+				    std::abs(residual),
 				    localPos,
 				    isp.barcode(),
                                     2*dlh, energyDeposit, isp.pdgCode(),isp.momentum().mag() ) ;
@@ -428,7 +434,7 @@ bool iFatras::SimHitCreatorMS::createHit(const ISF::ISFParticle& isp,
     float energyDeposit= 0.24e-03 + 1.1e-03*CLHEP::RandGaussZiggurat::shoot(m_randomEngine);
     while (energyDeposit<0.) energyDeposit= 0.24e-03 + 1.1e-03*CLHEP::RandGaussZiggurat::shoot(m_randomEngine);
     // cos of incident angle
-    float cs=fabs(dir.dot(parm->associatedSurface().normal())); 
+    float cs=std::abs(dir.dot(parm->associatedSurface().normal())); 
     float hitlength = 5./cs;
     //!< end of TO DO
     

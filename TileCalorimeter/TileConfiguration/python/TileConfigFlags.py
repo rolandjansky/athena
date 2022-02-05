@@ -1,6 +1,8 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
+from AthenaConfiguration.Enums import Format
+
 
 def createTileConfigFlags():
 
@@ -39,6 +41,13 @@ def createTileConfigFlags():
 
 
 def _doOpt2ByDefault(prevFlags):
+      #For online operation don't check run number
+     if prevFlags.Common.isOnline:
+          if 'collisions' in prevFlags.Beam.Type:
+               return False  # Use OF without iterations for collisions
+          else:
+               return True
+
      runNumber = prevFlags.Input.RunNumber[0]
      # Run Optimal Filter with iterations (Opt2) by default,
      # both for cosmics and collisions data before 2011
@@ -108,7 +117,7 @@ def _correctPedestalDifference(prevFlags):
 
 
 def _correctTimeJumps(prevFlags):
-     if not (prevFlags.Input.isMC or prevFlags.Overlay.DataOverlay) and prevFlags.Input.Format == 'BS':
+     if not (prevFlags.Input.isMC or prevFlags.Overlay.DataOverlay) and prevFlags.Input.Format is Format.BS:
           return True
      else:
           return False
@@ -153,7 +162,7 @@ def _getRawChannelContainer(prevFlags):
      if prevFlags.Tile.doOpt2:
           rawChannelContainer = 'TileRawChannelOpt2'
      if prevFlags.Tile.doOptATLAS:
-          if not (prevFlags.Input.isMC or prevFlags.Overlay.DataOverlay) and prevFlags.Input.Format == 'BS':
+          if not (prevFlags.Input.isMC or prevFlags.Overlay.DataOverlay) and prevFlags.Input.Format is Format.BS:
                rawChannelContainer = 'TileRawChannelFixed'                                                   
           else:                               
                rawChannelContainer = 'TileRawChannelCnt'

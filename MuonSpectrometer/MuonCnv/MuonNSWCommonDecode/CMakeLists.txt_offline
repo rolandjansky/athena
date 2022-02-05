@@ -11,7 +11,7 @@ find_package( Boost )
 atlas_add_library (MuonNSWCommonDecode
                    src/NSWCommonDecoder.cxx 
                    src/NSWElink.cxx
-                   src/VMMChannel.cxx
+                   src/NSWOfflineHelper.cxx
 		   src/sTGCMapper.cxx
                    PUBLIC_HEADERS MuonNSWCommonDecode
                    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
@@ -19,6 +19,13 @@ atlas_add_library (MuonNSWCommonDecode
 
 atlas_add_executable (test_nsw_common_decoder
 		      src/test/test_nsw_common_decoder.cxx
+                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
+		      LINK_LIBRARIES
+		        MuonNSWCommonDecode
+			${TDAQ-COMMON_LIBRARIES} ${Boost_LIBRARIES})
+
+atlas_add_executable (test_nsw_online2offline
+		      src/test/test_nsw_online2offline.cxx
                       INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
 		      LINK_LIBRARIES
 		        MuonNSWCommonDecode

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # $Id: CMakeLists.txt 730483 2016-03-16 16:03:14Z harkusha $
 ################################################################################
@@ -74,12 +74,13 @@ foreach( name CscMcDataCnv_p1_test CscSimDataCnv_p1_test
       STGC_DigitCnv_p1_test
       STGC_DigitContainerCnv_p1_test
       STGC_RawDataContainerCnv_p1_test
+      STGC_RawDataContainerCnv_p2_test
       )
 
    atlas_add_test( ${name}
       SOURCES test/${name}.cxx
       LINK_LIBRARIES ${GEOMODEL_LIBRARIES} GaudiKernel TrkSurfaces TrkEventTPCnv TestTools
-      StoreGateLib TPTools AGDDKernel AtlasDetDescr 
+      StoreGateLib TPTools AGDDKernel AGDDControl AtlasDetDescr 
       IdDict IdDictDetDescr IdDictParser InDetIdentifier InDetReadoutGeometry PixelReadoutGeometryLib SCT_ReadoutGeometry TRT_ReadoutGeometry
       MuonAGDDDescription MuonReadoutGeometry MuonIdHelpersLib
       TrkEventPrimitives TrkPseudoMeasurementOnTrack MuonEventTPCnv AthenaKernel

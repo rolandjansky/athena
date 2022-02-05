@@ -43,14 +43,24 @@ namespace EL
       virtual ~Module () noexcept = default;
 
 
-      /// \brief action at the beginning of worker job
+      /// \brief action at the the very beginning of the worker job
       ///
       /// This gets called as early as possible in the worker
-      /// initialization.  The main purpose is to start any benchmarks
-      /// that are meant to capture the initialization process as
-      /// well.
+      /// initialization.  Essentially all that should happen before
+      /// this is to load all the modules.  The main purpose is to
+      /// start any benchmarks that are meant to capture the
+      /// initialization process as well.
     public:
-      virtual ::StatusCode preInitialize (ModuleData& data);
+      virtual ::StatusCode firstInitialize (ModuleData& data);
+
+
+      /// \brief action before opening the first file in the worker
+      /// job
+      ///
+      /// This is mostly meant to allow loading the dictionaries
+      /// before any files and associated information is loaded.
+    public:
+      virtual ::StatusCode preFileInitialize (ModuleData& data);
 
 
       /// \brief action just before algorithms are initialized

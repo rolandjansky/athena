@@ -76,9 +76,9 @@ def print_diff(parent_key, obj1, obj2, diff_format):
         except (AttributeError, TypeError,):
             pass
         result += """\
-        > {}
-        ----------
         < {}
+        ----------
+        > {}
         """.format(
             summary(obj1), summary(obj2)
         )
@@ -107,9 +107,9 @@ def print_diff_type(parent_key, obj1, obj2, diff_format):
         if parent_key is not None:
             result += "{}:\n".format(parent_key)
         result += """\
-        > {} (type: {})
-        ----------
         < {} (type: {})
+        ----------
+        > {} (type: {})
         """.format(
             summary(obj1), type(obj1), summary(obj2), type(obj2)
         )
@@ -145,9 +145,9 @@ def print_diff_dict_keys(parent_key, obj1, obj2, diff_format):
         if parent_key is not None:
             result += "{}:\n".format(parent_key)
         result += """\
-        > {}
-        ----------
         < {}
+        ----------
+        > {}
         """.format(
             summary(obj1), summary(obj2)
         )

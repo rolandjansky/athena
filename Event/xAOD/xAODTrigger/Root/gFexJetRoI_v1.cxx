@@ -16,14 +16,23 @@
 namespace xAOD {
 
   /// Constants used in converting to ATLAS units
-  const float gFexJetRoI_v1::s_tobEtScale = 3200.; ///3.2 GeV is the energy range size (step between two adjiacent bits)
-  const float gFexJetRoI_v1::s_centralPhiWidth = 0.2; ///Phi is 32-bit starting from 0 with steps of 0.2; gPhi = 0 is 0.0 < phi < 0.2 while gPhi = 31 is 6.2 < phi < 6.4 
-  const float gFexJetRoI_v1::s_forwardPhiWidth = 0.4; ///Phi is 32-bit starting from 0 with steps of 0.4; gPhi = 0 is 0.0 < phi < 0.4 while gPhi = 15 is 6.2 < phi < 6.4 
-  const std::vector<float> gFexJetRoI_v1::s_EtaPosition = { -4.9, -4.45, -4.0, -3.5, -3.2, -3.1, 
+  const float gFexJetRoI_v1::s_gRhotobEtScale = 50.; //50 MeV is the energy resolution for large-R jets (gJets) TOBs
+  const float gFexJetRoI_v1::s_gJtobEtScale = 800.; //800 MeV is the energy resolution for small-R jets (gBlocks) TOBs
+  const float gFexJetRoI_v1::s_gLJtobEtScale = 1600.; //1600 MeV is the energy resolution for large-R jets (gJets) TOBs
+  const float gFexJetRoI_v1::s_centralPhiWidth = M_PI/32; ///Phi is 32-bit starting from 0 with steps of 0.2; gPhi = 0 is 0.0 < phi < 0.2 while gPhi = 31 is 6.2 < phi < 6.4 
+  const float gFexJetRoI_v1::s_forwardPhiWidth = M_PI/16; ///Phi is 32-bit starting from 0 with steps of 0.4; gPhi = 0 is 0.0 < phi < 0.4 while gPhi = 15 is 6.2 < phi < 6.4 
+  const std::vector<float> gFexJetRoI_v1::s_EtaEdge     = { -4.9, -4.45, -4.0, -3.5, -3.3, -3.1, 
                                                             -2.9, -2.7, -2.5, -2.2, -2.0, -1.8, -1.6, -1.4, -1.2, -1.0,  
                                                             -0.8, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0,                                                 
                                                             1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.5, 2.7, 2.9,
-                                                            3.1, 3.2, 3.5, 4.0, 4.45, 4.9 };
+                                                            3.1, 3.3, 3.5, 4.0, 4.45, 4.9 }; //Indices 0-3 and 37-40 are niot currently used in hardware (don't receive energy info)
+  
+  const std::vector<float> gFexJetRoI_v1::s_EtaCenter   = { -4.7, -4.2, -3.7, -3.4, -3.2, -3, 
+                                                            -2.8, -2.6, -2.35, -2.1, -1.9, -1.7, -1.5, -1.3, -1.1, -0.9,  
+                                                            -0.7, -0.5, -0.3, -0.1, 0.1, 0.3, 0.5, 0.7, 0.9, 1.1,                                                 
+                                                            1.3, 1.5, 1.7, 1.9, 2.1, 2.35, 2.6, 2.8, 3.0,
+                                                            3.2, 3.4, 3.7, 4.2, 4.7};
+
 
   //vector<float> gFexJetRoI_v1::s_maxEta = {}; 
 
@@ -48,9 +57,7 @@ namespace xAOD {
    /// Raw data words
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexJetRoI_v1, uint32_t, word,
                                          setWord )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexJetRoI_v1, char, status,
-                                         setStatus )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexJetRoI_v1, char, saturated,
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexJetRoI_v1, uint8_t, saturated,
                                          setSaturated )
 
    /// Only calculable externally
@@ -66,6 +73,16 @@ namespace xAOD {
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexJetRoI_v1, uint8_t, iPhi,
                                          setPhi )
 
+   uint8_t gFexJetRoI_v1::status() const {
+   static const Accessor< uint8_t > acc( "gFexJetStatus" );
+   return acc( *this );                                   
+   }
+   void gFexJetRoI_v1::setStatus ( uint8_t value ) {
+      static const Accessor< uint8_t > acc( "gFexJetStatus" );
+      acc( *this ) = value;
+      return;
+   }
+
 
    /// Methods to decode data from the TOB/RoI and return to the user
 
@@ -76,8 +93,11 @@ namespace xAOD {
      if (tobID == 0 ){
       return gRho;
      }  
-     else if (tobID == 1 || tobID == 2 || tobID == 3 || tobID == 4 ) {
-       return gBlock;
+     else if (tobID == 1 || tobID == 2) {
+       return gBlockLead;
+     } 
+     else if (tobID == 3 || tobID == 4 ) {
+       return gBlockSub;
      }      
      else if (tobID == 5 || tobID == 6) {
       return gJet;
@@ -85,8 +105,12 @@ namespace xAOD {
      else return -999;
    }
 
-   bool gFexJetRoI_v1::isgBlock() const {
-     return gFexType() == gBlock;
+   bool gFexJetRoI_v1::isgBlockLead() const {
+     return gFexType() == gBlockLead;
+   }
+
+   bool gFexJetRoI_v1::isgBlockSub() const {
+     return gFexType() == gBlockSub;
    }
 
    bool gFexJetRoI_v1::isgJet() const {
@@ -97,10 +121,6 @@ namespace xAOD {
      return gFexType() == gRho;
    }
 
-   bool gFexJetRoI_v1::isLeadingJet() const {
-     auto tobID = (word() >> s_tobIDBit) & s_tobIDMask;
-     return tobID == 1 || tobID == 2 || tobID == 5 || tobID == 6;
-   }
 
    unsigned int gFexJetRoI_v1::unpackStatus() const{
     return (word() >> s_statusBit) & s_statusMask;
@@ -134,17 +154,42 @@ namespace xAOD {
 
    /// ET on TOB scale
    float gFexJetRoI_v1::etMin() const {
-     return tobEt()*s_tobEtScale;
+     if (gFexType() == gRho){
+      return tobEt()*s_gRhotobEtScale;
+     }
+     else if ((gFexType() == gBlockLead) || (gFexType() == gBlockSub)){
+      return tobEt()*s_gJtobEtScale;
+     }
+     else {//if (gFexType() == gJet)
+      return tobEt()*s_gLJtobEtScale;
+     }
    }
 
    float gFexJetRoI_v1::etMax() const {
-     return tobEt()*s_tobEtScale + s_tobEtScale;
+     if (gFexType() == gRho){
+      return tobEt()*s_gRhotobEtScale + s_gRhotobEtScale;
+     }
+     else if ((gFexType() == gBlockLead) || (gFexType() == gBlockSub)){
+      return tobEt()*s_gJtobEtScale + s_gJtobEtScale;
+     }
+     else { //if (gFexType() == gJet)
+      return tobEt()*s_gLJtobEtScale + s_gLJtobEtScale;
+     }
+   }
+
+   /// Floating point coordinates. Return the center of Eta. 
+   float gFexJetRoI_v1::eta() const {
+     if (gFexType() != gRho){
+         return s_EtaCenter[iEta()];
+     } 
+     return -999;
+
    }
 
    /// Floating point coordinates. Return he minimum Eta and he maximum Eta of the Eta range. 
    float gFexJetRoI_v1::etaMin() const {
      if (gFexType() != gRho){
-         return s_EtaPosition[iEta()];
+         return s_EtaEdge[iEta()];
      } 
      return -999;
 
@@ -152,19 +197,33 @@ namespace xAOD {
    
    float gFexJetRoI_v1::etaMax() const {
      if (gFexType() != gRho){
-       return s_EtaPosition[iEta()+1];
+       return s_EtaEdge[iEta()+1];
      } 
      return -999;
 
    }
 
    /// Floating point coordinates. 
+   float gFexJetRoI_v1::phi() const {
+     if (gFexType() != gRho){
+       if (( iEta() <= 5 ) || ( (iEta() >= 32) && (iEta() <= 37) )){
+        return (iPhi() * s_forwardPhiWidth) + (s_forwardPhiWidth/2);
+       }
+       else if ( iEta() > 6 && iEta() < 37 ){
+        return (iPhi() * s_centralPhiWidth) + s_centralPhiWidth/2;
+       } 
+       else return -999; 
+     } 
+     return -999; 
+   }
+
+   /// Floating point coordinates. 
    float gFexJetRoI_v1::phiMin() const {
      if (gFexType() != gRho){
-       if (( iEta() <= 4 ) || ( (iEta() >= 34) && (iEta() <= 38) )){
+       if (( iEta() <= 6 ) || ( (iEta() >= 32) && (iEta() <= 37) )){
         return iPhi() * s_forwardPhiWidth;
        }
-       else if ( iEta() > 4 && iEta() < 34 ){
+       else if ( iEta() > 6 && iEta() < 32 ){
         return iPhi() * s_centralPhiWidth;
        } 
        else return -999; 
@@ -174,10 +233,10 @@ namespace xAOD {
 
    float gFexJetRoI_v1::phiMax() const {
      if (gFexType() != gRho){
-       if (( iEta() <= 4 ) || ( iEta() >= 34 && iEta() <= 38 )){
+       if (( iEta() <= 6 ) || ( iEta() >= 32 && iEta() <= 37 )){
         return iPhi() * s_forwardPhiWidth + s_forwardPhiWidth;
        }
-       else if ( iEta() > 4 && iEta() < 34 ){
+       else if ( iEta() > 6 && iEta() < 32 ){
         return iPhi() * s_centralPhiWidth + s_centralPhiWidth;
        } 
        else return -999; 

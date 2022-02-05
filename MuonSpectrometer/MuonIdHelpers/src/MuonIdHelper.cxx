@@ -27,8 +27,8 @@ MuonIdHelper::MuonIdHelper(const std::string& logName) :
     m_MODULE_INDEX = 5;
     m_DETECTORELEMENT_INDEX = 5;
     m_CHANNEL_INDEX = 10;
-    m_dict = 0;
-    m_msgSvc = 0;
+    m_dict = nullptr;
+    m_msgSvc = nullptr;
     if (m_logName.empty()) m_logName = "MuonIdHelper";
 
     ISvcLocator* svcLocator = Gaudi::svcLocator();
@@ -968,7 +968,7 @@ bool MuonIdHelper::isForward(const int& stationNameIndex) const { return (m_isFo
 bool MuonIdHelper::isSmall(const int& stationNameIndex) const { return (m_isSmall.count(stationNameIndex) == 1); }
 /*******************************************************************************/
 // Access to name and technology maps
-int MuonIdHelper::stationNameIndex(const std::string& name) const {
+int MuonIdHelper::stationNameIndex(std::string_view name) const {
     int counter = 0;
     for (const std::string& station_name : m_stationNameVector) {
         if (name.compare(station_name) == 0) { return counter; }

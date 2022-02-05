@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -40,7 +40,7 @@ namespace InDetDD {
                                        const SiCommonItems* commonItems,
                                        const GeoAlignmentStore* geoAlignStore) :
     SolidStateDetectorElementBase(id,design,geophysvol,commonItems,geoAlignStore),
-    m_design(design)
+    m_siDesign(design)
   {
     commonConstructor();
   }
@@ -157,7 +157,7 @@ namespace InDetDD {
 	  int strip = sctIdHelper->strip(identifier);
 	  int row = sctIdHelper->row(identifier);
 	  if(row>0){
-	    auto &sctDesign = *static_cast<const SiDetectorDesign *>(m_design);
+	    auto &sctDesign = *static_cast<const SiDetectorDesign *>(m_siDesign);
 	    int strip1D = sctDesign.strip1Dim(strip, row);
 	    cellId = SiCellId(strip1D);
 	  }
@@ -172,21 +172,17 @@ namespace InDetDD {
   const std::vector<const Trk::Surface*>&
   SiDetectorElement::surfaces() const
   {
-    if (!m_surfacesValid) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_surfacesValid) {
-        // get this surface
-        m_surfaces.push_back(&surface());
-        // get the other side surface
-        if (otherSide()) {
-          m_surfaces.push_back(&(otherSide()->surface()));
-        }
+    if (!m_surfaces.isValid()) {
+      std::vector<const Trk::Surface*> s;
+      s.push_back(&surface());
+      if (otherSide()) {
+        s.push_back(&(otherSide()->surface()));
       }
-      m_surfacesValid.store(true);
+      m_surfaces.set (std::move (s));
     }
 
     // return the surfaces
-    return m_surfaces;
+    return *m_surfaces.ptr();
   }
  
   const Amg::Transform3D&
@@ -242,11 +238,6 @@ namespace InDetDD {
   double
   SiDetectorElement::sinTilt() const
   {
-    if (!m_cacheValid) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
-    }
-
     // Tilt is defined as the angle between a refVector and the sensor normal.
     // In barrel refVector = unit vector radial.
     // in endcap it is assumed there is no tilt.
@@ -259,17 +250,14 @@ namespace InDetDD {
     // HepGeom::Vector3D<double> refVector(m_center.x(), m_center.y(), 0);
     // return (refVector.cross(m_normal)).z()/refVector.mag();
     // or the equivalent
-    return (m_center.x() * m_normal.y() - m_center.y() * m_normal.x()) / m_center.perp();
+    const Amg::Vector3D& normal = this->normal();
+    const Amg::Vector3D& center = this->center();
+    return (center.x() * normal.y() - center.y() * normal.x()) / center.perp();
   }
 
   double
   SiDetectorElement::sinTilt(const Amg::Vector2D& localPos) const
   {
-    if (!m_cacheValid) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
-    }
-
     // tilt angle is not defined for the endcap
     if (isEndcap()) return 0.;
 
@@ -280,11 +268,6 @@ namespace InDetDD {
   double
   SiDetectorElement::sinTilt(const Amg::Vector3D& globalPos) const
   {
-    if (!m_cacheValid) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
-    }
-
     // It is assumed that the global position is already in the plane of the element.
 
     // tilt angle is not defined for the endcap
@@ -294,28 +277,19 @@ namespace InDetDD {
     //HepGeom::Vector3D<double> refVector(globalPos.x(), globalPos.y(), 0);
     //return (refVector.cross(m_normal)).z()/refVector.mag();
     // or the equivalent
-    return (globalPos.x() * m_normal.y() - globalPos.y() * m_normal.x()) / globalPos.perp();
+    const Amg::Vector3D& normal = this->normal();
+    return (globalPos.x() * normal.y() - globalPos.y() * normal.x()) / globalPos.perp();
   }
 
   double
   SiDetectorElement::sinStereo() const
   {
-    if (!m_cacheValid) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
-    }
-
     return sinStereoImpl();
   }
 
   double
   SiDetectorElement::sinStereo(const Amg::Vector2D& localPos) const
   {
-    if (!m_cacheValid) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
-    }
-
     Amg::Vector3D point=globalPosition(localPos);
     return sinStereoImpl(point);
   }
@@ -323,11 +297,6 @@ namespace InDetDD {
   double
   SiDetectorElement::sinStereo(const Amg::Vector3D& globalPos) const
   {
-    if (!m_cacheValid) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
-    }
-
     return sinStereoImpl(globalPos);
   } 
 
@@ -336,7 +305,7 @@ namespace InDetDD {
   {
     // The equation below will work for rectangle detectors as well in which 
     // case it will return 0. But we return zero immediately as there is no point doing the calculation.
-    if (m_design->shape() == InDetDD::Box) return 0.;
+    if (m_siDesign->shape() == InDetDD::Box) return 0.;
     double oneOverRadius = (maxWidth() - minWidth()) / (width() * length());
     double x = localPos[distPhi];
     double y = localPos[distEta];
@@ -352,14 +321,11 @@ namespace InDetDD {
   bool
   SiDetectorElement::isStereo() const
   {
-    if (!m_stereoCacheValid) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_stereoCacheValid) {
-        determineStereo();
-      }
+    if (!m_isStereo.isValid()) {
+      m_isStereo.set (determineStereo());
     }
 
-    return m_isStereo;
+    return *m_isStereo.ptr();
   }
 
   double SiDetectorElement::get_rz() const
@@ -379,13 +345,13 @@ namespace InDetDD {
   SiDetectorElement::nearBondGap(const Amg::Vector2D& localPosition, double etaTol) const
   {
     //again, can we avoid casting here?
-    return static_cast<const SiDetectorDesign *>(m_design)->nearBondGap(localPosition, etaTol);
+    return static_cast<const SiDetectorDesign *>(m_siDesign)->nearBondGap(localPosition, etaTol);
   }
 
   bool
   SiDetectorElement::nearBondGap(const Amg::Vector3D& globalPosition, double etaTol) const
   {
-    return static_cast<const SiDetectorDesign *>(m_design)->nearBondGap(localPosition(globalPosition), etaTol);
+    return static_cast<const SiDetectorDesign *>(m_siDesign)->nearBondGap(localPosition(globalPosition), etaTol);
   }
 
 
@@ -396,7 +362,7 @@ namespace InDetDD {
   {
     //again with the casting...
     const std::pair<Amg::Vector2D,Amg::Vector2D> localEnds=
-      static_cast<const SiDetectorDesign *>(m_design)->endsOfStrip(position);
+      static_cast<const SiDetectorDesign *>(m_siDesign)->endsOfStrip(position);
     return std::pair<Amg::Vector3D,Amg::Vector3D >(globalPosition(localEnds.first),
                                                    globalPosition(localEnds.second));
   }
@@ -442,10 +408,7 @@ namespace InDetDD {
   // update cache
   // This is supposed to be called inside a block like
   //
-  // if (!m_cacheValid) {
-  //   std::lock_guard<std::mutex> lock(m_mutex);
-  //   if (!m_cacheValid) updateCache();
-  // }
+  // if (!m_cache.isValid()) updateCache();
   //
   void
   SiDetectorElement::updateCache() const
@@ -455,42 +418,33 @@ namespace InDetDD {
     SolidStateDetectorElementBase::updateCache();
 
     //Similar to 21.9, but ... Do we actually need this? If not, we could just rely on the base-class implementation?
-    if (isBarrel() && !m_barrelLike) {
+    if (isBarrel() && !m_axisDir.ptr()->m_barrelLike) {
       ATH_MSG_WARNING("Element has endcap like orientation with barrel identifier.");
-    } else if (!isBarrel() && m_barrelLike && (m_design->type())!=InDetDD::PixelInclined) {
+    } else if (!isBarrel() && m_axisDir.ptr()->m_barrelLike && (m_siDesign->type())!=InDetDD::PixelInclined && (m_siDesign->type())!=InDetDD::PLR) {
       ATH_MSG_WARNING("Element has barrel like orientation with endcap identifier.");
     }
-
-    m_cacheValid.store(true);
-    if (m_firstTime) m_firstTime.store(false);
   }
 
-  void
+  bool
   SiDetectorElement::determineStereo() const
   {
-    // Assume m_mutex is already locked.
-
-    if (m_firstTime) updateCache();
-
     if (isSCT() && m_otherSide) {
       double sinStereoThis = std::abs(sinStereoImpl()); // Call the private impl method
       double sinStereoOther = std::abs(m_otherSide->sinStereo());
       if (sinStereoThis == sinStereoOther) {
-        // If they happend to be equal then set side0 as axial and side1 as stereo.
+        // If they happen to be equal then set side0 as axial and side1 as stereo.
         const SCT_ID* sctId = dynamic_cast<const SCT_ID*>(getIdHelper());
         if (sctId) {
           int side = sctId->side(m_id);
-          m_isStereo = (side == 1);
+         return (side == 1);
         }
       } else {
         // set the stereo side as the one with largest absolute sinStereo.
-        m_isStereo = (sinStereoThis > sinStereoOther);
+        return (sinStereoThis > sinStereoOther);
       }
-    } else {
-      m_isStereo = false;
     }
 
-    m_stereoCacheValid.store(true);
+    return false;
   }
   
   double
@@ -521,25 +475,32 @@ namespace InDetDD {
     //Since these are barrel, endcap, sensor-type, specific, might be better for these to be calculated in the design()
     //However, not clear how one could do that for the annulus calculation which uses global frame
     double sinStereo = 0.;
+    auto designShape = m_siDesign->shape();
     if (isBarrel()) {
-      sinStereo = m_phiAxis.z();
+      sinStereo = this->phiAxis().z();
     } else { // endcap
-      if (m_design->shape() == InDetDD::Annulus) { //built-in Stereo angle for Annulus shape sensor
-	Amg::Vector3D sensorCenter = m_design->sensorCenter();
-	//Below retrieved method will return -sin(m_Stereo), thus sinStereolocal = sin(m_Stereo)
-	double sinStereoReco = - (m_design->sinStripAngleReco(sensorCenter[1], sensorCenter[0]));
-	double cosStereoReco = sqrt(1-sinStereoReco*sinStereoReco); 
-	double radialShift = sensorCenter[0]; 
-	//The focus of all strips in the local reco frame
-	Amg::Vector2D localfocus(-radialShift*sinStereoReco, radialShift - radialShift*cosStereoReco);
-	//The focus of all strips in the global frame
-	Amg::Vector3D globalfocus(globalPosition(localfocus));
-	//The direction of x-axis of the Strip frame in the global frame
-	Amg::Vector3D globalSFxAxis =(m_center - globalfocus)/radialShift;
-	//Stereo angle is the angle between global radial direction and the x-axis of the Strip frame in the global frame 
-	sinStereo = (m_center.y() * globalSFxAxis.x() - m_center.x() * globalSFxAxis.y()) / m_center.perp();   
+      if (designShape == InDetDD::Annulus) { //built-in Stereo angle for Annulus shape sensor
+        Amg::Vector3D sensorCenter = m_siDesign->sensorCenter();
+        //Below retrieved method will return -sin(m_Stereo), thus sinStereolocal = sin(m_Stereo)
+        double sinStereoReco = - (m_siDesign->sinStripAngleReco(sensorCenter[1], sensorCenter[0]));
+        double cosStereoReco = sqrt(1-sinStereoReco*sinStereoReco); 
+        double radialShift = sensorCenter[0]; 
+        //The focus of all strips in the local reco frame
+        Amg::Vector2D localfocus(-radialShift*sinStereoReco, radialShift - radialShift*cosStereoReco);
+        //The focus of all strips in the global frame
+        Amg::Vector3D globalfocus(globalPosition(localfocus));
+        //The direction of x-axis of the Strip frame in the global frame
+              const Amg::Vector3D& center = this->center();
+        Amg::Vector3D globalSFxAxis =(center - globalfocus)/radialShift;
+        //Stereo angle is the angle between global radial direction and the x-axis of the Strip frame in the global frame 
+        sinStereo = (center.y() * globalSFxAxis.x() - center.x() * globalSFxAxis.y()) / center.perp();   
       }
-      else sinStereo = (m_center.y() * m_etaAxis.x() - m_center.x() * m_etaAxis.y()) / m_center.perp();
+      // else if (designShape == InDetDD::PolarAnnulus) {} // Polar specialisation in future
+      else { // barrel
+        const Amg::Vector3D& etaAxis = this->etaAxis();
+        const Amg::Vector3D& center = this->center();
+        sinStereo = (center.y() * etaAxis.x() - center.x() * etaAxis.y()) / center.perp();
+      }
     }
     return sinStereo;
   }
@@ -552,23 +513,29 @@ namespace InDetDD {
     //
     double sinStereo = 0.;
     if (isBarrel()) {
-      if (m_design->shape() != InDetDD::Trapezoid) {
-        sinStereo = m_phiAxis.z();
+      if (m_siDesign->shape() != InDetDD::Trapezoid) {
+        sinStereo = this->phiAxis().z();
       } else { // trapezoid
         assert (minWidth() != maxWidth());
         double radius = width() * length() / (maxWidth() - minWidth());
-	Amg::Vector3D stripAxis = radius * m_etaAxis + globalPos - m_center;
-        sinStereo = (stripAxis.x() * m_normal.y() - stripAxis.y() * m_normal.x()) / stripAxis.mag();
+        const Amg::Vector3D& etaAxis = this->etaAxis();
+        const Amg::Vector3D& center = this->center();
+        const Amg::Vector3D& normal = this->normal();
+	Amg::Vector3D stripAxis = radius * etaAxis + globalPos - center;
+        sinStereo = (stripAxis.x() * normal.y() - stripAxis.y() * normal.x()) / stripAxis.mag();
       }
     } else { // endcap
-      if (m_design->shape() != InDetDD::Trapezoid) {
-        sinStereo = (globalPos.y() * m_etaAxis.x() - globalPos.x() * m_etaAxis.y()) / globalPos.perp();
+      if (m_siDesign->shape() != InDetDD::Trapezoid) {
+        const Amg::Vector3D& etaAxis = this->etaAxis();
+        sinStereo = (globalPos.y() * etaAxis.x() - globalPos.x() * etaAxis.y()) / globalPos.perp();
       } else { // trapezoid
         assert (minWidth() != maxWidth());
+        const Amg::Vector3D& etaAxis = this->etaAxis();
+        const Amg::Vector3D& center = this->center();
         double radius = width() * length() / (maxWidth() - minWidth());
         // Only need projection in xy plane.
-        double stripAxisX  = globalPos.x() - m_center.x() + m_etaAxis.x()*radius;
-        double stripAxisY  = globalPos.y() - m_center.y() + m_etaAxis.y()*radius;
+        double stripAxisX  = globalPos.x() - center.x() + etaAxis.x()*radius;
+        double stripAxisY  = globalPos.y() - center.y() + etaAxis.y()*radius;
         double norm = 1./(radius*sqrt(stripAxisX*stripAxisX + stripAxisY*stripAxisY));
         sinStereo = norm * (stripAxisX * globalPos.y() - stripAxisY * globalPos.x());
       }

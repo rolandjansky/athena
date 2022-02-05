@@ -76,7 +76,7 @@ namespace LVL1{
       m_EndcapPhiMask         = 0x00000003;
       m_ForwardRMask          = 0x0000003c;
       m_ForwardPhiMask        = 0x00000003;
-      m_OverflowPerRoIMask    = 0x00001000;
+      m_OverflowPerRoIMask    = 0x00002000;
       m_OverflowPerSectorMask = 0x00020000;
       m_BW2Or3Mask            = 0x00002000;
       m_InnerCoinMask         = 0x00004000;

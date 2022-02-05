@@ -11,10 +11,6 @@
 /// of curved (parabolic) segments. The method used is a generalization of the
 /// analytic autocalibration developed by Deile, Hessey, and Staude (see
 /// ATL-MUON-2004-021).
-///
-/// \author Oliver.Kortner@CERN.CH
-///
-/// \date 10.05.2008
 
 #include <list>
 #include <memory>
@@ -50,7 +46,7 @@ namespace MuonCalib {
     class RtCalibrationCurved : public IMdtCalibration {
     public:
         // Constructors //
-        RtCalibrationCurved(std::string name);
+        RtCalibrationCurved(const std::string &name);
         ///< Default constructor: r-t accuracy is set to 0.5 mm.
         ///< The r-t accuracy is used internally to distinguish between good
         ///< and bad segments.
@@ -62,7 +58,7 @@ namespace MuonCalib {
         ///< No parabolic extrapolations are used.
         ///< By default no smoothing is applied after convergence.
 
-        RtCalibrationCurved(std::string name, const double &rt_accuracy, const unsigned int &func_type, const unsigned int &ord,
+        RtCalibrationCurved(const std::string &name, const double &rt_accuracy, const unsigned int &func_type, const unsigned int &ord,
                             const bool &fix_min, const bool &fix_max, const int &max_it, bool do_parabolic_extrapolation = false,
                             bool do_smoothing = false, bool do_multilayer_rt_scale = false);
         ///< Constructor.
@@ -160,7 +156,7 @@ namespace MuonCalib {
         ///< after convergence
 
         // methods required by the base class "IMdtCalibration" //
-        const IMdtCalibrationOutput *analyseSegments(const std::vector<MuonCalibSegment *> &seg);
+        MdtCalibOutputPtr analyseSegments(const MuonSegVec &seg) override;
         ///< perform the full autocalibration
         ///< including iterations
         ///< (required since
@@ -169,66 +165,66 @@ namespace MuonCalib {
         ///< analyse the segment "seg"
         ///< (this method was required before
         ///< MdtCalibInterfaces-00-01-06)
-        void setInput(const IMdtCalibrationOutput *rt_input);
+        void setInput(const IMdtCalibrationOutput *rt_input) override;
         ///< set the r-t relationship,
         ///< the internal autocalibration
         ///< objects are reset
-        bool analyse(const std::vector<MuonCalibSegment *> &seg);
+        bool analyse(const MuonSegVec &seg);
         ///< perform the autocalibration with
         ///< the segments acquired so far
         bool converged() const;
         ///< returns true, if the
         ///< autocalibration has converged
-        const IMdtCalibrationOutput *getResults() const;
+        virtual MdtCalibOutputPtr getResults() const override;
         ///< returns the final r-t relationship
 
     private:
         // options //
-        bool m_control_histograms;      // = true, if control histograms should be
+        bool m_control_histograms = false;      // = true, if control histograms should be
                                         //         produces
-        bool m_fix_min;                 // = true: fix r(t_min)
-        bool m_fix_max;                 // = true: fix r(t_max)
-        int m_max_it;                   // maximum number of iterations
-        bool m_force_monotony;          // = true if r(t) is forced to monotonically
+        bool m_fix_min = false;                 // = true: fix r(t_min)
+        bool m_fix_max = false;                 // = true: fix r(t_max)
+        int m_max_it = 0;                   // maximum number of iterations
+        bool m_force_monotony = false;          // = true if r(t) is forced to monotonically
                                         //   increasing, false otherwise
-        bool m_do_multilayer_rt_scale;  // determine multilayer rt scaling
+        bool m_do_multilayer_rt_scale = false;  // determine multilayer rt scaling
 
         // bookkeeping //
-        int m_nb_segments;       // number of segments passed to the algorithm
-        int m_nb_segments_used;  // number of segments used by the algorithm
-        int m_iteration;         // current iteration
-        bool m_multilayer[2];    // m_multilayer[k] = true, if there was a segment
-                                 //                   extending to multilayer k+1
+        int m_nb_segments = 0;                 // number of segments passed to the algorithm
+        int m_nb_segments_used = 0;            // number of segments used by the algorithm
+        int m_iteration = 0;                   // current iteration
+        std::array<bool, 2> m_multilayer{};  // m_multilayer[k] = true, if there was a segment
+                                           //                   extending to multilayer k+1
 
         // r-t quality //
-        int m_status;                   // m_status: 0: no covergence yet,
+        int m_status = 0;                   // m_status: 0: no covergence yet,
                                         //           1: convergence, r-t is reliable,
                                         //           2: convergence, r-t is unreliable
-        double m_rt_accuracy;           // r-t accuracy (CLHEP::mm) of the input r-t
+        double m_rt_accuracy = 0.0;           // r-t accuracy (CLHEP::mm) of the input r-t
         double m_rt_accuracy_previous;  // r-t accuracy of the previous iteration
                                         // (used in the convergence criterion)
-        double m_chi2_previous;
+        double m_chi2_previous = 0.0;
         // average chi^2 per degrees of freedom from the
         // previous iteration (set to a large initial value
         // to force at least two iterations);
         // if an iteration gives a larger average than the
         // pervious iteration, the algorithm has converged
-        double m_chi2;  // average chi^2 per degrees of freedom,
+        double m_chi2 = 0.0;  // average chi^2 per degrees of freedom,
                         // if an iteration gives a larger average than the
                         // pervious iteration, the algorithm has converged
 
         // r-t relationship //
         std::shared_ptr<const IRtRelation> m_rt;  // pointer to the input r-t relationship
-        double m_t_length;                        // size of the drift time interval
-        double m_t_mean;                          // mean value of the drift time interval
+        double m_t_length = 0.0;                        // size of the drift time interval
+        double m_t_mean = 0.0;                          // mean value of the drift time interval
 
         // r-t output //
         std::shared_ptr<IRtRelation> m_rt_new;          // r-t as determined by the autocalibration
-        std::unique_ptr<RtCalibrationOutput> m_output;  // class holding the results of the
+        std::shared_ptr<RtCalibrationOutput> m_output;  // class holding the results of the
                                                         // autocalibration
         std::unique_ptr<MultilayerRtDifference> m_multilayer_rt_difference;
         // curved-segment fitting //
-        double m_r_max;                           // maximum value for accepted drift radii
+        double m_r_max = 0.0;                           // maximum value for accepted drift radii
         std::unique_ptr<CurvedPatRec> m_tracker;  // curved segment finder (used for track fitting)
                                                   // The following three objects are needed for autocalibration formulae.
 
@@ -236,14 +232,14 @@ namespace MuonCalib {
         CLHEP::HepSymMatrix m_M_track_inverse;  // inverse of m_M_track
 
         // autocalibration objects //
-        bool m_do_parabolic_extrapolation;           // = true: parabolic extrapolation is
+        bool m_do_parabolic_extrapolation = false;           // = true: parabolic extrapolation is
                                                      //         done for small and large radii
                                                      // = false: no parabolic extrapolation is
                                                      //          done
-        bool m_do_smoothing;                         // = true: the r-t relationship is smoothened after
+        bool m_do_smoothing = false;                         // = true: the r-t relationship is smoothened after
                                                      //         convergence, no smoothing is done
                                                      //         otherwise
-        unsigned int m_order;                        // order of the polynomial describing the
+        unsigned int m_order = 0U;                        // order of the polynomial describing the
                                                      // correction to the r-t relationship
         std::vector<CLHEP::HepVector> m_U;           // vector of base correction function values
         std::vector<CLHEP::HepVector> m_U_weighted;  // vector of base correction function
@@ -258,7 +254,7 @@ namespace MuonCalib {
 
         // correction functions //
         std::unique_ptr<BaseFunction> m_base_function;  // pointer to the base function u
-        const Legendre_polynomial *m_Legendre;          // pointer to the Legendre polynomial
+        const Legendre_polynomial *m_Legendre = nullptr;          // pointer to the Legendre polynomial
                                                         // describing the curved line
 
         // control histograms //

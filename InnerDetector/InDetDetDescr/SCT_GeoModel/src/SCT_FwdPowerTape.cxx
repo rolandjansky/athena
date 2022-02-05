@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_FwdPowerTape.h"
@@ -31,7 +31,7 @@ SCT_FwdPowerTape::SCT_FwdPowerTape(const std::string & name,
   m_zPosition = 0.5 * (startPos + endPos);
  
   getParameters();
-  m_physVolume = build();
+  m_physVolume = SCT_FwdPowerTape::build();
 }
 
 

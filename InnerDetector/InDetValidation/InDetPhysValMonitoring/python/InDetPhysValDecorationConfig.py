@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -44,14 +44,7 @@ def canAddDecorator(flags):
     if not (flags.Detector.GeometryID or flags.Detector.GeometryITk):
         return False
 
-    inputTags = flags.Input.ProcessingTags
-
-    for tag in inputTags:
-        if "StreamAOD" in tag:
-            return True
-
-        if "StreamESD" in tag:
-            return True
+    return ("StreamESD" in flags.Input.ProcessingTags or "StreamAOD" in flags.Input.ProcessingTags) and flags.IDPVM.runDecoration
 
     '''
     if rec.readTAG:
@@ -95,13 +88,9 @@ def createExtendNameIfNotDefaultCfg(alg,
     return acc
 
 
-def PhysValMonInDetHoleSearchToolCfg(flags, name="PhysValMonInDetHoleSearchTool", **kwargs):    
-    if flags.Detector.GeometryID:
-        from InDetConfig.InDetRecToolConfig import InDetTrackHoleSearchToolCfg
-        return InDetTrackHoleSearchToolCfg(flags, name=name, **kwargs)
-    elif flags.Detector.GeometryITk:
-        from InDetConfig.ITkRecToolConfig import ITkTrackHoleSearchToolCfg
-        return ITkTrackHoleSearchToolCfg(flags, name=name, **kwargs)
+def PhysValMonInDetHoleSearchToolCfg(flags, name="PhysValMonInDetHoleSearchTool", **kwargs):
+    from InDetConfig.InDetRecToolConfig import TrackHoleSearchToolCfg
+    return TrackHoleSearchToolCfg(flags, name=name, **kwargs)
 
 def InDetPhysHitDecoratorAlgCfg(flags, **kwargs):
     '''
@@ -113,13 +102,8 @@ def InDetPhysHitDecoratorAlgCfg(flags, **kwargs):
 
     kwargs.setdefault( "InDetTrackHoleSearchTool", acc.popToolsAndMerge(PhysValMonInDetHoleSearchToolCfg(flags)) )
 
-    Updator = None
-    if flags.Detector.GeometryID:
-        from InDetConfig.TrackingCommonConfig import InDetUpdatorCfg
-        Updator = acc.getPrimaryAndMerge(InDetUpdatorCfg(flags))
-    elif flags.Detector.GeometryITk:
-        from InDetConfig.ITkRecToolConfig import ITkUpdatorCfg
-        Updator = acc.popToolsAndMerge(ITkUpdatorCfg(flags))
+    from InDetConfig.TrackingCommonConfig import InDetUpdatorCfg
+    Updator = acc.popToolsAndMerge(InDetUpdatorCfg(flags))
     kwargs.setdefault( "Updator", Updator )
 
     acc.merge(createExtendNameIfNotDefaultCfg(CompFactory.InDetPhysHitDecoratorAlg,
@@ -148,14 +132,10 @@ def InDetPhysValTruthDecoratorAlgCfg(flags, **kwargs):
     '''
     acc = ComponentAccumulator()
 
-    Extrapolator = None
-    if flags.Detector.GeometryITk:
-        from  InDetConfig.ITkRecToolConfig import ITkExtrapolatorCfg
-        Extrapolator = acc.getPrimaryAndMerge(ITkExtrapolatorCfg(flags))
-    else:
-        from  InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
-        Extrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
-    kwargs.setdefault("Extrapolator", Extrapolator)
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+    extrapolator = acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
+    acc.addPublicTool(extrapolator)  # TODO: migrate to private?
+    kwargs.setdefault("Extrapolator", extrapolator)
 
     acc.merge(createExtendNameIfNotDefaultCfg(CompFactory.InDetPhysValTruthDecoratorAlg,
                                               'TruthParticleContainerName', 'TruthParticles',
@@ -206,7 +186,10 @@ def AddDecoratorCfg(flags,**kwargs):
 
     acc.merge(TrackDecoratorsCfg(flags))
   
-    if flags.Input.isMC and not flags.Detector.GeometryITk: #Temporarily disabled for ITk
+    if flags.Input.isMC:
+        from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
+        acc.merge(BeamSpotCondAlgCfg(flags))
+
         acc.merge(InDetPhysValTruthDecoratorAlgCfg(flags))
 
     if flags.IDPVM.doValidateGSFTracks:

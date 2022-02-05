@@ -22,6 +22,7 @@
 #include "StoreGate/ReadCondHandleKey.h"
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
+#include "TrigT1CaloCalibToolInterfaces/IL1CaloMatchCell2Tower.h"
 
 class StatusCode;
 class TH2F_LW;
@@ -34,7 +35,6 @@ namespace LVL1 {
 // ============================================================================
 // Forward declarations:
 // ============================================================================
-class IL1CaloCells2TriggerTowers;
 class IL1CaloTTIdTools;
 class IL1TriggerTowerTool;
 class ITrigT1CaloMonErrorTool;
@@ -88,7 +88,7 @@ class TrigT1CaloLWHistogramTool;
  *  <tr><td> @c LVL1::IL1TriggerTowerTool        </td><td> @copydoc m_ttTool          </td></tr>
  *  <tr><td> @c TrigT1CaloMonErrorTool           </td><td> @copydoc m_errorTool       </td></tr>
  *  <tr><td> @c TrigT1CaloLWHistogramTool        </td><td> @copydoc m_histTool        </td></tr>
- *  <tr><td> @c LVL1::IL1CaloCells2TriggerTowers </td><td> @copydoc m_cells2tt        </td></tr>
+ *  <tr><td> @c LVL1::IL1CaloMatchCell2Tower     </td><td> @copydoc m_cellMatch     </td></tr>
  *  <tr><td> @c LVL1::IL1CaloTTIdTools           </td><td> @copydoc m_ttIdTools       </td></tr>
  *  <tr><td> @c ITileBadChanTool                 </td><td> @copydoc m_tileBadChanTool </td></tr>
  *  </table>
@@ -139,8 +139,9 @@ private:
   ToolHandle<ITrigT1CaloMonErrorTool>    m_errorTool;
   /// Histogram helper tool
   ToolHandle<TrigT1CaloLWHistogramTool> m_histTool;
-  /// CaloCell to TriggerTower mapping tool
-  ToolHandle<LVL1::IL1CaloCells2TriggerTowers> m_cells2tt;
+  /// CaloCell to TriggerTower matching tool
+  ToolHandle<LVL1::IL1CaloMatchCell2Tower> m_cellMatch
+    { this, "L1CaloMatchCell2Tower",  "LVL1::L1CaloMatchCell2Tower",  "L1CaloMatchCell2Tower" };
   /// Tool for Identifier to eta/phi mappings
   ToolHandle<LVL1::IL1CaloTTIdTools> m_ttIdTools;
   /// Tool for PMT gain status

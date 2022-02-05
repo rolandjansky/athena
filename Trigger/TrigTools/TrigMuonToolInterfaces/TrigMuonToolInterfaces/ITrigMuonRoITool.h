@@ -9,6 +9,7 @@
 #include "GaudiKernel/EventContext.h"
 #include <vector>
 #include <utility>
+#include "TrigT1Result/MuCTPIRoI.h"
 
 namespace ROIB {
   class MuCTPIRoI;
@@ -21,12 +22,12 @@ class ITrigMuonRoITool: virtual public IAlgTool
   DeclareInterfaceID( ITrigMuonRoITool, 1, 0 );
 
   struct MuonRois{
-    MuonRois(std::vector<ROIB::MuCTPIRoI>* inroi,
-	     std::vector< std::pair<ROIB::MuCTPIRoI,int> >* outroi)
-    : inTimeRois( inroi),
-      outOfTimeRois( outroi ) {}
-    std::vector<ROIB::MuCTPIRoI>* inTimeRois;
-    std::vector< std::pair<ROIB::MuCTPIRoI,int> >* outOfTimeRois;
+    MuonRois(std::vector<ROIB::MuCTPIRoI> &&inroi,
+	     std::vector< std::pair<ROIB::MuCTPIRoI,int> > &&outroi)
+    : inTimeRois( std::move(inroi)),
+      outOfTimeRois( std::move(outroi) ) {}
+    std::vector<ROIB::MuCTPIRoI> inTimeRois;
+    std::vector< std::pair<ROIB::MuCTPIRoI,int> > outOfTimeRois;
   };
 
 

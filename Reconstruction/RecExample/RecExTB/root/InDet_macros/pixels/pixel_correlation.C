@@ -32,30 +32,25 @@ void pixel_correlation(int SaveOpt=0) {
   TCanvas *c11 = new TCanvas("pixel_corr","Pixel Offline Monitor: Correlations");
   c11->Divide(2,2);
 
-  TH2F *histoAllCol;
+  TH2F *histoAllCol = new TH2F(name2,name,144,0.,144.,144,0.,144.);;
   sprintf(name,"Correlation Pixel Col - All Hits - mod0-mod4");
   sprintf(name2,"corAllCol");
-  histoAllCol = new TH2F(name2,name,144,0.,144.,144,0.,144.);
 
-  TH2F *histoToTFilterCol;
+  TH2F *histoToTFilterCol = new TH2F(name2,name,144,0.,144.,144,0.,144.);
   sprintf(name,"Correlation Pixel Col - max ToT hit - mod0-mod4");
   sprintf(name2,"corToTCol");
-  histoToTFilterCol = new TH2F(name2,name,144,0.,144.,144,0.,144.);
 
-  TH2F *histoAllRow;
+  TH2F *histoAllRow = new TH2F(name2,name,328,0.,328.,328,0.,328.);;
   sprintf(name,"Correlation Pixel Row - All Hits - mod0-mod4");
   sprintf(name2,"corAllRow");
-  histoAllRow = new TH2F(name2,name,328,0.,328.,328,0.,328.);
 
-  TH2F *histoToTFilterCol;
+  TH2F *histoToTFilterRow= new TH2F(name2,name,328,0.,328.,328,0.,328.);
   sprintf(name,"Correlation Pixel Row - max ToT hit - mod0-mod4");
   sprintf(name2,"corToTRow");
-  histoToTFilterRow = new TH2F(name2,name,328,0.,328.,328,0.,328.);
-  //i=1;
 
-  int hit, module;
+  int hit{}, module{};
   int nhits_per_mod[LAYERS * MODULES_IN_PHI];
-  int count;
+  int count{};
   float hitcol[LAYERS * MODULES_IN_PHI][MAX_HITS];
   float hitrow[LAYERS * MODULES_IN_PHI][MAX_HITS];
 

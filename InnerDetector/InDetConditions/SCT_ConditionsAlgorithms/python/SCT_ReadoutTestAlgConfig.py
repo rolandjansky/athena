@@ -1,6 +1,6 @@
 """Define method to configure and test SCT_ReadoutTestAlg
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -8,7 +8,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 def SCT_ReadoutTestAlgCfg(flags, name="SCT_ReadoutTestAlg", **kwargs):
     """Return a configured SCT_ReadoutTestAlg"""
     acc = ComponentAccumulator()
-    from InDetConfig.InDetRecToolConfig import SCT_ReadoutToolCfg
+    from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_ReadoutToolCfg
     kwargs.setdefault("SCT_ReadoutTool", acc.popToolsAndMerge(SCT_ReadoutToolCfg(flags)))
 
     # Module type and link status
@@ -49,7 +49,7 @@ def SCT_ReadoutTestAlgCfg(flags, name="SCT_ReadoutTestAlg", **kwargs):
     # kwargs.setdefault("ChipConfigurationList", allLink1EndcapMod)
     # kwargs.setdefault("ChipConfigurationList", infiniteEndcapMod)
 
-    acc.addEventAlgo(CompFactory.SCT_ReadoutTestAlg(**kwargs))
+    acc.addEventAlgo(CompFactory.SCT_ReadoutTestAlg(name, **kwargs))
     return acc
 
 if __name__=="__main__":
@@ -61,6 +61,7 @@ if __name__=="__main__":
     Configurable.configurableRun3Behavior=1
     
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    ConfigFlags.Input.Files = []
     ConfigFlags.Input.isMC = True
     ConfigFlags.Input.ProjectName = "mc16_13TeV"
     ConfigFlags.Input.RunNumber = 300000 # MC16c 2017 run number

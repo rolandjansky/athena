@@ -29,22 +29,20 @@ for option in defaultOptions:
 
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 ConfigFlags.Trigger.generateMenuDiagnostics = True
+ConfigFlags.Trigger.triggerMenuSetup = "Dev_pp_run3_v1"
 
-
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 createHLTMenuExternally=True # menu will be build up explicitly here 
 doWriteRDOTrigger = False
 doWriteBS = False
 forceEnableAllChains=True
-TriggerFlags.triggerMenuSetup = "LS2_v1"
 
 # load all configuration as the real HLT
 include("TriggerJobOpts/runHLT_standalone.py")
 
 
 # make menu manually here:
-from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
-from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
+from TriggerMenuMT.HLT.Menu.HLTCFConfig import makeHLTTree
+from TriggerMenuMT.HLT.Menu.TriggerConfigHLT import TriggerConfigHLT
 from TriggerMenuMT.CFtest.generateCFChains import generateCFChains
 from TriggerMenuMT.CFtest.EmuStepProcessingConfig import generateHLTSeedingAndChainsManually, generateHLTSeedingAndChainsByMenu
 
@@ -52,7 +50,7 @@ topSequence = AlgSequence()
 
 if testopt.menuType == 'menuManual':
     generateCFChains(opt)
-    from TriggerMenuMT.HLTMenuConfig.Menu.CheckL1HLTConsistency import checkL1HLTConsistency
+    from TriggerMenuMT.HLT.Menu.CheckL1HLTConsistency import checkL1HLTConsistency
     checkL1HLTConsistency()
 elif testopt.menuType == 'emuMenuTest':
     # HLT_TestChain
@@ -64,21 +62,21 @@ else:
 
 
 # set DEBUG flag on the control-flow builder (before building)
-import TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig
-TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig.log.setLevel(DEBUG)
+import TriggerMenuMT.HLT.Menu.HLTCFConfig
+TriggerMenuMT.HLT.Menu.HLTCFConfig.log.setLevel(DEBUG)
 
 # from here generate the ControlFlow and the Dataflow
 # doing the same as menu.generateMT()
 makeHLTTree( triggerConfigHLT=TriggerConfigHLT )
 
        
-from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
+from TriggerMenuMT.HLT.Menu.HLTMenuJSON import generateJSON
 generateJSON()
 
-from TriggerMenuMT.HLTMenuConfig.Menu.HLTPrescaleJSON import generateJSON as generatePrescaleJSON
+from TriggerMenuMT.HLT.Menu.HLTPrescaleJSON import generateJSON as generatePrescaleJSON
 generatePrescaleJSON()
    
-from TriggerMenuMT.HLTMenuConfig.Menu.HLTMonitoringJSON import generateDefaultMonitoringJSON
+from TriggerMenuMT.HLT.Menu.HLTMonitoringJSON import generateDefaultMonitoringJSON
 generateDefaultMonitoringJSON()
 
 # now some debug

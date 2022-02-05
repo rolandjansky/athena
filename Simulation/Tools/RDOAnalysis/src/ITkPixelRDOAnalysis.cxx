@@ -17,7 +17,10 @@
 #include <functional>
 #include <iostream>
 
-ITkPixelRDOAnalysis::ITkPixelRDOAnalysis(const std::string& name, ISvcLocator *pSvcLocator)
+namespace ITk
+{
+
+PixelRDOAnalysis::PixelRDOAnalysis(const std::string& name, ISvcLocator *pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
   , m_inputKey("ITkPixelRDOs")
   , m_inputTruthKey("ITkPixelSDO_Map")
@@ -139,7 +142,7 @@ ITkPixelRDOAnalysis::ITkPixelRDOAnalysis(const std::string& name, ISvcLocator *p
   declareProperty("DoPosition", m_doPos);
 }
 
-StatusCode ITkPixelRDOAnalysis::initialize() {
+StatusCode PixelRDOAnalysis::initialize() {
   ATH_MSG_DEBUG( "Initializing ITkPixelRDOAnalysis" );
 
   // This will check that the properties were initialized
@@ -464,7 +467,7 @@ StatusCode ITkPixelRDOAnalysis::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode ITkPixelRDOAnalysis::execute() {
+StatusCode PixelRDOAnalysis::execute() {
   ATH_MSG_DEBUG(" In ITkPixelRDOAnalysis::execute()" );
 
   m_rdoID->clear();
@@ -775,6 +778,4 @@ StatusCode ITkPixelRDOAnalysis::execute() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode ITkPixelRDOAnalysis::finalize() {
-  return StatusCode::SUCCESS;
-}
+} // namespace ITk

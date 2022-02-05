@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -19,6 +19,7 @@ PURPOSE:  applies miscalibration in EM calorimeter
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
+#include "AthenaKernel/RNGWrapper.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 #include <CLHEP/Random/Randomize.h>
@@ -37,8 +38,6 @@ LArCellEmMiscalib::LArCellEmMiscalib(
 			     const IInterface* parent)
   : CaloCellCorrection(type, name, parent),
     m_larem_id(nullptr),
-    m_AtRndmGenSvc(nullptr),
-    m_engine(nullptr),
     m_seed(1234),
     m_sigmaPerRegion(0.005),
     m_sigmaPerCell(0.007),
@@ -61,17 +60,25 @@ LArCellEmMiscalib::LArCellEmMiscalib(
 StatusCode LArCellEmMiscalib::initialize()
 {
   ATH_MSG_INFO( " in LArCellEmMiscalib::initialize()"  );
+  ATH_CHECK(m_caloMgrKey.initialize());
+  ATH_CHECK(m_rngSvc.retrieve());
+  return StatusCode::SUCCESS;
+}
 
-  ATH_CHECK( detStore()->retrieve( m_caloIdMgr ) );
-  ATH_CHECK( detStore()->retrieve(m_calodetdescrmgr) );
+void LArCellEmMiscalib::initOnce (const EventContext& ctx) {
+  StatusCode sc;
+  sc=detStore()->retrieve( m_caloIdMgr );
+  sc.ignore();
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey, ctx};
+  m_calodetdescrmgr = *caloMgrHandle;
 
-  static const bool CREATEIFNOTTHERE(true);
-  ATH_CHECK( service("AtRndmGenSvc", m_AtRndmGenSvc, CREATEIFNOTTHERE) );
-  m_engine = m_AtRndmGenSvc->setOnDefinedSeeds(m_seed,this->name());
+  ATHRNG::RNGWrapper* wrapper = m_rngSvc->getEngine (this);
+  wrapper->setSeed (ctx.slot(), m_seed);
+  CLHEP::HepRandomEngine* engine = wrapper->getEngine (ctx);
 
 
   // computes the smearing per region
-  this->smearingPerRegion();
+  this->smearingPerRegion (engine);
 
 
   m_larem_id   = m_caloIdMgr->getEM_ID();
@@ -97,7 +104,7 @@ StatusCode LArCellEmMiscalib::initialize()
 
 
     if (iregion>=0) {
-         double spread2=m_sigmaPerCell*RandGauss::shoot(m_engine,0.,1.);
+         double spread2=m_sigmaPerCell*RandGauss::shoot(engine,0.,1.);
          m_calib[idHash] = m_spread1[iregion] + spread2;
          if (m_undo ) {
               if (m_calib[idHash] >0.) m_calib[idHash]=1./m_calib[idHash];
@@ -112,16 +119,16 @@ StatusCode LArCellEmMiscalib::initialize()
   }
 
 
-  return StatusCode::SUCCESS;
+  return;
 
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 
-void LArCellEmMiscalib::smearingPerRegion()
+void LArCellEmMiscalib::smearingPerRegion (CLHEP::HepRandomEngine* engine)
 {
   m_spread1.resize(544,1);
   for (int i=0;i<544;i++) {
-    m_spread1[i]=1.+m_sigmaPerRegion*RandGauss::shoot(m_engine,0.,1.);
+    m_spread1[i]=1.+m_sigmaPerRegion*RandGauss::shoot(engine,0.,1.);
   }
 
   if (msgLvl(MSG::DEBUG)) {
@@ -206,10 +213,10 @@ int LArCellEmMiscalib::region(int barrelec, double eta, double phi)
 
 
 void  LArCellEmMiscalib::MakeCorrection (CaloCell * theCell,
-                                         const EventContext& /*ctx*/) const
+                                         const EventContext& ctx) const
 {
-
-  
+  LArCellEmMiscalib* thisNC ATLAS_THREAD_SAFE = const_cast<LArCellEmMiscalib*>(this);
+  std::call_once(m_initOnce, &LArCellEmMiscalib::initOnce,thisNC, ctx);
   float energy = theCell->energy();
 
   float weight=1; 

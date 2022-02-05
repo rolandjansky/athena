@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AGDDMicromegas_H
@@ -10,15 +10,19 @@
 #include <string>
 #include <vector>
 #include <iostream>
-
+class AGDDVolumeStore;
+class AGDDSectionStore;
 
 
 class AGDDMicromegas: public MMDetectorDescription, public AGDDVolume {
 public:
-    AGDDMicromegas(std::string s);
+    AGDDMicromegas(const std::string& s,
+                   AGDDDetectorStore& ds,
+                   AGDDVolumeStore& vs,
+                   AGDDSectionStore& ss);
 
-	void CreateVolume();
-	void CreateSolid();
+        virtual void CreateVolume (AGDDBuilder& builder) override;
+	virtual void CreateSolid (const AGDDBuilder& builder) override;
 
 private:
 

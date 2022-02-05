@@ -18,6 +18,7 @@
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "Gaudi/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "AthenaKernel/IAthRNGSvc.h"
 
 #include "LArDigitization/LArHitEMap.h"
 #include "LArRawConditions/LArAutoCorrNoise.h"
@@ -35,18 +36,12 @@
 #include "LArElecCalib/ILArNoise.h"
 
 
-class IAtRndmGenSvc;
 class ITriggerTime;
 class CaloCell_SuperCell_ID;
 class CaloCell_ID;
 class LArOnline_SuperCellID;
 
 class CaloSuperCellDetDescrManager;
-
-namespace CLHEP
-{
-  class HepRandomEngine;
-}
 
 /**
    @brief The aim of this algorithm is the simulation of the LAr analogue Super-Cell sums. 
@@ -148,9 +143,11 @@ class LArSCL1Maker : public AthReentrantAlgorithm
 
 
   IChronoStatSvc*              m_chronSvc;
-  ServiceHandle<IAtRndmGenSvc> m_atRndmGenSvc;
-  std::string                  m_rndmEngineName;
-  CLHEP::HepRandomEngine*      m_rndmEngine;
+  Gaudi::Property<std::string> m_randomStreamName{this, "RandomStreamName", "LArSCL1Maker", ""};
+  ServiceHandle<IAthRNGSvc> m_atRndmGenSvc{this, "RndmSvc", "AthRNGSvc", ""};
+  Gaudi::Property<uint32_t> m_randomSeedOffset{this, "RandomSeedOffset", 2, ""};
+  Gaudi::Property<bool> m_useLegacyRandomSeeds{this, "UseLegacyRandomSeeds", false, "Use MC16-style random number seeding"};
+
 
   /** Alorithm property: use trigger time or not*/
   bool m_useTriggerTime;
@@ -197,8 +194,6 @@ class LArSCL1Maker : public AthReentrantAlgorithm
 
 /** algorithm property: sub-detectors to be simulated */
   std::string m_SubDetectors;          
-/** algorithm property: container name for the EM TTL1s */
-  std::string m_SCL1ContainerName;   
 
 #ifdef DONTDO
 /** algorithm property: container name of the EMB hits */

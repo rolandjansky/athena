@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # =============================================================================
-## Name:        PhotonIsEMSelectorMapping.py
+#  Name:        PhotonIsEMSelectorMapping.py
 ##
 # Author:      Tulay Cuhadar Donszelmann, Jovan Mitrevski
 # Created:     Dec 2011
@@ -10,9 +10,7 @@
 # =============================================================================
 
 #
-import ElectronPhotonSelectorTools.PhotonIsEMLooseSelectorCutDefs as PhotonIsEMLooseSelectorCutDefs
-import ElectronPhotonSelectorTools.PhotonIsEMTightSelectorCutDefs as PhotonIsEMTightSelectorCutDefs
-import ElectronPhotonSelectorTools.PhotonIsEMMediumSelectorCutDefs as PhotonIsEMMediumSelectorCutDefs
+import ElectronPhotonSelectorTools.PhotonIsEMMenuDefs as PhotonIsEMMenuDefs
 from ElectronPhotonSelectorTools.EgammaPIDdefs import egammaPID
 
 #
@@ -37,32 +35,32 @@ class photonPIDmenu:
 PhotonIsEMMapCurrent = {
     egammaPID.PhotonIDLoose:  (
         egammaPID.PhotonLoose,
-        PhotonIsEMLooseSelectorCutDefs.PhotonIsEMLooseSelectorConfig),
+        PhotonIsEMMenuDefs.PhotonIsEMLooseSelectorConfig),
     egammaPID.PhotonIDMedium: (
         egammaPID.PhotonMedium,
-        PhotonIsEMMediumSelectorCutDefs.PhotonIsEMMediumSelectorConfig),
+        PhotonIsEMMenuDefs.PhotonIsEMMediumSelectorConfig),
     egammaPID.PhotonIDTight:  (
         egammaPID.PhotonTight,
-        PhotonIsEMTightSelectorCutDefs.PhotonIsEMTightSelectorConfig),
+        PhotonIsEMMenuDefs.PhotonIsEMTightSelectorConfig),
 
     egammaPID.PhotonIDLooseAR:  (
         egammaPID.PhotonLooseAR,
-        PhotonIsEMLooseSelectorCutDefs.PhotonIsEMLooseSelectorConfig),
+        PhotonIsEMMenuDefs.PhotonIsEMLooseSelectorConfig),
     egammaPID.PhotonIDMediumAR: (
         egammaPID.PhotonMediumAR,
-        PhotonIsEMMediumSelectorCutDefs.PhotonIsEMMediumSelectorConfig),
+        PhotonIsEMMenuDefs.PhotonIsEMMediumSelectorConfig),
     egammaPID.PhotonIDTightAR:  (
         egammaPID.PhotonTightAR,
-        PhotonIsEMTightSelectorCutDefs.PhotonIsEMTightSelectorConfig),
+        PhotonIsEMMenuDefs.PhotonIsEMTightSelectorConfig),
     egammaPID.NoIDCut: (
         0,
-        PhotonIsEMLooseSelectorCutDefs.PhotonIsEMLooseSelectorConfig)
+        PhotonIsEMMenuDefs.PhotonIsEMLooseSelectorConfig)
 }
 
 PhotonIsEMMapPtInclJan2018 = {
     egammaPID.PhotonIDTight:  (
         egammaPID.PhotonTight,
-        PhotonIsEMTightSelectorCutDefs.PhotonIsEMTightSelectorConfigPtInclJan2018),
+        PhotonIsEMMenuDefs.PhotonIsEMTightSelectorConfigPtInclJan2018),
 }
 
 

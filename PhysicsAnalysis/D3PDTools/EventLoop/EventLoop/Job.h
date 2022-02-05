@@ -390,6 +390,16 @@ namespace EL
   public:
     static const std::string optLocalNoUnsetup;
 
+    /// \brief the option to specify the number of parallel jobs in
+    /// \ref LocalDriver (0 = number of hardware cores) (default=1)
+    ///
+    /// As an intermediate between running a single job locally and
+    /// running in batch, this allows to run multiple processes in
+    /// parallel locally.  It is still recommended to just run in
+    /// batch instead, but sometimes this is more practical.
+  public:
+    static const std::string optNumParallelProcs;
+
 
     /// \brief the option to do processing in a background process in PROOF
   public:

@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGNAVSTRUCTURE_TRIGGERELEMENT_H
@@ -147,7 +147,14 @@ namespace HLT {
      * @param rel relation name (one of HLT::Navigation::Relation)
      # @return is reference ot the vector of related TEs
      */
-    inline const std::vector<TriggerElement*>& getRelated( Relation rel ) const { return m_relations[rel];}
+    inline const std::vector<TriggerElement*>& getRelated( Relation rel ) const {
+      auto it = m_relations.find (rel);
+      if (it != m_relations.end()) {
+        return it->second;
+      }
+      static const std::vector<TriggerElement*> dumvec;
+      return dumvec;
+    }
 
     enum States { 
       activeState = 0x1,          //!< this bit is keeping active/inactive state of TE
@@ -156,22 +163,22 @@ namespace HLT {
       errorState  = 0x8           //!< somewhere in the algorithms dealing with this TE there was an error
     };
 
-    mutable std::map<Relation, std::vector<TriggerElement*> > m_relations;   //!< relations holder (features outside)
+    std::map<Relation, std::vector<TriggerElement*> > m_relations;   //!< relations holder (features outside)
 
     /**
      * @brief reates given TE to other TE
      * @param te TriggerElement pointer
      * @param r relation .. one of Relation enums
-     * Nothe that the relation is usially reflexive ...
+     * Nothe that the relation is usually reflexive ...
      */
-    void relate( TriggerElement* te, Relation r ) const;
+    void relate( TriggerElement* te, Relation r );
 
     /**
      * @brief relates this TE to vecor of other TEs
      * @param tes vector of TriggerElement pointers
      * @param r relation .. one of Relation enums
      */
-    void relate( const std::vector<TriggerElement*> tes, Relation r ) const;
+    void relate( const std::vector<TriggerElement*>& tes, Relation r );
 
     static unsigned int enquireId( std::vector<uint32_t>::const_iterator& inputIt );
 

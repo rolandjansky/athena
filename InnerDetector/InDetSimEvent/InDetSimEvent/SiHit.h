@@ -106,6 +106,7 @@ public:
   bool isPixel() const;
   bool isSCT() const;
   bool isHGTD() const;
+  bool isPLR() const;
 
   // Barrel or Endcap
   int getBarrelEndcap() const;

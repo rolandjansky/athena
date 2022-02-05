@@ -7,7 +7,7 @@
 
 namespace Tau{
 
-GeneralTauPlots::GeneralTauPlots(PlotBase* pParent, std::string sDir, std::string sTauJetContainerName):
+GeneralTauPlots::GeneralTauPlots(PlotBase* pParent, const std::string& sDir, const std::string& sTauJetContainerName):
    PlotBase(pParent, sDir),
    m_oParamPlots(this, "", sTauJetContainerName),
    m_tauCharge(nullptr),

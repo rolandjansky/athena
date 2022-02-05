@@ -26,6 +26,7 @@ LArAutoCorrAlgToDB::LArAutoCorrAlgToDB(const std::string& name, ISvcLocator* pSv
    declareProperty("GroupingType",    m_groupingType="ExtendedFeedThrough");
    declareProperty("OutAutoCorrKey",  m_acContName="LArPhysAutoCorr");
    declareProperty("isSC",m_isSC=false);
+   declareProperty("NMinbias", m_nMinbias);
 }
 
 
@@ -96,13 +97,13 @@ StatusCode LArAutoCorrAlgToDB::stop() {
 
       HWIdentifier chid = (*it);
      
-      const std::vector<double>  AutoCorr = acTotal->autoCorrTotal(chid,igain,-1);
+      const std::vector<double>  AutoCorr = acTotal->autoCorrTotal(chid,igain,m_nMinbias);
       // Not to process channels not existing in input elec. autocorr. DB
       if(AutoCorr.size() < 2 || (AutoCorr[0]==0. && AutoCorr[1]==0.)) {
 	++nSkipped;
 	continue;
       }
-      const std::vector<double> rmsSampl =  acTotal->samplRMS(chid,igain,-1);
+      const std::vector<double> rmsSampl =  acTotal->samplRMS(chid,igain,m_nMinbias);
       unsigned int nsamples_AC = (1+((int)(sqrt(1+8*AutoCorr.size()))))/2;
 
       std::vector<float> cov;
@@ -130,7 +131,7 @@ StatusCode LArAutoCorrAlgToDB::stop() {
       larAutoCorrComplete->set(chid,gain,cov);
       ++nDone;
     }//end loop over all cells
-    ATH_MSG_INFO ( "Gain " << gain << ": " << nDone << " channeles done, " << nSkipped  << " channels skipped (no Elec Noise AC in input)" );
+    ATH_MSG_INFO ( "Gain " << gain << ": " << nDone << " channels done, " << nSkipped  << " channels skipped (no Elec Noise AC in input)" );
   }//end loop over gains
 
   // Record LArAutoCorrComplete

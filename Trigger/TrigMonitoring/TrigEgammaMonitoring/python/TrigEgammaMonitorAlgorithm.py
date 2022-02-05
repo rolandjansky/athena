@@ -66,8 +66,8 @@ if __name__=='__main__':
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-    path = '/afs/cern.ch/work/j/jodafons/public/valid_sampleA/valid1.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.AOD.e5112_s3214_d1606_r12262_tid23444302_00/AOD.23444302._000098.pool.root.1'
-
+    path = '/afs/cern.ch/work/j/jodafons/public/valid_sampleA/valid1.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.AOD.e5112_s3214_d1731_r13252_tid27512952_00'
+    path+='/AOD.27512952._000185.pool.root.1'
     ConfigFlags.Input.Files = [path]
     ConfigFlags.Input.isMC = True
     ConfigFlags.Output.HISTFileName = 'TrigEgammaMonitorOutput.root'
@@ -89,4 +89,4 @@ if __name__=='__main__':
     #trigEgammaMonitorAcc.getEventAlgo('TrigEgammaMonAlg').OutputLevel = 2 # DEBUG
     cfg.printConfig(withDetails=False) # set True for exhaustive info
 
-    cfg.run(10) #use cfg.run(20) to only run on first 20 events
+    cfg.run(20) #use cfg.run(20) to only run on first 20 events

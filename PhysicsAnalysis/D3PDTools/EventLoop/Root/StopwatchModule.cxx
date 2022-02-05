@@ -26,7 +26,7 @@ namespace EL
   namespace Detail
   {
     ::StatusCode StopwatchModule ::
-    preInitialize (ModuleData& /*data*/)
+    firstInitialize (ModuleData& /*data*/)
     {
       m_stopwatch = std::make_unique<TStopwatch> ();
 

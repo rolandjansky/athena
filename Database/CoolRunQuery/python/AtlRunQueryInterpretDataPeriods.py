@@ -1,16 +1,14 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """
 Periods are assigned an ordinate by which they can be sorted
 """
 
-from __future__ import print_function
-from PyUtils.Decorators import memoize
-
-
+from functools import cache
 import re,sys
+
 pat_last   = re.compile(r"(?:l|la|las|last) (\d*)$")  # l(ast) NN runs
 pat_number = re.compile(r"\d{5,8}[+-]?$")  # run number (5-8 digits), possibly followed by a + or -
 pat_range  = re.compile(r"\d{5,8}-\d{5,8}$")  # range of run numbers (each 5-8 digits)
@@ -42,7 +40,7 @@ def getRunsFromPeriods(list_of_periods):
     return runlist
 
 
-@memoize
+@cache
 def getSortedAvailablePeriods():
     from CoolRunQuery.AtlRunQueryCOMA import ARQ_COMA
     available_periods = ARQ_COMA.get_all_periods()

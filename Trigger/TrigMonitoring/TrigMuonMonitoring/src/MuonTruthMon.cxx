@@ -35,16 +35,19 @@ StatusCode HLTMuonMonTool::bookMuonTruthHists()
       // Truth muon eta and phi histograms with pT cuts per trigger chain
       addHistogram( new TH1F(Form("EFMuon_effi_toTruth_eta_denom_%s",trig.c_str()), Form("Truth muon %s #eta; #eta; Entries",trig.c_str()), 50, -2.7, 2.7), m_histdirtruthmuon );
       addHistogram( new TH1F(Form("EFMuon_effi_toTruth_phi_denom_%s",trig.c_str()), Form("Truth muon %s #phi; #phi; Entries",trig.c_str()), 50, -3.14, 3.14), m_histdirtruthmuon );
+      addHistogram( new TH1F(Form("EFMuon_effi_toTruth_theta_denom_%s",trig.c_str()), Form("Truth muon %s #theta; #theta; Entries",trig.c_str()), 50, 0.0, 6.28), m_histdirtruthmuon );
     
       // truth-matched trigger muon histograms, i.e. the numerator in efficiency
       addHistogram( new TH1F(Form("EFMuon_effi_toTruth_pt_numer_%s", trig.c_str()),    Form("Truth-matched EF Muon %s p_{T}; p_{T}[GeV/c]; Entries", trig.c_str()),    30, 0.0, 200.0), m_histdirtruthmuon );
       addHistogram( new TH1F(Form("EFMuon_effi_toTruth_eta_numer_%s",trig.c_str()),    Form("Truth-matched EF Muon %s #eta; #eta; Entries", trig.c_str()),    50, -2.7, 2.7), m_histdirtruthmuon );
       addHistogram( new TH1F(Form("EFMuon_effi_toTruth_phi_numer_%s",trig.c_str()),    Form("Truth-matched EF Muon %s #phi; #phi [rad]; Entries", trig.c_str()),   50, -3.14,3.14), m_histdirtruthmuon );
+      addHistogram( new TH1F(Form("EFMuon_effi_toTruth_theta_numer_%s",trig.c_str()),    Form("Truth-matched EF Muon %s #theta; #theta [rad]; Entries", trig.c_str()),   50, 0.0,6.28), m_histdirtruthmuon );
 
       // Truth-based efficiency histograms
       addHistogram( new TH1F(Form("EFMuon_effi_toTruth_pt_%s", trig.c_str()), Form("Truth-based EF Muon %s Efficiency pt (GeV/c); p_{T}[GeV/c]; Efficiency", trig.c_str()), 30, 0.0, 200.0 ), m_histdirtruthmuon );
       addHistogram( new TH1F(Form("EFMuon_effi_toTruth_eta_%s", trig.c_str()), Form("Truth-based EF Muon %s Efficiency #eta; #eta; Efficiency", trig.c_str()), 50, -2.7, 2.7 ), m_histdirtruthmuon );
       addHistogram( new TH1F(Form("EFMuon_effi_toTruth_phi_%s", trig.c_str()), Form("Truth-based EF Muon %s Efficiency #phi (rad); #phi[rad]; Efficiency", trig.c_str()), 50, -3.14, 3.14 ), m_histdirtruthmuon );
+      addHistogram( new TH1F(Form("EFMuon_effi_toTruth_theta_%s", trig.c_str()), Form("Truth-based EF Muon %s Efficiency #theta (rad); #theta[rad]; Efficiency", trig.c_str()), 50, 0.0, 6.28 ), m_histdirtruthmuon );
     }
 
     return StatusCode::SUCCESS;
@@ -67,6 +70,7 @@ StatusCode HLTMuonMonTool::fillMuonTruthHists()
       double pt_true = truthMu->pt()/1000.0;
       double eta_true = truthMu->eta();
       double phi_true = truthMu->phi();
+      double theta_true = truthMu->p4().Theta();
       // Fill the truth histograms
       hist("EFMuon_effi_toTruth_pt_denom", m_histdirtruthmuon)->Fill(pt_true);
       // Match a trigger muon with the truth muon for each trigger chain
@@ -91,12 +95,14 @@ StatusCode HLTMuonMonTool::fillMuonTruthHists()
         // Fill the truth muon eta and phi histograms
         hist(Form( "EFMuon_effi_toTruth_eta_denom_%s",trig.c_str()), m_histdirtruthmuon)->Fill(eta_true);
         hist(Form( "EFMuon_effi_toTruth_phi_denom_%s",trig.c_str()), m_histdirtruthmuon)->Fill(phi_true);
+        hist(Form( "EFMuon_effi_toTruth_theta_denom_%s",trig.c_str()), m_histdirtruthmuon)->Fill(theta_true);
 
         double dR = getTruthToEFdRmin(trig, eta_true, phi_true);
         if ( dR <= DR_MATCHED) {
           hist(Form( "EFMuon_effi_toTruth_pt_numer_%s",trig.c_str()),  m_histdirtruthmuon)->Fill( pt_true );
           hist(Form( "EFMuon_effi_toTruth_eta_numer_%s",trig.c_str()), m_histdirtruthmuon)->Fill( eta_true );
           hist(Form( "EFMuon_effi_toTruth_phi_numer_%s",trig.c_str()), m_histdirtruthmuon)->Fill( phi_true );
+          hist(Form( "EFMuon_effi_toTruth_theta_numer_%s",trig.c_str()), m_histdirtruthmuon)->Fill( theta_true );
         }
       }
     }
@@ -162,6 +168,9 @@ StatusCode HLTMuonMonTool::procMuonTruthHists()
 
       hist(Form("EFMuon_effi_toTruth_phi_%s", trig.c_str()), m_histdirtruthmuon)->Sumw2();
       hist(Form("EFMuon_effi_toTruth_phi_%s", trig.c_str()), m_histdirtruthmuon)->Divide(hist(Form("EFMuon_effi_toTruth_phi_numer_%s", trig.c_str()), m_histdirtruthmuon), hist(Form("EFMuon_effi_toTruth_phi_denom_%s",trig.c_str()), m_histdirtruthmuon), 1, 1, "B");
+
+      hist(Form("EFMuon_effi_toTruth_theta_%s", trig.c_str()), m_histdirtruthmuon)->Sumw2();
+      hist(Form("EFMuon_effi_toTruth_theta_%s", trig.c_str()), m_histdirtruthmuon)->Divide(hist(Form("EFMuon_effi_toTruth_theta_numer_%s", trig.c_str()), m_histdirtruthmuon), hist(Form("EFMuon_effi_toTruth_theta_denom_%s",trig.c_str()), m_histdirtruthmuon), 1, 1, "B");
     }
   }
   return StatusCode::SUCCESS;

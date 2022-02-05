@@ -46,10 +46,6 @@ if not jobproperties.HIRecExampleFlags.ppMode :
 
       if jobproperties.HIRecExampleFlags.doHIJetRec() and \
              jobproperties.HIRecExampleFlags.doHIegamma() :
-         # 2015 fix: cell subtraction
-         from egammaRec.egammaRecFlags import jobproperties
-         jobproperties.egammaRecFlags.cellContainerName.set_On()
-         jobproperties.egammaRecFlags.cellContainerName.set_Value_and_Lock("SubtractedCells")
 
          print("AO: CaloRecFlags doCaloCluster=False")
          jobproperties.CaloRecFlags.doCaloCluster=False  # not working?
@@ -59,8 +55,6 @@ if not jobproperties.HIRecExampleFlags.ppMode :
          #jobproperties.CaloRecFlags.doCaloEMTopoCluster = False
 
          rec.doEgamma=False
-
-      from egammaRec.egammaRecFlags import jobproperties
 
       rec.doTau = False
       #from JetRec.JetRecFlags import jobproperties

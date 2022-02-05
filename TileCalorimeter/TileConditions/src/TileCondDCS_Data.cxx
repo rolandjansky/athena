@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //Implementation file for the data object class
@@ -39,7 +39,7 @@ TileCondDCS_Data::finalize()
 //////////
 
 //add map entries
-void TileCondDCS_Data::fill(const CondAttrListCollection::ChanNum & chanNum, const string param)
+void TileCondDCS_Data::fill(const CondAttrListCollection::ChanNum & chanNum, const string& param)
 {
   if (m_bad_channels.find(chanNum) != m_bad_channels.end()) {
     vector<string> par= (*m_bad_channels.find(chanNum)).second;
@@ -58,7 +58,7 @@ void TileCondDCS_Data::fill(const CondAttrListCollection::ChanNum & chanNum, con
 
 //////////////////////////////////
 //remove entries in map vector
-void TileCondDCS_Data::remove(const CondAttrListCollection::ChanNum & chanNum, const string param)
+void TileCondDCS_Data::remove(const CondAttrListCollection::ChanNum & chanNum, const string& param)
 {
   map< CondAttrListCollection::ChanNum,vector<string> >::iterator itr=m_bad_channels.find(chanNum);
   if (itr != m_bad_channels.end()) {

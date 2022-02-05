@@ -16,8 +16,7 @@ namespace LVL1 {
   L1CaloOfflineTriggerTowerTools::L1CaloOfflineTriggerTowerTools( const std::string& name ) :
     asg::AsgTool( name ),
     m_l1CaloTTIdTools("LVL1::L1CaloTTIdTools/L1CaloTTIdTools"),
-    m_cells2tt("LVL1::L1CaloCells2TriggerTowers/L1CaloCells2TriggerTowers"),
-    m_larEnergy("LVL1::L1CaloLArTowerEnergy/L1CaloLArTowerEnergy"),
+    m_cells2tt("LVL1::L1CaloCells2TriggerTowers/L1CaloCells2TriggerTowers", this),
     m_scidtool ("CaloSuperCellIDTool"),
     m_scaleCorrKey(""),
     m_cablingKey(""),
@@ -416,11 +415,6 @@ namespace LVL1 {
   }
 
 
-  float L1CaloOfflineTriggerTowerTools::emLArTowerEnergy(const TriggerTower *tt)const{
-    Identifier Id = this->emID(tt->eta(),tt->phi());
-    return m_larEnergy->EtLArg(Id);
-  }
-
   std::vector<std::vector<const CaloCell*> > L1CaloOfflineTriggerTowerTools::sortEMCrackCells(const std::vector<const CaloCell*> &cells) const{
     std::vector<std::vector<const CaloCell*> > output;
     std::vector<const CaloCell*> emb;
@@ -603,11 +597,6 @@ namespace LVL1 {
     }
 
     return output;
-  }
-
-  float L1CaloOfflineTriggerTowerTools::hadLArTowerEnergy(const TriggerTower *tt) const{
-    Identifier Id = this->hadID(tt->eta(),tt->phi());
-    return m_larEnergy->EtLArg(Id);
   }
 
   float L1CaloOfflineTriggerTowerTools::tileCellEnergy(const TriggerTower* tt,IdTTL1CellMapType& map) const{
@@ -1696,7 +1685,6 @@ namespace LVL1 {
     ATH_CHECK( detStore()->retrieve(m_larOnlineID,"LArOnlineID") );
     ATH_CHECK( m_l1CaloTTIdTools.retrieve() );
     ATH_CHECK( m_cells2tt.retrieve() );
-    ATH_CHECK( m_larEnergy.retrieve() );
 
     ATH_CHECK( detStore()->retrieve (m_caloMgr, "CaloIdManager") );
     ATH_CHECK( m_scidtool.retrieve() );
@@ -1759,18 +1747,6 @@ namespace LVL1 {
 
   void L1CaloOfflineTriggerTowerTools::caloCells(const CaloCellContainer* cells){
     m_cells2tt->initCaloCellsTriggerTowers(*cells);
-  }
-
-  void L1CaloOfflineTriggerTowerTools::larDigits(const LArDigitContainer* lar){
-    m_cells2tt->initLArDigitsTriggerTowers(*lar);
-  }
-
-  void L1CaloOfflineTriggerTowerTools::tileDigits(const TileDigitsContainer* tile){
-    m_cells2tt->initTileDigitsTriggerTowers(*tile);
-  }
-
-  void L1CaloOfflineTriggerTowerTools::l1CaloLArTowerEnergy(const CaloCellContainer *cells, const TriggerTowerCollection *ttc) {
-    m_larEnergy->initL1CaloLArTowerEnergy(*cells, *ttc);
   }
 
 } // end of namespace

@@ -64,7 +64,7 @@ namespace Analysis {
         //-------------------------------------------------------------------------------------
         //Doing Calculation and inline functions
 
-        virtual StatusCode performSearch(xAOD::VertexContainer*& vxContainer, xAOD::VertexAuxContainer*& vxAuxContainer) const override;
+        virtual StatusCode performSearch(const EventContext& ctx, xAOD::VertexContainer& vxContainer) const override;
         std::vector<JpsiCandidate> getPairs(const std::vector<const xAOD::TrackParticle*>&) const;
         std::vector<JpsiCandidate> getPairs(const std::vector<const xAOD::Muon*>&) const;
         std::vector<JpsiCandidate> getPairs2Colls(const std::vector<const xAOD::TrackParticle*>&, const std::vector<const xAOD::Muon*>&, bool) const;
@@ -101,7 +101,7 @@ namespace Analysis {
         bool m_allChCombs;
         SG::ReadHandleKey<xAOD::MuonContainer> m_muonCollectionKey{this, "muonCollectionKey", "StacoMuonCollection"};
         SG::ReadHandleKey<xAOD::TrackParticleContainer> m_TrkParticleCollection {this, "TrackParticleCollection", "TrackParticleCandidate" };
-        SG::ReadHandleKeyArray<xAOD::TrackParticleContainer> m_MuonTrackKeys;
+        SG::ReadHandleKeyArray<xAOD::TrackParticleContainer> m_MuonTrackKeys{this, "MuonTrackKeys", {}};
         ToolHandle < Trk::IVertexFitter > m_iVertexFitter;
         ToolHandle < Trk::IVertexFitter > m_iV0VertexFitter;
         ToolHandle < Trk::ITrackSelectorTool > m_trkSelector;

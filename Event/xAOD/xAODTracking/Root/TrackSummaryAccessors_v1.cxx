@@ -20,12 +20,6 @@
 
 namespace xAOD {
 
-  // Generic case. Maybe return warning?
-  template<class T>
-   const SG::AuxElement::Accessor< T >*
-   trackSummaryAccessorV1( xAOD::SummaryType /*type*/ )
-   {}
-
   template<>
    const SG::AuxElement::Accessor< uint8_t >*
    trackSummaryAccessorV1<uint8_t>( xAOD::SummaryType type ) {

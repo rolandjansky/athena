@@ -41,26 +41,19 @@ atlas_add_test( CaloVertexedCell_test
    LOG_IGNORE_PATTERN "^lar decode|mask/zero|initialize_from_dict|^ channel range|^AtlasDetectorID::"
    ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 
-atlas_add_test( CaloVertexedCluster_test
-   SOURCES test/CaloVertexedCluster_test.cxx
-   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-   LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloUtilsLib TestTools
-   LOG_IGNORE_PATTERN "^lar decode|mask/zero|initialize_from_dict|^ channel range|^AtlasDetectorID::"
-   ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
-
 atlas_add_test( exceptions_test
    SOURCES test/exceptions_test.cxx
    LINK_LIBRARIES CaloUtilsLib )
 
 atlas_add_test( CaloTowerStore_test
-   SCRIPT test/CaloTowerStore_test.sh
-   LOG_IGNORE_PATTERN "Reading file|Unable to locate catalog|Cache alignment|IOVDbSvc +INFO"
+   SCRIPT athena.py CaloUtils/CaloTowerStore_test.py
+   LOG_IGNORE_PATTERN "Reading file|Unable to locate catalog|Cache alignment|MetaReader|AutoConfiguration|IOVDbSvc +INFO"
    PROPERTIES TIMEOUT 500 )
 
 atlas_add_test( CaloTowerBuilderTool_test
-   SCRIPT test/CaloTowerBuilderTool_test.sh
-   LOG_IGNORE_PATTERN "Reading file|Unable to locate catalog|Cache alignment|IOVDbSvc +INFO|INFO Initializing"
-   ENVIRONMENT "ATLAS_REFERENCE_TAG=CaloUtils/CaloUtils-01-00-15"
+   SCRIPT athena.py CaloUtils/CaloTowerBuilderTool_test.py
+   LOG_IGNORE_PATTERN "Reading file|Unable to locate catalog|Cache alignment|MetaReader|AutoConfiguration|IOVDbSvc +INFO|INFO Initializing"
+   ENVIRONMENT "ATLAS_REFERENCE_TAG=CaloUtils/CaloUtils-01-00-18"
    PROPERTIES TIMEOUT 500 )
 
 atlas_add_test( ToolWithConstants_test

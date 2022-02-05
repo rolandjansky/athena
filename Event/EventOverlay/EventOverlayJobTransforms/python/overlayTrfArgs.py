@@ -1,9 +1,9 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import logging
 msg = logging.getLogger(__name__)
 
-from PyJobTransforms.trfArgClasses import argFactory, argFile, argInt, argString, argSubstep, argBool, argBSFile, argRDOFile, argSubstepInt
+from PyJobTransforms.trfArgClasses import argFactory, argFile, argInt, argString, argSubstep, argBool, argBSFile, argRDOFile, argSubstepInt, argSubstepString
 
 ## Arguments whose default properties have to be overridden for the Overlay Chain
 def addOverlayChainOverrideArgs(parser):
@@ -57,7 +57,7 @@ def addOverlayBSFilterArgs(parser):
                         type=argFactory(argInt),
                         help='Job number', group='Overlay Filter')
     parser.add_argument('--triggerBit',
-                        type=argFactory(argSubstepInt, defaultSubstep='overlayBSFilt'),
+                        type=argFactory(argSubstepString, defaultSubstep='overlayBSFilt'),
                         help='Trigger bit', group='Overlay Filter')
     parser.add_argument('--maxFilesPerSubjob',
                         type=argFactory(argSubstepInt, defaultSubstep='overlayBSFilt'),
@@ -70,7 +70,7 @@ def addOverlayBSFilterArgs(parser):
 # InputDataTarFile=/afs/cern.ch/work/e/efeld/overlay/prep/mytar.tar.gz
 # InputLbnMapFile=lbn_anal_map.txt
 # InputFileMapFile=filelist.txt
-# TriggerBit=240
+# TriggerBit=L1_ZB
 
 def addOverlayTrfArgs(parser):
     parser.defineArgGroup('EventOverlay', 'Event Overlay Options')

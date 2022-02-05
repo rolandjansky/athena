@@ -1,26 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibEventBase/MuonCalibCscTruthHit.h"
 
 namespace MuonCalib {
 
-    MuonCalibCscTruthHit::MuonCalibCscTruthHit() : m_ID(0), m_barCode(0), m_time(0.) {}
-
     MuonCalibCscTruthHit::MuonCalibCscTruthHit(MuonFixedId id, int barCode, double time) : m_ID(id), m_barCode(barCode), m_time(time) {}
-
-    MuonCalibCscTruthHit::MuonCalibCscTruthHit(const MuonCalibCscTruthHit &truth) :
-        m_ID(truth.identify()), m_barCode(truth.barCode()), m_time(truth.time()) {}
-
-    MuonCalibCscTruthHit &MuonCalibCscTruthHit::operator=(const MuonCalibCscTruthHit &rhs) {
-        if (this != &rhs) {
-            m_ID = rhs.identify();
-            m_barCode = rhs.barCode();
-            m_time = rhs.time();
-        }
-        return (*this);
-    }
 
     std::ostream &MuonCalibCscTruthHit::dump(std::ostream &stream) const {
         stream << "MuonCalibCscTruthHit: " << std::endl;
@@ -29,6 +15,13 @@ namespace MuonCalib {
         stream << "        Time = " << time() << std::endl;
         return stream;
     }
+    MuonFixedId MuonCalibCscTruthHit::identify() const { return m_ID; }
+    int MuonCalibCscTruthHit::barCode() const { return m_barCode; }
+    double MuonCalibCscTruthHit::time() const { return m_time; }
+
+    void MuonCalibCscTruthHit::setIdentifier(MuonFixedId id) { m_ID = id; }
+    void MuonCalibCscTruthHit::setBarCode(int barCode) { m_barCode = barCode; }
+    void MuonCalibCscTruthHit::setTime(double time) { m_time = time; }
 
 }  // namespace MuonCalib
 

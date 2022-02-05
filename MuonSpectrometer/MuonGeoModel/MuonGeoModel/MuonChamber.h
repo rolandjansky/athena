@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonChamber_H
@@ -23,6 +23,7 @@ namespace MuonGM {
     class TgcComponent;
     class Position;
     class FPVMAP;
+    class MYSQL;
 
     class MuonChamber : public DetectorElement {
 
@@ -32,27 +33,33 @@ namespace MuonGM {
         double thickness;
         double longWidth; // for trapezoidal layers
 
-        double rotangle[10];
+        double rotangle[10]{};
 
-        int stationPhiTGC(const std::string& stName, int fi, int zi, const std::string& geometry_version) const;
+        int stationPhiTGC(std::string_view stName, int fi, int zi, std::string_view geometry_version) const;
         inline void setFineClashFixingFlag(int value);
 
-        MuonChamber(Station *s);
-        GeoVPhysVol *build(MuonDetectorManager *manager, int ieta, int iphi, bool is_mirrored, bool &isAssembly);
-        void print();
+        MuonChamber(const MYSQL& mysql, Station *s);
+        GeoVPhysVol *build(const StoredMaterialManager& matManager,
+                           const MYSQL& mysql,
+                           MuonDetectorManager *manager, int ieta, int iphi, bool is_mirrored, bool &isAssembly);
+        virtual void print() override;
         inline void setFPVMAP(FPVMAP *fpvmap);
 
       private:
-        void setCscReadoutGeom(CscReadoutElement *re, const CscComponent *cc, const Position &p, const std::string& geomVers, const std::string& statname);
-        void setMdtReadoutGeom(MdtReadoutElement *re, const MdtComponent *cc, const Position &p);
-        void setRpcReadoutGeom(RpcReadoutElement *re, const RpcComponent *cc, const Position &p, const std::string& geomVers, MuonDetectorManager *manager);
-        void setTgcReadoutGeom(TgcReadoutElement *re, const TgcComponent *cc, const Position &p, const std::string& geomVers, const std::string& statname);
+        void setCscReadoutGeom(const MYSQL& mysql,
+                               CscReadoutElement *re, const CscComponent *cc, const Position &p);
+        void setMdtReadoutGeom(const MYSQL& mysql,
+                               MdtReadoutElement *re, const MdtComponent *cc, const Position &p);
+        void setRpcReadoutGeom(const MYSQL& mysql,
+                               RpcReadoutElement *re, const RpcComponent *cc, const Position &p, const std::string& geomVers, MuonDetectorManager *manager);
+        void setTgcReadoutGeom(const MYSQL& mysql,
+                               TgcReadoutElement *re, const TgcComponent *cc, const Position &p, const std::string& statname);
 
         Station *m_station;
         IMessageSvc *m_msgSvc;
         int m_enableFineClashFixing;
 
-        FPVMAP *m_FPVMAP;
+        FPVMAP *m_FPVMAP = nullptr;
     };
 
     void MuonChamber::setFineClashFixingFlag(int value) { m_enableFineClashFixing = value; }

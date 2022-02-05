@@ -1,13 +1,6 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 13.07.2008, AUTHOR: OLIVER KORTNER
-// Modified: 04.08.2008 by O. Kortner, estimated direction of incidence can be
-//                                     set.
-//           07.08.2008 by O. Kortner, bug fig in the pattern recognition.
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #include "MdtCalibFitters/CurvedCandidateFinder.h"
 
@@ -16,19 +9,7 @@
 
 using namespace MuonCalib;
 
-//*****************************************************************************
-
-//:::::::::::::::::
-//:: CONSTRUCTOR ::
-//:::::::::::::::::
-
-CurvedCandidateFinder::CurvedCandidateFinder(const std::vector<const MdtCalibHitBase *> &hits) { m_hits = hits; }
-
-//*****************************************************************************
-
-//::::::::::::::::::::::::::
-//:: METHOD getCandidates ::
-//::::::::::::::::::::::::::
+CurvedCandidateFinder::CurvedCandidateFinder(const MdtHitVec &hits) : m_hits{hits} {}
 
 const std::vector<CurvedLine> &CurvedCandidateFinder::getCandidates(const double &road_width) {
     Amg::Vector3D est_dir(0.0, 0.0, 1.0);
@@ -55,7 +36,7 @@ const std::vector<CurvedLine> &CurvedCandidateFinder::getCandidates(const double
     // VARIABLES //
     ///////////////
 
-    const MdtCalibHitBase *hit[3];         // three hits defining the candidate line
+    std::array<MdtHitPtr, 3> hit;          // three hits defining the candidate line
     double min_z, max_z, dist(0.0);        // auxialiary variables to define the points
     std::vector<Amg::Vector3D> points(3);  // points defining the curved candidate line
     int sign[3];                           // auxiliary sign array
@@ -69,7 +50,6 @@ const std::vector<CurvedLine> &CurvedCandidateFinder::getCandidates(const double
     /////////////////////////////////////////////
 
     hit[0] = m_hits[0];
-    hit[1] = 0;
     hit[2] = m_hits[0];
 
     min_z = hit[0]->localPosition().z();
@@ -90,7 +70,7 @@ const std::vector<CurvedLine> &CurvedCandidateFinder::getCandidates(const double
     // find a third hit with large separation from these two points //
     for (unsigned int k = 0; k < m_hits.size(); k++) {
         if (m_hits[k] != hit[0] && m_hits[k] != hit[2]) {
-            if (hit[1] == 0) {
+            if (!hit[1]) {
                 hit[1] = m_hits[k];
                 dist = (hit[2]->localPosition().z() - hit[1]->localPosition().z()) -
                        (hit[1]->localPosition().z() - hit[0]->localPosition().z());

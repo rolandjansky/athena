@@ -85,7 +85,7 @@ def dump_nav(collections):
 
         cont_if.setStore(cont_aux)
 
-        print('  - %s' % key)
+        print('  - %s' % key, flush=True)
         for i in range(cont_if.size()):
             obj = cont_if.at(i)
             print('    - Element #%d' % i)
@@ -142,7 +142,21 @@ def dump_info(bsfile, args):
             dump_nav(collections)
 
 
+def load_streamerinfos():
+    import ROOT
+    import os
+    for p in os.environ['DATAPATH'].split (':'):
+        fname = os.path.join (p, 'bs-streamerinfos.root')
+        if os.path.exists (fname):
+            ROOT.TFile.Open (fname)
+            break
+    else:
+        log.warning('Cannot find bs-streamerinfos.root file in DATAPATH')
+    return
+
+
 if '__main__' in __name__:
     args = get_parser().parse_args()
+    load_streamerinfos()
     for f in args.files:
         dump_info(f, args)

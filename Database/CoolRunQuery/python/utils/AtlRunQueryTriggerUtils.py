@@ -12,11 +12,10 @@
 
 
 from __future__ import print_function
+from collections.abc import Iterable
 
 
-__cursor_schema = [ (None ,"") , (None , "") ] # run 1 and run 2 cursor
-
-
+__cursor_schema = {} # cache for cursor and schema by alias
 
 # returns True if run is RUN 2 (2015-2018)
 def isTriggerRun2(run_number = None , smk = None , isRun2 = None ):
@@ -24,15 +23,43 @@ def isTriggerRun2(run_number = None , smk = None , isRun2 = None ):
         raise RuntimeError("Cannot determine if trigger db is run 1 or 2")
 
     if smk is not None :
-        return smk >= 2000
+        return smk >= 2000 and smk<3000
     elif run_number is not None :
         return run_number > 249000
     else:
         return isRun2
 
 
-def triggerDBAlias(run_number = None , smk = None, isRun2 = None ):
-    return "TRIGGERDB" if isTriggerRun2( run_number=run_number, smk=smk, isRun2 = isRun2) else "TRIGGERDB_RUN1"
+def triggerDBAlias(run_number = None , smk = None, lhcRun = None ):
+    if run_number is None and smk is None and lhcRun is None:
+        raise RuntimeError("Cannot determine the triggerDBAlias as no info is given")
+
+    # lhcRun given
+    if lhcRun==1 or lhcRun==2:
+        return f"TRIGGERDB_RUN{lhcRun}"
+    if lhcRun==3:
+        return "TRIGGERDBDEV1_I8" if (smk is not None and smk<3000) else "TRIGGERDB_RUN3"
+
+    # smk given
+    if smk is not None:
+        if smk<2000:
+            return "TRIGGERDB_RUN1"
+        elif smk<3000:
+            # note that this causes problems for the runs taken during the LS2 Pilot beam test
+            return "TRIGGERDB_RUN2"
+        else:
+            return "TRIGGERDB_RUN3"
+
+    # run number given (should not be used, as the run should know the lhcRun)
+    # see AtlRunQueryRun.py
+    if run_number > 405800:
+        return "TRIGGERDB_RUN3"
+    if run_number > 378000:
+        return "TRIGGERDBDEV1_I8"
+    elif run_number > 249000:
+        return "TRIGGERDB_RUN2"
+    else:
+        return "TRIGGERDB_RUN1"
 
 
 
@@ -57,21 +84,21 @@ class TriggerChain:
 
 ### helper ----------------------------------------------------------------------
 def FindFile( filename, pathlist, access ):
-   """Find <filename> with rights <access> through <pathlist>."""
+    """Find <filename> with rights <access> through <pathlist>."""
 
- # special case for those filenames that already contain a path
-   if os.path.dirname( filename ):
-      if os.access( filename, access ):
-         return filename
+    # special case for those filenames that already contain a path
+    if os.path.dirname( filename ):
+        if os.access( filename, access ):
+            return filename
 
- # test the file name in all possible paths until first found
-   for path in pathlist:
-      f = os.path.join( path, filename )
-      if os.access( f, access ):
-         return f
+    # test the file name in all possible paths until first found
+    for path in pathlist:
+        f = os.path.join( path, filename )
+        if os.access( f, access ):
+            return f
 
- # no such accessible file avalailable
-   return None
+    # no such accessible file avalailable
+    return None
 
 
 
@@ -111,7 +138,7 @@ def _getConnectionServicesForAlias(alias):
 
     log.info( "For alias '%s' found list of connections %r", (alias,connectionServices) )
     if connectionServices is None:
-        log.fatal("Trigger connection alias '%s' is not defined in %s" % (alias,dblookupfilename))
+        print("ERROR: Trigger connection alias '%s' is not defined in %s" % (alias,dblookupfilename))
     return connectionServices
 
 
@@ -233,7 +260,7 @@ def interpretConnection(connection, debug=False, resolveAlias=True):
     if connectionServices is None:
         return connectionParameters
 
-    # If TriggerFlags.triggerUseFrontier=true then we remove sqlite files
+    # If ${TRIGGER_USE_FRONTIER} is True then we remove sqlite files
     if os.getenv('TRIGGER_USE_FRONTIER',False):
         connectionServices = filter(lambda conn: not conn.startswith("sqlite_file"), connectionServices)
         if 'ATLAS_TRIGGERDB_FORCESQLITE' in os.environ:
@@ -326,19 +353,13 @@ def _get_mysql_cursor (host, db, user, passwd=""):
     return connection.cursor()
 
 
-
-def getTriggerDBCursor(run_number = None, smk = None, isRun2 = None):
-
-    index = 1 if isTriggerRun2(run_number = run_number, smk = smk, isRun2 = isRun2 ) else 0
+def getTriggerDBCursorForAlias(dbAlias):
 
     global __cursor_schema
-    if __cursor_schema[index][0]:
-        return __cursor_schema[index] # return the correct cursor and schema name
+    if dbAlias in __cursor_schema:
+        return __cursor_schema[dbAlias] # return the correct cursor and schema name
 
-    # need to connect
-    connection = triggerDBAlias(run_number = run_number, smk = smk, isRun2 = isRun2)
-
-    connectionParameters = interpretConnection(connection)
+    connectionParameters = interpretConnection(dbAlias)
     technology = connectionParameters["techno"]
 
     if technology == 'sqlite':
@@ -358,11 +379,15 @@ def getTriggerDBCursor(run_number = None, smk = None, isRun2 = None):
         cursor = _get_mysql_cursor(connectionParameters["server"], connectionParameters["dbname"], connectionParameters["user"], connectionParameters["passwd"]),''
         schema = ''
 
-    __cursor_schema[index] = (cursor,schema)
+    __cursor_schema[dbAlias] = (cursor,schema)
 
-    return __cursor_schema[index] # return the correct cursor and schema name
+    return __cursor_schema[dbAlias] # return the correct cursor and schema name
 
 
+def getTriggerDBCursor(run_number = None, smk = None, lhcRun = None):
+
+    dbAlias = triggerDBAlias(run_number = run_number, smk = smk, lhcRun = lhcRun)
+    return getTriggerDBCursorForAlias(dbAlias)
 
 
 def getUsedTables(output, condition, schemaname, tables):
@@ -378,10 +403,11 @@ def getUsedTables(output, condition, schemaname, tables):
 
 
 def executeQuery(cursor, output, condition, schemaname, tables, bindvars=()):
-    query = 'select distinct %s from %s where %s' % \
-            (', '.join(output),
-             ', '.join(getUsedTables(output, condition, schemaname, tables)),
-             ' and '.join(condition))
+    query = 'select distinct %s from %s where %s' % (
+        ', '.join(output),
+        ', '.join(getUsedTables(output, condition, schemaname, tables)),
+        ' and '.join(condition)
+        )
     if len(bindvars)==0:
         cursor.execute(str(query))
     else:
@@ -390,10 +416,8 @@ def executeQuery(cursor, output, condition, schemaname, tables, bindvars=()):
     return cursor.fetchall()
 
 
-def getL1PskNames(psk, run_number = None , smk = None , isRun2 = None ):
-    if type(psk) == set:
-        psk = list(psk)
-    if type(psk) != list:
+def getL1PskNames(psk, dbAlias = None, run_number = None , smk = None , lhcRun = None ):
+    if not isinstance(psk, Iterable):
         psk = [psk]
 
     keyslist = ','.join([str(k) for k in psk if k])
@@ -405,81 +429,65 @@ def getL1PskNames(psk, run_number = None , smk = None , isRun2 = None ):
     output = [ 'L.L1PS_ID', 'L.L1PS_NAME' ]
     condition = [ "L.L1PS_ID in (%s)" % keyslist ]
 
-    cursor, schema = getTriggerDBCursor(run_number = run_number, smk = smk, isRun2 = isRun2 )
+    if dbAlias is not None:
+        cursor, schema = getTriggerDBCursorForAlias(dbAlias)
+    else:
+        cursor, schema = getTriggerDBCursor(run_number = run_number, smk = smk, lhcRun = lhcRun )
+
     res = executeQuery(cursor, output, condition, schema, tables)
 
     return dict(res)
 
 
 
-def getHLTPskNames(psk, run_number = None , smk = None , isRun2 = None ):
-    cursor,schema = getTriggerDBCursor(run_number = run_number, smk = smk, isRun2 = isRun2 )
-
-    if type(psk) == set:
-        psk = list(psk)
-    if type(psk) != list:
+def getHLTPskNames(psk, dbAlias = None, run_number = None , smk = None , lhcRun = None ):
+    if not isinstance(psk, Iterable):
         psk = [psk]
 
-    if len(psk)==0:
-        return {}
-
-    prescales = [str(k) for k in psk if k]
-    if len(prescales)==0:
+    keyslist = ','.join([str(k) for k in psk if k])
+    if keyslist=="":
         return {}
 
     tables = { 'L' : 'HLT_PRESCALE_SET' }
     output = ['L.HPS_ID', 'L.HPS_NAME']
-    condition = [ "L.HPS_ID in (%s)" % ','.join(prescales) ]
+    condition = [ "L.HPS_ID in (%s)" % keyslist ]
+
+    if dbAlias is not None:
+        cursor, schema = getTriggerDBCursorForAlias(dbAlias)
+    else:
+        cursor,schema = getTriggerDBCursor(run_number = run_number, smk = smk, lhcRun = lhcRun )
 
     res = executeQuery( cursor, output, condition, schema, tables)
-
 
     return dict(res)
 
 
-def getSmkNames( allSMK ):
+def getSmkNames( smks, dbAlias ):
     """
     takes a single SMK or a list of SMKs
-
     returns a map from SMK to (name,version,comment)
     """
+    if not isinstance(smks, Iterable):
+        smks = [smks]
 
-    if type( allSMK ) == set:
-        allSMK = list( allSMK )
-    if type( allSMK ) != list:
-        allSMK = [ allSMK ]
-
-    if len( allSMK )==0:
+    keyslist = ','.join([str(k) for k in smks if k])
+    if keyslist=="":
         return {}
 
+    tables = { 'S' : 'SUPER_MASTER_TABLE' }
+    output = ['S.SMT_ID', 'S.SMT_NAME', 'S.SMT_VERSION', 'S.SMT_COMMENT']
+    condition = [ "S.SMT_ID in (%s)" % keyslist ]
 
-    run1smks = [smk for smk in  allSMK if not isTriggerRun2(smk = smk ) ]
-    run2smks = [smk for smk in  allSMK if isTriggerRun2(smk = smk ) ]
+    cursor, schema = getTriggerDBCursorForAlias(dbAlias)
+    res = executeQuery( cursor, output, condition, schema, tables)
 
-    smkMap = {}  # map 
-
-    for smklist in [ run1smks, run2smks]:
-
-        if len(smklist)==0:
-            continue
-    
-        tables = { 'S' : 'SUPER_MASTER_TABLE' }
-        output = ['S.SMT_ID', 'S.SMT_NAME', 'S.SMT_VERSION', 'S.SMT_COMMENT']
-        condition = [ "S.SMT_ID in (%s)" % ','.join([str(k) for k in smklist]) ]
-
-        cursor, schema = getTriggerDBCursor( smk = smklist[0] )
-        res = executeQuery( cursor, output, condition, schema, tables)
-
-        smkMap.update( dict([ (r[0],(r[1],r[2],r[3])) for r in res]) )
-
-    return smkMap
+    return dict([ (r[0],(r[1],r[2],r[3])) for r in res])
 
 
 
 
 def getHLTMenu(smk):
-
-    if smk is None:
+    if smk is None or smk==0:
         return [],[]
 
     if isTriggerRun2(smk):
@@ -487,18 +495,18 @@ def getHLTMenu(smk):
     else:
         output = ['TC.HTC_NAME', 'TC.HTC_CHAIN_COUNTER', 'TC.HTC_LOWER_CHAIN_NAME', 'TC.HTC_L2_OR_EF' ]
     
-    tables = { 'SM'  : 'SUPER_MASTER_TABLE',
-               'HM'  : 'HLT_MASTER_TABLE',
-               'M2C' : 'HLT_TM_TO_TC',
-               'TC'  : 'HLT_TRIGGER_CHAIN'
-               }
-
-    
-    condition = [ "SM.SMT_ID = :smk",
-                  'SM.SMT_HLT_MASTER_TABLE_ID = HM.HMT_ID',
-                  'HM.HMT_TRIGGER_MENU_ID = M2C.HTM2TC_TRIGGER_MENU_ID',
-                  'M2C.HTM2TC_TRIGGER_CHAIN_ID = TC.HTC_ID' ]
-    
+    tables = {
+        'SM'  : 'SUPER_MASTER_TABLE',
+        'HM'  : 'HLT_MASTER_TABLE',
+        'M2C' : 'HLT_TM_TO_TC',
+        'TC'  : 'HLT_TRIGGER_CHAIN'
+        }
+    condition = [
+        'SM.SMT_ID = :smk',
+        'SM.SMT_HLT_MASTER_TABLE_ID = HM.HMT_ID',
+        'HM.HMT_TRIGGER_MENU_ID = M2C.HTM2TC_TRIGGER_MENU_ID',
+        'M2C.HTM2TC_TRIGGER_CHAIN_ID = TC.HTC_ID'
+        ]
     bindvars = { "smk": smk }
     
     cursor,schema = getTriggerDBCursor(smk)
@@ -519,21 +527,24 @@ def getHLTMenu(smk):
 
 
 def getL1Menu(smk):
-
-    if smk is None:
+    if smk is None or smk==0:
         return []
-
-    output = ['TI.L1TI_NAME', 'TI.L1TI_CTP_ID' ]
-    
-    tables = { 'SM'  : 'SUPER_MASTER_TABLE',
-               'M'   : 'L1_MASTER_TABLE',
-               'M2I' : 'L1_TM_TO_TI',
-               'TI'  : 'L1_TRIGGER_ITEM'
-               }
-    condition = [ "SM.SMT_ID = :smk",
-                  'SM.SMT_L1_MASTER_TABLE_ID = M.L1MT_ID',
-                  'M.L1MT_TRIGGER_MENU_ID = M2I.L1TM2TI_TRIGGER_MENU_ID',
-                  'M2I.L1TM2TI_TRIGGER_ITEM_ID = TI.L1TI_ID' ]
+    output = [
+        'TI.L1TI_NAME',
+        'TI.L1TI_CTP_ID'
+        ]
+    tables = {
+        'SM'  : 'SUPER_MASTER_TABLE',
+        'M'   : 'L1_MASTER_TABLE',
+        'M2I' : 'L1_TM_TO_TI',
+        'TI'  : 'L1_TRIGGER_ITEM'
+        }
+    condition = [
+        "SM.SMT_ID = :smk",
+        'SM.SMT_L1_MASTER_TABLE_ID = M.L1MT_ID',
+        'M.L1MT_TRIGGER_MENU_ID = M2I.L1TM2TI_TRIGGER_MENU_ID',
+        'M2I.L1TM2TI_TRIGGER_ITEM_ID = TI.L1TI_ID'
+        ]
     bindvars = { "smk": smk }
 
     cursor,schema = getTriggerDBCursor(smk = smk)
@@ -571,11 +582,20 @@ def getHLTPrescales(hltprescalekey, run_number):
     if isTriggerRun2( run_number = run_number ):
         return l2ps,efps
     
-    tables = { 'H' : 'HLT_PRESCALE_SET',
-               'P' : 'HLT_PRESCALE'
-               }
-    output = [ 'P.HPR_L2_OR_EF', 'P.HPR_CHAIN_COUNTER', 'P.HPR_PRESCALE', 'P.HPR_PASS_THROUGH_RATE' ]
-    condition = [ "P.HPR_PRESCALE_SET_ID = :psk", "P.HPR_L2_OR_EF not like 'express'" ]
+    tables = {
+        'H' : 'HLT_PRESCALE_SET',
+        'P' : 'HLT_PRESCALE'
+        }
+    output = [
+        'P.HPR_L2_OR_EF',
+        'P.HPR_CHAIN_COUNTER',
+        'P.HPR_PRESCALE',
+        'P.HPR_PASS_THROUGH_RATE'
+        ]
+    condition = [
+        "P.HPR_PRESCALE_SET_ID = :psk",
+        "P.HPR_L2_OR_EF not like 'express'"
+        ]
     bindvars = { "psk": hltprescalekey }
 
     cursor,schema = getTriggerDBCursor(isRun2 = True)
@@ -590,15 +610,20 @@ def getHLTPrescales(hltprescalekey, run_number):
     return l2ps, efps
 
 
-def getRandom(smk):
+def getRandom(smk, lhcRun):
+    # does not work for Run 3
+    if lhcRun >= 3:
+        return (1,1,1,1)
+
     if smk=='n.a.':
         return ('n.a.','n.a.')
 
-    tables = { 'S' : 'SUPER_MASTER_TABLE',
-               'M' : 'L1_MASTER_TABLE',
-               'R' : 'L1_RANDOM'
-               }
-    if isTriggerRun2(smk=smk):
+    tables = {
+        'S' : 'SUPER_MASTER_TABLE',
+        'M' : 'L1_MASTER_TABLE',
+        'R' : 'L1_RANDOM'
+        }
+    if lhcRun == 2:
         output = [ 'R.L1R_CUT0', 'R.L1R_CUT1', 'R.L1R_CUT2', 'R.L1R_CUT3' ]
     else:
         output = [ 'R.L1R_RATE1', 'R.L1R_RATE2' ]
@@ -607,7 +632,7 @@ def getRandom(smk):
     
     bindvars = { "smk": smk }
 
-    cursor,schema = getTriggerDBCursor(smk=smk)
+    cursor,schema = getTriggerDBCursorForAlias(dbAlias = triggerDBAlias(lhcRun=lhcRun))
     res = executeQuery(cursor, output, condition, schema, tables, bindvars)
     if len(res) > 0:
         return res[0]

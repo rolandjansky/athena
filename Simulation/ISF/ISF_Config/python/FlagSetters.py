@@ -56,15 +56,23 @@ def configureFlagsFullG4MT():
     ISF_Flags.ParticleBroker = ""
     return
 
-def configureFlagsFullG4_LongLived():
+def configureFlagsFullG4_QS():
     configureFlagsFullG4()
     from G4AtlasApps.SimFlags import simFlags
-    simFlags.SimulationFlavour = "FullG4_LongLived"
+    simFlags.SimulationFlavour = "FullG4_QS"
     return
 
-def configureFlagsFullG4MT_LongLived():
-    configureFlagsFullG4_LongLived()
+def configureFlagsFullG4MT_QS():
+    configureFlagsFullG4_QS()
     ISF_Flags.ParticleBroker = ""
+    return
+
+def configureFlagsFullG4_LongLived(): # NB deprecated naming
+    configureFlagsFullG4_QS()
+    return
+
+def configureFlagsFullG4MT_LongLived(): # NB deprecated naming
+    configureFlagsFullG4MT_QS()
     return
 
 def configureFlagsFullG4_IDOnly():
@@ -92,32 +100,6 @@ def configureFlagsPassBackG4MT():
 
 def configureFlagsCosmicsG4():
     configureFlagsFullG4()
-    return
-
-## Legacy Geant4 only simulators
-
-def configureFlagsMC12G4():
-    configureFlagsFullG4()
-    from G4AtlasApps.SimFlags import simFlags
-    simFlags.SimulationFlavour = "MC12G4"
-    return
-
-def configureFlagsMC12G4_longLived():
-    configureFlagsFullG4_LongLived()
-    from G4AtlasApps.SimFlags import simFlags
-    simFlags.SimulationFlavour = "MC12G4_longLived"
-    return
-
-def configureFlagsMC12G4_IDOnly():
-    configureFlagsFullG4_IDOnly()
-    from G4AtlasApps.SimFlags import simFlags
-    simFlags.SimulationFlavour = "MC12G4_IDOnly"
-    return
-
-def configureFlagsMC12G4_IDCalo():
-    configureFlagsFullG4_IDCalo()
-    from G4AtlasApps.SimFlags import simFlags
-    simFlags.SimulationFlavour = "MC12G4_IDCalo"
     return
 
 ## methods for simulators which use G4 + FastCaloSim
@@ -290,6 +272,15 @@ def configureFlagsATLFASTIIF_G4MS():
     configureFlagsATLFASTIIF()
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "ATLFASTIIF_G4MS"
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    ISF_Flags.UsingGeant4 = True
+    ISF_Flags.ParticleBroker = "ISF_AFIIParticleBrokerSvc"
+    return
+
+def configureFlagsATLFAST3F_G4MS():
+    configureFlagsATLFASTIIF()
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "ATLFAST3F_G4MS"
     from ISF_Config.ISF_jobProperties import ISF_Flags
     ISF_Flags.UsingGeant4 = True
     ISF_Flags.ParticleBroker = "ISF_AFIIParticleBrokerSvc"

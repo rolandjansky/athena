@@ -29,18 +29,19 @@ namespace MuonGM {
         return std::round(toRound * factor) / factor;
     }
 
-    Mdt::Mdt(Component *ss, const std::string& lVName) : DetectorElement(ss->name) {
+    Mdt::Mdt(const MYSQL& mysql,
+             Component *ss, const std::string& lVName) : DetectorElement(ss->name) {
         logVolName = lVName;
         MdtComponent *s = (MdtComponent *)ss;
-        MDT *thism = (MDT *)(MYSQL::GetPointer()->GetTechnology(s->name));
+        const MDT *thism = dynamic_cast<const MDT*>(mysql.GetTechnology(s->name));
 
         width = s->dx1;
         longWidth = s->dx2;
-        thickness = s->GetThickness();
+        thickness = s->GetThickness(mysql);
         length = s->dy;
         m_component = s;
         m_component->cutoutTubeXShift = 0.;
-        layer = new MultiLayer(s->name);
+        layer = new MultiLayer(mysql, s->name);
         layer->logVolName = lVName;
         layer->cutoutNsteps = 0;
         layer->width = width;
@@ -56,15 +57,18 @@ namespace MuonGM {
 
     Mdt::~Mdt() {
         delete layer;
-        layer = 0;
+        layer = nullptr;
     }
 
-    GeoFullPhysVol *Mdt::build() {
+    GeoFullPhysVol *Mdt::build(const StoredMaterialManager& matManager,
+                               const MYSQL& mysql) {
         layer->cutoutNsteps = 1;
-        return layer->build();
+        return layer->build(matManager, mysql);
     }
 
-    GeoFullPhysVol *Mdt::build(std::vector<Cutout *> vcutdef) {
+    GeoFullPhysVol *Mdt::build(const StoredMaterialManager& matManager,
+                               const MYSQL& mysql,
+                               std::vector<Cutout *>& vcutdef) {
         MsgStream log(Athena::getMessageSvc(), "Mdt::build");
 
         int Ncuts = vcutdef.size();
@@ -387,10 +391,10 @@ namespace MuonGM {
                 layer->cutoutAtAngle = false;
             }
 
-            return layer->build();
+            return layer->build(matManager, mysql);
 
         } else {
-            return build();
+            return build(matManager, mysql);
         }
     }
 

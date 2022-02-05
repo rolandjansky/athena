@@ -36,8 +36,8 @@ public:
 private:
   GeoVPhysVol* m_physVol;
   GeoTrf::Transform3D m_transform;
-  double m_thicknessP;
-  double m_thicknessN;
+  double m_thicknessP = 0.0;
+  double m_thicknessN = 0.0;
 };
 
 #endif

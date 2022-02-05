@@ -30,15 +30,15 @@ void LArCell::print() const
   std::cout << "Phi        = " << this->phi() << std::endl;
 }
 
-CaloCell* LArCell::clone() const
+std::unique_ptr<CaloCell> LArCell::clone() const
 {
-  return new LArCell(this->caloDDE(),
-		     this->ID(),
-		     this->energy(),
-		     this->time(),
-		     this->quality(),
-                     this->provenance(),
-		     this->gain()); 
+  return std::make_unique<LArCell>(this->caloDDE(),
+				   this->ID(),
+				   this->energy(),
+				   this->time(),
+				   this->quality(),
+				   this->provenance(),
+				   this->gain()); 
 }
 
 

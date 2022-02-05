@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -10,17 +10,18 @@
 
 #include <sstream>
 
-sTGCDetectorDescription* sTGCDetectorDescription::s_current=0;
 
-sTGCDetectorDescription::sTGCDetectorDescription(std::string s):
-    AGDDDetector(s,"sTGC"),m_yCutout(0)
+sTGCDetectorDescription::sTGCDetectorDescription(const std::string& s,
+                                                 AGDDDetectorStore& ds):
+    AGDDDetector(s,"sTGC"),
+    m_yCutout(0),
+    m_ds (ds)
 {
 }
 
 void sTGCDetectorDescription::Register()
 {
-	AGDDDetectorStore *s = AGDDDetectorStore::GetDetectorStore();
-	s->RegisterDetector(this);
+	m_ds.RegisterDetector(this);
 }
 
 
@@ -46,9 +47,8 @@ void sTGCDetectorDescription::SetDetectorAddress(AGDDDetectorPositioner* p)
 
 MuonGM::sTGC_Technology* sTGCDetectorDescription::GetTechnology()
 {
-   AGDDDetectorStore *ds=AGDDDetectorStore::GetDetectorStore();   
    MuonGM::sTGC_Technology* t =
-     dynamic_cast<MuonGM::sTGC_Technology*>(ds->GetTechnology("sTGC_1")); //This needs to be the tech name not the chamber name
+     dynamic_cast<MuonGM::sTGC_Technology*>(m_ds.GetTechnology("sTGC_1")); //This needs to be the tech name not the chamber name
 
    return t;
 }

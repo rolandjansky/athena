@@ -413,6 +413,8 @@ ByteStreamEventStorageInputSvc::generateDataHeader()
     dataHeader->setStatus(DataHeader::Input);
     //add the data header elenebt self reference to the object vector
     dataHeader->insert(*std::move(dataHeaderElement));
+    // Set processTag
+    dataHeader->setProcessTag(dataHeaderElement->getKey());
 
     // Clean up EventInfo from the previous event
     key = m_eventInfoKey.value();
@@ -508,7 +510,7 @@ ByteStreamEventStorageInputSvc::setSequentialRead()
 
 /******************************************************************************/
 bool
-ByteStreamEventStorageInputSvc::ready() const
+ByteStreamEventStorageInputSvc::ready()
 {
   return readerReady();
 }
@@ -559,7 +561,7 @@ ByteStreamEventStorageInputSvc::getBlockIterator(const std::string& fileName)
 
 /******************************************************************************/
 bool
-ByteStreamEventStorageInputSvc::readerReady() const
+ByteStreamEventStorageInputSvc::readerReady()
 {
   bool eofFlag(false);
 

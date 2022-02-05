@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -67,7 +67,7 @@ StatusCode TileMuRcvContByteStreamTool::initialize() {
   ATH_CHECK( dec.retrieve() );
 
   m_hid2re = dec->getHid2reHLT();
-  TileCablingService *cabling = TileCablingService::getInstance();
+  const TileCablingService *cabling = TileCablingService::getInstance();
   m_runPeriod = cabling->runPeriod();
 
   return StatusCode::SUCCESS;

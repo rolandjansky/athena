@@ -1,6 +1,6 @@
 """Define method to configure and test SCT_RODVetoTestAlg
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -8,10 +8,10 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 def SCT_RODVetoTestAlgCfg(flags, name="SCT_RODVetoTestAlg", **kwargs):
     """Return a configured SCT_RODVetoTestAlg"""
     acc = ComponentAccumulator()
-    from SCT_ConditionsTools.SCT_RODVetoConfig import SCT_RODVetoCfg
+    from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_RODVetoCfg
     algArgs = {}
     algArgs["SCT_RODVetoTool"] = acc.popToolsAndMerge(SCT_RODVetoCfg(flags, **kwargs))
-    acc.addEventAlgo(CompFactory.SCT_RODVetoTestAlg(**algArgs))
+    acc.addEventAlgo(CompFactory.SCT_RODVetoTestAlg(name, **algArgs))
     return acc
 
 if __name__=="__main__":
@@ -23,6 +23,7 @@ if __name__=="__main__":
     Configurable.configurableRun3Behavior=1
     
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    ConfigFlags.Input.Files = []
     ConfigFlags.Input.isMC = True
     ConfigFlags.Input.ProjectName = "mc16_13TeV"
     ConfigFlags.Input.RunNumber = 300000 # MC16c 2017 run number

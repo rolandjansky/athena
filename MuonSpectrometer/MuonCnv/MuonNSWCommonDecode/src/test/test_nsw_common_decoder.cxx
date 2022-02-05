@@ -146,7 +146,7 @@ int test_nsw_common_decoder_event (eformat::read::FullEventFragment &f)
       // Check the number of channels by accessing in both ways
 
       unsigned int nchan = 0;
-      const std::vector <Muon::nsw::NSWElink *> links = nsw_decoder.get_elinks ();
+      const std::vector <Muon::nsw::NSWElink *>& links = nsw_decoder.get_elinks ();
       for (auto i = links.begin (); i != links.end (); ++i)
 	nchan += (*i)->get_channels ().size ();
 
@@ -242,7 +242,7 @@ int test_nsw_common_decoder_event (eformat::read::FullEventFragment &f)
 
       if (g_flat_view)
       {
-        const std::vector <Muon::nsw::VMMChannel *> channels = nsw_decoder.get_channels ();
+        const std::vector <Muon::nsw::VMMChannel *>& channels = nsw_decoder.get_channels ();
         for (auto j = channels.begin (); j != channels.end (); ++j)
         {
           Muon::nsw::NSWElink *link = const_cast <Muon::nsw::NSWElink *> ((*j)->elink ());
@@ -325,7 +325,7 @@ int test_nsw_common_decoder_loop ()
 
   for (auto file_iter = g_file_names.begin (); file_iter != g_file_names.end (); ++file_iter)
   {
-    char *buf = 0;
+    char *buf = nullptr;
     unsigned int size = 0;
 
     std::string data_file_name (*file_iter);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonAGDDDescription/MMDetectorHelper.h"
@@ -7,15 +7,19 @@
 #include "AGDDKernel/AGDDDetectorStore.h"
 #include "AGDDKernel/AGDDPositionerStore.h"
 #include "AGDDKernel/AGDDDetectorPositioner.h"
+#include "AGDDControl/AGDDController.h"
 
 #include <vector>
 
 MMDetectorHelper::MMDetectorHelper()
 {
-	AGDDDetectorStore* ds=AGDDDetectorStore::GetDetectorStore();
-	detectorList vl= ds->GetDetectorList();
+        if (m_svc.retrieve().isFailure()) {
+          std::abort();
+        }
+        IAGDDtoGeoSvc::LockedController c = m_svc->getController();
+	detectorList vl= c->GetDetectorStore().GetDetectorList();
 	
-	for ( auto vl_iter: vl)
+	for ( const auto& vl_iter: vl)
 	{
 		MMDetectorDescription* st=dynamic_cast<MMDetectorDescription*>(vl_iter.second);
 		if (st) {
@@ -28,13 +32,13 @@ MMDetectorHelper::MMDetectorHelper()
 
 MMDetectorDescription* MMDetectorHelper::Get_MMDetector(char type,int ieta,int iphi,int layer,char side)
 {
-	AGDDPositionerStore *ps=AGDDPositionerStore::GetPositionerStore();
+	MMDetectorDescription* mm=nullptr;
 	
-	MMDetectorDescription* mm=0;
-	
-	for (unsigned int i=0;i<ps->size();i++)
+        IAGDDtoGeoSvc::LockedController c = m_svc->getController();
+        AGDDPositionerStore& ps = c->GetPositionerStore();
+	for (unsigned int i=0;i<ps.size();i++)
 	{
-		AGDDDetectorPositioner* dp=dynamic_cast<AGDDDetectorPositioner*>((*ps)[i]);
+		AGDDDetectorPositioner* dp=dynamic_cast<AGDDDetectorPositioner*>(ps[i]);
 		if (dp)
 		{
 			if (dp->ID.detectorType != "Micromegas") continue;
@@ -63,14 +67,14 @@ MMDetectorDescription* MMDetectorHelper::Get_MMDetector(char type,int ieta,int i
 
 AGDDPositionedDetector MMDetectorHelper::Get_MMPositionedDetector(char type,int ieta,int iphi,int layer,char side)
 {
-	AGDDPositionerStore *ps=AGDDPositionerStore::GetPositionerStore();
+	MMDetectorDescription* mm=nullptr;
+	AGDDDetectorPositioner* dp=nullptr;
 	
-	MMDetectorDescription* mm=0;
-	AGDDDetectorPositioner* dp=0;
-	
-	for (unsigned int i=0;i<ps->size();i++)
+        IAGDDtoGeoSvc::LockedController c = m_svc->getController();
+        AGDDPositionerStore& ps = c->GetPositionerStore();
+	for (unsigned int i=0;i<ps.size();i++)
 	{
-		dp=dynamic_cast<AGDDDetectorPositioner*>((*ps)[i]);
+                dp=dynamic_cast<AGDDDetectorPositioner*>(ps[i]);
 		if (dp)
 		{
 			if (dp->ID.detectorType != "Micromegas") continue;
@@ -110,3 +114,8 @@ MMDetectorDescription* MMDetectorHelper::Get_MMDetectorSubType(const std::string
 	return nullptr;
 }
 
+
+IAGDDtoGeoSvc::LockedController MMDetectorHelper::Get_Controller()
+{
+  return m_svc->getController();
+}

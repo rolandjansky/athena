@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -72,7 +72,7 @@ StatusCode MagField::H8FieldSvc::finalize()
 StatusCode MagField::H8FieldSvc::readMap( const std::string& mapFile )
 {
     // find the path to the map file
-    std::string resolvedMapFile = PathResolver::find_file( mapFile.c_str(), "DATAPATH" );
+    std::string resolvedMapFile = PathResolver::find_file( mapFile, "DATAPATH" );
     if ( resolvedMapFile.empty() ) {
         ATH_MSG_ERROR( "Field map file " << mapFile << " not found" );
         return StatusCode::FAILURE;

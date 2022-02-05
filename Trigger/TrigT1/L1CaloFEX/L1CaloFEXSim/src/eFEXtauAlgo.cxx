@@ -63,7 +63,7 @@ LVL1::eFEXtauTOB *LVL1::eFEXtauAlgo::getTauTOB()
   unsigned int et = getEt();
   tob->setEt(et);
   tob->setBitwiseEt(getBitwiseEt());
-  tob->setIso(getIso());
+  tob->setIso(getRealRCore());
   tob->setSeedUnD(getUnD());
   return tob;
 }
@@ -75,23 +75,22 @@ void LVL1::eFEXtauAlgo::buildLayers()
   SG::ReadHandle<eTowerContainer> jk_eFEXtauAlgo_eTowerContainer(m_eFEXtauAlgo_eTowerContainerKey/*,ctx*/);
 
   for(unsigned int ieta = 0; ieta < 3; ieta++)
+  {
+    for(unsigned int iphi = 0; iphi < 3; iphi++)
     {
-      for(unsigned int iphi = 0; iphi < 3; iphi++)
-        {
 	  const LVL1::eTower * tmpTower = jk_eFEXtauAlgo_eTowerContainer->findTower(m_eFexalgoTowerID[iphi][ieta]);
 	  m_twrcells[ieta][iphi] = tmpTower->getTotalET();
 	  m_em0cells[ieta][iphi] = tmpTower->getLayerTotalET(0);
 	  m_em3cells[ieta][iphi] = tmpTower->getLayerTotalET(3);
 	  m_hadcells[ieta][iphi] = tmpTower->getLayerTotalET(4);
 	  for(unsigned int i = 0; i < 4; i++)
-            {
-	      m_em1cells[4 * ieta + i][iphi] = tmpTower->getET(1, i);
-	      m_em2cells[4 * ieta + i][iphi] = tmpTower->getET(2, i);
-            }
-        }
+      {  
+	    m_em1cells[4 * ieta + i][iphi] = tmpTower->getET(1, i);
+	    m_em2cells[4 * ieta + i][iphi] = tmpTower->getET(2, i);
+      }
     }
+  }
   m_cellsSet = true;
-
 }
 
 // Check if central tower qualifies as a seed tower for the tau algorithm
@@ -107,11 +106,6 @@ bool LVL1::eFEXtauAlgo::isCentralTowerSeed()
   // Get central tower ET
   unsigned int centralET = m_twrcells[1][1];
   
-  // Enforce minimum of 1 GeV in central tower
-  if (centralET < 1000.){
-    out = false;
-  }
-  
   // Loop over all cells and check that the central tower is a local maximum
   for (unsigned int beta = 0; beta < 3; beta++)
   {
@@ -124,11 +118,12 @@ bool LVL1::eFEXtauAlgo::isCentralTowerSeed()
       
       // Cells to the up and right must have strictly lesser ET
       if (((beta == 0) && (bphi == 0)) || ((beta == 1) && (bphi == 0)) || ((beta == 2) && (bphi == 0)) || ((beta == 2) && (bphi == 1)))
-	{
-	  if (centralET <= m_twrcells[beta][bphi]){
-	    out = false;
-	  }
-	}
+      {
+        if (centralET <= m_twrcells[beta][bphi])
+        {
+          out = false;
+        }
+      }
     }
   }
   
@@ -190,42 +185,146 @@ unsigned int LVL1::eFEXtauAlgo::getEt()
   return out;
 }
 
-// Calculate isolation variable
-float LVL1::eFEXtauAlgo::getIso()
+unsigned int LVL1::eFEXtauAlgo::rCoreCore()
 {
   if (m_cellsSet == false){
-    ATH_MSG_DEBUG("Layers not built, cannot accurately calculate isolation.");
+    ATH_MSG_DEBUG("Layers not built, cannot calculate rCore core value");
   }
+     
+  unsigned int out = 0;
 
-  unsigned int isoInner = 0;
+  out += m_em2cells[m_seed][1];
+  out += m_em2cells[m_seed + 1][1];
+  out += m_em2cells[m_seed - 1][1];
+  out += m_em2cells[m_seed][m_offPhi];
+  out += m_em2cells[m_seed + 1][m_offPhi];
+  out += m_em2cells[m_seed - 1][m_offPhi];
 
-  isoInner += m_em2cells[m_seed][1];
-  isoInner += m_em2cells[m_seed + 1][1];
-  isoInner += m_em2cells[m_seed - 1][1];
-  isoInner += m_em2cells[m_seed][m_offPhi];
-  isoInner += m_em2cells[m_seed + 1][m_offPhi];
-  isoInner += m_em2cells[m_seed - 1][m_offPhi];
+  return out;
 
-  unsigned int isoOuter = isoInner;
+}
 
-  isoOuter += m_em2cells[m_seed + 2][1];
-  isoOuter += m_em2cells[m_seed - 2][1];
-  isoOuter += m_em2cells[m_seed + 3][1];
-  isoOuter += m_em2cells[m_seed - 3][1];
-  isoOuter += m_em2cells[m_seed + 4][1];
-  isoOuter += m_em2cells[m_seed - 4][1];
-  isoOuter += m_em2cells[m_seed + 2][m_offPhi];
-  isoOuter += m_em2cells[m_seed - 2][m_offPhi];
-  isoOuter += m_em2cells[m_seed + 3][m_offPhi];
-  isoOuter += m_em2cells[m_seed - 3][m_offPhi];
-  isoOuter += m_em2cells[m_seed + 4][m_offPhi];
-  isoOuter += m_em2cells[m_seed - 4][m_offPhi];
+unsigned int LVL1::eFEXtauAlgo::rCoreEnv()
+{
+  if (m_cellsSet == false){
+    ATH_MSG_DEBUG("Layers not built, cannot calculate rCore environment value");
+  }
+     
+  unsigned int out = 0;
 
-  float out = isoOuter ? (float)isoInner / (float)isoOuter : (float)isoInner;
+  out += m_em2cells[m_seed + 2][1];
+  out += m_em2cells[m_seed - 2][1];
+  out += m_em2cells[m_seed + 3][1];
+  out += m_em2cells[m_seed - 3][1];
+  out += m_em2cells[m_seed + 4][1];
+  out += m_em2cells[m_seed - 4][1];
+  out += m_em2cells[m_seed + 2][m_offPhi];
+  out += m_em2cells[m_seed - 2][m_offPhi];
+  out += m_em2cells[m_seed + 3][m_offPhi];
+  out += m_em2cells[m_seed - 3][m_offPhi];
+  out += m_em2cells[m_seed + 4][m_offPhi];
+  out += m_em2cells[m_seed - 4][m_offPhi];
+
+  return out;
+
+}
+
+void LVL1::eFEXtauAlgo::getRCore(std::vector<unsigned int> & rCoreVec)
+{
+  unsigned int core = rCoreCore();
+  unsigned int env = rCoreEnv();
+
+  rCoreVec.push_back(core);
+  rCoreVec.push_back(env);
+
+}
+
+// Calculate float isolation variable
+float LVL1::eFEXtauAlgo::getRealRCore()
+{
+  unsigned int core = rCoreCore();
+  unsigned int env = rCoreEnv();
+
+  unsigned int num = core;
+  unsigned int denom = core + env;
+
+  float out = denom ? (float)num / (float)denom : 0;
 
   return out;
 }
 
+unsigned int LVL1::eFEXtauAlgo::rHadCore()
+{
+  if (m_cellsSet == false){
+    ATH_MSG_DEBUG("Layers not built, cannot calculate rHad core value");
+  }
+     
+  unsigned int out = 0;
+
+  out += m_hadcells[0][1];
+  out += m_hadcells[1][1];
+  out += m_hadcells[2][1];
+  out += m_hadcells[0][m_offPhi];
+  out += m_hadcells[1][m_offPhi];
+  out += m_hadcells[2][m_offPhi];
+
+  return out;
+
+}
+
+unsigned int LVL1::eFEXtauAlgo::rHadEnv()
+{
+  if (m_cellsSet == false){
+    ATH_MSG_DEBUG("Layers not built, cannot calculate rHad environment value");
+  }
+     
+  unsigned int out = 0;
+
+  out += m_em2cells[m_seed][1];
+  out += m_em2cells[m_seed - 1][1];
+  out += m_em2cells[m_seed + 1][1];
+  out += m_em2cells[m_seed - 2][1];
+  out += m_em2cells[m_seed + 2][1];
+  out += m_em2cells[m_seed][m_offPhi];
+  out += m_em2cells[m_seed - 1][m_offPhi];
+  out += m_em2cells[m_seed + 1][m_offPhi];
+  out += m_em2cells[m_seed - 2][m_offPhi];
+  out += m_em2cells[m_seed + 2][m_offPhi];
+  out += m_em1cells[m_seed][1];
+  out += m_em1cells[m_seed - 1][1];
+  out += m_em1cells[m_seed + 1][1];
+  out += m_em1cells[m_seed][m_offPhi];
+  out += m_em1cells[m_seed - 1][m_offPhi];
+  out += m_em1cells[m_seed + 1][m_offPhi];
+
+  return out;
+
+}
+
+// Calculate the hadronic fraction isolation variable
+void LVL1::eFEXtauAlgo::getRHad(std::vector<unsigned int> & rHadVec)
+{
+  unsigned int core = rHadCore();
+  unsigned int env = rHadEnv();
+
+  rHadVec.push_back(core);
+  rHadVec.push_back(env);
+
+}
+
+float LVL1::eFEXtauAlgo::getRealRHad()
+{
+  unsigned int core = rHadCore();
+  unsigned int env = rHadEnv();
+
+  unsigned int num = core;
+  unsigned int denom = core + env;
+
+  float out = denom ? (float)num / (float)denom : 0;
+
+  return out;
+
+}
 // Set the off phi value used to calculate ET and isolation
 void LVL1::eFEXtauAlgo::setUnDAndOffPhi()
 {
@@ -238,7 +337,7 @@ void LVL1::eFEXtauAlgo::setUnDAndOffPhi()
   upwardEt += m_em1cells[m_seed][2];
   
   unsigned int downwardEt = 0;
-  downwardEt += m_em2cells[m_seed][0]; 
+  downwardEt += m_em2cells[m_seed][0];
   downwardEt += m_em1cells[m_seed][0];
 
   if (downwardEt > upwardEt)
@@ -279,3 +378,7 @@ bool LVL1::eFEXtauAlgo::getUnD()
     return m_und;
 }
 
+unsigned int LVL1::eFEXtauAlgo::getSeed()
+{
+    return m_seed;
+}

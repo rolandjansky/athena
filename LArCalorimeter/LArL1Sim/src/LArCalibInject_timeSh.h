@@ -94,7 +94,11 @@ class LArCalibInject_timeSh : public AthReentrantAlgorithm
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
 
   const CaloCell_ID*     m_calocell_id;
-  const CaloDetDescrManager* m_dd_mgr;
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+      , "CaloDetDescrManager"
+      , "CaloDetDescrManager"
+      , "SG Key for CaloDetDescrManager in the Condition Store" };
+
   bool m_seedLess;
 
 };

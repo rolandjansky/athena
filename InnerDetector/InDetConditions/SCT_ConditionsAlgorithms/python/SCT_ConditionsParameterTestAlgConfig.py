@@ -1,6 +1,6 @@
 """Define method to configure and test SCT_ConditionsParameterTestAlg
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -8,9 +8,9 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 def SCT_ConditionsParameterTestAlgCfg(flags, name="SCT_ConditionsParameterTestAlg", **kwargs):
     """Return a configured SCT_ConditionsParameterTestAlg"""
     acc = ComponentAccumulator()
-    from SCT_ConditionsTools.SCT_ConditionsParameterConfig import SCT_ConditionsParameterCfg
+    from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_ConditionsParameterCfg
     kwargs.setdefault("SCT_ConditionsParameterTool", acc.popToolsAndMerge(SCT_ConditionsParameterCfg(flags)))
-    acc.addEventAlgo(CompFactory.SCT_ConditionsParameterTestAlg(**kwargs))
+    acc.addEventAlgo(CompFactory.SCT_ConditionsParameterTestAlg(name, **kwargs))
     return acc
 
 if __name__=="__main__":
@@ -22,6 +22,7 @@ if __name__=="__main__":
     Configurable.configurableRun3Behavior=1
     
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    ConfigFlags.Input.Files = []
     ConfigFlags.Input.isMC = False
     ConfigFlags.Input.ProjectName = "data12_8TeV"
     ConfigFlags.Input.RunNumber = 215643

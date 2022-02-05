@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -17,10 +17,10 @@ def CaloCellMakerCfg(configFlags):
 
     larCellBuilder     = result.popToolsAndMerge(LArCellBuilderCfg(configFlags))
     larCellCorrectors  = result.popToolsAndMerge(LArCellCorrectorCfg(configFlags))
-    theTileCellBuilder = result.popToolsAndMerge(TileCellBuilderCfg(configFlags))
-    theCellFinalizer  = CompFactory.CaloCellContainerFinalizerTool()
+    tileCellBuilder = result.popToolsAndMerge(TileCellBuilderCfg(configFlags))
+    cellFinalizer  = CompFactory.CaloCellContainerFinalizerTool()
 
-    cellMakerTools=[larCellBuilder,]+larCellCorrectors+[theTileCellBuilder,theCellFinalizer]
+    cellMakerTools=[larCellBuilder,tileCellBuilder,cellFinalizer]+larCellCorrectors
 
     #Add corrections tools that are not LAr or Tile specific:
     if configFlags.Calo.Cell.doPileupOffsetBCIDCorr or configFlags.Cell.doPedestalCorr:
@@ -70,7 +70,7 @@ if __name__=="__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
 
-    ConfigFlags.Input.Files = defaultTestFiles.RDO
+    ConfigFlags.Input.Files = defaultTestFiles.RDO_RUN2
     ConfigFlags.lock()
 
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg

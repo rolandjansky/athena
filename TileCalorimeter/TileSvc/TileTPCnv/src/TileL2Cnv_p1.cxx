@@ -83,5 +83,5 @@ void TileL2Cnv_p1::persToTrans(const TileL2_p1* persObj, TileL2* transObj, MsgSt
 
   // Transverse energy
   std::vector<float> sumE { persObj->m_Et };
-  transObj->setEt (sumE);
+  transObj->setEt (std::move(sumE));
 }

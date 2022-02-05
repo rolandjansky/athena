@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -296,19 +296,18 @@ void VarHandleKey::updateHandle (const std::string& name)
  */
 std::string VarHandleKey::pythonRepr() const
 {
-  // FIXME: use Gaudi!1126
-  std::string className = fullKey().fullKey();
-  className = className.substr(0, className.find('/'));
-  if (className.empty()) className = Gaudi::DataHandle::default_type;
+  const std::string& className = fullKey().className().empty() ?
+    Gaudi::DataHandle::default_type : fullKey().className();
 
   std::ostringstream ost;
   ost << "DataHandle(";
   Gaudi::Utils::toStream(m_storeHandle.name() + storeSeparator + m_sgKey, ost);
   ost << ",";
   switch (mode()) {
-  case Gaudi::DataHandle::Writer: Gaudi::Utils::toStream("W", ost); break;
-  case Gaudi::DataHandle::Updater: Gaudi::Utils::toStream("U", ost); break;
-  default: Gaudi::Utils::toStream("R", ost); break;
+  case Gaudi::DataHandle::Writer:
+    Gaudi::Utils::toStream("W", ost); break;
+  default:
+    Gaudi::Utils::toStream("R", ost); break;
   }
   ost << ","; Gaudi::Utils::toStream(className, ost);
   ost << ","; Gaudi::Utils::toStream(isCondition(), ost);

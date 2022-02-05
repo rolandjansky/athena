@@ -63,7 +63,6 @@ jp.Rec.doJiveXML.set_Value_and_Lock(True)
 # rec.UserExecs=[ "from MyPackage.myAlgConf import myAlg","topSequence+=myAlg()" ]
 # these lines will be executed after RecExCommon_flags.py has been imported, last chance for flag modification
 # note that flag locking mechanism has a better chance to yield consistent configuration
-# see https://twiki.cern.ch/twiki/bin/view/Atlas/TriggerFlags
 # see https://twiki.cern.ch/twiki/bin/view/Atlas/UserAnalysisTest#The_AOD_Production_Flags
 # rec.UserFlags=[ "AODFlags.FastSimulation=False" ] 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuTagMatchingTool.h"
@@ -105,7 +105,7 @@ StatusCode MuTagMatchingTool::initialize() {
     if (!m_trackingGeometryReadKey.empty()) {
         ATH_CHECK(m_trackingGeometryReadKey.initialize());
     } else {
-        ATH_CHECK(m_trackingGeometrySvc.retrieve());
+        ATH_MSG_ERROR("Could not retrieve a valid tracking geometry");
     }
 
     return StatusCode::SUCCESS;
@@ -478,6 +478,7 @@ void MuTagMatchingTool::testExtrapolation(const Trk::Surface* pSurface, const Tr
         ATH_MSG_DEBUG("Couldn't get the measured Perigee from TP");
         return;
     }
+    const EventContext& ctx = Gaudi::Hive::currentContext();
 
     // CLHEP::HepVector oripars = oriPerigee->parameters();
     const AmgVector(5)& oripars = oriPerigee->parameters();
@@ -495,7 +496,7 @@ void MuTagMatchingTool::testExtrapolation(const Trk::Surface* pSurface, const Tr
     ATH_MSG_DEBUG("=== global directn  " << startMom.phi() << "  " << startMom.theta());
 
     std::unique_ptr<const Trk::TrackParameters> alongPars{
-        m_IExtrapolator->extrapolate(*pPerigee, *pSurface, Trk::alongMomentum, false, Trk::muon)};
+        m_IExtrapolator->extrapolate(ctx, *pPerigee, *pSurface, Trk::alongMomentum, false, Trk::muon)};
 
     ATH_MSG_DEBUG("======= EXTRAPOLATED ALONG MOMENTUM ORIGINAL PERIGEE");
     if (alongPars) {
@@ -510,7 +511,7 @@ void MuTagMatchingTool::testExtrapolation(const Trk::Surface* pSurface, const Tr
 
     ATH_MSG_DEBUG("======= EXTRAPOLATED OPPOSITE MOMENTUM ORIGINAL PERIGEE");
     std::unique_ptr<const Trk::TrackParameters> oppositePars{
-        m_IExtrapolator->extrapolate(*pPerigee, *pSurface, Trk::oppositeMomentum, false, Trk::muon)};
+        m_IExtrapolator->extrapolate(ctx, *pPerigee, *pSurface, Trk::oppositeMomentum, false, Trk::muon)};
     if (oppositePars) {
         const Amg::Vector3D oppositePos = oppositePars->position();
         const Amg::Vector3D oppositeMom = oppositePars->momentum();
@@ -534,7 +535,7 @@ void MuTagMatchingTool::testExtrapolation(const Trk::Surface* pSurface, const Tr
     ATH_MSG_DEBUG("=== global directn  " << flipMom.phi() << "  " << flipMom.theta());
 
     std::unique_ptr<const Trk::TrackParameters> alongFlipPars{
-        m_IExtrapolator->extrapolate(*flippedPerigee, *pSurface, Trk::alongMomentum, false, Trk::muon)};
+        m_IExtrapolator->extrapolate(ctx,*flippedPerigee, *pSurface, Trk::alongMomentum, false, Trk::muon)};
 
     ATH_MSG_DEBUG("======= EXTRAPOLATED ALONGFLIP MOMENTUM ORIGINAL PERIGEE");
     if (alongFlipPars) {
@@ -548,7 +549,7 @@ void MuTagMatchingTool::testExtrapolation(const Trk::Surface* pSurface, const Tr
 
     ATH_MSG_DEBUG("======= EXTRAPOLATED OPPOSITEFLIP MOMENTUM ORIGINAL PERIGEE");
     std::unique_ptr<const Trk::TrackParameters> oppositeFlipPars{
-        m_IExtrapolator->extrapolate(*flippedPerigee, *pSurface, Trk::oppositeMomentum, false, Trk::muon)};
+        m_IExtrapolator->extrapolate(ctx, *flippedPerigee, *pSurface, Trk::oppositeMomentum, false, Trk::muon)};
     if (oppositeFlipPars) {
         const Amg::Vector3D oppositeFlipPos = oppositeFlipPars->position();
         const Amg::Vector3D oppositeFlipMom = oppositeFlipPars->momentum();

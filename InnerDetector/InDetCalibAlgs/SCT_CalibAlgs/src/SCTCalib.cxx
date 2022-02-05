@@ -263,7 +263,9 @@ StatusCode SCTCalib::initialize() {
       m_calibEvtInfoTool->setTimeStamp(m_runStartTime, m_runEndTime);
       m_calibEvtInfoTool->setRunNumber(m_runNumber);
       m_calibEvtInfoTool->setEventNumber(m_eventNumber);
-      m_calibLbTool->read("./SCTLB.root");
+      if (m_doNoisyStrip) {
+         m_calibLbTool->read("./SCTLB.root");
+      }
       if (m_doBSErrors) {
          m_calibBsErrTool->read("./SCTBSErrors.root");
       }
@@ -520,7 +522,7 @@ void SCTCalib::doHVPrintXML(const std::pair<int, int>& timeInterval, const std::
 ///////////////////////////////////////////////////////////////////////////////////
 StatusCode SCTCalib::getNoisyStrip ATLAS_NOT_THREAD_SAFE () { // Thread unsafe writeModuleListToCool method is used.
    enum Categories {ALL, NEW, REF, N_CATEGORIES};
-   
+
 
    ATH_MSG_INFO("----- in getNoisyStrip() ----- ");
 
@@ -2767,7 +2769,7 @@ SCTCalib::writeModuleListToCool ATLAS_NOT_THREAD_SAFE // Thread unsafe SCTCalibW
                   ATH_MSG_ERROR("Could not create defect strip entry in the CalibWriteTool.");
                }
                nDefects++;
-            }; 
+            };
          } else {
             if (m_noisyStripAll) { //--- ALL noisy strips
                if (!defectStripsAll.empty() || m_noisyWriteAllModules) {
@@ -3058,7 +3060,7 @@ StatusCode SCTCalib::noisyStripsToSummaryXml(const std::map<Identifier, std::set
          isNoisyMinStat    = m_numberOfEvents > m_noisyMinStat;
          isNoisyModuleList = numModulesAll < m_noisyModuleList;
          isNoisyModuleDiff = ((static_cast<float>(numModulesAll) - m_noisyModuleAverageInDB)/m_noisyModuleAverageInDB) < m_noisyModuleDiff;
-         isNoisyStripDiff  = (numStripsAll - m_noisyStripAverageInDB) < m_noisyStripDiff;
+         isNoisyStripDiff = ((static_cast<float>(numStripsAll) - m_noisyStripAverageInDB)/m_noisyStripAverageInDB) < m_noisyStripDiff;
          if (!isNoisyMinStat or !isNoisyModuleList) {
             strUploadFlag = "R";
          } else {
@@ -3078,7 +3080,7 @@ StatusCode SCTCalib::noisyStripsToSummaryXml(const std::map<Identifier, std::set
    osNoisyMinStat    << "#events more than "                                                                      << m_noisyMinStat.value();
    osNoisyModuleList << "#(modules w/ at least 1 noisy strip) less than "                                         << m_noisyModuleList.value();
    osNoisyModuleDiff << "Increase of #(modules w/ at least 1 noisy strip) from average of recent runs less than " << m_noisyModuleDiff*100 << "%";
-   osNoisyStripDiff  << "Increase of #(noisy strips) from average of recent runs less than "                      << m_noisyStripDiff.value();
+   osNoisyStripDiff  << "Increase of #(noisy strips) from average of recent runs less than "                      << m_noisyStripDiff*100 << "%";
 
    std::ostringstream osFlagReason;
    if (!isNoisyMinStat)    osFlagReason << "FAILED in " << osNoisyMinStat.str()    << "; ";

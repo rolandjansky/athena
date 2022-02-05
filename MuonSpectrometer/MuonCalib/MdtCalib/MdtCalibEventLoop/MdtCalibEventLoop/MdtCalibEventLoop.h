@@ -1,84 +1,75 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // MdtCalibEventLoop.h
 //   Header file for class MdtCalibEventLoop
-///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-// nveldik@nikhef.nl
-///////////////////////////////////////////////////////////////////
-
 #ifndef MUONCALIB_MDTCALIBEVENTLOOP_H
 #define MUONCALIB_MDTCALIBEVENTLOOP_H
 
-#include <vector>
 #include <iostream>
 #include <string>
+#include <vector>
+
+#include "MdtCalibInterfaces/IMdtCalibration.h"
 
 namespace MuonCalib {
-  /**
-     @class MdtCalibEventLoop
-     Class collects segments for a given chamber and performs several loops
-     over the sample until the calibration algorithm thinks it converged
+    /**
+       @class MdtCalibEventLoop
+       Class collects segments for a given chamber and performs several loops
+       over the sample until the calibration algorithm thinks it converged
 
-     @author Niels.Van.Eldik@cern.ch
-  */
+    */
 
+    class IMdtCalibrationOutput;
+    class MuonCalibSegment;
 
-  class IMdtCalibration;
-  class IMdtCalibrationOutput;
-  class MuonCalibSegment;
+    class MdtCalibEventLoop {
+    public:
+        using MuonSegVec = IMdtCalibration::MuonSegVec;
+        using MuonSegIt = MuonSegVec::iterator;
+        using MuonSegCit = MuonSegVec::const_iterator;
 
-  class MdtCalibEventLoop {
-  public:
-    typedef std::vector<MuonCalibSegment*>                MuonSegVec;
-    typedef std::vector<MuonCalibSegment*>::iterator      MuonSegIt;
-    typedef std::vector<MuonCalibSegment*>::const_iterator MuonSegCit;
+    public:
+        /** constructor */
+        MdtCalibEventLoop(const std::string& regionKey);
 
-  public:
-    /** constructor */
-    MdtCalibEventLoop(std::string regionKey);
+        /** destructor */
+        ~MdtCalibEventLoop();
 
-    /** destructor */
-    ~MdtCalibEventLoop();
+        /** handle segment (for now store) */
+        bool handleSegment(const MuonCalibSegment* seg);
 
-    /** handle segment (for now store) */
-    bool  handleSegment( const MuonCalibSegment* seg);
+        /** analyse segments using IRtCalibration */
+        void performAnalysis();
 
-    /** analyse segments using IRtCalibration */
-    void  performAnalysis();
+        /** set pointer to RtCalibration */
+        void setCalibImp(IMdtCalibration* calibImp);
 
-    /** set pointer to RtCalibration */
-    void  setCalibImp( IMdtCalibration* calibImp);
+        /** return results rt calibration */
+        IMdtCalibration::MdtCalibOutputPtr calibrationResults() const;
 
-    /** return results rt calibration */
-    const IMdtCalibrationOutput* calibrationResults() const;
+        /** set maximum number of iteration (default = 10) */
+        void setMaxIterations(unsigned int max);
 
-    /** set maximum number of iteration (default = 10) */
-    void setMaxIterations(unsigned int max);
+        /** set print level */
+        void setPrintLevel(int level) { m_printLevel = level; }
 
-    /** set print level */
-    void setPrintLevel(int level) { m_printLevel = level; }
+    private:
+        IMdtCalibration* m_calibrationImp;  //!< pointer to calibration implementation
+        MuonSegVec m_segments;              //!< segment collection
 
-  private:
-  
-    IMdtCalibration*           m_calibrationImp;      //!< pointer to calibration implementation
-    MuonSegVec                  m_segments;            //!< segment collection
+        IMdtCalibration::MdtCalibOutputPtr m_calibrationResult;  //!< results calibration
 
-    const IMdtCalibrationOutput* m_calibrationResult; //!< results calibration
+        /** print level */
+        int m_printLevel;
 
-    /** print level */
-    int m_printLevel;
+        /** region key */
+        std::string m_regionKey;
+    };
 
-    /** region key */
-    std::string m_regionKey;
-  };
+    inline IMdtCalibration::MdtCalibOutputPtr MdtCalibEventLoop::calibrationResults() const { return m_calibrationResult; }
 
-  inline 
-    const IMdtCalibrationOutput* MdtCalibEventLoop::calibrationResults() const { return m_calibrationResult; }
-
-}
+}  // namespace MuonCalib
 
 #endif

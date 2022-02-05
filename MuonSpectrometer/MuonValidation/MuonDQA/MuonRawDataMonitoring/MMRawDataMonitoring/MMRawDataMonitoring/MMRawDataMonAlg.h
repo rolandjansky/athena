@@ -86,6 +86,8 @@ class MMRawDataMonAlg: public AthMonitorAlgorithm {
   int get_bin_for_occ_lb_ASide_pcb_eta1_hist(const int stationEta, const int multiplet, const int gas_gap, const int PCB,int isector) const;
   int get_bin_for_occ_lb_ASide_pcb_eta2_hist(const int stationEta, const int multiplet, const int gas_gap, const int PCB, const int isector) const;
 
+  void MMEfficiency(const xAOD::TrackParticleContainer*) const;
+
   SG::ReadHandleKey<Muon::MMPrepDataContainer> m_MMContainerKey{this,"MMPrepDataContainerName","MM_Measurements"};
   SG::ReadHandleKey<xAOD::MuonContainer> m_muonKey{this,"MuonKey","Muons","muons"};
 

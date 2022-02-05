@@ -75,7 +75,6 @@ def createMuonConfigFlags():
     mcf.addFlag("Muon.trackBuilder", "Moore") # Allowed: 'Moore','TruthTracking','None'
     mcf.addFlag("Muon.refinementTool", "Moore") # Allowed: Moore TODO surely we can drop this if there is only one option?
     mcf.addFlag("Muon.patternsOnly", False) # TODO probably can be dropped? Just disable later steps.
-    mcf.addFlag("Muon.createTrackParticles", True ) # TODO do we ever turn this off?
     mcf.addFlag("Muon.straightLineFitMomentum", 2000.0 ) 
     #mcf.addFlag("Muon.doSegmentsOnly", True) # Also in MuonRecFlags ... redundant in both?
     mcf.addFlag("Muon.Chi2NDofCut", 20.0 )  # chi-squared per degree of freedom cut in fitter.
@@ -83,8 +82,10 @@ def createMuonConfigFlags():
     mcf.addFlag("Muon.updateSegmentSecondCoordinate", lambda prevFlags : prevFlags.Beam.Type=="collisions") # Do not use for cosmics or singlebeam 
     
     mcf.addFlag("Muon.useSegmentMatching", lambda prevFlags : prevFlags.Beam.Type=="collisions") # Do not use for cosmics or singlebeam 
-    mcf.addFlag("Muon.useTrackSegmentMatching", True ) 
-    
+    mcf.addFlag("Muon.useTrackSegmentMatching", True )
+    ### Disable the commissioing chain brute force to build 22.0.52 
+    mcf.addFlag("Muon.runCommissioningChain", lambda prevFlags: ( False and (prevFlags.Muon.doMicromegas or prevFlags.Muon.dosTGCs) \
+                                                                 and prevFlags.Beam.Type=="collisions") )
     # CalibFlags
     mcf.addFlag("Muon.Calib.readMDTCalibFromBlob", True)  # Read mdt tube calibration from blob-folders
     mcf.addFlag("Muon.Calib.correctMdtRtForBField", lambda prevFlags : (prevFlags.Input.isMC is False and prevFlags.Beam.Type=="collisions")) # Apply B-field correction to drift times only for collision data (as done in https://acode-browser1.usatlas.bnl.gov/lxr/source/athena/MuonSpectrometer/MuonCnv/MuonCnvExample/python/MuonCalibFlags.py#0028)

@@ -45,7 +45,11 @@ GeoPixelCable::fillElements(int layer, int phiSector)
 
 GeoVPhysVol* GeoPixelCable::Build() {
  
-  if (m_currentElement < 0) std::cout << "ERROR: GeoPixelCableCurrent, current element not set." << std::endl; 
+  if (m_currentElement < 0){
+    std::cout << "ERROR: GeoPixelCableCurrent, current element not set." << std::endl; 
+    return nullptr;
+  } 
+  
 
   int tableIndex = m_elements[m_currentElement];
   //std::cout << "GeoPixelCable: " << m_currentElement << ", " << tableIndex << std::endl;

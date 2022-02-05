@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Base class
@@ -9,7 +9,6 @@
 #include "LArSimEvent/LArHitContainer.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
-#include "GeoAdaptors/GeoLArHit.h"
 
 // Section of includes for tile calo tests
 #include "TileDetDescr/TileDetDescrManager.h"
@@ -33,51 +32,8 @@
 
 CaloHitAnalysis::CaloHitAnalysis(const std::string& name, ISvcLocator* pSvcLocator)
    : AthAlgorithm(name, pSvcLocator)
-   , m_h_cell_eta(0)
-   , m_h_cell_phi(0)
-   , m_h_cell_e(0)
-   , m_h_cell_radius(0)
-   , m_h_xy(0)
-   , m_h_zr(0)
-   , m_h_etaphi(0)
-   , m_h_time_e(0)
-   , m_h_eta_e(0)
-   , m_h_phi_e(0)
-   , m_h_r_e(0)
-   , m_h_calib_eta(0)
-   , m_h_calib_phi(0)
-   , m_h_calib_rz(0)
-   , m_h_calib_etaphi(0)
-   , m_h_calib_eEM(0)
-   , m_h_calib_eNonEM(0)
-   , m_h_calib_eInv(0)
-   , m_h_calib_eEsc(0)
-   , m_h_calib_eTot(0)
-   , m_h_calib_eTotpartID(0)
-   , m_tileID(0)
-   , m_tileMgr(0)
-   , m_cell_eta(0)
-   , m_cell_phi(0)
-   , m_cell_x(0)
-   , m_cell_y(0)
-   , m_cell_z(0)
-   , m_cell_e(0)
-   , m_cell_radius(0)
-   , m_time(0)
-   , m_calib_eta(0)
-   , m_calib_phi(0)
-   , m_calib_radius(0)
-   , m_calib_z(0)
-   , m_calib_eEM(0)
-   , m_calib_eNonEM(0)
-   , m_calib_eInv(0)
-   , m_calib_eEsc(0)
-   , m_calib_eTot(0)
-   , m_calib_partID(0)
    , m_expert("off")
-   , m_calib("off")
-     
-   , m_tree(0)
+   , m_calib("off")     
    , m_ntupleFileName("/CaloHitAnalysis/")
    , m_path("/CaloHitAnalysis/")
    , m_thistSvc("THistSvc", name)
@@ -97,6 +53,8 @@ StatusCode CaloHitAnalysis::initialize() {
 
   // Grab the Ntuple and histogramming service for the tree
   CHECK( m_thistSvc.retrieve() );
+
+  ATH_CHECK(m_caloMgrKey.initialize());
  
   m_h_cell_e = new TH1D("h_Calo_cell_e", "cell_e", 100,0.,500.);
   m_h_cell_e->StatOverflows();
@@ -245,16 +203,18 @@ StatusCode CaloHitAnalysis::execute() {
   m_calib_eTot->clear();
   m_calib_partID->clear();
 
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+  ATH_CHECK(caloMgrHandle.isValid());
+  const CaloDetDescrManager* caloMgr = *caloMgrHandle;
+
   std::string  lArKey [4] = {"LArHitEMB", "LArHitEMEC", "LArHitFCAL", "LArHitHEC"};
   for (unsigned int i=0; i<4; i++) {
     const DataHandle<LArHitContainer> iter;
     if (evtStore()->retrieve(iter,lArKey[i]) == StatusCode::SUCCESS) {
       for (auto hi : *iter ) {
-        GeoLArHit ghit(*hi);
-        if (!ghit) continue;
-        const CaloDetDescrElement *hitElement = ghit.getDetDescrElement();	
-	double energy = ghit.Energy();
-	double time = ghit.Time();
+        const CaloDetDescrElement *hitElement = caloMgr->get_element(hi->cellID());
+	double energy = hi->energy();
+	double time = hi->time();
 	double eta = hitElement->eta();
 	double phi = hitElement->phi();
 	double radius = hitElement->r();
@@ -333,7 +293,7 @@ StatusCode CaloHitAnalysis::execute() {
     if(evtStore()->retrieve(iterator, LArCalibKey[j]) == StatusCode::SUCCESS) {
       //Not tested
       for (auto hit_i : *iterator) {
-	GeoCaloCalibHit geoHit(*hit_i, LArCalibKey[j]);
+	GeoCaloCalibHit geoHit(*hit_i, LArCalibKey[j], caloMgr);
 	if (!geoHit) continue;
 	const CaloDetDescrElement* Element = geoHit.getDetDescrElement();
 	double eta = Element->eta();

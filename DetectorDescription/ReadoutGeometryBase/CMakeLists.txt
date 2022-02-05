@@ -18,5 +18,5 @@ atlas_add_library( ReadoutGeometryBase
    LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} ${GEOMODEL_LIBRARIES}
                   CxxUtils AthenaKernel AtlasDetDescr GeoPrimitives Identifier
                   GaudiKernel InDetCondTools TrkDetElementBase
-                  TrkEventPrimitives
-   PRIVATE_LINK_LIBRARIES AthenaBaseComps GeoModelUtilities TrkSurfaces )
+                  TrkEventPrimitives AthenaBaseComps
+   PRIVATE_LINK_LIBRARIES GeoModelUtilities TrkSurfaces )

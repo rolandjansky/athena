@@ -9,6 +9,7 @@
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODTau/TauJetContainer.h"
+#include "xAODMuon/MuonContainer.h"
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ThinningHandleKey.h"
@@ -44,6 +45,7 @@ class ThinTRTStandaloneTrackAlg : public AthReentrantAlgorithm
   /** @brief Thin tau tracks */
   Gaudi::Property<bool> m_doTau { this, "doTau", true };
 
+  Gaudi::Property<bool> m_doMuon{this, "doMuon", true};
   /** @brief Track Particle container to thin */
   SG::ThinningHandleKey<xAOD::TrackParticleContainer> m_InDetTrackParticlesKey
     { this, "InDetTrackParticleContainerName", "InDetTrackParticles", "Name of the TrackParticle container to thin" };
@@ -63,7 +65,9 @@ class ThinTRTStandaloneTrackAlg : public AthReentrantAlgorithm
   /** @brief photon collection input name*/
   SG::ReadHandleKey<xAOD::TauJetContainer> m_InputTauJetContainerKey
     { this, "InputTauJetContainerName", "TauJets", "Name of the input tau container" };
-  
+  SG::ReadHandleKey<xAOD::MuonContainer> m_inputMuonContainerKey{
+     this, "InputMuonContainerName", "Muons", "Name of the input muon container"
+  };
 };
 
 #endif // THINNINGUTILS_THINTRTSTANDALONETRACKALG_H

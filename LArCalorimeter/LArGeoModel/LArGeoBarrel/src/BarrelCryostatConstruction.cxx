@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // BarrelCryostatConstruction
@@ -84,7 +84,7 @@ LArGeo::BarrelCryostatConstruction::BarrelCryostatConstruction(
 LArGeo::BarrelCryostatConstruction::~BarrelCryostatConstruction() {}
 
 
-GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
+GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope(const VDetectorParameters* params)
 {
   if (m_cryoMotherPhysical) return m_cryoMotherPhysical;
 
@@ -881,7 +881,7 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
     // There are two placements: one for the z>0 section, one for the z<0 section.
 
 
-    BarrelConstruction barrelConstruction(m_fullGeo);
+    BarrelConstruction barrelConstruction(m_fullGeo, params);
     barrelConstruction.setBarrelSagging(m_barrelSagging);
     barrelConstruction.setBarrelCellVisLimit(m_barrelVisLimit);
 
@@ -977,7 +977,7 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
     // ----- Presampler ------
     double PresamplerMother_length = 1549.0*Gaudi::Units::mm;  // Copied from PresParameterDef.icc
     double presamplerShift = 3.*Gaudi::Units::mm;
-    BarrelPresamplerConstruction barrelPSConstruction(m_fullGeo);
+    BarrelPresamplerConstruction barrelPSConstruction(m_fullGeo, params);
 
     // The "envelope" determined by the EMB should be a GeoFullPhysVol.
     GeoFullPhysVol* barrelPSPosEnvelope = barrelPSConstruction.GetPositiveEnvelope();

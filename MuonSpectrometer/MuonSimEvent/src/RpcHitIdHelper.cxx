@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSimEvent/RpcHitIdHelper.h"
 
-#include <iomanip> // for std::array
+#include <iomanip>
+#include <array>
 
 RpcHitIdHelper* RpcHitIdHelper::m_help = nullptr;
 
@@ -112,7 +113,7 @@ int RpcHitIdHelper::GetMeasuresPhi(const int& hid) const
 }
 
 //packing method
-int RpcHitIdHelper::BuildRpcHitId(const std::string statName, const int phiSect,
+int RpcHitIdHelper::BuildRpcHitId(const std::string& statName, const int phiSect,
                                   const int zSect, const int doubZ, const int doubR, const int gasGap,
                                   const int doubPhi, const int measPhi) const
 {

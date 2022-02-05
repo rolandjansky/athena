@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "TAURoIsUnpackingTool.h"
 #include "TrigT1Result/RoIBResult.h"
@@ -71,8 +71,8 @@ StatusCode TAURoIsUnpackingTool::unpack(const EventContext& ctx,
 
       trigRoIs->push_back( std::make_unique<TrigRoiDescriptor>(
         roIWord, 0u ,0u,
-        recRoI->eta(), recRoI->eta()-m_roIWidth, recRoI->eta()+m_roIWidth,
-        recRoI->phi(), recRoI->phi()-m_roIWidth, recRoI->phi()+m_roIWidth) );
+        recRoI->eta(), recRoI->eta()-m_roIWidthEta, recRoI->eta()+m_roIWidthEta,
+        recRoI->phi(), recRoI->phi()-m_roIWidthPhi, recRoI->phi()+m_roIWidthPhi) );
 
       ATH_MSG_DEBUG( "RoI word: 0x" << MSG::hex << std::setw( 8 ) << roIWord << MSG::dec );
 
@@ -80,9 +80,12 @@ StatusCode TAURoIsUnpackingTool::unpack(const EventContext& ctx,
       Decision* decisionMain = TrigCompositeUtils::newDecisionIn( decisionOutput.ptr(), hltSeedingNodeName() );
       Decision* decisionProbe = TrigCompositeUtils::newDecisionIn( decisionOutputProbe.ptr(), hltSeedingNodeName() );
 
+      std::vector<TrigCompositeUtils::DecisionID> passedThresholdIDs;
+
       for (const auto& th : tauThresholds.value().get()) {
         ATH_MSG_VERBOSE( "Checking if the threshold " << th->name() << " passed" );
         if ( recRoI->passedThreshold( th->mapping() ) ) {
+          passedThresholdIDs.push_back(HLT::Identifier(th->name()));
           const std::string thresholdProbeName = getProbeThresholdName(th->name());
           ATH_MSG_DEBUG( "Passed Threshold names " << th->name() << " and " << thresholdProbeName);
           addChainsToDecision( HLT::Identifier( th->name() ), decisionMain, activeChains );
@@ -90,11 +93,13 @@ StatusCode TAURoIsUnpackingTool::unpack(const EventContext& ctx,
         }
       }
 
+      decisionMain->setDetail("thresholds", passedThresholdIDs);
       decisionMain->setObjectLink( initialRoIString(),
                                    ElementLink<TrigRoiDescriptorCollection>(m_trigRoIsKey.key(), trigRoIs->size()-1) );
       decisionMain->setObjectLink( initialRecRoIString(),
                                    ElementLink<DataVector<LVL1::RecEmTauRoI>>(m_recRoIsKey.key(), recRoIs->size()-1) );
 
+      decisionProbe->setDetail("thresholds", passedThresholdIDs);
       decisionProbe->setObjectLink( initialRoIString(),
                                     ElementLink<TrigRoiDescriptorCollection>(m_trigRoIsKey.key(), trigRoIs->size()-1) );
       decisionProbe->setObjectLink( initialRecRoIString(),

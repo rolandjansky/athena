@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef gvxy_pointHandler_H
@@ -11,11 +11,13 @@
 
 class gvxy_pointHandler:public XMLHandler {
 public:
-	gvxy_pointHandler(std::string);
-	void ElementHandle();
-	static TwoPoint CurrentTwoPoint() {return s_point;}
+	gvxy_pointHandler(const std::string&,
+                          AGDDController& c);
+	virtual void ElementHandle(AGDDController& c,
+                                   xercesc::DOMNode *t) override;
+	TwoPoint CurrentTwoPoint() {return m_point;}
 private:
-	static TwoPoint s_point;
+	TwoPoint m_point;
 };
 
 #endif

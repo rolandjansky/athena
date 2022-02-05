@@ -23,6 +23,7 @@ LArCalibDigitsAccumulator::LArCalibDigitsAccumulator (const std::string& name, I
   declareProperty("StepOfTriggers",m_nStepTrigger=1);
   declareProperty("DelayScale",m_delayScale=1*ns);
   declareProperty("KeepOnlyPulsed",m_keepPulsed=false);
+  declareProperty("KeepFullyPulsedSC",m_keepFullyPulsedSC=false);
   declareProperty("isSC",m_isSC=false);
   declareProperty("SampleShift",m_sampleShift=0);
   m_delay=-1;
@@ -32,6 +33,7 @@ LArCalibDigitsAccumulator::LArCalibDigitsAccumulator (const std::string& name, I
 
 StatusCode LArCalibDigitsAccumulator::initialize(){
   
+  m_eventNb=0;
   // retrieve online ID helper
   StatusCode sc;
   ATH_CHECK( m_cablingKey.initialize() );
@@ -123,7 +125,8 @@ StatusCode LArCalibDigitsAccumulator::execute()
   const DataHandle<xAOD::EventInfo> thisEventInfo;
   ATH_CHECK( evtStore()->retrieve(thisEventInfo) );
   unsigned eventNb = thisEventInfo->eventNumber();
-
+  eventNb=m_eventNb;
+  ++m_eventNb;
   // retrieve calibration settings
   const LArCalibParams* calibParams;
   sc=detStore()->retrieve(calibParams,"LArCalibParams");
@@ -194,7 +197,8 @@ StatusCode LArCalibDigitsAccumulator::execute()
       //// ############################
 
       std::vector<Identifier> ccellIds(0);
-      int numPulsedLeg = 0;
+      unsigned numPulsedLeg = 0;
+      unsigned numCL = 0;
       if( m_isSC ){
 	Identifier myofflineID = cabling->cnvToIdentifier(digit->hardwareID()) ;
 	ccellIds = m_sc2ccMappingTool->superCellToOfflineID( myofflineID );
@@ -202,17 +206,24 @@ StatusCode LArCalibDigitsAccumulator::execute()
 	  HWIdentifier cellLegHWID  = cablingLeg->createSignalChannelID(id);
 	  //ATH_MSG_WARNING( "oi " << id << cellLegHWID);
 	  const std::vector<HWIdentifier>& calibLineLeg = clcabling->calibSlotLine(cellLegHWID);
+	  numCL += calibLineLeg.size();
           for (HWIdentifier calibLineHWID : calibLineLeg) {// loop legacy calib lines
-	    bool ispulsed=calibParams->isPulsed(eventNb,calibLineHWID);
-	    if (ispulsed ){
+	    if ( calibParams->isPulsed(eventNb,calibLineHWID) ){
 	      numPulsedLeg += 1;
 	    }else{
 	      if ( digit->isPulsed() ) ATH_MSG_WARNING("SC "<< chid << " constituent cell "<< cellLegHWID << " calib line "<< calibLineHWID<< " not pulsed");}
 	  }//end calib line Leg loop
 	}//end legacy cell loop
-	if ( numPulsedLeg != (int)(ccellIds.size()) &&  numPulsedLeg != digit->isPulsed() ){
-	  ATH_MSG_WARNING("Different number of pulsed cells from different tools!! LArParams counter = " << numPulsedLeg << ", SC2CCMappingTool = " << ccellIds.size() << " pulsed legacy cells" );
+	if ( digit->isPulsed() && numPulsedLeg != numCL ){ //(int)(ccellIds.size()) ){
+	  ATH_MSG_WARNING("Number of pulsed legacy cells does not equal number of calibration lines "<<chid<<"!! LArParams counter = " << numPulsedLeg << ", SC2CCMappingTool = " << ccellIds.size() << ", num CLs = "<< numCL);
+
+	  if(m_keepFullyPulsedSC){ // && numPulsedLeg < (int)(ccellIds.size())){
+	    ATH_MSG_WARNING("Discarding this SC ("<<chid<<") as it is not fully pulsed");
+	    continue;
+	  }
 	}
+
+	ATH_MSG_DEBUG("SC "<<chid<<" pulsed cells "<< numPulsedLeg <<" or "<< ccellIds.size()<<", "<<numCL<<" calibration lines");
       } // end m_isSC
 
       //// ############################
@@ -271,7 +282,7 @@ StatusCode LArCalibDigitsAccumulator::execute()
       
       // trigger counter for each cell
       cellAccumulated.m_ntrigger++;
-      ATH_MSG_INFO( "chid = " << chid << ", trigger = " << cellAccumulated.m_ntrigger << ", DAC = " << digit->DAC() );
+      ATH_MSG_INFO( "chid = " << chid << ", trigger = " << cellAccumulated.m_ntrigger << ", DAC = " << digit->DAC()<<", Delay = "<<digit->delay()<<", isPulsed? "<<digit->isPulsed() );
             
       // at first trigger, initialize vectors
       unsigned int sizeSamples = digit->samples().size();
@@ -290,13 +301,9 @@ StatusCode LArCalibDigitsAccumulator::execute()
 	//	accuCalibDigit = new LArAccumulatedCalibDigit(chid,gain,sizeSamples,0,m_nStepTrigger,(uint16_t)digit->DAC(),(uint16_t)m_delay,isPulsed);
 	
 	if ( m_isSC ){	  
-	  if ( isPulsed ){
-	    ATH_MSG_DEBUG("DAC "<< digit->DAC()<< " NOT PULSED, will multiply by "<<ccellIds.size()<< " = "<<digit->DAC()*ccellIds.size());
-	    accuCalibDigit = new LArAccumulatedCalibDigit(chid,gain,sizeSamples,(int32_t)(digit->DAC()*ccellIds.size()),(uint16_t)m_delay,isPulsed,0,0);
-	  }else{
-	    ATH_MSG_DEBUG("DAC "<< digit->DAC()<< " will multiply by "<<numPulsedLeg<< " = "<<digit->DAC()*numPulsedLeg);
-	    accuCalibDigit = new LArAccumulatedCalibDigit(chid,gain,sizeSamples,(int32_t)(digit->DAC()*numPulsedLeg),(uint16_t)m_delay,isPulsed,0,0);
-	  }
+	  ATH_MSG_DEBUG("Channel "<<chid<<" DAC "<< digit->DAC()<< " will multiply by "<<numPulsedLeg<< " = "<<digit->DAC()*numPulsedLeg<<" is pulsed??? "<<isPulsed);
+	  accuCalibDigit = new LArAccumulatedCalibDigit(chid,gain,sizeSamples,(int32_t)(digit->DAC()*numPulsedLeg),(uint16_t)m_delay,isPulsed,0,0);
+	  //}
 	}else{
 	  accuCalibDigit = new LArAccumulatedCalibDigit(chid,gain,sizeSamples,(uint16_t)digit->DAC(),(uint16_t)m_delay,isPulsed,0,0);
 	}
@@ -330,8 +337,8 @@ StatusCode LArCalibDigitsAccumulator::execute()
 	  // First loop to find "allGood" samplings and their mean values
 	  for (unsigned int sample = 0; sample < sizeSamples; ++sample) {
 	    std::vector<int> sampleVector;
-	    uint32_t sum  = 0;
-	    uint32_t sum2 = 0;
+	    uint64_t sum  = 0;
+	    uint64_t sum2 = 0;
 	    
 	    for (unsigned int trig = 0; trig < nTriggerPerStep[febhash]; ++trig) {
               if ( m_sampleShift < 0 ){

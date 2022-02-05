@@ -23,7 +23,6 @@
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArSimEvent/LArHitFloat.h"
 #include "LArSimEvent/LArHit.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "EventInfoUtils/EventIDFromStore.h"
 #include "GeneratorObjects/McEventCollection.h"
@@ -155,9 +154,8 @@ StatusCode LArPileUpTool::initialize()
   ATH_CHECK(m_hitFloatContainerKeys.initialize(!m_onlyUseContainerName && !m_hitFloatContainerKeys.empty() ));
   ATH_CHECK(m_inputDigitContainerKey.initialize(!m_onlyUseContainerName && !m_inputDigitContainerKey.empty() ));
 
-  if (m_Windows) {
-    ATH_CHECK(  detStore()->retrieve(m_caloDDMgr, "CaloMgr") );
-  }
+  ATH_CHECK(m_caloMgrKey.initialize());
+  
 
   //retrieve ID helpers
   ATH_CHECK(detStore()->retrieve(m_calocell_id,"CaloCell_ID"));
@@ -258,8 +256,12 @@ StatusCode LArPileUpTool::prepareEvent(const EventContext& ctx, unsigned int /*n
      return StatusCode::FAILURE;
   }
 
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,ctx};
+  const CaloDetDescrManager* caloDDMgr = *caloMgrHandle;
+
+
   m_hitmap=SG::makeHandle(m_hitMapKey, ctx);
-  auto hitMapPtr=std::make_unique<LArHitEMap>(m_cabling,m_calocell_id,m_caloDDMgr,m_RndmEvtOverlay);
+  auto hitMapPtr=std::make_unique<LArHitEMap>(m_cabling,m_calocell_id,caloDDMgr,m_RndmEvtOverlay);
   ATH_CHECK(m_hitmap.record(std::move(hitMapPtr)));
   ATH_MSG_DEBUG(" Number of created  cells in Map " << m_hitmap->GetNbCells());
 
@@ -268,7 +270,7 @@ StatusCode LArPileUpTool::prepareEvent(const EventContext& ctx, unsigned int /*n
   
   if (m_doDigiTruth) {
     m_hitmap_DigiHSTruth=SG::makeHandle(m_hitMapKey_DigiHSTruth, ctx);
-    auto hitMapPtr=std::make_unique<LArHitEMap>(m_cabling,m_calocell_id,m_caloDDMgr,m_RndmEvtOverlay);
+    auto hitMapPtr=std::make_unique<LArHitEMap>(m_cabling,m_calocell_id,caloDDMgr,m_RndmEvtOverlay);
     ATH_CHECK(m_hitmap_DigiHSTruth.record(std::move(hitMapPtr)));
     if (!m_useMBTime) m_energySum_DigiHSTruth.assign(m_hitmap_DigiHSTruth->GetNbCells(),0.);
   }
@@ -282,7 +284,8 @@ StatusCode LArPileUpTool::prepareEvent(const EventContext& ctx, unsigned int /*n
   }
 
   ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this, m_randomStreamName);
-  rngWrapper->setSeedLegacy( m_randomStreamName, ctx, m_randomSeedOffset, m_useLegacyRandomSeeds );
+  ATHRNG::RNGWrapper::SeedingOptionType seedingmode=m_useLegacyRandomSeeds ? ATHRNG::RNGWrapper::MC16Seeding : ATHRNG::RNGWrapper::SeedingDefault;
+  rngWrapper->setSeedLegacy( m_randomStreamName, ctx, m_randomSeedOffset, seedingmode );
 
   // add random phase (i.e subtract it from trigtime)
   if (m_addPhase) {

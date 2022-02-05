@@ -293,7 +293,7 @@ namespace TrigConf {
     **************************************/
    class Selection {
    public:
-      enum class WP { NONE = 0, LOOSE = 1, MEDIUM = 2, TIGHT = 3, HAD = 4 };
+      enum class WP { NONE = 0, LOOSE = 1, MEDIUM = 2, TIGHT = 3, HADLOOSE = 4, HADMEDIUM = 5, HADTIGHT = 6, HAD = 7 }; // HAD = HADMEDIUM for backward compatibility
       static std::string wpToString(WP);
       static WP stringToWP(const std::string &);
    };

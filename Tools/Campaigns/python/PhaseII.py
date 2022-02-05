@@ -42,3 +42,21 @@ def PhaseIINoPileUp(flags):
 
     flags.Tile.BestPhaseFromCOOL = False
     flags.Tile.correctTime = False
+
+
+def PhaseIISimulation(flags):
+    """Phase-II Upgrade / Run 4 flags for simulation"""
+    flags.Sim.PhysicsList = 'FTFP_BERT_ATL'
+    flags.Sim.TruthStrategy = 'MC15aPlus'
+
+    flags.Input.RunNumber = [242000]
+    flags.Input.OverrideRunNumber = True
+    flags.Input.LumiBlockNumber = [1] # dummy value
+
+    flags.Sim.TightMuonStepping = True
+
+    from SimuJobTransforms.SimulationHelpers import enableBeamPipeKill, enableFrozenShowersFCalOnly
+    enableBeamPipeKill(flags)
+    enableFrozenShowersFCalOnly(flags)
+    from SimuJobTransforms.G4Optimizations import enableG4Optimizations
+    enableG4Optimizations(flags)

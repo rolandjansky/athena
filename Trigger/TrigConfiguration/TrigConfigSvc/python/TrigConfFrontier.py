@@ -1,10 +1,11 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 import time
 import sys
 
+log = logging.getLogger( "TrigConfFrontier.py" )
 
 def getServerUrls(frontier_servers):
     """
@@ -17,32 +18,19 @@ def getServerUrls(frontier_servers):
     return findall(r'\(serverurl=(.*?)\)',frontier_servers)
 
 
-def testUrl(url):
-    import urllib.request, urllib.error, urllib.parse
-    try:
-        urllib.request.urlopen(url)
-    except urllib.error.URLError:
-        return False
-    return True
-
 def resolveUrl(url):
     """
     Expects input string to be a URL or $FRONTIER_SERVER
     Returns an accessible URL or None"""
     import re
     if re.match("http://",url): # simple URL specification http://...
-        return [url] if testUrl(url) else []
+        return [url]
 
-    urls = []
     if re.match(r'\(serverurl=(.*?)\)',url): # syntax of FRONTIER_SERVER
-        for url in getServerUrls(url):
-            if testUrl(url):
-                urls.append(url)
-        return urls
+        return getServerUrls(url)
 
 
 def getFrontierCursor(urls, schema, loglevel = logging.INFO):
-    log = logging.getLogger( "TrigConfFrontier.py" )
     log.setLevel(loglevel)
     url_list = resolveUrl(urls)
     if len(url_list) == 0:
@@ -59,7 +47,6 @@ def replacebindvars(query, bindvars):
     """Replaces the bound variables with the specified values,
     disables variable binding
     """
-    log = logging.getLogger( "TrigConfFrontier.py" )
     from builtins import int
     for var,val in list(bindvars.items()):
         if query.find(":%s" % var)<0:
@@ -92,7 +79,7 @@ class FrontierCursor(object):
         if len(bindvars)>0:
             query = replacebindvars(query,bindvars)
         
-        log = logging.getLogger( "TrigConfFrontier.py" )
+        
         log.debug("Frontier URLs  : %s", self.urls)
         log.debug("Refresh cache : %s", self.refreshFlag)
         log.debug("Query         : %s", query)
@@ -119,7 +106,7 @@ class FrontierCursor(object):
                 log.debug("Query started: %s", time.strftime("%m/%d/%y %H:%M:%S %Z", queryStart))
 
                 t1 = time.time()
-                result = urllib.request.urlopen(request,None,10).read().decode('utf-8')
+                result = urllib.request.urlopen(request,timeout=10).read().decode('utf-8')
                 t2 = time.time()
 
                 queryEnd = time.localtime()
@@ -127,9 +114,12 @@ class FrontierCursor(object):
                 log.debug("Query time: %s [seconds]", (t2-t1))
                 log.debug("Result size: %i [seconds]", len(result))
                 self.result = result
+                self.checkResultForErrors()
                 return
-            except Exception:
+            except urllib.error.HTTPError:
                 log.warning("Problem with Frontier connection to %s trying next server", url)
+            except Exception as err:
+                log.warning("Problem with the request {0}".format(err))
 
         raise Exception("All servers failed")
                 
@@ -138,9 +128,21 @@ class FrontierCursor(object):
         if self.doDecode: self.decodeResult()
         return self.result
 
+    def checkResultForErrors(self):
+        ''' Parse the response, looking for errors '''
+        from xml.dom.minidom import parseString
+        dom = parseString(self.result)
+
+        globalError = dom.getElementsByTagName("global_error")
+        for node in globalError:
+            raise Exception(node.getAttribute("msg"))
+
+        qualityList = dom.getElementsByTagName("quality")
+        for node in qualityList:
+            if int(node.getAttribute("error")) > 0:
+                raise Exception(node.getAttribute("message")) 
 
     def decodeResult(self):
-        log = logging.getLogger( "TrigConfFrontier.py" )
         from xml.dom.minidom import parseString
         import base64, zlib, curses.ascii, re
         #print ("Query result:\n", self.result)
@@ -224,18 +226,13 @@ class FrontierCursor(object):
 
 
 
-
 def testQuery(query, bindvars):
-    log = logging.getLogger( "TrigConfFrontier.py" )
-    from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
-    tf.triggerUseFrontier = True
-
     from TrigConfigSvc.TrigConfigSvcUtils import interpretConnection
     connectionParameters = interpretConnection("TRIGGERDBMC")
     cursor = getFrontierCursor( urls = connectionParameters['url'], schema = connectionParameters['schema'])
     cursor.execute(query, bindvars)
     log.info("Raw response:")
-    print(cursor.result)
+    log.info(cursor.result)
     cursor.decodeResult()
     log.info("Decoded response:")
     log.info(cursor.result[0][0])        

@@ -67,7 +67,7 @@ class ConditionsTag(JobProperty):
      """
      statusOn=True
      allowedTypes=['str']
-     StoredValue='OFLCOND-RUN12-SDR-31'
+     StoredValue='OFLCOND-MC16-SDR-RUN2-09'
 
 #
 class DatabaseInstance(JobProperty):

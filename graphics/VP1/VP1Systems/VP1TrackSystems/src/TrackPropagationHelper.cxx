@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -264,7 +264,7 @@ bool TrackPropagationHelper::makePointsCharged( std::vector<Amg::Vector3D >& poi
     return m_d->makePointsCharged_SinglePar(points,track,extrapolator,hypo);
 
   points.reserve(npars);//At least we need this.
-
+  const EventContext& ctx = Gaudi::Hive::currentContext();
     //Add a point for each parameter, and add extra points between them where appropriate.
   DataVector<const Trk::TrackStateOnSurface>::const_iterator tsos_iter = track->trackStateOnSurfaces()->begin();
   DataVector<const Trk::TrackStateOnSurface>::const_iterator tsos_end = track->trackStateOnSurfaces()->end();
@@ -299,8 +299,10 @@ bool TrackPropagationHelper::makePointsCharged( std::vector<Amg::Vector3D >& poi
     messageVerbose("Extending to Volume");
     //get individual surfaces
 
-    //TODO - optimise this!
-    const std::vector< const Trk::Surface * > * bsurfs = volume->volumeBounds ().decomposeToSurfaces (volume->transform ());
+    // TODO - optimise this!
+    const std::vector<const Trk::Surface*>* bsurfs =
+      const_cast<Trk::VolumeBounds&>(volume->volumeBounds())
+        .decomposeToSurfaces(volume->transform());
 
     if (bsurfs){
       messageVerbose("Has this many surfaces:"+str(bsurfs->size()));
@@ -310,7 +312,10 @@ bool TrackPropagationHelper::makePointsCharged( std::vector<Amg::Vector3D >& poi
 
         messageVerbose("Extrap value:"+str((extrapolator)));
         messageVerbose("trackParam:"+str((trackParam)));
-        const Trk::TrackParameters*  trackPar = extrapolator->extrapolate(*trackParam,**bSurfsIt,Trk::alongMomentum,true,hypo); // change this to extrapolate current param to surface.
+        const Trk::TrackParameters*  trackPar = extrapolator->extrapolate(ctx,
+                                                                          *trackParam,
+                                                                          **bSurfsIt,
+                                                                          Trk::alongMomentum,true,hypo).release(); // change this to extrapolate current param to surface.
 
         if (trackPar){
           messageVerbose("Extrapolation succeeded");
@@ -351,7 +356,10 @@ const Trk::TrackParameters * TrackPropagationHelper::Imp::extrapolateToNewPar( T
 
   const Trk::TrackParameters *newpars(nullptr);
   try {
-    newpars = extrapolator->extrapolate(*prevpars,surf,Trk::alongMomentum,false,hypo); // change this to extrapolate current param to surface.
+    newpars = extrapolator->extrapolate(Gaudi::Hive::currentContext(),
+                                        *prevpars,
+                                        surf,
+                                        Trk::alongMomentum,false,hypo).release(); // change this to extrapolate current param to surface.
   } catch (const std::runtime_error& e) {
     theclass->message("Failure trying to use extrapolator for track (Exception thrown: " + QString(e.what())+")");
     return nullptr;

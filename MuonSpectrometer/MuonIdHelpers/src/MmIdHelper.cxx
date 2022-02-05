@@ -700,7 +700,7 @@ Identifier MmIdHelper::elementID(int stationName, int stationEta, int stationPhi
     return result;
 }
 /*******************************************************************************/
-Identifier MmIdHelper::elementID(const std::string& stationNameStr, int stationEta, int stationPhi, bool check, bool* isValid) const {
+Identifier MmIdHelper::elementID(std::string_view stationNameStr, int stationEta, int stationPhi, bool check, bool* isValid) const {
     Identifier id;
     int stationName = stationNameIndex(stationNameStr);
     id = elementID(stationName, stationEta, stationPhi, check, isValid);

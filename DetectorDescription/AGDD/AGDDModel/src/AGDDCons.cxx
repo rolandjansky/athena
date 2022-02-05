@@ -1,23 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #include "AGDDModel/AGDDCons.h"
 #include "AGDDKernel/AGDDBuilder.h"
 
-void AGDDCons::CreateSolid() 
+void AGDDCons::CreateSolid (const AGDDBuilder& builder)
 {
-	AGDDBuilder* builder=AGDDBuilder::CurrentBuilder();
-
-	builder->CreateCons(this);
-
+	builder.CreateCons(this);
 }
-void AGDDCons::CreateVolume() 
+void AGDDCons::CreateVolume (AGDDBuilder& builder)
 {
-	AGDDBuilder* builder=AGDDBuilder::CurrentBuilder();
-
-	CreateSolid();
-
- 	builder->CreateVolume(this);
+	CreateSolid (builder);
+ 	builder.CreateVolume(this);
 }

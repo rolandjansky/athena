@@ -8,6 +8,7 @@
 #include "LArDetectorFactory.h"
 #include "LArDetectorFactoryLite.h"
 #include "LArGeoCode/VDetectorParameters.h"
+#include "LArGeoRAL/RAL.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -71,8 +72,6 @@ LArDetectorToolNV::LArDetectorToolNV(const std::string& type
 
 LArDetectorToolNV::~LArDetectorToolNV()
 {
-  // Clean up detector parameters instantiated by the factory
-  LArGeo::VDetectorParameters::SetInstance(0);
 }
 
 StatusCode LArDetectorToolNV::create()
@@ -148,6 +147,9 @@ StatusCode LArDetectorToolNV::create()
     theLArFactoryLite.setBarrelSagging(m_barrelSaggingOn);
     theLArFactoryLite.create(world);
     m_manager = theLArFactoryLite.getDetectorManager();
+
+    std::unique_ptr<LArGeo::VDetectorParameters> params = std::make_unique<LArGeo::RAL>();
+    LArGeo::VDetectorParameters::SetInstance(std::move(params));
   }
   else {
     // Geometry is constructed from the Geometry DB
@@ -178,9 +180,9 @@ StatusCode LArDetectorToolNV::create()
 
     theLArFactory.create(world);
     m_manager = theLArFactory.getDetectorManager();
-    if(m_geometryConfig=="RECO") {
-      // Release RDB Recordsets if we are inside reco job
-      LArGeo::VDetectorParameters::SetInstance(0);
+    if(m_geometryConfig!="RECO") {
+      // Save RDB Recordsets if we are not inside reco job
+      LArGeo::VDetectorParameters::SetInstance(theLArFactory.moveParameters());
     }
   }
 

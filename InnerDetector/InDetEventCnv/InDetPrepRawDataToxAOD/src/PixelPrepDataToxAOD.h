@@ -152,7 +152,7 @@ private:
   SG::ReadHandleKey<InDetSimDataCollection> m_SDOcontainer_key;
   SG::ReadHandleKey<PRD_MultiTruthCollection> m_multiTruth_key;
 
-  SG::WriteHandleKey<xAOD::TrackMeasurementValidationContainer> m_write_xaod;
+  SG::WriteHandleKey<xAOD::TrackMeasurementValidationContainer> m_write_xaod_key;
   SG::WriteHandleKey<std::vector<unsigned int>> m_write_offsets;
 };
 

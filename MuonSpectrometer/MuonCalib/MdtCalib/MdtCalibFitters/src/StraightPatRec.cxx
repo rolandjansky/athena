@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCalibFitters/StraightPatRec.h"
@@ -76,7 +76,7 @@ MTStraightLine StraightPatRec::tangent(const Amg::Vector3D &r_w1, const double &
     MTStraightLine tang;                                 // tangent to drift circles of a hit pair
     Amg::Vector3D p1(0.0, 0.0, 0.0), p2(0.0, 0.0, 0.0);  // hit points defining a tangent
     Amg::Vector3D null_vec(0.0, 0.0, 0.0);               // auxiliary 0 vector
-    double mx1, bx1, mx2, bx2;                           // auxiliary track parameters
+    double mx1 = 0, bx1 = 0, mx2 = 0, bx2 = 0;           // auxiliary track parameters
 
     //::::::::::::::::::::::::::::::::::::::::::::
     //:: CHECK WHETHER THE SELECTED CASE EXISTS ::
@@ -315,12 +315,12 @@ bool StraightPatRec::fitCallByReference(MuonCalibSegment &r_segment, HitSelectio
     unsigned int try_nb_hits;             // try this given number of hits for the
                                           // segment reconstruction
 
-    std::vector<const MdtCalibHitBase *> selected_hits;
+    MuonCalibSegment::MdtHitVec selected_hits;
     std::vector<unsigned int> selected_hits_index;
 
     Amg::Vector3D w_min, w_max;     // wire with the minimum local z coordinate,
                                     // wire with the maximum local z coordinate
-    double r_min, r_max;            // corresponding drift CLHEP::radii
+    double r_min, r_max{};          // corresponding drift CLHEP::radii
     double sigma2_min, sigma2_max;  // corresponding spatial resolution
 
     unsigned int counter1;  // auxiliary counter
@@ -482,7 +482,7 @@ bool StraightPatRec::fitCallByReference(MuonCalibSegment &r_segment, HitSelectio
         // MAKE THE FINAL STRAIGHT SEGMENT, IF POSSIBLE //
         //////////////////////////////////////////////////
 
-        std::vector<const MdtCalibHitBase *> used_hits;
+        MuonCalibSegment::MdtHitVec used_hits;
         if (nb_candidates > 0) {
             // store track hits, rewrite hit selection //
             for (unsigned int k = 0; k < r_selection.size(); k++) {

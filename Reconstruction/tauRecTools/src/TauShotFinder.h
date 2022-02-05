@@ -10,8 +10,9 @@
 #include "xAODPFlow/PFOAuxContainer.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
 #include "CaloInterface/IHadronicCalibrationTool.h"
-
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 /**
  * @brief Construct the shot candidates
@@ -50,7 +51,8 @@ private:
   /** @brief Apply preselection of the cells 
    *         Cells within dR < 0.4, in EM1, and pt > 100 MeV are selected
    */
-  std::vector<const CaloCell*> selectCells(const xAOD::TauJet& tau, const CaloCellContainer& cellContainer) const;
+  std::vector<const CaloCell*> selectCells(const xAOD::TauJet& tau, const CaloCellContainer& cellContainer,
+                                           const CaloDetDescrManager* detMgr) const;
 
   /** @brief Select the seed cells used to construct the shot 
    *         Cells must sastisfy:
@@ -58,7 +60,8 @@ private:
    *         2. have largest pt among the neighbours in the eta direction 
    *         3. no other seed cells as neighbors in the eta direction
    */
-  std::vector<const CaloCell*> selectSeedCells(const xAOD::TauJet& tau, const CaloCellContainer& cellContainer) const;
+  std::vector<const CaloCell*> selectSeedCells(const xAOD::TauJet& tau, const CaloCellContainer& cellContainer,
+                                               const CaloDetDescrManager* detMgr) const;
 
   /** @brief Check whether two cells are neighbours in the phi direction */
   bool isPhiNeighbour(IdentifierHash cell1Hash, IdentifierHash cell2Hash) const;
@@ -97,7 +100,7 @@ private:
 
   SG::ReadHandleKey<CaloCellContainer> m_caloCellInputContainer{this,"Key_caloCellInputContainer", "AllCalo", "input vertex container key"};
   SG::WriteHandleKey<xAOD::PFOContainer> m_tauPFOOutputContainer{this,"Key_tauPFOOutputContainer", "TauShotParticleFlowObjects", "tau pfo out key"};
-  
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager", "CaloDetDescrManager"};
   ToolHandle<IHadronicCalibrationTool> m_caloWeightTool {this, "CaloWeightTool", "H1WeightToolCSC12Generic"};
   
   /// calo cell navigation

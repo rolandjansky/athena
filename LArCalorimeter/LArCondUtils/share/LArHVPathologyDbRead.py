@@ -21,6 +21,12 @@ if "mode" not in dir():
 if "date" not in dir():
     date="2015-05-29:12:00:00"
 
+if "RunNumber" not in dir():
+   RunNumber=999999
+
+if "LumiBlock" not in dir():
+   LumiBlock=1
+
 if "TimeStamp" not in dir():
    try:
        ts=strptime(date+'/UTC','%Y-%m-%d:%H:%M:%S/%Z')
@@ -105,11 +111,11 @@ svcMgr.IOVDbSvc.OutputLevel         = 3
 #ApplicationMgr.EvtSel = "NONE"
 #--------------------------------------------------------------
 # Set the following when reading back to adjust the run/event numbers
-svcMgr.EventSelector.RunNumber         = 9999999
+svcMgr.EventSelector.RunNumber         = RunNumber
 svcMgr.EventSelector.EventsPerRun      = 1
 svcMgr.EventSelector.FirstEvent        = 1
 svcMgr.EventSelector.EventsPerLB       = 1
-svcMgr.EventSelector.FirstLB           = 1
+svcMgr.EventSelector.FirstLB           = LumiBlock
 svcMgr.EventSelector.InitialTimeStamp  = int(TimeStamp/1e9)
 svcMgr.EventSelector.TimeStampInterval = 5
 theApp.EvtMax                   = 1

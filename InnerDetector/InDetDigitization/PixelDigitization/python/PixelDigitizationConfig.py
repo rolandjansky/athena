@@ -40,7 +40,7 @@ def EfieldInterpolator(name="EfieldInterpolator", **kwargs):
     return CfgMgr.EfieldInterpolator(name, **kwargs)
 
 def EnergyDepositionTool(name="EnergyDepositionTool", **kwargs):
-    kwargs.setdefault("DeltaRayCut", 117.)
+    kwargs.setdefault("DeltaRayCut", 80.7687)  
     kwargs.setdefault("nCols", 5)
     kwargs.setdefault("LoopLimit", 100000)
     kwargs.setdefault("doBichsel", hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation())
@@ -53,13 +53,15 @@ def SensorSimPlanarTool(name="SensorSimPlanarTool", **kwargs):
     from AthenaCommon.AppMgr import ToolSvc
     kwargs.setdefault("SiPropertiesTool", ToolSvc.PixelSiPropertiesTool)
     kwargs.setdefault("LorentzAngleTool", ToolSvc.PixelLorentzAngleTool)
-    kwargs.setdefault("doRadDamage", digitizationFlags.doRadiationDamage.get_Value())
+    kwargs.setdefault("doRadDamage", digitizationFlags.doPixelPlanarRadiationDamage.get_Value())
+    kwargs.setdefault("doRadDamageTemplate", digitizationFlags.doPixelPlanarRadiationDamageTemplate.get_Value())
     return CfgMgr.SensorSimPlanarTool(name, **kwargs)
 
 def SensorSim3DTool(name="SensorSim3DTool", **kwargs):
     from AthenaCommon.AppMgr import ToolSvc
     kwargs.setdefault("SiPropertiesTool", ToolSvc.PixelSiPropertiesTool)
-    kwargs.setdefault("doRadDamage", digitizationFlags.doRadiationDamage.get_Value())
+    kwargs.setdefault("doRadDamage", digitizationFlags.doPixel3DRadiationDamage.get_Value())
+    kwargs.setdefault("doRadDamageTemplate", digitizationFlags.doPixel3DRadiationDamageTemplate.get_Value())
     return CfgMgr.SensorSim3DTool(name, **kwargs)
 
 def SensorSimTool(name="SensorSimTool", **kwargs):
@@ -123,22 +125,10 @@ def EndcapFEI3SimTool(name="EndcapFEI3SimTool", **kwargs):
 
 def IdMapping():
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
-    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
 
     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
 
-    # ITk:
-    if geoFlags.isSLHC():
-        IdMappingDat = "ITk_Atlas_IdMapping.dat"
-        if "BrlIncl4.0_ref" == commonGeoFlags.GeoType():
-            IdMappingDat = "ITk_Atlas_IdMapping_InclBrl4.dat"
-        elif "IBrlExt4.0ref" == commonGeoFlags.GeoType():
-            IdMappingDat = "ITk_Atlas_IdMapping_IExtBrl4.dat"
-        elif "BrlExt4.0_ref" == commonGeoFlags.GeoType():
-            IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl4.dat"
-        elif "BrlExt3.2_ref" == commonGeoFlags.GeoType():
-            IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl32.dat"
-    elif not geoFlags.isIBL():
+    if not geoFlags.isIBL():
         IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping.dat"
     else:
         # Planar IBL
@@ -154,9 +144,6 @@ def IdMapping():
     return IdMappingDat
 
 def PixelConfigCondAlg_MC():
-    ############################################################################################
-    # Set up Pixel Module data (2018 condition)
-    ############################################################################################
 
     #################
     # Module status #
@@ -166,7 +153,6 @@ def PixelConfigCondAlg_MC():
 
     from AthenaCommon.BeamFlags import jobproperties
     if jobproperties.Beam.beamType == "cosmics" :
-        alg.UseComTime=True
         alg.BarrelTimeJitter=[25.0,25.0,25.0,25.0]
         alg.EndcapTimeJitter=[25.0,25.0,25.0]
         alg.DBMTimeJitter=[25.0,25.0,25.0]
@@ -177,7 +163,6 @@ def PixelConfigCondAlg_MC():
         alg.EndcapTimeOffset=[100.0,100.0,100.0]
         alg.DBMTimeOffset=[100.0,100.0,100.0]
     else:
-        alg.UseComTime=False
         alg.BarrelTimeJitter=[0.0,0.0,0.0,0.0]
         alg.EndcapTimeJitter=[0.0,0.0,0.0]
         alg.DBMTimeJitter=[0.0,0.0,0.0]
@@ -233,7 +218,7 @@ def PixelConfigCondAlg_MC():
     alg.DBMDisableProbability2016 = [ 9e-3, 9e-3, 9e-3]
     alg.DefaultDBMBiasVoltage2016 = [500.0,500.0,500.0]
 
-    alg.IBLNoiseShape2016    = [0.0, 0.0330, 0.0, 0.3026, 0.5019, 0.6760, 0.8412, 0.9918, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+    alg.IBLNoiseShape2016    = [0.0, 0.0330, 0.0, 0.3026, 0.5019, 0.6760, 0.8412, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 1.0]
     alg.BLayerNoiseShape2016 = [0.0, 0.0, 0.0, 0.0, 0.2204, 0.5311, 0.7493, 0.8954, 0.9980, 1.0]
     alg.PixelNoiseShape2016  = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2418, 0.4397, 0.5858, 0.6949, 0.7737, 0.8414, 0.8959, 0.9414, 0.9828, 1.0]
     # Layer-2 noise shape                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2129, 0.4016, 0.5477, 0.6599, 0.7435, 0.8160, 0.8779, 0.9340, 0.9798, 1.0]
@@ -280,7 +265,7 @@ def PixelConfigCondAlg_MC():
     alg.DBMDisableProbability2017 = [ 9e-3, 9e-3, 9e-3]
     alg.DefaultDBMBiasVoltage2017 = [500.0,500.0,500.0]
 
-    alg.IBLNoiseShape2017    = [0.0, 0.0330, 0.0, 0.3026, 0.5019, 0.6760, 0.8412, 0.9918, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+    alg.IBLNoiseShape2017    = [0.0, 0.0330, 0.0, 0.3026, 0.5019, 0.6760, 0.8412, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 1.0]
     alg.BLayerNoiseShape2017 = [0.0, 0.0, 0.0, 0.0, 0.2204, 0.5311, 0.7493, 0.8954, 0.9980, 1.0]
     alg.PixelNoiseShape2017  = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2418, 0.4397, 0.5858, 0.6949, 0.7737, 0.8414, 0.8959, 0.9414, 0.9828, 1.0]
 
@@ -321,9 +306,53 @@ def PixelConfigCondAlg_MC():
     alg.DBMDisableProbability2018 = [ 9e-3, 9e-3, 9e-3]
     alg.DefaultDBMBiasVoltage2018 = [500.0,500.0,500.0]
 
-    alg.IBLNoiseShape2018    = [0.0, 0.0330, 0.0, 0.3026, 0.5019, 0.6760, 0.8412, 0.9918, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+    alg.IBLNoiseShape2018    = [0.0, 0.0330, 0.0, 0.3026, 0.5019, 0.6760, 0.8412, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 1.0]
     alg.BLayerNoiseShape2018 = [0.0, 0.0, 0.0, 0.0, 0.2204, 0.5311, 0.7493, 0.8954, 0.9980, 1.0]
     alg.PixelNoiseShape2018  = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2418, 0.4397, 0.5858, 0.6949, 0.7737, 0.8414, 0.8959, 0.9414, 0.9828, 1.0]
+
+    #====================================================================================
+    # RUN3 2022
+    # The pixel conditions are matched with 2022 data (mc16e) at L=119.4fb-1 (run#357193).
+    alg.BarrelToTThreshold2022       = [     -1,      3,      5,      5]
+    alg.FEI3BarrelLatency2022        = [      0,    151,    256,    256]
+    alg.FEI3BarrelHitDuplication2022 = [  False,  False,  False,  False]
+    alg.FEI3BarrelSmallHitToT2022    = [     -1,     -1,     -1,     -1]
+    alg.FEI3BarrelTimingSimTune2022  = [     -1,   2018,   2018,   2018]
+    alg.BarrelCrossTalk2022          = [   0.30,   0.12,   0.12,   0.12]
+    alg.BarrelNoiseOccupancy2022     = [   5e-8,   5e-8,   5e-8,   5e-8]
+    alg.BarrelDisableProbability2022 = [   9e-3,   9e-3,   9e-3,   9e-3]
+    alg.BarrelLorentzAngleCorr2022   = [    1.0,    1.0,    1.0,    1.0]
+    alg.DefaultBarrelBiasVoltage2022 = [  400.0,  400.0,  250.0,  250.0]
+    alg.BarrelFluence2022            = [5.50e14,5.19e14,2.28e14,1.53e14]
+    alg.Barrel3DFluence2022          = [7.54e14]
+
+    alg.BarrelFluenceMap2022 = ["PixelDigitization/maps_IBL_PL_450V_fl7_2e14.root",
+                                "PixelDigitization/maps_PIX_450V_fl6_8e14.root",
+                                "PixelDigitization/maps_PIX_300V_fl3e14.root",
+                                "PixelDigitization/maps_PIX_300V_fl2e14.root"]
+
+    alg.Barrel3DFluenceMap2022 = ["PixelDigitization/maps_IBL_3D_60V_fl7_54e14_LHCb.root"]
+
+    alg.EndcapToTThreshold2022       = [    5,    5,    5]
+    alg.FEI3EndcapLatency2022        = [  256,  256,  256]
+    alg.FEI3EndcapHitDuplication2022 = [False,False,False]
+    alg.FEI3EndcapSmallHitToT2022    = [   -1,   -1,   -1]
+    alg.FEI3EndcapTimingSimTune2022  = [ 2018, 2018, 2018]
+    alg.EndcapCrossTalk2022          = [ 0.06, 0.06, 0.06]
+    alg.EndcapNoiseOccupancy2022     = [ 5e-8, 5e-8, 5e-8]
+    alg.EndcapDisableProbability2022 = [ 9e-3, 9e-3, 9e-3]
+    alg.EndcapLorentzAngleCorr2022   = [  1.0,  1.0,  1.0]
+    alg.DefaultEndcapBiasVoltage2022 = [250.0,250.0,250.0]
+
+    alg.DBMToTThreshold2022       = [   -1,   -1,   -1]
+    alg.DBMCrossTalk2022          = [ 0.06, 0.06, 0.06]
+    alg.DBMNoiseOccupancy2022     = [ 5e-8, 5e-8, 5e-8]
+    alg.DBMDisableProbability2022 = [ 9e-3, 9e-3, 9e-3]
+    alg.DefaultDBMBiasVoltage2022 = [500.0,500.0,500.0]
+
+    alg.IBLNoiseShape2022    = [0.0, 0.0330, 0.0, 0.3026, 0.5019, 0.6760, 0.8412, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 1.0]
+    alg.BLayerNoiseShape2022 = [0.0, 0.0, 0.0, 0.0, 0.2204, 0.5311, 0.7493, 0.8954, 0.9980, 1.0]
+    alg.PixelNoiseShape2022  = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2418, 0.4397, 0.5858, 0.6949, 0.7737, 0.8414, 0.8959, 0.9414, 0.9828, 1.0]
 
     #====================================================================================
     # RUN1
@@ -400,7 +429,7 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     if not hasattr(condSeq, 'PixelConfigCondAlg'):
         condSeq += PixelConfigCondAlg_MC()
 
-    if digitizationFlags.doRadiationDamage.get_Value():
+    if digitizationFlags.doPixelPlanarRadiationDamage.get_Value() or digitizationFlags.doPixel3DRadiationDamage.get_Value():
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelRadSimFluenceMapAlg
         condSeq += PixelRadSimFluenceMapAlg()
 
@@ -442,7 +471,7 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     # Calibration Setup #
     #####################
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
-    if commonGeoFlags.Run()=="RUN3":
+    if commonGeoFlags.Run()=="RUN3" and 'UseOldIBLCond' not in digitizationFlags.experimentalDigi():
         if not conddb.folderRequested("/PIXEL/ChargeCalibration"):
             conddb.addFolder("PIXEL_OFL", "/PIXEL/ChargeCalibration", className="CondAttrListCollection")
         if not hasattr(condSeq, 'PixelChargeLUTCalibCondAlg'):
@@ -523,24 +552,19 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     # Setup Cabling Svc #
     #####################
     from PixelReadoutGeometry.PixelReadoutGeometryConf import InDetDD__PixelReadoutManager
-    PixelReadoutManager = InDetDD__PixelReadoutManager()
+    PixelReadoutManager = InDetDD__PixelReadoutManager("PixelReadoutManager")
     ServiceMgr += PixelReadoutManager
     print (PixelReadoutManager)
     kwargs.setdefault("InputObjectName", "PixelHits")
 
     chargeTools = []
+    chargeTools += ['SensorSimPlanarTool']
+    chargeTools += ['SensorSim3DTool']
     feSimTools = []
-    if geoFlags.isSLHC():
-      chargeTools += ['SensorSimPlanarTool']
-      feSimTools += ['BarrelRD53SimTool']
-      feSimTools += ['EndcapRD53SimTool']
-    else:
-      chargeTools += ['SensorSimPlanarTool']
-      chargeTools += ['SensorSim3DTool']
-      feSimTools += ['BarrelFEI4SimTool']
-      feSimTools += ['DBMFEI4SimTool']
-      feSimTools += ['BarrelFEI3SimTool']
-      feSimTools += ['EndcapFEI3SimTool']
+    feSimTools += ['BarrelFEI4SimTool']
+    feSimTools += ['DBMFEI4SimTool']
+    feSimTools += ['BarrelFEI3SimTool']
+    feSimTools += ['EndcapFEI3SimTool']
     kwargs.setdefault("ChargeTools", chargeTools)
     kwargs.setdefault("FrontEndSimTools", feSimTools)
     kwargs.setdefault("EnergyDepositionTool", "EnergyDepositionTool")

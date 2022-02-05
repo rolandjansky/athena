@@ -372,34 +372,6 @@ int main(int argc, char* argv[]) {
             Info(APP_NAME, "Muon quality (from tool, from xAOD):      %d, %d", my_quality, (*mu_itr)->quality());
             Info(APP_NAME, "Muon passes cuts (ID hits, preselection): %d, %d", passesIDRequirements, passesPreselectionCuts);
 
-            // Check availability of variables and dump a message if they are missing
-            uint8_t PixHits = 0, PixDead = 0, SCTHits = 0, SCTDead = 0, PixHoles = 0, SCTHoles = 0, TRTHits = 0, TRTOut = 0;
-            uint8_t nprecisionLayers = 0, nprecisionHoleLayers = 0, cscUnspoiledEtaHits = 0;
-
-            if (!(*mu_itr)->primaryTrackParticle()->summaryValue(nprecisionLayers, xAOD::numberOfPrecisionLayers))
-                Info(APP_NAME, "no nprecisionlayers! ");
-
-            if (!(*mu_itr)->primaryTrackParticle()->summaryValue(nprecisionHoleLayers, xAOD::numberOfPrecisionHoleLayers))
-                Info(APP_NAME, "no nprecisionholelayers! ");
-
-            if (!(*mu_itr)->summaryValue(cscUnspoiledEtaHits, xAOD::MuonSummaryType::cscUnspoiledEtaHits))
-                Info(APP_NAME, "no cscUnspoiledEtaHits! ");
-
-            if (!(*mu_itr)->primaryTrackParticle()->summaryValue(PixHits, xAOD::numberOfPixelHits)) Info(APP_NAME, "Missing info!");
-
-            if (!(*mu_itr)->primaryTrackParticle()->summaryValue(PixDead, xAOD::numberOfPixelDeadSensors)) Info(APP_NAME, "Missing info!");
-
-            if (!(*mu_itr)->primaryTrackParticle()->summaryValue(SCTHits, xAOD::numberOfSCTHits)) Info(APP_NAME, "Missing info!");
-
-            if (!(*mu_itr)->primaryTrackParticle()->summaryValue(SCTDead, xAOD::numberOfSCTDeadSensors)) Info(APP_NAME, "Missing info!");
-
-            if (!(*mu_itr)->primaryTrackParticle()->summaryValue(PixHoles, xAOD::numberOfPixelHoles)) Info(APP_NAME, "Missing info!");
-
-            if (!(*mu_itr)->primaryTrackParticle()->summaryValue(SCTHoles, xAOD::numberOfSCTHoles)) Info(APP_NAME, "Missing info!");
-
-            if (!(*mu_itr)->primaryTrackParticle()->summaryValue(TRTHits, xAOD::numberOfTRTHits)) Info(APP_NAME, "Missing info!");
-
-            if (!(*mu_itr)->primaryTrackParticle()->summaryValue(TRTOut, xAOD::numberOfTRTOutliers)) Info(APP_NAME, "Missing info!");
 
             // Now, let's check whether the muon passes the different working points and also whether it is flagged as bad
 

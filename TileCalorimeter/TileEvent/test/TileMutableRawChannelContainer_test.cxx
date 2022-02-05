@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file TileEvent/test/TileMutableRawChannelContainer_test.cxx
@@ -30,12 +30,12 @@ public:
   TileTBID tbid;
   TileID   tileid;
 
-  TileCablingSvc()
+  TileCablingSvc() ATLAS_CTORDTOR_NOT_THREAD_SAFE
   {
     init_idhelpers();
   }
 
-  void init_idhelpers()
+  void init_idhelpers ATLAS_NOT_THREAD_SAFE ()
   {
     tileid.set_do_neighbours (false);
     parser.register_external_entity("TileCalorimeter", "IdDictTileCalorimeter.xml");
@@ -46,7 +46,7 @@ public:
     assert (hwid.initialize_from_dictionary (idd) == 0);
     assert (tbid.initialize_from_dictionary (idd) == 0);
     assert (tileid.initialize_from_dictionary (idd) == 0);
-    TileCablingService* svc = TileCablingService::getInstance();
+    TileCablingService* svc = TileCablingService::getInstance_nc();
     svc->setTileHWID (&hwid);
     svc->setTileTBID (&tbid);
     svc->setTileID (&tileid);
@@ -91,7 +91,7 @@ void createCollection (TileMutableRawChannelContainer& cont, size_t hash)
 
 void addChans (TileMutableRawChannelContainer& cont, size_t hash)
 {
-  TileCablingService* cabling = TileCablingService::getInstance();
+  const TileCablingService* cabling = TileCablingService::getInstance();
   int frag = cont.hashFunc().identifier (hash);
   HWIdentifier drawer_id = cabling->getTileHWID()->drawer_id (frag);
   for (size_t i = 0; i < NCHAN; i++) {
@@ -173,7 +173,7 @@ void modify (TileMutableRawChannelContainer& cont, float offs)
 
 void check (const TileMutableRawChannelContainer& cont, bool created, float amp_offs)
 {
-  TileCablingService* cabling = TileCablingService::getInstance();
+  const TileCablingService* cabling = TileCablingService::getInstance();
 
   assert (cont.get_type() == TileFragHash::Default);
   assert (cont.get_unit() == TileRawChannelUnit::ADCcounts);
@@ -281,7 +281,7 @@ void test1()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "TileMutableRawChannelContainer_test\n";
   TileCablingSvc cabling;

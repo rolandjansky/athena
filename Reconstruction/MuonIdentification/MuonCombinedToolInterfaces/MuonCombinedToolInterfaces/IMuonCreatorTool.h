@@ -23,10 +23,8 @@
 
 namespace MuonCombined {
 
-    typedef std::pair<const InDetCandidate*, std::vector<const TagBase*> > InDetCandidateTags;
-
-    static const InterfaceID IID_IMuonCreatorTool("MuonCombined::IMuonCreatorTool", 1, 0);
-
+ 
+ 
     /** @class IMuonCreatorTool
         @brief interface for tools building combined muons from ID and Muon candidates
 
@@ -35,74 +33,71 @@ namespace MuonCombined {
         If the pointer to a certain type is non-zero, the container is filled.
         The MuonContainer is mandatory, all other output types are optional.
 
-        @author Niels van Eldik
      */
 
     class IMuonCreatorTool : virtual public IAlgTool {
     public:
+      
+        using InDetCandidateTags = std::pair<const InDetCandidate*, std::vector<const TagBase*> > ;
+
         struct OutputData {
             OutputData(xAOD::MuonContainer& container) :
-                muonContainer(&container),
-                combinedTrackParticleContainer(0),
-                extrapolatedTrackParticleContainer(0),
-                msOnlyExtrapolatedTrackParticleContainer(0),
-                combinedTrackCollection(0),
-                extrapolatedTrackCollection(0),
-                msOnlyExtrapolatedTrackCollection(0),
-                xaodSegmentContainer(0),
-                muonSegmentCollection(0),
-                slowMuonContainer(0),
-                clusterContainer(0) {}
+                muonContainer(&container){}
             /** MuonContainer to be filled with the Muon objects */
-            xAOD::MuonContainer* muonContainer;
+            xAOD::MuonContainer* muonContainer{nullptr};
 
             /** container for the combined track particles */
-            xAOD::TrackParticleContainer* combinedTrackParticleContainer;
+            xAOD::TrackParticleContainer* combinedTrackParticleContainer{nullptr};
 
             /** container for the extrapolated track particles */
-            xAOD::TrackParticleContainer* extrapolatedTrackParticleContainer;
+            xAOD::TrackParticleContainer* extrapolatedTrackParticleContainer{nullptr};
 
             /** container for the extrapolated track particles */
-            xAOD::TrackParticleContainer* msOnlyExtrapolatedTrackParticleContainer;
+            xAOD::TrackParticleContainer* msOnlyExtrapolatedTrackParticleContainer{nullptr};
 
             /** container for the combined tracks */
-            TrackCollection* combinedTrackCollection;
+            TrackCollection* combinedTrackCollection{nullptr};
 
             /** container for the extrapolated tracks */
-            TrackCollection* extrapolatedTrackCollection;
+            TrackCollection* extrapolatedTrackCollection{nullptr};
 
             /** container for the extrapolated tracks */
-            TrackCollection* msOnlyExtrapolatedTrackCollection;
+            TrackCollection* msOnlyExtrapolatedTrackCollection{nullptr};
 
             /** container for the xAOD segments from MuGirl */
-            xAOD::MuonSegmentContainer* xaodSegmentContainer;
+            xAOD::MuonSegmentContainer* xaodSegmentContainer{nullptr};
 
             /** collection for the segments from MuGirl */
-            Trk::SegmentCollection* muonSegmentCollection;
+            Trk::SegmentCollection* muonSegmentCollection{nullptr};
 
             /** container for the Slow muon content */
-            xAOD::SlowMuonContainer* slowMuonContainer;
+            xAOD::SlowMuonContainer* slowMuonContainer{nullptr};
 
             /** container for the clusters associated with muons */
-            xAOD::CaloClusterContainer* clusterContainer;
+            xAOD::CaloClusterContainer* clusterContainer{nullptr};
         };
 
-        static const InterfaceID& interfaceID();
+        static const InterfaceID& interfaceID(){
+               static const InterfaceID IID_IMuonCreatorTool("MuonCombined::IMuonCreatorTool", 1, 0);
+                return IID_IMuonCreatorTool;
+        }
+
 
         /**IMuonCreatorTool interface: build muons from ID and MS candidates */
 
-        virtual void create(const MuonCandidateCollection* muonCandidates, const InDetCandidateCollection* inDetCandidates,
-                            std::vector<const InDetCandidateToTagMap*> tagMaps, OutputData& outputData) const = 0;
+        virtual void create(const EventContext& ctx, const MuonCandidateCollection* muonCandidates, 
+                            const std::vector<const InDetCandidateToTagMap*>& tagMaps, OutputData& outputData) const = 0;
 
         /** create a muon from a muon candidate */
-        virtual xAOD::Muon* create(const MuonCandidate& candidate, OutputData& outputData) const = 0;
+        virtual xAOD::Muon* create(const EventContext& ctx, const MuonCandidate& candidate, OutputData& outputData) const = 0;
 
         /** create a muon from an ID candidate */
-        virtual xAOD::Muon* create(InDetCandidateTags& candidate, OutputData& outputData) const = 0;
+        virtual xAOD::Muon* create(const EventContext& ctx, InDetCandidateTags& candidate, OutputData& outputData) const = 0;
+        /** default virtual destructor */
+        virtual ~IMuonCreatorTool() = default;
     };
 
-    inline const InterfaceID& IMuonCreatorTool::interfaceID() { return IID_IMuonCreatorTool; }
-
+ 
 }  // namespace MuonCombined
 
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -14,13 +14,25 @@
 #include <cmath>
 #include <iostream>
 
+namespace {
+/* In Gaudi Units
+ * Units.tesla
+ * = Units.volt * Units.second / Units.meter2 = 1e-3
+ * So 1kT  is 1
+ * Unit.gauss = 1e-4 * Units.tesla
+ * the number below is  0.1 * 1e-3 * 1e-4 = 1e-8
+ * So 0.1 Gauss in Units of kT (which is what we return)
+ */
+constexpr double defaultB = 0.1 * Gaudi::Units::gauss;
+}
+
 #if defined(FLATTEN) && defined(__GNUC__)
 // We compile this package with optimization, even in debug builds; otherwise,
 // the heavy use of Eigen makes it too slow.  However, from here we may call
 // to out-of-line Eigen code that is linked from other DSOs; in that case,
 // it would not be optimized.  Avoid this by forcing all Eigen code
 // to be inlined here if possible.
-__attribute__ ((flatten))
+__attribute__((flatten))
 #endif
 void
 MagField::AtlasFieldCache::getField(const double* ATH_RESTRICT xyz,
@@ -29,8 +41,9 @@ MagField::AtlasFieldCache::getField(const double* ATH_RESTRICT xyz,
 {
   // Allow for the case of no map for testing
   if (m_fieldMap == nullptr) {
-    // return 0 bfield if map is missing
-    bxyz[0] = bxyz[1] = bxyz[2] = 0;
+    // return default
+    bxyz[0] = bxyz[1] = bxyz[2] = defaultB;
+    // return zero gradient if requested
     if (deriv) {
       for (int i = 0; i < 9; i++) {
         deriv[i] = 0.;
@@ -45,13 +58,14 @@ MagField::AtlasFieldCache::getField(const double* ATH_RESTRICT xyz,
   const double r = std::sqrt(x * x + y * y);
   const double phi = std::atan2(y, x);
 
-  // test if initialised and the cache is valid
+  // Check that the cached z,r, phi cell is valid
+  // and if we are still inside it
   if (!m_cache3d.inside(z, r, phi)) {
-    // cache is invalid -> refresh cache
+    // if not we need to find and cache a new cell
     if (!fillFieldCache(z, r, phi)) {
-      // caching failed -> outside the valid map volume
-      // return default field (0.1 gauss)
-      const double defaultB(0.1 * Gaudi::Units::gauss);
+      // caching failed
+      // outside the valid map volume
+      // return default
       bxyz[0] = bxyz[1] = bxyz[2] = defaultB;
       // return zero gradient if requested
       if (deriv) {
@@ -85,10 +99,9 @@ MagField::AtlasFieldCache::getFieldZR(const double* ATH_RESTRICT xyz,
 
   // Allow for the case of no map for testing
   if (m_fieldMap == nullptr) {
-    // constant ATLAS magnetic field if no map has been set - for testing
-    constexpr double TEST_BFIELD = 1.997;
-    bxyz[0] = bxyz[1] = 0;
-    bxyz[2] = TEST_BFIELD;
+    // return default
+    bxyz[0] = bxyz[1] = bxyz[2] = defaultB;
+    // return zero gradient if requested
     if (deriv) {
       for (int i = 0; i < 9; i++) {
         deriv[i] = 0.;
@@ -102,15 +115,14 @@ MagField::AtlasFieldCache::getFieldZR(const double* ATH_RESTRICT xyz,
   const double z = xyz[2];
   const double r = std::sqrt(x * x + y * y);
 
-  // test if the cache was initialized and the ZR cache is valid for current
-  // position
+  // Check that the cached z,r, cell is valid
+  // and if we are still inside it
   if (!m_cacheZR.inside(z, r)) {
-
-    // cache is invalid -> refresh cache
+    // cached cell is invalid -> refresh cached cell
     if (!fillFieldCacheZR(z, r)) {
-
-      // caching failed -> outside the valid z-r map volume
-      // call the full version of getField()
+      // No cell found -> outside the valid z-r map volume
+      // fallback to calling
+      // the full version of getField()
       getField(xyz, bxyz, deriv);
       return;
     }

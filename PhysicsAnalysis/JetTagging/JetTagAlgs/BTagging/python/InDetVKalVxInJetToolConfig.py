@@ -1,13 +1,14 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
+from JetTagTools.InDetEtaDependentCutsSvcConfig import IDEtaDependentCuts_SV1_SvcCfg
 
 # import the InDetVKalVxInJetTool configurable
 InDet__InDetVKalVxInJetTool=CompFactory.InDet.InDetVKalVxInJetTool
 
-def InDetVKalVxInJetToolCfg(name, MSV = False, useBTagFlagsDefaults = True, **options):
+def InDetVKalVxInJetToolCfg(ConfigFlags, name, MSV = False, useBTagFlagsDefaults = True, **options):
     """Sets up a InDetVKalVxInJetTool tool and returns it.
 
     The following options have BTaggingFlags defaults:
@@ -34,6 +35,13 @@ def InDetVKalVxInJetToolCfg(name, MSV = False, useBTagFlagsDefaults = True, **op
                      }
         for option in defaults:
             options.setdefault(option, defaults[option])
+
+        if ConfigFlags.GeoModel.Run not in ['RUN1', 'RUN2', 'RUN3']:
+            acc.merge(IDEtaDependentCuts_SV1_SvcCfg(ConfigFlags, name="IDEtaDepCutsSvc_" + name))
+            options.setdefault("InDetEtaDependentCutsSvc", acc.getService("IDEtaDepCutsSvc_" + name))
+            options.setdefault("useVertexCleaningPix", False) # Would use hardcoded InDet Pixel geometry
+            options.setdefault("useITkMaterialRejection", True)
+
     options['name'] = name
     acc.setPrivateTools(InDet__InDetVKalVxInJetTool(**options))
 

@@ -17,6 +17,8 @@
 #include "LArROD/LArRawChannelBuilderToolBase.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include "LArRecUtils/LArOFPeakRecoTool.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include <string>
 
@@ -50,7 +52,7 @@ class LArRawChannelBuilderToolTileInfo : public LArRawChannelBuilderToolBase {
    
   double m_globaltimeoffsettop, m_globaltimeoffsetbottom;
 
-  const CaloDetDescrManager* m_man;
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager", "CaloDetDescrManager"};
 
   //ComTime
   std::string              m_comTimeKey;

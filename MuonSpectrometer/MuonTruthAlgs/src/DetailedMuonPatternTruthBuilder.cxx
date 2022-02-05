@@ -56,18 +56,17 @@
 #include "TrkTruthData/TruthTrajectory.h"
 
 struct DetectorLayer {
-    DetectorLayer() :
-        stIndex(Muon::MuonStationIndex::StUnknown), isEndcap(false), minPos(1e9), maxPos(-1e9), nnsw(0), nmdtS(0), nmdtL(0), nphi(0) {}
-    Muon::MuonStationIndex::StIndex stIndex;
-    bool isEndcap;
-    double minPos;  // flag whether first and second globalpos have been filled
-    double maxPos;
-    int nnsw;
-    int nmdtS;
-    int nmdtL;
-    int nphi;
-    Amg::Vector3D first3D;
-    Amg::Vector3D last3D;
+    DetectorLayer() = default;
+    Muon::MuonStationIndex::StIndex stIndex{Muon::MuonStationIndex::StUnknown};
+    bool isEndcap{false};
+    double minPos{FLT_MAX};  // flag whether first and second globalpos have been filled
+    double maxPos{-FLT_MAX};
+    int nnsw{0};
+    int nmdtS{0};
+    int nmdtL{0};
+    int nphi{0};
+    Amg::Vector3D first3D{Amg::Vector3D::Zero()};
+    Amg::Vector3D last3D{Amg::Vector3D::Zero()};
     std::vector<const Trk::MeasurementBase*> meas;
 };
 
@@ -80,7 +79,7 @@ namespace {
     }
 
     struct SubDetPRDs {
-        std::set<Identifier> subDetHits[SubDetHitStatistics::NUM_SUBDETECTORS];
+        std::array<std::set<Identifier>, SubDetHitStatistics::NUM_SUBDETECTORS>  subDetHits;
     };
 
     SubDetPRDs& operator+=(SubDetPRDs& a, const SubDetPRDs& b) {
@@ -615,7 +614,7 @@ namespace Trk {
                     ++detLayer.nmdtL;
                 // meas = mdt;
             } else if (mm) {
-                const MuonSimData::Deposit* deposit = 0;
+                const MuonSimData::Deposit* deposit = nullptr;
                 for (auto it = genPartList.begin(); it != genPartList.end() && !deposit; ++it) {
                     deposit = getDeposit(*mmSimDataMap, *it, id);
                 }
@@ -675,7 +674,7 @@ namespace Trk {
                 // there is already a check for this at the beginning of the method
                 // if( !stgcSimDataMap ) continue;
 
-                const MuonSimData::Deposit* deposit = 0;
+                const MuonSimData::Deposit* deposit = nullptr;
                 for (auto it = genPartList.begin(); it != genPartList.end() && !deposit; ++it) {
                     deposit = getDeposit(*stgcSimDataMap, *it, id);
                 }
@@ -1134,7 +1133,7 @@ namespace Trk {
         MuonSimDataCollection::const_iterator it = simCol.find(id);
         if (it == simCol.end()) {
             ATH_MSG_WARNING(" Truth PRD not found in simdata collection: " << m_idHelperSvc->toString(id));
-            return 0;
+            return nullptr;
         }
 
         const MuonSimData& simData = it->second;
@@ -1159,11 +1158,11 @@ namespace Trk {
         return deposit;
     }
 
-    const MuonSimDataCollection* DetailedMuonPatternTruthBuilder::retrieveTruthCollection(std::string colName) {
+    const MuonSimDataCollection* DetailedMuonPatternTruthBuilder::retrieveTruthCollection(const std::string& colName) {
         // Retrieve SDO map for this event
         if (!evtStore()->contains<MuonSimDataCollection>(colName)) return nullptr;
 
-        const MuonSimDataCollection* truthCol(0);
+        const MuonSimDataCollection* truthCol(nullptr);
         if (!evtStore()->retrieve(truthCol, colName).isSuccess()) {
             ATH_MSG_VERBOSE("Could NOT find the MuonSimDataMap map key = " << colName);
         } else {

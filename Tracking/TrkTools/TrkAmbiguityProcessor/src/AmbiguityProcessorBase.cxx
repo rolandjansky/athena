@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AmbiguityProcessorBase.h"
-#include "TrackScoringTool.h"
 #include "AmbiguityProcessorUtility.h"
 
 #include "GaudiKernel/ToolVisitor.h"
@@ -13,9 +12,9 @@ namespace Trk {
   AmbiguityProcessorBase::AmbiguityProcessorBase(const std::string& t, const std::string& n, const IInterface*  p ):
     AthAlgTool(t,n,p), 
     m_etaBounds{0.8, 1.6, 2.5, 4.0}, 
-    m_stat(m_etaBounds),
-    m_scoringTool("Trk::TrackScoringTool/TrackScoringTool"){
-  }
+    m_stat(m_etaBounds){
+      declareProperty("ObserverTool", m_observerTool, "track observer tool");
+}
   //
   bool
   AmbiguityProcessorBase::shouldTryBremRecovery(const Trk::Track & track) const{
@@ -100,7 +99,7 @@ namespace Trk {
   }
   //
   Track * 
-  AmbiguityProcessorBase::refitTrack( const Trk::Track* track,Trk::PRDtoTrackMap &prdToTrackMap, Counter &stat) const{
+  AmbiguityProcessorBase::refitTrack( const Trk::Track* track,Trk::PRDtoTrackMap &prdToTrackMap, Counter &stat, int trackId, int subtrackId) const{
     std::unique_ptr<Trk::Track> newTrack;
     if (!m_suppressTrackFit){
       if (m_refitPrds) {
@@ -116,10 +115,17 @@ namespace Trk {
       newTrack = AmbiguityProcessor::createNewFitQualityTrack(*track);
     }
     if (newTrack) {
+      if (m_observerTool.isEnabled()){
+        m_observerTool->rejectTrack(trackId, xAOD::RejectionStep::refitTrack, xAOD::RejectionReason::subtrackCreated);
+        m_observerTool->addSubTrack(subtrackId, trackId, *newTrack);
+      }
       ATH_MSG_DEBUG ("New track "<<newTrack.get()<<" successfully fitted from "<<track);
-    } else { 
+    } else {
+      if (m_observerTool.isEnabled()){
+        m_observerTool->rejectTrack(trackId, xAOD::RejectionStep::refitTrack, xAOD::RejectionReason::refitFailed);
+      }  
       ATH_MSG_DEBUG ("Fit failed !");
-    }  
+    }
     return newTrack.release();
   }
   //
@@ -128,7 +134,8 @@ namespace Trk {
                                                  TrackScoreMap &trackScoreTrackMap,
                                                  Trk::PRDtoTrackMap &prdToTrackMap,
                                                  std::vector<std::unique_ptr<const Trk::Track> >& trackDustbin,
-                                                 Counter &stat) const {
+                                                 Counter &stat,
+                                                 int parentTrackId) const {
     std::unique_ptr<Trk::Track> atrack(in_track);
     // compute score
     TrackScore score;
@@ -137,13 +144,21 @@ namespace Trk {
        m_trackSummaryTool->computeAndReplaceTrackSummary(*atrack,&prdToTrackMap,suppressHoleSearch);
     }
     score = m_scoringTool->score( *atrack, suppressHoleSearch );
+    if (m_observerTool.isEnabled()){
+      m_observerTool->updateScore(parentTrackId, static_cast<double>(score));
+    }
     // do we accept the track ?
     if (score!=0){
       ATH_MSG_DEBUG ("Track  ("<< atrack.get() <<") has score "<<score);
       // statistic
       stat.incrementCounterByRegion(CounterIndex::kNscoreOk,atrack.get());
       // add track to map, map is sorted small to big !
-      trackScoreTrackMap.emplace(-score, TrackPtr(atrack.release(), fitted));
+      if (m_observerTool.isEnabled()){
+        trackScoreTrackMap.emplace(-score, TrackPtr(atrack.release(), fitted, parentTrackId));
+      }
+      else{
+        trackScoreTrackMap.emplace(-score, TrackPtr(atrack.release(), fitted));
+      }
       return;
     }
     // do we try to recover the track ?
@@ -153,12 +168,20 @@ namespace Trk {
       auto bremTrack(doBremRefit(*atrack));
       if (!bremTrack){
         ATH_MSG_DEBUG ("Brem refit failed, drop track");
+        if (m_observerTool.isEnabled()){
+          m_observerTool->rejectTrack(parentTrackId, xAOD::RejectionStep::addTrack, xAOD::RejectionReason::bremRefitFailed);
+        }
         // statistic
         stat.incrementCounterByRegion(CounterIndex::kNscoreZeroBremRefitFailed,atrack.get());
         stat.incrementCounterByRegion(CounterIndex::kNfailedFits,atrack.get());
         // clean up
         trackDustbin.push_back(std::move(atrack));
       } else {
+        int newTrackId = AmbiguityProcessor::getUid();
+        if (m_observerTool.isEnabled()){
+          m_observerTool->rejectTrack(parentTrackId, xAOD::RejectionStep::addTrack, xAOD::RejectionReason::bremRefitSubtrackCreated);
+          m_observerTool->addSubTrack(newTrackId, parentTrackId, *bremTrack);
+        }
         // statistic
         stat.incrementCounterByRegion(CounterIndex::kNgoodFits,bremTrack.get());
         // rerun score
@@ -166,6 +189,9 @@ namespace Trk {
           m_trackSummaryTool->computeAndReplaceTrackSummary(*bremTrack, &prdToTrackMap,suppressHoleSearch);
         }
         score = m_scoringTool->score( *bremTrack, suppressHoleSearch );
+        if (m_observerTool.isEnabled()){
+          m_observerTool->updateScore(newTrackId, static_cast<double>(score));
+        }
         //put original track in the bin, ready to preserve a new Brem track
         trackDustbin.push_back(std::move(atrack) );
         // do we accept the track ?
@@ -174,16 +200,28 @@ namespace Trk {
           // statistics
           stat.incrementCounterByRegion(CounterIndex::kNscoreZeroBremRefit,bremTrack.get());
           // add track to map, map is sorted small to big !
-          trackScoreTrackMap.emplace(-score, TrackPtr(bremTrack.release(), fitted) );
+          if (m_observerTool.isEnabled()){
+            m_observerTool->addSubTrack(newTrackId, parentTrackId, *bremTrack);
+            trackScoreTrackMap.emplace(-score, TrackPtr(bremTrack.release(), fitted, newTrackId) );
+          }
+          else{
+            trackScoreTrackMap.emplace(-score, TrackPtr(bremTrack.release(), fitted) );
+          }
           return;
         } else {
           ATH_MSG_DEBUG ("Brem refit gave still track score zero, reject it");
+          if (m_observerTool.isEnabled()){
+            m_observerTool->rejectTrack(newTrackId, xAOD::RejectionStep::addTrack, xAOD::RejectionReason::bremRefitTrackScoreZero);
+          }
           // statistic
           stat.incrementCounterByRegion(CounterIndex::kNscoreZeroBremRefitScoreZero,bremTrack.get());
         }
       }
     } else {
       ATH_MSG_DEBUG ("Track score is zero, reject it");
+      if (m_observerTool.isEnabled()){
+        m_observerTool->rejectTrack(parentTrackId, xAOD::RejectionStep::addTrack, xAOD::RejectionReason::refitTrackScoreZero);
+      }
       // statistic
       stat.incrementCounterByRegion(CounterIndex::kNscoreZero,atrack.get());
       trackDustbin.push_back(std::move(atrack));

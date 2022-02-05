@@ -21,7 +21,7 @@
 /// followed by a semicolon, so we need a statement that requires to
 /// be followed by a semi-colon.
 #define DeclareInterfaceID(iface, major, minor) \
-  static constexpr nullptr_t interfaceID = nullptr
+  static constexpr std::nullptr_t interfaceID = nullptr
 #endif
 
 namespace asg

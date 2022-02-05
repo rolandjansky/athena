@@ -7,7 +7,6 @@
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 //================ Constructor =================================================
-
 Muon::STGC_RawDataProviderToolCore::STGC_RawDataProviderToolCore(const std::string& t, const std::string& n, const IInterface* p) 
 : AthAlgTool(t, n, p)
 , m_robDataProvider("ROBDataProviderSvc",n) 
@@ -30,19 +29,8 @@ StatusCode Muon::STGC_RawDataProviderToolCore::convertIntoContainer(const std::v
 {
   // Loop on the passed ROB fragments, and call the decoder for each one to fill the RDO container.
 
-  static std::atomic_int DecodeErrCount{0};
-
-  for (const ROBFragment* fragment : vecRobs) {
-    if (m_decoder->fillCollection(*fragment, rdoIdhVect, stgcRdoContainer).isFailure()) {
-      if (DecodeErrCount < 100) {
-        ATH_MSG_INFO( "Problem with STGC ByteStream Decoding!" );
-        ++DecodeErrCount;
-      } else if (DecodeErrCount == 100) {
-        ATH_MSG_INFO( "Too many Problems with STGC Bytestream Decoding messages. Turning messaging off." );
-        ++DecodeErrCount;
-      }
-    }
-  }
+  for (const ROBFragment* fragment : vecRobs)
+    ATH_CHECK( m_decoder->fillCollection(*fragment, rdoIdhVect, stgcRdoContainer) ); // always returns StatusCode::SUCCESS
 
   ATH_MSG_DEBUG("Size of sTgcRdoContainer is " << stgcRdoContainer.size());
   return StatusCode::SUCCESS;

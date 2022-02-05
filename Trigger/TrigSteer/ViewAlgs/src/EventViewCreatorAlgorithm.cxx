@@ -29,6 +29,11 @@ StatusCode EventViewCreatorAlgorithm::initialize() {
     renounce(m_cachedViewsKey); // Reading in and using cached inputs is optional, not guarenteed to be produced in every event.
   }
 
+  if (m_isEmptyStep) {
+    ATH_MSG_ERROR("The EventViewCreatorAlgorithm class cannot be used as the InputMaker for an empty step.");
+    return StatusCode::FAILURE;
+  }
+
   // Muon slice code
   ATH_CHECK( m_inViewMuons.initialize(m_placeMuonInView) );
   ATH_CHECK( m_inViewMuonCandidates.initialize(m_placeMuonInView) );
@@ -56,17 +61,19 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
 
   // Check for an optional input handle to use as a source of cached, already-executed, views.
   const DecisionContainer* cachedViews = nullptr;
+  MatchingCache matchingCache; // Used to remember temporarily which hash is associated with each DecisionObject when performing maching in a PROBE IM to TAG IM DecisionObjects
   if (!m_cachedViewsKey.empty()) {
     SG::ReadHandle<DecisionContainer> cachedRH = SG::makeHandle(m_cachedViewsKey, context);
     // Even if the handle is configured, this precursor EventViewCreatorAlg may not have executed in a given event
     if (cachedRH.isValid()) {
       cachedViews = cachedRH.ptr();
+      ATH_CHECK(populateMatchingCacheWithCachedViews(cachedViews, matchingCache));
     }
   }
 
   // Keep track of the ROIs we spawn a View for, do not spawn duplicates.
   // For many cases, this will be covered by the Merging operation preceding this.
-  ElementLinkVector<TrigRoiDescriptorCollection> RoIsFromDecision;
+  std::vector<ElementLink<TrigRoiDescriptorCollection>> RoIsFromDecision;
 
   if( outputHandle->size() == 0) {
     ATH_MSG_DEBUG( "Have no decisions in output handle "<< outputHandle.key() << ". Handle is valid but container is empty. "
@@ -94,7 +101,7 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
       
     // cachedIndex and useCached are to do with a)
     size_t cachedIndex = std::numeric_limits<std::size_t>::max();
-    const bool useCached = checkCache(cachedViews, outputDecision, cachedIndex);
+    const bool useCached = checkCache(cachedViews, outputDecision, cachedIndex, matchingCache);
 
     // roiIt is to do with b) and c)
     auto roiIt = find(RoIsFromDecision.begin(), RoIsFromDecision.end(), roiEL);
@@ -167,11 +174,32 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
   return StatusCode::SUCCESS;
 }
 
-bool EventViewCreatorAlgorithm::checkCache(const DecisionContainer* cachedViews, const Decision* outputDecision, size_t& cachedIndex) const {
-  if (cachedViews == nullptr) {
+bool EventViewCreatorAlgorithm::checkCache(const DecisionContainer* cachedViews, const Decision* outputDecision, size_t& cachedIndex, MatchingCache& matchingCache) const {
+  if (cachedViews == nullptr or m_cacheDisabled) {
     return false; // No cached input configured, which is fine.
   }
-  return matchInCollection(cachedViews, outputDecision, cachedIndex);
+
+  bool usedROIMatchingFlag; // Sanity check
+  const bool result = matchInCollection(cachedViews, outputDecision, cachedIndex, usedROIMatchingFlag, matchingCache);
+  if (usedROIMatchingFlag and m_mergeUsingFeature) {
+    ATH_MSG_ERROR("Called matchInCollection in an EVCA configured with mergeUsingFeature=True, however ROI matching was used instead?! Should not be possible.");
+  }
+  return result;
+}
+
+
+StatusCode EventViewCreatorAlgorithm::populateMatchingCacheWithCachedViews(const DecisionContainer* cachedViews, MatchingCache& matchingCache) const {
+  const std::string linkNameToMatch = m_mergeUsingFeature ? featureString() : m_roisLink.value();
+  for (const Decision* cachedView : *cachedViews) {
+    const uint64_t matchingHash = getMatchingHashForDecision(cachedView, linkNameToMatch);
+    if (matchingHash == std::numeric_limits<std::size_t>::max()) {
+      return StatusCode::FAILURE;
+    }
+    matchingCache.setMatchingHash(cachedView, matchingHash);
+    // There is no output-to-input redirection required when we're matching against the old TAG collection in the PROBE EVCA, so we can set key=value in this redirection map
+    matchingCache.linkOutputToInput(cachedView, cachedView);
+  }
+  return StatusCode::SUCCESS;
 }
 
 
@@ -236,7 +264,7 @@ StatusCode EventViewCreatorAlgorithm::placeMuonInView( const xAOD::Muon* theObje
   muonCandidate->clear( SG::VIEW_ELEMENTS );
   auto msLink = theObject->muonSpectrometerTrackParticleLink();
   auto extTrackLink = theObject->extrapolatedMuonSpectrometerTrackParticleLink();
-  if(msLink.isValid() && extTrackLink.isValid()) muonCandidate->push_back( new MuonCombined::MuonCandidate(msLink, (*extTrackLink)->trackLink()) );
+  if(msLink.isValid() && extTrackLink.isValid()) muonCandidate->push_back( new MuonCombined::MuonCandidate(msLink, (*extTrackLink)->trackLink(), (*extTrackLink)->index()) );
 
   //store both in the view
   auto handleMuon = SG::makeHandle( m_inViewMuons,context );

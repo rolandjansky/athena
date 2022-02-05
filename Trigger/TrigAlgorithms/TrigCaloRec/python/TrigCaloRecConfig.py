@@ -574,7 +574,7 @@ class HLTCaloCellSeedLessMaker (_HLTCaloCellMaker):
         setMinimalCaloSetup()
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         self.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale'),('TileBadChannels','ConditionStore+TileBadChannels')]
-        self.ExtraInputs+=[( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ), ( 'LArMCSym', 'ConditionStore+LArMCSym'), ('LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' ), ('LArFebRodMapping'  , 'ConditionStore+LArFebRodMap' ) ]
+        self.ExtraInputs+=[( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ), ( 'LArBadChannelCont', 'ConditionStore+LArBadChannel'), ( 'LArMCSym', 'ConditionStore+LArMCSym'), ('LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' ), ('LArFebRodMapping'  , 'ConditionStore+LArFebRodMap' ),('CaloDetDescrManager', 'ConditionStore+CaloDetDescrManager') ]
         self.CellsName="SeedLessFS"
         self.RoIs=''
         self.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
@@ -584,7 +584,7 @@ class HLTCaloCellMaker (_HLTCaloCellMaker):
     def __init__(self, name):
         super( HLTCaloCellMaker, self ).__init__(name)
         self.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale'),('TileBadChannels','ConditionStore+TileBadChannels')]
-        self.ExtraInputs+=[( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ), ( 'LArMCSym', 'ConditionStore+LArMCSym'), ('LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' ), ('LArFebRodMapping'  , 'ConditionStore+LArFebRodMap' )  ]
+        self.ExtraInputs+=[( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ), ( 'LArBadChannelCont', 'ConditionStore+LArBadChannel'), ( 'LArMCSym', 'ConditionStore+LArMCSym'), ('LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' ), ('LArFebRodMapping'  , 'ConditionStore+LArFebRodMap' ), ('CaloDetDescrManager', 'ConditionStore+CaloDetDescrManager')  ]
         from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
         monTool = GenericMonitoringTool('MonTool')
         maxNumberOfCells=1600.0
@@ -705,6 +705,23 @@ def hltCaloCellMakerCfg(flags, name=None, roisKey='UNSPECIFIED'):
                                                            ("LArFebRodMapping" , "ConditionStore+LArFebRodMap") ], # TODO check if this depends on data/MC
                                              RoIs=roisKey)
     acc.addEventAlgo(cellMaker, primary=True)
+    return acc
+
+def hltCaloCellSeedlessMakerCfg(flags, roisKey='UNSPECIFIED'):
+    acc = ComponentAccumulator()
+    from TrigT2CaloCommon.TrigCaloDataAccessConfig import trigCaloDataAccessSvcCfg, CaloDataAccessSvcDependencies
+    acc.merge(trigCaloDataAccessSvcCfg(flags))
+
+    hltCaloCellSeedLessMaker = CompFactory.HLTCaloCellMaker("CaloCellSeedLessFS", ExtraInputs = CaloDataAccessSvcDependencies,
+                                                            RoIs = roisKey,
+                                                            CellsName ="SeedLessFS")
+
+    acc.addEventAlgo(hltCaloCellSeedLessMaker, primary=True)
+
+    from CaloTools.CaloNoiseCondAlgConfig import CaloNoiseCondAlgCfg
+    acc.merge(CaloNoiseCondAlgCfg(flags, noisetype="electronicNoise"))
+    acc.addCondAlgo(CompFactory.CaloNoiseSigmaDiffCondAlg())
+
     return acc
 
 def hltTopoClusterMakerCfg(flags, name, clustersKey, cellsKey="CaloCells"):
@@ -864,4 +881,58 @@ def hltCaloTopoClusterCalibratorCfg(flags, name, clustersin, clustersout, **kwar
     #NB: Could we take these from CaloRec.CaloTopoClusterConfig.getTopoClusterLocalCalibTools?
 
     acc.addEventAlgo(calibrator, primary=True)
+    return acc
+
+## Heavy Ion 
+class TrigCaloTowerMaker_hijet (TrigCaloTowerMakerBase):
+    __slots__ = []
+    def __init__ (self, name='TrigCaloTowerMaker_hijet'):
+        super(TrigCaloTowerMaker_hijet, self).__init__(name)
+
+        # input to LArTowerBuilder:  cells in LArEM and LARHEC 
+        from LArRecUtils.LArRecUtilsConf import LArTowerBuilderTool,LArFCalTowerBuilderTool
+
+        larcmbtwrbldr = LArTowerBuilderTool("LArCmbTwrBldr", # noqa: ATL900 (OutputLevel)
+                                            CellContainerName = "AllCalo",
+                                            IncludedCalos     = [ "LAREM", "LARHEC" ],
+                                            OutputLevel=ERROR
+                                            )
+        
+        fcalcmbtwrbldr = LArFCalTowerBuilderTool("FCalCmbTwrBldr",  # noqa: ATL900 (OutputLevel)
+                                                 CellContainerName = "AllCalo",
+                                                 MinimumEt         = 0.*MeV,
+                                                 OutputLevel=ERROR
+                                                 )
+
+        #input to  TileTowerBuilder:  cells in TILE
+        from TileRecUtils.TileRecUtilsConf import TileTowerBuilderTool
+        tilecmbtwrbldr = TileTowerBuilderTool("TileCmbTwrBldr",
+                                              CellContainerName = "AllCalo",
+                                              #DumpTowers        = False,
+                                              #DumpWeightMap     = False
+                                              )
+
+        
+        self +=larcmbtwrbldr
+        self +=fcalcmbtwrbldr
+        self +=tilecmbtwrbldr
+        self.NumberOfPhiTowers=64
+        self.NumberOfEtaTowers=100
+        self.EtaMin=-5.0
+        self.EtaMax=5.0
+        self.DeltaEta=1.2
+        self.DeltaPhi=1.2
+        self.TowerMakerTools = [ tilecmbtwrbldr.getFullName(), larcmbtwrbldr.getFullName(), fcalcmbtwrbldr.getFullName() ]
+
+def hltHICaloTowerMakerCfg(flags, name, clustersKey, cellsKey="CaloCells"):
+    acc = ComponentAccumulator()
+
+    from TrigEDMConfig.TriggerEDMRun3 import recordable
+    alg = CompFactory.TrigCaloTowerMaker(name,
+                                             Cells=cellsKey,
+                                             CaloClusters=recordable(clustersKey),
+                                            )
+    from CaloTools.CaloNoiseCondAlgConfig import CaloNoiseCondAlgCfg
+    acc.merge(CaloNoiseCondAlgCfg(flags))
+    acc.addEventAlgo(alg, primary=True)
     return acc

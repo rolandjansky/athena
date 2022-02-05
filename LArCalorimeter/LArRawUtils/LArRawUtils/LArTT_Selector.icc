@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArRawUtils/LArRoI_Map.h" 
+#include "LArRecConditions/LArRoIMap.h" 
 #include "LArRawUtils/LArTT_Sampling.h" 
 
 // Implementation of const_iterator 
@@ -125,8 +125,8 @@ LArTT_Selector<CONTAINER>::const_iterator:: operator *	()
 
 // Constructor 
 template <class CONTAINER >
-LArTT_Selector<CONTAINER> ::LArTT_Selector ( const LArRoI_Map* m, 
-	    const CONTAINER* c  ):
+LArTT_Selector<CONTAINER> ::LArTT_Selector ( const LArRoIMap* m, 
+                                             const CONTAINER* c  ):
 m_roiMap(m),
 m_container(c) 
 {
@@ -136,7 +136,7 @@ m_container(c)
 
 // set methods 
 template <class CONTAINER >
-void LArTT_Selector<CONTAINER> :: setMap(const LArRoI_Map* m) {
+void LArTT_Selector<CONTAINER> :: setMap(const LArRoIMap* m) {
  m_roiMap = m; 
 }
    
@@ -169,11 +169,11 @@ void LArTT_Selector<CONTAINER> :: setRoIs ATLAS_NOT_THREAD_SAFE ( const VEC_TT_I
 //	LArTT_Sampling ttSam(rId,sam); 
 //	unsigned int combId = ttSam.combinedId(); 
 // 	std::vector<COLL_ID> cIDs =
-//	    m_roiMap->CollectionID( combId );
+//	    m_roiMap->collectionID( combId );
 
 	unsigned int combId=  (unsigned int) rId ;
  	const std::vector<COLL_ID>& cIDs =
-	    m_roiMap->CollectionID( combId );
+	    m_roiMap->collectionID( combId );
 	COLL_ID_IT  cId_it = cIDs.begin();
 	COLL_ID_IT  cId_it_end = cIDs.end();
         // cout<< " Number of Collections for this RoI"<<cIDs.size()<<endl; 
@@ -220,7 +220,7 @@ void LArTT_Selector<CONTAINER> :: setRoIs( const VEC_TT_SAM_ID& ids )
 	const TT_SAM_ID&  rId = (*it); 
 
  	std::vector<COLL_ID> cIDs =
-	    m_roiMap->CollectionID( rId );
+	    m_roiMap->collectionID( rId );
 	COLL_ID_IT  cId_it = cIDs.begin();
 	COLL_ID_IT  cId_it_end = cIDs.end();
         // cout<< " Number of Collections for this RoI"<<cIDs.size()<<endl; 

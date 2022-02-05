@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -70,7 +70,7 @@ class TrackingVolumeManipulator {
        - the volume array to be set as inside volume array */
   static void setInsideVolumeArray
   ATLAS_NOT_THREAD_SAFE(const TrackingVolume& tvol, BoundarySurfaceFace face,
-                        BinnedArray<TrackingVolume>* insidevolarray) ;
+                        BinnedArray<const TrackingVolume>* insidevolarray) ;
 
   /** protected method to set inside VolumeArray of a BoundarySurface:
       input:
@@ -79,7 +79,7 @@ class TrackingVolumeManipulator {
        - the volume array to be set as inside volume array */
   static void setInsideVolumeArray ATLAS_NOT_THREAD_SAFE(
       const TrackingVolume& tvol, BoundarySurfaceFace face,
-      const SharedObject<BinnedArray<TrackingVolume> >& insidevolarray) ;
+      const SharedObject<BinnedArray<const TrackingVolume> >& insidevolarray) ;
 
   /** protected method to set outside Volume of a BoundarySurface:
       input:
@@ -97,7 +97,7 @@ class TrackingVolumeManipulator {
        - the volume array to be set as outside volume array */
   static void setOutsideVolumeArray
   ATLAS_NOT_THREAD_SAFE(const TrackingVolume& tvol, BoundarySurfaceFace face,
-                        BinnedArray<TrackingVolume>* outsidevolarray) ;
+                        BinnedArray<const TrackingVolume>* outsidevolarray) ;
 
   /** protected method to set outside VolumeArray of a BoundarySurface:
       input:
@@ -106,7 +106,7 @@ class TrackingVolumeManipulator {
        - the volume array to be set as outside volume array */
   static void setOutsideVolumeArray ATLAS_NOT_THREAD_SAFE(
       const TrackingVolume& tvol, BoundarySurfaceFace face,
-      const SharedObject<BinnedArray<TrackingVolume> >& outsidevolarray) ;
+      const SharedObject<BinnedArray<const TrackingVolume> >& outsidevolarray) ;
 
   /** protected method to confine (dense) volumes:
       input:

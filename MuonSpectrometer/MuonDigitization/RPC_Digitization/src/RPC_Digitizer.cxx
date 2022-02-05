@@ -3,23 +3,19 @@
 */
 
 #include "RPC_Digitization/RPC_Digitizer.h"
+
 #include "PileUpTools/IPileUpTool.h"
 
-
-RPC_Digitizer::RPC_Digitizer(const std::string& name,
-                           ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator)
-{
-}
+RPC_Digitizer::RPC_Digitizer(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator) {}
 
 StatusCode RPC_Digitizer::initialize() {
-  ATH_CHECK(m_digTool.retrieve());
-  ATH_MSG_DEBUG("Retrieved RpcDigitizationTool (" << m_digTool->name() << ").");
+    ATH_CHECK(m_digTool.retrieve());
+    ATH_MSG_DEBUG("Retrieved RpcDigitizationTool (" << m_digTool->name() << ").");
 
-  return StatusCode::SUCCESS;
+    return StatusCode::SUCCESS;
 }
 
 StatusCode RPC_Digitizer::execute() {
-  ATH_MSG_DEBUG("in execute()");
-  return m_digTool->processAllSubEvents(Gaudi::Hive::currentContext());
+    ATH_MSG_DEBUG("in execute()");
+    return m_digTool->processAllSubEvents(Gaudi::Hive::currentContext());
 }

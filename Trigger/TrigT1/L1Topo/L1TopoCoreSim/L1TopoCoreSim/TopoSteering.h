@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1TopoCoreSim_TopoSteering
@@ -59,8 +59,6 @@ namespace TCS {
 
       // @brief: build the execution structure and parameterspace from
       // the configuration
-      StatusCode setupFromConfiguration(const TXC::L1TopoMenu& menu);
-
       StatusCode setupFromConfiguration(const TrigConf::L1Menu& l1menu);
 
       void setUseBitwise(bool useBitwise) { m_useBitwise = useBitwise; }

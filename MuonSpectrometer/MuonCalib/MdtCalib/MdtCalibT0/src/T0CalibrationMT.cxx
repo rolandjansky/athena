@@ -14,10 +14,10 @@
 #include "MdtCalibData/MdtTubeFitContainer.h"
 #include "MdtCalibT0/ADCMTHistos.h"
 #include "MdtCalibT0/HistogramId.h"
+#include "MdtCalibT0/MdtRelativeTubeT0.h"
 #include "MdtCalibT0/T0CalibrationOutput.h"
 #include "MdtCalibT0/T0MTHistos.h"
 #include "MdtCalibT0/T0MTSettings.h"
-#include "MdtRelativeTubeT0.h"
 #include "MuonCalibEventBase/MuonCalibSegment.h"
 #include "MuonCalibIdentifier/MuonFixedId.h"
 #include "MuonCalibStl/DeleteObject.h"
@@ -30,7 +30,7 @@
 
 namespace MuonCalib {
 
-    T0CalibrationMT::T0CalibrationMT(std::string name, const T0MTSettings *settings, const std::vector<int> &sort_by,
+    T0CalibrationMT::T0CalibrationMT(const std::string& name, const T0MTSettings *settings, const std::vector<int> &sort_by,
                                      const std::vector<int> &adc_sort_by) :
         IMdtCalibration(name),
         m_settings(settings),
@@ -46,8 +46,8 @@ namespace MuonCalib {
         }
 
         std::string HistoFileName = "T0MT_" + m_name + ".root";
-        p_file = new TFile(HistoFileName.c_str(), "recreate");
-        m_regiondir = p_file->mkdir(m_name.c_str());
+        m_file = std::make_unique<TFile>(HistoFileName.c_str(), "recreate");
+        m_regiondir = m_file->mkdir(m_name.c_str());
 
         m_histos.resize(sort_by.size());
         m_adc_histos.resize(adc_sort_by.size());
@@ -57,23 +57,20 @@ namespace MuonCalib {
     }
 
     T0CalibrationMT::~T0CalibrationMT() {
-        p_file->Write();
-        p_file->Close();
-        delete p_file;
-        for (unsigned int i = 0; i < m_histos.size(); i++)
-            for (std::map<HistogramId, T0MTHistos *>::iterator it = m_histos[i].begin(); it != m_histos[i].end(); it++) delete it->second;
+        m_file->Write();
+        m_file->Close();
         if (m_delete_settings) delete m_settings;
     }
 
     bool T0CalibrationMT::handleSegment(MuonCalibSegment &seg) {
-        for (std::vector<MdtCalibHitBase *>::iterator it = seg.mdtHOTBegin(); it != seg.mdtHOTEnd(); ++it) {
-            MuonFixedId id = (*it)->identify();
+        for (const MuonCalibSegment::MdtHitPtr& hit : seg.mdtHOT()) {
+            MuonFixedId id = hit->identify();
             m_nhits_per_tube[id.getIdInt()]++;
             // get the T0 originally subtracted for this hit
             int nML = id.mdtMultilayer();
             int nL = id.mdtTubeLayer();
             int nT = id.mdtTube();
-            const MdtTubeFitContainer::SingleTubeCalib *stc(NULL);
+            const MdtTubeFitContainer::SingleTubeCalib *stc(nullptr);
             NtupleStationId sid(id);
             sid.SetMultilayer(0);
             std::map<NtupleStationId, MdtTubeFitContainer *>::const_iterator res_it(m_result.find(sid));
@@ -89,14 +86,14 @@ namespace MuonCalib {
             // get histos
             for (unsigned int i = 0; i < m_sort_by.size(); i++) {
                 T0MTHistos *histos = getHistos(id, i);
-                histos->GetTSpec()->Fill((*it)->driftTime() + oldT0 + (*it)->tubeT0());
+                histos->GetTSpec()->Fill(hit->driftTime() + oldT0 + hit->tubeT0());
             }
             for (unsigned int i = 0; i < m_adc_sort_by.size(); i++) {
                 ADCMTHistos *adc_histos = getADCHistos(id, i);
-                adc_histos->GetADCSpec()->Fill((*it)->adcCount());
+                adc_histos->GetADCSpec()->Fill(hit->adcCount());
             }
             // relative t0 offsets
-            m_rel_tube_t0s[sid].AddHit(*it);
+            m_rel_tube_t0s[sid].AddHit(*hit);
         }
         return true;
     }
@@ -135,7 +132,7 @@ namespace MuonCalib {
         }
 
         m_currentItnum++;
-        p_file->Write();
+        m_file->Write();
         return true;
     }
 
@@ -154,22 +151,23 @@ namespace MuonCalib {
             case HistogramId::MEZZ_CARD: fit_by = "MEZZ_CARD"; break;
         }
 
-        for (std::map<HistogramId, T0MTHistos *>::iterator it = m_histos[nr].begin(); it != m_histos[nr].end(); ++it)
+        for (std::map<HistogramId, std::unique_ptr<T0MTHistos>>::iterator it = m_histos[nr].begin(); it != m_histos[nr].end(); ++it)
         // loop over m_histos histograms
         {
-            doTimeFit(it->second, m_tube_ids[nr][it->first], full, st, fit_by_map, fit_by);
+            doTimeFit(it->second.get(), m_tube_ids[nr][it->first], full, st, fit_by_map, fit_by);
         }
         return true;
     }
 
     bool T0CalibrationMT::analyse_adc(const int &nr, std::map<int, MdtTubeFitContainer::SingleTubeFit> &full,
                                       std::map<int, MdtTubeFitContainer::SingleTubeCalib> &st) {
-        for (std::map<HistogramId, ADCMTHistos *>::iterator it = m_adc_histos[nr].begin(); it != m_adc_histos[nr].end(); ++it)
-            if (m_settings->FitADC()) { doAdcFit(it->second, m_adc_tube_ids[nr][it->first], full, st); }
+        for (std::map<HistogramId, std::unique_ptr<ADCMTHistos>>::iterator it = m_adc_histos[nr].begin(); it != m_adc_histos[nr].end();
+             ++it)
+            if (m_settings->FitADC()) { doAdcFit(it->second.get(), m_adc_tube_ids[nr][it->first], full, st); }
         return true;
     }
 
-    const IMdtCalibrationOutput *T0CalibrationMT::analyseSegments(const std::vector<MuonCalibSegment *> &segs) {
+    IMdtCalibration::MdtCalibOutputPtr T0CalibrationMT::analyseSegments(const MuonSegVec &segs) {
         for (unsigned int i = 0; i < segs.size(); i++) handleSegment(*segs[i]);
         analyse();
         return getResults();
@@ -236,7 +234,7 @@ namespace MuonCalib {
                                    std::map<int, MdtTubeFitContainer::SingleTubeCalib> &stcm) {
         if (T0h->FitAdc() && m_settings->MinEntriesADC() <= T0h->GetADCSpec()->GetEntries()) {
             const TF1 *fun(T0h->GetAdcFunction());
-            if (fun == NULL) return;
+            if (fun == nullptr) return;
             for (std::set<MuonFixedId>::const_iterator it = tube_ids.begin(); it != tube_ids.end(); it++) {
                 if (it->getIdInt() == 0) continue;
                 MdtTubeFitContainer::SingleTubeFit &fi(fim[it->getIdInt()]);
@@ -252,32 +250,32 @@ namespace MuonCalib {
         }
     }
 
-    const IMdtCalibrationOutput *T0CalibrationMT::getResults() const { return new T0CalibrationOutput(m_result); }
+    IMdtCalibration::MdtCalibOutputPtr T0CalibrationMT::getResults() const { return std::make_shared<T0CalibrationOutput>(m_result); }
 
     ADCMTHistos *T0CalibrationMT::getADCHistos(const MuonFixedId &idtube, unsigned int nr) {
         HistogramId id;
         id.Initialize(idtube, m_adc_sort_by[nr]);
-        if (m_adc_histos[nr][id] == NULL) {
+        if (!m_adc_histos[nr][id]) {
             TDirectory *cwd = gDirectory;
             m_regiondir->cd();
-            m_adc_histos[nr][id] = new ADCMTHistos(id.getIdInt(), m_settings, id.HistogramName().c_str());
+            m_adc_histos[nr][id] = std::make_unique<ADCMTHistos>(id.getIdInt(), m_settings, id.HistogramName().c_str());
             cwd->cd();
         }
         m_adc_tube_ids[nr][id].insert(idtube);
-        return m_adc_histos[nr][id];
+        return m_adc_histos[nr][id].get();
     }
 
     T0MTHistos *T0CalibrationMT::getHistos(const MuonFixedId &idtube, unsigned int nr) {
         HistogramId id;
         id.Initialize(idtube, m_sort_by[nr]);
-        if (m_histos[nr][id] == NULL) {
+        if (!m_histos[nr][id]) {
             TDirectory *cwd = gDirectory;
             m_regiondir->cd();
-            m_histos[nr][id] = new T0MTHistos(id.getIdInt(), m_settings, id.HistogramName().c_str());
+            m_histos[nr][id] = std::make_unique<T0MTHistos>(id.getIdInt(), m_settings, id.HistogramName().c_str());
             cwd->cd();
         }
         m_tube_ids[nr][id].insert(idtube);
-        return m_histos[nr][id];
+        return m_histos[nr][id].get();
     }
 
     void T0CalibrationMT::setInput(const IMdtCalibrationOutput *calib_in) {

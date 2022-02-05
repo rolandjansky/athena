@@ -7,15 +7,15 @@ LArExtendedSubDetGrouping.setWithCorr(False)
 ## defined gain :
 
 ## HIGH
-if ( GainList[0]=="HIGH" ):
+if ( Gain=="HIGH" ):
     gain= [0]
 
 ## MEDIUM    
-elif  ( GainList[0]=="MEDIUM" ) :
+elif  ( Gain=="MEDIUM" ) :
     gain= [1]
 
 ## LOW    
-elif  ( GainList[0]=="LOW" ) :
+elif  ( Gain=="LOW" ) :
     gain= [2]
 
 else:
@@ -25,16 +25,16 @@ else:
 
 if (int(RunNumberFlag)<100000) :
     ## EMB + EMBPS A 64 (32+32)   
-    if ( Partition=='EB-EMBA' and ( GainList[0]=="HIGH" or GainList[0]=="MEDIUM" ) ) :
+    if ( Partition=='EB-EMBA' and ( Gain=="HIGH" or Gain=="MEDIUM" ) ) :
         partition =['EMBAPS','EMBA']
         printfunc ('EMBA+EMBAPS partition')
-    elif ( Partition=='EB-EMBC' and ( GainList[0]=="HIGH" or GainList[0]=="MEDIUM" ) ) :
+    elif ( Partition=='EB-EMBC' and ( Gain=="HIGH" or Gain=="MEDIUM" ) ) :
         partition =['EMBCPS','EMBC']
         printfunc ('EMBC+EMBCPS partition')
-    elif ( Partition=='EB-EMBA' and GainList[0]=="LOW" ) :
+    elif ( Partition=='EB-EMBA' and Gain=="LOW" ) :
         partition =['EMBA']
         printfunc ('EMBA partition')
-    elif ( Partition=='EB-EMBC' and GainList[0]=="LOW" ) :
+    elif ( Partition=='EB-EMBC' and Gain=="LOW" ) :
         partition =['EMBC']
         printfunc ('EMBC partition')
 

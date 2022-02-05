@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "InDetTestBLayer/InDetTestBLayerTool.h"
 
@@ -16,6 +16,7 @@
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkSurfaces/CylinderSurface.h"
 #include "TrkTrack/Track.h"
+#include <cmath>
 
 using Amg::Transform3D;
 // don't want to include TrackSummary in the header
@@ -314,16 +315,18 @@ InDet::InDetTestBLayerTool::getTrackStateOnPixelLayerInfo(
 {
   assert(layer >= 0 && layer <= 1);
 
-  const Trk::TrackParameters* startParameters = nullptr;
+  std::unique_ptr<const Trk::TrackParameters> startParameters = nullptr;
 
   if (track->perigeeParameters()) {
-    startParameters = track->perigeeParameters()->clone();
+    startParameters = track->perigeeParameters()->uniqueClone();
   } else if (track->trackParameters()->front()) {
     startParameters =
-      m_extrapolator->extrapolate(*(track->trackParameters()->front()),
-                                  Trk::PerigeeSurface(),
-                                  Trk::anyDirection,
-                                  false);
+      m_extrapolator->extrapolate(
+        Gaudi::Hive::currentContext(),
+        *(track->trackParameters()->front()),
+        Trk::PerigeeSurface(),
+        Trk::anyDirection,
+        false);
   }
 
   if (!startParameters) {
@@ -333,8 +336,7 @@ InDet::InDetTestBLayerTool::getTrackStateOnPixelLayerInfo(
   }
 
   bool succeed =
-    getTrackStateOnPixelLayerInfo(startParameters, infoList, layer);
-  delete startParameters;
+    getTrackStateOnPixelLayerInfo(startParameters.get(), infoList, layer);
   return succeed;
 }
 
@@ -438,8 +440,8 @@ InDet::InDetTestBLayerTool::getTrackStateOnPixelLayerInfo(
     float error_locx = -9999;
     float error_locy = -9999;
 
-    error_locx = sqrt((*trkParam->covariance())(Trk::locX, Trk::locX));
-    error_locy = sqrt((*trkParam->covariance())(Trk::locY, Trk::locY));
+    error_locx = std::sqrt((*trkParam->covariance())(Trk::locX, Trk::locX));
+    error_locy = std::sqrt((*trkParam->covariance())(Trk::locY, Trk::locY));
 
     blayerInfo.errLocalX(error_locx);
     blayerInfo.errLocalY(error_locy);
@@ -447,12 +449,10 @@ InDet::InDetTestBLayerTool::getTrackStateOnPixelLayerInfo(
     bool isgood =
       m_pixelCondSummaryTool->isGood(id, InDetConditions::PIXEL_MODULE);
 
-    double phitol = 2.5;
-    double etatol = 5.;
-    if (trkParam) {
-      phitol = 3. * sqrt((*trkParam->covariance())(Trk::locX, Trk::locX));
-      etatol = 3. * sqrt((*trkParam->covariance())(Trk::locY, Trk::locY));
-    }
+    //defaults would be phitol = 2.5, etatol = 5.
+    double phitol = 3. * std::sqrt((*trkParam->covariance())(Trk::locX, Trk::locX));
+    double etatol = 3. * std::sqrt((*trkParam->covariance())(Trk::locY, Trk::locY));
+    
 
     bool isIn = true;
     if (sielem) {

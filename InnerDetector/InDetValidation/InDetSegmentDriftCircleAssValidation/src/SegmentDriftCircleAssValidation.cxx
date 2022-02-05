@@ -483,7 +483,7 @@ void InDet::SegmentDriftCircleAssValidation::efficiencyReconstruction()
     else if(rd > 0.25) d=3; 
     else if(rd <= 0.25) d=4; 
     ++m_efficiency[d]; ++m_events;
-    p++;
+    ++p;
   }
 
 }
@@ -627,7 +627,7 @@ InDet::SegmentDriftCircleAssValidation::findTruth (const InDet::TRT_DriftCircle*
     typedef PRD_MultiTruthCollection::const_iterator TruthIter;
 
     std::pair<TruthIter, TruthIter> r = prdCollection->equal_range(d->identify());
-    for(TruthIter i=r.first; i!=r.second;i++){
+    for(TruthIter i=r.first; i!=r.second;++i){
       if(i==prdCollection->end()) continue;
       mc.push_back(i);
     }

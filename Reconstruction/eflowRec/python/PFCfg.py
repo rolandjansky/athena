@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
@@ -26,6 +26,19 @@ def PFTrackSelectorAlgCfg(inputFlags,algName,useCaching=True):
 
     PFTrackSelector.trackSelectionTool = TrackSelectionTool
 
+    # P->T conversion extra dependencies
+    if inputFlags.Detector.GeometryITk:
+        PFTrackSelector.ExtraInputs = [
+            ("InDetDD::SiDetectorElementCollection", "ConditionStore+ITkPixelDetectorElementCollection"),
+            ("InDetDD::SiDetectorElementCollection", "ConditionStore+ITkStripDetectorElementCollection"),
+        ]
+    else:
+        PFTrackSelector.ExtraInputs = [
+            ("InDetDD::SiDetectorElementCollection", "ConditionStore+PixelDetectorElementCollection"),
+            ("InDetDD::SiDetectorElementCollection", "ConditionStore+SCT_DetectorElementCollection"),
+            ("InDetDD::TRT_DetElementContainer", "ConditionStore+TRT_DetElementContainer"),
+        ]
+
     result.addEventAlgo (PFTrackSelector, primary=True)
 
     return result
@@ -51,37 +64,36 @@ def getPFTrackClusterMatchingTool(inputFlags,matchCut,distanceType,clusterPositi
 
 
 def getPFCellLevelSubtractionTool(inputFlags,toolName):
-    PFCellLevelSubtractionToolFactory = CompFactory.PFCellLevelSubtractionTool
+    PFCellLevelSubtractionToolFactory = CompFactory.PFSubtractionTool
     PFCellLevelSubtractionTool = PFCellLevelSubtractionToolFactory(toolName)
 
-    eflowCellEOverPTool_mc12_JetETMiss = CompFactory.eflowCellEOverPTool_mc12_JetETMiss
-    PFCellLevelSubtractionTool.eflowCellEOverPTool = eflowCellEOverPTool_mc12_JetETMiss()
+    eflowCellEOverPTool_Run2_mc20_JetETMiss = CompFactory.eflowCellEOverPTool_Run2_mc20_JetETMiss
+    PFCellLevelSubtractionTool.eflowCellEOverPTool = eflowCellEOverPTool_Run2_mc20_JetETMiss()
 
     if(inputFlags.PF.EOverPMode):
         PFCellLevelSubtractionTool.CalcEOverP = True
-        PFCellLevelSubtractionTool.nMatchesInCellLevelSubtraction = -1
+        PFCellLevelSubtractionTool.nClusterMatchesToUse = -1
     else:
-        PFCellLevelSubtractionTool.nMatchesInCellLevelSubtraction = 1
+        PFCellLevelSubtractionTool.nClusterMatchesToUse = 1
 
     if(inputFlags.PF.EOverPMode):
         PFCellLevelSubtractionTool.PFTrackClusterMatchingTool = getPFTrackClusterMatchingTool(inputFlags,0.2,"EtaPhiSquareDistance","PlainEtaPhi","CalObjBldMatchingTool")
     else:
         PFCellLevelSubtractionTool.PFTrackClusterMatchingTool = getPFTrackClusterMatchingTool(inputFlags,1.64,"EtaPhiSquareSignificance","GeomCenterEtaPhi","CalObjBldMatchingTool")
 
+    PFCellLevelSubtractionTool.PFTrackClusterMatchingTool_015 = getPFTrackClusterMatchingTool(inputFlags,0.15,"EtaPhiSquareDistance","PlainEtaPhi","MatchingTool_Pull_015")
     PFCellLevelSubtractionTool.PFTrackClusterMatchingTool_02 = getPFTrackClusterMatchingTool(inputFlags,0.2,"EtaPhiSquareDistance","PlainEtaPhi","MatchingTool_Pull_02")
 
     return PFCellLevelSubtractionTool
 
 def getPFRecoverSplitShowersTool(inputFlags,toolName):
-    PFRecoverSplitShowersToolFactory = CompFactory.PFRecoverSplitShowersTool
+    PFRecoverSplitShowersToolFactory = CompFactory.PFSubtractionTool
     PFRecoverSplitShowersTool = PFRecoverSplitShowersToolFactory(toolName)
 
-    eflowCellEOverPTool_mc12_JetETMiss = CompFactory.eflowCellEOverPTool_mc12_JetETMiss
-    PFRecoverSplitShowersTool.eflowCellEOverPTool = eflowCellEOverPTool_mc12_JetETMiss("eflowCellEOverPTool_mc12_JetETMiss_Recover")
+    eflowCellEOverPTool_Run2_mc20_JetETMiss = CompFactory.eflowCellEOverPTool_Run2_mc20_JetETMiss
+    PFRecoverSplitShowersTool.eflowCellEOverPTool = eflowCellEOverPTool_Run2_mc20_JetETMiss("eflowCellEOverPTool_Run2_mc20_JetETMiss_Recover")
 
-    PFRecoverSplitShowersTool.RecoverIsolatedTracks = inputFlags.PF.recoverIsolatedTracks
-
-    PFRecoverSplitShowersTool.useUpdated2015ChargedShowerSubtraction = inputFlags.PF.useUpdated2015ChargedShowerSubtraction
+    PFRecoverSplitShowersTool.RecoverSplitShowers = True
 
     return PFRecoverSplitShowersTool
 
@@ -153,9 +165,10 @@ def getNeutralPFOCreatorAlgorithm(inputFlags,neutralPFOOutputName,eflowObjectsIn
 
     return PFONeutralCreatorAlgorithm
 
-def getChargedFlowElementCreatorAlgorithm(inputFlags,chargedFlowElementOutputName):
+def getChargedFlowElementCreatorAlgorithm(inputFlags,chargedFlowElementOutputName,eflowCaloObjectContainerName="eflowCaloObjects"):
     FlowElementChargedCreatorAlgorithmFactory = CompFactory.PFChargedFlowElementCreatorAlgorithm
     FlowElementChargedCreatorAlgorithm = FlowElementChargedCreatorAlgorithmFactory("PFChargedFlowElementCreatorAlgorithm")
+    FlowElementChargedCreatorAlgorithm.eflowCaloObjectContainerName = eflowCaloObjectContainerName
     if chargedFlowElementOutputName:
         FlowElementChargedCreatorAlgorithm.FlowElementOutputName=chargedFlowElementOutputName
     if(inputFlags.PF.EOverPMode):
@@ -163,9 +176,10 @@ def getChargedFlowElementCreatorAlgorithm(inputFlags,chargedFlowElementOutputNam
 
     return FlowElementChargedCreatorAlgorithm
 
-def getNeutralFlowElementCreatorAlgorithm(inputFlags,neutralFlowElementOutputName):
+def getNeutralFlowElementCreatorAlgorithm(inputFlags,neutralFlowElementOutputName,eflowCaloObjectContainerName="eflowCaloObjects"):
     FlowElementNeutralCreatorAlgorithmFactory = CompFactory.PFNeutralFlowElementCreatorAlgorithm
     FlowElementNeutralCreatorAlgorithm = FlowElementNeutralCreatorAlgorithmFactory("PFNeutralFlowElementCreatorAlgorithm")
+    FlowElementNeutralCreatorAlgorithm.eflowCaloObjectContainerName = eflowCaloObjectContainerName
     if neutralFlowElementOutputName:
         FlowElementNeutralCreatorAlgorithm.FlowElementOutputName=neutralFlowElementOutputName
     if(inputFlags.PF.EOverPMode):
@@ -173,8 +187,18 @@ def getNeutralFlowElementCreatorAlgorithm(inputFlags,neutralFlowElementOutputNam
     if(inputFlags.PF.useCalibHitTruthClusterMoments and inputFlags.PF.addClusterMoments):
         FlowElementNeutralCreatorAlgorithm.useCalibHitTruth=True
 
-
     return FlowElementNeutralCreatorAlgorithm
+
+def getLCNeutralFlowElementCreatorAlgorithm(inputFlags,neutralFlowElementOutputName):
+    LCFlowElementNeutralCreatorAlgorithmFactory = CompFactory.PFLCNeutralFlowElementCreatorAlgorithm
+    LCFlowElementNeutralCreatorAlgorithm = LCFlowElementNeutralCreatorAlgorithmFactory("PFLCNeutralFlowElementCreatorAlgorithm")
+    if neutralFlowElementOutputName:
+      LCFlowElementNeutralCreatorAlgorithm.FELCOutputName==neutralFlowElementOutputName
+    if(inputFlags.PF.EOverPMode):
+      LCFlowElementNeutralCreatorAlgorithm.FEInputContainerName="EOverPNeutralParticleFlowObjects"
+      LCFlowElementNeutralCreatorAlgorithm.FELCOutputName="EOverPLCNeutralParticleFlowObjects"
+    
+    return LCFlowElementNeutralCreatorAlgorithm 
 
 def getEGamFlowElementAssocAlgorithm(inputFlags,neutral_FE_cont_name="",charged_FE_cont_name="",AODTest=False,doTCC=False):
 
@@ -372,6 +396,43 @@ def getTauFlowElementAssocAlgorithm(inputFlags,neutral_FE_cont_name="",charged_F
          PFTauFlowElementLinkerAlgorithm.ChargedFETauDecorKey="TrackCaloClustersCharged.TCC_TauLinks"
 
     return PFTauFlowElementLinkerAlgorithm
+
+def getOfflinePFAlgorithm(inputFlags):
+    result=ComponentAccumulator()
+
+    PFAlgorithm=CompFactory.PFAlgorithm
+    PFAlgorithm = PFAlgorithm("PFAlgorithm")
+    
+    topoClustersName="CaloTopoClusters"
+
+    PFAlgorithm.PFClusterSelectorTool = getPFClusterSelectorTool(topoClustersName,"CaloCalTopoClusters","PFClusterSelectorTool")    
+    
+    PFAlgorithm.SubtractionToolList = [getPFCellLevelSubtractionTool(inputFlags,"PFCellLevelSubtractionTool")]
+
+    if(False is inputFlags.PF.EOverPMode):
+        PFAlgorithm.SubtractionToolList += [getPFRecoverSplitShowersTool(inputFlags,"PFRecoverSplitShowersTool")]
+
+    PFMomentCalculatorTools=result.popToolsAndMerge(getPFMomentCalculatorTool(inputFlags,[]))
+    PFAlgorithm.BaseToolList = [PFMomentCalculatorTools]
+    PFAlgorithm.BaseToolList += [getPFLCCalibTool(inputFlags)]
+    result.addEventAlgo(PFAlgorithm)
+    return result
+
+def PFTauFlowElementLinkingCfg(inputFlags,neutral_FE_cont_name="",charged_FE_cont_name="",AODTest=False):
+    result=ComponentAccumulator()
+    
+    result.addEventAlgo(getTauFlowElementAssocAlgorithm(inputFlags,neutral_FE_cont_name,charged_FE_cont_name,AODTest))
+
+    # the following is needed to reliably determine whether we're really being steered from an old-style job option
+    # assume we're running CPython
+    #Snippet provided by Carlo Varni
+    import inspect
+    stack = inspect.stack()
+    if len(stack) >= 2 and stack[1].function == 'CAtoGlobalWrapper':
+      for el in result._allSequences:
+        el.name = "TopAlg"
+
+    return result
 
 
 

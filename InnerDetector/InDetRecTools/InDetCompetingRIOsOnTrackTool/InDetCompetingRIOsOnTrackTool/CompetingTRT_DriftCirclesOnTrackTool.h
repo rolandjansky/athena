@@ -30,13 +30,15 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
+// interfaces
+#include "TrkExInterfaces/IExtrapolator.h"
+#include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
+#include "TrkToolInterfaces/IWeightCalculator.h"
+
 namespace Trk {
   class LocalParameters;
   class Surface;
   class PrepRawData;
-  class IRIO_OnTrackCreator;
-  class IWeightCalculator;
-  class IExtrapolator;
 }
 
 
@@ -129,14 +131,17 @@ private:
     // Private data:
     ///////////////////////////////////////////////////////////////////
 
-    ToolHandle< Trk::IRIO_OnTrackCreator >  m_TRT_ROTCreator;   //!< Det-specific ROT creation for TRT
+    ToolHandle< Trk::IRIO_OnTrackCreator >  m_TRT_ROTCreator
+      {this, "ToolForTRT_DriftCircleOnTrackCreation", "InDet::TRT_DriftCircleOnTrackTool/TRT_DriftCircleOnTrackTool", "TRT_DriftCircleOnTrackCreator needed for the creation of CompetingPixelClustersOnTrack"};   //!< Det-specific ROT creation for TRT
 
-    ToolHandle< Trk::IWeightCalculator >    m_weightCalculator; //!< Weight calculator tool for assignment probabilities
+    ToolHandle< Trk::IWeightCalculator >    m_weightCalculator
+      {this, "ToolForWeightCalculation", "Trk::DAF_SimpleWeightCalculator/DAF_WeightCalculator", "Tool for weight (assignment probability) calculation"}; //!< Weight calculator tool for assignment probabilities
 
     double m_jo_EndCapCutValue;                                  //!< job option set cutValue of assignment probabilities for TRT end-cap
     double m_jo_BarrelCutValue;                                  //!< job option set cutValue of assignment probabilities for barrel TRT
 
-    ToolHandle< Trk::IExtrapolator >        m_extrapolator;     //!<  the Extrapolator tool
+    PublicToolHandle< Trk::IExtrapolator >        m_extrapolator
+      {this, "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator", "Extrapolator tool"};     //!<  the Extrapolator tool
 
     ///////////////////////////////////////////////////////////////////
     // Private functions:

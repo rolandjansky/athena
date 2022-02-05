@@ -119,30 +119,66 @@ class TrigKeySelector(RunLBBasedCondition):
             return value.split(',')[1]
         return value
 
+    def valueForStorage(self, condData, key):
+        if key=='Release' and ';' in condData:
+            [db,rel,relfull] = condData.split(';')
+            return {"db" : db, "release" : rel, "releaseFullName" : relfull}
+        elif key == 'SMK':
+            try:
+                smk = int(condData)
+            except ValueError:
+                smk = 0
+            return {"value": smk}
+
     def runAfterQuery(self,runlist):
-        for k in self.ResultKey():
-            if k != 'SMK':
+
+        from CoolRunQuery.utils.AtlRunQueryTriggerUtils import getSmkNames, getRandom, triggerDBAlias
+
+        smksByLHCRun = {
+            1: set(),
+            2: set(),
+            3: defaultdict(set)
+            }
+        smkNamesByLHCRun = {}
+
+        for run in runlist:
+            try:
+                smk = int(run.result['SMK'])
+            except (ValueError, KeyError):
                 continue
-            smks = set()
-            for run in runlist:
-                smk = run.result['SMK']
-                if not str.isdigit(smk):
-                    continue
-                smks.add(int(smk))
 
-            from CoolRunQuery.utils.AtlRunQueryTriggerUtils import getSmkNames, getRandom
-            smknames = getSmkNames(smks)
+            if run.lhcRun < 3:
+                smksByLHCRun[run.lhcRun].add(smk)
+            else:
+                try:
+                    dbAlias = run.data['Release'][0]["db"]
+                except KeyError:
+                    smk = run.data['SMK'][0].value
+                    dbAlias = "TRIGGERDB_RUN3" if smk>=3000 else "TRIGGERDBDEV1_I8"
+                smksByLHCRun[run.lhcRun][dbAlias].add(smk)
 
-            for run in runlist:
-                smk = run.result['SMK']
-                if str.isdigit(smk) and int(smk) in smknames:
-                    info = list(smknames[int(smk)])
-                else:
-                    info = ["unknown",0,"no comment"]
-                if info[2]=="" or info[2]=="~":
-                    info[2]="no comment"
-                run.stats[k] = { "info" : tuple(info),
-                                 "random" : getRandom(int(smk)) if str.isdigit(smk) else (0,0,0,0)}
+        smkNamesByLHCRun[1] = getSmkNames(smksByLHCRun[1], triggerDBAlias(lhcRun=1))
+        smkNamesByLHCRun[2] = getSmkNames(smksByLHCRun[2], triggerDBAlias(lhcRun=2))
+        smkNamesByLHCRun[3] = {}
+        for dbAlias in smksByLHCRun[3]:
+            smkNamesByLHCRun[3].update( getSmkNames(smksByLHCRun[3][dbAlias], dbAlias) )
+
+        for run in runlist:
+            try:
+                smk = int(run.result['SMK'])
+            except (ValueError, KeyError):
+                continue
+
+            if smk in smkNamesByLHCRun[run.lhcRun]:
+                info = list(smkNamesByLHCRun[run.lhcRun][smk])
+            else:
+                info = ["Name unknown", 0, "no comment"]
+            if info[2]=="" or info[2]=="~":
+                info[2]="no comment"
+            run.stats['SMK'] = {
+                "info": tuple(info),
+                "random": getRandom(smk, run.lhcRun)
+                }
 
 
 class BGSKeySelector(RunLBBasedCondition):
@@ -186,7 +222,6 @@ class L1TrigKeySelector(RunLBBasedCondition):
                                                dbfolderkey='COOLONL_TRIGGER::/TRIGGER/LVL1/Lvl1ConfigKey',
                                                channelKeys = [(0,'L1 PSK','Lvl1PrescaleConfigurationKey')])
 
-
     def __str__(self):
         return "Retrieving L1 PSK"
 
@@ -216,8 +251,6 @@ class L1TrigKeySelector(RunLBBasedCondition):
         HLTTrigKeySelector.combineHltL1Keys(runlist)
 
 
-
-        
 class HLTTrigKeySelector(RunLBBasedCondition):
     def __init__(self, name):
         self.showTrigKeys = False
@@ -258,18 +291,28 @@ class HLTTrigKeySelector(RunLBBasedCondition):
 
         HLTTrigKeySelector.combineHltL1Keys(runlist)
 
-
-
-
     @classmethod
     def combineHltL1Keys(cls, runlist):
         from CoolRunQuery.utils.AtlRunQueryTriggerUtils import isTriggerRun2
+        l1keysByDbAlias = defaultdict(set)
+        hltkeysByDbAlias = defaultdict(set)
+
         l1keysRun1 = set() # to collect run 1 keys
         hltkeysRun1 = set()
         l1keysRun2 = set() # to collect run 2 keys
         hltkeysRun2 = set()
         for run in runlist:
-            if isTriggerRun2(run_number = run.runNr): # run 2
+            if run.lhcRun == 3:
+                try:
+                    dbAlias = run.data['Release'][0]["db"]
+                except KeyError:
+                    smk = run.data['SMK'][0].value
+                    dbAlias = "TRIGGERDB_RUN3" if smk>=3000 else "TRIGGERDBDEV1_I8"
+                if 'L1 PSK' in run.stats:
+                    l1keysByDbAlias[dbAlias].update( [x[0] for x in run.stats['L1 PSK']['blocks']] )
+                if 'HLT PSK' in run.stats:
+                    hltkeysByDbAlias[dbAlias].update( [x[0] for x in run.stats['HLT PSK']['blocks']] )
+            elif isTriggerRun2(run_number = run.runNr): # run 2
                 if 'L1 PSK' in run.stats:
                     l1keysRun2.update( [x[0] for x in run.stats['L1 PSK']['blocks']] )
                 if 'HLT PSK' in run.stats:
@@ -280,16 +323,34 @@ class HLTTrigKeySelector(RunLBBasedCondition):
                 if 'HLT PSK' in run.stats:
                     hltkeysRun1.update( [x[0] for x in run.stats['HLT PSK']['blocks']] )
 
+        # we need L1 and HLT keys before it makes sense to continue
+        if len(l1keysRun1)+len(l1keysRun2)+len(l1keysByDbAlias) == 0:
+            return
+        if len(hltkeysRun1)+len(hltkeysRun2)+len(hltkeysByDbAlias) == 0:
+            return
 
         from CoolRunQuery.utils.AtlRunQueryTriggerUtils import getL1PskNames, getHLTPskNames
-
-        l1namesRun1  = getL1PskNames(l1keysRun1, isRun2 = False)
-        hltnamesRun1 = getHLTPskNames(hltkeysRun1, isRun2 = False)
-        l1namesRun2  = getL1PskNames(l1keysRun2, isRun2 = True)
-        hltnamesRun2 = getHLTPskNames(hltkeysRun2, isRun2 = True)
+        l1namesRun1  = getL1PskNames(l1keysRun1, lhcRun = 1)
+        hltnamesRun1 = getHLTPskNames(hltkeysRun1, lhcRun = 1)
+        l1namesRun2  = getL1PskNames(l1keysRun2, lhcRun = 2)
+        hltnamesRun2 = getHLTPskNames(hltkeysRun2, lhcRun = 2)
+        l1NamesByDbAlias = {}
+        hltNamesByDbAlias = {}
+        for dbAlias in l1keysByDbAlias:
+            l1NamesByDbAlias[dbAlias] = getL1PskNames(l1keysByDbAlias[dbAlias], dbAlias = dbAlias)
+        for dbAlias in hltkeysByDbAlias:
+            hltNamesByDbAlias[dbAlias] = getHLTPskNames(hltkeysByDbAlias[dbAlias], dbAlias = dbAlias)
 
         for run in runlist:
-            if isTriggerRun2(run_number = run.runNr): # run 2
+            if run.lhcRun == 3:
+                try:
+                    dbAlias = run.data['Release'][0]["db"]
+                except KeyError:
+                    smk = run.data['SMK'][0].value
+                    dbAlias = "TRIGGERDB_RUN3" if smk>=3000 else "TRIGGERDBDEV1_I8"
+                l1names  = l1NamesByDbAlias[dbAlias]
+                hltnames = hltNamesByDbAlias[dbAlias]
+            elif isTriggerRun2(run_number = run.runNr): # run 2
                 l1names  = l1namesRun2
                 hltnames = hltnamesRun2
             else:
@@ -314,15 +375,16 @@ class HLTTrigKeySelector(RunLBBasedCondition):
             run.stats['PSK' ] = {'blocks' : sorted(list(blocks)) }
             
 
-
 class RatesSelector(RunLBBasedCondition):
     def __init__(self, name, trigger=[]):
         # trigger can be ["*Electron*", "L1_*"]
         # rate will be printed for all triggers matching the pattern
 
-        super(RatesSelector,self).__init__(name=name,
-                                           dbfolderkey='COOLONL_TRIGGER::/TRIGGER/LUMI/LVL1COUNTERS',
-                                           channelKeys = [(-1,'TriggerRates','TriggerName')])
+        super(RatesSelector,self).__init__(
+            name=name,
+            dbfolderkey='COOLONL_TRIGGER::/TRIGGER/LUMI/LVL1COUNTERS',
+            channelKeys = [(-1,'TriggerRates','TriggerName')]
+        )
 
         self.trigger=trigger
         from CoolRunQuery.AtlRunQuerySelectorWorker import SelectorWorker
@@ -398,6 +460,7 @@ class RatesSelector(RunLBBasedCondition):
             print (" ==> Done (%g sec)" % duration)
 
         return runlist
+
 
 class TriggerSelector(RunLBBasedCondition):
 

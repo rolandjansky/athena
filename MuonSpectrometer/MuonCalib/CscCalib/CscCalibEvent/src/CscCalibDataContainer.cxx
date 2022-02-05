@@ -25,9 +25,10 @@ void CscCalibDataContainer::push_back(CscCalibData* calibData) {
   IdentifierHash channelHash = calibData->idHash(); 
   // I don't think there's any need for this any more. EJWM
   // Not sure if the "Identifier existing" check is important though
-     const CscCalibDataCollection* const_coll = MyBase::indexFindPtr(channelHash);
-     if(const_coll!=nullptr) {
-       CscCalibDataCollection * coll = const_cast<CscCalibDataCollection*>(const_coll);
+
+     CscCalibDataCollection* coll = nullptr;
+     auto sc = MyBase::naughtyRetrieve(channelHash, coll);
+     if(sc.isSuccess() && coll) {
        coll->push_back(calibData); 
      } else {
       throw std::runtime_error(Form("File: %s, Line: %d\nCscCalibDataContainer::push_back() - ERROR: Collection does not exist", __FILE__, __LINE__));

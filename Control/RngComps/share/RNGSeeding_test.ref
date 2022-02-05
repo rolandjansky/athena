@@ -1,0 +1,67 @@
+RNGSeeding_test
+test1 with <<dSFMTEngine, 100000 seeds tested, using setSeedMC20, hash vector size=16777216, expect occupancy of 0.00596046 increment=1
+Total=0/100000 identical
+test2 with <<dSFMTEngine, 20000 seeds tested, using setSeedMC20, incrementing event
+Total=40/20000 identical
+test2 with <<dSFMTEngine, 20000 seeds tested, using setSeedMC20, incrementing run
+Total=18/20000 identical
+test2 with <<dSFMTEngine, 20000 seeds tested, using setSeedMC20, incrementing algName
+Total=0/20000 identical
+test2 with <<dSFMTEngine, 20000 seeds tested, using setSeedMC20, incrementing offset
+Total=19999/20000 identical
+
+test1 with <<dSFMTEngine, 100000 seeds tested, using setSeedMC16, hash vector size=16777216, expect occupancy of 0.00596046 increment=1
+Total=0/100000 identical
+test2 with <<dSFMTEngine, 20000 seeds tested, using setSeedMC16, incrementing event
+Total=0/20000 identical
+test2 with <<dSFMTEngine, 20000 seeds tested, using setSeedMC16, incrementing run
+Total=0/20000 identical
+test2 with <<dSFMTEngine, 20000 seeds tested, using setSeedMC16, incrementing algName
+Total=0/20000 identical
+test2 with <<dSFMTEngine, 20000 seeds tested, using setSeedMC16, incrementing offset
+Total=0/20000 identical
+
+test1 with <<dSFMTEngine, 100000 seeds tested, using setSeedMC21, hash vector size=16777216, expect occupancy of 0.00596046 increment=1
+Total=0/100000 identical
+test2 with <<dSFMTEngine, 20000 seeds tested, using setSeedMC21, incrementing event
+Total=0/20000 identical
+test2 with <<dSFMTEngine, 20000 seeds tested, using setSeedMC21, incrementing run
+Total=0/20000 identical
+test2 with <<dSFMTEngine, 20000 seeds tested, using setSeedMC21, incrementing algName
+Total=0/20000 identical
+test2 with <<dSFMTEngine, 20000 seeds tested, using setSeedMC21, incrementing offset
+Total=0/20000 identical
+
+test1 with <<RanecuEngine, 1000000 seeds tested, using setSeedMC20, hash vector size=16777216, expect occupancy of 0.0596046 increment=1
+Total=2/1000000 identical
+test2 with <<RanecuEngine, 200000 seeds tested, using setSeedMC20, incrementing event
+Total=414/200000 identical
+test2 with <<RanecuEngine, 200000 seeds tested, using setSeedMC20, incrementing run
+Total=89/200000 identical
+test2 with <<RanecuEngine, 200000 seeds tested, using setSeedMC20, incrementing algName
+Total=0/200000 identical
+test2 with <<RanecuEngine, 200000 seeds tested, using setSeedMC20, incrementing offset
+Total=199999/200000 identical
+
+test1 with <<RanecuEngine, 1000000 seeds tested, using setSeedMC16, hash vector size=16777216, expect occupancy of 0.0596046 increment=1
+Total=79/1000000 identical
+test2 with <<RanecuEngine, 200000 seeds tested, using setSeedMC16, incrementing event
+Total=0/200000 identical
+test2 with <<RanecuEngine, 200000 seeds tested, using setSeedMC16, incrementing run
+Total=0/200000 identical
+test2 with <<RanecuEngine, 200000 seeds tested, using setSeedMC16, incrementing algName
+Total=0/200000 identical
+test2 with <<RanecuEngine, 200000 seeds tested, using setSeedMC16, incrementing offset
+Total=0/200000 identical
+
+test1 with <<RanecuEngine, 1000000 seeds tested, using setSeedMC21, hash vector size=16777216, expect occupancy of 0.0596046 increment=1
+Total=0/1000000 identical
+test2 with <<RanecuEngine, 200000 seeds tested, using setSeedMC21, incrementing event
+Total=0/200000 identical
+test2 with <<RanecuEngine, 200000 seeds tested, using setSeedMC21, incrementing run
+Total=0/200000 identical
+test2 with <<RanecuEngine, 200000 seeds tested, using setSeedMC21, incrementing algName
+Total=14/200000 identical
+test2 with <<RanecuEngine, 200000 seeds tested, using setSeedMC21, incrementing offset
+Total=8/200000 identical
+

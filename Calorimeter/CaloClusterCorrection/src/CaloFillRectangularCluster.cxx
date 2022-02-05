@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: CaloFillRectangularCluster.cxx,v 1.20 2009-04-25 17:57:01 ssnyder Exp $
 /**
  * @file  CaloFillRectangularCluster.h
  * @author scott snyder <snyder@bnl.gov>, D. Lelas, H. Ma, S. Rajagopalan
@@ -23,6 +21,7 @@
 #include "CaloUtils/CaloCellList.h"
 #include "AthenaKernel/errorcheck.h"
 #include <algorithm>
+#include <utility>
 
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Units/PhysicalConstants.h"
@@ -396,7 +395,7 @@ SamplingHelper::calculate_and_set
 
   double fallback_eta = eta;
   double fallback_phi = phi;
-  if ((seteta == -999 || setphi == -999) && fallback_layer >= 0) {
+  if ((seteta == -999 || setphi == -999) && fallback_layer >= 0 && fallback_layer < 4) {
     // In the calo frame
     fallback_eta = m_cluster->etaSample (samplings[fallback_layer]);
     fallback_phi = m_cluster->phiSample (samplings[fallback_layer]);
@@ -754,7 +753,8 @@ SamplingHelper_Cluster::calculate
 /// Return the cell with the maximum energy.
 const CaloCell* SamplingHelper_Cluster::max_et_cell() const
 {
-  return *std::max_element(m_cluster->cell_begin(), m_cluster->cell_end(),
+  return *std::max_element(std::as_const(*m_cluster).cell_begin(),
+                           std::as_const(*m_cluster).cell_end(),
                            et_compare_larem_only());
 }
 
@@ -802,9 +802,11 @@ StatusCode CaloFillRectangularCluster::initialize()
 {
   // The method from the base class.
   CHECK( CaloClusterCorrection::initialize() );
-  if (!m_cellsName.key().empty())
+  if (!m_cellsName.key().empty()){
     CHECK( m_cellsName.initialize() );
+  }
 
+  ATH_CHECK(m_caloMgrKey.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -1074,12 +1076,14 @@ void CaloFillRectangularCluster::makeCorrection (const Context& myctx,
                                                  CaloCluster* cluster) const
 {
   ATH_MSG_DEBUG( "Executing CaloFillRectangularCluster" << endmsg) ;
-  
-  const CaloDetDescrManager* calodetdescrmgr = nullptr;
-  if(detStore()->retrieve(calodetdescrmgr,"CaloMgr").isFailure()){
+ 
+   // retrieve CaloDetDescr
+  SG::ReadCondHandle<CaloDetDescrManager> caloDetDescrMgrHandle { m_caloMgrKey, myctx.ctx()};
+  if(!caloDetDescrMgrHandle.isValid()){
     ATH_MSG_ERROR ("Failed to retrieve CaloDetDescrManager : CaloMgr");
   }
 
+  const CaloDetDescrManager* calodetdescrmgr = *caloDetDescrMgrHandle;
 
   CaloClusterCorr::Segmentation seg (calodetdescrmgr);
   if (seg.m_detas2 == 0) {
@@ -1117,8 +1121,8 @@ void CaloFillRectangularCluster::makeCorrection (const Context& myctx,
     // Build the candidate cell list.
     // This 5 is a safe margin for cell_list calculation
     // and should not be changed.
-    CaloCellList cell_list(cell_container); 
-    cell_list.select(*calodetdescrmgr,eta,phi,seg.m_detas2*(m_neta+5),seg.m_dphis2*(m_nphi+5));
+    CaloCellList cell_list(calodetdescrmgr,cell_container); 
+    cell_list.select(eta,phi,seg.m_detas2*(m_neta+5),seg.m_dphis2*(m_nphi+5));
 
     // Do the calculation.
     CaloClusterCorr::SamplingHelper_CaloCellList helper (*this,

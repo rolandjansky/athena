@@ -2,7 +2,7 @@
 
 # art-description: MC+MC Overlay with NSW support, comparison between old and new transforms
 # art-type: grid
-# art-include: master/Athena
+
 
 # art-output: *.root
 # art-output: log.*

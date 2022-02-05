@@ -13,72 +13,64 @@
 #ifndef MUON_MUONPRDPATTERN_H
 #define MUON_MUONPRDPATTERN_H
 
-
 #include <vector>
 
 #include "MuonPattern/MuonPattern.h"
 
-
 namespace Muon {
-  
-  
-  /** 
-      @brief Class to store a pattern in the muon system containing PrepRawData pointers. 
-             The class inherits from MuonPattern.
-      
-  */
-  class MuonPrdPattern : public MuonPattern {
-  public:
-    typedef std::vector< const Trk::PrepRawData* > PrdVector;
 
-  public:
-    /** Constructor */
-    MuonPrdPattern( const Amg::Vector3D& pos, const Amg::Vector3D& dir );
+    /**
+        @brief Class to store a pattern in the muon system containing PrepRawData pointers.
+               The class inherits from MuonPattern.
 
-    /** Constructor with vector of prds */
-    MuonPrdPattern( const Amg::Vector3D& pos, const Amg::Vector3D& dir, const PrdVector& prds );
+    */
+    class MuonPrdPattern : public MuonPattern {
+    public:
+        typedef std::vector<const Trk::PrepRawData*> PrdVector;
 
-    /** Destructor */
-    ~MuonPrdPattern();
+    public:
+        /** Constructor */
+        MuonPrdPattern(const Amg::Vector3D& pos, const Amg::Vector3D& dir);
 
-    /** add hit to pattern */
-    virtual void addPrd( const Trk::PrepRawData* prd );
+        /** Constructor with vector of prds */
+        MuonPrdPattern(const Amg::Vector3D& pos, const Amg::Vector3D& dir, const PrdVector& prds);
 
-    /** Number or PrepRawData contained by this Pattern */
-    virtual unsigned int numberOfContainedPrds() const ;
-     
-    /** returns the PrepRawData objects depending on the integer, return zero if index out of range */
-    virtual const Trk::PrepRawData* prd(unsigned int index) const;
-    
-    /** clone methode */
-    virtual MuonPrdPattern* clone() const;
+        /** Destructor */
+        ~MuonPrdPattern();
 
-    const PrdVector&  prepRawDataVec() const;
+        /** add hit to pattern */
+        virtual void addPrd(const Trk::PrepRawData* prd);
 
-  private:    
+        /** Number or PrepRawData contained by this Pattern */
+        virtual unsigned int numberOfContainedPrds() const;
 
-    /** vector of PrepRawData pointers */
-    PrdVector m_prds;
-    
-  };
+        /** returns the PrepRawData objects depending on the integer, return zero if index out of range */
+        virtual const Trk::PrepRawData* prd(unsigned int index) const;
 
-  inline void MuonPrdPattern::addPrd( const Trk::PrepRawData* prd ) { 
-    if( prd ) m_prds.push_back( prd ); 
-  }
+        /** clone methode */
+        virtual MuonPrdPattern* clone() const;
 
-  inline unsigned int MuonPrdPattern::numberOfContainedPrds() const { return m_prds.size(); }
+        const PrdVector& prepRawDataVec() const;
 
-  inline const Trk::PrepRawData* MuonPrdPattern::prd(unsigned int index) const { 
-    if( index < numberOfContainedPrds() ) return m_prds[index];
-    return 0;
-  }
+    private:
+        /** vector of PrepRawData pointers */
+        PrdVector m_prds;
+    };
 
-  inline MuonPrdPattern* MuonPrdPattern::clone() const { return new MuonPrdPattern( *this ); }
+    inline void MuonPrdPattern::addPrd(const Trk::PrepRawData* prd) {
+        if (prd) m_prds.push_back(prd);
+    }
 
-  inline const std::vector< const Trk::PrepRawData* >& MuonPrdPattern::prepRawDataVec() const {
-    return m_prds;
-  }
-}
+    inline unsigned int MuonPrdPattern::numberOfContainedPrds() const { return m_prds.size(); }
 
+    inline const Trk::PrepRawData* MuonPrdPattern::prd(unsigned int index) const {
+        if (index < numberOfContainedPrds()) return m_prds[index];
+        return 0;
+    }
+
+    inline MuonPrdPattern* MuonPrdPattern::clone() const { return new MuonPrdPattern(*this); }
+
+    inline const std::vector<const Trk::PrepRawData*>& MuonPrdPattern::prepRawDataVec() const { return m_prds; }
+}  // namespace Muon
 
 #endif

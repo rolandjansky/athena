@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -15,6 +15,7 @@
 #include "PathResolver/PathResolver.h"
 
 #include "CoralBase/Blob.h"
+#include "boost/algorithm/string/predicate.hpp"
 
 #include <fstream>
 
@@ -81,7 +82,7 @@ StatusCode TileCondProxyFile<T>::fillCalibData(TileCalibData<T>& calibData,
   while (std::getline(file, line)) {
 
     //=== read the objVersion specifier
-    if (line.find("OBJVERSION", 0) == 0 && objVersion < 0) {
+    if (boost::algorithm::starts_with (line, "OBJVERSION") && objVersion < 0) {
       std::istringstream iss(line);
       std::string dummy;
       iss >> dummy >> objVersion;
@@ -111,11 +112,10 @@ StatusCode TileCondProxyFile<T>::fillCalibData(TileCalibData<T>& calibData,
 
 
     //=== Mark module as affected
-    if (drawerStat.find(drawerIdx) == drawerStat.end()) {
-      drawerStat[drawerIdx] = 0;
+    {
+      unsigned int& stat = drawerStat[drawerIdx];
+      stat = std::max(stat, channel);
     }
-
-    drawerStat[drawerIdx] = std::max(drawerStat[drawerIdx], channel);
 
     //=== Loop through all data rows
     std::vector<float> dataVec;

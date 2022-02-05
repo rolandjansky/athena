@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArFCalSamplingFraction.h"
@@ -37,8 +37,6 @@
 #include "LArReadoutGeometry/FCALTile.h"
 #include "CaloSimEvent/CaloCalibrationHit.h"
 #include "CaloSimEvent/CaloCalibrationHitContainer.h"
-#include "GeoAdaptors/GeoLArHit.h"
-#include "GeoAdaptors/GeoCaloCalibHit.h"
 
 // For Cryostat Positions
 #include "LArG4RunControl/LArG4TBPosOptions.h"
@@ -101,6 +99,8 @@ StatusCode LArFCalSamplingFraction::initialize()
 
     if (m_caloCellID == 0)
         throw GaudiException("Invalid Calo Cell ID helper", "LArHitAnalysis", StatusCode::FAILURE);
+
+    ATH_CHECK(m_caloMgrKey.initialize());
 
     m_pdg_id = new std::vector<int>; // particle id
 
@@ -415,7 +415,8 @@ StatusCode LArFCalSamplingFraction::initEvent()
 ///////////////////////////////////////////////////////////////////////////////
 /// Calculate FCal hit center
 
-void LArFCalSamplingFraction::FCalHitCenter(const LArHitContainer *container)
+void LArFCalSamplingFraction::FCalHitCenter(const LArHitContainer *container
+					    , const CaloDetDescrManager* caloMgr)
 {
     double max1 = 0.0;
     double max2 = 0.0;
@@ -424,19 +425,18 @@ void LArFCalSamplingFraction::FCalHitCenter(const LArHitContainer *container)
     // Loop over hits in container
     for (LArHit* const& hit : *container) {
 
-        GeoLArHit fcalhit(*hit);
+      const CaloDetDescrElement* caloDDE = caloMgr->get_element(hit->cellID());
+      if(!caloDDE->is_lar_fcal()) {
+	ATH_MSG_WARNING("Hit in LarHitContainer does not belong to FCAL");
+	continue;
+      }
 
-        if ((!fcalhit) || (!fcalhit.getDetDescrElement()->is_lar_fcal())) {
-            ATH_MSG_WARNING("Hit in LarHitContainer is not a GeoFCalHit");
-            continue;
-        }
+      double energy = hit->energy();
 
-        double energy = fcalhit.Energy();
+      int module_index = caloDDE->getLayer();
 
-        int module_index = fcalhit.getDetDescrElement()->getLayer();
-
-        double x = fcalhit.getDetDescrElement()->x();
-        double y = fcalhit.getDetDescrElement()->y();
+      double x = caloDDE->x();
+      double y = caloDDE->y();
 
         // Determine the center of the cluster for each FCal module
         if (module_index == 1) {
@@ -471,7 +471,8 @@ void LArFCalSamplingFraction::FCalHitCenter(const LArHitContainer *container)
 ///////////////////////////////////////////////////////////////////////////////
 /// Calculate FCal cluster center
 
-void LArFCalSamplingFraction::FCalClusterCenter(const LArHitContainer *container)
+void LArFCalSamplingFraction::FCalClusterCenter(const LArHitContainer *container
+						, const CaloDetDescrManager* caloMgr)
 {
     float xNumer1 = 0.0, xNumer2 = 0.0, xNumer3 = 0.0;
     float yNumer1 = 0.0, yNumer2 = 0.0, yNumer3 = 0.0;
@@ -483,18 +484,19 @@ void LArFCalSamplingFraction::FCalClusterCenter(const LArHitContainer *container
     // Loop over hits in container
     for (LArHit* const& hit : *container) {
 
-        GeoLArHit fcalhit(*hit);
+      const CaloDetDescrElement* caloDDE = caloMgr->get_element(hit->cellID());
+      if(!caloDDE->is_lar_fcal()) {
+	ATH_MSG_WARNING("Hit in LarHitContainer is not a GeoFCalHit");
+	continue;
+      }
 
-        if ((!fcalhit) || (!fcalhit.getDetDescrElement()->is_lar_fcal())) {
-            ATH_MSG_WARNING("Hit in LarHitContainer is not a GeoFCalHit");
-            continue;
-        }
+      double energy = hit->energy();
 
-        double energy = fcalhit.Energy();
-        int module_index = fcalhit.getDetDescrElement()->getLayer();
+      int module_index = caloDDE->getLayer();
 
-        double x = fcalhit.getDetDescrElement()->x();
-        double y = fcalhit.getDetDescrElement()->y();
+      double x = caloDDE->x();
+      double y = caloDDE->y();
+
 
         // Determine center of cluster
         if (module_index == 1) {
@@ -867,20 +869,23 @@ StatusCode LArFCalSamplingFraction::doFCal()
 
     ATH_MSG_DEBUG("LArHitFCAL container successfully retrieved");
 
+    SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+    ATH_CHECK(caloMgrHandle.isValid());
+    const CaloDetDescrManager* caloMgr = *caloMgrHandle;
+
+
     // Get the number of hits in the LArHitFCAL container
     m_numHitsFCal = container->size();
     ATH_MSG_INFO("NumHitsFCal = " << m_numHitsFCal);
 
     if (m_numHitsFCal > 0) {
         // Calculate the center of gravity
-        FCalHitCenter(container);
-        FCalClusterCenter(container);
+      FCalHitCenter(container,caloMgr);
+      FCalClusterCenter(container,caloMgr);
     }
 
     // Loop over hits in container
     for (LArHit* const& hit : *container) {
-
-        GeoLArHit fcalhit(*hit);
 
         // Added by JPA to get particle id for each hit
         const McEventCollection *mcEventCollection;
@@ -906,25 +911,26 @@ StatusCode LArFCalSamplingFraction::doFCal()
 
         // End JPA particle id
 
-        if ((!fcalhit) || (!fcalhit.getDetDescrElement()->is_lar_fcal())) {
-            ATH_MSG_ERROR("GeoFCalHit is not defined");
+	const CaloDetDescrElement* caloDDE = caloMgr->get_element(hit->cellID());
+	if(!caloDDE->is_lar_fcal()) {
+	  ATH_MSG_ERROR("LArHit does not belong to FCAL");
         }
 
-        double energy = fcalhit.Energy();
-        int module_index = fcalhit.getDetDescrElement()->getLayer();
+        double energy = hit->energy();
+        int module_index = caloDDE->getLayer();
         m_totalFCalEnergy += energy;
 
         if (module_index == 1) {
             m_FCal1_SumE += energy;
-            FillCellInfo(fcalhit, m_cell1_E, m_hit_x1, m_hit_y1, m_hit_ieta1, m_hit_iphi1, m_NCell1);
+            FillCellInfo(caloDDE, energy, m_cell1_E, m_hit_x1, m_hit_y1, m_hit_ieta1, m_hit_iphi1, m_NCell1);
         }
         else if (module_index == 2) {
             m_FCal2_SumE += energy;
-            FillCellInfo(fcalhit, m_cell2_E, m_hit_x2, m_hit_y2, m_hit_ieta2, m_hit_iphi2, m_NCell2);
+            FillCellInfo(caloDDE, energy, m_cell2_E, m_hit_x2, m_hit_y2, m_hit_ieta2, m_hit_iphi2, m_NCell2);
         }
         else if (module_index == 3) {
             m_FCal3_SumE += energy;
-            FillCellInfo(fcalhit, m_cell3_E, m_hit_x3, m_hit_y3, m_hit_ieta3, m_hit_iphi3, m_NCell3);
+            FillCellInfo(caloDDE, energy, m_cell3_E, m_hit_x3, m_hit_y3, m_hit_ieta3, m_hit_iphi3, m_NCell3);
         }
     } // End loop over hits in container
 
@@ -941,16 +947,13 @@ StatusCode LArFCalSamplingFraction::doFCal()
 ///////////////////////////////////////////////////////////////////////////////
 /// Fill FCal cell information
 
-void LArFCalSamplingFraction::FillCellInfo(const GeoLArHit &fcalhit, std::vector<double> *cell_E,
+void LArFCalSamplingFraction::FillCellInfo(const CaloDetDescrElement* caloDDE, double energy, std::vector<double> *cell_E,
                                            std::vector<double> *hit_x, std::vector<double> *hit_y,
                                            std::vector<double> *hit_ieta, std::vector<double> *hit_iphi,
                                            int &NCell)
 {
-    const double energy = fcalhit.Energy();
-
-    //const FCALTile *tile = fcalhit.getTile();
-    const double hitx = fcalhit.getDetDescrElement()->x(); //tile->getX();
-    const double hity = fcalhit.getDetDescrElement()->y(); //tile->getY();
+    const double hitx = caloDDE->x(); //tile->getX();
+    const double hity = caloDDE->y(); //tile->getY();
     const double hiteta = 7;                               //tile->getIndexI();
     const double hitphi = 7;                               //tile->getIndexJ();
 

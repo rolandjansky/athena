@@ -8,7 +8,6 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-CscCalibTool=CompFactory.CscCalibTool
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger('MuonCalibConfig')
@@ -35,7 +34,7 @@ def CscCalibToolCfg(flags, name="CscCalibTool", **kwargs):
     kwargs.setdefault("IsOnline", flags.Common.isOnline)
     kwargs.setdefault("Latency", 119)
 
-    acc.setPrivateTools(CscCalibTool(name, **kwargs))
+    acc.setPrivateTools(CompFactory.CscCalibTool(name, **kwargs))
 
     return acc
 
@@ -133,6 +132,8 @@ def MdtCalibDbAlgCfg(flags,name="MdtCalibDbAlg",**kwargs):
     kwargs.setdefault("CreateBFieldFunctions", flags.Muon.Calib.correctMdtRtForBField)
     kwargs.setdefault("CreateWireSagFunctions", flags.Muon.Calib.correctMdtRtWireSag)
     kwargs.setdefault("CreateSlewingFunctions", flags.Muon.Calib.correctMdtRtForTimeSlewing)
+    from RngComps.RandomServices import AthRNGSvcCfg
+    kwargs.setdefault("AthRNGSvc", result.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
 
     MdtCalibDbAlg=CompFactory.MdtCalibDbAlg
     alg = MdtCalibDbAlg (name, **kwargs)

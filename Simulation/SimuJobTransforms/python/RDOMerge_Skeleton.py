@@ -63,25 +63,25 @@ def fromRunArgs(runArgs):
 
     # Geometry dependencies
     if ConfigFlags.Detector.EnablePixel:
-        from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-        cfg.merge(PixelGeometryCfg(ConfigFlags))
+        from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
+        cfg.merge(PixelReadoutGeometryCfg(ConfigFlags))
     if ConfigFlags.Detector.EnableSCT:
-        from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-        cfg.merge(SCT_GeometryCfg(ConfigFlags))
+        from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+        cfg.merge(SCT_ReadoutGeometryCfg(ConfigFlags))
     if ConfigFlags.Detector.EnableTRT:
-        from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-        cfg.merge(TRT_GeometryCfg(ConfigFlags))
+        from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
+        cfg.merge(TRT_ReadoutGeometryCfg(ConfigFlags))
 
     if ConfigFlags.Detector.EnableITkPixel:
-        from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelGeometryCfg
-        cfg.merge(ITkPixelGeometryCfg(ConfigFlags))
+        from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelReadoutGeometryCfg
+        cfg.merge(ITkPixelReadoutGeometryCfg(ConfigFlags))
     if ConfigFlags.Detector.EnableITkStrip:
-        from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
-        cfg.merge(ITkStripGeometryCfg(ConfigFlags))
+        from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
+        cfg.merge(ITkStripReadoutGeometryCfg(ConfigFlags))
 
     if ConfigFlags.Detector.EnableHGTD:
-        from HGTD_GeoModel.HGTD_GeoModelConfig import HGTD_GeometryCfg
-        cfg.merge(HGTD_GeometryCfg(ConfigFlags))
+        from HGTD_GeoModel.HGTD_GeoModelConfig import HGTD_ReadoutGeometryCfg
+        cfg.merge(HGTD_ReadoutGeometryCfg(ConfigFlags))
 
     if ConfigFlags.Detector.EnableLAr:
         from LArGeoAlgsNV.LArGMConfig import LArGMCfg

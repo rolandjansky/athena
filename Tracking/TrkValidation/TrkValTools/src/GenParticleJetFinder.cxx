@@ -59,7 +59,7 @@ std::vector< Trk::GenParticleJet >* Trk::GenParticleJetFinder::jetMCFinder(  std
 
   std::vector<Trk::GenParticleJet>::iterator iAtMin, jAtMin;
 
-  for( auto  i = GenStableCharged.begin() ; i < GenStableCharged.end();  i++){
+  for( auto  i = GenStableCharged.begin() ; i < GenStableCharged.end();  ++i){
     totalEnergyFromTracks = totalEnergyFromTracks + (*i)->momentum().e();
     Trk::GenParticleJet tempPJ;
     tempPJ.addParticle( *i, int(i - GenStableCharged.begin()) );
@@ -70,9 +70,9 @@ std::vector< Trk::GenParticleJet >* Trk::GenParticleJetFinder::jetMCFinder(  std
   do {   
     combineParticles = false;
     yijmin=100.;
-    for( std::vector<Trk::GenParticleJet>::iterator i = myJets->begin() ; i<myJets->end(); i++) {
+    for( std::vector<Trk::GenParticleJet>::iterator i = myJets->begin() ; i<myJets->end(); ++i) {
 
-      for( std::vector<Trk::GenParticleJet>::iterator j = myJets->begin() ; j<myJets->end(); j++) {
+      for( std::vector<Trk::GenParticleJet>::iterator j = myJets->begin() ; j<myJets->end(); ++j) {
 
         if (i!=j) {
 
@@ -151,7 +151,7 @@ std::vector< Trk::GenParticleJet >* Trk::GenParticleJetFinder::jetMCFinder(  std
       }
     }
     int currentNumParts = 0;
-    for(std::vector<Trk::GenParticleJet>::iterator k = myJets->begin(); k<myJets->end(); k++)
+    for(std::vector<Trk::GenParticleJet>::iterator k = myJets->begin(); k<myJets->end(); ++k)
       currentNumParts = currentNumParts + k->getNumParticles();
 
     if(numParts != currentNumParts){

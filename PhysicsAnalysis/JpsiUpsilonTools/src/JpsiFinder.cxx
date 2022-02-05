@@ -28,7 +28,7 @@
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "EventKernel/PdtPdg.h"
-
+#include "FourMomUtils/xAODP4Helpers.h"
 namespace Analysis {
     
     StatusCode JpsiFinder::initialize() {
@@ -168,7 +168,6 @@ namespace Analysis {
         declareProperty("VertexPointEstimator",m_vertexEstimator);
         declareProperty("useMCPCuts",m_mcpCuts);
         declareProperty("doTagAndProbe",m_doTagAndProbe);
-        declareProperty("MuonTrackKeys",m_MuonTrackKeys);
         declareProperty("forceTagAndProbe",m_forceTagAndProbe);
     }
     
@@ -177,15 +176,11 @@ namespace Analysis {
     //-------------------------------------------------------------------------------------
     // Find the candidates
     //-------------------------------------------------------------------------------------
-    StatusCode JpsiFinder::performSearch(xAOD::VertexContainer*& vxContainer, xAOD::VertexAuxContainer*& vxAuxContainer) const
+    StatusCode JpsiFinder::performSearch(const EventContext& ctx, xAOD::VertexContainer& vxContainer) const
     {
         ATH_MSG_DEBUG( "JpsiFinder::performSearch" );
-        vxContainer = new xAOD::VertexContainer;
-        vxAuxContainer = new xAOD::VertexAuxContainer;
-        vxContainer->setStore(vxAuxContainer);
-
         
-        SG::ReadHandle<xAOD::MuonContainer> muonhandle(m_muonCollectionKey);
+        SG::ReadHandle<xAOD::MuonContainer> muonhandle(m_muonCollectionKey,ctx);
         ATH_CHECK(muonhandle.isValid());
         // Get the muons from StoreGate
         const xAOD::MuonContainer* importedMuonCollection = muonhandle.cptr();
@@ -195,13 +190,12 @@ namespace Analysis {
         std::vector<const xAOD::TrackParticleContainer*> importedMuonTrackCollections;
         if (m_useCombMeasurement) {
 
-            for (const auto& strItr : m_MuonTrackKeys) {
-                SG::ReadHandle<xAOD::TrackParticleContainer> handle(strItr);
+            for (SG::ReadHandle<xAOD::TrackParticleContainer>& handle: m_MuonTrackKeys.makeHandles(ctx)) {
                 if(!handle.isValid()){
-                    ATH_MSG_WARNING("No muon TrackParticle collection with name " << strItr.key()  << " found in StoreGate!");
+                    ATH_MSG_WARNING("No muon TrackParticle collection with name " << handle.key()  << " found in StoreGate!");
                     return StatusCode::FAILURE;
                 } else {
-                    ATH_MSG_DEBUG("Found muon TrackParticle collection " << strItr.key() << " in StoreGate!");
+                    ATH_MSG_DEBUG("Found muon TrackParticle collection " << handle.key() << " in StoreGate!");
                     ATH_MSG_DEBUG("Muon TrackParticle container size "<< handle->size());
                     importedMuonTrackCollections.push_back(handle.cptr());
                 }
@@ -209,8 +203,8 @@ namespace Analysis {
         }
         
         // Get ID tracks
-        SG::ReadHandle<xAOD::TrackParticleContainer> handle(m_TrkParticleCollection);
-        const xAOD::TrackParticleContainer* importedTrackCollection(0);
+        SG::ReadHandle<xAOD::TrackParticleContainer> handle(m_TrkParticleCollection,ctx);
+        const xAOD::TrackParticleContainer* importedTrackCollection{nullptr};
         if(!handle.isValid()){
             ATH_MSG_WARNING("No TrackParticle collection with name " << handle.key() << " found in StoreGate!");
             return StatusCode::FAILURE;
@@ -225,7 +219,7 @@ namespace Analysis {
         typedef std::vector<const xAOD::Muon*> MuonBag;
         
         // Select the inner detector tracks
-        const xAOD::Vertex* vx = 0;
+        const xAOD::Vertex* vx = nullptr;
         TrackBag theIDTracksAfterSelection;
         if (m_trktrk || m_mutrk) {
             xAOD::TrackParticleContainer::const_iterator trkCItr;
@@ -359,9 +353,7 @@ namespace Analysis {
             std::vector<JpsiCandidate> selectCandidates;
             for(auto& cand : sortedJpsiCandidates){
                 double deltatheta = fabs( cand.trackParticle1->theta() - cand.trackParticle2->theta() );
-                double deltaphi = cand.trackParticle1->phi0() - cand.trackParticle2->phi0();
-                while ( fabs(deltaphi) > M_PI ) deltaphi += ( deltaphi > 0. ) ? -2.*M_PI : 2.*M_PI;
-                deltaphi = fabs(deltaphi);
+                double deltaphi = std::abs(xAOD::P4Helpers::deltaPhi(cand.trackParticle1->phi0() , cand.trackParticle2->phi0()));
                 bool reject = (deltatheta > m_collAngleTheta) || (deltaphi > m_collAnglePhi);
                 if(!reject) selectCandidates.push_back(cand);
             }
@@ -393,14 +385,14 @@ namespace Analysis {
             theTracks.clear();
             theTracks.push_back((*jpsiItr).trackParticle1);
             theTracks.push_back((*jpsiItr).trackParticle2);
-            xAOD::Vertex* myVxCandidate = fit(theTracks,importedTrackCollection); // This line actually does the fitting and object making
-            if (myVxCandidate != 0) {
+            std::unique_ptr<xAOD::Vertex> myVxCandidate {fit(theTracks,importedTrackCollection)}; // This line actually does the fitting and object making
+            if (myVxCandidate) {
                 // Chi2 cut if requested
                 double chi2 = myVxCandidate->chiSquared();
                 ATH_MSG_DEBUG("chi2 is: " << chi2);
                 if (m_Chi2Cut <= 0.0 || chi2 <= m_Chi2Cut) {             
                 	// decorate the candidate with refitted tracks and muons via the BPhysHelper
-                	xAOD::BPhysHelper jpsiHelper(myVxCandidate);
+                	xAOD::BPhysHelper jpsiHelper(myVxCandidate.get());
                 	bool validtrk = jpsiHelper.setRefTrks();
                     if(!validtrk) ATH_MSG_WARNING("Problem setting tracks " << __FILE__ << ':' << __LINE__);
                 	if (m_mumu || m_mutrk) {
@@ -411,10 +403,8 @@ namespace Analysis {
                          if(!valid) ATH_MSG_WARNING("Problem setting muons " << __FILE__ << ':' << __LINE__);
                 	}
                 	// Retain the vertex
-                    vxContainer->push_back(myVxCandidate);       
-                } else { // chi2 cut failed
-                    delete myVxCandidate;
-                }
+                    vxContainer.push_back(std::move(myVxCandidate));       
+                } 
             } else { // fit failed
                 ATH_MSG_DEBUG("Fitter failed!");
                 // Don't try to delete the object, since we arrived here,
@@ -422,7 +412,7 @@ namespace Analysis {
                 //delete myVxCandidate;
             }
         }
-        ATH_MSG_DEBUG("vxContainer size " << vxContainer->size());
+        ATH_MSG_DEBUG("vxContainer size " << vxContainer.size());
         
         return StatusCode::SUCCESS;;
     }

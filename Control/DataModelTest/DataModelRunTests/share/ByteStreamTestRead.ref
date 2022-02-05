@@ -1,64 +1,25 @@
-Wed Jun 12 01:07:06 CEST 2019
-Preloading tcmalloc_minimal.so
-Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [WorkDir-22.0.2] [x86_64-centos7-gcc8-opt] [master-testref/78663001a5b] -- built on [2019-06-12T0053]
-Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
-Py:Athena            INFO including file "AthenaCommon/Execution.py"
-Py:Athena            INFO including file "DataModelRunTests/ByteStreamTestRead_jo.py"
-Py:Athena            INFO including file "DataModelRunTests/loadReadDicts.py"
-Py:ConfigurableDb    INFO Read module info for 5480 configurables from 7 genConfDb files
-Py:ConfigurableDb    INFO No duplicates have been found: that's good !
-Py:Athena            INFO including file "AthenaCommon/runbatch.py"
-ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
-ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
-ApplicationMgr    SUCCESS 
-====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v32r0)
-                                          running on aibuild028.cern.ch on Wed Jun 12 01:07:19 2019
-====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
-ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
-StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 3269 CLIDRegistry entries for module ALL
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr
-ClassIDSvc           INFO  getRegistryEntries: read 8126 CLIDRegistry entries for module ALL
 PyComponentMgr       INFO Initializing PyComponentMgr...
 LoadReadDicts        INFO Initializing LoadReadDicts...
 ByteStreamAddre...   INFO Initializing
 ByteStreamAddre...   INFO -- Will fill Store with id =  0
 MetaDataSvc          INFO Initializing MetaDataSvc
-AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
-PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
-PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
-PoolSvc              INFO Frontier compression level set to 5
-DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-06-10T2126/Athena/22.0.2/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host aibuild028.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
-PoolSvc              INFO Successfully setup replica sorting algorithm
-PoolSvc              INFO Setting up APR FileCatalog and Streams
-PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
-DbSession            INFO     Open     DbSession    
-Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
 ToolSvc.ByteStr...   INFO Initializing
-MetaDataSvc          INFO Found MetaDataTools = PublicToolHandleArray(['IOVDbMetaDataTool','ByteStreamMetadataTool'])
-ClassIDSvc           INFO  getRegistryEntries: read 3346 CLIDRegistry entries for module ALL
 TrigSerializeCn...   INFO initialize()
-HistogramPersis...WARNING Histograms saving not required.
-EventSelector        INFO Initializing EventSelector - package version ByteStreamCnvSvc-00-00-00
 ByteStreamInputSvc   INFO Initializing
 ROBDataProviderSvc   INFO Initializing
 ROBDataProviderSvc   INFO  ---> Filter out empty ROB fragments                               =  'filterEmptyROB':False
 ROBDataProviderSvc   INFO  ---> Filter out specific ROBs by Status Code: # ROBs = 0
 ROBDataProviderSvc   INFO  ---> Filter out Sub Detector ROBs by Status Code: # Sub Detectors = 0
 EventSelector        INFO reinitialization...
+ByteStreamInputSvc   INFO Picked valid file: test.bs
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
-ByteStreamInputSvc   INFO Picked valid file: test.bs
-ClassIDSvc           INFO  getRegistryEntries: read 124 CLIDRegistry entries for module ALL
 ApplicationMgr       INFO Application Manager Started successfully
 EventPersistenc...   INFO Added successfully Conversion service:ByteStreamCnvSvc
 EventInfoByteSt...   INFO IsSimulation : 0
@@ -66,13 +27,6 @@ EventInfoByteSt...   INFO IsTestbeam : 0
 EventInfoByteSt...   INFO IsCalibration : 0
 AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #0 0 events processed so far  <<<===
-Warning in <TClass::Init>: no dictionary for class CosmicMuonCollection_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class MdtTrackSegmentCollection_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class CosmicMuonCollection_p1 is available
-Warning in <TClass::Init>: no dictionary for class CosmicMuon_p1 is available
-Warning in <TClass::Init>: no dictionary for class MdtTrackSegmentCollection_p1 is available
-Warning in <TClass::Init>: no dictionary for class MdtTrackSegment_p1 is available
-Warning in <TClass::Init>: no dictionary for class MdtTrackSegmentCollection_p2 is available
 ToolSvc.TrigSer...   INFO Initializing
 APR:DbReflex:fo...WARNING  doing GUID scan on ALL types for Class ID=EAD7484F-1F40-4344-A667-BB9C47536BE6
 APR:DbReflex:fo...WARNING  doing GUID scan on ALL types for Class ID=740C4020-F0A3-40B3-88E1-B15A8055DB64
@@ -1965,12 +1919,7 @@ xAODTestReadCVec2    INFO  anInt1 2010 aFloat: 4000.9 pInt: 10010 pFloat: 9.20
   pvFloat: [-0.390 -0.290 -0.190 -0.090 0.010 0.110 0.210 0.310 0.410 ]
 
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #0 20 events processed so far  <<<===
-Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
-IncidentProcAlg1     INFO Finalize
-LoadReadDicts        INFO Finalizing LoadReadDicts...
-IncidentProcAlg2     INFO Finalize
-PyComponentMgr       INFO Finalizing PyComponentMgr...
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
 ToolSvc.ByteStr...   INFO in finalize()

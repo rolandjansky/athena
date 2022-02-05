@@ -84,9 +84,10 @@ StatusCode TrigNavSlimmingMTAlg::execute(const EventContext& ctx) const {
   // These branches do not connect to the terminusNode, so we have to go hunting them explicitly.
   // We need to pass in the evtStore as these nodes can be spread out over numerous collections.
   // Like with the terminus node, we can restrict this search to only nodes which were rejected by certain chains.
-  // We also want to restrict the search to exclue the output collections of any other TrigNavSlimminMTAlg instances.\\s
+  // We also want to restrict the search to exclue the output collections of any other TrigNavSlimminMTAlg instances
+  // and let the function know what the primary input collecion is - from the name of this we can tell if we need to search one or many containers.
   if (m_keepFailedBranches) {
-    std::vector<const Decision*> rejectedNodes = TrigCompositeUtils::getRejectedDecisionNodes(&*evtStore(), chainIDs, m_allOutputContainersSet);
+    std::vector<const Decision*> rejectedNodes = TrigCompositeUtils::getRejectedDecisionNodes(&*evtStore(), m_primaryInputCollection.key(), chainIDs, m_allOutputContainersSet);
     for (const Decision* rejectedNode : rejectedNodes) {
       // We do *not* enfoce that a member of chainIDs must be present in the starting node (rejectedNode)
       // specifically because we know that at least one of chainIDs was _rejected_ here, but is active in the rejected

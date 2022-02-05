@@ -202,7 +202,8 @@ StatusCode LArSCSimpleMaker::execute(const EventContext& context) const
     }
     energies[i]+=add_noise;
 
-    CaloCell* ss = dataPool.nextElementPtr();
+    //CaloCell* ss = dataPool.nextElementPtr();
+    CaloCell* ss = new CaloCell();
     ss->setCaloDDE( m_sem_mgr->get_element (i));
     ss->setEnergy( energies[i] );
     uint16_t prov (0);

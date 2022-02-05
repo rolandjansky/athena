@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //Service designed to read in calibration files to the cool database. Can also read them
@@ -23,6 +23,7 @@
 #include "MuonCondData/RpcCalibDBEntry.h"
 #include "MuonCondData/RpcCalibDataContainer.h"
 #include "MuonCondSvc/RpcCoolStrSvc.h"
+#include "MuonCondSvc/MdtStringUtils.h"
 
 namespace MuonCalib {
 
@@ -66,7 +67,7 @@ namespace MuonCalib {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode RpcCoolStrSvc::putOnlineFile(const std::string filename) const {
+  StatusCode RpcCoolStrSvc::putOnlineFile(const std::string& filename) const {
 
     // for the time being let's keep this 
 
@@ -111,7 +112,7 @@ namespace MuonCalib {
   //for placing in the database. It uses putDbParameter() to actually put a parameter's values into a database.
 
 
-  StatusCode RpcCoolStrSvc::putFile(const std::string filename) const 
+  StatusCode RpcCoolStrSvc::putFile(const std::string& filename) const 
   {
     
 
@@ -130,9 +131,10 @@ namespace MuonCalib {
 
     while (getline(in, theLine)) { // Reads all lines
 
-      int delimiter=theLine.find(";");
-      Identifier gapID(atoi(theLine.substr(0,delimiter).c_str()));
-      std::string payLoad=theLine.substr(delimiter+2,theLine.size()-delimiter-2);
+      int delimiter=theLine.find(';');
+      std::string_view lineview(theLine);
+      Identifier gapID(MuonCalib::MdtStringUtils::atoi(lineview.substr(0,delimiter)));
+      std::string_view payLoad=lineview.substr(delimiter+2,theLine.size()-delimiter-2);
 
 
       const RpcCalibDBEntry* newEntry=new RpcCalibDBEntry(gapID, payLoad);
@@ -249,7 +251,7 @@ namespace MuonCalib {
     
     ATH_MSG_DEBUG("About to create AttributeListSpecification");
     
-    coral::AttributeListSpecification* aspec=0;
+    coral::AttributeListSpecification* aspec=nullptr;
     aspec=new coral::AttributeListSpecification();
     aspec->extend("recEta","string");
     aspec->extend("detEta","string");
@@ -295,7 +297,7 @@ namespace MuonCalib {
     
   }
   
-  StatusCode RpcCoolStrSvc::makeOnlineFile(const std::string fileName) const{
+  StatusCode RpcCoolStrSvc::makeOnlineFile(const std::string& fileName) const{
     
         ATH_MSG_DEBUG("Opening online mask output file "<< fileName << " for writing.");
         std::ofstream out(fileName.c_str());
@@ -335,7 +337,7 @@ namespace MuonCalib {
 
 
   /**Generate a calibration file*/
-  StatusCode RpcCoolStrSvc::makeFile(const std::string fileName) const
+  StatusCode RpcCoolStrSvc::makeFile(const std::string& fileName) const
   {
 
         ATH_MSG_DEBUG("Opening calibration output file "<< fileName << " for writing.");

@@ -24,17 +24,14 @@ class TrigBjetMonitorAlgorithm : public AthMonitorAlgorithm {
   virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
 
  private:
-  //  Gaudi::Property<bool> m_doRandom {this,"RandomHist",false}; 
   Gaudi::Property<bool> m_doRandom {this,"RandomHist",true};
-  Gaudi::Property<std::string> m_onlineBjetContainerKey {this,"OnlineBJetContainerKey","HLT_bJets",
-    "The SG key of the online BJet container from the TriggerEDMRun3"};
+  Gaudi::Property<std::string> m_btaggingLinkName{this, "BtaggingLinkName", "btag"}; // TM 2021-10-30
   //  const std::vector<std::string> m_allChains;
   std::vector<std::string> m_allChains;
   SG::ReadHandleKey<xAOD::MuonContainer> m_muonContainerKey;
   SG::ReadHandleKey<xAOD::VertexContainer> m_offlineVertexContainerKey {this,"OfflineVertexContainerName","PrimaryVertices","Key of offline primary vertexes"};
   SG::ReadHandleKey<xAOD::VertexContainer> m_onlineVertexContainerKey {this,"OnlineVertexContainerName","HLT_IDVertex_FS","Key of online bjet primary vertexes"}; // MS 290620
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_onlineTrackContainerKey {this,"OnlineTrackContainerName","HLT_IDTrack_Bjet_IDTrig","Key of online tracks of bjets"};
-  SG::ReadHandleKey<xAOD::BTaggingContainer> m_onlineBTaggingContainerKey {this,"OnlineBTaggingContainerName","HLT_BTagging","Key of online b-tagging object"};
 
   ToolHandle<Trig::TrigDecisionTool> m_trigDec; //!
 

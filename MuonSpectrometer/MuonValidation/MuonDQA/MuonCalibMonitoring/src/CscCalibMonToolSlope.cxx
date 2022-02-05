@@ -33,25 +33,25 @@ CscCalibMonToolSlope::CscCalibMonToolSlope(const std::string & type, const std::
   m_totalDeadBin(2),
   m_newLiveBin(3),
   m_newDeadBin(4),
-  m_h_numBad(NULL),
-  m_h_slopeCompareOverview(NULL),
-  m_h_interceptOverview(NULL),
-  m_h_chi2Overview(NULL),
+  m_h_numBad(nullptr),
+  m_h_slopeCompareOverview(nullptr),
+  m_h_interceptOverview(nullptr),
+  m_h_chi2Overview(nullptr),
   //m_h_peaktCompareOverview(NULL),
-  m_h_slopeMissingChans(NULL),
-  m_h_deadOverview(NULL),
-  m_slopeNewColl(NULL),
-  m_slopeOldColl(NULL),
-  m_slopeDiffColl(NULL),
-  m_peaktNewColl(NULL),
-  m_peaktOldColl(NULL),
-  m_peaktDiffColl(NULL),
-  m_interceptColl(NULL),
-  m_chi2Coll(NULL),
-  m_deadNewColl(NULL),
-  m_deadDiffColl(NULL),
-  m_slopeRatioColl(NULL),
-  m_fitResColl(NULL),
+  m_h_slopeMissingChans(nullptr),
+  m_h_deadOverview(nullptr),
+  m_slopeNewColl(nullptr),
+  m_slopeOldColl(nullptr),
+  m_slopeDiffColl(nullptr),
+  m_peaktNewColl(nullptr),
+  m_peaktOldColl(nullptr),
+  m_peaktDiffColl(nullptr),
+  m_interceptColl(nullptr),
+  m_chi2Coll(nullptr),
+  m_deadNewColl(nullptr),
+  m_deadDiffColl(nullptr),
+  m_slopeRatioColl(nullptr),
+  m_fitResColl(nullptr),
   m_expectedChamberLayer(0)
 {
   declareProperty("MaxSlopeDiff",m_slopeMaxDiff=0.5);
@@ -102,7 +102,7 @@ StatusCode CscCalibMonToolSlope::initialize()
 
   for(unsigned int hash = 0 ; hash <= m_maxHashId; hash++)
   {
-    m_fracProfs.push_back(NULL);
+    m_fracProfs.push_back(nullptr);
   }
   m_generic_path_csccalibmonitoring = "MUON_CSC_PULSER";
 
@@ -465,8 +465,8 @@ StatusCode CscCalibMonToolSlope::handleParameter(const CscCalibResultCollection*
     simpleSet.doChi2 = false;
     simpleSet.vals = &m_interceptColl->data;
     simpleSet.errors = &m_interceptColl->errors;
-    simpleSet.oldVals = NULL ;
-    simpleSet.diffs = NULL ;
+    simpleSet.oldVals = nullptr ;
+    simpleSet.diffs = nullptr ;
     simpleSet.missingBadBin = m_missingBadBin;
     simpleSet.missingChans = m_h_slopeMissingChans;
     simpleSet.expectedChannels = m_expectedHashIdsPrec;

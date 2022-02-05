@@ -13,8 +13,6 @@ include( "LArDetMgrDetDescrCnv/LArDetMgrDetDescrCnv_H8_joboptions.py" )
 if GainKey=="FREE":
   ToolSvc.LArRodDecoder.FirstSample=2
 
-ToolSvc = Service( "ToolSvc" )
-ToolSvc.LArRoI_Map.Print=FALSE
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
 MessageSvc = Service( "MessageSvc" )
 MessageSvc.OutputLevel =DEBUG

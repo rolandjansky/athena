@@ -166,7 +166,6 @@ StatusCode TileMuonReceiverDecision::execute(const EventContext &ctx) const {
     float energy_d5   = 0.0;
     float energy_d6   = 0.0;
     float energy_d5d6 = 0.0;
-    float time_d5     = 0.0;
     float time_d6     = 0.0;
     float time_d5d6   = 0.0;
 
@@ -237,7 +236,6 @@ StatusCode TileMuonReceiverDecision::execute(const EventContext &ctx) const {
           }
           if ( TMDBchan==0 || TMDBchan==1 ) { /* choose d5 cell */
             energy_d5 += energy;
-            time_d5   += time;
             ++jch5;
           }
 
@@ -273,7 +271,6 @@ StatusCode TileMuonReceiverDecision::execute(const EventContext &ctx) const {
     if (jch56>1) {
       time_d5d6 /= jch56;
       if (jch6>1) time_d6 /= jch6;
-      if (jch5>1) time_d5 /= jch5;
     }
    
     // A. Above threshold(s)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -85,8 +85,6 @@ class TileRawChannelToTTL1: public AthAlgorithm {
     double m_phase;
     int m_nSamp;
     int m_iTrig;
-
-    bool m_maskBadChannels;      //!< if true=> bad channels are masked
 
     ToolHandle<ITileBadChanTool> m_tileBadChanTool; //!< Tile Bad Channel tool
     ToolHandle<TileCondToolEmscale> m_tileToolEmscale; //!< main Tile Calibration tool

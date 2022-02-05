@@ -25,9 +25,5 @@ def ITkPixelConditionsSummaryCfg(flags, name="ITkPixelConditionsSummary", **kwar
     kwargs.setdefault("UseByteStreamFEI3", not flags.Input.isMC)
     kwargs.setdefault("UseByteStreamRD53", False) # Turned off until BS format is defined
 
-    if flags.InDet.usePixelDCS:
-        kwargs.setdefault("IsActiveStates", [ 'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED' ])
-        kwargs.setdefault("IsActiveStatus", [ 'OK', 'WARNING', 'ERROR', 'FATAL' ])
-
     acc.setPrivateTools(CompFactory.PixelConditionsSummaryTool(name=name + "Tool", **kwargs))
     return acc

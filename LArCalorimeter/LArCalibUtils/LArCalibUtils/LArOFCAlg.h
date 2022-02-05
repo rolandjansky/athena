@@ -5,8 +5,8 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef LArOFCAlgorithm_H
-#define LArOFCAlgorithm_H
+#ifndef LARCALIBUTILS_LAROFCALGORITHM_H
+#define LARCALIBUTILS_LAROFCALGORITHM_H
  
 #include <vector>
 #include <string>
@@ -23,19 +23,21 @@
 #include "LArRawConditions/LArOFCComplete.h"
 #include "LArRawConditions/LArOFCBinComplete.h"
 #include "LArRawConditions/LArShapeComplete.h"
-
+#include "LArCOOLConditions/LArDSPConfig.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 #include <Eigen/Dense>
 
 #include "tbb/blocked_range.h"
+#include <memory>
 
 class LArOnlineID_Base; 
 class CaloDetDescrManager_Base; 
-class LArDSPConfig;
+
 
 class LArOFCAlg:public AthAlgorithm {
  
@@ -51,6 +53,16 @@ private:
 
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKeySC{this,"ScCablingKey","LArOnOffIdMapSC","SG Key of SC LArOnOffIdMapping object"};
+
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+      , "CaloDetDescrManager"
+      , "CaloDetDescrManager"
+      , "SG Key for CaloDetDescrManager in the Condition Store" };
+
+  SG::ReadCondHandleKey<CaloSuperCellDetDescrManager> m_caloSuperCellMgrKey { this
+      , "CaloSuperCellDetDescrManager"
+      , "CaloSuperCellDetDescrManager"
+      , "SG Key for CaloSuperCellDetDescrManager in the Condition Store" };
 
   struct perChannelData_t {
     //Input:
@@ -122,8 +134,8 @@ private:
   unsigned int             m_nPoints;
   float                    m_addOffset;
 
-  ToolHandle<ILArAutoCorrDecoderTool> m_AutoCorrDecoder;
-  ToolHandle<ILArAutoCorrDecoderTool> m_AutoCorrDecoderV2;
+  ToolHandle<ILArAutoCorrDecoderTool> m_AutoCorrDecoder{this,"DecoderTool",{} };
+  ToolHandle<ILArAutoCorrDecoderTool> m_AutoCorrDecoderV2{this,"DecoderToolV2", {} };
 
   const CaloDetDescrManager_Base* m_calo_dd_man;
   const LArOnlineID_Base*  m_onlineID; 
@@ -151,7 +163,7 @@ private:
 
   bool                     m_readDSPConfig;
   std::string              m_DSPConfigFolder;
-  LArDSPConfig*            m_DSPConfig;
+  std::unique_ptr<LArDSPConfig>  m_DSPConfig;
 
   bool                     m_forceShift;
 

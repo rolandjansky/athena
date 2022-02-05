@@ -384,23 +384,6 @@ else:
         DetFlags.ZDC_setOff() #Default for now
     DetFlags.writeRDOPool.all_setOff()
 
-## Trigger Config
-if hasattr(runArgs,"triggerConfig"):
-    if runArgs.triggerConfig!="NONE":
-        # LVL1 Trigger Menu
-        # PJB 9/2/2009 Setup the new triggerConfig flags here
-        from TriggerJobOpts.TriggerFlags import TriggerFlags
-        triggerArg = runArgs.triggerConfig
-        #if not prefixed with LVL1: add it here
-        Args = triggerArg.split(":")
-        if Args[0] != "LVL1":
-            TriggerFlags.triggerConfig ="LVL1:"+triggerArg
-        else:
-            TriggerFlags.triggerConfig =triggerArg
-        digilog.info( 'triggerConfig argument is: %s ', TriggerFlags.triggerConfig.get_Value() )
-        from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
-        cfg = TriggerConfigGetter("HIT2RDO")
-
 #--------------------------------------------------------------
 # Go for it
 #--------------------------------------------------------------
@@ -428,9 +411,8 @@ except:
 
 include ("Digitization/Digitization.py")
 
-if hasattr(runArgs,"AMITag"):
-    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag": runArgs.AMITag})
+from PyUtils import AMITagHelper
+AMITagHelper.SetAMITag(runArgs=runArgs)
 
 #==========================================================
 # Use ZLIB for compression of all temporary outputs
@@ -439,7 +421,7 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 import AthenaPoolCnvSvc.AthenaPool  # noqa: F401
 from AthenaPoolCnvSvc import PoolAttributeHelper as pah
 Out = athenaCommonFlags.PoolRDOOutput()
-if hasattr(runArgs, "outputRDOFile") and ('_000' in runArgs.outputRDOFile or 'tmp.' in runArgs.outputRDOFile): # noqa: F821
+if hasattr(runArgs, "outputRDOFile") and (runArgs.outputRDOFile.endswith('_000') or runArgs.outputRDOFile.startswith('tmp.')): # noqa: F821
     svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setFileCompAlg( Out, 1 ) ]
     svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setFileCompLvl( Out, 1 ) ]
 

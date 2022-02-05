@@ -19,11 +19,11 @@ namespace MuonCalib {
     class RegionElement : public RegionSelectorBase {
     public:
         /**constructor*/
-        inline RegionElement() : RegionSelectorBase(), m_ml(-1) {}
-        inline RegionElement(std::string &region) : RegionSelectorBase(), m_region(region) {}
-        inline ~RegionElement() {}
+        RegionElement() = default;
+        RegionElement(const std::string &region) : RegionSelectorBase(), m_region(region) {}
+        ~RegionElement() = default;
         /** Initialize functions */
-        bool Initialize(std::string &region);
+        bool Initialize(const std::string &region);
         /** return true if in region */
         bool Result(const MuonFixedId &region) const;
         /** print region */
@@ -33,9 +33,11 @@ namespace MuonCalib {
         std::string m_region;
         //! regions
         std::set<int> m_stations;
-        std::vector<int> m_eta_start, m_eta_end;
-        std::vector<int> m_phi_start, m_phi_end;
-        int m_ml;
+        std::vector<int> m_eta_start;
+        std::vector<int> m_eta_end;
+        std::vector<int> m_phi_start;
+        std::vector<int> m_phi_end;
+        int m_ml{-1};
         //! process a astation name string
         bool process_station_name(std::string &name);
         //! process a numerical id

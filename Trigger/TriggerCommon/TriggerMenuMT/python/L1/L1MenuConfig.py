@@ -15,6 +15,7 @@ from .Base.Thresholds import TopoThreshold
 from .Base.TopoAlgorithms import AlgCategory
 from .Base.L1Menu2JSON import L1MenuJSONConverter
 from .Config.TriggerTypeDef import TT
+from .Config.TopoAlgoDefMultiplicity import TopoAlgoDefMultiplicity 
 
 """
 L1MenuConfig is responsible for building the L1 Menu
@@ -40,8 +41,8 @@ class L1MenuConfig(object):
         L1MenuFlags.MenuSetup = menuName
 
         self.menuFullName    = L1MenuFlags.MenuSetup()
-        self.menuName        = self._getMenuBaseName(self.menuFullName)
         self.menuFilesToLoad = self._menuToLoad()
+        self.menuName        = self.menuFilesToLoad[0]
         self.inputFile       = inputFile
         self.l1menuFromFile  = (self.inputFile is not None)
         self.generated       = False
@@ -125,7 +126,7 @@ class L1MenuConfig(object):
         if algo.name in self._registeredTopoAlgos[self.currentAlgoDef]:
             raise RuntimeError('%s algo %s is already registered as such' % (self.currentAlgoDef.desc, algo.name))
         self._registeredTopoAlgos[self.currentAlgoDef][algo.name] = algo
-        log.debug("Added in the %s type the algo: %s ID:%s", self.currentAlgoDef.desc, algo.name, algo.algoId)
+        log.debug("Added in the %s type the algo: %s", self.currentAlgoDef.desc, algo.name)
 
         return algo
 
@@ -227,9 +228,9 @@ class L1MenuConfig(object):
             log.error("No menu was generated, can not create json file")
             return None
 
-    def _menuToLoad(self,silent=False):
+    def _menuToLoad(self, silent=False):
         """ resolve the menu name to the menu files to load"""
-        menuToLoadReq = self.menuName
+        menuToLoadReq = self.menuFullName
         from .Menu.MenuMapping import menuMap
         if menuToLoadReq in menuMap:
             menuToLoad = menuMap[menuToLoadReq]
@@ -256,7 +257,7 @@ class L1MenuConfig(object):
         Menu.defineMenu() defines the menu via L1MenuFlags "items", "thresholds", 
         """
 
-        # we apply a hack here. menu group is working on LS2_v1, until ready we will use MC_pp_v8
+        # we apply a hack here. menu group is working on Dev_pp_run3_v1, until ready we will use MC_pp_run3_v1
         log.info("Reading TriggerMenuMT.Menu.Menu_%s", self.menuFilesToLoad[0])
         menumodule = __import__('TriggerMenuMT.L1.Menu.Menu_%s' % self.menuFilesToLoad[0], globals(), locals(), ['defineMenu'], 0)
         menumodule.defineMenu()
@@ -453,9 +454,13 @@ class L1MenuConfig(object):
                 fpgaNames = []
                 if connDef["format"] == 'multiplicity':
                     for thrName in connDef["thresholds"]:
+                        if thrName is None:
+                            continue
                         nBits = connDef["nbitsDefault"]
                         if type(thrName)==tuple:
                             (thrName,nBits) = thrName
+                        if thrName is None:
+                            continue                        
                         algoname = "Mult_" + thrName
                         algoNames += [ algoname ]
                         algoNbits += [ int(nBits) ]
@@ -485,8 +490,6 @@ class L1MenuConfig(object):
         for cat in allRequiredSortedInputs:
             for input in allRequiredSortedInputs[cat]:
                 searchCat = cat
-                if cat == AlgCategory.MUCTPI: 
-                    searchCat = AlgCategory.TOPO
                 sortingAlgo = self._getSortingAlgoThatProvides(input, searchCat)
                 self.l1menu.addTopoAlgo( sortingAlgo, category = cat )
 
@@ -523,7 +526,7 @@ class L1MenuConfig(object):
                 for thrName in connDef["thresholds"]:
                     if type(thrName) == tuple:
                         (thrName, _) = thrName
-                    if thrName is None or thrName in self.l1menu.thresholds:
+                    if (thrName is None) or (thrName in self.l1menu.thresholds):
                         continue
                     threshold = self.getDefinedThreshold(thrName)
                     if threshold is None:
@@ -678,10 +681,28 @@ class L1MenuConfig(object):
 
         self.l1menu.check()
 
+        # check that no L1 items are defined with BGRP0 only
+        self.l1menu.checkBGRP()
+
         # check that only the minimal set of legacy and detector thresholds is used
-        self.l1menu.checkLegacyThresholds()   
+        if 'pp' in self.l1menu.menuName:
+           self.l1menu.checkLegacyThresholds()   
 
+        # check for the topo multiplicity algorithms and CTP inputs
+        # TOPO1
+        TopoAlgoDefMultiplicity.checkMultAlgoFWconstraints(self.l1menu)
 
+        # check #number of CTP inputs and outputs <=512
+        self.l1menu.checkCountCTPInputsOutput()
+
+        # check #number of inputs on the CTPIN connectors
+        self.l1menu.checkCTPINconnectors()
+
+        # check that performance thresholds are not used in the physics L1 menu
+        self.l1menu.checkPerfThresholds()
+
+        # check that the minimum thresholds of the TOBs sent to TOPO are below the min thresholds used in menu (ATR-15450)
+        self.l1menu.checkPtMinToTopo()
 
     def mapThresholds(self):
         """
@@ -722,7 +743,6 @@ class L1MenuConfig(object):
     def configureCTP(self):
         self.l1menu.ctp.addMonCounters()
 
-
     # remove prescale suffixes
     def _getMenuBaseName(self, menuName):
         pattern = re.compile(r'_v\d+|DC14')
@@ -731,5 +751,5 @@ class L1MenuConfig(object):
             menuName=menuName[:patternPos.end()]
         else:
             log.info('Can\'t find pattern to shorten menu name, either non-existent in name or not implemented.')
-        return menuName         
+        return menuName
 

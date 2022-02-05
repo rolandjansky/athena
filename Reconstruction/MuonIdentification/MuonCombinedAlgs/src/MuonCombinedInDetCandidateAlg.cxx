@@ -4,11 +4,12 @@
 
 #include "MuonCombinedInDetCandidateAlg.h"
 
+#include "MuonDetDescrUtils/MuonSectorMapping.h"
 #include "MuonLayerEvent/MuonSystemExtension.h"
 #include "xAODTruth/TruthParticleContainer.h"
+#include "xAODTruth/xAODTruthHelpers.h"
 
 using namespace MuonCombined;
-
 MuonCombinedInDetCandidateAlg::MuonCombinedInDetCandidateAlg(const std::string& name, ISvcLocator* pSvcLocator) :
     AthReentrantAlgorithm(name, pSvcLocator) {}
 
@@ -16,108 +17,121 @@ StatusCode MuonCombinedInDetCandidateAlg::initialize() {
     ATH_CHECK(m_trackSelector.retrieve(DisableTool{m_trackSelector.empty()}));
     ATH_CHECK(m_muonSystemExtensionTool.retrieve());
     ATH_CHECK(m_indetTrackParticleLocation.initialize());
+    ATH_CHECK(m_caloExtensionLocation.initialize());
     ATH_CHECK(m_indetForwardTrackParticleLocation.initialize(m_doSiliconForwardMuons));
+    ATH_CHECK(m_caloFwdExtensionLocation.initialize(m_doSiliconForwardMuons && !m_caloFwdExtensionLocation.empty()));
     ATH_CHECK(m_candidateCollectionName.initialize());
     ATH_CHECK(m_forwardTrackSelector.retrieve(DisableTool{!m_doSiliconForwardMuons}));
+    ATH_MSG_INFO("Successfully initialized using the following configuration --  SAF: "<<(m_doSiliconForwardMuons? "si":"no")<<", "
+                << "MS extension bulk: "<<(m_extendBulk ? "si" : "no")
+                <<", MS extension SAF: "<<( m_doSiliconForwardMuons && m_extendSAF ? "si" : "no")
+                <<", Require MS estension: "<<( m_requireExtension? "si" : "no")<<" min pT for extension "<<m_extThreshold);
     return StatusCode::SUCCESS;
 }
 
 StatusCode MuonCombinedInDetCandidateAlg::execute(const EventContext& ctx) const {
-    auto collection = std::make_unique<InDetCandidateCollection>(SG::OWN_ELEMENTS);
-
-    for (const auto& location : m_indetTrackParticleLocation) {
-        if (create(ctx, m_trackSelector, location, collection).isFailure()) {
-            ATH_MSG_FATAL("Could not create InDetCandidateCollection");
+    InDetCandidateCache output_cache{};
+    unsigned int counter{0};  
+    for (SG::ReadHandle<xAOD::TrackParticleContainer>& readHandle : m_indetTrackParticleLocation.makeHandles(ctx)) {
+        if (!readHandle.isValid()) {
+            ATH_MSG_FATAL("Failed to retrieve " << readHandle.key());
             return StatusCode::FAILURE;
         }
+        output_cache.inDetContainer = readHandle.cptr();
+        output_cache.trackSelector = !m_trackSelector.empty() ? m_trackSelector.get() : nullptr;
+        if (counter < m_caloExtensionLocation.size()){
+            SG::ReadHandle<CaloExtensionCollection> caloExtension{m_caloExtensionLocation[counter], ctx};
+            if (!caloExtension.isValid()) {
+                ATH_MSG_FATAL("Failed to retrieve "<<m_caloExtensionLocation[counter].fullKey() );
+                return StatusCode::FAILURE;
+            }
+            output_cache.extensionContainer = caloExtension.cptr();
+        } else output_cache.extensionContainer = nullptr;
+        ++counter;
+        ATH_CHECK(create(ctx, output_cache));
     }
     if (m_doSiliconForwardMuons) {
-        if (create(ctx, m_forwardTrackSelector, m_indetForwardTrackParticleLocation, collection, true).isFailure()) {
-            ATH_MSG_FATAL("Could not create InDetForwardCandidateCollection");
+        SG::ReadHandle<xAOD::TrackParticleContainer> readHandle{m_indetForwardTrackParticleLocation, ctx};
+        if (!readHandle.isValid()) {
+            ATH_MSG_FATAL("Failed to retrieve " << readHandle.key());
             return StatusCode::FAILURE;
         }
+        if (!m_caloFwdExtensionLocation.empty()) {
+            SG::ReadHandle<CaloExtensionCollection> caloExtension{m_caloFwdExtensionLocation, ctx};
+            if (!caloExtension.isValid()) {
+                ATH_MSG_FATAL("Failed to retrieve "<<m_caloFwdExtensionLocation.fullKey());
+                return StatusCode::FAILURE;
+            }
+            output_cache.extensionContainer = caloExtension.cptr();
+        } else output_cache.extensionContainer = nullptr;
+
+        output_cache.inDetContainer = readHandle.cptr();
+        output_cache.trackSelector = !m_forwardTrackSelector.empty() ? m_forwardTrackSelector.get() : nullptr;
+        output_cache.flagAsSAF = true;
+        ATH_CHECK(create(ctx, output_cache));
     }
+
     SG::WriteHandle<InDetCandidateCollection> indetCandidateCollection(m_candidateCollectionName, ctx);
-    ATH_CHECK(indetCandidateCollection.record(std::move(collection)));
+    ATH_CHECK(indetCandidateCollection.record(std::move(output_cache.outputContainer)));
 
     return StatusCode::SUCCESS;
 }
 
-StatusCode MuonCombinedInDetCandidateAlg::create(const EventContext& ctx, const ToolHandle<Trk::ITrackSelectorTool>& currentTrackSelector,
-                                                 const SG::ReadHandleKey<xAOD::TrackParticleContainer>& location,
-                                                 std::unique_ptr<InDetCandidateCollection>& collection,
-                                                 bool flagCandidateAsSiAssociate) const {
-    SG::ReadHandle<xAOD::TrackParticleContainer> indetTrackParticles(location, ctx);
-    if (!indetTrackParticles.isValid()) {
-        ATH_MSG_ERROR("Could not read " << location);
-        return StatusCode::FAILURE;
-    }
-    std::unique_ptr<InDetCandidateCollection> tempCandidates = std::make_unique<InDetCandidateCollection>(SG::VIEW_ELEMENTS);
-    create(currentTrackSelector, *indetTrackParticles, *tempCandidates, flagCandidateAsSiAssociate);
-    collection->insert(collection->end(), tempCandidates->begin(), tempCandidates->end());
-    return StatusCode::SUCCESS;
-}
+StatusCode MuonCombinedInDetCandidateAlg::create(const EventContext& ctx, InDetCandidateCache& output_cache) const {
+    ATH_MSG_DEBUG("Producing InDetCandidates for " << output_cache.inDetContainer->size());
+    for (const xAOD::TrackParticle* tp : *output_cache.inDetContainer) {
+        if (!isValidTrackParticle(output_cache.trackSelector, tp)) continue;
 
-void MuonCombinedInDetCandidateAlg::create(const ToolHandle<Trk::ITrackSelectorTool>& currentTrackSelector,
-                                           const xAOD::TrackParticleContainer& indetTrackParticles,
-                                           InDetCandidateCollection& outputContainer, bool flagCandidateAsSiAssociated) const {
-    ATH_MSG_DEBUG("Producing InDetCandidates for " << indetTrackParticles.size());
-    unsigned int ntracks = 0;
-    int trackIndex = -1;
-
-    for (const auto * tp : indetTrackParticles) {
-        ++trackIndex;
-        if (!currentTrackSelector.empty()) {
-            if (!isValidTrackParticle(currentTrackSelector, tp)) continue;
-        }
-
-        ElementLink<xAOD::TrackParticleContainer> link(indetTrackParticles, trackIndex);
+        ElementLink<xAOD::TrackParticleContainer> link(*output_cache.inDetContainer, tp->index());
         if (!link.isValid()) {
             ATH_MSG_WARNING("Bad element link ");
-        } else {
-            if (*link != tp) {
-                ATH_MSG_WARNING("Dereferenced Link not equal to TrackParticle, skipping track ");
-                continue;
-            }
+            continue;
+        } else if (*link != tp) {
+            ATH_MSG_WARNING("Dereferenced Link not equal to TrackParticle, skipping track ");
+            continue;
         }
         link.toPersistent();
         printTrackParticleInfo(tp, "Creating");
 
-        if (msgLvl(MSG::VERBOSE) && tp->isAvailable<ElementLink<xAOD::TruthParticleContainer> >("truthParticleLink")) {
-            ElementLink<xAOD::TruthParticleContainer> truthLink =
-                tp->auxdata<ElementLink<xAOD::TruthParticleContainer> >("truthParticleLink");
-            if (truthLink.isValid()) {
-                ATH_MSG_VERBOSE("  Truth particle: pdgId " << (*truthLink)->pdgId() << " type " << tp->auxdata<int>("truthType")
-                                                           << " origin " << tp->auxdata<int>("truthOrigin") << " pt " << (*truthLink)->pt()
-                                                           << " eta " << (*truthLink)->eta() << " phi " << (*truthLink)->phi());
+        if (msgLvl(MSG::VERBOSE)) {
+            const xAOD::TruthParticle* truth_part = xAOD::TruthHelpers::getTruthParticle(*tp);
+            if (truth_part) {
+                ATH_MSG_VERBOSE("  Truth particle: pdgId " << truth_part->pdgId() << " type " << tp->auxdata<int>("truthType")
+                                                           << " origin " << tp->auxdata<int>("truthOrigin") << " pt " << truth_part->pt()
+                                                           << " eta " << truth_part->eta() << " phi " << truth_part->phi());
             }
         }
-        InDetCandidate* candidate = new InDetCandidate(link);
-        if (flagCandidateAsSiAssociated)
-            candidate->setSiliconAssociated(true);  // Si-associated candidates don't need these
-        else if (tp->pt() > m_extThreshold) {       // MuGirl only operates on ID tracks with pt at least this high
-            const Muon::MuonSystemExtension* muonSystemExtension = nullptr;
-            m_muonSystemExtensionTool->muonSystemExtension(candidate->indetTrackParticle(), muonSystemExtension);
-            candidate->setExtension(muonSystemExtension);
-        }
-        ++ntracks;
-        outputContainer.push_back(candidate);
+        Muon::IMuonSystemExtensionTool::SystemExtensionCache cache;
+        cache.extensionContainer = output_cache.extensionContainer;
+        cache.candidate = std::make_unique<InDetCandidate>(link);
+        cache.candidate->setSiliconAssociated(output_cache.flagAsSAF);  // Si-associated candidates don't need these
+        cache.useHitSectors = false;
+        /// MuGirl only operates on ID tracks with pt at least this high   
+        cache.createSystemExtension = (tp->pt() >= m_extThreshold) && 
+                                      ( (m_extendSAF && cache.candidate->isSiliconAssociated()) ||
+                                        (m_extendBulk && !cache.candidate->isSiliconAssociated()));
+        cache.requireSystemExtension = m_requireExtension;   
+        if (!m_muonSystemExtensionTool->muonSystemExtension(ctx, cache)) continue;
+        output_cache.outputContainer->push_back(std::move(cache.candidate));
     }
-    ATH_MSG_DEBUG("InDetCandidates selected " << ntracks);
+    ATH_MSG_DEBUG("InDetCandidates selected " << output_cache.outputContainer->size());
+    return StatusCode::SUCCESS;
 }
 
-bool MuonCombinedInDetCandidateAlg::isValidTrackParticle(const ToolHandle<Trk::ITrackSelectorTool>& currentTrackSelector,
+bool MuonCombinedInDetCandidateAlg::isValidTrackParticle(const Trk::ITrackSelectorTool* currentTrackSelector,
                                                          const xAOD::TrackParticle* const tp) const {
     if (!tp->perigeeParameters().covariance()) {
         ATH_MSG_WARNING("InDet TrackParticle without perigee! ");
         return false;
     }
-
-    if (!currentTrackSelector->decision(*tp)) {
+    if (!tp->track()) {
+        ATH_MSG_WARNING("The track particle has not an associated track");
+        return false;
+    }
+    if (currentTrackSelector && !currentTrackSelector->decision(*tp)) {
         if (msgLvl(MSG::VERBOSE) && tp->pt() > 5000.) printTrackParticleInfo(tp, "Discarding");
         return false;
     }
-
     return true;
 }
 
@@ -128,7 +142,7 @@ void MuonCombinedInDetCandidateAlg::printTrackParticleInfo(const xAOD::TrackPart
 }
 
 int MuonCombinedInDetCandidateAlg::getCount(const xAOD::TrackParticle& tp, xAOD::SummaryType type) const {
-    uint8_t val;
+    uint8_t val{0};
     if (!tp.summaryValue(val, type)) return 0;
     return static_cast<int>(val);
 }

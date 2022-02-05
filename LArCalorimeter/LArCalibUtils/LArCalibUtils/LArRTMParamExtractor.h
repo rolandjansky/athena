@@ -24,11 +24,14 @@
 #include <atomic> 
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "tbb/blocked_range.h"
 #include "LArRawConditions/LArWFParams.h"
+#include "LArCalibUtils/LArWFParamTool.h" 
+#include "LArRawConditions/LArCaliWave.h"
+#include <memory>
 
-class LArCaliWave;
 class LArWFParamTool;
 
 class LArRTMParamExtractor : public AthAlgorithm
@@ -48,6 +51,9 @@ class LArRTMParamExtractor : public AthAlgorithm
  private:
 
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKeySC{this,"ScCablingKey","LArOnOffIdMapSC","SG Key of SC LArOnOffIdMapping object"};
+
+  ToolHandle<LArWFParamTool> m_larWFParamTool{this,"LArWFParamTool","LArWFParamTool"};
 
   std::vector<std::string> m_keylist;
   bool m_isSC;
@@ -72,11 +78,9 @@ class LArRTMParamExtractor : public AthAlgorithm
   std::string m_groupingType;
 
   // FT selection
-  bool m_FTselection;
   std::vector<int> m_FT;
   int m_PosNeg;
   // Slot selection
-  bool m_Slotselection;
   std::vector<int> m_Slot;
   // Calib line selection
   bool m_Calibselection;
@@ -90,17 +94,14 @@ class LArRTMParamExtractor : public AthAlgorithm
 
   class helperParams {
   public:
-    helperParams(const LArCaliWave* cw,
-		 LArCaliWave* os, LArCaliWave* rO0, LArCaliWave* rO1,
-		 const HWIdentifier id, const unsigned g) : 
-      caliWave(cw), omegaScan(os), resOscill0(rO0), resOscill1(rO1),
-      chid(id),gain(g) {};
+    helperParams(const LArCaliWave* cw, const HWIdentifier id, const unsigned g) : 
+      caliWave(cw), chid(id),gain(g) {};
 
-    const LArCaliWave* caliWave;  //Input object
-    LArCaliWave* omegaScan;       //optional output object
-    LArCaliWave* resOscill0;	  //optional output object		
-    LArCaliWave* resOscill1;      //optional output object
-    LArWFParams wfParams;         //Outut object
+    const LArCaliWave* caliWave;                  //Input object
+    std::optional<LArCaliWave> omegaScan;       //optional output object
+    std::optional<LArCaliWave> resOscill0;	  //optional output object		
+    std::optional<LArCaliWave> resOscill1;      //optional output object
+    LArWFParams wfParams;                         //Outut object
     HWIdentifier chid;
     unsigned gain;
     bool success=true;

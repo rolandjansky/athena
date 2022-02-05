@@ -3,8 +3,8 @@
 */
 
 #include "egammaRecBuilder.h"
+
 #include "AthenaKernel/errorcheck.h"
-#include "GaudiKernel/IToolSvc.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 
@@ -28,9 +28,9 @@ StatusCode
 egammaRecBuilder::initialize()
 {
   // First the data handle keys
-  ATH_CHECK(m_inputTopoClusterContainerKey.initialize());
+  ATH_CHECK(m_inputClusterContainerKey.initialize());
   ATH_CHECK(m_egammaRecContainerKey.initialize());
-
+  ATH_CHECK(m_trackMatchedEgammaRecs.initialize(m_doTrackMatchedView));
   // retrieve track match builder
   CHECK(RetrieveEMTrackMatchBuilder());
   // retrieve conversion builder
@@ -85,40 +85,62 @@ egammaRecBuilder::execute(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG("Executing egammaRecBuilder");
 
-  SG::ReadHandle<xAOD::CaloClusterContainer> topoclusters(
-    m_inputTopoClusterContainerKey, ctx);
+  SG::ReadHandle<xAOD::CaloClusterContainer> clusters(
+    m_inputClusterContainerKey, ctx);
 
   // validity check is only really needed for serial running. Remove when MT is
   // only way.
-  if (!topoclusters.isValid()) {
+  if (!clusters.isValid()) {
     ATH_MSG_ERROR("Could not retrieve cluster container:"
-                  << m_inputTopoClusterContainerKey.key());
+                  << m_inputClusterContainerKey.key());
     return StatusCode::FAILURE;
   }
 
-  // Build the initial egamma Rec objects for all copied Topo Clusters
   SG::WriteHandle<EgammaRecContainer> egammaRecs(m_egammaRecContainerKey, ctx);
   ATH_CHECK(egammaRecs.record(std::make_unique<EgammaRecContainer>()));
-  const size_t nTopo = topoclusters->size();
-  egammaRecs->reserve(nTopo);
-  for (size_t i = 0; i < nTopo; ++i) {
-    const ElementLink<xAOD::CaloClusterContainer> clusterLink(*topoclusters, i, ctx);
-    const std::vector<ElementLink<xAOD::CaloClusterContainer>> clusterLinkVector {
-      clusterLink
-    };
+
+  // one egamma Rec objects per cluster
+  const size_t nClusters = clusters->size();
+  egammaRecs->reserve(nClusters);
+  for (size_t i = 0; i < nClusters; ++i) {
+    const ElementLink<xAOD::CaloClusterContainer> clusterLink(
+      *clusters, i, ctx);
+    const std::vector<ElementLink<xAOD::CaloClusterContainer>>
+      clusterLinkVector{ clusterLink };
     auto egRec = std::make_unique<egammaRec>();
     egRec->setCaloClusters(clusterLinkVector);
     egammaRecs->push_back(std::move(egRec));
   }
-  // Append track Matching information
+
+  // Append track Matching information if requested
   if (m_doTrackMatching) {
     ATH_CHECK(m_trackMatchBuilder->executeRec(ctx, egammaRecs.ptr()));
   }
-  // Append conversion matching information
+
+  // Append conversion matching information if requested
   if (m_doConversions) {
     for (auto egRec : *egammaRecs) {
       ATH_CHECK(m_conversionBuilder->executeRec(ctx, egRec));
     }
   }
+
+  // create a view of the track matched egRecs if requested
+  if (m_doTrackMatchedView) {
+    SG::WriteHandle<ConstDataVector<EgammaRecContainer>> trackMatchedEgammaRecs(
+      m_trackMatchedEgammaRecs, ctx);
+
+    auto viewCopy =
+      std::make_unique<ConstDataVector<EgammaRecContainer>>(SG::VIEW_ELEMENTS);
+
+    if (m_doTrackMatching) {
+      for (const egammaRec* eg : *egammaRecs) {
+        if (eg->getNumberOfTrackParticles() > 0) {
+          viewCopy->push_back(eg);
+        }
+      }
+    }
+    ATH_CHECK(trackMatchedEgammaRecs.record(std::move(viewCopy)));
+  }
+
   return StatusCode::SUCCESS;
 }

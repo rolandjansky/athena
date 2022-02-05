@@ -115,8 +115,10 @@ if not 'InputDirectory' in dir():
             Year = 2018
         elif RunNumber < 374260:
             Year = 2019
-        else:
+        elif RunNumber < 387000:
             Year = 2020
+        else:
+            Year = 2021
 
 
         if 'RunStream' in dir():
@@ -240,6 +242,18 @@ if not 'TileL1CaloRun' in dir():
 TileLasPulse = TileLasRun
 TileCisPulse = (TileCisRun or TileMonoRun or TileRampRun or TileL1CaloRun)
 
+if not 'EventNumber' in dir():
+    EventNumber = -1
+
+if not 'BCID' in dir():
+    BCID = -1
+
+if not 'TriggerType' in dir():
+    TriggerType = -1
+
+if not 'Level1ID' in dir():
+    Level1ID = -1
+
 #=============================================================
 #=== init Det Descr
 #=============================================================
@@ -337,6 +351,10 @@ if not 'noDump' in dir():
     else:
         theTileTBDump.dumpOnce = True
     theTileTBDump.dumpUnknown = False
+    theTileTBDump.global_id = EventNumber
+    theTileTBDump.bc_id = BCID
+    theTileTBDump.lvl1_id = Level1ID
+    theTileTBDump.lvl1_trigger_type = TriggerType
 
 svcMgr.EventSelector.OutputLevel = 2
 svcMgr.ByteStreamInputSvc.OutputLevel = 3

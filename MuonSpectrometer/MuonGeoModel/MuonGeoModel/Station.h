@@ -28,6 +28,7 @@
 */
 
 namespace MuonGM {
+    class MYSQL;
 
     typedef std::map<int, Position, std::less<int>> PositionMap;
     typedef std::multimap<int, AlignPos, std::less<int>> AlignPosMap;
@@ -38,8 +39,9 @@ namespace MuonGM {
       public:
         Station();
         ~Station();
-        Station(const Station &s);
-        Station(std::string name);
+        Station(const Station &s) = delete;
+        Station& operator= (const Station &s) = delete;
+        Station(MYSQL& mysql, std::string name);
         void SetComponent(Component *c);
         void SetCutout(Cutout *c);
         Component *GetComponent(int i) const;
@@ -59,41 +61,42 @@ namespace MuonGM {
         AlignPosIterator getFirstAlignPosInRange(int iz, int iphi, AlignPosIterator &lastAlignPosInRange) const;
         int Npositions() const;
 
-        GeoTrf::Transform3D native_to_tsz_frame(const Position &p) const;
-        GeoTrf::Transform3D tsz_to_native_frame(const Position &p) const;
-        GeoTrf::Transform3D tsz_to_global_frame(const Position &p) const;
-        GeoTrf::Transform3D global_to_tsz_frame(const Position &p) const;
-        GeoTrf::Transform3D getNominalTransform(const Position &p) const;
-        GeoTrf::Transform3D getDeltaTransform_tszFrame(const AlignPos &ap) const;
-        GeoTrf::Transform3D getDeltaTransform(const AlignPos &ap, const Position &p) const;
-        GeoTrf::Transform3D getAlignedTransform(const AlignPos &ap, const Position &p) const;
+        GeoTrf::Transform3D native_to_tsz_frame(const MYSQL& mysql, const Position &p) const;
+        GeoTrf::Transform3D tsz_to_native_frame(const MYSQL& mysql, const Position &p) const;
+        GeoTrf::Transform3D tsz_to_global_frame(const MYSQL& mysql, const Position &p) const;
+        GeoTrf::Transform3D global_to_tsz_frame(const MYSQL& mysql, const Position &p) const;
+        GeoTrf::Transform3D getNominalTransform(const MYSQL& mysql, const Position &p) const;
+        GeoTrf::Transform3D getDeltaTransform_tszFrame(const MYSQL& mysql, const AlignPos &ap) const;
+        GeoTrf::Transform3D getDeltaTransform(const MYSQL& mysql,
+                                              const AlignPos &ap, const Position &p) const;
+        GeoTrf::Transform3D getAlignedTransform(const MYSQL& mysql,
+                                                const AlignPos &ap, const Position &p) const;
 
         friend std::ostream &operator<<(std::ostream &os, const Station &s);
         std::string GetName() const;
-        double GetThickness() const;
+        double GetThickness(const MYSQL& mysql) const;
         double GetExtraBottomThickness() const;
         double GetExtraTopThickness() const;
         double GetLength() const;
         double GetWidth1() const;
         double GetWidth2() const;
         double getAmdbOrigine_along_length() const;
-        double getAmdbOrigine_along_thickness() const;
+        double getAmdbOrigine_along_thickness(const MYSQL& mysql) const;
         bool hasMdts() const { return m_hasMdts; }
         void setHasMdts(bool x) { m_hasMdts = x; }
 
-        double mdtHalfPitch() const;
+        double mdtHalfPitch(const MYSQL& mysql) const;
 
       private:
         double getYMin() const;
-        mutable std::atomic<double> m_amdbOrigine_along_length ATLAS_THREAD_SAFE;
-        mutable std::atomic<double> m_amdbOrigine_along_thickness ATLAS_THREAD_SAFE;
+        mutable std::atomic<double> m_amdbOrigine_along_length;
+        mutable std::atomic<double> m_amdbOrigine_along_thickness;
         std::string m_name;
         bool m_hasMdts;
         std::vector<Component *> m_components;
         std::vector<Cutout *> m_cutouts;
         PositionMap m_positions;
         AlignPosMap m_alignpositions;
-        Station &operator=(const Station &right);
     }; // class Station
 
 } // namespace MuonGM

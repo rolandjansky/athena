@@ -32,6 +32,7 @@ namespace {
     if (!f(tp)) return false;
     if (!tp->hasDecayVtx()) return false;
     for (unsigned int i = 0; i < tp->decayVtx()->nOutgoingParticles(); ++i) {
+      if (tp->decayVtx()->outgoingParticle(i)==nullptr) continue;
       if (f(tp->decayVtx()->outgoingParticle(i))) return false;
     }
     return true;
@@ -42,6 +43,7 @@ namespace {
     if (!f(tp)) return false;
     if (!tp->hasProdVtx()) return false;
     for (unsigned int i = 0; i < tp->prodVtx()->nIncomingParticles(); ++i) {
+      if (tp->prodVtx()->incomingParticle(i)==nullptr) continue;
       if (f(tp->prodVtx()->incomingParticle(i))) return false;
     }
     return true;
@@ -51,6 +53,9 @@ namespace {
 
 bool CopyFlavorLabelTruthParticles::classify(const xAOD::TruthParticle* tp) const {
   // Cut on particle type
+  if (tp == nullptr){
+    return false;
+  }
   if (m_ptype == "BHadronsFinal") {
     //ATH_MSG_DEBUG("Selecting in BHadronsFinal mode");
     return isFinalWith(tp, isBHadron);

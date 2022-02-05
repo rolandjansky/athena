@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondSvc/CSCCondSummarySvc.h"
@@ -84,7 +84,7 @@ bool CSCCondSummarySvc::isGoodWireLayer(const Identifier & Id) const{
   if (not m_noReports){
     ServiceHandleArray<ICSCConditionsSvc>::const_iterator svc= m_reportingServices.begin();
     ServiceHandleArray<ICSCConditionsSvc>::const_iterator lastSvc= m_reportingServices.end();
-    for (;svc not_eq  lastSvc;svc++){
+    for (;svc not_eq  lastSvc;++svc){
       if ((*svc)->deadStationsId().size()!=0) {
 	bool found = std::binary_search((*svc)->deadStationsId().begin(),(*svc)->deadStationsId().end(),ChamberId,Compare);
 	if(found) result= false;
@@ -126,7 +126,7 @@ bool CSCCondSummarySvc::isGoodChamber(const Identifier & Id) const{
   int counter =0;
    ServiceHandleArray<ICSCConditionsSvc>::const_iterator svc= m_reportingServices.begin();
     ServiceHandleArray<ICSCConditionsSvc>::const_iterator lastSvc= m_reportingServices.end();
-    for (;svc not_eq  lastSvc;svc++){
+    for (;svc not_eq  lastSvc;++svc){
       ATH_MSG_WARNING(" Dead Stations from the service , size= "<<(*svc)->deadStationsId().size());
       if ((*svc)->deadStationsId().size()!=0){
 

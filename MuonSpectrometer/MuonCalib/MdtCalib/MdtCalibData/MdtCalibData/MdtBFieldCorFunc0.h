@@ -9,22 +9,16 @@
 
 namespace MuonCalib {
 
-  /** implementation of a b-field correction function */
+    /** implementation of a b-field correction function */
 
-class MdtBFieldCorFunc0 : public IMdtBFieldCorFunc{
- public:
-  explicit MdtBFieldCorFunc0( const CalibFunc::ParVec& vec ) : IMdtBFieldCorFunc(vec) {};
-  virtual std::string name() const {
-    return "MdtBFieldCorFunc0"; 
-  }
-  static unsigned int nUsedPar() { 
-    return 0; 
-  }
-  virtual double correction(double /*t*/, double /*Bpar*/, double /*Bperp*/) const { 
-    return 0.0; 
-  }
-};
+    class MdtBFieldCorFunc0 : public IMdtBFieldCorFunc {
+    public:
+        explicit MdtBFieldCorFunc0(const CalibFunc::ParVec& vec) : IMdtBFieldCorFunc(vec){};
+        virtual std::string name() const { return "MdtBFieldCorFunc0"; }
+        static unsigned int nUsedPar() { return 0; }
+        virtual double correction(double /*t*/, double /*Bpar*/, double /*Bperp*/) const { return 0.0; }
+    };
 
-}  //namespace MuonCalib
+}  // namespace MuonCalib
 
 #endif

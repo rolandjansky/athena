@@ -16,6 +16,9 @@ def getStreamHITS_ItemList(ConfigFlags):
                 "xAOD::TruthParticleContainer#TruthPileupParticles",
                 "xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux."]
 
+    #PLR
+    if ConfigFlags.Detector.EnablePLR:
+        ItemList += ["SiHitCollection#PLRHits"]
     #BCM
     if ConfigFlags.Detector.EnableBCM:
         ItemList += ["SiHitCollection#BCMHits"]

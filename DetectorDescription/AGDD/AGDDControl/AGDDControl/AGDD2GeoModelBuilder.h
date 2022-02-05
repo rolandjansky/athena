@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AGDD2GeoModelBuilder_H
@@ -28,48 +28,66 @@ class AGDDBolt;
 class AGDDIbeam;
 class AGDDUbeam;
 
+class AGDDDetectorStore;
+class AGDDVolumeStore;
+class AGDDSectionStore;
+class AliasStore;
+class AGDDMaterialStore;
+
 
 #include <string>
 
 class AGDD2GeoModelBuilder:public AGDDBuilder {
 public:
 	// constructor
-	AGDD2GeoModelBuilder();
+	AGDD2GeoModelBuilder(AGDDDetectorStore& ds,
+                             AGDDVolumeStore& vs,
+                             AGDDSectionStore& ss,
+                             AliasStore& as,
+                             AGDDMaterialStore& ms);
 	~AGDD2GeoModelBuilder()=default;
 	// elements & materials 
 	GeoElement* CreateElement(const std::string&);
 	const GeoMaterial* CreateMaterial(const std::string&);
-	void CreateElements();
-	void CreateMaterial();
+	virtual void CreateElements() override;
+	virtual void CreateMaterial() override;
 		
-	void CreateBox(AGDDBox*);
-	void CreateTrd(AGDDTrd*);
-	void CreateTubs(AGDDTubs*);
-	void CreateElcyl(AGDDElcyl*);
-	void CreateCons(AGDDCons*);
-	void CreatePcon(AGDDPcon*);
-	void CreatePgon(AGDDPgon*);
-	void CreateGvxy(AGDDGvxy*);
-	void CreateSnake(AGDDSnake*);
-	void CreateUnion(AGDDUnion*);
-	void CreateIntersection(AGDDIntersection*);
-	void CreateSubtraction(AGDDSubtraction*);
+	virtual void CreateBox(AGDDBox*) const override;
+	virtual void CreateTrd(AGDDTrd*) const override;
+	virtual void CreateTubs(AGDDTubs*) const override;
+	virtual void CreateElcyl(AGDDElcyl*) const override;
+	virtual void CreateCons(AGDDCons*) const override;
+	virtual void CreatePcon(AGDDPcon*) const override;
+	virtual void CreatePgon(AGDDPgon*) const override;
+	virtual void CreateGvxy(AGDDGvxy*) const override;
+	virtual void CreateSnake(AGDDSnake*) const override;
+	virtual void CreateUnion(AGDDUnion*) const override;
+	virtual void CreateIntersection(AGDDIntersection*) const override;
+	virtual void CreateSubtraction(AGDDSubtraction*) const override;
 	
-	void CreateBolt(AGDDBolt*);
-	void CreateIbeam(AGDDIbeam*);
-	void CreateUbeam(AGDDUbeam*);
+	virtual void CreateBolt(AGDDBolt*) const override;
+	virtual void CreateIbeam(AGDDIbeam*) const override;
+	virtual void CreateUbeam(AGDDUbeam*) const override;
 	
-	void CreateVolume(AGDDVolume*);
-	void CreateComposition(AGDDComposition*);
+	virtual void CreateVolume(AGDDVolume*) override;
+	virtual void CreateComposition(AGDDComposition*) override;
 
-	void SetMotherVolume(GeoPhysVol *v) {m_mother=v;}
-	void BuildAllVolumes();
-	void BuildFromSection(std::string);
-	void BuildFromVolume(std::string);
+	virtual void SetMotherVolume(GeoPhysVol *v) {m_mother=v;}
+	virtual void BuildAllVolumes();
+	virtual void BuildFromSection(const std::string&) override;
+	virtual void BuildFromVolume(const std::string&) override;
+
+        virtual const StoredMaterialManager& GetMaterialManager() const override;
 
 private:
 	GeoPhysVol *m_mother;
-	const GeoMaterial* GetMMMaterial(const std::string&);
+        AGDDDetectorStore& m_ds;
+        AGDDVolumeStore& m_vs;
+        AGDDSectionStore& m_ss;
+        AliasStore& m_as;
+        AGDDMaterialStore& m_ms;
+
+        const GeoMaterial* GetMMMaterial(const std::string&) const;
 
     /** phi method (cf. EventPrimitives/AmgMatrixBasePlugin.h) */
     inline double phi(const GeoTrf::Vector3D &vec) const {

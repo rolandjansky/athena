@@ -19,10 +19,14 @@ HistogramFactory::HistogramFactory(const ServiceHandle<ITHistSvc>& histSvc,
                                    std::string histoPath)
 : m_histSvc(histSvc)
 {
-  size_t split = histoPath.find('/');
-  m_streamName = histoPath.substr(0,split);
-  m_groupName = split!=std::string::npos ? histoPath.substr(split) : "";
-
+  size_t whereToStart = 0;
+  // do we have a leading slash? This distinguishes temporary streams in THistSvc
+  if (! histoPath.empty() && histoPath[0] == '/') {
+    whereToStart = 1;
+  }
+  size_t split = histoPath.find('/', whereToStart);
+  m_streamName = (whereToStart == 1 ? "/" : "") + histoPath.substr(0,split);
+  m_groupName = split!=std::string::npos ? histoPath.substr(split+1) : "";
   // Infrequently, loading a ROOT class in a MT context can fail.
   // So try to load the classes we'll need early.
   TClass::GetClass("TH1F");
@@ -260,14 +264,14 @@ namespace {
 }
 std::string HistogramFactory::getFullName(const HistogramDef& def) const {
 
-  
+  // for online paths, always prepend a slash. Otherwise take it from provided stream name
   std::string path;
   if ( onlinePaths.count( def.path)!=0 ) {
     path =  "/" + def.path + "/" + m_streamName + "/" + m_groupName;
   } else if ( def.path=="DEFAULT" ) {
     path = "/" + m_streamName + "/" + m_groupName;
   } else {
-    path = "/" + m_streamName + "/" + def.tld + "/" + m_groupName + "/" + def.path;
+    path = m_streamName + "/" + def.tld + "/" + m_groupName + "/" + def.path;
   }
 
   // remove duplicate slashes

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArReadoutGeometry/HECDetDescr.h"
@@ -113,7 +113,8 @@ HECDetectorManager::~HECDetectorManager()
 {
   for (unsigned int i=0;i<getNumBlocks();i++) delete m_HecLongBlock[i];
   for (unsigned int i=0;i<getNumDetectorRegions();i++) delete m_DetRegionsIterative[i];
-  for (unsigned int i=0;i<getNumTreeTops();i++) getTreeTop(i)->unref();
+  unsigned int ntree = HECDetectorManager::getNumTreeTops();
+  for (unsigned int i=0;i<ntree;i++) HECDetectorManager::getTreeTop(i)->unref();
 }
 
 

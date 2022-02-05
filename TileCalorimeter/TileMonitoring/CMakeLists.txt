@@ -32,6 +32,7 @@ atlas_add_component( TileMonitoring
 atlas_install_headers( TileMonitoring )
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
+atlas_install_data( data/*.yaml )
 
 # Tests:
 atlas_add_test( TileCellMonitorAlgorithm_test
@@ -117,4 +118,9 @@ atlas_add_test( TileMonitoringConfig_test
 atlas_add_test( RunTileMonitoring_test
                 SCRIPT python -m TileMonitoring.RunTileMonitoring --evtMax=3
                 PROPERTIES TIMEOUT 300
+                POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( TileDigitsMonitorAlgorithm_test
+                SCRIPT python -m TileMonitoring.TileDigitsMonitorAlgorithm
+                PROPERTIES TIMEOUT 600
                 POST_EXEC_SCRIPT nopost.sh)

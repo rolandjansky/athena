@@ -81,6 +81,7 @@ LArCoverageAlg::initialize()
   ATH_CHECK( detStore()->retrieve(m_LArOnlineIDHelper, "LArOnlineID") );
   ATH_CHECK( m_BCKey.initialize() );
   ATH_CHECK( m_BFKey.initialize() );
+  ATH_CHECK( m_caloMgrKey.initialize() );
 
   /** retrieve bad channel tool */
    ATH_CHECK(m_bcMask.buildBitMask(m_problemsToMask,msg()));
@@ -172,8 +173,9 @@ LArCoverageAlg::fillHistograms( const EventContext& ctx ) const
   std::vector<long> knownErrorFEBs(0);
 
   /** retrieve det. description manager */
-  const CaloDetDescrManager* ddman = nullptr;
-  ATH_CHECK( detStore()->retrieve (ddman, "CaloMgr") );
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,ctx};
+  ATH_CHECK(caloMgrHandle.isValid());
+  const CaloDetDescrManager* ddman = *caloMgrHandle;
 
   /** retrieve cabling (copied from LArCalibUtils/src/LArAutoCorrExtrapolate.cxx) */
   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey,ctx};

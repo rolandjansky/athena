@@ -36,9 +36,15 @@ include("RecExCond/AllDet_detDescr.py")
 
 # menu with default configuration for testing
 from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
 from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
-CAtoGlobalWrapper(L1ConfigSvcCfg,ConfigFlags)
+flags.Input.Files = athenaCommonFlags.FilesInput()
+flags.Trigger.triggerConfig = "FILE"
+flags.lock()
+CAtoGlobalWrapper(L1ConfigSvcCfg,flags)
+
+from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu
+generateL1Menu(flags)
 
 svcMgr += CfgMgr.THistSvc()
 svcMgr.THistSvc.Output += ["ANALYSIS DATAFILE='myfile_jfex.root' OPT='RECREATE'"]
@@ -62,8 +68,10 @@ StreamAOD.ItemList+=["xAOD::jFexMETRoIContainer#*"]
 StreamAOD.ItemList+=["xAOD::jFexMETRoIAuxContainer#*"]
 
 #Physics Objects
-StreamAOD.ItemList+=["xAOD::JetContainer#*"]
-StreamAOD.ItemList+=["xAOD::JetAuxContainer#*"]
+StreamAOD.ItemList+=["xAOD::JetContainer#Anti*"]
+StreamAOD.ItemList+=["xAOD::JetAuxContainer#Anti*"]
+StreamAOD.ItemList+=["xAOD::JetRoIContainer#*"]
+StreamAOD.ItemList+=["xAOD::JetRoIAuxContainer#*"]
 StreamAOD.ItemList+=["xAOD::ElectronContainer#Electrons"]
 StreamAOD.ItemList+=["xAOD::ElectronAuxContainer#ElectronsAux."]
 StreamAOD.ItemList+=["xAOD::TauJetContainer#TauJets"]
@@ -80,6 +88,6 @@ StreamAOD.ItemList+=["xAOD::TauJetAuxContainer#TauJetsAux.-VertexedClusters."]
 log.info("==========================================================")
 log.info("Scheduling jFEXDriver")
 athAlgSeq += CfgMgr.LVL1__jFEXDriver('MyjFEXDriver')
-#athAlgSeq += CfgMgr.LVL1__jFEXNtupleWriter('MyjFEXNtupleWriter')
+athAlgSeq += CfgMgr.LVL1__jFEXNtupleWriter('MyjFEXNtupleWriter')
 log.info("==========================================================")
 #######################################################

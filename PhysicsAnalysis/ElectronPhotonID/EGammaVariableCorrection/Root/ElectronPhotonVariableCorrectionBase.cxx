@@ -24,6 +24,7 @@
 #include "TGraph.h"
 #include "TH2.h"
 #include "TFile.h"
+#include "TRandom3.h"
 
 //allow advanced math for the TF1
 #include "TMath.h"
@@ -86,6 +87,12 @@ StatusCode ElectronPhotonVariableCorrectionBase::initialize()
     // save original value under different name
     m_originalVariable = std::make_unique<SG::AuxElement::Accessor<float>>(m_correctionVariable + "_original");
 
+    // Get whether to apply a pure correction or to smear the variable (shift by a random amount,
+    // determined using function as probability density function)
+    if (env.Lookup("doGaussianSmearing"))
+    {
+        m_doGaussianSmearing = env.GetValue("doGaussianSmearing", false); // Default is to not do smearing - keeps previous configs valid
+    }
     // Get the function used to correct the variable
     if (env.Lookup("Function"))
     {
@@ -103,6 +110,16 @@ StatusCode ElectronPhotonVariableCorrectionBase::initialize()
     if (env.Lookup("nFunctionParameters"))
     {
         m_numberOfFunctionParameters = env.GetValue("nFunctionParameters",-1);
+
+        // If doing the Gaussian smearing, there can only be two parameters
+        // so fail if there is more or less than this
+        if (m_doGaussianSmearing && m_numberOfFunctionParameters != 2)
+        {
+            ATH_MSG_ERROR("When using Gaussian smearing, there can only be two " <<
+                "function parameters, the Gaussian mean and the Gaussian width");
+            return StatusCode::FAILURE;
+        }
+
     }
     else
     {
@@ -178,7 +195,7 @@ StatusCode ElectronPhotonVariableCorrectionBase::initialize()
     //everything worked out, so
     return StatusCode::SUCCESS;
 }
- 
+
 // ===========================================================================
 // Application of correction
 // ===========================================================================
@@ -190,7 +207,7 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionBase::applyCorrection(x
         ATH_MSG_ERROR("You specified in the conf file that the tool should only be used for (un-)converted photons, but passed the other conversion type.");
         return CP::CorrectionCode::Error;
     }
-    
+
     // From the object, get the variable value according to the variable from the conf file
     // if variable not found, fail
     float original_variable = 0.;
@@ -210,10 +227,7 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionBase::applyCorrection(x
         ATH_MSG_ERROR("The correction variable \"" << m_correctionVariable << "\" provided in the conf file is not available.");
         return CP::CorrectionCode::Error;
     }
-    
-    //declare objects needed to retrieve photon properties
-    std::vector<float> properties; //safe value of function parameter i at place i
-    properties.resize(m_numberOfFunctionParameters);
+
     float eta; //safe value of eta of event
     float pt; //safe pt of event
     float phi; //safe phi of event
@@ -225,23 +239,21 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionBase::applyCorrection(x
         return CP::CorrectionCode::Error;
     }
     ATH_MSG_VERBOSE("Got the photon kinematics , pT = " << pt << " eta = " << eta << "phi = " << phi);
-    if (getCorrectionParameters(properties, pt, eta, phi) != StatusCode::SUCCESS)
+    if (setCorrectionParameters(pt, eta, phi) != StatusCode::SUCCESS)
     {
         ATH_MSG_ERROR("Could not get the correction parameters for this photon object.");
         return CP::CorrectionCode::Error;
     }
-    for (auto p : properties)
-        ATH_MSG_VERBOSE("prop " << p);
 
     // Apply the correction, write to the corrected AuxElement
-    correct((*m_variableToCorrect)(photon),original_variable, properties).ignore(); // ignore as will always return SUCCESS
+    correct((*m_variableToCorrect)(photon),original_variable);
 
     // everything worked out, so
     return CP::CorrectionCode::Ok;
 }
 
 const CP::CorrectionCode ElectronPhotonVariableCorrectionBase::applyCorrection(xAOD::Electron& electron) const
-{   
+{
     if (!applyToElectrons())
     {
         ATH_MSG_ERROR("You want to correct electrons, but passed a conf file with ApplyTo flag not set for electrons. Are you using the correct conf file?");
@@ -268,9 +280,6 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionBase::applyCorrection(x
         return CP::CorrectionCode::Error;
     }
 
-    //declare objects needed to retrieve electron properties
-    std::vector<float> properties; //safe value of function parameter i at place i
-    properties.resize(m_numberOfFunctionParameters);
     float eta; //safe value of eta of event
     float pt; //safe pt of event
     float phi; //safe phi of event
@@ -282,39 +291,67 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionBase::applyCorrection(x
         return CP::CorrectionCode::Error;
     }
     ATH_MSG_VERBOSE("Got the electron kinematics , pT = " << pt << " eta = " << eta << "phi = " << phi);
-    if (getCorrectionParameters(properties, pt, eta, phi) != StatusCode::SUCCESS)
+    if (setCorrectionParameters(pt, eta, phi) != StatusCode::SUCCESS)
     {
         ATH_MSG_ERROR("Could not get the correction parameters for this electron object.");
         return CP::CorrectionCode::Error;
     }
 
-    for (auto p : properties)
-        ATH_MSG_VERBOSE("prop " << p);
+    // If applying a Gaussian smearing correction, set the seed based on the
+    // electron properties
+    unsigned int rndSeed(0);
+    if (m_doGaussianSmearing)
+    {
+      rndSeed = 1 + static_cast<unsigned int>(pt + std::abs(eta) * 1E3 + std::abs(phi) * 1E6);
+    }
 
     // Apply the correction, write to the corrected AuxElement
-    correct((*m_variableToCorrect)(electron),original_variable, properties).ignore(); // ignore as will always return SUCCESS
+    correct((*m_variableToCorrect)(electron),original_variable, rndSeed);
 
     // everything worked out, so
     return CP::CorrectionCode::Ok;
 }
 
-const StatusCode ElectronPhotonVariableCorrectionBase::correct(float& return_corrected_variable, const float original_variable, std::vector<float>& properties) const
-{   
-    // set the parameters of the correction function
-    for (unsigned int parameter_itr = 0; parameter_itr < properties.size(); parameter_itr++)
-    {
-        m_correctionFunctionTF1->SetParameter(parameter_itr,properties.at(parameter_itr));
-    }
-
+void ElectronPhotonVariableCorrectionBase::correct(float& return_corrected_variable, const float original_variable, unsigned int rndSeed) const
+{
     ATH_MSG_VERBOSE("original var " << original_variable);
 
-    // Calculate corrected value
-    return_corrected_variable = m_correctionFunctionTF1->Eval(original_variable);
+    // If not smearing, apply correction in normal way
+    if (!m_doGaussianSmearing)
+    {
+        return_corrected_variable = m_correctionFunctionTF1->Eval(original_variable);
+    }
+    else
+    {
+        // Set range of function to 5 sigma in both directions -
+        // otherwise default range is 0 to 1, and shape of PDF will be incorrect
+        // NB - this assumes random function is a Gaussian, or at least a PDF
+        // with a mean and width parameters
+        const double gaussMean = m_correctionFunctionTF1->GetParameter(0);
+        const double gaussAbsWidth = std::abs(m_correctionFunctionTF1->GetParameter(1));
+
+        const double maxRange = gaussMean + 5*gaussAbsWidth;
+        const double minRange = gaussMean - 5*gaussAbsWidth;
+        m_correctionFunctionTF1->SetRange(minRange, maxRange);
+
+        // Set number of points used to draw function - the higher the better
+        // the result from using GetRandom, but also takes a lot longer
+        m_correctionFunctionTF1->SetNpx(500);
+
+        // If the Gaussian width is 0, can't use GetRandom() - just apply shift
+        if (gaussAbsWidth == 0.0)
+        {
+            return_corrected_variable = original_variable + gaussMean;
+        }
+        // Otherwise, can apply smear using GetRandom on TF1
+        else
+        {
+	  return_corrected_variable = original_variable +
+	    m_correctionFunctionTF1->GetRandom(getTLSRandomGen(rndSeed));
+        }
+    }
 
     ATH_MSG_VERBOSE("corrected var " << return_corrected_variable);
-
-    // everything worked out, so
-    return StatusCode::SUCCESS;
 }
 
 // ===========================================================================
@@ -614,8 +651,12 @@ const StatusCode ElectronPhotonVariableCorrectionBase::getObjectFromRootFile(TEn
 }
 
 
-const StatusCode ElectronPhotonVariableCorrectionBase::getCorrectionParameters(std::vector<float>& properties, const float pt, const float eta, const float phi) const
+const StatusCode ElectronPhotonVariableCorrectionBase::setCorrectionParameters(const float pt, const float eta, const float phi) const
 {
+    //declare objects needed to retrieve electron properties
+    std::vector<float> properties; //safe value of function parameter i at place i
+    properties.resize(m_numberOfFunctionParameters);
+
     // check if eta or abs(eta) is used for the binned variables
     float etaForBinned = eta;
     if (m_useAbsEtaBinned)
@@ -627,7 +668,7 @@ const StatusCode ElectronPhotonVariableCorrectionBase::getCorrectionParameters(s
         // set eta to midpoint of lowest bin
         etaForBinned = 0.5*(m_etaBins.at(0) + m_etaBins.at(1));
     }
-    
+
     // according to the parameter type, get the actual parameter going to the correction function
     // for this, loop over the parameter type vector
     for (unsigned int parameter_itr = 0; parameter_itr < m_ParameterTypeVector.size(); parameter_itr++)
@@ -672,6 +713,14 @@ const StatusCode ElectronPhotonVariableCorrectionBase::getCorrectionParameters(s
             {}//only adding default to omit compile time warnings for not including parameterType::Failure
                 // this case will never occur, since returning this case fails earlier
         }
+    }
+
+    for (auto p : properties)
+        ATH_MSG_VERBOSE("prop " << p);
+
+    for (unsigned int parameter_itr = 0; parameter_itr < properties.size(); parameter_itr++)
+    {
+        m_correctionFunctionTF1->SetParameter(parameter_itr,properties.at(parameter_itr));
     }
 
     // everything went fine, so
@@ -772,7 +821,7 @@ const StatusCode ElectronPhotonVariableCorrectionBase::get2DHistParameter(float&
 }
 
 
-const StatusCode ElectronPhotonVariableCorrectionBase::findBin(int& return_bin, const float evalPoint, const std::vector<float>& binning) 
+const StatusCode ElectronPhotonVariableCorrectionBase::findBin(int& return_bin, const float evalPoint, const std::vector<float>& binning)
 {
     // need to find the bin in which the evalPoint is
     return_bin = -1;
@@ -918,7 +967,7 @@ const StatusCode ElectronPhotonVariableCorrectionBase::getBinCenter(float& retur
     return StatusCode::SUCCESS;
 }
 
-float ElectronPhotonVariableCorrectionBase::interpolate_function(const float value, const float left_bin_center, const float left_bin_value, const float right_bin_center, const float right_bin_value) 
+float ElectronPhotonVariableCorrectionBase::interpolate_function(const float value, const float left_bin_center, const float left_bin_value, const float right_bin_center, const float right_bin_value)
 {
     return left_bin_value + (value - left_bin_center) * (right_bin_value - left_bin_value) / (right_bin_center - left_bin_center);
 }
@@ -974,7 +1023,7 @@ ElectronPhotonVariableCorrectionBase::EGammaObjects ElectronPhotonVariableCorrec
     { return ElectronPhotonVariableCorrectionBase::EGammaObjects::allElectrons; }
     else if( input == "allEGammaObjects" )
     { return ElectronPhotonVariableCorrectionBase::EGammaObjects::allEGammaObjects; }
-    else 
+    else
     {
         // if not a proper object type, return failure type - check and fail on this!
         ATH_MSG_ERROR(input.c_str() << " is not an allowed EGamma object type to apply corrections to.");
@@ -1013,4 +1062,16 @@ bool ElectronPhotonVariableCorrectionBase::applyToElectrons() const
     bool applyToAllEGamma = (m_applyToObjects == ElectronPhotonVariableCorrectionBase::EGammaObjects::allEGammaObjects);
     bool applyToAllElectrons = (m_applyToObjects == ElectronPhotonVariableCorrectionBase::EGammaObjects::allElectrons);
     return (applyToAllEGamma || applyToAllElectrons);
+}
+
+
+TRandom3* ElectronPhotonVariableCorrectionBase::getTLSRandomGen(unsigned int seed) const
+{
+  TRandom3* random = m_TRandom_tls.get();
+  if (!random) {
+    random = new TRandom3();
+    m_TRandom_tls.reset(random);
+  }
+  random->SetSeed(seed);
+  return random;
 }

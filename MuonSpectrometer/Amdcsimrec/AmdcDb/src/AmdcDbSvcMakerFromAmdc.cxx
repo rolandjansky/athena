@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AmdcDb/AmdcDbSvcMakerFromAmdc.h"
@@ -41,9 +41,9 @@ void AmdcDbSvcMakerFromAmdc::SetUglyCodeOn(int UglyCodeOn){ m_UglyCodeOn  = Ugly
 void AmdcDbSvcMakerFromAmdc::SetEpsLengthMM(int EpsLengthMM){ m_EpsLengthMM  = EpsLengthMM ;}
 void AmdcDbSvcMakerFromAmdc::SetEpsLengthCM(int EpsLengthCM){ m_EpsLengthCM  = EpsLengthCM ;}
 void AmdcDbSvcMakerFromAmdc::SetEpsAngle(int EpsAngle){ m_EpsAngle  = EpsAngle ;}
-void AmdcDbSvcMakerFromAmdc::SetEpsLengthMM(std::string NameOfTheSet, int EpsLengthMM) { m_Map_Set_EpsLengthMM[NameOfTheSet] = EpsLengthMM ; }
-void AmdcDbSvcMakerFromAmdc::SetEpsLengthCM(std::string NameOfTheSet, int EpsLengthCM) { m_Map_Set_EpsLengthCM[NameOfTheSet] = EpsLengthCM ; }
-void AmdcDbSvcMakerFromAmdc::SetEpsAngle   (std::string NameOfTheSet, int EpsAngle   ) { m_Map_Set_EpsAngle   [NameOfTheSet] = EpsAngle    ; }
+void AmdcDbSvcMakerFromAmdc::SetEpsLengthMM(const std::string& NameOfTheSet, int EpsLengthMM) { m_Map_Set_EpsLengthMM[NameOfTheSet] = EpsLengthMM ; }
+void AmdcDbSvcMakerFromAmdc::SetEpsLengthCM(const std::string& NameOfTheSet, int EpsLengthCM) { m_Map_Set_EpsLengthCM[NameOfTheSet] = EpsLengthCM ; }
+void AmdcDbSvcMakerFromAmdc::SetEpsAngle   (const std::string& NameOfTheSet, int EpsAngle   ) { m_Map_Set_EpsAngle   [NameOfTheSet] = EpsAngle    ; }
 void AmdcDbSvcMakerFromAmdc::Set(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc){
 
   AMDC(pAmdcsimrec,pAmdcDbSvc);
@@ -81,9 +81,9 @@ void AmdcDbSvcMakerFromAmdc::Set(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc){
   
 }
 
-int AmdcDbSvcMakerFromAmdc::GetEpsLengthMM(std::string NameOfTheSet){ if (m_Map_Set_EpsLengthMM.find(NameOfTheSet) != m_Map_Set_EpsLengthMM.end()) return m_Map_Set_EpsLengthMM.find(NameOfTheSet)->second ; return m_EpsLengthMM; }
-int AmdcDbSvcMakerFromAmdc::GetEpsLengthCM(std::string NameOfTheSet){ if (m_Map_Set_EpsLengthCM.find(NameOfTheSet) != m_Map_Set_EpsLengthCM.end()) return m_Map_Set_EpsLengthCM.find(NameOfTheSet)->second ; return m_EpsLengthCM; }
-int AmdcDbSvcMakerFromAmdc::GetEpsAngle   (std::string NameOfTheSet){ if (m_Map_Set_EpsAngle.find(NameOfTheSet)    != m_Map_Set_EpsAngle.end()   ) return m_Map_Set_EpsAngle.find(NameOfTheSet)->second    ; return m_EpsAngle   ; }
+int AmdcDbSvcMakerFromAmdc::GetEpsLengthMM(const std::string& NameOfTheSet){ if (m_Map_Set_EpsLengthMM.find(NameOfTheSet) != m_Map_Set_EpsLengthMM.end()) return m_Map_Set_EpsLengthMM.find(NameOfTheSet)->second ; return m_EpsLengthMM; }
+int AmdcDbSvcMakerFromAmdc::GetEpsLengthCM(const std::string& NameOfTheSet){ if (m_Map_Set_EpsLengthCM.find(NameOfTheSet) != m_Map_Set_EpsLengthCM.end()) return m_Map_Set_EpsLengthCM.find(NameOfTheSet)->second ; return m_EpsLengthCM; }
+int AmdcDbSvcMakerFromAmdc::GetEpsAngle   (const std::string& NameOfTheSet){ if (m_Map_Set_EpsAngle.find(NameOfTheSet)    != m_Map_Set_EpsAngle.end()   ) return m_Map_Set_EpsAngle.find(NameOfTheSet)->second    ; return m_EpsAngle   ; }
 
 void AmdcDbSvcMakerFromAmdc::AMDC(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc){
 
@@ -203,7 +203,7 @@ if (Ifound == 1 ){
 
       DbVar = "JTYP"    ; DbVarComment="AMDB STATION TYPE"                  ; iDbVal = DB_JTYP                                    ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
 
-      DbVar = "TYP"     ; DbVarComment="AMDB STATION NAME"	            ; sDbVal = sDbVal = pAmdcsimrec->StationName(DB_JTYP) ; pAmdcDbRecord->addString(DbVar,DbVarComment,sDbVal);
+      DbVar = "TYP"     ; DbVarComment="AMDB STATION NAME"	            ; sDbVal = pAmdcsimrec->StationName(DB_JTYP) ; pAmdcDbRecord->addString(DbVar,DbVarComment,sDbVal);
 
 //DRING: What is it? This a guess     						        
       DbVar = "NSTA"    ; DbVarComment="NUMBER OF STATIONS OF THIS TYPE"    ; iDbVal = iDbVal_NSTA                                ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);

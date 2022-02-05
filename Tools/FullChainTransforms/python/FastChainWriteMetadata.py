@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 logFastChainWriteMetadata = logging.getLogger( 'FastChainWriteMetadata' )
@@ -171,20 +171,8 @@ def writeDigitizationMetadata():
             logFastChainWriteMetadata.debug('DigitizationMetaData: Not using jobproperty "%s" as it is switched off.', o)
     del globalMetaDataKeys
 
-    ##LVL1 Config Version
-    testKey = "lvl1TriggerMenu"
-    testValue = "NONE"
-    from AthenaCommon.DetFlags import DetFlags
-    if DetFlags.digitize.LVL1_on():
-        #Protection so that TriggerFlags are not accessed when they have not be configured
-        from TriggerJobOpts.TriggerFlags import TriggerFlags
-        testValue = TriggerFlags.triggerConfig.get_Value()
-    dbFiller.addDigitParam(testKey,testValue)
-    logFastChainWriteMetadata.info('DigitizationMetaData: setting "%s" to be %s', testKey, testValue)
-    del testKey
-    del testValue
-
     ## Digitized detector flags: add each enabled detector to the DigitizedDetectors list
+    from AthenaCommon.DetFlags import DetFlags
     digiDets = []
     for det in ['pixel','SCT','TRT','BCM','Lucid','ZDC','ALFA','AFP','FwdRegion','LAr','HGTD','Tile','MDT','CSC','TGC','RPC','Micromegas','sTGC','Truth','LVL1']:
         attrname = det+"_on"

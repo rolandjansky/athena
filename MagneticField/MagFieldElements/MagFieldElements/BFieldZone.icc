@@ -20,14 +20,6 @@ BFieldZone::appendCond(const BFieldCond& cond)
   m_cond.push_back(cond);
 }
 
-inline void
-BFieldZone::scaleField(double factor)
-{
-  scaleBscale(factor);
-  for (unsigned i = 0; i < ncond(); i++) {
-    m_cond[i].scaleCurrent(factor);
-  }
-}
 
 inline void
 BFieldZone::addBiotSavart(const double* ATH_RESTRICT xyz,

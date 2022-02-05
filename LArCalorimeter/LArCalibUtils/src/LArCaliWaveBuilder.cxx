@@ -150,16 +150,21 @@ StatusCode LArCaliWaveBuilder::executeWithAccumulatedDigits()
  
  std::vector<std::string>::const_iterator key_it=m_keylist.begin();
  std::vector<std::string>::const_iterator key_it_e=m_keylist.end();
-
+ int foundkey = 0;
  for (;key_it!=key_it_e; ++key_it) { //Loop over all containers that are to be processed (e.g. different gains)
  
    sc = evtStore()->retrieve(larAccumulatedCalibDigitContainer,*key_it);
    if (sc.isFailure()) {
      ATH_MSG_WARNING( "Cannot read LArAccumulatedCalibDigitContainer from StoreGate! key=" << *key_it );
-     continue; // Try next container
+     if ( (std::next(key_it) == key_it_e) && foundkey==0 ){
+       ATH_MSG_ERROR("None of the provided LArAccumulatedDigitContainer keys could be read");
+       return StatusCode::FAILURE;
+     }else{
+       continue;
+     }
    }
-
-
+   foundkey+=1;
+   
    const LArFebErrorSummary* febErrSum=NULL;
    if (evtStore()->contains<LArFebErrorSummary>("LArFebErrorSummary")) {
      sc=evtStore()->retrieve(febErrSum);
@@ -214,15 +219,15 @@ StatusCode LArCaliWaveBuilder::executeWithAccumulatedDigits()
      
      // transform sampleSum vector from uint32_t to double
      std::vector<double> samplesum;     
-     std::vector < uint32_t >::const_iterator samplesum_it=(*it)->sampleSum().begin();
-     std::vector < uint32_t >::const_iterator samplesum_it_e=(*it)->sampleSum().end();
+     std::vector < uint64_t >::const_iterator samplesum_it=(*it)->sampleSum().begin();
+     std::vector < uint64_t >::const_iterator samplesum_it_e=(*it)->sampleSum().end();
      for (;samplesum_it!=samplesum_it_e; ++samplesum_it) 
        samplesum.push_back((double)(*samplesum_it));     
      
      // transform sample2Sum vector from uint32_t to double
      std::vector<double> sample2sum;     
-     std::vector < uint32_t >::const_iterator sample2sum_it=(*it)->sample2Sum().begin();
-     std::vector < uint32_t >::const_iterator sample2sum_it_e=(*it)->sample2Sum().end();
+     std::vector < uint64_t >::const_iterator sample2sum_it=(*it)->sample2Sum().begin();
+     std::vector < uint64_t >::const_iterator sample2sum_it_e=(*it)->sample2Sum().end();
      for (;sample2sum_it!=sample2sum_it_e; ++sample2sum_it) 
        sample2sum.push_back((double)(*sample2sum_it));     
 
@@ -454,15 +459,13 @@ StatusCode LArCaliWaveBuilder::stop()
 		    ATH_MSG_INFO( "Absolute ADC saturation at DAC = " << thisWave.getDAC() << " ... skip!" ) ;
 		    continue ;
 		} else {
-
-		    LArCaliWave newWave( ((thisWave)+(-pedAve)).getWave() ,
+                    dacWaves.emplace_back(((thisWave)+(-pedAve)).getWave() ,
 		                         thisWave.getErrors(),
 					 thisWave.getTriggers(),
 					 thisWave.getDt(), 
-					 (thisWave.getDAC() + (thisWave.getIsPulsedInt()<<16)), 
+					 (thisWave.getDAC() + (thisWave.getIsPulsedInt()<<24)), 
 					 thisWave.getFlag() );
        
-		    dacWaves.push_back(newWave);
 		    NCaliWave++;
 		}
 	    

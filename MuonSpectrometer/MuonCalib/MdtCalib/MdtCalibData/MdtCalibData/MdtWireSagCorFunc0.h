@@ -9,25 +9,16 @@
 
 namespace MuonCalib {
 
-  /** implementation of a wire sag correction function */
+    /** implementation of a wire sag correction function */
 
-  class MdtWireSagCorFunc0 : public IMdtWireSagCorFunc {
+    class MdtWireSagCorFunc0 : public IMdtWireSagCorFunc {
+    public:
+        explicit MdtWireSagCorFunc0(const CalibFunc::ParVec& params) : IMdtWireSagCorFunc(params){};
+        virtual std::string name() const { return "MdtWireSagCorFunc0"; }
+        static unsigned int nUsedPar() { return 0; }
+        virtual double correction(double /*signedDriftRadius*/, double /*effectiveSag*/) const { return 0.0; }
+    };
 
-  public:
-    explicit MdtWireSagCorFunc0(const CalibFunc::ParVec& params)
-      : IMdtWireSagCorFunc(params) {};
-    virtual std::string name() const {
-      return "MdtWireSagCorFunc0";
-    }
-    static unsigned int nUsedPar() {
-      return 0;
-    }
-    virtual double correction(double /*signedDriftRadius*/, double /*effectiveSag*/) const {
-      return 0.0;
-    }
-
-  };
-
-}  //namespace MuonCalib
+}  // namespace MuonCalib
 
 #endif

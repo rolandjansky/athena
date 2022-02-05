@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //================================================================//
@@ -9,6 +9,7 @@
 #include "CaloCalibrationHitsTestTool.h"
 #include "GeoAdaptors/GeoCaloCalibHit.h"
 #include "CaloSimEvent/CaloCalibrationHitContainer.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include <TH1.h>
 #include <TH2D.h>
@@ -16,11 +17,11 @@
 
 CaloCalibrationHitsTestTool::CaloCalibrationHitsTestTool(const std::string& type, const std::string& name, const IInterface* parent)
   : SimTestToolBase(type, name, parent),m_calibHitType("LArActive"),
-    m_eta(0), m_phi(0), m_eEM(0),
-    m_eNonEM(0), m_eInv(0), m_eEsc(0),
-    m_eTot(0), m_rz(0), m_etaphi(0),
-    m_eTot_partID(0), m_eTot_eta(0), m_eTot_phi(0),
-    m_partID_large(0), m_partID_small(0)
+    m_eta(nullptr), m_phi(nullptr), m_eEM(nullptr),
+    m_eNonEM(nullptr), m_eInv(nullptr), m_eEsc(nullptr),
+    m_eTot(nullptr), m_rz(nullptr), m_etaphi(nullptr),
+    m_eTot_partID(nullptr), m_eTot_eta(nullptr), m_eTot_phi(nullptr),
+    m_partID_large(nullptr), m_partID_small(nullptr)
 {
   declareProperty("CalibHitType",  m_calibHitType="LArActive");
 }
@@ -63,6 +64,8 @@ StatusCode CaloCalibrationHitsTestTool::initialize(){
   _TH1D_WEIGHTED(m_eTot_eta,(m_calibHitType+"_eTot_eta").c_str(),25,-5.,5.); 
   _TH1D_WEIGHTED(m_eTot_phi,(m_calibHitType+"_eTot_phi").c_str(),25,-3.2,3.2);
 
+  ATH_CHECK(detStore()->retrieve(m_caloMgr));
+
   return StatusCode::SUCCESS;
 }
 
@@ -74,7 +77,7 @@ StatusCode CaloCalibrationHitsTestTool::processEvent(){
   CHECK(evtStore()->retrieve(iter,m_hitcollkey));
   for(hit=(*iter).begin(); hit != (*iter).end(); hit++){
 
-    GeoCaloCalibHit geoHit(**hit, m_hitcollkey);
+    GeoCaloCalibHit geoHit(**hit, m_hitcollkey, m_caloMgr);
     if (!geoHit) continue;
     const CaloDetDescrElement* ddElement = geoHit.getDetDescrElement();
 

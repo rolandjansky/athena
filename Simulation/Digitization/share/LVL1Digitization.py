@@ -38,123 +38,21 @@ if DetFlags.simulateLVL1.LAr_on():
         topSequence.LArTTL1Maker.PileUp = True
     else:
         topSequence.LArTTL1Maker.PileUp = False
+    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
+    if commonGeoFlags.Run()=="RUN3":
+        from LArL1Sim.LArSCL1Getter import *
+        theLArSCL1Getter = LArSCL1Getter()
+        if not digitizationFlags.PileUpPresampling:
+            from LArROD.LArSCellGetter import LArSCellGetter
+            theLArSCellGetter = LArSCellGetter()
 
 if DetFlags.simulateLVL1.Tile_on():
     protectedInclude( "TileSimAlgs/TileTTL1_jobOptions.py" )
     protectedInclude( "TileSimAlgs/TileMuonReceiver_jobOptions.py" )
 
 if DetFlags.digitize.LVL1_on():
-
-    #--------------------------------------------------------------
-    # set up TrigConfigSvc for LVL1 simulation
-    #--------------------------------------------------------------
-    #In case TriggerFlags are not setup
-    if 'TriggerFlags' not in dir():
-        log.info( "TriggerFlags not previously defined so using default XML file" )
-        # enable reading from XML file option and then set trigger menu
-        from TriggerJobOpts.TriggerFlags import TriggerFlags
-        # default is taken from TriggerFlags of TriggerJobOpts package
-        TriggerFlags.triggerConfig = "LVL1:default"
-        from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
-        cfg = TriggerConfigGetter("HIT2RDO")
-    #PJB 9/2/2009 now use the triggerConfig flags
-    # - TriggerFlags already setup so use them here
-    #
-    from AthenaCommon.AppMgr import ServiceMgr
-    if not hasattr( ServiceMgr, 'LVL1ConfigSvc' ):
-        log.info( "Will setup LVL1ConfigSvc and add instance to ServiceMgr" )
-
-        from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc
-        LVL1ConfigSvc = LVL1ConfigSvc('LVL1ConfigSvc')
-
-        #If read from DB then set up the connection and pass keys
-        from TriggerJobOpts.TriggerFlags import TriggerFlags
-        if TriggerFlags.readMenuFromTriggerDb():
-            log.info( "LVL1ConfigSvc uses the TriggerDB %s ", TriggerFlags.triggerDbConnection() )
-            db = TriggerFlags.triggerDbConnection()
-            if 'sqlite' in db.lower():  #e.g. "sqlite_file://test.db"
-                LVL1ConfigSvc.ConfigSource = 'sqlite'
-                LVL1ConfigSvc.DBServer = db.split('//')[-1]
-            if 'oracle' in db.lower():  #e.g. "oracle://ATONR;schema=ATLAS_CONF_TRIGGER_V2;user=ATLAS_CONF_TRIGGER_V2_R;passwd=xxx;'"
-                LVL1ConfigSvc.ConfigSource = 'oracle'
-                LVL1ConfigSvc.DBServer  = (db.split(';')[0]).split('//')[-1]
-                LVL1ConfigSvc.DBAccount = (db.split(';')[1]).split('=')[-1]
-                LVL1ConfigSvc.DBUser    = (db.split(';')[2]).split('=')[-1]
-                LVL1ConfigSvc.DBPass    = (db.split(';')[3]).split('=')[-1]
-            if 'dblookup' in db.lower(): #e.g. "dblookup://TRIGGERDB
-                LVL1ConfigSvc.ConfigSource = 'DBLookUp'
-                LVL1ConfigSvc.DBServer  = db.split('//')[-1]
-
-            LVL1ConfigSvc.DBSMKey     = int(TriggerFlags.triggerDbKeys()[0])
-            LVL1ConfigSvc.DBLVL1PSKey = int(TriggerFlags.triggerDbKeys()[1])
-            LVL1ConfigSvc.DBBGSKey    = int(TriggerFlags.triggerDbKeys()[3])
-
-        #Otherwise read from xml
-        else:
-            raise RuntimeError("LVL1ConfigSvc: XML trigger configuration is not supported anymore")
-
-        ServiceMgr += LVL1ConfigSvc
-    else:
-        log.info( "LVL1ConfigSvc already created" )
-
-    #--------------------------------------------------------------
-    # RPC stuff
-    #--------------------------------------------------------------
-    if DetFlags.simulateLVL1.RPC_on():
-        import TrigT1RPCsteering.TrigT1RPCsteeringConfig
-
-    #--------------------------------------------------------------
-    # TGC stuff
-    #--------------------------------------------------------------
-    if DetFlags.simulateLVL1.TGC_on():
-        import TrigT1TGC.TrigT1TGCConfig
-
-    #--------------------------------------------------------------
-    # TrigT1Muctpi Algos
-    #--------------------------------------------------------------
-    if DetFlags.simulateLVL1.RPC_on() or DetFlags.simulateLVL1.TGC_on():
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        if ConfigFlags.Trigger.enableL1MuonPhase1:
-            from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1
-            topSequence += L1MuctpiPhase1()
-        else:
-            from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi
-            topSequence += L1Muctpi()
-
-    #-------------------------------------------------------
-    # TrigT1CaloSim Algos
-    #-------------------------------------------------------
-    if DetFlags.simulateLVL1.Calo_on():
-        if DetFlags.simulateLVL1.LAr_on() and DetFlags.simulateLVL1.Tile_on():
-            protectedInclude( "TrigT1CaloSim/TrigT1CaloSimJobOptions_TTL1_NoCalib.py" )
-        else:
-            log.warning("NOT SIMULATING L1CALO!")
-            log.warning("If only one of LAr and Tile LVL1 digitzation is set on then the L1Calo will NOT be simulated.")
-            log.warning("Currently DetFlags.simulateLVL1.LAr_on()=%s, DetFlags.simulateLVL1.Tile_on()=%s.", str(DetFlags.simulateLVL1.LAr_on()), str(DetFlags.simulateLVL1.Tile_on()) )
-            log.warning("If you REALLY want to do this then run L1Calo within reconstruction.")
-
-    #-------------------------------------------------------
-    # TrigT1MBTS Alg
-    #-------------------------------------------------------
-    if DetFlags.simulateLVL1.Calo_on():
-        from TrigT1MBTS.TrigT1MBTSConf import LVL1__TrigT1MBTS
-        topSequence += LVL1__TrigT1MBTS()
-
-    #-------------------------------------------------------
-    # TrigT1BCM Alg
-    #-------------------------------------------------------
-    if DetFlags.simulateLVL1.BCM_on():
-        from TrigT1BCM.TrigT1BCMConf import LVL1__TrigT1BCM
-        topSequence += LVL1__TrigT1BCM()
-
-    #-------------------------------------------------------
-    # TrigT1CTP Algos
-    #-------------------------------------------------------
-    from TrigT1CTP.TrigT1CTPConfig import CTPSimulationInDigi
-    topSequence += CTPSimulationInDigi()
-
-    #-------------------------------------------------------
-    # TrigT1RoIB Algos
-    #-------------------------------------------------------
-    from TrigT1RoIB.TrigT1RoIBConfig import RoIBuilderInDigi
-    topSequence += RoIBuilderInDigi("RoIBuilder")
+    # fwinkl, Oct 2021
+    # Remove all code to configure the LVL1 simulation during digitization.
+    # If this is a required use-case, check the git history of this file (commit d9432939)
+    # and update it for the Run-3 trigger.
+    log.error("Running the LVL1 simulation during digitization is currently not supported.")

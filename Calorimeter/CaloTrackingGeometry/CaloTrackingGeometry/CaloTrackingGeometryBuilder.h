@@ -24,12 +24,13 @@
 // STL
 #include <vector>
 
+#include <CxxUtils/checker_macros.h>
 namespace Trk {
   class Material;
   class Layer;
   class MagneticFieldProperties;
   class TrackingGeometry;
-  class ITrackingVolumeBuilder;
+  class ICaloTrackingVolumeBuilder;
   class ITrackingVolumeCreator;
   class ITrackingVolumeHelper;
   class ITrackingVolumeArrayCreator;
@@ -37,7 +38,6 @@ namespace Trk {
 }
 
 class IEnvelopeDefSvc;
-class ICaloSurfaceHelper;
 
 namespace Calo {
 
@@ -52,87 +52,94 @@ namespace Calo {
   
     @author Andreas.Salzburger@cern.ch
     */
-   class CaloTrackingGeometryBuilder : public AthAlgTool,
-                                       virtual public Trk::IGeometryBuilder {
-    
-    
-    public:
-      /** Constructor */
-      CaloTrackingGeometryBuilder(const std::string&,const std::string&,const IInterface*);
-      
-      /** Destructor */
-      virtual ~CaloTrackingGeometryBuilder();
-        
-      /** AlgTool initailize method.*/
-      StatusCode initialize();
-      
-      /** AlgTool finalize method */
-      StatusCode finalize();
-      
-      /** TrackingGeometry Interface methode */
-      const Trk::TrackingGeometry* trackingGeometry(const Trk::TrackingVolume* tvol = 0) const; 
 
-      /** The unique signature */
-      Trk::GeometrySignature geometrySignature() const { return Trk::Calo; }
-    
-    private:
-      ToolHandle<Trk::ITrackingVolumeArrayCreator>  m_trackingVolumeArrayCreator;    //!< Helper Tool to create TrackingVolume Arrays
+//Not thread safe due to mutable
+class ATLAS_NOT_THREAD_SAFE CaloTrackingGeometryBuilder
+  : public AthAlgTool
+  , virtual public Trk::IGeometryBuilder
+{
 
-      ToolHandle<Trk::ITrackingVolumeHelper>        m_trackingVolumeHelper;          //!< Helper Tool to create TrackingVolumes
-      
-      ToolHandle<Trk::ITrackingVolumeCreator>       m_trackingVolumeCreator;         //!< Second helper for volume creation
+public:
+  /** Constructor */
+  CaloTrackingGeometryBuilder(const std::string&, const std::string&, const IInterface*);
 
-      ToolHandle<Trk::ITrackingVolumeBuilder>       m_lArVolumeBuilder;              //!< Volume Builder for the Liquid Argon Calorimeter
+  /** Destructor */
+  virtual ~CaloTrackingGeometryBuilder();
 
-      ToolHandle<Trk::ITrackingVolumeBuilder>       m_tileVolumeBuilder;             //!< Volume Builder for the Tile Calorimeter
+  /** AlgTool initailize method.*/
+  StatusCode initialize();
 
-      Trk::Material*                                m_caloMaterial;                  //!< Material properties
-      
-      double                                        m_caloEnvelope;                  //!< Envelope cover for Gap Layers
-      //enclosing endcap/cylindervolume
-      ServiceHandle<IEnvelopeDefSvc>                m_enclosingEnvelopeSvc;
-                                                                                     
-      mutable double                                m_caloDefaultRadius;             //!< the radius if not built from GeoModel
-      mutable double                                m_caloDefaultHalflengthZ;        //!< the halflength in z if not built from GeoModel
-                                                                                     
-      bool                                          m_indexStaticLayers;              //!< forces robust indexing for layers
-      
-      bool                                          m_recordLayerIndexCaloSampleMap;  //!< for deposition methods
-      std::string                                   m_layerIndexCaloSampleMapName;    //!< name to record it
-      
-      bool                                          m_buildMBTS;                      //!< MBTS like detectors
-      //int				                            m_mbstSurfaceShape;		          //!< MBTS like detectors
-      mutable std::vector<double>                   m_mbtsRadii;                      //!< MBTS like detectors
-      std::vector<double>                           m_mbtsRadiusGap;                  //!< MBTS like detectors
-      std::vector<int>                              m_mbtsPhiSegments;                //!< MBTS like detectors
-      std::vector<double>                           m_mbtsPhiGap;			          //!< MBTS like detectors
-      std::vector<double>                           m_mbtsPositionZ;                  //!< MBTS like detectors
-      std::vector<double>		                    m_mbtsStaggeringZ;		          //!< MBTS like detectors
-      
-      std::string                                   m_entryVolume;                    //!< name of the Calo entrance 
-      std::string                                   m_exitVolume;                     //!< name of the Calo container
+  /** AlgTool finalize method */
+  StatusCode finalize();
 
-      mutable RZPairVector                          m_bpCutouts;
+  /** TrackingGeometry Interface methode */
+  Trk::TrackingGeometry* trackingGeometry(const Trk::TrackingVolume* tvol = 0) const;
 
-      // MBTS layers
-      mutable std::vector<const Trk::Layer*>*       m_mbtsNegLayers;
-      mutable std::vector<const Trk::Layer*>*       m_mbtsPosLayers;  
-      //ToolHandle<ICaloSurfaceHelper>                m_caloSurfaceHelper;
-           
-      /** method to establish a link between the LayerIndex and the CaloCell_ID in an associative container */
-      void registerInLayerIndexCaloSampleMap(Trk::LayerIndexSampleMap& licsMAp,
-                                             std::vector<CaloCell_ID::CaloSample> ccid,
-                                             const Trk::TrackingVolume& vol,
-                                             int side = 1 ) const;
+  /** The unique signature */
+  Trk::GeometrySignature geometrySignature() const { return Trk::Calo; }
 
-      /** method to build enclosed beam pipe volumes */
-      std::pair<const Trk::TrackingVolume*, const Trk::TrackingVolume*> createBeamPipeVolumes(float ,float, const std::string&, float&) const;      
+private:
+  ToolHandle<Trk::ITrackingVolumeArrayCreator>
+    m_trackingVolumeArrayCreator; //!< Helper Tool to create TrackingVolume Arrays
 
-      /** cleanup of material */
-      mutable std::map<const Trk::Material*, bool> m_materialGarbage;
-      void throwIntoGarbage(const Trk::Material* mat) const;
-      
-   };
+  ToolHandle<Trk::ITrackingVolumeHelper> m_trackingVolumeHelper; //!< Helper Tool to create TrackingVolumes
+
+  ToolHandle<Trk::ITrackingVolumeCreator> m_trackingVolumeCreator; //!< Second helper for volume creation
+
+  ToolHandle<Trk::ICaloTrackingVolumeBuilder> m_lArVolumeBuilder; //!< Volume Builder for the Liquid Argon Calorimeter
+
+  ToolHandle<Trk::ICaloTrackingVolumeBuilder> m_tileVolumeBuilder; //!< Volume Builder for the Tile Calorimeter
+
+  Trk::Material* m_caloMaterial; //!< Material properties
+
+  double m_caloEnvelope; //!< Envelope cover for Gap Layers
+  // enclosing endcap/cylindervolume
+  ServiceHandle<IEnvelopeDefSvc> m_enclosingEnvelopeSvc;
+
+  mutable double m_caloDefaultRadius;      //!< the radius if not built from GeoModel
+  mutable double m_caloDefaultHalflengthZ; //!< the halflength in z if not built from GeoModel
+
+  bool m_indexStaticLayers; //!< forces robust indexing for layers
+
+  bool m_recordLayerIndexCaloSampleMap;      //!< for deposition methods
+  std::string m_layerIndexCaloSampleMapName; //!< name to record it
+
+  bool m_buildMBTS; //!< MBTS like detectors
+  // int				                            m_mbstSurfaceShape;		          //!< MBTS like
+  // detectors
+  mutable std::vector<double> m_mbtsRadii; //!< MBTS like detectors
+  std::vector<double> m_mbtsRadiusGap;     //!< MBTS like detectors
+  std::vector<int> m_mbtsPhiSegments;      //!< MBTS like detectors
+  std::vector<double> m_mbtsPhiGap;        //!< MBTS like detectors
+  std::vector<double> m_mbtsPositionZ;     //!< MBTS like detectors
+  std::vector<double> m_mbtsStaggeringZ;   //!< MBTS like detectors
+
+  std::string m_entryVolume; //!< name of the Calo entrance
+  std::string m_exitVolume;  //!< name of the Calo container
+
+  mutable RZPairVector m_bpCutouts;
+
+  // MBTS layers
+  mutable std::vector<const Trk::Layer*>* m_mbtsNegLayers;
+  mutable std::vector<const Trk::Layer*>* m_mbtsPosLayers;
+  // ToolHandle<ICaloSurfaceHelper>                m_caloSurfaceHelper;
+
+  /** method to establish a link between the LayerIndex and the CaloCell_ID in an associative container */
+  void registerInLayerIndexCaloSampleMap(Trk::LayerIndexSampleMap& licsMAp,
+                                         std::vector<CaloCell_ID::CaloSample> ccid,
+                                         const Trk::TrackingVolume& vol,
+                                         int side = 1) const;
+
+  /** method to build enclosed beam pipe volumes */
+  std::pair<const Trk::TrackingVolume*, const Trk::TrackingVolume*> createBeamPipeVolumes(float,
+                                                                                          float,
+                                                                                          const std::string&,
+                                                                                          float&) const;
+
+  /** cleanup of material */
+  mutable std::map<const Trk::Material*, bool> m_materialGarbage;
+  void throwIntoGarbage(const Trk::Material* mat) const;
+};
 
 } // end of namespace
 

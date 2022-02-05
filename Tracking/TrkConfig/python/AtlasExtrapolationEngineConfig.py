@@ -60,7 +60,8 @@ def AtlasExtrapolationEngineCfg( flags, name = 'Extrapolation', nameprefix='Atla
     # give the tools it needs 
     staticNavigator.PropagationEngine        = staticPropagator
     staticNavigator.MaterialEffectsEngine    = materialEffectsEngine
-    staticNavigator.TrackingGeometrySvc         = geom_svc
+    if not use_tracking_geometry_cond_alg :
+      staticNavigator.TrackingGeometrySvc         = geom_svc
     staticNavigator.TrackingGeometryReadKey     = geom_cond_key        
     # Geometry name
     # configure output formatting               
@@ -86,11 +87,13 @@ def AtlasExtrapolationEngineCfg( flags, name = 'Extrapolation', nameprefix='Atla
     extrapolator = ExEngine(name=nameprefix+'Extrapolation',
                       ExtrapolationEngines   = [ staticExtrapolator ], 
                       PropagationEngine      = staticPropagator, 
-                      NavigationEngine       = staticNavigator, 
-                      TrackingGeometrySvc    = geom_svc, 
+                      NavigationEngine       = staticNavigator,
                       TrackingGeometryReadKey = geom_cond_key,
                       OutputPrefix           = '[ME] - ', 
                       OutputPostfix          = ' - ')
+    if not use_tracking_geometry_cond_alg :
+      extrapolator.TrackingGeometrySvc         = geom_svc
+      
     result.addPublicTool(extrapolator, primary=True)
     return result
 

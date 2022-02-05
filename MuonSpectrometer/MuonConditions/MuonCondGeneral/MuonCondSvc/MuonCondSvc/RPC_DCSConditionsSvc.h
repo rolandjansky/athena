@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDSVC_RPC_DCSCONDITIONSSVC_H
@@ -30,7 +30,7 @@ class StatusCode;
 class IRPC_DCSConditionsTool;
 class IIOVSvc;
 
-class RPC_DCSConditionsSvc : public AthService, virtual public IRPC_DCSConditionsSvc {
+class ATLAS_NOT_THREAD_SAFE RPC_DCSConditionsSvc : public AthService, virtual public IRPC_DCSConditionsSvc {
 friend class SvcFactory<RPC_DCSConditionsSvc>;   
  public:
   RPC_DCSConditionsSvc (const std::string& name, ISvcLocator* pSvcLocator);
@@ -84,17 +84,6 @@ friend class SvcFactory<RPC_DCSConditionsSvc>;
   std::vector<Identifier> m_cachedeffPanelId;
 
 
-static  std::map<Identifier ,double> s_RPCCondSummarySvc_RPC_PanelEfficiencyMap_empty;
-static  std::map<Identifier ,double> s_RPCCondSummarySvc_RPC_GapEfficiencyMap_empty;
-static  std::map<Identifier ,double> s_RPCCondSummarySvc_RPC_PanelMeanClusterSizeMap_empty;
-static  std::map<Identifier ,double> s_RPCCondSummarySvc_RPC_PanelFracClusterSize1Map_empty;
-static  std::map<Identifier ,double> s_RPCCondSummarySvc_RPC_PanelFracClusterSize2Map_empty;
-static  std::map<Identifier ,double> s_RPCCondSummarySvc_RPC_PanelFracClusterSize3Map_empty;
-static  std::map<Identifier ,std::string> s_RPCCondSummarySvc_RPC_PanelDeadStripListMap_empty;
-static  std::map<Identifier ,float> s_RPCCondSummarySvc_RPC_PanelFracDeadStripMap_empty;
-static  std::map<Identifier ,int> s_RPCCondSummarySvc_RPC_PanelProjectedTracksMap_empty;
-static  std::map<Identifier ,int> s_RPCCondSummarySvc_RPC_PanelDeadStripList_empty;
- static  std::map<Identifier ,std::vector<double> > s_RPCCondSummarySvc_RPC_StripTimeMap_empty;
  private:
   
   

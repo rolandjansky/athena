@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDDATA_CSCCONDDBDATA_H
@@ -43,8 +43,8 @@ public:
     void setChannelT0Phase(IdentifierHash, bool );
 
     void setDeadChannelHash(IdentifierHash);
-    void setDeadLayer     (std::string, Identifier);
-    void setDeadStation   (std::string, Identifier);
+    void setDeadLayer     (std::string_view, Identifier);
+    void setDeadStation   (std::string_view, Identifier);
    
     const std::vector<std::string>& getDeadLayers     () const;
     const std::vector<std::string>& getDeadStations   () const;
@@ -124,7 +124,7 @@ private:
 public:
 
     // readChannelParam
-    template <typename T> StatusCode readChannelParam(IdentifierHash hash, T& val, std::string parName) const{
+    template <typename T> StatusCode readChannelParam(IdentifierHash hash, T& val, const std::string& parName) const{
 
         if     (parName == "f001"   ) { float theVal; return readChannelF001   (hash, theVal); val = theVal; }
         else if(parName == "noise"  ) { float theVal; return readChannelNoise  (hash, theVal); val = theVal; }

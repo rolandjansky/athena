@@ -3,10 +3,6 @@
  */
 
 #include "egammaShowerShape.h"
-#include "egammaInterfaces/IegammaPreSamplerShape.h"
-#include "egammaInterfaces/IegammaStripsShape.h"
-#include "egammaInterfaces/IegammaMiddleShape.h"
-#include "egammaInterfaces/IegammaBackShape.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include <cmath>
 
@@ -23,30 +19,6 @@ egammaShowerShape::~egammaShowerShape(){
 
 StatusCode egammaShowerShape::initialize(){
     ATH_MSG_DEBUG(" Initializing egammaShowerShape");
-
-    if(m_egammaPreSamplerShape.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Unable to retrieve "<<m_egammaPreSamplerShape);
-        return StatusCode::FAILURE;
-    } 
-    ATH_MSG_DEBUG("Tool " << m_egammaPreSamplerShape << " retrieved"); 
-
-    if(m_egammaStripsShape.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Unable to retrieve "<<m_egammaStripsShape);
-        return StatusCode::FAILURE;
-    } 
-    ATH_MSG_DEBUG("Tool " << m_egammaStripsShape << " retrieved"); 
-
-    if(m_egammaMiddleShape.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Unable to retrieve "<<m_egammaMiddleShape);
-        return StatusCode::FAILURE;
-    } 
-
-    if(m_egammaBackShape.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Unable to retrieve "<<m_egammaBackShape);
-        return StatusCode::FAILURE;
-    } 
-    ATH_MSG_DEBUG("Tool " << m_egammaBackShape << " retrieved"); 
-
     return StatusCode::SUCCESS;
 }
 
@@ -65,16 +37,16 @@ StatusCode egammaShowerShape::execute(const xAOD::CaloCluster& cluster,
                     "Endcap, cannot calculate ShowerShape ");
   }
 
-  IegammaPreSamplerShape::Info egammaPreSamplerShapeInfo;
-  IegammaStripsShape::Info egammaStripsShapeInfo;
-  IegammaMiddleShape::Info egammaMiddleShapeInfo;
-  IegammaBackShape::Info egammaBackShapeInfo;
+  egammaPreSamplerShape::Info egammaPreSamplerShapeInfo;
+  egammaStripsShape::Info egammaStripsShapeInfo;
+  egammaMiddleShape::Info egammaMiddleShapeInfo;
+  egammaBackShape::Info egammaBackShapeInfo;
 
   // shower shapes in presampler
   if (m_ExecAllVariables || m_ExecPreSampler) {
     // call execute method
-    StatusCode sc = m_egammaPreSamplerShape->execute(cluster, cmgr,cell_container,
-                                                     egammaPreSamplerShapeInfo);
+    StatusCode sc = egammaPreSamplerShape::execute(
+      cluster, cmgr, cell_container, egammaPreSamplerShapeInfo);
     if (sc.isFailure()) {
       ATH_MSG_WARNING("Presampler shape returned failure ");
     }
@@ -84,7 +56,7 @@ StatusCode egammaShowerShape::execute(const xAOD::CaloCluster& cluster,
   if (m_ExecAllVariables || m_ExecEMFirst) {
     // call the execute method
     StatusCode sc =
-        m_egammaStripsShape->execute(cluster, cmgr, egammaStripsShapeInfo);
+      egammaStripsShape::execute(cluster, cmgr, egammaStripsShapeInfo);
     if (sc.isFailure()) {
       ATH_MSG_WARNING("Strip shape returned failure ");
     }
@@ -93,8 +65,8 @@ StatusCode egammaShowerShape::execute(const xAOD::CaloCluster& cluster,
   // shower shapes in 2nd compartment
   if (m_ExecAllVariables || m_ExecEMSecond) {
     // call the execute method
-    StatusCode sc = m_egammaMiddleShape->execute(cluster, cmgr, cell_container,
-                                                 egammaMiddleShapeInfo);
+    StatusCode sc = egammaMiddleShape::execute(
+      cluster, cmgr, cell_container, egammaMiddleShapeInfo);
     if (sc.isFailure()) {
       ATH_MSG_WARNING("Middle shape returned failure ");
     }
@@ -103,8 +75,8 @@ StatusCode egammaShowerShape::execute(const xAOD::CaloCluster& cluster,
   // shower shapes in 3rd compartment
   if (m_ExecAllVariables || m_ExecEMThird) {
     // call execute method
-    StatusCode sc = m_egammaBackShape->execute(cluster, cmgr, cell_container,
-                                               egammaBackShapeInfo);
+    StatusCode sc = egammaBackShape::execute(
+      cluster, cmgr, cell_container, egammaBackShapeInfo);
     if (sc.isFailure()) {
       ATH_MSG_DEBUG("Back shape returned failure ");
     }

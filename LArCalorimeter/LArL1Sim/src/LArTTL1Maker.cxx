@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // +======================================================================+
@@ -34,7 +34,6 @@
 #include "CaloIdentifier/CaloID_Exception.h"
 #include "CaloIdentifier/CaloLVL1_ID.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "LArIdentifier/LArIdManager.h"
 #include "CaloTriggerTool/CaloTriggerTowerService.h"
 //
 // ........ Event Header Files:
@@ -90,14 +89,6 @@ LArTTL1Maker::LArTTL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
   m_emHelper              = 0;
   m_hecHelper             = 0;
   m_fcalHelper            = 0;
-
-  m_EmTTL1ContainerName      = "LArTTL1EM";
-  m_HadTTL1ContainerName     = "LArTTL1HAD";
-
-  //m_EmBarrelHitContainerName = "LArHitEMB";
-  //m_EmEndCapHitContainerName = "LArHitEMEC";
-  //m_HecHitContainerName      = "LArHitHEC";
-  //m_ForWardHitContainerName  = "LArHitFCAL";
 
   m_NoiseOnOff               = true;
   m_PileUp                   = false;
@@ -345,7 +336,8 @@ StatusCode LArTTL1Maker::execute()
 
   // Prepare RNG Service
   ATHRNG::RNGWrapper* rngWrapper = m_RandomSvc->getEngine(this, m_randomStreamName);
-  rngWrapper->setSeedLegacy( m_randomStreamName, Gaudi::Hive::currentContext(), m_randomSeedOffset, m_useLegacyRandomSeeds );
+  ATHRNG::RNGWrapper::SeedingOptionType seedingmode=m_useLegacyRandomSeeds ? ATHRNG::RNGWrapper::MC16Seeding : ATHRNG::RNGWrapper::SeedingDefault;
+  rngWrapper->setSeedLegacy( m_randomStreamName, Gaudi::Hive::currentContext(), m_randomSeedOffset, seedingmode );
   CLHEP::HepRandomEngine* rndmEngine = *rngWrapper;
 
   //

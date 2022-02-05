@@ -29,10 +29,10 @@ else:
 ###################################################
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.detdescr.Muon_setOn()
-DetFlags.sTGC_setOff()
+DetFlags.sTGC_setOn()
 DetFlags.Micromegas_setOn()
 DetFlags.digitize.Micromegas_setOn()
-DetFlags.digitize.sTGC_setOff()
+DetFlags.digitize.sTGC_setOn()
 DetFlags.Truth_setOn()
 DetFlags.Print()
 
@@ -55,7 +55,7 @@ svcMgr += Muon__MuonIdHelperSvc("MuonIdHelperSvc",HasCSC=MuonGeometryFlags.hasCS
 include('TrigT1NSW/TrigT1NSW_jobOptions.py')
 
 #Switch on and off trigger simulaton components sTGC / MicroMegas
-topSequence.NSWL1Simulation.DosTGC=False
+topSequence.NSWL1Simulation.DosTGC=True
 topSequence.NSWL1Simulation.UseLookup=False #use lookup table for the pad trigger
 topSequence.NSWL1Simulation.DoMM=True
 topSequence.NSWL1Simulation.DoMMDiamonds=True
@@ -68,7 +68,8 @@ topSequence.NSWL1Simulation.PadTdsTool.DoNtuple=True
 topSequence.NSWL1Simulation.PadTriggerTool.DoNtuple=True
 topSequence.NSWL1Simulation.StripTdsTool.DoNtuple=True
 topSequence.NSWL1Simulation.StripClusterTool.DoNtuple=True
-topSequence.NSWL1Simulation.StripSegmentTool.DoNtuple=True
+topSequence.NSWL1Simulation.StripSegmentTool.DoNtuple=False
+topSequence.NSWL1Simulation.MMTriggerTool.DoNtuple=True
 
 #useful for validation of geometry and offline analyses
 topSequence.NSWL1Simulation.PadTriggerLookupTool.DumpSectorGeometry=False
@@ -119,3 +120,4 @@ else:#to avoid any possible crash. If DoNtuple is set to true for a tool but fal
     topSequence.NSWL1Simulation.StripTdsTool.DoNtuple=False
     topSequence.NSWL1Simulation.StripClusterTool.DoNtuple=False
     topSequence.NSWL1Simulation.StripSegmentTool.DoNtuple=False
+    topSequence.NSWL1Simulation.MMTriggerTool.DoNtuple=False

@@ -1,6 +1,6 @@
 // -*- C++ -*-
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -233,6 +233,15 @@ StatusCode Herwig7::fillEvt(HepMC::GenEvent* evt) {
   evt->set_pdf_info(pdfi);
   ATH_MSG_DEBUG("Added PDF info to HepMC");
 
+//uncomment to list HepMC events
+//#ifdef HEPMC3
+//    std::cout << " print::listing Herwig7 " << std::endl;
+//    HepMC3::Print::listing(std::cout, *evt);
+//#else
+//    std::cout << " print::printing Herwig7 " << std::endl;
+//    evt->print();
+//#endif
+
   return StatusCode::SUCCESS;
 }
 
@@ -252,17 +261,18 @@ StatusCode Herwig7::genFinalize() {
   ThePEG::Repository::cleanup();
 
   // possibly tidy up working directory
-  if (m_cleanup_herwig_scratch && boost::filesystem::is_directory("Herwig-scratch")){
+  if (m_cleanup_herwig_scratch && (boost::filesystem::is_directory("Herwig-scratch") || boost::filesystem::is_directory("Herwig-cache"))){
 
-    ATH_MSG_INFO("removing Herwig-scratch folder from "+boost::filesystem::current_path().string());
+    ATH_MSG_INFO("removing Herwig-scratch/Herwig-cache folder from "+boost::filesystem::current_path().string());
 
     // sleep for some time to allow all access to terminate
     boost::this_thread::sleep(boost::posix_time::seconds(5)); /// \todo Think of other way to wait for all access to terminate
 
     // in case the folder can't be deleted continue with warning
     try {
-      boost::filesystem::remove_all("Herwig-scratch");
-    } catch (const std::exception& e) {
+      (boost::filesystem::remove_all("Herwig-scratch") || boost::filesystem::remove_all("Herwig-cache"));
+    } 
+    catch (const std::exception& e) {
       ATH_MSG_WARNING("Failed to delete the folder 'Herwig-scratch': "+std::string(e.what()));
     }
 

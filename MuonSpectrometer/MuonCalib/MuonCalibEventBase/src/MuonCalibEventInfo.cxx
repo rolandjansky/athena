@@ -1,59 +1,46 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
+
+#include <utility>
 
 #include "MuonCalibEventBase/MuonCalibEventInfo.h"
 
 namespace MuonCalib {
 
-    MuonCalibEventInfo::MuonCalibEventInfo() : m_runNumber(0), m_eventNumber(0), m_timeStamp(0), m_lumiBlock(0), m_bcId(0), m_tag("none") {}
+    unsigned int MuonCalibEventInfo::runNumber() const { return m_runNumber; }
+    unsigned int MuonCalibEventInfo::eventNumber() const { return m_eventNumber; }
+    unsigned int MuonCalibEventInfo::timeStamp() const { return m_timeStamp; }
+    unsigned int MuonCalibEventInfo::lumiBlock() const { return m_lumiBlock; }
+    unsigned int MuonCalibEventInfo::bcId() const { return m_bcId; }
+    std::string MuonCalibEventInfo::tag() const { return m_tag; }
+    const std::vector<bool> &MuonCalibEventInfo::triggerBits() const { return m_trigger_bits; }
+
+    void MuonCalibEventInfo::setRunNumber(const unsigned int run_number) { m_runNumber = run_number; }
+    void MuonCalibEventInfo::setEventNumber(const unsigned int event_number) { m_eventNumber = event_number; }
+    void MuonCalibEventInfo::setTimeStamp(const unsigned int time_stamp) { m_timeStamp = time_stamp; }
+    void MuonCalibEventInfo::setLumiBlock(const unsigned int lumi_block) { m_lumiBlock = lumi_block; }
+    void MuonCalibEventInfo::setBcId(const unsigned int bc_id) { m_bcId = bc_id; }
+    void MuonCalibEventInfo::setTag(const std::string &tag) { m_tag = tag; }
+    void MuonCalibEventInfo::setNumberOfTriggerBits(unsigned int n) { m_trigger_bits.resize(n); }
+    void MuonCalibEventInfo::setTriggerBit(unsigned int n, bool bit) { m_trigger_bits[n] = bit; }
 
     MuonCalibEventInfo::MuonCalibEventInfo(unsigned int run_number, unsigned int event_number) :
-        m_runNumber(run_number), m_eventNumber(event_number), m_timeStamp(0), m_lumiBlock(0), m_bcId(0), m_tag("none") {}
+        m_runNumber{run_number}, m_eventNumber{event_number} {}
 
     MuonCalibEventInfo::MuonCalibEventInfo(unsigned int run_number, unsigned int event_number, unsigned int time_stamp) :
-        m_runNumber(run_number), m_eventNumber(event_number), m_timeStamp(time_stamp), m_lumiBlock(0), m_bcId(0), m_tag("none") {}
+        m_runNumber{run_number}, m_eventNumber{event_number}, m_timeStamp{time_stamp} {}
 
     MuonCalibEventInfo::MuonCalibEventInfo(unsigned int run_number, unsigned int event_number, unsigned int time_stamp,
                                            unsigned int lumi_block, unsigned int bc_id) :
-        m_runNumber(run_number),
-        m_eventNumber(event_number),
-        m_timeStamp(time_stamp),
-        m_lumiBlock(lumi_block),
-        m_bcId(bc_id),
-        m_tag("none") {}
+        m_runNumber{run_number}, m_eventNumber{event_number}, m_timeStamp{time_stamp}, m_lumiBlock{lumi_block}, m_bcId{bc_id} {}
 
     MuonCalibEventInfo::MuonCalibEventInfo(unsigned int run_number, unsigned int event_number, unsigned int time_stamp, std::string tag) :
-        m_runNumber(run_number), m_eventNumber(event_number), m_timeStamp(time_stamp), m_lumiBlock(0), m_bcId(0), m_tag(tag) {}
+        m_runNumber(run_number), m_eventNumber(event_number), m_timeStamp(time_stamp), m_lumiBlock(0), m_bcId(0), m_tag(std::move(tag)) {}
 
     MuonCalibEventInfo::MuonCalibEventInfo(unsigned int run_number, unsigned int event_number, unsigned int time_stamp,
                                            unsigned int lumi_block, unsigned int bc_id, std::string tag) :
-        m_runNumber(run_number), m_eventNumber(event_number), m_timeStamp(time_stamp), m_lumiBlock(lumi_block), m_bcId(bc_id), m_tag(tag) {}
-
-    MuonCalibEventInfo::MuonCalibEventInfo(const MuonCalibEventInfo &eventInfo) {
-        m_runNumber = eventInfo.runNumber();
-        m_eventNumber = eventInfo.eventNumber();
-        m_timeStamp = eventInfo.timeStamp();
-        m_lumiBlock = eventInfo.lumiBlock();
-        m_bcId = eventInfo.bcId();
-        m_tag = eventInfo.tag();
-        m_trigger_bits = eventInfo.m_trigger_bits;
-    }
-
-    MuonCalibEventInfo &MuonCalibEventInfo::operator=(const MuonCalibEventInfo &eventInfo) {
-        if (this != &eventInfo) {
-            m_runNumber = eventInfo.runNumber();
-            m_eventNumber = eventInfo.eventNumber();
-            m_timeStamp = eventInfo.timeStamp();
-            m_lumiBlock = eventInfo.lumiBlock();
-            m_bcId = eventInfo.bcId();
-            m_tag = eventInfo.tag();
-            m_trigger_bits = eventInfo.m_trigger_bits;
-        }
-        return *this;
-    }
-
-    MuonCalibEventInfo::~MuonCalibEventInfo() {}
+        m_runNumber(run_number), m_eventNumber(event_number), m_timeStamp(time_stamp), m_lumiBlock(lumi_block), m_bcId(bc_id), m_tag(std::move(tag)) {}
 
     std::ostream &MuonCalibEventInfo::dump(std::ostream &stream) const {
         stream << "MuonCalibEventInfo : " << std::endl;

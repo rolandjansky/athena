@@ -43,9 +43,6 @@ include( "RecExCommon/RecExCommon_topOptions.py" )
 
 # Correctly configure the trigger via TriggerJobOpts
 # The following will configure the TDT
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-TriggerFlags.configurationSourceList.set_Value_and_Lock( [ "ds" ] )
-    
 from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
 TriggerConfigGetter()
 

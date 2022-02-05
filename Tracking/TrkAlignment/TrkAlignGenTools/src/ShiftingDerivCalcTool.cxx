@@ -217,7 +217,9 @@ namespace Trk {
     double shiftsize = shiftSize(*alignParIt);
     if (ishift>0) shiftsize*=-1.;
     m_alignModuleTool->shiftModule(*moduleIt,alignTrack,(**alignParIt).paramType(),shiftsize);
-    refittedTrack = m_fitter->fit(*trackForRefit,m_runOutlierRemoval,m_particleHypothesis);
+    refittedTrack = (m_fitter->fit(Gaudi::Hive::currentContext(),
+                                  *trackForRefit,m_runOutlierRemoval,
+                                  m_particleHypothesis)).release();
     m_alignModuleTool->restoreModule(*moduleIt);
     if (!refittedTrack) {
       msg(MSG::WARNING) << "track refit failed!"<<endmsg;
@@ -933,8 +935,6 @@ void ShiftingDerivCalcTool::deleteChi2VAlignParam()
     delete [] m_chi2VAlignParamVecMeasType[i];  m_chi2VAlignParamVecMeasType[i]=nullptr;
   }
   m_chi2VAlignParamVecMeasType.clear();
-
-  return;
 }
 
 //________________________________________________________________________

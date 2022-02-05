@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTrackingGeometry/MuonStationBuilderCond.h"
@@ -122,10 +122,10 @@ Muon::MuonStationBuilderCond::buildDetachedTrackingVolumes(const EventContext& c
     while (!vol.atEnd()) {
         const GeoVPhysVol* cv = &(*(vol.getVolume()));
         const GeoLogVol* clv = cv->getLogVol();
-        std::string vname = clv->getName();
+        const std::string &vname = clv->getName();
 
         // special treatment for NSW
-        if (vname.substr(0, 3) == "NSW" || vname.substr(0, 8) == "NewSmall") {
+        if (vname.compare(0, 3,"NSW") == 0 || vname.compare(0, 8,"NewSmall") == 0) {
             ATH_MSG_INFO(vname << " processing NSW ");
             std::vector<std::pair<const Trk::DetachedTrackingVolume*, std::vector<Amg::Transform3D> > > objs;
 
@@ -138,7 +138,7 @@ Muon::MuonStationBuilderCond::buildDetachedTrackingVolumes(const EventContext& c
                 std::vector<Amg::Transform3D> volTr;
                 volTr.push_back(vol.getTransform());
                 std::pair<const GeoLogVol*, Trk::MaterialProperties*> cpair(clv, 0);
-                vols.emplace_back(cpair, volTr);
+                vols.emplace_back(cpair, std::move(volTr));
                 volNames.push_back(vname);
                 simpleTree = true;
             } else {
@@ -167,11 +167,14 @@ Muon::MuonStationBuilderCond::buildDetachedTrackingVolumes(const EventContext& c
             for (unsigned int ish = 0; ish < vols.size(); ish++) {
                 bool isLargeSector = fabs(((vols[ish]).second)[0].translation().phi()) < 0.01;
                 std::string protoName = vname;
-                if (!simpleTree) protoName = vname + "_" + volNames[ish];
+                if (!simpleTree){
+                   protoName += '_';
+                   protoName += volNames[ish];
+               }
 
                 // Got to mothervolume of sTGC_Sensitive/sTGC_Frame and MM_Sensitive/MM_Frame: TGCGas ArCo2
                 ATH_MSG_DEBUG(" ish " << ish << " protoName14 " << protoName.substr(1, 4) << " volName04 " << volNames[ish].substr(0, 4));
-                if (volNames[ish].substr(0, 4) != "sTGC" && volNames[ish].substr(0, 2) != "MM") continue;
+                if (volNames[ish].compare(0, 4,"sTGC") != 0 && volNames[ish].substr(0, 2) != "MM") continue;
 
                 std::string oName = protoName.substr(protoName.find('-') + 1);
                 Identifier nswId = m_muonStationTypeBuilder->identifyNSW(muonMgr, oName, vols[ish].second[0]);
@@ -500,9 +503,9 @@ Muon::MuonStationBuilderCond::buildDetachedTrackingVolumes(const EventContext& c
 
         }  // end NSW!
 
-        if (vname.size() > 7 && vname.substr(vname.size() - 7, 7) == "Station" &&
-            ((m_buildBarrel && vname.substr(0, 1) == "B") || (m_buildEndcap && vname.substr(0, 1) == "E") ||
-             (m_buildCsc && vname.substr(0, 1) == "C") || (m_buildTgc && vname.substr(0, 1) == "T"))) {
+        if (vname.size() > 7 && vname.compare(vname.size() - 7, 7, "Station") == 0 &&
+            ((m_buildBarrel && vname.compare(0, 1,"B") == 0) || (m_buildEndcap && vname.compare(0, 1,"E") == 0) ||
+             (m_buildCsc && vname.compare(0, 1,"C") == 0) || (m_buildTgc && vname.compare(0, 1, "T") == 0))) {
             int etaphi = vol.getId();  // retrive eta/phi indexes
             int sign = (etaphi < 0) ? -1 : 1;
             etaphi = sign * etaphi;
@@ -530,68 +533,69 @@ Muon::MuonStationBuilderCond::buildDetachedTrackingVolumes(const EventContext& c
             //
             if (!gmStation) ATH_MSG_WARNING("Muon station not found! " << vname << "," << eta << "," << phi);
             std::string stName = (clv->getName()).substr(0, vname.size() - 8);
-            if (stName.substr(0, 1) == "B" && eta < 0) { stName = (clv->getName()).substr(0, vname.size() - 8) + "-"; }
-            if (stName.substr(0, 1) == "T" || stName.substr(0, 1) == "C") { stName = vname.substr(0, 4); }
+            if (stName.compare(0, 1,"B") == 0 && eta < 0) { stName = (clv->getName()).substr(0, vname.size() - 8) + "-"; }
+            if (stName.compare(0, 1,"T") == 0 || stName.compare(0, 1,"C") == 0) { stName = vname.substr(0, 4); }
             // loop over prototypes
             const Trk::DetachedTrackingVolume* msTV = nullptr;
             for (msTypeIter = msTypes->begin(); msTypeIter != msTypes->end(); ++msTypeIter) {
                 std::string msTypeName = (*msTypeIter)->name();
-                if ((stName.substr(0, 1) == "T" && stName == msTypeName.substr(0, stName.size())) ||
-                    (stName.substr(0, 1) != "T" && stName == msTypeName)) {
+                if ((stName.compare(0, 1,"T") == 0 && 0 == msTypeName.compare(0, stName.size(),stName)) ||
+                    (stName.compare(0, 1, "T") != 0 && stName == msTypeName)) {
                     msTV = *msTypeIter;
                     if (msTV && gmStation) {
                         Amg::Transform3D transf = Amg::CLHEPTransformToEigen(gmStation->getTransform());
                         Identifier stId(0);
-                        if (m_idHelperSvc->hasCSC() && stName.substr(0, 1) == "C") {
+                        if (m_idHelperSvc->hasCSC() && stName.compare(0, 1,"C") == 0) {
                             stId = m_idHelperSvc->cscIdHelper().elementID(vname.substr(0, 3), eta, phi);
                         }
                         // adjust eta,phi
-                        if (msTypeName.substr(0, 1) == "C") {
+                        if (msTypeName.compare(0, 1,"C") == 0) {
                             eta = 1;
                             if (transf.translation().z() < 0) eta = 0;
                             double phic = transf.translation().phi() + 0.1;
                             phi = static_cast<int>(phic < 0 ? 4 * phic / M_PI + 8 : 4 * phic / M_PI);
                         }
-                        if (msTypeName.substr(0, 1) == "T") {
+                        if (msTypeName.compare(0, 1,"T") == 0) {
                             bool az = true;
-                            std::string msName = msTV->trackingVolume()->volumeName();
+                            std::string_view msName ( msTV->trackingVolume()->volumeName());
+                            std::string_view sub= msName.substr(7, 2);
                             if (transf.translation().z() < 0) az = false;
-                            if (msName.substr(7, 2) == "01") eta = az ? 5 : 4;
-                            if (msName.substr(7, 2) == "02") eta = az ? 5 : 4;
-                            if (msName.substr(7, 2) == "03") eta = az ? 6 : 3;
-                            if (msName.substr(7, 2) == "04") eta = az ? 7 : 2;
-                            if (msName.substr(7, 2) == "05") eta = az ? 8 : 1;
-                            if (msName.substr(7, 2) == "06") eta = az ? 5 : 4;
-                            if (msName.substr(7, 2) == "07") eta = az ? 5 : 4;
-                            if (msName.substr(7, 2) == "08") eta = az ? 6 : 3;
-                            if (msName.substr(7, 2) == "09") eta = az ? 7 : 2;
-                            if (msName.substr(7, 2) == "10") eta = az ? 8 : 1;
-                            if (msName.substr(7, 2) == "11") eta = az ? 9 : 0;
-                            if (msName.substr(7, 2) == "12") eta = az ? 5 : 4;
-                            if (msName.substr(7, 2) == "13") eta = az ? 5 : 4;
-                            if (msName.substr(7, 2) == "14") eta = az ? 6 : 3;
-                            if (msName.substr(7, 2) == "15") eta = az ? 7 : 2;
-                            if (msName.substr(7, 2) == "16") eta = az ? 8 : 1;
-                            if (msName.substr(7, 2) == "17") eta = az ? 9 : 0;
-                            if (msName.substr(7, 2) == "18") eta = az ? 5 : 4;
-                            if (msName.substr(7, 2) == "19") eta = az ? 5 : 4;
-                            if (msName.substr(7, 2) == "20") eta = az ? 5 : 4;
-                            if (msName.substr(7, 2) == "21") eta = az ? 5 : 4;
-                            if (msName.substr(7, 2) == "22") eta = az ? 5 : 4;
+                            if (sub == "01") eta = az ? 5 : 4;
+                            else if (sub == "02") eta = az ? 5 : 4;
+                            else if (sub == "03") eta = az ? 6 : 3;
+                            else if (sub == "04") eta = az ? 7 : 2;
+                            else if (sub == "05") eta = az ? 8 : 1;
+                            else if (sub == "06") eta = az ? 5 : 4;
+                            else if (sub == "07") eta = az ? 5 : 4;
+                            else if (sub == "08") eta = az ? 6 : 3;
+                            else if (sub == "09") eta = az ? 7 : 2;
+                            else if (sub == "10") eta = az ? 8 : 1;
+                            else if (sub == "11") eta = az ? 9 : 0;
+                            else if (sub == "12") eta = az ? 5 : 4;
+                            else if (sub == "13") eta = az ? 5 : 4;
+                            else if (sub == "14") eta = az ? 6 : 3;
+                            else if (sub == "15") eta = az ? 7 : 2;
+                            else if (sub == "16") eta = az ? 8 : 1;
+                            else if (sub == "17") eta = az ? 9 : 0;
+                            else if (sub == "18") eta = az ? 5 : 4;
+                            else if (sub == "19") eta = az ? 5 : 4;
+                            else if (sub == "20") eta = az ? 5 : 4;
+                            else if (sub == "21") eta = az ? 5 : 4;
+                            else if (sub == "22") eta = az ? 5 : 4;
                         }
-                        if (m_idHelperSvc->hasTGC() && stName.substr(0, 1) == "T") {
+                        if (m_idHelperSvc->hasTGC() && stName[0] =='T') {
                             int etaSt = eta - 4;
                             if (eta < 5) etaSt = eta - 5;
                             double phic = transf.translation().phi();
-                            if (msTypeName.substr(2, 1) == "E" && msTypeName.substr(0, 3) != "T4E")
+                            if (msTypeName.compare(2, 1, "E") == 0 && msTypeName.compare(0, 3, "T4E") != 0)
                                 phi = static_cast<int>(phic < 0 ? 24 * phic / M_PI + 48 : 24 * phic / M_PI);
                             else
                                 phi = static_cast<int>(phic < 0 ? 12 * phic / M_PI + 24 : 12 * phic / M_PI);
                             phi++;
                             stId = m_idHelperSvc->tgcIdHelper().elementID(vname.substr(0, 3), etaSt, phi);
-                        } else if (m_idHelperSvc->hasRPC() && stName.substr(0, 3) == "BML") {
+                        } else if (m_idHelperSvc->hasRPC() && stName.compare(0, 3, "BML") == 0) {
                             stId = m_idHelperSvc->rpcIdHelper().elementID(vname.substr(0, 3), eta, phi, 1);
-                        } else if (m_idHelperSvc->hasMDT() && stName.substr(0, 1) != "C") {
+                        } else if (m_idHelperSvc->hasMDT() && stName.compare(0, 1, "C") != 0) {
                             stId = m_idHelperSvc->mdtIdHelper().elementID(vname.substr(0, 3), eta, phi);
                         }
                         if (!(stId.get_compact()))
@@ -638,9 +642,9 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilderC
             const GeoVPhysVol* cv = &(*(vol.getVolume()));
             const GeoLogVol* clv = cv->getLogVol();
             const std::string& vname = clv->getName();
-            if (vname.size() > 7 && vname.substr(vname.size() - 7, 7) == "Station" &&
-                ((m_buildBarrel && vname.substr(0, 1) == "B") || (m_buildEndcap && vname.substr(0, 1) == "E") ||
-                 (m_buildCsc && vname.substr(0, 1) == "C") || (m_buildTgc && vname.substr(0, 1) == "T"))) {
+            if (vname.size() > 7 && vname.compare(vname.size() - 7, 7, "Station") == 0 &&
+                ((m_buildBarrel && vname.compare(0, 1, "B") == 0) || (m_buildEndcap && vname.compare(0, 1, "E") == 0) ||
+                 (m_buildCsc && vname.compare(0, 1, "C") == 0) || (m_buildTgc && vname.compare(0, 1,"T") == 0))) {
                 int etaphi = vol.getId();  // retrieve eta/phi indexes
                 int sign = (etaphi < 0) ? -1 : 1;
                 etaphi = sign * etaphi;
@@ -670,11 +674,11 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilderC
                 std::string name = (clv->getName()).substr(0, vname.size() - 8);
                 // is this station known ?
                 // if TGC station, look for 1 component instead
-                if (name.substr(0, 1) == "T") {
+                if (name.compare(0, 1,"T") == 0) {
                     std::string tgc_name = cv->getChildVol(0)->getLogVol()->getName();
                     name = tgc_name;
                 }
-                if (name.substr(0, 1) == "B" && eta < 0) { name = (clv->getName()).substr(0, vname.size() - 8) + "-"; }
+                if (name.compare(0, 1, "B") == 0 && eta < 0) { name = (clv->getName()).substr(0, vname.size() - 8) + "-"; }
                 unsigned is = 0;
                 for (unsigned in = 0; in < stations.size(); in++) {
                     if (stations[in] != nullptr && name == stations[in]->name()) is++;
@@ -683,9 +687,9 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilderC
                     ATH_MSG_VERBOSE(" new station type " << name << "," << clv->getShape()->type());
                     ATH_MSG_VERBOSE(" prototype built from eta, phi:" << eta << "," << phi);
 
-                    if (name.substr(0, 2) == "CS" || name.substr(0, 1) == "T") {
+                    if (name.compare(0, 2,"CS") == 0 || name.compare(0, 1,"T") == 0) {
                         if (m_muonStationTypeBuilder) {
-                            if (name.substr(0, 2) == "CS") {
+                            if (name.compare(0, 2, "CS") == 0) {
                                 Trk::TrackingVolume* csc_station = m_muonStationTypeBuilder->processCscStation(cv, name, cache);
                                 // create layer representation
                                 std::pair<const Trk::Layer*, const std::vector<const Trk::Layer*>*> layerRepr =
@@ -695,7 +699,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilderC
                                     new Trk::DetachedTrackingVolume(name, csc_station, layerRepr.first, layerRepr.second);
                                 stations.push_back(typeStat);
                             } else {
-                                std::vector<const Trk::TrackingVolume*> tgc_stations =
+                                std::vector<Trk::TrackingVolume*> tgc_stations =
                                     m_muonStationTypeBuilder->processTgcStation(cv, cache);
                                 for (unsigned int i = 0; i < tgc_stations.size(); i++) {
                                     // create layer representation
@@ -737,7 +741,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilderC
                             halfZ = trd->getZHalfLength();
 
                             // define enveloping volume
-                            const Trk::TrackingVolumeArray* confinedVolumes = nullptr;
+                            Trk::TrackingVolumeArray* confinedVolumes = nullptr;
                             Trk::Volume* envelope = nullptr;
                             std::string shape = "Trd";
                             if (halfX1 == halfX2 && halfY1 == halfY2) shape = "Box";
@@ -782,7 +786,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilderC
                                 delete envelope;
 
                                 // identify prototype
-                                if ((name.substr(0, 1) == "B" || name.substr(0, 1) == "E"))
+                                if ((name.compare(0, 1, "B") == 0 || name.compare(0, 1,"E") == 0))
                                     identifyPrototype(newType, eta, phi, Amg::CLHEPTransformToEigen(gmStation->getTransform()), muonMgr);
 
                                 // create layer representation
@@ -813,7 +817,7 @@ void Muon::MuonStationBuilderCond::glueComponents(const Trk::DetachedTrackingVol
     const Trk::TrackingVolumeArray* volArray = stat->trackingVolume()->confinedVolumes();
     if (volArray) {
         if (volArray->arrayObjectsNumber() > 1) {
-            const std::vector<const Trk::TrackingVolume*>& components = volArray->arrayObjects();
+            Trk::BinnedArraySpan<Trk::TrackingVolume const * const> components = volArray->arrayObjects();
             const Trk::BinUtility* binUtilityX = volArray->binUtility();
             const Trk::CuboidVolumeBounds* cubVolBounds = dynamic_cast<const Trk::CuboidVolumeBounds*>(&(components[0]->volumeBounds()));
 
@@ -844,8 +848,8 @@ void Muon::MuonStationBuilderCond::identifyLayers(const Trk::DetachedTrackingVol
     std::string stationName = station->trackingVolume()->volumeName();
     ATH_MSG_VERBOSE(" in station " << station->name());
 
-    if (stationName.substr(0, 1) == "C") {
-        int st = stationName.substr(0, 3) == "CSS" ? 0 : 1;
+    if (stationName.compare(0, 1, "C") == 0) {
+        int st = stationName.compare(0, 3, "CSS") == 0 ? 0 : 1;
         const MuonGM::CscReadoutElement* cscRE = muonMgr->getCscReadoutElement(st, eta, phi, 0);
         int cLay = cscRE ? 0 : 1;
         if (!cscRE) cscRE = muonMgr->getCscReadoutElement(st, eta, phi, cLay);
@@ -870,21 +874,21 @@ void Muon::MuonStationBuilderCond::identifyLayers(const Trk::DetachedTrackingVol
         }
     }
 
-    if (stationName.substr(0, 1) == "T") {
+    if (stationName.compare(0, 1, "T") == 0) {
         int st = 7;
-        if (stationName.substr(0, 3) == "T1F") {
+        if (stationName.compare(0, 3, "T1F") == 0) {
             st = 0;
-        } else if (stationName.substr(0, 3) == "T1E") {
+        } else if (stationName.compare(0, 3, "T1E") == 0) {
             st = 1;
-        } else if (stationName.substr(0, 3) == "T2F") {
+        } else if (stationName.compare(0, 3, "T2F") == 0) {
             st = 2;
-        } else if (stationName.substr(0, 3) == "T2E") {
+        } else if (stationName.compare(0, 3, "T2E") == 0) {
             st = 3;
-        } else if (stationName.substr(0, 3) == "T3F") {
+        } else if (stationName.compare(0, 3, "T3F") == 0) {
             st = 4;
-        } else if (stationName.substr(0, 3) == "T3E") {
+        } else if (stationName.compare(0, 3, "T3E") == 0) {
             st = 5;
-        } else if (stationName.substr(0, 3) == "T4F") {
+        } else if (stationName.compare(0, 3, "T4F") == 0) {
             st = 6;
         }
 
@@ -920,7 +924,7 @@ void Muon::MuonStationBuilderCond::identifyLayers(const Trk::DetachedTrackingVol
             const Trk::TrackingVolume* assocVol = station->trackingVolume()->associatedSubVolume(gp);
             if (!assocVol) ATH_MSG_DEBUG("wrong tgcROE?" << stationName << "," << etaSt << "," << phiSt);
             if (assocVol && assocVol->confinedLayers()) {
-                const std::vector<const Trk::Layer*> layers = assocVol->confinedLayers()->arrayObjects();
+                Trk::BinnedArraySpan<Trk::Layer const * const> layers = assocVol->confinedLayers()->arrayObjects();
                 for (unsigned int il = 0; il < layers.size(); il++) {
                     wireId = m_idHelperSvc->tgcIdHelper().channelID(stationName.substr(0, 3), etaSt, phiSt, il + 1, 0, 1, true, validId);
                     if (!(*validId))
@@ -946,16 +950,16 @@ void Muon::MuonStationBuilderCond::identifyLayers(const Trk::DetachedTrackingVol
         }
     }
 
-    if (m_idHelperSvc->hasMDT() && (stationName.substr(0, 1) == "B" || stationName.substr(0, 1) == "E")) {
+    if (m_idHelperSvc->hasMDT() && (stationName.compare(0, 1, "B") == 0 || stationName.compare(0, 1, "E") == 0)) {
         // recalculate id
         Identifier stId(station->layerRepresentation()->layerType());
 
         int nameIndex = m_idHelperSvc->mdtIdHelper().stationNameIndex(stationName.substr(0, 3));
         if (station->trackingVolume()->confinedVolumes()) {
-            const std::vector<const Trk::TrackingVolume*> cVols = station->trackingVolume()->confinedVolumes()->arrayObjects();
+            Trk::BinnedArraySpan<Trk::TrackingVolume const * const> cVols = station->trackingVolume()->confinedVolumes()->arrayObjects();
             for (unsigned int i = 0; i < cVols.size(); i++) {
                 if (cVols[i]->confinedLayers()) {
-                    const std::vector<const Trk::Layer*> cLays = cVols[i]->confinedLayers()->arrayObjects();
+                    Trk::BinnedArraySpan<Trk::Layer const * const> cLays = cVols[i]->confinedLayers()->arrayObjects();
                     const MuonGM::MdtReadoutElement* mdtROE = nullptr;
                     for (unsigned int il = 0; il < cLays.size(); il++) {
                         Identifier id(cLays[il]->layerType());
@@ -1006,10 +1010,10 @@ void Muon::MuonStationBuilderCond::identifyLayers(const Trk::DetachedTrackingVol
 
     // by now, all the layers should be identified - verify
     if (station->trackingVolume()->confinedVolumes()) {
-        const std::vector<const Trk::TrackingVolume*> cVols = station->trackingVolume()->confinedVolumes()->arrayObjects();
+        Trk::BinnedArraySpan<Trk::TrackingVolume const * const> cVols = station->trackingVolume()->confinedVolumes()->arrayObjects();
         for (unsigned int i = 0; i < cVols.size(); i++) {
             if (cVols[i]->confinedLayers()) {
-                const std::vector<const Trk::Layer*> cLays = cVols[i]->confinedLayers()->arrayObjects();
+                Trk::BinnedArraySpan<Trk::Layer const * const> cLays = cVols[i]->confinedLayers()->arrayObjects();
                 for (unsigned int il = 0; il < cLays.size(); il++) {
                     Identifier id(cLays[il]->layerType());
                     if (id == 1) ATH_MSG_DEBUG(station->name() << "," << cVols[i]->volumeName() << ", unidentified active layer:" << il);
@@ -1025,7 +1029,7 @@ void Muon::MuonStationBuilderCond::identifyLayers(const Trk::DetachedTrackingVol
         }
     }
     if (station->trackingVolume()->confinedLayers()) {
-        const std::vector<const Trk::Layer*> cLays = station->trackingVolume()->confinedLayers()->arrayObjects();
+        Trk::BinnedArraySpan<Trk::Layer const * const> cLays = station->trackingVolume()->confinedLayers()->arrayObjects();
         for (unsigned int il = 0; il < cLays.size(); il++) {
             Identifier id(cLays[il]->layerType());
             if (id == 1) ATH_MSG_DEBUG(station->name() << "," << station->name() << ", unidentified active layer:" << il);
@@ -1041,9 +1045,9 @@ void Muon::MuonStationBuilderCond::identifyPrototype(const Trk::TrackingVolume* 
     const std::string& stationName = station->volumeName();
     ATH_MSG_VERBOSE(" for station " << stationName);
     const std::string stationNameShort = stationName.substr(0, 3);
-    const std::string stationFirstChar = stationName.substr(0, 1);
+    const char stationFirstChar = stationName[0];
 
-    if (m_idHelperSvc->hasMDT() && (stationFirstChar == "B" || stationFirstChar == "E")) {
+    if (m_idHelperSvc->hasMDT() && (stationFirstChar == 'B' || stationFirstChar == 'E')) {
         // MDT
         int nameIndex = m_idHelperSvc->mdtIdHelper().stationNameIndex(stationNameShort);
         int nameIndexC = nameIndex;
@@ -1074,9 +1078,9 @@ void Muon::MuonStationBuilderCond::identifyPrototype(const Trk::TrackingVolume* 
         }
 
         // RPC ?
-        const Trk::BinnedArray<Trk::TrackingVolume>* confinedVolumes = station->confinedVolumes();
+        const Trk::BinnedArray<const Trk::TrackingVolume>* confinedVolumes = station->confinedVolumes();
         if (confinedVolumes) {
-            const std::vector<const Trk::TrackingVolume*>& vols = confinedVolumes->arrayObjects();
+            Trk::BinnedArraySpan<Trk::TrackingVolume const * const> vols = confinedVolumes->arrayObjects();
             for (unsigned int iv = 0; iv < vols.size(); iv++)
                 if (m_idHelperSvc->hasRPC() && vols[iv]->volumeName() == "RPC") {
                     // for active layers do a search of associated ROE
@@ -1158,10 +1162,10 @@ void Muon::MuonStationBuilderCond::identifyPrototype(const Trk::TrackingVolume* 
 
     // by now, all the layers should be identified - verify
     if (station->confinedVolumes()) {
-        const std::vector<const Trk::TrackingVolume*> cVols = station->confinedVolumes()->arrayObjects();
+        Trk::BinnedArraySpan<Trk::TrackingVolume const * const> cVols = station->confinedVolumes()->arrayObjects();
         for (unsigned int i = 0; i < cVols.size(); i++) {
             if (cVols[i]->confinedLayers()) {
-                const std::vector<const Trk::Layer*> cLays = cVols[i]->confinedLayers()->arrayObjects();
+                Trk::BinnedArraySpan<Trk::Layer const * const> cLays = cVols[i]->confinedLayers()->arrayObjects();
                 for (unsigned int il = 0; il < cLays.size(); il++) {
                     Identifier id(cLays[il]->layerType());
                     if (id == 1)
@@ -1179,7 +1183,7 @@ void Muon::MuonStationBuilderCond::identifyPrototype(const Trk::TrackingVolume* 
         }
     }
     if (station->confinedLayers()) {
-        const std::vector<const Trk::Layer*> cLays = station->confinedLayers()->arrayObjects();
+        Trk::BinnedArraySpan<Trk::Layer const * const> cLays = station->confinedLayers()->arrayObjects();
         for (unsigned int il = 0; il < cLays.size(); il++) {
             Identifier id(cLays[il]->layerType());
             if (id == 1) ATH_MSG_DEBUG(station->volumeName() << "," << station->volumeName() << ", unidentified active layer:" << il);
@@ -1208,12 +1212,10 @@ void Muon::MuonStationBuilderCond::getNSWStationsForTranslation(
 
         if (childName.empty()) childName = "Spacer";
         if (childName.size() > 9 && childName.substr(childName.size() - 9, 9) == "Sensitive") {
-            std::stringstream st;
-            st << ic;
-            childName = childName + st.str();
+            childName += std::to_string(ic);
         }
 
-        std::string cName = childName.substr(0, 3) == "NSW" || childName.substr(0, 8) == "NewSmall" ? name : name + childName;
+        std::string cName = childName.compare(0, 3, "NSW") == 0 || childName.compare(0, 8, "NewSmall") == 0 ? name : name + childName;
         ATH_MSG_VERBOSE("child number,name,position:" << ic << ":" << clv->getName() << ":" << (transform * transf).translation().perp()
                                                       << "," << (transform * transf).translation().z() << ","
                                                       << (transform * transf).translation().phi());

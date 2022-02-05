@@ -95,7 +95,6 @@ namespace TauAnalysisTools {
   class ITauSelectionTool;
   class ITauSmearingTool;
   class ITauEfficiencyCorrectionsTool;
-  class ITauOverlappingElectronLLHDecorator;
   class ITauTruthMatchingTool;
 }
 
@@ -157,28 +156,28 @@ namespace ST {
     const xAOD::Vertex* GetPrimVtx() const override final;
 
     StatusCode BendBTaggingLinks(xAOD::JetContainer* to_container , const std::string& bTagKey) const override final;
-    StatusCode SetBtagWeightDecorations(const xAOD::Jet& input, const asg::AnaToolHandle<IBTaggingSelectionTool>& btagSelTool, std::string btagTagger) const override final;
-    StatusCode GetJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& jetkey = "", const xAOD::JetContainer* containerToBeCopied = 0) override final;
-    StatusCode GetTrackJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& jetkey = "", const xAOD::JetContainer* containerToBeCopied = 0) override final;
+    StatusCode SetBtagWeightDecorations(const xAOD::Jet& input, const asg::AnaToolHandle<IBTaggingSelectionTool>& btagSelTool, const std::string& btagTagger) const override final;
+    StatusCode GetJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& jetkey = "", const xAOD::JetContainer* containerToBeCopied = nullptr) override final;
+    StatusCode GetTrackJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& jetkey = "", const xAOD::JetContainer* containerToBeCopied = nullptr) override final;
     StatusCode GetJetsSyst(const xAOD::JetContainer& calibjets, xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& jetkey = "") override final;
-    StatusCode GetFatJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = false, const std::string& jetkey = "", const bool doLargeRdecorations = false, const xAOD::JetContainer* containerToBeCopied = 0) override final;
-    StatusCode GetTaus(xAOD::TauJetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& taukey = "TauJets", const xAOD::TauJetContainer* containerToBeCopied = 0) override final;
-    StatusCode GetMuons(xAOD::MuonContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& muonkey = "Muons", const xAOD::MuonContainer* containerToBeCopied = 0) override final;
-    StatusCode GetElectrons(xAOD::ElectronContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& elekey = "Electrons", const xAOD::ElectronContainer* containerToBeCopied = 0) override final;
-    StatusCode GetPhotons(xAOD::PhotonContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& photonkey = "Photons", const xAOD::PhotonContainer* containerToBeCopied = 0) override final;
+    StatusCode GetFatJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = false, const std::string& jetkey = "", const bool doLargeRdecorations = false, const xAOD::JetContainer* containerToBeCopied = nullptr) override final;
+    StatusCode GetTaus(xAOD::TauJetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& taukey = "TauJets", const xAOD::TauJetContainer* containerToBeCopied = nullptr) override final;
+    StatusCode GetMuons(xAOD::MuonContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& muonkey = "Muons", const xAOD::MuonContainer* containerToBeCopied = nullptr) override final;
+    StatusCode GetElectrons(xAOD::ElectronContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& elekey = "Electrons", const xAOD::ElectronContainer* containerToBeCopied = nullptr) override final;
+    StatusCode GetPhotons(xAOD::PhotonContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& photonkey = "Photons", const xAOD::PhotonContainer* containerToBeCopied = nullptr) override final;
     StatusCode GetMET(xAOD::MissingETContainer& met,
                       const xAOD::JetContainer* jet,
-                      const xAOD::ElectronContainer* elec = 0,
-                      const xAOD::MuonContainer* muon = 0,
-                      const xAOD::PhotonContainer* gamma = 0,
-                      const xAOD::TauJetContainer* taujet = 0,
+                      const xAOD::ElectronContainer* elec = nullptr,
+                      const xAOD::MuonContainer* muon = nullptr,
+                      const xAOD::PhotonContainer* gamma = nullptr,
+                      const xAOD::TauJetContainer* taujet = nullptr,
                       bool doTST = true, bool doJVTCut = true,
-                      const xAOD::IParticleContainer* invis = 0) override final;
+                      const xAOD::IParticleContainer* invis = nullptr) override final;
 
     StatusCode GetTrackMET(xAOD::MissingETContainer& met,
                            const xAOD::JetContainer* jet,
-                           const xAOD::ElectronContainer* elec = 0,
-                           const xAOD::MuonContainer* muon = 0
+                           const xAOD::ElectronContainer* elec = nullptr,
+                           const xAOD::MuonContainer* muon = nullptr
 			   ) override final;
 
     StatusCode GetMETSig(xAOD::MissingETContainer& met,
@@ -186,7 +185,7 @@ namespace ST {
                          bool doTST = true, bool doJVTCut = true
 		         ) override final;
 
-    bool IsPFlowCrackVetoCleaning(const xAOD::ElectronContainer* elec = 0, const xAOD::PhotonContainer* gamma = 0) const override final;
+    bool IsPFlowCrackVetoCleaning(const xAOD::ElectronContainer* elec = nullptr, const xAOD::PhotonContainer* gamma = nullptr) const override final;
 
     bool IsSignalJet(const xAOD::Jet& input, const float ptcut, const float etacut) const override final;
 
@@ -322,7 +321,7 @@ namespace ST {
     // Trigger helpers
     float GetTrigPrescale(const std::string&) const override final;
     const Trig::ChainGroup* GetTrigChainGroup(const std::string&) const override final;
-    std::vector<std::string> GetTriggerOR(std::string trigExpr) const;
+    std::vector<std::string> GetTriggerOR(const std::string& trigExpr) const;
     void GetTriggerTokens(std::string, std::vector<std::string>& , std::vector<std::string>& , std::vector<std::string>& , std::vector<std::string>& ) const;
     Trig::FeatureContainer GetTriggerFeatures(const std::string& chainName = "EF_.*", unsigned int condition = TrigDefs::Physics) const;
 
@@ -349,7 +348,7 @@ namespace ST {
     int treatAsYear(const int runNumber=-1) const override final;
 
     StatusCode OverlapRemoval(const xAOD::ElectronContainer *electrons, const xAOD::MuonContainer *muons, const xAOD::JetContainer *jets,
-                              const xAOD::PhotonContainer* gamma = 0, const xAOD::TauJetContainer* taujet = 0, const xAOD::JetContainer *fatjets = 0) override final;
+                              const xAOD::PhotonContainer* gamma = nullptr, const xAOD::TauJetContainer* taujet = nullptr, const xAOD::JetContainer *fatjets = nullptr) override final;
 
     StatusCode NearbyLeptonCorrections( xAOD::ElectronContainer *electrons = nullptr, xAOD::MuonContainer *muons = nullptr) const override final;
 
@@ -439,7 +438,7 @@ namespace ST {
 
     const std::vector<std::string> split(const std::string& s, const std::string& delim) const;
 
-    void getTauConfig(const std::string tauConfigPath, std::vector<float>& pT_window, std::vector<float>& eta_window, bool &eleOLR, bool &muVeto, bool &muOLR) const;
+    void getTauConfig(const std::string& tauConfigPath, std::vector<float>& pT_window, std::vector<float>& eta_window, bool &eleOLR, bool &muVeto, bool &muOLR) const;
 
     void configFromFile(bool& property, const std::string& propname, TEnv& rEnv,
                         bool defaultValue);
@@ -665,6 +664,7 @@ namespace ST {
     double m_fJvtEtaMin;
     std::string m_fJvtConfig;
     std::string m_fJvtConfig_SFFile;
+    bool m_fJvtRecalculate;
     bool m_fJvt_useTightOP;
 
     bool m_JMScalib;
@@ -818,7 +818,6 @@ namespace ST {
     asg::AnaToolHandle<TauAnalysisTools::ITauTruthMatchingTool> m_tauTruthMatch;
     asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> m_tauEffTool;
     std::vector<asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool>> m_tauTrigEffTool;
-    asg::AnaToolHandle<TauAnalysisTools::ITauOverlappingElectronLLHDecorator> m_tauElORdecorator;
     //
     asg::AnaToolHandle<IBTaggingEfficiencyTool> m_btagEffTool;
     asg::AnaToolHandle<IBTaggingSelectionTool> m_btagSelTool;

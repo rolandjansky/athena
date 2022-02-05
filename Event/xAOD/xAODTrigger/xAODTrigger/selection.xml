@@ -315,4 +315,16 @@
    <class name="xAOD::BunchConfKey_v1"
           id="B7FA1A14-95A4-4852-813E-CB2271906060" />
 
+   <!-- xAOD::L1TopoSimResults interface type(s). -->
+   <class name="xAOD::L1TopoSimResults_v1" />
+   <class name="xAOD::L1TopoSimResultsContainer_v1"
+          id="5CB2DCCD-3B78-4A15-AC49-D95B228A29AB" />
+   <typedef name="xAOD::L1TopoSimResults" />
+   <typedef name="xAOD::L1TopoSimResultsContainer" />
+
+   <!-- xAOD::L1TopoSimResults auxiliary type(s). -->
+   <class name="xAOD::L1TopoSimResultsAuxContainer_v1"
+          id="172EB8B8-A879-47Z2-94AC-43B2472E2AAF" />
+   <typedef name="xAOD::L1TopoSimResultsAuxContainer" />
+
 </lcgdict>

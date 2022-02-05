@@ -11,79 +11,63 @@
 #define MUONREADOUTGEOMETRY_TGCDETECTORELEMENT_H
 
 #include "MuonReadoutGeometry/MuonDetectorElement.h"
-
-#include "Identifier/Identifier.h"
-#include "Identifier/IdentifierHash.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkSurfaces/SurfaceBounds.h"
-
-#include <vector>
 
 class GeoVFullPhysVol;
 
 namespace MuonGM {
 
-class MuonDetectorManager;
-class TgcReadoutElement;
+    class MuonDetectorManager;
+    class TgcReadoutElement;
 
-class TgcDetectorElement final: public MuonDetectorElement
-{
+    class TgcDetectorElement final : public MuonDetectorElement {
+    public:
+        TgcDetectorElement(GeoVFullPhysVol* pv, MuonDetectorManager* mgr, Identifier id, IdentifierHash idhash);
 
-public:
+        virtual int getStationEta() const override { return 0; };  //!< returns stationEta
+        virtual int getStationPhi() const override { return 0; };  //!< returns stationPhi
 
+        virtual unsigned int nMDTinStation() const override { return 0; }
+        virtual unsigned int nCSCinStation() const override { return 0; }
+        virtual unsigned int nTGCinStation() const override { return 1; }
+        virtual unsigned int nRPCinStation() const override { return 0; }
 
-   TgcDetectorElement(GeoVFullPhysVol* pv, MuonDetectorManager* mgr, Identifier id, IdentifierHash idhash);
+        virtual const Amg::Transform3D& transform() const override final;
 
-   virtual int getStationEta() const override {return 0;}; //!< returns stationEta
-   virtual int getStationPhi() const override {return 0;}; //!< returns stationPhi
+        virtual const Trk::Surface& surface() const override final;
 
+        virtual const Trk::SurfaceBounds& bounds() const override final;
 
-   virtual unsigned int nMDTinStation() const override {return 0;}
-   virtual unsigned int nCSCinStation() const override {return 0;}
-   virtual unsigned int nTGCinStation() const override {return 1;}
-   virtual unsigned int nRPCinStation() const override {return 0;}
+        virtual const Amg::Vector3D& center() const override final;
 
+        virtual const Amg::Vector3D& normal() const override final;
 
-    virtual const Amg::Transform3D& transform() const override final;
+        virtual const Amg::Vector3D& normal(const Identifier& id) const override final;
 
-    virtual const Trk::Surface& surface() const override final;
+        virtual const Trk::Surface& surface(const Identifier& id) const override final;
 
-    virtual const Trk::SurfaceBounds& bounds() const override final;
+        virtual const Trk::SurfaceBounds& bounds(const Identifier& id) const override final;
 
-    virtual const Amg::Vector3D& center() const override final;
+        virtual const Amg::Transform3D& transform(const Identifier& id) const override final;
 
-    virtual const Amg::Vector3D& normal() const override final;
+        virtual const Amg::Vector3D& center(const Identifier& id) const override final;
 
-    virtual const Amg::Vector3D& normal(const Identifier& id) const override final;
+        std::vector<const Trk::Surface*> surfaces() const;
 
-    virtual const Trk::Surface& surface(const Identifier& id) const override final;
+        // access to the readout-elements in this DetectorElement
+        const TgcReadoutElement* readoutElement() const { return m_tgcre; }
 
-    virtual const Trk::SurfaceBounds& bounds(const Identifier& id) const override final;
+        void setReadoutElement(const TgcReadoutElement* re) { m_tgcre = re; }
 
-    virtual const Amg::Transform3D& transform(const Identifier& id) const override final;
+        unsigned int NreadoutElements() const { return 1; }
+        /** TrkDetElementInterface */
+        virtual Trk::DetectorElemType detectorType() const override final { return Trk::DetectorElemType::Tgc; }
 
-    virtual const Amg::Vector3D& center(const Identifier& id) const override final;
+    private:
+        const TgcReadoutElement* m_tgcre{nullptr};
+    };
 
-    std::vector<const Trk::Surface*> surfaces() const;
+}  // namespace MuonGM
 
-   // access to the readout-elements in this DetectorElement
-   const TgcReadoutElement* readoutElement() const {return m_tgcre;}
-
-   void setReadoutElement(const TgcReadoutElement *re) {m_tgcre=re;}
-
-   unsigned int NreadoutElements() const {return 1;}
-   /** TrkDetElementInterface */
-   virtual Trk::DetectorElemType detectorType() const override final
-   {
-     return Trk::DetectorElemType::Tgc;
-   }
-
-private:
-   const TgcReadoutElement *m_tgcre;
-
-
-};
-
-} // namespace MuonGM
-
-#endif // MUONREADOUTGEOMETRY_TGCDETECTORELEMENT_H
+#endif  // MUONREADOUTGEOMETRY_TGCDETECTORELEMENT_H

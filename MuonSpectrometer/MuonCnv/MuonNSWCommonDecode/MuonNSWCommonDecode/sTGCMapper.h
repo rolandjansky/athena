@@ -8,92 +8,192 @@
 #include <map>
 #include <vector>
 
+#include "MuonNSWCommonDecode/NSWDecodeHelper.h"
+
 namespace Muon
 {
   namespace nsw
   {
-    enum ChannelNumber
-    {
-      sTGCQS1ChannelNumber = 406,
-      sTGCQS2ChannelNumber = 365,
-      sTGCQS3ChannelNumber = 307,
-      sTGCQL1ChannelNumber = 408,
-      sTGCQL2ChannelNumber = 366,
-      sTGCQL3ChannelNumber = 353
-    };
-
-    // Sector type = 0 for small, 1 for large
-
-    static const std::vector <uint8_t> s_stgc_sector_type = {0, 1};
-
-    // Layer type: 0 for layers 0 and 3 and 1 for layers 1 and 2 in the quadruplet
-
-    static const std::vector <uint8_t> s_stgc_layer_type = {0, 1};
-
-    // Number of quadruplets per sector (in R)
-
-    static const uint8_t s_stgc_nquadruplets = 3;
-
-    // Number of channels as function of sector type and quadruplet number
-    // Sector type = 0 for small, 1 for large
-
-    static const std::map <std::pair <uint8_t, uint8_t>, uint16_t> s_stgc_nchan_map =
-      {{{0, 0}, Muon::nsw::sTGCQS1ChannelNumber}, {{0, 1}, Muon::nsw::sTGCQS2ChannelNumber},
-       {{0, 2}, Muon::nsw::sTGCQS3ChannelNumber}, {{1, 0}, Muon::nsw::sTGCQL1ChannelNumber},
-       {{1, 1}, Muon::nsw::sTGCQL2ChannelNumber}, {{1, 2}, Muon::nsw::sTGCQL3ChannelNumber}};
-
-    // First VMM (number, channel) used as function of {sector type, layer_type, quadruplet}
-
-    static const std::map <std::vector <uint8_t>, std::pair <uint8_t, uint8_t>> s_stgc_first_channel =
-    {
-      {{0, 0, 0}, {0, 0}}, {{0, 0, 1}, {2, 19}}, {{0, 0, 2}, {3, 13}},
-      {{0, 1, 0}, {0, 42}}, {{0, 1, 1}, {2, 19}}, {{0, 1, 2}, {3, 13}},
-      {{1, 0, 0}, {0, 0}}, {{1, 0, 1}, {2, 18}}, {{1, 0, 2}, {2, 31}},
-      {{1, 1, 0}, {0, 40}}, {{1, 1, 1}, {2, 18}}, {{1, 1, 2}, {2, 31}}
-    };
-
-    // Last VMM (number, channel) used as function of {sector type, layer_type, quadruplet}
-
-    static const std::map <std::vector <uint8_t>, std::pair <uint8_t, uint8_t>> s_stgc_last_channel =
-    {
-      {{0, 0, 0}, {7, 21}}, {{0, 0, 1}, {7, 63}}, {{0, 0, 2}, {7, 63}},
-      {{0, 1, 0}, {7, 63}}, {{0, 1, 1}, {7, 63}}, {{0, 1, 2}, {7, 63}},
-      {{1, 0, 0}, {7, 23}}, {{1, 0, 1}, {7, 63}}, {{1, 0, 2}, {7, 63}},
-      {{1, 1, 0}, {7, 63}}, {{1, 1, 1}, {7, 63}}, {{1, 1, 2}, {7, 63}}
-    };
 
     class sTGCMapper
     {
      public:
-      sTGCMapper ();
+      sTGCMapper() {};
       virtual ~sTGCMapper () {};
 
-      uint16_t channel_number (uint8_t sector_type, uint8_t quadruplet, uint8_t layer_type,
-				     uint16_t vmm, uint16_t vmm_chan) const;
+      uint16_t channel_number (uint8_t channel_type, uint8_t sector_type, uint8_t quadruplet, uint8_t layer, uint16_t vmm, uint16_t vmm_chan) const;
 
-     private:
-      uint32_t private_id (uint8_t is_large, uint8_t quadruplet, uint8_t layer_type, unsigned int vmm_chan) const;
+      static uint16_t private_id (uint8_t channel_type, uint8_t sector_type, uint8_t quadruplet, uint8_t layer);
+    };
+  
+    static const std::map <uint16_t, std::vector<std::vector<uint8_t>>> s_stgc_channel_map =
+    {
+      // channel range: {vmm0, vmm0_channel, vmm1, vmm1_channel}
+      // as a function of channel_type, sector_type, quadruplet, layer
 
-     private:
-      std::map <uint32_t, uint16_t> m_channel_map;
+      // note: in bytestream data from pulser runs we see that pads
+      // are connected to vmms = 2, 3 and not to 1, 2. 
+      
+      //**** PADS
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 0, 0, 0),  { {3, 39, 2, 36} }}, // QS1C
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 0, 0, 1),  { {2, 24, 3, 27} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 0, 0, 2),  { {2, 24, 3, 31} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 0, 0, 3),  { {3, 39, 2, 32} }}, 
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 0, 0, 4),  { {3, 39, 2, 36} }}, // QS1P
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 0, 0, 5),  { {2, 24, 3, 27} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 0, 0, 6),  { {2, 24, 3, 10} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 0, 0, 7),  { {3, 39, 2, 53} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 0, 1, 0),  { {3, 23, 2, 40} }}, // QS2C
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 0, 1, 1),  { {2, 40, 3, 23} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 0, 1, 2),  { {2, 42, 3, 22} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 0, 1, 3),  { {3, 21, 2, 41} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 0, 1, 4),  { {3, 14, 2, 49} }}, // QS2P
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 0, 1, 5),  { {2, 49, 3, 14} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 0, 1, 6),  { {2, 42, 3, 22} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 0, 1, 7),  { {3, 21, 2, 41} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 0, 2, 0),  { {3, 40, 3,  2} }}, // QS3C
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 0, 2, 1),  { {2,  1, 2, 39} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 0, 2, 2),  { {2,  0, 2, 41} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 0, 2, 3),  { {3, 41, 3,  0} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 0, 2, 4),  { {3, 32, 3,  9} }}, // QS3P
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 0, 2, 5),  { {3,  9, 3, 32} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 0, 2, 6),  { {3,  2, 3, 40} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 0, 2, 7),  { {3, 39, 3,  1} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 1, 0, 0),  { {3, 39, 2,  2} }}, // QL1P
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 1, 0, 1),  { {2,  8, 3, 45} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 1, 0, 2),  { {2,  8, 3, 55} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 1, 0, 3),  { {3, 39, 2,  0}, {3, 40, 3, 47} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 1, 0, 4),  { {3, 39, 2,  8} }}, // QL1C
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 1, 0, 5),  { {2,  8, 3, 39} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 1, 0, 6),  { {2, 13, 3, 44} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 1, 0, 7),  { {3, 34, 2,  3} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 1, 1, 0),  { {3, 29, 2, 38} }}, // QL2P
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 1, 1, 1),  { {2, 34, 3, 25} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 1, 1, 2),  { {2, 24, 3, 34} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 1, 1, 3),  { {3, 39, 2, 29} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 1, 1, 4),  { {3, 29, 2, 38} }}, // QL2C
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 1, 1, 5),  { {2, 34, 3, 25} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 1, 1, 6),  { {2, 34, 3, 25} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 1, 1, 7),  { {3, 29, 2, 38} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 1, 2, 0),  { {3, 21, 2, 26} }}, // QL3P
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 1, 2, 1),  { {2, 44, 3, 39} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 1, 2, 2),  { {2, 34, 3, 39} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 1, 2, 3),  { {3, 31, 2, 26} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 1, 2, 4),  { {3, 13, 2, 26} }}, // QL3C
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 1, 2, 5),  { {2, 52, 3, 39} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 1, 2, 6),  { {2, 48, 3, 39} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_PAD, 1, 2, 7),  { {3, 17, 2, 26} }},
+
+      //**** STRIPS
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 0, 0, 0),  { {7, 21, 6, 48}, {6, 15, 5, 48}, {5, 15, 0,  0} }}, 
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 0, 0, 1),  { {0, 42, 1, 15}, {1, 48, 2, 15}, {2, 48, 7, 63} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 0, 0, 2),  { {0, 42, 1, 15}, {1, 48, 2, 15}, {2, 48, 7, 63} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 0, 0, 3),  { {7, 21, 6, 48}, {6, 15, 5, 48}, {5, 15, 0,  0} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 0, 0, 4),  { {7, 21, 6, 48}, {6, 15, 5, 48}, {5, 15, 0,  0} }}, 
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 0, 0, 5),  { {0, 42, 1, 15}, {1, 48, 2, 15}, {2, 48, 7, 63} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 0, 0, 6),  { {0, 42, 1, 15}, {1, 48, 2, 15}, {2, 48, 7, 63} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 0, 0, 7),  { {7, 21, 6, 48}, {6, 15, 5, 48}, {5, 15, 0,  0} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 0, 1, 0),  { {7, 63, 2, 19} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 0, 1, 1),  { {2, 19, 7, 63} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 0, 1, 2),  { {2, 19, 7, 63} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 0, 1, 3),  { {7, 63, 2, 19} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 0, 1, 4),  { {7, 63, 2, 19} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 0, 1, 5),  { {2, 19, 7, 63} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 0, 1, 6),  { {2, 19, 7, 63} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 0, 1, 7),  { {7, 63, 2, 19} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 0, 2, 0),  { {7, 63, 3, 13} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 0, 2, 1),  { {3, 13, 7, 63} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 0, 2, 2),  { {3, 13, 7, 63} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 0, 2, 3),  { {7, 63, 3, 13} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 0, 2, 4),  { {7, 63, 3, 13} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 0, 2, 5),  { {3, 13, 7, 63} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 0, 2, 6),  { {3, 13, 7, 63} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 0, 2, 7),  { {7, 63, 3, 13} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 1, 0, 0),  { {7, 23, 6, 48}, {6, 15, 5, 48}, {5, 15, 0,  0} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 1, 0, 1),  { {0, 40, 1, 15}, {1, 48, 2, 15}, {2, 48, 7, 63} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 1, 0, 2),  { {0, 40, 1, 15}, {1, 48, 2, 15}, {2, 48, 7, 63} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 1, 0, 3),  { {7, 23, 6, 48}, {6, 15, 5, 48}, {5, 15, 0,  0} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 1, 0, 4),  { {7, 23, 6, 48}, {6, 15, 5, 48}, {5, 15, 0,  0} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 1, 0, 5),  { {0, 40, 1, 15}, {1, 48, 2, 15}, {2, 48, 7, 63} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 1, 0, 6),  { {0, 40, 1, 15}, {1, 48, 2, 15}, {2, 48, 7, 63} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 1, 0, 7),  { {7, 23, 6, 48}, {6, 15, 5, 48}, {5, 15, 0,  0} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 1, 1, 0),  { {7, 63, 2, 18} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 1, 1, 1),  { {2, 18, 7, 63} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 1, 1, 2),  { {2, 18, 7, 63} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 1, 1, 3),  { {7, 63, 2, 18} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 1, 1, 4),  { {7, 63, 2, 18} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 1, 1, 5),  { {2, 18, 7, 63} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 1, 1, 6),  { {2, 18, 7, 63} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 1, 1, 7),  { {7, 63, 2, 18} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 1, 2, 0),  { {7, 63, 2, 31} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 1, 2, 1),  { {2, 31, 7, 63} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 1, 2, 2),  { {2, 31, 7, 63} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 1, 2, 3),  { {7, 63, 2, 31} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 1, 2, 4),  { {7, 63, 2, 31} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 1, 2, 5),  { {2, 31, 7, 63} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 1, 2, 6),  { {2, 31, 7, 63} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_STRIP, 1, 2, 7),  { {7, 63, 2, 31} }},
+
+      //**** WIRES
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 0, 0, 0),  { {0, 57, 0, 39} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 0, 0, 1),  { {0, 57, 0, 39} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 0, 0, 2),  { {0, 57, 0, 38} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 0, 0, 3),  { {0, 57, 0, 39} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 0, 0, 4),  { {0, 57, 0, 39} }}, 
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 0, 0, 5),  { {0, 57, 0, 38} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 0, 0, 6),  { {0, 57, 0, 39} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 0, 0, 7),  { {0, 57, 0, 39} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 0, 1, 0),  { {0, 57, 0, 29} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 0, 1, 1),  { {0, 57, 0, 29} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 0, 1, 2),  { {0, 57, 0, 28} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 0, 1, 3),  { {0, 57, 0, 29} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 0, 1, 4),  { {0, 57, 0, 29} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 0, 1, 5),  { {0, 57, 0, 28} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 0, 1, 6),  { {0, 57, 0, 29} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 0, 1, 7),  { {0, 57, 0, 29} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 0, 2, 0),  { {0, 57, 0, 20} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 0, 2, 1),  { {0, 57, 0, 20} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 0, 2, 2),  { {0, 57, 0, 20} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 0, 2, 3),  { {0, 57, 0, 21} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 0, 2, 4),  { {0, 57, 0, 21} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 0, 2, 5),  { {0, 57, 0, 20} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 0, 2, 6),  { {0, 57, 0, 20} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 0, 2, 7),  { {0, 57, 0, 20} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 1, 0, 0),  { {0, 57, 0, 26} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 1, 0, 1),  { {0, 57, 0, 26} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 1, 0, 2),  { {0, 57, 0, 26} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 1, 0, 3),  { {0, 57, 0, 26} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 1, 0, 4),  { {0, 57, 0, 26} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 1, 0, 5),  { {0, 57, 0, 26} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 1, 0, 6),  { {0, 57, 0, 26} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 1, 0, 7),  { {0, 57, 0, 26} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 1, 1, 0),  { {0, 57, 0, 10} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 1, 1, 1),  { {0, 57, 0,  9} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 1, 1, 2),  { {0, 57, 0,  9} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 1, 1, 3),  { {0, 57, 0, 10} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 1, 1, 4),  { {0, 57, 0, 10} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 1, 1, 5),  { {0, 57, 0,  9} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 1, 1, 6),  { {0, 57, 0,  9} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 1, 1, 7),  { {0, 57, 0, 10} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 1, 2, 0),  { {0, 57, 0,  1} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 1, 2, 1),  { {0, 57, 0,  0} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 1, 2, 2),  { {0, 57, 0,  0} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 1, 2, 3),  { {0, 57, 0,  1} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 1, 2, 4),  { {0, 57, 0,  1} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 1, 2, 5),  { {0, 57, 0,  0} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 1, 2, 6),  { {0, 57, 0,  0} }},
+      {sTGCMapper::private_id(OFFLINE_CHANNEL_TYPE_WIRE, 1, 2, 7),  { {0, 57, 0,  1} }}
     };
   }
 }
 
-inline uint16_t Muon::nsw::sTGCMapper::channel_number (uint8_t sector_type, uint8_t quadruplet, 
-						       uint8_t layer_type, uint16_t vmm,
-						       uint16_t vmm_chan) const
-{
-  unsigned int c = vmm * Muon::nsw::s_VMM_channels + vmm_chan;
-  uint32_t id = private_id (sector_type, quadruplet, layer_type, c);
-  const uint16_t channel_number = m_channel_map.find (id)->second;
-  return channel_number;
-}
 
-inline uint32_t Muon::nsw::sTGCMapper::private_id (uint8_t is_large, uint8_t quadruplet,
-						   uint8_t layer_type, unsigned int vmm_chan) const
+
+//=====================================================================
+inline uint16_t Muon::nsw::sTGCMapper::private_id (uint8_t channel_type, uint8_t sector_type, uint8_t quadruplet, uint8_t layer)
 {
-  return (is_large & 0xf) << 28 | (quadruplet & 0xf) << 24 | (layer_type & 0xff) << 16 | (vmm_chan & 0xffff);
+  // an internal unique ID for every VMM channel
+  return (channel_type & 0xf) << 12 | (sector_type & 0xf) << 8 | (quadruplet & 0xf) << 4 | (layer & 0xf);
 }
 
 #endif // _MUON_NSW_STGC_MAPPER_H_

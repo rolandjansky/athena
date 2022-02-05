@@ -80,8 +80,6 @@ else:
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("Cosmics")
       elif InDetFlags.doHeavyIon():
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("HeavyIon")
-      elif InDetFlags.doSLHC():
-        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("SLHC")
       elif InDetFlags.doIBL():
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("IBL")
       elif InDetFlags.doHighPileup():
@@ -90,6 +88,8 @@ else:
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("MinBias")
       elif InDetFlags.doDVRetracking():
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("R3LargeD0")
+      elif InDetFlags.doBLS():
+        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("BLS")
       else:
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("Offline")
     InDetNewTrackingCuts.printInfo()
@@ -118,12 +118,6 @@ else:
       InDetSpSeededTracksKey    = InDetKeys.SiSpSeededDBMTracks()
       InDetResolvedTracksKey    = InDetKeys.DBMTracks()
 
-    if InDetFlags.doSLHC():
-      InDetSpSeededTracksKey    = InDetKeys.SiSpSeededSLHCTracks()
-      InDetResolvedTracksKey    = InDetKeys.ResolvedSLHCTracks()
-      InDetExtendedTracksKey    = InDetKeys.ExtendedSLHCTracks()
-      InDetExtendedTracksMapKey = InDetKeys.ExtendedTracksMapSLHC()
-
     if globalflags.InputFormat() == 'bytestream':
       ServiceMgr.ByteStreamCnvSvc.IsSimulation = (globalflags.DataSource() == 'geant4')
 
@@ -135,6 +129,7 @@ else:
     # ------------------------------------------------------------
     if DetFlags.detdescr.Calo_allOn() and (
          (InDetFlags.doBremRecovery() and InDetFlags.doCaloSeededBrem())
+      or InDetFlags.doCaloSeededAmbi()
       or (InDetNewTrackingCuts.RoISeededBackTracking() and DetFlags.haveRIO.TRT_on() and InDetFlags.doTRTSeededTrackFinder())) :
       include ("InDetRecExample/InDetRecCaloSeededROISelection.py")
 
@@ -637,56 +632,6 @@ else:
         ClusterSplitProbContainer = ClusterSplitProbContainerLargeD0
         InputForwardInDetTracks +=[ InDetLargeD0TRTExtension.ForwardTrackCollection()]
 
-    if InDetFlags.doForwardTracks() and InDetFlags.doSLHC():
-      if InDetFlags.doSLHCVeryForward():
-       if ('InDetNewTrackingCutsForwardTracks' not in dir()):
-         printfunc ("InDetRec_jobOptions: InDetNewTrackingCutsForwardTracks not set before - import them now"       )
-         from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts 
-         InDetNewTrackingCutsForwardTracks = ConfiguredNewTrackingCuts("VeryForwardSLHCTracks") 
-         InDetNewTrackingCutsForwardTracks.printInfo() 
-         # 
-         # --- now run Si pattern for Low Pt 
-         # 
-         include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py") 
-         InDetForwardTracksSiPattern = ConfiguredNewTrackingSiPattern(InputForwardInDetTracks,
- 		                                                      InDetKeys.ResolvedForwardTracks(), 
- 		                                                      InDetKeys.SiSpSeededForwardTracks(), 
- 		                                                      InDetNewTrackingCutsForwardTracks, 
- 		                                                      TrackCollectionKeys,
- 		                                                      TrackCollectionTruthKeys,
- 		                                                      ClusterSplitProbContainer)
-         ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsForwardTracks.extension()
-         # for ITK, forward tracks get added to the combined collection
-         CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
-         InputCombinedInDetTracks += [ InDetForwardTracksSiPattern.SiTrackCollection() ] 
-
-
-      else:
-       if ('InDetNewTrackingCutsForwardTracks' not in dir()):
-        printfunc ("InDetRec_jobOptions: InDetNewTrackingCutsForwardTracks not set before - import them now"      )
-        from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
-        InDetNewTrackingCutsForwardTracks = ConfiguredNewTrackingCuts("ForwardSLHCTracks")
-        InDetNewTrackingCutsForwardTracks.printInfo()
-        #
-        # --- now run Si pattern for Low Pt
-        #
-        include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
-        InDetForwardTracksSiPattern = ConfiguredNewTrackingSiPattern(InputForwardInDetTracks,
-                                                                   InDetKeys.ResolvedForwardTracks(),
-                                                                   InDetKeys.SiSpSeededForwardTracks(),
-                                                                   InDetNewTrackingCutsForwardTracks,
-                                                                   TrackCollectionKeys,
-                                                                   TrackCollectionTruthKeys,
-                                                                   ClusterSplitProbContainer)
-        ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsForwardTracks.extension()
-        # for ITK, forward tracks get added to the combined collection
-        CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
-        InputCombinedInDetTracks += [ InDetForwardTracksSiPattern.SiTrackCollection() ]
-
-
-
-
-    elif InDetFlags.doForwardTracks():
       #
       # --- configure cuts for forward tracklets
       #
@@ -710,31 +655,6 @@ else:
       # --- do not add into list for combination
       # CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
       # InputCombinedInDetTracks += [ InDetForwardTracksSiPattern.SiTrackCollection() ]
-
-    if InDetFlags.doSLHCConversionFinding() and InDetFlags.doSLHC():
-      #
-      # --- configure cuts for Low Pt tracking
-      #
-      if ('InDetNewTrackingCutsSLHCConversionFinding' not in dir()):
-        printfunc ("InDetRec_jobOptions: InDetNewTrackingCutsSLHCConversionFinding not set before - import them now")
-        from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
-        InDetNewTrackingCutsSLHCConversionFinding = ConfiguredNewTrackingCuts("SLHCConversionFinding")
-      InDetNewTrackingCutsSLHCConversionFinding.printInfo()
-      #
-      #
-      include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
-      InDetSLHCConversionFindingSiPattern = ConfiguredNewTrackingSiPattern(InputCombinedInDetTracks,
-                                                           InDetKeys.ResolvedSLHCConversionFindingTracks(),
-                                                           InDetKeys.SiSpSeededSLHCConversionFindingTracks(),
-                                                           InDetNewTrackingCutsSLHCConversionFinding,
-                                                           TrackCollectionKeys,
-                                                           TrackCollectionTruthKeys,
-                                                           ClusterSplitProbContainer)
-      ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsSLHCConversionFinding.extension()
-
-      CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
-      InputCombinedInDetTracks += [ InDetKeys.ResolvedSLHCConversionFindingTracks() ]
-
 
     # ------------------------------------------------------------
     #
@@ -941,9 +861,6 @@ else:
                                                         MinDegreesOfFreedom = 1,
                                                         MatEffects          =  InDetFlags.materialInteractionsType(),
                                                         MinSiHits           =  InDetNewTrackingCuts.minClusters() )
-        if InDetFlags.doForwardTracks() and InDetFlags.doSLHC():
-            InDetTruthTrackBuilder.MinSiHitsForward = InDetNewTrackingCutsForwardTracks.minClusters()
-            InDetTruthTrackBuilder.ForwardBoundary  = InDetNewTrackingCutsForwardTracks.minEta()
 #        InDetTruthTrackBuilder.OutputLevel = VERBOSE
         ToolSvc += InDetTruthTrackBuilder
 
@@ -965,7 +882,7 @@ else:
                                          InDetPRD_Provider               = InDetPRD_Provider,
                                          MinimumPt                       =  InDetNewTrackingCuts.minPT(),
                                          PRD_TruthTrajectoryManipulators = [ InDetTruthTrajectorySorter ])
-        if not InDetFlags.doSLHC() and not InDetFlags.doIdealPseudoTracking():
+        if not InDetFlags.doIdealPseudoTracking():
          # --- the trajectory manipulator
             from InDetTruthTools.InDetTruthToolsConf import InDet__PRD_TruthTrajectoryManipulatorID
             InDetTruthTrajectoryManipulator = InDet__PRD_TruthTrajectoryManipulatorID(name='InDetTruthTrajectoryManipulator')
@@ -983,7 +900,7 @@ else:
 
         # --- the (1st) trajectory selector
         PRD_TruthTrajectorySelector = []
-        if not InDetFlags.doSLHC() and not InDetFlags.doSplitReco() :
+        if not InDetFlags.doSplitReco() and not InDetFlags.doIdealPseudoTracking():
           from InDetTruthTools.InDetTruthToolsConf import InDet__PRD_TruthTrajectorySelectorID
           InDetTruthTrajectorySelector = InDet__PRD_TruthTrajectorySelectorID(name='InDetTruthTrajectorySelector')
           ToolSvc += InDetTruthTrajectorySelector
@@ -1358,8 +1275,6 @@ else:
         cuts = InDetNewTrackingCutsVeryLowPt
       elif InDetFlags.doLowPt():
         cuts = InDetNewTrackingCutsLowPt
-      elif InDetFlags.doSLHCConversionFinding():
-        cuts = InDetNewTrackingCutsSLHCConversionFinding
       else:
         cuts = InDetNewTrackingCuts
       include("InDetRecExample/ConfiguredInDetValidation.py")

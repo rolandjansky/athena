@@ -5,7 +5,7 @@
 #include "MuonCondAlg/RpcCondDbAlg.h"
 
 #include "AthenaKernel/IOVInfiniteRange.h"
-
+using namespace MuonCalib;
 // constructor
 RpcCondDbAlg::RpcCondDbAlg(const std::string& name, ISvcLocator* pSvcLocator) :
     AthReentrantAlgorithm(name, pSvcLocator), m_condSvc("CondSvc", name) {
@@ -92,7 +92,6 @@ StatusCode RpcCondDbAlg::loadDataDeadPanels(EventIDRange& rangeW, RpcCondDbData*
 
     ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
     ATH_MSG_DEBUG("Range of input is " << range << ", range of output is " << rangeW);
-
     CondAttrListCollection::const_iterator itr;
     unsigned int chan_index = 0;
     for (itr = readCdo->begin(); itr != readCdo->end(); ++itr) {
@@ -110,17 +109,15 @@ StatusCode RpcCondDbAlg::loadDataDeadPanels(EventIDRange& rangeW, RpcCondDbData*
             ATH_MSG_DEBUG("panel_dead " << panel_dead);
             ATH_MSG_DEBUG("panel_reason " << panel_reason);
 
-            const char* ch_tmp;
-            std::string delimiter = ",";
-            std::vector<std::string> info_panel;
-            MuonCalib::MdtStringUtils::tokenize(panel_dead, info_panel, delimiter);
+            char delimiter = ',';
+            auto info_panel = MuonCalib::MdtStringUtils::tokenize(panel_dead, delimiter);
 
             Identifier PanelId;
 
             for (unsigned int i = 0; i < info_panel.size(); i++) {
-                ch_tmp = info_panel[i].c_str();
-                PanelId = atoi(ch_tmp);
-                ATH_MSG_DEBUG("info_panel " << ch_tmp << " " << atoi(ch_tmp));
+                const std::string_view &ch_tmp = info_panel[i];
+                PanelId =  MdtStringUtils::atoi(ch_tmp);
+                ATH_MSG_DEBUG("info_panel " << ch_tmp << " " << PanelId);
 
                 if (PanelId.get_compact()) {
                     ATH_MSG_DEBUG("DEADPANEL " << m_idHelperSvc->rpcIdHelper().show_to_string(PanelId));
@@ -175,16 +172,14 @@ StatusCode RpcCondDbAlg::loadDataOffPanels(EventIDRange& rangeW, RpcCondDbData* 
             ATH_MSG_DEBUG("panel_off " << panel_off);
             ATH_MSG_DEBUG("panel_reason " << panel_reason);
 
-            const char* ch_tmp;
-            std::string delimiter = ",";
-            std::vector<std::string> info_panel;
-            MuonCalib::MdtStringUtils::tokenize(panel_off, info_panel, delimiter);
+            char delimiter = ',';
+            auto info_panel = MuonCalib::MdtStringUtils::tokenize(panel_off, delimiter);
 
             Identifier PanelId;
 
             for (unsigned int i = 0; i < info_panel.size(); i++) {
-                ch_tmp = info_panel[i].c_str();
-                PanelId = atoi(ch_tmp);
+                const std::string_view &ch_tmp = info_panel[i];
+                PanelId = MdtStringUtils::atoi(ch_tmp);
                 ATH_MSG_DEBUG("info_panel " << ch_tmp << " " << PanelId);
 
                 if (PanelId.get_compact()) {
@@ -224,14 +219,12 @@ StatusCode RpcCondDbAlg::loadMcElementStatus(EventIDRange& rangeW, RpcCondDbData
     ATH_MSG_DEBUG("Range of input is " << range << ", range of output is " << rangeW);
 
     CondAttrListCollection::const_iterator itr;
-
     unsigned int chan_index = 0;
     unsigned int iFracDeadStrip = 0;
     for (itr = readCdo->begin(); itr != readCdo->end(); ++itr) {
         const coral::AttributeList& atr = itr->second;
         CondAttrListCollection::ChanNum channum = itr->first;
-        Identifier chamberId;
-        chamberId = channum;
+        Identifier chamberId = Identifier(channum);
 
         std::string eff_panel, striplist, eff;
 
@@ -244,58 +237,42 @@ StatusCode RpcCondDbAlg::loadMcElementStatus(EventIDRange& rangeW, RpcCondDbData
         ATH_MSG_DEBUG("striplist load is " << striplist << " " << striplist.size());
 
         // Efficiencies and Cluster Sizes
-        std::string delimiter = " ";
-        std::vector<std::string> info_panel;
-        std::vector<float> info_panel_test;
-        MuonCalib::MdtStringUtils::tokenize(eff_panel, info_panel, delimiter);
+        char delimiter = ' ';
+        const auto info_panel = MdtStringUtils::tokenize(eff_panel, delimiter);
 
-        const char* SDBversion = (info_panel[0].c_str());
-        int DBversion = atoi(SDBversion);
+        int DBversion = MdtStringUtils::atoi(info_panel[0]);
 
-        const char* SNStrip = (info_panel[2].c_str());
-        int npanelstrip = atoi(SNStrip);
+        int npanelstrip = MdtStringUtils::atoi(info_panel[2]);
 
-        const char* SProjectedTracks = (info_panel[1].c_str());
-        double ProjectedTracks = atof(SProjectedTracks);
+        double ProjectedTracks = MdtStringUtils::stof(info_panel[1]);
         writeCdo->setProjectedTrack(chamberId, ProjectedTracks);
 
-        const char* SEfficiency = (info_panel[3].c_str());
-        double Efficiency = atof(SEfficiency);
+        double Efficiency = MdtStringUtils::stof(info_panel[3]);
         writeCdo->setEfficiency(chamberId, Efficiency);
 
         if (Efficiency <= m_panelEfficiency) writeCdo->setLowEffPanel(chamberId);
 
-        const char* SGapEfficiency = (info_panel[5].c_str());
-        double GapEfficiency = atof(SGapEfficiency);
+        double GapEfficiency = MdtStringUtils::stof(info_panel[5]);
         writeCdo->setGapEfficiency(chamberId, GapEfficiency);
 
-        const char* SMeanClusterSize = (info_panel[17].c_str());
-        double MeanClusterSize = atof(SMeanClusterSize);
+        double MeanClusterSize = MdtStringUtils::stof(info_panel[17]);
         writeCdo->setMeanClusterSize(chamberId, MeanClusterSize);
 
         if (DBversion > 2) {
-            const char* SFracClusterSize1_a = (info_panel[19].c_str());
-            const  char* SFracClusterSize1_b = (info_panel[20].c_str());
-            double FracClusterSize1 = atof(SFracClusterSize1_a) + atof(SFracClusterSize1_b) * 10000;
+            double FracClusterSize1 = MdtStringUtils::stof(info_panel[19]) + MdtStringUtils::stof(info_panel[20]) * 10000;
             writeCdo->setFracClusterSize1(chamberId, FracClusterSize1);
 
-            const char* SFracClusterSize2_a = (info_panel[21].c_str());
-            const char* SFracClusterSize2_b = (info_panel[22].c_str());
-            double FracClusterSize2 = atof(SFracClusterSize2_a) + atof(SFracClusterSize2_b) * 10000;
+            double FracClusterSize2 = MdtStringUtils::stof(info_panel[21]) + MdtStringUtils::stof(info_panel[22]) * 10000;
             writeCdo->setFracClusterSize2(chamberId, FracClusterSize2);
 
-            const char* SFracClusterSize3_a = (info_panel[23].c_str());
-            const char* SFracClusterSize3_b = (info_panel[24].c_str());
-            double FracClusterSize3 = atof(SFracClusterSize3_a) + atof(SFracClusterSize3_b) * 10000;
+            double FracClusterSize3 = MdtStringUtils::stof(info_panel[23]) + MdtStringUtils::stof(info_panel[24]) * 10000;
             writeCdo->setFracClusterSize3(chamberId, FracClusterSize3);
         } else {
             if (info_panel.size() > 20) {
-                const char* SFracClusterSize1 = (info_panel[19].c_str());
-                double FracClusterSize1 = atof(SFracClusterSize1);
+                double FracClusterSize1 = MdtStringUtils::stof(info_panel[19]);
                 writeCdo->setFracClusterSize1(chamberId, FracClusterSize1);
 
-                const char* SFracClusterSize2 = (info_panel[20].c_str());
-                double FracClusterSize2 = atof(SFracClusterSize2);
+                double FracClusterSize2 = MdtStringUtils::stof(info_panel[20]);
                 writeCdo->setFracClusterSize2(chamberId, FracClusterSize2);
             } else {
                 writeCdo->setFracClusterSize1(chamberId, 0.6);
@@ -314,35 +291,23 @@ StatusCode RpcCondDbAlg::loadMcElementStatus(EventIDRange& rangeW, RpcCondDbData
 
         // update for the timing and error on timing
         // new info strip |status time error_on_time|
-        std::string delimiter_strip = "|";
-        std::vector<std::string> info_strip;
+        char delimiter_strip = '|';
         std::string strip_status_list = "";
-        std::vector<float> info_strip_test;
 
-        MuonCalib::MdtStringUtils::tokenize(striplist, info_strip, delimiter_strip);
-        const char* ch_strip2;
-
+        const auto info_strip= MuonCalib::MdtStringUtils::tokenize(striplist, delimiter_strip);
         if (info_strip.size() > 1) {
             for (unsigned int i = 0; i < info_strip.size(); ++i) {
-                ch_strip2 = (info_strip[i].c_str());
+                const std::string_view &ch_strip2 = info_strip[i];
 
-                std::string delimiter_strip2 = "  ";
-                std::vector<std::string> info_strip2;
-                std::vector<float> info_strip_test2;
+                char delimiter_strip2 = ' ';
 
-                MuonCalib::MdtStringUtils::tokenize(ch_strip2, info_strip2, delimiter_strip2);
+                auto info_strip2 = MdtStringUtils::tokenize(ch_strip2, delimiter_strip2);
 
-                const char* STime = (info_strip2[1].c_str());
-                double Time = atof(STime);
-                const char* SSigmaTime = (info_strip2[2].c_str());
-                double SigmaTime = atof(SSigmaTime);
-                const char* strip_status = (info_strip2[0].c_str());
+                double Time = MdtStringUtils::stof(info_strip2[1]);
+                double SigmaTime = MdtStringUtils::stof(info_strip2[2]);
+                const auto &strip_status = info_strip2[0];
 
-                strip_status_list = strip_status_list + strip_status;
-
-                std::vector<double> Time_vect;
-                Time_vect.push_back(Time);
-                Time_vect.push_back(SigmaTime);
+                strip_status_list += strip_status;
 
                 Identifier strip_id;
                 CondAttrListCollection::ChanNum stripnum;
@@ -351,7 +316,7 @@ StatusCode RpcCondDbAlg::loadMcElementStatus(EventIDRange& rangeW, RpcCondDbData
 
                 ATH_MSG_DEBUG("strip " << strip_id << " has time " << Time << " and " << SigmaTime);
 
-                writeCdo->setStripTime(strip_id, Time_vect);
+                writeCdo->setStripTime(strip_id, std::vector<double>{Time, SigmaTime});
 
                 ATH_MSG_VERBOSE("strip #" << i + 1 << " strip_id " << stripnum << " expanded "
                                           << m_idHelperSvc->rpcIdHelper().show_to_string(strip_id));
@@ -372,9 +337,9 @@ StatusCode RpcCondDbAlg::loadMcElementStatus(EventIDRange& rangeW, RpcCondDbData
             ATH_MSG_DEBUG("no timing info");
 
             for (unsigned int i = 0; i < striplist.size(); i++) {
-                std::string part_strip = striplist.substr(i, 1);
-                strip_status_list = strip_status_list + part_strip;
-                const char* ch_panel = (part_strip.c_str());
+                char part_strip = striplist[i];
+                strip_status_list += part_strip;
+                char ch_panel = part_strip;
 
                 Identifier strip_id;
                 CondAttrListCollection::ChanNum stripnum;
@@ -386,7 +351,7 @@ StatusCode RpcCondDbAlg::loadMcElementStatus(EventIDRange& rangeW, RpcCondDbData
 
                 ++countpanelstrip;
 
-                if (part_strip == "0") {
+                if (part_strip == '0') {
                     ++countdeadstrip;
                     writeCdo->setDeadStrip(strip_id);
                     if (i > 1 && i < striplist.size() - 2) {

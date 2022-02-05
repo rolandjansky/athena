@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
@@ -976,9 +976,13 @@ InDet::InDetTrackSelectionTool::accept( const Trk::Track& track,
   std::unique_ptr<const Trk::TrackParameters> paramsAtVertex;
   if (vertex) {
     Trk::PerigeeSurface perigeeSurface(vertex->position());
-    paramsAtVertex.reset(m_extrapolator->extrapolate(*perigee,perigeeSurface,
-						     Trk::anyDirection,true,
-						     track.info().particleHypothesis()) );
+    paramsAtVertex =
+      m_extrapolator->extrapolate(Gaudi::Hive::currentContext(),
+                                  *perigee,
+                                  perigeeSurface,
+                                  Trk::anyDirection,
+                                  true,
+                                  track.info().particleHypothesis());
     perigee = paramsAtVertex.get();
   }
 

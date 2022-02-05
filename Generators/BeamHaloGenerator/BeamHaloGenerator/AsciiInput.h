@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ASCIIIOINPUT_H
@@ -17,7 +17,7 @@
 */
 class AsciiInput {
  public:
-  AsciiInput(std::string fileName);
+  AsciiInput(const std::string& fileName);
   ~AsciiInput();
 
   /** Open the input file.  A non-zero value is returned if this is

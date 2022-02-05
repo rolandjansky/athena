@@ -9,6 +9,7 @@
 #include "StoreGate/WriteCondHandleKey.h"
 #include "GaudiKernel/ICondSvc.h"
 #include "CaloDetDescr/CaloTowerGeometry.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 class CaloTowerGeometryCondAlg : public AthReentrantAlgorithm {
 
@@ -24,7 +25,9 @@ class CaloTowerGeometryCondAlg : public AthReentrantAlgorithm {
 
   void dump(const CaloTowerGeometry* towerGeo) const;
 
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager", "CaloDetDescrManager"}; 
   SG::WriteCondHandleKey<CaloTowerGeometry> m_outputKey{this,"OutputKey","CaloTowerGeometry"};
+
   ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 
   //Properties:

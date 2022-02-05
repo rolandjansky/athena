@@ -48,8 +48,8 @@ class environmentUpdate(object):
         if 'ATLASMKLLIBDIR_PRELOAD' in os.environ:
             if "LD_PRELOAD" not in self._envdict:
                 self._envdict["LD_PRELOAD"] = pathVar("LD_PRELOAD")
-            self._envdict["LD_PRELOAD"].add(path.join(os.environ['ATLASMKLLIBDIR_PRELOAD'], "libimf.so"))
-            self._envdict["LD_PRELOAD"].add(path.join(os.environ['ATLASMKLLIBDIR_PRELOAD'], "libintlc.so.5"))
+            self._envdict["LD_PRELOAD"].add(path.join("$ATLASMKLLIBDIR_PRELOAD", "libimf.so"))
+            self._envdict["LD_PRELOAD"].add(path.join("$ATLASMKLLIBDIR_PRELOAD", "libintlc.so.5"))
 
 
     ## @brief Add TCMALLOC to the setup
@@ -67,7 +67,7 @@ class environmentUpdate(object):
         # For now we support the minimal version (it's the default)
         if "LD_PRELOAD" not in self._envdict:
             self._envdict["LD_PRELOAD"] = pathVar("LD_PRELOAD")
-        self._envdict["LD_PRELOAD"].add(path.join(os.environ['TCMALLOCDIR'], "libtcmalloc_minimal.so"))
+        self._envdict["LD_PRELOAD"].add(path.join("$TCMALLOCDIR", "libtcmalloc_minimal.so"))
     
 
     ## @brief Add other settings
@@ -120,7 +120,11 @@ class pathVar(object):
         if value in self._value:
             msg.warning('Attempt to add environment element {0} twice to {1}'.format(value, self._name))
         if self._testExistance:
-            if not os.access(value, os.R_OK):
+            # expand environment variables (will only check current release, but this is the most common anyways)
+            test_value = value
+            if '$' in test_value:
+                test_value = os.path.join(os.environ[os.path.dirname(value)[1:]], os.path.basename(value))
+            if not os.access(test_value, os.R_OK):
                 msg.warning("Path to {0} is not readable - will not add it to {1}".format(value, self._name))
                 return
         if prepend:

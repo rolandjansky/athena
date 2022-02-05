@@ -16,7 +16,6 @@
  * Like all other cluster maker tools this class derives from
  * CaloClusterMakerTool.  */
 
-class CaloDetDescrManager; 
 class CaloDetDescrElement;
 
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -85,13 +84,7 @@ class TBClusterMaker: public AthAlgTool, virtual public CaloClusterCollectionPro
   /** True if cell enrgy is in ADC counts, default = FALSE **/
   bool m_CellEnergyInADC;
 
-  /** Counters */
-  //int m_numSeedCellNotFound;
-  //int m_numCluIterationsConverged;
-  //int m_numCluIterationsNonConverged;
-
   /** Services */
-  const CaloDetDescrManager* m_calo_DDM;
   const CaloCell_ID* m_calo_id;
 
   SG::ReadCondHandleKey<CaloNoise> m_elecNoiseKey

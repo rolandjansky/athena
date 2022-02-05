@@ -1,7 +1,5 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUANALYSISTOOLS_COMMONEFFICIENCYTOOL_H
@@ -11,10 +9,8 @@
   author: Dirk Duschinger
   mail: dirk.duschinger@cern.ch
   documentation in: ../README.rst
-                    or
-                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-<tag>/README.rst
 		    or
-                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/README.rst
+                    https://gitlab.cern.ch/atlas/athena/-/blob/master/PhysicsAnalysis/TauID/TauAnalysisTools/README.rst
 */
 
 // Framework include(s):
@@ -31,11 +27,7 @@
 #include "TauAnalysisTools/HelperFunctions.h"
 
 // ROOT include(s):
-#include "TROOT.h"
-#include "TClass.h"
 #include "TFile.h"
-#include "TH1.h"
-#include "TF1.h"
 #include "TKey.h"
 
 namespace TauAnalysisTools
@@ -64,10 +56,11 @@ public:
 
   virtual CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::TauJet& tau, double& dEfficiencyScaleFactor, 
     unsigned int iRunNumber = 0, unsigned int iMu = 0 );
+
   virtual CP::CorrectionCode applyEfficiencyScaleFactor(const xAOD::TauJet& xTau, 
     unsigned int iRunNumber = 0, unsigned int iMu = 0);
 
-  /// returns: whether this tool is affected by the given systematis
+  /// returns: whether this tool is affected by the given systematics
   virtual bool isAffectedBySystematic( const CP::SystematicVariation& systematic ) const;
 
   /// returns: the list of all systematics this tool can be affected by
@@ -77,22 +70,20 @@ public:
   virtual CP::SystematicSet recommendedSystematics() const;
 
   /// configure this tool for the given list of systematic variations.  any
-  /// requested systematics that are not affecting this tool will be silently
-  /// ignored (unless they
+  /// requested systematics that are not affecting this tool will be silently ignored
   virtual StatusCode applySystematicVariation ( const CP::SystematicSet& sSystematicSet);
 
-  virtual bool isSupportedRunNumber( int iRunNumber )
+  virtual bool isSupportedRunNumber( int /*iRunNumber*/ ) const
   {
-    (void) iRunNumber;
     return true;
   };
 
 protected:
 
-  std::string ConvertProngToString(const int& iProngness);
-  std::string ConvertMuToString(const int& iMu);
-  std::string GetMcCampaignString(const int& iMu);
-  std::string ConvertDecayModeToString(const int& iDecayMode);
+  std::string ConvertProngToString(const int iProngness) const;
+  std::string ConvertMuToString(const int iMu) const;
+  std::string GetMcCampaignString(const int iMu) const;
+  std::string ConvertDecayModeToString(const int iDecayMode) const;
 
   typedef std::tuple<TObject*,
           CP::CorrectionCode (*)(const TObject* oObject,
@@ -117,7 +108,7 @@ protected:
   double (*m_fX)(const xAOD::TauJet& xTau);
   double (*m_fY)(const xAOD::TauJet& xTau);
 
-  void ReadInputs(TFile& fFile);
+  void ReadInputs(const TFile& fFile);
   void addHistogramToSFMap(TKey* kKey, const std::string& sKeyName);
 
   virtual CP::CorrectionCode getValue(const std::string& sHistName,
@@ -152,12 +143,9 @@ protected:
   bool m_bSkipTruthMatchCheck;
   bool m_bUseHighPtUncert;
   bool m_bNoMultiprong;
-  bool m_bUseInclusiveEta;
   bool m_bUseTauSubstructure;
-  int m_iIDLevel;
-  int m_iEVLevel;
-  int m_iOLRLevel;
-  int m_iContSysType;
+  int m_iJetIDLevel;
+  int m_iEleIDLevel;
 
   e_TruthMatchedParticleType m_eCheckTruth;
 

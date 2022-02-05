@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef Technology_H
@@ -10,6 +10,7 @@
 // abstract base class for MDT, RPC etc inner structure
 // a placeholder
 namespace MuonGM {
+    class MYSQL;
 
     class Technology {
       protected:
@@ -17,7 +18,7 @@ namespace MuonGM {
 
       public:
         double thickness;
-        Technology(std::string s);
+        Technology(MYSQL& mysql, std::string s);
         virtual ~Technology();
         std::string GetName();
     };

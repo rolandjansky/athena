@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // includes
@@ -22,13 +22,11 @@ HGTD_DetectorTool::HGTD_DetectorTool(const std::string &type,
   GeoModelTool(type, name, parent),
   m_geoDbTagSvc("GeoDbTagSvc", name),
   m_rdbAccessSvc("RDBAccessSvc", name),
-  m_geometryDBSvc("InDetGeometryDBSvc", name),
   m_detectorManager(nullptr),
   m_printIDdict(false) {
     // Get parameter values from the python configuration
     declareProperty("GeoDbTagSvc", m_geoDbTagSvc);
     declareProperty("RDBAccessSvc", m_rdbAccessSvc);
-    declareProperty("GeometryDBSvc", m_geometryDBSvc);
     declareProperty("PrintModuleNumberPerRow", m_printIDdict);
 }
 
@@ -36,24 +34,22 @@ StatusCode HGTD_DetectorTool::create() {
 
     ATH_CHECK(m_geoDbTagSvc.retrieve());
     ATH_CHECK(m_rdbAccessSvc.retrieve());
-    ATH_CHECK(m_geometryDBSvc.retrieve());
 
     // Get their interfaces to pass to the DetectorFactory
     m_athenaComps.setDetStore(detStore().operator->());
     m_athenaComps.setGeoDbTagSvc(&*m_geoDbTagSvc);
     m_athenaComps.setRDBAccessSvc(&*m_rdbAccessSvc);
-    m_athenaComps.setGeometryDBSvc(&*m_geometryDBSvc);
     const HGTD_ID* idHelper{nullptr};
     ATH_CHECK(detStore()->retrieve(idHelper, "HGTD_ID"));
     m_athenaComps.setIdHelper(idHelper);
 
-    GeoModelExperiment *theExpt;
+    GeoModelExperiment *theExpt = nullptr;
     ATH_CHECK(detStore()->retrieve(theExpt, "ATLAS"));
 
     // The * converts a ConstPVLink to a ref to a GeoVPhysVol, the & takes the address of the GeoVPhysVol
     GeoPhysVol *world = &*theExpt->getPhysVol();
 
-    HGTDGeo::HGTD_DetectorFactory theHGTDFactory(&m_athenaComps);
+    HGTD_DetectorFactory theHGTDFactory(&m_athenaComps);
     theHGTDFactory.setPrintIdentifierDict(m_printIDdict);
     theHGTDFactory.create(world);
 
@@ -74,9 +70,9 @@ StatusCode HGTD_DetectorTool::create() {
 StatusCode HGTD_DetectorTool::clear() {
 
     // Release manager from the detector store
-    SG::DataProxy* _proxy = detStore()->proxy(ClassID_traits< HGTD_DetectorManager >::ID(),m_detectorManager->getName());
-    if (_proxy) {
-      _proxy->reset();
+    SG::DataProxy* proxy = detStore()->proxy(ClassID_traits< HGTD_DetectorManager >::ID(),m_detectorManager->getName());
+    if (proxy) {
+      proxy->reset();
       m_detectorManager = nullptr;
     }
 

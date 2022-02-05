@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -27,12 +27,6 @@
 #include "TrkTrack/TrackInfo.h"
 #include "TrkParameters/TrackParameters.h"
 
-#include "TrkValInterfaces/IValidationNtupleTool.h"
-#include "TrkDetDescrInterfaces/IAlignableSurfaceProvider.h"
-#include "TrkExInterfaces/IExtrapolator.h"
-#include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
-#include "TrkToolInterfaces/IUpdator.h"
-#include "TrkFitterInterfaces/IMeasurementRecalibrator.h"
 #include "TrkEventUtils/PrepRawDataComparisonFunction.h"
 #include "TrkEventUtils/MeasurementBaseComparisonFunction.h"
 #include "TrkEventUtils/IdentifierExtractor.h"
@@ -52,19 +46,6 @@ Trk::KalmanFitter::KalmanFitter(const std::string& t,const std::string& n,
                                 const IInterface* p) :
   AthAlgTool (t,n,p),
   m_log(msgSvc(), n),
-  m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
-  m_updator("Trk::KalmanUpdator/KalmanUpdator"),
-  m_ROTcreator("Trk::RIO_OnTrackCreator/RIO_OnTrackCreator"),
-  m_dynamicNoiseAdjustor(""),
-  m_brempointAnalyser(""),
-  m_alignableSfProvider(""),
-  m_recalibrator(""),
-  m_internalDAF(), // or "Trk::KalmanPiecewiseAnnealingFilter/KalmanInternalDAF"
-  m_forwardFitter("Trk::ForwardKalmanFitter/FKF"),
-  m_smoother("Trk::KalmanSmoother/BKS"),
-  m_outlierLogic("Trk::KalmanOutlierLogic/KOL"),
-  m_outlierRecovery("Trk::KalmanOutlierRecovery_InDet/KOL_RecoveryID"),
-  m_FitterValidationTool(""),
   m_option_callValidationToolForFailedFitsOnly(false),
   m_option_sortingRefPoint{0.,0.,0.},
   m_callValidationTool(false),
@@ -84,32 +65,6 @@ Trk::KalmanFitter::KalmanFitter(const std::string& t,const std::string& n,
   declareInterface<ITrackFitter>( this );
 
   m_trajectory.reserve(100);
-
-  // --- tools used by KalmanFitter, passed as ToolHandles
-  declareProperty("ExtrapolatorHandle",m_extrapolator,
-                  "Extrapolation tool for transporting track pars and handling material effects");
-  declareProperty("RIO_OnTrackCreatorHandle",m_ROTcreator,
-                  "Tool to create RIO_OnTrack out of PrepRawData input");
-  declareProperty("MeasurementUpdatorHandle",m_updator,
-                  "Tool to perform measurement update and chi2 calculation");
-  declareProperty("DynamicNoiseAdjustorHandle",m_dynamicNoiseAdjustor,
-                  "Tool to handle brem as dynamically adjusted q/p noise");
-  declareProperty("BrempointAnalyserHandle",m_brempointAnalyser,
-                  "Tool to confirm if DNA activity is due to brem or not");
-  declareProperty("AlignableSurfaceProviderHandle",m_alignableSfProvider,
-                  "Tool to replace measurement surface by an alignable one");
-  declareProperty("RecalibratorHandle", m_recalibrator);
-  declareProperty("InternalDAFHandle", m_internalDAF);
-  declareProperty("ForwardKalmanFitterHandle",m_forwardFitter,
-                  "Tool for running the forward filter along the internal trajectory");
-  declareProperty("KalmanSmootherHandle",m_smoother,
-                  "Tool for performing the backward smoothing on the internal trajectory");
-  declareProperty("KalmanOutlierLogicHandle",m_outlierLogic,
-                  "Tool for fit quality analysis and outlier flagging");
-  declareProperty("KalmanOutlierRecoveryHandle",m_outlierRecovery,
-                  "Tool for fit quality analysis and outlier recovery");
-  declareProperty("FitterValidationToolHandle", m_FitterValidationTool,
-                  "Tool for fitter validation (writes intermediate results to ntuple)");
 
   // -- job options - do NOT modify defaults to achieve detector-specific tuning!
   declareProperty("DoDNAForElectronsOnly",m_doDNAForElectronsOnly,
@@ -488,7 +443,7 @@ Trk::KalmanFitter::fit(const EventContext& ctx,
     //    if m_option_callValidationToolForFailedFitsOnly repeat the track fit with calls of validation tool
     if (m_option_callValidationToolForFailedFitsOnly && (!m_callValidationTool) && m_haveValidationTool) {
         m_callValidationTool = true;
-        if (fit(inputTrack, runOutlier, kalMec.particleType())) {
+        if (fit(ctx,inputTrack, runOutlier, kalMec.particleType())) {
             ATH_MSG_WARNING( "Error: fit succeeded! Should not happen, if we repeat a failed fit!" );
         }
         m_callValidationTool = false;
@@ -678,7 +633,7 @@ Trk::KalmanFitter::fit(const EventContext& ctx,
     //    if m_option_callValidationToolForFailedFitsOnly repeat the track fit with calls of validation tool
     if (m_option_callValidationToolForFailedFitsOnly && (!m_callValidationTool) && m_haveValidationTool) {
         m_callValidationTool = true;
-        if (fit(inputMeasSet, estimatedStartParameters, runOutlier, kalMec.particleType())) {
+        if (fit(ctx,inputMeasSet, estimatedStartParameters, runOutlier, kalMec.particleType())) {
             ATH_MSG_WARNING( "Error: fit succeeded! Should not happen, if we repeat a failed fit!" );
         }
         m_callValidationTool = false;
@@ -1233,7 +1188,7 @@ bool Trk::KalmanFitter::prepareNextIteration(const unsigned int& upcomingIterati
                                              int& iFilterBeginState,
                                              const Trk::TrackParameters& backupParams) const
 {
-  const Trk::TrackParameters* newSeedPars = nullptr;
+  std::unique_ptr<Trk::TrackParameters> newSeedPars;
   ATH_MSG_VERBOSE ("In ::prepareNextIteration with filterBeginState = "<<iFilterBeginState);
 
   // get chi2 asymmetry
@@ -1264,7 +1219,7 @@ bool Trk::KalmanFitter::prepareNextIteration(const unsigned int& upcomingIterati
         (covN)(i,i) = (*cov)(i,i) < m_cov0[i] ? (*cov)(i,i)*scale : m_cov0[i];
       }
       newSeedPars = CREATE_PARAMETERS(*resultFromPreviousIter,
-                                      resultFromPreviousIter->parameters(),covN).release();
+                                      resultFromPreviousIter->parameters(),covN);
     }
   }
 
@@ -1273,11 +1228,10 @@ bool Trk::KalmanFitter::prepareNextIteration(const unsigned int& upcomingIterati
     iFilterBeginState = 1;
     Trk::ProtoTrajectoryUtility::clearFitResultsAfterOutlier(m_trajectory,FQ,iFilterBeginState);
     if (m_forwardFitter->needsReferenceTrajectory()) {
-      AmgVector(5)* x = new AmgVector(5)(newSeedPars->parameters()-ffs->referenceParameters()->parameters());
-      ffs->checkinParametersDifference(x);
-      ffs->checkinParametersCovariance(new AmgSymMatrix(5)(*newSeedPars->covariance()));
-      delete newSeedPars; // FIXME can be made without this new/delete.
-    } else ffs->checkinForwardPar(newSeedPars);
+      auto x = std::make_unique<const AmgVector(5)>(newSeedPars->parameters()-ffs->referenceParameters()->parameters());
+      ffs->checkinParametersDifference(std::move(x));
+      ffs->checkinParametersCovariance(std::make_unique<const AmgSymMatrix(5)>(*newSeedPars->covariance()));
+    } else ffs->checkinForwardPar(std::move(newSeedPars));
     ATH_MSG_VERBOSE ("made new seed parameters");
     // FIXME consider remaking the reference here
 
@@ -1600,7 +1554,7 @@ Trk::KalmanFitter::callValidation(const EventContext& ctx,
                                                Trk::anyDirection
                                                : Trk::oppositeMomentum,
                                              false,
-                                             matEffects);
+                                             matEffects).release();
         per = dynamic_cast<const Trk::Perigee*>(perPar);
     } else {
         ATH_MSG_WARNING("Perigee-making for validation failed: no useful parameters on track!" );

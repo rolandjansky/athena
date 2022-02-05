@@ -1,55 +1,33 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
+
+#include <utility>
 
 #include "MuonCalibEventBase/MuonCalibMdtTruthHit.h"
 
 namespace MuonCalib {
 
-    MuonCalibMdtTruthHit::MuonCalibMdtTruthHit() :
-        m_ID(0),
-        m_barCode(0),
-        m_driftRadius(0.),
-        m_positionAlongTube(0.),
-        m_gpositionX(0.),
-        m_gpositionY(0.),
-        m_gpositionZ(0.),
-        m_time(0.) {}
-
-    MuonCalibMdtTruthHit::MuonCalibMdtTruthHit(MuonFixedId id, int barCode, double driftRadius, double positionAlongTube, double gpositionX,
-                                               double gpositionY, double gpositionZ, double time) :
-        m_ID(id),
-        m_barCode(barCode),
-        m_driftRadius(driftRadius),
-        m_positionAlongTube(positionAlongTube),
-        m_gpositionX(gpositionX),
-        m_gpositionY(gpositionY),
-        m_gpositionZ(gpositionZ),
-        m_time(time) {}
-
-    MuonCalibMdtTruthHit::MuonCalibMdtTruthHit(const MuonCalibMdtTruthHit &truth) :
-        m_ID(truth.identify()),
-        m_barCode(truth.barCode()),
-        m_driftRadius(truth.driftRadius()),
-        m_positionAlongTube(truth.positionAlongTube()),
-        m_gpositionX(truth.gpositionX()),
-        m_gpositionY(truth.gpositionY()),
-        m_gpositionZ(truth.gpositionZ()),
-        m_time(truth.time()) {}
-
-    MuonCalibMdtTruthHit &MuonCalibMdtTruthHit::operator=(const MuonCalibMdtTruthHit &rhs) {
-        if (this != &rhs) {
-            m_ID = rhs.identify();
-            m_barCode = rhs.barCode();
-            m_driftRadius = rhs.driftRadius();
-            m_positionAlongTube = rhs.positionAlongTube();
-            m_gpositionX = rhs.gpositionX();
-            m_gpositionY = rhs.gpositionY();
-            m_gpositionZ = rhs.gpositionZ();
-            m_time = rhs.time();
-        }
-        return (*this);
-    }
+    MuonFixedId MuonCalibMdtTruthHit::identify() const { return m_ID; }
+    int MuonCalibMdtTruthHit::barCode() const { return m_barCode; }
+    double MuonCalibMdtTruthHit::driftRadius() const { return m_driftRadius; }
+    double MuonCalibMdtTruthHit::positionAlongTube() const { return m_positionAlongTube; }
+    double MuonCalibMdtTruthHit::gpositionX() const { return m_pos[0]; }
+    double MuonCalibMdtTruthHit::gpositionY() const { return m_pos[1]; }
+    double MuonCalibMdtTruthHit::gpositionZ() const { return m_pos[2]; }
+    double MuonCalibMdtTruthHit::time() const { return m_time; }
+    void MuonCalibMdtTruthHit::setIdentifier(MuonFixedId id) { m_ID = id; }
+    void MuonCalibMdtTruthHit::setBarCode(int barCode) { m_barCode = barCode; }
+    void MuonCalibMdtTruthHit::setDriftRadius(double driftRadius) { m_driftRadius = driftRadius; }
+    void MuonCalibMdtTruthHit::setPositionAlongTube(double positionAlongTube) { m_positionAlongTube = positionAlongTube; }
+    void MuonCalibMdtTruthHit::setgPositionX(double gpositionX) { m_pos[0] = gpositionX; }
+    void MuonCalibMdtTruthHit::setgPositionY(double gpositionY) { m_pos[1] = gpositionY; }
+    void MuonCalibMdtTruthHit::setgPositionZ(double gpositionZ) { m_pos[2] = gpositionZ; }
+    void MuonCalibMdtTruthHit::setTime(double time) { m_time = time; }
+    void MuonCalibMdtTruthHit::setgPosition(Amg::Vector3D newPos) { m_pos = std::move(newPos); }
+    MuonCalibMdtTruthHit::MuonCalibMdtTruthHit(MuonFixedId id, int barCode, double driftRadius, double positionAlongTube,
+                                               Amg::Vector3D globPos, double time) :
+        m_ID{id}, m_barCode{barCode}, m_driftRadius{driftRadius}, m_positionAlongTube{positionAlongTube}, m_pos{std::move(globPos)}, m_time{time} {}
 
     std::ostream &MuonCalibMdtTruthHit::dump(std::ostream &stream) const {
         stream << "MuonCalibMdtTruthHit: " << std::endl;

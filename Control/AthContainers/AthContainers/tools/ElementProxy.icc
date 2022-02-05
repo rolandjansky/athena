@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthContainers/tools/ElementProxy.icc
@@ -47,6 +47,7 @@ template <class DVL>
 // cppcheck-suppress operatorEqVarError
 ElementProxy<DVL>& ElementProxy<DVL>::operator= (const ElementProxy& rhs)
 {
+  static_assert (!DVL::must_own);
   if (*rhs.m_proxied != *m_proxied) {
     // cppcheck-suppress assertWithSideEffect
     ATHCONTAINERS_ASSERT (! (container()->ownPolicy() == SG::OWN_ELEMENTS &&
@@ -68,7 +69,8 @@ ElementProxy<DVL>& ElementProxy<DVL>::operator= (const ElementProxy& rhs)
  * the assignment.
  */
 template <class DVL>
-ElementProxy<DVL>& ElementProxy<DVL>::operator= (typename DVL::value_type rhs)
+ATH_MEMBER_REQUIRES_DEF(!DVL::must_own, ElementProxy<DVL>&)
+ElementProxy<DVL>::operator= (typename DVL::value_type rhs)
 {
   if (rhs != *m_proxied)
     m_container->assignElement(m_proxied, rhs);
@@ -87,7 +89,7 @@ ElementProxy<DVL>& ElementProxy<DVL>::operator= (typename DVL::value_type rhs)
  */
 template <class DVL>
 ElementProxy<DVL>&
-ElementProxy<DVL>::operator= (std::unique_ptr<typename DVL::base_value_type> rhs)
+ElementProxy<DVL>::operator= (typename DVL::unique_type rhs)
 {
   if (rhs.get() != *m_proxied)
     m_container->assignElement(m_proxied, std::move(rhs));

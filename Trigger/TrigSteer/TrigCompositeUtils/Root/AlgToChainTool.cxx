@@ -3,6 +3,7 @@
 */
 
 #include "TrigCompositeUtils/AlgToChainTool.h"
+#include "boost/algorithm/string/predicate.hpp"
 
 #ifndef XAOD_STANDALONE
 
@@ -39,7 +40,7 @@ StatusCode TrigCompositeUtils::AlgToChainTool::start() {
     for ( const auto& sequencer : hltMenuHandle->sequencers() ) {
         for ( const std::string& algorithm : sequencer.second ) {
             // PassFilter is for empty steps - will never be associated with a chain
-            if (algorithm.find("PassFilter") == 0) continue;
+            if (boost::starts_with (algorithm, "PassFilter")) continue;
 
             // Save just second part of algorithm ex. RoRSeqFilter/FFastCaloElectron -> FFastCaloElectron
             m_algToSequencersMap[algorithm.substr(algorithm.find('/') + 1)]
@@ -168,12 +169,12 @@ std::set<TrigCompositeUtils::DecisionID> TrigCompositeUtils::AlgToChainTool::ret
     for ( const std::string& key : keys ) {
 
         // Look for given collection
-        if ( !collectionName.empty() && (key.find(collectionName) != 0) ){
+        if ( !collectionName.empty() && (!boost::starts_with (key, collectionName)) ){
             continue;
         }
 
         // Get data from any nav collection
-        if( collectionName.empty() && (key.find("HLTNav") != 0 || key == "HLTNav_Summary") ) {
+        if( collectionName.empty() && (!boost::starts_with (key, "HLTNav") || key == "HLTNav_Summary") ) {
             continue;
         }
         

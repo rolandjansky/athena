@@ -7,9 +7,10 @@
 // **********************************************************************
 
 #include "DataQualityInterfaces/HanConfigAssessor.h"
-#include "DataQualityInterfaces/HanUtils.h"
 #include "DataQualityInterfaces/ConditionsSingleton.h"
+#include "DataQualityInterfaces/HanUtils.h"
 #include <cstring>
+#include <utility>
 
 #include <TKey.h>
 #include <TH1F.h>
@@ -427,7 +428,7 @@ GetList( TDirectory* basedir, std::map<std::string,TSeqCollection*>& mp )
        || (strncmp(className, "TEfficiency", 11) == 0) ) {
 	// TNamed* transobj = dynamic_cast<TNamed*>(key->ReadObj());
 	// if (transobj != NULL) {
-	std::string::size_type rslash = nameString.rfind("/");
+	std::string::size_type rslash = nameString.rfind('/');
 	if (rslash == std::string::npos) {
 	  rslash = 0;
 	} else {
@@ -460,7 +461,7 @@ void
 HanConfigAssessor::
 Accept( const Visitor& visitor, boost::shared_ptr<dqm_core::Region> dqParent ) const
 {
-  visitor.Visit( this, dqParent );
+  visitor.Visit( this, std::move(dqParent) );
 }
 
 

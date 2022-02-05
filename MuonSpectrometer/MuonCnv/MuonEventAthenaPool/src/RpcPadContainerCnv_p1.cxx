@@ -47,7 +47,7 @@ void RpcPadContainerCnv_p1::transToPers(const RpcPadContainer* transCont,  RpcPa
     int numColl = transCont->numberOfCollections();
     persCont->resize(numColl);    log << MSG::DEBUG  << " Preparing " << persCont->size() << "Collections" << endmsg;
 
-    for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, it_Coll++)  {
+    for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, ++it_Coll)  {
         // Add in new collection
         RpcPad_p1* pcoll = &( (*persCont)[collIndex] );
         cnv.transToPers( &(**it_Coll), pcoll , log);
@@ -106,7 +106,7 @@ RpcPadContainer* RpcPadContainerCnv_p1::createTransient(const RpcPadContainer_p1
     if(!m_isInitialized) {
         if (this->initialize(log) != StatusCode::SUCCESS) {
             log << MSG::FATAL << "Could not initialize RpcPadContainerCnv_p1 " << endmsg;
-            return 0;
+            return nullptr;
         } 
     }
     SG::ReadCondHandle<RpcCablingCondData> rpcCab(m_rpcCabKey, Gaudi::Hive::currentContext());

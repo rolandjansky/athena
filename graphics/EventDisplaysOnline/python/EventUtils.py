@@ -5,13 +5,14 @@ import os, re, time
 # This method reads the files in the given directory, sorts them by run/event number,
 # finds atlantis and vp1 files belonging to the same event and returns a list of events
 # and their corresponing files: (event, run, atlantis, vp1)
-def getEventlist(msg, directory):
+# is removeunpaired=True, remove the files that do not form an atlanits-vp1 pair
+def getEventlist(msg, directory, removeunpaired):
 	filelist = []
 	files = os.listdir(directory)
 
 	# Build a list of files ordered by run/event number
 	for file in files:
-		matches = re.search(r'(?:JiveXML|vp1)_(\d+)_(\d+)(?:\.xml|_.+\.pool\.root)', file)
+		matches = re.search(r'(?:JiveXML|vp1)_(?:|r)(\d+)_(?:|ev)(\d+)(?:\.xml|_.+\.pool\.root)', file)
 
 		# Event file, add tot the list
 		if matches:
@@ -43,19 +44,19 @@ def getEventlist(msg, directory):
 
 	# Now loop through the files to form pairs
 	while i < numfiles-1:
-		#if filelist[i][0] != filelist[i+1][0] or filelist[i][1] != filelist[i+1][1]:
+		if removeunpaired and (filelist[i][0] != filelist[i+1][0] or filelist[i][1] != filelist[i+1][1]):
 
 			# Make sure that files without a partner (atlantis-vp1) are also removed
-		#	if i == 0:
-		#		msg.warning("One of the files is missing for run %s, event %s, removing the other as well." % (filelist[i][0], filelist[i][1]))
-		#		try:
-		#			os.unlink("%s/%s" % (directory, filelist[i][2]))
-		#		except OSError as err:
-		#			msg.warning("Could not remove '%s': %s" % (filelist[i][2], err))
+			if i == 0:
+				msg.warning("One of the files is missing for run %s, event %s, removing the other as well.", filelist[i][0], filelist[i][1])
+				try:
+					os.unlink("%s/%s" % (directory, filelist[i][2]))
+				except OSError as err:
+					msg.warning("Could not remove '%s': %s", filelist[i][2], err)
 
 			# Do not include such files in the list for atlas-live.cern.ch
-		#	i = i + 1
-		#else:
+			i = i + 1
+		else:
 			# Build list for atlas-live.cern.ch
 			evententry = filelist[i][0], filelist[i][1], filelist[i][2], filelist[i+1][2]
 			eventlist.append(evententry)
@@ -100,8 +101,8 @@ def writeEventlist(msg, directory, eventlist):
 		msg.warning("Could not rename event.%d to event.list: %s", pid, err)
 
 # Perform all of these in one command
-def cleanDirectory(msg, directory, maxevents):
-	eventlist = getEventlist(msg, directory)
+def cleanDirectory(msg, directory, maxevents, removeunpaired):
+	eventlist = getEventlist(msg, directory, removeunpaired)
 	if maxevents:
 		pruneEvents(msg, directory, maxevents, eventlist)
 	writeEventlist(msg, directory, eventlist)

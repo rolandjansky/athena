@@ -10,6 +10,17 @@ cmake_minimum_required( VERSION 3.10 )
 # the version and languages.
 project( WorkDir )
 
+# Force the compilation of CUDA code for only compute capability 5.2 for now.
+# To get rid of warnings from 11.0 about not supporting older compute
+# capabilities anymore.
+set( CMAKE_CUDA_ARCHITECTURES "52" CACHE STRING
+   "CUDA architectures to build code for" )
+
+# Enable the CI tests in the CITest package in case the user wants to
+# run them locally:
+set( ATLAS_ENABLE_CI_TESTS TRUE CACHE BOOL
+   "Set up tests in CITest package" )
+
 # Let the user pick up updated AtlasCMake/AtlasLCG versions for testing.
 # Remember that it's not a problem if AtlasCMake is not found, that's why
 # we use the QUIET keyword.

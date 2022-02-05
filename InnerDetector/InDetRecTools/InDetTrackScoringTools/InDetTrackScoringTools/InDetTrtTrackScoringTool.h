@@ -88,8 +88,6 @@ private:
    * Trk::TrackSummary*/
   std::vector<Trk::TrackScore> m_summaryTypeScore;
 
-  /**\todo make this const, once createSummary method is const*/
-  ToolHandle<Trk::ITrackSummaryTool> m_trkSummaryTool;
   /** Returns minimum number of expected TRT drift circles depending on eta. */
   ToolHandle<ITrtDriftCircleCutTool> m_selectortool;
 

@@ -402,6 +402,46 @@ public:
 };
 
 
+/**
+ * @brief Exception --- Bad iter_swap.
+ *
+ * Attempt to swap between containers with inconsistent ownership.
+ */
+class ExcBadIterSwap
+  : public std::runtime_error
+{
+public:
+  /**
+   * @brief Constructor.
+   */
+  ExcBadIterSwap();
+};
+
+
+/**
+ * @brief Exception --- Bad allocation ownership.
+ *
+ * Attempt to add a locally-allocated element to a container when it was
+ * allocated from a different container.
+ */
+class ExcAllocOwnership
+  : public std::runtime_error
+{
+public:
+  /**
+   * @brief Constructor.
+   */
+  ExcAllocOwnership();
+};
+
+
+/**
+ * @brief Throw a SG::ExcAllocOwnership exception.
+ */
+[[noreturn]]
+void throwExcAllocOwnership();
+
+
 } // namespace SG
 
 

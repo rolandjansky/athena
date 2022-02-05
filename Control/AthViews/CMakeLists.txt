@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthViews )
@@ -43,23 +43,26 @@ atlas_add_test( ViewCollectionMerge_test
                 SOURCES test/ViewCollectionMerge_test.cxx
                 INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
                 LINK_LIBRARIES ${GTEST_LIBRARIES} AthViews CxxUtils
-                ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/test")
+                ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/test"
+                POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( SimpleViews
-                SCRIPT test/test_simple_view_example.sh
+                SCRIPT athena.py --threads=1 AthViews/SimpleViewExample.py
                 PROPERTIES PASS_REGULAR_EXPRESSION "INFO view_test running with store view_9"
-                TIMEOUT 300 )
+                POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( ViewScheduling
-                SCRIPT test/test_view_scheduling.sh )
+                SCRIPT athena.py --threads=1 AthViews/ViewScheduling.py
+                LOG_SELECT_PATTERN "INFO condTestAlg running with store view_0|INFO 109" )
 
 atlas_add_test( ViewInheritance
-                SCRIPT test/test_view_inheritance.sh )
+                SCRIPT athena.py --threads=1 AthViews/ViewInheritance.py
+                POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( ViewNestFail
-                SCRIPT test/test_view_nest_fail.sh
+                SCRIPT athena.py --threads=1 AthViews/ViewNest.py
                 PROPERTIES PASS_REGULAR_EXPRESSION "Execution of algorithm nest_alg failed"
-                TIMEOUT 300 )
+                POST_EXEC_SCRIPT nopost.sh )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

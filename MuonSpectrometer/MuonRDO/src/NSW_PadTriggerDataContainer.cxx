@@ -3,23 +3,23 @@
 namespace Muon {
 
 NSW_PadTriggerDataContainer::NSW_PadTriggerDataContainer()
-    : IdentifiableContainer<NSW_PadTriggerData>(0) { }
+    : IdentifiableContainer<NSW_PadTriggerData>(HASH_MAX) { }
 
-NSW_PadTriggerDataContainer::NSW_PadTriggerDataContainer(unsigned int hashMax) 
+NSW_PadTriggerDataContainer::NSW_PadTriggerDataContainer(unsigned int hashMax)
     : IdentifiableContainer<NSW_PadTriggerData>(hashMax) { }
-    
+
 const CLID& NSW_PadTriggerDataContainer::classID() {
     return ClassID_traits<NSW_PadTriggerDataContainer>::ID();
 }
 
 const CLID& NSW_PadTriggerDataContainer::clID() const {
-    return classID();    
+    return classID();
 }
 
 std::string NSW_PadTriggerDataContainer::string() const {
     std::stringstream sstream{};
     sstream << "Number of collections: " << numberOfCollections() << ". Contains collections: " << std::endl;
-    for (const auto* collection : *this) {
+    for (const NSW_PadTriggerData* collection : *this) {
         sstream << collection->string() << std::endl;
     }
     return sstream.str();

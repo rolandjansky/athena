@@ -5,14 +5,14 @@
 #ifndef MuonCalib_RtScaleFunction_h
 #define MuonCalib_RtScaleFunction_h
 
-namespace MuonCalib{
+namespace MuonCalib {
 
-class IRtRelation;
+    class IRtRelation;
 
-float RtScalePolynomial(const float &r);
+    float RtScalePolynomial(const float &r);
 
-float RtScaleFunction(const float &t, const bool ml2, const IRtRelation &rtrelation);
+    float RtScaleFunction(const float &t, const bool ml2, const IRtRelation &rtrelation);
 
-}
+}  // namespace MuonCalib
 
 #endif

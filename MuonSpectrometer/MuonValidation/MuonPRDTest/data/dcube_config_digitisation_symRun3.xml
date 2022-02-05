@@ -24,8 +24,9 @@
     <hist1D name="rpcdoubletPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="rpcGasGap" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="rpcTime" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="mdtlocalX" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="mdtlocalY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtlocalTubePosX" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtlocalTubePosY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtlocalTubePosZ" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="mdtglobalX" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="mdtglobalY" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="mdtglobalZ" plotopts="" tests="KS,chi2" type="TH1F"/>
@@ -48,8 +49,9 @@
     <hist1D name="bis_rpcdoubletPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="bis_rpcGasGap" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="bis_rpcTime" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="bis_mdtlocalX" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="bis_mdtlocalY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_mdtlocalTubePosX" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_mdtlocalTubePosY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_mdtlocalTubePosZ" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="bis_mdtglobalX" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="bis_mdtglobalY" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="bis_mdtglobalZ" plotopts="" tests="KS,chi2" type="TH1F"/>

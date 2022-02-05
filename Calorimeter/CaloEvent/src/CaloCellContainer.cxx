@@ -87,12 +87,27 @@ void CaloCellContainer::push_back(CaloCell * theCell)
 
 }
 
+void CaloCellContainer::push_back(std::unique_ptr<CaloCell> theCell)
+{
+  resetLookUpTable();
+  this->setHasCalo(theCell->caloDDE()->getSubCalo()) ;
+  
+  DataVector<CaloCell>::push_back(std::move(theCell));
+
+}
+
+
+
 /* to speed up reading of compactifed data */
 void CaloCellContainer::push_back_fast(CaloCell * theCell)
 {
    DataVector<CaloCell>::push_back(theCell);
 }
 
+void CaloCellContainer::push_back_fast(std::unique_ptr<CaloCell> theCell)
+{
+   DataVector<CaloCell>::push_back(std::move(theCell));
+}
 
 void CaloCellContainer::print() const {
   REPORT_MESSAGE_WITH_CONTEXT (MSG::WARNING, "CaloCellContainer")

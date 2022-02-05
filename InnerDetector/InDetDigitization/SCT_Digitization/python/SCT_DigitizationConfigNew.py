@@ -2,19 +2,18 @@
 
 Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
+from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import ProductionStep
-from AthenaCommon.Logging import logging
-from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-from SCT_ConditionsTools.SCT_SiliconConditionsConfig import SCT_SiliconConditionsCfg
-from SCT_ConditionsTools.SCT_ReadCalibChipDataConfig import SCT_ReadCalibChipDataCfg
-from SiPropertiesTool.SCT_SiPropertiesConfig import SCT_SiPropertiesCfg
-from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
-from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
-from Digitization.PileUpToolsConfig import PileUpToolsCfg
 from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg, PileUpXingFolderCfg
+from Digitization.PileUpToolsConfig import PileUpToolsCfg
+from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
+from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_ReadCalibChipDataCfg, SCT_SiliconConditionsCfg
+from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
+from SiPropertiesTool.SCT_SiPropertiesConfig import SCT_SiPropertiesCfg
 
 import AthenaCommon.SystemOfUnits as Units
 
@@ -30,7 +29,7 @@ def SCT_LastXing():
 
 def SCT_DigitizationCommonCfg(flags, name="SCT_DigitizationToolCommon", **kwargs):
     """Return ComponentAccumulator with common SCT digitization tool config"""
-    acc = SCT_GeometryCfg(flags)
+    acc = SCT_ReadoutGeometryCfg(flags)
     if not flags.Digitization.DoInnerDetectorNoise:
         kwargs.setdefault("OnlyHitElements", True)
     kwargs.setdefault("InputObjectName", "SCT_Hits")
@@ -43,13 +42,15 @@ def SCT_DigitizationCommonCfg(flags, name="SCT_DigitizationToolCommon", **kwargs
     if flags.Digitization.DoXingByXingPileUp:
         kwargs.setdefault("FirstXing", SCT_FirstXing())
         kwargs.setdefault("LastXing", SCT_LastXing() )
+    from RngComps.RandomServices import AthRNGSvcCfg
+    kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
     
     SCT_DigitizationTool = CompFactory.SCT_DigitizationTool
     tool = SCT_DigitizationTool(name, **kwargs)
     # attach ToolHandles
     tool.FrontEnd = acc.popToolsAndMerge(SCT_FrontEndCfg(flags))
     tool.SurfaceChargesGenerator = acc.popToolsAndMerge(SCT_SurfaceChargesGeneratorCfg(flags))
-    tool.RandomDisabledCellGenerator = SCT_RandomDisabledCellGeneratorCfg(flags)
+    tool.RandomDisabledCellGenerator = acc.popToolsAndMerge(SCT_RandomDisabledCellGeneratorCfg(flags))
     acc.setPrivateTools(tool)
     return acc
 
@@ -133,21 +134,23 @@ def SCT_DigitizationToolGeantinoTruthCfg(flags, name="SCT_GeantinoTruthDigitizat
 
 def SCT_RandomDisabledCellGeneratorCfg(flags, name="SCT_RandomDisabledCellGenerator", **kwargs):
     """Return configured random cell disabling tool"""
+    acc = ComponentAccumulator()
     kwargs.setdefault("TotalBadChannels", 0.01)
-    SCT_RandomDisabledCellGenerator = CompFactory.SCT_RandomDisabledCellGenerator
-    return SCT_RandomDisabledCellGenerator(name, **kwargs)
+    acc.setPrivateTools(CompFactory.SCT_RandomDisabledCellGenerator(name, **kwargs))
+    return acc
 
 
 def SCT_AmpCfg(flags, name="SCT_Amp", **kwargs):
     """Return configured amplifier and shaper tool"""
+    acc = ComponentAccumulator()
     kwargs.setdefault("CrossFactor2sides", 0.1)
     kwargs.setdefault("CrossFactorBack", 0.07)
     kwargs.setdefault("PeakTime", 21)
     kwargs.setdefault("deltaT", 1.0)
     kwargs.setdefault("Tmin", -25.0)
     kwargs.setdefault("Tmax", 150.0)
-    SCT_Amp = CompFactory.SCT_Amp
-    return SCT_Amp(name, **kwargs)
+    acc.setPrivateTools(CompFactory.SCT_Amp(name, **kwargs))
+    return acc
 
 
 def SCT_SurfaceChargesGeneratorCfg(flags, name="SCT_SurfaceChargesGenerator", **kwargs):
@@ -221,8 +224,8 @@ def SCT_FrontEndCfg(flags, name="SCT_FrontEnd", **kwargs):
         kwargs.setdefault("DataReadOutMode", 0)
     else:
         kwargs.setdefault("DataReadOutMode", 1)
-    SCT_FrontEnd = CompFactory.SCT_FrontEnd
-    acc.setPrivateTools(SCT_FrontEnd(name, **kwargs))
+    kwargs.setdefault("SCT_Amp", acc.popToolsAndMerge(SCT_AmpCfg(flags)))
+    acc.setPrivateTools(CompFactory.SCT_FrontEnd(name, **kwargs))
     return acc
 
 

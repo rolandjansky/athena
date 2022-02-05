@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //======================================================
@@ -193,7 +193,7 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
       const Amg::MatrixX& LocalErrorMatrix = (*iseg)->measurement(i)->localCovariance();
       double z=(*iseg)->measurement(i)->globalPosition().z();
       ATH_MSG_DEBUG("Segment "<<segmentCounter<<" rioOnTrack "<<i<<" (z="<<z<<") : "<<LocalParameters[0]
-				   <<" ; "<<sqrt(LocalErrorMatrix(Trk::locR,Trk::locR)));
+				   <<" ; "<<std::sqrt(LocalErrorMatrix(Trk::locR,Trk::locR)));
       myset.push_back((*iseg)->measurement(i));
     } //end of loop over measurements
 
@@ -226,7 +226,11 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
         int nmeas=(*iseg)->numberOfMeasurementBases();
         Amg::Vector3D surfpos(.5*((*iseg)->measurement(nmeas/2)->globalPosition()+(*iseg)->measurement(nmeas/2+1)->globalPosition()));
         Trk::PerigeeSurface persurf(surfpos);
-        inputMatchPerigee = dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolateDirectly(ctx,*inputMatchLine,persurf));
+        std::unique_ptr<const Trk::TrackParameters> tmp =
+          m_extrapolator->extrapolateDirectly(ctx, *inputMatchLine, persurf);
+        if (tmp && tmp->associatedSurface().type() == Trk::SurfaceType::Perigee) {
+          inputMatchPerigee = static_cast<const Trk::Perigee*>(tmp.release());
+        }
       }
       ATH_MSG_DEBUG("Created inputMatchLine");
       
@@ -253,12 +257,11 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
             measpar=(**itSet).trackParameters();
           }
         }
-        const Trk::TrackParameters *myper{};
+        std::unique_ptr<const Trk::TrackParameters> myper;
         if (measpar){
-          myper=m_extrapolator->extrapolate(ctx,*measpar,Trk::PerigeeSurface(),Trk::anyDirection,false, m_materialEffects ? Trk::muon : Trk::nonInteracting);
+          myper = m_extrapolator->extrapolate(ctx,*measpar,Trk::PerigeeSurface(),Trk::anyDirection,false, m_materialEffects ? Trk::muon : Trk::nonInteracting);
         }
         if (!myper){
-          delete myper;
           fittedTrack.reset();
         }
         else {
@@ -266,16 +269,16 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
           itSet = fittedTrack->trackStateOnSurfaces()->begin();
           for ( ; itSet!=itSetEnd; ++itSet) {
             if (!(**itSet).type(Trk::TrackStateOnSurface::Perigee)) {
-              const Trk::TrackParameters *trackpar=(**itSet).trackParameters() ? (**itSet).trackParameters()->clone() : nullptr;
-              const Trk::MeasurementBase *measurement=(**itSet).measurementOnTrack() ? (**itSet).measurementOnTrack()->clone() : nullptr;
-              const Trk::FitQuality *fitQual=(**itSet).fitQualityOnSurface() ? (**itSet).fitQualityOnSurface()->clone() : nullptr;
-              const Trk::MaterialEffectsBase *mateff=(**itSet).materialEffectsOnTrack() ? (**itSet).materialEffectsOnTrack()->clone() : nullptr;
+              auto trackpar=(**itSet).trackParameters() ? (**itSet).trackParameters()->uniqueClone() : nullptr;
+              auto measurement=(**itSet).measurementOnTrack() ? (**itSet).measurementOnTrack()->uniqueClone() : nullptr;
+              auto fitQual=(**itSet).fitQualityOnSurface() ? (**itSet).fitQualityOnSurface()->uniqueClone() : nullptr;
+              auto mateff=(**itSet).materialEffectsOnTrack() ? (**itSet).materialEffectsOnTrack()->uniqueClone() : nullptr;
               std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern(0);
               if ((**itSet).type(Trk::TrackStateOnSurface::Measurement)) typePattern.set(Trk::TrackStateOnSurface::Measurement);
               else if ((**itSet).type(Trk::TrackStateOnSurface::Outlier)) typePattern.set(Trk::TrackStateOnSurface::Outlier);
               else if ((**itSet).type(Trk::TrackStateOnSurface::Scatterer)) typePattern.set(Trk::TrackStateOnSurface::Scatterer);
               else if ((**itSet).type(Trk::TrackStateOnSurface::BremPoint)) typePattern.set(Trk::TrackStateOnSurface::BremPoint);
-              trajectory.push_back(new Trk::TrackStateOnSurface(measurement, trackpar, fitQual, mateff, typePattern));
+              trajectory.push_back(new Trk::TrackStateOnSurface(std::move(measurement), std::move(trackpar), std::move(fitQual), std::move(mateff), typePattern));
 
             }
           }
@@ -284,13 +287,15 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
           itSetEnd = trajectory.end();
           std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern(0);
           typePattern.set(Trk::TrackStateOnSurface::Perigee);
-          const Trk::TrackStateOnSurface *pertsos=new Trk::TrackStateOnSurface(nullptr,myper,nullptr,nullptr,typePattern);
+          const auto myPosition {myper->position()};
+          const auto myMomentum {myper->momentum()};
+          const Trk::TrackStateOnSurface *pertsos=new Trk::TrackStateOnSurface(nullptr,std::move(myper),nullptr,nullptr,typePattern);
 
           int index=1;
           for ( ; itSet!=itSetEnd; ++itSet) {
-            double inprod1=((**itSet).trackParameters()->position()-myper->position()).dot(myper->momentum());
+            double inprod1=((**itSet).trackParameters()->position()-myPosition).dot(myMomentum);
             --itSet;
-            double inprod2=((**itSet).trackParameters()->position()-myper->position()).dot(myper->momentum());
+            double inprod2=((**itSet).trackParameters()->position()-myPosition).dot(myMomentum);
             ++itSet;
             if (inprod1>0 && inprod2<0) {
               trajectory.insert(trajectory.begin()+index,pertsos);
@@ -301,7 +306,7 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
           }
           if (!peradded){
             itSet = trajectory.begin();
-            double inprod=((**itSet).trackParameters()->position()-myper->position()).dot(myper->momentum());
+            double inprod=((**itSet).trackParameters()->position()-myPosition).dot(myMomentum);
             if (inprod>0) trajectory.insert(trajectory.begin(),pertsos);
             else trajectory.push_back(pertsos);
           }
@@ -482,7 +487,6 @@ int InDet::TRT_SegmentsToTrack::nHTHits(const Trk::Track *track) const
       if(m_idHelper->is_trt(surfaceID) && !tsos->type(Trk::TrackStateOnSurface::Outlier)){
         const InDet::TRT_DriftCircleOnTrack* trtcirc = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(hitOnTrack);
         if(trtcirc) {
-          //          const InDet::TRT_DriftCircle* rawhit = trtcirc->prepRawData();
           if(trtcirc->highLevel()){
             nHT++;
           }else{

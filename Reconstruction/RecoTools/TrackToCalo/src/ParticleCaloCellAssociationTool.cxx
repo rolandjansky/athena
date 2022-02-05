@@ -42,7 +42,8 @@ ParticleCaloCellAssociationTool::initialize()
   if (!m_cellContainerName.key().empty()) {
     ATH_CHECK(m_cellContainerName.initialize());
   }
-
+  
+  ATH_CHECK(m_caloMgrKey.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -356,7 +357,7 @@ ParticleCaloCellAssociationTool::getCellIntersections(
 
     if (use3D) {
       // m_pathLenUtil.pathInsideCell( *cell, entryExitLayerMap);
-      double pathInMM = m_pathLenUtil.get3DPathLength(
+      double pathInMM = PathLengthUtils::get3DPathLength(
         *cell, pos->second.first, pos2->second.second, drFix, dzFix);
       double totpath = (pos->second.first - pos2->second.second).mag();
       path = totpath != 0 ? pathInMM / totpath : 0.;
@@ -437,7 +438,9 @@ ParticleCaloCellAssociationTool::associateCells(
   double phi = pars->position().phi();
 
   // Use Calorimeter list for CPU reasons
-  CaloCellList myList(&container);
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+  const CaloDetDescrManager* caloMgr=*caloMgrHandle;
+  CaloCellList myList(caloMgr,&container);
   myList.select(eta, phi, dr);
   cells.reserve(myList.ncells());
   cells.insert(cells.end(), myList.begin(), myList.end());

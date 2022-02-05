@@ -66,8 +66,8 @@ private:
     int m_runNumber;
     int m_eventNumber;
 
-    void print(std::string txt, const xAOD::TruthParticle* muon);
-    void print(std::string txt, const xAOD::Muon* muon);
+    void print(const std::string& txt, const xAOD::TruthParticle* muon);
+    void print(const std::string& txt, const xAOD::Muon* muon);
 
     IntegerArrayProperty m_pdgsToBeConsidered;
     std::set<int> m_selectedPdgs;  // set storing particle PDG's considered for matching

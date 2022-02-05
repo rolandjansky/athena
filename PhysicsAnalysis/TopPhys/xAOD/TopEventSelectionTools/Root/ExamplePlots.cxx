@@ -25,13 +25,24 @@ namespace top {
                              std::shared_ptr<top::TopConfig> config) :
     m_hists(name, outputFile, wk), m_nominalHashValue(0) {
     m_config = config;
+    m_sfRetriever = asg::ToolStore::get<ScaleFactorRetriever>("top::ScaleFactorRetriever");
     CP::SystematicSet nominal;
     m_nominalHashValue = nominal.hash();
 
     m_hists.addHist("event_mu", ";<#mu>;Events", 25, 0., 50.);
     if (m_config->isMC()) {
       m_hists.addHist("mc_weight", ";MC Event Weight", 30, -1, 1000);
+      m_hists.addHist("beamspot_weight", ";Beamspot weight", 120, -0.5, 2.5);
       m_hists.addHist("jvt_SF", ";JVT SF", 120, -0.5, 2.5);
+      if (m_config->useElectrons() || m_config->useMuons())
+        m_hists.addHist("lepton_SF", ";Lepton SF", 120, -0.5, 2.5);
+      if (m_config->useGlobalTriggerConfiguration())
+        m_hists.addHist("globalTriggerSF", ";Global Trigger SF", 120, -0.5, 2.5);
+      m_hists.addHist("triggerSF", ";Trigger SF", 120, -0.5, 2.5);
+      if (m_config->useTaus())
+        m_hists.addHist("tau_SF", ";Tau SF", 120, -0.5, 2.5);
+      if (m_config->usePhotons())
+        m_hists.addHist("photon_SF", ";Photon SF", 120, -0.5, 2.5);
     }
 
     m_hists.addHist("pileup_weight", ";Pileup Weight", 20, -1, 5);
@@ -138,7 +149,18 @@ namespace top {
 
     if (m_config->isMC()) {
       m_hists.hist("mc_weight")->Fill(eventWeight, eventWeight);
+      m_hists.hist("beamspot_weight")->Fill(event.m_info->beamSpotWeight(), eventWeight);
       m_hists.hist("jvt_SF")->Fill(event.m_jvtSF, eventWeight);
+
+      if (m_config->useElectrons() || m_config->useMuons())
+        m_hists.hist("lepton_SF")->Fill(m_sfRetriever->leptonSF(event, topSFSyst::nominal), eventWeight);
+      if (m_config->useGlobalTriggerConfiguration())
+        m_hists.hist("globalTriggerSF")->Fill(m_sfRetriever->globalTriggerSF(event, topSFSyst::nominal), eventWeight);
+      m_hists.hist("triggerSF")->Fill(m_sfRetriever->triggerSF(event, topSFSyst::nominal), eventWeight);
+      if (m_config->useTaus())
+        m_hists.hist("tau_SF")->Fill(m_sfRetriever->tauSF(event, topSFSyst::nominal), eventWeight);
+      if (m_config->usePhotons())
+        m_hists.hist("photon_SF")->Fill(m_sfRetriever->photonSF(event, topSFSyst::nominal), eventWeight);
 
       //pileup weight needs pileup reweighting tool to have run
       if (top::ScaleFactorRetriever::hasPileupSF(event)) m_hists.hist("pileup_weight")->Fill(top::ScaleFactorRetriever::pileupSF(
@@ -168,14 +190,10 @@ namespace top {
       m_hists.hist("mu_eta")->Fill(muPtr->eta(), eventWeight);
       m_hists.hist("mu_phi")->Fill(muPtr->phi(), eventWeight);
 
-      //protection from derivation framework removing tracks
-      const xAOD::TrackParticle* mutrack = muPtr->primaryTrackParticle();
-      if (mutrack != nullptr) {
-        m_hists.hist("mu_charge")->Fill(mutrack->charge(), eventWeight);
-        if (m_config->isMC()) {
-          static SG::AuxElement::Accessor<int> acc_mctt("truthType");
-          if (acc_mctt.isAvailable(*mutrack)) m_hists.hist("mu_true_type")->Fill(acc_mctt(*mutrack), eventWeight);
-        }
+      m_hists.hist("mu_charge")->Fill(muPtr->charge(), eventWeight);
+      if (m_config->isMC()) {
+        static SG::AuxElement::Accessor<int> acc_mctt("truthType");
+        if (acc_mctt.isAvailable(*muPtr)) m_hists.hist("mu_true_type")->Fill(acc_mctt(*muPtr), eventWeight);
       }
     }
 

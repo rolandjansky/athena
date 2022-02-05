@@ -113,7 +113,7 @@ void PixelAthMonitoringBase::fill2DProfLayerAccum(const VecAccumulator2DMap& acc
 }
 
 ///
-/// filling 1DProf per-lumi per-layer histograms ["ECA","ECC","B0","B1","B2","IBL"]
+/// filling 1DProf per-lumi per-layer histograms ["ECA","ECC","BLayer","Layer1","Layer2","IBL"]
 ///
 void PixelAthMonitoringBase::fill1DProfLumiLayers(const std::string& prof1Dname, int lumiblock, float* values,
                                                   int nlayers) const {
@@ -136,7 +136,7 @@ void PixelAthMonitoringBase::fill1DProfLumiLayers(const std::string& prof1Dname,
 //////////////////////////////////////////////
 
 ///
-/// filling 2DProf per-lumi per-layer histograms ["ECA","ECC","B0","B1","B2","IBL"]
+/// filling 2DProf per-lumi per-layer histograms ["ECA","ECC","BLayer","Layer1","Layer2","IBL"]
 ///
 void PixelAthMonitoringBase::fill2DProfLumiLayers(const std::string& prof2Dname, int lumiblock,
                                                   float(*values)[PixLayers::COUNT], const int* nCategories) const {
@@ -159,7 +159,7 @@ void PixelAthMonitoringBase::fill2DProfLumiLayers(const std::string& prof2Dname,
 
 
 ///
-/// filling 1DProfile per-pp0(ROD) histograms for ["ECA","ECC","B0","B1","B2","IBLA","IBLC"]
+/// filling 1DProfile per-pp0(ROD) histograms for ["ECA","ECC","BLayer","Layer1","Layer2","IBLA","IBLC"]
 ///
 void PixelAthMonitoringBase::fillFromArrays(const std::string& namePP0, AccumulatorArrays& pixarrays,
                                             const std::string& name2DMap) const {
@@ -214,8 +214,8 @@ void PixelAthMonitoringBase::fillFromArrays(const std::string& namePP0, Accumula
       auto valp = Monitored::Scalar<float>(valvarp, pixarrays.B0[a][b]);
       auto valm = Monitored::Scalar<float>(valvarm, pixarrays.B0[a][b] * weightPix);
       if (pixarrays.B0[a][b] > -1) {
-        fill("B0", pospp0x, valp);
-        if (!fillPP0only) fill("B0", posx, posy, valm);
+        fill("BLayer", pospp0x, valp);
+        if (!fillPP0only) fill("BLayer", posx, posy, valm);
       }
     }
     for (unsigned int a = 0; a < PixMon::kNumStavesL1; ++a) {
@@ -224,8 +224,8 @@ void PixelAthMonitoringBase::fillFromArrays(const std::string& namePP0, Accumula
       auto valp = Monitored::Scalar<float>(valvarp, pixarrays.B1[a][b]);
       auto valm = Monitored::Scalar<float>(valvarm, pixarrays.B1[a][b] * weightPix);
       if (pixarrays.B1[a][b] > -1) {
-        fill("B1", pospp0x, valp);
-        if (!fillPP0only) fill("B1", posx, posy, valm);
+        fill("Layer1", pospp0x, valp);
+        if (!fillPP0only) fill("Layer1", posx, posy, valm);
       }
     }
     for (unsigned int a = 0; a < PixMon::kNumStavesL2; ++a) {
@@ -234,8 +234,8 @@ void PixelAthMonitoringBase::fillFromArrays(const std::string& namePP0, Accumula
       auto valp = Monitored::Scalar<float>(valvarp, pixarrays.B2[a][b]);
       auto valm = Monitored::Scalar<float>(valvarm, pixarrays.B2[a][b] * weightPix);
       if (pixarrays.B2[a][b] > -1) {
-        fill("B2", pospp0x, valp);
-        if (!fillPP0only) fill("B2", posx, posy, valm);
+        fill("Layer2", pospp0x, valp);
+        if (!fillPP0only) fill("Layer2", posx, posy, valm);
       }
     }
   }
@@ -283,6 +283,22 @@ int PixelAthMonitoringBase::getPixLayersID(int ec, int ld) const {
     if (ld == 3) layer = PixLayers::kB2;
   }
   return layer;
+}
+
+///
+/// helper function to check if module is IBL planar based on pixel hash ID
+///
+bool PixelAthMonitoringBase::isIBL2D(int hashID) const {
+  bool result(false);
+  if ( hashID>=156 && hashID<=435 ) // IBL
+    { 
+      int module = (hashID-156) % 20;
+      if (module>3 && module<16)
+	{ 
+	  result = true;
+	}
+    }
+  return result;
 }
 
 //////////////////////////////////////////////

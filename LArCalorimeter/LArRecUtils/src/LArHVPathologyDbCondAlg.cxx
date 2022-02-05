@@ -15,7 +15,6 @@
 #include "CoralBase/AttributeListException.h"
 #include "CoralBase/Blob.h"
 
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloIdentifier/LArHEC_ID.h"
@@ -43,6 +42,7 @@ StatusCode LArHVPathologyDbCondAlg::initialize()
   ATH_CHECK(m_pathologyFolderKey.initialize());
   ATH_CHECK(m_hvMappingKey.initialize());
   ATH_CHECK(m_hvPAthologyKey.initialize());
+  ATH_CHECK(m_caloMgrKey.initialize());
   
   const CaloCell_ID* idHelper = nullptr;
   ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
@@ -124,6 +124,11 @@ StatusCode LArHVPathologyDbCondAlg::execute(const EventContext& ctx) const {
         ATH_MSG_ERROR("Do not have AthenaAttributeList for pathology");
         return StatusCode::FAILURE;
      }
+     writeHandle.addDependency(fldrHdl);
+
+     SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,ctx};
+     const CaloDetDescrManager* calodetdescrmgr = *caloMgrHandle; 
+     writeHandle.addDependency(caloMgrHandle);
 
      try {
        const unsigned blobVersion=(*attrList)["blobVersion"].data<unsigned int>();
@@ -140,21 +145,14 @@ StatusCode LArHVPathologyDbCondAlg::execute(const EventContext& ctx) const {
        LArHVPathologiesDb* hvpathdb = (LArHVPathologiesDb*)buf.ReadObjectAny(m_klass);
 
        std::unique_ptr<LArHVPathology> hvpath=std::make_unique<LArHVPathology>(hvpathdb);
-       const CaloDetDescrManager* calodetdescrmgr = nullptr;
-       ATH_CHECK( detStore()->retrieve (calodetdescrmgr, "CaloMgr") );
+
        fillElectMap(calodetdescrmgr, hvpath.get());
 
-       // Define validity of the output cond object and record it
-       EventIDRange rangeW;
-       if(!fldrHdl.range(rangeW)) {
-          ATH_MSG_ERROR("Failed to retrieve validity range for " << fldrHdl.key());
-          return StatusCode::FAILURE;
-       }
 
-       if(writeHandle.record(rangeW,hvpath.release()).isFailure()) {
+       if(writeHandle.record(std::move(hvpath)).isFailure()) {
           ATH_MSG_ERROR("Could not record LArHVPathology  object with "
                   << writeHandle.key()
-                  << " with EventRange " << rangeW
+                  << " with EventRange " << writeHandle.getRange()
                   << " into Conditions Store");
           return StatusCode::FAILURE;
        }
@@ -186,7 +184,7 @@ LArHVPathologyDbCondAlg::fillElectMap(const CaloDetDescrManager* calodetdescrmgr
 
   std::vector<unsigned short> list;
   std::vector<HWIdentifier> hwlineId;
-  unsigned int HVline;
+  unsigned int HVline = 0;
   // loop over all EM Identifiers
   for (auto id: m_larem_id->channel_ids()) {
      hwlineId.clear();

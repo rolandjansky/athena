@@ -61,10 +61,7 @@ ProtoMaterialEffects::ProtoMaterialEffects(const MaterialEffectsOnTrack *meot){
     m_scatphi=scatangles->deltaPhi();
     m_scattheta=scatangles->deltaTheta();
     m_sigmascatphi=scatangles->sigmaDeltaPhi();
-    //m_sigmascatphi=0.001;
     m_sigmascattheta=scatangles->sigmaDeltaTheta();
-    //if (m_sigmascatphi!=0 && std::abs(m_scatphi/m_sigmascatphi)>10) m_scatphi*=(10*m_sigmascatphi/std::abs(m_scatphi));
-    //if (m_sigmascattheta!=0 && std::abs(m_scattheta/m_sigmascattheta)>10) m_scattheta*=(10*m_sigmascattheta/std::abs(m_scattheta));
   }
   else m_scatphi=m_scattheta=m_sigmascatphi=m_sigmascattheta=0;
   m_surf=meot->associatedSurface().associatedDetectorElement() ?
@@ -132,7 +129,6 @@ ProtoMaterialEffects& ProtoMaterialEffects::operator=(const ProtoMaterialEffects
 }
 
 ProtoMaterialEffects::~ProtoMaterialEffects(){
-  //std::cout << "destructing GXFMat" << std::endl;
   if (m_owneloss) delete m_eloss;
   if (m_surf && !m_surf->associatedDetectorElement()) delete m_surf;
 }
@@ -293,6 +289,26 @@ MaterialEffectsBase *ProtoMaterialEffects::makeMEOT() const {
   return meot;  
 }
 
+std::unique_ptr<MaterialEffectsBase> 
+ProtoMaterialEffects::makeUniqueMEOT() const {
+  std::optional<ScatteringAngles> scatangles=std::nullopt;
+  if (m_sigmascattheta!=0) {
+    scatangles=ScatteringAngles(m_scatphi,m_scattheta,m_sigmascatphi,m_sigmascattheta);
+  }
+  std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes> typePattern;
+  typePattern.set(MaterialEffectsBase::FittedMaterialEffects);
+  const Trk::EnergyLoss *neweloss=nullptr;
+  if (m_deltae!=0){
+    if (m_eloss) {
+      neweloss=m_eloss;
+      if (!m_owneloss) neweloss=neweloss->clone();
+    }
+    else neweloss=new Trk::EnergyLoss(m_deltae,m_sigmadeltae,m_sigmadeltaeneg,m_sigmadeltaepos);
+  }
+  const_cast<bool&>(m_owneloss)=false; //Non MT safe function
+  return std::make_unique< MaterialEffectsOnTrack>(m_x0,scatangles,neweloss,*m_surf,typePattern); 
+}
+
 const Trk::MaterialProperties *ProtoMaterialEffects::materialProperties() const{
   return m_matprop;
 }
@@ -301,8 +317,6 @@ void ProtoMaterialEffects::setMaterialProperties(const Trk::MaterialProperties *
   m_matprop=matprop;
 }
 
-/* std::vector<double> &ProtoMaterialEffects::momentumJacobians(){
-  return m_pjac;
-} */
+
 
 }

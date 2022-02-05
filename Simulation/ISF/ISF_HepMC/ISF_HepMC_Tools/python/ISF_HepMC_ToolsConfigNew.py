@@ -1,6 +1,6 @@
 """ComponentAccumulator HepMC tools configurations for ISF
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -26,14 +26,23 @@ def ParticleSimWhiteListCfg(ConfigFlags, name="ISF_ParticleSimWhiteList", **kwar
 
 def ParticleSimWhiteList_ExtraParticlesCfg(ConfigFlags, name="ISF_ParticleSimWhiteList_ExtraParticles", **kwargs):
     result = ComponentAccumulator()
-    kwargs.setdefault("WhiteLists" , ["G4particle_whitelist.txt", "G4particle_whitelist_ExtraParticles.txt"] )
+    whiteLists = ["G4particle_whitelist.txt"]
+    # Basically a copy of code from ExtraParticles.ExtraParticlesConfigNew for now.
+    from ExtraParticles import PDGHelpers
+    if PDGHelpers.getPDGTABLE('PDGTABLE.MeV'):
+        parser = PDGHelpers.PDGParser('PDGTABLE.MeV', '111-556,1112-9090226')
+        parser.createList() # NB ignore output here
+        whiteLists += ["G4particle_whitelist_ExtraParticles.txt"]
+    else:
+        print ('ERROR Failed to find PDGTABLE.MeV file')
+    kwargs.setdefault("WhiteLists" , whiteLists )
     result.setPrivateTools(CompFactory.ISF.GenParticleSimWhiteList(name, **kwargs))
     return result
 
 def ParticlePositionFilterCfg(ConfigFlags, name="ISF_ParticlePositionFilter", **kwargs):
-    result = GeoIDSvcCfg(ConfigFlags)
+    result = ComponentAccumulator()
     # ParticlePositionFilter
-    kwargs.setdefault("GeoIDService", result.getService("ISF_GeoIDSvc"))
+    kwargs.setdefault("GeoIDService", result.getPrimaryAndMerge(GeoIDSvcCfg(ConfigFlags)).name)
     result.setPrivateTools(CompFactory.ISF.GenParticlePositionFilter(name, **kwargs))
     return result
 
@@ -84,8 +93,7 @@ def ParticlePositionFilterWorldCfg(ConfigFlags, name="ISF_ParticlePositionFilter
 def ParticlePositionFilterDynamicCfg(ConfigFlags, name="ISF_ParticlePositionFilterDynamic", **kwargs):
     # automatically choose the best fitting filter region
 
-    #if ConfigFlags.Detector.EnableMuon:
-    if True:
+    if ConfigFlags.Detector.EnableMuon:
       return ParticlePositionFilterWorldCfg(ConfigFlags, name, **kwargs)
     elif ConfigFlags.Detector.EnableCalo:
       return ParticlePositionFilterCaloCfg(ConfigFlags, name, **kwargs)

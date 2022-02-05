@@ -656,7 +656,7 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const  TrackParameters*> 
             (VxVyVzPxPyPz)                                      */
 
 // Fills 5x5 matrix. Input Matrix is track covariance only.
-void TrkVKalVrtFitter::FillMatrixP(AmgSymMatrix(5)& CovMtx, std::vector<double> & Matrix) const
+void TrkVKalVrtFitter::FillMatrixP(AmgSymMatrix(5)& CovMtx, std::vector<double> & Matrix) 
 {
     CovMtx.setIdentity();
     if( Matrix.size() < 21) return;
@@ -671,7 +671,7 @@ void TrkVKalVrtFitter::FillMatrixP(AmgSymMatrix(5)& CovMtx, std::vector<double> 
 }
 
 // Fills 5x5 matrix.  Input Matrix is a full covariance
-void TrkVKalVrtFitter::FillMatrixP(int iTrk, AmgSymMatrix(5)& CovMtx, std::vector<double> & Matrix) const
+void TrkVKalVrtFitter::FillMatrixP(int iTrk, AmgSymMatrix(5)& CovMtx, std::vector<double> & Matrix) 
 {
     int iTmp=(iTrk+1)*3;
     int NContent = Matrix.size();
@@ -681,17 +681,17 @@ void TrkVKalVrtFitter::FillMatrixP(int iTrk, AmgSymMatrix(5)& CovMtx, std::vecto
     int pnt = (iTmp+1)*iTmp/2 + iTmp;   if( pnt   > NContent ) return;
     CovMtx(2,2) =  Matrix[pnt];
     pnt = (iTmp+1+1)*(iTmp+1)/2 + iTmp; if( pnt+1 > NContent ){ CovMtx.setIdentity();  return; }
-    CovMtx(2,3) =  Matrix[pnt];
+    CovMtx.fillSymmetric(2,3,Matrix[pnt]);
     CovMtx(3,3) =  Matrix[pnt+1];
     pnt = (iTmp+2+1)*(iTmp+2)/2 + iTmp; if( pnt+2 > NContent ){ CovMtx.setIdentity();  return; }
-    CovMtx(2,4) = Matrix[pnt];
-    CovMtx(3,4) = Matrix[pnt+1];
+    CovMtx.fillSymmetric(2,4,Matrix[pnt]);
+    CovMtx.fillSymmetric(3,4,Matrix[pnt+1]);
     CovMtx(4,4) = Matrix[pnt+2];
 }
 
 
 
-Amg::MatrixX * TrkVKalVrtFitter::GiveFullMatrix(int NTrk, std::vector<double> & Matrix) const
+Amg::MatrixX * TrkVKalVrtFitter::GiveFullMatrix(int NTrk, std::vector<double> & Matrix) 
 {
    Amg::MatrixX * mtx = new Amg::MatrixX(3+3*NTrk,3+3*NTrk);
    long int ij=0;

@@ -11,8 +11,8 @@ atlas_add_library( ZdcByteStreamLib
                    src/*.cxx
                    PUBLIC_HEADERS ZdcByteStream
                    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AsgTools AthenaBaseComps AthContainers ByteStreamData xAODTrigL1Calo ZdcEvent GaudiKernel ByteStreamCnvSvcBaseLib StoreGateLib
-                   PRIVATE_LINK_LIBRARIES AthenaKernel ZdcConditions TrigT1Interfaces )
+                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AsgTools AthenaBaseComps AthContainers ByteStreamData xAODTrigL1Calo ZdcEvent GaudiKernel ByteStreamCnvSvcBaseLib StoreGateLib AthenaKernel CxxUtils
+                   PRIVATE_LINK_LIBRARIES ZdcConditions TrigT1Interfaces )
 
 atlas_add_component( ZdcByteStream
                      src/components/*.cxx

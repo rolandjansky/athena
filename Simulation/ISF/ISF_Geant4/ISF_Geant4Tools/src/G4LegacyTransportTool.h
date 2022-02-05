@@ -81,9 +81,9 @@ namespace iGeant4
 
     virtual StatusCode simulateVector( const ISF::ConstISFParticleVector& particles, ISF::ISFParticleContainer& secondaries, McEventCollection* mcEventCollection ) const override;
 
-    virtual StatusCode setupEvent() override;
+    virtual StatusCode setupEvent(const EventContext&) override;
 
-    virtual StatusCode releaseEvent() override;
+    virtual StatusCode releaseEvent(const EventContext&) override;
 
     virtual ISF::SimulationFlavor simFlavor() const override { return ISF::Geant4; };
 

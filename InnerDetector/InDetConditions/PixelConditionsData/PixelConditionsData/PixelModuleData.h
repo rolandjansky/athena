@@ -35,12 +35,6 @@ class PixelModuleData {
     void setBunchSpace(double bunchSpace);
     double getBunchSpace() const;
 
-    void setUseComTime(bool UseComTime);
-    bool getUseComTime() const;
-
-    void setComTime(double ComTime);
-    double getComTime() const;
-
     void setBarrelNumberOfBCID(std::vector<int> BarrelNumberOfBCID);
     void setEndcapNumberOfBCID(std::vector<int> EndcapNumberOfBCID);
     void setDBMNumberOfBCID(std::vector<int>    DBMNumberOfBCID);
@@ -221,8 +215,6 @@ class PixelModuleData {
     typedef std::map<int, std::vector<float>> chipCharge;
 
     double m_bunchSpace{};
-    bool m_UseComTime{};
-    double m_ComTime{};
 
     std::vector<int> m_BarrelNumberOfBCID;
     std::vector<int> m_EndcapNumberOfBCID;

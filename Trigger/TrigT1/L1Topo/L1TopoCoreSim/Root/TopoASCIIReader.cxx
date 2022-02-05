@@ -102,7 +102,7 @@ bool TCS::TopoASCIIReader::getNextEvent() {
          }
          m_event->addJet( jet );
       } else if(type == "<jTau>") {
-         TCS::jTauTOB tau( atoi(results.at(0).c_str()),atoi(results.at(1).c_str()),atoi(results.at(2).c_str()) );
+	 TCS::jTauTOB tau( atoi(results.at(0).c_str()),0,atoi(results.at(1).c_str()),atoi(results.at(2).c_str()) );
          if(results.size()==5) {
             tau.setEtaDouble( atof(results.at(3).c_str()) );
             tau.setPhiDouble( atof(results.at(4).c_str()) );

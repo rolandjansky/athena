@@ -1,5 +1,5 @@
 
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 """
  StandardJetConstits: A module defining standard definitions for jet inputs : external container and 
@@ -41,33 +41,45 @@ def standardReco(input):
     (where input is external to the jet domain).
     
     We group the definition of functions here rather than separately, so that we can change them 
-    automatically to a void function in case we're in an Analysis release.
+    automatically to a void function in case we're in an Analysis release and we can not import upstream packages.
     
     """
+
+    doNothingFunc = lambda *l:None # noqa: E731
     from .JetRecConfig import isAnalysisRelease 
     if isAnalysisRelease():
-        return lambda *l:None
+        return doNothingFunc
 
-    # TEMPORARY 
-    # don't try to invoke anything as long as we're invoked from a runII-style config
-    from AthenaCommon.Configurable import Configurable
-    if not Configurable.configurableRun3Behavior:
-        return lambda *l:None
     
     if input=='CaloClusters':
         def f(jetdef,spec):
             from CaloRec.CaloRecoConfig import CaloRecoCfg
-            return CaloRecoCfg(jetdef._cflags)
+            flags = jetdef._cflags
+            return CaloRecoCfg(flags) if flags.Jet.doUpstreamDependencies else None
     elif input=='Tracks':
         def f(jetdef,spec):
-            from InDetConfig.TrackRecoConfig import TrackRecoCfg
-            return TrackRecoCfg(jetdef._cflags)
+            from InDetConfig.TrackRecoConfig import InDetTrackRecoCfg
+            flags = jetdef._cflags
+            return InDetTrackRecoCfg(flags) if flags.Jet.doUpstreamDependencies else None
     elif input=="Muons":
         def f(jetdef,spec):
             from MuonConfig.MuonReconstructionConfig import MuonReconstructionCfg
-            return MuonReconstructionCfg(jetdef._cflags)
+            flags = jetdef._cflags
+            return MuonReconstructionCfg(flags) if flags.Jet.doUpstreamDependencies else None
+        
+    elif input=="PFlow":
+        def f(jetdef,spec):
+            from eflowRec.PFRun3Config import PFCfg
+            flags = jetdef._cflags
+            return PFCfg(flags) if flags.Jet.doUpstreamDependencies else None
 
+        
+    else:
+        f = doNothingFunc
+        
     return f
+
+
 
 ########################################################################
 ## List of standard input sources for jets.
@@ -82,24 +94,28 @@ _stdInputList = [
     JetInputExternal("CaloCalTopoClusters", xAODType.CaloCluster, algoBuilder= standardReco("CaloClusters") ),
 
     # *****************************
-    JetInputExternal("JetETMissParticleFlowObjects", xAODType.ParticleFlow, # no algobuilder available yet for PFlow
-                     prereqs = ["input:InDetTrackParticles"],
+    JetInputExternal("JetETMissParticleFlowObjects", xAODType.FlowElement, algoBuilder = standardReco("PFlow"),
+                     prereqs = ["input:InDetTrackParticles", "input:CaloCalTopoClusters"],
                      ),
 
     # *****************************
     JetInputExternal("InDetTrackParticles",   xAODType.TrackParticle,
                      algoBuilder = standardReco("Tracks"),
-                     filterfn = lambda flags : (not flags.InDet.disableTracking, "Tracking is disabled") ,
+                     filterfn = lambda flags : (flags.Reco.EnableTracking or "InDetTrackParticles" in flags.Input.Collections, "Tracking is disabled and no InDetTrackParticles in input")
                      ),
 
     JetInputExternal("PrimaryVertices",   xAODType.Vertex,
                      prereqs = ["input:InDetTrackParticles"],
                      ),
-    
-    
+    # No quality criteria are applied to the tracks, used for ghosts for example
     JetInputExternal("JetSelectedTracks",     xAODType.TrackParticle,
                      prereqs= inputsFromContext("Tracks"), # in std context, this is InDetTrackParticles (see StandardJetContext)
-                     algoBuilder = lambda jdef,_ : jrtcfg.getTrackSelAlg(jdef.context )
+                     algoBuilder = lambda jdef,_ : jrtcfg.getTrackSelAlg(jdef.context, trackSelOpt=False )
+                     ),
+    # Apply quality criteria defined via trackSelOptions in jdef.context (used e.g. for track-jets)
+    JetInputExternal("JetSelectedTracks_trackSelOpt",     xAODType.TrackParticle,
+                     prereqs= inputsFromContext("Tracks"), # in std context, this is InDetTrackParticles (see StandardJetContext)  
+                     algoBuilder = lambda jdef,_ : jrtcfg.getTrackSelAlg(jdef.context, trackSelOpt=True )
                      ),
     JetInputExternal("JetTrackUsedInFitDeco", xAODType.TrackParticle,
                      prereqs= inputsFromContext("Tracks"), # in std context, this is InDetTrackParticles (see StandardJetContext)
@@ -124,6 +140,7 @@ _stdInputList = [
     # *****************************
     JetInputExternal("MuonSegments", "MuonSegment", algoBuilder=standardReco("Muons"),
                      prereqs = ["input:InDetTrackParticles"], # most likely wrong : what exactly do we need to build muon segments ?? (and not necessarily full muons ...)
+                     filterfn = lambda flags : (flags.Reco.EnableCombinedMuon or "MuonSegments" in flags.Input.Collections, "Muon reco is disabled"),
                      ),
 
 
@@ -131,16 +148,28 @@ _stdInputList = [
     # Truth particles from the hard scatter vertex prior to Geant4 simulation.
     # Neutrinos and muons are omitted; all other stable particles are included.
     JetInputExternal("JetInputTruthParticles",  xAODType.TruthParticle,
-                algoBuilder = inputcfg.buildJetInputTruth, filterfn=isMC ),
+                     algoBuilder = inputcfg.buildJetInputTruth, filterfn=isMC ),
 
     # Truth particles from the hard scatter vertex prior to Geant4 simulation.
     # Prompt electrons, muons and neutrinos are excluded, all other stable particles
     # are included, in particular leptons and neutrinos from hadron decays.
     JetInputExternal("JetInputTruthParticlesNoWZ",  xAODType.TruthParticle,
-                algoBuilder = inputcfg.buildJetInputTruth, filterfn=isMC,specs="NoWZ"),
+                     algoBuilder = inputcfg.buildJetInputTruth, filterfn=isMC,specs="NoWZ"),
+
+    # Truth particles from the hard scatter vertex prior to Geant4 simulation.
+    # Similar configuration as for JetInputTruthParticlesNoWZ but with slightly
+    # different photon dressing option
+    JetInputExternal("JetInputTruthParticlesDressedWZ", xAODType.TruthParticle,
+                     algoBuilder = inputcfg.buildJetInputTruth, filterfn=isMC,specs="DressedWZ"),
+
+    # Truth particles from the hard scatter vertex prior to Geant4 simulation.
+    # Only charged truth particles are used
+    JetInputExternal("JetInputTruthParticlesCharged", xAODType.TruthParticle,
+                     algoBuilder = inputcfg.buildJetInputTruth, filterfn=isMC,specs="Charged"),
+
 
     JetInputExternal("PV0JetSelectedTracks", xAODType.TrackParticle,
-            prereqs=["input:JetSelectedTracks", "input:JetTrackUsedInFitDeco"],
+                     prereqs=["input:JetSelectedTracks_trackSelOpt", "input:JetTrackUsedInFitDeco"],
                      algoBuilder = inputcfg.buildPV0TrackSel ),
 ]
 
@@ -181,7 +210,10 @@ _stdSeqList = [
     # see JetDefinition.py for details.
 
     # *****************************
-    # Cluster constituents 
+    # Cluster constituents : the first one is a relic used for isolation, and might disappear soon
+    JetInputConstitSeq("EMTopo", xAODType.CaloCluster, ["EM"],
+                       "CaloCalTopoClusters", "EMTopoClusters", jetinputtype="EMTopo",
+                       ),
     JetInputConstitSeq("EMTopoOrigin", xAODType.CaloCluster, ["EM","Origin"],
                        "CaloCalTopoClusters", "EMOriginTopoClusters", jetinputtype="EMTopo",
                        ),
@@ -205,27 +237,34 @@ _stdSeqList = [
     JetInputConstitSeq("EMPFlowCSSK", xAODType.FlowElement,["CorrectPFO",  "CS","SK", "CHS"] ,
                   'JetETMissParticleFlowObjects', 'CSSKParticleFlowObjects', jetinputtype="EMPFlow"),
 
+    # *****************************
+    # Tower (used only as ghosts atm)
+    JetInputConstit("Tower", xAODType.CaloCluster, "CaloCalFwdTopoTowers"),
 
     # *****************************
-    # Track constituents
+    # Track constituents (e.g. ghosts, no quality criteria, no TTVA)
     JetInputConstit("Track", xAODType.TrackParticle,'JetSelectedTracks'),
-    
-    # Track particles from the primary vertex
-    #JetInputConstitSeq("PV0Track", xAODType.TrackParticle,inputname='JetSelectedTracks',outputname= 'PV0JetSelectedTracks',
-    #              prereqs= ["input:JetTrackUsedInFitDeco","input:JetTrackVtxAssoc"], ),
-
+    # Track constituents (e.g. track-jets, trackSelOptions quality criteria, TTVA)
     JetInputConstit("PV0Track", xAODType.TrackParticle, 'PV0JetSelectedTracks'),
 
     # *****************************
     # Muon segments. Only used as ghosts
     JetInputConstit("MuonSegment", "MuonSegment", "MuonSegments",                    ),
 
+    # *****************************
+    # VR track jets as ghosts for large-R jets
+    JetInputConstit("AntiKtVR30Rmax4Rmin02PV0TrackJet", xAODType.Jet, "AntiKtVR30Rmax4Rmin02PV0TrackJets"),
     
     # *****************************
     # Truth particles (see JetInputExternal declarations above for more details)
     JetInputConstit("Truth", xAODType.TruthParticle, "JetInputTruthParticles" ),
     
     JetInputConstit("TruthWZ", xAODType.TruthParticle, "JetInputTruthParticlesNoWZ", jetinputtype="TruthWZ"),
+
+    JetInputConstit("TruthDressedWZ", xAODType.TruthParticle, "JetInputTruthParticlesDressedWZ", jetinputtype="TruthDressedWZ"),
+
+    JetInputConstit("TruthCharged", xAODType.TruthParticle, "JetInputTruthParticlesCharged", jetinputtype="TruthCharged"),
+
 ]
 
 for label in  _truthFlavours:    
@@ -277,7 +316,7 @@ _stdModList = [
     
     # Pileup suppression
     JetConstitModifier("Vor",    "VoronoiWeightTool", properties=dict(doSpread=False, nSigma=0) ),
-    JetConstitModifier("CS",     "ConstituentSubtractorTool", properties=dict(MaxEta=5. ) ),
+    JetConstitModifier("CS",     "ConstituentSubtractorTool", properties=dict(MaxEta=4.5 ) ),
     JetConstitModifier("SK",     "SoftKillerWeightTool",),
                            
 ]

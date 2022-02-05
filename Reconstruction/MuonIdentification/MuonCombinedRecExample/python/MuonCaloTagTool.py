@@ -26,9 +26,6 @@ def CaloTrkMuIdAlgTrackSelectorTool( name='CaloTrkMuIdAlgTrackSelectorTool', **k
     kwargs.setdefault("Extrapolator", getPublicTool("AtlasExtrapolator") )
     return CfgMgr.InDet__InDetDetailedTrackSelectorTool(name, **kwargs )
 
-def TrackEnergyInCaloTool( name ='TrackEnergyInCaloTool', **kwargs ):
-    kwargs.setdefault("ExtrapolatorHandle", getPublicTool("AtlasExtrapolator") )
-    return CfgMgr.TrackEnergyInCaloTool(name,**kwargs)
 
 def TrackDepositInCaloTool( name ='TrackDepositInCaloTool', **kwargs ):
     from TrkExTools.AtlasExtrapolator import AtlasExtrapolator

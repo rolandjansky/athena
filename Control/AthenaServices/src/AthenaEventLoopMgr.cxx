@@ -1,8 +1,11 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #define  GAUDISVC_EVENTLOOPMGR_CPP
+
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // non-MT EventLoopMgr
 
 #include <cassert>
 #include <ios>
@@ -352,7 +355,7 @@ AthenaEventLoopMgr::setupPreSelectTools(Gaudi::Details::PropertyBase&) {
     tool_iterator firstTool = m_tools.begin();
     tool_iterator lastTool  = m_tools.end();
     unsigned int toolCtr = 0;
-    for ( ; firstTool != lastTool; firstTool++ )
+    for ( ; firstTool != lastTool; ++firstTool )
       {
 	// reset statistics
 	m_toolInvoke[toolCtr] = 0;
@@ -405,7 +408,7 @@ StatusCode AthenaEventLoopMgr::finalize()
     info() << "Summary of AthenaEvtLoopPreSelectTool invocation: (invoked/success/failure)" << endmsg;
     info() << "-----------------------------------------------------" << endmsg;
 
-    for ( ; firstTool != lastTool; firstTool++ ) {
+    for ( ; firstTool != lastTool; ++firstTool ) {
       info() << std::setw(2)     << std::setiosflags(std::ios_base::right)
              << toolCtr+1 << ".) " << std::resetiosflags(std::ios_base::right)
              << std::setw(48) << std::setfill('.')
@@ -532,7 +535,7 @@ StatusCode AthenaEventLoopMgr::executeAlgorithms(const EventContext& ctx) {
   // Call the execute() method of all top algorithms 
   for ( ListAlg::iterator ita = m_topAlgList.begin(); 
         ita != m_topAlgList.end();
-        ita++ ) 
+        ++ita ) 
   {
     const StatusCode& sc = (*ita)->sysExecute(ctx); 
     // this duplicates what is already done in Algorithm::sysExecute, which
@@ -714,8 +717,8 @@ StatusCode AthenaEventLoopMgr::executeEvent(EventContext&& ctx)
         toolsPassed = (*theTool)->passEvent(ctx.eventID()); 
 	m_toolInvoke[toolCtr]++;
         {toolsPassed ? m_toolAccept[toolCtr]++ : m_toolReject[toolCtr]++;}
-        toolCtr++;
-        theTool++;
+        ++toolCtr;
+        ++theTool;
       }
   }
 
@@ -781,7 +784,7 @@ StatusCode AthenaEventLoopMgr::executeEvent(EventContext&& ctx)
 
     // Call the execute() method of all output streams 
     for (ListAlg::iterator ito = m_outStreamList.begin(); 
-	 ito != m_outStreamList.end(); ito++ ) {
+	 ito != m_outStreamList.end(); ++ito ) {
       sc = (*ito)->sysExecute(ctx); 
       if( !sc.isSuccess() ) {
 	eventFailed = true; 
@@ -1043,8 +1046,9 @@ void AthenaEventLoopMgr::handle(const Incident& inc)
   if(inc.type()!="BeforeFork")
     return;
 
-  if(!m_evtSelCtxt || !m_firstRun) {
-    warning() << "Skipping BeforeFork handler. Either no event selector is provided or begin run has already passed" << endmsg;
+  if(!m_firstRun) {
+    warning() << "Skipping BeforeFork handler. Begin run has already passed" << endmsg;
+    return;
   }
 
   // Initialize Algorithms and Output Streams
@@ -1052,6 +1056,11 @@ void AthenaEventLoopMgr::handle(const Incident& inc)
   if(sc.isFailure()) {
     error() << "Failed to initialize Algorithms" << endmsg;
     return; 
+  }
+
+  if(!m_evtSelCtxt) {
+    warning() << "Skipping BeforeFork handler. No event selector is provided" << endmsg;
+    return;
   }
 
   // Construct EventInfo

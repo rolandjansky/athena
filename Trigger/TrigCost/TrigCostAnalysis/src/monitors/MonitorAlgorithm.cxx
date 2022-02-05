@@ -17,7 +17,8 @@ StatusCode MonitorAlgorithm::newEvent(const CostData& data, const float weight) 
       continue; // When monitoring the master slot, this Monitor ignores algs running in different slots 
     }
     const uint32_t nameHash = tc->getDetail<TrigConf::HLTHash>("alg");
-    const std::string name = TrigConf::HLTUtils::hash2string(nameHash, "ALG");
+    std::string name = TrigConf::HLTUtils::hash2string(nameHash, "ALG");
+    std::replace(name.begin(), name.end(), ':', '_');
     ATH_CHECK( getCounter(name)->newEvent(data, tc->index(), weight) );
   }
 

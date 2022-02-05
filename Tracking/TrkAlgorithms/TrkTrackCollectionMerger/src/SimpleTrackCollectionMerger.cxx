@@ -85,7 +85,7 @@ Trk::SimpleTrackCollectionMerger::mergeTrack(const TrackCollection* pTrackCollec
   if(pTrackCollection and not pTrackCollection->empty()) {
     ATH_MSG_DEBUG("Size of track collection " << pTrackCollection->size());
     // loop over tracks
-    for(const auto pThisTrack: *pTrackCollection){
+    for(const auto *const pThisTrack: *pTrackCollection){
       // add track into output
       Trk::Track* newTrack = const_cast<Trk::Track*>(pThisTrack);
       outputCollection->push_back(newTrack);

@@ -11,6 +11,8 @@ def createOverlayConfigFlags():
     flags = AthConfigFlags()
     # Data overlay flag
     flags.addFlag("Overlay.DataOverlay", False)
+    # Overlay skip secondary events
+    flags.addFlag("Overlay.SkipSecondaryEvents", -1)
     # Overlay background StoreGate key prefix
     flags.addFlag("Overlay.BkgPrefix", "Bkg_")
     # Overlay signal StoreGate key prefix

@@ -15,22 +15,18 @@
  *
  */
 
-#include "egammaInterfaces/ICaloCluster_OnTrackBuilder.h"
 #include "egammaInterfaces/IEMClusterTool.h"
 #include "egammaInterfaces/IEMConversionBuilder.h"
 #include "egammaInterfaces/IEMFourMomBuilder.h"
 #include "egammaInterfaces/IEMShowerBuilder.h"
-#include "egammaInterfaces/IegammaBackShape.h"
 #include "egammaInterfaces/IegammaBaseTool.h"
 #include "egammaInterfaces/IegammaCheckEnergyDepositTool.h"
 #include "egammaInterfaces/IegammaIso.h"
-#include "egammaInterfaces/IegammaMiddleShape.h"
-#include "egammaInterfaces/IegammaPreSamplerShape.h"
 #include "egammaInterfaces/IegammaShowerShape.h"
-#include "egammaInterfaces/IegammaStripsShape.h"
 #include "egammaInterfaces/IegammaSwTool.h"
 #include "egammaInterfaces/IegammaOQFlagsBuilder.h"
 #ifndef XAOD_ANALYSIS
+#   include "egammaInterfaces/ICaloCluster_OnTrackBuilder.h"
 #   include "egammaInterfaces/IEMExtrapolationTools.h"
 #   include "egammaInterfaces/IEMTrackMatchBuilder.h"
 #   include "egammaInterfaces/IegammaTrkRefitterTool.h"

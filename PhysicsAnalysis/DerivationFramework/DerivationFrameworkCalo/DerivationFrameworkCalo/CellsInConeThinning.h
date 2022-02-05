@@ -12,40 +12,65 @@
 #include <string>
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "xAODCaloEvent/CaloClusterFwd.h"
-#include "xAODEgamma/EgammaFwd.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
+#include "CaloEvent/CaloCellContainer.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
+#include "ExpressionEvaluation/ExpressionParserUser.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
-#include "xAODEgamma/EgammaContainer.h"
-#include "CaloEvent/CaloCellContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
-
-#include "ExpressionEvaluation/ExpressionParserUser.h"
+#include "xAODCaloEvent/CaloClusterFwd.h"
+#include "xAODEgamma/EgammaContainer.h"
+#include "xAODEgamma/EgammaFwd.h"
 
 namespace DerivationFramework {
 
-  class CellsInConeThinning:public ExpressionParserUser<AthAlgTool>, public IAugmentationTool{
-    public:
-    CellsInConeThinning(const std::string& type, 
-			const std::string& name, 
-			const IInterface* parent);
+class CellsInConeThinning
+  : public ExpressionParserUser<AthAlgTool>
+  , public IAugmentationTool
+{
+public:
+  CellsInConeThinning(const std::string& type,
+                      const std::string& name,
+                      const IInterface* parent);
 
-    ~CellsInConeThinning(){}
-    StatusCode initialize();
-    StatusCode finalize();
-    StatusCode addBranches() const;
+  ~CellsInConeThinning() {}
+  StatusCode initialize();
+  StatusCode finalize();
+  StatusCode addBranches() const;
 
-    private:
-    SG::ReadHandleKey<xAOD::EgammaContainer> m_SGKey{this, "InputSGKey", "Electrons", "SG key for input container"};
-    SG::ReadHandleKey<CaloCellContainer>  m_InputCellsSGKey{this, "InputCellsSGKey", "AllCalo", "SG key for input cells container"};
-    SG::WriteHandleKey<xAOD::CaloClusterContainer> m_OutputClusterSGKey{this, "OutputClusterSGKey", "EgammaDummyClusters", "SG key for output"};
-    SG::WriteHandleKey<CaloClusterCellLinkContainer> m_OutputCellLinkSGKey{this, "OutputCellLinksSGKey", "EgammaDummyCellLink", "SG key for output cell links"};
+private:
+  SG::ReadHandleKey<xAOD::EgammaContainer>
+    m_SGKey{ this, "InputSGKey", "Electrons", "SG key for input container" };
+  SG::ReadHandleKey<CaloCellContainer> m_InputCellsSGKey{
+    this,
+    "InputCellsSGKey",
+    "AllCalo",
+    "SG key for input cells container"
+  };
+  SG::WriteHandleKey<xAOD::CaloClusterContainer> m_OutputClusterSGKey{
+    this,
+    "OutputClusterSGKey",
+    "EgammaDummyClusters",
+    "SG key for output"
+  };
+  SG::WriteHandleKey<CaloClusterCellLinkContainer> m_OutputCellLinkSGKey{
+    this,
+    "OutputCellLinksSGKey",
+    "EgammaDummyCellLink",
+    "SG key for output cell links"
+  };
 
-    std::string m_selectionString;
-    double m_dr;
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{
+    this,
+    "CaloDetDescrManager",
+    "CaloDetDescrManager"
+  };
 
-  };  
+  std::string m_selectionString;
+  double m_dr;
+};
 }
 
 #endif // DERIVATIONFRAMEWORK_CALO_CELLSINCONESELECTOR_H

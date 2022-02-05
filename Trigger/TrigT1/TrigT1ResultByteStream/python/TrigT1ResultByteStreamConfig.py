@@ -1,9 +1,10 @@
 #
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
-from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, CAtoGlobalWrapper
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, CAtoGlobalWrapper
+from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import Format
 from libpyeformat_helper import SourceIdentifier, SubDetector
 
 #Muon RecRoiTools
@@ -125,6 +126,12 @@ def L1TriggerByteStreamDecoderCfg(flags):
         # L1Topo may be missing in some runs of Run 2 when it was under commissioning
         for module_id in roibResultTool.L1TopoModuleIds:
           maybeMissingRobs.append(int(SourceIdentifier(SubDetector.TDAQ_CALO_TOPO_PROC, module_id)))
+      if flags.Trigger.EDMVersion == 2 and not flags.Trigger.doHLT:
+        # L1Calo occasional readout errors weren't caught by HLT in 2015 - ignore these in offline reco, see ATR-24493
+        for module_id in roibResultTool.JetModuleIds:
+          maybeMissingRobs.append(int(SourceIdentifier(SubDetector.TDAQ_CALO_JET_PROC_ROI, module_id)))
+        for module_id in roibResultTool.EMModuleIds:
+          maybeMissingRobs.append(int(SourceIdentifier(SubDetector.TDAQ_CALO_CLUSTER_PROC_ROI, module_id)))
 
   # Run-3 L1Muon decoding
   if flags.Trigger.enableL1MuonPhase1:
@@ -144,18 +151,11 @@ def L1TriggerByteStreamDecoderCfg(flags):
   acc.addEventAlgo(decoderAlg, primary=True)
 
   # The decoderAlg needs to load ByteStreamMetadata for the detector mask
-  #
-  # FIXME: BS metadata is unavailable in start() in offline athenaMT,
-  # but it works in athenaHLT (online) and in offline serial athena
-  # - keep the detector mask check only for online until an offline solution is found
-  if flags.Trigger.Online.isPartition:
-    from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
-    readBSAcc = ByteStreamReadCfg(flags)
-    readBSAcc.getEventAlgo('SGInputLoader').Load += [
-      ('ByteStreamMetadataContainer', 'InputMetaDataStore+ByteStreamMetadata')]
-    acc.merge(readBSAcc)
-  else:
-    decoderAlg.ByteStreamMetadataRHKey = ""
+  from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
+  readBSAcc = ByteStreamReadCfg(flags)
+  readBSAcc.getEventAlgo('SGInputLoader').Load += [
+    ('ByteStreamMetadataContainer', 'InputMetaDataStore+ByteStreamMetadata')]
+  acc.merge(readBSAcc)
 
   Configurable.configurableRun3Behavior = cb
   return acc
@@ -169,7 +169,7 @@ def L1TriggerByteStreamEncoderCfg(flags):
     acc.addPublicTool(roibResultTool)
     # Special - in BS->BS job without L1Sim, need to decode extra data from input
     # for encoding the CTP information back to BS
-    if flags.Input.Format == 'BS' and not flags.Trigger.doLVL1 and roibResultTool.CTPModuleId != 0xFF:
+    if flags.Input.Format is Format.BS and not flags.Trigger.doLVL1 and roibResultTool.CTPModuleId != 0xFF:
       from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
       acc.merge(ByteStreamReadCfg(flags, type_names=['CTP_RDO/CTP_RDO']))
 

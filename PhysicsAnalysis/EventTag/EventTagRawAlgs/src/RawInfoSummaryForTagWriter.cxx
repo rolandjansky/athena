@@ -26,7 +26,7 @@ RawInfoSummaryForTagWriter::RawInfoSummaryForTagWriter(const std::string& name,
 {
   declareProperty("IDTrackKey",m_sgKeyIDtrack);
   declareProperty("CaloCellContKey", m_cellContKey="AllCalo");
-  declareProperty("CaloClusterKey",m_caloClusterKey="CaloTopoCluster");
+  declareProperty("CaloClusterKey",m_caloClusterKey="CaloTopoClusters");
   declareProperty("LArCollTimeName", m_larCollTimeName="LArCollisionTime");
   declareProperty("doClusterSums",m_doClusterSums=true);
   declareProperty("TRT_DriftCircleContainerName", m_TRT_DriftCircleName="TRT_DriftCircles");

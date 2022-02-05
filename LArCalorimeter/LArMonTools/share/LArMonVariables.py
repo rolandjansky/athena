@@ -16,11 +16,11 @@ if 'FullFileName' in dir():
 
    if 'Type' not in dir():
        Type = str(FullFileName.strip().split('.')[2].strip().split('-')[1])
-       print Type
+       print(Type)
 
    if 'Partition' not in dir():
        Partition = str(FullFileName.strip().split('.')[6].split('-')[1])
-       print Partition
+       print(Partition)
 
    if not 'FullFileNameTab' in dir():
        FullFileNameTab = [ InputDir+"/"+FullFileName ]
@@ -34,7 +34,7 @@ if 'FullFileName' not in dir():
      FullFileName =[]
      FullFileName+=GetInputFilesFromTokens(InputDir,int(RunNumber),FilePrefix,".*")
      if len(FullFileName) == 0:
-        print "No input files !!!"
+        print("No input files !!!")
         sys.exit(-1)
      word = FullFileName[0].split('-')
      Type = word[1]

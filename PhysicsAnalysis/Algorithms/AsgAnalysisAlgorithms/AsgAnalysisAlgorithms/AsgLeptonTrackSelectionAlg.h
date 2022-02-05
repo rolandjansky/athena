@@ -13,8 +13,9 @@
 #include <PATCore/IAsgSelectionTool.h>
 #include <SelectionHelpers/ISelectionAccessor.h>
 #include <SelectionHelpers/SelectionReadHandle.h>
-#include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
+#include <SystematicsHandles/SysReadHandle.h>
+#include <xAODBase/IParticleContainer.h>
 
 namespace CP
 {
@@ -69,7 +70,7 @@ namespace CP
 
     /// \brief the particle continer we run on
   private:
-    SysCopyHandle<xAOD::IParticleContainer> m_particlesHandle {
+    SysReadHandle<xAOD::IParticleContainer> m_particlesHandle {
       this, "particles", "", "the asg collection to run on"};
 
     /// \brief the preselection we apply to our input

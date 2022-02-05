@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -21,7 +21,6 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IFileMgr.h"
 
-#include <iostream>
 #include <string>
 #include <cerrno>
 
@@ -29,8 +28,8 @@
 #include "TFile.h"
 #include "TFileCacheWrite.h"
 #include "TTree.h"
-#include "TSystem.h"
 #include "TTreeCache.h"
+#include "TSystem.h"
 
 using namespace pool;
 using namespace std;
@@ -44,9 +43,12 @@ RootDatabase::RootDatabase() :
         m_defSplitLevel(99),
         m_defAutoSave(16*1024*1024),
         m_defBufferSize(16*1024),
+        m_maxBufferSize(16*1024*1024),
+        m_minBufferEntries(-1),
         m_defWritePolicy(TObject::kOverwrite),   // On write create new versions
         m_branchOffsetTabLen(0),
         m_defTreeCacheLearnEvents(-1),
+        m_indexMasterID(0),
         m_fileMgr(nullptr)
 {
   m_counters[READ_COUNTER] = m_counters[WRITE_COUNTER] = m_counters[OTHER_COUNTER] = 0;
@@ -71,6 +73,7 @@ long long int RootDatabase::size()  const   {
 
 /// Callback after successful open of a database object
 DbStatus RootDatabase::onOpen(DbDatabase& dbH, DbAccessMode mode)  {
+  m_dbH = dbH;
   std::string par_val;
   DbPrint log("RootDatabase.onOpen");
   if ( !dbH.param("FORMAT_VSN", par_val).isSuccess() )  {
@@ -96,7 +99,8 @@ DbStatus RootDatabase::onOpen(DbDatabase& dbH, DbAccessMode mode)  {
 }
 
 // Open a new root Database: Access the TFile
-DbStatus RootDatabase::open(const DbDomain& domH,const std::string& nam,DbAccessMode mode)   {
+DbStatus RootDatabase::open(const DbDomain& domH,const std::string& nam,DbAccessMode mode)
+{
   DbPrint log("RootDatabase.open");
   const char* fname = nam.c_str();
   Bool_t result = ( mode == pool::READ ) ? kFALSE : gSystem->AccessPathName(fname, kFileExists);
@@ -422,14 +426,6 @@ DbStatus RootDatabase::getOption(DbOption& opt)  const   {
       else if ( !strcasecmp(n, "DEFAULT_WRITEPOLICY") )   // int
         return opt._setValue(int(m_defWritePolicy));
       break;
-    case 'N':
-      //if ( !strcasecmp(n,"NFREE") )                     // int
-      //  return opt._setValue(int(m_file->GetNfree()));
-      if ( !m_file )
-        return Error;
-      else if ( !strcasecmp(n,"NKEYS") )                  // int
-        return opt._setValue(int(m_file->GetNkeys()));
-      break;
     case 'F':
       if ( !m_file )
         return Error;
@@ -455,28 +451,40 @@ DbStatus RootDatabase::getOption(DbOption& opt)  const   {
     case 'G':
       if ( !m_file )
         return Error;
-      else if ( !strcasecmp(n,"GET_OBJECT") )  {         // void*
+      else if ( !strcasecmp(n,"GET_OBJECT") )  {          // void*
         const char* key = "";
         opt._getValue(key);
         return opt._setValue((void*)m_file->Get(key));
       }
       break;
     case 'I':
-      if ( !strcasecmp(n,"IOBYTES_WRITTEN") )      // int
+      if ( !strcasecmp(n,"IOBYTES_WRITTEN") )             // int
         return opt._setValue((long long int)(byteCount(WRITE_COUNTER)));
-      else if ( !strcasecmp(n,"IOBYTES_READ") )         // int
+      else if ( !strcasecmp(n,"IOBYTES_READ") )           // int
         return opt._setValue((long long int)(byteCount(READ_COUNTER)));
+      break;
+    case 'M':
+      if ( !strcasecmp(n, "MAXIMUM_BUFFERSIZE") )         // int
+        return opt._setValue(int(m_maxBufferSize));
+      else if ( !strcasecmp(n, "MINIMUM_BUFFERENTRIES") ) // int
+        return opt._setValue(int(m_minBufferEntries));
+      break;
+    case 'N':
+      if ( !m_file )
+        return Error;
+      else if ( !strcasecmp(n,"NKEYS") )                  // int
+        return opt._setValue(int(m_file->GetNkeys()));
       break;
     case 'R':
       if ( !m_file )
         return Error;
-      else if ( !strcasecmp(n,"READ_CALLS") )        // int
+      else if ( !strcasecmp(n,"READ_CALLS") )             // int
         return opt._setValue(int(m_file->GetReadCalls()));
       break;
     case 'T':
       if( !strcasecmp(n+5,"BRANCH_OFFSETTAB_LEN") )  {
         return opt._setValue(int(m_branchOffsetTabLen));
-      } else if( !strcasecmp(n,"TFILE") )  {                  // void*
+      } else if( !strcasecmp(n,"TFILE") )  {              // void*
           return opt._setValue((void*)m_file);
       } else if( !strcasecmp(n+5,"MAX_SIZE") )  {
           return opt._setValue((long long int)TTree::GetMaxTreeSize());
@@ -584,6 +592,25 @@ DbStatus RootDatabase::setOption(const DbOption& opt)  {
         return Success;
       }
       break;
+    case 'I':
+       if( !strcasecmp(n, "INDEX_MASTER") ) {
+          DbPrint log("RootDatabase::setOption");
+          char *s = nullptr;
+          if( opt._getValue(s).isSuccess() and s ) {
+             m_indexMaster = s;
+             log << DbPrintLvl::Debug << "INDEX_MASTER set to " << m_indexMaster << DbPrint::endmsg;
+             return Success;
+          }
+          log << DbPrintLvl::Debug << "INDEX_MASTER: s=" << (void*)s << DbPrint::endmsg;
+          return Error;
+       }
+      break;
+    case 'M':
+      if ( !strcasecmp(n, "MAXIMUM_BUFFERSIZE") )         // int
+        return opt._getValue(m_maxBufferSize);
+      else if ( !strcasecmp(n, "MINIMUM_BUFFERENTRIES") ) // int
+        return opt._getValue(m_minBufferEntries);
+      break;
     case 'P':
       if ( !m_file )
         return Error;
@@ -610,7 +637,7 @@ DbStatus RootDatabase::setOption(const DbOption& opt)  {
       break;
     case 'T':
        if ( !strcasecmp(n+5,"BRANCH_OFFSETTAB_LEN") )  {
-	  return opt._getValue(m_branchOffsetTabLen);
+          return opt._getValue(m_branchOffsetTabLen);
        }
        else if ( !strcasecmp(n+5,"MAX_SIZE") )  {
 	  long long int max_size = TTree::GetMaxTreeSize();
@@ -803,7 +830,25 @@ void RootDatabase::registerBranchContainer(RootTreeContainer* cont)
 DbStatus RootDatabase::transAct(Transaction::Action action)
 {
    // process flush to write file
-   if( action == Transaction::TRANSACT_FLUSH && m_file != nullptr && m_file->IsWritable()) m_file->Write();
+   if( action == Transaction::TRANSACT_FLUSH && m_file != nullptr && m_file->IsWritable()) {
+      m_file->Write();
+      // check all TTrees, if Branch baskets are below max
+      for( map< TTree*, ContainerSet_t >::iterator treeIt = m_containersInTree.begin(),
+              mapEnd = m_containersInTree.end(); treeIt != mapEnd; ++treeIt ) {
+         TTree *tree = treeIt->first;
+         TIter next(tree->GetListOfBranches());
+         TBranch * b = nullptr;
+         while((b = (TBranch*)next())){
+            if (b->GetBasketSize() > m_maxBufferSize) {
+               DbPrint log( m_file->GetName() );
+               log << DbPrintLvl::Debug << b->GetName() << " Basket size = " << b->GetBasketSize()
+                   << " reduced to " << m_maxBufferSize
+                   << DbPrint::endmsg;
+               b->SetBasketSize(m_maxBufferSize);
+            }
+         }
+      }
+   }
    // process commits only
    if( action != Transaction::TRANSACT_COMMIT )
       return Success;
@@ -811,9 +856,9 @@ DbStatus RootDatabase::transAct(Transaction::Action action)
    // check all TTrees with branch containers, if they need Filling
    for( map< TTree*, ContainerSet_t >::iterator treeIt = m_containersInTree.begin(),
            mapEnd = m_containersInTree.end(); treeIt != mapEnd; ++treeIt ) {
+      TTree *tree = treeIt->first;
       ContainerSet_t &containers = treeIt->second;
       if( (*containers.begin())->usingTreeFillMode() ) {
-         TTree *tree = treeIt->first;
          // cout << "------- TTree " << tree->GetName() << " - checking containers for commit" << endl;
          int    clean = 0, dirty = 0;
          for( ContainerSet_t::const_iterator cIt = containers.begin(); cIt != containers.end(); ++cIt ) {
@@ -835,7 +880,7 @@ DbStatus RootDatabase::transAct(Transaction::Action action)
             }
             for( ContainerSet_t::iterator cIt = containers.begin(); cIt != containers.end(); ++cIt ) {
                (*cIt)->clearDirty();
-            } 
+            }
          } else {
             // error - some containers in this TTree were not updated
             DbPrint err( m_file->GetName() );
@@ -848,9 +893,66 @@ DbStatus RootDatabase::transAct(Transaction::Action action)
             }
             return Error;
          }
+      } else { // not TreeFillMode
+         long long maxbranchlen = 0;
+         for( ContainerSet_t::iterator cIt = containers.begin(); cIt != containers.end(); ++cIt ) {
+            maxbranchlen = max( maxbranchlen, (*cIt)->size() );
+         }
+         if( maxbranchlen > 0 )  tree->SetEntries( maxbranchlen );
       }
    }
+
+   for( map< TTree*, ContainerSet_t >::iterator treeIt = m_containersInTree.begin(),
+           mapEnd = m_containersInTree.end(); treeIt != mapEnd; ++treeIt ) {
+      TTree *tree = treeIt->first;
+      if( tree->GetEntries() == m_minBufferEntries ) {
+         TIter next(tree->GetListOfBranches());
+         TBranch * b = nullptr;
+         while((b = (TBranch*)next())){
+            if (b->GetBasketSize() < b->GetTotalSize()) {
+               DbPrint log( m_file->GetName() );
+               log << DbPrintLvl::Debug << b->GetName() << " Initial basket size = " << b->GetBasketSize()
+                   << " increased to " << b->GetBasketSize() * (1 + int(b->GetTotalSize()/b->GetBasketSize()))
+                   << DbPrint::endmsg;
+               b->SetBasketSize(b->GetBasketSize() * (1 + int(b->GetTotalSize()/b->GetBasketSize())));
+            }
+         }
+      }
+   }
+
+   if( !m_indexMaster.empty() ) {
+      DbPrint log( m_file->GetName() );
+      log << DbPrintLvl::Debug << "Synchronizing indexes to master: " <<  m_indexMaster << DbPrint::endmsg;
+      std::vector<IDbContainer*> containers;
+      m_dbH.containers(containers);
+      m_indexMasterID = 0;
+      if( m_indexMaster == "*" ) {
+         // find the biggest index ID
+         for( auto c : containers ) {
+            long long nextID = c->nextRecordId() & 0xFFFFFFFF;
+            if( nextID > m_indexMasterID ) m_indexMasterID = nextID;
+         }
+      } else {
+         // look for the master by name
+         for( auto c = containers.begin(); c !=  containers.end(); ++c ) {
+            if( (*c)->name() == m_indexMaster ) {
+               m_indexMasterID = (*c)->nextRecordId() & 0xFFFFFFFF;
+               // cout << "Found master index: " << (*c)->name() << "  next ID= " << m_indexMasterID  << endl;
+               containers.erase(c);
+               break;
+            }
+         }
+      }
+      // synchronize all container indices
+      if( m_indexMasterID > 0 ) {
+         // go back by one, so nextID in other indices is equal the last ID in master
+         // this works if synchronizing in separate commits - but not in the same commit!
+         --m_indexMasterID;
+         for( auto c: containers ) {
+            c->useNextRecordId( m_indexMasterID );
+         }
+      }
+   }
+   
    return Success;
 }
-
-     

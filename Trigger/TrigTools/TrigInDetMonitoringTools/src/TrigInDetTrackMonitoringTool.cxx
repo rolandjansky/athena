@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TMath.h"
@@ -28,7 +28,7 @@ StatusCode TrigInDetTrackMonitoringTool::initialize(){
   ATH_MSG_DEBUG( "TrigInDetTrackMonitoringTool initialize() called");
 
   //Retrieve monitoring tool
-  ATH_CHECK( m_monTool.retrieve());
+  if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
    
   return StatusCode::SUCCESS;
 

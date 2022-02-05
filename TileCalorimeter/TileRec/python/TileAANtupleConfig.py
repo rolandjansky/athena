@@ -1,10 +1,11 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import Format
 
 '''
 @file TileAANtupleConfig.py
@@ -39,7 +40,7 @@ def TileAANtupleCfg(flags, outputFile='', saveTMDB=True, **kwargs):
     kwargs.setdefault('TileMuRcvContainer', "TileMuRcvCnt" if saveTMDB else "")
 
     kwargs.setdefault('CheckDCS', flags.Tile.useDCS)
-    kwargs.setdefault('BSInput', flags.Input.Format == 'BS' and not physicsRun)
+    kwargs.setdefault('BSInput', flags.Input.Format is Format.BS and not physicsRun)
     kwargs.setdefault('CalibMode', pedestalRun or cisRun)
     kwargs.setdefault('CalibrateEnergy', flags.Input.isMC or not (cisRun or physicsRun))
 
@@ -117,7 +118,7 @@ if __name__=='__main__':
 
     rawChannelContainer = 'TileRawChannelCnt'
 
-    if ConfigFlags.Input.Format == 'BS':
+    if ConfigFlags.Input.Format is Format.BS:
 
         cfg.addPublicTool(CompFactory.TileROD_Decoder(fullTileMode=ConfigFlags.Input.RunNumber[0]))
 

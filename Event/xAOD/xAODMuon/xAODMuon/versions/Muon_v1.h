@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: Muon_v1.h 745098 2016-05-05 15:47:04Z wleight $
@@ -108,6 +108,7 @@ namespace xAOD {
       CaloLikelihood,
       CaloScore,
       ExtrapolateMuonToIP,
+      Commissioning,
       NumberOfMuonAuthors // increase this guy when adding
     };
     /// Returns the primary author of this Muon.
@@ -119,7 +120,7 @@ namespace xAOD {
     /// Get all the authors of this Muon.
     /// For example during overlap checking, the same Muon may have been reconstructed by many different algorithms. This method returns a 16bit
     /// number, where each bit represents a muon algorithm, defined as follows (the lowest bit is indicates that something has gone wrong):
-    /// unknown | MuidCo | STACO | MuTag | MuTagIMO | MuidSA | MuGirl | MuGirlLowBeta | CaloTag | CaloLikelihood | CaloScore | ExtrapolateMuonToIP | MuonCombinedRefit | ExtrapolateMuonToIP        
+    /// unknown | MuidCo | STACO | MuTag | MuTagIMO | MuidSA | MuGirl | MuGirlLowBeta | CaloTag | CaloLikelihood | CaloScore | ExtrapolateMuonToIP | MuonCombinedRefit | ExtrapolateMuonToIP | Commissioning       
     /// @returns  16-bit word, 1-bit reserved for each muon Algorithm: 
     uint16_t allAuthors() const;
     void setAllAuthors(uint16_t authors);

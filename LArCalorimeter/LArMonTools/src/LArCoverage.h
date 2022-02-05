@@ -39,7 +39,6 @@
 
 class LArEM_ID;
 class LArOnlineID;
-class CaloDetDescrManager;
 class CaloDetDescrElement;
 class ITHistSvc;
 class LArCoverageFCALBins;
@@ -59,18 +58,18 @@ class LArCoverage: public ManagedMonitorToolBase
   virtual ~LArCoverage();
 
   /** @brief Overwrite dummy method from AlgTool */
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   /** Book general histograms
    *  Implement pure virtual methods of IMonitorToolBase */
-  StatusCode bookHistograms();
+  virtual StatusCode bookHistograms() override;
 
   /** Called each event */
-  StatusCode fillHistograms();
+  virtual StatusCode fillHistograms() override;
 
   /** Regularly called to fill noise maps
    *  Overwrite dummy method from MonitorToolBase */
-  StatusCode procHistograms();
+  virtual StatusCode procHistograms() override;
 
 private:
 
@@ -94,6 +93,10 @@ private:
   SG::ReadCondHandleKey<CaloNoise> m_noiseCDOKey{this,"CaloNoiseKey","electronicNoise","SG Key of CaloNoise data object"};
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey
     {this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+      , "CaloDetDescrManager"
+      , "CaloDetDescrManager"
+      , "SG Key for CaloDetDescrManager in the Condition Store" };
 
   // To retrieve bad channel DB keywords 
   int DBflag(const EventContext& ctx, HWIdentifier onID);

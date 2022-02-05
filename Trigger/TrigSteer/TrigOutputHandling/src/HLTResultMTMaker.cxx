@@ -1,11 +1,14 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigOutputHandling/HLTResultMTMaker.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "eformat/DetectorMask.h"
 #include "eformat/SourceIdentifier.h"
+#include <unistd.h> // gethostname
+#include <limits.h> // HOST_NAME_MAX
 #include <sstream>
 
 // Local helpers
@@ -59,9 +62,10 @@ HLTResultMTMaker::HLTResultMTMaker(const std::string& type, const std::string& n
 // =============================================================================
 StatusCode HLTResultMTMaker::initialize() {
   ATH_CHECK(m_hltResultWHKey.initialize());
+  ATH_CHECK(m_runtimeMetadataWHKey.initialize());
   ATH_CHECK(m_streamTagMaker.retrieve(DisableTool{m_streamTagMaker.name().empty()}));
   ATH_CHECK(m_makerTools.retrieve());
-  ATH_CHECK(m_monTool.retrieve());
+  ATH_CHECK(m_monTool.retrieve(DisableTool{m_monTool.empty()}));
   ATH_CHECK(m_jobOptionsSvc.retrieve());
   ATH_CHECK(m_bsMetaDataContRHKey.initialize(!m_extraROBs.empty() || !m_extraSubDets.empty()));
 
@@ -137,6 +141,17 @@ StatusCode HLTResultMTMaker::makeResult(const EventContext& eventContext) const 
   auto hltResult = SG::makeHandle(m_hltResultWHKey,eventContext);
   ATH_CHECK( hltResult.record(std::make_unique<HLT::HLTResultMT>()) );
   ATH_MSG_DEBUG("Recorded HLTResultMT with key " << m_hltResultWHKey.key());
+
+  // Save HLT runtime metadata
+  SG::WriteHandle<xAOD::TrigCompositeContainer> runtimeMetadataOutput = TrigCompositeUtils::createAndStore(m_runtimeMetadataWHKey, eventContext);
+  
+  xAOD::TrigComposite* tc = new xAOD::TrigComposite();
+  runtimeMetadataOutput->push_back(tc);
+  char hostname [HOST_NAME_MAX];
+  bool errcode = !gethostname(hostname, HOST_NAME_MAX); // returns 0 on success and -1 on failure, casted to false on success, true on failure
+  std::string hostnameString = std::string(hostname); // setDetail needs a reference
+  errcode &= tc->setDetail("hostname", hostnameString);
+  if (!errcode) ATH_MSG_WARNING("Failed to append hostname to HLT Runtime Metadata TC");
 
   // Fill the stream tags
   StatusCode finalStatus = StatusCode::SUCCESS;

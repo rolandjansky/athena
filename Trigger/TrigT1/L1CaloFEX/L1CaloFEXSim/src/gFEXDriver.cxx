@@ -19,6 +19,9 @@
 #include "xAODTrigger/gFexJetRoI.h"
 #include "xAODTrigger/gFexJetRoIContainer.h"
 
+#include "xAODTrigger/gFexGlobalRoI.h"
+#include "xAODTrigger/gFexGlobalRoIContainer.h"
+
 #include <cassert>
 #include "SGTools/TestStore.h"
 
@@ -62,8 +65,6 @@ StatusCode gFEXDriver::initialize()
 
   ATH_CHECK( m_gTowerContainerSGKey.initialize() );
 
-  ATH_CHECK( m_gJetEDMKey.initialize() );
-
   ATH_CHECK( m_gFEXOutputCollectionSGKey.initialize() );
 
   return StatusCode::SUCCESS;
@@ -79,14 +80,11 @@ StatusCode gFEXDriver::initialize()
 
   // STEP 0 - Make a fresh local gTowerContainer
   std::unique_ptr<gTowerContainer> local_gTowerContainerRaw = std::make_unique<gTowerContainer>();
-  // std::unique_ptr<gFEXOutputCollection> my_gFEXOutputCollection = std::make_unique<gFEXOutputCollection>();
 
   //STEP 1 - Do some monitoring
   gFEXOutputCollection* my_gFEXOutputCollection = new gFEXOutputCollection();
-  ATH_CHECK( evtStore()->record(my_gFEXOutputCollection,"gFEXOutputCollection") );
+  my_gFEXOutputCollection->setdooutput(true);
 
-  // SG::WriteHandle<LVL1::gFEXOutputCollection> gFEXOutputCollectionSG(m_gFEXOutputCollectionSGKey);
-  // ATH_CHECK(gFEXOutputCollectionSG.record(std::move(my_gFEXOutputCollection)));
 
   // STEP 2 - Make some gTowers and fill the local container
   m_gTowerBuilderTool->init(local_gTowerContainerRaw);
@@ -94,22 +92,26 @@ StatusCode gFEXDriver::initialize()
   local_gTowerContainerRaw->fillContainerMap();
 
   // STEP 3 - Do the supercell-tower mapping - put this information into the gTowerContainer
-  ATH_CHECK(m_gSuperCellTowerMapperTool->AssignSuperCellsToTowers(local_gTowerContainerRaw));
   ATH_CHECK(m_gSuperCellTowerMapperTool->AssignTriggerTowerMapper(local_gTowerContainerRaw));
+  ATH_CHECK(m_gSuperCellTowerMapperTool->AssignSuperCellsToTowers(local_gTowerContainerRaw));
 
   // STEP 4 - Write the completed gTowerContainer into StoreGate (move the local copy in memory)
   SG::WriteHandle<LVL1::gTowerContainer> gTowerContainerSG(m_gTowerContainerSGKey);
   ATH_CHECK(gTowerContainerSG.record(std::move(local_gTowerContainerRaw)));
 
-  // STEP 5 - Set up the gFEXSysSim
+  // STEP 5 - Run the gFEXSysSim
+  ATH_CHECK(m_gFEXSysSimTool->execute(my_gFEXOutputCollection));
 
-  // STEP 6 - Run the gFEXSysSim
-  ATH_CHECK(m_gFEXSysSimTool->execute());
-
-  // STEP 7 - Close and clean the event
+  // STEP 6 - Close and clean the event
   m_gFEXSysSimTool->cleanup();
   m_gSuperCellTowerMapperTool->reset();
   m_gTowerBuilderTool->reset();
+
+  // STEP 7 - Write the completed gFEXOutputCollection into StoreGate (move the local copy in memory)
+  std::unique_ptr<gFEXOutputCollection> local_gFEXOutputCollection = std::unique_ptr<gFEXOutputCollection>(my_gFEXOutputCollection);
+  SG::WriteHandle<LVL1::gFEXOutputCollection> gFEXOutputCollectionSG(m_gFEXOutputCollectionSGKey);
+  ATH_CHECK(gFEXOutputCollectionSG.record(std::move(local_gFEXOutputCollection)));
+
   ATH_MSG_DEBUG("Executed " << name() << ", closing event number " << m_numberOfEvents );
 
   m_numberOfEvents++;

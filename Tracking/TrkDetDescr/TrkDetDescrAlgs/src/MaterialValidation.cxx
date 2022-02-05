@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,12 +11,10 @@
 // Trk
 #include "TrkDetDescrAlgs/MaterialValidation.h"
 #include "TrkGeometry/TrackingVolume.h"
-#include "TrkGeometry/TrackingGeometry.h"
 #include "TrkGeometry/Layer.h"
 #include "TrkGeometry/LayerMaterialProperties.h"
 #include "TrkGeometry/MaterialProperties.h"
 #include "TrkGeometry/AssociatedMaterial.h"
-#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 #include "TrkDetDescrInterfaces/IMaterialMapper.h"
 #include "TrkNeutralParameters/NeutralParameters.h"
 
@@ -29,10 +27,8 @@
 
 Trk::MaterialValidation::MaterialValidation(const std::string& name, ISvcLocator* pSvcLocator)
 : AthAlgorithm(name,pSvcLocator)    ,
-  m_trackingGeometrySvc("AtlasTrackingGeometrySvc",name),
-  m_trackingGeometry(nullptr),
   m_materialMapper("Trk::MaterialMapper/MappingMaterialMapper"),
-  m_maxMaterialMappingEvents(25000),
+  m_maxMaterialValidationEvents(25000),
   m_flatDist(nullptr),
   m_etaMin(-3.),
   m_etaMax(3.),
@@ -40,12 +36,10 @@ Trk::MaterialValidation::MaterialValidation(const std::string& name, ISvcLocator
   m_accTinX0(0)
 {
 
-    // ---------------------- The TrackingGeometrySvc ------------------------ //
-    declareProperty("TrackingGeometrySvc"         , m_trackingGeometrySvc);
     // ---------------------- The Material Mapping -------------------------- //
     // the toolhandle of the MaterialMapper to be used
     declareProperty("MaterialMapper"               , m_materialMapper);
-    declareProperty("MaximumMappingEvents"         , m_maxMaterialMappingEvents);
+    declareProperty("MaximumMappingEvents"         , m_maxMaterialValidationEvents);
     // ---------------------- Range setup ----------------------------------- //
     declareProperty("MinEta"                      , m_etaMin);
     declareProperty("MaxEta"                      , m_etaMax);
@@ -63,11 +57,12 @@ StatusCode Trk::MaterialValidation::initialize()
 {
     
     // Get the TrackingGeometry from StoreGate
-    // initialize the TrackingGeometrySvc
-    if (m_trackingGeometrySvc.retrieve().isFailure()) {
-        ATH_MSG_FATAL( "Cannot retrieve TrackingGeometrySvc. Abort job. " );
-        return StatusCode::FAILURE;
+#ifdef LEGACY_TRKGEOM
+    if (!m_trackingGeometrySvc.empty()) {
+       ATH_CHECK( m_trackingGeometrySvc.retrieve());
     }
+#endif
+    ATH_CHECK( m_trackingGeometryReadKey.initialize(!m_trackingGeometryReadKey.key().empty()) );
     
     if ( (m_materialMapper.retrieve()).isFailure() )
         ATH_MSG_WARNING("Could not retrieve MaterialMapper");
@@ -82,15 +77,6 @@ StatusCode Trk::MaterialValidation::execute()
 {
     ATH_MSG_VERBOSE( "MaterialValidation execute() start ================================================" );
 
-    // ------------------------------- get the trackingGeometry at first place
-    if (!m_trackingGeometry) {
-        StatusCode retrieveCode = retrieveTrackingGeometry();
-        if (retrieveCode.isFailure()){
-            ATH_MSG_INFO( "Could not retrieve TrackingGeometry. Exiting." );
-            return retrieveCode;
-        }
-    }
-
     // create the random direction - flat in eta
     double eta   = m_etaMin + (m_etaMax-m_etaMin)*m_flatDist->shoot();
     double theta = 2.*atan(exp(-eta));
@@ -104,7 +90,7 @@ StatusCode Trk::MaterialValidation::execute()
     ATH_MSG_DEBUG("[>] Start mapping event with phi | eta = " << phi << " | " << direction.eta()); 
      
     // find the start TrackingVolume
-    const Trk::TrackingVolume* sVolume = m_trackingGeometry->lowestTrackingVolume(position);
+    const Trk::TrackingVolume* sVolume = trackingGeometry().lowestTrackingVolume(position);
     const Trk::TrackingVolume* nVolume = sVolume;
     while (nVolume ) {
         Trk::PositionAtBoundary paB = collectMaterialAndExit(*nVolume, position, direction);
@@ -179,7 +165,7 @@ Trk::PositionAtBoundary Trk::MaterialValidation::collectMaterialAndExit(const Tr
         const Trk::LayerArray* layerArray = tvol.confinedLayers();
         if (layerArray) {
            // display output
-           const std::vector<const Trk::Layer*>& layers = layerArray->arrayObjects();
+           Trk::BinnedArraySpan<Trk::Layer const * const> layers = layerArray->arrayObjects();
            auto layIter  = layers.begin();
            auto layIterE = layers.end();    
            for ( ; layIter != layIterE; ++layIter){
@@ -312,13 +298,10 @@ StatusCode Trk::MaterialValidation::finalize()
     return StatusCode::SUCCESS;
 }
 
-StatusCode Trk::MaterialValidation::retrieveTrackingGeometry()
-{
-
-    // Retrieve the TrackingGeometry from the DetectorStore
-    if ((detStore()->retrieve(m_trackingGeometry, m_trackingGeometrySvc->trackingGeometryName())).isFailure()) {
-        ATH_MSG_FATAL( "Could not retrieve TrackingGeometry from DetectorStore!" );
-        return StatusCode::FAILURE;
-    }
-    return StatusCode::SUCCESS;
+void Trk::MaterialValidation::throwFailedToGetTrackingGeometry() const {
+   std::stringstream msg;
+   msg << "Failed to get conditions data " << m_trackingGeometryReadKey.key() << ".";
+   throw std::runtime_error(msg.str());
 }
+
+

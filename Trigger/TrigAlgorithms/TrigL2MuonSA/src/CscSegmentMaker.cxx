@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -466,7 +466,6 @@ ReturnCode CscSegmentMaker::fit_clusters(int measphi, const std::vector<localCsc
   double Sxy=0.;
   double a = 0.;
   double b = 0.;
-  double aver_z=0.;
   double rp=0.;
   double rq=0.;
   double aver_res=0.;
@@ -483,7 +482,6 @@ ReturnCode CscSegmentMaker::fit_clusters(int measphi, const std::vector<localCsc
     S += w;
     Sx += w*x;
     Sy += w*y;
-    aver_z += x;
     if( !hits_fit[ihit].isIP ){
         seg2d.stationname=hits_fit[ihit].stationname;
 	aver_res += w*hits_fit[ihit].residual;

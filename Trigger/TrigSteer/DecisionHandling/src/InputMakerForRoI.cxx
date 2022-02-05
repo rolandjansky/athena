@@ -21,6 +21,10 @@ StatusCode  InputMakerForRoI::initialize() {
   ATH_MSG_DEBUG("Will produce output RoI collections: " << m_RoIs);
   ATH_CHECK( m_RoIs.initialize( SG::AllowEmpty ) );
   if (not m_roiTool.empty()) ATH_CHECK( m_roiTool.retrieve() );
+  if (m_roiTool.empty() and not m_isEmptyStep) {
+    ATH_MSG_ERROR(name() << " was not supplied an ROI tool.");
+    return StatusCode::FAILURE;
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -31,7 +35,7 @@ StatusCode  InputMakerForRoI::execute( const EventContext& context ) const {
   SG::WriteHandle<DecisionContainer> outputHandle = createAndStore( decisionOutputs(), context );
   ATH_CHECK(outputHandle.isValid());
   ATH_CHECK(decisionInputToOutput(context, outputHandle));
-  ATH_MSG_DEBUG("Merging complete");
+  
 
   if( outputHandle->size() == 0) {
     ATH_MSG_DEBUG( "Have no decisions in output handle "<< outputHandle.key() << ". Handle is valid but container is empty. "
@@ -53,13 +57,6 @@ StatusCode  InputMakerForRoI::execute( const EventContext& context ) const {
 
   std::vector <ElementLink<TrigRoiDescriptorCollection> > RoIsFromDecision;  // used to check for duplicate RoIs 
 
-  if (m_mergeIntoSuperRoI) {
-    TrigRoiDescriptor* superRoI = new TrigRoiDescriptor();
-    superRoI->setComposite(true);
-    superRoI->manageConstituents(false);
-    outputRoIColl->push_back(superRoI);
-  }
-
   // loop over output decisions in container of outputHandle, collect RoIs to process
   for (const Decision* outputDecision : *outputHandle) { 
 
@@ -74,15 +71,10 @@ StatusCode  InputMakerForRoI::execute( const EventContext& context ) const {
     if ( find(RoIsFromDecision.begin(), RoIsFromDecision.end(), roiEL) == RoIsFromDecision.end() ) {
       RoIsFromDecision.push_back(roiEL); // just to keep track of which we have used 
       const TrigRoiDescriptor* roi = *roiEL;
-      ATH_MSG_DEBUG("Found RoI:" <<*roi<<" FS="<<roi->isFullscan());
+      ATH_MSG_DEBUG("Adding RoI to be processed:" <<*roi<<" FS="<<roi->isFullscan());
 
-      if (m_mergeIntoSuperRoI) { // Append to the single superRoI
-        outputRoIColl->back()->push_back( roi );
-      } else { // Add individually
-        TrigRoiDescriptor* newroi = new TrigRoiDescriptor(*roi); //use copy constructor
-        outputRoIColl->push_back(newroi);
-        ATH_MSG_DEBUG("Added RoI:" <<*newroi<<" FS="<<newroi->isFullscan());
-      }
+      TrigRoiDescriptor* newroi = new TrigRoiDescriptor(*roi); //use copy constructor
+      outputRoIColl->push_back(newroi);
     } 
 
   } // loop over decisions      

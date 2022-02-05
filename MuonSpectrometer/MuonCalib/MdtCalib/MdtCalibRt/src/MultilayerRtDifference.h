@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MdtCalibRt_MultilayerRtDifference_h
@@ -10,7 +10,7 @@ class TDirectory;
 
 #include <cstddef>
 
-#include "list"
+#include "MdtCalibInterfaces/IMdtCalibration.h"
 #include "vector"
 
 namespace MuonCalib {
@@ -29,7 +29,7 @@ namespace MuonCalib {
 
         void Fill(const MdtCalibHitBase &hit, const IRtRelation &rt_relation);
 
-        bool DoFit(IRtRelation *rt_relation = NULL, const std::vector<MuonCalibSegment *> *seg = NULL);
+        bool DoFit(IRtRelation *rt_relation, const IMdtCalibration::MuonSegVec &seg);
 
         inline const TF1 *GetFunction() const { return m_polfun; }
 

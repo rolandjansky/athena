@@ -71,8 +71,6 @@ include( "LArDetMgrDetDescrCnv/LArDetMgrDetDescrCnv_joboptions.py" )
 
 # Read LArRawChannel
 theApp.Dlls += [ "LArRawUtils", "LArROD" ]
-ToolSvc = Service( "ToolSvc" )
-ToolSvc.LArRoI_Map.Print=FALSE
 # Algs
 theApp.TopAlg += [ "ReadLArRaw" ]
 ReadLArRaw = Algorithm( "ReadLArRaw" )

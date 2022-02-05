@@ -53,10 +53,10 @@ namespace NSWL1 {
 
 
     StatusCode MMFPGAOfflineTool::initialize() {
-      ATH_MSG_INFO( "initializing " << name() ); 
+      ATH_MSG_DEBUG( "initializing " << name() ); 
 
-      ATH_MSG_INFO( name() << " configuration:");
-      ATH_MSG_INFO(" " << setw(32) << setfill('.') << setiosflags(ios::left) << m_doNtuple.name() << ((m_doNtuple)? "[True]":"[False]")
+      ATH_MSG_DEBUG( name() << " configuration:");
+      ATH_MSG_DEBUG(" " << setw(32) << setfill('.') << setiosflags(ios::left) << m_doNtuple.name() << ((m_doNtuple)? "[True]":"[False]")
                        << setfill(' ') << setiosflags(ios::right) );
 
  
@@ -84,7 +84,7 @@ namespace NSWL1 {
           ATH_MSG_FATAL("Could not retrieve the analysis ntuple from the THistSvc");
           return sc;
         } else {
-          ATH_MSG_INFO("Analysis ntuple succesfully retrieved");
+          ATH_MSG_DEBUG("Analysis ntuple succesfully retrieved");
           sc = this->book_branches();
           if (sc.isFailure()) {
             ATH_MSG_ERROR("Cannot book the branches for the analysis ntuple");
@@ -98,7 +98,7 @@ namespace NSWL1 {
         ATH_MSG_FATAL("Failed to retrieve the Incident Service");
         return StatusCode::FAILURE;
       } else {
-        ATH_MSG_INFO("Incident Service successfully rertieved");
+        ATH_MSG_DEBUG("Incident Service successfully rertieved");
       }
       m_incidentSvc->addListener(this,IncidentType::BeginEvent);
 

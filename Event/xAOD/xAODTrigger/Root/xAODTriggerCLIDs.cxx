@@ -55,3 +55,6 @@
 #include "xAODTrigger/gFexJetRoIAuxContainer.h"
 #include "xAODTrigger/gFexGlobalRoIContainer.h"
 #include "xAODTrigger/gFexGlobalRoIAuxContainer.h"
+
+#include "xAODTrigger/L1TopoSimResultsContainer.h"
+#include "xAODTrigger/L1TopoSimResultsAuxContainer.h"

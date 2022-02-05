@@ -7,7 +7,7 @@
 @date 2020-10-08
 @brief New style configuration of SCTErrMonAlg
 '''
-from InDetConfig                              import InDetRecToolConfig
+
 
 def SCTErrMonAlgConfig(inputFlags):
 
@@ -21,19 +21,20 @@ def SCTErrMonAlgConfig(inputFlags):
     myMonAlg = helper.addAlgorithm(CompFactory.SCTErrMonAlg, 'SCTErrMonAlg')
     myMonAlg.TriggerChain = ""
 
-    myMonAlg.SCT_ConditionsSummaryTool = result.popToolsAndMerge( InDetRecToolConfig.InDetSCT_ConditionsSummaryToolCfg(inputFlags) )
+    from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_ConditionsSummaryToolCfg
+    myMonAlg.SCT_ConditionsSummaryTool = result.popToolsAndMerge( SCT_ConditionsSummaryToolCfg(inputFlags) )
+
+    # Pass the InDet.useDCS flag to the algorithm
+    myMonAlg.UseDCS = inputFlags.InDet.useDCS
 
     ## The following does not work when running Reco_tf.py
     ## because it configures condition algorithms
     ## and they conflict with ones configured in the old framework.
-    # myMonAlg.SCT_ConditionsSummaryTool = result.popToolsAndMerge(InDetSCT_ConditionsSummaryToolCfg(inputFlags))
-    # from InDetConfig.InDetRecToolConfig import SCT_ConfigurationCondAlgCfg, SCT_ConfigurationConditionsToolCfg
-    # result.merge(SCT_ConfigurationCondAlgCfg(inputFlags))
+    # from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_ByteStreamErrorsToolCfg, SCT_ConfigurationConditionsToolCfg
     # myMonAlg.conditionsTool = result.popToolsAndMerge(SCT_ConfigurationConditionsToolCfg(inputFlags))
-    # from InDetConfig.InDetRecToolConfig import SCT_ByteStreamErrorsToolCfg
     # myMonAlg.SCT_ByteStreamErrorsTool = result.popToolsAndMerge(SCT_ByteStreamErrorsToolCfg(inputFlags))
     # if inputFlags.InDet.useDCS:
-    #     from SCT_ConditionsTools.SCT_DCSConditionsConfig import SCT_DCSConditionsCfg
+    #     from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_DCSConditionsCfg
     #     myMonAlg.SCT_DCSConditionsTool = result.popToolsAndMerge(SCT_DCSConditionsCfg(inputFlags))
     # else:
     #     myMonAlg.UseDCS = False

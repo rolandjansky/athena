@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // TRTTrackHoleSearchTool.cxx
@@ -17,8 +17,7 @@
 // athena
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackStateOnSurface.h"
-//#include "TrkParameters/MeasuredTrackParameters.h"
-//#include "TrkParameters/Perigee.h"
+
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/CylinderSurface.h"
 #include "TrkSurfaces/Surface.h"
@@ -258,7 +257,10 @@ int TRTTrackHoleSearchTool::extrapolateBetweenHits(const Trk::TrackParameters* s
 
 	// look for holes
 	std::vector<std::unique_ptr<const Trk::TrackParameters> > steps =
-          m_extrapolator->extrapolateStepwise(*start_parameters, end_surf, Trk::alongMomentum, m_bcheck, partHyp);
+          m_extrapolator->extrapolateStepwise(Gaudi::Hive::currentContext(),
+                                              *start_parameters, 
+                                              end_surf, 
+                                              Trk::alongMomentum, m_bcheck, partHyp);
 
 	if(steps.empty()) {
 		ATH_MSG_DEBUG("extrapolateBetweenHits: extrapolateStepwise returned null");
@@ -357,7 +359,7 @@ int TRTTrackHoleSearchTool::extrapolateBetweenHits(const Trk::TrackParameters* s
 			
 			std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
 			typePattern.set(Trk::TrackStateOnSurface::Hole);
-			holes->push_back( new Trk::TrackStateOnSurface(nullptr, (*step)->clone(), nullptr, nullptr, typePattern) );
+			holes->push_back( new Trk::TrackStateOnSurface(nullptr, (*step)->uniqueClone(), nullptr, nullptr, typePattern) );
 			hole_count++;
 			previous_id = id;
 		} // end loop over parameters from extrapolation
@@ -371,8 +373,8 @@ void TRTTrackHoleSearchTool::dump_bad_straw_log() const {
 	ATH_MSG_DEBUG( "TRTTrackHoleSearchTool::dump_bad_straw_log" );
 	std::ofstream out("TRT_ConditionsSummarySvc_bad_straws.log");
 	out << "# id  barrel_ec  phi_module  layer_or_wheel  straw_layer  straw" << std::endl;
-	for(std::vector<Identifier>::const_iterator it = m_TRT_ID->straw_layer_begin(); it != m_TRT_ID->straw_layer_end(); it++) {
-		for(int i=0; i<= m_TRT_ID->straw_max(*it); i++) {
+	for(std::vector<Identifier>::const_iterator it = m_TRT_ID->straw_layer_begin(); it != m_TRT_ID->straw_layer_end(); ++it) {
+		for(int i=0; i<= m_TRT_ID->straw_max(*it); ++i) {
 			Identifier id = m_TRT_ID->straw_id(*it, i);
 			if(!m_conditions_svc->isGood(id)) {
 				out << id.getString()
@@ -420,8 +422,8 @@ TRTTrackHoleSearchTool::find_last_hit_before_trt(const DataVector<const Trk::Tra
 	if(track_states.size() < 2 || track_state == track_states.begin()) {
 		return track_states.end();
 	}
-	track_state--; // step back and look for last measurement before the TRT hit
-	for(; track_state != track_states.begin(); track_state--) {
+	--track_state; // step back and look for last measurement before the TRT hit
+	for(; track_state != track_states.begin(); --track_state) {
 		if((*track_state)->type(Trk::TrackStateOnSurface::Measurement)) {
 			break;
 		}

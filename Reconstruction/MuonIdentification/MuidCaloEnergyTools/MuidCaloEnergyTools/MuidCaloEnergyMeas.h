@@ -25,6 +25,8 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "MuidInterfaces/IMuidCaloEnergyMeas.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
@@ -62,15 +64,23 @@ namespace Rec {
             LAREM = 2,
         };
         // private methods
-        void energyInCalo(CaloMeas& caloMeas, const CaloCellContainer* cellContainer, const CaloNoise* noiseCDO, double eta, double phi,
-                          int iSubCalo) const;
-        void isolationEnergy(CaloMeas& caloMeas, const CaloCellContainer* cellContainer, const CaloNoise* noiseCDO, double eta, double phi,
-                             int iSubCalo) const;
+        void energyInCalo(CaloMeas& caloMeas, const CaloCellContainer* cellContainer, const CaloDetDescrManager* detMgr, 
+                          const CaloNoise* noiseCDO, double eta, double phi, int iSubCalo) const;
 
-        double energyInTile(const CaloCellContainer* cellContainer, const CaloNoise* noiseCDO, double eta, double phi, int, int) const;
-        double energyInLArHEC(const CaloCellContainer* cellContainer, const CaloNoise* noiseCDO, double eta, double phi, int, int) const;
-        double energyInLArEM(const CaloCellContainer* cellContainer, const CaloNoise* noiseCDO, double eta, double phi, int, int) const;
-        int cellCounting(const CaloCellContainer* cellContainer, const CaloNoise* noiseCDO, double eta, double phi) const;
+        void isolationEnergy(CaloMeas& caloMeas, const CaloCellContainer* cellContainer, const CaloDetDescrManager* detMgr, 
+                             const CaloNoise* noiseCDO, double eta, double phi, int iSubCalo) const;
+
+        double energyInTile(const CaloCellContainer* cellContainer, const CaloDetDescrManager* detMgr, const CaloNoise* noiseCDO, 
+                            double eta, double phi, int, int) const;
+
+        double energyInLArHEC(const CaloCellContainer* cellContainer, const CaloDetDescrManager* detMgr, const CaloNoise* noiseCDO, 
+                              double eta, double phi, int, int) const;
+
+        double energyInLArEM(const CaloCellContainer* cellContainer, const CaloDetDescrManager* detMgr, const CaloNoise* noiseCDO, 
+                             double eta, double phi, int, int) const;
+
+        int cellCounting(const CaloCellContainer* cellContainer, const CaloDetDescrManager* detMgr, const CaloNoise* noiseCDO, 
+                             double eta, double phi) const;
 
         //
         int samplingID(const CaloCell* cell, int iSubCalo) const;
@@ -97,7 +107,9 @@ namespace Rec {
             "AllCalo",
             "calo cell container location",
         };
-
+        
+        SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager", "CaloDetDescrManager"};
+        
         double m_measurementConeTile;
         double m_measurementConeLArHEC;
         double m_measurementConeLArEM;

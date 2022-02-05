@@ -85,6 +85,12 @@ TileTBperiod = 2015 if (RunNumber/100000 == 5) else 2016
 if TileFELIX:
     TileTBperiod = 2017
 
+if RunNumber>800000:
+    TileTBperiod += 2
+
+if RunNumber >= 2110000:
+    TileTBperiod = 2021
+
 #---  Output printout level ----------------------------------- 
 #output threshold (1=VERBOSE, 2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL)
 if not 'OutputLevel' in dir():
@@ -96,14 +102,16 @@ svcMgr.MessageSvc.useColors = False
 
 include('TileMonitoring/jobOptions_TileTBMon.py')
 
-if TileTBperiod < 2016: ByteStreamCnvSvc.ROD2ROBmap = [ "-1" ]
+if TileTBperiod < 2016:
+    ByteStreamCnvSvc.ROD2ROBmap = [ "-1" ]
 
-topSequence += CfgMgr.TileTBAANtuple( TBperiod = TileTBperiod, CalibrateEnergy=TileCalibrateEnergy, OfflineUnits=TileOfflineUnits, CalibMode=TileCalibMode, PMTOrder=TilePMTOrder, NSamples = 7, TileRawChannelContainerFlat = "", TileRawChannelContainerOpt="TileRawChannelOpt2" if doTileOpt2 else "", TileRawChannelContainerFit="TileRawChannelFit" if doTileFit else "", TileDigitsContainer = 'TileDigitsCnt' if not TileFELIX else 'TileDigitsFiltered' )
-print topSequence.TileTBAANtuple
+topSequence += CfgMgr.TileTBAANtuple( TBperiod = TileTBperiod, CalibrateEnergy=TileCalibrateEnergy, OfflineUnits=TileOfflineUnits, CalibMode=TileCalibMode, PMTOrder=TilePMTOrder, NSamples = 7, TileRawChannelContainerFlat = "", TileRawChannelContainerOpt="TileRawChannelOpt2" if doTileOpt2 else "", TileRawChannelContainerFit="TileRawChannelFit" if doTileFit else "", TileDigitsContainer = 'TileDigitsCnt' if not TileFELIX else 'TileDigitsFiltered', TileHitVector="", TileHitContainer="" )
+print(topSequence.TileTBAANtuple)
 
 from GaudiSvc.GaudiSvcConf import THistSvc
 svcMgr += THistSvc()
-exec 'svcMgr.THistSvc.Output += [ "AANT DATAFILE=\'%(dir)s/%(name)s\' OPT=\'RECREATE\' " ] ' %  {'dir': OutputDirectory, 'name': ntuple_name }
+datafile = '%(dir)s/%(name)s' %  {'dir': OutputDirectory, 'name': ntuple_name}
+svcMgr.THistSvc.Output += [ "AANT DATAFILE='" + datafile + "' OPT='RECREATE' " ]
 svcMgr.THistSvc.MaxFileSize = 32768
 
 if TileCisRun or TileMonoRun:
@@ -114,11 +122,10 @@ if TileCisRun or TileMonoRun:
     TileCalibAlg = TileTopCalibAlg()
     TileCalibAlg.RunNumber        = RunNumber
     TileCalibAlg.RunType          = 8
-    exec 'TileCalibAlg.FileName = \'%(dir)s/tileCalibCIS_%(RunNum).f_CIS.%(Version)s.root\' ' %  {'dir': OutputDirectory, 'RunNum': RunNumber, 'Version': Version }
+    TileCalibAlg.FileName = '%(dir)s/tileCalibCIS_%(RunNum).f_CIS.%(Version)s.root' %  {'dir': OutputDirectory, 'RunNum': RunNumber, 'Version': Version }
 
     # declare CIS tool(s) and set jobOptions if necessary
     TileCisTool = TileCisDefaultCalibTool()
-    # xxx set TileDQstatusAlg.TileRawChannelContainer="TileRawChannelCnt"
 
     if hasattr(ToolSvc, 'TileDigitsMon'):
         TileCisTool.StuckBitsProbsTool = ToolSvc.TileDigitsMon
@@ -130,7 +137,7 @@ if TileCisRun or TileMonoRun:
 
     topSequence += TileCalibAlg
 
-print topSequence
+print(topSequence)
 
 svcMgr.EventSelector.SkipEvents = EvtMin
 theApp.EvtMax=EvtMax

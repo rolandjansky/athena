@@ -207,9 +207,10 @@ class PixelConditionsServicesSetup:
     #####################
     # Calibration Setup #
     #####################
-    if commonGeoFlags.Run()=="RUN3":
+    from Digitization.DigitizationFlags import digitizationFlags
+    if commonGeoFlags.Run()=="RUN3" and 'UseOldIBLCond' not in digitizationFlags.experimentalDigi():
       if not conddb.folderRequested("/PIXEL/ChargeCalibration"):
-        conddb.addFolder("PIXEL_OFL", "/PIXEL/ChargeCalibration", className="CondAttrListCollection")
+        conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/ChargeCalibration", "/PIXEL/ChargeCalibration", className="CondAttrListCollection")
       if not hasattr(condSeq, 'PixelChargeLUTCalibCondAlg'):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeLUTCalibCondAlg
         condSeq += PixelChargeLUTCalibCondAlg(name="PixelChargeLUTCalibCondAlg", ReadKey="/PIXEL/ChargeCalibration")
@@ -642,8 +643,7 @@ class TRTConditionsServicesSetup:
     # Alive straws algorithm
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTStrawCondAlg
     TRTStrawCondAlg = TRTStrawCondAlg(name = "TRTStrawCondAlg",
-                                      TRTStrawStatusSummaryTool = InDetTrigTRTStrawStatusSummaryTool,
-                                      isGEANT4 = self._isMC)
+                                      TRTStrawStatusSummaryTool = InDetTrigTRTStrawStatusSummaryTool)
     # Active Fraction algorithm
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTActiveCondAlg
     TRTActiveCondAlg = TRTActiveCondAlg(name = "TRTActiveCondAlg",

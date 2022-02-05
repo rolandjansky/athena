@@ -33,46 +33,6 @@ def ElectronLikelihoodTightTriggerConfig2015(theTool):
     theTool = GetTool(theTool)
     theTool.ConfigFile = "ElectronPhotonSelectorTools/trigger/mc15_20150712/ElectronLikelihoodTightTriggerConfig2015.conf"
 
-
-def ElectronLikelihoodVeryLooseOfflineConfig2015(theTool):
-    '''
-    This is for the custom implementation of the VeryLoose offline likelihood for MC15 / Run 2.
-    This uses Offline PDFs, but does not yet have the pileup dependent discriminant cut.
-    '''
-    theTool = GetTool(theTool)
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodVeryLooseOfflineConfig2016_Smooth.conf"
-
-
-def ElectronLikelihoodLooseOfflineConfig2015(theTool):
-    '''
-    This is for the custom implementation of the Loose offline likelihood for MC15 / Run 2.
-    This uses Offline PDFs, but does not yet have the pileup dependent discriminant cut.
-    (NOTE: same signal eff as offline Loosepp + 1%)
-    '''
-    theTool = GetTool(theTool)
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodLooseOfflineConfig2016_Smooth.conf"
-
-
-def ElectronLikelihoodMediumOfflineConfig2015(theTool):
-    '''
-    This is for the custom implementation of the Medium offline likelihood for MC15 / Run 2.
-    This uses Offline PDFs, but does not yet have the pileup dependent discriminant cut.
-    (NOTE: same signal eff as offline Mediumpp + 1%)
-    '''
-    theTool = GetTool(theTool)
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodMediumOfflineConfig2016_Smooth.conf"
-
-
-def ElectronLikelihoodTightOfflineConfig2015(theTool):
-    '''
-    This is for the custom implementation of the Tight offline likelihood for MC15 / Run 2.
-    This uses Offline PDFs, but does not yet have the pileup dependent discriminant cut.
-    (NOTE: same signal eff as offline Tightpp + 1%)
-    '''
-    theTool = GetTool(theTool)
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodTightOfflineConfig2016_Smooth.conf"
-
-
 def ElectronLikelihoodVeryLooseOfflineConfig2016(theTool):
     '''
     This is for the custom implementation of the VeryLoose offline likelihood for MC16 / Run 2 / Release 21.

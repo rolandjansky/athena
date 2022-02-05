@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AlgA.h"
@@ -56,15 +56,15 @@ StatusCode AlgA::execute() {
 
   SG::WriteHandle<HiveDataObj> wh1(m_wrh1);
   ATH_CHECK( wh1.record( std::make_unique<HiveDataObj> 
-                         ( HiveDataObj(10000 + 
-                                       evt->eventNumber()*100 + 
-                                       i) ) )
+                         ( 10000 + 
+			   evt->eventNumber()*100 + 
+			   i)  )
              );
   ATH_MSG_INFO("  write: " << wh1.key() << " = " << wh1->val() );
 
 
   SG::WriteHandle<HiveDataObj> wh2(m_wrh2);
-  ATH_CHECK( wh2.record( std::make_unique< HiveDataObj >( HiveDataObj(10050+i) ) ) );
+  ATH_CHECK( wh2.record( std::make_unique< HiveDataObj >( 10050+i ) ) );
   ATH_MSG_INFO("  write: " << wh2.key() << " = " << wh2->val() );
     
   return StatusCode::SUCCESS;

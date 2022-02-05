@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArByteStream/Hid2RESrcID.h"
 #include "LArRecConditions/LArFebRodMapping.h"
 #include "CaloIdentifier/LArID_Exception.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
+#include "AthenaBaseComps/AthCheckMacros.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -29,24 +30,10 @@ using eformat::helper::SourceIdentifier;
 
 Hid2RESrcID::Hid2RESrcID():
   m_initialized(false),
-  m_cablingSvc(0),
   m_onlineHelper(0)
 {  
 
 } 
-
-StatusCode Hid2RESrcID::initialize ATLAS_NOT_THREAD_SAFE ()
-{  
-  ServiceHandle<IToolSvc> toolSvc ("ToolSvc", "Hid2RESrcID");
-  ATH_CHECK( toolSvc.retrieve() );
-  ATH_CHECK( toolSvc->retrieveTool("LArCablingLegacyService",m_cablingSvc) );
-
-  const std::vector<HWIdentifier>& roms = m_cablingSvc->getLArRoModIDvec();
-  ATH_CHECK( initialize (roms) );
-
-  return StatusCode::SUCCESS;
-}
-
 
 StatusCode Hid2RESrcID::initialize (const LArFebRodMapping& rodMapping)
 {  
@@ -97,18 +84,6 @@ uint32_t  Hid2RESrcID::getRodIDFromROM(const COLLECTION_ID& id) const
   return  (*it).second ;
 }
 
-
-// Legacy unsafe version, relying on old cabling service.
-// Currently still used by TrigT2CaloCommon.
-uint32_t  Hid2RESrcID::getRodID ATLAS_NOT_THREAD_SAFE (const HWIdentifier& hid) const
-{ // this method returns a RESrcID for the ROD, for a given LArOnlineID
-  // channel number is ignored.
-  HWIdentifier febId =  m_onlineHelper->feb_Id(hid) ;
-  //LArFEB_ID febId = m_cablingSvc->createFEB_ID(hid); 
-  HWIdentifier romId = m_cablingSvc->getReadoutModuleID(febId);
-  
-  return getRodIDFromROM(romId); 
-}
 
 uint32_t  Hid2RESrcID::getRodID(const LArFebRodMapping& rodMapping,
                                 const HWIdentifier& hid) const

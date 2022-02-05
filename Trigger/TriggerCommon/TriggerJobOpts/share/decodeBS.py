@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 
@@ -63,9 +63,8 @@ outSequence.remove( StreamESD )
 
 # Define what to write into ESD
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 from TrigEDMConfig.TriggerEDM import getTriggerEDMList
-edmList = getTriggerEDMList(TriggerFlags.ESDEDMSet(), ConfigFlags.Trigger.EDMVersion)
+edmList = getTriggerEDMList(ConfigFlags.Trigger.ESDEDMSet, ConfigFlags.Trigger.EDMVersion)
 if len(ItemList) == 0:
     for edmType, edmKeys in edmList.items():
         for key in edmKeys:

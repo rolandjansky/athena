@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondSvc/RPCCondSummarySvc.h"
@@ -89,7 +89,7 @@ bool RPCCondSummarySvc::isGoodPanel(const Identifier & Id) const{
   //Identifier PanelId = Id;
   ServiceHandleArray<IRPCConditionsSvc>::const_iterator svc(m_reportingServices.begin());
   ServiceHandleArray<IRPCConditionsSvc>::const_iterator lastSvc(m_reportingServices.end());
-  for (;svc not_eq  lastSvc;svc++){
+  for (;svc not_eq  lastSvc;++svc){
     ATH_MSG_DEBUG(" Eff Panels from the service, size= "<<(*svc)->EffPanelId().size());
     if ((*svc)->EffPanelId().size()!=0){
       bool found = std::binary_search((*svc)->EffPanelId().begin(),(*svc)->EffPanelId().end(),PanelId,Compare);
@@ -115,7 +115,7 @@ bool RPCCondSummarySvc::isGoodStrip(const Identifier & Id) const{
   ServiceHandleArray<IRPCConditionsSvc>::const_iterator svc(m_reportingServices.begin());
   ServiceHandleArray<IRPCConditionsSvc>::const_iterator lastSvc(m_reportingServices.end());
   if (not m_noReports){
-    for (;svc not_eq  lastSvc;svc++){
+    for (;svc not_eq  lastSvc;++svc){
       if ((*svc)->EffPanelId().size()!=0) {
 	bool found = std::binary_search((*svc)->EffPanelId().begin(),(*svc)->EffPanelId().end(),PanelId,Compare);
 	if(found) result= false;
@@ -200,8 +200,7 @@ const std::vector<Identifier>& RPCCondSummarySvc::offPanelId() const{
 // only for simulation
 
 const std::map<Identifier,double>& RPCCondSummarySvc::RPC_EfficiencyMap(){
-static  std::map<Identifier ,double> s_RPCCondSummarySvc_RPC_PanelEfficiencyMap_empty;
-  s_RPCCondSummarySvc_RPC_PanelEfficiencyMap_empty.clear();
+  static const std::map<Identifier ,double> RPCCondSummarySvc_RPC_PanelEfficiencyMap_empty;
   ServiceHandleArray<IRPCConditionsSvc>::const_iterator svc(m_reportingServices.begin());
   ServiceHandleArray<IRPCConditionsSvc>::const_iterator lastSvc(m_reportingServices.end());
 
@@ -212,14 +211,13 @@ static  std::map<Identifier ,double> s_RPCCondSummarySvc_RPC_PanelEfficiencyMap_
   }
   ATH_MSG_DEBUG(" Efficiency per Panel RPC  RPCConditionsSummarySvc ");
   ATH_MSG_DEBUG("Efficiency Map per RPC panel");
-  return s_RPCCondSummarySvc_RPC_PanelEfficiencyMap_empty;
+  return RPCCondSummarySvc_RPC_PanelEfficiencyMap_empty;
 }
 
 
 const std::map<Identifier,double>& RPCCondSummarySvc::RPC_EfficiencyGapMap(){
-static  std::map<Identifier ,double> s_RPCCondSummarySvc_RPC_GapEfficiencyMap_empty;
+  static const std::map<Identifier ,double> RPCCondSummarySvc_RPC_GapEfficiencyMap_empty;
  
-  s_RPCCondSummarySvc_RPC_GapEfficiencyMap_empty.clear();
   ServiceHandleArray<IRPCConditionsSvc>::const_iterator svc(m_reportingServices.begin());
   ServiceHandleArray<IRPCConditionsSvc>::const_iterator lastSvc(m_reportingServices.end());
   for (;svc not_eq lastSvc;++svc){
@@ -228,13 +226,12 @@ static  std::map<Identifier ,double> s_RPCCondSummarySvc_RPC_GapEfficiencyMap_em
   }
   ATH_MSG_DEBUG(" GapEfficiency per  RPC  RPCConditionsSummarySvc ");
   ATH_MSG_DEBUG("GapEfficiency Map per RPC ");
-  return s_RPCCondSummarySvc_RPC_GapEfficiencyMap_empty;
+  return RPCCondSummarySvc_RPC_GapEfficiencyMap_empty;
 }
 
 const std::map<Identifier,double>& RPCCondSummarySvc::RPC_MeanClusterSizeMap(){
-static  std::map<Identifier ,double> s_RPCCondSummarySvc_RPC_PanelMeanClusterSizeMap_empty;
+  static const std::map<Identifier ,double> RPCCondSummarySvc_RPC_PanelMeanClusterSizeMap_empty;
 
-  s_RPCCondSummarySvc_RPC_PanelMeanClusterSizeMap_empty.clear();
   ServiceHandleArray<IRPCConditionsSvc>::const_iterator svc(m_reportingServices.begin());
   ServiceHandleArray<IRPCConditionsSvc>::const_iterator lastSvc(m_reportingServices.end());
 
@@ -244,13 +241,12 @@ static  std::map<Identifier ,double> s_RPCCondSummarySvc_RPC_PanelMeanClusterSiz
   }
   ATH_MSG_DEBUG(" MeanClusterSize per Panel RPC  RPCConditionsSummarySvc ");
   ATH_MSG_DEBUG("MeanClusterSize Map per RPC panel");
-  return s_RPCCondSummarySvc_RPC_PanelMeanClusterSizeMap_empty;
+  return RPCCondSummarySvc_RPC_PanelMeanClusterSizeMap_empty;
 }
 
 const std::map<Identifier,double>& RPCCondSummarySvc::RPC_FracClusterSize1Map(){
-static  std::map<Identifier ,double> s_RPCCondSummarySvc_RPC_PanelFracClusterSize1Map_empty;
+  static const std::map<Identifier ,double> RPCCondSummarySvc_RPC_PanelFracClusterSize1Map_empty;
  
-  s_RPCCondSummarySvc_RPC_PanelFracClusterSize1Map_empty.clear();
   ServiceHandleArray<IRPCConditionsSvc>::const_iterator svc(m_reportingServices.begin());
   ServiceHandleArray<IRPCConditionsSvc>::const_iterator lastSvc(m_reportingServices.end());
 
@@ -260,13 +256,12 @@ static  std::map<Identifier ,double> s_RPCCondSummarySvc_RPC_PanelFracClusterSiz
   }
   ATH_MSG_DEBUG("FracClusterSize1 per Panel RPC  RPCConditionsSummarySvc ");
   ATH_MSG_DEBUG("FracClusterSize1 Map per RPC panel");
-  return s_RPCCondSummarySvc_RPC_PanelFracClusterSize1Map_empty;
+  return RPCCondSummarySvc_RPC_PanelFracClusterSize1Map_empty;
 }
 
 const std::map<Identifier,double>& RPCCondSummarySvc::RPC_FracClusterSize2Map(){
-static  std::map<Identifier ,double> s_RPCCondSummarySvc_RPC_PanelFracClusterSize2Map_empty;
+  static const std::map<Identifier ,double> RPCCondSummarySvc_RPC_PanelFracClusterSize2Map_empty;
  
-  s_RPCCondSummarySvc_RPC_PanelFracClusterSize2Map_empty.clear();
   ServiceHandleArray<IRPCConditionsSvc>::const_iterator svc(m_reportingServices.begin());
   ServiceHandleArray<IRPCConditionsSvc>::const_iterator lastSvc(m_reportingServices.end());
 
@@ -276,13 +271,12 @@ static  std::map<Identifier ,double> s_RPCCondSummarySvc_RPC_PanelFracClusterSiz
   }
   ATH_MSG_DEBUG("FracClusterSize2 per Panel RPC  RPCConditionsSummarySvc ");
   ATH_MSG_DEBUG("FracClusterSize2 Map per RPC panel");
-  return s_RPCCondSummarySvc_RPC_PanelFracClusterSize2Map_empty;
+  return RPCCondSummarySvc_RPC_PanelFracClusterSize2Map_empty;
 }
 
 const std::map<Identifier,double>& RPCCondSummarySvc::RPC_FracClusterSize3Map(){
-static  std::map<Identifier ,double> s_RPCCondSummarySvc_RPC_PanelFracClusterSize3Map_empty;
+  static const std::map<Identifier ,double> RPCCondSummarySvc_RPC_PanelFracClusterSize3Map_empty;
  
-  s_RPCCondSummarySvc_RPC_PanelFracClusterSize3Map_empty.clear();
   ServiceHandleArray<IRPCConditionsSvc>::const_iterator svc(m_reportingServices.begin());
   ServiceHandleArray<IRPCConditionsSvc>::const_iterator lastSvc(m_reportingServices.end());
 
@@ -292,13 +286,12 @@ static  std::map<Identifier ,double> s_RPCCondSummarySvc_RPC_PanelFracClusterSiz
   }
   ATH_MSG_DEBUG("FracClusterSize3 per Panel RPC  RPCConditionsSummarySvc ");
   ATH_MSG_DEBUG("FracClusterSize3 Map per RPC panel");
-  return s_RPCCondSummarySvc_RPC_PanelFracClusterSize3Map_empty;
+  return RPCCondSummarySvc_RPC_PanelFracClusterSize3Map_empty;
 }
 
 const std::map<Identifier,std::string>& RPCCondSummarySvc::RPC_DeadStripListMap(){
-static  std::map<Identifier ,std::string> s_RPCCondSummarySvc_RPC_PanelDeadStripListMap_empty;
+  static const std::map<Identifier ,std::string> RPCCondSummarySvc_RPC_PanelDeadStripListMap_empty;
 
-  s_RPCCondSummarySvc_RPC_PanelDeadStripListMap_empty.clear();
   ServiceHandleArray<IRPCConditionsSvc>::const_iterator svc(m_reportingServices.begin());
   ServiceHandleArray<IRPCConditionsSvc>::const_iterator lastSvc(m_reportingServices.end());
   for (;svc not_eq lastSvc;++svc){
@@ -307,13 +300,12 @@ static  std::map<Identifier ,std::string> s_RPCCondSummarySvc_RPC_PanelDeadStrip
   }
   ATH_MSG_DEBUG("DeadStripList per Panel RPC  RPCConditionsSummarySvc");
   ATH_MSG_DEBUG("DeadStripList Map per RPC panel");
-  return s_RPCCondSummarySvc_RPC_PanelDeadStripListMap_empty;
+  return RPCCondSummarySvc_RPC_PanelDeadStripListMap_empty;
 }
 
 const std::map<Identifier,float>& RPCCondSummarySvc::RPC_FracDeadStripMap(){
-static  std::map<Identifier ,float> s_RPCCondSummarySvc_RPC_PanelFracDeadStripMap_empty;
+  static const std::map<Identifier ,float> RPCCondSummarySvc_RPC_PanelFracDeadStripMap_empty;
 
-  s_RPCCondSummarySvc_RPC_PanelFracDeadStripMap_empty.clear();
   ServiceHandleArray<IRPCConditionsSvc>::const_iterator svc(m_reportingServices.begin());
   ServiceHandleArray<IRPCConditionsSvc>::const_iterator lastSvc(m_reportingServices.end());
 
@@ -323,13 +315,12 @@ static  std::map<Identifier ,float> s_RPCCondSummarySvc_RPC_PanelFracDeadStripMa
   }
   ATH_MSG_DEBUG("FracDeadStrip per Panel RPC  RPCConditionsSummarySvc");
   ATH_MSG_DEBUG("FracDeadStrip Map per RPC panel");
-  return s_RPCCondSummarySvc_RPC_PanelFracDeadStripMap_empty;
+  return RPCCondSummarySvc_RPC_PanelFracDeadStripMap_empty;
 }
 
 const std::map<Identifier,int>& RPCCondSummarySvc::RPC_ProjectedTracksMap(){
-static  std::map<Identifier ,int> s_RPCCondSummarySvc_RPC_PanelProjectedTracksMap_empty;
+  static const std::map<Identifier ,int> RPCCondSummarySvc_RPC_PanelProjectedTracksMap_empty;
 
-  s_RPCCondSummarySvc_RPC_PanelProjectedTracksMap_empty.clear();
   ServiceHandleArray<IRPCConditionsSvc>::const_iterator svc(m_reportingServices.begin());
   ServiceHandleArray<IRPCConditionsSvc>::const_iterator lastSvc(m_reportingServices.end());
 
@@ -339,13 +330,12 @@ static  std::map<Identifier ,int> s_RPCCondSummarySvc_RPC_PanelProjectedTracksMa
   }
   ATH_MSG_DEBUG("ProjectedTracks per Panel RPC  RPCConditionsSummarySvc");
   ATH_MSG_DEBUG("ProjectedTracks Map per RPC panel");
-  return s_RPCCondSummarySvc_RPC_PanelProjectedTracksMap_empty;
+  return RPCCondSummarySvc_RPC_PanelProjectedTracksMap_empty;
 }
 
 const std::map<Identifier,int>& RPCCondSummarySvc::RPC_DeadStripList(){
-static  std::map<Identifier ,int> s_RPCCondSummarySvc_RPC_PanelDeadStripList_empty;
+  static const std::map<Identifier ,int> RPCCondSummarySvc_RPC_PanelDeadStripList_empty;
 
-  s_RPCCondSummarySvc_RPC_PanelDeadStripList_empty.clear();
   ServiceHandleArray<IRPCConditionsSvc>::const_iterator svc(m_reportingServices.begin());
   ServiceHandleArray<IRPCConditionsSvc>::const_iterator lastSvc(m_reportingServices.end());
   for (;svc not_eq lastSvc;++svc){
@@ -354,13 +344,12 @@ static  std::map<Identifier ,int> s_RPCCondSummarySvc_RPC_PanelDeadStripList_emp
   }
   ATH_MSG_DEBUG("DeadStripList per Panel RPC  RPCConditionsSummarySvc");
   ATH_MSG_DEBUG("DeadStripList Map per RPC panel");
-  return s_RPCCondSummarySvc_RPC_PanelDeadStripList_empty;
+  return RPCCondSummarySvc_RPC_PanelDeadStripList_empty;
 } 
 
 const std::map<Identifier,std::vector<double> >& RPCCondSummarySvc::RPC_TimeMapforStrip(){
-static  std::map<Identifier ,std::vector<double> > s_RPCCondSummarySvc_RPC_StripTimeMap_empty;
+  static const std::map<Identifier ,std::vector<double> > RPCCondSummarySvc_RPC_StripTimeMap_empty;
 
-  s_RPCCondSummarySvc_RPC_StripTimeMap_empty.clear();
   ServiceHandleArray<IRPCConditionsSvc>::const_iterator svc(m_reportingServices.begin());
   ServiceHandleArray<IRPCConditionsSvc>::const_iterator lastSvc(m_reportingServices.end());
   for (;svc not_eq lastSvc;++svc){
@@ -369,7 +358,7 @@ static  std::map<Identifier ,std::vector<double> > s_RPCCondSummarySvc_RPC_Strip
   }
   ATH_MSG_DEBUG(" Strip Time per Panel RPC  RPCConditionsSummarySvc ");
   ATH_MSG_DEBUG("Strip Time Map per RPC panel");
-  return s_RPCCondSummarySvc_RPC_StripTimeMap_empty;
+  return RPCCondSummarySvc_RPC_StripTimeMap_empty;
 }
 
 

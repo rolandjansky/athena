@@ -30,7 +30,6 @@
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloPrefetch.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "AthAllocators/ArenaPoolAllocator.h"
 #include "AthAllocators/ArenaHandle.h"
 #include "GaudiKernel/StatusCode.h"

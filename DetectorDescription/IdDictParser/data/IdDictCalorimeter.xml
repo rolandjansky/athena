@@ -743,7 +743,7 @@
 
 <subregion name="JTower" >
     <range field="DetZside" values="negative_lvl1_side positive_lvl1_side" />
-    <range field="JTsampling" values="EM hadronic" />
+    <range field="JTsampling" values="EM Hadronic" />
 </subregion>
 
 <!-- 0 < |eta| < 2.5 -->

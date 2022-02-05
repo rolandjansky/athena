@@ -125,7 +125,7 @@ public:
   virtual ~TileCell();
 
   /** @brief clone */
-  virtual CaloCell* clone() const ;
+  virtual std::unique_ptr<CaloCell> clone() const ;
 
   /** all set methods */
 

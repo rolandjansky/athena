@@ -15,11 +15,11 @@ from MuonRecExample.MooreTools import MuonSeededSegmentFinder, MuonChamberHoleRe
 from MuonRecExample.MuonRecTools import DCMathSegmentMaker
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 from MuonRecExample.MuonRecFlags import muonRecFlags
-from TriggerJobOpts.TriggerFlags import TriggerFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
 def MuonInsideOutRecoTool( name="MuonInsideOutRecoTool", **kwargs ):
-   if TriggerFlags.MuonSlice.doTrigMuonConfig:
+   if ConfigFlags.Muon.MuonTrigger:
       kwargs.setdefault("VertexContainer", "")
    import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401 (import side-effects)
    from AthenaCommon.AppMgr import ToolSvc
@@ -71,7 +71,7 @@ def MuonStauSegmentRegionRecoveryTool(name="MuonStauSegmentRegionRecoveryTool",*
    kwargs.setdefault("SeededSegmentFinder", getPublicTool("MuonStauSeededSegmentFinder") )
    kwargs.setdefault("ChamberHoleRecoveryTool", getPublicTool("MuonStauChamberHoleRecoveryTool") )
    kwargs.setdefault("Fitter",  getPublicTool("CombinedStauTrackBuilderFit") )
-   if TriggerFlags.MuonSlice.doTrigMuonConfig and athenaCommonFlags.isOnline:
+   if ConfigFlags.Muon.MuonTrigger and athenaCommonFlags.isOnline:
       kwargs.setdefault('MdtCondKey', "")
    return MuidSegmentRegionRecoveryTool(name,**kwargs)
 
@@ -91,7 +91,7 @@ def MuonStauCandidateTrackBuilderTool( name="MuonStauCandidateTrackBuilderTool",
 
 def MuonStauInsideOutRecoTool( name="MuonStauInsideOutRecoTool", **kwargs ):
    kwargs.setdefault("MuonCandidateTrackBuilderTool", getPublicTool("MuonStauCandidateTrackBuilderTool") )
-   if TriggerFlags.MuonSlice.doTrigMuonConfig:
+   if ConfigFlags.Muon.MuonTrigger:
       kwargs.setdefault("VertexContainer", "")
    import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401 (import side-effects)
    from AthenaCommon.AppMgr import ToolSvc

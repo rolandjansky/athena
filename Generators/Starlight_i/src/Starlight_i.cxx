@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ------------------------------------------------------------- 
@@ -49,6 +49,12 @@ namespace{
 Starlight_i::Starlight_i(const std::string& name, ISvcLocator* pSvcLocator): 
              GenModule(name,pSvcLocator), m_events(0), 
 	     m_starlight(0),
+	     m_randomGenerator(nullptr),
+             m_lheOutput(false),
+             m_maxevents(5500), 
+             m_doTauolappLheFormat(false),
+  	     m_inputParameters(),
+             m_axionMass(1.),
 	     m_event(0),
 	     m_configFileName(""),
 	     m_beam1Z(0),
@@ -82,15 +88,20 @@ Starlight_i::Starlight_i(const std::string& name, ISvcLocator* pSvcLocator):
 	     m_ptBinWidthInterference(0),
 	     m_xsecMethod(0),
 	     m_nThreads(1),
-	     m_pythFullRec(0)
+	     m_pythFullRec(0),
+             m_storeGate(0)
 {
   declareProperty("Initialize",	m_InitializeVector);
   declareProperty("ConfigFileName", m_configFileName);
-  
+  declareProperty("lheOutput",	m_lheOutput);
+  declareProperty("maxevents",	m_maxevents);
+  declareProperty("doTauolappLheFormat", m_doTauolappLheFormat);
 }
 
-Starlight_i::~Starlight_i()
-{}
+Starlight_i::~Starlight_i(){
+  if (m_starlight) delete m_starlight;
+  if (m_event) delete m_event;
+}
 
 StatusCode Starlight_i::genInitialize()
 {
@@ -98,6 +109,13 @@ StatusCode Starlight_i::genInitialize()
     //
     ATH_MSG_INFO( "===> January 20 2011 STARLIGHT INTERFACE VERSION. \n"   );
     ATH_MSG_INFO( "===> STARLIGHT INITIALISING. \n"   );
+
+    StatusCode sc = service("StoreGateSvc", m_storeGate);
+    if (sc.isFailure())
+    {
+      ATH_MSG_INFO( "Unable to get pointer to StoreGate Service \n" );         
+      return sc;
+    }   
 
     // not working yet, postpone
     static const bool CREATEIFNOTTHERE(true);
@@ -119,16 +137,27 @@ StatusCode Starlight_i::genInitialize()
 
     // create the starlight object
     m_starlight = new starlight();
+    // Set random generator to prevent crash in tests.
+    m_randomGenerator = std::make_shared<randomGenerator>();
+    m_randomGenerator->SetSeed(m_randomSeed);
+    m_starlight->setRandomGenerator(m_randomGenerator.get());
     // set input parameters
     m_starlight->setInputParameters(&m_inputParameters);
     // and initialize
     m_starlight->init();
+    
+    // dump events to lhef (needed for QED showering with Pythia8
+    if(m_lheOutput){
+      ATH_MSG_INFO("===> dumping starlight events to lhef format. \n"  );
+      if(!starlight2lhef()) return StatusCode::FAILURE;
+    }
 
     return StatusCode::SUCCESS;
 }
 
 StatusCode Starlight_i::callGenerator()
 {
+    if(m_lheOutput) return StatusCode::SUCCESS;
     ATH_MSG_DEBUG( " STARLIGHT generating. \n"   );
 
     // Generate event
@@ -175,6 +204,7 @@ Starlight_i::genFinalize()
 StatusCode
 Starlight_i::fillEvt(HepMC::GenEvent* evt)
 {
+    if(m_lheOutput) return StatusCode::SUCCESS;
     ATH_MSG_DEBUG( "  STARLIGHT Filing.  \n"   );
 
     // Set the event number
@@ -198,9 +228,10 @@ Starlight_i::fillEvt(HepMC::GenEvent* evt)
 	int pid = (*part).getPdgCode();
 	int charge = (*part).getCharge();
         //AO special for pid sign stored in charge
-        int pidsign = pid/abs(pid);
-        int chsign = charge/abs(charge);
-        if( chsign != pidsign ) pid = -pid;
+        int pidsign = pid/std::abs(pid);
+        int chsign = 0;
+        if (charge !=0) chsign = charge/std::abs(charge);
+        if( chsign != pidsign && chsign != 0) pid = -pid;
 
 	double px = (*part).GetPx();
 	double py = (*part).GetPy();
@@ -211,6 +242,11 @@ Starlight_i::fillEvt(HepMC::GenEvent* evt)
           float mass = m_inputParameters.muonMass();//0.1056583715;// starlightConstants::muonMass;
 	  e  = std::sqrt(px*px + py*py + pz*pz + mass*mass);
 	}
+        // mass fix for photons (ALPs)
+        if(std::abs(pid)==22) {
+          e  = std::sqrt(px*px + py*py + pz*pz);
+        }
+
 	ATH_MSG_DEBUG( "saving particle " << ipart  );
 
 	v1->add_particle_out( 
@@ -223,6 +259,102 @@ Starlight_i::fillEvt(HepMC::GenEvent* evt)
     GeVToMeV(evt);
     
     return StatusCode::SUCCESS;
+}
+
+bool
+Starlight_i::starlight2lhef()
+{
+          
+    std::string lheFilename    = "events.lhe";
+    std::ofstream lheStream;
+    lheStream.open(lheFilename.c_str(), std::ofstream::trunc);
+    if(!lheStream) {
+      ATH_MSG_ERROR("error: Failed to open  file "+lheFilename);
+      return false;
+    }  
+    
+    lheStream << "<LesHouchesEvents version=\"1.0\">\n";
+    lheStream << "<!--\n";   
+    lheStream << "File generated using Starlight \n";
+    lheStream << "-->\n";
+    
+    lheStream << "<init>\n";
+    lheStream << "  13  -13  2.510000e+03  2.510000e+03  0  0  0  0  3  1\n";
+    lheStream << "  1.000000e+00  0.000000e+00  1.000000e+00   9999\n";
+    lheStream << "</init>\n";
+      
+       
+    std::unique_ptr<upcEvent> uevent(new upcEvent);
+       
+    for(unsigned int i=0; i<m_maxevents; i++) {
+      lheStream << "<event>\n";
+      (*uevent) = m_starlight->produceEvent();
+      int ipart = 0;
+      CLHEP::HepLorentzVector photon_system(0);
+      double ptscale =0;
+      std::vector<starlightParticle>::const_iterator part = (uevent->getParticles())->begin();
+      for (part = uevent->getParticles()->begin(); part != uevent->getParticles()->end(); part++, ipart++)
+      {
+         CLHEP::HepLorentzVector particle_sl((*part).GetPx(), (*part).GetPy(), (*part).GetPz(), (*part).GetE());
+         photon_system += particle_sl;
+         ptscale += std::sqrt((*part).GetPx()*(*part).GetPx() + (*part).GetPy()*(*part).GetPy());
+           }
+      
+      // avg pt is the correct scale here
+      ptscale /= static_cast<float> (ipart);
+      lheStream << "     4  9999  1.000000e+00  "<<ptscale<<"  7.297e-03  2.569093e-01\n";
+      
+      if(m_doTauolappLheFormat){
+      lheStream << " -11    -1     0     0     0     0  0.0000000000e+00  0.0000000000e+00  "
+                  << photon_system.m()/2.*std::exp(photon_system.rapidity())<<"  " 
+                  <<photon_system.m()/2.*std::exp(photon_system.rapidity())
+                  << "  0.0000000000e+00 0. 9.\n";
+      lheStream << " 11    -1     0     0     0     0  0.0000000000e+00  0.0000000000e+00  "
+                  << -photon_system.m()/2.*std::exp(-photon_system.rapidity())<<"  " 
+                  <<photon_system.m()/2.*std::exp(-photon_system.rapidity())
+                  << "  0.0000000000e+00 0. 9.\n";
+      }
+
+      else{
+              lheStream << " 22    -1     0     0     0     0  0.0000000000e+00  0.0000000000e+00  "
+                  << photon_system.m()/2.*std::exp(photon_system.rapidity())<<"  " 
+                  <<photon_system.m()/2.*std::exp(photon_system.rapidity())
+                  <<"  0.0000000000e+00 0. 9.\n";
+              lheStream << " 22    -1     0     0     0     0  0.0000000000e+00  0.0000000000e+00  "
+                  << -photon_system.m()/2.*std::exp(-photon_system.rapidity())<<"  " 
+                  <<photon_system.m()/2.*std::exp(-photon_system.rapidity())
+                  <<"  0.0000000000e+00 0. 9.\n";
+      }
+      
+      for (part = uevent->getParticles()->begin(); part != uevent->getParticles()->end(); part++, ipart++)
+      {
+        int pid = (*part).getPdgCode();
+        int charge = (*part).getCharge();
+        //AO special for pid sign stored in charge
+        int pidsign = pid/std::abs(pid);
+        int chsign = charge/std::abs(charge);
+        if( chsign != pidsign ) pid = -pid;
+        
+        double px = (*part).GetPx();
+        double py = (*part).GetPy();
+        double pz = (*part).GetPz();
+        double e  = (*part).GetE();
+        double mass  = (*part).getMass();
+        if(std::abs(pid)==11) mass = m_inputParameters.mel();
+        else if(std::abs(pid)==13) mass = m_inputParameters.muonMass();
+        else if(std::abs(pid)==15) mass = m_inputParameters.tauMass();
+        
+        lheStream << pid<<"     1     1     2     0     0  "<<px<<"  "<<py<<"  "<<pz<<"  "<<e<<"  "<<mass<<"  0. 9.\n";
+        
+       }
+    lheStream << "</event>\n";
+    }
+        
+        
+    lheStream << "</LesHouchesEvents>";  
+    lheStream.close();
+        
+    return true;
 }
 
 bool Starlight_i::set_user_params()
@@ -331,6 +463,10 @@ bool Starlight_i::prepare_params_file()
 	{
 	  m_productionMode  = mystring.numpiece(2);
 	}
+        else if (myparam == "axionMass")
+        {
+          m_axionMass  = mystring.numpiece(2);
+        }
 	else if (myparam == "nmbEventsTot")
 	{
 	  m_nmbEventsTot  = mystring.numpiece(2);
@@ -416,6 +552,7 @@ bool Starlight_i::prepare_params_file()
     configFile << "ETA_MIN = " << m_minEta << std::endl;
     configFile << "ETA_MAX = " << m_maxEta << std::endl;
     configFile << "PROD_MODE = " << m_productionMode << std::endl;
+    configFile << "AXION_MASS = " << m_axionMass << std::endl;
     configFile << "N_EVENTS = " << m_nmbEventsTot << std::endl;
     configFile << "PROD_PID = " << m_prodParticleId << std::endl;
     configFile << "RND_SEED = " << m_randomSeed << std::endl;

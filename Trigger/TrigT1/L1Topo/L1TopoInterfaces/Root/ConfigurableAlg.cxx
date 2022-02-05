@@ -163,12 +163,18 @@ ConfigurableAlg::quadraticSumBW(int i1, int i2) {
 
 unsigned int
 ConfigurableAlg::calcDeltaPhi(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
-  return TSU::Kinematics::calcDeltaPhi(tob1,tob2);
+  if (m_isLegacyTopo)
+    {return TSU::Kinematics::calcDeltaPhiLegacy(tob1,tob2);}
+  else
+    {return TSU::Kinematics::calcDeltaPhi(tob1,tob2);}
 }
 
 unsigned int
 ConfigurableAlg::calcDeltaEta(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
-  return TSU::Kinematics::calcDeltaEta(tob1,tob2);
+  if (m_isLegacyTopo)
+    {return TSU::Kinematics::calcDeltaEtaLegacy(tob1,tob2);}
+  else
+    {return TSU::Kinematics::calcDeltaEta(tob1,tob2);}
 }
 
 unsigned int
@@ -183,7 +189,10 @@ ConfigurableAlg::calcTMass(const TCS::GenericTOB* tob1, const TCS::GenericTOB* t
 
 unsigned int
 ConfigurableAlg::calcDeltaR2(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
-  return TSU::Kinematics::calcDeltaR2(tob1,tob2);
+  if (m_isLegacyTopo)
+    {return TSU::Kinematics::calcDeltaR2Legacy(tob1,tob2);}
+  else
+    {return TSU::Kinematics::calcDeltaR2(tob1,tob2);}
 }
 
 
@@ -258,15 +267,31 @@ void ConfigurableAlg::registerHist(TH2 * h) {
    m_impl->registerHist(h);
 }
 
-void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::string& name,const std::string& title, const int binx, const int xmin, const int xmax) {
+void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::string& name,const std::string& title, const int binx, const int xmin, const int xmax, const bool isMult) {
   std::string xmin_str = ToString(xmin);
   std::string xmax_str = ToString(xmax);
-  std::string newTitle = xmin_str+title+xmax_str;
-  std::string newName = name+"_"+xmin_str+title+xmax_str;
-  std::replace( newName.begin(), newName.end(), '-', 'n');
-  std::replace( newName.begin(), newName.end(), ' ', '_');
+  std::string newTitle = title;
+  std::string newName = name;
+  if (not isMult) {
+    newTitle = xmin_str+title+xmax_str;
+    newName = name+"_"+xmin_str+title+xmax_str;
+    std::replace( newName.begin(), newName.end(), '-', 'n');
+    std::replace( newName.begin(), newName.end(), ' ', '_');
+  }
   regName.push_back(m_name+"/"+newName);
 
+  // Add units to axis labels
+  std::string xTitle = title;
+  if (m_isLegacyTopo) {
+    if (title == "ETA" || title == "DETA" || title == "PHI" || title == "DPHI" || title == "DR") { xTitle = title+"#times10"; }
+    if (title == "PT" || title == "ET" || title == "HT" || title == "INVM" || title == "MT")     { xTitle = title+" [GeV]"; } 
+  } 
+  else {
+    if (title == "ETA" || title == "DETA" || title == "DR")                                  { xTitle = title+"#times40"; }
+    if (title == "PHI" || title == "DPHI")                                                   { xTitle = title+"#times20"; }
+    if (title == "PT" || title == "ET" || title == "HT" || title == "INVM" || title == "MT") { xTitle = isMult ? title+" [GeV]" : title+" [100 MeV]"; } 
+  }
+ 
   int xmin_new,xmax_new;
   if ( xmin > 0.0)
     { xmin_new=0.0; }
@@ -282,21 +307,34 @@ void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::str
     { xmax_new=1.5*xmax; }
   
   // if angular kinematics, use fixed range
-  if ( title.find("ETA") != std::string::npos || title.find("PHI") != std::string::npos ){
-    xmin_new=-70;
-    xmax_new=70;
+  int eta_max = 50;
+  int phi_max = 64;
+  int dr_max = 30;
+  if (not m_isLegacyTopo) {
+    eta_max *= 4;
+    phi_max *= 2;
+    dr_max *= 4;
   }
-  if ( title.find("DETA") != std::string::npos || title.find("DPHI") != std::string::npos || title.find("DR") != std::string::npos ){
+
+  if ( title.find("ETA") != std::string::npos ){
+    xmin_new=-eta_max;
+    xmax_new=eta_max;
+  }
+  if ( title.find("PHI") != std::string::npos || title.find("DPHI") != std::string::npos ){
     xmin_new=0;
-    xmax_new=70;
+    xmax_new=phi_max;
+  }
+  if ( title.find("DETA") != std::string::npos || title.find("DR") != std::string::npos ){
+    xmin_new=0;
+    xmax_new=dr_max;
   }
 
   TH1 *h = new TH1F(newName.c_str(),newTitle.c_str(),binx,xmin_new,xmax_new);
-  h->GetXaxis()->SetTitle(title.c_str());
+  h->GetXaxis()->SetTitle(xTitle.c_str());
   m_impl->registerHist(h);
 }
 
-void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::string& name,const std::string& title, const int binx, const int xmin, const int xmax, const int biny, const int ymin, const int ymax) {
+void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::string& name,const std::string& title, const int binx, const int xmin, const int xmax, const int biny, const int ymin, const int ymax, const bool isMult) {
   auto usPos = title.find(" vs ");
   std::string xName = title.substr(0,usPos);
   std::string yName = title.substr(usPos+4);
@@ -304,11 +342,35 @@ void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::str
   std::string xmax_str = ToString(xmax);
   std::string ymin_str = ToString(ymin);
   std::string ymax_str = ToString(ymax);
-  std::string newTitle = xmin_str+xName+xmax_str+" vs "+ymin_str+yName+ymax_str;
-  std::string newName = name+"_"+xmin_str+xName+xmax_str+"_"+ymin_str+yName+ymax_str;
-  std::replace( newName.begin(), newName.end(), '-', 'n');
-  std::replace( newName.begin(), newName.end(), ' ', '_');
+  std::string newTitle = title;
+  std::string newName = name;
+  if (not isMult) {
+    newTitle = xmin_str+xName+xmax_str+" vs "+ymin_str+yName+ymax_str;
+    newName = name+"_"+xmin_str+xName+xmax_str+"_"+ymin_str+yName+ymax_str;
+    std::replace( newName.begin(), newName.end(), '-', 'n');
+    std::replace( newName.begin(), newName.end(), ' ', '_');
+  }
   regName.push_back(m_name+"/"+newName);
+
+  // Add units to axis labels
+  std::string xTitle = xName;
+  std::string yTitle = yName;
+  if (m_isLegacyTopo) {
+    if (xName == "ETA" || xName == "DETA" || xName == "PHI" || xName == "DPHI" || xName == "DR") { xTitle = xName+"#times10"; }
+    if (xName == "PT" || xName == "ET" || xName == "HT" || xName == "INVM" || xName == "MT")     { xTitle = xName+" [GeV]"; } 
+
+    if (yName == "ETA" || yName == "DETA" || yName == "PHI" || yName == "DPHI" || yName == "DR") { yTitle = yName+"#times10"; }
+    if (yName == "PT" || yName == "ET" || yName == "HT" || yName == "INVM" || yName == "MT")     { yTitle = yName+" [GeV]"; } 
+  } 
+  else {
+    if (xName == "ETA" || xName == "DETA" || xName == "DR")                                  { xTitle = xName+"#times40"; }
+    if (xName == "PHI" || xName == "DPHI")                                                   { xTitle = xName+"#times20"; }
+    if (xName == "PT" || xName == "ET" || xName == "HT" || xName == "INVM" || xName == "MT") { xTitle = isMult ? xName+" [GeV]" : xName+" [100 MeV]"; } 
+
+    if (yName == "ETA" || yName == "DETA" || yName == "DR")                                  { yTitle = yName+"#times40"; }
+    if (yName == "PHI" || yName == "DPHI")                                                   { yTitle = yName+"#times20"; }
+    if (yName == "PT" || yName == "ET" || yName == "HT" || yName == "INVM" || yName == "MT") { yTitle = isMult ? yName+" [GeV]" : yName+" [100 MeV]"; } 
+  }
 
   int xmin_new,xmax_new;
   if ( xmin > 0.0)
@@ -338,27 +400,45 @@ void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::str
   else
     { ymax_new=1.5*ymax; }
 
+  
   // if angular kinematics, use fixed range
-  if ( xName.find("ETA") != std::string::npos || xName.find("PHI") != std::string::npos ){
-    xmin_new=-70;
-    xmax_new=70;
+  int eta_max = 50;
+  int phi_max = 64;
+  int dr_max = 30;
+  if (not m_isLegacyTopo) {
+    eta_max *= 4;
+    phi_max *= 2;
+    dr_max *= 4;
   }
-  if ( yName.find("ETA") != std::string::npos || yName.find("PHI") != std::string::npos ){
-    ymin_new=-70;
-    ymax_new=70;
+
+  if ( xName.find("ETA") != std::string::npos ){
+    xmin_new=-eta_max;
+    xmax_new=eta_max;
   }
-  if ( xName.find("DETA") != std::string::npos || xName.find("DPHI") != std::string::npos || xName.find("DR") != std::string::npos ){
+  if ( yName.find("ETA") != std::string::npos ){
+    ymin_new=-eta_max;
+    ymax_new=eta_max;
+  }
+  if ( xName.find("PHI") != std::string::npos || xName.find("DPHI") != std::string::npos ){
     xmin_new=0;
-    xmax_new=70;
+    xmax_new=phi_max;
   }
-  if ( yName.find("DETA") != std::string::npos || yName.find("DPHI") != std::string::npos || yName.find("DR") != std::string::npos ){
+  if ( yName.find("PHI") != std::string::npos || yName.find("DPHI") != std::string::npos ){
     ymin_new=0;
-    ymax_new=70;
+    ymax_new=phi_max;
+  }
+  if ( xName.find("DETA") != std::string::npos || xName.find("DR") != std::string::npos ){
+    xmin_new=0;
+    xmax_new=dr_max;
+  }
+  if ( yName.find("DETA") != std::string::npos || yName.find("DR") != std::string::npos ){
+    ymin_new=0;
+    ymax_new=dr_max;
   }
 
   TH2 *h = new TH2F(newName.c_str(),newTitle.c_str(),binx,xmin_new,xmax_new,biny,ymin_new,ymax_new);
-  h->GetXaxis()->SetTitle(xName.c_str());
-  h->GetYaxis()->SetTitle(yName.c_str());
+  h->GetXaxis()->SetTitle(xTitle.c_str());
+  h->GetYaxis()->SetTitle(yTitle.c_str());
   m_impl->registerHist(h);
 }
   
@@ -379,7 +459,7 @@ std::string ConfigurableAlg::ToString(const int val)
 }
 
 bool
-ConfigurableAlg::isocut(const std::string threshold, const unsigned int bit) {
+ConfigurableAlg::isocut(const std::string& threshold, const unsigned int bit) {
   unsigned int value = 0;
   if (threshold == "None") {value = 0;}
   else if (threshold == "Loose") {value = 1;}

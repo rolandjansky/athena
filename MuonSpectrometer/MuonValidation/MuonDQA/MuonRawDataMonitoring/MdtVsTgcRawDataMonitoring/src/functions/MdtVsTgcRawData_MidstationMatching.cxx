@@ -80,7 +80,8 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(std::vector<const Muon::MuonSegment*>
     // Make copy of disqualifiedSegment vector array
     std::vector<const Muon::MuonSegment*> copyDisqualifiedSegments;
     nDisqualifiedSegm=disqualifiedSegments[i][2].size();
-    for(int ndis=0;ndis<nDisqualifiedSegm;ndis++)copyDisqualifiedSegments.push_back(disqualifiedSegments[i][2].at(ndis));
+    copyDisqualifiedSegments.reserve(nDisqualifiedSegm);
+for(int ndis=0;ndis<nDisqualifiedSegm;ndis++)copyDisqualifiedSegments.push_back(disqualifiedSegments[i][2].at(ndis));
     
     ////////////////////////////////////////////////////////////////////////
     // Apply preliminary nMdtMeas Cut
@@ -242,7 +243,7 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(std::vector<const Muon::MuonSegment*>
         for(int stationeta=1; stationeta<=8; stationeta++){// AbsStationEta
           for(int stationphi=1; stationphi<=48; stationphi++){// StationPhi
             // Cut Station EtaPhi combinations with no TGC element
-            if(m_TREarray[stationnameindex][i][stationeta][stationphi]==0)continue;
+            if(m_TREarray[stationnameindex][i][stationeta][stationphi]==nullptr)continue;
             const MuonGM::TgcReadoutElement *tre=m_TREarray[stationnameindex][i][stationeta][stationphi];
             
             // Extrapolate position from nearest Station's Segment to Sector's Z
@@ -398,8 +399,8 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(std::vector<const Muon::MuonSegment*>
 
       // Variables to hold best PRD matching results
       std::vector<const Muon::TgcPrepData*> *bestTPDmatches[2];
-      bestTPDmatches[0] = 0;
-      bestTPDmatches[1] = 0;
+      bestTPDmatches[0] = nullptr;
+      bestTPDmatches[1] = nullptr;
       if(bestTPDmatches[0]->size()>0) bestTPDmatches[0]->clear();
       if(bestTPDmatches[1]->size()>0) bestTPDmatches[1]->clear();
       int bestTPDlayerMatches[2][9] = {{0,0,0,0,0,0,0,0,0},

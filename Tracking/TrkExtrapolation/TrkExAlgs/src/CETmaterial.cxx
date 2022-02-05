@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -152,7 +152,7 @@ StatusCode Trk::CETmaterial::finalize()
 StatusCode Trk::CETmaterial::execute()
 {
   ATH_MSG_INFO( "execute()" );
-
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   // retrieve outer boundary cylinder surface
   if (!m_outerBoundary) {
     m_trackingGeometry = m_extrapolator->trackingGeometry();
@@ -201,19 +201,27 @@ StatusCode Trk::CETmaterial::execute()
         m_msentry = m_trackingGeometry->trackingVolume("Calo::Containers::Calorimeter");
       }
       if (m_msentry) {
-        const Trk::TrackParameters* msEntry = m_extrapolator->extrapolateToVolume(*currPar,*m_msentry,Trk::alongMomentum,
-                                                                                  (Trk::ParticleHypothesis)m_particleType);
+        const Trk::TrackParameters* msEntry =
+          m_extrapolator->extrapolateToVolume(
+            ctx,
+            *currPar,
+            *m_msentry,
+            Trk::alongMomentum,
+            (Trk::ParticleHypothesis)m_particleType).release();
         if (msEntry) {
-           printMat(theta,phi,
-                  currPar->momentum().mag()-msEntry->momentum().mag(),
-                  Amg::error(msEntry->covariance()->inverse().eval(),Trk::theta),
-                  Amg::error(msEntry->covariance()->inverse().eval(),Trk::phi));
+          printMat(
+            theta,
+            phi,
+            currPar->momentum().mag() - msEntry->momentum().mag(),
+            Amg::error(msEntry->covariance()->inverse().eval(), Trk::theta),
+            Amg::error(msEntry->covariance()->inverse().eval(), Trk::phi));
 
-          const std::vector<const Trk::TrackStateOnSurface*>* mmsentry = m_extrapolator->extrapolateM(*currPar,
-                                                                                                    msEntry->associatedSurface(),
-                                                                                                    Trk::alongMomentum,
-                                                                                                    false,
-                                                                                                    (Trk::ParticleHypothesis)m_particleType);
+          const std::vector<const Trk::TrackStateOnSurface*>* mmsentry = m_extrapolator->extrapolateM(ctx,
+                                                                                                      *currPar,
+                                                                                                      msEntry->associatedSurface(),
+                                                                                                      Trk::alongMomentum,
+                                                                                                      false,
+                                                                                                      (Trk::ParticleHypothesis)m_particleType);
           if (mmsentry ) {
             for (unsigned int i=0; i< mmsentry->size(); i++)
                 if ((*mmsentry)[i])
@@ -221,7 +229,8 @@ StatusCode Trk::CETmaterial::execute()
                         << (*mmsentry)[i]->trackParameters()->momentum().mag()-currPar->momentum().mag());
             currPar = (mmsentry->back()) ?  mmsentry->back()->trackParameters() : msEntry;
 
-            const std::vector<const Trk::TrackStateOnSurface*>* peri = m_extrapolator->extrapolateM(*currPar,
+            const std::vector<const Trk::TrackStateOnSurface*>* peri = m_extrapolator->extrapolateM(ctx,
+                                                                                                    *currPar,
                                                                                                     pSf,
                                                                                                     Trk::oppositeMomentum,
                                                                                                     false,
@@ -263,7 +272,9 @@ StatusCode Trk::CETmaterial::execute()
     if (m_checkStepWise) {
       double matApp = 0.;
       while (currPar) {
-        std::pair<const Trk::TrackParameters*,const Trk::Layer*> next = m_extrapolator->extrapolateToNextActiveLayerM(*currPar,
+        std::pair<const Trk::TrackParameters*,const Trk::Layer*> next = m_extrapolator->extrapolateToNextActiveLayerM(
+                                                ctx,
+                                                *currPar,
                                                 Trk::alongMomentum,
                                                 true,
                                                 material,
@@ -276,7 +287,9 @@ StatusCode Trk::CETmaterial::execute()
 
         if (m_doprecision && precPar && currPar ) {
           // try to extrapolate to the same surface
-          const std::vector<const Trk::TrackStateOnSurface*>*  nextPrec = m_extraprec->extrapolateM(*precPar,currPar->associatedSurface(),
+          const std::vector<const Trk::TrackStateOnSurface*>*  nextPrec = m_extraprec->extrapolateM(
+                                                    ctx,
+                                                    *precPar,currPar->associatedSurface(),
                                                     Trk::alongMomentum,
                                                     false,
                                                     (Trk::ParticleHypothesis)m_particleType);
@@ -292,10 +305,10 @@ StatusCode Trk::CETmaterial::execute()
             }
           }
           // stop of extrapolation failed
-          if (!lay || !nextPrec || !nextPrec->size() || !nextPrec->back() ) break;
+          if (!lay || !nextPrec || nextPrec->empty() || !nextPrec->back() ) break;
           precPar = nextPrec->back()->trackParameters();
           double mat=0.;
-          if (material.size()) for (unsigned int i=0; i< material.size(); i++) {
+          if (!material.empty()) for (unsigned int i=0; i< material.size(); i++) {
             if (material[i]->materialEffectsOnTrack()) mat += material[i]->materialEffectsOnTrack()->thicknessInX0();
           }
           if ( precPar ) printMatComp(theta,phi,currPar,lay->enclosingDetachedTrackingVolume()->name(),mat,matApp,currPar->parameters()[0]-precPar->parameters()[0],
@@ -309,7 +322,7 @@ StatusCode Trk::CETmaterial::execute()
           int id = 0;
           if (lay) id = lay->layerType();
           double matc=0.;
-          if (material.size()) for (unsigned int i=0; i< material.size(); i++) {
+          if (!material.empty()) for (unsigned int i=0; i< material.size(); i++) {
             if (material[i]->materialEffectsOnTrack()) matc += material[i]->materialEffectsOnTrack()->thicknessInX0();
           }
           else ATH_MSG_INFO( "mat & error:" << theta << "," << phi << "," << matc << ","
@@ -322,7 +335,7 @@ StatusCode Trk::CETmaterial::execute()
       }
       if (m_printMaterial) {
         double mat=0.;
-        if (material.size()) for (unsigned int i=0; i< material.size(); i++) {
+        if (!material.empty()) for (unsigned int i=0; i< material.size(); i++) {
           if (material[i]->materialEffectsOnTrack()) {
             mat += material[i]->materialEffectsOnTrack()->thicknessInX0();
           }
@@ -330,7 +343,9 @@ StatusCode Trk::CETmaterial::execute()
         printMat(theta,phi,mat);
       }
     } else {
-      const std::vector<const Trk::TrackStateOnSurface*>* destParameters = m_extrapolator->extrapolateM(*currPar,
+      const std::vector<const Trk::TrackStateOnSurface*>* destParameters = m_extrapolator->extrapolateM(
+                                                                              ctx,
+                                                                              *currPar,
                                                                               *m_outerBoundary,
                                                                               Trk::alongMomentum,
                                                                               false,
@@ -350,7 +365,7 @@ StatusCode Trk::CETmaterial::execute()
             mat += mEff->thicknessInX0();
             // find volume
             std::vector<const Trk::DetachedTrackingVolume*>* detVols = m_extrapolator->trackingGeometry()->lowestDetachedTrackingVolumes(trPar->position());
-            if (detVols && detVols->size()) printMatScan(theta,phi,trPar->position().perp(),trPar->position().z(),mEff->thicknessInX0(),(*detVols)[0]->name());
+            if (detVols && !detVols->empty()) printMatScan(theta,phi,trPar->position().perp(),trPar->position().z(),mEff->thicknessInX0(),(*detVols)[0]->name());
             else printMatScan(theta,phi,trPar->position().perp(),trPar->position().z(),mEff->thicknessInX0(),m_extrapolator->trackingGeometry()->lowestStaticTrackingVolume(trPar->position())->volumeName());
           }
         }
@@ -362,7 +377,7 @@ StatusCode Trk::CETmaterial::execute()
         printMat(theta,phi,mat);
       }
 
-      if (!destParameters || !destParameters->size() ) {
+      if (!destParameters || destParameters->empty() ) {
         ATH_MSG_ERROR( "extrapolation to outer boundary failed for input parameters: " << initialPerigee.parameters() );
       } else if (destParameters->back()->trackParameters()) {
         // forward extrapolation ok
@@ -370,7 +385,8 @@ StatusCode Trk::CETmaterial::execute()
 
         if (m_backward) {
           material.clear();
-          const std::vector<const Trk::TrackStateOnSurface*>* peri = m_extrapolator->extrapolateM(*(destParameters->back()->trackParameters()),
+          const std::vector<const Trk::TrackStateOnSurface*>* peri = m_extrapolator->extrapolateM(
+            ctx, *(destParameters->back()->trackParameters()),
                                                                                               pSf,
                                                                                               Trk::oppositeMomentum,
                                                                                               false,
@@ -405,7 +421,6 @@ void Trk::CETmaterial::printMat(double theta, double phi, double mat, double dth
   std::ofstream myfilemat;
   myfilemat.open (m_matTotFile,std::ios::app);
   myfilemat<<theta<<" "<<phi<<" "<<mat<<" "<<dtheta<<" "<<dphi<<std::endl;
-  return;
 }
 
 
@@ -414,12 +429,11 @@ void Trk::CETmaterial::printMatScan(double theta, double phi, double r, double z
   std::ofstream myfilemat;
   myfilemat.open(m_matScanFile,std::ios::app);
   myfilemat << theta << " " << phi << " " << r << " " << z << " " << mat << " " << name << std::endl;
-  return;
 }
 
 void Trk::CETmaterial::printMatPrec(double theta, double phi, const Trk::TrackParameters* nextPar, const Trk::TrackParameters* mdest, double mat, int id, const std::string& name) const {
 
-  if (name=="") {}; // dummy to get rid of warning message (unused variable name)
+  if (name.empty()) {}; // dummy to get rid of warning message (unused variable name)
   std::ofstream myfilemat;
   myfilemat.open(m_matActiveFile,std::ios::app);
 
@@ -481,8 +495,7 @@ void Trk::CETmaterial::printMatPrec(double theta, double phi, const Trk::TrackPa
 	*m_err = mdest->covariance()->inverse().eval();
     }
   }
-  return;
-}
+  }
 
 void Trk::CETmaterial::printMatComp(double theta, double phi, const Trk::TrackParameters* currPar, const std::string& name, double mat, double matApp,double dx, double dy) const
 {
@@ -490,6 +503,4 @@ void Trk::CETmaterial::printMatComp(double theta, double phi, const Trk::TrackPa
   myfilemat.open(m_matCompFile,std::ios::app);
   myfilemat << theta << " " << phi << " " << currPar->position().perp() << " " << currPar->position().z() << " " << name.substr(0,2)
            << " " << mat << " " << matApp << " " << dx << " " << dy << std::endl;
-
-  return;
 }

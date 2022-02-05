@@ -14,6 +14,7 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -38,13 +39,13 @@ class CaloCellEnergyCorr2Ntuple : public AthAlgorithm {
     ~CaloCellEnergyCorr2Ntuple() ATLAS_CTORDTOR_NOT_THREAD_SAFE;
     
     /** standard Athena-Algorithm method */
-    StatusCode          initialize ATLAS_NOT_THREAD_SAFE();
+    virtual StatusCode          initialize ATLAS_NOT_THREAD_SAFE() override;
     /** standard Athena-Algorithm method */
-    StatusCode          execute();
+    virtual StatusCode          execute() override;
     /** standard Athena-Algorithm method */
-    StatusCode          finalize();
+    virtual StatusCode          finalize() override;
     /** standard Athena-Algorithm method */
-    StatusCode          stop ATLAS_NOT_THREAD_SAFE();
+    virtual StatusCode          stop ATLAS_NOT_THREAD_SAFE() override;
     
   private:
 
@@ -59,6 +60,10 @@ class CaloCellEnergyCorr2Ntuple : public AthAlgorithm {
   std::string m_key;
   std::string  m_FolderName;
   const DataHandle<AthenaAttributeList> m_AttrListColl;
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+      , "CaloDetDescrManager"
+      , "CaloDetDescrManager"
+      , "SG Key for CaloDetDescrManager in the Condition Store" };
 
   int m_Hash;
   int m_OffId;

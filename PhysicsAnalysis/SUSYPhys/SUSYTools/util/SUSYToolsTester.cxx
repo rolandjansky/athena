@@ -174,13 +174,13 @@ int main( int argc, char* argv[] ) {
   // Open file and check available containers
   std::map<std::string, std::string> containers = getFileContainers(ifile);
   bool hasTrkJets(false), hasFatJets(false);
-  for (auto x : containers) {
+  for (auto& x : containers) {
     if (x.first.find("AntiKtVR30Rmax4Rmin02TrackJets")!=std::string::npos) hasTrkJets = true;
     if (x.first.find("AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets")!=std::string::npos) hasFatJets = true;
   }
   if (debug>0) {
     ANA_MSG_INFO("Checking file contents (containers):");
-    for (auto x : containers) ANA_MSG_INFO("  - found " << x.first.c_str() << " (" << x.second.c_str() << ")");
+    for (auto& x : containers) ANA_MSG_INFO("  - found " << x.first.c_str() << " (" << x.second.c_str() << ")");
     ANA_MSG_INFO("hasTrkJets: " << (hasTrkJets?"true":"false"));
     ANA_MSG_INFO("hasFatJets: " << (hasFatJets?"true":"false"));
   }
@@ -338,7 +338,7 @@ int main( int argc, char* argv[] ) {
   // Trim comments and extra spaces from config entries
   std::regex comment("#.*$");
   std::regex trimspaces("^ +| +$|( ) +");
-  for (auto keyval : configDict) {
+  for (auto& keyval : configDict) {
      configDict[keyval.first] = regex_replace(configDict[keyval.first], comment, "");
      configDict[keyval.first] = regex_replace(configDict[keyval.first], trimspaces, "$1");
      ANA_MSG_DEBUG("config " << keyval.first << " : " << configDict[keyval.first]);
@@ -357,7 +357,7 @@ int main( int argc, char* argv[] ) {
   slices["fjet"] = bool(rEnv.GetValue("Slices.FJet", true));
   slices["tjet"] = bool(rEnv.GetValue("Slices.TJet", true));
   slices["met"]  = bool(rEnv.GetValue("Slices.MET", true));
-  for (auto x : slices) { ANA_MSG_DEBUG( "Slice " << x.first << ": " << ((x.second)?"true":"false")); }
+  for (auto& x : slices) { ANA_MSG_DEBUG( "Slice " << x.first << ": " << ((x.second)?"true":"false")); }
 
   // ============================================================================================
   ToolHandle<TauAnalysisTools::ITauTruthMatchingTool> T2MT = 0;
@@ -436,14 +436,14 @@ int main( int argc, char* argv[] ) {
 
     if(entry == 0){
       // Read the CutBookkeeper container
-      const xAOD::CutBookkeeperContainer* completeCBC = 0;
+      const xAOD::CutBookkeeperContainer* completeCBC = nullptr;
       if (!event.retrieveMetaInput(completeCBC, "CutBookkeepers").isSuccess()) {
         ANA_MSG_ERROR("Failed to retrieve CutBookkeepers from MetaData, exiting.");
         return StatusCode::FAILURE;
       }
 
       // Let's find the right CBK (latest with StreamAOD input before derivations)
-      const xAOD::CutBookkeeper* allEventsCBK = 0;
+      const xAOD::CutBookkeeper* allEventsCBK = nullptr;
       int maxcycle=-1;
       for ( auto cbk : *completeCBC ) {
         cbkname = cbk->name();
@@ -489,7 +489,7 @@ int main( int argc, char* argv[] ) {
 
     // ============================================================================================
     // Print some event information for fun:
-    const xAOD::EventInfo* ei = 0;
+    const xAOD::EventInfo* ei = nullptr;
     ANA_CHECK( event.retrieve( ei, "EventInfo" ) );
 
     if (entry==0 || entry % period == 99) {
@@ -548,20 +548,20 @@ int main( int argc, char* argv[] ) {
 
     // ====================================================================================================
     // Object containers - nominal
-    xAOD::ElectronContainer* electrons_nominal(0);
-    xAOD::ShallowAuxContainer* electrons_nominal_aux(0);
-    xAOD::PhotonContainer* photons_nominal(0);
-    xAOD::ShallowAuxContainer* photons_nominal_aux(0);
-    xAOD::MuonContainer* muons_nominal(0);
-    xAOD::ShallowAuxContainer* muons_nominal_aux(0);
-    xAOD::JetContainer* jets_nominal(0);
-    xAOD::ShallowAuxContainer* jets_nominal_aux(0);
-    xAOD::JetContainer* trkjets_nominal(0);
-    xAOD::ShallowAuxContainer* trkjets_nominal_aux(0);
-    xAOD::JetContainer* fatjets_nominal(0);
-    xAOD::ShallowAuxContainer* fatjets_nominal_aux(0);
-    xAOD::TauJetContainer* taus_nominal(0);
-    xAOD::ShallowAuxContainer* taus_nominal_aux(0);
+    xAOD::ElectronContainer* electrons_nominal(nullptr);
+    xAOD::ShallowAuxContainer* electrons_nominal_aux(nullptr);
+    xAOD::PhotonContainer* photons_nominal(nullptr);
+    xAOD::ShallowAuxContainer* photons_nominal_aux(nullptr);
+    xAOD::MuonContainer* muons_nominal(nullptr);
+    xAOD::ShallowAuxContainer* muons_nominal_aux(nullptr);
+    xAOD::JetContainer* jets_nominal(nullptr);
+    xAOD::ShallowAuxContainer* jets_nominal_aux(nullptr);
+    xAOD::JetContainer* trkjets_nominal(nullptr);
+    xAOD::ShallowAuxContainer* trkjets_nominal_aux(nullptr);
+    xAOD::JetContainer* fatjets_nominal(nullptr);
+    xAOD::ShallowAuxContainer* fatjets_nominal_aux(nullptr);
+    xAOD::TauJetContainer* taus_nominal(nullptr);
+    xAOD::ShallowAuxContainer* taus_nominal_aux(nullptr);
     xAOD::MissingETContainer* metcst_nominal = new xAOD::MissingETContainer;
     xAOD::MissingETAuxContainer* metcst_nominal_aux = new xAOD::MissingETAuxContainer;
     xAOD::MissingETContainer* mettst_nominal = new xAOD::MissingETContainer;
@@ -619,7 +619,7 @@ int main( int argc, char* argv[] ) {
     }
 
     // TrackJets
-    const xAOD::JetContainer* TJC(0);
+    const xAOD::JetContainer* TJC = nullptr;
     if (slices["tjet"] && hasTrkJets) {
       ANA_MSG_DEBUG( "Nominal track jet step" );
       if( event.retrieve(TJC, TrkJetCollection).isSuccess() ){
@@ -632,7 +632,7 @@ int main( int argc, char* argv[] ) {
     }
 
     // FatJets
-    const xAOD::JetContainer* FJC(0);
+    const xAOD::JetContainer* FJC = nullptr;
     if(slices["fjet"] && hasFatJets) { // stream.Contains("SUSY10") || stream.Contains("PHYSVAL")){
       ANA_MSG_DEBUG( "Nominal Large R jet step" );
       if( event.retrieve(FJC, FatJetCollection).isSuccess() ){
@@ -650,11 +650,12 @@ int main( int argc, char* argv[] ) {
     }
 
     // Taus
-    if(slices["tau"]) 
+    if(slices["tau"]) {
       ANA_MSG_DEBUG( "Nominal tau step" );
       ANA_CHECK( objTool.GetTaus(taus_nominal,taus_nominal_aux, true, isPHYSLite?"AnalysisTauJets":"TauJets") );
       ANA_MSG_DEBUG( taus_nominal->size() << " taus");
-
+    }
+    
     // MET
     metcst_nominal->setStore(metcst_nominal_aux);
     metcst_nominal->reserve(10);
@@ -778,43 +779,43 @@ int main( int argc, char* argv[] ) {
 
       if (sysInfo.affectsKinematics) {
         if (slices["ele"] && syst_affectsElectrons) {
-          xAOD::ElectronContainer* electrons_syst(0);
-          xAOD::ShallowAuxContainer* electrons_syst_aux(0);
+          xAOD::ElectronContainer* electrons_syst(nullptr);
+          xAOD::ShallowAuxContainer* electrons_syst_aux(nullptr);
           ANA_CHECK( objTool.GetElectrons(electrons_syst, electrons_syst_aux, true, isPHYSLite?"AnalysisElectrons":"Electrons") );
           electrons = electrons_syst;
         }
 
         if (slices["mu"] && syst_affectsMuons) {
-          xAOD::MuonContainer* muons_syst(0);
-          xAOD::ShallowAuxContainer* muons_syst_aux(0);
+          xAOD::MuonContainer* muons_syst(nullptr);
+          xAOD::ShallowAuxContainer* muons_syst_aux(nullptr);
           ANA_CHECK( objTool.GetMuons(muons_syst, muons_syst_aux, true, isPHYSLite?"AnalysisMuons":"Muons") );
           muons = muons_syst;
         }
 
         if(slices["tau"] && syst_affectsTaus) {
-          xAOD::TauJetContainer* taus_syst(0);
-          xAOD::ShallowAuxContainer* taus_syst_aux(0);
+          xAOD::TauJetContainer* taus_syst(nullptr);
+          xAOD::ShallowAuxContainer* taus_syst_aux(nullptr);
           ANA_CHECK( objTool.GetTaus(taus_syst,taus_syst_aux, true, isPHYSLite?"AnalysisTauJets":"TauJets") );
           taus = taus_syst;
         }
 
         if(slices["pho"] && syst_affectsPhotons) {
-          xAOD::PhotonContainer* photons_syst(0);
-          xAOD::ShallowAuxContainer* photons_syst_aux(0);
+          xAOD::PhotonContainer* photons_syst(nullptr);
+          xAOD::ShallowAuxContainer* photons_syst_aux(nullptr);
           ANA_CHECK( objTool.GetPhotons(photons_syst,photons_syst_aux, true, isPHYSLite?"AnalysisPhotons":"Photons") );
           photons = photons_syst;
         }
 
         if (slices["jet"] && syst_affectsJets) {
-          xAOD::JetContainer* jets_syst(0);
-          xAOD::ShallowAuxContainer* jets_syst_aux(0);
+          xAOD::JetContainer* jets_syst(nullptr);
+          xAOD::ShallowAuxContainer* jets_syst_aux(nullptr);
           ANA_CHECK( objTool.GetJetsSyst(*jets_nominal, jets_syst, jets_syst_aux, true, isPHYSLite?"AnalysisJets":"") );
           jets = jets_syst;
         }
 
         if (slices["btag"] && syst_affectsBTag) {
-          xAOD::JetContainer* trkjets_syst(0);
-          xAOD::ShallowAuxContainer* trkjets_syst_aux(0);
+          xAOD::JetContainer* trkjets_syst(nullptr);
+          xAOD::ShallowAuxContainer* trkjets_syst_aux(nullptr);
           ANA_CHECK( objTool.GetTrackJets(trkjets_syst, trkjets_syst_aux) );
           trkjets = trkjets_syst;
         }
@@ -921,7 +922,7 @@ int main( int argc, char* argv[] ) {
           if (jet->auxdata<char>("baseline") == 1  &&
               jet->auxdata<char>("passOR") == 1  &&
               jet->auxdata<char>("signal") == 1  &&
-              jet->pt() > 20000.  && ( fabs( jet->eta()) < 2.5) ) {
+              jet->pt() > 20000.  && ( std::abs(jet->eta()) < 2.5) ) {
             goodJets->push_back(jet);
           }
           // PHYSLITE doesn't bother trying to keep JetInputType as a decoration
@@ -1066,7 +1067,7 @@ int main( int argc, char* argv[] ) {
             else{
               my_mu_trigs=muTrigs2016;
             }
-            for (auto t : my_mu_trigs) passTMtest |= (objTool.IsTrigPassed(t) && objTool.IsTrigMatched(mu,t));
+            for (auto& t : my_mu_trigs) passTMtest |= (objTool.IsTrigPassed(t) && objTool.IsTrigMatched(mu,t));
           }
         }
       }
@@ -1324,7 +1325,7 @@ std::vector<std::string> getTokens(TString line, TString delim) {
   TObjArray* tokens = TString(line).Tokenize(delim); //delimiters
   if(tokens->GetEntriesFast()) {
     TIter iString(tokens);
-    TObjString* os=0;
+    TObjString* os = nullptr;
     while ((os=(TObjString*)iString())) {
       vtokens.push_back( os->GetString().Data() );
     }
@@ -1357,4 +1358,3 @@ std::map<std::string, std::string> getFileContainers(std::unique_ptr<TFile> &f) 
   }
   return containers;
 }
-

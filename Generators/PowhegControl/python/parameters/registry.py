@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from . import powheg_atlas_common
 import collections
@@ -44,6 +44,7 @@ class Registry(metaclass=Singleton):
         self.add_default("bornsuppfactV", -1, description="[-1:use Powheg default]")
         self.add_default("bornsuppfactW", -1, description="[-1:use Powheg default]")
         self.add_default("bornzerodamp", 1, description="use damping where the Born is strongly suppressed (or 0). [1:enabled]")
+        self.add_default("bornzerodampcut", -1, description="ttbb: Born zerodamp shape parameter. [-1:default]")
         self.add_default("bottommass", powheg_atlas_common.mass.b, name="mass_b", description="b-quark mass in GeV (loops disabled if <= 0)",)
         self.add_default("bottomthr", powheg_atlas_common.mass.b, description="minimum pT in GeV for generating emission off b-quarks. [<0:default to 5.0]")
         self.add_default("bottomthrpdf", powheg_atlas_common.mass.b, description="threshold in GeV at which b-quark PDF becomes non-zero. [<0:default to 5.0]")
@@ -107,6 +108,7 @@ class Registry(metaclass=Singleton):
         self.add_default("dec3", -1, hidden=True, description="Weakino decay 3. UNUSED")
         self.add_default("dec4", -1, hidden=True, description="Weakino decay 4. UNUSED")
         self.add_default("decaymode", 0, description="Dark matter decay mode")
+        self.add_default("decay_signature", "0", description="4tops decay signature")
         self.add_default("delg1_g", 0, description="Delta_g1(Gamma)")
         self.add_default("delg1_z", 0, description="Delta_g1(Z)")
         self.add_default("delk_g", 0, description="Delta_K(Gamma)")
@@ -219,6 +221,7 @@ class Registry(metaclass=Singleton):
         self.add_default("iupperisr", -1, description="choice of ISR upper bounding functional form. [<0:use default - usually 1]")
         self.add_default("iymax", 1, description="number of intervals (<= 10) in y grid to compute upper bounds")
         self.add_default("jacsing", -1, description="[-1:use Powheg default]")
+        self.add_default("kappaQ", 0.5, description="ttj_MiNNLO: factor of scale Q inside the (modified) logarithm: Q = Qref * kappaQ (Qref=invariant mass of the system)")
         self.add_default("kappa_ghb", 1.0, description="multiplicative kappa-factor of the Higgs-bottom coupling. ONLY USED FOR REWEIGHTING.")
         self.add_default("kappa_ght", 1.0, description="multiplicative kappa-factor of the Higgs-top coupling. ONLY USED FOR REWEIGHTING.")
         self.add_default("kappa_ghw", 1.0, description="multiplicative kappa-factor of the Higgs-W coupling. ONLY USED FOR REWEIGHTING.")
@@ -300,6 +303,7 @@ class Registry(metaclass=Singleton):
         self.add_default("mint_density_map", -1, description="keep track of the distribution of integrand values while doing the integration (for debugging).")
         self.add_default("mintupbratlim", -1, description="while computing btilde upper bound, disregard points with btilde/born ratio greater than mintupbratlim")
         self.add_default("mintupbxless", -1, description="mint upbx less")
+        self.add_default("mjjminsuppfact", -1, description="parameter for alternative born suppression factor for W+2jets, as in 1204.5433 [-1:disabled]")
         self.add_default("mll_gencut", -1, description="cut on the invariant dilepton mass in GeV (minimum 15). Needed to avoid singularities from virtual photon decays to two massless leptons")
         self.add_default("mllmax", 13000, description="minimum invariant mass in GeV of lepton pairs from decay.")
         self.add_default("mllmin", 4, description="minimum invariant mass in GeV of lepton pairs from decay.")
@@ -464,6 +468,7 @@ class Registry(metaclass=Singleton):
         self.add_default("tdec/smass", powheg_atlas_common.mass.s, name="mass_s", description="s-quark mass in GeV")
         self.add_default("tdec/taumass", powheg_atlas_common.mass.tau, name="mass_tau", description="mass of tau in GeV")
         self.add_default("tdec/twidth", powheg_atlas_common.width.t, name="width_t", description="top quark width in GeV")
+        self.add_default("twidth_phsp", -1, description="top width for phase-space generation, should be the same as twidth [-1:use Powheg default]")
         self.add_default("tdec/umass", powheg_atlas_common.mass.u, name="mass_u", description="u-quark mass in GeV")
         self.add_default("tdec/wmass", powheg_atlas_common.mass.W, name="mass_W", description="W boson mass in GeV")
         self.add_default("tdec/wwidth", powheg_atlas_common.width.W, name="width_W", description="W boson width in GeV")
@@ -506,6 +511,7 @@ class Registry(metaclass=Singleton):
         self.add_default("wdecaymode", None, description="W-boson decay mode: 5 digits indicating the maximum number of (e,mu,tau,u,c) allowed in decays")
         self.add_default("weak-only", -1, description="")
         self.add_default("whichpwhgevent", -1, description="[-1:use Powheg default]")
+        self.add_default("whichscale", 4, description="ttj_MiNNLO: set scale of overall two powers of alphas if fixedscale=0 [0:H_T^tt/2, 1:m_tt/2, 2:m_tt, 3:H_T^tt+jets/2, 4:H_T^tt/4, 5:H_T^tt+jets/4]")
         self.add_default("width_H", powheg_atlas_common.width.H, description="Higgs boson width in GeV")
         self.add_default("width_t", powheg_atlas_common.width.t, description="top quark width in GeV")
         self.add_default("width_W", powheg_atlas_common.width.W, name="width_W", description="W boson width in GeV")

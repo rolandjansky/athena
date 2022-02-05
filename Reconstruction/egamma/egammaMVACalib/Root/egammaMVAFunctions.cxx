@@ -163,8 +163,12 @@ namespace egammaMVAFunctions
                   std::fmod(compute_cl_phiCalo(*cl), TMath::Pi() / 512) :
                   std::fmod(compute_cl_phiCalo(*cl), TMath::Pi() / 384));
       };
+    funcLibrary[prefix + "_phiModCell"] = funcLibrary["phiModCell"] = [](const xAOD::Egamma*, const xAOD::CaloCluster* cl)
+      { return std::fmod(std::abs(compute_cl_phiCalo(*cl)), TMath::Pi() / 128); };
     funcLibrary[prefix + "_etaModCalo"] = funcLibrary["etaModCalo"] = [](const xAOD::Egamma*, const xAOD::CaloCluster* cl)
       { return std::fmod(std::abs(compute_cl_etaCalo(*cl)), 0.025); };
+    funcLibrary["abs(" + prefix + "_cl_eta)"] = [](const xAOD::Egamma*, const xAOD::CaloCluster* cl)
+      { return std::abs(compute_cl_eta(*cl)); };
     funcLibrary[prefix + "_dPhiTG3"] = funcLibrary["dPhiTG3"] = [](const xAOD::Egamma*, const xAOD::CaloCluster* cl)
       { return std::fmod(2.*TMath::Pi()+compute_cl_phi(*cl),TMath::Pi()/32.)-TMath::Pi()/64.0; };
 

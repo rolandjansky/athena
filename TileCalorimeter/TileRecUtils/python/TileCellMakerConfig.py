@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """Define method to construct configured Tile Cell maker algorithm"""
 
@@ -146,6 +146,10 @@ if __name__ == "__main__":
     ConfigFlags.dump()
     acc.printConfig(withDetails = True, summariseProps = True)
     acc.store( open('TileCellMaker.pkl','wb') )
+
+    # Needed to work around cling crash in dbg build...
+    import ROOT
+    ROOT.CaloCellContainer
 
     sc = acc.run()
 

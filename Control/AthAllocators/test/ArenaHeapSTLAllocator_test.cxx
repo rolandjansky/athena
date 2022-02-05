@@ -155,6 +155,12 @@ void test1()
 
   assert (Payload::n == 2);
   assert (Payload::v.size() == 0);
+
+  {
+    SG::ArenaHeapSTLAllocator<const Payload, int> a5;
+    const Payload* p = a5.allocate (1);
+    a5.deallocate (p, 1);
+  }
 }
 
 

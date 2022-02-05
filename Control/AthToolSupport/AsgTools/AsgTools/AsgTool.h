@@ -58,14 +58,6 @@ namespace asg {
       /// Stand-alone, StoreGate-like accessor to the event store
       SgTEvent* evtStore() const;
 
-      /// @name Tool name handling functions
-      /// @{
-
-      /// Set the name of the tool
-      virtual void setName( const std::string& name );
-
-      /// @}
-
      // this is just so that my template functions can find this
      // method in the base class.
    public:

@@ -1,8 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 #
 # art-description: Run digitization of an MC20 ttbar sample with 2018 geometry and conditions, without pile-up using AthenaMT
 # art-type: grid
 # art-athena-mt: 8
+# art-include: 22.0-mc20/Athena
 # art-include: master/Athena
 # the name below is needed because of the environment variable (marks storing in tar file).
 # art-output: mc20_nopileup_ttbar.RDO.pool.root
@@ -13,7 +14,7 @@ export ATHENA_CORE_NUMBER=8
 Digi_tf.py \
 --multithreaded \
 --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000425.pool.root.1 \
---conditionsTag default:OFLCOND-MC16-SDR-RUN2-08 \
+--conditionsTag default:OFLCOND-MC16-SDR-RUN2-09 \
 --digiSeedOffset1 170 \
 --digiSeedOffset2 170 \
 --geometryVersion default:ATLAS-R2-2016-01-00-01 \
@@ -26,17 +27,15 @@ Digi_tf.py \
 
 rc=$?
 status=$rc
-echo  "art-result: $rc Digi_tf.py"
+echo "art-result: $rc Digi_tf.py"
 
 rc2=-9999
-if [ $rc -eq 0 ]
+if [[ $rc -eq 0 ]]
 then
-    ArtPackage=$1
-    ArtJobName=$2
-    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=semi-detailed --order-trees
+    art.py compare grid --entries 10 "$1" "$2" --mode=semi-detailed --order-trees
     rc2=$?
     status=$rc2
 fi
-echo  "art-result: $rc2 regression"
+echo "art-result: $rc2 regression"
 
 exit $status

@@ -32,9 +32,6 @@ include( "LArDetMgrDetDescrCnv/LArDetMgrDetDescrCnv_H8_joboptions.py" )
 DetDescrCnvSvc = Service( "DetDescrCnvSvc" )
 DetDescrCnvSvc.DoIdChecks
 
-ToolSvc = Service( "ToolSvc" )
-ToolSvc.LArRoI_Map.Print=FALSE
-
 include("LArCondCnv/LArCondCnv_TB04_jobOptions.py")
 IOVDbSvc.Folders += ["/lar/LArElecCalibTB04/LArCalibParams"]
 IOVDbSvc.Folders += ["/lar/LArElecCalibTB04/LArPedestal"]

@@ -16,12 +16,15 @@
 #include "GaudiKernel/ToolHandle.h"
 //Eigen
 #include "GeoPrimitives/GeoPrimitives.h"
+// TrkGeometry
+#include "TrkGeometry/TrackingGeometry.h"
+#ifdef LEGACY_TRKGEOM
+#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
+#endif
 
 namespace Trk {
 
-    class ITrackingGeometrySvc;
     class IMaterialMapper;
-    class TrackingGeometry;
     class TrackingVolume;
     class Surface;
 
@@ -72,16 +75,32 @@ namespace Trk {
                                                   const Amg::Vector3D& position, 
                                                   const Amg::Vector3D& direction);
           
-        /** Retrieve the TrackingGeometry */
-        StatusCode retrieveTrackingGeometry();
+        const TrackingGeometry& trackingGeometry() const;
 
-        /** Tracking Geometry */
-        ServiceHandle<Trk::ITrackingGeometrySvc>             m_trackingGeometrySvc;       //!< Name of the TrackingGeometrySvc
-        mutable const TrackingGeometry*                      m_trackingGeometry;          //!< The underlying TrackingGeometry
+        #ifdef LEGACY_TRKGEOM
+        ServiceHandle<ITrackingGeometrySvc> m_trackingGeometrySvc {this, "TrackingGeometrySvc", "",""};
+#endif
+        void throwFailedToGetTrackingGeometry() const;
+        const TrackingGeometry* retrieveTrackingGeometry(const EventContext& ctx) const {
+#ifdef LEGACY_TRKGEOM
+           if (m_trackingGeometryReadKey.key().empty()) {
+              return m_trackingGeometrySvc->trackingGeometry();
+           }
+#endif
+           SG::ReadCondHandle<TrackingGeometry>  handle(m_trackingGeometryReadKey,ctx);
+           if (!handle.isValid()) {
+              ATH_MSG_FATAL("Could not load TrackingGeometry with name '" << m_trackingGeometryReadKey.key() << "'. Aborting." );
+              throwFailedToGetTrackingGeometry();
+           }
+           return handle.cptr();
+        }
+
+        SG::ReadCondHandleKey<TrackingGeometry>   m_trackingGeometryReadKey
+           {this, "TrackingGeometryReadKey", "", "Key of the TrackingGeometry conditions data."};
         
         /** Mapper and Inspector */                          
         ToolHandle<IMaterialMapper>                          m_materialMapper;            //!< Pointer to an IMaterialMapper algTool
-        int                                                  m_maxMaterialMappingEvents;  //!< limit the number of validation records to avoid 2G files
+        int                                                  m_maxMaterialValidationEvents;  //!< limit the number of validation records to avoid 2G files
         
 
         Rndm::Numbers*                                       m_flatDist;                   //!< Random generator for flat distribution
@@ -91,9 +110,16 @@ namespace Trk {
         
         double                                               m_accTinX0;                   //!< accumulated t in X0
         
-
-
     };
+    
+    inline const Trk::TrackingGeometry& Trk::MaterialValidation::trackingGeometry() const {
+       const Trk::TrackingGeometry *tracking_geometry = retrieveTrackingGeometry(Gaudi::Hive::currentContext());
+       if (!tracking_geometry){
+          ATH_MSG_FATAL("Did not get valid TrackingGeometry. Aborting." );
+          throw GaudiException("MaterialValidation", "Problem with TrackingGeometry loading.", StatusCode::FAILURE);
+       }
+       return *tracking_geometry;
+    }
 }
 
 #endif 

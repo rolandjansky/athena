@@ -250,7 +250,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedWriterTool::exec_func()
   if(sc.isFailure() || sharedWriterSvc==0) {
     ATH_MSG_ERROR("Error retrieving AthenaRootSharedWriterSvc");
     all_ok=false;
-  } else if(!sharedWriterSvc->share(m_nprocs).isSuccess()) {
+  } else if(!sharedWriterSvc->share(m_nprocs, m_nMotherProcess.value()).isSuccess()) {
     ATH_MSG_ERROR("Exec function could not share data");
     all_ok=false;
   }

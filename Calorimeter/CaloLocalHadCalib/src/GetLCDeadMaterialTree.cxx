@@ -33,7 +33,6 @@
 #include "CaloEvent/CaloCell.h"
 #include "CaloSimEvent/CaloCalibrationHit.h"
 #include "CaloSimEvent/CaloCalibrationHitContainer.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include <CLHEP/Units/SystemOfUnits.h>
@@ -42,7 +41,6 @@
 #include "CaloLocalHadCalib/CaloHadDMCoeffData.h"
 #include "CaloEvent/CaloCompositeKineBase.h"
 #include "CaloEvent/CaloRecoStatus.h"
-//#include "CaloEvent/CaloClusterMoment.h"
 #include "TBEvent/TBEventInfo.h"
 #include "CaloLocalHadCalib/GetLCSinglePionsPerf.h"
 #include "StoreGate/ReadHandle.h"
@@ -65,14 +63,12 @@ GetLCDeadMaterialTree::GetLCDeadMaterialTree(const std::string& name,
     m_outputTree(nullptr),
     m_outputFileName("DeadMaterialTree.root"),
     m_outputFile(nullptr),
-    m_clusterCollName("CaloTopoCluster"),
+    m_clusterCollName("CaloTopoClusters"),
     m_HadDMCoeff(nullptr),
     m_data(nullptr),
     m_doSaveCalibClusInfo(false),
     m_isTestbeam(false),
     m_energyMin(200*MeV),
-    //m_energyMax(2*TeV),
-    m_calo_dd_man(nullptr),
     m_calo_id(nullptr)
 {
 
@@ -113,9 +109,7 @@ GetLCDeadMaterialTree::~GetLCDeadMaterialTree()
 ***************************************************************************** */
 StatusCode GetLCDeadMaterialTree::initialize()
 {
-  // pointer to detector manager:
-  m_calo_dd_man = CaloDetDescrManager::instance(); 
-  m_calo_id = m_calo_dd_man->getCaloCell_ID();
+  ATH_CHECK(detStore()->retrieve(m_calo_id, "CaloCell_ID"));
 
   /* ********************************************
   set list of valid moments

@@ -34,28 +34,36 @@ class DynamicallyLoadMetadata:
         return default
 
     def __contains__(self, key):
-        return self.get(key, None) is not None
+        self.get(key, None)
+        return key in self.metadata
 
     def __getitem__(self, key):
-        result =  self.get(key, None)
-        if result is None:
-            raise RuntimeError("Key {} not found".format(key))
-        return result
+        return self.get(key, None)
+
+    def __repr__(self):
+        return repr(self.metadata)
+
+    def keys(self):
+        return self.metadata.keys()
 
 def GetFileMD(filenames):
+    if not filenames:
+        msg.info("Running an input-less job. Will have empty metadata.")
+        return {}
     if isinstance(filenames, str):
         filenames = [filenames]
-    filename=filenames[0]
-    if filename == '_ATHENA_GENERIC_INPUTFILE_NAME_':
+    if '_ATHENA_GENERIC_INPUTFILE_NAME_' in filenames:
         raise RuntimeError('Input file name not set, instead _ATHENA_GENERIC_INPUTFILE_NAME_ found. Cannot read metadata.')
-    if filename not in _fileMetaData:
-        if len(filenames)>1:
-            msg.info("Multiple input files. Use the first one for auto-configuration")
-        msg.info("Obtaining metadata of auto-configuration by peeking into %s", filename)
-        _fileMetaData[filename] = DynamicallyLoadMetadata(filename)
-
-    return _fileMetaData[filename]
-
+    for filename in filenames:
+        if filename not in _fileMetaData:
+            msg.info("Obtaining metadata of auto-configuration by peeking into '%s'", filename)
+            _fileMetaData[filename] = DynamicallyLoadMetadata(filename)
+        if _fileMetaData[filename]['nentries'] not in [None, 0]: 
+            return _fileMetaData[filename]
+        else:
+            msg.info("The file: %s has no entries, going to the next one for harvesting the metadata", filename)
+    msg.info("No file with events found, returning anyways metadata associated to the first file %s", filenames[0])
+    return _fileMetaData[filenames[0]]
 
 def _initializeGeometryParameters(geoTag):
     """Read geometry database for all detectors"""
@@ -72,7 +80,9 @@ def _initializeGeometryParameters(geoTag):
     params = { 'Common' : CommonGeoDB.InitializeGeometryParameters(dbGeomCursor),
                'Pixel' : PixelGeoDB.InitializeGeometryParameters(dbGeomCursor),
                'LAr' : LArGeoDB.InitializeGeometryParameters(dbGeomCursor),
-               'Muon' : MuonGeoDB.InitializeGeometryParameters(dbGeomCursor) }
+               'Muon' : MuonGeoDB.InitializeGeometryParameters(dbGeomCursor),
+               'Luminosity' : CommonGeoDB.InitializeLuminosityDetectorParameters(dbGeomCursor),
+             }
 
     return params
 
@@ -99,9 +109,13 @@ def getDefaultDetectors(geoTag):
     detectors = set()
     detectors.add('Bpipe')
 
-    if DetDescrInfo(geoTag)['Common']['Run'] == 'RUN4':
+    if DetDescrInfo(geoTag)['Common']['Run'] not in ['RUN1', 'RUN2', 'RUN3']: # RUN4 and beyond
         detectors.add('ITkPixel')
         detectors.add('ITkStrip')
+        if DetDescrInfo(geoTag)['Luminosity']['BCMPrime']:
+            pass  # keep disabled for now
+        if DetDescrInfo(geoTag)['Luminosity']['PLR']:
+            detectors.add('PLR')
     else:
         detectors.add('Pixel')
         detectors.add('SCT')
@@ -113,7 +127,7 @@ def getDefaultDetectors(geoTag):
     if DetDescrInfo(geoTag)['Common']['Run'] in ['RUN1', 'RUN2', 'RUN3'] and DetDescrInfo(geoTag)['Pixel']['DBM']:
         detectors.add('DBM')
 
-    if DetDescrInfo(geoTag)['Common']['Run'] == 'RUN4':
+    if DetDescrInfo(geoTag)['Common']['Run'] not in ['RUN1', 'RUN2', 'RUN3']: # RUN4 and beyond
         detectors.add('HGTD')
 
     detectors.add('LAr')
@@ -149,3 +163,59 @@ def getInitialTimeStampsFromRunNumbers(runNumbers):
     run2timestampDict =  getRunToTimestampDict()
     timeStamps = [run2timestampDict.get(runNumber,1) for runNumber in runNumbers] # Add protection here?
     return timeStamps
+
+
+def getSpecialConfigurationMetadata(inputFiles, secondaryInputFiles):
+    """Read in special simulation job option fragments based on metadata
+    passed by the evgen stage
+    """
+    specialConfigDict = dict()
+    legacyPreIncludeToCAPostInclude = { 'SimulationJobOptions/preInclude.AMSB.py' : 'Charginos.CharginosConfigNew.AMSB_Cfg',
+                                        'SimulationJobOptions/preInclude.Monopole.py' :  'Monopole.MonopoleConfigNew.MonopoleCfg',
+                                        'SimulationJobOptions/preInclude.Quirks.py' : 'Quirks.QuirksConfigNew.QuirksCfg',
+                                        'SimulationJobOptions/preInclude.SleptonsLLP.py' : 'Sleptons.SleptonsConfigNew.SleptonsLLPCfg',
+                                        'SimulationJobOptions/preInclude.GMSB.py' : 'Sleptons.SleptonsConfigNew.GMSB_Cfg',
+                                        'SimulationJobOptions/preInclude.Qball.py' : 'Monopole.MonopoleConfigNew.QballCfg',
+                                        'SimulationJobOptions/preInclude.RHadronsPythia8.py' : None, # FIXME
+                                        'SimulationJobOptions/preInclude.fcp.py' : 'Monopole.MonopoleConfigNew.fcpCfg' }
+    legacyPreIncludeToCAPreInclude = { 'SimulationJobOptions/preInclude.AMSB.py' : None,
+                                       'SimulationJobOptions/preInclude.Monopole.py' :  'Monopole.MonopoleConfigNew.MonopolePreInclude',
+                                       'SimulationJobOptions/preInclude.Quirks.py' : None,
+                                       'SimulationJobOptions/preInclude.SleptonsLLP.py' : None,
+                                       'SimulationJobOptions/preInclude.GMSB.py' : None,
+                                       'SimulationJobOptions/preInclude.Qball.py' : 'Monopole.MonopoleConfigNew.QballPreInclude',
+                                       'SimulationJobOptions/preInclude.RHadronsPythia8.py' : None, # FIXME
+                                       'SimulationJobOptions/preInclude.fcp.py' : 'Monopole.MonopoleConfigNew.fcpPreInclude' }
+    specialConfigString = ''
+    from AthenaConfiguration.AutoConfigFlags import GetFileMD
+    if len(inputFiles)>0:
+        specialConfigString = GetFileMD(inputFiles).get('specialConfiguration', '')
+    if (not len(specialConfigString) or specialConfigString == 'NONE') and len(secondaryInputFiles)>0:
+        # If there is no specialConfiguration metadata in the primary
+        # input try the secondary inputs (MC Overlay case)
+        specialConfigString = GetFileMD(secondaryInputFiles).get('specialConfiguration', '')
+    if len(specialConfigString)>0:
+        ## Parse the specialConfiguration string
+        ## Format is 'key1=value1;key2=value2;...'. or just '
+        spcitems = specialConfigString.split(";")
+        for spcitem in spcitems:
+            #print spcitem
+            ## Ignore empty or "NONE" substrings, e.g. from consecutive or trailing semicolons
+            if not spcitem or spcitem.upper() == "NONE":
+                continue
+            ## If not in key=value format, treat as v, with k="preInclude"
+            if "=" not in spcitem:
+                spcitem = "preInclude=" + spcitem
+            ## Handle k=v directives
+            k, v = spcitem.split("=")
+            if k == "preInclude" and v.endswith('.py'): # Translate old preIncludes into CA-based versions.
+                v1 = legacyPreIncludeToCAPreInclude[v]
+                if v1 is not None:
+                    specialConfigDict[k] = v1
+                v2 = legacyPreIncludeToCAPostInclude[v]
+                if v2 is not None:
+                    specialConfigDict['postInclude'] = v2
+            else:
+                specialConfigDict[k] = v
+    return specialConfigDict
+

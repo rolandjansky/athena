@@ -79,5 +79,3 @@ if useTCMOFC:
 from LArByteStream.LArByteStreamConf import LArRodDecoder
 svcMgr.ToolSvc += LArRodDecoder()
 ToolSvc.LArRodDecoder.FirstSample = 2
-#ToolSvc.LArRoI_Map.Print = False
-

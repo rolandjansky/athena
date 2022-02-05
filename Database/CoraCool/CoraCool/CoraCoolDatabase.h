@@ -80,7 +80,7 @@ class CoraCoolDatabase {
   bool deleteFolder(const std::string& coolfolder);
 
  private:
-  bool extractCoralConStr(const std::string& coolstr);
+  bool extractCoralConStr(std::string_view coolstr);
   std::string encodeAttrSpec(const cool::IRecordSpecification& spec);
   bool storeSpec(const std::string& tablename,const std::string& spec);
 

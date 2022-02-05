@@ -5,15 +5,10 @@
 // Athena/Gaudi includes
 #include "GaudiKernel/ITHistSvc.h"
 
-//Event info includes
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
 // root includes
 #include "TTree.h"
 // Local includes
 #include "NSWL1Simulation.h"
-#include "MuonRDO/NSW_TrigRawDataContainer.h"
 #include <vector>
 
 namespace NSWL1 {
@@ -25,10 +20,11 @@ namespace NSWL1 {
       m_pad_trigger("NSWL1::PadTriggerLogicOfflineTool",this),
       m_pad_trigger_lookup("NSWL1::PadTriggerLookupTool",this),
       m_strip_tds("NSWL1::StripTdsOfflineTool",this),
-      //m_strip_cluster("NSWL1::StripClusterTool",this),
+      m_strip_cluster("NSWL1::StripClusterTool",this),
       //m_strip_segment("NSWL1::StripSegmentTool",this), TODO: this line makes the code crash in initialization... please, sTGC friends, fix it!!!
       m_mmstrip_tds("NSWL1::MMStripTdsOfflineTool",this),
       m_mmtrigger("NSWL1::MMTriggerTool",this),
+      m_trigProcessor("NSWL1::TriggerProcessorTool",this),
       m_tree(nullptr),
       m_current_run(-1),
       m_current_evt(-1)
@@ -37,11 +33,11 @@ namespace NSWL1 {
     // Property setting general behaviour:
     declareProperty( "DoOffline",    m_doOffline    = false, "Steers the offline emulation of the LVL1 logic" );
     declareProperty( "UseLookup",    m_useLookup    = false, "Toggle Lookup mode on and off default is the otf(old) mode" );
-    declareProperty( "DoNtuple",     m_doNtuple     = true,  "Create an ntuple for data analysis" );
-    declareProperty( "DoMM",         m_doMM         = true,  "Run data analysis for MM" );
+    declareProperty( "DoNtuple",     m_doNtuple     = false,  "Create an ntuple for data analysis" );
+    declareProperty( "DoMM",         m_doMM         = false,  "Run data analysis for MM" );
     declareProperty( "DoMMDiamonds", m_doMMDiamonds = false, "Run data analysis for MM using Diamond Roads algorithm" );
     declareProperty( "DosTGC",       m_dosTGC       = false, "Run data analysis for sTGCs" );
-    
+
     // declare monitoring tools
     declareProperty( "AthenaMonTools",          m_monitors,           "List of monitoring tools to be run with this instance, if incorrect then tool is silently skipped.");
     declareProperty( "PadTdsTool",              m_pad_tds,            "Tool that simulates the functionalities of the PAD TDS");
@@ -53,13 +49,14 @@ namespace NSWL1 {
     declareProperty( "StripSegmentTool",        m_strip_segment,      "Tool that simulates the Segment finding");
     declareProperty( "MMStripTdsTool",          m_mmstrip_tds,        "Tool that simulates the functionalities of the MM STRIP TDS");
     declareProperty( "MMTriggerTool",           m_mmtrigger,          "Tool that simulates the MM Trigger");
+    declareProperty( "MMTriggerProcessorTool",  m_trigProcessor,      "Tool that simulates the TP");
     declareProperty( "NSWTrigRDOContainerName", m_trigRdoContainer = "NSWTRGRDO"," Give a name to NSW trigger rdo container");
   }
 
 
   StatusCode NSWL1Simulation::initialize() {
-    ATH_MSG_INFO( "initialize " << name() );
-    ATH_CHECK( m_trigRdoContainer.initialize() );    
+    ATH_MSG_DEBUG( "initialize " << name() );
+    ATH_CHECK( m_trigRdoContainer.initialize() );
     // Create an register the ntuple if requested, add branch for event and run number
     if ( m_doNtuple ) {
       ITHistSvc* tHistSvc;
@@ -67,6 +64,7 @@ namespace NSWL1 {
       char ntuple_name[40];
       memset(ntuple_name,'\0',40*sizeof(char));
       sprintf(ntuple_name,"%sTree",name().c_str());
+      m_current_evt = 0, m_current_run = 0;
 
       // create Ntuple and the branches
       m_tree = new TTree(ntuple_name, "Ntuple of NSWL1Simulation");
@@ -89,43 +87,46 @@ namespace NSWL1 {
         ATH_CHECK(m_pad_trigger.retrieve());
       }
       ATH_CHECK(m_strip_tds.retrieve());
-      //ATH_CHECK(m_strip_cluster.retrieve());
+      ATH_CHECK(m_strip_cluster.retrieve());
       //ATH_CHECK(m_strip_segment.retrieve());
     }
-    
+
     if(m_doMM ){
       ATH_CHECK(m_mmtrigger.retrieve());
-      if(m_doMMDiamonds) ATH_CHECK( m_mmtrigger->initDiamondAlgorithm() );
     }
 
     // Connect to Monitoring Service
-    ATH_CHECK(m_monitors.retrieve());
+    if(m_doNtuple){
+      ATH_CHECK(m_monitors.retrieve());
+    }
+
+    ATH_CHECK(m_trigProcessor.retrieve());
     return StatusCode::SUCCESS;
   }
 
 
   StatusCode NSWL1Simulation::start() {
-    ATH_MSG_INFO("start " << name() );
-    for ( auto& mon : m_monitors ) {
-      ATH_CHECK(mon->bookHists());
+    ATH_MSG_DEBUG("start " << name() );
+    if(m_doNtuple){
+      for ( auto& mon : m_monitors ) {
+        ATH_CHECK(mon->bookHists());
+      }
     }
-
     return StatusCode::SUCCESS;
   }
 
 
   StatusCode NSWL1Simulation::execute() {
-    const DataHandle<EventInfo> pevt;
-    ATH_CHECK( evtStore()->retrieve(pevt) );
-    m_current_run = pevt->event_ID()->run_number();
-    m_current_evt = pevt->event_ID()->event_number();
-
+    auto ctx = Gaudi::Hive::currentContext();
+    m_current_evt = ctx.eventID().event_number();
+    m_current_run = ctx.eventID().run_number();
 
     std::vector<std::shared_ptr<PadData>> pads;
     std::vector<std::unique_ptr<PadTrigger>> padTriggers;
     std::vector<std::unique_ptr<StripData>> strips;
     std::vector< std::unique_ptr<StripClusterData> > clusters;
-    auto trgContainer=std::make_unique<Muon::NSW_TrigRawDataContainer>();
+    auto padTriggerContainer = std::make_unique<Muon::NSW_PadTriggerDataContainer>();
+    auto MMTriggerContainer = std::make_unique<Muon::NSW_TrigRawDataContainer>();
 
     if(m_dosTGC){
       ATH_CHECK( m_pad_tds->gather_pad_data(pads) );
@@ -133,36 +134,43 @@ namespace NSWL1 {
         ATH_CHECK( m_pad_trigger_lookup->lookup_pad_triggers(pads, padTriggers) );
       }
       else{
-          ATH_CHECK( m_pad_trigger->compute_pad_triggers(pads, padTriggers) );
+        ATH_CHECK( m_pad_trigger->compute_pad_triggers(pads, padTriggers) );
       }
-     
+
       ATH_CHECK( m_strip_tds->gather_strip_data(strips,padTriggers) );
-      //ATH_CHECK( m_strip_cluster->cluster_strip_data(strips,clusters) );
+      ATH_CHECK( m_strip_cluster->cluster_strip_data(strips,clusters) );
       //ATH_CHECK( m_strip_segment->find_segments(clusters,trgContainer) );
-      
-      auto rdohandle = SG::makeHandle( m_trigRdoContainer );
-      ATH_CHECK( rdohandle.record( std::move(trgContainer)));
+
+      ATH_CHECK(PadTriggerAdapter::fillContainer(padTriggerContainer, padTriggers, m_current_evt));
     }
 
     //retrive the MM Strip hit data
     if(m_doMM){
       ATH_CHECK( m_mmtrigger->runTrigger(m_doMMDiamonds) );
+      ATH_CHECK( m_mmtrigger->fillRDO(MMTriggerContainer.get(), m_doMMDiamonds) );
     }
-    for ( auto& mon : m_monitors) {
-      ATH_CHECK(mon->fillHists());
+    if(m_doNtuple){
+      for ( auto& mon : m_monitors) {
+        ATH_CHECK(mon->fillHists());
+      }
+      if (m_tree) m_tree->Fill();
     }
-    if (m_tree) m_tree->Fill();
 
+    SG::WriteHandle<Muon::NSW_TrigRawDataContainer> rdohandle( m_trigRdoContainer );
+    auto trgContainer=std::make_unique<Muon::NSW_TrigRawDataContainer>();
+    ATH_CHECK( m_trigProcessor->mergeRDO(padTriggerContainer.get(), MMTriggerContainer.get(), trgContainer.get()) );
+    ATH_CHECK(rdohandle.record(std::move(trgContainer)));
     return StatusCode::SUCCESS;
   }
 
 
   StatusCode NSWL1Simulation::finalize() {
-    ATH_MSG_INFO( "finalize" << name() );
-    for ( auto& mon :  m_monitors ) {
-      ATH_CHECK(mon->finalHists());
+    ATH_MSG_DEBUG( "finalize" << name() );
+    if(m_doNtuple){
+      for ( auto& mon :  m_monitors ) {
+        ATH_CHECK(mon->finalHists());
+      }
     }
-    if(m_doMM) ATH_CHECK( m_mmtrigger->finalizeDiamondAlgorithm(m_doMMDiamonds) );
     return StatusCode::SUCCESS;
   }
 

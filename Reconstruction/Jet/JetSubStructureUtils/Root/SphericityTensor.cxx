@@ -24,7 +24,7 @@ map<string, double> SphericityTensor::result(const fastjet::PseudoJet &jet) cons
   TMatrixD MomentumTensor(3,3);
   double P2Sum = 0;
 
-  for(std::vector<fastjet::PseudoJet>::const_iterator Itr=clusters.begin(); Itr!=clusters.end(); Itr++) {
+  for(std::vector<fastjet::PseudoJet>::const_iterator Itr=clusters.begin(); Itr!=clusters.end(); ++Itr) {
     MomentumTensor(0,0) += (*Itr).px()*(*Itr).px();
     MomentumTensor(0,1) += (*Itr).px()*(*Itr).py();
     MomentumTensor(0,2) += (*Itr).px()*(*Itr).pz();

@@ -37,7 +37,7 @@ namespace IDPVM {
       m_errors.clear();
        
     if (!p_input_hist) {
-      m_errors.push_back("ResolutionHelper::initialize: empty input histogram passed: ");
+      m_errors.emplace_back("ResolutionHelper::initialize: empty input histogram passed: ");
        m_mean=m_meanError=m_RMS=m_RMSError=m_FracOut=m_FracOutUnc=0.;
       return false;
     }
@@ -73,7 +73,7 @@ namespace IDPVM {
     m_RMSError*=m_largeErrorFact;
   }
 
-  std::string ResolutionHelper::reportUOBinVal(std::string p_histName, std::vector< std::pair<unsigned int,double> > p_vecBinVal) {
+  std::string ResolutionHelper::reportUOBinVal(const std::string& p_histName, const std::vector< std::pair<unsigned int,double> >& p_vecBinVal) {
     std::ostringstream reportl;
     if (!p_vecBinVal.empty())  {
       reportl << "Errors scaled up for resol. hist. with large % of events in over- and under-flow: "
@@ -97,8 +97,7 @@ namespace IDPVM {
 	m_FracOutUnc=(nout / p_ntot) * std::sqrt(1. / nout + 1. / p_ntot);
       }
     }
-    return;
-  }
+     }
   
   int ResolutionHelper::setGaussFit(TH1* p_input_hist){
 
@@ -232,9 +231,7 @@ namespace IDPVM {
     // reset range metadata to state prior to iteration
     // this gets changed in iterative or fusion)
     p_input_hist->GetXaxis()->SetRange(1,p_input_hist->GetNbinsX());
-    
-    return;
-  }
+ }
 
 ResolutionHelper::resolutionResultInBin
 ResolutionHelper::ResolutionHelperResultsModUnits(TH1D* p_input_hist, IDPVM::ResolutionHelper::methods theMethod) {
@@ -277,7 +274,7 @@ ResolutionHelper::makeResolutions(const TH2* h_input2D, TH1* hwidth, TH1* hmean,
     hmean->SetBinContent(ibin + 1, result.mean);
     hmean->SetBinError(ibin + 1, result.meanError);
     if (result.outlierFrac > m_maxUOflowFrac) {
-      warnUOBinFrac.push_back(std::make_pair(ibin + 1,result.outlierFrac));
+      warnUOBinFrac.emplace_back(ibin + 1,result.outlierFrac);
     }
   }    
   if (!warnUOBinFrac.empty()) {
@@ -312,7 +309,7 @@ ResolutionHelper::makeResolutions(const TH2* h_input2D, TH1* hwidth, TH1* hmean,
     hmean->SetBinContent(ibin + 1, result.mean);
     hmean->SetBinError(ibin + 1, result.meanError);
     if (result.outlierFrac>m_maxUOflowFrac){
-      warnUOBinFrac.push_back(std::make_pair(ibin + 1,result.outlierFrac));
+      warnUOBinFrac.emplace_back(ibin + 1,result.outlierFrac);
     }      
   }
   if (!warnUOBinFrac.empty()) {

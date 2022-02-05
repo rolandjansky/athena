@@ -11,7 +11,6 @@
 #include "StoreGate/ReadCondHandleKey.h"
 
 #include "Identifier/Identifier.h"
-#include "TrigT1CaloToolInterfaces/IL1TriggerTowerTool.h"
 #include "TrigT1CaloEvent/TriggerTowerCollection.h"
 #include "CaloTriggerTool/CaloTriggerTowerService.h"
 #include "TrigT1CaloCalibTools/L1CaloCells2TriggerTowers.h"
@@ -54,50 +53,24 @@ public:
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
 
-  virtual bool initL1CaloLArTowerEnergy(const CaloCellContainer& cellContainer, const TriggerTowerCollection &triggerTowerCollection) override;
-  virtual float EtLArg(const Identifier& TTid) const override;
   virtual bool hasMissingFEB(const Identifier& TTid) const override;
   virtual bool hasMissingFEB(const LArOnOffIdMapping& cabling,
                              const Identifier& TTid) const override;
 
 protected:
-  virtual void reset() override;
   virtual double IDeta(const Identifier& TTid) const override;
 
 private:
-
-  // properties
-  std::string m_triggerTowerCollectionName; // name of transient TriggerTower container
-  std::string m_caloCellContainerName; // name of transient CaloCell container.
-  std::string m_l1CaloCells2TriggerTowersToolName;
-
-  L1CaloCondSvc *m_condSvc;
   const CaloLVL1_ID *m_lvl1Helper;
   const CaloIdManager *m_caloMgr;
   const LArOnlineID *m_LArOnlineHelper;
 
   CaloTriggerTowerService* m_ttService;
-  ToolHandle<LVL1::IL1CaloCells2TriggerTowers> m_cells2tt;
 
   ToolHandle< ILArBadFebMasker > m_badFebMasker; // Handle to badChannelTool
-  ToolHandle<LVL1::IL1TriggerTowerTool> m_ttTool; // Handle to L1TriggerTowerTool
 
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey
     {this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
-
-
-  typedef std::map<Identifier, double> mapTT;
-  typedef std::map<double, std::pair<double, int> > mapSum;
-
-  //definition of the maps containing the EtCells of each TT
-  mapTT m_map_Etcells_em;
-  mapTT m_map_Etcells_had;
-
-
-  //definition of the maps containing the average EtCells in phi
-  mapSum m_map_sumEtcells_phi_em;
-  mapSum m_map_sumEtcells_phi_had;
-
 };
 } // end of namespace
 

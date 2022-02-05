@@ -5,7 +5,8 @@ atlas_subdir( HGTD_EventAthenaPool )
 
 # Component(s) in the package:
 atlas_add_poolcnv_library( HGTD_EventAthenaPoolPoolCnv
-                           src/*.cxx
-                           FILES HGTD_PrepRawData/HGTD_ClusterContainer.h
-                           TYPES_WITH_NAMESPACE HGTD::HGTD_ClusterContainer
-                           LINK_LIBRARIES AthenaPoolUtilities AthenaPoolCnvSvcLib AtlasSealCLHEP GaudiKernel HGTD_PrepRawData HGTD_EventTPCnv )
+   src/*.h src/*.cxx
+   FILES HGTD_RawData/HGTD_RDOContainer.h
+         HGTD_PrepRawData/HGTD_ClusterContainer.h
+   LINK_LIBRARIES GaudiKernel AthenaPoolCnvSvcLib HGTD_RawData HGTD_PrepRawData
+   HGTD_EventTPCnv )

@@ -78,6 +78,8 @@ StatusCode LArCellBuilderFromLArRawChannelTool::initialize() {
     }
   }
 
+  ATH_CHECK(m_caloMgrKey.initialize());
+
   //Compute total number of cells
 
 
@@ -125,9 +127,6 @@ LArCellBuilderFromLArRawChannelTool::process (CaloCellContainer* theCellContaine
    else
      ATH_MSG_DEBUG("Got " << nRawChannels << " LArRawChannels");
 
-   const CaloDetDescrManager* caloDDM = nullptr;
-   ATH_CHECK( detStore()->retrieve (caloDDM, "CaloMgr") );
-
 
   unsigned nCellsAdded=0;
   std::bitset<CaloCell_ID::NSUBCALO> includedSubcalos;
@@ -142,12 +141,11 @@ LArCellBuilderFromLArRawChannelTool::process (CaloCellContainer* theCellContaine
   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl(m_cablingKey, ctx);
   const LArOnOffIdMapping* cabling=*cablingHdl;
 
-  
-  theCellContainer->resize(m_nTotalCells);
-  //LArRawChannelContainer::const_iterator itrRawChannel=rawColl->begin();
-  //LArRawChannelContainer::const_iterator lastRawChannel=rawColl->end();
-  //for ( ; itrRawChannel!=lastRawChannel; ++itrRawChannel) {
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,ctx};
+  const CaloDetDescrManager* caloDDM = *caloMgrHandle;
 
+  theCellContainer->resize(m_nTotalCells);
+ 
   for (const LArRawChannel& rawChan : *rawColl) {
     const HWIdentifier hwid=rawChan.channelID();
     if ( cabling->isOnlineConnected(hwid)) {

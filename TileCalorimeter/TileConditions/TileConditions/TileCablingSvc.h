@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_TILECABLINGSVC_H
@@ -26,7 +26,7 @@ template<class TYPE> class SvcFactory;
 //NGO At some point TileCablingService should be made a tool, but this will introduce
 //NGO many upstream code changes.
 
-class ATLAS_CHECK_THREAD_SAFETY TileCablingSvc: public AthService {
+class TileCablingSvc: public AthService {
     friend class SvcFactory<TileCablingSvc> ;
 
   public:
@@ -35,9 +35,9 @@ class ATLAS_CHECK_THREAD_SAFETY TileCablingSvc: public AthService {
     virtual ~TileCablingSvc() {
     }
 
-    StatusCode initialize();
-    StatusCode finalize();
-    StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
+    virtual StatusCode initialize ATLAS_NOT_THREAD_SAFE () override;
+    virtual StatusCode finalize() override;
+    virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
 
     const TileCablingService* cablingService() const {
       return m_cablingService;
@@ -52,7 +52,7 @@ class ATLAS_CHECK_THREAD_SAFETY TileCablingSvc: public AthService {
 
   private:
 
-    TileCablingService* m_cablingService;
+    const TileCablingService* m_cablingService;
 
     std::vector<std::string> m_connectedDrawers; // list of connected drawers
     // we assume that list contains even number of elements - pairs of (begin,end) range,

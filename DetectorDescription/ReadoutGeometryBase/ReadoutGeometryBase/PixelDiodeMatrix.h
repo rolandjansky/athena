@@ -172,18 +172,18 @@ namespace InDetDD {
       /** Create debug representation for a specific level */
       std::string createDebugStringRepr(unsigned int level) const;
 
-      double        m_phiWidth;
-      double        m_phiWidthInverse;
-      double        m_etaWidth;
-      double        m_etaWidthInverse;
-      int           m_phiCells;    
-      int           m_etaCells;
-      Direction     m_direction;
-      int m_numCells; // number of MiddleCells along m_direction direction.
+      double        m_phiWidth = 0;
+      double        m_phiWidthInverse = 0;
+      double        m_etaWidth = 0;
+      double        m_etaWidthInverse = 0;
+      int           m_phiCells = 0;
+      int           m_etaCells = 0;
+      Direction     m_direction {};
+      int m_numCells = 0; // number of MiddleCells along m_direction direction.
       std::shared_ptr<const PixelDiodeMatrix> m_lowerCell;
       std::shared_ptr<const PixelDiodeMatrix> m_middleCells;
       std::shared_ptr<const PixelDiodeMatrix> m_upperCell;
-      bool m_singleCell;
+      bool m_singleCell = false;
     
     };
     

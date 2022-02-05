@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: EventTypeFillerTool.cxx 603418 2014-06-24 15:37:50Z ssnyder $
@@ -19,7 +19,7 @@ namespace D3PD {
                                              const IInterface* parent )
       : BlockFillerTool< EventInfo >( type, name, parent ) {
 
-      book().ignore(); // Avoid coverity warnings.
+      EventTypeFillerTool::book().ignore(); // Avoid coverity warnings.
    }
 
    StatusCode EventTypeFillerTool::book() {

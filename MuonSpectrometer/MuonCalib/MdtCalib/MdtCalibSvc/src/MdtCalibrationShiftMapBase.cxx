@@ -82,7 +82,7 @@ StatusCode MdtCalibrationShiftMapBase::loadMapFromFile() {
   }
 
   /* check if the file exists */
-  struct stat buffer;
+  struct stat buffer{};
   if (stat(fileWithPath.c_str(), &buffer) != 0) {
     ATH_MSG_ERROR("Cannot stat the file \""
                   << fileWithPath.c_str()

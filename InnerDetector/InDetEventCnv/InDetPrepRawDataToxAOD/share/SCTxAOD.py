@@ -195,7 +195,7 @@ streamName = primDPD.WriteDAOD_SCTVALIDStream.StreamName
 fileName   = buildFileName( primDPD.WriteDAOD_SCTVALIDStream )
 SCTVALIDStream = MSMgr.NewPoolRootStream( streamName, fileName )
 SCTVALIDStream.AcceptAlgs(["SCTxAOD_DF_KERN"])
-excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
+excludedAuxData = "-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
 
 # Add generic event information
 SCTVALIDStream.AddItem("xAOD::EventInfo#*")

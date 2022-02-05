@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AGDDMaterialStore_H
@@ -22,7 +22,7 @@ typedef AGDDElementMap::const_iterator ElementIterator;
 
 class AGDDMaterialStore {
 public:
-	static AGDDMaterialStore* GetMaterialStore();
+	AGDDMaterialStore();
 	void RegisterElement(AGDDElement *);
 	void RegisterMaterial(AGDDSimpleMaterial *);
 	AGDDSimpleMaterial* GetMaterial(std::string);
@@ -43,7 +43,6 @@ public:
 	void PrintMaterial(std::string n);
 	
 private:
-	AGDDMaterialStore();
 	AGDDMaterialMap m_theMaterials;
 	AGDDElementMap m_theElements;
 	

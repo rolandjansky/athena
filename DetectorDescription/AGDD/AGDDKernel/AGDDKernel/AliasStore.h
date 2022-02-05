@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AliasStore_H
@@ -10,14 +10,11 @@
 
 class AliasStore:public std::map<std::string,std::string,std::less<std::string> > {
 public:
-	static AliasStore* GetAliasList();
-	void AddAlias(std::string,std::string);
-	bool IsAliased(std::string);
-	std::string Alias(std::string);
-private:
 	AliasStore() {}
+	void AddAlias(const std::string&,const std::string&);
+	bool IsAliased(const std::string&);
+	std::string Alias(const std::string&);
 };
 
 #endif
 
-#define ALIAS(CNAME) AliasStore::GetAliasList()->Alias(CNAME)

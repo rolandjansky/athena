@@ -253,6 +253,8 @@ if __name__=='__main__':
     ConfigFlags.Output.HISTFileName = 'TileJetMonitorOutput.root'
     ConfigFlags.DQ.useTrigger = False
     ConfigFlags.DQ.enableLumiAccess = False
+    ConfigFlags.Exec.MaxEvents = 3
+    ConfigFlags.fillFromArgs()
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
@@ -270,7 +272,7 @@ if __name__=='__main__':
 
     cfg.store( open('TileJetMonitorAlgorithm.pkl','wb') )
 
-    sc = cfg.run(maxEvents=3)
+    sc = cfg.run()
 
     import sys
     # Success should be 0

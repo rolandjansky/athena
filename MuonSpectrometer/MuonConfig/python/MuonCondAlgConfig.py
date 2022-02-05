@@ -4,7 +4,6 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-MdtCondDbAlg,RpcCondDbAlg,CscCondDbAlg =CompFactory.getComps("MdtCondDbAlg","RpcCondDbAlg","CscCondDbAlg")
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 
 def MdtCondDbAlgCfg(flags, **kwargs):
@@ -67,7 +66,7 @@ def MdtCondDbAlgCfg(flags, **kwargs):
             kwargs['ReadKey_MC_DT'] = ''
             kwargs['ReadKey_MC_NC'] = ''
     
-    alg = MdtCondDbAlg(**kwargs)
+    alg = CompFactory.MdtCondDbAlg(**kwargs)
     result.merge( addFolders(flags, folders , detDb="DCS_OFL", className='CondAttrListCollection') )
     result.addCondAlgo(alg)
     return result
@@ -88,7 +87,7 @@ def RpcCondDbAlgCfg(flags, **kwargs):
             kwargs['isData'] = True
             kwargs['isRun1'] = flags.IOVDb.DatabaseInstance == 'COMP200'
             folders          = ["/RPC/DCS/DeadRopanels", "/RPC/DCS/OffRopanels"]
-    alg = RpcCondDbAlg(**kwargs)
+    alg = CompFactory.RpcCondDbAlg(**kwargs)
     result.merge( addFolders(flags, folders                     , detDb="DCS_OFL", className='CondAttrListCollection') )
     result.merge( addFolders(flags, ["/RPC/DQMF/ELEMENT_STATUS"], detDb="RPC_OFL", className='CondAttrListCollection') )
     result.addCondAlgo(alg)
@@ -126,7 +125,7 @@ def CscCondDbAlgCfg(flags, **kwargs):
         else:
             kwargs['isData'] = True
             kwargs['isRun1'] = flags.IOVDb.DatabaseInstance == 'COMP200'
-    alg = CscCondDbAlg(**kwargs)
+    alg = CompFactory.CscCondDbAlg(**kwargs)
     result.merge( addFolders(flags, folders , detDb=scheme, className='CondAttrListCollection') )
     result.addCondAlgo(alg)
     return result
@@ -149,5 +148,33 @@ def CscCondDbAlgCfg(flags, **kwargs):
 ###    result.addCondAlgo(alg)
 ###    return result
 
+
+def TgcDigitASDposCondAlgCfg(flags):
+    result  = ComponentAccumulator()
+    result.addCondAlgo(CompFactory.TgcDigitASDposCondAlg())
+    result.merge(addFolders(flags, ["/TGC/DIGIT/ASDPOS"] , detDb="TGC_OFL", className="CondAttrListCollection"))
+    return result
+
+def NswCalibDbAlgCfg(flags, **kwargs):
+    result = ComponentAccumulator()
+    if flags.Common.isOnline:
+        return result ## avoid adding algo to the component accumulator
+    if flags.Input.isMC:
+        kwargs['isData'  ] = False
+        kwargs['isOnline'] = False
+    else:
+        kwargs['isData'  ] = True
+        kwargs['isOnline'] = True if flags.Common.isOnline else False
+    folders = ["/MDT/MM/TIME/SIDEA" , "/MDT/MM/CHARGE/SIDEA" , "/MDT/MM/VMM/SIDEA" , \
+               "/MDT/MM/TIME/SIDEC" , "/MDT/MM/CHARGE/SIDEC" , "/MDT/MM/VMM/SIDEC" ]
+    scheme  = "MDT_OFL"
+    result.merge( addFolders(flags, folders , detDb=scheme, className='CondAttrListCollection') )
+    folders = ["/TGC/NSW/TIME/SIDEA", "/TGC/NSW/CHARGE/SIDEA", "/TGC/NSW/VMM/SIDEA", \
+               "/TGC/NSW/TIME/SIDEC", "/TGC/NSW/CHARGE/SIDEC", "/TGC/NSW/VMM/SIDEC"]
+    scheme  = "TGC_OFL"
+    result.merge( addFolders(flags, folders , detDb=scheme, className='CondAttrListCollection') )
+    alg     = CompFactory.NswCalibDbAlg(**kwargs)
+    result.addCondAlgo(alg)
+    return result
 
 

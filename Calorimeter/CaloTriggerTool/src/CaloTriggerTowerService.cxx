@@ -9,7 +9,6 @@
 #include <iostream>
 
 #include "Gaudi/Property.h"
-#include "LArIdentifier/LArIdManager.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArOnlID_Exception.h"
 #include "CaloIdentifier/CaloIdManager.h"
@@ -79,16 +78,8 @@ StatusCode CaloTriggerTowerService::initialize ()
     msg() << MSG::DEBUG << "Successfully accessed CaloLVL1_ID helper" << endmsg;
   }
 
-  const LArIdManager*	larMgr;
-  status = detStore()->retrieve(larMgr);
+  status = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
   if (status.isFailure()) {
-    msg() << MSG::ERROR << "Unable to retrieve LArIdManager from DetectorStore" << endmsg;
-    return StatusCode::FAILURE;
-  } else {
-    msg() << MSG::DEBUG << "Successfully retrieved LArIdManager from DetectorStore" << endmsg;
-  }
-  m_onlineHelper = larMgr->getOnlineID();
-  if (!m_onlineHelper) {
     msg() << MSG::ERROR << "Could not access LArOnlineID helper" << endmsg;
     return StatusCode::FAILURE;
   } else {

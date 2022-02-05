@@ -56,5 +56,10 @@ namespace AmbiguityProcessor{
     info.addPatternReco(newInfo); 
     return std::make_unique<Trk::Track>(info, std::move(vecTsos), fq);
   }
+  //
+  int getUid() {
+    static std::atomic<std::uint32_t> uid { 0 };
+    return ++uid;
+  }
 
 }

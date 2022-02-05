@@ -24,7 +24,7 @@ AbsLArCells::AbsLArCells():
 
 AbsLArCells::~AbsLArCells()
 {
-  resetCache();
+  AbsLArCells::resetCache();
   resetCellInfoCache();
 }
 
@@ -113,7 +113,7 @@ void AbsLArCells::resetCellInfoCache()
 {
   unsigned int i = 0;
   for (std::vector<CellInfo*>::iterator cellInfo = m_cellInfoCache.begin();
-       cellInfo != m_cellInfoCache.end(); cellInfo++, i++)
+       cellInfo != m_cellInfoCache.end(); ++cellInfo, i++)
     if (*cellInfo) {
       delete *cellInfo;
       *cellInfo = 0;

@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSimEvent/TgcHitIdHelper.h"
 
-#include <iomanip> // for std::array
+#include <iomanip>
+#include <array>
 
 TgcHitIdHelper* TgcHitIdHelper::m_help = nullptr;
 
@@ -52,12 +53,10 @@ void TgcHitIdHelper::SetStationName(std::string name, int& hid) const
 }
 std::string TgcHitIdHelper::GetStationName(const int& hid) const
 {
-  char v[4];
-  v[0]=v1[this->GetFieldValue("Station[1]",hid)];
-  v[1]=v2[this->GetFieldValue("Station[2]",hid)];
-  v[2]=v3[this->GetFieldValue("Station[3]",hid)];
-  v[3]='\0';
-  std::string temp=v;
+  std::string temp;
+  temp+=v1[this->GetFieldValue("Station[1]",hid)];
+  temp+=v2[this->GetFieldValue("Station[2]",hid)];
+  temp+=v3[this->GetFieldValue("Station[3]",hid)];
   return temp;
 }
 
@@ -77,7 +76,7 @@ int TgcHitIdHelper::GetGasGap(const int& hid) const
 }
 
 //packing method
-int TgcHitIdHelper::BuildTgcHitId(const std::string statName, const int statPhi,
+int TgcHitIdHelper::BuildTgcHitId(const std::string& statName, const int statPhi,
                                   const int statEta, const int gasG) const
 {
   int theID(0);

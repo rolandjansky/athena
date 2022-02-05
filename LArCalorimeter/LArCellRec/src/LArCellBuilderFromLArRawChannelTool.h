@@ -28,15 +28,13 @@
 #include "CaloInterface/ICaloCellMakerTool.h"
 #include "Identifier/HWIdentifier.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "CaloDetDescr/CaloDetDescrElement.h"
-//#include "LArRawEvent/LArRawChannelContainer.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "LArRecConditions/LArBadChannelCont.h"
 #include "AthAllocators/DataPool.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 
 
 class CaloCellContainer ;
-class CaloDetDescrManager ;
 class CaloCell_ID;
 class CaloCellContainer ;
 class LArRawChannelContainer;
@@ -44,7 +42,7 @@ class LArCell;
 
 /**
  * @class LArCellBuilderFromLArRawChannelTool
- * @brief An AlgTool class to create a LArCellContainer out of a LArRawChannel container.
+ * @brief An AlgTool class to create a CaloCellContainer out of a LArRawChannel container.
  *
  * Inherits from ICaloCellMakerTool and should be called by an instance of the 
  * CaloCellMaker algorithm. 
@@ -103,6 +101,9 @@ private:
   const LArOnlineID* m_onlineID;
   const CaloCell_ID*  m_caloCID;
   SG::ReadCondHandleKey<LArBadFebCont> m_missingFebKey;
+
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager", "CaloDetDescrManager"};      
+
 
 };
 

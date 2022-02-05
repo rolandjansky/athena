@@ -55,7 +55,6 @@ class MsgStreamMember;
 namespace LVL1 {
 class IL1TriggerTowerTool;
 class IL1CaloOfflineTriggerTowerTools;
-class IL1CaloxAODOfflineTriggerTowerTools;
 class TriggerTower;
 }
 
@@ -166,7 +165,6 @@ protected:
 
     ToolHandle<LVL1::TrigT1CaloLWHistogramTool> m_histTool;
     ToolHandle<LVL1::IL1CaloOfflineTriggerTowerTools> m_ttToolOffline;
-    ToolHandle<LVL1::IL1CaloxAODOfflineTriggerTowerTools> m_xAODttToolOffline;
     ToolHandle<LVL1::IL1TriggerTowerTool> m_ttToolOnline;
 
     const EventInfo* m_eventInfo;

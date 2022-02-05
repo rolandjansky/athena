@@ -86,7 +86,7 @@ const int HanOutput::Result::s_charArrSize = 10;
 // *********************************************************************
 
 HanOutput::
-HanOutput( std::string rootFileName, DQOutputMap_t *outMap, TSeqCollection *outList )
+HanOutput( const std::string& rootFileName, DQOutputMap_t *outMap, TSeqCollection *outList )
   : m_fileName(rootFileName)
   , m_file( TFile::Open(rootFileName.c_str(),"RECREATE") )
   , m_retainUnpubData(false)

@@ -17,7 +17,7 @@ class MMRDOVariables : public ValAlgVariables
 		const MuonGM::MuonDetectorManager* detManager,
 		const MuonIdHelper* idhelper,
 		TTree* tree,
-	 	std::string containername,
+	 	const std::string & containername,
 	 	MSG::Level msglvl) :
     ValAlgVariables(evtStore, detManager, tree, containername, msglvl),
     m_MmIdHelper(0),
@@ -29,6 +29,7 @@ class MMRDOVariables : public ValAlgVariables
     m_NSWMM_rdo_gas_gap(0),
     m_NSWMM_rdo_channel(0),
     m_NSWMM_rdo_time(0),
+    m_NSWMM_rdo_relBcid(0),
     m_NSWMM_rdo_charge(0),
     m_NSWMM_rdo_localPosX(0),
     m_NSWMM_rdo_localPosY(0),
@@ -53,7 +54,7 @@ class MMRDOVariables : public ValAlgVariables
     m_MmIdHelper = dynamic_cast<const MmIdHelper*>(idhelper);
     if(m_MmIdHelper == 0) {
        ATH_MSG_ERROR("casting IdHelper to MmIdhelper failed");
-       throw;
+       throw std::runtime_error("Casting error in MMRDOVariables::setHelper");
     }
   }
 
@@ -70,6 +71,7 @@ class MMRDOVariables : public ValAlgVariables
   std::vector<int> *m_NSWMM_rdo_gas_gap;
   std::vector<int> *m_NSWMM_rdo_channel;
   std::vector<int> *m_NSWMM_rdo_time;
+  std::vector<uint16_t> *m_NSWMM_rdo_relBcid;
   std::vector<int> *m_NSWMM_rdo_charge;
 
   std::vector<double> *m_NSWMM_rdo_localPosX;

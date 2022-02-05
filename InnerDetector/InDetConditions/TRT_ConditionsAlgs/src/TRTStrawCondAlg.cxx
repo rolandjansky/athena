@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRTStrawCondAlg.h"
@@ -9,11 +9,8 @@ TRTStrawCondAlg::TRTStrawCondAlg(const std::string& name
 				 , ISvcLocator* pSvcLocator )
   : ::AthAlgorithm(name,pSvcLocator),
     m_condSvc("CondSvc",name),
-    m_strawStatus("TRT_StrawStatusSummaryTool",this),
-    m_trtId(nullptr),
-    m_isGEANT4(true)
+    m_strawStatus("TRT_StrawStatusSummaryTool",this)
 { declareProperty("TRTStrawStatusSummaryTool",m_strawStatus);
-  declareProperty("isGEANT4",m_isGEANT4);
 }
 TRTStrawCondAlg::~TRTStrawCondAlg(){}
 

@@ -11,7 +11,7 @@ from MuonConfig.MuonByteStreamCnvTestConfig import MM_DigitToRDOCfg
 from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
 from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg, PileUpXingFolderCfg
-
+from MuonConfig.MuonGeometryConfig import MuonDetectorCondAlgCfg
 
 # The earliest and last bunch crossing times for which interactions will be sent
 # to the MMDigitizationTool.
@@ -35,6 +35,7 @@ def MM_RangeCfg(flags, name="MMRange", **kwargs):
 def MM_DigitizationToolCfg(flags, name="MM_DigitizationTool", **kwargs):
     """Return ComponentAccumulator with configured MM_DigitizationTool"""
     acc = ComponentAccumulator()
+    acc.merge(MuonDetectorCondAlgCfg(flags))
     rangetool = acc.popToolsAndMerge(MM_RangeCfg(flags))
     acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     if flags.Digitization.DoXingByXingPileUp:
@@ -47,6 +48,8 @@ def MM_DigitizationToolCfg(flags, name="MM_DigitizationTool", **kwargs):
         kwargs.setdefault("OutputSDOName", flags.Overlay.BkgPrefix + "MM_SDO")
     else:
         kwargs.setdefault("OutputSDOName", "MM_SDO")
+    from RngComps.RandomServices import AthRNGSvcCfg
+    kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
     MM_DigitizationTool = CompFactory.MM_DigitizationTool
     acc.setPrivateTools(MM_DigitizationTool(name, **kwargs))
     return acc
@@ -59,6 +62,8 @@ def MM_OverlayDigitizationToolCfg(flags, name="MM_OverlayDigitizationTool", **kw
     kwargs.setdefault("OnlyUseContainerName", False)
     kwargs.setdefault("OutputObjectName", flags.Overlay.SigPrefix + "MM_DIGITS")
     kwargs.setdefault("OutputSDOName", flags.Overlay.SigPrefix + "MM_SDO")
+    from RngComps.RandomServices import AthRNGSvcCfg
+    kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
     MM_DigitizationTool = CompFactory.MM_DigitizationTool
     acc.setPrivateTools(MM_DigitizationTool(name, **kwargs))
     return acc

@@ -1,23 +1,18 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #include "AGDDModel/AGDDTrd.h"
 #include "AGDDKernel/AGDDBuilder.h"
 
-void AGDDTrd::CreateSolid() 
+void AGDDTrd::CreateSolid (const AGDDBuilder& builder)
 {
-	AGDDBuilder* builder=AGDDBuilder::CurrentBuilder();
-
-	builder->CreateTrd(this);
+	builder.CreateTrd(this);
 }
 
-void AGDDTrd::CreateVolume() 
+void AGDDTrd::CreateVolume (AGDDBuilder& builder)
 {
-	AGDDBuilder* builder=AGDDBuilder::CurrentBuilder();
-
-	CreateSolid();
-
- 	builder->CreateVolume(this);
+	CreateSolid (builder);
+ 	builder.CreateVolume(this);
 }

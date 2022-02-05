@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibEventBase/MuonCalibRawTgcHit.h"
@@ -8,42 +8,37 @@
 
 namespace MuonCalib {
 
-    MuonCalibRawTgcHit::MuonCalibRawTgcHit(const MuonCalibRawTgcHit& hit) {
-        m_id = hit.identify();
-        m_Gpos = hit.globalPosition();
-        m_occupancy = hit.occupancy();
-        m_station = hit.station();
-        m_eta = hit.eta();
-        m_phi = hit.phi();
-        m_gasGap = hit.gasGap();
-        m_isStrip = hit.isStrip();
-        m_channel = hit.channel();
-        m_bcTag = hit.bcTag();
-        m_width = hit.width();
-        m_shortWidth = hit.shortWidth();
-        m_longWidth = hit.longWidth();
-        m_length = hit.length();
-    }
+    const MuonFixedId& MuonCalibRawTgcHit::identify() const { return m_pars.id; }
+    const Amg::Vector3D& MuonCalibRawTgcHit::globalPosition() const { return m_pars.global_pos; }
+    int MuonCalibRawTgcHit::occupancy() const { return m_pars.occupancy; }
+    int MuonCalibRawTgcHit::station() const { return m_pars.station; }
+    int MuonCalibRawTgcHit::eta() const { return m_pars.eta; }
+    int MuonCalibRawTgcHit::phi() const { return m_pars.phi; }
+    int MuonCalibRawTgcHit::gasGap() const { return m_pars.gasGap; }
+    int MuonCalibRawTgcHit::isStrip() const { return m_pars.isStrip; }
+    int MuonCalibRawTgcHit::channel() const { return m_pars.channel; }
+    int MuonCalibRawTgcHit::bcTag() const { return m_pars.bcTag; }
 
-    MuonCalibRawTgcHit& MuonCalibRawTgcHit::operator=(const MuonCalibRawTgcHit& rhs) {
-        if (this != &rhs) {
-            m_id = rhs.identify();
-            m_Gpos = rhs.globalPosition();
-            m_occupancy = rhs.occupancy();
-            m_station = rhs.station();
-            m_eta = rhs.eta();
-            m_phi = rhs.phi();
-            m_gasGap = rhs.gasGap();
-            m_isStrip = rhs.isStrip();
-            m_channel = rhs.channel();
-            m_bcTag = rhs.bcTag();
-            m_width = rhs.width();
-            m_shortWidth = rhs.shortWidth();
-            m_longWidth = rhs.longWidth();
-            m_length = rhs.length();
-        }
-        return (*this);
-    }
+    float MuonCalibRawTgcHit::width() const { return m_pars.width; }
+    float MuonCalibRawTgcHit::shortWidth() const { return m_pars.shortWidth; }
+    float MuonCalibRawTgcHit::longWidth() const { return m_pars.longWidth; }
+    float MuonCalibRawTgcHit::length() const { return m_pars.length; }
+
+    void MuonCalibRawTgcHit::setId(MuonFixedId Id) { m_pars.id = Id; }
+    void MuonCalibRawTgcHit::setGlobalPosition(const Amg::Vector3D& glob) { m_pars.global_pos = glob; }
+    void MuonCalibRawTgcHit::setOccupancy(int occ) { m_pars.occupancy = occ; }
+    void MuonCalibRawTgcHit::setStation(int station) { m_pars.station = station; }
+    void MuonCalibRawTgcHit::setEta(int eta) { m_pars.eta = eta; }
+    void MuonCalibRawTgcHit::setPhi(int phi) { m_pars.phi = phi; }
+    void MuonCalibRawTgcHit::setGasGap(int gasGap) { m_pars.gasGap = gasGap; }
+    void MuonCalibRawTgcHit::setIsStrip(int isStrip) { m_pars.isStrip = isStrip; }
+    void MuonCalibRawTgcHit::setChannel(int channel) { m_pars.channel = channel; }
+    void MuonCalibRawTgcHit::setBcTag(int bcTag) { m_pars.bcTag = bcTag; }
+
+    void MuonCalibRawTgcHit::setWidth(float width) { m_pars.width = width; }
+    void MuonCalibRawTgcHit::setShortWidth(float shortWidth) { m_pars.shortWidth = shortWidth; }
+    void MuonCalibRawTgcHit::setLongWidth(float longWidth) { m_pars.longWidth = longWidth; }
+    void MuonCalibRawTgcHit::setLength(float length) { m_pars.length = length; }
 
     std::ostream& MuonCalibRawTgcHit::dump(std::ostream& stream) const {
         stream << "MuonCalibRawTgcHit with" << std::endl;
@@ -64,6 +59,7 @@ namespace MuonCalib {
         return stream;
     }
 
+    MuonCalibRawTgcHit::MuonCalibRawTgcHit(const MuonCalibRawTgcHit::defineParams& pars) : m_pars{pars} {}
 }  // namespace MuonCalib
 
 std::ostream& operator<<(std::ostream& stream, const MuonCalib::MuonCalibRawTgcHit& hit) { return hit.dump(stream); }

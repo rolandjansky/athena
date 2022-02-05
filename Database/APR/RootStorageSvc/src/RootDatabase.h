@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -13,6 +13,7 @@
 
 // Framework include files
 #include "StorageSvc/IDbDatabase.h"
+#include "StorageSvc/DbDatabase.h"
 
 #include <set>
 #include <map>
@@ -44,6 +45,8 @@ namespace pool  {
   public:
     enum { READ_COUNTER = 0, WRITE_COUNTER = 1, OTHER_COUNTER = 2 };
   private:
+    /// Parent Database handle
+    DbDatabase    m_dbH;
     /// Reference to the actual implemented file 
     TFile*        m_file;
     /// Persistency format version
@@ -60,6 +63,10 @@ namespace pool  {
     int           m_defAutoSave;
     /// Default buffer size parameter for Branches
     int           m_defBufferSize;
+    /// Maximum buffer size parameter for Branches
+    int           m_maxBufferSize;
+    /// Minimum buffer entries parameter for Branches
+    int           m_minBufferEntries;
     /// Default policy mode for keyed objects
     int           m_defWritePolicy;
     /// Offset table length for branches
@@ -68,6 +75,11 @@ namespace pool  {
     std::string   m_treeNameWithCache;
     /// Default tree cache learn events
     int           m_defTreeCacheLearnEvents;
+
+    /// name of the container with master index ('*' means use the biggest)
+    std::string   m_indexMaster;
+    /// nextID of the master index
+    long long     m_indexMasterID;
 
     /* ---  variables used with TREE_AUTO_FLUSH option for
             managing combined TTree::Fill for branch containers
@@ -80,12 +92,12 @@ namespace pool  {
     std::map< TTree*, ContainerSet_t >  m_containersInTree;
     
     std::map< std::string, int >        m_customSplitLevel;
-    
-    IFileMgr*   m_fileMgr;
+
+    IFileMgr*     m_fileMgr;
 
     // mutex to prevent concurrent read I/O from AuxDynReader
     std::recursive_mutex  m_iomutex;
-    
+
   public:
     /// Standard Constuctor
     RootDatabase();
@@ -119,6 +131,8 @@ namespace pool  {
     DbStatus    markBranchContainerForFill(RootTreeContainer*);
     
     void        registerBranchContainer(RootTreeContainer*);
+
+    long long   currentIndexMasterID() const   { return m_indexMasterID; }
 
     /// provide access to the I/O mutex for AuxDynReader and Containers
     std::recursive_mutex& ioMutex()         { return m_iomutex; }

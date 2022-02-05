@@ -1,13 +1,16 @@
 #!/usr/bin/env python
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 '''@file RunTileMonitoring.py
 @brief Script to run Tile Reconstrcution/Monitoring with new-style configuration
 '''
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-def ByteStreamEmonReadCfg( inputFlags, typeNames=[]):
+from AthenaConfiguration.Enums import Format
+
+
+def ByteStreamEmonReadCfg( inputFlags, type_names=[]):
     """
     Creates accumulator for BS Emon reading
     """
@@ -39,7 +42,7 @@ def ByteStreamEmonReadCfg( inputFlags, typeNames=[]):
     acc.addService( robDPSvc )
 
     ByteStreamAddressProviderSvc = CompFactory.ByteStreamAddressProviderSvc
-    bsAddressProviderSvc = ByteStreamAddressProviderSvc(TypeNames=typeNames)
+    bsAddressProviderSvc = ByteStreamAddressProviderSvc(TypeNames=type_names)
     acc.addService( bsAddressProviderSvc )
 
     ProxyProviderSvc = CompFactory.ProxyProviderSvc
@@ -134,6 +137,7 @@ if __name__=='__main__':
     _addBoolArgument(parser, 'online', help='Online environment running')
 
     parser.add_argument('--stateless', action="store_true", help='Run Online Tile monitoring in partition')
+    parser.add_argument('--use-mbts-trigger', action="store_true", dest='useMbtsTrigger', help='Use L1 MBTS triggers')
     parser.add_argument('--partition', default="", help='EMON, Partition name, default taken from $TDAQ_PARTITION if not set')
     parser.add_argument('--key', type=str, default="",
                         help='EMON, Selection key, e.g.: SFI, default: dcm (ATLAS), CompleteEvent (TileMon), ReadoutApplication (Tile)')
@@ -187,7 +191,8 @@ if __name__=='__main__':
             parser.set_defaults(streamType='physics', streamNames=['CosmicCalo'], streamLogic='And', include=publishInclude,
                                 triggerType=0x82, frequency=300, updatePeriod=0, keyCount=1000, groupName='TileNoiseMon')
         elif args.mbts:
-            parser.set_defaults(lvl1Logic='Or', lvl1Origin='TAV', lvl1Items=[164], streamNames=[], streamLogic='Ignore', groupName='TileMBTSMon')
+            parser.set_defaults(lvl1Logic='Or', lvl1Origin='TAV', lvl1Items=[164], streamNames=[], streamLogic='Ignore',
+                                groupName='TileMBTSMon', useMbtsTrigger = True)
 
     args, _ = parser.parse_known_args()
 
@@ -214,7 +219,10 @@ if __name__=='__main__':
     if args.stateless:
         _configFlagsFromPartition(ConfigFlags, args.partition, log)
         ConfigFlags.Input.isMC = False
-        ConfigFlags.Input.Format = 'BS'
+        ConfigFlags.Input.Format = Format.BS
+        if args.mbts and args.useMbtsTrigger:
+            from AthenaConfiguration.AutoConfigOnlineRecoFlags import autoConfigOnlineRecoFlags
+            autoConfigOnlineRecoFlags(ConfigFlags, args.partition)
     else:
         if args.filesInput:
             ConfigFlags.Input.Files = args.filesInput.split(",")
@@ -269,14 +277,16 @@ if __name__=='__main__':
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     cfg = MainServicesCfg(ConfigFlags)
 
-    tileTypeNames = ['TileRawChannelContainer/TileRawChannelCnt', 'TileDigitsContainer/TileDigitsCnt']
+    typeNames = ['TileRawChannelContainer/TileRawChannelCnt', 'TileDigitsContainer/TileDigitsCnt']
     if any([args.tmdbDigits, args.tmdb]):
-        tileTypeNames += ['TileDigitsContainer/MuRcvDigitsCnt']
+        typeNames += ['TileDigitsContainer/MuRcvDigitsCnt']
     if any([args.tmdbRawChannels, args.tmdb]):
-        tileTypeNames += ['TileRawChannelContainer/MuRcvRawChCnt']
+        typeNames += ['TileRawChannelContainer/MuRcvRawChCnt']
+    if args.mbts:
+        typeNames += ['CTP_RDO/CTP_RDO']
 
     if args.stateless:
-        cfg.merge( ByteStreamEmonReadCfg(ConfigFlags, typeNames=tileTypeNames) )
+        cfg.merge( ByteStreamEmonReadCfg(ConfigFlags, type_names=typeNames) )
         bsEmonInputSvc = cfg.getService( "ByteStreamInputSvc" )
         bsEmonInputSvc.Partition = args.partition
         bsEmonInputSvc.Key = args.key
@@ -296,7 +306,7 @@ if __name__=='__main__':
         bsEmonInputSvc.GroupName = args.groupName
     else:
         from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
-        cfg.merge( ByteStreamReadCfg(ConfigFlags, type_names = tileTypeNames) )
+        cfg.merge( ByteStreamReadCfg(ConfigFlags, type_names = typeNames) )
 
     cfg.addPublicTool( CompFactory.TileROD_Decoder(fullTileMode = runNumber) )
 
@@ -347,7 +357,7 @@ if __name__=='__main__':
 
     if args.mbts:
         from TileMonitoring.TileMBTSMonitorAlgorithm import TileMBTSMonitoringConfig
-        cfg.merge(TileMBTSMonitoringConfig(ConfigFlags, FillHistogramsPerMBTS = True))
+        cfg.merge(TileMBTSMonitoringConfig(ConfigFlags, FillHistogramsPerMBTS = True, useTrigger = args.useMbtsTrigger))
 
     if args.muid:
         from TileMuId.TileMuIdConfig import TileLookForMuAlgCfg

@@ -134,21 +134,21 @@ class MdtRawDataMonAlg: public AthMonitorAlgorithm {
   //MDTRawDataUtils_cxx
   bool AinB( int A, std::vector<int> & B ) const;
   virtual StatusCode  binMdtGlobal( TH2*, char ecap );
-  virtual StatusCode  binMdtRegional( TH2*, std::string &xAxis );
+  virtual StatusCode  binMdtRegional( TH2*, std::string_view xAxis );
   virtual StatusCode  binMdtGlobal_byLayer( TH2*, TH2*, TH2*);
   virtual StatusCode binMdtOccVsLB(TH2* &h, int region, int layer);
   virtual StatusCode binMdtOccVsLB_Crate(TH2* &h, int region, int crate);
-  void ChamberTubeNumberCorrection(int & tubeNum, const std::string & hardware_name, int tubePos, int numLayers) const;
+  void ChamberTubeNumberCorrection(int & tubeNum, std::string_view hardware_name, int tubePos, int numLayers) const;
   void CorrectTubeMax(const std::string & hardware_name, int & numTubes) const;
   void CorrectLayerMax(const std::string & hardware_name, int & numLayers) const;
   virtual StatusCode  fillMDTMaskedTubes(IdentifierHash, const std::string &, TH1F_LW*& h);//DEV not used at moment, should be revised
   int get_bin_for_LB_hist(int region, int layer, int phi, int eta, bool isBIM) const;
-  int get_bin_for_LB_crate_hist(int region, int layer, int phi, int eta, std::string chamber) const;
+  int get_bin_for_LB_crate_hist(int region, int layer, int phi, int eta, std::string_view chamber) const;
   // private function to initialize the selection of a certain region
   void mdtchamberId();    
   //private function to find mdt mezz cards
   int mezzmdt(Identifier) const;
-  int GetTubeMax(const Identifier & digcoll_id, const std::string & hardware_name);
+  int GetTubeMax(const Identifier & digcoll_id, std::string_view hardware_name);
 
   inline int cachedTubeMax(const Identifier& digcoll_id) const { return m_tubemax_map.at(digcoll_id.get_compact() & s_detectorElementMask); };
   inline int cachedTubeLayerMax(const Identifier& digcoll_id) const { return m_tubelayermax_map.at(digcoll_id.get_compact() & s_detectorElementMask); };
@@ -161,6 +161,7 @@ class MdtRawDataMonAlg: public AthMonitorAlgorithm {
   bool m_atlas_ready;
 
   SG::ReadHandleKey<Trk::SegmentCollection> m_segm_type{this,"Eff_segm_type","TrackMuonSegments","muon segments"};
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_muon_type{this,"Muon_type","ExtrapolatedMuonTrackParticles","extrapolated muons"};
 
   std::string returnString(int i) const{
     std::stringstream ss;

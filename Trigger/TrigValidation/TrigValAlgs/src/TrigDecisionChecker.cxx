@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** R.Goncalo - 21/10/2007 - add tests for TrigDecisionTool:
@@ -250,7 +250,7 @@ StatusCode TrigDecisionChecker::execute()
     m_eventNumber++;
     
     // check mu value
-    const xAOD::EventInfo* eventInfo;
+    const xAOD::EventInfo* eventInfo = nullptr;
     //#sc = evtStore()->retrieve(eventInfo, m_eventInfoName);
     StatusCode sc;
     if (m_eventInfoName == "") {

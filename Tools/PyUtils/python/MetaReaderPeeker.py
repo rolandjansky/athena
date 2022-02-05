@@ -1,26 +1,41 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-__all__ = ['metadata', 'metadata_all_files', 'convert_itemList', 'convert_metadata_items']
+__all__ = ['metadata', 'convert_itemList', 'convert_metadata_items']
 
 metadata = {}
-metadata_all_files = {}
 
 
 def _setup():
     from PyUtils.MetaReader import read_metadata
 
     from AthenaCommon.Logging import logging
-    msg = logging.getLogger('MetaReader')
+    msg = logging.getLogger('MetaReaderPeeker')
 
     global metadata
-    global metadata_all_files
 
     # get input file name
-    from RecExConfig.RecoFunctions import InputFileNames
-        
+    # Start by checking ConfigFlags
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    inFiles = ConfigFlags.Input.Files
+    if inFiles == ['_ATHENA_GENERIC_INPUTFILE_NAME_']:
+        # Input files have not been set in ConfigFlags
+        # Fall back to the legacy configuration mechanisms
+        try:
+            msg.warning("Input files not set ConfigFlags.Input.Files. Falling back to the legacy way of obtaining input file names")
+            from RecExConfig.RecoFunctions import InputFileNames
+            inFiles = InputFileNames()
+        except ModuleNotFoundError:
+            try:
+                msg.warning("In a release without RecExConfig, trying AthenaCommonFlags")
+                from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+                inFiles = athenaCommonFlags.FilesInput()
+            except ModuleNotFoundError:
+                msg.warning("Failed to load any module containing list of input files")
+                pass
+
     from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-    if athenaCommonFlags.isOnline() and (not InputFileNames() or all([f.strip() == '' for f in InputFileNames()])):
+    if athenaCommonFlags.isOnline() and (not inFiles or all([f.strip() == '' for f in inFiles])):
         # set minimal items of inputFileSummary
         metadata = {
           'file_type':'BS',
@@ -28,28 +43,26 @@ def _setup():
           'TagStreamsRef':''
         }
     else:
-        inFiles = InputFileNames()
         if len(inFiles) < 1:
             msg.warning("No input files specified yet! Cannot do anything.")
             return
+            
+            
+        for inFile in inFiles:
 
-        metadata_all_files = read_metadata(inFiles, mode='peeker', promote=True, ignoreNonExistingLocalFiles=True)
-
-        # use first non-empty file
-        first_filename = None
-        for file_name, file_info in metadata_all_files.items():
-            try:
-                if file_info["nentries"]:
-                    first_filename = file_name
+            metadatas = read_metadata(inFile, mode='peeker', promote=True, ignoreNonExistingLocalFiles=True)
+            
+            for foundFile, metadata in metadatas.items():
+                
+                metadata['file_name'] = inFile
+                if metadata.get("nentries"):
                     break
-            except KeyError:
-                continue
-        # default to first file name if all input files are empty
-        if not first_filename:
-            first_filename = inFiles[0]
-
-        metadata = metadata_all_files[first_filename]
-        metadata['file_name'] = first_filename
+            else:
+                continue # This make the previous break to exit from both for loops
+            break
+            
+            # if no nentries > 0 metadata is found, it will keep the last
+            
 
 
 # convert_itemList and convert_metadata_items have the same implementation as the one in MetaReaderPeekerFull.

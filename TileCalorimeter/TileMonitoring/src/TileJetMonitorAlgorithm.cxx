@@ -74,6 +74,7 @@ StatusCode TileJetMonitorAlgorithm::initialize() {
   }
 
   ATH_CHECK( m_jetContainerKey.initialize() );
+  ATH_CHECK( m_caloCellContainerKey.initialize() );
 
   return StatusCode::SUCCESS;
 }

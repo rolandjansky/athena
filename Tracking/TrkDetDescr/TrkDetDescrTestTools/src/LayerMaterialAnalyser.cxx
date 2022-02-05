@@ -37,15 +37,25 @@ Trk::LayerMaterialAnalyser::LayerMaterialAnalyser(const std::string& t, const st
   m_validationTreeName("LayerMaterialAnalyser"),
   m_validationTreeDescription("LayerMaterialAnalyser information"),
   m_validationTreeFolder("/val/LayerMaterialAnalyser"),
-  m_layerIndex{},        
-  m_layerType{},
-  m_layerDimension0{},   
-  m_layerDimension1{},   
-  m_layerBins{},         
-  m_layerBins0{},         
-  m_layerBins1{}      
-
-  
+  m_layerIndex(0),        
+  m_layerType(0),
+  m_layerTranslation(nullptr),
+  m_layerRotation(nullptr),
+  m_layerDimension0(0.),   
+  m_layerDimension1(0.),   
+  m_layerBins(0),         
+  m_layerBins0(0),         
+  m_layerBins1(0),
+  m_bin0(nullptr),
+  m_bin1(nullptr),
+  m_thickness(nullptr),
+  m_X0(nullptr),
+  m_L0(nullptr),
+  m_A(nullptr),
+  m_Z(nullptr),
+  m_Rho(nullptr),
+  m_elements(nullptr),
+  m_binCounter(nullptr)
 {
     declareInterface<Trk::ILayerMaterialAnalyser>(this);
     // give the map a name
@@ -63,7 +73,20 @@ Trk::LayerMaterialAnalyser::~LayerMaterialAnalyser()
 // initialize
 StatusCode Trk::LayerMaterialAnalyser::initialize() 
 {
-
+  
+    m_layerTranslation = new std::vector<float>(3, 0.);
+    m_layerRotation    = new std::vector<float>(9, 0.);
+    m_bin0             = new std::vector<int>(LAYERMAXBINS, 0);
+    m_bin1             = new std::vector<int>(LAYERMAXBINS, 0);
+    m_thickness        = new std::vector<float>(LAYERMAXBINS, 0.);
+    m_X0               = new std::vector<float>(LAYERMAXBINS, 0.);
+    m_L0               = new std::vector<float>(LAYERMAXBINS, 0.);
+    m_A                = new std::vector<float>(LAYERMAXBINS, 0.);
+    m_Z                = new std::vector<float>(LAYERMAXBINS, 0.);
+    m_Rho              = new std::vector<float>(LAYERMAXBINS, 0.);
+    m_elements         = new std::vector<int>(LAYERMAXBINS, 0);
+    m_binCounter       = new std::vector<int>(LAYERMAXBINS, 0);
+    
     // now register the Tree
     ITHistSvc* tHistSvc = nullptr;
     
@@ -71,25 +94,25 @@ StatusCode Trk::LayerMaterialAnalyser::initialize()
     m_validationTree = new TTree(m_validationTreeName.c_str(), m_validationTreeDescription.c_str());
 
     // position coordinates of the update
-    m_validationTree->Branch("LayerIndex",            &m_layerIndex,           "lIndex/I");
-    m_validationTree->Branch("LayerType",             &m_layerType,            "lType/I");
-    m_validationTree->Branch("LayerTranslation",      m_layerTranslation,      "lTranslation[3]/F");
-    m_validationTree->Branch("LayerRotation",         m_layerRotation,         "lRotation[9]/F");
-    m_validationTree->Branch("LayerDimension0",       &m_layerDimension0,      "lDimension0/F");    
-    m_validationTree->Branch("LayerDimension1",       &m_layerDimension1,      "lDimension1/F");
-    m_validationTree->Branch("LayerBins",             &m_layerBins,            "lBins/I");
-    m_validationTree->Branch("LayerBins0",            &m_layerBins0,           "lBins0/I");
-    m_validationTree->Branch("LayerBins1",            &m_layerBins1,           "lBins1/I");
-    m_validationTree->Branch("LayerBin0",             m_bin0.data(),           "lBin0[lBins]/I");
-    m_validationTree->Branch("LayerBin1",             m_bin1.data(),           "lBin1[lBins]/I");
-    m_validationTree->Branch("LayerBinCounter",       m_binCounter.data(),     "lBinC[lBins]/I");
-    m_validationTree->Branch("LayerThickness",        m_thickness.data(),      "lt[lBins]/F");
-    m_validationTree->Branch("LayerX0",               m_X0.data(),             "lX0[lBins]/F");
-    m_validationTree->Branch("LayerL0",               m_L0.data(),             "lL0[lBins]/F");
-    m_validationTree->Branch("LayerA",                m_A.data(),              "lA[lBins]/F");
-    m_validationTree->Branch("LayerZ",                m_Z.data(),              "lZ[lBins]/F");
-    m_validationTree->Branch("LayerRo",               m_Rho.data(),            "lRho[lBins]/F");
-    m_validationTree->Branch("LayerElements",         m_elements.data(),       "lElements[lBins]/I");
+    m_validationTree->Branch("LayerIndex",            &m_layerIndex         );
+    m_validationTree->Branch("LayerType",             &m_layerType          );
+    m_validationTree->Branch("LayerTranslation",      &m_layerTranslation   );
+    m_validationTree->Branch("LayerRotation",         &m_layerRotation      );
+    m_validationTree->Branch("LayerDimension0",       &m_layerDimension0    );
+    m_validationTree->Branch("LayerDimension1",       &m_layerDimension1    );
+    m_validationTree->Branch("LayerBins",             &m_layerBins          );
+    m_validationTree->Branch("LayerBins0",            &m_layerBins0         );
+    m_validationTree->Branch("LayerBins1",            &m_layerBins1         );
+    m_validationTree->Branch("LayerBin0",             &m_bin0               );
+    m_validationTree->Branch("LayerBin1",             &m_bin1               );
+    m_validationTree->Branch("LayerBinCounter",       &m_binCounter         );
+    m_validationTree->Branch("LayerThickness",        &m_thickness          );
+    m_validationTree->Branch("LayerX0",               &m_X0                 );
+    m_validationTree->Branch("LayerL0",               &m_L0                 );
+    m_validationTree->Branch("LayerA",                &m_A                  );
+    m_validationTree->Branch("LayerZ",                &m_Z                  );
+    m_validationTree->Branch("LayerRo",               &m_Rho                );
+    m_validationTree->Branch("LayerElements",         &m_elements           );
     
     // now register the Tree
     if (service("THistSvc",tHistSvc).isFailure()) {
@@ -109,6 +132,18 @@ StatusCode Trk::LayerMaterialAnalyser::initialize()
 // finalize
 StatusCode Trk::LayerMaterialAnalyser::finalize() 
 {
+    delete m_layerTranslation ;
+    delete m_layerRotation    ;
+    delete m_bin0             ;
+    delete m_bin1             ;
+    delete m_thickness        ;
+    delete m_X0               ;
+    delete m_L0               ;
+    delete m_A                ;
+    delete m_Z                ;
+    delete m_Rho              ;
+    delete m_elements         ;
+    delete m_binCounter       ;
     return StatusCode::SUCCESS;
 }
 
@@ -167,24 +202,24 @@ StatusCode Trk::LayerMaterialAnalyser::analyse(const Trk::Layer& layer,
                                                const Trk::MaterialPropertiesMatrix& mpMatrix,
                                                const std::vector< std::vector< unsigned int > >* bCounter ) const
 {
-
+  
     // general layer information
     m_layerIndex = layer.layerIndex().value();
     const Trk::Surface& lSurface = layer.surfaceRepresentation();
-    m_layerTranslation[0] = lSurface.center().x();
-    m_layerTranslation[1] = lSurface.center().y();
-    m_layerTranslation[2] = lSurface.center().z();
+    m_layerTranslation->at(0) = lSurface.center().x();
+    m_layerTranslation->at(1) = lSurface.center().y();
+    m_layerTranslation->at(2) = lSurface.center().z();
     
     AmgMatrix(3,3) rMatrix = lSurface.transform().rotation();
-    m_layerRotation[0] = rMatrix(0,0);
-    m_layerRotation[1] = rMatrix(1,0);
-    m_layerRotation[2] = rMatrix(2,0);
-    m_layerRotation[3] = rMatrix(0,1);
-    m_layerRotation[4] = rMatrix(1,1);
-    m_layerRotation[5] = rMatrix(2,1);
-    m_layerRotation[6] = rMatrix(0,2);
-    m_layerRotation[7] = rMatrix(1,2);
-    m_layerRotation[8] = rMatrix(2,2);
+    m_layerRotation->at(0) = rMatrix(0,0);
+    m_layerRotation->at(1) = rMatrix(1,0);
+    m_layerRotation->at(2) = rMatrix(2,0);
+    m_layerRotation->at(3) = rMatrix(0,1);
+    m_layerRotation->at(4) = rMatrix(1,1);
+    m_layerRotation->at(5) = rMatrix(2,1);
+    m_layerRotation->at(6) = rMatrix(0,2);
+    m_layerRotation->at(7) = rMatrix(1,2);
+    m_layerRotation->at(8) = rMatrix(2,2);
 
     // cylinder bounds 
     if ( lSurface.type() == Trk::SurfaceType::Cylinder ){
@@ -213,29 +248,29 @@ StatusCode Trk::LayerMaterialAnalyser::analyse(const Trk::Layer& layer,
     for (const auto & outerIter : mpMatrix){
         int bin0 = 0;
         for (const auto & innerIter : outerIter ){
-            m_bin0[m_layerBins] = bin0;
-            m_bin1[m_layerBins] = bin1;
+            m_bin0->at(m_layerBins) = bin0;
+            m_bin1->at(m_layerBins) = bin1;
             // get the material
             const Trk::MaterialProperties* mProperties = innerIter;
             if (mProperties){
-                m_thickness[m_layerBins] = mProperties->thickness();
-                m_X0[m_layerBins]        = mProperties->x0();
-                m_L0[m_layerBins]        = mProperties->l0();
-                m_A[m_layerBins]         = mProperties->averageA();
-                m_Z[m_layerBins]         = mProperties->averageZ();
-                m_Rho[m_layerBins]       = mProperties->averageRho();
-                m_elements[m_layerBins]  = mProperties->material().composition ? mProperties->material().composition->size() : 0;    
+                m_thickness->at(m_layerBins) = mProperties->thickness();
+                m_X0->at(m_layerBins)        = mProperties->x0();
+                m_L0->at(m_layerBins)        = mProperties->l0();
+                m_A->at(m_layerBins)         = mProperties->averageA();
+                m_Z->at(m_layerBins)         = mProperties->averageZ();
+                m_Rho->at(m_layerBins)       = mProperties->averageRho();
+                m_elements->at(m_layerBins)  = mProperties->material().composition ? mProperties->material().composition->size() : 0;    
             } else  {
-                m_thickness[m_layerBins] = 0.;
-                m_X0[m_layerBins]        = 0.;
-                m_L0[m_layerBins]        = 0.;
-                m_A[m_layerBins]         = 0.;
-                m_Z[m_layerBins]         = 0.;
-                m_Rho[m_layerBins]       = 0.;
-                m_elements[m_layerBins]  = 0.;                
+                m_thickness->at(m_layerBins) = 0.;
+                m_X0->at(m_layerBins)        = 0.;
+                m_L0->at(m_layerBins)        = 0.;
+                m_A->at(m_layerBins)         = 0.;
+                m_Z->at(m_layerBins)         = 0.;
+                m_Rho->at(m_layerBins)       = 0.;
+                m_elements->at(m_layerBins)  = 0.;                
             }
             // set the bin Counter 
-            m_binCounter[m_layerBins]    = bCounter ? (*bCounter)[bin1][bin0] : 1;
+            m_binCounter->at(m_layerBins)    = bCounter ? (*bCounter)[bin1][bin0] : 1;
             //     
             ++bin0;
             if (!bin1) ++m_layerBins0;

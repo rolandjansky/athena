@@ -15,6 +15,7 @@
 
 #include "LArRecConditions/LArBadChannelMask.h"
 #include "CaloConditions/CaloNoise.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 #include "LArIdentifier/LArOnlineID.h"
 #include "Identifier/IdentifierHash.h"
@@ -24,8 +25,6 @@
 #include "LArCabling/LArOnOffIdMapping.h"
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
-
-#include "StoreGate/ReadCondHandleKey.h"
 
 #include "LArCellBinning.h"
           
@@ -163,6 +162,10 @@ private:
   SG::ReadCondHandleKey<CaloNoise> m_noiseKey
     { this, "NoiseKey", "totalNoise", "SG key for noise" };
 
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+      , "CaloDetDescrManager"
+      , "CaloDetDescrManager"
+      , "SG Key for CaloDetDescrManager in the Condition Store" };
 
   // Trigger Awareness:
   bool m_useTriggerCaloMon;
@@ -280,7 +283,8 @@ private:
 
   std::vector<thresholdHist_t> m_thresholdHists;
 
-  StatusCode fillOccupancyHist(LArCellMonTool::thresholdHist_t& thr);
+  StatusCode fillOccupancyHist(LArCellMonTool::thresholdHist_t& thr
+			       , const CaloDetDescrManager* detDescMgr);
  
   // Identifer helpers and such
 

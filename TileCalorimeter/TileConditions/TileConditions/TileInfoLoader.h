@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_TILEINFOLOADER_H
@@ -50,7 +50,7 @@ class TileInfo;
 
 static const InterfaceID IID_TileInfoLoader("TileInfoLoader", 1, 0);
 
-class ATLAS_CHECK_THREAD_SAFETY TileInfoLoader: public AthService {
+class TileInfoLoader: public AthService {
 
     friend class SvcFactory<TileInfoLoader> ;
 

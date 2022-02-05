@@ -51,7 +51,7 @@ RootKeyContainer::RootKeyContainer() :
 /// Standard destructor
 RootKeyContainer::~RootKeyContainer()   {
   releasePtr(m_ioHandler);
-  close();
+  RootKeyContainer::close();
 }
 
 long long int RootKeyContainer::nextRecordId()    {

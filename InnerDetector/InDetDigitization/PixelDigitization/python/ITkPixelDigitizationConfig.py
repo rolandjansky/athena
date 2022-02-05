@@ -14,7 +14,7 @@ from PixelConditionsAlgorithms.ITkPixelConditionsConfig import (
     ITkPixelDistortionAlgCfg
 )
 from PixelConditionsTools.ITkPixelConditionsSummaryConfig import ITkPixelConditionsSummaryCfg
-from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelGeometryCfg
+from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelReadoutGeometryCfg
 from PixelReadoutGeometry.PixelReadoutGeometryConfig import ITkPixelReadoutManagerCfg
 from SiLorentzAngleTool.ITkPixelLorentzAngleConfig import ITkPixelLorentzAngleCfg
 from SiPropertiesTool.ITkPixelSiPropertiesConfig import ITkPixelSiPropertiesCfg
@@ -36,7 +36,7 @@ def ITkPixel_LastXing(flags):
 def ITkEnergyDepositionToolCfg(flags, name="ITkEnergyDepositionTool", **kwargs):
     """Return a configured EnergyDepositionTool"""
     acc = ITkPixelDistortionAlgCfg(flags)
-    kwargs.setdefault("DeltaRayCut", 117.)
+    kwargs.setdefault("DeltaRayCut", 80.7687)
     kwargs.setdefault("nCols", 5)
     kwargs.setdefault("LoopLimit", 100000)
     kwargs.setdefault("doBichsel", True)
@@ -90,8 +90,9 @@ def ITkSensorSimPlanarToolCfg(flags, name="ITkSensorSimPlanarTool", **kwargs):
     kwargs.setdefault("LorentzAngleTool", LorentzTool)
     kwargs.setdefault("PixelModuleData", "ITkPixelModuleData")
     SensorSimPlanarTool = CompFactory.SensorSimPlanarTool
-    kwargs.setdefault("doRadDamage", flags.Digitization.DoRadiationDamage)
-    if flags.Digitization.DoRadiationDamage:
+    kwargs.setdefault("doRadDamage", flags.Digitization.DoPixelPlanarRadiationDamage)
+    kwargs.setdefault("doRadDamageTemplate", flags.Digitization.DoPixelPlanarRadiationDamageTemplate)
+    if flags.Digitization.DoPixelPlanarRadiationDamage:
         # acc.merge(ITkPixelRadSimFluenceMapAlgCfg(flags))  # TODO: not supported yet
         pass
     acc.setPrivateTools(SensorSimPlanarTool(name, **kwargs))
@@ -106,8 +107,9 @@ def ITkSensorSim3DToolCfg(flags, name="ITkSensorSim3DTool", **kwargs):
     kwargs.setdefault("SiPropertiesTool", SiTool)
     kwargs.setdefault("PixelModuleData", "ITkPixelModuleData")
     SensorSim3DTool = CompFactory.SensorSim3DTool
-    kwargs.setdefault("doRadDamage", flags.Digitization.DoRadiationDamage)
-    if flags.Digitization.DoRadiationDamage:
+    kwargs.setdefault("doRadDamage", flags.Digitization.DoPixel3DRadiationDamage)
+    kwargs.setdefault("doRadDamageTemplate", flags.Digitization.DoPixel3DRadiationDamageTemplate)
+    if flags.Digitization.DoPixel3DRadiationDamage:
         # acc.merge(ITkPixelRadSimFluenceMapAlgCfg(flags))  # TODO: not supported yet
         pass
     acc.setPrivateTools(SensorSim3DTool(name, **kwargs))
@@ -116,7 +118,7 @@ def ITkSensorSim3DToolCfg(flags, name="ITkSensorSim3DTool", **kwargs):
 
 def ITkPixelDigitizationBasicToolCfg(flags, name="ITkPixelDigitizationBasicTool", **kwargs):
     """Return ComponentAccumulator with configured PixelDigitizationTool for ITk"""
-    acc = ITkPixelGeometryCfg(flags)
+    acc = ITkPixelReadoutGeometryCfg(flags)
     # set up tool handle lists
     chargeTools = []
     feSimTools = []
@@ -132,6 +134,8 @@ def ITkPixelDigitizationBasicToolCfg(flags, name="ITkPixelDigitizationBasicTool"
     if flags.Digitization.DoXingByXingPileUp:
         kwargs.setdefault("FirstXing", ITkPixel_FirstXing(flags))
         kwargs.setdefault("LastXing", ITkPixel_LastXing(flags))
+    from RngComps.RandomServices import AthRNGSvcCfg
+    kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
 
     PixelDigitizationTool = CompFactory.PixelDigitizationTool
     acc.setPrivateTools(PixelDigitizationTool(name, **kwargs))

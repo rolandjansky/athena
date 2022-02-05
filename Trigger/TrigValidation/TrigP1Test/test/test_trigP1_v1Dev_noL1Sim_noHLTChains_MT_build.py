@@ -14,7 +14,7 @@ ex.input = 'data'
 ex.forks = 2
 ex.threads = 2
 ex.concurrent_events = 2
-ex.args = '-c "setMenu=\'LS2_v1\';doL1Sim=False;doEmptyMenu=True;forceEnableAllChains=True;BFieldAutoConfig=False;"'
+ex.args = '-c "setMenu=\'Dev_pp_run3_v1\';doL1Sim=False;doEmptyMenu=True;forceEnableAllChains=True;BFieldAutoConfig=False;"'
 ex.args += ' --dump-config-reload'
 
 test = Test.Test()

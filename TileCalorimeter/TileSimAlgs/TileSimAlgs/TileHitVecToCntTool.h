@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //**************************************************************************
@@ -32,6 +32,7 @@
 #include "TileIdentifier/TileFragHash.h"
 #include "TileSimEvent/TileHitVector.h"
 #include "TileEvent/TileHitContainer.h"
+#include "TileEvent/TileHitNonConstContainer.h"
 #include "TileConditions/TileCablingSvc.h"
 
 // Athena includes
@@ -53,7 +54,6 @@ class TileID;
 class TileTBID;
 class TileHit;
 class TileInfo;
-class TileHitNonConstContainer;
 class TileDetDescrManager;
 class Identifier;
 class TileCablingService;
@@ -96,10 +96,10 @@ private:
   StatusCode createContainers();
   void processHitVectorForOverlay(const TileHitVector* inputHits, int& nHit, double& eHitTot);
   void processHitVectorForPileUp(const TileHitVector* inputHits, double SubEvtTimOffset, int& nHit, double& eHitTot, bool isSignal = false);
-  void processHitVectorWithoutPileUp(const TileHitVector* inputHits, int& nHit, double& eHitTot, TileHitNonConstContainer* &hitCont, CLHEP::HepRandomEngine * engine);
+  void processHitVectorWithoutPileUp(const TileHitVector* inputHits, int& nHit, double& eHitTot, TileHitNonConstContainer* hitCont, CLHEP::HepRandomEngine * engine);
   double applyPhotoStatistics(double energy, Identifier pmt_id, CLHEP::HepRandomEngine * engine);    //!< Method to apply photostatistics effect
-  void findAndMergeE1(TileHitCollection* coll, int frag_id, TileHitNonConstContainer* &hitCont);
-  void findAndMergeMBTS(TileHitCollection* coll, int frag_id, TileHitNonConstContainer* &hitCont);
+  void findAndMergeE1(TileHitCollection* coll, int frag_id, TileHitNonConstContainer* hitCont);
+  void findAndMergeMBTS(TileHitCollection* coll, int frag_id, TileHitNonConstContainer* hitCont);
 
 
   Gaudi::Property<bool> m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
@@ -156,8 +156,8 @@ private:
 
   std::vector<TileHit*> m_allHits;           //!< vector for all TileHits
   std::vector<TileHit*> m_allHits_DigiHSTruth;           //!< vector for all TileHits
-  TileHitNonConstContainer* m_hits{};          //!< pointer to hits container
-  TileHitNonConstContainer* m_hits_DigiHSTruth{};   //!< pointer to hits container
+  std::unique_ptr<TileHitNonConstContainer> m_hits{};          //!< pointer to hits container
+  std::unique_ptr<TileHitNonConstContainer> m_hits_DigiHSTruth{};   //!< pointer to hits container
 
   int m_mbtsOffset{0};                           //<! index of first MBTS hit in m_allHits vector
   static const int N_SIDE = 2;

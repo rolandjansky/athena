@@ -136,6 +136,7 @@ StatusCode LArPhysWavePredictor::initialize()
 
   ATH_CHECK( m_BCKey.initialize() );
   ATH_CHECK( m_cablingKey.initialize() );
+  if ( m_isSC ) ATH_CHECK( m_cablingKeySC.initialize() );
   ATH_CHECK( m_bcMask.buildBitMask(m_problemsToMask,msg()));
 
   return StatusCode::SUCCESS ;
@@ -194,11 +195,21 @@ StatusCode LArPhysWavePredictor::stop()
   }   
   
   // Retrieve cabling
-  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
-  const LArOnOffIdMapping* cabling=*cablingHdl;
-  if (!cabling) {
-    ATH_MSG_ERROR( " Can't get cabling with key: " << m_cablingKey.key() );
-    return StatusCode::FAILURE;
+  const LArOnOffIdMapping* cabling(0);
+  if( m_isSC ){
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKeySC};
+    cabling = {*cablingHdl};
+    if(!cabling) {
+	ATH_MSG_ERROR("Do not have mapping object " << m_cablingKeySC.key());
+        return StatusCode::FAILURE;
+    }
+  }else{
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    cabling = {*cablingHdl};
+    if(!cabling) {
+       ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key());
+       return StatusCode::FAILURE;
+    }
   }
 
   // Get parameters from detStore (access through abtract interfaces)
@@ -366,17 +377,17 @@ StatusCode LArPhysWavePredictor::stop()
       
       ATH_MSG_INFO( "Now processing gain = " << gain << " in LArCaliWaveContainer with key = " << key );
     
+
       // loop over current cali wave container
       typedef LArCaliWaveContainer::ConstConditionsMapIterator const_iterator;
       const_iterator itVec   = caliWaveContainer->begin(gain);
       const_iterator itVec_e = caliWaveContainer->end(gain);
-
       for (; itVec != itVec_e; ++itVec) { // loop over channels for a given gain
 		
-
         for (const LArCaliWave& larCaliWave : *itVec) { // loop over DAC values for a given channel
 
-          ATH_MSG_DEBUG((*itVec).size() << " LArCaliWaves found for channel 0x" << MSG::hex << itVec.channelId() << MSG::dec);
+          ATH_MSG_DEBUG((*itVec).size() << " LArCaliWaves found for channel " << m_onlineHelper->channel_name(itVec.channelId()) << " 0x" 
+		       << std::hex << itVec.channelId().get_identifier32().get_compact() << std::dec);
 	  nchannel++ ;
 	  if ( nchannel < 100 || ( nchannel < 1000 && nchannel%100==0 ) || nchannel%1000==0 ) 
 	     ATH_MSG_INFO( "Processing calibration waveform number " << nchannel );

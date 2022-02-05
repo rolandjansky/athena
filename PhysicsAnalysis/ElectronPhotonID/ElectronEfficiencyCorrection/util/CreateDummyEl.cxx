@@ -16,15 +16,15 @@
 
 namespace {
 
-void
-fill_cluster(xAOD::CaloCluster* cluster, float eta, float phi, float e)
-{
-
-  const std::set<CaloSampling::CaloSample> samplings{
+const std::set<CaloSampling::CaloSample> samplings{
     CaloSampling::PreSamplerB, CaloSampling::EMB1,        CaloSampling::EMB2,
     CaloSampling::EMB3,        CaloSampling::PreSamplerE, CaloSampling::EME1,
     CaloSampling::EME2,        CaloSampling::EME3
-  };
+};
+
+void
+fill_cluster(xAOD::CaloCluster* cluster, float eta, float phi, float e)
+{
 
   unsigned sampling_pattern = 0;
   for (auto sample : samplings) {

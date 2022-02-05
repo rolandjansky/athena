@@ -48,7 +48,6 @@ rec.doHist.set_Value_and_Lock(False)
 rec.doCBNT.set_Value_and_Lock(False)
 rec.doAOD.set_Value_and_Lock(False)
 rec.doTrigger.set_Value_and_Lock(False)
-recAlgs.doTrigger.set_Value_and_Lock(False)
 
 rec.doPerfMon.set_Value_and_Lock(False)
 rec.doDPD.set_Value_and_Lock(False)
@@ -80,12 +79,12 @@ import AthenaPoolCnvSvc.ReadAthenaPool
 svcMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput()
 
 if 'conditionsTag' not in dir():
-   print "Resolving 'CURRENT' express conditions tag ..."
+   print("Resolving 'CURRENT' express conditions tag ...")
    sys.path.append('/afs/cern.ch/user/a/atlcond/utils/python/')
    from AtlCoolBKLib import resolveAlias
    resolver=resolveAlias()
    currentGlobalES=resolver.getCurrentES().replace("*","ST")
-   print "Found ",currentGlobalES
+   print("Found ",currentGlobalES)
    svcMgr.IOVDbSvc.GlobalTag=currentGlobalES
 else:
    svcMgr.IOVDbSvc.GlobalTag=conditionsTag

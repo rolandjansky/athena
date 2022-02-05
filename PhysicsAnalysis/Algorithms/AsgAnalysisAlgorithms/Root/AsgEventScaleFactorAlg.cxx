@@ -11,8 +11,6 @@
 
 #include <AsgAnalysisAlgorithms/AsgEventScaleFactorAlg.h>
 
-// #include <SelectionHelpers/SelectionHelpers.h>
-
 //
 // method implementations
 //
@@ -23,8 +21,7 @@ namespace CP
   AsgEventScaleFactorAlg (const std::string& name, 
                           ISvcLocator* pSvcLocator)
     : AnaAlgorithm (name, pSvcLocator)
-  {
-  }
+  {}
 
 
 
@@ -39,6 +36,7 @@ namespace CP
 
     ANA_CHECK (m_eventInfoHandle.initialize (m_systematicsList));
     ANA_CHECK (m_particleHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_inputSelectionDecoration.initialize (m_systematicsList, m_particleHandle, SG::AllowEmpty));
     ANA_CHECK (m_scaleFactorInputDecoration.initialize (m_systematicsList, m_particleHandle));
     ANA_CHECK (m_scaleFactorOutputDecoration.initialize (m_systematicsList, m_eventInfoHandle));
     ANA_CHECK (m_systematicsList.initialize());
@@ -65,6 +63,9 @@ namespace CP
       {
         if (m_preselection.getBool (*particle))
         {
+          if (m_inputSelectionDecoration && m_inputSelectionDecoration.get (*particle, sys) == 0)
+            continue;
+
           scaleFactor *= m_scaleFactorInputDecoration.get (*particle, sys);
         }
       }

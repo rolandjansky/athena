@@ -17,8 +17,8 @@ namespace MuonCalib {
     //////////////////////////////////////////////////////////////////
 
     bool MTT0PatternRecognition::estimate_background(TH1F* hist, double scale_min) {
-        // Get first bin in input histogram which is not empty. 	This avoids underestimation of the background rate if the range of the
-        // input histogram exceeds the TDC-range
+        // Get first bin in input histogram which is not empty. 	This avoids underestimation of the background rate if the range of
+        // the input histogram exceeds the TDC-range
         int min(-1);
         for (int i = 1; i <= hist->GetNbinsX(); i++) {
             if (hist->GetBinContent(i) > 0) {
@@ -108,8 +108,8 @@ namespace MuonCalib {
             if (m_vbh.GetSortedBin(i).Left() < left) left = m_vbh.GetSortedBin(i).Left();
             if (m_vbh.GetSortedBin(i).Right() > right) right = m_vbh.GetSortedBin(i).Right();
             // NOTE: For greater numerical stability m_vbh.GetSortedBin(i).Width() is considered greater only if it is greater by
-            // hist->GetBinWidth(1) / 100.0. I have seen differences in Binwidth in the order of 1e-13. On the other hand, due to the binning
-            // of the input histogram, e real difference in the binwidth of the VBH n*hist->GetBinWidth(1).
+            // hist->GetBinWidth(1) / 100.0. I have seen differences in Binwidth in the order of 1e-13. On the other hand, due to the
+            // binning of the input histogram, e real difference in the binwidth of the VBH n*hist->GetBinWidth(1).
             if ((m_vbh.GetSortedBin(i).Width() - lower) > hist->GetBinWidth(1) / 100.0) {
                 // reqire minimum distance between bins, and minimum number if significant bins
                 if (right - left > 50 && i > 20) break;

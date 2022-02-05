@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # Pre-config script to propagate variables to downstream projects
 #
@@ -15,3 +15,15 @@ add_definitions( -DXAOD_ANALYSIS )
 # CMake cache variable(s).
 set( XAOD_ANALYSIS TRUE CACHE BOOL
    "Flag specifying that this is an analysis release" )
+
+# Figure out whether to use QUIET in the find_package call(s).
+set( _quietFlag )
+if( @CMAKE_PROJECT_NAME@_FIND_QUIETLY )
+  set( _quietFlag QUIET )
+endif()
+
+# Imported target(s) used by the project.
+find_package( GTest ${_quietFlag} )
+
+# Clean up.
+unset( _quietFlag )

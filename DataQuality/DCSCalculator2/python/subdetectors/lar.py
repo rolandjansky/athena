@@ -46,7 +46,7 @@ class LAr(DCSC_DefectTranslate_Subdetector):
         belongs_to_output = set(self.mapping[output_channel])
         
         for input_global in input_globals:
-            for input_channel, iovs in sorted(input_global.by_channel.iteritems()):
+            for input_channel, iovs in sorted(input_global.by_channel.items()):
                 if input_channel in belongs_to_output:
                     global_iov_sets.append(iovs)
             

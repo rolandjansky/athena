@@ -13,7 +13,6 @@
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "StoreGate/ReadCondHandleKey.h"
-#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkGeometry/TrackingGeometry.h"
 namespace Rec {
@@ -112,23 +111,18 @@ namespace Rec {
         ToolHandle<Muon::IMdtDriftCircleOnTrackCreator> m_mdtRotCreator{
             this, "MdtRotCreator", "Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator", "MdtDriftCircleOnTrackCreator tool"};
 
-        ServiceHandle<Trk::ITrackingGeometrySvc> m_trackingGeometrySvc{this, "TrackingGeometrySvc",
-                                                                       "TrackingGeometrySvc/AtlasTrackingGeometrySvc"};
-
         SG::ReadCondHandleKey<Trk::TrackingGeometry> m_trackingGeometryReadKey{this, "TrackingGeometryReadKey", "",
                                                                                "Key of the TrackingGeometry conditions data."};
 
         inline const Trk::TrackingVolume* getVolume(const std::string&& vol_name, const EventContext& ctx) const {
             /// Tracking geometry is provided by the TrackingGeometryAlg
-            if (!m_trackingGeometryReadKey.empty()) {
-                SG::ReadCondHandle<Trk::TrackingGeometry> handle(m_trackingGeometryReadKey, ctx);
-                if (!handle.isValid()) {
-                    ATH_MSG_WARNING("Could not retrieve a valid tracking geometry");
-                    return nullptr;
-                }
-                return handle->trackingVolume(vol_name);
+            SG::ReadCondHandle<Trk::TrackingGeometry> handle(m_trackingGeometryReadKey, ctx);
+            if (!handle.isValid()) {
+                ATH_MSG_WARNING("Could not retrieve a valid tracking geometry");
+                return nullptr;
             }
-            return m_trackingGeometrySvc->trackingGeometry()->trackingVolume(vol_name);
+            return handle->trackingVolume(vol_name);
+            
         }
 
     };  // end of class MuonTrackQuery

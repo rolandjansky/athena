@@ -14,48 +14,44 @@ StatusCode LArAlignCondAlg::initialize()
   ATH_MSG_DEBUG("initialize " << name());
 
   ATH_CHECK(m_condSvc.retrieve());
-  ATH_CHECK(m_readKey.initialize());
-  ATH_CHECK(m_writeKey.initialize());
+  ATH_CHECK(m_readLArAlignKey.initialize());
+  ATH_CHECK(m_writeGeoAlignKey.initialize());
 
   // Register Write Cond Handle
-  if(m_condSvc->regHandle(this, m_writeKey).isFailure()) {
-    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
+  if(m_condSvc->regHandle(this, m_writeGeoAlignKey).isFailure()) {
+    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_writeGeoAlignKey.fullKey() << " with CondSvc");
     return StatusCode::FAILURE;
   }
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode LArAlignCondAlg::execute(const EventContext& ctx) const
+StatusCode LArAlignCondAlg::execute()
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   // ____________ Construct Write Cond Handle and check its validity ____________
-  SG::WriteCondHandle<GeoAlignmentStore> writeHandle{m_writeKey,ctx};
-  if (writeHandle.isValid()) {
+  SG::WriteCondHandle<GeoAlignmentStore> writeGeoAlignHandle{m_writeGeoAlignKey,ctx};
+  if (writeGeoAlignHandle.isValid()) {
     ATH_MSG_DEBUG("Found valid write handle");
     return StatusCode::SUCCESS;
   }
   
   // ____________ Get Read Cond Object ____________
-  SG::ReadCondHandle<DetCondKeyTrans> readHandle{m_readKey,ctx};
-  const DetCondKeyTrans* readCdo{*readHandle};
-  if(!readCdo) {
-    ATH_MSG_ERROR("Null pointer to the read conditions object");
-    return StatusCode::FAILURE;
-  }
+  SG::ReadCondHandle<DetCondKeyTrans> readLArAlignHandle{m_readLArAlignKey,ctx};
+  ATH_CHECK(readLArAlignHandle.isValid());
   ATH_MSG_DEBUG("Retrieved DetCondKeyTrans object form the Condition Store");
-
-  writeHandle.addDependency(readHandle);
+  writeGeoAlignHandle.addDependency(readLArAlignHandle);
 
   // ____________ Construct new Write Cond Object and apply alignments  ____________
   std::unique_ptr<GeoAlignmentStore> writeCdo = std::make_unique<GeoAlignmentStore>();
-  if(m_alignHelper.applyAlignments(detStore(),readCdo,writeCdo.get()).isFailure()) {
+  if(m_alignHelper.applyAlignments(detStore(),*readLArAlignHandle,writeCdo.get()).isFailure()) {
     ATH_MSG_ERROR("Failed to apply LAr alignments");
     return StatusCode::FAILURE;
   }
 
-  ATH_CHECK(writeHandle.record(std::move(writeCdo)));
-  ATH_MSG_INFO("recorded new GeoAlignmentStore object for LAr with key " << writeHandle.key() 
-	       << " and range " << writeHandle.getRange());
+  ATH_CHECK(writeGeoAlignHandle.record(std::move(writeCdo)));
+  ATH_MSG_INFO("recorded new GeoAlignmentStore object for LAr with key " << writeGeoAlignHandle.key() 
+	       << " and range " << writeGeoAlignHandle.getRange());
 
   return StatusCode::SUCCESS;
 }

@@ -14,14 +14,11 @@ def LArRawDataReadingCfg(configFlags, **kwargs):
 
     if configFlags.Overlay.DataOverlay:
         kwargs.setdefault("LArDigitKey", configFlags.Overlay.BkgPrefix + "FREE")
+
+    if configFlags.LAr.RawChannelSource=="calculated" or configFlags.Overlay.DataOverlay:
         kwargs.setdefault("LArRawChannelKey", "")
 
     print('LArRawDataReadingCfg configFlags.LAr.RawChannelSource ',configFlags.LAr.RawChannelSource)
-
-    if configFlags.LAr.RawChannelSource=="calculated":
-        kwargs.setdefault("LArRawChannelKey", "")
-
-    kwargs.setdefault("FailOnCorruption",False)
 
     acc.addEventAlgo(LArRawDataReadingAlg(**kwargs))
     return acc

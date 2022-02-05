@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////
@@ -27,11 +27,11 @@
 using namespace std;
 
 bool
-TrigConf::PrescaleSetLoader::load( PrescaleSet& prescaleSet ) {
+TrigConf::PrescaleSetLoader::load( unsigned int ctpVersion, PrescaleSet& prescaleSet ) {
 
    TRG_MSG_INFO("loading L1 prescale set with PSK " << prescaleSet.id());
 
-   CTPdataformatVersion ctpformat(s_ctpVersion);
+   CTPdataformatVersion ctpformat(ctpVersion);
 
    prescaleSet.resize(ctpformat.getMaxTrigItems());
 

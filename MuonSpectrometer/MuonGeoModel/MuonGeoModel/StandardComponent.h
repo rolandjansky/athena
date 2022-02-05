@@ -10,6 +10,7 @@
 #include <iosfwd>
 
 namespace MuonGM {
+    class MYSQL;
 
     class StandardComponent : public Component {
       public:
@@ -26,7 +27,7 @@ namespace MuonGM {
         double excent;
         int iswap;
         int index;
-        double GetThickness() const;
+        double GetThickness(const MYSQL& mysql) const;
         friend std::ostream &operator<<(std::ostream &os, const StandardComponent &c);
     };
 } // namespace MuonGM

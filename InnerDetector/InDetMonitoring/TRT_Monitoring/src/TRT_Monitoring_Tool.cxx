@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_Monitoring_Tool.h"
@@ -113,8 +113,6 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 	m_ResidualScale_E_Ar(),
 	m_ResidualScale_E_Ar_20GeV(),
 	m_TimeResidualScale_E_Ar(),
-	//m_propagator(0),
-	//m_extrapolator(0),
 	m_DEBUG(false),
 	m_longToTCut(9.375),
 	m_EventBurstCut(200),
@@ -3689,7 +3687,7 @@ StatusCode TRT_Monitoring_Tool::fillTRTEfficiency(const TrackCollection& combTra
 		//use hole finder to find holes on this track !
 
 		if (m_useHoleFinder) {
-			const DataVector<const Trk::TrackStateOnSurface> *holes = m_trt_hole_finder->getHolesOnTrack(**track);
+                        std::unique_ptr<const Trk::TrackStates>  holes (m_trt_hole_finder->getHolesOnTrack(**track));
 
 			if (!holes) {
 				ATH_MSG_WARNING("TRTTrackHoleSearchTool returned null results.");
@@ -3770,7 +3768,6 @@ StatusCode TRT_Monitoring_Tool::fillTRTEfficiency(const TrackCollection& combTra
 					m_hefficiency_z0->Fill(m_track_z0, 0.0);
 				}
 
-				delete holes;
 			}
 		}
 	}

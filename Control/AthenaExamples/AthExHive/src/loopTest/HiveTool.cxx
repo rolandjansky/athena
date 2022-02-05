@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HiveTool.h"
@@ -66,8 +66,8 @@ StatusCode HiveTool::doSomething() const {
     ATH_MSG_INFO("WH not valid - not writing");
   } else {
     SG::WriteHandle<HiveDataObj> wrh1( m_wrh1 );
-    wrh1 = std::make_unique< HiveDataObj >
-      ( HiveDataObj(val + 666) );
+    ATH_CHECK(wrh1.record(std::make_unique< HiveDataObj >(val + 666)));
+
     ATH_MSG_INFO("  write: " << wrh1.key() << " = " << wrh1->val() );
   }
 

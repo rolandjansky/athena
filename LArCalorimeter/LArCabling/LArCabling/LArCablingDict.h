@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -14,7 +14,7 @@
 #ifndef LARCABLING_LARCABLINGDICT_H
 # define LARCABLING_LARCABLINGDICT_H
 
-#include "LArCabling/LArCablingLegacyService.h"
 #include "LArCabling/LArOnOffIdMapping.h"
+#include "LArCabling/LArLATOMEMapping.h"
 
 #endif // LARCABLING_LARCABLINGDICT_H

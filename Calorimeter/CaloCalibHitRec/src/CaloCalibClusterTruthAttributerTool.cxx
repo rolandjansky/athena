@@ -11,17 +11,19 @@ CaloCalibClusterTruthAttributerTool::~CaloCalibClusterTruthAttributerTool(){}
 
 StatusCode CaloCalibClusterTruthAttributerTool::calculateTruthEnergies(const xAOD::CaloCluster& theCaloCluster, unsigned int numTruthParticles, const std::map<Identifier,std::vector<const CaloCalibrationHit*> >& identifierToCaloHitMap, const std::map<unsigned int,const xAOD::TruthParticle*>& truthBarcodeToTruthParticleMap, std::vector<std::pair<unsigned int, double > >& barcodeTrueCalHitEnergy) const{
 
+  ATH_MSG_DEBUG("In calculateTruthEnergies");
+
   const CaloClusterCellLink* theCellLinks = theCaloCluster.getCellLinks();
 
   if (!theCellLinks) {
     ATH_MSG_ERROR("A CaloCluster has no CaloClusterCellLinks");
     return StatusCode::FAILURE;
-  }
-    
+  }  
+
   //loop once over the cells to find the barcodes and pt of truth particles in this cluster
   std::map<unsigned int, double> barcodeTruePtMap;
   
-  for (auto thisCaloCell : *theCellLinks){
+  for (auto thisCaloCell : *theCellLinks){   
 
     if (!thisCaloCell){
       ATH_MSG_WARNING("Have invalid pointer to CaloCell");
@@ -46,6 +48,8 @@ StatusCode CaloCalibClusterTruthAttributerTool::calculateTruthEnergies(const xAO
     }//calibration hit loop
     
   }//first loop on calorimeter cells to find leading three truth particles with calibration hits
+
+  ATH_MSG_DEBUG("Have finished first cell loop");
 
   std::vector<std::pair<unsigned int, double > > barcodeTruePtPairs;
 

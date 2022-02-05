@@ -14,6 +14,8 @@
 
 #include <vector>
 
+class IdentifierHash;
+
 namespace InDetDD {
 
     class HGTD_DetectorElement;
@@ -24,9 +26,14 @@ namespace InDetDD {
 
     */
 
-    class HGTD_DetectorElementCollection : public std::vector<HGTD_DetectorElement *>
-{};
+    class HGTD_DetectorElementCollection : public std::vector<HGTD_DetectorElement *> 
+    {};
 
 } // namespace InDetDD
+
+#include "AthenaKernel/CLASS_DEF.h"
+CLASS_DEF( InDetDD::HGTD_DetectorElementCollection, 1266958207, 1)
+#include "AthenaKernel/CondCont.h"
+CONDCONT_MIXED_DEF( InDetDD::HGTD_DetectorElementCollection, 1258619755);
 
 #endif // HGTD_READOUTGEOMETRY_HGTD_DETECTORELEMENTCOLLECTION_H

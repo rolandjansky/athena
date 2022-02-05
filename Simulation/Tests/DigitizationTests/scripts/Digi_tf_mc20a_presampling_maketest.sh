@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 Events=100
 DigiOutFileName="mc20a_presampling.RDO.pool.root"
@@ -10,9 +10,9 @@ LowPtMinbiasHitsFiles="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0Ch
 # full run
 Digi_tf.py \
 --PileUpPresampling True \
---conditionsTag default:OFLCOND-MC16-SDR-RUN2-08 \
+--conditionsTag default:OFLCOND-MC16-SDR-RUN2-09 \
 --digiSeedOffset1 170 --digiSeedOffset2 170 \
---digiSteeringConf "StandardSignalOnlyTruth" \
+--digiSteeringConf 'StandardSignalOnlyTruth' \
 --geometryVersion default:ATLAS-R2-2016-01-00-01 \
 --inputHITSFile ${HSHitsFile} \
 --inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles} \

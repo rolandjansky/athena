@@ -13,15 +13,15 @@
 
 namespace {
 
-TKey* getObjKeyFromTDir( TDirectory* dir, std::string path );
-TDirectory* changeInputDir( TDirectory* dir, std::string path );
+TKey* getObjKeyFromTDir( TDirectory* dir, const std::string& path );
+TDirectory* changeInputDir( TDirectory* dir, const std::string& path );
 
 }
 
 namespace dqi {
 
 HanInputRootFile::
-HanInputRootFile( std::string& rootFileName, std::string path )
+HanInputRootFile( std::string& rootFileName, const std::string& path )
   : dqm_core::InputRootFile::InputRootFile(rootFileName)
   , m_rootFile( TFile::Open(rootFileName.c_str()) )
   , m_basedir(0)
@@ -165,7 +165,7 @@ getBasedir() const
 namespace {
 
 // This method is copy-pasted from InputRootFile (it was private)
-TKey* getObjKeyFromTDir( TDirectory* dir, std::string path ) {
+TKey* getObjKeyFromTDir( TDirectory* dir, const std::string& path ) {
   if( dir == 0 )
     return 0;
 
@@ -195,7 +195,7 @@ TKey* getObjKeyFromTDir( TDirectory* dir, std::string path ) {
 }
 
 
-TDirectory* changeInputDir( TDirectory* dir, std::string path )
+TDirectory* changeInputDir( TDirectory* dir, const std::string& path )
 {
   if( dir == 0 )
     return 0;

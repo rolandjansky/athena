@@ -6,6 +6,7 @@
 """Application manager and other global Gaudi components."""
 
 import sys, os
+from functools import lru_cache
 from AthenaCommon import ExitCodes
 
 from AthenaCommon import AlgSequence, Configurable, Logging
@@ -32,6 +33,7 @@ def _type_and_name(n):
    if len(s)==2: n=s[1]
    return t,n
 
+@lru_cache(maxsize=None)
 def release_metadata():
    """`release_metadata` returns informations about the current release being used
    """
@@ -51,7 +53,7 @@ def release_metadata():
       release_data = os.path.join(cmake_path, 'ReleaseData')
       if os.path.exists(release_data):
          d1=d
-         cfg = configparser.SafeConfigParser()
+         cfg = configparser.ConfigParser()
          try:
             cfg.read( release_data )
             if cfg.has_section( 'release_metadata' ):
@@ -96,6 +98,10 @@ def iadd( self, tool ):
 
 GaudiCoreSvcConf.ToolSvc.__iadd__ = iadd
 del iadd
+
+# When adding tools to ToolSvc they are stil considered "private" and thus would
+# be copied. Overwrite the copyChild method to avoid this.
+GaudiCoreSvcConf.ToolSvc.copyChild = lambda self, child : child
 
 ### associator for services --------------------------------------------------
 class AthServiceManager( Configurable.Configurable ):
@@ -1004,5 +1010,7 @@ athMasterSeq = AlgSequence.AthSequencer( "AthMasterSeq" )
 athCondSeq   = AlgSequence.AthSequencer( "AthCondSeq" )
 athAlgSeq    = AlgSequence.AthSequencer( "AthAlgSeq" )
 athOutSeq    = AlgSequence.AthSequencer( "AthOutSeq" )
+athBeginSeq  = AlgSequence.AthSequencer( "AthBeginSeq" )
+athEndSeq    = AlgSequence.AthSequencer( "AthEndSeq" )
 
 topSequence  = AlgSequence.AlgSequence( "TopAlg" )     # for backward compatibility

@@ -15,7 +15,7 @@ atlas_add_component( TrigMinBiasMonitoring
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
-
-atlas_add_test( ConfigTest
-            SCRIPT  python -m  TrigMinBiasMonitoring.TrigMinBiasMonitoringMT 
-            POST nopost.sh)
+# TODO restore once the new AOD wiht new metadata is available in test files
+# atlas_add_test( ConfigTest
+#             SCRIPT  python -m  TrigMinBiasMonitoring.TrigMinBiasMonitoringMT 
+#             POST_EXEC_SCRIPT nopost.sh)

@@ -46,6 +46,7 @@ StatusCode SiRegSelCondAlg::initialize()
   ATH_MSG_DEBUG("SiRegSelCondAlg::initialize() ");
   ATH_CHECK(m_pixCablingKey.initialize(!m_pixCablingKey.empty()));
   ATH_CHECK(m_sctCablingKey.initialize(!m_sctCablingKey.empty()));
+  m_useCabling = !m_pixCablingKey.empty() || !m_sctCablingKey.empty();
   ATH_CHECK(m_detEleCollKey.initialize());
   ATH_CHECK(m_tableKey.initialize());
   ATH_MSG_INFO("SiRegSelCondAlg::initialize() " << m_tableKey );
@@ -84,25 +85,28 @@ StatusCode SiRegSelCondAlg::execute(const EventContext& ctx)  const
 
   ATH_MSG_DEBUG( "RegSelCondAlg:" << name() );
   
-  if (m_managerName=="SCT") { // SCT
-    sctCabling = std::make_unique<SG::ReadCondHandle<SCT_CablingData> >( m_sctCablingKey, ctx );
-    if( !sctCabling->range( id_range ) ) {
-      ATH_MSG_ERROR("Failed to retrieve validity range for " << sctCabling->key());
-      return StatusCode::FAILURE;
-    }   
-  }
-  else { // PIXEL 
+  if(m_useCabling){
 
-    ATH_MSG_DEBUG( "RegSelCondAlg: " << name() << "\t" << m_pixCablingKey );
-    ATH_MSG_DEBUG( "RegSelCondAlg: " << ctx );
-    ATH_MSG_DEBUG( "RegSelCondAlg: " << id_range << "( initial range )" );
+    if (m_managerName=="SCT") { // SCT
+      sctCabling = std::make_unique<SG::ReadCondHandle<SCT_CablingData> >( m_sctCablingKey, ctx );
+      if( !sctCabling->range( id_range ) ) {
+	ATH_MSG_ERROR("Failed to retrieve validity range for " << sctCabling->key());
+	return StatusCode::FAILURE;
+      }
+    }
+    else if(m_managerName=="Pixel"){ // PIXEL
 
-    pixCabling = std::make_unique<SG::ReadCondHandle<PixelCablingCondData> >( m_pixCablingKey, ctx );
-    if( !pixCabling->range( id_range ) ) {
-      ATH_MSG_ERROR("Failed to retrieve validity range for " << pixCabling->key() << " : " << id_range );
-      return StatusCode::FAILURE;
-    }   
-    ATH_MSG_DEBUG( "RegSelCondAlg: " << id_range << "( final range )" );
+      ATH_MSG_DEBUG( "RegSelCondAlg: " << name() << "\t" << m_pixCablingKey );
+      ATH_MSG_DEBUG( "RegSelCondAlg: " << ctx );
+      ATH_MSG_DEBUG( "RegSelCondAlg: " << id_range << "( initial range )" );
+
+      pixCabling = std::make_unique<SG::ReadCondHandle<PixelCablingCondData> >( m_pixCablingKey, ctx );
+      if( !pixCabling->range( id_range ) ) {
+	ATH_MSG_ERROR("Failed to retrieve validity range for " << pixCabling->key() << " : " << id_range );
+	return StatusCode::FAILURE;
+      }
+      ATH_MSG_DEBUG( "RegSelCondAlg: " << id_range << "( final range )" );
+    }
 
   }
 
@@ -127,6 +131,14 @@ StatusCode SiRegSelCondAlg::execute(const EventContext& ctx)  const
   // Since this condition algorithm for HLT, we want to run this only at the first event of a run.
   // We do not take the intersect of ranges of cabling and detector elements.
   // We use the range of cabling.
+
+  if(!m_useCabling){
+    if( !detEle.range( id_range ) ) {
+      ATH_MSG_ERROR("Failed to retrieve validity range for " << detEle.key() << " : " << id_range );
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_DEBUG( "RegSelCondAlg: " << id_range << "( final range )" );
+  }
 
   for (const InDetDD::SiDetectorElement* element : *elements) {
 
@@ -159,7 +171,8 @@ StatusCode SiRegSelCondAlg::execute(const EventContext& ctx)  const
 	  barrelEC  = pixelId->barrel_ec(element->identify());
 	  if ( std::fabs(barrelEC)>3 ) continue; // skip DBM modules
 	  layerDisk = pixelId->layer_disk(element->identify());
-	  robId=(*pixCabling)->find_entry_offrob(element->identify());
+	  if(m_useCabling) robId=(*pixCabling)->find_entry_offrob(element->identify());
+	  else robId = 0;
 	}
 	else { 
 	  ATH_MSG_ERROR("Could not get PIXEL_ID for " << element->getIdHelper() );
@@ -173,7 +186,8 @@ StatusCode SiRegSelCondAlg::execute(const EventContext& ctx)  const
 	  layerDisk = sctId->layer_disk(element->identify());
 	  // Avoid use of SCT_CablingTool. Instead of
 	  // robId=m_sctCablingTool->getRobIdFromOfflineId(element->identify());
-	  robId = ((*sctCabling)->getOnlineIdFromHash(element->identifyHash())).rod();
+	  if(m_useCabling) robId = ((*sctCabling)->getOnlineIdFromHash(element->identifyHash())).rod();
+	  else robId = 0;
 	}
 	else { 
 	  ATH_MSG_ERROR("Could not get SCT_ID for " << element->getIdHelper() );

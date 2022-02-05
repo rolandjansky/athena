@@ -17,7 +17,6 @@
 //-----------------------------------------------------------------------
 
 #include "LArFecLvTempDcsTool.h" 
-#include "LArIdentifier/LArIdManager.h"
 #include "LArRawConditions/LArFecLvTempDcs.h" 
 
 #include "GaudiKernel/IToolSvc.h"
@@ -47,16 +46,8 @@ LArFecLvTempDcsTool::~LArFecLvTempDcsTool()
 // intialize 
 StatusCode LArFecLvTempDcsTool::initialize()
 {
-  const LArIdManager* larMgr = nullptr;
-  ATH_CHECK( detStore()->retrieve(larMgr) );
-  ATH_MSG_DEBUG ( "Successfully retrieved LArIdManager from DetectorStore" );
-
   // retrieve LArOnlineID
-  m_larOnlineId = larMgr->getOnlineID();
-  if (!m_larOnlineId) {
-    ATH_MSG_ERROR( "Unable to retrieve pointer to LArOnlineID  " );
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->retrieve(m_larOnlineId, "LArOnlineID") );
   ATH_MSG_DEBUG ( "Retrieved LArOnlineID" );
 
   ATH_CHECK( detStore()->regHandle(m_atrlistcol,m_foldername) );

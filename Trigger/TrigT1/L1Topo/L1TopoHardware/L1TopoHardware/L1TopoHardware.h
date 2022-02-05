@@ -24,7 +24,41 @@ namespace TCS {
       static const std::map<std::string, HardwareParam>& get();
    };
 
+   // New constants for the Phase-1 Topo system
+   const uint32_t eEmInputWidth  = 144; // 24 eFEX modules * 6 TOBs per module
+   const uint32_t eTauInputWidth = 144; // 24 eFEX modules * 6 TOBs per module
 
+   const uint32_t jJetInputWidth = 168; // 24 jFEX FPGAs * 7 TOBs per FPGA
+   const uint32_t jLargeRJetInputWidth = 24; // 24 jFEX FPGAs * 1 TOB per FPGA
+   const uint32_t jTauInputWidth = 144; // 24 jFEX FPGAs * 6 TOBs per FPGA
+   const uint32_t jEmInputWidth = 48; // 8 forward jFEX FPGAs * 6 TOBs per FPGA
+   const uint32_t jMetInputWidth = 1;
+
+   const uint32_t muonInputWidth = 32;
+   // Two fibers from each gFEX pFPGA (A,B,C) to Topo => 6 fibers
+   const uint32_t gJetInputWidth = 12; // 6 fibers * 2 TOBs / fiber
+   const uint32_t gLargeRJetInputWidth = 6; // 6 fibers * 1 TOB / fiber
+   const uint32_t gMetInputWidth = 3;
+
+   const uint32_t eEmOutputWidthSort = 6;
+   const uint32_t eTauOutputWidthSort = 6;
+   const uint32_t jJetOutputWidthSort = 6;
+   const uint32_t jLargeRJetOutputWidthSort = 6;
+   const uint32_t jTauOutputWidthSort = 6;
+   const uint32_t jEmOutputWidthSort = 6;
+   const uint32_t muonOutputWidthSort = 6;
+   const uint32_t metOutputWidth = 1;
+
+   const uint32_t eEmOutputWidthSelect = 10;
+   const uint32_t eTauOutputWidthSelect = 10;
+   const uint32_t jJetOutputWidthSelect = 10;
+   const uint32_t jLJetOutputWidthSelect = 10;
+   const uint32_t jTauOutputWidthSelect = 10;
+   const uint32_t jEmOutputWidthSelect = 10;
+   const uint32_t muonOutputWidthSelect = 10;
+
+
+   // Legacy Topo constants
    const uint32_t InputWidthEM                = 120;
    const uint32_t InputWidthTAU               = 120;
    const uint32_t InputWidthJET               = 64;
@@ -56,10 +90,6 @@ namespace TCS {
    const uint32_t NumberOfOverflowBits        = 32;  // fixed! do not touch!
    const uint32_t NumberOfOutputBits          = 32;  // there are only 32 lines from a L1Topo-Module to CTP => 16 lines per processor -> TODO: Change to 16! (but now 32 needed for testing)
 	
-   const uint32_t NumberOfMGTs_485            = 56;
-   const uint32_t NumberOfMGTs_690            = 80;
-   const uint32_t NumberOfQuads_485           = 14;
-   const uint32_t NumberOfQuads_690           = 20;
 	
    const uint32_t KalmanMETCorrection_numberOfEtaBins    = 8;  // needs to be multiple of 2
    const uint32_t KalmanMETCorrection_numberOfEtBins     = 10; // needs to be multiple of 2
@@ -102,23 +132,6 @@ namespace TCS {
    const uint32_t InvariantMassSqrBitWidth    = 2 * GenericEtBitWidth + CoshBitWidth + 1 - 7;
    const uint32_t TransverseMassSqrBitWidth    = 2 * GenericEtBitWidth + CosSinBitWidth + 1 - 7;
    const uint32_t ContratransverseMassSqrBitWidth    = TransverseMassSqrBitWidth ; 
-
-
-   // Maximum number of components that require parameters
-   const uint32_t max_components              = 70; //TODO: unused!
-
-   const uint32_t max_jets                    = 48; //TODO: unused!
-   const uint32_t max_clusters                = 80; //TODO: unused!
-
-   // Max number of TOBs to be analysed by inclusive algorithms:
-
-   const uint32_t max_incl_jets               = 8; //TODO: unused!
-   const uint32_t max_incl_clusters           = 8; //TODO: unused!
-
-   const uint32_t ParameterBitWidth           = 32;  // Internal Data width
-	
-   const uint32_t MaxParams                   = 20;  // Maximum number of parameters
-
 }
 
 #endif

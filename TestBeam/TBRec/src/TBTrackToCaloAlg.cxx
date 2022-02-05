@@ -25,7 +25,6 @@
 
 #include "CaloEvent/CaloCluster.h"
 #include "CaloEvent/CaloClusterContainer.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "CaloUtils/CaloCellList.h"
 #include "CaloEvent/CaloCell.h"
@@ -56,8 +55,6 @@ TBTrackToCaloAlg::TBTrackToCaloAlg(const std::string &name,
   declareProperty("CaloCellContainerName", m_cell_container);
   declareProperty("ImpactInCaloContainerName", m_ImpactInCalosOutputName);
   declareProperty("TrackInputType", m_trkinput);
-
-  m_calo_dd = 0;
   m_calo_id = 0;
   m_calo_tb_coord = 0;
   m_particle = 0;
@@ -69,9 +66,8 @@ StatusCode TBTrackToCaloAlg::initialize()
 {
   ATH_MSG_DEBUG ( "TBTrackToCaloAlg::initialize()" );
 
-  m_calo_dd = CaloDetDescrManager::instance();
-  m_calo_id = m_calo_dd->getCaloCell_ID();
-  m_phiRange.print();
+  ATH_CHECK(detStore()->retrieve(m_calo_id,"CaloCell_ID"));
+  CaloPhiRange::print();
 
   // General access to Tools :
   IToolSvc* p_toolSvc = 0;
@@ -125,7 +121,7 @@ StatusCode TBTrackToCaloAlg::execute()
 
   // Example 2 : you want to know the list of cells crossed by the track
   // bool found_cells = PrintCellsCrossed();
-
+  ATH_CHECK(m_caloMgrKey.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -207,6 +203,9 @@ ImpactInCalo* TBTrackToCaloAlg::GetImpactsInCalo(const Trk::Track* track, bool& 
   Amg::Vector3D* pt_calo_ctb = new Amg::Vector3D; 
   Amg::Vector3D* pt_calo_local = new Amg::Vector3D; 
 
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+  const CaloDetDescrManager* caloDDMgr = *caloMgrHandle;
+
   double trketa = 0.;
   // take the last measured point to find out if I am in barrel or endcap :
   const DataVector <const Trk::TrackParameters>* paramvec = track->trackParameters();
@@ -269,8 +268,8 @@ ImpactInCalo* TBTrackToCaloAlg::GetImpactsInCalo(const Trk::Track* track, bool& 
   if (paramvec) { 
     
     // PS :
-    distbar = m_calodepth->deta(CaloCell_ID::PreSamplerB,trketa);
-    distec = m_calodepth->deta(CaloCell_ID::PreSamplerE,trketa);
+    distbar = CaloDepthTool::deta(CaloCell_ID::PreSamplerB,trketa,caloDDMgr);
+    distec = CaloDepthTool::deta(CaloCell_ID::PreSamplerE,trketa,caloDDMgr);
     
     ATH_MSG_DEBUG ( " TrackTo ...PS : for eta= " << trketa << " dist to Barrel =" << distbar 
                     << " to endcap =" << distec );
@@ -299,8 +298,8 @@ ImpactInCalo* TBTrackToCaloAlg::GetImpactsInCalo(const Trk::Track* track, bool& 
     }
     
     // strip :
-    distbar = m_calodepth->deta(CaloCell_ID::EMB1,trketa);
-    distec = m_calodepth->deta(CaloCell_ID::EME1,trketa);
+    distbar = CaloDepthTool::deta(CaloCell_ID::EMB1,trketa,caloDDMgr);
+    distec = CaloDepthTool::deta(CaloCell_ID::EME1,trketa,caloDDMgr);
     
     ATH_MSG_DEBUG ( " TrackTo ...Strip : for eta= " << trketa << " dist to Barrel =" << distbar 
                     << " to endcap =" << distec );
@@ -330,8 +329,8 @@ ImpactInCalo* TBTrackToCaloAlg::GetImpactsInCalo(const Trk::Track* track, bool& 
     
     
     // middle :
-    distbar = m_calodepth->deta(CaloCell_ID::EMB2,trketa);
-    distec = m_calodepth->deta(CaloCell_ID::EME2,trketa);
+    distbar = CaloDepthTool::deta(CaloCell_ID::EMB2,trketa,caloDDMgr);
+    distec = CaloDepthTool::deta(CaloCell_ID::EME2,trketa,caloDDMgr);
     
     ATH_MSG_DEBUG ( " TrackTo ...Middle : for eta= " << trketa << " dist to Barrel =" << distbar 
                     << " to endcap =" << distec );
@@ -368,8 +367,8 @@ ImpactInCalo* TBTrackToCaloAlg::GetImpactsInCalo(const Trk::Track* track, bool& 
     // will use the backup solution (egparametrisation right now, rel 10.0.2).
     //
     
-    distbar = m_calodepth->deta(CaloCell_ID::EMB3,trketa);
-    distec = m_calodepth->deta(CaloCell_ID::EME3,trketa);
+    distbar = CaloDepthTool::deta(CaloCell_ID::EMB3,trketa,caloDDMgr);
+    distec = CaloDepthTool::deta(CaloCell_ID::EME3,trketa,caloDDMgr);
     
     ATH_MSG_DEBUG ( " TrackTo ...Back : for eta= " << trketa << " dist to Barrel =" << distbar 
                     << " to endcap =" << distec );
@@ -398,8 +397,8 @@ ImpactInCalo* TBTrackToCaloAlg::GetImpactsInCalo(const Trk::Track* track, bool& 
     }
     
     // Tile or HEC0 :
-    distbar = m_calodepth->deta(CaloCell_ID::TileBar0,trketa);
-    distec = m_calodepth->deta(CaloCell_ID::HEC0,trketa);
+    distbar = CaloDepthTool::deta(CaloCell_ID::TileBar0,trketa,caloDDMgr);
+    distec = CaloDepthTool::deta(CaloCell_ID::HEC0,trketa,caloDDMgr);
     
     ATH_MSG_DEBUG ( " TrackTo ...Tile : for eta= " << trketa << " dist to Barrel =" << distbar 
                     << " to endcap =" << distec );
@@ -587,6 +586,9 @@ TBTrackToCaloAlg::CellsCrossedByTrack(const Trk::Track* trk,
   StatusCode sc=evtStore()->retrieve(cell_container,m_cell_container);
   if ( sc != StatusCode::SUCCESS  ) return 0;
 
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+  const CaloDetDescrManager* caloDDMgr = *caloMgrHandle;
+
   // Where is the track shooting ?
   double offset = 0.;
   double trketa_at = 0.;
@@ -609,21 +611,20 @@ TBTrackToCaloAlg::CellsCrossedByTrack(const Trk::Track* trk,
   CaloCell_ID::SUBCALO subcalo;
   bool barrel;
   int sampling_or_module;
-  m_calo_dd->decode_sample (subcalo, barrel, sampling_or_module, sam);
+  CaloDetDescrManager::decode_sample (subcalo, barrel, sampling_or_module, sam);
 
   // Get the corresponding grannularities : needs to know where you are 
   //                  the easiest is to look for the CaloDetDescrElement
   const CaloDetDescrElement* dde =
-     m_calo_dd->get_element(subcalo,sampling_or_module,barrel,eta,phi);
+     caloDDMgr->get_element(subcalo,sampling_or_module,barrel,eta,phi);
 
   double deta = int(neta/2)*dde->deta();
   double dphi = int(nphi/2)*dde->dphi();
   
   //std::cout << "zone is ..." << eta << " " << phi << " "
   //	      << deta << " " << dphi << " " << std::endl;
-  
   // Construct the list : 
-  my_list = new CaloCellList(cell_container,subcalo);
+  my_list = new CaloCellList(caloDDMgr, cell_container,subcalo);
   my_list->select(eta,phi,deta,dphi, (int) sam);
 
   // cleanup 
@@ -649,7 +650,7 @@ bool TBTrackToCaloAlg::PrintCellsCrossed()
     ATH_MSG_ERROR ("m_TrackName not set" );
     return true;
   }
-  
+
   StatusCode sc = evtStore()->retrieve(m_tracks, m_TrackName);
   if (sc.isFailure()){
     ATH_MSG_ERROR ("Tracks not found: will only play with calo " 

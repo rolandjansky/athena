@@ -11,6 +11,17 @@
 // Athena Base
 #include "AthenaBaseComps/AthAlgTool.h"
 
+//Barcode
+#include "BarcodeInterfaces/IBarcodeSvc.h"
+
+//Geometry
+#include "SubDetectorEnvelopes/IEnvelopeDefSvc.h"
+
+#include "ISF_Interfaces/IGeoIDSvc.h"
+
+// Gaudi & StoreGate
+#include "GaudiKernel/IPartPropSvc.h"
+
 #include "BarcodeEvent/Barcode.h"
 #include "BarcodeEvent/PhysicsProcessCode.h"
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -23,28 +34,15 @@
  *  Forward declarations
  *-------------------------------------------------------------------------*/
 
-class IPartPropSvc;
-class IAtRndmGenSvc;
 class TFile;
-class IEnvelopeDefSvc;
-
-namespace CLHEP {
-  class HepRandomEngine;
-}
 
 namespace HepPDT {
   class ParticleDataTable;
 }
 
-namespace Barcode {
-  class IBarcodeSvc;
-}
-
 namespace ISF {
-
   class PunchThroughParticle;
   class PDFcreator;
-  class IGeoIDSvc;
 }
 
 namespace ISF {
@@ -56,14 +54,14 @@ namespace ISF {
     PunchThroughTool(const std::string&,const std::string&,const IInterface*);
 
     /** Destructor */
-    virtual ~PunchThroughTool ();
+    virtual ~PunchThroughTool () = default;
 
     /** AlgTool initialize method */
     virtual StatusCode initialize();
     /** AlgTool finalize method */
     virtual StatusCode finalize  ();
     /** interface function: fill a vector with the punch-through particles */
-    const ISF::ISFParticleVector* computePunchThroughParticles(const ISF::ISFParticle &isfp) const;
+    const ISF::ISFParticleVector* computePunchThroughParticles(const ISF::ISFParticle &isfp, CLHEP::HepRandomEngine* rndmEngine) const;
 
   private:
     /*---------------------------------------------------------------------
@@ -87,15 +85,15 @@ namespace ISF {
      *  particles with the right distributions (energy, theta, phi).
      *  if a second argument is given, create exactly this number of particles
      *  (also with the right energy,theta,phi distributions */
-    int getAllParticles(int pdg, int numParticles = -1) const;
+    int getAllParticles(CLHEP::HepRandomEngine* rndmEngine, int pdg, int numParticles = -1) const;
 
     /** get the right number of particles for the given pdg while considering
      *  the correlation to an other particle type, which has already created
      *  'corrParticles' number of particles */
-    int getCorrelatedParticles(int doPdg, int corrParticles ) const;
+    int getCorrelatedParticles(int doPdg, int corrParticles, CLHEP::HepRandomEngine* rndmEngine) const;
 
     /** create exactly one punch-through particle with the given pdg and the given max energy */
-    ISF::ISFParticle *getOneParticle(int pdg, double maxEnergy) const;
+    ISF::ISFParticle *getOneParticle(int pdg, double maxEnergy, CLHEP::HepRandomEngine* rndmEngine) const;
 
     /** create a ISF Particle state at the MS entrace containing a particle with the given properties */
     ISF::ISFParticle *createExitPs(int PDGcode, double energy, double theta, double phi, double momTheta, double momPhi) const;
@@ -131,13 +129,9 @@ namespace ISF {
     /** ParticleDataTable needed to get connection pdg_code <-> charge */
     const HepPDT::ParticleDataTable*    m_particleDataTable{nullptr};
 
-    /** random generator service */
-    ServiceHandle<IAtRndmGenSvc>        m_randomSvc;                  //!< Random Svc
-    std::string                         m_randomEngineName{"ISFRnd"}; //!< Name of the random number stream
-    CLHEP::HepRandomEngine*             m_randomEngine{nullptr};      //!< Random Engine
-
     /** ROOT objects */
     TFile*                              m_fileLookupTable{nullptr};   //!< the punch-through lookup table file
+
     /** general information of the punch-through particles which will be created */
     mutable std::map<int, bool>         m_doAntiParticleMap;        /*!< stores information, if anti-particles are
                                                                       created for any given PDG id */

@@ -17,26 +17,26 @@ def RDOAnalysisBaseCfg(flags, name, **kwargs):
 def ITkPixelRDOAnalysisCfg(flags, name="ITkPixelRDOAnalysis", **kwargs):
     result = RDOAnalysisBaseCfg(flags, name, **kwargs)
 
-    from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelGeometryCfg
-    result.merge(ITkPixelGeometryCfg(flags))
+    from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelReadoutGeometryCfg
+    result.merge(ITkPixelReadoutGeometryCfg(flags))
 
     kwargs.setdefault("NtupleFileName", f"/{name}/")
     kwargs.setdefault("HistPath", f"/{name}/")
 
-    result.addEventAlgo(CompFactory.ITkPixelRDOAnalysis(name, **kwargs))
+    result.addEventAlgo(CompFactory.ITk.PixelRDOAnalysis(name, **kwargs))
     return result
 
 
 def ITkStripRDOAnalysisCfg(flags, name="ITkStripRDOAnalysis", **kwargs):
     result = RDOAnalysisBaseCfg(flags, name, **kwargs)
 
-    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
-    result.merge(ITkStripGeometryCfg(flags))
+    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
+    result.merge(ITkStripReadoutGeometryCfg(flags))
 
     kwargs.setdefault("NtupleFileName", f"/{name}/")
     kwargs.setdefault("HistPath", f"/{name}/")
 
-    result.addEventAlgo(CompFactory.StripRDOAnalysis(name, **kwargs))
+    result.addEventAlgo(CompFactory.ITk.StripRDOAnalysis(name, **kwargs))
     return result
 
 

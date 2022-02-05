@@ -116,9 +116,10 @@ if not 'InputDirectory' in dir():
             Year = 2018
         elif RunNumber < 374260:
             Year = 2019
-        else:
+        elif RunNumber < 387000:
             Year = 2020
-
+        else:
+            Year = 2021
 
         if 'RunStream' in dir():
             if RunStream == 'l1calo' or RunStream == 'L1Calo':

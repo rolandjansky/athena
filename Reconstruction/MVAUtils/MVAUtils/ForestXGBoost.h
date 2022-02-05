@@ -44,7 +44,7 @@ namespace MVAUtils
     class ForestXGBoost final : public ForestXGBoostBase<NodeXGBoost>
     {
     public:
-        ForestXGBoost(TTree* tree);
+        explicit ForestXGBoost(TTree* tree);
         ForestXGBoost() = default;
         ForestXGBoost (const ForestXGBoost&) = default;
         ForestXGBoost& operator=(const ForestXGBoost&) = default;

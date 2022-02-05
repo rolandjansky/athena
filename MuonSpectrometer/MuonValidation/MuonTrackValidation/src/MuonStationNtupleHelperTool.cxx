@@ -16,13 +16,13 @@ Muon::MuonStationNtupleHelperTool::MuonStationNtupleHelperTool(const std::string
 			  const IInterface*  p )
   :
   AthAlgTool(t,n,p),
-  m_mdtSectorIx(0),
-  m_mdtStationIx(0),
-  m_rpcSectorIx(0),
-  m_rpcStationIx(0),
-  m_rpcMeasuresPhi(0),
-  m_tgcStationIx(0),
-  m_tgcMeasuresPhi(0)
+  m_mdtSectorIx(nullptr),
+  m_mdtStationIx(nullptr),
+  m_rpcSectorIx(nullptr),
+  m_rpcStationIx(nullptr),
+  m_rpcMeasuresPhi(nullptr),
+  m_tgcStationIx(nullptr),
+  m_tgcMeasuresPhi(nullptr)
 {
   declareInterface<Trk::IValidationNtupleHelperTool>(this);
 }
@@ -49,13 +49,13 @@ StatusCode Muon::MuonStationNtupleHelperTool::initialize()
 
 StatusCode Muon::MuonStationNtupleHelperTool::finalize()
 {
-  delete m_mdtSectorIx; m_mdtSectorIx=0;
-  delete m_mdtStationIx; m_mdtStationIx=0;
-  delete m_rpcSectorIx; m_rpcSectorIx=0;
-  delete m_rpcStationIx; m_rpcStationIx=0;
-  delete m_rpcMeasuresPhi; m_rpcMeasuresPhi=0;
-  delete m_tgcStationIx; m_tgcStationIx=0;
-  delete m_tgcMeasuresPhi; m_tgcMeasuresPhi=0;
+  delete m_mdtSectorIx; m_mdtSectorIx=nullptr;
+  delete m_mdtStationIx; m_mdtStationIx=nullptr;
+  delete m_rpcSectorIx; m_rpcSectorIx=nullptr;
+  delete m_rpcStationIx; m_rpcStationIx=nullptr;
+  delete m_rpcMeasuresPhi; m_rpcMeasuresPhi=nullptr;
+  delete m_tgcStationIx; m_tgcStationIx=nullptr;
+  delete m_tgcMeasuresPhi; m_tgcMeasuresPhi=nullptr;
   return StatusCode::SUCCESS;
 }
 

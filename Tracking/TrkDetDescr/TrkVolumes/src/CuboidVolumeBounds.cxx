@@ -62,7 +62,7 @@ Trk::CuboidVolumeBounds::operator=(const Trk::CuboidVolumeBounds& bobo)
 
 const std::vector<const Trk::Surface*>*
   Trk::CuboidVolumeBounds::decomposeToSurfaces
-  ATLAS_NOT_THREAD_SAFE(const Amg::Transform3D& transform) const
+  (const Amg::Transform3D& transform)
 {
 
   std::vector<const Trk::Surface*>* retsf =

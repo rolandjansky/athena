@@ -492,14 +492,10 @@ StatusCode PixelFastDigitizationTool::digitize(const EventContext& ctx)
 
     Pixel_detElement_RIO_map PixelDetElClusterMap;
 
-    int nnn = 0;
-
     trkNo.clear();
     detEl.clear();
 
     while (i != e) {
-
-      nnn+=1;
 
       TimedHitPtr<SiHit> hit(*i++);
 
@@ -661,18 +657,18 @@ StatusCode PixelFastDigitizationTool::digitize(const EventContext& ctx)
 
       for (auto& dStep : digitizationSteps){
 
-        double pathlenght = dStep.stepLength;
+        double pathlength = dStep.stepLength;
         // two options fro charge smearing: landau / gauss
         if ( m_pixSmearPathLength > 0. ) {
           // create the smdar parameter
           double sPar = m_pixSmearLandau ?
             m_pixSmearPathLength*CLHEP::RandLandau::shoot(m_randomEngine) :
             m_pixSmearPathLength*CLHEP::RandGaussZiggurat::shoot(m_randomEngine);
-          pathlenght *=  (1.+sPar);
+          pathlength *=  (1.+sPar);
         }
 
 
-        if (pathlenght < pixMinimalPathCut) continue;
+        if (pathlength < pixMinimalPathCut) continue;
 
         // position on the diode map
         Trk::DigitizationCell cell(dStep.stepCell.first,dStep.stepCell.second);
@@ -686,7 +682,7 @@ StatusCode PixelFastDigitizationTool::digitize(const EventContext& ctx)
         Amg::Vector2D chargeCenterPosition = hitSiDetElement->rawLocalPositionOfCell(diode);
 
         const Identifier rdoId            =  hitSiDetElement->identifierOfPosition(chargeCenterPosition);
-        clusterPosition += pathlenght * chargeCenterPosition;
+        clusterPosition += pathlength * chargeCenterPosition;
 
         int currentEtaIndex = diode.etaIndex();
         int currentPhiIndex = diode.phiIndex();
@@ -697,10 +693,10 @@ StatusCode PixelFastDigitizationTool::digitize(const EventContext& ctx)
 
 
         // record - positions, rdoList and totList
-        accumulatedPathLength += pathlenght;
+        accumulatedPathLength += pathlength;
         //Fail
         rdoList.push_back(rdoId);
-        totList.push_back(int(pathlenght*m_pixPathLengthTotConv));
+        totList.push_back(int(pathlength*m_pixPathLengthTotConv));
 
       }
 
@@ -986,7 +982,7 @@ Trk::DigitizationModule* PixelFastDigitizationTool::buildDetectorModule(const In
   //Read from the SiDetectorElement information to build the digitization module
   const double halfThickness = hitSiDetElement->thickness() * 0.5;
   const double halfWidth     = design->width() * 0.5;
-  const double halfLenght    = design->length() * 0.5;
+  const double halfLength    = design->length() * 0.5;
 
   int binsX = design->rows();
   int binsY = design->columns();
@@ -996,7 +992,7 @@ Trk::DigitizationModule* PixelFastDigitizationTool::buildDetectorModule(const In
   float LongPitch  =design->parameters(cell).width().xEta();
   //std::cout<<"numberOfChip "<<numberOfChip<<" LongPitch "<<LongPitch<<std::endl;
 
-  ATH_MSG_VERBOSE("Retrieving infos: halfThickness = " << halfThickness << " --- halfWidth = " << halfWidth << " --- halfLenght = " << halfLenght );
+  ATH_MSG_VERBOSE("Retrieving infos: halfThickness = " << halfThickness << " --- halfWidth = " << halfWidth << " --- halfLength = " << halfLength );
   ATH_MSG_VERBOSE("Retrieving infos: binsX = " << binsX << " --- binsY = " << binsY << " --- numberOfChip = " << numberOfChip);
 
   int readoutDirection = design->readoutSide();
@@ -1017,7 +1013,7 @@ Trk::DigitizationModule* PixelFastDigitizationTool::buildDetectorModule(const In
   //        << " --  element->hitPhiDirection() = " << hitSiDetElement->hitPhiDirection() << std::endl;
 
   // rectangle bounds
-  auto rectangleBounds = std::make_shared<const Trk::RectangleBounds>(halfWidth,halfLenght);
+  auto rectangleBounds = std::make_shared<const Trk::RectangleBounds>(halfWidth,halfLength);
   ATH_MSG_VERBOSE("Initialized rectangle Bounds");
   // create the segmentation
   std::shared_ptr<const Trk::Segmentation> rectangleSegmentation(new Trk::RectangularSegmentation(std::move(rectangleBounds),(size_t)binsX,LongPitch,(size_t)binsY, numberOfChip));
@@ -1027,7 +1023,7 @@ Trk::DigitizationModule* PixelFastDigitizationTool::buildDetectorModule(const In
                                                                                halfThickness,
                                                                                readoutDirection,
                                                                                lorentzAngle);
-  ATH_MSG_VERBOSE("Building Rectangle Segmentation with dimensions (halfX, halfY) = (" << halfWidth << ", " << halfLenght << ")");
+  ATH_MSG_VERBOSE("Building Rectangle Segmentation with dimensions (halfX, halfY) = (" << halfWidth << ", " << halfLength << ")");
 
   // success return
   return digitizationModule;

@@ -10,6 +10,21 @@ namespace Muon
 {
   namespace nsw
   {
+    enum channel_type
+    {
+      OFFLINE_CHANNEL_TYPE_PAD = 0,
+      OFFLINE_CHANNEL_TYPE_STRIP = 1,
+      OFFLINE_CHANNEL_TYPE_WIRE = 2
+    };
+
+    enum vmm_channels
+    {
+      VMM_per_MMFE8 = 8,
+      VMM_per_sFEB  = 3,
+      VMM_per_pFEB  = 3,
+      VMM_channels  = 64
+    };
+
     namespace helper
     {
       uint32_t get_bits (uint32_t word, uint32_t mask, uint8_t position);

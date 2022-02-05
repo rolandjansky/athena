@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file GeoModelUtilities/GeoVisitVolumes.h
@@ -15,6 +15,8 @@
 #ifndef GEOMODELUTILITIES_GEOVISITVOLUMES_H
 #define GEOMODELUTILITIES_GEOVISITVOLUMES_H
 
+/// Ensure that the extensions for the Vector3D are properly loaded
+#include "GeoPrimitives/GeoPrimitives.h"
 
 #include "GeoModelKernel/GeoNodeAction.h"
 #include "GeoModelKernel/GeoDefinitions.h"

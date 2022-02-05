@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENASERVICES_COREDUMPSVC_H
@@ -16,6 +16,7 @@
 
 // FrameWork includes
 #include "AthenaBaseComps/AthService.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "EventInfo/EventID.h"
 
@@ -24,7 +25,7 @@
 template <class TYPE> class SvcFactory;
 
 namespace CoreDumpSvcHandler {
-  void action( int sig, siginfo_t *info, void* extra );
+  void action ATLAS_NOT_THREAD_SAFE ( int sig, siginfo_t *info, void* extra );
 }
 
 /**
@@ -57,32 +58,32 @@ protected:
 public: 
 
   /// Constructor with parameters
-  CoreDumpSvc( const std::string& name, ISvcLocator* pSvcLocator );
+  CoreDumpSvc( const std::string& name, ISvcLocator* pSvcLocator ) ATLAS_CTORDTOR_NOT_THREAD_SAFE;
   
   /// Destructor
-  virtual ~CoreDumpSvc(); 
+  virtual ~CoreDumpSvc() ATLAS_CTORDTOR_NOT_THREAD_SAFE;
   
   /// \name ICoreDumpSvc implementation
   //@{  
   /// Set a name/value pair in the core dump record
-  virtual void setCoreDumpInfo( const std::string& name, const std::string& value );
+  virtual void setCoreDumpInfo( const std::string& name, const std::string& value ) override;
 
   /// Set a name/value pair in the core dump record for given EventContext
-  virtual void setCoreDumpInfo( const EventContext& ctx, const std::string& name, const std::string& value );
+  virtual void setCoreDumpInfo( const EventContext& ctx, const std::string& name, const std::string& value ) override;
 
   /// Print all core dump records
-  virtual std::string dump() const;
+  virtual std::string dump() const override;
   //@}
 
 
   /// \name Gaudi implementation
   //@{
-  virtual StatusCode initialize();
-  virtual StatusCode start();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize ATLAS_NOT_THREAD_SAFE () override;
+  virtual StatusCode start() override;
+  virtual StatusCode finalize ATLAS_NOT_THREAD_SAFE () override;
   
   /// Incident listener
-  virtual void handle( const Incident& incident );
+  virtual void handle( const Incident& incident ) override;
   //@}
 
     
@@ -130,19 +131,19 @@ private:
   ///@}
 
   /// Property handler
-  void propertyHandler(Gaudi::Details::PropertyBase& p);
+  void propertyHandler ATLAS_NOT_THREAD_SAFE (Gaudi::Details::PropertyBase& p);
 
   /// Print core dump records to configured stream
-  void print();
+  void print ATLAS_NOT_THREAD_SAFE ();
   
   /// Set pointer to siginfo_t struct
   void setSigInfo(siginfo_t* info) { m_siginfo = info; }  
   
   /// Install signal handlers
-  StatusCode installSignalHandler();
+  StatusCode installSignalHandler ATLAS_NOT_THREAD_SAFE ();
   
   /// Uninstall signal handlers
-  StatusCode uninstallSignalHandler();
+  StatusCode uninstallSignalHandler ATLAS_NOT_THREAD_SAFE ();
 
   /// Set up an alternate stack for the current thread.
   void setAltStack();

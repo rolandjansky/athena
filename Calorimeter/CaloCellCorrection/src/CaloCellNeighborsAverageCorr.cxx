@@ -18,8 +18,6 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/TileID.h"
 #include "CaloIdentifier/CaloIdManager.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
-#include "CaloDetDescr/CaloDetDescrElement.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 #include <map> //useful in testMode

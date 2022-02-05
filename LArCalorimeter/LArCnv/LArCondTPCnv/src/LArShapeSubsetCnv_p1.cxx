@@ -18,7 +18,7 @@ LArShapeSubsetCnv_p1::persToTrans(const LArShapePersType1* persObj,
     unsigned int nShapeDers    = persObj->m_vShapeDerSize;
     unsigned int shapeIndex    = 0;
     unsigned int shapederIndex = 0;
-    
+    const unsigned int nChannelsPerFeb  = persObj->m_subset.subsetSize();    
     // Loop over febs
     unsigned int ifebWithData = 0; // counter for febs with data
 
@@ -41,7 +41,7 @@ LArShapeSubsetCnv_p1::persToTrans(const LArShapePersType1* persObj,
         }
             
         // Loop over channels in feb - only some channels are filled
-        for (unsigned int j = 0; j < NCHANNELPERFEB; ++j){
+        for (unsigned int j = 0; j < nChannelsPerFeb; ++j){
 
             bool copyChannel = true;
             if (hasSparseData) {
@@ -49,7 +49,7 @@ LArShapeSubsetCnv_p1::persToTrans(const LArShapePersType1* persObj,
                     // Channel is missing data - skip
                     copyChannel = false;
                 }
-                if (j%32 == 31 && j < 126) {
+                if (j%32 == 31 && j < nChannelsPerFeb-2) {
                     chansSet     = persObj->m_subset.m_febsWithSparseData[ifebWithData];
                     chansOffset += 32;
                     ifebWithData++;
@@ -193,7 +193,7 @@ LArShapeSubsetCnv_p1::transToPers(const LArShapeTransType1* transObj,
     unsigned int nShapeDers       = 0;
     bool foundNShapes             = false;
     std::vector<unsigned int> febsWithSparseData;
-
+    const unsigned int nChannelsPerFeb  = transObj->channelVectorSize();
     // Find the number of shapes/shapeders and check for sparse
     // conditions, e.g. MC conditions
     const auto subsetEnd = transObj->subsetEnd();
@@ -203,7 +203,7 @@ LArShapeSubsetCnv_p1::transToPers(const LArShapeTransType1* transObj,
     {
         unsigned int nfebChans = subsetIt->second.size();
 
-        if (nfebChans != 0 && nfebChans != NCHANNELPERFEB) {
+        if (nfebChans != 0 && nfebChans != nChannelsPerFeb) {
             log << MSG::ERROR 
                 << "LArShapeSubsetCnv_p1::transToPers - found incorrect number of channels per feb: " << nfebChans
                 << endmsg;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -180,9 +180,9 @@ class CaloCluster :  public CaloCompositeKineBase,
     MomentStoreIter operator--(int);
 
     /*! \brief Equality comparator */
-    bool operator==(const MomentStoreIter& anOther);
+    bool operator==(const MomentStoreIter& anOther) const;
     /*! \brief Inequality comparator */
-    bool operator!=(const MomentStoreIter& anOther);
+    bool operator!=(const MomentStoreIter& anOther) const;
 
     /*! \brief Operator access to \a CaloClusterMoment */
     const CaloClusterMoment& operator*() const;

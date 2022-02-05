@@ -4,7 +4,6 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import ProductionStep
 from IOVDbSvc.IOVDbSvcConfig import addFolders,addFoldersSplitOnline
 
 def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
@@ -16,7 +15,6 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
     CondArgs = {}
     if flags.Beam.Type == "cosmics":
         CondArgs.update(
-            UseComTime=True,
             BarrelTimeJitter=[25.0,25.0,25.0,25.0],
             EndcapTimeJitter=[25.0,25.0,25.0],
             DBMTimeJitter=[25.0,25.0,25.0],
@@ -29,7 +27,6 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
         )
     else:
         CondArgs.update(
-            UseComTime=False,
             BarrelTimeJitter=[0.0,0.0,0.0,0.0],
             EndcapTimeJitter=[0.0,0.0,0.0],
             DBMTimeJitter=[0.0,0.0,0.0],
@@ -83,7 +80,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
             DBMCrossTalk2016          = [ 0.06, 0.06, 0.06],
             DBMNoiseOccupancy2016     = [ 5e-8, 5e-8, 5e-8],
             DBMDisableProbability2016 = [ 9e-3, 9e-3, 9e-3],
-            IBLNoiseShape2016    = [0.0, 0.0330, 0.0, 0.3026, 0.5019, 0.6760, 0.8412, 0.9918, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
+            IBLNoiseShape2016    = [0.0, 0.0330, 0.0, 0.3026, 0.5019, 0.6760, 0.8412, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 1.0],
             BLayerNoiseShape2016 = [0.0, 0.0, 0.0, 0.0, 0.2204, 0.5311, 0.7493, 0.8954, 0.9980, 1.0],
             PixelNoiseShape2016  = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2418, 0.4397, 0.5858, 0.6949, 0.7737, 0.8414, 0.8959, 0.9414, 0.9828, 1.0],
             # Layer-2 noise shape                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2129, 0.4016, 0.5477, 0.6599, 0.7435, 0.8160, 0.8779, 0.9340, 0.9798, 1.0]
@@ -124,7 +121,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
             DBMCrossTalk2017          = [ 0.06, 0.06, 0.06],
             DBMNoiseOccupancy2017     = [ 5e-8, 5e-8, 5e-8],
             DBMDisableProbability2017 = [ 9e-3, 9e-3, 9e-3],
-            IBLNoiseShape2017    = [0.0, 0.0330, 0.0, 0.3026, 0.5019, 0.6760, 0.8412, 0.9918, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
+            IBLNoiseShape2017    = [0.0, 0.0330, 0.0, 0.3026, 0.5019, 0.6760, 0.8412, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 1.0],
             BLayerNoiseShape2017 = [0.0, 0.0, 0.0, 0.0, 0.2204, 0.5311, 0.7493, 0.8954, 0.9980, 1.0],
             PixelNoiseShape2017  = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2418, 0.4397, 0.5858, 0.6949, 0.7737, 0.8414, 0.8959, 0.9414, 0.9828, 1.0],
         )
@@ -160,9 +157,46 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
             DBMCrossTalk2018          = [ 0.06, 0.06, 0.06],
             DBMNoiseOccupancy2018     = [ 5e-8, 5e-8, 5e-8],
             DBMDisableProbability2018 = [ 9e-3, 9e-3, 9e-3],
-            IBLNoiseShape2018    = [0.0, 0.0330, 0.0, 0.3026, 0.5019, 0.6760, 0.8412, 0.9918, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
+            IBLNoiseShape2018    = [0.0, 0.0330, 0.0, 0.3026, 0.5019, 0.6760, 0.8412, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 1.0],
             BLayerNoiseShape2018 = [0.0, 0.0, 0.0, 0.0, 0.2204, 0.5311, 0.7493, 0.8954, 0.9980, 1.0],
             PixelNoiseShape2018  = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2418, 0.4397, 0.5858, 0.6949, 0.7737, 0.8414, 0.8959, 0.9414, 0.9828, 1.0],
+        )
+        #====================================================================================
+        # RUN3 2022
+        # The pixel conditions are matched with 2022 data (mc16e) at L=119.4fb-1 (run#357193).
+        CondArgs.update(
+            BarrelToTThreshold2022       = [     -1,      3,      5,      5],
+            FEI3BarrelLatency2022        = [      0,    151,    256,    256],
+            FEI3BarrelHitDuplication2022 = [  False,  False,  False,  False],
+            FEI3BarrelSmallHitToT2022    = [     -1,     -1,     -1,     -1],
+            FEI3BarrelTimingSimTune2022  = [     -1,   2018,   2018,   2018],
+            BarrelCrossTalk2022          = [   0.30,   0.12,   0.12,   0.12],
+            BarrelNoiseOccupancy2022     = [   5e-8,   5e-8,   5e-8,   5e-8],
+            BarrelDisableProbability2022 = [   9e-3,   9e-3,   9e-3,   9e-3],
+            BarrelLorentzAngleCorr2022   = [    1.0,    1.0,    1.0,    1.0],
+            DefaultBarrelBiasVoltage2022 = [  400.0,  400.0,  250.0,  250.0],
+            BarrelFluence2022            = [5.50e14,5.19e14,2.28e14,1.53e14],
+            BarrelFluenceMap2022 = ["PixelDigitization/maps_IBL_PL_450V_fl7_2e14.root",
+                                    "PixelDigitization/maps_PIX_450V_fl6_8e14.root",
+                                    "PixelDigitization/maps_PIX_300V_fl3e14.root",
+                                    "PixelDigitization/maps_PIX_300V_fl2e14.root"],
+            Barrel3DFluenceMap2022 = ["PixelDigitization/maps_IBL_3D_60V_fl7_54e14_LHCb.root"],
+            EndcapToTThreshold2022       = [    5,    5,    5],
+            FEI3EndcapLatency2022        = [  256,  256,  256],
+            FEI3EndcapHitDuplication2022 = [False,False,False],
+            FEI3EndcapSmallHitToT2022    = [   -1,   -1,   -1],
+            FEI3EndcapTimingSimTune2022  = [ 2018, 2018, 2018],
+            EndcapCrossTalk2022          = [ 0.06, 0.06, 0.06],
+            EndcapNoiseOccupancy2022     = [ 5e-8, 5e-8, 5e-8],
+            EndcapDisableProbability2022 = [ 9e-3, 9e-3, 9e-3],
+            EndcapLorentzAngleCorr2022   = [  1.0,  1.0,  1.0],
+            DBMToTThreshold2022       = [   -1,   -1,   -1],
+            DBMCrossTalk2022          = [ 0.06, 0.06, 0.06],
+            DBMNoiseOccupancy2022     = [ 5e-8, 5e-8, 5e-8],
+            DBMDisableProbability2022 = [ 9e-3, 9e-3, 9e-3],
+            IBLNoiseShape2022    = [0.0, 0.0330, 0.0, 0.3026, 0.5019, 0.6760, 0.8412, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 1.0],
+            BLayerNoiseShape2022 = [0.0, 0.0, 0.0, 0.0, 0.2204, 0.5311, 0.7493, 0.8954, 0.9980, 1.0],
+            PixelNoiseShape2022  = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2418, 0.4397, 0.5858, 0.6949, 0.7737, 0.8414, 0.8959, 0.9414, 0.9828, 1.0],
         )
         #====================================================================================
         # RUN1
@@ -247,7 +281,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
     if flags.Input.isMC:
         # ITk:
-        if flags.GeoModel.Run == "RUN4":
+        if flags.GeoModel.Run not in ['RUN1', 'RUN2', 'RUN3']: # RUN4 and beyond
             IdMappingDat = "ITk_Atlas_IdMapping.dat"
             if flags.GeoModel.Type == "BrlIncl4.0_ref":
                 IdMappingDat = "ITk_Atlas_IdMapping_InclBrl4.dat"
@@ -298,17 +332,15 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
 
 def PixelAlignCondAlgCfg(flags, name="PixelAlignCondAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelAlignCondAlg"""
-    acc = ComponentAccumulator()
+    from PixelGeoModel.PixelGeoModelConfig import PixelGeoModelCfg
+    acc = PixelGeoModelCfg(flags)
 
     if flags.GeoModel.Align.Dynamic:
         acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/AlignL1/ID","/Indet/AlignL1/ID",className="CondAttrListCollection"))
         acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/AlignL2/PIX","/Indet/AlignL2/PIX",className="CondAttrListCollection"))
         acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/AlignL3","/Indet/AlignL3",className="AlignableTransformContainer"))
     else:
-        if flags.Common.ProductionStep != ProductionStep.Simulation or flags.Overlay.DataOverlay:
-            acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/Align","/Indet/Align",className="AlignableTransformContainer"))
-        else:
-            acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/Align","/Indet/Align"))
+        acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/Align","/Indet/Align",className="AlignableTransformContainer"))
 
     acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/IBLDist","/Indet/IBLDist",className="CondAttrListCollection"))
 
@@ -347,6 +379,8 @@ def PixelChargeCalibCondAlgCfg(flags, name="PixelChargeCalibCondAlg", **kwargs):
     acc = ComponentAccumulator()
     acc.merge(PixelConfigCondAlgCfg(flags))
     acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection"))
+    from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
+    acc.merge(PixelReadoutGeometryCfg(flags))
     kwargs.setdefault("PixelDetEleCollKey", "PixelDetectorElementCollection")
     kwargs.setdefault("PixelModuleData", "PixelModuleData")
     kwargs.setdefault("ReadKey", "/PIXEL/PixCalib")
@@ -440,16 +474,26 @@ def PixelDetectorElementCondAlgCfg(flags, name="PixelDetectorElementCondAlg", **
     
     kwargs.setdefault("PixelAlignmentStore", "PixelAlignmentStore")
     kwargs.setdefault("WriteKey", "PixelDetectorElementCollection")
-    def merge_lists(a, b):
-        a.extend([item for item in b if item not in a])
-        return a
 
-    alg=CompFactory.PixelDetectorElementCondAlg(name, **kwargs)
-    alg._descriptors['MuonManagerKey'].semantics.merge = merge_lists
-    alg._descriptors['TRT_DetEltContKey'].semantics.merge = merge_lists
-    alg._descriptors['SCTAlignmentStore'].semantics.merge = merge_lists
-    acc.addCondAlgo(alg)    
+    # FIXME
+    # add artifical dependencies to SCT, TRT and Muon
+    # conditions algs to ensure that the IOV
+    # is identical to the IOV of the tracking geometry
+    if flags.Detector.GeometryMuon and flags.Muon.enableAlignment:
+        from MuonConfig.MuonGeometryConfig import MuonDetectorCondAlgCfg
+        acc.merge(MuonDetectorCondAlgCfg(flags))
+        kwargs.setdefault("MuonManagerKey", "MuonDetectorManager")
+    if flags.Detector.GeometryTRT:
+        from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
+        acc.merge(TRT_ReadoutGeometryCfg(flags))
+        kwargs.setdefault("TRT_DetEltContKey", "TRT_DetElementContainer")
+    if not flags.GeoModel.Align.LegacyConditionsAccess and flags.Detector.GeometrySCT:
+        from SCT_GeoModel.SCT_GeoModelConfig import SCT_AlignmentCfg
+        acc.merge(SCT_AlignmentCfg(flags))
+        kwargs.setdefault("SCTAlignmentStore", "SCTAlignmentStore")
+    # end of hack
 
+    acc.addCondAlgo(CompFactory.PixelDetectorElementCondAlg(name, **kwargs))    
     return acc
 
 def PixelDistortionAlgCfg(flags, name="PixelDistortionAlg", **kwargs):
@@ -460,6 +504,8 @@ def PixelDistortionAlgCfg(flags, name="PixelDistortionAlg", **kwargs):
     kwargs.setdefault("PixelModuleData", "PixelModuleData")
     kwargs.setdefault("ReadKey", "/Indet/PixelDist")
     kwargs.setdefault("WriteKey", "PixelDistortionData")
+    from RngComps.RandomServices import AthRNGSvcCfg
+    kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
     acc.addCondAlgo(CompFactory.PixelDistortionAlg(name, **kwargs))
     return acc
 

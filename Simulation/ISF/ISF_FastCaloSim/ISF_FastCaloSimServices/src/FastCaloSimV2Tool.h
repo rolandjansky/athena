@@ -54,18 +54,18 @@ namespace ISF {
     virtual StatusCode simulate(const ISFParticle& isp, ISFParticleContainer&, McEventCollection* mcEventCollection) const override final;
 
     /** Setup Event chain - in case of a begin-of event action is needed */
-    virtual StatusCode setupEvent() override final;
+    virtual StatusCode setupEvent(const EventContext&) override final;
 
     virtual StatusCode setupEventST() override final;
 
     /** Release Event chain - in case of an end-of event action is needed */
-    virtual StatusCode releaseEvent() override final;
+    virtual StatusCode releaseEvent(const EventContext&) override final;
 
     virtual StatusCode releaseEventST() override final;
 
     virtual SimulationFlavor simFlavor() const override final { return ISF::FastCaloSimV2; };
   private:
-    StatusCode commonSetup();
+    StatusCode commonSetup(const EventContext& ctx);
 
     ServiceHandle<IFastCaloSimParamSvc> m_paramSvc{this, "ParamSvc", "ISF_FastCaloSimV2ParamSvc"};
     bool m_doPunchThrough{false};

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -190,13 +190,13 @@ bool CaloTowerStore::buildLookUp(const CaloDetDescrManager& theManager,
 
     }
 
-  int nraw = 0;
+  //int nraw = 0;
   m_towers.reserve (ttcmatrix.size()+1);
   m_entries.reserve (17500); // Typical observed size.
   for (size_t i = 0; i < ttcmatrix.size(); i++) {
     size_t last_nentries = m_entries.size();
     const std::vector<Entry>& v = ttcmatrix[i];
-    nraw += v.size();
+    //nraw += v.size();
 
     if (!v.empty()) {
       Entry ent (v[0]);

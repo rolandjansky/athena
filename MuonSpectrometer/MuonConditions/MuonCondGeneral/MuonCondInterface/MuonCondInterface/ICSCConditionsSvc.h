@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //vitrual interface for all the Muon CSC technologies 
@@ -13,6 +13,7 @@
 //STL includes
 #include <list>
 #include <string>
+#include "CxxUtils/checker_macros.h"
 
 //forward declarations
 class Identifier;
@@ -20,7 +21,7 @@ class IdentifierHash;
 class StatusCode;
 
 
-class ICSCConditionsSvc: virtual public IInterface{
+class ATLAS_NOT_THREAD_SAFE ICSCConditionsSvc: virtual public IInterface{
 public:
   virtual ~ICSCConditionsSvc(){}
   static const InterfaceID & interfaceID(); //!< reimplemented from IInterface

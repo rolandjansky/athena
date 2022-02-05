@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILERAWUTILS_TILEROI_MAP_H
@@ -124,7 +124,7 @@ class TileRoI_Map : public AthAlgTool {
   const TileID*   m_tileID; 
   const TileHWID* m_tileHWID; 
   const TileDetDescrManager* m_tileMgr;
-  TileCablingService* m_cablingSvc; 
+  const TileCablingService* m_cablingSvc; 
 
   TileFragHash m_idhash; 
   bool m_print; 

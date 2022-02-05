@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -12,6 +12,7 @@
 #include "LArReadoutGeometry/LArDetectorManager.h"
 // CaloDepth
 #include "CaloDetDescr/CaloDepthTool.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 // GeoModel
 #include "GeoModelKernel/GeoFullPhysVol.h"
 #include "GeoModelKernel/GeoLogVol.h"
@@ -67,7 +68,7 @@ LAr::LArVolumeBuilder::LArVolumeBuilder(const std::string& t, const std::string&
   m_calosurf("CaloSurfaceBuilder"),
   m_scale_HECmaterial(1.1)
 {
-  declareInterface<Trk::ITrackingVolumeBuilder>(this);
+  declareInterface<Trk::ICaloTrackingVolumeBuilder>(this);
   // declare the properties via Python
   declareProperty("LArDetManagerLocation",             m_lArMgrLocation);
   declareProperty("TrackingVolumeCreator",            m_trackingVolumeCreator);
@@ -138,10 +139,11 @@ StatusCode LAr::LArVolumeBuilder::finalize()
   return StatusCode::SUCCESS;
 }
 
-const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVolumes() const
+const std::vector<Trk::TrackingVolume*>*
+LAr::LArVolumeBuilder::trackingVolumes(const CaloDetDescrManager& caloDDM) const
 {
   // the return vector
-  std::vector<const Trk::TrackingVolume*>* lArTrackingVolumes = new std::vector<const Trk::TrackingVolume*>;
+  std::vector<Trk::TrackingVolume*>* lArTrackingVolumes = new std::vector<Trk::TrackingVolume*>;
   // the converter helpers
   Trk::GeoShapeConverter    geoShapeToVolumeBounds;
   Trk::GeoMaterialConverter geoMaterialToMaterialProperties;
@@ -174,17 +176,17 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
   // THE BARREL SECTION
   ATH_MSG_DEBUG( "============ Barrel Section ======================" );
   
-  const Trk::TrackingVolume* solenoid             = nullptr;
-  const Trk::TrackingVolume* solenoidLArBarrelGap = nullptr;
-  const Trk::TrackingVolume* lArBarrelPresampler  = nullptr;
-  const Trk::TrackingVolume* lArBarrel            = nullptr;
+  Trk::TrackingVolume* solenoid             = nullptr;
+  Trk::TrackingVolume* solenoidLArBarrelGap = nullptr;
+  Trk::TrackingVolume* lArBarrelPresampler  = nullptr;
+  Trk::TrackingVolume* lArBarrel            = nullptr;
   
   Trk::CylinderVolumeBounds* solenoidBounds             = nullptr;
   Trk::CylinderVolumeBounds* solenoidLArBarrelGapBounds = nullptr;
   
   // dummy objects
-  const Trk::LayerArray* dummyLayers = nullptr;
-  const Trk::TrackingVolumeArray* dummyVolumes = nullptr;
+  Trk::LayerArray* dummyLayers = nullptr;
+  Trk::TrackingVolumeArray* dummyVolumes = nullptr;
 
   // default material definition
   Trk::Material solenoidMaterial = Trk::Material( 69.9, 811.5,  28.9, 13.8, 0.003); 
@@ -193,10 +195,12 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
 
   throwIntoGarbage(lArBarrelPresamplerMaterial);
   throwIntoGarbage(lArBarrelMaterial);
-  
-  // load layer surfaces 
-  std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > entrySurf = m_calosurf->entrySurfaces();
-  std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > exitSurf  = m_calosurf->exitSurfaces();
+
+  // load layer surfaces
+  std::vector<std::pair<const Trk::Surface*, const Trk::Surface*>> entrySurf =
+    m_calosurf->entrySurfaces(&caloDDM);
+  std::vector<std::pair<const Trk::Surface*, const Trk::Surface*>> exitSurf =
+    m_calosurf->exitSurfaces(&caloDDM);
 
   StoredPhysVol* storedPV = nullptr;
 
@@ -580,20 +584,20 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
   //   FCAL3_POS, FCAL3_NEG
   
   // positive Side
-  const Trk::TrackingVolume* lArPositiveEndcapInnerGap   = nullptr;
-  const Trk::TrackingVolume* lArPositiveEndcap           = nullptr;
-  const Trk::TrackingVolume* lArPositiveHec              = nullptr;
-  const Trk::TrackingVolume* lArPositiveHecFcalCover     = nullptr;
-  const Trk::TrackingVolume* lArPositiveFcal             = nullptr;
-  const Trk::TrackingVolume* lArPosECPresampler          = nullptr;
+  Trk::TrackingVolume* lArPositiveEndcapInnerGap   = nullptr;
+  Trk::TrackingVolume* lArPositiveEndcap           = nullptr;
+  Trk::TrackingVolume* lArPositiveHec              = nullptr;
+  Trk::TrackingVolume* lArPositiveHecFcalCover     = nullptr;
+  Trk::TrackingVolume* lArPositiveFcal             = nullptr;
+  Trk::TrackingVolume* lArPosECPresampler          = nullptr;
   
   // negative Side
-  const Trk::TrackingVolume* lArNegativeEndcapInnerGap   = nullptr;
-  const Trk::TrackingVolume* lArNegativeEndcap           = nullptr;
-  const Trk::TrackingVolume* lArNegativeHec              = nullptr;
-  const Trk::TrackingVolume* lArNegativeHecFcalCover     = nullptr;
-  const Trk::TrackingVolume* lArNegativeFcal             = nullptr;
-  const Trk::TrackingVolume* lArNegECPresampler          = nullptr;
+  Trk::TrackingVolume* lArNegativeEndcapInnerGap   = nullptr;
+  Trk::TrackingVolume* lArNegativeEndcap           = nullptr;
+  Trk::TrackingVolume* lArNegativeHec              = nullptr;
+  Trk::TrackingVolume* lArNegativeHecFcalCover     = nullptr;
+  Trk::TrackingVolume* lArNegativeFcal             = nullptr;
+  Trk::TrackingVolume* lArNegECPresampler          = nullptr;
   
   // the smoothed ones
   Trk::CylinderVolumeBounds* lArPositiveHecBounds            = nullptr;
@@ -1361,12 +1365,12 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
 
      double z, rmin, rmax, hphi, depth;
      Amg::Transform3D* pos = new Amg::Transform3D();
-     m_calosurf->get_disk_surface(CaloCell_ID::HEC0, 1, pos, z, rmin, rmax, hphi, depth);
+     m_calosurf->get_disk_surface(CaloCell_ID::HEC0, 1, pos, z, rmin, rmax, hphi, depth, &caloDDM);
      delete pos;
      caloSurfZOffset = lArHecZmin - z;
      lArHecZmax = z + depth + caloSurfZOffset;
      pos = new Amg::Transform3D();
-     m_calosurf->get_disk_surface(CaloCell_ID::HEC3, 1, pos, z, rmin, rmax, hphi, depth);
+     m_calosurf->get_disk_surface(CaloCell_ID::HEC3, 1, pos, z, rmin, rmax, hphi, depth, &caloDDM);
      delete pos;
      hecEnd = z + depth + caloSurfZOffset;
    }
@@ -1788,55 +1792,11 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
    return lArTrackingVolumes;
 }
 
-
 void LAr::LArVolumeBuilder::printCheckResult(MsgStream& log, const Trk::TrackingVolume* vol) 
 {
   if (vol) log << "... ok"      << endmsg;
   else     log << "... missing" << endmsg;
 }
-
-
-
-Trk::Volume* LAr::LArVolumeBuilder::cylAssociatedVolume(const CaloCell_ID::CaloSample sample, const double hlenz, double& radius) const
-{
-  Amg::Transform3D* pos = new Amg::Transform3D();
-  double rmax=0,hphi=0,hlen=0;
-  int side = 1;
-  m_calosurf->get_cylinder_surface(sample, side, pos, radius, hphi, hlen, rmax);
-  
- 
-  //use the Bounds given by the ChildVolumeBounds
-  if(m_useCaloTrackingGeometryBounds)
-    hlen = hlenz;
-  Trk::CylinderVolumeBounds*  volBounds = new Trk::CylinderVolumeBounds (radius, rmax, hlen);
-  radius += (rmax - radius)/2;
-  return  new Trk::Volume(pos, volBounds); 
-}
-
-Trk::Volume* LAr::LArVolumeBuilder::discAssociatedVolume(const CaloCell_ID::CaloSample sample, 
-                                                         const int side, 
-                                                         const double radmin, 
-                                                         const double radmax, 
-                                                         double& z, 
-                                                         double& depth) const
-{
-  Amg::Transform3D* pos0 = new Amg::Transform3D();
-  double rmin=0,rmax=0,hphi=0;
-  if (!m_calosurf->get_disk_surface(sample, side, pos0, z, rmin, rmax, hphi, depth))
-    ATH_MSG_WARNING("get_disk_surface returns false");
-  delete pos0;
-
-  z += side*depth/2;
-  Amg::Transform3D* pos = new Amg::Transform3D(Amg::Translation3D(Amg::Vector3D(0.,0.,z)));
-  //use the Bounds given by the ChildVolumeBounds
-  if(m_useCaloTrackingGeometryBounds){
-    rmin =radmin;
-    rmax = radmax;
-  }
-  Trk::CylinderVolumeBounds*  volBounds = new Trk::CylinderVolumeBounds (rmin, rmax, depth/2);                  
-  return  new Trk::Volume(pos, volBounds);
-}
-
 
 void LAr::LArVolumeBuilder::printInfo(const PVConstLink& pv, int gen) const
 {

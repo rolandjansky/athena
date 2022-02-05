@@ -1,7 +1,7 @@
 //-*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -15,7 +15,9 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 
-class LArOnlineID;
+
+
+class LArOnlineID_Base; 
 class CondAttrListCollection;
 class AthenaAttributeList;
 class ILArPedestal;
@@ -64,10 +66,10 @@ class LArCompleteToFlat: public AthAlgorithm
   void errIfConnected(const HWIdentifier chid, const int gain, const char* objName, const char* message=0) const;
 
   unsigned m_hashMax;
-  const LArOnlineID* m_onlineID;
-
+  const LArOnlineID_Base*  m_onlineID; 
 
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKeySC{this,"CablingSCKey","LArOnOffIdMapSC","SG Key of LArOnOffIdMapping object"};
 
   ///InputSGKeys
   std::string m_uA2MeVInput;
@@ -83,6 +85,7 @@ class LArCompleteToFlat: public AthAlgorithm
   // DSPThreshold set name
   std::string m_nameOfSet;
 
+  bool m_isSC;
   bool m_forceStop;
   bool m_fakeEMBPSLowGain;
 }; 

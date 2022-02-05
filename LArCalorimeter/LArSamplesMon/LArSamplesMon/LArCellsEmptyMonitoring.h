@@ -23,6 +23,8 @@ namespace LArSamples {
 
       LArCellsEmptyMonitoring();
       ~LArCellsEmptyMonitoring();
+      LArCellsEmptyMonitoring(const LArCellsEmptyMonitoring&) = delete;
+      LArCellsEmptyMonitoring& operator= (const LArCellsEmptyMonitoring&) = delete;
       void Run(const TString& inputfile);
       void Run(const char* inputfile){ TString str(inputfile); Run(str); } // wrapper
       void TestRun(const TString& inputfile);
@@ -75,7 +77,7 @@ namespace LArSamples {
 
     private:
 
-      LArIdTranslatorHelper* m_LarIdTranslator; // LArIdTranslator object
+      std::unique_ptr<LArIdTranslatorHelper> m_LarIdTranslator; // LArIdTranslator object
 
       int m_nexpected;
 

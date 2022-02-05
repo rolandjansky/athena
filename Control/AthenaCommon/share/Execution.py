@@ -98,7 +98,8 @@ else:
       theApp.EvtMax = jps.AthenaCommonFlags.EvtMax()
    if jps.AthenaCommonFlags.SkipEvents.statusOn:
       if hasattr(svcMgr,"EventSelector"):
-         svcMgr.EventSelector.SkipEvents = jps.AthenaCommonFlags.SkipEvents()
+         if not hasattr(svcMgr, "SecondaryEventSelector"):
+            svcMgr.EventSelector.SkipEvents = jps.AthenaCommonFlags.SkipEvents()
       else:
          _msg.warning('No EventSelector in svcMgr, not skipping events')
 

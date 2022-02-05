@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfHLTData/HLTPrescaleSetCollection.h"
@@ -13,9 +13,7 @@ using namespace std;
 using namespace TrigConf;
 
 TrigConf::HLTPrescaleSetCollection::HLTPrescaleSetCollection()
-   : m_currentLB( 0 ),
-     m_currentPSS( nullptr ),
-     m_prescaleSets(),
+   : m_prescaleSets(),
      m_prescaleSetCollection_mutex()
 {}
 
@@ -42,8 +40,6 @@ HLTPrescaleSetCollection::clear() {
    for(const cont& psinfo : m_prescaleSets)
       delete psinfo.pss;
    m_prescaleSets.clear();
-   m_currentLB = 0;
-   m_currentPSS = nullptr;
 }
 
 
@@ -56,14 +52,7 @@ TrigConf::HLTPrescaleSetCollection::prescaleSet(unsigned int lumiblock) const {
 TrigConf::HLTPrescaleSet*
 TrigConf::HLTPrescaleSetCollection::thePrescaleSet(unsigned int lumiblock) const {
 
-   if( lumiblock == m_currentLB ) {
-      return m_currentPSS;
-   }
-  
    lock_guard<recursive_mutex> lock(m_prescaleSetCollection_mutex);
-
-   m_currentLB = lumiblock;
-   m_currentPSS = nullptr;
 
    if(m_prescaleSets.empty())
       return nullptr;
@@ -82,8 +71,7 @@ TrigConf::HLTPrescaleSetCollection::thePrescaleSet(unsigned int lumiblock) const
    }
 
    // found the PSS that covers the requested LB
-   m_currentPSS = pss;
-   return m_currentPSS;
+   return pss;
 }
 
 
@@ -98,18 +86,16 @@ TrigConf::HLTPrescaleSetCollection::setPrescaleSet( HLTPrescaleSet* pss ) {
    lock_guard<recursive_mutex> lock(m_prescaleSetCollection_mutex);
    clear();
    m_prescaleSets.insert(m_prescaleSets.begin(), cont(0, pss->id(), pss));
-   m_currentLB = 0;
-   m_currentPSS = pss;
-   return m_currentPSS;
+   return pss;
 }
 
-TrigConf::HLTPrescaleSet*
+void
 TrigConf::HLTPrescaleSetCollection::addPrescaleSet( unsigned int lumiblock, HLTPrescaleSet* pss ) {
    return addPrescaleSet(cont(lumiblock, pss?pss->id():0, pss));
 }
 
 
-TrigConf::HLTPrescaleSet*
+void
 TrigConf::HLTPrescaleSetCollection::addPrescaleSet( const cont& add_psinfo ) {
 
    std::list<cont>::iterator psinfo_it = m_prescaleSets.begin();
@@ -131,12 +117,6 @@ TrigConf::HLTPrescaleSetCollection::addPrescaleSet( const cont& add_psinfo ) {
          m_prescaleSets.insert( psinfo_it, add_psinfo );
       }
    }
-
-   // adding a prescale set should NOT make it the current one!
-   //    m_currentLB = add_psinfo.lb;
-   //    m_currentPSS = add_psinfo.pss;
-   
-   return m_currentPSS;
 }
 
 
@@ -167,15 +147,6 @@ TrigConf::HLTPrescaleSetCollection::set_prescale_keys_to_load(const vector<pair<
       }
    }
 }
-
-void
-HLTPrescaleSetCollection::setCurrentToFirstIfUnset() {
-   if(m_currentPSS == nullptr  && size()>0) {
-      m_currentLB = m_prescaleSets.front().lb;
-      m_currentPSS = m_prescaleSets.front().pss;
-   }
-}
-
 
 bool
 TrigConf::HLTPrescaleSetCollection::contains(unsigned int lumiblock, unsigned int psk) {

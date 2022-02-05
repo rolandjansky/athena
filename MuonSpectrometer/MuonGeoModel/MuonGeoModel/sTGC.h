@@ -22,16 +22,19 @@ namespace MuonGM {
       public:
         double width;
         double length;
-        double thickness;
+        double thickness = 0.0;
         double longWidth;      // for trapezoidal layers
         double yCutout;        // for Hexagonal layer
         double yCutoutCathode; // for Hexagonal layer
         int index;
 
         sTGC(Component *s);
-        GeoFullPhysVol *build(int minimalgeo);
-        GeoFullPhysVol *build(int minimalgeo, int cutoutson, const std::vector<Cutout *>&);
-        void print();
+        GeoFullPhysVol *build(const StoredMaterialManager& matManager,
+                              int minimalgeo);
+        GeoFullPhysVol *build(const StoredMaterialManager& matManager,
+                              int minimalgeo, int cutoutson,
+                              const std::vector<Cutout *>&);
+        virtual void print() override;
 
       private:
         sTGCComponent *m_component;

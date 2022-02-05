@@ -15,7 +15,7 @@ class MdtSDOVariables : public ValAlgVariables
 {
  public:
   MdtSDOVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetectorManager* detManager, const MuonIdHelper* idhelper,
-                  TTree* tree, std::string containername, MSG::Level msglvl) :
+                  TTree* tree, const std::string & containername, MSG::Level msglvl) :
     ValAlgVariables(evtStore, detManager, tree, containername, msglvl),
     m_mdtIdHelper(nullptr),
     m_mdt_nsdo(0), 
@@ -50,14 +50,14 @@ class MdtSDOVariables : public ValAlgVariables
     m_mdtIdHelper = dynamic_cast<const MdtIdHelper*>(idhelper);
     if(!m_mdtIdHelper) {
        ATH_MSG_ERROR("casting IdHelper to MdtIdHelper failed");
-       throw;
+       throw std::runtime_error("Bad cast in MdtSDOVariables::setHelper");
     }
   }
 
   StatusCode clearVariables();
   void deleteVariables(){};
 
-  int m_mdt_nsdo;
+  int m_mdt_nsdo{};
   std::vector<std::string> m_mdt_sdo_stationName;
   std::vector<int> m_mdt_sdo_stationEta;
   std::vector<int> m_mdt_sdo_stationPhi;

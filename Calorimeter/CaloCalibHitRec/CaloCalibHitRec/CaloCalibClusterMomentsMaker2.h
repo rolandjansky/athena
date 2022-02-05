@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef CALOCALIBCLUSTERMOMENTSMAKER2_H
-#define CALOCALIBCLUSTERMOMENTSMAKER2_H
+#ifndef CALOCALIBHITREC_CALOCALIBCLUSTERMOMENTSMAKER2_H
+#define CALOCALIBHITREC_CALOCALIBCLUSTERMOMENTSMAKER2_H
 /**
  * @class CaloCalibClusterMomentsMaker2
  * @version \$Id: CaloCalibClusterMomentsMaker2.h,v 1.8 2009-05-18 16:16:48 pospelov Exp $
@@ -14,8 +14,7 @@
  * This is a CaloClusterCollectionProcessor which can be plugged into
  * a CaloClusterMaker for calculating calibration hit based moments
  * for each CaloCluster. */
-class CaloDetDescrManager; 
-class CaloDetDescrElement;
+
 class CaloCell_ID;
 class CaloDM_ID;
 class CaloDmDescrManager;

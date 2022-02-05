@@ -115,7 +115,7 @@ namespace xAOD
     /// @brief The type of the object as a simple enumeration, remains pure virtual in e/gamma.
     virtual Type::ObjectType type() const final;
 
-    virtual void initialize(const int Id, const float Et, const float Eta, const float Phi);
+    virtual void initialize(const int Id, const float Eta, const float Phi, const float Et);
     virtual void initialize(const int Id, const float Eta, const float Phi);
   }; // class JGTower_v1
 } // namespace xAOD

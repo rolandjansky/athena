@@ -29,9 +29,6 @@ def getAfpRange(name="AFPRange" , **kwargs):
 
 def getAFP_PileUpTool(name="AFP_PileUpTool",**kwargs):
     from Digitization.DigitizationFlags import digitizationFlags
-    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc.get_Value() )
-    AFPRndmStream = "AFPRndEng"
-    digitizationFlags.rndmSeedList.addSeed(AFPRndmStream, 3591, 2309736)
     # Configure bunch-crossing envelope
     if digitizationFlags.doXingByXingPileUp():
         kwargs.setdefault("FirstXing", AFP_FirstXing() )

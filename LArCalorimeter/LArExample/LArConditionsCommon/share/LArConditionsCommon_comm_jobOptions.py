@@ -52,11 +52,13 @@ rekeyBC="<key>/LAR/BadChannels/BadChannels</key>"
 rekeyMF="<key>/LAR/BadChannels/MissingFEBs</key>"
 conddb.addFolderSplitOnline("LAR","/LAR/BadChannels/BadChannels","/LAR/BadChannelsOfl/BadChannels"+forceRN+rekeyBC,className="CondAttrListCollection")
 from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelCondAlg
-condSeq+=LArBadChannelCondAlg(ReadKey="/LAR/BadChannels/BadChannels")
+if not hasattr(condSeq,"LArBadChannelCondAlg"):
+  condSeq+=LArBadChannelCondAlg(ReadKey="/LAR/BadChannels/BadChannels")
 
 conddb.addFolderSplitOnline("LAR","/LAR/BadChannels/MissingFEBs","/LAR/BadChannelsOfl/MissingFEBs"+forceRN+rekeyMF,className='AthenaAttributeList')
 from LArBadChannelTool.LArBadChannelToolConf import LArBadFebCondAlg
-condSeq+=LArBadFebCondAlg(ReadKey="/LAR/BadChannels/MissingFEBs")
+if not hasattr(condSeq,"LArBadFebCondAlg"):
+  condSeq+=LArBadFebCondAlg(ReadKey="/LAR/BadChannels/MissingFEBs")
 
 if (rec.doESD() or rec.doRDOTrigger()):
    if 'COMP200' not in conddb.GetInstance():

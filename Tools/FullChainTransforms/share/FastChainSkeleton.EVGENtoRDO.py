@@ -186,6 +186,15 @@ else:
     athenaCommonFlags.PoolHitsOutput = ""
     athenaCommonFlags.PoolHitsOutput.statusOn = False
 
+## Simulator
+from ISF_Config.ISF_jobProperties import ISF_Flags
+if jobproperties.Beam.beamType.get_Value() == 'cosmics':
+    ISF_Flags.Simulator.set_Value_and_Lock('CosmicsG4')
+elif hasattr(runArgs, 'simulator'):
+    ISF_Flags.Simulator.set_Value_and_Lock(runArgs.simulator)
+else:
+    ISF_Flags.Simulator.set_Value_and_Lock('FullG4')
+
 #==============================================================
 # Job Configuration parameters:
 #==============================================================
@@ -219,13 +228,6 @@ if jobproperties.Beam.beamType.get_Value() != 'cosmics':
     if hasattr(runArgs, "outputEVNT_TRFile") and\
         not (hasattr(simFlags,'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn and simFlags.StoppedParticleFile.get_Value()!=''):
         include('SimulationJobOptions/preInclude.G4WriteCavern.py')
-
-if jobproperties.Beam.beamType.get_Value() == 'cosmics':
-    ISF_Flags.Simulator.set_Value_and_Lock('CosmicsG4')
-elif hasattr(runArgs, 'simulator'):
-    ISF_Flags.Simulator.set_Value_and_Lock(runArgs.simulator)
-else:
-    ISF_Flags.Simulator.set_Value_and_Lock('MC12G4')
 
 from AthenaCommon.DetFlags import DetFlags
 
@@ -349,6 +351,9 @@ if hasattr(runArgs, 'simulator') and runArgs.simulator.find('ATLFASTIIF')>=0:
     from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
     TrkDetFlags.TRT_BuildStrawLayers=True
     fast_chain_log.info('Enabled TRT_BuildStrawLayers to get hits in ATLFASTIIF')
+    # BCM should be off for FATRAS simulators
+    DetFlags.simulate.BCM_setOff()
+    DetFlags.digitize.BCM_setOff()
 
 
 DetFlags.Print()
@@ -384,6 +389,7 @@ if hasattr(runArgs,"DataRunNumber"):
 elif hasattr(runArgs,'jobNumber'):
     if runArgs.jobNumber>=0:
         fast_chain_log.info( 'Using job number '+str(runArgs.jobNumber)+' to derive run number.' )
+        simFlags.RunDict = { digitizationFlags.RunAndLumiOverrideList.getMinMaxRunNumbers()[0] : digitizationFlags.RunAndLumiOverrideList.getEvtsMax() }
         simFlags.RunNumber = simFlags.RunDict.GetRunNumber( runArgs.jobNumber )
         fast_chain_log.info( 'Set run number based on dictionary to '+str(simFlags.RunNumber) )
 
@@ -909,10 +915,9 @@ if 'AthSequencer/EvgenGenSeq' in topSequence.getSequence():
 
     ###############Back to MyCustomSkeleton######################
 
-## Add AMITag MetaData to TagInfoMgr
-if hasattr(runArgs, 'AMITag'):
-    if runArgs.AMITag != "NONE":
-        svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag":runArgs.AMITag})
+# Set AMITag in in-file metadata
+from PyUtils import AMITagHelper
+AMITagHelper.SetAMITag(runArgs=runArgs)
 
 from ISF_Example.ISF_Metadata import patch_mc_channel_numberMetadata
 patch_mc_channel_numberMetadata()
@@ -973,6 +978,8 @@ if hasattr(runArgs,"preDigiInclude"):
     for fragment in runArgs.preDigiInclude:
         include(fragment)
 
+# Sync again
+syncDetFlagsAndDigitizationJobProperties()
 #--------------------------------------------------------------
 # Go for it
 #--------------------------------------------------------------
@@ -1046,9 +1053,16 @@ import MagFieldServices.SetupField
 if digitizationFlags.RunAndLumiOverrideList.statusOn:
     if not(DetFlags.pileup.any_on()):
         AthError( "This job will try to override pile-up luminosity configuration, but no pile-up will be set up!" )
+    ServiceMgr.EventSelector.OverrideRunNumber=True
     include("Digitization/LumiBlockOverrides.py")
     if digitizationFlags.dataRunNumber.statusOn:
         fast_chain_log.warning('digitizationFlags.RunAndLumiOverrideList has been set! digitizationFlags.dataRunNumber (set to %s) will be ignored. ', digitizationFlags.dataRunNumber.get_Value() )
+    # Hack to set the three values of EventSelector
+    if simFlags.RunNumber.statusOn:
+        ServiceMgr.EventSelector.FirstLB = 1
+        from RunDependentSimComps.RunDMCFlags import runDMCFlags
+        ServiceMgr.EventSelector.InitialTimeStamp = runDMCFlags.RunToTimestampDict.getTimestampForRun(simFlags.RunNumber())
+        ServiceMgr.EventSelector.RunNumber = simFlags.RunNumber()
 else:
     include("Digitization/RunNumberOverride.py")
 

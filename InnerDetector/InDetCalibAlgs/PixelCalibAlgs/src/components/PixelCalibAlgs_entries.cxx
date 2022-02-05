@@ -1,6 +1,6 @@
 #include "PixelCalibAlgs/PixelChargeToTConversion.h"
-#include "PixelCalibAlgs/OccupancyMapMaker.h"
+#include "PixelCalibAlgs/HitMapBuilder.h"
 
 DECLARE_COMPONENT( PixelChargeToTConversion )
-DECLARE_COMPONENT( OccupancyMapMaker )
+DECLARE_COMPONENT( HitMapBuilder )
 

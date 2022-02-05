@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /* 
@@ -22,7 +22,7 @@ namespace D3PD {
     TileModuleBitsFillerTool::TileModuleBitsFillerTool(const std::string& type,
                 const std::string& name,
                 const IInterface* parent):Base(type, name,parent) {
-        book().ignore();  //Avoid coverity warnings
+        TileModuleBitsFillerTool::book().ignore();  //Avoid coverity warnings
     }
 
     StatusCode TileModuleBitsFillerTool::initialize() {

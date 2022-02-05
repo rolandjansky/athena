@@ -23,7 +23,7 @@ Reco_tf.py \
 --preExec 'all:larCondFlags.OFCShapeFolder.set_Value_and_Lock("4samples3bins17phases");from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.useBeamConstraint.set_Value_and_Lock(False);InDetFlags.doMinBias=True;InDetFlags.useDCS.set_Value_and_Lock(False);DQMonFlags.doMonitoring=True;DQMonFlags.doNewMonitoring=True;DQMonFlags.doStreamAwareMon=False;DQMonFlags.enableLumiAccess=False;DQMonFlags.doCTPMon=False;from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags;InDetGeometryFlags.useDynamicAlignFolders.set_Value_and_Lock(False);' \
 --postExec '' \
 --inputBSFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q223_input_data18/data18_comm.00353055.physics_MinBias.daq.RAW._lb0062._SFO-2._0001.data \
---conditionsTag='CONDBR2-BLKPA-RUN2-06' \
+--conditionsTag='CONDBR2-BLKPA-RUN2-09' \
 --geometryVersion='ATLAS-R2-2016-01-00-01' \
 --maxEvents=500 \
 --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root --outputHISTFile=myHIST.root --imf False

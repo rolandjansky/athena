@@ -23,9 +23,18 @@ def fromRunArgs(runArgs):
     ConfigFlags.Input.Files=runArgs.inputBSFile
     ConfigFlags.LArShapeDump.outputNtup=runArgs.outputNTUP_SAMPLESMONFile
 
+    #protection for LArPEB event:
+    ConfigFlags.Trigger.L1.doMuon=False
+    ConfigFlags.Trigger.L1.doCalo=False
+    ConfigFlags.Trigger.L1.doTopo=False
+
     if hasattr(runArgs,"outputNTUP_HECNOISEFile"):
         ConfigFlags.LArShapeDump.HECNoiseNtup=runArgs.outputNTUP_HECNOISEFile
         
+    #protection for LArPEB event:
+    ConfigFlags.Trigger.L1.doMuon=False
+    ConfigFlags.Trigger.L1.doCalo=False
+    ConfigFlags.Trigger.L1.doTopo=False
 
     ConfigFlags.lock()
     

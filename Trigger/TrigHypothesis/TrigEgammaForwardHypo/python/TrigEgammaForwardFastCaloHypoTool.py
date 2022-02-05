@@ -121,7 +121,7 @@ def TrigEgammaForwardFastCaloHypoToolFromName( name, conf ):
     """ To be phased out """
     """ set the name of the HypoTool (name=chain) and figure out the threshold and selection from conf """
 
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
+    from TriggerMenuMT.HLT.Menu.DictFromChainName import dictFromChainName
     decodedDict = dictFromChainName(conf)
     return TrigEgammaForwardFastCaloHypoToolFromDict( decodedDict )
 

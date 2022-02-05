@@ -43,7 +43,10 @@
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "GaudiKernel/ThreadLocalContext.h"
-class CaloDetDescrManager;
+#include "StoreGate/ReadCondHandleKey.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
+
+
 
 // Helper object used for the per-sampling calculations.
 namespace CaloClusterCorr {
@@ -170,8 +173,8 @@ private:
 
 protected:
   /// Cell window sizes in each sampling.
-  double m_deta0, m_deta1, m_deta2, m_deta3;
-  double m_dphi0, m_dphi1, m_dphi2, m_dphi3;
+  double m_deta0 = 0.0, m_deta1 = 0.0, m_deta2 = 0.0, m_deta3 = 0.0;
+  double m_dphi0 = 0.0, m_dphi1 = 0.0, m_dphi2 = 0.0, m_dphi3 = 0.0;
 
   /// @f$\eta\times\phi@f$ cluster size.  These are properties.
   int m_neta, m_nphi;
@@ -190,6 +193,8 @@ private:
   /// The StoreGate key for the container of our input cells.
   /// This is a property.
   SG::ReadHandleKey<CaloCellContainer> m_cellsName;
+  
+  
 };
 
 #endif // not CALOCLUSTERCORRECTION_CALOFILLRECTANGULARCLUSTER_H

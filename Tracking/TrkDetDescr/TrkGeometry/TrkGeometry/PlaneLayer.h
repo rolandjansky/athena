@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -34,8 +34,11 @@ class LayerMaterialProperties;
  @author Andreas.Salzburger@cern.ch
  */
 
-class PlaneLayer final : virtual public PlaneSurface, public Layer {
- public:
+class PlaneLayer final
+  : public PlaneSurface
+  , public Layer
+{
+public:
   /**Default Constructor*/
   PlaneLayer() {}
 
@@ -142,6 +145,7 @@ class PlaneLayer final : virtual public PlaneSurface, public Layer {
 
   /** Transforms the layer into a Surface representation for extrapolation */
   virtual const PlaneSurface& surfaceRepresentation() const override final;
+
 
   /** getting the MaterialProperties back - for pre-update*/
 

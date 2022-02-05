@@ -39,11 +39,13 @@
 /*---------------------------------------------------------*/
 TileTBMonTool::TileTBMonTool(const std::string & type, const std::string & name, const IInterface* parent)
   : TileFatherMonTool(type, name, parent)
-  , m_tileTotalEventEnergy(0)
-  , m_tileTBHitMapLBC01(0)
-  , m_tileTBHitMapEBC02(0)
+  , m_tileTotalEventEnergy(nullptr)
+  , m_tileTBHitMapLBC01(nullptr)
+  , m_tileTBHitMapEBC02(nullptr)
+  , m_tileEventEnergyVsCellsNumber(nullptr)
   , m_isFirstEvent(true)
   , m_maskedChannels{{0}}
+  , m_cellEnergyThreshold(0.0)
 
 /*---------------------------------------------------------*/
 {
@@ -51,6 +53,7 @@ TileTBMonTool::TileTBMonTool(const std::string & type, const std::string & name,
   declareProperty("CellContainer", m_cellContainer = "AllCalo"); //SG Cell Container
   declareProperty("Masked", m_masked); // Masked channels in the following format: "LBA01 1,2,3,4,5"
   declareProperty("MaxTotalEnergy", m_maxTotalEnergy = 150.0); // Maximum energy on the histogram
+  declareProperty("CellEnergyThreshold", m_cellEnergyThreshold = 0.1); // Cell energy threshold
 
   m_path = "/Tile/TestBeam"; //ROOT File relative directory
 }
@@ -148,8 +151,11 @@ StatusCode TileTBMonTool::fillHistograms() {
 
   if (cell_container->empty()) return StatusCode::SUCCESS;
 
+  double energy_pC(0.0);
   double total_energy(0.0);
   bool onlyLBC04(true);
+  int nCellsOverThreshold(0);
+  double totalEnergySideC(0.0);
 
   for (const CaloCell* cell : *cell_container) {
     //    Identifier id = cell->ID();
@@ -162,9 +168,7 @@ StatusCode TileTBMonTool::fillHistograms() {
     int tower = m_tileID->tower(cell->ID());
     int sample = m_tileID->sample(cell->ID());
 
-
     double energy = 0.0;
-
 
     const CaloDetDescrElement* caloDDE = cell->caloDDE();
     
@@ -210,14 +214,24 @@ StatusCode TileTBMonTool::fillHistograms() {
     }
     
 
-    total_energy += energy * 0.001; // keep energy in pC
-    
+    energy_pC = energy * 0.001; // keep energy in pC
+    total_energy += energy_pC;
+
+    if (side < 0) {
+      totalEnergySideC += energy_pC;
+      if (energy_pC > m_cellEnergyThreshold) {
+        ++nCellsOverThreshold;
+      }
+    }
+
     fillHitMap(side, section, module, tower, sample, energy);
 
   }
 
-  if (!onlyLBC04)
+  if (!onlyLBC04) {
     m_tileTotalEventEnergy->Fill(total_energy);
+    m_tileEventEnergyVsCellsNumber->Fill(nCellsOverThreshold, totalEnergySideC);
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -282,7 +296,7 @@ void TileTBMonTool::fillHitMap(int side, int section, int module, int tower, int
         m_tileTBHitMapEBC02->Fill(x, y, energy);
       }
 
-      if (sample != TileID::SAMP_A && tower > 8) { // A & D4
+      if (sample != TileID::SAMP_A && tower > 8 && tower < 16) { // A & D4
         
         if (tower != 9) y = yEB[index * 2 - 1]; // C10
         else y = yEB[index * 2 + 1]; // D & B
@@ -312,6 +326,13 @@ void TileTBMonTool::initFirstEvent() {
 
   m_tileTotalEventEnergy->GetXaxis()->SetTitle("Event Energy [pC]");
 
+  m_tileEventEnergyVsCellsNumber = book2F("", "TileTBCellsNumberVsTotalEnergy",
+                                          "Run " + runNumber + ": TileCal Event energy [C side] vs # cells with energy > " +
+                                          std::to_string(m_cellEnergyThreshold) + "[pC]",
+                                          25, 0, 25, m_maxTotalEnergy, 0.0, m_maxTotalEnergy);
+
+  m_tileEventEnergyVsCellsNumber->GetXaxis()->SetTitle("# Cells");
+  m_tileEventEnergyVsCellsNumber->GetYaxis()->SetTitle("Event Energy [pC]");
 
   double* xBinsEB = new double [19] {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19};
   double* yBinsEB = new double [6] {0,1,2,3,4,5};

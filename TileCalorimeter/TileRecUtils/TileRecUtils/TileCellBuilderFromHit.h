@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILERECUTILS_TILECELLBUILDERFROMHIT_H
@@ -46,6 +46,7 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
+#include "AthenaKernel/IAthRNGSvc.h"
 
 // Gaudi includes
 #include "GaudiKernel/ToolHandle.h"
@@ -68,7 +69,6 @@ class TileDetDescrManager;
 class TileCellCollection;
 class CaloCellContainer;
 class TileCablingService;
-class IAtRndmGenSvc;
 
 
 /**
@@ -140,8 +140,8 @@ class TileCellBuilderFromHit
     const TileInfo* m_tileInfo; //!< Pointer to TileInfo
     const TileCablingService* m_cabling; //!< Pointer to TileCabling
 
-    CLHEP::HepRandomEngine * m_pHRengine;    //!< Random number generator engine to use
-    ServiceHandle<IAtRndmGenSvc> m_rndmSvc;  //!< Random number service to use
+    ServiceHandle<IAthRNGSvc> m_rndmSvc  //!< Random number service to use
+      { this, "RndmSvc", "AthRNGSvc", "Random Number Service used in TileCellBuildetFromHit" };
 
     ToolHandle<ITileBadChanTool> m_tileBadChanTool{this,
         "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};

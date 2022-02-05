@@ -223,9 +223,9 @@ IOVDbParser::noTagOverride() const{
 void IOVDbParser::clean() {
   auto it=m_keys.find("dbConnection");
   if (it!=m_keys.end()) {
-    std::string connection=it->second;
+    std::string connection=std::move(it->second);
     m_keys.erase(it);
-    m_keys["db"]=connection;
+    m_keys["db"]=std::move(connection);
   }
   return;
 }

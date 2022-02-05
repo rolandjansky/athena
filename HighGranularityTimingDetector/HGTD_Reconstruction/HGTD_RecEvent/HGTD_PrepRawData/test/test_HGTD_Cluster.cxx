@@ -37,7 +37,7 @@ void compare(const Trk::PrepRawData& p1, const Trk::PrepRawData& p2) {
   std::cout << "compare PrepRawData done\n";
 }
 
-void compare(const HGTD::HGTD_Cluster& p1, const HGTD::HGTD_Cluster& p2) {
+void compare(const HGTD_Cluster& p1, const HGTD_Cluster& p2) {
   std::cout << "compare HGTD_Cluster\n";
   compare(static_cast<const Trk::PrepRawData&>(p1),
           static_cast<const Trk::PrepRawData&>(p2));
@@ -49,11 +49,11 @@ void compare(const HGTD::HGTD_Cluster& p1, const HGTD::HGTD_Cluster& p2) {
 }
 
 void testDefaultCtor() {
-  HGTD::HGTD_Cluster cluster;
+  HGTD_Cluster cluster;
   BOOST_CHECK(cluster.detectorElement() == nullptr);
 }
 
-HGTD::HGTD_Cluster createCluster() {
+HGTD_Cluster createCluster() {
   std::cout << "createCluster\n";
 
   Amg::Vector2D locpos(1.5, 2.5);
@@ -66,34 +66,34 @@ HGTD::HGTD_Cluster createCluster() {
     for (int j = 0; j < 2; j++)
       cov(i, j) = 100 * (i + 1) * (j + 1);
 
-  HGTD::HGTD_Cluster cluster(Identifier(1234), locpos, std::move(rdoList), width, nullptr,
-                             std::move(cov), dummy_toa, dummy_toa_res,
-                             dummy_tot);
+  HGTD_Cluster cluster(Identifier(1234), locpos, std::move(rdoList), width, nullptr,
+                       std::move(cov), dummy_toa, dummy_toa_res,
+                       dummy_tot);
 
   std::cout << "createCluster done\n";
   return cluster;
 }
 
-void testCopyCtor(const HGTD::HGTD_Cluster& cluster) {
+void testCopyCtor(const HGTD_Cluster& cluster) {
   std::cout << "testCopyCtor\n";
-  HGTD::HGTD_Cluster copied_cluster(cluster);
+  HGTD_Cluster copied_cluster(cluster);
 
   compare(cluster, copied_cluster);
   std::cout << "testCopyCtor done\n";
 }
 
-void testAssignment(const HGTD::HGTD_Cluster& cluster) {
+void testAssignment(const HGTD_Cluster& cluster) {
   std::cout << "testAssignment\n";
-  HGTD::HGTD_Cluster copied_cluster;
+  HGTD_Cluster copied_cluster;
   copied_cluster = cluster;
 
   compare(cluster, copied_cluster);
   std::cout << "testAssignment done\n";
 }
 
-void testMoveCtor(HGTD::HGTD_Cluster cluster) {
+void testMoveCtor(HGTD_Cluster cluster) {
   std::cout << "testMoveCtor\n";
-  HGTD::HGTD_Cluster copied_cluster(std::move(cluster));
+  HGTD_Cluster copied_cluster(std::move(cluster));
 
   BOOST_CHECK(cluster.time() == 0.0);
   std::cout << "copied_cluster.time() " << copied_cluster.time() << '\n';
@@ -101,9 +101,9 @@ void testMoveCtor(HGTD::HGTD_Cluster cluster) {
   std::cout << "testMoveCtor done\n";
 }
 
-void testMoveAssignment(HGTD::HGTD_Cluster cluster) {
+void testMoveAssignment(HGTD_Cluster cluster) {
   std::cout << "testMoveAssignment\n";
-  HGTD::HGTD_Cluster move_assign_cluster;
+  HGTD_Cluster move_assign_cluster;
   move_assign_cluster = std::move(cluster);
 
   BOOST_CHECK(cluster.time() == 0.0);
@@ -113,7 +113,7 @@ void testMoveAssignment(HGTD::HGTD_Cluster cluster) {
   std::cout << "testMoveAssignment done\n";
 }
 
-BOOST_AUTO_TEST_CASE(HGTD_Cluster) {
+BOOST_AUTO_TEST_CASE(HGTD_Cluster_test) {
 
   std::cout << "running test_HGTD_Cluster\n";
 

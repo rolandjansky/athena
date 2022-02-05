@@ -7,7 +7,6 @@
 
 #include "LArByteStream/RodRobIdMap.h" 
 #include "LArIdentifier/LArOnlineID.h" 
-#include "LArCabling/LArCablingLegacyService.h" 
 
 
 #include <stdint.h> 
@@ -46,19 +45,9 @@ public:
   */ 
   Hid2RESrcID(); 
 
-  // Legacy unsafe version, relying on old cabling service.
-  // Currently still used by TrigT2CaloCommon.
-  StatusCode initialize ATLAS_NOT_THREAD_SAFE (); 
-
   StatusCode initialize (const LArFebRodMapping& rodMapping);
 
   bool isInitialized() const { return m_initialized;}
-
-  /** make a ROD SrcID for a HWIdentifier 
-  */
-  // Legacy unsafe version, relying on old cabling service.
-  // Currently still used by TrigT2CaloCommon.
-  uint32_t getRodID ATLAS_NOT_THREAD_SAFE  (const HWIdentifier& hid) const ;
 
   /** make a ROD SrcID for a HWIdentifier 
   */
@@ -85,7 +74,6 @@ private:
   StatusCode initialize (const std::vector<HWIdentifier>& roms);
 
   bool m_initialized;
-  LArCablingLegacyService* m_cablingSvc; 
   const LArOnlineID* m_onlineHelper; 
   typedef std::map<HWIdentifier, uint32_t> COLL_MAP ; 
   COLL_MAP m_coll2ROD ; 

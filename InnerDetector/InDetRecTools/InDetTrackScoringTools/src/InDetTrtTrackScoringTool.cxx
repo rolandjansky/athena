@@ -24,7 +24,6 @@ InDet::InDetTrtTrackScoringTool::InDetTrtTrackScoringTool(const std::string& t,
   , m_maxTrtRatio(-1)
   , m_maxTrtFittedRatio(-1)
   , m_summaryTypeScore(Trk::numberOfTrackSummaryTypes)
-  , m_trkSummaryTool("Trk::TrackSummaryTool")
   , m_selectortool("InDet::InDetTrtDriftCircleCutTool")
 {
   declareInterface<Trk::ITrackScoringTool>(this);
@@ -44,7 +43,6 @@ InDet::InDetTrtTrackScoringTool::InDetTrtTrackScoringTool(const std::string& t,
   }
 
   // declare properties
-  declareProperty("SummaryTool", m_trkSummaryTool);
   declareProperty("DriftCircleCutTool", m_selectortool);
   declareProperty("useAmbigFcn", m_useAmbigFcn = true);
   declareProperty("useSigmaChi2", m_useSigmaChi2 = false);
@@ -70,7 +68,6 @@ InDet::InDetTrtTrackScoringTool::~InDetTrtTrackScoringTool() {}
 StatusCode
 InDet::InDetTrtTrackScoringTool::initialize()
 {
-  ATH_CHECK(m_trkSummaryTool.retrieve());
   ATH_CHECK(m_selectortool.retrieve( DisableTool{m_selectortool.empty() } ));
   ATH_CHECK(m_lumiBlockMuTool.retrieve());
 

@@ -5,6 +5,7 @@
 @file TileMonitoringHelper.py
 @brief Helper functions for Run 3 Tile monitoring algorithm configuration
 '''
+
 from TileCalibBlobObjs.Classes import TileCalibUtils as Tile
 _cellNameEB = ['E3', 'E4', 'D4', 'D4', 'C10', 'C10', 'A12', 'A12', 'B11', 'B11', 'A13', 'A13',
                'E1', 'E2', 'B12', 'B12', 'D5', 'D5', 'E3*', 'E4*', 'A14', 'A14', 'B13', 'B13',
@@ -586,10 +587,40 @@ def addTileModuleArray(helper, algorithm, name, title, path,
                                     xlabels = ('modules'), perPartition = True, separator = separator )
 
 
+def addTileTMDB2DScatterHistogramsArray(helper, algorithm, name = '', xvalue = '', yvalue = '',
+                                        xbins = 0, xmin = 0, xmax = 0,
+                                        title = '', path = '', type = 'TH2D', run = ''):
+    for ros in range(1, Tile.MAX_ROS):
+        partition = getPartitionName(ros)
+        baseName = "{}_{}".format(name, partition)
+        nChannels = len(_cellNameTMDB_LB) if partition.startswith('L') else len(_cellNameTMDB_EB)
+
+        dimensions = [int(Tile.MAX_DRAWER), nChannels, nChannels]
+        array = helper.addArray(dimensions, algorithm,  baseName, topPath = path)
+        for postfix, tool in array.Tools.items():
+            elements = postfix.split('_')
+
+            channel1 = int(elements.pop())
+            channel2 = int(elements.pop())
+            cell1 = getCellNameTMDB(partition, channel1)
+            cell2 = getCellNameTMDB(partition, channel2)
+
+            module = '{}'.format(int(elements.pop()) + 1).rjust(2,'0') 
+
+            fullName = '{},{};{}{}_{}_{}'.format(xvalue, yvalue,
+                                                baseName, module, cell1, cell2)
+            hist_path = partition + module
+
+            moduleOrPartition = 'Module ' + partition + module + partition
+            fullTitle = 'Run {} {} TMDB {}x{}: {};{};{}'.format(run, moduleOrPartition, cell1, cell2, title, cell1, cell2)
+
+            tool.defineHistogram(fullName, path = hist_path, type = type, title = fullTitle,
+                                 xbins = xbins, xmin = xmin, xmax = xmax,
+                                 ybins = xbins, ymin = xmin, ymax = xmax)
+
 
 def addTileTMDB_2DHistogramsArray(helper, algorithm, name = '', value = '',
                                   title = '', path = '', type = 'TH2D', run = ''):
-
     array = helper.addArray([int(Tile.MAX_ROS - 1)], algorithm, name, topPath = path)
     for postfix, tool in array.Tools.items():
         ros = int(postfix.split('_').pop()) + 1
@@ -609,28 +640,45 @@ def addTileTMDB_2DHistogramsArray(helper, algorithm, name = '', value = '',
                                 xbins = Tile.MAX_DRAWER, xmin = -0.5, xmax = Tile.MAX_DRAWER - 0.5,
                                 ybins = ybins, ymin = -0.5, ymax = ybins - 0.5)
 
-
 def addTileTMDB_1DHistogramsArray(helper, algorithm, name = '', xvalue = '', value = '', title = '',
                                   path = '', xbins = 0, xmin = 0, xmax = 0, type = 'TH1D', run = '',
-                                  perModule = False):
+                                  perModule = False, isCorr=False):
 
     for ros in range(1, Tile.MAX_ROS):
         partition = getPartitionName(ros)
         baseName = "{}_{}".format(name, partition)
         nChannels = len(_cellNameTMDB_LB) if partition.startswith('L') else len(_cellNameTMDB_EB)
-        dimensions = [int(Tile.MAX_DRAWER), nChannels] if perModule else [nChannels]
+        if not isCorr:
+            dimensions = [int(Tile.MAX_DRAWER), nChannels] if perModule else [nChannels]
+        else:
+            dimensions = [int(Tile.MAX_DRAWER), nChannels, nChannels]
+
         array = helper.addArray(dimensions, algorithm,  baseName, topPath = path)
         for postfix, tool in array.Tools.items():
             elements = postfix.split('_')
-            channel = int(elements.pop())
-            cell = getCellNameTMDB(partition, channel)
-            module = '{}'.format(int(elements.pop()) + 1).rjust(2,'0') if perModule else ''
+            if not isCorr:
+                channel = int(elements.pop())
+                cell = getCellNameTMDB(partition, channel)
+                module = '{}'.format(int(elements.pop()) + 1).rjust(2,'0') if perModule else ''
 
-            fullName = '{}{};{}{}_{}'.format(xvalue, (',' + value if 'Profile' in type else ''),
-                                             baseName, (module if perModule else ''), cell)
+                fullName = '{}{};{}{}_{}'.format(xvalue, (',' + value if 'Profile' in type else ''),
+                                                baseName, (module if perModule else ''), cell)
 
-            moduleOrPartition = 'Module ' + partition + module if perModule else 'Partition ' + partition
-            fullTitle = 'Run {} {} TMDB {}: {}'.format(run, moduleOrPartition, cell, title)
+                moduleOrPartition = 'Module ' + partition + module if perModule else 'Partition ' + partition
+                fullTitle = 'Run {} {} TMDB {}: {}'.format(run, moduleOrPartition, cell, title)
+            else:
+                channel1 = int(elements.pop())
+                channel2 = int(elements.pop())
+                cell1 = getCellNameTMDB(partition, channel1)
+                cell2 = getCellNameTMDB(partition, channel2)
+
+                module = '{}'.format(int(elements.pop()) + 1).rjust(2,'0') if perModule else ''
+
+                fullName = '{}{};{}{}_{}_{}'.format(xvalue, (',' + value if 'Profile' in type else ''),
+                                                baseName, (module if perModule else ''), cell1, cell2)
+
+                moduleOrPartition = 'Module ' + partition + module if perModule else 'Partition ' + partition
+                fullTitle = 'Run {} {} TMDB {}x{}: {}'.format(run, moduleOrPartition, cell1, cell2, title)
 
             tool.defineHistogram(fullName, path = '', type = type, title = fullTitle,
                                  xbins = xbins, xmin = xmin, xmax = xmax)

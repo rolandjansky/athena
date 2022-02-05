@@ -63,25 +63,33 @@ namespace InDet {
       virtual ~TRT_LayerBuilderCond();
       
       /** AlgTool initialize method */
-      StatusCode initialize();
-       
+      virtual StatusCode initialize() override final;
+
       /** LayerBuilderCond interface method - returning Barrel-like layers */
-      std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > cylindricalLayers(const EventContext& ctx) const; 
-      
+      virtual std::pair<EventIDRange, const std::vector<Trk::CylinderLayer*>*>
+      cylindricalLayers(const EventContext& ctx) const override final;
+
       /** LayerBuilderCond interface method - returning Endcap-like layers */
-      std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* >     discLayers(const EventContext& ctx) const; 
-      
+      virtual std::pair<EventIDRange, const std::vector<Trk::DiscLayer*>*> discLayers(
+        const EventContext& ctx) const override final;
+
       /** LayerBuilderCond interface method - returning Planar-like layers */
-      std::pair<EventIDRange, const std::vector< const Trk::PlaneLayer* >* >    planarLayers(const EventContext& ctx) const; 
-            
+      virtual std::pair<EventIDRange, const std::vector<Trk::PlaneLayer*>*>
+      planarLayers(const EventContext& ctx) const override final;
+
       /** Name identification */
-      const std::string& identification() const;      
+      virtual const std::string& identification() const override final;      
       
     private:
-                   
-      SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer> m_readKeyTRTContainer{this, "ReadKeyTRTDetectorElements","TRT_DetElementContainer","Key for input TRT detector element container read from cond store"};
+      SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer>
+        m_readKeyTRTContainer{
+          this,
+          "ReadKeyTRTDetectorElements",
+          "TRT_DetElementContainer",
+          "Key for input TRT detector element container read from cond store"
+        };
 
-      double                                        m_layerStrawRadius;         //!< straw radius
+      double m_layerStrawRadius; //!< straw radius
       double                                        m_layerThickness;           //!< modelled layer thickness
       bool                                          m_modelGeometry;            //!< Build the geometry with model layers
       unsigned int                                  m_modelBarrelLayers;        //!< model barrel layers with material
@@ -101,13 +109,15 @@ namespace InDet {
       
   };
 
- inline std::pair<EventIDRange, const std::vector< const Trk::PlaneLayer* >* > TRT_LayerBuilderCond::planarLayers(const EventContext&) const
+  inline std::pair<EventIDRange, const std::vector<Trk::PlaneLayer*>*>
+  TRT_LayerBuilderCond::planarLayers(const EventContext&) const
   {
-  //create dummy infinite range
+    // create dummy infinite range
     EventIDRange range;
-    return std::pair<EventIDRange, const std::vector< const Trk::PlaneLayer* >* >(range, 0);
+    return std::pair<EventIDRange, const std::vector<Trk::PlaneLayer*>*>(
+      range, 0);
   }
- 
+
  inline const std::string& TRT_LayerBuilderCond::identification() const
  { return m_identification; }
    

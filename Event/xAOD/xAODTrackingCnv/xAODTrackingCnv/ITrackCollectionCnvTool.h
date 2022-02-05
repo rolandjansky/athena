@@ -16,6 +16,7 @@
 #include "TrkTrack/TrackCollection.h"
 // Forward declaration(s):
 //class TrackCollection; - no - typedef
+#include "TrkValInterfaces/ITrkObserverTool.h"
 
 namespace Trk {
   class ITrackParticleCreatorTool;
@@ -34,6 +35,10 @@ namespace xAODMaker {
     /// Function that fills an existing xAOD::TrackParticleContainer
     virtual StatusCode convert( const TrackCollection* aod,
 				xAOD::TrackParticleContainer* xaod ) const = 0;
+
+    /// Function that fills an existing xAOD::TrackParticleContainer and augments track particles
+    virtual StatusCode convertAndAugment( const TrackCollection* aod,
+				xAOD::TrackParticleContainer* xaod, const ObservedTrackMap* trk_map ) const = 0;
 
     virtual StatusCode setParticleCreatorTool(ToolHandle<Trk::ITrackParticleCreatorTool> *tool) = 0;
     

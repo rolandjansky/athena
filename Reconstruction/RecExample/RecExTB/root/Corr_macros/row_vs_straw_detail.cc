@@ -72,7 +72,7 @@ void row_vs_straw_detail(int SaveOpt=0,int trtLayer=0, int trtPhi=0, int PixelsL
   
   
   sprintf(name,"Correlations Offline Monitor - Pixels/TRT");
-  sprintf(name2,"Corr1_pixelsTRT_%d%d&d&d",trtLayer,trtPhi,PixelsLayer,PixelsPhi);
+  sprintf(name2,"Corr1_pixelsTRT_%d%d%d%d",trtLayer,trtPhi,PixelsLayer,PixelsPhi);
   
   TCanvas *c11 = new TCanvas(name2,name);
 

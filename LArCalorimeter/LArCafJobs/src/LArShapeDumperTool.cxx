@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCafJobs/LArShapeDumperTool.h"
@@ -10,7 +10,6 @@
 #include "LArRawConditions/LArPhysWave.h"
 #include "LArRawConditions/LArShapeComplete.h"
 
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "LArCafJobs/ShapeInfo.h"
 #include "LArCafJobs/CellInfo.h"
@@ -22,11 +21,10 @@ using std::endl;
 using namespace LArSamples;
 
 
-LArShapeDumperTool::LArShapeDumperTool(const std::string& type, const std::string& name,
-                                       const IInterface* parent)
-  : AthAlgTool(type, name, parent),
-    m_caloDetDescrMgr(0), m_onlineHelper(0),
-    m_emId(0), m_hecId(0), m_fcalId(0)
+LArShapeDumperTool::LArShapeDumperTool(const std::string& type
+				       , const std::string& name
+				       , const IInterface* parent)
+  : AthAlgTool(type, name, parent)
 {
   declareInterface<ILArShapeDumperTool>(this);
   declareProperty("DoShape", m_doShape = true);
@@ -41,8 +39,6 @@ LArShapeDumperTool::~LArShapeDumperTool()
 
 
 StatusCode LArShapeDumperTool::initialize() {
-  //ATH_MSG_DEBUG("in initialize()");
-  ATH_CHECK(detStore()->retrieve(m_caloDetDescrMgr));
 
   const CaloCell_ID* idHelper = nullptr;
   ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );

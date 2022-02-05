@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -372,14 +372,10 @@ void TRootCompare::printCanvas(const char* filename)
   if (m_can==0) return;
   if (filename==0) return;
 
-  // Suppress the info message when saving file
-  Int_t oldIgnoreLevel = gErrorIgnoreLevel;
-  gErrorIgnoreLevel = kWarning;
-  if (TString(filename).EndsWith(".ps"))  
+  if (TString(filename).EndsWith(".ps"))
     m_can->Print(filename,"Landscape");
   else
     m_can->Print(filename);
-  gErrorIgnoreLevel = oldIgnoreLevel;  
 }
 
 

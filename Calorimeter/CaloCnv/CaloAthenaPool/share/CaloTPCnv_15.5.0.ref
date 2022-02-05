@@ -1,65 +1,39 @@
-Tue Aug  6 20:23:15 CEST 2019
-Preloading tcmalloc_minimal.so
-Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [WorkDir-22.0.3] [x86_64-centos7-gcc8-opt] [atlas-work3/da00b53be39] -- built on [2019-08-06T1723]
-Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
-Py:Athena            INFO executing ROOT6Setup
-Py:Athena            INFO including file "AthenaCommon/Execution.py"
-Py:Athena            INFO including file "CaloAthenaPool/CaloTPCnv_15.5.0_test.py"
-Py:Athena            INFO including file "AthenaPoolUtilities/TPCnvTest.py"
-Py:ConfigurableDb    INFO Read module info for 5520 configurables from 75 genConfDb files
-Py:ConfigurableDb    INFO No duplicates have been found: that's good !
-Py:Athena            INFO including file "IdDictDetDescrCnv/IdDictDetDescrCnv_joboptions.py"
-EventInfoMgtInit: Got release version  Athena-22.0.3
-Py:IOVDbSvc.CondDB    INFO Setting up conditions DB access to instance OFLP200
-SetGeometryVersion.py obtained major release version 22
-Py:Athena            INFO including file "AthenaCommon/runbatch.py"
-ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
-ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+Py:Athena            INFO using release [WorkDir-22.0.45] [x86_64-centos7-gcc8-opt] [FollowUp46801/213dc13] -- built on [2021-09-30T0930]
+Py:AutoConfigFlags    INFO Obtaining metadata of auto-configuration by peeking into '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/aod/AOD-15.5.0/AOD-15.5.0-full.pool.root'
+Py:MetaReader        INFO Current mode used: lite
+Py:MetaReader        INFO Current filenames: ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/aod/AOD-15.5.0/AOD-15.5.0-full.pool.root']
+Py:MetaReader        INFO MetaReader is called with the parameter "unique_tag_info_values" set to True. This is a workaround to remove all duplicate values from "/TagInfo" key
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v32r0)
-                                          running on lxplus724.cern.ch on Tue Aug  6 20:24:07 2019
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v36r0)
+                                          running on pcaz004 on Thu Sep 30 09:45:49 2021
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
-ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
-StatusCodeSvc        INFO initialize
-JobIDSvc             INFO Initializing JobIDSvc - package version AthenaServices-00-00-00
-AthDictLoaderSvc     INFO in initialize...
-AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 7280 CLIDRegistry entries for module ALL
-CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
-MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
-AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
+ClassIDSvc           INFO getRegistryEntries: read 40312 CLIDRegistry entries for module ALL
+IOVDbSvc             INFO Only 5 POOL conditions files will be open at once
+IOVDbSvc             INFO Cache alignment will be done in 3 slices
+IOVDbSvc             INFO Global tag: OFLCOND-SIM-00-00-00 set from joboptions
+IOVDbSvc             INFO Initialised with 2 connections and 2 folders
+IOVDbSvc             INFO Service IOVDbSvc initialised successfully
+IOVDbSvc             INFO   AlgTool: ToolSvc.IOVDbMetaDataTool
+MetaDataSvc          INFO Initializing MetaDataSvc
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
-DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-08-05T2130/Athena/22.0.3/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host lxplus724.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy-atlas.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2021-09-29T2101/Athena/22.0.45/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host pcaz004.dyndns.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
-PoolSvc           WARNING Unable to locate catalog for prfile:poolcond/PoolCat_oflcond.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
-PoolSvc           WARNING Unable to locate catalog for apcfile:poolcond/PoolCat_oflcond.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
 PoolSvc              INFO Resolved path (via ATLAS_POOLCOND_PATH) is /cvmfs/atlas-condb.cern.ch/repo/conditions/poolcond/PoolFileCatalog.xml
+PoolSvc              INFO Unable find catalog apcfile:poolcond/PoolCat_oflcond.xml in $ATLAS_POOLCOND_PATH and $DATAPATH
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
-MetaDataSvc          INFO Found MetaDataTools = PublicToolHandleArray(['IOVDbMetaDataTool'])
+MetaDataSvc          INFO Found MetaDataTools = PublicToolHandleArray(['IOVDbMetaDataTool/IOVDbMetaDataTool'])
 EventSelector        INFO EventSelection with query 
 PoolSvc              INFO File is not in Catalog! Attempt to open it anyway.
-Warning in <TClass::Init>: no dictionary for class CosmicMuonCollection_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class CosmicMuonCollection_p1 is available
-Warning in <TClass::Init>: no dictionary for class CosmicMuon_p1 is available
-Warning in <TClass::Init>: no dictionary for class MdtTrackSegmentCollection_tlp1 is available
-Warning in <TClass::Init>: no dictionary for class MdtTrackSegmentCollection_p1 is available
-Warning in <TClass::Init>: no dictionary for class MdtTrackSegment_p1 is available
-Warning in <TClass::Init>: no dictionary for class ElementLink<TrigEMClusterContainer,DataProxyStorage<TrigEMClusterContainer>,ForwardIndexingPolicy<TrigEMClusterContainer> > is available
-Warning in <TClass::Init>: no dictionary for class DataProxyStorage<TrigEMClusterContainer> is available
-Warning in <TClass::Init>: no dictionary for class DataProxyStorageBase is available
-Warning in <TClass::Init>: no dictionary for class ForwardIndexingPolicy<TrigEMClusterContainer> is available
-Warning in <TClass::Init>: no dictionary for class SG::DataProxyStorageData is available
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 8FDFD58C-5873-8CD7-D4CC-A3463BB84220
 Domain[ROOT_All]     INFO                           /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/aod/AOD-15.5.0/AOD-15.5.0-full.pool.root
@@ -82,25 +56,21 @@ Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 525450D
 Domain[ROOT_All]     INFO                           /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/aod/AOD-15.5.0/AOD-15.5.0-full.pool.root
 RootDatabase.open    INFO /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/aod/AOD-15.5.0/AOD-15.5.0-full.pool.root File version:52200
 PoolSvc              INFO Failed to find container POOLContainer(DataHeader) to create POOL collection.
-ClassIDSvc           INFO  getRegistryEntries: read 27199 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO getRegistryEntries: read 1391 CLIDRegistry entries for module ALL
 EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
-ClassIDSvc           INFO  getRegistryEntries: read 5 CLIDRegistry entries for module ALL
-IOVDbSvc             INFO Opened read transaction for POOL PersistencySvc
-IOVDbSvc             INFO Only 5 POOL conditions files will be open at once
-IOVDbSvc             INFO Cache alignment will be done in 3 slices
-IOVDbFolder          INFO Read from meta data only for folder /TagInfo
-IOVDbSvc             INFO Initialised with 2 connections and 3 folders
-IOVDbSvc             INFO Service IOVDbSvc initialised successfully
-ClassIDSvc           INFO  getRegistryEntries: read 290 CLIDRegistry entries for module ALL
-IOVDbSvc             INFO Folder /TagInfo will be taken from file metadata
-IOVDbSvc             INFO Found 11 metadata containers in input file, 1 will be used
+ClassIDSvc           INFO getRegistryEntries: read 8 CLIDRegistry entries for module ALL
+MetaDataSvc          INFO   AlgTool: ToolSvc.IOVDbMetaDataTool
+IOVDbSvc             INFO Found 11 metadata containers in input file, 0 will be used
+TagInfoMgr           INFO   AlgTool: TagInfoMgr.IOVDbMetaDataTool
+IOVDbSvc             INFO Opening COOL connection for COOLOFL_LAR/OFLP200
 IOVSvc               INFO No IOVSvcTool associated with store "StoreGateSvc"
 IOVSvc.IOVSvcTool    INFO IOVRanges will be checked at every Event
-IOVDbSvc             INFO Opening COOL connection for COOLOFL_LAR/OFLP200
 IOVDbSvc             INFO Disconnecting from COOLOFL_LAR/OFLP200
-IOVDbSvc             INFO Added taginfo remove for /TagInfo
-ClassIDSvc           INFO  getRegistryEntries: read 54 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO  getRegistryEntries: read 12 CLIDRegistry entries for module ALL
+IOVDbSvc             INFO Added taginfo remove for /LAR/Align
+IOVDbSvc             INFO Added taginfo remove for /LAR/LArCellPositionShift
+ClassIDSvc           INFO getRegistryEntries: read 386 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO getRegistryEntries: read 15 CLIDRegistry entries for module ALL
+GeoModelSvc          INFO Explicitly initializing DetDescrCnvSvc
 DetDescrCnvSvc       INFO  initializing 
 DetDescrCnvSvc       INFO Found DetectorStore service
 DetDescrCnvSvc       INFO  filling proxies for detector managers 
@@ -108,12 +78,12 @@ DetDescrCnvSvc       INFO  filling address for CaloTTMgr with CLID 117659265 and
 DetDescrCnvSvc       INFO  filling address for CaloMgr with CLID 4548337 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for CaloSuperCellMgr with CLID 241807251 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for CaloIdManager with CLID 125856940 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for LArIdManager with CLID 79554919 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for IdDict with CLID 2411 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for AtlasID with CLID 164875623 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for PixelID with CLID 2516 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for SCT_ID with CLID 2517 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for TRT_ID with CLID 2518 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for HGTD_ID with CLID 79264207 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for SiliconID with CLID 129452393 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for LArEM_ID with CLID 163583365 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for LArEM_SuperCell_ID with CLID 99488227 and storage type 68 to detector store 
@@ -135,13 +105,13 @@ DetDescrCnvSvc       INFO  filling address for MDTIDHELPER with CLID 4170 and st
 DetDescrCnvSvc       INFO  filling address for CSCIDHELPER with CLID 4171 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for RPCIDHELPER with CLID 4172 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for TGCIDHELPER with CLID 4173 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for STGCIDHELPER with CLID 4174 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for MMIDHELPER with CLID 4175 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for CaloLVL1_ID with CLID 108133391 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for CaloCell_ID with CLID 123500438 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for CaloCell_SuperCell_ID with CLID 128365736 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for CaloDM_ID with CLID 167756483 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for ZdcID with CLID 190591643 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for JTower_ID with CLID 218674799 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for GTower_ID with CLID 49678914 and storage type 68 to detector store 
 GeoModelSvc::RD...WARNING  Getting PixTBMatComponents with default tag
 GeoModelSvc::RD...WARNING  Getting PixTBMaterials with default tag
 GeoModelSvc::RD...WARNING  Getting InDetMatComponents with default tag
@@ -187,15 +157,13 @@ GeoModelSvc.LAr...   INFO LAr Geometry Options:
 GeoModelSvc.LAr...   INFO   Sagging           = false
 GeoModelSvc.LAr...   INFO   Barrel            = ON
 GeoModelSvc.LAr...   INFO   Endcap            = ON
-LAr::DetectorFa...   INFO  new description with barrel croystat bolts
-LAr::DetectorFa...   INFO  new coil bumper description 
 BarrelConstruction   INFO Getting primary numbers for ATLAS, ATLAS-R1-2012-03-01-00
 BarrelConstruction   INFO   Makes detailed absorber sandwich  ? 1 1
 BarrelConstruction   INFO   Use sagging in geometry  ? 0
 EMECConstruction     INFO multi-layered version of absorbers activated, parameter value is 1
 EMECConstruction     INFO activating LAr::EMEC::Pos::InnerWheel
 EMECConstruction     INFO activating LAr::EMEC::Pos::OuterWheel
-ClassIDSvc           INFO  getRegistryEntries: read 2898 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO getRegistryEntries: read 3129 CLIDRegistry entries for module ALL
 CaloIDHelper_ID...   INFO in createObj: creating a TileTBID helper object in the detector store
 TileTBID             INFO initialize_from_dictionary 
 AtlasDetectorID      INFO initialize_from_dictionary - OK
@@ -204,7 +172,7 @@ EMECConstruction     INFO multi-layered version of absorbers activated, paramete
 EMECConstruction     INFO activating LAr::EMEC::Neg::InnerWheel
 EMECConstruction     INFO activating LAr::EMEC::Neg::OuterWheel
 EndcapDMConstru...   INFO Start building EC electronics geometry
-GeoModelSvc          INFO GeoModelSvc.LArDetectorToolNV	 SZ= 44824Kb 	 Time = 1.22S
+GeoModelSvc          INFO GeoModelSvc.LArDetectorToolNV	 SZ= 25216Kb 	 Time = 0.41S
 GeoModelSvc.Til...   INFO  Entering TileDetectorTool::create()
 TileDddbManager      INFO m_tag = ATLAS-R1-2012-03-01-00
 TileDddbManager      INFO n_tiglob = 5
@@ -215,11 +183,11 @@ TileDddbManager      INFO n_tilb = 20
 TileDddbManager      INFO n_tileSwitches = 1
 CaloIDHelper_ID...   INFO in createObj: creating a TileID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
-TileNeighbour        INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-08-05T2130/Athena/22.0.3/InstallArea/x86_64-centos7-gcc8-opt/share/TileNeighbour_reduced.txt
+TileNeighbour        INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2021-09-29T2101/Athena/22.0.45/InstallArea/x86_64-centos7-gcc8-opt/share/TileNeighbour_reduced.txt
 TileHWIDDetDesc...   INFO in createObj: creating a TileHWID helper object in the detector store
 TileHWID             INFO initialize_from_dictionary 
 AtlasDetectorID      INFO initialize_from_dictionary - OK
-ClassIDSvc           INFO  getRegistryEntries: read 55 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO getRegistryEntries: read 55 CLIDRegistry entries for module ALL
 CaloIDHelper_ID...   INFO in createObj: creating a CaloCell_ID helper object in the detector store
 CaloIDHelper_ID...   INFO in createObj: creating a LArEM_ID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
@@ -227,16 +195,18 @@ CaloIDHelper_ID...   INFO in createObj: creating a LArHEC_ID helper object in th
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 CaloIDHelper_ID...   INFO in createObj: creating a LArFCAL_ID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
-LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-08-05T2130/Athena/22.0.3/InstallArea/x86_64-centos7-gcc8-opt/share/FCal2DNeighbors-April2011.txt
-LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-08-05T2130/Athena/22.0.3/InstallArea/x86_64-centos7-gcc8-opt/share/FCal3DNeighborsNext-April2011.txt
-LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-08-05T2130/Athena/22.0.3/InstallArea/x86_64-centos7-gcc8-opt/share/FCal3DNeighborsPrev-April2011.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2021-09-29T2101/Athena/22.0.45/InstallArea/x86_64-centos7-gcc8-opt/share/FCal2DNeighbors-April2011.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2021-09-29T2101/Athena/22.0.45/InstallArea/x86_64-centos7-gcc8-opt/share/FCal3DNeighborsNext-April2011.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2021-09-29T2101/Athena/22.0.45/InstallArea/x86_64-centos7-gcc8-opt/share/FCal3DNeighborsPrev-April2011.txt
 CaloIDHelper_ID...   INFO in createObj: creating a LArMiniFCAL_ID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 LArMiniFCAL_ID       INFO  initialize_from_dict - LArCalorimeter dictionary does NOT contain miniFCAL description. Unable to initialize LArMiniFCAL_ID.
 AtlasDetectorID      INFO initialize_from_dictionary - OK
-GeoModelSvc.Til...   INFO  U-shape parameter from database is: 1
-GeoModelSvc.Til...   INFO  Glue parameter from database is: 1
-GeoModelSvc.Til...   INFO  Cs Tube parameter from database is: 0
+GeoModelSvc.Til...   INFO Ushape parameter from database is: 1
+GeoModelSvc.Til...   INFO Glue parameter from database is: 1
+GeoModelSvc.Til...   INFO PVT parameter from database is: 0
+GeoModelSvc.Til...   INFO Steel parameter from database is: 0
+GeoModelSvc.Til...   INFO CsTube parameter from database is: 0
 GeoModelSvc.Til...   INFO  Entering TileAtlasFactory::create()
 GeoModelSvc.Til...   INFO  Tile Geometry with Saddle supports, starting from TileCal-CSC-02 xxx
 GeoModelSvc.Til...   INFO  => New BFingerLengthPos 430.5
@@ -264,15 +234,24 @@ GeoModelSvc.Til...   INFO  Global positioning of barrel with rotation (0,0,0)) a
 GeoModelSvc.Til...   INFO  Global positioning of positive ext.barrel with rotation (0,0,0)) and translation (0,0,0) Gaudi::Units::cm
 GeoModelSvc.Til...   INFO  Global positioning of negative ext.barrel with rotation (0,0,0)) and translation (0,0,1) Gaudi::Units::cm
 TileDetDescrMan...   INFO Entering create_elements()
-GeoModelSvc          INFO GeoModelSvc.TileDetectorTool	 SZ= 17912Kb 	 Time = 0.25S
-ClassIDSvc           INFO  getRegistryEntries: read 66 CLIDRegistry entries for module ALL
-AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
+GeoModelSvc          INFO GeoModelSvc.TileDetectorTool	 SZ= 4500Kb 	 Time = 0.11S
+ClassIDSvc           INFO getRegistryEntries: read 72 CLIDRegistry entries for module ALL
+GeoModelSvc          INFO   AlgTool: GeoModelSvc.LArDetectorToolNV
+GeoModelSvc          INFO   AlgTool: GeoModelSvc.TileDetectorTool
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr
+ClassIDSvc           INFO getRegistryEntries: read 444 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO getRegistryEntries: read 242 CLIDRegistry entries for module ALL
 CondInputLoader      INFO Initializing CondInputLoader...
+AthDictLoaderSvc     INFO in initialize...
+AthDictLoaderSvc     INFO acquired Dso-registry
 CondInputLoader      INFO Adding base classes:
+  +  ( 'CaloRec::CaloCellPositionShift' , 'ConditionStore+LArCellPositionShift' )   -> no bases
+  +  ( 'DetCondKeyTrans' , 'ConditionStore+/LAR/Align' )   ->
 CondInputLoader      INFO Will create WriteCondHandle dependencies for the following DataObjects:
+    +  ( 'CaloRec::CaloCellPositionShift' , 'ConditionStore+LArCellPositionShift' ) 
+    +  ( 'DetCondKeyTrans' , 'ConditionStore+/LAR/Align' ) 
 PyComponentMgr       INFO Initializing PyComponentMgr...
 dumper               INFO Initializing dumper...
-HistogramPersis...WARNING Histograms saving not required.
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
 /cvmfs/atlas-ni...   INFO Database being retired...
@@ -284,23 +263,24 @@ Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 525450D
 Domain[ROOT_All]     INFO                           /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/aod/AOD-15.5.0/AOD-15.5.0-full.pool.root
 RootDatabase.open    INFO /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/aod/AOD-15.5.0/AOD-15.5.0-full.pool.root File version:52200
 PoolSvc              INFO Failed to find container POOLContainer(DataHeader) to create POOL collection.
-ClassIDSvc           INFO  getRegistryEntries: read 892 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO getRegistryEntries: read 529 CLIDRegistry entries for module ALL
+CondInputLoader      INFO created CondCont<CaloRec::CaloCellPositionShift> with key 'ConditionStore+LArCellPositionShift'
+CondInputLoader      INFO created CondCont<DetCondKeyTrans> with key 'ConditionStore+/LAR/Align'
 ApplicationMgr       INFO Application Manager Started successfully
-AlgResourcePool      INFO TopAlg list empty. Recovering the one of Application Manager
-ClassIDSvc           INFO  getRegistryEntries: read 5 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO  getRegistryEntries: read 20 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO  getRegistryEntries: read 3 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO  getRegistryEntries: read 22 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO  getRegistryEntries: read 39 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO  getRegistryEntries: read 5 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO getRegistryEntries: read 21 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO getRegistryEntries: read 3 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO getRegistryEntries: read 23 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO getRegistryEntries: read 41 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO getRegistryEntries: read 6 CLIDRegistry entries for module ALL
 AthenaPoolConve...   INFO massageEventInfo: unable to get OverrideRunNumberFromInput property from EventSelector 
 AthenaEventLoopMgr   INFO   ===>>>  start of run 5200    <<<===
-EventPersistenc...   INFO Added successfully Conversion service:TagInfoMgr
-IOVDbSvc             INFO Global tag: OFLCOND-SIM-00-00-00 set from input file
 IOVDbSvc             INFO Opening COOL connection for COOLOFL_LAR/OFLP200
 IOVDbFolder          INFO HVS tag OFLCOND-SIM-00-00-00 resolved to LARAlign_CSC_00 for folder /LAR/Align
 IOVDbFolder          INFO HVS tag OFLCOND-SIM-00-00-00 resolved to LArCellPositionShift-ideal for folder /LAR/LArCellPositionShift
 IOVDbSvc             INFO Disconnecting from COOLOFL_LAR/OFLP200
+IOVDbSvc             INFO Opened read transaction for POOL PersistencySvc
+DbSession            INFO     Open     DbSession    
+Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] E01BD448-BF95-DB11-983E-0015C5098AA3
 Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/oflcond/oflcond.000002.conditions.simul.pool.v0000/oflcond.000002.conditions.simul.pool.v0000._0058.pool.root
 RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/oflcond/oflcond.000002.conditions.simul.pool.v0000/oflcond.000002.conditions.simul.pool.v0000._0058.pool.root File version:51304
@@ -322,7 +302,7 @@ GeoModelSvc          INFO ** TAG INFO configuration:
 GeoModelSvc          INFO * ATLAS tag: ATLAS-GEO-02-01-00
 CaloMgrDetDescrCnv   INFO in createObj: creating a Calo Detector Manager object in the detector store
 CaloIdMgrDetDes...   INFO in createObj: creating a CaloDescrManager object in the detector store
-ClassIDSvc           INFO  getRegistryEntries: read 208 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO getRegistryEntries: read 192 CLIDRegistry entries for module ALL
 CaloIDHelper_ID...   INFO in createObj: creating a CaloDM_ID helper object in the detector store
 CaloDM_ID            INFO initialize_from_dictionary
 AtlasDetectorID      INFO initialize_from_dictionary - OK
@@ -339,12 +319,12 @@ CaloIDHelper_ID...   INFO in createObj: creating a LArHEC_SuperCell_ID helper ob
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 CaloIDHelper_ID...   INFO in createObj: creating a LArFCAL_SuperCell_ID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
-LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-08-05T2130/Athena/22.0.3/InstallArea/x86_64-centos7-gcc8-opt/share/FCalSuperCells2DNeighborsNew-April2014.txt
-LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-08-05T2130/Athena/22.0.3/InstallArea/x86_64-centos7-gcc8-opt/share/FCalSuperCells3DNeighborsNextNew-April2014.txt
-LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-08-05T2130/Athena/22.0.3/InstallArea/x86_64-centos7-gcc8-opt/share/FCalSuperCells3DNeighborsPrevNew-April2014.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2021-09-29T2101/Athena/22.0.45/InstallArea/x86_64-centos7-gcc8-opt/share/FCalSuperCells2DNeighborsNew-April2014.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2021-09-29T2101/Athena/22.0.45/InstallArea/x86_64-centos7-gcc8-opt/share/FCalSuperCells3DNeighborsNextNew-April2014.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2021-09-29T2101/Athena/22.0.45/InstallArea/x86_64-centos7-gcc8-opt/share/FCalSuperCells3DNeighborsPrevNew-April2014.txt
 CaloIDHelper_ID...   INFO in createObj: creating a Tile_SuperCell_ID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
-TileNeighbour        INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-08-05T2130/Athena/22.0.3/InstallArea/x86_64-centos7-gcc8-opt/share/TileSuperCellNeighbour.txt
+TileNeighbour        INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2021-09-29T2101/Athena/22.0.45/InstallArea/x86_64-centos7-gcc8-opt/share/TileSuperCellNeighbour.txt
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 CaloIdMgrDetDes...   INFO  Finished 
 CaloIdMgrDetDes...   INFO Initializing CaloIdMgr from values in CaloIdMgrDetDescrCnv 
@@ -352,10 +332,19 @@ Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 8667C6F
 Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond08/cond08_mc.000003.gen.COND/cond08_mc.000003.gen.COND._0064.pool.root
 RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond08/cond08_mc.000003.gen.COND/cond08_mc.000003.gen.COND._0064.pool.root File version:52200
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #30002, run #5200 0 events processed so far  <<<===
-ClassIDSvc           INFO  getRegistryEntries: read 671 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO  getRegistryEntries: read 266 CLIDRegistry entries for module ALL
+IOVDbSvc             INFO Opening COOL connection for COOLOFL_LAR/OFLP200
+IOVDbSvc             INFO Disconnecting from COOLOFL_LAR/OFLP200
+LArAlignCondAlg      INFO recorded new GeoAlignmentStore object for LAr with key LArAlignmentStore and range {[0,l:0] - [INVALID]}
+CaloAlignCondAlg     INFO recorded new CaloDetDescr Manager condition object with key CaloDetDescrManager and range {[0,t:0,l:0] - [INVALID]}
+ClassIDSvc           INFO getRegistryEntries: read 494 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO getRegistryEntries: read 186 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #30002, run #5200 1 events processed so far  <<<===
-ClassIDSvc           INFO  getRegistryEntries: read 294 CLIDRegistry entries for module ALL
+/cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 8667C6F2-1559-DE11-A611-000423D9A21A
+/cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] E01BD448-BF95-DB11-983E-0015C5098AA3
+Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
+ClassIDSvc           INFO getRegistryEntries: read 44 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #30004, run #5200 1 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #30004, run #5200 2 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #30009, run #5200 2 events processed so far  <<<===
@@ -376,37 +365,37 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #30022, run #5200 9 e
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #30022, run #5200 10 events processed so far  <<<===
 /cvmfs/atlas-ni...   INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 525450DE-C764-DE11-AA9F-001E4F3E5985
-EventSelector        INFO Disconnecting input sourceID: 525450DE-C764-DE11-AA9F-001E4F3E5985
-AthenaEventLoopMgr   INFO No more events in event selection 
-/cvmfs/atlas-co...   INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 8667C6F2-1559-DE11-A611-000423D9A21A
-/cvmfs/atlas-co...   INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] E01BD448-BF95-DB11-983E-0015C5098AA3
-Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
-IncidentProcAlg1     INFO Finalize
 CondInputLoader      INFO Finalizing CondInputLoader...
 dumper               INFO Finalizing dumper...
-IncidentProcAlg2     INFO Finalize
 PyComponentMgr       INFO Finalizing PyComponentMgr...
-IdDictDetDescrCnv    INFO in finalize
-IOVDbFolder          INFO Folder /LAR/Align (PoolRef) db-read 1/1 objs/chan/bytes 1/1/168 ((     0.78 ))s
-IOVDbFolder          INFO Folder /TagInfo (AttrListColl) db-read 0/2 objs/chan/bytes 2/0/0 ((     0.00 ))s
-IOVDbFolder          INFO Folder /LAR/LArCellPositionShift (PoolRef) db-read 1/1 objs/chan/bytes 1/1/195 ((     0.48 ))s
-IOVDbSvc             INFO  bytes in ((      1.27 ))s
-IOVDbSvc             INFO Connection sqlite://;schema=mycool.db;dbname=OFLP200 : nConnect: 0 nFolders: 0 ReadTime: ((     0.00 ))s
-IOVDbSvc             INFO Connection COOLOFL_LAR/OFLP200 : nConnect: 2 nFolders: 2 ReadTime: ((     1.27 ))s
-XMLCatalog           INFO File 'PoolFileCatalog.xml' does not exist. New file created.
 AthDictLoaderSvc     INFO in finalize...
+Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
+IOVDbFolder          INFO Folder /LAR/Align (PoolRef) db-read 1/2 objs/chan/bytes 1/1/168 ((     0.04 ))s
+IOVDbFolder          INFO Folder /LAR/LArCellPositionShift (PoolRef) db-read 2/2 objs/chan/bytes 2/1/390 ((     0.04 ))s
+IOVDbSvc             INFO  bytes in ((      0.08 ))s
+IOVDbSvc             INFO Connection sqlite://;schema=mycool.db;dbname=OFLP200 : nConnect: 0 nFolders: 0 ReadTime: ((     0.00 ))s
+IOVDbSvc             INFO Connection COOLOFL_LAR/OFLP200 : nConnect: 3 nFolders: 2 ReadTime: ((     0.08 ))s
 ToolSvc              INFO Removing all tools created by ToolSvc
+IdDictDetDescrCnv    INFO in finalize
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
-cObjR_ALL            INFO Time User   : Tot=  180 [ms] Ave/Min/Max=0.914(+- 8.01)/    0/  110 [ms] #=197
-cObj_ALL             INFO Time User   : Tot=  330 [ms] Ave/Min/Max= 1.68(+-  9.3)/    0/  110 [ms] #=196
-ChronoStatSvc        INFO Time User   : Tot= 13.4  [s]                                             #=  1
+cObjR_ALL            INFO Time User   : Tot=   30 [ms] Ave/Min/Max=   0.151(+-    1.22)/       0/      10 [ms] #=199
+cObj_ALL             INFO Time User   : Tot=  120 [ms] Ave/Min/Max=   0.609(+-    4.11)/       0/      50 [ms] #=197
+ChronoStatSvc        INFO Time User   : Tot= 3.88  [s]  #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully
 ApplicationMgr       INFO Application Manager Terminated successfully
-Py:Athena            INFO leaving with code 0: "successful run"
+TClass::Init:0: RuntimeWarning: no dictionary for class CosmicMuonCollection_tlp1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class CosmicMuonCollection_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class CosmicMuon_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class MdtTrackSegmentCollection_tlp1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class MdtTrackSegmentCollection_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class MdtTrackSegment_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class ElementLink<TrigEMClusterContainer,DataProxyStorage<TrigEMClusterContainer>,ForwardIndexingPolicy<TrigEMClusterContainer> > is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataProxyStorage<TrigEMClusterContainer> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataProxyStorageBase is available
+TClass::Init:0: RuntimeWarning: no dictionary for class ForwardIndexingPolicy<TrigEMClusterContainer> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class SG::DataProxyStorageData is available

@@ -9,6 +9,7 @@ from TrigMuonMonitoringMT.L2OverlapRemoverMonConfig import L2OverlapRemoverMonCo
 from TrigMuonMonitoringMT.EFMuonMonConfig import EFMuonMonConfig
 from TrigMuonMonitoringMT.TrigMuonEfficiencyMonConfig import TrigMuonEfficiencyMonTTbarConfig, TrigMuonEfficiencyMonZTPConfig
 from TrigMuonMonitoringMT.MuonTriggerCountMTConfig import MuonTriggerCountMTConfig
+from TrigMuonMonitoringMT.TrigMuonTruthMonMTConfig import TrigMuonTruthMonMTConfig
 
 
 def TrigMuonMonConfig(inputFlags):
@@ -25,5 +26,7 @@ def TrigMuonMonConfig(inputFlags):
     TrigMuonEfficiencyMonTTbarConfig(helper)
     TrigMuonEfficiencyMonZTPConfig(helper)
     MuonTriggerCountMTConfig(helper)
+    if inputFlags.Input.isMC:
+        TrigMuonTruthMonMTConfig(helper)
 
     return helper.result()

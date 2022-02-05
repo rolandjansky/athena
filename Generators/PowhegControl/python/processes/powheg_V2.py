@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from .powheg_base import PowhegBase
 import glob
@@ -48,7 +48,6 @@ class PowhegV2(PowhegBase):
             "mint_upb_btildeupb.top",
             "mint_upb_remnupb.top",
             "pwg*.top",
-            "pwg*stat.dat",
             "pwgboundviolations*.dat",
             "pwgcounters*.dat",
             "pwgseeds.dat",
@@ -69,13 +68,20 @@ class PowhegV2(PowhegBase):
             "pwggrid*.dat",
             "pwgfullgrid*.dat",
             "pwgubound*.dat",
+            "pwg*stat.dat",
         ]
 
     @property
     def mandatory_integration_file_names(self):
         """! Wildcarded list of integration files that are needed for this process."""
         """! If some of the patterns don't match any files before running, a warning will be made to inform that no pre-made integration grid will be used."""
-        return self.integration_file_names
+        return [
+            "pwg*xg*.dat",
+            #"pwg*upb*.dat", # not needed by ttj MiNNLO
+            "pwggrid*.dat",
+            #"pwgfullgrid*.dat", # not needed by ttj MiNNLO
+            "pwgubound*.dat",
+        ]
 
     @property
     def powheg_version(self):

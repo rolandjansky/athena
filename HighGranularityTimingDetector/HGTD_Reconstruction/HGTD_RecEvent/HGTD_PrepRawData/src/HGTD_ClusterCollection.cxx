@@ -10,8 +10,6 @@
 #include "HGTD_PrepRawData/HGTD_ClusterCollection.h"
 #include "GaudiKernel/MsgStream.h"
 
-namespace HGTD {
-
 MsgStream& operator<<(MsgStream& sl, const HGTD_ClusterCollection& coll) {
   sl << "HGTD_ClusterCollection: "
      << "identify()="
@@ -37,5 +35,3 @@ std::ostream& operator<<(std::ostream& sl, const HGTD_ClusterCollection& coll) {
   sl << " ]" << std::endl;
   return sl;
 }
-
-} // namespace HGTD

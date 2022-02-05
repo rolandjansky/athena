@@ -47,7 +47,7 @@ StatusCode Muon::MM_RawDataProvider::execute(const EventContext& ctx) const
     // read the RoIs to process
     SG::ReadHandle<TrigRoiDescriptorCollection> muonRoI(m_roiCollectionKey, ctx);
     if(!muonRoI.isValid()) {
-      ATH_MSG_FATAL("Cannot retrieve muonRoI "<<m_roiCollectionKey.key());
+      ATH_MSG_WARNING("Cannot retrieve muonRoI "<<m_roiCollectionKey.key());
       return StatusCode::FAILURE;
     }
    
@@ -65,14 +65,14 @@ StatusCode Muon::MM_RawDataProvider::execute(const EventContext& ctx) const
     // put the IDs back in the vector and decode
     mm_hash_ids.insert(mm_hash_ids.end(), mm_hash_ids_set.begin(), mm_hash_ids_set.end());    
     if (!m_rawDataTool->convert(mm_hash_ids, ctx).isSuccess()) {
-      ATH_MSG_FATAL("MM BS conversion into RDOs failed");
+      ATH_MSG_ERROR("MM BS conversion into RDOs failed");
       return StatusCode::FAILURE;
     }
 
   } else {
     ATH_MSG_DEBUG("converting MM BS into RDOs in unseeded mode");
     if (!m_rawDataTool->convert(ctx).isSuccess()) {
-      ATH_MSG_FATAL("MM BS conversion into RDOs failed");
+      ATH_MSG_ERROR("MM BS conversion into RDOs failed");
       return StatusCode::FAILURE;
     }
   }

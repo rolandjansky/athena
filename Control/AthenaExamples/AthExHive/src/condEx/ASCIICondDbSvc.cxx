@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ASCIICondDbSvc.h"
@@ -11,13 +11,13 @@
 
 #include <fstream>
 
-std::string r_t("\\[([0-9]+),([0-9]+)\\]");
-std::string r_r = "\\s*\\{" + r_t + "-" + r_t + "\\}\\s*";
-std::string r_e = "\\s*\\{" + r_t + "-" + r_t + "\\}=([0-9]+)\\s*";
-std::string r_ef = "\\s*\\{" + r_t + "-" + r_t + "\\}=(-*[0-9]*\\.*[0-9]*)\\s*";
-boost::regex rr(r_r);
-boost::regex re(r_e);
-boost::regex ref(r_ef);
+const std::string r_t("\\[([0-9]+),([0-9]+)\\]");
+const std::string r_r = "\\s*\\{" + r_t + "-" + r_t + "\\}\\s*";
+const std::string r_e = "\\s*\\{" + r_t + "-" + r_t + "\\}=([0-9]+)\\s*";
+const std::string r_ef = "\\s*\\{" + r_t + "-" + r_t + "\\}=(-*[0-9]*\\.*[0-9]*)\\s*";
+const boost::regex rr(r_r);
+const boost::regex re(r_e);
+const boost::regex ref(r_ef);
 
 
 //---------------------------------------------------------------------------

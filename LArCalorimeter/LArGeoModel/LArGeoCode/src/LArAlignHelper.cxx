@@ -81,7 +81,7 @@ StatusCode LArAlignHelper::applyAlignments(const ServiceHandle<StoreGateSvc>& de
 	gat->setDelta(Amg::CLHEPTransformToEigen(newDelta),alignmentStore);
       }
       else {
-	gat->clearDelta();
+	gat->clearDelta(alignmentStore);
       }
     }
     else if (alignName=="HEC_POS") {
@@ -90,7 +90,7 @@ StatusCode LArAlignHelper::applyAlignments(const ServiceHandle<StoreGateSvc>& de
 	  hec1GatPos->setDelta(Amg::CLHEPTransformToEigen(newDelta),alignmentStore);
 	}
 	else {
-	  hec1GatPos->clearDelta();
+	  hec1GatPos->clearDelta(alignmentStore);
 	}
       }
       if (hec2GatPos) {
@@ -98,7 +98,7 @@ StatusCode LArAlignHelper::applyAlignments(const ServiceHandle<StoreGateSvc>& de
 	  hec2GatPos->setDelta(Amg::CLHEPTransformToEigen(newDelta),alignmentStore);
 	}
 	else {
-	  hec2GatPos->clearDelta();
+	  hec2GatPos->clearDelta(alignmentStore);
 	}
       }
     }
@@ -108,7 +108,7 @@ StatusCode LArAlignHelper::applyAlignments(const ServiceHandle<StoreGateSvc>& de
 	  hec1GatNeg->setDelta(Amg::CLHEPTransformToEigen(newDelta),alignmentStore);
 	}
 	else {
-	  hec1GatNeg->clearDelta();
+	  hec1GatNeg->clearDelta(alignmentStore);
 	}
       }
       if (hec2GatNeg) {
@@ -116,7 +116,7 @@ StatusCode LArAlignHelper::applyAlignments(const ServiceHandle<StoreGateSvc>& de
 	  hec2GatNeg->setDelta(Amg::CLHEPTransformToEigen(newDelta),alignmentStore);
 	}
 	else {
-	  hec2GatNeg->clearDelta();
+	  hec2GatNeg->clearDelta(alignmentStore);
 	}
       }
     }
@@ -126,13 +126,16 @@ StatusCode LArAlignHelper::applyAlignments(const ServiceHandle<StoreGateSvc>& de
   } // Loop over Align Names
 
   // Fill the caches of Full Physical Volumes
-  for(const std::string& alignName : m_alignNames) {
-    if(detStore->contains<StoredPhysVol>(alignName)) {
-      StoredPhysVol* storedPV{nullptr};
-      if(detStore->retrieve(storedPV,alignName).isSuccess()) {
-	storedPV->getPhysVol()->getAbsoluteTransform(alignmentStore);
-	storedPV->getPhysVol()->getDefAbsoluteTransform(alignmentStore);
-      }
+  //
+  // !!! NB! The code assumes that StoredPhysVol-s are used only by LAr
+  //         This has been true ever since the StorePhysVol-s were invented.
+  //
+  for(const std::string& key : detStore->keys<StoredPhysVol>()) {
+    StoredPhysVol* storedPV = detStore->tryRetrieve<StoredPhysVol>(key);
+    ATH_MSG_DEBUG("Building position caches for StoredPhysVol :" << key);
+    if(storedPV) {
+      storedPV->getPhysVol()->getAbsoluteTransform(alignmentStore);
+      storedPV->getPhysVol()->getDefAbsoluteTransform(alignmentStore);
     }
   }
 

@@ -120,8 +120,10 @@ if not 'WriteMphyMcal2NTuple' in dir():
 ###########################################################################
 
 if not 'GroupingType' in dir():
-   GroupingType = "ExtendedSubDetector"
-   
+   if SuperCells:
+      GroupingType = "SuperCells"
+   else:
+      GroupingType = "ExtendedSubDetector"
 if not 'WriteNtuple' in dir():
    WriteNtuple = LArCalib_Flags.WriteNtuple
 
@@ -171,8 +173,8 @@ if not 'OutputObjectSpecPhysWave' in dir():
    OutputObjectSpecTagPhysWave    = LArCalibFolderTag("/LAR/ElecCalibOfl/PhysWaves/TempWillExistOnlyInTheSQLiteFile",LArPhysFolderOutputTag)
 						
 if not 'OutputObjectSpecMphysOverMcal' in dir():
-   OutputObjectSpecMphysOverMcal = "LArMphysOverMcalComplete#"+"LArMphysOverMcal"+"#"+ LArCalib_Flags.LArMPhysOverMCalFolder		
-   OutputObjectSpecTagMphysOverMcal  = LArCalibFolderTag(LArCalib_Flags.LArMPhysOverMCalFolder,LArPhysFolderOutputTag)
+   OutputObjectSpecMphysOverMcal = "LArMphysOverMcalComplete#"+"LArMphysOverMcal"+"#"+ LArCalib_Flags.LArMphysOverMcalFolder		
+   OutputObjectSpecTagMphysOverMcal  = LArCalibFolderTag(LArCalib_Flags.LArMphysOverMcalFolder,LArPhysFolderOutputTag)
 
 if not 'DBConnectionCOOL' in dir():
    DBConnectionCOOL = "impl=cool;techno=oracle;schema=ATLAS_COOLOFL_LAR;ATLAS_COOLPROD:CONDBR2:ATLAS_COOL_READER:"

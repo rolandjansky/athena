@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AGDDComposition_H
@@ -12,9 +12,12 @@
 
 class AGDDComposition: public AGDDVolume {
 public:
-	AGDDComposition(std::string s):AGDDVolume(s) {}
-	~AGDDComposition() {}
-	void CreateVolume();
+	AGDDComposition(const std::string& s,
+                        AGDDVolumeStore& vs,
+                        AGDDSectionStore& ss)
+          : AGDDVolume(s,vs,ss) {}
+	virtual ~AGDDComposition() {}
+        virtual void CreateVolume (AGDDBuilder& builder) override;
 private:
 };
 

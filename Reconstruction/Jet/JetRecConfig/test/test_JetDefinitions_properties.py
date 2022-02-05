@@ -34,7 +34,7 @@ def printJetDefinition(desc, jetdef):
 class TestJetDef(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.CHSPFlow = JetInputConstitSeq("chspflow",xAODType.ParticleFlow, [],
+        cls.CHSPFlow = JetInputConstitSeq("chspflow",xAODType.FlowElement, [],
                                           "InputPFlow", "OutputPFlow", jetinputtype="EMPFlow"
                                           )
         cls.AntiKt4EMPFlow = JetDefinition("AntiKt",0.4,cls.CHSPFlow,ptmin=10e3,modifiers=["bla","bli"])

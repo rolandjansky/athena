@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
+#include "AsgDataHandles/ReadHandle.h"
 
 // Trigger include(s):
 #include "TrigNavStructure/TrigNavStructure.h"
@@ -13,9 +13,8 @@
 
 // Local include(s):
 #include "TrigDecisionTool/DecisionUnpackerStandalone.h"
-#include "TrigDecisionTool/DecisionObjectHandleStandalone.h"
 
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full athena
 #include "TrigNavigation/NavigationCore.h"
 #endif
 
@@ -39,7 +38,7 @@ namespace Trig {
 
   DecisionUnpackerStandalone::DecisionUnpackerStandalone( SG::ReadHandleKey<xAOD::TrigDecision>* deckey,
                                                           SG::ReadHandleKey<xAOD::TrigNavigation>* navikey)
-    : m_handle( std::make_unique<DecisionObjectHandleStandalone>( deckey, navikey ) )
+    : m_deckey(deckey), m_navikey(navikey)
   {
   }
   
@@ -48,17 +47,19 @@ namespace Trig {
   
   StatusCode
   DecisionUnpackerStandalone::
-  unpackDecision( std::unordered_map< std::string,const LVL1CTP::Lvl1Item* >& itemsByName,
+  unpackDecision( const EventContext& ctx,
+                  std::unordered_map< std::string,const LVL1CTP::Lvl1Item* >& itemsByName,
                   std::map< CTPID, LVL1CTP::Lvl1Item >& itemsCache,
                   std::unordered_map< std::string, const HLT::Chain* >& l2chainsByName,
                   std::map< CHAIN_COUNTER, HLT::Chain >& l2chainsCache,
                   std::unordered_map< std::string, const HLT::Chain* >& efchainsByName,
                   std::map< CHAIN_COUNTER, HLT::Chain >& efchainsCache,
                   char& bgCode,
-                  bool unpackHLT ) {
+                  bool unpackHLT ) const {
 
       // Grab the trigger decision:
-      const xAOD::TrigDecision* xaoddec = m_handle->getDecision();
+      SG::ReadHandle<xAOD::TrigDecision> trigDec(*m_deckey, ctx);
+      const xAOD::TrigDecision* xaoddec = trigDec.cptr();
       if( ! xaoddec ){
          ATH_MSG_ERROR( "xAOD decision is null" );
          return StatusCode::FAILURE;
@@ -71,8 +72,8 @@ namespace Trig {
       itemsByName.clear();
       ATH_MSG_DEBUG( "Unpacking of L1 items" );
 
-      if( unpackItems( itemsCache,itemsByName ).isFailure() ) {
-         ATH_MSG_WARNING( "Unpacking  of L1 items failed" );
+      if( unpackItems( *xaoddec, itemsCache,itemsByName ).isFailure() ) {
+         ATH_MSG_WARNING( "Unpacking of L1 items failed" );
       }
 
       // Protect from unpacking in case HLT was not run
@@ -89,7 +90,7 @@ namespace Trig {
                         xaoddec->lvl2PassedThrough(), xaoddec->lvl2Prescaled(),
                         xaoddec->lvl2Resurrected(),
                         l2chainsByName ).isFailure() ) {
-         ATH_MSG_WARNING( "Unpacking  of L2 chains failed" );
+         ATH_MSG_WARNING( "Unpacking of L2 chains failed" );
       }
 
       // EF chains
@@ -100,16 +101,15 @@ namespace Trig {
                          xaoddec->efPassedThrough(), xaoddec->efPrescaled(),
                          xaoddec->efResurrected(),
                          efchainsByName ).isFailure() ) {
-         ATH_MSG_WARNING( "Unpacking  of EF/HLT chains failed" );
+         ATH_MSG_WARNING( "Unpacking of EF/HLT chains failed" );
       }
-
-      this->unpacked_decision(true);
 
       return StatusCode::SUCCESS;
    }
 
    StatusCode
-   DecisionUnpackerStandalone::unpackNavigation( HLT::TrigNavStructure* nav ) {
+   DecisionUnpackerStandalone::unpackNavigation( const EventContext& ctx,
+                                                 HLT::TrigNavStructure* nav ) const {
       // A security check:
       if( ! nav ) {
          ATH_MSG_VERBOSE( "Null HLT::TrigNavStructure pointer received" );
@@ -117,8 +117,8 @@ namespace Trig {
       }
 
       ATH_MSG_DEBUG( "Unpacking Navigation" );
-
-      const xAOD::TrigNavigation* serializedNav = m_handle->getNavigation();
+      SG::ReadHandle<xAOD::TrigNavigation> trigNav(*m_navikey, ctx);
+      const xAOD::TrigNavigation* serializedNav = trigNav.cptr();
       if( ! serializedNav ) {
          [[maybe_unused]] static std::atomic<bool> warningPrinted =
             [&]() { ATH_MSG_WARNING( "Serialized navigation not available" );
@@ -154,56 +154,22 @@ namespace Trig {
          ATH_MSG_DEBUG( "Unpacked Navigation" );
       }
 
-      this->unpacked_navigation(true);
-
       // Return gracefully:
       return StatusCode::SUCCESS;
    }
 
-   bool DecisionUnpackerStandalone::assert_handle() {
-
-      if( ! m_handle ) {
-         ATH_MSG_ERROR("Logic ERROR, no handle for TrigDecisionTool ");
-         return false;
-      }
-      if( m_handle->getDecision() == 0 ) {
-         ATH_MSG_ERROR( "No TrigDecision object is accessible" );
-         return false;
-      }
-      if( m_handle->valid() ) {
-         // On this case we already unpacked.. so we don't want to mess further
-         return false;
-      }
-      return true;
-   }
-
-   void DecisionUnpackerStandalone::validate_handle(){
-      m_handle->validate();
-      return;
-   }
-
-   void DecisionUnpackerStandalone::invalidate_handle(){
-      ATH_MSG_VERBOSE("invalidating handle");
-      m_handle->reset();
-      this->unpacked_decision(false);
-      this->unpacked_navigation(false);
-      return;
-   }
-
    StatusCode
    DecisionUnpackerStandalone::
-   unpackItems( std::map< unsigned, LVL1CTP::Lvl1Item >& itemsCache,
-                std::unordered_map< std::string, const LVL1CTP::Lvl1Item* >& itemsByName ) {
+   unpackItems( const xAOD::TrigDecision& trigDec,
+                std::map< unsigned, LVL1CTP::Lvl1Item >& itemsCache,
+                std::unordered_map< std::string, const LVL1CTP::Lvl1Item* >& itemsByName ) const {
       itemsByName.reserve( itemsByName.size() + itemsCache.size() );
       for( auto& [ctpid, item] : itemsCache ) {
          ATH_MSG_VERBOSE( "Unpacking bits for item: " << ctpid << " "
                           << item.name() );
-         bool passBP = get32BitDecision( ctpid,
-                                         m_handle->getDecision()->tbp() );
-         bool passAP = get32BitDecision( ctpid,
-                                         m_handle->getDecision()->tap() );
-         bool passAV = get32BitDecision( ctpid,
-                                         m_handle->getDecision()->tav() );
+         bool passBP = get32BitDecision( ctpid, trigDec.tbp() );
+         bool passAP = get32BitDecision( ctpid, trigDec.tap() );
+         bool passAV = get32BitDecision( ctpid, trigDec.tav() );
          ATH_MSG_VERBOSE( "     --- bits are: bp: " << passBP
                           << " ap: " << passAP << " av: "
                           << passAV );
@@ -226,7 +192,7 @@ namespace Trig {
                  const std::vector< uint32_t >& passedthrough,
                  const std::vector< uint32_t >& prescaled,
                  const std::vector< uint32_t >& resurrected,
-                 std::unordered_map< std::string, const HLT::Chain* >& output ) {
+                 std::unordered_map< std::string, const HLT::Chain* >& output ) const {
       output.reserve( output.size() + cache.size() );
 
       for( auto& [cntr, chain] : cache ) {

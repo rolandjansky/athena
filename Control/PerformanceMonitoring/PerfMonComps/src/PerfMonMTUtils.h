@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -9,6 +9,8 @@
 #ifndef PERFMONCOMPS_PERFMONMTUTILS_H
 #define PERFMONCOMPS_PERFMONMTUTILS_H
 
+// PerfMon includes
+#include "SemiDetMisc.h"   // borrow from existing code
 #include "PerfMonEvent/mallinfo.h"
 
 // STL includes
@@ -21,228 +23,272 @@
 #include <ctime>
 #include <fstream>
 
-typedef std::map<std::string, int64_t> memory_map_t;  // Component : Memory Measurement(kB)
+typedef std::map<std::string, int64_t> MemoryMap_t;  // Component : Memory Measurement(kB)
 
 /*
  * Inline function prototypes
  */
-inline memory_map_t operator-(const memory_map_t& map1, const memory_map_t& map2);
+inline MemoryMap_t operator-(const MemoryMap_t& map1, const MemoryMap_t& map2);
 
 /*
  * Necessary tools
  */
 namespace PMonMT {
-// Base methods for collecting data
-double get_thread_cpu_time();
-double get_process_cpu_time();
-double get_wall_time();
-// Non-efficient memory measurement
-memory_map_t get_mem_stats();
-// Efficient memory measurements
-double get_malloc();
-double get_vmem();
-// Simple check if directory exists
-bool doesDirectoryExist(const std::string& dir);
 
-// Step name and Component name pairs. Ex: Initialize - StoreGateSvc
-struct StepComp {
-  std::string stepName;
-  std::string compName;
+  // Base methods for collecting data
+  double get_thread_cpu_time();
+  double get_process_cpu_time();
+  double get_wall_time();
 
-  // Overload < operator, because we are using a custom key(StepComp)  for std::map
-  bool operator<(const StepComp& sc) const {
-    return std::make_pair(this->stepName, this->compName) < std::make_pair(sc.stepName, sc.compName);
-  }
-};
+  // Non-efficient memory measurement
+  MemoryMap_t get_mem_stats();
 
-// Basic Measurement
-struct Measurement {
+  // Efficient memory measurements
+  double get_vmem();
 
-  // Variables to store measurements
-  double cpu_time, wall_time; // Timing
-  memory_map_t mem_stats; // Memory: Vmem, Rss, Pss, Swap
-  double vmem, malloc; // Memory: Vmem, Malloc (faster than above)
+  // Simple check if directory exists
+  bool doesDirectoryExist(const std::string& dir);
 
-  // Peak values for Vmem, Rss and Pss
-  int64_t vmemPeak = INT64_MIN;
-  int64_t rssPeak = INT64_MIN;
-  int64_t pssPeak = INT64_MIN;
+  // Step name and Component name pairs. Ex: Initialize - StoreGateSvc
+  struct StepComp {
+    std::string stepName;
+    std::string compName;
 
-  // Capture snapshot measurements
-  void capture_snapshot() {
-    // Timing 
-    cpu_time = get_process_cpu_time();
-    wall_time = get_wall_time();
+    // Overload < operator, because we are using a custom key(StepComp)  for std::map
+    bool operator<(const StepComp& sc) const {
+      return std::make_pair(this->stepName, this->compName) < std::make_pair(sc.stepName, sc.compName);
+    }
+  };
 
-    // Memory 
-    mem_stats = get_mem_stats();
-  }
+  // ComponentMeasurement
+  struct ComponentMeasurement {
 
-  // Capture component-level measurements
-  void capture_component(const bool doMem = false) {
-    // Timing 
-    cpu_time = get_thread_cpu_time();
-    wall_time = get_wall_time();
+    // Variables to store measurements
+    double cpu_time, wall_time; // Timing
+    double vmem, malloc; // Memory: Vmem, Malloc
 
-    // Memory if only necessary
-    if (!doMem) return;
+    // Capture component-level measurements
+    void capture(const bool doMem = false) {
 
-    // Efficient Memory Measurements
-    malloc = get_malloc();
-    vmem = get_vmem();
-  }
+      // Timing
+      cpu_time = get_thread_cpu_time();
+      wall_time = get_wall_time();
 
-  // Capture event-level measurements 
-  void capture_event() {
-    // Timing 
-    cpu_time = get_process_cpu_time();
-    wall_time = get_wall_time();
+      // Memory if only necessary
+      if (!doMem) return;
 
-    // Memory
-    mem_stats = get_mem_stats();
+      // Memory
+      malloc = PMonSD::get_malloc_kb();
+      vmem = get_vmem();
 
-    if (mem_stats["vmem"] > vmemPeak) vmemPeak = mem_stats["vmem"];
-    if (mem_stats["rss"] > rssPeak) rssPeak = mem_stats["rss"];
-    if (mem_stats["pss"] > pssPeak) pssPeak = mem_stats["pss"];
-  }
+    }
 
-  Measurement() : cpu_time{0.}, wall_time{0.}, vmem{0.}, malloc{0.} {
-    mem_stats["vmem"] = 0; mem_stats["pss"] = 0; mem_stats["rss"] = 0; mem_stats["swap"] = 0;
-  }
-};
+    // Constructor
+    ComponentMeasurement() : cpu_time{0.}, wall_time{0.}, vmem{0.}, malloc{0.} { }
 
-// Basic Data
-struct MeasurementData {
-  typedef std::map<uint64_t, Measurement> event_meas_map_t;  // Event number: Measurement
+  }; // End ComponentMeasurement
 
-  // These variables are used to calculate and store the serial component level measurements
-  uint64_t m_call_count;
-  double m_tmp_cpu, m_delta_cpu;
-  double m_tmp_wall, m_delta_wall;
-  memory_map_t m_memMon_tmp_map;
-  memory_map_t m_memMon_delta_map;
-  double m_tmp_vmem, m_delta_vmem;
-  double m_tmp_malloc, m_delta_malloc;
+  // Component Data
+  struct ComponentData {
 
-  // This map is used to store the event level measurements
-  event_meas_map_t m_eventLevel_delta_map;
+    // These variables are used to calculate and store the component level measurements
+    uint64_t m_call_count;
+    double m_tmp_cpu, m_delta_cpu;
+    double m_tmp_wall, m_delta_wall;
+    double m_tmp_vmem, m_delta_vmem;
+    double m_tmp_malloc, m_delta_malloc;
 
-  // Wall time offset for event level monitoring
-  double m_offset_wall;
+    // [Component Level Monitoring] : Start
+    void addPointStart(const ComponentMeasurement& meas, const bool doMem = false) {
 
-  // [Component Level Monitoring - Serial Steps] : Record the measurement for the current state
-  void addPointStart_snapshot(const Measurement& meas) {
-    m_tmp_cpu = meas.cpu_time;
-    m_tmp_wall = meas.wall_time;
+      // Timing
+      m_tmp_cpu = meas.cpu_time;
+      m_tmp_wall = meas.wall_time;
 
-    // Non-efficient memory measurements
-    m_memMon_tmp_map = meas.mem_stats;
-  }
+      // Memory if only necessary
+      if (!doMem) return;
 
-  // [Component Level Monitoring - Serial Steps] : Record the measurement for the current state
-  void addPointStop_snapshot(Measurement& meas) {
-    m_delta_cpu = meas.cpu_time - m_tmp_cpu;
-    m_delta_wall = meas.wall_time - m_tmp_wall;
+      // Memory
+      m_tmp_malloc = meas.malloc;
+      m_tmp_vmem = meas.vmem;
 
-    // Non-efficient memory measurements
-    m_memMon_delta_map = meas.mem_stats - m_memMon_tmp_map;
-  }
+    }
 
-  // [Component Level Monitoring] : Start
-  void addPointStart_component(const Measurement& meas, const bool doMem = false) {
-    // Timing
-    m_tmp_cpu = meas.cpu_time;
-    m_tmp_wall = meas.wall_time;
+    // [Component Level Monitoring] : Stop
+    void addPointStop(const ComponentMeasurement& meas, const bool doMem = false) {
 
-    // Memory if only necessary
-    if (!doMem) return;
+      // Call count
+      m_call_count++;
 
-    // Efficient memory measurements
-    m_tmp_malloc = meas.malloc;
-    m_tmp_vmem = meas.vmem;
-  } 
+      // Timing
+      m_delta_cpu += meas.cpu_time - m_tmp_cpu;
+      m_delta_wall += meas.wall_time - m_tmp_wall;
 
-  // [Component Level Monitoring] : Stop
-  // Unlike Snapshots, here we essentially keep a running sum
-  void addPointStop_component(const Measurement& meas, const bool doMem = false) {
-    // Call count
-    m_call_count++;
+      // Memory if only necessary
+      if (!doMem) return;
 
-    // Timing
-    m_delta_cpu += meas.cpu_time - m_tmp_cpu;
-    m_delta_wall += meas.wall_time - m_tmp_wall;
+      // Memory
+      m_delta_malloc += meas.malloc - m_tmp_malloc;
+      m_delta_vmem += meas.vmem - m_tmp_vmem;
 
-    // Memory if only necessary
-    if (!doMem) return;
+    }
 
-    // Efficient memory measurements
-    m_delta_malloc += meas.malloc - m_tmp_malloc;
-    m_delta_vmem += meas.vmem - m_tmp_vmem;
-  } 
+    // Convenience methods
+    uint64_t getCallCount() const { return m_call_count; }
+    void add2CallCount(uint64_t val) { m_call_count += val; }
 
-  // [Event Level Monitoring - Parallel Steps] : Record the measurement for the current checkpoint
-  void record_event(const Measurement& meas, int eventCount) {
-    // Timing
-    m_eventLevel_delta_map[eventCount].cpu_time = meas.cpu_time;
-    m_eventLevel_delta_map[eventCount].wall_time = meas.wall_time - m_offset_wall;
+    double getDeltaCPU() const { return m_delta_cpu; }
+    void add2DeltaCPU(double val) { m_delta_cpu += val; }
 
-    // Memory
-    m_eventLevel_delta_map[eventCount].mem_stats = meas.mem_stats;
-  }
+    double getDeltaWall() const { return m_delta_wall; }
+    void add2DeltaWall(double val) { m_delta_wall += val; }
 
-  void set_wall_time_offset(double wall_time_offset) { m_offset_wall = wall_time_offset; }
+    double getDeltaVmem() const { return m_delta_vmem; }
+    void add2DeltaVmem(double val) { m_delta_vmem += val; }
 
-  event_meas_map_t getEventLevelData() const { return m_eventLevel_delta_map; }
+    double getDeltaMalloc() const { return m_delta_malloc; }
+    void add2DeltaMalloc(double val) { m_delta_malloc += val; }
 
-  uint64_t getNMeasurements() const { return m_eventLevel_delta_map.size(); }
+    // Constructor
+    ComponentData() : m_call_count{0}, m_tmp_cpu{0.}, m_delta_cpu{0.}, m_tmp_wall{0.}, m_delta_wall{0.},
+      m_tmp_vmem{0.}, m_delta_vmem{0.}, m_tmp_malloc{0.}, m_delta_malloc{0.} { }
 
-  double getEventLevelCpuTime(uint64_t event_count) const {
-    return m_eventLevel_delta_map.at(event_count).cpu_time;
-  }
+  }; // End ComponentData
 
-  double getEventLevelWallTime(uint64_t event_count) const {
-    return m_eventLevel_delta_map.at(event_count).wall_time;
-  }
+  // Snapshot Measurement
+  struct SnapshotMeasurement {
 
-  int64_t getEventLevelVmem(uint64_t event_count) const {
-    return m_eventLevel_delta_map.at(event_count).mem_stats.at("vmem");
-  }
+    // Variables to store measurements
+    double cpu_time, wall_time; // Timing
+    MemoryMap_t mem_stats; // Memory: Vmem, Rss, Pss, Swap
 
-  int64_t getEventLevelRss(uint64_t event_count) const {
-    return m_eventLevel_delta_map.at(event_count).mem_stats.at("rss");
-  }
+    // Capture snapshot measurements
+    void capture() {
 
-  int64_t getEventLevelPss(uint64_t event_count) const {
-    return m_eventLevel_delta_map.at(event_count).mem_stats.at("pss");
-  }
+      // Timing
+      cpu_time = get_process_cpu_time();
+      wall_time = get_wall_time();
 
-  int64_t getEventLevelSwap(uint64_t event_count) const {
-    return m_eventLevel_delta_map.at(event_count).mem_stats.at("swap");
-  }
+      // Memory
+      mem_stats = get_mem_stats();
 
-  uint64_t getCallCount() const { return m_call_count; }
-  void add2CallCount(uint64_t val) { m_call_count += val; }
+    }
 
-  double getDeltaCPU() const { return m_delta_cpu; }
-  void add2DeltaCPU(double val) { m_delta_cpu += val; }
+    // Constructor
+    SnapshotMeasurement() : cpu_time{0.}, wall_time{0.} {
+      mem_stats["vmem"] = 0; mem_stats["pss"] = 0; mem_stats["rss"] = 0; mem_stats["swap"] = 0;
+    }
 
-  double getDeltaWall() const { return m_delta_wall; }
-  void add2DeltaWall(double val) { m_delta_wall += val; }
+  }; // End SnapshotMeasurement
 
-  double getDeltaVmem() const { return m_delta_vmem; }
-  void add2DeltaVmem(double val) { m_delta_vmem += val; }
+  // Event Level Data
+  struct EventLevelData {
 
-  double getDeltaMalloc() const { return m_delta_malloc; }
-  void add2DeltaMalloc(double val) { m_delta_malloc += val; }
+    // This map is used to store the event level measurements
+    typedef std::map<uint64_t, SnapshotMeasurement> EventMeasMap_t;  // Event number: Measurement
+    EventMeasMap_t m_eventLevelDeltaMap;
 
-  int64_t getMemMonDeltaMap(std::string mem_stat) const { return m_memMon_delta_map.at(mem_stat); }
+    // [Event Level Monitoring] : Record the measurement for the current checkpoint
+    void recordEvent(const SnapshotMeasurement& meas, const int eventCount) {
 
-  MeasurementData() : m_call_count{0}, m_tmp_cpu{0.}, m_delta_cpu{0.}, m_tmp_wall{0.}, m_delta_wall{0.},
-    m_tmp_vmem{0.}, m_delta_vmem{0.}, m_tmp_malloc{0.}, m_delta_malloc{0.}, m_offset_wall{0.} {
-    m_memMon_tmp_map["vmem"] = 0; m_memMon_tmp_map["pss"] = 0; m_memMon_tmp_map["rss"] = 0; m_memMon_tmp_map["swap"] = 0;
-    m_memMon_delta_map["vmem"] = 0; m_memMon_delta_map["pss"] = 0; m_memMon_delta_map["rss"] = 0; m_memMon_delta_map["swap"] = 0;
-  }
-};
+      // Timing
+      m_eventLevelDeltaMap[eventCount].cpu_time = meas.cpu_time;
+      m_eventLevelDeltaMap[eventCount].wall_time = meas.wall_time - m_offset_wall;
+
+      // Memory
+      m_eventLevelDeltaMap[eventCount].mem_stats = meas.mem_stats;
+
+    }
+
+    // Wall time offset for event level monitoring
+    double m_offset_wall;
+
+    // Convenience methods
+    void set_wall_time_offset(const double wall_time_offset) { m_offset_wall = wall_time_offset; }
+
+    EventMeasMap_t getEventLevelData() const {
+      return m_eventLevelDeltaMap;
+    }
+
+    uint64_t getNMeasurements() const {
+      return m_eventLevelDeltaMap.size();
+    }
+
+    double getEventLevelCpuTime(const uint64_t event_count) const {
+      return m_eventLevelDeltaMap.at(event_count).cpu_time;
+    }
+
+    double getEventLevelWallTime(const uint64_t event_count) const {
+      return m_eventLevelDeltaMap.at(event_count).wall_time;
+    }
+
+    int64_t getEventLevelMemory(const uint64_t event_count,
+                                      const std::string stat) const {
+      return m_eventLevelDeltaMap.at(event_count).mem_stats.at(stat);
+    }
+
+    int64_t getEventLevelMemoryMax(const std::string stat) const {
+      int64_t result = 0;
+      for (const auto& it : getEventLevelData()) {
+        if (it.second.mem_stats.at(stat) > result) {
+          result = it.second.mem_stats.at(stat);
+        }
+      }
+      return result;
+    }
+
+  }; // Add EventLevelData
+
+  // Snapshot Data
+  struct SnapshotData {
+
+    // These variables are used to calculate and store the serial component level measurements
+    double m_tmp_cpu, m_delta_cpu;
+    double m_tmp_wall, m_delta_wall;
+    MemoryMap_t m_memMonTmpMap, m_memMonDeltaMap;
+
+    // [Snapshot Level Monitoring] : Start
+    void addPointStart(const SnapshotMeasurement& meas) {
+
+      // Timing
+      m_tmp_cpu = meas.cpu_time;
+      m_tmp_wall = meas.wall_time;
+
+      // Non-efficient memory measurements
+      m_memMonTmpMap = meas.mem_stats;
+
+    }
+
+    // [Snapshot Level Monitoring] : Stop
+    void addPointStop(const SnapshotMeasurement& meas) {
+
+      // Timing
+      m_delta_cpu = meas.cpu_time - m_tmp_cpu;
+      m_delta_wall = meas.wall_time - m_tmp_wall;
+
+      // Non-efficient memory measurements
+      m_memMonDeltaMap = meas.mem_stats - m_memMonTmpMap;
+
+    }
+
+    // Convenience methods
+    double getDeltaCPU() const { return m_delta_cpu; }
+    void add2DeltaCPU(double val) { m_delta_cpu += val; }
+
+    double getDeltaWall() const { return m_delta_wall; }
+    void add2DeltaWall(double val) { m_delta_wall += val; }
+
+    int64_t getMemMonDeltaMap(const std::string mem_stat) const {
+      return m_memMonDeltaMap.at(mem_stat);
+    }
+
+    // Constructor
+    SnapshotData() : m_tmp_cpu{0.}, m_delta_cpu{0.}, m_tmp_wall{0.}, m_delta_wall{0.} {
+      m_memMonTmpMap["vmem"] = 0; m_memMonTmpMap["pss"] = 0; m_memMonTmpMap["rss"] = 0; m_memMonTmpMap["swap"] = 0;
+      m_memMonDeltaMap["vmem"] = 0; m_memMonDeltaMap["pss"] = 0; m_memMonDeltaMap["rss"] = 0; m_memMonDeltaMap["swap"] = 0;
+    }
+
+  }; // End SnapshotData
 
 }  // namespace PMonMT
 
@@ -287,9 +333,9 @@ inline double PMonMT::get_wall_time() {
 // Therefore, this operation might take about 100 ms per call, which is fairly substantial.
 // However, this is one of the most reliable way to get PSS.
 // Therefore, keep it as is but don't call it too often!
-inline memory_map_t PMonMT::get_mem_stats() {
+inline MemoryMap_t PMonMT::get_mem_stats() {
   // Result object
-  memory_map_t result;
+  MemoryMap_t result;
 
   // Zero initialize
   result["vmem"] = result["rss"] = result["pss"] = result["swap"] = 0;
@@ -348,47 +394,8 @@ inline double PMonMT::get_vmem() {
   return result;
 }
 
-// The code of the following function is borrowed from PMonSD and static variables are declared as thread_local
-// See:
-// https://acode-browser1.usatlas.bnl.gov/lxr/source/athena/Control/PerformanceMonitoring/PerfMonComps/src/SemiDetMisc.h#0443
-inline double PMonMT::get_malloc() {
-  PerfMon::mallinfo_t curr_mallinfo = PerfMon::mallinfo();
-  int64_t uordblks_raw = curr_mallinfo.uordblks;
-  if (sizeof(curr_mallinfo.uordblks) == sizeof(int32_t)) {
-    const int64_t half_range = std::numeric_limits<int32_t>::max();
-    thread_local int64_t last_uordblks = curr_mallinfo.uordblks;
-    thread_local int64_t offset_uordblks = 0;
-    if (uordblks_raw - last_uordblks > half_range) {
-      // underflow detected
-      offset_uordblks -= 2 * half_range;
-    } else if (last_uordblks - uordblks_raw > half_range) {
-      // overflow detected
-      offset_uordblks += 2 * half_range;
-    }
-    last_uordblks = uordblks_raw;
-    uordblks_raw += offset_uordblks;
-  }
-  // exact same code for hblkhd (a bit of code duplication...):
-  int64_t hblkhd_raw = curr_mallinfo.hblkhd;
-  if (sizeof(curr_mallinfo.hblkhd) == sizeof(int32_t)) {
-    const int64_t half_range = std::numeric_limits<int32_t>::max();
-    thread_local int64_t last_hblkhd = curr_mallinfo.hblkhd;
-    thread_local int64_t offset_hblkhd = 0;
-    if (hblkhd_raw - last_hblkhd > half_range) {
-      // underflow detected
-      offset_hblkhd -= 2 * half_range;
-    } else if (last_hblkhd - hblkhd_raw > half_range) {
-      // overflow detected
-      offset_hblkhd += 2 * half_range;
-    }
-    last_hblkhd = hblkhd_raw;
-    hblkhd_raw += offset_hblkhd;
-  }
-  return (uordblks_raw + hblkhd_raw) / 1024.0;
-}
-
-inline memory_map_t operator-(const memory_map_t& map1, const memory_map_t& map2) {
-  memory_map_t result_map;
+inline MemoryMap_t operator-(const MemoryMap_t& map1, const MemoryMap_t& map2) {
+  MemoryMap_t result_map;
   for (auto it : map1) {
     result_map[it.first] = map1.at(it.first) - map2.at(it.first);
   }

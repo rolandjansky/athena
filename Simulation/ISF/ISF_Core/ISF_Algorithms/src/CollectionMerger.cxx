@@ -14,6 +14,7 @@ ISF::CollectionMerger::CollectionMerger( const std::string& name, ISvcLocator* p
 /** Athena Algorithm initialize */
 StatusCode ISF::CollectionMerger::initialize()
 {
+  ATH_CHECK( m_inputPLRHits.initialize(not m_inputPLRHits.empty()) );
   ATH_CHECK( m_inputBCMHits.initialize(not m_inputBCMHits.empty()) );
   ATH_CHECK( m_inputBLMHits.initialize(not m_inputBLMHits.empty()) );
   ATH_CHECK( m_inputPixelHits.initialize(not m_inputPixelHits.empty()) );
@@ -38,6 +39,7 @@ StatusCode ISF::CollectionMerger::initialize()
   ATH_CHECK( m_inputTGCHits.initialize(not m_inputTGCHits.empty()) );
 
 
+  ATH_CHECK( m_outputPLRHits.initialize(not m_outputPLRHits.key().empty()            ) );
   ATH_CHECK( m_outputBCMHits.initialize(not m_outputBCMHits.key().empty()            ) );
   ATH_CHECK( m_outputBLMHits.initialize(not m_outputBLMHits.key().empty()            ) );
   ATH_CHECK( m_outputPixelHits.initialize(not m_outputPixelHits.key().empty()          ) );
@@ -68,6 +70,7 @@ StatusCode ISF::CollectionMerger::initialize()
 /** Athena Algorithm execute */
 StatusCode ISF::CollectionMerger::execute(const EventContext& ctx) const
 {
+  ATH_CHECK(mergeCollections( m_inputPLRHits,             m_outputPLRHits,             ctx ));
   ATH_CHECK(mergeCollections( m_inputBCMHits,             m_outputBCMHits,             ctx ));
   ATH_CHECK(mergeCollections( m_inputBLMHits,             m_outputBLMHits,             ctx ));
   ATH_CHECK(mergeCollections( m_inputPixelHits,           m_outputPixelHits,           ctx ));

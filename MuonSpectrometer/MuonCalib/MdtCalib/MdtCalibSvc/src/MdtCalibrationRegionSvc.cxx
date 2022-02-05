@@ -14,7 +14,7 @@
 #include "MdtCalibSvc/MdtCalibrationRegionSvc.h"
 
 MdtCalibrationRegionSvc::MdtCalibrationRegionSvc(const std::string &name,ISvcLocator *sl)
-  : AthService(name,sl), m_mdtIdHelper(0), m_regionType(ONERT), m_numberOfRegions(1) {
+  : AthService(name,sl), m_mdtIdHelper(nullptr), m_regionType(ONERT), m_numberOfRegions(1) {
 }
 
 // queryInterface 

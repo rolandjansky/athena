@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // CoraCoolFolder.cxx
@@ -461,8 +461,7 @@ bool CoraCoolFolder::decodeAttrSpec() {
           iofs3=spec.size();
           last=true;
         }
-        m_attrvec.push_back(std::pair<std::string,std::string> (
-         spec.substr(iofs1,iofs2-iofs1),spec.substr(iofs2+1,iofs3-iofs2-1)));
+        m_attrvec.emplace_back(spec.substr(iofs1,iofs2-iofs1),spec.substr(iofs2+1,iofs3-iofs2-1));
         if (!last) iofs1=iofs3+1;
       }
       bres=true;
@@ -585,6 +584,6 @@ void CoraCoolFolder::setPrefetchAll(bool prefetchAll) {
   m_coolfolder->setPrefetchAll(prefetchAll);
 }
 
-coral::ITable* CoraCoolFolder::table() const { 
+coral::ITable* CoraCoolFolder::table() { 
   return &(m_proxy->nominalSchema().tableHandle(m_tablename));
 }

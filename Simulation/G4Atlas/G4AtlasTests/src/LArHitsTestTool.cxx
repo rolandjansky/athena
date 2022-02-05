@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHitsTestTool.h"
 
-#include "GeoAdaptors/GeoLArHit.h"
 #include "LArSimEvent/LArHit.h"
 #include "LArSimEvent/LArHitContainer.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "AtlasHepMC/GenParticle.h"
 
@@ -39,6 +39,8 @@ LArHitsTestTool::LArHitsTestTool(const std::string& type, const std::string& nam
 
 StatusCode LArHitsTestTool::initialize()
 {
+  ATH_CHECK(m_caloMgrKey.initialize());
+
   m_path+="LAr/";
   // all LAr detectors
   _TH1D(m_lar_eta,"lar_eta",25,-5.,5.);
@@ -112,6 +114,9 @@ StatusCode LArHitsTestTool::initialize()
 }
 
 StatusCode LArHitsTestTool::processEvent() {
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+  ATH_CHECK(caloMgrHandle.isValid());
+  const CaloDetDescrManager* caloMgr = *caloMgrHandle;
 
   LArHitContainer::const_iterator hi;
   std::string lArkey = "LArHit"+m_detname;
@@ -120,32 +125,15 @@ StatusCode LArHitsTestTool::processEvent() {
   const DataHandle<LArHitContainer> iter;
   CHECK(evtStore()->retrieve(iter,lArkey));
   for (hi=(*iter).begin(); hi != (*iter).end(); ++hi) {
-    GeoLArHit ghit(**hi);
-    if (!ghit) continue;
-    const CaloDetDescrElement* ddElement = ghit.getDetDescrElement();
+    const LArHit* larHit = *hi;
+    const CaloDetDescrElement* ddElement = caloMgr->get_element(larHit->cellID());
 
     double eta = ddElement->eta();
     double phi = ddElement->phi();
     double radius = ddElement->r();
     double z  = ddElement->z();
 
-    // double deta = ddElement->deta();
-    // double dphi = ddElement->dphi();
-    // double dradius = ddElement->dr();
-    double energy = ghit.Energy();
-    // double t2 = 2*atan(exp(-(eta-deta/2.)));
-    // double t1 = 2*atan(exp(-(eta+deta/2.)));
-    // double p1 = phi-dphi/2.;
-    // double p2 = phi+dphi/2.;
-    // double rf = radius;
-    // double rb = radius+ dradius;
-    // double x  = ddElement->x();
-    // double dx = ddElement->dx();
-    // double y  = ddElement->y();
-    // double dy = ddElement->dy();
-    // double z  = ddElement->z();
-    // double dz = ddElement->dz();
-    // int samplingLayer = ghit.SamplingLayer();
+    double energy = larHit->energy();
 
     m_lar_eta->Fill(eta);
     m_lar_phi->Fill(phi);
@@ -197,14 +185,13 @@ StatusCode LArHitsTestTool::processEvent() {
     ATH_MSG_DEBUG ( "Read hit info from FastCaloSim Container" );
     for(hi_fast=(*iter_fast).begin();hi_fast!=(*iter_fast).end();++hi_fast) 
     {
-      GeoLArHit ghit(**hi_fast); 
-      if(!ghit) continue;
-      const CaloDetDescrElement *ddElement=ghit.getDetDescrElement();
+      const LArHit* larHit = *hi_fast;
+      const CaloDetDescrElement* ddElement = caloMgr->get_element(larHit->cellID());
       double eta=ddElement->eta();
       double phi=ddElement->phi();
       double radius=ddElement->r();
       double z=ddElement->z();
-      double energy=ghit.Energy();
+      double energy=larHit->energy();
 
       m_lar_eta->Fill(eta);
       m_lar_phi->Fill(phi);

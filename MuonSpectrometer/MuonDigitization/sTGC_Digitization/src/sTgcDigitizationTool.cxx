@@ -147,11 +147,12 @@ StatusCode sTgcDigitizationTool::initialize() {
   ATH_CHECK(m_outputDigitCollectionKey.initialize());
   ATH_CHECK(m_outputSDO_CollectionKey.initialize());
   
-  // initialize class to execute digitization 
+  // initialize sTgcDigitMaker class to digitize hits
   m_digitizer = std::make_unique<sTgcDigitMaker>(m_hitIdHelper, m_mdManager, m_doEfficiencyCorrection);
-  m_digitizer->setMessageLevel(static_cast<MSG::Level>(msgLevel()));
+  m_digitizer->setLevel(static_cast<MSG::Level>(msgLevel()));
+  ATH_CHECK(m_digitizer->initialize(m_doChannelTypes));
+
   ATH_CHECK(m_rndmSvc.retrieve());
-    
   // getting our random numbers stream
   ATH_MSG_DEBUG("Getting random number engine : <" << m_rndmEngineName << ">");
 
@@ -332,8 +333,6 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
 
   CLHEP::HepRandomEngine* rndmEngine = getRandomEngine(m_rndmEngineName, ctx);
 
-  ATH_CHECK(m_digitizer->initialize(rndmEngine, m_doChannelTypes));
-
   // create and record the Digit container in StoreGate
   SG::WriteHandle<sTgcDigitContainer> digitContainer(m_outputDigitCollectionKey, ctx);
   ATH_CHECK(digitContainer.record(std::make_unique<sTgcDigitContainer>(m_idHelperSvc->stgcIdHelper().module_hash_max())));
@@ -378,6 +377,13 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
         ATH_MSG_VERBOSE("Hit with Energy Deposit of " << hit.depositEnergy() << " less than 300.eV  Skip this hit." );
         continue;
       }
+
+      // Temporary workaround to prevent FPE errors, skipping tracks perpendicular to the beam line
+      if (std::abs(hit.globalPosition().z() - hit.globalPrePosition().z()) < 0.01) {
+        ATH_MSG_VERBOSE("Skip hit with a difference between the start and end position less than 0.01 mm.");
+        continue;
+      }
+
       if(eventTime != 0){
          msg(MSG::DEBUG) << "Updated hit global time to include off set of " << eventTime << " ns from OOT bunch." << endmsg;
       }
@@ -437,6 +443,17 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
       ATH_MSG_VERBOSE("Local Direction: (" << LOCDIRE.x() << ", " << LOCDIRE.y() << ", " << LOCDIRE.z() << ")" );
       ATH_MSG_VERBOSE("Local Position: (" << LPOS.x() << ", " << LPOS.y() << ", " << LPOS.z() << ")" );
 
+      /* Backward compatibility with old sTGCSimHitCollection persistent class
+       *  Two parameters (kinetic energy, pre-step position) are added in 
+       *  sTGCSimHitCollection_p3, and the direction parameter is removed.
+       *  To preserve backwards compatibility, the digitization should be able
+       *  to process hits from the old persistent classes (_p1 and _p2).
+       *  When reading the old persistent classes, the kinetic energy is 
+       *  initialized to a negative value, while the pre-step position is not 
+       *  defined. So the pre-step position has to be derived from the 
+       *  direction vector.
+       */
+
       double e = 1e-5;
 
       bool X_1 = std::abs( std::abs(LOCAL_Z.x()) - 1. ) < e;
@@ -456,8 +473,17 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
       else
         ATH_MSG_ERROR(" Wrong scale! ");
 
-      Amg::Vector3D HITONSURFACE_WIRE = LPOS + scale * LOCDIRE;  //Hit on the wire surface attached to the closest wire in local coordinates
+      // Hit on the wire surface in local coordinates
+      Amg::Vector3D HITONSURFACE_WIRE = LPOS + scale * LOCDIRE;
       Amg::Vector3D G_HITONSURFACE_WIRE = SURF_WIRE.transform() * HITONSURFACE_WIRE;  //The hit on the wire in Global coordinates
+
+      double kinetic_energy = hit.kineticEnergy();
+      Amg::Vector3D global_preStepPos = hit.globalPrePosition();
+      // If kinetic energy is negative, than hits are from old persistent classes
+      if (kinetic_energy < 0.0) {
+        Amg::Vector3D local_preStepPos = LPOS + 2 * scale * LOCDIRE;
+        global_preStepPos = SURF_WIRE.transform() * local_preStepPos;
+      }
 
       ATH_MSG_VERBOSE("Local Hit on Wire Surface: (" << HITONSURFACE_WIRE.x() << ", " << HITONSURFACE_WIRE.y() << ", " << HITONSURFACE_WIRE.z() << ")"  );
       ATH_MSG_VERBOSE("Global Hit on Wire Surface: (" << G_HITONSURFACE_WIRE.x() << ", " << G_HITONSURFACE_WIRE.y() << ", " << G_HITONSURFACE_WIRE.z() << ")" );
@@ -473,7 +499,9 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
                                 hit.particleEncoding(),
                                 hit.globalDirection(),
                                 hit.depositEnergy(),
-                                particleLink
+                                particleLink,
+                                kinetic_energy,
+                                global_preStepPos
                                 );
 
 
@@ -481,7 +509,8 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
       float tof = temp_hit.globalPosition().mag()/CLHEP::c_light;
       float bunchTime = globalHitTime - tof;
 
-      std::unique_ptr<sTgcDigitCollection> digiHits = m_digitizer->executeDigi(&temp_hit, globalHitTime);  //Create all the digits for this particular Sim Hit
+      // Create all the digits for this particular Sim Hit
+      std::unique_ptr<sTgcDigitCollection> digiHits = m_digitizer->executeDigi(&temp_hit, globalHitTime, rndmEngine);
       if (digiHits == nullptr) {
         continue;
       }
@@ -951,12 +980,11 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
 									      it_digit->isDead(), 
 									      it_digit->isPileup());	  
 
-	  digitCollection->push_back(std::move(finalDigit));
 	  ATH_MSG_VERBOSE("Final Digit") ;
 	  ATH_MSG_VERBOSE(" BC tag = "    << finalDigit->bcTag()) ;
 	  ATH_MSG_VERBOSE(" digitTime = " << finalDigit->time()) ;
 	  ATH_MSG_VERBOSE(" charge = "    << finalDigit->charge()) ;
-
+    digitCollection->push_back(std::move(finalDigit));	  
   }
 
       } // end of loop for all the digit object of the same ReadoutElementID
@@ -986,14 +1014,14 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
 /*******************************************************************************/
 void sTgcDigitizationTool::readDeadtimeConfig()
 {
-  const char* const fileName = "sTGC_Digitization_deadtime.config";
+  static const std::string fileName = "sTGC_Digitization_deadtime.config";
   std::string fileWithPath = PathResolver::find_file (fileName, "DATAPATH");
 
   ATH_MSG_INFO("Reading deadtime config file");
 
   std::ifstream ifs;
   if (!fileWithPath.empty()) {
-    ifs.open(fileWithPath.c_str(), std::ios::in);
+    ifs.open(fileWithPath, std::ios::in);
   }
   else {
     ATH_MSG_FATAL("readDeadtimeConfig(): Could not find file " << fileName );

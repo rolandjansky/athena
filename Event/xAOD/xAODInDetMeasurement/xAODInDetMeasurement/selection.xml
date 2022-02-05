@@ -1,0 +1,24 @@
+<!-- Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration -->
+<lcgdict>
+
+    <class name="xAOD::PixelCluster_v1" />
+    <class name="xAOD::PixelClusterContainer_v1"
+           id="DE61015F-C762-47D6-BFC5-A64344734DE4" />
+    <typedef name="xAOD::PixelCluster" />
+    <typedef name="xAOD::PixelClusterContainer" />
+
+    <class name="xAOD::PixelClusterAuxContainer_v1"
+           id="AC1AEA8C-20D8-4206-B785-0B4538EFF66B" />
+    <typedef name="xAOD::PixelClusterAuxContainer" />
+
+    <class name="xAOD::StripCluster_v1" />
+    <class name="xAOD::StripClusterContainer_v1"
+           id="BF692A4A-BF3E-4626-8DD4-135C58E6C0AB" />
+    <typedef name="xAOD::StripCluster" />
+    <typedef name="xAOD::StripClusterContainer" />
+
+    <class name="xAOD::StripClusterAuxContainer_v1"
+           id="25606F37-C929-45DD-8B85-9DF98D04D456" />
+    <typedef name="xAOD::StripClusterAuxContainer" />
+
+</lcgdict>

@@ -152,7 +152,7 @@ private:
 
   /// \brief the \ref CutIdentifier for this filter algorithm
 private:
-  CutIdentifier m_cutID;
+  CutIdentifier m_cutID{};
 
   /// \brief the handle to the service holding tables of cut-flows
   /// for filtering algs.

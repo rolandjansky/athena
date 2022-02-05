@@ -64,6 +64,17 @@ Trk::DNA_MaterialEffects::makeMEFOT() const
                                                               : inside);
 }
 
+std::unique_ptr<Trk::MaterialEffectsBase> 
+Trk::DNA_MaterialEffects::makeUniqueMEFOT() const{
+return std::make_unique<Trk::EstimatedBremOnTrack>(m_thickness,
+                                       1.0,
+                                       0.0,
+                                       m_addSigmaQoverP * m_addSigmaQoverP,
+                                       *m_associatedSurface,
+                                       m_foundByForwardFilter ? outside
+                                                              : inside);
+}
+
 /**Overload of << operator for MsgStream and std::ostream for debug output*/
 MsgStream&
 Trk::operator<<(MsgStream& sl, const Trk::DNA_MaterialEffects& dme)

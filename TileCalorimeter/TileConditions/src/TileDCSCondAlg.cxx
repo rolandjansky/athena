@@ -1,6 +1,6 @@
 //Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
@@ -326,7 +326,8 @@ StatusCode TileDCSCondAlg::execute(const EventContext& ctx) const {
 
 
 //_____________________________________________________________________________
-int TileDCSCondAlg::readConfig(std::string fileName, std::string subStr,
+int TileDCSCondAlg::readConfig(const std::string& fileName,
+                               const std::string& subStr,
                                std::vector<std::pair<int, int>>& rosDrawer) {
 
   std::string fullFileName = PathResolver::find_file(fileName, "DATAPATH");
@@ -390,7 +391,7 @@ int TileDCSCondAlg::readConfig(std::string fileName, std::string subStr,
 }
 
 //_____________________________________________________________________________
-int TileDCSCondAlg::readBadHV(std::string fileName) {
+int TileDCSCondAlg::readBadHV(const std::string& fileName) {
 
   std::string fullFileName = PathResolver::find_file(fileName, "DATAPATH");
   std::ifstream file(fullFileName.c_str());

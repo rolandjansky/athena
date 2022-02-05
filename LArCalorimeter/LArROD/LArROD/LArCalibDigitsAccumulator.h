@@ -47,8 +47,8 @@ public:
   class LArAccumulated{
   public:
     unsigned int m_ntrigger;
-    std::vector<unsigned int> m_sum;
-    std::vector<unsigned int> m_sum2;
+    std::vector< uint64_t > m_sum;
+    std::vector< uint64_t > m_sum2;
     LArAccumulated() : m_ntrigger(0) {};
   };
 
@@ -107,6 +107,12 @@ private:
   bool m_isSC;
 
  /** 
+   * @brief Tells you wether you keep only fully pulsed supercells or all supercells
+   * */
+  bool m_keepFullyPulsedSC;
+
+
+ /** 
    * @brief Vector (index=hash ID) of accumulation quantities
    * */
   std::vector<LArAccumulated> m_Accumulated;
@@ -115,6 +121,7 @@ private:
    * @brief Event counter
    * */
   unsigned int m_event_counter;
+  unsigned int m_eventNb;
 
   // Information to remove certain readings if needed
   std::map<std::string, std::map<int,std::vector<int>*>*>           m_readingsMap;

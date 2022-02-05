@@ -51,16 +51,15 @@ def SCTTracksMonAlgConfig(inputFlags):
     myMonAlg.TriggerChain = ''
     # myMonAlg.RandomHist = True
 
-    # Set InDetTrackSummaryTool to TrackSummaryTool of SCTLorentzMonAlg
-    from .TrackSummaryToolWorkaround import TrackSummaryToolWorkaround
-    myMonAlg.TrackSummaryTool = result.popToolsAndMerge(TrackSummaryToolWorkaround(inputFlags))
+    from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolCfg
+    myMonAlg.TrackSummaryTool = result.getPrimaryAndMerge(InDetTrackSummaryToolCfg(inputFlags))
 
     ### STEP 4 ###
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the
     # standard one that is included with AthMonitorAlgorithm.
 
     # set up geometry / conditions
-    from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg
+    from InDetConfig.InDetGeometryConfig import InDetGeometryCfg
     result.merge(InDetGeometryCfg(inputFlags))
 
     # # Then, add a tool that doesn't have its own configuration function. In
@@ -190,10 +189,6 @@ if __name__ == "__main__":
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
-
-    from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
-    geoCfg=AtlasGeometryCfg(ConfigFlags)
-    cfg.merge(geoCfg)
 
     sctTracksMonAcc = SCTTracksMonAlgConfig(ConfigFlags)
     cfg.merge(sctTracksMonAcc)

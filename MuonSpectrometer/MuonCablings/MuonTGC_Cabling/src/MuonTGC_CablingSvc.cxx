@@ -617,15 +617,15 @@ bool MuonTGC_CablingSvc::getOnlineIDfromOfflineID(const Identifier & offlineId,
     m_cabling->getChannel(&asdin,
 			  TGCIdBase::ASDOut,
 			  false);
-  if(asdout==0) return false;
+  if(asdout==nullptr) return false;
   if(!asdout->isValid()) {
     delete asdout;
-    asdout=0;
+    asdout=nullptr;
     return false;
   }
   channelNumber = asdout->getChannel();
   delete asdout;
-  asdout=0;
+  asdout=nullptr;
 
   return true;
 }
@@ -687,10 +687,10 @@ bool MuonTGC_CablingSvc::getOfflineIDfromOnlineID(Identifier & offlineId,
 	  << " chamber=" << rNumber << " w/s=" << signalType
 	  << " channel=" << channelNumber);
   }
-  if(asdin==0) return false;
+  if(asdin==nullptr) return false;
   if(!asdin->isValid()) {
     delete asdin;
-    asdin = 0;
+    asdin = nullptr;
     return false;
   }  
   // build identifier
@@ -709,7 +709,7 @@ bool MuonTGC_CablingSvc::getOfflineIDfromOnlineID(Identifier & offlineId,
     stationNameStr = (asdin->isForward()) ? "T4F" : "T4E";
     break;
   default:
-    delete asdin; asdin = 0;
+    delete asdin; asdin = nullptr;
     return false;
   }
   int stationEta = asdin->getChamber();
@@ -727,7 +727,7 @@ bool MuonTGC_CablingSvc::getOfflineIDfromOnlineID(Identifier & offlineId,
     stationPhi = phiIE[ asdin->getSector() ];
     if(stationPhi<0) {
       delete asdin;
-      asdin = 0;
+      asdin = nullptr;
       return false;
     }
   }
@@ -773,7 +773,7 @@ bool MuonTGC_CablingSvc::getOfflineIDfromOnlineID(Identifier & offlineId,
 				    channel);
   
   delete asdin;
-  asdin = 0;
+  asdin = nullptr;
   return true;
 }
 
@@ -806,7 +806,7 @@ bool MuonTGC_CablingSvc::getOnlineIDfromReadoutID(const int subDetectorID,
 				    sbLoc,
 				    channelID,
 				    orChannel);
-  if(asdout==0) {
+  if(asdout==nullptr) {
     if(!orChannel) {
       ATH_MSG_VERBOSE(" getOnlineIDfromReadoutID :"
           << " Cannot get OnlineID of "
@@ -830,7 +830,7 @@ bool MuonTGC_CablingSvc::getOnlineIDfromReadoutID(const int subDetectorID,
 	  << " [ Or =" << orChannel <<"] ");
 
     delete asdout;
-    asdout = 0;
+    asdout = nullptr;
     return false;
   }
   // SubsystemNumber
@@ -854,7 +854,7 @@ bool MuonTGC_CablingSvc::getOnlineIDfromReadoutID(const int subDetectorID,
   channelNumber = asdout->getChannel();
 
   delete asdout;
-  asdout = 0;
+  asdout = nullptr;
   return true;
 }
 
@@ -1181,7 +1181,7 @@ bool MuonTGC_CablingSvc::getSLBIDfromRxID(int &phi,
   offset = numOfSector -  numOfSector/24;
   phi = (slb->getSector()+offset)%numOfSector +1;
   id = slb->getId();
-  delete slb; slb = 0; 
+  delete slb; slb = nullptr; 
   return true;
 }
 
@@ -1253,7 +1253,7 @@ bool MuonTGC_CablingSvc::getSLIDfromReadoutID(int & phi,
 					      bool & isEndcap,
 					      const int subsectorID,
 					      const int rodID,
-					      const int sswID,
+                                              const int sswID,
 					      const int sbLoc) const
 {
   isAside = (subsectorID==m_AsideId);
@@ -1263,18 +1263,16 @@ bool MuonTGC_CablingSvc::getSLIDfromReadoutID(int & phi,
 	  << subsectorID  <<"] ");
     return false;
   } 
-  int sectorInReadout = (rodID -1); // rodID = 1..12 for both sides
+  int sectorInReadout = (rodID -1); // rodID = 1..3 for both sides
   if(sectorInReadout>= MuonTGC_Cabling::TGCId::NumberOfReadoutSector) return false;
   
-  // sswID
-  // sswID for SL is fixed to 9
-  if(sswID!= 9) {
-    ATH_MSG_WARNING(" getSLIDfromReadoutID : "
-	  << " ERROR  sswID for SL should be 9 [now =" 
-	  << sswID  <<"] ");
-    return false;
+  // sswID check removed
+  if (sswID != 9 ){
+    ATH_MSG_WARNING(" Trigger info in SROD ");
+  }else{
+    ATH_MSG_WARNING(" Trigger info in ROD ");
   }
-  
+
   int offset, numOfSector, sector;
   if(0<=sbLoc && sbLoc <= 3) {
     isEndcap=true;
@@ -1303,7 +1301,7 @@ bool MuonTGC_CablingSvc::getReadoutIDfromSLID(const int phi,
 					      const bool isAside,
 					      const bool isEndcap,
 					      int & subsectorID,
-					      int & rodID,
+					      int & srodID,
 					      int & sswID,
 					      int & sbLoc) const
 {
@@ -1321,23 +1319,23 @@ bool MuonTGC_CablingSvc::getReadoutIDfromSLID(const int phi,
   if(isEndcap) {
     sector = (phi+1)% MuonTGC_Cabling::TGCId::NumberOfEndcapSector;
     sectorInReadout = sector %  
-      (MuonTGC_Cabling::TGCId::NumberOfEndcapSector / MuonTGC_Cabling::TGCId::NumberOfReadoutSector);
+      (MuonTGC_Cabling::TGCId::NumberOfEndcapSector / MuonTGC_Cabling::TGCId::NumberOfSReadoutSector);
     sbLoc = sectorInReadout;
-    rodID = (sector-sectorInReadout)/
-      (MuonTGC_Cabling::TGCId::NumberOfEndcapSector / MuonTGC_Cabling::TGCId::NumberOfReadoutSector)
+    srodID = (sector-sectorInReadout)/
+      (MuonTGC_Cabling::TGCId::NumberOfEndcapSector / MuonTGC_Cabling::TGCId::NumberOfSReadoutSector)
       + 1;
   } else {
     sector = phi % MuonTGC_Cabling::TGCId::NumberOfForwardSector;
     sectorInReadout = sector % 
-      (MuonTGC_Cabling::TGCId::NumberOfForwardSector / MuonTGC_Cabling::TGCId::NumberOfReadoutSector);
-    sbLoc = sectorInReadout + 4;
-    rodID = (sector-sectorInReadout)/
-      (MuonTGC_Cabling::TGCId::NumberOfForwardSector / MuonTGC_Cabling::TGCId::NumberOfReadoutSector)
+      (MuonTGC_Cabling::TGCId::NumberOfForwardSector / MuonTGC_Cabling::TGCId::NumberOfSReadoutSector);
+    sbLoc = sectorInReadout;
+    srodID = (sector-sectorInReadout)/
+      (MuonTGC_Cabling::TGCId::NumberOfForwardSector / MuonTGC_Cabling::TGCId::NumberOfSReadoutSector)
       + 1;
   }
   // Fixed SSWID for SL 
-  sswID = 9;
-  
+  sswID = -1;
+
   return true;
 }
 

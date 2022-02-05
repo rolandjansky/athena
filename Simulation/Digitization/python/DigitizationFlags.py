@@ -172,8 +172,32 @@ class doFwdNoise(JobProperty):
     StoredValue=True
 
 #
-class doRadiationDamage(JobProperty):
-    """ Include radiation damage simulation where possible?
+class doPixelPlanarRadiationDamage(JobProperty):
+    """ Include radiation damage simulation for pixel planar sensors where possible?
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+#
+class doPixelPlanarRadiationDamageTemplate(JobProperty):
+    """ Include radiation damage simulation using the templates for pixel planar sensors where possible?
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+#
+class doPixel3DRadiationDamage(JobProperty):
+    """ Include radiation damage simulation for pixel planar sensors where possible?
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+#
+class doPixel3DRadiationDamageTemplate(JobProperty):
+    """ Include radiation damage simulation using the templates for pixel planar sensors where possible?
     """
     statusOn=True
     allowedTypes=['bool']
@@ -733,7 +757,15 @@ class TRTRangeCut(JobProperty):
     statusOn=True
     allowedTypes=['float']
     allowedValues = [0.05,30.0]
-    StoredValue=0.05
+    StoredValue=30.0
+
+#
+class UseUpdatedTGCConditions(JobProperty):
+    """ Temporary flag for TGC conditions
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
 
 #
 class PileUpPresampling(JobProperty):
@@ -822,7 +854,8 @@ jobproperties.add_Container(Digitization)
 
 
 # We want always the following flags in the container
-list_jobproperties=[doInDetNoise,doCaloNoise,doMuonNoise,doFwdNoise,doRadiationDamage,\
+list_jobproperties=[doInDetNoise,doCaloNoise,doMuonNoise,doFwdNoise,\
+                    doPixelPlanarRadiationDamage,doPixel3DRadiationDamage,doPixelPlanarRadiationDamageTemplate,doPixel3DRadiationDamageTemplate,\
                     rndmSvc,rndmSeedList,rndmSeedOffset1,rndmSeedOffset2,readSeedsFromFile,\
                     rndmSeedInputFile,physicsList,overrideMetadata,doBichselSimulation,\
                     IOVDbGlobalTag,SimG4VersionUsed,numberOfCollisions,\
@@ -834,7 +867,7 @@ list_jobproperties=[doInDetNoise,doCaloNoise,doMuonNoise,doFwdNoise,doRadiationD
                     bunchSpacing,initialBunchCrossing,finalBunchCrossing,doXingByXingPileUp,\
                     simRunNumber,dataRunNumber,BeamIntensityPattern,FixedT0BunchCrossing,cavernIgnoresBeamInt,\
                     RunAndLumiOverrideList,SignalPatternForSteppingCache,
-                    experimentalDigi,pileupDSID,specialConfiguration,digiSteeringConf,TRTRangeCut,PileUpPresampling,doBeamSpotSizeReweighting,OldBeamSpotZSize]
+                    experimentalDigi,pileupDSID,specialConfiguration,digiSteeringConf,TRTRangeCut,UseUpdatedTGCConditions,PileUpPresampling,doBeamSpotSizeReweighting,OldBeamSpotZSize]
 
 for i in list_jobproperties:
     jobproperties.Digitization.add_JobProperty(i)

@@ -24,7 +24,6 @@ class IjFEXtauAlgo : virtual public IAlgTool {
         static const InterfaceID& interfaceID ( ) ;
         virtual StatusCode safetyTest() = 0;
         virtual void setup(int TTwindow[5][5], int seed[3][3]) = 0;
-        //virtual void setupCluster(int inputTable[4][5]) =0;
         virtual bool isSeedLocalMaxima() = 0;
         virtual void buildSeeds() = 0;
         virtual void setFirstEtRing(int First_ETring[]) =0;

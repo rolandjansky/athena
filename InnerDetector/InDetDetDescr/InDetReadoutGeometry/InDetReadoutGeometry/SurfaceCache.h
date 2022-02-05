@@ -16,31 +16,64 @@
 
 namespace InDetDD {
 
-/** @class SurfaceCache
+/** @class SurfaceCacheBase/SurfaceCache
 
-   This class is for internal use in InDetReadoutGeometry.
-   It holds all the cached values related to the element surface.
+   These are for internal use in TRT_RedoutGeometry.
+   They hold all the cached values related to the element surface.
 
-   It's a simple class to still alllow the
+   We want to  alllow the
    Trk::Surface::transform() { m_associatedDetectorElement->transform() }
-   method to work, hence, it basically copies the Trk::Surface structure.
+   method to work.
 
-   The surface cache class alows also to store 0 pointers,
-   indicating the the holder of the cache has a commonly shared object,
-   e.g. the straw bounds of all straws in one detector element.
 
    @author: Grant Gorfine, Andreas Salzburger
    @author: Chirstos Anastopoulos AthenaMT modifications
 */
+class SurfaceCacheBase
+{
 
-class SurfaceCache
+public:
+  SurfaceCacheBase(const Amg::Transform3D& transform,
+                   const Amg::Vector3D& center);
+
+  ///
+  SurfaceCacheBase() = default;
+  ///
+  ~SurfaceCacheBase() = default;
+  /// move c'tor
+  SurfaceCacheBase(SurfaceCacheBase&&) = default;
+  /// move assignment
+  SurfaceCacheBase& operator=(SurfaceCacheBase&&) = default;
+  /// delete copy c'tor
+  SurfaceCacheBase(const SurfaceCacheBase&) = delete;
+  /// delete assignment
+  SurfaceCacheBase& operator=(const SurfaceCacheBase&) = delete;
+
+  const Amg::Transform3D& transform() const { return (m_transform); }
+
+  const Amg::Vector3D& center() const { return (m_center); }
+
+private:
+  Amg::Transform3D m_transform{};
+  Amg::Vector3D m_center{};
+};
+
+inline SurfaceCacheBase::SurfaceCacheBase(const Amg::Transform3D& transform,
+                                          const Amg::Vector3D& center)
+  : m_transform(transform)
+  , m_center(center)
+{}
+
+class SurfaceCache : public SurfaceCacheBase
 {
 
 public:
   SurfaceCache(const Amg::Transform3D& transform,
                const Amg::Vector3D& center,
-               std::unique_ptr<Amg::Vector3D> normal,
+               const Amg::Vector3D& normal,
                std::unique_ptr<Trk::SurfaceBounds> bounds);
+  ///
+  SurfaceCache() = default;
   ///
   ~SurfaceCache() = default;
   /// move c'tor
@@ -52,28 +85,21 @@ public:
   /// delete assignment
   SurfaceCache& operator=(const SurfaceCache&) = delete;
 
-  const Amg::Transform3D& transform() const { return (m_transform); }
-
-  const Amg::Vector3D& center() const { return (m_center); }
-
-  const Amg::Vector3D* normal() const { return (m_normal.get()); }
+  const Amg::Vector3D& normal() const { return (m_normal); }
 
   const Trk::SurfaceBounds* bounds() const { return (m_bounds.get()); }
 
 private:
-  Amg::Transform3D m_transform{};
-  Amg::Vector3D m_center{};
-  std::unique_ptr<Amg::Vector3D> m_normal = nullptr;
+  Amg::Vector3D m_normal;
   std::unique_ptr<Trk::SurfaceBounds> m_bounds = nullptr;
 };
 
 inline SurfaceCache::SurfaceCache(const Amg::Transform3D& transform,
                                   const Amg::Vector3D& center,
-                                  std::unique_ptr<Amg::Vector3D> normal,
+                                  const Amg::Vector3D& normal,
                                   std::unique_ptr<Trk::SurfaceBounds> bounds)
-  : m_transform(transform)
-  , m_center(center)
-  , m_normal(std::move(normal))
+  : SurfaceCacheBase(transform, center)
+  , m_normal(normal)
   , m_bounds(std::move(bounds))
 {}
 

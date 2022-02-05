@@ -54,10 +54,10 @@ TRTMonitoringRun3ESD_Alg::TRTMonitoringRun3ESD_Alg( const std::string& name, ISv
     declareProperty("InDetTRTStrawStatusSummaryTool",                 m_sumTool);
     declareProperty("ITRT_CalDbTool",                                 m_TRTCalDbTool);
     declareProperty("DriftFunctionTool",                              m_drifttool);
+    declareProperty("doExpert",                 m_doExpert            = false);
     declareProperty("DoTracksMon",              m_doTracksMon         = true);
     declareProperty("doStraws",                 m_doStraws            = true);
     declareProperty("doChips",                  m_doChips             = true);
-    declareProperty("doExpert",                 m_doExpert            = false);
     declareProperty("doShift",                  m_doShift             = true);
     declareProperty("DistanceToStraw",          m_DistToStraw         = 0.4);
     declareProperty("min_si_hits",              m_min_si_hits         = 1);
@@ -1197,70 +1197,65 @@ for (; p_trk != trackCollection.end(); ++p_trk) {
         }
     }
 
-    if (m_environment != Environment_t::online) {
-        if (m_doShift) {
-            Summary = 0;
-            SummaryWeight = 1.;
+    if (m_doShift) {
+        Summary = 0;
+        SummaryWeight = 1.;
+        fill("SmryHistograms", SummaryWeight, Summary);
+
+        if (m_doTracksMon) {
+            Summary = 1;
+            SummaryWeight = nTotalTracks;
             fill("SmryHistograms", SummaryWeight, Summary);
-
-            if (m_doTracksMon) {
-                Summary = 1;
-                SummaryWeight = nTotalTracks;
-                fill("SmryHistograms", SummaryWeight, Summary);
-                Summary = 2;
-                SummaryWeight = nTracksB[0];
-                fill("SmryHistograms", SummaryWeight, Summary);
-                Summary = 3;
-                SummaryWeight = nTracksB[1];
-                fill("SmryHistograms", SummaryWeight, Summary);
-                Summary = 4;
-                SummaryWeight = nTracksEC[0];
-                fill("SmryHistograms", SummaryWeight, Summary);
-                Summary = 5;
-                SummaryWeight = nTracksEC[1];
-                fill("SmryHistograms", SummaryWeight, Summary);
-                Summary = 6;
-                SummaryWeight = nTracksEC_B[0];
-                fill("SmryHistograms", SummaryWeight, Summary);
-                Summary = 7;
-                SummaryWeight = nTracksEC_B[1];
-                fill("SmryHistograms", SummaryWeight, Summary);
-            }
+            Summary = 2;
+            SummaryWeight = nTracksB[0];
+            fill("SmryHistograms", SummaryWeight, Summary);
+            Summary = 3;
+            SummaryWeight = nTracksB[1];
+            fill("SmryHistograms", SummaryWeight, Summary);
+            Summary = 4;
+            SummaryWeight = nTracksEC[0];
+            fill("SmryHistograms", SummaryWeight, Summary);
+            Summary = 5;
+            SummaryWeight = nTracksEC[1];
+            fill("SmryHistograms", SummaryWeight, Summary);
+            Summary = 6;
+            SummaryWeight = nTracksEC_B[0];
+            fill("SmryHistograms", SummaryWeight, Summary);
+            Summary = 7;
+            SummaryWeight = nTracksEC_B[1];
+            fill("SmryHistograms", SummaryWeight, Summary);
         }
 
-        if (m_doShift) {
-            const unsigned int lumiBlock = eventInfo.lumiBlock();
-            ATH_MSG_VERBOSE("This is lumiblock : " << lumiBlock);
-            int lastLumiBlock = -99; // ToDo - last lumiblock calculation is not correct
-            if ((int)lumiBlock != lastLumiBlock) {
-                lastLumiBlock = lumiBlock;
-            }
-            float evtLumiBlock = 1.;
-            float lumiBlockScale = (evtLumiBlock > 0) ? (1. / evtLumiBlock) : 0;
+        const unsigned int lumiBlock = eventInfo.lumiBlock();
+        ATH_MSG_VERBOSE("This is lumiblock : " << lumiBlock);
+        int lastLumiBlock = -99; // ToDo - last lumiblock calculation is not correct
+        if ((int)lumiBlock != lastLumiBlock) {
+            lastLumiBlock = lumiBlock;
+        }
+        float evtLumiBlock = 1.;
+        float lumiBlockScale = (evtLumiBlock > 0) ? (1. / evtLumiBlock) : 0;
 
-            if (m_doTracksMon && evtLumiBlock > 0) {
+        if (m_doTracksMon && evtLumiBlock > 0) {
+            NTrksperLB_x = lastLumiBlock;
+            NTrksperLB_y = (float)nTrksperLB_B * lumiBlockScale;
+            fill("ShiftTRTTrackHistograms0", NTrksperLB_x, NTrksperLB_y);
+
+            for (int iside = 0; iside < 2; iside++) {
                 NTrksperLB_x = lastLumiBlock;
-                NTrksperLB_y = (float)nTrksperLB_B * lumiBlockScale;
-                fill("ShiftTRTTrackHistograms0", NTrksperLB_x, NTrksperLB_y);
+                NTrksperLB_y = (float)nTrksperLB_E[iside] * lumiBlockScale;
+                fill("ShiftTRTTrackHistograms1"+std::to_string(iside), NTrksperLB_x, NTrksperLB_y);
+            }
 
-                for (int iside = 0; iside < 2; iside++) {
-                    NTrksperLB_x = lastLumiBlock;
-                    NTrksperLB_y = (float)nTrksperLB_E[iside] * lumiBlockScale;
-                    fill("ShiftTRTTrackHistograms1"+std::to_string(iside), NTrksperLB_x, NTrksperLB_y);
-                }
+            nTrksperLB_B = 0;
 
-                nTrksperLB_B = 0;
-
-                for (int iside = 0; iside < 2; iside++) {
-                    nTrksperLB_E[iside] = 0;
-                }
-
+            for (int iside = 0; iside < 2; iside++) {
+                nTrksperLB_E[iside] = 0;
             }
         }
-
-        ATH_MSG_DEBUG("end of event and lumi block");
-        //number of events in lumiblock counter setted to zero since it is end of the run or the lumiblock
     }
+
+    ATH_MSG_DEBUG("end of event and lumi block");
+    //number of events in lumiblock counter setted to zero since it is end of the run or the lumiblock
 
     return StatusCode::SUCCESS;
 }

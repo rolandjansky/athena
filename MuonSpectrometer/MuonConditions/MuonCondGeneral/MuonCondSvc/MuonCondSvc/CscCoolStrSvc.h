@@ -21,6 +21,7 @@
 #include <string>
 #include <sstream>
 #include <fstream>
+#include <atomic>
 
 template <class TYPE> class SvcFactory;
 
@@ -35,7 +36,7 @@ namespace MuonCalib {
 
     Contains the major code to write and read calibration files to the database. 
    */
-  class CscCoolStrSvc : public AthService, public virtual CscICoolStrSvc
+  class ATLAS_NOT_THREAD_SAFE CscCoolStrSvc : public AthService, public virtual CscICoolStrSvc
   {
     friend class SvcFactory<CscCoolStrSvc>;
 
@@ -196,16 +197,16 @@ namespace MuonCalib {
     /**Flags*/
     bool m_preCache;
 
-    mutable int m_numFailedRequests;
+    mutable std::atomic<int> m_numFailedRequests;
     int m_maxFailedRequests;
 
     std::vector<std::string> m_parNameVec, m_parSGKeyVec, m_parFolderVec,  m_parDataTypeVec, m_parCatVec,
       m_parDefaultVec;
 
     //eta, sector, measuresPhi, layer
-    unsigned int m_layerHashes[2][2][8][4][2];
+    unsigned int m_layerHashes[2][2][8][4][2]{};
     std::vector<unsigned int> m_onlineChannelIdsFromLayerHash;
-    unsigned int m_chamberCoolChannels[2][2][8];
+    unsigned int m_chamberCoolChannels[2][2][8]{};
     const unsigned int m_maxChamberCoolChannel;
     std::vector<unsigned int> m_onlineChannelIdsFromChamberCoolChannel;
     const unsigned int m_maxLayerHash;

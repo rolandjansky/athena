@@ -1,27 +1,30 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
+
+#include <utility>
 
 #include "MuonCalibExtraTreeEvent/MuonCalibHit_E.h"
 
-namespace MuonCalib{
-  MuonCalibHit_E::MuonCalibHit_E()
-    : m_id(0), m_pos(0.,0.,0.), m_driftRadius(0.) , m_error(0.), m_resi(-9999.), m_pull(-9999.), m_measType(-9999) {
-  }
+namespace MuonCalib {
+    MuonCalibHit_E::MuonCalibHit_E(const MuonFixedId& id, definePars pars) : m_id{id}, m_pars{std::move(pars)} {}
 
-  MuonCalibHit_E::MuonCalibHit_E( const MuonFixedId& id, const Amg::Vector3D& pos )
-    : m_id(id), m_pos(pos), m_driftRadius(0.), m_error(0.), m_resi(-9999.), m_pull(-9999.), m_measType(-9999) {
-  }
-  
+    const MuonFixedId& MuonCalibHit_E::identify() const { return m_id; }
+    const Amg::Vector3D& MuonCalibHit_E::position() const { return m_pars.pos; }
+    float MuonCalibHit_E::driftRadius() const { return m_pars.driftRadius; }
+    float MuonCalibHit_E::error() const { return m_pars.error; }
+    float MuonCalibHit_E::residual() const { return m_pars.resi; }
+    float MuonCalibHit_E::pull() const { return m_pars.pull; }
+    int MuonCalibHit_E::type() const { return m_pars.measType; }
 
-  MuonCalibHit_E::MuonCalibHit_E( const MuonFixedId& id, const Amg::Vector3D& pos, double driftRadius, double error)
-    : m_id(id), m_pos(pos), m_driftRadius(driftRadius), m_error(error), m_resi(-9999.), m_pull(-9999.), m_measType(-9999) {
-  }
+    void MuonCalibHit_E::setId(const MuonFixedId& id) { m_id = id; }
+    void MuonCalibHit_E::setPosition(const Amg::Vector3D& pos) { m_pars.pos = pos; }
 
-  MuonCalibHit_E::MuonCalibHit_E( const MuonFixedId& id, const Amg::Vector3D& pos, double driftRadius, double error,
-				  double res, double pull, int type) 
-    : m_id(id), m_pos(pos), m_driftRadius(driftRadius), m_error(error), m_resi(res), m_pull(pull), m_measType(type) {
-  }
-  
+    void MuonCalibHit_E::setDriftRadius(float driftRadius) { m_pars.driftRadius = driftRadius; }
+    void MuonCalibHit_E::setError(float error) { m_pars.error = error; }
+    void MuonCalibHit_E::setResidual(float res) { m_pars.resi = res; }
 
-}//namespace MuonCalib
+    void MuonCalibHit_E::setPull(float pull) { m_pars.pull = pull; }
+    void MuonCalibHit_E::setType(int type) { m_pars.measType = type; }
+
+}  // namespace MuonCalib

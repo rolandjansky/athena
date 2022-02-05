@@ -1,23 +1,18 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #include "AGDDModel/AGDDUnion.h"
 #include "AGDDKernel/AGDDBuilder.h"
 
-void AGDDUnion::CreateSolid() 
+void AGDDUnion::CreateSolid (const AGDDBuilder& builder)
 {
-	AGDDBuilder* builder=AGDDBuilder::CurrentBuilder();
-
-	builder->CreateUnion(this);
+	builder.CreateUnion(this);
 }
 
-void AGDDUnion::CreateVolume() 
+void AGDDUnion::CreateVolume (AGDDBuilder& builder)
 {
-	AGDDBuilder* builder=AGDDBuilder::CurrentBuilder();
-
-	CreateSolid();
-
- 	builder->CreateVolume(this);
+	CreateSolid (builder);
+ 	builder.CreateVolume(this);
 }

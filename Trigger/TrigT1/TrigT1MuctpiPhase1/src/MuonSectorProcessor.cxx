@@ -11,7 +11,6 @@
 #include "TrigT1Interfaces/Lvl1MuCTPIInputPhase1.h"
 #include "TrigT1Interfaces/Lvl1MuSectorLogicConstantsPhase1.h"
 #include "TrigT1Interfaces/MuCTPIL1Topo.h"
-#include "TrigConfMuctpi/MuctpiXMLHelper.h"
 #include "TrigConfData/L1Menu.h"
 #include "TrigConfData/L1Threshold.h"
 
@@ -69,6 +68,7 @@ namespace LVL1MUCTPIPHASE1 {
   class OverlapHelper
   {
   public:
+    MuctpiXMLHelper xmlHelper;
     std::map<int,std::set<std::string> > global_pairs;
     
     std::array<std::map<std::string,std::vector<std::string>>,2> lhs_index;
@@ -79,7 +79,7 @@ namespace LVL1MUCTPIPHASE1 {
       return prefix;
     }
     
-    std::string make_pair(std::string lhs, std::string rhs){
+    std::string make_pair(std::string lhs, std::string rhs) const {
       return lhs + ":" + rhs;
     }
 
@@ -96,24 +96,24 @@ namespace LVL1MUCTPIPHASE1 {
       }
     }
     
-    std::vector<std::string> get_lhs_keys(std::string dettype, int roi, int sector){
+    std::vector<std::string> get_lhs_keys(std::string dettype, int roi, int sector) const {
       std::vector<std::string>  r;
       r.push_back(dettype + std::to_string(sector) + "_" + std::to_string(roi));
       return r;   
     }
     
-    std::vector<std::string> get_rhs_keys(std::string dettype, int roi, int sector){
+    std::vector<std::string> get_rhs_keys(std::string dettype, int roi, int sector) const {
       std::vector<std::string>  r;
       r.push_back(dettype + std::to_string(sector) + "_" + std::to_string(roi));
       return r;   
     }
     
-    std::vector<std::string> relevant_regions(int side, const std::string& dettype, int roi, int sector){
+    std::vector<std::string> relevant_regions(int side, const std::string& dettype, int roi, int sector) const {
       std::vector<std::string>  r;
       for(auto key : get_lhs_keys(dettype,roi,sector)){
 	auto x = lhs_index[side].find(key);
 	if(x != lhs_index[side].end()){
-	  for(auto rr : lhs_index[side][key]){
+	  for(auto rr : x->second){
 	    r.push_back(make_pair(key,rr));
 	  }
 	}
@@ -121,7 +121,7 @@ namespace LVL1MUCTPIPHASE1 {
       for(auto key : get_rhs_keys(dettype,roi,sector)){
 	auto x = rhs_index[side].find(key);
 	if(x != rhs_index[side].end()){
-	  for(auto rr : rhs_index[side][key]){
+	  for(auto rr : x->second){
 	    r.push_back(make_pair(rr,key));
 	  }
 	}
@@ -144,8 +144,8 @@ namespace LVL1MUCTPIPHASE1 {
 	
 	if (topElementName != "LUT") continue;
 
-	std::string SectorId1 = MuctpiXMLHelper::getAttribute(lut,"SectorId1");
-	std::string SectorId2 = MuctpiXMLHelper::getAttribute(lut,"SectorId2");
+	std::string SectorId1 = xmlHelper.getAttribute(lut,"SectorId1");
+	std::string SectorId2 = xmlHelper.getAttribute(lut,"SectorId2");
 
 	unsigned left_mod = 32;
 	unsigned right_mod = 32;
@@ -160,7 +160,7 @@ namespace LVL1MUCTPIPHASE1 {
 	std::string snum_right = std::string(1,SectorId2[1])+std::string(1,SectorId2[2]);
 	int sec_right = std::stoi(snum_right) % right_mod;
 	
-	std::string side = MuctpiXMLHelper::getAttribute(lut,"Side");
+	std::string side = xmlHelper.getAttribute(lut,"Side");
 	int active_side = (side == "C") ? 0 : 1;
 
 	std::string System1 = SectorId1.substr(0,1);
@@ -170,8 +170,8 @@ namespace LVL1MUCTPIPHASE1 {
 	  std::string menuElementName = z.first;
 	  if(menuElementName!="Element" && menuElementName!="BBElement")continue;
 	  ptree ele = z.second;
-	  auto roi1 = MuctpiXMLHelper::getIntAttribute(ele, "RoI1");
-	  auto roi2 = MuctpiXMLHelper::getIntAttribute(ele, "RoI2");
+	  auto roi1 = xmlHelper.getIntAttribute(ele, "RoI1");
+	  auto roi2 = xmlHelper.getIntAttribute(ele, "RoI2");
 	  auto lhs_key = make_key(System1,sec_left,roi1);
 	  auto rhs_key = make_key(System2,sec_right,roi2);
 	  auto region = make_pair(lhs_key,rhs_key);
@@ -225,45 +225,17 @@ namespace LVL1MUCTPIPHASE1 {
     //and the key is the index for an arbitrary subsystem.
     //not all indices will be covered by all subsystems since
     //barrel only has 3 bits, so initialize the value tuple with -1
-    const std::vector<std::shared_ptr<TrigConf::L1Threshold> >* thresholds = &m_l1menu->thresholds("MU");
-    for (auto itr=thresholds->begin();itr!=thresholds->end();++itr)
-    {
-      std::shared_ptr<TrigConf::L1Threshold_MU> thr = std::static_pointer_cast<TrigConf::L1Threshold_MU>(*itr);
-
-      std::vector<std::pair<int, int> > values;
-      values.push_back(std::make_pair(thr->idxBarrel()+1, thr->ptBarrel()));
-      values.push_back(std::make_pair(thr->idxEndcap()+1, thr->ptEndcap()));
-      values.push_back(std::make_pair(thr->idxForward()+1, thr->ptForward()));
-
-      for (unsigned i=0;i<3;i++) m_ptEncoding[i][values[i].first] = values[i].second;
+    const auto & exMU = &m_l1menu->thrExtraInfo().MU();
+    auto rpcPtValues = exMU->knownRpcPtValues();
+    auto tgcPtValues = exMU->knownTgcPtValues();
+    for ( unsigned i=0; i<rpcPtValues.size(); i++){
+       m_ptEncoding[0][i] = exMU->ptForRpcIdx(i);
     }
-
-    //for the indices that weren't filled, add the next highest value.
-    //reverse iterate over the encoded values, check if the previous value
-    //is empty for each subsys, and fill it with the next highest value if so.
-    for (unsigned isub=0;isub<3;isub++)
-    {
-      std::map<int, int> filledEncoding = m_ptEncoding[isub];
-      for (auto itr = m_ptEncoding[isub].rbegin();itr != m_ptEncoding[isub].rend(); ++itr)
-      {
-	int idx = itr->first;
-	int thr = itr->second;
-
-	//fill from the N-1 index until either 0 or we've reached the next lowest encoded value
-	for (int previous_idx=idx-1; previous_idx >= 0; previous_idx--)
-	{
-	  //stop if we've reached the next lowest filled encoding
-	  if (m_ptEncoding[isub].find(previous_idx) != m_ptEncoding[isub].end()) break;
-
-	  //fill
-	  filledEncoding[previous_idx] = thr;
-	}
-
-	//set the member variable to the now-filled encoding
-      }
-      m_ptEncoding[isub] = filledEncoding;
+    for ( unsigned i=0; i<tgcPtValues.size(); i++){
+       m_ptEncoding[1][i] = exMU->ptForTgcIdx(i);
+       m_ptEncoding[2][i] = exMU->ptForTgcIdx(i);
     }
-
+  
     return true;
   }
 
@@ -385,6 +357,8 @@ namespace LVL1MUCTPIPHASE1 {
 	    int ptword = sectorData->pt(icand);
 	    if (ptword < 0) continue;
 
+	    // the following doesn't quite follow the correct nomenclature, should be (side, isub, isec, roiID) thus there was a typo chain in L399+ using isub instead of the correct isys
+	    // see: https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigT1/TrigT1MuctpiPhase1/src/L1TopoLUT.cxx#L161
 	    L1TopoCoordinates coord = m_l1topoLUT->getCoordinates(isub, isys, isec, roiID);
 
 	    //check for invalid decoding
@@ -396,13 +370,13 @@ namespace LVL1MUCTPIPHASE1 {
 	    }
 
 	    int ptValue = 0;
-	    auto enc = m_ptEncoding[isub].find(ptword);
-	    if (enc == m_ptEncoding[isub].end()) 
+	    auto enc = m_ptEncoding[isys].find(ptword);
+	    if (enc == m_ptEncoding[isys].end()) 
 	    {
-	      auto last_enc = m_ptEncoding[isub].rbegin();
-	      if (last_enc != m_ptEncoding[isub].rend() && ptword > last_enc->first)
+	      auto last_enc = m_ptEncoding[isys].rbegin();
+	      if (last_enc != m_ptEncoding[isys].rend() && ptword > last_enc->first)
 	      {
-		ptValue = m_ptEncoding[isub].rbegin()->second;
+		ptValue = m_ptEncoding[isys].rbegin()->second;
 	      }
 	      else
 	      {

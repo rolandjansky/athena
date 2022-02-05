@@ -9,6 +9,7 @@
 #include "../LArFCalTowerBuilderToolTestAlg.h"
 #include "../LArFlatConditionsAlg.h"
 #include "../LArOnOffMappingAlg.h"
+#include "../LArLATOMEMappingAlg.h"
 #include "../LArCalibLineMappingAlg.h"
 #include "../LArFebRodMappingAlg.h"
 #include "../LArSymConditionsAlg.h"
@@ -21,6 +22,7 @@
 #include "../LArHVCondAlg.h"
 #include "../LArAutoCorrNoiseCondAlg.h"
 #include "../LArFEBConfigCondAlg.h"
+#include "../LArRoIMapCondAlg.h"
 
 
 //DECLARE_COMPONENT( LArCellFakeProbHV )
@@ -53,6 +55,7 @@ DECLARE_COMPONENT( LArCondAlgfSamplSC )
 DECLARE_COMPONENT( LArCondAlguA2MeVFlat )
 DECLARE_COMPONENT( LArCondAlguA2MeVSC )
 DECLARE_COMPONENT( LArOnOffMappingAlg )
+DECLARE_COMPONENT( LArLATOMEMappingAlg )
 DECLARE_COMPONENT( LArCalibLineMappingAlg )
 DECLARE_COMPONENT( LArFebRodMappingAlg )
 DECLARE_COMPONENT( LArMCSymCondAlg )
@@ -76,3 +79,4 @@ DECLARE_COMPONENT( LArOFCCondAlg )
 DECLARE_COMPONENT( LArHVCondAlg )
 DECLARE_COMPONENT( LArAutoCorrNoiseCondAlg )
 DECLARE_COMPONENT( LArFEBConfigCondAlg )
+DECLARE_COMPONENT( LArRoIMapCondAlg )

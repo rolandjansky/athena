@@ -13,22 +13,22 @@ Py:ComponentAccumulator    INFO Event Algorithm Sequences
 Py:ComponentAccumulator    INFO Top sequence 0
 Py:ComponentAccumulator    INFO \__ AthAlgSeq
 Py:ComponentAccumulator    INFO Condition Algorithms
-Py:ComponentAccumulator    INFO  \__ CaloBCIDCoeffsCondAlg (cond alg) 
-Py:ComponentAccumulator    INFO      * MCSymKey: LArMCSym set
-Py:ComponentAccumulator    INFO      * MinBiasAvgKey: LArPileupAverageSym set
-Py:ComponentAccumulator    INFO      * OFCKey: LArOFC set
-Py:ComponentAccumulator    INFO      * OutputCoeffsKey: CaloBCIDCoeffs set
-Py:ComponentAccumulator    INFO      * ShapeKey: LArShape32Sym set
-Py:ComponentAccumulator    INFO  \__ LuminosityCondAlg (cond alg) 
-Py:ComponentAccumulator    INFO      * LuminosityFolderInputKey: /TRIGGER/OFLLUMI/OflPrefLumi set
-Py:ComponentAccumulator    INFO      * LuminosityOutputKey: LuminosityCondData set
-Py:ComponentAccumulator    INFO      * OnlineLumiCalibrationInputKey: OnlineLumiCalibrationCondData set
-Py:ComponentAccumulator    INFO  \__ CaloBCIDLumiCondAlg (cond alg) 
-Py:ComponentAccumulator    INFO      * BunchCrossingCondDataKey: BunchCrossingData set
-Py:ComponentAccumulator    INFO      * CoeffsKey: CaloBCIDCoeffs set
-Py:ComponentAccumulator    INFO      * LuminosityCondDataKey: LuminosityCondData set
-Py:ComponentAccumulator    INFO      * OutputLumiKey: CaloBCIDLumi set
-Py:ComponentAccumulator    INFO      * isMC: False set
+Py:ComponentAccumulator    INFO  \__ CaloBCIDCoeffsCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * MCSymKey: LArMCSym
+Py:ComponentAccumulator    INFO      * MinBiasAvgKey: LArPileupAverageSym
+Py:ComponentAccumulator    INFO      * OFCKey: LArOFC
+Py:ComponentAccumulator    INFO      * OutputCoeffsKey: CaloBCIDCoeffs
+Py:ComponentAccumulator    INFO      * ShapeKey: LArShape32Sym
+Py:ComponentAccumulator    INFO  \__ LuminosityCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * LuminosityFolderInputKey: /TRIGGER/OFLLUMI/OflPrefLumi
+Py:ComponentAccumulator    INFO      * LuminosityOutputKey: LuminosityCondData
+Py:ComponentAccumulator    INFO      * OnlineLumiCalibrationInputKey: OnlineLumiCalibrationCondData
+Py:ComponentAccumulator    INFO  \__ CaloBCIDLumiCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * BunchCrossingCondDataKey: BunchCrossingData
+Py:ComponentAccumulator    INFO      * CoeffsKey: CaloBCIDCoeffs
+Py:ComponentAccumulator    INFO      * LuminosityCondDataKey: LuminosityCondData
+Py:ComponentAccumulator    INFO      * OutputLumiKey: CaloBCIDLumi
+Py:ComponentAccumulator    INFO      * isMC: False
 Py:ComponentAccumulator    INFO Services
 Py:ComponentAccumulator    INFO []
 Py:ComponentAccumulator    INFO Public Tools
@@ -43,7 +43,7 @@ IOVDbSvc: ['<db>COOLOFL_LAR/CONDBR2</db> /LAR/ElecCalibOfl/LArPileupShape<key>LA
 Py:AutoConfigFlags    INFO Obtaining metadata of auto-configuration by peeking into /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root
 Py:MetaReader        INFO Current mode used: lite
 Py:MetaReader        INFO Current filenames: ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root']
-Py:MetaReader        INFO MetaReader is called with the parameter "unique_tag_info_values" set to True. This is a workaround to remove all duplicate values from "/TagInfo" key
+Py:MetaReader        INFO MetaReader is called with the parameter "unique_tag_info_values" to True. This is a workaround to remove all duplicate values from "/TagInfo" key
 Py:LArOFCCondAlgCfg    INFO  entering LArOFCCondAlgCfg
 Py:LArOFCCondAlgCfg    INFO  no pileup optimization
 Py:LArAutoCorrTotalCondAlgCfg    INFO  entering LArAutoCorrTotalCondAlgCfg
@@ -61,18 +61,18 @@ Py:ComponentAccumulator    INFO Event Algorithm Sequences
 Py:ComponentAccumulator    INFO Top sequence 0
 Py:ComponentAccumulator    INFO \__ AthAlgSeq
 Py:ComponentAccumulator    INFO Condition Algorithms
-Py:ComponentAccumulator    INFO  \__ CaloBCIDCoeffsCondAlg (cond alg) 
-Py:ComponentAccumulator    INFO      * MCSymKey: LArMCSym set
-Py:ComponentAccumulator    INFO      * MinBiasAvgKey: LArPileupAverageSym set
-Py:ComponentAccumulator    INFO      * OFCKey: LArOFC set
-Py:ComponentAccumulator    INFO      * OutputCoeffsKey: CaloBCIDCoeffs set
-Py:ComponentAccumulator    INFO      * ShapeKey: LArShapeSym set
-Py:ComponentAccumulator    INFO  \__ CaloBCIDLumiCondAlg (cond alg) 
-Py:ComponentAccumulator    INFO      * BunchCrossingCondDataKey: BunchCrossingData set
-Py:ComponentAccumulator    INFO      * CoeffsKey: CaloBCIDCoeffs set
-Py:ComponentAccumulator    INFO      * LuminosityCondDataKey: LuminosityCondData set
-Py:ComponentAccumulator    INFO      * OutputLumiKey: CaloBCIDLumi set
-Py:ComponentAccumulator    INFO      * isMC: True set
+Py:ComponentAccumulator    INFO  \__ CaloBCIDCoeffsCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * MCSymKey: LArMCSym
+Py:ComponentAccumulator    INFO      * MinBiasAvgKey: LArPileupAverageSym
+Py:ComponentAccumulator    INFO      * OFCKey: LArOFC
+Py:ComponentAccumulator    INFO      * OutputCoeffsKey: CaloBCIDCoeffs
+Py:ComponentAccumulator    INFO      * ShapeKey: LArShapeSym
+Py:ComponentAccumulator    INFO  \__ CaloBCIDLumiCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * BunchCrossingCondDataKey: BunchCrossingData
+Py:ComponentAccumulator    INFO      * CoeffsKey: CaloBCIDCoeffs
+Py:ComponentAccumulator    INFO      * LuminosityCondDataKey: LuminosityCondData
+Py:ComponentAccumulator    INFO      * OutputLumiKey: CaloBCIDLumi
+Py:ComponentAccumulator    INFO      * isMC: True
 Py:ComponentAccumulator    INFO Services
 Py:ComponentAccumulator    INFO []
 Py:ComponentAccumulator    INFO Public Tools

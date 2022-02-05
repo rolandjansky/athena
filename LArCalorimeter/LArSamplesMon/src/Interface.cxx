@@ -62,10 +62,9 @@ Interface::~Interface()
 { 
   if (m_ownShapeErrorGetter) delete m_shapeErrorGetter;
   delete m_accessor; 
-  
-  for (std::vector<std::vector<unsigned int>*>::iterator neighbors = m_neighborCache.begin();
-       neighbors != m_neighborCache.end(); neighbors++)
-    if (*neighbors) delete *neighbors;
+
+  for (std::vector<unsigned int>* neighbors : m_neighborCache)
+    delete neighbors;
 }
 
 
@@ -740,10 +739,10 @@ bool Interface::firstNeighbors(unsigned int hash, std::vector<unsigned int>& has
     m_neighborCache[hash] = new std::vector<unsigned int>(allHashes);
   }
   if (layer == -2) { hashes = allHashes; return true; }
-  for (std::vector<unsigned int>::const_iterator h = allHashes.begin(); h != allHashes.end(); h++) {
-    const CellInfo* info = cellInfo(*h);
+  for (unsigned int h : allHashes) {
+    const CellInfo* info = cellInfo(h);
     if (!info) continue;
-    if (info->layer() == layer) hashes.push_back(*h);
+    if (info->layer() == layer) hashes.push_back(h);
     delete info;
   }
   return true;
@@ -753,9 +752,8 @@ bool Interface::firstNeighbors(unsigned int hash, std::vector<unsigned int>& has
 bool Interface::data(const std::vector<unsigned int>& hashes,const EventData& event, std::vector<const Data*>& data) const
 {
   if (hashes != m_neighborHistoryPos) {
-    for (std::vector<const History*>::const_iterator history = m_neighborHistories.begin(); 
-         history != m_neighborHistories.end(); history++)
-      if (*history) delete *history;
+    for (const History* history : m_neighborHistories)
+      delete history;
     m_neighborHistories.clear();
     m_neighborHistoryPos.clear();
     for (std::vector<unsigned int>::const_iterator hash = hashes.begin(); hash != hashes.end(); hash++) {
@@ -764,11 +762,10 @@ bool Interface::data(const std::vector<unsigned int>& hashes,const EventData& ev
       m_neighborHistoryPos.push_back(*hash);
     }
   }
-  
-  for (std::vector<const History*>::const_iterator history = m_neighborHistories.begin(); 
-       history != m_neighborHistories.end(); history++) {
-    if (!*history) continue;
-    const Data* dataForEvent = (*history)->data_for_event(event);
+
+  for (const History* history : m_neighborHistories) {
+    if (!history) continue;
+    const Data* dataForEvent = history->data_for_event(event);
     if (dataForEvent) data.push_back(new Data(*dataForEvent));
   }
   return true;
@@ -841,21 +838,18 @@ bool Interface::dumpEventTuple(const TString& variables, const TString& fileName
   
   cout << "Making event tuple" << endl;
   unsigned int runCount = 0;
-  for (std::map<unsigned int, std::map< unsigned int, std::vector<long long> > >::const_iterator run = runEventIndices.begin();
-       run != runEventIndices.end(); run++) {
+  for (const auto& run : runEventIndices) {
     runCount++;
-    cout << "Processing run " << run->first << " (" << runCount << " of " << runEventIndices.size() << ")" << endl;
+    cout << "Processing run " << run.first << " (" << runCount << " of " << runEventIndices.size() << ")" << endl;
     unsigned int eventCount = 0;
-    for (std::map< unsigned int, std::vector<long long> >::const_iterator event = run->second.begin();
-         event != run->second.end(); event++) {
+    for (const auto& event : run.second) {
       eventCount++;
       if (eventCount % 1000 == 0) 
-        cout << "  processing event " << event->first << " (" << eventCount << " of " << run->second.size() << "), size = " << event->second.size() << endl;
+        cout << "  processing event " << event.first << " (" << eventCount << " of " << run.second.size() << "), size = " << event.second.size() << endl;
       for (unsigned int j = 0; j < intVects.size(); j++) intVects[j]->clear();
-      for (unsigned int j = 0; j < floatVects.size(); j++) floatVects[j]->clear();      
-      for (std::vector<long long>::const_iterator index = event->second.begin();
-           index != event->second.end(); index++) {
-        flatTree->GetEntry(*index);
+      for (unsigned int j = 0; j < floatVects.size(); j++) floatVects[j]->clear();
+      for (long long index : event.second) {
+        flatTree->GetEntry(index);
        for (unsigned int j = 0; j < vars.size(); j++) {
          if (funcs[j].isInt())
            intVects[varIndex[vars[j]]]->push_back(*intVars[varIndex[vars[j]]]);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MYSQL_H
@@ -9,14 +9,16 @@
 #include "GaudiKernel/MsgStream.h"
 #include "MuonGeoModel/Position.h"
 #include "MuonGeoModel/Station.h"
+#include "CxxUtils/LockedPointer.h"
 
 #include <map>
 #include <string>
+#include <mutex>
 
 /*
   This class holds an std::map of stations* (key = stationName, i.e. BMS5),
-  an std::map of Technolgies* (key = RPC20), and an std::map of TgcReadoutParams*.
-  Stations and Technolgies are used only to build the geometry (can be deleted
+  an std::map of Technologies* (key = RPC20), and an std::map of TgcReadoutParams*.
+  Stations and Technologies are used only to build the geometry (can be deleted
   after that).
   TgcReadoutParams are used by the TgcReadoutElements -> must leave forever
   (they belong to the readout geometry).
@@ -41,6 +43,8 @@ namespace MuonGM {
       public:
         enum TgcReadoutRange { NTgcReadouts = 30 };
 
+        using LockedMYSQL = CxxUtils::LockedPointer<MYSQL>;
+
         ~MYSQL();
         inline bool amdb_from_RDB() const;
         inline void set_amdb_from_RDB(bool);
@@ -61,52 +65,59 @@ namespace MuonGM {
         inline void setControlAlines(int);
         inline int controlAlines() const;
 
-        inline StationIterator StationBegin();
-        inline StationIterator StationEnd();
-        inline TgcReadParsIterator TgcRParsBegin();
-        inline TgcReadParsIterator TgcRParsend();
+        inline StationIterator StationBegin() const;
+        inline StationIterator StationEnd() const;
+        inline TgcReadParsIterator TgcRParsBegin() const;
+        inline TgcReadParsIterator TgcRParsend() const;
         inline AllocposIterator AllocposBegin();
-        inline AllocposIterator AllocposEnd();
+        inline AllocposIterator AllocposEnd() const;
         inline AllocposIterator AllocposFind(int);
         inline std::string AllocposFindName(int);
         inline void addAllocpos(int i, const std::string& str);
         // the new ones
-        std::string allocPosBuildKey(const std::string& statType, int fi, int zi);
+        std::string allocPosBuildKey(const std::string& statType, int fi, int zi) const;
         inline int allocPosBuildValue(int subtype, int cutout);
         inline allocPosIterator allocPosBegin();
-        inline allocPosIterator allocPosEnd();
+        inline allocPosIterator allocPosEnd() const;
         inline allocPosIterator allocPosFind(const std::string& key);
         allocPosIterator allocPosFind(const std::string& statType, int fi, int zi);
-        int allocPosFindSubtype(const std::string& statType, int fi, int zi);
-        inline int allocPosFindSubtype(const std::string& key);
-        inline int allocPosFindSubtype(allocPosIterator it);
-        int allocPosFindCutout(const std::string& statType, int fi, int zi);
-        inline int allocPosFindCutout(const std::string& key);
-        inline int allocPosFindCutout(allocPosIterator it);
+        int allocPosFindSubtype(const std::string& statType, int fi, int zi) const;
+        inline int allocPosFindSubtype(const std::string& key) const;
+        inline int allocPosFindSubtype(allocPosIterator it) const;
+        int allocPosFindCutout(const std::string& statType, int fi, int zi) const;
+        inline int allocPosFindCutout(const std::string& key) const;
+        inline int allocPosFindCutout(allocPosIterator it) const;
         inline void addallocPos(const std::string& key, int value);
         void addallocPos(const std::string& statType, int fi, int zi, int subtyp, int cutout);
         inline void addallocPos(const std::string& key, int subtype, int cutout);
 
-        inline int NStations();
-        inline int NTgcReadTypes();
+        inline int NStations() const;
+        inline int NTgcReadTypes() const;
 
-        static MYSQL *GetPointer();
+        static LockedMYSQL GetPointer();
+        const Station *GetStation(const std::string& name) const;
         Station *GetStation(const std::string& name);
-        Position GetStationPosition(const std::string& nameType, int fi, int zi);
-        TgcReadoutParams *GetTgcRPars(const std::string& name);
-        TgcReadoutParams *GetTgcRPars(int i);
+        Position GetStationPosition(const std::string& nameType, int fi, int zi) const;
+        TgcReadoutParams *GetTgcRPars(const std::string& name) const;
+        TgcReadoutParams *GetTgcRPars(int i) const;
         void StoreStation(Station *s);
         void PrintAllStations();
         void StoreTechnology(Technology *t);
         void StoreTgcRPars(TgcReadoutParams *t);
         Technology *GetTechnology(const std::string& name);
-        Technology *GetATechnology(const std::string& name);
+        const Technology *GetTechnology(const std::string& name) const;
+        const Technology *GetATechnology(const std::string& name) const;
         void PrintTechnologies();
 
         // singleton
       private:
-        // This is not thread safe. It is neccessary to suppress warning.
-        static MYSQL *s_thePointer ATLAS_THREAD_SAFE;
+        // Protects s_thePointer.
+        struct MYSQLPtr
+        {
+          std::recursive_mutex m_mutex;
+          MYSQL* m_ptr;
+        };
+        static MYSQLPtr& GetMYSQLPtr();
 
         MYSQL();
         std::map<int, std::string> m_allocatedpos;
@@ -114,7 +125,7 @@ namespace MuonGM {
         std::map<std::string, Station *> m_stations;
         std::map<std::string, Technology *> m_technologies;
         std::map<std::string, TgcReadoutParams *> m_tgcReadouts;
-        TgcReadoutParams *m_tgcReadout[NTgcReadouts];
+        TgcReadoutParams *m_tgcReadout[NTgcReadouts]{};
         std::string m_geometry_version; // from our job-option
         std::string m_layout_name;      // from nova
         std::string m_DBMuonVersion;    // name of the MuonVersion table-collection in Oracle
@@ -128,7 +139,7 @@ namespace MuonGM {
 
     void MYSQL::addAllocpos(int i, const std::string& str) { m_allocatedpos[i] = str; }
 
-    AllocposIterator MYSQL::AllocposEnd() { return m_allocatedpos.end(); }
+    AllocposIterator MYSQL::AllocposEnd() const { return m_allocatedpos.end(); }
 
     AllocposIterator MYSQL::AllocposBegin() { return m_allocatedpos.begin(); }
 
@@ -144,33 +155,33 @@ namespace MuonGM {
         }
     }
 
-    StationIterator MYSQL::StationBegin() { return m_stations.begin(); }
+    StationIterator MYSQL::StationBegin() const { return m_stations.begin(); }
 
-    StationIterator MYSQL::StationEnd() { return m_stations.end(); }
+    StationIterator MYSQL::StationEnd() const { return m_stations.end(); }
 
-    TgcReadParsIterator MYSQL::TgcRParsBegin() { return m_tgcReadouts.begin(); }
+    TgcReadParsIterator MYSQL::TgcRParsBegin() const { return m_tgcReadouts.begin(); }
 
-    TgcReadParsIterator MYSQL::TgcRParsend() { return m_tgcReadouts.end(); }
+    TgcReadParsIterator MYSQL::TgcRParsend() const { return m_tgcReadouts.end(); }
 
-    int MYSQL::NStations() { return m_stations.size(); }
+    int MYSQL::NStations() const { return m_stations.size(); }
 
-    int MYSQL::NTgcReadTypes() { return m_tgcReadouts.size(); }
+    int MYSQL::NTgcReadTypes() const { return m_tgcReadouts.size(); }
 
     int MYSQL::allocPosBuildValue(int subtype, int cutout) { return 100 * subtype + cutout; }
 
     allocPosIterator MYSQL::allocPosBegin() { return m_allocPos.begin(); }
 
-    allocPosIterator MYSQL::allocPosEnd() { return m_allocPos.end(); }
+    allocPosIterator MYSQL::allocPosEnd() const { return m_allocPos.end(); }
 
     allocPosIterator MYSQL::allocPosFind(const std::string& key) { return m_allocPos.find(key); }
 
-    int MYSQL::allocPosFindSubtype(allocPosIterator it) {
+    int MYSQL::allocPosFindSubtype(allocPosIterator it) const {
         int value = it->second;
         int subtype = int(value / 100);
         return subtype;
     }
 
-    int MYSQL::allocPosFindCutout(allocPosIterator it) {
+    int MYSQL::allocPosFindCutout(allocPosIterator it) const {
         int value = (*it).second;
         int cutout = int(value % 100);
         return cutout;
@@ -208,7 +219,7 @@ namespace MuonGM {
 
     int MYSQL::controlAlines() const { return m_controlAlines; }
 
-    void MYSQL::setGeometryVersion(const std::string &s) {
+    void MYSQL::setGeometryVersion(const std::string& s) {
         MsgStream log(Athena::getMessageSvc(), "MuonGeoModel.MYSQL");
 
         if (m_geometry_version != "unknown") {
@@ -247,7 +258,7 @@ namespace MuonGM {
             log << MSG::VERBOSE << "setNovaVersion to " << m_nova_version << endmsg;
     }
 
-    int MYSQL::allocPosFindCutout(const std::string& key) {
+    int MYSQL::allocPosFindCutout(const std::string& key) const {
         int cutout = 0;
         allocPosIterator it = m_allocPos.find(key);
         if (it != allocPosEnd()) {
@@ -259,7 +270,7 @@ namespace MuonGM {
         return cutout;
     }
 
-    int MYSQL::allocPosFindSubtype(const std::string& key) {
+    int MYSQL::allocPosFindSubtype(const std::string& key) const {
         int subtype = 0;
         allocPosIterator it = m_allocPos.find(key);
         if (it != allocPosEnd()) {

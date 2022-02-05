@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_TILEBADCHANNELS_H
@@ -34,7 +34,7 @@ class TileBadChannels {
     * @param adc_id Tile hardware (online) ADC identifier
     * @param adcStatus Tile ADC status
     */
-    void addAdcStatus(const HWIdentifier channel_id, const HWIdentifier adc_id, TileBchStatus adcStatus);
+    void addAdcStatus(const HWIdentifier channel_id, const HWIdentifier adc_id, const TileBchStatus& adcStatus);
 
 
    /**

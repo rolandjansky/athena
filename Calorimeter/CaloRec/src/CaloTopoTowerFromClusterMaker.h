@@ -63,6 +63,7 @@ private:
   /** @brief the name of the key of the CaloTowerGeometry object in the 
       ConditonsStore */
   SG::ReadCondHandleKey<CaloTowerGeometry>      m_towerGeoKey{this,"TowerGeometry","CaloTowerGeometry"};
+  SG::ReadCondHandleKey<CaloDetDescrManager>    m_caloMgrKey{this,"CaloDetDescrManager", "CaloDetDescrManager"};
 
   SG::ReadHandleKey<xAOD::CaloClusterContainer> m_clusterContainerKey;                      ///< Topo-cluster container key
   SG::ReadHandleKey<CaloCellContainer>          m_cellContainerKey;                         ///< Calorimeter cell container
@@ -124,7 +125,8 @@ private:
   ///@name Helpers
   ///@{
   static bool   filterProtoCluster(const CaloClusterCellLink& clnk)  ; ///< Checks for and removes invalid cell links  
-  bool   checkCellIndices(const CaloTowerGeometry* towerGeo, const CaloCellContainer* pCellCont) const; ///< Checks consistency between cell indices and hash identifiers
+  bool   checkCellIndices(const CaloTowerGeometry* towerGeo, const CaloDetDescrManager* caloDDM,
+                          const CaloCellContainer* pCellCont) const; ///< Checks consistency between cell indices and hash identifiers
   bool   isValidIndex(uint_t idx)                             const; ///< Checks if argument is a valid index value 
   uint_t badIndexValue()                                      const; ///< Returns value indicating a bad index
   ///@}
@@ -201,7 +203,7 @@ inline bool                                  CaloTopoTowerFromClusterMaker::isVa
 /// <tr>
 /// <td align="left" valign="top"><tt>ClusterContainerKey</tt></td>
 /// <td align="center" valign="top"><tt>SG::ReadHandleKey<xAOD::CaloClusterContainer></tt></td>
-/// <td align="center" valign="top"><tt>"CaloTopoCluster"</tt></td>
+/// <td align="center" valign="top"><tt>"CaloTopoClusters"</tt></td>
 /// <td align="left" valign="top">cluster container key is needed to pick up @c xAOD::CaloClusterContainer for filtered mode (<tt>UseCellsFromCluster = true</tt>)
 /// </tr>
 /// <tr>

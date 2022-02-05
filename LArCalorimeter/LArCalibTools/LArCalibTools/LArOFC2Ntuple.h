@@ -36,12 +36,13 @@ class LArOFC2Ntuple : public LArCond2NtupleBase {
  private:
    
   unsigned m_nSamples;// , m_nPhases ;
-   std::string m_ntName;
-   std::string m_ntFile;   
+  std::string m_ntName;
+  std::string m_ntFile;   
 
-   /// Property: OFC coefficients (conditions input).
-   SG::ReadCondHandleKey<ILArOFC> m_ofcKey
-    {this, "ContainerKey", "LArOFC", "SG Key of OFC conditions object" };
+  // Property: OFC coefficients (conditions input).
+  SG::ReadCondHandleKey<ILArOFC> m_ofcKey
+  {this, "ContainerKey", "LArOFC", "SG Key of OFC conditions object" };
+
 };
 
 #endif

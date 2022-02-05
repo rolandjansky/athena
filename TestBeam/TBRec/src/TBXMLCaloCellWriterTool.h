@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_TBXMLCALOCELLWRITERTOOL_H
@@ -10,6 +10,9 @@
 
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloGeoHelpers/CaloSampling.h"
+
+#include "CaloDetDescr/CaloDetDescrManager.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include "TBXMLWriterToolBase.h"
 
@@ -35,6 +38,8 @@ class TBXMLCaloCellWriterTool : public TBXMLWriterToolBase
 
   ~TBXMLCaloCellWriterTool();
 
+  virtual StatusCode initialize() override;
+
   ////////////
   // Action //
   ////////////
@@ -42,9 +47,9 @@ class TBXMLCaloCellWriterTool : public TBXMLWriterToolBase
  protected:
 
   virtual StatusCode writeRunFiles(const std::string& fileDir,
-				   unsigned int runNumber);
+				   unsigned int runNumber) override;
   virtual StatusCode writeEvent(std::ostream& outFile, 
-				const std::string& /* entryTag */ );
+				const std::string& /* entryTag */ ) override;
 
   virtual StatusCode convertProperties();
 
@@ -66,5 +71,11 @@ class TBXMLCaloCellWriterTool : public TBXMLWriterToolBase
   const CaloCell_ID*                    m_idHelper; 
 
   const TBXMLWriter*                    m_mother;
+
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+      , "CaloDetDescrManager"
+      , "CaloDetDescrManager"
+      , "SG Key for CaloDetDescrManager in the Condition Store" };
+
 };
 #endif

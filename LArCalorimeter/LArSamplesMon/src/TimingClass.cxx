@@ -100,7 +100,7 @@ void LArSamples::TimingClass::fitTimePerFebAllFebs(const std::string& nrun, cons
     }
   }  
   
-  TH1F  *timefeb[2][32][15];    
+  TH1F  *timefeb[2][32][16];
   TF1   *fit1 = new TF1( "fit1" , "gaus" , 3 );
   
   double Hist_entries, Fit_mean, Fit_sigma, Fit_error; 
@@ -108,7 +108,7 @@ void LArSamples::TimingClass::fitTimePerFebAllFebs(const std::string& nrun, cons
   std::vector< std::vector<double> > myvec;
   string tfilename; 
   tfilename = "TimingFile" + nrun + "_" + name + ".txt"; 
-  myvec = readTimingFiles(tfilename.c_str());    
+  myvec = readTimingFiles(tfilename);
 
   string Filename = "OFCTime_PerFEB_" + name + ".root"; 
   TFile *FebTime = new TFile( Filename.c_str(), "READ"); 

@@ -88,8 +88,16 @@ class CaloCellContainer : public DataVector<CaloCell>
   /** @brief reimplementation of const push_back */
   void push_back(CaloCell *);
 
+  /** @brief reimplementation of const push_back(unique_ptr>) */
+  void push_back(std::unique_ptr<CaloCell>);
+
+
   /** @brief reimplementation of push_back to gain speed in readin */
   void push_back_fast(CaloCell *);  
+
+  /** @brief reimplementation of push_back to gain speed in readin (UP version)*/
+  void push_back_fast(std::unique_ptr<CaloCell> theCell);
+
 
   /** @brief dump (obsolete) */
   void print() const;

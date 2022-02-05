@@ -41,19 +41,19 @@ inline void update_parameter_on_mttmax(TH1 *h, TF1 *f, const float &b, const flo
 void RtCalibrationIntegration::init(bool close_hits, double r_max, double lower_extrapolation_radius, double upper_extrapolation_radius,
                                     bool add_tmax_difference) {
     m_close_hits = close_hits;
-    m_rt = 0;
+    m_rt = nullptr;
     m_r_max = r_max;
     m_lower_extrapolation_radius = lower_extrapolation_radius;
     m_upper_extrapolation_radius = upper_extrapolation_radius;
-    m_output = 0;
+    m_output = nullptr;
     m_nb_hits_used = 0;
     m_nb_segments_used = 0;
     m_add_tmax_difference = add_tmax_difference;
     return;
 }
-unsigned int RtCalibrationIntegration::number_of_hits_used(void) const { return m_nb_hits_used; }
+unsigned int RtCalibrationIntegration::number_of_hits_used() const { return m_nb_hits_used; }
 
-const IMdtCalibrationOutput *RtCalibrationIntegration::analyseSegments(const std::vector<MuonCalibSegment *> &seg) {
+RtCalibrationIntegration::MdtCalibOutputPtr RtCalibrationIntegration::analyseSegments(const MuonSegVec &seg) {
     for (unsigned int k = 0; k < seg.size(); k++) { handleSegment(*seg[k]); }
     m_nb_segments_used = seg.size();
     analyse();
@@ -82,7 +82,7 @@ bool RtCalibrationIntegration::handleSegment(MuonCalibSegment &seg) {
 }
 
 void RtCalibrationIntegration::setInput(const IMdtCalibrationOutput * /*rt_input*/) { return; }
-bool RtCalibrationIntegration::analyse(void) {
+bool RtCalibrationIntegration::analyse() {
     ///////////////
     // VARIABLES //
     ///////////////
@@ -95,7 +95,7 @@ bool RtCalibrationIntegration::analyse(void) {
     t0_setting.TMaxSettings()->DistAB() += 50;
     T0MTHistos drift_time_spec;  // drift time spectrum used in the t0 and
     // the tmax fit
-    T0MTHistos drift_time_spec_ml[2];
+    std::array<T0MTHistos, 2> drift_time_spec_ml;
 
     double t0, tmax;  // t0 and tmax
     int k_min(-1);    //, k_max(-1); // first and last drift-time entry to be
@@ -129,18 +129,18 @@ bool RtCalibrationIntegration::analyse(void) {
     int n_bins = static_cast<int>(32 * (200.0 + m_t_drift[m_t_drift.size() - 1].first - m_t_drift[0].first) / 25.0);
     float min_t = m_t_drift[0].first - 100.0;
     float max_t = m_t_drift[m_t_drift.size() - 1].first + 100.0;
-    TH1F *tspec = new TH1F("tspec", "DRIFT-TIME SPECTRUM", n_bins, min_t, max_t);
-    TH1F *tspec_ml[2];
-    tspec_ml[0] = new TH1F("tspec_ml0", "DRIFT-TIME SPECTRUM ML 0", n_bins, min_t, max_t);
-    tspec_ml[1] = new TH1F("tspec_ml1", "DRIFT-TIME SPECTRUM ML 1", n_bins, min_t, max_t);
+    std::unique_ptr<TH1F> tspec = std::make_unique<TH1F>("tspec", "DRIFT-TIME SPECTRUM", n_bins, min_t, max_t);
+    std::array<std::unique_ptr<TH1F>, 2> tspec_ml;
+    tspec_ml[0] = std::make_unique<TH1F>("tspec_ml0", "DRIFT-TIME SPECTRUM ML 0", n_bins, min_t, max_t);
+    tspec_ml[1] = std::make_unique<TH1F>("tspec_ml1", "DRIFT-TIME SPECTRUM ML 1", n_bins, min_t, max_t);
 
     for (unsigned int k = 0; k < m_t_drift.size(); k++) {
         tspec->Fill(m_t_drift[k].first, 1.0);
         tspec_ml[static_cast<unsigned int>(m_t_drift[k].second)]->Fill(m_t_drift[k].first, 1.0);
     }
-    drift_time_spec.SetTSpec(1, tspec, &t0_setting, false);
-    drift_time_spec_ml[0].SetTSpec(2, tspec_ml[0], &t0_setting, false);
-    drift_time_spec_ml[1].SetTSpec(3, tspec_ml[1], &t0_setting, false);
+    drift_time_spec.SetTSpec(1, tspec.get(), &t0_setting, false);
+    drift_time_spec_ml[0].SetTSpec(2, tspec_ml[0].get(), &t0_setting, false);
+    drift_time_spec_ml[1].SetTSpec(3, tspec_ml[1].get(), &t0_setting, false);
 
     // t0 and tmax fits //
 
@@ -206,9 +206,7 @@ bool RtCalibrationIntegration::analyse(void) {
 
     if (tspec_ml[0]->GetEntries() >= 10000 && tspec_ml[0]->GetEntries() > 10000) {
         bool fit_ok(true);
-        float b[2];
-        float tmax[2];
-        float T[2];
+        std::array<float, 2> b{}, tmax{}, T{};
         for (unsigned int i = 0; i < 2; i++) {
             if (!drift_time_spec_ml[i].FitT0()) {
                 fit_ok = false;
@@ -255,14 +253,11 @@ bool RtCalibrationIntegration::analyse(void) {
 //:: METHOD converged ::
 //::::::::::::::::::::::
 
-bool RtCalibrationIntegration::converged(void) const { return (m_output != nullptr); }
+bool RtCalibrationIntegration::converged() const { return (m_output != nullptr); }
 
 //*****************************************************************************
 
 //:::::::::::::::::::::::
 //:: METHOD getResults ::
 //:::::::::::::::::::::::
-
-const IMdtCalibrationOutput *RtCalibrationIntegration::getResults(void) const {
-    return static_cast<const IMdtCalibrationOutput *>(m_output.get());
-}
+RtCalibrationIntegration::MdtCalibOutputPtr RtCalibrationIntegration::getResults() const { return m_output; }

@@ -8,7 +8,7 @@ InDetAODList = []
 
 if InDetFlags.doxAOD():
 
-  excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-TTVA_AMVFVertices_forReco.-TTVA_AMVFWeights_forReco"
+  excludedAuxData = "-clusterAssociation.-TTVA_AMVFVertices_forReco.-TTVA_AMVFWeights_forReco"
 
   if not (InDetFlags.KeepFirstParameters() or InDetFlags.keepAdditionalHitsOnTrackParticle()):
     excludedAuxData += '.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition'
@@ -27,6 +27,9 @@ if InDetFlags.doxAOD():
   +'.-IDTIDE1_unbiased_PVz0SigmaSinTheta.-IDTIDE1_unbiased_d0.-IDTIDE1_unbiased_d0Sigma.-IDTIDE1_unbiased_z0.-IDTIDE1_unbiased_z0Sigma.-IDTIDE1_unbiased_z0SigmaSinTheta' \
   +'.-IDTIDE1_unbiased_z0SinTheta'
 
+  # exclude TTVA decorations 
+  excludedAuxData += '.-TTVA_AMVFVertices.-TTVA_AMVFWeights'
+
   # exclude IDTIDE/IDTRKVALID decorations
   excludedAuxData += '.-TrkBLX.-TrkBLY.-TrkBLZ.-TrkIBLX.-TrkIBLY.-TrkIBLZ.-TrkL1X.-TrkL1Y.-TrkL1Z.-TrkL2X.-TrkL2Y.-TrkL2Z.-msosLink'
 
@@ -38,9 +41,8 @@ if InDetFlags.doxAOD():
     prefix=extractCollectionPrefix(col)
     InDetAODList+=['xAOD::TrackParticleContainer#'+prefix+'TrackParticles']
     InDetAODList+=['xAOD::TrackParticleAuxContainer#'+prefix+'TrackParticlesAux.' + excludedAuxData]
-  if not InDetFlags.doSLHC():
-   InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODForwardTrackParticleContainer()]
-   InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODForwardTrackParticleContainer()+'Aux.' + excludedAuxData]
+  InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODForwardTrackParticleContainer()]
+  InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODForwardTrackParticleContainer()+'Aux.' + excludedAuxData]
   InDetAODList+=['xAOD::VertexContainer#'+InDetKeys.xAODVertexContainer()]
   InDetAODList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODVertexContainer()+'Aux.' + excludedVertexAuxData]
   InDetAODList+=['xAOD::VertexContainer#'+InDetKeys.xAODV0VertexContainer()]
@@ -74,6 +76,18 @@ if InDetFlags.doxAOD():
     if InDetFlags.doTruth(): 
       InDetAODList += ["TrackTruthCollection#"+InDetKeys.DBMTracks()+'TruthCollection'] 
       InDetAODList += ["DetailedTrackTruthCollection#"+InDetKeys.DBMTracks()+'DetailedTruth'] 
+  if InDetFlags.doPseudoTracking():
+    InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODPseudoTrackParticleContainer()]
+    InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODPseudoTrackParticleContainer()+'Aux.' + excludedAuxData]
+    if InDetFlags.doTruth():
+        InDetAODList += ["TrackTruthCollection#"+InDetKeys.PseudoTracksTruth()]
+        InDetAODList += ["DetailedTrackTruthCollection#"+InDetKeys.PseudoDetailedTracksTruth()]
+  if InDetFlags.doTIDE_Ambi():
+    InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODObservedTrackParticleContainer()]
+    InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODObservedTrackParticleContainer()+'Aux.' + excludedAuxData]
+    if InDetFlags.doTruth():
+      InDetAODList += ["TrackTruthCollection#"+InDetKeys.ObservedTracksTruth()]
+      InDetAODList += ["DetailedTrackTruthCollection#"+InDetKeys.ObservedDetailedTracksTruth()]
 
 # next is only for InDetRecExample stand alone! RecExCommon uses InDetAODList directly
 StreamAOD.ItemList += InDetAODList 

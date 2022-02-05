@@ -35,9 +35,7 @@ namespace Muon {
         MuonClusterSegmentFinderTool(const std::string& type, const std::string& name, const IInterface* parent);
         /** destructor */
         virtual ~MuonClusterSegmentFinderTool();
-
-        static const InterfaceID& interfaceID();
-
+  
         virtual StatusCode initialize() override;
 
     private:
@@ -68,7 +66,7 @@ namespace Muon {
             "TrackToSegmentTool",
             "Muon::MuonTrackToSegmentTool/MuonTrackToSegmentTool",
         };  //<! track to segment converter
-        ToolHandle<MuonEDMPrinterTool> m_printer{
+        PublicToolHandle<MuonEDMPrinterTool> m_printer{
             this,
             "Printer",
             "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",
@@ -86,30 +84,31 @@ namespace Muon {
         ToolHandle<IMuonClusterOnTrackCreator> m_mmClusterCreator{this, "MMClusterCreator",
                                                                   "Muon::MMClusterOnTrackCreator/MMClusterOnTrackCreator"};
 
-        bool m_ipConstraint;  // use a ip perigee(0,0) constraint in the segment fit
-        double m_maxClustDist;
-        int m_nOfSeedLayers;
+     
+        Gaudi::Property<bool> m_ipConstraint{this, "IPConstraint", true};  // use a ip perigee(0,0) constraint in the segment fit
+        Gaudi::Property<double> m_maxClustDist{this, "ClusterDistance", 5.};
+        Gaudi::Property<int> m_nOfSeedLayers{this, "NOfSeedLayers", 1};
 
     public:
         // find segments given a list of MuonCluster
         // segments can be added directly to a SegmentCollection, if they are to be written to SG, or returned in a list for
         // further processing
-        void find(std::vector<const Muon::MuonClusterOnTrack*>& clusters, std::vector<Muon::MuonSegment*>& segments,
-                  Trk::SegmentCollection* segColl = 0) const override;
+        void find(const EventContext& ctx, std::vector<const Muon::MuonClusterOnTrack*>& clusters, std::vector<std::unique_ptr<Muon::MuonSegment>>& segments,
+                  Trk::SegmentCollection* segColl) const override;
 
     private:
         // reconstruct the segments in the precision (eta) plane
-        void findPrecisionSegments(std::vector<const Muon::MuonClusterOnTrack*>& MuonClusters,
-                                   std::vector<Muon::MuonSegment*>& etaSegs) const;
+        void findPrecisionSegments(const EventContext& ctx, std::vector<const Muon::MuonClusterOnTrack*>& MuonClusters,
+                                   std::vector<std::unique_ptr<Muon::MuonSegment>>& etaSegs) const;
         // recontruct 3D segments
-        void find3DSegments(std::vector<const Muon::MuonClusterOnTrack*>& MuonClusters, std::vector<Muon::MuonSegment*>& etaSegs,
-                            std::vector<Muon::MuonSegment*>& segments, Trk::SegmentCollection* segColl = 0) const;
+        void find3DSegments(const EventContext& ctx, std::vector<const Muon::MuonClusterOnTrack*>& MuonClusters, std::vector<std::unique_ptr<Muon::MuonSegment>> & etaSegs,
+                            std::vector<std::unique_ptr<Muon::MuonSegment>> & segments, Trk::SegmentCollection* segColl) const;
         // clean the clusters
         std::vector<const Muon::MuonClusterOnTrack*> cleanClusters(std::vector<const Muon::MuonClusterOnTrack*>& MuonClusters,
-                                                                   bool selectPhiClusters = false) const;
+                                                                   bool selectPhiClusters ) const;
         // order the clusters
         std::vector<std::vector<const Muon::MuonClusterOnTrack*> > orderByLayer(std::vector<const Muon::MuonClusterOnTrack*>& clusters,
-                                                                                bool usePads = false) const;
+                                                                                bool usePads) const;
         // find segment seeds
         std::vector<std::pair<Amg::Vector3D, Amg::Vector3D> > segmentSeed(
             std::vector<std::vector<const Muon::MuonClusterOnTrack*> >& orderedClusters, bool usePhi) const;
@@ -125,7 +124,7 @@ namespace Muon {
         // distance of cluster to segment seed
         double clusterDistanceToSeed(const Muon::MuonClusterOnTrack* clust, std::pair<Amg::Vector3D, Amg::Vector3D>& seed) const;
         Amg::Vector3D intersectPlane(const Trk::PlaneSurface& surf, const Amg::Vector3D& pos, const Amg::Vector3D& dir) const;
-        Trk::Track* fit(const std::vector<const Trk::MeasurementBase*>& vec2, const Trk::TrackParameters& startpar) const;
+        std::unique_ptr<Trk::Track> fit(const EventContext& ctx, const std::vector<const Trk::MeasurementBase*>& vec2, const Trk::TrackParameters& startpar) const;
 
         // check if enough surfaces are hitted
         bool belowThreshold(std::vector<const Muon::MuonClusterOnTrack*>& muonClusters, int threshold) const;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AGDDElcyl_H
@@ -12,21 +12,24 @@
 
 class AGDDElcyl: public AGDDVolume {
 public:
-	AGDDElcyl(std::string s):AGDDVolume(s),_dx(0),_dy(0),_z(0) {}
-	void SetRXio_RYio_Z(std::vector<double> v) 
+	AGDDElcyl(const std::string& s,
+                  AGDDVolumeStore& vs,
+                  AGDDSectionStore& ss)
+          : AGDDVolume(s,vs,ss),m_dx(0),m_dy(0),m_z(0) {}
+	void SetRXio_RYio_Z(const std::vector<double>& v) 
 	{
-		_dx=v[0];
-		_dy=v[1];
-		_z=v[2];
+		m_dx=v[0];
+		m_dy=v[1];
+		m_z=v[2];
 	}
-	void CreateVolume();
-	void CreateSolid();
-	double dx() {return _dx;}
-	double dy() {return _dy;}
-	double z() {return _z;}
-	double _dx;
-	double _dy;
-	double _z;
+        virtual void CreateVolume (AGDDBuilder& builder) override;
+	virtual void CreateSolid (const AGDDBuilder& builder) override;
+	double dx() const {return m_dx;}
+	double dy() const {return m_dy;}
+	double z() const {return m_z;}
+	double m_dx;
+	double m_dy;
+	double m_z;
 };
 
 #endif

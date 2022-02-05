@@ -15,7 +15,7 @@ def LArCalibBadChannelCfg(flags):
     foldername="/LAR/BadChannelsOfl/BadChannels"
     foldertag="".join(foldername.split("/"))+flags.LArCalib.BadChannelTag
 
-    result.merge(addFolders(flags,foldername+"<tag>"+foldertag+"</tag><db>"+flags.LArCalib.BadChannelDB+"</db>",
+    result.merge(addFolders(flags,foldername+"<tag>"+foldertag+"</tag>",flags.LArCalib.BadChannelDB,
                             className="CondAttrListCollection"))
 
     theLArBadChannelCondAlgo=LArBadChannelCondAlg(ReadKey=foldername)

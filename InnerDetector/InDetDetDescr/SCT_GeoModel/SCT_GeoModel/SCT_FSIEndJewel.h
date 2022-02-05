@@ -31,11 +31,11 @@ private:
   void getParameters();
   virtual GeoVPhysVol * build();
 
-  const GeoMaterial * m_material;
+  const GeoMaterial * m_material = nullptr;
   std::string m_materialName;
-  double m_radialWidth;
-  double m_rPhiWidth;
-  double m_length;
+  double m_radialWidth = 0.0;
+  double m_rPhiWidth = 0.0;
+  double m_length = 0.0;
 };
 
 #endif // SCT_GEOMODEL_SCT_FSIENDJEWEL_H

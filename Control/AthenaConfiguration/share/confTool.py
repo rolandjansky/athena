@@ -1,18 +1,14 @@
 #!/usr/bin/env python
 
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
-
-from __future__ import print_function
 
 import ast
 import json
 import pickle
-import pprint
 import re
 import sys
-import collections
 
 from AthenaConfiguration.iconfTool.models.loaders import loadConfigFile, baseParser, componentRenamingDict, loadDifferencesFile
 class color:
@@ -201,9 +197,9 @@ def _knownDifference(comp, prop, chkVal, refVal):
             acceptedDifference = knownDifferences[comp][prop]
             if acceptedDifference == (None,None):
                 return True
-            if acceptedDifference[0] == None:
+            if acceptedDifference[0] is None:
                 return chkVal == acceptedDifference[1]
-            if acceptedDifference[1] == None:
+            if acceptedDifference[1] is None:
                 return refVal == acceptedDifference[0]
             else:
                 return refVal == acceptedDifference[0] and chkVal == acceptedDifference[1]

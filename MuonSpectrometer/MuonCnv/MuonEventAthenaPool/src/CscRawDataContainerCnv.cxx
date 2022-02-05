@@ -32,7 +32,7 @@ CscRawDataContainer* CscRawDataContainerCnv::createTransient()
   // the use of auto pointers ensures that the persistent object is deleted
   // using the correct persistent type pointer
   
-  CscRawDataContainer *            trans_cont = 0;
+  CscRawDataContainer *            trans_cont = nullptr;
   
   static pool::Guid p4_guid("F94905BF-D474-4453-B9D0-80ECB7BA4041");
   static pool::Guid p3_guid("A77330FB-BD12-4E50-829C-DADFBF556119");

@@ -98,10 +98,3 @@ conddb.addFolder('TRIGGER','/TRIGGER/Receivers/Factors/CalibGains')
 #comment out the following two lines, if database is not present, otherwise Athena won't run
 if pprMonitoringJob.doFineTimePlots:
     svcMgr.IOVDbSvc.Folders += ["<dbConnection>sqlite://;schema=../share/calibJuly.sqlite;dbname=L1CALO</dbConnection>/TRIGGER/L1Calo/V1/References/FineTimeReferences"]
-
-
-#### L1Config and tools
-#from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc
-#LVL1ConfigSvc = LVL1ConfigSvc('LVL1ConfigSvc')
-#LVL1ConfigSvc.XMLFile = "LVL1config_Physics_pp_v1.xml"
-#ServiceMgr += LVL1ConfigSvc

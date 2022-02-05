@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondSvc/TGCCondSummarySvc.h"
@@ -79,7 +79,7 @@ bool TGCCondSummarySvc::isGoodChamber(const Identifier & Id){
   if (not m_noReports){
     ServiceHandleArray<ITGCConditionsSvc>::const_iterator svc(m_reportingServices.begin());
     ServiceHandleArray<ITGCConditionsSvc>::const_iterator lastSvc(m_reportingServices.end());
-    for (;svc not_eq  lastSvc;svc++){
+    for (;svc not_eq  lastSvc;++svc){
       if ((*svc)->deadStationsId().size()!=0){
 	bool found = std::binary_search( 
   	   (*svc)->deadStationsId().begin(),(*svc)->deadStationsId().end(),Id,Compare);
@@ -100,7 +100,7 @@ const std::vector<Identifier>& TGCCondSummarySvc::deadStationsId(){
   if (not m_noReports){
     ServiceHandleArray<ITGCConditionsSvc>::const_iterator svc(m_reportingServices.begin());
     ServiceHandleArray<ITGCConditionsSvc>::const_iterator lastSvc(m_reportingServices.end());
-    for (;svc not_eq  lastSvc;svc++){
+    for (;svc not_eq  lastSvc;++svc){
       if ((*svc)->deadStationsId().size()!=0){
 	return (*svc)->deadStationsId();
       }else{

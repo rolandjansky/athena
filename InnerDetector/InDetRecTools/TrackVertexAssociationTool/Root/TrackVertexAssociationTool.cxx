@@ -328,7 +328,7 @@ StatusCode TrackVertexAssociationTool::initialize()
 
   // Initialize our EventInfo container and decoration reads
   ATH_CHECK(m_eventInfo.initialize());
-  m_hardScatterDecoKey = SG::ReadDecorHandleKey<xAOD::EventInfo>(m_eventInfo.key() + m_hardScatterDeco);
+  m_hardScatterDecoKey = SG::ReadDecorHandleKey<xAOD::EventInfo>(m_eventInfo.key() + "." + m_hardScatterDeco);
   ATH_CHECK(m_hardScatterDecoKey.initialize());
   m_vtxDecoAcc = std::make_unique<AMVFVerticesAcc>(m_vtxDecoKey.key());
   m_vtxDecoKey = SG::ReadDecorHandleKey<xAOD::TrackParticleContainer>(m_trkContName + "." + m_vtxDecoKey.key());

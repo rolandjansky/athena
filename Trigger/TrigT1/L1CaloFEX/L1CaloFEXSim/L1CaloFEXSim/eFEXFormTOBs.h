@@ -32,13 +32,14 @@ namespace LVL1 {
     /** Destructor */
     virtual ~eFEXFormTOBs();
 
-    virtual uint32_t formTauTOBWord(int &, int &, int &, unsigned int &) override;
+    virtual uint32_t formTauTOBWord(int &, int &, int &, unsigned int &, unsigned int &, unsigned int &, unsigned int &, unsigned int &, unsigned int &) override;
 
     virtual uint32_t formEmTOBWord(int &, int &, int &, unsigned int &, unsigned int &, unsigned int &, unsigned int &, unsigned int &, unsigned int &) override;
 
     /** Internal data */
   private:
-
+    const unsigned int m_eFexStep = 25;
+    const unsigned int m_eFexTobStep = 100;
   };
 
 } // end of namespace

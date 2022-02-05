@@ -19,7 +19,7 @@ namespace NSWL1 {
 
     void MMTriggerTool::handle(const Incident& inc) {
       if( inc.type()==IncidentType::BeginEvent ) {
-        ATH_MSG_INFO( "Handling..." );
+        ATH_MSG_DEBUG( "Handling..." );
         this->clear_ntuple_variables();
       }
     }
@@ -39,7 +39,8 @@ namespace NSWL1 {
       m_trigger_diamond_iU          = new std::vector<int>();
       m_trigger_diamond_iV          = new std::vector<int>();
       m_trigger_diamond_age         = new std::vector<double>();
-      m_trigger_diamond_Xavg        = new std::vector<double>();
+      m_trigger_diamond_mx          = new std::vector<double>();
+      m_trigger_diamond_my          = new std::vector<double>();
       m_trigger_diamond_Uavg        = new std::vector<double>();
       m_trigger_diamond_Vavg        = new std::vector<double>();
       m_trigger_diamond_mxl         = new std::vector<double>();
@@ -48,6 +49,9 @@ namespace NSWL1 {
       m_trigger_diamond_dtheta      = new std::vector<double>();
       m_trigger_diamond_phi         = new std::vector<double>();
       m_trigger_diamond_phiShf      = new std::vector<double>();
+      m_trigger_diamond_TP_phi_id   = new std::vector<uint8_t>();
+      m_trigger_diamond_TP_R_id     = new std::vector<uint8_t>();
+      m_trigger_diamond_TP_dTheta_id = new std::vector<uint8_t>();
 
       m_trigger_RZslopes     = new std::vector<double>();
       m_trigger_fitThe       = new std::vector<double>();
@@ -205,7 +209,8 @@ namespace NSWL1 {
         m_tree->Branch(TString::Format("%s_trigger_diamond_iU",n).Data(), &m_trigger_diamond_iU);
         m_tree->Branch(TString::Format("%s_trigger_diamond_iV",n).Data(), &m_trigger_diamond_iV);
         m_tree->Branch(TString::Format("%s_trigger_diamond_age",n).Data(), &m_trigger_diamond_age);
-        m_tree->Branch(TString::Format("%s_trigger_diamond_Xavg",n).Data(), &m_trigger_diamond_Xavg);
+        m_tree->Branch(TString::Format("%s_trigger_diamond_mx",n).Data(), &m_trigger_diamond_mx);
+        m_tree->Branch(TString::Format("%s_trigger_diamond_my",n).Data(), &m_trigger_diamond_my);
         m_tree->Branch(TString::Format("%s_trigger_diamond_Uavg",n).Data(), &m_trigger_diamond_Uavg);
         m_tree->Branch(TString::Format("%s_trigger_diamond_Vavg",n).Data(), &m_trigger_diamond_Vavg);
         m_tree->Branch(TString::Format("%s_trigger_diamond_mxl",n).Data(), &m_trigger_diamond_mxl);
@@ -214,6 +219,9 @@ namespace NSWL1 {
         m_tree->Branch(TString::Format("%s_trigger_diamond_dtheta",n).Data(), &m_trigger_diamond_dtheta);
         m_tree->Branch(TString::Format("%s_trigger_diamond_phi",n).Data(), &m_trigger_diamond_phi);
         m_tree->Branch(TString::Format("%s_trigger_diamond_phiShf",n).Data(), &m_trigger_diamond_phiShf);
+        m_tree->Branch(TString::Format("%s_trigger_diamond_TP_phi_id",n).Data(), &m_trigger_diamond_TP_phi_id);
+        m_tree->Branch(TString::Format("%s_trigger_diamond_TP_R_id",n).Data(), &m_trigger_diamond_TP_R_id);
+        m_tree->Branch(TString::Format("%s_trigger_diamond_TP_dTheta_id",n).Data(), &m_trigger_diamond_TP_dTheta_id);
 
         m_tree->Branch(TString::Format("%s_trigger_RZslopes",n).Data(),&m_trigger_RZslopes);
         m_tree->Branch(TString::Format("%s_trigger_fitThe",n).Data(),&m_trigger_fitThe);
@@ -375,7 +383,8 @@ namespace NSWL1 {
       m_trigger_diamond_iU->clear();
       m_trigger_diamond_iV->clear();
       m_trigger_diamond_age->clear();
-      m_trigger_diamond_Xavg->clear();
+      m_trigger_diamond_mx->clear();
+      m_trigger_diamond_my->clear();
       m_trigger_diamond_Uavg->clear();
       m_trigger_diamond_Vavg->clear();
       m_trigger_diamond_mxl->clear();
@@ -384,6 +393,9 @@ namespace NSWL1 {
       m_trigger_diamond_dtheta->clear();
       m_trigger_diamond_phi->clear();
       m_trigger_diamond_phiShf->clear();
+      m_trigger_diamond_TP_phi_id->clear();
+      m_trigger_diamond_TP_R_id->clear();
+      m_trigger_diamond_TP_dTheta_id->clear();
 
       m_trigger_RZslopes->clear();
       m_trigger_fitThe->clear();

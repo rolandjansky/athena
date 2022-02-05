@@ -89,6 +89,7 @@ public:
   /** INavigator interface method - getting the closest TrackParameters from a
    * Track to a Surface */
   virtual const TrackParameters* closestParameters(
+    const EventContext& ctx,
     const Track& trk,
     const Surface& sf,
     const IPropagator* prop = 0) const = 0;
@@ -127,46 +128,9 @@ public:
     PropDirection dir,
     const TrackingVolume& vol) const = 0;
 
-   /*
-    * Methods without explicit Event Context. To be removed
-    * when clients get migrated
-    */
-
-  /** INavigator interface method - returns the TrackingGeometry used for
-   * navigation */
-  const TrackingGeometry* trackingGeometry() const;
-
-  /** INavigator interface method - global search for the Volume one is in */
-  const TrackingVolume* volume(const Amg::Vector3D& gp) const;
-
-  /** INavigator interface method - forward hightes TrackingVolume */
-  const TrackingVolume* highestVolume() const;
-
-  /** INavigator interface method - getting the next BoundarySurface not knowing
-   * the Volume*/
-  const BoundarySurface<TrackingVolume>* nextBoundarySurface(
-    const IPropagator& prop,
-    const TrackParameters& parms,
-    PropDirection dir) const;
-
-  /** INavigator interface method - getting the next BoundarySurface when
-   * knowing the Volume*/
-  const BoundarySurface<TrackingVolume>* nextBoundarySurface(
-    const IPropagator& prop,
-    const TrackParameters& parms,
-    PropDirection dir,
-    const TrackingVolume& vol) const;
-
-  /** INavigator interface method - - getting the next Volume and the parameter
-   * for the next Navigation */
-  NavigationCell nextTrackingVolume(const IPropagator& prop,
-                                    const TrackParameters& parms,
-                                    PropDirection dir,
-                                    const TrackingVolume& vol) const;
 
 };
 } // end of namespace
-#include "TrkExInterfaces/INavigator.icc"
 
 #endif // TRKDETDESCRINTERFACES_INAVIGATOR_H
 

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef TOPCPTOOLS_TOPFLAVORTAGGINGCPTOOLS_H_
@@ -35,33 +35,42 @@ namespace top {
     StatusCode initialize();
   private:
     std::shared_ptr<top::TopConfig> m_config;
-
-    std::string m_tagger = "";
-    std::string m_cdi_file = "";
+    std::string m_cdi_file;
+    std::string m_calib_file_path;
+    std::string m_excluded_systs;
     std::string m_efficiency_maps;
     const std::vector<std::string> m_jet_flavors = {
       "B", "C", "T", "Light"
     };
-    std::vector<std::string> m_calo_WPs_calib;
-    std::vector<std::string> m_calo_WPs;
-    std::vector<std::string> m_trackAntiKtVR_WPs_calib;
-    std::vector<std::string> m_trackAntiKtVR_WPs;
-    std::vector<std::string> m_trackAntiKt2_WPs_calib;
-    std::vector<std::string> m_trackAntiKt2_WPs;
-    std::vector<std::string> m_trackAntiKt4_WPs_calib;
-    std::vector<std::string> m_trackAntiKt4_WPs;
-    std::vector<std::string> m_pflow_WPs_calib;
-    std::vector<std::string> m_pflow_WPs;
     // Some tools here
     ToolHandleArray<IBTaggingEfficiencyTool> m_btagging_efficiency_tools;
     ToolHandleArray<IBTaggingSelectionTool> m_btagging_selection_tools;
+
+    /**
+     * @brief Setup BTaggingSelectionTool for a given WP
+     *
+     * @param btag_algo_WP pair of tagger (e.g. DL1r) and WP name (e.g. FixedCutBEff77)
+     * @param jetCollection name of the jet collection for the btagging tool
+     * @param jetPtCut minimum pT cut used for jets
+     * @param jetEtaCut maximum |eta| cut used for jets
+     * @param trackJets true, if btagging for track jets is to be initialized, otherwise false
+    */
+    StatusCode setupBtagSelectionTool(const std::pair<std::string, std::string>& btag_algo_WP,
+                                      const std::string& jetCollection,
+                                      double jetPtCut, double jetEtaCut,
+                                      bool trackJets=false);
+    // setup btagging efficiency tool, see documentation of setupBtagSelectionTool above
+    StatusCode setupBtagEfficiencyTool(const std::pair<std::string, std::string>& btag_algo_WP,
+                                       const std::string& jetCollection,
+                                       double jetPtCut,
+                                       bool trackJets=false);
+
+    // workaround method to erase PV0 from VR track jet collection name
+    // needed for the currently-bugged CDI file
+    std::string erasePV0fromJetsName(std::string jetCollectionName);
+
     // EV decomposition functions
     StatusCode checkExcludedSysts(BTaggingEfficiencyTool*, std::string);
-    void createExcludedSystMapping(std::vector<std::string>);
-    std::map<std::string, std::string> m_mapped_excluded_systs;
-    // Helper function for tracking tagger/WP/Calibration
-    StatusCode setTaggerWorkingPoints(std::string, bool, std::string, std::vector<std::string>);
-    void printConfigurations();
   };
 }  // namespace top
 

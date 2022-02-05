@@ -18,7 +18,7 @@ online = False
 #
 
 coherent_noise_febs = FEBSforStatTest #list of FEBs to be monitored, if empty, runs on them all
-print coherent_noise_febs
+print(coherent_noise_febs)
 #coherent_noise_PublishPartialSums = True #if true, publish the partial sums histograms, can be useful for debugging. False by default
 coherent_noise_calibration_run = True
 

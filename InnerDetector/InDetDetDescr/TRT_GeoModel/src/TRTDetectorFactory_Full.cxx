@@ -61,7 +61,7 @@ using namespace GeoGenfun;
 using namespace GeoXF;
 
 // Helper functions. Temporarily here (hopefully)
-void rotate(double angler, GeoTrf::Vector2D& vector)
+inline void rotate(double angler, GeoTrf::Vector2D& vector)
 {
   double s1 = std::sin(angler);
   double c = std::cos(angler);
@@ -71,13 +71,13 @@ void rotate(double angler, GeoTrf::Vector2D& vector)
   vector.y() = s1*xx + c*yy;
 }
 
-double angle(const GeoTrf::Vector2D& a, const GeoTrf::Vector2D& b)
+inline double angle(const GeoTrf::Vector2D& a, const GeoTrf::Vector2D& b)
 {
   double ptot2 = a.mag2()*b.mag2();
   return ptot2 <= 0.0 ? 0.0 : std::acos(a.dot(b)/std::sqrt(ptot2));
 }
 
-double magn(GeoTrf::Vector2D& vector)
+inline double magn(GeoTrf::Vector2D& vector)
 {
   return std::sqrt(vector.x()*vector.x() + vector.y()*vector.y());
 }
@@ -164,7 +164,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
                           m_sumTool->getStrawStatusHTContainer() != nullptr;
   }
   // --------------------- In a normal reconstruction or digitization job, the folder will not be available at this point. No reason for warnings here.
-  ATH_MSG_DEBUG( "The folder of /TRT/Cond/StatusHT is available? " << m_strawsvcavailable) ;
+  ATH_MSG_INFO( "The folder of /TRT/Cond/StatusHT is available? " << m_strawsvcavailable) ;
   if (!m_strawsvcavailable) ATH_MSG_DEBUG("The folder of /TRT/Cond/StatusHT is NOT available, WHOLE TRT RUNNING XENON" );
   if (!m_doArgon  )	ATH_MSG_DEBUG("Tool setup will force to NOT to use ARGON. Ignore this warning if you are running RECONSTRUCTION or DIGI, but cross-check if you are running SIMULATION");
   if (!m_doKrypton)	ATH_MSG_DEBUG( "Tool setup will force to NOT to use KRYPTON. Ignore this warning if you are running RECONSTRUCTION or DIGI, but cross-check if you are running SIMULATION");
@@ -2157,7 +2157,7 @@ const GeoShape * TRTDetectorFactory_Full::makeModule ( double length, GeoTrf::Ve
 
 //
 //GeoPhysVol * TRTDetectorFactory_Full::makeStraw( double& activeGasZPosition, bool hasLargeDeadRegion /*= false*/ ) const {
-GeoPhysVol * TRTDetectorFactory_Full::makeStraw( double& activeGasZPosition, bool hasLargeDeadRegion /*= false*/, ActiveGasMixture gasMixture) const {
+GeoPhysVol * TRTDetectorFactory_Full::makeStraw( double& activeGasZPosition, bool hasLargeDeadRegion /*= false*/, ActiveGasMixture gasMixture) {
 
   double lengthOfInnerDeadRegion= hasLargeDeadRegion ? m_data->barrelLengthOfLargeDeadRegion : m_data->lengthOfDeadRegion ;
   double lengthOfActiveGas = (m_data->barrelLengthOfStraw-m_data->barrelLengthOfTwister)/2.0 - m_data->lengthOfDeadRegion - lengthOfInnerDeadRegion;

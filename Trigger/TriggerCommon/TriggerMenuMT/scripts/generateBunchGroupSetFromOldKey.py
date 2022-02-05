@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import sys
 import json
@@ -13,11 +13,11 @@ log = logging.getLogger("generateBunchGroupSetFromOldKey")
 L1MenuFlags.CTPVersion = 4
 L1MenuFlags.BunchGroupPartitioning = [1, 15, 15]
 
-bgsname = "All_FilledEmpty_expCalreq"
+default_bgsname = "generateBunchGroupSetFromOldKey"
 
-bgnames = [
+default_bgnames = [
     "BCRVETO",
-    "Filled",
+    "Paired",
     "Calreq",
     "Empty",
     "UnpairedIsolated",
@@ -34,7 +34,7 @@ bgnames = [
     "NotUsed"
 ]
 
-def transform2(oldbgs):
+def transform2(oldbgs,bgsname,bgnames):
     newbgs = BunchGroupSet(bgsname)
     for idx,bg in enumerate(oldbgs):
         newbg = BunchGroupSet.BunchGroup(name = bgnames[idx], internalNumber = idx)
@@ -53,9 +53,28 @@ def main():
         
     inputFN = sys.argv[1]
 
-    with open(inputFN) as fp:
-        oldBGS = json.load(fp)[0]['code']
-        newBGS = transform2(oldBGS)
+    with open(inputFN) as fn:
+        inputJson = json.load(fn)
+
+        oldBGS = inputJson[0]['code']
+
+        if 'name' in inputJson[0]:
+            bgsname = inputJson[0]['name'] + " from Run2 key "
+            if 'bgkey' in inputJson[0]:
+                bgsname += str(inputJson[0]['bgkey'])
+        else:
+            bgsname = default_bgsname
+
+        if 'bgnames' in inputJson[0]:
+            bgnames = inputJson[0]['bgnames']
+            # replace 0 - BCRVETO with BCRVETO
+            for i in range(len(bgnames)):
+                if bgnames[i].find(" - "):
+                    bgnames[i] = bgnames[i].split(" - ", 1)[1]
+        else:
+            bgnames = default_bgnames
+
+        newBGS = transform2(oldBGS,bgsname,bgnames)
 
     outputFN = inputFN.replace(".json",".newstyle.json")
     newBGS.writeJSON(outputFN)

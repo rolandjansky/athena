@@ -29,7 +29,7 @@
 #include "VP1TrackSystems/TrackSystemController.h"
 #include <QColor>
 #include <iostream>
-
+#include "Identifier/Identifier.h"
 
 class TrackSystemController;
 class TrackHandleBase;
@@ -195,6 +195,7 @@ public slots:
   void setMaterialEffectsOnTrackScale(double);
   void setParTubeErrorsDrawCylinders(bool);
   void setRequiredNHits(const QList<unsigned>&);
+  void setRequiredDetectorElement(const QString& id);
   void setOnlyVertexAssocTracks(bool);
   void extrapolateToThisVolumeChanged(void);
   void clipVolumeChanged(double);
@@ -222,6 +223,7 @@ private:
   VP1Interval m_cut_allowedEta;
   QList<VP1Interval> m_cut_allowedPhi;
   QList<unsigned> m_cut_requiredNHits;
+  QString m_requiredDetectorElement;
   bool m_cut_pt_allowall;
   bool m_cut_eta_allowall;
   bool m_cut_phi_allowall;

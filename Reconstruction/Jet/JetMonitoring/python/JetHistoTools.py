@@ -218,6 +218,10 @@ jhm.addTool( EfficiencyResponseHistos("effresponse",
     hdef('erhResponseVsEta', "Jet p_{T} Response vs #eta;#eta of jet;#frac{p_{T}^{Jet} - p_{T}^{Truth}}{p_{T}^{Truth}}",50,-5,5 ),
     hdef('erhResponseVsPt', "Jet p_{T} Response vs p_{T};p_{T}^{Truth} of jet;#frac{p_{T}^{Jet} - p_{T}^{Truth}}{p_{T}^{Truth}}",50,0,1000 ),
 
+    hdef('erhResponse_noShift', "Jet p_{T} Response;#frac{p_{T}^{Jet}}{p_{T}^{Truth}};Number of jets",50,0,2 ),
+    hdef('erhResponseVsEta_noShift', "Jet p_{T} Response vs #eta;#eta of jet;#frac{p_{T}^{Jet}}{p_{T}^{Truth}}",50,-5,5 ),
+    hdef('erhResponseVsPt_noShift', "Jet p_{T} Response vs p_{T};p_{T}^{Truth} of jet;#frac{p_{T}^{Jet}}{p_{T}^{Truth}}",50,0,1000 ),
+
     hdef('erhDeltaR', "#DeltaR between Jet and closest Truth Jet;#DeltaR;Number of jets",50,0,4 ),
 
     ]

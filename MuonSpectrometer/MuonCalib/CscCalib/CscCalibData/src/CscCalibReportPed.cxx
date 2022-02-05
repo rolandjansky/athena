@@ -5,27 +5,28 @@
 #include "TH1I.h"
 #include "TH2F.h"
 
-#include "CscCalibData/CscCalibReportPed.h"
 #include "AthContainers/DataVector.h"
+#include "CscCalibData/CscCalibReportPed.h"
 #include <string>
+#include <utility>
 
 /* default constructor */
 CscCalibReportPed::CscCalibReportPed() : 
-    m_pedAmpHists(NULL),
-    m_sampHists(NULL),
-    m_bitHists(NULL),
-    m_bitCorrelation(NULL),
-    m_onlineTHoldTests(NULL)
+    m_pedAmpHists(nullptr),
+    m_sampHists(nullptr),
+    m_bitHists(nullptr),
+    m_bitCorrelation(nullptr),
+    m_onlineTHoldTests(nullptr)
 { }
 
 /* full constructor */
 CscCalibReportPed::CscCalibReportPed(std::string label) :  
-    CscCalibReportBase::CscCalibReportBase(label),
-    m_pedAmpHists(NULL),
-    m_sampHists(NULL),
-    m_bitHists(NULL),
-    m_bitCorrelation(NULL),
-    m_onlineTHoldTests(NULL)
+    CscCalibReportBase::CscCalibReportBase(std::move(label)),
+    m_pedAmpHists(nullptr),
+    m_sampHists(nullptr),
+    m_bitHists(nullptr),
+    m_bitCorrelation(nullptr),
+    m_onlineTHoldTests(nullptr)
 { }
 
 CscCalibReportPed::~CscCalibReportPed()

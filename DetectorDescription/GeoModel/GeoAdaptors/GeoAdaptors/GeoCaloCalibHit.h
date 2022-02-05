@@ -1,26 +1,26 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOADAPTORS_GEOCALOCALIBHIT_H
 #define GEOADAPTORS_GEOCALOCALIBHIT_H
-//----------------------------------------------------------//
-//                                                          //
-// Adaptor for CaloCalibHits.                               //
-//                                                          //
-// Joe Boudreau      Apr 14, 2005                           //
-// Mikhail Leltchouk Apr 30, 2005                           //
-//                                                          //
-//                                                          //
-//----------------------------------------------------------//
+
+/**
+ * @class  GeoCaloCalibHit
+ * @author Joe Boudreau      Apr 14, 2005
+ *         Mikhail Leltchouk Apr 30, 2005
+ *
+ * @brief  Adaptor for CaloCalibHits
+ */
+
 #include "CLHEP/Geometry/Point3D.h"
+#include <string>
 
 class CaloIdManager;
 class CaloCalibrationHit;
 class CaloDM_ID;
 class CaloDetDescrElement;
 class CaloDetDescrManager;
-#include <string>
 
 class GeoCaloCalibHit 
 {
@@ -28,11 +28,10 @@ class GeoCaloCalibHit
 
   enum Type {ACTIVE, INACTIVE, DEAD, TILEAI, TILEDM, TILEACTIVE, TILEINACTIVE, TILEDEAD, UNRECOGNIZED};
 
-  // Default constructor:
-  GeoCaloCalibHit() {m_failed=true;}
-
-  // Constructor:
-  GeoCaloCalibHit(const CaloCalibrationHit & h, const std::string & collectionName);
+  GeoCaloCalibHit() = delete;
+  GeoCaloCalibHit(const CaloCalibrationHit & hit
+		  , const std::string & collectionName
+		  , const CaloDetDescrManager* caloMgr);
 
   double energyEM() const;
   double energyNonEM() const;
@@ -55,9 +54,6 @@ class GeoCaloCalibHit
   bool isBarrel() const;
   bool isEndcap() const;
 
-  // Underlying hit.
-  const CaloCalibrationHit &data() const { return *m_hit;}
-
   // Is this hit OK?
   operator bool () const;
 
@@ -68,12 +64,9 @@ class GeoCaloCalibHit
   const CaloDetDescrElement* getDetDescrElement() const;
 
  private:
-  static const CaloDetDescrManager* initDDMgr();
-  const CaloDetDescrManager* ddmgr() const;
-
   void init(const std::string & collectionName);
   
-  const CaloCalibrationHit         *m_hit;
+  const CaloCalibrationHit* m_hit{nullptr};
 
   int m_subdet;
   int m_type; // i.e. in the barrel or in the endcap.
@@ -84,9 +77,10 @@ class GeoCaloCalibHit
   double m_etaOffset;
   double m_distance;
   bool m_isBarrel;
-  bool m_failed;
+  bool m_failed{false};
   Type m_hitType; // ie. active, inactive dead.
-  const CaloDetDescrElement *m_ddElement;
+  const CaloDetDescrElement* m_ddElement{nullptr};
+  const CaloDetDescrManager* m_ddManager{nullptr};
 };
 
 #include "GeoAdaptors/GeoCaloCalibHit.icc"

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #
 # InDet GeoModel initialization
@@ -7,7 +7,6 @@ from AthenaCommon.JobProperties import jobproperties
 from AthenaCommon.DetFlags      import DetFlags
 from AthenaCommon.AppMgr        import ServiceMgr as svcMgr
 
-from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
 
 # Treat CTB separately
@@ -38,19 +37,9 @@ elif ( DetFlags.detdescr.ID_on() ):
         GeoModelSvc.DetectorTools['PixelDetectorTool'].useDynamicAlignFolders = InDetGeometryFlags.useDynamicAlignFolders()
 
     if ( DetFlags.detdescr.SCT_on() ):
-        if InDetGeometryFlags.isSLHC():
-            #SLHC specific code
-            if "GMX" == CommonGeometryFlags.StripGeoType():
-                from SCT_GeoModelXml.SCT_GeoModelXmlConf import SCT_GMX_DetectorTool
-                sctSLHCTool = SCT_GMX_DetectorTool()
-            else:
-                from SCT_SLHC_GeoModel.SCT_SLHC_GeoModelConf import SCT_SLHC_DetectorTool
-                sctSLHCTool = SCT_SLHC_DetectorTool()
-            GeoModelSvc.DetectorTools += [ sctSLHCTool ]
-        else:
-            # Current atlas specific code
-            from AthenaCommon import CfgGetter
-            GeoModelSvc.DetectorTools += [ CfgGetter.getPrivateTool("SCT_DetectorTool", checkType=True) ]
+        # Current atlas specific code
+        from AthenaCommon import CfgGetter
+        GeoModelSvc.DetectorTools += [ CfgGetter.getPrivateTool("SCT_DetectorTool", checkType=True) ]
 
         GeoModelSvc.DetectorTools['SCT_DetectorTool'].useDynamicAlignFolders = InDetGeometryFlags.useDynamicAlignFolders()
 
@@ -61,12 +50,7 @@ elif ( DetFlags.detdescr.ID_on() ):
         GeoModelSvc.DetectorTools += [ trtDetectorTool ]
 
     from InDetServMatGeoModel.InDetServMatGeoModelConf import InDetServMatTool
-    if InDetGeometryFlags.isSLHC():
-        #SLHC specific code
-        servMatTool = InDetServMatTool()
-        GeoModelSvc.DetectorTools += [ servMatTool ]
-    else:
-        GeoModelSvc.DetectorTools += [ InDetServMatTool() ]
+    GeoModelSvc.DetectorTools += [ InDetServMatTool() ]
 
     # Make alignable
     from InDetCondFolders import InDetAlignFolders  # noqa: F401

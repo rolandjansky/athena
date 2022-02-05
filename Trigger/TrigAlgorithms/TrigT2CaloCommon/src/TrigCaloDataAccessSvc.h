@@ -27,6 +27,9 @@
 #include "LArRawConditions/LArMCSym.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "LArRecConditions/LArFebRodMapping.h"
+#include "LArRecConditions/LArBadChannelCont.h"
+#include "LArRecConditions/LArRoIMap.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc> {
  public:
@@ -61,9 +64,6 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
   PublicToolHandle<LArRodDecoder> m_larDecoder { this, "LArDecoderTool", "LArRodDecoder/LArRodDecoder", "Tool to decode LAr raw data" };
   PublicToolHandle<TileROD_Decoder> m_tileDecoder { this, "TileDecoderTool", "TileROD_Decoder/TileROD_Decoder", "Tool to decode Tile raw data" };
 
-  //!< LArRoI_Map used by LArTT_Selector, TB this is apparently a tool!
-  PublicToolHandle<LArRoI_Map> m_roiMapTool { this, "LArRoIMapTool", "LArRoI_Map/LArRoI_Map", "Tool used by selectors" };           
-
   ToolHandle<GenericMonitoringTool> m_monTool{ this, "MonTool", "", "Tool to monitor performance of the service" };
 
   ServiceHandle<IROBDataProviderSvc>  m_robDataProvider{ this, "ROBDataProvider", "ROBDataProviderSvc/ROBDataProviderSvc", ""};
@@ -82,6 +82,12 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
    {this, "CablingKey", "LArOnOffIdMap", "SG Key for LArOnOffIdMapping"} ;
   SG::ReadCondHandleKey<LArFebRodMapping> m_febRodMappingKey
    {this, "RodFebKey", "LArFebRodMap", "SG Key for LArFebRodMapping"} ;
+  SG::ReadCondHandleKey<LArBadChannelCont> m_bcContKey
+   {this, "LArBadChannelKey", "LArBadChannel", "Key of the LArBadChannelCont CDO" };
+  SG::ReadCondHandleKey<LArRoIMap> m_larRoIMapKey
+   {this, "LArRoIMapKey", "LArRoIMap", "Key of the LArRoIMap CDO" };
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey
+   {this, "CaloDetDescrManager", "CaloDetDescrManager", "SG Key for CaloDetDescrManager in the Condition Store" };
 
   void reset_LArCol ( LArCellCollection* coll ){
     for(LArCellCollection::iterator ii=coll->begin();ii!=coll->end();++ii)
@@ -119,6 +125,9 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
   struct  HLTCaloEventCache {
     std::mutex mutex;    
     LArCellCont* larContainer;
+    LArRodBlockStructure* larRodBlockStructure_per_slot; // LAr Rod Block to ease decoding
+    uint16_t rodMinorVersion;
+    uint32_t robBlockType;
     TileCellCont* tileContainer;
     CaloCellContainer* fullcont;
     TileROD_Decoder::D0CellsHLT* d0cells;
@@ -137,7 +146,7 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
   unsigned int lateInit( const EventContext& context );
   bool m_lateInitDone = false;
 
-  unsigned int convertROBs(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& robFrags, LArCellCont* larcell );
+  unsigned int convertROBs(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& robFrags, LArCellCont* larcell, LArRodBlockStructure*& larRodBlockStructure, uint16_t rodMinorVersion, uint32_t robBlockType );
   unsigned int convertROBs( const EventContext& context, const std::vector<IdentifierHash>& rIds, TileCellCont* tilecell, TileROD_Decoder::D0CellsHLT* d0cells );
 
 

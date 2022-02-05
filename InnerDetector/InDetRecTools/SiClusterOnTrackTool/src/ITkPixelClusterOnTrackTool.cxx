@@ -3,7 +3,7 @@
 */
 
 /////////////////////////////////////////////////////////////////
-//   Implementation file for class ITkPixelClusterOnTrackTool
+//   Implementation file for class ITk::PixelClusterOnTrackTool
 ///////////////////////////////////////////////////////////////////
 // (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
@@ -16,7 +16,6 @@
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "InDetIdentifier/PixelID.h"
 #include "TrkSurfaces/PlaneSurface.h"
-#include "SiClusterizationTool/NnClusterizationFactory.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
@@ -54,7 +53,10 @@ namespace
   }
 }
 
-InDet::ITkPixelClusterOnTrackTool::ITkPixelClusterOnTrackTool
+namespace ITk
+{
+
+PixelClusterOnTrackTool::PixelClusterOnTrackTool
   (const std::string &t, const std::string &n, const IInterface *p) :
   ::AthAlgTool(t, n, p),
   m_pixelid(nullptr),
@@ -74,19 +76,13 @@ InDet::ITkPixelClusterOnTrackTool::ITkPixelClusterOnTrackTool
   declareProperty("RunningTIDE_Ambi", m_usingTIDE_Ambi);
 }
 
-///////////////////////////////////////////////////////////////////
-// Destructor
-///////////////////////////////////////////////////////////////////
-
-InDet::ITkPixelClusterOnTrackTool::~ITkPixelClusterOnTrackTool() {
-}
 
 ///////////////////////////////////////////////////////////////////
 // Initialisation
 ///////////////////////////////////////////////////////////////////
 
 StatusCode
-InDet::ITkPixelClusterOnTrackTool::initialize() {
+PixelClusterOnTrackTool::initialize() {
 
   ATH_MSG_DEBUG(name() << " initialize()");
 
@@ -114,23 +110,13 @@ InDet::ITkPixelClusterOnTrackTool::initialize() {
 }
 
 
-
-///////////////////////////////////////////////////////////////////
-// Finalize
-///////////////////////////////////////////////////////////////////
-
-StatusCode
-InDet::ITkPixelClusterOnTrackTool::finalize() {
-return StatusCode::SUCCESS;
-}
-
 ///////////////////////////////////////////////////////////////////
 // Trk::SiClusterOnTrack  production
 ///////////////////////////////////////////////////////////////////
 
 
 const InDet::PixelClusterOnTrack *
-InDet::ITkPixelClusterOnTrackTool::correct
+PixelClusterOnTrackTool::correct
   (const Trk::PrepRawData &rio, const Trk::TrackParameters &trackPar) const {
 
   if (not m_applyNNcorrection){
@@ -164,7 +150,7 @@ InDet::ITkPixelClusterOnTrackTool::correct
  *  measured PixelCluster and the track prediction.
  */
 const InDet::PixelClusterOnTrack *
-InDet::ITkPixelClusterOnTrackTool::correctDefault
+PixelClusterOnTrackTool::correctDefault
   (const Trk::PrepRawData &rio, const Trk::TrackParameters &trackPar) const {
   using CLHEP::micrometer;
 
@@ -286,13 +272,13 @@ InDet::ITkPixelClusterOnTrackTool::correctDefault
     int ncol = colmax - colmin + 1;
 
     // TOT interpolation for collision data
-    SG::ReadCondHandle<ITkPixelCalib::ITkPixelOfflineCalibData> offlineITkCalibDataHandle(m_clusterITkErrorKey);
+    SG::ReadCondHandle<ITk::PixelOfflineCalibData> offlineITkCalibDataHandle(m_clusterITkErrorKey);
 
     if (m_positionStrategy > 0 && omegaphi > -0.5 && omegaeta > -0.5) {
       localphi = centroid.xPhi() + shift;
       localeta = centroid.xEta();
 
-      std::pair<double,double> delta = offlineITkCalibDataHandle->getITkPixelClusterErrorData()->getDelta(&element_id,nrows,angle,ncol,etaloc);
+      std::pair<double,double> delta = offlineITkCalibDataHandle->getClusterErrorData()->getDelta(&element_id,nrows,angle,ncol,etaloc);
       double delta_phi = nrows != 1 ? delta.first : 0.;
       double delta_eta = ncol != 1 ? delta.second : 0.;
       localphi += delta_phi*(omegaphi-0.5);
@@ -327,7 +313,7 @@ InDet::ITkPixelClusterOnTrackTool::correctDefault
       errphi = (width.phiR() / nrows) * TOPHAT_SIGMA;
       erreta = (width.z() / ncol) * TOPHAT_SIGMA;
     }else if (m_errorStrategy == 2) {
-      std::pair<double,double> delta_err = offlineITkCalibDataHandle->getITkPixelClusterErrorData()->getDeltaError(&element_id);
+      std::pair<double,double> delta_err = offlineITkCalibDataHandle->getClusterErrorData()->getDeltaError(&element_id);
       errphi = nrows != 1 ? delta_err.first : (width.phiR()/nrows)*TOPHAT_SIGMA;
       erreta = ncol != 1 ? delta_err.second : (width.z()/ncol)*TOPHAT_SIGMA;
     }
@@ -363,15 +349,15 @@ InDet::ITkPixelClusterOnTrackTool::correctDefault
 
 
 const InDet::PixelClusterOnTrack *
-InDet::ITkPixelClusterOnTrackTool::correct
+PixelClusterOnTrackTool::correct
   (const Trk::PrepRawData &rio, const Trk::TrackParameters &trackPar,
-  const InDet::ITkPixelClusterStrategy strategy) const {
+  const ITk::PixelClusterStrategy strategy) const {
   int initial_errorStrategy;
   const InDet::PixelClusterOnTrack *newROT;
 
   switch (strategy) {
-  case InDet::ITKPIXELCLUSTER_OUTLIER: // if cluster is outlier, increase errors
-  case InDet::ITKPIXELCLUSTER_SHARED:
+  case PixelClusterStrategy::OUTLIER: // if cluster is outlier, increase errors
+  case PixelClusterStrategy::SHARED:
     initial_errorStrategy = m_errorStrategy;
     m_errorStrategy = 0; // error as size of cluster /sqrt(12)
     newROT = correct(rio, trackPar);
@@ -385,7 +371,7 @@ InDet::ITkPixelClusterOnTrackTool::correct
 
 // GP: NEW correct() method in case of NN based calibration  */
 const InDet::PixelClusterOnTrack *
-InDet::ITkPixelClusterOnTrackTool::correctNN
+PixelClusterOnTrackTool::correctNN
   (const Trk::PrepRawData &rio,
    const Trk::TrackParameters &trackPar) const {
   const InDet::PixelCluster *pixelPrepCluster = dynamic_cast<const InDet::PixelCluster *>(&rio);
@@ -460,10 +446,10 @@ InDet::ITkPixelClusterOnTrackTool::correctNN
 }
 
 bool
-InDet::ITkPixelClusterOnTrackTool::getErrorsDefaultAmbi(const InDet::PixelCluster *pixelPrepCluster,
-                                                     const Trk::TrackParameters &trackPar,
-                                                     Amg::Vector2D &finalposition,
-                                                     Amg::MatrixX &finalerrormatrix) const {
+PixelClusterOnTrackTool::getErrorsDefaultAmbi(const InDet::PixelCluster *pixelPrepCluster,
+                                              const Trk::TrackParameters &trackPar,
+                                              Amg::Vector2D &finalposition,
+                                              Amg::MatrixX &finalerrormatrix) const {
   std::vector<Amg::Vector2D> vectorOfPositions;
   int numberOfSubclusters = 1;
   vectorOfPositions.push_back(pixelPrepCluster->localPosition());
@@ -473,12 +459,12 @@ InDet::ITkPixelClusterOnTrackTool::getErrorsDefaultAmbi(const InDet::PixelCluste
     InDet::PixelGangedClusterAmbiguities::const_iterator mapBegin = splitClusterMap->begin();
     InDet::PixelGangedClusterAmbiguities::const_iterator mapEnd = splitClusterMap->end();
     for (InDet::PixelGangedClusterAmbiguities::const_iterator mapIter = mapBegin; mapIter != mapEnd; ++mapIter) {
-      const SiCluster *first = (*mapIter).first;
-      const SiCluster *second = (*mapIter).second;
+      const InDet::SiCluster *first = (*mapIter).first;
+      const InDet::SiCluster *second = (*mapIter).second;
       if (first == pixelPrepCluster && second != pixelPrepCluster) {
         ATH_MSG_DEBUG("Found additional split cluster in ambiguity map (+=1).");
         numberOfSubclusters += 1;
-        const SiCluster *otherOne = second;
+        const InDet::SiCluster *otherOne = second;
         const InDet::PixelCluster *pixelAddCluster = dynamic_cast<const InDet::PixelCluster *>(otherOne);
         if (pixelAddCluster == nullptr) {
           ATH_MSG_WARNING("Pixel ambiguity map has empty pixel cluster. Please DEBUG!");
@@ -605,10 +591,10 @@ InDet::ITkPixelClusterOnTrackTool::getErrorsDefaultAmbi(const InDet::PixelCluste
 }
 
 bool
-InDet::ITkPixelClusterOnTrackTool::getErrorsTIDE_Ambi(const InDet::PixelCluster *pixelPrepCluster,
-                                                   const Trk::TrackParameters &trackPar,
-                                                   Amg::Vector2D &finalposition,
-                                                   Amg::MatrixX &finalerrormatrix) const {
+PixelClusterOnTrackTool::getErrorsTIDE_Ambi(const InDet::PixelCluster *pixelPrepCluster,
+                                            const Trk::TrackParameters &trackPar,
+                                            Amg::Vector2D &finalposition,
+                                            Amg::MatrixX &finalerrormatrix) const {
   const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo &splitProb = getClusterSplittingProbability(pixelPrepCluster);
   std::vector<Amg::Vector2D> vectorOfPositions;
   int numberOfSubclusters = 1;
@@ -690,3 +676,5 @@ InDet::ITkPixelClusterOnTrackTool::getErrorsTIDE_Ambi(const InDet::PixelCluster 
   finalerrormatrix = allErrorMatrix[index];
   return true;
 }
+
+} // namespace ITk

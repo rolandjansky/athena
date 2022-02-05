@@ -7,7 +7,6 @@ Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "AthExJobOptions/AthExJobOptions_CustomTopAlgorithmJobOptions.py"
 /***** Algorithm AthSequencer/TopAlg ***************************************************************
-|-Atomic                         = False
 |-AuditAlgorithms                = False
 |-AuditExecute                   = False
 |-AuditFinalize                  = False
@@ -18,7 +17,6 @@ Py:Athena            INFO including file "AthExJobOptions/AthExJobOptions_Custom
 |-AuditStop                      = False
 |-Blocking                       = False
 |-Cardinality                    = 0
-|-ContinueEventloopOnFPE         = False
 |-DetStore                       = ServiceHandle('StoreGateSvc/DetectorStore')
 |-Enable                         = True
 |-ErrorCounter                   = 0

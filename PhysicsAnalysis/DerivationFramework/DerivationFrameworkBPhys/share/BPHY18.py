@@ -20,7 +20,7 @@ from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkEGamma.ElectronsCPContent import *
-
+from InDetRecExample import TrackingCommon
 isSimulation = False
 if globalflags.DataSource()=='geant4':
     isSimulation = True
@@ -172,6 +172,8 @@ BPHY18DiElectronSelectAndWrite = DerivationFramework__Reco_Vertex(
     VertexSearchTool             = BPHY18DiElectronFinder,
     OutputVtxContainerName = "BPHY18DiElectronCandidates",
     PVContainerName        = "PrimaryVertices",
+    V0Tools                = TrackingCommon.getV0Tools(),
+    PVRefitter             = BPHY18_VertexTools.PrimaryVertexRefitter,
     RefPVContainerName     = "SHOULDNOTBEUSED",
     DoVertexType           = 7
     )
@@ -184,6 +186,7 @@ BPHY18_Select_DiElectrons = DerivationFramework__Select_onia2mumu(
     name                  = "BPHY18_Select_DiElectrons",
     HypothesisName        = "Jpsi",
     InputVtxContainerName = "BPHY18DiElectronCandidates",
+    V0Tools               = TrackingCommon.getV0Tools(),
     VtxMassHypo           = 3096.916,
     MassMin               = 1.0,
     MassMax               = 7000.0,
@@ -249,6 +252,8 @@ BPHY18BeeKstSelectAndWrite  = DerivationFramework__Reco_Vertex(
     PVContainerName        = "PrimaryVertices",
     RefPVContainerName     = "BPHY18RefittedPrimaryVertices",
     RefitPV                = True,
+    V0Tools                = TrackingCommon.getV0Tools(),
+    PVRefitter             = BPHY18_VertexTools.PrimaryVertexRefitter,
     MaxPVrefit             = 10000,
     DoVertexType           = 7
     )
@@ -261,6 +266,7 @@ BPHY18_Select_BeeKst = DerivationFramework__Select_onia2mumu(
     name                  = "BPHY18_Select_BeeKst",
     HypothesisName        = "Bd", 
     InputVtxContainerName = "BeeKstCandidates",
+    V0Tools               = TrackingCommon.getV0Tools(),
     TrkMasses             = [0.511, 0.511, 493.677, 139.570],
     VtxMassHypo           = 5279.6, 
     MassMin               = 1.0,     
@@ -276,6 +282,7 @@ BPHY18_Select_BeeKstbar = DerivationFramework__Select_onia2mumu(
     name                  = "BPHY18_Select_Bd2JpsiKstbar",
     HypothesisName        = "Bdbar", 
     InputVtxContainerName = "BeeKstCandidates",
+    V0Tools               = TrackingCommon.getV0Tools(),
     TrkMasses             = [0.511, 0.511, 139.570, 493.677],
     VtxMassHypo           = 5279.6,
     MassMin               = 1.0,      
@@ -290,6 +297,7 @@ from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFram
 BPHY18_diMeson_revertex = DerivationFramework__ReVertex(
     name                   = "BPHY18_diMeson_revertex",
     InputVtxContainerName  = "BeeKstCandidates",
+    V0Tools                = TrackingCommon.getV0Tools(),
     TrackIndices           = [ 2, 3 ],
     TrkVertexFitterTool    = BeeKstVertexFit,
     OutputVtxContainerName = "BPHY18DiMeson"
@@ -302,6 +310,7 @@ BPHY18_Select_Kpi = DerivationFramework__Select_onia2mumu(
     name                  = "BPHY18_Select_Kpi",
     HypothesisName        = "Kpi", 
     InputVtxContainerName = "BPHY18DiMeson",
+    V0Tools               = TrackingCommon.getV0Tools(),
     TrkMasses             = [ 493.677, 139.570 ],
     VtxMassHypo           = 891.66, 
     MassMin               = 1.0,     
@@ -316,6 +325,7 @@ BPHY18_Select_piK = DerivationFramework__Select_onia2mumu(
     name                  = "BPHY18_Select_piK",
     HypothesisName        = "piK", 
     InputVtxContainerName = "BPHY18DiMeson",
+    V0Tools               = TrackingCommon.getV0Tools(),
     TrkMasses             = [ 139.570, 493.677 ],
     VtxMassHypo           = 891.66, 
     MassMin               = 1.0,     
@@ -438,13 +448,7 @@ fileName     = buildFileName( derivationFlags.WriteDAOD_BPHY18Stream )
 BPHY18Stream  = MSMgr.NewPoolRootStream( streamName, fileName )
 BPHY18Stream.AcceptAlgs(["BPHY18Kernel"])
 
-# Special lines for thinning
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
 
-BPHY18ThinningSvc = createThinningSvc( svcName="BPHY18ThinningSvc", outStreams=[evtStream] )
-svcMgr += BPHY18ThinningSvc
 
 #====================================================================
 # Slimming 

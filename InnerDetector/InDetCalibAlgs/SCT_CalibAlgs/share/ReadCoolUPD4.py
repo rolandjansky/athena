@@ -29,7 +29,7 @@ def openDatabase(dbstring):
   return db
 
 def formIov(runNumber):
-  s,u=((runNumber-1 ) << 32), ((runNumber + 1) << 32) - 1
+  s,u=((runNumber) << 32), ((runNumber + 1) << 32) - 1
   print ("formIOV: ", s, u)
   return s,u
 
@@ -40,16 +40,16 @@ def formIovFromTo(runNumberStart, runNumber):
   
 #CS this modification checks which was the k-last run before the processed one
 def getRunNumberStart(runNumber, k):
-    runlistfile = open("/afs/cern.ch/user/s/sctcalib/public/runlist.txt", "r")
+    runlistfile = open("/afs/cern.ch/user/s/sctcalib/scratch0/lastRuns.txt", "r")
     content = runlistfile.read()
     runlistfile.close()
     content_list = content.split("\n")
     content_list = [line for line in content_list if line.strip()]
     integer_int_list = list(map(int, content_list))
     if (runNumber >= integer_int_list[-1]):
-        RNS = integer_int_list[len(integer_int_list)-k]
+        RNS = integer_int_list[len(integer_int_list)-(k+5)]
     else:
-        RNS = integer_int_list[integer_int_list.index(runNumber)-k]
+        RNS = integer_int_list[integer_int_list.index(runNumber)-(k+5)]
     return RNS
   
 #############################################################################################
@@ -82,11 +82,16 @@ def GetRunList(dbstring, folder, tag, runNumber, k):
     Temp=sorted(temp)
     #print('GetRunList: array is', Temp)
     ls=[]
+    runtmp = -999
+    if ( Temp[0] != runNumber ):
+        ls.append(Temp[0])
+        runtmp = Temp[0]
     for i in range(len(Temp)-1):
-        if (Temp[i] != Temp[i+1]):
-             ls.append(Temp[i])
+        if (Temp[i] != runtmp):
+             if ( Temp[i] != runNumber ):
+                 ls.append(Temp[i])
+                 runtmp = Temp[i]
    
-    #ls.append(Temp[len(Temp)-1])
     print(ls)
 
     mylist=[]

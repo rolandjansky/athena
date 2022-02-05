@@ -22,7 +22,6 @@
 #include "CaloEvent/CaloCluster.h"
 #include "CaloGeoHelpers/proxim.h"
 #include "CaloEvent/CaloPrefetch.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloInterface/ILArHVFraction.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -272,6 +271,7 @@ StatusCode CaloClusterMomentsMaker::initialize()
   
   // retrieve the calo depth tool
   CHECK(m_caloDepthTool.retrieve());
+  ATH_CHECK(m_caloMgrKey.initialize());
 
   // retrieve specific servers and tools for selected processes
   if (m_calculateSignificance)  { ATH_CHECK(m_noiseCDOKey.initialize()); }
@@ -325,9 +325,10 @@ CaloClusterMomentsMaker::execute(const EventContext& ctx,
     noise=*noiseHdl;
   }
 
-
-  // Counters for number of empty and non-empty neighbor cells per sampling layer
-  // Only used when cluster isolation moment is calculated.
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{ m_caloMgrKey, ctx };
+  const CaloDetDescrManager* caloDDMgr = *caloMgrHandle;
+  // Counters for number of empty and non-empty neighbor cells per sampling
+  // layer Only used when cluster isolation moment is calculated.
   int nbEmpty[CaloCell_ID::Unknown];
   int nbNonEmpty[CaloCell_ID::Unknown];
 
@@ -828,23 +829,28 @@ CaloClusterMomentsMaker::execute(const EventContext& ctx,
 	      double r_calo(0),z_calo(0),lambda_c(0); 
 	      r_calo = m_caloDepthTool->get_entrance_radius(CaloCell_ID::EMB1,
 							    showerCenter.eta(),
-							    showerCenter.phi());
+							    showerCenter.phi(),
+                  caloDDMgr);
 	      if ( r_calo == 0 ) {
 		z_calo = m_caloDepthTool->get_entrance_z(CaloCell_ID::EME1,
 							 showerCenter.eta(),
-							 showerCenter.phi());
+							 showerCenter.phi(),
+               caloDDMgr);
 		if ( z_calo == 0 ) 
 		  z_calo = m_caloDepthTool->get_entrance_z(CaloCell_ID::EME2,
 							   showerCenter.eta(),
-							   showerCenter.phi());
+							   showerCenter.phi(),
+                 caloDDMgr);
 		if ( z_calo == 0 ) 
 		  z_calo = m_caloDepthTool->get_entrance_z(CaloCell_ID::FCAL0,
 							   showerCenter.eta(),
-							   showerCenter.phi());
+							   showerCenter.phi(),
+                 caloDDMgr);
 		if ( z_calo == 0 ) // for H6 TB without EMEC outer wheel 
 		  z_calo = m_caloDepthTool->get_entrance_z(CaloCell_ID::HEC0,
 							   showerCenter.eta(),
-							   showerCenter.phi());
+							   showerCenter.phi(),
+                 caloDDMgr);
 		if ( z_calo != 0 && showerAxis.z() != 0 ) {
 		  lambda_c = fabs((z_calo-showerCenter.z())/showerAxis.z());
 		}

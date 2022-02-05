@@ -70,7 +70,7 @@ fi
 
 touch $summaryFile
 
-if ! which AtlCoolCopy.exe 1>/dev/null 2>&1
+if ! which AtlCoolCopy 1>/dev/null 2>&1
 then
     echo "No offline setup found!"
     exit
@@ -168,11 +168,11 @@ echo "        Look at the file hvlist.txt for the full list of these channels"
 
 echo " "
 #echo "Make online folder for HVcorr sqlite file"
-#AtlCoolCopy.exe "sqlite://;schema=myDB200_hvDummy.db;dbname=CONDBR2" "sqlite://;schema=myDB200_hvOnline.db;dbname=CONDBR2" -f /LAR/ElecCalibOfl/HVScaleCorr -of /LAR/ElecCalibOnl/HVScaleCorr -fs -alliov -create >& mergedb.log 
+#AtlCoolCopy "sqlite://;schema=myDB200_hvDummy.db;dbname=CONDBR2" "sqlite://;schema=myDB200_hvOnline.db;dbname=CONDBR2" -f /LAR/ElecCalibOfl/HVScaleCorr -of /LAR/ElecCalibOnl/HVScaleCorr -fs -alliov -create >& mergedb.log 
 #/afs/cern.ch/user/l/larcalib/LArDBTools/python/setOnlineMode.py myDB200_hvOnline.db
 
 #echo "create UPD3 tag for HV corr "
-#AtlCoolCopy.exe  "sqlite://;schema=myDB200_hvDummy.db;dbname=CONDBR2" "sqlite://schema=myDB200_UPD3.db;dbname=CONDBR2" -f  /LAR/ElecCalibOfl/HVScaleCorr -of /LAR/ElecCalibOfl/HVScaleCorr -ot LARElecCalibOflHVScaleCorr-UPD3-00 -nrls ${run} ${lb} -create -alliov >> mergedb.log 
+#AtlCoolCopy  "sqlite://;schema=myDB200_hvDummy.db;dbname=CONDBR2" "sqlite://schema=myDB200_UPD3.db;dbname=CONDBR2" -f  /LAR/ElecCalibOfl/HVScaleCorr -of /LAR/ElecCalibOfl/HVScaleCorr -ot LARElecCalibOflHVScaleCorr-UPD3-00 -nrls ${run} ${lb} -create -alliov >> mergedb.log 
 
 # Now compute new L1Calo corrections based on new LArHV corr
 cat > getGlobalTagES.py << _EOF5_
@@ -272,12 +272,12 @@ echo " "
 cp larnoisesqlite.db tempdb.db
 
 echo "Make UPD1 offline folder for noise "
-AtlCoolCopy.exe "sqlite://;schema=tempdb.db;dbname=CONDBR2" "sqlite://;schema=larnoisesqlite.db;dbname=CONDBR2" -f /LAR/NoiseOfl/CellNoise -t ${fulltag} -ot  LARNoiseOflCellNoise-RUN2-UPD1-00 -create >> mergedb.log 
+AtlCoolCopy "sqlite://;schema=tempdb.db;dbname=CONDBR2" "sqlite://;schema=larnoisesqlite.db;dbname=CONDBR2" -f /LAR/NoiseOfl/CellNoise -t ${fulltag} -ot  LARNoiseOflCellNoise-RUN2-UPD1-00 -create >> mergedb.log 
 
 /bin/rm tempdb.db
 
 echo "Make UPD1 online folder for noise "
-AtlCoolCopy.exe "sqlite://;schema=larnoisesqlite.db;dbname=CONDBR2" "sqlite://;schema=caloSqlite_UPD1_online.db;dbname=CONDBR2" -f /LAR/NoiseOfl/CellNoise -of /CALO/Noise/CellNoise -t ${fulltag} -ot CaloNoiseCellnoise-RUN2-UPD1-00 -create >> mergedb.log 
+AtlCoolCopy "sqlite://;schema=larnoisesqlite.db;dbname=CONDBR2" "sqlite://;schema=caloSqlite_UPD1_online.db;dbname=CONDBR2" -f /LAR/NoiseOfl/CellNoise -of /CALO/Noise/CellNoise -t ${fulltag} -ot CaloNoiseCellnoise-RUN2-UPD1-00 -create >> mergedb.log 
 
 echo "Doing check of the noise sqlite against P1HLT cache....."
 echo "Will take 3-5 minutes, be patient......"

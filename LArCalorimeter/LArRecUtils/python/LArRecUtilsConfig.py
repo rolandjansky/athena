@@ -1,6 +1,6 @@
 """ComponentAccumulator configuration utilities for LArRecUtils
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -61,6 +61,45 @@ def LArOFCCondAlgCfg (flags, name = 'LArOFCCondAlg', **kwargs):
     return acc
 
 
+def LArOFCSCCondAlgCfg (flags, name = 'LArOFCSCCondAlg', **kwargs):
+
+    mlog = logging.getLogger ('LArOFCSCCondAlgCfg')
+    mlog.info(" entering LArOFCSCCondAlgCfg")
+
+    kwargs.setdefault ('isMC', True)
+    kwargs.setdefault ('isSuperCell', True)
+    kwargs.setdefault ('firstSample', flags.LAr.ROD.FirstSample)
+    kwargs.setdefault ('useHighestGainAutoCorr', flags.LAr.ROD.UseHighestGainAutoCorr)
+
+    from LArCabling.LArCablingConfig import LArOnOffIdMappingSCCfg
+    acc = LArOnOffIdMappingSCCfg(flags)
+    kwargs.setdefault("LArOnOffIdMappingObjKey", 'LArOnOffIdMapSC') # Provided by LArOnOffMappingAlgSC
+    requiredConditions=["ShapeSC","PedestalSC","NoiseSC"]
+    from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDBMCSCCfg
+    acc.merge(LArElecCalibDBMCSCCfg(flags,requiredConditions))
+    kwargs.setdefault("LArShapeObjKey", 'LArShapeSC') # Provided by LArFlatConditionsAlg<LArShapeSC>
+    kwargs.setdefault("LArNoiseObjKey", 'LArNoiseSC') # Provided by LArFlatConditionsAlg<LArNoiseSC>
+    kwargs.setdefault("LArPedestalObjKey", 'LArPedestalSC') # Provided by LArFlatConditionsAlg<LArPedestalSC>
+
+    acc.merge(LArAutoCorrTotalSCCondAlgCfg(flags))
+    kwargs.setdefault("LArAutoCorrTotalObjKey", 'LArAutoCorrTotalSC') # Provided by LArAutoCorrTotalSCCondAlg
+    kwargs.setdefault("LArOFCObjKey", 'LArOFCSC') # Output
+
+    if flags.LAr.ROD.DoOFCPileupOptimization:
+        if flags.LAr.ROD.NumberOfCollisions:
+            kwargs.setdefault('Nminbias',flags.LAr.ROD.NumberOfCollisions)
+            mlog.info("Setup LArOFCCOndAlg Nminbias %f ", flags.LAr.ROD.NumberOfCollisions)
+        else:
+            kwargs.setdefault('Nminbias',flags.Beam.NumberOfCollisions)
+            mlog.info("Setup LArOFCCOndAlg Nminbias %f ", flags.Beam.NumberOfCollisions)
+    else:
+         kwargs.setdefault('Nminbias',0.)
+         mlog.info(" no pileup optimization")
+
+    acc.addCondAlgo (CompFactory.LArOFCCondAlg (name, **kwargs))
+    return acc
+
+
 def LArAutoCorrTotalCondAlgCfg (flags, name = 'LArAutoCorrTotalCondAlg', **kwargs):
     mlog = logging.getLogger ('LArAutoCorrTotalCondAlgCfg')
     mlog.info(" entering LArAutoCorrTotalCondAlgCfg")
@@ -95,6 +134,74 @@ def LArAutoCorrTotalCondAlgCfg (flags, name = 'LArAutoCorrTotalCondAlg', **kwarg
     return acc
 
 
+def LArAutoCorrTotalSCCondAlgCfg (flags, name = 'LArAutoCorrTotalSCCondAlg', **kwargs):
+    mlog = logging.getLogger ('LArAutoCorrTotalSCCondAlgCfg')
+    mlog.info(" entering LArAutoCorrTotalSCCondAlgCfg")
+    from AthenaCommon.SystemOfUnits import ns
+
+    acc = LArOnOffIdMappingCfg(flags)
+    kwargs.setdefault("LArOnOffIdMappingObjKey", 'LArOnOffIdMapSC') # Provided by LArOnOffMappingAlgSC
+
+    from LArRecUtils.LArADC2MeVSCCondAlgConfig import LArADC2MeVSCCondAlgCfg
+    acc.merge(LArADC2MeVSCCondAlgCfg(flags))
+    kwargs.setdefault("LArADC2MeVObjKey", 'LArADC2MeVSC') # Provided by LArADC2MeVSCCondAlg
+
+    requiredConditons=["ShapeSC","AutoCorrSC","NoiseSC","PedestalSC","fSamplSC","MinBiasSC"]
+    from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDBMCSCCfg
+    acc.merge(LArElecCalibDBMCSCCfg(flags,requiredConditons))
+    kwargs.setdefault("LArShapeObjKey", 'LArShapeSC') # Provided by LArFlatConditionsAlg<LArShapeSC>
+    kwargs.setdefault("LArAutoCorrObjKey", 'LArAutoCorrSC')# Provided by LArFlatConditionsAlg<LArAutoCorrSC>
+    kwargs.setdefault("LArNoiseObjKey", 'LArNoiseSC') # Provided by LArFlatConditionsAlg<LArNoiseSC>
+    kwargs.setdefault("LArPedestalObjKey", 'LArPedestalSC') # Provided by LArFlatConditionsAlg<LArPedestalSC>
+    kwargs.setdefault("LArfSamplObjKey", 'LArfSamplSC') # Provided by LArFlatConditionsAlg<LArfSamplSC>
+    kwargs.setdefault("LArMinBiasObjKey", 'LArMinBiasSC') # Provided by LArFlatConditionsAlg<LArMinBiasSC>
+
+    kwargs.setdefault("LArAutoCorrTotalObjKey", 'LArAutoCorrTotalSC') # Output
+
+    kwargs.setdefault("isSuperCell", True)
+    kwargs.setdefault('Nsamples', flags.LAr.ROD.nSamples)
+    kwargs.setdefault('firstSample',flags.LAr.ROD.FirstSample)
+    mlog.info("Nsamples %d",flags.LAr.ROD.nSamples)
+    mlog.info("firstSample %d",flags.LAr.ROD.FirstSample)
+    deltaBunch = int(flags.Beam.BunchSpacing/( 25.*ns)+0.5)
+    mlog.info("DeltaBunch %d " , deltaBunch)
+    kwargs.setdefault('deltaBunch',deltaBunch)
+
+    if flags.LAr.ROD.DoOFCPileupOptimization:
+        if flags.LAr.ROD.NumberOfCollisions:
+            kwargs.setdefault("Nminbias", flags.LAr.ROD.NumberOfCollisions)
+            mlog.info(" NMminBias %f", flags.LAr.ROD.NumberOfCollisions)
+        else:
+            kwargs.setdefault("Nminbias", flags.Beam.NumberOfCollisions)
+            mlog.info(" NMminBias %f", flags.Beam.NumberOfCollisions)
+    else:
+        kwargs.setdefault('Nminbias',0.)
+        mlog.info(" no pileup noise in LArAutoCorrTotal ")
+
+    LArAutoCorrTotalCondAlg=CompFactory.LArAutoCorrTotalCondAlg
+    acc.addCondAlgo (LArAutoCorrTotalCondAlg (name, **kwargs))
+    return acc
+
+
+def LArRoIMapCondAlgCfg (flags, name = 'LArRoIMapCondAlg', **kwargs):
+    acc = ComponentAccumulator()
+
+    from LArCabling.LArCablingConfig import LArFebRodMappingCfg, LArOnOffIdMappingCfg
+    acc.merge (LArFebRodMappingCfg (flags))
+    acc.merge (LArOnOffIdMappingCfg (flags))
+
+    from CaloConditions.CaloConditionsConfig import LArTTCellMapCfg, CaloTTIdMapCfg
+    acc.merge(LArTTCellMapCfg(flags))
+    acc.merge(CaloTTIdMapCfg(flags))
+
+    CaloTriggerTowerService = CompFactory.CaloTriggerTowerService # CaloTriggerTool
+    kwargs.setdefault ('TriggerTowerSvc', CaloTriggerTowerService())
+    
+    LArRoIMapCondAlg = CompFactory.LArRoIMapCondAlg
+    acc.addCondAlgo (LArRoIMapCondAlg (name, **kwargs))
+    return acc
+
+
 if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
@@ -104,15 +211,25 @@ if __name__ == "__main__":
 
     print ('--- LArOFCCondAlg 1')
     flags1 = ConfigFlags.clone()
-    flags1.Input.Files = defaultTestFiles.RDO
+    flags1.Input.Files = defaultTestFiles.RDO_RUN2
+    flags1.lock()
     acc1 = LArOFCCondAlgCfg (flags1)
     acc1.printCondAlgs(summariseProps=True)
     acc1.wasMerged()
 
     print ('--- LArAutoCorrTotalCondAlg')
     flags4 = ConfigFlags.clone()
-    flags4.Input.Files = defaultTestFiles.RDO
+    flags4.Input.Files = defaultTestFiles.RDO_RUN2
     flags4.LAr.ROD.nSamples = 32
+    flags4.lock()
     acc4 = LArAutoCorrTotalCondAlgCfg (flags4)
     acc4.printCondAlgs(summariseProps=True)
     acc4.wasMerged()
+
+    print ('--- LArRoIMapCondAlg')
+    flags5 = ConfigFlags.clone()
+    flags5.Input.Files = defaultTestFiles.RDO_RUN2
+    flags5.lock()
+    acc5 = LArRoIMapCondAlgCfg (flags5)
+    acc5.printCondAlgs(summariseProps=True)
+    acc5.wasMerged()

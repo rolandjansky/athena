@@ -14,6 +14,7 @@
 // EDM include(s):
 #include "xAODTracking/TrackParticleContainer.h"
 //#include "TrkTrack/TrackCollection.h"
+#include "TrkValInterfaces/ITrkObserverTool.h"
 
 // Forward declaration(s):
 namespace Rec {
@@ -38,6 +39,10 @@ namespace xAODMaker {
     /// Function that fills an existing xAOD::TrackParticleContainer
     virtual StatusCode convert( const Rec::TrackParticleContainer* aod,
 				xAOD::TrackParticleContainer* xaod ) const = 0;
+
+    /// Function that fills an existing xAOD::TrackParticleContainer and augments track particles
+    virtual StatusCode convertAndAugment( const Rec::TrackParticleContainer* aod,
+				xAOD::TrackParticleContainer* xaod, const ObservedTrackMap* trk_map ) const = 0;
 
     virtual StatusCode setParticleCreatorTool(ToolHandle<Trk::ITrackParticleCreatorTool> *tool) = 0;
     

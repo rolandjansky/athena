@@ -12,7 +12,7 @@ Reco_tf.py \
 --maxEvents=50 \
 --ignoreErrors=False \
 --inputBSFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/expressstream_input_data18/data18_13TeV.00357750.express_express.merge.RAW._lb0091._SFO-ALL._0001.1 \
---conditionsTag='CONDBR2-BLKPA-RUN2-06' \
+--conditionsTag='CONDBR2-BLKPA-RUN2-09' \
 --geometryVersion='ATLAS-R2-2016-01-00-01' \
 --outputESDFile=myESD_express_0.pool.root --outputAODFile=myAOD_express_0.AOD.pool.root --outputHISTFile=myMergedMonitoring_express_0.root --imf False
 

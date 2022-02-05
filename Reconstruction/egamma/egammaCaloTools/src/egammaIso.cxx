@@ -45,28 +45,28 @@ StatusCode egammaIso::execute(const xAOD::CaloCluster& cluster,
     // define a new Calo Cell list corresponding to HAD Calo
     // retrieve the corresponding CaloCell_ID for LarHec and TILE
    // define a new Calo Cell list
-    CaloCellList HADCellList(&cellcoll, theVecCalo);
+    CaloCellList HADCellList(&cmgr,&cellcoll, theVecCalo);
     // increase window size a bit to avoid problems due to 4cm shift.
     // considering that in the tile the granularity is 0.1, the value
     // choosen below is safe. All hadrons in 0.2X0.2
-    HADCellList.select(cmgr,eta,phi,size,size);       
+    HADCellList.select(eta,phi,size,size);       
     ehad +=HADCellList.energy(); 
-    HADCellList.select(cmgr,eta,phi,size,size,CaloSampling::TileGap3);       
+    HADCellList.select(eta,phi,size,size,CaloSampling::TileGap3);       
     egap +=HADCellList.energy(); 
 
-    HADCellList.select(cmgr,eta,phi,size,size,CaloSampling::HEC0);       
+    HADCellList.select(eta,phi,size,size,CaloSampling::HEC0);       
     info.ehad1 +=HADCellList.energy(); 
 
-    HADCellList.select(cmgr,eta,phi,size,size,CaloSampling::TileBar0);       
+    HADCellList.select(eta,phi,size,size,CaloSampling::TileBar0);       
     info.ehad1 +=HADCellList.energy(); 
 
     // Fix had leakage in crack (TileGap1 and TileGap2 missing before 14.2)
-    HADCellList.select(cmgr,eta,phi,size,size,CaloSampling::TileGap1);
+    HADCellList.select(eta,phi,size,size,CaloSampling::TileGap1);
     info.ehad1 +=HADCellList.energy();
-    HADCellList.select(cmgr,eta,phi,size,size,CaloSampling::TileGap2);       
+    HADCellList.select(eta,phi,size,size,CaloSampling::TileGap2);       
     info.ehad1 +=HADCellList.energy(); 
 
-    HADCellList.select(cmgr,eta,phi,size,size,CaloSampling::TileExt0);       
+    HADCellList.select(eta,phi,size,size,CaloSampling::TileExt0);       
     info.ehad1 +=HADCellList.energy(); 
 
     const double eta2 = cluster.etaBE(2);

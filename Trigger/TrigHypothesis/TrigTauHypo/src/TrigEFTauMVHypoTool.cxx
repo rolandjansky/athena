@@ -48,26 +48,21 @@ StatusCode TrigEFTauMVHypoTool::initialize()
   ATH_MSG_INFO( " REGTEST: ------ ");
 
   if( (m_numTrackMin >  m_numTrackMax) || m_level == -1 || (m_highptidthr > m_highptjetthr))
-    {
-      ATH_MSG_ERROR( "TrigEFTauMVHypoTool is uninitialized! " );
-      return StatusCode::FAILURE;
-    }
+  {
+    ATH_MSG_ERROR( "TrigEFTauMVHypoTool is uninitialized! " );
+    return StatusCode::FAILURE;
+  }
   
-  // Likelihood ID no longer supported
-  if( m_method == 1)
-    {
-      ATH_MSG_ERROR( "Likelihood identification discontinued!" );
-      return StatusCode::FAILURE;
-    }
-  else if( m_method == 0 && m_level != -1111)
-    {
-      ATH_MSG_ERROR( "Incorrect combination of Method and Level." );
-      return StatusCode::FAILURE;
-    }else if((m_level<0 && m_level!=-1111) || m_level>3 )
-    {
-      ATH_MSG_ERROR( "Incorrect Level value provided.");
-      return StatusCode::FAILURE;
-   }
+  if( m_method == 0 && m_level != -1111)
+  {
+    ATH_MSG_ERROR( "Incorrect combination of Method and Level." );
+    return StatusCode::FAILURE;
+  } 
+  else if((m_level<0 && m_level!=-1111) || m_level>3 )
+  {
+    ATH_MSG_ERROR( "Incorrect Level value provided.");
+    return StatusCode::FAILURE;
+  }
 
   ATH_MSG_INFO( "Initialization of EFTauMVHypo completed successfully." );
 
@@ -84,12 +79,19 @@ bool TrigEFTauMVHypoTool::decide(const ITrigEFTauMVHypoTool::TauJetInfo& input )
 
   using namespace Monitored;
 
-  auto PassedCuts         = Monitored::Scalar<int>( "CutCounter", -1 );
-  auto ptAccepted         = Monitored::Scalar<float>( "ptAccepted", -1);
-  auto nTrackAccepted	  = Monitored::Scalar<int>( "nTrackAccepted", -1);
-  auto nWideTrackAccepted = Monitored::Scalar<int>( "nWideTrackAccepted", -1);
-  auto ninputTaus         = Monitored::Scalar<int>( "nInputTaus", -1);
-  auto monitorIt          = Monitored::Group(m_monTool, PassedCuts, ptAccepted,  nTrackAccepted, nWideTrackAccepted, ninputTaus);
+  auto PassedCuts          = Monitored::Scalar<int>( "CutCounter", -1 );
+  auto ptAccepted          = Monitored::Scalar<float>( "ptAccepted", -1);
+  auto nTrackAccepted	   = Monitored::Scalar<int>( "nTrackAccepted", -1);
+  auto nWideTrackAccepted  = Monitored::Scalar<int>( "nWideTrackAccepted", -1);
+  auto ninputTaus          = Monitored::Scalar<int>( "nInputTaus", -1);
+  auto RNNJetScore_0p         = Monitored::Scalar<float>( "RNNJetScoreAccepted_0p", -1);
+  auto RNNJetScoreSigTrans_0p = Monitored::Scalar<float>( "RNNJetScoreSigTransAccepted_0p", -1);
+  auto RNNJetScore_1p         = Monitored::Scalar<float>( "RNNJetScoreAccepted_1p", -1);
+  auto RNNJetScoreSigTrans_1p = Monitored::Scalar<float>( "RNNJetScoreSigTransAccepted_1p", -1);
+  auto RNNJetScore_mp         = Monitored::Scalar<float>( "RNNJetScoreAccepted_mp", -1);
+  auto RNNJetScoreSigTrans_mp = Monitored::Scalar<float>( "RNNJetScoreSigTransAccepted_mp", -1);  
+
+  auto monitorIt = Monitored::Group(m_monTool, PassedCuts, ptAccepted,  nTrackAccepted, nWideTrackAccepted, ninputTaus, RNNJetScore_0p, RNNJetScoreSigTrans_0p, RNNJetScore_1p, RNNJetScoreSigTrans_1p, RNNJetScore_mp, RNNJetScoreSigTrans_mp );
 
   // general reset
   PassedCuts = 0;
@@ -163,62 +165,51 @@ bool TrigEFTauMVHypoTool::decide(const ITrigEFTauMVHypoTool::TauJetInfo& input )
  
     //No tau ID
     if(m_method == 0)
-      {
-	  pass = true;
-	  PassedCuts++;
-	  break;
-	}
-    else if(m_method == 2)
-      {
-	double bdtscore = Tau->discriminant(xAOD::TauJetParameters::BDTJetScore);
-	
-	ATH_MSG_DEBUG( " REGTEST: BDTScore "<<bdtscore);
-	
-	if(local_level == -1111)
-	  { //noCut, accept this TE
-	    pass = true;
-	    PassedCuts++;
-	    break;
-	  }
-	
-	if (local_level == 1 && Tau->isTau(xAOD::TauJetParameters::JetBDTSigLoose) == 0)
-	  continue;
-	else if (local_level == 2 && Tau->isTau(xAOD::TauJetParameters::JetBDTSigMedium) == 0)
-	  continue;
-	else if (local_level == 3  && Tau->isTau(xAOD::TauJetParameters::JetBDTSigTight) == 0)
-	  continue;
-	
-	PassedCuts++;
-      }    // RNN
-    else if(m_method == 3)
-      {
-   if(!Tau->hasDiscriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans))
-     ATH_MSG_WARNING( "RNNJetScoreSigTrans not available. Make sure TauWPDecorator is run for RNN!" );
+    {
+      pass = true;
+      PassedCuts++;
+      break;
+    }
+    else if(m_method == 1)
+    {
+      if(!Tau->hasDiscriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans))
+      ATH_MSG_WARNING( "RNNJetScoreSigTrans not available. Make sure TauWPDecorator is run for RNN!" );
     
-   ATH_MSG_DEBUG( "REGTEST: RNNJetScoreSigTrans "<< Tau->discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans) );
+      ATH_MSG_DEBUG( "REGTEST: RNNJetScoreSigTrans "<< Tau->discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans) );
     
-   if(local_level == -1111)
-     { //noCut, accept this TE
-       pass = true;
-       PassedCuts++;
-       break;
-     }
-   if (local_level == 0 && Tau->isTau(xAOD::TauJetParameters::JetRNNSigVeryLoose) == 0)  
-     continue;
-   else if (local_level == 1 && Tau->isTau(xAOD::TauJetParameters::JetRNNSigLoose) == 0)
-     continue;
-   else if (local_level == 2 && Tau->isTau(xAOD::TauJetParameters::JetRNNSigMedium) == 0)
-     continue;
-   else if (local_level == 3  && Tau->isTau(xAOD::TauJetParameters::JetRNNSigTight) == 0)
-     continue;
-   
-   PassedCuts++;
+      if(local_level == -1111)
+      {  //noCut, accept this TE
+         pass = true;
+         PassedCuts++;
+         break;
       }
+      if (local_level == 0 && Tau->isTau(xAOD::TauJetParameters::JetRNNSigVeryLoose) == 0)  
+         continue;
+      else if (local_level == 1 && Tau->isTau(xAOD::TauJetParameters::JetRNNSigLoose) == 0)
+         continue;
+      else if (local_level == 2 && Tau->isTau(xAOD::TauJetParameters::JetRNNSigMedium) == 0)
+         continue;
+      else if (local_level == 3  && Tau->isTau(xAOD::TauJetParameters::JetRNNSigTight) == 0)
+         continue;
+
+      PassedCuts++;
+
+      if(Tau->nTracks() == 0){
+         RNNJetScore_0p = Tau->discriminant(xAOD::TauJetParameters::RNNJetScore);
+         RNNJetScoreSigTrans_0p = Tau->discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans);
+      } else if ( Tau->nTracks() == 1 ) {
+         RNNJetScore_1p = Tau->discriminant(xAOD::TauJetParameters::RNNJetScore);
+         RNNJetScoreSigTrans_1p = Tau->discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans);
+      } else {
+         RNNJetScore_mp = Tau->discriminant(xAOD::TauJetParameters::RNNJetScore);
+         RNNJetScoreSigTrans_mp = Tau->discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans);
+      }
+    }
     else
-      {
-	ATH_MSG_ERROR( " no valid method defined ");	
-	continue;
-      }
+    {
+       ATH_MSG_ERROR( " no valid method defined ");	
+       continue;
+    }
     
     //-------------------------------------------------
     // At least one Tau matching passed all cuts.
@@ -232,14 +223,14 @@ bool TrigEFTauMVHypoTool::decide(const ITrigEFTauMVHypoTool::TauJetInfo& input )
   } // end of loop in tau objects.
   
   if(pass)
-    {
-	   ATH_MSG_DEBUG( " REGTEST: TE accepted !! ");
-      // activate Trigger Element.
-    }
+  {
+    ATH_MSG_DEBUG( " REGTEST: TE accepted !! ");
+    // activate Trigger Element.
+  }
   else
-    {
-	   ATH_MSG_DEBUG( " REGTEST: No good tau found !! TE rejected ");
-    }
+  {
+    ATH_MSG_DEBUG( " REGTEST: No good tau found !! TE rejected ");
+  }
   
   return pass;
   

@@ -1,0 +1,18 @@
+#
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#
+# Post-processing of histograms from Tile TMDB monitoring
+## Separate blocks with ---
+---
+Input: [ 'Tile/TMDBDigits/TMDB_DigitsPedestal_(?P<partition>[L|E]B[C|A])' ]
+Output: [ 'Tile/TMDBDigits/TMDB_DigitsLFN_{partition}' ]
+Function: TileMonitoring.TilePostProcessing.getProfile2D_RMS
+Parameters: { title: 'LFN in TMDB', name: 'TMDB_DigitsLFN' }
+Description: Produce Tile TMDB 2D plots with LFN per partition
+---
+Input: [ 'Tile/TMDB/TMDB_Energy_(?P<partition>[L|E]B[C|A])' ]
+Output: [ 'Tile/TMDB/TMDB_Noise_{partition}' ]
+Function: TileMonitoring.TilePostProcessing.getProfile2D_RMS
+Parameters: { title: 'Noise [MeV] in TMDB', name: 'TMDB_Noise'}
+Description: Produce Tile TMDB 2D plots with noise per partition
+

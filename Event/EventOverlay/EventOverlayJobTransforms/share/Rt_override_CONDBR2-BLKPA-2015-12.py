@@ -11,7 +11,7 @@ conddb.addFolderWithTag("MDT_OFL","/MDT/RTBLOB","MDTRT_Sim-04-BLOB",force=True,f
 
 #from Guillaume
 conddb.blockFolder("/LAR/LArCellPositionShift");
-conddb.addFolderWithTag("LAR_OFL","/LAR/LArCellPositionShift","LArCellPositionShift-ideal",force=True,forceMC=True); 
+conddb.addFolderWithTag("LAR_OFL","/LAR/LArCellPositionShift","LArCellPositionShift-ideal",force=True,forceMC=True,className="CaloRec::CaloCellPositionShift");
 conddb.addOverride("/LAR/ElecCalibOfl/Shape/RTM/4samples1phase","LARElecCalibOflShapeRTM4samples1phase-RUN2-UPD4-00")
 conddb.addOverride("/LAR/ElecCalibOfl/OFC/PhysWave/RTM/4samples1phase","LARElecCalibOflOFCPhysWaveRTM4samples1phase-RUN2-UPD4-00")
 svcMgr.PoolSvc.ReadCatalog+=["xmlcatalog_file:"+"/cvmfs/atlas-condb.cern.ch/repo/conditions/poolcond/PoolFileCatalog.xml"]
@@ -26,6 +26,10 @@ conddb.addFolderWithTag("TRT_OFL","/TRT/Cond/DigVers","TRTCondDigVers-Collisions
 ###################################################
 printfunc ("RT OVERRIDE, for CONDBR2-BLKPA-2015-12")
 #See https://atlas-tagservices.cern.ch/tagservices/RunBrowser/runBrowserReport/rBR_CB_Report.php?CBAction=GlobalTagReport&cbgt=CONDBR2-BLKPA-2015-15#INDET
+
+# Required for older global conditions tags after https://gitlab.cern.ch/atlas/athena/-/merge_requests/49827 is merged
+conddb.addOverride("/TRT/Calib/PID_NN", "TRTCalibPID_NN_v1")
+conddb.addOverride("/TRT/Onl/Calib/PID_NN", "TRTCalibPID_NN_v1")
 
 ###These are not really needed anymore during overlay. Setup in muAlign_reco.py for reco.
 #TRT T0 constants

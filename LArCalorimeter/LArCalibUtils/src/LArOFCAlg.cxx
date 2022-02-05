@@ -13,7 +13,6 @@
 #include "LArRawConditions/LArOFCComplete.h"
 #include "LArRawConditions/LArOFCBinComplete.h"
 #include "LArRawConditions/LArPhysCaliTdiffComplete.h"
-#include "LArCOOLConditions/LArDSPConfig.h"
 #include "CoralBase/Blob.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
@@ -33,11 +32,10 @@
 
 LArOFCAlg::LArOFCAlg(const std::string& name, ISvcLocator* pSvcLocator) 
 	: AthAlgorithm(name, pSvcLocator),
-          m_calo_dd_man(nullptr),
+	  m_calo_dd_man(nullptr),
           m_onlineID(nullptr),
 	  m_larPhysWaveBin(nullptr),
-	  m_groupingType("SubDetector"), // SubDetector, Single, FeedThrough
-          m_DSPConfig(nullptr)
+	  m_groupingType("SubDetector") // SubDetector, Single, FeedThrough
 {
 
   declareProperty("Nsample",m_nSamples = 5);
@@ -75,9 +73,6 @@ LArOFCAlg::LArOFCAlg(const std::string& name, ISvcLocator* pSvcLocator)
 
   declareProperty("UseDelta",          m_useDelta=0); // 0= not use Delta, 1=only EMECIW/HEC/FCAL, 2=all , 3 = only EMECIW/HEC/FCAL1+high eta FCAL2-3
   declareProperty("UseDeltaV2",        m_useDeltaV2=0); // 0= not use Delta, 1=only EMECIW/HEC/FCAL, 2=all , 3 = only EMECIW/HEC/FCAL1+high eta FCAL2-3
-
-  declareProperty("DecoderTool",       m_AutoCorrDecoder); 
-  declareProperty("DecoderToolV2",       m_AutoCorrDecoderV2); 
 
   declareProperty("RunThreaded",       m_runThreaded=false);
 
@@ -145,8 +140,14 @@ StatusCode LArOFCAlg::initialize(){
     }
   }
   
-  ATH_CHECK( m_cablingKey.initialize() );
-  if ( m_isSC ) ATH_CHECK( m_cablingKeySC.initialize() );
+  if ( m_isSC ) {
+    ATH_CHECK( m_cablingKeySC.initialize() );
+    ATH_CHECK( m_caloSuperCellMgrKey.initialize() );
+  }
+  else {
+    ATH_CHECK( m_cablingKey.initialize() );
+    ATH_CHECK( m_caloMgrKey.initialize() );
+  }
 
   ATH_MSG_INFO( "Number of wave points needed : " << m_nPoints  ) ;
   if (m_computeV2) {
@@ -169,52 +170,28 @@ StatusCode LArOFCAlg::stop()
   ATH_MSG_INFO( "Spacing between two phases   : " << m_dPhases  ) ;
 
   
-  const LArOnOffIdMapping* cabling(0);
-  if( m_isSC ){
+  const LArOnOffIdMapping* cabling{nullptr};
+  if(m_isSC) {
     SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKeySC};
-    cabling = {*cablingHdl};
-    if(!cabling) {
-      ATH_MSG_ERROR("Do not have mapping object " << m_cablingKeySC.key());
-      return StatusCode::FAILURE;
-    }
-        
-  }else{
-    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
-    cabling = {*cablingHdl};
-    if(!cabling) {
-      ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key());
-      return StatusCode::FAILURE;
+    ATH_CHECK(cablingHdl.isValid());
+    cabling = *cablingHdl;
+
+    if (m_useDelta == 3 || m_useDeltaV2==3){
+      SG::ReadCondHandle<CaloSuperCellDetDescrManager> caloSuperCellMgrHandle{m_caloSuperCellMgrKey};
+      ATH_CHECK(caloSuperCellMgrHandle.isValid());
+      m_calo_dd_man = *caloSuperCellMgrHandle;
     }
   }
+  else {
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    ATH_CHECK(cablingHdl.isValid());
+    cabling = *cablingHdl;
 
-
-
-  StatusCode sc;
-  if (m_useDelta == 3 || m_useDeltaV2==3){
-    if ( m_isSC ) {
-      const CaloSuperCellDetDescrManager* ll;
-      sc = detStore()->retrieve(ll, "CaloSuperCellDetDescrManager");
-      if (sc.isFailure()) {
-	msg(MSG::ERROR) << "Could not get CaloSuperCellDetDescrManager helper !" << endmsg;
-	return StatusCode::FAILURE;
-      }
-      else {
-	m_calo_dd_man = (const CaloDetDescrManager_Base*)ll;
-	ATH_MSG_DEBUG("Found the CaloSuperCellDetDescrManager helper");
-      }
-    } else { // m_isSC
-      const CaloDetDescrManager* ll;
-      sc = detStore()->retrieve(ll, "CaloDetDescrManager");
-      if (sc.isFailure()) {
-	msg(MSG::ERROR) << "Could not get CaloDetDescrManager helper !" << endmsg;
-	return StatusCode::FAILURE;
-      }
-      else {
-	m_calo_dd_man = (const CaloDetDescrManager_Base*)ll;
-	ATH_MSG_DEBUG(" Found the CaloDetDescrManager helper. ");
-      }
+    if (m_useDelta == 3 || m_useDeltaV2==3){
+      SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+      ATH_CHECK(caloMgrHandle.isValid());
+      m_calo_dd_man = *caloMgrHandle;
     }
-    
   }
 
   if ( m_timeShift ) {
@@ -225,39 +202,28 @@ StatusCode LArOFCAlg::stop()
     }
   }
   
-
   if (m_larPhysWaveBinKey.size()) {
-    sc=detStore()->retrieve(m_larPhysWaveBin,m_larPhysWaveBinKey);
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR( "Failed to retrieve LArOFCBinComplete object with key " << m_larPhysWaveBinKey );
-      return sc;
-    }
+    ATH_CHECK(detStore()->retrieve(m_larPhysWaveBin,m_larPhysWaveBinKey));
   }
 
   if (m_readCaliWave) {
-    sc=this->initCaliWaveContainer();
+    ATH_CHECK(this->initCaliWaveContainer());
   }
   else {
-    sc=this->initPhysWaveContainer(cabling);
+    ATH_CHECK(this->initPhysWaveContainer(cabling));
   }
 
   if (m_readDSPConfig) {
-     const AthenaAttributeList* attrList=0;
-     sc=detStore()->retrieve(attrList, m_DSPConfigFolder);
-     if (sc.isFailure()) {
-         ATH_MSG_ERROR( "Failed to retrieve AthenaAttributeList with key " << m_DSPConfigFolder );
-         return sc;
-     }
-
-     const coral::Blob& blob = (attrList->coralList())["febdata"].data<coral::Blob>();
-     if (blob.size()<3) {
-        ATH_MSG_INFO( "Found empty blob, nothing to do");
-     } else {
-        m_DSPConfig = new LArDSPConfig(attrList);
-     }
+    const AthenaAttributeList* attrList=nullptr;
+    ATH_CHECK(detStore()->retrieve(attrList, m_DSPConfigFolder));
+    
+    const coral::Blob& blob = (attrList->coralList())["febdata"].data<coral::Blob>();
+    if (blob.size()<3) {
+      ATH_MSG_INFO( "Found empty blob, nothing to do");
+    } else {
+      m_DSPConfig = std::make_unique<LArDSPConfig>(attrList);
+    }
   }
-
-  if (sc.isFailure()) return sc;
 
   if (m_allChannelData.size()==0) {
     ATH_MSG_ERROR( "No input waves found" );
@@ -302,8 +268,8 @@ StatusCode LArOFCAlg::stop()
   /////////////
 
   // OFC persistent object
-  LArOFCComplete *larOFCComplete=new LArOFCComplete();
-  sc = larOFCComplete->setGroupingType(m_groupingType,msg());
+  std::unique_ptr<LArOFCComplete> larOFCComplete=std::make_unique<LArOFCComplete>();
+  StatusCode sc = larOFCComplete->setGroupingType(m_groupingType,msg());
   if (sc.isFailure()) {
     ATH_MSG_ERROR( "Failed to set groupingType for LArOFCComplete object" );
     return sc;
@@ -315,7 +281,7 @@ StatusCode LArOFCAlg::stop()
   }
 
 
-  LArOFCComplete *larOFCCompleteV2=new LArOFCComplete();
+  std::unique_ptr<LArOFCComplete> larOFCCompleteV2=std::make_unique<LArOFCComplete>();
   sc = larOFCComplete->setGroupingType(m_groupingType,msg());
   if (sc.isFailure()) {
     ATH_MSG_ERROR( "Failed to set groupingType for LArOFCComplete object" );
@@ -328,9 +294,9 @@ StatusCode LArOFCAlg::stop()
   }
 
 
-  LArOFCBinComplete *larOFCBinComplete=NULL;
+  std::unique_ptr<LArOFCBinComplete> larOFCBinComplete;
   if (m_storeMaxPhase) {
-    larOFCBinComplete=new LArOFCBinComplete();
+    larOFCBinComplete=std::make_unique<LArOFCBinComplete>();
     sc=larOFCBinComplete->setGroupingType(m_groupingType,msg());
     if (sc.isFailure()) {
       ATH_MSG_ERROR( "Failed to set groupingType for LArOFCBinComplete object" );
@@ -344,9 +310,9 @@ StatusCode LArOFCAlg::stop()
   }
 
   // LArShape persistent object
-  LArShapeComplete *larShapeComplete=NULL;
+  std::unique_ptr<LArShapeComplete> larShapeComplete;
   if (m_fillShape) {
-    larShapeComplete = new LArShapeComplete();
+    larShapeComplete = std::make_unique<LArShapeComplete>();
     sc=larShapeComplete->setGroupingType(m_groupingType,msg());
     if (sc.isFailure()) {
       ATH_MSG_ERROR( "Failed to set groupingType for LArShapeComplete object" );
@@ -393,14 +359,15 @@ StatusCode LArOFCAlg::stop()
     ATH_MSG_ERROR( "Number of channels * gains with failed OFC verification: " <<  nFailed );
 
   // record and symlink LArOFCComplete object
-  sc = detStore()->record(larOFCComplete,m_ofcKey);
+  LArOFCComplete* larOFCCompletePtr=larOFCComplete.get();
+  sc = detStore()->record(std::move(larOFCComplete),m_ofcKey);
   if (sc.isFailure()) {
       ATH_MSG_ERROR( "Could not record LArOFCComplete to DetStore with key " << m_ofcKey );
       return StatusCode::FAILURE;
   }
   ATH_MSG_INFO( "LArOFCComplete object recorded with key " << m_ofcKey ) ;
 
-  sc = detStore()->symLink(larOFCComplete,(ILArOFC*)larOFCComplete);
+  sc = detStore()->symLink(larOFCCompletePtr,(ILArOFC*)larOFCCompletePtr);
   if (sc.isFailure()) {
       ATH_MSG_ERROR( "Could not symlink ILArOFC with LArOFCComplete." );
       return StatusCode::FAILURE;
@@ -410,14 +377,15 @@ StatusCode LArOFCAlg::stop()
 
   // record and symlink second version of LArOFCComplete object
   if (m_computeV2) {
-    sc = detStore()->record(larOFCCompleteV2,m_ofcKeyV2);
+    LArOFCComplete* larOFCCompletePtrV2=larOFCCompleteV2.get();
+    sc = detStore()->record(std::move(larOFCCompleteV2),m_ofcKeyV2);
     if (sc.isFailure()) {
       ATH_MSG_ERROR( "Could not record LArOFCComplete to DetStore with key " << m_ofcKeyV2 );
       return StatusCode::FAILURE;
     }
     ATH_MSG_INFO( "LArOFCComplete object recorded with key " << m_ofcKeyV2 ) ;
 
-    sc = detStore()->symLink(larOFCCompleteV2,(ILArOFC*)larOFCCompleteV2);
+    sc = detStore()->symLink(larOFCCompletePtrV2,(ILArOFC*)larOFCCompletePtrV2);
     if (sc.isFailure()) {
       ATH_MSG_ERROR( "Could not symlink ILArOFC with LArOFCComplete." );
       return StatusCode::FAILURE;
@@ -431,7 +399,7 @@ StatusCode LArOFCAlg::stop()
   }
 
   if (larOFCBinComplete) {
-    sc = detStore()->record(larOFCBinComplete,m_ofcBinKey);
+    sc = detStore()->record(std::move(larOFCBinComplete),m_ofcBinKey);
     if (sc.isFailure()) {
        ATH_MSG_ERROR( "Could not record LArOFCBinCompete object" );
        return StatusCode::FAILURE;
@@ -441,15 +409,15 @@ StatusCode LArOFCAlg::stop()
   // record and symlink LArShapeComplete object
   if ( m_fillShape ) {
     ATH_MSG_DEBUG( "Trying to record LArShapeComplete object to detector store, key = " << m_shapeKey);
-    sc = detStore()->record(larShapeComplete,m_shapeKey);
+    LArShapeComplete* shapePtr=larShapeComplete.get();
+    sc = detStore()->record(std::move(larShapeComplete),m_shapeKey);
     if (sc.isFailure()) {
        ATH_MSG_ERROR( "Could not record LArShapeComplete to DetStore with key " << m_shapeKey );
        return StatusCode::FAILURE;
     }
     ATH_MSG_INFO( "LArShapeComplete object recorded to DetStore successfully with key " << m_shapeKey ) ;
     ATH_MSG_DEBUG( "Trying to symlink ILArShape with LArShapeComplete");
-    ILArShape* larShape = 0;
-    sc = detStore()->symLink(larShapeComplete,larShape);
+    sc = detStore()->symLink(shapePtr,(ILArShape*)shapePtr);
     if (sc.isFailure()) {
       ATH_MSG_ERROR( "Could not symlink ILArShape with LArShapeComplete." );
       return StatusCode::FAILURE;
@@ -461,6 +429,7 @@ StatusCode LArOFCAlg::stop()
   //Undo corrections, if they are applied by this algo:
   if (m_waveCnt_nc) {
     ATH_CHECK(m_waveCnt_nc->undoCorrections());
+    ATH_MSG_INFO("Reverted corrections of non-cost wave container");
   }
 
   return StatusCode::SUCCESS;
@@ -706,6 +675,9 @@ StatusCode LArOFCAlg::initCaliWaveContainer() {
 	  ATH_MSG_ERROR( "Failed to apply corrections to LArCaliWaveContainer!" );
 	  return StatusCode::FAILURE;
 	}
+	else {
+	  ATH_MSG_INFO("Applied corrections to non-const Wave container");
+	}
       }
     }
     else {
@@ -919,7 +891,7 @@ Eigen::VectorXd LArOFCAlg::getDelta(std::vector<float>& samples, const HWIdentif
 
 }
 
- bool LArOFCAlg::useDelta(const HWIdentifier chid, const int jobOFlag, const LArOnOffIdMapping* cabling) const {
+bool LArOFCAlg::useDelta(const HWIdentifier chid, const int jobOFlag, const LArOnOffIdMapping* cabling) const {
 
   if (jobOFlag==2){
       return true;
@@ -973,7 +945,6 @@ Eigen::VectorXd LArOFCAlg::getDelta(std::vector<float>& samples, const HWIdentif
 
   return false;
 }
-
 
 
 bool LArOFCAlg::verify(const HWIdentifier chid, const std::vector<float>& OFCa, const std::vector<float>& OFCb, 

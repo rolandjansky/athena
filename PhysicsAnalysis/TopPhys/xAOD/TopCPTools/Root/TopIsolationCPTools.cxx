@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopCPTools/TopIsolationCPTools.h"
@@ -16,7 +16,6 @@
 
 // Isolation include(s):
 #include "IsolationSelection/IsolationSelectionTool.h"
-//#include "IsolationSelection/IsolationLowPtPLVTool.h"
 #include "IsolationCorrections/IsolationCorrectionTool.h"
 
 namespace top {
@@ -70,90 +69,25 @@ namespace top {
       m_isolationCorr = isolationCorr;
     }
 
-    // Muon Isolation WPs
-    std::set<std::string> muon_isolations {{
-                                             "FCTight",
-                                             "FCLoose",
-                                             "FCTightTrackOnly",
-                                             "FCTightTrackOnly_FixedRad",
-                                             "FCLoose_FixedRad",
-                                             "FCTight_FixedRad",
-                                             "FixedCutPflowTight",
-                                             "FixedCutPflowLoose",
-					     "PflowTight_FixedRad",
-					     "PflowLoose_FixedRad",
-					     "PflowTight_VarRad",
-					     "PflowLoose_VarRad",
-					     "HighPtTrackOnly",
-					     "TightTrackOnly_VarRad",
-					     "TightTrackOnly_FixedRad",
-					     // "PLVTight",
-					     // "PLVLoose",
-					     "Tight_VarRad",
-					     "Tight_FixedRad",
-					     "Loose_VarRad",
-					     "Loose_FixedRad",
-                                           }};
+    top::check(setupPerObjectWPs(m_config->electronIsolationWPs(), "ElectronWP"), "Failed to initialize electron isolation CP tools");
+    top::check(setupPerObjectWPs(m_config->muonIsolationWPs(), "MuonWP"), "Failed to initialize muon isolation CP tools");
+    top::check(setupPerObjectWPs(m_config->photonIsolationWPs(), "PhotonWP"), "Failed to initialize photon isolation CP tools");
 
-    // Electron Isolation WPs
-    std::set<std::string> electron_isolations {{
-                                                 "FCHighPtCaloOnly",
-                                                 "HighPtCaloOnly",
-                                                 "Loose",
-                                                 "Tight",
-                                                 "TightTrackOnly",
-						 "TightTrackOnly_FixedRad",
-                                                 "PflowTight",
-                                                 "PflowLoose",
-						 // "PLVTight",
-						 // "PLVLoose",
-                                               }};
+    return StatusCode::SUCCESS;
+  }
 
-    // Photon Isolation WPs
-    std::set<std::string> photon_isolations {{
-                                               "FixedCutTightCaloOnly",
-                                               "FixedCutTight",
-                                               "FixedCutLoose",
-                                               "TightCaloOnly",
-                                               "Tight",
-                                               "Loose",
-                                             }};
-
-    std::set<std::string> all_isolations;
-    all_isolations.insert(muon_isolations.begin(), muon_isolations.end());
-    all_isolations.insert(electron_isolations.begin(), electron_isolations.end());
-    all_isolations.insert(photon_isolations.begin(), photon_isolations.end());
-
-    for (const std::string& isoWP : all_isolations) {
-      std::string tool_name;
-//      if (isoWP.find("PLV") != std::string::npos){
-//	      tool_name = "CP::IsolationTool_LowPtPLV";
-//	      if(!asg::ToolStore::contains<CP::IIsolationLowPtPLVTool>(tool_name)) {
-//	        CP::IIsolationLowPtPLVTool* iso_tool = new CP::IsolationLowPtPLVTool(tool_name);
-//	        top::check(iso_tool->initialize(), "Failed to initialize " + tool_name);
-//	        m_isolationToolsLowPtPLV.push_back(iso_tool);
-//	      }
-//      }
-      tool_name = "IsolationTool_" + isoWP;
+  StatusCode IsolationCPTools::setupPerObjectWPs(const std::vector<std::string>& WPs, const std::string& objectWPtype) {
+  for (const std::string& isoWP : WPs) {
+      std::string tool_name = "IsolationTool_" + objectWPtype + "_" + isoWP;
+      ATH_MSG_INFO("Initializing isolation tool: " << tool_name);
       if (!asg::ToolStore::contains<CP::IIsolationSelectionTool>(tool_name)) {
-	CP::IIsolationSelectionTool* iso_tool = new CP::IsolationSelectionTool(tool_name);
-	top::check(asg::setProperty(iso_tool, "CalibFileName", m_isolationCalibFile),
-		   "Failed to set CalibFileName for " + tool_name);
-	if (electron_isolations.find(isoWP) !=
-	    electron_isolations.end()) top::check(asg::setProperty(iso_tool, "ElectronWP",
-								   isoWP),
-						  "Failed to set electron WP for " +
-						  tool_name);
-	if (muon_isolations.find(isoWP) != muon_isolations.end()) top::check(asg::setProperty(iso_tool, "MuonWP",
-											      isoWP),
-									     "Failed to set muon WP for " + tool_name);
-	if (photon_isolations.find(isoWP) !=
-	    photon_isolations.end()) top::check(asg::setProperty(iso_tool, "PhotonWP",
-								 isoWP),
-						"Failed to set photon WP for " +
-						tool_name);
-	top::check(iso_tool->initialize(), "Failed to initialize " + tool_name);
-	m_isolationTools.push_back(iso_tool);
+        CP::IIsolationSelectionTool* iso_tool = new CP::IsolationSelectionTool(tool_name);
+        top::check(asg::setProperty(iso_tool, "CalibFileName", m_isolationCalibFile),
+                   "Failed to set CalibFileName for " + tool_name);
+        top::check(asg::setProperty(iso_tool, objectWPtype, isoWP),
+                   "Failed to set " + objectWPtype + " for " + tool_name);
+        top::check(iso_tool->initialize(), "Failed to initialize " + tool_name);
+        m_isolationTools.push_back(iso_tool);
       }
     }
     return StatusCode::SUCCESS;

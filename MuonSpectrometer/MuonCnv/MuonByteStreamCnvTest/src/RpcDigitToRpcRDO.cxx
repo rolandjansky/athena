@@ -357,7 +357,7 @@ RpcCoinMatrix* RpcDigitToRpcRDO::decodeMatrix(MatrixReadOut* matrix, Identifier&
   {
     cm_hit = matrix->getCMAHit(j);
     assert(cm_hit.isBody());
-    RpcFiredChannel* firedChannel=0;
+    RpcFiredChannel* firedChannel=nullptr;
 
     if (cm_hit.ijk() < rpcRawHitWordLength)
     {

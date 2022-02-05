@@ -17,8 +17,17 @@
 // Local include(s):
 #include "xAODTrigger/versions/TrigComposite_v1.h"
 
+#ifndef XAOD_STANDALONE
+#include "AthenaKernel/BaseInfo.h"
+#endif
+
 
 namespace xAOD {
+  
+  ExcNotIParticleContainer::ExcNotIParticleContainer (const std::string& msg)
+    : std::runtime_error (msg)
+  {
+  }
 
   const std::string TrigComposite_v1::s_collectionSuffix{"__COLL"};
 
@@ -261,9 +270,14 @@ namespace xAOD {
       return false;
    }
 
-   bool TrigComposite_v1::derivesFromIParticle(const CLID /*clid*/) const {
-      // It would be nice to include some logic here.
-      return true; 
+   bool TrigComposite_v1::derivesFromIParticle(const CLID clid [[maybe_unused]]) const {
+#ifndef XAOD_STANDALONE
+     const SG::BaseInfoBase* bib = SG::BaseInfoBase::find (clid);
+     if (bib) {
+       return bib->is_base (ClassID_traits< xAOD::IParticleContainer >::ID());
+     }
+#endif
+     return true;
    }
 
    AUXSTORE_OBJECT_GETTER( TrigComposite_v1, std::vector< std::string >,

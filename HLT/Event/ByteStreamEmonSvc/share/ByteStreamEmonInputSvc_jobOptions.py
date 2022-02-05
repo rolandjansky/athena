@@ -1,38 +1,14 @@
-###############################################################
 #
-# Job options file for reading bytestream events from emon
-#==============================================================
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#
 
-# get a handle on the ServiceManager
-svcMgr = theApp.serviceMgr()
+'''
+This is a trivial old-JO (RecEx-style) wrapper around the new (ComponentAccumulator) config
+of ByteStream reading from EMon. It can be deleted once the clients are adapted to new config.
+'''
 
-# Services
-from ByteStreamEmonSvc.ByteStreamEmonSvcConf import ByteStreamEmonInputSvc
-svcMgr += ByteStreamEmonInputSvc("ByteStreamInputSvc")
-from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ROBDataProviderSvc
-svcMgr += ROBDataProviderSvc()
-from ByteStreamCnvSvc.ByteStreamCnvSvcConf import EventSelectorByteStream
-svcMgr += EventSelectorByteStream("EventSelector")
-theApp.EvtSel = "EventSelector"
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+from ByteStreamEmonSvc.EmonByteStreamConfig import EmonByteStreamCfg
 
-# for EventType
-from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamCnvSvc
-svcMgr += ByteStreamCnvSvc()
-
-# Properties 
-EventSelector = svcMgr.EventSelector
-EventSelector.ByteStreamInputSvc     = "ByteStreamInputSvc"; 
-EventSelector.FileBased = False
-EventPersistencySvc = svcMgr.EventPersistencySvc
-EventPersistencySvc.CnvServices += [ "ByteStreamCnvSvc" ]
-
-# ByteStreamAddressProviderSvc
-from ByteStreamCnvSvcBase. ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc
-svcMgr += ByteStreamAddressProviderSvc()
-ByteStreamAddressProviderSvc = svcMgr.ByteStreamAddressProviderSvc
-
-# proxy provider
-from SGComps.SGCompsConf import ProxyProviderSvc
-svcMgr += ProxyProviderSvc()
-ProxyProviderSvc = svcMgr.ProxyProviderSvc
-ProxyProviderSvc.ProviderNames += [ "ByteStreamAddressProviderSvc" ]
+CAtoGlobalWrapper(EmonByteStreamCfg, ConfigFlags)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RpcLayer_H
@@ -15,6 +15,7 @@ namespace MuonGM {
 
     class Rpc;
     class Cutout;
+    class MYSQL;
 
     class RpcLayer : public DetectorElement {
 
@@ -26,10 +27,14 @@ namespace MuonGM {
 
         Rpc *m;
 
-        RpcLayer(std::string s, Rpc *t);
-        GeoVPhysVol *build();
-        GeoVPhysVol *build(int cutoutson, std::vector<Cutout *>);
-        void print();
+        RpcLayer(const std::string& s, Rpc *t);
+        GeoVPhysVol *build(const StoredMaterialManager& matManager,
+                           const MYSQL& mysql);
+        GeoVPhysVol *build(const StoredMaterialManager& matManager,
+                           const MYSQL& mysql,
+                           int cutoutson,
+                           const std::vector<Cutout *>&);
+        virtual void print() override;
     };
 } // namespace MuonGM
 

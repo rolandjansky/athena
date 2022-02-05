@@ -15,17 +15,17 @@ UPDATE : 25/06/2018
 #include "egammaSelectedTrackCopy.h"
 //
 #include "AthenaKernel/errorcheck.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "FourMomUtils/P4Helpers.h"
+#include "GaudiKernel/EventContext.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
 #include "egammaUtils/CandidateMatchHelpers.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
-#include "GaudiKernel/EventContext.h"
-#include "StoreGate/ReadHandle.h"
-#include "StoreGate/WriteHandle.h"
 // std includes
 #include <algorithm>
 #include <cmath>
@@ -53,15 +53,12 @@ egammaSelectedTrackCopy::initialize()
   ATH_CHECK(m_trackParticleContainerKey.initialize());
   ATH_CHECK(m_OutputTrkPartContainerKey.initialize());
 
-  // needed to load conditions
-  ATH_CHECK(m_pixelDetEleCollKey.initialize());
-  ATH_CHECK(m_SCTDetEleCollKey.initialize());
-
   /* the extrapolation tool*/
   ATH_CHECK(m_extrapolationTool.retrieve());
-  ATH_CHECK(m_extrapolationToolCommonCache.retrieve());
 
   ATH_CHECK(m_egammaCaloClusterSelector.retrieve());
+
+  ATH_CHECK(m_caloDetDescrMgrKey.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -123,8 +120,12 @@ egammaSelectedTrackCopy::execute(const EventContext& ctx) const
   auto allTRTTracks = m_AllTRTTracks.buffer();
   auto selectedTRTTracks = m_SelectedTRTTracks.buffer();
 
-  const CaloDetDescrManager* calodetdescrmgr = nullptr;
-  ATH_CHECK( detStore()->retrieve(calodetdescrmgr,"CaloMgr") );
+  SG::ReadCondHandle<CaloDetDescrManager> caloDetDescrMgrHandle{
+    m_caloDetDescrMgrKey, ctx
+  };
+  ATH_CHECK(caloDetDescrMgrHandle.isValid());
+
+  const CaloDetDescrManager* calodetdescrmgr = *caloDetDescrMgrHandle;
 
   // lets first check which clusters to seed on;
   std::vector<const xAOD::CaloCluster*> passingClusters;
@@ -137,7 +138,6 @@ egammaSelectedTrackCopy::execute(const EventContext& ctx) const
   }
 
   // Extrapolation Cache
-  IEMExtrapolationTools::Cache cache{};
   for (const xAOD::TrackParticle* track : *trackTES) {
 
     ++allTracks;
@@ -163,7 +163,7 @@ egammaSelectedTrackCopy::execute(const EventContext& ctx) const
          check if it the track is selected due to this cluster.
          If not continue to next cluster
          */
-      if (!selectTrack(ctx, cluster, track, cache, isTRT)) {
+      if (!selectTrack(ctx, cluster, track, isTRT, *calodetdescrmgr)) {
         continue;
       }
       viewCopy->push_back(track);
@@ -191,8 +191,8 @@ bool
 egammaSelectedTrackCopy::selectTrack(const EventContext& ctx,
                                      const xAOD::CaloCluster* cluster,
                                      const xAOD::TrackParticle* track,
-                                     IEMExtrapolationTools::Cache& cache,
-                                     bool trkTRT) const
+                                     bool trkTRT,
+                                     const CaloDetDescrManager& caloDD) const
 {
 
   if (cluster == nullptr || track == nullptr) {
@@ -206,7 +206,9 @@ egammaSelectedTrackCopy::selectTrack(const EventContext& ctx,
   const double trkEta = candidatePerigee.eta();
   const double z_perigee = candidatePerigee.position().z();
   const double r_perigee = candidatePerigee.position().perp();
-  const Amg::Vector3D PerigeeXYZPosition(candidatePerigee.position().x(), candidatePerigee.position().y(), z_perigee);
+  const Amg::Vector3D PerigeeXYZPosition(candidatePerigee.position().x(),
+                                         candidatePerigee.position().y(),
+                                         z_perigee);
 
   // Get Cluster parameters
   const double clusterEta = cluster->etaBE(2);
@@ -220,24 +222,31 @@ egammaSelectedTrackCopy::selectTrack(const EventContext& ctx,
     return false;
   }
 
-  // Calculate the eta/phi of the cluster as would be seen from the perigee position of the Track
+  // Calculate the eta/phi of the cluster as would be seen from the perigee
+  // position of the Track
   const Amg::Vector3D XYZClusterWrtTrackPerigee =
-    CandidateMatchHelpers::approxXYZwrtPoint(*cluster, PerigeeXYZPosition, isEndCap);
+    CandidateMatchHelpers::approxXYZwrtPoint(
+      *cluster, PerigeeXYZPosition, isEndCap);
   // Calculate the possible rotation of the track
   // Once assuming the cluster Et being the better estimate (e.g big brem)
-  const double phiRotRescaled = CandidateMatchHelpers::PhiROT(Et, trkEta, track->charge(), r_perigee, isEndCap);
+  const double phiRotRescaled = CandidateMatchHelpers::PhiROT(
+    Et, trkEta, track->charge(), r_perigee, isEndCap);
   // And also assuming the track Pt being correct
-  const double phiRotTrack = CandidateMatchHelpers::PhiROT(track->pt(), trkEta, track->charge(), r_perigee, isEndCap);
+  const double phiRotTrack = CandidateMatchHelpers::PhiROT(
+    track->pt(), trkEta, track->charge(), r_perigee, isEndCap);
   //
   const double clusterPhiCorrected = XYZClusterWrtTrackPerigee.phi();
   // deltaPhi between the track and the cluster
   const double deltaPhiStd = P4Helpers::deltaPhi(clusterPhiCorrected, trkPhi);
-  // deltaPhi between the track and the cluster accounting for rotation assuming cluster Et is a better estimator
+  // deltaPhi between the track and the cluster accounting for rotation assuming
+  // cluster Et is a better estimator
   const double trkPhiRescaled = P4Helpers::deltaPhi(trkPhi, phiRotRescaled);
-  const double deltaPhiRescaled = P4Helpers::deltaPhi(clusterPhiCorrected, trkPhiRescaled);
+  const double deltaPhiRescaled =
+    P4Helpers::deltaPhi(clusterPhiCorrected, trkPhiRescaled);
   // deltaPhi between the track and the cluster accounting for rotation
   const double trkPhiCorrTrack = P4Helpers::deltaPhi(trkPhi, phiRotTrack);
-  const double deltaPhiTrack = P4Helpers::deltaPhi(clusterPhiCorrected, trkPhiCorrTrack);
+  const double deltaPhiTrack =
+    P4Helpers::deltaPhi(clusterPhiCorrected, trkPhiCorrTrack);
   /*
    * First we will see if it fails the quick match
    * Then if it passed it will get 2 chances to be selected
@@ -271,38 +280,29 @@ egammaSelectedTrackCopy::selectTrack(const EventContext& ctx,
     return false;
   }
 
+  std::pair<std::vector<CaloSampling::CaloSample>,
+            std::vector<std::unique_ptr<Trk::Surface>>>
+    layersAndSurfaces =
+      m_extrapolationTool->getClusterLayerSurfaces(*cluster, caloDD);
   // Extrapolate from last measurement to the four EM layers.
   // Since this is before brem fit last measurement is OK.
   std::array<double, 4> eta = { -999.0, -999.0, -999.0, -999.0 };
   std::array<double, 4> phi = { -999.0, -999.0, -999.0, -999.0 };
   std::array<double, 4> deltaEta = { -999.0, -999.0, -999.0, -999.0 };
   std::array<double, 4> deltaPhi = { -999.0, -999.0, -999.0, -999.0 };
-  // We can try to use the common cache with Pflow/Tau if available or an in-algorithm cache
-  if (m_extrapolationToolCommonCache
+  if (m_extrapolationTool
         ->getMatchAtCalo(ctx,
                          *cluster,
                          *track,
-                         Trk::alongMomentum,
+                         layersAndSurfaces.first,
+                         layersAndSurfaces.second,
                          eta,
                          phi,
                          deltaEta,
                          deltaPhi,
                          IEMExtrapolationTools::fromLastMeasurement)
         .isFailure()) {
-    if (m_extrapolationTool
-          ->getMatchAtCalo(ctx,
-                           *cluster,
-                           *track,
-                           Trk::alongMomentum,
-                           eta,
-                           phi,
-                           deltaEta,
-                           deltaPhi,
-                           IEMExtrapolationTools::fromLastMeasurement,
-                           &cache)
-          .isFailure()) {
-      return false;
-    }
+    return false;
   }
   // Selection in narrow eta/phi window from last measurement
   if (std::abs(deltaEta[2]) < m_narrowDeltaEta &&
@@ -329,7 +329,8 @@ egammaSelectedTrackCopy::selectTrack(const EventContext& ctx,
           ->getMatchAtCalo(ctx,
                            *cluster,
                            *track,
-                           Trk::alongMomentum,
+                           layersAndSurfaces.first,
+                           layersAndSurfaces.second,
                            etaRes,
                            phiRes,
                            deltaEtaRes,
@@ -346,6 +347,6 @@ egammaSelectedTrackCopy::selectTrack(const EventContext& ctx,
       return true;
     }
   }
-  //default is fail
+  // default is fail
   return false;
 }

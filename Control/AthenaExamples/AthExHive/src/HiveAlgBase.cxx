@@ -1,15 +1,20 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HiveAlgBase.h"
 #include <thread>
 
+#include "AthenaKernel/RNGWrapper.h"
+#include "CLHEP/Random/RandomEngine.h"
+#include "CLHEP/Random/RandFlat.h"
+
 HiveAlgBase::HiveAlgBase( const std::string& name, 
                       ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator ),
   m_hes("HiveExSvc",name),
-  m_ccs("CPUCrunchSvc",name) {}
+  m_ccs("CPUCrunchSvc",name),
+  m_rngSvc("AthRNGSvc", name) {}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
@@ -22,16 +27,11 @@ StatusCode HiveAlgBase::initialize() {
 
   // retrieve the CPUCrunchSvc if Alg chooses to Crunch instead of Sleep
   if (m_doCrunch) {
-    if (m_ccs.retrieve().isFailure()) {
-      ATH_MSG_ERROR("unable to retrieve the CPUCrunchSvc");
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( m_ccs.retrieve() );
   }
 
-  if (m_hes.retrieve().isFailure()) {
-    ATH_MSG_ERROR("unable to retrieve the HiveExSvc");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_hes.retrieve() );
+  ATH_CHECK( m_rngSvc.retrieve() );
 
   return StatusCode::SUCCESS;
 }
@@ -41,8 +41,12 @@ StatusCode HiveAlgBase::initialize() {
 unsigned int
 HiveAlgBase::sleep() {
 
+  auto ctx = Gaudi::Hive::currentContext();
+  ATHRNG::RNGWrapper* rngWrapper = m_rngSvc->getEngine(this);
+  rngWrapper->setSeed( name(), ctx );
+
   // add a bit of variability to the sleep/crunch time
-  unsigned int sleep = igen( m_time );
+  const unsigned int sleep = CLHEP::RandFlat::shoot(rngWrapper->getEngine(ctx), 0, m_time);
 
   if (m_doCrunch) {
     ATH_MSG_INFO("  crunch for: " << sleep << " ms");

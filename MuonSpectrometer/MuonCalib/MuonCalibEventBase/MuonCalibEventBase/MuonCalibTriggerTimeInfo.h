@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MuonCalibTriggerTimeInfo_h
-#define MuonCalibTriggerTimeInfo_h
+#ifndef MUONCALIBEVTBASE_MuonCalibTriggerTimeInfo_h
+#define MUONCALIBEVTBASE_MuonCalibTriggerTimeInfo_h
 
 #include <iostream>
 #include <string>
@@ -13,23 +13,24 @@ namespace MuonCalib {
 
     class MuonCalibTriggerTimeInfo {
     public:
-        MuonCalibTriggerTimeInfo();                                                      //!< Default constructor
-        MuonCalibTriggerTimeInfo(float dMbtsTime, float dLarTime);                       //!< constructor with Mbts Time and LAr time
-        MuonCalibTriggerTimeInfo(const MuonCalibTriggerTimeInfo& dTimeInfo);             //!< copyconstructor
-        MuonCalibTriggerTimeInfo& operator=(const MuonCalibTriggerTimeInfo& dTimeInfo);  //!< assignment operator
-        ~MuonCalibTriggerTimeInfo();                                                     //!< destructor
+        MuonCalibTriggerTimeInfo() = default;                                                      //!< Default constructor
+        MuonCalibTriggerTimeInfo(const MuonCalibTriggerTimeInfo& dTimeInfo) = default;             //!< copyconstructor
+        MuonCalibTriggerTimeInfo& operator=(const MuonCalibTriggerTimeInfo& dTimeInfo) = default;  //!< assignment operator
+        ~MuonCalibTriggerTimeInfo() = default;                                                     //!< destructor
+
+        MuonCalibTriggerTimeInfo(float dMbtsTime, float dLarTime);  //!< constructor with Mbts Time and LAr time
 
         std::ostream& dump(std::ostream& stream) const;
 
-        float dMbtsTime() const { return m_dMbtsTime; }
-        float dLarTime() const { return m_dLarTime; }
+        float dMbtsTime() const;
+        float dLarTime() const;
 
-        void setdMbtsTime(float dMbtsTime) { m_dMbtsTime = dMbtsTime; }  //!< sets mbts
-        void setdLarTime(float dLarTime) { m_dLarTime = dLarTime; }      //!< sets lar
+        void setdMbtsTime(float dMbtsTime);  //!< sets mbts
+        void setdLarTime(float dLarTime);    //!< sets lar
 
     private:
-        float m_dMbtsTime;
-        float m_dLarTime;
+        float m_dMbtsTime{-999.};
+        float m_dLarTime{-999.};
     };
 
 }  // namespace MuonCalib

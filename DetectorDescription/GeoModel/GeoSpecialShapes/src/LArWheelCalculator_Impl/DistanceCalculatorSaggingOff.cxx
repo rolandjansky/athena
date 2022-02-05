@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DistanceCalculatorSaggingOff.h"
@@ -21,9 +21,7 @@ using namespace Gaudi::Units;
 namespace LArWheelCalculator_Impl
 {
 
-  DistanceCalculatorSaggingOff::DistanceCalculatorSaggingOff(LArWheelCalculator* c,
-                                                             IRDBAccessSvc* /*rdbAccess*/,
-                                                             const DecodeVersionKey & /*larVersionKey*/)
+  DistanceCalculatorSaggingOff::DistanceCalculatorSaggingOff(LArWheelCalculator* c)
     : m_lwc(c)
   {
     m_EndQuarterWave = lwc()->m_ActiveLength - lwc()->m_QuarterWaveLength;
@@ -48,7 +46,7 @@ namespace LArWheelCalculator_Impl
     const double cos_a = scalpha.cs, sin_a = scalpha.sn;
 #else // parameterized sine
     double cos_a, sin_a;
-    lwc()->parameterized_sincos(P.y(), sin_a, cos_a);
+    lwc()->m_vsincos_par.eval(P.y(), sin_a, cos_a);
 #endif
     // determination of the nearest quarter-wave number
     int nqwave = (z < 0.) ? 0 : int(z / lwc()->m_QuarterWaveLength);
@@ -160,7 +158,7 @@ namespace LArWheelCalculator_Impl
     double cos_a = scalpha.cs, sin_a = scalpha.sn;
 #else // parameterized sine
     double cos_a, sin_a;
-    lwc()->parameterized_sincos(P.y(), sin_a, cos_a);
+    lwc()->m_vsincos_par.eval(P.y(), sin_a, cos_a);
 #endif
 
     bool sqw = false;
@@ -251,7 +249,7 @@ namespace LArWheelCalculator_Impl
     const double cos_a = scalpha.cs, sin_a = scalpha.sn;
 #else // parameterized sine
     double cos_a, sin_a;
-    lwc()->parameterized_sincos(P.y(), sin_a, cos_a);
+    lwc()->m_vsincos_par.eval(P.y(), sin_a, cos_a);
 #endif
 
     int nqwave;
@@ -339,7 +337,7 @@ namespace LArWheelCalculator_Impl
     double cos_a = scalpha.cs, sin_a = scalpha.sn;
 #else // parameterized sine
     double cos_a, sin_a;
-    lwc()->parameterized_sincos(P.y(), sin_a, cos_a);
+    lwc()->m_vsincos_par.eval(P.y(), sin_a, cos_a);
 #endif
 
     bool sqw = false;
@@ -434,7 +432,7 @@ namespace LArWheelCalculator_Impl
     // parameterized sine
 #else
     double cos_a, sin_a;
-    lwc()->parameterized_sincos(P.y(), sin_a, cos_a);
+    lwc()->m_vsincos_par.eval(P.y(), sin_a, cos_a);
 #endif
 
     // determination of the nearest quarter-wave number

@@ -5,112 +5,112 @@
 #ifndef MUONCALIBTRIGGERINFO_H
 #define MUONCALIBTRIGGERINFO_H
 
-#include "CxxUtils/checker_macros.h"
-
 #include <string>
 #include <vector>
 
-namespace MuonCalib{
+#include "CxxUtils/checker_macros.h"
 
-  /** enum for all trigger type */
-  enum MuonCalibTriggerType {
-    L1_EM3 = 0,
-    L1_TAU5,
-    L1_J5,
-    L1_XE20,
-    L1_MBTS_1_COMM,
-    L1_MBTS_2_COMM, 
-    L1_MU0_LOW_RPC,  
-    L1_MU6_RPC,
-    L1_MU0_HIGH_RPC, 
-    L1_MU0_TGC_HALO,
-    L1_MU0_TGC,
-    L1_MU6_TGC,
-    NUMBEROFKNOWNTRIGGERS,
-    UNKNOWNTRIGGERTYPE = 999
-  };
+namespace MuonCalib {
 
-  /** helper class to for MuonCalibTriggerType which provides a mapping to the actual bit number */
-  class ATLAS_NOT_THREAD_SAFE MuonCalibTriggerTypeHelper {
-  public:
-    /** get trigger bit for a given type */
-    static std::vector<int> triggerBits( MuonCalibTriggerType type );
+    /** enum for all trigger type */
+    enum MuonCalibTriggerType {
+        L1_EM3 = 0,
+        L1_TAU5,
+        L1_J5,
+        L1_XE20,
+        L1_MBTS_1_COMM,
+        L1_MBTS_2_COMM,
+        L1_MU0_LOW_RPC,
+        L1_MU6_RPC,
+        L1_MU0_HIGH_RPC,
+        L1_MU0_TGC_HALO,
+        L1_MU0_TGC,
+        L1_MU6_TGC,
+        NUMBEROFKNOWNTRIGGERS,
+        UNKNOWNTRIGGERTYPE = 999
+    };
 
-    /** get trigger bit for a given type */
-    static std::string itemName( MuonCalibTriggerType type );
+    /** helper class to for MuonCalibTriggerType which provides a mapping to the actual bit number */
+    class ATLAS_NOT_THREAD_SAFE MuonCalibTriggerTypeHelper {
+    public:
+        /** get trigger bit for a given type */
+        static std::vector<int> triggerBits(MuonCalibTriggerType type);
 
-    /** check whether type is valid */
-    static bool validType( MuonCalibTriggerType type );
+        /** get trigger bit for a given type */
+        static std::string itemName(MuonCalibTriggerType type);
 
-    /** check whether type is valid */
-    static bool isRpcTrigger( MuonCalibTriggerType type );
+        /** check whether type is valid */
+        static bool validType(MuonCalibTriggerType type);
 
-    /** check whether type is valid */
-    static bool isTgcTrigger( MuonCalibTriggerType type );
+        /** check whether type is valid */
+        static bool isRpcTrigger(MuonCalibTriggerType type);
 
-    /** check whether type is valid */
-    static bool isMbtsTrigger( MuonCalibTriggerType type );
+        /** check whether type is valid */
+        static bool isTgcTrigger(MuonCalibTriggerType type);
 
-    /** check whether type is valid */
-    static bool isLVL1CaloTrigger( MuonCalibTriggerType type );
-    
-    /** dump mapping */
-    static void dumpMapping();
+        /** check whether type is valid */
+        static bool isMbtsTrigger(MuonCalibTriggerType type);
 
-  private:
-    static void addEntry( MuonCalibTriggerType type, int bit, std::string name );
-    static void addEntry( MuonCalibTriggerType type, std::vector<int>& bits, std::string name );
-    static void initMap();
-    static std::vector< std::pair< std::vector<int>,std::string> > m_typeToBitAndStringMapping; 
-  };
-  
-  /**
-     Simplified class designed to store information of a trigger. It has :
-     - a trigger type 
-     - bunch crossing offset
-     
-     @author Niels van Eldik
-  */
-  class ATLAS_NOT_THREAD_SAFE MuonCalibTriggerInfo{
-  public:
-    MuonCalibTriggerInfo();                                                                               //!< default constructor
-    MuonCalibTriggerInfo( MuonCalibTriggerType type, double bcOffset );
-    MuonCalibTriggerInfo( int tbpbit, int tapbit, int tavbit, int bcIndex );
-    ~MuonCalibTriggerInfo() {} ;                                                                          //!< destructor
-    
-    /**  return the trigger type  */
-    MuonCalibTriggerType  type()       const { return m_type; }
-    
-    /** return the trigger bit before prescale */
-    int                tbp()      const { return m_tbpbit; }    
+        /** check whether type is valid */
+        static bool isLVL1CaloTrigger(MuonCalibTriggerType type);
 
-    /** return the trigger bit after prescale */
-    int                tap()      const { return m_tapbit; }    
+        /** dump mapping */
+        static void dumpMapping();
 
-    /** return the trigger bit after veto */
-    int                tav()      const { return m_tavbit; }    
+    private:
+        static void addEntry(MuonCalibTriggerType type, int bit, const std::string& name);
+        static void addEntry(MuonCalibTriggerType type, std::vector<int>& bits, const std::string& name);
+        static void initMap();
+        static std::vector<std::pair<std::vector<int>, std::string> > m_typeToBitAndStringMapping;
+    };
 
-    /** return the delay of the signal wrt firing trigger */
-    double             delay()      const { return m_delay; }    
-    
-    /** return the bcIndex of the trigger */
-    int                bcIndex()      const { return m_bcIndex; }    
+    /**
+       Simplified class designed to store information of a trigger. It has :
+       - a trigger type
+       - bunch crossing offset
 
-    /** return the trigger bits for this type  */
-    std::vector<int> triggerBits() const { return MuonCalibTriggerTypeHelper::triggerBits(m_type); } 
+       @author Niels van Eldik
+    */
+    class MuonCalibTriggerInfo {
+    public:
+        MuonCalibTriggerInfo();  //!< default constructor
+        MuonCalibTriggerInfo(MuonCalibTriggerType type, double bcOffset);
+        MuonCalibTriggerInfo(int tbpbit, int tapbit, int tavbit, int bcIndex);
+        ~MuonCalibTriggerInfo(){};  //!< destructor
 
-    /** return string representing type  */
-    std::string typeString() const { return MuonCalibTriggerTypeHelper::itemName(m_type); } 
+        /**  return the trigger type  */
+        MuonCalibTriggerType type() const { return m_type; }
 
-  private:
-    MuonCalibTriggerType        m_type;       //!< type
-    int                         m_tbpbit;     //!< trig bit before pre-scale
-    int                         m_tapbit;     //!< trig bit after  pre-scale
-    int                         m_tavbit;     //!< trig bit after  veto
-    double                      m_delay;      //!< delay of signal wrt firing trigger
-    int                         m_bcIndex;    //!< trig bc Index
-  } ;
+        /** return the trigger bit before prescale */
+        int tbp() const { return m_tbpbit; }
 
-}//namespace MuonCalib
+        /** return the trigger bit after prescale */
+        int tap() const { return m_tapbit; }
 
-#endif 
+        /** return the trigger bit after veto */
+        int tav() const { return m_tavbit; }
+
+        /** return the delay of the signal wrt firing trigger */
+        double delay() const { return m_delay; }
+
+        /** return the bcIndex of the trigger */
+        int bcIndex() const { return m_bcIndex; }
+
+        /** return the trigger bits for this type  */
+        std::vector<int> triggerBits() const { return MuonCalibTriggerTypeHelper::triggerBits(m_type); }
+
+        /** return string representing type  */
+        std::string typeString() const { return MuonCalibTriggerTypeHelper::itemName(m_type); }
+
+    private:
+        MuonCalibTriggerType m_type;  //!< type
+        int m_tbpbit;                 //!< trig bit before pre-scale
+        int m_tapbit;                 //!< trig bit after  pre-scale
+        int m_tavbit;                 //!< trig bit after  veto
+        double m_delay;               //!< delay of signal wrt firing trigger
+        int m_bcIndex;                //!< trig bc Index
+    };
+
+}  // namespace MuonCalib
+
+#endif

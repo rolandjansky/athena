@@ -23,9 +23,7 @@ ByteStreamInputSvc = Service( "ByteStreamInputSvc" )
 ByteStreamInputSvc.inputFiles  = [ "/raid/bytestream/phys/run590.bstr" ]
                                  
 
-# Turn off printing for LArRoI_Map
 ToolSvc = Service( "ToolSvc" )
-ToolSvc.LArRoI_Map.Print=FALSE
 
 ToolSvc.TBByteStreamCnvTool.Dump        = FALSE
 ToolSvc.TBByteStreamCnvTool.OutputLevel = WARNING

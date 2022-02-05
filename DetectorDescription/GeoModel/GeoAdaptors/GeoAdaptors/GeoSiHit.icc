@@ -2,47 +2,58 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "InDetSimEvent/SiHit.h"
-#include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
-#include "PixelReadoutGeometry/PixelDetectorManager.h"
+#include "GeoPrimitives/CLHEPtoEigenConverter.h"
+#include "HGTD_Identifier/HGTD_ID.h"
+#include "HGTD_ReadoutGeometry/HGTD_DetectorManager.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "GeoPrimitives/CLHEPtoEigenConverter.h"
+#include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "InDetSimEvent/SiHit.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 
 
 inline GeoSiHit::GeoSiHit (const SiHit & h) {
   m_hit = &h;
 }
 
+
 inline HepGeom::Point3D<double> GeoSiHit::getGlobalPosition() const {
 
   int Barrel = m_hit->getBarrelEndcap();
   if (Barrel== 1) Barrel = -2;
   Identifier id;
-  const InDetDD::SiDetectorElement *geoelement=NULL;
-  if (m_hit->isPixel()) {
-    
-    id = pixID()->wafer_id(Barrel,
-			m_hit->getLayerDisk(), 
-			m_hit->getPhiModule(), 
-			m_hit->getEtaModule());
-    geoelement = pixMgr()->getDetectorElement(id);      
-  }
-  else {
-    id = sctID()->wafer_id(Barrel,
-			m_hit->getLayerDisk(), 
-			m_hit->getPhiModule(), 
-			m_hit->getEtaModule(), 
-			m_hit->getSide() );
-    geoelement = sctMgr()->getDetectorElement(id);      
-  }
-  
-  
-  if (geoelement) {
+  const InDetDD::SolidStateDetectorElementBase *geoelement{};
+  if (m_hit->isPixel() || m_hit->isPLR()) {
 
+    id = pixID()->wafer_id(Barrel,
+			m_hit->getLayerDisk(),
+			m_hit->getPhiModule(),
+			m_hit->getEtaModule());
+
+    if (m_hit->isPLR()) {
+      geoelement = plrMgr()->getDetectorElement(id);
+    } else {
+      geoelement = pixMgr()->getDetectorElement(id);
+    }
+  } else if (m_hit->isSCT()) {
+    id = sctID()->wafer_id(Barrel,
+			m_hit->getLayerDisk(),
+			m_hit->getPhiModule(),
+			m_hit->getEtaModule(),
+			m_hit->getSide() );
+    geoelement = sctMgr()->getDetectorElement(id);
+  } else if (m_hit->isHGTD()) {
+    id = hgtdID()->wafer_id(Barrel,
+			m_hit->getLayerDisk(),
+			m_hit->getPhiModule(),
+			m_hit->getEtaModule());
+    geoelement = hgtdMgr()->getDetectorElement(id);
+  }
+
+  if (geoelement) {
     const HepGeom::Point3D<double> globalStartPos = Amg::EigenTransformToCLHEP(geoelement->transformHit()) * HepGeom::Point3D<double>(m_hit->localStartPosition());
-    
+
     double x=globalStartPos.x();
     double y=globalStartPos.y();
     double z=globalStartPos.z();
@@ -51,4 +62,3 @@ inline HepGeom::Point3D<double> GeoSiHit::getGlobalPosition() const {
 
   return HepGeom::Point3D<double>(0.0,0.0,0.0);
 }
-

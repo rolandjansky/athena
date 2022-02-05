@@ -119,7 +119,7 @@ class McEventCollectionCnv_p4 : public T_AthenaPoolTPCnvBase<
   HepMC::GenParticlePtr
   createGenParticle( const GenParticle_p4& p,
                      ParticlesMap_t& partToEndVtx,
-                     HepMC::DataPool& datapools,HepMC::GenVertexPtr parent=nullptr  ) const;
+                     HepMC::DataPool& datapools,HepMC::GenVertexPtr parent=nullptr , bool add_to_output = true ) const;
 
   /** @brief Method to write a persistent @c GenVertex object. The persistent
    *  vertex is added to the persistent is added to the persistent

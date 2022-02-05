@@ -7,29 +7,6 @@ def TrigTauMonitoringTool():
                 # put some chains in addition to the ones already in the TrigTauMonitCategory.py lists                     
         ]
 
-        # Setup emulation
-        emul_l1_tau = [
-                #'L1_EM15HI_2TAU12IM',
-                'L1_EM15HI_2TAU12IM_J25_3J12',
-                'L1_EM15HI_2TAU12IM_XE35',
-                #'L1_MU10_TAU12IM',
-                'L1_MU10_TAU12IM_J25_2J12',
-                'L1_MU10_TAU12IM_XE35',
-                'L1_TAU20IM_2J20_XE45',
-                #'L1_TAU20IM_2TAU12IM',
-                'L1_TAU20IM_2TAU12IM_J25_2J20_3J12',
-                'L1_TAU20IM_2TAU12IM_XE35',
-                'L1_TAU60',
-                'L1_DR-TAU20ITAU12I',
-                'L1_DR-TAU20ITAU12I-J25',
-                'L1_DR-EM15TAU12I-J25',
-                'L1_DR-MU10TAU12I_TAU12I-J25'
-        ]
-
-        emul_hlt_tau = [
-#               'HLT_tau25_perf_ptonly',
-        ]
-
 #      tau_topo_chains = [
 #               'tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20IM_2TAU12IM',
 #              'tau35_medium1_tracktwo_tau25_medium1_tracktwo',
@@ -80,7 +57,11 @@ def TrigTauMonitoringTool():
               'tau180_tightRNN_tracktwoLLP_L1TAU100',
               'tau200_mediumRNN_tracktwoLLP_L1TAU100',
               'tau200_tightRNN_tracktwoLLP_L1TAU100',
-
+              # Phase-I
+              'tau25_mediumRNN_tracktwoMVABDT_L1eTAU12',
+              'tau25_mediumRNN_tracktwoMVABDT_L1eTAU12M',
+              'tau35_mediumRNN_tracktwoMVABDT_L1eTAU20',
+              'tau160_mediumRNN_tracktwoMVABDT_L1eTAU100',
         ]
 
         RNN_chains = [
@@ -110,7 +91,11 @@ def TrigTauMonitoringTool():
              'tau180_tightRNN_tracktwoLLP_L1TAU100',
              'tau200_mediumRNN_tracktwoLLP_L1TAU100',
              'tau200_tightRNN_tracktwoLLP_L1TAU100',
-
+             # Phase-I
+             'tau25_mediumRNN_tracktwoMVABDT_L1eTAU12',
+             'tau25_mediumRNN_tracktwoMVABDT_L1eTAU12M',
+             'tau35_mediumRNN_tracktwoMVABDT_L1eTAU20',
+             'tau160_mediumRNN_tracktwoMVABDT_L1eTAU100',
         ]
 
         BDTRNN_chains = [
@@ -198,25 +183,8 @@ def TrigTauMonitoringTool():
           'tau160_mediumRNN_tracktwoMVABDT_L1TAU100',
         ]
 
-        # get the Level1 Emulation tool from the emulation python config
-        from TrigTauEmulation.TrigTauEmulationConfig import get_level1_emulator
-        Level1Emulator = get_level1_emulator('Level1Emulator', emul_l1_tau)
-        
-        # Add the Level1 emulation tool to the tool service
-        from AthenaCommon.AppMgr import ToolSvc
-        ToolSvc += Level1Emulator
-
         from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgOnlineDefault
         LuminosityCondAlgOnlineDefault (suffix = 'Online')
-
-
-
-        # get the HLT emulation tool from the emulation python config
-#       from TrigTauEmulation.TrigTauEmulationConfig import get_hlt_emulator
-#       HltEmulator = get_hlt_emulator('HltEmulator', emul_hlt_tau, Level1Emulator)
-        # Add the HLT emulation tool to the tool service
-#       ToolSvc += HltEmulator
-
 
         from TrigHLTMonitoring.HLTMonTriggerList import hltmonList  # access to central tool
         from TrigTauMonitoring.TrigTauMonitoringConf import HLTTauMonTool
@@ -239,11 +207,6 @@ def TrigTauMonitoringTool():
                                 doRealZtautauEff        = True,
                                 dodijetFakeTausEff      = True,
                                 doBootstrap             = False,
-                                doEmulation             = True,
-                                emulation_l1_tau        = emul_l1_tau,
-                                emulation_hlt_tau       = emul_hlt_tau,
-                                L1EmulationTool         = Level1Emulator,
-#                               HltEmulationTool        = HltEmulator,
                                 doTrackCurves           = True,
 #                               doTestTracking          = False,
 #                               topo_chains                     = tau_topo_chains,
@@ -269,6 +232,5 @@ def TrigTauMonitoringTool():
                                 BDTMedium               = True,
                                 isData                  = (globalflags.DataSource == 'data'))
 
-        print (ToolSvc)
         list = [ HLTTauMon ]
         return list

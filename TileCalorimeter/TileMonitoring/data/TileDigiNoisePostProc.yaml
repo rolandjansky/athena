@@ -1,0 +1,12 @@
+#
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#
+# Post-processing of histograms from Tile digi noise monitoring
+## Separate blocks with ---
+---
+Input: [ 'Tile/DigiNoise/TileDigiNoisePed_(?P<partition>[L|E]B[C|A])_(?P<gain>[H|L]G)' ]
+Output: [ 'Tile/DigiNoise/TileDigiNoiseLFN_{partition}_{gain}' ]
+Function: TileMonitoring.TilePostProcessing.getProfile2D_RMS
+Parameters: { title: 'Low frequency noise (LFN)', name: 'TileDigiNoiseLFN'}
+Description: Produce Tile 2D with low frequency noise (LFN) per partition
+

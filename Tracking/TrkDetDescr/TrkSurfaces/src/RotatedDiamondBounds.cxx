@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@ Trk::RotatedDiamondBounds::RotatedDiamondBounds(double minhalex,
   m_boundValues[RotatedDiamondBounds::bv_halfY2] = haley2;
   if (minhalex > maxhalex)
     swap(m_boundValues[RotatedDiamondBounds::bv_minHalfX], m_boundValues[RotatedDiamondBounds::bv_maxHalfX]);
-  initCache();
+  RotatedDiamondBounds::initCache();
 }
 
 bool

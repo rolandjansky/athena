@@ -8,6 +8,7 @@
        should be created. -->
 
   <class name="DL2Tool" />
+  <class name="GNNTool" />
   <class name="BTagAugmenterTool" />
   <class name="BTagMuonAugmenterTool" />
 

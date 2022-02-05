@@ -1,0 +1,19 @@
+# Timing of sTGC Strip digits depends on the strip position with 
+# respect to the middle strip. In a same cluster, the time offset 
+# between a strip to its neighbour can be large due to the resistive 
+# layer. The Strip timing is determined relative to the strip 
+# located at the middle of the cluster. The time is assigned as 
+# follow:
+#   0 ns for the middle strip
+#  10 ns for the 1st neighbour strips
+#  25 ns for the 2nd neighbour strips (2 strips from the middle one)
+#  35 ns for the 3rd neighbour strips
+#  etc. 
+
+# keyword  relative_position  time_offset[ns]
+strip 0 0.0
+strip 1 10.0
+strip 2 25.0
+strip 3 35.0
+strip 4 40.0
+strip 5 45.0

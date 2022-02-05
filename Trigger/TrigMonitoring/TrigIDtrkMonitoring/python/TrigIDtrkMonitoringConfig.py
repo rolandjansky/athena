@@ -89,9 +89,17 @@ def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
                                 "Offline",
                                 "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron",
                                 "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_IDTrig",
-                                "HLT_e.*_gsf_idperf.*:key=GSFTrigTrackParticles",
-                                "HLT_e.*idperf_loose_lrtloose.*:HLT_IDTrack_ElecLRT_FTF:HLT_Roi_FastElectron_LRT",
-                                "HLT_e.*idperf_loose_lrtloose.*:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT"
+                                "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron",
+                                "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_IDTrig",
+                                "HLT_e.*gsf.*:key=HLT_IDTrack_Electron_GSF",
+                                "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:key=HLT_IDTrack_Electron_IDTrig:roi=HLT_Roi_FastElectron:te=1",
+                                "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:te=1",
+
+                                "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:key=HLT_IDTrack_Electron_IDTrig:roi=HLT_Roi_FastElectron:extra=el1_tag:te=0",
+                                "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:key=HLT_IDTrack_Electron_IDTrig:roi=HLT_Roi_FastElectron:extra=el1_probe:te=1",
+
+                                "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el1_tag:te=0",
+                                "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el1_probe:te=1",
                         ]
                 else:
                         tidaegamma.ntupleChainNames += [
@@ -160,8 +168,24 @@ def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
 
 
                 
+                ##############################################################
+                # LRT Egamma instances
+                ##############################################################
 
-
+                #Expert instances
+                tidaegamma = TrigTestBase(name = "IDEgammaTool",
+                                          histoPathBase = "/Trigger/HLT")
+                tidaegamma.AnalysisConfig = "Tier0"
+                tidaegamma.SliceTag = "HLT/TRIDT/Egamma/Expert"
+                # tidabase.OutputLevel = DEBUG
+                if mt_chains:
+                        tidaegamma.ntupleChainNames += [
+                                "Offline",
+                                "HLT_e.*idperf_loose_lrtloose.*:HLT_IDTrack_ElecLRT_FTF:HLT_Roi_FastElectron_LRT",
+                                "HLT_e.*idperf_loose_lrtloose.*:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT"
+                        ]
+                                
+                list += [ tidaegamma ]
 
 
                 ##############################################################
@@ -182,9 +206,7 @@ def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
                                 "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_FTF:roi=HLT_Roi_L2SAMuon",
                                 "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_IDTrig:roi=HLT_Roi_L2SAMuon",
                                 "HLT_mu.*ivar.*:key=HLT_IDTrack_MuonIso_FTF:roi=HLT_Roi_MuonIso",
-                                "HLT_mu.*ivar.*:key=HLT_IDTrack_MuonIso_IDTrig:roi=HLT_Roi_MuonIso",
-                                "HLT_mu.*LRT.*:HLT_IDTrack_MuonLRT_FTF:HLT_Roi_L2SAMuon_LRT",
-                                "HLT_mu.*LRT.*:HLT_IDTrack_MuonLRT_IDTrig:HLT_Roi_L2SAMuon_LRT"
+                                "HLT_mu.*ivar.*:key=HLT_IDTrack_MuonIso_IDTrig:roi=HLT_Roi_MuonIso"
                         ]
                 else:
                         tidamuon.ntupleChainNames += [
@@ -243,7 +265,27 @@ def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
                         ]
 
                         list += [ tidamuonpurity ]
+
+                ##############################################################
+                # LRT Muon instances
+                ##############################################################
+                
+                # Expert instances
+                tidamuon = TrigTestBase(name = "IDMuonTool",
+                                         histoPathBase = "/Trigger/HLT")
+                tidamuon.AnalysisConfig = "Tier0"
+                tidamuon.SliceTag = "HLT/TRIDT/Muon/Expert"
+                tidamuon.UseHighestPT = True
+                # tidamuon.OutputLevel = VERBOSE
+                if mt_chains:
+                        tidamuon.ntupleChainNames += [
+                                "Offline",
+                                "HLT_mu.*LRT.*:HLT_IDTrack_MuonLRT_FTF:HLT_Roi_L2SAMuon_LRT",
+                                "HLT_mu.*LRT.*:HLT_IDTrack_MuonLRT_IDTrig:HLT_Roi_L2SAMuon_LRT"
+                        ]
                         
+                list += [ tidamuon ]
+
 
                 ##############################################################
                 # Tau instances

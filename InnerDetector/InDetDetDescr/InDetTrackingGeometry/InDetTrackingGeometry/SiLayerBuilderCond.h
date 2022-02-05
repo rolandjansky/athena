@@ -18,6 +18,7 @@
 // Trk
 #include "TrkDetDescrInterfaces/ILayerBuilderCond.h"
 #include "TrkDetDescrUtils/SharedObject.h"
+#include "TrkDetDescrUtils/BinnedArray.h"
 // STL
 #include <vector>
 #include <utility> //for std::pair
@@ -58,10 +59,6 @@ namespace InDet {
      It performs an automated detector if an equidistant or non-equidistant binning
      is to be used for the barrel case.
      
-     There is an option to run in split mode for multiple pixel systems of different 
-     layer / endcap dimensions. In such a case, a cache is filled at the first time 
-     running for the pixel system of greater dimensions and just return in the second pass.
-
      @author Andreas.Salzburger@cern.ch
     */
   class ATLAS_NOT_THREAD_SAFE SiLayerBuilderCond : // static member variables are used.
@@ -71,38 +68,57 @@ namespace InDet {
     
       /** AlgTool style constructor */
       SiLayerBuilderCond(const std::string&,const std::string&,const IInterface*);
-      
+
       /** Destructor */
       virtual ~SiLayerBuilderCond();
-      
+
       /** AlgTool initialize method */
-      StatusCode initialize();
+      virtual StatusCode initialize() override;
       /** AlgTool finalize method */
-      StatusCode finalize();
-       
+      virtual StatusCode finalize() override;
+
       /** LayerBuilder interface method - returning Barrel-like layers */
-      std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > cylindricalLayers(const EventContext& ctx) const; 
-      
+      virtual std::pair<EventIDRange, const std::vector<Trk::CylinderLayer*>*>
+      cylindricalLayers(const EventContext& ctx) const override final;
+
       /** LayerBuilder interface method - returning Endcap-like layers */
-      std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* >    discLayers(const EventContext& ctx) const; 
-      
+      virtual std::pair<EventIDRange, const std::vector<Trk::DiscLayer*>*>
+      discLayers(const EventContext& ctx) const override final;
+
       /** LayerBuilder interface method - returning Planar-like layers */
-      std::pair<EventIDRange, const std::vector< const Trk::PlaneLayer* >* >   planarLayers(const EventContext& ctx) const; 
-             
+      virtual std::pair<EventIDRange,
+                        const std::vector<Trk::PlaneLayer*>*>
+      planarLayers(const EventContext& ctx) const override final;
+
       /** Name identification */
-      const std::string& identification() const;      
-        
+      virtual const std::string& identification() const override final;
+
     private:
-      SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> retrieveSiDetElements(const EventContext& ctx) const;
-      std::vector< const Trk::CylinderLayer* >* dressCylinderLayers(const std::vector< const Trk::CylinderLayer* >& dLayers) const;
-      
-      /** create the disc layers, if no vector is given, then it's the first pass, else it's the DBM for the Pixels */
-      std::pair<EventIDRange, std::vector< const Trk::DiscLayer* >* > createDiscLayers(const EventContext& ctx, std::vector<const Trk::DiscLayer* >* dLayers = nullptr) const;
-        
-      const Trk::BinnedLayerMaterial barrelLayerMaterial(double r, double hz) const;  //!< helper method to construct barrel material
-      const Trk::BinnedLayerMaterial endcapLayerMaterial(double rMin, double rMax) const; //!< helper method to construct endcap material
-        
-      void registerSurfacesToLayer(const std::vector<const Trk::Surface*>& surfaces, const Trk::Layer& layer) const; //!< layer association
+      SG::ReadCondHandle<InDetDD::SiDetectorElementCollection>
+      retrieveSiDetElements(const EventContext& ctx) const;
+      std::vector<Trk::CylinderLayer*>* dressCylinderLayers(
+        const std::vector<Trk::CylinderLayer*>& dLayers) const;
+
+      /** create the disc layers, if no vector is given, then it's the first
+       * pass, else it's the DBM for the Pixels */
+      std::pair<EventIDRange, std::vector<Trk::DiscLayer*>*> createDiscLayers(
+        const EventContext& ctx,
+        std::vector<Trk::DiscLayer*>* dLayers = nullptr) const;
+
+      /** create the disc layers, it is dedicated to ITk implementation of the
+       * endcap rings. Used for ITk specific case. */
+      std::pair<EventIDRange, std::vector<Trk::DiscLayer*>*> createRingLayers(
+        const EventContext& ctx) const;
+
+      //!< helper method to construct barrel material
+      const Trk::BinnedLayerMaterial barrelLayerMaterial(double r,
+                                                         double hz) const;
+
+      //!< helper method to construct endcap material
+      const Trk::BinnedLayerMaterial endcapLayerMaterial(double rMin,
+                                                         double rMax) const;
+
+      void registerSurfacesToLayer(Trk::BinnedArraySpan<Trk::Surface const * const >& surfaces, Trk::Layer& layer) const; //!< layer association
 
       bool                                           m_pixelCase;                      //!< flag for pixel/sct
                                                      
@@ -121,7 +137,6 @@ namespace InDet {
       double                                         m_barrelEnvelope;                 //!< envelope around rMin/rMax
       double                                         m_barrelEdbTolerance;             //!< tolerance in percent how much the bin sizes can change
 
-      bool                                           m_endcapRingLayout;               //!< will not synchronise the rMin/rMax
       std::vector<double>                            m_endcapAdditionalLayerPosZ;      //!< Create additional endcaps at these z positions
       std::vector<int>                               m_endcapAdditionalLayerType;      //!< material layer 1 - navigation layer 0 ( for volume adjustment )
       size_t                                         m_endcapLayerBinsR;               //!< Barrel bins for the material in r
@@ -131,31 +146,34 @@ namespace InDet {
                                                      
       std::string                                    m_identification;                  //!< string identification  
       
-      int                                            m_splitMode;                       //!< Check for the split mode : -1 | 0 | 1 
-      double                                         m_splitTolerance;                  //!< difference in layer half length to provoke the split
-
-      static double                                  s_splitRadius;                     //!< Split radius for multiple pixel systems
-      static std::vector<const Trk::CylinderLayer*>  s_splitCylinderLayers;             //!< cached SLHC/split cylinder layers for projective layout
-      static std::vector<const Trk::DiscLayer*>      s_splitDiscLayers;                 //!< cached SLHC/split disc layers for projective layout
-      static EventIDRange                            s_splitIOVRange;                      //!< store range of splitLayers
-                                                     
       bool                                           m_runGeometryValidation;           //!< run the validation of the geometry ( no empty bins)
       SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCT_ReadKey{this, "SCT_ReadKey", "SCT_DetectorElementCollection", "Key of output SiDetectorElementCollection for SCT"};
       SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_PixelReadKey{this, "PixelReadKey", "PixelDetectorElementCollection", "Key of output SiDetectorElementCollection for Pixel"};
+      
+       std::vector<int>                              m_layerIndicesBarrel; //!< indices to be used for layer creation (used for ITk specific case)
+       std::vector<int>                              m_layerIndicesEndcap; //!< indices to be used for layer creation (used for ITk specific case)
+       bool                                          m_useRingLayout;      //!< to enable creation of rings for ITk pixel geometry (used for ITk specific case)
+       bool                                          m_addMoreSurfaces   ;              //!< to add additional surfaces to the SCT_OverlapDescriptor (used for ITk specific case)
+      
             
                       
   };
 
- inline std::pair<EventIDRange, const std::vector< const Trk::PlaneLayer* >* > SiLayerBuilderCond::planarLayers(const EventContext&) const
+  inline std::pair<EventIDRange, const std::vector<Trk::PlaneLayer*>*>
+  SiLayerBuilderCond::planarLayers(const EventContext&) const
   {
-  //create dummy infinite range
+    // create dummy infinite range
     EventIDRange range;
-    return std::pair<EventIDRange, const std::vector< const Trk::PlaneLayer* >* >(range, 0);
+    return std::pair<EventIDRange, const std::vector<Trk::PlaneLayer*>*>(
+      range, nullptr);
   }
- 
- inline const std::string& SiLayerBuilderCond::identification() const
- { return m_identification; }
-   
+
+  inline const std::string&
+  SiLayerBuilderCond::identification() const
+  {
+    return m_identification;
+  }
+
 } // end of namespace
 
 

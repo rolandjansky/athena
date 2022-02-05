@@ -12,10 +12,24 @@ MonitorThreadOccupancy::MonitorThreadOccupancy(const std::string& name, const Mo
 
 
 StatusCode MonitorThreadOccupancy::newEvent(const CostData& data, const float weight) {
-
   // Only look at events in the master slot
   if (not data.isMasterSlot()) {
     return StatusCode::SUCCESS;
+  }
+
+  // Check if we ran with EnableMultiSlot=true - in the master slot (online slot) there are algorithms executed on different slot
+  bool isMultiSlot = false;
+  for (const xAOD::TrigComposite* tc : data.costCollection()) {
+    const uint32_t slot = tc->getDetail<uint32_t>("slot");
+    if (slot != data.onlineSlot()){
+      isMultiSlot = true;
+      break;
+    }
+  }
+
+  if (!isMultiSlot){
+    ATH_MSG_DEBUG("Saving data from multiple slots to master slot was not enabled - ThreadOccupancy Monitoring won't be executed");
+    return StatusCode::SUCCESS; 
   }
 
   for (const xAOD::TrigComposite* tc : data.costCollection()) {

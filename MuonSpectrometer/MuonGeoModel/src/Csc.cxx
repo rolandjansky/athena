@@ -30,12 +30,12 @@ class GeoMaterial;
 
 namespace MuonGM {
 
-    Csc::Csc(Component *ss) : DetectorElement(ss->name) {
+    Csc::Csc(const MYSQL& mysql, Component *ss) : DetectorElement(ss->name) {
         CscComponent *s = (CscComponent *)ss;
         m_component = s;
         width = s->dx1;
         longWidth = s->dx2;
-        thickness = s->GetThickness();
+        thickness = s->GetThickness(mysql);
         maxwLength = s->maxwdy;
         excent = s->excent;
         physicalLength = s->dy;
@@ -47,7 +47,7 @@ namespace MuonGM {
             upWidth = num / (excent - maxwLength);
         }
 
-        layer = new CscMultiLayer(s->name);
+        layer = new CscMultiLayer(mysql, s->name);
         layer->width = width;
         layer->longWidth = longWidth;
         layer->upWidth = upWidth;
@@ -61,19 +61,24 @@ namespace MuonGM {
 
     Csc::~Csc() {
         delete layer;
-        layer = 0;
+        layer = nullptr;
     }
 
-    GeoFullPhysVol *Csc::build(int minimalgeo) {
+    GeoFullPhysVol *Csc::build(const StoredMaterialManager& matManager,
+                               const MYSQL& mysql,
+                               int minimalgeo) {
         std::vector<Cutout *> vcutdef;
         int cutoutson = 0;
-        return build(minimalgeo, cutoutson, vcutdef);
+        return build(matManager, mysql, minimalgeo, cutoutson, vcutdef);
     }
 
-    GeoFullPhysVol *Csc::build(int minimalgeo, int cutoutson, std::vector<Cutout *> vcutdef) {
+    GeoFullPhysVol *Csc::build(const StoredMaterialManager& matManager,
+                               const MYSQL& mysql,
+                               int minimalgeo, int cutoutson,
+                               const std::vector<Cutout *>& vcutdef) {
         GeoFullPhysVol *pcsc = nullptr;
         GeoLogVol *lcsc = nullptr;
-        const GeoMaterial *mcsc = getMaterialManager()->getMaterial("std::Air");
+        const GeoMaterial *mcsc = matManager.getMaterial("std::Air");
 
         if (excent == length) {
             // CSC is a simple traezoid
@@ -92,7 +97,7 @@ namespace MuonGM {
         if (minimalgeo == 1)
             return pcsc;
 
-        GeoVPhysVol *lay = layer->build(cutoutson, std::move(vcutdef));
+        GeoVPhysVol *lay = layer->build(matManager, mysql, cutoutson, vcutdef);
         if (!skip_csc)
             pcsc->add(lay);
 

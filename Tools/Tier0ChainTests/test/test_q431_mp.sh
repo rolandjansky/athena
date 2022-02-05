@@ -11,7 +11,7 @@ Reco_tf.py \
 --athenaopts='--nprocs=2' \
 --maxEvents=500 \
 --steering doRAWtoALL \
---conditionsTag 'all:CONDBR2-BLKPA-RUN2-06' \
+--conditionsTag 'all:CONDBR2-BLKPA-RUN2-09' \
 --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root --outputHISTFile=myHIST.root --imf False
 
 rc1=$?

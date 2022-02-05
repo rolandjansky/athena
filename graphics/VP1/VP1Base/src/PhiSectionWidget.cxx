@@ -400,6 +400,9 @@ void PhiSectionWidget::mousePressEvent(QMouseEvent *event)
     return;
   }
   m_d->sectorstatus[isector]=!(m_d->sectorstatus.at(isector));
+  if(VP1Msg::verbose()){
+	 messageVerbose("Turning on sector"+QString::number(isector));
+  }
   m_d->cacheValid=false;
   m_d->checkForChanges();
 }

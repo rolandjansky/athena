@@ -8,11 +8,13 @@ atlas_subdir( ISF_Config )
 if( NOT SIMULATIONBASE )
    atlas_add_test(test_Sim_tf_configuration
                   SCRIPT test/test_Sim_tf_configuration.py
+                  POST_EXEC_SCRIPT nopost.sh
                   PROPERTIES TIMEOUT 300
                   PROPERTIES RESOURCE_LOCK SimTf)
 endif()
 atlas_add_test(test_FullG4_Sim_tf_configuration
                SCRIPT test/test_FullG4_Sim_tf_configuration.py
+               POST_EXEC_SCRIPT nopost.sh
                PROPERTIES TIMEOUT 300
                PROPERTIES RESOURCE_LOCK SimTf)
 

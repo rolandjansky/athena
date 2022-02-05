@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RNDTEST_H
@@ -57,6 +57,8 @@ namespace AtlasCLHEP_RandomGenerators {
     TH1* m_hbin2=nullptr;  
 
     int m_ntest=10000000;
+
+    int m_ievent = 0;
   };
 
 } // end of namespace bracket

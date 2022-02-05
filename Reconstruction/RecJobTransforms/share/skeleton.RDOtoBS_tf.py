@@ -7,10 +7,8 @@
 #Common job options disable most RecExCommon by default. Re-enable below on demand.
 include("RecJobTransforms/CommonRecoSkeletonJobOptions.py")
 
-# disable ESD object making, but still enable trigger
+# disable ESD object making
 rec.doESD.set_Value_and_Lock(False)
-rec.doTrigger=True
-recAlgs.doTrigger.set_Value_and_Lock(True)
 
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 

@@ -514,7 +514,7 @@ class argFile(argList):
         self._mergeTargetSize = mergeTargetSize
         self._auxiliaryFile = auxiliaryFile
         self._originalName = None
-        
+
         # User setter to get valid value check
         self.io = io
 
@@ -2488,50 +2488,66 @@ class trfArgParser(argparse.ArgumentParser):
     def allArgs(self):
         return list(self._helpString)
 
+    # @brief parsing helper
+    def _parse_list_helper(self, value):
+        # We build on the value[0] instance as this contains the correct metadata
+        # and object references for this instance (shallow copying can
+        # mess up object references and deepcopy thows exceptions!)
+        newValueObj = value[0]
+        msg.debug('Started with: %s = %s', type(newValueObj), newValueObj)
+        if isinstance(value[0], argSubstep):
+            # Make sure you do not have a reference to the original value - this is a deeper copy
+            newValues = dictSubstepMerge(value[0].value, {})
+        elif isinstance(value[0], list):
+            if len(value) == 1:
+                return self._parse_list_helper(value[0])
+            msg.debug('Handling a list of arguments for key')
+            newValues = []
+            for v in value:
+                processedValueObj, processedValues = self._parse_list_helper(v)
+                processedValueObj.value = processedValues
+                newValues.append(processedValueObj)
+            newValueObj = newValues
+            return newValueObj, newValues
+        elif isinstance(value[0].value, list):
+            newValues = value[0].value
+        elif isinstance(value[0].value, dict):
+            newValues = value[0].value
+        else:
+            newValues = [value[0].value,]
+        for valueObj in value[1:]:
+            msg.debug('Value Object: %s = %s', type(valueObj), valueObj)
+            if isinstance(value[0], argSubstep):
+                # Special merger for lists attached to substeps
+                newValues = dictSubstepMerge(newValues, valueObj.value)
+            elif isinstance(valueObj.value, list):
+                # General lists are concatenated
+                newValues.extend(valueObj.value)
+            elif isinstance(valueObj.value, dict):
+                # General dictionaries are merged
+                newValues.update(valueObj.value)
+            else:
+                newValues.append(valueObj.value)
+        return newValueObj, newValues
 
     ## @brief Call argument_parser parse_args, then concatenate values
     #  @details Sets-up the standard argparse namespace, then use a special
     #           treatment for lists (arising from nargs='+'), where values
     #           are appropriately concatenated and a single object is returned 
     #  @return argument_parser namespace object
-    def parse_args(self, args = None, namespace = None): 
+    def parse_args(self, args = None, namespace = None):
         if namespace:
-            super(trfArgParser, self).parse_args(args = args, namespace = namespace) 
+            super(trfArgParser, self).parse_args(args = args, namespace = namespace)
         else:
             namespace = super(trfArgParser, self).parse_args(args = args)
         for k, v in namespace.__dict__.items():
             msg.debug('Treating key %s (%s)', k, v)
             if isinstance(v, list):
-                # We build on the v[0] instance as this contains the correct metadata
-                # and object references for this instance (shallow copying can 
-                # mess up object references and deepcopy thows exceptions!)
-                newValueObj = v[0] 
-                msg.debug('Started with: %s = %s', type(newValueObj), newValueObj)
-                if isinstance(v[0], argSubstep):
-                    # Make sure you do not have a reference to the original value - this is a deeper copy
-                    newValues = dictSubstepMerge(v[0].value, {})
-                elif isinstance(v[0].value, list):
-                    newValues = v[0].value
-                elif isinstance(v[0].value, dict):
-                    newValues = v[0].value
-                else:
-                    newValues = [v[0].value,]
-                for valueObj in v[1:]:
-                    msg.debug('Value Object: %s = %s', type(valueObj), valueObj)
-                    if isinstance(v[0], argSubstep):
-                        # Special merger for lists attached to substeps
-                        newValues = dictSubstepMerge(newValues, valueObj.value)
-                    elif isinstance(valueObj.value, list):
-                        # General lists are concatenated
-                        newValues.extend(valueObj.value)
-                    elif isinstance(valueObj.value, dict):
-                        # General dictionaries are merged
-                        newValues.update(valueObj.value)
-                    else:
-                        newValues.append(valueObj.value)
-                newValueObj.value = newValues
+                newValueObj, newValues = self._parse_list_helper(v)
+                if not isinstance(newValueObj, list):
+                    newValueObj.value = newValues
                 namespace.__dict__[k] = newValueObj
-                msg.debug('Set to %s', newValueObj.value)                
+                msg.debug('Set to %s', newValues)
 
         return namespace
 

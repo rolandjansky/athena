@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AMDCDB_AMDCDBSVCMAKERFROMRDB_H
@@ -37,12 +37,12 @@ public:
    void SetEpsLengthMM(int EpsLengthMM);
    void SetEpsLengthCM(int EpsLengthCM);
    void SetEpsAngle   (int EpsAngle   );
-   void SetEpsLengthMM(std::string NameOfTheSet, int EpsLengthMM);
-   void SetEpsLengthCM(std::string NameOfTheSet, int EpsLengthCM);
-   void SetEpsAngle   (std::string NameOfTheSet, int EpsAngle   );
+   void SetEpsLengthMM(const std::string& NameOfTheSet, int EpsLengthMM);
+   void SetEpsLengthCM(const std::string& NameOfTheSet, int EpsLengthCM);
+   void SetEpsAngle   (const std::string& NameOfTheSet, int EpsAngle   );
    void Set(
-            std::string detectorKey  ,
-            std::string detectorNode ,
+            const std::string& detectorKey  ,
+            const std::string& detectorNode ,
             IRDBAccessSvc* pIRDBAccessSvc,
 	    AmdcDbSvc* pAmdcDbSvc
 	   );
@@ -58,9 +58,9 @@ private:
    int m_EpsLengthCM ;
    int m_EpsAngle    ;
    
-   int GetEpsLengthMM(std::string NameOfTheSet) ;
-   int GetEpsLengthCM(std::string NameOfTheSet) ;
-   int GetEpsAngle   (std::string NameOfTheSet) ;
+   int GetEpsLengthMM(const std::string& NameOfTheSet) ;
+   int GetEpsLengthCM(const std::string& NameOfTheSet) ;
+   int GetEpsAngle   (const std::string& NameOfTheSet) ;
    
    void AMDC(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcDbSvc);
    void AGDD(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcDbSvc);

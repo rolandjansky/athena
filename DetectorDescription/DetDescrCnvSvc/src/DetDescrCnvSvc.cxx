@@ -39,7 +39,8 @@ DetDescrCnvSvc::DetDescrCnvSvc(const std::string& name, ISvcLocator* svc)
         m_do_neighbours(true),
         m_hasCSC(true),
         m_hasSTgc(true),
-        m_hasMM(true)
+        m_hasMM(true),
+        m_useGeomDB_InDet(false)
 {
     declareProperty("DetectorManagers",            m_detMgrs);
     declareProperty("DetectorNodes",   	           m_detNodes );
@@ -71,7 +72,8 @@ DetDescrCnvSvc::DetDescrCnvSvc(const std::string& name, ISvcLocator* svc)
     declareProperty("FCAL3DNeighborsNextFileName", m_fcal3dNeighborsNextName);
     declareProperty("FCAL3DNeighborsPrevFileName", m_fcal3dNeighborsPrevName);
     declareProperty("TileNeighborsFileName",       m_tileNeighborsName);
-
+    
+    declareProperty("useGeomDB_InDet",       m_useGeomDB_InDet);
 }
 
 //-------------------------------------------------------------------------
@@ -147,8 +149,6 @@ DetDescrCnvSvc::initialize()     {
     status =  addToDetStore(241807251, "CaloSuperCellMgr");
     if (status != StatusCode::SUCCESS) return status;
     status =  addToDetStore(125856940, "CaloIdManager");
-    if (status != StatusCode::SUCCESS) return status;
-    status =  addToDetStore(79554919, "LArIdManager");
     if (status != StatusCode::SUCCESS) return status;
 
 

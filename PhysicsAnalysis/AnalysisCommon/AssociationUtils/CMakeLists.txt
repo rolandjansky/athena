@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # The name of the package:
 atlas_subdir( AssociationUtils )
@@ -50,7 +50,8 @@ macro( _add_gtest name )
       SOURCES test/${name}.cxx
       INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
       LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools AsgTestingLib AssociationUtilsLib
-      ${extra_libs} )
+      ${extra_libs}
+      POST_EXEC_SCRIPT nopost.sh )
 endmacro( _add_gtest )
 
 # Define the google unit tests.
@@ -60,8 +61,12 @@ foreach( test gt_AnaToolHandle_test ) # gt_OverlapRemovalInit_test gt_toolbox_te
 endforeach()
 
 if( XAOD_STANDALONE )
-   atlas_add_test( ut_assocUtilsDict SCRIPT test/ut_assocUtilsDict.py )
-   atlas_add_test( ut_ort_tester SCRIPT test/ut_ort_tester.sh )
+   atlas_add_test( ut_assocUtilsDict
+      SCRIPT test/ut_assocUtilsDict.py
+      POST_EXEC_SCRIPT nopost.sh )
+   atlas_add_test( ut_ort_tester
+      SCRIPT test/ut_ort_tester.sh
+      POST_EXEC_SCRIPT nopost.sh )
 endif()
 
 # Install files from the package:

@@ -192,10 +192,6 @@ if doTrigger:
     tdt = Trig__TrigDecisionTool('TrigDecisionTool')
     ToolSvc += tdt
     if not athenaCommonFlags.isOnline():
-        # To read files with trigger config stored as in-file meta-data,
-        from TriggerJobOpts.TriggerFlags import TriggerFlags
-        TriggerFlags.configurationSourceList = ['ds']
-
         # set up trigger config service
         from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
         cfg = TriggerConfigGetter()

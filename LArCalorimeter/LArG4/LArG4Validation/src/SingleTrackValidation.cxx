@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SingleTrackValidation.h"
@@ -26,13 +26,10 @@
 #include "GeoXPEngine.h"
 
 // To interpret LAr Geometry information:
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "LArSimEvent/LArHitContainer.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/LArID_Exception.h"
-// To make it easier for us to access hit info
-#include "GeoAdaptors/GeoLArHit.h"
 
 // pi etc
 #include "CLHEP/Units/PhysicalConstants.h"
@@ -74,15 +71,13 @@ inline int getCpu() {
 class SingleTrackValidation::Clockwork {
 
 public:
-
-  Clockwork() : partPropSvc(0), histSvc(0), mgr(0), nt(0) , coolField(true) {}
-
+  Clockwork() {}
   ~Clockwork() {}
 
-  IPartPropSvc             *partPropSvc;
-  ITHistSvc                *histSvc;
-  const CaloDetDescrManager *mgr;
-  NTuple::Tuple *nt;
+  IPartPropSvc*      partPropSvc{nullptr};
+  ITHistSvc*         histSvc{nullptr};
+  const CaloCell_ID* cellId{nullptr};
+  NTuple::Tuple* nt;
 
   NTuple::Item<double> eta;
   NTuple::Item<double> pt;
@@ -113,7 +108,7 @@ public:
   NTuple::Item<double> EventNo;
   NTuple::Item<double> E_Deposit;
  
-  bool coolField; 
+  bool coolField{true};
 };
 
 SingleTrackValidation::SingleTrackValidation (const std::string & name, ISvcLocator * pSvcLocator) :
@@ -127,21 +122,6 @@ SingleTrackValidation::~SingleTrackValidation () {
 }
 
 StatusCode SingleTrackValidation::initialize() {
-
-  StatusCode status;
-
-  //-------------------------------------------------------------------------//
-  //                                                                         //
-  // Get the histogram service:                                              //
-  //                                                                         //
-  // actually, want an THistSvc
-  // m_c->histSvc=histoSvc();                                                  //
-  m_c->histSvc=NULL;
-  status = service("THistSvc", m_c->histSvc);
-  if (!status.isSuccess()) m_c->histSvc=NULL;                          //
-  //-------------------------------------------------------------------------//
-
-  if (!m_c->histSvc) throw std::runtime_error ("STV: Histogram Svc not found");     
 
   std::string names[162] = {  "eta", "pt", "phi", "pos_x", "pos_y", "pos_z",
              "emb0_cell", "emb1_cell", "emb2_cell", "emb3_cell", "emec0_cell", "emec1_cell", "emec2_cell", "emec3_cell", 
@@ -195,20 +175,11 @@ StatusCode SingleTrackValidation::initialize() {
   // to obtain charge & type & other properties of the primary particle and  //
   // other particles that may turn up in the debris.                         //
   //                                                                         //
-  m_c->partPropSvc=NULL;                                                       //
-  if (!service("PartPropSvc", m_c->partPropSvc).isSuccess()) m_c->partPropSvc=NULL;                      //
-  //-------------------------------------------------------------------------//
-
-  if (!m_c->partPropSvc) throw std::runtime_error ("STV: Part Prop Svc not found");
-
-  //-------------------------------------------------------------------------//
-  //                                                                         //
-  // Retrieve the CaloDetDescrMgr from the detector store.                   //
-  //                                                                         //
-  if (!detStore()->retrieve(m_c->mgr).isSuccess()) m_c->mgr=NULL;                              //
-  //-------------------------------------------------------------------------//
- 
-  if (!m_c->mgr) throw std::runtime_error ("STV: Calo Mgr not found");
+  ATH_CHECK(service("PartPropSvc", m_c->partPropSvc));
+  
+  ATH_CHECK(service("THistSvc", m_c->histSvc));
+  ATH_CHECK(detStore()->retrieve(m_c->cellId, "CaloCell_ID"));
+  ATH_CHECK(m_caloMgrKey.initialize());
 
   //----------------Now initialize the ntuples         ----------------------//
   //                                                                         //
@@ -400,12 +371,16 @@ StatusCode SingleTrackValidation::execute() {
     double phiImpact   = std::atan2(y,x);
     double thetaImpact = std::acos(z/radImpact);
     double etaImpact   = -std::log(std::tan(thetaImpact/2));
-      
-    const CaloDetDescrElement *element[15]={NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
+
+    SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+    ATH_CHECK(caloMgrHandle.isValid());
+    const CaloDetDescrManager* caloMgr = *caloMgrHandle;
+
+    const CaloDetDescrElement *element[15]={nullptr};
 
     for (int i=0;i<4;i++) {
       try {
-        element[i] = m_c->mgr->get_element(CaloCell_ID::LAREM,i, hitsBarrel, etaImpact, phiImpact);
+        element[i] = caloMgr->get_element(CaloCell_ID::LAREM,i, hitsBarrel, etaImpact, phiImpact);
       }
       catch (const LArID_Exception & e) {
         std::cerr << "SingleTrackValidation EXCEPTION (LAREM)" << e.message() << std::endl;
@@ -413,7 +388,7 @@ StatusCode SingleTrackValidation::execute() {
     }
     for (int i=0;i<4;i++) {
       try {
-        element[i+4] = m_c->mgr->get_element(CaloCell_ID::LAREM,i, hitsBarrel, etaImpact, phiImpact);
+        element[i+4] = caloMgr->get_element(CaloCell_ID::LAREM,i, hitsBarrel, etaImpact, phiImpact);
       }
       catch (const LArID_Exception & e) {
         std::cerr << "SingleTrackValidation EXCEPTION (LAREM)" << e.message() << std::endl;
@@ -421,7 +396,7 @@ StatusCode SingleTrackValidation::execute() {
     }     
     for (int i=0;i<4;i++) {
       try {
-        element[i+8] = m_c->mgr->get_element(CaloCell_ID::LARHEC,i, hitsBarrel, etaImpact, phiImpact);
+        element[i+8] = caloMgr->get_element(CaloCell_ID::LARHEC,i, hitsBarrel, etaImpact, phiImpact);
       }
       catch (const LArID_Exception & e) {
         std::cerr << "SingleTrackValidation EXCEPTION in (LARHEC)" << e.message() << std::endl;
@@ -429,7 +404,7 @@ StatusCode SingleTrackValidation::execute() {
     }
     for (int i=1;i<4;i++) {
       try {
-        element[i+11] = m_c->mgr->get_element(CaloCell_ID::LARFCAL,i, hitsBarrel, etaImpact, phiImpact);
+        element[i+11] = caloMgr->get_element(CaloCell_ID::LARFCAL,i, hitsBarrel, etaImpact, phiImpact);
       }
       catch (const LArID_Exception & e) {
         std::cerr << "SingleTrackValidation EXCEPTIONin LARFCAL" << e.message() << std::endl;
@@ -478,12 +453,11 @@ StatusCode SingleTrackValidation::execute() {
       if (status==StatusCode::SUCCESS) {
         LArHitContainer::const_iterator hi=(*iter).begin();//,he=(*iter).end();
         for (hi = (*iter).begin();hi != (*iter).end(); ++hi){
-          GeoLArHit ghit(**hi);
-          if (!ghit) continue;
+	  const LArHit* larHit = *hi;
 	    
-          const CaloDetDescrElement *hitElement = ghit.getDetDescrElement();
-          int samplingLayer =  ghit.SamplingLayer();
-          double energy     =  ghit.Energy();
+          const CaloDetDescrElement *hitElement = caloMgr->get_element(larHit->cellID());
+          int samplingLayer =  m_c->cellId->sampling(larHit->cellID());
+          double energy     =  larHit->energy();
 	    	    
           for (int j=0;j<15;j++) { 
 	    if (hitElement==element[j]) {
@@ -511,7 +485,7 @@ StatusCode SingleTrackValidation::execute() {
           eXX      [samplingLayer]+=energy*hitElement->x()*hitElement->x();
           eY	   [samplingLayer]+=energy*hitElement->y();
           eYY      [samplingLayer]+=energy*hitElement->y()*hitElement->y();
-          t00	   [samplingLayer]+=energy*ghit.Time();
+          t00	   [samplingLayer]+=energy*larHit->time();
           hit_count[samplingLayer]+=1;
         }		    
       }	

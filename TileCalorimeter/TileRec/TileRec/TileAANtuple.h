@@ -118,15 +118,15 @@ class TileAANtuple : public AthAlgorithm {
                                
     StatusCode storeMFRawChannels(const EventContext& ctx
                                   , const SG::ReadHandleKey<TileRawChannelContainer>& containerKey
-                                  , float ene[N_ROS2][N_MODULES][N_CHANS][N_SAMPLES]
-                                  , float time[N_ROS2][N_MODULES][N_CHANS][N_SAMPLES]
+                                  , float * ene
+                                  , float * time
                                   , float chi2[N_ROS2][N_MODULES][N_CHANS]
                                   , float ped[N_ROS2][N_MODULES][N_CHANS]
                                   , bool fillAll);
 
     StatusCode storeDigits(const EventContext& ctx
                            , const SG::ReadHandleKey<TileDigitsContainer>& containerKey
-			   , short sample[N_ROS2][N_MODULES][N_CHANS][N_SAMPLES]
+			   , short * sample
 			   , short gain[N_ROS2][N_MODULES][N_CHANS]
 		  	   , bool fillAll);
 
@@ -239,10 +239,10 @@ class TileAANtuple : public AthAlgorithm {
 
       // Digi/Energy items
 
-      short m_sampleFlt[N_ROS2][N_MODULES][N_CHANS][N_SAMPLES] = {{{{0}}}};
+      short * m_sampleFlt = 0;
       short m_gainFlt[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
 
-      short m_sample[N_ROS2][N_MODULES][N_CHANS][N_SAMPLES] = {{{{0}}}};
+      short * m_sample = 0;
       short m_gain[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
 
       short m_rodBCID[N_ROS][N_MODULES] = {{0}};
@@ -295,8 +295,8 @@ class TileAANtuple : public AthAlgorithm {
       float m_pedDsp[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
       float m_chi2Dsp[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
 
-      float m_eMF[N_ROS2][N_MODULES][N_CHANS][N_SAMPLES] = {{{{0}}}};
-      float m_tMF[N_ROS2][N_MODULES][N_CHANS][N_SAMPLES] = {{{{0}}}};
+      float * m_eMF = 0;
+      float * m_tMF = 0;
       float m_chi2MF[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
       float m_pedMF[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
 
@@ -320,7 +320,7 @@ class TileAANtuple : public AthAlgorithm {
       uint16_t m_ROD_DMUMask[N_ROS][N_MODULES][2] = {{{0}}};
 
       float m_eTMDB[N_ROS][N_MODULES][N_TMDBCHANS] = {{{0}}}; // TMDB
-      unsigned char m_sampleTMDB[N_ROS][N_MODULES][N_TMDBCHANS][N_SAMPLES] = {{{{0}}}}; // TMDB
+      unsigned char *m_sampleTMDB = 0;
       unsigned char m_decisionTMDB[N_ROS][N_MODULES][N_TMDBDECISIONS] = {{{0}}}; // TMDB
  
       float m_TEMP[4][64][7] = {{{0}}};
@@ -341,6 +341,8 @@ class TileAANtuple : public AthAlgorithm {
     int m_nBadDCS;
     int m_nBadDB;
     int m_nBadTotal;
+    
+    int m_nSamples=0; //!<number of samples
 
     // jobOptions parameters - container names
     SG::ReadHandleKey<TileDigitsContainer> m_digitsContainerKey;
@@ -371,7 +373,7 @@ class TileAANtuple : public AthAlgorithm {
     bool m_compareMode;  //!< If two sets of data should be compared (e.g. frag4 and frag5)
     bool m_checkDCS;   //!< if false, do not use TileDCS at all
     int m_DCSBranches;   //!< mask like 110101 - which DCS branches to fill
-
+    
     // energy units
     TileRawChannelUnit::UNIT m_rchUnit;  //!< Unit for TileRawChannels (ADC, pCb, MeV)
     TileRawChannelUnit::UNIT m_dspUnit;  //!< Unit for TileRawChannels in DSP

@@ -57,14 +57,16 @@ def compare2Files(file1,file2):
     print("Summary of differences:")
     noChanges=""
     nEvt=len(res1)
+    changed = False
     for (name,count) in diffCounter.items():
         if (count>0):
             #print (name,":",count,"(of ",nEvt,")")
             print ("{}: {} events (out of {})".format(name,count,nEvt))
+            changed = True
         else:
             noChanges+=" "+name
     print("No changes for:",noChanges)
-
+    return changed
 
 def compareDigest(filelist):
     if len(filelist)<2:
@@ -126,4 +128,6 @@ if __name__ == "__main__":
         print("Usage:")
         print("{} <file1> <file2>".format(sys.argv[0].split("/")[-1]))
     else:
-        compare2Files(sys.argv[1],sys.argv[2])
+        retval=compare2Files(sys.argv[1],sys.argv[2])
+
+    sys.exit(retval)

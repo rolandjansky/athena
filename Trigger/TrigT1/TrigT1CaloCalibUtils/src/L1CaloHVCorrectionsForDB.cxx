@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibUtils/L1CaloHVCorrectionsForDB.h"
@@ -21,8 +21,7 @@ L1CaloHVCorrectionsForDB::L1CaloHVCorrectionsForDB(const std::string& name, ISvc
     m_triggerTowerCollectionName("TriggerTowers"),
     m_caloCellContainerName("AllCalo"),
     m_ttTool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"),
-    m_cells2tt("LVL1::L1CaloCells2TriggerTowers/L1CaloCells2TriggerTowers"),
-    m_jmTools("LVL1::L1CaloOfflineTriggerTowerTools/L1CaloOfflineTriggerTowerTools"),
+    m_jmTools("LVL1::L1CaloOfflineTriggerTowerTools/L1CaloOfflineTriggerTowerTools", this),
     m_rxLayersContainer(0),
     m_hvCorrectionsContainer(0),
     m_firstEvent(true)
@@ -38,7 +37,6 @@ L1CaloHVCorrectionsForDB::~L1CaloHVCorrectionsForDB()
 StatusCode L1CaloHVCorrectionsForDB::initialize()
 {
     ATH_CHECK( m_ttTool.retrieve() );
-    ATH_CHECK( m_cells2tt.retrieve() );
     ATH_CHECK( m_jmTools.retrieve() );
 
     ATH_CHECK( m_scaleCorrKey.initialize() );
@@ -74,11 +72,7 @@ StatusCode L1CaloHVCorrectionsForDB::execute()
         }
 
         // init trigger tower to cell mapping - needed each event?
-        if(!m_cells2tt->initCaloCellsTriggerTowers(*caloCellContainer)) {
-            msg(MSG::ERROR) << "Can not initialize L1CaloCells2TriggerTowers with CaloCellContainer '"
-                  << m_caloCellContainerName << "." << endmsg;
-            return StatusCode::FAILURE;
-        }
+        m_jmTools->caloCells(caloCellContainer);
         
         const LVL1::TriggerTower *tt;
         TriggerTowerCollection::const_iterator p_itTT = triggerTowerCollection->begin();

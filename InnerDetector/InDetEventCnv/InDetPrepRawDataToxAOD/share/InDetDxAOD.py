@@ -72,9 +72,6 @@ pixelClusterThinningExpression = InDetDxAODFlags.PixelClusterThinningExpression(
 if ( 'dumpTruthInfo' in dir() ):
     dumpTruthInfo = dumpTruthInfo and isIdTrkDxAODSimulation
 
-if InDetFlags.doSLHC():
-    dumpTrtInfo=False
-
 if isIdTrkDxAODSimulation:
     # should only be used for data
     TrtZSel=False
@@ -476,15 +473,36 @@ DFTSOS = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFTrackStateO
                                                           TRT_ToT_dEdx = TrackingCommon.getInDetTRT_dEdxTool() if dumpTrtInfo else "",
                                                           OutputLevel = INFO)
 
+DFTSOS_gsf = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFGSFTrackStateOnSurfaceDecorator_InDetDxAOD",
+                                                               ContainerName = "GSFTrackParticles",
+                                                               DecorationPrefix = prefixName,
+                                                               StoreTRT   = dumpTrtInfo,
+                                                               StoreSCT   = dumpSctInfo,
+                                                               StorePixel = dumpPixInfo,
+                                                               PixelMsosName = prefixName+"PixelMSOSs_GSF",
+                                                               SctMsosName   = prefixName+"SCT_MSOSs_GSF",
+                                                               TrtMsosName   = prefixName+"TRT_MSOSs_GSF",
+                                                               IsSimulation = isIdTrkDxAODSimulation,
+                                                               PRDtoTrackMap= "PRDtoTrackMap" + "GSFTracks",
+                                                               TRT_ToT_dEdx = TrackingCommon.getInDetTRT_dEdxTool() if dumpTrtInfo else "",
+                                                               OutputLevel = INFO)
+
 if dumpTrtInfo:
     #Add tool to calculate TRT-based dEdx
     DFTSOS.TRT_ToT_dEdx = TRT_dEdx_Tool
+    DFTSOS_gsf.TRT_ToT_dEdx = TRT_dEdx_Tool
 
 ToolSvc += DFTSOS
 tsos_augmentationTools+=[DFTSOS]
+
+ToolSvc += DFTSOS_gsf
+tsos_augmentationTools+=[DFTSOS_gsf]
+
 if (printIdTrkDxAODConf):
     print(DFTSOS)
     print(DFTSOS.properties())
+    print(DFTSOS_gsf)
+    print(DFTSOS_gsf.properties())
 
 if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
 
@@ -648,6 +666,23 @@ IDTRKThinningTool = DerivationFramework__TrackParticleThinning(name = "IDTRKThin
 ToolSvc += IDTRKThinningTool
 thinningTools.append(IDTRKThinningTool)
 
+# LargeD0TrackParticles directly
+if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
+    from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+    IDTRKThinningToolLargeD0 = DerivationFramework__TrackParticleThinning(name = "IDTRKThinningToolLargeD0",
+                                                                            StreamName              = primDPD.WriteDAOD_IDTRKVALIDStream.StreamName,
+                                                                            SelectionString         = "InDetLargeD0TrackParticles.pt > 0.1*GeV",
+                                                                            InDetTrackParticlesKey  = "InDetLargeD0TrackParticles",
+                                                                            InDetTrackStatesPixKey       = prefixName+"PixelMSOSs"       if dumpPixInfo else "" ,
+                                                                            InDetTrackMeasurementsPixKey = "PixelClusters"    if dumpPixInfo else "",
+                                                                            InDetTrackStatesSctKey       = prefixName+"SCT_MSOSs"        if dumpSctInfo else "",
+                                                                            InDetTrackMeasurementsSctKey = "SCT_Clusters"     if dumpSctInfo else "",
+                                                                            InDetTrackStatesTrtKey       = prefixName+"TRT_MSOSs"        if dumpTrtInfo else "",
+                                                                            InDetTrackMeasurementsTrtKey = "TRT_DriftCircles" if dumpTrtInfo else "",
+                                                                            ThinHitsOnTrack = thinHitsOnTrack)
+    ToolSvc += IDTRKThinningToolLargeD0
+    thinningTools.append(IDTRKThinningToolLargeD0)
+
 if pixelClusterThinningExpression and dumpPixInfo:
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackMeasurementThinning
     trackMeasurementThinningTool = DerivationFramework__TrackMeasurementThinning(
@@ -726,7 +761,7 @@ IDTRKVALIDStream.AcceptAlgs([idtrkvalid_kernel.name()])
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
 
-excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
+excludedAuxData = "-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
 excludedVtxAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
 
 # exclude b-tagging decoration
@@ -747,6 +782,10 @@ IDTRKVALIDStream.AddItem("xAOD::EventAuxInfo#*")
 IDTRKVALIDStream.AddItem("xAOD::TrackParticleContainer#InDetTrackParticles")
 IDTRKVALIDStream.AddItem("xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux."+excludedAuxData)
 
+if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
+    IDTRKVALIDStream.AddItem("xAOD::TrackParticleContainer#InDetLargeD0TrackParticles")
+    IDTRKVALIDStream.AddItem("xAOD::TrackParticleAuxContainer#InDetLargeD0TrackParticlesAux."+excludedAuxData)
+
 if InDetFlags.doTrackSegmentsPixel():
     IDTRKVALIDStream.AddItem("xAOD::TrackParticleContainer#InDetPixelTrackParticles")
     IDTRKVALIDStream.AddItem("xAOD::TrackParticleAuxContainer#InDetPixelTrackParticlesAux."+excludedAuxData)
@@ -765,9 +804,10 @@ keys = ['PixelMSOSs'] if dumpPixInfo else []
 
 keys+= ['SCT_MSOSs']  if dumpSctInfo else []
 keys+= ['TRT_MSOSs']  if dumpTrtInfo else []
+keys+= ['TRT_MSOSs_GSF']  if dumpTrtInfo else []
 for key in keys :
-   IDTRKVALIDStream.AddItem("xAOD::TrackStateValidationContainer#%s*" % prefixName+key )
-   IDTRKVALIDStream.AddItem("xAOD::TrackStateValidationAuxContainer#%s*" % prefixName+key)
+   IDTRKVALIDStream.AddItem("xAOD::TrackStateValidationContainer#%s*" % (prefixName+key) )
+   IDTRKVALIDStream.AddItem("xAOD::TrackStateValidationAuxContainer#%s*" % (prefixName+key) )
 
 keys = []
 if dumpPixInfo and not select_aux_items:

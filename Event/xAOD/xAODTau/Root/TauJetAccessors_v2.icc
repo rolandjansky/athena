@@ -40,9 +40,6 @@ break;
     }
   }
 
-  template <class T>  const SG::AuxElement::Accessor< T >*
-  panTauDetailsAccessorV2( xAOD::TauJetParameters::PanTauDetails /*detail*/ ) {
-  }
 
   template <> const SG::AuxElement::Accessor< float >* panTauDetailsAccessorV2<float>( xAOD::TauJetParameters::PanTauDetails detail ) {
     
@@ -126,10 +123,6 @@ break;
   }
 
 
-
-
-  template <class T>  const SG::AuxElement::Accessor< T >* detailsAccessorV2( xAOD::TauJetParameters::Detail /*detail*/ ) {
-  }
 
   template <> const SG::AuxElement::Accessor< float >* detailsAccessorV2<float>( xAOD::TauJetParameters::Detail detail ) {
     

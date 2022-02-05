@@ -114,7 +114,7 @@ class McEventCollectionCnv_p3 : public T_AthenaPoolTPCnvBase<
   HepMC::GenParticlePtr
   createGenParticle( const GenParticle_p3& p,
                      ParticlesMap_t& partToEndVtx,
-                     HepMC::DataPool& datapools, HepMC::GenVertexPtr parent=nullptr ) const;
+                     HepMC::DataPool& datapools, HepMC::GenVertexPtr parent=nullptr , bool add_to_output = true ) const;
 
 };
 #endif //> GENERATOROBJECTSTPCNV_MCEVENTCOLLECTIONCNV_P3_H

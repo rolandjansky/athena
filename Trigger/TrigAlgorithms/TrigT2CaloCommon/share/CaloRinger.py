@@ -21,7 +21,6 @@ topSequence = AlgSequence()
 from AthenaCommon.CFElements import stepSeq,seqOR,findAlgorithm
 from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
 from AthenaCommon.Constants import DEBUG
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 topSequence.remove( findAlgorithm(topSequence, "HLTSeeding") )
 from HLTSeeding.HLTSeedingConf import HLTSeedingNoCtpForTesting
@@ -31,7 +30,7 @@ topSequence += HLTSeedingNoCtpForTesting("HLTSeedingNoCtpForTesting", OutputLeve
 steps = seqOR("HLTTop")
 topSequence += steps
 
-if TriggerFlags.doCalo:
+if ConfigFlags.Trigger.doCalo:
 
   if ( doHLTCaloTopo ) :
     from TrigT2CaloCommon.CaloDef import HLTFSTopoRecoSequence

@@ -76,17 +76,18 @@ namespace xAOD {
       
       /// Jet Discriminants
       /// Derived floating point values (not used in actual algorithm)
-      float fCore() const;
+      float rCore() const;
+      float rHad() const;
 
       /// Actual values used in algorithm (setters and getters)
-      uint16_t fCoreNumerator() const;
-      uint16_t fCoreDenominator() const;
-      void  setFCoreNumerator( uint16_t value);
-      void  setFCoreDenominator( uint16_t value);
-      uint16_t fHadNumerator() const;
-      uint16_t fHadDenominator() const;
-      void  setFHadNumerator( uint16_t value);
-      void  setFHadDenominator( uint16_t value);
+      uint16_t rCoreNumerator() const;
+      uint16_t rCoreDenominator() const;
+      void  setRCoreNumerator( uint16_t value);
+      void  setRCoreDenominator( uint16_t value);
+      uint16_t rHadNumerator() const;
+      uint16_t rHadDenominator() const;
+      void  setRHadNumerator( uint16_t value);
+      void  setRHadDenominator( uint16_t value);
 
       /// Is this one a TOB (or xTOB partner of a TOB)?
       char isTOB() const;
@@ -120,11 +121,11 @@ namespace xAOD {
       /// Cluster ET (xTOB ET scale, 25 MeV/count)
       unsigned int etXTOB() const;
 
-      /// Tau Condition 1 (fCore) results
-      unsigned int fCoreThresholds() const;
+      /// Tau Condition 1 (rCore) results
+      unsigned int rCoreThresholds() const;
 
       /// Tau Condition 2 (none) results
-      unsigned int fHadThresholds() const;
+      unsigned int rHadThresholds() const;
 
       /// Tau Condition 3 (none) results
       unsigned int tauThreeThresholds() const;

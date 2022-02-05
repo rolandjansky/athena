@@ -22,6 +22,8 @@
 #include "InDetRecToolInterfaces/ITRT_TrackExtensionTool.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "TrkEventUtils/EventDataBase.h"
+#include "TrkExInterfaces/IPropagator.h"
+#include "TrkExInterfaces/IExtrapolator.h"
 
 #include "StoreGate/ReadHandleKey.h"
 #include <iosfwd>
@@ -33,10 +35,7 @@ class AtlasDetectorID;
 class PropDirection;
 
 namespace Trk{
-
   class Surface;
-  class IExtrapolator;
-  class IPropagator;
 }
 
 namespace InDet {
@@ -106,10 +105,14 @@ namespace InDet {
       // Protected Data
       ///////////////////////////////////////////////////////////////////
 
-      ToolHandle<Trk::IExtrapolator>        m_extrapolator;
-      ToolHandle<Trk::IPropagator>          m_propagator  ;
-      ToolHandle<Trk::IRIO_OnTrackCreator>  m_riontrackD  ; //
-      ToolHandle<Trk::IRIO_OnTrackCreator>  m_riontrackN  ; //
+      PublicToolHandle<Trk::IExtrapolator>        m_extrapolator
+        {this, "Extrapolator", "Trk::Extrapolator/InDetExtrapolator"};
+      PublicToolHandle<Trk::IPropagator>          m_propagator
+        {this, "Propagator", "Trk::RungeKuttaPropagator"};
+      ToolHandle<Trk::IRIO_OnTrackCreator>  m_riontrackD
+	{this, "RIOonTrackToolYesDr", "InDet::TRT_DriftCircleOnTrackTool/TRT_DriftCircleOnTrackToolUniversal"};
+      ToolHandle<Trk::IRIO_OnTrackCreator>  m_riontrackN
+	{this, "RIOonTrackToolNoDr", "InDet::TRT_DriftCircleOnTrackNoDriftTimeTool/TRT_DriftCircleOnTrackNoDriftTimeTool"}; //
 
       int                              m_outputlevel{}    ; // Print level
       int                              m_nprint{}         ; // Kind of print

@@ -1579,11 +1579,20 @@ SGImplSvc::releaseObject(const CLID& id, const std::string& key) {
 void
 SGImplSvc::clearProxyPayload(SG::DataProxy* dp) {
   lock_t lock (m_mutex);
-  SG::DataProxy::CLIDCont_t clids = dp->transientID();
-  SG::DataProxy::CLIDCont_t::const_iterator i(clids.begin()), e(clids.end());
-  while (i != e) {
-    t2pRemove(SG::DataProxy_cast (dp, *i++));
+
+  // Remove transient pointer entries for this proxy.
+  // But do that only if the proxy has a valid object.
+  // Otherwise, we could trigger I/O --- which we don't want since it's useless
+  // (we'd just destroy the object immediately).  In some cases it can also
+  // lead to a deadlock (see ATR-24482).
+  if (dp->isValidObject()) {
+    SG::DataProxy::CLIDCont_t clids = dp->transientID();
+    SG::DataProxy::CLIDCont_t::const_iterator i(clids.begin()), e(clids.end());
+    while (i != e) {
+      t2pRemove(SG::DataProxy_cast (dp, *i++));
+    }
   }
+
   bool hard_reset = (m_numSlots > 1);
   dp->reset (hard_reset);
 }

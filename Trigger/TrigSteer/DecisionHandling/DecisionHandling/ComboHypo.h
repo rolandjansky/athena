@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef DECISIONHANDLING_COMBOHYPO_H
 #define DECISIONHANDLING_COMBOHYPO_H
@@ -40,6 +40,7 @@ class ComboHypo : public ::AthReentrantAlgorithm {
   const SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer>& decisionsInput() const { return m_inputs; }
   const SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer>& decisionsOutput() const { return m_outputs; }
   const Combo::MultiplicityReqMap& triggerMultiplicityMap() const { return m_multiplicitiesReqMap.value(); }
+  const Combo::LegMap& legToInputCollectionMap() const { return m_legToInputCollectionMap.value(); }
   ToolHandleArray<ComboHypoToolBase>& hypoTools() { return m_hypoTools; }
   const ToolHandleArray<ComboHypoToolBase>& hypoTools() const { return m_hypoTools; }
 

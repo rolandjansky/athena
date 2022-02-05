@@ -549,12 +549,12 @@ AmdcDbSvcMakerFromRDB::AmdcDbSvcMakerFromRDB(){
 void AmdcDbSvcMakerFromRDB::SetEpsLengthMM(int EpsLengthMM){ m_EpsLengthMM  = EpsLengthMM ;}
 void AmdcDbSvcMakerFromRDB::SetEpsLengthCM(int EpsLengthCM){ m_EpsLengthCM  = EpsLengthCM ;}
 void AmdcDbSvcMakerFromRDB::SetEpsAngle(int EpsAngle){ m_EpsAngle  = EpsAngle ;}
-void AmdcDbSvcMakerFromRDB::SetEpsLengthMM(std::string NameOfTheSet, int EpsLengthMM) { m_Map_Set_EpsLengthMM[NameOfTheSet] = EpsLengthMM ; }
-void AmdcDbSvcMakerFromRDB::SetEpsLengthCM(std::string NameOfTheSet, int EpsLengthCM) { m_Map_Set_EpsLengthCM[NameOfTheSet] = EpsLengthCM ; }
-void AmdcDbSvcMakerFromRDB::SetEpsAngle   (std::string NameOfTheSet, int EpsAngle   ) { m_Map_Set_EpsAngle   [NameOfTheSet] = EpsAngle    ; }
+void AmdcDbSvcMakerFromRDB::SetEpsLengthMM(const std::string& NameOfTheSet, int EpsLengthMM) { m_Map_Set_EpsLengthMM[NameOfTheSet] = EpsLengthMM ; }
+void AmdcDbSvcMakerFromRDB::SetEpsLengthCM(const std::string& NameOfTheSet, int EpsLengthCM) { m_Map_Set_EpsLengthCM[NameOfTheSet] = EpsLengthCM ; }
+void AmdcDbSvcMakerFromRDB::SetEpsAngle   (const std::string& NameOfTheSet, int EpsAngle   ) { m_Map_Set_EpsAngle   [NameOfTheSet] = EpsAngle    ; }
 void AmdcDbSvcMakerFromRDB::Set(
-            std::string detectorKey  ,
-            std::string detectorNode ,
+            const std::string& detectorKey  ,
+            const std::string& detectorNode ,
             IRDBAccessSvc* pIRDBAccessSvc,
 	    AmdcDbSvc* pAmdcDbSvc
 ){ 
@@ -594,9 +594,9 @@ void AmdcDbSvcMakerFromRDB::Set(
 
 }
 
-int AmdcDbSvcMakerFromRDB::GetEpsLengthMM(std::string NameOfTheSet){ if (m_Map_Set_EpsLengthMM.find(NameOfTheSet) != m_Map_Set_EpsLengthMM.end()) return m_Map_Set_EpsLengthMM.find(NameOfTheSet)->second ; return m_EpsLengthMM; }
-int AmdcDbSvcMakerFromRDB::GetEpsLengthCM(std::string NameOfTheSet){ if (m_Map_Set_EpsLengthCM.find(NameOfTheSet) != m_Map_Set_EpsLengthCM.end()) return m_Map_Set_EpsLengthCM.find(NameOfTheSet)->second ; return m_EpsLengthCM; }
-int AmdcDbSvcMakerFromRDB::GetEpsAngle   (std::string NameOfTheSet){ if (m_Map_Set_EpsAngle.find(NameOfTheSet)    != m_Map_Set_EpsAngle.end()   ) return m_Map_Set_EpsAngle.find(NameOfTheSet)->second    ; return m_EpsAngle   ; }
+int AmdcDbSvcMakerFromRDB::GetEpsLengthMM(const std::string& NameOfTheSet){ if (m_Map_Set_EpsLengthMM.find(NameOfTheSet) != m_Map_Set_EpsLengthMM.end()) return m_Map_Set_EpsLengthMM.find(NameOfTheSet)->second ; return m_EpsLengthMM; }
+int AmdcDbSvcMakerFromRDB::GetEpsLengthCM(const std::string& NameOfTheSet){ if (m_Map_Set_EpsLengthCM.find(NameOfTheSet) != m_Map_Set_EpsLengthCM.end()) return m_Map_Set_EpsLengthCM.find(NameOfTheSet)->second ; return m_EpsLengthCM; }
+int AmdcDbSvcMakerFromRDB::GetEpsAngle   (const std::string& NameOfTheSet){ if (m_Map_Set_EpsAngle.find(NameOfTheSet)    != m_Map_Set_EpsAngle.end()   ) return m_Map_Set_EpsAngle.find(NameOfTheSet)->second    ; return m_EpsAngle   ; }
 
 
 void AmdcDbSvcMakerFromRDB::AMDC(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcDbSvc)

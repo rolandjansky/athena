@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef NSWAGDDTool_H
@@ -12,8 +12,8 @@ class NSWAGDDTool: public AGDDToolBase
 public:
     NSWAGDDTool(const std::string& type, const std::string& name, const IInterface* parent);
     ~NSWAGDDTool()=default;
-    virtual StatusCode construct() override;
-    virtual StatusCode initialize() override;
+    virtual StatusCode construct ATLAS_NOT_THREAD_SAFE () override;
+    virtual StatusCode initialize ATLAS_NOT_THREAD_SAFE () override;
 
 private:
     Gaudi::Property<int> m_outFileActV{this,"OutputFileACTVERS",0,"active version number"};

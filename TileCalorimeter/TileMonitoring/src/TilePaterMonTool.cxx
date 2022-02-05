@@ -176,6 +176,17 @@ TH1S * TilePaterMonTool::book1S(std::string subdir, std::string nam, std::string
   return hist;
 }
 
+TH1S * TilePaterMonTool::book1Sx(std::string subdir, std::string nam, std::string tit,
+                                int nx, const Double_t *xlgbins,
+                                Interval_t interval, MgmtAttr_t attribute,
+                                std::string trigChain, std::string mergeAlgo)
+{
+
+  TH1S* hist = new TH1S(TString(nam), TString(tit), nx, xlgbins);
+  regHist(subdir, hist, interval, attribute, trigChain, mergeAlgo);
+  return hist;
+}
+
 TH1I* TilePaterMonTool::book1I(std::string subdir, std::string nam, std::string tit,
                                  int nx, double xmin, double xmax,
                                  Interval_t interval, MgmtAttr_t attribute,

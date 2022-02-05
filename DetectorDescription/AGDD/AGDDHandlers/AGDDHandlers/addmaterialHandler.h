@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef addmaterialHandler_H
@@ -10,8 +10,13 @@
 
 class addmaterialHandler:public XMLHandler {
 public:
-	addmaterialHandler(std::string);
-	void ElementHandle();
+	addmaterialHandler(const std::string&,
+                           AGDDController& c);
+	virtual void ElementHandle(AGDDController& c,
+                                   xercesc::DOMNode *t) override;
+        std::vector<std::string> GetNames();
+private:
+        std::vector<std::string> m_names;
 };
 
 #endif

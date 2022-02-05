@@ -11,15 +11,15 @@
 
 #ifndef TGCDIGITMAKER_H
 #define TGCDIGITMAKER_H
-#include "CxxUtils/checker_macros.h"
+
 #include <vector>
 #include <string>
 
+#include "AthenaBaseComps/AthMessaging.h"
 #include "GaudiKernel/StatusCode.h"
-#include "Identifier/Identifier.h"
-#include "AthenaKernel/MsgStreamMember.h"
-
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "Identifier/Identifier.h"
+#include "MuonCondData/TgcDigitASDposData.h"
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -35,7 +35,7 @@ class TgcIdHelper;
 class TGCSimHit; 
 
 //--- class description
-class TgcDigitMaker {
+class TgcDigitMaker : public AthMessaging {
   //------ for public
  public:
 
@@ -76,14 +76,9 @@ class TgcDigitMaker {
      will be included in future, too.
   */
   TgcDigitCollection* executeDigi(const TGCSimHit* hit,
-				  const double globalHitTime,
+                                  const double globalHitTime,
+                                  const TgcDigitASDposData* ASDpos,
                                   CLHEP::HepRandomEngine* rndmEngine);
-
-  //Declaring the Message method for further use
-  MsgStream& msg(const MSG::Level lvl) const ;
-  //Declaring the Method providing Verbosity Level
-  bool msgLevel(const MSG::Level lvl) const;
-  void setMessageLevel(const MSG::Level lvl) const;
 
   //====== for private
  private:
@@ -98,7 +93,13 @@ class TgcDigitMaker {
     OFFSET_GASGAP = 1,
     N_ISSTRIP = 2,
     OFFSET_ISSTRIP = 0, 
-    N_CROSSTALK_PARAMETER = 4
+    N_CROSSTALK_PARAMETER = 4,
+    N_ASDNUM = 8,
+    OFFSET_ASDNUM = 1,
+    N_ABSSTATIONETA = 5,
+    OFFSET_ABSSTATIONETA = 1,
+    N_STRIPCHANNEL = 32,
+    OFFSET_STRIPCHANNEL = 1
   };
   enum TgcStation {
     kOUTER = 0,
@@ -131,15 +132,20 @@ class TgcDigitMaker {
   void addDigit(const Identifier id, const uint16_t bctag, TgcDigitCollection* digits) const;
 
   /** Read share/TGC_Digitization_energyThreshold.dat file */
-  void readFileOfEnergyThreshold();
+  StatusCode readFileOfEnergyThreshold();
   /** Read share/TGC_Digitization_crossTalk.dat file */
-  void readFileOfCrossTalk();
+  StatusCode readFileOfCrossTalk();
   /** Read share/TGC_Digitization_deadChamber.dat file */
-  void readFileOfDeadChamber();
+  StatusCode readFileOfDeadChamber();
   /** Read share/TGC_Digitization_timeWindowOffset.dat file */
-  void readFileOfTimeWindowOffset();
+  StatusCode readFileOfTimeWindowOffset();
   /** Read share/TGC_Digitization_alignment.dat file */
-  void readFileOfAlignment();
+  StatusCode readFileOfAlignment();
+  /** Read share/TGC_Digitization_ASDpropTimeOffset.dat file */
+  StatusCode readFileOfASDpropTimeOffset();
+  /** Read share/TGC_Digitization_StripPosition.dat file */
+  StatusCode readFileOfStripPosition();
+
   /** Get energy threshold value for each chamber */
   double getEnergyThreshold(const std::string& stationName, int stationEta, int stationPhi, int gasGap, const TgcSensor sensor) const;
   void randomCrossTalk(const Identifier elemId, const int gasGap, const TgcSensor sensor, const int channel, const float posInStrip, const double digitTime, CLHEP::HepRandomEngine* rndmEngine, TgcDigitCollection* digits) const;
@@ -152,8 +158,16 @@ class TgcDigitMaker {
   /** Ad hoc implementation of detector position shift */
   void adHocPositionShift(const std::string& stationName, int stationEta, int stationPhi, 
 			  const Amg::Vector3D& direCos, Amg::Vector3D &localPos) const;
+  /** Method to get propagation time offset of the ASD */
+  float getASDpropTimeOffset(const Identifier elemId, const int isStrip, const int channel) const;
+  /** Method to get position of Strip channel */
+  float getStripPosition(const std::string& stationName, int stationEta, int channel) const;
+  /** Method to get signal propagation time delay */
+  float getSigPropTimeDelay(const float cableDistance) const;
   /** Method to get time difference by cable radius of inner */
   float timeDiffByCableRadiusOfInner(const int iStationName, const int stationPhi, const int channel) const;
+  /** Method to get propagation time to the ASD from the sensor */
+  float getDistanceToAsdFromSensor(const TgcDigitASDposData* readCdo, const int iStationName, const int stationEta, const int stationPhi, const TgcSensor sensor, const int channel, const float position) const;
 
   /** Energy threshold value for each chamber */
   double m_energyThreshold[N_STATIONNAME][N_STATIONETA][N_STATIONPHI][N_GASGAP][N_ISSTRIP]{};
@@ -173,6 +187,13 @@ class TgcDigitMaker {
   /** Alignment ths constants. Rotation around the global phi direction */ 
   double m_alignmentTHS[N_STATIONNAME][N_STATIONETA][N_STATIONPHI]{};
 
+  /** Position of Strip Channel (Longer base or Shorter base) */
+  float m_StripPos[N_STATIONNAME][N_ABSSTATIONETA][N_STRIPCHANNEL]{};
+  /** ASD propagation time offset for each chamber */
+  float m_ASDpropTimeOffset[N_STATIONNAME][N_STATIONETA][N_ISSTRIP][N_ASDNUM]{};
+  /** max channel for ASD */
+  float m_maxch[N_STATIONNAME][N_STATIONETA][N_ISSTRIP][N_ASDNUM]{};
+
   std::vector<std::vector<float> > m_vecAngle_Time;
 
   TgcHitIdHelper* m_hitIdHelper;
@@ -190,9 +211,6 @@ class TgcDigitMaker {
   double m_timeWindowOffsetSensor[N_SENSOR]{};
   double m_gateTimeWindow[N_STATION][N_SENSOR]{};
   double m_bunchCrossingTime;
-
-  //Declaring private message stream member.
-  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
 };
 
 #endif

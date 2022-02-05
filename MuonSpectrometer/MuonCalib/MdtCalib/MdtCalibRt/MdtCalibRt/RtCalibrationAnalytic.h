@@ -59,9 +59,7 @@ namespace MuonCalib {
     class RtCalibrationAnalytic : public IMdtCalibration {
     public:
         // Constructors //
-        RtCalibrationAnalytic(const std::string &name) : IMdtCalibration(name) {
-            init(0.5 * CLHEP::mm, 1, 5, true, true, true, true, 100, false, false);
-        }
+        RtCalibrationAnalytic(const std::string &name);
         ///< Default constructor: r-t accuracy is set to 0.5 mm.
         ///< The r-t accuracy is used internally to distinguish between good
         ///< and bad segments.
@@ -192,7 +190,7 @@ namespace MuonCalib {
         ///< no parabolic extrapolation is done
 
         // methods required by the base class "IMdtCalibration" //
-        const IMdtCalibrationOutput *analyseSegments(const std::vector<MuonCalibSegment *> &seg);
+        MdtCalibOutputPtr analyseSegments(const MuonSegVec &seg);
         ///< perform the full autocalibration
         ///< including iterations
         ///< (required since
@@ -211,65 +209,65 @@ namespace MuonCalib {
         bool converged() const;
         ///< returns true, if the
         ///< autocalibration has converged
-        const IMdtCalibrationOutput *getResults() const;
+        MdtCalibOutputPtr getResults() const;
         ///< returns the final r-t relationship
 
     private:
         // options //
-        bool m_control_histograms;  // = true, if control histograms should be
+        bool m_control_histograms = false;  // = true, if control histograms should be
                                     //         produces
-        bool m_split_into_ml;       // = true, if segments should be restricted to the
+        bool m_split_into_ml = false;       // = true, if segments should be restricted to the
                                     //         multilayers;
                                     // = false, if segments over both multilayers are
                                     //         allowed
-        bool m_full_matrix;         // = true, if the full matrix relating the errors in
+        bool m_full_matrix = false;         // = true, if the full matrix relating the errors in
                                     //         the r-t relationship to the residuals
                                     //         should be used;
                                     // = false, if a diagonal matrix should be used;
                                     //          in this case the algorithm is equivalent
                                     //          to conventional method
-        bool m_fix_min;             // = true: fix r(t_min)
-        bool m_fix_max;             // = true: fix r(t_max)
-        int m_max_it;               // maximum number of iterations
-        bool m_force_monotony;      // = true if r(t) is forced to monotonically
+        bool m_fix_min = false;             // = true: fix r(t_min)
+        bool m_fix_max = false;             // = true: fix r(t_max)
+        int m_max_it = 0;               // maximum number of iterations
+        bool m_force_monotony = false;      // = true if r(t) is forced to monotonically
                                     //        increasing, false otherwise
 
         // bookkeeping //
-        int m_nb_segments;       // number of segments passed to the algorithm
-        int m_nb_segments_used;  // number of segments used by the algorithm
-        int m_iteration;         // current iteration
-        bool m_multilayer[2];    // m_multilayer[k] = true, if there was a segment
-                                 //                   extending to multilayer k+1
+        int m_nb_segments = 0;                   // number of segments passed to the algorithm
+        int m_nb_segments_used = 0;              // number of segments used by the algorithm
+        int m_iteration = 0;                     // current iteration
+        std::array<bool, 2> m_multilayer{};  // m_multilayer[k] = true, if there was a segment
+                                             //                   extending to multilayer k+1
 
         // r-t quality //
-        int m_status;                   // m_status: 0: no covergence yet,
+        int m_status = 0;                   // m_status: 0: no covergence yet,
                                         //           1: convergence, r-t is reliable,
                                         //           2: convergence, r-t is unreliable
-        double m_rt_accuracy;           // r-t accuracy (CLHEP::mm) of the input r-t
-        double m_rt_accuracy_previous;  // r-t accuracy of the previous iteration
+        double m_rt_accuracy = 0.0;           // r-t accuracy (CLHEP::mm) of the input r-t
+        double m_rt_accuracy_previous = 0.0;  // r-t accuracy of the previous iteration
                                         // (used in the convergence criterion)
-        double m_chi2_previous;
+        double m_chi2_previous = 0.0;
         // average chi^2 per degrees of freedom from the
         // previous iteration (set to a large initial value
         // to force at least two iterations);
         // if an iteration gives a larger average than the
         // pervious iteration, the algorithm has converged
-        double m_chi2;  // average chi^2 per degrees of freedom,
+        double m_chi2 = 0.0;  // average chi^2 per degrees of freedom,
                         // if an iteration gives a larger average than the
                         // pervious iteration, the algorithm has converged
 
         // r-t relationship //
-        std::shared_ptr<const IRtRelation> m_rt;  // pointer to the input r-t relationship
-        double m_t_length;                        // size of the drift time interval
-        double m_t_mean;                          // mean value of the drift time interval
+        std::shared_ptr<const IRtRelation> m_rt;        // pointer to the input r-t relationship
+        double m_t_length = 0.0;                        // size of the drift time interval
+        double m_t_mean = 0.0;                          // mean value of the drift time interval
 
         // r-t output //
         std::shared_ptr<IRtRelation> m_rt_new;          // r-t as determined by the autocalibration
-        std::unique_ptr<RtCalibrationOutput> m_output;  // class holding the results of the
+        std::shared_ptr<RtCalibrationOutput> m_output;  // class holding the results of the
                                                         // autocalibration
 
         // straight-segment fitting //
-        double m_r_max;                             // maximum value for accepted drift radii
+        double m_r_max = 0.0;                       // maximum value for accepted drift radii
         QuasianalyticLineReconstruction m_tracker;  // quasianalytic
                                                     // straight-line segment
                                                     // finder, used because it
@@ -277,14 +275,14 @@ namespace MuonCalib {
                                                     // recognition
 
         // autocalibration objects //
-        bool m_do_smoothing;                // = true: the r-t relationship is smoothened after
+        bool m_do_smoothing = false;        // = true: the r-t relationship is smoothened after
                                             //         convergence, no smoothing is done
                                             //         otherwise
-        bool m_do_parabolic_extrapolation;  // = true: parabolic extrapolation is
+        bool m_do_parabolic_extrapolation = false;  // = true: parabolic extrapolation is
                                             //         done for small and large radii
                                             // = false: no parabolic extrapolation is
                                             //          done
-        unsigned int m_order;               // order of the polynomial describing the
+        unsigned int m_order = 0U;          // order of the polynomial describing the
                                             // correction to the r-t relationship
         std::vector<CLHEP::HepVector> m_U;  // vector of base function values
         CLHEP::HepSymMatrix m_A;            // coefficient matrix of the final autocalibration

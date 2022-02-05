@@ -14,7 +14,6 @@
 // Calo includes
 #include "CaloIdentifier/TileID.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 
 // Tile includes
 #include "TileCalibAlgs/TileInfoDump.h"
@@ -38,7 +37,6 @@ TileInfoDump::TileInfoDump(const std::string& name, ISvcLocator* pSvcLocator)
     , m_thistSvc(0)
     , m_tileHWID(0)
     , m_tileID(0)
-    , m_caloMgr(0)
     , m_h_badCellA(0)
     , m_h_badCellBC(0)
     , m_h_badCellD(0)
@@ -84,7 +82,7 @@ StatusCode TileInfoDump::initialize() {
   CHECK( detStore()->retrieve(m_tileHWID, "TileHWID") );
 
   //=== CaloDetDescrManager
-  CHECK( detStore()->retrieve(m_caloMgr) );
+  ATH_CHECK(m_caloMgrKey.initialize());
 
   //=== Get TileBadChanTool
   CHECK( m_tileBadChanTool.retrieve() );
@@ -650,7 +648,7 @@ void TileInfoDump::printBadCells() {
   IdContext cell_context = m_tileID->cell_context();
   int ncells = m_tileID->cell_hash_max();
 
-  TileCablingService* cabling = TileCablingService::getInstance();
+  const TileCablingService* cabling = TileCablingService::getInstance();
   bool run2 = cabling->isRun2Cabling();
 
   std::ostringstream sSum;
@@ -670,11 +668,16 @@ void TileInfoDump::printBadCells() {
 
   HWIdentifier ch1_id, ch2_id;
   TileBchStatus ch1_status, ch2_status;
+
+  const EventContext &ctx = Gaudi::Hive::currentContext();
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,ctx};
+  const CaloDetDescrManager* caloMgr = *caloMgrHandle;
+
   for (int i = 0; i < ncells; ++i) {
     m_tileID->get_id((IdentifierHash) i, cell_id, &cell_context);
 
     //=== get calo detector description to obtain cell coordinates
-    const CaloDetDescrElement* elem = m_caloMgr->get_element(cell_id);
+    const CaloDetDescrElement* elem = caloMgr->get_element(cell_id);
     if (!elem) {
       //=== this should never happen
       ATH_MSG_ERROR( "CaloMgr returns NULL CaloDetDescrElement" );

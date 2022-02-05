@@ -5,7 +5,7 @@
  **   @author  sutt
  **   @date    Tue  4 Feb 2020 15:25:00 CET
  **
- **   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ **   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  **/
  
 #ifndef RegSelCondAlg_LAr_h
@@ -23,11 +23,10 @@
 
 #include "IRegionSelector/IRegSelLUTCondData.h"
 #include "RegionSelector/RegSelectorHashMap.h"
+#include "LArRecConditions/LArRoIMap.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 #include <string>
-
-#include "LArCabling/LArOnOffIdMapping.h"
-
 
 
 
@@ -41,24 +40,22 @@ public:
   virtual StatusCode  initialize() override;
   virtual StatusCode  execute (const EventContext& ctx) const override;
 
-  virtual std::unique_ptr<RegSelectorHashMap> createTable() const; 
-
 private:
+  std::unique_ptr<RegSelectorHashMap> createTable (const LArRoIMap& roiMap) const; 
 
   std::string m_managerName;
   bool        m_printTable;
 
    
-  /// some cabling cond data to act as a flag to schedule the algorithm
-  /// sadly have to use the pixel cabling if the calorimeter doesn't have
-  /// it's own conditions data version 
-  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey
-    {this, "CablingKey", "LArOnOffIdMap", "LAr cabling key"};
+  SG::ReadCondHandleKey<LArRoIMap> m_roiMapKey
+    {this, "LArRoIMapKey", "LArRoIMap", "LAr RoI map key"};
+
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey
+    {this, "CaloDetDescrManager", "CaloDetDescrManager", "SG Key for CaloDetDescrManager in the Condition Store"};
 
   /// Output conditions object
   SG::WriteCondHandleKey<IRegSelLUTCondData> m_tableKey  
     { this, "RegSelLUT", "RegSelLUTCondData", "Region Selector lookup table" };
-
 };
 
 #endif // RegSelCondAlg_LAr_h

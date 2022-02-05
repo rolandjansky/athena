@@ -24,8 +24,6 @@
 
 #include "LArIdentifier/LArOnlineID.h"
 
-//#include "LArRawUtils/LArRoI_Map.h"
-
 //#include "LArRawUtils/LArRawOrdering.h"
 
 #include "LArROD/LArRawChannelBuilderParams.h"

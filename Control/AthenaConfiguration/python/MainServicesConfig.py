@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -28,6 +28,9 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
             # In a threaded job this will mess you up because no events will be processed
             raise Exception("Requested Concurrency.NumThreads>0 and Concurrency.NumConcurrentEvents==0, which will not process events!")
         LoopMgr = "AthenaHiveEventLoopMgr"
+
+    if cfgFlags.Concurrency.NumProcs>0:
+        LoopMgr = "AthMpEvtLoopMgr"
 
     ########################################################################
     # Core components needed for serial and threaded jobs
@@ -93,13 +96,16 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
     if cfgFlags.Exec.DebugStage != "":
         cfg.setDebugStage(cfgFlags.Exec.DebugStage)
 
+    if cfgFlags.Concurrency.NumProcs>0:
+        from AthenaMP.AthenaMPConfig import AthenaMPCfg
+        mploop = AthenaMPCfg(cfgFlags)
+        cfg.merge(mploop)
 
     ########################################################################
     # Additional components needed for threaded jobs only
     if cfgFlags.Concurrency.NumThreads>0:
 
         # Migrated code from AtlasThreadedJob.py
-        AuditorSvc=CompFactory.AuditorSvc
         msgsvc.defaultLimit = 0
         msgsvc.Format = "% F%{:d}W%C%6W%R%e%s%8W%R%T %0W%M".format(cfgFlags.Common.MsgSourceLength)
 
@@ -148,8 +154,7 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
         #
         ## Setup SGCommitAuditor to sweep new DataObjects at end of Alg execute
         #
-        SGCommitAuditor=CompFactory.SGCommitAuditor
-        cfg.addService( AuditorSvc(Auditors=[SGCommitAuditor().getFullJobOptName(),]))
+        cfg.addAuditor( CompFactory.SGCommitAuditor() )
         cfg.setAppProperty("AuditAlgorithms", True)
 
     return cfg

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHALLOCATORS_DATAPOOL_H
@@ -159,7 +159,7 @@ public:
    const static typename alloc_t::Params s_params;
 
   /// minimum number of elements in pool
-  static const unsigned int s_minRefCount = 1024;
+  static constexpr size_t s_minRefCount = 1024;
 };
 
 

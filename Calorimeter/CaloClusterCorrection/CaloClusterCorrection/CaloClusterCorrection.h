@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it is really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCLUSTERCORRECTION_CALOCLUSTERCORRECTION_H
@@ -47,12 +47,17 @@ Updated:  February, 2006 (DLelas)
 // INCLUDE HEADER FILES:
 #include "CaloRec/CaloClusterProcessor.h"
 #include "CaloUtils/ToolWithConstants.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class CaloClusterCorrection
   : public CaloUtils::ToolWithConstants<CaloClusterProcessor>
 {
 
  public:
+
+  virtual StatusCode initialize() override;
+
   // modifying CaloCluster object 
   virtual void setsample(xAOD::CaloCluster* cluster,
                          CaloSampling::CaloSample sampling,
@@ -75,6 +80,7 @@ class CaloClusterCorrection
  protected:
   /// Delegate to base class constructor.
   using base_class::base_class;
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager", "CaloDetDescrManager"};
 };
 
 #endif

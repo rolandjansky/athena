@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthContainers/tools/ElementProxy.h
@@ -16,6 +16,7 @@
 
 #include "AthContainers/OwnershipPolicy.h"
 #include "AthLinks/tools/selection_ns.h"
+#include "CxxUtils/concepts.h"
 #include <memory>
 
 
@@ -90,11 +91,14 @@ public:
    * we then need to delete the proxied object before making
    * the assignment.
    */
-  ElementProxy& operator= (typename DVL::value_type rhs);
+  // Disable this method if the container must own its elements.
+  // In that case, only the unique_ptr overload is relevant.
+  ATH_MEMBER_REQUIRES(!DVL::must_own, ElementProxy&)
+  operator= (typename DVL::value_type rhs);
 
 
   /**
-   * @brief Assignment operator, from a pointer.
+   * @brief Assignment operator, from a unique_ptr.
    * @param rhs The pointer from which we're assigning.
    *
    * If @a rhs is the same as the element we're proxying, then
@@ -102,7 +106,7 @@ public:
    * be true.  The container must own its elements in order
    * to use this interface.
    */
-  ElementProxy& operator= (std::unique_ptr<typename DVL::base_value_type> rhs);
+  ElementProxy& operator= (typename DVL::unique_type rhs);
 
 
   /**

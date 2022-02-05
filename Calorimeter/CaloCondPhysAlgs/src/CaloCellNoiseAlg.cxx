@@ -23,9 +23,6 @@ using CLHEP::HepVector;
 //Constructor
 CaloCellNoiseAlg::CaloCellNoiseAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator),
-  m_thistSvc(nullptr),
-  m_calodetdescrmgr(nullptr),
-  m_calo_id(nullptr),
   m_ncell(0),
   m_lumiblock(0),
   m_lumiblockOld(0),
@@ -97,7 +94,7 @@ StatusCode CaloCellNoiseAlg::initialize()
   ATH_CHECK( detStore()->retrieve( mgr ) );
   m_calo_id      = mgr->getCaloCell_ID();
 
-  ATH_CHECK( detStore()->retrieve(m_calodetdescrmgr) );
+  ATH_CHECK(m_caloMgrKey.initialize());
 
   ATH_CHECK( m_noiseKey.initialize    ( m_doMC) );
   ATH_CHECK( m_pedestalKey.initialize (!m_doMC) );
@@ -218,10 +215,13 @@ StatusCode CaloCellNoiseAlg::execute()
       totalNoise = noiseH.cptr();
     }
 
+    SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+    ATH_CHECK(caloMgrHandle.isValid());
+
     for (int i=0;i<m_ncell;i++) {
      IdentifierHash idHash=i;
      Identifier id=m_calo_id->cell_id(idHash);
-     const CaloDetDescrElement* calodde = m_calodetdescrmgr->get_element(id);
+     const CaloDetDescrElement* calodde = (*caloMgrHandle)->get_element(id);
      CellInfo cell0{};
      cell0.nevt = 0;
      cell0.average = 0.;

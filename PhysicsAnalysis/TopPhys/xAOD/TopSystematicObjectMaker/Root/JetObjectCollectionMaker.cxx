@@ -307,21 +307,17 @@ namespace top {
     m_config->systematicsTrackJets(m_specifiedSystematicsTrackJets);
 
     ///-- DL1 Decoration --///
-    for (const auto& algo : m_config->bTagAlgo_selToolNames()) {
+    for (const auto& algo : m_config->bTagAlgos()) {
       m_btagSelToolsDL1Decor[algo.first] = algo.second;
       top::check(m_btagSelToolsDL1Decor[algo.first].retrieve(), "Failed to retrieve " + algo.first + " btagging selector for " + m_config->sgKeyJets() + ". This is required for b-tagging score decorations in EventSaver!");
-      if (DLx.count(algo.first) == 0) {
-        DLx.emplace(algo.first, SG::AuxElement::Decorator<float>("AnalysisTop_" + algo.first));
-      }
+      DLx.emplace(algo.first, SG::AuxElement::Decorator<float>("AnalysisTop_" + algo.first));
     }
 
     if (m_config->useTrackJets()) {
-      for (const auto& algo : m_config->bTagAlgo_selToolNames_trkJet()) {
+      for (const auto& algo : m_config->bTagAlgos_trkJet()) {
         m_btagSelToolsDL1Decor_trkJet[algo.first] = algo.second;
         top::check(m_btagSelToolsDL1Decor_trkJet[algo.first].retrieve(), "Failed to retrieve " + algo.first + " btagging selector for " + m_config->sgKeyTrackJets() + ". This is required for b-tagging score decorations in EventSaver!");
-        if (DLx.count(algo.first) == 0) {
-          DLx.emplace(algo.first, SG::AuxElement::Decorator<float>("AnalysisTop_" + algo.first));
-        }
+	DLx.emplace(algo.first, SG::AuxElement::Decorator<float>("AnalysisTop_" + algo.first));
       }
     }
 
@@ -1010,9 +1006,9 @@ namespace top {
 
     for (const auto *jet : *jets) {
       // loop over either calo or track jet btag selection tools to calculate the DL1x scores
-      const std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool>>& m_btagDecorTools \
+      const std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool>>& btagDecorTools \
         = (trackJets ? m_btagSelToolsDL1Decor_trkJet : m_btagSelToolsDL1Decor);
-      for (std::pair<std::string, ToolHandle<IBTaggingSelectionTool>> algo : m_btagDecorTools) {
+      for (std::pair<std::string, ToolHandle<IBTaggingSelectionTool>> algo : btagDecorTools) {
         double DL1_weight = -999.;
         double dl1_pb = -10.;
         double dl1_pc = -10.;

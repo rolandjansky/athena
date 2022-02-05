@@ -215,7 +215,7 @@ StatusCode LArOFCCondAlg::execute() {
                 int igain_autocorr=igain;
                 // to use only Autocorr fro highest gain in optimization: HEC/FCAL=> medium gain    EM=>high gain
                 if (m_useHighestGainAutoCorr) {
-                    if  (larOnlineID->isHECchannel(chid) || larOnlineID->isFCALchannel(chid) ) igain_autocorr=1;
+                    if  (!m_isSuperCell &&(larOnlineID->isHECchannel(chid) || larOnlineID->isFCALchannel(chid)) ) igain_autocorr=1;
                     else igain_autocorr=0;
                 }
 

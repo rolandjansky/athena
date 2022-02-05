@@ -20,7 +20,8 @@ TrigHLTMonitorAlgorithm::~TrigHLTMonitorAlgorithm() {}
 StatusCode TrigHLTMonitorAlgorithm::initialize() {
 
   ATH_CHECK( m_trigDecTool.retrieve() );
-  ATH_CHECK( m_hltResultReadKey.initialize() );
+  ATH_CHECK( m_eventKey.initialize() );
+  ATH_CHECK( m_onlineKey.initialize() );
   ATH_CHECK( m_trigConfigSvc.retrieve() );
 
   return AthMonitorAlgorithm::initialize();
@@ -228,55 +229,82 @@ StatusCode TrigHLTMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 StatusCode TrigHLTMonitorAlgorithm::fillResultAndConsistencyHistograms( const EventContext& ctx ) const {
 
   using namespace Monitored;
-  StatusCode sc_hltResult = StatusCode::FAILURE; 
+  StatusCode sc_hltEvents = StatusCode::FAILURE; 
+  StatusCode sc_onlineKeys = StatusCode::FAILURE; 
+  StatusCode sc_eventKeys = StatusCode::FAILURE; 
+  ATH_MSG_DEBUG("---> Filling Result and Consistency histograms");
 
   // Declare the quantities which should be monitored
   //NB! The variables and histograms defined here must match the ones in the py file exactly!
-  auto HLTResultHLT = Monitored::Scalar<int>("HLTResultHLT",0);
+  auto HLTEvents = Monitored::Scalar<int>("HLTEvents",0);
   auto ConfigConsistency_HLT = Monitored::Scalar<int>("ConfigConsistency_HLT",0);
 
-  SG::ReadHandle<HLT::HLTResultMT> resultHandle = SG::makeHandle( m_hltResultReadKey, ctx );
+  SG::ReadHandle<xAOD::TrigConfKeys> onlineKeys(m_onlineKey, ctx);
+  SG::ReadHandle<xAOD::TrigConfKeys> eventKeys(m_eventKey, ctx);
 
+  sc_hltEvents = StatusCode::SUCCESS; //This is just a counter variable. If we are executing this code, we fill it. 
+
+  if( onlineKeys.isValid() ) {
+    sc_onlineKeys = StatusCode::SUCCESS;
+    ATH_MSG_DEBUG("onlineKeys are valid"); 
+  }
+  else {
+    ATH_MSG_ERROR("TrigConfKeysOnline not available");
+  }
+  if( eventKeys.isValid() ) {
+    sc_eventKeys = StatusCode::SUCCESS;
+    ATH_MSG_DEBUG("eventKeys are valid");
+  }
+  else {
+    ATH_MSG_ERROR("TrigConfKeys not available");
+  }
 
   //////////////////////////////////////
   // HLTResult and ConfigConsistency
 
   uint32_t bskeys_1 = 9999; uint32_t bskeys_2 = 9999;
-  HLTResultHLT = 1; //DUMMY; to be updated.
-  sc_hltResult = StatusCode::FAILURE; //no HLTResult yet
-
   
   // Fill. First argument is the tool (GMT) name as defined in the py file, 
   // all others are the variables to be saved.
   // Alternative fill method. Get the group yourself, and pass it to the fill function.
   auto tool = getGroup("TrigHLTMonitor");
 
-    
-  if(sc_hltResult == StatusCode::SUCCESS) {
-    //THIS IS NOT IMPLEMENTED YET IN Run3
-    //bskeys_1 = HLTResult->getConfigSuperMasterKey();
-    //bskeys_2 = HLTResult->getConfigPrescalesKey();
-    ATH_MSG_DEBUG("sc_hltResult should not be SUCCESS");
+  ATH_MSG_DEBUG("Fetching keys from TrigConfKeysOnline");     
+  if(sc_onlineKeys == StatusCode::SUCCESS) {
+    bskeys_1 = onlineKeys->smk();
+    bskeys_2 = onlineKeys->hltpsk();
+    ATH_MSG_DEBUG("TrigConfKeysOnline: SMK = bskeys_1 = " << bskeys_1 << ", HLTPSK = bskeys_2 = " << bskeys_2);
   }
   else {
-    //For now, this will always happen    
-    ATH_MSG_DEBUG("====> No HLTResult monitored (because it has not been implemented yet)");
-    //FIXME: When the HLTResult IS implemented this should be a WARNING // ebergeas Sept 2020
-    //ATH_MSG_WARNING("No HLTResult found"); //Prints a warning message in the log file
+    ATH_MSG_WARNING("===> No online keys");
     ConfigConsistency_HLT=7;
-    fill(tool,ConfigConsistency_HLT); //Fills the warning bin in the ConfigConsistency histogram
+    fill(tool,ConfigConsistency_HLT); //Fills the first warning bin in the ConfigConsistency histogram
     bskeys_1 = 0;
     bskeys_2 = 0;
-    ATH_MSG_DEBUG("bskeys_1 = " << bskeys_1 << ", bskeys_2 = " << bskeys_2);
-
+    ATH_MSG_DEBUG("No online keys, reverting to default 0: SMK = bskeys_1 = " << bskeys_1 << ", HLTPSK = bskeys_2 = " << bskeys_2);
   }
+
+  ATH_MSG_DEBUG("===> Filling ConfigConsistency_HLT");
 
   uint32_t bskeys[] = {bskeys_1, bskeys_2};
   uint32_t dbkeys[2];
-  dbkeys[0]=m_trigConfigSvc->masterKey();
-  dbkeys[1]=m_trigConfigSvc->hltPrescaleKey();
+  ATH_MSG_DEBUG("Fetching keys from TrigConfKeys");
+  if(sc_eventKeys == StatusCode::SUCCESS) {
+    dbkeys[0] = eventKeys->smk();
+    dbkeys[1] = eventKeys->hltpsk();
+
+    ATH_MSG_DEBUG("TrigConfKeys: SMK = dbkeys[0] = " << dbkeys[0] << ", HLTPSK = dbkeys[1] = " << dbkeys[1]);
+  }
+  else {
+    ATH_MSG_WARNING("===> No event keys");
+    ConfigConsistency_HLT=8;
+    fill(tool,ConfigConsistency_HLT); //Fills the second warning bin in the ConfigConsistency histogram
+    dbkeys[0] = 0;
+    dbkeys[1] = 0;
+    ATH_MSG_DEBUG("No event keys, reverting to default 0: SMK = dbkeys[0] = " << dbkeys[0] << ", HLTPSK = dbkeys[1] = " << dbkeys[0]);
+  }
+
   for(int i = 0; i < 2; ++i) {
-    ATH_MSG_DEBUG(" ===> Filling ConfigConsistency_HLT");
     ATH_MSG_DEBUG("i = " << i << ", dbkeys[" << i << "] = " << dbkeys[i] << ", bskeys[" << i << "] = " << bskeys[i]); 
     if(dbkeys[i]==0) {
       ConfigConsistency_HLT=3*i+1;
@@ -294,8 +322,14 @@ StatusCode TrigHLTMonitorAlgorithm::fillResultAndConsistencyHistograms( const Ev
       ATH_MSG_DEBUG("dbkeys[" << i << "]!=bskeys[" << i << "], ConfigConsistency_HLT=" << ConfigConsistency_HLT);
     } 
   }
-    
-  fill(tool,HLTResultHLT);
+
+
+
+  //Fill HLTEvent histogram 
+  //this was called HLTResult in Run1-2, 
+  //but HLTResult has a slightly different meaning now
+  HLTEvents = (int)sc_hltEvents.isSuccess();
+  fill(tool,HLTEvents); //Always fill, for every event
 
   return StatusCode::SUCCESS;
 }

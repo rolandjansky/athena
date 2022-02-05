@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( CxxUtils )
@@ -132,7 +132,8 @@ foreach( test sincos_test ArrayScanner_test Arrayrep_test
       restrict_test vectorize_test get_unaligned_test aligned_vector_test
       vec_int_test vec_float_test vec_fb_int_test vec_fb_float_test
       ConcurrentHashmapImpl_test SimpleUpdater_test hexdump_test
-      FPControl_test LockedPointer_test )
+      FPControl_test LockedPointer_test nodiscard_test span_test
+      reverse_wrapper_test )
    atlas_add_test( ${test}
       SOURCES test/${test}.cxx
       LOG_IGNORE_PATTERN "no version information available"
@@ -147,7 +148,7 @@ if( ATLAS_RELEASE_MODE )
 endif()
 
 # Install the ubsan.supp file already during the CMake configuration.
-# This is necessary because the file may be needer very early during the
+# This is necessary because the file may be needed very early during the
 # build, and we don't explicitly make everything else wait for this
 # file's installation. Creating a race condition.
 file( INSTALL share/ubsan.supp

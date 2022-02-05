@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <stdint.h>
@@ -14,7 +14,6 @@
 #include "TrigNavStructure/ComboIterator.h"
 #include "testutils.h"
 using namespace HLT;
-StandaloneNavigation tns;
 namespace ID {
   const te_id_type trk=22;
   //const te_id_type mu=33;
@@ -24,14 +23,15 @@ namespace ID {
   const te_id_type topoMu=8000;
   const te_id_type topoMuCalo=9000;
 }
-TriggerElement* makeTopoConnections(TriggerElement* t1, TriggerElement* t2, unsigned id) {
+TriggerElement* makeTopoConnections(StandaloneNavigation& tns,
+                                    TriggerElement* t1, TriggerElement* t2, unsigned id) {
   std::vector<TriggerElement*> seeds;
   seeds.push_back(t1);
   seeds.push_back(t2);
   return tns.addNode(seeds, id);    
 }
 
-void prepareNavigation() {
+void prepareNavigation(StandaloneNavigation& tns) {
   tns.reset();
   // build RoIs (calo)
   TriggerElement* roi1 = tns.addRoINode(tns.getInitialNode());
@@ -47,9 +47,9 @@ void prepareNavigation() {
   TriggerElement* calo4 =  tns.addNode(roi4, 1104);
 
   // make topo connections (1-2, and 1-3, no 2-3)
-  makeTopoConnections(calo1, calo2, ID::topoCalo);
-  makeTopoConnections(calo1, calo3, ID::topoCalo); 
-  makeTopoConnections(calo2, calo4, ID::topoCalo)->setActiveState(false);  // topo run but failed
+  makeTopoConnections(tns, calo1, calo2, ID::topoCalo);
+  makeTopoConnections(tns, calo1, calo3, ID::topoCalo); 
+  makeTopoConnections(tns, calo2, calo4, ID::topoCalo)->setActiveState(false);  // topo run but failed
   
   tns.addNode(calo1, ID::trk);
   tns.addNode(calo2, ID::trk);
@@ -67,41 +67,42 @@ void prepareNavigation() {
   TriggerElement* ms3 =  tns.addNode(roi7, 3303);
 
   // make topo connections
-  makeTopoConnections(ms1, ms2, ID::topoMu)->setActiveState(false);
-  makeTopoConnections(ms1, ms3, ID::topoMu);
-  makeTopoConnections(ms2, ms3, ID::topoMu)->setActiveState(false);
+  makeTopoConnections(tns, ms1, ms2, ID::topoMu)->setActiveState(false);
+  makeTopoConnections(tns, ms1, ms3, ID::topoMu);
+  makeTopoConnections(tns, ms2, ms3, ID::topoMu)->setActiveState(false);
   
   tns.addNode(ms1, ID::trk2);
   tns.addNode(ms2, ID::trk2);
   tns.addNode(ms3, ID::trk2);
 
   // make mu+electron combinations
-  makeTopoConnections(ms1, calo1, ID::topoMuCalo);
-  makeTopoConnections(ms2, calo1, ID::topoMuCalo);
-  makeTopoConnections(ms3, calo2, ID::topoMuCalo)->setActiveState(false); 
+  makeTopoConnections(tns, ms1, calo1, ID::topoMuCalo);
+  makeTopoConnections(tns, ms2, calo1, ID::topoMuCalo);
+  makeTopoConnections(tns, ms3, calo2, ID::topoMuCalo)->setActiveState(false); 
 }
 
-void printCombination(size_t n,  const TEVec& comb) {
+void printCombination(StandaloneNavigation& tns,
+                      size_t n,  const TEVec& comb) {
   const TriggerElement* te1 = tns.getDirectPredecessors(comb[0])[0];
   const TriggerElement* te2 = tns.getDirectPredecessors(comb[1])[0];
   MSG("INFO", "Combination " << n <<" of TEs seeded of " << te1->getId() << " " << te2->getId());  
 }
 
-size_t iterateAndPrint(ComboIteratorBase& it) {
+size_t iterateAndPrint(StandaloneNavigation& tns, ComboIteratorBase& it) {
   size_t counter = 0;
   while( it.isValid() ) {
 
     TEVec comb;
     comb = it.combination();
-    printCombination(counter, comb);
+    printCombination(tns, counter, comb);
     counter++;
-    it++;    
+    ++it;
   }
   return counter;
 }
 
 
-bool testPlainIteratorSymmetric() {
+bool testPlainIteratorSymmetric(StandaloneNavigation& tns) {
   BEGIN_TEST;
   TEVec trks;
   tns.getAllOfType(ID::trk, trks);
@@ -112,7 +113,7 @@ bool testPlainIteratorSymmetric() {
   if ( not it.isValid() ) 
     REPORT_AND_STOP("Newly made ComboIterator is invalid");
   PROGRESS;
-  size_t counter = iterateAndPrint(it);
+  size_t counter = iterateAndPrint(tns, it);
   if ( counter != 6 ) 
     REPORT_AND_STOP("To few combinations");
 
@@ -121,7 +122,7 @@ bool testPlainIteratorSymmetric() {
 }
 
 
-bool testPlainIteratorAsymmetric() {
+bool testPlainIteratorAsymmetric(StandaloneNavigation& tns) {
   BEGIN_TEST;
   TEVec trksCalo;
   tns.getAllOfType(ID::trk, trksCalo);
@@ -133,7 +134,7 @@ bool testPlainIteratorAsymmetric() {
   if ( not it.isValid() ) 
     REPORT_AND_STOP("Newly made ComboIterator is invalid");
 
-  size_t counter = iterateAndPrint(it);
+  size_t counter = iterateAndPrint(tns, it);
   if ( counter !=  trksCalo.size()*trksMu.size()) 
     REPORT_AND_STOP("Wrong number of combinations " << counter);
 
@@ -143,7 +144,7 @@ bool testPlainIteratorAsymmetric() {
 
 
 
-bool testTopoIterator() {
+bool testTopoIterator(StandaloneNavigation& tns) {
   BEGIN_TEST;
   TEVec trksCalo;
   tns.getAllOfType(ID::trk, trksCalo);
@@ -156,7 +157,7 @@ bool testTopoIterator() {
     std::vector<TEVec> zipped{trksCalo, trksCalo};    
     ComboIteratorTopo it(zipped, &tns, ID::topoCalo);  
     it.rewind();
-    size_t counter = iterateAndPrint(it);
+    size_t counter = iterateAndPrint(tns, it);
     if ( counter != 2 ) 
       REPORT_AND_STOP("Topo iterator provides wrong number of combinations (2)" << counter );
   }
@@ -165,7 +166,7 @@ bool testTopoIterator() {
     std::vector<TEVec> zipped{trksMu, trksMu};
     ComboIteratorTopo it(zipped, &tns, ID::topoMu);  
     it.rewind();
-    size_t counter = iterateAndPrint(it);
+    size_t counter = iterateAndPrint(tns, it);
     if ( counter != 1 ) 
       REPORT_AND_STOP("Topo iterator provides wrong number of combinations (1)" << counter );    
   }
@@ -174,7 +175,7 @@ bool testTopoIterator() {
     std::vector<TEVec> zipped{trksMu, trksCalo};
     ComboIteratorTopo it(zipped, &tns, ID::topoMu);   // this is on purpose there should be 0 combs as topoMu never spans caloTEs
     it.rewind();
-    size_t counter = iterateAndPrint(it);
+    size_t counter = iterateAndPrint(tns, it);
     if ( counter != 0 ) 
       REPORT_AND_STOP("Topo iterator provides wrong number of combinations (0)" << counter );    
   }
@@ -183,7 +184,7 @@ bool testTopoIterator() {
     std::vector<TEVec> zipped{trksMu, trksCalo};
     ComboIteratorTopo it(zipped, &tns, ID::topoMuCalo);   
     it.rewind();
-    size_t counter = iterateAndPrint(it);
+    size_t counter = iterateAndPrint(tns, it);
     if ( counter != 2 ) 
       REPORT_AND_STOP("Topo iterator provides wrong number of combinations (2)" << counter );    
   }
@@ -206,15 +207,16 @@ int main() {
   ctx.setExtension( Atlas::ExtendedEventContext(xdict) );
   Gaudi::Hive::setCurrentContext (ctx);
 
-  prepareNavigation();
+  StandaloneNavigation tns;
+  prepareNavigation(tns);
   
-  if ( not testPlainIteratorSymmetric() ) 
+  if ( not testPlainIteratorSymmetric(tns) ) 
+    ABORT("testPlainIteratorSymmetric() test failed");
+
+  if ( not testPlainIteratorAsymmetric(tns) ) 
     ABORT("testPlainIteratorAsymmetric() test failed");
 
-  if ( not testPlainIteratorAsymmetric() ) 
-    ABORT("testPlainIteratorAsymmetric() test failed");
-
-  if (not testTopoIterator())
+  if (not testTopoIterator(tns))
     ABORT("testTopoIterator() test failed");
     
   MSG("OK", "Test passed");

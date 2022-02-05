@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArBadChannelTool/LArBadChannelCondAlg.h"
@@ -78,13 +78,13 @@ StatusCode LArBadChannelCondAlg::execute() {
  
      const LArOnlineID_Base* onlineID;
      if (m_isSC) {//SuperCell case
-       const LArOnline_SuperCellID* scID;
+       const LArOnline_SuperCellID* scID = nullptr;
        ATH_CHECK(detStore()->retrieve(scID,"LArOnline_SuperCellID"));
        onlineID=scID;
      }
      else {//regular readout
-        const LArOnlineID* onlID;
-	ATH_CHECK(detStore()->retrieve(onlID,"LArOnline_ID"));
+        const LArOnlineID* onlID = nullptr;
+	ATH_CHECK(detStore()->retrieve(onlID,"LArOnlineID"));
 	onlineID=onlID;
      }
      LArBadChannelDecoder decoder(&(*onlineID), msg());
@@ -119,7 +119,7 @@ StatusCode LArBadChannelCondAlg::execute() {
 		  << " into Conditions Store");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("Recorded LArRawChannelCont object with key "
+  ATH_MSG_INFO("Recorded LArBadChannelCont object with key "
 	       << writeHandle.key() 
 	       << " with EventRange " << writeHandle.getRange()
 	       << " into Conditions Store");

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -78,14 +78,14 @@ StatusCode TileL2Builder::initialize() {
   // Initialize
   this->m_hashFunc.initialize(m_tileHWID);
 
-  const TileID* tileID;
+  const TileID* tileID = nullptr;
   ATH_CHECK( detStore()->retrieve(tileID) );
 
-  const TileTBID* tileTBID;
+  const TileTBID* tileTBID = nullptr;
   ATH_CHECK( detStore()->retrieve(tileTBID) );
 
   // retrieve Tile detector manager and TileID helper from det store
-  const TileDetDescrManager* tileMgr;
+  const TileDetDescrManager* tileMgr = nullptr;
   ATH_CHECK( detStore()->retrieve(tileMgr) );
 
   ServiceHandle<TileCablingSvc> cablingSvc("TileCablingSvc", name());
@@ -177,7 +177,6 @@ StatusCode TileL2Builder::process(int fragmin, int fragmax, TileL2Container *l2C
   std::vector<float> EMuons1;
   std::vector<float> EMuons2;
   std::vector<unsigned int> qf;
-  std::vector<float> sumE(3);
 
   float E_MeV[48];
   bool bad[48];
@@ -229,8 +228,9 @@ StatusCode TileL2Builder::process(int fragmin, int fragmax, TileL2Container *l2C
       MaskBad(ros, E_MeV, gain, bad);
 
       // MET
+      std::vector<float> sumE(3);
       SumE(ros, drawer, TileRawChannelUnit::MegaElectronVolts, E_MeV, gain, sumE);
-      (*l2Container)[m_hashFunc(fragId)]->setEt(sumE);
+      (*l2Container)[m_hashFunc(fragId)]->setEt(std::move(sumE));
 
       // MTag
 

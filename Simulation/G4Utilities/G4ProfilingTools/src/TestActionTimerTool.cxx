@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TestActionTimerTool.h"
@@ -71,7 +71,7 @@ namespace G4UA
 	ATH_MSG_INFO("FCAL\t" << (report.time[TestActionTimer::eFC1]+report.time[TestActionTimer::eFC23]+report.time[TestActionTimer::eFCO])/report.nev);
 	ATH_MSG_INFO("HEC\t" << (report.time[TestActionTimer::eHEC])/report.nev);
 	ATH_MSG_INFO("Tile\t" << (report.time[TestActionTimer::eHCB])/report.nev);
-	ATH_MSG_INFO("Tracker\t" << (report.time[TestActionTimer::ePx]+report.time[TestActionTimer::eSct]+report.time[TestActionTimer::eTrt]+report.time[TestActionTimer::eSev])/report.nev);
+	ATH_MSG_INFO("Tracker\t" << (report.time[TestActionTimer::ePx]+report.time[TestActionTimer::eSct]+report.time[TestActionTimer::eITkPix]+report.time[TestActionTimer::eITkStrip]+report.time[TestActionTimer::eTrt]+report.time[TestActionTimer::eSev])/report.nev);
 	ATH_MSG_INFO("Muons\t" << (report.time[TestActionTimer::eMu])/report.nev);
 	ATH_MSG_INFO("Oth.LAr\t" << (report.time[TestActionTimer::ePre]+report.time[TestActionTimer::TestActionTimer::eCry]+report.time[TestActionTimer::eLAr])/report.nev);
 	ATH_MSG_INFO("Other\t" << (report.time[TestActionTimer::eOther])/report.nev);
@@ -82,7 +82,7 @@ namespace G4UA
 	ATH_MSG_INFO("FCAL\t" << (report.time[TestActionTimer::eFC1]+report.time[TestActionTimer::eFC23]+report.time[TestActionTimer::eFCO])/report.runTime*100.);
 	ATH_MSG_INFO("HEC\t" << (report.time[TestActionTimer::eHEC])/report.runTime*100.);
 	ATH_MSG_INFO("Tile\t" << (report.time[TestActionTimer::eHCB])/report.runTime*100.);
-	ATH_MSG_INFO("Tracker\t" << (report.time[TestActionTimer::ePx]+report.time[TestActionTimer::eSct]+report.time[TestActionTimer::eTrt]+report.time[TestActionTimer::eSev])/report.runTime*100.);
+	ATH_MSG_INFO("Tracker\t" << (report.time[TestActionTimer::ePx]+report.time[TestActionTimer::eSct]+report.time[TestActionTimer::eITkPix]+report.time[TestActionTimer::eITkStrip]+report.time[TestActionTimer::eTrt]+report.time[TestActionTimer::eSev])/report.runTime*100.);
 	ATH_MSG_INFO("Muons\t" << (report.time[TestActionTimer::eMu])/report.runTime*100.);
 	ATH_MSG_INFO("Oth.LAr\t" << (report.time[TestActionTimer::ePre]+report.time[TestActionTimer::eCry]+report.time[TestActionTimer::eLAr])/report.runTime*100.);
 	ATH_MSG_INFO("Other\t" << (report.time[TestActionTimer::eOther])/report.runTime*100.);

@@ -86,7 +86,7 @@ double LArGeo::RALExperimentalHall::GetValue(const std::string& a_name,
                                              const int /*a1*/,
                                              const int /*a2*/,
                                              const int /*a3*/,
-                                             const int /*a4*/ ) 
+                                             const int /*a4*/ ) const
 {
   
   if ( a_name == "LArExpHallOutOfTimeCut"     ) return 2.5*CLHEP::ns;

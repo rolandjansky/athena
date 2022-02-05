@@ -116,10 +116,9 @@ namespace InDet
               if (origtrack) {
                 double  Trk_pt = trk->pt();
                 if ((Trt_hits != 0) && (Trk_pt > 400.0) ){
-                  const Trk::Track& newtrack = Trk::Track(*origtrack);
 
                   CSMP_indicators.clear();
-                  CSMP_indicators = ChargedSMPindicators(newtrack);
+                  CSMP_indicators = ChargedSMPindicators(*origtrack);
 
                   if (CSMP_indicators.size() > 10){
                     if(  ( (CSMP_indicators[5] > 15000.0)  || ((int)CSMP_indicators[4] > 10))   && ((unsigned int)CSMP_indicators[6] > m_minTRThits) )  {
@@ -287,8 +286,6 @@ namespace InDet
     unsigned int HighThresholdHits   = 0;
     float te_product_sum = 0.0;
     float te_quotient_sum = 0.0;
-    float le_product_sum = 0.0;
-    float le_quotient_sum = 0.0;
     float sq_dist_sum = 0.0;
     double RCorrectedTotBits    = 0.0;
     double RCorrTotalBitsOverThreshold = 0.0;
@@ -312,12 +309,8 @@ namespace InDet
 
     
     // Start TGap variables
-    float totoverl =0.;
     double tegap = 0.;
     int hont =0;
-    int hontb = 0;
-    int honte =0;
-    int hbad =0;
 
     // Check for track states:
     const DataVector<const Trk::TrackStateOnSurface>* recoTrackStates = track.trackStateOnSurfaces();
@@ -397,7 +390,6 @@ namespace InDet
 	      int LE_bit  = 0;
 	      bool LE_found = false;
 	      double trailingbittime = 0.0;
-	      double leadingbittime = 0.0;
 	      float TOT   = 0.0;
 
 	      Identifier DCoTId = driftcircle->identify();
@@ -445,7 +437,6 @@ namespace InDet
 	      double f_TrkAnodeDist = fabs(TrkAnodeDist);
 
 	      trailingbittime = double(TE_bit)*3.125-t0+m_TimingOffset;
-	      leadingbittime  = double(LE_bit)*3.125-t0+m_TimingOffset;
 
 	      if ( (trtdistance > 0.0) && (f_TrkAnodeDist <= 1.9) && (f_TrkAnodeDist >= 0.01) && (TOT == NLTbits) ){
 	
@@ -476,8 +467,6 @@ namespace InDet
 		RCorrTotalBitsOverThreshold += RCorrectedTotBits;
 		te_product_sum += trailingbittime*trtdistance;
 		te_quotient_sum += trailingbittime/trtdistance;
-		le_product_sum += leadingbittime*trtdistance;
-		le_quotient_sum += leadingbittime/trtdistance;
 		sq_dist_sum += trtdistance*trtdistance;
 		goodTRThits++;
 
@@ -502,25 +491,16 @@ namespace InDet
 	      // Add the cut on holes (from HO)
 	      if( Ttbit-Ltbit+1 != NLTbits)Valid = false;
 
-	      float tot = TOT;
-	      
 	      if ( (fabs(Rdrift)>0) && Valid && (trtdistance > 0.0)) {//rdrift condition
 		
 		//float length, projlength;
-		float projlength;
-		projlength = sqrt(4.- Rtrack*Rtrack);
+		//float projlength;
+		//projlength = sqrt(4.- Rtrack*Rtrack);
 		
 		//if (bec == 1 || bec == -1) length = projlength/sinth; // track path length in a straw
 		//if (bec == 2 || bec == -2) length = fabs( projlength/costh); // track path length in a straw
 		
-		if (projlength > 0) totoverl = tot*3.125/projlength;
-		if (totoverl>35.)  {
-		  hbad +=1;
-		  }
-		
 		hont += 1;  // #hits on track
-		if (bec==-1 || bec==1)  hontb += 1;
-		if (bec==-2 || bec==2)  honte += 1;
 		
 		double gap = 0.0;
 		double gapE = 0.0;

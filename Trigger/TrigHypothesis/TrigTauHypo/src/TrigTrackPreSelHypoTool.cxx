@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iterator>
@@ -90,7 +90,6 @@ bool TrigTrackPreSelHypoTool::decide( const ITrigTrackPreSelHypoTool::TrackingIn
     pass = true;
     ATH_MSG_DEBUG( "AcceptAll property is set: taking all events" );
   } else {
-    pass = false;
     ATH_MSG_DEBUG( "AcceptAll property not set: applying selection" );
   }
 
@@ -176,12 +175,10 @@ bool TrigTrackPreSelHypoTool::decide( const ITrigTrackPreSelHypoTool::TrackingIn
       }
     }
   }else{
-    return false;
+    return pass;
   }
  
-  if (nTracksInCore > m_tracksInCoreCut || nTracksInIso > m_tracksInIsoCut) 
-  {
-	ATH_MSG_DEBUG(
+  ATH_MSG_DEBUG(
 	      " REGTEST: Number of tracks in core(isolation) = "
 	      << nTracksInCore
 	      << " ("
@@ -191,15 +188,11 @@ bool TrigTrackPreSelHypoTool::decide( const ITrigTrackPreSelHypoTool::TrackingIn
  	      << m_tracksInCoreCut
 	      << " ("
 	      << m_tracksInIsoCut
-	      << ")" );
-      return pass;
-  }
+  << ")" );
 
   PassedCuts++;
-  pass = true;
   
   ATH_MSG_DEBUG( " REGTEST: TE accepted !! " );
-  
   
   return pass;
 }

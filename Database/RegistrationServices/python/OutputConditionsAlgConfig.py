@@ -21,6 +21,8 @@ def OutputConditionsAlgCfg(flags, name="OutputConditionsAlg",
     oca.StreamName=name+"Tool"
     condstream.OutputFile=outputFile
     condstream.PoolContainerPrefix="ConditionsContainer"
+    condstream.TopLevelContainerName = "<type>"
+    condstream.SubLevelBranchName = "<key>"
     result.addPublicTool(condstream)
 
     result.addEventAlgo(oca)

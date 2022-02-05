@@ -36,6 +36,8 @@ namespace AmbiguityProcessor{
   float calculateFitQuality(const Trk::Track & track);
   //create a track from a new FitQuality object looping over track-state-on-surfaces to calculate
   std::unique_ptr<Trk::Track> createNewFitQualityTrack(const Trk::Track & track);
+  //generate unique id for track (used in track observer tool)
+  int getUid();
 }//namespace
 
 #endif

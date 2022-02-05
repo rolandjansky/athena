@@ -34,7 +34,6 @@
 
 #include "LArCabling/LArOnOffIdMapping.h"
 
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 
 #include "AthenaKernel/errorcheck.h"
@@ -184,7 +183,7 @@ LArRODMonTool::initialize() {
 
 
   ATH_CHECK(m_cablingKey.initialize());
-
+  ATH_CHECK(m_caloMgrKey.initialize());
   
   /** Get bad-channel mask (only if jO IgnoreBadChannels is true)*/
   ATH_CHECK( m_bcContKey.initialize(m_skipKnownProblematicChannels));
@@ -598,6 +597,8 @@ bool LArRODMonTool::FebStatus_Check() {
 StatusCode LArRODMonTool::fillHistograms() {
   ATH_MSG_VERBOSE( "In LArRODMonTool::fillHistograms()");
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
   // Increment event counter
   m_eventsCounter++;
 
@@ -683,22 +684,23 @@ StatusCode LArRODMonTool::fillHistograms() {
   
   SG::ReadHandle<LArDigitContainer> pLArDigitContainer(m_digitContainerKey);
 
-  const CaloDetDescrManager* ddman = nullptr;
-  ATH_CHECK( detStore()->retrieve (ddman, "CaloMgr") );
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,ctx};
+  ATH_CHECK(caloMgrHandle.isValid());
+  const CaloDetDescrManager* ddman = *caloMgrHandle;
 
-  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey,ctx};
   const LArOnOffIdMapping* cabling=*cablingHdl;
 
-  SG::ReadCondHandle<ILArOFC>         ofcHdl{m_keyOFC};
+  SG::ReadCondHandle<ILArOFC>         ofcHdl{m_keyOFC,ctx};
   const ILArOFC* ofcs=*ofcHdl;
 
-  SG::ReadCondHandle<ILArShape>       shapeHdl{m_keyShape};
+  SG::ReadCondHandle<ILArShape>       shapeHdl{m_keyShape,ctx};
   const ILArShape* shapes=*shapeHdl;
 
-  SG::ReadCondHandle<ILArHVScaleCorr> hvScaleCorrHdl{m_keyHVScaleCorr};
+  SG::ReadCondHandle<ILArHVScaleCorr> hvScaleCorrHdl{m_keyHVScaleCorr,ctx};
   const ILArHVScaleCorr* hvScaleCorrs=*hvScaleCorrHdl;
 
-  SG::ReadCondHandle<LArADC2MeV> adc2MeVHdl{m_adc2mevKey};
+  SG::ReadCondHandle<LArADC2MeV> adc2MeVHdl{m_adc2mevKey,ctx};
   const LArADC2MeV* adc2mev=*adc2MeVHdl;
 
   

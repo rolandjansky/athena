@@ -221,16 +221,16 @@ def addOutputArgs(parser,dict):
     if 'doDeadChip' in checkPart and checkSplit == 1:
         parser.add_argument('--outputHITMapFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
                             help = 'HitMap output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTHitMaps.root'],runarg=True))
-        parser.add_argument('--outputLBFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
-                            help = 'LB output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTLB.root'],runarg=True))
+        #parser.add_argument('--outputLBFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
+        #                    help = 'LB output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTLB.root'],runarg=True))
         parser.add_argument('--outputBSErrorsFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
                             help = 'BS Errors file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTBSErrors.root'],runarg=True))
 
     if 'doDeadChip' in checkPart and checkSplit != 1:
         parser.add_argument('--outputHITMapFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
                             help = 'HitMap output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTHitMaps.root'],runarg=True))
-        parser.add_argument('--outputLBFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
-                            help = 'LB output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTLB.root'],runarg=True))
+        #parser.add_argument('--outputLBFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
+        #                    help = 'LB output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTLB.root'],runarg=True))
         parser.add_argument('--outputBSErrorsFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
                             help = 'BS Errors file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTBSErrors.root'],runarg=True))
         parser.add_argument('--outputDeadChipFile', type=trfArgClasses.argFactory(trfArgClasses.argFile, runarg=True,io='output'),
@@ -242,16 +242,16 @@ def addOutputArgs(parser,dict):
     if 'doDeadStrip' in checkPart and checkSplit == 1:
         parser.add_argument('--outputHITMapFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
                             help = 'HitMap output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTHitMaps.root'],runarg=True))
-        parser.add_argument('--outputLBFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
-                            help = 'LB output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTLB.root'],runarg=True))
+        #parser.add_argument('--outputLBFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
+        #                    help = 'LB output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTLB.root'],runarg=True))
         parser.add_argument('--outputBSErrorsFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
                             help = 'BS Errors file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTBSErrors.root'],runarg=True))
 
     if 'doDeadStrip' in checkPart and checkSplit != 1:
         parser.add_argument('--outputHITMapFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
                             help = 'HitMap output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTHitMaps.root'],runarg=True))
-        parser.add_argument('--outputLBFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
-                            help = 'LB output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTLB.root'],runarg=True))
+        #parser.add_argument('--outputLBFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
+        #                    help = 'LB output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTLB.root'],runarg=True))
         parser.add_argument('--outputBSErrorsFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
                             help = 'BS Errors file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTBSErrors.root'],runarg=True))
         parser.add_argument('--outputDeadStripFile', type=trfArgClasses.argFactory(trfArgClasses.argFile, runarg=True,io='output'),
@@ -263,16 +263,16 @@ def addOutputArgs(parser,dict):
     if 'doQuietChip' in checkPart and checkSplit == 1:
         parser.add_argument('--outputHITMapFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
                             help = 'HitMap output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTHitMaps.root'],runarg=True))
-        parser.add_argument('--outputLBFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
-                            help = 'LB output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTLB.root'],runarg=True))
+        #parser.add_argument('--outputLBFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
+        #                    help = 'LB output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTLB.root'],runarg=True))
         parser.add_argument('--outputBSErrorsFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
                             help = 'BS Errors file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTBSErrors.root'],runarg=True))
 
     if 'doQuietChip' in checkPart and checkSplit != 1:
         parser.add_argument('--outputHITMapFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
                             help = 'HitMap output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTHitMaps.root'],runarg=True))
-        parser.add_argument('--outputLBFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
-                            help = 'LB output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTLB.root'],runarg=True))
+        #parser.add_argument('--outputLBFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
+        #                    help = 'LB output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTLB.root'],runarg=True))
         parser.add_argument('--outputBSErrorsFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
                             help = 'BS Errors file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTBSErrors.root'],runarg=True))
         parser.add_argument('--outputDeadChipFile', type=trfArgClasses.argFactory(trfArgClasses.argFile, runarg=True,io='output'),
@@ -284,16 +284,16 @@ def addOutputArgs(parser,dict):
     if 'doQuietStrip' in checkPart and checkSplit == 1:
         parser.add_argument('--outputHITMapFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
                             help = 'HitMap output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTHitMaps.root'],runarg=True))
-        parser.add_argument('--outputLBFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
-                            help = 'LB output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTLB.root'],runarg=True))
+        #parser.add_argument('--outputLBFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
+        #                    help = 'LB output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTLB.root'],runarg=True))
         parser.add_argument('--outputBSErrorsFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
                             help = 'BS Errors file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTBSErrors.root'],runarg=True))
 
     if 'doQuietStrip' in checkPart and checkSplit != 1:
         parser.add_argument('--outputHITMapFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
                             help = 'HitMap output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTHitMaps.root'],runarg=True))
-        parser.add_argument('--outputLBFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
-                            help = 'LB output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTLB.root'],runarg=True))
+        #parser.add_argument('--outputLBFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
+        #                    help = 'LB output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTLB.root'],runarg=True))
         parser.add_argument('--outputBSErrorsFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
                             help = 'BS Errors file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTBSErrors.root'],runarg=True))
         parser.add_argument('--outputDeadStripFile', type=trfArgClasses.argFactory(trfArgClasses.argFile, runarg=True,io='output'),
@@ -618,11 +618,11 @@ class SCTCalibExecutor( athenaExecutor ):
             outNentries1 = int(outTFile1.Get('GENERAL/events').GetEntries())
             outInstance1._setMetadata(outInstance1._value,{'nentries': outNentries1})
 
-            outInstance2 = self.conf.dataDictionary[list(self._output)[2]]
-            outTFile2 = TFile(outInstance2._value[0])
-            print (outTFile2.GetName())
-            outNentries2 = int(outTFile2.Get('GENERAL/events').GetEntries())
-            outInstance2._setMetadata(outInstance2._value,{'nentries': outNentries2})
+            #outInstance2 = self.conf.dataDictionary[list(self._output)[2]]
+            #outTFile2 = TFile(outInstance2._value[0])
+            #print (outTFile2.GetName())
+            #outNentries2 = int(outTFile2.Get('GENERAL/events').GetEntries())
+            #outInstance2._setMetadata(outInstance2._value,{'nentries': outNentries2})
 
         if 'doDeadStrip' in runArgs['part']._value and runArgs['splitHitMap']._value != 1:
             pwd=os.getcwd()
@@ -736,7 +736,7 @@ class SCTCalibExecutor( athenaExecutor ):
 
         if prefix != '':
             try:
-                if runArgs['splitHitMap']._value !=1:
+                if runArgs['splitHitMap']._value !=1 and 'COOL' in listOfKeys:
                     os.rename('mycool.db',prefix+'.mycool.db')                
                 if jobnb != '':
                     prefixTmp = prefix + "."+ jobnb
@@ -744,7 +744,8 @@ class SCTCalibExecutor( athenaExecutor ):
                     prefixTmp = prefix
                 if runArgs['splitHitMap']._value == 2:
                     os.rename('SCTHitMaps.root',prefix+'.SCTHitMaps.root')
-                    os.rename('SCTLB.root',prefix+'.SCTLB.root')
+                    if 'doNoisyStrip' in runArgs['part']._value:
+                        os.rename('SCTLB.root',prefix+'.SCTLB.root')
                     if ('doDeadStrip' in runArgs['part']._value or 'doDeadChip' in runArgs['part']._value or 'doQuietStrip' in runArgs['part']._value or 'doQuietChip' in runArgs['part']._value ):
                         os.rename('SCTBSErrors.root',prefix+'.SCTBSErrors.root')
             except:

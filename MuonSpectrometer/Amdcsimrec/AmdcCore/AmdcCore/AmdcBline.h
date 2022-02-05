@@ -146,7 +146,7 @@ private:
   double m_ep; //!< local expansion
   double m_en; //!< local expansion
 
-  char m_StationNameChar[3] ; //!< station name as character array
+  char m_StationNameChar[3]{} ; //!< station name as character array
 
 };
 #endif

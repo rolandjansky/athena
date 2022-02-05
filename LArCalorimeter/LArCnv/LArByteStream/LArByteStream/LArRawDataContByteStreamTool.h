@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -16,7 +16,6 @@
 
 #include <stdint.h>
 #include "AthenaBaseComps/AthAlgTool.h"
-//#include "GaudiKernel/ToolHandle.h"
 #include "LArByteStream/Hid2RESrcID.h"
 #include "LArByteStream/RodRobIdMap.h"
 #include "LArCabling/LArOnOffIdMapping.h"
@@ -28,6 +27,7 @@
 #include "CaloIdentifier/CaloGain.h"
 #include "CaloConditions/CaloNoise.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CxxUtils/CachedUniquePtr.h"
 
 #include "LArRawEvent/LArFebHeaderContainer.h"
@@ -136,7 +136,8 @@ private:
   const Hid2RESrcID& getHid2RESrcID (const LArFebRodMapping& rodMapping) const;
 
   CxxUtils::CachedUniquePtr<Hid2RESrcID> m_hid2re;       //!< Contains the mapping from channel to ROD (writing only)
-  LArRodDecoder *m_decoder = nullptr;   //!< Pointer to RodDecoder class
+  PublicToolHandle<LArRodDecoder> m_decoder
+    { this, "LArRodDecoder", "LArRodDecoder", "LArRodDecoder" };
 
   /** Indicates which version of DSP code should be used for writing.
       This is equivalent to the DetectorEventType word in the ROD block header.
@@ -170,6 +171,9 @@ private:
 
   SG::ReadCondHandleKey<LArFebRodMapping> m_febRodMappingKey
   { this, "FebRodMappingKey", "LArFebRodMap", "LArFebRodMap" };
+
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey
+  { this, "CaloDetDescrManager", "CaloDetDescrManager", "SG Key for CaloDetDescrManager in the Condition Store" };
 };
 
 

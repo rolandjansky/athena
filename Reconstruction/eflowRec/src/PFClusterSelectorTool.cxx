@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "eflowRec/eflowRecCluster.h"
 #include "eflowRec/PFClusterSelectorTool.h"
@@ -19,11 +18,16 @@ StatusCode PFClusterSelectorTool::initialize(){
   if(!m_caloCalClustersReadHandleKey.key().empty()) {
     ATH_CHECK(m_caloCalClustersReadHandleKey.initialize());
   }
+  ATH_CHECK(m_caloMgrKey.initialize());
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode PFClusterSelectorTool::execute(eflowRecClusterContainer& theEFlowRecClusterContainer,xAOD::CaloClusterContainer& theCaloClusterContainer){
+StatusCode
+PFClusterSelectorTool::execute(
+  eflowRecClusterContainer& theEFlowRecClusterContainer,
+  xAOD::CaloClusterContainer& theCaloClusterContainer) const
+{
 
   SG::ReadHandle<xAOD::CaloClusterContainer> caloClustersReadHandle(m_caloClustersReadHandleKey);
   
@@ -38,6 +42,9 @@ StatusCode PFClusterSelectorTool::execute(eflowRecClusterContainer& theEFlowRecC
     SG::ReadHandle<xAOD::CaloClusterContainer> caloCalClustersReadHandle(m_caloCalClustersReadHandleKey);
     calclusters = caloCalClustersReadHandle.get();
   }
+
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+  ATH_CHECK(caloMgrHandle.isValid());
   
   /* Fill the vector of eflowRecClusters */
   unsigned int nClusters = caloClustersReadHandle->size();
@@ -47,7 +54,7 @@ StatusCode PFClusterSelectorTool::execute(eflowRecClusterContainer& theEFlowRecC
     
     if (calclusters){
       std::map<IdentifierHash,double> cellsWeightMap;
-      retrieveLCCalCellWeight(caloClustersReadHandle->at(iCluster)->e(), iCluster, cellsWeightMap, *calclusters);
+      retrieveLCCalCellWeight(caloClustersReadHandle->at(iCluster)->e(), iCluster, cellsWeightMap, *calclusters,**caloMgrHandle);
 
       if (msgLvl(MSG::DEBUG)) {
         //zhangr
@@ -78,11 +85,19 @@ StatusCode PFClusterSelectorTool::finalize(){
   return StatusCode::SUCCESS;
 }
 
-void 
-PFClusterSelectorTool::retrieveLCCalCellWeight(const double& energy, const unsigned& index, std::map<IdentifierHash,double>& cellsWeight, const xAOD::CaloClusterContainer& caloCalClustersContainer) {
+void
+PFClusterSelectorTool::retrieveLCCalCellWeight(
+  const double& energy,
+  const unsigned& index,
+  std::map<IdentifierHash, double>& cellsWeight,
+  const xAOD::CaloClusterContainer& caloCalClustersContainer,
+  const CaloDetDescrManager& calo_dd_man) const
+{
   /* match CaloCluster with CaloCalCluster to obtain cell weight */
-  /* first try the position at 'index'. If we are lucky, the loop can be avoided. */
-  /* Note the read handle has been tested to be valid prior to the call of this function */
+  /* first try the position at 'index'. If we are lucky, the loop can be
+   * avoided. */
+  /* Note the read handle has been tested to be valid prior to the call of this
+   * function */
   const xAOD::CaloCluster* matchedCalCluster = caloCalClustersContainer.at(index);
   if (matchedCalCluster){
     if (!(fabs(energy - matchedCalCluster->rawE()) < 0.001)) {
@@ -98,9 +113,8 @@ PFClusterSelectorTool::retrieveLCCalCellWeight(const double& energy, const unsig
     if (not matchedCalCluster){ 
       throw std::runtime_error("matchedCluster is a null pointer in PFClusterSelectorTool::retrieveLCCalCellWeight");
     }
-    /* obtain cell index and cell weight */
-    const CaloDetDescrManager*   calo_dd_man  = CaloDetDescrManager::instance();
-    const CaloCell_ID*               calo_id  = calo_dd_man->getCaloCell_ID();
+    /* obtain cell index and cell weight */    
+    const CaloCell_ID*               calo_id  = calo_dd_man.getCaloCell_ID();
     xAOD::CaloCluster::const_cell_iterator itCell = matchedCalCluster->cell_begin();
     xAOD::CaloCluster::const_cell_iterator endCell = matchedCalCluster->cell_end();
     for (; itCell != endCell; ++itCell) {
@@ -110,5 +124,4 @@ PFClusterSelectorTool::retrieveLCCalCellWeight(const double& energy, const unsig
       cellsWeight[myHashId] = itCell.weight();
     }
   } else ATH_MSG_WARNING("Invalid pointer to matched cluster - could not look up local hadron cell weights");
-  return ;
 }

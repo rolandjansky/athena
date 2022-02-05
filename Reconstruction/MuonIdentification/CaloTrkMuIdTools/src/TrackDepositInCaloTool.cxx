@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTrkMuIdTools/TrackDepositInCaloTool.h"
@@ -9,7 +9,6 @@
 #include "TrkSurfaces/DiscSurface.h"
 
 // --- Calorimeter ---
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescriptor.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
@@ -27,6 +26,7 @@
 #include "TrkCaloExtension/CaloExtension.h"
 #include "TrkCaloExtension/CaloExtensionCollection.h"
 #include "TrkCaloExtension/CaloExtensionHelpers.h"
+#include "AthenaKernel/SlotSpecificObj.h"
 // --- ROOT ---
 #include <cmath>
 
@@ -53,12 +53,12 @@ TrackDepositInCaloTool::TrackDepositInCaloTool(const std::string& type, const st
 StatusCode TrackDepositInCaloTool::initialize() {
     ATH_CHECK(detStore()->retrieve(m_tileDDM));
     if (!m_tileDDM) { return StatusCode::FAILURE; }
-    ATH_CHECK(service("THistSvc", m_histSvc));
     if (m_doHist) { ATH_CHECK(bookHistos()); }
 
     ATH_CHECK(m_extrapolator.retrieve());
     ATH_CHECK(m_caloExtensionTool.retrieve());
     ATH_CHECK(m_caloCellAssociationTool.retrieve());
+    ATH_CHECK(m_caloDetDescrMgrKey.initialize());
     ATH_MSG_INFO("initialize() successful in " << name());
     return StatusCode::SUCCESS;
 }
@@ -77,6 +77,13 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::getDeposits(const Trk::TrackP
 
     if (!caloCellCont) return result;
 
+    SG::ReadCondHandle<CaloDetDescrManager> caloDetDescrMgrHandle{ m_caloDetDescrMgrKey,ctx };
+    if (!caloDetDescrMgrHandle.isValid()) {
+      return result;
+    }
+
+    const CaloDetDescrManager* caloDDM = *caloDetDescrMgrHandle;
+
     const Trk::ParticleHypothesis muonHypo = Trk::muon;
 
     // --- Preselection of track's crossing with detector elements ---
@@ -87,7 +94,7 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::getDeposits(const Trk::TrackP
         ATH_MSG_WARNING("Extrapolation to solenoid did not succeed!");
         return result;
     }
-    if (getTraversedLayers(currentPar.get(), caloInfo, extrapolations).isFailure()) {
+    if (getTraversedLayers(caloDDM,currentPar.get(), caloInfo, extrapolations).isFailure()) {
         ATH_MSG_WARNING("Failure in getTraversedLayers(). ");
         return result;
     }
@@ -113,7 +120,8 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::getDeposits(const Trk::TrackP
         double energyLoss = calcEnergy(parEntrance.get(), muonHypo) - calcEnergy(parExit.get(), muonHypo);
         double distance = (parEntrance->position() - parExit->position()).mag();
         // --- Retrieve crossed cells ---
-        std::vector<const CaloCell*> cells = getCaloCellsForLayer(descr, parEntrance.get(), parExit.get(), caloCellCont);
+        std::vector<const CaloCell*> cells =
+          getCaloCellsForLayer(caloDDM, descr, parEntrance.get(), parExit.get(), caloCellCont);
 
         // --- Add contributions ---
         double sumEnergy = 0;
@@ -128,7 +136,7 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::getDeposits(const Trk::TrackP
         }
         // --- Write DepositInCalo ---
         ATH_MSG_DEBUG("Energy = " << sumEnergy << " for sample " << descr->getSampling() << " in " << cells.size() << " cells.");
-        if (distance) { result.push_back(DepositInCalo(descr->getSampling(), sumEnergy, energyLoss, sumEt)); }
+        if (distance) { result.emplace_back(descr->getSampling(), sumEnergy, energyLoss, sumEt); }
 
         // --- Free memory and prepare for next round ---
         currentPar.swap(parEntrance);
@@ -209,7 +217,7 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::getDeposits(const xAOD::Track
     for (int i = CaloSampling::PreSamplerB; i < CaloSampling::CaloSample::Unknown; i++) {
         if (LayerHit[i] > 0) {
             sample = static_cast<CaloSampling::CaloSample>(i);
-            result.push_back(DepositInCalo(sample, meas_E[i], exp_E[i], meas_Et[i]));
+            result.emplace_back(sample, meas_E[i], exp_E[i], meas_Et[i]);
             ATH_MSG_DEBUG(" Layer : " << sample << "   Energy = " << meas_E[i] << " nCells : " << LayerHit[i] << " Exp: " << exp_E[i]);
         }
     }
@@ -222,31 +230,35 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::getDeposits(const xAOD::Track
 ///////////////////////////////////////////////////////////////////////////////
 // getCaloCellsForLayer
 ///////////////////////////////////////////////////////////////////////////////
-std::vector<const CaloCell*> TrackDepositInCaloTool::getCaloCellsForLayer(const CaloDetDescriptor* descr,
+std::vector<const CaloCell*> TrackDepositInCaloTool::getCaloCellsForLayer(const CaloDetDescrManager* caloDDM,
+                                                                          const CaloDetDescriptor* descr,
                                                                           const Trk::TrackParameters* parEntrance,
                                                                           const Trk::TrackParameters* parExit,
                                                                           const CaloCellContainer* caloCellCont) const {
-    const CaloDetDescrManager* caloDDM = nullptr;
-    if (!detStore()->retrieve(caloDDM).isSuccess()) return {};
-
-    if (descr->is_tile()) {
-        // --- Tile implemention is lengthy and therefore put in seperate function ---
-        return getCaloCellsForTile(descr, parEntrance, parExit, caloCellCont);
-    } else {
-        // --- LAr implementation is short, quick and simple ---
-        const CaloCell* cellEntrance = getClosestCellLAr(caloDDM, parEntrance, descr, caloCellCont);
-        const CaloCell* cellExit = getClosestCellLAr(caloDDM, parExit, descr, caloCellCont);
-        std::vector<const CaloCell*> result;
-        result.push_back(cellEntrance);
-        if (cellEntrance != cellExit) { result.push_back(cellExit); }
-        return result;
+  if (descr->is_tile()) {
+    // --- Tile implemention is lengthy and therefore put in seperate function
+    // ---
+    return getCaloCellsForTile(caloDDM, descr, parEntrance, parExit, caloCellCont);
+  } else {
+    // --- LAr implementation is short, quick and simple ---
+    const CaloCell* cellEntrance =
+      getClosestCellLAr(caloDDM, parEntrance, descr, caloCellCont);
+    const CaloCell* cellExit =
+      getClosestCellLAr(caloDDM, parExit, descr, caloCellCont);
+    std::vector<const CaloCell*> result;
+    result.push_back(cellEntrance);
+    if (cellEntrance != cellExit) {
+      result.push_back(cellExit);
     }
+    return result;
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // getCaloCellsForTile
 ///////////////////////////////////////////////////////////////////////////////
-std::vector<const CaloCell*> TrackDepositInCaloTool::getCaloCellsForTile(const CaloDetDescriptor* descr,
+std::vector<const CaloCell*> TrackDepositInCaloTool::getCaloCellsForTile(const CaloDetDescrManager* caloDDM,
+                                                                         const CaloDetDescriptor* descr,
                                                                          const Trk::TrackParameters* parEntrance,
                                                                          const Trk::TrackParameters* parExit,
                                                                          const CaloCellContainer* caloCellCont) const {
@@ -274,10 +286,6 @@ std::vector<const CaloCell*> TrackDepositInCaloTool::getCaloCellsForTile(const C
     double phiMax = phiPar + phiWidth;
     // --- Fill vecHash ---
     CaloCell_ID::CaloSample sample = descr->getSampling();
-
-    // Cannot do this in initialize: see ATLASRECTS-5012
-    const CaloDetDescrManager* caloDDM = nullptr;
-    if (!detStore()->retrieve(caloDDM).isSuccess()) return result;
 
     std::vector<IdentifierHash> vecHash;
     caloDDM->cellsInZone(etaMin, etaMax, phiMin, phiMax, sample, vecHash);
@@ -363,7 +371,7 @@ std::unique_ptr<const Trk::TrackParameters> TrackDepositInCaloTool::extrapolateT
         return nullptr;
     }
     // --- Try to extrapolate to entrance ---
-    paramEntrance.reset(m_extrapolator->extrapolate(ctx, *par, *surfEntrance, Trk::alongMomentum, !checkBoundary, muonHypo));
+    paramEntrance = m_extrapolator->extrapolate(ctx, *par, *surfEntrance, Trk::alongMomentum, !checkBoundary, muonHypo);
     if (!paramEntrance) {
         ATH_MSG_DEBUG("Extrapolation to entrance failed without boundary check.");
         return nullptr;
@@ -406,7 +414,7 @@ std::unique_ptr<const Trk::TrackParameters> TrackDepositInCaloTool::extrapolateT
         return nullptr;
     }
     // --- Try to extrapolate to exit of layer ---
-    paramExit.reset(m_extrapolator->extrapolate(ctx, *par, *surfExit, Trk::alongMomentum, checkBoundary, muonHypo));
+    paramExit = m_extrapolator->extrapolate(ctx, *par, *surfExit, Trk::alongMomentum, checkBoundary, muonHypo);
     if (paramExit) {
         ATH_MSG_VERBOSE("Extrapolated to exit. ");
         return paramExit;
@@ -414,7 +422,7 @@ std::unique_ptr<const Trk::TrackParameters> TrackDepositInCaloTool::extrapolateT
     // --- Try to extrapolate to side ---
     std::unique_ptr<Trk::Surface> surfOutside{createSurface(descr, Outside)};
     if (!surfOutside) { return nullptr; }
-    paramExit.reset(m_extrapolator->extrapolate(ctx, *par, *surfOutside, Trk::alongMomentum, checkBoundary, muonHypo));
+    paramExit = m_extrapolator->extrapolate(ctx, *par, *surfOutside, Trk::alongMomentum, checkBoundary, muonHypo);
     if (paramExit) {
         ATH_MSG_VERBOSE("Succesfully extrapolated to outer side of calo for sample " << descr->getSampling());
     } else {
@@ -446,12 +454,12 @@ std::unique_ptr<const Trk::TrackParameters> TrackDepositInCaloTool::extrapolateT
         double zTrans = par->eta() > 0 ? halfLengthOfCylinder : -halfLengthOfCylinder;
         Trk::DiscSurface disc(Amg::Transform3D(Amg::Translation3D(Amg::Vector3D(0., 0., zTrans))), 0, solenoidRadius);
 
-        parAtSolenoid.reset(m_extrapolator->extrapolate(ctx, *par, disc, direction, checkBoundary, muonHypo));
+        parAtSolenoid = m_extrapolator->extrapolate(ctx, *par, disc, direction, checkBoundary, muonHypo);
 
         if (!parAtSolenoid) {
             ATH_MSG_VERBOSE("extrapolateToSolenoid(): Extrapolation to cap of solenoid failed. Trying opposite side.");
             Trk::DiscSurface discOpp(Amg::Transform3D(Amg::Translation3D(Amg::Vector3D(0., 0., -zTrans))), 0, solenoidRadius);
-            parAtSolenoid.reset(m_extrapolator->extrapolate(ctx, *par, discOpp, direction, checkBoundary, muonHypo));
+            parAtSolenoid = m_extrapolator->extrapolate(ctx, *par, discOpp, direction, checkBoundary, muonHypo);
         }
 
         if (parAtSolenoid) { ATH_MSG_VERBOSE("extrapolateToSolenoid(): Extrapolation succeeded for disc-type surface."); }
@@ -485,6 +493,13 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::deposits(const Trk::TrackPara
     // --- Possible crash prevention ---
     if (!par) { return result; }
 
+    SG::ReadCondHandle<CaloDetDescrManager> caloDetDescrMgrHandle{ m_caloDetDescrMgrKey, ctx };
+    if (!caloDetDescrMgrHandle.isValid()) {
+      return result;
+    }
+
+    const CaloDetDescrManager* caloDDM = *caloDetDescrMgrHandle;
+
     const Trk::ParticleHypothesis muonHypo = Trk::muon;
     bool checkBoundary = true;
 
@@ -493,7 +508,7 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::deposits(const Trk::TrackPara
     std::map<double, const CaloDetDescriptor*> caloInfo;
     std::unique_ptr<const Trk::TrackParameters> parAtSolenoid = extrapolateToSolenoid(ctx, par);
     if (parAtSolenoid) {
-        if (getTraversedLayers(parAtSolenoid.get(), caloInfo, extrapolations).isFailure()) {
+        if (getTraversedLayers(caloDDM, parAtSolenoid.get(), caloInfo, extrapolations).isFailure()) {
             ATH_MSG_WARNING("Failure in finding getTraversedLayers. ");
             return result;
         }
@@ -547,7 +562,7 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::deposits(const Trk::TrackPara
                 m_extrapolator->extrapolate(ctx, *paramEntrance, *surfMiddle, Trk::alongMomentum, checkBoundary, muonHypo)};
             if (paramMiddle) {
                 // Get energy:
-                const CaloCell* cell = getClosestCell(paramMiddle.get(), descr, cellContainer);
+                const CaloCell* cell = getClosestCell(caloDDM, paramMiddle.get(), descr, cellContainer);
                 if (cell) {
                     energyDeposit = cell->energy();
                     ETDeposit = cell->et();
@@ -556,7 +571,7 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::deposits(const Trk::TrackPara
                 std::unique_ptr<Trk::Surface> surfExit{createSurface(descr, Exit)};
                 std::unique_ptr<const Trk::TrackParameters> paramExit;
                 if (surfExit) {
-                    paramExit.reset(m_extrapolator->extrapolate(ctx, *paramMiddle, *surfExit, Trk::alongMomentum, checkBoundary, muonHypo));
+                    paramExit = m_extrapolator->extrapolate(ctx, *paramMiddle, *surfExit, Trk::alongMomentum, checkBoundary, muonHypo);
                     if (paramExit) {
                         ATH_MSG_VERBOSE("Extrapolated to exit. ");
                         energyExit = calcEnergy(paramExit.get(), muonHypo);
@@ -565,8 +580,8 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::deposits(const Trk::TrackPara
                         // Try to extrapolate to outside
                         std::unique_ptr<Trk::Surface> surfOutside{createSurface(descr, Outside)};
                         if (surfOutside) {
-                            paramExit.reset(
-                                m_extrapolator->extrapolate(ctx, *paramMiddle, *surfOutside, Trk::alongMomentum, checkBoundary, muonHypo));
+                            paramExit = 
+                                m_extrapolator->extrapolate(ctx, *paramMiddle, *surfOutside, Trk::alongMomentum, checkBoundary, muonHypo);
                             if (paramExit) {
                                 ATH_MSG_VERBOSE("Succesfully extrapolated to outer side of calo for sample " << sample);
                                 energyExit = calcEnergy(paramExit.get(), muonHypo);
@@ -594,8 +609,9 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::deposits(const Trk::TrackPara
         ATH_MSG_DEBUG("Sample: " << sample << "\tEnergyDeposit: " << energyDeposit << "\tEnergyLoss: " << energyLoss);
 
         if (m_doHist) {
-            m_hParELossEta->Fill(energyLoss, itP->eta());
-            m_hParELossSample->Fill(energyLoss, sample);
+            Hists& h = getHists();
+            h.m_hParELossEta->Fill(energyLoss, itP->eta());
+            h.m_hParELossSample->Fill(energyLoss, sample);
         }
 
         // itP++;
@@ -621,10 +637,9 @@ double TrackDepositInCaloTool::calcEnergy(const Trk::TrackParameters* par, const
 ///////////////////////////////////////////////////////////////////////////////
 // initializeDetectorInfo()
 ///////////////////////////////////////////////////////////////////////////////
-StatusCode TrackDepositInCaloTool::initializeDetectorInfo() const {
-    const CaloDetDescrManager* caloDDM = nullptr;
-    ATH_CHECK(detStore()->retrieve(caloDDM));
-    ATH_MSG_DEBUG("In CaloTrkMuIdDetStore::initialize()");
+StatusCode TrackDepositInCaloTool::initializeDetectorInfo(const CaloDetDescrManager* caloDDM) const {
+    
+  ATH_MSG_DEBUG("In CaloTrkMuIdDetStore::initialize()");
     // Initialize LAr
     for (const CaloDetDescriptor* descr : caloDDM->calo_descriptors_range()) {
         if (descr) {
@@ -681,7 +696,7 @@ StatusCode TrackDepositInCaloTool::initializeDetectorInfo() const {
 // extrapolateR
 ///////////////////////////////////////////////////////////////////////////////
 std::unique_ptr<Amg::Vector3D> TrackDepositInCaloTool::extrapolateR(const Amg::Vector3D& initialPosition, double phi0, double theta0,
-                                                                    double r) const {
+                                                                    double r) {
     double x0 = initialPosition.x();
     double y0 = initialPosition.y();
     double z0 = initialPosition.z();
@@ -711,7 +726,7 @@ std::unique_ptr<Amg::Vector3D> TrackDepositInCaloTool::extrapolateR(const Amg::V
 // extrapolateZ
 ///////////////////////////////////////////////////////////////////////////////
 std::unique_ptr<Amg::Vector3D> TrackDepositInCaloTool::extrapolateZ(const Amg::Vector3D& initialPosition, double phi0, double theta0,
-                                                                    double z) const {
+                                                                    double z) {
     double x0 = initialPosition.x();
     double y0 = initialPosition.y();
     double z0 = initialPosition.z();
@@ -737,11 +752,13 @@ std::unique_ptr<Amg::Vector3D> TrackDepositInCaloTool::extrapolateZ(const Amg::V
 ///////////////////////////////////////////////////////////////////////////////
 // getTraversedLayers
 ///////////////////////////////////////////////////////////////////////////////
-StatusCode TrackDepositInCaloTool::getTraversedLayers(const Trk::TrackParameters* par, std::map<double, const CaloDetDescriptor*>& caloInfo,
+StatusCode TrackDepositInCaloTool::getTraversedLayers(const CaloDetDescrManager* caloDDM,
+                                                      const Trk::TrackParameters* par, 
+                                                      std::map<double, const CaloDetDescriptor*>& caloInfo,
                                                       std::vector<Amg::Vector3D>& extrapolations) const {
     // Cannot do this in initialize: see ATLASRECTS-5012
     StatusCode sc = StatusCode::SUCCESS;
-    std::call_once(m_initializeOnce, [this, &sc]() { sc = initializeDetectorInfo(); });
+    std::call_once(m_initializeOnce, [this, &sc,caloDDM]() { sc = initializeDetectorInfo(caloDDM); });
     if (!sc.isSuccess()) return sc;
 
     const Trk::TrackParameters* parAtSolenoid = nullptr;
@@ -756,8 +773,9 @@ StatusCode TrackDepositInCaloTool::getTraversedLayers(const Trk::TrackParameters
         double deltaR_solLast = std::abs(parAtSolenoid->position().perp() - par->position().perp());
         double deltaEta_solLast = std::abs(parAtSolenoid->position().eta() - par->position().eta());
         if (m_doHist) {
-            m_hDeltaEtaLastPar->Fill(deltaEta_solLast);
-            m_hDeltaRadiusLastPar->Fill(deltaR_solLast);
+            Hists& h = getHists();
+            h.m_hDeltaEtaLastPar->Fill(deltaEta_solLast);
+            h.m_hDeltaRadiusLastPar->Fill(deltaR_solLast);
         }
 
         const Amg::Vector3D positionAtSolenoid = parAtSolenoid->position();
@@ -869,105 +887,114 @@ Trk::Surface* TrackDepositInCaloTool::createSurface(const CaloDetDescriptor* des
 ///////////////////////////////////////////////////////////////////////////////
 // getClosestCell()
 ///////////////////////////////////////////////////////////////////////////////
-const CaloCell* TrackDepositInCaloTool::getClosestCell(const Trk::TrackParameters* par, const CaloDetDescriptor* descr,
-                                                       const CaloCellContainer* caloCellCont) const {
-    /*
-    Get closest cell near the TrackParameters par. For LAr this can be done using the get_element function of the
-    CaloDetDescrManager. This should be really fast since it is nothing more than a sequence of lookups.
-    For the non-projective tile cells one has to select cells in a certain (eta,phi) region and then select the one
-    that is closest to the track.
-    */
+const CaloCell*
+TrackDepositInCaloTool::getClosestCell(const CaloDetDescrManager* caloDDM,
+                                       const Trk::TrackParameters* par,
+                                       const CaloDetDescriptor* descr,
+                                       const CaloCellContainer* caloCellCont) const
+{
+  /*
+  Get closest cell near the TrackParameters par. For LAr this can be done using the get_element function of the
+  CaloDetDescrManager. This should be really fast since it is nothing more than a sequence of lookups.
+  For the non-projective tile cells one has to select cells in a certain (eta,phi) region and then select the one
+  that is closest to the track.
+  */
 
-    // Cannot do this in initialize: see ATLASRECTS-5012
-    const CaloDetDescrManager* caloDDM = nullptr;
-    if (!detStore()->retrieve(caloDDM).isSuccess()) return nullptr;
-
-    const CaloCell* cell = nullptr;
-    if (descr->is_tile()) {
-        cell = getClosestCellTile(caloDDM, par, descr, caloCellCont);
-    } else {
-        cell = getClosestCellLAr(caloDDM, par, descr, caloCellCont);
-    }
-    return cell;
+  const CaloCell* cell = nullptr;
+  if (descr->is_tile()) {
+    cell = getClosestCellTile(caloDDM, par, descr, caloCellCont);
+  } else {
+    cell = getClosestCellLAr(caloDDM, par, descr, caloCellCont);
+  }
+  return cell;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // getClosestCellLAr()
 ///////////////////////////////////////////////////////////////////////////////
-const CaloCell* TrackDepositInCaloTool::getClosestCellLAr(const CaloDetDescrManager* caloDDM, const Trk::TrackParameters* par,
-                                                          const CaloDetDescriptor* descr, const CaloCellContainer* caloCellCont) const {
-    CaloCell_ID::CaloSample sample = descr->getSampling();
-    // ATH_MSG_INFO("Sampling = " << sample);
-    const CaloDetDescrElement* cellDescr = caloDDM->get_element(sample, par->position().eta(), par->position().phi());
-    if (cellDescr) {
-        IdentifierHash hash = cellDescr->calo_hash();
-        const CaloCell* cell = caloCellCont->findCell(hash);
-        return cell;
-    }
-    return nullptr;
+const CaloCell*
+TrackDepositInCaloTool::getClosestCellLAr(const CaloDetDescrManager* caloDDM,
+                                          const Trk::TrackParameters* par,
+                                          const CaloDetDescriptor* descr,
+                                          const CaloCellContainer* caloCellCont)
+{
+  CaloCell_ID::CaloSample sample = descr->getSampling();
+  // ATH_MSG_INFO("Sampling = " << sample);
+  const CaloDetDescrElement* cellDescr = caloDDM->get_element(sample, par->position().eta(), par->position().phi());
+  if (cellDescr) {
+    IdentifierHash hash = cellDescr->calo_hash();
+    const CaloCell* cell = caloCellCont->findCell(hash);
+    return cell;
+  }
+  return nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // getClosestCellTile()
 ///////////////////////////////////////////////////////////////////////////////
-const CaloCell* TrackDepositInCaloTool::getClosestCellTile(
+const CaloCell*
+TrackDepositInCaloTool::getClosestCellTile(
+  const CaloDetDescrManager* caloDDM,
+  const Trk::TrackParameters* par,
+  const CaloDetDescriptor* descr,
+  const CaloCellContainer* caloCellCont) const
+{
+  std::map<double, const CaloCell*> neighbourMap;
+  const CaloCell* result = nullptr;
+  // --- Determine granularity ---
+  double etaPar = par->position().eta();
+  double phiPar = par->position().phi();
+  double etaWidth = 2 * (descr->calo_eta_max() - descr->calo_eta_min()) / descr->n_eta();
+  double etaMin = etaPar - etaWidth;
+  double etaMax = etaPar + etaWidth;
+  double phiWidth = (descr->calo_phi_max() - descr->calo_phi_min()) / descr->n_phi();
+  // TODO: HOW TO DEAL WITH PHI ~ PI?
+  double phiMin = phiPar - phiWidth;
+  double phiMax = phiPar + phiWidth;
+  // --- Fill vecHash ---
+  CaloCell_ID::CaloSample sample = descr->getSampling();
 
-    const CaloDetDescrManager* caloDDM, const Trk::TrackParameters* par, const CaloDetDescriptor* descr,
-    const CaloCellContainer* caloCellCont) const {
-    std::map<double, const CaloCell*> neighbourMap;
-    const CaloCell* result = nullptr;
-    // --- Determine granularity ---
-    double etaPar = par->position().eta();
-    double phiPar = par->position().phi();
-    double etaWidth = 2 * (descr->calo_eta_max() - descr->calo_eta_min()) / descr->n_eta();
-    double etaMin = etaPar - etaWidth;
-    double etaMax = etaPar + etaWidth;
-    double phiWidth = (descr->calo_phi_max() - descr->calo_phi_min()) / descr->n_phi();
-    // TODO: HOW TO DEAL WITH PHI ~ PI?
-    double phiMin = phiPar - phiWidth;
-    double phiMax = phiPar + phiWidth;
-    // --- Fill vecHash ---
-    CaloCell_ID::CaloSample sample = descr->getSampling();
+  // Cannot do this in initialize: see ATLASRECTS-5012
 
-    // Cannot do this in initialize: see ATLASRECTS-5012
+  std::vector<IdentifierHash> vecHash;
+  caloDDM->cellsInZone(etaMin, etaMax, phiMin, phiMax, sample, vecHash);
 
-    std::vector<IdentifierHash> vecHash;
-    caloDDM->cellsInZone(etaMin, etaMax, phiMin, phiMax, sample, vecHash);
+  // --- Iterate and find closest to track (around 12-15 elements in loop) ---
+  double dR2Min{ 999 };
+  for (const IdentifierHash& id : vecHash) {
+    const CaloCell* cell = caloCellCont->findCell(id);
+    if (!cell)
+      continue;
 
-    // --- Iterate and find closest to track (around 12-15 elements in loop) ---
-    double dR2Min{999};
-    for (const IdentifierHash& id : vecHash) {
-        const CaloCell* cell = caloCellCont->findCell(id);
-        if (!cell) continue;
-
-        const CaloDetDescrElement* dde = cell->caloDDE();
-        if (!dde) continue;
-        const double etaCell = dde->eta();
-        const double phiCell = dde->phi();
-        const double dEta = etaPar - etaCell;
-        const double dPhi = xAOD::P4Helpers::deltaPhi(phiPar, phiCell);
-        const double dR2 = dEta * dEta + dPhi * dPhi;
-        neighbourMap[sqrt(dR2)] = cell;
-        if (dR2 < dR2Min) {
-            dR2Min = dR2;
-            result = cell;
-        }
+    const CaloDetDescrElement* dde = cell->caloDDE();
+    if (!dde)
+      continue;
+    const double etaCell = dde->eta();
+    const double phiCell = dde->phi();
+    const double dEta = etaPar - etaCell;
+    const double dPhi = xAOD::P4Helpers::deltaPhi(phiPar, phiCell);
+    const double dR2 = dEta * dEta + dPhi * dPhi;
+    neighbourMap[sqrt(dR2)] = cell;
+    if (dR2 < dR2Min) {
+      dR2Min = dR2;
+      result = cell;
     }
+  }
 
-    // --- Show deposits near this track (only if debugMode is on) ---
-    if (msgLevel(MSG::VERBOSE)) {
-        ATH_MSG_INFO("SAMPLE = " << sample);
-        for (const std::pair<const double, const CaloCell*>& mapIt : neighbourMap) {
-            const CaloCell* cell = mapIt.second;
-            double distance = mapIt.first;
-            if (cell) {
-                ATH_MSG_VERBOSE("dR2 = " << distance << ", energy = " << cell->energy());
-            } else {
-                ATH_MSG_VERBOSE("dR2 = " << distance << ", NULL pointer!");
-            }
-        }
+  // --- Show deposits near this track (only if debugMode is on) ---
+  if (msgLevel(MSG::VERBOSE)) {
+    ATH_MSG_INFO("SAMPLE = " << sample);
+    for (const std::pair<const double, const CaloCell*>& mapIt : neighbourMap) {
+      const CaloCell* cell = mapIt.second;
+      double distance = mapIt.first;
+      if (cell) {
+        ATH_MSG_VERBOSE("dR2 = " << distance << ", energy = " << cell->energy());
+      } else {
+        ATH_MSG_VERBOSE("dR2 = " << distance << ", NULL pointer!");
+      }
     }
-    return result;
+  }
+  return result;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -975,8 +1002,19 @@ const CaloCell* TrackDepositInCaloTool::getClosestCellTile(
 ///////////////////////////////////////////////////////////////////////////////
 StatusCode TrackDepositInCaloTool::bookHistos() {
     ATH_MSG_DEBUG("Booking the ROOT Histos");
-    StatusCode sc;
+    if (SG::getNSlots() > 1) {
+      ATH_MSG_FATAL("Filling histograms not supported in MT jobs.");
+      return StatusCode::FAILURE;
+    }
+    ATH_CHECK(service("THistSvc", m_histSvc));
+    if (!m_histSvc) return StatusCode::FAILURE;
+    m_h = std::make_unique<Hists>();
+    ATH_CHECK( m_h->book (*m_histSvc) );
+    return StatusCode::SUCCESS;
+}
 
+StatusCode TrackDepositInCaloTool::Hists::book (ITHistSvc& histSvc)
+{
     m_hDepositLayer12 = new TH1F("hDepositLayer12", "hDepositLayer12", 40, 0, 4000);
     m_hDepositLayer13 = new TH1F("hDepositLayer13", "hDepositLayer13", 40, 0, 4000);
     m_hDepositLayer14 = new TH1F("hDepositLayer14", "hDepositLayer14", 40, 0, 4000);
@@ -996,36 +1034,47 @@ StatusCode TrackDepositInCaloTool::bookHistos() {
     m_hEMB2vsdEta = new TH2F("hEMB2vsdEta", "hEMB2vsdEta", 50, -M_PI, M_PI, 50, 0, 500);
     m_hEMB3vsdEta = new TH2F("hEMB3vsdEta", "hEMB3vsdEta", 50, -M_PI, M_PI, 50, 0, 500);
 
-    if (m_histSvc) {
-        sc = m_histSvc->regHist("/AANT/CaloTrkMuId/hDepositLayer12", m_hDepositLayer12);
-        sc = m_histSvc->regHist("/AANT/CaloTrkMuId/hDepositLayer13", m_hDepositLayer13);
-        sc = m_histSvc->regHist("/AANT/CaloTrkMuId/hDepositLayer14", m_hDepositLayer14);
-        sc = m_histSvc->regHist("/AANT/CaloTrkMuId/hParELossSample", m_hParELossSample);
-        sc = m_histSvc->regHist("/AANT/CaloTrkMuId/hParELossEta", m_hParELossEta);
-        sc = m_histSvc->regHist("/AANT/DetStore/hDeltaEtaLastPar", m_hDeltaEtaLastPar);
-        sc = m_histSvc->regHist("/AANT/DetStore/hDeltaRadiusLastPar", m_hDeltaRadiusLastPar);
-        sc = m_histSvc->regHist("/AANT/DetStore/hDepositsInCore", m_hDepositsInCore);
-        sc = m_histSvc->regHist("/AANT/DetStore/hDepositsInCone", m_hDepositsInCone);
-        sc = m_histSvc->regHist("/AANT/DetStore/hDistDepositsTile", m_hDistDepositsTile);
-        sc = m_histSvc->regHist("/AANT/DetStore/hDistDepositsHEC", m_hDistDepositsHEC);
+#define H_CHECK(X) if((X).isFailure()) return StatusCode::FAILURE
+    H_CHECK( histSvc.regHist("/AANT/CaloTrkMuId/hDepositLayer12", m_hDepositLayer12) );
+    H_CHECK( histSvc.regHist("/AANT/CaloTrkMuId/hDepositLayer13", m_hDepositLayer13) );
+    H_CHECK( histSvc.regHist("/AANT/CaloTrkMuId/hDepositLayer14", m_hDepositLayer14) );
+    H_CHECK( histSvc.regHist("/AANT/CaloTrkMuId/hParELossSample", m_hParELossSample) );
+    H_CHECK( histSvc.regHist("/AANT/CaloTrkMuId/hParELossEta", m_hParELossEta) );
+    H_CHECK( histSvc.regHist("/AANT/DetStore/hDeltaEtaLastPar", m_hDeltaEtaLastPar) );
+    H_CHECK( histSvc.regHist("/AANT/DetStore/hDeltaRadiusLastPar", m_hDeltaRadiusLastPar) );
+    H_CHECK( histSvc.regHist("/AANT/DetStore/hDepositsInCore", m_hDepositsInCore) );
+    H_CHECK( histSvc.regHist("/AANT/DetStore/hDepositsInCone", m_hDepositsInCone) );
+    H_CHECK( histSvc.regHist("/AANT/DetStore/hDistDepositsTile", m_hDistDepositsTile) );
+    H_CHECK( histSvc.regHist("/AANT/DetStore/hDistDepositsHEC", m_hDistDepositsHEC) );
+    
+    H_CHECK( histSvc.regHist("/AANT/DetStore/hEMB1vsdPhi", m_hEMB1vsdPhi) );
+    H_CHECK( histSvc.regHist("/AANT/DetStore/hEMB2vsdPhi", m_hEMB2vsdPhi) );
+    H_CHECK( histSvc.regHist("/AANT/DetStore/hEMB3vsdPhi", m_hEMB3vsdPhi) );
+    H_CHECK( histSvc.regHist("/AANT/DetStore/hEMB1vsdEta", m_hEMB1vsdEta) );
+    H_CHECK( histSvc.regHist("/AANT/DetStore/hEMB2vsdEta", m_hEMB2vsdEta) );
+    H_CHECK( histSvc.regHist("/AANT/DetStore/hEMB3vsdEta", m_hEMB3vsdEta) );
+#undef H_CHECK
 
-        sc = m_histSvc->regHist("/AANT/DetStore/hEMB1vsdPhi", m_hEMB1vsdPhi);
-        sc = m_histSvc->regHist("/AANT/DetStore/hEMB2vsdPhi", m_hEMB2vsdPhi);
-        sc = m_histSvc->regHist("/AANT/DetStore/hEMB3vsdPhi", m_hEMB3vsdPhi);
-        sc = m_histSvc->regHist("/AANT/DetStore/hEMB1vsdEta", m_hEMB1vsdEta);
-        sc = m_histSvc->regHist("/AANT/DetStore/hEMB2vsdEta", m_hEMB2vsdEta);
-        sc = m_histSvc->regHist("/AANT/DetStore/hEMB3vsdEta", m_hEMB3vsdEta);
-    } else {
-        return StatusCode::FAILURE;
-    }
-
-    return sc;
+    return StatusCode::SUCCESS;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// Get reference to histograms.
+///////////////////////////////////////////////////////////////////////////////
+
+TrackDepositInCaloTool::Hists&
+TrackDepositInCaloTool::getHists() const
+{
+  // We earlier checked that no more than one thread is being used.
+  Hists* h ATLAS_THREAD_SAFE = m_h.get();
+  return *h;
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Functions below are under development, these are not used yet.
 ///////////////////////////////////////////////////////////////////////////////
-bool TrackDepositInCaloTool::isInsideDomain(double position, double domainCenter, double domainWidth, bool phiVariable) const {
+bool TrackDepositInCaloTool::isInsideDomain(double position, double domainCenter, double domainWidth, bool phiVariable) {
     double halfWidth = domainWidth / 2;
     if (phiVariable) {
         if (std::abs(std::abs(domainCenter) - M_PI) < domainWidth) {
@@ -1042,7 +1091,7 @@ bool TrackDepositInCaloTool::isInsideDomain(double position, double domainCenter
     return true;
 }
 
-bool TrackDepositInCaloTool::isInsideCell(const Amg::Vector3D& position, const CaloCell* cell) const {
+bool TrackDepositInCaloTool::isInsideCell(const Amg::Vector3D& position, const CaloCell* cell) {
     const CaloDetDescrElement* dde = cell->caloDDE();
     if (!dde) return false;
     if (dde->is_tile()) {
@@ -1059,7 +1108,7 @@ bool TrackDepositInCaloTool::isInsideCell(const Amg::Vector3D& position, const C
 // inCell
 // an alternative version of crossedPhi from CaloCellHelpers, which has a bug
 
-bool TrackDepositInCaloTool::inCell(const CaloCell* cell, const Amg::Vector3D& pos) const {
+bool TrackDepositInCaloTool::inCell(const CaloCell* cell, const Amg::Vector3D& pos) {
     bool result = std::abs(CaloPhiRange::diff(pos.phi(), cell->phi())) < cell->caloDDE()->dphi() / 2;
     if (cell->caloDDE()->getSubCalo() != CaloCell_ID::TILE)
         result &= std::abs(pos.eta() - cell->eta()) < cell->caloDDE()->deta() / 2;
@@ -1068,7 +1117,7 @@ bool TrackDepositInCaloTool::inCell(const CaloCell* cell, const Amg::Vector3D& p
     return result;
 }
 
-double TrackDepositInCaloTool::distance(const Amg::Vector3D& p1, const Amg::Vector3D& p2) const {
+double TrackDepositInCaloTool::distance(const Amg::Vector3D& p1, const Amg::Vector3D& p2) {
     double diff_x = p1.x() - p2.x();
     double diff_y = p1.y() - p2.y();
     double diff_z = p1.z() - p2.z();

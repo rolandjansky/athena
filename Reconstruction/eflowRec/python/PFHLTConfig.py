@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -7,16 +7,6 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 # Tracking geometry & conditions
 def TrackingGeoCfg(inputFlags):
     result = ComponentAccumulator()
-
-    from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg
-    result.merge(InDetGeometryCfg(inputFlags))
-
-    # Something builds muon stations -- extrapolator?
-    from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
-    result.merge(MuonGeoModelCfg(inputFlags))
-
-    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-    result.merge(TrackingGeometrySvcCfg(inputFlags))
 
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     result.merge(MagneticFieldSvcCfg(inputFlags))
@@ -40,14 +30,13 @@ def CaloGeoAndNoiseCfg(inputFlags):
     return result
 
 def PFExtrapolatorCfg(flags):
-    from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+    from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     result = ComponentAccumulator()
-    extrapolator_acc = InDetExtrapolatorCfg(flags, "InDetTrigExtrapolator")
-    result.merge(extrapolator_acc)
+    extrapolator = result.popToolsAndMerge(InDetExtrapolatorCfg(flags, "InDetTrigExtrapolator"))
     result.setPrivateTools(
         CompFactory.Trk.ParticleCaloExtensionTool(
             "HLTPF_ParticleCaloExtension",
-            Extrapolator=extrapolator_acc.getPrimary(),
+            Extrapolator=extrapolator,
         )
     )
     return result
@@ -84,10 +73,9 @@ def MuonCaloTagCfg(flags, tracktype, tracksin, extcache, cellsin):
     
     Return the component accumulator and the tracks with muons removed
     """
-    from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+    from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     result = ComponentAccumulator()
-    extrapolator_acc = InDetExtrapolatorCfg(flags, "InDetTrigExtrapolator")
-    result.merge(extrapolator_acc)
+    extrapolator = result.popToolsAndMerge(InDetExtrapolatorCfg(flags, "InDetTrigExtrapolator"))
     output_tracks = f"PFMuonCaloTagTracks_{tracktype}"
 
     result.addEventAlgo(
@@ -108,7 +96,7 @@ def MuonCaloTagCfg(flags, tracktype, tracksin, extcache, cellsin):
             LooseTagTool=CompFactory.CaloMuonTag("LooseCaloMuonTag", TagMode="Loose"),
             TightTagTool=CompFactory.CaloMuonTag("TightCaloMuonTag", TagMode="Tight"),
             DepositInCaloTool=CompFactory.TrackDepositInCaloTool(
-                ExtrapolatorHandle=extrapolator_acc.getPrimary(),
+                ExtrapolatorHandle=extrapolator,
                 ParticleCaloCellAssociationTool=CompFactory.Rec.ParticleCaloCellAssociationTool(
                     ParticleCaloExtensionTool=result.popToolsAndMerge(PFExtrapolatorCfg(flags)),
                     CaloCellContainer=""
@@ -312,17 +300,25 @@ def PFCfg(inputFlags, tracktype="", clustersin=None, calclustersin=None, tracksi
     #---------------------------------------------------------------------------------#
     # PFO creators here
 
-    from eflowRec.PFCfg import getChargedPFOCreatorAlgorithm,getNeutralPFOCreatorAlgorithm
-    result.addEventAlgo(getChargedPFOCreatorAlgorithm(
-        inputFlags,
-        f"HLT_{tracktype}ChargedParticleFlowObjects",
-        f"eflowCaloObjects_{tracktype}"
-    ))
-    result.addEventAlgo(getNeutralPFOCreatorAlgorithm(
-        inputFlags,
-        f"HLT_{tracktype}NeutralParticleFlowObjects",
-        f"eflowCaloObjects_{tracktype}"
-    ))    
+    chargedPFOArgs = [
+            inputFlags,
+            f"HLT_{tracktype}ChargedParticleFlowObjects",
+            f"eflowCaloObjects_{tracktype}"
+    ]
+    neutralPFOArgs = [
+            inputFlags,
+            f"HLT_{tracktype}NeutralParticleFlowObjects",
+            f"eflowCaloObjects_{tracktype}"
+    ]
+    if inputFlags.Trigger.usexAODFlowElements:
+        from eflowRec.PFCfg import getChargedFlowElementCreatorAlgorithm,getNeutralFlowElementCreatorAlgorithm
+        result.addEventAlgo(getChargedFlowElementCreatorAlgorithm(*chargedPFOArgs))
+        result.addEventAlgo(getNeutralFlowElementCreatorAlgorithm(*neutralPFOArgs))
+    else:
+        from eflowRec.PFCfg import getChargedPFOCreatorAlgorithm,getNeutralPFOCreatorAlgorithm
+        result.addEventAlgo(getChargedPFOCreatorAlgorithm(*chargedPFOArgs))
+        result.addEventAlgo(getNeutralPFOCreatorAlgorithm(*neutralPFOArgs))
+
     
     return result
 
@@ -335,8 +331,6 @@ if __name__=="__main__":
 
     #cfgFlags.Input.Files=["myESD.pool.root"]
     cfgFlags.Input.Files=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root"]
-    #
-    cfgFlags.Calo.TopoCluster.doTopoClusterLocalCalib = False
     #
     cfgFlags.addFlag("eflowRec.TrackColl","InDetTrackParticles")
     cfgFlags.addFlag("eflowRec.VertexColl","PrimaryVertices")
@@ -358,7 +352,7 @@ if __name__=="__main__":
     cfg=MainServicesCfg(cfgFlags) 
 
     from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
-    tccfg = CaloTopoClusterCfg(cfgFlags,doLCCalib=True)
+    tccfg = CaloTopoClusterCfg(cfgFlags)
     tcalg = tccfg.getPrimary()
     tcalg.ClustersOutputName = "CaloCalTopoClustersNew"
     cfg.merge(tccfg)

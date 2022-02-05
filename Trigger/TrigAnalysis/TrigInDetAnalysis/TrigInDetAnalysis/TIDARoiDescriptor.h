@@ -197,7 +197,7 @@ public:
   /// operators
 
 
-  bool operator==( const TIDARoiDescriptor& b ) {
+  bool operator==( const TIDARoiDescriptor& b ) const {
     if ( roiWord() != b.roiWord() ) return false;
     double epsilon=0.001; // arbitrary , but seems to be reasnable
     if ( std::fabs( phi() - b.phi()) > epsilon ) return false;
@@ -206,7 +206,7 @@ public:
     return true;
   }
 
-  bool operator!=( const TIDARoiDescriptor& b ) { return !((*this)==b); }
+  bool operator!=( const TIDARoiDescriptor& b ) const { return !((*this)==b); }
 
 
   void push_back( const TIDARoiDescriptor& roi ) { m_rois.push_back( roi ); }

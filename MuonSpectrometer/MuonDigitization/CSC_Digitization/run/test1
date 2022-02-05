@@ -1,2 +1,0 @@
-rm test1.log
-athena.py test1.py >& test1.log &

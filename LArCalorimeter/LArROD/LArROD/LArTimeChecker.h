@@ -13,7 +13,6 @@
 #define LARROD_LARTIMECHECKER
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "LArRawUtils/LArRoI_Map.h"
 #include "LArRawUtils/LArRawOrdering.h"
 
 class LArTimeChecker : public AthAlgorithm

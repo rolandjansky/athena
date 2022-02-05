@@ -38,7 +38,7 @@ void Muon::TGC_ResidualPullCalculator::residuals(
   if (!rot) {
     const Muon::CompetingMuonClustersOnTrack* muonCompClusters =
       dynamic_cast<const Muon::CompetingMuonClustersOnTrack*>(measurement);
-    if (muonCompClusters) rot = muonCompClusters->containedROTs().empty() ? 0 :
+    if (muonCompClusters) rot = muonCompClusters->containedROTs().empty() ? nullptr :
       muonCompClusters->containedROTs().front();
   }
   if (!trkPar || !rot) {
@@ -105,7 +105,7 @@ const Trk::ResidualPull* Muon::TGC_ResidualPullCalculator::residualPull(
   if (!rot) {
     const Muon::CompetingMuonClustersOnTrack* muonCompClusters =
       dynamic_cast<const Muon::CompetingMuonClustersOnTrack*>(measurement);
-    if (muonCompClusters) rot = muonCompClusters->containedROTs().empty() ? 0 :
+    if (muonCompClusters) rot = muonCompClusters->containedROTs().empty() ? nullptr :
       muonCompClusters->containedROTs().front();
   }
   if (!trkPar || !rot) {

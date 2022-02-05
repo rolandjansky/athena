@@ -93,4 +93,9 @@
   <class name="boost::array<long,8>"/>
   <class name="boost::array<long,9>"/>
   <class name="boost::array<long,10>"/>
+
+  <exclusion>
+    <!-- These show up in the gcc12 headers. -->
+    <class pattern="*__null_ptr_constant"/>
+  </exclusion>
 </lcgdict>

@@ -1,16 +1,14 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBECLArRawChannelBuilder.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 
 #include "LArRawEvent/LArDigitContainer.h"
 #include "TBEvent/TBPhase.h"
 
 #include "LArElecCalib/ILArPedestal.h"
-//#include "LArElecCalib/ILArRamp.h"
 #include "LArElecCalib/ILArOFC.h"
 #include "LArElecCalib/ILArShape.h"
 #include "LArElecCalib/ILArGlobalTimeOffset.h"
@@ -30,8 +28,6 @@ TBECLArRawChannelBuilder::TBECLArRawChannelBuilder (const std::string& name, ISv
   AthAlgorithm(name, pSvcLocator),
   m_onlineHelper(0),
   m_calo_id(0),
-  m_calo_dd_man(0),
-  //m_roiMap("LArRoI_Map"),
   m_DataLocation("FREE"),
   m_ChannelContainerName("LArRawChannels"),
   m_useTDC(false),
@@ -103,9 +99,9 @@ StatusCode TBECLArRawChannelBuilder::initialize(){
 
   if (!m_useRamp)
   {
-    // pointer to detector manager:
-    ATH_CHECK( detStore()->retrieve (m_calo_dd_man, "CaloMgr") );
-    m_calo_id   = m_calo_dd_man->getCaloCell_ID();
+    // pointer to CaloCell ID helper:
+    ATH_CHECK( detStore()->retrieve (m_calo_id, "CaloCell_ID") );
+    
     for (int i=0; i<30; i++) {
       m_adc2mev[i] = 0;
       if (i == 6)  m_adc2mev[i] = 0.041*637;    // EMEC2
@@ -250,8 +246,8 @@ StatusCode TBECLArRawChannelBuilder::execute()
 
   //retrieve TDC
   if (m_useTDC) { //All this timing business is only necessary if the readout and the beam are not in phase (Testbeam)
-    const TBPhase* theTBPhase;
-    const ILArGlobalTimeOffset* larGlobalTimeOffset;
+    const TBPhase* theTBPhase = nullptr;
+    const ILArGlobalTimeOffset* larGlobalTimeOffset = nullptr;
     ATH_CHECK( evtStore()->retrieve(theTBPhase,"TBPhase") );
     //Get Phase in nanoseconds
     PhaseTime = theTBPhase->getPhase();

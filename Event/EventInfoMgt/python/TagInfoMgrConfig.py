@@ -1,9 +1,6 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-
-from __future__ import print_function
-from AthenaConfiguration.ComponentFactory import CompFactory
-
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, ConfigurationError
+from AthenaConfiguration.ComponentFactory import CompFactory
 import os
 
 
@@ -34,7 +31,7 @@ if __name__ == "__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
 
-    ConfigFlags.Input.Files = defaultTestFiles.RAW
+    ConfigFlags.Input.Files = defaultTestFiles.RDO_RUN2
     ConfigFlags.lock()
 
     acc, tagInfoMgr = TagInfoMgrCfg( ConfigFlags, {"SomeKey": "SomeValue"} )

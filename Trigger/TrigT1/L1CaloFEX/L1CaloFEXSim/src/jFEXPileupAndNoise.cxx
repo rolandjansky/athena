@@ -33,16 +33,16 @@ LVL1::jFEXPileupAndNoise::~jFEXPileupAndNoise() {
 }
 
 StatusCode LVL1::jFEXPileupAndNoise::initialize() {
+    
     ATH_CHECK(m_jFEXPileupAndNoise_jTowerContainerKey.initialize());
     return StatusCode::SUCCESS;
 }
 
 //calls container for TT
 StatusCode LVL1::jFEXPileupAndNoise::safetyTest() {
-
-    SG::ReadHandle<jTowerContainer> jk_jFEXPileupAndNoise_jTowerContainer(m_jFEXPileupAndNoise_jTowerContainerKey);
-    if(! jk_jFEXPileupAndNoise_jTowerContainer.isValid()) {
-        ATH_MSG_FATAL("Could not retrieve  jk_jFEXPileupAndNoise_jTowerContainer " << m_jFEXPileupAndNoise_jTowerContainerKey.key());
+    
+    if(! m_jTowerContainer.isValid()) {
+        ATH_MSG_FATAL("Could not retrieve  m_jTowerContainer " << m_jFEXPileupAndNoise_jTowerContainerKey.key());
         return StatusCode::FAILURE;
     }
 
@@ -50,9 +50,12 @@ StatusCode LVL1::jFEXPileupAndNoise::safetyTest() {
 }
 
 StatusCode LVL1::jFEXPileupAndNoise::reset() {
+    m_jTowerContainer = SG::ReadHandle<jTowerContainer>(m_jFEXPileupAndNoise_jTowerContainerKey);
     m_is_FWD=0;
-    m_apply_jets=0; 
-    m_apply_met=0;
+    m_apply_pileup2jets=0; 
+    m_apply_pileup2met=0;
+    m_apply_noise2jets=0;
+    m_apply_noise2met=0;
 
     reset_conters();
     
@@ -96,52 +99,56 @@ void LVL1::jFEXPileupAndNoise::setup(int FPGA[FEXAlgoSpaceDefs::jFEX_algoSpace_h
 }
 
 
-std::vector<int> LVL1::jFEXPileupAndNoise::CalculatePileup(){
+std::vector<float> LVL1::jFEXPileupAndNoise::CalculatePileup(){
     
     reset_conters();
     if(m_is_FWD){ // for the FWD mapping
         for(int iphi=0;iphi<FEXAlgoSpaceDefs::jFEX_algoSpace_height;iphi++){
             for(int ieta=0;ieta<FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width;ieta++){
-                if(m_FPGA_forward[iphi][ieta] == 0) continue; //skipping TTID iqual to 0
+                
+                int TTID = m_FPGA_forward[iphi][ieta];
+                if(TTID == 0) continue; //skipping TTID iqual to 0
                 //storing the energies
-                int tmp_energy_EM  = getET_EM(m_FPGA_forward[iphi][ieta]);
-                int tmp_energy_HAD = getET_HAD(m_FPGA_forward[iphi][ieta]);
-                int tmp_energy = getTTowerET(m_FPGA_forward[iphi][ieta]);
+                int tmp_energy_EM  = getET_EM(TTID);
+                int tmp_energy_HAD = getET_HAD(TTID);
+                int tmp_energy     = getTTowerET(TTID);
+                float tmp_EM_Area    = getTTArea_EM(TTID);
+                float tmp_HD_Area    = getTTArea_HAD(TTID);
                 m_FPGA_ET_forward_EM[iphi][ieta]  = tmp_energy_EM ; 
                 m_FPGA_ET_forward_HAD[iphi][ieta] = tmp_energy_HAD;
                 
                 //calculating rho's
                 
-                int tmp_eta = getTTowerEta(m_FPGA_forward[iphi][ieta]);
+                int tmp_eta = getTTowerEta(TTID);
                 if(tmp_eta < 32){
-                    if(tmp_energy_EM > 0 and tmp_energy_EM < 20000) {//lower and upper threshold must be get from the L1Calo DB
-                        m_rho_EM += tmp_energy_EM * 1.0; // the 1.0 should be a float value from the L1Calo DB
+                    if(tmp_energy_EM > m_et_low and tmp_energy_EM < m_et_high) {//lower and upper threshold must be get from the L1Calo DB
+                        m_rho_EM += tmp_energy_EM / tmp_EM_Area; 
                         m_count_rho_EM++;
                     }
                 }
                 
                 if(tmp_eta < 15){
-                    if(tmp_energy_HAD > 0 and tmp_energy_HAD < 20000){ //lower and upper threshold must be get from the L1Calo DB                    
-                        m_rho_HAD1 += tmp_energy_HAD * 1.0; // the 1.0 should be a float value from the L1Calo DB
+                    if(tmp_energy_HAD > m_et_low and tmp_energy_HAD < m_et_high){ //lower and upper threshold must be get from the L1Calo DB                    
+                        m_rho_HAD1 += tmp_energy_HAD / tmp_HD_Area; 
                         m_count_rho_HAD1++;
                     }
                 }
                 else if(tmp_eta < 16 ){
-                    if(tmp_energy_HAD > 0 and tmp_energy_HAD < 20000){ //lower and upper threshold must be get from the L1Calo DB        
-                        m_rho_HAD2 += tmp_energy_HAD * 1.0; // the 1.0 should be a float value from the L1Calo DB
+                    if(tmp_energy_HAD > m_et_low and tmp_energy_HAD < m_et_high){ //lower and upper threshold must be get from the L1Calo DB        
+                        m_rho_HAD2 += tmp_energy_HAD / tmp_HD_Area; 
                         m_count_rho_HAD2++;
                     }
                 }
-                else if(tmp_eta > 30 and m_FPGA_forward[iphi][ieta]>=700000 ){
+                else if(tmp_eta > 30 and TTID>=700000 ){
                     m_FPGA_ET_central_HAD[iphi][ieta] = tmp_energy; //This corrects the FCAL layer 0 (which is an EM layer)
-                    if(tmp_energy > 0 and tmp_energy < 20000){ //lower and upper threshold must be get from the L1Calo DB         
-                        m_rho_FCAL += tmp_energy * 1.0; // the 1.0 should be a float value from the L1Calo DB
+                    if(tmp_energy > m_et_low and tmp_energy < m_et_high){ //lower and upper threshold must be get from the L1Calo DB         
+                        m_rho_FCAL += tmp_energy / (tmp_HD_Area*tmp_EM_Area); // FCAL is treated differently.. but when HAD layer -> EM_Area = 1 and viceversa with this we dont need to divide into FCAL layers
                         m_count_rho_FCAL++;
                     }
                 }                 
                 else if(tmp_eta <= 32 ){
-                    if(tmp_energy_HAD > 0 and tmp_energy_HAD < 20000){ //lower and upper threshold must be get from the L1Calo DB       
-                        m_rho_HAD3 += tmp_energy_HAD * 1.0; // the 1.0 should be a float value from the L1Calo DB
+                    if(tmp_energy_HAD > m_et_low and tmp_energy_HAD < m_et_high){ //lower and upper threshold must be get from the L1Calo DB       
+                        m_rho_HAD3 += tmp_energy_HAD / tmp_HD_Area;
                         m_count_rho_HAD3++;
                     }
                 }
@@ -152,49 +159,50 @@ std::vector<int> LVL1::jFEXPileupAndNoise::CalculatePileup(){
         
     }
     else{
-        
         for(int iphi=0;iphi<FEXAlgoSpaceDefs::jFEX_algoSpace_height;iphi++){
             for(int ieta=0;ieta<FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width;ieta++){
-
                 //storing the energies
-                int tmp_energy_EM = getET_EM(m_FPGA_central[iphi][ieta]);
-                int tmp_energy_HAD = getET_HAD(m_FPGA_central[iphi][ieta]);
-                int tmp_energy = getTTowerET(m_FPGA_central[iphi][ieta]);
+                int TTID = m_FPGA_central[iphi][ieta];
+                int tmp_energy_EM  = getET_EM(TTID);
+                int tmp_energy_HAD = getET_HAD(TTID);
+                int tmp_energy     = getTTowerET(TTID);
+                float tmp_EM_Area    = getTTArea_EM(TTID);
+                float tmp_HD_Area    = getTTArea_HAD(TTID);
                 m_FPGA_ET_central_EM[iphi][ieta]  = tmp_energy_EM ; 
                 m_FPGA_ET_central_HAD[iphi][ieta] = tmp_energy_HAD;
-                
                 //calculating rho's
                 
-                int tmp_eta = getTTowerEta(m_FPGA_central[iphi][ieta]);
+                int tmp_eta = getTTowerEta(TTID);
+                
                 if(tmp_eta < 32){
-                    if(tmp_energy_EM > 0 and tmp_energy_EM < 20000){ //lower and upper threshold must be get from the L1Calo DB
-                        m_rho_EM += tmp_energy_EM * 1.0; // the 1.0 should be a float value from the L1Calo DB
+                    if(tmp_energy_EM > m_et_low and tmp_energy_EM < m_et_high){ //lower and upper threshold must be get from the L1Calo DB
+                        m_rho_EM += tmp_energy_EM / tmp_EM_Area; 
                         m_count_rho_EM++;
                     }
                 }
                 
                 if(tmp_eta < 15){
-                    if(tmp_energy_HAD > 0 and tmp_energy_HAD < 20000){ //lower and upper threshold must be get from the L1Calo DB                    
-                        m_rho_HAD1 += tmp_energy_HAD * 1.0; // the 1.0 should be a float value from the L1Calo DB
+                    if(tmp_energy_HAD > m_et_low and tmp_energy_HAD < m_et_high){ //lower and upper threshold must be get from the L1Calo DB   
+                        m_rho_HAD1 += tmp_energy_HAD / tmp_HD_Area; 
                         m_count_rho_HAD1++;
                     }
                 }
                 else if(tmp_eta < 16 ){
-                    if(tmp_energy_HAD > 0 and tmp_energy_HAD < 20000){ //lower and upper threshold must be get from the L1Calo DB        
-                        m_rho_HAD2 += tmp_energy_HAD * 1.0; // the 1.0 should be a float value from the L1Calo DB
+                    if(tmp_energy_HAD > m_et_low and tmp_energy_HAD < m_et_high){ //lower and upper threshold must be get from the L1Calo DB        
+                        m_rho_HAD2 += tmp_energy_HAD / tmp_HD_Area; 
                         m_count_rho_HAD2++;
                     }
                 }
-                else if(tmp_eta > 30  and m_FPGA_central[iphi][ieta]>=700000 ){ //this should not happen since  central jFEX is not FWD
+                else if(tmp_eta > 30  and TTID>=700000 ){ //this should not happen since  central jFEX is not FWD
                     m_FPGA_ET_central_HAD[iphi][ieta] = tmp_energy; //This corrects the FCAL layer 0 (which is an EM layer)
-                    if(tmp_energy > 0 and tmp_energy < 20000){ //lower and upper threshold must be get from the L1Calo DB         
-                        m_rho_FCAL += tmp_energy * 1.0; // the 1.0 should be a float value from the L1Calo DB
+                    if(tmp_energy > m_et_low and tmp_energy < m_et_high){ //lower and upper threshold must be get from the L1Calo DB         
+                        m_rho_FCAL += tmp_energy / (tmp_HD_Area*tmp_EM_Area); // FCAL is treated differently.. but when HAD layer -> EM_Area = 1 and viceversa with this we dont need to divide into FCAL layers
                         m_count_rho_FCAL++;
                     }
                 }                 
                 else if(tmp_eta < 32 ){
-                    if(tmp_energy_HAD > 0 and tmp_energy_HAD < 20000){ //lower and upper threshold must be get from the L1Calo DB       
-                        m_rho_HAD3 += tmp_energy_HAD * 1.0; // the 1.0 should be a float value from the L1Calo DB
+                    if(tmp_energy_HAD > m_et_low and tmp_energy_HAD < m_et_high){ //lower and upper threshold must be get from the L1Calo DB       
+                        m_rho_HAD3 += tmp_energy_HAD / tmp_HD_Area; 
                         m_count_rho_HAD3++;
                     }
                 }
@@ -205,18 +213,15 @@ std::vector<int> LVL1::jFEXPileupAndNoise::CalculatePileup(){
         }//end of iphi loop
     }
     //calculating rho values for each region
-      
     if(m_count_rho_EM   != 0) m_rho_EM/=m_count_rho_EM;
     if(m_count_rho_HAD1 != 0) m_rho_HAD1/=m_count_rho_HAD1;
     if(m_count_rho_HAD2 != 0) m_rho_HAD2/=m_count_rho_HAD2;
     if(m_count_rho_HAD3 != 0) m_rho_HAD3/=m_count_rho_HAD3;
     if(m_count_rho_FCAL != 0) m_rho_FCAL/=m_count_rho_FCAL;
-
-    std::vector<int> rho_values {m_rho_EM,m_rho_HAD1,m_rho_HAD2,m_rho_HAD3,m_rho_FCAL};
     
+    std::vector<float> rho_values {m_rho_EM,m_rho_HAD1,m_rho_HAD2,m_rho_HAD3,m_rho_FCAL};
     
     SubtractPileup();
-    
     
     return rho_values;
 }
@@ -226,24 +231,27 @@ void LVL1::jFEXPileupAndNoise::SubtractPileup(){
         
         for(int iphi=0;iphi<FEXAlgoSpaceDefs::jFEX_algoSpace_height;iphi++){
             for(int ieta=0;ieta<FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width;ieta++){ 
-                if(m_FPGA_forward[iphi][ieta] == 0) continue; //skipping TTID iqual to 0
-                int tmp_eta = getTTowerEta(m_FPGA_forward[iphi][ieta]);
+                int TTID = m_FPGA_forward[iphi][ieta];
+                if(TTID == 0) continue; //skipping TTID iqual to 0
+                int tmp_eta = getTTowerEta(TTID);
+                int tmp_EM_Area = getTTArea_EM(TTID);
+                int tmp_HD_Area = getTTArea_HAD(TTID);
                     
                 if(tmp_eta < 32){
-                    m_FPGA_ET_forward_EM[iphi][ieta]=m_FPGA_ET_forward_EM[iphi][ieta]-m_rho_EM * 1.0; // the 1.0 should be a float value from the L1Calo DB
+                    m_FPGA_ET_forward_EM[iphi][ieta]=m_FPGA_ET_forward_EM[iphi][ieta]-m_rho_EM * tmp_EM_Area; 
                 }
                 
                 if(tmp_eta < 15){
-                    m_FPGA_ET_forward_HAD[iphi][ieta]=m_FPGA_ET_forward_HAD[iphi][ieta]-m_rho_HAD1 * 1.0; // the 1.0 should be a float value from the L1Calo DB
+                    m_FPGA_ET_forward_HAD[iphi][ieta]=m_FPGA_ET_forward_HAD[iphi][ieta]-m_rho_HAD1 * tmp_HD_Area; 
                 }
                 else if(tmp_eta < 16 ){
-                    m_FPGA_ET_forward_HAD[iphi][ieta]=m_FPGA_ET_forward_HAD[iphi][ieta]-m_rho_HAD2 * 1.0; // the 1.0 should be a float value from the L1Calo DB
+                    m_FPGA_ET_forward_HAD[iphi][ieta]=m_FPGA_ET_forward_HAD[iphi][ieta]-m_rho_HAD2 * tmp_HD_Area; 
                 }
-                else if(tmp_eta > 30 and m_FPGA_central[iphi][ieta]>=700000){
-                    m_FPGA_ET_forward_HAD[iphi][ieta]=m_FPGA_ET_forward_HAD[iphi][ieta]-m_rho_FCAL * 1.0; // the 1.0 should be a float value from the L1Calo DB
+                else if(tmp_eta > 30 and TTID>=700000){
+                    m_FPGA_ET_forward_HAD[iphi][ieta]=m_FPGA_ET_forward_HAD[iphi][ieta]-m_rho_FCAL * (tmp_HD_Area*tmp_EM_Area); 
                 } 
                 else if(tmp_eta < 32 ){
-                    m_FPGA_ET_forward_HAD[iphi][ieta]=m_FPGA_ET_forward_HAD[iphi][ieta]-m_rho_HAD3 * 1.0; // the 1.0 should be a float value from the L1Calo DB
+                    m_FPGA_ET_forward_HAD[iphi][ieta]=m_FPGA_ET_forward_HAD[iphi][ieta]-m_rho_HAD3 * tmp_HD_Area; 
                 }
                 
                 
@@ -255,24 +263,26 @@ void LVL1::jFEXPileupAndNoise::SubtractPileup(){
         
         for(int iphi=0;iphi<FEXAlgoSpaceDefs::jFEX_algoSpace_height;iphi++){
             for(int ieta=0;ieta<FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width;ieta++){ 
-                
-                int tmp_eta = getTTowerEta(m_FPGA_central[iphi][ieta]);
+                int TTID = m_FPGA_central[iphi][ieta];
+                int tmp_eta = getTTowerEta(TTID);
+                int tmp_EM_Area = getTTArea_EM(TTID);
+                int tmp_HD_Area = getTTArea_HAD(TTID);
                     
                 if(tmp_eta < 32){
-                    m_FPGA_ET_central_EM[iphi][ieta]=m_FPGA_ET_central_EM[iphi][ieta]-m_rho_EM * 1.0; // the 1.0 should be a float value from the L1Calo DB
+                    m_FPGA_ET_central_EM[iphi][ieta]=m_FPGA_ET_central_EM[iphi][ieta]-m_rho_EM * tmp_EM_Area; 
                 }
                 
                 if(tmp_eta < 15){
-                    m_FPGA_ET_central_HAD[iphi][ieta]=m_FPGA_ET_central_HAD[iphi][ieta]-m_rho_HAD1 * 1.0; // the 1.0 should be a float value from the L1Calo DB
+                    m_FPGA_ET_central_HAD[iphi][ieta]=m_FPGA_ET_central_HAD[iphi][ieta]-m_rho_HAD1 * tmp_HD_Area; 
                 }
                 else if(tmp_eta < 16 ){
-                    m_FPGA_ET_central_HAD[iphi][ieta]=m_FPGA_ET_central_HAD[iphi][ieta]-m_rho_HAD2 * 1.0; // the 1.0 should be a float value from the L1Calo DB
+                    m_FPGA_ET_central_HAD[iphi][ieta]=m_FPGA_ET_central_HAD[iphi][ieta]-m_rho_HAD2 * tmp_HD_Area; 
                 }
-                else if(tmp_eta > 30  and m_FPGA_central[iphi][ieta]>=700000 ){ 
-                    m_FPGA_ET_central_HAD[iphi][ieta]=m_FPGA_ET_central_HAD[iphi][ieta]-m_rho_FCAL * 1.0; // the 1.0 should be a float value from the L1Calo DB
+                else if(tmp_eta > 30  and TTID>=700000 ){ 
+                    m_FPGA_ET_central_HAD[iphi][ieta]=m_FPGA_ET_central_HAD[iphi][ieta]-m_rho_FCAL * (tmp_HD_Area*tmp_EM_Area); 
                 } 
                 else if(tmp_eta < 32 ){
-                    m_FPGA_ET_central_HAD[iphi][ieta]=m_FPGA_ET_central_HAD[iphi][ieta]-m_rho_HAD3 * 1.0; // the 1.0 should be a float value from the L1Calo DB
+                    m_FPGA_ET_central_HAD[iphi][ieta]=m_FPGA_ET_central_HAD[iphi][ieta]-m_rho_HAD3 * tmp_HD_Area; 
                 }
                 
                 
@@ -285,13 +295,21 @@ void LVL1::jFEXPileupAndNoise::SubtractPileup(){
 }
 
 
-//Flags that allow to apply the pileup to the objets
-void LVL1::jFEXPileupAndNoise::ApplyPileupJets  (){
-    m_apply_jets=1;
+//Flags that allow to apply the pileup/noise to the objets
+void LVL1::jFEXPileupAndNoise::ApplyPileup2Jets  (bool b){
+    m_apply_pileup2jets = b;
 }
 
-void LVL1::jFEXPileupAndNoise::ApplyPileupMet  (){
-    m_apply_met=1;
+void LVL1::jFEXPileupAndNoise::ApplyPileup2Met  (bool b){
+    m_apply_pileup2met = b;
+}
+
+void LVL1::jFEXPileupAndNoise::ApplyNoise2Jets  (bool b){
+    m_apply_noise2jets = b;
+}
+
+void LVL1::jFEXPileupAndNoise::ApplyNoise2Met  (bool b){
+    m_apply_noise2met = b;
 }
 
 
@@ -299,42 +317,43 @@ void LVL1::jFEXPileupAndNoise::ApplyPileupMet  (){
 std::unordered_map<int,std::vector<int> > LVL1::jFEXPileupAndNoise::Get_EM_Et_values(){
     
     // map for energies sent to the FPGA
-    std::unordered_map<int,std::vector<int> > map_Etvalues;
-    map_Etvalues.clear();
+    m_map_Etvalues_EM.clear();
+
     
     // tmp variable to fill the map
-    std::vector<int> v_enegies;
-    v_enegies.clear();
-    v_enegies.resize(2,0);
+    std::vector<int> v_energies;
+    v_energies.clear();
+    v_energies.resize(2,0);
     
     
     if(m_is_FWD){ // for the FWD mapping
         
         for(int iphi=0;iphi<FEXAlgoSpaceDefs::jFEX_algoSpace_height;iphi++){
             for(int ieta=0;ieta<FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width;ieta++){
-                if(m_FPGA_forward[iphi][ieta] == 0) continue;
+                int TTID = m_FPGA_forward[iphi][ieta];
+                if(TTID == 0) continue;
                 //reset variables
-                v_enegies.clear();
-                v_enegies.resize(2,0);
+                v_energies.clear();
+                v_energies.resize(2,0);
                 
                 //saving the SG energy
-                int tmp_TotalEt_jet=getET_EM(m_FPGA_forward[iphi][ieta]);
-                int tmp_TotalEt_met=getET_EM(m_FPGA_forward[iphi][ieta]);
+                int tmp_TotalEt_jet=getET_EM(TTID);
+                int tmp_TotalEt_met=getET_EM(TTID);
                 
                 // if true changing the raw energy to the pileup subtracted energy for jets
-                if(m_apply_jets){
+                if(m_apply_pileup2jets){
                     tmp_TotalEt_jet = m_FPGA_ET_forward_EM[iphi][ieta];
                 }
                 
                 // if true changing the raw energy to the pileup subtracted energy for met
-                if(m_apply_met){
+                if(m_apply_pileup2met){
                     tmp_TotalEt_met = m_FPGA_ET_forward_EM[iphi][ieta];
                 }
                 
-                v_enegies[0]=tmp_TotalEt_jet;
-                v_enegies[1]=tmp_TotalEt_met;
+                v_energies[0]=tmp_TotalEt_jet;
+                v_energies[1]=tmp_TotalEt_met;
 
-                map_Etvalues.insert(std::make_pair(m_FPGA_forward[iphi][ieta], v_enegies));
+                m_map_Etvalues_EM.insert(std::make_pair(TTID, v_energies));
             }
         }
            
@@ -343,29 +362,29 @@ std::unordered_map<int,std::vector<int> > LVL1::jFEXPileupAndNoise::Get_EM_Et_va
         
         for(int iphi=0;iphi<FEXAlgoSpaceDefs::jFEX_algoSpace_height;iphi++){
             for(int ieta=0;ieta<FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width;ieta++){ 
-                
+                int TTID = m_FPGA_central[iphi][ieta];
                 //reset variables
-                v_enegies.clear();
-                v_enegies.resize(2,0);
+                v_energies.clear();
+                v_energies.resize(2,0);
                 
                 //saving the SG energy
-                int tmp_TotalEt_jet=getET_EM(m_FPGA_central[iphi][ieta]);
-                int tmp_TotalEt_met=getET_EM(m_FPGA_central[iphi][ieta]);
+                int tmp_TotalEt_jet=getET_EM(TTID);
+                int tmp_TotalEt_met=getET_EM(TTID);
                 
                 // if true changing the raw energy to the pileup subtracted energy for jets
-                if(m_apply_jets){
+                if(m_apply_pileup2jets){
                     tmp_TotalEt_jet = m_FPGA_ET_central_EM[iphi][ieta];
                 }
                 
                 // if true changing the raw energy to the pileup subtracted energy for met
-                if(m_apply_met){
+                if(m_apply_pileup2met){
                     tmp_TotalEt_met = m_FPGA_ET_central_EM[iphi][ieta];
                 }
                 
-                v_enegies[0]=tmp_TotalEt_jet;
-                v_enegies[1]=tmp_TotalEt_met;
+                v_energies[0]=tmp_TotalEt_jet;
+                v_energies[1]=tmp_TotalEt_met;
 
-                map_Etvalues.insert(std::make_pair(m_FPGA_central[iphi][ieta], v_enegies));                
+                m_map_Etvalues_EM.insert(std::make_pair(TTID, v_energies));                
                 
                 
             }
@@ -373,50 +392,51 @@ std::unordered_map<int,std::vector<int> > LVL1::jFEXPileupAndNoise::Get_EM_Et_va
                    
     }
 
-    if(m_apply_noise) ApplyNoiseCuts(map_Etvalues,m_noisecut_EM_Jet,m_noisecut_EM_Met);
+    if(m_apply_noise2jets || m_apply_noise2met) ApplyNoiseCuts(m_map_Etvalues_EM,0);
 
-    return map_Etvalues;
+    return m_map_Etvalues_EM;
 }
 
 std::unordered_map<int,std::vector<int> > LVL1::jFEXPileupAndNoise::Get_HAD_Et_values(){
     
     // map for energies sent to the FPGA
-    std::unordered_map<int,std::vector<int> > map_Etvalues;
-    map_Etvalues.clear();
+    m_map_Etvalues_HAD.clear();
+
     
     // tmp variable to fill the map
-    std::vector<int> v_enegies;
-    v_enegies.clear();
-    v_enegies.resize(2,0);
+    std::vector<int> v_energies;
+    v_energies.clear();
+    v_energies.resize(2,0);
     
     
     if(m_is_FWD){ // for the FWD mapping
         
         for(int iphi=0;iphi<FEXAlgoSpaceDefs::jFEX_algoSpace_height;iphi++){
             for(int ieta=0;ieta<FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width;ieta++){
-                if(m_FPGA_forward[iphi][ieta] == 0) continue;
+                int TTID = m_FPGA_forward[iphi][ieta];
+                if(TTID == 0) continue;
                 //reset variables
-                v_enegies.clear();
-                v_enegies.resize(2,0);
+                v_energies.clear();
+                v_energies.resize(2,0);
                 
                 //saving the SG energy
-                int tmp_TotalEt_jet=getET_HAD(m_FPGA_forward[iphi][ieta]);
-                int tmp_TotalEt_met=getET_HAD(m_FPGA_forward[iphi][ieta]);
+                int tmp_TotalEt_jet=getET_HAD(TTID);
+                int tmp_TotalEt_met=getET_HAD(TTID);
                 
                 // if true changing the raw energy to the pileup subtracted energy for jets
-                if(m_apply_jets){
+                if(m_apply_pileup2jets){
                     tmp_TotalEt_jet = m_FPGA_ET_forward_HAD[iphi][ieta];
                 }
                 
                 // if true changing the raw energy to the pileup subtracted energy for met
-                if(m_apply_met){
+                if(m_apply_pileup2met){
                     tmp_TotalEt_met = m_FPGA_ET_forward_HAD[iphi][ieta];
                 }
                 
-                v_enegies[0]=tmp_TotalEt_jet;
-                v_enegies[1]=tmp_TotalEt_met;
+                v_energies[0]=tmp_TotalEt_jet;
+                v_energies[1]=tmp_TotalEt_met;
 
-                map_Etvalues.insert(std::make_pair(m_FPGA_forward[iphi][ieta], v_enegies));
+                m_map_Etvalues_HAD.insert(std::make_pair(TTID, v_energies));
             }
         }
            
@@ -425,52 +445,57 @@ std::unordered_map<int,std::vector<int> > LVL1::jFEXPileupAndNoise::Get_HAD_Et_v
         
         for(int iphi=0;iphi<FEXAlgoSpaceDefs::jFEX_algoSpace_height;iphi++){
             for(int ieta=0;ieta<FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width;ieta++){ 
-                
+                int TTID = m_FPGA_central[iphi][ieta];
                 //reset variables
-                v_enegies.clear();
-                v_enegies.resize(2,0);
+                v_energies.clear();
+                v_energies.resize(2,0);
                 
                 //saving the SG energy
-                int tmp_TotalEt_jet=getET_HAD(m_FPGA_central[iphi][ieta]);
-                int tmp_TotalEt_met=getET_HAD(m_FPGA_central[iphi][ieta]);
+                int tmp_TotalEt_jet=getET_HAD(TTID);
+                int tmp_TotalEt_met=getET_HAD(TTID);
                 
                 // if true changing the raw energy to the pileup subtracted energy for jets
-                if(m_apply_jets){
+                if(m_apply_pileup2jets){
                     tmp_TotalEt_jet = m_FPGA_ET_central_HAD[iphi][ieta];
                 }
                 
                 // if true changing the raw energy to the pileup subtracted energy for met
-                if(m_apply_met){
+                if(m_apply_pileup2met){
                     tmp_TotalEt_met = m_FPGA_ET_central_HAD[iphi][ieta];
                 }
                 
-                v_enegies[0]=tmp_TotalEt_jet;
-                v_enegies[1]=tmp_TotalEt_met;
+                v_energies[0]=tmp_TotalEt_jet;
+                v_energies[1]=tmp_TotalEt_met;
 
-                map_Etvalues.insert(std::make_pair(m_FPGA_central[iphi][ieta], v_enegies));                
+                m_map_Etvalues_HAD.insert(std::make_pair(TTID, v_energies));                
                 
                 
             }
         }
                    
     }
-    if(m_apply_noise) ApplyNoiseCuts(map_Etvalues,m_noisecut_HAD_Jet,m_noisecut_HAD_Met);
+    if(m_apply_noise2jets || m_apply_noise2met) ApplyNoiseCuts(m_map_Etvalues_HAD,1);
 
-    return map_Etvalues;
+    return m_map_Etvalues_HAD;
 }
 
-
-
-void LVL1::jFEXPileupAndNoise::ApplyNoiseCuts(std::unordered_map<int,std::vector<int> > & map_Etvalues, int Jet_NoiseCut, int Met_NoiseCut){
-
+void LVL1::jFEXPileupAndNoise::ApplyNoiseCuts(std::unordered_map<int,std::vector<int> > & map_Etvalues,int layer ){
+    
+    const LVL1::jTower *tmpTower;
+    
     for(auto [key,vec] : map_Etvalues){
+        tmpTower = m_jTowerContainer->findTower(key);
         
-        if(map_Etvalues[key][0]<Jet_NoiseCut){ // Et for jets
+        int Jet_NoiseCut = tmpTower->getNoiseForJet(layer);
+        int Met_NoiseCut = tmpTower->getNoiseForMet(layer);
+        
+        if(m_apply_noise2jets && map_Etvalues[key][0]<Jet_NoiseCut){ // Et for jets
             map_Etvalues[key][0]=0.;
-        }
-        if(map_Etvalues[key][1]<Met_NoiseCut){ // Et for Met
+        }        
+        if(m_apply_noise2met && map_Etvalues[key][1]<Met_NoiseCut){ // Et for Met
             map_Etvalues[key][1]=0.;
         }
+
     }
     
 }
@@ -482,11 +507,7 @@ std::unordered_map<int,std::vector<int> > LVL1::jFEXPileupAndNoise::GetEt_values
     
     // map for energies sent to the FPGA
     std::unordered_map<int,std::vector<int> > map_Etvalues;
-    std::unordered_map<int,std::vector<int> > map_Etvalues_EM;
-    std::unordered_map<int,std::vector<int> > map_Etvalues_HAD;
     map_Etvalues.clear();
-    map_Etvalues_EM.clear();
-    map_Etvalues_HAD.clear();    
     
     
     /* 
@@ -495,19 +516,14 @@ std::unordered_map<int,std::vector<int> > LVL1::jFEXPileupAndNoise::GetEt_values
      *  Et_energy[1] is used un the Met/SumEt algos
      */
     std::vector<int> Et_energy;
-
     
-    map_Etvalues_EM = Get_EM_Et_values();
-    map_Etvalues_HAD = Get_HAD_Et_values();
-    
-    
-    for(auto [key,vec] : map_Etvalues_EM){
+    for(auto [key,vec] : m_map_Etvalues_EM){
         
         Et_energy.clear();
         Et_energy.resize(2,0);
         
-        Et_energy[0]=map_Etvalues_EM[key][0]+map_Etvalues_HAD[key][0];
-        Et_energy[1]=map_Etvalues_EM[key][1]+map_Etvalues_HAD[key][1];
+        Et_energy[0]=m_map_Etvalues_EM[key][0]+m_map_Etvalues_HAD[key][0];
+        Et_energy[1]=m_map_Etvalues_EM[key][1]+m_map_Etvalues_HAD[key][1];
         map_Etvalues[key] = Et_energy;
     }
        
@@ -518,32 +534,41 @@ std::unordered_map<int,std::vector<int> > LVL1::jFEXPileupAndNoise::GetEt_values
 //Gets Eta of the TT
 int LVL1::jFEXPileupAndNoise::getTTowerEta(unsigned int TTID) {
 
-    SG::ReadHandle<jTowerContainer> jk_jFEXPileupAndNoise_jTowerContainer(m_jFEXPileupAndNoise_jTowerContainerKey);
-    const LVL1::jTower * tmpTower = jk_jFEXPileupAndNoise_jTowerContainer->findTower(TTID);
+    const LVL1::jTower *tmpTower = m_jTowerContainer->findTower(TTID);
     if(m_is_FWD) return std::abs(tmpTower->centreEta()*10); //For FWD we use the centre, due to the non-equal graularity
-    
     return tmpTower->eta();
 }
 //Gets ET of the TT
 int LVL1::jFEXPileupAndNoise::getTTowerET(unsigned int TTID) {
     
-    SG::ReadHandle<jTowerContainer> jk_jFEXPileupAndNoise_jTowerContainer(m_jFEXPileupAndNoise_jTowerContainerKey);
-    const LVL1::jTower * tmpTower = jk_jFEXPileupAndNoise_jTowerContainer->findTower(TTID);
+    const LVL1::jTower *tmpTower = m_jTowerContainer->findTower(TTID);
     return tmpTower->getTotalET();
 }
 //Gets EM ET of the TT
 int LVL1::jFEXPileupAndNoise::getET_EM(unsigned int TTID) {
-
-    SG::ReadHandle<jTowerContainer> jk_jFEXPileupAndNoise_jTowerContainer(m_jFEXPileupAndNoise_jTowerContainerKey);
-    const LVL1::jTower * tmpTower = jk_jFEXPileupAndNoise_jTowerContainer->findTower(TTID);
+    
+    const LVL1::jTower *tmpTower = m_jTowerContainer->findTower(TTID);
     return tmpTower->getET_EM();
 }
 //Gets HAD ET of the TT
 int LVL1::jFEXPileupAndNoise::getET_HAD(unsigned int TTID) {
 
-    SG::ReadHandle<jTowerContainer> jk_jFEXPileupAndNoise_jTowerContainer(m_jFEXPileupAndNoise_jTowerContainerKey);
-    const LVL1::jTower * tmpTower = jk_jFEXPileupAndNoise_jTowerContainer->findTower(TTID);
+    const LVL1::jTower *tmpTower = m_jTowerContainer->findTower(TTID);
     return tmpTower->getET_HAD();
+}
+
+//Get Area of a EM TT
+float LVL1::jFEXPileupAndNoise::getTTArea_EM(unsigned int TTID) {
+
+    const LVL1::jTower *tmpTower = m_jTowerContainer->findTower(TTID);
+    return tmpTower->getTTowerArea(0);
+}
+
+//Get Area of a HAD TT
+float LVL1::jFEXPileupAndNoise::getTTArea_HAD(unsigned int TTID) {
+
+    const LVL1::jTower *tmpTower = m_jTowerContainer->findTower(TTID);
+    return tmpTower->getTTowerArea(1);
 }
 
 

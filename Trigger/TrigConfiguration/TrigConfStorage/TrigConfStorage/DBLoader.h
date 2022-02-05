@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_DBLoader
@@ -9,6 +9,8 @@
 #include "TrigConfStorage/ILoader.h"
 #include "RelationalAccess/ISessionProxy.h"
 #include "TrigConfBase/TrigConfMessaging.h"
+
+#include <tuple>
 
 namespace TrigConf {
 
@@ -42,7 +44,7 @@ namespace TrigConf {
       void startSession();
 
       /** @brief commit session if not already done */
-      void commitSession() const;
+      void commitSession();
 
       /** @brief get l1 master from super master */
       bool loadL1MasterKey(int SuperMasterKey, int& Lvl1MasterKey); 
@@ -50,7 +52,7 @@ namespace TrigConf {
       /** @brief get l1 menu id from super master */
       bool loadL1MenuKey(int SuperMasterKey, int& Lvl1MenuKey); 
 
-      unsigned int triggerDBSchemaVersion() { if(s_triggerDBSchemaVersion==0) loadSchemaVersion(); return s_triggerDBSchemaVersion; }
+      unsigned int triggerDBSchemaVersion();
 
       virtual int verbose() const { return m_verbose; }
       virtual void setVerbose(int v) { m_verbose=v; }
@@ -59,28 +61,15 @@ namespace TrigConf {
       bool isRun2();
 
    private:
-      int m_verbose;
-
-   public:
-      typedef enum  {ALL, CTP, CTPOnl, HLT, COOLL1, COOLHLT, L1Simu} ENV;
-      static        ENV getEnv()    { return m_env; }
-      static void   setEnv(ENV env) { m_env = env;  }
+      int m_verbose{1};
 
    protected:
       StorageMgr&                    m_storageMgr; ///< reference to the storage manager
       coral::ISessionProxy&          m_session;    ///< CORAL interface to database session
-      bool                           m_sessionOwner; ///< remember if the loader started the session in the first place
-      static unsigned int            s_triggerDBSchemaVersion; ///< the version of the TriggerDB schema
-      static unsigned int            s_run; ///< database schema for run s_run
-      static unsigned int            s_ctpVersion;
-      static unsigned int            s_l1Version;
-
+      bool                           m_sessionOwner{false}; ///< remember if the loader started the session in the first place
    private:
-      void loadSchemaVersion() const;
-
-   private:
-      static ENV m_env;
-
+      /** @brief get DB schema version and run number */
+      std::tuple<unsigned int,unsigned int> loadSchemaVersion() const;
    };
 
 }

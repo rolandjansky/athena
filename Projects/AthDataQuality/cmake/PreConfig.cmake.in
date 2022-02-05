@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # File taking care of pointing the downstream projects at the right
 # version of LCG.
@@ -9,9 +10,23 @@ set( LCG_VERSION_POSTFIX "@LCG_VERSION_POSTFIX@" CACHE STRING
 set( LCG_VERSION_NUMBER @LCG_VERSION_NUMBER@ CACHE STRING
    "Version number for the LCG release to use" )
 
-# Find LCG.
+# Figure out whether to use QUIET in the following calls.
+set( _quietFlag )
 if( AthDataQuality_FIND_QUIETLY )
-   find_package( LCG ${LCG_VERSION_NUMBER} REQUIRED EXACT QUIET )
-else()
-   find_package( LCG ${LCG_VERSION_NUMBER} REQUIRED EXACT )
+  set( _quietFlag QUIET )
 endif()
+
+# Find LCG.
+find_package( LCG @LCG_VERSION_NUMBER@ REQUIRED EXACT ${_quietFlag} )
+
+# Set the versions of the TDAQ projects:
+set( TDAQ-COMMON_VERSION "@TDAQ-COMMON_VERSION@" CACHE STRING
+   "The version of tdaq-common to use for the build" )
+set( TDAQ-COMMON_ATROOT "@TDAQ-COMMON_ATROOT@" CACHE PATH
+   "The directory to pick up tdaq-common from" )
+
+# Find tdaq-common, mainly to have packages find COOL/CORAL.
+find_package( tdaq-common ${_quietFlag} )
+
+# Clean up.
+unset( _quietFlag )

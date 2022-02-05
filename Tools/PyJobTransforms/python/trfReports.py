@@ -14,9 +14,12 @@ import pickle as pickle
 import json
 import os.path
 import platform
-import distro
 import pprint
 import sys
+try:
+    import distro
+except ImportError:
+    pass
 
 from xml.etree import ElementTree
 
@@ -157,6 +160,8 @@ class trfJobReport(trfReport):
                 myDict['files'][fileType] = []
         # Should have a dataDictionary, unless something went wrong very early...
         for dataType, dataArg in self._trf._dataDictionary.items():
+            if isinstance(dataArg, list): # Always skip lists from the report (auxiliary files)
+                continue
             if dataArg.auxiliaryFile: # Always skip auxilliary files from the report
                 continue
             if fileReport[dataArg.io]:
@@ -266,6 +271,8 @@ class trfJobReport(trfReport):
 
         # Now add information about output files
         for dataArg in self._trf._dataDictionary.values():
+            if isinstance(dataArg, list): # Always skip lists from the report (auxiliary files)
+                continue
             if dataArg.io == 'output':
                 for fileEltree in trfFileReport(dataArg).classicEltreeList(fast = fast):
                     trfTree.append(fileEltree)
@@ -586,7 +593,7 @@ class machineReport(object):
         for attr in attrs:
             try:
                 machine[attr] = getattr(distro, attr).__call__()
-            except AttributeError as e:
+            except (AttributeError,NameError) as e:
                 msg.warning('Failed to get "{0}" attribute from platform module: {1}'.format(attr, e))
 
         # Now try to get processor information from /proc/cpuinfo

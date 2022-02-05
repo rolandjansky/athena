@@ -54,13 +54,16 @@ StatusCode Muon::MM_ROD_Decoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPAC
 
   // have the NSWCommonDecoder take care of the decoding
   Muon::nsw::NSWCommonDecoder common_decoder(robFrag);  
-  const std::vector<Muon::nsw::NSWElink *>   elinks = common_decoder.get_elinks();  
+  const std::vector<Muon::nsw::NSWElink *>&   elinks = common_decoder.get_elinks();  
   ATH_MSG_DEBUG("Retrieved "<<elinks.size()<<" elinks");
   if (!elinks.size()) return StatusCode::SUCCESS;
 
-  // temporary storage of the individual RDOs corresponding to this ROB
-  // (expecting to have one per module).
+  // RDO hash IDs may repeat in different elinks of the same ROB, but not in different ROBs (modules). 
+  // To handle possible repetition, we temporarily store them in an STL map.
   std::unordered_map<IdentifierHash, std::unique_ptr<MM_RawDataCollection>> rdo_map;
+
+  // error counters
+  int nerr_stationID{0}, nerr_duplicate{0}, nerr_channelID{0}, nerr_rdo{0};
 
   // loop on elinks. we need an RDO (collection) per quadruplet!
   for (auto* elink : elinks) {
@@ -74,22 +77,16 @@ StatusCode Muon::MM_ROD_Decoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPAC
     unsigned int multi_layer  = (unsigned int)elink->elinkId()->multi_layer();
     unsigned int gas_gap      = (unsigned int)elink->elinkId()->gas_gap();
     Identifier   module_ID    = m_MmIdHelper->elementID(station_name, station_eta, station_phi, true, &is_validID);
-
-    if (!is_validID) { ATH_MSG_ERROR("Invalid identifier created for MM station"); continue; }
+    if(!is_validID) { 
+      ++nerr_stationID;
+      continue;
+    }
 
     IdentifierHash module_hashID;
     m_MmIdHelper->get_module_hash(module_ID, module_hashID);
 
     // if we are in ROI-seeded mode, check if this hashID is requested
     if (seeded_mode && std::find(rdoIdhVect.begin(), rdoIdhVect.end(), module_hashID) == rdoIdhVect.end()) continue;
-
-    // get the RDO... RDO hash IDs should not repeat for different ROBs,
-    // but may repeat for the different elinks of a single ROB.
-    // To handle possible repetition, we temporarily store them in an STL map.
-    if (rdoIdc.indexFindPtr(module_hashID)) {
-       ATH_MSG_WARNING("Collection with hashID "<<module_hashID<<" already exists in the identifiable container. Skipping this elink.\n");
-       continue;
-    }
 
     if (!rdo_map[module_hashID]) rdo_map[module_hashID] = std::make_unique<MM_RawDataCollection>(module_hashID);
     MM_RawDataCollection* rdo = rdo_map[module_hashID].get();
@@ -100,20 +97,37 @@ StatusCode Muon::MM_ROD_Decoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPAC
        unsigned int channel_number = channel->channel_number();
        if (channel_number == 0) continue; // skip disconnected vmm channels
        Identifier channel_ID = m_MmIdHelper->channelID(module_ID, multi_layer, gas_gap, channel_number, true, &is_validID);
-       if (!is_validID) { ATH_MSG_ERROR("Invalid identifier created for MM channel"); continue; }
+       if (!is_validID) { 
+         ++nerr_channelID; 
+         continue; 
+       }
 
-       rdo->push_back(new MM_RawData(channel_ID, channel_number, channel->tdo(), channel->pdo())); // isDead = false (ok?)
+       rdo->push_back(new MM_RawData(channel_ID, channel_number, channel->tdo(), channel->pdo(), channel->rel_bcid())); // isDead = false (ok?)
     }
   }
 
-  // add the RDO collections created from the data of this ROB into the identifiable container
+  // add the RDO collections created from the data of this ROB into the identifiable container.
   for (auto& pair : rdo_map) {
-    if (pair.second->size() && !rdoIdc.addCollection(pair.second.release(), pair.first).isSuccess()) {
-      ATH_MSG_ERROR("Failed to add STGC RDO into the identifiable container");
+
+    if (!pair.second->size()) continue; // skip empty collections
+
+    MM_RawDataContainer::IDC_WriteHandle lock = rdoIdc.getWriteHandle(pair.first);
+    if (lock.alreadyPresent()) {
+      // RDO hash IDs should not repeat in different ROBs.
+      ++nerr_duplicate;
+    } else if (!lock.addOrDelete(std::move(pair.second)).isSuccess()) {
+      // since we prevent duplicates above, this error should never happen.
+      ++nerr_rdo;
     }
   }
-  
+
   rdo_map.clear();
+
+  // error summary (to reduce the number of messages)
+  if (nerr_duplicate) ATH_MSG_WARNING(nerr_duplicate << " elinks skipped since the same module hash has been added by a previous ROB fragment");
+  if (nerr_stationID) ATH_MSG_WARNING("Unable to create valid identifier for "<<nerr_stationID<<" modules (corrupt data?); elinks skipped");
+  if (nerr_channelID) ATH_MSG_WARNING("Unable to create valid identifier for "<<nerr_channelID<<" channels (corrupt data?); channels skipped");
+  if (nerr_rdo)       ATH_MSG_ERROR("Failed to add "<<nerr_rdo<<" RDOs into the identifiable container");
 
   return StatusCode::SUCCESS;
 }

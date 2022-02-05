@@ -267,7 +267,6 @@ StatusCode IOVDbSvc::io_finalize() {
 
 StatusCode IOVDbSvc::finalize() {
   // summarise and delete folders, adding total read from COOL
-  unsigned long long nread=0;
   float readtime=0.;
   // accumulate a map of readtime by connection
   typedef std::map<IOVDbConn*,float> CTMap;
@@ -275,7 +274,6 @@ StatusCode IOVDbSvc::finalize() {
   for (const auto & namePtrPair : m_foldermap) {
     IOVDbFolder* folder=namePtrPair.second;
     folder->summary();
-    nread+=folder->bytesRead();
     const float& fread=folder->readTime();
     readtime+=fread;
     IOVDbConn* cptr=folder->conn();
@@ -513,7 +511,7 @@ StatusCode IOVDbSvc::updateAddress(StoreID::type storeID, SG::TransientAddress* 
   // catch most common user misconfigurations
   // this is only done here as need global tag to be set even if read from file
   if (!m_par_dbinst.empty() && !m_globalTag.empty() and (m_par_source!="CREST")) {
-    const std::string tagstub=m_globalTag.substr(0,7);
+    const std::string_view tagstub=std::string_view(m_globalTag).substr(0,7);
     ATH_MSG_DEBUG( "Checking " << m_par_dbinst << " against " <<tagstub );
     if (((m_par_dbinst=="COMP200" || m_par_dbinst=="CONDBR2") && 
          (tagstub!="COMCOND" && tagstub!="CONDBR2")) ||
@@ -537,7 +535,8 @@ StatusCode IOVDbSvc::updateAddress(StoreID::type storeID, SG::TransientAddress* 
     // reload cache for this folder (and all others sharing this DB connection)
     ATH_MSG_DEBUG( "Triggering cache load for folder " << folder->folderName());
     if (StatusCode::SUCCESS!=loadCaches(folder->conn())) {
-      ATH_MSG_ERROR( "Cache load failed for folder " <<  folder->folderName() );
+      ATH_MSG_ERROR( "Cache load failed for at least one folder from " << folder->conn()->name()
+                     << ". You may see errors from other folders sharing the same connection." );
       return StatusCode::FAILURE;
     }
   }
@@ -607,7 +606,7 @@ StatusCode IOVDbSvc::getRange( const CLID&        clid,
   // catch most common user misconfigurations
   // this is only done here as need global tag to be set even if read from file
   if (!m_par_dbinst.empty() && !m_globalTag.empty() and m_par_source!="CREST") {
-    const std::string tagstub=m_globalTag.substr(0,7);
+    const std::string_view tagstub=std::string_view(m_globalTag).substr(0,7);
     ATH_MSG_DEBUG( "Checking " << m_par_dbinst << " against " <<tagstub );
     if (((m_par_dbinst=="COMP200" || m_par_dbinst=="CONDBR2") && 
          (tagstub!="COMCOND" && tagstub!="CONDBR2")) ||
@@ -630,7 +629,8 @@ StatusCode IOVDbSvc::getRange( const CLID&        clid,
     // reload cache for this folder (and all others sharing this DB connection)
     ATH_MSG_DEBUG( "Triggering cache load for folder " << folder->folderName() );
     if (StatusCode::SUCCESS!=loadCaches(folder->conn(),&time)) {
-      ATH_MSG_ERROR( "Cache load failed for folder " <<  folder->folderName() );
+      ATH_MSG_ERROR( "Cache load failed for at least one folder from " << folder->conn()->name()
+                     << ". You may see errors from other folders sharing the same connection." );
       return StatusCode::FAILURE;
     }
   }
@@ -1083,10 +1083,10 @@ StatusCode IOVDbSvc::setupFolders() {
   // check for folders to be written to metadata
   for (const auto & folderToWrite : m_par_foldersToWrite) {
     // match wildcard * at end of string only (i.e. /A/* matches /A/B, /A/C/D)
-    std::string match=folderToWrite;
+    std::string_view match=folderToWrite;
     std::string::size_type idx=folderToWrite.find('*');
     if (idx!=std::string::npos) {
-      match=folderToWrite.substr(0,idx);
+      match=std::string_view(folderToWrite).substr(0,idx);
     }
     for (const auto & thisFolder : m_foldermap) {
       IOVDbFolder* fptr=thisFolder.second;

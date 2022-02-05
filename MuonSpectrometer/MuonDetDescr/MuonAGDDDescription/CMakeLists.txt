@@ -9,5 +9,5 @@ atlas_subdir( MuonAGDDDescription )
 atlas_add_library( MuonAGDDDescription
                    src/*.cxx
                    PUBLIC_HEADERS MuonAGDDDescription
-                   LINK_LIBRARIES AGDDKernel AGDDModel )
+                   LINK_LIBRARIES AGDDKernel AGDDModel AGDDControl AGDD2GeoSvcLib GaudiKernel )
 

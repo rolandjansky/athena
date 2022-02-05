@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # ------------------------------------------------------------
 # DerivationFrameworkMaster.py
@@ -16,11 +16,9 @@ from AthenaCommon.AlgSequence import AlgSequence
 from JetRec.JetRecFlags import jetFlags 
 from AthenaCommon.GlobalFlags  import globalflags
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-# AODFix object, for checking whether it ran or not
 
-import os
-if "AthAnalysisBase" not in os.environ.get("CMTEXTRATAGS",""):
-  from AODFix.AODFix import *  # noqa: F401, F403
+# AODFix object, for checking whether it ran or not
+from AODFix.AODFix import *  # noqa: F401, F403
 
 # Trap for ROOT6 errors
 theApp.CreateSvc += ["AthROOTErrorHandlerSvc"]
@@ -72,15 +70,6 @@ if not globalflags.InputFormat=="bytestream":
 if not hasattr(svcMgr, 'DecisionSvc'):
         svcMgr += CfgMgr.DecisionSvc()
 svcMgr.DecisionSvc.CalcStats = True
-
-# Trigger decision tool
-# SUPERFLUOUS
-#if rec.doTrigger() or TriggerFlags.doTriggerConfigOnly():
-#    from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
-#    cfg = TriggerConfigGetter('ReadPool')
-#    from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
-#    tdt = Trig__TrigDecisionTool("TrigDecisionTool")
-#    ToolSvc += tdt
 
 # Centrally setting  flags
 jetFlags.useTracks = True

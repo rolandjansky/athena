@@ -3,9 +3,7 @@
 */
 
 #include "TrkTrack/TrackStateOnSurface.h"
-#include "CxxUtils/hexdump.h"
 #include "GaudiKernel/MsgStream.h"
-#include <iostream>
 #include <stdexcept>
 #include <string>
 
@@ -24,7 +22,6 @@ TrackStateOnSurface::TrackStateOnSurface(
   , m_materialEffectsOnTrack(materialEffects)
   , m_alignmentEffectsOnTrack(alignmentEffectsOnTrack)
 {
-  if (m_alignmentEffectsOnTrack && reinterpret_cast<uintptr_t>(m_alignmentEffectsOnTrack.get()) < 0x1000) std::abort();
   assert(isSane());
   setFlags();
 }
@@ -41,7 +38,6 @@ TrackStateOnSurface::TrackStateOnSurface(
   , m_materialEffectsOnTrack(std::move(materialEffects))
   , m_alignmentEffectsOnTrack(std::move(alignmentEffectsOnTrack))
 {
-  if (m_alignmentEffectsOnTrack && reinterpret_cast<uintptr_t>(m_alignmentEffectsOnTrack.get()) < 0x1000) std::abort();
   assert(isSane());
   setFlags();
 }
@@ -61,7 +57,6 @@ TrackStateOnSurface::TrackStateOnSurface(
   , m_alignmentEffectsOnTrack(alignmentEffectsOnTrack)
   , m_typeFlags(typePattern)
 {
-  if (m_alignmentEffectsOnTrack && reinterpret_cast<uintptr_t>(m_alignmentEffectsOnTrack.get()) < 0x1000) std::abort();
   assert(isSane());
 }
 
@@ -80,7 +75,6 @@ TrackStateOnSurface::TrackStateOnSurface(
   , m_alignmentEffectsOnTrack(std::move(alignmentEffectsOnTrack))
   , m_typeFlags(typePattern)
 {
-  if (m_alignmentEffectsOnTrack && reinterpret_cast<uintptr_t>(m_alignmentEffectsOnTrack.get()) < 0x1000) std::abort();
   assert(isSane());
 }
 
@@ -120,9 +114,7 @@ TrackStateOnSurface::TrackStateOnSurface(const TrackStateOnSurface& rhs)
         ? std::make_unique<const AlignmentEffectsOnTrack>(*rhs.m_alignmentEffectsOnTrack)
         : nullptr)
   , m_typeFlags(rhs.m_typeFlags)
-{
-  if (m_alignmentEffectsOnTrack && reinterpret_cast<uintptr_t>(m_alignmentEffectsOnTrack.get()) < 0x1000) std::abort();
-}
+{}
 
 TrackStateOnSurface&
 TrackStateOnSurface::operator=(const TrackStateOnSurface& rhs)
@@ -146,17 +138,7 @@ TrackStateOnSurface::operator=(const TrackStateOnSurface& rhs)
     m_typeFlags = rhs.m_typeFlags;
     assert(isSane());
   }
-  if (m_alignmentEffectsOnTrack && reinterpret_cast<uintptr_t>(m_alignmentEffectsOnTrack.get()) < 0x1000) std::abort();
   return *this;
-}
-
-TrackStateOnSurface::~TrackStateOnSurface()
-{
-  const char* p = reinterpret_cast<const char*>(m_alignmentEffectsOnTrack.get());
-  if (p && reinterpret_cast<uintptr_t>(p) < 0x1000) {
-    std::cerr << "ERROR: ~TrackStateOnSurface bad AEOT pointer\n";
-    CxxUtils::safeHexdump (std::cerr, ((const char*)this)-32, sizeof(TrackStateOnSurface)+32);
-  }
 }
 
 std::string

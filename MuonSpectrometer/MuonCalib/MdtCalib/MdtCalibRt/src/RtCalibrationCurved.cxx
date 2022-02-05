@@ -32,11 +32,11 @@
 using namespace MuonCalib;
 
 inline Double_t RtCalibrationCurved_polfun(Double_t *x, Double_t *par) { return par[0] * RtScalePolynomial(x[0]); }
-RtCalibrationCurved::RtCalibrationCurved(std::string name) : IMdtCalibration(name), m_rt_accuracy_previous(0.0) {
+RtCalibrationCurved::RtCalibrationCurved(const std::string &name) : IMdtCalibration(name), m_rt_accuracy_previous(0.0) {
     init(0.5 * CLHEP::mm, 1, 15, true, false, 15, false, false, false);
 }
 
-RtCalibrationCurved::RtCalibrationCurved(std::string name, const double &rt_accuracy, const unsigned int &func_type,
+RtCalibrationCurved::RtCalibrationCurved(const std::string &name, const double &rt_accuracy, const unsigned int &func_type,
                                          const unsigned int &ord, const bool &fix_min, const bool &fix_max, const int &max_it,
                                          bool do_parabolic_extrapolation, bool do_smoothing, bool do_multilayer_rt_scale) :
     IMdtCalibration(name), m_rt_accuracy_previous(0.0) {
@@ -98,7 +98,7 @@ void RtCalibrationCurved::doNotForceMonotony() { m_force_monotony = false; }
 void RtCalibrationCurved::doParabolicExtrapolation() { m_do_parabolic_extrapolation = true; }
 void RtCalibrationCurved::doSmoothing() { m_do_smoothing = true; }
 void RtCalibrationCurved::noSmoothing() { m_do_smoothing = false; }
-const IMdtCalibrationOutput *RtCalibrationCurved::analyseSegments(const std::vector<MuonCalibSegment *> &seg) {
+RtCalibrationCurved::MdtCalibOutputPtr RtCalibrationCurved::analyseSegments(const MuonSegVec &seg) {
     std::shared_ptr<const IRtRelation> tmp_rt;
 
     /////////////////////
@@ -136,7 +136,7 @@ const IMdtCalibrationOutput *RtCalibrationCurved::analyseSegments(const std::vec
     // parabolic extrapolations for small radii //
     if (m_do_parabolic_extrapolation) {
         std::shared_ptr<RtRelationLookUp> tmprt = performParabolicExtrapolation(true, true, *tmp_rt);
-        m_output = std::make_unique<RtCalibrationOutput>(
+        m_output = std::make_shared<RtCalibrationOutput>(
             tmprt, std::make_shared<RtFullInfo>("RtCalibrationCurved", m_iteration, m_nb_segments_used, 0.0, 0.0, 0.0, 0.0));
 
         tmp_rt = tmprt;
@@ -147,9 +147,7 @@ const IMdtCalibrationOutput *RtCalibrationCurved::analyseSegments(const std::vec
     //////////////////////////////////////////////
     if (!m_do_smoothing) {
         // final residuals //
-        double r(0);
-        double d(0);
-        double adc(0);
+        double r{0}, d{0}, adc{0};
         for (unsigned int k = 0; k < seg.size(); k++) {
             for (unsigned int l = 0; l < seg[k]->hitsOnTrack(); l++) {
                 adc = (seg[k]->mdtHOT())[l]->adcCount();
@@ -182,9 +180,7 @@ const IMdtCalibrationOutput *RtCalibrationCurved::analyseSegments(const std::vec
         AdaptiveResidualSmoothing smoothing;
 
         // counter //
-        unsigned int counter(0);
-        unsigned int counter2(0);
-
+        unsigned int counter{0}, counter2{0};
         // overwrite drift radii and calculate the average resolution //
         for (unsigned int k = 0; k < seg.size(); k++) {
             if (seg[k]->mdtHitsOnTrack() < 4) { continue; }
@@ -240,7 +236,7 @@ const IMdtCalibrationOutput *RtCalibrationCurved::analyseSegments(const std::vec
     }
     //---------------------------------------------------------------------------//
     //---------------------------------------------------------------------------//
-    m_output = std::make_unique<RtCalibrationOutput>(
+    m_output = std::make_shared<RtCalibrationOutput>(
         tmp_rt, std::make_shared<RtFullInfo>("RtCalibrationCurved", m_iteration, m_nb_segments_used, 0.0, 0.0, 0.0, 0.0));
 
     /////////////////////
@@ -517,7 +513,7 @@ void RtCalibrationCurved::setInput(const IMdtCalibrationOutput *rt_input) {
     ////////////////////////////////////////////
     // CHECK IF THE OUTPUT CLASS IS SUPPORTED //
     ////////////////////////////////////////////
-    if (input == 0) {
+    if (input == nullptr) {
         throw std::runtime_error(
             Form("File: %s, Line: %d\nRtCalibrationCurved::setInput - Calibration input class not supported.", __FILE__, __LINE__));
     }
@@ -565,7 +561,7 @@ void RtCalibrationCurved::setInput(const IMdtCalibrationOutput *rt_input) {
 //::::::::::::::::::::
 //:: METHOD analyse ::
 //::::::::::::::::::::
-bool RtCalibrationCurved::analyse(const std::vector<MuonCalibSegment *> &seg) {
+bool RtCalibrationCurved::analyse(const MuonSegVec &seg) {
     ///////////////
     // VARIABLES //
     ///////////////
@@ -704,9 +700,9 @@ bool RtCalibrationCurved::analyse(const std::vector<MuonCalibSegment *> &seg) {
     // Set new multilayer rt-difference //
     //////////////////////////////////////
     if (m_iteration > 0 && m_do_multilayer_rt_scale) {
-        m_multilayer_rt_difference->DoFit(m_rt_new.get(), &seg);
+        m_multilayer_rt_difference->DoFit(m_rt_new.get(), seg);
     } else {
-        m_multilayer_rt_difference->DoFit();
+        m_multilayer_rt_difference->DoFit(nullptr, {});
     }
 
     //////////////////////////////////////////////////
@@ -715,13 +711,13 @@ bool RtCalibrationCurved::analyse(const std::vector<MuonCalibSegment *> &seg) {
 
     m_iteration = m_iteration + 1;
 
-    m_output = std::make_unique<RtCalibrationOutput>(
+    m_output = std::make_shared<RtCalibrationOutput>(
         m_rt_new, std::make_shared<RtFullInfo>("RtCalibrationCurved", m_iteration, m_nb_segments_used, 0.0, 0.0, 0.0, 0.0));
 
     return true;
 }
 bool RtCalibrationCurved::converged() const { return (m_status > 0); }
-const IMdtCalibrationOutput *RtCalibrationCurved::getResults() const { return static_cast<const IMdtCalibrationOutput *>(m_output.get()); }
+RtCalibrationCurved::MdtCalibOutputPtr RtCalibrationCurved::getResults() const { return m_output; }
 
 //*****************************************************************************
 
@@ -764,9 +760,6 @@ void RtCalibrationCurved::init(const double &rt_accuracy, const unsigned int &fu
     m_t_mean = 500.0;
     // default values, correct values will be set when the input r-t
     // has been given
-
-    m_rt_new = 0;
-    m_output = 0;
 
     m_U = std::vector<CLHEP::HepVector>(m_order);
     m_U_weighted = std::vector<CLHEP::HepVector>(m_order);
@@ -896,7 +889,7 @@ void RtCalibrationCurved::display_segment(MuonCalibSegment *segment, std::ofstre
 
     // write out the reconstructed track //
     // a straight line is drawn by default //
-    if (curved_segment == 0) {
+    if (curved_segment == nullptr) {
         MTStraightLine aux_track(segment->position(), segment->direction(), null, null);
         outfile << "SET PLCI 4\n"
                 << "LINE " << aux_track.a_x2() * (z_min - 30.0) + aux_track.b_x2() << " " << z_min - 30.0 << " "
@@ -904,7 +897,7 @@ void RtCalibrationCurved::display_segment(MuonCalibSegment *segment, std::ofstre
     }
 
     // a curved segment is drawn on demand //
-    if (curved_segment != 0) {
+    if (curved_segment != nullptr) {
         double step_size((60.0 + z_max - z_min) / 50.0);
         for (double aux_z = z_min; aux_z <= z_max; aux_z = aux_z + step_size) {
             outfile << "SET PLCI 4\n"
@@ -949,7 +942,7 @@ std::shared_ptr<RtRelationLookUp> RtCalibrationCurved::performParabolicExtrapola
     if (min) {
         add_fit_point.clear();
         if (m_fix_min) { add_fit_point.push_back(SamplePoint(m_rt_new->tLower(), 0.0, 1.0)); }
-        if (m_fix_max && rt_high != 0) {
+        if (m_fix_max && rt_high != nullptr) {
             rt_low =
                 std::make_shared<RtRelationLookUp>(rt_extrapolator.getRtWithParabolicExtrapolation(*rt_high, 1.0, 3.0, 0.0, add_fit_point));
         } else {

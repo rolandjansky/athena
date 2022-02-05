@@ -39,7 +39,8 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
       TestIDPhysValMon.AnalysisConfig = "Tier0" #T0 Analysis
       # TestIDPhysValMon.AnalysisConfig = "nTuple" #nTuple Analysis
 
-      if (useOffline or rec.doTruth is False):
+#     if (useOffline or rec.doTruth is False): # is rec.doTruth set correctly ?? 
+      if (useOffline is True):
         TestIDPhysValMon.mcTruth = False
         TestIDPhysValMon.ntupleChainNames = ['Offline',name]
 #       use default values ? 
@@ -50,7 +51,8 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
           TestIDPhysValMon.pixHitsOffline = 4
           TestIDPhysValMon.blayerHitsOffline = 1
           TestIDPhysValMon.pixHolesOffline = 1
-      elif (rec.doTruth is True):
+#     elif (rec.doTruth is True):
+      elif (useOffline is False): # again is rec.doTruth being set correctly ?? 
         TestIDPhysValMon.mcTruth = True
         TestIDPhysValMon.ntupleChainNames = ['Truth']
         TestIDPhysValMon.sctHitsOffline = -1
@@ -80,8 +82,7 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
         "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_IDTrig",
         "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron",
         "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_IDTrig",
-        "HLT_e.*idperf_loose_lrtloose.*:HLT_IDTrack_ElecLRT_FTF:HLT_Roi_FastElectron_LRT",
-        "HLT_e.*idperf_loose_lrtloose.*:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT"
+        "HLT_e.*gsf.*:key=HLT_IDTrack_Electron_GSF"
       ]
     else:
       chainnames = [
@@ -95,22 +96,31 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
     useHighestPT = True
     cosmic=False
     useOffline=True
-    # chain configuration from the "Electrons" analysis - this is new change, 
-    # will remove this uncommented code one the approach is seen to work correctly
-    #    if mt_chains:
-    #      chainnames = [
-    #        "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron",
-    #        "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_IDTrig",
-    #        "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron",
-    #        "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_IDTrig"
-    #      ]
-    #    else:      
-    #      chainnames = [
-    #        "HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_IDTrig",
-    #        "HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_FTF"
-    #      ]
+
     outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT, cosmic, useOffline )]
 
+
+
+    ############### LRT Electrons ###############
+    name = "Electron_LRT"
+    pdgid = 11
+    useHighestPT = True
+    if mt_chains:
+      chainnames = [  
+        "HLT_e.*idperf_loose_lrtloose.*:HLT_IDTrack_ElecLRT_FTF:HLT_Roi_FastElectron_LRT", 
+        "HLT_e.*idperf_loose_lrtloose.*:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT" 
+      ]  
+
+    outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT )] 
+
+
+    name = "Electron_LRT_offline"
+    pdgid = 11
+    useHighestPT = True      
+    cosmic=False          
+    useOffline=True                
+    
+    outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT, cosmic, useOffline )]  
 
 
     ############### Muons ###############
@@ -122,9 +132,7 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
         "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_FTF:roi=HLT_Roi_L2SAMuon",
         "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_IDTrig:roi=HLT_Roi_L2SAMuon",
         "HLT_mu.*i.*:key=HLT_IDTrack_MuonIso_FTF:roi=HLT_Roi_MuonIso",
-        "HLT_mu.*i.*:key=HLT_IDTrack_MuonIso_IDTrig:roi=HLT_Roi_MuonIso",
-        "HLT_mu.*LRT.*:HLT_IDTrack_MuonLRT_FTF:HLT_Roi_L2SAMuon_LRT",
-        "HLT_mu.*LRT.*:HLT_IDTrack_MuonLRT_IDTrig:HLT_Roi_L2SAMuon_LRT"
+        "HLT_mu.*i.*:key=HLT_IDTrack_MuonIso_IDTrig:roi=HLT_Roi_MuonIso"
       ]
     else:
       chainnames = [
@@ -140,20 +148,29 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
     useHighestPT = True
     cosmic=False
     useOffline=True
-    # don't need to redefine the chains, just use the same  
-    # will remove this uncommented code one the approach is seen to work correctly
-    #    if mt_chains:
-    #      chainnames = [
-    #        "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_FTF:roi=HLT_Roi_L2SAMuon",
-    #        "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_IDTrig:roi=HLT_Roi_L2SAMuon"
-    #      ]
-    #    else:
-    #      chainnames = [
-    #        "HLT_mu.*idperf.*:InDetTrigTrackingxAODCnv_Muon_IDTrig",
-    #        "HLT_mu.*idperf.*:InDetTrigTrackingxAODCnv_Muon_FTF"
-    #      ]
-    # whyc is "cosmic" set here ? 
+
     outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT, cosmic, useOffline )]
+
+
+    ############### LRT Muons ###############
+    name = "Muon_LRT"
+    pdgid = 13
+    useHighestPT = True
+    if mt_chains:
+      chainnames = [
+        "HLT_mu.*LRT.*:HLT_IDTrack_MuonLRT_FTF:HLT_Roi_L2SAMuon_LRT", 
+        "HLT_mu.*LRT.*:HLT_IDTrack_MuonLRT_IDTrig:HLT_Roi_L2SAMuon_LRT"
+      ]
+      
+    outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT )]                                                                           
+
+    name = "Muon_LRT_offline"
+    pdgid = 13
+    useHighestPT = True 
+    cosmic=False 
+    useOffline=True 
+    
+    outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT, cosmic, useOffline )]     
 
 
     ############### Taus ###############
@@ -178,26 +195,12 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
     outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT )]
 
 
-    ############### Taus ###############
     name = "Tau_offline"
     pdgid = 15
     useHighestPT = True
     cosmic=False
     useOffline=True
-    # will remove this uncommented code one the approach is seen to work correctly
-    #    if mt_chains:
-    #      chainnames = [
-    #        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_TauCore_FTF:roi=HLT_Roi_TauCore",
-    #        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIso",
-    #        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_TauIso"
-    #      ]
-    #    else:
-    #      chainnames = [
-    #        "HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_Tau_IDTrig:roi=forID3",
-    #        "HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_Tau_FTF:roi=forID",
-    #        "HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_TauCore_FTF:roi=forID1",
-    #        "HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_TauIso_FTF:roi=forID3"
-    #      ]
+
     outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT, cosmic, useOffline )]
 
     ############### Bjets ###############
@@ -227,21 +230,14 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
       
 
 
-    if not mt_chains:
-      ############### Bjets ###############
-      name = "Bjet"
-      pdgid = 5
-      useHighestPT = False
-      chainnames = [
-        "HLT_j.*b.*perf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=TrigSuperRoi",
-        "HLT_j.*b.*perf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
-        "HLT_j.*b.*perf_split:InDetTrigTrackingxAODCnv_Bjet_FTF",
-        "HLT_mu.*b.*perf_dr05:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=TrigSuperRoi",
-        "HLT_mu.*b.*perf_dr05:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
-        "HLT_mu.*b.*perf_dr05:InDetTrigTrackingxAODCnv_Bjet_FTF"
-      ]
-      outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT )]
+    ############### Bjets ###############
+    name = "Bjet"
+    useHighestPT = False
+
+    outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT, cosmic, useOffline )]
       
+
+    if not mt_chains:
       ############### Bphys ###############
       name = "Bphys"
       pdgid = 0 # Doesn't make sense

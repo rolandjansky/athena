@@ -138,6 +138,44 @@ StatusCode HltROBDataProviderSvc::initialize()
   // prefetch all ROBs in a ROS on a first retrieval of ROBs from this ROS
   ATH_MSG_INFO(" ---> Prefetch all ROBs in a ROS on first retrieval                = " << m_prefetchAllROBsfromROS);
 
+  if ( m_prefetchAllROBsfromROS.value() && m_enabledROBs.value().size() != 0 ) {
+    m_prefetchWholeROSList.reserve( m_enabledROBs.value().size() );
+    if ( m_prefetchSubDetROS.value().size() == 0 || 
+	 (std::find(m_prefetchSubDetROS.value().begin(),m_prefetchSubDetROS.value().end(),0) != m_prefetchSubDetROS.value().end())
+       )
+    {
+      m_prefetchWholeROSList = m_enabledROBs.value() ;
+      ATH_MSG_INFO("      All enabled ROBs are used for prefetching. ROB list size     = " << m_prefetchWholeROSList.size() );
+    } else {
+      ATH_MSG_INFO("      The following sub-detectors or sub-detector groups are configured for prefetching : Number = "
+		   << m_prefetchSubDetROS.value().size() );
+      for (uint8_t it : m_prefetchSubDetROS.value() ) {
+	if (it > 0xf) {
+	  eformat::SubDetector sd(static_cast<eformat::SubDetector>(it));
+	  eformat::helper::SourceIdentifier tmpsrc(sd, 0);
+	  ATH_MSG_INFO("         SubDetId    = 0x" << MSG::hex << std::setw(2) << (int)it << MSG::dec << " -> Group : " 
+		       << tmpsrc.human_group() 
+		       << " -> SubDetector : " << tmpsrc.human_detector()  );
+	} else {
+	  eformat::SubDetectorGroup sg(static_cast<eformat::SubDetectorGroup>(it));
+	  ATH_MSG_INFO("         SubDetGroup = 0x" << MSG::hex << std::setw(1) << (int)it << MSG::dec << "  -> Group : " 
+		       << eformat::helper::SubDetectorGroupDictionary.string(sg));
+	}
+      }
+      // establish prefetch list
+      m_prefetchWholeROSList.clear();
+      for (auto rob : m_enabledROBs.value() ) {
+	eformat::helper::SourceIdentifier tmpsrc(rob);
+	if( (std::find(m_prefetchSubDetROS.value().begin(),m_prefetchSubDetROS.value().end(),tmpsrc.subdetector_id()) 
+	     != m_prefetchSubDetROS.value().end()) ||
+	    (std::find(m_prefetchSubDetROS.value().begin(),m_prefetchSubDetROS.value().end(),tmpsrc.subdetector_group()) 
+	     != m_prefetchSubDetROS.value().end())
+	    ) m_prefetchWholeROSList.push_back(rob);
+      }
+      ATH_MSG_INFO("      Number of ROBs which are used for prefetching = " << m_prefetchWholeROSList.size() );
+    }
+  }
+
   // Setup the slot specific cache
   m_eventsCache = SG::SlotSpecificObj<EventCache>( SG::getNSlots() );
 
@@ -307,9 +345,9 @@ void HltROBDataProviderSvc::setNextEvent(const EventContext& context, const RawE
   //------------------------------+
   // Initiate whole ROS retrieval |
   //------------------------------+
-  if ( m_prefetchAllROBsfromROS.value() && m_enabledROBs.value().size() != 0 ) {
-    addROBData( context, m_enabledROBs.value(), "prefetch_HLTROBDataProviderSvc" );
-    ATH_MSG_DEBUG("      ROS prefetch init. size      =  " << m_enabledROBs.value().size() );
+  if ( m_prefetchAllROBsfromROS.value() && m_prefetchWholeROSList.size() != 0 ) {
+    addROBData( context, m_prefetchWholeROSList, "prefetch_HLTROBDataProviderSvc" );
+    ATH_MSG_DEBUG("      ROS prefetch init. size      =  " << m_prefetchWholeROSList.size() );
   }
 
   return;

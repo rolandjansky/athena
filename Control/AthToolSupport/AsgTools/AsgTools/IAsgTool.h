@@ -52,9 +52,6 @@ namespace asg {
       /// Function initialising the tool
       virtual StatusCode initialize() = 0;
 
-      /// Set the name of the tool
-      virtual void setName( const std::string& name ) = 0;
-
       /// @}
 
 #endif // XAOD_STANDALONE

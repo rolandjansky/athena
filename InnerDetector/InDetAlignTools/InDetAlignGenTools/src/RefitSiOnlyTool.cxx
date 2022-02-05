@@ -174,25 +174,39 @@ namespace InDetAlignment {
       }
     }
 
-    // Do Silicon only Refit with Silicon only HitCollection and TrackParameters at StartingPoint of track
+    // Do Silicon only Refit with Silicon only HitCollection and TrackParameters
+    // at StartingPoint of track
     if (!containsGangedPixels) {
       if (m_doCosmic) {
-        ATH_MSG_DEBUG( "Refitting using Cosmic reference point" );
+        ATH_MSG_DEBUG("Refitting using Cosmic reference point");
 
         // order the parameters according to the Cosmics reference points
         // works only for Si, not for TRT!
-        const Trk::TrackParameters* minPar = *(std::min_element(tr->trackParameters()->begin(),
-                tr->trackParameters()->end(),
-                *m_comPar));
+        const Trk::TrackParameters* minPar =
+          *(std::min_element(tr->trackParameters()->begin(),
+                             tr->trackParameters()->end(),
+                             *m_comPar));
 
-        SiOnlyTrack = m_ITrkFitter->fit(MeasurementBase_Collection, *minPar, m_OutlierRemoval, m_ParticleHypothesis);
+        SiOnlyTrack = m_ITrkFitter
+                        ->fit(Gaudi::Hive::currentContext(),
+                              MeasurementBase_Collection,
+                              *minPar,
+                              m_OutlierRemoval,
+                              m_ParticleHypothesis)
+                        .release();
+      } // m_doCosmic
+      else {
+        SiOnlyTrack = m_ITrkFitter
+                        ->fit(Gaudi::Hive::currentContext(),
+                              MeasurementBase_Collection,
+                              *(tr->trackParameters()->front()),
+                              m_OutlierRemoval,
+                              m_ParticleHypothesis)
+                        .release();
       }
-      else 
-        SiOnlyTrack = m_ITrkFitter->fit(MeasurementBase_Collection, *(tr->trackParameters()->front()), 
-          m_OutlierRemoval, m_ParticleHypothesis);
-    }
+    } //! containsGangedPixels
     else {
-      ATH_MSG_DEBUG( " No refit was done for track # " << m_trkindex );
+      ATH_MSG_DEBUG(" No refit was done for track # " << m_trkindex);
       return 0;
     }
 

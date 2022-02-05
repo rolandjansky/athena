@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloAddCellPedShift.h"
@@ -64,6 +64,7 @@ StatusCode CaloAddCellPedShift::initialize()
 
   ATH_CHECK( m_caloCoolIdTool.retrieve() );
   ATH_CHECK( m_cablingKey.initialize() );
+  ATH_CHECK( m_caloMgrKey.initialize() );
   ATH_CHECK( detStore()->retrieve(m_onlineID,"LArOnlineID") );
   ATH_CHECK( service("THistSvc",m_thistSvc) );
 
@@ -169,9 +170,9 @@ StatusCode CaloAddCellPedShift::stop()
   fclose(finput);
   ATH_MSG_INFO ( " end of reading file" );
 
-  const CaloDetDescrManager* calodetdescrmgr = nullptr;
-  ATH_CHECK( detStore()->retrieve(calodetdescrmgr) );
-
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+  ATH_CHECK(caloMgrHandle.isValid());
+  const CaloDetDescrManager* calodetdescrmgr = *caloMgrHandle;
 
   FILE* fp = fopen("calopedestal.txt","w");
   ATH_MSG_INFO ( " start loop over Calo cells " << ncell );

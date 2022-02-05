@@ -1,102 +1,88 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibEventBase/MuonCalibTruthCollection.h"
 
 #include <algorithm>
 
-#include "MuonCalibEventBase/MuonCalibCscTruthHit.h"
-#include "MuonCalibEventBase/MuonCalibMdtTruthHit.h"
-#include "MuonCalibEventBase/MuonCalibRpcTruthHit.h"
-#include "MuonCalibEventBase/MuonCalibTgcTruthHit.h"
-#include "MuonCalibEventBase/MuonCalibTruth.h"
-#include "MuonCalibStl/DeleteObject.h"
-
 namespace MuonCalib {
 
-    MuonCalibTruthCollection::MuonCalibTruthCollection() {
-        TruthVec newVec(0);
-        m_truthVec = newVec;
-        MdtTruthVec newMdtVec(0);
-        m_mdtTruthVec = newMdtVec;
-        RpcTruthVec newRpcVec(0);
-        m_rpcTruthVec = newRpcVec;
-        TgcTruthVec newTgcVec(0);
-        m_tgcTruthVec = newTgcVec;
-        CscTruthVec newCscVec(0);
-        m_cscTruthVec = newCscVec;
-    }
-
-    MuonCalibTruthCollection::~MuonCalibTruthCollection() {
-        std::for_each(truthCollectionBegin(), truthCollectionEnd(), DeleteObject());
+    MuonCalibTruthCollection::MuonCalibTruthCollection(const MuonCalibTruthCollection& other) { copy(other); }
+    void MuonCalibTruthCollection::copy(const MuonCalibTruthCollection& other) {
         m_truthVec.clear();
-
-        std::for_each(mdtTruthCollectionBegin(), mdtTruthCollectionEnd(), DeleteObject());
         m_mdtTruthVec.clear();
-
-        std::for_each(rpcTruthCollectionBegin(), rpcTruthCollectionEnd(), DeleteObject());
         m_rpcTruthVec.clear();
-
-        std::for_each(tgcTruthCollectionBegin(), tgcTruthCollectionEnd(), DeleteObject());
+        m_cscTruthVec.clear();
         m_tgcTruthVec.clear();
 
-        std::for_each(cscTruthCollectionBegin(), cscTruthCollectionEnd(), DeleteObject());
-        m_cscTruthVec.clear();
+        for (const TruthPtr& it : other.m_truthVec) { m_truthVec.emplace_back(new MuonCalibTruth(*it)); }
+        for (const TruthMdtPtr& mdt_it : other.m_mdtTruthVec) { m_mdtTruthVec.emplace_back(new MuonCalibMdtTruthHit(*mdt_it)); }
+        for (const TruthRpcPtr& rpc_it : other.m_rpcTruthVec) { m_rpcTruthVec.emplace_back(new MuonCalibRpcTruthHit(*rpc_it)); }
+        for (const TruthCscPtr& csc_it : other.m_cscTruthVec) { m_cscTruthVec.emplace_back(new MuonCalibCscTruthHit(*csc_it)); }
+        for (const TruthTgcPtr& tgc_it : other.m_tgcTruthVec) { m_tgcTruthVec.emplace_back(new MuonCalibTgcTruthHit(*tgc_it)); }
     }
 
-    MuonCalibTruthCollection::MuonCalibTruthCollection(const MuonCalibTruthCollection& truthCollection) {
-        TruthVecCit it = truthCollection.truthCollectionBegin();
-        TruthVecCit it_end = truthCollection.truthCollectionEnd();
-        for (; it != it_end; ++it) { m_truthVec.push_back(new MuonCalibTruth(**it)); }
+    MuonCalibTruthCollection::TruthVec& MuonCalibTruthCollection::TruthContainer() { return m_truthVec; }
+    const MuonCalibTruthCollection::TruthVec& MuonCalibTruthCollection::TruthContainer() const { return m_truthVec; }
 
-        MdtTruthVecCit mdt_it = truthCollection.mdtTruthCollectionBegin();
-        MdtTruthVecCit mdt_it_end = truthCollection.mdtTruthCollectionEnd();
-        for (; mdt_it != mdt_it_end; ++mdt_it) { m_mdtTruthVec.push_back(new MuonCalibMdtTruthHit(**mdt_it)); }
-        RpcTruthVecCit rpc_it = truthCollection.rpcTruthCollectionBegin();
-        RpcTruthVecCit rpc_it_end = truthCollection.rpcTruthCollectionEnd();
-        for (; rpc_it != rpc_it_end; ++rpc_it) { m_rpcTruthVec.push_back(new MuonCalibRpcTruthHit(**rpc_it)); }
-        CscTruthVecCit csc_it = truthCollection.cscTruthCollectionBegin();
-        CscTruthVecCit csc_it_end = truthCollection.cscTruthCollectionEnd();
-        for (; csc_it != csc_it_end; ++csc_it) { m_cscTruthVec.push_back(new MuonCalibCscTruthHit(**csc_it)); }
-        TgcTruthVecCit tgc_it = truthCollection.tgcTruthCollectionBegin();
-        TgcTruthVecCit tgc_it_end = truthCollection.tgcTruthCollectionEnd();
-        for (; tgc_it != tgc_it_end; ++tgc_it) { m_tgcTruthVec.push_back(new MuonCalibTgcTruthHit(**tgc_it)); }
-    }
+    /// Retrieve a reference to the full Mdt container
+    MuonCalibTruthCollection::MdtTruthVec& MuonCalibTruthCollection::MdtContainer() { return m_mdtTruthVec; }
+    const MuonCalibTruthCollection::MdtTruthVec& MuonCalibTruthCollection::MdtContainer() const { return m_mdtTruthVec; }
+
+    /// Retrieve a refernece to the full Rpc container
+    MuonCalibTruthCollection::RpcTruthVec& MuonCalibTruthCollection::RpcContainer() { return m_rpcTruthVec; }
+    const MuonCalibTruthCollection::RpcTruthVec& MuonCalibTruthCollection::RpcContainer() const { return m_rpcTruthVec; }
+
+    /// Retrieve a reference to the full Csc container
+    MuonCalibTruthCollection::CscTruthVec& MuonCalibTruthCollection::CscContainer() { return m_cscTruthVec; }
+    const MuonCalibTruthCollection::CscTruthVec& MuonCalibTruthCollection::CscContainer() const { return m_cscTruthVec; }
+
+    /// Retrieve a referece to the full Tgc container
+    MuonCalibTruthCollection::TgcTruthVec& MuonCalibTruthCollection::TgcContainer() { return m_tgcTruthVec; }
+    const MuonCalibTruthCollection::TgcTruthVec& MuonCalibTruthCollection::TgcContainer() const { return m_tgcTruthVec; }
 
     MuonCalibTruthCollection& MuonCalibTruthCollection::operator=(const MuonCalibTruthCollection& rhs) {
-        if (this != &rhs) {
-            TruthVec temp_truthVec;
-            TruthVecCit it = rhs.truthCollectionBegin();
-            TruthVecCit it_end = rhs.truthCollectionEnd();
-            for (; it != it_end; ++it) { temp_truthVec.push_back(new MuonCalibTruth(**it)); }
-            m_truthVec = temp_truthVec;
-
-            MdtTruthVec temp_mdtTruthVec;
-            MdtTruthVecCit mdt_it = rhs.mdtTruthCollectionBegin();
-            MdtTruthVecCit mdt_it_end = rhs.mdtTruthCollectionEnd();
-            for (; mdt_it != mdt_it_end; ++mdt_it) { temp_mdtTruthVec.push_back(new MuonCalibMdtTruthHit(**mdt_it)); }
-            m_mdtTruthVec = temp_mdtTruthVec;
-
-            RpcTruthVec temp_rpcTruthVec;
-            RpcTruthVecCit rpc_it = rhs.rpcTruthCollectionBegin();
-            RpcTruthVecCit rpc_it_end = rhs.rpcTruthCollectionEnd();
-            for (; rpc_it != rpc_it_end; ++rpc_it) { temp_rpcTruthVec.push_back(new MuonCalibRpcTruthHit(**rpc_it)); }
-            m_rpcTruthVec = temp_rpcTruthVec;
-
-            TgcTruthVec temp_tgcTruthVec;
-            TgcTruthVecCit tgc_it = rhs.tgcTruthCollectionBegin();
-            TgcTruthVecCit tgc_it_end = rhs.tgcTruthCollectionEnd();
-            for (; tgc_it != tgc_it_end; ++tgc_it) { temp_tgcTruthVec.push_back(new MuonCalibTgcTruthHit(**tgc_it)); }
-            m_tgcTruthVec = temp_tgcTruthVec;
-
-            CscTruthVec temp_cscTruthVec;
-            CscTruthVecCit csc_it = rhs.cscTruthCollectionBegin();
-            CscTruthVecCit csc_it_end = rhs.cscTruthCollectionEnd();
-            for (; csc_it != csc_it_end; ++csc_it) { temp_cscTruthVec.push_back(new MuonCalibCscTruthHit(**csc_it)); }
-            m_cscTruthVec = temp_cscTruthVec;
-        }
+        if (this != &rhs) { copy(rhs); }
         return (*this);
+    }
+    int MuonCalibTruthCollection::numberOfTruth() const { return m_truthVec.size(); }
+
+    void MuonCalibTruthCollection::addTruth(MuonCalibTruth* truth) {
+        if (truth) m_truthVec.emplace_back(truth);
+    }
+    void MuonCalibTruthCollection::addTruth(MuonCalibMdtTruthHit* truth) {
+        if (truth) m_mdtTruthVec.emplace_back(truth);
+    }
+
+    void MuonCalibTruthCollection::addTruth(MuonCalibRpcTruthHit* truth) {
+        if (truth) m_rpcTruthVec.emplace_back(truth);
+    }
+
+    void MuonCalibTruthCollection::addTruth(MuonCalibTgcTruthHit* truth) {
+        if (truth) m_tgcTruthVec.emplace_back(truth);
+    }
+
+    void MuonCalibTruthCollection::addTruth(MuonCalibCscTruthHit* truth) {
+        if (truth) m_cscTruthVec.emplace_back(truth);
+    }
+    void MuonCalibTruthCollection::addTruth(const TruthPtr& truth) {
+        if (truth) m_truthVec.emplace_back(truth);
+    }
+    void MuonCalibTruthCollection::addTruth(const TruthMdtPtr& truth) {
+        if (truth) m_mdtTruthVec.emplace_back(truth);
+    }
+
+    void MuonCalibTruthCollection::addTruth(const TruthRpcPtr& truth) {
+        if (truth) m_rpcTruthVec.emplace_back(truth);
+    }
+
+    void MuonCalibTruthCollection::addTruth(const TruthTgcPtr& truth) {
+        if (truth) m_tgcTruthVec.emplace_back(truth);
+    }
+
+    void MuonCalibTruthCollection::addTruth(const TruthCscPtr& truth) {
+        if (truth) m_cscTruthVec.emplace_back(truth);
     }
 
 }  // namespace MuonCalib

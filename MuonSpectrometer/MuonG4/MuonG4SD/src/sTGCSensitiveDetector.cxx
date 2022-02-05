@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "sTGCSensitiveDetector.h"
@@ -43,6 +43,9 @@ G4bool sTGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*RO
   const G4Step* post_Step=aStep->GetTrack()->GetStep();
 
   Amg::Vector3D position = Amg::Hep3VectorToEigen(postStep->GetPosition());
+  
+  G4StepPoint* preStep = aStep->GetPreStepPoint();
+  Amg::Vector3D preposition = Amg::Hep3VectorToEigen(preStep->GetPosition());
 
   int pdgCode=currentTrack->GetDefinition()->GetPDGEncoding();
 
@@ -98,7 +101,9 @@ G4bool sTGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*RO
 
   int sTgcId = m_muonHelper->BuildsTgcHitId(subType, iPhi, iRing, mLayer,nLayer, iSide);
   TrackHelper trHelp(aStep->GetTrack());
-  m_sTGCSimHitCollection->Emplace(sTgcId,globalTime,position,pdgCode,direction,depositEnergy,trHelp.GetParticleLink());
+  m_sTGCSimHitCollection->Emplace(sTgcId,globalTime,position,pdgCode,direction,depositEnergy,
+                                  trHelp.GetParticleLink(),
+                                  preStep->GetKineticEnergy(),preposition);
 
   return true;
 }

@@ -8,8 +8,12 @@
 #include "egammaSuperClusterBuilderBase.h"
 
 #include "GaudiKernel/EventContext.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
+
+#include "CaloDetDescr/CaloDetDescrManager.h"
+
 // Fwd declarations
 #include "egammaRecEvent/egammaRecContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
@@ -20,8 +24,7 @@
 
 /**
  * @brief Create supercluster under egamma (no tracking) hypothesis
- * Useful if you want to run electron reconstuction without tracking
- * (the photon one can run anyhow without tracking)
+ * Useful if you want to run calo reconstuction without tracking
  *
  * The algorithm creates superclusters  merging topoclusters.
  * Input containers:
@@ -81,13 +84,30 @@ private:
     const EgammaRecContainer* egammaRecs,
     std::vector<bool>& isUsed) const;
 
-  // internal variables
+  xAOD::EgammaParameters::EgammaType m_egTypeForCalibration;
+
+  
+  /** @brief type to be assumed for calibration */
+  Gaudi::Property<std::string> m_calibrationType{
+    this,
+    "CalibrationType",
+    "electron",
+    "type to be assumed for calibration: electron , photon"
+  };
+
   /** @brief Key for input egammaRec container */
   SG::ReadHandleKey<EgammaRecContainer> m_inputEgammaRecContainerKey{
     this,
     "InputEgammaRecContainerName",
     "egammaRecCollection",
     "input egammaRec container"
+  };
+
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloDetDescrMgrKey{
+    this,
+    "CaloDetDescrManager",
+    "CaloDetDescrManager",
+    "SG Key for CaloDetDescrManager in the Condition Store"
   };
 
   /** @brief Key for output egammaRec container */
@@ -107,11 +127,12 @@ private:
   };
 
   /** @brief Optional key for pre-correction clusters */
-  SG::WriteHandleKey<xAOD::CaloClusterContainer>
-    m_precorrClustersKey{ this,
-                          "precorrClustersName",
-                          "",
-                          "optional pre-correction clusters" };
+  SG::WriteHandleKey<xAOD::CaloClusterContainer> m_precorrClustersKey{
+    this,
+    "precorrClustersName",
+    "",
+    "optional pre-correction clusters"
+  };
 };
 
 #endif

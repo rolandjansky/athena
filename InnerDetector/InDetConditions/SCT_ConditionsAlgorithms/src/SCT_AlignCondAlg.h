@@ -1,13 +1,13 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_CONDITIONSALGORITHMS_SCT_ALIGNCONDALG_H
 #define SCT_CONDITIONSALGORITHMS_SCT_ALIGNCONDALG_H
 
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 
@@ -36,14 +36,14 @@ namespace InDetDD {
 // However, we cannot give non-const pointer for SiDetectorElement
 // in SCT_DetectorManager in the above chain.
 
-class SCT_AlignCondAlg : public AthReentrantAlgorithm
+class SCT_AlignCondAlg : public AthAlgorithm
 {
  public:
   SCT_AlignCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~SCT_AlignCondAlg() override = default;
 
   virtual StatusCode initialize() override;
-  virtual StatusCode execute(const EventContext& ctx) const override;
+  virtual StatusCode execute() override;
   virtual StatusCode finalize() override;
 
  private:

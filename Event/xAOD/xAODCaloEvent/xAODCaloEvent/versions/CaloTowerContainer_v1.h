@@ -107,7 +107,7 @@ namespace xAOD {
     unsigned short m_nPhiBins; ///> @brief Number of bins in azimuth
     double         m_deltaEta;     ///> @brief Bin width in pseudorapidity 
     double         m_deltaPhi;     ///> @brief Bin width in azimuth
-    bool           m_isConfigured; ///> @brief Configuration status flag
+    bool           m_isConfigured = false; ///> @brief Configuration status flag
     /// @}
   };
 }

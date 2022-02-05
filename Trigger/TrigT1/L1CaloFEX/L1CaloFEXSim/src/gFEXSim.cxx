@@ -48,6 +48,8 @@ namespace LVL1 {
    StatusCode gFEXSim::initialize(){
       ATH_CHECK( m_gFEXFPGA_Tool.retrieve() );
       ATH_CHECK( m_gFEXJetAlgoTool.retrieve() );
+      ATH_CHECK( m_gFEXJwoJAlgoTool.retrieve() );
+      ATH_CHECK(m_l1MenuKey.initialize());
       return StatusCode::SUCCESS;
    }
 
@@ -55,7 +57,7 @@ namespace LVL1 {
 
  }
 
-StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset){
+StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset, gFEXOutputCollection* gFEXOutputs){
 
    typedef  std::array<std::array<int, 12>, 32> gTowersCentral;
    typedef  std::array<std::array<int, 7>, 32> gTowersForward;
@@ -141,14 +143,39 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset){
       }
    }
    ATH_CHECK(m_gFEXFPGA_Tool->init(3));
-   m_gFEXFPGA_Tool->SetTowersAndCells_SG(tmp_gTowersIDs_subset_forwardFPGA);
+   m_gFEXFPGA_Tool->SetTowersAndCells_SG(tmp_gTowersIDs_subset_forwardFPGA_N);
    m_gFEXFPGA_Tool->GetEnergyMatrix(CNtwr);
    m_gFEXFPGA_Tool->reset();
    //FPGA C-N----------------------------------------------------------------------------------------------------------------------------------------------
 
+
+   // Retrieve the L1 menu configuration
+   SG::ReadHandle<TrigConf::L1Menu> l1Menu (m_l1MenuKey/*, ctx*/);
+   ATH_CHECK(l1Menu.isValid());
+
+   //Parameters related to gLJ (large-R jet objects - gJet)
+   auto & thr_gLJ = l1Menu->thrExtraInfo().gLJ();
+   int gLJ_seedThrA = 0;
+   int gLJ_seedThrB = 0;
+   gLJ_seedThrA = thr_gLJ.seedThr('A'); //defined in GeV by default
+   gLJ_seedThrA = gLJ_seedThrA/0.2; //rescaling with 0.2 GeV scale to get counts (corresponding to hw units) 
+   gLJ_seedThrB = thr_gLJ.seedThr('B'); //defined in GeV by default
+   gLJ_seedThrB = gLJ_seedThrB/0.2; //rescaling with 0.2 GeV scale to get counts (corresponding to hw units) 
+   int gLJ_ptMinToTopoCounts1 = 0;
+   int gLJ_ptMinToTopoCounts2 = 0;
+   gLJ_ptMinToTopoCounts1 = thr_gLJ.ptMinToTopoCounts(1); 
+   gLJ_ptMinToTopoCounts2 = thr_gLJ.ptMinToTopoCounts(2); 
+   
+   //Parameters related to gJ (small-R jet objects - gBlock)
+   auto & thr_gJ = l1Menu->thrExtraInfo().gJ();
+   int gJ_ptMinToTopoCounts1 = 0;
+   int gJ_ptMinToTopoCounts2 = 0;
+   gJ_ptMinToTopoCounts1 = thr_gJ.ptMinToTopoCounts(1); 
+   gJ_ptMinToTopoCounts2 = thr_gJ.ptMinToTopoCounts(2); 
+
    int pucA = 0;
    int pucB = 0;
-   int seedThreshold = 0;
+   //note that jetThreshold is not a configurable parameter in firmware, it is used to check that jet values are positive
    int jetThreshold = 0;
 
    // The output TOBs, to be filled by the gFEXJetAlgoTool
@@ -157,13 +184,14 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset){
    std::array<uint32_t, 7> BTOB1_dat = {0};
    std::array<uint32_t, 7> BTOB2_dat = {0};
 
-   // Retrieve the gFEXJetAlgoTool
+   // Use the gFEXJetAlgoTool
 
    // Pass the energy matrices to the algo tool, and run the algorithms
-   auto tobs_v = m_gFEXJetAlgoTool->largeRfinder(Atwr, Btwr, CNtwr, CPtwr,
-                                                 pucA, pucB, seedThreshold, jetThreshold,
-                                                 ATOB1_dat, ATOB2_dat,
-                                                 BTOB1_dat, BTOB2_dat);
+   auto tobs_v = m_gFEXJetAlgoTool->largeRfinder(Atwr, Btwr, CNtwr, CPtwr, pucA, pucB, 
+                                                gLJ_seedThrA, gLJ_seedThrB, gJ_ptMinToTopoCounts1, gJ_ptMinToTopoCounts2, 
+                                                jetThreshold, gLJ_ptMinToTopoCounts1, gLJ_ptMinToTopoCounts2,
+                                                ATOB1_dat, ATOB2_dat,
+                                                BTOB1_dat, BTOB2_dat);
 
    m_gRhoTobWords.resize(2);
    m_gBlockTobWords.resize(8);
@@ -190,26 +218,45 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset){
    m_gJetTobWords[3] = BTOB2_dat[3];//leading gJet in FPGA B, eta bins (6--11)
 
 
-   // Retrieve the gFEXJetAlgoTool
-   ATH_CHECK( m_gFEXJwoJAlgoTool.retrieve() );
+   // Use the gFEXJetAlgoTool
    std::array<uint32_t, 4> outTOB = {0};
 
-   m_gFEXJwoJAlgoTool->setAlgoConstant(FEXAlgoSpaceDefs::aFPGA_A, FEXAlgoSpaceDefs::bFPGA_A,
-                                       FEXAlgoSpaceDefs::aFPGA_B, FEXAlgoSpaceDefs::bFPGA_B,
-                                       FEXAlgoSpaceDefs::gblockThreshold);
+   //Parameters related to gXE (JwoJ MET objects)
+   auto & thr_gXE = l1Menu->thrExtraInfo().gXE();
+   int gXE_seedThrA = 0;
+   int gXE_seedThrB = 0;
+   gXE_seedThrA = thr_gXE.seedThr('A'); //defined in GeV by default
+   gXE_seedThrA = gXE_seedThrA/0.2; //rescaling with 0.2 GeV scale to get counts (corresponding to hw units) 
+   gXE_seedThrB = thr_gXE.seedThr('B'); //defined in GeV by default
+   gXE_seedThrB = gXE_seedThrB/0.2; //rescaling with 0.2 GeV scale to get counts (corresponding to hw units) 
+
+   unsigned int aFPGA_A = 0;
+   unsigned int bFPGA_A = 0;
+   unsigned int aFPGA_B = 0;
+   unsigned int bFPGA_B = 0;
+   aFPGA_A = thr_gXE.JWOJ_param('A','a');
+   bFPGA_A = thr_gXE.JWOJ_param('A','b');
+   aFPGA_B = thr_gXE.JWOJ_param('B','a');
+   bFPGA_B = thr_gXE.JWOJ_param('B','b');
+   
+
+   m_gFEXJwoJAlgoTool->setAlgoConstant(aFPGA_A, bFPGA_A,
+                                       aFPGA_B, bFPGA_B,
+                                       gXE_seedThrA, gXE_seedThrB);
 
    auto global_tobs = m_gFEXJwoJAlgoTool->jwojAlgo(Atwr, Btwr, outTOB);
 
-   m_gGlobalTobWords.resize(4);
+   m_gScalarEJwojTobWords.resize(1);
+   m_gMETComponentsJwojTobWords.resize(1);
+   m_gMHTComponentsJwojTobWords.resize(1);
+   m_gMSTComponentsJwojTobWords.resize(1);
+
 
    //Placing the global TOBs into a dedicated array
-   m_gGlobalTobWords[0] = outTOB[0];//
-   m_gGlobalTobWords[1] = outTOB[1];//
-   m_gGlobalTobWords[2] = outTOB[2];//
-   m_gGlobalTobWords[3] = outTOB[3];//
-
-   gFEXOutputCollection* gFEXOutputs;
-   ATH_CHECK(evtStore()->retrieve(gFEXOutputs, "gFEXOutputCollection"));
+   m_gScalarEJwojTobWords[0] = outTOB[0];//
+   m_gMETComponentsJwojTobWords[0] = outTOB[1];//
+   m_gMHTComponentsJwojTobWords[0] = outTOB[2];//
+   m_gMSTComponentsJwojTobWords[0] = outTOB[3];//
 
 
    for (int i = 0; i <14; i++){
@@ -255,10 +302,26 @@ std::vector<uint32_t> gFEXSim::getgJetTOBs() const
   return m_gJetTobWords;
 }
 
-std::vector<uint32_t> gFEXSim::getgGlobalTOBs() const
+std::vector<uint32_t> gFEXSim::getgScalarEJwojTOBs() const
 {
-  return m_gGlobalTobWords;
+  return m_gScalarEJwojTobWords;
 }
+
+std::vector<uint32_t> gFEXSim::getgMETComponentsJwojTOBs() const
+{
+  return m_gMETComponentsJwojTobWords;
+}
+
+std::vector<uint32_t> gFEXSim::getgMHTComponentsJwojTOBs() const
+{
+  return m_gMHTComponentsJwojTobWords;
+}
+
+std::vector<uint32_t> gFEXSim::getgMSTComponentsJwojTOBs() const
+{
+  return m_gMSTComponentsJwojTobWords;
+}
+
 
 
 } // end of namespace bracket

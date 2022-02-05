@@ -98,10 +98,11 @@ StatusCode InDet::BeamPipeBuilderCond::finalize()
 
 /** LayerBuilder interface method - returning Barrel-like layers */
 //TODO: context is not used, beamPipe retrieved from manager. range is infinite
-std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >*>  InDet::BeamPipeBuilderCond::cylindricalLayers(const EventContext&) const
+std::pair<EventIDRange, const std::vector<Trk::CylinderLayer*>*>
+InDet::BeamPipeBuilderCond::cylindricalLayers(const EventContext&) const
 {
-  
-  std::vector<const Trk::CylinderLayer*>* beamPipe = new std::vector<const Trk::CylinderLayer*>;
+
+  std::vector<Trk::CylinderLayer*>* beamPipe = new std::vector<Trk::CylinderLayer*>;
   
   // the geometry
   Amg::Transform3D beamPipeTransform;
@@ -166,7 +167,7 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >*>  InDet:
 					   m_beamPipeRho);
   
   // binned layer material for the beam pipe possible
-  const Trk::CylinderLayer * pThisCylinderLayer{};
+  Trk::CylinderLayer * pThisCylinderLayer = nullptr;
   if (  m_beamPipeBinsZ == 1) {
      const auto &beamPipeLayerMaterial = Trk::HomogeneousLayerMaterial(beamPipeMaterial, 1.0);
      pThisCylinderLayer = new Trk::CylinderLayer(beamPipeTransform,
@@ -186,9 +187,5 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >*>  InDet:
    //create dummy infinite range
   EventIDRange range = IOVInfiniteRange::infiniteMixed();
   return std::make_pair(range,beamPipe);
-  
-} 
-      
-
-
+}
 

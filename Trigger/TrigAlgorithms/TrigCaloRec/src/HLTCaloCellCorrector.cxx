@@ -49,10 +49,11 @@ StatusCode HLTCaloCellCorrector::execute(EventContext const& context) const {
   SG::WriteHandle<CaloConstCellContainer> outputCellHandle(m_outputCellContainerKey, context);
 
   auto eventShape = *eventShapeHandle;
-  auto outputCells = std::make_unique<CaloConstCellContainer>(SG::VIEW_ELEMENTS);
+  //auto outputCells = std::make_unique<CaloConstCellContainer>(SG::VIEW_ELEMENTS);
+  auto outputCells = std::make_unique<CaloConstCellContainer>();
 
   for (auto const* cell : *inputCellHandle) {
-    CaloCell* copy = cell->clone();
+    std::unique_ptr<CaloCell> copy = cell->clone();
 
     int layer = copy->caloDDE()->getSampling();
 
@@ -60,7 +61,7 @@ StatusCode HLTCaloCellCorrector::execute(EventContext const& context) const {
     double etotal = (copy->et() - eavg) / copy->sinTh();
 
     copy->setEnergy(etotal);
-    outputCells->push_back(copy);
+    outputCells->push_back(std::move(copy));
   }
 
   for (auto const id : { CaloCell_ID::LAREM, CaloCell_ID::LARHEC, CaloCell_ID::LARFCAL, CaloCell_ID::TILE, })

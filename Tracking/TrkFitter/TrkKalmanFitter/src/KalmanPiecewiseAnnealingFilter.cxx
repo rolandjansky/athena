@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
 // KalmanPiecewiseAnnealingFilter.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#include <memory>
+
 
 
 
@@ -22,7 +22,7 @@
 #include "TrkFitterUtils/ProtoMaterialEffects.h"
 #include "TrkEventUtils/RoT_Extractor.h"
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
-
+#include <memory>
 //================ Constructor =================================================
 
 Trk::KalmanPiecewiseAnnealingFilter::KalmanPiecewiseAnnealingFilter(const std::string& t,
@@ -337,8 +337,8 @@ Trk::FitterStatusCode
 Trk::KalmanPiecewiseAnnealingFilter::filterTrajectory
 (Trajectory& trajectory, const ParticleHypothesis&   particleType) const
 {
-  const Trk::TrackParameters* predPar = nullptr;
-  const Trk::TrackParameters* updPar  = nullptr;
+  std::unique_ptr<const Trk::TrackParameters> predPar;
+  std::unique_ptr<const Trk::TrackParameters> updPar;
   Trk::Trajectory::iterator  start = Trk::ProtoTrajectoryUtility::firstFittableState(trajectory);
   return this->filterTrajectoryPiece(trajectory, start, updPar, predPar,
                                      trajectory.size(), particleType);
@@ -350,12 +350,13 @@ Trk::FitterStatusCode
 Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
 (Trajectory& trajectory,
  Trajectory::iterator& start,
- const TrackParameters*&     start_updatedPar,
- const TrackParameters*&     start_predPar,
+ std::unique_ptr<const Trk::TrackParameters>&     start_updatedPar,
+ std::unique_ptr<const Trk::TrackParameters>&     start_predPar,
  int                         pieceSize,
  const ParticleHypothesis&   particleType) const
 {
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   if (msgLvl(MSG::DEBUG)) {
     msg(MSG::DEBUG) << "entering filterTrajectoryPiece() with annealing scheme";
     for (unsigned int annealer=0; annealer < m_option_annealingScheme.size(); ++annealer)
@@ -368,9 +369,9 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
   //////////////////////////////////////////////////////////////////////////////
   // step 1: make first loop while turning ROT/PRDs into competing ones
   //////////////////////////////////////////////////////////////////////////////
-  const TrackParameters* predPar     = nullptr;
+  std::unique_ptr<const TrackParameters> predPar;
   std::unique_ptr<const AmgVector(5)> predDiffPar;
-  const TrackParameters* updatedPar  = nullptr;
+  std::unique_ptr<const TrackParameters> updatedPar;
   bool end_reached = false;
   bool hadAnnealingProblemDC = false;
   bool hadAnnealingProblem   = false;
@@ -383,27 +384,28 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
     if (iDafSteps == 1) {
       if (input_it->referenceParameters()) {
         if (start_predPar) {
-          predPar = start_predPar->clone();
+          predPar = start_predPar->uniqueClone();
           predDiffPar = std::make_unique<AmgVector(5)>(  start_predPar->parameters()
                                                - start->referenceParameters()->parameters() );
         } else {
-          predDiffPar.reset(  start->checkoutParametersDifference() );
+          predDiffPar = start->checkoutParametersDifference() ;
           predPar = CREATE_PARAMETERS(*start->referenceParameters(),
                                       (start->referenceParameters()->parameters() + (*predDiffPar)),
-                                      AmgSymMatrix(5)(*start->parametersCovariance())).release();
-          delete start->checkoutParametersCovariance();
+                                      AmgSymMatrix(5)(*start->parametersCovariance()));
         }
       } else {
-        if (start_predPar) predPar     = start_predPar->clone();
+        if (start_predPar) predPar     = start_predPar->uniqueClone();
         else predPar = start->checkoutForwardPar();
       }
     } else {
       if (!input_it->referenceParameters()) {
         // filter using extrapolator
-        predPar = m_extrapolator->extrapolate(*updatedPar,
-					      *input_it->surface(),
-					      Trk::alongMomentum,
-					      false, particleType);
+        predPar = (m_extrapolator->extrapolate(ctx,
+                                               *updatedPar,
+                                               *input_it->surface(),
+                                               Trk::alongMomentum,
+                                               false,
+                                               particleType));
       } else {
         // filter using differences
         const TransportJacobian& jac = *m_trajPiece.back().jacobian();
@@ -430,12 +432,12 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
             << input_it->referenceParameters()->parameters()[Trk::qOverP]
             << ", qOverP_diff=" << (*predDiffPar)(Trk::qOverP)
             << ", sigmaDeltaE=" << input_it->materialEffects()->sigmaDeltaE()
-            << ", sigmaDeltaQoverP=" << sqrt(sigmaDeltaQoverPsquared)
+            << ", sigmaDeltaQoverP=" << std::sqrt(sigmaDeltaQoverPsquared)
             << std::fixed); // std::defaultfloat);
           ATH_MSG_VERBOSE ("Added material effects.");
         }
         const AmgVector(5) x = input_it->referenceParameters()->parameters()+(*predDiffPar);
-        predPar = CREATE_PARAMETERS(*input_it->referenceParameters(),x,C).release();
+        predPar = CREATE_PARAMETERS(*input_it->referenceParameters(),x,C);
         ATH_MSG_DEBUG("used difference to make predpar = " << *predPar);
       }
     }
@@ -443,7 +445,6 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
     if (!predPar) {
       ATH_MSG_INFO ("lost track piece in filterTrajPiece() annealing "<<beta <<
 		    " and node " << iDafSteps );
-      delete updatedPar;
       m_trajPiece.clear();
       return Trk::FitterStatusCode::ForwardFilterFailure;
     }
@@ -460,7 +461,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
       else {
         m_trajPiece.push_back(ProtoTrackStateOnSurface());
         m_trajPiece.back().checkinMaterialEffects
-              (new Trk::ProtoMaterialEffects(*input_it->materialEffects()));
+              (std::make_unique<Trk::ProtoMaterialEffects>(*input_it->materialEffects()));
         m_trajPiece.back().isOutlier(TrackState::Scatterer);
         m_trajPiece.back().positionOnTrajectory(iDafSteps);
       }
@@ -475,7 +476,6 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
 	m_compRotTool->createSimpleCompetingROT(*testROT->prepRawData(),*predPar,beta);
       if (!highBetaCluster) {
 	ATH_MSG_DEBUG ("CompROT creation failed in filterTrajPiece() annealing " <<beta);
-	delete updatedPar;
 	m_trajPiece.clear();
 	return Trk::FitterStatusCode::ForwardFilterFailure; // not really... don't have other.
       }
@@ -496,23 +496,20 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
       }
       // if (input_it->jacobian()) m_trajPiece.back().checkinTransportJacobian(new Trk::TransportJacobian(*input_it->jacobian()));
       if (input_it->jacobian()) m_trajPiece.back().checkinTransportJacobian(input_it->jacobian(),false);
-      m_trajPiece.back().checkinReferenceParameters(input_it->referenceParameters(),false);
-      m_trajPiece.back().checkinParametersDifference(predDiffPar.release() );
-      m_trajPiece.back().checkinParametersCovariance(new AmgSymMatrix(5)(*predPar->covariance()));
+      m_trajPiece.back().checkinReferenceParameters(input_it->referenceParameters());
+      m_trajPiece.back().checkinParametersDifference(std::move(predDiffPar));
+      m_trajPiece.back().checkinParametersCovariance(std::make_unique<const AmgSymMatrix(5)>(*predPar->covariance()));
     }
 
     if (input_it->isOutlier() || !m_trajPiece.back().measurement() ) {
-      delete updatedPar;
-      updatedPar = predPar;
-      predPar    = nullptr;
+      updatedPar = std::move(predPar);
     } else {
-      m_trajPiece.back().checkinForwardPar(predPar);
-      delete updatedPar;
+      m_trajPiece.back().checkinForwardPar(std::move(predPar));
       FitQualityOnSurface* fitQuality=nullptr;
       updatedPar = m_updator->addToState(*predPar,
 					 m_trajPiece.back().measurement()->localParameters(),
 					 m_trajPiece.back().measurement()->localCovariance(),
-					 fitQuality).release();
+					 fitQuality);
       if (!updatedPar) {
 	ATH_MSG_DEBUG ("addToState failed in filterTrajPiece(), annealing "<<beta);
 	m_trajPiece.clear();
@@ -527,7 +524,6 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
     end_reached = (iDafSteps >= pieceSize)
       || (input_it+1 == trajectory.end());
   }
-  delete updatedPar;
 
   FitQuality  currForwardFQ = Trk::ProtoTrajectoryUtility::forwardFilterQuality(m_trajPiece);
   m_chi2DuringAnnealing[0] = currForwardFQ.numberDoF()>0 ?
@@ -549,11 +545,6 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
         ATH_MSG_WARNING ("Programming error - lost seed");
         m_utility->dumpTrajectory(m_trajPiece, name());
       }
-	/* old code for lost seed:
-          const TrackParameters* newPredPar =
-	  m_extrapolator->extrapolate(*start_predPar,
-				      ffs->measurement()->associatedSurface(),
-				      Trk::alongMomentum, false, particleType); */
       ATH_MSG_DEBUG ("entering FKF at annealing factor " <<beta);
       FitterStatusCode fitStatus = m_forwardFitter->fit(m_trajPiece,
                                                         *start->forwardTrackParameters(), // no check needed: void in refKF
@@ -716,7 +707,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
 	    itForKF->replaceMeasurement(compROT->rioOnTrack(compROT->indexOfMaxAssignProb()).clone());
 	    decision = "drift circle (max prob)";
 	  }
-	} else if (fabs(predictedLocalR) < 2.10) {
+	} else if (std::abs(predictedLocalR) < 2.10) {
 	  const Trk::RIO_OnTrack* recalibratedROT =
 	    m_recalibrator->makeBroadMeasurement(*compROT,*it->smoothedTrackParameters());
 	  itForKF->replaceMeasurement(recalibratedROT); itForKF->isOutlier(false);
@@ -780,18 +771,19 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
   } else { // ## case 2: DAF on a subset of trajectory
 
     if (m_forwardFitter->needsReferenceTrajectory()) ATH_MSG_ERROR("Code missing!");
-    if (start_predPar) delete start_predPar;
-    start_predPar =
-      m_extrapolator->extrapolate(*lastStateOnPiece->smoothedTrackParameters(),
-				  resumeKfState->measurement()->associatedSurface(),
-				  Trk::alongMomentum, false, particleType);
+    start_predPar = m_extrapolator->extrapolate(
+      ctx,
+      *lastStateOnPiece->smoothedTrackParameters(),
+      resumeKfState->measurement()->associatedSurface(),
+      Trk::alongMomentum,
+      false,
+      particleType);
     if (!start_predPar) {
       ATH_MSG_INFO ("final extrapolation to finish off piecewise filter failed!" <<
 		    " input or internal sorting problem?" );
       m_trajPiece.clear(); return Trk::FitterStatusCode::BadInput;
     }
     if (start_updatedPar) { // only for piecewise-modus
-      delete start_updatedPar;
       start_updatedPar = lastStateOnPiece->checkoutSmoothedPar();
     }
     const Trk::RIO_OnTrack* rot;

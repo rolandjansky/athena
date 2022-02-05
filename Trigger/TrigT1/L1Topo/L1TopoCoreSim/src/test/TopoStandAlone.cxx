@@ -10,7 +10,6 @@
 #include "TrigConfIO/JsonFileLoader.h"
 #include "TrigConfData/L1Menu.h"
 
-#include "L1TopoConfig/L1TopoXMLParser.h"
 #include "L1TopoCoreSim/TopoSteering.h"
 #include "L1TopoCoreSim/StandaloneL1TopoHistSvc.h"
 #include "L1TopoCoreSim/TopoASCIIReader.h"

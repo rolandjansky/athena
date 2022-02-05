@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONDIGITIZATION_TGC_DIGITIZATIONTOOL_H
@@ -22,6 +22,7 @@
 #include "MuonSimEvent/TGCSimHitCollection.h"
 #include "MuonDigitContainer/TgcDigitContainer.h"
 #include "MuonSimData/MuonSimDataCollection.h"
+#include "MuonCondData/TgcDigitASDposData.h"
 
 class PileUpMergeSvc;
 class TgcDigitMaker;
@@ -74,7 +75,7 @@ private:
   /** Get next event and extract collection of hit collections */
   StatusCode getNextEvent(const EventContext& ctx);
   /** Core part of digitization used by processAllSubEvents and mergeEvent */
-  StatusCode digitizeCore(const EventContext& ctx) const;
+  StatusCode digitizeCore(const EventContext& ctx);
 
 protected:
   ServiceHandle<PileUpMergeSvc> m_mergeSvc{this, "PileUpMergeSvc", "PileUpMergeSvc", ""}; // Pile up service
@@ -89,9 +90,9 @@ private:
   std::list<TGCSimHitCollection*>    m_TGCHitCollList;
 
   Gaudi::Property<bool> m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
-  SG::ReadHandleKey<TGCSimHitCollection> m_hitsContainerKey{this, "InputObjectName", "TGC_Hits",
-      "name of the input object"};
+  SG::ReadHandleKey<TGCSimHitCollection> m_hitsContainerKey{this, "InputObjectName", "TGC_Hits", "name of the input object"};
   std::string m_inputHitCollectionName{""};
+  SG::ReadCondHandleKey<TgcDigitASDposData> m_readCondKey_ASDpos{this,"TGCDigitASDposKey","","ReadCondHandleKey for TGCDigitASDposData"};
   SG::WriteHandleKey<TgcDigitContainer> m_outputDigitCollectionKey{this,"OutputObjectName","TGC_DIGITS","WriteHandleKey for Output TgcDigitContainer"}; // name of the output digits
   SG::WriteHandleKey<MuonSimDataCollection> m_outputSDO_CollectionKey{this,"OutputSDOName","TGC_SDO","WriteHandleKey for Output MuonSimDataCollection"}; // name of the output SDOs
 

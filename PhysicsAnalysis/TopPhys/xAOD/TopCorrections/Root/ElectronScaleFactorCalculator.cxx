@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 // $Id: ElectronScaleFactorCalculator.cxx 799556 2017-03-05 19:46:03Z tpelzer $
@@ -149,30 +149,22 @@ namespace top {
         msgInfo << "---> " << sys << "\n";
     }
 
-    // If the isolation tool doesn't exist then check why...
-    // valid reasons include you want no isolation or you know you are using an unsupported WP
-    if (!m_electronEffIso_exists)
-      if (m_config->electronIsolation() != "None")
-        if (m_config->electronIsoSFs()) { // ... check if we want to continue anyway without SFs anyway
-          ATH_MSG_WARNING(
-            "No electron isolation SFs available. You can run with ElectronIsolation set to None if you don't want isolation, or add:\tElectronIsoSFs False\tto your config file.");
-          return StatusCode::FAILURE;
-        }
-
-    if (!m_electronEffIsoLoose_exists)                                          // If the electron isolation SFs don't
-                                                                                // exist
-      if (m_config->electronIsolationLoose() != "None")                                                           // If
-                                                                                                                  // the
-                                                                                                                  // isolation
-                                                                                                                  // is
-                                                                                                                  // not
-                                                                                                                  // 'None'
-                                                                                                                  // then...
-        if (m_config->electronIsoSFs()) { // ... check if we want to continue anyway without SFs anyway
-          ATH_MSG_WARNING(
-            "No (loose) electron isolation SFs available. You can run with ElectronIsolationLoose set to None if you don't want isolation, or add:\tElectronIsoSFs False\tto your config file.");
-          return StatusCode::FAILURE;
-        }
+    // If the isolation SF doesn't exist then check why...
+    // it is possible to continue if explicitly SFs are disabled via ElectronIsolationSF
+    if (!m_electronEffIso_exists) {
+      if (m_config->electronIsolationSF() != "None") {
+        ATH_MSG_ERROR("Electron isolation SFs not available."
+                      " You can run with ElectronIsolationSF set to None if you don't need the SF.");
+        return StatusCode::FAILURE;
+      }
+    }
+    if (!m_electronEffIsoLoose_exists) {
+      if (m_config->electronIsolationSFLoose() != "None") {
+        ATH_MSG_ERROR("Electron loose isolation SFs not available."
+                      " You can run with ElectronIsolationSFLoose set to None if you don't need the SF.");
+        return StatusCode::FAILURE;
+      }
+    }
 
     top::check(m_electronEffSFID.retrieve(), "Failed to retrieve electron SF Tool");
     top::check(m_electronEffSFIDLoose.retrieve(), "Failed to retrieve electron SF Tool");

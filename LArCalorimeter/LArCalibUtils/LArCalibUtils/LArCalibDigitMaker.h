@@ -25,15 +25,19 @@ class LArCalibDigitMaker : public AthAlgorithm
   SG::ReadCondHandleKey<LArCalibLineMapping> m_calibMapKey{this,"CalibMapKey","LArCalibLineMap","SG Key of calib line mapping object"};
   SG::ReadCondHandleKey<LArCalibLineMapping> m_calibMapSCKey{this,"CalibMapSCKey","LArCalibIdMapSC","SG Key of calib line mapping object"};
   std::vector<std::string> m_keylist;
-  std::vector<unsigned> m_vPattern;
-  std::vector<unsigned> m_vDAC;
+  std::vector<std::vector<double>> m_vPattern;
+  std::vector<std::vector<double>> m_vDAC;
   std::vector<unsigned> m_vDelay;
-  std::vector<unsigned> m_vBoardIDs;
+  std::vector<int> m_nPatterns;
+  std::vector<std::vector<double>> m_vBoardIDs;
   unsigned m_nTrigger;
   double m_delayScale;
   bool m_dontRun;
   bool m_isSC;
-  
+  int m_oldeventNb;
+  int m_eventNb;
+  bool m_skipDuplicates;
+  std::vector<HWIdentifier> m_pulsedChids;
 };
 
 #endif

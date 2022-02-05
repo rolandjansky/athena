@@ -28,12 +28,8 @@ class TrigEgammaTLAPhotonHypoAlg : public HypoBase {
     };
 
     
-    SG::ReadHandleKey< xAOD::PhotonContainer > m_TLAPhotonsKey {
-      this, "Photons", "Photons", "TLA Photon container key"
-    };
-
-    SG::ReadHandleKey< xAOD::PhotonContainer > m_OriginalPhotonsKey {
-      this, "OriginalPhotons", "OriginalPhotons", "Original Photon container key"
+    SG::WriteHandleKey< xAOD::PhotonContainer > m_TLAPhotonsKey {
+      this, "TLAOutputName", "TLAOutputName", "TLA Photon container key"
     };
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 // Muon
 #include "MuonTrackingGeometry/MuonInertMaterialBuilderCond.h"
@@ -124,9 +124,9 @@ Muon::MuonInertMaterialBuilderCond::buildDetachedTrackingVolumes(const EventCont
                 protMass += calculateVolume((*((*msTypeIter).first->constituents()))[ic].first.get()) *
                             (*((*msTypeIter).first->constituents()))[ic].second;
             }
-            perm = msTypeName.substr(0, 1) != "J" && m_blendLimit > 0 && protMass > m_blendLimit;
+            perm = msTypeName.compare(0, 1, "J") != 0 && m_blendLimit > 0 && protMass > m_blendLimit;
         }
-        if (perm) msTypeName = msTypeName + "PERM";
+        if (perm) msTypeName += "PERM";
         //
         const Trk::DetachedTrackingVolume* msTV = (*msTypeIter).first;
         for (unsigned int it = 0; it < (*msTypeIter).second.size(); it++) {
@@ -190,7 +190,7 @@ Muon::MuonInertMaterialBuilderCond::buildDetachedTrackingVolumeTypes(const Event
     while (!vol.atEnd()) {
         const GeoVPhysVol* cv = &(*(vol.getVolume()));
         const GeoLogVol* clv = cv->getLogVol();
-        std::string vname = clv->getName();
+        const std::string_view vname = clv->getName();
         //	if ( vname.size()<8 && vname.substr(0,3)=="NSW" && vname.substr(1,4)=="sTGC" ) {   // do nothing NSW sTGC station
         //	} else if ( vname.size()<8 && vname.substr(0,3)=="NSW" && vname.substr(1,2)=="MM" ) {   // do nothing NSW MM station
         //	} else if ( vname.size()>=8 && vname.substr(0,8)=="NewSmall" && vname.substr(1,4)=="sTGC" ) {  // do nothing, probably NSW
@@ -260,9 +260,9 @@ Muon::MuonInertMaterialBuilderCond::buildDetachedTrackingVolumeTypes(const Event
             constituentsVector->reserve(vols.size() + 3);
 
             for (unsigned int ish = 0; ish < vols.size(); ish++) {
-                std::string protoName = vname;
-                if (!simpleTree) protoName = vname + (vols[ish].first->getName());
-                std::string pName = vols[ish].first->getName();
+                std::string protoName(vname);
+                if (!simpleTree) protoName += (vols[ish].first->getName());
+                const std::string &pName = vols[ish].first->getName();
                 ATH_MSG_VERBOSE(" check in pName " << pName << ", made of " << vols[ish].first->getMaterial()->getName() << " x0 "
                                                    << vols[ish].first->getMaterial()->getRadLength() << ","
                                                    << vols[ish].first->getShape()->type());
@@ -291,7 +291,7 @@ Muon::MuonInertMaterialBuilderCond::buildDetachedTrackingVolumeTypes(const Event
                     Trk::Material mat = m_materialConverter->convert(vols[ish].first->getMaterial());
                     const Trk::TrackingVolume* newType = new Trk::TrackingVolume(*trObject, mat, nullptr, nullptr, protoName);
                     const Trk::TrackingVolume* simType = simplifyShape(newType, blend, constituentsVector.get());
-                    const Trk::DetachedTrackingVolume* typeStat = new Trk::DetachedTrackingVolume(protoName, simType);
+                    Trk::DetachedTrackingVolume* typeStat = new Trk::DetachedTrackingVolume(protoName, simType);
                     if (blend) typeStat->saveConstituents(&(constituentsVector->back()));
                     objs.emplace_back(typeStat, vols[ish].second);
                 } else {
@@ -310,17 +310,17 @@ Muon::MuonInertMaterialBuilderCond::buildDetachedTrackingVolumeTypes(const Event
         // used : z = 14; A=28 ; rho = 2.33 g/cm^3, X0 = 93.7 mmm, l0 = 465.2 mm (Silicium)
         Trk::Material mat1(93.7 / scmat1, 465.2 / scmat1, scmat1 * 14, scmat1 * 28, 0.0023, 0.);
         Trk::Material mat2(93.7 / scmat2, 465.2 / scmat2, scmat2 * 14, scmat2 * 28, 0.0023, 0.);
-        const Trk::LayerArray* dummyLayers = nullptr;
-        const Trk::TrackingVolumeArray* dummyVolumes = nullptr;
+        Trk::LayerArray* dummyLayers = nullptr;
+        Trk::TrackingVolumeArray* dummyVolumes = nullptr;
         Trk::VolumeBounds* extraBounds1 = new Trk::CylinderVolumeBounds(850., 13000., 5.);
-        const Trk::TrackingVolume* mextra1 = new Trk::TrackingVolume(nullptr, extraBounds1, mat1, dummyLayers, dummyVolumes, "extraMat1");
+        Trk::TrackingVolume* mextra1 = new Trk::TrackingVolume(nullptr, extraBounds1, mat1, dummyLayers, dummyVolumes, "extraMat1");
         const Trk::TrackingVolume* simType1 = simplifyShape(mextra1, blend, constituentsVector.get());
-        const Trk::DetachedTrackingVolume* eVol1 = new Trk::DetachedTrackingVolume("extraTGCmat1", simType1);
+        Trk::DetachedTrackingVolume* eVol1 = new Trk::DetachedTrackingVolume("extraTGCmat1", simType1);
         if (blend) eVol1->saveConstituents(&(constituentsVector->back()));
         Trk::VolumeBounds* extraBounds2 = new Trk::CylinderVolumeBounds(850., 13000., 5.);
-        const Trk::TrackingVolume* mextra2 = new Trk::TrackingVolume(nullptr, extraBounds2, mat2, dummyLayers, dummyVolumes, "extraMat2");
+        Trk::TrackingVolume* mextra2 = new Trk::TrackingVolume(nullptr, extraBounds2, mat2, dummyLayers, dummyVolumes, "extraMat2");
         const Trk::TrackingVolume* simType2 = simplifyShape(mextra2, blend, constituentsVector.get());
-        const Trk::DetachedTrackingVolume* eVol2 = new Trk::DetachedTrackingVolume("extraTGCmat2", simType2);
+        Trk::DetachedTrackingVolume* eVol2 = new Trk::DetachedTrackingVolume("extraTGCmat2", simType2);
         if (blend) eVol2->saveConstituents(&(constituentsVector->back()));
         std::vector<Amg::Transform3D> pos1;
         pos1.emplace_back(Amg::Translation3D(0., 0., m_extraPos1));
@@ -414,13 +414,12 @@ const Trk::TrackingVolume* Muon::MuonInertMaterialBuilderCond::simplifyShape(
     // simplification
 
     const Trk::TrackingVolume* newVol = nullptr;
-    std::vector<const Trk::TrackingVolume*>* confinedVols = new std::vector<const Trk::TrackingVolume*>;
+    auto confinedVols = std::make_unique< std::vector<const Trk::TrackingVolume*> >();
 
     std::string envName = trVol->volumeName();
 
     if (simpleMode == 1) {
         newVol = trVol;
-        delete confinedVols;
     } else if (m_simplify && constituents.front().second.first > 0.5) {
         simpleMode = 2;
         if (constituents.size() == 1) {  // simplified volume : the scale factor refers to the density scaling
@@ -431,7 +430,6 @@ const Trk::TrackingVolume* Muon::MuonInertMaterialBuilderCond::simplifyShape(
             Trk::Material mat(trVol->X0 / fraction, trVol->L0 / fraction, trVol->A, trVol->Z, fraction * trVol->rho);
             newVol = new Trk::TrackingVolume(*envelope, mat, nullptr, nullptr, envName);
             delete trVol;
-            delete confinedVols;
         } else {  // enclose simplified constituents
             for (unsigned int ic = 0; ic < constituents.size(); ic++) {
                 double fraction = constituents[ic].second.first;
@@ -442,16 +440,17 @@ const Trk::TrackingVolume* Muon::MuonInertMaterialBuilderCond::simplifyShape(
                 confinedVols->push_back(trc);
             }
             envName = trVol->volumeName() + "_envelope";
-            newVol = new Trk::TrackingVolume(*envelope, m_muonMaterial, confinedVols, envName);
-            for (unsigned int iv = 0; iv < confinedVols->size(); iv++)
-                Trk::TrackingVolumeManipulator::confineVolume(*((*confinedVols)[iv]), newVol);
+            auto tempconfinedvols = confinedVols.get();
+            newVol = new Trk::TrackingVolume(*envelope, m_muonMaterial, confinedVols.release(), envName);
+            for (unsigned int iv = 0; iv < tempconfinedvols->size(); iv++)
+                Trk::TrackingVolumeManipulator::confineVolume(*((*tempconfinedvols)[iv]), newVol);
             delete trVol;
         }
     } else {  // enclose the exact transcript
         ATH_MSG_VERBOSE(" enclose the exact transcript ");
         confinedVols->push_back(trVol);
         envName = trVol->volumeName() + "_envelope";
-        newVol = new Trk::TrackingVolume(*envelope, m_muonMaterial, confinedVols, envName);
+        newVol = new Trk::TrackingVolume(*envelope, m_muonMaterial, confinedVols.release(), envName);
         Trk::TrackingVolumeManipulator::confineVolume(*trVol, newVol);
         //    for (unsigned int iv = 0; iv < confinedVols->size(); iv++)
         //	Trk::TrackingVolumeManipulator::confineVolume(*((*confinedVols)[iv]),newVol);

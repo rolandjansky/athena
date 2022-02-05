@@ -273,7 +273,7 @@ protected:
 	  std::string selectChain;
 	  
 	  if ( chainName.tail()!="" )    selectChain += ":key="+chainName.tail();
-	  if ( chainName.extra()!="" )   selectChain += ":index="+chainName.extra();
+	  if ( chainName.extra()!="" )   selectChain += ":extra="+chainName.extra();
 	  if ( chainName.element()!="" ) continue;
 	  if ( chainName.roi()!="" )     continue;
 	  if ( chainName.vtx()!="" )     selectChain += ":vtx="+chainName.vtx();
@@ -296,7 +296,7 @@ protected:
 	  for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
 	    
 	    if ( chainName.tail()!="" )    selectChains[iselected] += ":key="+chainName.tail();
-	    if ( chainName.extra()!="" )   selectChains[iselected] += ":index="+chainName.extra();
+	    if ( chainName.extra()!="" )   selectChains[iselected] += ":extra="+chainName.extra();
 	    if ( chainName.element()!="" ) selectChains[iselected] += ":te="+chainName.element();
 	    if ( chainName.roi()!="" )     selectChains[iselected] += ":roi="+chainName.roi();
 	    if ( chainName.vtx()!="" )     selectChains[iselected] += ":vtx="+chainName.vtx();
@@ -1385,10 +1385,8 @@ protected:
 	if      ( m_chainNames.at(ic).tail().find("_FTF") != std::string::npos )              mongroup = folder_name + "/FTF";
 	else if ( m_chainNames.at(ic).tail().find("_IDTrig") != std::string::npos || 
 		  m_chainNames.at(ic).tail().find("_EFID") != std::string::npos )             mongroup = folder_name + "/EFID";
-	else if ( m_chainNames.at(ic).tail().find("L2SiTrackFinder")   != std::string::npos ) mongroup = folder_name + "/L2STAR"+m_chainNames.at(ic).extra();
 	else if ( m_chainNames.at(ic).tail().find("InDetTrigParticle") != std::string::npos ) mongroup = folder_name + "/EFID_RUN1";
-	else if ( m_chainNames.at(ic).tail().find("_FTKRefit") != std::string::npos )         mongroup = folder_name + "/FTKRefit";
-	else if ( m_chainNames.at(ic).tail().find("_FTK")      != std::string::npos )         mongroup = folder_name + "/FTK";
+	else if ( m_chainNames.at(ic).tail().find("_GSF")      != std::string::npos )         mongroup = folder_name + "/GSF";
 	else                                                                                  mongroup = folder_name + "/Unknown";
 
 	if ( m_chainNames.at(ic).vtx()!="" ) mongroup += "/" + m_chainNames.at(ic).vtx();

@@ -7,12 +7,13 @@
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/getMessageSvc.h"
 
-#include "TH1I.h"
 #include "TGraphErrors.h"
+#include "TH1I.h"
 #include "TProfile.h"
-#include <string>
 #include <map>
 #include <set>
+#include <string>
+#include <utility>
 
 /* default constructor */
 CscCalibReportSlope::CscCalibReportSlope() : 
@@ -25,7 +26,7 @@ CscCalibReportSlope::CscCalibReportSlope() :
 
 /* full constructor */
 CscCalibReportSlope::CscCalibReportSlope(std::string label) :  
-  CscCalibReportBase::CscCalibReportBase(label),
+  CscCalibReportBase::CscCalibReportBase(std::move(label)),
   m_calGraphs(nullptr),
   m_bitHists(nullptr),
   m_ampProfs(nullptr),

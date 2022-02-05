@@ -1,15 +1,13 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
 import sys
 import argparse
 from itertools import groupby
 from operator import attrgetter
 from TrigConfMuctpi.XMLReader import MioctGeometryXMLReader
 from math import pi as PI
-from TrigConfMuctpi.Utils import getLogger
 from copy import copy
 
 # since this reads the geometry data from the .dat file and the 2015 geometry xml
@@ -431,10 +429,8 @@ def feetRegionMapping(sectorId, roiId):
 def read2016RPCGeomData(fn, oldMapping):
 
     rpcGeometry2016 = MuonGeometry("RPC geometry 2016")
-    log = getLogger(__file__+".read2016RPCGeomData")
 
-
-    log.info("Reading %s", fn)
+    print("read2016RPCGeomData: Reading %s", fn)
     f = open(fn,"read")
     for line in f:
         if line.lstrip().startswith("#"): # remove comments

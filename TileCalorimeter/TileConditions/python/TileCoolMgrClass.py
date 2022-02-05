@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #file: TileCoolMgr.py
 #author: nils.gollub@cern.ch
@@ -145,8 +145,7 @@ class TileCoolMgr(object):
         else:
             self.__log.info("Setting dbConn for condId \'%s\' to \'%s\'", condId, dbConn)
             idInfo[1] = dbConn
-            from string import find
-            if find(dbConn,".db")>0:
+            if dbConn.endswith(".db"):
                 self.__log.info("The data source looks like sqlite file (.db), setting folder type to Sqlite")
                 self.__idDict[condId][4] = "Sqlite"
                 

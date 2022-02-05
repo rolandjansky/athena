@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrackProcessorUserActionFullG4Tool.h"
@@ -20,6 +20,7 @@ namespace G4UA
       declareProperty("EntryLayerTool",   m_config.entryLayerTool, "ISF Entry Layer Tool");
       declareProperty("GeoIDSvc",         m_config.geoIDSvc,       "ISF GeoIDService"                            );
       declareProperty("TruthVolumeLevel", m_config.truthVolLevel,  "Level in geo hierarchy for the truth volumes");
+      declareProperty("IsITkGeometry",    m_config.isITkGeometry,  "toggle for ITk");
     }
 
     std::unique_ptr<TrackProcessorUserActionFullG4>

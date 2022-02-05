@@ -1656,7 +1656,7 @@ void InDet::SiSpacePointsSeedMaker_Trigger::fillSeeds(EventData& data)
 }
 
 void InDet::SiSpacePointsSeedMaker_Trigger::initializeEventData(EventData& data) const {
-  data.initialize(EventData::Trigger,
+  data.initialize(EventData::ToolType::Trigger,
                   m_maxsizeSP,
                   m_maxOneSize,
                   0, // maxsize not used

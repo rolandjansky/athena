@@ -67,7 +67,7 @@ class TGCTileMuCoincidenceLUT
   virtual ~TGCTileMuCoincidenceLUT();
 
   TGCTileMuCoincidenceLUT(const TGCTileMuCoincidenceLUT& right);
-  TGCTileMuCoincidenceLUT& operator=(const TGCTileMuCoincidenceLUT& right);
+  TGCTileMuCoincidenceLUT& operator = (const TGCTileMuCoincidenceLUT& right) = delete;
 
   uint16_t getAddr(int16_t side, int16_t sec, int16_t ssc) const;
 

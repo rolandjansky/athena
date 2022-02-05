@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimParametrization/ISF_HitAnalysis.h"
@@ -10,7 +10,6 @@
 #include "LArSimEvent/LArHitContainer.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
-#include "GeoAdaptors/GeoLArHit.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
@@ -1192,8 +1191,8 @@ StatusCode ISF_HitAnalysis::execute()
 
  // Get the reco clusters if available
 // retreiving cluster container
-  const DataHandle<xAOD::CaloClusterContainer > theClusters;
-  std::string clusterContainerName = "CaloCalTopoClusters";
+ const DataHandle<xAOD::CaloClusterContainer > theClusters;
+ std::string clusterContainerName = "CaloCalTopoClusters";  //Local hadron calibrated Topo-clusters , raw is the EM scale
   sc = evtStore()->retrieve(theClusters, clusterContainerName);
   if (sc.isFailure()) {
     ATH_MSG_WARNING(" Couldn't get cluster container '" << clusterContainerName << "'");
@@ -1203,11 +1202,11 @@ StatusCode ISF_HitAnalysis::execute()
   xAOD::CaloClusterContainer::const_iterator itrLastClus = theClusters->end();
   for ( ; itrClus!=itrLastClus; ++itrClus){
     const xAOD::CaloCluster *cluster =(*itrClus);
-    m_cluster_energy->push_back(cluster->e());
-    m_cluster_eta->push_back(cluster->eta());
-    m_cluster_phi->push_back(cluster->phi());
-    ATH_MSG_VERBOSE("Cluster energy: " << cluster->e() << " cells: " << " links: " << cluster->getCellLinks());
-    //cluster->getCellLinks();
+    m_cluster_energy->push_back(cluster->e(xAOD::CaloCluster::UNCALIBRATED)); // getRawE, cluster->e() is the Local hadron calibrated topo-clusters
+    m_cluster_eta->push_back(cluster->eta(xAOD::CaloCluster::UNCALIBRATED));
+    m_cluster_phi->push_back(cluster->phi(xAOD::CaloCluster::UNCALIBRATED));
+    ATH_MSG_VERBOSE("Cluster energy: " << cluster->e() << " EMscale: " << cluster->e(xAOD::CaloCluster::UNCALIBRATED) << " cells: " << " links: " << cluster->getCellLinks());
+
     const CaloClusterCellLink* cellLinks = cluster->getCellLinks();
     if (!cellLinks) {
       ATH_MSG_DEBUG( "No cell links for this cluster"  );
@@ -1275,32 +1274,28 @@ StatusCode ISF_HitAnalysis::execute()
   ATH_MSG_DEBUG( "Checking G4Hits: "<<lArKey[i]);
   if(evtStore()->retrieve(iter,lArKey[i])==StatusCode::SUCCESS)
   {
-   LArHitContainer::const_iterator hi;
-   int hitnumber = 0;
-   for (hi=(*iter).begin();hi!=(*iter).end();++hi)
-   {
-          hitnumber++;
-          GeoLArHit ghit(**hi);
-    if (!ghit)
-     continue;
-    const CaloDetDescrElement *hitElement = ghit.getDetDescrElement();
-          if(!hitElement)
-           continue;
-    Identifier larhitid = hitElement->identify();
-          if(m_calo_dd_man->get_element(larhitid))
-          {
-           CaloCell_ID::CaloSample larlayer = m_calo_dd_man->get_element(larhitid)->getSampling();
+    LArHitContainer::const_iterator hi;
+    int hitnumber = 0;
+    for (hi=(*iter).begin();hi!=(*iter).end();++hi) {
+      hitnumber++;
+      const LArHit* larHit = *hi;
+      const CaloDetDescrElement *hitElement = m_calo_dd_man->get_element(larHit->cellID());
+      if(!hitElement)
+	continue;
+      Identifier larhitid = hitElement->identify();
+      if(m_calo_dd_man->get_element(larhitid)) {
+	CaloCell_ID::CaloSample larlayer = m_calo_dd_man->get_element(larhitid)->getSampling();
 
-           float larsampfrac=fSampl->FSAMPL(larhitid);
-           m_g4hit_energy->push_back( ghit.Energy() );
-           m_g4hit_time->push_back( ghit.Time() );
-           m_g4hit_identifier->push_back( larhitid.get_compact() );
-           m_g4hit_cellidentifier->push_back( larhitid.get_compact() );
-           m_g4hit_sampling->push_back( larlayer);
-           m_g4hit_samplingfraction->push_back( larsampfrac );
-          }
-   } // End while LAr hits
-   ATH_MSG_INFO( "Read "<<hitnumber<<" G4Hits from "<<lArKey[i]);
+	float larsampfrac=fSampl->FSAMPL(larhitid);
+	m_g4hit_energy->push_back( larHit->energy() );
+	m_g4hit_time->push_back( larHit->time() );
+	m_g4hit_identifier->push_back( larhitid.get_compact() );
+	m_g4hit_cellidentifier->push_back( larhitid.get_compact() );
+	m_g4hit_sampling->push_back( larlayer);
+	m_g4hit_samplingfraction->push_back( larsampfrac );
+      }
+    } // End while LAr hits
+    ATH_MSG_INFO( "Read "<<hitnumber<<" G4Hits from "<<lArKey[i]);
   }
   else
   {

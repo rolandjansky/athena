@@ -1,172 +1,151 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibExtraTreeEvent/MuonCalibEvent_E.h"
-#include "MuonCalibExtraTreeEvent/MuonCalibTrack_E.h"
-#include "MuonCalibExtraTreeEvent/MuonCalibCaloHit.h"
-#include "MuonCalibExtraTreeEvent/MuonCalibTriggerInfo.h"
-#include "MuonCalibExtraTreeEvent/MuonCalibMUCTPI.h"
-#include "MuonCalibExtraTreeEvent/MuonCalibRpcSectorLogic.h"
-#include "MuonCalibEventBase/MuonCalibRawRpcCoin.h"
-#include "MuonCalibEventBase/MuonCalibRawRpcTriggerHit.h"
 
 #include "MuonCalibEventBase/MuonCalibEvent.h"
 #include "MuonCalibStl/DeleteObject.h"
 
 namespace MuonCalib {
-  
-  MuonCalibEvent_E::~MuonCalibEvent_E() {    
-    std::for_each( beginPhiPat(), endPhiPat(), DeleteObject() ) ;
-    m_phiPats.clear();
-    std::for_each( beginTrack(), endTrack(), DeleteObject() ) ;
-    m_tracks.clear();
+    MuonCalibEvent_E::MuonCalibEvent_E(const MuonCalibEvent& event) : MuonCalibEvent(event) {}
 
-    std::for_each( beginMBTS(), endMBTS(), DeleteObject() ) ;
-    m_mbts.clear();
-    std::for_each( beginL1Calo(), endL1Calo(), DeleteObject() ) ;
-    m_l1calo.clear();
-    std::for_each( beginCtp(), endCtp(), DeleteObject() ) ;
-    m_ctp.clear();
-    std::for_each( beginMUCTPI(), endMUCTPI(), DeleteObject() ) ;
-    m_mctpi.clear();
-    std::for_each( beginRpcSL(), endRpcSL(), DeleteObject() ) ;
-    m_rpcsl.clear();
-    std::for_each( beginRpcCoin(), endRpcCoin(), DeleteObject() ) ;
-    m_rpcco.clear();
-    std::for_each( beginRawRpcTrig(), endRawRpcTrig(), DeleteObject() ) ;
-    m_rpctr.clear();
-  }
+    MuonCalibEvent_E::MuonCalibEvent_E(const MuonCalibEvent_E& event) : MuonCalibEvent(event) { copy(event); }
 
-  MuonCalibEvent_E::MuonCalibEvent_E(const MuonCalibEvent& event) : MuonCalibEvent(event), m_phiPats(0), m_tracks(0), m_ctp(0), m_mctpi(0), m_rpcsl(0), m_rpcco(0), m_rpctr(0), m_mbts(0), m_l1calo(0) {
-  }
-  
-  
-  MuonCalibEvent_E::MuonCalibEvent_E(const MuonCalibEvent_E& event) : MuonCalibEvent(event) {
-    PhiPatVec::const_iterator phi = event.beginPhiPat();
-    PhiPatVec::const_iterator phi_end = event.endPhiPat();
-    for(; phi!=phi_end; ++phi){
-      m_phiPats.push_back( new MuonCalibTrack_E(**phi) );
+    void MuonCalibEvent_E::copy(const MuonCalibEvent_E& event) {
+        m_phiPats.clear();
+        m_tracks.clear();
+        m_ctp.clear();
+        m_mctpi.clear();
+        m_rpcsl.clear();
+        m_rpcco.clear();
+        m_rpctr.clear();
+        m_mbts.clear();
+        m_l1calo.clear();
+
+        for (const MuonCalibTrkPtr& phi : event.phiPat()) { m_phiPats.emplace_back(new MuonCalibTrack_E(*phi)); }
+        for (const MuonCalibTrkPtr& trk : event.tracks()) { m_tracks.emplace_back(new MuonCalibTrack_E(*trk)); }
+        for (const TrigInfoPtr& ctpi : event.ctp()) { m_ctp.emplace_back(new MuonCalibTriggerInfo(*ctpi)); }
+        for (const MuCTPiPtr& mit : event.MUCTPI()) { m_mctpi.emplace_back(new MuonCalibMUCTPI(*mit)); }
+        for (const RpcSectorLogicPtr& logic : event.RpcSL()) { m_rpcsl.emplace_back(new MuonCalibRpcSectorLogic(*logic)); }
+        for (const RpcCoinPtr& coin : event.RpcCoin()) { m_rpcco.emplace_back(new MuonCalibRawRpcCoin(*coin)); }
+        for (const RpcTrigHitPtr& trig_hit : event.rawRpcTrig()) { m_rpctr.emplace_back(new MuonCalibRawRpcTriggerHit(*trig_hit)); }
+        for (const CaloHitPtr& calo_hit : event.MBTS()) { m_mbts.emplace_back(new MuonCalibCaloHit(*calo_hit)); }
+        for (const CaloHitPtr& calo_hit : event.L1Calo()) { m_l1calo.emplace_back(new MuonCalibCaloHit(*calo_hit)); }
     }
 
-    TrackVec::const_iterator trk = event.beginTrack();
-    TrackVec::const_iterator trk_end = event.endTrack();
-    for(; trk!=trk_end; ++trk){
-      m_tracks.push_back( new MuonCalibTrack_E(**trk) );
+    MuonCalibEvent_E& MuonCalibEvent_E::operator=(const MuonCalibEvent_E& event) {
+        if (this != &event) { copy(event); }
+        return (*this);
+    }
+    const MuonCalibEvent_E::PhiPatVec& MuonCalibEvent_E::phiPat() const { return m_phiPats; }
+    MuonCalibEvent_E::PhiPatVec& MuonCalibEvent_E::phiPat() { return m_phiPats; }
+    /// Accesses the tracks of the event directly
+    const MuonCalibEvent_E::TrackVec& MuonCalibEvent_E::tracks() const { return m_tracks; }
+    MuonCalibEvent_E::TrackVec& MuonCalibEvent_E::tracks() { return m_tracks; }
+
+    /// Access to the Ctp triggerinfo hits / bits
+    const MuonCalibEvent_E::CtpVec& MuonCalibEvent_E::ctp() const { return m_ctp; }
+    MuonCalibEvent_E::CtpVec& MuonCalibEvent_E::ctp() { return m_ctp; }
+
+    //!< retrieve an iterator of the first MUCTPI triggerinfo bit
+    const MuonCalibEvent_E::MUCTPIVec& MuonCalibEvent_E::MUCTPI() const { return m_mctpi; }
+    MuonCalibEvent_E::MUCTPIVec& MuonCalibEvent_E::MUCTPI() { return m_mctpi; }
+
+    const MuonCalibEvent_E::RpcSLVec& MuonCalibEvent_E::RpcSL() const { return m_rpcsl; }
+    MuonCalibEvent_E::RpcSLVec& MuonCalibEvent_E::RpcSL() { return m_rpcsl; }
+
+    MuonCalibEvent_E::RpcCoinVec& MuonCalibEvent_E::RpcCoin() { return m_rpcco; }
+    const MuonCalibEvent_E::RpcCoinVec& MuonCalibEvent_E::RpcCoin() const { return m_rpcco; }
+
+    const MuonCalibEvent_E::RawRpcTrigVec& MuonCalibEvent_E::rawRpcTrig() const { return m_rpctr; }
+    MuonCalibEvent_E::RawRpcTrigVec& MuonCalibEvent_E::rawRpcTrig() { return m_rpctr; }
+
+    const MuonCalibEvent_E::MBTSVec& MuonCalibEvent_E::MBTS() const { return m_mbts; }
+    MuonCalibEvent_E::MBTSVec& MuonCalibEvent_E::MBTS() { return m_mbts; }
+    const MuonCalibEvent_E::L1CaloVec& MuonCalibEvent_E::L1Calo() const { return m_l1calo; }
+    MuonCalibEvent_E::L1CaloVec& MuonCalibEvent_E::L1Calo() { return m_l1calo; }
+
+    unsigned int MuonCalibEvent_E::nrPhiPat() const { return m_phiPats.size(); }
+    unsigned int MuonCalibEvent_E::nrTracks() const { return m_tracks.size(); }
+    unsigned int MuonCalibEvent_E::nrCtp() const { return m_ctp.size(); }
+    unsigned int MuonCalibEvent_E::nrMUCTPI() const { return m_mctpi.size(); }
+    unsigned int MuonCalibEvent_E::nrRpcSL() const { return m_rpcsl.size(); }
+    unsigned int MuonCalibEvent_E::nrRpcCoin() const { return m_rpcco.size(); }
+    unsigned int MuonCalibEvent_E::nrRawRpcTrigHit() const { return m_rpctr.size(); }
+    unsigned int MuonCalibEvent_E::nrMBTS() const { return m_mbts.size(); }
+    unsigned int MuonCalibEvent_E::nrL1Calo() const { return m_l1calo.size(); }
+
+    void MuonCalibEvent_E::addPattern(const MuonCalibTrkPtr& pat) {
+        if (pat) { m_phiPats.emplace_back(pat); }
     }
 
-    CtpVec::const_iterator tit = event.beginCtp();
-    CtpVec::const_iterator tit_end = event.endCtp();
-    for(; tit!=tit_end; ++tit){
-      m_ctp.push_back( new MuonCalibTriggerInfo(**tit) );
+    void MuonCalibEvent_E::addTrack(const MuonCalibTrkPtr& trk) {
+        if (trk) { m_tracks.emplace_back(trk); }
     }
 
-    MUCTPIVec::const_iterator mit = event.beginMUCTPI();
-    MUCTPIVec::const_iterator mit_end = event.endMUCTPI();
-    for(; mit!=mit_end; ++mit){
-      m_mctpi.push_back( new MuonCalibMUCTPI(**mit) );
+    void MuonCalibEvent_E::addCtp(const TrigInfoPtr& trig) {
+        if (trig) { m_ctp.emplace_back(trig); }
     }
 
-    RpcSLVec::const_iterator rit = event.beginRpcSL();
-    RpcSLVec::const_iterator rit_end = event.endRpcSL();
-    for(; rit!=rit_end; ++rit){
-      m_rpcsl.push_back( new MuonCalibRpcSectorLogic(**rit) );
+    void MuonCalibEvent_E::addMUCTPI(const MuCTPiPtr& mctpi) {
+        if (mctpi) { m_mctpi.emplace_back(mctpi); }
     }
 
-    RpcCoinVec::const_iterator cit = event.beginRpcCoin();
-    RpcCoinVec::const_iterator cit_end = event.endRpcCoin();
-    for(; cit!=cit_end; ++cit){
-      m_rpcco.push_back( new MuonCalibRawRpcCoin(**cit) );
+    void MuonCalibEvent_E::addRpcSL(const RpcSectorLogicPtr& rpcsl) {
+        if (rpcsl) { m_rpcsl.emplace_back(rpcsl); }
     }
 
-    RawRpcTrigVec::const_iterator trit = event.beginRawRpcTrig();
-    RawRpcTrigVec::const_iterator trit_end = event.endRawRpcTrig();
-    for(; trit!=trit_end; ++trit){
-      m_rpctr.push_back( new MuonCalibRawRpcTriggerHit(**trit) );
-    }
-    
-    MBTSVec::const_iterator chit = event.beginMBTS();
-    MBTSVec::const_iterator chit_end = event.endMBTS();
-    for(; chit!=chit_end; ++chit){
-      m_mbts.push_back( new MuonCalibCaloHit(**chit) );
+    void MuonCalibEvent_E::addRpcCoin(const RpcCoinPtr& rpcco) {
+        if (rpcco) { m_rpcco.emplace_back(rpcco); }
     }
 
-    L1CaloVec::const_iterator lhit = event.beginL1Calo();
-    L1CaloVec::const_iterator lhit_end = event.endL1Calo();
-    for(; lhit!=lhit_end; ++lhit){
-      m_l1calo.push_back( new MuonCalibCaloHit(**lhit) );
+    void MuonCalibEvent_E::addRawRpcTrigHit(const RpcTrigHitPtr& rpctr) {
+        if (rpctr) { m_rpctr.emplace_back(rpctr); }
     }
 
-  }
-
-  MuonCalibEvent_E& MuonCalibEvent_E::operator=(const MuonCalibEvent_E &right) {
-    if(this!=&right) {
-      m_phiPats = right.m_phiPats;
-      m_tracks = right.m_tracks;
-      m_ctp = right.m_ctp;
-      m_mctpi = right.m_mctpi;
-      m_rpcsl = right.m_rpcsl;
-      m_rpcco = right.m_rpcco;
-      m_rpctr = right.m_rpctr;
-      m_mbts = right.m_mbts;
-      m_l1calo = right.m_l1calo;
+    void MuonCalibEvent_E::addMBTS(const CaloHitPtr& hit) {
+        if (hit) { m_mbts.emplace_back(hit); }
     }
-    return *this;
-  }
 
-  void MuonCalibEvent_E::addPattern(  MuonCalibTrack_E* pat) {
-    if( pat ){
-      m_phiPats.push_back(pat) ;
+    void MuonCalibEvent_E::addL1Calo(const CaloHitPtr& hit) {
+        if (hit) { m_l1calo.emplace_back(hit); }
     }
-  }
 
-  void MuonCalibEvent_E::addTrack(  MuonCalibTrack_E* trk) {
-    if( trk ){
-      m_tracks.push_back(trk) ;
+    void MuonCalibEvent_E::addPattern(MuonCalibTrack_E* pat) {
+        if (pat) { m_phiPats.emplace_back(pat); }
     }
-  }
 
-  void MuonCalibEvent_E::addCtp(  MuonCalibTriggerInfo* trig) {
-    if( trig ){
-      m_ctp.push_back(trig) ;
+    void MuonCalibEvent_E::addTrack(MuonCalibTrack_E* trk) {
+        if (trk) { m_tracks.emplace_back(trk); }
     }
-  }
 
-  void MuonCalibEvent_E::addMUCTPI(  MuonCalibMUCTPI* mctpi) {
-    if( mctpi ){
-      m_mctpi.push_back(mctpi) ;
+    void MuonCalibEvent_E::addCtp(MuonCalibTriggerInfo* trig) {
+        if (trig) { m_ctp.emplace_back(trig); }
     }
-  }
 
-  void MuonCalibEvent_E::addRpcSL(  MuonCalibRpcSectorLogic* rpcsl) {
-    if( rpcsl ){
-      m_rpcsl.push_back(rpcsl) ;
+    void MuonCalibEvent_E::addMUCTPI(MuonCalibMUCTPI* mctpi) {
+        if (mctpi) { m_mctpi.emplace_back(mctpi); }
     }
-  }
 
-  void MuonCalibEvent_E::addRpcCoin(  MuonCalibRawRpcCoin* rpcco) {
-    if( rpcco ){
-      m_rpcco.push_back(rpcco) ;
+    void MuonCalibEvent_E::addRpcSL(MuonCalibRpcSectorLogic* rpcsl) {
+        if (rpcsl) { m_rpcsl.emplace_back(rpcsl); }
     }
-  }
 
-  void MuonCalibEvent_E::addRawRpcTrigHit(  MuonCalibRawRpcTriggerHit* rpctr) {
-    if( rpctr ){
-      m_rpctr.push_back(rpctr) ;
+    void MuonCalibEvent_E::addRpcCoin(MuonCalibRawRpcCoin* rpcco) {
+        if (rpcco) { m_rpcco.emplace_back(rpcco); }
     }
-  }
 
-  void MuonCalibEvent_E::addMBTS(  MuonCalibCaloHit* hit) {
-    if( hit ){
-      m_mbts.push_back(hit) ;
+    void MuonCalibEvent_E::addRawRpcTrigHit(MuonCalibRawRpcTriggerHit* rpctr) {
+        if (rpctr) { m_rpctr.emplace_back(rpctr); }
     }
-  }
 
-  void MuonCalibEvent_E::addL1Calo(  MuonCalibCaloHit* hit) {
-    if( hit ){
-      m_l1calo.push_back(hit) ;
+    void MuonCalibEvent_E::addMBTS(MuonCalibCaloHit* hit) {
+        if (hit) { m_mbts.emplace_back(hit); }
     }
-  }
 
-} //namespace MuonCalib
+    void MuonCalibEvent_E::addL1Calo(MuonCalibCaloHit* hit) {
+        if (hit) { m_l1calo.emplace_back(hit); }
+    }
 
+}  // namespace MuonCalib

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SpacerBeam_H
@@ -11,13 +11,16 @@
 class GeoVPhysVol;
 
 namespace MuonGM {
+    class MYSQL;
 
     class SpacerBeam : public DetectorElement {
       public:
-        SpacerBeam(Component *s);
-        GeoVPhysVol *build(bool);
-        GeoVPhysVol *build(int cutoutson, bool);
-        void print();
+        SpacerBeam(const MYSQL& mysql, Component *s);
+        GeoVPhysVol *build(const StoredMaterialManager& matManager,
+                           bool);
+        GeoVPhysVol *build(const StoredMaterialManager& matManager,
+                           int cutoutson, bool);
+        virtual void print() override;
 
         double width;
         double length;

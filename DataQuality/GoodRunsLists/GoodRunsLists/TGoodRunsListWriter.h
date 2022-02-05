@@ -24,8 +24,6 @@
 #include "GoodRunsLists/TGoodRunsList.h"
 #include "GoodRunsLists/TGRLCollection.h"
 
-#include <vector>
-
 typedef unsigned char xmlChar;
 typedef struct _xmlTextWriter xmlTextWriter;
 typedef xmlTextWriter *xmlTextWriterPtr;

@@ -220,7 +220,7 @@ StatusCode MdtRawDataValAlg::binMdtGlobal( TH2* h, char ecap ) {
   return StatusCode::SUCCESS;
 } 
 
-StatusCode  MdtRawDataValAlg::binMdtRegional( TH2* h, string &xAxis ) {
+StatusCode  MdtRawDataValAlg::binMdtRegional( TH2* h, std::string_view xAxis ) {
   
   ///SET Ghost Entries
   int LowerEta=-0;
@@ -565,7 +565,7 @@ StatusCode  MdtRawDataValAlg::binMdtGlobal_byLayer( TH2* nHits_In, TH2* nHits_Mi
 
 }
 
-void MdtRawDataValAlg::TubeID_to_ID_L_ML(int & tubeID, const std::string & hardware_name, int & derived_tube, int & derived_layer, int & derived_ML, int totalTubes) {
+void MdtRawDataValAlg::TubeID_to_ID_L_ML(int & tubeID, std::string_view hardware_name, int & derived_tube, int & derived_layer, int & derived_ML, int totalTubes) {
   derived_tube = 1;
   derived_layer = 1;
   derived_ML = 1;
@@ -621,7 +621,7 @@ void MdtRawDataValAlg::TubeID_to_ID_L_ML(int & tubeID, const std::string & hardw
 }
 
 //Correct for CutOuts
-void MdtRawDataValAlg::ChamberTubeNumberCorrection(int & tubeNum, const std::string & hardware_name, int tubePos, int numLayers) {
+void MdtRawDataValAlg::ChamberTubeNumberCorrection(int & tubeNum, std::string_view hardware_name, int tubePos, int numLayers) {
   //numLayers should be mdt_layer-1 so numLayers = 0 implies layer 1 ML 1 or mdt_layer==1
   if(hardware_name.substr(0,4)=="BMS4" || hardware_name.substr(0,4)=="BMS6"){//layer 1-4 tubeId 41-48 cut out
     if( numLayers <= 2 ) tubeNum = tubePos + numLayers * 48;
@@ -784,7 +784,7 @@ int MdtRawDataValAlg::mezzmdt(Identifier digcoll_id) { //int mezz_chamber, int m
 // Get the Maximum # of tubes in the chamber
 // the 'if' statements are for chambers with ML1 != ML2
 // except for BIS8 -- mdtIdHelper gets the # layers wrong in this instance
-int MdtRawDataValAlg::GetTubeMax( const Identifier & digcoll_id, const std::string & hardware_name ) {
+int MdtRawDataValAlg::GetTubeMax( const Identifier & digcoll_id, std::string_view hardware_name ) {
   int numtubes = m_idHelperSvc->mdtIdHelper().tubeMax(digcoll_id);
   int numlayers = m_idHelperSvc->mdtIdHelper().tubeLayerMax(digcoll_id);
   int numML = m_idHelperSvc->mdtIdHelper().numberOfMultilayers(digcoll_id);
@@ -811,10 +811,10 @@ int MdtRawDataValAlg::GetTubeMax( const Identifier & digcoll_id, const std::stri
   if( hardware_name.substr(0,3) == "BME")
 	  tubeMax = 546;
   
-  
-  std::map<string,float>::iterator iter_tubesperchamber = m_tubesperchamber_map.find(hardware_name);
+  std::string hardware_namestr(hardware_name);
+  std::map<string,float>::iterator iter_tubesperchamber = m_tubesperchamber_map.find(hardware_namestr);
   if ( iter_tubesperchamber == m_tubesperchamber_map.end() ) { 
-      m_tubesperchamber_map.insert( make_pair( hardware_name, tubeMax ) );
+      m_tubesperchamber_map.insert( make_pair( hardware_namestr, tubeMax ) );
       ATH_MSG_DEBUG("Chamber " << hardware_name << " has " << tubeMax << " tubes.");
   } 
   else {
@@ -935,7 +935,7 @@ StatusCode MdtRawDataValAlg::getChamber(IdentifierHash id, MDTChamber* &chamber)
   if( id >= m_hist_hash_list->size() ) return StatusCode::FAILURE;
 
   chamber = (*m_hist_hash_list)[id];
-  if( chamber == 0 ) return StatusCode::FAILURE;
+  if( chamber == nullptr ) return StatusCode::FAILURE;
 
   return StatusCode::SUCCESS;
 }
@@ -948,7 +948,7 @@ void MdtRawDataValAlg::clear_hist_map(bool reallocate){
       delete (*itr);
     }
     delete m_hist_hash_list;
-    m_hist_hash_list = 0;
+    m_hist_hash_list = nullptr;
   }
   //  if(reallocate) m_hist_map = new std::map<IdentifierHash, MDTChamber*>;
   if(reallocate) {
@@ -957,7 +957,7 @@ void MdtRawDataValAlg::clear_hist_map(bool reallocate){
     unsigned int nChambers = 1200;
     m_hist_hash_list->reserve(nChambers);
     //Ensure size is 1200 and that all reservec quantities are 0!
-    for(unsigned int i = 0; i != 1200; ++i) m_hist_hash_list->push_back(0);
+    for(unsigned int i = 0; i != 1200; ++i) m_hist_hash_list->push_back(nullptr);
   }
 }
 
@@ -1499,7 +1499,7 @@ StatusCode MdtRawDataValAlg::binMdtOccVsLB_Crate(TH2* &h, int region, int crate)
 }
 
 
-int MdtRawDataValAlg::get_bin_for_LB_crate_hist(int region, int crate, int phi, int eta, std::string chamber){
+int MdtRawDataValAlg::get_bin_for_LB_crate_hist(int region, int crate, int phi, int eta, std::string_view chamber){
   int binNum = 999;
 
   if(region == 0 || region == 1){ //Barrel

@@ -34,6 +34,7 @@ photonSuperClusterBuilder::initialize()
   ATH_CHECK(m_photonSuperRecCollectionKey.initialize());
   ATH_CHECK(m_outputPhotonSuperClustersKey.initialize());
   ATH_CHECK(m_precorrClustersKey.initialize(SG::AllowEmpty));
+  ATH_CHECK(m_caloDetDescrMgrKey.initialize());
 
   // retrieve conversion builder
   if (m_doConversions) {
@@ -78,8 +79,9 @@ photonSuperClusterBuilder::execute(const EventContext& ctx) const
   }
 
   // The calo Det Descr manager
-  const CaloDetDescrManager* calodetdescrmgr = nullptr;
-  ATH_CHECK(detStore()->retrieve(calodetdescrmgr, "CaloMgr"));
+  SG::ReadCondHandle<CaloDetDescrManager> caloDetDescrMgrHandle { m_caloDetDescrMgrKey, ctx };
+  ATH_CHECK(caloDetDescrMgrHandle.isValid());
+  const CaloDetDescrManager* calodetdescrmgr = *caloDetDescrMgrHandle;
 
   // Reserve a vector to keep track of what is used
   std::vector<bool> isUsed(egammaRecs->size(), false);
@@ -119,19 +121,18 @@ photonSuperClusterBuilder::execute(const EventContext& ctx) const
                     ? xAOD::EgammaParameters::convertedPhoton
                     : xAOD::EgammaParameters::unconvertedPhoton;
 
-    std::unique_ptr<xAOD::CaloCluster> newCluster =
-      createNewCluster(ctx, accumulatedClusters, *calodetdescrmgr, egType,
+    bool clusterAdded =
+      createNewCluster(ctx,
+                       accumulatedClusters,
+                       *calodetdescrmgr,
+                       egType,
+                       outputClusterContainer.ptr(),
                        precorrClustersH ? precorrClustersH->ptr() : nullptr);
 
-    if (!newCluster) {
-      ATH_MSG_DEBUG("Creating a new cluster failed");
-      // Revert status of constituent clusters.
+    if (!clusterAdded) {
       isUsed.swap(isUsedRevert);
       continue;
     }
-
-    // push back the new photon super cluster to the output container
-    outputClusterContainer->push_back(std::move(newCluster));
 
     // Add the cluster link to the super cluster
     ElementLink<xAOD::CaloClusterContainer> clusterLink(

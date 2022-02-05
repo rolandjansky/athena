@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOLOCALHADCALIB_GETLCDEADMATERIALTREE_H
@@ -26,7 +26,6 @@
 
 class TTree;
 class TFile;
-class CaloDetDescrManager;
 class CaloCell_ID;
 class CaloLocalHadCoeff;
 class CaloHadDMCoeffData;
@@ -99,7 +98,6 @@ class ATLAS_NOT_THREAD_SAFE GetLCDeadMaterialTree : public AthAlgorithm {
     typedef std::vector<moment_name_pair> moment_name_vector;
     std::vector<xAOD::CaloCluster::MomentType> m_momentForDMArea;
 
-    const CaloDetDescrManager* m_calo_dd_man; 
     const CaloCell_ID* m_calo_id;
 };
 

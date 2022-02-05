@@ -1148,14 +1148,15 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
     MmDigitCollection* digitCollection = nullptr;
     // put new collection in storegate
     // Get the messaging service, print where you are
-    const MmDigitCollection* coll = digitContainer->indexFindPtr(moduleHash );
+    MmDigitCollection* coll = nullptr;
+    ATH_CHECK(digitContainer->naughtyRetrieve(moduleHash,coll ));
     if (coll == nullptr) {
       digitCollection = new MmDigitCollection( elemId, moduleHash );
       digitCollection->push_back(std::move(newDigit));
       ATH_CHECK(digitContainer->addCollection(digitCollection, moduleHash ) );
     }
     else {
-      digitCollection = const_cast<MmDigitCollection*>( coll );
+      digitCollection = coll;
       digitCollection->push_back(std::move(newDigit));
     }
     

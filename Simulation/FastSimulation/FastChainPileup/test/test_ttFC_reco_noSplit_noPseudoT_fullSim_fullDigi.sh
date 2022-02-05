@@ -60,7 +60,8 @@ then
                --conditionsTag OFLCOND-RUN12-SDR-31 \
                --inputRDOFile ${rdoFile} \
                --outputAODFile ${aodFile} \
-               --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);" \
+               --steering 'doRDO_TRIG' \
+               --athenaopts "all:--threads=1" \
                --postExec 'RAWtoESD:from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("RAWtoESD_config.txt")' \
                --imf False
      rc2=$?

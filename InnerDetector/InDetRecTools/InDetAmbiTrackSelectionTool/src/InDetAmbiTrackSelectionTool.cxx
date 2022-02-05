@@ -70,7 +70,9 @@ StatusCode InDet::InDetAmbiTrackSelectionTool::finalize()
 std::tuple<Trk::Track*,bool> InDet::InDetAmbiTrackSelectionTool::getCleanedOutTrack(const Trk::Track *ptrTrack,
                                                                                     const Trk::TrackScore score,
                                                                                     Trk::ClusterSplitProbabilityContainer &splitProbContainer,
-                                                                                    Trk::PRDtoTrackMap &prd_to_track_map) const
+                                                                                    Trk::PRDtoTrackMap &prd_to_track_map,
+                                                                                    int trackId /* = -1*/,
+                                                                                    int subtrackId /* = -1*/) const
 {
   // flag if the track is ok (true) or needs cleaning (false)
   bool TrkCouldBeAccepted        = true;
@@ -104,6 +106,7 @@ std::tuple<Trk::Track*,bool> InDet::InDetAmbiTrackSelectionTool::getCleanedOutTr
   // get all TSOS the track
   const DataVector<const Trk::TrackStateOnSurface>* tsos = ptrTrack->trackStateOnSurfaces();
   ATH_MSG_DEBUG ("Study new Track "<< ptrTrack<<"\t , it has "<<tsos->size()<<"\t track states");
+  ATH_MSG_DEBUG ("trackId "<< trackId <<", subtrackId "<<subtrackId);  
 
   // is this a track from the pattern or a fitted track ?
   bool ispatterntrack = (ptrTrack->info().trackFitter()==Trk::TrackInfo::Unknown);

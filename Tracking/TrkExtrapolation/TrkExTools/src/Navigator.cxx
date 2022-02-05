@@ -121,7 +121,7 @@ Trk::Navigator::nextBoundarySurface(const EventContext& ctx,
                                     const Trk::TrackParameters& parms,
                                     Trk::PropDirection dir) const
 {
-  const Trk::TrackingVolume* trackingVolume = volume(parms.position());
+  const Trk::TrackingVolume* trackingVolume = volume(ctx,parms.position());
 
   if (trackingVolume) {
     return (nextBoundarySurface(ctx,prop, parms, dir, *trackingVolume));
@@ -301,8 +301,8 @@ Trk::Navigator::nextTrackingVolume(const EventContext& ctx,
           '\t' << '\t' << (nextVolume ? nextVolume->volumeName() : "None"));
       }
 
-      return Trk::NavigationCell(
-        nextVolume, std::move(trackPar), Trk::BoundarySurfaceFace(surface_id));
+      return {
+        nextVolume, std::move(trackPar), Trk::BoundarySurfaceFace(surface_id)};
     }
 
     // ---------------------------------------------------
@@ -326,7 +326,7 @@ Trk::Navigator::nextTrackingVolume(const EventContext& ctx,
     // ---------------------------------------------------
   }
   // return what you have : no idea
-  return Trk::NavigationCell(nullptr, nullptr);
+  return {nullptr, nullptr};
 }
 
 
@@ -381,11 +381,11 @@ Trk::Navigator::atVolumeBoundary(const Trk::TrackParameters* parms,
 }
 
 const Trk::TrackParameters*
-Trk::Navigator::closestParameters(const Trk::Track& trk,
+Trk::Navigator::closestParameters(const EventContext& ctx,
+                                  const Trk::Track& trk,
                                   const Trk::Surface& sf,
                                   const Trk::IPropagator* propptr) const
 {
-
   // -- corresponds to Extrapolator::m_searchLevel = 2/3 - search with Propagation
   if (propptr && !m_searchWithDistance) {
     const Trk::TrackParameters *closestTrackParameters = nullptr;
@@ -403,7 +403,7 @@ Trk::Navigator::closestParameters(const Trk::Track& trk,
       }
 
       // const Trk::IntersectionSolution* interSolutions =  propptr->intersect(**it, sf, *highestVolume);
-      const Trk::IntersectionSolution *interSolutions = propptr->intersect(**it, sf, m_fieldProperties);
+      const Trk::IntersectionSolution *interSolutions = propptr->intersect(ctx,**it, sf, m_fieldProperties);
       if (!interSolutions) {
         return nullptr;
       }
@@ -527,7 +527,15 @@ Trk::Navigator::finalize() {
 const Trk::TrackingGeometry*
 Trk::Navigator::trackingGeometry(const EventContext& ctx) const
 {
-  if (!m_useConditions) {
+  if (m_useConditions) {
+    SG::ReadCondHandle<TrackingGeometry> handle(m_trackingGeometryReadKey, ctx);
+    if (!handle.isValid()) {
+      ATH_MSG_FATAL(
+        "Could not retrieve TrackingGeometry from Conditions Store.");
+      throw Trk::NavigatorException();
+    }
+    return handle.cptr();
+  } else {
     const TrackingGeometry* trackingGeometry = nullptr;
     if (detStore()
           ->retrieve(trackingGeometry, m_trackingGeometryName)
@@ -536,13 +544,6 @@ Trk::Navigator::trackingGeometry(const EventContext& ctx) const
       throw Trk::NavigatorException();
     }
     return trackingGeometry;
-  } else {
-    SG::ReadCondHandle<TrackingGeometry> handle(m_trackingGeometryReadKey, ctx);
-    if (!handle.isValid()) {
-      ATH_MSG_FATAL("Could not retrieve TrackingGeometry from DetectorStore.");
-      throw Trk::NavigatorException();
-    }
-    return handle.cptr();
   }
 }
 

@@ -32,8 +32,8 @@ class AtlasField : public G4MagneticField
 {
   public:
     /// Construct the field object from conditions object
-    AtlasField(const MagField::AtlasFieldMap* fieldMap) {
-            m_fieldCache = MagField::AtlasFieldCache(1, 1, fieldMap);
+  AtlasField(double scaleSolenoid, double scaleToroid, const MagField::AtlasFieldMap* fieldMap) {
+            m_fieldCache = MagField::AtlasFieldCache( scaleSolenoid, scaleToroid, fieldMap);
     }
     /// Construct the field object from the IMagFieldSvc
     AtlasField(MagField::IMagFieldSvc* m) :
@@ -118,6 +118,11 @@ class StandardFieldSvc final : public G4MagFieldSvcBase
                                                     "MapSoleCurrent", 7730., "Nominal solenoid current (A)"};
     Gaudi::Property<double>      m_mapToroCurrent  {this,
                                                     "MapToroCurrent", 20400., "Nominal toroid current (A)"};
+    ///  configurable current for map scaling
+    Gaudi::Property<double>      m_useSoleCurrent  {this,
+                                                    "UseSoleCurrent", 7730., "Configured solenoid current (A)"};
+    Gaudi::Property<double>      m_useToroCurrent  {this,
+                                                    "UseToroCurrent", 20400., "Configured toroid current (A)"};
 
     // field map held locally in svc - in Athena, this would go into a conditions object
     std::unique_ptr<MagField::AtlasFieldMap> m_fieldMap;

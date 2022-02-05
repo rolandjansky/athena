@@ -59,9 +59,7 @@ CaloNoiseCondAlg ('electronicNoise')
 
 # Trigger decision tool
 
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-TriggerFlags.configurationSourceList = ['ds']
-# set up trigger config service 
+# set up trigger config service
 from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
 cfg =  TriggerConfigGetter()
 from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool

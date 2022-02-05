@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef Tgc_H
@@ -13,6 +13,7 @@ class GeoFullPhysVol;
 namespace MuonGM {
 
     class Cutout;
+    class MYSQL;
 
     class Tgc : public DetectorElement {
 
@@ -26,10 +27,15 @@ namespace MuonGM {
         double dphi;
         int index;
 
-        Tgc(Component *s);
-        GeoFullPhysVol *build(int minimalgeo);
-        GeoFullPhysVol *build(int minimalgeo, int cutoutson, std::vector<Cutout *>);
-        void print();
+        Tgc(const MYSQL& mysql, Component *s);
+        GeoFullPhysVol *build(const StoredMaterialManager& matManager,
+                              const MYSQL& mysql,
+                              int minimalgeo);
+        GeoFullPhysVol *build(const StoredMaterialManager& matManager,
+                              const MYSQL& mysql,
+                              int minimalgeo, int cutoutson,
+                              const std::vector<Cutout *>&);
+        virtual void print() override;
 
       private:
         TgcComponent *m_component;

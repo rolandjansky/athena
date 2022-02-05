@@ -6,6 +6,7 @@ from RecExConfig.RecFlags import rec
 from RecExConfig.RecAlgsFlags import recAlgs
 
 from AthenaCommon.Resilience import treatException,protectedInclude
+from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
 
 # use to flag domain
 import PerfMonComps.DomainsRegistry as pdr
@@ -17,36 +18,51 @@ wrap_indet = True
 
 #First do Calo-Reco
 pdr.flag_domain('calo')
-protectedInclude ("CaloRec/CaloRec_jobOptions.py")
+if DetFlags.detdescr.Calo_on() and rec.doESD():
+    try:
+        from AthenaCommon.Configurable import Configurable
+        Configurable.configurableRun3Behavior=1
+        from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        from CaloRec.CaloRecoConfig import CaloRecoCfg
+        ca=CaloRecoCfg(ConfigFlags)
+    
+        for el in ca._allSequences:
+            el.name = "TopAlg"
+
+            appendCAtoAthena(ca)
+    except Exception:
+        treatException("Could translate CaloRecoCfg into athena")
+    finally:
+        Configurable.configurableRun3Behavior=0
+    pass
+
+    
+    #Move L1Calo Trigger tower decoration here for simplicity:
+    if globalflags.DataSource()=='data' and rec.doESD() and rec.doCalo() and rec.doTrigger():
+        include("TrigT1CaloCalibTools/DecorateL1CaloTriggerTowers_prodJobOFragment.py")
+
+
 AODFix_postCaloRec()
 
 #make the egammaTopoClusters containers, used for seeding
 if jobproperties.CaloRecFlags.doCaloTopoCluster():
-    from egammaAlgs.egammaTopoClusterCopier import egammaTopoClusterCopier
-    try:
-        egammaTopoClusterCopier()
-    except Exception:
-        treatExeption("could not get handle to egammaTopoClusterCopier")
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from egammaAlgs.egammaTopoClusterCopierConfig import egammaTopoClusterCopierCfg
+    CAtoGlobalWrapper(egammaTopoClusterCopierCfg,ConfigFlags,**HIDict)
 
 #then run ID reco:
 
 pdr.flag_domain('id')
 if DetFlags.detdescr.ID_on():
-    protectedInclude( "InDetRecExample/InDetRec_jobOptions.py" )
-    AODFix_postInDetRec()
     if jobproperties.InDetJobProperties.useNewConfig():
-        print('Wrapping new configuration')
-        from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
-        from InDetConfig.TrackRecoConfig import TrackRecoCfg
-        from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
-        # Translate all needed flags from old jobProperties to a new AthConfigFlag Container
-        ConfigFlags = getNewConfigFlags()
-        # TODO Keep here for the moment, since we still have debugging to do.
-        from AthenaCommon.Logging import logging
-        log = logging.getLogger( "Py:conf2toConfigurable" )
-        log.setLevel(DEBUG)
-        CAtoGlobalWrapper(TrackRecoCfg,ConfigFlags)
-
+        print('Wrapping InDet new configuration')
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        from InDetConfig.TrackRecoConfig import InDetTrackRecoCfg
+        CAtoGlobalWrapper(InDetTrackRecoCfg,ConfigFlags)
+    else:
+        protectedInclude( "InDetRecExample/InDetRec_jobOptions.py" )
+        AODFix_postInDetRec()
 
 # functionality : FTK reconstruction
 if DetFlags.detdescr.FTK_on() :
@@ -68,14 +84,22 @@ if DetFlags.detdescr.Muon_on() :
 # hack the merged jobo should test on rec.ScopingLevel=5 to run cosmic reco
 #    4 the essential collision reco 3 high priority 2 medium priodity 1 nice to have
 
-
-
-    try:    
-        include ("MuonRecExample/MuonRec_jobOptions.py")
-    except Exception:
-        treatException("Problem with MuonRecExample/MuonRec_jobOptions.py. Switching off Moore and Muonboy")
-        from MuonRecExample.MuonRecFlags import muonRecFlags
-        muonRecFlags.doStandalone=False
+    if  muonRecFlags.useNewConfig():
+        print('Wrapping Muon new configuration')
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        from MuonConfig.MuonReconstructionConfig import MuonReconstructionCfg
+        # TODO Keep here for the moment, since we still have debugging to do.
+        # from AthenaCommon.Logging import logging
+        # log = logging.getLogger( "Py:conf2toConfigurable" )
+        # log.setLevel(DEBUG)
+        CAtoGlobalWrapper(MuonReconstructionCfg,ConfigFlags)
+    else:
+        try:    
+            include ("MuonRecExample/MuonRec_jobOptions.py")
+        except Exception:
+            treatException("Problem with MuonRecExample/MuonRec_jobOptions.py. Switching off Moore and Muonboy")
+            from MuonRecExample.MuonRecFlags import muonRecFlags
+            muonRecFlags.doStandalone=False
 
 else:
     from MuonRecExample.MuonRecFlags import muonRecFlags

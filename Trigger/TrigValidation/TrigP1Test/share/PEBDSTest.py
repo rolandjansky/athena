@@ -3,16 +3,15 @@
 #
 
 '''
-This test defines its own version of the LS2_v1 menu and the corresponding PEB/DS configuration,
+This test defines its own version of the Dev_pp_run3_v1 menu and the corresponding PEB/DS configuration,
 and executes several chains testing various types of Partial Event Building and Data Scouting
 '''
 
 from TrigEDMConfig import DataScoutingInfo, TriggerEDMRun3
-from TriggerMenuMT.HLTMenuConfig.Menu import LS2_v1, EventBuildingInfo, StreamInfo
-from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
-from TriggerMenuMT.HLTMenuConfig.CommonSequences import EventBuildingSequences
+from TriggerMenuMT.HLT.Menu import Dev_pp_run3_v1, EventBuildingInfo, StreamInfo
+from TriggerMenuMT.HLT.Menu.ChainDefInMenu import ChainProp
+from TriggerMenuMT.HLT.CommonSequences import EventBuildingSequences
 from TrigPartialEventBuilding.TrigPartialEventBuildingConfig import StaticPEBInfoWriterToolCfg, RoIPEBInfoWriterToolCfg
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 from libpyeformat_helper import SubDetector
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.Include import include
@@ -28,11 +27,13 @@ DataScoutingInfo.DataScoutingIdentifiers['ElectronDSTest'] = 3
 DataScoutingInfo.DataScoutingIdentifiers['ElectronDSPEBTest'] = 3
 DataScoutingInfo.TruncationThresholds[3] = 5*(1024**2) # 5 MB
 
-# Override the setupMenu function from LS2_v1
+# Override the setupMenu function from Dev_pp_run3_v1
 def myMenu():
     log.debug('Executing myMenu')
 
-    TriggerFlags.EgammaSlice.signatures = [
+    from TriggerMenuMT.HLT.Menu.SignatureDicts import ChainStore
+    chains = ChainStore()
+    chains['Egamma'] = [
         # DS+PEB chain (special HLT result and subset of detector data saved)
         ChainProp(name='HLT_e3_etcut_ElectronDSPEBTest_L1EM3', stream=['ElectronDSPEBTest'], groups=['RATE:Test','BW:Other']),
 
@@ -49,18 +50,19 @@ def myMenu():
         ChainProp(name='HLT_e12_etcut_L1EM3', stream=['Main'], groups=['RATE:SingleElectron', 'BW:Electron']),
     ]
 
-    TriggerFlags.MuonSlice.signatures = [
+    chains['Muon'] = [
         # PEB chain (fixed subset of detector data saved and no HLT result)
-        ChainProp(name='HLT_mu6_TestPEBTwo_L1MU6', stream=['TestPEBTwo'], groups=['RATE:Test','BW:Other']),
+        ChainProp(name='HLT_mu6_TestPEBTwo_L1MU5VF', stream=['TestPEBTwo'], groups=['RATE:Test','BW:Other']),
 
         # PEB chain (RoI-based subset of detector data saved and no HLT result)
-        ChainProp(name='HLT_mu6_TestPEBFour_L1MU6', stream=['TestPEBFour'], groups=['RATE:Test','BW:Other']),
+        ChainProp(name='HLT_mu6_TestPEBFour_L1MU5VF', stream=['TestPEBFour'], groups=['RATE:Test','BW:Other']),
 
         # Standard chain (full HLT result and full detector data saved)
-        ChainProp(name='HLT_2mu6_L12MU6', stream=['Main'], groups=['RATE:SingleMuon', 'BW:Muon']),
+        ChainProp(name='HLT_2mu6_L12MU5VF', stream=['Main'], groups=['RATE:SingleMuon', 'BW:Muon']),
     ]
+    return chains
 
-LS2_v1.setupMenu = myMenu
+Dev_pp_run3_v1.setupMenu = myMenu
 
 # Override the pebInfoWriterTool function from EventBuildingSequences
 def myPebInfoWriterTool(name, eventBuildType):
@@ -158,7 +160,7 @@ for collectionConfig in TriggerEDMRun3.TriggerHLTListRun3:
 TriggerEDMRun3.TriggerHLTListRun3 = myTriggerHLTListRun3
 
 # Set menu flag and slice options for runHLT_standalone
-ConfigFlags.Trigger.triggerMenuSetup = TriggerFlags.triggerMenuSetup = 'LS2_v1'
+ConfigFlags.Trigger.triggerMenuSetup = 'Dev_pp_run3_v1'
 doEmptyMenu = True
 doEgammaSlice = True
 doMuonSlice = True

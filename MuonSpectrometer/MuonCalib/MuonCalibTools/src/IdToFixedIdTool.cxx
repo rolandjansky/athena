@@ -87,14 +87,15 @@ namespace MuonCalib {
     Identifier IdToFixedIdTool::fixedIdToId(const MuonFixedId& fid) const {
         Identifier tmp;
         if (fid.is_mdt()) {
-            tmp = m_idHelperSvc->mdtIdHelper().channelID(fid.stationNameString(), fid.eta(), fid.phi(), fid.mdtMultilayer(), fid.mdtTubeLayer(),
-                                                         fid.mdtTube());
+            tmp = m_idHelperSvc->mdtIdHelper().channelID(fid.stationNameString(), fid.eta(), fid.phi(), fid.mdtMultilayer(),
+                                                         fid.mdtTubeLayer(), fid.mdtTube());
         } else if (fid.is_rpc()) {
-            tmp = m_idHelperSvc->rpcIdHelper().channelID(fid.stationNameString(), fid.eta(), fid.phi(), fid.rpcDoubletR(), fid.rpcDoubletZ(),
-                                                         fid.rpcDoubletPhi(), fid.rpcGasGap(), fid.rpcMeasuresPhi(), fid.rpcStrip());
+            tmp =
+                m_idHelperSvc->rpcIdHelper().channelID(fid.stationNameString(), fid.eta(), fid.phi(), fid.rpcDoubletR(), fid.rpcDoubletZ(),
+                                                       fid.rpcDoubletPhi(), fid.rpcGasGap(), fid.rpcMeasuresPhi(), fid.rpcStrip());
         } else if (m_idHelperSvc->hasCSC() && fid.is_csc()) {
-            tmp = m_idHelperSvc->cscIdHelper().channelID(fid.stationNameString(), fid.eta(), fid.phi(), fid.cscChamberLayer(), fid.cscWireLayer(),
-                                                         fid.cscMeasuresPhi(), fid.cscStrip());
+            tmp = m_idHelperSvc->cscIdHelper().channelID(fid.stationNameString(), fid.eta(), fid.phi(), fid.cscChamberLayer(),
+                                                         fid.cscWireLayer(), fid.cscMeasuresPhi(), fid.cscStrip());
         } else if (fid.is_tgc()) {
             tmp = m_idHelperSvc->tgcIdHelper().channelID(fid.stationNameString(), fid.eta(), fid.phi(), fid.tgcGasGap(), fid.tgcIsStrip(),
                                                          fid.tgcChannel());
@@ -107,13 +108,13 @@ namespace MuonCalib {
         // an Athena Identifier
         int eta, phi, ml;
         std::string stnName(region, 0, 3);
-        std::string::size_type separator1 = region.find_first_of("_");
-        std::string::size_type separator2 = region.find_last_of("_");
+        std::string::size_type separator1 = region.find_first_of('_');
+        std::string::size_type separator2 = region.find_last_of('_');
         if ((separator1 == std::string::npos) || (separator2 == std::string::npos) || (separator1 == separator2)) {
             ATH_MSG_WARNING("IdToFixedIdTool::regionKeyToId : invalid region key " << region);
             return Identifier();
         }
-        std::string::size_type separator3 = region.find("_", separator1 + 1);
+        std::string::size_type separator3 = region.find('_', separator1 + 1);
         if (separator3 != separator2) {
             // format STN_ETA_PHI_ML
             std::string stnPhi(region, separator1 + 1, separator2 - separator1 - 1);

@@ -7,25 +7,15 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon import Logging
 
 #the physics region tools
-from G4AtlasTools.G4PhysicsRegionConfigNew import SX1PhysicsRegionToolCfg, BedrockPhysicsRegionToolCfg, CavernShaftsConcretePhysicsRegionToolCfg, PixelPhysicsRegionToolCfg, SCTPhysicsRegionToolCfg, TRTPhysicsRegionToolCfg, TRT_ArPhysicsRegionToolCfg,ITkPixelPhysicsRegionToolCfg,ITkStripPhysicsRegionToolCfg,BeampipeFwdCutPhysicsRegionToolCfg, FWDBeamLinePhysicsRegionToolCfg, EMBPhysicsRegionToolCfg, EMECPhysicsRegionToolCfg, HECPhysicsRegionToolCfg, FCALPhysicsRegionToolCfg, FCAL2ParaPhysicsRegionToolCfg, EMECParaPhysicsRegionToolCfg, FCALParaPhysicsRegionToolCfg, PreSampLArPhysicsRegionToolCfg, DeadMaterialPhysicsRegionToolCfg
+from G4AtlasTools.G4PhysicsRegionConfigNew import SX1PhysicsRegionToolCfg, BedrockPhysicsRegionToolCfg, CavernShaftsConcretePhysicsRegionToolCfg, PixelPhysicsRegionToolCfg, SCTPhysicsRegionToolCfg, TRTPhysicsRegionToolCfg, TRT_ArPhysicsRegionToolCfg,ITkPixelPhysicsRegionToolCfg,ITkStripPhysicsRegionToolCfg,HGTDPhysicsRegionToolCfg,BeampipeFwdCutPhysicsRegionToolCfg, FWDBeamLinePhysicsRegionToolCfg, EMBPhysicsRegionToolCfg, EMECPhysicsRegionToolCfg, HECPhysicsRegionToolCfg, FCALPhysicsRegionToolCfg, FCAL2ParaPhysicsRegionToolCfg, EMECParaPhysicsRegionToolCfg, FCALParaPhysicsRegionToolCfg, PreSampLArPhysicsRegionToolCfg, DeadMaterialPhysicsRegionToolCfg
 from G4AtlasTools.G4PhysicsRegionConfigNew import DriftWallPhysicsRegionToolCfg, DriftWall1PhysicsRegionToolCfg, DriftWall2PhysicsRegionToolCfg, MuonSystemFastPhysicsRegionToolCfg
 
 #the field config tools
-from G4AtlasTools.G4FieldConfigNew import ATLASFieldManagerToolCfg, TightMuonsATLASFieldManagerToolCfg, BeamPipeFieldManagerToolCfg, InDetFieldManagerToolCfg, MuonsOnlyInCaloFieldManagerToolCfg, MuonFieldManagerToolCfg, Q1FwdFieldManagerToolCfg, Q2FwdFieldManagerToolCfg, Q3FwdFieldManagerToolCfg, D1FwdFieldManagerToolCfg, D2FwdFieldManagerToolCfg, Q4FwdFieldManagerToolCfg, Q5FwdFieldManagerToolCfg, Q6FwdFieldManagerToolCfg, Q7FwdFieldManagerToolCfg, Q1HKickFwdFieldManagerToolCfg, Q1VKickFwdFieldManagerToolCfg, Q2HKickFwdFieldManagerToolCfg, Q2VKickFwdFieldManagerToolCfg, Q3HKickFwdFieldManagerToolCfg, Q3VKickFwdFieldManagerToolCfg, Q4VKickAFwdFieldManagerToolCfg, Q4HKickFwdFieldManagerToolCfg, Q4VKickBFwdFieldManagerToolCfg, Q5HKickFwdFieldManagerToolCfg,  Q6VKickFwdFieldManagerToolCfg, FwdRegionFieldManagerToolCfg
+from G4AtlasTools.G4FieldConfigNew import ATLASFieldManagerToolCfg, TightMuonsATLASFieldManagerToolCfg, BeamPipeFieldManagerToolCfg, InDetFieldManagerToolCfg, ITkFieldManagerToolCfg, MuonsOnlyInCaloFieldManagerToolCfg, MuonFieldManagerToolCfg, Q1FwdFieldManagerToolCfg, Q2FwdFieldManagerToolCfg, Q3FwdFieldManagerToolCfg, D1FwdFieldManagerToolCfg, D2FwdFieldManagerToolCfg, Q4FwdFieldManagerToolCfg, Q5FwdFieldManagerToolCfg, Q6FwdFieldManagerToolCfg, Q7FwdFieldManagerToolCfg, Q1HKickFwdFieldManagerToolCfg, Q1VKickFwdFieldManagerToolCfg, Q2HKickFwdFieldManagerToolCfg, Q2VKickFwdFieldManagerToolCfg, Q3HKickFwdFieldManagerToolCfg, Q3VKickFwdFieldManagerToolCfg, Q4VKickAFwdFieldManagerToolCfg, Q4HKickFwdFieldManagerToolCfg, Q4VKickBFwdFieldManagerToolCfg, Q5HKickFwdFieldManagerToolCfg,  Q6VKickFwdFieldManagerToolCfg, FwdRegionFieldManagerToolCfg
 
 from G4AtlasTools.G4AtlasToolsConfigNew import SensitiveDetectorMasterToolCfg
 
 GeoDetectorTool=CompFactory.GeoDetectorTool
-from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
-from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg, InDetServiceMaterialCfg
-from AtlasGeoModel.ITkGMConfig import ITkGeometryCfg
-from HGTD_GeoModel.HGTD_GeoModelConfig import HGTD_GeometryCfg
-from LArGeoAlgsNV.LArGMConfig import LArGMCfg
-from TileGeoModel.TileGMConfig import TileGMCfg
-from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
-from AtlasGeoModel.ForDetGeoModelConfig import ForDetGeometryCfg
-from AtlasGeoModel.CavernGMConfig import CavernGeometryCfg 
-
 CylindricalEnvelope, PolyconicalEnvelope, MaterialDescriptionTool,VoxelDensityTool,G4AtlasDetectorConstructionTool,BoxEnvelope=CompFactory.getComps("CylindricalEnvelope","PolyconicalEnvelope","MaterialDescriptionTool","VoxelDensityTool","G4AtlasDetectorConstructionTool","BoxEnvelope")
 
 from AthenaCommon.SystemOfUnits import mm, cm, m
@@ -35,186 +25,199 @@ from AthenaCommon.SystemOfUnits import mm, cm, m
 
 
 #put it here to avoid circular import?
-G4GeometryNotifierSvc=CompFactory.G4GeometryNotifierSvc
 def G4GeometryNotifierSvcCfg(ConfigFlags, name="G4GeometryNotifierSvc", **kwargs):
+    result = ComponentAccumulator()
     kwargs.setdefault("ActivateLVNotifier", True)
     kwargs.setdefault("ActivatePVNotifier", False)
-    return G4GeometryNotifierSvc(name, **kwargs)
+    result.addService(CompFactory.G4GeometryNotifierSvc(name, **kwargs), primary = True)
+    return result
 
 
 def BeamPipeGeoDetectorToolCfg(ConfigFlags, name='BeamPipe', **kwargs):
     #set up geometry
-    result=BeamPipeGeometryCfg(ConfigFlags)
+    from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
+    result = BeamPipeGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "BeamPipe")
     #add the GeometryNotifierSvc
-    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
-    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
+    kwargs.setdefault("GeometryNotifierSvc", result.getPrimaryAndMerge(G4GeometryNotifierSvcCfg(ConfigFlags)).name)
     result.setPrivateTools(GeoDetectorTool(name, **kwargs))
     return result
 
 
 def PixelGeoDetectorToolCfg(ConfigFlags, name='Pixel', **kwargs):
     #set up geometry
-    result=InDetGeometryCfg(ConfigFlags)
+    from PixelGeoModel.PixelGeoModelConfig import PixelSimulationGeometryCfg
+    result = PixelSimulationGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "Pixel")
     #add the GeometryNotifierSvc
-    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
-    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
+    kwargs.setdefault("GeometryNotifierSvc", result.getPrimaryAndMerge(G4GeometryNotifierSvcCfg(ConfigFlags)).name)
     result.setPrivateTools(GeoDetectorTool(name, **kwargs))
     return result
 
 
 def SCTGeoDetectorToolCfg(ConfigFlags, name='SCT', **kwargs):
     #set up geometry
-    result=InDetGeometryCfg(ConfigFlags)
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_SimulationGeometryCfg
+    result = SCT_SimulationGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "SCT")
     #add the GeometryNotifierSvc
-    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
-    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
+    kwargs.setdefault("GeometryNotifierSvc", result.getPrimaryAndMerge(G4GeometryNotifierSvcCfg(ConfigFlags)).name)
+    result.setPrivateTools(GeoDetectorTool(name, **kwargs))
+    return result
+
+def PLRGeoDetectorToolCfg(ConfigFlags, name='PLR', **kwargs):
+    #set up geometry
+    from PLRGeoModelXml.PLRGeoModelConfig import PLRGeometryCfg
+    result = PLRGeometryCfg(ConfigFlags)
+    kwargs.setdefault("DetectorName", "PLR")
+    #add the GeometryNotifierSvc
+    kwargs.setdefault("GeometryNotifierSvc", result.getPrimaryAndMerge(G4GeometryNotifierSvcCfg(ConfigFlags)).name)
     result.setPrivateTools(GeoDetectorTool(name, **kwargs))
     return result
 
 def ITkPixelGeoDetectorToolCfg(ConfigFlags, name='ITkPixel', **kwargs):
     #set up geometry
-    result=ITkGeometryCfg(ConfigFlags)
+    from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelSimulationGeometryCfg
+    result = ITkPixelSimulationGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "ITkPixel")
     #add the GeometryNotifierSvc
-    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
-    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
+    kwargs.setdefault("GeometryNotifierSvc", result.getPrimaryAndMerge(G4GeometryNotifierSvcCfg(ConfigFlags)).name)
     result.setPrivateTools(GeoDetectorTool(name, **kwargs))
     return result
 
 
 def ITkStripGeoDetectorToolCfg(ConfigFlags, name='ITkStrip', **kwargs):
     #set up geometry
-    result=ITkGeometryCfg(ConfigFlags)
+    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripSimulationGeometryCfg
+    result = ITkStripSimulationGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "ITkStrip")
     #add the GeometryNotifierSvc
-    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
-    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
+    kwargs.setdefault("GeometryNotifierSvc", result.getPrimaryAndMerge(G4GeometryNotifierSvcCfg(ConfigFlags)).name)
     result.setPrivateTools(GeoDetectorTool(name, **kwargs))
     return result
 
 
 def HGTDGeoDetectorToolCfg(ConfigFlags, name='HGTD', **kwargs):
     #set up geometry
-    result=HGTD_GeometryCfg(ConfigFlags)
+    from HGTD_GeoModel.HGTD_GeoModelConfig import HGTD_SimulationGeometryCfg
+    # TODO: for running GMX implementation
+    # from HGTD_GeoModelXml.HGTD_GeoModelConfig import HGTD_SimulationGeometryCfg
+    result = HGTD_SimulationGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "HGTD")
     #add the GeometryNotifierSvc
-    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
-    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
+    kwargs.setdefault("GeometryNotifierSvc", result.getPrimaryAndMerge(G4GeometryNotifierSvcCfg(ConfigFlags)).name)
     result.setPrivateTools(GeoDetectorTool(name, **kwargs))
     return result
 
 
 def TRTGeoDetectorToolCfg(ConfigFlags, name='TRT', **kwargs):
     #set up geometry
-    result=InDetGeometryCfg(ConfigFlags)
+    from TRT_GeoModel.TRT_GeoModelConfig import TRT_SimulationGeometryCfg
+    result = TRT_SimulationGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "TRT")
     #add the GeometryNotifierSvc
-    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
-    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
+    kwargs.setdefault("GeometryNotifierSvc", result.getPrimaryAndMerge(G4GeometryNotifierSvcCfg(ConfigFlags)).name)
     result.setPrivateTools(GeoDetectorTool(name, **kwargs))
     return result
 
 
 def IDetServicesMatGeoDetectorToolCfg(ConfigFlags, name='IDetServicesMat', **kwargs):
     #set up geometry
-    result=InDetServiceMaterialCfg(ConfigFlags)
+    from InDetServMatGeoModel.InDetServMatGeoModelConfig import InDetServiceMaterialCfg
+    result = InDetServiceMaterialCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "InDetServMat")
     #add the GeometryNotifierSvc
-    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
-    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
+    kwargs.setdefault("GeometryNotifierSvc", result.getPrimaryAndMerge(G4GeometryNotifierSvcCfg(ConfigFlags)).name)
     result.setPrivateTools(GeoDetectorTool(name, **kwargs))
     return result
 
 
 def LArMgrGeoDetectorToolCfg(ConfigFlags, name='LArMgr', **kwargs):
     #set up geometry
-    result=LArGMCfg(ConfigFlags)
+    from LArGeoAlgsNV.LArGMConfig import LArGMCfg
+    result = LArGMCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "LArMgr")
     #add the GeometryNotifierSvc
-    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
-    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
+    kwargs.setdefault("GeometryNotifierSvc", result.getPrimaryAndMerge(G4GeometryNotifierSvcCfg(ConfigFlags)).name)
     result.setPrivateTools(GeoDetectorTool(name, **kwargs))
     return result
 
 
 def TileGeoDetectorToolCfg(ConfigFlags, name='Tile', **kwargs):
     #set up geometry
-    result=TileGMCfg(ConfigFlags)
+    from TileGeoModel.TileGMConfig import TileGMCfg
+    result = TileGMCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "Tile")
     #add the GeometryNotifierSvc
-    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
-    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
+    kwargs.setdefault("GeometryNotifierSvc", result.getPrimaryAndMerge(G4GeometryNotifierSvcCfg(ConfigFlags)).name)
     result.setPrivateTools(GeoDetectorTool(name, **kwargs))
     return result
 
 
 def LucidGeoDetectorToolCfg(ConfigFlags, name='Lucid', **kwargs):
     #set up geometry
+    from AtlasGeoModel.ForDetGeoModelConfig import ForDetGeometryCfg
     result=ForDetGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "LUCID")
     #add the GeometryNotifierSvc
-    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
-    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
+    kwargs.setdefault("GeometryNotifierSvc", result.getPrimaryAndMerge(G4GeometryNotifierSvcCfg(ConfigFlags)).name)
     result.setPrivateTools(GeoDetectorTool(name, **kwargs))
     return result
 
 
 def ALFAGeoDetectorToolCfg(ConfigFlags, name='ALFA', **kwargs):
     #set up geometry
-    result=ForDetGeometryCfg(ConfigFlags)
+    from AtlasGeoModel.ForDetGeoModelConfig import ForDetGeometryCfg
+    result = ForDetGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "ALFA")
     #add the GeometryNotifierSvc
-    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
-    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
+    kwargs.setdefault("GeometryNotifierSvc", result.getPrimaryAndMerge(G4GeometryNotifierSvcCfg(ConfigFlags)).name)
     result.setPrivateTools(GeoDetectorTool(name, **kwargs))
     return result
 
 
 def ZDCGeoDetectorToolCfg(ConfigFlags, name='ZDC', **kwargs):
     #set up geometry
-    result=ForDetGeometryCfg(ConfigFlags)
+    from AtlasGeoModel.ForDetGeoModelConfig import ForDetGeometryCfg
+    result = ForDetGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "ZDC")
     #add the GeometryNotifierSvc
-    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
-    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
+    kwargs.setdefault("GeometryNotifierSvc", result.getPrimaryAndMerge(G4GeometryNotifierSvcCfg(ConfigFlags)).name)
     result.setPrivateTools(GeoDetectorTool(name, **kwargs))
     return result
 
 
 def AFPGeoDetectorToolCfg(ConfigFlags, name='AFP', **kwargs):
     #set up geometry
-    result=ForDetGeometryCfg(ConfigFlags)
+    from AtlasGeoModel.ForDetGeoModelConfig import ForDetGeometryCfg
+    result = ForDetGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "AFP")
     kwargs.setdefault("GeoDetectorName", "AFP_GeoModel")
     #add the GeometryNotifierSvc
-    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
-    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
+    kwargs.setdefault("GeometryNotifierSvc", result.getPrimaryAndMerge(G4GeometryNotifierSvcCfg(ConfigFlags)).name)
     result.setPrivateTools(GeoDetectorTool(name, **kwargs))
     return result
 
 
 def FwdRegionGeoDetectorToolCfg(ConfigFlags, name='FwdRegion', **kwargs):
     #set up geometry
-    result=ForDetGeometryCfg(ConfigFlags)
+    from AtlasGeoModel.ForDetGeoModelConfig import ForDetGeometryCfg
+    result = ForDetGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "FwdRegion")
     kwargs.setdefault("GeoDetectorName", "ForwardRegionGeoModel")
     #add the GeometryNotifierSvc
-    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
-    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
+    kwargs.setdefault("GeometryNotifierSvc", result.getPrimaryAndMerge(G4GeometryNotifierSvcCfg(ConfigFlags)).name)
     result.setPrivateTools(GeoDetectorTool(name, **kwargs))
     return result
 
 
 def MuonGeoDetectorToolCfg(ConfigFlags, name='Muon', **kwargs):
     #set up geometry
-    result=MuonGeoModelCfg(ConfigFlags)
+    from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
+    result = MuonGeoModelCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "Muon")
     #add the GeometryNotifierSvc
-    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
-    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
+    kwargs.setdefault("GeometryNotifierSvc", result.getPrimaryAndMerge(G4GeometryNotifierSvcCfg(ConfigFlags)).name)
     result.setPrivateTools(GeoDetectorTool(name, **kwargs))
     return result
 
@@ -224,8 +227,7 @@ def getCavernInfraGeoDetectorTool(ConfigFlags, name='CavernInfra', **kwargs):
     result = ComponentAccumulator() #needs geometry setting up!
     kwargs.setdefault("DetectorName", "CavernInfra")
     #add the GeometryNotifierSvc
-    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
-    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
+    kwargs.setdefault("GeometryNotifierSvc", result.getPrimaryAndMerge(G4GeometryNotifierSvcCfg(ConfigFlags)).name)
     result.setPrivateTools(GeoDetectorTool(name, **kwargs))
     return result
 
@@ -234,10 +236,10 @@ def ITKEnvelopeCfg(ConfigFlags, name="ITK", **kwargs):
     result = ComponentAccumulator()
 
     kwargs.setdefault("DetectorName", "ITK")
-    kwargs.setdefault("InnerRadius", 32.15*mm)
+    kwargs.setdefault("InnerRadius", 28.8*mm)
     kwargs.setdefault("OuterRadius", 1.148*m)
-    if ConfigFlags.Detector.GeometryHGTD:
-        # ITk should include the HGTD (3420 mm < |z| < 3545 mm) when turned on
+    if ConfigFlags.GeoModel.Run not in ["RUN1", "RUN2", "RUN3"]:
+        # ITk should include the HGTD (3420 mm < |z| < 3545 mm) for now
         kwargs.setdefault("dZ", 354.5*cm)
     else:
         kwargs.setdefault("dZ", 347.5*cm)
@@ -249,6 +251,13 @@ def ITKEnvelopeCfg(ConfigFlags, name="ITK", **kwargs):
     if ConfigFlags.Detector.GeometryITkStrip:
         toolITkStrip = result.popToolsAndMerge(ITkStripGeoDetectorToolCfg(ConfigFlags))
         SubDetectorList += [toolITkStrip]
+    if ConfigFlags.Detector.GeometryPLR:
+        toolPLR = result.popToolsAndMerge(PLRGeoDetectorToolCfg(ConfigFlags))
+        SubDetectorList += [toolPLR]
+    # TODO: for now HGTD is also here
+    if ConfigFlags.Detector.GeometryHGTD:
+        toolHGTD = result.popToolsAndMerge(HGTDGeoDetectorToolCfg(ConfigFlags))
+        SubDetectorList += [toolHGTD]
 
     kwargs.setdefault("SubDetectors", SubDetectorList)
     result.setPrivateTools(CylindricalEnvelope(name, **kwargs))
@@ -290,8 +299,8 @@ def CALOEnvelopeCfg(ConfigFlags, name="CALO", **kwargs):
     kwargs.setdefault("NSurfaces", 18)
     kwargs.setdefault("InnerRadii", [41.,41.,41.,41.,41.,41.,120.,120.,1148.,1148.,120.,120.,41.,41.,41.,41.,41.,41.]) #FIXME Units?
     kwargs.setdefault("OuterRadii", [415.,415.,3795.,3795.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,3795.,3795.,415.,415.]) #FIXME Units?
-    if ConfigFlags.Detector.GeometryHGTD:
-        # Make room for HGTD (3420 mm < |z| < 3545 mm) when turned on
+    if ConfigFlags.GeoModel.Run not in ["RUN1", "RUN2", "RUN3"]:
+        # Make room for HGTD (3420 mm < |z| < 3545 mm)
         kwargs.setdefault("ZSurfaces", [-6781.,-6747.,-6747.,-6530.,-6530.,-4587.,-4587.,-3545.,-3545.,3545.,3545.,4587.,4587.,6530.,6530.,6747.,6747.,6781.]) #FIXME Units?
     else:
         kwargs.setdefault("ZSurfaces", [-6781.,-6747.,-6747.,-6530.,-6530.,-4587.,-4587.,-3475.,-3475.,3475.,3475.,4587.,4587.,6530.,6530.,6747.,6747.,6781.]) #FIXME Units?
@@ -379,12 +388,9 @@ def generateSubDetectorList(ConfigFlags):
     if ConfigFlags.Detector.GeometryID:
         toolIDET = result.popToolsAndMerge(IDETEnvelopeCfg(ConfigFlags))
         SubDetectorList += [ toolIDET ]
-    if ConfigFlags.Detector.GeometryITk:
+    if ConfigFlags.Detector.GeometryITk or ConfigFlags.Detector.GeometryHGTD:  # TODO: HGTD is also here for now
         toolITK = result.popToolsAndMerge(ITKEnvelopeCfg(ConfigFlags))
         SubDetectorList += [ toolITK ]
-    if ConfigFlags.Detector.GeometryHGTD:
-        toolHGTD = result.popToolsAndMerge(HGTDGeoDetectorToolCfg(ConfigFlags))
-        SubDetectorList += [ toolHGTD ]
     if ConfigFlags.Detector.GeometryCalo:
         toolCALO = result.popToolsAndMerge(CALOEnvelopeCfg(ConfigFlags))
         SubDetectorList += [ toolCALO ]
@@ -532,9 +538,12 @@ def getATLAS_RegionCreatorList(ConfigFlags):
                 regionCreatorList += [FWDBeamLinePhysicsRegionToolCfg(ConfigFlags)]
     if ConfigFlags.Detector.GeometryITk:
         if ConfigFlags.Detector.GeometryITkPixel:
-            regionCreatorList += [ITkPixelPhysicsRegionToolCfg(ConfigFlags)] #TODO: add dedicated config
+            regionCreatorList += [ITkPixelPhysicsRegionToolCfg(ConfigFlags)]
         if ConfigFlags.Detector.GeometryITkStrip:
-            regionCreatorList += [ITkStripPhysicsRegionToolCfg(ConfigFlags)] #TODO: And here...
+            regionCreatorList += [ITkStripPhysicsRegionToolCfg(ConfigFlags)]
+    if ConfigFlags.Detector.GeometryHGTD:
+        regionCreatorList += [HGTDPhysicsRegionToolCfg(ConfigFlags)]
+    if ConfigFlags.Detector.GeometryITk or ConfigFlags.Detector.GeometryHGTD:  # TODO: I do not know why this is only for ITk (and HGTD)
         # FIXME dislike the ordering here, but try to maintain the same ordering as in the old configuration.
         if ConfigFlags.Detector.GeometryBpipe:
             if ConfigFlags.Sim.BeamPipeSimMode != "Normal":
@@ -623,8 +632,11 @@ def ATLAS_FieldMgrListCfg(ConfigFlags):
         acc = InDetFieldManagerToolCfg(ConfigFlags)
         tool  = result.popToolsAndMerge(acc)
         fieldMgrList += [tool]
-    #if ConfigFlags.Detector.GeometryCalo and simFlags.MuonFieldOnlyInCalo.statusOn and simFlags.MuonFieldOnlyInCalo():
-    if False:
+    if ConfigFlags.Detector.GeometryITk or ConfigFlags.Detector.GeometryHGTD:  # TODO: while HGTD is included in the ITK envelope
+        acc = ITkFieldManagerToolCfg(ConfigFlags)
+        tool  = result.popToolsAndMerge(acc)
+        fieldMgrList += [tool]
+    if ConfigFlags.Detector.GeometryCalo and ConfigFlags.Sim.MuonFieldOnlyInCalo:
         acc = MuonsOnlyInCaloFieldManagerToolCfg(ConfigFlags)
         tool  = result.popToolsAndMerge(acc)
         fieldMgrList += [tool]
@@ -760,6 +772,7 @@ def G4AtlasDetectorConstructionToolCfg(ConfigFlags, name="G4AtlasDetectorConstru
 
 
 def CavernInfraGeoDetectorToolCfg(ConfigFlags, name='CavernInfra', **kwargs):
+    from AtlasGeoModel.CavernGMConfig import CavernGeometryCfg
     result = CavernGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "CavernInfra")
     result.setPrivateTools(GeoDetectorTool(name, **kwargs))
@@ -790,8 +803,8 @@ def CavernWorldCfg(ConfigFlags, name="Cavern", **kwargs):
     # Subtraction Solid - has to be a better way to do this!!
     kwargs.setdefault("NumberOfHoles", 1)
     kwargs.setdefault("HoleNames", ['BelowCavern'])
-    kwargs.setdefault("Hole_dX",   [bedrockDX]) 
-    kwargs.setdefault("Hole_dY",   [41000]) 
+    kwargs.setdefault("Hole_dX",   [bedrockDX])
+    kwargs.setdefault("Hole_dY",   [41000])
     kwargs.setdefault("Hole_dZ",   [bedrockDZ])
 
     kwargs.setdefault("HolePosX",  [0])
@@ -801,7 +814,7 @@ def CavernWorldCfg(ConfigFlags, name="Cavern", **kwargs):
     SubDetectorList = []
     SubDetectorList += [ result.popToolsAndMerge(CavernInfraGeoDetectorToolCfg(ConfigFlags))]
     SubDetectorList += [ result.popToolsAndMerge(ATLASEnvelopeCfg(ConfigFlags))]
-    
+
     kwargs.setdefault("SubDetectors", SubDetectorList)
     result.setPrivateTools(BoxEnvelope(name, **kwargs))
     return result

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
      
@@ -20,6 +20,7 @@
 #include "TrkParameters/TrackParameters.h"
 
 #include "StoreGate/ReadCondHandle.h"
+#include "CxxUtils/checker_macros.h"
 #include <iomanip>
 #include <ostream>
 
@@ -2561,7 +2562,9 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::writeNtuple(const SiSpacePointsSeed* s
     m_givesTrack   =   !(track == nullptr);
     m_eventNumber  =   eventNumber;
 
-    m_outputTree->Fill();
+    // Ok: protected by mutex.
+    TTree* outputTree ATLAS_THREAD_SAFE = m_outputTree;
+    outputTree->Fill();
 
   }
 
@@ -2649,7 +2652,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newSeed
 void InDet::SiSpacePointsSeedMaker_ATLxk::initializeEventData(EventData& data) const {
   int seedArrayPerSPSize = (m_maxOneSizePPP>m_maxOneSizeSSS ? m_maxOneSizePPP : m_maxOneSizeSSS); 
   if (m_alwaysKeepConfirmedStripSeeds || m_alwaysKeepConfirmedPixelSeeds)  seedArrayPerSPSize = 50; 
-  data.initialize(EventData::ATLxk,
+  data.initialize(EventData::ToolType::ATLxk,
                   m_maxsizeSP,
                   seedArrayPerSPSize,
                   0, /// maxsize not used

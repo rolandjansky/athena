@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from egammaRec.Factories import ToolFactory, PublicToolFactory
+from egammaRec.Factories import ToolFactory
 from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
 __doc__ = """ToolFactories to instantiate InDet tools
 for egamma with default configuration"""
@@ -10,9 +10,6 @@ __author__ = "Bruno Lenzi"
 
 
 def configureExtrapolator(egammaExtrapolator):
-
-    # this turns off dynamic calculation of eloss in calorimeters
-    egammaExtrapolator.DoCaloDynamic = False
 
     # all left to MaterialEffects/EnergyLossUpdators
     from TrkExTools.TrkExToolsConf import (
@@ -76,13 +73,6 @@ def configureExtrapolator(egammaExtrapolator):
 egammaExtrapolator = ToolFactory(
     AtlasExtrapolator,
     name='egammaExtrapolator')
-
-# The general use extrapolator same as ATLAS default.
-# Public as still needed due to some InnerDetector/Tracking
-# tools
-AtlasPublicExtrapolator = PublicToolFactory(
-    AtlasExtrapolator,
-    name='AtlasPublicExtrapolator')
 
 # Extrapolator specialized for the e/gamma specific calo extrapolations
 # i.e ignore material effect that are not relevant.

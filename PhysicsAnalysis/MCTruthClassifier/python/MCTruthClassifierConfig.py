@@ -1,53 +1,65 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-__doc__ = "Tool configuration to instantiate MCTruthClassifier with default configurations."
+__doc__ = """
+          Tool configuration to instantiate MCTruthClassifier
+          with default configurations."""
 
-#---------------------------------------
 
 def MCTruthClassifierCfg(flags, **kwargs):
-    """ 
+    """
     This is the default configuration allowing all options.
     By default, it does not do calo truth matching.
     """
-    kwargs.setdefault("ParticleCaloExtensionTool","")
+    kwargs.setdefault("ParticleCaloExtensionTool", "")
+    kwargs.setdefault("CaloDetDescrManager", "")
     return MCTruthClassifierCaloTruthMatchCfg(flags, **kwargs)
 
+
 def MCTruthClassifierCaloTruthMatchCfg(flags, **kwargs):
-    """ 
+    """
     This is the default configuration allowing all options.
-    By default, it does calo truth matching.
+    By default, it does calo truth matching using a
+    dedicated instance of the extrapolator.
     """
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    acc=ComponentAccumulator()
+    acc = ComponentAccumulator()
 
     if "ParticleCaloExtensionTool" not in kwargs:
-        from TrackToCalo.TrackToCaloConfig import ParticleCaloExtensionToolCfg
-        extAcc = ParticleCaloExtensionToolCfg(flags)
-        kwargs["ParticleCaloExtensionTool"] = extAcc.popPrivateTools()
-        acc.merge(extAcc)
 
+        from TrkConfig.AtlasExtrapolatorConfig import (
+            MCTruthClassifierExtrapolatorCfg)
+        extrapolator = acc.popToolsAndMerge(
+            MCTruthClassifierExtrapolatorCfg(flags))
+        from egammaTrackTools.egammaTrackToolsConfig import (
+            EMParticleCaloExtensionToolCfg)
+        extension = EMParticleCaloExtensionToolCfg(
+            flags, Extrapolator=extrapolator)
+        kwargs["ParticleCaloExtensionTool"] = acc.popToolsAndMerge(extension)
+
+    kwargs.setdefault("CaloDetDescrManager", "CaloDetDescrManager")
     kwargs.setdefault("barcodeG4Shift", flags.Sim.SimBarcodeOffset + 1)
 
     from AthenaConfiguration.ComponentFactory import CompFactory
-    MCTruthClassifier=CompFactory.MCTruthClassifier
-
-    acc.setPrivateTools(MCTruthClassifier(**kwargs))
+    acc.setPrivateTools(CompFactory.MCTruthClassifier(**kwargs))
     return acc
 
+
 ##########################################################
-# The functions below are for the old style and should be
+# The function below are for the old style and should be
 # condsidered deprecated
 ##########################################################
 
-def firstSimCreatedBarcode():
-    """DEPRECATED!!! Return the simulation barcode offset for G4 particles from metadata
 
+def firstSimCreatedBarcode():
+    """DEPRECATED!!! Return the simulation barcode offset for G4
+    particles from metadata
     In the new configuration scheme use the Sim.SimBarcodeOffset flag instead
     """
 
     from AthenaCommon.Logging import logging
     mlog = logging.getLogger("firstSimCreatedBarcode")
-    mlog.info("This function should not be used in the new configuration scheme. Use Sim.SimBarcodeOffset flag insted")
+    mlog.info("This function should not be used in the new configuration"
+              "scheme. Use Sim.SimBarcodeOffset flag insted")
 
     offset = 200e3
 
@@ -55,41 +67,33 @@ def firstSimCreatedBarcode():
     # without a proper input file.
     # Is there a better way of doing this test?
     from AthenaCommon.AppMgr import theApp
-    if getattr (theApp, 'EvtSel', None) == 'McEventSelector/EventSelector':
+    if getattr(theApp, 'EvtSel', None) == 'McEventSelector/EventSelector':
         mlog.info('Generator job: leaving SimBarcodeOffset at 200k')
 
     else:
         from RecExConfig.InputFilePeeker import inputFileSummary
         try:
-            offset = int(inputFileSummary['metadata']['/Simulation/Parameters']['SimBarcodeOffset'])
+            offset = int(
+                inputFileSummary['metadata']['/Simulation/Parameters']['SimBarcodeOffset'])
         except Exception:
-            mlog.info('Could not retrieve SimBarcodeOffset from /Simulation/Parameters, leaving at 200k')
+            mlog.info(
+                'Could not retrieve SimBarcodeOffset from /Simulation/Parameters, leaving at 200k')
     return int(offset + 1)
 
-
-def getMCTruthClassifier(name="MCTruthClassifier", **kwargs):
-    from AthenaCommon import CfgMgr
-    kwargs.setdefault("barcodeG4Shift", firstSimCreatedBarcode())
-    return CfgMgr.MCTruthClassifier(name, **kwargs)
-
-def getJetMCTruthClassifier(name="JetMCTruthClassifier", **kwargs):
-    kwargs.setdefault("ParticleCaloExtensionTool","")
-    return getMCTruthClassifier(name, **kwargs)
-
-##########################################################
 
 if __name__ == "__main__":
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    from AthenaCommon.Logging import log, logging
-    from AthenaCommon.Constants import DEBUG
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+    from AthenaCommon.Logging import logging
     from AthenaCommon.Configurable import Configurable
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, printProperties
+
+    from AthenaConfiguration.ComponentAccumulator import (
+        ComponentAccumulator, printProperties)
     Configurable.configurableRun3Behavior = 1
-    log.setLevel(DEBUG)
 
     ConfigFlags.Input.isMC = True
-    ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.0/myRDO.pool.root"]
+    ConfigFlags.Input.Files = defaultTestFiles.RDO_RUN2
     ConfigFlags.lock()
 
     mlog = logging.getLogger("MCTruthClassifierConfigTest")
@@ -97,12 +101,18 @@ if __name__ == "__main__":
     cfg = ComponentAccumulator()
 
     mlog.info("Configuring standard MCTruthClassifier")
-    acc1 = MCTruthClassifierCfg(ConfigFlags)
-    printProperties(mlog, acc1.popPrivateTools(), 1)
+    printProperties(mlog,
+                    cfg.getPrimaryAndMerge(
+                        MCTruthClassifierCfg(ConfigFlags)),
+                    nestLevel=1,
+                    printDefaults=True)
 
     mlog.info("Configuring MCTruthClassifier with calo truth matching")
-    acc2 = MCTruthClassifierCaloTruthMatchCfg(ConfigFlags)
-    printProperties(mlog, acc2.popPrivateTools(), 1)
+    printProperties(mlog,
+                    cfg.getPrimaryAndMerge(
+                        MCTruthClassifierCaloTruthMatchCfg(ConfigFlags)),
+                    nestLevel=1,
+                    printDefaults=True)
 
     f = open("mctruthclassifer.pkl", "wb")
     cfg.store(f)

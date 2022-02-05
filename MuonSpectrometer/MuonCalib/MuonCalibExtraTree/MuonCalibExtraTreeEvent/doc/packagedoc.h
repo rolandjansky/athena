@@ -8,7 +8,7 @@
 
 @section MuonCalibExtraTreeEvent_MuonCalibExtraTreeEventIntro Introduction
 
-MuonCalibExtraTreeEventEvent is the package responsible for configuring the filling of the extended CalibrationNtuple within athena. 
+MuonCalibExtraTreeEventEvent is the package responsible for configuring the filling of the extended CalibrationNtuple within athena.
 
 
 @section MuonCalibExtraTreeEvent_MuonCalibExtraTreeEventOverview Class Overview
@@ -16,12 +16,12 @@ MuonCalibExtraTreeEventEvent is the package responsible for configuring the fill
 - MuonCalib::MuonCalibEvent_E :
 
 - MuonCalib::MuonCalibHit_E
-   
+
 - MuonCalib::MuonCalibHole_E
 
 - MuonCalib::MuonCalibTrack_E
 
 
-                                                                                
-                                                                                
+
+
 */

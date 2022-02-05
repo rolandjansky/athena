@@ -59,17 +59,6 @@ TGCTileMuCoincidenceLUT::TGCTileMuCoincidenceLUT(const TGCTileMuCoincidenceLUT& 
   m_trigbit = right.m_trigbit;
 }
 
-TGCTileMuCoincidenceLUT& TGCTileMuCoincidenceLUT::operator=(const TGCTileMuCoincidenceLUT& right)
-{
-  if (this != &right) {
-    m_flagpt = right.m_flagpt;
-    m_flagroi = right.m_flagroi;
-    m_trigbit = right.m_trigbit;
-    m_verName = right.m_verName;
-  }
-  return  *this;
-}
-
 bool TGCTileMuCoincidenceLUT::readMap() 
 {
   IMessageSvc* msgSvc = 0;

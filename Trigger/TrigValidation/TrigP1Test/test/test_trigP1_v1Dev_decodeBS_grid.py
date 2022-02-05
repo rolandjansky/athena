@@ -59,7 +59,7 @@ writeBS.input = 'data'
 writeBS.threads = 4
 writeBS.concurrent_events = 4
 writeBS.args = '-o output'
-writeBS.args += ' -c "setMenu=\'LS2_v1_TriggerValidation_prescale\';doL1Sim=True;rewriteLVL1=True;"'  # LS2_v1 to be renamed to Dev_pp_run3_v1
+writeBS.args += ' -c "setMenu=\'Dev_pp_run3_v1_TriggerValidation_prescale\';doL1Sim=True;rewriteLVL1=True;"'  
 writeBS.args += ' --dump-config-reload'
 
 # Extract and decode physics_Main

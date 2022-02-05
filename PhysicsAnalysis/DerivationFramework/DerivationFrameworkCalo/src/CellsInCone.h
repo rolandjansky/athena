@@ -8,10 +8,15 @@
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "xAODEgamma/EgammaFwd.h"
 class CaloCellContainer;
-
+class CaloDetDescrManager;
 namespace DerivationFramework {
-  namespace CellsInCone{
-    void egammaSelect(xAOD::CaloCluster* inputCl, const CaloCellContainer* inputcells, const xAOD::Egamma* eg, const double dr) ;
-  }
+namespace CellsInCone {
+void
+egammaSelect(xAOD::CaloCluster* inputCl,
+             const CaloCellContainer* inputcells,
+             const CaloDetDescrManager* caloMgr,
+             const xAOD::Egamma* eg,
+             const double dr);
+}
 }
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -90,14 +90,14 @@ StatusCode Trk::CylinderVolumeCreator::initialize()
     return StatusCode::SUCCESS;
 }
 
+Trk::TrackingVolume* Trk::CylinderVolumeCreator::createTrackingVolume
+ATLAS_NOT_THREAD_SAFE(const std::vector<const Trk::Layer*>& layers,
+                      Trk::Material& matprop,
+                      Trk::VolumeBounds* volBounds,
+                      Amg::Transform3D* transform,
+                      const std::string& volumeName,
+                      Trk::BinningType btype) const
 
-const Trk::TrackingVolume* Trk::CylinderVolumeCreator::createTrackingVolume(
-                                                 const std::vector<const Trk::Layer*>& layers,
-                                                 Trk::Material& matprop,
-                                                 Trk::VolumeBounds* volBounds,
-                                                 Amg::Transform3D* transform,
-                                                 const std::string& volumeName,
-                                                 Trk::BinningType btype) const
 {
     
     // the final one to build / sensitive Volume / Bounds
@@ -117,9 +117,9 @@ const Trk::TrackingVolume* Trk::CylinderVolumeCreator::createTrackingVolume(
             return tVolume;
         }
     }
-    std::vector<const Trk::CylinderLayer*> cylLayers;
+    std::vector<Trk::CylinderLayer*> cylLayers;
     cylLayers.reserve(layers.size());
-    std::vector<const Trk::DiscLayer*> discLayers;
+    std::vector<Trk::DiscLayer*> discLayers;
     discLayers.reserve(layers.size());
 
     // the raw data
@@ -194,63 +194,61 @@ const Trk::TrackingVolume* Trk::CylinderVolumeCreator::createTrackingVolume(
     return tVolume;
 }
 
-
-const Trk::TrackingVolume* Trk::CylinderVolumeCreator::createTrackingVolume(
-                                                 const std::vector<const Trk::Layer*>& layers,
-                                                 Trk::Material& matprop,
-                                                 double rMin, double rMax,
-                                                 double zMin, double zMax,
-                                                 const std::string& volumeName,
-                                                 Trk::BinningType btype) const
+Trk::TrackingVolume* Trk::CylinderVolumeCreator::createTrackingVolume
+ATLAS_NOT_THREAD_SAFE(const std::vector<const Trk::Layer*>& layers,
+                      Trk::Material& matprop,
+                      double rMin,
+                      double rMax,
+                      double zMin,
+                      double zMax,
+                      const std::string& volumeName,
+                      Trk::BinningType btype) const
 {
-    // that's what is needed
-    Trk::CylinderVolumeBounds* cBounds     = nullptr;
+  // that's what is needed
+  Trk::CylinderVolumeBounds* cBounds = nullptr;
 
-    // screen output
-    ATH_MSG_VERBOSE( "Create cylindrical TrackingVolume '" << volumeName << "'.");
-    ATH_MSG_VERBOSE( "    -> with given dimensions of (rMin/rMax/zMin/Max) = " 
-            << rMin << " / " << rMax << " / " << zMin << " / " << zMax );
+  // screen output
+  ATH_MSG_VERBOSE("Create cylindrical TrackingVolume '" << volumeName << "'.");
+  ATH_MSG_VERBOSE("    -> with given dimensions of (rMin/rMax/zMin/Max) = "
+                  << rMin << " / " << rMax << " / " << zMin << " / " << zMax);
 
-    // check for consistency
-    if (zMin > zMax || rMin > rMax) {
-        ATH_MSG_WARNING( "Inconsistent dimensions given :"
-                <<   ( ( zMin > zMax ) ? " zMin > zMax (" : " rMin > rMax (" )
-                <<   ( ( zMin > zMax ) ?  zMin : rMin ) << " > "
-                <<   ( ( zMin > zMax ) ?  zMax : rMax ) << " ) - return 0" );
-        return nullptr;
-    }
+  // check for consistency
+  if (zMin > zMax || rMin > rMax) {
+    ATH_MSG_WARNING("Inconsistent dimensions given :"
+                    << ((zMin > zMax) ? " zMin > zMax (" : " rMin > rMax (")
+                    << ((zMin > zMax) ? zMin : rMin) << " > "
+                    << ((zMin > zMax) ? zMax : rMax) << " ) - return 0");
+    return nullptr;
+  }
 
-    // create a Amg::Transform3D and VolumeBounds out of the zMin/zMax
-    double halflengthZ = 0.5 * (zMax-zMin);
-    double zPosition   = 0.5 * (zMin+zMax);
-    zPosition = fabs(zPosition) < 0.1 ? 0. : zPosition;
+  // create a Amg::Transform3D and VolumeBounds out of the zMin/zMax
+  double halflengthZ = 0.5 * (zMax - zMin);
+  double zPosition = 0.5 * (zMin + zMax);
+  zPosition = fabs(zPosition) < 0.1 ? 0. : zPosition;
 
-    // now create the cylinder volume bounds
-    cBounds = rMin > 0.1 ? new Trk::CylinderVolumeBounds(rMin, rMax, halflengthZ) :
-                           new Trk::CylinderVolumeBounds(rMax, halflengthZ);
-    // transform
-    Amg::Transform3D* transform = (zPosition != 0) ? new Amg::Transform3D : nullptr;
-    if (transform) 
-       (*transform) =  Amg::Translation3D(0.,0.,zPosition);
-                          
+  // now create the cylinder volume bounds
+  cBounds = rMin > 0.1 ? new Trk::CylinderVolumeBounds(rMin, rMax, halflengthZ)
+                       : new Trk::CylinderVolumeBounds(rMax, halflengthZ);
+  // transform
+  Amg::Transform3D* transform =
+    (zPosition != 0) ? new Amg::Transform3D : nullptr;
+  if (transform)
+    (*transform) = Amg::Translation3D(0., 0., zPosition);
 
-    // call to the Bounds/Amg::Translation3D method
-    return createTrackingVolume(layers,
-                                matprop,
-                                cBounds,
-                                transform,
-                                volumeName,
-                                btype);
+  // call to the Bounds/Amg::Translation3D method
+  return createTrackingVolume(
+    layers, matprop, cBounds, transform, volumeName, btype);
 }
 
-
-const Trk::TrackingVolume* Trk::CylinderVolumeCreator::createGapTrackingVolume(
-                                              Trk::Material& matprop,
-                                              double rMin, double rMax,
-                                              double zMin, double zMax,
-                                              unsigned int materialLayers,
-                                              bool cylinder,
-                                              const std::string& volumeName) const
+Trk::TrackingVolume*
+Trk::CylinderVolumeCreator::createGapTrackingVolume(Trk::Material& matprop,
+                                                    double rMin,
+                                                    double rMax,
+                                                    double zMin,
+                                                    double zMax,
+                                                    unsigned int materialLayers,
+                                                    bool cylinder,
+                                                    const std::string& volumeName) const
 {
 
     // screen output
@@ -283,178 +281,197 @@ const Trk::TrackingVolume* Trk::CylinderVolumeCreator::createGapTrackingVolume(
                                    volumeName,
                                    (layerPositions.size() == 1 ? Trk::arbitrary : Trk::biequidistant));
 
-}                                              
-
-
-const Trk::TrackingVolume* Trk::CylinderVolumeCreator::createGapTrackingVolume(
-                                              Trk::Material& matprop,
-                                              double rMin, double rMax,
-                                              double zMin, double zMax,
-                                              const std::vector<double>& layerPositions,
-                                              bool cylinder,
-                                              const std::string& volumeName,
-                                              BinningType btype) const
-{
-
-    // screen output
-    ATH_MSG_VERBOSE( "Create cylindrical gap TrackingVolume '" << volumeName << "' with (rMin/rMax/zMin/Max) = ");
-    ATH_MSG_VERBOSE( '\t' << rMin << " / " << rMax << " / " << zMin << " / " << zMax );
-
-    // create the layers
-    std::vector<const Trk::Layer*> layers;
-    layers.reserve(layerPositions.size());
-
-    std::vector<double>::const_iterator layerPropIter = layerPositions.begin();
-    std::vector<double>::const_iterator layerPropEnd  = layerPositions.end();
-    for ( ; layerPropIter != layerPropEnd; ++layerPropIter) {
-        // create cylinder layers
-        if (cylinder) {
-            // take envelopes into account
-            double zMinLayer = zMin;
-            double zMaxLayer = zMax;
-            // create the layer
-            layers.push_back(createCylinderLayer(0.5*(zMinLayer+zMaxLayer),
-                                                 (*layerPropIter),
-                                                 fabs(0.5*(zMaxLayer-zMinLayer)),
-                                                 m_passiveLayerThickness,
-                                                 m_passiveLayerPhiBins,
-                                                 m_passiveLayerRzBins) );
-
-        } else {
-            // take the envelopes into account
-            double rMinLayer = rMin;
-            double rMaxLayer = rMax;
-            // create the layer
-            layers.push_back(createDiscLayer((*layerPropIter),
-                                             rMinLayer,
-                                             rMaxLayer,
-                                             m_passiveLayerThickness,
-                                             m_passiveLayerPhiBins,
-                                             m_passiveLayerRzBins) );
-
-        }
-    }    
-    // now call the createTrackingVolume() method
-    return createTrackingVolume(layers,
-                                matprop,
-                                rMin,rMax,
-                                zMin,zMax,
-                                volumeName,
-                                btype);
 }
 
-
-const Trk::TrackingVolume* Trk::CylinderVolumeCreator::createContainerTrackingVolume(
-                                                   const std::vector<const Trk::TrackingVolume*>& volumes,
-                                                   Trk::Material& matprop,
-                                                   const std::string& volumeName,
-                                                   bool buildBoundaryLayers,
-                                                   bool replaceBoundaryFace) const
+Trk::TrackingVolume* Trk::CylinderVolumeCreator::createGapTrackingVolume
+ATLAS_NOT_THREAD_SAFE(Trk::Material& matprop,
+                      double rMin,
+                      double rMax,
+                      double zMin,
+                      double zMax,
+                      const std::vector<double>& layerPositions,
+                      bool cylinder,
+                      const std::string& volumeName,
+                      BinningType btype) const
 {
-    // check if you have more than one volume
-    if (volumes.size() <= (unsigned int)1) {
-        ATH_MSG_WARNING( "None (only one) TrackingVolume given to create container volume (min required: 2) - returning 0 " );
-        return nullptr;
-    }
 
-    // screen output
-    ATH_MSG_VERBOSE( "[start] Creating container volume '" << volumeName << "' with " << volumes.size() << " sub volumes:" );
-    // volumes need to be sorted in either r or z - both increasing
-    // set the iterator to the volumes, the first and the end
-    auto firstVolume = volumes.begin();
-    auto lastVolume = volumes.end();
+  // screen output
+  ATH_MSG_VERBOSE("Create cylindrical gap TrackingVolume '"
+                  << volumeName << "' with (rMin/rMax/zMin/Max) = ");
+  ATH_MSG_VERBOSE('\t' << rMin << " / " << rMax << " / " << zMin << " / "
+                       << zMax);
 
-    for (unsigned int ivol=0 ; firstVolume != lastVolume; ++firstVolume, ++ivol) {
-        ATH_MSG_VERBOSE( "   - volume (" << ivol << ") is : "  << (*firstVolume)->volumeName() );
-        ATH_MSG_VERBOSE( "     at position : " << Amg::toString((*firstVolume)->center()) );
-        ATH_MSG_VERBOSE( "     with bounds : " << (*firstVolume)->volumeBounds()  );
-    }
-          
-    // reset the iterator
-    firstVolume = volumes.begin();
-    --lastVolume; // set to the last volume
+  // create the layers
+  std::vector<const Trk::Layer*> layers;
+  layers.reserve(layerPositions.size());
 
-    if (firstVolume == lastVolume) {
-        ATH_MSG_WARNING( "Only one TrackingVolume given to create Top level volume (min required: 2) - returning 0 " );
-        return nullptr;
-    }
+  std::vector<double>::const_iterator layerPropIter = layerPositions.begin();
+  std::vector<double>::const_iterator layerPropEnd = layerPositions.end();
+  for (; layerPropIter != layerPropEnd; ++layerPropIter) {
+    // create cylinder layers
+    if (cylinder) {
+      // take envelopes into account
+      double zMinLayer = zMin;
+      double zMaxLayer = zMax;
+      // create the layer
+      layers.push_back(createCylinderLayer(0.5 * (zMinLayer + zMaxLayer),
+                                           (*layerPropIter),
+                                           fabs(0.5 * (zMaxLayer - zMinLayer)),
+                                           m_passiveLayerThickness,
+                                           m_passiveLayerPhiBins,
+                                           m_passiveLayerRzBins));
 
-    // get the bounds
-    const Trk::CylinderVolumeBounds* firstVolumeBounds =
-            dynamic_cast<const Trk::CylinderVolumeBounds*>(&((*firstVolume)->volumeBounds()));
-    const Trk::CylinderVolumeBounds* lastVolumeBounds =
-            dynamic_cast<const Trk::CylinderVolumeBounds*>(&((*lastVolume)->volumeBounds()));
-    // check the dynamic cast
-    if (!firstVolumeBounds || !lastVolumeBounds) {
-        ATH_MSG_WARNING( "VolumeBounds given are not of type: Trk::CylinderVolumeBounds (required) - returning 0 " );
-        return nullptr;
-    }
-
-    // check whether it is a r-binned case or a z-binned case
-    bool rCase = fabs(firstVolumeBounds->innerRadius()-lastVolumeBounds->innerRadius()) > 0.1;
-    // fill these ones depending on the rCase though assignment - no parsing at that stage
-    double zMin      = 0.;
-    double zMax      = 0.;
-    double rMin      = 0.;
-    double rMax      = 0.;
-    if (rCase) {
-        zMin = (*firstVolume)->center().z() - firstVolumeBounds->halflengthZ();
-        zMax = (*firstVolume)->center().z() + firstVolumeBounds->halflengthZ();
-        rMin = firstVolumeBounds->innerRadius();
-        rMax = lastVolumeBounds->outerRadius();
     } else {
-        zMin = (*firstVolume)->center().z() - firstVolumeBounds->halflengthZ();
-        zMax = (*lastVolume)->center().z() + lastVolumeBounds->halflengthZ();
-        rMin = firstVolumeBounds->innerRadius();
-        rMax = firstVolumeBounds->outerRadius();
+      // take the envelopes into account
+      double rMinLayer = rMin;
+      double rMaxLayer = rMax;
+      // create the layer
+      layers.push_back(createDiscLayer((*layerPropIter),
+                                       rMinLayer,
+                                       rMaxLayer,
+                                       m_passiveLayerThickness,
+                                       m_passiveLayerPhiBins,
+                                       m_passiveLayerRzBins));
     }
-
-    // estimate the z - position
-    double zPos = 0.5*(zMin+zMax);
-    // create the HEP transform from the stuff known so far
-    Amg::Transform3D* topVolumeTransform = fabs(zPos) > 0.1 ? new Amg::Transform3D : nullptr;
-    if (topVolumeTransform) 
-      (*topVolumeTransform) = Amg::Translation3D(0.,0.,zPos);
-    // create the bounds from the information gathered so far
-    Trk::CylinderVolumeBounds* topVolumeBounds = fabs(rMin) > 0.1 ?
-            new Trk::CylinderVolumeBounds(rMin,rMax,0.5*fabs(zMax-zMin)) : new Trk::CylinderVolumeBounds(rMax,0.5*fabs(zMax-zMin));
-    // create the volume array to fill in
-    Trk::BinnedArray<Trk::TrackingVolume>* volumeArray = (rCase) ?
-            m_trackingVolumeArrayCreator->cylinderVolumesArrayInR(volumes) :
-            m_trackingVolumeArrayCreator->cylinderVolumesArrayInZ(volumes);
-    if (!volumeArray) {
-        ATH_MSG_WARNING( "Creation of TrackingVolume array did not succeed - returning 0 " );
-        delete topVolumeTransform; delete topVolumeBounds;
-        return nullptr;
-    }
-
-    // we have the bounds and the volume array, create the volume
-    Trk::TrackingVolume* topVolume = new Trk::TrackingVolume(topVolumeTransform,
-                                                             topVolumeBounds,
-                                                             matprop,
-                                                             nullptr, volumeArray,
-                                                             volumeName);
-
-    // glueing section --------------------------------------------------------------------------------------
-    if (interGlueTrackingVolume(*topVolume,rCase,buildBoundaryLayers,replaceBoundaryFace).isFailure()) {
-        ATH_MSG_WARNING( "Problem with inter-glueing of TrackingVolumes (needed) - returning 0 " );
-        delete topVolume;
-        return nullptr;
-    }
-
-    ATH_MSG_VERBOSE( "[ end ] return newly created container : " << topVolume->volumeName() );
-
-    return topVolume;
+  }
+  // now call the createTrackingVolume() method
+  return createTrackingVolume(
+    layers, matprop, rMin, rMax, zMin, zMax, volumeName, btype);
 }
 
+Trk::TrackingVolume* Trk::CylinderVolumeCreator::createContainerTrackingVolume
+ATLAS_NOT_THREAD_SAFE(const std::vector<const Trk::TrackingVolume*>& volumes,
+                      Trk::Material& matprop,
+                      const std::string& volumeName,
+                      bool buildBoundaryLayers,
+                      bool replaceBoundaryFace) const
+{
+  // check if you have more than one volume
+  if (volumes.size() <= (unsigned int)1) {
+    ATH_MSG_WARNING("None (only one) TrackingVolume given to create container "
+                    "volume (min required: 2) - returning 0 ");
+    return nullptr;
+  }
+
+  // screen output
+  ATH_MSG_VERBOSE("[start] Creating container volume '"
+                  << volumeName << "' with " << volumes.size()
+                  << " sub volumes:");
+  // volumes need to be sorted in either r or z - both increasing
+  // set the iterator to the volumes, the first and the end
+  auto firstVolume = volumes.begin();
+  auto lastVolume = volumes.end();
+
+  for (unsigned int ivol = 0; firstVolume != lastVolume;
+       ++firstVolume, ++ivol) {
+    ATH_MSG_VERBOSE("   - volume ("
+                    << ivol << ") is : " << (*firstVolume)->volumeName());
+    ATH_MSG_VERBOSE(
+      "     at position : " << Amg::toString((*firstVolume)->center()));
+    ATH_MSG_VERBOSE("     with bounds : " << (*firstVolume)->volumeBounds());
+  }
+
+  // reset the iterator
+  firstVolume = volumes.begin();
+  --lastVolume; // set to the last volume
+
+  if (firstVolume == lastVolume) {
+    ATH_MSG_WARNING("Only one TrackingVolume given to create Top level volume "
+                    "(min required: 2) - returning 0 ");
+    return nullptr;
+  }
+
+  // get the bounds
+  const Trk::CylinderVolumeBounds* firstVolumeBounds =
+    dynamic_cast<const Trk::CylinderVolumeBounds*>(
+      &((*firstVolume)->volumeBounds()));
+  const Trk::CylinderVolumeBounds* lastVolumeBounds =
+    dynamic_cast<const Trk::CylinderVolumeBounds*>(
+      &((*lastVolume)->volumeBounds()));
+  // check the dynamic cast
+  if (!firstVolumeBounds || !lastVolumeBounds) {
+    ATH_MSG_WARNING("VolumeBounds given are not of type: "
+                    "Trk::CylinderVolumeBounds (required) - returning 0 ");
+    return nullptr;
+  }
+
+  // check whether it is a r-binned case or a z-binned case
+  bool rCase = fabs(firstVolumeBounds->innerRadius() -
+                    lastVolumeBounds->innerRadius()) > 0.1;
+  // fill these ones depending on the rCase though assignment - no parsing at
+  // that stage
+  double zMin = 0.;
+  double zMax = 0.;
+  double rMin = 0.;
+  double rMax = 0.;
+  if (rCase) {
+    zMin = (*firstVolume)->center().z() - firstVolumeBounds->halflengthZ();
+    zMax = (*firstVolume)->center().z() + firstVolumeBounds->halflengthZ();
+    rMin = firstVolumeBounds->innerRadius();
+    rMax = lastVolumeBounds->outerRadius();
+  } else {
+    zMin = (*firstVolume)->center().z() - firstVolumeBounds->halflengthZ();
+    zMax = (*lastVolume)->center().z() + lastVolumeBounds->halflengthZ();
+    rMin = firstVolumeBounds->innerRadius();
+    rMax = firstVolumeBounds->outerRadius();
+  }
+
+  // estimate the z - position
+  double zPos = 0.5 * (zMin + zMax);
+  // create the HEP transform from the stuff known so far
+  Amg::Transform3D* topVolumeTransform =
+    fabs(zPos) > 0.1 ? new Amg::Transform3D : nullptr;
+  if (topVolumeTransform)
+    (*topVolumeTransform) = Amg::Translation3D(0., 0., zPos);
+  // create the bounds from the information gathered so far
+  Trk::CylinderVolumeBounds* topVolumeBounds =
+    fabs(rMin) > 0.1
+      ? new Trk::CylinderVolumeBounds(rMin, rMax, 0.5 * fabs(zMax - zMin))
+      : new Trk::CylinderVolumeBounds(rMax, 0.5 * fabs(zMax - zMin));
+  // create the volume array to fill in
+  Trk::BinnedArray<const Trk::TrackingVolume>* volumeArray =
+    (rCase) ? m_trackingVolumeArrayCreator->cylinderVolumesArrayInR(volumes)
+            : m_trackingVolumeArrayCreator->cylinderVolumesArrayInZ(volumes);
+  if (!volumeArray) {
+    ATH_MSG_WARNING(
+      "Creation of TrackingVolume array did not succeed - returning 0 ");
+    delete topVolumeTransform;
+    delete topVolumeBounds;
+    return nullptr;
+  }
+
+  // we have the bounds and the volume array, create the volume
+  Trk::TrackingVolume* topVolume = new Trk::TrackingVolume(topVolumeTransform,
+                                                           topVolumeBounds,
+                                                           matprop,
+                                                           nullptr,
+                                                           volumeArray,
+                                                           volumeName);
+
+  // glueing section
+  // --------------------------------------------------------------------------------------
+  if (interGlueTrackingVolume(
+        *topVolume, rCase, buildBoundaryLayers, replaceBoundaryFace)
+        .isFailure()) {
+    ATH_MSG_WARNING(
+      "Problem with inter-glueing of TrackingVolumes (needed) - returning 0 ");
+    delete topVolume;
+    return nullptr;
+  }
+
+  ATH_MSG_VERBOSE(
+    "[ end ] return newly created container : " << topVolume->volumeName());
+
+  return topVolume;
+}
 
 /** private helper method to estimate and check the dimensions of a tracking volume */
 StatusCode Trk::CylinderVolumeCreator::estimateAndCheckDimension(
                                                  const std::vector<const Trk::Layer*>& layers,
                                                  Trk::CylinderVolumeBounds*& cylinderVolumeBounds,
                                                  Amg::Transform3D*& transform,
-                                                 std::vector<const Trk::CylinderLayer*>& cylinderLayers,
-                                                 std::vector<const Trk::DiscLayer*>& discLayers,
+                                                 std::vector<Trk::CylinderLayer*>& cylinderLayers,
+                                                 std::vector<Trk::DiscLayer*>& discLayers,
                                                  double& rMinClean, double& rMaxClean,
                                                  double& zMinClean, double& zMaxClean,
                                                  Trk::BinningType bType) const
@@ -483,6 +500,8 @@ StatusCode Trk::CylinderVolumeCreator::estimateAndCheckDimension(
 
     // find out what is there
     for (const auto & layerIter : layers) {
+        //class is not thread safe due to this
+      Trk::Layer* mutableLayer = const_cast<Trk::Layer*>(layerIter);
         // initialize
         double currentRmin = 0.;
         double currentRmax = 0.;
@@ -495,7 +514,7 @@ StatusCode Trk::CylinderVolumeCreator::estimateAndCheckDimension(
         if (cylBounds) {
             radial = true;
             // fill it into the cylinderLayer vector
-            cylinderLayers.push_back(dynamic_cast<const Trk::CylinderLayer*>(layerIter));
+            cylinderLayers.push_back(dynamic_cast<Trk::CylinderLayer*>(mutableLayer));
             // get the raw data
             double currentR   = cylBounds->r();
             double centerZ     = (layerIter->surfaceRepresentation()).center().z();
@@ -514,7 +533,7 @@ StatusCode Trk::CylinderVolumeCreator::estimateAndCheckDimension(
                 dynamic_cast<const Trk::DiscBounds*>(&(layerIter->surfaceRepresentation()).bounds());
         if (discBounds) {
             // fill it into the discLayer vector
-            discLayers.push_back(dynamic_cast<const Trk::DiscLayer*>(layerIter));
+            discLayers.push_back(dynamic_cast<Trk::DiscLayer*>(mutableLayer));
             // check for min/max in the cylinder bounds case
             double centerZ     = (layerIter->surfaceRepresentation()).center().z();
             currentRmin = discBounds->rMin();
@@ -611,10 +630,10 @@ StatusCode Trk::CylinderVolumeCreator::interGlueTrackingVolume(Trk::TrackingVolu
     ATH_MSG_VERBOSE( "Glue contained TrackingVolumes of container '" << tVolume.volumeName() << "'." );
 
     // get the glueVolumes descriptor of the top volume to register the outside volumes
-    const Trk::GlueVolumesDescriptor& glueDescr  = tVolume.glueVolumesDescriptor();
+    Trk::GlueVolumesDescriptor& glueDescr  = tVolume.glueVolumesDescriptor();
     
     // so far we know that we can do that (private method)
-    const std::vector<const Trk::TrackingVolume*>& volumes = tVolume.confinedVolumes()->arrayObjects();
+    BinnedArraySpan<Trk::TrackingVolume const * const> volumes = tVolume.confinedVolumes()->arrayObjects();
 
     // the needed iterators
     auto tVolIter = volumes.begin();
@@ -675,20 +694,6 @@ StatusCode Trk::CylinderVolumeCreator::interGlueTrackingVolume(Trk::TrackingVolu
     glueDescr.registerGlueVolumes(Trk::positiveFaceXY,glueVolumesPositiveFace);
     glueDescr.registerGlueVolumes(Trk::tubeInnerCover,glueVolumesInnerTube);
     glueDescr.registerGlueVolumes(Trk::tubeOuterCover,glueVolumesOuterTube);
-    if (msgLvl(MSG::VERBOSE)) {
-        ATH_MSG_VERBOSE( "[GV] Register " << glueVolumesNegativeFace.size() << " volumes at face " <<  Trk::negativeFaceXY << ":" );
-        for ( tVolIter = glueVolumesNegativeFace.begin() ; tVolIter != glueVolumesNegativeFace.end(); ++tVolIter)
-            ATH_MSG_VERBOSE( "   -> volume '" << (*tVolIter)->volumeName() );
-        ATH_MSG_VERBOSE( "[GV] Register " << glueVolumesPositiveFace.size() << " volumes at face " <<  Trk::positiveFaceXY );
-        for ( tVolIter = glueVolumesPositiveFace.begin() ; tVolIter != glueVolumesPositiveFace.end(); ++tVolIter)
-            ATH_MSG_VERBOSE( "   -> volume '" << (*tVolIter)->volumeName() );
-        ATH_MSG_VERBOSE( "[GV] Register " << glueVolumesInnerTube.size() << " volumes at face " <<  Trk::tubeInnerCover );
-        for ( tVolIter = glueVolumesInnerTube.begin() ; tVolIter != glueVolumesInnerTube.end(); ++tVolIter)
-            ATH_MSG_VERBOSE( "   -> volume '" << (*tVolIter)->volumeName() );
-        ATH_MSG_VERBOSE( "[GV] Register " << glueVolumesOuterTube.size() << " volumes at face " <<  Trk::tubeOuterCover );
-        for ( tVolIter = glueVolumesOuterTube.begin() ; tVolIter != glueVolumesOuterTube.end(); ++tVolIter)
-            ATH_MSG_VERBOSE( "   -> volume '" << (*tVolIter)->volumeName() );
-    }
 
     // return success
     return StatusCode::SUCCESS;

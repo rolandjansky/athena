@@ -1000,23 +1000,23 @@ class athenaExecutor(scriptExecutor):
             self._athenaConcurrentEvents = 0
         else:
             # Try to detect AthenaMT mode, number of threads and number of concurrent events
-            self._athenaMT, self._athenaConcurrentEvents = detectAthenaMTThreads(self.conf.argdict, self.name, legacyThreadingRelease)
+            if self._disableMT:
+                self._athenaMT = 0
+            else:
+                self._athenaMT, self._athenaConcurrentEvents = detectAthenaMTThreads(self.conf.argdict, self.name, legacyThreadingRelease)
 
             # Try to detect AthenaMP mode and number of workers
-            self._athenaMP = detectAthenaMPProcs(self.conf.argdict, self.name, legacyThreadingRelease)
-
-        if self._disableMT:
-            self._athenaMT = 0
-
-        if self._disableMP:
-            self._athenaMP = 0
-        else:
-            # Small hack to detect cases where there are so few events that it's not worthwhile running in MP mode
-            # which also avoids issues with zero sized files
-            if expectedEvents < self._athenaMP:
-                msg.info("Disabling AthenaMP as number of input events to process is too low ({0} events for {1} workers)".format(expectedEvents, self._athenaMP))
-                self._disableMP = True
+            if self._disableMP:
                 self._athenaMP = 0
+            else:
+                self._athenaMP = detectAthenaMPProcs(self.conf.argdict, self.name, legacyThreadingRelease)
+
+        # Small hack to detect cases where there are so few events that it's not worthwhile running in MP mode
+        # which also avoids issues with zero sized files
+        if not self._disableMP and expectedEvents < self._athenaMP:
+            msg.info("Disabling AthenaMP as number of input events to process is too low ({0} events for {1} workers)".format(expectedEvents, self._athenaMP))
+            self._disableMP = True
+            self._athenaMP = 0
 
         # Handle executor steps
         if self.conf.totalExecutorSteps > 1:
@@ -1091,8 +1091,17 @@ class athenaExecutor(scriptExecutor):
             # See if we have any 'extra' file arguments
             nameForFiles = commonExecutorStepName(self._name)
             for dataType, dataArg in self.conf.dataDictionary.items():
-                if dataArg.io == 'input' and nameForFiles in dataArg.executor:
-                    inputFiles[dataArg.subtype] = dataArg
+                if isinstance(dataArg, list) and dataArg:
+                    if self.conf.totalExecutorSteps <= 1:
+                        raise ValueError('Multiple input arguments provided but only running one substep')
+                    if self.conf.totalExecutorSteps != len(dataArg):
+                        raise ValueError(f'{len(dataArg)} input arguments provided but running {self.conf.totalExecutorSteps} substeps')
+
+                    if dataArg[self.conf.executorStep].io == 'input' and nameForFiles in dataArg[self.conf.executorStep].executor:
+                        inputFiles[dataArg[self.conf.executorStep].subtype] = dataArg
+                else:
+                    if dataArg.io == 'input' and nameForFiles in dataArg.executor:
+                        inputFiles[dataArg.subtype] = dataArg
 
             msg.debug('Input Files: {0}; Output Files: {1}'.format(inputFiles, outputFiles))
             
@@ -1204,6 +1213,27 @@ class athenaExecutor(scriptExecutor):
         if self._logFileName=='log.ReSim' and self.name=='ReSim':
             msg.info('scanning {0} for reporting events passed the filter ISF_SimEventFilter'.format(self._logFileName))
             self._resimevents = reportEventsPassedSimFilter(self._logFileName)
+
+        # Remove intermediate input/output files of sub-steps
+        # Delete only files with io="temporay" which are files with pattern "tmp*"
+        # Some stubs like tmp.RDO_TRIG_000 created in AthenaMP mode or
+        # tmp.HIST_ESD_INT, tmp.HIST_AOD_INT as input to DQHistogramMerge.py are not deleted
+        # Enable if --deleteIntermediateOutputfiles is set
+        if ('deleteIntermediateOutputfiles' in self.conf._argdict and self.conf._argdict['deleteIntermediateOutputfiles'].value):
+          inputDataDictionary = dict([ (dataType, self.conf.dataDictionary[dataType]) for dataType in self._input ])
+
+          for k, v in inputDataDictionary.items():
+            if not v.io == 'temporary':
+              continue
+            for filename in v.value:
+              if os.access(filename, os.R_OK) and not filename.startswith("/cvmfs"):
+                msg.info("Removing intermediate {0} input file {1}".format(k, filename))
+                # Check if symbolic link and delete also linked file
+                if (os.path.realpath(filename) != filename):
+                  targetpath = os.path.realpath(filename)
+                os.unlink(filename)
+                if (targetpath) and os.access(targetpath, os.R_OK):
+                  os.unlink(targetpath)
 
 
     def validate(self):

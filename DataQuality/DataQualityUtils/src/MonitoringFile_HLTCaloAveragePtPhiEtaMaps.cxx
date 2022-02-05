@@ -57,7 +57,7 @@ namespace dqutils {
       calo_fold.push_back("/CaloMonL2");
 
       // check if the folders are in hlt 
-      for( std::vector<TString>::iterator it = calo_fold.begin(); it != calo_fold.end(); it++ ) {
+      for( std::vector<TString>::iterator it = calo_fold.begin(); it != calo_fold.end(); ++it ) {
 	TString theHistDir = hlt_top + *it;
 	TDirectory* dir = f->GetDirectory(theHistDir);
 	if(!dir){
@@ -72,8 +72,8 @@ namespace dqutils {
 
 
       // we have all dirs, get the component histograms
-      for( std::vector<TString>::iterator itFex = calo_fold.begin(); itFex != calo_fold.end(); itFex++ ) {
-	for( std::vector<std::pair<TString,TString> >::iterator itNum = hist_numr.begin(); itNum != hist_numr.end(); itNum++ ) {
+      for( std::vector<TString>::iterator itFex = calo_fold.begin(); itFex != calo_fold.end(); ++itFex ) {
+	for( std::vector<std::pair<TString,TString> >::iterator itNum = hist_numr.begin(); itNum != hist_numr.end(); ++itNum ) {
 	  TH2F *hnum(0), *hden(0);
 
 	  // prepend histogram name with path and append with suffix [_00 .., _24 for each component]

@@ -20,7 +20,7 @@
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandGamma.h"
 #include "CLHEP/Vector/ThreeVector.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "AthenaBaseComps/AthCheckMacros.h"
 
 #include "TF1.h" 
 #include <cmath>
@@ -32,16 +32,16 @@
 //---------------------------------------------------
 
 //----- Constructor
-sTgcDigitMaker::sTgcDigitMaker(const sTgcHitIdHelper* hitIdHelper, const MuonGM::MuonDetectorManager* mdManager, bool doEfficiencyCorrection)
+sTgcDigitMaker::sTgcDigitMaker(const sTgcHitIdHelper* hitIdHelper, 
+                               const MuonGM::MuonDetectorManager* mdManager, 
+                               bool doEfficiencyCorrection)
+  : AthMessaging (Athena::getMessageSvc(), "sTgcDigitMaker")
 {
   m_hitIdHelper             = hitIdHelper;
   m_mdManager               = mdManager;
-  m_efficiencyOfWireGangs   = 1.000; // 100% efficiency for sTGCSimHit_p1
-  m_efficiencyOfStrips      = 1.000; // 100% efficiency for sTGCSimHit_p1
   m_doEfficiencyCorrection  = doEfficiencyCorrection;
   m_doTimeCorrection        = true;
-  m_timeWindowOffsetPad     = 0.;
-  m_timeWindowOffsetStrip   = 25.;
+  m_doTimeOffsetStrip       = false;
   //m_timeWindowPad          = 30.; // TGC  29.32; // 29.32 ns = 26 ns +  4 * 0.83 ns
   //m_timeWindowStrip         = 30.; // TGC  40.94; // 40.94 ns = 26 ns + 18 * 0.83 ns
   //m_bunchCrossingTime       = 24.95; // 24.95 ns =(40.08 MHz)^(-1)
@@ -64,7 +64,7 @@ sTgcDigitMaker::~sTgcDigitMaker()
 //------------------------------------------------------
 // Initialize
 //------------------------------------------------------
-StatusCode sTgcDigitMaker::initialize(CLHEP::HepRandomEngine *rndmEngine, const int channelTypes)
+StatusCode sTgcDigitMaker::initialize(const int channelTypes)
 {
   // Initialize TgcIdHelper
   if (m_hitIdHelper == nullptr) {
@@ -80,41 +80,44 @@ StatusCode sTgcDigitMaker::initialize(CLHEP::HepRandomEngine *rndmEngine, const 
   // initialize the TGC identifier helper
   m_idHelper = m_mdManager->stgcIdHelper();
 
-  readFileOfTimeJitter();
-
-  // Read share/sTGC_Digitization_timeArrivale.dat, containing the digit time of arrival
-  readFileOfTimeArrival();
-
-  // getting our random numbers stream
-  m_engine = rndmEngine;
-
   // Read share/sTGC_Digitization_energyThreshold.dat file and store values in m_energyThreshold.
   // Currently no point in wasting memory to read an empty file for energy threshold.
   // We have no gap-by-gap energy threshold currently for the sTGC
   // Alexandre Laurier - April 13 2021
-  //readFileOfEnergyThreshold();
+  //ATH_CHECK(readFileOfEnergyThreshold());
 
   //// Read share/sTGC_Digitization_crossTalk.dat file and store values in m_crossTalk.
-  //readFileOfCrossTalk();
+  //ATH_CHECK(readFileOfCrossTalk());
 
   // Read share/sTGC_Digitization_deadChamber.dat file and store values in m_isDeadChamber.
-  readFileOfDeadChamber();
+  ATH_CHECK(readFileOfDeadChamber());
 
   // Read share/sTGC_Digitization_effChamber.dat file and store values in m_ChamberEfficiency.
-  readFileOfEffChamber();
+  ATH_CHECK(readFileOfEffChamber());
 
   // Read share/sTGC_Digitization_timeWindowOffset.dat file and store values in m_timeWindowOffset.
-  readFileOfTimeWindowOffset();
+  ATH_CHECK(readFileOfTimeWindowOffset());
 
   //// Read share/sTGC_Digitization_alignment.dat file and store values in m_alignmentZ, m_alignmentT, m_alignmentS, m_alignmentTHS
-  //readFileOfAlignment();
+  //ATH_CHECK(readFileOfAlignment());
+
+  // Read share/sTGC_Digitization_timeArrivale.dat, containing the digit time of arrival
+  ATH_CHECK(readFileOfTimeArrival());
+  
+  // Read share/sTGC_Digitization_timeOffsetStrip.dat if the the strip time correction is enable
+  if (m_doTimeOffsetStrip) {
+    ATH_CHECK(readFileOfTimeOffsetStrip());
+  }
+
   return StatusCode::SUCCESS;
 }
 
 //---------------------------------------------------
 // Execute Digitization
 //---------------------------------------------------
-std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHit* hit, const float /*globalHitTime*/)
+std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHit* hit, 
+                                                                 const float /*globalHitTime*/, 
+                                                                 CLHEP::HepRandomEngine* rndmEngine) 
 { 
 
   // check the digitization channel type
@@ -185,7 +188,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   // Compute the distance from the hit to the wire, return value of -9.99 if unsuccessful
   double dist_wire = distanceToWire(hitOnSurface_wire, loc_dire_wire, layid, wire_number);
   if (dist_wire < -9.) {
-    ATH_MSG_WARNING("Failed to get the distance between the hit at (" 
+    ATH_MSG_DEBUG("Failed to get the distance between the hit at (" 
                     << hitOnSurface_wire.x() << ", " << hitOnSurface_wire.y() << ")"
                     << " and wire number = " << wire_number 
                     << ", chamber stationName: " << stationName 
@@ -210,7 +213,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
       if ((wire_number + adjacent) > 1) {
         double tmp_dist = distanceToWire(hitOnSurface_wire, loc_dire_wire, layid, wire_number + adjacent * 2);
         if (std::abs(tmp_dist) < std::abs(dist_wire)) {
-          ATH_MSG_WARNING("Wire number is more than one wire pitch away for hit position = (" 
+          ATH_MSG_DEBUG("Wire number is more than one wire pitch away for hit position = (" 
                           << hitOnSurface_wire.x() << ", " << hitOnSurface_wire.y() << ")"
                           << ", wire number = " << wire_number + adjacent * 2
                           << ", with d(-2) = " << tmp_dist
@@ -228,33 +231,55 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   // Distance should be in the range [0, 0.9] mm, unless particle passes through 
   // the wire plane near the edges
   double wire_pitch = detEl->wirePitch();
-  if ((dist_wire > -9.) && (std::abs(dist_wire) > (wire_pitch / 2))) {
-    ATH_MSG_DEBUG("Distance to the nearest wire (" << std::abs(dist_wire) << ") is greater than expected.");
+  // Absolute value of the distance
+  double abs_dist_wire = std::abs(dist_wire);
+  if ((dist_wire > -9.) && (abs_dist_wire > (wire_pitch / 2))) {
+    ATH_MSG_DEBUG("Distance to the nearest wire (" << abs_dist_wire << ") is greater than expected.");
+  }
+
+  // Do not digitize hits that are too far from the nearest wire
+  if (abs_dist_wire > wire_pitch) {
+    return nullptr;
   }
 
   // Get the gamma pdf parameters associated with the distance of closest approach.
-  GammaParameter gamma_par = getGammaParameter(std::abs(dist_wire));
+  //GammaParameter gamma_par = getGammaParameter(abs_dist_wire);
+  double par_kappa = (getGammaParameter(abs_dist_wire)).kParameter; 
+  double par_theta = (getGammaParameter(abs_dist_wire)).thetaParameter; 
+  double most_prob_time = getMostProbableArrivalTime(abs_dist_wire);
   // Compute the most probable value of the gamma pdf
-  double gamma_mpv = (gamma_par.kParameter - 1) * gamma_par.thetaParameter;
-  // If the most probable value is near zero, then ensure it is zero
-  if ((gamma_par.mostProbableTime) < 0.1) {gamma_mpv = 0.;}
-  double t0_par = gamma_par.mostProbableTime - gamma_mpv;
+  double gamma_mpv = (par_kappa - 1) * par_theta;
+  // If the most probable value is less than zero, then set it to zero
+  if (gamma_mpv < 0.) {gamma_mpv = 0.;}
+  double t0_par = most_prob_time - gamma_mpv;
 
   // Digit time follows a gamma distribution, so a value val is 
-  // chosen using a gamma random generator then shifted by t0
+  // chosen using a gamma random generator then is shifted by t0
   // to account for drift time.
   // Note: CLHEP::RandGamma takes the parameters k and lambda, 
   // where lambda = 1 / theta.
-  double digit_time = t0_par + CLHEP::RandGamma::shoot(m_engine, gamma_par.kParameter, 1/gamma_par.thetaParameter);
-  if (digit_time < 0.0) {
-    // Ensure the digit time is positive
-    digit_time = -1.0 * digit_time;
+  double digit_time = t0_par + CLHEP::RandGamma::shoot(rndmEngine, par_kappa, 1/par_theta);
+
+  // Sometimes, digit_time is negative because t0_par can be negative. 
+  // In such case, discard the negative value and shoot RandGamma for another value.
+  // However, if that has already been done many times then set digit_time to zero 
+  // in order to avoid runaway loop.
+  const int shoot_limit = 4;
+  int shoot_counter = 0;
+  while (digit_time < 0.) {
+    if (shoot_counter > shoot_limit) {
+      digit_time = 0.;
+      break;
+    }
+    digit_time = t0_par + CLHEP::RandGamma::shoot(rndmEngine, par_kappa, 1/par_theta);
+    ++shoot_counter;
   }
+
   ATH_MSG_DEBUG("sTgcDigitMaker distance = " << dist_wire 
                 << ", time = " << digit_time
-                << ", k parameter = " << gamma_par.kParameter
-                << ", theta parameter = " << gamma_par.thetaParameter
-                << ", most probable time = " << gamma_par.mostProbableTime);
+                << ", k parameter = " << par_kappa
+                << ", theta parameter = " << par_theta
+                << ", most probable time = " << most_prob_time);
 
   //// HV efficiency correction
   if (m_doEfficiencyCorrection){
@@ -265,7 +290,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
     int etaZero = detEl->isEtaZero(tempId, hitOnSurface_wire.y()) ? 1 : 0;
     float efficiency = getChamberEfficiency(stNameInt, std::abs(stationEta)-etaZero, stationPhi-1, multiPlet-1, gasGap-1);
     // Lose Hits to match HV efficiency
-    if (CLHEP::RandFlat::shoot(m_engine,0.0,1.0) > efficiency) return nullptr;
+    if (CLHEP::RandFlat::shoot(rndmEngine,0.0,1.0) > efficiency) return nullptr;
   }
 
   //// Check the chamber is dead or not.
@@ -289,8 +314,6 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   // #################################################################
   //***************************** BCTAGGER ******************************** 
   // #################################################################
-  //m_timeWindowOffsetPad  = getTimeWindowOffset(stationName, stationEta, 2);
-  //m_timeWindowOffsetStrip = getTimeWindowOffset(stationName, stationEta, 1);
 
   // use energyDeposit to implement detector effeciency 
   // Time of flight correction for each chamber
@@ -307,8 +330,8 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   const float stripPropagationTime = 0.; // 8.5*ns/m was used until MC10. 
 
   float sDigitTimeWire = digit_time;
-  float sDigitTimePad = sDigitTimeWire + m_timeWindowOffsetPad;
-  float sDigitTimeStrip = sDigitTimeWire + m_timeWindowOffsetStrip + stripPropagationTime;
+  float sDigitTimePad = sDigitTimeWire;
+  float sDigitTimeStrip = sDigitTimeWire + stripPropagationTime;
 
 
   //if(m_doTimeCorrection) sDigitTime = bunchTime + timeJitterDetector + timeJitterElectronics + stripPropagationTime;
@@ -336,7 +359,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   //######################################### strip readout ##########################
   //##################################################################################
   ATH_MSG_DEBUG("sTgcDigitMaker::strip response ");
-  int channelType = 1;
+  int channelType = sTgcIdHelper::sTgcChannelTypes::Strip;
 
   Identifier newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, 1, true);
 
@@ -368,7 +391,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   }
 
   int NumberOfStrips = detEl->numberOfStrips(newId); 
-  double stripHalfWidth = detEl->channelPitch(newId)*0.5; // 3.2/2 = 1.6 mm
+  double stripHalfPitch = detEl->channelPitch(newId)*0.5; // 3.2/2 = 1.6 mm
 
   //************************************ conversion of energy to charge **************************************
 
@@ -378,12 +401,12 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
 
  // To get avalanche gain, polya function is taken from Blum paper https://inspirehep.net/literature/807304
  // m_polyaFunction = new TF1("m_polyaFunction","(1.0/[1])*(TMath::Power([0]+1,[0]+1)/TMath::Gamma([0]+1))*TMath::Power(x/[1],[0])*TMath::Exp(-([0]+1)*x/[1])",0,3000000);
-  float gain =  CLHEP::RandGamma::shoot(m_engine, 1. + m_theta, (1. + m_theta)/m_mean); // mean value for total gain due to E field; To calculate this gain from polya distibution we replace "alpha = 1+theta and beta = 1+theta/mean" in gamma PDF. With this gamma PDF gives us same sampling values as we get from polya PDF. 
+  float gain =  CLHEP::RandGamma::shoot(rndmEngine, 1. + m_theta, (1. + m_theta)/m_mean); // mean value for total gain due to E field; To calculate this gain from polya distibution we replace "alpha = 1+theta and beta = 1+theta/mean" in gamma PDF. With this gamma PDF gives us same sampling values as we get from polya PDF. 
   double total_charge = gain*ionized_charge; // total charge after avalanche
 
   //************************************ spread charge among readout element ************************************** 
   //spread charge to a gaussian distribution
-  float charge_width = CLHEP::RandGaussZiggurat::shoot(m_engine, m_GausMean, m_GausSigma);
+  float charge_width = CLHEP::RandGaussZiggurat::shoot(rndmEngine, m_GausMean, m_GausSigma);
   float norm = 0.5*total_charge/(charge_width*std::sqrt(2.*M_PI)); // each readout plane reads about half the total charge produced on the wire
   TF1 *charge_spread = new TF1("fgaus", "gaus(0)", -1000., 1000.); 
   charge_spread->SetParameters(norm, posOnSurf_strip.x(), charge_width);
@@ -394,76 +417,119 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   // We add the resolution in quadrature following sTGC test beam papers
   m_ChargeSpreadFactor = m_StripResolution*std::sqrt(1+12.*tan_theta*tan_theta);
 
-  int stripnum = -1;
-  for(int neighbor=0; neighbor<=3; neighbor++){  // spread the charge to 7 strips for the current algorithm
-    stripnum = stripNumber+neighbor;
-    if(stripnum>=1&&stripnum<=NumberOfStrips){
+  // Get the nominal strip width, which is 2.7 mm, while the strip pitch is 3.2 mm.
+  double stripWidth = detEl->getDesign(newId)->inputWidth;
+
+  // Lower limit on strip charge, in pC, which has the same units as the parameter ionized_charge
+  double tolerance_charge = 0.0005;
+
+  // Position of the strip closest to the hit
+  Amg::Vector2D middleStrip_pos(0., 0.);
+  detEl->stripPosition(newId, middleStrip_pos);
+  
+  // Determine the middle strips
+  // Usually, the middle strip is the strip nearest to the hit.
+  // If a hit is placed between two strips, then these two strips 
+  // are considered as middle strips.
+  int middleStrip[2] = {0, 0};
+  double hitRelativeLocation = posOnSurf_strip.x() - middleStrip_pos.x();
+  if (std::abs(hitRelativeLocation) < (stripWidth/2)) {
+    // Only one middle strip, so add the same strip number in the array
+    middleStrip[0] = stripNumber;
+    middleStrip[1] = stripNumber;
+  } else if (hitRelativeLocation < 0.0) {
+    middleStrip[0] = stripNumber-1;
+    middleStrip[1] = stripNumber;
+  } else if (hitRelativeLocation > 0.0) {
+    middleStrip[0] = stripNumber;
+    middleStrip[1] = stripNumber+1;
+  }
+
+  /* While-loop to spread charge on the strips around the hit
+   * The strips adjacent to the hit are considered one by one until the charge 
+   * to be spread on the strip is below a tolerance. 
+   */
+  unsigned int neighbor = 0;
+  // Flags to stop spreading charge on neighbour strips
+  bool createNeighbor1 = true;
+  bool createNeighbor2 = true;
+  unsigned int counter_strip = 0;
+  // Set a maximum number of neighbour strips to avoid very long loop
+  const unsigned int max_neighbor = 10;
+  while (createNeighbor1 || createNeighbor2) {
+    // Strip numbers to be considered  
+    std::vector<int> tmpStripNumbers;
+    if (neighbor == 0) {
+      tmpStripNumbers.push_back(stripNumber);
+    } else if (neighbor > 0) {
+      if (createNeighbor1) tmpStripNumbers.push_back(stripNumber - neighbor);
+      if (createNeighbor2) tmpStripNumbers.push_back(stripNumber + neighbor);
+    }
+
+    // Terminate the loop if zero strip digits
+    if (tmpStripNumbers.empty()) break;
+
+    // Skip spreading charge on out-of-range strips 
+    for (int stripnum: tmpStripNumbers) {
+      // Verify if strip number is valid
+      if(stripnum < 1) {
+        createNeighbor1 = false;
+        continue;
+      }
+      if(stripnum > NumberOfStrips) {
+        createNeighbor2 = false;
+        continue;
+      }
+
+      // Get the strip identifier and create the digit 
       newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum, true, &isValid);
-      if(isValid) {
-        Amg::Vector2D locpos(0,0);
-        if( !detEl->stripPosition(newId,locpos)){
+      if (isValid) {
+        Amg::Vector2D locpos(0., 0.);
+        if (!detEl->stripPosition(newId, locpos)) {
           ATH_MSG_WARNING("Failed to obtain local position for identifier " << m_idHelper->print_to_string(newId) );
         }
 
-        float xmax = locpos.x() + stripHalfWidth;
-        float xmin = locpos.x() - stripHalfWidth;
-        float charge = charge_spread->Integral(xmin, xmax);
-        charge = CLHEP::RandGaussZiggurat::shoot(m_engine, charge, m_ChargeSpreadFactor*charge);
-
-        addDigit(digits.get(),newId, bctag, sDigitTimeStrip, charge, channelType);
-        // For now, we remove the cross talk since we have no measurements to use
-        // Currently, adding a few % cross talk only muddies our current set of studies
-        // Keeping this code for posteriority in case we only get crosstalk values after I no longer work on NSW digi
-        // i.e to make sure my replacement knows where to find cross talk
-        // Alexandre Laurier - April 13 2021
-        //************************************** introduce cross talk ************************************************
-        //for(int crosstalk=1; crosstalk<=3; crosstalk++){ // up to the third nearest neighbors
-        //  if((stripnum-crosstalk)>=1&&(stripnum-crosstalk)<=NumberOfStrips){
-        //    newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum-crosstalk, true, &isValid);
-        //    if(isValid) addDigit(digits.get(), newId, bctag, sDigitTimeStrip, charge*std::pow(m_CrossTalk, crosstalk), channelType);
-        //  }
-        //  if((stripnum+crosstalk)>=1&&(stripnum+crosstalk)<=NumberOfStrips){
-        //    newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum+crosstalk, true, &isValid);
-        //    if(isValid) addDigit(digits.get(),newId, bctag, sDigitTimeStrip, charge*std::pow(m_CrossTalk, crosstalk), channelType);
-        //  }
-        //}// end of introduce cross talk
-      } // end isValid
-    }// end of when stripnum = stripNumber+neighbor
- 
-    if(neighbor==0) continue;
-    stripnum = stripNumber-neighbor;
-    if(stripnum>=1&&stripnum<=NumberOfStrips){
-      newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum, true, &isValid);
-      if(isValid) {
-        Amg::Vector2D locpos(0,0);
-        if( !detEl->stripPosition(newId,locpos)){
-          ATH_MSG_WARNING("Failed to obtain local position for identifier " << m_idHelper->print_to_string(newId) );
+        // Estimate the digit charge
+        double xmax = locpos.x() + stripHalfPitch;
+        double xmin = locpos.x() - stripHalfPitch;
+        double charge = charge_spread->Integral(xmin, xmax);
+        // If charge is too small, stop creating neighbor strip
+        if (charge < tolerance_charge) {
+          if (stripnum <= middleStrip[0]) createNeighbor1 = false;
+          if (stripnum >= middleStrip[1]) createNeighbor2 = false;
+          continue;
         }
-        float xmax = locpos.x() + stripHalfWidth;
-        float xmin = locpos.x() - stripHalfWidth;
-        float charge = charge_spread->Integral(xmin, xmax);
-        charge = CLHEP::RandGaussZiggurat::shoot(m_engine, charge, m_ChargeSpreadFactor*charge);
+        charge = CLHEP::RandGaussZiggurat::shoot(rndmEngine, charge, m_ChargeSpreadFactor*charge);
 
-        addDigit(digits.get(),newId, bctag, sDigitTimeStrip, charge, channelType);
-        // For now, we remove the cross talk since we have no measurements to use
-        // Currently, adding a few % cross talk only muddies our current set of studies
-        // Keeping this code for posteriority in case we only get crosstalk values after I no longer work on NSW digi
-        // i.e to make sure my replacement knows where to find cross talk
-        // Alexandre Laurier - April 13 2021
-        //************************************** introduce cross talk ************************************************
-        //for(int crosstalk=1; crosstalk<=3; crosstalk++){ // up to the third nearest neighbors
-        //  if((stripnum-crosstalk)>=1&&(stripnum-crosstalk)<=NumberOfStrips){
-        //   newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum-crosstalk, true, &isValid);
-        //   if(isValid) addDigit(digits.get(),newId, bctag, sDigitTimeStrip, charge*std::pow(m_CrossTalk, crosstalk), channelType);
-        //  }
-        //  if((stripnum+crosstalk)>=1&&(stripnum+crosstalk)<=NumberOfStrips){
-        //    newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum+crosstalk, true, &isValid);
-        //    if(isValid) addDigit(digits.get(),newId, bctag, sDigitTimeStrip, charge*std::pow(m_CrossTalk, crosstalk), channelType);
-        //  }
-        //}// end of introduce cross talk
-      } // end isValid
-    }// end of when stripnum = stripNumber-neighbor
-  }//end for spread the charge to 5 strips 
+        // Estimate digit time
+        int indexFromMiddleStrip = std::abs(stripnum - middleStrip[0]);
+        if (std::abs(stripnum - middleStrip[1]) < indexFromMiddleStrip) {
+          indexFromMiddleStrip = std::abs(stripnum - middleStrip[1]);
+        }
+        double strip_time = sDigitTimeStrip;
+        // Strip time response can be delayed due to the resistive layer. 
+        // A correction would be required if the actual VMM front-end doesn't re-align the strip timing.
+        if (m_doTimeOffsetStrip) {
+          strip_time += getTimeOffsetStrip(indexFromMiddleStrip);
+        }
+      
+        addDigit(digits.get(),newId, bctag, strip_time, charge, channelType);
+
+        ATH_MSG_VERBOSE("Created a strip digit: strip number = " << stripnum << ", charge = " << charge 
+                        << ", time = " << strip_time << ", time offset = " << strip_time-sDigitTimeStrip 
+                        << ", neighbor index = " << neighbor
+                        << ", charge stdev = " << m_ChargeSpreadFactor
+                        << ", strip position = (" << locpos.x() << "," << locpos.y() << ")");
+
+        ++counter_strip;
+      }
+    }
+
+    // Increment neighbor parameter
+    ++neighbor;
+    if (neighbor > max_neighbor) break;
+  }
+  ATH_MSG_DEBUG("Number of strip digits created = " << counter_strip);
 
   delete charge_spread;
   // end of strip digitization
@@ -477,7 +543,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   //######################################### pad readout ##########################
   //##################################################################################
   ATH_MSG_DEBUG("sTgcDigitMaker::pad response ");
-  channelType = 0;
+  channelType = sTgcIdHelper::sTgcChannelTypes::Pad;
   
   //************************************ find the nearest readout element ************************************** 
   int  surfHash_pad =  detEl->surfaceHash(gasGap, 0);
@@ -486,7 +552,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   Amg::Vector3D hitOnSurface_pad = SURF_PAD.transform().inverse()*GPOS;
   Amg::Vector2D posOnSurf_pad(hitOnSurface_pad.x(), hitOnSurface_pad.y());
 
-  Identifier PAD_ID = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, 0, 1, true);// find the a pad id
+  Identifier PAD_ID = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, 1, true);// find the a pad id
 
   insideBounds = SURF_PAD.insideBounds(posOnSurf_pad);
 
@@ -519,7 +585,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   //######################################### wire readout ##########################
   //##################################################################################
   ATH_MSG_DEBUG("sTgcDigitMaker::wire response ");
-  channelType = 2;
+  channelType = sTgcIdHelper::sTgcChannelTypes::Wire;
 
     // Find the ID of the first wiregroup
     Identifier WIREGP_ID = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, 1, true);
@@ -540,7 +606,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
         newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, wiregroupNumber, true, &isValid);
   
         if(isValid) {
-          int NumberOfWiregroups = detEl->numberOfStrips(newId); // 0 --> pad, 1 --> strip, 2 --> wire
+          int NumberOfWiregroups = detEl->numberOfStrips(newId);
           if(wiregroupNumber>=1&&wiregroupNumber<=NumberOfWiregroups) addDigit(digits.get(), newId, bctag, sDigitTimeWire, channelType);
         } // end of if(isValid)
         else if (wiregroupNumber != -1){
@@ -595,7 +661,7 @@ double sTgcDigitMaker::distanceToWire(Amg::Vector3D& position, Amg::Vector3D& di
   Amg::Vector3D perp_line = direction.cross(wire_direction);
   double norm_line = std::sqrt(perp_line.dot(perp_line));
   if (norm_line < 1.0e-5) {
-    ATH_MSG_WARNING("Unable to compute the distance of closest approach," 
+    ATH_MSG_DEBUG("Unable to compute the distance of closest approach," 
                     << " a negative value is assumed to indicate the error.");
     return -9.99;
   }
@@ -606,94 +672,6 @@ double sTgcDigitMaker::distanceToWire(Amg::Vector3D& position, Amg::Vector3D& di
   return (sign * distance);
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-void sTgcDigitMaker::readFileOfTimeJitter()
-{
-
-  const char* const fileName = "sTGC_Digitization_timejitter.dat";
-  std::string fileWithPath = PathResolver::find_file (fileName, "DATAPATH");
-
-  std::ifstream ifs;
-  if (!fileWithPath.empty()) {
-    ifs.open(fileWithPath.c_str(), std::ios::in);
-  }
-  else {
-    ATH_MSG_FATAL("readFileOfTimeJitter(): Could not find file " << fileName );
-    exit(-1);
-  }
-
-  if(ifs.bad()){
-    ATH_MSG_FATAL("readFileOfTimeJitter(): Could not open file "<< fileName );
-    exit(-1);
-  }
-
-  int angle = 0;
-  int bins = 0;
-  int i = 0;
-  float prob = 0.;
-
-  while(ifs.good()){
-    ifs >> angle >> bins;
-    if (ifs.eof()) break;
-    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "readFileOfTimeJitter(): Timejitter, angle, Number of bins, prob. dist.: " << angle << " " << bins << " ";
-    m_vecAngle_Time.resize(i + 1);
-    for (int j = 0; j < 41/*bins*/; j++) {
-      ifs >> prob;
-      m_vecAngle_Time[i].push_back(prob);
-      if (j == 0)
-        if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "readFileOfTimeJitter(): ";
-      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << prob << " ";
-    }
-    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << endmsg;
-    i++;
-  }
-  ifs.close();
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++
-float sTgcDigitMaker::timeJitter(float inAngle_time) const
-{
-
-  int   ithAngle = static_cast<int>(inAngle_time/5.);
-  float wAngle = inAngle_time/5. - static_cast<float>(ithAngle);
-  int   jthAngle;
-  if (ithAngle > 11) {
-    ithAngle = 12;
-    jthAngle = 12;
-  }
-  else {
-    jthAngle = ithAngle+1;
-  }
-
-  float jitter;
-  float prob = 1.;
-  float probRef = 0.;
-
-  while (prob > probRef) {
-    prob   = CLHEP::RandFlat::shoot(m_engine, 0.0, 1.0);
-    jitter = CLHEP::RandFlat::shoot(m_engine, 0.0, 1.0)*40.; // trial time jitter in nsec
-    int ithJitter = static_cast<int>(jitter);
-    // probability distribution calculated from weighted sum between neighboring bins of angles
-    probRef = (1.-wAngle)*m_vecAngle_Time[ithAngle][ithJitter]
-      +    wAngle *m_vecAngle_Time[jthAngle][ithJitter];
-  }
-
-  ATH_MSG_VERBOSE("sTgcDigitMaker::timeJitter : angle = " << inAngle_time 
-                  << ";  timeJitterDetector = " << jitter );
-
-  return jitter;
-}
-//+++++++++++++++++++++++++++++++++++++++++++++++
-bool sTgcDigitMaker::efficiencyCheck(const int channelType) const {
-  if(channelType == 0) { // wire group
-    if(CLHEP::RandFlat::shoot(m_engine,0.0,1.0) < m_efficiencyOfWireGangs) return true;
-  }
-  else if(channelType == 1) { // strip
-    if(CLHEP::RandFlat::shoot(m_engine,0.0,1.0) < m_efficiencyOfStrips) return true;
-  }
-  ATH_MSG_DEBUG("efficiencyCheck(): Hit removed. channelType: " << channelType );
-  return false;
-}
 //+++++++++++++++++++++++++++++++++++++++++++++++
 bool sTgcDigitMaker::efficiencyCheck(const std::string& stationName, const int stationEta, const int stationPhi,const int multiPlet, const int gasGap, const int channelType, const double energyDeposit) const {
   // If the energy deposit is equal to or greater than the threshold value of the chamber,
@@ -730,7 +708,7 @@ bool sTgcDigitMaker::efficiencyCheck(const std::string& stationName, const int s
 //+++++++++++++++++++++++++++++++++++++++++++++++
 void sTgcDigitMaker::addDigit(sTgcDigitCollection* digits, const Identifier id, const uint16_t bctag, const float digittime, int channelType) const {
 
-  if(channelType!=0&&channelType!=2) {
+  if((channelType!=sTgcIdHelper::sTgcChannelTypes::Pad) && (channelType!=sTgcIdHelper::sTgcChannelTypes::Wire)) {
     ATH_MSG_WARNING("Wrong sTgcDigit object with channelType" << channelType );
   }
 
@@ -750,7 +728,7 @@ void sTgcDigitMaker::addDigit(sTgcDigitCollection* digits, const Identifier id, 
 
 void sTgcDigitMaker::addDigit(sTgcDigitCollection* digits, const Identifier id, const uint16_t bctag, const float digittime, float charge, int channelType) const {
 
-  if(channelType!=1) {
+  if(channelType!=sTgcIdHelper::sTgcChannelTypes::Strip) {
     ATH_MSG_WARNING("Wrong sTgcDigit object with channelType" << channelType );
   }
 
@@ -770,7 +748,7 @@ void sTgcDigitMaker::addDigit(sTgcDigitCollection* digits, const Identifier id, 
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++
-void sTgcDigitMaker::readFileOfEnergyThreshold() {
+StatusCode sTgcDigitMaker::readFileOfEnergyThreshold() {
   // Indices to be used
   int iStationName, stationEta, stationPhi, multiPlet, gasGap, channelType;
 
@@ -793,7 +771,7 @@ void sTgcDigitMaker::readFileOfEnergyThreshold() {
   std::string fileWithPath = PathResolver::find_file(fileName.c_str(), "DATAPATH");
   if(fileWithPath.empty()) {
     ATH_MSG_FATAL("readFileOfEnergyThreshold(): Could not find file " << fileName.c_str() );
-    return;
+    return StatusCode::FAILURE;
   }
 
   // Open the sTGC_Digitization_energyThreshold.dat file
@@ -801,7 +779,7 @@ void sTgcDigitMaker::readFileOfEnergyThreshold() {
   ifs.open(fileWithPath.c_str(), std::ios::in);
   if(ifs.bad()) {
     ATH_MSG_FATAL("readFileOfEnergyThreshold(): Could not open file " << fileName.c_str() );
-    return;
+    return StatusCode::FAILURE;
   }
 
   double energyThreshold;
@@ -843,10 +821,11 @@ void sTgcDigitMaker::readFileOfEnergyThreshold() {
 
   // Close the sTGC_Digitization_energyThreshold.dat file
   ifs.close();
+  return StatusCode::SUCCESS;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++
-void sTgcDigitMaker::readFileOfDeadChamber() {
+StatusCode sTgcDigitMaker::readFileOfDeadChamber() {
   // Indices to be used
   int iStationName, stationEta, stationPhi, multiPlet, gasGap;
 
@@ -867,7 +846,7 @@ void sTgcDigitMaker::readFileOfDeadChamber() {
   std::string fileWithPath = PathResolver::find_file(fileName.c_str(), "DATAPATH");
   if(fileWithPath.empty()) {
     ATH_MSG_FATAL("readFileOfDeadChamber(): Could not find file " << fileName.c_str() );
-    return;
+    return StatusCode::FAILURE;
   }
 
   // Open the sTGC_Digitization_deadChamber.dat file
@@ -875,7 +854,7 @@ void sTgcDigitMaker::readFileOfDeadChamber() {
   ifs.open(fileWithPath.c_str(), std::ios::in);
   if(ifs.bad()) {
     ATH_MSG_FATAL("readFileOfDeadChamber(): Could not open file " << fileName.c_str() );
-    return;
+    return StatusCode::FAILURE;
   }
 
   // Read the sTGC_Digitization_deadChamber.dat file
@@ -918,10 +897,11 @@ void sTgcDigitMaker::readFileOfDeadChamber() {
   // Close the sTGC_Digitization_deadChamber.dat file
   ifs.close();
 
-  ATH_MSG_INFO("sTgcDigitMaker::readFileOfDeadChamber: the number of dead chambers = " << nDeadChambers );
+  ATH_MSG_VERBOSE("sTgcDigitMaker::readFileOfDeadChamber: the number of dead chambers = " << nDeadChambers );
+  return StatusCode::SUCCESS;
 }
 
-void sTgcDigitMaker::readFileOfEffChamber() {
+StatusCode sTgcDigitMaker::readFileOfEffChamber() {
   // Indices to be used
   int iStationName, stationEta, stationPhi, multiPlet, gasGap;
   float eff;
@@ -943,7 +923,7 @@ void sTgcDigitMaker::readFileOfEffChamber() {
   std::string fileWithPath = PathResolver::find_file(fileName.c_str(), "DATAPATH");
   if(fileWithPath.empty()) {
     ATH_MSG_FATAL("readFileOfEffChamber(): Could not find file " << fileName.c_str() );
-    return;
+    return StatusCode::FAILURE;
   }
 
   // Open the sTGC_Digitization_EffChamber.dat file
@@ -951,7 +931,7 @@ void sTgcDigitMaker::readFileOfEffChamber() {
   ifs.open(fileWithPath.c_str(), std::ios::in);
   if(ifs.bad()) {
     ATH_MSG_FATAL("readFileOfEffChamber(): Could not open file " << fileName.c_str() );
-    return;
+    return StatusCode::FAILURE;
   }
 
   // Read the sTGC_Digitization_EffChamber.dat file
@@ -1003,10 +983,11 @@ void sTgcDigitMaker::readFileOfEffChamber() {
   // Close the sTGC_Digitization_deadChamber.dat file
   ifs.close();
 
-  ATH_MSG_INFO("sTgcDigitMaker::readFileOfEffChamber: the number of dead chambers = " << nDeadChambers );
+  ATH_MSG_VERBOSE("sTgcDigitMaker::readFileOfEffChamber: the number of dead chambers = " << nDeadChambers );
+  return StatusCode::SUCCESS;
 }
 //+++++++++++++++++++++++++++++++++++++++++++++++
-void sTgcDigitMaker::readFileOfTimeWindowOffset() {
+StatusCode sTgcDigitMaker::readFileOfTimeWindowOffset() {
   // Indices to be used
   int iStationName, stationEta, channelType;
 
@@ -1023,7 +1004,7 @@ void sTgcDigitMaker::readFileOfTimeWindowOffset() {
   std::string fileWithPath = PathResolver::find_file(fileName.c_str(), "DATAPATH");
   if(fileWithPath.empty()) {
     ATH_MSG_FATAL("readFileOfTimeWindowOffset(): Could not find file " << fileName.c_str() );
-    return;
+    return StatusCode::FAILURE;
   }
 
   // Open the sTGC_Digitization_timeWindowOffset.dat file
@@ -1031,7 +1012,7 @@ void sTgcDigitMaker::readFileOfTimeWindowOffset() {
   ifs.open(fileWithPath.c_str(), std::ios::in);
   if(ifs.bad()) {
     ATH_MSG_FATAL("readFileOfTimeWindowOffset(): Could not open file " << fileName.c_str() );
-    return;
+    return StatusCode::FAILURE;
   }
 
   // Read the sTGC_Digitization_timeWindowOffset.dat file
@@ -1062,9 +1043,8 @@ void sTgcDigitMaker::readFileOfTimeWindowOffset() {
 
   // Close the sTGC_Digitization_timeWindowOffset.dat file
   ifs.close();
+  return StatusCode::SUCCESS;
 }
-
-
 
 //+++++++++++++++++++++++++++++++++++++++++++++++
 double sTgcDigitMaker::getEnergyThreshold(const std::string& stationName, int stationEta, int stationPhi, int multiPlet, int gasGap, int channelType) const {
@@ -1183,13 +1163,13 @@ int sTgcDigitMaker::getIStationName(const std::string& stationName) const {
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++
-void sTgcDigitMaker::readFileOfTimeArrival() {
+StatusCode sTgcDigitMaker::readFileOfTimeArrival() {
   // Verify the file sTGC_Digitization_timeArrival.dat exists
   const std::string file_name = "sTGC_Digitization_timeArrival.dat";
   std::string file_path = PathResolver::find_file(file_name.c_str(), "DATAPATH");
   if(file_path.empty()) {
     ATH_MSG_FATAL("readFileOfTimeWindowOffset(): Could not find file " << file_name.c_str() );
-    return;
+    return StatusCode::FAILURE;
   }
 
   // Open the sTGC_Digitization_timeArrival.dat file
@@ -1197,25 +1177,29 @@ void sTgcDigitMaker::readFileOfTimeArrival() {
   ifs.open(file_path.c_str(), std::ios::in);
   if(ifs.bad()) {
     ATH_MSG_FATAL("sTgcDigitMaker: Failed to open time of arrival file " << file_name.c_str() );
-    return;
+    return StatusCode::FAILURE;
   }
 
   // Read the sTGC_Digitization_timeWindowOffset.dat file
   std::string line;
-  GammaParameter param;
+  GammaParameter param{};
 
   while (std::getline(ifs, line)) {
     std::string key;
     std::istringstream iss(line);
     iss >> key;
     if (key.compare("bin") == 0) {
-      iss >> param.lowEdge >> param.kParameter >> param.thetaParameter >> param.mostProbableTime;
+      iss >> param.lowEdge >> param.kParameter >> param.thetaParameter;
       m_gammaParameter.push_back(param);
-    } 
+    } else if (key.compare("mpv") == 0)  {
+      double mpt;
+      while (iss >> mpt) {m_mostProbableArrivalTime.push_back(mpt);}
+    }
   }
 
   // Close the file
   ifs.close();
+  return StatusCode::SUCCESS;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++
@@ -1223,12 +1207,12 @@ sTgcDigitMaker::GammaParameter sTgcDigitMaker::getGammaParameter(double distance
 
   double d = distance;
   if (d < 0.) {
-    ATH_MSG_WARNING("getGammaParameter: expecting a positive distance, but got negative value: " << d
-                     << ". Proceed to the calculation with the absolute value.");
+    ATH_MSG_DEBUG("getGammaParameter: expecting a positive distance, but got a negative value: " << d
+                     << ". Proceed to the calculation using its absolute value.");
     d = -1.0 * d;
   }
 
-  // Find the parameters assuming the container is sorted
+  // Find the parameters assuming the container is sorted in ascending order of 'lowEdge'
   int index{-1};
   for (auto& par: m_gammaParameter) {
     if (distance < par.lowEdge) {
@@ -1237,6 +1221,86 @@ sTgcDigitMaker::GammaParameter sTgcDigitMaker::getGammaParameter(double distance
     ++index;
   }
   return m_gammaParameter.at(index);
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++
+double sTgcDigitMaker::getMostProbableArrivalTime(double distance) const {
+
+  double d = distance;
+  if (d < 0.) {
+    ATH_MSG_DEBUG("getMostProbableArrivalTime: expecting a positive distance, but got a negative value: " << d
+                     << ". Proceed to the calculation using its absolute value.");
+    d = -1.0 * d;
+  }
+
+  double mpt = m_mostProbableArrivalTime.at(0) 
+               + m_mostProbableArrivalTime.at(1) * d
+               + m_mostProbableArrivalTime.at(2) * d * d 
+               + m_mostProbableArrivalTime.at(3) * d * d * d
+               + m_mostProbableArrivalTime.at(4) * d * d * d * d;
+  return mpt;
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++
+StatusCode sTgcDigitMaker::readFileOfTimeOffsetStrip() {
+  // Verify the file sTGC_Digitization_timeOffsetStrip.dat exists
+  const std::string file_name = "sTGC_Digitization_timeOffsetStrip.dat";
+  std::string file_path = PathResolver::find_file(file_name.c_str(), "DATAPATH");
+  if(file_path.empty()) {
+    ATH_MSG_FATAL("readFileOfTimeWindowOffset(): Could not find file " << file_name.c_str() );
+    return StatusCode::FAILURE;
+  }
+
+  // Open the sTGC_Digitization_timeOffsetStrip.dat file
+  std::ifstream ifs;
+  ifs.open(file_path.c_str(), std::ios::in);
+  if(ifs.bad()) {
+    ATH_MSG_FATAL("sTgcDigitMaker: Failed to open time of arrival file " << file_name.c_str() );
+    return StatusCode::FAILURE;
+  }
+
+  // Initialize the container to store the time offset.
+  // The number of parameters, 6, corresponds to the number of lines to be read 
+  // from sTGC_Digitization_timeOffsetStrip.dat.
+  // Setting the default offset to 0 ns.
+  const int N_PAR = 6;
+  m_timeOffsetStrip.resize(N_PAR, 0.0);
+
+  // Read the input file
+  std::string line;
+  int index{0};
+  double value{0.0};
+  while (std::getline(ifs, line)) {
+    std::string key;
+    std::istringstream iss(line);
+    iss >> key;
+    if (key.compare("strip") == 0) {
+      iss >> index >> value;
+      if ((index < 0) || (index >= N_PAR)) continue;
+      m_timeOffsetStrip.at(index) = value;
+    }
+  }
+
+  // Close the file
+  ifs.close();
+  return StatusCode::SUCCESS;
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++
+double sTgcDigitMaker::getTimeOffsetStrip(int neighbor_index) const {
+  if ((!m_timeOffsetStrip.empty()) && (neighbor_index >= 0)) {
+    // Return the last element if out of range
+    if (neighbor_index >= static_cast<int>(m_timeOffsetStrip.size()) ) {
+      return m_timeOffsetStrip.back();
+    }
+    return m_timeOffsetStrip.at(neighbor_index);
+  } else {
+    ATH_MSG_DEBUG("either attempting to get strip's time offset with negative "
+                  "neighbor index," << neighbor_index 
+                  << ", or time offset container is empty: " << m_timeOffsetStrip.size()
+                  << ". Returning an offset of 0 ns.");
+  }
+  return 0.0;
 }
 
 ////+++++++++++++++++++++++++++++++++++++++++++++++
@@ -1274,5 +1338,4 @@ sTgcDigitMaker::GammaParameter sTgcDigitMaker::getGammaParameter(double distance
 //  localPos.y() = localPos.y()+localDisplacementYByX+localDisplacementY;
 //  localPos.z() = localPos.z()+localDisplacementZByX-localDisplacementZ;
 //}
-
 

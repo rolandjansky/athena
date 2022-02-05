@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -71,7 +71,7 @@ Tile::TileVolumeBuilder::TileVolumeBuilder(const std::string& t, const std::stri
   m_forceSymmetry(true)
 
 {
-  declareInterface<Trk::ITrackingVolumeBuilder>(this);
+  declareInterface<Trk::ICaloTrackingVolumeBuilder>(this);
   // declare the properties via Python
   declareProperty("TileDetManagerLocation",                 m_tileMgrLocation);
   // layers and general setup
@@ -133,10 +133,11 @@ StatusCode Tile::TileVolumeBuilder::finalize()
   return StatusCode::SUCCESS;
 }
 
-const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::trackingVolumes() const
+const std::vector<Trk::TrackingVolume*>*
+Tile::TileVolumeBuilder::trackingVolumes(const CaloDetDescrManager& caloDDM) const
 {
   // the return vector
-  std::vector<const Trk::TrackingVolume*>* tileTrackingVolumes = new std::vector<const Trk::TrackingVolume*>;
+  std::vector<Trk::TrackingVolume*>* tileTrackingVolumes = new std::vector<Trk::TrackingVolume*>;
   // the converter helpers
   Trk::GeoShapeConverter    geoShapeToVolumeBounds;
   Trk::GeoMaterialConverter geoMaterialToMaterialProperties;
@@ -155,11 +156,11 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
   double plug2hZ  = 47.425;
 
   // The Volumes To be Created ( by parsing geoModel ) ===========
-  const Trk::TrackingVolume* tileBarrel                              = 0;
-  const Trk::TrackingVolume* tileGirder                              = 0;
+  Trk::TrackingVolume* tileBarrel                              = nullptr;
+  Trk::TrackingVolume* tileGirder                              = nullptr;
   
-  const Trk::TrackingVolume* tilePositiveExtendedBarrel              = 0;
-  const Trk::TrackingVolume* tileNegativeExtendedBarrel              = 0;
+  Trk::TrackingVolume* tilePositiveExtendedBarrel              = nullptr;
+  Trk::TrackingVolume* tileNegativeExtendedBarrel              = nullptr;
 
   // The Volumes To be Created ( Gap Volumes ) ====================
   const Trk::TrackingVolume* tileBarrelPositiveFingerGap             = 0;
@@ -177,13 +178,14 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
   Trk::CylinderVolumeBounds* gapBounds                               = 0;
 
   // dummy objects
-  const Trk::LayerArray* dummyLayers = 0;
-  const Trk::TrackingVolumeArray* dummyVolumes = 0;
+  Trk::LayerArray* dummyLayers = nullptr;
+  Trk::TrackingVolumeArray* dummyVolumes = nullptr;
 
-  // load layer surfaces 
-  std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > entrySurf = m_surfBuilder->entrySurfaces();
-  std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > exitSurf  = m_surfBuilder->exitSurfaces();
-  
+  std::vector<std::pair<const Trk::Surface*, const Trk::Surface*>> entrySurf =
+    m_surfBuilder->entrySurfaces(&caloDDM);
+  std::vector<std::pair<const Trk::Surface*, const Trk::Surface*>> exitSurf =
+    m_surfBuilder->exitSurfaces(&caloDDM);
+
   // averaged material properties 
   auto barrelProperties = std::make_unique<Trk::Material>(22.7, 212., 45.8, 21.4, 0.0062);
   auto extendedBarrelProperties = std::make_unique<Trk::Material>(22.7, 210., 45.8, 21.4, 0.0062);
@@ -756,7 +758,7 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
   tileVols.push_back(positiveITCSector);
   tileVols.push_back(tilePositiveExtendedBarrel);
   tileVols.push_back(tilePositiveFingerGap);
-  const Trk::TrackingVolume* tileCombinedSector = m_trackingVolumeCreator->createContainerTrackingVolume
+  Trk::TrackingVolume* tileCombinedSector = m_trackingVolumeCreator->createContainerTrackingVolume
     (tileVols,
      tileMaterial,
      "Calo::Container::Tile::InnerSector");
@@ -765,7 +767,7 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
   std::vector<const Trk::TrackingVolume*> tileVolumes;
   tileVolumes.push_back(tileCombinedSector);
   tileVolumes.push_back(tileGirder);
-  const Trk::TrackingVolume* tile = m_trackingVolumeCreator->createContainerTrackingVolume
+  Trk::TrackingVolume* tile = m_trackingVolumeCreator->createContainerTrackingVolume
     (tileVolumes,
      tileMaterial,
      "Calo::Container::Tile::Combined");

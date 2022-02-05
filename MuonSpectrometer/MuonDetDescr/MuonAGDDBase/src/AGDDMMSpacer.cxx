@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -11,6 +11,7 @@
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
 #include "GeoModelKernel/GeoMaterial.h"
+#include "AGDDKernel/AGDDBuilder.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -19,13 +20,14 @@
 
 #include "MuonGeoModel/MMSpacerComponent.h"
 #include "MuonGeoModel/MMSpacer.h"
+#include "MuonGeoModel/MYSQL.h"
 
-void AGDDMMSpacer::CreateSolid() 
+void AGDDMMSpacer::CreateSolid (const AGDDBuilder& /*builder*/)
 {
 //	std::cout<<"this is AGDDMMSpacer::CreateSolid()"<<std::endl;
 }
 
-void AGDDMMSpacer::CreateVolume() 
+void AGDDMMSpacer::CreateVolume (AGDDBuilder& builder)
 {
 //    std::cout<<"this is AGDDMMSpacer::CreateVolume()"<<std::endl;
 	
@@ -34,11 +36,12 @@ void AGDDMMSpacer::CreateVolume()
 	mm_comp->dx1=m_small_x;
 	mm_comp->dx2=m_large_x;
 	mm_comp->dy=m_y;
-	
-	MuonGM::MMSpacer cham(mm_comp);
-	GeoPhysVol *vvv=cham.build(1);
 
-	CreateSolid();
+        MuonGM::MYSQL::LockedMYSQL mysql = MuonGM::MYSQL::GetPointer();
+	MuonGM::MMSpacer cham(*mysql, mm_comp);
+	GeoPhysVol *vvv=cham.build(builder.GetMaterialManager(), *mysql, 1);
+
+	CreateSolid (builder);
 
 	if (!GetVolume())
 	{

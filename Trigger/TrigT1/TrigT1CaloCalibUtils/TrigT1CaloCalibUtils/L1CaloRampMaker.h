@@ -1,19 +1,21 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1CALORAMPMAKER_H
 #define L1CALORAMPMAKER_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "TrigT1CaloEvent/TriggerTowerCollection.h"
 #include "TrigT1CaloCalibConditions/L1CaloPprConditionsContainerRun2.h"
 #include "TrigT1CaloCalibConditions/L1CaloPprDisabledChannelContainer.h"
+#include "CaloEvent/CaloCellContainer.h"
 
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
 
@@ -97,6 +99,9 @@ class L1CaloRampMaker : public AthAlgorithm
       bool disabledChannel;
     };
     std::map<uint32_t, DBInfo> m_tempDBInfo;
+
+    SG::ReadHandleKey<CaloCellContainer> m_caloCellsKey
+      { this, "CaloCellsKey", "AllCalo", "CaloCellContainer key" };
 };
 
 #endif //L1CALORAMPMAKER_H

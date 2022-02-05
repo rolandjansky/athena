@@ -12,6 +12,7 @@
 class GeoVPhysVol;
 
 namespace MuonGM {
+    class MYSQL;
 
     class DriftTube : public DetectorElement {
       public:
@@ -24,9 +25,9 @@ namespace MuonGM {
         double gasRadius;
         double plugLength;
 
-        GeoVPhysVol *build();
-        void print();
-        DriftTube(std::string s);
+        GeoVPhysVol *build(const StoredMaterialManager& matManager);
+        virtual void print() override;
+        DriftTube(const MYSQL& mysql, const std::string& s);
     };
 } // namespace MuonGM
 

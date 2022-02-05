@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_DetectorElementCondAlg.h"
@@ -8,6 +8,7 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "TrkGeometry/Layer.h"
 #include "TrkSurfaces/Surface.h"
+#include "AthenaKernel/IOVInfiniteRange.h"
 
 #include <map>
 
@@ -36,9 +37,9 @@ StatusCode SCT_DetectorElementCondAlg::initialize()
   ATH_CHECK(detStore()->retrieve(m_detManager, m_detManagerName));
 
   // used only if they exist
-  ATH_CHECK(m_trtDetElContKey.initialize());
-  ATH_CHECK(m_muonManagerKey.initialize());
-  ATH_CHECK(m_pixelReadKey.initialize());
+  ATH_CHECK(m_trtDetElContKey.initialize(SG::AllowEmpty));
+  ATH_CHECK(m_muonManagerKey.initialize(SG::AllowEmpty));
+  ATH_CHECK(m_pixelReadKey.initialize(SG::AllowEmpty));
 
   return StatusCode::SUCCESS;
 }
@@ -75,31 +76,37 @@ StatusCode SCT_DetectorElementCondAlg::execute(const EventContext& ctx) const
     return StatusCode::FAILURE;
   }
 
+  // Make sure we make a mixed IOV.
+  writeHandle.addDependency (IOVInfiniteRange::infiniteMixed());
+  
   // Add dependency
   writeHandle.addDependency(readHandle);
   // Additional dependencies for IOV range to limit lifetime to TrackingGeometry lifetime
-  for (const SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> &key :m_muonManagerKey ) {
-    SG::ReadCondHandle<MuonGM::MuonDetectorManager> muonDependency{key, ctx};
-    if (*muonDependency != nullptr){
+  if (!m_muonManagerKey.empty()) {
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> muonDependency{m_muonManagerKey, ctx};
+    if (*muonDependency != nullptr) {
       writeHandle.addDependency(muonDependency);
     } else {
-    ATH_MSG_WARNING("MuonManager not found, ignoring Muons for SCT_DetElement lifetime");
+      ATH_MSG_ERROR("MuonManager not found but configured");
+      return StatusCode::FAILURE;
     }
   }
-  for (const SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer> &key :m_trtDetElContKey ) {
-    SG::ReadCondHandle<InDetDD::TRT_DetElementContainer> trtDependency{key, ctx};
-    if (*trtDependency != nullptr){
+  if (!m_trtDetElContKey.empty()) {
+    SG::ReadCondHandle<InDetDD::TRT_DetElementContainer> trtDependency{m_trtDetElContKey, ctx};
+    if (*trtDependency != nullptr) {
       writeHandle.addDependency(trtDependency);
     } else {
-      ATH_MSG_WARNING("TRT DetEls not found, ignoring TRT for SCT_DetElement lifetime");
+      ATH_MSG_ERROR("TRT DetEls not found but configured");
+      return StatusCode::FAILURE;
     }
   }
-  for (const SG::ReadCondHandleKey<GeoAlignmentStore> &key :m_pixelReadKey ) {
-    SG::ReadCondHandle<GeoAlignmentStore> pixelDependency{key, ctx};
-    if (*pixelDependency != nullptr){
+  if (!m_pixelReadKey.empty()) {
+    SG::ReadCondHandle<GeoAlignmentStore> pixelDependency{m_pixelReadKey, ctx};
+    if (*pixelDependency != nullptr) {
       writeHandle.addDependency(pixelDependency);
     } else {
-      ATH_MSG_WARNING("Pixel AlignmentStore not found, ignoring Pixels for SCT_DetElement lifetime");
+      ATH_MSG_ERROR("Pixel AlignmentStore not found but configured");
+      return StatusCode::FAILURE;
     }
   }
 

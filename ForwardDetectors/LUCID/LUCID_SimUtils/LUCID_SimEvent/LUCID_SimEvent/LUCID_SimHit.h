@@ -10,7 +10,6 @@
 #include "CLHEP/Vector/ThreeVector.h"
 #include <string>
 #include "CLHEP/Random/RandFlat.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
 
 // LUCID_SimHit hold all information needed by the digitization algorithms
 // to construct raw data objects.

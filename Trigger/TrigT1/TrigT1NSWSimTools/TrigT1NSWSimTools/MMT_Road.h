@@ -42,7 +42,7 @@ class MMT_Road : public AthMessaging {
     MMT_Road(const char sector, const MuonGM::MuonDetectorManager* detManager, const micromegas_t mm, int xthr, int uvthr, int iroadx, int iroadu = -1, int iroadv = -1);
     ~MMT_Road();
 
-    void addHits(std::vector<MMT_Hit*> &hits);
+    void addHits(std::vector<std::shared_ptr<MMT_Hit> > &hits);
     double avgSofX();
     double avgSofUV(const int uv1, const int uv2);
     double avgZofUV(const int uv1, const int uv2);
@@ -52,6 +52,7 @@ class MMT_Road : public AthMessaging {
     unsigned int countRealHits();
     unsigned int countUVHits(bool flag);
     unsigned int countXHits(bool flag);
+    bool evaluateLowRes();
     bool horizontalCheck();
     void incrementAge(const int &bcwind);
     double getB() const { return m_B; }

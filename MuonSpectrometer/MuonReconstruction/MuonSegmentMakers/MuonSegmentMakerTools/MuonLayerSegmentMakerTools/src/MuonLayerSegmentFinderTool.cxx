@@ -116,7 +116,7 @@ MuonLayerSegmentFinderTool::findMdtSegmentsFromHough(
     float errx  = Amg::error(*intersection.trackParameters->covariance(), Trk::locX);
     float x     = barrelLike ? r : z;
     float y     = barrelLike ? z : r;
-    float theta = atan2(x, y);
+    float theta = std::atan2(x, y);
 
     ATH_MSG_DEBUG("  Got Hough maxima " << maxVec.size() << " extrapolated position in Hough space (" << x << "," << y
                                         << ") error " << errx << " "
@@ -147,7 +147,7 @@ MuonLayerSegmentFinderTool::findMdtSegmentsFromHough(
         float refPos   = (maximum.hough != nullptr) ? maximum.hough->m_descriptor.referencePosition : 0;
         float maxwidth = (maximum.binposmax - maximum.binposmin);
         if (maximum.hough) maxwidth *= maximum.hough->m_binsize;
-        float pull = residual / sqrt(errx * errx + maxwidth * maxwidth / 12.);
+        float pull = residual / std::sqrt(errx * errx + maxwidth * maxwidth / 12.);
 
         
         ATH_MSG_DEBUG("   Hough maximum " << maximum.max << " position (" << refPos << "," << maximum.pos
@@ -160,8 +160,8 @@ MuonLayerSegmentFinderTool::findMdtSegmentsFromHough(
         // loop over hits in maximum and add them to the hit list
         std::vector<const MdtDriftCircleOnTrack*>    mdts;
         std::vector<const MuonClusterOnTrack*>       clusters;
-        std::vector<MuonHough::Hit*>::const_iterator hit     = maximum.hits.begin();
-        std::vector<MuonHough::Hit*>::const_iterator hit_end = maximum.hits.end();
+        MuonHough::HitVec::const_iterator hit     = maximum.hits.begin();
+        MuonHough::HitVec::const_iterator hit_end = maximum.hits.end();
         for (; hit != hit_end; ++hit) {
 
             // treat the case that the hit is a composite TGC hit
@@ -193,8 +193,8 @@ MuonLayerSegmentFinderTool::findMdtSegmentsFromHough(
             ATH_MSG_DEBUG("     Phi Hough maximum " << maximum.max << " phi " << maximum.pos << ") angle "
                                                     << maximum.pos << " residual " << residual);
 
-            std::vector<MuonHough::PhiHit*>::const_iterator hit     = maximum.hits.begin();
-            std::vector<MuonHough::PhiHit*>::const_iterator hit_end = maximum.hits.end();
+            MuonHough::PhiHitVec::const_iterator hit     = maximum.hits.begin();
+            MuonHough::PhiHitVec::const_iterator hit_end = maximum.hits.end();
             for (; hit != hit_end; ++hit) {
                 // treat the case that the hit is a composite TGC hit
                 if ((*hit)->tgc && !(*hit)->tgc->phiCluster.hitList.empty()) {
@@ -317,13 +317,12 @@ MuonLayerSegmentFinderTool::findClusterSegments(const MuonSystemExtension::Inter
         }
     }
 
-    std::vector<MuonSegment*> foundSegments;
-    m_clusterSegMakerNSW->find(clusters, foundSegments);
+    std::vector<std::unique_ptr<MuonSegment>> foundSegments;
+    m_clusterSegMakerNSW->find(ctx, clusters, foundSegments, nullptr);
     if (!foundSegments.empty()) {
-        for (auto *seg : foundSegments) {
+        for (std::unique_ptr<MuonSegment> & seg : foundSegments) {
             ATH_MSG_DEBUG(" NSW segment " << m_printer->print(*seg));
-            segments.push_back(std::shared_ptr<const MuonSegment>(seg));
-            ATH_MSG_DEBUG(" total segments " << segments.size());
+            segments.emplace_back(std::move(seg));
         }
     }
 }

@@ -8,7 +8,6 @@
 namespace LVL1{
   L1CaloCells2TriggerTowers::L1CaloCells2TriggerTowers(const std::string& name) : 
     asg::AsgTool( name ),
-    m_caloMgr(nullptr),
     m_lvl1Helper(nullptr),
     m_tileID(nullptr),
     m_caloCellHelper(nullptr),
@@ -145,12 +144,15 @@ namespace LVL1{
   StatusCode L1CaloCells2TriggerTowers::initialize() {
     ATH_MSG_INFO("Initialize LVL1::L1CaloCells2TriggerTowers");
 
+    ATH_CHECK( m_cellMatch.retrieve() );
+
     StatusCode sc;
 
-    sc = detStore()->retrieve(m_caloMgr);
+    const CaloIdManager* caloMgr = nullptr;
+    sc = detStore()->retrieve(caloMgr);
     if(sc.isFailure()){ATH_MSG_ERROR("Failed to load CaloMgr");return sc;}
 
-    m_caloCellHelper = m_caloMgr->getCaloCell_ID();
+    m_caloCellHelper = caloMgr->getCaloCell_ID();
     if (!m_caloCellHelper) {
       ATH_MSG_ERROR("Could not access CaloCell_ID helper");
       return StatusCode::FAILURE;
@@ -210,7 +212,7 @@ namespace LVL1{
 		  Identifier ttId1;
 		  Identifier ttId2;
 
-		  this->matchCell2Tower(**cabling, caloCell, ttId1, ttId2);
+		  m_cellMatch->matchCell2Tower(**cabling, caloCell, ttId1, ttId2);
 
 		  if (ttId1 != invalidId) {
 			  m_mTTCaloCells[ttId1.get_identifier32().get_compact()].push_back(caloCell);
@@ -223,83 +225,6 @@ namespace LVL1{
 
 	  m_bInitialized = true;
 	  return m_bInitialized;
-  }
-
-  void L1CaloCells2TriggerTowers::matchCell2Tower(const CaloCell* caloCell, Identifier& ttId1, Identifier& ttId2) const
-  {
-    SG::ReadCondHandle<LArOnOffIdMapping> cabling (m_cablingKey);
-    matchCell2Tower (**cabling, caloCell, ttId1, ttId2);
-  }
-  void L1CaloCells2TriggerTowers::matchCell2Tower(const LArOnOffIdMapping& cabling,
-                                                  const CaloCell* caloCell, Identifier& ttId1, Identifier& ttId2) const
-  {
-	  const Identifier invalidId(0);
-	  ttId1 = invalidId;
-	  ttId2 = invalidId;
-	  const Identifier cellId(caloCell->ID());
-
-	  // Tile cells
-	  if (m_caloCellHelper->is_tile(cellId)) {
-
-		  int section = m_caloCellHelper->section(cellId);
-		  int sample = m_caloCellHelper->sample(cellId);
-
-		  // gap detector - D4 & C10 cells
-		  // both pmt of D4 belong to the same TT
-		  if(section==3 && (sample==1 || sample==2) ) {
-			  ttId1 = m_tileCablingService->cell2tt_id(cellId);
-
-		  // barrel & ext. barrel - D cells
-		  } else if( (section==1 || section==2) && sample==2) {
-
-			  // special treatment of D-cells
-			  // each pmt is affected to a different trigger tower
-			  // each D-CaloCell is then added to 2 TT. This must ne taken into account when computing the TT energy
-			  // from the CaloCells by dividing the D-cell energy by 2.
-			  ttId1 = m_tileCablingService->pmt2tt_id(m_tileID->pmt_id(cellId, 0));
-			  ttId2 = m_tileCablingService->pmt2tt_id(m_tileID->pmt_id(cellId, 1));
-
-		  // barrel & ext. barrel - A & BC cells
-		  } else if( (section==1 || section==2) && (sample==0 || sample==1) ) {
-			  ttId1 = m_tileCablingService->cell2tt_id(cellId);
-		  }
-
-	  //LArg cells
-	  } else {
-		  //whichTTID ttId returns a layer_id, not a tower_id !
-		  const Identifier layerId(m_ttSvc->whichTTID(cellId));
-
-		  // We are not calling here m_ttSvc->is_in_lvl1(cellId) but use directly its code for a performance reason
-		  // By doing so we save a redundant and costly call to m_ttSvc->whichTTID()
-		  bool lvl1(true);
-		  if(m_caloCellHelper->is_em_barrel(cellId)) {
-			  int samp=m_caloCellHelper->sampling(cellId);
-			  if(samp==0) {
-				  int eta=m_caloCellHelper->eta(cellId);
-				  if(eta==60) {
-				  lvl1 = false ;
-			  }
-		    }
-		  } else {
-			  if(m_lvl1Helper->is_hec(layerId)) {
-				  int layer(m_lvl1Helper->layer(layerId));
-				  if(layer == 3){
-					  lvl1 = false ;
-				  }
-			  }
-		  }
-
-		  if(lvl1) {
-			  // check if the channel is connected
-			  HWIdentifier channelID = cabling.createSignalChannelID(cellId);
-			  if(cabling.isOnlineConnected(channelID)) {
-
-				  // As we don't want the layer information embedded in the identifier, we recreate a tower Id
-				  ttId1 = m_lvl1Helper->tower_id( m_lvl1Helper->pos_neg_z(layerId), m_lvl1Helper->sampling(layerId), m_lvl1Helper->region(layerId), m_lvl1Helper->eta(layerId), m_lvl1Helper->phi(layerId));
-			  }
-		  }
-	  }
-
   }
 
   bool L1CaloCells2TriggerTowers::initLArDigitsTriggerTowers(const LArDigitContainer& larDigitContainer) {

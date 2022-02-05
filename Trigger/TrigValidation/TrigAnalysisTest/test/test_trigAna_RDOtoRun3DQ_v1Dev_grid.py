@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # art-description: Test of transform RDO->RDO_TRIG->ESD->AOD followed by HLT monitoring step with Run-3 DQ framework
 # art-type: grid
@@ -23,9 +23,9 @@
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 
 preExec = ';'.join([
-  'setMenu=\'LS2_v1_TriggerValidation_prescale\'',
-  'from TriggerJobOpts.TriggerFlags import TriggerFlags',
-  'TriggerFlags.AODEDMSet.set_Value_and_Lock(\\\"AODFULL\\\")',
+  'setMenu=\'Dev_pp_run3_v1_TriggerValidation_prescale\'',
+  'from AthenaConfiguration.AllConfigFlags import ConfigFlags',
+  'ConfigFlags.Trigger.AODEDMSet=\'AODFULL\'',
 ])
 
 rdo2aod = ExecStep.ExecStep('RDOtoAOD')
@@ -43,7 +43,7 @@ dq.executable = 'Run3DQTestingDriver.py'
 dq.input = ''
 dq.args = '--threads=4'
 dq.args += ' --dqOffByDefault'
-dq.args += ' Input.Files="[\'AOD.pool.root\']" DQ.Steering.doHLTMon=True'
+dq.args += ' Input.Files="[\'AOD.pool.root\']" DQ.Steering.doHLTMon=True Trigger.triggerMenuSetup=\'Dev_pp_run3_v1_TriggerValidation_prescale\''
 
 test = Test.Test()
 test.art_type = 'grid'

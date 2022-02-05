@@ -5,42 +5,42 @@ Py:MetaReader        INFO Current mode used: peeker
 Py:MetaReader        INFO Current filenames: ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1']
 Py:ComponentAccumulator    INFO Condition Algorithms
 Py:ComponentAccumulator    INFO  \__ TrigLiveFractionCondAlg (cond alg)
-Py:ComponentAccumulator    INFO      * TrigLiveFractionOutputKey: TrigLiveFractionCondData set
+Py:ComponentAccumulator    INFO      * TrigLiveFractionOutputKey: TrigLiveFractionCondData
 --- run1
 Py:LuminosityCondAlg    INFO configureLuminosityCondAlgRun1 requested /TRIGGER/OFLLUMI/LBLESTOFL
 Py:ComponentAccumulator    INFO Condition Algorithms
 Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
-Py:ComponentAccumulator    INFO      * Load: [['AthenaAttributeList', '/TRIGGER/LUMI/PerBcidDeadtime'], ['CondAttrListCollection', '/TRIGGER/OFLLUMI/LBLESTOFL'], ['AthenaAttributeList', '/TDAQ/OLC/LHC/FILLPARAMS'], ['CondAttrListCollection', '/TDAQ/OLC/BUNCHLUMIS'], ['AthenaAttributeList', '/TRIGGER/LVL1/BunchGroupContent'], ['CondAttrListCollection', '/TDAQ/OLC/CALIBRATIONS']] set
+Py:ComponentAccumulator    INFO      * Load: [['AthenaAttributeList', '/TRIGGER/LUMI/PerBcidDeadtime'], ['CondAttrListCollection', '/TRIGGER/OFLLUMI/LBLESTOFL'], ['AthenaAttributeList', '/TDAQ/OLC/LHC/FILLPARAMS'], ['CondAttrListCollection', '/TDAQ/OLC/BUNCHLUMIS'], ['AthenaAttributeList', '/TRIGGER/LVL1/BunchGroupContent'], ['CondAttrListCollection', '/TDAQ/OLC/CALIBRATIONS']]
 Py:ComponentAccumulator    INFO  \__ FillParamsCondAlg (cond alg)
-Py:ComponentAccumulator    INFO      * FillParamsFolderInputKey: /TDAQ/OLC/LHC/FILLPARAMS set
-Py:ComponentAccumulator    INFO      * FillParamsOutputKey: FillParamsCondData set
+Py:ComponentAccumulator    INFO      * FillParamsFolderInputKey: /TDAQ/OLC/LHC/FILLPARAMS
+Py:ComponentAccumulator    INFO      * FillParamsOutputKey: FillParamsCondData
 Py:ComponentAccumulator    INFO  \__ BunchLumisCondAlg (cond alg)
-Py:ComponentAccumulator    INFO      * BunchLumisFolderInputKey: /TDAQ/OLC/BUNCHLUMIS set
-Py:ComponentAccumulator    INFO      * BunchLumisOutputKey: BunchLumisCondData set
-Py:ComponentAccumulator    INFO      * FillParamsInputKey: FillParamsCondData set
+Py:ComponentAccumulator    INFO      * BunchLumisFolderInputKey: /TDAQ/OLC/BUNCHLUMIS
+Py:ComponentAccumulator    INFO      * BunchLumisOutputKey: BunchLumisCondData
+Py:ComponentAccumulator    INFO      * FillParamsInputKey: FillParamsCondData
 Py:ComponentAccumulator    INFO  \__ BunchGroupCondAlg (cond alg)
-Py:ComponentAccumulator    INFO      * BunchGroupFolderInputKey: /TRIGGER/LVL1/BunchGroupContent set
-Py:ComponentAccumulator    INFO      * BunchGroupOutputKey: BunchGroupCondData set
+Py:ComponentAccumulator    INFO      * BunchGroupFolderInputKey: /TRIGGER/LVL1/BunchGroupContent
+Py:ComponentAccumulator    INFO      * BunchGroupOutputKey: BunchGroupCondData
 Py:ComponentAccumulator    INFO  \__ OnlineLumiCalibrationCondAlg (cond alg)
-Py:ComponentAccumulator    INFO      * CalibrationFolderInputKey: /TDAQ/OLC/CALIBRATIONS set
-Py:ComponentAccumulator    INFO      * LumiCalibOutputKey: OnlineLumiCalibrationCondData set
+Py:ComponentAccumulator    INFO      * CalibrationFolderInputKey: /TDAQ/OLC/CALIBRATIONS
+Py:ComponentAccumulator    INFO      * LumiCalibOutputKey: OnlineLumiCalibrationCondData
 Py:ComponentAccumulator    INFO  \__ LuminosityCondAlg (cond alg)
-Py:ComponentAccumulator    INFO      * BunchGroupInputKey: BunchGroupCondData set
-Py:ComponentAccumulator    INFO      * BunchLumisInputKey: BunchLumisCondData set
-Py:ComponentAccumulator    INFO      * FillParamsInputKey: FillParamsCondData set
-Py:ComponentAccumulator    INFO      * LuminosityFolderInputKey: /TRIGGER/OFLLUMI/LBLESTOFL set
-Py:ComponentAccumulator    INFO      * LuminosityOutputKey: LuminosityCondData set
-Py:ComponentAccumulator    INFO      * OnlineLumiCalibrationInputKey: OnlineLumiCalibrationCondData set
+Py:ComponentAccumulator    INFO      * BunchGroupInputKey: BunchGroupCondData
+Py:ComponentAccumulator    INFO      * BunchLumisInputKey: BunchLumisCondData
+Py:ComponentAccumulator    INFO      * FillParamsInputKey: FillParamsCondData
+Py:ComponentAccumulator    INFO      * LuminosityFolderInputKey: /TRIGGER/OFLLUMI/LBLESTOFL
+Py:ComponentAccumulator    INFO      * LuminosityOutputKey: LuminosityCondData
+Py:ComponentAccumulator    INFO      * OnlineLumiCalibrationInputKey: OnlineLumiCalibrationCondData
 Py:ComponentAccumulator    INFO  \__ TrigLiveFractionCondAlg (cond alg)
-Py:ComponentAccumulator    INFO      * DeadtimeFolderInputKey: /TRIGGER/LUMI/PerBcidDeadtime set
-Py:ComponentAccumulator    INFO      * LuminosityInputKey: LuminosityCondData set
-Py:ComponentAccumulator    INFO      * TrigLiveFractionOutputKey: TrigLiveFractionCondData set
+Py:ComponentAccumulator    INFO      * DeadtimeFolderInputKey: /TRIGGER/LUMI/PerBcidDeadtime
+Py:ComponentAccumulator    INFO      * LuminosityInputKey: LuminosityCondData
+Py:ComponentAccumulator    INFO      * TrigLiveFractionOutputKey: TrigLiveFractionCondData
 IOVDbSvc: ['<db>COOLONL_TRIGGER/COMP200</db> /TRIGGER/LUMI/PerBcidDeadtime<tag>HEAD</tag>', '<db>COOLOFL_TRIGGER/COMP200</db> /TRIGGER/OFLLUMI/LBLESTOFL', '<db>COOLONL_TDAQ/COMP200</db> /TDAQ/OLC/LHC/FILLPARAMS<tag>HEAD</tag>', '<db>COOLONL_TDAQ/COMP200</db> /TDAQ/OLC/BUNCHLUMIS', '<db>COOLONL_TRIGGER/COMP200</db> /TRIGGER/LVL1/BunchGroupContent<tag>HEAD</tag>', '<db>COOLONL_TDAQ/COMP200</db> /TDAQ/OLC/CALIBRATIONS']
 --- mc
 Py:AutoConfigFlags    INFO Obtaining metadata of auto-configuration by peeking into /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root
 Py:MetaReader        INFO Current mode used: peeker
 Py:MetaReader        INFO Current filenames: ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root']
-Py:MetaReader        INFO MetaReader is called with the parameter "unique_tag_info_values" set to True. This is a workaround to remove all duplicate values from "/TagInfo" key
+Py:MetaReader        INFO MetaReader is called with the parameter "unique_tag_info_values" to True. This is a workaround to remove all duplicate values from "/TagInfo" key
 Py:ComponentAccumulator    INFO Condition Algorithms
 Py:ComponentAccumulator    INFO  \__ TrigLiveFractionCondAlg (cond alg)
-Py:ComponentAccumulator    INFO      * TrigLiveFractionOutputKey: TrigLiveFractionCondData set
+Py:ComponentAccumulator    INFO      * TrigLiveFractionOutputKey: TrigLiveFractionCondData

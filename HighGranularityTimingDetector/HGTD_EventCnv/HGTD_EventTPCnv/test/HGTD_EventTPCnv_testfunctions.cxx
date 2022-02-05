@@ -26,7 +26,7 @@ void compare(const Trk::PrepRawData& p1, const Trk::PrepRawData& p2) {
   std::cout << "compare PrepRawData done\n";
 }
 
-void compare(const HGTD::HGTD_Cluster& p1, const HGTD::HGTD_Cluster& p2) {
+void compare(const HGTD_Cluster& p1, const HGTD_Cluster& p2) {
   std::cout << "compare HGTD_Cluster\n";
   compare(static_cast<const Trk::PrepRawData&>(p1),
           static_cast<const Trk::PrepRawData&>(p2));

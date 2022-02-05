@@ -130,7 +130,7 @@ class AtlCoolCopy {
   bool getOnlineRun();
   bool getBulkRun();
   bool getRunList();
-  static int getUpdateMode(const std::string& desc, const std::string& tag);
+  static int getUpdateMode(std::string_view desc, std::string_view tag);
 
   bool checkChannels(const std::string& folder,
 		     const cool::IFolderPtr& sourcefl,const cool::IFolderPtr& destfl,
@@ -431,15 +431,15 @@ bool AtlCoolCopy::addFolder(const std::string& folder,const bool onlyTags) {
     // for leading part matches, next char in folder name must be '/'
     // so /CALO/SetA matches /CALO/SetA/X but not /CALO/SetAB
     if (*nodeitr==folder || folder=="/" ||
-      (nodeitr->substr(0,folder.size())==folder && 
-     nodeitr->size()>folder.size() && nodeitr->substr(folder.size(),1)=='/')) {
+      (nodeitr->compare(0,folder.size(),folder)==0 && 
+     nodeitr->size()>folder.size() && nodeitr->compare(folder.size(),1,"/")==0)) {
       // check if folder on exclude list
       bool exclude=false;
       for (std::vector<std::string>::const_iterator iexcl=m_folderexcl.begin();
 	   iexcl!=m_folderexcl.end();++iexcl) {
-	if (iexcl->substr(0,1)=="/") {
+	if (iexcl->compare(0,1,"/")==0) {
   	  // exclude pattern starting / matches folder path (/SCT or /SCT/DCS)
-          exclude=(exclude || nodeitr->substr(0,iexcl->size())==*iexcl);
+          exclude=(exclude || nodeitr->compare(0,iexcl->size(),*iexcl)==0);
 	} else {
 	  // exclude pattern without leading / matches anywhere in folder
 	  exclude=(exclude || (nodeitr->find(*iexcl)!=std::string::npos));
@@ -2097,9 +2097,9 @@ bool AtlCoolCopy::procOptVector(const int argc, const char* argv[],
   bool error=false;
   while (ic<argc) {
     int ir=argc-ic;
-    std::string par0=argv[ic];
+    std::string_view par0=argv[ic];
     // strip double "--" to achieve compatability with python-style options
-    if (par0.substr(0,2)=="--") par0=par0.substr(1);
+    if (par0.compare(0,2,"--")==0) par0=par0.substr(1);
     if ((par0=="-f" || par0=="-folder") && ir>1) {
       folders.emplace_back(argv[ic+1]);
       ++ic;
@@ -2459,7 +2459,7 @@ bool AtlCoolCopy::isNumeric(const char* input) {
   bool isnum=true;
   const char* cptr=input;
   while (*cptr!='\0') {
-    if (!isdigit(*cptr)) isnum=false;
+    if (!isdigit(*cptr)) { isnum=false; break;}
     ++cptr;
   }
   return isnum;
@@ -2793,11 +2793,11 @@ bool AtlCoolCopy::getRunList() {
   return true;
 }
 
-int AtlCoolCopy::getUpdateMode(const std::string& desc, 
-			       const std::string& tag) {
+int AtlCoolCopy::getUpdateMode(std::string_view desc, 
+			       std::string_view tag) {
   // analyse the folder description and tag name for updateMode flags
   // return 1 for online mode, 0 otherwise
-  std::string modestr="";
+  std::string_view modestr="";
   int mode=0;
   std::string::size_type iofs1=desc.find("<updateMode>");
   std::string::size_type iofs2=desc.find("</updateMode>");

@@ -82,9 +82,6 @@ DetFlags.em_setOn()
 include ("AtlasGeoModel/SetGeometryVersion.py")
 include ("AtlasGeoModel/GeoModelInit.py")
 
-ToolSvc = Service( "ToolSvc" )
-ToolSvc.LArRoI_Map.Print = False
-
 #
 # Read in from POOL file
 #

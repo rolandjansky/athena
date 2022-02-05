@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AGDDBolt_H
@@ -12,26 +12,29 @@
 
 class AGDDBolt: public AGDDVolume {
 public:
-	AGDDBolt(std::string s):AGDDVolume(s),_length(0),_headLength(0),
-										 _diameter(0),_headDiameter(0) {}
+	AGDDBolt(const std::string& s,
+                 AGDDVolumeStore& vs,
+                 AGDDSectionStore& ss)
+          : AGDDVolume(s,vs,ss),m_length(0),m_headLength(0),
+										 m_diameter(0),m_headDiameter(0) {}
 	~AGDDBolt() {}
-	void CreateVolume();
-	void CreateSolid();
+        virtual void CreateVolume (AGDDBuilder& builder) override;
+	virtual void CreateSolid (const AGDDBuilder& builder) override;
 	
-	void SetHeadLength(double l) {_headLength=l;}
-	void SetLength(double l) {_length=l;}
-	void SetHeadDiameter(double l) {_headDiameter=l;}
-	void SetDiameter(double l) {_diameter=l;}
+	void SetHeadLength(double l) {m_headLength=l;}
+	void SetLength(double l) {m_length=l;}
+	void SetHeadDiameter(double l) {m_headDiameter=l;}
+	void SetDiameter(double l) {m_diameter=l;}
 	
-	double GetHeadLength() {return _headLength;}
-	double GetLength() {return _length;}
-	double GetHeadDiameter() {return _headDiameter;}
-	double GetDiameter() {return _diameter;}
+	double GetHeadLength() const {return m_headLength;}
+	double GetLength() const {return m_length;}
+	double GetHeadDiameter() const {return m_headDiameter;}
+	double GetDiameter() const {return m_diameter;}
 	
-	double _length;
-	double _headLength;
-	double _diameter;
-	double _headDiameter;
+	double m_length;
+	double m_headLength;
+	double m_diameter;
+	double m_headDiameter;
 };
 
 #endif

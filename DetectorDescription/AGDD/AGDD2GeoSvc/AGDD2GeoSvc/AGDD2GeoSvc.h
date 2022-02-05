@@ -1,18 +1,18 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AGDD2GeoSvc_H
 #define AGDD2GeoSvc_H
 
-#include "AGDD2GeoSvc/IAGDD2GeoSvc.h"
+#include "AGDDControl/IAGDD2GeoSvc.h"
 #include "AGDDControl/XMLHandler.h"
 #include "AGDDControl/IAGDDToolBase.h"
+#include "AGDDControl/AGDDController.h"
 #include "AthenaBaseComps/AthService.h"
 
-#include "AGDDKernel/AGDDDetectorStore.h"
-
 #include <vector>
+#include <mutex>
 
 class ISvcLocator;
 class IToolSvc;
@@ -26,7 +26,8 @@ public:
 
   virtual StatusCode initialize() override final;
 
-  virtual void addHandler(XMLHandler* v) override final { m_handlerVector.push_back(v);}
+  virtual void addHandler(XMLHandler* v) override final;
+  virtual LockedController getController() override final;
 
   // Standard Constructor
   AGDDtoGeoSvc(const std::string& name, ISvcLocator* svc);
@@ -41,7 +42,8 @@ private:
   std::vector<XMLHandler*> m_handlerVector;
 
   ToolHandleArray<IAGDDToolBase> m_builders; // public ToolHandleArray
-
+  AGDDController m_controller;
+  std::recursive_mutex m_mutex;
 };
 
 #endif

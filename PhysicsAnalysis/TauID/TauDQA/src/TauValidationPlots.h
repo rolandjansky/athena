@@ -22,7 +22,7 @@
 
 class TauValidationPlots:public PlotBase {
     public:
-      TauValidationPlots(PlotBase* pParent, std::string sDir, std::string sTauJetContainerName);
+      TauValidationPlots(PlotBase* pParent, const std::string& sDir, const std::string& sTauJetContainerName);
       // general tau all prongs plots
       Tau::GeneralTauPlots m_oGeneralTauAllProngsPlots;
 

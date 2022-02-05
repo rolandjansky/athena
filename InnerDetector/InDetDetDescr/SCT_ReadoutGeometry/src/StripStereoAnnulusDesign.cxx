@@ -456,7 +456,8 @@ void StripStereoAnnulusDesign::distanceToDetectorEdge(SiLocalPosition const & po
 
 DetectorShape StripStereoAnnulusDesign::shape() const
  {
-   return InDetDD::Annulus;
+   if (m_usePC) return InDetDD::PolarAnnulus;
+   else         return InDetDD::Annulus;
  }
 
 double StripStereoAnnulusDesign::stripLength(const InDetDD::SiCellId &cellId) const

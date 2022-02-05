@@ -41,8 +41,8 @@ BFieldCacheZR::getB(const double* ATH_RESTRICT xyz,
 
   // compute field derivatives if requested
   if (deriv) {
-    std::array<double, 2> dBdz;
-    std::array<double, 2> dBdr;
+    std::array<double, 2> dBdz{};
+    std::array<double, 2> dBdr{};
     for (int j = 0; j < 2; ++j) { // Bz, Br components
       const double* field = m_field[j];
       dBdz[j] =

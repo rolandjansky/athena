@@ -34,11 +34,11 @@ private:
   int m_type;
 
   // Basic parameters
-    double m_deltaR;
-  double m_rphi;
-  double m_thickness;
-  double m_zOffset;
-  const GeoMaterial * m_material;
+    double m_deltaR = 0.0;
+  double m_rphi = 0.0;
+  double m_thickness = 0.0;
+  double m_zOffset = 0.0;
+  const GeoMaterial * m_material = nullptr;
   std::string m_materialName;
 
 };

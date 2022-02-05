@@ -116,7 +116,17 @@ const std::string Token::toString() const {
    sprintf(text1, fmt_tech, m_technology);
    char text2[128];
    sprintf(text2, fmt_oid, m_oid.first, m_oid.second);
-   std::string str = "[DB=" + m_dbID.toString() + "][CNT=" + m_cntID + "][CLID=" + m_classID.toString() + "]" + text1 + text2 + m_auxString;
+   std::string str = "[DB=";
+   str.reserve(32);
+   str += m_dbID.toString();
+   str += "][CNT=";
+   str += m_cntID;
+   str += "][CLID=";
+   str += m_classID.toString();
+   str += ']';
+   str += text1;
+   str += text2;
+   str += m_auxString;
    return str;
 }
 
@@ -162,7 +172,13 @@ Token& Token::fromString(const std::string& source)    {
 const std::string Token::key() const {
    char text[1024];
    ::sprintf(text, "][TECH=%08X]", m_technology & KEY_MASK);
-   std::string k = "[DB=" + m_dbID.toString() + "][CNT=" + m_cntID + "][CLID=" + m_classID.toString() + text;
+   std::string k = "[DB=";
+   k += m_dbID.toString();
+   k += "][CNT=";
+   k += m_cntID;
+   k += "][CLID=";
+   k += m_classID.toString();
+   k += text;
    return k;
 }
 

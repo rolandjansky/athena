@@ -72,7 +72,7 @@ namespace dqutils {
       //met_fexs.push_back("/METMon_allCells");
 
       // check if fex dirs are in hlt 
-      for( std::vector<TString>::iterator it = met_fexs.begin(); it != met_fexs.end(); it++ ) {
+      for( std::vector<TString>::iterator it = met_fexs.begin(); it != met_fexs.end(); ++it ) {
         TString theHistDir = hlt_top + *it;
         TDirectory* dir = f->GetDirectory(theHistDir);
         if(!dir){
@@ -104,8 +104,8 @@ namespace dqutils {
       unsigned int comp_num = 25; // 25 components
       
       // we have all dirs, get the component histograms
-      for( std::vector<TString>::iterator itFex = met_fexs.begin(); itFex != met_fexs.end(); itFex++ ) {
-        for( std::vector<TString>::iterator itNum = hist_numr.begin(); itNum != hist_numr.end(); itNum++ ) {
+      for( std::vector<TString>::iterator itFex = met_fexs.begin(); itFex != met_fexs.end(); ++itFex ) {
+        for( std::vector<TString>::iterator itNum = hist_numr.begin(); itNum != hist_numr.end(); ++itNum ) {
           for(unsigned int icomp = 0; icomp < comp_num; icomp++ ) {
             TH2F *hnum(0), *hden(0);
             

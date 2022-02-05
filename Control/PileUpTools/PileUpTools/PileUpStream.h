@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PILEUPSTREAM_PILEUPSTREAM_H
@@ -14,7 +14,7 @@
 
 // Framework include files
 #include "GaudiKernel/IEvtSelector.h"
-#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
 #include "xAODEventInfo/EventInfo.h"
 
@@ -28,15 +28,19 @@ class PileUpMergeSvc;
 /** @class PileUpStream
  * @brief a triple selector/context/store defines a stream
  */
-class PileUpStream {
+class PileUpStream
+  : public AthMessaging
+{
 public:
   typedef IEvtSelector::Context EvtIterator;
 
   /// @name Structors
   //@{
   PileUpStream();
-  PileUpStream(const PileUpStream& rhs);
-  PileUpStream& operator=(const PileUpStream& rhs);
+  PileUpStream(const PileUpStream& rhs) = delete;
+  PileUpStream& operator=(const PileUpStream& rhs) = delete;
+  PileUpStream(PileUpStream&& rhs);
+  PileUpStream& operator=(PileUpStream&& rhs);
   PileUpStream(const std::string& name, 
 	       IEvtSelector* sel, 
 	       StoreGateSvc* store);
@@ -88,11 +92,7 @@ public:
     }
   }
 
-  /// Log a message using the Athena controlled logging system
-  MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-  /// Check whether the logging system is active at the provided verbosity level
-  bool msgLvl( MSG::Level lvl ) { return m_msg.get().level() <= lvl; }
-  
+
 private:
   ISvcLocator* serviceLocator() { return p_svcLoc; }
 
@@ -126,12 +126,10 @@ private:
   
   ActiveStoreSvc* p_activeStore;
 
-  //mutable so that ownership can be passed upon copy
-  mutable bool m_ownEvtIterator; ///> do we own p_iter? 
+  bool m_ownEvtIterator; ///> do we own p_iter? 
   /// Private message stream member
-  mutable Athena::MsgStreamMember m_msg;
   bool m_neverLoaded;  ///> has an event been loaded into this stream?
-  mutable bool m_ownStore;  ///> is p_SG a store we cloned from the master one?
+  bool m_ownStore;  ///> is p_SG a store we cloned from the master one?
 
   bool m_used; ///has this stream already been used? (for the current event)
   bool m_hasRing;

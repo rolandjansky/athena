@@ -462,13 +462,13 @@ if (doCaliWaveSelector) :
    LArCaliWaveSelector = LArCaliWaveSelector("LArCaliWaveSelector")
    LArCaliWaveSelector.KeyList         = [ KeyOutput+"multi" ]
    LArCaliWaveSelector.KeyOutput       = KeyOutput
-   if (GainList[0]=="HIGH") :
+   if (Gain=="HIGH") :
       LArCaliWaveSelector.SelectionList = [ "HEC/0/0/460","HEC/1/0/460","HEC/2/0/230","HEC/3/0/230" ] 
 
-   if (GainList[0]=="MEDIUM") :
+   if (Gain=="MEDIUM") :
       LArCaliWaveSelector.SelectionList = [ "HEC/0/1/3600","HEC/1/1/3600","HEC/2/1/1800","HEC/3/1/1800"]
    
-   if (GainList[0]=="LOW") :   
+   if (Gain=="LOW") :   
       LArCaliWaveSelector.SelectionList = [ "HEC/0/2/24000","HEC/1/2/24000","HEC/2/2/18000","HEC/3/2/18000" ]
       
    topSequence+=LArCaliWaveSelector

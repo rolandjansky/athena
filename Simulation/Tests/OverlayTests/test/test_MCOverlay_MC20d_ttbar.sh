@@ -2,6 +2,7 @@
 
 # art-description: MC+MC Overlay without reco for MC20d, ttbar
 # art-type: grid
+# art-include: 22.0-mc20/Athena
 # art-include: master/Athena
 
 # art-output: *.root
@@ -11,8 +12,8 @@
 # art-output: runargs.*
 
 events=20
-HITS_File="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000425.pool.root.1"
-RDO_BKG_File="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayTests/PresampledPileUp/22.0/Run2/v1/mc20d_presampling.RDO.pool.root"
+HITS_File="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.simul.HITS.e6337_s3681/HITS.25836812._004813.pool.root.1"
+RDO_BKG_File="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayTests/PresampledPileUp/22.0/Run2/large/mc20_13TeV.900149.PG_single_nu_Pt50.digit.RDO.e8307_s3482_s3136_d1714/RDO.26811902._032542.pool.root.1"
 
 Overlay_tf.py \
 --inputHITSFile ${HITS_File} \
@@ -20,7 +21,7 @@ Overlay_tf.py \
 --outputRDOFile MC_plus_MC.RDO.pool.root \
 --maxEvents ${events} \
 --skipEvents 10 --digiSeedOffset1 511 --digiSeedOffset2 727 \
---conditionsTag OFLCOND-MC16-SDR-RUN2-08  \
+--conditionsTag OFLCOND-MC16-SDR-RUN2-09  \
 --geometryVersion ATLAS-R2-2016-01-00-01 \
 --preInclude 'all:Campaigns/MC20d.py' \
 --imf False

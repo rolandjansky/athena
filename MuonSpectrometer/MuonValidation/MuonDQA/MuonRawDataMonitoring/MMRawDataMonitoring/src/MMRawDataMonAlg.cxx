@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Package : MMRawDataMonAlg
@@ -26,6 +26,7 @@
 #include "MuonRIO_OnTrack/MMClusterOnTrack.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "MuonPrepRawData/MMPrepData.h"
+
 
 namespace {
 
@@ -90,6 +91,13 @@ namespace {
     std::vector<float> residuals;
   };
 
+  struct MMEfficiencyHistogramStruct {
+    
+    std::vector<int> den;
+    std::vector<int> num;
+    std::vector<int> nGaps;
+  };
+
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -123,7 +131,7 @@ StatusCode MMRawDataMonAlg::initialize()
   ATH_MSG_INFO(" Found the MuonIdHelperSvc " );
   ATH_CHECK(m_muonKey.initialize());
   ATH_CHECK(m_MMContainerKey.initialize() );
-  
+
   ATH_MSG_DEBUG(" end of initialize " );
   ATH_MSG_INFO("MMRawDataMonAlg initialization DONE " );
 
@@ -142,6 +150,7 @@ StatusCode MMRawDataMonAlg::fillHistograms(const EventContext& ctx) const
 
   ATH_MSG_INFO("****** mmContainer->size() : " << mm_container->size());
 
+
   if (m_doMMESD) {
     MMOverviewHistogramStruct overviewPlots;
     MMSummaryHistogramStruct summaryPlots[2][2][8][2][2][4];
@@ -155,6 +164,7 @@ StatusCode MMRawDataMonAlg::fillHistograms(const EventContext& ctx) const
       ATH_CHECK(fillMMOverviewVects(prd, overviewPlots));
       ATH_CHECK(fillMMSummaryVects(prd, summaryPlots));
       ATH_CHECK(fillMMHistograms(prd));
+
     }
   }
 
@@ -165,8 +175,10 @@ StatusCode MMRawDataMonAlg::fillHistograms(const EventContext& ctx) const
   const xAOD::TrackParticleContainer* meTPContainer = nullptr;
   ATH_CHECK(evtStore()->retrieve(meTPContainer,"ExtrapolatedMuonTrackParticles" ));
   clusterFromTrack(meTPContainer,lumiblock);
-  
+  MMEfficiency(meTPContainer);    
   }
+
+
 
  return StatusCode::SUCCESS;
 
@@ -414,169 +426,152 @@ void MMRawDataMonAlg::clusterFromTrack(const xAOD::TrackParticleContainer*  muon
   MMSummaryHistogramStruct summaryPlots_full[2][16][2][2][4];
   MMOverviewHistogramStruct overviewPlots;
 
-  int nmu=0;
 
   for (const xAOD::TrackParticle* meTP  : *muonContainer){
 
-    if (meTP) {
-      nmu++;
-      auto eta_trk = Monitored::Scalar<float>("eta_trk", meTP->eta());
-      auto phi_trk = Monitored::Scalar<float>("phi_trk", meTP->phi());
-
-      // retrieve the original track                                                       
-      const Trk::Track* meTrack = meTP->track();
-      if (meTrack) {
-        // get the vector of measurements on track                                                           
-
-	const DataVector<const Trk::MeasurementBase>* meas = meTrack->measurementsOnTrack();
-
+    if(!meTP) continue;
+    
+    auto eta_trk = Monitored::Scalar<float>("eta_trk", meTP->eta());
+    auto phi_trk = Monitored::Scalar<float>("phi_trk", meTP->phi());
+    
+    // retrieve the original track                                                       
+    const Trk::Track* meTrack = meTP->track();
+    if (meTrack) {
+      // get the vector of measurements on track                                                           
+      
+      const DataVector<const Trk::MeasurementBase>* meas = meTrack->measurementsOnTrack();
+      
+      
+      for(const Trk::MeasurementBase* it: *meas){
 	
-	for(const Trk::MeasurementBase* it: *meas){
+	const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(it);
+	if(!rot) continue;
+	Identifier rot_id = rot->identify();
+	if (!m_idHelperSvc->isMM(rot_id)) continue;
+	const Muon::MMClusterOnTrack* cluster = dynamic_cast<const Muon::MMClusterOnTrack*>(rot);
 	
-	  const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(it);
+	if (!cluster) continue;
 	  
-	  if (rot) {
-	    Identifier rot_id = rot->identify();
-	    if (m_idHelperSvc->isMM(rot_id)) {
-	      const Muon::MMClusterOnTrack* cluster = dynamic_cast<const Muon::MMClusterOnTrack*>(rot);
-	      
-	      if (cluster) {
-		
-		std::string stName   = m_idHelperSvc->mmIdHelper().stationNameString(m_idHelperSvc->mmIdHelper().stationName(rot_id));
-		int stNumber    = m_idHelperSvc->mmIdHelper().stationName(rot_id);
-		int stEta= m_idHelperSvc->mmIdHelper().stationEta(rot_id);
-		int stPhi= m_idHelperSvc->mmIdHelper().stationPhi(rot_id);
-		int multi = m_idHelperSvc->mmIdHelper().multilayer(rot_id);
-		int gap=  m_idHelperSvc->mmIdHelper().gasGap(rot_id);
-		int ch=  m_idHelperSvc->mmIdHelper().channel(rot_id);
-                        
-		//MMS and MML phi sectors                                                                    
-		int phisec=0;
-		if (stNumber%2 == 0) phisec=1;
-		
-		int sectorPhi=get_sectorPhi_from_stationPhi_stName(stPhi,stName);
-		
-		int PCB=get_PCB_from_channel(ch);
-		
-		auto& vects=overviewPlots;
-		
-		//Occupancy plots with PCB granularity further divided for each eta sector: -2, -1, 1, 2  
-		//Filling Vectors for stationEta=-1 - cluster on track
-		if (stEta==-1){
-		  vects.stationPhi_CSide_eta1_ontrack.push_back(sectorPhi);
-		  vects.sector_CSide_eta1_ontrack.push_back(get_bin_for_occ_CSide_pcb_eta1_hist(stEta,multi,gap,PCB));
-		  vects.sector_lb_CSide_eta1_ontrack.push_back(get_bin_for_occ_lb_CSide_pcb_eta1_hist(stEta,multi,gap,PCB,phisec));
-		}
-		//Filling Vectors for stationEta=-2 - cluster on track 
-		else if (stEta==-2){
-		  vects.stationPhi_CSide_eta2_ontrack.push_back(sectorPhi);
-		  vects.sector_CSide_eta2_ontrack.push_back(get_bin_for_occ_CSide_pcb_eta2_hist(stEta,multi,gap,PCB));
-		  vects.sector_lb_CSide_eta2_ontrack.push_back(get_bin_for_occ_lb_CSide_pcb_eta2_hist(stEta,multi,gap,PCB,phisec));
-		}
-		//Filling Vectors for stationEta=1 - cluster on track 
-		else if (stEta==1){
-		  vects.stationPhi_ASide_eta1_ontrack.push_back(sectorPhi);
-		  vects.sector_ASide_eta1_ontrack.push_back(get_bin_for_occ_ASide_pcb_eta1_hist(stEta,multi,gap,PCB));
-		  vects.sector_lb_ASide_eta1_ontrack.push_back(get_bin_for_occ_lb_ASide_pcb_eta1_hist(stEta,multi,gap,PCB,phisec));
-		}
-		//Filling Vectors for stationEta=2 - cluster on track 
-		else {
-		  vects.stationPhi_ASide_eta2_ontrack.push_back(sectorPhi);
-		  vects.sector_ASide_eta2_ontrack.push_back(get_bin_for_occ_ASide_pcb_eta2_hist(stEta,multi,gap,PCB));
-		  vects.sector_lb_ASide_eta2_ontrack.push_back(get_bin_for_occ_lb_ASide_pcb_eta2_hist(stEta,multi,gap,PCB,phisec));
-		  
-		  }
-
-		float x =		cluster->localParameters()[Trk::loc1] ;
-
-		for (const Trk::TrackStateOnSurface* trkState: *meTrack->trackStateOnSurfaces()) {
-
-		  if(!(trkState)) continue;
-		  Identifier surfaceId = (trkState)->surface().associatedDetectorElementIdentifier();
-		  if(!m_idHelperSvc->isMM(surfaceId)) continue;
-
-		  int trk_stEta= m_idHelperSvc->mmIdHelper().stationEta(surfaceId);
-		  int trk_stPhi= m_idHelperSvc->mmIdHelper().stationPhi(surfaceId);
-		  int trk_multi = m_idHelperSvc->mmIdHelper().multilayer(surfaceId);
-		  int trk_gap=  m_idHelperSvc->mmIdHelper().gasGap(surfaceId);
-		  if(  trk_stPhi==stPhi  and trk_stEta==stEta and trk_multi==multi and trk_gap==gap ){
-		    double x_trk = trkState->trackParameters()->parameters()[Trk::loc1];
-		    double y_trk = trkState->trackParameters()->parameters()[Trk::locY];
-		    
-		    int stPhi16=0;
-		    if (stName=="MML")   stPhi16=2*stPhi-1;
-		    
-		    if (stName=="MMS")  stPhi16=2*stPhi;
-
-		    int iside=0;
-		    if(stEta>0) iside=1;
-
-		    float stereo_angle=		      0.02618;
-		    //		    float stereo_correction=stereo_angle*y_trk;
-		    float stereo_correction=sin(stereo_angle)*y_trk;
-		    if(multi==1 && gap<3) stereo_correction=0;
-		    if(multi==2 && gap>2) stereo_correction=0;
-		    if(multi==1 && gap==3 ) stereo_correction*=-1;
-		    if(multi==2 && gap==1 ) stereo_correction*=-1;
-		    if(multi==1 && gap<3) stereo_angle=0;
-		    if(multi==2 && gap>2) stereo_angle=0;
-		    float res_stereo = (x - x_trk)*cos(stereo_angle) - stereo_correction;
-		    auto residual_mon = Monitored::Scalar<float>("residual", res_stereo);
-		    auto stPhi_mon = Monitored::Scalar<float>("stPhi_mon",stPhi16);
-		    fill("mmMonitor",residual_mon, eta_trk, phi_trk, stPhi_mon);
-		    int abs_stEta= get_sectorEta_from_stationEta(stEta);
-		    auto& vectors = summaryPlots_full[iside][stPhi16-1][abs_stEta-1][multi-1][gap-1];
-		    vectors.residuals.push_back(res_stereo);
-		  }
-		}
-	      } //if cluster
-	    } //isMM
-	  } // if rot
-	} // loop on meas
+	std::string stName   = m_idHelperSvc->mmIdHelper().stationNameString(m_idHelperSvc->mmIdHelper().stationName(rot_id));
+	int stNumber    = m_idHelperSvc->mmIdHelper().stationName(rot_id);
+	int stEta= m_idHelperSvc->mmIdHelper().stationEta(rot_id);
+	int stPhi= m_idHelperSvc->mmIdHelper().stationPhi(rot_id);
+	int multi = m_idHelperSvc->mmIdHelper().multilayer(rot_id);
+	int gap=  m_idHelperSvc->mmIdHelper().gasGap(rot_id);
+	int ch=  m_idHelperSvc->mmIdHelper().channel(rot_id);
+        
+	//MMS and MML phi sectors                                                                    
+	int phisec=0;
+	if (stNumber%2 == 0) phisec=1;
 	
-	for (int iside=0;iside<2;iside++){
-	std::string MM_sideGroup = "MM_sideGroup"+MM_Side[iside];
-	  for( int statPhi=0; statPhi<16; statPhi++) {
-	    for( int statEta=0; statEta<2; statEta++) {
-	      for( int multiplet=0; multiplet<2; multiplet++) {
-		for( int gas_gap=0; gas_gap<4; gas_gap++) {	
-		  auto& vects=summaryPlots_full[iside][statPhi][statEta][multiplet][gas_gap];;
-		  auto residuals_gap = Monitored::Collection("residuals_"+MM_Side[iside]+"_phi"+std::to_string(statPhi+1)+"_stationEta"+EtaSector[statEta]+"_multiplet"+std::to_string(multiplet+1)+"_gas_gap"+std::to_string(gas_gap+1),vects.residuals);
-		  std::string MM_GapGroup = "MM_GapGroup"+std::to_string(gas_gap+1);
-
-		  fill(MM_sideGroup,residuals_gap);
-		}
-	      }}}}
-
-
-
-
+	int sectorPhi=get_sectorPhi_from_stationPhi_stName(stPhi,stName);
+	int PCB=get_PCB_from_channel(ch);
+	
+	auto& vects=overviewPlots;
+	
+	//Occupancy plots with PCB granularity further divided for each eta sector: -2, -1, 1, 2  
+	//Filling Vectors for stationEta=-1 - cluster on track
+	if (stEta==-1){
+	  vects.stationPhi_CSide_eta1_ontrack.push_back(sectorPhi);
+	  vects.sector_CSide_eta1_ontrack.push_back(get_bin_for_occ_CSide_pcb_eta1_hist(stEta,multi,gap,PCB));
+	  vects.sector_lb_CSide_eta1_ontrack.push_back(get_bin_for_occ_lb_CSide_pcb_eta1_hist(stEta,multi,gap,PCB,phisec));
+	}
+	//Filling Vectors for stationEta=-2 - cluster on track 
+	else if (stEta==-2){
+	  vects.stationPhi_CSide_eta2_ontrack.push_back(sectorPhi);
+	  vects.sector_CSide_eta2_ontrack.push_back(get_bin_for_occ_CSide_pcb_eta2_hist(stEta,multi,gap,PCB));
+	  vects.sector_lb_CSide_eta2_ontrack.push_back(get_bin_for_occ_lb_CSide_pcb_eta2_hist(stEta,multi,gap,PCB,phisec));
+	}
+	//Filling Vectors for stationEta=1 - cluster on track 
+	else if (stEta==1){
+	  vects.stationPhi_ASide_eta1_ontrack.push_back(sectorPhi);
+	  vects.sector_ASide_eta1_ontrack.push_back(get_bin_for_occ_ASide_pcb_eta1_hist(stEta,multi,gap,PCB));
+	  vects.sector_lb_ASide_eta1_ontrack.push_back(get_bin_for_occ_lb_ASide_pcb_eta1_hist(stEta,multi,gap,PCB,phisec));
+	}
+	//Filling Vectors for stationEta=2 - cluster on track 
+	else {
+	  vects.stationPhi_ASide_eta2_ontrack.push_back(sectorPhi);
+	  vects.sector_ASide_eta2_ontrack.push_back(get_bin_for_occ_ASide_pcb_eta2_hist(stEta,multi,gap,PCB));
+	  vects.sector_lb_ASide_eta2_ontrack.push_back(get_bin_for_occ_lb_ASide_pcb_eta2_hist(stEta,multi,gap,PCB,phisec));
+	  
+	}
+	
+	float x =		cluster->localParameters()[Trk::loc1] ;
+	
 	for (const Trk::TrackStateOnSurface* trkState: *meTrack->trackStateOnSurfaces()) {
 	  
 	  if(!(trkState)) continue;
 	  Identifier surfaceId = (trkState)->surface().associatedDetectorElementIdentifier();
 	  if(!m_idHelperSvc->isMM(surfaceId)) continue;
 	  
-	  const Amg::Vector3D& pos    = (trkState)->trackParameters()->position();
-	  int stEta= m_idHelperSvc->mmIdHelper().stationEta(surfaceId);
-	  int multi = m_idHelperSvc->mmIdHelper().multilayer(surfaceId);
-	  int gap=  m_idHelperSvc->mmIdHelper().gasGap(surfaceId);
-
-	  //CSide and ASide                                                                                  
-	  int iside=0;
-	  if(stEta>0) iside=1;
-
-	  auto& Vectors = summaryPlots[iside][multi-1][gap-1];	  
-
-	  //Filling x-y position vectors using the trackStateonSurface 
-	  Vectors.x_ontrack.push_back(pos.x());
-	  Vectors.y_ontrack.push_back(pos.y());
+	  int trk_stEta= m_idHelperSvc->mmIdHelper().stationEta(surfaceId);
+	  int trk_stPhi= m_idHelperSvc->mmIdHelper().stationPhi(surfaceId);
+	  int trk_multi = m_idHelperSvc->mmIdHelper().multilayer(surfaceId);
+	  int trk_gap=  m_idHelperSvc->mmIdHelper().gasGap(surfaceId);
+	  if(  trk_stPhi==stPhi  and trk_stEta==stEta and trk_multi==multi and trk_gap==gap ){
+	    double x_trk = trkState->trackParameters()->parameters()[Trk::loc1];
 	    
+	    
+	    int stPhi16=0;
+	    if (stName=="MML")   stPhi16=2*stPhi-1;
+	    
+	    if (stName=="MMS")  stPhi16=2*stPhi;
+	    
+	    int iside=0;
+	    if(stEta>0) iside=1;
+	    
+	    float res_stereo = (x - x_trk);
+	    auto residual_mon = Monitored::Scalar<float>("residual", res_stereo);
+	    auto stPhi_mon = Monitored::Scalar<float>("stPhi_mon",stPhi16);
+	    fill("mmMonitor",residual_mon, eta_trk, phi_trk, stPhi_mon);
+	    int abs_stEta= get_sectorEta_from_stationEta(stEta);
+	    auto& vectors = summaryPlots_full[iside][stPhi16-1][abs_stEta-1][multi-1][gap-1];
+	    vectors.residuals.push_back(res_stereo);
+	  }
 	}
-      } // if meTrack
-    } // if muon
-  } //loop on muonContainer
+      } // loop on meas
+      
+      for (int iside=0;iside<2;iside++){
+	std::string MM_sideGroup = "MM_sideGroup"+MM_Side[iside];
+	for( int statPhi=0; statPhi<16; statPhi++) {
+	  for( int statEta=0; statEta<2; statEta++) {
+	    for( int multiplet=0; multiplet<2; multiplet++) {
+	      for( int gas_gap=0; gas_gap<4; gas_gap++) {	
+		auto& vects=summaryPlots_full[iside][statPhi][statEta][multiplet][gas_gap];;
+		auto residuals_gap = Monitored::Collection("residuals_"+MM_Side[iside]+"_phi"+std::to_string(statPhi+1)+"_stationEta"+EtaSector[statEta]+"_multiplet"+std::to_string(multiplet+1)+"_gas_gap"+std::to_string(gas_gap+1),vects.residuals);
+		std::string MM_GapGroup = "MM_GapGroup"+std::to_string(gas_gap+1);
+		
+		fill(MM_sideGroup,residuals_gap);
+	      }
+	    }}}}
+      
 
+      for (const Trk::TrackStateOnSurface* trkState: *meTrack->trackStateOnSurfaces()) {
+	
+	if(!(trkState)) continue;
+	Identifier surfaceId = (trkState)->surface().associatedDetectorElementIdentifier();
+	if(!m_idHelperSvc->isMM(surfaceId)) continue;
+	
+	const Amg::Vector3D& pos    = (trkState)->trackParameters()->position();
+	int stEta= m_idHelperSvc->mmIdHelper().stationEta(surfaceId);
+	int multi = m_idHelperSvc->mmIdHelper().multilayer(surfaceId);
+	int gap=  m_idHelperSvc->mmIdHelper().gasGap(surfaceId);
+	
+	//CSide and ASide                                                                                  
+	int iside=0;
+	if(stEta>0) iside=1;
+	
+	auto& Vectors = summaryPlots[iside][multi-1][gap-1];	  
+	
+	//Filling x-y position vectors using the trackStateonSurface 
+	Vectors.x_ontrack.push_back(pos.x());
+	Vectors.y_ontrack.push_back(pos.y());
+	
+      }
+    } // if meTrack
+    
+  } //loop on muonContainer
+  
   auto& vects=overviewPlots;
 
   auto stationPhi_CSide_eta1_ontrack = Monitored::Collection("stationPhi_CSide_eta1_ontrack",vects.stationPhi_CSide_eta1_ontrack);
@@ -615,9 +610,93 @@ void MMRawDataMonAlg::clusterFromTrack(const xAOD::TrackParticleContainer*  muon
   
 }
                                                                                                              
-        
-                                                                                                           
-         
+
+void MMRawDataMonAlg::MMEfficiency( const xAOD::TrackParticleContainer*  muonContainer) const{      
+
+  int numOfGaps=4;
+  MMEfficiencyHistogramStruct effPlots[2][2][16][2][4];
+  MMEfficiencyHistogramStruct Gaps[2][2][16][2];
+
+  static const std::array<std::string,2> MM_Side = {"CSide", "ASide"};
+  static const std::array<std::string,2> MM_Sector = {"MMS", "MML"};
+  static const std::array<std::string,2> EtaSector = {"1","2"};
+  
+  float cut_pt=20000;
+
+  for (const xAOD::TrackParticle* meTP  : *muonContainer){
+    if (!meTP) continue;
+    auto eta_trk = Monitored::Scalar<float>("eta_trk", meTP->eta());
+    auto phi_trk = Monitored::Scalar<float>("phi_trk", meTP->phi());
+    auto pt_trk = meTP->pt();
+    if(pt_trk < cut_pt) continue;
+    // retrieve the original track                                                                                                                                                               
+    const Trk::Track* meTrack = meTP->track();
+    if(!meTrack) continue;
+    // get the vector of measurements on track                                                                                                                                                
+    const DataVector<const Trk::MeasurementBase>* meas = meTrack->measurementsOnTrack();
+    
+    for(const Trk::MeasurementBase* it: *meas){
+      
+      const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(it);
+      if (!rot) continue;
+      Identifier rot_id = rot->identify();
+      if (!m_idHelperSvc->isMM(rot_id)) continue;
+
+      const Muon::MMClusterOnTrack* cluster = dynamic_cast<const Muon::MMClusterOnTrack*>(rot);
+      
+      if (!cluster) continue;
+	
+      std::string stName   = m_idHelperSvc->mmIdHelper().stationNameString(m_idHelperSvc->mmIdHelper().stationName(rot_id));
+      int stEta= m_idHelperSvc->mmIdHelper().stationEta(rot_id);
+      int stPhi= m_idHelperSvc->mmIdHelper().stationPhi(rot_id);
+      int phi = get_sectorPhi_from_stationPhi_stName(stPhi,stName);
+      int multi = m_idHelperSvc->mmIdHelper().multilayer(rot_id);
+      int gap=  m_idHelperSvc->mmIdHelper().gasGap(rot_id);
+      int ch=  m_idHelperSvc->mmIdHelper().channel(rot_id);
+      int pcb=get_PCB_from_channel(ch);
+      int abs_stEta= get_sectorEta_from_stationEta(stEta);
+      int iside=0;
+      if(stEta>0) iside=1;
+      Gaps[iside][abs_stEta][phi-1][multi-1].nGaps.push_back(gap);
+      //denominator
+      for(int ga=0; ga<numOfGaps; ga++)  
+	if(effPlots[iside][abs_stEta][phi-1][multi-1][ga].den.size()==0)              
+	  effPlots[iside][abs_stEta][phi-1][multi-1][ga].den.push_back(pcb-1);
+      
+      //numerator
+      if(effPlots[iside][abs_stEta][phi-1][multi-1][gap-1].num.size()==0)   effPlots[iside][abs_stEta][phi-1][multi-1][gap-1].num.push_back(pcb-1);
+      
+      }
+    
+  }//loop on tracks
+  
+  unsigned  int nGaptag=3;
+  
+  for(int s=0; s<2;s++){                                                                                                                                                                         
+    std::string MM_sideGroup = "MM_sideGroup"+MM_Side[s];  
+    for(int e=0; e<2;e++){
+      
+      for(int p=0; p<16;p++){  
+	
+	for(int m=0; m<2;m++){    
+	  if(Gaps[s][e][p][m].nGaps.size()<nGaptag) continue;
+	  for(int ga=0; ga<4;ga++){   
+	    for (unsigned int i=0; i<effPlots[s][e][p][m][ga].den.size(); i++){  
+	      int den_pcb = effPlots[s][e][p][m][ga].den.at(i); 	    
+	      auto traversed_pcb = Monitored::Scalar<int>("pcb_eta"+std::to_string(e+1)+"_"+MM_Side[s]+"_phi"+std::to_string(p)+"_multiplet"+std::to_string(m+1)+"_gas_gap"+std::to_string(ga+1),den_pcb);               
+	      auto traversed_pcb_allphi = Monitored::Scalar<int>("pcb_eta"+std::to_string(e+1)+"_allphi_"+MM_Side[s]+"_multiplet"+std::to_string(m+1)+"_gas_gap"+std::to_string(ga+1),den_pcb);  
+	      auto isHit = effPlots[s][e][p][m][ga].num.size() > 0;                                                                                                               
+	      auto hitcut = Monitored::Scalar<int>("hitcut", (int)isHit);     
+	      fill(MM_sideGroup,traversed_pcb, traversed_pcb_allphi, hitcut);        
+	    }
+	  }
+	}
+      }
+    }
+  }
+  
+  
+}
           
         
 

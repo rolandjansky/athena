@@ -28,7 +28,7 @@ namespace MuonCalib {
     p_detstore(nullptr),
     m_maxChamberHash(32), //retrieved later from cscIdHelper
     m_maxChanHash(61440), //retrieved later from cscIdHelper
-    m_dbCache(0),
+    m_dbCache(nullptr),
     m_rmsCondData(nullptr),
     m_slopeCondData(nullptr),
     m_noiseCondData(nullptr),
@@ -68,7 +68,7 @@ namespace MuonCalib {
 
   //-------------------------------------------------------------------
   CscCoolStrSvc::~CscCoolStrSvc() {
-    if(m_dbCache != 0) m_dbCache->clear();
+    if(m_dbCache != nullptr) m_dbCache->clear();
     delete m_dbCache;
   }
 
@@ -98,14 +98,14 @@ namespace MuonCalib {
     m_moduleContext = m_idHelperSvc->cscIdHelper().module_context();
     m_channelContext = m_idHelperSvc->cscIdHelper().channel_context();
 
-    m_rmsCondData = 0;
-    m_slopeCondData = 0;
-    m_noiseCondData = 0;
-    m_f001CondData = 0;
-    m_pedestalCondData = 0;
-    m_t0PhaseCondData = 0;
-    m_t0BaseCondData = 0;
-    m_statusCondData = 0;
+    m_rmsCondData = nullptr;
+    m_slopeCondData = nullptr;
+    m_noiseCondData = nullptr;
+    m_f001CondData = nullptr;
+    m_pedestalCondData = nullptr;
+    m_t0PhaseCondData = nullptr;
+    m_t0BaseCondData = nullptr;
+    m_statusCondData = nullptr;
 
 
     //prepare layer hash array
@@ -271,7 +271,7 @@ namespace MuonCalib {
       }
 
       //Need to store this as the proper data type.  
-      CscCondDataCollectionBase * coll = NULL;
+      CscCondDataCollectionBase * coll = nullptr;
 
 
       //Now determine data type.
@@ -723,16 +723,12 @@ namespace MuonCalib {
 
     ATH_MSG_DEBUG("Merging provided csc conditions data into the COOL data string for writing to database.");
     //CscCondDataContainer mergedContainer
-    CscCondDataContainer::const_iterator newItr = newCont->begin();
-    CscCondDataContainer::const_iterator endItr = newCont->end();
-    for(; newItr != endItr ; newItr++) {
-      if(!(*newItr))
+    for (const CscCondDataCollectionBase * newColl : *newCont) {
+      if(!newColl)
       {
         ATH_MSG_ERROR("Empty element in container with new data. Can't merge");
         return StatusCode::RECOVERABLE;
       }
-
-      const CscCondDataCollectionBase * newColl = *newItr;
 
       std::string parName = newColl->getParName();
       std::map<std::string, CscCondDataCollectionBase*>::const_iterator refItr =  
@@ -788,11 +784,9 @@ namespace MuonCalib {
   /** callback functions called whenever a database folder goes out of date*/
   StatusCode CscCoolStrSvc::callback( IOVSVC_CALLBACK_ARGS_P(/*I*/,keys))
   { //IOVSVC_CALLBACK_ARGS is (int& idx, std::list<std::string>& keylist)
-    std::list<std::string>::const_iterator keyItr = keys.begin();
-    std::list<std::string>::const_iterator keyEnd = keys.end();
-    for(; keyItr != keyEnd; keyItr++) {
-      if(!cacheParameter(*keyItr).isSuccess()) {
-        ATH_MSG_WARNING("Failed at caching key " << (*keyItr));
+    for (const std::string& key : keys) {
+      if(!cacheParameter(key).isSuccess()) {
+        ATH_MSG_WARNING("Failed at caching key " << key);
       }
     } 
     return StatusCode::SUCCESS;
@@ -1008,13 +1002,12 @@ namespace MuonCalib {
           // CSCCool database contains still all CSCs. A clean fix would be to have a dedicated database for every layout.
           bool isValid = true;
           chanId = m_idHelperSvc->cscIdHelper().channelID(stationName, stationEta, stationPhi, chamberLayer, iLayer, measuresPhi, iStrip, true, &isValid);
-          static bool conversionFailPrinted = false;
+          static std::atomic_flag conversionFailPrinted = ATOMIC_FLAG_INIT;
           if (!isValid) {
-            if (!conversionFailPrinted) {
+            if (!conversionFailPrinted.test_and_set()) {
               ATH_MSG_WARNING("Failed to retrieve offline identifier from ASM cool string " << asmIDstr
                                     << ". This is likely due to the fact that the CSCCool database contains more entries than "
                                     << "the detector layout.");
-              conversionFailPrinted = true;
             }
             continue;
           }
@@ -1197,13 +1190,12 @@ namespace MuonCalib {
     // CSCCool database contains still all CSCs. A clean fix would be to have a dedicated database for every layout.
     bool isValid = true;
     channelId = m_idHelperSvc->cscIdHelper().channelID(stationName,eta,phi,chamLay,wireLay,measuresPhi,strip,true,&isValid);
-    static bool conversionFailPrinted = false;
+    static std::atomic_flag conversionFailPrinted = ATOMIC_FLAG_INIT;
     if (!isValid) {
-      if (!conversionFailPrinted) {
+      if (!conversionFailPrinted.test_and_set()) {
         ATH_MSG_WARNING("Failed to retrieve offline identifier from online identifier " << onlineId
                               << ". This is likely due to the fact that the CSCCool database contains more entries than "
                               << "the detector layout.");
-        conversionFailPrinted = true;
       }
       return StatusCode::FAILURE;
     }

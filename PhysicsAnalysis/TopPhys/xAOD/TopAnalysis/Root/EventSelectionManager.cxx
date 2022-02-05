@@ -77,27 +77,24 @@ namespace top {
     m_selections(std::move(other.m_selections)) {
   }
 
-  void EventSelectionManager::countInitial(const float mcEventWeight, const float pileupWeight,
-                                           const float zvtxWeight) {
+  void EventSelectionManager::countInitial(const float mcEventWeight, const float pileupWeight) {
     for (const auto& currentSelection : m_selections)
-      currentSelection.countInitial(mcEventWeight, pileupWeight, zvtxWeight);
+      currentSelection.countInitial(mcEventWeight, pileupWeight);
   }
 
-  void EventSelectionManager::countGRL(const float mcEventWeight, const float pileupWeight, const float zvtxWeight) {
+  void EventSelectionManager::countGRL(const float mcEventWeight, const float pileupWeight) {
     for (const auto& currentSelection : m_selections)
-      currentSelection.countGRL(mcEventWeight, pileupWeight, zvtxWeight);
+      currentSelection.countGRL(mcEventWeight, pileupWeight);
   }
 
-  void EventSelectionManager::countGoodCalo(const float mcEventWeight, const float pileupWeight,
-                                            const float zvtxWeight) {
+  void EventSelectionManager::countGoodCalo(const float mcEventWeight, const float pileupWeight) {
     for (const auto& currentSelection : m_selections)
-      currentSelection.countGoodCalo(mcEventWeight, pileupWeight, zvtxWeight);
+      currentSelection.countGoodCalo(mcEventWeight, pileupWeight);
   }
 
-  void EventSelectionManager::countPrimaryVertex(const float mcEventWeight, const float pileupWeight,
-                                                 const float zvtxWeight) {
+  void EventSelectionManager::countPrimaryVertex(const float mcEventWeight, const float pileupWeight) {
     for (const auto& currentSelection : m_selections)
-      currentSelection.countPrimaryVertex(mcEventWeight, pileupWeight, zvtxWeight);
+      currentSelection.countPrimaryVertex(mcEventWeight, pileupWeight);
   }
 
   bool EventSelectionManager::apply(top::Event& event, const xAOD::SystematicEvent& currentSystematic) {

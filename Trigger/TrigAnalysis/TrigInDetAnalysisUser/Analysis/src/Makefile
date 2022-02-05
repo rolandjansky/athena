@@ -156,8 +156,7 @@ ROBJECTS  = \
         $(OBJDIR)/ConfVtxAnalysis.o  \
         $(OBJDIR)/PurityAnalysis.o \
         $(OBJDIR)/globals.o \
-        $(OBJDIR)/computils.o \
-        $(OBJDIR)/TagNProbe.o 	
+        $(OBJDIR)/computils.o
 
 LOBJECTS  = \
         $(OBJDIR)/TIDAEvent.o \

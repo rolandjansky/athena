@@ -143,8 +143,7 @@ namespace LArWheelCalculator_Impl
   class WheelFanCalculator : public IFanCalculator
   {
     public:
-      WheelFanCalculator(LArWheelCalculator* lwc, IRDBAccessSvc* /*rdbAccess*/,
-                         const DecodeVersionKey & /*larVersionKey*/)
+      WheelFanCalculator(LArWheelCalculator* lwc)
         : m_lwc(lwc)
       {
       }

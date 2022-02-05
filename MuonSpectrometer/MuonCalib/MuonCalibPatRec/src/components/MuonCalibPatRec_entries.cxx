@@ -2,5 +2,4 @@
 
 using namespace MuonCalib;
 
-DECLARE_COMPONENT( MuonSegmentToCalibSegment )
-
+DECLARE_COMPONENT(MuonSegmentToCalibSegment)

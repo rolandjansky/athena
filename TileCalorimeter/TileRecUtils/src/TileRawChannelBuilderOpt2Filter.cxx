@@ -567,11 +567,11 @@ double TileRawChannelBuilderOpt2Filter::compute(int ros, int drawer, int channel
 
   int i = 0, digits_size = m_digits.size();
   double chi2 = 0.;
-  double a[9];
-  double b[9];
-  double c[9];
-  double g[9];
-  double dg[9];
+  double a[99];
+  double b[99];
+  double c[99];
+  double g[99];
+  double dg[99];
   
   amplitude = 0.;
   time = 0.;
@@ -595,8 +595,8 @@ double TileRawChannelBuilderOpt2Filter::compute(int ros, int drawer, int channel
   }
 
   // for DSP emulation
-  short a_int[9], ascale = 0, calib = 0, calib_offset = 0;
-  short b_int[9], bscale = 0;
+  short a_int[99], ascale = 0, calib = 0, calib_offset = 0;
+  short b_int[99], bscale = 0;
   unsigned short scale = 0, round = 0, lut = 0;
   int slope_scale = 0;
   int dspEnergy = 0, dspTime = 0;

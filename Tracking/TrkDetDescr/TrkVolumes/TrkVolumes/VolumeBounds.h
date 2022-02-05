@@ -59,8 +59,8 @@ class VolumeBounds {
 
   /** Method to decompose the Bounds into Surfaces, the Volume can turn them
    * into BoundarySurfaces */
-  virtual const std::vector<const Trk::Surface*>* decomposeToSurfaces
-  ATLAS_NOT_THREAD_SAFE(const Amg::Transform3D& transform) const = 0;
+  virtual const std::vector<const Trk::Surface*>* decomposeToSurfaces(
+    const Amg::Transform3D& transform) = 0;
 
   /** Provide accessor for BoundarySurfaces */
   virtual ObjectAccessor boundarySurfaceAccessor(

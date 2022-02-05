@@ -38,7 +38,7 @@ def ITkStripSensorSDCfg(ConfigFlags, name="ITkStripSensorSD", **kwargs):
     bare_collection_name = "ITkStripHits"
     mergeable_collection_suffix = "_G4"
     merger_input_property = "ITkStripHits"
-    region = "ID"
+    region = "ITk"
 
     acc, hits_collection_name = CollectionMergerCfg(ConfigFlags,
                                                     bare_collection_name,
@@ -49,7 +49,7 @@ def ITkStripSensorSDCfg(ConfigFlags, name="ITkStripSensorSD", **kwargs):
     kwargs.setdefault("LogicalVolumeNames", ["ITkStrip::BRLSensorSS","ITkStrip::BRLSensorMS",
                                              "ITkStrip::ECSensor0","ITkStrip::ECSensor1","ITkStrip::ECSensor2",
                                              "ITkStrip::ECSensor3","ITkStrip::ECSensor4","ITkStrip::ECSensor5"])
-    kwargs.setdefault("OutputCollectionNames", ["ITkStripHits"])
+    kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
 
     result = ComponentAccumulator()
     result.merge(acc)

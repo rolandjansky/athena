@@ -36,6 +36,7 @@ StatusCode egammaForwardBuilder::initialize()
   ATH_CHECK(m_outClusterContainerKey.initialize());
   m_outClusterContainerCellLinkKey = m_outClusterContainerKey.key() + "_links";
   ATH_CHECK(m_outClusterContainerCellLinkKey.initialize());
+  ATH_CHECK(m_caloDetDescrMgrKey.initialize());
 
   // retrieve object quality tool
   if (!m_objectQualityTool.empty()) {
@@ -98,9 +99,11 @@ StatusCode egammaForwardBuilder::execute(const EventContext& ctx) const
     ATH_MSG_FATAL("egammaForwardBuilder::Could not retrieve Cluster container");
     return StatusCode::FAILURE;
   }
-  //retrieve CaloDetDescr 
-  const CaloDetDescrManager* calodetdescrmgr = nullptr;
-  ATH_CHECK(detStore()->retrieve(calodetdescrmgr, "CaloMgr"));
+  // retrieve CaloDetDescr
+  SG::ReadCondHandle<CaloDetDescrManager> caloDetDescrMgrHandle { m_caloDetDescrMgrKey, ctx };
+  ATH_CHECK(caloDetDescrMgrHandle.isValid());
+
+  const CaloDetDescrManager* calodetdescrmgr = *caloDetDescrMgrHandle;
 
   // loop over input cluster container and create fwd electrons
   xAOD::CaloClusterContainer::const_iterator clus_begin =

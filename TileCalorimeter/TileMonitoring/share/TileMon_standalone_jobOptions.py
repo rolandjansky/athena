@@ -183,29 +183,17 @@ if doTileCells:
 
     # MBTS monitoring
     if doMBTS:
-        topSequence += CfgMgr.AthenaMonManager(name                  = 'ManagedAthenaMBTSMon'
-                                               , FileKey             = 'SHIFT'
-                                               , ManualDataTypeSetup = True
-                                               , DataType            = 'cosmics'
-                                               , Environment         = 'online'
-                                               , ManualRunLBSetup    = True
-                                               , Run                 = RunNumber
-                                               , LumiBlock           = 1)
+        from AthenaMonitoring.DQMonFlags import DQMonFlags
+        DQMonFlags.monManFileKey = MonitorOutput
+        DQMonFlags.monManManualDataTypeSetup = True
+        DQMonFlags.monManDataType = 'cosmics'
+        DQMonFlags.monManEnvironment = 'online'
+        DQMonFlags.monManManualRunLBSetup = True
+        DQMonFlags.monManRun = RunNumber
+        DQMonFlags.monManLumiBlock = 1
 
-        ManagedAthenaMBTSMon = topSequence.ManagedAthenaMBTSMon
-
-
-        from TileMonitoring.TileMonitoringConf import TileMBTSMonTool
-        TileMBTSMon = CfgMgr.TileMBTSMonTool( name            = 'TileMBTSMon'
-                                              , OutputLevel     = INFO
-                                              , histoPathBase   = "/Tile/MBTS"
-                                              , LVL1ConfigSvc   = "TrigConf::TrigConfigSvc/TrigConfigSvc"
-                                              , doOnline        = athenaCommonFlags.isOnline()
-                                              , readTrigger     = doTrigger)
-
-        ManagedAthenaMBTSMon.AthenaMonTools += [ TileMBTSMon ]
-
-        print(ManagedAthenaMBTSMon)
+        from TileMonitoring.TileMBTSMonitorAlgorithm import TileMBTSMonitoringConfigOld
+        topSequence += TileMBTSMonitoringConfigOld(DQMonFlags, FillHistogramsPerMBTS=True)
 
 print(ManagedAthenaTileMon)
 

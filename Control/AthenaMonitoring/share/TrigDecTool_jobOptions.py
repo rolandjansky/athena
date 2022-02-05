@@ -10,11 +10,6 @@ if DQMonFlags.useTrigger():
       from RecExConfig.RecFlags import rec
 
    if rec.readESD() and (DQMonFlags.monManEnvironment=='tier0ESD'):
-      # for ESD->AOD use trigger config stored as in-file meta-data,
-      if not 'TriggerFlags' in dir():
-         from TriggerJobOpts.TriggerFlags import TriggerFlags
-      TriggerFlags.configurationSourceList = ['ds']
-
       # set up trigger config service
       if not 'TriggerConfigGetter' in dir():
          from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
@@ -22,8 +17,8 @@ if DQMonFlags.useTrigger():
 
    from AthenaCommon.Configurable import Configurable
    Configurable.configurableRun3Behavior+=1
-   from TrigDecisionTool.TrigDecisionToolConfig import getTrigDecisionTool 
-   tdtAcc = getTrigDecisionTool(ConfigFlags)
+   from TrigDecisionTool.TrigDecisionToolConfig import TrigDecisionToolCfg
+   tdtAcc = TrigDecisionToolCfg(ConfigFlags)
    Configurable.configurableRun3Behavior-=1
 
    from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable, appendCAtoAthena

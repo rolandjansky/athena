@@ -88,6 +88,9 @@ def ExampleMonitoringConfig(inputFlags):
     # specify a merge method
     myGroup.defineHistogram('lumiPerBCID;lumiPerBCID_merge',title='Luminosity,WithCommaInTitle;L/BCID;Events',
                             path='ToRuleThemAll',xbins=40,xmin=0.0,xmax=80.0, merge='weightedAverage')
+    # use strings as bin labels
+    myGroup.defineHistogram('evtstr', title='Event number as string;Event number;Events',
+                            xbins=2500, path='ToRuleThemAll', merge='merge')
     # TEfficiencies
     myGroup.defineHistogram('pT_passed,pT', type='TEfficiency', title='Test TEfficiency;x;Eff',
                             path='AndInTheDarkness', xbins=100, xmin=0.0, xmax=50.0)
@@ -139,6 +142,7 @@ def ExampleMonitoringConfig(inputFlags):
         # Using templates for histogram titles or paths
         array1D.defineHistogram('c', title='Layer {0}', path='Keys', xmax=3.)
         array1D.defineHistogram('c;c_alternate', title='Layer', path='Keys/{0}', xmax=3.)
+        array1D.defineHistogram('c;c_{0}_formatted', path='Keys', xmax=3.)
         array2D.defineHistogram('c', title='Cluster {1}, Layer {0}', path='Keys/{1}', xmax=3.)
 
         # Making a histogram only for certain elements of the array

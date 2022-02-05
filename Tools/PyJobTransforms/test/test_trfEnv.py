@@ -7,6 +7,7 @@
 #  @author atlas-comp-transforms-dev@cern.ch
 
 import sys
+import os
 import unittest
 
 from PyJobTransforms.trfLogger import msg
@@ -48,7 +49,8 @@ class trfEnvTests(unittest.TestCase):
         print(envUp.values)
         print(envUp._envdict)
         self.assertTrue("KEY1" in envUp._envdict)
-        self.assertTrue("LD_PRELOAD" in envUp._envdict)
+        if 'ATLASMKLLIBDIR_PRELOAD' in os.environ:
+            self.assertTrue("LD_PRELOAD" in envUp._envdict)
         
 
 if __name__ == '__main__':

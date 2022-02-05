@@ -7,7 +7,7 @@
 
 
 export TRF_ECHO=True; Reco_tf.py \
---athenaopts="--threads=1" \
+--athenaopts="--threads=8" \
 --inputHITSFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecJobTransformTests/mc16_5TeV.420000.Hijing_PbPb_5p02TeV_MinBias_Flow_JJFV6.merge.HITS.e4962_a890_s3136/HITS.17784755._001903.pool.root.1 \
 --outputESDFile=ESD.pool.root \
 --outputAODFile=AOD.pool.root \
@@ -21,5 +21,4 @@ export TRF_ECHO=True; Reco_tf.py \
 
 RES=$?
 echo "art-result: $RES Reco"
-return $RES
 

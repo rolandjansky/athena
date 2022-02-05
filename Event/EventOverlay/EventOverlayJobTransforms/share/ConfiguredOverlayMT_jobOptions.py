@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 include.block("EventOverlayJobTransforms/ConfiguredOverlayMT_jobOptions.py")
 
@@ -48,16 +48,26 @@ if not overlayFlags.isDataOverlay():
 import AthenaPoolCnvSvc.ReadAthenaPoolDouble
 from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+skipPrimary=0
+skipSecondary=0
+if athenaCommonFlags.SkipEvents.statusOn:
+    skipPrimary = athenaCommonFlags.SkipEvents()
+    skipSecondary = athenaCommonFlags.SkipEvents()
+if overlayFlags.SkipSecondaryEvents.statusOn and overlayFlags.SkipSecondaryEvents() >= 0:
+    skipSecondary = overlayFlags.SkipSecondaryEvents()
+
 if overlayFlags.isDataOverlay():
     ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.PoolHitsInput()
+    ServiceMgr.EventSelector.SkipEvents = skipPrimary
     ServiceMgr.SecondaryEventSelector.Input = athenaCommonFlags.FilesInput()
     ServiceMgr.SecondaryEventSelector.ProcessBadEvent = True
+    ServiceMgr.SecondaryEventSelector.SkipEvents = skipSecondary
 else:
     ServiceMgr.EventSelector.ProcessMetadata = False
     ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.PoolRDOInput()
+    ServiceMgr.EventSelector.SkipEvents = skipSecondary
     ServiceMgr.SecondaryEventSelector.InputCollections = athenaCommonFlags.PoolHitsInput()
-if athenaCommonFlags.SkipEvents.statusOn:
-    ServiceMgr.EventSelector.SkipEvents = athenaCommonFlags.SkipEvents()
+    ServiceMgr.SecondaryEventSelector.SkipEvents = skipPrimary
 
 # Properly generate event context
 if nThreads > 0:

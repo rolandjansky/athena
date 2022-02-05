@@ -135,7 +135,11 @@ void CostData::setChainToAlgMap( const std::map<std::string, std::set<size_t>>& 
   m_chainToAlgIdx = &chainToAlgIdx;
 }
 
-void CostData::setSequencersMap( const std::map<std::string, std::set<size_t>>& seqToAlg ) {
+void CostData::setChainToUniqAlgMap( const std::map<std::string, std::set<size_t>>& chainToAlgIdx ) {
+  m_chainToUniqAlgIdx = &chainToAlgIdx;
+}
+
+void CostData::setSequencersMap( const std::map<std::string, std::map<int16_t, std::set<size_t>>>& seqToAlg ) {
   m_sequencers = &seqToAlg;
 }
 
@@ -144,7 +148,11 @@ const std::map<std::string, std::set<size_t>>& CostData::chainToAlgMap() const {
   return *m_chainToAlgIdx;
 }
 
-const std::map<std::string, std::set<size_t>>& CostData::sequencersMap() const {
+const std::map<std::string, std::set<size_t>>& CostData::chainToUniqAlgMap() const {
+  return *m_chainToUniqAlgIdx;
+}
+
+const std::map<std::string, std::map<int16_t, std::set<size_t>>>& CostData::sequencersMap() const {
   return *m_sequencers;
 }
 

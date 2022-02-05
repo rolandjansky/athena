@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibEventBase/MuonCalibRawRpcCoin.h"
@@ -8,29 +8,14 @@
 
 namespace MuonCalib {
 
-    MuonCalibRawRpcCoin::MuonCalibRawRpcCoin() :
-        MuonCalibRawRpcHit(),
-        m_ijk(0),
-        m_threshold(0),
-        m_overlap(0),
-        m_parentCmId(0),
-        m_parentPadId(0),
-        m_parentSectorId(0),
-        m_lowPtCm(false) {}  //!< default constructor
-
-    MuonCalibRawRpcCoin::MuonCalibRawRpcCoin(const MuonCalibRawRpcHit &rpcHit, unsigned short ijk, unsigned short threshold,
-                                             unsigned short overlap, unsigned short parentCmId, unsigned short parentPadId,
-                                             unsigned short parentSectorId, bool lowPtCm) :
-        MuonCalibRawRpcHit(rpcHit),
-        m_ijk(ijk),
-        m_threshold(threshold),
-        m_overlap(overlap),
-        m_parentCmId(parentCmId),
-        m_parentPadId(parentPadId),
-        m_parentSectorId(parentSectorId),
-        m_lowPtCm(lowPtCm) {}
-
-    MuonCalibRawRpcCoin::~MuonCalibRawRpcCoin() {}  //!< destructor
+    unsigned short MuonCalibRawRpcCoin::ijk() const { return m_pars.ijk; }
+    unsigned short MuonCalibRawRpcCoin::threshold() const { return m_pars.threshold; }
+    unsigned short MuonCalibRawRpcCoin::overlap() const { return m_pars.overlap; }
+    unsigned short MuonCalibRawRpcCoin::parentCmId() const { return m_pars.parentCmId; }
+    unsigned short MuonCalibRawRpcCoin::parentPadId() const { return m_pars.parentPadId; }
+    unsigned short MuonCalibRawRpcCoin::parentSectorId() const { return m_pars.parentSectorId; }
+    bool MuonCalibRawRpcCoin::lowPtCm() const { return m_pars.lowPtCm; }
+    MuonCalibRawRpcCoin::MuonCalibRawRpcCoin(const MuonCalibRawRpcCoin::defPars &pars) : MuonCalibRawRpcHit(pars), m_pars{pars} {}
 
     std::ostream &MuonCalibRawRpcCoin::dump(std::ostream &stream) const {
         stream << "MuonCalibRawRpcCoin with" << std::endl;

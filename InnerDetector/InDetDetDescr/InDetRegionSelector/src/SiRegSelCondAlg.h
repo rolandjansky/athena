@@ -5,7 +5,7 @@
  **   @author  sutt
  **   @date    Tue  4 Feb 2020 15:25:00 CET
  **
- **   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ **   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  **/
  
 #ifndef SiRegSelCondAlg_h
@@ -41,7 +41,8 @@ public:
  private:
 
   std::string m_managerName;
-  bool        m_printTable;
+  bool        m_printTable{false};
+  bool        m_useCabling{true};
 
   /// Sadly the PIxel and SCT cabling are different classes so need both, 
   /// even if only one is to be used

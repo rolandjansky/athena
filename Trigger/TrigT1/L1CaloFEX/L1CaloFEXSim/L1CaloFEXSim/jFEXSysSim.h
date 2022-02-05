@@ -58,7 +58,7 @@ namespace LVL1 {
     /** standard Athena-Algorithm method */
     virtual StatusCode finalize  () override;
 
-    virtual StatusCode execute() override ;
+    virtual StatusCode execute(jFEXOutputCollection* inputOutputCollection) override ;
 
     virtual void init() override ;
 
@@ -67,9 +67,9 @@ namespace LVL1 {
     virtual int calcTowerID(int eta, int phi, int mod) override ;
 
     /**Create and fill a new eFexEMRoI object (corresponding to this window), and return a pointer to it*/
-    virtual StatusCode fillSRJetEDM(uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, std::unique_ptr< xAOD::jFexSRJetRoIContainer > &jContainer) override ;
-    virtual StatusCode fillLRJetEDM(uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, std::unique_ptr< xAOD::jFexLRJetRoIContainer > &jContainer) override ;
-    virtual StatusCode fillTauEDM(uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, std::unique_ptr< xAOD::jFexTauRoIContainer > &jContainer) override ;  
+    virtual StatusCode fillSRJetEDM(uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, float_t eta, float_t phi, std::unique_ptr< xAOD::jFexSRJetRoIContainer > &jContainer) override ;
+    virtual StatusCode fillLRJetEDM(uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, float_t eta, float_t phi, std::unique_ptr< xAOD::jFexLRJetRoIContainer > &jContainer) override ;
+    virtual StatusCode fillTauEDM  (uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, float_t eta, float_t phi, std::unique_ptr< xAOD::jFexTauRoIContainer   > &jContainer) override ;  
     virtual StatusCode fillSumEtEDM(uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, std::unique_ptr< xAOD::jFexSumETRoIContainer > &jContainer) override ;  
     virtual StatusCode fillMetEDM(uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, std::unique_ptr< xAOD::jFexMETRoIContainer > &jContainer) override ;  
       
@@ -89,9 +89,9 @@ namespace LVL1 {
     SG::WriteHandleKey< xAOD::jFexMETRoIContainer>   m_jFexMETOutKey   {this,"Key_jFexMETOutputContainer","L1_jFexMETRoI","Output jFexEDM Met container"};
 
     std::unordered_map<int,jTower> m_jTowersColl;
-    std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> > m_allSmallRJetTobs; 
-    std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> > m_allLargeRJetTobs;
-    std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> > m_alltauTobs;
+    std::unordered_map<uint8_t, std::vector<std::vector<std::vector<uint32_t>>> > m_allSmallRJetTobs; 
+    std::unordered_map<uint8_t, std::vector<std::vector<std::vector<uint32_t>>> > m_allLargeRJetTobs;
+    std::unordered_map<uint8_t, std::vector<std::vector<std::vector<uint32_t>>> > m_alltauTobs;
     std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> > m_allsumEtTobs;
     std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> > m_allMetTobs;
   };

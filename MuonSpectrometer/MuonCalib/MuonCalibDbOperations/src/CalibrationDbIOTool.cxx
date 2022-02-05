@@ -45,10 +45,10 @@
 #include "string"
 
 namespace MuonCalib {
-
+    CalibrationDbIOTool::~CalibrationDbIOTool() = default;
     CalibrationDbIOTool::CalibrationDbIOTool(const std::string &t, const std::string &n, const IInterface *p) :
         AthAlgTool(t, n, p), m_db_ConnectionString(""), m_db_WorkingSchema(""), m_sitename("") {
-        declareInterface<CalibrationIOTool>(this);
+        declareInterface<ICalibrationIOTool>(this);
         declareProperty("ConnectionString", m_db_ConnectionString);
         declareProperty("WriterConnectionString", m_writer_connection_string);
         declareProperty("WorkingSchema", m_db_WorkingSchema);
@@ -200,7 +200,7 @@ namespace MuonCalib {
         return StatusCode::SUCCESS;
     }
 
-    void CalibrationDbIOTool::fillRtPoints(std::shared_ptr<const IRtRelation> rt, std::vector<SamplePoint> &points) {
+    void CalibrationDbIOTool::fillRtPoints(const std::shared_ptr<const IRtRelation>& rt, std::vector<SamplePoint> &points) {
         points.clear();
         // for rt relations based on support points, write points
         std::shared_ptr<const RtRelationLookUp> rt_lookup = std::dynamic_pointer_cast<const RtRelationLookUp>(rt);
@@ -235,7 +235,7 @@ namespace MuonCalib {
         }
     }
 
-    void CalibrationDbIOTool::fillResPoints(std::shared_ptr<const IRtResolution> rt_resolution, std::vector<SamplePoint> &points) {
+    void CalibrationDbIOTool::fillResPoints(const std::shared_ptr<const IRtResolution>& rt_resolution, std::vector<SamplePoint> &points) {
         for (unsigned int i = 0; i < points.size(); i++) { points[i].set_error(rt_resolution->resolution(points[i].x1())); }
     }
 

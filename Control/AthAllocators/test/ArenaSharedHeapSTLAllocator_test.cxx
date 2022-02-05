@@ -172,6 +172,12 @@ void test1()
   a2.deallocate (p1, 1);
   a3.deallocate (p2, 1);
   a4.deallocate (p3, 1);
+
+  {
+    SG::ArenaSharedHeapSTLAllocator<const Payload> a5;
+    const Payload* p = a5.allocate (1);
+    a5.deallocate (p, 1);
+  }
  }
 
 

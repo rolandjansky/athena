@@ -1,6 +1,6 @@
 """Define method to configure and test SCT_MajorityConditionsTestAlg
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -8,9 +8,9 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 def SCT_MajorityConditionsTestAlgCfg(flags, name="SCT_MajorityConditionsTestAlg", **kwargs):
     """Return a configured SCT_MajorityConditionsTestAlg"""
     acc = ComponentAccumulator()
-    from SCT_ConditionsTools.SCT_MajorityConditionsConfig import SCT_MajorityConditionsCfg
+    from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_MajorityConditionsCfg
     kwargs.setdefault("MajorityTool", acc.popToolsAndMerge(SCT_MajorityConditionsCfg(flags)))
-    acc.addEventAlgo(CompFactory.SCT_MajorityConditionsTestAlg(**kwargs))
+    acc.addEventAlgo(CompFactory.SCT_MajorityConditionsTestAlg(name, **kwargs))
     return acc
 
 if __name__=="__main__":
@@ -22,6 +22,7 @@ if __name__=="__main__":
     Configurable.configurableRun3Behavior=1
     
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    ConfigFlags.Input.Files = []
     ConfigFlags.Input.isMC = False
     ConfigFlags.Input.ProjectName = "data16_13TeV"
     ConfigFlags.Input.RunNumber = 310809

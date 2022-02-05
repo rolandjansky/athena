@@ -619,7 +619,7 @@ int main(int argc, char** argv) {
       xaodEvent.getEntry(entry);
 
       // Pile up and MC event weight - used to normalize the cut flows
-      float mcEventWeight(1.), pileupWeight(1.), zvtxWeight(1.);
+      float mcEventWeight(1.), pileupWeight(1.);
       if (topConfig->isMC()) mcEventWeight = topScaleFactors->mcEventWeight();
 
       if (topConfig->doPileupReweighting() && !topConfig->isTruthDxAOD()) {
@@ -745,25 +745,25 @@ int main(int argc, char** argv) {
       ///-- And if the user selects "OutputEvents SelectedEvents" --///
 
       ///-- Count initial events --///
-      eventSelectionManager.countInitial(mcEventWeight, pileupWeight, zvtxWeight);
+      eventSelectionManager.countInitial(mcEventWeight, pileupWeight);
 
       ///-- Does event pass the GRL? (always true for MC) --///
       ///-- Only veto events when ALL user selectors request GRL --///
       bool passGRLVeto = eventCleaning->applyGRL();
       if (!passGRLVeto) continue;
-      eventSelectionManager.countGRL(mcEventWeight, pileupWeight, zvtxWeight);
+      eventSelectionManager.countGRL(mcEventWeight, pileupWeight);
 
       ///-- Are the Tile and LAr calorimeters in a good state? (always true for MC) --///
       ///-- Only veto events when ALL user selectors request GOODCALO --///
       bool passGoodCalo = eventCleaning->applyGoodCalo();
       if (!passGoodCalo) continue;
-      eventSelectionManager.countGoodCalo(mcEventWeight, pileupWeight, zvtxWeight);
+      eventSelectionManager.countGoodCalo(mcEventWeight, pileupWeight);
 
       ///-- Do we have a Primary Vertex? --///
       ///-- Only veto events when ALL user selectors request PRIVTX -- ///
       bool passPriVtx = eventCleaning->applyPrimaryVertex();
       if (!passPriVtx) continue;
-      eventSelectionManager.countPrimaryVertex(mcEventWeight, pileupWeight, zvtxWeight);
+      eventSelectionManager.countPrimaryVertex(mcEventWeight, pileupWeight);
 
       ///-- Wondering which triggers are available ??? --///
       ///-- Uncomment this line and get ready for a LOT of output --///
@@ -871,18 +871,6 @@ int main(int argc, char** argv) {
               lepton.push_back(static_cast<xAOD::Electron*>(t));
             for (xAOD::Muon *t : topEvent.m_muons)
               lepton.push_back(static_cast<xAOD::Muon*>(t));
-
-            topEvent.m_info->auxdecor<int>("njets") = topEvent.m_jets.size();
-            for (const auto& tagWP : topConfig->bTagWP_available()) {
-              if (tagWP.find("Continuous") != std::string::npos) continue;
-              int nbjets = 0;
-              for (const xAOD::Jet *jetPtr : topEvent.m_jets) {
-                if (jetPtr->isAvailable<char>("isbtagged_" + tagWP)) {
-                  nbjets += jetPtr->auxdataConst<char>("isbtagged_" + tagWP);
-                }
-              }
-              topEvent.m_info->auxdecor<int>("nbjets_" + tagWP) = nbjets;
-            }
 
             std::vector<float> mmweight;
             std::vector<std::vector<float> > mmweight_var;

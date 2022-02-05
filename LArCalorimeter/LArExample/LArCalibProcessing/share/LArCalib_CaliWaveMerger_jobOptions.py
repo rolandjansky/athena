@@ -51,7 +51,6 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
 ToolSvc = Service("ToolSvc")
-ToolSvc.LArRoI_Map.Print = False
 
 ###############################################################################
 #

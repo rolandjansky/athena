@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -19,33 +19,20 @@
 #include <stdlib.h>
 
 
-LArGeo::VDetectorParameters* LArGeo::VDetectorParameters::s_instance = 0;
+CxxUtils::CachedUniquePtr<LArGeo::VDetectorParameters> LArGeo::VDetectorParameters::s_instance;
 
-void LArGeo::VDetectorParameters::SetInstance(VDetectorParameters* p)
+void LArGeo::VDetectorParameters::SetInstance(std::unique_ptr<VDetectorParameters> p)
 {
-  if(s_instance!=0) {
-    /* -- Consider moving these printouts to MsgSvc
-    if(p==0) 
-      std::cerr << "LArGeo::VDetectorParameters::SetInstance warning: "
-		<< "database-parameter access objet is being deleted."
-		<< std::endl;
-    else
-      std::cerr << "LArGeo::VDetectorParameters::SetInstance warning: "
-		<< "database-parameter access object is being re-defined."
-		<< std::endl;
-    */
-    delete s_instance;
-  }
-
-  s_instance = p;
+  s_instance.set (std::move (p));
 }
 
-LArGeo::VDetectorParameters* LArGeo::VDetectorParameters::GetInstance()
+const LArGeo::VDetectorParameters* LArGeo::VDetectorParameters::GetInstance()
 {
-  if(s_instance==0)
+  const VDetectorParameters* p = s_instance.get();
+  if(p==0)
       std::cerr << "LArGeo::VDetectorParameters::GetInstance was called, but "
 		<< "the pointer to the detector-parameter access object is 0."
 		<< std::endl;
 
-  return s_instance;
+  return p;
 }

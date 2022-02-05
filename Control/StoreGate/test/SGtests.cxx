@@ -562,6 +562,7 @@ namespace Athena_test {
       new SG::TransientAddress (ClassID_traits<D1>::ID(), "dd",
                                 pIOA, false);
     DataProxy* dp = new SG::DataProxy (taddr, &cnv);
+    // cppcheck-suppress assertWithSideEffect
     assert (sg.addToStore (ClassID_traits<D1>::ID(), dp).isSuccess());
     IOpaqueAddress *pIOAB(new TestIOA);
     taddr =
@@ -569,6 +570,7 @@ namespace Athena_test {
                                 pIOAB, false);
     taddr->setTransientID (ClassID_traits<B1>::ID());
     DataProxy* dpB = new SG::DataProxy (taddr, &cnv);
+    // cppcheck-suppress assertWithSideEffect
     assert (sg.addToStore (ClassID_traits<B1>::ID(), dpB).isSuccess());
 
     D1* d1 = 0;

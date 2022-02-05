@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOTRKMUIDTOOLS_ITRACKDEPOSITINCALOTOOL_H
@@ -45,8 +45,6 @@ public:
     virtual std::vector<DepositInCalo> getDeposits(const xAOD::TrackParticle* tp, const CaloCellContainer* caloCellCont = nullptr,
                                                    const CaloExtensionCollection* extensionCache = nullptr) const = 0;
 
-    virtual StatusCode getTraversedLayers(const Trk::TrackParameters* par, std::map<double, const CaloDetDescriptor*>& caloInfo,
-                                          std::vector<Amg::Vector3D>& extrapolations) const = 0;
     /**
        Create surface for @code descr. CaloSurfaceType can be Entrance, Middle, Exit, Inside, Outside.
        Works for both cylindrical and disc-like surfaces. The side of a cylindrical detector element is a disc and

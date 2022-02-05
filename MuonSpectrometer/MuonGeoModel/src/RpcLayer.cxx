@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModel/RpcLayer.h"
@@ -35,22 +35,25 @@ namespace {
 
 namespace MuonGM {
 
-    RpcLayer::RpcLayer(std::string s, Rpc *t) : DetectorElement(std::move(s)), lwidth(0.), llength(0.), thickness(0.), llongWidth(0.) { m = t; }
+    RpcLayer::RpcLayer(const std::string& s, Rpc *t) : DetectorElement(s), lwidth(0.), llength(0.), thickness(0.), llongWidth(0.) { m = t; }
 
-    GeoVPhysVol *RpcLayer::build() {
+    GeoVPhysVol *RpcLayer::build(const StoredMaterialManager& matManager,
+                                 const MYSQL& mysql) {
         std::vector<Cutout *> vcutdef;
         int cutoutson = 0;
-        return build(cutoutson, vcutdef);
+        return build(matManager, mysql, cutoutson, vcutdef);
     }
 
-    GeoVPhysVol *RpcLayer::build(int cutoutson, std::vector<Cutout *> vcutdef) {
+    GeoVPhysVol *RpcLayer::build(const StoredMaterialManager& matManager,
+                                 const MYSQL& mysql,
+                                 int cutoutson,
+                                 const std::vector<Cutout *>& vcutdef) {
         MsgStream log(Athena::getMessageSvc(), "MuGM::GeoVPhysVol::build");
 
         double eps = 0.000001;
         double tol = 1.e-6;
 
-        MYSQL *mysql = MYSQL::GetPointer();
-        RPC *r = (RPC *)mysql->GetTechnology(name);
+        const RPC *r = dynamic_cast<const RPC*>(mysql.GetTechnology(name));
 
         if (m->nGasGaps() == 3 && r->NstripPanels_in_s != 1)
             throw std::runtime_error(Form("File: %s, Line: %d\nRpcLayer::build() - NstripPanels_in_s = %d for BI RPC, not possible", __FILE__, __LINE__, r->NstripPanels_in_s));
@@ -66,7 +69,7 @@ namespace MuonGM {
         }
 
         const GeoShape *srpcl = new GeoTrd(thickness / 2, thickness / 2, width / 2, width / 2, length / 2);
-        const GeoMaterial *mrpcl = getMaterialManager()->getMaterial("std::Air");
+        const GeoMaterial *mrpcl = matManager.getMaterial("std::Air");
         GeoLogVol *lrpcl = new GeoLogVol("Rpclayer", srpcl, mrpcl);
         GeoPhysVol *prpcl = new GeoPhysVol(lrpcl);
 
@@ -93,12 +96,12 @@ namespace MuonGM {
                                          strpanWidth / 2. - strpanCopperThickness, strpanLength / 2. - strpanCopperThickness);
         const GeoShape *scustrpan = sstrpan;
 
-        auto stripMaterial = getMaterialManager()->getMaterial("muo::RpcFoam");
+        auto stripMaterial = matManager.getMaterial("muo::RpcFoam");
         if (m->nGasGaps() == 3) { // for BI RPCs
-            stripMaterial = getMaterialManager()->getMaterial("muo::Forex");
+            stripMaterial = matManager.getMaterial("muo::Forex");
         }
 
-        GeoLogVol *lcustrpan = new GeoLogVol("RPC_StripPanelCuSkin", scustrpan, getMaterialManager()->getMaterial("std::Copper"));
+        GeoLogVol *lcustrpan = new GeoLogVol("RPC_StripPanelCuSkin", scustrpan, matManager.getMaterial("std::Copper"));
         GeoLogVol *lfoamstrpan = new GeoLogVol("RPC_StripPanelFoam", sfoamstrpan, stripMaterial);
 
         newpos += strpanThickness / 2. + tol / 2.;
@@ -190,8 +193,8 @@ namespace MuonGM {
         GeoTrd *sgas = new GeoTrd(gThickness / 2., gThickness / 2., gasWidth / 2., gasWidth / 2., gasLength / 2.);
         const GeoShape *sbak = sgg;
         GeoLogVol *lbak = new GeoLogVol("gas volume:" + MuonGM::buildString(r->NGasGaps_in_s, 0) + "gg_in_s_" + MuonGM::buildString(r->NstripPanels_in_s, 0) + "sp_in_s", sbak,
-                                        getMaterialManager()->getMaterial("std::Bakelite"));
-        GeoLogVol *lgas = new GeoLogVol("gazGap", sgas, getMaterialManager()->getMaterial("muo::RPCgas"));
+                                        matManager.getMaterial("std::Bakelite"));
+        GeoLogVol *lgas = new GeoLogVol("gazGap", sgas, matManager.getMaterial("muo::RPCgas"));
         GeoPhysVol *pbak1 = new GeoPhysVol(lbak);
         GeoPhysVol *pgas1 = new GeoPhysVol(lgas);
         tx = new GeoTransform(GeoTrf::TranslateX3D(newpos));
@@ -277,9 +280,9 @@ namespace MuonGM {
 
         // Apply cutouts
         if (cutoutson && vcutdef.size() > 0) {
-            GeoPhysVol *tempPhys = 0;
-            Cutout *cut = 0;
-            GeoShape *cutoutShape = 0;
+            GeoPhysVol *tempPhys = nullptr;
+            Cutout *cut = nullptr;
+            GeoShape *cutoutShape = nullptr;
             GeoTrf::Transform3D cutTrans{GeoTrf::Transform3D::Identity()};
 
             for (unsigned i = 0; i < vcutdef.size(); i++) {

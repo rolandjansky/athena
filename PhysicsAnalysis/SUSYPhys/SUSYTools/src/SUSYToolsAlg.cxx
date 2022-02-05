@@ -1272,28 +1272,31 @@ StatusCode SUSYToolsAlg::bookHistograms(void) {
   // Kinematic histograms
   m_objects = {"el", "ph", "mu", "tau", "jet", "bjet", "fatjet", "trkjet"};
   m_levels  = {"nom", "bsl", "sig"};
-  m_vars    = {"pt", "eta", "phi", "e", "mass", "d0", "z0", "isolCalo", "isolTrack", "truthType", "truthOrigin", "N", "bweight", "bweightpb", "bweightpc", "bweightpu", "pid", "parentpid", "wtagged", "ztagged", "toptagged", "toptaggedscore"};
+  m_vars    = {"pt", "eta", "phi", "e", "mass", "d0", "z0", "isolCalo", "isolTrack", "truthType", "truthOrigin", "N", "bweight", "bweightpb", "bweightpc", "bweightpu", "pid", "parentpid", "wtagged", "ztagged", "toptagged", "toptaggedscore","nTracks","nTracksCharged","nTracksIsolation","RNNJetScoreSigTrans"};
   std::map<std::string,std::vector<std::string>> cfg_hist_labels = {
      {"pt",{"p_{T} [GeV]","N"}}, {"eta",{"#eta","N"}}, {"phi",{"#phi","N"}}, {"e",{"energy","N"}}, {"mass",{"mass","N"}},
      {"d0",{"d0 significance","N"}}, {"z0",{"z0 * sin(#theta)","N"}}, {"isolCalo",{"isolation (calo) / pT","N"}}, {"isolTrack",{"isolation (track) / pT","N"}},
      {"truthType",{"truth type","N"}}, {"truthOrigin",{"truth origin","N"}}, {"N",{"count","N"}},
      {"bweight",{"b-weight","N"}}, {"bweightpb",{"b-weight (pb)","N"}}, {"bweightpc",{"b-weight (pc)","N"}}, {"bweightpu",{"b-weight (pu)","N"}},
      {"pid", {"pdg ID", "N"}}, {"parentpid", {"parent pdg ID","N"}},
-     {"wtagged", {"W tagged", "N"}}, {"ztagged", {"Z tagged", "N"}}, {"toptagged", {"Top tagged", "N"}}, {"toptaggedscore", {"Top tagger score", "N"}} };
+     {"wtagged", {"W tagged", "N"}}, {"ztagged", {"Z tagged", "N"}}, {"toptagged", {"Top tagged", "N"}}, {"toptaggedscore", {"Top tagger score", "N"}},
+     {"nTracks", {"N tracks", "N"}}, {"nTracksCharged", {"N tracks charged", "N"}}, {"nTracksIsolation", {"N tracks isolation", "N"}}, {"RNNJetScoreSigTrans", {"RNNJetScoreSigTrans","N"}} };
   std::map<std::string,int>                      cfg_hist_nbins  = {
      {"pt",100}, {"eta",40}, {"phi",64}, {"e",100}, {"mass",100},
      {"d0",50}, {"z0",60}, {"isolCalo",70}, {"isolTrack",70},
      {"truthType",50}, {"truthOrigin",50}, {"N",16},
      {"bweight",200}, {"bweightpb",200}, {"bweightpc",200}, {"bweightpu",200},
      {"pid",61}, {"parentpid",61},
-     {"wtagged",3}, {"ztagged",3}, {"toptagged",3}, {"toptaggedscore",50} };
+     {"wtagged",3}, {"ztagged",3}, {"toptagged",3}, {"toptaggedscore",50},
+     {"nTracks",20}, {"nTracksCharged",20}, {"nTracksIsolation",5}, {"RNNJetScoreSigTrans",50} };
   std::map<std::string,std::vector<float>>       cfg_hist_minmax = {
      {"pt",{0,200}}, {"eta",{-4,4}}, {"phi",{-3.2,3.2}}, {"e",{0,200}}, {"mass",{0,200}},
      {"d0",{-10,10}}, {"z0",{-1.5,1.5}}, {"isolCalo",{-0.2,0.5}}, {"isolTrack",{-0.2,0.5}},
      {"truthType",{0,50}}, {"truthOrigin",{0,50}}, {"N",{0,16}},
      {"bweight",{-10,10}}, {"bweightpb",{-0.5,1.5}}, {"bweightpc",{-0.5,1.5}}, {"bweightpu",{-0.5,1.5}},
      {"pid",{-30.5,30.5}}, {"parentpid",{-30.5,30.5}},
-     {"wtagged", {-1,2}}, {"ztagged", {-1,2}}, {"toptagged", {-1,2}}, {"toptaggedscore", {0,1}} };
+     {"wtagged", {-1,2}}, {"ztagged", {-1,2}}, {"toptagged", {-1,2}}, {"toptaggedscore", {0,1}},
+     {"nTracks", {0,20}}, {"nTracksCharged", {0,20}}, {"nTracksIsolation", {0,5}}, {"RNNJetScoreSigTrans", {0,1}} };
   std::map<std::string,std::string>              labels_objects  = { {"el","Electron"}, {"ph","Photon"}, {"mu","Muon"}, {"jet","Jet"}, {"bjet","b-Jet"}, {"tau","Tau"}, {"fatjet","Large-R jet"}, {"trkjet","Track jet"} };
   std::map<std::string,std::string>              labels_levels   = { {"nom","Nominal"}, {"bsl","Baseline"}, {"sig","Signal"} };
   std::map<std::string,std::string>              labels_dir      = { {"el","Electron"}, {"ph","Photon"}, {"mu","Muon"}, {"jet","Jet"}, {"bjet","bJet"}, {"tau","Tau"}, {"fatjet","LargeRJet"}, {"trkjet","TrackJet"} };
@@ -1310,6 +1313,7 @@ StatusCode SUSYToolsAlg::bookHistograms(void) {
         for (auto var : m_vars) {
            if (var.find("bweight")!=std::string::npos && obj.compare("bjet")!=0) continue;    // bweights only for bjets
            if (var.find("tagged")!=std::string::npos && obj.compare("fatjet")!=0) continue;   // boson tagging only for fjets
+           if ((var.find("nTracks")!=std::string::npos||var.find("RNNJetScore")!=std::string::npos) && obj.compare("tau")!=0) continue; // nTracks/RNN score only for taus
            if (var.find("isol")!=std::string::npos && !(obj.compare("el")==0||obj.compare("mu")==0||obj.compare("ph")==0)) continue;   // isol only for e/ph/mu
            std::string key = labels_dir[obj] + "/" + obj + "_" + lev + "_" + var;
            std::string labels = ";"+labels_levels[lev]+" "+labels_objects[obj]+" "+cfg_hist_labels[var][0]+";"+cfg_hist_labels[var][1];
@@ -1449,6 +1453,12 @@ void SUSYToolsAlg::stdHistsForObj(xAOD::IParticle *obj, std::string objtype, std
         hist(dir+objtype+"_"+objlevel+"_pid")->Fill( pid );
         hist(dir+objtype+"_"+objlevel+"_parentpid")->Fill( ppid );
       }
+   }
+   if (objtype=="tau") {
+      hist(dir+objtype+"_"+objlevel+"_nTracks")->Fill( dynamic_cast<xAOD::TauJet*>(obj)->nTracks() );
+      hist(dir+objtype+"_"+objlevel+"_nTracksCharged")->Fill( dynamic_cast<xAOD::TauJet*>(obj)->nTracksCharged() );
+      hist(dir+objtype+"_"+objlevel+"_nTracksIsolation")->Fill( dynamic_cast<xAOD::TauJet*>(obj)->nTracksIsolation() );
+      hist(dir+objtype+"_"+objlevel+"_RNNJetScoreSigTrans")->Fill( dynamic_cast<xAOD::TauJet*>(obj)->auxdata<float>("RNNJetScoreSigTrans") );
    }
    //
    if (objtype=="bjet") {

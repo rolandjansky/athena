@@ -1,47 +1,48 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALIBRATEDMUONSPROVIDER
 #define CALIBRATEDMUONSPROVIDER
-//author: will buttinger
 
-// Gaudi/Athena include(s):
+#include <AsgAnalysisInterfaces/IPileupReweightingTool.h>
+
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/ReadHandleKey.h"
-#include "xAODEventInfo/EventInfo.h"
-
 #include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
-#include <AsgAnalysisInterfaces/IPileupReweightingTool.h>
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODMuon/MuonContainer.h"
 
 namespace CP {
 
-   /// decorates a muon collection with efficiency and scale factor
+    /// decorates a muon collection with efficiency and scale factor
 
-   class CalibratedMuonsProvider : public AthAlgorithm {
+    class CalibratedMuonsProvider : public AthAlgorithm {
+    public:
+        /// Regular Algorithm constructor
+        CalibratedMuonsProvider(const std::string& name, ISvcLocator* svcLoc);
 
-   public:
-      /// Regular Algorithm constructor
-       CalibratedMuonsProvider( const std::string& name, ISvcLocator* svcLoc );
+        /// Function initialising the algorithm
+        virtual StatusCode initialize() override;
+        /// Function executing the algorithm
+        virtual StatusCode execute() override;
 
-      /// Function initialising the algorithm
-      virtual StatusCode initialize();
-      /// Function executing the algorithm
-      virtual StatusCode execute();
+    private:
+        SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this, "EventInfoContName", "EventInfo", "event info key"};
+        /// muon container
+        SG::ReadHandleKey<xAOD::MuonContainer> m_inputKey{this, "Input", "Muons", " Name of the muon container to calibrate"};
+        SG::WriteHandleKey<xAOD::MuonContainer> m_outputKey{this, "Output", "CalibratedMuons",
+                                                            "Name of the final container written to storegate"};
 
-   private:
-      SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this, "EventInfoContName", "EventInfo", "event info key"};
-      /// muon container
-      std::string m_inputKey,m_outputKey;
+        /// Muon calibration tool
+        ToolHandle<IMuonCalibrationAndSmearingTool> m_tool{this, "Tool", ""};
+        ToolHandle<IPileupReweightingTool> m_prwTool{this, "prwTool", ""};
+        Gaudi::Property<bool> m_useRndNumber{this, "useRndRunNumber", false};
 
-      /// Scale factor tool
-      ToolHandle <IMuonCalibrationAndSmearingTool > m_tool;
-      ToolHandle <IPileupReweightingTool> m_prwTool;
-      bool m_useRndNumber;
+    };  // class
 
-   }; // class 
+}  // namespace CP
 
-} // namespace CP
-
-#endif //
+#endif  //

@@ -6,7 +6,7 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
-
+#include "xAODCaloEvent/CaloCluster.h"
 
 /**
  * @class Base for tools doing precision Tracking Hypo selection
@@ -22,13 +22,15 @@ class ITrigEgammaPrecisionTrackingHypoTool
     virtual ~ITrigEgammaPrecisionTrackingHypoTool(){}
 
     struct ClusterInfo {
-      ClusterInfo( TrigCompositeUtils::Decision* d, const TrigCompositeUtils::Decision* previousDecision )
-        : decision( d ), 
-        previousDecisionIDs( TrigCompositeUtils::decisionIDs( previousDecision ).begin(), 
+      ClusterInfo( TrigCompositeUtils::Decision* d, const xAOD::CaloCluster_v1* c, const TrigCompositeUtils::Decision* previousDecision )
+        : decision( d ),
+          cluster( c ),
+          previousDecisionIDs( TrigCompositeUtils::decisionIDs( previousDecision ).begin(), 
                              TrigCompositeUtils::decisionIDs( previousDecision ).end() )
       {}
     
       TrigCompositeUtils::Decision* decision;
+      const xAOD::CaloCluster_v1* cluster;
       const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
     };
   

@@ -41,7 +41,7 @@ class RpcSectorLogicContainer : public DataVector<RpcSectorLogic> {
  private:
 
   // Dataword to contain the list of already filled sectors
-  SectorList_t m_sectorList;
+  SectorList_t m_sectorList{};
 
 };
 

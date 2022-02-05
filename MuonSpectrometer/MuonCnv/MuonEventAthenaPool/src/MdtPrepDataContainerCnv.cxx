@@ -52,7 +52,7 @@ Muon::MdtPrepDataContainer* MdtPrepDataContainerCnv::createTransient() {
     static pool::Guid   p1_guid("7E3F92F5-FAFF-45C3-A8F5-386B3CD56A7B"); // with MdtPrepDataContainerCnv_tlp1
     static pool::Guid   p2_guid("BBC02355-570A-4C28-81A6-65F23779509E"); // with MdtPrepDataContainerCnv_p2
     if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): main converter"<<endmsg;
-    Muon::MdtPrepDataContainer* p_collection(0);
+    Muon::MdtPrepDataContainer* p_collection(nullptr);
     if( compareClassGuid(p2_guid) ) {
         if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 2 detected"<<endmsg;
         std::unique_ptr< MdtPrepDataContainer_PERS >   col_vect( poolReadObject< MdtPrepDataContainer_PERS >() );

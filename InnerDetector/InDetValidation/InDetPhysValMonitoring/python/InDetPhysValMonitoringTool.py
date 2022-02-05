@@ -246,7 +246,7 @@ def getInDetLargeD0PhysValMonitoringTool(**kwargs):
         kwargs,
         name='InDetPhysValMonitoringToolLargeD0',
         SubFolder='LRT/',
-        TruthSelectionTool=getInDetRttTruthSelectionTool(name="AthTruthSelectionToolForIDPVM_LargeD0",maxProdVertRadius = 440.,minPt=1200.,ancestorList=InDetPhysValFlags.ancestorIDs()),
+        TruthSelectionTool=getInDetRttTruthSelectionTool(name="AthTruthSelectionToolForIDPVM_LargeD0",maxProdVertRadius = 440.,minPt=1200.,ancestorList=InDetPhysValFlags.ancestorIDs(), requireSiHit=InDetPhysValFlags.requiredSiHits()),
         TrackParticleContainerName=InDetKeys.xAODLargeD0TrackParticleContainer(
         ) if InDetFlags.storeSeparateLargeD0Container() else InDetKeys.xAODTrackParticleContainer(),
         useTrackSelection=True)

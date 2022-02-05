@@ -13,11 +13,11 @@ LArMphysOverMcalSubsetCnv_p1::persToTrans(const LArMpMcPersType* persObj,
 
   unsigned int nfebids          = persObj->m_subset.m_febIds.size();
   unsigned index                =0;
-
+  const unsigned int nChannelsPerFeb  = persObj->m_subset.subsetSize();
   auto subsetIt = transObj->subsetBegin();
   for (unsigned int i = 0; i < nfebids; ++i, ++subsetIt){
     // Loop over channels in feb 
-    for (unsigned int j = 0; j < NCHANNELPERFEB; ++j){
+    for (unsigned int j = 0; j < nChannelsPerFeb; ++j){
       subsetIt->second[j].m_data=persObj->m_values[index];
       ++index;
     }

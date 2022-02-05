@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TestInputMaker.h"
@@ -60,7 +60,7 @@ namespace HLTTest {
     // loop over output decisions in container of outputHandle, follow link to inputDecision
     int count =0;
     for (const  auto outputDecision : *outputHandle){ 
-      const ElementLinkVector<DecisionContainer> inputLinks = getLinkToPrevious(outputDecision);
+      const std::vector<ElementLink<DecisionContainer>> inputLinks = getLinkToPrevious(outputDecision);
       ATH_MSG_DEBUG("Element "<< count << " has " << inputLinks.size() <<" previous links");
       for (const auto& input: inputLinks){
         ATH_MSG_DEBUG( " -- Got seed link to input  "<<input.dataID() <<" and index "<< input.index() );

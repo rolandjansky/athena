@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -16,19 +16,19 @@ def AthenaStackingActionToolCfg(ConfigFlags, name='G4UA::AthenaStackingActionToo
     if "ATLAS" in ConfigFlags.Sim.Layout:
         kwargs.setdefault('KillAllNeutrinos',  True)
     ## Neutron Russian Roulette
-    #need to check if it exists?
-    #if ConfigFlags.hasFlag('Sim.NRRThreshold') and ConfigFlags.hasFlag('Sim.NRRWeight'):
     if ConfigFlags.Sim.NRRThreshold and ConfigFlags.Sim.NRRWeight:
         if ConfigFlags.Sim.CalibrationRun != 'Off':
             raise NotImplementedError("Neutron Russian Roulette should not be used in Calibration Runs.")
-        kwargs.setdefault('NRRThreshold',  ConfigFlags.Sim.NRRThreshold)
-        kwargs.setdefault('NRRWeight',  ConfigFlags.Sim.NRRWeight)
+        kwargs.setdefault('ApplyNRR', True)
+        kwargs.setdefault('NRRThreshold', ConfigFlags.Sim.NRRThreshold)
+        kwargs.setdefault('NRRWeight', ConfigFlags.Sim.NRRWeight)
     ## Photon Russian Roulette
     if ConfigFlags.Sim.PRRThreshold and ConfigFlags.Sim.PRRWeight:
         if ConfigFlags.Sim.CalibrationRun != 'Off':
             raise NotImplementedError("Photon Russian Roulette should not be used in Calibration Runs.")
-        kwargs.setdefault('PRRThreshold',  ConfigFlags.Sim.PRRThreshold)
-        kwargs.setdefault('PRRWeight',  ConfigFlags.Sim.PRRWeight)
+        kwargs.setdefault('ApplyPRR', True)
+        kwargs.setdefault('PRRThreshold', ConfigFlags.Sim.PRRThreshold)
+        kwargs.setdefault('PRRWeight', ConfigFlags.Sim.PRRWeight)
     kwargs.setdefault('IsISFJob', ConfigFlags.Sim.ISFRun)
 
     result.setPrivateTools( CompFactory.G4UA.AthenaStackingActionTool(name,**kwargs) )
@@ -76,6 +76,12 @@ def StoppedParticleActionToolCfg(ConfigFlags, name="G4UA::StoppedParticleActionT
     return result
 
 
+def FixG4CreatorProcessToolCfg(ConfigFlags, name="G4UA::FixG4CreatorProcessTool", **kwargs):
+    result = ComponentAccumulator()
+    result.setPrivateTools(CompFactory.G4UA.FixG4CreatorProcessTool(name, **kwargs))
+    return result
+
+
 def HitWrapperToolCfg(ConfigFlags, name="G4UA::HitWrapperTool", **kwargs):
     result = ComponentAccumulator()
     # FIXME UserActionConfig not yet migrated
@@ -86,6 +92,7 @@ def HitWrapperToolCfg(ConfigFlags, name="G4UA::HitWrapperTool", **kwargs):
     #         kwargs.setdefault(prop,value)
     result.setPrivateTools(CompFactory.G4UA.HitWrapperTool(name, **kwargs))
     return result
+
 
 def LengthIntegratorToolCfg(ConfigFlags, name="G4UA::UserActionSvc.LengthIntegratorTool", **kwargs):
     THistSvc= CompFactory.THistSvc

@@ -12,7 +12,7 @@ namespace Tau{
 
 class NewCorePlots: public PlotBase {
   public:
-    NewCorePlots(PlotBase *pParent, std::string sDir, std::string sTauJetContainerName);
+    NewCorePlots(PlotBase *pParent, const std::string& sDir, std::string sTauJetContainerName);
     virtual ~NewCorePlots();
     void fill(const xAOD::TauJet& tau, float weight);
 

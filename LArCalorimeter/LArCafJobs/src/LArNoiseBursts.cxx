@@ -42,7 +42,6 @@
 #include "NavFourMom/INavigable4MomentumCollection.h"
 
 // Lar HV
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetectorElements.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
@@ -95,7 +94,6 @@ LArNoiseBursts::LArNoiseBursts(const std::string& name,
     m_LArEM_IDHelper(0),
     m_LArFCAL_IDHelper(0),
     m_LArHEC_IDHelper(0),
-    m_calodetdescrmgr(0),
     m_CosmicCaloStream(false),
     m_nb_sat(0),
     m_lowqfactor(0),
@@ -265,6 +263,7 @@ StatusCode LArNoiseBursts::initialize() {
   ATH_CHECK( m_cablingKey.initialize() );
   ATH_CHECK( m_BCKey.initialize() );
   ATH_CHECK( m_totalNoiseKey.initialize() );
+  ATH_CHECK( m_bcDataKey.initialize() );
 
   // Retrieve online ID helper
   const LArOnlineID* LArOnlineIDHelper = nullptr;
@@ -284,7 +283,7 @@ StatusCode LArNoiseBursts::initialize() {
   m_LArElectrodeIDHelper = LArElectrodeIDHelper;
   ATH_MSG_DEBUG( " Found LArElectrodeIDHelper Helper");
 
-  ATH_CHECK( detStore()->retrieve (m_calodetdescrmgr, "CaloMgr") );
+  ATH_CHECK(m_caloMgrKey.initialize());
 
   // Retrieve ID helpers
   const CaloCell_ID* idHelper = nullptr;
@@ -959,6 +958,10 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
      return StatusCode::SUCCESS;
   }
 
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+  ATH_CHECK(caloMgrHandle.isValid());
+  const CaloDetDescrManager* caloMgr = *caloMgrHandle;
+
  // Retrieve LAr calocells container
  // or LArRawChannel container, whatsever available...
   const CaloCellContainer* caloTES=0;
@@ -1014,7 +1017,7 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
        qfactor = cell->quality();
        gain = cell->gain();
        //if(qfactor > 0. || cell->ID() == Identifier((IDENTIFIER_TYPE)0x33c9500000000000) ) ATH_MSG_DEBUG(cell->ID()<<" : "<<eCalo<<" "<<qfactor<<" "<<gain<<" prov.: "<<cell->provenance());
-       ATH_CHECK(fillCell(onlID, eCalo, qfactor, gain, cabling, bcCont, **totalNoise));
+       ATH_CHECK(fillCell(onlID, eCalo, qfactor, gain, cabling, bcCont, **totalNoise,caloMgr));
      }//loop over cells
      ATH_MSG_DEBUG("Done cells "<<nlarcell);
   } else {
@@ -1029,7 +1032,7 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
          qfactor = caloItr->quality();
          gain = caloItr->gain();
          //if(qfactor>0 || cabling->cnvToIdentifier((*caloItr).identify()) == Identifier((IDENTIFIER_TYPE)0x33c9500000000000) ) ATH_MSG_DEBUG(cabling->cnvToIdentifier((*caloItr).identify())<<" : "<<eCalo<<" "<<qfactor<<" "<<gain);
-         ATH_CHECK(fillCell(onlID, eCalo, qfactor, gain, cabling, bcCont, **totalNoise));
+         ATH_CHECK(fillCell(onlID, eCalo, qfactor, gain, cabling, bcCont, **totalNoise,caloMgr));
          chdone.push_back(onlID);
        }//loop over raw channels
      }  
@@ -1046,7 +1049,7 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
          qfactor = caloItr->quality();
          gain = caloItr->gain();
          //if(qfactor>0 || cabling->cnvToIdentifier((*caloItr).identify()) == Identifier((IDENTIFIER_TYPE)0x33c9500000000000)  ) ATH_MSG_DEBUG(cabling->cnvToIdentifier((*caloItr).identify())<<" : "<<eCalo<<" "<<qfactor<<" "<<gain);
-         ATH_CHECK(fillCell(onlID, eCalo, qfactor, gain, cabling, bcCont, **totalNoise));
+         ATH_CHECK(fillCell(onlID, eCalo, qfactor, gain, cabling, bcCont, **totalNoise,caloMgr));
        }//loop over raw channels
      }  
      ATH_MSG_DEBUG("Done raw chan. "<<nlarcell);
@@ -1167,13 +1170,19 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
   
 }
 
-StatusCode LArNoiseBursts::fillCell(HWIdentifier onlID, float eCalo, float qfactor, CaloGain::CaloGain gain, const LArOnOffIdMapping* cabling, const LArBadChannelCont* bcCont,
-                                    const CaloNoise& totalNoise)
+StatusCode LArNoiseBursts::fillCell(HWIdentifier onlID
+				    , float eCalo
+				    , float qfactor
+				    , CaloGain::CaloGain gain
+				    , const LArOnOffIdMapping* cabling
+				    , const LArBadChannelCont* bcCont
+				    , const CaloNoise& totalNoise
+				    , const CaloDetDescrManager* caloMgr)
 {
     const Identifier idd = cabling->cnvToIdentifier(onlID);
     nlarcell++;
     IdentifierHash channelHash = m_LArOnlineIDHelper->channel_Hash(onlID);
-    const CaloDetDescrElement *caloDDE = m_calodetdescrmgr->get_element(idd);
+    const CaloDetDescrElement *caloDDE = caloMgr->get_element(idd);
     int layer = caloDDE->getLayer();
     //    CaloCell_ID::CaloSample sampling = (*caloItr)->caloDDE()->getSampling();
     float phi = caloDDE->phi();

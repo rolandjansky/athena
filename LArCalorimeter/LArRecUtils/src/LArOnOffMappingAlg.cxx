@@ -1,7 +1,7 @@
 //dear emacs, this is -*-c++-*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArOnOffMappingAlg.h"
@@ -57,21 +57,21 @@ StatusCode LArOnOffMappingAlg::execute() {
 
   //Identifier helper:
   if (m_isSuperCell) {
-    const LArOnline_SuperCellID* scidhelper;
+    const LArOnline_SuperCellID* scidhelper = nullptr;
     ATH_CHECK(detStore()->retrieve(scidhelper,"LArOnline_SuperCellID"));
     larOnlineID=scidhelper; //cast to base-class
     
-    const CaloCell_SuperCell_ID* sccaloid;
+    const CaloCell_SuperCell_ID* sccaloid = nullptr;
     ATH_CHECK(detStore()->retrieve(sccaloid,"CaloCell_SuperCell_ID"));
     calocellID=sccaloid; //cast to base-class
 
   }
   else {//regular cells
-    const LArOnlineID* idhelper;
+    const LArOnlineID* idhelper = nullptr;
     ATH_CHECK(detStore()->retrieve(idhelper,"LArOnlineID"));
     larOnlineID=idhelper; //cast to base-class
 
-    const CaloCell_ID* sccaloid;
+    const CaloCell_ID* sccaloid = nullptr;
     ATH_CHECK(detStore()->retrieve(sccaloid,"CaloCell_ID"));
     calocellID=sccaloid; //cast to base-class
 

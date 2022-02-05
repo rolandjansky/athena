@@ -60,3 +60,21 @@ def MC16NoPileUp(flags):
 
     flags.Tile.BestPhaseFromCOOL = False
     flags.Tile.correctTime = False
+
+
+def MC16Simulation(flags):
+    """MC16 flags for simulation"""
+    flags.Sim.PhysicsList = 'FTFP_BERT_ATL'
+    flags.Sim.TruthStrategy = 'MC15aPlus'
+
+    flags.Input.RunNumber = [284500]
+    flags.Input.OverrideRunNumber = True
+    flags.Input.LumiBlockNumber = [1] # dummy value
+
+    flags.Sim.TRTRangeCut = 30.0
+    flags.Sim.TightMuonStepping = True
+
+    from SimuJobTransforms.SimulationHelpers import enableBeamPipeKill, enableFrozenShowersFCalOnly
+    enableBeamPipeKill(flags)
+    if 'FullG4' in flags.Sim.ISF.Simulator:
+        enableFrozenShowersFCalOnly(flags)

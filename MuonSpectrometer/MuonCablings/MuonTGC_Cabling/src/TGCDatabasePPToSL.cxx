@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTGC_Cabling/TGCDatabasePPToSL.h"
@@ -15,7 +15,7 @@ TGCDatabasePPToSL::TGCDatabasePPToSL(const std::string& filename,
     : TGCDatabase(TGCDatabase::PPToSL, filename, blockname)
 {
   // read out ascii file and fill database
-  if(m_database.size()==0) readDB();
+  TGCDatabasePPToSL::readDB();
 }
 
 TGCDatabasePPToSL::TGCDatabasePPToSL(const TGCDatabasePPToSL& right)
@@ -28,10 +28,10 @@ void TGCDatabasePPToSL::readDB(void) {
   std::ifstream file(m_filename.c_str());
   std::string buf;
 
-  unsigned int space = m_blockname.find(" ");
-  std::string module = m_blockname.substr(0,space);
-  std::string region = m_blockname.substr(space+1,1);
-  std::string type = m_blockname.substr(space+2);
+  unsigned int space = m_blockname.find(' ');
+  std::string_view module =std::string_view( m_blockname).substr(0,space);
+  std::string_view region = std::string_view(m_blockname).substr(space+1,1);
+  std::string_view type = std::string_view(m_blockname).substr(space+2);
 
   int offset=-1;
   if(type == "WT") offset = 1;
@@ -44,16 +44,16 @@ void TGCDatabasePPToSL::readDB(void) {
   if(type == "S")  offset = 2;
 
   while(getline(file,buf)){
-    if(buf.substr(0,1)==region) break;
+    if(buf.compare(0,1,region)==0) break;
   }
 
   while(getline(file,buf)){
-    if(buf.substr(1,module.size())==module) break;
+    if(buf.compare(1,module.size(),module)==0) break;
   }
 
   while(getline(file,buf)){
-    if(buf.substr(0,2)!="  ") break;
-    if(buf.substr(2,1)=="0") offset--;
+    if(buf.compare(0,2,"  ")!=0) break;
+    if(buf.compare(2,1,"0")==0) offset--;
     if(offset==0){
       std::istringstream line(buf);
       std::vector<int> entry;
@@ -62,7 +62,7 @@ void TGCDatabasePPToSL::readDB(void) {
         line >> temp; 
         entry.push_back(temp);
       }
-      m_database.push_back(entry);
+      m_database.emplace_back(std::move(entry));
     }
   }
   

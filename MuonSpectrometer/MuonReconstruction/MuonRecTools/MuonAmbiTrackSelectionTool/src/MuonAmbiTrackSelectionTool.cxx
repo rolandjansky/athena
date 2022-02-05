@@ -44,7 +44,8 @@ Muon::MuonAmbiTrackSelectionTool::initialize()
 std::tuple<Trk::Track *, bool>
 Muon::MuonAmbiTrackSelectionTool::getCleanedOutTrack(const Trk::Track *track, const Trk::TrackScore score,
                                                      [[maybe_unused]] Trk::ClusterSplitProbabilityContainer &splitProbContainer,
-                                                     Trk::PRDtoTrackMap &prd_to_track_map) const
+                                                     Trk::PRDtoTrackMap &prd_to_track_map,
+                                                     int trackId /*= -1*/, int subtrackId /*= -1*/) const
 {
     (void)score;  //@TODO unused ?
 
@@ -60,6 +61,7 @@ Muon::MuonAmbiTrackSelectionTool::getCleanedOutTrack(const Trk::Track *track, co
 
 
     ATH_MSG_VERBOSE("New Track " << m_printer->print(*track));
+    ATH_MSG_VERBOSE("trackId "<< trackId <<", subtrackId "<<subtrackId);  
 
     std::map<Muon::MuonStationIndex::StIndex, int> sharedPrecisionPerLayer;
     std::map<Muon::MuonStationIndex::StIndex, int> precisionPerLayer;

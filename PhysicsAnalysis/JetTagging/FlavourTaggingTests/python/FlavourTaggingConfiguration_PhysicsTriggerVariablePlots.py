@@ -22,13 +22,12 @@ def getPhysicsTriggerVariablePlotsCfg():
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     output = ComponentAccumulator()
 
-    from AthenaMonitoring.TriggerInterface import getTrigDecisionTool
-    output.merge(getTrigDecisionTool(ConfigFlags))
+    from AthenaMonitoring.TriggerInterface import TrigDecisionToolCfg
+    output.merge(TrigDecisionToolCfg(ConfigFlags))
 
     options = {}
     options['name'] = 'PhysicsTriggerVariablePlotsAlg'
     options['OutputLevel'] = INFO
-    options['TrigJetCollectionKey'] = 'HLT_bJets'
     options['TrigVertexCollectionKey'] = 'HLT_IDVertex_FS'
     options['TrigTrackParticleCollectionKey'] = 'HLT_IDTrack_Bjet_IDTrig'
     options['OfflineJetCollectionKey'] = 'AntiKt4EMPFlowJets'

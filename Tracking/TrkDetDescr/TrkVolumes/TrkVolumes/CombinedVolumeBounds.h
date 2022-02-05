@@ -65,7 +65,7 @@ class CombinedVolumeBounds final : public VolumeBounds {
 
   /** Method to decompose the Bounds into boundarySurfaces */
   virtual const std::vector<const Trk::Surface*>* decomposeToSurfaces
-  ATLAS_NOT_THREAD_SAFE(const Amg::Transform3D& transform) const override final;
+  (const Amg::Transform3D& transform) override final;
 
   /** Provide accessor for BoundarySurfaces */
   virtual ObjectAccessor boundarySurfaceAccessor(

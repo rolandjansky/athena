@@ -46,19 +46,21 @@ def SCTLorentzMonAlgConfig(inputFlags):
     # myMonAlg.RandomHist = True
 
     # Set InDetTrackSummaryTool to TrackSummaryTool of SCTLorentzMonAlg
-    from .TrackSummaryToolWorkaround import TrackSummaryToolWorkaround
-    myMonAlg.TrackSummaryTool = result.popToolsAndMerge(TrackSummaryToolWorkaround(inputFlags))
+    from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolCfg
+    myMonAlg.TrackSummaryTool = result.getPrimaryAndMerge(InDetTrackSummaryToolCfg(inputFlags))
 
     ### STEP 4 ###
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the
     # standard one that is included with AthMonitorAlgorithm.
 
 
-    # set up geometry / conditions
+    # set up geometry / conditions / magnetic field
     from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
     result.merge(BeamPipeGeometryCfg(inputFlags))
-    from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg
+    from InDetConfig.InDetGeometryConfig import InDetGeometryCfg
     result.merge(InDetGeometryCfg(inputFlags))
+    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+    result.merge(MagneticFieldSvcCfg(inputFlags))
 
     # # Then, add a tool that doesn't have its own configuration function. In
     # # this example, no accumulator is returned, so no merge is necessary.
@@ -127,7 +129,7 @@ if __name__ == "__main__":
     ConfigFlags.Detector.GeometrySCT = True
     ConfigFlags.Detector.GeometryTRT = True
     ConfigFlags.Detector.GeometryCalo = False
-    ConfigFlags.Detector.GeometryMuon = False
+    ConfigFlags.Detector.GeometryMuon = True
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.

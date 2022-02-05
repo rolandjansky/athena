@@ -6,6 +6,7 @@ MuonsCPContent = [
 "ExtrapolatedMuonTrackParticles",
 "GSFTrackParticles",
 "InDetTrackParticles",
+"InDetTrackParticlesAux.truthType.truthOrigin",
 "Muons",
 "MuonSegments",
 "Photons",
@@ -26,6 +27,6 @@ MuonsCPContent = [
 "egammaTopoSeededClusters",
 "egammaTopoSeededClustersAux.calEta.calPhi",
 "InDetForwardTrackParticles",
-"InDetForwardTrackParticlesAux.theta.phi.qOverP.numberOfPrecisionLayers.numberOfPrecisionHoleLayers.numberOfPixelHits.numberOfPixelDeadSensors.numberOfSCTHits.numberOfSCTDeadSensors.d0.z0.vz.definingParametersCovMatrixDiag.definingParametersCovMatrixOffDiag.numberOfPixelHoles.numberOfSCTHoles.numberOfTRTHits.numberOfTRTOutliers",
+"InDetForwardTrackParticlesAux.theta.phi.qOverP.numberOfPrecisionLayers.numberOfPrecisionHoleLayers.numberOfPixelHits.numberOfPixelDeadSensors.numberOfSCTHits.numberOfSCTDeadSensors.d0.z0.vz.definingParametersCovMatrixDiag.definingParametersCovMatrixOffDiag.numberOfPixelHoles.numberOfSCTHoles.numberOfTRTHits.numberOfTRTOutliers.truthType.truthOrigin",
 "ExtrapolatedMuonTrackParticlesAux.numberOfPrecisionHoleLayers.numberOfPixelHoles.numberOfSCTHits.numberOfSCTHoles.numberOfSCTDeadSensors.numberOfTRTHits.numberOfTRTOutliers.phi.qOverP.theta.definingParametersCovMatrixDiag.definingParametersCovMatrixOffDiag.numberOfPixelDeadSensors.numberOfPixelHits.numberOfPrecisionLayers.alignEffectChId.alignEffectDeltaTrans.alignEffectSigmaDeltaTrans.alignEffectDeltaAngle.alignEffectSigmaDeltaAngle",
 ]

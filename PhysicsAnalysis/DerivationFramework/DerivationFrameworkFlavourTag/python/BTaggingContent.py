@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # from
 # https://stackoverflow.com/questions/3663450/python-remove-substring-only-at-the-end-of-string
@@ -12,7 +12,6 @@ def rchop(thestring, ending):
 JetStandardAux = \
     [ "pt"
     , "eta"
-    , "btagging"
     , "btaggingLink"
     , "HadronConeExclTruthLabelID"
     , "HadronConeExclExtendedTruthLabelID"
@@ -21,26 +20,24 @@ JetStandardAux = \
     ]
 
 BTaggingStandardAux = \
-    [ "DL1_pu"
-    , "DL1_pc"
-    , "DL1_pb"
-    , "DL1r_pu"
+    [ 
+      "DL1r_pu"
     , "DL1r_pc"
     , "DL1r_pb"
-    , "DL1r20210519r22_pu"
-    , "DL1r20210519r22_pc"
-    , "DL1r20210519r22_pb"
-    , "DL1d20210528r22_pu"
-    , "DL1d20210528r22_pc"
-    , "DL1d20210528r22_pb"
-    , "dipsLoose20210517_pu"
-    , "dipsLoose20210517_pc"
-    , "dipsLoose20210517_pb"
-    , "dips20210517_pu"
-    , "dips20210517_pc"
-    , "dips20210517_pb"
+
+    , "DL1dv00_pu" #“recommended r22 tagger” which is DL1dLoose20210824r22 named DL1dv00
+    , "DL1dv00_pc"
+    , "DL1dv00_pb"
+
+    , "dipsLoose20210729_pu"
+    , "dipsLoose20210729_pc"
+    , "dipsLoose20210729_pb"
+
     , "SV1_NGTinSvx"
     , "SV1_masssvx"
+    , "dipsLoose20210729flip_pu"
+    , "dipsLoose20210729flip_pc"
+    , "dipsLoose20210729flip_pb"
     ]
 
 # These are the inputs to DL1rmu + SMT
@@ -99,7 +96,38 @@ BTaggingHighLevelAux = [
     "softMuon_pb",
     "softMuon_pc",
     "softMuon_pu",
-    "softMuon_isDefaults",
+    "softMuon_isDefaults"
+    , "DL1r20210519r22_pu"
+    , "DL1r20210519r22_pc"
+    , "DL1r20210519r22_pb"
+    , "DL1r20210824r22_pu"
+    , "DL1r20210824r22_pc"
+    , "DL1r20210824r22_pb"
+
+    , "dipsLoose20210517_pu"
+    , "dipsLoose20210517_pc"
+    , "dipsLoose20210517_pb"
+    , "dipsLoose20210729_pu"
+    , "dipsLoose20210729_pc"
+    , "dipsLoose20210729_pb"
+
+    , "dips20210517_pu"
+    , "dips20210517_pc"
+    , "dips20210517_pb"
+    , "dips20210729_pu"
+    , "dips20210729_pc"
+    , "dips20210729_pb"
+
+    , "DL1dv00_pu" #“recommended r22 tagger” which is DL1dLoose20210824r22 named DL1dv00
+    , "DL1dv00_pc"
+    , "DL1dv00_pb"
+
+    , "DL1d20210528r22_pu"
+    , "DL1d20210528r22_pc"
+    , "DL1d20210528r22_pb"
+    , "DL1d20210824r22_pu"
+    , "DL1d20210824r22_pc"
+    , "DL1d20210824r22_pb"
 ]
 
 BTaggingXbbAux = [
@@ -192,3 +220,4 @@ def BTaggingXbbContent(jetcol):
     btagcontent = [ ".".join( [ btagging + "Aux" ] + btaggingAllAux ) ]
 
     return [jetcol] + jetcontent + [ btagging ] + btagcontent
+    

@@ -23,6 +23,7 @@
 #include "LArRawConditions/LArADC2MeV.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 //Events infos:
 
@@ -55,8 +56,6 @@ class TH2F;
 class TProfile2D;
 class LArDigit;
 
-class CaloDetDescrManager;
-
 //using namespace std;
 
 class LArRODMonTool: public ManagedMonitorToolBase
@@ -69,15 +68,15 @@ class LArRODMonTool: public ManagedMonitorToolBase
   /** @brief Default destructor */
   virtual ~LArRODMonTool();
 
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
 
-  StatusCode finalize();
+  virtual StatusCode finalize() override;
 
   // Book general histograms
-  StatusCode bookHistograms();
+  virtual StatusCode bookHistograms() override;
 
   // Called each event
-  StatusCode fillHistograms();
+  virtual StatusCode fillHistograms() override;
 
   //StatusCode procHistograms(bool isEndOfEventsBlock, bool isEndOfLumiBlock, bool isEndOfRun);
 
@@ -238,6 +237,8 @@ private:
   
 
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping CDO"};
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey {this, "CaloDetDescrManager", "CaloDetDescrManager", "SG Key for CaloDetDescrManager in the Condition Store" };
+
 
   // Output files names
   std::string m_DigitsFileName;

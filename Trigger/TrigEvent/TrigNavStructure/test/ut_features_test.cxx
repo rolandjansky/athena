@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <stdexcept>
@@ -53,13 +53,12 @@ struct TestTNS : public StandaloneNavigation {
 
 };
 
-TestTNS tns;
 static const class_id_type roi_clid = 6171771;
 static const class_id_type cluster_clid = 19188792;
 static const class_id_type track_clid = 472619874;
 static const class_id_type electron_clid = 788776;
 
-bool build() {
+bool build(TestTNS& tns) {
   tns.reset();
   tns.getInitialNode();
   TriggerElement* roi1  = tns.addRoINode(tns.getInitialNode());
@@ -89,7 +88,7 @@ bool build() {
   return true;
 }
 
-TriggerElement * getById(te_id_type id) {
+TriggerElement * getById(TestTNS& tns, te_id_type id) {
   std::vector<TriggerElement*> tes;
   tns.getAllOfType(id, tes);
   if ( tes.size() != 1 ) {
@@ -100,7 +99,7 @@ TriggerElement * getById(te_id_type id) {
 }
 
 
-bool attach() {
+bool attach(TestTNS& tns) {
 
   auto roi1 = TrigNavStructure::getDirectSuccessors(tns.getInitialNode())[0];
   if( tns.addFeature(roi1, roi_clid, "initial", 0, 1) == false ) 
@@ -111,22 +110,22 @@ bool attach() {
     REPORT_AND_STOP("attach to RoI node failed");
 
   // we used for the test TEs ID they have convention that the for digit labels RoI second labels step of processing
-  if ( tns.addFeature(getById(11), cluster_clid, "L2ElectronClusters", 0, 1) == false )
+  if ( tns.addFeature(getById(tns, 11), cluster_clid, "L2ElectronClusters", 0, 1) == false )
     REPORT_AND_STOP("Cluster attach failed");
 
-  if ( tns.addFeature(getById(21), cluster_clid, "L2ElectronClusters", 1, 2) == false )
+  if ( tns.addFeature(getById(tns, 21), cluster_clid, "L2ElectronClusters", 1, 2) == false )
     REPORT_AND_STOP("Cluster attach failed");
 
-  if ( tns.addFeature(getById(12), track_clid, "L2ElectronTracks", 0, 10) == false )
+  if ( tns.addFeature(getById(tns, 12), track_clid, "L2ElectronTracks", 0, 10) == false )
     REPORT_AND_STOP("Tracks attach failed");
 
-  if ( tns.addFeature(getById(22), track_clid, "L2ElectronTracks", 27, 32) == false )
+  if ( tns.addFeature(getById(tns, 22), track_clid, "L2ElectronTracks", 27, 32) == false )
     REPORT_AND_STOP("Tracks attach failed");
 
-  if ( tns.addFeature(getById(13), electron_clid, "L2Electrons", 0, 10) == false )
+  if ( tns.addFeature(getById(tns, 13), electron_clid, "L2Electrons", 0, 10) == false )
     REPORT_AND_STOP("Electrons attach failed");
 
-  if ( tns.addFeature(getById(23), electron_clid, "L2Electrons", 20, 25) == false )
+  if ( tns.addFeature(getById(tns, 23), electron_clid, "L2Electrons", 20, 25) == false )
     REPORT_AND_STOP("Electrons attach failed");
 
   return true;
@@ -156,10 +155,10 @@ bool isGoodFeature(const HLT::TriggerElement::FeatureAccessHelper& fea,
 
 
 
-bool getFromExplicitTE() {
+bool getFromExplicitTE(TestTNS& tns) {
   BEGIN_TEST;
   // get from valid TE
-  auto fea = tns.getFeature(getById(11), cluster_clid, 3);
+  auto fea = tns.getFeature(getById(tns, 11), cluster_clid, 3);
   if ( not isGoodFeature(fea, cluster_clid, 3, 0, 1) )
     REPORT_AND_STOP("Valid request to get clusters fails");
   PROGRESS;
@@ -174,26 +173,26 @@ bool getFromExplicitTE() {
   PROGRESS;
 
   // get from valid TE neglecting the sub index
-  fea = tns.getFeature(getById(12), track_clid, invalid_sub_index);
+  fea = tns.getFeature(getById(tns, 12), track_clid, invalid_sub_index);
   if ( not isGoodFeature(fea, track_clid, 0, 0, 10) )
     REPORT_AND_STOP("Valid request (neglecting sub index) to get tracks fails");
   PROGRESS;
 
   // requests below shuld be failing
   // wrong subType
-  fea = tns.getFeature(getById(10), cluster_clid, 1);
+  fea = tns.getFeature(getById(tns, 10), cluster_clid, 1);
   if ( fea.valid() )
     REPORT_AND_STOP("Got feature while should obtain nothing using this sub type ID");
   PROGRESS;
 
   // earlier TE
-  fea = tns.getFeature(getById(10), cluster_clid, 3);
+  fea = tns.getFeature(getById(tns, 10), cluster_clid, 3);
   if ( fea.valid() )
     REPORT_AND_STOP("Got feature while should obtain nothing from this TE");
   PROGRESS;
 
   // latter TE
-  fea = tns.getFeature(getById(12), cluster_clid, 3);
+  fea = tns.getFeature(getById(tns, 12), cluster_clid, 3);
   if ( fea.valid() )
     REPORT_AND_STOP("Got feature while should obtain nothing from this TE");
   PROGRESS;
@@ -202,64 +201,64 @@ bool getFromExplicitTE() {
 
 
 
-bool getRecursivelyTEbyCLID() {
+bool getRecursivelyTEbyCLID(TestTNS& tns) {
   BEGIN_TEST;
 
   const TriggerElement* source {nullptr};
 
   // check if the recursion goes in correct direction
-  auto fea = tns.getFeatureRecursively(getById(20), cluster_clid,"", source);
+  auto fea = tns.getFeatureRecursively(getById(tns, 20), cluster_clid,"", source);
   if ( fea.valid() ) 
     REPORT_AND_STOP("Recursion goes in the wrong direction, we should not be able to get cluster from RoI");
   PROGRESS;
 
   // check if the recursion starts well (i.e. the TE where objects is available should be covered as well)
-  fea = tns.getFeatureRecursively(getById(21), cluster_clid, "", source);
+  fea = tns.getFeatureRecursively(getById(tns, 21), cluster_clid, "", source);
   if ( not isGoodFeature(fea, cluster_clid, 3, 1, 2) ) 
     REPORT_AND_STOP("Recursion does not start properly");
-  if ( source != getById(21) ) 
+  if ( source != getById(tns, 21) ) 
     REPORT_AND_STOP("In no-recursion case, the source is wrong");  
   PROGRESS;
 
   // and finally check if the recursion works well (one step down)
-  fea = tns.getFeatureRecursively(getById(23), track_clid, "", source);
+  fea = tns.getFeatureRecursively(getById(tns, 23), track_clid, "", source);
   if ( not isGoodFeature(fea, track_clid, 0, 27, 32) ) 
     REPORT_AND_STOP("Recursion does not descend properly");
 
-  if ( source != getById(22) ) 
+  if ( source != getById(tns, 22) ) 
     REPORT_AND_STOP("In one step recursion case, the source is wrong");
   PROGRESS;
 
   // more steps down
-  fea = tns.getFeatureRecursively(getById(23), cluster_clid, "", source);
+  fea = tns.getFeatureRecursively(getById(tns, 23), cluster_clid, "", source);
   if ( not isGoodFeature(fea, cluster_clid, 3, 1, 2) ) 
     REPORT_AND_STOP("Recursion does not descend properly");
 
-  if ( source != getById(21) ) 
+  if ( source != getById(tns, 21) ) 
     REPORT_AND_STOP("In more step recursion case, the source is wrong");
   PROGRESS;
   return true;
 }
 
 
-bool getRecursivelyTEbyLabel() {
+bool getRecursivelyTEbyLabel(TestTNS& tns) {
   BEGIN_TEST;
 
   const TriggerElement* source {nullptr};
   // first let's try invalid label
-  auto fea = tns.getFeatureRecursively(getById(23), cluster_clid, "invalid", source);
+  auto fea = tns.getFeatureRecursively(getById(tns, 23), cluster_clid, "invalid", source);
   if ( fea.valid() )
     REPORT_AND_STOP("Feature found irrespectively of incorrect(1) label");
   PROGRESS;
 
   // some other lable used by another feature
-  fea = tns.getFeatureRecursively(getById(23), cluster_clid, "L2Electrons", source);
+  fea = tns.getFeatureRecursively(getById(tns, 23), cluster_clid, "L2Electrons", source);
   if ( fea.valid() )
     REPORT_AND_STOP("Feature found irrespectively of incorrect(2) label");
   PROGRESS;
 
   // and finally good case
-  fea = tns.getFeatureRecursively(getById(23), cluster_clid, "L2ElectronClusters", source);
+  fea = tns.getFeatureRecursively(getById(tns, 23), cluster_clid, "L2ElectronClusters", source);
   if ( not isGoodFeature(fea, cluster_clid, 3, 1, 2) )
     REPORT_AND_STOP("Feature not found using label");
   PROGRESS;
@@ -269,18 +268,18 @@ bool getRecursivelyTEbyLabel() {
 
 
 
-bool ser() {
+bool ser(TestTNS& tns) {
 
   std::vector<TriggerElement*> tes;
   tns.getAll(tes, false);  
-  MSG("INFO", "Number of TEs before re-serailziation " << tes.size() );
+  MSG("INFO", "Number of TEs before re-serialization " << tes.size() );
   const size_t nTEs = tes.size();
   
   std::vector<uint32_t> data;
   if ( not tns.serialize(data) ) {
     REPORT_AND_STOP("Serialization fails");
   }
-  MSG("INFO", "size of serialzied navigation is " << data.size());
+  MSG("INFO", "size of serialized navigation is " << data.size());
   MSG("INFO", "elements: " << data[0] << " " << data[1] << " " << data[2] << " " <<data[3]);
   
 
@@ -292,7 +291,7 @@ bool ser() {
   { // check number of all TEs
     std::vector<TriggerElement*> tes;
     tns.getAll(tes, false);
-    MSG("INFO", "Number of TEs after deserailziation " << tes.size() );
+    MSG("INFO", "Number of TEs after deserialization " << tes.size() );
     if ( tes.size() != nTEs )
       REPORT_AND_STOP("Different number of TEs after re-serialization");
   }
@@ -316,37 +315,39 @@ int main() {
   ctx.setExtension( Atlas::ExtendedEventContext(xdict) );
   Gaudi::Hive::setCurrentContext (ctx);
 
-  if ( build() == false ) 
+  TestTNS tns;
+
+  if ( build(tns) == false ) 
     ABORT("not strictly a test but pre-conditions, nonetheless fails");
 
-  if ( attach() == false ) 
+  if ( attach(tns) == false ) 
     ABORT("not strictly a test but pre-conditions, nonetheless fails");
   
   MSG("INFO", "build navigation. test.");
 
-  if ( getFromExplicitTE() == false ) 
+  if ( getFromExplicitTE(tns) == false ) 
     ABORT("basic get failed");
 
-  if ( getRecursivelyTEbyCLID() == false ) 
+  if ( getRecursivelyTEbyCLID(tns) == false ) 
     ABORT("Get by CLID failed"); 
 
-  if ( getRecursivelyTEbyLabel() == false ) 
+  if ( getRecursivelyTEbyLabel(tns) == false ) 
     ABORT("Get by label failed"); 
 
   // Now is the trick, we serialize the navigation and scratch the old content. 
-  // Then we deserailize into it the old content and see if the tests still work.
-  if ( ser() == false ) 
-    ABORT("Issue wiht serialziation->reset->deserialization cycle");
+  // Then we deserialize into it the old content and see if the tests still work.
+  if ( ser(tns) == false ) 
+    ABORT("Issue with serialziation->reset->deserialization cycle");
 
   MSG("INFO", "tests after serialization, deserialization");
   tns.dumpHolders();
-  if ( getFromExplicitTE() == false ) 
+  if ( getFromExplicitTE(tns) == false ) 
     ABORT("basic get failed");
 
-  if ( getRecursivelyTEbyCLID() == false ) 
+  if ( getRecursivelyTEbyCLID(tns) == false ) 
     ABORT("Get by CLID failed"); 
 
-  if ( getRecursivelyTEbyLabel() == false ) 
+  if ( getRecursivelyTEbyLabel(tns) == false ) 
     ABORT("Get by label failed"); 
 
   MSG("OK", "test passed");

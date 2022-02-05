@@ -2,21 +2,19 @@
 
 Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
+from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import ProductionStep
-from AthenaCommon.Logging import logging
-from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
-#Eventually we want ITkStrip specific versions of these
-from SCT_ConditionsTools.SCT_SiliconConditionsConfig import SCT_SiliconConditionsCfg
-#Doesn't work for ITkStrip - specific verion needed?
-#from SCT_ConditionsTools.SCT_ReadCalibChipDataConfig import SCT_ReadCalibChipDataCfg
-from SiPropertiesTool.ITkStripSiPropertiesConfig import ITkStripSiPropertiesCfg
-from SiLorentzAngleTool.ITkStripLorentzAngleConfig import ITkStripLorentzAngleCfg
-from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
-from Digitization.PileUpToolsConfig import PileUpToolsCfg
 from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg, PileUpXingFolderCfg
+from Digitization.PileUpToolsConfig import PileUpToolsCfg
+from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
+from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+from SCT_ConditionsTools.ITkStripConditionsToolsConfig import ITkStripSiliconConditionsCfg
+#from SCT_ConditionsTools.ITkStripConditionsToolsConfig import ItkStripReadCalibChipDataCfg
+from SiLorentzAngleTool.ITkStripLorentzAngleConfig import ITkStripLorentzAngleCfg
+from SiPropertiesTool.ITkStripSiPropertiesConfig import ITkStripSiPropertiesCfg
+from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
 
 import AthenaCommon.SystemOfUnits as Units
 
@@ -32,7 +30,7 @@ def ITkStripLastXing():
 
 def ITkStripDigitizationCommonCfg(flags, name="ITkStripDigitizationToolCommon", **kwargs):
     """Return ComponentAccumulator with common ITkStrip digitization tool config"""
-    acc = ITkStripGeometryCfg(flags)
+    acc = ITkStripReadoutGeometryCfg(flags)
     if not flags.Digitization.DoInnerDetectorNoise:
         kwargs.setdefault("OnlyHitElements", True)
     kwargs.setdefault("InputObjectName", "ITkStripHits")
@@ -46,7 +44,7 @@ def ITkStripDigitizationCommonCfg(flags, name="ITkStripDigitizationToolCommon", 
         kwargs.setdefault("FirstXing", ITkStripFirstXing())
         kwargs.setdefault("LastXing", ITkStripLastXing() )
     
-    ITkStripDigitizationTool = CompFactory.StripDigitizationTool
+    ITkStripDigitizationTool = CompFactory.ITk.StripDigitizationTool
     tool = ITkStripDigitizationTool(name, **kwargs)
     # attach ToolHandles
     tool.FrontEnd = acc.popToolsAndMerge(ITkStripFrontEndCfg(flags))
@@ -142,14 +140,15 @@ def ITkStripRandomDisabledCellGeneratorCfg(flags, name="ITkStripRandomDisabledCe
 
 def ITkStripAmpCfg(flags, name="ITkStripAmp", **kwargs):
     """Return configured amplifier and shaper tool"""
+    acc = ComponentAccumulator()
     kwargs.setdefault("CrossFactor2sides", 0.1)
     kwargs.setdefault("CrossFactorBack", 0.07)
     kwargs.setdefault("PeakTime", 21)
     kwargs.setdefault("deltaT", 1.0)
     kwargs.setdefault("Tmin", -25.0)
     kwargs.setdefault("Tmax", 150.0)
-    ITkStripAmp = CompFactory.SCT_Amp
-    return ITkStripAmp(name, **kwargs)
+    acc.setPrivateTools(CompFactory.SCT_Amp(name, **kwargs))
+    return acc
 
 
 def ITkStripSurfaceChargesGeneratorCfg(flags, name="ITkStripSurfaceChargesGenerator", **kwargs):
@@ -165,10 +164,9 @@ def ITkStripSurfaceChargesGeneratorCfg(flags, name="ITkStripSurfaceChargesGenera
     kwargs.setdefault("isOverlay", flags.Common.ProductionStep == ProductionStep.Overlay)
     # kwargs.setdefault("doTrapping", True) # ATL-INDET-INT-2016-019
     # experimental ITkStripDetailedSurfaceChargesGenerator config dropped here
-    ITkStripSurfaceChargesGenerator, ITkStripRadDamageSummaryTool = CompFactory.getComps("StripSurfaceChargesGenerator", "SCT_RadDamageSummaryTool",)
-    tool = ITkStripSurfaceChargesGenerator(name, **kwargs)
-    tool.RadDamageSummaryTool = ITkStripRadDamageSummaryTool()
-    tool.SiConditionsTool = acc.popToolsAndMerge(SCT_SiliconConditionsCfg(flags))
+    tool = CompFactory.ITk.StripSurfaceChargesGenerator(name, **kwargs)
+    tool.RadDamageSummaryTool = CompFactory.SCT_RadDamageSummaryTool(name="ITkStripRadDamageSummaryTool")
+    tool.SiConditionsTool = acc.popToolsAndMerge(ITkStripSiliconConditionsCfg(flags))
     tool.SiPropertiesTool = acc.popToolsAndMerge(ITkStripSiPropertiesCfg(flags, SiConditionsTool=tool.SiConditionsTool))
     tool.LorentzAngleTool = acc.popToolsAndMerge(ITkStripLorentzAngleCfg(flags, SiConditionsTool=tool.SiConditionsTool))
     acc.setPrivateTools(tool)
@@ -238,8 +236,9 @@ def ITkStripFrontEndCfg(flags, name="ITkStripFrontEnd", **kwargs):
     kwargs.setdefault("DataReadOutMode", 0)
     kwargs.setdefault("DataCompressionMode",2)
 
-    ITkStripFrontEnd = CompFactory.SCT_FrontEnd
-    acc.setPrivateTools(ITkStripFrontEnd(name, **kwargs))
+    kwargs.setdefault("SCT_Amp", acc.popToolsAndMerge(ITkStripAmpCfg(flags)))
+
+    acc.setPrivateTools(CompFactory.SCT_FrontEnd(name, **kwargs))
     return acc
 
 

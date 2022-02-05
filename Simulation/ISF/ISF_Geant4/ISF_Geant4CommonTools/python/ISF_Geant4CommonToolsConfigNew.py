@@ -1,6 +1,6 @@
 """ComponentAccumulator Geant4 tools config for ISF
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -9,72 +9,84 @@ from ISF_Tools.ISF_ToolsConfigNew import EntryLayerFilterCfg
 
 
 def EntryLayerToolCfg(flags, name="ISF_EntryLayerTool", **kwargs):
-    acc = ComponentAccumulator()
+    result = ComponentAccumulator()
+    kwargs["GeoIDSvc"] = result.getPrimaryAndMerge(GeoIDSvcCfg(flags)).name
 
-    acc.merge(GeoIDSvcCfg(flags))
-    kwargs["GeoIDSvc"] = acc.getService("ISF_GeoIDSvc")
-
-    filt = acc.popToolsAndMerge(EntryLayerFilterCfg(flags))
+    filt = result.popToolsAndMerge(EntryLayerFilterCfg(flags))
     kwargs.setdefault("ParticleFilters", [filt])
+
+    if flags.GeoModel.Run in ['RUN1', 'RUN2', 'RUN3']:
+        kwargs.setdefault("CaloEntryVolumeString", "IDET::IDET")
+    else:
+        kwargs.setdefault("CaloEntryVolumeString", "ITK::ITK")
 
     if flags.Sim.DoFullChain:
         OEsvc = CompFactory.StoreGateSvc("OriginalEvent_SG")
-        acc.addService(OEsvc)
-        kwargs.setdefault("EvtStore", OEsvc) # For Fast Chain
+        result.addService(OEsvc)
+        kwargs.setdefault("EvtStore", OEsvc.name) # For Fast Chain
 
-    acc.setPrivateTools(CompFactory.ISF.EntryLayerTool(name, **kwargs))
-    return acc
+    result.setPrivateTools(CompFactory.ISF.EntryLayerTool(name, **kwargs))
+    return result
 
 
 def EntryLayerToolMTCfg(flags, name="ISF_EntryLayerToolMT", **kwargs):
-    acc = ComponentAccumulator()
+    result = ComponentAccumulator()
+    kwargs["GeoIDSvc"] = result.getPrimaryAndMerge(GeoIDSvcCfg(flags)).name
 
-    acc.merge(GeoIDSvcCfg(flags))
-    kwargs["GeoIDSvc"] = acc.getService("ISF_GeoIDSvc")
-
-    filt = acc.popToolsAndMerge(EntryLayerFilterCfg(flags))
+    filt = result.popToolsAndMerge(EntryLayerFilterCfg(flags))
     kwargs.setdefault("ParticleFilters", [filt])
+
+    if flags.GeoModel.Run in ['RUN1', 'RUN2', 'RUN3']:
+        kwargs.setdefault("CaloEntryVolumeString", "IDET::IDET")
+    else:
+        kwargs.setdefault("CaloEntryVolumeString", "ITK::ITK")
 
     if flags.Sim.DoFullChain:
         OEsvc = CompFactory.StoreGateSvc("OriginalEvent_SG")
-        acc.addService(OEsvc)
-        kwargs.setdefault("EvtStore", OEsvc) # For Fast Chain
+        result.addService(OEsvc)
+        kwargs.setdefault("EvtStore", OEsvc.name) # For Fast Chain
 
-    acc.setPrivateTools(CompFactory.ISF.EntryLayerToolMT(name, **kwargs))
-    return acc
+    result.setPrivateTools(CompFactory.ISF.EntryLayerToolMT(name, **kwargs))
+    return result
 
 
 def AFIIEntryLayerToolCfg(flags, name="ISF_AFIIEntryLayerTool", **kwargs):
-    acc = ComponentAccumulator()
+    result = ComponentAccumulator()
+    kwargs["GeoIDSvc"] = result.getPrimaryAndMerge(AFIIGeoIDSvcCfg(flags)).name
 
-    acc.merge(AFIIGeoIDSvcCfg(flags))
-    kwargs["GeoIDSvc"] = acc.getService("ISF_AFIIGeoIDSvc")
-
-    filt = acc.popToolsAndMerge(EntryLayerFilterCfg(flags))
+    filt = result.popToolsAndMerge(EntryLayerFilterCfg(flags))
     kwargs.setdefault("ParticleFilters", [filt])
+
+    if flags.GeoModel.Run in ['RUN1', 'RUN2', 'RUN3']:
+        kwargs.setdefault("CaloEntryVolumeString", "IDET::IDET")
+    else:
+        kwargs.setdefault("CaloEntryVolumeString", "ITK::ITK")
 
     if flags.Sim.DoFullChain:
         OEsvc = CompFactory.StoreGateSvc("OriginalEvent_SG")
-        acc.addService(OEsvc)
-        kwargs.setdefault("EvtStore", OEsvc) # For Fast Chain
+        result.addService(OEsvc)
+        kwargs.setdefault("EvtStore", OEsvc.name) # For Fast Chain
 
-    acc.setPrivateTools(CompFactory.ISF.EntryLayerTool(name, **kwargs))
-    return acc
+    result.setPrivateTools(CompFactory.ISF.EntryLayerTool(name, **kwargs))
+    return result
 
 
 def AFIIEntryLayerToolMTCfg(flags, name="ISF_AFIIEntryLayerToolMT", **kwargs):
-    acc = ComponentAccumulator()
+    result = ComponentAccumulator()
+    kwargs["GeoIDSvc"] = result.getPrimaryAndMerge(AFIIGeoIDSvcCfg(flags)).name
 
-    acc.merge(AFIIGeoIDSvcCfg(flags))
-    kwargs["GeoIDSvc"] = acc.getService("ISF_AFIIGeoIDSvc")
-
-    filt = acc.popToolsAndMerge(EntryLayerFilterCfg(flags))
+    filt = result.popToolsAndMerge(EntryLayerFilterCfg(flags))
     kwargs.setdefault("ParticleFilters", [filt])
+
+    if flags.GeoModel.Run in ['RUN1', 'RUN2', 'RUN3']:
+        kwargs.setdefault("CaloEntryVolumeString", "IDET::IDET")
+    else:
+        kwargs.setdefault("CaloEntryVolumeString", "ITK::ITK")
 
     if flags.Sim.DoFullChain:
         OEsvc = CompFactory.StoreGateSvc("OriginalEvent_SG")
-        acc.addService(OEsvc)
-        kwargs.setdefault("EvtStore", OEsvc) # For Fast Chain
+        result.addService(OEsvc)
+        kwargs.setdefault("EvtStore", OEsvc.name) # For Fast Chain
 
-    acc.setPrivateTools(CompFactory.ISF.EntryLayerToolMT(name, **kwargs))
-    return acc
+    result.setPrivateTools(CompFactory.ISF.EntryLayerToolMT(name, **kwargs))
+    return result

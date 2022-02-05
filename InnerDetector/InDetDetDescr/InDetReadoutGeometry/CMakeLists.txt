@@ -13,5 +13,5 @@ atlas_add_library( InDetReadoutGeometry
                    PUBLIC_HEADERS InDetReadoutGeometry
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${GEOMODEL_LIBRARIES} AthenaKernel AtlasDetDescr CxxUtils GeoPrimitives Identifier GaudiKernel InDetIdentifier TrkDetElementBase ReadoutGeometryBase TrkSurfaces TrkEventPrimitives StoreGateLib DetDescrConditions InDetCondTools InDetGeoModelUtils
-                   PRIVATE_LINK_LIBRARIES AthenaBaseComps AthenaPoolUtilities IdDictDetDescr GeoModelUtilities )
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${GEOMODEL_LIBRARIES} AthenaKernel AtlasDetDescr CxxUtils GeoPrimitives Identifier GaudiKernel InDetIdentifier TrkDetElementBase ReadoutGeometryBase TrkSurfaces TrkEventPrimitives StoreGateLib DetDescrConditions InDetCondTools InDetGeoModelUtils AthenaBaseComps
+                   PRIVATE_LINK_LIBRARIES AthenaPoolUtilities IdDictDetDescr GeoModelUtilities )

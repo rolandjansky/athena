@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( BCM_BackgroundAlgs )
@@ -8,6 +8,3 @@ atlas_add_component( BCM_BackgroundAlgs
                      src/*.cxx
                      src/components/*.cxx
                      LINK_LIBRARIES AthenaBaseComps AthenaKernel Identifier InDetBCM_RawData BCM_CollisionTimeLib )
-
-# Install files from the package:
-atlas_install_joboptions( share/*.py )

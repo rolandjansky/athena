@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <sstream>
@@ -726,13 +726,13 @@ bool TrigNavStructure::overlaps(const TriggerElement* te1, const TriggerElement*
 }
 
 bool TrigNavStructure::getTopologicallySpannedBy( const TriggerElement* te, const std::vector<unsigned int>& types,
-                                                std::vector<TriggerElement*>& children, const bool activeOnly ) const {
+                                                std::vector<const TriggerElement*>& children, const bool activeOnly ) const {
   if ( getDirectPredecessors(te).size() != types.size() ) {
     return false;
   }
 
   for ( unsigned i = 0 ; i < types.size(); ++i ) {
-    TriggerElement* child = const_cast<TriggerElement*>(getSuccessor( getDirectPredecessors(te)[i], types[i]));
+    const TriggerElement* child = getSuccessor( getDirectPredecessors(te)[i], types[i]);
     if(child!=0) {
       if(activeOnly && !child->getActiveState()) {
         children.clear();

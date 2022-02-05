@@ -19,7 +19,10 @@ if digitizationFlags.dataRunNumber.get_Value():
     else:
         digilog.warning('RunNumberOverride.py :: Will override the settings of the EvtIdModifierSvc that was previously set up!')
     from Digitization.RunDependentConfig import buildListOfModifiers
-    ServiceMgr.EvtIdModifierSvc.Modifiers += buildListOfModifiers()
+    # to prevent the same modifiers being added twice by mistake
+    newModifiers = buildListOfModifiers()
+    if ServiceMgr.EvtIdModifierSvc.Modifiers != newModifiers:
+       ServiceMgr.EvtIdModifierSvc.Modifiers += newModifiers
     #fix iov metadata
     if not hasattr(ServiceMgr.ToolSvc, 'IOVDbMetaDataTool'):
         ServiceMgr.ToolSvc += CfgMgr.IOVDbMetaDataTool()

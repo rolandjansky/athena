@@ -74,7 +74,6 @@ StatusCode TrigTauRecMerged::initialize()
   
   ATH_MSG_DEBUG("Initialising HandleKeys");
   ATH_CHECK(m_roIInputKey.initialize());
-  ATH_CHECK(m_L1RoIKey.initialize());
   ATH_CHECK(m_clustersKey.initialize(SG::AllowEmpty));
   ATH_CHECK(m_tracksKey.initialize(SG::AllowEmpty));
   ATH_CHECK(m_vertexKey.initialize(SG::AllowEmpty));
@@ -145,9 +144,16 @@ StatusCode TrigTauRecMerged::execute(const EventContext& ctx) const
   auto ptRatioEflowApprox = Monitored::Scalar<float>("ptRatioEflowApprox", -99.9);
   auto pt_jetseed_log     = Monitored::Scalar<float>("pt_jetseed_log",-99.9);
   auto ptDetectorAxis     = Monitored::Scalar<float>("ptDetectorAxis",-99.9);
+  auto etaDetectorAxis     = Monitored::Scalar<float>("etaDetectorAxis",-99.9);
+  auto ptDetectorAxis_log  = Monitored::Scalar<float>("ptDetectorAxis_log",-99.9);
   auto RNN_tracknumber    = Monitored::Scalar<int>("RNN_tracknumber",0);
   auto RNN_clusternumber  = Monitored::Scalar<int>("RNN_clusternumber",0); 
- 
+  auto RNNJetScore_0p         = Monitored::Scalar<float>("RNNJetScore_0p",-999);
+  auto RNNJetScoreSigTrans_0p = Monitored::Scalar<float>("RNNJetScoreSigTrans_0p",-999);  
+  auto RNNJetScore_1p         = Monitored::Scalar<float>("RNNJetScore_1p",-999);
+  auto RNNJetScoreSigTrans_1p = Monitored::Scalar<float>("RNNJetScoreSigTrans_1p",-999);
+  auto RNNJetScore_mp         = Monitored::Scalar<float>("RNNJetScore_mp",-999);
+  auto RNNJetScoreSigTrans_mp = Monitored::Scalar<float>("RNNJetScoreSigTrans_mp",-999);
   auto EF_vertex_x      = Monitored::Scalar<float>("vertex_x", -999.9);
   auto EF_vertex_y      = Monitored::Scalar<float>("vertex_y", -999.9); 
   auto EF_vertex_z      = Monitored::Scalar<float>("vertex_z", -999.9);
@@ -171,12 +177,20 @@ StatusCode TrigTauRecMerged::execute(const EventContext& ctx) const
   auto Track_nPixelHitsPlusDeadSensors = Monitored::Collection("track_nPixelHitsPlusDeadSensors", track_nPixelHitsPlusDeadSensors);
   auto Track_nSCTHitsPlusDeadSensors = Monitored::Collection("track_nSCTHitsPlusDeadSensors", track_nSCTHitsPlusDeadSensors);
 
+  auto clustersMeanCenterLambda  = Monitored::Scalar<float>("clustersMeanCenterLambda",0.0);
+  auto clustersMeanFirstEngDens  = Monitored::Scalar<float>("clustersMeanFirstEngDens",0.0);
+  auto clustersMeanEMProbability  = Monitored::Scalar<float>("clustersMeanEMProbability",0.0);
+  auto clustersMeanSecondLambda  = Monitored::Scalar<float>("clustersMeanSecondLambda",0.0);
+  auto clustersMeanPresamplerFrac  = Monitored::Scalar<float>("clustersMeanPresamplerFrac",0.0);
+
   auto monitorIt = Monitored::Group( m_monTool, nCells, nTracks, dEta, dPhi, emRadius, hadRadius,
                    EtFinal, Et, EtHad, EtEm, EMFrac, IsoFrac, centFrac, nWideTrk, ipSigLeadTrk, trFlightPathSig, massTrkSys,
                    dRmax, numTrack, trkAvgDist, etovPtLead, PSSFraction, EMPOverTrkSysP, ChPiEMEOverCaloEME, SumPtTrkFrac,
-                   innerTrkAvgDist, Ncand, EtaL1, PhiL1, EtaEF, PhiEF, mEflowApprox, ptRatioEflowApprox, pt_jetseed_log, ptDetectorAxis, RNN_clusternumber, Cluster_et_log, Cluster_dEta, Cluster_dPhi, Cluster_log_SECOND_R,
+                   innerTrkAvgDist, Ncand, EtaL1, PhiL1, EtaEF, PhiEF, mEflowApprox, ptRatioEflowApprox, pt_jetseed_log, 
+                   ptDetectorAxis, etaDetectorAxis, ptDetectorAxis_log, RNN_clusternumber, RNNJetScore_0p, RNNJetScoreSigTrans_0p, 
+                   RNNJetScore_1p, RNNJetScoreSigTrans_1p,RNNJetScore_mp,RNNJetScoreSigTrans_mp,Cluster_et_log, Cluster_dEta, Cluster_dPhi, Cluster_log_SECOND_R,
                    Cluster_SECOND_LAMBDA, Cluster_CENTER_LAMBDA, RNN_tracknumber, EF_vertex_x, EF_vertex_y, EF_vertex_z, EF_calo_errors, EF_track_errors, Track_pt_log, Track_dEta, Track_dPhi, Track_z0sinThetaTJVA_abs_log, Track_d0_abs_log, Track_nIBLHitsAndExp,
-                   Track_nPixelHitsPlusDeadSensors, Track_nSCTHitsPlusDeadSensors); 
+                   Track_nPixelHitsPlusDeadSensors, Track_nSCTHitsPlusDeadSensors, clustersMeanCenterLambda, clustersMeanFirstEngDens, clustersMeanEMProbability, clustersMeanSecondLambda, clustersMeanPresamplerFrac); 
 
 
   // Retrieve store.
@@ -306,7 +320,7 @@ StatusCode TrigTauRecMerged::execute(const EventContext& ctx) const
 	  ATH_MSG_DEBUG(" Negative energy cluster is rejected");
 	  continue;
         }
-    
+ 
       myCluster.SetPtEtaPhiE((*clusterIt)->pt(), (*clusterIt)->eta(), (*clusterIt)->phi(), (*clusterIt)->e());
       aJet->addConstituent(*clusterIt);
 
@@ -505,7 +519,15 @@ StatusCode TrigTauRecMerged::execute(const EventContext& ctx) const
     ptRatioEflowApprox = std::min(pre_ptRatioEflowApprox, 4.0f);
     
     pt_jetseed_log  = std::log10(p_tau->ptJetSeed());
-    ptDetectorAxis  =  std::log10(std::min(p_tau->ptDetectorAxis() / 1000.0, 100.0));
+
+    ptDetectorAxis  =  std::min(p_tau->ptDetectorAxis() / 1000.0, 10000.0);
+    ptDetectorAxis_log  =  std::log10(std::min(p_tau->ptDetectorAxis() / 1000.0, 10000.0));
+   
+    etaDetectorAxis  = p_tau->etaDetectorAxis();   
+ 
+    if( p_tau->nTracks() > 0 ) {
+      ipSigLeadTrk = std::abs(p_tau->track(0)->d0SigTJVA());
+    }
 
     // track variables monitoring 
     for( auto track : p_tau->allTracks()){
@@ -580,6 +602,47 @@ StatusCode TrigTauRecMerged::execute(const EventContext& ctx) const
 		  << " wrt L1 dEta "<< dEta<<" dPhi "<<dPhi
 		  << " Tau Et (GeV): "<< EtFinal);
 	  
+    // monitor RNN score
+    if(p_tau->hasDiscriminant(xAOD::TauJetParameters::RNNJetScore)){
+        if(p_tau->nTracks() == 0){
+           RNNJetScore_0p = p_tau->discriminant(xAOD::TauJetParameters::RNNJetScore);
+        } else if (p_tau->nTracks() == 1) {
+           RNNJetScore_1p = p_tau->discriminant(xAOD::TauJetParameters::RNNJetScore);
+        } else {
+           RNNJetScore_mp = p_tau->discriminant(xAOD::TauJetParameters::RNNJetScore);
+        }
+    }
+   
+    if(p_tau->hasDiscriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans)){
+        if(p_tau->nTracks() == 0){
+           RNNJetScoreSigTrans_0p = p_tau->discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans);
+        } else if (p_tau->nTracks() == 1){
+           RNNJetScoreSigTrans_1p = p_tau->discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans);
+        } else {
+           RNNJetScoreSigTrans_mp = p_tau->discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans);
+        }
+    }
+
+    // monitor BRT variables
+
+    // use dummy variable to temporarily store results retrieved from tau EDM before final assignment
+    float avariable = 0.;
+
+    bool test = p_tau->detail(xAOD::TauJetParameters::ClustersMeanCenterLambda, avariable);
+    if(test) clustersMeanCenterLambda = avariable;
+
+    test = p_tau->detail(xAOD::TauJetParameters::ClustersMeanFirstEngDens, avariable);
+    if(test) clustersMeanFirstEngDens = avariable;
+
+    test = p_tau->detail(xAOD::TauJetParameters::ClustersMeanEMProbability, avariable);
+    if(test) clustersMeanEMProbability = avariable;
+
+    test = p_tau->detail(xAOD::TauJetParameters::ClustersMeanSecondLambda, avariable);
+    if(test) clustersMeanSecondLambda = avariable;
+
+    test = p_tau->detail(xAOD::TauJetParameters::ClustersMeanPresamplerFrac, avariable);
+    if(test) clustersMeanPresamplerFrac = avariable;
+ 
     ++Ncand;
   }
 

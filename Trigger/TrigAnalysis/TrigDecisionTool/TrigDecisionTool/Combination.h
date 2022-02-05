@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGGER_DECISION_TOOL_Combination_H
@@ -29,11 +29,13 @@
 #include "xAODBase/IParticle.h"
 #include "xAODBase/IParticleContainer.h"
 
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full athena
 #include "TrigDecisionTool/FeatureCollectAthena.h"
 #endif
 
 #include "TrigDecisionTool/FeatureCollectStandalone.h"
+
+#include "boost/container_hash/hash_fwd.hpp"
 
 class HltNaviChecker;
 
@@ -53,7 +55,7 @@ namespace Trig {
   {  
   public:
 
-    Combination();
+    Combination() = default;
 
     /**
      * @brief normal constructor
@@ -66,7 +68,7 @@ namespace Trig {
      * @param clid must be clid of type as stored. No flattening supported
      */
 
-    const std::vector<Trig::TypelessFeature> typelessGet(HLT::class_id_type clid, const std::string& label = "", unsigned int condition = TrigDefs::Physics, const std::string & teName = "" ) const;
+    std::vector<Trig::TypelessFeature> typelessGet(HLT::class_id_type clid, const std::string& label = "", unsigned int condition = TrigDefs::Physics, const std::string & teName = "" ) const;
 
     /**
      * @brief Method used to get objects. 
@@ -76,7 +78,7 @@ namespace Trig {
      * @param teName to get features from TEs of specific TEs (it is to be used in combination with switch alsoDeactivateTEs or composite triggers) super-expert usecase
      **/
      template<class T>
-     const std::vector<Trig::Feature<T> > get(const std::string& label = "", unsigned int condition=TrigDefs::Physics, const std::string& teName = "") const;
+     std::vector<Trig::Feature<T> > get(const std::string& label = "", unsigned int condition=TrigDefs::Physics, const std::string& teName = "") const;
 
     
     template<typename CONTAINER> using ELEMENT_OF = typename CONTAINER::base_value_type;
@@ -132,8 +134,6 @@ namespace Trig {
      **/
     bool active() const;
 
-
-
     /**
      * @brief trigger elements in the combination 
      * can be used directly with ancestor method
@@ -148,8 +148,8 @@ namespace Trig {
     void collect(const HLT::TriggerElement* te, std::vector<Trig::Feature<T> >& data, 
 		 const std::string& label, unsigned int condition, const std::string& teName) const;
 
-    bool operator==(const Combination& other) const;
-    bool operator<(const Combination& other) const;
+    bool operator==(const Combination& other) const { return m_tes == other.m_tes; }
+    bool operator<(const Combination& other) const {  return m_tes < other.m_tes; }
     
 
   private:
@@ -158,27 +158,25 @@ namespace Trig {
     // helper functionality for collect using traits class to determine how to access
     // the navigation
 
-    HLT::TrigNavStructure* navigation() const;
+    const HLT::TrigNavStructure* navigation() const;
 
     std::vector<const HLT::TriggerElement*> m_tes;
-    const Trig::CacheGlobalMemory* m_cgm;
+    const Trig::CacheGlobalMemory* m_cgm{nullptr};
   };
 } // EOF namespace Trig
 
 
-
-
 template <class T>
-const std::vector<Trig::Feature<T> > Trig::Combination::get(const std::string& label, unsigned int condition, const std::string& teName) const
+std::vector<Trig::Feature<T> > Trig::Combination::get(const std::string& label, unsigned int condition, const std::string& teName) const
 {
   std::vector<Feature<T> > data;
 
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full athena
   for( const HLT::TriggerElement* te : m_tes )
     FeatureAccessImpl::collect<T>(te, data, label, condition, teName, navigation());
   for( Feature<T>& f : data ) {
     if ( f.owned() ) {
-      m_cgm->deleteAtTheEndOfEvent( const_cast<T*>( f.cptr() ) );
+      m_cgm->deleteAtTheEndOfEvent( f.cptr() );
     }
   }  
 #else
@@ -190,7 +188,16 @@ const std::vector<Trig::Feature<T> > Trig::Combination::get(const std::string& l
   return data;
 }
 
-
+namespace std {
+  /// Hash function to support associative containers
+  template <>
+  struct hash<Trig::Combination>
+  {
+    std::size_t operator()(const Trig::Combination& comb) const {
+      return boost::hash_range(comb.tes().begin(), comb.tes().end());
+    }
+  };
+}
 
 MsgStream& operator<< ( MsgStream& m, const Trig::Combination& c );
 

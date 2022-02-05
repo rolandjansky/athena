@@ -60,72 +60,44 @@ StatusCode DoubleEventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) cons
   }
 
   for (;;) {
-    // Check if we're at the end of primary file
-    if (!m_primaryFileTransition) {
-      StatusCode sc = nextHandleFileTransition(ctxt);
-      if (sc.isRecoverable()) {
-        continue; // handles empty files
-      }
-      if (sc.isFailure()) {
-        return StatusCode::FAILURE;
-      }
-      m_primaryFileTransition = true;
-    }
-
-    // Check if we're at the end of secondary file
-    StatusCode sc = m_secondarySelector->nextHandleFileTransition(ctxt);
-    if (sc.isRecoverable()) {
-      continue; // handles empty files
-    }
-    if (sc.isFailure()) {
+    // Move in the primary file (with skipping)
+    if (nextWithSkip(ctxt).isFailure()) {
       return StatusCode::FAILURE;
     }
 
-    // Both files are OK, set the flag back to false
-    m_primaryFileTransition = false;
-
-    // Increase event count
-    m_secondarySelector->syncEventCount(++m_evtCount);
-
-    if (!m_counterTool.empty() && !m_counterTool->preNext().isSuccess()) {
-        ATH_MSG_WARNING("Failed to preNext() CounterTool.");
+    // Check if we're at the end of secondary file
+    if (m_secondarySelector->nextWithSkip(ctxt).isFailure()) {
+      return StatusCode::FAILURE;
     }
-    if( m_evtCount > m_skipEvents
-        && (m_skipEventRanges.empty() || m_evtCount < m_skipEventRanges.front().first))
-    {
-      if (!recordAttributeList().isSuccess()) {
-        ATH_MSG_ERROR("Failed to record AttributeList.");
-        return(StatusCode::FAILURE);
-      }
 
-      StatusCode status = StatusCode::SUCCESS;
-      for (const auto& tool : m_helperTools) {
-        StatusCode toolStatus = tool->postNext();
-        if (toolStatus.isRecoverable()) {
-            ATH_MSG_INFO("Request skipping event from: " << tool->name());
-            if (status.isSuccess()) {
-              status = StatusCode::RECOVERABLE;
-            }
-        } else if (toolStatus.isFailure()) {
-            ATH_MSG_WARNING("Failed to postNext() " << tool->name());
-            status = StatusCode::FAILURE;
-        }
+    // Record the attribute list
+    if (!recordAttributeList().isSuccess()) {
+      ATH_MSG_ERROR("Failed to record AttributeList.");
+      return StatusCode::FAILURE;
+    }
+
+    StatusCode status = StatusCode::SUCCESS;
+    for (const auto& tool : m_helperTools) {
+      StatusCode toolStatus = tool->postNext();
+      if (toolStatus.isRecoverable()) {
+          ATH_MSG_INFO("Request skipping event from: " << tool->name());
+          if (status.isSuccess()) {
+            status = StatusCode::RECOVERABLE;
+          }
+      } else if (toolStatus.isFailure()) {
+          ATH_MSG_WARNING("Failed to postNext() " << tool->name());
+          status = StatusCode::FAILURE;
       }
-      if (status.isRecoverable()) {
-        ATH_MSG_INFO("skipping event " << m_evtCount);
-      } else if (status.isFailure()) {
-        ATH_MSG_WARNING("Failed to postNext() HelperTool.");
-      } else {
-        if (!m_counterTool.empty() && !m_counterTool->postNext().isSuccess()) {
-            ATH_MSG_WARNING("Failed to postNext() CounterTool.");
-        }
-        break;
-      }
-    } else {
-      while( !m_skipEventRanges.empty() && m_evtCount >= m_skipEventRanges.front().second ) {
-         m_skipEventRanges.erase(m_skipEventRanges.begin());
-      }
+    }
+    if (status.isRecoverable()) {
       ATH_MSG_INFO("skipping event " << m_evtCount);
+    } else if (status.isFailure()) {
+      ATH_MSG_WARNING("Failed to postNext() HelperTool.");
+    } else {
+      if (!m_counterTool.empty() && !m_counterTool->postNext().isSuccess()) {
+          ATH_MSG_WARNING("Failed to postNext() CounterTool.");
+      }
+      break;
     }
   }
 

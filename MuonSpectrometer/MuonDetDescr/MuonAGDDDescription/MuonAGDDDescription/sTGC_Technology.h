@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef sTGC_Technology_H
@@ -28,11 +28,13 @@ public:
 	// inner structure parameters (to be defined)
 	
 	// constructor
-	inline sTGC_Technology(std::string s);
+	inline sTGC_Technology(const std::string& s,
+                               AGDDDetectorStore& ds);
 	inline double Thickness() const;
 };
 
-sTGC_Technology::sTGC_Technology(std::string s): AGDDTechnology(s),
+sTGC_Technology::sTGC_Technology(const std::string& s,
+                                 AGDDDetectorStore& ds): AGDDTechnology(s, ds),
   thickness(0.), nlayers(0), gasThickness(0.), pcbThickness(0.),
   f4Thickness(0.), f5Thickness(0.), f6Thickness(0.),
   geoLevel(0)

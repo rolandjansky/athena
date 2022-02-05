@@ -31,7 +31,7 @@ def PoolWriteCfg(flags, forceTreeAutoFlush=-1):
 
     if flags.Output.EVNT_TRFileName:
         # Use LZMA w/ Level 1
-        comp_alg = 1 if '_000' in flags.Output.HITSFileName or 'tmp.' in flags.Output.HITSFileName else 2
+        comp_alg = 1 if flags.Output.EVNT_TRFileName.endswith('_000') or flags.Output.EVNT_TRFileName.startswith('tmp.') else 2
         auto_flush = forceTreeAutoFlush if forceTreeAutoFlush != -1 else 1
         PoolAttributes += [ pah.setFileCompAlg( flags.Output.EVNT_TRFileName, comp_alg ) ]
         PoolAttributes += [ pah.setFileCompLvl( flags.Output.EVNT_TRFileName, 1 ) ]
@@ -42,7 +42,7 @@ def PoolWriteCfg(flags, forceTreeAutoFlush=-1):
 
     if flags.Output.HITSFileName:
         # Use LZMA w/ Level 1
-        comp_alg = 1 if '_000' in flags.Output.HITSFileName or 'tmp.' in flags.Output.HITSFileName else 2
+        comp_alg = 1 if flags.Output.HITSFileName.endswith('_000') or flags.Output.HITSFileName.startswith('tmp.') else 2
         auto_flush = forceTreeAutoFlush if forceTreeAutoFlush != -1 else 10
         PoolAttributes += [ pah.setFileCompAlg( flags.Output.HITSFileName, comp_alg ) ]
         PoolAttributes += [ pah.setFileCompLvl( flags.Output.HITSFileName, 1 ) ]
@@ -53,7 +53,7 @@ def PoolWriteCfg(flags, forceTreeAutoFlush=-1):
 
     if flags.Output.RDOFileName:
         # Use LZMA w/ Level 1
-        comp_alg = 1 if '_000' in flags.Output.RDOFileName or 'tmp.' in flags.Output.RDOFileName else 2
+        comp_alg = 1 if flags.Output.RDOFileName.endswith('_000') or flags.Output.RDOFileName.startswith('tmp.') else 2
         auto_flush = forceTreeAutoFlush if forceTreeAutoFlush != -1 else 10
         PoolAttributes += [ pah.setFileCompAlg( flags.Output.RDOFileName, comp_alg ) ]
         PoolAttributes += [ pah.setFileCompLvl( flags.Output.RDOFileName, 1 ) ]
@@ -64,7 +64,7 @@ def PoolWriteCfg(flags, forceTreeAutoFlush=-1):
 
     if flags.Output.ESDFileName:
         # Use LZMA w/ Level 1
-        comp_alg = 1 if '_000' in flags.Output.ESDFileName or 'tmp.' in flags.Output.ESDFileName else 2
+        comp_alg = 1 if flags.Output.ESDFileName.endswith('_000') or flags.Output.ESDFileName.startswith('tmp.') else 2
         auto_flush = forceTreeAutoFlush if forceTreeAutoFlush != -1 else 10
         PoolAttributes += [ pah.setFileCompAlg( flags.Output.ESDFileName, comp_alg ) ]
         PoolAttributes += [ pah.setFileCompLvl( flags.Output.ESDFileName, 1 ) ]
@@ -75,10 +75,13 @@ def PoolWriteCfg(flags, forceTreeAutoFlush=-1):
 
     if flags.Output.AODFileName:
         # Use LZMA w/ Level 1
-        comp_alg = 1 if '_000' in flags.Output.AODFileName or 'tmp.' in flags.Output.AODFileName else 2
+        comp_alg = 1 if flags.Output.AODFileName.endswith('_000') or flags.Output.AODFileName.startswith('tmp.') else 2
         auto_flush = forceTreeAutoFlush if forceTreeAutoFlush != -1 else 100
         PoolAttributes += [ pah.setFileCompAlg( flags.Output.AODFileName, comp_alg ) ]
         PoolAttributes += [ pah.setFileCompLvl( flags.Output.AODFileName, 1 ) ]
+        # By default use a maximum basket buffer size of 128k and minimum buffer entries of 10
+        PoolAttributes += [ pah.setMaxBufferSize( flags.Output.AODFileName, "131072" ) ]
+        PoolAttributes += [ pah.setMinBufferEntries( flags.Output.AODFileName, "10" ) ]
         # Flush the CollectionTree, POOLContainer, and POOLContainerForm to disk at every 100 events
         PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.AODFileName, "CollectionTree", auto_flush ) ]
         PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.AODFileName, "POOLContainer", auto_flush ) ]

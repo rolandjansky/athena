@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -6,8 +6,6 @@ def ForDetGeometryCfg( ConfigFlags ):
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
     acc = GeoModelCfg( ConfigFlags )
     geoModelSvc=acc.getPrimary()
-    GeometryDBSvc=CompFactory.GeometryDBSvc
-    acc.addService(GeometryDBSvc("InDetGeometryDBSvc"))
     # LUCID
     if ConfigFlags.Detector.GeometryLucid:
         LUCID_DetectorTool=CompFactory.LUCID_DetectorTool

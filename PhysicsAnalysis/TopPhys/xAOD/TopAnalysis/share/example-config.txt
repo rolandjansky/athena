@@ -63,14 +63,15 @@ JetGhostTrackDecoName None # can be e.g. GhostTrack
 ElectronPt 25000
 ElectronID TightLH
 ElectronIDLoose LooseAndBLayerLH
-ElectronIsolation FCTight
+ElectronIsolation Tight_VarRad
+ElectronIsolationSF None # adjust to the isolation WP, once SFs are available
 ElectronIsolationLoose None
 
 ### Muon configuration
 MuonPt 25000
 MuonQuality Medium
 MuonQualityLoose Medium
-MuonIsolation FCTight_FixedRad
+MuonIsolation PflowTight_FixedRad
 MuonIsolationLoose None
 
 ### Jet configuration
@@ -85,7 +86,7 @@ BTaggingCaloJetWP DL1r:FixedCutBEff_77
 ElectronEfficiencySystematicModel TOTAL
 EgammaSystematicModel 1NP_v1 #egamma calibration uncertainties model
 JetUncertainties_NPModel CategoryReduction #JES
-JetJERSmearingModel Simple #JER
+JetJERSmearingModel Full_PseudoData #JER
 
 ###########Truth-level settings##########
 #see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TopxAODStartGuideR21#Truth_options for more info

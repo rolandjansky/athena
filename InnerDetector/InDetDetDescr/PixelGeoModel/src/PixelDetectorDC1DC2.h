@@ -149,7 +149,7 @@ class GeoPixelDiskSupports : public GeoVPixelFactory {
  private:
   std::vector<double> m_rmin,m_rmax,m_halflength,m_zpos;
   std::vector<std::string> m_material;
-  int m_nframe;
+  int m_nframe{0};
 
 };
 
@@ -299,7 +299,7 @@ class GeoPixelServices : public GeoVPixelFactory {
   std::vector<double> m_rmin,m_rmax,m_halflength,m_zpos;
   std::vector<std::string> m_material;
   std::string m_zone;
-  int m_nframe;
+  int m_nframe{0};
 
 
 };
@@ -689,7 +689,7 @@ class OraclePixGeoManager : public PixelGeometryManager {
   const StoredMaterialManager* m_pMatMgr;
 
   // The Transient Detector Store Service
-  StoreGateSvc* m_pDetStore;   
+  StoreGateSvc* m_pDetStore = nullptr;   
 
   // The name of the collections in the det store
   std::string m_elementsObjectName;

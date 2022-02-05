@@ -916,7 +916,7 @@ Identifier CscIdHelper::elementID(int stationName, int stationEta, int stationPh
     return result;
 }
 
-Identifier CscIdHelper::elementID(const std::string& stationNameStr, int stationEta, int stationPhi, bool check, bool* isValid) const {
+Identifier CscIdHelper::elementID(std::string_view stationNameStr, int stationEta, int stationPhi, bool check, bool* isValid) const {
     Identifier id;
     int stationName = stationNameIndex(stationNameStr);
     id = elementID(stationName, stationEta, stationPhi, check, isValid);

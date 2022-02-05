@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef consHandler_H
@@ -10,9 +10,10 @@
 
 class consHandler:public XMLHandler {
 public:
-	consHandler(std::string);
-	void ElementHandle();
-
+	consHandler(const std::string&,
+                    AGDDController& c);
+	virtual void ElementHandle(AGDDController& c,
+                                   xercesc::DOMNode *t) override;
 };
 
 #endif

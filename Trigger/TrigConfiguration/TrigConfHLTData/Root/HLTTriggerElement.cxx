@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfHLTData/HLTTriggerElement.h"
-#include "TrigConfHLTData/HLTUtils.h"
+#include "TrigConfHLTUtils/HLTUtils.h"
 
 #include <iostream>
 #include <fstream>
@@ -12,8 +12,6 @@
 
 using namespace std;
 using namespace TrigConf;
-
-map<unsigned int,string> HLTTriggerElement::m_IdToLabel;
 
 HLTTriggerElement::HLTTriggerElement() :
    TrigConfData(""),
@@ -26,7 +24,6 @@ HLTTriggerElement::HLTTriggerElement(  const string& name ) :
    m_hashId(HLTUtils::string2hash(name)), // don't allow for external setting of trigger element id's
    m_level(0)
 {
-   CheckAndStoreHash();
 }
 
 HLTTriggerElement::HLTTriggerElement(  unsigned int, const string& name ) :
@@ -34,7 +31,6 @@ HLTTriggerElement::HLTTriggerElement(  unsigned int, const string& name ) :
    m_hashId(HLTUtils::string2hash(name) ), // don't allow for external setting of trigger element id's
    m_level(0)
 {
-   CheckAndStoreHash();
 }
 
 HLTTriggerElement::HLTTriggerElement( const std::pair<unsigned int,string>& p ) :
@@ -42,7 +38,6 @@ HLTTriggerElement::HLTTriggerElement( const std::pair<unsigned int,string>& p ) 
    m_hashId( HLTUtils::string2hash(p.second) ), // don't yet allow for external setting of trigger element id's
    m_level(0)
 {
-   CheckAndStoreHash();
 }
 
 HLTTriggerElement::~HLTTriggerElement() {}
@@ -67,39 +62,12 @@ TrigConf::operator<<(std::ostream & o, const HLTTriggerElement & te) {
 }
 
 
-void
-HLTTriggerElement::CheckAndStoreHash() const {
-   map<unsigned int, string>::const_iterator it = m_IdToLabel.find( hashId() );
-   if (it == m_IdToLabel.end()) {
-      m_IdToLabel.insert( pair<unsigned int, string>(hashId(),name()) );
-      return;
-   }
-
-
-   if( it->second==name() ) // TE was build before (identical (hash,name) pair was found)
-      return;
-
-   // will abort only when hash conflict occured
-   // hash ID already exists in the table
-   // either the hash is not unique, or the same TE is inserted twice
-   // in either case we should abort
-   throw runtime_error("TrigConf::HLTTriggerElement: hash conflict between '" + it->second + "' and '" + name() + "', both result in " + boost::lexical_cast<string,unsigned int>(id()) );
-}
-
-
 bool
 HLTTriggerElement::getLabel(unsigned int id, string & label) {
-   map<unsigned int, string>::const_iterator it = m_IdToLabel.find(id);
-   if(it != m_IdToLabel.end()) { label = it->second; return true; }
-   label = "";
-   return false;
-}
-
-
-bool
-HLTTriggerElement::getId(const char * label, unsigned int & id) {
-   for (const auto& p : m_IdToLabel) {
-      if(p.second == label) { id = p.first; return true; }
+   label = HLTUtils::hash2string(id);
+   if (label=="UNKNOWN HASH ID") {
+      label = "";
+      return false;
    }
-   return false;
+   return true;
 }

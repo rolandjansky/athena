@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibUtils/L1CaloPprMonitoring.h"
@@ -34,7 +34,7 @@ L1CaloPprMonitoring::L1CaloPprMonitoring(const std::string& name, ISvcLocator* p
     m_pedestalPlotManager(0),
     m_pedestalCorrectionPlotManager(0),
     m_etCorrelationPlotManager(0),
-    m_offlineTowerTools("LVL1::L1CaloOfflineTriggerTowerTools/L1CaloOfflineTriggerTowerTools"),
+    m_offlineTowerTools("LVL1::L1CaloOfflineTriggerTowerTools/L1CaloOfflineTriggerTowerTools", this),
     m_towerTools("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"),
     m_dbPpmDeadChannelsFolder("/TRIGGER/L1Calo/V1/Calibration/PpmDeadChannels"),
     m_dbPpmDisabledTowersFolder("/TRIGGER/L1Calo/V1/Conditions/DisabledTowers"),

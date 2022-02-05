@@ -42,7 +42,7 @@ public:
     typedef IMaterialAllocator::Garbage_t Garbage_t;
 
     // standard AlgTool methods
-    iPatFitter		(const std::string& type, 
+    iPatFitter		(const std::string& type,
 			 const std::string& name,
 			 const IInterface* parent,
        bool isGlobalFit = false);
@@ -55,12 +55,6 @@ public:
     // iPat Fitter settings (FIXME: to provide??):
     //	RunOutlierRemoval    - use logic to remove bad hits
 
-    /*
-     * Bring in default impl without
-     * EventContext for now
-     */
-    using ITrackFitter::fit;
- 
     // refit a track
     virtual std::unique_ptr<Track> fit(
       const EventContext& ctx,

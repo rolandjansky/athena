@@ -36,12 +36,12 @@ namespace {
 
 namespace MuonGM {
 
-    Rpc::Rpc(Component *ss) : DetectorElement(ss->name) {
+    Rpc::Rpc(const MYSQL& mysql, Component *ss) : DetectorElement(ss->name) {
         double tol = 1.e-3;
         RpcComponent *s = (RpcComponent *)ss;
         width = s->dx1;
         longWidth = s->dx2;
-        thickness = s->GetThickness();
+        thickness = s->GetThickness(mysql);
         length = s->dy - tol;
         m_component = s;
         idiv = s->ndivy;
@@ -54,18 +54,22 @@ namespace MuonGM {
             m_nlayers = 3;
     }
 
-    GeoFullPhysVol *Rpc::build(int minimalgeo) {
+    GeoFullPhysVol *Rpc::build(const StoredMaterialManager& matManager,
+                               const MYSQL& mysql,
+                               int minimalgeo) {
         std::vector<Cutout *> vcutdef;
         int cutoutson = 0;
-        return build(minimalgeo, cutoutson, vcutdef);
+        return build(matManager, mysql, minimalgeo, cutoutson, vcutdef);
     }
 
-    GeoFullPhysVol *Rpc::build(int minimalgeo, int cutoutson, std::vector<Cutout *> vcutdef) {
+    GeoFullPhysVol *Rpc::build(const StoredMaterialManager& matManager,
+                               const MYSQL& mysql,
+                               int minimalgeo, int cutoutson,
+                               const std::vector<Cutout *>& vcutdef) {
         MsgStream log(Athena::getMessageSvc(), "MuonGM::Rpc::build");
 
-        MYSQL *mysql = MYSQL::GetPointer();
-        std::string geometry_version = mysql->getGeometryVersion();
-        RPC *r = (RPC *)mysql->GetTechnology(name);
+        std::string geometry_version = mysql.getGeometryVersion();
+        const RPC *r = dynamic_cast<const RPC*>(mysql.GetTechnology(name));
 
         // Retrieve geometrical information, these are for middle and outer alyers ("standard" RPCs)
         double thickness = r->maxThickness;
@@ -95,8 +99,8 @@ namespace MuonGM {
         // Apply cutouts to mother volume
 
         if (cutoutson && vcutdef.size() > 0) {
-            Cutout *cut = 0;
-            GeoShape *cutoutShape = 0;
+            Cutout *cut = nullptr;
+            GeoShape *cutoutShape = nullptr;
             GeoTrf::Transform3D cutTrans{GeoTrf::Transform3D::Identity()};
             for (unsigned i = 0; i < vcutdef.size(); i++) {
                 cut = vcutdef[i];
@@ -106,14 +110,14 @@ namespace MuonGM {
             }
         }
 
-        const GeoMaterial *mrpc = getMaterialManager()->getMaterial("std::Air");
+        const GeoMaterial *mrpc = matManager.getMaterial("std::Air");
         GeoLogVol *lrpc = new GeoLogVol(logVolName, srpc, mrpc);
         GeoFullPhysVol *prpc = new GeoFullPhysVol(lrpc);
 
         if (minimalgeo == 1)
             return prpc;
 
-        if (geometry_version.substr(0, 1) != "M") {
+        if (geometry_version.compare(0, 1,"M") != 0) {
             // here layout P and following (hopefully!)
             if (idiv * jdiv != 1)
                 assert(0);
@@ -131,19 +135,19 @@ namespace MuonGM {
                 new GeoTrd(extSupThick / 2 - extAlSupThick, extSupThick / 2 - extAlSupThick, width / 2 - extAlSupThick, longWidth / 2 - extAlSupThick, length / 2 - extAlSupThick);
             const GeoShape *sallpan = slpan;
             const GeoShape *sholpan2 = sholpan;
-            const GeoMaterial *mallpan = getMaterialManager()->getMaterial("std::Aluminium");
+            const GeoMaterial *mallpan = matManager.getMaterial("std::Aluminium");
             GeoLogVol *lallpan = new GeoLogVol("RPC_AL_extsuppanel", sallpan, mallpan);
             GeoPhysVol *pallpan = new GeoPhysVol(lallpan);
-            const GeoMaterial *mholpan = getMaterialManager()->getMaterial("muo::RpcAlHonC");
+            const GeoMaterial *mholpan = matManager.getMaterial("muo::RpcAlHonC");
             GeoLogVol *lholpan = new GeoLogVol("RPC_honeyc_extsuppanel", sholpan2, mholpan);
             GeoPhysVol *pholpan = new GeoPhysVol(lholpan);
             pallpan->add(pholpan); // this way the honeycomb is a child of its al skin
 
             // Apply cutouts
             if (cutoutson && vcutdef.size() > 0) {
-                GeoPhysVol *tempPhys = 0;
-                Cutout *cut = 0;
-                GeoShape *cutoutShape = 0;
+                GeoPhysVol *tempPhys = nullptr;
+                Cutout *cut = nullptr;
+                GeoShape *cutoutShape = nullptr;
                 GeoTrf::Transform3D cutTrans{GeoTrf::Transform3D::Identity()};
                 for (unsigned i = 0; i < vcutdef.size(); i++) {
                     cut = vcutdef[i];
@@ -178,9 +182,9 @@ namespace MuonGM {
             RpcLayer *rl = new RpcLayer(name, this);
             GeoVPhysVol *plowergg;
             if (cutoutson && vcutdef.size() > 0) {
-                plowergg = rl->build(cutoutson, vcutdef);
+                plowergg = rl->build(matManager, mysql, cutoutson, vcutdef);
             } else {
-                plowergg = rl->build();
+                plowergg = rl->build(matManager, mysql);
             }
 
             newpos += rpcLayerThickness / 2.;
@@ -204,16 +208,16 @@ namespace MuonGM {
             const GeoShape *shocpan2 = shocpan;
             GeoLogVol *lalcpan = new GeoLogVol("RPC_AL_midsuppanel", salcpan, mallpan);
             GeoPhysVol *palcpan = new GeoPhysVol(lalcpan);
-            const GeoMaterial *mhocpan = getMaterialManager()->getMaterial("muo::RpcPapHonC");
+            const GeoMaterial *mhocpan = matManager.getMaterial("muo::RpcPapHonC");
             GeoLogVol *lhocpan = new GeoLogVol("RPC_honeyc_midsuppanel", shocpan2, mhocpan);
             GeoPhysVol *phocpan = new GeoPhysVol(lhocpan);
             palcpan->add(phocpan); // this way the honeycomb is a child of its al skin
 
             // Apply cutouts
             if (cutoutson && vcutdef.size() > 0) {
-                GeoPhysVol *tempPhys = 0;
-                Cutout *cut = 0;
-                GeoShape *cutoutShape = 0;
+                GeoPhysVol *tempPhys = nullptr;
+                Cutout *cut = nullptr;
+                GeoShape *cutoutShape = nullptr;
                 GeoTrf::Transform3D cutTrans{GeoTrf::Transform3D::Identity()};
                 for (unsigned i = 0; i < vcutdef.size(); i++) {
                     cut = vcutdef[i];
@@ -292,9 +296,9 @@ namespace MuonGM {
                     }
                 }
 
-                puppergg = ru->build(cutoutson, vcutdef);
+                puppergg = ru->build(matManager, mysql, cutoutson, vcutdef);
             } else {
-                puppergg = ru->build();
+                puppergg = ru->build(matManager, mysql);
             }
 
             newpos += rpcLayerThickness / 2.;
@@ -317,9 +321,9 @@ namespace MuonGM {
                 RpcLayer *rthird = new RpcLayer(name, this);
                 GeoVPhysVol *pthirdgg;
                 if (cutoutson && vcutdef.size() > 0) {
-                    pthirdgg = rthird->build(cutoutson, vcutdef);
+                    pthirdgg = rthird->build(matManager, mysql, cutoutson, vcutdef);
                 } else {
-                    pthirdgg = rthird->build();
+                    pthirdgg = rthird->build(matManager, mysql);
                 }
 
                 newpos += rpcLayerThickness / 2.;
@@ -336,8 +340,8 @@ namespace MuonGM {
             // release memory allocated for the builders
             delete ru;
             delete rl;
-            ru = 0;
-            rl = 0;
+            ru = nullptr;
+            rl = nullptr;
         }
 
         return prpc;

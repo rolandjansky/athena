@@ -22,7 +22,7 @@ TauPi0CreateROI::TauPi0CreateROI(const std::string& name) :
 StatusCode TauPi0CreateROI::initialize() {
     
     ATH_CHECK( m_caloCellInputContainer.initialize() );
-
+    ATH_CHECK(m_caloMgrKey.initialize());
     return StatusCode::SUCCESS;
 }
 
@@ -42,11 +42,14 @@ StatusCode TauPi0CreateROI::executePi0CreateROI(xAOD::TauJet& tau, CaloCellConta
   }
   const CaloCellContainer *cellContainer = caloCellInHandle.cptr();;
   
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+  const CaloDetDescrManager* caloDDMgr = *caloMgrHandle;
+  
   // get only EM cells within dR < 0.4
   // TODO: change hardcoded 0.4 to meaningful variable
   std::vector<CaloCell_ID::SUBCALO> emSubCaloBlocks;
   emSubCaloBlocks.push_back(CaloCell_ID::LAREM);
-  boost::scoped_ptr<CaloCellList> cellList(new CaloCellList(cellContainer,emSubCaloBlocks)); 
+  boost::scoped_ptr<CaloCellList> cellList(new CaloCellList(caloDDMgr,cellContainer,emSubCaloBlocks)); 
   // FIXME: tau p4 is corrected to point at tau vertex, but the cells are not
   cellList->select(tau.eta(), tau.phi(), 0.4);
 
@@ -59,8 +62,7 @@ StatusCode TauPi0CreateROI::executePi0CreateROI(xAOD::TauJet& tau, CaloCellConta
     const IdentifierHash cellHash = cell->caloDDE()->calo_hash();
 
     if (!addedCellsMap.test(cellHash)) {
-      CaloCell* newCell = cell->clone();
-      pi0CellContainer.push_back(newCell);
+      pi0CellContainer.push_back(cell->clone());
       addedCellsMap.set(cellHash);
     }
   }

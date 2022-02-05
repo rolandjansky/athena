@@ -1,51 +1,19 @@
 """Define methods to construct configured SCT overlay algorithms
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 
-def SCT_ConfigurationConditionsCfg(flags, **kwargs):
-    """Return a ComponentAccumulator for SCT configuration conditions"""
-    # Temporary until available in the central location
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-    acc = SCT_GeometryCfg(flags)
-
-    SCT_ConfigurationConditionsTool = CompFactory.SCT_ConfigurationConditionsTool
-    acc.addPublicTool(SCT_ConfigurationConditionsTool())
-
-    channelFolder = "/SCT/DAQ/Config/ChipSlim"
-    moduleFolder = "/SCT/DAQ/Config/Module"
-    murFolder = "/SCT/DAQ/Config/MUR"
-    from IOVDbSvc.IOVDbSvcConfig import addFolders
-    acc.merge(addFolders(flags, [channelFolder, moduleFolder, murFolder],
-                         "SCT", className="CondAttrListVec"))
-    SCT_ConfigurationCondAlg = CompFactory.SCT_ConfigurationCondAlg
-    acc.addCondAlgo(SCT_ConfigurationCondAlg(ReadKeyChannel=channelFolder,
-                                             ReadKeyModule=moduleFolder,
-                                             ReadKeyMur=murFolder))
-    return acc
-
-
 def SCTDataOverlayExtraCfg(flags, **kwargs):
     """Return a ComponentAccumulator with SCT data overlay specifics"""
     acc = ComponentAccumulator()
 
-    # Add SCT cabling conditions
-    from SCT_Cabling.SCT_CablingConfig import SCT_CablingCondAlgCfg
-    acc.merge(SCT_CablingCondAlgCfg(flags))
-
-    # Add SCT configuration conditions
-    acc.merge(SCT_ConfigurationConditionsCfg(flags))
-
     # We need to convert BS to RDO for data overlay
-    from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConfig import SCTRawDataProviderCfg
-    kwargs.setdefault("RDOKey", flags.Overlay.BkgPrefix + "SCT_RDOs")
-    kwargs.setdefault("LVL1IDKey", flags.Overlay.BkgPrefix + "SCT_LVL1ID")
-    kwargs.setdefault("BCIDKey", flags.Overlay.BkgPrefix + "SCT_BCID")
-    acc.merge(SCTRawDataProviderCfg(flags, prefix="", **kwargs))
+    from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConfig import SCTOverlayRawDataProviderCfg
+    acc.merge(SCTOverlayRawDataProviderCfg(flags, prefix="", **kwargs))
 
     # Add SCT event flag writer
     from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConfig import SCTEventFlagWriterCfg

@@ -60,15 +60,15 @@ public:
    }
 
 private:
-   float var1;
-   float var2;
-   float var3;
-   float var4;
-   float var5;
-   float var6;
-   float var7;
-   float var8;
-   float var9;
+   float var1 = 0.0F;
+   float var2 = 0.0F;
+   float var3 = 0.0F;
+   float var4 = 0.0F;
+   float var5 = 0.0F;
+   float var6 = 0.0F;
+   float var7 = 0.0F;
+   float var8 = 0.0F;
+   float var9 = 0.0F;
    std::vector< std::vector< int > > bar;
 
 }; // class TestAuxInfo

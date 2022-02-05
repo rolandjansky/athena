@@ -9,8 +9,6 @@
 #include "L1TopoEvent/Heap.h"
 
 
-// TODO implement sizecheck lile in ClusterTOB
-
 namespace TCS {
    
    class GenericTOB;
@@ -22,10 +20,10 @@ namespace TCS {
       jTauTOB(uint32_t roiWord = 0, const std::string& tobName = "jTauTOB");
 
       // copy constructor
-      jTauTOB(const jTauTOB & jet);
+      jTauTOB(const jTauTOB & jtau);
 
       // constructor with initial values
-      jTauTOB(unsigned int Et, int eta, unsigned phi, uint32_t roiWord = 0, const std::string& tobName = "jTauTOB" );
+      jTauTOB(unsigned int Et, unsigned int isolation, int eta, unsigned phi, uint32_t roiWord = 0, const std::string& tobName = "jTauTOB" );
 
       // destructor
       virtual ~jTauTOB();
@@ -35,6 +33,7 @@ namespace TCS {
       unsigned int Et() const { return m_Et; }
       
       // accessors
+      unsigned int isolation() const { return m_isolation; }    
       int eta() const { return m_eta; }
       unsigned phi() const { return m_phi; }
       
@@ -51,9 +50,9 @@ namespace TCS {
       void setEtaDouble(double eta) { m_etaDouble = eta; }
       void setPhiDouble(double phi) { m_phiDouble = phi; }
 
-      inputTOBType_t tobType() const { return JET; }
+      inputTOBType_t tobType() const { return TCS::JTAU; }
 
-      static jTauTOB* createOnHeap(const jTauTOB& jet);
+      static jTauTOB* createOnHeap(const jTauTOB& jtau);
       static void clearHeap();
 
       static const Heap<TCS::jTauTOB>& heap() { return fg_heap; }
@@ -69,6 +68,7 @@ namespace TCS {
       int m_eta { 0 };
       unsigned m_phi { 0 };
 
+      unsigned int m_isolation {0};
       double m_EtDouble { 0 };
       double m_etaDouble { 0 };
       double m_phiDouble { 0 };

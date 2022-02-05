@@ -1,13 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 13.07.2008, AUTHOR: OLIVER KORTNER
-// Modified: 04.08.2008 by O. Kortner, estimated direction of incidence can be
-//                                     set.
-//           07.08.2008 by O. Kortner, bug fig in the pattern recognition.
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #ifndef MuonCalib_CurvedCandidateFinderH
 #define MuonCalib_CurvedCandidateFinderH
@@ -35,13 +28,16 @@
 // MuonCalib //
 #include "MdtCalibFitters/CurvedLine.h"
 #include "MuonCalibEventBase/MdtCalibHitBase.h"
+#include "MuonCalibEventBase/MuonCalibSegment.h"
 
 namespace MuonCalib {
 
     class CurvedCandidateFinder {
     public:
+        using MdtHitVec = MuonCalibSegment::MdtHitVec;
+        using MdtHitPtr = MuonCalibSegment::MdtHitPtr;
         // Constructors //
-        CurvedCandidateFinder(const std::vector<const MdtCalibHitBase *> &hits);
+        CurvedCandidateFinder(const MdtHitVec &hits);
         ///< Constructor
         ///< @param hits Vector of hits used in the candidate finding.
 
@@ -57,8 +53,8 @@ namespace MuonCalib {
 
     private:
         // hits //
-        std::vector<const MdtCalibHitBase *> m_hits;  // vector hits used in the
-                                                      // candidate search
+        MdtHitVec m_hits;  // vector hits used in the
+                           // candidate search
 
         // candidates //
         std::vector<CurvedLine> m_candidates;  // vector of candidate lines

@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef LArCafJobs_LArShapeDumperTool
-#define LArCafJobs_LArShapeDumperTool
+#ifndef LARCAFJOBS_LARSHAPEDUMPERTOOL_H
+#define LARCAFJOBS_LARSHAPEDUMPERTOOL_H
 
 #include "LArCafJobs/ILArShapeDumperTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -17,7 +17,6 @@
 
 class ILArShape;
 class LArOnlineID;
-class CaloDetDescrManager;
 
 class LArShapeDumperTool : public AthAlgTool, public virtual ILArShapeDumperTool
 {
@@ -28,24 +27,23 @@ class LArShapeDumperTool : public AthAlgTool, public virtual ILArShapeDumperTool
  
   virtual ~LArShapeDumperTool();
 
-  StatusCode initialize();
-  StatusCode finalize();
+  StatusCode initialize() override;
+  StatusCode finalize() override;
   
-  virtual LArSamples::CellInfo* makeCellInfo(const HWIdentifier& channelID, const Identifier& id, const CaloDetDescrElement* caloDetElement = 0) const;
-  virtual LArSamples::ShapeInfo* retrieveShape(const HWIdentifier& channelID, CaloGain::CaloGain gain) const;
+  virtual LArSamples::CellInfo* makeCellInfo(const HWIdentifier& channelID, const Identifier& id, const CaloDetDescrElement* caloDetElement = 0) const override;
+  virtual LArSamples::ShapeInfo* retrieveShape(const HWIdentifier& channelID, CaloGain::CaloGain gain) const override;
 
-  bool doShape() const { return m_doShape; }
+  virtual bool doShape() const override { return m_doShape; }
   
  private:
   
   bool m_doShape, m_doAllShapes;
   std::string m_shapeKey;
    
-  const CaloDetDescrManager* m_caloDetDescrMgr;
-  const LArOnlineID* m_onlineHelper;
-  const LArEM_ID* m_emId;
-  const LArHEC_ID* m_hecId;
-  const LArFCAL_ID* m_fcalId;
+  const LArOnlineID* m_onlineHelper{nullptr};
+  const LArEM_ID* m_emId{nullptr};
+  const LArHEC_ID* m_hecId{nullptr};
+  const LArFCAL_ID* m_fcalId{nullptr};
   const DataHandle<ILArShape> m_shape;
 };
 #endif

@@ -16,6 +16,7 @@
 #include "IdDictParser/IdDictParser.h"
 #include "TestTools/initGaudi.h"
 #include "TestTools/leakcheck.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -29,7 +30,7 @@ class TileCablingSvc
 {
 public:
   static
-  void init_idhelpers (IdDictParser& parser)
+  void init_idhelpers ATLAS_NOT_THREAD_SAFE (IdDictParser& parser)
   {
     tileid.set_do_neighbours (false);
     IdDictMgr& idd = parser.parse ("IdDictParser/ATLAS_IDS.xml");
@@ -39,7 +40,7 @@ public:
     assert (hwid.initialize_from_dictionary (idd) == 0);
     assert (tbid.initialize_from_dictionary (idd) == 0);
     assert (tileid.initialize_from_dictionary (idd) == 0);
-    TileCablingService* svc = TileCablingService::getInstance();
+    TileCablingService* svc = TileCablingService::getInstance_nc();
     svc->setTileHWID (&hwid);
     svc->setTileTBID (&tbid);
     svc->setTileID (&tileid);

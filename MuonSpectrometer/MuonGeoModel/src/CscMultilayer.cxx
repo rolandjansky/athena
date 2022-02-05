@@ -36,23 +36,25 @@ namespace MuonGM {
 
 namespace MuonGM {
 
-    CscMultiLayer::CscMultiLayer(std::string n) : DetectorElement(std::move(n)), width(0.), longWidth(0.), upWidth(0.), excent(0.), length(0.), physicalLength(0.), maxwLength(0.) {
-        MYSQL *amdb = MYSQL::GetPointer();
-        CSC *md = (CSC *)amdb->GetTechnology(name);
+    CscMultiLayer::CscMultiLayer(const MYSQL& mysql, const std::string& n) : DetectorElement(n), width(0.), longWidth(0.), upWidth(0.), excent(0.), length(0.), physicalLength(0.), maxwLength(0.) {
+        const CSC *md = dynamic_cast<const CSC*>(mysql.GetTechnology(name));
         nrOfLayers = md->numOfLayers;
         cscthickness = md->totalThickness;
         thickness = cscthickness;
     }
 
-    GeoVPhysVol *CscMultiLayer::build() {
+    GeoVPhysVol *CscMultiLayer::build(const StoredMaterialManager& matManager,
+                                      const MYSQL& mysql) {
         std::vector<Cutout *> vcutdef;
         int cutoutson = 0;
-        return build(cutoutson, vcutdef);
+        return build(matManager, mysql, cutoutson, vcutdef);
     }
 
-    GeoVPhysVol *CscMultiLayer::build(int /*cutoutson*/, const std::vector<Cutout *>& /*vcutdef*/) {
-        MYSQL *amdb = MYSQL::GetPointer();
-        CSC *md = (CSC *)amdb->GetTechnology(name);
+    GeoVPhysVol *CscMultiLayer::build(const StoredMaterialManager& matManager,
+                                      const MYSQL& mysql,
+                                      int /*cutoutson*/,
+                                      const std::vector<Cutout *>& /*vcutdef*/) {
+        const CSC *md = dynamic_cast<const CSC*>(mysql.GetTechnology(name));
 
         // define the chamber volumes --- for CSS and CSL
 
@@ -79,7 +81,7 @@ namespace MuonGM {
             sml = &((sml->add((*smlt) << GeoTrf::TranslateZ3D(physicalLength / 2.))) << GeoTrf::TranslateZ3D((maxwLength - physicalLength) / 2.));
         }
 
-        const GeoMaterial *mhon = getMaterialManager()->getMaterial("muo::Honeycomb");
+        const GeoMaterial *mhon = matManager.getMaterial("muo::Honeycomb");
         const GeoLogVol *lml = new GeoLogVol("CscMultilayer", sml, mhon);
         GeoPhysVol *pml = new GeoPhysVol(lml);
 
@@ -96,14 +98,14 @@ namespace MuonGM {
         const GeoLogVol *lhon = new GeoLogVol("Honeycomb", shon, mhon);
         GeoPhysVol *phon = new GeoPhysVol(lhon);
 
-        const GeoMaterial *mg10 = getMaterialManager()->getMaterial("std::G10");
+        const GeoMaterial *mg10 = matManager.getMaterial("std::G10");
         const GeoLogVol *lg10hon = new GeoLogVol("G10", sg10hon, mg10);
         GeoPhysVol *pg10hon = new GeoPhysVol(lg10hon);
         // Put honeycomb inside G10
         pg10hon->add(phon);
 
         // Create gas volume
-        const GeoShape *sgas = NULL;
+        const GeoShape *sgas = nullptr;
         double beta = atan((longWidth - width) / (2. * maxwLength));
         double gShortWidth = width - 2 * md->fullwirefixbarwidth * (1 - sin(beta)) / cos(beta);
         double gLongWidth = longWidth - 2 * md->fullwirefixbarwidth * (1 + sin(beta)) / cos(beta);
@@ -120,7 +122,7 @@ namespace MuonGM {
             const GeoShape *sgast = new GeoTrd(gasThickness / 2., gasThickness / 2., gLongWidth / 2., gupWidth / 2., (gLength - gmaxwLength) / 2.);
             sgas = &((sgas->add((*sgast) << GeoTrf::TranslateZ3D(gLength / 2.))) << GeoTrf::TranslateZ3D((gmaxwLength - gLength) / 2.));
         }
-        const GeoMaterial *mgas = getMaterialManager()->getMaterial("muo::CscArCO2");
+        const GeoMaterial *mgas = matManager.getMaterial("muo::CscArCO2");
         const GeoLogVol *lgas = nullptr;
 
         // Place G10/honeycomb and gas volumes in CSC envelop, starting at top

@@ -211,6 +211,14 @@ void CaloConstCellContainer::push_back_fast (const CaloCell* cell)
   baseContainer()->push_back_fast (cell_nc);
 }
 
+/** @brief reimplementation of push_back to gain speed in readin */
+inline
+void CaloConstCellContainer::push_back_fast (std::unique_ptr<const CaloCell> cell)
+{
+  CaloCell* cell_nc ATLAS_THREAD_SAFE = const_cast<CaloCell*> (cell.release());
+  std::unique_ptr<CaloCell>  cell_nc_up(cell_nc);
+  baseContainer()->push_back_fast (std::move(cell_nc_up));
+}
 
 /** @brief reset look up table */
 inline

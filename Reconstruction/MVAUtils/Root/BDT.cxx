@@ -58,6 +58,11 @@ BDT::BDT(::TTree *tree)
 {
   // at runtime decide which flavour of BDT we need to build
   // the information is coming from the title of the TTree
+  
+  if(!tree){
+      throw std::runtime_error("nullptr to a TTree passed ");
+  }
+  tree->SetCacheSize(0); // Avoid unnecessary memory allocations
   std::map<std::string, std::string> options = parseOptions(tree->GetTitle());
   std::string creator = get_default_string_map(options, std::string("creator"));
   if (creator == "lgbm")

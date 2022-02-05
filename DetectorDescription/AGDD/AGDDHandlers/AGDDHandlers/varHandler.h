@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef varHandler_H
@@ -10,9 +10,10 @@
 
 class varHandler:public XMLHandler {
 public:
-	varHandler(std::string);
-	void ElementHandle();
-
+	varHandler(const std::string&,
+                   AGDDController& c);
+	virtual void ElementHandle(AGDDController& c,
+                                   xercesc::DOMNode *t) override;
 };
 
 #endif

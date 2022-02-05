@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -14,8 +14,6 @@
 
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 #include "TRT_TrackExtensionTool_xk/TRT_TrackExtensionToolCosmics.h"
-#include "TrkExInterfaces/IExtrapolator.h"
-#include "TrkExInterfaces/IPropagator.h"
 #include "TrkSurfaces/CylinderSurface.h"
 #include "TrkSurfaces/DiscSurface.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
@@ -32,9 +30,7 @@
 
 InDet::TRT_TrackExtensionToolCosmics::TRT_TrackExtensionToolCosmics
 (const std::string& t,const std::string& n,const IInterface* p)
-  : AthAlgTool(t,n,p),
-    m_riontrackD("InDet::TRT_DriftCircleOnTrackTool/TRT_DriftCircleOnTrackToolUniversal"                      ),
-    m_riontrackN("InDet::TRT_DriftCircleOnTrackNoDriftTimeTool/TRT_DriftCircleOnTrackNoDriftTimeTool")
+  : AthAlgTool(t,n,p)
 {
   m_trtmanager      = "TRT"             ;
   m_minNumberDCs    = 9                 ;
@@ -42,11 +38,6 @@ InDet::TRT_TrackExtensionToolCosmics::TRT_TrackExtensionToolCosmics
   m_roadwidth_locz  = 10.               ;
 
   declareInterface<ITRT_TrackExtensionTool>(this);
-
-  declareProperty("RIOonTrackToolYesDr"  ,m_riontrackD     );
-  declareProperty("RIOonTrackToolNoDr"   ,m_riontrackN     );
-  declareProperty("Extrapolator"         ,m_extrapolator   );
-  declareProperty("Propagator"           ,m_propagator     );
 
   declareProperty("TrtManagerLocation"   ,m_trtmanager     );
   declareProperty("RoadWidth"            ,m_roadwidth      );
@@ -328,7 +319,7 @@ void InDet::TRT_TrackExtensionToolCosmics::analyze_tpars(const std::vector<const
 	  
 	  //take the closest one in case it satisfies some default cuts
 	  InDet::TRT_DriftCircleCollection::const_iterator driftCircleIterator = container->begin();
-	  for (; driftCircleIterator != container->end(); driftCircleIterator++) {
+	  for (; driftCircleIterator != container->end(); ++driftCircleIterator) {
 
 	    //get the associated surface of the driftcircle
 	    const Trk::Surface &dc_surface=(*driftCircleIterator)->detectorElement()->surface((*driftCircleIterator)->identify());
@@ -502,19 +493,30 @@ InDet::TRT_TrackExtensionToolCosmics::findBoundarySurface(const Trk::TrackParame
                                                           InDet::TRT_TrackExtensionToolCosmics::EventData &event_data) const
 {
 
-  const Trk::TrackParameters* test=m_extrapolator->extrapolateDirectly(*m_propagator,par,*event_data.m_trtcylinder,dir,true,Trk::muon);
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  const Trk::TrackParameters* test=m_extrapolator->extrapolateDirectly(ctx,
+                                                                       *m_propagator,
+                                                                       par,
+                                                                       *event_data.m_trtcylinder,
+                                                                       dir,true,Trk::muon).release();
   if(test){
     delete test;
     return event_data.m_trtcylinder;
   }
 
-  test=m_extrapolator->extrapolateDirectly(*m_propagator,par,*event_data.m_trtdiscA,dir,true,Trk::muon);
+  test=m_extrapolator->extrapolateDirectly(ctx,
+                                           *m_propagator,
+                                           par,
+                                           *event_data.m_trtdiscA,dir,true,Trk::muon).release();
   if(test){
     delete test;
     return event_data.m_trtdiscA;
   }
 
-  test=m_extrapolator->extrapolateDirectly(*m_propagator,par,*event_data.m_trtdiscC,dir,true,Trk::muon);
+  test=m_extrapolator->extrapolateDirectly(ctx,*
+                                           m_propagator,
+                                           par,
+                                           *event_data.m_trtdiscC,dir,true,Trk::muon).release();
   if(test){
     delete test;
     return event_data.m_trtdiscC;

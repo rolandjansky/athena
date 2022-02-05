@@ -39,7 +39,7 @@ namespace MuonCalib {
 
     CalibrationOracleFileIOTool::CalibrationOracleFileIOTool(const std::string &t, const std::string &n, const IInterface *p) :
         AthAlgTool(t, n, p), m_calib_dir("oracle_calib") {
-        declareInterface<CalibrationIOTool>(this);
+        declareInterface<ICalibrationIOTool>(this);
         declareProperty("outputLocation", m_calib_dir);
     }
 
@@ -92,7 +92,7 @@ namespace MuonCalib {
         db_rtr_file = fopen(rtr_dbfile_name.c_str(), "w");
         FILE *db_rts_file;
         db_rts_file = fopen(rts_dbfile_name.c_str(), "w");
-        if (db_rt_file == NULL || db_rtt_file == NULL || db_rtr_file == NULL || db_rts_file == NULL) {
+        if (db_rt_file == nullptr || db_rtt_file == nullptr || db_rtr_file == nullptr || db_rts_file == nullptr) {
             ATH_MSG_FATAL("Cannot open output files");
             if (db_rt_file) fclose(db_rt_file);
             if (db_rtt_file) fclose(db_rtt_file);
@@ -118,8 +118,8 @@ namespace MuonCalib {
         return StatusCode::SUCCESS;
     }
 
-    bool CalibrationOracleFileIOTool::fill_rt(std::unique_ptr<RtDataFromFile::RtRelation> &rt, std::shared_ptr<const IRtRelation> new_rt,
-                                              std::shared_ptr<const MuonCalib::IRtResolution> resolut) {
+    bool CalibrationOracleFileIOTool::fill_rt(std::unique_ptr<RtDataFromFile::RtRelation> &rt, const std::shared_ptr<const IRtRelation>& new_rt,
+                                              const std::shared_ptr<const MuonCalib::IRtResolution>& resolut) {
         ///////////////
         // VARIABLES //
         ///////////////

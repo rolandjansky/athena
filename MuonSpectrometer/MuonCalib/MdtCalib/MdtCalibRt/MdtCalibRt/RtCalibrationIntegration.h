@@ -29,10 +29,6 @@ namespace MuonCalib {
     /// to restrict the r-t determination on hit on the segments or to use close
     /// hits too. The algorithms performs a t0 and tmax fit in order to get t(r=0)
     /// and t(r=rmax) right.
-    ///
-    /// \author Oliver.Kortner@CERN.CH
-    ///
-    /// \date 02.02.2007
 
     class RtCalibrationIntegration : public IMdtCalibration {
     public:
@@ -41,7 +37,7 @@ namespace MuonCalib {
         ///< Default constructor. Only hits on the segment are used by the
         ///< algorithm by default. The maximum drift radius is set to  14.6 mm.
 
-        RtCalibrationIntegration(std::string name, bool close_hits, double r_max, double lower_extrapolation_radius,
+        RtCalibrationIntegration(const std::string& name, bool close_hits, double r_max, double lower_extrapolation_radius,
                                  double upper_extrapolation_radius, bool add_tmax_difference) :
             IMdtCalibration(name) {
             init(close_hits, r_max, lower_extrapolation_radius, upper_extrapolation_radius, add_tmax_difference);
@@ -56,11 +52,11 @@ namespace MuonCalib {
         ///< r-t determination
 
         // methods required by the base class "IMdtCalibration" //
-        const IMdtCalibrationOutput* analyseSegments(const std::vector<MuonCalibSegment*>& seg);
+        MdtCalibOutputPtr analyseSegments(const MuonSegVec& seg) override;
         ///< determine r(t)
         bool handleSegment(MuonCalibSegment& seg);
         ///< analyse the segment "seg"
-        void setInput(const IMdtCalibrationOutput* rt_input);
+        void setInput(const IMdtCalibrationOutput* rt_input) override;
         ///< the method is empty as no initial
         ///< r-t relationship is required by
         ///< the algorithm
@@ -69,7 +65,7 @@ namespace MuonCalib {
         bool converged(void) const;
         ///< returns true, if the integration
         ///< method has been performed
-        const IMdtCalibrationOutput* getResults(void) const;
+        MdtCalibOutputPtr getResults() const override;
         ///< returns the final r-t relationship
 
     private:
@@ -90,7 +86,7 @@ namespace MuonCalib {
         unsigned int m_nb_hits_used;                      // number of hits used in the algorithm
         unsigned int m_nb_segments_used;                  // number of segments used
         double m_r_max;                                   // maximum drift radius
-        std::unique_ptr<RtCalibrationOutput> m_output;    // class holding the results of the
+        std::shared_ptr<RtCalibrationOutput> m_output;    // class holding the results of the
                                                           // autocalibration
 
         // private methods //

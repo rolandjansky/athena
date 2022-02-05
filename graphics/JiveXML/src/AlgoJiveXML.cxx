@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JiveXML/AlgoJiveXML.h"
@@ -58,14 +58,14 @@ namespace JiveXML{
   StatusCode AlgoJiveXML::initialize(){
 
     //be verbose
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"Initialize()" << endmsg;
+    ATH_MSG_VERBOSE("Initialize()");
 
     /**
      * Get the geometry writer tools and write geometries
      */
     if(m_writeGeometry){
 
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"Writing geometry to file" << endmsg;
+      ATH_MSG_DEBUG("Writing geometry to file");
 
       /// Loop over names
       std::vector<std::string>::iterator GeoWriterNameItr = m_GeoWriterNames.begin();
@@ -75,16 +75,15 @@ namespace JiveXML{
 
         ToolHandle<IGeometryWriter> GeometryWriter(*GeoWriterNameItr);
         if ( GeometryWriter.retrieve().isFailure() ){
-          if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to locate "
-              << GeometryWriter.name() << " tool" << endmsg;
+          ATH_MSG_WARNING("Unable to locate "<<GeometryWriter.name()<<" tool");
         } else {
           /// Write geometry
           if ( GeometryWriter->writeGeometry().isFailure() ){
-            if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) <<"Unable to write geometry" << endmsg;
+            ATH_MSG_WARNING("Unable to write geometry");
           }
           /// Release tool
           if ( GeometryWriter.release().isFailure() ){
-            if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) <<"Unable to release tool GeometryWriter" << endmsg;
+            ATH_MSG_WARNING("Unable to release tool GeometryWriter");
           }
         }
       }
@@ -93,38 +92,35 @@ namespace JiveXML{
     /**
      * Get the formatting tools
      */
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"Retrieving XML format tool" << endmsg;
+    ATH_MSG_DEBUG("Retrieving XML format tool");
 
     //Retrieve the format tool
-    if (m_FormatTool.retrieve().isFailure()){
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) <<"Unable to retrieve XML format tool" << endmsg;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(m_FormatTool.retrieve());
 
     //Setting the tags
     if ( m_FormatTool->SetTag( TagType("Release",m_AtlasRelease)).isFailure() ){
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) <<"Couldn't set Release version" << endmsg;
+      ATH_MSG_WARNING( "Couldn't set Release version" );
     }
 
     /**
      * Add default file streaming tools if requested
      */
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"Retrieving streaming tools" << endmsg;
+    ATH_MSG_DEBUG("Retrieving streaming tools");
     if (m_writeToFile){
-      if (msgLvl(MSG::INFO)) msg(MSG::INFO) <<"Adding default file streaming tool" << endmsg;
+      ATH_MSG_INFO("Adding default file streaming tool");
       m_StreamTools.push_back("JiveXML::StreamToFileTool/StreamToFileTool");
     }
     if (m_onlineMode){
-      if (msgLvl(MSG::INFO)) msg(MSG::INFO) <<"Adding default XMLRPC streaming tool" << endmsg;
+      ATH_MSG_INFO("Adding default XMLRPC streaming tool");
       m_StreamTools.push_back("JiveXML::XMLRPCStreamTool/XMLRPCStreamTool");
     }
 
     /// Get the streaming tools
     if (m_StreamTools.size() == 0) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) <<"No streaming tools defined, events will be created but not stored!" << endmsg;
+      ATH_MSG_WARNING("No streaming tools defined, events will be created but not stored!");
     } else {
       if (m_StreamTools.retrieve().isFailure()){
-        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) <<"Unable to retrieve streaming tools !" << endmsg;
+        ATH_MSG_ERROR("Unable to retrieve streaming tools !");
         return StatusCode::FAILURE;
       }
     }
@@ -133,7 +129,7 @@ namespace JiveXML{
      * Get the IDataRetrievers requested in the m_dataTypes list from the toolSvc 
      * and store them in the ToolHandleArray
      */ 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"Obtaining list of data retrievers" << endmsg;
+    ATH_MSG_DEBUG("Obtaining list of data retrievers");
 
     /// Iteratate over the given data types
     std::vector<std::string>::iterator DataTypesEnd = m_dataTypes.end();
@@ -146,16 +142,16 @@ namespace JiveXML{
         ToolHandle<IDataRetriever> DataRetrieverTool(*DataTypeItr);
         /// See if we can retrieve the tool
         if( DataRetrieverTool.retrieve().isFailure() ) {
-          if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) <<"Unable to locate tool "
+          ATH_MSG_WARNING( "Unable to locate tool "
                     << DataRetrieverTool.type() << " with name "
-                    << DataRetrieverTool.name() << endmsg;
+                    << DataRetrieverTool.name());
         } else {
           /// If so, store it in our list
           m_DataRetrievers.push_back(DataRetrieverTool);
         }
       }
 
-    if (msgLvl(MSG::INFO)) msg(MSG::INFO) <<"Retrieving data from " << m_DataRetrievers.size() << " tools" << endmsg;
+    ATH_MSG_INFO("Retrieving data from " << m_DataRetrievers.size() << " tools" );
 
     return StatusCode::SUCCESS;
   }
@@ -184,30 +180,23 @@ namespace JiveXML{
     geometryVersion = DataType(m_geometryVersionIn).toString();
 
     //Retrieve eventInfo from StoreGate
-    const EventInfo* eventInfo;
+    const xAOD::EventInfo* eventInfo = nullptr;
     if (evtStore()->retrieve(eventInfo).isFailure()){
-      if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) <<"Could not find EventInfo" << endmsg;
-      return StatusCode::FAILURE;
-    }
-    const xAOD::EventInfo* eventInfo2;
-    if (evtStore()->retrieve(eventInfo2).isFailure()){
-      if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) <<"Could not find xAODEventInfo" << endmsg;
+      ATH_MSG_FATAL("Could not find xAODEventInfo" );
       return StatusCode::FAILURE;
     }else{
-    //Get run and event numbers - Test only ! Still using old EventInfo for xml output
-    //    Event/xAOD/xAODEventInfo/trunk/xAODEventInfo/versions/EventInfo_v1.h
-     if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " xAODEventInfo: " 
-          << ", runNumber: "  << eventInfo2->runNumber()  // is '222222' for mc events ?
-          << ", eventNumber: " << eventInfo2->eventNumber() 
-          << ", mcChannelNumber: "  << eventInfo2->mcChannelNumber()
-          << ", mcEventNumber: "  << eventInfo2->mcEventNumber() // MC: use this instead of runNumber
-          << ", lumiBlock: "  << eventInfo2->lumiBlock()
-          << ", timeStamp: "  << eventInfo2->timeStamp()
-          << ", bcid: "  << eventInfo2->bcid()
-          << ", eventTypeBitmask: "  << eventInfo2->eventTypeBitmask()
-          << ", actualInteractionsPerCrossing: "  << eventInfo2->actualInteractionsPerCrossing()
-          << ", averageInteractionsPerCrossing: "  << eventInfo2->averageInteractionsPerCrossing()
-          << endmsg; 
+    // Event/xAOD/xAODEventInfo/trunk/xAODEventInfo/versions/EventInfo_v1.h
+     ATH_MSG_VERBOSE(" xAODEventInfo: runNumber: "  << eventInfo->runNumber()  // is '222222' for mc events ?
+          << ", eventNumber: " << eventInfo->eventNumber()
+          << ", mcChannelNumber: " << eventInfo->mcChannelNumber()
+          << ", mcEventNumber: "  << eventInfo->mcEventNumber() // MC: use this instead of runNumber
+          << ", lumiBlock: "  << eventInfo->lumiBlock()
+          << ", timeStamp: "  << eventInfo->timeStamp()
+          << ", bcid: "  << eventInfo->bcid()
+          << ", eventTypeBitmask: "  << eventInfo->eventTypeBitmask()
+          << ", actualInteractionsPerCrossing: "  << eventInfo->actualInteractionsPerCrossing()
+          << ", averageInteractionsPerCrossing: "  << eventInfo->averageInteractionsPerCrossing()
+          ); 
     }
 
     // new treatment of mc_channel_number for mc12
@@ -217,55 +206,51 @@ namespace JiveXML{
     bool firstEv = true;
     const PileUpEventInfo* pevt = 0;
     if (evtStore()->retrieve(pevt).isFailure()){
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) <<"Could not find PileUpEventInfo" << endmsg;
+      ATH_MSG_WARNING( "Could not find PileUpEventInfo" );
     }
     else {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Pileup Info Retrieved Successfully as 'PileUpEventInfo' Object " << endmsg;
+      ATH_MSG_DEBUG( "Pileup Info Retrieved Successfully as 'PileUpEventInfo' Object " );
       
       //+++ Get sub-event info object
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Sub Event Infos: " << endmsg;
+      ATH_MSG_DEBUG( "Sub Event Infos: " );
       PileUpEventInfo::SubEvent::const_iterator it  = pevt->beginSubEvt();
       PileUpEventInfo::SubEvent::const_iterator end = pevt->endSubEvt();
-      if (it == end) if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "None found" << endmsg;
+      if (it == end) ATH_MSG_DEBUG( "None found" );
       for (; it != end; ++it) {
 	const EventInfo* sevt = (*it).pSubEvt;
 	if (sevt) {
 	  if (firstEv){ 
 	    mcChannelNo =  sevt->event_type()->mc_channel_number(); // the 'real' mc-channel 
-	    if (msgLvl(MSG::INFO)) msg(MSG::INFO)
-	      << " mc_channel from PileUpEventInfo   : " << sevt->event_type()->mc_channel_number() << endmsg;
+	    ATH_MSG_INFO( " mc_channel from PileUpEventInfo   : " << sevt->event_type()->mc_channel_number() );
             firstEv = false;
           }       
-	  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Sub Event Info:" << endmsg;
-          if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)
-	       << "  Time         : " << (*it).time()                             << endmsg
-	       << "  Index        : " << (*it).index()                            << endmsg
-	       << "  Provenance   : " << (*it).type()                        << endmsg // This is the provenance stuff: signal, minbias, cavern, etc
-	       << "  Run Number   : " << sevt->event_ID()->run_number()           << endmsg
-	       << "  Event Number : " << sevt->event_ID()->event_number()         << endmsg
-	       << "  ns Offset    : " << sevt->event_ID()->time_stamp_ns_offset() << endmsg
-	       << "  Lumi Block   : " << sevt->event_ID()->lumi_block()           << endmsg
-	       << "  mc_channel   : " << sevt->event_type()->mc_channel_number() << endmsg
-               << "  BCID         : " << sevt->event_ID()->bunch_crossing_id()    << endmsg
-               << "  Geo version  : " << m_geometryVersionIn                      << endmsg
-	       << "  User Type    : " << sevt->event_type()->user_type()          << endmsg;
+	  ATH_MSG_VERBOSE("Sub Event Info:\n  Time         : " << (*it).time()                             
+	       << "  Index        : " << (*it).index()                            
+	       << "  Provenance   : " << (*it).type()                         // This is the provenance stuff: signal, minbias, cavern, etc
+	       << "  Run Number   : " << sevt->event_ID()->run_number()           
+	       << "  Event Number : " << sevt->event_ID()->event_number()         
+	       << "  ns Offset    : " << sevt->event_ID()->time_stamp_ns_offset() 
+	       << "  Lumi Block   : " << sevt->event_ID()->lumi_block()           
+	       << "  mc_channel   : " << sevt->event_type()->mc_channel_number() 
+               << "  BCID         : " << sevt->event_ID()->bunch_crossing_id()    
+               << "  Geo version  : " << m_geometryVersionIn                      
+	       << "  User Type    : " << sevt->event_type()->user_type()          );
 	}
-	else if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Subevent is null ptr " << endmsg;
+	else ATH_MSG_VERBOSE("Subevent is null ptr ");
       }
     }
 
     //Get run and event numbers
-    runNo   = eventInfo->event_ID()->run_number();
-    eventNo = eventInfo->event_ID()->event_number(); 
+    runNo   = eventInfo->runNumber();
+    eventNo = eventInfo->eventNumber();
 
 // Note: 4294967293 is the maximum value for a unsigned long
 
     if ( mcChannelNo != 0 ){ runNo = mcChannelNo + 140000000; } // indicating 'mc14'
-    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << " runNumber for filename: " << runNo 
-        << ", eventNumber: " << eventNo << endmsg;
+    ATH_MSG_INFO( " runNumber for filename: " << runNo << ", eventNumber: " << eventNo);
 
-    if ( eventInfo->event_ID()->lumi_block() ){ 
-      lumiBlock = eventInfo->event_ID()->lumi_block(); 
+    if ( eventInfo->lumiBlock() ){
+      lumiBlock = eventInfo->lumiBlock();
     }else{ 
       lumiBlock = -1; // placeholder 
     } 
@@ -279,8 +264,8 @@ namespace JiveXML{
     //Only option to avoid odd timezones. jpt 29Mar11
     size_t found1;
     size_t found2;
-    if (eventInfo->event_ID()->time_stamp() > 0) {
-      time_t unixtime = (time_t) eventInfo->event_ID()->time_stamp(); 
+    if (eventInfo->timeStamp() > 0) {
+      time_t unixtime = (time_t) eventInfo->timeStamp();
       struct tm *time = localtime(&unixtime);
       strftime(dateTime, 32, "%Y-%m-%d %H:%M:%S %Z", time);
       struct tm *utctime = gmtime(&unixtime);
@@ -288,7 +273,7 @@ namespace JiveXML{
       found2 = (DataType(dateTime).toString().find("CET")); 
       if ( int(found1)<0 && int(found2)<0 ){ // not found is -1
          strftime(dateTime, 32, "%Y-%m-%d %H:%M:%S UTC", utctime);
-         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " TIME NOT CET/CEST. Adjusted to:" << dateTime << endmsg;
+         ATH_MSG_DEBUG( " TIME NOT CET/CEST. Adjusted to:" << dateTime );
       }
     } else {
       dateTime[0] = '\0'; // empty string
@@ -299,7 +284,7 @@ namespace JiveXML{
      * Then start a new event with this header information
      */
     if ( m_FormatTool->StartEvent(eventNo, runNo, dateTime, lumiBlock, eventProperty, geometryVersion).isFailure() ){
-      if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) <<"Couldn't start event in FormatTool" << endmsg;
+      ATH_MSG_FATAL("Couldn't start event in FormatTool");
       return StatusCode::FAILURE;
     }
 
@@ -307,7 +292,7 @@ namespace JiveXML{
      * Now iterate over all the IDataRetrievers and 
      * write their data to the xml file by giving it the XMLWriter 
      */
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"Starting loop over data retrievers" << endmsg;
+    ATH_MSG_DEBUG("Starting loop over data retrievers" );
     //Loop over data retrievers
     ToolHandleArray<IDataRetriever>::iterator DataRetrieverItr = m_DataRetrievers.begin();
     for(; DataRetrieverItr != m_DataRetrievers.end(); ++DataRetrieverItr)  {
@@ -315,43 +300,43 @@ namespace JiveXML{
       try {
         //Retrieve information and pass it to formatting tool object
         if ((*DataRetrieverItr)->retrieve(m_FormatTool).isFailure()) {
-          if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) <<"Failed to fill " << (*DataRetrieverItr)->dataTypeName() << endmsg;
+          ATH_MSG_WARNING( "Failed to fill " << (*DataRetrieverItr)->dataTypeName() );
         } else {
-          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"Filled: " << (*DataRetrieverItr)->dataTypeName() << endmsg;
+          ATH_MSG_DEBUG("Filled: " << (*DataRetrieverItr)->dataTypeName() );
         }
       //Only catch std::exception
       } catch ( std::exception& ex ){
         //Now show some message
-        if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) <<"Caught exception in " << (*DataRetrieverItr)->name() 
+        ATH_MSG_FATAL("Caught exception in " << (*DataRetrieverItr)->name() 
                           << " while retrieving data for " << (*DataRetrieverItr)->dataTypeName() 
-                          << " : " << ex.what() << endmsg;
+                          << " : " << ex.what() );
         //and return with an error
         return StatusCode::FAILURE;
       }
     }
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"Finished loop over data retrievers" << endmsg;
+    ATH_MSG_DEBUG( "Finished loop over data retrievers" );
 
     /**
      * Finish the event with a proper footer
      */
     if ( m_FormatTool->EndEvent().isFailure() ){
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) <<"Couldn't end event in FormatTool" << endmsg;
+      ATH_MSG_WARNING( "Couldn't end event in FormatTool" );
       return StatusCode::FAILURE;
     }
 
     /**
      * Now stream the events to all registered streaming tools
      */
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"Starting loop over event streamers" << endmsg;
+    ATH_MSG_DEBUG( "Starting loop over event streamers" );
     //Loop over streaming tools
     ToolHandleArray<IStreamTool>::iterator StreamToolsItr = m_StreamTools.begin();
     for ( ; StreamToolsItr != m_StreamTools.end(); ++StreamToolsItr ){
-      if (msgLvl(MSG::INFO)) msg(MSG::INFO) <<"Streaming event to " << (*StreamToolsItr)->name() << endmsg;
+      ATH_MSG_INFO("Streaming event to " << (*StreamToolsItr)->name() );
         if ( (*StreamToolsItr)->StreamEvent(eventNo, runNo, m_FormatTool->getFormattedEvent()).isFailure() ){
-           if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not stream event to " << (*StreamToolsItr)->name() << endmsg;
+           ATH_MSG_WARNING( "Could not stream event to " << (*StreamToolsItr)->name() );
         } 
     }
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"Finished loop over event streamers" << endmsg;
+    ATH_MSG_DEBUG( "Finished loop over event streamers" );
 
     return StatusCode::SUCCESS;
   }
@@ -362,7 +347,7 @@ namespace JiveXML{
    */
   StatusCode AlgoJiveXML::finalize() {
 
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"finalize()" << endmsg;  
+    ATH_MSG_VERBOSE( "finalize()" );  
 
     /// Release all the tools
     m_DataRetrievers.release().ignore();

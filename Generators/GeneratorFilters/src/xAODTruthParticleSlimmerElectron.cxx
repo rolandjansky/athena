@@ -11,8 +11,6 @@
 #include "GaudiKernel/DataSvc.h"
 #include "GaudiKernel/PhysicalConstants.h"
 
-#include "EventInfo/EventStreamInfo.h"
-
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthParticleAuxContainer.h"
@@ -24,6 +22,7 @@ xAODTruthParticleSlimmerElectron::xAODTruthParticleSlimmerElectron(const std::st
 {
     declareProperty("xAODTruthParticleContainerName", m_xaodTruthParticleContainerName = "TruthParticles");
     declareProperty("xAODTruthParticleContainerNameElectron", m_xaodTruthParticleContainerNameElectron = "TruthElectrons");
+    declareProperty("xAODTruthEventContainerName", m_xaodTruthEventContainerName = "TruthEvents");
     declareProperty("el_pt_selection", m_el_pt_selection = 1. * Gaudi::Units::GeV); //User provides units in MeV!
     declareProperty("abseta_selection", m_abseta_selection = 5.);
 }
@@ -32,6 +31,7 @@ StatusCode xAODTruthParticleSlimmerElectron::initialize()
 {
     ATH_MSG_INFO("xAOD input TruthParticleContainer name = " << m_xaodTruthParticleContainerName);
     ATH_MSG_INFO("xAOD output TruthParticleContainerElectron name = " << m_xaodTruthParticleContainerNameElectron);
+    ATH_MSG_INFO("xAOD input xAODTruthEventContainerName name = " << m_xaodTruthEventContainerName);
     return StatusCode::SUCCESS;
 }
 
@@ -52,44 +52,41 @@ StatusCode xAODTruthParticleSlimmerElectron::execute()
     xTruthParticleContainerElectron->setStore(xTruthParticleAuxContainerElectron);
     ATH_MSG_INFO("Recorded TruthParticleContainerElectron with key: " << m_xaodTruthParticleContainerNameElectron);
 
-    // Retrieve full TruthParticle container
-    const xAOD::TruthParticleContainer *xTruthParticleContainer;
-    if (evtStore()->retrieve(xTruthParticleContainer, m_xaodTruthParticleContainerName).isFailure())
+    // Retrieve full TruthEventContainer container
+    const xAOD::TruthEventContainer *xTruthEventContainer=NULL;
+    if (evtStore()->retrieve(xTruthEventContainer, m_xaodTruthEventContainerName).isFailure())
     {
-        ATH_MSG_ERROR("No TruthParticle collection with name " << m_xaodTruthParticleContainerName << " found in StoreGate!");
+        ATH_MSG_ERROR("No TruthEvent collection with name " << m_xaodTruthEventContainerName << " found in StoreGate!");
         return StatusCode::FAILURE;
     }
-
     // Set up decorators if needed
+    xAOD::TruthEventContainer::const_iterator itr;
+    for (itr = xTruthEventContainer->begin(); itr!=xTruthEventContainer->end(); ++itr) {
 
-    // Loop over full TruthParticle container
-    unsigned int nParticles = xTruthParticleContainer->size();
-    for (unsigned int iPart = 0; iPart < nParticles; ++iPart)
-    {
-        const xAOD::TruthParticle *theParticle = (*xTruthParticleContainer)[iPart];
+        unsigned int nPart = (*itr)->nTruthParticles();
+        for (unsigned int iPart = 0; iPart < nPart; ++iPart) {
+            const xAOD::TruthParticle* theParticle =  (*itr)->truthParticle(iPart);
 
-        int this_absPdgID = theParticle->absPdgId();
-        float this_abseta = theParticle->abseta();
-        float this_pt = theParticle->pt();
-        int this_status = theParticle->status();
+            int this_absPdgID = theParticle->absPdgId();
+            int this_status = theParticle->status();
 
-        //Save Electrons above 1 GeV, & within detector acceptance (4.5)
-        if (this_status == 1 && this_absPdgID == 11 && this_pt >= m_el_pt_selection && this_abseta < m_abseta_selection)
-        {
-            xAOD::TruthParticle *xTruthParticle = new xAOD::TruthParticle();
-            xTruthParticleContainerElectron->push_back( xTruthParticle );
+            //Save stable Electrons 
+            if (this_status == 1 && this_absPdgID == 11)
+            {
+                xAOD::TruthParticle *xTruthParticle = new xAOD::TruthParticle();
+                xTruthParticleContainerElectron->push_back( xTruthParticle );
 
-            // Fill with numerical content
-            xTruthParticle->setPdgId(theParticle->pdgId());
-            xTruthParticle->setBarcode(theParticle->barcode());
-            xTruthParticle->setStatus(theParticle->status());
-            xTruthParticle->setM(theParticle->m());
-            xTruthParticle->setPx(theParticle->px());
-            xTruthParticle->setPy(theParticle->py());
-            xTruthParticle->setPz(theParticle->pz());
-            xTruthParticle->setE(theParticle->e());
+                // Fill with numerical content
+                xTruthParticle->setPdgId(theParticle->pdgId());
+                xTruthParticle->setBarcode(theParticle->barcode());
+                xTruthParticle->setStatus(theParticle->status());
+                xTruthParticle->setM(theParticle->m());
+                xTruthParticle->setPx(theParticle->px());
+                xTruthParticle->setPy(theParticle->py());
+                xTruthParticle->setPz(theParticle->pz());
+                xTruthParticle->setE(theParticle->e());
+            }   
         }
-        
     }
 
     return StatusCode::SUCCESS;

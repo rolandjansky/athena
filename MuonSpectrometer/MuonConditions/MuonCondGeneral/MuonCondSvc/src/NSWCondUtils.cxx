@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2020, 2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <string>
@@ -12,55 +12,52 @@
 #include "MuonCondSvc/NSWCondUtils.h"
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/getMessageSvc.h"
-
+#include <charconv>
+#include "boost/algorithm/string.hpp"
 namespace MuonCalib{
   void NSWCondUtils::setNSWABLinesFromAscii(const std::string& filename, ALineMapContainer& writeALines, BLineMapContainer& writeBLines, const sTgcIdHelper* stgcHelper, const MmIdHelper* mmHelper)
   {
+    using namespace MuonCalib;
     std::ifstream inputFile;
     inputFile.open(filename);
     int nLines = 1;
     int nNewALines = 0;
     int nNewBLines = 0;
     std::string line;
-    std::string type;
-    std::string since_str;
-    std::string till_str;
+    std::string_view since_str;
+    std::string_view till_str;
 
     while(std::getline(inputFile,line)){
 
       ++nLines;
 
-      std::vector<std::string> tokens;
-      std::string delimiter = ":";
-      MuonCalib::MdtStringUtils::tokenize(line, tokens, delimiter);
+      char delimiter = ':';
+      const auto tokens = MdtStringUtils::tokenize(line, delimiter);
+      if (!tokens.size()) continue; // skip empty lines
 
-      type = tokens[0];
+      const auto &type = tokens[0];
 
-      if(type.find("#") == 0){
-        continue;
-      }
+      if(type[0] == '#') continue;  // skip comments
 
-      if(type.find("Header") == 0){
-        std::string delimiter = "|";
-        std::vector<std::string> tokens;
-        MuonCalib::MdtStringUtils::tokenize(line, tokens, delimiter);
+      if(boost::algorithm::starts_with(type, "Header")){
+        char delimiter = '|';
+        auto tokens = MdtStringUtils::tokenize(line, delimiter);
         since_str = tokens[1];
         till_str = tokens[2];
       }
 
-      if(type.find("IOV") == 0){
-        std::string delimiter = " ";
-        MuonCalib::MdtStringUtils::tokenize(line, tokens, delimiter);
+      if(boost::algorithm::starts_with(type, "IOV")){
+        char delimiter = ' ';
+        auto tokens = MdtStringUtils::tokenize(line, delimiter);
         int ival = 1;
         long int iovThisBlob = 0; 
-        std::string str_iovThisBlob = tokens[ival];
-        sscanf(str_iovThisBlob.c_str(), "%80ld", &iovThisBlob);
+        std::string_view str_iovThisBlob = tokens[ival];
+        std::from_chars(str_iovThisBlob.data(), str_iovThisBlob.data() + str_iovThisBlob.size(), iovThisBlob);
       }
 
-      if(type.find("Corr") == 0){
-        std::string delimiter = " ";
-        std::vector<std::string> tokens;
-        MuonCalib::MdtStringUtils::tokenize(line, tokens, delimiter);
+      if(boost::algorithm::starts_with(type, "Corr")){
+        char delimiter = ' ';
+        auto tokens = MdtStringUtils::tokenize(line, delimiter);
 
         if(tokens.size() != 25){
           MsgStream log(Athena::getMessageSvc(), "NSWCondUtils");
@@ -70,60 +67,31 @@ namespace MuonCalib{
 
         int ival =1;
         int phi, eta, mult;
-        std::string stationType = tokens[ival++];
-        
-        std::string phi_str = tokens[ival++];
-        sscanf(phi_str.c_str(),"%80d",&phi);
-
-        std::string eta_str = tokens[ival++];
-        sscanf(eta_str.c_str(),"%80d",&eta);
-
-        std::string mult_str = tokens[ival++];
-        sscanf(mult_str.c_str(),"%80d",&mult);
+        std::string_view stationType = tokens[ival++];
+        phi = MdtStringUtils::atoi(tokens[ival++]);
+        eta = MdtStringUtils::atoi(tokens[ival++]);
+        mult = MdtStringUtils::atoi(tokens[ival++]);
 
         float s, z, t, rots, rotz, rott;
-
-        std::string s_str = tokens[ival++];
-        sscanf(s_str.c_str(),"%80f",&s);
-
-        std::string z_str = tokens[ival++];
-        sscanf(z_str.c_str(),"%80f",&z);
-
-        std::string t_str = tokens[ival++];
-        sscanf(t_str.c_str(),"%80f",&t);
-
-        std::string rots_str = tokens[ival++];
-        sscanf(rots_str.c_str(),"%80f",&rots);
-
-        std::string rotz_str = tokens[ival++];
-        sscanf(rotz_str.c_str(),"%80f",&rotz);
-
-        std::string rott_str = tokens[ival++];
-        sscanf(rott_str.c_str(),"%80f",&rott);
+        s = MdtStringUtils::stof(tokens[ival++]);
+        z = MdtStringUtils::stof(tokens[ival++]);
+        t = MdtStringUtils::stof(tokens[ival++]);
+        rots = MdtStringUtils::stof(tokens[ival++]);
+        rotz = MdtStringUtils::stof(tokens[ival++]);
+        rott = MdtStringUtils::stof(tokens[ival++]);
 
         float bz, bp, bn, sp, sn, tw, pg, tr, eg, ep, en;
-        std::string tmp_str = tokens[ival++];
-        sscanf(tmp_str.c_str(),"%80f",&bz);
-        tmp_str = tokens[ival++];
-        sscanf(tmp_str.c_str(),"%80f",&bp);
-        tmp_str = tokens[ival++];
-        sscanf(tmp_str.c_str(),"%80f",&bn);
-        tmp_str = tokens[ival++];
-        sscanf(tmp_str.c_str(),"%80f",&sp);
-        tmp_str = tokens[ival++];
-        sscanf(tmp_str.c_str(),"%80f",&sn);
-        tmp_str = tokens[ival++];
-        sscanf(tmp_str.c_str(),"%80f",&tw);
-        tmp_str = tokens[ival++];
-        sscanf(tmp_str.c_str(),"%80f",&pg);
-        tmp_str = tokens[ival++];
-        sscanf(tmp_str.c_str(),"%80f",&tr);
-        tmp_str = tokens[ival++];
-        sscanf(tmp_str.c_str(),"%80f",&eg);
-        tmp_str = tokens[ival++];
-        sscanf(tmp_str.c_str(),"%80f",&ep);
-        tmp_str = tokens[ival++];
-        sscanf(tmp_str.c_str(),"%80f",&en);
+        bz = MdtStringUtils::stof(tokens[ival++]);
+        bp = MdtStringUtils::stof(tokens[ival++]);
+        bn = MdtStringUtils::stof(tokens[ival++]);
+        sp = MdtStringUtils::stof(tokens[ival++]);
+        sn = MdtStringUtils::stof(tokens[ival++]);
+        tw = MdtStringUtils::stof(tokens[ival++]);
+        pg = MdtStringUtils::stof(tokens[ival++]);
+        tr = MdtStringUtils::stof(tokens[ival++]);
+        eg = MdtStringUtils::stof(tokens[ival++]);
+        ep = MdtStringUtils::stof(tokens[ival++]);
+        en = MdtStringUtils::stof(tokens[ival++]);
 
         Identifier id, id_mult;
         if(stationType == "MML" || stationType == "MMS"){

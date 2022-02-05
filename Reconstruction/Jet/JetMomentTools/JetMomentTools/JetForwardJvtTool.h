@@ -81,6 +81,7 @@
     Gaudi::Property<double> m_jetScaleFactor{this, "JetScaleFactor", 0.4, "Jet scale factor"};
     Gaudi::Property<double> m_fjvtThresh{this, "FjvtThresh", 15e3, "FJVT threshold"}; //15GeV->92%,11GeV->85%
     Gaudi::Property<bool> m_tightOP{this, "UseTightOP", false, "Use tight (true) or loose (false)"};
+    Gaudi::Property<bool> m_recalculateFjvt{this, "RecalculateFjvt", true, "Recalculate Fjvt or use stored value"}; 
     mutable std::vector<TVector2> m_pileupMomenta;
     mutable size_t m_pvind = 0UL;
     void getPV() const;

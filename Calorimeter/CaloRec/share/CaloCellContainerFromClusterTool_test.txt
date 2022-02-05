@@ -1,5 +1,6 @@
 ApplicationMgr.ExtSvc = { "StoreGateSvc/StoreGateSvc",
-                          "StoreGateSvc/DetectorStore" };
+                          "StoreGateSvc/DetectorStore", 
+			  "StoreGateSvc/ConditionStore"};
 
 ToolSvc.testtool1.CaloClustersName = "Clusts1";
 ToolSvc.testtool2.CaloClusterNames = { "Clusts1", "Clusts2" };

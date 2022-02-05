@@ -1,18 +1,21 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDHandlers/sectorHandler.h"
 #include <iostream>
 
-sectorHandler::sectorHandler(std::string s):XMLHandler(s)
+sectorHandler::sectorHandler(const std::string& s,
+                             AGDDController& c)
+  : XMLHandler(s, c)
 {
 //	std::cout<<"Creating handler for sector"<<std::endl;
 }
 
-void sectorHandler::ElementHandle()
+void sectorHandler::ElementHandle(AGDDController& /*c*/,
+                                  xercesc::DOMNode */*t*/)
 {
 //	std::cout<<"handling for sector";
 //	bool res;
-//	int i_sector=getAttributeAsInt("value",res);
+//	int i_sector=getAttributeAsInt(c, t, "value",res);
 }

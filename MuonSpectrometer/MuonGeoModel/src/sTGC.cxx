@@ -5,6 +5,7 @@
 #include "MuonGeoModel/sTGC.h"
 
 #include "AGDDKernel/AGDDDetectorStore.h"
+#include "AGDDControl/AGDDController.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
@@ -48,19 +49,23 @@ namespace MuonGM {
         index = s->index;
     }
 
-    GeoFullPhysVol *sTGC::build(int minimalgeo) {
+    GeoFullPhysVol *sTGC::build(const StoredMaterialManager& matManager,
+                                int minimalgeo) {
         std::vector<Cutout *> vcutdef;
         int cutoutson = 0;
-        return build(minimalgeo, cutoutson, vcutdef);
+        return build(matManager, minimalgeo, cutoutson, vcutdef);
     }
 
     // Start building the physical volume of the quadruplet
-    GeoFullPhysVol *sTGC::build(int minimalgeo, int, const std::vector<Cutout *>&) {
-        AGDDDetectorStore *ds = AGDDDetectorStore::GetDetectorStore();
+    GeoFullPhysVol *sTGC::build(const StoredMaterialManager& matManager,
+                                int minimalgeo, int,
+                                const std::vector<Cutout *>&) {
         sTGCDetectorHelper stgcHelper;
+        IAGDDtoGeoSvc::LockedController c = stgcHelper.Get_Controller();
+        AGDDDetectorStore& ds = c->GetDetectorStore();
         sTGCDetectorDescription *stgc_descr = stgcHelper.Get_sTGCDetectorSubType(m_component->subType);
 
-        sTGC_Technology *t = (sTGC_Technology *)ds->GetTechnology(name);
+        sTGC_Technology *t = (sTGC_Technology *)ds.GetTechnology(name);
         thickness = t->Thickness();
         double gasTck = t->gasThickness;
         double pcbTck = t->pcbThickness;
@@ -94,7 +99,7 @@ namespace MuonGM {
         logVolName = name;
         if (!(m_component->subType).empty())
             logVolName += ("-" + m_component->subType);
-        const GeoMaterial *mtrd = getMaterialManager()->getMaterial("muo::Honeycomb");
+        const GeoMaterial *mtrd = matManager.getMaterial("muo::Honeycomb");
         GeoLogVol *ltrd = new GeoLogVol(logVolName, strd, mtrd);
         GeoFullPhysVol *ptrd = new GeoFullPhysVol(ltrd);
 
@@ -141,7 +146,7 @@ namespace MuonGM {
             // Transform gas volume
             GeoTrf::Transform3D rot = GeoTrf::RotateZ3D(M_PI / 2.) * GeoTrf::RotateX3D(M_PI / 2.);
             const GeoShape *sGasVolume1 = new GeoShapeShift(sGasVolume, rot);
-            GeoLogVol *ltrdgas = new GeoLogVol("sTGC_Sensitive", sGasVolume1, getMaterialManager()->getMaterial("muo::TGCGas"));
+            GeoLogVol *ltrdgas = new GeoLogVol("sTGC_Sensitive", sGasVolume1, matManager.getMaterial("muo::TGCGas"));
             GeoPhysVol *ptrdgas = new GeoPhysVol(ltrdgas);
             GeoNameTag *gastag = new GeoNameTag(name + "muo::TGCGas");
             GeoTransform *chamberpos = new GeoTransform(GeoTrf::TranslateX3D(newXPos));
@@ -172,7 +177,7 @@ namespace MuonGM {
                 GeoTrf::Transform3D rott = GeoTrf::RotateZ3D(M_PI / 2.) * GeoTrf::RotateX3D(M_PI / 2.);
                 const GeoShape *sPcbVolume1 = new GeoShapeShift(sPcbVolume, rott);
 
-                const GeoMaterial *mtrdC = getMaterialManager()->getMaterial("std::G10");
+                const GeoMaterial *mtrdC = matManager.getMaterial("std::G10");
                 GeoLogVol *ltrdC = new GeoLogVol(logVolName, sPcbVolume1, mtrdC);
                 GeoPhysVol *ptrdPcb = new GeoPhysVol(ltrdC);
                 GeoNameTag *ntrdtmpC = new GeoNameTag(name + "std::G10");
@@ -198,7 +203,7 @@ namespace MuonGM {
                 const GeoShape *trd2 = new GeoTrd(gasTck, gasTck, W - f6, lW - f6, length / 2 - (f4 + f5) / 2.);
                 GeoTrf::Translate3D c(0, 0, (f5 - f4) / 2.);
                 trd1 = &(trd1->subtract((*trd2) << c));
-                GeoLogVol *ltrdframe = new GeoLogVol("sTGC_Frame", trd1, getMaterialManager()->getMaterial("std::Aluminium"));
+                GeoLogVol *ltrdframe = new GeoLogVol("sTGC_Frame", trd1, matManager.getMaterial("std::Aluminium"));
                 GeoPhysVol *ptrdframe = new GeoPhysVol(ltrdframe);
 
                 ptrdgas->add(ptrdframe);
@@ -228,7 +233,7 @@ namespace MuonGM {
                 // Remove active from active+frames to only get frames
                 sGasV3 = &(sGasV3->subtract((*sGasV1)));
 
-                GeoLogVol *ltrdframe = new GeoLogVol("sTGC_Frame", sGasV3, getMaterialManager()->getMaterial("std::Aluminium"));
+                GeoLogVol *ltrdframe = new GeoLogVol("sTGC_Frame", sGasV3, matManager.getMaterial("std::Aluminium"));
                 GeoPhysVol *ptrdframe = new GeoPhysVol(ltrdframe);
 
                 // Add frame volume to QL3

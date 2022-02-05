@@ -68,7 +68,7 @@ private:
   const float m_GeV = 0.001;
 
   SG::ReadHandleKey< xAOD::AFPTrackContainer > m_AFPtrackCollectionReadKey {this, "AFPTrackContainer", "HLT_AFPTrackContainer", "xAOD AFP track collection"};
-
+  
   // monitoring
   ToolHandle<GenericMonitoringTool> m_monTool { this, "MonTool", "", "Monitoring tool" };
 

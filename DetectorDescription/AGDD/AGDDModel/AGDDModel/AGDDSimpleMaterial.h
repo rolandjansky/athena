@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AGDDSimpleMaterial_H
@@ -9,23 +9,25 @@
 #include <iostream>
 
 #include "AGDDModel/MaterialTypes.h"
+class AGDDMaterialStore;
 
 class AGDDSimpleMaterial {
 	friend std::ostream& operator <<(std::ostream&, const AGDDSimpleMaterial &);
 public:
-	AGDDSimpleMaterial(std::string n, double d):
+	AGDDSimpleMaterial(AGDDMaterialStore& ms,
+                           const std::string& n, double d):
 		m_name(n),m_density(d),m_created(false),m_theMaterial(0)
 	{
 		m_mType=Undefined;
-		RegisterToStore(this);
+		RegisterToStore(ms, this);
 	}
 	virtual ~AGDDSimpleMaterial() {}
-	void RegisterToStore(AGDDSimpleMaterial*);
-	std::string GetName();
-	double GetDensity() {return m_density;}
-	material_type GetMaterialType() {return m_mType;}
+	void RegisterToStore(AGDDMaterialStore& ms, AGDDSimpleMaterial*);
+	std::string GetName() const;
+	double GetDensity() const {return m_density;}
+	material_type GetMaterialType() const {return m_mType;}
 	void Created(bool b) {m_created=b;}
-	bool Extant() {return m_created;}
+	bool Extant() const {return m_created;}
 	void* GetMaterial() {return m_theMaterial;}
 	void SetMaterial(void* mat) {m_theMaterial=mat;}
 protected:

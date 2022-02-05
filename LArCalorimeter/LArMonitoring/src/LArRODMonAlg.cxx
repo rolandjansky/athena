@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -26,7 +26,6 @@
 
 #include "LArCabling/LArOnOffIdMapping.h"
 
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 
 #include "AthenaKernel/errorcheck.h"
@@ -359,9 +358,9 @@ StatusCode LArRODMonAlg::fillHistograms(const EventContext& ctx) const {
   }
 
   ERRCOUNTER allEC;  
-  unsigned allErr_E=0;
-  unsigned allErr_T=0;
-  unsigned allErr_Q=0;
+  //unsigned allErr_E=0;
+  //unsigned allErr_T=0;
+  //unsigned allErr_Q=0;
 
   for (unsigned g=0;g<3;++g) {
     for (unsigned p=0;p<N_PARTITIONS;++p) {
@@ -369,9 +368,9 @@ StatusCode LArRODMonAlg::fillHistograms(const EventContext& ctx) const {
       allEC.errors_T[g]+=errcounters[p].errors_T[g];
       allEC.errors_Q[g]+=errcounters[p].errors_Q[g];
     }
-    allErr_E+=allEC.errors_E[g];
-    allErr_T+=allEC.errors_T[g];
-    allErr_Q+=allEC.errors_Q[g];
+    //allErr_E+=allEC.errors_E[g];
+    //allErr_T+=allEC.errors_T[g];
+    //allErr_Q+=allEC.errors_Q[g];
   }
 
 

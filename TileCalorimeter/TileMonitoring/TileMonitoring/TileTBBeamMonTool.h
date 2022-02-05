@@ -108,6 +108,7 @@ class TileTBBeamMonTool: public TileFatherMonTool {
     float m_muBack[16]; // MUON/MuBack
 
     int m_btdc[16];
+    bool m_btdcFirstHit[16];
 
     //PMT counters
     int m_pmt1cou;
@@ -166,7 +167,7 @@ class TileTBBeamMonTool: public TileFatherMonTool {
     //Beam element container
     std::string m_beamElemContainer;
 
-    
+    int m_TBperiod;
 };
 
 #endif

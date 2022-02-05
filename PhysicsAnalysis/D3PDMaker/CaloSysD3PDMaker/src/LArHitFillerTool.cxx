@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -21,7 +21,6 @@
 #include "CaloIdentifier/LArFCAL_ID.h"
 #include "CaloIdentifier/TileID.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include <sstream>
 
@@ -44,11 +43,10 @@ LArHitFillerTool::LArHitFillerTool
         m_fcalid(0),
         m_hecid(0),
         m_tileid(0),
-        m_onlineid(0),
-        m_dd_man(0)
+        m_onlineid(0)
 {
   // declareProperty ("SelectedCells",    m_writeSelectedCells=true);
-  book().ignore();
+  LArHitFillerTool::book().ignore();
 }
 
 
@@ -58,14 +56,14 @@ LArHitFillerTool::LArHitFillerTool
 StatusCode LArHitFillerTool::initialize()
 {
   ServiceHandle<StoreGateSvc> detStore("DetectorStore", name());
-  CHECK( detStore.retrieve() ) ;
+  ATH_CHECK ( detStore.retrieve() );
     
-  CHECK ( detStore->retrieve(m_dd_man)   );
-  CHECK ( detStore->retrieve(m_emid)   );
-  CHECK ( detStore->retrieve(m_fcalid) );
-  CHECK ( detStore->retrieve(m_hecid)  );
-  CHECK ( detStore->retrieve(m_tileid) );
-  CHECK ( detStore->retrieve(m_onlineid));
+  ATH_CHECK ( m_caloMgrKey.initialize()     );
+  ATH_CHECK ( detStore->retrieve(m_emid)    );
+  ATH_CHECK ( detStore->retrieve(m_fcalid)  );
+  ATH_CHECK ( detStore->retrieve(m_hecid)   );
+  ATH_CHECK ( detStore->retrieve(m_tileid)  );
+  ATH_CHECK ( detStore->retrieve(m_onlineid));
    
   return StatusCode::SUCCESS;
 }
@@ -102,7 +100,9 @@ StatusCode LArHitFillerTool::fill (const LArHit& p)
 
   *m_e = p.energy();  
   *m_time = p.time();
-  const CaloDetDescrElement* dde = m_dd_man->get_element(id); 
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+  ATH_CHECK(caloMgrHandle.isValid());
+  const CaloDetDescrElement* dde = (*caloMgrHandle)->get_element(id);
   *m_eta = dde->eta();
   *m_phi = dde->phi(); 
   *m_id = CaloCell_GetDetectorInfo(id);

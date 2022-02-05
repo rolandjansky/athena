@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./DBHelper.h"
@@ -20,17 +20,10 @@
 using namespace std;
 using namespace TrigConf;
 
-unsigned int TrigConf::DBLoader::s_triggerDBSchemaVersion = 0;
-unsigned int TrigConf::DBLoader::s_run = 0;
-unsigned int TrigConf::DBLoader::s_ctpVersion = 0;
-unsigned int TrigConf::DBLoader::s_l1Version = 0;
-
-DBLoader::DBLoader( const std::string& name, StorageMgr& sm, coral::ISessionProxy& session ) : 
+DBLoader::DBLoader( const std::string& name, StorageMgr& sm, coral::ISessionProxy& session ) :
    TrigConfMessaging(name),
-   m_verbose(1),
    m_storageMgr( sm ),
-   m_session( session ) , 
-   m_sessionOwner(false)
+   m_session( session )
 {}
 
 
@@ -49,7 +42,7 @@ void TrigConf::DBLoader::startSession()
    }
 }
 
-void TrigConf::DBLoader::commitSession() const
+void TrigConf::DBLoader::commitSession()
 {
    if ( m_session.transaction().isActive() && m_sessionOwner) {
       m_session.transaction().commit();
@@ -59,9 +52,8 @@ void TrigConf::DBLoader::commitSession() const
 
 bool
 DBLoader::isRun2() {
-   if(s_run==0)
-      loadSchemaVersion();
-   return s_run == 2;
+   const static unsigned int run = std::get<1>(loadSchemaVersion());
+   return run == 2;
 }
 
 void
@@ -80,46 +72,56 @@ DBLoader::setLevel(MSGTC::Level lvl) {
    }
 }
 
+unsigned int
+DBLoader::triggerDBSchemaVersion() {
+   return std::get<0>(loadSchemaVersion());
+}
 
-void
+std::tuple<unsigned int,unsigned int>
 DBLoader::loadSchemaVersion() const
 {
-   bool mySession = false;
-   if ( ! m_session.transaction().isActive() ) {
-      m_session.transaction().start(true);
-      mySession = true;
-   }
+   const static auto versions = [&]() -> std::tuple<unsigned int,unsigned int> {
+      bool mySession = false;
+      if ( ! m_session.transaction().isActive() ) {
+         m_session.transaction().start(true);
+         mySession = true;
+      }
 
-   std::unique_ptr< coral::IQuery > q( m_session.nominalSchema().tableHandle( "TRIGGER_SCHEMA").newQuery() );
-   q->setRowCacheSize( 1 );
+      std::unique_ptr< coral::IQuery > q( m_session.nominalSchema().tableHandle( "TRIGGER_SCHEMA").newQuery() );
+      q->setRowCacheSize( 1 );
 
-   //Output data and types
-   coral::AttributeList attList;
-   attList.extend<int>( "TS_ID" );
-   q->defineOutput(attList);
-   q->addToOutputList( "TS_ID" );
+      //Output data and types
+      coral::AttributeList attList;
+      attList.extend<int>( "TS_ID" );
+      q->defineOutput(attList);
+      q->addToOutputList( "TS_ID" );
 
-   q->addToOrderList("TS_ID desc");
-   coral::ICursor& cursor = q->execute();
+      q->addToOrderList("TS_ID desc");
+      coral::ICursor& cursor = q->execute();
 
-   if ( ! cursor.next() ) {
-      TRG_MSG_ERROR("Table TRIGGER_SCHEMA is not filled");
+      if ( ! cursor.next() ) {
+         TRG_MSG_ERROR("Table TRIGGER_SCHEMA is not filled");
+         if ( mySession ) m_session.transaction().commit();
+         throw std::runtime_error( "DBLoader::loadSchemaVersion() >> Table TRIGGER_SCHEMA is not filled" );
+      }
+
+      const coral::AttributeList& row = cursor.currentRow();
+      const unsigned int triggerDBSchemaVersion = row["TS_ID"].data<int>();
+
+      TRG_MSG_INFO("TriggerDB schema version: " << triggerDBSchemaVersion);
+
+      const unsigned int run = m_session.nominalSchema().existsTable( "ACTIVE_MASTERS" ) ? 2 : 1;
+
+      TRG_MSG_INFO("Database has Run " << run << " schema");
+      TRG_MSG_INFO("Total number of tables : " <<  m_session.nominalSchema().listTables().size());
+
+      //commitSession();
       if ( mySession ) m_session.transaction().commit();
-      throw std::runtime_error( "DBLoader::loadSchemaVersion() >> Table TRIGGER_SCHEMA is not filled" );
-   }
 
-   const coral::AttributeList& row = cursor.currentRow();
-   s_triggerDBSchemaVersion = row["TS_ID"].data<int>();
+      return {triggerDBSchemaVersion, run};
+   }();
 
-   TRG_MSG_INFO("TriggerDB schema version: " << s_triggerDBSchemaVersion);
-
-   s_run = m_session.nominalSchema().existsTable( "ACTIVE_MASTERS" ) ? 2 : 1;
-
-   TRG_MSG_INFO("Database has Run " << s_run << " schema");
-   TRG_MSG_INFO("Total number of tables : " <<  m_session.nominalSchema().listTables().size());
-
-   //commitSession();
-   if ( mySession ) m_session.transaction().commit();
+   return versions;
 }
 
 bool
@@ -205,6 +207,3 @@ TrigConf::DBLoader::loadL1MenuKey(int SuperMasterKey, int& Lvl1MenuKey) {
    }
    return true; 
 }
-
-// static member definition
-TrigConf::DBLoader::ENV TrigConf::DBLoader::m_env = TrigConf::DBLoader::CTP;

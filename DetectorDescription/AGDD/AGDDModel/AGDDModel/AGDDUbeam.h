@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AGDDUbeam_H
@@ -12,28 +12,31 @@
 
 class AGDDUbeam: public AGDDVolume {
 public:
-	AGDDUbeam(std::string s):AGDDVolume(s),_width(0),_smallWidth(0),_height(0),
-								_smallHeight(0),_z(0) {}
-	void CreateVolume();
-	void CreateSolid();
+	AGDDUbeam(const std::string& s,
+                  AGDDVolumeStore& vs,
+                  AGDDSectionStore& ss)
+          : AGDDVolume(s,vs,ss),m_width(0),m_smallWidth(0),m_height(0),
+            m_smallHeight(0),m_z(0) {}
+        virtual void CreateVolume (AGDDBuilder& builder) override;
+	virtual void CreateSolid (const AGDDBuilder& builder) override;
 	
-	void SetWidth(double l) {_width=l;}
-	void SetSmallWidth(double l) {_smallWidth=l;}
-	void SetHeigth(double l) {_height=l;}
-	void SetSmallHeigth(double l) {_smallHeight=l;}
-	void SetLength(double l) {_z=l;}
+	void SetWidth(double l) {m_width=l;}
+	void SetSmallWidth(double l) {m_smallWidth=l;}
+	void SetHeigth(double l) {m_height=l;}
+	void SetSmallHeigth(double l) {m_smallHeight=l;}
+	void SetLength(double l) {m_z=l;}
 	
-	double GetWidth() {return _width;}
-	double GetSmallWidth() {return _smallWidth;}
-	double GetHeigth() {return _height;}
-	double GetSmallHeigth() {return _smallHeight;}
-	double GetLength() {return _z;}
+	double GetWidth() const {return m_width;}
+	double GetSmallWidth() const {return m_smallWidth;}
+	double GetHeigth() const {return m_height;}
+	double GetSmallHeigth() const {return m_smallHeight;}
+	double GetLength() const {return m_z;}
 	
-	double _width;
-	double _smallWidth;
-	double _height;
-	double _smallHeight;
-	double _z;
+	double m_width;
+	double m_smallWidth;
+	double m_height;
+	double m_smallHeight;
+	double m_z;
 };
 
 #endif

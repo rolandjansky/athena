@@ -8,13 +8,13 @@
 // MuonCalibStandAloneBase
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "MdtCalibUtils/RtDataFromFile.h"
-#include "MuonCalibStandAloneBase/CalibrationIOTool.h"
+#include "MuonCalibStandAloneBase/ICalibrationIOTool.h"
 
 namespace MuonCalib {
 
     class RtRelation;
 
-    class CalibrationFileIOTool : public AthAlgTool, virtual public CalibrationIOTool {
+    class CalibrationFileIOTool : public AthAlgTool, virtual public ICalibrationIOTool {
     public:
         /** constructor*/
         CalibrationFileIOTool(const std::string &t, const std::string &n, const IInterface *p);
@@ -38,8 +38,8 @@ namespace MuonCalib {
         //! create rt relation as lookup table if set tot true - job option
         bool m_rt_lookup;
         //! fill rt relation
-        bool fill_rt(std::unique_ptr<RtDataFromFile::RtRelation> &rt, std::shared_ptr<const IRtRelation> new_rt,
-                     std::shared_ptr<const MuonCalib::IRtResolution> resolut);
+        bool fill_rt(std::unique_ptr<RtDataFromFile::RtRelation> &rt, const std::shared_ptr<const IRtRelation>& new_rt,
+                     const std::shared_ptr<const MuonCalib::IRtResolution>& resolut);
         //! extract station identifier from file name
         bool interpret_chamber_name(const std::string &nm, const char *prefix, std::string &station, int &eta, int &phi, int &ml) const;
         //! create the rt relation and resolution

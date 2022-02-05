@@ -31,7 +31,7 @@ iGeant4::ISFG4GeoHelper::nextGeoId(const G4Step* aStep, int truthVolLevel, ISF::
 
       if ( !(*lvs)[i] ) { continue; }
       if ( (*lvs)[i]->GetName() == "BeamPipe::BeamPipe" ) { BPholder = (*lvs)[i]; }
-      else if ( (*lvs)[i]->GetName() == "IDET::IDET" ) { IDholder = (*lvs)[i]; }
+      else if ( (*lvs)[i]->GetName() == "IDET::IDET" || (*lvs)[i]->GetName() == "ITK::ITK" ) { IDholder = (*lvs)[i]; }
       else if ( (*lvs)[i]->GetName() == "CALO::CALO" ) { CALOholder = (*lvs)[i]; }
       else if ( (*lvs)[i]->GetName() == "MUONQ02::MUONQ02" ) { MUholder = (*lvs)[i]; }
       else if ( (*lvs)[i]->GetName() == "TTR_BARREL::TTR_BARREL" ) {TTRholder = (*lvs)[i]; }
@@ -116,6 +116,7 @@ bool iGeant4::ISFG4GeoHelper::checkVolumeDepth(G4LogicalVolume* lv, int volLevel
 
   if ( lv->GetName() == "BeamPipe::BeamPipe" ||
        lv->GetName() == "IDET::IDET" ||
+       lv->GetName() == "ITK::ITK" ||
        lv->GetName() == "CALO::CALO" ||
        lv->GetName() == "MUONQ02::MUONQ02" ||
        lv->GetName() == "TTR_BARREL::TTR_BARREL" ) {

@@ -96,6 +96,7 @@ namespace Muon {
                 ATH_MSG_VERBOSE("\tType [" << i << "], value \t= " << value << "], score \t=" << score);
             }
         }
+	if(score==0) score=0.000001; //since 0 is the bad track score; you'd have to get very unlucky to get a score of exactly 0 but it can happen
         ATH_MSG_DEBUG(" Track Score " << score);
 
         return score;

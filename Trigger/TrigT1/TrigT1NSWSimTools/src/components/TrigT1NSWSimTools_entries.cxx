@@ -7,6 +7,7 @@
 #include "TrigT1NSWSimTools/MMStripTdsOfflineTool.h"
 #include "TrigT1NSWSimTools/MMFPGAOfflineTool.h"
 #include "TrigT1NSWSimTools/MMTriggerTool.h"
+#include "TrigT1NSWSimTools/TriggerProcessorTool.h"
 
 using NSWL1::PadTdsOfflineTool;
 using NSWL1::PadTriggerLogicOfflineTool;
@@ -17,6 +18,7 @@ using NSWL1::StripSegmentTool;
 using NSWL1::MMStripTdsOfflineTool;
 using NSWL1::MMFPGAOfflineTool;
 using NSWL1::MMTriggerTool;
+using NSWL1::TriggerProcessorTool;
 
 DECLARE_COMPONENT( PadTdsOfflineTool )
 DECLARE_COMPONENT( PadTriggerLogicOfflineTool )
@@ -27,3 +29,4 @@ DECLARE_COMPONENT( StripSegmentTool )
 DECLARE_COMPONENT( MMStripTdsOfflineTool )
 DECLARE_COMPONENT( MMFPGAOfflineTool )
 DECLARE_COMPONENT( MMTriggerTool )
+DECLARE_COMPONENT( TriggerProcessorTool )

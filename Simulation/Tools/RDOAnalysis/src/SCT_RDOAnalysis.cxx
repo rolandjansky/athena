@@ -334,7 +334,7 @@ StatusCode SCT_RDOAnalysis::execute() {
 
   const HepMC::GenEvent* hardScatterEvent(nullptr);
   bool doTruthMatching = true;
-  if (mcEventCollection->size()==0){
+  if ((!mcEventCollection.isValid())||mcEventCollection->size()==0){
     ATH_MSG_WARNING("Failed to retrieve a nonzero sized truth event collection, disabling truthMatching");
     doTruthMatching = false;
   }

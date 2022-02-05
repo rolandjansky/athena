@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file MuonEventTPCnv/test/make_dd.icc
  * @author scott snyder <snyder@bnl.gov>
@@ -40,6 +38,8 @@
 #include "AGDDKernel/AGDDDetector.h"
 #include "AGDDKernel/AGDDDetectorStore.h"
 #include "AGDDKernel/AGDDDetectorPositioner.h"
+#include "AGDDControl/IAGDD2GeoSvc.h"
+#include "AGDDControl/AGDDController.h"
 #include "IdDict/IdDictDefs.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "IdDictParser/IdDictParser.h"
@@ -187,8 +187,6 @@ void Deleter::add (AGDDPositioner* b)
   m_pospointers.push_back (b);
 }
 Deleter deleter;
-sTGCDetectorDescription ddsdet ("sTG1-dummy");
-MMDetectorDescription ddmdet ("MM1-dummy");
 
 
 
@@ -303,6 +301,14 @@ const MuonGM::MuonDetectorManager& make_dd()
   pvol->add (pvol2);
   deleter.add (pvol2);
 
+  IAGDDtoGeoSvc* agddsvc = nullptr;
+  assert ( svcLoc->service("AGDDtoGeoSvc", agddsvc).isSuccess() );
+  IAGDDtoGeoSvc::LockedController c = agddsvc->getController();
+  AGDDDetectorStore& ds = c->GetDetectorStore();
+  AGDDVolumeStore& vs = c->GetVolumeStore();
+  AGDDPositionerStore& ps = c->GetPositionerStore();
+
+  sTGCDetectorDescription ddsdet ("sTG1-dummy", ds);
   ddsdet.Register();
   ddsdet.roParameters.nWires.push_back(0);
   ddsdet.roParameters.nPadPhi.push_back(0);
@@ -321,26 +327,27 @@ const MuonGM::MuonDetectorManager& make_dd()
   ddsdet.roParameters.wireCutout.push_back(0);
 
   GeoTrf::Transform3D xform = GeoTrf::Transform3D::Identity();
-  AGDDDetectorPositioner* spos2 = new AGDDDetectorPositioner ("psdum2", xform);
+  AGDDDetectorPositioner* spos2 = new AGDDDetectorPositioner (ps, vs, "psdum2", xform);
   deleter.add (spos2);
   spos2->theDetector = &ddsdet;
   spos2->ID.detectorType = "sTGC";
   spos2->ID.detectorAddress = "dum3.1.1....2A";
-  AGDDDetectorPositioner* spos3 = new AGDDDetectorPositioner ("psdum3", xform);
+  AGDDDetectorPositioner* spos3 = new AGDDDetectorPositioner (ps, vs, "psdum3", xform);
   deleter.add (spos3);
   spos3->theDetector = &ddsdet;
   spos3->ID.detectorType = "sTGC";
   spos3->ID.detectorAddress = "dum3.1.1....3A";
 
+  MMDetectorDescription ddmdet ("MM1-dummy", ds);
   ddmdet.Register();
   ddmdet.roParameters.stereoAngle.push_back(0);
 
-  AGDDDetectorPositioner* mpos2 = new AGDDDetectorPositioner ("pmdum2", xform);
+  AGDDDetectorPositioner* mpos2 = new AGDDDetectorPositioner (ps, vs, "pmdum2", xform);
   deleter.add (mpos2);
   mpos2->theDetector = &ddmdet;
   mpos2->ID.detectorType = "Micromegas";
   mpos2->ID.detectorAddress = "dum3.1.1....2A";
-  AGDDDetectorPositioner* mpos3 = new AGDDDetectorPositioner ("pmdum3", xform);
+  AGDDDetectorPositioner* mpos3 = new AGDDDetectorPositioner (ps, vs, "pmdum3", xform);
   deleter.add (mpos3);
   mpos3->theDetector = &ddmdet;
   mpos3->ID.detectorType = "Micromegas";
@@ -385,8 +392,8 @@ const MuonGM::MuonDetectorManager& make_dd()
   mdt_id->initialize_from_dictionary (idd);
   assert ( sg->record (std::move (mdt_id), "MdtIdHelper") );
 
-  new MuonGM::sTGC_Technology ("sTG1-dummy");
-  new MuonGM::sTGC_Technology ("sTGC_1");
+  new MuonGM::sTGC_Technology ("sTG1-dummy", ds);
+  new MuonGM::sTGC_Technology ("sTGC_1", ds);
   auto stgc_id = std::make_unique<sTgcIdHelper>();
   stgc_id->initialize_from_dictionary (idd);
   assert ( sg->record (std::move (stgc_id), "sTgcIdHelper") );

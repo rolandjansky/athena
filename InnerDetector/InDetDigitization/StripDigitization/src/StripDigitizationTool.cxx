@@ -37,6 +37,9 @@
 
 using InDetDD::SiCellId;
 
+namespace ITk
+{
+
 StripDigitizationTool::StripDigitizationTool(const std::string& type,
                                            const std::string& name,
                                            const IInterface* parent) :
@@ -104,14 +107,14 @@ namespace {
         m_chargedDiodes(chargedDiodes) {
     }
 
-    void operator () (const SiSurfaceCharge& scharge) const;
+    void operator () (const SiSurfaceCharge& scharge);
   private:
     const InDetDD::SiDetectorElement* m_sielement;
     SiChargedDiodeCollection* m_chargedDiodes;
   };
 
 
-  void SiDigitizationSurfaceChargeInserter::operator () (const SiSurfaceCharge& scharge) const {
+  void SiDigitizationSurfaceChargeInserter::operator () (const SiSurfaceCharge& scharge) {
     // get the diode in which this charge is
     SiCellId diode{m_sielement->cellIdOfPosition(scharge.position())};
 
@@ -128,13 +131,13 @@ namespace {
       : m_chargedDiodesVecForInsert(chargedDiodesVec),
         m_mum(mum) {}
 
-      void operator () (const SiSurfaceCharge &scharge) const;
+      void operator () (const SiSurfaceCharge &scharge);
   private:
     SiChargedDiodeCollectionMap & m_chargedDiodesVecForInsert;
     const InDetDD::SCT_ModuleSideDesign * m_mum;
   };
 
-  void MultiElementChargeInserter::operator () (const SiSurfaceCharge &scharge) const {
+  void MultiElementChargeInserter::operator () (const SiSurfaceCharge &scharge) {
     // get the diode in which this charge is
     SiCellId motherDiode = m_mum->cellIdOfPosition(scharge.position());
     
@@ -291,7 +294,7 @@ StatusCode StripDigitizationTool::mergeEvent(const EventContext& ctx) {
   return StatusCode::SUCCESS;
 }
 
-void StripDigitizationTool::digitizeAllHits(const EventContext& ctx, SG::WriteHandle<SCT_RDO_Container>* rdoContainer, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap, std::vector<bool>* processedElements, TimedHitCollection<SiHit>* thpcsi, CLHEP::HepRandomEngine * rndmEngine) const {
+void StripDigitizationTool::digitizeAllHits(const EventContext& ctx, SG::WriteHandle<SCT_RDO_Container>* rdoContainer, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap, std::vector<bool>* processedElements, TimedHitCollection<SiHit>* thpcsi, CLHEP::HepRandomEngine * rndmEngine) {
   /////////////////////////////////////////////////
   //
   // In order to process all element rather than just those with hits we
@@ -399,7 +402,7 @@ void StripDigitizationTool::digitizeNonHits(const EventContext& ctx, SG::WriteHa
   return;
 }
 
-bool StripDigitizationTool::digitizeElement(const EventContext& ctx, SiChargedDiodeCollectionMap& chargedDiodesMap, TimedHitCollection<SiHit>*& thpcsi, CLHEP::HepRandomEngine * rndmEngine) const {
+bool StripDigitizationTool::digitizeElement(const EventContext& ctx, SiChargedDiodeCollectionMap& chargedDiodesMap, TimedHitCollection<SiHit>*& thpcsi, CLHEP::HepRandomEngine * rndmEngine) {
   if (nullptr == thpcsi) {
     ATH_MSG_ERROR("thpcsi should not be nullptr!");
 
@@ -512,13 +515,15 @@ bool StripDigitizationTool::digitizeElement(const EventContext& ctx, SiChargedDi
 	if(chargedDiodesMap.size()>1) {
 	  ATH_MSG_WARNING("More DiodesCollections("<<chargedDiodesMap.size()<<") than expected (1). Please check your configuration!");
 	}
-	
-	m_sct_SurfaceChargesGenerator->process(sielement, phit, SiDigitizationSurfaceChargeInserter(sielement,chargedDiodesMap[0].get()), rndmEngine, ctx);
+
+        SiDigitizationSurfaceChargeInserter inserter(sielement,chargedDiodesMap[0].get());
+	m_sct_SurfaceChargesGenerator->process(sielement, phit, inserter, rndmEngine, ctx);
       }
       
       else{
 	//with row splitting
-	m_sct_SurfaceChargesGenerator->process(sielement, phit,MultiElementChargeInserter(chargedDiodesMap,motherDesign), rndmEngine, ctx);
+        MultiElementChargeInserter inserter(chargedDiodesMap,motherDesign);
+	m_sct_SurfaceChargesGenerator->process(sielement, phit,inserter, rndmEngine, ctx);
       }
 
       ATH_MSG_DEBUG("charges filled!");
@@ -939,3 +944,5 @@ void StripDigitizationTool::addSDO(SiChargedDiodeCollection* collection, SG::Wri
     }
   }
 }
+
+} // namespace ITk

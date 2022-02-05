@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "eflowRec/PFLCCalibTool.h"
@@ -36,6 +36,9 @@ StatusCode PFLCCalibTool::initialize() {
   /* Retrieve tool for DM corrections */
   ATH_CHECK(m_clusterLocalCalibDMTool.retrieve());
 
+  /* Retrieve calorimeter detector manager */
+  ATH_CHECK(m_caloMgrKey.initialize());
+
   return StatusCode::SUCCESS;
 
 }
@@ -45,7 +48,11 @@ void PFLCCalibTool::execute(const eflowCaloObjectContainer& theEflowCaloObjectCo
   if (m_useLocalWeight) {
     std::unique_ptr<eflowRecClusterContainer> theEFRecClusterContainer = m_clusterCollectionTool->retrieve(theEflowCaloObjectContainer, true);
     /* Calibrate each cluster */
-    for (auto thisEFlowRecCluster : *theEFRecClusterContainer) applyLocalWeight(thisEFlowRecCluster);
+    SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+    if (caloMgrHandle.isValid()){
+      for (auto thisEFlowRecCluster : *theEFRecClusterContainer) applyLocalWeight(thisEFlowRecCluster,**caloMgrHandle);
+    }
+    else ATH_MSG_WARNING("Invalid pointer to CaloDetDescrManage: Did NOT calibrate any topoclusters.");
   } else {
     /* Collect all the clusters in a temporary container (with VIEW_ELEMENTS!) */
     std::unique_ptr<xAOD::CaloClusterContainer> tempClusterContainer = m_clusterCollectionTool->execute(theEflowCaloObjectContainer, true);
@@ -74,12 +81,13 @@ void PFLCCalibTool::apply(ToolHandle<CaloClusterProcessor>& calibTool, xAOD::Cal
   if (calibTool->execute(cluster).isFailure()) ATH_MSG_WARNING("Could not execute " << calibTool.name());
 }
 
-void PFLCCalibTool::applyLocalWeight(eflowRecCluster* theEFRecClusters) {
+void PFLCCalibTool::applyLocalWeight(eflowRecCluster* theEFRecClusters, const CaloDetDescrManager& calo_dd_man) {
   xAOD::CaloCluster* theCluster = theEFRecClusters->getCluster();
 
   /* Iterate over cells of old cluster and replicate them with energy weighted by -1 if negative and add it to the new cluster */
   const std::map<IdentifierHash, double> weightMap = theEFRecClusters->getCellsWeight();
-  const CaloCell_ID* calo_id = CaloDetDescrManager::instance()->getCaloCell_ID();
+
+  const CaloCell_ID* calo_id = calo_dd_man.getCaloCell_ID();
   xAOD::CaloCluster::cell_iterator cellIter = theCluster->cell_begin();
 
   for (int cellIndex = 0; cellIter != theCluster->cell_end(); cellIter++) {
@@ -93,5 +101,4 @@ void PFLCCalibTool::applyLocalWeight(eflowRecCluster* theEFRecClusters) {
   CaloClusterKineHelper::calculateKine(theCluster, true, false);
 
   theCluster->recoStatus().setStatus(CaloRecoStatus::CALIBRATEDLHC);
-
 }

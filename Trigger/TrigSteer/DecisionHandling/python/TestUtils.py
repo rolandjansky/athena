@@ -25,7 +25,7 @@ class L1EmulationTest(HLTSeeding):
     def __init__(self, name='L1EmulationTest', *args, **kwargs):
         super(L1EmulationTest, self).__init__(name, *args, **kwargs)
 
-        from TriggerJobOpts.TriggerFlags import TriggerFlags
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
         from HLTSeeding.HLTSeedingConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool
 
         self.RoIBResult = ""
@@ -50,7 +50,7 @@ class L1EmulationTest(HLTSeeding):
         from HLTSeeding.HLTSeedingConfig import mapThresholdToL1RoICollection
 
         # EM unpacker
-        if TriggerFlags.doID() or TriggerFlags.doCalo():
+        if ConfigFlags.Trigger.doID or ConfigFlags.Trigger.doCalo:
             emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool",
                                                     Decisions = "EMRoIDecisions",
                                                     OutputTrigRoIs = mapThresholdToL1RoICollection("EM"),
@@ -60,7 +60,7 @@ class L1EmulationTest(HLTSeeding):
 
 
         # MU unpacker
-        if TriggerFlags.doMuon():
+        if ConfigFlags.Trigger.doMuon:
             muUnpacker = RoIsUnpackingEmulationTool("MURoIsUnpackingTool",
                                                     Decisions = "MURoIDecisions",
                                                     OutputTrigRoIs = mapThresholdToL1RoICollection("MU"),
@@ -88,13 +88,13 @@ def makeChain( name, L1Thresholds, ChainSteps, Streams="physics:Main", Groups=["
     In addition to making the chain object fills the flags that are used to generate MnuCOnfig JSON file
     """
 
-    from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
+    from TriggerMenuMT.HLT.Menu.ChainDefInMenu import ChainProp
     prop = ChainProp( name=name,  l1SeedThresholds=L1Thresholds, groups=Groups )
 
-    from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
+    from TriggerMenuMT.HLT.Menu.TriggerConfigHLT import TriggerConfigHLT
+    from TriggerMenuMT.HLT.Menu.MenuComponents import ChainStep
 
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
+    from TriggerMenuMT.HLT.Menu.DictFromChainName import dictFromChainName
     chainDict = dictFromChainName( prop )
     global chainsCounter
     chainDict["chainCounter"] = chainsCounter
@@ -103,7 +103,7 @@ def makeChain( name, L1Thresholds, ChainSteps, Streams="physics:Main", Groups=["
     #set default chain prescale
     chainDict['prescale'] = 1
 
-    from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDictInLegs
+    from TriggerMenuMT.HLT.Menu.ChainDictTools import splitChainDictInLegs
 
     listOfChainDicts = splitChainDictInLegs(chainDict)
 
@@ -118,7 +118,7 @@ def makeChain( name, L1Thresholds, ChainSteps, Streams="physics:Main", Groups=["
                                 comboHypoCfg=step.comboHypoCfg, 
                                 comboToolConfs=step.comboToolConfs)]
 
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain
+    from TriggerMenuMT.HLT.Menu.MenuComponents import Chain
     chainConfig = Chain( name=name, L1Thresholds=L1Thresholds, ChainSteps=StepConfig )
 
     TriggerConfigHLT.registerChain( chainDict, chainConfig )

@@ -69,35 +69,35 @@ namespace {
 
 MdtRawDataValAlg::MdtRawDataValAlg( const std::string & type, const std::string & name, const IInterface* parent )
 :ManagedMonitorToolBase( type, name, parent ),
- m_mg(0),
+ m_mg(nullptr),
  m_masked_tubes(nullptr),
  m_muonSelectionTool(this, "MuonSelectionTool", "CP::MuonSelectionTool/MuonSelectionTool"),
  m_DQFilterTools(this),
  m_atlas_ready(0),
  m_trig_BARREL(false),
  m_trig_ENDCAP(false),
- m_overalltdcadcLumi(0),
- m_overalltdccutLumi(0),
- m_overalltdccut_segm_Lumi(0),
- m_overalladc_segm_Lumi(0),
- m_overalladc_Lumi(0),
- m_overalltdcadcHighOcc(0),
- m_overalltdcHighOcc(0),
- m_overalltdcHighOcc_ADCCut(0),
- m_overalladc_HighOcc(0),
- m_overall_mdt_DRvsDT(0),
- m_overall_mdt_DRvsSegD(0),
- m_MdtNHitsvsRpcNHits(0),
- m_mdteventscutLumi(0),
- m_mdteventscutLumi_big(0),
- m_mdteventsLumi(0),
- m_mdteventsLumi_big(0),
- m_mdtglobalhitstime(0),
- m_nummdtchamberswithhits(0),
- m_nummdtchamberswithhits_ADCCut(0),
- m_nummdtchamberswithHighOcc(0),
- m_mdtchamberstat(0),
- m_hist_hash_list(0),
+ m_overalltdcadcLumi(nullptr),
+ m_overalltdccutLumi(nullptr),
+ m_overalltdccut_segm_Lumi(nullptr),
+ m_overalladc_segm_Lumi(nullptr),
+ m_overalladc_Lumi(nullptr),
+ m_overalltdcadcHighOcc(nullptr),
+ m_overalltdcHighOcc(nullptr),
+ m_overalltdcHighOcc_ADCCut(nullptr),
+ m_overalladc_HighOcc(nullptr),
+ m_overall_mdt_DRvsDT(nullptr),
+ m_overall_mdt_DRvsSegD(nullptr),
+ m_MdtNHitsvsRpcNHits(nullptr),
+ m_mdteventscutLumi(nullptr),
+ m_mdteventscutLumi_big(nullptr),
+ m_mdteventsLumi(nullptr),
+ m_mdteventsLumi_big(nullptr),
+ m_mdtglobalhitstime(nullptr),
+ m_nummdtchamberswithhits(nullptr),
+ m_nummdtchamberswithhits_ADCCut(nullptr),
+ m_nummdtchamberswithHighOcc(nullptr),
+ m_mdtchamberstat(nullptr),
+ m_hist_hash_list(nullptr),
  m_BMGpresent(false),
  m_BMGid(-1)
 {
@@ -169,7 +169,7 @@ StatusCode MdtRawDataValAlg::initialize()
 /*---------------------------------------------------------*/
 {
   //initialize to stop coverity bugs
-   m_MdtNHitsvsRpcNHits = 0;
+   m_MdtNHitsvsRpcNHits = nullptr;
    m_lumiblock = 0;
    m_eventNum = 0;
    m_time = 0;
@@ -178,32 +178,32 @@ StatusCode MdtRawDataValAlg::initialize()
    m_trigtype = 0;
    m_numberOfEvents = 0;
   for(unsigned int i=0;i<4;i++){
-     m_overalltdcadcPRLumi[i]=0;
-     m_overalltdccut_segm_PR_Lumi[i]=0;
-     m_overalladc_segm_PR_Lumi[i]=0;
-     m_overalladcPRLumi[i]=0; 
-     m_overalladccutPRLumi[i]=0;  
-     m_overalltdccutPRLumi_RPCtrig[i]=0;
-     m_overalltdccutPRLumi_TGCtrig[i]=0;
-     m_overallPR_mdt_DRvsDT[i]=0;
-     m_overallPR_mdt_DRvsSegD[i]=0;
-     m_mdteffperchamber_InnerMiddleOuter[i]=0;
-     m_overalladcPR_HighOcc[i]=0; 
-     m_overalltdcPR_HighOcc[i]=0; 
-     m_overalltdcadcPR_HighOcc[i]=0; 
-     m_overalltdcPR_HighOcc_ADCCut[i]=0; 
+     m_overalltdcadcPRLumi[i]=nullptr;
+     m_overalltdccut_segm_PR_Lumi[i]=nullptr;
+     m_overalladc_segm_PR_Lumi[i]=nullptr;
+     m_overalladcPRLumi[i]=nullptr; 
+     m_overalladccutPRLumi[i]=nullptr;  
+     m_overalltdccutPRLumi_RPCtrig[i]=nullptr;
+     m_overalltdccutPRLumi_TGCtrig[i]=nullptr;
+     m_overallPR_mdt_DRvsDT[i]=nullptr;
+     m_overallPR_mdt_DRvsSegD[i]=nullptr;
+     m_mdteffperchamber_InnerMiddleOuter[i]=nullptr;
+     m_overalladcPR_HighOcc[i]=nullptr; 
+     m_overalltdcPR_HighOcc[i]=nullptr; 
+     m_overalltdcadcPR_HighOcc[i]=nullptr; 
+     m_overalltdcPR_HighOcc_ADCCut[i]=nullptr; 
      
      if(i==3) continue;
-     m_mdtxydet[i]=0;
-     m_mdtrzdet[i]=0;
-     m_mdthitsperML_byLayer[i]=0;
+     m_mdtxydet[i]=nullptr;
+     m_mdtrzdet[i]=nullptr;
+     m_mdthitsperML_byLayer[i]=nullptr;
      if(i==2) continue;
-     m_mdthitsperchamber_InnerMiddleOuterLumi[i]=0;
-     m_mdthitsperchamber_InnerMiddleOuter_HighOcc[i]=0;
-     m_mdthitsperchamber_onSegm_InnerMiddleOuterLumi[i]=0;
+     m_mdthitsperchamber_InnerMiddleOuterLumi[i]=nullptr;
+     m_mdthitsperchamber_InnerMiddleOuter_HighOcc[i]=nullptr;
+     m_mdthitsperchamber_onSegm_InnerMiddleOuterLumi[i]=nullptr;
   }
      for(unsigned int i=0;i<16;i++){
-     m_mdtchamberstatphislice[i]=0;
+     m_mdtchamberstatphislice[i]=nullptr;
      }
 
   // init message stream
@@ -453,7 +453,7 @@ StatusCode MdtRawDataValAlg::fillHistograms()
 	    Identifier rotId = rot_from_track->identify();
 	    if(!m_idHelperSvc->isMdt(rotId)) continue;
 	    IdentifierHash mdt_idHash;
-	    MDTChamber* mdt_chamber = 0;
+	    MDTChamber* mdt_chamber = nullptr;
 	    m_idHelperSvc->mdtIdHelper().get_module_hash( rotId, mdt_idHash );
 	    sc = getChamber(mdt_idHash, mdt_chamber);
 	    std::string mdt_chambername = mdt_chamber->getName();
@@ -475,7 +475,7 @@ StatusCode MdtRawDataValAlg::fillHistograms()
           nPrd++;
           hardware_name = getChamberName(*mdtCollection);
           float adc = (*mdtCollection)->adc();
-          if(hardware_name.substr(0,3) == "BMG") adc /= 4.;
+          if(hardware_name.compare(0,3,"BMG") == 0) adc /= 4.;
           if( adc > m_ADCCut ) 
           {
             nPrdcut++;
@@ -784,7 +784,7 @@ StatusCode MdtRawDataValAlg::bookMDTHistograms( MDTChamber* chamber, Identifier 
   std::string subdir_path = hardware_name.substr(0,1) + hardware_name.substr(4,1);
   if ( subdir_path.at(1) == 'B' ) subdir_path.at(1) = 'A'; //Place BOG0B12,14 in MDTBA
 
-  MonGroup* mongroup_chambers_expert = 0;
+  MonGroup* mongroup_chambers_expert = nullptr;
   if( subdir_path=="BA" ) mongroup_chambers_expert = &(m_mg->mongroup_chambers_expert_MDTBA);
   else if( subdir_path=="BC" ) mongroup_chambers_expert = &(m_mg->mongroup_chambers_expert_MDTBC);
   else if( subdir_path=="EA" ) mongroup_chambers_expert = &(m_mg->mongroup_chambers_expert_MDTEA);
@@ -1296,7 +1296,7 @@ StatusCode MdtRawDataValAlg::bookMDTSummaryHistograms(/* bool isNewEventsBlock, 
         //////////////////////////// MDThitsOccup_inPhiSlice     
         if(ilayer==0 && iecap==0){
           //Initialize to zero
-          m_mdtchamberstatphislice[iPhi] = 0;
+          m_mdtchamberstatphislice[iPhi] = nullptr;
           if(m_do_mdtchamberstatphislice) {
             sc = bookMDTHisto_overview(m_mdtchamberstatphislice[iPhi], "MDTHitsOccup_ADCCut_Sector"+Phi, "", "Counts/Chamber", 1, 0., 1., m_mg->mongroup_sectors_expert);
           }
@@ -1309,7 +1309,7 @@ StatusCode MdtRawDataValAlg::bookMDTSummaryHistograms(/* bool isNewEventsBlock, 
           int nbins =(iecap<2&&ilayer==0)?10:6;
 
           //Initialize to zero
-          m_mdtChamberHits[iecap][ilayer][iPhi] = 0;
+          m_mdtChamberHits[iecap][ilayer][iPhi] = nullptr;
           if(m_do_mdtChamberHits){
             if(iecap==0) sc=bookMDTHisto_overview(m_mdtChamberHits[iecap][ilayer][iPhi], title_MDTHitSummary.c_str(),
                 "StationEta", "Counts/Chamber", nbins, 1, max, m_mg->mongroup_brA_hits_expert);
@@ -1334,7 +1334,7 @@ StatusCode MdtRawDataValAlg::bookMDTSummaryHistograms(/* bool isNewEventsBlock, 
           std::string title_MDTTDCSummary="MDTTDC_ADCCut_"+ecap[iecap]+"_"+layer[ilayer]+"_StPhi"+Phi;
 
           //Initialize to zero
-          m_mdttdccut_sector[iecap][ilayer][iPhi] = 0;
+          m_mdttdccut_sector[iecap][ilayer][iPhi] = nullptr;
           if(m_do_mdttdccut_sector){
             if(iecap==0) sc=bookMDTHisto_overview(m_mdttdccut_sector[iecap][ilayer][iPhi], title_MDTTDCSummary.c_str(),
                                                   "[nsec]", "number of entries", 100, 0, 2000., m_mg->mongroup_brA_tdc_expert);
@@ -1519,9 +1519,9 @@ StatusCode MdtRawDataValAlg::fillMDTHistograms( const Muon::MdtPrepData* mdtColl
 
   float tdc = mdtCollection->tdc()*25.0/32.0;
   // Note: the BMG is digitized with 200ps which is not same as other MDT chambers with 25/32=781.25ps
-  if(hardware_name.substr(0,3)=="BMG") tdc = mdtCollection->tdc() * 0.2;
+  if(hardware_name.compare(0,3,"BMG")==0) tdc = mdtCollection->tdc() * 0.2;
   float adc = mdtCollection->adc();
-  if(hardware_name.substr(0,3) == "BMG") adc /= 4.;
+  if(hardware_name.compare(0,3,"BMG") == 0) adc /= 4.;
 
   if (chamber->mdttdc) {
     chamber->mdttdc->Fill(tdc); 
@@ -1570,15 +1570,15 @@ StatusCode MdtRawDataValAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* 
   int stationPhi = chamber->GetStationPhi();
   std::string chambername = chamber->getName();
   bool is_on_track = false;
-  for(auto ch : chambers_from_tracks) {
+  for(const auto& ch : chambers_from_tracks) {
     if(chambername==ch) is_on_track=true;
   }
   bool isBIM = (chambername.at(2)=='M');
   float tdc = mdtCollection->tdc()*25.0/32.0;
   // Note: the BMG is digitized with 200ps which is not same as other MDT chambers with 25/32=781.25ps
-  if(chambername.substr(0,3)=="BMG") tdc = mdtCollection->tdc() * 0.2;
+  if(chambername.compare(0,3,"BMG")==0) tdc = mdtCollection->tdc() * 0.2;
   float adc = mdtCollection->adc();
-  if(chambername.substr(0,3) == "BMG") adc /= 4.;
+  if(chambername.compare(0,3,"BMG") == 0) adc /= 4.;
 
   if( m_mdtChamberHits[iregion][ilayer][stationPhi] && adc > m_ADCCut )
     m_mdtChamberHits[iregion][ilayer][stationPhi]->Fill(std::abs(stationEta));
@@ -1630,7 +1630,7 @@ StatusCode MdtRawDataValAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* 
     
     //correct readout crate info for BEE,BIS7/8
     int crate_region = iregion;
-    if(chambername.substr(0,3)=="BEE" || (chambername.substr(0,3) == "BIS" && (stationEta == 7 || stationEta == 8) )){
+    if(chambername.compare(0,3,"BEE")==0 || (chambername.compare(0,3,"BIS") == 0 && (stationEta == 7 || stationEta == 8) )){
       if(iregion==0) crate_region=2;
       if(iregion==1) crate_region=3;
     }
@@ -1671,9 +1671,9 @@ StatusCode MdtRawDataValAlg::fillMDTOverviewHistograms( const Muon::MdtPrepData*
 
   float tdc = mdtCollection->tdc()*25.0/32.0;
   // Note: the BMG is digitized with 200ps which is not same as other MDT chambers with 25/32=781.25ps
-  if(hardware_name.substr(0,3)=="BMG") tdc = mdtCollection->tdc() * 0.2;
+  if(hardware_name.compare(0,3,"BMG")==0) tdc = mdtCollection->tdc() * 0.2;
   float adc = mdtCollection->adc();
-  if(hardware_name.substr(0,3) == "BMG") adc /= 4.;
+  if(hardware_name.compare(0,3,"BMG") ==0 ) adc /= 4.;
 
   //Barrel -->Fill MDT Global RZ and YX
   if( adc>m_ADCCut ) {
@@ -1739,7 +1739,7 @@ StatusCode MdtRawDataValAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
   // LOOP OVER SEGMENTS  
   for (Trk::SegmentCollection::const_iterator s = segms->begin(); s != segms->end(); ++s) {
     const Muon::MuonSegment* segment = dynamic_cast<const Muon::MuonSegment*>(*s);
-    if (segment == 0) {
+    if (segment == nullptr) {
       ATH_MSG_DEBUG("no pointer to segment!!!");
       break;
     }    
@@ -1762,19 +1762,19 @@ StatusCode MdtRawDataValAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
     	  
         Identifier tmpid = rot->identify();
         IdentifierHash idHash;
-        MDTChamber* chamber = 0;
+        MDTChamber* chamber = nullptr;
         m_idHelperSvc->mdtIdHelper().get_module_hash( tmpid, idHash );  
         sc = getChamber(idHash, chamber);
         std::string chambername = chamber->getName();
         float adc = mrot->prepRawData()->adc();
-        if(chambername.substr(0,3)=="BMG") adc /= 4. ;
+        if(chambername.compare(0,3,"BMG")==0) adc /= 4. ;
         if(m_overalladc_segm_Lumi) m_overalladc_segm_Lumi->Fill(adc);
         if( store_ROTs.find(tmpid) == store_ROTs.end() ) { // Let's not double-count hits belonging to multiple segments
           store_ROTs.insert(tmpid);   
 
           double tdc = mrot->prepRawData()->tdc()*25.0/32.0;
           // Note: the BMG is digitized with 200ps which is not same as other MDT chambers with 25/32=781.25ps
-          if(chambername.substr(0,3)=="BMG") tdc = mrot->prepRawData()->tdc() * 0.2;
+          if(chambername.compare(0,3,"BMG")==0) tdc = mrot->prepRawData()->tdc() * 0.2;
               //      double tdc = mrot->driftTime()+500;
               int iregion = chamber->GetRegionEnum();
               int ilayer = chamber->GetLayerEnum();

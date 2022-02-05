@@ -9,20 +9,18 @@
 
 namespace MuonCalib {
 
-  /** generic interface for b-field correction functions */
+    /** generic interface for b-field correction functions */
 
-class IMdtBFieldCorFunc : public CalibFunc {
- public:
-  explicit IMdtBFieldCorFunc( const CalibFunc::ParVec& vec ) : CalibFunc(vec) {};
-  virtual ~IMdtBFieldCorFunc() {}
-  virtual std::string typeName() const {
-    return "IMdtBFieldCorFunc"; 
-  }
-  /** Return time correction (ns). Input: t = drift-time (ns), Bpar = magnetic field parallel to wire (Tesla),
-      Bperp = magnetic field perpendicular to wire and parallel to track. */
-  virtual double correction(double t, double Bpar, double Bperp) const = 0;
-};
+    class IMdtBFieldCorFunc : public CalibFunc {
+    public:
+        explicit IMdtBFieldCorFunc(const CalibFunc::ParVec& vec) : CalibFunc(vec){};
+        virtual ~IMdtBFieldCorFunc() = default;
+        virtual std::string typeName() const { return "IMdtBFieldCorFunc"; }
+        /** Return time correction (ns). Input: t = drift-time (ns), Bpar = magnetic field parallel to wire (Tesla),
+            Bperp = magnetic field perpendicular to wire and parallel to track. */
+        virtual double correction(double t, double Bpar, double Bperp) const = 0;
+    };
 
-}  //namespace MuonCalib
+}  // namespace MuonCalib
 
 #endif

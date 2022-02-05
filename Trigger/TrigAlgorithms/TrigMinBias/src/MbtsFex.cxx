@@ -21,20 +21,20 @@ StatusCode MbtsFex::initialize()
   ATH_CHECK( m_dataAccessSvc.retrieve() );
   ATH_CHECK(m_MbtsBitsKey.initialize());
   if (! m_monTool.empty() ) ATH_CHECK( m_monTool.retrieve() );
-
+  ATH_MSG_DEBUG("Init done");
   return StatusCode::SUCCESS;
 }
 
 StatusCode MbtsFex::execute(const EventContext& context) const
 {
 
-  TileCellCollection mbtsContainer (SG::VIEW_ELEMENTS); // testing
+  TileCellCollection mbtsContainer (SG::VIEW_ELEMENTS);
   ATH_CHECK(m_dataAccessSvc->loadMBTS( context, mbtsContainer));
   ATH_MSG_DEBUG ("Successfully retrieved mbtsContainer collection of size " << mbtsContainer.size());
 
   SG::ReadHandle<TileTBID> TileHelper(m_TileHelperKey, context );
-  std::vector<float> triggerEnergies(xAOD::TrigT2MbtsBits::NUM_MBTS,0.);
-  std::vector<float> triggerTimes(xAOD::TrigT2MbtsBits::NUM_MBTS,0.);
+  std::vector<float> triggerEnergies(xAOD::TrigT2MbtsBits::NUM_MBTS, 0.);
+  std::vector<float> triggerTimes(xAOD::TrigT2MbtsBits::NUM_MBTS, 0.);
 
   for(auto mbtsTile: mbtsContainer ){
     Identifier id=mbtsTile->ID();
@@ -83,11 +83,24 @@ StatusCode MbtsFex::execute(const EventContext& context) const
     ATH_MSG_DEBUG("Counter id = " << bit_pos << ", time = " << triggerTimes[bit_pos] << " ns");
 
   }
-  auto mon_triggerEnergies = Monitored::Collection("triggerEnergy",triggerEnergies);
-  auto mon_triggerEta = Monitored::Collection("eta",mbtsContainer,[](auto &cellptr){return cellptr->eta();});
-  auto mon_triggerPhi = Monitored::Collection("phi",mbtsContainer,[](auto &cellptr){return cellptr->phi();});
-  auto mon_triggerTimes = Monitored::Collection("triggerTime ",triggerTimes);
-  Monitored::Group(m_monTool,mon_triggerEnergies,mon_triggerEta,mon_triggerPhi,mon_triggerTimes);
+  // channel IDs are deined in this tedious way in order to allow for a quick remappings or channels removal if needed
+  // e.g. entering -1 in any position will move that channel entries out of scope of the monitoring histograms
+  static const std::vector<int> channelID({0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15, 
+                                           16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31});
+  auto mon_triggerEnergies = Monitored::Collection("triggerEnergies",triggerEnergies);
+  auto mon_channelID       = Monitored::Collection("channelID", channelID);
+  auto mon_triggerTimes = Monitored::Collection("triggerTimes",triggerTimes);
+  double weightedTime = 0; 
+  double weights = 0;
+
+  for ( size_t i = 0; i < xAOD::TrigT2MbtsBits::NUM_MBTS; ++i) {
+    weightedTime += triggerTimes[i] * triggerEnergies[i];
+    weights += triggerEnergies[i];
+  }  
+  const double timeDelta = (weights == 0 ? -999.0 : weightedTime/weights);
+  auto mon_weightedTimeDelta = Monitored::Scalar("timeDelta",  timeDelta);
+
+  Monitored::Group(m_monTool, mon_triggerEnergies, mon_channelID, mon_triggerTimes, mon_weightedTimeDelta);
 
   SG::WriteHandle<xAOD::TrigT2MbtsBitsContainer> mbtsHandle (m_MbtsBitsKey, context);
 

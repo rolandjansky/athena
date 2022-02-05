@@ -105,22 +105,9 @@ if hasattr(runArgs, 'conditionsTag') and runArgs.conditionsTag!='NONE' and runAr
    if len(globalflags.ConditionsTag())!=0:
       conddb.setGlobalTag(globalflags.ConditionsTag())
 
-# LVL1 Trigger Menu
-if hasattr(runArgs, "triggerConfig") and runArgs.triggerConfig!="NONE":
-    # LVL1 Trigger Menu
-    # PJB 9/2/2009 Setup the new triggerConfig flags here
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-    triggerArg = runArgs.triggerConfig
-    #if not prefixed with LVL1: add it here
-    Args = triggerArg.split(":")
-    if Args[0] != "LVL1":
-        TriggerFlags.triggerConfig ="LVL1:"+triggerArg
-    else:
-        TriggerFlags.triggerConfig =triggerArg
-    overlaylog.info( 'triggerConfig argument is: %s ', TriggerFlags.triggerConfig.get_Value() )
-    from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
-    cfg = TriggerConfigGetter("HIT2RDO")
-
+# convert flags to ConfigFlags
+from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
+ConfigFlags = getNewConfigFlags()
 
 printfunc ("================ DetFlags ================ ")
 if 'DetFlags' in dir():

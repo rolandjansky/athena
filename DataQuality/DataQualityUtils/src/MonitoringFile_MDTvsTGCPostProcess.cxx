@@ -35,14 +35,14 @@
 namespace dqutils {
   
   void
-  MonitoringFile::MDTvsTGCPostProcess( std::string inFilename, bool /* isIncremental */ )
+  MonitoringFile::MDTvsTGCPostProcess( const std::string & inFilename, bool /* isIncremental */ )
  { 
     //start postprocessing
     MDTvsTGCEfficiency(inFilename);
   }
   
   void
-  MonitoringFile::MDTvsTGCEfficiency( std::string inFilename )
+  MonitoringFile::MDTvsTGCEfficiency( const std::string & inFilename )
   {
     PostProcessorFileWrapper mf(inFilename, "MDTvsTGC Efficiency");
     

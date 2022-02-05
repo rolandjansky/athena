@@ -13,6 +13,17 @@
 
 #include "TrkTrackSummary/MuonTrackSummary.h"
 
+namespace {
+    // Temporary collection for extrapolated tracks and links with correspondent MS tracks
+    struct track_link {
+        std::unique_ptr<Trk::Track> track;
+        unsigned int container_index;
+        bool extp_succeed;
+        track_link(std::unique_ptr<Trk::Track> _trk, unsigned int _idx, bool _succeed) :
+            track{std::move(_trk)}, container_index{_idx}, extp_succeed{_succeed} {}
+    };
+}
+
 namespace MuonCombined {
 
     MuonCandidateTool::MuonCandidateTool(const std::string& type, const std::string& name, const IInterface* parent) :
@@ -34,9 +45,14 @@ namespace MuonCombined {
         ATH_CHECK(m_trackSummaryTool.retrieve());
         ATH_CHECK(m_idHelperSvc.retrieve());
         ATH_CHECK(m_beamSpotKey.initialize());
+
+        ATH_CHECK(m_segmentKey.initialize(!m_segmentKey.empty()));
+        if (!m_segmentKey.empty()) {
+            ATH_CHECK(m_trackSegmentAssociationTool.retrieve());
+        }
         return StatusCode::SUCCESS;
     }
-     void MuonCandidateTool::create(const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection,
+    void MuonCandidateTool::create(const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection,
                                    TrackCollection& outputTracks, const EventContext& ctx) const {
         ATH_MSG_DEBUG("Producing MuonCandidates for " << tracks.size());
         unsigned int ntracks = 0;
@@ -51,16 +67,8 @@ namespace MuonCombined {
         float beamSpotZ = beamSpotHandle->beamPos()[Amg::z];
 
         ATH_MSG_DEBUG("Beamspot position bs_x=" << beamSpotX << ", bs_y=" << beamSpotY << ", bs_z=" << beamSpotZ);
-
-        // Temporary collection for extrapolated tracks and links with correspondent MS tracks
-        struct track_link {
-            std::unique_ptr<Trk::Track> track;
-            unsigned int container_index;
-            bool extp_succeed;
-            track_link(std::unique_ptr<Trk::Track> _trk, unsigned int _idx, bool _succeed) :
-                track{std::move(_trk)}, container_index{_idx}, extp_succeed{_succeed} {}
-        };
-
+        
+        
         std::vector<track_link> trackLinks;
 
         unsigned int index = -1;
@@ -125,7 +133,8 @@ namespace MuonCombined {
                 } else
                     msMuonTrackSummary = msTrack.trackSummary()->muonTrackSummary();
                 for (const auto& chs : msMuonTrackSummary->chamberHitSummary()) {
-		    if ((chs.isMdt() && m_idHelperSvc->stationIndex(chs.chamberId()) != Muon::MuonStationIndex::EM) || m_idHelperSvc->isCsc(chs.chamberId())) {
+                    if ((chs.isMdt() && m_idHelperSvc->stationIndex(chs.chamberId()) != Muon::MuonStationIndex::EM) ||
+                        m_idHelperSvc->isCsc(chs.chamberId())) {
                         skipTrack = false;
                         break;
                     }
@@ -145,6 +154,14 @@ namespace MuonCombined {
         ATH_MSG_DEBUG("Finished ambiguity solving: " << extrapTracks->size() << " track(s) in -> " << resolvedTracks->size()
                                                      << " track(s) out");
 
+        const xAOD::MuonSegmentContainer* segments{nullptr};
+        if (!m_segmentKey.empty()) {
+            SG::ReadHandle<xAOD::MuonSegmentContainer> readHandle{m_segmentKey,ctx};
+            if (!readHandle.isValid()) {
+                ATH_MSG_WARNING("Failed to retrieve the segment container "<<m_segmentKey.fullKey());
+            } else segments = readHandle.cptr();
+        }
+
         // Loop over resolved tracks and build MuonCondidate collection
         for (const Trk::Track* track : *resolvedTracks) {
             std::vector<track_link>::iterator tLink =
@@ -155,17 +172,27 @@ namespace MuonCombined {
                 continue;
             }
 
+            std::unique_ptr<MuonCandidate> muon_candidate;
+            ElementLink<xAOD::TrackParticleContainer> MS_TrkLink{tracks, tLink->container_index, ctx};
             if (tLink->extp_succeed) {
-                outputTracks.push_back(tLink->track.release());
-                ElementLink<TrackCollection> saLink(outputTracks, outputTracks.size() - 1);
-                outputCollection.push_back(
-                    new MuonCandidate(ElementLink<xAOD::TrackParticleContainer>(tracks, tLink->container_index), saLink));
+                outputTracks.push_back(std::move(tLink->track));
+                ElementLink<TrackCollection> saLink(outputTracks, outputTracks.size() - 1, ctx);
+                muon_candidate =
+                    std::make_unique<MuonCandidate>(MS_TrkLink, saLink, outputTracks.size() - 1);
                 // remove track from set so it is not deleted
             } else {
                 // in this case the extrapolation failed
-                outputCollection.push_back(new MuonCandidate(ElementLink<xAOD::TrackParticleContainer>(tracks, tLink->container_index),
-                                                             ElementLink<TrackCollection>()));
+                muon_candidate = std::make_unique<MuonCandidate>(MS_TrkLink);
             }
+            muon_candidate->setComissioning(m_comissioning);
+            /// Last but not least set the segments
+            if (segments) {
+                std::vector<ElementLink<xAOD::MuonSegmentContainer>> assoc_segs;
+                m_trackSegmentAssociationTool->associatedSegments(*muon_candidate->primaryTrack(), segments, assoc_segs);
+                muon_candidate->setSegments(std::move(assoc_segs));
+            }
+
+            outputCollection.push_back(std::move(muon_candidate));
         }
     }
 

@@ -7,11 +7,11 @@
 
 #include "GeoModelKernel/GeoVDetectorFactory.h"
 #include "ZDC_DetManager.h"
-#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
 class StoreGateSvc;
 
-class ZDC_DetFactory : public GeoVDetectorFactory
+class ZDC_DetFactory : public GeoVDetectorFactory, public AthMessaging
 {
  
  public:
@@ -22,13 +22,7 @@ class ZDC_DetFactory : public GeoVDetectorFactory
   virtual void create(GeoPhysVol* world);
   virtual const ZDC_DetManager* getDetectorManager() const;
 
-  MsgStream& msg     (MSG::Level lvl) const { return m_msg               << lvl; }
-  bool       msgLevel(MSG::Level lvl)       { return m_msg.get().level() <= lvl; }
-
  private:
-  
-  mutable Athena::MsgStreamMember m_msg;
-
   static int Make_Pixel_ID(int Pid = -1);
 
   ZDC_DetManager* m_detectorManager;

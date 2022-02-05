@@ -35,22 +35,25 @@ def printComponentLevelInfo(execOnly = True, orderBy = 'cpuTime', maxComps = -1)
                                                               'Malloc [kB]',
                                                               'Component'))
     print('='*105)
-    steps = ['Initialize', 'Execute', 'Finalize', 'Callback', 'preLoadProxy']
+    steps = ['Initialize', 'FirstEvent', 'Execute', 'Finalize', 'Callback', 'preLoadProxy']
     if execOnly:
         steps = ['Execute']
     ncomps = 0
     for step in steps:
-        for entry in sorted(data['componentLevel'][step],
-                            key=lambda x: data['componentLevel'][step][x][orderBy], reverse = True):
-            print('{0:<18}{1:<10}{2:<20.2f}{3:<20}{4:<20}{5:<20}'.format(step,
-                                                                        data['componentLevel'][step][entry]['count'],
-                                                                        data['componentLevel'][step][entry]['cpuTime'],
-                                                                        data['componentLevel'][step][entry]['vmem'],
-                                                                        data['componentLevel'][step][entry]['malloc'],
-                                                                        entry))
-            ncomps += 1
-            if (ncomps == maxComps):
-                break
+        try:
+            for entry in sorted(data['componentLevel'][step],
+                                key=lambda x: data['componentLevel'][step][x][orderBy], reverse = True):
+                print('{0:<18}{1:<10}{2:<20.2f}{3:<20}{4:<20}{5:<20}'.format(step,
+                                                                            data['componentLevel'][step][entry]['count'],
+                                                                            data['componentLevel'][step][entry]['cpuTime'],
+                                                                            data['componentLevel'][step][entry]['vmem'],
+                                                                            data['componentLevel'][step][entry]['malloc'],
+                                                                            entry))
+                ncomps += 1
+                if (ncomps == maxComps):
+                    break
+        except KeyError:
+            pass
         print('='*105)
 
 # Event Level Data in Ascending Order
@@ -94,7 +97,7 @@ def printSnapshotsInfo():
                                                                             'dPss [kB]',
                                                                             'dSwap [kB]'))
     print('-'*105)
-    for entry in ['Configure','Initialize','Execute','Finalize']:
+    for entry in ['Configure', 'Initialize', 'FirstEvent', 'Execute', 'Finalize']:
         print('{0:<14}{1:<13.2f}{2:<13.2f}{3:<13.2f}{4:<13}{5:<13}{6:<13}{7:<13}'.format(entry,
                                                                                          data['summary']['snapshotLevel'][entry]['dCPU']*0.001,
                                                                                          data['summary']['snapshotLevel'][entry]['dWall']*0.001,
@@ -106,10 +109,11 @@ def printSnapshotsInfo():
     print('*'*105)
     print('{0:<40}{1:<}'.format('Number of events processed:',
                                   data['summary']['nEvents']))
-    print('{0:<40}{1:<.0f}'.format('CPU usage per event [ms]:',
-                                  float(data['summary']['snapshotLevel']['Execute']['dCPU'])/float(data['summary']['nEvents'])))
-    print('{0:<40}{1:<.3f}'.format('Events per second:',
-                                  float(data['summary']['nEvents'])/float(data['summary']['snapshotLevel']['Execute']['dWall']*0.001)))
+    nEvents = float(data['summary']['nEvents'])
+    cpuExec = float(data['summary']['snapshotLevel']['FirstEvent']['dCPU']) + float(data['summary']['snapshotLevel']['Execute']['dCPU'])
+    wallExec = float(data['summary']['snapshotLevel']['FirstEvent']['dWall']) + float(data['summary']['snapshotLevel']['Execute']['dWall'])
+    print('{0:<40}{1:<.0f}'.format('CPU usage per event [ms]:', cpuExec/nEvents))
+    print('{0:<40}{1:<.3f}'.format('Events per second:', nEvents/wallExec*1000.))
     print('{0:<40}{1:<}'.format('CPU utilization efficiency [%]:', data['summary']['misc']['cpuUtilEff']))
     print('*'*105)
     print('{0:<40}{1:<.2f} GB'.format('Max Vmem:',

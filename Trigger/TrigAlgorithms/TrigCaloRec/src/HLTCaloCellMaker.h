@@ -45,24 +45,37 @@ class HLTCaloCellMaker: public AthReentrantAlgorithm {
 	virtual StatusCode initialize() override;
      private:
 
-	SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
-	SG::WriteHandleKey<ConstDataVector<CaloCellContainerVector> > m_cellContainerVKey;
-	SG::WriteHandleKey<CaloConstCellContainer > m_cellContainerKey;
-        /// FIXME: Temporary (i hope) to get dependency needed by BS converter.
-        SG::ReadCondHandleKey<TileEMScale> m_tileEMScaleKey;
-	SG::ReadHandleKey<CaloBCIDAverage> m_bcidAvgKey
-        { this, "BCIDAvgKey", "CaloBCIDAverage", "" };
+	SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey { this, "RoIs", "OutputRoIs", "RoIs to read in" };
+	SG::ReadHandleKey<CaloBCIDAverage> m_bcidAvgKey { this, "BCIDAvgKey", "CaloBCIDAverage", "" };
 
-	ServiceHandle<ITrigCaloDataAccessSvc> m_dataAccessSvc;
+	SG::WriteHandleKey<ConstDataVector<CaloCellContainerVector> > m_cellContainerVKey { this, "CellsVName", "CellsVClusters", "Calo cells container" };
+	SG::WriteHandleKey<CaloConstCellContainer > m_cellContainerKey { this, "CellsName", "CellsClusters", "Calo cells container" };
+
+        /// FIXME: Temporary (i hope) to get dependency needed by BS converter.
+        SG::ReadCondHandleKey<TileEMScale> m_tileEMScaleKey { this, "TileEMSCaleKey", "TileEMScale", "" };
+
+	ServiceHandle<ITrigCaloDataAccessSvc> m_dataAccessSvc
+	  { this, "TrigDataAccessMT", "TrigCaloDataAccessSvc/TrigCaloDataAccessSvc", "Data Access for LVL2 Calo Algorithms in MT" };
+
 	ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
-	bool m_roiMode;
-        bool m_monCells;
+
+	Gaudi::Property<bool> m_roiMode { this, "roiMode", true, "RoiMode roi->CaloCellCollection" };
+	Gaudi::Property<bool> m_monCells { this, "monitorCells", false ,"monitorCells" };
+	Gaudi::Property<bool> m_tileCellsInROI { this, "TileCellsInROI", false, "Require tile cells to be within ROI" };
+
 
         // just to help with monitoring
         static inline double getCellPt(const CaloCell* aCell){
           if(!aCell) return -999.0;
           return aCell->et();
         }
+
+	// check if tile cell is within the eta boundaries of the ROI, let RegSelCondAlg_Tile handle phi boundaries
+	static inline bool tileCellEtaInRoi(const CaloCell* cell, const TrigRoiDescriptor* roi) {
+	  if (cell->eta() < roi->etaMinus() || cell->eta() > roi->etaPlus()) return false;
+	  return true;
+	}
+
 };
 
 #endif

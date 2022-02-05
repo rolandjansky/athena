@@ -121,7 +121,7 @@ LArDigitContByteStreamCnv::createObjConst(IOpaqueAddress* pAddr, DataObject*& pO
   }
 
   //Supercell readout
-  sc=m_scTool->convert(re,adc_coll, adc_bas_coll, et_coll, et_id_coll, header_coll);
+  sc=m_scTool->convert(re,nullptr,adc_coll, adc_bas_coll, et_coll, et_id_coll, header_coll);
   if (sc!=StatusCode::SUCCESS)
     ATH_MSG_WARNING( "Conversion tool returned an error. LAr SC containers might be empty." );
 

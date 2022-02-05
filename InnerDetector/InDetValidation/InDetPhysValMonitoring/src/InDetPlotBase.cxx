@@ -47,40 +47,35 @@ InDetPlotBase::book(TH1*& pHisto, const SingleHistogramDefinition& hd) {
   if (hd.isValid()) {
     pHisto = Book1D(hd.name, hd.allTitles, hd.nBinsX, hd.xAxis.first, hd.xAxis.second, false);
   }
-  return;
-}
+  }
 void
 InDetPlotBase::book(TProfile*& pHisto, const SingleHistogramDefinition& hd) {
   if (hd.isValid()) {
     pHisto = BookTProfile(hd.name, hd.allTitles, hd.nBinsX, hd.xAxis.first, hd.xAxis.second, hd.yAxis.first,
                           hd.yAxis.second, false);
   }
-  return;
-}
+  }
 void
 InDetPlotBase::book(TProfile2D*& pHisto, const SingleHistogramDefinition& hd) {
   if (hd.isValid()) {
     pHisto = BookTProfile2D(hd.name, hd.allTitles, hd.nBinsX, hd.xAxis.first, hd.xAxis.second, hd.nBinsY, hd.yAxis.first,
                           hd.yAxis.second, false);
   }
-  return;
-}
+  }
 void
 InDetPlotBase::book(TH2*& pHisto, const SingleHistogramDefinition& hd) {
   if (hd.isValid()) {
     pHisto = Book2D(hd.name, hd.allTitles, hd.nBinsX, hd.xAxis.first, hd.xAxis.second, hd.nBinsY, hd.yAxis.first,
                     hd.yAxis.second, false);
   }
-  return;
-}
+  }
 /**/
 void
 InDetPlotBase::book(TEfficiency*& pHisto, const SingleHistogramDefinition& hd) {
   if (hd.isValid()) {
     pHisto = BookTEfficiency(hd.name, hd.allTitles, hd.nBinsX, hd.xAxis.first, hd.xAxis.second, false);
   }
-  return;
-}
+  }
 
 void
 InDetPlotBase::fillHisto(TProfile* pTprofile, const float bin, const float weight, const float weight2) {

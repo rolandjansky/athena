@@ -20,6 +20,7 @@ Temporary class to hold the MM RDO.
 class MM_RawData {
 
   friend class MM_RawDataCnv_p1;  
+  friend class MM_RawDataCnv_p2;  
 
  private:
   
@@ -32,16 +33,18 @@ class MM_RawData {
   int m_time;
   /// adc counts
   int m_charge;
+  /// rel bcid
+  uint16_t m_relBcid;
   
  public:
 
   /** default constructor */
-  MM_RawData ( const Identifier& id ) : m_id(id), m_channel(0), m_time(0), m_charge(0) {}
+  MM_RawData ( const Identifier& id ) : m_id(id), m_channel(0), m_time(0), m_charge(0), m_relBcid(0) {}
 
 
   MM_RawData ( const Identifier& id, const int channel, 
-	       const int time, const int charge  ) 
-    :  m_id(id), m_channel(channel), m_time(time), m_charge(charge) {}
+	       const int time, const int charge, const uint16_t relBcid) 
+    :  m_id(id), m_channel(channel), m_time(time), m_charge(charge), m_relBcid(relBcid) {}
 
 
   MM_RawData () {} ; //!< TODO remove this. Currently have problems with convertor if I do though.
@@ -53,6 +56,7 @@ class MM_RawData {
   // access functions to the online data
   int channel() const { return m_channel; }
   int time() const { return m_time; }
+  uint16_t relBcid() const { return m_relBcid; }
   int charge() const { return m_charge; }
 
 };

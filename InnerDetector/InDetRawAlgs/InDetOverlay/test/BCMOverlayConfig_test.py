@@ -37,5 +37,9 @@ acc.merge(CopyMcEventCollectionCfg(ConfigFlags))
 # Add BCM overlay
 acc.merge(BCMOverlayCfg(ConfigFlags))
 
+# Dump the pickle
+with open("BCMOverlayCfg.pkl", "wb") as f:
+    acc.store(f)
+
 # Print and run
 sys.exit(printAndRun(acc, ConfigFlags, args))

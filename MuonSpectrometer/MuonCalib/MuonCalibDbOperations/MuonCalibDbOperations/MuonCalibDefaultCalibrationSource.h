@@ -5,19 +5,14 @@
 #ifndef MuonCalib_MuonCalibDefaultCalibrationSource
 #define MuonCalib_MuonCalibDefaultCalibrationSource
 
-// this
-#include "MuonCalibDbOperations/IMuonCalibConditionsSource.h"
-
-// athena
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-
-// c - c++
 #include <map>
 #include <string>
 #include <vector>
 
-class RegionSelectionSvc;
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "MuonCalibDbOperations/IMuonCalibConditionsSource.h"
+#include "MuonCalibStandAloneBase/RegionSelectionSvc.h"
 
 namespace MuonCalib {
 
@@ -30,6 +25,7 @@ namespace MuonCalib {
         //===============================destructor -- constructor======================
         /** constructor*/
         MuonCalibDefaultCalibrationSource(const std::string &t, const std::string &n, const IInterface *p);
+        virtual ~MuonCalibDefaultCalibrationSource();
         //===============================AlgTool interface =============================
         /** initialize */
         StatusCode initialize();
@@ -51,19 +47,19 @@ namespace MuonCalib {
         std::vector<unsigned int> m_creation_flags_t0;
         std::vector<unsigned int> m_creation_flags_rt;
         // region classes
-        std::vector<RegionSelectorBase *> m_t0_regions, m_rt_regions;
+        std::vector<std::unique_ptr<RegionSelectorBase> > m_t0_regions, m_rt_regions;
         // rtt point vector
         std::vector<std::map<int, SamplePoint> > m_rt_points;
         // region selection service - copy part of the calibration
-        const RegionSelectionSvc *p_reg_sel_svc;
+        ServiceHandle<RegionSelectionSvc> m_reg_sel_svc{this, "RegionSelectionSvc", "RegionSelectionSvc"};
         //===============================private functions==============================
         // initialize regions
-        StatusCode initialize_regions(const std::vector<std::string> &reg_str, std::vector<RegionSelectorBase *> &reg);
+        StatusCode initialize_regions(const std::vector<std::string> &reg_str, std::vector<std::unique_ptr<RegionSelectorBase> > &reg);
         void initialize_creation_flags(const std::vector<bool> &ts_applied, const std::vector<bool> &bf_applied, unsigned int n_regions,
                                        std::vector<unsigned int> &flags);
-        inline StatusCode load_rt_files();
-        inline bool store_t0_fun();
-        inline bool store_rt_fun();
+        StatusCode load_rt_files();
+        bool store_t0_fun();
+        bool store_rt_fun();
 
     protected:
         //===============================IMuonCalibConditionsSource interface ==========

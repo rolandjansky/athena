@@ -222,6 +222,10 @@ pool::PersistencySvc::UserDatabase::connectForWrite( const pool::DatabaseConnect
                                              "PersistencySvc::UserDatabase::connectForWrite" );
       };
 
+      if( accessMode == pool::UPDATE
+          && policy.writeModeForNonExisting() == pool::DatabaseConnectionPolicy::CREATE ) {
+         accessMode = pool::UPDATE | pool::CREATE;
+      }
       m_databaseHandler = m_technologyDispatcher.microSessionManager( m_technology ).connect( m_the_fid, m_the_pfn, accessMode );
       if( !m_databaseHandler ) {
 	 if( dbRegistered ) {

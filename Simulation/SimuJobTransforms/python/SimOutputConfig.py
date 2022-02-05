@@ -30,8 +30,12 @@ def getStreamHITS_ItemList(ConfigFlags):
     ItemList += ["xAOD::TruthParticleContainer#TruthPileupParticles",
                  "xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux."]
 
+    if 'Hijing_event_params' in ConfigFlags.Input.Collections:
+        ItemList += ["HijingEventParams#Hijing_event_params"]
+
     if ConfigFlags.Detector.EnablePixel or  ConfigFlags.Detector.EnableSCT or \
-       ConfigFlags.Detector.EnableITkPixel or  ConfigFlags.Detector.EnableITkStrip:
+       ConfigFlags.Detector.EnableITkPixel or  ConfigFlags.Detector.EnableITkStrip or ConfigFlags.Detector.EnablePLR or \
+       ConfigFlags.Detector.EnableHGTD:
         ItemList += ["SiHitCollection#*"]
 
     if ConfigFlags.Detector.EnableTRT:
@@ -45,10 +49,27 @@ def getStreamHITS_ItemList(ConfigFlags):
                      "TrackRecordCollection#MuonEntryLayer"]
 
     if ConfigFlags.Detector.EnableLAr:
-        ItemList += ["LArHitContainer#*"]
+        ItemList += ["LArHitContainer#LArHitEMB",
+                     "LArHitContainer#LArHitEMEC",
+                     "LArHitContainer#LArHitHEC",
+                     "LArHitContainer#LArHitFCAL"]
+        if ConfigFlags.Sim.ISF.HITSMergingRequired.get('CALO', False):
+            ItemList += ["LArHitContainer#LArHitEMB_G4",
+                         "LArHitContainer#LArHitEMEC_G4",
+                         "LArHitContainer#LArHitHEC_G4",
+                         "LArHitContainer#LArHitFCAL_G4",
+                         "LArHitContainer#LArHitEMB_FastCaloSim",
+                         "LArHitContainer#LArHitEMEC_FastCaloSim",
+                         "LArHitContainer#LArHitHEC_FastCaloSim",
+                         "LArHitContainer#LArHitFCAL_FastCaloSim"]
 
     if ConfigFlags.Detector.EnableTile:
-        ItemList += ["TileHitVector#*"]
+        ItemList += ["TileHitVector#TileHitVec",
+                     "TileHitVector#MBTSHits"]
+        if ConfigFlags.Sim.ISF.HITSMergingRequired.get('CALO', False):
+            ItemList += ["TileHitVector#MBTSHits_G4",
+                         "TileHitVector#TileHitVec_G4",
+                         "TileHitVector#TileHitVec_FastCaloSim"]
 
     if ConfigFlags.Detector.EnableRPC:
         ItemList += ["RPCSimHitCollection#*"]

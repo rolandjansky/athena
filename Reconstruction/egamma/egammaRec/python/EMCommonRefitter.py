@@ -43,9 +43,7 @@ def getGSFTrackFitter(doRefitOnMeasurementBase=True):
 
     GsfExtrapolator = Trk__GsfExtrapolator(
         name='GsfExtrapolator',
-        Propagators=[egTrkPropagator],
-        SearchLevelClosestParameters=10,
-        StickyConfiguration=True,
+        Propagator=egTrkPropagator,
         Navigator=egTrkNavigator,
         GsfMaterialConvolution=GsfMaterialUpdator,
         SurfaceBasedMaterialEffects=False)

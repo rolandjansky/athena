@@ -1,9 +1,10 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// TheLArMinBiasAlg.h
-//
+/**
+ *  @file TheLArMinBiasAlg.h
+ */
 
 #ifndef CALOCONDPHYSALGS_LARMINBIASALG_H
 #define CALOCONDPHYSALGS_LARMINBIASALG_H
@@ -39,13 +40,10 @@
     /** Default Destructor */
     ~LArMinBiasAlg();
     
-    /** standard Athena-Algorithm method */
-    StatusCode          initialize();
-    /** standard Athena-Algorithm method */
-    StatusCode          execute();
-    /** standard Athena-Algorithm method */
-    StatusCode          finalize();
-    StatusCode           stop();
+    virtual StatusCode  initialize() override;
+    virtual StatusCode  execute() override;
+    virtual StatusCode  finalize() override;
+    virtual StatusCode  stop() override;
 
     
   private:
@@ -64,7 +62,11 @@
   { this, "MCSymKey", "LArMCSym", "SG Key of LArMCSym object" };
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
 
-  const CaloDetDescrManager* m_calodetdescrmgr = nullptr;
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+      , "CaloDetDescrManager"
+      , "CaloDetDescrManager"
+      , "SG Key for CaloDetDescrManager in the Condition Store" };
+
   const LArEM_ID*        m_larem_id = nullptr;
   const CaloCell_ID*       m_calo_id = nullptr;
   std::vector<double> m_eCell;

@@ -12,7 +12,7 @@ const int MAXDIGIT = 4096;
 /////////////////////////////////////////////////////////////////////////////
 
 ReadCscDigit::ReadCscDigit(const std::string& name, ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator), m_ntuplePtr(0),
+  : AthAlgorithm(name, pSvcLocator), m_ntuplePtr(nullptr),
     m_activeStore("ActiveStoreSvc", name)
 {
   // Declare the properties

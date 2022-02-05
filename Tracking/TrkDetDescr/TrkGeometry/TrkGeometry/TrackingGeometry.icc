@@ -1,0 +1,79 @@
+/*
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+*/
+namespace Trk {
+
+inline const TrackingVolume*
+TrackingGeometry::highestTrackingVolume() const
+{
+  return (m_world);
+}
+
+inline NavigationLevel
+TrackingGeometry::navigationLevel() const
+{
+  return m_navigationLevel;
+}
+
+inline void
+TrackingGeometry::registerNavigationLevel(NavigationLevel navLevel)
+{
+  m_navigationLevel = navLevel;
+}
+
+inline void TrackingGeometry::sign
+ATLAS_NOT_THREAD_SAFE(GeometrySignature geosit, GeometryType geotype)
+{
+  m_world->sign(geosit, geotype);
+}
+
+inline const TrackingVolume*
+TrackingGeometry::trackingVolume(const std::string& name) const
+{
+  std::map<const std::string, const TrackingVolume*>::const_iterator sVol =
+    m_trackingVolumes.begin();
+  sVol = m_trackingVolumes.find(name);
+  if (sVol != m_trackingVolumes.end())
+    return (sVol->second);
+  return nullptr;
+}
+
+inline const Trk::Layer*
+TrackingGeometry::associatedLayer(const Amg::Vector3D& gp) const
+{
+  const TrackingVolume* lowestVol = (lowestTrackingVolume(gp));
+  return lowestVol->associatedLayer(gp);
+}
+
+inline const Trk::Layer*
+TrackingGeometry::nextLayer(const Amg::Vector3D& gp,
+                            const Amg::Vector3D& mom,
+                            bool skipNavLayer) const
+{
+  const TrackingVolume* lowestVol = (lowestTrackingVolume(gp));
+  return lowestVol->nextLayer(gp, mom, true, skipNavLayer);
+}
+
+inline const std::map<const Layer*, int>&
+TrackingGeometry::boundaryLayers() const
+{
+  return m_boundaryLayers;
+}
+
+template<class T>
+LayerIntersection<Amg::Vector3D>
+TrackingGeometry::closestMaterialLayer(const T& pars,
+                                       PropDirection pDir,
+                                       const BoundaryCheck& bchk) const
+{
+  const TrackingVolume* lowestVol = (lowestTrackingVolume(pars.position()));
+  return (lowestVol) ? (lowestVol->closestMaterialLayer(
+                         pars.position(), pars.momentum().unit(), pDir, bchk))
+                     : Trk::LayerIntersection<Amg::Vector3D>(
+                         Trk::Intersection(pars.position(), 10e10, false),
+                         nullptr,
+                         nullptr,
+                         nullptr);
+}
+
+}

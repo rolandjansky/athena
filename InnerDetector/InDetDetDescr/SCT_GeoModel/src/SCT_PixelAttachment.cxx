@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_PixelAttachment.h"
@@ -24,7 +24,7 @@ SCT_PixelAttachment::SCT_PixelAttachment(const std::string & name,
   : SCT_SharedComponentFactory(name, detectorManager, geometryManager, materials)
 {
   getParameters();
-  m_physVolume = build();
+  m_physVolume = SCT_PixelAttachment::build();
 }
 
 

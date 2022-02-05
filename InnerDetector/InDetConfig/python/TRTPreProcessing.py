@@ -1,15 +1,18 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 # ------------------------------------------------------------
 #
 # ----------- TRT Data-Preparation stage
 #
 # ------------------------------------------------------------
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.ComponentFactory     import CompFactory
+from AthenaConfiguration.ComponentFactory import CompFactory
+
 
 def InDetPRD_MultiTruthMakerTRTCfg(flags, name = "InDetTRT_PRD_MultiTruthMaker", **kwargs):
     acc = ComponentAccumulator()
 
+    kwargs.setdefault("PixelDetEleCollKey", "")
+    kwargs.setdefault("SCTDetEleCollKey", "")
     kwargs.setdefault("PixelClusterContainerName", "")
     kwargs.setdefault("SCTClusterContainerName", "")
     kwargs.setdefault("TRTDriftCircleContainerName", 'TRT_DriftCircles') ##read from InDetKeys.TRT_DriftCircles
@@ -26,6 +29,8 @@ def InDetPRD_MultiTruthMakerTRTCfg(flags, name = "InDetTRT_PRD_MultiTruthMaker",
 def InDetPRD_MultiTruthMakerTRTPUCfg(flags, name = "InDetTRT_PRD_MultiTruthMakerPU", **kwargs):
     acc = ComponentAccumulator()
 
+    kwargs.setdefault("PixelDetEleCollKey", "")
+    kwargs.setdefault("SCTDetEleCollKey", "")
     kwargs.setdefault("PixelClusterContainerName", "")
     kwargs.setdefault("SCTClusterContainerName", "")
     kwargs.setdefault("TRTDriftCircleContainerName", 'TRT_PU_DriftCircles') ##read from InDetKeys.TRT_PU_DriftCircles
@@ -39,33 +44,25 @@ def InDetPRD_MultiTruthMakerTRTPUCfg(flags, name = "InDetTRT_PRD_MultiTruthMaker
     acc.addEventAlgo(CompFactory.InDet.PRD_MultiTruthMaker(name, **kwargs))
     return acc
 
-def InDetTRT_DriftFunctionToolCfg(flags, useTimeInfo, usePhase, name = "InDetTRT_DriftFunctionTool", **kwargs):
+def InDetTRT_DriftFunctionToolCfg(flags, name = "InDetTRT_DriftFunctionTool", **kwargs):
     acc = ComponentAccumulator()
     #
     # --- TRT_DriftFunctionTool
     #
     # Calibration DB Service
-    from InDetOverlay.TRT_ConditionsConfig import TRT_CalDbToolCfg
-    InDetTRTCalDbTool = acc.popToolsAndMerge(TRT_CalDbToolCfg(flags))
-    acc.addPublicTool(InDetTRTCalDbTool)
+    from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_CalDbToolCfg
+    CalDbTool = acc.popToolsAndMerge(TRT_CalDbToolCfg(flags))
+    acc.addPublicTool(CalDbTool)
 
     # --- overwrite for uncalibrated DC production
-    if (not useTimeInfo) or flags.InDet.noTRTTiming:
+    if flags.Beam.Type=="cosmics" or flags.InDet.noTRTTiming:
         kwargs.setdefault("DummyMode", True)
         kwargs.setdefault("UniversalError", 1.15)
-    
+
     # --- set Data/MC flag
-    if( flags.Input.isMC ) :
-        kwargs.setdefault("IsMC", True)
-    else :
-        kwargs.setdefault("IsMC", False)
+    kwargs.setdefault("IsMC", flags.Input.isMC)
 
-    # --- overwrite for calibration of MC
-    if usePhase and flags.Beam.Type =='cosmics' and flags.Input.isMC:
-        kwargs.setdefault("AllowDigiVersionOverride", True)
-        kwargs.setdefault("ForcedDigiVersion", 9)
-
-    kwargs.setdefault("TRTCalDbTool", InDetTRTCalDbTool)
+    kwargs.setdefault("TRTCalDbTool", CalDbTool)
     # --- set HT corrections
     kwargs.setdefault("HTCorrectionBarrelXe", 1.5205)
     kwargs.setdefault("HTCorrectionEndcapXe", 1.2712)
@@ -74,20 +71,20 @@ def InDetTRT_DriftFunctionToolCfg(flags, useTimeInfo, usePhase, name = "InDetTRT
     # --- set ToT corrections
     kwargs.setdefault("ToTCorrectionsBarrelXe"       , [0., 4.358121, 3.032195, 1.631892, 0.7408397, -0.004113, -0.613288, -0.73758, -0.623346, -0.561229,
                             -0.29828, -0.21344, -0.322892, -0.386718, -0.534751, -0.874178, -1.231799, -1.503689, -1.896464, -2.385958])
-    kwargs.setdefault("ToTCorrectionsEndcapXe"       , [0., 5.514777, 3.342712, 2.056626, 1.08293693, 0.3907979, -0.082819, -0.457485, -0.599706, -0.427493, 
+    kwargs.setdefault("ToTCorrectionsEndcapXe"       , [0., 5.514777, 3.342712, 2.056626, 1.08293693, 0.3907979, -0.082819, -0.457485, -0.599706, -0.427493,
                             -0.328962, -0.403399, -0.663656, -1.029428, -1.46008, -1.919092, -2.151582, -2.285481, -2.036822, -2.15805])
     kwargs.setdefault("ToTCorrectionsBarrelAr"       , [0., 4.358121, 3.032195, 1.631892, 0.7408397, -0.004113, -0.613288, -0.73758, -0.623346, -0.561229,
                             -0.29828, -0.21344, -0.322892, -0.386718, -0.534751, -0.874178, -1.231799, -1.503689, -1.896464, -2.385958])
-    kwargs.setdefault("ToTCorrectionsEndcapAr"       , [0., 5.514777, 3.342712, 2.056626, 1.08293693, 0.3907979, -0.082819, -0.457485, -0.599706, -0.427493, 
+    kwargs.setdefault("ToTCorrectionsEndcapAr"       , [0., 5.514777, 3.342712, 2.056626, 1.08293693, 0.3907979, -0.082819, -0.457485, -0.599706, -0.427493,
                             -0.328962, -0.403399, -0.663656, -1.029428, -1.46008, -1.919092, -2.151582, -2.285481, -2.036822, -2.15805])
-                    
-    # Second calibration DB Service in case pile-up and physics hits have different calibrations
-    if flags.Detector.EnableTRT:
-        from InDetOverlay.TRT_ConditionsConfig import TRT_CalDbToolCfg
-        InDetTRTCalDbTool2 = acc.popToolsAndMerge(TRT_CalDbToolCfg(flags))
-        acc.addPublicTool(InDetTRTCalDbTool2)
 
-        kwargs.setdefault("TRTCalDbTool2", InDetTRTCalDbTool2)
+    # Second calibration DB Service in case pile-up and physics hits have different calibrations for data overlay
+    if flags.Overlay.DataOverlay:
+        from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_MCCalDbToolCfg
+        MCCalDbTool = acc.popToolsAndMerge(TRT_MCCalDbToolCfg(flags))
+        acc.addPublicTool(MCCalDbTool)
+
+        kwargs.setdefault("TRTCalDbTool2", MCCalDbTool)
         kwargs.setdefault("IsOverlay", True)
         kwargs.setdefault("IsMC", False)
     acc.setPrivateTools(CompFactory.TRT_DriftFunctionTool(name, **kwargs))
@@ -115,15 +112,12 @@ def TRTDriftTimes( isData, isCosmics ):
                       HighGateArgon   = 42.1875*ns)
 
 
-def TRT_DriftCircleToolCfg(flags, useTimeInfo, usePhase, prefix, name = "InDetTRT_DriftCircleTool", **kwargs):
+def TRT_DriftCircleToolCfg(flags, prefix, name = "InDetTRT_DriftCircleTool", **kwargs):
     acc = ComponentAccumulator()
     #
     # --- TRT_DriftCircleTool
     #
-    if usePhase:
-        TRT_DriftCircleTool = CompFactory.InDet.TRT_DriftCircleToolCosmics
-    else:
-        TRT_DriftCircleTool = CompFactory.InDet.TRT_DriftCircleTool
+    TRT_DriftCircleTool = CompFactory.InDet.TRT_DriftCircleTool
 
     # set gating values for MC/DATA
     from AthenaCommon.SystemOfUnits import ns
@@ -135,10 +129,10 @@ def TRT_DriftCircleToolCfg(flags, useTimeInfo, usePhase, prefix, name = "InDetTR
     #
     # --- TRT_DriftFunctionTool
     #
-    InDetTRT_DriftFunctionTool = acc.popToolsAndMerge(InDetTRT_DriftFunctionToolCfg(flags, useTimeInfo, usePhase, name = prefix + "DriftFunctionTool", **kwargs))
+    InDetTRT_DriftFunctionTool = acc.popToolsAndMerge(InDetTRT_DriftFunctionToolCfg(flags, name = prefix + "DriftFunctionTool", **kwargs))
     acc.addPublicTool(InDetTRT_DriftFunctionTool)
 
-    from InDetOverlay.TRT_ConditionsConfig import TRT_StrawStatusSummaryToolCfg
+    from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_StrawStatusSummaryToolCfg
     InDetTRTStrawStatusSummaryTool = acc.popToolsAndMerge(TRT_StrawStatusSummaryToolCfg(flags))
     acc.addPublicTool(InDetTRTStrawStatusSummaryTool)
 
@@ -158,13 +152,13 @@ def TRT_DriftCircleToolCfg(flags, useTimeInfo, usePhase, prefix, name = "InDetTR
     kwargs.setdefault("MinTrailingEdgeArgon", MinTrailingEdge)
     kwargs.setdefault("MaxDriftTimeArgon", MaxDriftTime)
     kwargs.setdefault("ValidityGateSuppressionArgon" , flags.Beam.Type != 'cosmics') #not flags.InDet.doCosmics
-    kwargs.setdefault("LowGateArgon", gains.LowGateArgon)
-    kwargs.setdefault("HighGateArgon", gains.HighGateArgon)
+    kwargs.setdefault("LowGateArgon", gains.LowGate)  # see discussion in MR !45402 why these are not Argon specific settings
+    kwargs.setdefault("HighGateArgon", gains.HighGate)
     kwargs.setdefault("useDriftTimeHTCorrection", True)
     kwargs.setdefault("useDriftTimeToTCorrection", True)
 
 
-    if flags.InDet.InDet25nsec and flags.Beam.Type == "collisions":
+    if flags.Beam.BunchSpacing<=25 and flags.Beam.Type == "collisions":
         kwargs.setdefault("ValidityGateSuppression", True)
         kwargs.setdefault("SimpleOutOfTimePileupSupression", False)
 
@@ -174,50 +168,14 @@ def TRT_DriftCircleToolCfg(flags, useTimeInfo, usePhase, prefix, name = "InDetTR
     acc.setPrivateTools(TRT_DriftCircleTool(name, **kwargs))
     return acc
 
-def TRT_LocalOccupancyCfg(flags, name = "InDet_TRT_LocalOccupancy", **kwargs):
-    acc = ComponentAccumulator()
-    # Calibration DB Service
-    from InDetOverlay.TRT_ConditionsConfig import TRT_CalDbToolCfg
-    InDetTRTCalDbTool = acc.popToolsAndMerge(TRT_CalDbToolCfg(flags))
-    acc.addPublicTool(InDetTRTCalDbTool)
-    # Straw status DB Tool
-    from InDetOverlay.TRT_ConditionsConfig import TRT_StrawStatusSummaryToolCfg
-    InDetTRTStrawStatusSummaryTool = acc.popToolsAndMerge(TRT_StrawStatusSummaryToolCfg(flags))
-    acc.addPublicTool(InDetTRTStrawStatusSummaryTool)
-    kwargs.setdefault("isTrigger", False)
-    kwargs.setdefault("TRTCalDbTool", InDetTRTCalDbTool)
-    kwargs.setdefault("TRTStrawStatusSummaryTool", InDetTRTStrawStatusSummaryTool)
-    
-    InDetTRT_LocalOccupancy = CompFactory.TRT_LocalOccupancy(name, **kwargs)
-    acc.setPrivateTools(InDetTRT_LocalOccupancy)
-    return acc
 
-def TRTOccupancyIncludeCfg(flags, name = "InDetTRT_TRTOccupancyInclude", **kwargs):
-    acc = ComponentAccumulator()
-    # Calibration DB Service
-    from InDetOverlay.TRT_ConditionsConfig import TRT_CalDbToolCfg
-    InDetTRTCalDbTool = acc.popToolsAndMerge( TRT_CalDbToolCfg(flags) )
-    acc.addPublicTool(InDetTRTCalDbTool)
-    # Straw status DB Tool
-    from InDetOverlay.TRT_ConditionsConfig import TRT_StrawStatusSummaryToolCfg
-    InDetTRTStrawStatusSummaryTool = acc.popToolsAndMerge(TRT_StrawStatusSummaryToolCfg(flags))
-    acc.addPublicTool(InDetTRTStrawStatusSummaryTool)
-    InDetTRT_LocalOccupancy = acc.popToolsAndMerge(TRT_LocalOccupancyCfg(flags))
-    acc.addPublicTool(InDetTRT_LocalOccupancy)
-    kwargs.setdefault("isTrigger", False)
-    kwargs.setdefault("TRTCalDbTool", InDetTRTCalDbTool)
-    kwargs.setdefault("TRTStrawStatusSummaryTool", InDetTRTStrawStatusSummaryTool)
-    kwargs.setdefault("TRT_LocalOccupancyTool", InDetTRT_LocalOccupancy)
 
-    acc.addEventAlgo(CompFactory.TRTOccupancyInclude(name, **kwargs))
-    return acc
-
-def InDetTRT_RIO_MakerCfg(flags, useTimeInfo, usePhase, prefix, collection, name = "InDetTRT_RIO_Maker", **kwargs):
+def InDetTRT_RIO_MakerCfg(flags, prefix, collection, name = "InDetTRT_RIO_Maker", **kwargs):
     acc = ComponentAccumulator()
     #
     # --- TRT_DriftCircleTool
     #
-    InDetTRT_DriftCircleTool = acc.popToolsAndMerge(TRT_DriftCircleToolCfg(flags, useTimeInfo, usePhase, prefix, name = "InDetTRT_DriftCircleTool"))
+    InDetTRT_DriftCircleTool = acc.popToolsAndMerge(TRT_DriftCircleToolCfg(flags, prefix, name = "InDetTRT_DriftCircleTool"))
     acc.addPublicTool(InDetTRT_DriftCircleTool)
 
     # Region selector tools for TRT
@@ -235,12 +193,12 @@ def InDetTRT_RIO_MakerCfg(flags, useTimeInfo, usePhase, prefix, collection, name
     acc.addEventAlgo(CompFactory.InDet.TRT_RIO_Maker(name, **kwargs))
     return acc
 
-def InDetTRT_RIO_MakerPUCfg(flags, useTimeInfo, usePhase, prefix, collectionPU, name = "InDetTRT_RIO_MakerPU", **kwargs):
+def InDetTRT_RIO_MakerPUCfg(flags, prefix, collectionPU, name = "InDetTRT_RIO_MakerPU", **kwargs):
     acc = ComponentAccumulator()
     #
     # --- TRT_DriftCircleTool
     #
-    InDetTRT_DriftCircleTool = acc.popToolsAndMerge(TRT_DriftCircleToolCfg(flags, useTimeInfo, usePhase, prefix, name = "InDetTRT_DriftCircleTool"))
+    InDetTRT_DriftCircleTool = acc.popToolsAndMerge(TRT_DriftCircleToolCfg(flags, prefix, name = "InDetTRT_DriftCircleTool"))
     acc.addPublicTool(InDetTRT_DriftCircleTool)
 
     # Region selector tools for TRT
@@ -259,7 +217,7 @@ def InDetTRT_RIO_MakerPUCfg(flags, useTimeInfo, usePhase, prefix, collectionPU, 
     return acc
 ########################################################################################################
 ########################################################################################################
-def TRTPreProcessingCfg(flags, useTimeInfo = True, usePhase = False, **kwargs):
+def TRTPreProcessingCfg(flags, **kwargs):
     acc = ComponentAccumulator()
 
     from PixelConditionsAlgorithms.PixelConditionsConfig import (PixelChargeCalibCondAlgCfg, PixelConfigCondAlgCfg, PixelDeadMapCondAlgCfg, PixelCablingCondAlgCfg, PixelReadoutSpeedAlgCfg)
@@ -270,54 +228,39 @@ def TRTPreProcessingCfg(flags, useTimeInfo = True, usePhase = False, **kwargs):
     acc.merge(PixelCablingCondAlgCfg(flags))
     acc.merge(PixelReadoutSpeedAlgCfg(flags))
 
-    if flags.InDet.doPRDFormation and flags.InDet.doTRT_PRDFormation:
-        #
-        # --- setup naming of tools and algs
-        #
-        if useTimeInfo:
-            prefix     = "InDetTRT_"
-            collection = 'TRT_DriftCircles' ##InDetKeys.TRT_DriftCircles
-            if flags.InDet.doSplitReco:
-                collectionPU = 'TRT_PU_DriftCircles' ##read from InDetKeys.TRT_PU_DriftCircles
-        else:
-            prefix     = "InDetTRT_noTime_"
-            collection = 'TRT_DriftCirclesUncalibrated' ##read from InDetKeys.TRT_DriftCirclesUncalibrated
-            if flags.InDet.doSplitReco:
-                collectionPU = 'TRT_PU_DriftCirclesUncalibrated' ##read from InDetKeys.TRT_PU_DriftCirclesUncalibrated
-        #
-        # --- TRT_RIO_Maker Algorithm
-        #
-        acc.merge(InDetTRT_RIO_MakerCfg(flags, useTimeInfo, usePhase, prefix, collection, name = prefix+"RIO_Maker"))
+    #
+    # --- setup naming of tools and algs
+    #
+    if flags.Beam.Type=="cosmics":
+        prefix     = "InDetTRT_noTime_"
+        collection = 'TRT_DriftCirclesUncalibrated' ##read from InDetKeys.TRT_DriftCirclesUncalibrated
+        if flags.InDet.doSplitReco:
+            collectionPU = 'TRT_PU_DriftCirclesUncalibrated' ##read from InDetKeys.TRT_PU_DriftCirclesUncalibrated
+    else:
+        prefix     = "InDetTRT_"
+        collection = 'TRT_DriftCircles' ##InDetKeys.TRT_DriftCircles
+        if flags.InDet.doSplitReco:
+            collectionPU = 'TRT_PU_DriftCircles' ##read from InDetKeys.TRT_PU_DriftCircles
+
+    #
+    # --- TRT_RIO_Maker Algorithm
+    #
+    acc.merge(InDetTRT_RIO_MakerCfg(flags, prefix, collection, name = prefix+"RIO_Maker"))
+    if flags.InDet.doSplitReco :
+        acc.merge(InDetTRT_RIO_MakerPUCfg(flags, prefix, collectionPU, name = prefix+"RIO_MakerPU", **kwargs))
+    #
+    #    Include alg to save the local occupancy inside xAOD::EventInfo
+    #
+    if flags.InDet.doTRTGlobalOccupancy:
+        from InDetConfig.TRT_ElectronPidToolsConfig import TRTOccupancyIncludeCfg
+        acc.merge(TRTOccupancyIncludeCfg(flags, name=prefix + "TRTOccupancyInclude"))
+    #
+    # --- we need to do truth association if requested (not for uncalibrated hits in cosmics)
+    #
+    if flags.InDet.doTruth and not flags.Beam.Type=="cosmics":
+        acc.merge(InDetPRD_MultiTruthMakerTRTCfg(flags, name = prefix + "PRD_MultiTruthMaker"))
         if flags.InDet.doSplitReco :
-            acc.merge(InDetTRT_RIO_MakerPUCfg(flags,  useTimeInfo, usePhase, prefix, collectionPU, name = prefix+"RIO_MakerPU", **kwargs))
-        #
-        #    Include alg to save the local occupancy inside xAOD::EventInfo
-        #
-        if flags.InDet.doTRTGlobalOccupancy:
-            acc.merge(TRTOccupancyIncludeCfg(flags, name = prefix +"TRTOccupancyInclude"))
-        #
-        # --- we need to do truth association if requested (not for uncalibrated hits in cosmics)
-        #
-        if flags.InDet.doTruth and useTimeInfo:
-            acc.merge(InDetPRD_MultiTruthMakerTRTCfg(flags, name = prefix + "PRD_MultiTruthMaker"))
-            if flags.InDet.doSplitReco :
-                acc.merge(InDetPRD_MultiTruthMakerTRTPUCfg(flags, name = prefix+"PRD_MultiTruthMakerPU"))
-    return acc
-
-def TRTRawDataProviderCfg(flags):
-    acc = ComponentAccumulator()
-    from IOVDbSvc.IOVDbSvcConfig import addFolders
-    acc.merge(addFolders(flags, "/TRT/Onl/ROD/Compress","TRT_ONL", className='CondAttrListCollection'))
-
-    providerTool = CompFactory.TRTRawDataProviderTool("InDetTRTRawDataProviderTool",
-                                                      LVL1IDKey = "TRT_LVL1ID", 
-                                                      BCIDKey = "TRT_BCID")
-
-    from RegionSelector.RegSelToolConfig import regSelTool_TRT_Cfg
-    providerAlg = CompFactory.TRTRawDataProvider("InDetTRTRawDataProvider",
-                                                 ProviderTool = providerTool,
-                                                 RegSelTool = acc.popToolsAndMerge(regSelTool_TRT_Cfg(flags)))
-    acc.addEventAlgo(providerAlg)
+            acc.merge(InDetPRD_MultiTruthMakerTRTPUCfg(flags, name = prefix+"PRD_MultiTruthMakerPU"))
     return acc
 
 
@@ -327,7 +270,7 @@ if __name__ == "__main__":
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.Input.Files=defaultTestFiles.RDO
+    ConfigFlags.Input.Files=defaultTestFiles.RDO_RUN2
 
     # TODO: TRT only?
 
@@ -344,17 +287,17 @@ if __name__ == "__main__":
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     top_acc.merge(PoolReadCfg(ConfigFlags))
 
-    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-    top_acc.merge(TRT_GeometryCfg( ConfigFlags ))
+    from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
+    top_acc.merge(TRT_ReadoutGeometryCfg( ConfigFlags ))
 
-    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-    top_acc.merge( PixelGeometryCfg(ConfigFlags) )
-    top_acc.merge( SCT_GeometryCfg(ConfigFlags) )
+    from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+    top_acc.merge( PixelReadoutGeometryCfg(ConfigFlags) )
+    top_acc.merge( SCT_ReadoutGeometryCfg(ConfigFlags) )
 
-    if not ConfigFlags.InDet.doDBMstandalone:
-        top_acc.merge(TRTPreProcessingCfg(ConfigFlags,(not ConfigFlags.InDet.doTRTPhaseCalculation or ConfigFlags.Beam.Type =="collisions"),False))
-    
+    if not ConfigFlags.InDet.Tracking.doDBMstandalone:
+        top_acc.merge(TRTPreProcessingCfg(ConfigFlags))
+
     iovsvc = top_acc.getService('IOVDbSvc')
     iovsvc.OutputLevel=5
     top_acc.run(25)

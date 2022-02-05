@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonAGDDBase/AGDDMicromegas.h"
 #include "AGDDModel/AGDDParameterStore.h"
 #include "AGDDKernel/AGDDDetectorStore.h"
 #include "AGDDKernel/AGDDVolume.h"
+#include "AGDDKernel/AGDDBuilder.h"
 
 #include "GeoModelKernel/GeoTrd.h"
 #include "GeoModelKernel/GeoShape.h"
@@ -26,14 +27,16 @@
 
 using MuonGM::MYSQL;
 
-AGDDMicromegas::AGDDMicromegas(std::string s): 
-	MMDetectorDescription(s),AGDDVolume(s,true)
+AGDDMicromegas::AGDDMicromegas(const std::string& s,
+                               AGDDDetectorStore& ds,
+                               AGDDVolumeStore& vs,
+                               AGDDSectionStore& ss)
+  : MMDetectorDescription(s,ds),AGDDVolume(s,vs,ss,true)
 {
-	s_current=this;
 	Register();
 }
 
-void AGDDMicromegas::CreateSolid() 
+void AGDDMicromegas::CreateSolid (const AGDDBuilder& /*builder*/)
 {
 //	std::cout<<"this is AGDDMicromegas::CreateSolid()"<<std::endl;
 //	void *p=GetSolid();
@@ -47,7 +50,7 @@ void AGDDMicromegas::CreateSolid()
 
 }
 
-void AGDDMicromegas::CreateVolume() 
+void AGDDMicromegas::CreateVolume (AGDDBuilder& builder)
 {
 //    std::cout<<"this is AGDDMicromegas::CreateVolume()"<<std::endl;
 	
@@ -59,9 +62,9 @@ void AGDDMicromegas::CreateVolume()
 	mm_comp->subType=subType();
 	
 	MuonGM::Micromegas *cham=new MuonGM::Micromegas(mm_comp);
-	GeoPhysVol *vvv=(GeoPhysVol*)cham->build(1);
+	GeoPhysVol *vvv=(GeoPhysVol*)cham->build(builder.GetMaterialManager(), 1);
 
-	CreateSolid();
+	CreateSolid (builder);
 
 	if (!GetVolume())
 	{

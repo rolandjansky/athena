@@ -18,6 +18,8 @@
 #include "eflowRec/eflowTrackExtrapolatorBaseAlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "AthenaMonitoringKernel/Monitored.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 #include "CaloIdentifier/CaloCell_ID.h"
 
@@ -47,6 +49,8 @@ public:
   virtual StatusCode finalize() override;
 
 private:
+  const float m_invGeV = 1./CLHEP::GeV;
+
   eflowCalo::LAYER getLayer(const Trk::CurvilinearParameters* clParameters) const;
 
   ToolHandle<Trk::IParticleCaloExtensionTool> m_theTrackExtrapolatorTool;
@@ -58,6 +62,9 @@ private:
       "PFParticleCache", "ParticleCaloExtension", "Name of the particle measurement extrapolation cache"};
 
   Gaudi::Property<bool> m_useOldCalo{this,"useOldCalo",false,"If true, it uses the CaloExtensionTool for calculating track extrapolation. Otherwise, it allows the code to read from the cache created by CaloExtensionBuilderalg."};
+  
+  /** Online monitoring tool for recording histograms of the alg in action */
+  ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool_TrackCaloExtension","","Monitoring tool"};
 
 };
 

@@ -73,7 +73,7 @@ namespace Rec {
         ATH_CHECK(m_caloParamTool.retrieve());
         ATH_CHECK(m_noiseCDOKey.initialize());
         ATH_CHECK(m_cellContainerLocation.initialize());
-
+        ATH_CHECK(m_caloMgrKey.initialize());
         return StatusCode::SUCCESS;
     }
 
@@ -103,19 +103,21 @@ namespace Rec {
         }
 
         const CaloNoise* noiseCDO = *noiseHdl;
+        SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,ctx};
+        const CaloDetDescrManager* caloDDMgr = *caloMgrHandle;
 
         // set measured tile energy, measured sampling fraction and isolation energy into CaloMeas
         std::unique_ptr<CaloMeas> caloMeas = std::make_unique<CaloMeas>();
-        energyInCalo(*caloMeas, cellContainer.cptr(), noiseCDO, etaHad, phiHad, SubCaloId::TILE);
-        isolationEnergy(*caloMeas, cellContainer.cptr(), noiseCDO, etaHad, phiHad, SubCaloId::TILE);
+        energyInCalo(*caloMeas, cellContainer.cptr(), caloDDMgr, noiseCDO, etaHad, phiHad, SubCaloId::TILE);
+        isolationEnergy(*caloMeas, cellContainer.cptr(), caloDDMgr, noiseCDO, etaHad, phiHad, SubCaloId::TILE);
 
         // similar for LArHEC
-        energyInCalo(*caloMeas, cellContainer.cptr(), noiseCDO, etaHad, phiHad, SubCaloId::LARHEC);
-        isolationEnergy(*caloMeas, cellContainer.cptr(), noiseCDO, etaHad, phiHad, SubCaloId::LARHEC);
+        energyInCalo(*caloMeas, cellContainer.cptr(), caloDDMgr, noiseCDO, etaHad, phiHad, SubCaloId::LARHEC);
+        isolationEnergy(*caloMeas, cellContainer.cptr(), caloDDMgr,noiseCDO, etaHad, phiHad, SubCaloId::LARHEC);
 
         // and for the em calo
-        energyInCalo(*caloMeas, cellContainer.cptr(), noiseCDO, etaEM, phiEM, SubCaloId::LAREM);
-        isolationEnergy(*caloMeas, cellContainer.cptr(), noiseCDO, etaEM, phiEM, SubCaloId::LAREM);
+        energyInCalo(*caloMeas, cellContainer.cptr(), caloDDMgr, noiseCDO, etaEM, phiEM, SubCaloId::LAREM);
+        isolationEnergy(*caloMeas, cellContainer.cptr(), caloDDMgr, noiseCDO, etaEM, phiEM, SubCaloId::LAREM);
 
         ATH_MSG_DEBUG(std::setiosflags(std::ios::fixed)
                       << " Tile energy (GeV)  :" << std::setw(8) << std::setprecision(3) << caloMeas->Tile_EnergyMeasured() / Units::GeV
@@ -135,13 +137,13 @@ namespace Rec {
 
     //<<<<<< PRIVATE MEMBER FUNCTION DEFINITIONS                            >>>>>>
 
-    int MuidCaloEnergyMeas::cellCounting(const CaloCellContainer* cellContainer, const CaloNoise* noiseCDO, double mu_eta,
-                                         double mu_phi) const {
+    int MuidCaloEnergyMeas::cellCounting(const CaloCellContainer* cellContainer, const CaloDetDescrManager* detMgr, 
+                                         const CaloNoise* noiseCDO, double mu_eta, double mu_phi) const {
         // int isubcalo = 2;
         constexpr double lowest_threshold = 4 * 50.;
 
         CaloCell_ID::SUBCALO iCalo = CaloCell_ID::LAREM;
-        CaloCellList myList(cellContainer, iCalo);  // Construct the list
+        CaloCellList myList(detMgr,cellContainer, iCalo);  // Construct the list
         myList.select(mu_eta, mu_phi, 0.2, 0.2);
 
         int count = 0;
@@ -169,8 +171,8 @@ namespace Rec {
         return -1;
     }
 
-    void MuidCaloEnergyMeas::energyInCalo(CaloMeas& caloMeas, const CaloCellContainer* cellContainer, const CaloNoise* noiseCDO,
-                                          double muEta, double muPhi, int isubcalo) const {
+    void MuidCaloEnergyMeas::energyInCalo(CaloMeas& caloMeas, const CaloCellContainer* cellContainer, const CaloDetDescrManager* detMgr, 
+                                          const CaloNoise* noiseCDO, double muEta, double muPhi, int isubcalo) const {
         /* -------------------------------------------
            Tile Cal
            sample_number
@@ -201,15 +203,15 @@ namespace Rec {
 
         if (isubcalo == SubCaloId::TILE) {
             CaloCell_ID::SUBCALO iCalo = CaloCell_ID::TILE;
-            myList = std::make_unique<CaloCellList>(cellContainer, iCalo);
+            myList = std::make_unique<CaloCellList>(detMgr,cellContainer, iCalo);
             myList->select(muEta, muPhi, m_measurementConeTile, m_measurementConeTile);
         } else if (isubcalo == SubCaloId::LARHEC) {
             CaloCell_ID::SUBCALO iCalo = CaloCell_ID::LARHEC;
-            myList = std::make_unique<CaloCellList>(cellContainer, iCalo);
+            myList = std::make_unique<CaloCellList>(detMgr,cellContainer, iCalo);
             myList->select(muEta, muPhi, m_measurementConeLArHEC, m_measurementConeLArHEC);
         } else if (isubcalo == SubCaloId::LAREM) {
             CaloCell_ID::SUBCALO iCalo = CaloCell_ID::LAREM;
-            myList = std::make_unique<CaloCellList>(cellContainer, iCalo);
+            myList = std::make_unique<CaloCellList>(detMgr,cellContainer, iCalo);
             myList->select(muEta, muPhi, m_measurementConeLArEM, m_measurementConeLArEM);
         }
 
@@ -349,8 +351,8 @@ namespace Rec {
         }
     }
 
-    void MuidCaloEnergyMeas::isolationEnergy(CaloMeas& caloMeas, const CaloCellContainer* cellContainer, const CaloNoise* noiseCDO,
-                                             double muEta, double muPhi, int isubcalo) const {
+    void MuidCaloEnergyMeas::isolationEnergy(CaloMeas& caloMeas, const CaloCellContainer* cellContainer, const CaloDetDescrManager* detMgr, 
+                                             const CaloNoise* noiseCDO, double muEta, double muPhi, int isubcalo) const {
         double totalEnergy = 0.;
 
         // SG::ReadCondHandle<CaloNoise> noiseHdl{m_noiseCDOKey, ctx};
@@ -360,15 +362,15 @@ namespace Rec {
 
         if (isubcalo == SubCaloId::TILE) {
             CaloCell_ID::SUBCALO iCalo = CaloCell_ID::TILE;
-            myList = std::make_unique<CaloCellList>(cellContainer, iCalo);
+            myList = std::make_unique<CaloCellList>(detMgr,cellContainer, iCalo);
             myList->select(muEta, muPhi, m_isolationConeTile, m_isolationConeTile);
         } else if (isubcalo == SubCaloId::LARHEC) {
             CaloCell_ID::SUBCALO iCalo = CaloCell_ID::LARHEC;
-            myList = std::make_unique<CaloCellList>(cellContainer, iCalo);
+            myList = std::make_unique<CaloCellList>(detMgr,cellContainer, iCalo);
             myList->select(muEta, muPhi, m_isolationConeLArHEC, m_isolationConeLArHEC);
         } else if (isubcalo == SubCaloId::LAREM) {
             CaloCell_ID::SUBCALO iCalo = CaloCell_ID::LAREM;
-            myList = std::make_unique<CaloCellList>(cellContainer, iCalo);
+            myList = std::make_unique<CaloCellList>(detMgr,cellContainer, iCalo);
             myList->select(muEta, muPhi, m_isolationConeLArEM, m_isolationConeLArEM);
         }
 
@@ -424,8 +426,8 @@ namespace Rec {
         }
     }
 
-    double MuidCaloEnergyMeas::energyInTile(const CaloCellContainer* cellContainer, const CaloNoise* noiseCDO, double mu_eta, double mu_phi,
-                                            int sample, int cone) const {
+    double MuidCaloEnergyMeas::energyInTile(const CaloCellContainer* cellContainer, const CaloDetDescrManager* detMgr, 
+                                            const CaloNoise* noiseCDO, double mu_eta, double mu_phi, int sample, int cone) const {
         //      Tile Cal
         //      sample_number
         // 	     0 --> Sampling 1
@@ -435,14 +437,11 @@ namespace Rec {
 
         // int i,j,k;
 
-        // SG::ReadCondHandle<CaloNoise> noiseHdl{m_noiseCDOKey};
-        // const CaloNoise* noiseCDO = *noiseHdl;
-
         double tileTotalEnergy = 0.;
         double tileTestEnergy = 0.;
 
         CaloCell_ID::SUBCALO iCalo = CaloCell_ID::TILE;
-        CaloCellList myList(cellContainer, iCalo);  // Construct the list
+        CaloCellList myList(detMgr,cellContainer, iCalo);  // Construct the list
         if (cone == SubCaloId::TILE) {
             myList.select(mu_eta, mu_phi, 0.15, 0.15);
         } else if (cone == SubCaloId::LARHEC) {
@@ -475,8 +474,8 @@ namespace Rec {
         return tileTotalEnergy;
     }
 
-    double MuidCaloEnergyMeas::energyInLArHEC(const CaloCellContainer* cellContainer, const CaloNoise* noiseCDO, double mu_eta,
-                                              double mu_phi, int sample, int cone) const {
+    double MuidCaloEnergyMeas::energyInLArHEC(const CaloCellContainer* cellContainer, const CaloDetDescrManager* detMgr, 
+                                              const CaloNoise* noiseCDO, double mu_eta, double mu_phi, int sample, int cone) const {
         // Look in the LarHEC calorimeter
         // i.e. loop over its cells
         /* sample_number
@@ -493,7 +492,7 @@ namespace Rec {
         double larhecTotal = 0.;
 
         CaloCell_ID::SUBCALO iCalo = CaloCell_ID::LARHEC;
-        CaloCellList myList(cellContainer, iCalo);  // Construct the list
+        CaloCellList myList(detMgr, cellContainer, iCalo);  // Construct the list
         if (cone == SubCaloId::LARHEC) {
             myList.select(mu_eta, mu_phi, 0.15, 0.15);
         } else if (cone == SubCaloId::LAREM) {
@@ -525,8 +524,8 @@ namespace Rec {
         return larhecTotal;
     }
 
-    double MuidCaloEnergyMeas::energyInLArEM(const CaloCellContainer* cellContainer, const CaloNoise* noiseCDO, double mu_eta,
-                                             double mu_phi, int sample, int cone) const {
+    double MuidCaloEnergyMeas::energyInLArEM(const CaloCellContainer* cellContainer, const CaloDetDescrManager* detMgr, 
+                                             const CaloNoise* noiseCDO, double mu_eta, double mu_phi, int sample, int cone) const {
         // Look in the LarEM calorimeter
         // i.e. loop over its cells
         /*
@@ -541,7 +540,7 @@ namespace Rec {
         double emTotalEnergy = 0.;
 
         CaloCell_ID::SUBCALO iCalo = CaloCell_ID::LAREM;
-        CaloCellList myList(cellContainer, iCalo);  // Construct the list
+        CaloCellList myList(detMgr, cellContainer, iCalo);  // Construct the list
         if (cone == SubCaloId::LARHEC) {
             myList.select(mu_eta, mu_phi, 0.075, 0.075);  // 0.1 0.1
         } else if (cone == SubCaloId::LAREM) {

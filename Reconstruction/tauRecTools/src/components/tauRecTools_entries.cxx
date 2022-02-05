@@ -18,7 +18,6 @@
 #include "tauRecTools/TauSubstructureVariables.h"
 #include "tauRecTools/MvaTESEvaluator.h"
 #include "tauRecTools/MvaTESVariableDecorator.h"
-#include "tauRecTools/TauTrackClassifier.h"
 #include "tauRecTools/TauTrackRNNClassifier.h"
 #include "tauRecTools/TauCombinedTES.h"
 #include "tauRecTools/TauPi0ScoreCalculator.h"
@@ -49,9 +48,7 @@ DECLARE_COMPONENT( TauVertexVariables )
 DECLARE_COMPONENT( TauCalibrateLC )
 DECLARE_COMPONENT( MvaTESVariableDecorator )
 DECLARE_COMPONENT( MvaTESEvaluator )
-DECLARE_COMPONENT( tauRecTools::TauTrackClassifier )
 DECLARE_COMPONENT( tauRecTools::TauTrackRNNClassifier )
-DECLARE_COMPONENT( tauRecTools::TrackMVABDT )
 DECLARE_COMPONENT( tauRecTools::TrackRNN )
 DECLARE_COMPONENT( TauCombinedTES )
 DECLARE_COMPONENT( TauSubstructureVariables )

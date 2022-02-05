@@ -97,7 +97,7 @@ void DataHeaderCnv::clearInputDHFormCache( const std::string& dbGuid )
    auto iter = m_inputDHForms.begin();
    while( iter != m_inputDHForms.end() ) {
       size_t dbpos = iter->first.find("[DB=");
-      if( dbpos != std::string::npos && iter->first.substr(dbpos+4, dbpos+36) == dbGuid ) {
+      if( dbpos != std::string::npos && iter->first.compare(dbpos+4, dbpos+36, dbGuid) == 0 ) {
          iter = m_inputDHForms.erase( iter );
       } else {
          iter++;
@@ -143,7 +143,7 @@ StatusCode DataHeaderCnv::updateRepRefs(IOpaqueAddress* pAddress, DataObject* pO
 {
    static const pool::Guid dhf_p6_guid("7BE56CEF-C866-4BEE-9348-A5F34B5F1DAD");
    std::string dhid = pAddress->par()[1];
-   if( pAddress && pObject ) {
+   if( pObject ) {
       this->setToken( pAddress->par()[0] );
       if( !compareClassGuid( dhf_p6_guid ) ) {
          ATH_MSG_ERROR( "updateRepRefs called without DataHeaderForm" );
@@ -184,6 +184,8 @@ StatusCode DataHeaderCnv::DataObjectToPool(IOpaqueAddress* pAddr, DataObject* pO
    }
    // DH placement first:
    Placement dh_placement = setPlacementWithType("DataHeader", pObj->name(), *pAddr->par());
+   // remember the connection string, it may get changed in registerForWrite by SharedWriter
+   const std::string connection = dh_placement.fileName();
    dh_placement.setAuxString("[KEY=" + obj->getProcessTag() + "]");
 
    // DHForm placement:
@@ -213,7 +215,7 @@ StatusCode DataHeaderCnv::DataObjectToPool(IOpaqueAddress* pAddr, DataObject* pO
       ATH_MSG_FATAL("Failed to write DataHeader");
       return(StatusCode::FAILURE);
    }
-   keepPoolObj(persObj, dh_placement.fileName());
+   keepPoolObj(persObj, connection);
    // this updates DH and can update Form
    m_tpOutConverter.insertDHRef(persObj, obj->getProcessTag(), dh_token->toString(), *dhForm);
 
@@ -304,7 +306,7 @@ std::unique_ptr<DataHeader_p6> DataHeaderCnv::poolReadObject_p6()
 
    // see if the DataHeaderForm is already cached
    const std::string &dhFormToken =  header->dhFormToken();
-   if( m_inputDHForms.find(dhFormToken) == m_inputDHForms.end() ) {
+   if( dhFormToken.empty() || m_inputDHForms.find(dhFormToken) == m_inputDHForms.end() ) {
       // no cached DHForm
       size_t dbpos = dhFormToken.find("[DB=");
       if( dbpos != std::string::npos ) {
@@ -318,8 +320,13 @@ std::unique_ptr<DataHeader_p6> DataHeaderCnv::poolReadObject_p6()
       // we need to read a new DHF
       void* voidPtr2 = nullptr;
       Token mapToken;
-      mapToken.fromString( header->dhFormToken() );
-      mapToken.setAuxString( m_i_poolToken->auxString() );  // set PersSvc context
+      if( dhFormToken.empty() ) {
+         m_i_poolToken->setData(&mapToken);
+         mapToken.setClassID( Guid("7BE56CEF-C866-4BEE-9348-A5F34B5F1DAD") );
+      } else {
+         mapToken.fromString( dhFormToken );
+         mapToken.setAuxString( m_i_poolToken->auxString() );  // set PersSvc context
+      }
       if (mapToken.classID() != Guid::null()) {
          m_athenaPoolCnvSvc->setObjPtr(voidPtr2, &mapToken);
          if (voidPtr2 == nullptr) {

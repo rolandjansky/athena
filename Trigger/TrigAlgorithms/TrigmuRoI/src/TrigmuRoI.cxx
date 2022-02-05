@@ -89,7 +89,7 @@ StatusCode TrigmuRoI::execute(const EventContext& ctx) const
     ATH_MSG_VERBOSE("No RoIs found");
     return StatusCode::SUCCESS;
   }
-  for(auto it : *(roiVectors->outOfTimeRois)){
+  for(auto it : roiVectors->outOfTimeRois){
 
     if (msgLvl(MSG::DEBUG)) {
       ATH_MSG_DEBUG(" Difference(RoI(BCID) - Event(BCID)) = " << (it).second);
@@ -115,16 +115,16 @@ StatusCode TrigmuRoI::execute(const EventContext& ctx) const
     else              outOfTimeTgc.push_back((it).second);
     
     LVL1::TrigT1MuonRecRoiData roiData;
-    std::string region = "";
+    //std::string region = "";
     if( sysID == 0 ) {
       roiData = m_recRPCRoiTool->roiData(((it).first).roIWord());
-      region = "Barrel region";
+      //region = "Barrel region";
     } else if ( sysID == 1 ){
       roiData = m_recTGCRoiTool->roiData(((it).first).roIWord());
-      region = "Endcap region";
+      //region = "Endcap region";
     } else {
       roiData = m_recTGCRoiTool->roiData(((it).first).roIWord());
-      region = "Forward region";
+      //region = "Forward region";
     }
 	   
     // create new trigger element for this out of time RoI

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /* 
@@ -17,29 +17,15 @@
 #include "TgcSlbDataHelper.h"
 #include "MuonRDO/TgcRawData.h"
 #include "TgcSlbData.h"
-
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/IMessageSvc.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 Muon::TgcSlbDataHelper::TgcSlbDataHelper(void)
+  : AthMessaging (Athena::getMessageSvc(), "Muon::TgcSlbDataHelper")
 {
-  m_log = nullptr;
-  m_debug = false;
-  IMessageSvc* msgSvc = nullptr; 
-  ISvcLocator* svcLocator = Gaudi::svcLocator(); 
-  StatusCode sc = svcLocator->service("MessageSvc", msgSvc); 
-  if(!sc.isFailure()) {
-    m_log = new MsgStream(msgSvc, "Muon::TgcSlbDataHelper"); 
-    m_debug = (m_log->level() <= MSG::DEBUG); 
-  }
 }
 
 Muon::TgcSlbDataHelper::~TgcSlbDataHelper(void)
 {
-  delete m_log; 
-  m_log = nullptr;
 }
  
 // reconstruct to Hits. subDetectorID and ROD ID are dummy
@@ -48,8 +34,6 @@ void Muon::TgcSlbDataHelper::convertToHits(uint16_t subDetectorId,
 					   const TgcSlbData * slb,
 					   std::vector<TgcRawData *> &vChannel) const
 {
-  if(!m_log) return;
-
   TgcRawData::SlbType type = TgcRawData::SLB_TYPE_UNKNOWN;
   if((slb->getType() == TgcSlbData::SLB_SL_F) || 
      (slb->getType() == TgcSlbData::SLB_SL_E)) {
@@ -95,26 +79,18 @@ void Muon::TgcSlbDataHelper::convertToHits(uint16_t subDetectorId,
 	
 	// DEBUG PRINT
 	if(isFirstHit) {
-	  if(m_debug) {
-	    (*m_log) << MSG::DEBUG 
-		     << "Tgc TgcSlbDataHelper::convertToHits :"
-		     << " slb type =" << slb->getType()
-		     << endmsg;
-	  }
+          ATH_MSG_DEBUG( "Tgc TgcSlbDataHelper::convertToHits :"
+                         << " slb type =" << slb->getType() );
 	  isFirstHit =false;
 	}
-	if(m_debug) {
-	  (*m_log) << MSG::DEBUG 
-		   << "TgcRawData : HIT "
-		   << " BC:" << iBc 
-		   << " subDetId:" << subDetectorId 
-		   << " rodId:" << rodId
-		   << " sswId:" << slb->getSswId() 
-		   << " sbLoc:" << slb->getSbLoc() 
-		   << " slbId:" << slb->getSlbId()
-		   << " bit#:" << ibit 
-		   << endmsg;
-	}
+        ATH_MSG_DEBUG( "TgcRawData : HIT "
+                       << " BC:" << iBc 
+                       << " subDetId:" << subDetectorId 
+                       << " rodId:" << rodId
+                       << " sswId:" << slb->getSswId() 
+                       << " sbLoc:" << slb->getSbLoc() 
+                       << " slbId:" << slb->getSlbId()
+                       << " bit#:" << ibit );
       } //endif
     } // loop ibit
   } // loop iBC
@@ -126,8 +102,6 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 						   const TgcSlbData * slb,
 						   std::vector<TgcRawData *> &vChannel) const
 {
-  if(!m_log) return;
-
   bool hit[8];
   int delta[8];
   int pos[8];
@@ -158,29 +132,21 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
  
 	// DEBUG PRINT
 	if(isFirstHit) {
-	  if(m_debug) {
-	    (*m_log) << MSG::DEBUG 
-		     << "Tgc TgcSlbDataHelper::convertCoincidence :"
-		     << " slb type ="  << slb->getType()
-		     << endmsg;
-	  }
+          ATH_MSG_DEBUG( "Tgc TgcSlbDataHelper::convertCoincidence :"
+                         << " slb type ="  << slb->getType() );
 	  isFirstHit = false;
 	}
-	if(m_debug) {
-	  (*m_log) << MSG::DEBUG 
-		   << ((slb->getType()==TgcSlbData::SLB_LPT_D_W) ? 
-		       "TgcRawData : LPT_D_W " : "TgcRawData : LPT_D_S ")
-		   << " BC:" << iBc 
-		   << " subDetId:" << subDetectorId 
-		   << " rodId:" << rodId
-		   << " sswId:" << slb->getSswId() 
-		   << " sbLoc:" << slb->getSbLoc() 
-		   << " slbId:" << slb->getSlbId()
-		   << " sub: " << i
-		   << " pos:" << pos[i] 
-		   << " delta:" << delta[i]
-		   << endmsg;
-	}
+        ATH_MSG_DEBUG( ((slb->getType()==TgcSlbData::SLB_LPT_D_W) ? 
+                        "TgcRawData : LPT_D_W " : "TgcRawData : LPT_D_S ")
+                       << " BC:" << iBc 
+                       << " subDetId:" << subDetectorId 
+                       << " rodId:" << rodId
+                       << " sswId:" << slb->getSswId() 
+                       << " sbLoc:" << slb->getSbLoc() 
+                       << " slbId:" << slb->getSlbId()
+                       << " sub: " << i
+                       << " pos:" << pos[i] 
+                       << " delta:" << delta[i] );
       } // loop block (i)        
       break;
 
@@ -200,29 +166,21 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 	vChannel.push_back(rCh);
 	 
 	if(isFirstHit) {
-	  if(m_debug) {
-	    (*m_log) << MSG::DEBUG 
-		     << "Tgc TgcSlbDataHelper::convertCoincidence :"
-		     << " slb type =" << slb->getType()
-		     << endmsg;
-	  }
+          ATH_MSG_DEBUG( "Tgc TgcSlbDataHelper::convertCoincidence :"
+                         << " slb type =" << slb->getType() );
 	  isFirstHit = false;
 	}
-	if(m_debug) {
-	  (*m_log) << MSG::DEBUG 
-		   << ((slb->getType()==TgcSlbData::SLB_LPT_D_W) ?
-		       "TgcRawData : LPT_D_W " : "TgcRawData : LPT_D_S ")
-		   << " BC:" << iBc 
-		   << " subDetId:" << subDetectorId 
-		   << " rodId:" << rodId
-		   << " sswId:" << slb->getSswId() 
-		   << " sbLoc:" << slb->getSbLoc() 
-		   << " slbId:" << slb->getSlbId()
-		   << " sub: " << i
-		   << " pos:" << pos[i] 
-		   << " delta:" << delta[i]
-		   << endmsg;
-	}
+        ATH_MSG_DEBUG( ((slb->getType()==TgcSlbData::SLB_LPT_D_W) ?
+                        "TgcRawData : LPT_D_W " : "TgcRawData : LPT_D_S ")
+                       << " BC:" << iBc 
+                       << " subDetId:" << subDetectorId 
+                       << " rodId:" << rodId
+                       << " sswId:" << slb->getSswId() 
+                       << " sbLoc:" << slb->getSbLoc() 
+                       << " slbId:" << slb->getSlbId()
+                       << " sub: " << i
+                       << " pos:" << pos[i] 
+                       << " delta:" << delta[i] );
       } // loop block (i) 
       break;
 
@@ -241,27 +199,19 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 			     0, i, pos[i]);
 	vChannel.push_back(rCh);
 	if(isFirstHit) {
-	  if(m_debug) {
-	    (*m_log) << MSG::DEBUG 
-		     << "Tgc TgcSlbDataHelper::convertCoincidence :"
-		     << " slb type =" << slb->getType()
-		     << endmsg;
-	  }
+          ATH_MSG_DEBUG( "Tgc TgcSlbDataHelper::convertCoincidence :"
+                         << " slb type =" << slb->getType() );
 	  isFirstHit = false;
 	}
-	if(m_debug) {
-	  (*m_log) << MSG::DEBUG 
-		   << "TgcRawData : LPT_T_W "
-		   << " BC:" << iBc 
-		   << " subDetId:" << subDetectorId 
-		   << " rodId:" << rodId
-		   << " sswId:" << slb->getSswId() 
-		   << " sbLoc:" << slb->getSbLoc() 
-		   << " slbId:" << slb->getSlbId()
-		   << " sub: " << i
-		   << " pos:" << pos[i] 
-		   << endmsg;
-	}
+        ATH_MSG_DEBUG( "TgcRawData : LPT_T_W "
+                       << " BC:" << iBc 
+                       << " subDetId:" << subDetectorId 
+                       << " rodId:" << rodId
+                       << " sswId:" << slb->getSswId() 
+                       << " sbLoc:" << slb->getSbLoc() 
+                       << " slbId:" << slb->getSlbId()
+                       << " sub: " << i
+                       << " pos:" << pos[i]  );
       }	// loop block  
       break;
       
@@ -286,28 +236,20 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 			     seg, subc, pos[i]);
 	vChannel.push_back(rCh);
 	if(isFirstHit) {
-	  if(m_debug) {
-	    (*m_log) << MSG::DEBUG 
-		     << "Tgc TgcSlbDataHelper::convertCoincidence :"
-		     << " slb type =" << slb->getType()
-		     << endmsg;
-	  }
+          ATH_MSG_DEBUG( "Tgc TgcSlbDataHelper::convertCoincidence :"
+                         << " slb type =" << slb->getType() );
 	  isFirstHit = false;
 	}
-	if(m_debug) {
-	  (*m_log) << MSG::DEBUG 
-		   << "TgcRawData : LPT_T_S "
-		   << " BC:" << iBc 
-		   << " subDetId:" << subDetectorId 
-		   << " rodId:" << rodId
-		   << " sswId:" << slb->getSswId()
-		   << " sbLoc:" << slb->getSbLoc() 
-		   << " slbId:" << slb->getSlbId()
-		   << " seg: " << seg
-		   << " sub: " << subc
-		   << " pos:" << pos[i] 
-		   << endmsg;
-	}
+        ATH_MSG_DEBUG( "TgcRawData : LPT_T_S "
+                       << " BC:" << iBc 
+                       << " subDetId:" << subDetectorId 
+                       << " rodId:" << rodId
+                       << " sswId:" << slb->getSswId()
+                       << " sbLoc:" << slb->getSbLoc() 
+                       << " slbId:" << slb->getSlbId()
+                       << " seg: " << seg
+                       << " sub: " << subc
+                       << " pos:" << pos[i] );
       }	// loop block (i)  
       break;
       
@@ -337,29 +279,21 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 			     0); // uint16_t rphi, always for Tracklet Inner 
 	vChannel.push_back(rCh);
 	if(isFirstHit) {
-	  if(m_debug) {
-	    (*m_log) << MSG::DEBUG 
-		     << "Tgc TgcSlbDataHelper::convertCoincidence :"
-		     << " slb type =" << slb->getType()
-		     << endmsg;
-	  }
+          ATH_MSG_DEBUG( "Tgc TgcSlbDataHelper::convertCoincidence :"
+                         << " slb type =" << slb->getType() );
 	  isFirstHit = false;
 	}
-	if(m_debug) {
-	  (*m_log) << MSG::DEBUG 
-		   << "TgcRawData : " 
-		   << (rCh->slbType()==TgcRawData::SLB_TYPE_INNER_STRIP ? "LPT_I_S" : "LPT_I_W") 
-		   << " BC:" << rCh->bcTag() 
-		   << " subDetId:" << rCh->subDetectorId() 
-		   << " rodId:" << rCh->rodId()
-		   << " sswId:" << rCh->sswId()
-		   << " sbLoc:" << rCh->slbId() 
-		   << " slbId:" << slb->getSlbId()
-		   << " seg: " << rCh->segment()
-		   << " sub: " << rCh->subMatrix()
-		   << " pos:" << rCh->position() 
-		   << endmsg;
-	}
+        ATH_MSG_DEBUG( "TgcRawData : " 
+                       << (rCh->slbType()==TgcRawData::SLB_TYPE_INNER_STRIP ? "LPT_I_S" : "LPT_I_W") 
+                       << " BC:" << rCh->bcTag() 
+                       << " subDetId:" << rCh->subDetectorId() 
+                       << " rodId:" << rCh->rodId()
+                       << " sswId:" << rCh->sswId()
+                       << " sbLoc:" << rCh->slbId() 
+                       << " slbId:" << slb->getSlbId()
+                       << " seg: " << rCh->segment()
+                       << " sub: " << rCh->subMatrix()
+                       << " pos:" << rCh->position() );
       }	
       
       break;
@@ -407,27 +341,19 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 			     roi[i]);
 	vChannel.push_back(rCh);
 	if(isFirstHit) {
-	  if(m_debug) {
-	    (*m_log) << MSG::DEBUG 
-		     << "Tgc TgcSlbDataHelper::convertCoincidence :"
-		     << " slb type =" << slb->getType()
-		     << endmsg;
-	  }
+          ATH_MSG_DEBUG( "Tgc TgcSlbDataHelper::convertCoincidence :"
+                         << " slb type =" << slb->getType() );
 	  isFirstHit = false;
 	}
-	if(m_debug) {
-	  (*m_log) << MSG::DEBUG 
-		   << "TgcRawData : SL "
-		   << " BC:" << iBc 
-		   << " subDetId:" << subDetectorId 
-		   << " rodId:" << rodId
-		   << " sswId:" << slb->getSswId()
-		   << " sbLoc:" << slb->getSbLoc() 
-		   << " slbId:" << slb->getSlbId()
-		   << " roi:" << roi[i] 
-		   << " pt:" << threshold[i]
-		   << endmsg;
-	}
+        ATH_MSG_DEBUG( "TgcRawData : SL "
+                       << " BC:" << iBc 
+                       << " subDetId:" << subDetectorId 
+                       << " rodId:" << rodId
+                       << " sswId:" << slb->getSswId()
+                       << " sbLoc:" << slb->getSbLoc() 
+                       << " slbId:" << slb->getSlbId()
+                       << " roi:" << roi[i] 
+                       << " pt:" << threshold[i] );
       } // loop candidate (i)
 
       // SL Input = Hpt Output
@@ -471,30 +397,22 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 	  else hpt_Type +="W";
 
 	  if(isFirstHit) {
-	    if(m_debug) {
-	      (*m_log) << MSG::DEBUG 
-		       << "Tgc TgcSlbDataHelper::convertCoincidence :"
-		       << " slb type =" << slb->getType()
-		       << endmsg;
-	    }
+            ATH_MSG_DEBUG( "Tgc TgcSlbDataHelper::convertCoincidence :"
+                           << " slb type =" << slb->getType() );
 	    isFirstHit = false;
 	  }
-	  if(m_debug) {
-	    (*m_log) << MSG::DEBUG
-		     << "invalid HPT data " << hpt_Type
-		     << " BC:" << iBc 
-		     << " subDetId:" << subDetectorId 
-		     << " rodId:" << rodId
-		     << " sswId:" << slb->getSswId()
-		     << " sbLoc:" << slb->getSbLoc() 
-		     << " slbId:" << slb->getSlbId()
-		     << std::dec                      
-		     << " chip:" << chip[i] 
-		     << " index:" << index[i]
-		     << " hitId:" << hitId[i] 
-		     << " delta:" << deltaHPT[i]
-		     << endmsg;
-          }
+          ATH_MSG_DEBUG( "invalid HPT data " << hpt_Type
+                         << " BC:" << iBc 
+                         << " subDetId:" << subDetectorId 
+                         << " rodId:" << rodId
+                         << " sswId:" << slb->getSswId()
+                         << " sbLoc:" << slb->getSbLoc() 
+                         << " slbId:" << slb->getSlbId()
+                         << std::dec                      
+                         << " chip:" << chip[i] 
+                         << " index:" << index[i]
+                         << " hitId:" << hitId[i] 
+                         << " delta:" << deltaHPT[i] );
           continue; // skip making TgcRawData
         }
 
@@ -517,33 +435,29 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
         }
 	vChannel.push_back(rCh);
 	if(isFirstHit) {
-	  if(m_debug) {
-	    (*m_log) << "Tgc TgcSlbDataHelper::convertCoincidence :"
-		     << " slb type =" << slb->getType()
-		     << endmsg;
-	  }
+          ATH_MSG_DEBUG( "Tgc TgcSlbDataHelper::convertCoincidence :"
+                         << " slb type =" << slb->getType() );
 	  isFirstHit = false;
 	}
-	if(m_debug) {
-	  std::string hptType="E";
-	  if(forward) hptType ="F";
-	  if(strip[i]) hptType+="S";
-	  else hptType +="W";
-	  (*m_log) << MSG::DEBUG 
-		   << "TgcRawData : HPT " << hptType
-		   << " BC:" << iBc 
-		   << " subDetId:" << subDetectorId 
-		   << " rodId:" << rodId
-		   << " sswId:" << slb->getSswId() 
-		   << " sbLoc:" << slb->getSbLoc() 
-		   << " slbId:" << slb->getSlbId()
-		   << std::dec
-		   << " chip:" << chip[i] 
-		   << " index:" << index[i]
-		   << " hitId:" << hitId[i] 
-		   << " delta:" << deltaHPT[i]
-		   << endmsg;
-	}
+        auto hptType = [&]() {
+          std::string hptType="E";
+          if(forward) hptType ="F";
+          if(strip[i]) hptType+="S";
+          else hptType +="W";
+          return hptType;
+        };
+        ATH_MSG_DEBUG( "TgcRawData : HPT " << hptType()
+                       << " BC:" << iBc 
+                       << " subDetId:" << subDetectorId 
+                       << " rodId:" << rodId
+                       << " sswId:" << slb->getSswId() 
+                       << " sbLoc:" << slb->getSbLoc() 
+                       << " slbId:" << slb->getSlbId()
+                       << std::dec
+                       << " chip:" << chip[i] 
+                       << " index:" << index[i]
+                       << " hitId:" << hitId[i] 
+                       << " delta:" << deltaHPT[i] );
       }
 
       break;

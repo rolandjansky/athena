@@ -10,7 +10,6 @@
 #include "Gaudi/Property.h"
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/IToolSvc.h"
-//#include "GaudiKernel/IChronoStatSvc.h"
 
 #include "StoreGate/StoreGateSvc.h"
 
@@ -18,7 +17,6 @@
 
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloEvent/CaloTower.h"
 #include "CaloEvent/CaloTowerContainer.h"
@@ -38,7 +36,6 @@ CaloTopoTowerBuilderTool::CaloTopoTowerBuilderTool(const std::string& name,
 					   const std::string& type,
 					   const IInterface* parent)
   : CaloTopoTowerBuilderToolBase(name,type,parent),
-    m_calo_dd_man(nullptr),
     m_calo_id(nullptr)
 {
   declareInterface<ICaloTopoTowerBuilderToolBase>(this);    
@@ -57,8 +54,7 @@ StatusCode CaloTopoTowerBuilderTool::initializeTool()
 {
   ATH_MSG_INFO( "Initializing CaloTopoTowerAlg"  );
 
-  ATH_CHECK( detStore()->retrieve (m_calo_dd_man, "CaloMgr") );
-  m_calo_id   = m_calo_dd_man->getCaloCell_ID();
+  ATH_CHECK(detStore()->retrieve(m_calo_id, "CaloCell_ID"));
 
   return StatusCode::SUCCESS;
 }

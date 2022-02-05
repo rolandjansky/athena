@@ -55,6 +55,17 @@ namespace Trig
       ATH_MSG_DEBUG("Chain " << name << " passed");
       const auto &features = m_tdt->features<xAOD::IParticleContainer>(name);
       ATH_MSG_DEBUG("Found " << features.size() << " features");
+      // Check for dead legs
+      if (std::any_of(
+        features.begin(), features.end(), 
+        [] (const TrigCompositeUtils::LinkInfo<xAOD::IParticleContainer>& li) {return !li.link.isValid();}))
+      {
+        // Only warn once per chain per job
+        std::scoped_lock lock(m_warnedChainsMutex);
+        if (m_warnedChains.insert(name).second)
+          ATH_MSG_WARNING("Invalid link found for " << name << "!");
+        continue;
+      }
       // Build up the full list of trigger combinations
       // TODO - right now we use a filter that passes everything that isn't pointer-equal.
       // This will probably need to be fixed to something else later - at least the unique RoI filter

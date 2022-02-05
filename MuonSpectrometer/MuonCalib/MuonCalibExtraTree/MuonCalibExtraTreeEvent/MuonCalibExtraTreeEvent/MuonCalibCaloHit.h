@@ -7,35 +7,34 @@
 
 #include "GeoPrimitives/GeoPrimitives.h"
 
+namespace MuonCalib {
 
-namespace MuonCalib{
+    /**
+       Simplified class designed to store information of a MBTS hit. It has :
+       - a position
+       - a Identifier (int)
+       - time and charge
 
-  /**
-     Simplified class designed to store information of a MBTS hit. It has :
-     - a position
-     - a Identifier (int)
-     - time and charge
-     
-     @author Niels van Eldik
-  */
-  class MuonCalibCaloHit{
-  public:
-    MuonCalibCaloHit();                                                                               //!< default constructor
-    MuonCalibCaloHit( const int& id, const Amg::Vector3D& pos, double time, double charge );
-    ~MuonCalibCaloHit() {} ;                                                                          //!< destructor
+       @author Niels van Eldik
+    */
+    class MuonCalibCaloHit {
+    public:
+        MuonCalibCaloHit() = default;  //!< default constructor
+        MuonCalibCaloHit(int id, const Amg::Vector3D& pos, float time, float charge);
+        ~MuonCalibCaloHit() = default;  //!< destructor
 
-    const int& identify() const { return m_id; }              //!< return the identifier of the Hit
-    const Amg::Vector3D&  position() const { return m_pos; }     //!< return the (global) position of the MuonCalibHit
-    double       time() const { return m_time; }        //!< return the time 
-    double       charge() const { return m_charge; }    //!< return the charge
+        int identify() const;                   //!< return the identifier of the Hit
+        const Amg::Vector3D& position() const;  //!< return the (global) position of the MuonCalibHit
+        float time() const;                     //!< return the time
+        float charge() const;                   //!< return the charge
 
-  private:
-    int         m_id;	       //!< Identifier 
-    Amg::Vector3D  m_pos;         //!< Global position
-    double      m_time;        //!< time
-    double      m_charge;      //!< charge
-  } ;
+    private:
+        int m_id{0};                      //!< Identifier
+        Amg::Vector3D m_pos{0., 0., 0.};  //!< Global position
+        float m_time{0.};                 //!< time
+        float m_charge{0.};               //!< charge
+    };
 
-}//namespace MuonCalib
+}  // namespace MuonCalib
 
-#endif 
+#endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDSVC_CSCICOOLSTRSVC_H
@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 #include "GaudiKernel/IInterface.h"
+#include "CxxUtils/checker_macros.h"
 
 //#include "MuonCondData/CscCalibData.h"
 
@@ -22,7 +23,7 @@ namespace MuonCalib {
   class CscCondDataContainer;
   class CscCondDataCollectionBase;
 
-  class CscICoolStrSvc : virtual public IInterface {
+  class ATLAS_NOT_THREAD_SAFE CscICoolStrSvc : virtual public IInterface {
 
     public:
       static const InterfaceID& interfaceID();

@@ -101,6 +101,7 @@ def addRecoSubsteps(executorSet):
     # Note that the RAWtoALL substep is disabled by defaut (no inputs or outputs)
     # It will be enabled explicitly via --steering if required
     executorSet.add(athenaExecutor(name = 'RAWtoALL', skeletonFile = 'RecJobTransforms/skeleton.RAWtoALL_tf.py',
+                                   skeletonCA = 'RecJobTransforms.RAWtoALL_Skeleton',
                                    substep = 'r2a', inData = [],
                                    outData = []))
     executorSet.add(athenaExecutor(name = 'RAWtoESD', skeletonFile = 'RecJobTransforms/skeleton.RAWtoESD_tf.py',

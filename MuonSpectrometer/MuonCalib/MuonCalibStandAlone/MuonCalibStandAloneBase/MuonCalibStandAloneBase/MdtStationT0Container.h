@@ -15,10 +15,6 @@
 /// provide the t0s to the user. It is meant to be an auxiliary class for
 /// the stand-alone calibration programme. It might be possible in the future
 /// to drop this class.
-///
-/// \author Oliver.Kortner@CERN.CH
-///
-/// \date 01.02.2007
 
 #include <string>
 #include <vector>

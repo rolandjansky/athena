@@ -13,193 +13,85 @@
 
 namespace MuonCalib {
 
-    MuonCalibSegment::MuonCalibSegment(double chi2, const Amg::Vector3D &pos, const Amg::Vector3D &dir, const Amg::Transform3D &locToGlo,
+    MuonCalibSegment::MuonCalibSegment(double chi2, const Amg::Vector3D& pos, const Amg::Vector3D& dir, const Amg::Transform3D& locToGlo,
                                        unsigned int qualityFlag) :
-        m_chi2(chi2),
-        m_dy0(0),
-        m_dtheta(0),
-        m_localPosition(pos),
-        m_localDirection(dir),
-        m_localToGlobal(locToGlo),
-        m_fittedT0(-99999.),
-        m_qualityFlag(qualityFlag),
-        m_author(-1) {}
+        m_chi2{chi2}, m_localPosition{pos}, m_localDirection{dir}, m_localToGlobal{locToGlo}, m_qualityFlag{qualityFlag} {}
 
-    MuonCalibSegment::~MuonCalibSegment() {
-        // MuonCalibSegments owns MdtCalibHitBases
-        std::for_each(mdtHOTBegin(), mdtHOTEnd(), DeleteObject());
-        std::for_each(mdtCloseHitsBegin(), mdtCloseHitsEnd(), DeleteObject());
+    MuonCalibSegment::~MuonCalibSegment() = default;
+    void MuonCalibSegment::copy(const MuonCalibSegment& other) {
+        m_chi2 = other.chi2();
+        m_dy0 = other.error_dy0();
+        m_dtheta = other.error_dtheta();
+        m_localPosition = other.position();
+        m_localDirection = other.direction();
+        m_localToGlobal = other.localToGlobal();
+        m_qualityFlag = other.qualityFlag();
+        m_author = other.author();
+        m_fittedT0 = other.m_fittedT0;  // don't use function as it would return 0 if m_fittedT0 == -99999.
 
-        // MuonCalibSegments owns CscCalibHitBases
-        std::for_each(cscHOTBegin(), cscHOTEnd(), DeleteObject());
-        std::for_each(cscCloseHitsBegin(), cscCloseHitsEnd(), DeleteObject());
+        m_mdtHitsOnTrack.clear();
+        for (const MdtHitPtr& mdt_it : other.mdtHOT()) { addHitOnTrack(new MdtCalibHitBase(*mdt_it)); }
 
-        // MuonCalibSegments owns RpcCalibHitBases
-        std::for_each(rpcHOTBegin(), rpcHOTEnd(), DeleteObject());
-        std::for_each(rpcCloseHitsBegin(), rpcCloseHitsEnd(), DeleteObject());
+        m_mdtCloseHits.clear();
+        for (const MdtHitPtr& mdt_it : other.mdtClose()) { addCloseHit(new MdtCalibHitBase(*mdt_it)); }
 
-        // MuonCalibSegments owns TgcCalibHitBases
-        std::for_each(tgcHOTBegin(), tgcHOTEnd(), DeleteObject());
-        std::for_each(tgcCloseHitsBegin(), tgcCloseHitsEnd(), DeleteObject());
+        m_cscHitsOnTrack.clear();
+        for (const CscHitPtr& csc_it : other.cscHOT()) { addHitOnTrack(new CscCalibHitBase(*csc_it)); }
+        for (const CscHitPtr& csc_it : other.cscClose()) { addCloseHit(new CscCalibHitBase(*csc_it)); }
+
+        m_rpcHitsOnTrack.clear();
+        for (const RpcHitPtr& rpc_it : other.rpcHOT()) { addHitOnTrack(new RpcCalibHitBase(*rpc_it)); }
+
+        m_rpcCloseHits.clear();
+        for (const RpcHitPtr& rpc_it : other.rpcClose()) { addCloseHit(new RpcCalibHitBase(*rpc_it)); }
+
+        m_tgcHitsOnTrack.clear();
+        for (const TgcHitPtr& tgc_it : other.tgcHOT()) { addHitOnTrack(new TgcCalibHitBase(*tgc_it)); }
+
+        m_tgcCloseHits.clear();
+        for (const TgcHitPtr& tgc_it : other.tgcClose()) { addCloseHit(new TgcCalibHitBase(*tgc_it)); }
     }
 
-    MuonCalibSegment::MuonCalibSegment(const MuonCalibSegment &seg) {
-        m_chi2 = seg.chi2();
-        m_dy0 = seg.error_dy0();
-        m_dtheta = seg.error_dtheta();
-        m_localPosition = seg.position();
-        m_localDirection = seg.direction();
-        m_localToGlobal = seg.localToGlobal();
-        m_qualityFlag = seg.qualityFlag();
-        m_author = seg.author();
-        m_fittedT0 = seg.m_fittedT0;  // don't use function as it would return 0 if m_fittedT0 == -99999.
-
-        // Add MdtCalibHits
-        MdtHitCit mdt_it = seg.mdtHOTBegin();
-        MdtHitCit mdt_it_end = seg.mdtHOTEnd();
-        for (; mdt_it != mdt_it_end; ++mdt_it) { addHitOnTrack(new MdtCalibHitBase(**mdt_it)); }
-
-        mdt_it = seg.mdtCloseHitsBegin();
-        mdt_it_end = seg.mdtCloseHitsEnd();
-        for (; mdt_it != mdt_it_end; ++mdt_it) { addCloseHit(new MdtCalibHitBase(**mdt_it)); }
-
-        // Add CscCalibHits
-        CscHitCit csc_it = seg.cscHOTBegin();
-        CscHitCit csc_it_end = seg.cscHOTEnd();
-        for (; csc_it != csc_it_end; ++csc_it) { addHitOnTrack(new CscCalibHitBase(**csc_it)); }
-
-        csc_it = seg.cscCloseHitsBegin();
-        csc_it_end = seg.cscCloseHitsEnd();
-        for (; csc_it != csc_it_end; ++csc_it) { addCloseHit(new CscCalibHitBase(**csc_it)); }
-
-        // Add RpcCalibHits
-        RpcHitCit rpc_it = seg.rpcHOTBegin();
-        RpcHitCit rpc_it_end = seg.rpcHOTEnd();
-        for (; rpc_it != rpc_it_end; ++rpc_it) { addHitOnTrack(new RpcCalibHitBase(**rpc_it)); }
-
-        rpc_it = seg.rpcCloseHitsBegin();
-        rpc_it_end = seg.rpcCloseHitsEnd();
-        for (; rpc_it != rpc_it_end; ++rpc_it) { addCloseHit(new RpcCalibHitBase(**rpc_it)); }
-
-        // Add TgcCalibHit
-        TgcHitCit tgc_it = seg.tgcHOTBegin();
-        TgcHitCit tgc_it_end = seg.tgcHOTEnd();
-        for (; tgc_it != tgc_it_end; ++tgc_it) { addHitOnTrack(new TgcCalibHitBase(**tgc_it)); }
-
-        tgc_it = seg.tgcCloseHitsBegin();
-        tgc_it_end = seg.tgcCloseHitsEnd();
-        for (; tgc_it != tgc_it_end; ++tgc_it) { addCloseHit(new TgcCalibHitBase(**tgc_it)); }
-    }  // end MuonCalibSegment::MuonCalibSegment
-
-    MuonCalibSegment &MuonCalibSegment::operator=(const MuonCalibSegment &seg) {
-        if (this != &seg) {
-            m_chi2 = seg.chi2();
-            m_dy0 = seg.error_dy0();
-            m_dtheta = seg.error_dtheta();
-            m_localPosition = seg.position();
-            m_localDirection = seg.direction();
-            m_localToGlobal = seg.localToGlobal();
-            m_qualityFlag = seg.qualityFlag();
-            m_author = seg.author();
-            m_fittedT0 = seg.m_fittedT0;  // don't use function as it would return 0 if m_fittedT0 == -99999.
-
-            std::for_each(mdtHOTBegin(), mdtHOTEnd(), DeleteObject());
-            m_mdtHitsOnTrack.clear();
-            MdtHitCit mdt_it = seg.mdtHOTBegin();
-            MdtHitCit mdt_it_end = seg.mdtHOTEnd();
-            for (; mdt_it != mdt_it_end; ++mdt_it) { addHitOnTrack(new MdtCalibHitBase(**mdt_it)); }
-
-            std::for_each(mdtCloseHitsBegin(), mdtCloseHitsEnd(), DeleteObject());
-            m_mdtCloseHits.clear();
-            mdt_it = seg.mdtCloseHitsBegin();
-            mdt_it_end = seg.mdtCloseHitsEnd();
-            for (; mdt_it != mdt_it_end; ++mdt_it) { addCloseHit(new MdtCalibHitBase(**mdt_it)); }
-
-            std::for_each(cscHOTBegin(), cscHOTEnd(), DeleteObject());
-            m_cscHitsOnTrack.clear();
-            CscHitCit csc_it = seg.cscHOTBegin();
-            CscHitCit csc_it_end = seg.cscHOTEnd();
-            for (; csc_it != csc_it_end; ++csc_it) { addHitOnTrack(new CscCalibHitBase(**csc_it)); }
-
-            std::for_each(cscCloseHitsBegin(), cscCloseHitsEnd(), DeleteObject());
-            m_cscCloseHits.clear();
-            csc_it = seg.cscCloseHitsBegin();
-            csc_it_end = seg.cscCloseHitsEnd();
-            for (; csc_it != csc_it_end; ++csc_it) { addCloseHit(new CscCalibHitBase(**csc_it)); }
-
-            std::for_each(rpcHOTBegin(), rpcHOTEnd(), DeleteObject());
-            m_rpcHitsOnTrack.clear();
-            RpcHitCit rpc_it = seg.rpcHOTBegin();
-            RpcHitCit rpc_it_end = seg.rpcHOTEnd();
-            for (; rpc_it != rpc_it_end; ++rpc_it) { addHitOnTrack(new RpcCalibHitBase(**rpc_it)); }
-
-            std::for_each(rpcCloseHitsBegin(), rpcCloseHitsEnd(), DeleteObject());
-            m_rpcCloseHits.clear();
-            rpc_it = seg.rpcCloseHitsBegin();
-            rpc_it_end = seg.rpcCloseHitsEnd();
-            for (; rpc_it != rpc_it_end; ++rpc_it) { addCloseHit(new RpcCalibHitBase(**rpc_it)); }
-
-            std::for_each(tgcHOTBegin(), tgcHOTEnd(), DeleteObject());
-            m_tgcHitsOnTrack.clear();
-            TgcHitCit tgc_it = seg.tgcHOTBegin();
-            TgcHitCit tgc_it_end = seg.tgcHOTEnd();
-            for (; tgc_it != tgc_it_end; ++tgc_it) { addHitOnTrack(new TgcCalibHitBase(**tgc_it)); }
-
-            std::for_each(tgcCloseHitsBegin(), tgcCloseHitsEnd(), DeleteObject());
-            m_tgcCloseHits.clear();
-            tgc_it = seg.tgcCloseHitsBegin();
-            tgc_it_end = seg.tgcCloseHitsEnd();
-            for (; tgc_it != tgc_it_end; ++tgc_it) { addCloseHit(new TgcCalibHitBase(**tgc_it)); }
-        }
+    MuonCalibSegment::MuonCalibSegment(const MuonCalibSegment& other) { copy(other); }
+    MuonCalibSegment& MuonCalibSegment::operator=(const MuonCalibSegment& other) {
+        if (this != &other) { copy(other); }
         return *this;
-    }  // end MuonCalibSegment::operator=
-
+    }
     unsigned int MuonCalibSegment::hitsPerML(int ML) const {
-        int counter = 0;
-        std::vector<MdtCalibHitBase *>::const_iterator hit_it = mdtHOTBegin();
-        for (; hit_it != mdtHOTEnd(); ++hit_it) {
-            if (((*hit_it)->identify()).mdtMultilayer() == ML) ++counter;
-        }
+        int counter{0};
+        for (const MdtHitPtr& hit_it : mdtHOT()) { counter += (hit_it->identify().mdtMultilayer() == ML); }
         return counter;
     }
 
-    std::ostream &MuonCalibSegment::dump(std::ostream &stream) const {
+    std::ostream& MuonCalibSegment::dump(std::ostream& stream) const {
         stream << "MuonCalibSegment with chi2 " << chi2() << std::endl;
         stream << " -- local position " << position() << " direction " << direction() << std::endl;
         stream << " -- HitsOnTrack " << hitsOnTrack() << std::endl;
 
         // Dump MdtCalibHit
-        MdtHitCit mdt_it = mdtHOTBegin();
-        for (; mdt_it != mdtHOTEnd(); ++mdt_it) { (*mdt_it)->dump(stream); }
+        for (const MdtHitPtr& mdt_it : mdtHOT()) { mdt_it->dump(stream); }
         stream << " -- CloseHits " << mdtCloseHits() << std::endl;
-        mdt_it = mdtCloseHitsBegin();
-        for (; mdt_it != mdtCloseHitsEnd(); ++mdt_it) { (*mdt_it)->dump(stream); }
+        for (const MdtHitPtr& mdt_it : mdtClose()) { mdt_it->dump(stream); }
 
         // Dump CscCalibHit
-        CscHitCit csc_it = cscHOTBegin();
-        for (; csc_it != cscHOTEnd(); ++csc_it) { (*csc_it)->dump(stream); }
+        for (const CscHitPtr& csc_it : cscHOT()) { csc_it->dump(stream); }
         stream << " -- CloseHits " << cscCloseHits() << std::endl;
-        csc_it = cscCloseHitsBegin();
-        for (; csc_it != cscCloseHitsEnd(); ++csc_it) { (*csc_it)->dump(stream); }
+        for (const CscHitPtr& csc_it : cscClose()) { csc_it->dump(stream); }
 
         // Dump RpcCalibHit
-        RpcHitCit rpc_it = rpcHOTBegin();
-        for (; rpc_it != rpcHOTEnd(); ++rpc_it) { (*rpc_it)->dump(stream); }
+        for (const RpcHitPtr& rpc_it : rpcHOT()) { rpc_it->dump(stream); }
         stream << " -- CloseHits " << rpcCloseHits() << std::endl;
-        rpc_it = rpcCloseHitsBegin();
-        for (; rpc_it != rpcCloseHitsEnd(); ++rpc_it) { (*rpc_it)->dump(stream); }
+        for (const RpcHitPtr& rpc_it : rpcClose()) { rpc_it->dump(stream); }
 
         // Dump TgcCalibHit
-        TgcHitCit tgc_it = tgcHOTBegin();
-        for (; tgc_it != tgcHOTEnd(); ++tgc_it) { (*tgc_it)->dump(stream); }
+        for (const TgcHitPtr& tgc_it : tgcHOT()) { tgc_it->dump(stream); }
         stream << " -- CloseHits " << tgcCloseHits() << std::endl;
-        tgc_it = tgcCloseHitsBegin();
-        for (; tgc_it != tgcCloseHitsEnd(); ++tgc_it) { (*tgc_it)->dump(stream); }
+        for (const TgcHitPtr& tgc_it : tgcClose()) { tgc_it->dump(stream); }
 
         return stream;
     }  // end MuonCalibSegment::dump
 
-    void MuonCalibSegment::refineMdtSelection(const std::vector<unsigned int> &new_selection) {
+    void MuonCalibSegment::refineMdtSelection(const std::vector<unsigned int>& new_selection) {
         if (new_selection.size() != m_mdtHitsOnTrack.size()) {
             MsgStream log(Athena::getMessageSvc(), "MuonCalibSegment");
             log << MSG::WARNING << "MuonCalibSegment::refineMdtSelection: Wrong size of vector!" << endmsg;
@@ -210,13 +102,119 @@ namespace MuonCalib {
         m_mdtHitsOnTrack.clear();
         for (unsigned int i = 0; i < old_hit_vec.size(); i++) {
             if (!new_selection[i]) {
-                m_mdtHitsOnTrack.push_back(old_hit_vec[i]);
+                m_mdtHitsOnTrack.emplace_back(old_hit_vec[i]);
             } else {
-                m_mdtCloseHits.push_back(old_hit_vec[i]);
+                m_mdtCloseHits.emplace_back(old_hit_vec[i]);
             }
         }
     }  // end MuonCalibSegment::refineMdtSelection
 
+    bool MuonCalibSegment::hasFittedT0() const { return m_fittedT0 != s_dummy_ctor_dbl; }
+    double MuonCalibSegment::fittedT0() const { return hasFittedT0() ? m_fittedT0 : 0; }
+
+    void MuonCalibSegment::setSegment(const Amg::Vector3D& pos, const Amg::Vector3D& dir) {
+        m_localPosition = pos;
+        m_localDirection = dir;
+    }
+    void MuonCalibSegment::setErrors(double error_dy0, double error_dtheta) {
+        m_dy0 = error_dy0;
+        m_dtheta = error_dtheta;
+    }
+    void MuonCalibSegment::setAuthor(int author) { m_author = author; }
+    void MuonCalibSegment::setFittedT0(double t0) { m_fittedT0 = t0; }
+
+    int MuonCalibSegment::author() const { return m_author; }
+    unsigned int MuonCalibSegment::qualityFlag() const { return m_qualityFlag; }
+
+    void MuonCalibSegment::set(double chi2, const Amg::Vector3D& pos, const Amg::Vector3D& dir) {
+        m_chi2 = chi2;
+        m_localPosition = pos;
+        m_localDirection = dir;
+    }
+
+    // member access
+    unsigned int MuonCalibSegment::hitsOnTrack() const { return m_mdtHitsOnTrack.size() + m_cscHitsOnTrack.size(); }
+
+    unsigned int MuonCalibSegment::closeHits() const { return m_mdtCloseHits.size(); }
+
+    //  number of hits in segment
+    unsigned int MuonCalibSegment::missedHits() const { return outOfTimeHits() + emptyTubes(); }
+    unsigned int MuonCalibSegment::deltaHits() const { return m_qualityFlag % 10; }
+    unsigned int MuonCalibSegment::emptyTubes() const { return (m_qualityFlag % 1000) / 100; }
+    unsigned int MuonCalibSegment::outOfTimeHits() const { return (m_qualityFlag % 100) / 10; }
+
+    // MDT specific
+    unsigned int MuonCalibSegment::mdtHitsOnTrack() const { return m_mdtHitsOnTrack.size(); }
+    const MuonCalibSegment::MdtHitVec& MuonCalibSegment::mdtHOT() const { return m_mdtHitsOnTrack; }
+    MuonCalibSegment::MdtHitVec& MuonCalibSegment::mdtHOT() { return m_mdtHitsOnTrack; }
+
+    unsigned int MuonCalibSegment::mdtCloseHits() const { return m_mdtCloseHits.size(); }
+    const MuonCalibSegment::MdtHitVec& MuonCalibSegment::mdtClose() const { return m_mdtCloseHits; }
+    MuonCalibSegment::MdtHitVec& MuonCalibSegment::mdtClose() { return m_mdtCloseHits; }
+
+    // CSC specific
+    unsigned int MuonCalibSegment::cscHitsOnTrack() const { return m_cscHitsOnTrack.size(); }
+    const MuonCalibSegment::CscHitVec& MuonCalibSegment::cscHOT() const { return m_cscHitsOnTrack; }
+    MuonCalibSegment::CscHitVec& MuonCalibSegment::cscHOT() { return m_cscHitsOnTrack; }
+
+    unsigned int MuonCalibSegment::cscCloseHits() const { return m_cscCloseHits.size(); }
+    const MuonCalibSegment::CscHitVec& MuonCalibSegment::cscClose() const { return m_cscCloseHits; }
+    MuonCalibSegment::CscHitVec& MuonCalibSegment::cscClose() { return m_cscCloseHits; }
+
+    // RPC specific
+    unsigned int MuonCalibSegment::rpcHitsOnTrack() const { return m_rpcHitsOnTrack.size(); }
+    const MuonCalibSegment::RpcHitVec& MuonCalibSegment::rpcHOT() const { return m_rpcHitsOnTrack; }
+    MuonCalibSegment::RpcHitVec& MuonCalibSegment::rpcHOT() { return m_rpcHitsOnTrack; }
+
+    unsigned int MuonCalibSegment::rpcCloseHits() const { return m_rpcCloseHits.size(); }
+    const MuonCalibSegment::RpcHitVec& MuonCalibSegment::rpcClose() const { return m_rpcCloseHits; }
+    MuonCalibSegment::RpcHitVec& MuonCalibSegment::rpcClose() { return m_rpcCloseHits; }
+
+    // TGC specific
+    unsigned int MuonCalibSegment::tgcHitsOnTrack() const { return m_tgcHitsOnTrack.size(); }
+    const MuonCalibSegment::TgcHitVec& MuonCalibSegment::tgcHOT() const { return m_tgcHitsOnTrack; }
+    MuonCalibSegment::TgcHitVec& MuonCalibSegment::tgcHOT() { return m_tgcHitsOnTrack; }
+
+    unsigned int MuonCalibSegment::tgcCloseHits() const { return m_tgcCloseHits.size(); }
+    const MuonCalibSegment::TgcHitVec& MuonCalibSegment::tgcClose() const { return m_tgcCloseHits; }
+    MuonCalibSegment::TgcHitVec& MuonCalibSegment::tgcClose() { return m_tgcCloseHits; }
+
+    // local track parameters
+    double MuonCalibSegment::chi2() const { return m_chi2; }
+    double MuonCalibSegment::error_dy0() const { return m_dy0; }
+    double MuonCalibSegment::error_dtheta() const { return m_dtheta; }
+    const Amg::Vector3D& MuonCalibSegment::position() const { return m_localPosition; }
+    const Amg::Vector3D& MuonCalibSegment::direction() const { return m_localDirection; }
+    const Amg::Transform3D& MuonCalibSegment::localToGlobal() const { return m_localToGlobal; }
+
+    Amg::Vector3D MuonCalibSegment::globalPosition() const { return Amg::Vector3D(localToGlobal() * position()); }
+    Amg::Vector3D MuonCalibSegment::globalDirection() const { return Amg::Vector3D(localToGlobal().linear() * direction()); }
+
+    // methodes to add CalibHitBase's
+    void MuonCalibSegment::addHitOnTrack(MdtCalibHitBase* hit) { m_mdtHitsOnTrack.emplace_back(hit); }
+    void MuonCalibSegment::addCloseHit(MdtCalibHitBase* hit) { m_mdtCloseHits.emplace_back(hit); }
+
+    void MuonCalibSegment::addHitOnTrack(CscCalibHitBase* hit) { m_cscHitsOnTrack.emplace_back(hit); }
+    void MuonCalibSegment::addCloseHit(CscCalibHitBase* hit) { m_cscCloseHits.emplace_back(hit); }
+
+    void MuonCalibSegment::addHitOnTrack(RpcCalibHitBase* hit) { m_rpcHitsOnTrack.emplace_back(hit); }
+    void MuonCalibSegment::addCloseHit(RpcCalibHitBase* hit) { m_rpcCloseHits.emplace_back(hit); }
+
+    void MuonCalibSegment::addHitOnTrack(TgcCalibHitBase* hit) { m_tgcHitsOnTrack.emplace_back(hit); }
+    void MuonCalibSegment::addCloseHit(TgcCalibHitBase* hit) { m_tgcCloseHits.emplace_back(hit); }
+
+    void MuonCalibSegment::addHitOnTrack(const MdtHitPtr& hit) { m_mdtHitsOnTrack.emplace_back(hit); }
+    void MuonCalibSegment::addCloseHit(const MdtHitPtr& hit) { m_mdtCloseHits.emplace_back(hit); }
+
+    void MuonCalibSegment::addHitOnTrack(const CscHitPtr& hit) { m_cscHitsOnTrack.emplace_back(hit); }
+    void MuonCalibSegment::addCloseHit(const CscHitPtr& hit) { m_cscCloseHits.emplace_back(hit); }
+
+    void MuonCalibSegment::addHitOnTrack(const RpcHitPtr& hit) { m_rpcHitsOnTrack.emplace_back(hit); }
+    void MuonCalibSegment::addCloseHit(const RpcHitPtr& hit) { m_rpcCloseHits.emplace_back(hit); }
+
+    void MuonCalibSegment::addHitOnTrack(const TgcHitPtr& hit) { m_tgcHitsOnTrack.emplace_back(hit); }
+    void MuonCalibSegment::addCloseHit(const TgcHitPtr& hit) { m_tgcCloseHits.emplace_back(hit); }
+
 }  // namespace MuonCalib
 
-std::ostream &operator<<(std::ostream &stream, const MuonCalib::MuonCalibSegment &seg) { return seg.dump(stream); }
+std::ostream& operator<<(std::ostream& stream, const MuonCalib::MuonCalibSegment& seg) { return seg.dump(stream); }

@@ -22,7 +22,7 @@ static const InterfaceID IID_IMdtROD_Decoder("MdtROD_Decoder", 1, 0);
 /** constructor
  */
 MdtROD_Decoder::MdtROD_Decoder(const std::string& type, const std::string& name, const IInterface* parent) :
-    AthAlgTool(type, name, parent), m_hid2re(nullptr), m_BMEpresent(false), m_BMGpresent(false), m_BMEid(-1), m_BMGid(-1) {
+    AthAlgTool(type, name, parent) {
     declareInterface<MdtROD_Decoder>(this);
 
     declareProperty("SpecialROBNumber", m_specialROBNumber = -1);
@@ -131,10 +131,12 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
 
     // Decode the SourceId from the ROD Header
     SourceIdentifier sid(robFrag.rod_source_id());
-
-    uint16_t subdetId = sid.subdetector_id();
-    uint16_t mrodId = sid.module_id();
-
+    
+    MuonMDT_CablingMap::CablingData cabling_data{};
+    cabling_data.subdetectorId = sid.subdetector_id();
+    cabling_data.mrod = sid.module_id();
+        
+  
     // Get the first word of a buffer:
     OFFLINE_FRAGMENTS_NAMESPACE::PointerType vint;
     robFrag.rod_data(vint);
@@ -157,12 +159,12 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
         ATH_MSG_DEBUG("Level 1 Id : " << csmReadOut.lvl1Id());
     } else {
         ATH_MSG_ERROR(" Beginning of block not found ! ");
-        ATH_MSG_ERROR(" Subdetector, ROD ID: 0x" << MSG::hex << subdetId << MSG::dec << ", 0x" << mrodId << MSG::dec);
+        ATH_MSG_ERROR(" Subdetector, ROD ID: 0x" << MSG::hex << cabling_data.subdetectorId << MSG::dec << ", 0x" << cabling_data.mrod << MSG::dec);
     }
 
     SG::ReadCondHandle<MuonMDT_CablingMap> readHandle{m_readKey};
       const MuonMDT_CablingMap* readCdo{*readHandle};
-      if (readCdo == nullptr) {
+      if (!readCdo) {
         ATH_MSG_ERROR("Null pointer to the read conditions object");
         return StatusCode::FAILURE;
     }
@@ -183,53 +185,48 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
             ATH_MSG_DEBUG("Error: collection not found ");
             return StatusCode::FAILURE;
         }
-
+        
         // uint16_t subdetId = 0x61;
         // uint16_t mrodId = csmReadOut.mrodId();
 
-        uint16_t csmId = csmReadOut.csmId();
+        cabling_data.csm = csmReadOut.csmId();
+       
 
         // Get the offline identifier from the MDT cabling service
         // TDC and Tube identifier are dummy, only the chamber map is needed here
-        int StationEta = 0;
-        int StationPhi = 0;
-        int StationName = 0;
-        // These arguments are dummy here
-        int MultiLayer = 0;
-        int TubeLayer = 0;
-        int Tube = 0;
+      
 
-        ATH_MSG_DEBUG("subdetId : " << subdetId << " "
-                                    << "mrodId : " << mrodId << " "
-                                    << "csmId : " << csmId);
+        ATH_MSG_DEBUG("subdetId : " << cabling_data.subdetectorId << " "
+                                    << "mrodId : " << cabling_data.mrod << " "
+                                    << "csmId : " << cabling_data.csm);
 
-        uint16_t tdc = 0xff;
-        uint16_t cha = 0xff;
+        cabling_data.tdcId = 0xff;
+        cabling_data.channelId = 0xff;
         Identifier moduleId;
 
-        bool cab = readCdo->getOfflineId(subdetId, mrodId, csmId, tdc, cha, StationName, StationEta, StationPhi, MultiLayer, TubeLayer, Tube, msg);
+        bool cab = readCdo->getOfflineId(cabling_data, msg);
 
         ATH_MSG_DEBUG("getOfflineIdfromOnlineID result: ");
-        ATH_MSG_DEBUG("Name : " << StationName);
-        ATH_MSG_DEBUG("Eta  : " << StationEta);
-        ATH_MSG_DEBUG("Phi  : " << StationPhi);
+        ATH_MSG_DEBUG("Name : " << cabling_data.stationIndex);
+        ATH_MSG_DEBUG("Eta  : " << cabling_data.eta);
+        ATH_MSG_DEBUG("Phi  : " << cabling_data.phi);
 
         if (m_BMEpresent) {
             // for layouts with BMEs (read out by 2 CSMs) the RDOs have to be registered with the detectorElement hash
             // registration of common chambers is always done with detectorElement hash of 1st multilayer
             // boundary in BME when 2nd CSM starts is (offline!) tube 43, 1st CMS is registered with ML1 hash, 2nd CSM is ML2 hash
-            if (StationName == m_BMEid && Tube >= BME_1st_tube_2nd_CSM)
-                moduleId = m_idHelperSvc->mdtIdHelper().channelID(StationName, StationEta, StationPhi, 2, 1, 1);
+            if (cabling_data.stationIndex == m_BMEid && cabling_data.tube >= BME_1st_tube_2nd_CSM)
+                moduleId = m_idHelperSvc->mdtIdHelper().channelID(cabling_data.stationIndex, cabling_data.eta, cabling_data.phi, 2, 1, 1);
             else
-                moduleId = m_idHelperSvc->mdtIdHelper().channelID(StationName, StationEta, StationPhi, 1, 1, 1);
+                moduleId = m_idHelperSvc->mdtIdHelper().channelID(cabling_data.stationIndex, cabling_data.eta, cabling_data.phi, 1, 1, 1);
         } else
             // for layouts with no BME the module hash keeps being used for registration
-            moduleId = m_idHelperSvc->mdtIdHelper().elementID(StationName, StationEta, StationPhi);
+            moduleId = m_idHelperSvc->mdtIdHelper().elementID(cabling_data.stationIndex, cabling_data.eta, cabling_data.phi);
 
         if (!cab) {
             ATH_MSG_DEBUG("Cabling not understood");
-            ATH_MSG_DEBUG("Skip decoding of CSM link, subdetId : " << MSG::hex << std::showbase << subdetId << " "
-                                                                   << "mrodId : " << mrodId << " " << MSG::dec << "csmId : " << csmId);
+            ATH_MSG_DEBUG("Skip decoding of CSM link, subdetId : " << MSG::hex << std::showbase << cabling_data.subdetectorId << " "
+                                                                   << "mrodId : " << cabling_data.mrod << " " << MSG::dec << "csmId : " << cabling_data.csm);
             // assert(false);
             // continue;  // Go to next link instead of crashing (here or later) E.P.
 
@@ -272,7 +269,7 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
             }
 
             // Set values (keep Identifier and IdentifierHash the same though)
-            if (collection) collection->set_values(collection->identify(), collection->identifyHash(), subdetId, mrodId, csmId);
+            if (collection) collection->set_values(collection->identify(), collection->identifyHash(), cabling_data.subdetectorId, cabling_data.mrod, cabling_data.csm);
 
             wordPos += 1;
             if (wordPos >= size) {
@@ -288,10 +285,10 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
                 ATH_MSG_DEBUG("Error: data corrupted");
                 return StatusCode::FAILURE;
             }
-            StationName == m_BMGid ? hptdcReadOut.decodeWord(vint[wordPos]) : amtReadOut.decodeWord(vint[wordPos]);
+            cabling_data.stationIndex == m_BMGid ? hptdcReadOut.decodeWord(vint[wordPos]) : amtReadOut.decodeWord(vint[wordPos]);
             csmReadOut.decodeWord(vint[wordPos]);
             while (!csmReadOut.is_TWC()) {
-                uint16_t tdcNum = StationName == m_BMGid ? hptdcReadOut.tdcId() : amtReadOut.tdcId();
+                uint16_t tdcNum = cabling_data.stationIndex == m_BMGid ? hptdcReadOut.tdcId() : amtReadOut.tdcId();
 
                 ATH_MSG_DEBUG(" Decoding data from TDC number : " << tdcNum);
 
@@ -302,15 +299,15 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
                     return StatusCode::FAILURE;
                 }
 
-                StationName == m_BMGid ? hptdcReadOut.decodeWord(vint[wordPos]) : amtReadOut.decodeWord(vint[wordPos]);
+                cabling_data.stationIndex == m_BMGid ? hptdcReadOut.decodeWord(vint[wordPos]) : amtReadOut.decodeWord(vint[wordPos]);
 
                 MdtAmtHit* amtHit;
                 // Loop on the TDC data words and create the corresponding
                 // RDO's
-                while (!((StationName == m_BMGid ? hptdcReadOut.is_EOT() : amtReadOut.is_EOT()) ||
-                         (StationName == m_BMGid ? hptdcReadOut.is_BOT() : amtReadOut.is_BOT()) ||
-                         (StationName == m_BMGid ? csmReadOut.is_TWC() : amtReadOut.is_TWC()))) {
-                    StationName == m_BMGid ? hptdcReadOut.decodeWord(vint[wordPos]) : amtReadOut.decodeWord(vint[wordPos]);
+                while (!((cabling_data.stationIndex == m_BMGid ? hptdcReadOut.is_EOT() : amtReadOut.is_EOT()) ||
+                         (cabling_data.stationIndex == m_BMGid ? hptdcReadOut.is_BOT() : amtReadOut.is_BOT()) ||
+                         (cabling_data.stationIndex == m_BMGid ? csmReadOut.is_TWC() : amtReadOut.is_TWC()))) {
+                    cabling_data.stationIndex == m_BMGid ? hptdcReadOut.decodeWord(vint[wordPos]) : amtReadOut.decodeWord(vint[wordPos]);
                     int tdcCounts;
                     uint16_t chanNum;
                     // decode the tdc channel number
@@ -318,13 +315,13 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
                     // Check whether this channel has already been
                     // created for this CSM
 
-                    if ((StationName == m_BMGid ? hptdcReadOut.is_TSM() : amtReadOut.is_TSM()) &&
-                        (StationName == m_BMGid ? hptdcReadOut.isLeading() : amtReadOut.isLeading()) && collection) {
-                        chanNum = StationName == m_BMGid ? hptdcReadOut.channel() : amtReadOut.channel();
+                    if ((cabling_data.stationIndex == m_BMGid ? hptdcReadOut.is_TSM() : amtReadOut.is_TSM()) &&
+                        (cabling_data.stationIndex == m_BMGid ? hptdcReadOut.isLeading() : amtReadOut.isLeading()) && collection) {
+                        chanNum = cabling_data.stationIndex == m_BMGid ? hptdcReadOut.channel() : amtReadOut.channel();
 
                         amtHit = new MdtAmtHit(tdcNum, chanNum);
-                        amtHit->setValues((StationName == m_BMGid ? hptdcReadOut.coarse() : amtReadOut.coarse()),
-                                          (StationName == m_BMGid ? hptdcReadOut.fine() : amtReadOut.fine()), 0);
+                        amtHit->setValues((cabling_data.stationIndex == m_BMGid ? hptdcReadOut.coarse() : amtReadOut.coarse()),
+                                          (cabling_data.stationIndex == m_BMGid ? hptdcReadOut.fine() : amtReadOut.fine()), 0);
                         amtHit->addData(vint[wordPos]);
                         std::pair<leading_amt_map::iterator, bool> ins = leadingHitMap.insert(leading_amt_map::value_type(chanNum, amtHit));
                         if (!ins.second) {
@@ -333,9 +330,9 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
                             delete amtHit;
                         }
                         // leadingHitMap[chanNum] = amtHit;
-                    } else if ((StationName == m_BMGid ? hptdcReadOut.is_TSM() : amtReadOut.is_TSM()) &&
-                               !(StationName == m_BMGid ? hptdcReadOut.isLeading() : amtReadOut.isLeading()) && collection) {
-                        chanNum = StationName == m_BMGid ? hptdcReadOut.channel() : amtReadOut.channel();
+                    } else if ((cabling_data.stationIndex == m_BMGid ? hptdcReadOut.is_TSM() : amtReadOut.is_TSM()) &&
+                               !(cabling_data.stationIndex == m_BMGid ? hptdcReadOut.isLeading() : amtReadOut.isLeading()) && collection) {
+                        chanNum = cabling_data.stationIndex == m_BMGid ? hptdcReadOut.channel() : amtReadOut.channel();
                         leading_amt_map::iterator chanPosition = leadingHitMap.find(chanNum);
 
                         if (chanPosition != leadingHitMap.end()) {
@@ -346,7 +343,7 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
                             int tdcCountsFirst = coarse * 32 + fine;
 
                             // get the tdc counts of the current data word
-                            tdcCounts = StationName == m_BMGid ? hptdcReadOut.coarse() * 32 + hptdcReadOut.fine()
+                            tdcCounts = cabling_data.stationIndex == m_BMGid ? hptdcReadOut.coarse() * 32 + hptdcReadOut.fine()
                                                                : amtReadOut.coarse() * 32 + amtReadOut.fine();
                             int width = tdcCounts - tdcCountsFirst;
 
@@ -361,13 +358,13 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
                                                                                                                     << chanNum);
                         }
 
-                    } else if ((StationName == m_BMGid ? hptdcReadOut.is_TCM() : amtReadOut.is_TCM()) && collection) {
-                        uint16_t chanNum = StationName == m_BMGid ? hptdcReadOut.channel() : amtReadOut.channel();
+                    } else if ((cabling_data.stationIndex == m_BMGid ? hptdcReadOut.is_TCM() : amtReadOut.is_TCM()) && collection) {
+                        uint16_t chanNum = cabling_data.stationIndex == m_BMGid ? hptdcReadOut.channel() : amtReadOut.channel();
 
                         amtHit = new MdtAmtHit(tdcNum, chanNum);
-                        amtHit->setValues((StationName == m_BMGid ? hptdcReadOut.coarse() : amtReadOut.coarse()),
-                                          (StationName == m_BMGid ? hptdcReadOut.fine() : amtReadOut.fine()),
-                                          (StationName == m_BMGid ? hptdcReadOut.width() : amtReadOut.width()));
+                        amtHit->setValues((cabling_data.stationIndex == m_BMGid ? hptdcReadOut.coarse() : amtReadOut.coarse()),
+                                          (cabling_data.stationIndex == m_BMGid ? hptdcReadOut.fine() : amtReadOut.fine()),
+                                          (cabling_data.stationIndex == m_BMGid ? hptdcReadOut.width() : amtReadOut.width()));
                         amtHit->addData(vint[wordPos]);
                         collection->push_back(amtHit);
                     }
@@ -379,9 +376,9 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
                         return StatusCode::FAILURE;
                     }
 
-                    StationName == m_BMGid ? hptdcReadOut.decodeWord(vint[wordPos]) : amtReadOut.decodeWord(vint[wordPos]);
+                    cabling_data.stationIndex == m_BMGid ? hptdcReadOut.decodeWord(vint[wordPos]) : amtReadOut.decodeWord(vint[wordPos]);
 
-                    if (StationName == m_BMGid) csmReadOut.decodeWord(vint[wordPos]);
+                    if (cabling_data.stationIndex == m_BMGid) csmReadOut.decodeWord(vint[wordPos]);
 
                 }  // End of loop on AMTs
 
@@ -397,7 +394,7 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
 
                 // increase the decoding position only if it's end of TDC
                 // i.e. not operating in TDC trailer suppression mode
-                if ((StationName == m_BMGid ? hptdcReadOut.is_EOT() : amtReadOut.is_EOT())) {
+                if ((cabling_data.stationIndex == m_BMGid ? hptdcReadOut.is_EOT() : amtReadOut.is_EOT())) {
                     wordPos += 1;
                     if (wordPos >= size) {
                         ATH_MSG_ERROR("Error: data corrupted");
@@ -405,7 +402,7 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
                     }
                 }
                 csmReadOut.decodeWord(vint[wordPos]);
-                StationName == m_BMGid ? hptdcReadOut.decodeWord(vint[wordPos]) : amtReadOut.decodeWord(vint[wordPos]);
+                cabling_data.stationIndex == m_BMGid ? hptdcReadOut.decodeWord(vint[wordPos]) : amtReadOut.decodeWord(vint[wordPos]);
             }  // End of loop on TDCs
             if (collection) ATH_CHECK(lock.addOrDelete(std::move(collection)));
             // Collection has been found, go out

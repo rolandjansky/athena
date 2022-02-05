@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( SampleHandler )
@@ -44,7 +44,8 @@ function( _add_gtest cxx_name )
       SOURCES test/${test_name}.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} RootCoreUtils
-      AsgTestingLib AsgTools SampleHandler )
+      AsgTestingLib AsgTools SampleHandler
+      POST_EXEC_SCRIPT nopost.sh )
 endfunction( _add_gtest )
 
 file( GLOB _gtests test/gt_*.cxx )
@@ -65,7 +66,8 @@ function( _add_test cxx_name )
    atlas_add_test( ${test_name}
       SOURCES test/${test_name}.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} RootCoreUtils SampleHandler )
+      LINK_LIBRARIES ${ROOT_LIBRARIES} RootCoreUtils SampleHandler
+      POST_EXEC_SCRIPT nopost.sh )
 endfunction( _add_test )
 
 file( GLOB _tests test/ut_*.cxx )
