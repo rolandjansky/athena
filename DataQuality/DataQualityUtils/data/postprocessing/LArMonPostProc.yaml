@@ -149,10 +149,4 @@ Description: NoiseCorrelationMon_FCal
 Input: [ 'LAr/PedMonGroupNewAlg/(?P<part>EMB|EMEC|HEC|FCal)/nbOfFebBlocks_(?P=part)(?P<side>A|C)' ]
 Output: [ 'LAr/MeanFeb' ]
 Function: LArMonitoring.LArMonTransforms.Mean
-#Parameters: { useMean : True, useRms : False, useErr: False, useErr_s: False}
 Description: LAr_NbOfFebvsPartition_Mean
-
-Input: [ 'LAr/PedMonGroupNewAlg/(?P<part>EMB|EMEC|HEC|FCal)/nbOfFebBlocks_(?P=part)(?P<side>A|C)' ]
-Output: [ 'LAr/RMSFeb' ]
-Function: LArMonitoring.LArMonTransforms.RMS
-Description: LAr_NbOfFebvs_RMS

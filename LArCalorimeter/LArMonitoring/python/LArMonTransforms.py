@@ -391,92 +391,9 @@ def Mean(inputs):
             if ix>=0:
                 #filling the profile histogram for each x_bin separately
                 for xbin in range(0,i[1][0].GetNbinsX()):
-                    #cl.Fill (ix-1, i[1][0].GetBinContent(xbin))
-                    if i[1][0].GetBinContent(xbin) > 0.: #only for non-zero bins
-                        cl.Fill (ix-1, i[1][0].GetBinContent(xbin))
-            ##mean=i[1][0].GetEntries()/float(i[1][0].GetNbinsX())
-            ##pass
-            
-            ##get mean and rms from c2 histogram
-            #mean = c2.GetBinContent(ix) #mean of Y
-            #err = c2.GetBinError(ix) #(default), error of the mean of all y values
-            #c2.SetErrorOption("i")
-            #err_s = c2.GetBinError(ix) #standard error on the mean
-            #c2.SetErrorOption("s")
-            #rms = c2.GetBinError(ix) #standard deviation of Y
-            #pass
-
-        #if ix>0:
-            #if useMean:
-                #cl.GetYaxis().SetLabel("Mean Events")
-                #mean = c2.GetBinContent(ix) #mean of Y
-                #cl.Fill(ix, mean, 1)
-                #pass
-            #if useRms:
-                #cl.GetYaxis().SetLabel("RMS")
-                #c2.SetErrorOption("s")
-                #rms = c2.GetBinError(ix) #standard deviation of Y
-                #cl.Fill(ix, rms, 1)
-                #pass
-            #if useErr:
-                #cl.GetYaxis().SetLabel("Error of the mean")
-                #err = c2.GetBinError(ix) #(default), error of the mean of all y values
-                #cl.Fill(ix, err, 1)
-                #pass
-            #if useErr_s:
-                #cl.GetYaxis().SetLabel("Standard error on the mean")
-                #c2.SetErrorOption("i")
-                #err_s = c2.GetBinError(ix) #standard error on the mean
-                #cl.Fill(ix, err_s, 1)
-                #pass
-
+                    #cl.Fill (ix-1, i[1][0].GetBinContent(xbin)) #for all bins
+                    if i[1][0].GetBinContent(xbin) > 0.: 
+                        cl.Fill (ix-1, i[1][0].GetBinContent(xbin)) #only for non-zero bins
         pass #end of input loop
 
-    return [cl]
-
-def RMS(inputs):
-    
-    #cl = TH1F('Mean', 'FEBs of all partition; N_FEB', 450, 0, 450)
-    cl = TH2F("Mean","Mean of each partition's FEB hist;Partition;Mean",8,0.,8.,450,0,450)
-    cl.SetDirectory(0)
-    cl.GetXaxis().SetBinLabel(1,"EMBA")
-    cl.GetXaxis().SetBinLabel(2,"EMBC")
-    cl.GetXaxis().SetBinLabel(3,"EMECA")
-    cl.GetXaxis().SetBinLabel(4,"EMECC")
-    cl.GetXaxis().SetBinLabel(5,"HECA")
-    cl.GetXaxis().SetBinLabel(6,"HECC")
-    cl.GetXaxis().SetBinLabel(7,"FCalA")
-    cl.GetXaxis().SetBinLabel(8,"FCalC") 
-    cl.GetXaxis().SetLabelSize(0.055)
-    cl.GetYaxis().SetLabelSize(0.055)
-    
-    for i in inputs:
-        assert len(i[1])==1, len(i[1])
-        
-        #x bin
-        pr=i[0]['part']
-        if "EMB" in pr:
-            ix=1
-        elif "EMEC" in pr:
-            ix=3
-        elif "HEC" in pr:
-            ix=5
-        elif "FCal" in pr:
-            ix=7
-        else:
-            ix=-10
-            pass
-        if i[0]['side'] == "C":
-            ix=ix+1
-            pass
-        
-        j = [_[1][0] for _ in inputs]  # all plots passed as first element of list
-        
-        content = 0.
-        for plot in j:
-            mean=plot.GetMean()
-            if mean > 0.:
-                content = content + 1
-                cl.Fill(ix, mean, content)
-        
     return [cl]
