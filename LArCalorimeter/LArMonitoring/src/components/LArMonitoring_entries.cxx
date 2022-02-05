@@ -11,7 +11,7 @@
 #include "../LArNoiseCorrelationMonAlg.h"
 #include "../LArCalibPedMonAlg.h"
 #include "../LArCoherentNoisefractionMonAlg.h"
-#include "../LArCalibPedMonAlg_REN.h"
+#include "../LArCalibDelayMonAlg.h"
 
 DECLARE_COMPONENT(LArCollisionTimeMonAlg)
 DECLARE_COMPONENT(LArAffectedRegionsAlg)
@@ -26,4 +26,4 @@ DECLARE_COMPONENT(LArDigitalTriggMonAlg)
 DECLARE_COMPONENT(LArNoiseCorrelationMonAlg)
 DECLARE_COMPONENT(LArCalibPedMonAlg)
 DECLARE_COMPONENT(LArCoherentNoisefractionMonAlg)
-DECLARE_COMPONENT(LArCalibPedMonAlgREN)
+DECLARE_COMPONENT(LArCalibDelayMonAlg)
