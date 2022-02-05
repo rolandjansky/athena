@@ -146,7 +146,7 @@ class LArSCL1Maker : public AthReentrantAlgorithm
   Gaudi::Property<std::string> m_randomStreamName{this, "RandomStreamName", "LArSCL1Maker", ""};
   ServiceHandle<IAthRNGSvc> m_atRndmGenSvc{this, "RndmSvc", "AthRNGSvc", ""};
   Gaudi::Property<uint32_t> m_randomSeedOffset{this, "RandomSeedOffset", 2, ""};
-  Gaudi::Property<bool> m_useLegacyRandomSeeds{this, "UseLegacyRandomSeeds", true, "Use MC16-style random number seeding"};
+  Gaudi::Property<bool> m_useLegacyRandomSeeds{this, "UseLegacyRandomSeeds", false, "Use MC16-style random number seeding"};
 
 
   /** Alorithm property: use trigger time or not*/
