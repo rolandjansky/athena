@@ -72,12 +72,6 @@ class TrackingGeometry
   // gives ownership over MuonTG constituents
   friend class Muon::MuonTrackingGeometryBuilderCond;
 
-  // give access to private members to allow the  class below to mirror a
-  // TrackingGeometry. This is needed for a temporary workaround to allow using
-  // the TrackingGeometryCondAlg and TrackingGeometrySvc at the same time.
-  // @TODO revert once the TrackingGeometrySvc is completly replaced
-  friend class TrackingGeometryMirror;
-
 public:
   /** Constructor */
   TrackingGeometry(TrackingVolume* highestVolume,
