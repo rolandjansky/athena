@@ -2835,8 +2835,9 @@ void Muon::MuonTrackingGeometryBuilderCond::blendMaterial(LocalVariablesContaine
                         // if (fEncl[fIter-(*mIter).second->begin()]) { (*fIter)->addMaterial(*detMat,dil); if (m_colorCode==0)
                         // (*fIter)->registerColorCode(12) ;
                         if (fEncl[fIter - vv->begin()]) {
-                            (*fIter)->addMaterial(*detMat, dil);
-                            if (m_colorCode == 0) const_cast<Trk::TrackingVolume*>((*fIter))->registerColorCode(12);
+                            Trk::TrackingVolume* mutablevol = const_cast<Trk::TrackingVolume*>(*fIter);
+                            mutablevol->addMaterial(*detMat, dil);
+                            if (m_colorCode == 0) mutablevol->registerColorCode(12);
                             // ATH_MSG_VERBOSE((*fIter)->volumeName()<<" acquires material from "<<  (*mIter).first->name());  }
                             ATH_MSG_VERBOSE((*fIter)->volumeName() << " acquires material from " << (*viter)->name());
                         }
