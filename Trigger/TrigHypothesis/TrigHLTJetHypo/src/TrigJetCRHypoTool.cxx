@@ -12,6 +12,7 @@
 
 #include "TrigJetCRHypoTool.h"
 #include "GaudiKernel/StatusCode.h"
+#include "CLHEP/Units/PhysicalConstants.h"
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/xAODJetAsIJetFactory.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/lineSplitter.h"
@@ -70,7 +71,7 @@ StatusCode TrigJetCRHypoTool::finalize(){
 bool TrigJetCRHypoTool::decide_on_single_jet( JetInfo& input ) const {
 
   auto jet = input.jet;
-  auto trackContainer = input.AllTracks;
+  auto trackContainer = input.allTracks;
   auto cellContainer = input.cells;
 
   //Checking jet logRatio requirements
@@ -112,6 +113,8 @@ bool TrigJetCRHypoTool::decide_on_single_jet( JetInfo& input ) const {
   if(m_doBIBrm==1){
     int countCaloCell=0;
     double countCell_layer[4] = {0,0,0,0};
+
+
     for(CaloCellContainer::const_iterator celliter = cellContainer->begin(); celliter != cellContainer->end(); ++celliter){
       //LoF cell selection in tile:
       if((*celliter)->caloDDE()->is_tile() && (*celliter)->energy() > m_minCellEt){
@@ -119,7 +122,7 @@ bool TrigJetCRHypoTool::decide_on_single_jet( JetInfo& input ) const {
 	double d_R = xAOD::P4Helpers::deltaR( (*celliter)->eta(), (*celliter)->phi(), jetEta, jetPhi );
 	//select cells in a horizontal line, not being part of the jet and timing consistent with BIB
 	ATH_MSG_DEBUG(" cell E " << (*celliter)->energy() << " dPhi " << d_phi << " dR = " << d_R << " time " << (*celliter)->time()  );
-	if(fabs(d_phi) < 0.2 && d_R > 0.4){
+	if(std::abs(d_phi) < 0.2 && d_R > 0.4){
           //-early
           float t = (*celliter)->time();
           if(t < m_celltime){
@@ -127,16 +130,15 @@ bool TrigJetCRHypoTool::decide_on_single_jet( JetInfo& input ) const {
             float x = (*celliter)->x();
             float y = (*celliter)->y();
             float z = (*celliter)->z();
-            float c = 299.792458;//mm per ns
             float r = sqrt(x*x + y*y);
 
-	    if((fabs(t - (z-sqrt(z*z + r*r))/c) < m_dBIBtime) || (fabs(t - (-z-sqrt(z*z + r*r))/c) < m_dBIBtime)){
+	    if((std::abs(t - (z-sqrt(z*z + r*r))/CLHEP::c_light) < m_dBIBtime) || (std::abs(t - (-z-sqrt(z*z + r*r))/CLHEP::c_light) < m_dBIBtime)){
 	      ATH_MSG_DEBUG(" cell is tile; cell E = " << (*celliter)->energy() << " cell phi = " << (*celliter)->phi() << " cell eta = " << (*celliter)->eta() << " cell r = " << r );
 	      // for selected cells, store in which layer they are
-	      if(r<2200){ countCell_layer[0]++;}// layer=0;}
-	      else if(r>=2200 && r<2600){ countCell_layer[1]++;}// layer=1;}
-	      else if(r>=2600 && r<3100){ countCell_layer[2]++;}//  layer=2;}
-	      else if(r>=3100){ countCell_layer[3]++;}//  layer=3;}
+	      if(r<2200){ countCell_layer[0]++;}
+	      else if(r>=2200 && r<2600){ countCell_layer[1]++;}
+	      else if(r>=2600 && r<3100){ countCell_layer[2]++;}
+	      else if(r>=3100){ countCell_layer[3]++;}
 	    }
 	  }
 	}

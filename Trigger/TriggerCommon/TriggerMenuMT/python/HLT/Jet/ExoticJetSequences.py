@@ -57,7 +57,6 @@ def jetCRMenuSequence(flags, jetsin, name):
     IDTrigConfig = getInDetTrigConfig( 'jet' )
     sequenceOut  = IDTrigConfig.tracks_FTF()
     cellsin=fs_cells
-#    vertices     = IDTrigConfig.vertex_jet
     
     #Setup the hypothesis algorithm
     theCalRatioTriggerHypo           = TrigJetCRHypoAlg("L2CalRatio")

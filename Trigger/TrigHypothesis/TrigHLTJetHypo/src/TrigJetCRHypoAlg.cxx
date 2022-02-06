@@ -70,8 +70,8 @@ StatusCode TrigJetCRHypoAlg::execute( const EventContext& context ) const {
   auto trackHandle = SG::makeHandle(m_trackParticleKey, context );
 
   ATH_CHECK( trackHandle.isValid() );
-  const xAOD::TrackParticleContainer * AllTracks = trackHandle.get();
-  ATH_MSG_DEBUG ( AllTracks->size() << " tracks found" );
+  const xAOD::TrackParticleContainer * allTracks = trackHandle.get();
+  ATH_MSG_DEBUG ( allTracks->size() << " tracks found" );
 
   // get cells from the key :
   ATH_MSG_DEBUG( "Getting Cells Handle "<<m_cellKey);
@@ -97,7 +97,7 @@ StatusCode TrigJetCRHypoAlg::execute( const EventContext& context ) const {
     decisionIDs(previousDecision, previousDecisionIDs);
 
     // Collect all the required information for the tool together in a handy struct 
-    hypoToolInput.emplace_back( TrigJetCRHypoTool::JetInfo{previousDecisionIDs, *(jetLinkInfo.link), AllTracks, cells, d} );
+    hypoToolInput.emplace_back( TrigJetCRHypoTool::JetInfo{previousDecisionIDs, *(jetLinkInfo.link), allTracks, cells, d} );
  
 }
 

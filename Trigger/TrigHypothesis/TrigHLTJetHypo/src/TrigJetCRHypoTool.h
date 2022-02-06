@@ -49,7 +49,7 @@ class TrigJetCRHypoTool: public AthAlgTool{
   struct JetInfo {
     const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
     const xAOD::Jet* jet;
-    const xAOD::TrackParticleContainer* AllTracks;
+    const xAOD::TrackParticleContainer* allTracks;
     const CaloConstCellContainer* cells;
     TrigCompositeUtils::Decision* decision;
   };
