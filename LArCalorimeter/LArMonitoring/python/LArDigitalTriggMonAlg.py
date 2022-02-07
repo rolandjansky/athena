@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 from ROOT import TMath
 
@@ -316,7 +316,8 @@ if __name__=='__main__':
    ConfigFlags.Output.HISTFileName = 'LArDigitalTriggMonOutput.root'
    ConfigFlags.DQ.enableLumiAccess = False
    ConfigFlags.DQ.useTrigger = False
-   ConfigFlags.Beam.Type = 'collisions'
+   from AthenaConfiguration.Enums import BeamType
+   ConfigFlags.Beam.Type = BeamType.Collisions
    ConfigFlags.lock()
 
    # in case of tier0 workflow:

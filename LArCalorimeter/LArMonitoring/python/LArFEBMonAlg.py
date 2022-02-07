@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 def LArFEBMonConfigOld(inputFlags, cellDebug=False, dspDebug=False):
     from AthenaMonitoring import AthMonitorCfgHelperOld
@@ -431,7 +431,6 @@ if __name__=='__main__':
    ConfigFlags.Output.HISTFileName = 'LArFEBMonOutput.root'
    ConfigFlags.DQ.enableLumiAccess = True
    ConfigFlags.DQ.useTrigger = False
-   ConfigFlags.Beam.Type = 'collisions'
    ConfigFlags.lock()
 
 

@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 '''@file SCTTracksMonAlg.py
 @author Ken Kreul
@@ -30,7 +30,8 @@ def SCTTracksMonAlgConfig(inputFlags):
     from AthenaConfiguration.ComponentFactory import CompFactory
     myMonAlg = helper.addAlgorithm(CompFactory.SCTTracksMonAlg, 'SCTTracksMonAlg')
 
-    if inputFlags.Beam.Type=='collisions':
+    from AthenaConfiguration.Enums import BeamType
+    if inputFlags.Beam.Type is BeamType.Collisions:
         from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
         myMonAlg.FilterTools += [GetFilledBunchFilterTool()]
 

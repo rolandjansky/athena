@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from TriggerMenuMT.HLT.Electron.ElectronRecoSequences import l2CaloRecoCfg
 from TriggerMenuMT.HLT.Menu.MenuComponents import MenuSequenceCA, \
@@ -7,6 +7,7 @@ from TriggerMenuMT.HLT.Menu.MenuComponents import MenuSequenceCA, \
 from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import TrigEgammaFastCaloHypoToolFromDict
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
 from TriggerMenuMT.HLT.Menu.DictFromChainName import getChainMultFromDict
 
 from AthenaConfiguration.AccumulatorCache import AccumulatorCache
@@ -163,7 +164,7 @@ def _precisionElectronSeq(flags):
                                                         useScoring         = True,
                                                         SecondPassRescale  = True,
                                                         UseRescaleMetric   = True,
-                                                        isCosmics          = flags.Beam.Type=='cosmics')
+                                                        isCosmics          = flags.Beam.Type is BeamType.Cosmics)
         acc.setPrivateTools(builderTool)
         return acc
 

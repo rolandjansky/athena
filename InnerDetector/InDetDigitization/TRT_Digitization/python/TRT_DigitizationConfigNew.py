@@ -4,7 +4,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import ProductionStep
+from AthenaConfiguration.Enums import BeamType, ProductionStep
 from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
 from TRT_PAI_Process.TRT_PAI_ProcessConfigNew import TRT_PAI_Process_XeToolCfg
@@ -61,7 +61,7 @@ def TRT_DigitizationBasicToolCfg(flags, name="TRT_DigitizationBasicTool", **kwar
     if not flags.Digitization.DoInnerDetectorNoise:
         kwargs.setdefault("Override_noiseInSimhits", 0)
         kwargs.setdefault("Override_noiseInUnhitStraws", 0)
-    if flags.Beam.Type == "cosmics":
+    if flags.Beam.Type is BeamType.Cosmics:
         kwargs.setdefault("PrintDigSettings", True)
         kwargs.setdefault("Override_cosmicFlag", 0)
         kwargs.setdefault("Override_doCosmicTimingPit", 1)

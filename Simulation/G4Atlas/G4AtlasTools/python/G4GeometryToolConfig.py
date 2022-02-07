@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import LHCPeriod
+from AthenaConfiguration.Enums import BeamType, LHCPeriod
 
 from AthenaCommon import Logging
 
@@ -375,8 +375,8 @@ def generateSubDetectorList(ConfigFlags):
     result = ComponentAccumulator()
     SubDetectorList=[]
 
-    if ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.CavernBG not in ['Off', 'Signal']:
-        if ConfigFlags.Beam.Type == 'cosmics' and hasattr(ConfigFlags, "Sim.ReadTR"):
+    if ConfigFlags.Beam.Type is BeamType.Cosmics or ConfigFlags.Sim.CavernBG not in ['Off', 'Signal']:
+        if ConfigFlags.Beam.Type is BeamType.Cosmics and hasattr(ConfigFlags, "Sim.ReadTR"):
             SubDetectorList += [ CosmicShortCutCfg(ConfigFlags) ]
 
     if ConfigFlags.Detector.GeometryMuon:
@@ -427,7 +427,7 @@ def ATLASEnvelopeCfg(ConfigFlags, name="Atlas", **kwargs):
     AtlasForwardOuterR = 2751.
     AtlasOuterR1 = 14201.
     AtlasOuterR2 = 14201.
-    # if ConfigFlags.Beam.Type != 'cosmics' and not ConfigFlags.Detector.GeometryMuon and not \
+    # if ConfigFlags.Beam.Type is not BeamType.Cosmics and not ConfigFlags.Detector.GeometryMuon and not \
     #    (ConfigFlags.Sim.CavernBG != 'Signal'):
     if not (ConfigFlags.Detector.GeometryMuon or ConfigFlags.Detector.GeometryCavern):
         AtlasOuterR1 = 4251.
@@ -512,7 +512,7 @@ def VoxelDensityToolCfg(ConfigFlags, name="VoxelDensityTool", **kwargs):
 def getATLAS_RegionCreatorList(ConfigFlags):
     regionCreatorList = []
 
-    if ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.CavernBG not in ['Off', 'Signal']:
+    if ConfigFlags.Beam.Type is BeamType.Cosmics or ConfigFlags.Sim.CavernBG not in ['Off', 'Signal']:
         regionCreatorList += [SX1PhysicsRegionToolCfg(ConfigFlags), BedrockPhysicsRegionToolCfg(ConfigFlags), CavernShaftsConcretePhysicsRegionToolCfg(ConfigFlags)]
         #regionCreatorList += ['CavernShaftsAirPhysicsRegionTool'] # Not used currently
     if ConfigFlags.Detector.GeometryID:
@@ -753,7 +753,7 @@ def G4AtlasDetectorConstructionToolCfg(ConfigFlags, name="G4AtlasDetectorConstru
         kwargs.setdefault("RegionCreators", getTB_RegionCreatorList(ConfigFlags))
         kwargs.setdefault("FieldManagers", getTB_FieldMgrList(ConfigFlags))
     else:
-        if ConfigFlags.Beam.Type == 'cosmics' or (ConfigFlags.Sim.CavernBG not in ['Off', 'Signal']):
+        if ConfigFlags.Beam.Type is BeamType.Cosmics or (ConfigFlags.Sim.CavernBG not in ['Off', 'Signal']):
             kwargs.setdefault("World", result.popToolsAndMerge(CavernWorldCfg(ConfigFlags)))
         else:
             kwargs.setdefault("World", result.popToolsAndMerge(ATLASEnvelopeCfg(ConfigFlags)))

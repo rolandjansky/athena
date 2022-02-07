@@ -7,7 +7,7 @@ Elmar Ritsch, 27/09/2013
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import LHCPeriod
+from AthenaConfiguration.Enums import BeamType, LHCPeriod
 
 
 def EnvelopeDefSvcCfg(ConfigFlags, name="AtlasGeometry_EnvelopeDefSvc", **kwargs):
@@ -133,7 +133,7 @@ def EnvelopeDefSvcCfg(ConfigFlags, name="AtlasGeometry_EnvelopeDefSvc", **kwargs
     Cavern.addRZ(     0.0 , 26046.0 ) #
 
     # the outer dimesions differ between collision and cosmics jobs
-    if ConfigFlags.Beam.Type != 'cosmics':
+    if ConfigFlags.Beam.Type is not BeamType.Cosmics:
       #  -> for collision jobs the 'cavern' envelope is much smaller
       Cavern.addRZ(      0.0 , 500000.0 ) # z= +500m
       Cavern.addRZ( 500000.0  , 500000.0 ) # r=  500m

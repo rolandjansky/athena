@@ -1,9 +1,10 @@
 """ComponentAccumulator service configuration for ISF
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
 from ISF_HepMC_Tools.ISF_HepMC_ToolsConfigNew import (
     ParticleFinalStateFilterCfg, ParticlePositionFilterDynamicCfg,
     EtaPhiFilterCfg, GenParticleInteractingFilterCfg,
@@ -36,7 +37,7 @@ def GenParticleFiltersToolCfg(ConfigFlags):
     acc = ParticleFinalStateFilterCfg(ConfigFlags)
     genParticleFilterList += [result.popToolsAndMerge(acc)]
     if "ATLAS" in ConfigFlags.GeoModel.Layout or "atlas" in ConfigFlags.GeoModel.Layout:
-        if ConfigFlags.Beam.Type != "cosmics":
+        if ConfigFlags.Beam.Type is not BeamType.Cosmics:
             acc = ParticlePositionFilterDynamicCfg(ConfigFlags)
             genParticleFilterList += [result.popToolsAndMerge(acc)]
             if not (ConfigFlags.Detector.GeometryAFP or

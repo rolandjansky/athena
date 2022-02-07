@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ### This module contains functions which may need to peek at the input file metadata
 
@@ -23,7 +23,7 @@ def fillAtlasMetadata(ConfigFlags, dbFiller):
 
     dbFiller.addSimParam('G4Version', ConfigFlags.Sim.G4Version)
     dbFiller.addSimParam('RunType', 'atlas')
-    dbFiller.addSimParam('beamType', ConfigFlags.Beam.Type)
+    dbFiller.addSimParam('beamType', ConfigFlags.Beam.Type.value)
 
     #---------  
     ## Simulated detector flags: add each enabled detector to the simulatedDetectors list
