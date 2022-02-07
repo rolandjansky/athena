@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -84,6 +84,7 @@ namespace InDet {
     int fvNmin{0};
     int zMin{0};
     int nOneSeeds{0};
+    int nOneSeedsQ{0};
     int fillOneSeeds{0};
     int nprint{0};
     int nseeds{0};
@@ -152,6 +153,7 @@ namespace InDet {
     std::vector<InDet::SiSpacePointsSeed> OneSeeds;
     std::vector<InDet::SiSpacePointsProSeed> OneSeeds_Pro;
     std::vector<ITk::SiSpacePointsProSeed> ITkOneSeeds;
+    std::vector<ITk::SiSpacePointsProSeed> ITkOneSeedsQ;
 
     std::vector<std::pair<float,InDet::SiSpacePointForSeed*>> CmSp;
     std::vector<std::pair<float,ITk::SiSpacePointForSeed*>> ITkCmSp;
@@ -160,9 +162,9 @@ namespace InDet {
     std::vector<std::vector<InDet::SiSpacePointForSeed*>> rf_Sorted;
     std::vector<std::vector<InDet::SiSpacePointForSeed*>> rfz_Sorted;   ///< vector of space points in each bin of the 2D phi-z binning
     std::vector<std::vector<InDet::SiSpacePointForSeed*>> rfzv_Sorted;
-    std::vector<std::list<ITk::SiSpacePointForSeed*>> r_ITkSorted;
-    std::vector<std::list<ITk::SiSpacePointForSeed*>> rfz_ITkSorted;
-    std::vector<std::list<ITk::SiSpacePointForSeed*>> rfzv_ITkSorted;
+    std::vector<std::vector<ITk::SiSpacePointForSeed*>> r_ITkSorted;
+    std::vector<std::vector<ITk::SiSpacePointForSeed*>> rfz_ITkSorted;
+    std::vector<std::vector<ITk::SiSpacePointForSeed*>> rfzv_ITkSorted;
 
     std::vector<InDet::SiSpacePointsSeed> seeds;
 
@@ -182,7 +184,7 @@ namespace InDet {
     std::list<ITk::SiSpacePointsProSeed>::iterator i_ITkSeedEnd;
 
     std::vector<InDet::SiSpacePointForSeed*>::iterator rMin;
-    std::list<ITk::SiSpacePointForSeed*>::iterator ITk_rMin;
+    std::vector<ITk::SiSpacePointForSeed*>::iterator ITk_rMin;
 
     std::multimap<float,InDet::SiSpacePointsSeed*> mapOneSeeds;
     std::multimap<float,InDet::SiSpacePointsSeed*> mapSeeds;
@@ -195,6 +197,7 @@ namespace InDet {
     std::multimap<float,InDet::SiSpacePointsProSeed*> seeds_Pro;
     std::multimap<float,InDet::SiSpacePointsProSeed*>::iterator seed_Pro;
     std::multimap<float,ITk::SiSpacePointsProSeed*> ITkMapOneSeeds;
+    std::multimap<float,ITk::SiSpacePointsProSeed*> ITkMapOneSeedsQ;
     std::multimap<float,ITk::SiSpacePointsProSeed*> ITkSeeds;
     std::multimap<float,ITk::SiSpacePointsProSeed*>::iterator ITkSeedIterator;
 
@@ -248,6 +251,7 @@ namespace InDet {
         OneSeeds.resize(maxOneSize);
       } else if (type==ToolType::ITk) {
         ITkOneSeeds.resize(maxOneSize);
+        ITkOneSeedsQ.resize(maxOneSize);
       }
 
       // Build radius sorted containers
