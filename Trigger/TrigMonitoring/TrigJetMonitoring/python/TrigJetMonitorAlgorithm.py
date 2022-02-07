@@ -24,14 +24,21 @@ OfflineJetCollections = {
 # L1 jet collections and chains to monitor
 ###########################################
 
-L1JetCollections = dict()
 L1JetCollections = {
+  # The MatchedTo list must be of length 2, and contain the names of an offline collection
+  # and an HLT collection. These names can be the empty string.
   'LVL1JetRoIs'  : { 'MatchTo' : ['AntiKt4EMPFlowJets','HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf'] },
+  # 'L1_jFexSRJetRoI' : { 'MatchTo' : ['AntiKt4EMPFlowJets','HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf'] },
+  'L1_jFexSRJetRoI' : {'MatchTo' : []},
 }
+
+
+# the values of Chain2L1JetCollDict are keys of L1JetCollections.
 Chain2L1JetCollDict = { # set L1 jet collection name for L1 jet chains
   'L1_J15'  : 'LVL1JetRoIs',
   'L1_J20'  : 'LVL1JetRoIs',
   'L1_J100' : 'LVL1JetRoIs',
+  'L1_jJ100' : 'L1_jFexSRJetRoI',
 }
 
 
@@ -532,7 +539,10 @@ def jetMonitoringConfig(inputFlags,jetcoll,athenaMT):
 def l1JetMonitoringConfig(inputFlags,jetcoll,chain='',matched=False):
   from TrigJetMonitoring.L1JetMonitoringConfig import L1JetMonAlg
   name = jetcoll if chain=='' else jetcoll+'_'+chain
-  conf = L1JetMonAlg(name,jetcoll,chain,matched,L1JetCollections[jetcoll]['MatchTo'][0],L1JetCollections[jetcoll]['MatchTo'][1])
+  if L1JetCollections[jetcoll]['MatchTo'] == []:
+    conf = L1JetMonAlg(name,jetcoll,chain)
+  else:
+    conf = L1JetMonAlg(name,jetcoll,chain,matched,L1JetCollections[jetcoll]['MatchTo'][0],L1JetCollections[jetcoll]['MatchTo'][1])
   return conf
 
 def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT,onlyUsePassingJets=True):

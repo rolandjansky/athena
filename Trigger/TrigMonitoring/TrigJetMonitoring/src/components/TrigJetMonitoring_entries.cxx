@@ -4,7 +4,9 @@
 
 #include "../HLTJetMonTool.h"
 #include "../TrigL1JetMonitorAlgorithm.h"
+#include "../TrigL1JFexSRJetMonitorAlgorithm.h"
 
 DECLARE_COMPONENT( HLTJetMonTool )
 DECLARE_COMPONENT( TrigL1JetMonitorAlgorithm )
+DECLARE_COMPONENT( TrigL1JFexSRJetMonitorAlgorithm )
 
