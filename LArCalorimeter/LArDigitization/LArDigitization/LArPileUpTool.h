@@ -285,7 +285,7 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
 
   Gaudi::Property<uint32_t> m_randomSeedOffset{this, "RandomSeedOffset", 2, ""}; //
 
-  Gaudi::Property<bool> m_useLegacyRandomSeeds{this, "UseLegacyRandomSeeds", true,
+  Gaudi::Property<bool> m_useLegacyRandomSeeds{this, "UseLegacyRandomSeeds", false,
       "Use MC16-style random number seeding"};
 
   Gaudi::Property<bool> m_doDigiTruth{this, "DoDigiTruthReconstruction", false,
