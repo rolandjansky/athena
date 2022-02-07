@@ -631,7 +631,7 @@ InDet::InDetTestPixelLayerTool::getPixelLayerParameters(
   Trk::CylinderSurface BiggerThanPixelLayerSurface(surfTrans, 230.0, 10000.0);
 
   // extrapolate stepwise to this parameter (be careful, sorting might be wrong)
-  std::vector<std::unique_ptr<const Trk::TrackParameters>> paramList =
+  std::vector<std::unique_ptr<Trk::TrackParameters>> paramList =
     m_extrapolator->extrapolateStepwise(Gaudi::Hive::currentContext(),
       *trackpar, BiggerThanPixelLayerSurface, Trk::alongMomentum, false);
 
@@ -645,7 +645,7 @@ InDet::InDetTestPixelLayerTool::getPixelLayerParameters(
     " Number of generated parameters by propagator: " << paramList.size());
 
   int s_int = 0;
-  for (std::unique_ptr<const Trk::TrackParameters>& p : paramList) {
+  for (std::unique_ptr<Trk::TrackParameters>& p : paramList) {
     ATH_MSG_DEBUG(s_int++ << "th surface : ");
 
     Identifier id;

@@ -553,7 +553,7 @@ Trk::Extrapolator::extrapolateStepwiseImpl(const EventContext& ctx,
   ATH_MSG_DEBUG("F-[" << cache.m_methodSequence << "] extrapolateStepwise(...) ");
   // initialize the return parameters vector
   // create a new internal helper vector
-  Trk::TrackParametersVector tmp;
+  Trk::TrackParametersPtrVector tmp;
   cache.m_parametersOnDetElements = &tmp;
   cache.m_ownParametersOnDetElements = true;
   // Material effect updator cache
@@ -3110,7 +3110,7 @@ Trk::Extrapolator::extrapolateBlindlyImpl(const EventContext& ctx,
   cache.m_boundaryVolume = boundaryVol;
   // initialize the return parameters vector
   // create a new internal helper vector
-  Trk::TrackParametersVector tmp;
+  Trk::TrackParametersPtrVector tmp;
   cache.m_parametersOnDetElements = &tmp;
   cache.m_ownParametersOnDetElements = true;
   // run the extrapolation
@@ -4213,7 +4213,7 @@ Trk::Extrapolator::overlapSearch(const EventContext& ctx,
   bool isStartLayer = (detSurface && detSurface == startSurface);
 
   // the temporary vector (might have to be ordered)
-  std::vector<const Trk::TrackParameters*> detParametersOnLayer;
+  std::vector<Trk::TrackParameters*> detParametersOnLayer;
   bool reorderDetParametersOnLayer = false;
   // the first test for the detector surface to be hit (false test)
   // - only do this if the parameters aren't on the surface
@@ -4820,7 +4820,7 @@ Trk::Extrapolator::extrapolateWithPathLimit(const EventContext& ctx,
                                             double& pathLim,
                                             Trk::PropDirection dir,
                                             Trk::ParticleHypothesis particle,
-                                            std::vector<const Trk::TrackParameters*>*& parmOnSf,
+                                            std::vector<Trk::TrackParameters*>*& parmOnSf,
                                             std::vector<const Trk::TrackStateOnSurface*>*& material,
                                             const Trk::TrackingVolume* boundaryVol,
                                             MaterialUpdateMode matupmod) const
