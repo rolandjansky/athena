@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCablingData/MuonMDT_CablingMap.h"
@@ -76,7 +76,7 @@ bool MuonMDT_CablingMap::setSubdetectorMap(uint8_t subdetectorId, MdtSubdetector
 
   if (!subdetectorAdded) {
     log << MSG::ERROR << "Could not add subdetector " << MSG::hex 
-	   << subdetectorId << MSG::dec << " to the MDT cabling map" << endmsg;
+        << static_cast<unsigned> (subdetectorId) << MSG::dec << " to the MDT cabling map" << endmsg;
   }
 
   return subdetectorAdded;
@@ -221,7 +221,8 @@ bool MuonMDT_CablingMap::addMezzanine(const CablingData& map_data, MsgStream &lo
   }
   else {
     if (debug){
-     log << MSG::VERBOSE << "Found the subdetector: 0x" << MSG::hex <<  map_data.subdetectorId << MSG::dec << endmsg;
+      log << MSG::VERBOSE << "Found the subdetector: 0x"
+          << MSG::hex <<  static_cast<unsigned> (map_data.subdetectorId) << MSG::dec << endmsg;
     }
   }
 
@@ -229,14 +230,16 @@ bool MuonMDT_CablingMap::addMezzanine(const CablingData& map_data, MsgStream &lo
   MdtRODMap* rodMap = subdetectorMap->getRODMap(map_data.mrod);
   if (!rodMap) {
     if (debug) {
-      log << MSG::VERBOSE << "ROD with id: 0x" << MSG::hex << map_data.mrod  << MSG::dec << " not found, create it" << endmsg;
+      log << MSG::VERBOSE << "ROD with id: 0x"
+          << MSG::hex << static_cast<unsigned> (map_data.mrod)  << MSG::dec << " not found, create it" << endmsg;
     }
     rodMap = new MdtRODMap(map_data.mrod);
     subdetectorMap->setRODMap(map_data.mrod,rodMap, log);
   }
   else {
     if (debug) {
-      log << MSG::VERBOSE << "Found the RODid: 0x" << MSG::hex <<  map_data.mrod  << MSG::dec << endmsg;
+      log << MSG::VERBOSE << "Found the RODid: 0x"
+          << MSG::hex <<  static_cast<unsigned> (map_data.mrod)  << MSG::dec << endmsg;
     }
   }
   
@@ -244,7 +247,8 @@ bool MuonMDT_CablingMap::addMezzanine(const CablingData& map_data, MsgStream &lo
   MdtCsmMap* csmMap = rodMap->getCsmMap(map_data.csm);
   if (!csmMap) {
     if (debug) {
-        log << MSG::VERBOSE << "CSM with id: 0x" << MSG::hex << map_data.csm << MSG::dec << " not found, create it" << endmsg;
+      log << MSG::VERBOSE << "CSM with id: 0x"
+          << MSG::hex << static_cast<unsigned> (map_data.csm) << MSG::dec << " not found, create it" << endmsg;
    }
     csmMap = new MdtCsmMap(map_data.csm);
     rodMap->setCsmMap(map_data.csm, csmMap, log);
@@ -286,7 +290,8 @@ bool MuonMDT_CablingMap::addMezzanine(const CablingData& map_data, MsgStream &lo
 
   }
   else {
-    log << MSG::ERROR << "Tdc with Id: 0x" << MSG::hex << map_data.tdcId << MSG::dec  << " already found, cannot be added" << endmsg;
+    log << MSG::ERROR << "Tdc with Id: 0x"
+        << MSG::hex << static_cast<unsigned> (map_data.tdcId) << MSG::dec  << " already found, cannot be added" << endmsg;
     return false;
   }
   return true;
@@ -497,23 +502,29 @@ bool MuonMDT_CablingMap::getOfflineId(
   // get the subdetector
   MdtSubdetectorMap* subdetectorMap = getSubdetectorMap(cabling_map.subdetectorId);
   if (!subdetectorMap) {
-    log << MSG::WARNING << "Subdetector: 0x" << MSG::hex << cabling_map.subdetectorId << MSG::dec << " not found in the map" << endmsg;
+    log << MSG::WARNING << "Subdetector: 0x"
+        << MSG::hex << static_cast<unsigned> (cabling_map.subdetectorId) << MSG::dec << " not found in the map" << endmsg;
     return false;
   }
   // get the rod
   MdtRODMap* rodMap = subdetectorMap->getRODMap(cabling_map.mrod);
   if (!rodMap) {
-    log << MSG::WARNING << "MROD: 0x" << MSG::hex << cabling_map.mrod << MSG::dec 
-	   << " not found in the map of subdetector: 0x" << MSG::hex << cabling_map.subdetectorId 
+    log << MSG::WARNING << "MROD: 0x"
+        << MSG::hex << static_cast<unsigned> (cabling_map.mrod) << MSG::dec 
+        << " not found in the map of subdetector: 0x"
+        << MSG::hex << static_cast<unsigned> (cabling_map.subdetectorId)
 	   << MSG::dec << endmsg;
     return false;
   }
   // retrieve the csm
   MdtCsmMap* csmMap = rodMap->getCsmMap(cabling_map.csm);
   if (!csmMap) {
-    log << MSG::WARNING << "CSM: 0x" << MSG::hex << cabling_map.csm << MSG::dec 
-	   << " not found in MROD: 0x" << MSG::hex << cabling_map.mrod
-	   << MSG::dec << " of subdetector: 0x" << MSG::hex << cabling_map.subdetectorId << MSG::dec << endmsg;
+    log << MSG::WARNING << "CSM: 0x"
+        << MSG::hex << static_cast<unsigned> (cabling_map.csm) << MSG::dec 
+        << " not found in MROD: 0x"
+        << MSG::hex << static_cast<unsigned> (cabling_map.mrod) << MSG::dec
+        << " of subdetector: 0x"
+        << MSG::hex << static_cast<unsigned> (cabling_map.subdetectorId) << MSG::dec << endmsg;
     return false;
   }  
   // retrieve the tdc
@@ -529,9 +540,9 @@ bool MuonMDT_CablingMap::getOfflineId(
      // get the second tdc of that chamber
      amtMap = (*it_amt).second.get();     
      if (!amtMap) {
-       log << MSG::WARNING << "CSM: 0x" << MSG::hex << cabling_map.csm 
-	      << MSG::dec << " of MROD: 0x" << MSG::hex << cabling_map.mrod << MSG::dec 
-	      << " subdetector: 0x" << MSG::hex << cabling_map.subdetectorId << MSG::dec  
+       log << MSG::WARNING << "CSM: 0x" << MSG::hex << static_cast<unsigned> (cabling_map.csm )
+           << MSG::dec << " of MROD: 0x" << MSG::hex << static_cast<unsigned> (cabling_map.mrod) << MSG::dec 
+           << " subdetector: 0x" << MSG::hex << static_cast<unsigned> (cabling_map.subdetectorId) << MSG::dec  
 	      << " not identified !!" <<   endmsg;
        return false;
      }
@@ -548,10 +559,10 @@ bool MuonMDT_CablingMap::getOfflineId(
    
    amtMap = csmMap->getTdcMap(cabling_map.tdcId);
    if (!amtMap) {
-     log << MSG::WARNING << "Tdc: 0x" << MSG::hex << cabling_map.tdcId << MSG::dec 
-	     << " not found in CSM: 0x" << MSG::hex << cabling_map.csm 
-	     << MSG::dec << " of MROD: 0x" << MSG::hex << cabling_map.mrod << MSG::dec 
-	     << " subdetector: 0x" << MSG::hex <<  cabling_map.subdetectorId << MSG::dec << endmsg;
+     log << MSG::WARNING << "Tdc: 0x" << MSG::hex << static_cast<unsigned> (cabling_map.tdcId) << MSG::dec 
+         << " not found in CSM: 0x" << MSG::hex << static_cast<unsigned> (cabling_map.csm)
+         << MSG::dec << " of MROD: 0x" << MSG::hex << static_cast<unsigned> (cabling_map.mrod) << MSG::dec 
+         << " subdetector: 0x" << MSG::hex <<  static_cast<unsigned> (cabling_map.subdetectorId) << MSG::dec << endmsg;
       return false;
     }
 
@@ -560,20 +571,20 @@ bool MuonMDT_CablingMap::getOfflineId(
   // retrieve the full information
   if (!amtMap->offlineId(cabling_map.channelId, cabling_map.stationIndex, cabling_map.eta, cabling_map.phi, 
 				       cabling_map.multilayer, cabling_map.layer, cabling_map.tube, log)) {    
-       log << MSG::WARNING << "Channel: 0x" << MSG::hex << cabling_map.channelId << MSG::dec  
-                          << " Tdc: 0x" << MSG::hex <<cabling_map.tdcId << MSG::dec 
-      << " not found in CSM: 0x" << MSG::hex << cabling_map.csm  
-      << MSG::dec << " of MROD: 0x" << MSG::hex <<cabling_map.mrod << MSG::dec 
-      << " subdetector: 0x" << MSG::hex << cabling_map.subdetectorId << MSG::dec << endmsg;
+    log << MSG::WARNING << "Channel: 0x" << MSG::hex << static_cast<unsigned> (cabling_map.channelId) << MSG::dec  
+        << " Tdc: 0x" << MSG::hex << static_cast<unsigned> (cabling_map.tdcId) << MSG::dec 
+        << " not found in CSM: 0x" << MSG::hex << static_cast<unsigned> (cabling_map.csm)
+        << MSG::dec << " of MROD: 0x" << MSG::hex << static_cast<unsigned> (cabling_map.mrod) << MSG::dec 
+        << " subdetector: 0x" << MSG::hex << static_cast<unsigned> (cabling_map.subdetectorId) << MSG::dec << endmsg;
     return false;
   }
   if (log.level() <= MSG::VERBOSE) {
-    log << MSG::VERBOSE << "Channel: 0x" << MSG::hex << cabling_map.channelId << MSG::dec  
-	   << " Tdc: 0x" << MSG::hex << cabling_map.tdcId << MSG::dec 
-	   << " CSM: 0x" << MSG::hex << cabling_map.csm
-	   << MSG::dec << " of MROD: 0x" << MSG::hex << cabling_map.mrod << MSG::dec 
-	   << " subdetector: 0x" << MSG::hex << cabling_map.subdetectorId 
-	   << MSG::dec << endmsg;
+    log << MSG::VERBOSE << "Channel: 0x" << MSG::hex << static_cast<unsigned> (cabling_map.channelId) << MSG::dec  
+        << " Tdc: 0x" << MSG::hex << static_cast<unsigned> (cabling_map.tdcId) << MSG::dec 
+        << " CSM: 0x" << MSG::hex << static_cast<unsigned> (cabling_map.csm)
+        << MSG::dec << " of MROD: 0x" << MSG::hex << static_cast<unsigned> (cabling_map.mrod) << MSG::dec 
+        << " subdetector: 0x" << MSG::hex << static_cast<unsigned> (cabling_map.subdetectorId)
+        << MSG::dec << endmsg;
 
     log << MSG::VERBOSE << "Mapped to: Station: " << cabling_map.stationIndex << " eta: " << cabling_map.eta
 	   << " phi: " << cabling_map.phi << " multiLayer: " << cabling_map.multilayer 
@@ -596,8 +607,8 @@ bool MuonMDT_CablingMap::getOnlineId(CablingData& cabling_map, MsgStream &log) c
 
   if (debug) {
     log << MSG::VERBOSE << "Station: " << cabling_map.stationIndex << " eta: " << cabling_map.eta 
-	   << " phi: " << cabling_map.phi << " mapped to subdet: 0x" << MSG::hex << cabling_map.subdetectorId
-	   << MSG::dec << " rodId: 0x" << MSG::hex << cabling_map.mrod << MSG::dec << endmsg;
+        << " phi: " << cabling_map.phi << " mapped to subdet: 0x" << MSG::hex << static_cast<unsigned> (cabling_map.subdetectorId)
+        << MSG::dec << " rodId: 0x" << MSG::hex << static_cast<unsigned> (cabling_map.mrod) << MSG::dec << endmsg;
   }
   
   // get correct subdetector and rod
@@ -605,17 +616,17 @@ bool MuonMDT_CablingMap::getOnlineId(CablingData& cabling_map, MsgStream &log) c
   // get the subdetector
   MdtSubdetectorMap* subdetectorMap = getSubdetectorMap(cabling_map.subdetectorId);
   if (!subdetectorMap) {
-    log << MSG::WARNING << "Subdetector: 0x" << MSG::hex <<cabling_map.subdetectorId 
+    log << MSG::WARNING << "Subdetector: 0x" << MSG::hex << static_cast<unsigned> (cabling_map.subdetectorId) 
 	   << MSG::dec << " not found in the map" << endmsg;
     return false;
   }
   // get the rod
   MdtRODMap* rodMap = subdetectorMap->getRODMap(cabling_map.mrod );
   if (!rodMap) {
-    log << MSG::WARNING << "MROD: 0x" << MSG::hex << cabling_map.mrod  << MSG::dec 
-	   << " not found in the map of subdetector: 0x" << MSG::hex 
-	   << cabling_map.subdetectorId  
-	   << MSG::dec << endmsg;
+    log << MSG::WARNING << "MROD: 0x" << MSG::hex << static_cast<unsigned> (cabling_map.mrod)  << MSG::dec 
+        << " not found in the map of subdetector: 0x" << MSG::hex 
+        << static_cast<unsigned> (cabling_map.subdetectorId)
+        << MSG::dec << endmsg;
     return false;
   }
   
@@ -638,7 +649,7 @@ bool MuonMDT_CablingMap::getOnlineId(CablingData& cabling_map, MsgStream &log) c
     cabling_map.csm = ((*it_csm).second)->moduleId();
     
     if (debug) {
-      log << MSG::VERBOSE << "Csm number: " << MSG::hex << cabling_map.csm << MSG::dec << endmsg;
+      log << MSG::VERBOSE << "Csm number: " << MSG::hex << static_cast<unsigned> (cabling_map.csm) << MSG::dec << endmsg;
     }
 
     listOfAmt = ((*it_csm).second)->getListOfElements();
