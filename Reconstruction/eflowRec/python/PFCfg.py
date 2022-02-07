@@ -173,6 +173,7 @@ def getChargedFlowElementCreatorAlgorithm(inputFlags,chargedFlowElementOutputNam
         FlowElementChargedCreatorAlgorithm.FlowElementOutputName=chargedFlowElementOutputName
     if(inputFlags.PF.EOverPMode):
         FlowElementChargedCreatorAlgorithm.FlowElementOutputName="EOverPChargedParticleFlowObjects"
+        FlowElementChargedCreatorAlgorithm.EOverPMode = True
 
     return FlowElementChargedCreatorAlgorithm
 
