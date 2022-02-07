@@ -226,7 +226,7 @@ namespace {
    unsigned int gev2MeVThrVal(double gevVal) {
       unsigned int mev_i = std::lround( 1000 * gevVal );
       if( gevVal != (mev_i / 1000.) ) {
-         std::runtime_error("Value conversion failed");
+         throw std::runtime_error("Value conversion failed");
       }
       return mev_i;
    }
