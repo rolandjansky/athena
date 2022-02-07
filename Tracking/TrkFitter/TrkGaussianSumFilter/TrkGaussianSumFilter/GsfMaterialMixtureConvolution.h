@@ -25,7 +25,7 @@ namespace Trk {
 class Layer;
 class MaterialProperties;
 
-class GsfMaterialMixtureConvolution
+class GsfMaterialMixtureConvolution final
   : public AthAlgTool
   , virtual public IMaterialMixtureConvolution
 {
