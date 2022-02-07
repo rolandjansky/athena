@@ -344,7 +344,7 @@ jtm += PseudoJetAlgorithm(
   "gtowerget",
   InputContainer = "CaloCalFwdTopoTowers",
   Label = "GhostTower",
-  OutputContainer = "PseduoJetGhostTower"
+  OutputContainer = "PseudoJetGhostTower"
 )
 
 # Weight tool for charged pflow objects.
