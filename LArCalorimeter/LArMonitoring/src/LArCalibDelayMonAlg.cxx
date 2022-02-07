@@ -140,8 +140,8 @@ StatusCode LArCalibDelayMonAlg::fillHistograms( const EventContext& ctx ) const 
         
         // transform sampleSum vector from uint32_t to double
         std::vector <double> samplesum;     
-        std::vector < uint32_t >::const_iterator samplesum_it=pLArAccCalibDigit->sampleSum().begin();
-        std::vector < uint32_t >::const_iterator samplesum_it_e=pLArAccCalibDigit->sampleSum().end();
+        std::vector < uint64_t >::const_iterator samplesum_it=pLArAccCalibDigit->sampleSum().begin();
+        std::vector < uint64_t >::const_iterator samplesum_it_e=pLArAccCalibDigit->sampleSum().end();
         for (;samplesum_it!=samplesum_it_e; ++samplesum_it) {
             samplesum.push_back((double)(*samplesum_it)); //double: signed 64bit
             // Get the vector of sample values
