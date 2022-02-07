@@ -74,6 +74,13 @@ New post-processing scripts should be made as general as possible and named as
 The tests in this package can be run locally like any other unit tests after compiling
 the package locally and running `ctest`.
 
+All tests in this package carry the "CITest" label and therefore they can be included/excluded
+in `ctest` runs, via:
+```sh
+ctest -L CITest   # only run CI tests
+ctest -LE CITest  # run all tests, except CI tests
+```
+
 To avoid running the CI tests as part of the regular unit testing in the nightly build, 
 the tests are disabled by default. To enable them (e.g. for CI builds), the following
 needs to be added to the `cmake` command line:
@@ -83,12 +90,6 @@ cmake -DATLAS_ENABLE_CI_TESTS=TRUE ...
 This is done already by default for partial `WorkDir` builds so a regular developer does
 not need to worry about this.
 
-All tests in this package carry the "CITest" label and therefore they can be included/excluded
-in `ctest` runs, via:
-```sh
-ctest -L CITest   # only run CI tests
-ctest -LE CITest  # run all tests, except CI tests
-```
 
 ## Internals
 - All tests are run in a separate working directory in the build area: `AtlasTest/CITest/CMakeFiles/ciTestRun/<test>/` where `<test>` is the name used in `atlas_add_citest`.
