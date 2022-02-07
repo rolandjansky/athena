@@ -465,8 +465,8 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
 	}
       else if ( (ih>=12 && ih<=155) || (ih>=1892 && ih<=2035) ) //Disks
 	{
-	  int idxdisks = ih - 12;
-	  if (ih>=1892) idxdisks-=1880;
+	  //int idxdisks = ih - 12;
+	  //if (ih>=1892) idxdisks-=1880;
 	  el_eta = 0; // idxdisks / 48; 
 	}
       else continue;
