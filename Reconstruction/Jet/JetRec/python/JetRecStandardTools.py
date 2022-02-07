@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # JetRecStandardTools.py
 #
@@ -322,13 +322,14 @@ jtm += PseudoJetAlgorithm(
   SkipNegativeEnergy = True,
 )
 
-jtm += PseudoJetAlgorithm(
-  "gtracklrtget",
-  InputContainer = "InDetLargeD0TrackParticles",
-  Label = "GhostTrackLRT",
-  OutputContainer = "PseudoJetGhostTrackLRT",
-  SkipNegativeEnergy = True,
-)
+if jetFlags.useLargeD0Tracks():
+  jtm += PseudoJetAlgorithm(
+    "gtracklrtget",
+    InputContainer = "InDetLargeD0TrackParticles",
+    Label = "GhostTrackLRT",
+    OutputContainer = "PseudoJetGhostTrackLRT",
+    SkipNegativeEnergy = True,
+  )
 
 # Muon segments
 jtm += MuonSegmentPseudoJetAlgorithm(
