@@ -179,7 +179,7 @@ namespace Pythia8{
       double Qsq = sign * Q.m2Calc();
 
       // Mass term of radiator
-      double m2Rad = (abs(radID) >= 4 && abs(radID) < 7) ?
+      double m2Rad = (std::abs(radID) >= 4 && std::abs(radID) < 7) ?
 	pow2(particleDataPtr->m0(radID)) : 0.;
 
       // z values for FSR and ISR
@@ -213,11 +213,11 @@ namespace Pythia8{
 #ifdef DBGOUTPUT
       std::cout << "pTpythia: rad = " << RadAfterBranch << ", emt = "
 	   << EmtAfterBranch << ", rec = " << RecAfterBranch
-	   << ", pTnow = " << sqrt(pTnow) << std::endl;
+	   << ", pTnow = " << std::sqrt(pTnow) << std::endl;
 #endif
 
       // Return pT
-      return sqrt(pTnow);
+      return std::sqrt(pTnow);
     }
 
     // Compute the POWHEG pT separation between i and j
@@ -240,11 +240,11 @@ namespace Pythia8{
 	jVecBst.bst(0., 0., betaZ);
 
 	if ( e[i].id() == 21 && e[j].id() == 21) {
-          pTnow = sqrt( (iVecBst + jVecBst).m2Calc() *
+          pTnow = std::sqrt( (iVecBst + jVecBst).m2Calc() *
                         iVecBst.e() * jVecBst.e() /
                         pow2(iVecBst.e() + jVecBst.e()) );
 	} else {
-          pTnow = sqrt( (iVecBst + jVecBst).m2Calc() *
+          pTnow = std::sqrt( (iVecBst + jVecBst).m2Calc() *
                         jVecBst.e() / iVecBst.e() );
 	}
  
@@ -273,12 +273,6 @@ namespace Pythia8{
     // partons are tried.
     // xSR set to 0 means ISR, while xSR set to 1 means FSR
     double pTcalc(const Event &e, int i, int j, int k, int r, int xSRin) {
-
-      //    std::cout << "APPENA ENTRATO IN pTcalc" << std::endl;
-
-      //std::cout << "idhep(i)= " << e[i].id() << std::endl;
-      //std::cout << "idhep(j)= " << e[j].id() << std::endl;
-      //std::cout << "idhep(k)= " << e[k].id() << std::endl;
 
 
       // Loop over ISR and FSR if necessary
@@ -441,10 +435,8 @@ namespace Pythia8{
       if (!isEmt || m_pThardMode == 0) {
 	// This sets the scale to veto emissions in the QCD shower by Pythia
 	// This scale is used for all emissions, except if they come from the resonance
-	//std::cout << "SI: in doVetoMPIStep: " << m_si_event_info_.vetoscale_isr << std::endl;
 	m_pThard = m_si_event_info_.vetoscale_isr;
 	// Not using directly scalup, because the special file LHE (two scales)
-	//      m_pThard = infoPtr->scalup();
       
 	// If m_pThardMode is 1 then the pT of the POWHEG emission is checked against
 	// all other incoming and outgoing partons, with the minimal value taken
@@ -460,7 +452,6 @@ namespace Pythia8{
 
       // Find MPI veto pT if necessary
       if (m_MPIvetoMode == 1) {
-	//m_pTMPI = infoPtr->QFac();
 	m_pTMPI = (isEmt) ? pTsum / 2. : pT1;
       }
 
@@ -478,7 +469,6 @@ namespace Pythia8{
 	  std::cout << "something wrong with pThard = " << m_pThard << std::endl;
 	  exit(1);
 	}
-      //    m_pThard = infoPtr->QFac();
 
       // Do not veto the event
       return false;
@@ -527,7 +517,6 @@ namespace Pythia8{
 #endif
 
       // Veto if pTemt > m_pThard
-      //std::cout << "SI In doVetoISREmission with pThard: " << m_pThard << std::endl;
       if (pTemt > m_pThard) {
 	m_nAcceptSeq = 0;
 	m_nISRveto++;
@@ -562,13 +551,11 @@ namespace Pythia8{
       // force the radiation scale, m_pThard, to be equal to the one set in the LHE file
       if (inr == 1) {
 	if ((m_si_data_.vetoqed == false) || (m_si_data_.py8veto == false)) {
-	  //std::cout << "SI: not using doVetoFSREmission" << std::endl;
 	  return false;
 	}
 	else {
 	  // Set scale for FSR from the resonance
 	  m_pThard = m_si_event_info_.vetoscale_fsr;
-	  //std::cout << "SI: Using PYTHIA8 based veto with ptmaxmatch = 2 for FSR, pthard: " << m_pThard << std::endl;
 	}
       }
       
@@ -635,7 +622,6 @@ namespace Pythia8{
 #endif
 
       // Veto if pTemt > m_pThard
-      //std::cout << "SI In doVetoFSREmission with pThard: " << m_pThard << std::endl;
       if (pTemt > m_pThard) {
 	m_nAcceptSeq = 0;
 	m_nFSRveto++;

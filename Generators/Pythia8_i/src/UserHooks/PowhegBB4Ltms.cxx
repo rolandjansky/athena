@@ -97,8 +97,7 @@ namespace Pythia8 {
       //}
       //// Extra check that we have the correct final state                                                                                                     
       //std::cout << "INFO: counted final particles is "<< count<< "; nFinal is "<<nFinal << std::endl;
-      //    }
-      
+      //    }  
       ////////////    
       
       
@@ -178,15 +177,15 @@ namespace Pythia8 {
 	// No radiating resonance found
 	scale =	m_pTmin(settingsPtr);
       }
-      else if (abs(event[iRes].id()) == 6) {
+      else if (std::abs(event[iRes].id()) == 6) {
 	// Find top daughters
 	int idw = -1, idb = -1, idg = -1;
 	
 	for (int i = 0; i < nDau; i++) {
 	  int iDau = event[iRes].daughterList()[i];
-	  if (abs(event[iDau].id()) == 24) idw = iDau;
-	  if (abs(event[iDau].id()) ==  5) idb = iDau;
-	  if (abs(event[iDau].id()) == 21) idg = iDau;
+	  if (std::abs(event[iDau].id()) == 24) idw = iDau;
+	  if (std::abs(event[iDau].id()) ==  5) idb = iDau;
+	  if (std::abs(event[iDau].id()) == 21) idg = iDau;
 	}
 	
 	// Get daughter 4-vectors in resonance frame
@@ -200,7 +199,7 @@ namespace Pythia8 {
 	pg.bstback(event[iRes].p());
 	
 	// Calculate scale
-	scale = sqrt(2*pg*pb*pg.e()/pb.e());
+	scale = std::sqrt(2*pg*pb*pg.e()/pb.e());
       }
       else {
 	scale = 1e30;
@@ -246,13 +245,13 @@ namespace Pythia8 {
     inline double qSplittingScale(Vec4 pt, Vec4 p1, Vec4 p2){
       p1.bstback(pt);
       p2.bstback(pt);
-      return sqrt( 2*p1*p2*p2.e()/p1.e() );
+      return std::sqrt( 2*p1*p2*p2.e()/p1.e() );
     }
     
     inline double gSplittingScale(Vec4 pt, Vec4 p1, Vec4 p2){
       p1.bstback(pt);
       p2.bstback(pt);
-      return sqrt( 2*p1*p2*p1.e()*p2.e()/(pow(p1.e()+p2.e(),2)) );
+      return std::sqrt( 2*p1*p2*p1.e()*p2.e()/(std::pow(p1.e()+p2.e(),2)) );
     }
     // Routines to calculate the pT (according to pTdefMode) in a FS splitting:
     // i (radiator before) -> j (emitted after) k (radiator after)
@@ -274,7 +273,7 @@ namespace Pythia8 {
       
       
       // Mass term of radiator
-      double m2Rad = (abs(radID) >= 4 && abs(radID) < 7) ?
+      double m2Rad = (std::abs(radID) >= 4 && std::abs(radID) < 7) ?
 	pow2(particleDataPtr->m0(radID)) : 0.;
       
       // z values for FSR 
@@ -295,7 +294,7 @@ namespace Pythia8 {
 	return -1.;
       }
       else
-	return(sqrt(pTnow));
+	return(std::sqrt(pTnow));
     }
 
 
@@ -314,15 +313,15 @@ namespace Pythia8 {
       // summary of cases
       // 1.) t > W b
       //   a.) b > 3     ... error
-      //   b.) b > b g   ... h = sqrt(2*p_g*p_b*p_g.e()/p_b.e())
+      //   b.) b > b g   ... h = std::sqrt(2*p_g*p_b*p_g.e()/p_b.e())
       //   c.) b > other ... h = -1
       //   return h
       // 2.) t > W b g
       //   a.)   b > 3     ... error
-      //   b.)   b > b g   ... h1 = sqrt(2*p_g*p_b*p_g.e()/p_b.e())
+      //   b.)   b > b g   ... h1 = std::sqrt(2*p_g*p_b*p_g.e()/p_b.e())
       //   c.)   b > other ... h1 = -1
       //   i.)   g > 3     ... error
-      //   ii.)  g > 2     ... h2 = sqrt(2*p_g1*p_g2*p_g1.e()*p_g2.e()/(pow(p_g1.e(),2)+pow(p_g2.e(),2))) );
+      //   ii.)  g > 2     ... h2 = std::sqrt(2*p_g1*p_g2*p_g1.e()*p_g2.e()/(pow(p_g1.e(),2)+pow(p_g2.e(),2))) );
       //   iii.) g > other ... h2 = -1
       //   return max(h1,h2)
       // 3.) else ... error
@@ -385,18 +384,18 @@ namespace Pythia8 {
     inline double scaleResonance(int iRes, const Event &e) {
       if (e[iRes].id() == 6){
 	if(radtype_.radtype == 2)
-	  return sqrt(e[iRes].m2Calc());
+	  return std::sqrt(e[iRes].m2Calc());
 	else
 	  return m_topresscale;
       }
       else if (e[iRes].id() == -6){
 	if(radtype_.radtype == 2)
-	  return sqrt(e[iRes].m2Calc());
+	  return std::sqrt(e[iRes].m2Calc());
 	else
 	  return m_atopresscale;
       }
       else
-	return pow(10.0,30.);
+	return std::pow(10.0,30.);
     }
     
     
@@ -424,7 +423,7 @@ namespace Pythia8 {
 	// find the top resonance the radiator originates from
 	int iTop = e[iRadBef].mother1();
 	int distance = 1;
-	while (abs(e[iTop].id()) != 6 && iTop > 0) {
+	while (std::abs(e[iTop].id()) != 6 && iTop > 0) {
 	  iTop = e[iTop].mother1();
 	  distance ++;
 	}
@@ -453,7 +452,7 @@ namespace Pythia8 {
 	  if (e[iRadBef].id() == 21)
 	    scale = gSplittingScale(psystem, pr, pe);
 	  // quark emitting a gluon (or a photon)
-	  else if (abs(e[iRadBef].id()) == 5 && ((e[iEmt].id() == 21) && ! m_vetoQED(settingsPtr)) )
+	  else if (std::abs(e[iRadBef].id()) == 5 && ((e[iEmt].id() == 21) && ! m_vetoQED(settingsPtr)) )
 	    scale = qSplittingScale(psystem, pr, pe);
 	  // other stuff (which we should not veto)
 	  else {
