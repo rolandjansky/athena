@@ -433,8 +433,7 @@ if DetFlags.haveRIO.TRT_on():
     if InDetFlags.doTRTPIDNN():
         if not conddb.folderRequested( "/TRT/Calib/PID_NN"):
             conddb.addFolderSplitOnline( "TRT", "/TRT/Onl/Calib/PID_NN", "/TRT/Calib/PID_NN",className='CondAttrListCollection')
-        # FIXME: force tag until the folder is included in global tag
-        conddb.addOverride("/TRT/Calib/PID_NN", "TRTCalibPID_NN_v1")
+        # FIXME: need to force an override for the online DB until this folder has been added to the latest tag
         conddb.addOverride("/TRT/Onl/Calib/PID_NN", "TRTCalibPID_NN_v1")
 
     #
