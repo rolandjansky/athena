@@ -139,17 +139,19 @@ SCT_ConditionsSummaryTool::isGood(const IdentifierHash& elementHash, const Event
   return true;
 }
 
-std::unique_ptr<InDet::SiDetectorElementStatus> SCT_ConditionsSummaryTool::getDetectorElementStatus(const EventContext& ctx,
+std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> SCT_ConditionsSummaryTool::getDetectorElementStatus(const EventContext& ctx,
                                                                                                 [[maybe_unused]] bool active_only) const {
    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_SCTDetEleCollKey, ctx};
-   std::unique_ptr<InDet::SiDetectorElementStatus> element_status( new InDet::SCT_DetectorElementStatus(*(condData.cptr())) );
+   std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange>
+      element_status( std::make_tuple( std::unique_ptr<InDet::SiDetectorElementStatus> ( new InDet::SCT_DetectorElementStatus(*(condData.cptr())) ),
+                                       EventIDRange() ) );
    if (not m_noReports) {
       for (const ToolHandle<ISCT_ConditionsTool>& tool: m_toolHandles) {
          // @TODO also check if it can report about chips ?
          if ((tool->canReportAbout(InDetConditions::SCT_SIDE) or
               tool->canReportAbout(InDetConditions::SCT_MODULE) or
               tool->canReportAbout(InDetConditions::SCT_STRIP))) {
-            tool->getDetectorElementStatus(ctx,*element_status);
+            tool->getDetectorElementStatus(ctx,*std::get<0>(element_status),std::get<1>(element_status));
          }
       }
    }

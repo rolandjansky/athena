@@ -61,7 +61,7 @@ class PixelConditionsSummaryTool: public AthAlgTool, public IExtendedInDetCondit
     virtual bool isGood(const IdentifierHash& moduleHash, const Identifier& elementId, const EventContext& ctx) const override final;
     virtual double goodFraction(const IdentifierHash & moduleHash, const Identifier & idStart, const Identifier & idEnd, const EventContext& ctx) const override final;
 
-    virtual std::unique_ptr<InDet::SiDetectorElementStatus> getDetectorElementStatus(const EventContext& ctx, bool active_only) const override;
+    virtual std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> getDetectorElementStatus(const EventContext& ctx, bool active_only) const override;
 
     virtual bool hasBSError(const IdentifierHash& moduleHash) const override final;
     virtual bool hasBSError(const IdentifierHash& moduleHash, Identifier pixid) const override final;

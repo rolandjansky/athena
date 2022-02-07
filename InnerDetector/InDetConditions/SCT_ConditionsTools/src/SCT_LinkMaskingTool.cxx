@@ -65,8 +65,14 @@ bool SCT_LinkMaskingTool::isGood(const IdentifierHash& hashId) const {
   return isGood(hashId, ctx);
 }
 
-void SCT_LinkMaskingTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status) const {
-  const SCT_ModuleVetoCondData* condData{getCondData(ctx)};
+void SCT_LinkMaskingTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status, EventIDRange &the_range) const {
+  SG::ReadCondHandle<SCT_ModuleVetoCondData> condDataHandle{m_condKey, ctx};
+  if (not condDataHandle.isValid()) {
+     ATH_MSG_ERROR("Failed to get " << m_condKey.key());
+     return;
+  }
+  const SCT_ModuleVetoCondData* condData{condDataHandle.cptr()};
+  the_range = EventIDRange::intersect( the_range, condDataHandle.getRange() );
   if (condData) {
      std::vector<bool> &status = element_status.getElementStatus();
      if (status.empty()) {

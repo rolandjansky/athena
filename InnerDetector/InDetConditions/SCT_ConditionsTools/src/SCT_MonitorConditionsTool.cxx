@@ -130,8 +130,14 @@ SCT_MonitorConditionsTool::isGood(const IdentifierHash& hashId) const {
 }
 
 
-void SCT_MonitorConditionsTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status) const  {
-  const SCT_MonitorCondData* condData{getCondData(ctx)};
+void SCT_MonitorConditionsTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status, EventIDRange &the_range) const  {
+  SG::ReadCondHandle<SCT_MonitorCondData> condDataHandle{m_condKey, ctx};
+  if (not condDataHandle.isValid()) {
+     ATH_MSG_ERROR("Invalid cond data handle " << m_condKey.key() );
+     return;
+  }
+  the_range = EventIDRange::intersect( the_range, condDataHandle.getRange() );
+  const SCT_MonitorCondData* condData{condDataHandle.cptr() };
   if (condData) {
      std::vector<bool> &status = element_status.getElementStatus();
      if (status.empty()) {

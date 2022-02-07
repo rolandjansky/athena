@@ -79,7 +79,7 @@ public:
   virtual bool isGood(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   virtual bool isGood(const IdentifierHash& elementIdHash) const override;
   virtual bool isGood(const IdentifierHash& elementIdHash, const EventContext& ctx) const override;
-  virtual void getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status) const override;
+  virtual void getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status, EventIDRange &the_range) const override;
 
   virtual std::set<IdentifierHash> getErrorSet(int errorType, const EventContext& ctx) const override; // Used by SCTRawDataProviderTool and others
   virtual std::set<IdentifierHash> getErrorSet(int errorType) const override; // Used by SCTRawDataProviderTool and others

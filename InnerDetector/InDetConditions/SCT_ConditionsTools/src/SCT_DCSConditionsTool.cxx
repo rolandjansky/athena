@@ -93,9 +93,15 @@ bool SCT_DCSConditionsTool::isGood(const IdentifierHash& hashId, const EventCont
   return isGood(moduleId, ctx, InDetConditions::SCT_MODULE);
 }
 
-void SCT_DCSConditionsTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status) const {
+void SCT_DCSConditionsTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status, EventIDRange &the_range) const {
    if ((m_readAllDBFolders and m_returnHVTemp) or (not m_readAllDBFolders and not m_returnHVTemp)) {
-      const SCT_DCSStatCondData* condDataState{getCondDataState(ctx)};
+      SG::ReadCondHandle<SCT_DCSStatCondData> condDataHandle{m_condKeyState, ctx};
+      if (not condDataHandle.isValid()) {
+         ATH_MSG_ERROR("Failed to get " << m_condKeyState.key());
+         return;
+      }
+      the_range = EventIDRange::intersect( the_range, condDataHandle.getRange() );
+      const SCT_DCSStatCondData* condDataState{ condDataHandle.cptr() };
       if (condDataState==nullptr) return;
       std::vector<bool> &status = element_status.getElementStatus();
       if (status.empty()) {

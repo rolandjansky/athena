@@ -57,7 +57,7 @@ public:
   ///is it good?, using wafer hash
   virtual bool isGood(const IdentifierHash& hashId, const EventContext& ctx) const override;
   virtual bool isGood(const IdentifierHash& hashId) const override;
-  virtual void getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status) const override;
+  virtual void getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status, EventIDRange &the_range) const override;
   //Returns HV (0 if there is no information)
   virtual float modHV(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   virtual float modHV(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;

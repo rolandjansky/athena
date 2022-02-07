@@ -69,11 +69,14 @@ bool SCT_ConfigurationConditionsTool::isGood(const Identifier& elementId, const 
 }
 
 
-void SCT_ConfigurationConditionsTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status) const {
- const SCT_ConfigurationCondData* condData{getCondData(ctx)};
-  if (condData==nullptr) {
-    ATH_MSG_ERROR("In isGood, SCT_ConfigurationCondData pointer cannot be retrieved");
+void SCT_ConfigurationConditionsTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status, EventIDRange &the_range) const {
+  SG::ReadCondHandle<SCT_ConfigurationCondData> condDataHandle{m_condKey, ctx};
+  if (not condDataHandle.isValid() ) {
+     ATH_MSG_ERROR("Invalid cond data handle " << m_condKey.key());
+     return;
   }
+  the_range = EventIDRange::intersect( the_range, condDataHandle.getRange() );
+  const SCT_ConfigurationCondData* condData{ condDataHandle.cptr() };
   const std::set<Identifier>* bad_wafers = condData->getBadWaferIds();
   if (bad_wafers) {
      std::vector<bool> &status = element_status.getElementStatus();

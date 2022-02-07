@@ -113,11 +113,14 @@ bool SCT_ReadCalibDataTool::isGood(const Identifier& elementId, InDetConditions:
   return isGood(elementId, ctx, h);
 }
 
-
-
-
-void SCT_ReadCalibDataTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status) const {
-   const SCT_AllGoodStripInfo* condDataInfo{getCondDataInfo(ctx)};
+void SCT_ReadCalibDataTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status, EventIDRange &the_range) const {
+   SG::ReadCondHandle<SCT_AllGoodStripInfo> condDataHandle{m_condKeyInfo, ctx};
+   if (not condDataHandle.isValid()) {
+      ATH_MSG_ERROR("Invalid cond data handle " << m_condKeyInfo.key() );
+      return;
+   }
+   the_range = EventIDRange::intersect( the_range, condDataHandle.getRange() );
+   const SCT_AllGoodStripInfo* condDataInfo{condDataHandle.cptr()};
 
    const std::vector<bool> &status = element_status.getElementStatus();
    const std::vector<InDet::ChipFlags_t> &chip_status = element_status.getElementChipStatus();

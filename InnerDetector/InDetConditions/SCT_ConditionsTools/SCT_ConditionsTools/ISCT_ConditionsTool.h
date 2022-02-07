@@ -19,6 +19,7 @@
 //Gaudi Includes
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/EventIDRange.h"
 
 namespace InDet {
    class SiDetectorElementStatus;
@@ -42,7 +43,7 @@ class ISCT_ConditionsTool: virtual public IAlgTool {
   ///Summarise the result from the service as good/bad
   virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const =0;
   virtual bool isGood(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const =0;
-  virtual void getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status) const = 0;
+  virtual void getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status, EventIDRange &the_range) const = 0;
 
   //@todo introduce hash identifier method
   virtual bool isGood(const IdentifierHash& hashId) const =0;

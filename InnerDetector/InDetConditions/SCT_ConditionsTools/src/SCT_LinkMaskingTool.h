@@ -50,7 +50,7 @@ public:
   /**Is it good?, using wafer hash*/
   virtual bool isGood(const IdentifierHash& hashId) const override;
   virtual bool isGood(const IdentifierHash& hashId, const EventContext& ctx) const override;
-  virtual void getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status) const override;
+   virtual void getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status, EventIDRange &the_range) const override;
 
 private:
   const SCT_ID* m_sctHelper{nullptr}; //!< ID helper for SCT

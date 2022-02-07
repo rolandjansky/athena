@@ -17,6 +17,7 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "StoreGate/ReadHandle.h"
 #include "SCT_ReadoutGeometry/SCT_ChipUtils.h"
+#include "InDetConditionsSummaryService/IExtendedInDetConditionsTool.h"
 
 /** Constructor */
 SCT_ByteStreamErrorsTool::SCT_ByteStreamErrorsTool(const std::string& type, const std::string& name, const IInterface* parent) :
@@ -158,7 +159,7 @@ namespace {
 
 
 void
-SCT_ByteStreamErrorsTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status) const {
+SCT_ByteStreamErrorsTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status, EventIDRange &the_range) const {
    std::scoped_lock<std::mutex> lock{*m_cacheMutex.get(ctx)};
 
    const auto *idcCachePtr{getCacheEntry(ctx)};
@@ -166,6 +167,7 @@ SCT_ByteStreamErrorsTool::getDetectorElementStatus(const EventContext& ctx, InDe
       ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool No cache! ");
       return;
    }
+   the_range = IExtendedInDetConditionsTool::getInvalidRange();
 
    if (fillData(ctx).isFailure()) {
       return; // @TODO what is the correct way to handle this ?  set status to false for all ?

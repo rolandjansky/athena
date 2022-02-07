@@ -25,7 +25,7 @@ namespace dbg {
 #endif
 
 namespace InDet {
-   SiDetectorElementStatus &SiDetectorElementStatus::operator&=(const SiDetectorElementStatus  &b) {
+   SiDetectorElementStatus &SiDetectorElementStatus::merge(const SiDetectorElementStatus  &b) {
       if (   (!getElementStatus().empty()     && !b.getElementStatus().empty()     && getElementStatus().size()     != b.getElementStatus().size())
           || (!getElementChipStatus().empty() && !b.getElementChipStatus().empty() && getElementChipStatus().size() != b.getElementChipStatus().size())) {
          std::stringstream msg;
@@ -52,28 +52,32 @@ namespace InDet {
       else if (!b.getElementChipStatus().empty()) {
          m_elementChipStatus = b.m_elementChipStatus;
       }
-      if (!getBadCells().empty() && !b.getElementChipStatus().empty()) {
-         unsigned int element_i=0;
-         for (const std::vector<unsigned short> &bad_module_strips :  b.getBadCells()) {
-            std::vector<unsigned short> &dest = m_badCells[element_i];
-            if (dest.empty()) {
-               dest=bad_module_strips;
-            }
-            else {
-               for (unsigned int bad_strip : bad_module_strips) {
-                  std::vector<unsigned short>::const_iterator iter = std::lower_bound(dest.begin(),dest.end(),bad_strip);
-                  if (iter == dest.end() || *iter != bad_strip) {
-                     dest.insert( iter, bad_strip);
+      if (&getBadCells() != &b.getBadCells()) {
+         if (!m_owner) notOwningBadCells();
+         if (!getBadCells().empty() && !b.getBadCells().empty()) {
+            unsigned int element_i=0;
+            for (const std::vector<unsigned short> &bad_module_strips :  b.getBadCells()) {
+               std::vector<unsigned short> &dest = (*m_badCells)[element_i];
+               if (dest.empty()) {
+                  dest=bad_module_strips;
+               }
+               else {
+                  for (unsigned int bad_strip : bad_module_strips) {
+                     std::vector<unsigned short>::const_iterator iter = std::lower_bound(dest.begin(),dest.end(),bad_strip);
+                     if (iter == dest.end() || *iter != bad_strip) {
+                        dest.insert( iter, bad_strip);
+                     }
                   }
                }
+               ++element_i;
             }
-            ++element_i;
          }
-      }
-      else if (!b.getBadCells().empty()){
-         m_badCells = b.getBadCells();
+         else if (!b.getBadCells().empty()){
+            *m_badCells = b.getBadCells();
+         }
       }
       return *this;
    }
 
+   void SiDetectorElementStatus::notOwningBadCells() const { throw std::logic_error("Bad cells not owned by this  instance, cannot return non const bad cell pointer."); }
 } // namespace InDetDD

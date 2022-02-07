@@ -98,11 +98,14 @@ SCT_ReadCalibChipDataTool::isGood(const IdentifierHash& elementHashId, const Eve
 } //SCT_ReadCalibChipDataTool::summary()
 
 void
-SCT_ReadCalibChipDataTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status) const  {
-  const SCT_NoiseCalibData* condDataNoise{getCondDataNoise(ctx)};
-  if (condDataNoise==nullptr) {
-    ATH_MSG_ERROR("In isGood, SCT_NoiseCalibData cannot be retrieved");
+SCT_ReadCalibChipDataTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status, EventIDRange &the_range) const  {
+  SG::ReadCondHandle<SCT_NoiseCalibData> condDataHandle{m_condKeyNoise, ctx};
+  if (not condDataHandle.isValid() ) {
+    ATH_MSG_ERROR("Invalid cond data handle " << m_condKeyNoise.key() );
+    return;
   }
+  the_range = EventIDRange::intersect( the_range, condDataHandle.getRange() );
+  const SCT_NoiseCalibData* condDataNoise{condDataHandle.cptr() };
   std::vector<bool> &status = element_status.getElementStatus();
   if (status.empty()) {
      status.resize(m_id_sct->wafer_hash_max(),true);

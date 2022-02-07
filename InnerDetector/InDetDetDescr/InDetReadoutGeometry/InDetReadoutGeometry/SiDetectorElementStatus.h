@@ -61,9 +61,25 @@ namespace InDet {
     class SiDetectorElementStatus  {
     public:
        SiDetectorElementStatus(const InDetDD::SiDetectorElementCollection &detector_elements)
-          : m_detectorElements(&detector_elements) {}
+          : m_detectorElements(&detector_elements), m_badCells(new std::vector<std::vector<unsigned short> >()), m_owner(true) {}
 
-       virtual ~SiDetectorElementStatus() {}
+       SiDetectorElementStatus(const SiDetectorElementStatus &si_detector_element_status)
+          : m_detectorElements(si_detector_element_status.m_detectorElements),
+            m_elementStatus( si_detector_element_status.m_elementStatus ),
+            m_elementChipStatus( si_detector_element_status.m_elementChipStatus ),
+            m_badCells( si_detector_element_status.m_badCells ),
+            m_owner( false )
+       {
+       }
+
+       SiDetectorElementStatus(const InDetDD::SiDetectorElementCollection &detector_elements,
+                               const std::vector<std::vector<unsigned short> > &bad_cells)
+          : m_detectorElements(&detector_elements),
+            m_badCells(const_cast<std::vector<std::vector<unsigned short> > *>(&bad_cells)), // const_cast but not owned object treated as const.
+            m_owner(false)
+       {}
+
+       virtual ~SiDetectorElementStatus() { if (m_owner) delete m_badCells; }
 
        unsigned int numberOfChips(const IdentifierHash& hash) const {
           return numberOfChips(getDetectorElement(hash)->design());
@@ -85,28 +101,31 @@ namespace InDet {
        }
 
        bool isCellGood(IdentifierHash hash, unsigned short cell_i) const {
-          const std::vector<unsigned short> &bad_cells= m_badCells.at(hash);
+          const std::vector<unsigned short> &bad_cells= m_badCells->at(hash);
           return !std::binary_search(bad_cells.begin(),bad_cells.end(),cell_i);
        }
 
        /** bitwise AND of module and chip status bits.
         */
-       SiDetectorElementStatus  &operator&=(const SiDetectorElementStatus  &a);
+       SiDetectorElementStatus  &merge(const SiDetectorElementStatus  &a);
 
        const std::vector<bool>         &getElementStatus()             const { return m_elementStatus; }
        std::vector<bool>               &getElementStatus()                   { return m_elementStatus; }
        const std::vector<ChipFlags_t>  &getElementChipStatus()         const { return m_elementChipStatus; }
        std::vector<ChipFlags_t>        &getElementChipStatus()               { return m_elementChipStatus; }
-       const std::vector<std::vector<unsigned short> >  &getBadCells() const { return m_badCells; }
-       std::vector<std::vector<unsigned short> >        &getBadCells()       { return m_badCells; }
+       const std::vector<std::vector<unsigned short> >  &getBadCells() const { return *m_badCells; }
+       std::vector<std::vector<unsigned short> >        &getBadCells()       { if (!m_owner) { notOwningBadCells(); } return *m_badCells; }
 
     protected:
        virtual unsigned int numberOfChips(const InDetDD::SiDetectorDesign& design) const = 0;
     private:
+       void notOwningBadCells() const;
+
        const InDetDD::SiDetectorElementCollection *m_detectorElements = nullptr;
        std::vector<bool>                           m_elementStatus;
        std::vector<ChipFlags_t>                    m_elementChipStatus;
-       std::vector<std::vector<unsigned short> >   m_badCells;
+       std::vector<std::vector<unsigned short> >   *m_badCells = nullptr;
+       bool                                         m_owner = false;
     };
 
 } // namespace InDetDD

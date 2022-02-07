@@ -52,7 +52,7 @@ class SCT_ReadCalibChipDataTool: public extends<AthAlgTool, ISCT_ReadCalibChipDa
   ///same thing with id hash, introduced by shaun with dummy method for now
   virtual bool isGood(const IdentifierHash& hashId, const EventContext& ctx) const override;
   virtual bool isGood(const IdentifierHash& hashId) const override;
-  virtual void getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status) const override;
+  virtual void getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status, EventIDRange &the_range) const override;
   //@}
   
   // Methods to return calibration data

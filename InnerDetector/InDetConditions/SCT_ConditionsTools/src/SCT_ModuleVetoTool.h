@@ -53,7 +53,7 @@ class SCT_ModuleVetoTool: public extends<AthAlgTool, ISCT_ConditionsTool> {
   ///is it good?, using wafer hash
   virtual bool isGood(const IdentifierHash& hashId) const override;
   virtual bool isGood(const IdentifierHash& hashId, const EventContext& ctx) const override;
-  virtual void getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status) const override;
+  virtual void getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status, EventIDRange &the_range) const override;
 
  private:
   StringArrayProperty m_badElements{this, "BadModuleIdentifiers", {}, "list of bad detector elements (= module sides)"};

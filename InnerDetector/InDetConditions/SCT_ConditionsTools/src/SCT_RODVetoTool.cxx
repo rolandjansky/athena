@@ -89,8 +89,14 @@ SCT_RODVetoTool::isGood(const IdentifierHash& hashId) const {
 }
 
 void
-SCT_RODVetoTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status) const  {
-  const IdentifierSet* badIds{getCondData(ctx)};
+SCT_RODVetoTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status, EventIDRange &the_range) const  {
+  SG::ReadCondHandle<IdentifierSet> condDataHandle{m_badModuleIds, ctx};
+  if (not condDataHandle.isValid() || !condDataHandle.cptr()) {
+    ATH_MSG_ERROR("Failed to get " << m_badModuleIds.key());
+    return;
+  }
+  the_range = EventIDRange::intersect( the_range, condDataHandle.getRange() );
+  const IdentifierSet* badIds{ condDataHandle.cptr() };
   if (badIds==nullptr) {
     ATH_MSG_ERROR("IdentifierSet cannot be retrieved in isGood. true is returned.");
     return;

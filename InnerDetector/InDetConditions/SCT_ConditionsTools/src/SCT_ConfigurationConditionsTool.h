@@ -59,7 +59,7 @@ class SCT_ConfigurationConditionsTool: public extends<AthAlgTool, ISCT_Configura
   virtual bool                          isGood(const IdentifierHash& hashId) const override;
   virtual bool                          isGood(const IdentifierHash& hashId, const EventContext& ctx) const override;
 
-  virtual void                          getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status) const override;
+  virtual void                          getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status, EventIDRange &the_range) const override;
 
   /**List of bad modules*/
   virtual const std::set<Identifier>*   badModules(const EventContext& ctx) const override;

@@ -74,7 +74,7 @@ SCT_StripVetoTool::isGood(const IdentifierHash& hashId, const EventContext& /*ct
 
 // @TODO consider vetoed strips below.
 void
-SCT_StripVetoTool::getDetectorElementStatus([[maybe_unused]] const EventContext& ctx, [[maybe_unused]] InDet::SiDetectorElementStatus &element_status) const  { }
+SCT_StripVetoTool::getDetectorElementStatus([[maybe_unused]] const EventContext& ctx, [[maybe_unused]] InDet::SiDetectorElementStatus &element_status, [[maybe_unused]] EventIDRange &the_range) const  { }
 
 
 

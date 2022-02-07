@@ -28,10 +28,10 @@ namespace InDet {
    {
       SG::WriteHandle<InDet::SiDetectorElementStatus> writeHandle{m_writeKey, ctx};
       if (!m_readKey.empty()) {
-         std::unique_ptr<InDet::SiDetectorElementStatus> si_detector_element_status( m_condSummaryTool->getDetectorElementStatus(ctx, m_activeOnly));
+         auto [ si_detector_element_status, range ] = m_condSummaryTool->getDetectorElementStatus(ctx, m_activeOnly);
          SG::ReadHandle<InDet::SiDetectorElementStatus> input_element_status{m_readKey, ctx};
          try {
-            *si_detector_element_status &= *input_element_status;
+            si_detector_element_status->merge(*input_element_status);
          }
          catch (std::runtime_error &) {
             ATH_MSG_FATAL("Status array sizes do not match:"  << si_detector_element_status->getElementStatus().size() << " != " << input_element_status->getElementStatus().size()
@@ -45,7 +45,8 @@ namespace InDet {
          }
       }
       else {
-         if (writeHandle.record( m_condSummaryTool->getDetectorElementStatus(ctx, m_activeOnly) ).isFailure()) {
+         auto [detector_element_status, range ] = m_condSummaryTool->getDetectorElementStatus(ctx, m_activeOnly);
+         if (writeHandle.record( std::move(detector_element_status) ).isFailure()) {
             ATH_MSG_FATAL("Could not record " << writeHandle.key()  );
             return StatusCode::FAILURE;
          }
