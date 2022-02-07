@@ -21,6 +21,6 @@ def MuonPrepDataConvCfg(flags):
                                           Key = f'{cont_type}/{cont_name}',
                                           Aliases = [],
                                           ExtraInputs = dependencies)
-        result.addEventAlgo(the_alg)
+        result.addCondAlgo(the_alg)
     return result
 

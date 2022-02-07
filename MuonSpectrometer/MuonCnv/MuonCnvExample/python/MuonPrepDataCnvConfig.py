@@ -2,8 +2,8 @@
 
 from AthenaCommon import CfgMgr
 from RecExConfig.ObjKeyStore import cfgKeyStore
-from AthenaCommon.AlgSequence import  AlgSequence
-topSequence = AlgSequence()
+from AthenaCommon.AlgSequence import  AthSequencer
+condSeq = AthSequencer("AthCondSeq")
 dependencies = [('MuonGM::MuonDetectorManager', 'ConditionStore+MuonDetectorManager')]
 prepdata_container = [
     ("Muon::RpcPrepDataContainer", "RPC_Measurements"),
@@ -18,7 +18,7 @@ prepdata_container = [
 for cont_type, cont_key in prepdata_container:
     if not cfgKeyStore.isInInput(type=cont_type , key=cont_key):
         continue
-    topSequence += CfgMgr.AthReadAlg("AthReadAlg_"+cont_key,
+    condSeq += CfgMgr.AthReadAlg("AthReadAlg_"+cont_key,
                                  Key="%s/%s"%(cont_type, cont_key),
                                  ExtraInputs = dependencies)
 
