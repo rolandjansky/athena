@@ -43,4 +43,8 @@ def createBTaggingConfigFlags():
     # Run the flip taggers
     btagcf.addFlag("BTagging.RunFlipTaggers", False)
 
+    # experimental flags
+    btagcf.addFlag("BTagging.Trackless", False)
+    btagcf.addFlag("BTagging.Pseudotrack", False)
+
     return btagcf

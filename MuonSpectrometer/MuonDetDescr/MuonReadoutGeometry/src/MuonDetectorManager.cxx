@@ -530,6 +530,26 @@ namespace MuonGM {
 
         return getMdtReadoutElement(stname_index, steta_index, stphi_index, ml_index);
     }
+    MdtReadoutElement* MuonDetectorManager::getMdtReadoutElement(const Identifier& id){ 
+        int stName = m_mdtIdHelper->stationName(id);
+        int stEta = m_mdtIdHelper->stationEta(id);
+        int stPhi = m_mdtIdHelper->stationPhi(id);
+        int ml = m_mdtIdHelper->multilayer(id);
+        int stname_index = stName;
+        if (stName == 49)
+            stname_index = NMdtStatType - 4;
+        else if (stName == 52)
+            stname_index = NMdtStatType - 3;
+        else if (stName == 53)
+            stname_index = NMdtStatType - 2;
+        else if (stName == 54)
+            stname_index = NMdtStatType - 1;
+        int steta_index = stEta + NMdtStEtaOffset;
+        int stphi_index = stPhi - 1;
+        int ml_index = ml - 1;
+
+        return getMdtReadoutElement(stname_index, steta_index, stphi_index, ml_index); 
+    }
 
     void MuonDetectorManager::addCscReadoutElement(CscReadoutElement* x, Identifier id) {
         if (id != x->identify()) {
@@ -627,6 +647,20 @@ namespace MuonGM {
 
         return getCscReadoutElement(stname_index, steta_index, stphi_index, ml_index);
     }
+    CscReadoutElement* MuonDetectorManager::getCscReadoutElement(const Identifier& id) {
+        int stName = m_cscIdHelper->stationName(id);
+        int stEta = m_cscIdHelper->stationEta(id);
+        int stPhi = m_cscIdHelper->stationPhi(id);
+        int ml = m_cscIdHelper->chamberLayer(id);
+
+        int stname_index = stName + NCscStatTypeOff;
+        int steta_index = stEta + NCscStEtaOffset;
+        if (steta_index > 1) steta_index = 1;
+        int stphi_index = stPhi - 1;
+        int ml_index = ml - 1;
+        return getCscReadoutElement(stname_index, steta_index, stphi_index, ml_index);
+    }
+
 
     void MuonDetectorManager::addTgcReadoutElement(TgcReadoutElement* x, Identifier id) {
         if (id != x->identify()) {
@@ -710,6 +744,14 @@ namespace MuonGM {
         if (zi > 0) steta_index--;
         int stphi_index = m_tgcIdHelper->stationPhi(id) - 1;
 
+        return getTgcReadoutElement(stname_index, steta_index, stphi_index);
+    }
+    TgcReadoutElement* MuonDetectorManager::getTgcReadoutElement(const Identifier& id) {
+          int stname_index = m_tgcIdHelper->stationName(id) + NTgcStatTypeOff;
+        int zi = m_tgcIdHelper->stationEta(id);
+        int steta_index = zi + NTgcStEtaOffset;
+        if (zi > 0) steta_index--;
+        int stphi_index = m_tgcIdHelper->stationPhi(id) - 1;
         return getTgcReadoutElement(stname_index, steta_index, stphi_index);
     }
 
@@ -1721,6 +1763,17 @@ namespace MuonGM {
         m_rpcIdxToStat.insert(std::pair<int, int>(RpcStatType::BIM, m_rpcIdHelper->stationNameIndex("BIM")));
         m_rpcIdxToStat.insert(std::pair<int, int>(RpcStatType::BIL, m_rpcIdHelper->stationNameIndex("BIL")));
         m_rpcIdxToStat.insert(std::pair<int, int>(RpcStatType::BIS, m_rpcIdHelper->stationNameIndex("BIS")));
+    }
+    int MuonDetectorManager::mdtStationName(const int stationIndex) const {
+        if (stationIndex == NMdtStatType - 4)
+            return  49;
+        else if (stationIndex == NMdtStatType - 3)
+            return  52 ;
+        else if (stationIndex == NMdtStatType - 2)
+            return 53 ;
+        else if (stationIndex == NMdtStatType - 1)
+            return 54;
+        return stationIndex;
     }
 
 }  // namespace MuonGM

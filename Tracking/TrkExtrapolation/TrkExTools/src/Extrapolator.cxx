@@ -492,7 +492,7 @@ Trk::Extrapolator::finalize()
   return StatusCode::SUCCESS;
 }
 
-std::unique_ptr<const Trk::NeutralParameters>
+std::unique_ptr<Trk::NeutralParameters>
 Trk::Extrapolator::extrapolate(const xAOD::NeutralParticle& xnParticle,
                                const Surface& sf,
                                PropDirection dir,
@@ -503,7 +503,7 @@ Trk::Extrapolator::extrapolate(const xAOD::NeutralParticle& xnParticle,
   return extrapolate(nPerigee, sf, dir, bcheck);
 }
 
-std::unique_ptr<const Trk::TrackParameters>
+std::unique_ptr<Trk::TrackParameters>
 Trk::Extrapolator::extrapolate(const EventContext& ctx,
                                const xAOD::TrackParticle& xtParticle,
                                const Surface& sf,
@@ -519,7 +519,7 @@ Trk::Extrapolator::extrapolate(const EventContext& ctx,
   return extrapolate(ctx, tPerigee, sf, dir, bcheck, particle, matupmode);
 }
 
-std::unique_ptr<const Trk::NeutralParameters>
+std::unique_ptr<Trk::NeutralParameters>
 Trk::Extrapolator::extrapolate(const NeutralParameters& parameters,
                                const Surface& sf,
                                PropDirection dir,
@@ -582,7 +582,7 @@ Trk::Extrapolator::extrapolateStepwiseImpl(const EventContext& ctx,
   }
   return Trk::TrackParametersUVector(tmp.begin(), tmp.end());
 }
-std::pair<std::unique_ptr<const Trk::TrackParameters>, const Trk::Layer*>
+std::pair<std::unique_ptr<Trk::TrackParameters>, const Trk::Layer*>
 Trk::Extrapolator::extrapolateToNextActiveLayerImpl(const EventContext& ctx,
                                                     const IPropagator& prop,
                                                     const Trk::TrackParameters& parm,
@@ -652,7 +652,7 @@ Trk::Extrapolator::extrapolateToNextActiveLayerImpl(const EventContext& ctx,
   return {currPar.to_unique(), assocLayer};
 }
 
-std::pair<std::unique_ptr<const Trk::TrackParameters>, const Trk::Layer*>
+std::pair<std::unique_ptr<Trk::TrackParameters>, const Trk::Layer*>
 Trk::Extrapolator::extrapolateToNextActiveLayerMImpl(
   const EventContext& ctx,
   const IPropagator& prop,
@@ -2065,7 +2065,7 @@ Trk::Extrapolator::extrapolateDirectlyImpl(const EventContext& ctx,
   return nullptr;
 }
 
-std::unique_ptr<const Trk::TrackParameters>
+std::unique_ptr<Trk::TrackParameters>
 Trk::Extrapolator::extrapolateToVolumeImpl(const EventContext& ctx,
                                            const IPropagator& prop,
                                            const TrackParameters& parm,
@@ -2077,7 +2077,7 @@ Trk::Extrapolator::extrapolateToVolumeImpl(const EventContext& ctx,
   // here to correctly set cache.m_methodSequence for sub-sequent calls ...
   ATH_MSG_DEBUG("V-[?" /*<< cache.m_methodSequence*/
                 << "] extrapolateToVolume(...) to volume '" << vol.volumeName() << "'.");
-  std::unique_ptr<const TrackParameters> returnParms = nullptr;
+  std::unique_ptr<TrackParameters> returnParms = nullptr;
   Trk::PropDirection propDir = dir == Trk::oppositeMomentum ? dir : Trk::alongMomentum;
   double dist = 0.;
 
@@ -2173,7 +2173,7 @@ Trk::Extrapolator::extrapolateToVolumeImpl(const EventContext& ctx,
 
 // Interface Extrapolation methods
 // ----------------------------------------------------------------/
-std::unique_ptr<const Trk::TrackParameters>
+std::unique_ptr<Trk::TrackParameters>
 Trk::Extrapolator::extrapolate(const EventContext& ctx,
                                const TrackParameters& parm,
                                const Surface& sf,
@@ -2220,7 +2220,7 @@ Trk::Extrapolator::extrapolateStepwise(const EventContext& ctx,
   return {};
 }
 
-std::unique_ptr<const Trk::TrackParameters>
+std::unique_ptr<Trk::TrackParameters>
 Trk::Extrapolator::extrapolate(const EventContext& ctx,
                                const Trk::Track& trk,
                                const Trk::Surface& sf,
@@ -2376,7 +2376,7 @@ Trk::Extrapolator::extrapolateToNextActiveLayerM(
   return {nullptr, nullptr};
 }
 
-std::unique_ptr<const Trk::TrackParameters>
+std::unique_ptr<Trk::TrackParameters>
 Trk::Extrapolator::extrapolateToVolume(const EventContext& ctx,
                                        const Trk::TrackParameters& parm,
                                        const Trk::TrackingVolume& vol,
@@ -4814,7 +4814,7 @@ Trk::Extrapolator::extrapolate(const EventContext& ctx,
   return !cache.m_identifiedParameters->empty() ? cache.m_identifiedParameters.release() : nullptr;
 }
 
-std::unique_ptr<const Trk::TrackParameters>
+std::unique_ptr<Trk::TrackParameters>
 Trk::Extrapolator::extrapolateWithPathLimit(const EventContext& ctx,
                                             const Trk::TrackParameters& parm,
                                             double& pathLim,

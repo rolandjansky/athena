@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -9,6 +9,8 @@
 #ifndef PERFMONCOMPS_PERFMONMTUTILS_H
 #define PERFMONCOMPS_PERFMONMTUTILS_H
 
+// PerfMon includes
+#include "SemiDetMisc.h"   // borrow from existing code
 #include "PerfMonEvent/mallinfo.h"
 
 // STL includes
@@ -42,7 +44,6 @@ namespace PMonMT {
   MemoryMap_t get_mem_stats();
 
   // Efficient memory measurements
-  double get_malloc();
   double get_vmem();
 
   // Simple check if directory exists
@@ -77,7 +78,7 @@ namespace PMonMT {
       if (!doMem) return;
 
       // Memory
-      malloc = get_malloc();
+      malloc = PMonSD::get_malloc_kb();
       vmem = get_vmem();
 
     }
@@ -391,45 +392,6 @@ inline double PMonMT::get_vmem() {
   result = std::stod(vmem_in_pages) * page_size;
 
   return result;
-}
-
-// The code of the following function is borrowed from PMonSD and static variables are declared as thread_local
-// See:
-// https://acode-browser1.usatlas.bnl.gov/lxr/source/athena/Control/PerformanceMonitoring/PerfMonComps/src/SemiDetMisc.h#0443
-inline double PMonMT::get_malloc() {
-  PerfMon::mallinfo_t curr_mallinfo = PerfMon::mallinfo();
-  int64_t uordblks_raw = curr_mallinfo.uordblks;
-  if (sizeof(curr_mallinfo.uordblks) == sizeof(int32_t)) {
-    const int64_t half_range = std::numeric_limits<int32_t>::max();
-    thread_local int64_t last_uordblks = curr_mallinfo.uordblks;
-    thread_local int64_t offset_uordblks = 0;
-    if (uordblks_raw - last_uordblks > half_range) {
-      // underflow detected
-      offset_uordblks -= 2 * half_range;
-    } else if (last_uordblks - uordblks_raw > half_range) {
-      // overflow detected
-      offset_uordblks += 2 * half_range;
-    }
-    last_uordblks = uordblks_raw;
-    uordblks_raw += offset_uordblks;
-  }
-  // exact same code for hblkhd (a bit of code duplication...):
-  int64_t hblkhd_raw = curr_mallinfo.hblkhd;
-  if (sizeof(curr_mallinfo.hblkhd) == sizeof(int32_t)) {
-    const int64_t half_range = std::numeric_limits<int32_t>::max();
-    thread_local int64_t last_hblkhd = curr_mallinfo.hblkhd;
-    thread_local int64_t offset_hblkhd = 0;
-    if (hblkhd_raw - last_hblkhd > half_range) {
-      // underflow detected
-      offset_hblkhd -= 2 * half_range;
-    } else if (last_hblkhd - hblkhd_raw > half_range) {
-      // overflow detected
-      offset_hblkhd += 2 * half_range;
-    }
-    last_hblkhd = hblkhd_raw;
-    hblkhd_raw += offset_hblkhd;
-  }
-  return (uordblks_raw + hblkhd_raw) / 1024.0;
 }
 
 inline MemoryMap_t operator-(const MemoryMap_t& map1, const MemoryMap_t& map2) {

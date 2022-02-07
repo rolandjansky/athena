@@ -53,8 +53,8 @@ int HGTD_GmxInterface::sensorId(std::map<std::string, int> &index) const {
     int hitIdOfWafer = SiHitIdHelper::GetHelper()->buildHitId(HGTD_HitIndex,
                                                               index["hgtd_endcap"],
                                                               index["hgtd_layer"],
-                                                              index["hgtd_phi_module"],
                                                               index["hgtd_eta_module"],
+                                                              index["hgtd_phi_module"],
                                                                0); // side is just 0 for HGTD
     
     

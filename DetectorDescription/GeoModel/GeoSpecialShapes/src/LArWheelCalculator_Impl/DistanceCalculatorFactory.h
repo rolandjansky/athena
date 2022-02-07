@@ -24,9 +24,7 @@ namespace LArWheelCalculator_Impl
   {
     public:
       static IDistanceCalculator* Create(const std::string & sagging_opt,
-                                         LArWheelCalculator* lwc,
-                                         IRDBAccessSvc* rdbAccess,
-                                         const DecodeVersionKey & larVersionKey);
+                                         LArWheelCalculator* lwc);
   };
 
 }

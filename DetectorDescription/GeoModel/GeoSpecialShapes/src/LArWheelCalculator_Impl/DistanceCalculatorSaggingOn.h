@@ -25,9 +25,7 @@ namespace LArWheelCalculator_Impl
 
       /// Constructor
       DistanceCalculatorSaggingOn(const std::string& saggingOptions,
-                                  LArWheelCalculator* lwc,
-                                  IRDBAccessSvc* rdbAccess,
-                                  const DecodeVersionKey & larVersionKey);
+                                  LArWheelCalculator* lwc);
 
       /// @name Geometry methods
       /// @{

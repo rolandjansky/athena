@@ -72,7 +72,15 @@ class TrigMETMonitorAlgorithm : public AthMonitorAlgorithm {
   SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_mhtpufit_em_met_key;
 
   Gaudi::Property<std::vector<std::string>> m_l1Chains{this, "L1Chains", {}, "The L1 chains to monitor"};
-  Gaudi::Property<std::vector<std::string>> m_hltChains{this, "HLTChains", {}, "The HLT chains to monitor"};
+  Gaudi::Property<std::vector<std::string>> m_hltChains{this, "HLTChains", {}, "The HLT shifter chains to monitor"};
+  Gaudi::Property<std::vector<std::string>> m_hltChainsVal{this, "HLTChainsVal", {}, "The HLT val chains to monitor"};
+  Gaudi::Property<std::vector<std::string>> m_hltChainsT0{this, "HLTChainsT0", {}, "The HLT t0 chains to monitor"};
+  Gaudi::Property<std::vector<std::string>> m_algsL1{this, "algsL1", {}, "L1 algorithms to monitor"};
+  Gaudi::Property<std::vector<std::string>> m_algsHLT{this, "algsHLT", {}, "HLT algorithms to monitor"};
+  Gaudi::Property<std::vector<std::string>> m_algsHLT2d{this, "algsHLT2d", {}, "HLT algorithms for 2d eta-phi plots"};
+  Gaudi::Property<std::vector<std::string>> m_algsHLTExpert{this, "algsHLTExpert", {}, "HLT algorithms for Expert"};
+  Gaudi::Property<std::vector<std::string>> m_compNames{this, "compNames", {}, "Calorimeter component names"};
+  Gaudi::Property<std::vector<std::string>> m_bitNames{this, "bitNames", {}, "Status bit names"};
 
 };
 #endif

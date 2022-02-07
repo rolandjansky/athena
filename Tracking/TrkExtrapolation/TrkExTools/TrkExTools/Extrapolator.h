@@ -164,14 +164,14 @@ public:
   /** [xAOD] interface ------------------------------------------------------------------ */
 
   /** xAOD 0) neutral xAOD particle */
-  virtual std::unique_ptr<const NeutralParameters> extrapolate(
+  virtual std::unique_ptr<NeutralParameters> extrapolate(
     const xAOD::NeutralParticle& xnParticle,
     const Surface& sf,
     PropDirection dir = anyDirection,
     const BoundaryCheck& bcheck = true) const override final;
 
   /** xAOD 0) neutral xAOD particle */
-  virtual std::unique_ptr<const TrackParameters> extrapolate(
+  virtual std::unique_ptr<TrackParameters> extrapolate(
     const EventContext& ctx,
     const xAOD::TrackParticle& particleBase,
     const Surface& sf,
@@ -186,14 +186,14 @@ public:
     - returns a ParametersBase object as well, 0 if the extrapolation did not succeed
     */
 
-  virtual std::unique_ptr<const NeutralParameters> extrapolate(
+  virtual std::unique_ptr<NeutralParameters> extrapolate(
     const NeutralParameters& parameters,
     const Surface& sf,
     PropDirection dir = anyDirection,
     const BoundaryCheck& bcheck = true) const override final;
 
   /**  1) <b>Configured AlgTool extrapolation method</b>):*/
-  virtual std::unique_ptr<const TrackParameters> extrapolate(
+  virtual std::unique_ptr<TrackParameters> extrapolate(
     const EventContext& ctx,
     const TrackParameters& parm,
     const Surface& sf,
@@ -213,7 +213,7 @@ public:
     ParticleHypothesis particle = pion) const override final;
 
   /** 3) <b>Configured AlgTool extrapolation method</b>):*/
-  virtual std::unique_ptr<const TrackParameters> extrapolate(
+  virtual std::unique_ptr<TrackParameters> extrapolate(
     const EventContext& ctx,
     const Track& trk,
     const Surface& sf,
@@ -271,7 +271,7 @@ public:
     MaterialUpdateMode matupmode = addNoise) const override final;
 
   /** 8) <b>Configured AlgTool extrapolation method</b> ):*/
-  virtual std::unique_ptr<const TrackParameters> extrapolateToVolume(
+  virtual std::unique_ptr<TrackParameters> extrapolateToVolume(
     const EventContext& ctx,
     const TrackParameters& parm,
     const Trk::TrackingVolume& vol,
@@ -306,7 +306,7 @@ public:
     ParticleHypothesis particle = pion,
     Trk::ExtrapolationCache* cache = nullptr) const override final;
 
-  virtual std::unique_ptr<const Trk::TrackParameters> extrapolateWithPathLimit(
+  virtual std::unique_ptr<Trk::TrackParameters> extrapolateWithPathLimit(
     const EventContext& ctx,
     const Trk::TrackParameters& parm,
     double& pathLim,
@@ -558,7 +558,7 @@ private:
 
   /** Actual heavy lifting implementation for
    * 6) <b>Configured AlgTool extrapolation method</b>):*/
-  std::pair<std::unique_ptr<const TrackParameters>, const Layer*>
+  std::pair<std::unique_ptr<TrackParameters>, const Layer*>
   extrapolateToNextActiveLayerImpl(
     const EventContext& ctx,
     const IPropagator& prop,
@@ -571,7 +571,7 @@ private:
   /** Actual heavy lifting implementation for
    * 7) <b>Configured AlgTool extrapolation method</b>
    */
-  std::pair<std::unique_ptr<const TrackParameters>, const Layer*>
+  std::pair<std::unique_ptr<TrackParameters>, const Layer*>
   extrapolateToNextActiveLayerMImpl(
     const EventContext& ctx,
     const IPropagator& prop,
@@ -585,7 +585,7 @@ private:
   /** Actual heavy lifting implementation for
    * 8) <b>Configured AlgTool extrapolation method</b>
    */
-  std::unique_ptr<const TrackParameters> extrapolateToVolumeImpl(
+  std::unique_ptr<TrackParameters> extrapolateToVolumeImpl(
     const EventContext& ctx,
     const IPropagator& prop,
     const TrackParameters& parm,

@@ -75,27 +75,15 @@ fileName   = buildFileName( primDPD.WriteDAOD_IDPIXLUMIStream )
 IDPIXLUMIStream = MSMgr.NewPoolRootStream( streamName, fileName )
 IDPIXLUMIStream.AcceptAlgs(["DFTSOS_KERN"])
 
+# Add generic event information
+IDPIXLUMIStream.AddItem("xAOD::EventInfo#*")
+IDPIXLUMIStream.AddItem("xAOD::EventAuxInfo#*")
 
 
 #################
 ### Setup Augmentation tools
 #################
 augmentationTools=[]
-
-
-#from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EventInfoPixelDecorator
-#DFEI = DerivationFramework__EventInfoPixelDecorator(name = "DFEventInfoPixelDecorator",
-#                                                    DecorationPrefix = "PixelClusters",
-#                                                    EventInfoKey = "EventInfo",
-#                                                    SelectionString = "PixelClusters.bec==0",
-#                                                    TrackMeasurementValidationKey = "PixelClusters",
-#                                                    OutputLevel =INFO)
-#ToolSvc += DFEI
-#augmentationTools+=[DFEI]
-#if (printIdTrkDxAODConf):
-#    print DFEI
-#    print DFEI.properties()
-
 
 #====================================================================
 # THINNING  
@@ -141,7 +129,7 @@ if (printIdTrkDxAODConf):
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 IDPIXLUMISlimmingHelper = SlimmingHelper("IDPIXLUMISlimmingHelper")
 excludedVtxAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
-IDPIXLUMISlimmingHelper.AppendToDictionary = {'xAOD_PixelClusters': 'xAOD::TrackMeasurementValidationContainer', 'PixelClustersAux': 'xAOD::TrackMeasurementValidationAuxContainer'}
+IDPIXLUMISlimmingHelper.AppendToDictionary = {'xAOD_PixelClusters': 'xAOD::TrackMeasurementValidationContainer', 'xAOD_PixelClustersAux': 'xAOD::TrackMeasurementValidationAuxContainer'}
 IDPIXLUMISlimmingHelper.ExtraVariables = [ "xAOD_PixelClusters.bec.layer.phi_module.eta_module.sizePhi.sizeZ.nRDO.charge.ToT.LVL1A.isFake.gangedPixel.isSplit" ]
 IDPIXLUMISlimmingHelper.AllVariables = [ "InDetTrackParticles", "PrimaryVertices."+excludedVtxAuxData ]
 IDPIXLUMISlimmingHelper.SmartCollections = [ "InDetTrackParticles", "PrimaryVertices" ]

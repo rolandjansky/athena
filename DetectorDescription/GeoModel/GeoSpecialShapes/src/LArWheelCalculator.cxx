@@ -343,7 +343,7 @@ LArWheelCalculator::LArWheelCalculator(LArG4::LArWheelCalculator_t a_wheelType, 
   m_SaggingOn = (sagging_opt_value != "" && sagging_opt_value != "off")? true: false;
 
   m_distanceCalcImpl = LArWheelCalculator_Impl::DistanceCalculatorFactory::Create(
-      sagging_opt_value, this, rdbAccess, larVersionKey);
+      sagging_opt_value, this);
   if (m_SaggingOn) {
     msg << MSG::VERBOSE << "Creating DistanceCalculatorSaggingOn = "  << this
         << ',' << m_distanceCalcImpl << endmsg;
@@ -353,7 +353,7 @@ LArWheelCalculator::LArWheelCalculator(LArG4::LArWheelCalculator_t a_wheelType, 
   }
 
   m_fanCalcImpl = LArWheelCalculator_Impl::FanCalculatorFactory::Create(
-      m_SaggingOn, m_isModule, this, rdbAccess, larVersionKey);
+      m_SaggingOn, m_isModule, this);
 
   //--------------------------
   // At this place there was the loading of sagging parameters

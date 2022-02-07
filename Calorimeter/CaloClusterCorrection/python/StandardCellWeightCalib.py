@@ -196,6 +196,7 @@ class H1Calibration(object):
     def loadCaloFolder(folder,tag,isMC=False):
         from IOVDbSvc.CondDB       import conddb
         from AthenaCommon.AppMgr   import ServiceMgr
+
         IOVDbSvc = CompFactory.IOVDbSvc  # IOVDbSvc
         ServiceMgr += IOVDbSvc()
         IOVDbSvc = ServiceMgr.IOVDbSvc
