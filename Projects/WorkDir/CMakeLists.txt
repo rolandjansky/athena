@@ -110,16 +110,11 @@ lcg_generate_env( SH_FILE ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh )
 install( FILES ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh
    DESTINATION . )
 
-# Dump some environment variables for IDE use:
-set( CMAKE_DUMP_ENV_FILE ${CMAKE_BINARY_DIR}/env.txt CACHE FILEPATH
-   "File containing dump of environment variables" )
-
-if( CMAKE_DUMP_ENV_FILE )
-   execute_process(
-      COMMAND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/atlas_build_run.sh printenv
-      COMMAND grep -w ^PYTHONPATH
-      OUTPUT_FILE "${CMAKE_DUMP_ENV_FILE}" )
-endif()
+# Setup IDE integration:
+set( ATLAS_IDEHELPERSCRIPTS_SETUP
+   "${CMAKE_SOURCE_DIR}/../../.vscode/IDEHelperScripts/Setup.cmake"
+   CACHE FILEPATH "Setup file for the IDE / VS Code helpers" )
+include( "${ATLAS_IDEHELPERSCRIPTS_SETUP}" OPTIONAL )
 
 # Set up CPack:
 atlas_cpack_setup()
