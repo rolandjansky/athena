@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/PhysicalConstants.h"
 #include "GeneratorObjects/McEventCollection.h"
+#include "PathResolver/PathResolver.h"
 
 #include "ForwardTransportSvc.h"
 #include "ForwardTransportSvc/IForwardTransportSvc.h"
@@ -80,6 +81,14 @@ StatusCode ForwardTransportSvc::initialize() {
 
   ATH_MSG_INFO("ForwardTransportSvc::initialize");
     
+  m_cData.twissFile1 = PathResolverFindCalibFile( m_cData.twissFile1 );
+  m_cData.twissFile2 = PathResolverFindCalibFile( m_cData.twissFile2 );
+
+  ATH_MSG_DEBUG( "Using the following Twiss files:" );
+  ATH_MSG_DEBUG( "  - " << m_cData.twissFile1 );
+  ATH_MSG_DEBUG( "  - " << m_cData.twissFile2 );
+
+
   if (!m_fillRootTree) return StatusCode::SUCCESS;
 
   m_tree = new TTree("t", "FwdTransportAnalysis");

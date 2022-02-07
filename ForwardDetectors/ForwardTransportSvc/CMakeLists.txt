@@ -11,7 +11,8 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
                           Control/AthenaBaseComps
-                          Generators/GeneratorObjects )
+                          Generators/GeneratorObjects 
+                          PathResolver)
 
 # External dependencies:
 find_package( CLHEP )
@@ -25,7 +26,7 @@ atlas_add_component( ForwardTransportSvc
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ForwardTracker GaudiKernel AthenaBaseComps GeneratorObjects ForwardTracker )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ForwardTracker GaudiKernel AthenaBaseComps GeneratorObjects ForwardTracker PathResolver)
 
 # Install files from the package:
 atlas_install_headers( ForwardTransportSvc )
