@@ -880,6 +880,8 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
           }
 
           int chFE = (extractFefromLinkNum(linkNum_IBLheader) & 0x1);
+          if (m_pixelReadout->getModuleType(m_pixel_id->wafer_id(offlineIdHash))==InDetDD::PixelModuleType::IBL_3D) { chFE=0; }
+
           if (serviceCodeCounter>0 && serviceCode<32) {
             if (serviceCode!=14) {
               // Monitor service record for IBL (not DBM)

@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import ProductionStep
+from AthenaConfiguration.Enums import LHCPeriod, ProductionStep
 LArRawChannelBuilderAlg=CompFactory.LArRawChannelBuilderAlg
 from LArRecUtils.LArADC2MeVCondAlgConfig import LArADC2MeVCondAlgCfg
 from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg
@@ -20,7 +20,7 @@ def LArRawChannelBuilderAlgCfg(configFlags, **kwargs):
         acc.merge(LArOFCCondAlgCfg(configFlags))
         kwargs.setdefault("LArRawChannelKey", "LArRawChannels")
         kwargs.setdefault("ShapeKey", "LArShapeSym")
-        if configFlags.GeoModel.Run == "RUN1": # back to flat threshold
+        if configFlags.GeoModel.Run is LHCPeriod.Run1:  # back to flat threshold
            kwargs.setdefault("useDB", False)
            dspkey = ''
         else:

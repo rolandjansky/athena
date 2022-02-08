@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 
@@ -15,15 +15,11 @@ def TrigCostMonitorCfg(flags):
     acc = ComponentAccumulator()
 
     if flags.Trigger.CostMonitoring.doCostMonitoring:
-      trigCostService = CompFactory.TrigCostSvc()
-      trigCostService.MonitorAllEvents = flags.Trigger.CostMonitoring.monitorAllEvents
-      trigCostService.SaveHashes = True # This option will go away once the TrigConfigSvc is fully up & running
-      acc.addService(trigCostService)
-
-      auditorService = CompFactory.AuditorSvc()
-      tca=CompFactory.TrigCostAuditor()
-      auditorService.Auditors=[tca.getFullJobOptName(),]
-      acc.addService(auditorService)
+      acc.addService(CompFactory.TrigCostSvc(
+          MonitorAllEvents = flags.Trigger.CostMonitoring.monitorAllEvents,
+          SaveHashes = True # This option will go away once the TrigConfigSvc is fully up & running
+      ))
+      acc.addAuditor(CompFactory.TrigCostAuditor())
       acc.setAppProperty("AuditAlgorithms", True)
       log.info('Enabling online trigger cost monitoring')
     else:

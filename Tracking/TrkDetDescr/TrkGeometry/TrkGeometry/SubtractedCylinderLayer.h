@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -60,8 +60,8 @@ public:
   virtual ~SubtractedCylinderLayer() override {}
 
   /** Transforms the layer into a Surface representation for extrapolation */
-  virtual const SubtractedCylinderSurface& surfaceRepresentation()
-      const override final;
+  virtual const SubtractedCylinderSurface& surfaceRepresentation() const override final;
+
 
   /** getting the MaterialProperties back - for pre-update*/
   virtual double preUpdateMaterialFactor(

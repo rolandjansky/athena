@@ -14,6 +14,7 @@ c = coverage.Coverage ('CaloClusterCorrection.common')
 
 
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import LHCPeriod
 from CaloClusterCorrection import common
 from CaloClusterCorrection.CaloSwCorrections import make_CaloSwCorrectionsCfg
 
@@ -956,6 +957,7 @@ def test19 (flags_in):
     flags = flags_in.clone()
     flags.Input.isMC = True
     flags.GeoModel.AtlasVersion = 'ATLAS-CSC-05-xx'
+    flags.GeoModel.Run = LHCPeriod.Run2
     flags.IOVDb.GlobalTag = 'OFLCOND-RUN12-SDR-31'
     flags.Calo.ClusterCorrection.caloSwGeneration = '00-02-01'
     flags.lock()

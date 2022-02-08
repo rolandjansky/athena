@@ -49,12 +49,11 @@ def _larLatomeCfg(configFlags,algo,folder,outkey):
             ft=tagsperFolder[folder]
             folderwithtag=folder+"<tag>"+ft+"</tag>"
     else:
-        #db='LAR_ONL'
-        db='<db>sqlite://;schema=/afs/cern.ch/user/p/pavol/w0/public/LAr_Reco_SC_22/Phase1/test_mapping/LatomeMapping.db;dbname=CONDBR2</db>'
-        folderwithtag=db+folder
+        db='LAR_ONL'
+        folderwithtag=folder
 
     result.addCondAlgo(algo(ReadKey=folder,WriteKey=outkey),primary=True)
-    result.merge(addFolders(configFlags,folderwithtag,className="CondAttrListCollection"))
+    result.merge(addFolders(configFlags,folderwithtag,className="CondAttrListCollection",detDb=db))
     #print (result)
     return result
 

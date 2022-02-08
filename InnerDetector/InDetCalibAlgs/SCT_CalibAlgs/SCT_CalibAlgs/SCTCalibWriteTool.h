@@ -1,7 +1,7 @@
 /** -*- c++ -*- */
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -74,7 +74,7 @@ class SCTCalibWriteTool : public AthAlgTool {
       addDefect(const std::string& defectlist,const int defectBeginChannel,const int defectEndChannel) const;
 
       std::string
-      addNumber(const std::string numStr,const unsigned long long number) const;
+      addNumber(const std::string& numStr,const unsigned long long number) const;
 
       std::string
       createDefectString(const int defectBeginChannel,const int defectEndChannel) const;

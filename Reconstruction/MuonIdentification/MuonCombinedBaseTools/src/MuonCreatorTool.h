@@ -142,14 +142,8 @@ namespace MuonCombined {
                           xAOD::Muon& muon, xAOD::CaloClusterContainer* clusterContainer, 
                           const Trk::CaloExtension* inputCaloExt = nullptr) const;
 
-        void getRpcTiming(const xAOD::TrackParticle& tp, std::vector<unsigned int>& rpcHitIdentifier, std::vector<float>& rpcHitPositionX,
-                          std::vector<float>& rpcHitPositionY, std::vector<float>& rpcHitPositionZ, std::vector<float>& rpcHitTime) const;
-        void addRpcTiming(xAOD::Muon& muon) const;
-        void addMSIDScatteringAngles(xAOD::Muon& muon) const;
-        void addMSIDScatteringAngles(const xAOD::TrackParticle* track) const;
         void addSegmentsOnTrack(xAOD::Muon& muon, const xAOD::MuonSegmentContainer* segments) const;
-        void addAlignmentEffectsOnTrack(xAOD::TrackParticleContainer* trkCont) const;
-
+      
         ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
         ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc{this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
                                                               "Handle to the service providing the IMuonEDMHelperSvc interface"};
@@ -192,9 +186,7 @@ namespace MuonCombined {
         Gaudi::Property<bool> m_buildStauContainer{this, "BuildStauContainer", false, "flag to decide whether to build stau or not"};
         Gaudi::Property<bool> m_fillEnergyLossFromTrack{this, "FillEnergyLossFromTrack", true,
                                                         "Decide whether to try to extract the calo energy loss from tracks "};
-        Gaudi::Property<bool> m_fillAlignmentEffectsOnTrack{this, "FillAlignmentEffectsOnTrack", true,
-                                                            "Decide whether to add alignment effects on track to the muon (available "
-                                                            "for CB and SA tracks)"};
+       
         Gaudi::Property<bool> m_fillExtraELossInfo{this, "FillExtraELossInfo", true,
                                                    "Can enabled this for debugging - will add extra information not for "
                                                    "production"};
@@ -202,8 +194,6 @@ namespace MuonCombined {
         Gaudi::Property<bool> m_useUpdatedExtrapolatedTrack{this, "UseUpdatedExtrapolatedTrack", true,
                                                             "configure whether to use the updated extrapolated track for a combined "
                                                             "fit or not"};
-        Gaudi::Property<bool> m_fillTimingInformationOnMuon{this, "FillTimingInformationOnMuon", false,
-                                                            "enable filling of timing information"};
         Gaudi::Property<bool> m_segLowBeta{this, "AssociateSegmentsToLowBetaMuons", false, "associate segments to MuGirlLowBeta muons"};
         Gaudi::Property<bool> m_useCaloCells{this, "UseCaloCells", true};
         Gaudi::Property<bool> m_doSA{this, "MakeSAMuons", false};

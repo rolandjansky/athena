@@ -185,7 +185,6 @@ def TrigTauRecMergedOnlyMVACfg(flags):
     alg.Key_trigTauTrackOutputContainer = 'HLT_tautrack_dummy' 
     alg.Key_vertexInputContainer = ''
     alg.clustersKey = 'HLT_TopoCaloClustersLC'
-    alg.L1RoIKey = 'HLT_TAURoI'
     alg.RoIInputKey = 'UpdatedCaloRoI'
     acc.addEventAlgo(alg)
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_ReadoutGeometry/StripStereoAnnulusDesign.h"
@@ -183,14 +183,14 @@ SiCellId StripStereoAnnulusDesign::cellIdOfPosition(SiLocalPosition const &pos) 
 //
     double r = pos.r();
     if (r < m_stripStartRadius[0] || r >= m_stripEndRadius.back()) { 
-        return SiCellId(); // return an invalid id
+        return {}; // return an invalid id
     }
 
       std::vector<double>::const_iterator endPtr = upper_bound(m_stripStartRadius.begin(), m_stripStartRadius.end(), r);
       int row = distance(m_stripStartRadius.begin(), endPtr) - 1;
       // Following should never happen, check is done on r above
       if (row < 0 || row >= m_nRows) {
-        return SiCellId(); // return an invalid id
+        return {}; // return an invalid id
       }
     //
     //    Find the strip
@@ -205,14 +205,14 @@ SiCellId StripStereoAnnulusDesign::cellIdOfPosition(SiLocalPosition const &pos) 
     double phiPrime = std::atan2(ySF, xSF); 
     int strip = std::floor(phiPrime / m_pitch[row]) + m_nStrips[row] *0.5;
     if (strip < 0) { // Outside
-      return SiCellId(); // return an invalid id
+      return {}; // return an invalid id
     }
     if (strip >= m_nStrips[row]) { // Outside
-      return SiCellId(); // return an invalid id
+      return {}; // return an invalid id
     }
     
     int strip1D = strip1Dim(strip, row);
-    return SiCellId(strip1D, 0);
+    return {strip1D, 0};
 }
   
 SiLocalPosition StripStereoAnnulusDesign::localPositionOfCell(SiCellId const &cellId) const {
@@ -375,12 +375,12 @@ SiLocalPosition StripStereoAnnulusDesign::positionFromStrip(const int stripNumbe
 SiCellId StripStereoAnnulusDesign::cellIdInRange(const SiCellId &cellId) const {
 
     if (!cellId.isValid()) {
-        return SiCellId(); // Invalid
+        return {}; // Invalid
     }
     int row = cellId.etaIndex();
     int strip = cellId.phiIndex();
     if (strip < 0 || row < 0 || row >= m_nRows || strip >= m_nStrips[row]) {
-        return SiCellId(); // Invalid
+        return {}; // Invalid
     }
     return cellId;
 }

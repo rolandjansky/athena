@@ -95,7 +95,6 @@ def _createCfgFlags():
     acf.addFlag('Common.isOnline', False ) #  Job runs in an online environment (access only to resources available at P1) # former global.isOnline
     acf.addFlag('Common.useOnlineLumi', lambda prevFlags : prevFlags.Common.isOnline ) #  Use online version of luminosity. ??? Should just use isOnline?
     acf.addFlag('Common.doExpressProcessing', False)
-    acf.addFlag('Common.bunchCrossingSource', lambda prevFlags : "MC" if prevFlags.Input.isMC else "TrigConf") # what BunchCrossingTool should we use?
     acf.addFlag('Common.ProductionStep', ProductionStep.Default, enum=ProductionStep)
 
     def _checkProject():

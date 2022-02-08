@@ -116,7 +116,7 @@ StatusCode EgammaPhysValMonitoringTool::fillHistograms()
   }
 
   float weight = 1.;
-  weight = !eventInfo->beamSpotWeight() ? eventInfo->beamSpotWeight() : 1.;
+  weight = eventInfo->beamSpotWeight();
 
   if (m_isMC) {
 
@@ -367,7 +367,7 @@ StatusCode EgammaPhysValMonitoringTool::fillRecoElecHistograms(const xAOD::Truth
   int numofele=0;
 
   float weight=1.;
-  weight = !eventInfo->beamSpotWeight() ? eventInfo->beamSpotWeight() : 1.;
+  weight = eventInfo->beamSpotWeight();
   
   for(const auto *const electron : *Electrons){
     bool isElecPrompt=false;
@@ -384,7 +384,7 @@ StatusCode EgammaPhysValMonitoringTool::fillRecoElecHistograms(const xAOD::Truth
             float EtLin = (electron->pt()-thePart->pt())/thePart->pt();
 	    m_oElectronValidationPlots.res_et->Fill(thePart->pt()/GeV,EtLin,weight);
 	    m_oElectronValidationPlots.res_eta->Fill(thePart->eta(),EtLin,weight);
-	    if (electron->pt()/GeV>20.) {
+	    if (thePart->pt()/GeV>20.) {
 	      m_oElectronValidationPlots.res_et_cut->Fill(thePart->pt()/GeV,EtLin,weight);
 	      m_oElectronValidationPlots.res_eta_cut->Fill(thePart->eta(),EtLin,weight);
 	    }
@@ -425,7 +425,7 @@ StatusCode EgammaPhysValMonitoringTool::fillRecoFrwdElecHistograms(const xAOD::T
   
   int numoffrwdele=0;
   float weight=1.;
-  weight = !eventInfo->beamSpotWeight() ? eventInfo->beamSpotWeight() : 1.;
+  weight = eventInfo->beamSpotWeight();
   
   for(const auto *const frwdelectron : *ElectronsFrwd){
     if(!(frwdelectron->isGoodOQ (xAOD::EgammaParameters::BADCLUSELECTRON))) continue;
@@ -461,7 +461,7 @@ StatusCode EgammaPhysValMonitoringTool::fillRecoPhotHistograms(const xAOD::Truth
   int numPhotAll=0; 
   int numofCnv=0;
   float weight=1.;
-  weight = !eventInfo->beamSpotWeight() ? eventInfo->beamSpotWeight() : 1.;
+  weight = eventInfo->beamSpotWeight();
 
   for(const auto *photon : *Photons){
     bool isPhotPrompt=false;

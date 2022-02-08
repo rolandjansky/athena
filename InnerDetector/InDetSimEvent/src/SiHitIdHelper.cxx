@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <mutex>
@@ -26,14 +26,14 @@ void SiHitIdHelper::Initialize() {
   const PixelID* pix = nullptr;
   ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "SiHitIdHelper");
   if (detStore.retrieve().isSuccess()) {
-    if (detStore->retrieve(pix, "PixelID").isFailure()) { pix = 0; }
+    if (detStore->retrieve(pix, "PixelID").isFailure()) { pix = nullptr; }
   }
 
-  bool isDBM  = (pix != 0 && pix->dictionaryVersion() == "IBL-DBM");
+  bool isDBM  = (pix != nullptr && pix->dictionaryVersion() == "IBL-DBM");
   // check for ITk and HGTD
-  bool isITkHGTD = (pix !=0 &&  pix->dictionaryVersion() == "ITkHGTD");
+  bool isITkHGTD = (pix !=nullptr &&  pix->dictionaryVersion() == "ITkHGTD");
   // we might include PLR as well, then we have to increase endcap range to +/- 4
-  bool isITkHGTDPLR = (pix !=0 &&  pix->dictionaryVersion() == "ITkHGTDPLR");
+  bool isITkHGTDPLR = (pix !=nullptr &&  pix->dictionaryVersion() == "ITkHGTDPLR");
   // cache the HL-LHC decision
   m_isITkHGTD = isITkHGTD || isITkHGTDPLR;
 

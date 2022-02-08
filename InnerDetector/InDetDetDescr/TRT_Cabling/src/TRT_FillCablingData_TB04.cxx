@@ -47,7 +47,7 @@ static const InterfaceID IID_ITRT_FillCablingData_TB04
   // Constructor
 TRT_FillCablingData_TB04::TRT_FillCablingData_TB04( const std::string& type, const std::string& 
 name,const IInterface* parent ):  AthAlgTool(type,name,parent),
-				  m_TRTHelper(0)
+				  m_TRTHelper(nullptr)
 {
   declareInterface< TRT_FillCablingData_TB04 >( this );   
 }
@@ -166,7 +166,7 @@ void TRT_FillCablingData_TB04::defineTables()
      for (int i = 0; i < 8*13*16; i++){
        Identifier id(0);
        tempbuff.push_back(id);
-       tempbuff2.push_back(0);
+       tempbuff2.emplace_back(0);
      }
      m_cabling->zero_identifierForAllStraws(rod, tempbuff);
      m_cabling->zero_identifierHashForAllStraws(rod, tempbuff2);

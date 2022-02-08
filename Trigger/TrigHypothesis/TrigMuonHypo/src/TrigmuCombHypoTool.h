@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMUONHYPO_TRIGMUCOMBHYPOTOOL_H 
@@ -45,15 +45,14 @@ class TrigmuCombHypoTool: public ::AthAlgTool {
       muComb( c ),
       muFast( f ),
       previousDecisionIDs( TrigCompositeUtils::decisionIDs( previousDecision ).begin(),
-                           TrigCompositeUtils::decisionIDs( previousDecision ).end() ),
-      passOR( true )
+                           TrigCompositeUtils::decisionIDs( previousDecision ).end() )
       {}
 
       TrigCompositeUtils::Decision* decision;
       const xAOD::L2CombinedMuon* muComb;
       const xAOD::L2StandAloneMuon* muFast;
       const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
-      bool passOR;
+      TrigCompositeUtils::DecisionIDContainer isOR;
     };
 
     virtual ~TrigmuCombHypoTool();

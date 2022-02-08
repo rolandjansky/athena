@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonPrepRawData/sTgcPrepData.h"
@@ -7,16 +7,13 @@
 #include "MuonEventTPCnv/MuonPrepRawData/sTgcPrepData_p1.h"
 #include "MuonEventTPCnv/MuonPrepRawData/MuonPRD_Container_p2.h"
 #include "MuonIdHelpers/sTgcIdHelper.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonEventTPCnv/MuonPrepRawData/sTgcPrepDataCnv_p1.h"
 #include "MuonEventTPCnv/MuonPrepRawData/sTgcPrepDataContainerCnv_p1.h"
-
+#include "TrkEventCnvTools/ITrkEventCnvTool.h"
 // Gaudi
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
-// #include "GaudiKernel/CnvFactory.h"
-// #include "GaudiKernel/StatusCode.h"
-// #include "GaudiKernel/Service.h"
+
 
 // Athena
 #include "StoreGate/StoreGateSvc.h"
@@ -54,14 +51,18 @@ StatusCode Muon::sTgcPrepDataContainerCnv_p1::initialize(MsgStream &log) {
         if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the  ID helper." << endmsg;
     }
 
-    sc = detStore->retrieve(m_muonDetMgr);
-    if (sc.isFailure()) {
+    if (m_eventCnvTool.retrieve().isFailure()) {
         log << MSG::FATAL << "Could not get DetectorDescription manager" << endmsg;
-        return sc;
+        return StatusCode::FAILURE;
     }
 
     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized. " << endmsg;
     return StatusCode::SUCCESS;
+}
+const MuonGM::sTgcReadoutElement* Muon::sTgcPrepDataContainerCnv_p1::getReadOutElement(const Identifier& id ) const {
+    const Trk::ITrkEventCnvTool* cnv_tool = m_eventCnvTool->getCnvTool(id);
+    if (!cnv_tool) return nullptr; 
+    return dynamic_cast<const MuonGM::sTgcReadoutElement*>(cnv_tool->getDetectorElement(id));
 }
 
 void Muon::sTgcPrepDataContainerCnv_p1::transToPers(const Muon::sTgcPrepDataContainer* transCont,  Muon::sTgcPrepDataContainer_p1* persCont, MsgStream &log) 
@@ -88,14 +89,12 @@ void Muon::sTgcPrepDataContainerCnv_p1::transToPers(const Muon::sTgcPrepDataCont
   // to the container's vector, saving the indexes in the
   // collection. 
   
-  //  std::cout<<"Starting transToPers"<<std::endl;
   typedef Muon::sTgcPrepDataContainer TRANS;
-  //typedef ITPConverterFor<Trk::PrepRawData> CONV;
-
+  
   sTgcPrepDataCnv_p1  chanCnv;
   TRANS::const_iterator it_Coll     = transCont->begin();
   TRANS::const_iterator it_CollEnd  = transCont->end();
-  unsigned int pcollIndex; // index to the persistent collection we're filling
+  unsigned int pcollIndex = 0; // index to the persistent collection we're filling
   unsigned int pcollBegin = 0; // index to start of persistent collection we're filling, in long list of persistent PRDs
   unsigned int pcollEnd = 0; // index to end 
   int numColl = transCont->numberOfCollections();
@@ -157,11 +156,11 @@ void Muon::sTgcPrepDataContainerCnv_p1::transToPers(const Muon::sTgcPrepDataCont
 	log << MSG::DEBUG<<"Collection hash = "<<lastPRDIdHash<<endmsg;
         
 	if (chan->collectionHash()!= collection.identifyHash() ) log << MSG::WARNING << "Collection's idHash does not match PRD collection hash!"<<endmsg;
-	if (chan->detectorElement() !=m_muonDetMgr->getsTgcReadoutElement(chan->identify())) 
+	if (chan->detectorElement() !=getReadOutElement(chan->identify())) 
 	  log << MSG::WARNING << "Getting de from identity didn't work!"<<endmsg;
 	else 
 	  log << MSG::DEBUG<<"Getting de from identity did work "<<endmsg;
-	if (chan->detectorElement() !=m_muonDetMgr->getsTgcReadoutElement(temp)) log << MSG::WARNING << "Getting de from reconstructed identity didn't work!"<<endmsg;
+	if (chan->detectorElement() !=getReadOutElement(temp)) log << MSG::WARNING << "Getting de from reconstructed identity didn't work!"<<endmsg;
 	log << MSG::DEBUG<<"Finished loop"<<endmsg;
       }
     }
@@ -232,7 +231,7 @@ void  Muon::sTgcPrepDataContainerCnv_p1::persToTrans(const Muon::sTgcPrepDataCon
 	if (result&&log.level() <= MSG::WARNING) 
 	  log << MSG::WARNING<< " Muon::sTgcPrepDataContainerCnv_p1::persToTrans: problem converting Identifier to DE hash "<<endmsg;
 	const MuonGM::sTgcReadoutElement* detEl =
-	  m_muonDetMgr->getsTgcReadoutElement(clusId); 
+	  getReadOutElement(clusId); 
 	if (!detEl) {
 	  log << MSG::WARNING<< "Muon::sTgcPrepDataContainerCnv_p1::persToTrans: could not get valid det element for PRD with id="<<clusId<<". Skipping."<<endmsg;
 	  continue;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // InDetAlignTrackSelTool.h
@@ -91,7 +91,7 @@ double InDetAlignTrackSelTool::Momentum(const Trk::Track& track) const {
   }
   else{
     Amg::VectorX perigeeParams = perigee->parameters();
-    mom = fabs(1./perigeeParams[Trk::qOverP]);
+    mom = std::abs(1./perigeeParams[Trk::qOverP]);
     mom /= 1000.; //mom in GeV
   }
 
@@ -113,7 +113,7 @@ double InDetAlignTrackSelTool::Pt(const Trk::Track& track) const {
   }
   else{  
     Amg::VectorX perigeeParams = perigee->parameters();
-    pt = fabs(sin(perigeeParams[Trk::theta])/perigeeParams[Trk::qOverP]);
+    pt = std::abs(sin(perigeeParams[Trk::theta])/perigeeParams[Trk::qOverP]);
     pt /= 1000.; // pt in GeV
   }
 
@@ -153,7 +153,7 @@ int InDetAlignTrackSelTool::nHoles(const Trk::Track& track) const {
   int nholes=0, nhpix, nhsct;
 
   std::unique_ptr<Trk::TrackSummary> summary = m_trackSumTool->summary(track);
-  if(summary==0){
+  if(summary==nullptr){
     ATH_MSG_ERROR( "Could not create TrackSummary" ) ;
     nholes = 1000;
   }
@@ -185,7 +185,7 @@ double InDetAlignTrackSelTool::chi2Prob(const Trk::Track& track) const {
   // chi2Prob = TMath::Prob(chi2,DoF) ROOT function
   const Trk::FitQuality* fitQual = track.fitQuality();
 
-  if (fitQual==0) {
+  if (fitQual==nullptr) {
     ATH_MSG_ERROR( "No fit quality assigned to the track" ) ; 
     chi2Prob = -1e12; // return big value
   }

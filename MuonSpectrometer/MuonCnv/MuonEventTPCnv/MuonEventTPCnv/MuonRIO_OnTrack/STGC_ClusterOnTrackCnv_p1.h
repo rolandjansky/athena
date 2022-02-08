@@ -30,8 +30,7 @@ class STGC_ClusterOnTrackCnv_p1
                                             Muon::STGC_ClusterOnTrack_p1 >
 {
 public:
-    STGC_ClusterOnTrackCnv_p1() : m_eventCnvTool("Trk::EventCnvSuperTool/EventCnvSuperTool"), 
-                                    m_localParCnv(0), m_errorMxCnv(0) {}
+    STGC_ClusterOnTrackCnv_p1() = default;
 
     void persToTrans( const Muon :: STGC_ClusterOnTrack_p1 *persObj,
         Muon :: sTgcClusterOnTrack    *transObj,
@@ -42,9 +41,9 @@ public:
 
 protected:
     ElementLinkCnv_p3< ElementLinkToIDC_STGC_Container > m_elCnv;   
-    ToolHandle  < Trk::IEventCnvSuperTool >   m_eventCnvTool ; 
-    LocalParametersCnv_p1     *               m_localParCnv;
-    ErrorMatrixCnv_p1         *               m_errorMxCnv;  
+    ToolHandle  < Trk::IEventCnvSuperTool >   m_eventCnvTool{"Trk::EventCnvSuperTool/EventCnvSuperTool"}; 
+    LocalParametersCnv_p1     *               m_localParCnv{nullptr};
+    ErrorMatrixCnv_p1         *               m_errorMxCnv{nullptr};  
 };
 
 #endif // STGC__CLUSTER_ON_TRACK_CNV_p2_H

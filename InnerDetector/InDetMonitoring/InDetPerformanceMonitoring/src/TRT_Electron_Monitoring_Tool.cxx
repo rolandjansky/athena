@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -522,7 +522,7 @@ fillAllHistograms (const xAOD::TrackParticle *trkP, float mass, int PCand){
 
   for(;TSOSItBegin!=TSOSItEnd; ++TSOSItBegin)
   {
-    if((*TSOSItBegin)==0) continue;
+    if((*TSOSItBegin)==nullptr) continue;
     else if ((*TSOSItBegin)->type(Trk::TrackStateOnSurface::Measurement))
     {
       const InDet::TRT_DriftCircleOnTrack *trtCircle = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>((*TSOSItBegin)->measurementOnTrack());
@@ -539,7 +539,7 @@ fillAllHistograms (const xAOD::TrackParticle *trkP, float mass, int PCand){
 	bool isTubeHit = ( mesb->localCovariance()(Trk::locX,Trk::locX) > 1.0) ? 1 : 0;
 	float TRThitX = trtCircle->globalPosition().x();
 	float TRThitY = trtCircle->globalPosition().y();
-	float TRThitZ = fabs(trtCircle->globalPosition().z());
+	float TRThitZ = std::abs(trtCircle->globalPosition().z());
 	float zr = barrel_ec<2 ? TRThitZ : sqrt(pow(TRThitX,2)+pow(TRThitY,2));
 	int phi_or_plane   =  barrel_ec<2 ? m_pTRTHelper->phi_module(DCoTId) :m_pTRTHelper->straw_layer(DCoTId);
 	int layer_or_wheel = m_pTRTHelper->layer_or_wheel(DCoTId);

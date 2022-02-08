@@ -65,7 +65,7 @@ namespace Egamma{
 //  void IsolationPlots::FillIsolationPlot(TH1* hist, xAOD::EgammaParameters::IsolationType isoType, const xAOD::Egamma& egamma){//rel19
     float val = -10000000;
     float weight = 1.;
-    weight = !eventInfo.beamSpotWeight() ? eventInfo.beamSpotWeight() : 1.;
+    weight = eventInfo.beamSpotWeight();
     
     if(egamma.isolationValue(val, isoType)){
       hist->Fill(val/GeV,weight); 

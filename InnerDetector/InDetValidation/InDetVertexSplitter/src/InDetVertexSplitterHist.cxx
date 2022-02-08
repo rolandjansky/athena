@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -21,10 +21,10 @@
 /// head file
 #include "InDetVertexSplitterHist.h"
 
-#include <algorithm>
-#include <math.h>
-#include <sstream>
 #include "TFitter.h"
+#include <algorithm>
+#include <cmath>
+#include <sstream>
 
 //////////////////////////////////////////////////////////////////////////////////////
 /// Constructor
@@ -33,7 +33,7 @@ InDet::InDetVertexSplitterHist::InDetVertexSplitterHist(const std::string& name,
   ISvcLocator* pSvcLocator) : 
   AthAlgorithm(name, pSvcLocator), 
   m_thistSvc("THistSvc",name),
-  m_ntuple(0)
+  m_ntuple(nullptr)
 {
   declareProperty("SpitVxContainer",m_splitVxName = "SplitVxCandidates");
   declareProperty("HistService",m_thistSvc);
@@ -98,7 +98,7 @@ StatusCode InDet::InDetVertexSplitterHist::makeSplitHist() {
 
   StatusCode sc = StatusCode::SUCCESS;
 
-  const VxContainer* vxCont = 0;
+  const VxContainer* vxCont = nullptr;
   sc = evtStore()->retrieve(vxCont, m_splitVxName);
   if(sc.isSuccess()){
     ATH_MSG_DEBUG("Retrieved vertex container " << m_splitVxName);

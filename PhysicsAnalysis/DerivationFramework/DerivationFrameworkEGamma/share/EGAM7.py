@@ -5,7 +5,8 @@
 # author: giovanni.marchiori@cern.ch
 #********************************************************************
 
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addAntiKt4TruthJets, addAntiKt4PV0TrackJets
+from DerivationFrameworkJetEtMiss.JetCommon import addDAODJets
+from JetRecConfig.StandardSmallRJets import AntiKt4Truth,AntiKt4PV0Track
 from DerivationFrameworkCore.DerivationFrameworkMaster import buildFileName
 from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob
 from DerivationFrameworkPhys import PhysCommon
@@ -354,20 +355,7 @@ EGAM7Sequence += CfgMgr.DerivationFramework__DerivationKernel("EGAM7Kernel",
 #====================================================================
 # JET/MET
 #====================================================================
-addAntiKt4PV0TrackJets(EGAM7Sequence,"EGAM7")
-addAntiKt4TruthJets(EGAM7Sequence,"EGAM7")
-
-
-#========================================
-# ENERGY DENSITY
-#========================================
-if (DerivationFrameworkIsMonteCarlo):
-    # Schedule the two energy density tools for running after the pseudojets are created.
-    for alg in ['EDTruthCentralAlg', 'EDTruthForwardAlg']:
-        if hasattr(topSequence, alg):
-            edtalg = getattr(topSequence, alg)
-            delattr(topSequence, alg)
-            EGAM7Sequence += edtalg
+addDAODJets([AntiKt4Truth,AntiKt4PV0Track], EGAM7Sequence)
 
 
 #====================================================================

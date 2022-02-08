@@ -18,7 +18,7 @@ Interface definition for gFEXJwoJAlgo
 
   static const InterfaceID IID_IgFEXJwoJAlgo("LVL1::IgFEXJwoJAlgo", 1, 0);
   typedef  std::array<std::array<int, 12>, 32> gTowersCentral;
-  typedef  std::array<std::array<int, 7>, 32> gTowersForward;
+  typedef  std::array<std::array<int, 8>, 32> gTowersForward;
 
   class IgFEXJwoJAlgo : virtual public IAlgTool {
   public:

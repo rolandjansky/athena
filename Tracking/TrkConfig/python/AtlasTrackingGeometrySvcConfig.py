@@ -147,7 +147,7 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
                        
     # set the binning from bi-aequidistant to arbitrary for complex TRT volumes
     TRT_LayerBinning = 1        
-    if buildTrtStrawLayers or flags.Common.ProductionStep in [ProductionStep.Simulation, ProductionStep.FastChain]:
+    if buildTrtStrawLayers or (flags.Common.ProductionStep in [ProductionStep.Simulation, ProductionStep.FastChain] and flags.Sim.ISF.Simulator not in ["ATLFASTIIMT"]):
        TRT_LayerBinning = 2
     if buildTrtStrawLayers:
        TRT_LayerBuilder.ModelLayersOnly = False

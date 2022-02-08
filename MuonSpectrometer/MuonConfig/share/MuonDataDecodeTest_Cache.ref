@@ -8,7 +8,6 @@ Beam.estimatedLuminosity                 : [function]
 Common.MsgSourceLength                   : 50
 Common.ProductionStep                    : <ProductionStep.Default: 'Default'>
 Common.Project                           : 'Athena'
-Common.bunchCrossingSource               : [function]
 Common.doExpressProcessing               : False
 Common.isOnline                          : False
 Common.useOnlineLumi                     : [function]

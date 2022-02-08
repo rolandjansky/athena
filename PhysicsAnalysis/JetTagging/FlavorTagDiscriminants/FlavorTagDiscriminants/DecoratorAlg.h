@@ -15,8 +15,10 @@ namespace FlavorTagDiscriminants {
   class DecoratorAlg : public AthReentrantAlgorithm
   {
   public:
+    using ExtraDependencies = std::set<std::string>;
     DecoratorAlg(const std::string& name, ISvcLocator* svcloc);
     virtual StatusCode initialize() override;
+    virtual StatusCode initializeInternal(ExtraDependencies = {});
     virtual StatusCode execute(const EventContext& cxt) const override;
     virtual StatusCode finalize() override;
   protected:

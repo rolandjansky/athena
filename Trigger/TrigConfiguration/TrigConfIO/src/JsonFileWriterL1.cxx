@@ -668,33 +668,31 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
       jConn["type"] = cdef.type();
       if(cdef.legacy())
          jConn["legacy"] = true;
-      if(cdef.maxFpga() == 2) {
-         for(size_t fpga = 0; fpga<2; ++fpga) {
-            std::string fName = "fpga" + std::to_string(fpga);
-            for(size_t clock = 0; clock<2; ++clock) {
-               std::string cName = "clock" + std::to_string(clock);
-               jConn["triggerlines"][fName][cName] = json::array_t();
-               for(auto & tl : cdef.triggerLines(fpga, clock)) {
-                  jConn["triggerlines"][fName][cName] += json({ {"name", tl.name()}, {"nbits",tl.nbits()}, {"startbit", tl.startbit()} });
-               }
-            }
-         }
+      jConn["triggerlines"] = json::array_t();
+      if(cdef.maxClock() == 2){
+          if(cdef.maxFpga() == 2){
+              // legacy topo, TOPO2, TOPO3 and muctpi
+              for(size_t fpga = 0; fpga<cdef.maxFpga(); ++fpga) {
+                  for(size_t clock = 0; clock<cdef.maxClock(); ++clock) {
+                      for(auto & tl : cdef.triggerLines(fpga, clock)) {
+                         jConn["triggerlines"] += json({ {"name", tl.name()}, {"nbits",tl.nbits()}, {"startbit", tl.startbit()}, {"flatindex", tl.flatindex()}, {"fpga", tl.fpga()}, {"clock", tl.clock()}, });
+                      }
+                  }
+              }              
+          } else {
+              // AlfaCpti and merger board
+              for(size_t fpga = 0; fpga<cdef.maxFpga(); ++fpga) {
+                  for(size_t clock = 0; clock<cdef.maxClock(); ++clock) {
+                      for(auto & tl : cdef.triggerLines(fpga, clock)) {
+                         jConn["triggerlines"] += json({ {"name", tl.name()}, {"nbits",tl.nbits()}, {"startbit", tl.startbit()}, {"flatindex", tl.flatindex()}, {"clock", tl.clock()}, });
+                      }
+                  }
+              }
+          }
       } else {
-         if(cdef.maxClock() == 2) {
-            // merger boards
-            for(size_t clock = 0; clock<cdef.maxClock(); ++clock) {
-               std::string cName = "clock" + std::to_string(clock);
-               jConn["triggerlines"][cName] = json::array_t();
-               for(auto & tl : cdef.triggerLines(0, clock)) {
-                  jConn["triggerlines"][cName] += json({ {"name", tl.name()}, {"nbits",tl.nbits()}, {"startbit", tl.startbit()} });
-               }
-            }            
-         } else {
-            jConn["triggerlines"] = json::array_t();
-            for(auto & tl : cdef.triggerLines()) {
-               jConn["triggerlines"] += json({ {"name", tl.name()}, {"nbits",tl.nbits()}, {"startbit", tl.startbit()} });
-            }
-         }
+          for(auto & tl : cdef.triggerLines()) {
+             jConn["triggerlines"] += json({ {"name", tl.name()}, {"nbits",tl.nbits()}, {"startbit", tl.startbit()}, {"flatindex", tl.flatindex()} });
+          }
       }
       connectors[cname] = jConn;
    }

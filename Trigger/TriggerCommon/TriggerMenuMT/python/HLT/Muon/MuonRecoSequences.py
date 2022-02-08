@@ -775,13 +775,10 @@ def muEFCBRecoSequence( RoIs, name ):
   from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
   sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryToolWithoutFlagged'))
   sct_ConditionsSummaryToolSetupWithoutFlagged.setup()
-  ToolSvc.AtlasHoleSearchTool.BoundaryCheckTool.SctSummaryTool = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()
   ToolSvc.CombinedMuonIDHoleSearch.BoundaryCheckTool.SctSummaryTool = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()
   if globalflags.InputFormat.is_bytestream():
-    ToolSvc.AtlasHoleSearchTool.BoundaryCheckTool.SctSummaryTool.ConditionsTools=['SCT_ConfigurationConditionsTool/InDetTrigInDetSCT_ConfigurationConditionsTool','SCT_ByteStreamErrorsTool/InDetTrigInDetSCT_ByteStreamErrorsTool']
     ToolSvc.CombinedMuonIDHoleSearch.BoundaryCheckTool.SctSummaryTool.ConditionsTools=['SCT_ConfigurationConditionsTool/InDetTrigInDetSCT_ConfigurationConditionsTool','SCT_ByteStreamErrorsTool/InDetTrigInDetSCT_ByteStreamErrorsTool']
   else:
-    ToolSvc.AtlasHoleSearchTool.BoundaryCheckTool.SctSummaryTool.ConditionsTools=['SCT_ConfigurationConditionsTool/InDetTrigInDetSCT_ConfigurationConditionsTool']
     ToolSvc.CombinedMuonIDHoleSearch.BoundaryCheckTool.SctSummaryTool.ConditionsTools=['SCT_ConfigurationConditionsTool/InDetTrigInDetSCT_ConfigurationConditionsTool']
 
   #MS ID combination
@@ -882,13 +879,10 @@ def muEFInsideOutRecoSequence(RoIs, name):
     from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
     sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryToolWithoutFlagged'))
     sct_ConditionsSummaryToolSetupWithoutFlagged.setup()
-    ToolSvc.AtlasHoleSearchTool.BoundaryCheckTool.SctSummaryTool = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()
     ToolSvc.CombinedMuonIDHoleSearch.BoundaryCheckTool.SctSummaryTool = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()
     if globalflags.InputFormat.is_bytestream():
-      ToolSvc.AtlasHoleSearchTool.BoundaryCheckTool.SctSummaryTool.ConditionsTools=['SCT_ConfigurationConditionsTool/InDetTrigInDetSCT_ConfigurationConditionsTool','SCT_ByteStreamErrorsTool/InDetTrigInDetSCT_ByteStreamErrorsTool']
       ToolSvc.CombinedMuonIDHoleSearch.BoundaryCheckTool.SctSummaryTool.ConditionsTools=['SCT_ConfigurationConditionsTool/InDetTrigInDetSCT_ConfigurationConditionsTool','SCT_ByteStreamErrorsTool/InDetTrigInDetSCT_ByteStreamErrorsTool']
     else:
-      ToolSvc.AtlasHoleSearchTool.BoundaryCheckTool.SctSummaryTool.ConditionsTools=['SCT_ConfigurationConditionsTool/InDetTrigInDetSCT_ConfigurationConditionsTool']
       ToolSvc.CombinedMuonIDHoleSearch.BoundaryCheckTool.SctSummaryTool.ConditionsTools=['SCT_ConfigurationConditionsTool/InDetTrigInDetSCT_ConfigurationConditionsTool']
 
     efAlgs.append(theIndetCandidateAlg)

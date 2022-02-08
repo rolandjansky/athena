@@ -36,7 +36,7 @@ class MultiComponentStateOnSurface;
 class FitQuality;
 class Track;
 
-class GaussianSumFitter
+class GaussianSumFitter final
   : virtual public ITrackFitter
   , public AthAlgTool
 {

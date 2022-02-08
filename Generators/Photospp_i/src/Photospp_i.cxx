@@ -42,7 +42,7 @@ Photospp_i::Photospp_i(const std::string& name, ISvcLocator* pSvcLocator) :
     declareProperty("InfraRedCutOff", m_infraRedCutOff=-1.);//1.e-07);//0.01/91.187);
     declareProperty("AlphaQED", m_alphaQED = 0.00729735039);
     declareProperty("WtInterference", m_maxWtInterference=3.);
-    declareProperty("CreateHistory", m_createHistory = true);
+    declareProperty("CreateHistory", m_createHistory = false); //AV: we don't need those particles in our events.
     declareProperty("StopCriticalErrors", m_stopCritical=false);
     declareProperty("DelayInitialisation", m_delayInitialisation = false);
     declareProperty("ZMECorrection", m_ZMECorrection = false);

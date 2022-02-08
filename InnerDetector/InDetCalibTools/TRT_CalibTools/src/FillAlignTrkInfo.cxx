@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -46,7 +46,7 @@ bool FillAlignTrkInfo::fill(const Trk::Track* aTrack, TRT::TrackInfo* output,
 //bool FillAlignTrkInfo::fill(const Trk::Track* aTrack, TRT::TrackInfo* output) const {
   // track parameters
   const Trk::Perigee* mesp=(aTrack->perigeeParameters());
-  if (mesp!=0) {
+  if (mesp!=nullptr) {
     (*output)[TRT::Track::d0]=mesp->parameters()[Trk::d0];
     (*output)[TRT::Track::z0]=mesp->parameters()[Trk::z0];
     (*output)[TRT::Track::phi]=mesp->parameters()[Trk::phi];

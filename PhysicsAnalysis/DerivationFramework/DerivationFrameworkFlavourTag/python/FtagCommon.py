@@ -10,8 +10,6 @@ from DerivationFrameworkMCTruth.MCTruthCommon import addTruth3ContentToSlimmerTo
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import GSFTracksCPDetailedContent
 
 ## Common items used in PHYSVAL, FTAG1 and FTAG2
-flag_trackless = 0
-flag_pseudotrack = 0
 PHYSVAL_FTAG1_FTAG2_mc_AppendToDictionary = {
         'TruthEvents':'xAOD::TruthEventContainer','TruthEventsAux':'xAOD::TruthEventAuxContainer',
         'MET_Truth':'xAOD::MissingETContainer','MET_TruthAux':'xAOD::MissingETAuxContainer',

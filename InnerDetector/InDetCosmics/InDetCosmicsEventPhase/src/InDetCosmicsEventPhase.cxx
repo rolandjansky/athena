@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "InDetCosmicsEventPhase/InDetCosmicsEventPhase.h"
@@ -57,12 +57,12 @@ namespace InDet
 
     m_phase = 0;
 
-    const Trk::Track* selected = 0;
+    const Trk::Track* selected = nullptr;
     int maxTRT = -1;
 
 // Sasa Nov 30
 
-    const TRT_ID* TRTHelper;
+    const TRT_ID* TRTHelper = nullptr;
     StatusCode sc = detStore()->retrieve(TRTHelper, "TRT_ID");
     if (sc.isFailure()) {
       msg(MSG::ERROR) << "Unable to retrieve TRT ID Helper." << endmsg;

@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import LHCPeriod
 from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline
 import AthenaCommon.SystemOfUnits as Units
 #######################################################################
@@ -74,22 +75,22 @@ def NnClusterizationFactoryCfg(flags, name="NnClusterizationFactory", **kwargs):
         PixelLorentzAngleTool = PixelLorentzAngleTool(flags, name="PixelLorentzAngleTool", **kwargs)
         kwargs.setdefault("PixelLorentzAngleTool", PixelLorentzAngleTool)
 
-    if flags.GeoModel.Run=="RUN1":
+    if flags.GeoModel.Run is LHCPeriod.Run1:
         acc.merge(PixelClusterNnCondAlgCfg(flags, name="PixelClusterNnCondAlg", GetInputsInfo=True))
         acc.merge(PixelClusterNnWithTrackCondAlgCfg(flags, name="PixelClusterNnWithTrackCondAlg", GetInputsInfo=True))
     else:
         acc.merge(LWTNNCondAlgCfg(flags, name="LWTNNCondAlg"))
 
-    kwargs.setdefault("doRunI", flags.GeoModel.Run=="RUN1")
+    kwargs.setdefault("doRunI", flags.GeoModel.Run is LHCPeriod.Run1)
     kwargs.setdefault("useToT", False)
-    kwargs.setdefault("useRecenteringNNWithoutTracks", flags.GeoModel.Run=="RUN1")
+    kwargs.setdefault("useRecenteringNNWithoutTracks", flags.GeoModel.Run is LHCPeriod.Run1)
     kwargs.setdefault("useRecenteringNNWithTracks", False)
     kwargs.setdefault("correctLorShiftBarrelWithoutTracks", 0)
-    kwargs.setdefault("correctLorShiftBarrelWithTracks", 0.030 if flags.GeoModel.Run=="RUN1" else 0.000)
-    kwargs.setdefault("useTTrainedNetworks", flags.GeoModel.Run=="RUN1")
-    kwargs.setdefault("NnCollectionReadKey", "PixelClusterNN" if flags.GeoModel.Run=="RUN1" else "")
-    kwargs.setdefault("NnCollectionWithTrackReadKey", "PixelClusterNNWithTrack" if flags.GeoModel.Run=="RUN1" else "")
-    kwargs.setdefault("NnCollectionJSONReadKey", "" if flags.GeoModel.Run=="RUN1" else "PixelClusterNNJSON")
+    kwargs.setdefault("correctLorShiftBarrelWithTracks", 0.030 if flags.GeoModel.Run is LHCPeriod.Run1 else 0.000)
+    kwargs.setdefault("useTTrainedNetworks", flags.GeoModel.Run is LHCPeriod.Run1)
+    kwargs.setdefault("NnCollectionReadKey", "PixelClusterNN" if flags.GeoModel.Run is LHCPeriod.Run1 else "")
+    kwargs.setdefault("NnCollectionWithTrackReadKey", "PixelClusterNNWithTrack" if flags.GeoModel.Run is LHCPeriod.Run1 else "")
+    kwargs.setdefault("NnCollectionJSONReadKey", "" if flags.GeoModel.Run is LHCPeriod.Run1 else "PixelClusterNNJSON")
 
     acc.setPrivateTools(CompFactory.InDet.NnClusterizationFactory(name, **kwargs))
     return acc
@@ -191,7 +192,7 @@ def InDetBroadPixelClusterOnTrackToolCfg(flags, name='InDetBroadPixelClusterOnTr
 def RIO_OnTrackErrorScalingCondAlgCfg(flags, name='RIO_OnTrackErrorScalingCondAlg', **kwargs):
     acc = ComponentAccumulator()
 
-    if flags.GeoModel.Run == "RUN1":
+    if flags.GeoModel.Run is LHCPeriod.Run1:
         error_scaling_type   = ["PixelRIO_OnTrackErrorScalingRun1"]
         error_scaling_outkey = ["/Indet/TrkErrorScalingPixel"]
     else:  # Run 2 and 3

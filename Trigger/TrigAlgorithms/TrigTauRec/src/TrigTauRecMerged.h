@@ -64,7 +64,6 @@ class TrigTauRecMerged: public AthReentrantAlgorithm {
 
   //Gaudi::Property< std::string > m_outputName {this,"OutputCollection","TrigTauRecMerged","Name of output collection"};
   SG::ReadHandleKey< TrigRoiDescriptorCollection > m_roIInputKey { this,"RoIInputKey","InputRoI","Input RoI name"};
-  SG::ReadHandleKey< TrigRoiDescriptorCollection > m_L1RoIKey    { this, "L1RoIKey","L1RoI","L1 RoI name"};
   SG::ReadHandleKey< xAOD::CaloClusterContainer > m_clustersKey  { this, "clustersKey", "CaloClusters", "caloclusters in view" };
   SG::ReadHandleKey< xAOD::TrackParticleContainer > m_tracksKey  { this, "Key_trackPartInputContainer", "InDetTrackParticles", "input track particle container key"};
   SG::ReadHandleKey< xAOD::VertexContainer> m_vertexKey          { this, "Key_vertexInputContainer", "HLT_IDVertex_Tau", "input vertex container key"};

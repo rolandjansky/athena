@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -218,7 +218,7 @@ namespace InDetDD {
   SiDetectorElement::localToModuleTransform() const
   {
     if (isModuleFrame()) {
-      return Amg::Transform3D(); // Identity
+      return {}; // Identity
     } else {
       return m_otherSide->transform().inverse() * transform();
     }

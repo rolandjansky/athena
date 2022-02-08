@@ -293,8 +293,9 @@ EGAM8Sequence += CfgMgr.DerivationFramework__DerivationKernel("EGAM8Kernel",
 #====================================================================
 # JET/MET
 #====================================================================
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addAntiKt4TruthJets
-addAntiKt4TruthJets(EGAM8Sequence,"EGAM8")
+from DerivationFrameworkJetEtMiss.JetCommon import addDAODJets
+from JetRecConfig.StandardSmallRJets import AntiKt4Truth
+addDAODJets([AntiKt4Truth], EGAM8Sequence)
 
 
 #========================================

@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CNVTOOLS_TGCSLBDATAHELPER_H
 #define MUONTGC_CNVTOOLS_TGCSLBDATAHELPER_H
 
+#include "AthenaBaseComps/AthMessaging.h"
 #include <vector>
 #include <inttypes.h>
 
@@ -28,6 +29,7 @@ namespace Muon
    */
 
   class TgcSlbDataHelper
+    : public AthMessaging
     {
     public:
       /** SLB Module Type in SLB Header */
@@ -172,10 +174,6 @@ namespace Muon
       /** Get a value in a range of a bitArray */
       uint16_t getVal(const bool* bitArray, std::size_t start, std::size_t width) const;
 
-      /** MsgStream */
-      MsgStream *m_log;
-      /** Flag for MsgStream */
-      bool m_debug;
     };
 
 } // end of namespace 

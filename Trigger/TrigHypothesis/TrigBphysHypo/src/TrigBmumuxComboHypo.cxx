@@ -144,7 +144,7 @@ StatusCode TrigBmumuxComboHypo::mergeMuonsFromDecisions(TrigBmumuxState& state) 
     auto decisionEL = TrigCompositeUtils::decisionToElementLink(decision, state.context());
     auto itr = std::find_if(muons.begin(), muons.end(), [this, muon = muon](const auto& x){ return isIdenticalTracks(muon, *x.link); });
     if (itr == muons.end()) {
-      muons.push_back({muonEL, ElementLinkVector<DecisionContainer>(1, decisionEL), DecisionIDContainer()});
+      muons.push_back({muonEL, std::vector<ElementLink<DecisionContainer>>(1, decisionEL), DecisionIDContainer()});
     }
     else {
       (*itr).decisionLinks.push_back(decisionEL);
@@ -157,7 +157,7 @@ StatusCode TrigBmumuxComboHypo::mergeMuonsFromDecisions(TrigBmumuxState& state) 
 
   // for each muon we extract DecisionIDs stored in the associated Decision objects and copy them at muon.decisionIDs
   for (auto& item : muons) {
-    for (const ElementLink<xAOD::TrigCompositeContainer> decisionEL : item.decisionLinks) {
+    for (const ElementLink<xAOD::TrigCompositeContainer>& decisionEL : item.decisionLinks) {
       TrigCompositeUtils::decisionIDs(*decisionEL, item.decisionIDs);
     }
   }

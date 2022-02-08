@@ -19,13 +19,25 @@ atlas_add_citest( G4ExHive
    SCRIPT athena.py --threads=4 --evtMax=50 G4AtlasApps/jobOptions.G4AtlasMT.py
    PROPERTIES PROCESSORS 4 )
 
+atlas_add_citest( FastChain
+   SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/FastChain.sh )
+
+atlas_add_citest( SimulationRun2AF3
+   SCRIPT RunWorkflowTests_Run2.py --CI -s -w AF3 )
+
+#################################################################################
+# Reconstruction
+#################################################################################
+
+atlas_add_citest( EgammaCAConfig
+   SCRIPT Reco_tf.py --CA --steering doRAWtoALL --inputRDOFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/WorkflowReferences/master/q443/v1/myRDO.pool.root --preInclude egammaConfig.egammaOnlyFromRawFlags.egammaOnlyFromRaw --outputAODFile=AOD.pool.root --maxEvents=1 )
+
+atlas_add_citest( Egamma
+   SCRIPT ut_egammaARTJob_test.sh )
+
 
 # TODO: We stop here for now (migration ongoing...)
 return()
-
-
-
-
 
 
 #################################################################################
@@ -54,15 +66,6 @@ atlas_add_citest( q221
 atlas_add_citest( q440
    SCRIPT Reco_tf.py --AMI q440 --maxEvents=5 --athenaopts='RDOtoRDOTrigger:--threads=1' )
 
-atlas_add_citest( MuonReconstructionConfig
-   SCRIPT python -m MuonConfig.MuonReconstructionConfig --run )
-
-atlas_add_citest( MuonCombinedReconstructionConfig
-   SCRIPT python -m MuonCombinedConfig.MuonCombinedReconstructionConfig --run )
-
-atlas_add_citest( CaloTopoClusterConfig
-   SCRIPT python -m CaloRec.CaloTopoClusterConfig --run )
-
 #################################################################################
 # DQ
 #################################################################################
@@ -78,12 +81,6 @@ atlas_add_citest( q221_Run3DQ
 #################################################################################
 # Digitization/Simulation
 #################################################################################
-atlas_add_citest( DigitizationNewConfig
-   SCRIPT DigitizationConfigNew_test.py )
-
-atlas_add_citest( FastChain
-   SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/FastChain.sh )
-
 atlas_add_citest( MuonDigiReco_digi
    SCRIPT Digi_tf.py --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonRecRTT/Run3/HITS/AsymmetricLayout_HITS_v2.root --imf False --outputRDOFile OUT_RDO.root --conditionsTag OFLCOND-MC16-SDR-RUN3-02 )
 

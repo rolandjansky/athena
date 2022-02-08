@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetLowBetaContainerCnv.h"
@@ -32,7 +32,7 @@ InDet::InDetLowBetaContainer *InDetLowBetaContainerCnv::createTransient() {
 
   static const pool::Guid tlp1_guid("2EBE2034-8157-477B-B327-D37BE8A0317D");
 
-  InDet::InDetLowBetaContainer *p_collection = 0;
+  InDet::InDetLowBetaContainer *p_collection = nullptr;
   if (compareClassGuid(tlp1_guid)) {
     poolReadObject<InDetLowBetaContainer_PERS>(*m_TPConverter_tlp1);
     p_collection = m_TPConverter_tlp1->createTransient(msg());

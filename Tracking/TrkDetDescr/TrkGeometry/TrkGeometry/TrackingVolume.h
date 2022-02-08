@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -53,7 +53,7 @@ class DetachedTrackingVolume;
 class VolumeBounds;
 
 typedef BinnedArray<Layer> LayerArray;
-typedef BinnedArray<TrackingVolume> TrackingVolumeArray;
+typedef BinnedArray<const TrackingVolume> TrackingVolumeArray;
 
 template<class T>
 using LayerIntersection = FullIntersection<Layer, Surface, T>;
@@ -112,20 +112,18 @@ public:
   - explicitely  ======> 1 a) static confinement */
   TrackingVolume(Amg::Transform3D* htrans,
                  VolumeBounds* volbounds,
-                 const LayerArray* subLayers = nullptr,
-                 const TrackingVolumeArray* subVolumes = nullptr,
-                 const std::string& volumeName = "undefined")
-    ATLAS_CTORDTOR_NOT_THREAD_SAFE;
+                 LayerArray* subLayers = nullptr,
+                 TrackingVolumeArray* subVolumes = nullptr,
+                 const std::string& volumeName = "undefined");
   // unsafe intelink layers
 
   /** Constructor for a full equipped Tracking Volume
      - full by inheritance  ======> 2 a) static confinement */
   TrackingVolume(const Volume& volume,
                  const Material& matprop,
-                 const LayerArray* subLayers = nullptr,
-                 const TrackingVolumeArray* subVolumes = nullptr,
-                 const std::string& volumeName = "undefined")
-    ATLAS_CTORDTOR_NOT_THREAD_SAFE;
+                 LayerArray* subLayers = nullptr,
+                 TrackingVolumeArray* subVolumes = nullptr,
+                 const std::string& volumeName = "undefined");
   // unsafe intelink layers
 
   /** Constructor for a full equipped Tracking Volume
@@ -133,10 +131,9 @@ public:
   TrackingVolume(Amg::Transform3D* htrans,
                  VolumeBounds* volbounds,
                  const Material& matprop,
-                 const LayerArray* subLayers = nullptr,
-                 const TrackingVolumeArray* subVolumes = nullptr,
-                 const std::string& volumeName = "undefined")
-    ATLAS_CTORDTOR_NOT_THREAD_SAFE;
+                 LayerArray* subLayers = nullptr,
+                 TrackingVolumeArray* subVolumes = nullptr,
+                 const std::string& volumeName = "undefined");
   // unsafe intelink layers
 
   /** Constructor for a full equipped Tracking Volume with detached subvolumes
@@ -276,11 +273,17 @@ public:
   /** Layer attempts - as provided by the LayerAttemptCreator */
   unsigned int maxLayerAttempts() const;
 
-  /** Return the subLayer array - not the ownership*/
+  /** Return the subLayer array */
   const LayerArray* confinedLayers() const;
+  
+  /** Return the subLayer array */
+  LayerArray* confinedLayers();
 
   /** Return the subLayer array - not the ownership*/
   const std::vector<const Layer*>* confinedArbitraryLayers() const;
+
+  /** Return the subLayer array - not the ownership*/
+  const std::vector<const Layer*>* confinedArbitraryLayers();
 
   /** Return the subLayerarray including the ownership*/
   const LayerArray* checkoutConfinedLayers() const;
@@ -288,7 +291,10 @@ public:
   /** Return the subLayer array */
   const TrackingVolumeArray* confinedVolumes() const;
 
-  /** Return detached subVolumes - not the ownership */
+  /** Return the subLayer array */
+  TrackingVolumeArray* confinedVolumes();
+
+ /** Return detached subVolumes - not the ownership */
   const std::vector<const DetachedTrackingVolume*>* confinedDetachedVolumes()
     const;
 
@@ -363,8 +369,6 @@ public:
 
   /** add Material */
   void addMaterial(const Material& mat, float fact = 1.);
-  void addMaterial ATLAS_NOT_THREAD_SAFE(const Material& mat,
-                                         float fact = 1.) const;
 
   virtual bool isAlignable() const;
   /** remove content */
@@ -374,7 +378,7 @@ public:
 
 protected:
   /** clone at new position */
-  const TrackingVolume* cloneTV
+  TrackingVolume* cloneTV
   ATLAS_NOT_THREAD_SAFE(Amg::Transform3D& transform) const;
 
 private:
@@ -403,11 +407,10 @@ private:
       - adapts the layer dimensions to the new volumebounds + envelope
       - adapts entry layer position where necessary to the new volumebounds
   */
-  void synchronizeLayers ATLAS_NOT_THREAD_SAFE(MsgStream& msgstream,
-                                               double envelope = 1.) const;
+  void synchronizeLayers ATLAS_NOT_THREAD_SAFE(MsgStream& msgstream, double envelope = 1.) const;
 
   /** Register Next - Previous for Layers, set volumelink */
-  void interlinkLayers ATLAS_NOT_THREAD_SAFE();
+  void interlinkLayers ();
 
   /** Helper method - find closest of two layers */
   static const Layer* closest(const Amg::Vector3D& pos,
@@ -427,19 +430,17 @@ private:
   const TrackingVolume* m_motherVolume; //!< mother volume of this volume
 
   //!< boundary Surfaces
-  std::vector<SharedObject<const BoundarySurface<TrackingVolume>>>*
-    m_boundarySurfaces{};
+  std::vector<SharedObject<const BoundarySurface<TrackingVolume>>>* m_boundarySurfaces{};
   //(a)
-  const LayerArray* m_confinedLayers; //!< Array of Layers inside the Volume
+  LayerArray* m_confinedLayers; //!< Array of Layers inside the Volume
   //!< Array of Volumes inside the Volume
-  const TrackingVolumeArray* m_confinedVolumes;
+  TrackingVolumeArray* m_confinedVolumes;
   //(b)
   //!< Detached subvolumes
   const std::vector<const DetachedTrackingVolume*>* m_confinedDetachedVolumes;
   // additionally
   //!< Unordered subvolumes
-  const std::vector<const TrackingVolume*>*
-    m_confinedDenseVolumes; //!< Unordered subvolumes
+  const std::vector<const TrackingVolume*>* m_confinedDenseVolumes; 
   //(b)
   //!< Unordered Layers inside the Volume
   const std::vector<const Layer*>* m_confinedArbitraryLayers;

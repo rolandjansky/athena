@@ -266,7 +266,7 @@ namespace met {
           return StatusCode::FAILURE;
         }
         ATH_MSG_VERBOSE("pT: " << obj->pt() << " type: " << obj->type() << " truth: " << (obj->type()==xAOD::Type::TruthParticle));
-        if(obj->type()==xAOD::Type::Muon || (obj->type()==xAOD::Type::TruthParticle && fabs(static_cast<const xAOD::TruthParticle*>(obj)->pdgId())==13)){
+        if(obj->type()==xAOD::Type::Muon || (obj->type()==xAOD::Type::TruthParticle && std::abs(static_cast<const xAOD::TruthParticle*>(obj)->pdgId())==13)){
           ATH_CHECK(AddMuon(obj, pt_reso, phi_reso, avgmu));
           metTerm=4;
         }
@@ -276,15 +276,15 @@ namespace met {
           ATH_CHECK(AddJet(obj, pt_reso, phi_reso, avgmu));
           metTerm=1;
         }
-        else if(obj->type()==xAOD::Type::Electron || (obj->type()==xAOD::Type::TruthParticle && fabs(static_cast<const xAOD::TruthParticle*>(obj)->pdgId())==11)){
+        else if(obj->type()==xAOD::Type::Electron || (obj->type()==xAOD::Type::TruthParticle && std::abs(static_cast<const xAOD::TruthParticle*>(obj)->pdgId())==11)){
           ATH_CHECK(AddElectron(obj, pt_reso, phi_reso, avgmu));
           metTerm=3;
         }
-        else if(obj->type()==xAOD::Type::Photon || (obj->type()==xAOD::Type::TruthParticle && fabs(static_cast<const xAOD::TruthParticle*>(obj)->pdgId())==22)){
+        else if(obj->type()==xAOD::Type::Photon || (obj->type()==xAOD::Type::TruthParticle && std::abs(static_cast<const xAOD::TruthParticle*>(obj)->pdgId())==22)){
           ATH_CHECK(AddPhoton(obj, pt_reso, phi_reso));
           metTerm=5;
         }
-        else if(obj->type()==xAOD::Type::Tau || (obj->type()==xAOD::Type::TruthParticle && fabs(static_cast<const xAOD::TruthParticle*>(obj)->pdgId())==15)){
+        else if(obj->type()==xAOD::Type::Tau || (obj->type()==xAOD::Type::TruthParticle && std::abs(static_cast<const xAOD::TruthParticle*>(obj)->pdgId())==15)){
           AddTau(obj, pt_reso, phi_reso);
           metTerm=6;
         }
@@ -513,7 +513,7 @@ namespace met {
 
     // setting limits on jets if requested
     if(m_jetPtThr>0.0 && m_jetPtThr>jet->pt())          return StatusCode::SUCCESS;
-    if(m_jetEtaThr>0.0 && m_jetEtaThr<fabs(jet->eta())) return StatusCode::SUCCESS;
+    if(m_jetEtaThr>0.0 && m_jetEtaThr<std::abs(jet->eta())) return StatusCode::SUCCESS;
 
     ATH_CHECK(m_jetCalibTool->getNominalResolutionData(*jet, pt_reso_dbl_data));
     ATH_CHECK(m_jetCalibTool->getNominalResolutionMC(*jet, pt_reso_dbl_mc));
@@ -540,7 +540,7 @@ namespace met {
     // Use the phi resolution of the jets
     // needs to be finished
     if(m_doPhiReso){
-      double jet_phi_unc = fabs(GetPhiUnc(jet->eta(), jet->phi(),jet->pt()/m_GeV));
+      double jet_phi_unc = std::abs(GetPhiUnc(jet->eta(), jet->phi(),jet->pt()/m_GeV));
       phi_reso = jet->pt()*jet_phi_unc;
     }
     
@@ -682,7 +682,7 @@ namespace met {
 
     // Coefficients from Doug Schaefer <schae@cern.ch> and the MET subgroup
     if(m_JetCollection == "AntiKt4EMTopoJets"){
-      if(jet_eta<2.4){
+      if(std::abs(jet_eta)<2.4){
         if(jet_pt<30){
           if(jet_jvt<0.11)      unc = 1;
           else if(jet_jvt<0.25) unc = 0.0730 + 0.0024 * avgmu + 0.00001 * avgmu * avgmu;
@@ -711,7 +711,7 @@ namespace met {
         }else if(jet_pt<150){
           unc = 0.7888 -1.8372 * jet_jvt + 1.05539 * jet_jvt * jet_jvt;
         }
-      }else if(jet_eta<2.6){
+      }else if(std::abs(jet_eta)<2.6){
         if(jet_pt<30){
           if(jet_jvt<0.11)      unc = 0.2633 + 0.0091 * avgmu + -0.00009 * avgmu * avgmu;
           else if(jet_jvt<0.25) unc = 0.1841 + 0.0144 * avgmu + -0.00008 * avgmu * avgmu;
@@ -740,7 +740,7 @@ namespace met {
         }else if(jet_pt<150){
           unc = 0.9998 -1.7319 * jet_jvt + 0.72680 * jet_jvt * jet_jvt;
         }
-      }else if(jet_eta<2.7){
+      }else if(std::abs(jet_eta)<2.7){
         if(jet_pt<30){
           if(jet_jvt<0.11)      unc = 0.3001 + 0.0054 * avgmu -0.00004 * avgmu * avgmu  ;
           else if(jet_jvt<0.25) unc = 0.0663 + 0.0198 * avgmu -0.00013 * avgmu * avgmu  ;
@@ -782,7 +782,7 @@ namespace met {
       }
       // end emtopo
     }else{//p-flow inputs
-      if(jet_eta<2.4){
+      if(std::abs(jet_eta)<2.4){
         if(jet_pt<30){
           if(jet_jvt<0.11)      unc = 1;
           else if(jet_jvt<0.25) unc = 0.2494 + 0.0076 * avgmu -0.00001 * avgmu * avgmu ;
@@ -811,7 +811,7 @@ namespace met {
         }else if(jet_pt<150){
           unc = 0.6474 -1.4491 * jet_jvt + 0.80591 * jet_jvt * jet_jvt;
         }
-      }else if(jet_eta<2.6){
+      }else if(std::abs(jet_eta)<2.6){
         if(jet_pt<30){
           if(jet_jvt<0.11)      unc = 0.2633 + 0.0091 * avgmu + -0.00009 * avgmu * avgmu;
           else if(jet_jvt<0.25) unc = 0.1841 + 0.0144 * avgmu + -0.00008 * avgmu * avgmu;
@@ -840,7 +840,7 @@ namespace met {
         }else if(jet_pt<150){
           unc = 0.9762 -2.4160 * jet_jvt + 1.45763 * jet_jvt * jet_jvt;
         }
-      }else if(jet_eta<2.7){
+      }else if(std::abs(jet_eta)<2.7){
         if(jet_pt<30){
           if(jet_jvt<0.11)      unc = 0.2877 + 0.0056 * avgmu -0.00004 * avgmu * avgmu;
           else if(jet_jvt<0.25) unc = 0.0353 + 0.0196 * avgmu -0.00012 * avgmu * avgmu;
@@ -940,14 +940,14 @@ namespace met {
 
     Double_t rho = cov / sqrt( var_parall * var_perpen ) ;
     Double_t Significance = 0;
-    if (fabs( rho ) >= 0.9 ){  //Cov Max not invertible -> Significance diverges
+    if (std::abs( rho ) >= 0.9 ){  //Cov Max not invertible -> Significance diverges
       ATH_MSG_VERBOSE("rho is large: " << rho);
       Significance = pow( Numerator - m_scalarBias , 2 ) / (  var_parall  ) ;
     }
     else
       Significance = pow( Numerator - m_scalarBias , 2 ) / (  var_parall * ( 1 - pow(rho,2) ) ) ;
 
-    if( fabs(Significance) >= 10e+15)
+    if( std::abs(Significance) >= 10e+15)
       ATH_MSG_WARNING("warning -->"<< Significance);
 
     return Significance;

@@ -66,7 +66,8 @@ StatusCode xAODMultiElecMuTauFilter::filterEvent() {
          // 1. Find if it is hadronic (i.e. no decay lepton).
          // 2. Veto tau -> tau (FSR)
          // 3. Store the tau neutino to calculate the visible momentum
-         for (unsigned int iChild = 0; iChild < tau->decayVtx()->nOutgoingParticles(); ++iChild) {
+         size_t nout = tau->decayVtx()->nOutgoingParticles();
+         for (unsigned int iChild = 0; iChild < nout; ++iChild) {
              const xAOD::TruthParticle* citr =  tau->decayVtx()->outgoingParticle(iChild);
              //Ignore tau -> tau (FSR)
              if (pitr->pdgId() == citr->pdgId()) {

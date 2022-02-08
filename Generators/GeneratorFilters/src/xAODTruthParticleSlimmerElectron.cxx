@@ -11,8 +11,6 @@
 #include "GaudiKernel/DataSvc.h"
 #include "GaudiKernel/PhysicalConstants.h"
 
-#include "EventInfo/EventStreamInfo.h"
-
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthParticleAuxContainer.h"

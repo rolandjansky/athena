@@ -1,19 +1,8 @@
-Py:AutoConfigFlags    INFO Obtaining metadata of auto-configuration by peeking into /home/sss/nobackup/referencefiles/Tier0ChainTests/q221/21.0/v1/myRDO.pool.root
-Py:MetaReader        INFO Current mode used: lite
-Py:MetaReader        INFO Current filenames: ['/home/sss/nobackup/referencefiles/Tier0ChainTests/q221/21.0/v1/myRDO.pool.root']
-Py:MetaReader        INFO MetaReader is called with the parameter "unique_tag_info_values" set to True. This is a workaround to remove all duplicate values from "/TagInfo" key
-ApplicationMgr    SUCCESS 
-====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Sun May 23 16:15:28 2021
-====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 CoreDumpSvc                                          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 AthenaEventLoopMgr                                   INFO Initializing AthenaEventLoopMgr
 PyComponentMgr                                       INFO Initializing PyComponentMgr...
 TestAlg                                              INFO Initializing TestAlg...
-ClassIDSvc                                           INFO  getRegistryEntries: read 9926 CLIDRegistry entries for module ALL
-ClassIDSvc                                           INFO  getRegistryEntries: read 430 CLIDRegistry entries for module ALL
 EventSelector                                        INFO  Enter McEventSelector Initialization 
 AthenaEventLoopMgr                                   INFO Setup EventSelector service EventSelector
 ApplicationMgr                                       INFO Application Manager Initialized successfully
@@ -35,7 +24,6 @@ ApplicationMgr                                    SUCCESS      AthIncFirerAlg/En
 ApplicationMgr                                    SUCCESS      IncidentProcAlg/IncidentProcAlg3
 ApplicationMgr                                    SUCCESS ******************************************************************************
 ApplicationMgr                                       INFO Application Manager Started successfully
-EventPersistencySvc                                  INFO Added successfully Conversion service:McCnvSvc
 AthenaEventLoopMgr                                   INFO   ===>>>  start of run 284500    <<<===
 AthenaEventLoopMgr                                   INFO   ===>>>  start processing event #0, run #284500 0 events processed so far  <<<===
 284500 0 1000
@@ -90,8 +78,8 @@ testMerge:  CaloUtils::ToolWithConstantsTestTool 2 .test.ca1 = [3, 4.5, 6]
 .test.order = 0
 
 
-ToolSvc.tool1                                       ERROR ../src/ToolWithConstants.cxx:112 (StatusCode CaloUtils::ToolWithConstantsImpl::mergeConstants(const std::string&, int, CaloUtils::ToolWithConstantsImpl::Context&, bool, CaloRec::ToolConstants&) const): code FAILURE: Trying to write to ToolConstants for tools of differing types: foofoo and CaloUtils::ToolWithConstantsTestTool
-ToolSvc.tool1                                       ERROR ../src/ToolWithConstants.cxx:118 (StatusCode CaloUtils::ToolWithConstantsImpl::mergeConstants(const std::string&, int, CaloUtils::ToolWithConstantsImpl::Context&, bool, CaloRec::ToolConstants&) const): code FAILURE: Trying to write to ToolConstants for differing versions of tool CaloUtils::ToolWithConstantsTestTool: 10 and 2
+ToolSvc.tool1                                       ERROR ../ToolWithConstants.cxx (FUNC): code FAILURE: Trying to write to ToolConstants for tools of differing types: foofoo and CaloUtils::ToolWithConstantsTestTool
+ToolSvc.tool1                                       ERROR ../ToolWithConstants.cxx (FUNC): code FAILURE: Trying to write to ToolConstants for differing versions of tool CaloUtils::ToolWithConstantsTestTool: 10 and 2
 AthenaEventLoopMgr                                   INFO   ===>>>  done processing event #0, run #284500 1 events processed so far  <<<===
 AthenaEventLoopMgr                                   INFO   ===>>>  start processing event #1, run #284500 1 events processed so far  <<<===
 284500 0 1000
@@ -249,49 +237,6 @@ ToolSvc.tool2                                        INFO m_ca1 [3, 4.5, 6]
 ToolSvc.tool2                                        INFO m_ca2 Can't find key in
 AthenaEventLoopMgr                                   INFO   ===>>>  done processing event #7, run #284500 8 events processed so far  <<<===
 ApplicationMgr                                       INFO Application Manager Stopped successfully
-TestAlg                                              INFO Finalizing TestAlg...
 ToolSvc                                              INFO Removing all tools created by ToolSvc
-PyComponentMgr                                       INFO Finalizing PyComponentMgr...
 ApplicationMgr                                       INFO Application Manager Finalized successfully
 ApplicationMgr                                       INFO Application Manager Terminated successfully
-TClass::Init:0: RuntimeWarning: no dictionary for class TileHitVector_p1 is available
-TClass::Init:0: RuntimeWarning: no dictionary for class TileHit_p1 is available
-TClass::Init:0: RuntimeWarning: no dictionary for class BCM_RDO_Container_p0 is available
-TClass::Init:0: RuntimeWarning: no dictionary for class LArDigitContainer_p1 is available
-TClass::Init:0: RuntimeWarning: no dictionary for class LArRawChannelContainer_p4 is available
-TClass::Init:0: RuntimeWarning: no dictionary for class LArRawChannel_p2 is available
-TClass::Init:0: RuntimeWarning: no dictionary for class TileDigitsContainer_p3 is available
-TClass::Init:0: RuntimeWarning: no dictionary for class TileRawChannelContainer_p1 is available
-TClass::Init:0: RuntimeWarning: no dictionary for class TileTTL1Container_p1 is available
-TClass::Init:0: RuntimeWarning: no dictionary for class TileL2Container_p2 is available
-TClass::Init:0: RuntimeWarning: no dictionary for class TileMuonReceiverContainer_p1 is available
-TClass::Init:0: RuntimeWarning: no dictionary for class CscRawDataContainer_p3 is available
-TClass::Init:0: RuntimeWarning: no dictionary for class TgcRdoContainer_p3 is available
-TClass::Init:0: RuntimeWarning: no dictionary for class MdtCsmContainer_p1 is available
-TClass::Init:0: RuntimeWarning: no dictionary for class RpcPadContainer_p2 is available
-TClass::Init:0: RuntimeWarning: no dictionary for class Muon::MuonSimDataCollection_p1 is available
-TClass::Init:0: RuntimeWarning: no dictionary for class Muon::CscSimDataCollection_p1 is available
-TClass::Init:0: RuntimeWarning: no dictionary for class BCM_RDO_Collection_p0 is available
-TClass::Init:0: RuntimeWarning: no dictionary for class BCM_RawData_p0 is available
-TClass::Init:0: RuntimeWarning: no dictionary for class TileDigits_p3 is available
-TClass::Init:0: RuntimeWarning: no dictionary for class TileRawChannel_p1 is available
-TClass::Init:0: RuntimeWarning: no dictionary for class TileTTL1_p1 is available
-TClass::Init:0: RuntimeWarning: no dictionary for class TileL2_p2 is available
-TClass::Init:0: RuntimeWarning: no dictionary for class TileMuonReceiverObj_p1 is available
-TClass::Init:0: RuntimeWarning: no dictionary for class CscRawDataCollection_p3 is available
-TClass::Init:0: RuntimeWarning: no dictionary for class TgcRdo_p3 is available
-TClass::Init:0: RuntimeWarning: no dictionary for class MdtCsm_p1 is available
-TClass::Init:0: RuntimeWarning: no dictionary for class MdtAmtHit_p1 is available
-TClass::Init:0: RuntimeWarning: no dictionary for class RpcPad_p1 is available
-TClass::Init:0: RuntimeWarning: no dictionary for class RpcCoinMatrix_p1 is available
-TClass::Init:0: RuntimeWarning: no dictionary for class RpcFiredChannel_p1 is available
-TClass::Init:0: RuntimeWarning: no dictionary for class pair<unsigned int,Muon::MuonSimData_p1> is available
-TClass::Init:0: RuntimeWarning: no dictionary for class Muon::MuonSimData_p1 is available
-TClass::Init:0: RuntimeWarning: no dictionary for class pair<HepMcParticleLink_p1,Muon::MuonMCData_p1> is available
-TClass::Init:0: RuntimeWarning: no dictionary for class Muon::MuonMCData_p1 is available
-TClass::Init:0: RuntimeWarning: no dictionary for class pair<unsigned int,Muon::CscSimData_p1> is available
-TClass::Init:0: RuntimeWarning: no dictionary for class TgcRawData_p3 is available
-TClass::Init:0: RuntimeWarning: no dictionary for class CscRawData_p3 is available
-TClass::Init:0: RuntimeWarning: no dictionary for class Muon::CscSimData_p1 is available
-TClass::Init:0: RuntimeWarning: no dictionary for class pair<HepMcParticleLink_p1,Muon::CscMcData_p1> is available
-TClass::Init:0: RuntimeWarning: no dictionary for class Muon::CscMcData_p1 is available

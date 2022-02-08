@@ -117,7 +117,7 @@ atlas_add_test( TileMonitoringConfig_test
 
 atlas_add_test( RunTileMonitoring_test
                 SCRIPT python -m TileMonitoring.RunTileMonitoring --evtMax=3
-                PROPERTIES TIMEOUT 300
+                PROPERTIES TIMEOUT 600
                 POST_EXEC_SCRIPT nopost.sh)
 
 atlas_add_test( TileDigitsMonitorAlgorithm_test

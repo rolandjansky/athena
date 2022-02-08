@@ -67,7 +67,7 @@ StatusCode MMDigitVariables::fillVariables(const MuonGM::MuonDetectorManager* Mu
 
       // get the readout element class where the digit is recorded
       int isSmall = (stName[2] == 'S');
-      const MuonGM::MMReadoutElement* rdoEl = MuonDetMgr->getMMRElement_fromIdFields(isSmall, stationEta, stationPhi, multiplet);
+      const MuonGM::MMReadoutElement* rdoEl = MuonDetMgr->getMMReadoutElement(Id);
       if (!rdoEl) throw std::runtime_error(Form("File: %s, Line: %d\nMMDigitVariables::fillVariables() - Failed to retrieve MMReadoutElement for isSmall=%d, stationEta=%d, stationPhi=%d, multiplet=%d", __FILE__, __LINE__, isSmall, stationEta, stationPhi, multiplet));
 
       // information from VMM chip

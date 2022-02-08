@@ -334,8 +334,6 @@ class TopoAlgoDef:
             {"minDr": 0, "maxDr": 22, "mult": 2, "otype1" : "MU5VFab",  "otype2" : "",       }, #0DR22-2MU5VFab
             {"minDr": 2, "maxDr": 99, "mult": 2, "otype1" : "MU3Vab" ,  "otype2" : "",       }, #2DR99-2MU3Vab
 
-            {"minDr": 0, "maxDr": 12, "mult": 2, "otype1" : "MU3Vab",   "otype2" : "",       }, #0DR12-2MU3Vab #ATR-21566
-            {"minDr": 0, "maxDr": 12, "mult": 2, "otype1" : "MU3VFab",   "otype2" : "",      }, #0DR12-2MU3VFab #ATR-21566
         ]
         for x in listofalgos:
             class d:
@@ -364,7 +362,7 @@ class TopoAlgoDef:
             alg.addvariable('MinET2',    0*_et_conversion)
             tm.registerTopoAlgo(alg)
 
-        # dimu DR with opposite charge, ATR-23073, ATR-21566
+        # dimu DR with opposite charge, ATR-23073
         listofalgos=[
             {"minDr": 0, "maxDr": 12, "mult": 2, "otype1" : "MU3Vab", "otype2" : "", }, #0DR12C-2MU3Vab 
         ]
@@ -395,7 +393,7 @@ class TopoAlgoDef:
             alg.addvariable('MinET2',    0*_et_conversion)
             tm.registerTopoAlgo(alg)
 
-        # dimu INVM+DR with opposite charge, ATR-23073, ATR-21566
+        # dimu INVM+DR with opposite charge, ATR-23073
         listofalgos=[
             {"minInvm":7, "maxInvm":22, "minDr": 0, "maxDr": 20, "mult": 2, "otype1" : "MU3Vab", "otype2" : "", }, #7INVM22-0DR20C-2MU3Vab
         ]
@@ -558,8 +556,11 @@ class TopoAlgoDef:
             {"minInvm": 8, "maxInvm": 15, "mult": 2, "otype1" : "MU5VFab", "otype2" : "",      }, #8INVM15-2MU5VFab
             {"minInvm": 2, "maxInvm": 9,  "mult": 2, "otype1" : "MU5VFab", "otype2" : "",      }, #2INVM9-2MU5VFab 
             {"minInvm": 7, "maxInvm": 15, "mult": 2, "otype1" : "MU3Vab",  "otype2" : "",      }, #7INVM15-2MU3Vab 
-            {"minInvm": 8, "maxInvm": 22, "mult": 2, "otype1" : "MU3Vab",  "otype2" : "",      }, #8INVM22-2MU3Vab #ATR-21566
-            {"minInvm": 8, "maxInvm": 22, "mult": 2, "otype1" : "MU3VFab",  "otype2" : "",     }, #8INVM22-2MU3VFab #ATR-21566
+            {"minInvm": 7, "maxInvm": 22, "mult": 2, "otype1" : "MU3VFab", "otype2" : "",      }, #7INVM22-2MU3VFab, ATR-21566
+            {"minInvm": 7, "maxInvm": 22, "mult": 1, "otype1" : "MU5VFab", "otype2" : "MU3VFab",}, #7INVM22-MU5VFab-MU3VFab, ATR-21566
+            {"minInvm": 7, "maxInvm": 14, "mult": 1, "otype1" : "MU5VFab", "otype2" : "MU3VFab",}, #7INVM14-MU5VFab-MU3VFab, ATR-22782
+            {"minInvm": 7, "maxInvm": 14, "mult": 2, "otype1" : "MU3VFab", "otype2" : "",      }, #7INVM14-2MU3VFab, ATR-22782
+            {"minInvm": 7, "maxInvm": 14, "mult": 2, "otype1" : "MU3Vab",  "otype2" : "",      }, #7INVM14-2MU3Vab, ATR-22782
         ]
         for x in listofalgos:
             class d:
@@ -1270,19 +1271,17 @@ class TopoAlgoDef:
             {"minInvm": 8, "maxInvm": 15, "minDr": 20, "maxDr": 99, "mult": 2, "otype1" : "MU3Vab",  "otype2": "",},        #8INVM15-20DR99-2MU3Vab
             {"minInvm": 8, "maxInvm": 15, "minDr": 15, "maxDr": 99, "mult": 2, "otype1" : "MU3Vab",  "otype2": "",},        #8INVM15-15DR99-2MU3Vab
 
-            {"minInvm": 7, "maxInvm": 22, "minDr": 0, "maxDr": 12, "mult": 2, "otype1" : "MU3Vab",  "otype2": "",},         #7INVM22-0DR12-2MU3Vab # ATR-21566          
-            {"minInvm": 7, "maxInvm": 22, "minDr": 0, "maxDr": 12, "mult": 2, "otype1" : "MU3VFab",  "otype2": "",},        #7INVM22-0DR12-2MU3VFab # ATR-21566 
-            {"minInvm": 7, "maxInvm": 22, "minDr": 0, "maxDr": 20, "mult": 2, "otype1" : "MU3Vab",  "otype2": "",},         #7INVM22-0DR20-2MU3Vab # ATR-21566
-            {"minInvm": 7, "maxInvm": 22, "minDr": 0, "maxDr": 12, "mult": 1, "otype1" : "MU5VFab",  "otype2": "MU3Vab",},  #7INVM22-0DR12-MU5VFab-MU3Vab # ATR-21566
-            {"minInvm": 7, "maxInvm": 22, "minDr": 0, "maxDr": 12, "mult": 1, "otype1" : "MU5VFab",  "otype2": "MU3VFab",}, #7INVM22-0DR12-MU5VFab-MU3VFab # ATR-21566
-            {"minInvm": 7, "maxInvm": 22, "minDr": 0, "maxDr": 20, "mult": 1, "otype1" : "MU5VFab",  "otype2": "MU3Vab",},  #7INVM22-0DR20-MU5VFab-MU3Vab # ATR-21566 
+            {"minInvm": 7, "maxInvm": 22, "minDr": 0, "maxDr": 20, "mult": 2, "otype1" : "MU3Vab",   "otype2": "",},        #7INVM22-0DR20-2MU3Vab, ATR-21566          
+            {"minInvm": 7, "maxInvm": 22, "minDr": 0, "maxDr": 20, "mult": 2, "otype1" : "MU3VFab",  "otype2": "",},        #7INVM22-0DR20-2MU3VFab, ATR-21566 
+            {"minInvm": 7, "maxInvm": 22, "minDr": 0, "maxDr": 12, "mult": 2, "otype1" : "MU3Vab",  "otype2": "",},         #7INVM22-0DR12-2MU3Vab, ATR-21566
 
             {"minInvm": 8, "maxInvm": 15, "minDr": 0,  "maxDr": 22, "mult": 1, "otype1" : "CMU5VFab","otype2": "CMU3Vab",}, #8INVM15-0DR22-CMU5VFab-CMU3Vab
  
             {"minInvm": 7, "maxInvm": 14, "minDr": 0,  "maxDr": 25, "mult": 1, "otype1" : "MU5VFab", "otype2": "MU3Vab", }, #7INVM14-0DR25-MU5VFab-MU3Vab
             {"minInvm": 7, "maxInvm": 11, "minDr": 25, "maxDr": 99, "mult": 2, "otype1" : "MU3Vab",  "otype2": "",},        #7INVM11-25DR99-2MU3Vab
             {"minInvm": 7, "maxInvm": 14, "minDr": 0,  "maxDr": 25, "mult": 1, "otype1" : "MU5VFab", "otype2": "MU3VFab", }, #7INVM14-0DR25-MU5VFab-MU3VFab
-            {"minInvm": 7, "maxInvm": 11, "minDr": 25, "maxDr": 99, "mult": 2, "otype1" : "MU3VFab",  "otype2": "",},        #7INVM11-25DR99-2MU3VFab
+            {"minInvm": 7, "maxInvm": 11, "minDr": 25, "maxDr": 99, "mult": 2, "otype1" : "MU3VFab",  "otype2": "",},        #7INVM11-25DR99-2MU3VFab, ATR-22782
+
         ]
         for x in listofalgos:
             class d:
@@ -1313,7 +1312,7 @@ class TopoAlgoDef:
             alg.addvariable('DeltaRMax', d.maxDr*d.maxDr*_dr_conversion*_dr_conversion)
             tm.registerTopoAlgo(alg)
 
-        #ATR-19639 and ATR-22782, BPH DR+M+OS dimuon
+        #ATR-19639, BPH DR+M+OS dimuon
         listofalgos=[
             {"minInvm": 2, "maxInvm": 9,  "minDr": 0,  "maxDr": 15, "mult": 1, "otype1" : "MU5VFab", "otype2": "MU3Vab",}, #2INVM9-0DR15-C-MU5VFab-MU3Vab
             {"minInvm": 8, "maxInvm": 15, "minDr": 20, "maxDr": 99, "mult": 2, "otype1" : "MU3Vab",  "otype2": "",},       #8INVM15-20DR99-C-2MU3Vab

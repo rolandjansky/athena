@@ -45,7 +45,7 @@ namespace FlavorTagDiscriminants {
     m_dataDependencyNames += ds;
 
     auto [tsb, td] = dataprep::createTrackGetters(
-      track_sequences, options, jetLinkName);
+      track_sequences, options);
     m_dataDependencyNames += td;
     m_trackSequenceBuilders = tsb;
 

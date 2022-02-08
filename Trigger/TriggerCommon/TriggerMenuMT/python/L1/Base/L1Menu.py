@@ -191,20 +191,28 @@ class L1Menu(object):
                     thrName = thrName[3:]
                 if thrName not in thrNames:
                     thrNames.append(thrName)
+        thrNames_notFound = []
         for thrName in thrNames:
+            thrName_found = False
             for conn in self.connectors:
                 if conn.ctype != CType.ELEC:
                     for tl in conn.triggerLines:
                         if thrName == tl.name:
                             ctpInputs.append(ctpInput(name=thrName,conn=conn.name,nbit=tl.nbits))
+                            thrName_found = True
                 else:
                      for fpga in conn.triggerLines:
                         for clock in conn.triggerLines[fpga]:
                             for tl in conn.triggerLines[fpga][clock]:
                                 if thrName == tl.name:
                                     ctpInputs.append(ctpInput(name=thrName,conn=conn.name,nbit=tl.nbits))
+                                    thrName_found = True
+            if not thrName_found:
+                thrNames_notFound.append(thrName)
 
-        if len(thrNames) != len(ctpInputs):
+        if len(thrNames_notFound)>0:
+            log.error("Thresholds [%s] are not found", ",".join(thrNames_notFound)) 
+            log.error("Input thresholds are [%s]", ",".join([ input.name for input in ctpInputs]))
             raise RuntimeError("Not all input thresholds found!")
 
         for ctpIn in ctpInputs:

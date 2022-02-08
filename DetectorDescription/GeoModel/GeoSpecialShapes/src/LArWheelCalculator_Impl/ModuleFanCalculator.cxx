@@ -17,9 +17,7 @@ using namespace Gaudi::Units;
 namespace LArWheelCalculator_Impl
 {
 
-  ModuleFanCalculator::ModuleFanCalculator(LArWheelCalculator* lwc,
-                                           IRDBAccessSvc* /*rdbAccess*/,
-                                           const DecodeVersionKey & /*larVersionKey*/)
+  ModuleFanCalculator::ModuleFanCalculator(LArWheelCalculator* lwc)
     : m_lwc(lwc)
   {
   }

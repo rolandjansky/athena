@@ -1,9 +1,10 @@
 """Define functions to configure Pixel conditions algorithms
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import LHCPeriod
 from IOVDbSvc.IOVDbSvcConfig import addFolders,addFoldersSplitOnline
 
 def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
@@ -281,7 +282,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
     if flags.Input.isMC:
         # ITk:
-        if flags.GeoModel.Run not in ['RUN1', 'RUN2', 'RUN3']: # RUN4 and beyond
+        if flags.GeoModel.Run not in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3]:  # RUN4 and beyond
             IdMappingDat = "ITk_Atlas_IdMapping.dat"
             if flags.GeoModel.Type == "BrlIncl4.0_ref":
                 IdMappingDat = "ITk_Atlas_IdMapping_InclBrl4.dat"
@@ -291,10 +292,10 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
                 IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl4.dat"
             elif flags.GeoModel.Type == "BrlExt3.2_ref":
                 IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl32.dat"
-        elif flags.GeoModel.Run == "RUN2" or flags.GeoModel.Run == "RUN3":
+        elif flags.GeoModel.Run is LHCPeriod.Run2 or flags.GeoModel.Run is LHCPeriod.Run3:
             # Planar IBL
             if flags.GeoModel.IBLLayout == "planar":
-                if flags.GeoModel.Run == "RUN2":
+                if flags.GeoModel.Run is LHCPeriod.Run2:
                     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_inclIBL_DBM.dat"
                 else:
                     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_inclIBL.dat"
@@ -458,7 +459,7 @@ def PixelDeadMapCondAlgCfg(flags, name="PixelDeadMapCondAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelDeadMapCondAlg"""
     acc = ComponentAccumulator()
     acc.merge(PixelConfigCondAlgCfg(flags))
-    if flags.GeoModel.Run == "RUN1":
+    if flags.GeoModel.Run is LHCPeriod.Run1:
         kwargs.setdefault("ReadKey", "")
     else:
         kwargs.setdefault("ReadKey", "/PIXEL/PixelModuleFeMask")
@@ -516,9 +517,9 @@ def PixelHitDiscCnfgAlgCfg(flags, name="PixelHitDiscCnfgAlg", **kwargs):
     # not for Run-1 data/MC
     if flags.GeoModel.IBLLayout in ("noIBL", "UNDEFINED"):
         return acc
-    if (flags.IOVDb.DatabaseInstance=="CONDBR2"):
+    if flags.IOVDb.DatabaseInstance == "CONDBR2":
         acc.merge(addFolders(flags, "/PIXEL/HitDiscCnfg", "PIXEL", className="AthenaAttributeList"))
-    elif (flags.Input.isMC and flags.GeoModel.Run=="RUN2") or (flags.Input.isMC and flags.GeoModel.Run=="RUN3"):
+    elif flags.Input.isMC and (flags.GeoModel.Run is LHCPeriod.Run2 or flags.GeoModel.Run is LHCPeriod.Run3):
         acc.merge(addFoldersSplitOnline(flags,"PIXEL","/PIXEL/HitDiscCnfg","/PIXEL/HitDiscCnfg", className="AthenaAttributeList"))
     kwargs.setdefault("PixelModuleData", "PixelModuleData")
     kwargs.setdefault("ReadKey", "/PIXEL/HitDiscCnfg")

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
@@ -173,6 +173,7 @@ def getChargedFlowElementCreatorAlgorithm(inputFlags,chargedFlowElementOutputNam
         FlowElementChargedCreatorAlgorithm.FlowElementOutputName=chargedFlowElementOutputName
     if(inputFlags.PF.EOverPMode):
         FlowElementChargedCreatorAlgorithm.FlowElementOutputName="EOverPChargedParticleFlowObjects"
+        FlowElementChargedCreatorAlgorithm.EOverPMode = True
 
     return FlowElementChargedCreatorAlgorithm
 
@@ -183,7 +184,7 @@ def getNeutralFlowElementCreatorAlgorithm(inputFlags,neutralFlowElementOutputNam
     if neutralFlowElementOutputName:
         FlowElementNeutralCreatorAlgorithm.FlowElementOutputName=neutralFlowElementOutputName
     if(inputFlags.PF.EOverPMode):
-        FlowElementNeutralCreatorAlgorithm.FEOutputName="EOverPNeutralParticleFlowObjects"
+        FlowElementNeutralCreatorAlgorithm.FlowElementOutputName="EOverPNeutralParticleFlowObjects"
     if(inputFlags.PF.useCalibHitTruthClusterMoments and inputFlags.PF.addClusterMoments):
         FlowElementNeutralCreatorAlgorithm.useCalibHitTruth=True
 

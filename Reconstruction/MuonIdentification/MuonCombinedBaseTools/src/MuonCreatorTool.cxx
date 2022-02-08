@@ -21,17 +21,11 @@
 #include "MuonCombinedEvent/MuonCandidate.h"
 #include "MuonCombinedEvent/SegmentTag.h"
 #include "MuonCombinedEvent/StacoTag.h"
-#include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
-#include "MuonRIO_OnTrack/RpcClusterOnTrack.h"
-#include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonSegment/MuonSegment.h"
 #include "SortInDetCandidates.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "TrackToCalo/CaloCellCollector.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
-#include "TrkMaterialOnTrack/EnergyLoss.h"
-#include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
-#include "TrkMaterialOnTrack/ScatteringAngles.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "TrkTrack/AlignmentEffectsOnTrack.h"
@@ -54,16 +48,6 @@ namespace {
     static const SG::AuxElement::Accessor<float> acc_ET_EMCore("ET_EMCore");
     static const SG::AuxElement::Accessor<float> acc_ET_TileCore("ET_TileCore");
     static const SG::AuxElement::Accessor<float> acc_ET_HECCore("ET_HECCore");
-
-    static const SG::AuxElement::Accessor<float> acc_deltaphi_1("deltaphi_1");
-    static const SG::AuxElement::Accessor<float> acc_deltatheta_1("deltatheta_1");
-    static const SG::AuxElement::Accessor<float> acc_sigmadeltaphi_1("sigmadeltaphi_1");
-    static const SG::AuxElement::Accessor<float> acc_sigmadeltatheta_1("sigmadeltatheta_1");
-
-    static const SG::AuxElement::Accessor<float> acc_deltaphi_0("deltaphi_0");
-    static const SG::AuxElement::Accessor<float> acc_deltatheta_0("deltatheta_0");
-    static const SG::AuxElement::Accessor<float> acc_sigmadeltaphi_0("sigmadeltaphi_0");
-    static const SG::AuxElement::Accessor<float> acc_sigmadeltatheta_0("sigmadeltatheta_0");
 
 }  // namespace
 namespace MuonCombined {
@@ -179,138 +163,6 @@ namespace MuonCombined {
             }
         }
 
-        // Add alignment effects on tracks to ME and CB tracks
-        if (m_fillAlignmentEffectsOnTrack) {
-            if (outputData.combinedTrackParticleContainer) addAlignmentEffectsOnTrack(outputData.combinedTrackParticleContainer);
-            if (outputData.extrapolatedTrackParticleContainer) addAlignmentEffectsOnTrack(outputData.extrapolatedTrackParticleContainer);
-            if (outputData.msOnlyExtrapolatedTrackParticleContainer)
-                addAlignmentEffectsOnTrack(outputData.msOnlyExtrapolatedTrackParticleContainer);
-            for (xAOD::Muon* mu : *outputData.muonContainer) {
-                if (mu->primaryTrackParticle() == mu->trackParticle(xAOD::Muon::InnerDetectorTrackParticle)) continue;  // no CT or ST muons
-                if (mu->primaryTrackParticle() == mu->trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle))
-                    continue;  // no SA muons w/o ME tracks
-                const xAOD::TrackParticle* ptp = mu->primaryTrackParticle();
-                uint8_t prec = 0;  // all precision layers
-                mu->summaryValue(prec, xAOD::numberOfPrecisionLayers);
-                int nTotPrec = (int)prec, nGoodPrec = 0, nBadPrec = 0, nBadBar = 0, nBadEnd = 0, nBadSmall = 0, nBadLarge = 0, nGoodBar = 0,
-                    nGoodEnd = 0, nGoodLarge = 0, nGoodSmall = 0;
-
-                static const SG::AuxElement::Accessor<std::vector<std::vector<unsigned int>>> acc_alignEffectChId("alignEffectChId");
-                static const SG::AuxElement::Accessor<std::vector<float>> acc_alligSigmaDeltaTrans("alignEffectSigmaDeltaTrans");
-
-                const std::vector<std::vector<unsigned int>>& chIds = acc_alignEffectChId(*ptp);
-                const std::vector<float>& alignEffSDT = acc_alligSigmaDeltaTrans(*ptp);
-                std::map<Muon::MuonStationIndex::ChIndex, int> chamberQual;  // 1=good, 2=bad; for choosing large/small
-                for (unsigned int i = 0; i < chIds.size(); i++) {
-                    for (unsigned int j = 0; j < chIds[i].size(); j++) {
-                        Muon::MuonStationIndex::ChIndex currInd = (Muon::MuonStationIndex::ChIndex)chIds[i][j];
-                        if (alignEffSDT[i] >= 0.5) {
-                            if ((chamberQual.count(currInd) && chIds[i].size() > 1) || !chamberQual.count(currInd)) {
-                                // either we haven't seen this chamber before, or we have but now
-                                // we're in a sub-vector that's not just this chamber
-                                chamberQual[currInd] = 2;
-                            }
-                        } else {
-                            if ((chamberQual.count(currInd) && chIds[i].size() > 1) || !chamberQual.count(currInd)) {
-                                // either we haven't seen this chamber before, or we have but now
-                                // we're in a sub-vector that's not just this chamber
-                                chamberQual[currInd] = 1;
-                            }
-                        }
-                    }
-                }
-                for (std::map<Muon::MuonStationIndex::ChIndex, int>::iterator it = chamberQual.begin(); it != chamberQual.end(); ++it) {
-                    int chnum = (unsigned int)((*it).first);
-                    if ((*it).second == 2) {
-                        nBadPrec++;
-                        if (chnum < 7) {
-                            nBadBar++;
-                            if (chnum % 2 == 0)
-                                nBadSmall++;
-                            else
-                                nBadLarge++;
-                        } else {
-                            nBadEnd++;
-                            if (chnum % 2 == 0)
-                                nBadLarge++;
-                            else
-                                nBadSmall++;
-                        }
-                    } else {
-                        if (chnum < 7) {
-                            nGoodBar++;
-                            if (chnum % 2 == 0)
-                                nGoodSmall++;
-                            else
-                                nGoodLarge++;
-                        } else {
-                            nGoodEnd++;
-                            if (chnum % 2 == 0)
-                                nGoodLarge++;
-                            else
-                                nGoodSmall++;
-                        }
-                    }
-                }
-                int isSmall = 0, isEnd = 0;
-                bool countHits = false;
-                if ((nTotPrec - nBadPrec) > nBadPrec) {
-                    nGoodPrec = nTotPrec - nBadPrec;
-                    if (nGoodEnd > nGoodBar)
-                        isEnd = 1;  // arbitrarily setting it to barrel if they're equal for
-                                    // now
-                    if (nGoodSmall > nGoodLarge) isSmall = 1;
-                    if (nGoodSmall == nGoodLarge) countHits = true;
-                } else {
-                    nGoodPrec = nBadPrec;
-                    if ((nTotPrec - nBadPrec) == nBadPrec) {  // if equal, set to whichever
-                                                              // has the smaller error, right?
-                        if (nGoodEnd > nGoodBar) isEnd = 1;
-                        if (nGoodSmall > nGoodLarge) isSmall = 1;
-                        if (nGoodSmall == nGoodLarge) countHits = true;
-                    } else {
-                        if (nBadEnd > nBadBar) isEnd = 1;
-                        if (nBadSmall > nBadLarge) isSmall = 1;
-                        if (nBadSmall == nBadLarge) countHits = true;
-                    }
-                }
-                // as we arbitrarily declare this to be a barrel track if there are equal
-                // numbers of good barrel and endcap chambers, we need not worry about that
-                // situation
-                if (countHits) {  // decide large-small by counting hits
-                    uint8_t sumval = 0;
-                    int nSmallHits = 0, nLargeHits = 0;
-                    mu->summaryValue(sumval, xAOD::innerSmallHits);
-                    nSmallHits += (int)sumval;
-                    sumval = 0;
-                    mu->summaryValue(sumval, xAOD::middleSmallHits);
-                    nSmallHits += (int)sumval;
-                    sumval = 0;
-                    mu->summaryValue(sumval, xAOD::outerSmallHits);
-                    nSmallHits += (int)sumval;
-                    sumval = 0;
-                    mu->summaryValue(sumval, xAOD::extendedSmallHits);
-                    nSmallHits += (int)sumval;
-                    sumval = 0;
-                    mu->summaryValue(sumval, xAOD::innerLargeHits);
-                    nLargeHits += (int)sumval;
-                    sumval = 0;
-                    mu->summaryValue(sumval, xAOD::middleLargeHits);
-                    nLargeHits += (int)sumval;
-                    sumval = 0;
-                    mu->summaryValue(sumval, xAOD::outerLargeHits);
-                    nLargeHits += (int)sumval;
-                    sumval = 0;
-                    mu->summaryValue(sumval, xAOD::extendedLargeHits);
-                    nLargeHits += (int)sumval;
-                    if (nSmallHits > nLargeHits) isSmall = 1;
-                }
-                mu->setSummaryValue(nGoodPrec, xAOD::numberOfGoodPrecisionLayers);
-                mu->setSummaryValue(isSmall, xAOD::isSmallGoodSectors);
-                mu->setSummaryValue(isEnd, xAOD::isEndcapGoodLayers);
-            }
-        }
-
         if (msgLvl(MSG::DEBUG) || m_printSummary) {
             ATH_MSG_INFO("Printing muon container:");
             ATH_MSG_INFO(m_muonPrinter->print(*outputData.muonContainer));
@@ -397,16 +249,6 @@ namespace MuonCombined {
         acc_ET_EMCore(muon) = 0;
         acc_ET_TileCore(muon) = 0;
         acc_ET_HECCore(muon) = 0;
-
-        acc_deltaphi_1(muon) = -999;
-        acc_deltatheta_1(muon) = -999;
-        acc_sigmadeltaphi_1(muon) = -999;
-        acc_sigmadeltatheta_1(muon) = -999;
-
-        acc_deltaphi_0(muon) = -999;
-        acc_deltatheta_0(muon) = -999;
-        acc_sigmadeltaphi_0(muon) = -999;
-        acc_sigmadeltatheta_0(muon) = -999;
 
         fillEnergyLossFromTrack(muon, nullptr);
     }
@@ -1415,79 +1257,10 @@ namespace MuonCombined {
                 ATH_MSG_VERBOSE("Couldn't find matching track which might have energy loss.");
             }
         }
-
-        if (m_fillTimingInformationOnMuon) addRpcTiming(muon);
-
-        
+    
         addSegmentsOnTrack(muon, segments);
-
-        addMSIDScatteringAngles(muon);
-        addMSIDScatteringAngles(muon.trackParticle(xAOD::Muon::CombinedTrackParticle));
-        addMSIDScatteringAngles(muon.trackParticle(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle));
-        addMSIDScatteringAngles(muon.trackParticle(xAOD::Muon::MSOnlyExtrapolatedMuonSpectrometerTrackParticle));
         return true;
     }
-
-    void MuonCreatorTool::getRpcTiming(const xAOD::TrackParticle& tp, std::vector<unsigned int>& rpcHitIdentifier,
-                                       std::vector<float>& rpcHitPositionX, std::vector<float>& rpcHitPositionY,
-                                       std::vector<float>& rpcHitPositionZ, std::vector<float>& rpcHitTime) const {
-        // loop over measurements
-        const Trk::TrackStates& tsos = *(tp.track()->trackStateOnSurfaces());
-        auto end = tsos.end();
-        for (auto it = tsos.begin(); it != end; ++it) {
-            // require measurement and track parameters
-            const Trk::MeasurementBase* meas = (*it)->measurementOnTrack();
-            const Trk::TrackParameters* pars = (*it)->trackParameters();
-            if (!meas || !pars) continue;
-
-            // only consider RPC hits
-            Identifier mid = m_edmHelperSvc->getIdentifier(*meas);
-            if (!m_idHelperSvc->isMuon(mid) || !m_idHelperSvc->isRpc(mid)) continue;
-
-            // lambda to add a hit
-            auto addHit = [&](const Trk::MeasurementBase& meas) {
-                const Muon::RpcClusterOnTrack* rot = dynamic_cast<const Muon::RpcClusterOnTrack*>(&meas);
-                if (!rot) return;
-
-                rpcHitIdentifier.push_back(rot->identify().get_identifier32().get_compact());
-                rpcHitPositionX.push_back(pars->position().x());
-                rpcHitPositionY.push_back(pars->position().y());
-                rpcHitPositionZ.push_back(pars->position().z());
-                rpcHitTime.push_back(rot->time());
-            };
-
-            // in case competing rots loop over the contained rots
-            const Muon::CompetingMuonClustersOnTrack* crot = dynamic_cast<const Muon::CompetingMuonClustersOnTrack*>(meas);
-            if (crot) {
-                for (unsigned int i = 0; i < crot->numberOfContainedROTs(); ++i) { addHit(crot->rioOnTrack(i)); }
-            } else {
-                addHit(*meas);
-            }
-        }
-    }
-
-    void MuonCreatorTool::addRpcTiming(xAOD::Muon& muon) const {
-        // vectors to be filled
-        static const SG::AuxElement::Accessor<std::vector<unsigned int>> acc_HitIdentifier("rpcHitIdentifier");
-        static const SG::AuxElement::Accessor<std::vector<float>> acc_positionX("rpcHitPositionX");
-        static const SG::AuxElement::Accessor<std::vector<float>> acc_positionY("rpcHitPositionY");
-        static const SG::AuxElement::Accessor<std::vector<float>> acc_positionZ("rpcHitPositionZ");
-        static const SG::AuxElement::Accessor<std::vector<float>> acc_time("rpcHitTime");
-
-        std::vector<unsigned int>& rpcHitIdentifier = acc_HitIdentifier(muon);
-        std::vector<float>& rpcHitPositionX = acc_positionX(muon);
-        std::vector<float>& rpcHitPositionY = acc_positionY(muon);
-        std::vector<float>& rpcHitPositionZ = acc_positionZ(muon);
-        std::vector<float>& rpcHitTime = acc_time(muon);
-
-        // only fill if the primary track particle is not equal to the ID track
-        // particle and it has an associated track with track states
-        const xAOD::TrackParticle* tp = muon.primaryTrackParticle();
-        if (tp && tp->track() && tp->track()->trackStateOnSurfaces() && tp != muon.trackParticle(xAOD::Muon::InnerDetectorTrackParticle)) {
-            getRpcTiming(*tp, rpcHitIdentifier, rpcHitPositionX, rpcHitPositionY, rpcHitPositionZ, rpcHitTime);
-        }
-    }
-
     void MuonCreatorTool::addSegmentsOnTrack(xAOD::Muon& muon, const xAOD::MuonSegmentContainer* segments) const {
         /// Segments are associated with the muon if the author is MuTagIMO / MuGirl
         if (!m_trackSegmentAssociationTool.empty() && !muon.nMuonSegments()) {
@@ -1658,122 +1431,6 @@ namespace MuonCombined {
         ATH_MSG_DEBUG("Etcore: tot/em/tile/hec "
                       << etcore[Rec::CaloCellCollector::ET_Core] << "/" << etcore[Rec::CaloCellCollector::ET_EMCore] << "/"
                       << etcore[Rec::CaloCellCollector::ET_TileCore] << "/" << etcore[Rec::CaloCellCollector::ET_HECCore]);
-    }
-
-    void MuonCreatorTool::addAlignmentEffectsOnTrack(xAOD::TrackParticleContainer* trkCont) const {
-        static const SG::AuxElement::Accessor<std::vector<std::vector<unsigned int>>> acc_ChId("alignEffectChId");
-        static const SG::AuxElement::Accessor<std::vector<float>> acc_DeltaTrans("alignEffectDeltaTrans");
-        static const SG::AuxElement::Accessor<std::vector<float>> acc_SigmaDeltaTrans("alignEffectSigmaDeltaTrans");
-        static const SG::AuxElement::Accessor<std::vector<float>> acc_deltaAngle("alignEffectDeltaAngle");
-        static const SG::AuxElement::Accessor<std::vector<float>> acc_sigmaDeltaAngle("alignEffectSigmaDeltaAngle");
-
-        for (xAOD::TrackParticle* tp : *trkCont) {
-            std::vector<std::vector<unsigned int>>& chId = acc_ChId(*tp);
-            std::vector<float>& deltaTrans = acc_DeltaTrans(*tp);
-            std::vector<float>& sigmaDeltaTrans = acc_SigmaDeltaTrans(*tp);
-            std::vector<float>& deltaAngle = acc_deltaAngle(*tp);
-            std::vector<float>& sigmaDeltaAngle = acc_sigmaDeltaAngle(*tp);
-
-            const Trk::Track* trk = tp->track();
-            if (trk && trk->trackStateOnSurfaces()) {
-                int nAEOT = 0;
-                for (const auto* tsos : *(trk->trackStateOnSurfaces())) {
-                    if (!tsos->type(Trk::TrackStateOnSurface::Alignment)) continue;
-                    const Trk::AlignmentEffectsOnTrack* aeot = tsos->alignmentEffectsOnTrack();
-                    if (aeot) {
-                        nAEOT++;
-                        std::set<unsigned int> chIdSet;
-                        for (auto id : aeot->vectorOfAffectedTSOS()) {
-                            if (!id.is_valid() || !m_idHelperSvc->isMuon(id)) continue;
-                            chIdSet.insert(m_idHelperSvc->chamberIndex(id));
-                        }
-                        std::vector<unsigned int> chIdVec;
-                        std::copy(chIdSet.begin(), chIdSet.end(), std::back_inserter(chIdVec));
-
-                        chId.push_back(chIdVec);
-                        deltaTrans.push_back(aeot->deltaTranslation());
-                        sigmaDeltaTrans.push_back(aeot->sigmaDeltaTranslation());
-                        deltaAngle.push_back(aeot->deltaAngle());
-                        sigmaDeltaAngle.push_back(aeot->sigmaDeltaAngle());
-                    }
-                }
-            }
-        }
-    }
-
-    void MuonCreatorTool::addMSIDScatteringAngles(xAOD::Muon& muon) const {
-        const xAOD::TrackParticle* tp = muon.primaryTrackParticle();
-        if (!tp || tp == muon.trackParticle(xAOD::Muon::InnerDetectorTrackParticle) || !tp->track() || !tp->track()->trackStateOnSurfaces())
-            return;
-
-        int nscatter = 0;
-        for (const auto* tsos : *(tp->track()->trackStateOnSurfaces())) {
-            if (tsos->materialEffectsOnTrack()) {
-                const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>(tsos->materialEffectsOnTrack());
-                if (!meot->energyLoss() || !meot->scatteringAngles()) continue;
-                if (meot->energyLoss()->deltaE() == 0) {  // artificial scatterer found
-                    if (nscatter == 0) {
-                        acc_deltaphi_0(muon) = meot->scatteringAngles()->deltaPhi();
-                        acc_deltatheta_0(muon) = meot->scatteringAngles()->deltaTheta();
-                        acc_sigmadeltaphi_0(muon) = meot->scatteringAngles()->sigmaDeltaPhi();
-                        acc_sigmadeltatheta_0(muon) = meot->scatteringAngles()->sigmaDeltaTheta();
-                    } else if (nscatter == 1) {
-                        acc_deltaphi_1(muon) = meot->scatteringAngles()->deltaPhi();
-                        acc_deltatheta_1(muon) = meot->scatteringAngles()->deltaTheta();
-                        acc_sigmadeltaphi_1(muon) = meot->scatteringAngles()->sigmaDeltaPhi();
-                        acc_sigmadeltatheta_1(muon) = meot->scatteringAngles()->sigmaDeltaTheta();
-                    }
-                    nscatter++;
-                }
-            }
-            if (nscatter > 1) break;
-        }
-    }
-
-    void MuonCreatorTool::addMSIDScatteringAngles(const xAOD::TrackParticle* tp) const {
-        if (!tp) return;
-        static const SG::AuxElement::Decorator<float> dec_deltaphi_1("deltaphi_1");
-        static const SG::AuxElement::Decorator<float> dec_deltatheta_1("deltatheta_1");
-        static const SG::AuxElement::Decorator<float> dec_sigmadeltaphi_1("sigmadeltaphi_1");
-        static const SG::AuxElement::Decorator<float> dec_sigmadeltatheta_1("sigmadeltatheta_1");
-
-        static const SG::AuxElement::Decorator<float> dec_deltaphi_0("deltaphi_0");
-        static const SG::AuxElement::Decorator<float> dec_deltatheta_0("deltatheta_0");
-        static const SG::AuxElement::Decorator<float> dec_sigmadeltaphi_0("sigmadeltaphi_0");
-        static const SG::AuxElement::Decorator<float> dec_sigmadeltatheta_0("sigmadeltatheta_0");
-
-        dec_deltaphi_1(*tp) = -999;
-        dec_deltatheta_1(*tp) = -999;
-        dec_sigmadeltaphi_1(*tp) = -999;
-        dec_sigmadeltatheta_1(*tp) = -999;
-
-        dec_deltaphi_0(*tp) = -999;
-        dec_deltatheta_0(*tp) = -999;
-        dec_sigmadeltaphi_0(*tp) = -999;
-        dec_sigmadeltatheta_0(*tp) = -999;
-        int nscatter = 0;
-        if (!tp->track() || !tp->track()->trackStateOnSurfaces()) return;
-        for (const auto* tsos : *(tp->track()->trackStateOnSurfaces())) {
-            if (tsos->materialEffectsOnTrack()) {
-                const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>(tsos->materialEffectsOnTrack());
-                if (!meot->energyLoss() || !meot->scatteringAngles()) continue;
-                if (meot->energyLoss()->deltaE() == 0) {  // artificial scatterer found
-                    if (nscatter == 0) {
-                        dec_deltaphi_0(*tp) = meot->scatteringAngles()->deltaPhi();
-                        dec_deltatheta_0(*tp) = meot->scatteringAngles()->deltaTheta();
-                        dec_sigmadeltaphi_0(*tp) = meot->scatteringAngles()->sigmaDeltaPhi();
-                        dec_sigmadeltatheta_0(*tp) = meot->scatteringAngles()->sigmaDeltaTheta();
-                    } else if (nscatter == 1) {
-                        dec_deltaphi_1(*tp) = meot->scatteringAngles()->deltaPhi();
-                        dec_deltatheta_1(*tp) = meot->scatteringAngles()->deltaTheta();
-                        dec_sigmadeltaphi_1(*tp) = meot->scatteringAngles()->sigmaDeltaPhi();
-                        dec_sigmadeltatheta_1(*tp) = meot->scatteringAngles()->sigmaDeltaTheta();
-                    }
-                    nscatter++;
-                }
-            }
-            if (nscatter > 1) break;
-        }
     }
     void MuonCreatorTool::setP4(xAOD::Muon& muon, const xAOD::TrackParticle& tp) const { muon.setP4(tp.pt(), tp.eta(), tp.phi()); }
 

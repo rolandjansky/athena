@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -59,17 +59,17 @@ void Trk::TrackingVolumeManipulator::setInsideVolume ATLAS_NOT_THREAD_SAFE(
 
 void Trk::TrackingVolumeManipulator::setInsideVolumeArray ATLAS_NOT_THREAD_SAFE(
     const Trk::TrackingVolume& tvol, Trk::BoundarySurfaceFace face,
-    Trk::BinnedArray<Trk::TrackingVolume>* insidevolarray) {
+    Trk::BinnedArray<const Trk::TrackingVolume>* insidevolarray) {
 
   const_cast<Trk::BoundarySurface<Trk::TrackingVolume>*>(
     (*tvol.m_boundarySurfaces)[face].get())
     ->setInsideVolumeArray(
-      Trk::SharedObject<Trk::BinnedArray<Trk::TrackingVolume>>(insidevolarray));
+      Trk::SharedObject<Trk::BinnedArray<const Trk::TrackingVolume>>(insidevolarray));
 }
 
 void Trk::TrackingVolumeManipulator::setInsideVolumeArray ATLAS_NOT_THREAD_SAFE(
     const Trk::TrackingVolume& tvol, Trk::BoundarySurfaceFace face,
-    const Trk::SharedObject<Trk::BinnedArray<Trk::TrackingVolume> >&
+    const Trk::SharedObject<Trk::BinnedArray<const Trk::TrackingVolume> >&
         insidevolarray) {
   const_cast<Trk::BoundarySurface<Trk::TrackingVolume>*>(
     (*tvol.m_boundarySurfaces)[face].get())
@@ -87,12 +87,12 @@ void Trk::TrackingVolumeManipulator::setOutsideVolume ATLAS_NOT_THREAD_SAFE(
 void Trk::TrackingVolumeManipulator::setOutsideVolumeArray
 ATLAS_NOT_THREAD_SAFE(
     const Trk::TrackingVolume& tvol, Trk::BoundarySurfaceFace face,
-    Trk::BinnedArray<Trk::TrackingVolume>* outsidevolarray) {
+    Trk::BinnedArray<const Trk::TrackingVolume>* outsidevolarray) {
 
   const_cast<Trk::BoundarySurface<Trk::TrackingVolume>*>(
     (*tvol.m_boundarySurfaces)[face].get())
     ->setOutsideVolumeArray(
-      Trk::SharedObject<Trk::BinnedArray<Trk::TrackingVolume>>(
+      Trk::SharedObject<Trk::BinnedArray<const Trk::TrackingVolume>>(
         outsidevolarray));
 }
 
@@ -100,7 +100,7 @@ void Trk::TrackingVolumeManipulator::setOutsideVolumeArray
 ATLAS_NOT_THREAD_SAFE(
   const Trk::TrackingVolume& tvol,
   Trk::BoundarySurfaceFace face,
-  const Trk::SharedObject<Trk::BinnedArray<Trk::TrackingVolume>>&
+  const Trk::SharedObject<Trk::BinnedArray<const Trk::TrackingVolume>>&
     outsidevolarray)
 {
   const_cast<Trk::BoundarySurface<Trk::TrackingVolume>*>(
@@ -110,8 +110,9 @@ ATLAS_NOT_THREAD_SAFE(
 
 void Trk::TrackingVolumeManipulator::confineVolume ATLAS_NOT_THREAD_SAFE(
     const TrackingVolume& tvol, const TrackingVolume* outsideVol) {
-  const std::vector<SharedObject<const BoundarySurface<TrackingVolume> > >&
-      bounds = tvol.boundarySurfaces();
+
+  const std::vector<SharedObject<const BoundarySurface<TrackingVolume>>>& bounds =
+    tvol.boundarySurfaces();
   for (unsigned int ib = 0; ib < bounds.size(); ib++) {
     if (bounds[ib].get()->outsideVolume() == nullptr) {
       const_cast<Trk::BoundarySurface<Trk::TrackingVolume>*>(bounds[ib].get())

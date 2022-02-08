@@ -1,4 +1,4 @@
-#Copyright (C) 2021 CERN for the benefit of the ATLAS collaboration
+#Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( LArGeoEndcap )
@@ -12,5 +12,5 @@ atlas_add_library( LArGeoEndcap
                    PUBLIC_HEADERS LArGeoEndcap
                    INCLUDE_DIRS ${GEOMODEL_INCLUDE_DIRS}
                    LINK_LIBRARIES ${GEOMODEL_LIBRARIES} LArGeoFcal LArGeoHec StoreGateLib CaloDetDescrLib
-                   PRIVATE_LINK_LIBRARIES CaloIdentifier GeoModelUtilities GeoSpecialShapes GaudiKernel LArGeoCode LArGeoMiniFcal RDBAccessSvcLib )
+                   PRIVATE_LINK_LIBRARIES CaloIdentifier GeoModelUtilities GaudiKernel LArGeoCode LArGeoMiniFcal RDBAccessSvcLib )
 

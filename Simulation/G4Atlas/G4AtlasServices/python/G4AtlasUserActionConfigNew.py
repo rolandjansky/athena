@@ -1,7 +1,8 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import LHCPeriod
 from AthenaCommon.SystemOfUnits import MeV
 from MCTruthBase.MCTruthBaseConfigNew import MCTruthSteppingActionToolCfg
 from G4UserActions.G4UserActionsConfigNew import (
@@ -53,7 +54,7 @@ def FullG4TrackProcessorUserActionToolCfg(flags, name="FullG4TrackProcessorUserA
     kwargs.setdefault("GeoIDSvc", result.getPrimaryAndMerge(GeoIDSvcCfg(flags)).name)
     if flags.Detector.GeometryCavern:
         kwargs.setdefault("TruthVolumeLevel", 2)
-    kwargs.setdefault("IsITkGeometry", flags.GeoModel.Run not in ['RUN1', 'RUN2', 'RUN3'])
+    kwargs.setdefault("IsITkGeometry", flags.GeoModel.Run not in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3])
     result.setPrivateTools(CompFactory.G4UA.iGeant4.TrackProcessorUserActionFullG4Tool(name, **kwargs))
     return result
 

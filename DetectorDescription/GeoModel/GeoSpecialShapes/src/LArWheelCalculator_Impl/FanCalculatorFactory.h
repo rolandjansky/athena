@@ -7,8 +7,6 @@
 
 
 #include "IFanCalculator.h"
-#include "RDBAccessSvc/IRDBAccessSvc.h"
-#include "GeoModelUtilities/DecodeVersionKey.h"
 
 class LArWheelCalculator;
 
@@ -24,9 +22,7 @@ namespace LArWheelCalculator_Impl
   {
     public:
       static IFanCalculator* Create(bool isSaggingOn, bool isModule,
-                                    LArWheelCalculator* lwc,
-                                    IRDBAccessSvc* rdbAccess,
-                                    const DecodeVersionKey & larVersionKey);
+                                    LArWheelCalculator* lwc);
   };
 
 }

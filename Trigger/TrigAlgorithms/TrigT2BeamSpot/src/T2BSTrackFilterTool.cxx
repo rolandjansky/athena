@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2020, 2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <string>
@@ -148,7 +148,7 @@ StatusCode T2BSTrackFilterTool::initialize()
     ATH_MSG_INFO("Initialising T2BSTrackFilterTool tool");
 
     //Retrieve monitoring tool
-    ATH_CHECK( m_monTool.retrieve());
+    if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
 
     m_accumulators.clear();
 

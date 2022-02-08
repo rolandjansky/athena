@@ -715,8 +715,8 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
   // ---------------------------------------
   // fill event data
   /** get EventInfo, used to obtain run and event number */
-  const xAOD::EventInfo* pevt;
-	const EventContext& ctx = Gaudi::Hive::currentContext();	
+  const xAOD::EventInfo* pevt = nullptr;
+  const EventContext& ctx = Gaudi::Hive::currentContext();	
 	
   if (evtStore()->retrieve(pevt).isFailure()) {
     ATH_MSG_WARNING("Could not find event");
