@@ -1,6 +1,12 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
+
+/* 
+ * Updates: 
+ * - 2022 Jan, Riccardo Maria BIANCHI <riccardo.maria.bianchi@cern.ch>  
+ *   Added support to input data from SQLite, for the DetectorFactoryLite for Run4 
+ */  
 
 #ifndef TileDddbManager_H
 #define TileDddbManager_H
@@ -42,8 +48,9 @@ class TileDddbManager
   };
 
   TileDddbManager(IRDBAccessSvc* access,
-		  const std::string&    version_tag,
-		  const std::string&    version_node);
+          const std::string&    version_tag,
+          const std::string&    version_node,
+          bool sqliteInput = false);
 
   TileDddbManager (const TileDddbManager&) = delete;
   TileDddbManager& operator= (const TileDddbManager&) = delete;
@@ -313,6 +320,9 @@ class TileDddbManager
 
   std::string m_tag;
   std::string m_node;
+
+  bool m_sqliteInput;
+
   std::vector<unsigned int> m_modTypes;
   void FillModTypes();
 
