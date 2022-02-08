@@ -9,6 +9,8 @@ class FlagEnum(Enum):
             raise TypeError(f"Invalid comparison of {self.__class__} with {type(other)}")
         return self is other
 
+    __hash__ = Enum.__hash__
+
 
 class Format(FlagEnum):
     BS = 'BS'

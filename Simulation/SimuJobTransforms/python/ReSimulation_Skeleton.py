@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 import sys
 from PyJobTransforms.CommonRunArgsToFlags import commonRunArgsToFlags
@@ -7,33 +7,12 @@ from SimuJobTransforms.CommonSimulationSteering import CommonSimulationCfg, spec
 
 
 def defaultReSimulationFlags(ConfigFlags, detectors):
-    """Fill default simulation flags"""
-    # TODO: how to autoconfigure those
-    from AthenaConfiguration.Enums import ProductionStep
-    ConfigFlags.Common.ProductionStep = ProductionStep.Simulation
-    # Writing out CalibrationHits only makes sense if we are running FullG4 simulation without frozen showers
-    if (ConfigFlags.Sim.ISF.Simulator not in ('FullG4MT', 'FullG4MT_LongLived')) or ConfigFlags.Sim.LArParameterization!=0:
-        ConfigFlags.Sim.CalibrationRun = "Off"
-
-    ConfigFlags.Sim.RecordStepInfo = False
-    ConfigFlags.Sim.ReleaseGeoModel = False
-    ConfigFlags.Sim.ISFRun = True
+    """Fill default resimulation flags"""
     ConfigFlags.Sim.ISF.ReSimulation = True
-    ConfigFlags.GeoModel.Align.Dynamic = False
 
-    #Frozen showers OFF = 0
-    # ConfigFlags.Sim.LArParameterization = 2
-
-    # Fatras does not support simulating the BCM, so have to switch that off
-    if ConfigFlags.Sim.ISF.Simulator in ('ATLFASTIIF', 'ATLFASTIIFMT', 'ATLFASTIIF_G4MS', 'ATLFAST3F_G4MS'):
-        try:
-            detectors.remove('BCM')
-        except ValueError:
-            pass
-
-    # Setup detector flags
-    from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
-    setupDetectorsFromList(ConfigFlags, detectors, toggle_geometry=True)
+    # others are the same as standard simulation
+    from SimuJobTransforms.ISF_Skeleton import defaultSimulationFlags
+    defaultSimulationFlags(ConfigFlags, detectors)
 
 
 def fromRunArgs(runArgs):
@@ -49,6 +28,7 @@ def fromRunArgs(runArgs):
 
     log.info('**** Setting-up configuration flags')
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from G4AtlasApps.SimEnums import SimulationFlavour
     commonRunArgsToFlags(runArgs, ConfigFlags)
 
     # Generate detector list
@@ -56,7 +36,7 @@ def fromRunArgs(runArgs):
     detectors = getDetectorsFromRunArgs(ConfigFlags, runArgs)
 
     if hasattr(runArgs, 'simulator'):
-       ConfigFlags.Sim.ISF.Simulator = runArgs.simulator
+       ConfigFlags.Sim.ISF.Simulator = SimulationFlavour(runArgs.simulator)
 
     # Setup common simulation flags
     defaultReSimulationFlags(ConfigFlags, detectors)

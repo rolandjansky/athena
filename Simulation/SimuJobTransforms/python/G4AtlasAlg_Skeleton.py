@@ -12,8 +12,9 @@ def defaultSimulationFlags(ConfigFlags, detectors):
     from AthenaConfiguration.Enums import ProductionStep
     ConfigFlags.Common.ProductionStep = ProductionStep.Simulation
     # Writing out CalibrationHits only makes sense if we are running FullG4 simulation without frozen showers
-    if ConfigFlags.Sim.LArParameterization!=0:
-        ConfigFlags.Sim.CalibrationRun = "Off"
+    from G4AtlasApps.SimEnums import CalibrationRun, LArParameterization
+    if ConfigFlags.Sim.LArParameterization is not LArParameterization.NoFrozenShowers:
+        ConfigFlags.Sim.CalibrationRun = CalibrationRun.Off
 
     ConfigFlags.Sim.RecordStepInfo = False
     ConfigFlags.Sim.ReleaseGeoModel = False
@@ -39,6 +40,7 @@ def fromRunArgs(runArgs):
     log.info('**** Setting-up configuration flags')
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.Enums import BeamType
+    from G4AtlasApps.SimEnums import CalibrationRun, CavernBackground, SimulationFlavour
     commonRunArgsToFlags(runArgs, ConfigFlags)
 
     # Generate detector list
@@ -46,7 +48,7 @@ def fromRunArgs(runArgs):
     detectors = getDetectorsFromRunArgs(ConfigFlags, runArgs)
 
     if hasattr(runArgs, 'simulator'):
-        ConfigFlags.Sim.ISF.Simulator = runArgs.simulator
+        ConfigFlags.Sim.ISF.Simulator = SimulationFlavour(runArgs.simulator)
 
     # Setup common simulation flags
     defaultSimulationFlags(ConfigFlags, detectors)
@@ -55,7 +57,7 @@ def fromRunArgs(runArgs):
     if hasattr(runArgs,'beamType'):
         if runArgs.beamType == 'cosmics':
             ConfigFlags.Beam.Type = BeamType.Cosmics
-            ConfigFlags.Sim.CavernBG = 'Off'
+            ConfigFlags.Sim.CavernBackground = CavernBackground.Off
 
     # Setup input: Three possible cases:
     # 1) inputEVNTFile (normal)
@@ -80,7 +82,7 @@ def fromRunArgs(runArgs):
             log.error('Stopped Particle simulation is not supported yet')
         else:
             ConfigFlags.Detector.GeometryCavern = True # simulate the cavern
-            ConfigFlags.Sim.CavernBG = 'Read'
+            ConfigFlags.Sim.CavernBackground = CavernBackground.Read
     else:
         # Common cases
         # 3a) ParticleGun
@@ -115,8 +117,8 @@ def fromRunArgs(runArgs):
         else:
             #Case 1b) Cavern Background
             ConfigFlags.Detector.GeometryCavern = True # simulate the cavern
-            ConfigFlags.Sim.CalibrationRun = "Off"
-            ConfigFlags.Sim.CavernBG = "Write"
+            ConfigFlags.Sim.CalibrationRun = CalibrationRun.Off
+            ConfigFlags.Sim.CavernBackground = CavernBackground.Write
     if not (hasattr(runArgs, 'outputHITSFile') or hasattr(runArgs, "outputEVNT_TRFile")):
         raise RuntimeError('No outputHITSFile or outputEVNT_TRFile defined')
 
