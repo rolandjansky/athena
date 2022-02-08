@@ -2,12 +2,12 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-//  XEMultiplicityAlgo.h
+//  EnergyThreshold.h
 //  TopoCore
 //  Created by Jack Harrison on 16/12/21.
 
-#ifndef __TopoCore__XEMultiplicityAlgo__
-#define __TopoCore__XEMultiplicityAlgo__
+#ifndef __TopoCore__EnergyThreshold__
+#define __TopoCore__EnergyThreshold__
 
 #include <vector>
 #include <L1TopoInterfaces/CountingAlg.h>
@@ -20,13 +20,13 @@ class TH2;
 
 namespace TCS {
 
-    class XEMultiplicityAlgo : public CountingAlg {
+    class EnergyThreshold : public CountingAlg {
 
         public:
 
-            XEMultiplicityAlgo(const std::string & name); 
+            EnergyThreshold(const std::string & name); 
 
-            virtual ~XEMultiplicityAlgo() = default;
+            virtual ~EnergyThreshold() = default;
 
             virtual StatusCode initialize() override; 
 

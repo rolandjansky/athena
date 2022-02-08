@@ -2,7 +2,7 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
- * XEMultiplicityAlgo.cpp
+ * EnergyThreshold.cpp
  * Created by Jack Harrison on 16/12/21.
  *
  * @brief algorithm that computes the multiplicity for a specified list and ET threshold
@@ -13,29 +13,25 @@
 **********************************/
 
 
-#include <L1TopoAlgorithms/XEMultiplicityAlgo.h>
-
-#include "L1TopoCommon/Exception.h"   //Why do we need this?
+#include <L1TopoAlgorithms/EnergyThreshold.h>
+#include "L1TopoCommon/Exception.h" 
 #include "L1TopoInterfaces/Count.h"
-
 #include "L1TopoEvent/TOBArray.h"
-#include "L1TopoEvent/jLargeRJetTOBArray.h"
-#include "L1TopoEvent/GenericTOB.h"
 #include "L1TopoEvent/MetTOBArray.h"
 
 
-REGISTER_ALG_TCS(XEMultiplicityAlgo)
+REGISTER_ALG_TCS(EnergyThreshold)
 
 using namespace std; 
 
-TCS::XEMultiplicityAlgo::XEMultiplicityAlgo(const std::string & name) : CountingAlg(name) {
+TCS::EnergyThreshold::EnergyThreshold(const std::string & name) : CountingAlg(name) {
 
     setNumberOutputBits(12); //To-Do: Make this flexible to adapt to the menu. Each counting requires more than one bit
 
 }
 
 
-TCS::StatusCode TCS::XEMultiplicityAlgo::initialize(){
+TCS::StatusCode TCS::EnergyThreshold::initialize(){
 
 
     m_threshold = getThreshold();
@@ -43,11 +39,11 @@ TCS::StatusCode TCS::XEMultiplicityAlgo::initialize(){
     // book histograms
     bool isMult = true; 
 
-    std::string hname_accept = "XEMultiplicityAlgo_accept_Et_"+m_threshold->name();
+    std::string hname_accept = "EnergyThreshold_accept_ET_"+m_threshold->name();
 
-    bookHist(m_histAccept, hname_accept, "Et", 200, 0, 2000, isMult);
+    bookHist(m_histAccept, hname_accept, "ET", 200, 0, 200, isMult);
 
-    hname_accept = "XEMultiplicityAlgo_accept_counts_"+m_threshold->name();
+    hname_accept = "EnergyThreshold_accept_counts_"+m_threshold->name();
 
     bookHist(m_histAccept, hname_accept, "COUNTS", 15, 0., 10., isMult);
 
@@ -55,15 +51,16 @@ TCS::StatusCode TCS::XEMultiplicityAlgo::initialize(){
     
 }
 
-TCS::StatusCode TCS::XEMultiplicityAlgo::processBitCorrect(const TCS::InputTOBArray & input,
+TCS::StatusCode TCS::EnergyThreshold::processBitCorrect(const TCS::InputTOBArray & input,
 					 Count & count){
                         return process(input, count);
 }
 
 
-TCS::StatusCode TCS::XEMultiplicityAlgo::process( const TCS::InputTOBArray & input,
+TCS::StatusCode TCS::EnergyThreshold::process( const TCS::InputTOBArray & input,
 			       Count & count )
 {
+
 
   // Grab the threshold and cast it into the right type
   auto MetThr = dynamic_cast<const TrigConf::L1Threshold_jXE &>(*m_threshold);
@@ -74,18 +71,13 @@ TCS::StatusCode TCS::XEMultiplicityAlgo::process( const TCS::InputTOBArray & inp
   int counting = 0; 
   
   // loop over input TOBs
-  for(MetTOBArray::const_iterator MET = MetArray.begin();
-      MET != MetArray.end();
-      ++MET ) {
-    
-    const GenericTOB mtob(**MET);
-
-    // Dividing by 4 standing for converting eta from 0.025 to 0.1 granularity as it is defined in the menu as 0.1 gran.
-    bool passed = mtob.Et() >= MetThr.thrValue100MeV(mtob.eta()/4);
-
+  for(MetTOBArray::const_iterator met = MetArray.begin();
+      met != MetArray.end();
+      ++met ) {
+    bool passed =(*met)->Et() >= MetThr.thrValue100MeV();
     if (passed) {
-      counting++; 
-      fillHist1D(m_histAccept[0], mtob.EtDouble());
+      counting++;
+      fillHist1D(m_histAccept[0], ((*met)->Et()/10.));
     }
   }
 

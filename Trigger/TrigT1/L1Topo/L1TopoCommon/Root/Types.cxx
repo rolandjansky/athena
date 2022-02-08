@@ -87,6 +87,9 @@ TCS::inputType(const std::string& input) {
           
    if ( input == "SumEt" || input == "SumEtTobArray" || input == "SumEtTobs" )
       return TCS::MET;
+
+   if ( input == "jXE")
+      return TCS::MET;
           
 
    TCS_EXCEPTION("L1TopoCommon: unknown input type " + input);
