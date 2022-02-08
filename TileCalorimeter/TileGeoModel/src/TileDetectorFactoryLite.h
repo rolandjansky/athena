@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -16,7 +16,10 @@
  *
  * Updates: 
  * - Riccardo Maria BIANCHI <riccardo.maria.bianchi@cern.ch>, Oct 2021
- *
+ * - Riccardo Maria BIANCHI <riccardo.maria.bianchi@cern.ch>, Dec 2021
+ *   Moved code to use Switches, for instance for 'addPlatesToCell' or 'testBeam' 
+ * - Riccardo Maria BIANCHI <riccardo.maria.bianchi@cern.ch>, Jan 2022
+ *   Added the build of the Readout geometry
  */
 
 #ifndef TileDetectorFactoryLite_h
@@ -42,7 +45,7 @@ public:
   /** Constructor */
   TileDetectorFactoryLite(StoreGateSvc *pDetStore, 
                           TileDetDescrManager *manager, 
-			              GeoModelIO::ReadGeoModel* sqliteReader,
+                          GeoModelIO::ReadGeoModel* sqliteReader,
                           IRDBAccessSvc* rdbaccess,
                           const TileSwitches & switches,
                           MsgStream *log, 
@@ -77,21 +80,6 @@ private:
   
   /** Get message SVC */
   MsgStream                 *m_log;
-
-  /** Add plates to cell volume */
-  //bool                       m_addPlatesToCellVolume;
-
-  /** U-shape version used */
-  //int                        m_uShape;
-
-  /** 0: glue layer is removed and replaced by iron,
-      1: simulation with glue,
-      2: glue is replaced by iron + width of iron is modified in order to get the same sampling fraction      */
-  //int                        m_glue;
-
-  //int                        m_csTube;
-  /** Flag for using test beam geometry */
-  //bool                       m_testbeamGeometry; 
 
   /** Flag for activation verbose level for debugging */
   bool                       m_verbose;

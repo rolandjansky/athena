@@ -3,7 +3,11 @@
 */
 
 /*
- * Riccardo Maria BIANCHI <riccardo.maria.bianchi@cern.ch> , Aug 2021
+ * author: Riccardo Maria BIANCHI <riccardo.maria.bianchi@cern.ch> , Aug 2021
+ *
+ * updates:
+ * - 2022 Jan, Riccardo Maria BIANCHI <riccardo.maria.bianchi@cern.ch>
+ *   Added Readout geometry
  */
 
 #include "TileDetectorFactoryLite.h"
@@ -51,11 +55,6 @@ TileDetectorFactoryLite::TileDetectorFactoryLite(StoreGateSvc *pDetStore,
       , m_paramsSvc(paramsSvc)
       , m_switches(switches)
       , m_log(log)
-      //, m_addPlatesToCellVolume(addPlates)
-      //, m_uShape(ushape)
-      //, m_glue(glue)
-      //, m_csTube(cstube)
-      //, m_testbeamGeometry(false)
       , m_verbose(log->level()<=MSG::VERBOSE) 
       , m_fullGeo(fullGeo)
 {
@@ -72,12 +71,7 @@ void TileDetectorFactoryLite::create(GeoPhysVol *world)
 
     // -------- -------- MATERIAL MANAGER -------- ----------
     // TODO: fix this, doesn't get access at runtime!!
-    StoredMaterialManager* theMaterialManager = nullptr; // dummy matManager, only used to instantiate a sectionBuilder
-    /*if (StatusCode::SUCCESS != m_detectorStore->retrieve(theMaterialManager, "MATERIALS")) 
-    {  
-        (*m_log) << MSG::ERROR << "Could not find Material Manager MATERIALS" << endmsg; 
-        return; 
-    }*/
+    StoredMaterialManager* theMaterialManager = nullptr; // dummy matManager, only used to instantiate a 'sectionBuilder'
 
     // -------- -------- DB MANAGER -------- ----------
     TileDddbManager* dbManager = m_detectorManager->getDbManager();
@@ -115,9 +109,7 @@ void TileDetectorFactoryLite::create(GeoPhysVol *world)
     }
     (*m_log) << MSG::DEBUG << "barrelPeriodThickness: " << barrelPeriodThickness << ", extendedPeriodThickness: " << extendedPeriodThickness << endmsg;
 
-    // set needed data
-    //sectionBuilder->setBarrelPeriodThickness(500.);
-    //sectionBuilder->setExtendedPeriodThickness(100.);
+    // set data used to build the readout geometry
     sectionBuilder->setBarrelPeriodThickness(barrelPeriodThickness);
     sectionBuilder->setExtendedPeriodThickness(extendedPeriodThickness);
     

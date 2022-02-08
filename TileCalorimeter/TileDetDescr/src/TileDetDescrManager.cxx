@@ -1,6 +1,15 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
+
+/*
+ * Updates:
+ * - 2022 Jan, Riccardo Maria BIANCHI <riccardo.maria.bianchi@cern.ch>
+ *   Added checks to catch issues when quantities needed 
+ *   to build the readout geometry are not set correctly.
+ */
+
+
 
 #include "TileDetDescr/TileDetDescrManager.h"
 #include "TileDetDescr/TileDddbManager.h"
@@ -472,12 +481,9 @@ void TileDetDescrManager::create_elements(bool checks)
           // ----------------- Final solution for cell volumes
               if (cell_dim) {
 
-                MLOG(DEBUG) << "cell_dim..." << endmsg;
-
                 double oldz = elt->z();
                 double olddz = elt->dz();
                 int ic=cell_dim->getNRows()-1;
-                MLOG(DEBUG) << "ic is set to: " << ic << endmsg;
                 double z1=0,z2=0;
                 if (side < 0) {
                   MLOG(DEBUG) << "side < 0 ..." << endmsg;
@@ -510,7 +516,6 @@ void TileDetDescrManager::create_elements(bool checks)
                 // numbers to 0.
                 if (std::abs(z) < 1e-8 * Gaudi::Units::mm) z = 0;
 
-                MLOG(DEBUG) << "ic: " << ic << endmsg;
                 double dz = 0.5 * fabs(cell_dim->getZMax(0)     // special 
                                        -cell_dim->getZMin(0)    // calculations
                                        +cell_dim->getZMax(ic)   // to get BC cells 

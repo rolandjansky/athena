@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TileDetectorTool_H
@@ -18,8 +18,8 @@ class TileDetectorTool final : public GeoModelTool
  public:
 
   TileDetectorTool(const std::string& type, 
-		   const std::string& name, 
-		   const IInterface* parent);
+           const std::string& name, 
+           const IInterface* parent);
 
   virtual ~TileDetectorTool() override final;
   

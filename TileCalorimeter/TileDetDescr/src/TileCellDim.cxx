@@ -1,6 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
+
+/*
+ * Updates: 
+ * - 2022 Jan, Riccardo Maria BIANCHI <riccardo.maria.bianchi@cern.ch>
+ *   Added MsgStream for logging
+ */
 
 #include "TileDetDescr/TileCellDim.h"
 
@@ -104,8 +110,8 @@ double TileCellDim::computeRowVolume(int iRow)
 {
   
   return  fabs ( m_Radius2HalfLength * (m_rMin[iRow] + m_rMax[iRow])
-		 * (m_rMax[iRow] - m_rMin[iRow])
-		 * (m_zMax[iRow] - m_zMin[iRow]) );
+         * (m_rMax[iRow] - m_rMin[iRow])
+         * (m_zMax[iRow] - m_zMin[iRow]) );
 }
 
 

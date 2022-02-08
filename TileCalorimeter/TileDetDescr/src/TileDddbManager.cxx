@@ -1,6 +1,13 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
+
+/*
+ * Updates:
+ * - 2022 Jan, Riccardo Maria BIANCHI <riccardo.maria.bianchi@cern.ch>
+ *   Added support for SQLite input, for the new DD architecture for Run4 (DetectorFactoryLite)
+ */
+
 
 #include "TileDetDescr/TileDddbManager.h"
 
@@ -15,8 +22,8 @@
 #include <stdexcept>
 
 TileDddbManager::TileDddbManager(IRDBAccessSvc* access,
-		                 const std::string&    version_tag,
-				 const std::string&    version_node,
+                 const std::string&    version_tag,
+                 const std::string&    version_node,
                  bool sqliteInput)
   : AthMessaging (Athena::getMessageSvc(), "TileDddbManager")
   , m_n_cuts(0)
@@ -1516,15 +1523,15 @@ int TileDddbManager::SetCurrentTicl(int detector, double sample, double tower)
 
       if(ind >= m_n_ticl)
       {
-	ATH_MSG_DEBUG( "TileDddbManager::SetCurrentTicl() - Unable to find any cell for tower = "
+    ATH_MSG_DEBUG( "TileDddbManager::SetCurrentTicl() - Unable to find any cell for tower = "
                        << tower << " in the detector = " << detector << " and sample = " << sample );
-	return 0;
+    return 0;
       }
       else
       {
-	m_currentTicl = (*m_ticl)[ind];
-	m_currentTiclInd = ind;
-	return 1;
+    m_currentTicl = (*m_ticl)[ind];
+    m_currentTiclInd = ind;
+    return 1;
       }
     }
   }

@@ -40,8 +40,8 @@
 
 
 TileDetectorTool::TileDetectorTool(const std::string& type, 
-				   const std::string& name, 
-				   const IInterface* parent):
+                   const std::string& name, 
+                   const IInterface* parent):
   GeoModelTool(type, name, parent),
   m_switches(false,true),
   m_not_locked(true),
@@ -98,7 +98,7 @@ StatusCode TileDetectorTool::create()
   if(versionTag == "AUTO")
   {
     versionTag = "TileCal-00";
-    versionNode = "TileCal";	
+    versionNode = "TileCal";    
   }
   if (atlasVersion.compare(0,9,"ATLAS-CTB") == 0 || tileVersion.compare(0,6,"TileTB") == 0) {
     ATH_MSG_INFO("CTB geometry detected: " << atlasVersion  << " " << tileVersion);
@@ -111,18 +111,6 @@ StatusCode TileDetectorTool::create()
 
   if ( 0 == m_detector )
   {
-
-    
-    //IRDBAccessSvc* raccess = 0;
-    //ATH_CHECK(service("RDBAccessSvc",raccess));
-
-    //TileDddbManager_ptr  dbManager(new TileDddbManager(raccess,versionTag,versionNode));
-    //m_manager = new TileDetDescrManager(dbManager);
-
-    // Get the detector configuration.
-    //ServiceHandle<IGeoDbTagSvc> geoDbTag("GeoDbTagSvc",name());
-    //ATH_CHECK(geoDbTag.retrieve());
-
     // Get the detector configuration.
     ServiceHandle<IGeoDbTagSvc> geoDbTag("GeoDbTagSvc",name());
     ATH_CHECK(geoDbTag.retrieve());
