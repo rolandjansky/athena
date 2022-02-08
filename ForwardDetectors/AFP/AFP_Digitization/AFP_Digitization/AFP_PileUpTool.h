@@ -176,8 +176,8 @@ class AFP_PileUpTool: public PileUpToolBase {
   int m_ChargeVsTot_LUT[16]; // look-up table for charge2tot conversion, 16 = n. of bits
 
   const int m_ArrSize; // 645120 = 4 x 6 x 336 x 80
-  float *m_deposited_charge; 
-  float *m_deposited_energy;
+  std::vector<float> m_deposited_charge; 
+  std::vector<float> m_deposited_energy;
 
   /// @brief vector with pre-calculated single signal from the photoelectron
   std::vector<double> m_SignalVect;

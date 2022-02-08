@@ -116,8 +116,8 @@ AFP_PileUpTool::AFP_PileUpTool(const std::string& type,
     declareProperty("SiT_Energy2ChargeFactor", m_SiT_Energy2ChargeFactor);
     declareProperty("SiT_ChargeThresholdForHit", m_SiT_ToTThresholdForHit);
 
-    m_deposited_charge = new float[m_ArrSize]{};
-    m_deposited_energy = new float[m_ArrSize]{};
+    m_deposited_charge = std::vector<float>(m_ArrSize);
+    m_deposited_energy = std::vector<float>(m_ArrSize);
     
     m_SignalVect = std::vector<double>( 2*static_cast<unsigned int>( m_TofSignalTimeRangeLength ) );
     for(unsigned int i=0; i<m_SignalVect.size(); ++i)
@@ -138,8 +138,6 @@ AFP_PileUpTool::AFP_PileUpTool(const std::string& type,
 
 
 AFP_PileUpTool::~AFP_PileUpTool(){
-    delete [] m_deposited_charge;
-    delete [] m_deposited_energy;
 }
 
 StatusCode AFP_PileUpTool::initialize()
