@@ -20,8 +20,8 @@ from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, 
 # fragments generating configuration will be functions in New JO,
 # so let's make them functions already now
 #----------------------------------------------------------------
-def fastPhotonCaloSequenceCfg( flags ):
-    return fastCaloMenuSequence(flags, 'Photon', doRinger=False)
+def fastPhotonCaloSequenceCfg( flags, doRinger = False ):
+    return fastCaloMenuSequence(flags, 'Photon', doRinger=doRinger)
     
 def fastPhotonSequenceCfg( flags ):    
     return fastPhotonMenuSequence( flags )
@@ -139,7 +139,9 @@ class PhotonChainConfiguration(ChainConfigurationBase):
     # --------------------
     def getFastCalo(self):
         stepName = "PhotonFastCalo"
-        return self.getStep(1,stepName,[ fastPhotonCaloSequenceCfg])
+        if '_ringer' in self.chainDict['chainName']:
+            return self.getStep(1,stepName,[ fastPhotonCaloSequenceCfg], doRinger = True)
+        return self.getStep(1,stepName,[ fastPhotonCaloSequenceCfg], doRinger = False)
 
     def getFastPhoton(self):
         stepName = "FastPhoton"
