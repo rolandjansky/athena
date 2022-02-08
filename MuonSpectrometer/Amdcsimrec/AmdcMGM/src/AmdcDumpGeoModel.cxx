@@ -272,17 +272,21 @@ void AmdcDumpGeoModel::LoopMdtElements(std::ofstream& OutFile) {
     m_Mdt_MaxDiffTs = 0.;
 
     for (int sname_index = 0; sname_index < MuonGM::MuonDetectorManager::NMdtStatType; ++sname_index) {
+        const int stName = p_MuonDetectorManager->mdtStationName(sname_index);
+        if (stName < 0){
+            ATH_MSG_DEBUG("Station name index "<<sname_index<<" is not occupied");
+            continue;
+        }            
         for (int seta_index = 0; seta_index < MuonGM::MuonDetectorManager::NMdtStatEta; ++seta_index) {
+            const int stEta = seta_index - MuonGM::MuonDetectorManager::NMdtStEtaOffset;                    
             for (int sphi_index = 0; sphi_index < MuonGM::MuonDetectorManager::NMdtStatPhi; ++sphi_index) {
-                for (int dbr_index = 0; dbr_index < MuonGM::MuonDetectorManager::NMdtMultilayer; ++dbr_index) {
-                    const int stName = p_MuonDetectorManager->mdtStationName(sname_index);
-                    const int stEta = seta_index - p_MuonDetectorManager->NMdtStEtaOffset;
-                    const int stPhi = sphi_index + 1;
+                const int stPhi = sphi_index + 1;                    
+                for (int dbr_index = 0; dbr_index < MuonGM::MuonDetectorManager::NMdtMultilayer; ++dbr_index) {                    
                     const int ml = dbr_index + 1;
                     bool isValid{false};
-                    const Identifier readout_id = m_idHelperSvc->mdtIdHelper().channelID(stName, stEta, stPhi, ml, 0, 1, true, &isValid);
+                    const Identifier readout_id = m_idHelperSvc->mdtIdHelper().channelID(stName, stEta, stPhi, ml, 1, 1, true, &isValid);
                     if (!isValid) {
-                        ATH_MSG_WARNING("Failed to construct a valid Mdt identifier for " << sname_index << "," << seta_index << ","
+                        ATH_MSG_DEBUG(__FILE__<<":"<<__LINE__<<" Failed to construct a valid Mdt identifier for " << sname_index << "," << seta_index << ","
                                                                                           << sphi_index << "," << dbr_index);
                         continue;
                     }
@@ -307,8 +311,7 @@ void AmdcDumpGeoModel::LoopMdtElements(std::ofstream& OutFile) {
                             if (turn == 2) { tube = pReadoutElement->getNtubesperlayer(); }
                             if (turn == 3) { tube = pReadoutElement->getNtubesperlayer() + 1; }
                             turn += 1;
-                        }
-                        //     tl += pReadoutElement->getNLayers()-1;
+                        }                        
                         tl += 1;
                     }
                 }
@@ -356,31 +359,17 @@ void AmdcDumpGeoModel::MdtCompare(std::ofstream& OutFile, double EpsLoMdt, int W
                                   double GeoModZ, double TubeLength) {
     Amdcsimrec* pAmdcsimrec = p_AmdcsimrecAthenaSvc->GetAmdcsimrec();
 
-    int AmdcJff;
-    int AmdcJzz;
-    int AmdcJob;
-    int AmdcJsl;
-    int AmdcJtube;
-    int AmdcJtyp;
+    int AmdcJff{0}, AmdcJzz{0}, AmdcJob{0}, AmdcJsl{0}, AmdcJtube{0}, AmdcJtyp{0};
     std::string AmdcStationName = SPstationNameString;
     AmdcJtyp = pAmdcsimrec->GetJtyp(SPstationNameString);
     pAmdcsimrec->GetAMDCindexFromMDT(SPstationNameString, SPstationEta, SPstationPhi, SPmultilayer, SPtubeLayer, SPtube, AmdcJff, AmdcJzz,
                                      AmdcJob, AmdcJsl, AmdcJtube);
     double FF0 = pAmdcsimrec->PosPhi(AmdcJtyp, AmdcJff, AmdcJzz);
-    double DCF = cos(FF0);
-    double DSF = sin(FF0);
+    double DCF = std::cos(FF0);
+    double DSF = std::sin(FF0);
 
-    int PosiIsValid;
-    int PosiJgeo;
-    int PosiJcut;
-    int PosiIsBarrel;
-    double PosiPhi;
-    double PosiZ;
-    double PosiR;
-    double PosiS;
-    double PosiAlfa;
-    double PosiBeta;
-    double PosiGamma;
+    int PosiIsValid{0}, PosiJgeo{0}, PosiJcut{0}, PosiIsBarrel{0};
+    double PosiPhi{0.}, PosiZ{0.}, PosiR{0.}, PosiS{0.}, PosiAlfa{0.}, PosiBeta{0.}, PosiGamma{0.};
     pAmdcsimrec->GetStationPositionParam(SPstationNameString, AmdcJff, AmdcJzz, PosiIsValid, PosiJgeo, PosiJcut, PosiIsBarrel, PosiPhi,
                                          PosiZ, PosiR, PosiS, PosiAlfa, PosiBeta, PosiGamma);
 
@@ -737,21 +726,14 @@ void AmdcDumpGeoModel::RpcCompare(std::ofstream& OutFile, double EpsLoRpc, int W
                                   double GeoModZ) {
     Amdcsimrec* pAmdcsimrec = p_AmdcsimrecAthenaSvc->GetAmdcsimrec();
 
-    int AmdcJff;
-    int AmdcJzz;
-    int AmdcJob;
-    int AmdcJspli;
-    int AmdcJsl;
-    int AmdcJsz;
-    int AmdcJstri;
-    int AmdcJtyp;
+    int AmdcJff{0}, AmdcJzz{0}, AmdcJob{0}, AmdcJspli{0}, AmdcJsl{0}, AmdcJsz{0}, AmdcJstri{0},  AmdcJtyp{0};
     std::string AmdcStationName = SPstationNameString;
     AmdcJtyp = pAmdcsimrec->GetJtyp(SPstationNameString);
     pAmdcsimrec->GetAMDCindexFromRPC(SPstationNameString, SPstationEta, SPstationPhi, SPDoubletR, SPDoubletZ, SPDoubletPhi, SPGasGap,
                                      SPMeasuresPhi, SPStrip, AmdcJff, AmdcJzz, AmdcJob, AmdcJspli, AmdcJsl, AmdcJsz, AmdcJstri);
     double FF0 = pAmdcsimrec->PosPhi(AmdcJtyp, AmdcJff, AmdcJzz);
-    double DCF = cos(FF0);
-    double DSF = sin(FF0);
+    double DCF = std::cos(FF0);
+    double DSF = std::sin(FF0);
     double GeoModS = DCF * GeoModY - DSF * GeoModX;
     double GeoModT = DCF * GeoModX + DSF * GeoModY;
     double XYZ1[3];
@@ -834,7 +816,7 @@ void AmdcDumpGeoModel::LoopTgcElements(std::ofstream& OutFile) {
                 bool isValid{false};
                 const Identifier readout_id = m_idHelperSvc->tgcIdHelper().elementID(stationName, stationEta, stationPhi, true, &isValid);
                 if (!isValid) {
-                    ATH_MSG_WARNING("Failed to construct a valid Tgc identifier from " << sname_index << "," << seta_index << ","
+                    ATH_MSG_DEBUG(__FILE__":"<<__LINE__<<" Failed to construct a valid Tgc identifier from " << sname_index << "," << seta_index << ","
                                                                                        << sphi_index);
                     continue;
                 }
@@ -960,14 +942,7 @@ void AmdcDumpGeoModel::TgcCompare(std::ofstream& OutFile, double EpsLoTgc, int W
                                   int SPChannel, double GeoModX, double GeoModY, double GeoModZ) {
     Amdcsimrec* pAmdcsimrec = p_AmdcsimrecAthenaSvc->GetAmdcsimrec();
 
-    int AmdcJff;
-    int AmdcJzz;
-    int AmdcJob;
-    int AmdcJspli;
-    int AmdcJsl;
-    int AmdcJsz;
-    int AmdcJstri;
-    int AmdcJtyp;
+    int AmdcJff{0}, AmdcJzz{0}, AmdcJob{0}, AmdcJspli{0}, AmdcJsl{0}, AmdcJsz{0}, AmdcJstri{0}, AmdcJtyp{0};
     std::string AmdcStationName = SPstationNameString;
     AmdcJtyp = pAmdcsimrec->GetJtyp(SPstationNameString);
     pAmdcsimrec->GetAMDCindexFromTGC(SPstationNameString, SPstationEta, SPstationPhi, SPGasGap, SPIsStrip, SPChannel, AmdcJff, AmdcJzz,
@@ -980,8 +955,8 @@ void AmdcDumpGeoModel::TgcCompare(std::ofstream& OutFile, double EpsLoTgc, int W
     } else {
         FF0 = FF0 - pAmdcsimrec->Geodx(AmdcJtyp, AmdcJgeo, AmdcJob) * acos(-1.0) / 180.0;
     }
-    double DCF = cos(FF0);
-    double DSF = sin(FF0);
+    double DCF = std::cos(FF0);
+    double DSF = std::sin(FF0);
     double GeoModS = DCF * GeoModY - DSF * GeoModX;
     double GeoModT = DCF * GeoModX + DSF * GeoModY;
     double XYZ1[3];
@@ -1065,7 +1040,7 @@ void AmdcDumpGeoModel::LoopCscElements(std::ofstream& OutFile) {
                     const Identifier readout_id =
                         m_idHelperSvc->cscIdHelper().channelID(stName, stEta, stPhi, stMl, 0, 0, 1, true, &isValid);
                     if (!isValid) {
-                        ATH_MSG_WARNING("Failed to construct a valid Csc identifier from " << sname_index << "," << seta_index << ","
+                        ATH_MSG_DEBUG(__FILE__":"<<__LINE__<<" Failed to construct a valid Csc identifier from " << sname_index << "," << seta_index << ","
                                                                                            << sphi_index << "," << ml);
                         continue;
                     }
@@ -1244,13 +1219,13 @@ void AmdcDumpGeoModel::CscCompare(std::ofstream& OutFile, double EpsLoCsc, int W
     pAmdcsimrec->GetAMDCindexFromCSC(SPstationNameString, SPstationEta, SPstationPhi, SPChamberLayer, SPWireLayer, SPMeasuresPhi, SPStrip,
                                      AmdcJff, AmdcJzz, AmdcJob, AmdcJsl, AmdcJtube, AmdcSZflag);
     double FF0 = pAmdcsimrec->PosPhi(AmdcJtyp, AmdcJff, AmdcJzz);
-    double DCF = cos(FF0);
-    double DSF = sin(FF0);
+    double DCF = std::cos(FF0);
+    double DSF = std::sin(FF0);
     double SIZ0 = 1.0;
     if (pAmdcsimrec->PosZ(AmdcJtyp, AmdcJff, AmdcJzz) < 0) SIZ0 = -SIZ0;
     double AA0 = SIZ0 * pAmdcsimrec->PosGama(AmdcJtyp, AmdcJff, AmdcJzz) * M_PI / 180.;
-    double DCA = cos(AA0);
-    double DSA = sin(AA0);
+    double DCA = std::cos(AA0);
+    double DSA = std::sin(AA0);
     double GeoModT = DCF * GeoModX + DSF * GeoModY;
     double GeoModS = -DSF * GeoModX + DCF * GeoModY;
     double GeoModss = -GeoModS;

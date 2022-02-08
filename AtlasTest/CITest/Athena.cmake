@@ -22,11 +22,22 @@ atlas_add_citest( G4ExHive
 atlas_add_citest( FastChain
    SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/FastChain.sh )
 
+atlas_add_citest( SimulationRun2AF3
+   SCRIPT RunWorkflowTests_Run2.py --CI -s -w AF3 )
+
+#################################################################################
+# Reconstruction
+#################################################################################
+
+atlas_add_citest( EgammaCAConfig
+   SCRIPT Reco_tf.py --CA --steering doRAWtoALL --inputRDOFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/WorkflowReferences/master/q443/v1/myRDO.pool.root --preInclude egammaConfig.egammaOnlyFromRawFlags.egammaOnlyFromRaw --outputAODFile=AOD.pool.root --maxEvents=1 )
+
+atlas_add_citest( Egamma
+   SCRIPT ut_egammaARTJob_test.sh )
+
 
 # TODO: We stop here for now (migration ongoing...)
 return()
-
-
 
 
 #################################################################################

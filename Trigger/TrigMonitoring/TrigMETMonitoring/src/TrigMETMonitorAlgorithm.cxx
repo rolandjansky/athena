@@ -342,8 +342,8 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 
     
     // access L1 MET values
-    SG::ReadHandle<xAOD::EnergySumRoI> l1_met_cont;
     for (const std::string& alg : m_algsL1) {
+      SG::ReadHandle<xAOD::EnergySumRoI> l1_met_cont;
       if (alg == "roi" && l1_roi_cont.isValid()) {
         l1_met_cont = l1_roi_cont;
       } else if (alg == "jnc" && l1_jnc_cont.isValid()) {
@@ -428,6 +428,16 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     }
 
 
+    // get L1_roiMet_Et for pre-selection
+    float L1_roiMet_Et = 0;
+    if ( l1_roi_cont.isValid() ) {
+      if ((l1_roi_cont->energyX())>-9e12 && (l1_roi_cont->energyX())<9e12 && (l1_roi_cont->energyY())>-9e12 && (l1_roi_cont->energyY())<9e12) {
+	      float Ex = - (l1_roi_cont->energyX())/1000.;
+	      float Ey = - (l1_roi_cont->energyY())/1000.;
+           L1_roiMet_Et = std::sqrt(Ex*Ex + Ey*Ey);
+      }
+    }
+
     // access HLT MET values
     for (const std::string& alg : m_algsHLT) {
       if (alg == "cell" && hlt_cell_met_cont.isValid() && hlt_cell_met_cont->size() > 0) {
@@ -488,6 +498,10 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
              met_Ex_log,met_Ey_log,met_Et_log,met_sumEt_log,
              met_eta,met_phi);
         ATH_MSG_DEBUG(alg << ": hlt_Et = " << hlt_Et);
+        if (L1_roiMet_Et > 50.) {
+          auto met_presel_Et = Monitored::Scalar<float>(alg+"_presel_Et", static_cast<float>(hlt_Et));
+          fill(tool,met_presel_Et);
+        }
       }
     }
 
@@ -533,6 +547,10 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
         auto met_Et = Monitored::Scalar<float>(alg+"_Et", static_cast<float>(hlt_Et));
         fill(tool,met_Ex,met_Ey,met_Et);
         ATH_MSG_DEBUG(alg << ": hlt_Et = " << hlt_Et);
+        if (L1_roiMet_Et > 50.) {
+          auto met_presel_Et = Monitored::Scalar<float>(alg+"_presel_Et", static_cast<float>(hlt_Et));
+          fill(tool,met_presel_Et);
+        }
       }
     }
 

@@ -60,7 +60,7 @@ namespace LVL1 {
 StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset, gFEXOutputCollection* gFEXOutputs){
 
    typedef  std::array<std::array<int, 12>, 32> gTowersCentral;
-   typedef  std::array<std::array<int, 7>, 32> gTowersForward;
+   typedef  std::array<std::array<int, 8>, 32> gTowersForward;
 
    int rows = tmp_gTowersIDs_subset.size();
    int cols = tmp_gTowersIDs_subset[0].size();
@@ -79,7 +79,7 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset, gFEXOutputC
    memset(&tmp_gTowersIDs_subset_centralFPGA, 0, sizeof tmp_gTowersIDs_subset_centralFPGA);
    for (int myrow = 0; myrow<32; myrow++){
       for (int mycol = 0; mycol<12; mycol++){
-         tmp_gTowersIDs_subset_centralFPGA[myrow][mycol] = tmp_gTowersIDs_subset[myrow][mycol+7];
+         tmp_gTowersIDs_subset_centralFPGA[myrow][mycol] = tmp_gTowersIDs_subset[myrow][mycol+8];
       }
    }
    ATH_CHECK(m_gFEXFPGA_Tool->init(0));
@@ -93,7 +93,7 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset, gFEXOutputC
    memset(&tmp_gTowersIDs_subset_centralFPGA_B, 0, sizeof tmp_gTowersIDs_subset_centralFPGA_B);
    for (int myrow = 0; myrow<32; myrow++){
       for (int mycol = 0; mycol<12; mycol++){
-         tmp_gTowersIDs_subset_centralFPGA_B[myrow][mycol] = tmp_gTowersIDs_subset[myrow][mycol+19];
+         tmp_gTowersIDs_subset_centralFPGA_B[myrow][mycol] = tmp_gTowersIDs_subset[myrow][mycol+20];
       }
    }
    ATH_CHECK(m_gFEXFPGA_Tool->init(1));
@@ -111,12 +111,12 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset, gFEXOutputC
    memset(&tmp_gTowersIDs_subset_forwardFPGA, 0, sizeof tmp_gTowersIDs_subset_forwardFPGA);
    for (int myrow = 0; myrow<32; myrow++){
       for (int mycol = 0; mycol<1; mycol++){
-         tmp_gTowersIDs_subset_forwardFPGA[myrow][mycol] = tmp_gTowersIDs_subset[myrow][mycol+31];
+         tmp_gTowersIDs_subset_forwardFPGA[myrow][mycol] = tmp_gTowersIDs_subset[myrow][mycol+32];
       }
    }
    for (int myrow = 0; myrow<16; myrow++){
-      for (int mycol = 1; mycol<7; mycol++){
-         tmp_gTowersIDs_subset_forwardFPGA[myrow][mycol] = tmp_gTowersIDs_subset[myrow][mycol+31];
+      for (int mycol = 1; mycol<8; mycol++){
+         tmp_gTowersIDs_subset_forwardFPGA[myrow][mycol] = tmp_gTowersIDs_subset[myrow][mycol+32];
       }
    }
    ATH_CHECK(m_gFEXFPGA_Tool->init(2));
@@ -133,12 +133,12 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset, gFEXOutputC
    gTowersForward tmp_gTowersIDs_subset_forwardFPGA_N;
    memset(&tmp_gTowersIDs_subset_forwardFPGA_N, 0, sizeof tmp_gTowersIDs_subset_forwardFPGA_N);
    for (int myrow = 0; myrow<16; myrow++){
-      for (int mycol = 0; mycol<6; mycol++){
+      for (int mycol = 0; mycol<7; mycol++){
          tmp_gTowersIDs_subset_forwardFPGA_N[myrow][mycol] = tmp_gTowersIDs_subset[myrow][mycol];
       }
    }
    for (int myrow = 0; myrow<32; myrow++){
-      for (int mycol = 6; mycol<7; mycol++){
+      for (int mycol = 7; mycol<8; mycol++){
          tmp_gTowersIDs_subset_forwardFPGA_N[myrow][mycol] = tmp_gTowersIDs_subset[myrow][mycol];
       }
    }

@@ -7,6 +7,10 @@
 
 #include "VP1Base/IVP13DSystemSimple.h"
 
+// fwd 
+class CaloDetDescrElement;
+class SoVertexProperty;
+
 class VP1SimHitSystem: public IVP13DSystemSimple
 {
   Q_OBJECT
@@ -28,6 +32,7 @@ class VP1SimHitSystem: public IVP13DSystemSimple
   Clockwork* m_clockwork;
 
   void buildHitTree(const QString& detector);
+  void handleDetDescrElementHit(const CaloDetDescrElement *hitElement, SoVertexProperty* hitVtxProperty, unsigned int &hitCount);
 
 };
 

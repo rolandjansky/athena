@@ -886,11 +886,6 @@ Trk::TrackingVolume::addMaterial(const Trk::Material& mprop, float fact)
   dEdX += flin * mprop.dEdX;
 }
 
-void Trk::TrackingVolume::addMaterial
-ATLAS_NOT_THREAD_SAFE(const Material& mat, float fact) const
-{
-  const_cast<Trk::TrackingVolume*>(this)->addMaterial(mat, fact);
-}
 
 void Trk::TrackingVolume::sign
 ATLAS_NOT_THREAD_SAFE(Trk::GeometrySignature geosign,

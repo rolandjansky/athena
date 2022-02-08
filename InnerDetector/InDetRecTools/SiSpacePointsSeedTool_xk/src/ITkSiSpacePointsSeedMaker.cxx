@@ -95,7 +95,7 @@ StatusCode SiSpacePointsSeedMaker::initialize()
 
     m_outputTree = new TTree( m_treeName.c_str() , "SeedMakerValTool");
 
-    m_outputTree->Branch("eventNumber",    &m_eventNumber);
+    m_outputTree->Branch("eventNumber",    &m_eventNumber,"eventNumber/L");
     m_outputTree->Branch("d0",             &m_d0);
     m_outputTree->Branch("z0",             &m_z0);
     m_outputTree->Branch("pt",             &m_pt);
@@ -1112,8 +1112,8 @@ void SiSpacePointsSeedMaker::buildFrameWork()
   if (m_maxPhiBinSSS >= nPhiBinsMax)
     m_maxPhiBinSSS = nPhiBinsMax - 1;
   /// recompute inverse bin size, taking into account rounding + truncation
-  m_inverseBinSizePhiPPP = m_maxPhiBinPPP / twoPi;
-  m_inverseBinSizePhiSSS = m_maxPhiBinSSS / twoPi;
+  m_inverseBinSizePhiPPP = ( m_maxPhiBinPPP + 1 ) / twoPi;
+  m_inverseBinSizePhiSSS = ( m_maxPhiBinSSS + 1 ) / twoPi;
 
   buildConnectionMaps(m_nNeighbourCellsBottomPPP, m_nNeighbourCellsTopPPP,
                       m_neighbourCellsBottomPPP, m_neighbourCellsTopPPP,
@@ -1424,7 +1424,7 @@ void SiSpacePointsSeedMaker::fillLists(EventData &data) const
       continue;
 
     // Stop when we reach strip SP in PPP iteration #1
-    std::list<SiSpacePointForSeed *>::iterator SP_first = data.r_ITkSorted[radialBin].begin();
+    std::vector<SiSpacePointForSeed *>::iterator SP_first = data.r_ITkSorted[radialBin].begin();
     if (data.iteration && (*SP_first)->spacepoint->clusterList().second)
       break;
 
@@ -1648,7 +1648,7 @@ void SiSpacePointsSeedMaker::fillListsFast(const EventContext &ctx, EventData &d
   {
     if (data.rfz_ITkSorted[twoDbin].size() > 1)
     {
-      data.rfz_ITkSorted[twoDbin].sort(SiSpacePointsComparison_R());
+      std::sort(data.rfz_ITkSorted[twoDbin].begin(), data.rfz_ITkSorted[twoDbin].end(), SiSpacePointsComparison_R());
     }
   }
 
@@ -1758,7 +1758,7 @@ void SiSpacePointsSeedMaker::production2Sp(EventData &data) const
   if (data.nsazv < 2)
     return;
 
-  std::list<SiSpacePointForSeed *>::iterator r0, r0e, r, re;
+  std::vector<SiSpacePointForSeed *>::iterator r0, r0e, r, re;
   int nseed = 0;
 
   // Loop thorugh all azimuthal regions
@@ -1909,14 +1909,15 @@ void SiSpacePointsSeedMaker::production3Sp(EventData &data) const
   bool isPixel = (m_fastTracking && m_pixel) || data.iteration == 1;
   const auto zBinIndex = isPixel ? zBinIndex_PPP : zBinIndex_SSS;
 
-  const float RTmax[11] = {80., 100., 150., 200., 250., 250., 250., 200., 150., 100., 80.};
+  const float RTmax[11] = { 80., 200., 200., 200., 250., 250., 250., 200., 200., 200., 80.};
+  const float RTmin[11] = { 40., 40., 70., 70., 70., 70., 70., 70., 70., 40., 40.};
 
   /// prepare arrays to store the iterators over the SP containers for all
   /// neighbouring cells we wish to consider in the seed formation
-  std::array<std::list<SiSpacePointForSeed *>::iterator, arraySizeNeighbourBins> iter_topCands;
-  std::array<std::list<SiSpacePointForSeed *>::iterator, arraySizeNeighbourBins> iter_endTopCands;
-  std::array<std::list<SiSpacePointForSeed *>::iterator, arraySizeNeighbourBins> iter_bottomCands;
-  std::array<std::list<SiSpacePointForSeed *>::iterator, arraySizeNeighbourBins> iter_endBottomCands;
+  std::array<std::vector<SiSpacePointForSeed *>::iterator, arraySizeNeighbourBins> iter_topCands;
+  std::array<std::vector<SiSpacePointForSeed *>::iterator, arraySizeNeighbourBins> iter_endTopCands;
+  std::array<std::vector<SiSpacePointForSeed *>::iterator, arraySizeNeighbourBins> iter_bottomCands;
+  std::array<std::vector<SiSpacePointForSeed *>::iterator, arraySizeNeighbourBins> iter_endBottomCands;
 
   int nPhiBins;
   std::array<int, arraySizePhiZ> nNeighbourCellsBottom{};
@@ -1965,6 +1966,7 @@ void SiSpacePointsSeedMaker::production3Sp(EventData &data) const
       if (m_fastTracking && m_pixel)
       {
         data.RTmax = RTmax[ zBinIndex[z] ];
+        data.RTmin = RTmin[ zBinIndex[z] ];
       }
 
       int phiZbin = phiBin * arraySizeZ + zBinIndex[z];
@@ -2044,10 +2046,10 @@ void SiSpacePointsSeedMaker::production3Sp(EventData &data) const
 ///////////////////////////////////////////////////////////////////
 
 void SiSpacePointsSeedMaker::production3SpPPP(EventData &data,
-                                              std::array<std::list<SiSpacePointForSeed *>::iterator, arraySizeNeighbourBins> &iter_bottomCands,
-                                              std::array<std::list<SiSpacePointForSeed *>::iterator, arraySizeNeighbourBins> &iter_endBottomCands,
-                                              std::array<std::list<SiSpacePointForSeed *>::iterator, arraySizeNeighbourBins> &iter_topCands,
-                                              std::array<std::list<SiSpacePointForSeed *>::iterator, arraySizeNeighbourBins> &iter_endTopCands,
+                                              std::array<std::vector<SiSpacePointForSeed *>::iterator, arraySizeNeighbourBins> &iter_bottomCands,
+                                              std::array<std::vector<SiSpacePointForSeed *>::iterator, arraySizeNeighbourBins> &iter_endBottomCands,
+                                              std::array<std::vector<SiSpacePointForSeed *>::iterator, arraySizeNeighbourBins> &iter_topCands,
+                                              std::array<std::vector<SiSpacePointForSeed *>::iterator, arraySizeNeighbourBins> &iter_endTopCands,
                                               const int numberBottomCells, const int numberTopCells, int &nseed) const
 {
   /** 
@@ -2057,8 +2059,7 @@ void SiSpacePointsSeedMaker::production3SpPPP(EventData &data,
      **/
 
   /// iterator across the candidates for the central space point.
-  std::list<SiSpacePointForSeed *>::iterator iter_centralSP = iter_bottomCands[0];
-  std::list<SiSpacePointForSeed *>::iterator iter_otherSP; ///< will be used for iterating over top/bottom SP
+  std::vector<SiSpacePointForSeed *>::iterator iter_centralSP = iter_bottomCands[0];
 
   /** 
      * Next, we work out where we are within the ATLAS geometry.
@@ -2111,8 +2112,9 @@ void SiSpacePointsSeedMaker::production3SpPPP(EventData &data,
 
     float covr0 = (*iter_centralSP)->covr();
     float covz0 = (*iter_centralSP)->covz();
-    float ax = X / R;
-    float ay = Y / R;
+    float Ri = 1. / R;
+    float ax = X * Ri;
+    float ay = Y * Ri;
     float VR = maxd0cut / (R * R);
     size_t Ntm = 2;
     if (R > m_rmaxPPP)
@@ -2126,27 +2128,22 @@ void SiSpacePointsSeedMaker::production3SpPPP(EventData &data,
     /// Loop over all the cells where we expect to find such SP
     for (int cell = 0; cell < numberTopCells; ++cell)
     {
+      std::vector<SiSpacePointForSeed *>::iterator iter_otherSP = iter_topCands[cell], iter_otherSPend = iter_endTopCands[cell];
+      if (iter_otherSP == iter_otherSPend) continue;
 
-      if (iter_otherSP == iter_endTopCands[cell])
-        continue;
-
+      for(; iter_otherSP!=iter_otherSPend; ++iter_otherSP) {
+        if(( (*iter_otherSP)->radius()- R ) >= m_drminPPP) break;
+      } 
+      iter_topCands[cell]=iter_otherSP; 
+      
       /// loop over each SP in each cell
-      for (iter_otherSP = iter_topCands[cell]; iter_otherSP != iter_endTopCands[cell]; ++iter_otherSP)
+      for (; iter_otherSP != iter_endTopCands[cell]; ++iter_otherSP)
       {
 
         /// evaluate the radial distance,
         float Rt = (*iter_otherSP)->radius();
         float dR = Rt - R;
-        /// and continue if we are too close
-        if (dR < m_drminPPP)
-        {
-          iter_topCands[cell] = iter_otherSP;
-          continue;
-        }
-
-        /// if we are too far, the next ones will be even farther, so abort
-        if (!m_fastTracking && dR > m_drmaxPPP)
-          break;
+        
 
         const float dz = (*iter_otherSP)->z() - Z;
         const float dZdR = dz / dR;
@@ -2215,21 +2212,22 @@ void SiSpacePointsSeedMaker::production3SpPPP(EventData &data,
     /// Loop over all the cells where we expect to find such SP
     for (int cell = 0; cell < numberBottomCells; ++cell)
     {
+
+      std::vector<SiSpacePointForSeed*>::iterator iter_otherSP = iter_bottomCands[cell];
+
+      for(; iter_otherSP!=iter_endBottomCands[cell]; ++iter_otherSP) {
+        if( (R - (*iter_otherSP)->radius()) <= m_drmaxPPP) break;
+      } 
+      iter_bottomCands[cell]=iter_otherSP;
+
       /// in each cell, loop over the space points
-      for (iter_otherSP = iter_bottomCands[cell]; iter_otherSP != iter_endBottomCands[cell]; ++iter_otherSP)
+      for (; iter_otherSP != iter_endBottomCands[cell]; ++iter_otherSP)
       {
 
         /// evaluate the radial distance between the central and bottom SP
         const float &Rb = (*iter_otherSP)->radius();
         float dR = R - Rb;
 
-        /// if the bottom SP is too far, remember this for future iterations and
-        /// don't bother starting from the beginning again
-        if (dR > m_drmaxPPP)
-        {
-          iter_bottomCands[cell] = iter_otherSP;
-          continue;
-        }
         /// if the points are too close in r, abort (future ones will be even closer).
         if (dR < m_drminPPP)
           break;
@@ -2246,7 +2244,7 @@ void SiSpacePointsSeedMaker::production3SpPPP(EventData &data,
         float dy = (*iter_otherSP)->y() - Y;
         float x = dx * ax + dy * ay;
         float y = dy * ax - dx * ay;
-        float dxy = x * x + y * y;
+        float dxy = ( x * x + y * y );
         float r2 = 1. / dxy;
         float u = x * r2;
         float v = y * r2;
@@ -2300,7 +2298,9 @@ void SiSpacePointsSeedMaker::production3SpPPP(EventData &data,
     sort(data.Tn,Nt,Nb-Nt);
 
     data.nOneSeeds = 0;
+    data.nOneSeedsQ = 0;
     data.ITkMapOneSeeds.clear();
+    data.ITkMapOneSeedsQ.clear();
 
     /// Three space points comparison
     /// first, loop over the bottom point candidates
@@ -2332,7 +2332,7 @@ void SiSpacePointsSeedMaker::production3SpPPP(EventData &data,
       size_t Nc = 1;
       if (data.ITkSP[b]->radius() > m_rmaxPPP)
         Nc = 0;
-      if (data.nOneSeeds)
+      if (data.nOneSeedsQ)
         ++Nc;
 
       /// inner loop over the top point candidates
@@ -2364,7 +2364,7 @@ void SiSpacePointsSeedMaker::production3SpPPP(EventData &data,
         {
           if (Tzb - Tzt < 0.)
             break;
-          it0 = it + 1;
+          it0 = it + 1 ;
           continue;
         }
 
@@ -2416,7 +2416,7 @@ void SiSpacePointsSeedMaker::production3SpPPP(EventData &data,
         {
           if (Tzb - Tzt < 0.)
             break;
-          it0 = it + 1;
+          it0 = it;
           continue;
         }
 
@@ -2456,6 +2456,7 @@ void SiSpacePointsSeedMaker::production3SpPPP(EventData &data,
             meanOneOverTanTheta = 1e-8;
           if (BSquare < 1e-8)
             BSquare = 1e-8;
+          if(data.ITkSP[t]->z()<0) meanOneOverTanTheta = -meanOneOverTanTheta;
           float theta = std::atan(1. / std::sqrt(meanOneOverTanThetaSquare));
           data.ITkSP[t]->setEta(-std::log(std::tan(0.5 * theta)));
           data.ITkSP[t]->setPt(std::sqrt(onePlusAsquare / BSquare) / (1000 * data.K));
@@ -2487,10 +2488,10 @@ void SiSpacePointsSeedMaker::production3SpPPP(EventData &data,
 ///////////////////////////////////////////////////////////////////
 
 void SiSpacePointsSeedMaker::production3SpSSS(EventData &data,
-                                              std::array<std::list<SiSpacePointForSeed *>::iterator, arraySizeNeighbourBins> &iter_bottomCands,
-                                              std::array<std::list<SiSpacePointForSeed *>::iterator, arraySizeNeighbourBins> &iter_endBottomCands,
-                                              std::array<std::list<SiSpacePointForSeed *>::iterator, arraySizeNeighbourBins> &iter_topCands,
-                                              std::array<std::list<SiSpacePointForSeed *>::iterator, arraySizeNeighbourBins> &iter_endTopCands,
+                                              std::array<std::vector<SiSpacePointForSeed *>::iterator, arraySizeNeighbourBins> &iter_bottomCands,
+                                              std::array<std::vector<SiSpacePointForSeed *>::iterator, arraySizeNeighbourBins> &iter_endBottomCands,
+                                              std::array<std::vector<SiSpacePointForSeed *>::iterator, arraySizeNeighbourBins> &iter_topCands,
+                                              std::array<std::vector<SiSpacePointForSeed *>::iterator, arraySizeNeighbourBins> &iter_endTopCands,
                                               const int numberBottomCells, const int numberTopCells, int &nseed) const
 {
 
@@ -2501,8 +2502,8 @@ void SiSpacePointsSeedMaker::production3SpSSS(EventData &data,
      **/
 
   /// iterator across the candidates for the central space point.
-  std::list<SiSpacePointForSeed *>::iterator iter_centralSP = iter_bottomCands[0];
-  std::list<SiSpacePointForSeed *>::iterator iter_otherSP; ///< will be used for iterating over top/bottom SP
+  std::vector<SiSpacePointForSeed *>::iterator iter_centralSP = iter_bottomCands[0];
+  std::vector<SiSpacePointForSeed *>::iterator iter_otherSP; ///< will be used for iterating over top/bottom SP
 
   /** 
      * Next, we work out where we are within the ATLAS geometry.
@@ -2562,9 +2563,6 @@ void SiSpacePointsSeedMaker::production3SpSSS(EventData &data,
     for (int cell = 0; cell < numberTopCells; ++cell)
     {
 
-      if (iter_otherSP == iter_endTopCands[cell])
-        continue;
-
       for (iter_otherSP = iter_topCands[cell]; iter_otherSP != iter_endTopCands[cell]; ++iter_otherSP)
       {
         /// evaluate the radial distance,
@@ -2622,21 +2620,20 @@ void SiSpacePointsSeedMaker::production3SpSSS(EventData &data,
     /// Loop over all the cells where we expect to find such SP
     for (int cell = 0; cell < numberBottomCells; ++cell)
     {
+
+      for(iter_otherSP=iter_bottomCands[cell]; iter_otherSP!=iter_endBottomCands[cell]; ++iter_otherSP) {
+        if((R-(*iter_otherSP)->radius()) <= m_drmaxSSS) break;
+      }  
+      iter_bottomCands[cell]=iter_otherSP;
+
       /// in each cell, loop over the space points
-      for (iter_otherSP = iter_bottomCands[cell]; iter_otherSP != iter_endBottomCands[cell]; ++iter_otherSP)
+      for (; iter_otherSP != iter_endBottomCands[cell]; ++iter_otherSP)
       {
 
         /// evaluate the radial distance between the central and bottom SP
         const float &Rb = (*iter_otherSP)->radius();
         float dR = R - Rb;
 
-        /// if the bottom SP is too far, remember this for future iterations and
-        /// don't bother starting from the beginning again
-        if (dR > m_drmaxSSS)
-        {
-          iter_bottomCands[cell] = iter_otherSP;
-          continue;
-        }
         /// if the points are too close in r, abort (future ones will be even closer).
         if (dR < m_drminSSS)
           break;
@@ -2715,7 +2712,9 @@ void SiSpacePointsSeedMaker::production3SpSSS(EventData &data,
     }
 
     data.nOneSeeds = 0;
+    data.nOneSeedsQ = 0;
     data.ITkMapOneSeeds.clear();
+    data.ITkMapOneSeedsQ.clear();
 
     /// Three space points comparison
     /// first, loop over the bottom point candidates
@@ -2898,13 +2897,14 @@ void SiSpacePointsSeedMaker::production3SpSSS(EventData &data,
           /// deviate from a straight line in r-z
           data.ITkSP[t]->setScorePenalty(std::abs((tb - tz) / (dr * sTzb2)));
           data.ITkSP[t]->setParam(d0);
-          float DR = xt * xt + yt * yt + zt * zt; // distance between top and central SP
+          float DR = std::sqrt( xt * xt + yt * yt + zt * zt ); // distance between top and central SP
           data.ITkSP[t]->setDR(DR);
 
           if (meanOneOverTanTheta < 1e-8)
             meanOneOverTanTheta = 1e-8;
           if (BSquare < 1e-8)
             BSquare = 1e-8;
+          if(data.ITkSP[t]->z()<0) meanOneOverTanTheta = -meanOneOverTanTheta;
           float theta = std::atan(1. / meanOneOverTanTheta);
           data.ITkSP[t]->setEta(-std::log(std::tan(0.5 * theta)));
           data.ITkSP[t]->setPt(std::sqrt(onePlusAsquare / BSquare) / (1000 * data.K));
@@ -2935,13 +2935,13 @@ void SiSpacePointsSeedMaker::production3SpSSS(EventData &data,
 ///////////////////////////////////////////////////////////////////
 
 void SiSpacePointsSeedMaker::production3SpTrigger(EventData &data,
-                                                  std::array<std::list<SiSpacePointForSeed *>::iterator, arraySizeNeighbourBins> &rb,
-                                                  std::array<std::list<SiSpacePointForSeed *>::iterator, arraySizeNeighbourBins> &rbe,
-                                                  std::array<std::list<SiSpacePointForSeed *>::iterator, arraySizeNeighbourBins> &rt,
-                                                  std::array<std::list<SiSpacePointForSeed *>::iterator, arraySizeNeighbourBins> &rte,
+                                                  std::array<std::vector<SiSpacePointForSeed *>::iterator, arraySizeNeighbourBins> &rb,
+                                                  std::array<std::vector<SiSpacePointForSeed *>::iterator, arraySizeNeighbourBins> &rbe,
+                                                  std::array<std::vector<SiSpacePointForSeed *>::iterator, arraySizeNeighbourBins> &rt,
+                                                  std::array<std::vector<SiSpacePointForSeed *>::iterator, arraySizeNeighbourBins> &rte,
                                                   const int numberBottomCells, const int numberTopCells, int &nseed) const
 {
-  std::list<SiSpacePointForSeed *>::iterator r0 = rb[0], r;
+  std::vector<SiSpacePointForSeed *>::iterator r0 = rb[0], r;
   if (!data.endlist)
   {
     r0 = data.ITk_rMin;
@@ -3195,6 +3195,57 @@ void SiSpacePointsSeedMaker::newOneSeed(EventData &data,
   }
 }
 
+
+void SiSpacePointsSeedMaker::newOneSeedQ(EventData &data,
+                                        SiSpacePointForSeed *&p1, SiSpacePointForSeed *&p2,
+                                        SiSpacePointForSeed *&p3, float z, float seedCandidateQuality) const
+{
+  /// get the worst seed so far
+  float worstQualityInMap = std::numeric_limits<float>::min();
+  SiSpacePointsProSeed *worstSeedSoFar = nullptr;
+  if (!data.ITkMapOneSeedsQ.empty())
+  {
+    std::multimap<float, SiSpacePointsProSeed *>::reverse_iterator l = data.ITkMapOneSeedsQ.rbegin();
+    worstQualityInMap = (*l).first;
+    worstSeedSoFar = (*l).second;
+  }
+  /// There are three cases where we simply add our new seed to the list and push it into the map:
+  /// a) we have not yet reached our max number of seeds
+  if (data.nOneSeedsQ < data.maxSeedsPerSP
+      /// b) we have reached the max number but always want to keep confirmed seeds
+      /// and the new seed is a confirmed one, with worse quality than the worst one so far
+      || (m_useSeedConfirmation && data.keepAllConfirmedSeeds && worstQualityInMap <= seedCandidateQuality && isConfirmedSeed(p1, p3, seedCandidateQuality) && data.nOneSeedsQ < data.seedPerSpCapacity)
+      /// c) we have reached the max number but always want to keep confirmed seeds
+      ///and the new seed of higher quality than the worst one so far, with the latter however being confirmed
+      || (m_useSeedConfirmation && data.keepAllConfirmedSeeds && worstQualityInMap > seedCandidateQuality && isConfirmedSeed(worstSeedSoFar->spacepoint0(), worstSeedSoFar->spacepoint2(), worstQualityInMap) && data.nOneSeedsQ < data.seedPerSpCapacity))
+  {
+    data.ITkOneSeedsQ[data.nOneSeedsQ].set(p1, p2, p3, z);
+    data.ITkMapOneSeedsQ.insert(std::make_pair(seedCandidateQuality, &data.ITkOneSeedsQ[data.nOneSeedsQ]));
+    ++data.nOneSeedsQ;
+  }
+
+  /// otherwise, we check if there is a poorer-quality seed that we can kick out
+  else if (worstQualityInMap > seedCandidateQuality)
+  {
+    /// Overwrite the parameters of the worst seed with the new one
+    worstSeedSoFar->set(p1, p2, p3, z);
+    /// re-insert it with its proper quality to make sure it ends up in the right place
+    std::multimap<float, SiSpacePointsProSeed *>::iterator
+        i = data.ITkMapOneSeedsQ.insert(std::make_pair(seedCandidateQuality, worstSeedSoFar));
+    /// and remove the entry with the old quality to avoid duplicates
+    for (++i; i != data.ITkMapOneSeedsQ.end(); ++i)
+    {
+      if ((*i).second == worstSeedSoFar)
+      {
+        data.ITkMapOneSeedsQ.erase(i);
+        return;
+      }
+    }
+  }
+}
+
+
+
 ///////////////////////////////////////////////////////////////////
 // New 3 space points pro seeds production
 ///////////////////////////////////////////////////////////////////
@@ -3277,6 +3328,10 @@ void SiSpacePointsSeedMaker::newOneSeedWithCurvaturesComparison(EventData &data,
   data.ITkCmSp.clear();
 }
 
+
+
+
+
 ///////////////////////////////////////////////////////////////////
 // Fill seeds
 ///////////////////////////////////////////////////////////////////
@@ -3287,6 +3342,11 @@ void SiSpacePointsSeedMaker::fillSeeds(EventData &data)
 
   std::multimap<float, SiSpacePointsProSeed *>::iterator it_seedCandidate = data.ITkMapOneSeeds.begin();
   std::multimap<float, SiSpacePointsProSeed *>::iterator it_endSeedCandidates = data.ITkMapOneSeeds.end();
+
+  if (data.nOneSeedsQ){
+    it_seedCandidate  = data.ITkMapOneSeedsQ.begin();
+    it_endSeedCandidates = data.ITkMapOneSeedsQ.end();
+  }
 
   /// no seeds - nothing to do.
   if (it_seedCandidate == it_endSeedCandidates)
@@ -3667,7 +3727,7 @@ void SiSpacePointsSeedMaker::newOneSeedWithCurvaturesComparisonPPP(EventData &da
       }
 
       int dN = NT - NTc;
-      if (dN < 0 || (data.nOneSeeds && !dN))
+      if (dN < 0 || (data.nOneSeedsQ && !dN))
         continue;
       if (Qm && !dN && seedIP > 1.)
         continue;
@@ -3678,7 +3738,7 @@ void SiSpacePointsSeedMaker::newOneSeedWithCurvaturesComparisonPPP(EventData &da
         continue;
 
       if (dN)
-        newOneSeed(data, SPb, SP0, SPt, Zob, Q);
+        newOneSeedQ(data, SPb, SP0, SPt, Zob, Q);
       else if (Q < Qmin)
       {
         Qmin = Q;
