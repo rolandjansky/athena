@@ -1,6 +1,6 @@
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetRecAlg.cxx
@@ -28,11 +28,11 @@ StatusCode JetRecAlg::initialize() {
   // to be provided during initialisation
   ATH_CHECK(m_jetprovider->initWithOutput(m_output));
 
-  ATH_MSG_INFO(" Initialized  IJetProvider : "<< m_jetprovider->name());
+  ATH_MSG_INFO("Initialized IJetProvider : "<< m_jetprovider->name());
 
-  ATH_MSG_INFO(" Initialize .... List of modifiers: ");
+  ATH_MSG_INFO("Initialize .... List of modifiers: ");
   ATH_CHECK(m_modifiers.retrieve());
-  for(ToolHandle<IJetModifier> t : m_modifiers){
+  for(const ToolHandle<IJetModifier>& t : m_modifiers){
     ATH_MSG_INFO("    --> : "<< t->name());
   }
 
@@ -42,13 +42,6 @@ StatusCode JetRecAlg::initialize() {
   if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
 #endif
 
-  return StatusCode::SUCCESS;
-}
-
-//**********************************************************************
-
-StatusCode JetRecAlg::finalize() {
-  ATH_MSG_INFO ("Finalizing " << name() << "...");
   return StatusCode::SUCCESS;
 }
 
