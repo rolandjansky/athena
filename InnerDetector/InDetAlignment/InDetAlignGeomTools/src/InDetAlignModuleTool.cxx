@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetIdentifier/TRT_ID.h"
@@ -15,7 +15,7 @@ namespace InDet {
   //______________________________________________________________
   InDetAlignModuleTool::InDetAlignModuleTool(const std::string& type, const std::string& name, const IInterface* parent)
     : Trk::AlignModuleTool(type,name,parent)
-    , m_trtHelper(0)
+    , m_trtHelper(nullptr)
   {
     ATH_MSG_DEBUG("constructor of InDetAlignModuleTool");
   }

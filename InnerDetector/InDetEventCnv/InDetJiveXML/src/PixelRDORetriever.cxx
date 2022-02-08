@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetJiveXML/PixelRDORetriever.h"
@@ -81,7 +81,7 @@ namespace JiveXML {
         const InDetDD::SiDetectorElement *element = elements->getDetectorElement(wafer_hash);
 
         //Make sure we got the detector element
-        if (element == NULL){
+        if (element == nullptr){
           msg(MSG::WARNING) << "Unable to obtain detector element for PixelRDO hit with id " << id << endmsg;
           continue;
         }

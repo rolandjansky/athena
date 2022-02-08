@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRTDigCondFakeMap.h"
@@ -19,6 +19,7 @@
 
 #include <cmath>
 #include <cstdlib>
+#include <utility>
 
 //________________________________________________________________________________
 TRTDigCondFakeMap::TRTDigCondFakeMap( const TRTDigSettings* digset,
@@ -27,7 +28,7 @@ TRTDigCondFakeMap::TRTDigCondFakeMap( const TRTDigSettings* digset,
                                       int UseGasMix,
                                       ToolHandle<ITRT_StrawStatusSummaryTool> sumTool
                                       )
-: TRTDigCondBase(digset, detmgr, trt_id, UseGasMix, sumTool)
+: TRTDigCondBase(digset, detmgr, trt_id, UseGasMix, std::move(sumTool))
 {
   m_average_noiselevel = m_settings->averageNoiseLevel();
 }

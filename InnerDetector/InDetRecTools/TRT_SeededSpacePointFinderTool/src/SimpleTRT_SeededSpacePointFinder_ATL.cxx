@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -125,7 +125,7 @@ StatusCode InDet::SimpleTRT_SeededSpacePointFinder_ATL::finalize()
 std::unique_ptr<InDet::ITRT_SeededSpacePointFinder::IEventData> InDet::SimpleTRT_SeededSpacePointFinder_ATL::newRegion
 (const std::vector<IdentifierHash>& /*vPixel*/, const std::vector<IdentifierHash>& /*vSCT*/) const
 {
-   return std::unique_ptr<InDet::ITRT_SeededSpacePointFinder::IEventData>();
+   return {};
 }
 
 std::list<std::pair<const Trk::SpacePoint*, const Trk::SpacePoint*> >
@@ -524,7 +524,7 @@ bool InDet::SimpleTRT_SeededSpacePointFinder_ATL::pairIsOk(const Trk::SpacePoint
 
 
   // Cut on angle between s1-s2 and parameter direction
-  double diffPhi= fabs(s1s2.phi()-v0.phi());
+  double diffPhi= std::abs(s1s2.phi()-v0.phi());
 
   if (diffPhi > CLHEP::pi ) diffPhi = 2.*CLHEP::pi - diffPhi;
   if (diffPhi > CLHEP::pi/2. ) diffPhi = CLHEP::pi - diffPhi;
@@ -534,7 +534,7 @@ bool InDet::SimpleTRT_SeededSpacePointFinder_ATL::pairIsOk(const Trk::SpacePoint
   msg(MSG::VERBOSE) << " Passed cut on direction phi deviation" <<endmsg;
 
   // cut on eta deviation
-  //if (fabs(s1s2.eta()-v0.eta()) > m_directionEtaCut) return false;
+  //if (std::abs(s1s2.eta()-v0.eta()) > m_directionEtaCut) return false;
   //msg(MSG::VERBOSE) << " Passed cut on direction eta deviation" <<endmsg;
 
 
@@ -543,7 +543,7 @@ bool InDet::SimpleTRT_SeededSpacePointFinder_ATL::pairIsOk(const Trk::SpacePoint
   double cosAng = s1s2.mag()*v0.mag();
   if (cosAng)
     {
-      cosAng = fabs(v0.dot(s1s2)/cosAng);
+      cosAng = std::abs(v0.dot(s1s2)/cosAng);
       msg(MSG::VERBOSE) << "Cosine of angle between SP-extrap. and momentum is " << cosAng << endmsg;
       if ( cosAng < cosAngleCut ) return false;
     }
@@ -555,7 +555,7 @@ bool InDet::SimpleTRT_SeededSpacePointFinder_ATL::pairIsOk(const Trk::SpacePoint
   Trk::GlobalPosition s1r0 = r0-s1;  // vector from s1 to r0
   Trk::GlobalPosition h = s1r0 - s1r0.dot(s1s2)/s1s2.mag();  // the part of s1r0 perp. to s1s2
   msg(MSG::VERBOSE) << "closest approach to Parameter Position is ( " << h.x() << ", "<< h.y() << ", " << h.z() << " )"<<endmsg; 
-  if (h.x()*h.x() + h.y()*h.y() > positionPhiCutSquared || fabs(h.z()) > positionZ_Cut) return false;
+  if (h.x()*h.x() + h.y()*h.y() > positionPhiCutSquared || std::abs(h.z()) > positionZ_Cut) return false;
   
   msg(MSG::VERBOSE) << " Passed cut on extrapolation to TRT" <<endmsg;
   */

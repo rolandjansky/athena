@@ -1,6 +1,8 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
+
+#include <cmath>
 
 #include "BCM_DigitizationTool.h"
 
@@ -187,7 +189,7 @@ StatusCode BCM_DigitizationTool::processAllSubEvents(const EventContext& ctx)
 
   }
   else {
-    typedef PileUpMergeSvc::TimedList<SiHitCollection>::type TimedHitCollList;
+    using TimedHitCollList = PileUpMergeSvc::TimedList<SiHitCollection>::type;
     TimedHitCollList hitCollList;
     if (!(m_mergeSvc->retrieveSubEvtsData(m_inputObjectName, hitCollList).isSuccess()) && hitCollList.size()==0) {
       ATH_MSG_ERROR ( "Could not fill TimedHitCollList" );
@@ -236,7 +238,7 @@ StatusCode BCM_DigitizationTool::processBunchXing(int bunchXing,
                       << " event number : " << iEvt->ptr()->eventNumber()
                       << " run number : " << iEvt->ptr()->runNumber()
                       );
-    const SiHitCollection* seHitColl = 0;
+    const SiHitCollection* seHitColl = nullptr;
     CHECK(seStore.retrieve(seHitColl,m_inputObjectName));
     ATH_MSG_DEBUG ( "SiHitCollection found with " << seHitColl->size() << " hits" );
     SiHitCollection::const_iterator i = seHitColl->begin();
@@ -265,7 +267,7 @@ StatusCode BCM_DigitizationTool::mergeEvent(const EventContext& ctx)
 //----------------------------------------------------------------------
 // ComputeEnergy method:
 //----------------------------------------------------------------------
-float BCM_DigitizationTool::computeEnergy(float simEner, HepGeom::Point3D<double> startPos, HepGeom::Point3D<double> endPos)
+float BCM_DigitizationTool::computeEnergy(float simEner, const HepGeom::Point3D<double>& startPos, const HepGeom::Point3D<double>& endPos)
 {
   // Initialize output energy
   float calcEner = 0;
@@ -278,8 +280,8 @@ float BCM_DigitizationTool::computeEnergy(float simEner, HepGeom::Point3D<double
     if (xStep==0 && yStep==0) effStep = 1.;
     else {
       rStep = sqrt(pow(xStep,2)+pow(yStep,2));
-      r0Step = fabs(yStep)>fabs(xStep) ? rStep*m_effPrmDistance/fabs(yStep) : rStep*m_effPrmDistance/fabs(xStep);
-      effStep = 1/(1+exp((rStep-r0Step)/m_effPrmSharpness));
+      r0Step = std::abs(yStep)>std::abs(xStep) ? rStep*m_effPrmDistance/std::abs(yStep) : rStep*m_effPrmDistance/std::abs(xStep);
+      effStep = 1/(1+std::exp((rStep-r0Step)/m_effPrmSharpness));
     }
     calcEner+= 0.1*simEner*effStep;
   }
@@ -437,7 +439,7 @@ void BCM_DigitizationTool::findPulses(std::bitset<64> digital, int &p1x, int &p1
 //----------------------------------------------------------------------
 void BCM_DigitizationTool::fillRDO(unsigned int chan, int p1x, int p1w, int p2x, int p2w)
 {
-  BCM_RDO_Collection *RDOColl = 0;
+  BCM_RDO_Collection *RDOColl = nullptr;
   // Check if collection for this channel already exists
   bool collExists = false;
   BCM_RDO_Container::iterator it_coll = m_rdoContainer->begin();

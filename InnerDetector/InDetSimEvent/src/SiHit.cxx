@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetSimEvent/SiHit.h"
@@ -145,16 +145,17 @@ bool SiHit::isPLR() const {
 
 HepGeom::Point3D<double> SiHit::localStartPosition() const
 {
-  //  return m_localEndPosition;
-  return HepGeom::Point3D<double>((double) m_stX, (double) m_stY, (double) m_stZ);
+  return { static_cast<double>(m_stX),
+           static_cast<double>(m_stY),
+           static_cast<double>(m_stZ) };
 }
 
 HepGeom::Point3D<double> SiHit::localEndPosition() const
 {
-  //  return m_localEndPosition;
-  return HepGeom::Point3D<double>((double) m_enX, (double) m_enY, (double) m_enZ);
+  return { static_cast<double>(m_enX),
+           static_cast<double>(m_enY),
+           static_cast<double>(m_enZ) };
 }
-
 
 int SiHit::getBarrelEndcap() const {
   return  SiHitIdHelper::GetHelper()->getBarrelEndcap(m_ID);

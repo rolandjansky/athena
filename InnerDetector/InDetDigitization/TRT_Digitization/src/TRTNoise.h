@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_DIGITIZATION_TRTNOISE_H
@@ -74,7 +74,7 @@ public:
 
   void appendCrossTalkNoiseToProperDigits(std::vector<TRTDigit>& digitVect,
                                           const std::set<Identifier>& simhitsIdentifiers,
-                                          ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc,
+                                          const ServiceHandle<ITRT_StrawNeighbourSvc>& m_TRTStrawNeighbourSvc,
                                           CLHEP::HepRandomEngine* noiseRndmEngine);
 
   void sortDigits(std::vector<TRTDigit>& digitVect);

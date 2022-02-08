@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "InDetEventAthenaPool/InDetRawDataCollection_p1.h"
 #include "InDetRawData/TRT_RDO_Container.h"
@@ -37,7 +37,7 @@ void TRT_LoLumRawDataContainerCnv_p3::transToPers(const TRT_RDO_Container* trans
   unsigned int tchan_id;               // transient channel id from transCont
   unsigned int tchan_word;             // transient channel word from transCont
 
-  typedef TRT_RDO_Container TRANS;
+  using TRANS = TRT_RDO_Container;
   TRANS::const_iterator it_transColl     = transCont->begin(); // The transient container has an incomplete list of collections
   TRANS::const_iterator it_transCollEnd  = transCont->end();   // and channels, we can access them with this iterator
 
@@ -166,7 +166,7 @@ void  TRT_LoLumRawDataContainerCnv_p3::persToTrans(const InDetRawDataContainer_p
   unsigned int trt_channel_index=0;
   unsigned int trt_channel_index_old;
 
-  TRT_RDO_Collection* tcoll=0;         // transient collection to be constructed
+  TRT_RDO_Collection* tcoll=nullptr;         // transient collection to be constructed
 
   MSG_DEBUG(log," Reading " << persCont->m_collections.size() << "Collections");
   if (persCont->m_collections.size() != trt_number_of_collections)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------
@@ -41,7 +41,7 @@ InducedChargeModel::setWaferData(const float vdepl,
                                      const float vbias,
                                      const InDetDD::SolidStateDetectorElementBase* element,
                                      const AtlasFieldCacheCondObj* fieldCondObj,
-                                     const ToolHandle<ISiliconConditionsTool> siConditionsTool,
+                                     const ToolHandle<ISiliconConditionsTool>& siConditionsTool,
                                      CLHEP::HepRandomEngine* rndmEngine,
                                      const EventContext& ctx) const {
   std::lock_guard<std::mutex> lock(m_mutex);
@@ -106,7 +106,7 @@ void InducedChargeModel::transport(const SCT_InducedChargeModelData& data,
                                        const double x0, const double y0,
                                        double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2,
                                        const IdentifierHash hashId,
-                                       const ToolHandle<ISiPropertiesTool> siPropertiesTool,
+                                       const ToolHandle<ISiPropertiesTool>& siPropertiesTool,
                                        const EventContext& ctx) const {
   // transport electrons and holes in the bulk
   // T. Kondo, 2010.9.9, 2017.7.20
@@ -192,7 +192,7 @@ void InducedChargeModel::holeTransport(const SCT_InducedChargeModelData& data,
                                            const double x0, const double y0,
                                            double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2,
                                            const IdentifierHash hashId,
-                                           const ToolHandle<ISiPropertiesTool> siPropertiesTool,
+                                           const ToolHandle<ISiPropertiesTool>& siPropertiesTool,
                                            const EventContext& ctx) const {
   // Q_m2[100],Q_m1[100],Q_00[100],Q_p1[100],Q_p2[100] NTransportSteps=100
   const bool isElectron = false;
@@ -212,7 +212,7 @@ void InducedChargeModel::electronTransport(const SCT_InducedChargeModelData& dat
                                                const double x0, const double y0,
                                                double* Q_m2, double* Q_m1, double* Q_00, double* Q_p1, double* Q_p2,
                                                const IdentifierHash hashId,
-                                               const ToolHandle<ISiPropertiesTool> siPropertiesTool,
+                                               const ToolHandle<ISiPropertiesTool>& siPropertiesTool,
                                                const EventContext& ctx) const {
   // Q_m2[100],Q_m1[100],Q_00[100],Q_p1[100],Q_p2[100] NTransportSteps=100
   const bool isElectron = true;
@@ -232,7 +232,7 @@ bool InducedChargeModel::getVxVyD(const SCT_InducedChargeModelData& data,
                                       const bool isElectron,
                                       const double x, const double y, double& vx, double& vy, double& D,
                                       const IdentifierHash hashId,
-                                      const ToolHandle<ISiPropertiesTool> siPropertiesTool,
+                                      const ToolHandle<ISiPropertiesTool>& siPropertiesTool,
                                       const EventContext& ctx) const {
   double Ex, Ey;
   getEField(data, x, y, Ex, Ey); // [V/cm]

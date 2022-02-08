@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetEventTPCnv/SCT_ClusterContainerCnv_p2.h"
@@ -39,7 +39,7 @@ void SCT_ClusterContainerCnv_p2::transToPers(const InDet::SCT_ClusterContainer* 
     // to the container's vector, saving the indexes in the
     // collection. 
 
-    typedef InDet::SCT_ClusterContainer TRANS;
+    using TRANS = InDet::SCT_ClusterContainer;
         
     // this is the id of the latest collection read in
     // This starts from the base of the TRT identifiers

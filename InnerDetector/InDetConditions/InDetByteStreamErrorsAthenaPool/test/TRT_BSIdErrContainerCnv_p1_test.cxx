@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -18,7 +18,7 @@
 
 
 //  DataVector<std::pair<uint8_t, std::pair<uint32_t, uint8_t> > > TRT_BSIdErrContainer; 
-typedef TRT_BSIdErrContainer::base_value_type Elt;
+using Elt = TRT_BSIdErrContainer::base_value_type;
 
 
 void compare (const TRT_BSIdErrContainer& c1,

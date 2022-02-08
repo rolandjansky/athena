@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_RDO_ContainerCnv.h"
@@ -52,7 +52,7 @@ StatusCode TRT_RDO_ContainerCnv::initialize() {
    }
    
    // get DetectorStore service
-   StoreGateSvc *detStore(0);
+   StoreGateSvc *detStore(nullptr);
      if (service("DetectorStore", detStore).isFailure()) {
      ATH_MSG_FATAL("DetectorStore service not found !");
      return StatusCode::FAILURE;
@@ -61,7 +61,7 @@ StatusCode TRT_RDO_ContainerCnv::initialize() {
    }
    
    // Get the trt helper from the detector store
-   const TRT_ID* idhelper(0);
+   const TRT_ID* idhelper(nullptr);
    if (detStore->retrieve(idhelper, "TRT_ID").isFailure()) {
      ATH_MSG_FATAL("Could not get TRT_ID helper !");
      return StatusCode::FAILURE;
@@ -95,7 +95,7 @@ TRT_RDO_Container_PERS* TRT_RDO_ContainerCnv::createPersistent(TRT_RDO_Container
     while (it_Coll != it_CollEnd && (*it_Coll)->size() == 0 ) ++it_Coll;
     if(it_Coll != it_CollEnd) {
       const TRT_RDORawData *test((**it_Coll)[0]);
-      if(dynamic_cast<const TRT_LoLumRawData*>(test) != 0 ) {
+      if(dynamic_cast<const TRT_LoLumRawData*>(test) != nullptr ) {
 	 ATH_MSG_DEBUG("Found container with TRT_LoLumRawData concrete type objects");
          converter_num=1;
       } else {
@@ -110,7 +110,7 @@ TRT_RDO_Container_PERS* TRT_RDO_ContainerCnv::createPersistent(TRT_RDO_Container
   }
   // Switch facility depending on the concrete data type of the contained objects
   // Should do by getting the type_info of one of the contained objects
-  TRT_RDO_Container_PERS *persObj(0);
+  TRT_RDO_Container_PERS *persObj(nullptr);
   if(converter_num == 1) { 
      persObj = m_converter_PERS.createPersistent( transCont, msg() );
   } else {

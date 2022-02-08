@@ -23,8 +23,8 @@ using eformat::helper::SourceIdentifier;
 TRT_CablingSvc::TRT_CablingSvc( const std::string& name, 
 			      ISvcLocator * pSvcLocator)
    : AthService( name, pSvcLocator ),
-     m_manager                    ( 0 ), 
-     m_idHelper                   ( 0 ),
+     m_manager                    ( nullptr ), 
+     m_idHelper                   ( nullptr ),
      m_cabling                    ( nullptr ),
      m_cablingTool_SR1_ECC        ( nullptr ),
      m_cablingTool_SR1            ( nullptr ),

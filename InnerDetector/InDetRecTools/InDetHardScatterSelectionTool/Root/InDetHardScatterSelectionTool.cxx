@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s):
@@ -224,7 +224,7 @@ ElementLink<xAOD::VertexContainer> InDet::InDetHardScatterSelectionTool::getHard
   SG::ReadHandle<xAOD::VertexContainer> vtxCont(m_vtxContKey, ctx);
   if (!vtxCont.isValid()) {
     ATH_MSG_ERROR("Could not open primary vertex container, returning empty ElementLink!");
-    return ElementLink<xAOD::VertexContainer>();
+    return {};
   }
   return getHardScatterLink(vtxCont.get());
 }

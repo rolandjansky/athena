@@ -157,7 +157,7 @@ void TRTDetectorFactory_Lite::create(GeoPhysVol *)
     shellPosVec.push_back(T);
   }
   //---------------------- Initialize ID Helper ------------------------------------//
-  const TRT_ID *idHelper = 0;
+  const TRT_ID *idHelper = nullptr;
 
   if (detStore()->retrieve(idHelper, "TRT_ID").isFailure()) {
     ATH_MSG_ERROR( "Could not retrieve TRT ID Helper");
@@ -632,7 +632,7 @@ void TRTDetectorFactory_Lite::create(GeoPhysVol *)
   const unsigned int nStrawLayMaxEc = 8;//hardcoded...
 
   unsigned int iiSide, iiWheel, iiPlane, iiPhi, counter;    //set of counters
-  GeoFullPhysVol *childPlane = 0;
+  GeoFullPhysVol *childPlane = nullptr;
 
 
   double RotationsOfStrawPlanes[nStrawLayMaxEc]; //8 is hardcoded
@@ -663,8 +663,8 @@ void TRTDetectorFactory_Lite::create(GeoPhysVol *)
   // Create and initialize by 0 arrays of descriptors
   std::vector<InDetDD::TRT_EndcapDescriptor*> descriptorsAB[nSides][nStrawLayMaxEc];
   std::vector<InDetDD::TRT_EndcapDescriptor*> descriptorsC[nSides][nStrawLayMaxEc];
-  InDetDD::TRT_EndcapDescriptor* pDescriptor = 0;
-  InDetDD::TRT_EndcapElement* element = 0;
+  InDetDD::TRT_EndcapDescriptor* pDescriptor = nullptr;
+  InDetDD::TRT_EndcapElement* element = nullptr;
 
   for(iiSide = 0; iiSide<nSides; iiSide++) {
     for(iiPlane = 0; iiPlane < nStrawLayMaxEc; iiPlane++) {
@@ -732,7 +732,7 @@ void TRTDetectorFactory_Lite::create(GeoPhysVol *)
 					     +std::to_string(iiSide)+"-"
 					     +std::to_string(iiWheel)];
 	    
-	    GeoAlignableTransform * xfAlignableModule = 0;
+	    GeoAlignableTransform * xfAlignableModule = nullptr;
 	    
 	    // Place planes in the wheel
 	    for (iiPlane = 0; iiPlane < m_data->endCapNumberOfStrawLayersPerWheelA; iiPlane++)
@@ -863,7 +863,7 @@ void TRTDetectorFactory_Lite::create(GeoPhysVol *)
 					     +std::to_string(iiSide)+"-"
 					     +std::to_string(iiWheel)];
 
-	    GeoAlignableTransform * xfAlignableModule = 0;	    
+	    GeoAlignableTransform * xfAlignableModule = nullptr;	    
 	    
 	    // Place planes in the wheel
 	    for (iiPlane = 0; iiPlane < m_data->endCapNumberOfStrawLayersPerWheelB; iiPlane++)
@@ -1055,7 +1055,7 @@ void TRTDetectorFactory_Lite::create(GeoPhysVol *)
   for (iiSide=0; iiSide<2; iiSide++)
     for(iiPhi=0; iiPhi<m_data->nEndcapPhi; iiPhi++)
       {
-	InDetDD::TRT_EndcapElement *prev = 0;
+	InDetDD::TRT_EndcapElement *prev = nullptr;
 	for (iiWheel=0; iiWheel<indexUpperBound; iiWheel++)
 	  for (iiPlane=0; iiPlane<m_detectorManager->getNumerology()->getNEndcapLayers(iiWheel); iiPlane++)
 	    {

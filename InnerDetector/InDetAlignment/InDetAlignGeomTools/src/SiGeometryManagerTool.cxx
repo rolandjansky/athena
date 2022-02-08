@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthContainers/DataVector.h"
@@ -31,17 +31,17 @@ namespace InDet {
                                      const std::string& name,
                                      const IInterface * parent)
     : AthAlgTool(type,name,parent)
-    , m_pixelDetManager(0)
-    , m_sctDetManager(0)
+    , m_pixelDetManager(nullptr)
+    , m_sctDetManager(nullptr)
     , m_pixHelper()
     , m_sctHelper()
     , m_idHelper()
     , m_pixelGeoManager("")
     , m_sctGeoManager("")
     , m_alignModuleTool("Trk::AlignModuleTool/AlignModuleTool")
-    , m_idHashToAlignModuleMaps(Trk::AlignModule::NDetectorTypes,(Trk::AlignModuleList*)0)
-    , m_alignParList(0)
-    , m_fullAlignParList(0)
+    , m_idHashToAlignModuleMaps(Trk::AlignModule::NDetectorTypes,(Trk::AlignModuleList*)nullptr)
+    , m_alignParList(nullptr)
+    , m_fullAlignParList(nullptr)
   {
     declareInterface<IGeometryManagerTool>(this);
     declareProperty("AlignModuleTool",      m_alignModuleTool);
@@ -77,7 +77,7 @@ namespace InDet {
     declareProperty("ActualGeometry",     m_actualGeom = false);
 
     m_hashCounter = 0;
-    m_logStream = 0;
+    m_logStream = nullptr;
   }
 
   //________________________________________________________________________
@@ -329,7 +329,7 @@ namespace InDet {
     ATH_MSG_DEBUG("maxHash for the Pixel: "<<pixelmaxHash);
 
     if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel) = new Trk::AlignModuleList((size_t)(pixelmaxHash),0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel) = new Trk::AlignModuleList((size_t)(pixelmaxHash),nullptr);
     Trk::AlignModuleList * pixelIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel);
 
     // ==================================================================
@@ -377,7 +377,7 @@ namespace InDet {
     ATH_MSG_DEBUG("maxHash for the SCT: "<<sctmaxHash);
 
     if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT) = new Trk::AlignModuleList((size_t)(sctmaxHash),0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT) = new Trk::AlignModuleList((size_t)(sctmaxHash),nullptr);
     Trk::AlignModuleList * sctIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT);
 
     // ================================================================
@@ -609,7 +609,7 @@ namespace InDet {
 
       // Loop over all detector elements of this align module:
       for(unsigned int j=0;j<nSi;j++) {
-        const SiDetectorElement * element=0;
+        const SiDetectorElement * element=nullptr;
         if(isPix) element = dynamic_cast<const SiDetectorElement*>(module->detElementCollection(Trk::AlignModule::Pixel)->at(j)); 
 	if(isSCT) element = dynamic_cast<const SiDetectorElement*>(module->detElementCollection(Trk::AlignModule::SCT)->at(j)); 
 	if (not element){
@@ -687,7 +687,7 @@ namespace InDet {
           ro[Si_count]->SetAngles(57.2957*ea[0],57.2957*ea[1],57.2957*ea[2]);
           mx[Si_count] = new TGeoCombiTrans(*tr[Si_count],*ro[Si_count]);
 
-	  TGeoVolume*   parrent_elem = 0; 
+	  TGeoVolume*   parrent_elem = nullptr; 
 	  switch(det)
 	    {
 	    case 1:

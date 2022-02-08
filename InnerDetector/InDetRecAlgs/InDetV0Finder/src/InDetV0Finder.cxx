@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -237,7 +237,7 @@ StatusCode InDetV0Finder::execute()
              lbContainer, lbAuxContainer,
 					   primaryVertex, importedVxContainer.cptr());
 	//
-	typedef std::unique_ptr<xAOD::VertexContainer> Container_p;
+	using Container_p = std::unique_ptr<xAOD::VertexContainer>;
 	using Aux_p = std::unique_ptr<xAOD::VertexAuxContainer>;
 	//create unique pointers for all containers and aux containers
 	Container_p pV = Container_p(v0Container);
