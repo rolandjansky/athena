@@ -284,6 +284,11 @@ def setupMenu():
         ChainProp(name='HLT_e9_lhtight_noringer_e4_etcut_1invmAB5_L1JPSI-1M5-EM7', l1SeedThresholds=['EM7','EM3'], groups=DevGroup+MultiElectronGroup),
         ChainProp(name='HLT_e5_lhtight_noringer_e9_etcut_1invmAB5_L1JPSI-1M5-EM7', l1SeedThresholds=['EM3','EM7'], groups=DevGroup+MultiElectronGroup),
         ChainProp(name='HLT_e5_lhtight_noringer_e14_etcut_1invmAB5_L1JPSI-1M5-EM12', l1SeedThresholds=['EM3','EM12'], groups=DevGroup+MultiElectronGroup),
+        #Photon Ringer Chains ATR-24384
+        ChainProp(name='HLT_g20_loose_ringer_L1EM15VHI', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g20_medium_ringer_L1EM15VHI', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g20_tight_ringer_L1EM15VHI', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g120_loose_ringer_L1EM22VHI', groups=SinglePhotonGroup),
     ]
 
     chains['MET'] += [

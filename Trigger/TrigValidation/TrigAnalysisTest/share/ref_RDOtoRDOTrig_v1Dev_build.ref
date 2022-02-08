@@ -6152,6 +6152,18 @@ HLT_g120_loose_L1eEM26M:
     1: 5
     2: 5
     3: 1
+HLT_g120_loose_ringer_L1EM22VHI:
+  eventCount: 1
+  stepCounts:
+    0: 2
+    1: 2
+    2: 2
+    3: 1
+  stepFeatures:
+    0: 5
+    1: 5
+    2: 5
+    3: 1
 HLT_g12_loose_LArPEBHLT_L1EM10VH:
   eventCount: 0
 HLT_g140_loose_L1EM22VHI:
@@ -6280,6 +6292,30 @@ HLT_g20_loose_L1eEM18L:
     3: 2
 HLT_g20_loose_LArPEBHLT_L1EM15:
   eventCount: 0
+HLT_g20_loose_ringer_L1EM15VHI:
+  eventCount: 7
+  stepCounts:
+    0: 12
+    1: 9
+    2: 9
+    3: 7
+  stepFeatures:
+    0: 18
+    1: 12
+    2: 12
+    3: 7
+HLT_g20_medium_ringer_L1EM15VHI:
+  eventCount: 7
+  stepCounts:
+    0: 11
+    1: 8
+    2: 8
+    3: 7
+  stepFeatures:
+    0: 14
+    1: 9
+    2: 9
+    3: 7
 HLT_g20_tight_L1EM15VHI:
   eventCount: 6
   stepCounts:
@@ -6400,6 +6436,18 @@ HLT_g20_tight_icaloloose_j35_pf_ftf_bdl1r77_3j35_pf_ftf_0eta490_j0_pf_ftf_DJMASS
     4: 6
     5: 16
     6: 2
+HLT_g20_tight_ringer_L1EM15VHI:
+  eventCount: 6
+  stepCounts:
+    0: 9
+    1: 7
+    2: 7
+    3: 6
+  stepFeatures:
+    0: 10
+    1: 7
+    2: 7
+    3: 6
 HLT_g22_tight_L1EM15VHI:
   eventCount: 6
   stepCounts:
