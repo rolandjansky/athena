@@ -28,17 +28,19 @@ L1JetCollections = {
   # The MatchedTo list must be of length 2, and contain the names of an offline collection
   # and an HLT collection. These names can be the empty string.
   'LVL1JetRoIs'  : { 'MatchTo' : ['AntiKt4EMPFlowJets','HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf'] },
-  # 'L1_jFexSRJetRoI' : { 'MatchTo' : ['AntiKt4EMPFlowJets','HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf'] },
   'L1_jFexSRJetRoI' : {'MatchTo' : []},
 }
 
 
 # the values of Chain2L1JetCollDict are keys of L1JetCollections.
+# the keys of Chain2L1JetCollDict are used to select events before histograms are filled
 Chain2L1JetCollDict = { # set L1 jet collection name for L1 jet chains
   'L1_J15'  : 'LVL1JetRoIs',
   'L1_J20'  : 'LVL1JetRoIs',
   'L1_J100' : 'LVL1JetRoIs',
-  'L1_jJ100' : 'L1_jFexSRJetRoI',
+  'L1_jJ40' : 'L1_jFexSRJetRoI',
+  'L1_jJ50' : 'L1_jFexSRJetRoI',
+  'L1_jJ160' : 'L1_jFexSRJetRoI',
 }
 
 
