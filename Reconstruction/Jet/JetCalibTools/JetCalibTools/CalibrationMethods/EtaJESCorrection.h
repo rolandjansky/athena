@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETCALIBTOOLS_ETAJESCORRECTION_H
@@ -15,25 +15,19 @@
 #include <TEnv.h>
 #include <TAxis.h>
 
-#include "JetCalibTools/JetCalibrationToolBase.h"
+#include "JetCalibTools/JetCalibrationStep.h"
 
 class EtaJESCorrection 
-  : virtual public ::JetCalibrationToolBase
+  : virtual public ::JetCalibrationStep
 {
 
-  ASG_TOOL_CLASS( EtaJESCorrection, IJetCalibrationTool )
-
  public:
-  EtaJESCorrection();  
-  EtaJESCorrection(const std::string& name);
+  EtaJESCorrection();
   EtaJESCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool mass, bool dev);
   virtual ~EtaJESCorrection();
 
-  //virtual bool initializeTool(TEnv * config, TString jetAlgo);
-  virtual StatusCode initializeTool(const std::string& name);
-
- protected:
-  virtual StatusCode calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const;
+  virtual StatusCode initialize() override;
+  virtual StatusCode calibrate(xAOD::Jet& jet, JetEventInfo&) const override;
  
  private:
   double getJES(double E_uncorr, double eta_det) const;
