@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARWHEELCALCULATOR_IMPL_WHEELFANCALCULATOR_H
 #define LARWHEELCALCULATOR_IMPL_WHEELFANCALCULATOR_H
 
 #include "IFanCalculator.h"
-#include "RDBAccessSvc/IRDBAccessSvc.h"
-#include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GeoSpecialShapes/LArWheelCalculator.h"
 
 #include "GaudiKernel/PhysicalConstants.h"
