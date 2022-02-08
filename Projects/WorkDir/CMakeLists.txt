@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 # Project file for building a selected set of packages against an
 # installed ATLAS release/nightly.
@@ -100,6 +100,42 @@ set( CMAKE_EXPORT_COMPILE_COMMANDS TRUE CACHE BOOL
 # project.
 set( ATLAS_ALWAYS_CHECK_WILDCARDS TRUE CACHE BOOL
    "(Re-)Check wildcards in file specifications on every build" )
+
+# Set up CppCheck.
+find_program( ATLAS_CPPCHECK "cppcheck"
+   PATHS ENV PATH
+   NO_DEFAULT_PATH )
+mark_as_advanced( ATLAS_CPPCHECK )
+if( ATLAS_CPPCHECK )
+   # Set up the default cppcheck command to use.
+   set( CMAKE_CPPCHECK_DEFAULT "${ATLAS_CPPCHECK}" "--quiet"
+      "--enable=warning,portability" "--inline-suppr" "--template=gcc" )
+   foreach( ignored_path "${LCG_RELEASE_BASE}" "${TDAQ-COMMON_INCLUDE_DIR}"
+                         "${TDAQ_INCLUDE_DIR}" "${AthenaExternals_INCLUDE_DIR}"
+                         "${AnalysisBaseExternals_INCLUDE_DIR}"
+                         "${AthAnalysisExternals_INCLUDE_DIR}"
+                         "${AthDerivationExternals_INCLUDE_DIR}"
+                         "${AthSimulationExternals_INCLUDE_DIR}"
+                         "${AthGenerationExternals_INCLUDE_DIR}" )
+      if( ignored_path )
+         list( APPEND CMAKE_CPPCHECK_DEFAULT "--suppress=*:${ignored_path}/*" )
+      endif()
+   endforeach()
+   list( APPEND CMAKE_CPPCHECK_DEFAULT "--suppress=*:*Dict.cxx" )
+   # Set the cache variable(s) that CMake uses to decide how to use cppcheck.
+   set( CMAKE_C_CPPCHECK "${CMAKE_CPPCHECK_DEFAULT}"
+      CACHE STRING "CppCheck command to use for the C source files" )
+   set( CMAKE_CXX_CPPCHECK "${CMAKE_CPPCHECK_DEFAULT}"
+      CACHE STRING "CppCheck command to use for the C++ source files" )
+   unset( CMAKE_CPPCHECK_DEFAULT )
+   # Let the user know what happened.
+   if( CMAKE_C_CPPCHECK )
+      message( STATUS "Checking C files with: ${CMAKE_C_CPPCHECK}" )
+   endif()
+   if( CMAKE_CXX_CPPCHECK )
+      message( STATUS "Checking C++ files with: ${CMAKE_CXX_CPPCHECK}" )
+   endif()
+endif()
 
 # Set up a work directory project with the same version as our parent:
 atlas_project( USE ${ATLAS_PROJECT} ${${ATLAS_PROJECT}_VERSION}
