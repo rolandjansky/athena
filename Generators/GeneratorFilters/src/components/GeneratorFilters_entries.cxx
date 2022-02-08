@@ -8,6 +8,7 @@
 #include "GeneratorFilters/xAODDiLeptonMassFilter.h"
 #include "GeneratorFilters/xAODDirectPhotonFilter.h"
 #include "GeneratorFilters/xAODElectronFilter.h"
+#include "GeneratorFilters/xAODLeptonFilter.h"
 #include "GeneratorFilters/xAODLeptonPairFilter.h"
 #include "GeneratorFilters/xAODM4MuIntervalFilter.h"
 #include "GeneratorFilters/xAODMETFilter.h"
@@ -141,6 +142,7 @@ DECLARE_COMPONENT( xAODDecayTimeFilter )
 DECLARE_COMPONENT( xAODDiLeptonMassFilter )
 DECLARE_COMPONENT( xAODDirectPhotonFilter )
 DECLARE_COMPONENT( xAODElectronFilter )
+DECLARE_COMPONENT( xAODLeptonFilter ) 
 DECLARE_COMPONENT( xAODLeptonPairFilter )
 DECLARE_COMPONENT( xAODM4MuIntervalFilter )
 DECLARE_COMPONENT( xAODMETFilter)
