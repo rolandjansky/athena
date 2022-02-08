@@ -5702,9 +5702,9 @@ HLT_noalg_L1jXE110:
 HLT_noalg_L1jXE500:
   eventCount: 0
 HLT_noalg_L1jXE70:
-  eventCount: 0
+  eventCount: 7
 HLT_noalg_L1jXE80:
-  eventCount: 0
+  eventCount: 6
 HLT_noalg_L1jXEC100:
   eventCount: 0
 HLT_noalg_L1jXEPerf100:
@@ -6721,7 +6721,11 @@ HLT_xe30_cell_xe30_tcpufit_L1XE30:
   stepFeatures:
     0: 4
 HLT_xe30_cell_xe30_tcpufit_L1jXE70:
-  eventCount: 0
+  eventCount: 2
+  stepCounts:
+    0: 2
+  stepFeatures:
+    0: 7
 HLT_xe30_cvfpufit_L1XE30:
   eventCount: 1
   stepCounts:
