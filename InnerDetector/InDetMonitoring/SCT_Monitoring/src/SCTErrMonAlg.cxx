@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCTErrMonAlg.h"
@@ -309,8 +309,8 @@ SCTErrMonAlg::fillByteStreamErrors(const EventContext& ctx) const {
     if (ent->m_evt!=ctx.evt()) { // New event in this slot
       if (ent->m_mapSCT.empty()) { // First event
         for (int iProblem{0}; iProblem<numberOfProblemForCoverage; iProblem++) {
-          ent->m_mapSCT.push_back(TH2F(names[iProblem].c_str(), titles[iProblem].c_str(),
-                                       s_nBinsEta, -s_rangeEta, s_rangeEta, s_nBinsPhi, -M_PI, M_PI));
+          ent->m_mapSCT.emplace_back(names[iProblem].c_str(), titles[iProblem].c_str(),
+                                       s_nBinsEta, -s_rangeEta, s_rangeEta, s_nBinsPhi, -M_PI, M_PI);
           ent->m_mapSCT[iProblem].GetXaxis()->SetTitle("#eta");
           ent->m_mapSCT[iProblem].GetYaxis()->SetTitle("#phi");
         }

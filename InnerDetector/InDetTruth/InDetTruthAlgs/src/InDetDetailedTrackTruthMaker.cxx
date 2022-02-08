@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Algorithm producing truth info for PrepRawData, keeping all MC particles contributed to a PRD.
@@ -87,7 +87,7 @@ StatusCode InDetDetailedTrackTruthMaker::execute(const EventContext &ctx) const
   prdCollectionVector.reserve(3);
 
   if(!m_PRDTruthNamePixel.key().empty()) {
-    read_handle.push_back( SG::ReadHandle<PRD_MultiTruthCollection>(m_PRDTruthNamePixel,ctx) );
+    read_handle.emplace_back(m_PRDTruthNamePixel,ctx );
     if (!read_handle.back().isValid())  {
       ATH_MSG_WARNING ("Pixel PRD_MultiTruthCollection "<<m_PRDTruthNamePixel.key()<<" NOT found");
     }
@@ -98,7 +98,7 @@ StatusCode InDetDetailedTrackTruthMaker::execute(const EventContext &ctx) const
   }
 
   if(!m_PRDTruthNameSCT.key().empty()) {
-    read_handle.push_back( SG::ReadHandle<PRD_MultiTruthCollection>(m_PRDTruthNameSCT,ctx) );
+    read_handle.emplace_back(m_PRDTruthNameSCT,ctx );
     if (!read_handle.back().isValid())  {
       ATH_MSG_WARNING ("SCT PRD_MultiTruthCollection "<<m_PRDTruthNameSCT.key()<<" NOT found");
     } else {
@@ -108,7 +108,7 @@ StatusCode InDetDetailedTrackTruthMaker::execute(const EventContext &ctx) const
   }
 
   if(!m_PRDTruthNameTRT.key().empty()) {
-    read_handle.push_back( SG::ReadHandle<PRD_MultiTruthCollection>(m_PRDTruthNameTRT,ctx) );
+    read_handle.emplace_back(m_PRDTruthNameTRT,ctx );
     if (!read_handle.back().isValid())  {
       ATH_MSG_WARNING ("TRT PRD_MultiTruthCollection "<<m_PRDTruthNameTRT.key()<<" NOT found");
     } else {

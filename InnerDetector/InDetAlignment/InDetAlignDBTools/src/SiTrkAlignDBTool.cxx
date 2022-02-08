@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -35,9 +35,9 @@ namespace InDet
 //________________________________________________________________________
 SiTrkAlignDBTool::SiTrkAlignDBTool(const std::string & type, const std::string & name, const IInterface * parent)
    : AthAlgTool(type,name,parent)
-   , m_pixHelper(0)
-   , m_sctHelper(0)
-   , m_idHelper(0)
+   , m_pixHelper(nullptr)
+   , m_sctHelper(nullptr)
+   , m_idHelper(nullptr)
    , m_writeSQLFile(true)
    , m_SQLiteTag("test_tag")
    , m_outputAlignFile("OutputSiAlignment.txt")
@@ -437,7 +437,7 @@ void SiTrkAlignDBTool::updateDB()
 
     ATH_MSG_DEBUG("Retrieved alignment constants for module "<<module->name());
     ATH_MSG_DEBUG("Module ID : "<<modID);
-    ATH_MSG_DEBUG("Expanded module ID : "<<m_idHelper->show_to_string(modID,0,'/'));
+    ATH_MSG_DEBUG("Expanded module ID : "<<m_idHelper->show_to_string(modID,nullptr,'/'));
 
     // get final alignment parameters
     DataVector<Trk::AlignPar> * fullAlignPars = m_alignModuleTool->getFullAlignPars(module);
@@ -644,7 +644,7 @@ void SiTrkAlignDBTool::updateAsL3(const Trk::AlignModule * module, const Amg::Tr
   const int level = 3;
 
   // transform from global frame to align frame
-  Amg::Transform3D globaltoalign = module->globalFrameToAlignFrame();
+  const Amg::Transform3D& globaltoalign = module->globalFrameToAlignFrame();
 
   // same code pplies to both Pixel and SCT
   for (unsigned int idet=0; idet<2; idet++) {
@@ -682,7 +682,7 @@ void SiTrkAlignDBTool::updateAsL3(const Trk::AlignModule * module, const Amg::Tr
       ATH_MSG_DEBUG("-----------------------------------------------------");
 
       ATH_MSG_DEBUG("ModuleID value: "<<elemID);
-      ATH_MSG_DEBUG("ModuleID: "<<m_idHelper->show_to_string(elemID,0,'/'));
+      ATH_MSG_DEBUG("ModuleID: "<<m_idHelper->show_to_string(elemID,nullptr,'/'));
 
       // this should work for both Pixel and SCT
       // module transform is the transform between the db frame and global frame
@@ -765,7 +765,7 @@ void SiTrkAlignDBTool::updateAsL2(const Trk::AlignModule * module, const Amg::Tr
     std::string key = m_IDAlignDBTool->dirkey(level_mod,level+1);
     
     ATH_MSG_DEBUG("TESTING value: "<<level_mod);
-    ATH_MSG_DEBUG("TESTING ID: "<<m_idHelper->show_to_string(level_mod,0,'/'));
+    ATH_MSG_DEBUG("TESTING ID: "<<m_idHelper->show_to_string(level_mod,nullptr,'/'));
     ATH_MSG_DEBUG("TESTING retrieved key: "<<key);
     std::vector<std::string>::const_iterator ix = find(level_mods.begin(),level_mods.end(),key); // check whether it is unique
     if (ix==level_mods.end()) {
@@ -774,11 +774,11 @@ void SiTrkAlignDBTool::updateAsL2(const Trk::AlignModule * module, const Amg::Tr
       ATH_MSG_DEBUG("-----------------------------------------------------");
       
       ATH_MSG_DEBUG("ModuleID value: "<<level_mod);
-      ATH_MSG_DEBUG("ModuleID: "<<m_idHelper->show_to_string(level_mod,0,'/'));
+      ATH_MSG_DEBUG("ModuleID: "<<m_idHelper->show_to_string(level_mod,nullptr,'/'));
       
       // for levels 1 and 2 the DB frame equals to the global frame but the align
       // frame doesnot, so we have to apply an additional transform
-      Amg::Transform3D dbFrameToAlignFrame = module->globalFrameToAlignFrame();
+      const Amg::Transform3D& dbFrameToAlignFrame = module->globalFrameToAlignFrame();
         
       ATH_MSG_DEBUG("DB to align");
       printTransform(dbFrameToAlignFrame);
@@ -797,7 +797,7 @@ void SiTrkAlignDBTool::updateAsL2(const Trk::AlignModule * module, const Amg::Tr
       }
     }
     else {
-      ATH_MSG_DEBUG("Skipping ModuleID: "<<m_idHelper->show_to_string(elemID,0,'/')<<" --> not unique");
+      ATH_MSG_DEBUG("Skipping ModuleID: "<<m_idHelper->show_to_string(elemID,nullptr,'/')<<" --> not unique");
     }
   } // end loop over detElements
 }
@@ -830,7 +830,7 @@ void SiTrkAlignDBTool::updateAsL16(const Trk::AlignModule * module, double bowx)
     Identifier elemID = sielem->identify();
     const int this_stave_phi = m_pixHelper->phi_module( elemID );
 
-    ATH_MSG_DEBUG("module ID: "<<m_idHelper->show_to_string(elemID,0,'/'));
+    ATH_MSG_DEBUG("module ID: "<<m_idHelper->show_to_string(elemID,nullptr,'/'));
     ATH_MSG_DEBUG("phi identifier: "<<m_pixHelper->phi_module( elemID )) ;    
 
     std::vector<int>::const_iterator ix = find(stave_phis.begin(),stave_phis.end(),this_stave_phi); // check whether it is unique
@@ -843,7 +843,7 @@ void SiTrkAlignDBTool::updateAsL16(const Trk::AlignModule * module, double bowx)
       }
     }
     else {
-      ATH_MSG_DEBUG("Skipping ModuleID: "<<m_idHelper->show_to_string(elemID,0,'/')<<" --> not unique");
+      ATH_MSG_DEBUG("Skipping ModuleID: "<<m_idHelper->show_to_string(elemID,nullptr,'/')<<" --> not unique");
     }
     
   } // end loop over detElements                                                                                                                                                 

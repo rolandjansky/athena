@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetLowBetaCandidateCnv.h"
@@ -30,7 +30,7 @@ InDet::InDetLowBetaCandidate* InDetLowBetaCandidateCnv::createTransient() {
   
   static const pool::Guid tlp1_guid("8C24589F-FBAA-4686-9254-B5C360A94733");
 
-  InDet::InDetLowBetaCandidate *trans_cont(0);
+  InDet::InDetLowBetaCandidate *trans_cont(nullptr);
   
   if (compareClassGuid(tlp1_guid) ) {
     ATH_MSG_DEBUG("InDetLowBetaCandidateCnv::reading tlp1 persistent object");

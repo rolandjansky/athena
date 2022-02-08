@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // SiDistWriteAlg.cxx
@@ -17,7 +17,7 @@
 SiDistWriteAlg::SiDistWriteAlg(const std::string& name, ISvcLocator* pSvcLocator)
     :AthAlgorithm   (name, pSvcLocator),
         
-     m_pixid(0),m_sctid(0),
+     m_pixid(nullptr),m_sctid(nullptr),
      m_first(true),
      m_par_print(false),
      m_par_size(3),
@@ -167,7 +167,7 @@ bool SiDistWriteAlg::makeIdent(const std::string& ident,
 void SiDistWriteAlg::print() {
   ATH_MSG_DEBUG ( "Print distortion parameters at " << m_par_distkey );
   // retrieve distortions from Storegate and print in detail
-  const DetCondCFloat* pdist=0;
+  const DetCondCFloat* pdist=nullptr;
   if (StatusCode::SUCCESS==detStore()->retrieve(pdist,m_par_distkey)) {
     pdist->print2();
   } else {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -59,7 +59,7 @@ void compare (const SiHitCollection& p1,
 
 void testit (const SiHitCollection& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   SiHitCollectionCnv_p2 cnv;
   SiHitCollection_p2 pers;
   cnv.transToPers (&trans1, &pers, log);

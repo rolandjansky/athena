@@ -266,7 +266,7 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
 	    double trackp_mag     = trackp.mag();
 	    double cosalpha       = 0.;
 	    if (trackp_mag != 0) cosalpha = std::abs(trackpnormcomp / trackp_mag);
-	    ClusterIDs.push_back(std::make_pair(clus->identify(), cosalpha));
+	    ClusterIDs.emplace_back(clus->identify(), cosalpha);
 	  }
 	}
     } // end of TSOS loop

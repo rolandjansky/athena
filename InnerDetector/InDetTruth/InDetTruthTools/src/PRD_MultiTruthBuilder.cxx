@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTruthTools/PRD_MultiTruthBuilder.h"
@@ -22,7 +22,7 @@ namespace InDet {
 //================================================================
 PRD_MultiTruthBuilder::PRD_MultiTruthBuilder(const std::string& type, const std::string& name, const IInterface* parent)
   : AthAlgTool(type,name,parent)
-  , m_idHelperPixel(0)
+  , m_idHelperPixel(nullptr)
 {
   declareInterface<IPRD_MultiTruthBuilder>(this);
 }
@@ -95,7 +95,7 @@ void PRD_MultiTruthBuilder::addPrepRawDatum(PRD_MultiTruthCollection *prdTruth,
           // Associate the particle to the PRD. But don't add duplicates.
           // Note: it may be more efficient to filter out duplicates among particles for the current PRD, then check-and-add the reduced set to the large multimap.
           // But may be not for the typically small RDO/PRD ratio.
-          typedef PRD_MultiTruthCollection::iterator truthiter;
+          using truthiter = PRD_MultiTruthCollection::iterator;
           std::pair<truthiter, truthiter> r = prdTruth->equal_range(prd->identify());
                 if(r.second == std::find_if(r.first, r.second, 
                                 [ particleLink ](const PRD_MultiTruthCollection::value_type &prd_to_truth) {

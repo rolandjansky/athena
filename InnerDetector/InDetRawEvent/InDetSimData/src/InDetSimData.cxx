@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -66,8 +66,7 @@ InDetSimData &InDetSimData::operator=(const InDetSimData& other)
   return *this;
 }
 
-InDetSimData &InDetSimData::operator=(InDetSimData&& other)
-{
+InDetSimData &InDetSimData::operator=(InDetSimData&& other) noexcept {
   if(&other != this) 
     { 
       m_word=other.m_word;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCTHitEffMonAlg.h"
@@ -377,7 +377,7 @@ StatusCode SCTHitEffMonAlg::fillHistograms(const EventContext& ctx) const {
                                     "track cut: inside-out only")) {
       continue;
     }
-    if (pthisTrack->perigeeParameters() == 0) {
+    if (pthisTrack->perigeeParameters() == nullptr) {
       continue;
     }
     const Trk::Perigee* perigee{pthisTrack->perigeeParameters()};
