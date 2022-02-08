@@ -1126,6 +1126,18 @@ class TopoAlgoDef:
         alg.addvariable('MinET1',      0*_et_conversion)
         tm.registerTopoAlgo(alg)
 
+        toponame = "0INVM10-3MU3VFab"
+        log.debug("Define %s", toponame)
+        inputList = 'MU3VFab'
+        alg = AlgConf.InvariantMassThreeTOBsIncl1( name = toponame, inputs = inputList, outputs = toponame )
+        alg.addgeneric('InputWidth', HW.muonOutputWidthSelect)
+        alg.addgeneric('MaxTob', HW.muonOutputWidthSelect)
+        alg.addgeneric('NumResultBits', 1)
+        alg.addvariable('MinMSqr',     0*_et_conversion*_et_conversion)
+        alg.addvariable('MaxMSqr', 10*10*_et_conversion*_et_conversion)
+        alg.addvariable('MinET1',      0*_et_conversion)
+        tm.registerTopoAlgo(alg)
+
         #ATR-19638, 3muon, not all with the same charge
         toponame = "0INVM10C-3MU3Vab"
         log.debug("Define %s", toponame)
@@ -1265,6 +1277,7 @@ class TopoAlgoDef:
             {"minInvm": 2, "maxInvm": 9,  "minDr": 0,  "maxDr": 15, "mult": 1, "otype1" : "MU5VFab", "otype2": "MU3Vab", }, #2INVM9-0DR15-MU5VFab-MU3Vab 
             {"minInvm": 8, "maxInvm": 15, "minDr": 0,  "maxDr": 22, "mult": 1, "otype1" : "MU5VFab", "otype2": "MU3Vab", }, #8INVM15-0DR22-MU5VFab-MU3Vab
             {"minInvm": 2, "maxInvm": 9,  "minDr": 0,  "maxDr": 15, "mult": 2, "otype1" : "MU3Vab",  "otype2": "",       }, #2INVM9-0DR15-2MU3Vab
+            {"minInvm": 2, "maxInvm": 9,  "minDr": 0,  "maxDr": 15, "mult": 2, "otype1" : "MU3VFab",  "otype2": "",      }, #2INVM9-0DR15-2MU3VFab
 
             {"minInvm": 0, "maxInvm": 16, "minDr": 20, "maxDr": 99, "mult": 2, "otype1" : "MU3Vab",  "otype2": "",},        #0INVM16-20DR99-2MU3Vab
             {"minInvm": 0, "maxInvm": 16, "minDr": 15, "maxDr": 99, "mult": 2, "otype1" : "MU3Vab",  "otype2": "",},        #0INVM16-15DR99-2MU3Vab

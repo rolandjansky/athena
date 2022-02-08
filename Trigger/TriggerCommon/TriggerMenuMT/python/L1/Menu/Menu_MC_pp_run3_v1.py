@@ -54,7 +54,7 @@ def defineMenu():
         'L1_MU3V', 'L1_MU5VF', 'L1_MU8F', 'L1_MU8VF', 'L1_MU14FCH', 'L1_MU14FCHR',
         'L1_MU3VF', 'L1_MU8FC', 'L1_MU8VFC', 'L1_MU15VFCH', 'L1_MU10BOM', 'L1_MU4BOM', 'L1_MU12BOM', 'L1_MU10BO', 
         'L1_2MU3V', 'L1_2MU5VF', 'L1_2MU8F', 'L1_MU8VF_2MU5VF', 'L1_MU5VF_2MU3V', 'L1_MU5VF_2MU3VF',
-        'L1_3MU3V', 'L1_3MU3VF', 'L1_3MU5VF', 'L1_MU5VF_3MU3V', 'L1_4MU3V', 
+        'L1_3MU3V', 'L1_3MU3VF', 'L1_3MU5VF', 'L1_MU5VF_3MU3V', 'L1_MU5VF_3MU3VF', 'L1_4MU3V', 
         'L1_2MU5VF_3MU3V', 'L1_2MU8VF', 
         'L1_MU8F_2MU5VF',
 
@@ -360,6 +360,7 @@ def defineMenu():
     
         #ATR-19720, ATR-19639
         'L1_BPH-2M9-0DR15-2MU3V',
+        'L1_BPH-2M9-0DR15-2MU3VF',
         'L1_BPH-2M9-0DR15-MU5VFMU3V',
         'L1_BPH-2M9-0DR15-C-MU5VFMU3V',
         'L1_BPH-2M9-2DR15-2MU5VF',
@@ -367,6 +368,7 @@ def defineMenu():
         'L1_BPH-8M15-0DR22-2MU5VF',
         #ATR-19355
         'L1_BPH-0M10-3MU3V',
+        'L1_BPH-0M10-3MU3VF',
         #ATR-19638
         'L1_BPH-0M10C-3MU3V',
 
