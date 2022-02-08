@@ -158,8 +158,8 @@ PHYSMuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name    
 ToolSvc += PHYSMuonTPThinningTool
 thinningTools.append(PHYSMuonTPThinningTool)
 
-# TauJets thinning
-tau_thinning_expression = "(TauJets.ptFinalCalib >= 13.*GeV) && (TauJets.nTracks>=1) && (TauJets.nTracks<=3) && (TauJets.RNNJetScoreSigTrans>0.01)"
+# TauJets thinning - no more RNN ID score cut to ease R21/R22 comparisons
+tau_thinning_expression = "(TauJets.ptFinalCalib >= 13.*GeV) && (TauJets.nTracks>=1) && (TauJets.nTracks<=3)"
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
 PHYSTauJetsThinningTool = DerivationFramework__GenericObjectThinning(name            = "PHYSTauJetsThinningTool",
                                                                      ThinningService = PHYSThinningHelper.ThinningSvc(),
