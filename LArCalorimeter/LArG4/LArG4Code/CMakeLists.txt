@@ -25,9 +25,7 @@ atlas_add_library( LArG4Code
 
 atlas_add_dictionary( LArG4CodeEnums
                       LArG4Code/LArG4EnumDefs.h
-                      LArG4Code/selectionEnums.xml
-                      INCLUDE_DIRS  ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} AtlasDetDescr CaloSimEvent LArGeoCode LArSimEvent CaloG4SimLib G4AtlasToolsLib StoreGateLib GaudiKernel LArG4Code )
+                      LArG4Code/selectionEnums.xml )
 
 atlas_add_test( LArG4CalibSD_gtest
                 SOURCES test/LArG4CalibSD_gtest.cxx
