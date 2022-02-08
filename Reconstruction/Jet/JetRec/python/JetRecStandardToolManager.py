@@ -33,9 +33,10 @@ jetFlags.usePFlow.set_On()
 jetFlags.useMuonSegments.set_On()
 jetFlags.useBTagging.set_On()
 
-from AthenaCommon.JobProperties import jobproperties
-if jobproperties.Beam.beamType() != 'collisions':
+from InDetRecExample.InDetJobProperties import InDetFlags
+if not InDetFlags.doR3LargeD0():
   jetFlags.useLargeD0Tracks.set_Off()
+
 
 # Lock all the flags used here so that later attempts to change
 # the value will fail with an error message.
