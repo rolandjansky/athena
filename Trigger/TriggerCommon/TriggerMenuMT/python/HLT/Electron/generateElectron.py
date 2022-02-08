@@ -104,7 +104,7 @@ def _precisonCalo(flags, chainDict):
     return ChainStep(name=selAcc.name, Sequences=[menuSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
 
 @AccumulatorCache
-def _precisionTrackingSeq(flags):
+def _precisionTrackingSeq(flags,chainDict):
     name='ElectronPrecisionTracking'
     selAcc=SelectionCA('ElectronPrecisionTracking')
 
@@ -121,17 +121,17 @@ def _precisionTrackingSeq(flags):
     from TrigInDetConfig.TrigInDetConfig import trigInDetPrecisionTrackingCfg
     idTracking = trigInDetPrecisionTrackingCfg(flags, signatureName='Electron')
     precisionInDetReco.mergeReco(idTracking)
-
     selAcc.mergeReco(precisionInDetReco)
-    from TrigEgammaHypo.TrigEgammaPrecisionTrackingHypoTool import TrigEgammaPrecisionTrackingHypoToolFromDict
-    hypoAlg = CompFactory.TrigEgammaPrecisionTrackingHypoAlg('ElectronprecisionTrackingHypo', CaloClusters='HLT_CaloEMClusters_Electron')
+    hypoAlg = CompFactory.TrigStreamerHypoAlg('ElectronprecisionTrackingHypo')
     selAcc.addHypoAlgo(hypoAlg)
+    def acceptAllHypoToolGen(chainDict):
+        return CompFactory.TrigStreamerHypoTool(chainDict["chainName"], Pass = True)
     menuSequence = MenuSequenceCA(selAcc,
-                                  HypoToolGen=TrigEgammaPrecisionTrackingHypoToolFromDict)
+                                  HypoToolGen=acceptAllHypoToolGen)
     return (selAcc , menuSequence)
 
 def _precisionTracking(flags, chainDict):
-    selAcc , menuSequence = _precisionTrackingSeq(flags)
+    selAcc , menuSequence = _precisionTrackingSeq(flags,chainDict)
     return ChainStep(name=selAcc.name, Sequences=[menuSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
 
 @AccumulatorCache

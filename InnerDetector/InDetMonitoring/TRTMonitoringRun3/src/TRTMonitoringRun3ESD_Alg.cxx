@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRTMonitoringRun3/TRTMonitoringRun3ESD_Alg.h"
@@ -39,13 +39,13 @@ const int TRTMonitoringRun3ESD_Alg::s_moduleNum[2] = {96, 64};
 
 TRTMonitoringRun3ESD_Alg::TRTMonitoringRun3ESD_Alg( const std::string& name, ISvcLocator* pSvcLocator )
 :AthMonitorAlgorithm(name,pSvcLocator)
-,m_idHelper(0)
+,m_idHelper(nullptr)
 ,m_sumTool("TRT_StrawStatusSummaryTool", this)
 ,m_TRTStrawNeighbourSvc("TRT_StrawNeighbourSvc", name)
 ,m_TRTCalDbTool("TRT_CalDbTool", this)
 ,m_drifttool("TRT_DriftFunctionTool")
-,m_pTRTHelper(0)
-,m_mgr(0)
+,m_pTRTHelper(nullptr)
+,m_mgr(nullptr)
 ,m_isCosmics(false)
 ,m_minTRThits(10)
 ,m_minP(0)
@@ -511,7 +511,7 @@ StatusCode TRTMonitoringRun3ESD_Alg::fillTRTTracks(const xAOD::TrackParticleCont
     auto p_trk = trackCollection.begin();
 
     const Trk::Perigee *mPer = nullptr;
-    const DataVector<const Trk::TrackParameters> *AllTrkPar(0);
+    const DataVector<const Trk::TrackParameters> *AllTrkPar(nullptr);
     DataVector<const Trk::TrackParameters>::const_iterator p_trkpariter;
 
     int ntrackstack[2][64];
@@ -557,7 +557,7 @@ for (; p_trk != trackCollection.end(); ++p_trk) {
 
         const DataVector<const Trk::TrackStateOnSurface> *trackStates = ((*p_trk)->track())->trackStateOnSurfaces();
 
-        if (trackStates == 0) continue;
+        if (trackStates == nullptr) continue;
 
         DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItBegin0    = trackStates->begin();
         DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItBegin     = trackStates->begin();
@@ -627,7 +627,7 @@ for (; p_trk != trackCollection.end(); ++p_trk) {
         float phi2D[2] = {-100, -100};
 
         for (TSOSItBeginTemp = TSOSItBegin0; TSOSItBeginTemp != TSOSItEnd; ++TSOSItBeginTemp) {
-            if ((*TSOSItBeginTemp) == 0) continue;
+            if ((*TSOSItBeginTemp) == nullptr) continue;
 
             if (! ((*TSOSItBeginTemp)->type(Trk::TrackStateOnSurface::Measurement)) ) continue;
             const InDet::TRT_DriftCircleOnTrack *trtCircle = dynamic_cast<const InDet::TRT_DriftCircleOnTrack *>((*TSOSItBeginTemp)->measurementOnTrack());
@@ -681,7 +681,7 @@ for (; p_trk != trackCollection.end(); ++p_trk) {
 
         for (TSOSItBegin = TSOSItBegin0; TSOSItBegin != TSOSItEnd; ++TSOSItBegin) {
             // Select a TSOS which is non-empty, measurement type and contains  both drift circle and track parameters informations
-            if ((*TSOSItBegin) == 0) continue;
+            if ((*TSOSItBegin) == nullptr) continue;
 
             if ( !((*TSOSItBegin)->type(Trk::TrackStateOnSurface::Measurement)) ) continue;
 
@@ -856,7 +856,7 @@ for (; p_trk != trackCollection.end(); ++p_trk) {
                     }
                     else pull_b_fill = false;
                     const double thist0 = m_TRTCalDbTool->getT0(surfaceID);
-                    const double trkdrifttime = (!rtr) ? 0 : rtr->drifttime(fabs(locR));
+                    const double trkdrifttime = (!rtr) ? 0 : rtr->drifttime(std::abs(locR));
                     const double timeresidual = RawDriftCircle->rawDriftTime() - thist0 - trkdrifttime;
 
                     if (ibe == 0) {
@@ -972,21 +972,21 @@ for (; p_trk != trackCollection.end(); ++p_trk) {
                         if (isArgonStraw) {
                             if (m_isCosmics) {
                                 RtRelation_B_Ar_x = LE - EP - t0;
-                                RtRelation_B_Ar_y = fabs(locR);
+                                RtRelation_B_Ar_y = std::abs(locR);
                                 fill("ShiftTRTTrackHistograms"+std::to_string(ibe), RtRelation_B_Ar_x, RtRelation_B_Ar_y);
                             } else {
                                 RtRelation_B_Ar_x = LE - t0;
-                                RtRelation_B_Ar_y = fabs(locR);
+                                RtRelation_B_Ar_y = std::abs(locR);
                                 fill("ShiftTRTTrackHistograms"+std::to_string(ibe), RtRelation_B_Ar_x, RtRelation_B_Ar_y);
                             }
                         } else {
                             if (m_isCosmics) {
                                 RtRelation_B_x = LE - EP - t0;
-                                RtRelation_B_y = fabs(locR);
+                                RtRelation_B_y = std::abs(locR);
                                 fill("ShiftTRTTrackHistograms"+std::to_string(ibe), RtRelation_B_x, RtRelation_B_y);
                             } else {
                                 RtRelation_B_x = LE - t0;
-                                RtRelation_B_y = fabs(locR);
+                                RtRelation_B_y = std::abs(locR);
                                 fill("ShiftTRTTrackHistograms"+std::to_string(ibe), RtRelation_B_x, RtRelation_B_y);
                             }
                         }
@@ -994,21 +994,21 @@ for (; p_trk != trackCollection.end(); ++p_trk) {
                         if (isArgonStraw) {
                             if (m_isCosmics) {
                                 RtRelation_E_Ar_x = LE - EP - t0;
-                                RtRelation_E_Ar_y = fabs(locR);
+                                RtRelation_E_Ar_y = std::abs(locR);
                                 fill("ShiftTRTTrackHistograms"+std::to_string(ibe)+std::to_string(iside), RtRelation_E_Ar_x, RtRelation_E_Ar_y);
                             } else {
                                 RtRelation_E_Ar_x = LE - t0;
-                                RtRelation_E_Ar_y = fabs(locR);
+                                RtRelation_E_Ar_y = std::abs(locR);
                                 fill("ShiftTRTTrackHistograms"+std::to_string(ibe)+std::to_string(iside), RtRelation_E_Ar_x, RtRelation_E_Ar_y);
                             }
                         } else {
                             if (m_isCosmics) {
                                 RtRelation_E_x = LE - EP - t0;
-                                RtRelation_E_y = fabs(locR);
+                                RtRelation_E_y = std::abs(locR);
                                 fill("ShiftTRTTrackHistograms"+std::to_string(ibe)+std::to_string(iside), RtRelation_E_x, RtRelation_E_y);
                             } else {
                                 RtRelation_E_x = LE - t0;
-                                RtRelation_E_y = fabs(locR);
+                                RtRelation_E_y = std::abs(locR);
                                 fill("ShiftTRTTrackHistograms"+std::to_string(ibe)+std::to_string(iside), RtRelation_E_x, RtRelation_E_y);
                             }
                         }
@@ -1143,7 +1143,7 @@ for (; p_trk != trackCollection.end(); ++p_trk) {
                     nTrksperLB_B++;
                 }
                 if (comTimeObject) {
-                    if (m_doShift && (phi2D[ibe] > 0) && (std::fabs(timeCor) > 1e-8)) {
+                    if (m_doShift && (phi2D[ibe] > 0) && (std::abs(timeCor) > 1e-8)) {
                         EvtPhaseDetPhi_B_x = phi2D[ibe];
                         EvtPhaseDetPhi_B_y = timeCor;
                         fill("ShiftTRTTrackHistograms"+std::to_string(ibe), EvtPhaseDetPhi_B_x, EvtPhaseDetPhi_B_y);
@@ -1153,7 +1153,7 @@ for (; p_trk != trackCollection.end(); ++p_trk) {
                 for (int iside = 0; iside < 2; iside++) {
                     if (nTRTHitsW[ibe][iside] > 0) nTrksperLB_E[iside]++;
                     if (comTimeObject) {
-                        if (nTRTHits_side[ibe][iside] > 5 && (std::fabs(timeCor)
+                        if (nTRTHits_side[ibe][iside] > 5 && (std::abs(timeCor)
                                                                 > 1e-8)) {
                             if (m_doShift) {
                                 EvtPhaseDetPhi_E_x = phi2D[ibe];
@@ -1168,7 +1168,7 @@ for (; p_trk != trackCollection.end(); ++p_trk) {
     }
 
     if (comTimeObject) {
-        if (std::fabs(timeCor) > 1e-8) {
+        if (std::abs(timeCor) > 1e-8) {
             if (m_doShift) {
                 EvtPhase = timeCor;
                 fill("ShiftTRTTrackHistograms0", EvtPhase);
@@ -1299,8 +1299,8 @@ StatusCode TRTMonitoringRun3ESD_Alg::fillTRTHighThreshold(const xAOD::TrackParti
     auto Trackz_All = Monitored::Scalar<float>("Trackz_All", 0.0);
 
     auto p_trk = trackCollection.begin();
-    const Trk::Perigee *perigee = NULL;
-    const DataVector<const Trk::TrackParameters> *AllTrkPar(0);
+    const Trk::Perigee *perigee = nullptr;
+    const DataVector<const Trk::TrackParameters> *AllTrkPar(nullptr);
     DataVector<const Trk::TrackParameters>::const_iterator p_trkpariter;
 
     for (; p_trk != trackCollection.end(); ++p_trk) {
@@ -1319,10 +1319,10 @@ StatusCode TRTMonitoringRun3ESD_Alg::fillTRTHighThreshold(const xAOD::TrackParti
         }
 
         float track_eta  = perigee->eta();
-        float track_p    = (perigee->parameters()[Trk::qOverP] != 0.) ? fabs(1. / (perigee->parameters()[Trk::qOverP])) : 10e7;
+        float track_p    = (perigee->parameters()[Trk::qOverP] != 0.) ? std::abs(1. / (perigee->parameters()[Trk::qOverP])) : 10e7;
         const DataVector<const Trk::TrackStateOnSurface> *trackStates = ((*p_trk)->track())->trackStateOnSurfaces();
 
-        if (trackStates == 0) continue;
+        if (trackStates == nullptr) continue;
 
         DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItBegin     = trackStates->begin();
         DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItEnd       = trackStates->end();
@@ -1334,8 +1334,8 @@ StatusCode TRTMonitoringRun3ESD_Alg::fillTRTHighThreshold(const xAOD::TrackParti
         (*p_trk)->summaryValue(tempHitsVariable, xAOD::SummaryType::numberOfPixelHits);
         int pixel_hits = unsigned(tempHitsVariable);
 
-        if (fabs(track_eta) > 2.5) continue;
-        if (fabs(track_p) < 5000.) continue;
+        if (std::abs(track_eta) > 2.5) continue;
+        if (std::abs(track_p) < 5000.) continue;
         if (pixel_hits < 1.) continue;
         if (sct_hits < 6.) continue;
         if (trt_hits < 6.) continue;
@@ -1356,7 +1356,7 @@ StatusCode TRTMonitoringRun3ESD_Alg::fillTRTHighThreshold(const xAOD::TrackParti
         int straw_layer    = 0;
 
         for (; TSOSItBegin != TSOSItEnd; ++TSOSItBegin) {
-            if ((*TSOSItBegin) == 0) continue;
+            if ((*TSOSItBegin) == nullptr) continue;
             if ( !((*TSOSItBegin)->type(Trk::TrackStateOnSurface::Measurement)) ) continue;
 
             const InDet::TRT_DriftCircleOnTrack *trtCircle = dynamic_cast<const InDet::TRT_DriftCircleOnTrack *>((*TSOSItBegin)->measurementOnTrack());
@@ -1396,7 +1396,7 @@ StatusCode TRTMonitoringRun3ESD_Alg::fillTRTHighThreshold(const xAOD::TrackParti
             bool shortStraw = false;
             int InputBar = 0;
 
-            if (fabs(track_eta) < 2. && Ba_Ec == 0.) {
+            if (std::abs(track_eta) < 2. && Ba_Ec == 0.) {
                 if ((layer_or_wheel == 0) && (phi_module < 4 || (phi_module > 7 && phi_module < 12) || (phi_module > 15 && phi_module < 20) || (phi_module > 23 && phi_module < 28))) InputBar = 1;
                 else if ((runNumber >= 296939) && (layer_or_wheel == 0) && (phi_module > 27)) InputBar = 1;
                 else if (layer_or_wheel == 0)

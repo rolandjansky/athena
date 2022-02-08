@@ -277,21 +277,25 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 		  } // for loop in etastation
 	  
 		  // get the MDT axis range
-		  float wirezmax     = -10000. ;
-		  float wirezmin     = +10000. ;
-		  float foundmin     =      0  ;	
-		  int stname_index = irpcstationName;  
-		  if (irpcstationName == m_BMEid) stname_index = MuonGM::MuonDetectorManager::NMdtStatType-2;
-		  else stname_index = irpcstationName;
-		  for(int eta=0; eta!=17; eta++){ 
-		    const MuonGM::MdtReadoutElement* lastdescr = MuonDetMgr->getMdtReadoutElement(stname_index, eta, irpcstationPhi-1, imdt_multi_near-1);
-		    if(!lastdescr)continue;
+		  float wirezmax{-10000.}, wirezmin{+10000.}, foundmin{0};
+		  
+		  const int mdtStatName = MuonDetMgr->mdtStationName(irpcstationName);
+		  if (mdtStatName < 0){
+			  ATH_MSG_DEBUG("Invalid station index "<<irpcstationName);
+			  continue;
+		  }
+		  for(int eta=0; eta < MuonGM::MuonDetectorManager::NMdtStatEta; ++eta) {
+			const int stEta = eta - MuonGM::MuonDetectorManager::NMdtStEtaOffset;
+			const Identifier mdt_id = MuonDetMgr->mdtIdHelper()->elementID(mdtStatName, stEta, irpcstationPhi, imdt_multi_near);
+		    const MuonGM::MdtReadoutElement* lastdescr = MuonDetMgr->getMdtReadoutElement(mdt_id);
+		    if(!lastdescr) continue;
 		
 		    const Amg::Vector3D lastelc = lastdescr->globalPosition();
 		    int NtubesPerLayerlast = lastdescr->getNtubesperlayer();
-		    float z =  float(lastelc.z()) + float(NtubesPerLayerlast)/2*29.9;
+			constexpr float conv_fac = 0.5 / 29.9;
+		    float z = lastelc.z() + NtubesPerLayerlast * conv_fac;
 		
-		    if(foundmin==0){ wirezmin   =  float(lastelc.z()) - float(NtubesPerLayerlast)/2*29.9;} 
+		    if(foundmin==0){ wirezmin   =  z;} 
 		    foundmin = 1 ; 
 		    if(z>wirezmax)wirezmax=z; 
 	      
@@ -368,11 +372,10 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 		    
  		    
 			//get mdt information from geomodel to book and fill mdtvsrpc histos with the right min and max range
-			if (imdt_station == 53) imdt_station = MuonGM::MuonDetectorManager::NMdtStatType-2;
-			const MuonGM::MdtReadoutElement* mdt = MuonDetMgr->getMdtReadoutElement( imdt_station,  imdt_eta+8, imdt_phi-1,  imdt_multi-1);
+			const MuonGM::MdtReadoutElement* mdt = MuonDetMgr->getMdtReadoutElement(dig_idmdt);
 			int NetaTubes = mdt->getNtubesperlayer() ;			    	      
 			const Amg::Vector3D elc =  mdt->globalPosition();
-			float imdt_wirez =  float(elc.z());
+			float imdt_wirez =  elc.z();
 			float tubeRadius = mdt->innerTubeRadius();
 			if(imdt_wirez>=0) {imdt_wirez +=  (float(imdt_wire)-0.5-float(NetaTubes)/2 )* tubeRadius ;}
 			else {imdt_wirez =  imdt_wirez -  (float(imdt_wire)-0.5-float(NetaTubes)/2 )* tubeRadius ;}
@@ -386,12 +389,13 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 			  }
 			  if (histo_flag){
 			    //booking if necessary 
-			    imdt_station = irpcstationName;
+			    imdt_station = MuonDetMgr->mdtStationName(irpcstationName);
+				if (imdt_station <0)  continue;
+				const Identifier mdt_id = MuonDetMgr->mdtIdHelper()->elementID(imdt_station,irpcstationEta,irpcstationPhi, imdt_multi_near);
 			    imdt_eta     = irpcstationEta ;
 			    imdt_phi     = irpcstationPhi ;
 			    NetaTubes = 0;
-			    if (imdt_station == 53) imdt_station = MuonGM::MuonDetectorManager::NMdtStatType-2;
-			    const MuonGM::MdtReadoutElement* mdt = MuonDetMgr->getMdtReadoutElement( imdt_station,  imdt_eta+8, imdt_phi-1,  imdt_multi_near-1);
+			    const MuonGM::MdtReadoutElement* mdt = MuonDetMgr->getMdtReadoutElement(mdt_id);
 			    if(!mdt)continue; // protection
 			    NetaTubes = mdt->getNtubesperlayer();
 			    m_layer_name_list.push_back(hardware_name+layer_name); 
@@ -408,12 +412,13 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 		        	    
 			  // tdc of mdt
 			  // tube vs strip doublephi separated
+			  constexpr float tdc_adc_conv = 25.0/32.0;
 			  if ( irpcdoubletPhi == 1 ) {
-			    if ( N_RpcHitdblPhi1==0 ) { if (mdttdcdoublphi1) { mdttdcdoublphi1->Fill(float(imdt_tdc)*25.0/32.0); } }
+			    if ( N_RpcHitdblPhi1==0 ) { if (mdttdcdoublphi1) { mdttdcdoublphi1->Fill(float(imdt_tdc)*tdc_adc_conv); } }
 			    if (mdttubevsrpcetastrip_doublphi1) {mdttubevsrpcetastrip_doublphi1->Fill ( (irpcstrip + ShiftStrips),imdt_wire ); }
 			  }	  
 			  else {
-			    if ( N_RpcHitdblPhi2==0 ) { if (mdttdcdoublphi2) { mdttdcdoublphi2->Fill(float(imdt_tdc)*25.0/32.0); } }
+			    if ( N_RpcHitdblPhi2==0 ) { if (mdttdcdoublphi2) { mdttdcdoublphi2->Fill(float(imdt_tdc)*tdc_adc_conv); } }
 			    if (mdttubevsrpcetastrip_doublphi2) {mdttubevsrpcetastrip_doublphi2->Fill ( (irpcstrip + ShiftStrips),imdt_wire);}
 			  }
 		        	    

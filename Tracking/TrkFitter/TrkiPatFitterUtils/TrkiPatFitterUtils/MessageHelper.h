@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MESSAGEHELPER_H
@@ -8,32 +8,38 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <atomic>
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "CxxUtils/checker_macros.h"
 
 class MessageHelper
 {
 public:
-    MessageHelper				(const AthAlgTool& parent);
+    /// Pass to the constructor the number of messages.
+    MessageHelper				(const AthAlgTool& parent,
+                                                 unsigned int num);
     void	incrementCount			(unsigned int messageNumber);    
     void	printSummary			(void) const;
-    void	printWarning			(unsigned int messageNumber);
-    void	printWarning			(unsigned int messageNumber, const std::string& addition);
+    void	printWarning			(unsigned int messageNumber) const;
+    void	printWarning			(unsigned int messageNumber, const std::string& addition) const;
     void	setMaxNumberOfMessagesPrinted	(unsigned int num);
-    void	setNumberOfMessages		(unsigned int num);	//!< For optimising creation (does resize() internally)
     void	setMessage			(unsigned int messageNumber, const std::string& message);
     bool	wouldPrintWarning		(unsigned int messageNumber) const;
 
 private:
     const AthAlgTool&                 m_parent; 
     unsigned int                      m_maxWarnings;	//!< Maximum number of WARNING messages permitted. 
-    std::vector<unsigned int> m_warningCounts;	//!< The counts per error (the index is the error number)
+    mutable std::vector<std::atomic<unsigned int> > m_warningCounts ATLAS_THREAD_SAFE;	//!< The counts per error (the index is the error number)
     std::vector<std::string>  m_warningText;	//!< The text for the WARNINGs (the index is the error number). Filled in ctor. 
 };
 
 inline
-MessageHelper::MessageHelper (const AthAlgTool& parent)
+MessageHelper::MessageHelper (const AthAlgTool& parent,
+                              unsigned int num)
     : m_parent		(parent),
-      m_maxWarnings	(3)
+      m_maxWarnings	(3),
+      m_warningCounts   (num),
+      m_warningText     (num)
 {}
 
 inline void
@@ -68,27 +74,27 @@ MessageHelper::printSummary (void) const
 }
 
 inline void
-MessageHelper::printWarning (unsigned int messageNumber)
+MessageHelper::printWarning (unsigned int messageNumber) const
 {
-    m_warningCounts[messageNumber]++;
+    unsigned int count = ++m_warningCounts[messageNumber];
     if (! m_parent.msgLvl(MSG::WARNING)
-	|| m_warningCounts[messageNumber] > m_maxWarnings)	return;
+	|| count > m_maxWarnings)	return;
 
     m_parent.msg(MSG::WARNING) << m_warningText[messageNumber] << endmsg;
-    if (m_warningCounts[messageNumber] == m_maxWarnings)
+    if (count == m_maxWarnings)
 	m_parent.msg(MSG::WARNING) << "Limit reached. No more messages of this type will be printed."
 				   << endmsg;
 }
 
 inline void
-MessageHelper::printWarning (unsigned int messageNumber, const std::string& addition)
+MessageHelper::printWarning (unsigned int messageNumber, const std::string& addition) const
 {
-    m_warningCounts[messageNumber]++;
+    unsigned int count = ++m_warningCounts[messageNumber];
     if (! m_parent.msgLvl(MSG::WARNING)
-	|| m_warningCounts[messageNumber] > m_maxWarnings)	return;
+	|| count > m_maxWarnings)	return;
 
     m_parent.msg(MSG::WARNING) << m_warningText[messageNumber] << addition << endmsg;
-    if (m_warningCounts[messageNumber] == m_maxWarnings)
+    if (count == m_maxWarnings)
 	m_parent.msg(MSG::WARNING) << "Limit reached. No more messages of this type will be printed."
 				   << endmsg;
 }
@@ -100,16 +106,9 @@ MessageHelper::setMaxNumberOfMessagesPrinted (unsigned int num)
 }
 
 inline void
-MessageHelper::setNumberOfMessages (unsigned int num)
-{
-    m_warningCounts.resize(num);
-    m_warningText.resize(num);
-}
-
-inline void
 MessageHelper::setMessage (unsigned int messageNumber, const std::string& message)
 {
-    if (messageNumber > m_warningCounts.size()) setNumberOfMessages(messageNumber+10);
+    if (messageNumber > m_warningCounts.size()) std::abort();
     m_warningCounts[messageNumber]	= 0;
     m_warningText[messageNumber]	= message;
 }

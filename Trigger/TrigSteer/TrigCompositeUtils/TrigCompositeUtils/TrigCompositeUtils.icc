@@ -60,7 +60,7 @@ namespace TrigCompositeUtils {
       if (std::none_of(links.begin(), links.end(), 
         [&](const auto& li) { 
           if (li.link == featureLink) {
-            if (li.source != start && linkName != initialRoIString() && linkName != roiString() && linkName != "l2cbroi") {
+            if (li.source != start && linkName != initialRoIString() && linkName != roiString() && linkName != "l2cbroi" && linkName != viewString()) {
               // Leaving this warning in for now, but there are known cases of the FS ROI being re-used
               // in multiple outputs from the HLTSeeding. E.g. HLTNav_L1J:0 and HLTNav_L1MET:0
               // so supressing for initialRoIString().

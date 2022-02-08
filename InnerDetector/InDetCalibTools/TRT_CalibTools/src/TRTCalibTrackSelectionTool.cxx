@@ -1,10 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
 
 ********************************************************************/
+
+#include <cmath>
 
 #include "TRTCalibTrackSelectionTool.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
@@ -63,13 +65,13 @@ bool TRTCalibTrackSelectionTool::isAccepted(const Trk::Track* pTrack) const
   const Trk::Perigee* mesp=(pTrack->perigeeParameters());
   
   if(!mesp) return false;
-  if (m_DeltaPhi>0 && fabs(mesp->parameters()[Trk::phi]-m_PhiOffset) > m_DeltaPhi) return false;
+  if (m_DeltaPhi>0 && std::abs(mesp->parameters()[Trk::phi]-m_PhiOffset) > m_DeltaPhi) return false;
 
   float theta=mesp->parameters()[Trk::theta];
-  float ptinv = fabs(mesp->parameters()[Trk::qOverP])/sin(theta);
+  float ptinv = std::abs(mesp->parameters()[Trk::qOverP])/std::sin(theta);
   if(m_PtMin>0 && ptinv > 1/m_PtMin) return false;
   
-  float eta=-log(tan(theta/2));
+  float eta=-std::log(std::tan(theta/2));
   if (m_EtaMin< m_EtaMax && (eta < m_EtaMin || eta > m_EtaMax) ) return false;
 
   std::unique_ptr<const Trk::TrackSummary> summary = m_TrackSummaryTool->summary(*pTrack);

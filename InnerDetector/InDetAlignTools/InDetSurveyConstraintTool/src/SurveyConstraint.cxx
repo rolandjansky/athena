@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetSurveyConstraintTool/SurveyConstraint.h"
@@ -43,12 +43,12 @@ SurveyConstraint::SurveyConstraint(const std::string& type,
 				   const std::string& name, const IInterface* parent)
   : AthAlgTool(type,name,parent),
     m_idHelper{},
-    m_pixid(0),
-    m_sctid(0),
-    m_toolsvc(0),     
-    m_current_IDAlignDBTool(0),
-    m_survey_IDAlignDBTool(0),
-    m_randsvc(0), 
+    m_pixid(nullptr),
+    m_sctid(nullptr),
+    m_toolsvc(nullptr),     
+    m_current_IDAlignDBTool(nullptr),
+    m_survey_IDAlignDBTool(nullptr),
+    m_randsvc(nullptr), 
     m_SurveyWeightX(1.0),
     m_SurveyWeightY(1.0),
     m_SurveyWeightZ(1.0),
@@ -991,10 +991,10 @@ void SurveyConstraint::getSurveyCoordsPixEC(//const Identifier& ModuleID,
   const double SurveyTargetX = 17.8/2.0;
   const double SurveyTargetY = 59.8/2.0; 
  // 4 points
-  coords.push_back(Amg::Vector3D(-SurveyTargetX,-SurveyTargetY,0.0));
-  coords.push_back(Amg::Vector3D(-SurveyTargetX, SurveyTargetY,0.0));
-  coords.push_back(Amg::Vector3D( SurveyTargetX,-SurveyTargetY,0.0));
-  coords.push_back(Amg::Vector3D( SurveyTargetX, SurveyTargetY,0.0));
+  coords.emplace_back(-SurveyTargetX,-SurveyTargetY,0.0);
+  coords.emplace_back(-SurveyTargetX, SurveyTargetY,0.0);
+  coords.emplace_back( SurveyTargetX,-SurveyTargetY,0.0);
+  coords.emplace_back( SurveyTargetX, SurveyTargetY,0.0);
 }
 
 //stupid implementation of Pixel barrel survey coordinates
@@ -1004,10 +1004,10 @@ void SurveyConstraint::getSurveyCoordsPixB(//const Identifier& ModuleID,
   const double SurveyTargetX = 17.8/2.0;
   const double SurveyTargetY = 59.8/2.0; 
  // 4 points
-  coords.push_back(Amg::Vector3D(-SurveyTargetX,-SurveyTargetY,0.0));
-  coords.push_back(Amg::Vector3D(-SurveyTargetX, SurveyTargetY,0.0));
-  coords.push_back(Amg::Vector3D( SurveyTargetX,-SurveyTargetY,0.0));
-  coords.push_back(Amg::Vector3D( SurveyTargetX, SurveyTargetY,0.0));
+  coords.emplace_back(-SurveyTargetX,-SurveyTargetY,0.0);
+  coords.emplace_back(-SurveyTargetX, SurveyTargetY,0.0);
+  coords.emplace_back( SurveyTargetX,-SurveyTargetY,0.0);
+  coords.emplace_back( SurveyTargetX, SurveyTargetY,0.0);
 } 
 
 //stupid implementation of SCT EC survey coordinates
@@ -1017,10 +1017,10 @@ void SurveyConstraint::getSurveyCoordsSCTEC(//const Identifier& ModuleID,
   const double SurveyTargetX = 63.6/2.0;
   const double SurveyTargetY = 128.2/2.0; 
  // 4 points
-  coords.push_back(Amg::Vector3D(-SurveyTargetX,-SurveyTargetY,0.0));
-  coords.push_back(Amg::Vector3D(-SurveyTargetX, SurveyTargetY,0.0));
-  coords.push_back(Amg::Vector3D( SurveyTargetX,-SurveyTargetY,0.0));
-  coords.push_back(Amg::Vector3D( SurveyTargetX, SurveyTargetY,0.0));
+  coords.emplace_back(-SurveyTargetX,-SurveyTargetY,0.0);
+  coords.emplace_back(-SurveyTargetX, SurveyTargetY,0.0);
+  coords.emplace_back( SurveyTargetX,-SurveyTargetY,0.0);
+  coords.emplace_back( SurveyTargetX, SurveyTargetY,0.0);
 }
 
 //stupid implementation of SCT barrel survey coordinates
@@ -1030,10 +1030,10 @@ void SurveyConstraint::getSurveyCoordsSCTB(//const Identifier& ModuleID,
   const double SurveyTargetX = 63.6/2.0;
   const double SurveyTargetY = 128.2/2.0; 
  // 4 points
-  coords.push_back(Amg::Vector3D(-SurveyTargetX,-SurveyTargetY,0.0));
-  coords.push_back(Amg::Vector3D(-SurveyTargetX, SurveyTargetY,0.0));
-  coords.push_back(Amg::Vector3D( SurveyTargetX,-SurveyTargetY,0.0));
-  coords.push_back(Amg::Vector3D( SurveyTargetX, SurveyTargetY,0.0));
+  coords.emplace_back(-SurveyTargetX,-SurveyTargetY,0.0);
+  coords.emplace_back(-SurveyTargetX, SurveyTargetY,0.0);
+  coords.emplace_back( SurveyTargetX,-SurveyTargetY,0.0);
+  coords.emplace_back( SurveyTargetX, SurveyTargetY,0.0);
 }
 
 

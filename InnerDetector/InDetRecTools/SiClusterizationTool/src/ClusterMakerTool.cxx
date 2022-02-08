@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -173,7 +173,7 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   // switches are more readable **OPT**
   // actually they're slower as well (so I'm told) so perhaps
   // this should be re-written at some point EJWM
-  double eta = fabs(globalPos.eta());
+  double eta = std::abs(globalPos.eta());
   double zPitch = width.z()/colRow.y();
   
   //const AtlasDetectorID* aid = element->getIdHelper();
@@ -230,7 +230,7 @@ PixelCluster* ClusterMakerTool::pixelCluster(
  PixelCluster* newCluster = 
    new PixelCluster(clusterID, locpos, globalPos,
                     rdoList, lvl1a, totList,chargeList, 
-                    width, element, std::move(errorMatrix), omegax, omegay,
+                    width, element, errorMatrix, omegax, omegay,
                     split,
                     splitProb1,
                     splitProb2);
@@ -379,7 +379,7 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   // switches are more readable **OPT**
   // actually they're slower as well (so I'm told) so perhaps
   // this should be re-written at some point EJWM
-  double eta = fabs(globalPos.eta());
+  double eta = std::abs(globalPos.eta());
   double zPitch = width.z()/colRow.y();
   
   const AtlasDetectorID* aid = element->getIdHelper();
@@ -446,7 +446,7 @@ PixelCluster* ClusterMakerTool::pixelCluster(
                     chargeList,
                     width,
                     element,
-                    std::move(errorMatrix),
+                    errorMatrix,
                     omegax,
                     omegay,
                     split,
@@ -551,7 +551,7 @@ ClusterMakerTool::sctCluster(const Identifier& clusterID,
 	} //else if (designShape == InDetDD::PolarAnnulus) {// Polar rotation for endcap}
 
         SCT_Cluster* newCluster = new SCT_Cluster(
-          clusterID, locpos, rdoList, width, element, std::move(errorMatrix));
+          clusterID, locpos, rdoList, width, element, errorMatrix);
         return newCluster;
 }
 

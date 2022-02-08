@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetJiveXML/TRTRetriever.h"
@@ -154,7 +154,7 @@ namespace JiveXML {
         //Count number of barcodes we get
         int NBarcodes = 0;
         //Loop over associated truth tracks with same id
-        typedef PRD_MultiTruthCollection::const_iterator iter;
+        using iter = PRD_MultiTruthCollection::const_iterator;
         std::pair<iter,iter> equalIDRange = TRTMultiTruthMap->equal_range(id);
         for ( iter TRTMultiTruthMapItr = equalIDRange.first; TRTMultiTruthMapItr != equalIDRange.second; ++TRTMultiTruthMapItr){
           NBarcodes++;

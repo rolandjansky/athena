@@ -173,9 +173,9 @@ namespace MuonGM {
 
         // Geometry versioning
         inline std::string geometryVersion() const;  //!< it can be Rome-Initial or P03, or ... it's the name of the layout
-        inline void setGeometryVersion(const std::string& version);
+        void setGeometryVersion(const std::string& version);
         inline std::string get_DBMuonVersion() const;  //!< the name of the MuonSpectrometer tag (in the geometry DB) actually accessed
-        inline void set_DBMuonVersion(const std::string& version);
+        void set_DBMuonVersion(const std::string& version);
 
         // Access to identifier helpers
         inline const MdtIdHelper* mdtIdHelper() const;
@@ -186,50 +186,50 @@ namespace MuonGM {
         inline const MmIdHelper* mmIdHelper() const;
 
         // Setting the identifier helpers
-        inline void set_mdtIdHelper(const MdtIdHelper* idh);
-        inline void set_cscIdHelper(const CscIdHelper* idh);
+        void set_mdtIdHelper(const MdtIdHelper* idh);
+        void set_cscIdHelper(const CscIdHelper* idh);
         void set_rpcIdHelper(const RpcIdHelper* idh);
-        inline void set_tgcIdHelper(const TgcIdHelper* idh);
-        inline void set_stgcIdHelper(const sTgcIdHelper* idh);
-        inline void set_mmIdHelper(const MmIdHelper* idh);
+        void set_tgcIdHelper(const TgcIdHelper* idh);
+        void set_stgcIdHelper(const sTgcIdHelper* idh);
+        void set_mmIdHelper(const MmIdHelper* idh);
 
         // Generic Technology descriptors
-        inline void setGenericMdtDescriptor(const GenericMDTCache& mc);
+        void setGenericMdtDescriptor(const GenericMDTCache& mc);
         inline const GenericMDTCache* getGenericMdtDescriptor() const;
-        inline void setGenericRpcDescriptor(const GenericRPCCache& rc);
+        void setGenericRpcDescriptor(const GenericRPCCache& rc);
         inline const GenericRPCCache* getGenericRpcDescriptor() const;
-        inline void setGenericCscDescriptor(const GenericCSCCache& cc);
+        void setGenericCscDescriptor(const GenericCSCCache& cc);
         inline const GenericCSCCache* getGenericCscDescriptor() const;
-        inline void setGenericTgcDescriptor(const GenericTGCCache& tc);
+        void setGenericTgcDescriptor(const GenericTGCCache& tc);
         inline const GenericTGCCache* getGenericTgcDescriptor() const;
 
-        inline void setCachingFlag(int value);
+        void setCachingFlag(int value);
         inline int cachingFlag() const;
-        inline void setCacheFillingFlag(int value);
+        void setCacheFillingFlag(int value);
         inline int cacheFillingFlag() const;
 
-        inline void setNSWABLinesAsciiSideA(const std::string& str);
-        inline void setNSWABLinesAsciiSideC(const std::string& str);
+        void setNSWABLinesAsciiSideA(const std::string& str);
+        void setNSWABLinesAsciiSideC(const std::string& str);
 
-        inline void setMinimalGeoFlag(int flag);
+        void setMinimalGeoFlag(int flag);
         inline int  MinimalGeoFlag() const;
-        inline void setCutoutsFlag(int flag);
+        void setCutoutsFlag(int flag);
         inline int  IncludeCutoutsFlag() const;
-        inline void setCutoutsBogFlag(int flag);
+        void setCutoutsBogFlag(int flag);
         inline int  IncludeCutoutsBogFlag() const;
-        inline void setMdtDeformationFlag(int flag) { m_applyMdtDeformations = flag; }
+        void setMdtDeformationFlag(int flag) { m_applyMdtDeformations = flag; }
         inline int  mdtDeformationFlag() const { return m_applyMdtDeformations; }
-        inline void setMdtAsBuiltParamsFlag(int flag) { m_applyMdtAsBuiltParams = flag; }
+        void setMdtAsBuiltParamsFlag(int flag) { m_applyMdtAsBuiltParams = flag; }
         inline int  mdtAsBuiltParamsFlag() const { return m_applyMdtAsBuiltParams; }
-        inline void setControlAlinesFlag(int flag) { m_controlAlines = flag; }
+        void setControlAlinesFlag(int flag) { m_controlAlines = flag; }
         inline int  controlAlinesFlag() const { return m_controlAlines; }
-        inline void setApplyCscIntAlignment(bool x) { m_useCscIntAlign = x; }
+        void setApplyCscIntAlignment(bool x) { m_useCscIntAlign = x; }
         inline bool applyMdtDeformations() const { return (bool)m_applyMdtDeformations; }
         inline bool applyMdtAsBuiltParams() const { return (bool)m_applyMdtAsBuiltParams; }
         inline bool applyCscIntAlignment() const { return m_useCscIntAlign; }
-        inline void setCscIlinesFlag(int flag) { m_controlCscIlines = flag; }
+        void setCscIlinesFlag(int flag) { m_controlCscIlines = flag; }
         inline int  CscIlinesFlag() const { return m_controlCscIlines; }
-        inline void setCscFromGM(bool x) { m_useCscIlinesFromGM = x; }
+        void setCscFromGM(bool x) { m_useCscIlinesFromGM = x; }
         inline bool CscFromGM() const { return m_useCscIlinesFromGM; }
 
         enum readoutElementHashMax {
@@ -460,6 +460,12 @@ namespace MuonGM {
         /// RPC name caches
         std::map<int, int> m_rpcStatToIdx;
         std::map<int, int> m_rpcIdxToStat;
+        /// Cache the MDT station name integers and retrieve them from the 
+        /// dict parser. Needed in stationIndex -> mdtStationName conversion
+        int m_mdt_EIS_stName{-1}; //49
+        int m_mdt_BIM_stName{-1}; //52
+        int m_mdt_BME_stName{-1}; //53
+        int m_mdt_BMG_stName{-1}; //54
 
 #ifndef SIMULATIONBASE
         std::unique_ptr<NswAsBuilt::StripCalculator> m_MMAsBuiltCalculator;
@@ -475,65 +481,22 @@ namespace MuonGM {
     const sTgcIdHelper* MuonDetectorManager::stgcIdHelper() const { return m_stgcIdHelper; }
     const MmIdHelper* MuonDetectorManager::mmIdHelper() const { return m_mmIdHelper; }
 
-    void MuonDetectorManager::set_mdtIdHelper(const MdtIdHelper* idh) { m_mdtIdHelper = idh; }
-    void MuonDetectorManager::set_cscIdHelper(const CscIdHelper* idh) { m_cscIdHelper = idh; }
-    void MuonDetectorManager::set_tgcIdHelper(const TgcIdHelper* idh) { m_tgcIdHelper = idh; }
-    void MuonDetectorManager::set_stgcIdHelper(const sTgcIdHelper* idh) { m_stgcIdHelper = idh; }
-    void MuonDetectorManager::set_mmIdHelper(const MmIdHelper* idh) { m_mmIdHelper = idh; }
 
-    void MuonDetectorManager::setGenericRpcDescriptor(const GenericRPCCache& rc) {
-        m_genericRPC.stripSeparation = rc.stripSeparation;
-        m_genericRPC.stripPanelThickness = rc.stripPanelThickness;
-        m_genericRPC.rpcLayerThickness = rc.rpcLayerThickness;
-        m_genericRPC.centralSupPanelThickness = rc.centralSupPanelThickness;
-        m_genericRPC.GasGapThickness = rc.GasGapThickness;
-        m_genericRPC.frontendBoardWidth = rc.frontendBoardWidth;
-    }
 
     const GenericRPCCache* MuonDetectorManager::getGenericRpcDescriptor() const { return &m_genericRPC; }
-
-    void MuonDetectorManager::setGenericMdtDescriptor(const GenericMDTCache& mc) {
-        m_genericMDT.innerRadius = mc.innerRadius;
-        m_genericMDT.outerRadius = mc.outerRadius;
-    }
-
     const GenericMDTCache* MuonDetectorManager::getGenericMdtDescriptor() const { return &m_genericMDT; }
 
-    void MuonDetectorManager::setGenericCscDescriptor(const GenericCSCCache& cc) {
-        m_genericCSC.dummy1 = cc.dummy1;
-        m_genericCSC.dummy2 = cc.dummy2;
-    }
-
     const GenericCSCCache* MuonDetectorManager::getGenericCscDescriptor() const { return &m_genericCSC; }
-
-    void MuonDetectorManager::setGenericTgcDescriptor(const GenericTGCCache& tc) {
-        m_genericTGC.frame_h = tc.frame_h;
-        m_genericTGC.frame_ab = tc.frame_ab;
-        m_genericTGC.nlayers = tc.nlayers;
-        for (unsigned int i = 0; i < (tc.materials).size(); i++) {
-            m_genericTGC.materials[i] = tc.materials[i];
-            m_genericTGC.positions[i] = tc.positions[i];
-            m_genericTGC.tck[i] = tc.tck[i];
-        }
-    }
-
     const GenericTGCCache* MuonDetectorManager::getGenericTgcDescriptor() const { return &m_genericTGC; }
 
-    void MuonDetectorManager::setMinimalGeoFlag(int flag) { m_minimalgeo = flag; }
     int MuonDetectorManager::MinimalGeoFlag() const { return m_minimalgeo; }
-    void MuonDetectorManager::setCutoutsFlag(int flag) { m_includeCutouts = flag; }
     int MuonDetectorManager::IncludeCutoutsFlag() const { return m_includeCutouts; }
-    void MuonDetectorManager::setCutoutsBogFlag(int flag) { m_includeCutoutsBog = flag; }
     int MuonDetectorManager::IncludeCutoutsBogFlag() const { return m_includeCutoutsBog; }
 
     std::string MuonDetectorManager::geometryVersion() const { return m_geometryVersion; }
-
-    void MuonDetectorManager::setGeometryVersion(const std::string& version) { m_geometryVersion = std::move(version); }
-
     std::string MuonDetectorManager::get_DBMuonVersion() const { return m_DBMuonVersion; }
 
-    void MuonDetectorManager::set_DBMuonVersion(const std::string& version) { m_DBMuonVersion = version; }
-
+    
     unsigned int MuonDetectorManager::nMuonStation() const { return m_MuonStationMap.size(); }
     unsigned int MuonDetectorManager::nMdtRE() const { return m_n_mdtRE; }
     unsigned int MuonDetectorManager::nCscRE() const { return m_n_cscRE; }
@@ -564,12 +527,9 @@ namespace MuonGM {
     ciMdtAsBuiltMap MuonDetectorManager::MdtAsBuiltMapBegin() const { return m_AsBuiltParamsMap.begin(); }
     ciMdtAsBuiltMap MuonDetectorManager::MdtAsBuiltMapEnd() const { return m_AsBuiltParamsMap.end(); }
 
-    void MuonDetectorManager::setCacheFillingFlag(int value) { m_cacheFillingFlag = value; }
-    void MuonDetectorManager::setCachingFlag(int value) { m_cachingFlag = value; }
     int MuonDetectorManager::cacheFillingFlag() const { return m_cacheFillingFlag; }
     int MuonDetectorManager::cachingFlag() const { return m_cachingFlag; }
-    void MuonDetectorManager::setNSWABLinesAsciiSideA(const std::string& str) { m_NSWABLinesAsciiSideA = str; }
-    void MuonDetectorManager::setNSWABLinesAsciiSideC(const std::string& str) { m_NSWABLinesAsciiSideC = str; }
+
 }  // namespace MuonGM
 
 #ifndef GAUDI_NEUTRAL

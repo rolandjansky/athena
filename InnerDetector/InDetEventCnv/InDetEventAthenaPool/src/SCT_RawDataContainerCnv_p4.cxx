@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_RawDataContainerCnv_p4.h"
@@ -38,7 +38,7 @@ void SCT_RawDataContainerCnv_p4::transToPers(const SCT_RDO_Container* transCont,
   /// to the container's vector, saving the indexes in the
   /// collection. 
   
-  typedef SCT_RDO_Container TRANS;
+  using TRANS = SCT_RDO_Container;
   
   SCT1_RawDataCnv_p2  chan1Cnv;
   SCT3_RawDataCnv_p4  chan3Cnv(m_sctId);

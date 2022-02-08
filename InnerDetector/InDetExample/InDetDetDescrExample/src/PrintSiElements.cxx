@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetDetDescrExample/PrintSiElements.h"
@@ -183,7 +183,7 @@ PrintSiElements::printElements(const std::string & managerName){
 StatusCode PrintSiElements::execute() {
   if (m_firstEvent) {
     m_firstEvent = false;
-    for(std::string detManagerName : m_detManagerNames){
+    for(const std::string& detManagerName : m_detManagerNames){
       printElements(detManagerName).ignore();
     }
   }

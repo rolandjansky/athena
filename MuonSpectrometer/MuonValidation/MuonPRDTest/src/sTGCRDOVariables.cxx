@@ -74,7 +74,7 @@ StatusCode sTGCRDOVariables::fillVariables(const MuonGM::MuonDetectorManager* Mu
 
       // get the readout element class where the RDO is recorded
       int isSmall = stName[2] == 'S';
-      const MuonGM::sTgcReadoutElement* rdoEl = MuonDetMgr->getsTgcRElement_fromIdFields(isSmall, stationEta, stationPhi, multiplet);
+      const MuonGM::sTgcReadoutElement* rdoEl = MuonDetMgr->getsTgcReadoutElement(Id);
       if (!rdoEl) throw std::runtime_error(Form("File: %s, Line: %d\nsTGCRDOVariables::fillVariables() - Failed to retrieve sTgcReadoutElement for isSmall=%d, stationEta=%d, stationPhi=%d, multiplet=%d", __FILE__, __LINE__, isSmall, stationEta, stationPhi, multiplet));
 
       Amg::Vector2D localStripPos(0.,0.);

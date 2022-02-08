@@ -938,7 +938,7 @@ void MuonGMCheck::checkParentStation() {
                     bool isValid = false;
                     const Identifier readout_ident = getMdtIdentifier(sname_index, seta_index, sphi_index, dbr_index, isValid);
                     if (!isValid) {
-                        ATH_MSG_WARNING("Failed to create a valid Mdt identifier from " << sname_index << "," << seta_index << ","
+                        ATH_MSG_DEBUG(__FILE__<<":"<<__LINE__<<" Failed to create a valid Mdt identifier from " << sname_index << "," << seta_index << ","
                                                                                         << sphi_index << "," << dbr_index);
                         continue;
                     }
@@ -1170,7 +1170,7 @@ void MuonGMCheck::checkreadoutmdtgeo() {
                     bool isValid = false;
                     const Identifier readout_ident = getMdtIdentifier(sname_index, seta_index, sphi_index, dbr_index, isValid);
                     if (!isValid) {
-                        ATH_MSG_WARNING("Failed to create a valid Mdt identifier from " << sname_index << "," << seta_index << ","
+                        ATH_MSG_DEBUG(__FILE__<<":"<<__LINE__<<" Failed to create a valid Mdt identifier from " << sname_index << "," << seta_index << ","
                                                                                         << sphi_index << "," << dbr_index);
                         continue;
                     }
@@ -1449,7 +1449,7 @@ void MuonGMCheck::checkreadouttgcgeo() {
                 bool isValid{false};
                 const Identifier readout_id = getTgcIdentifier(sname_index, seta_index, sphi_index, isValid);
                 if (!isValid) {
-                    ATH_MSG_WARNING("Failed to retrieve a valid Identifier from " << sname_index << "," << seta_index << "," << sphi_index);
+                    ATH_MSG_DEBUG(__FILE__<<":"<<__LINE__<<" Failed to build a valid Tgc Identifier from " << sname_index << "," << seta_index << "," << sphi_index);
                     continue;
                 }
                 const TgcReadoutElement* tgc = p_MuonMgr->getTgcReadoutElement(readout_id);
@@ -1719,7 +1719,7 @@ void MuonGMCheck::checkreadoutcscgeo() {
                     bool isValid{false};
                     const Identifier readout_id = getCscIdentifier(sname_index, seta_index, sphi_index, ml, isValid);
                     if (!isValid) {
-                        ATH_MSG_WARNING("Failed to build a valid CSC identifier from " << sname_index << "," << seta_index << ","
+                        ATH_MSG_DEBUG(__FILE__<<":"<<__LINE__<<" Failed to build a valid CSC identifier from " << sname_index << "," << seta_index << ","
                                                                                        << sphi_index << "," << ml);
                         continue;
                     }
@@ -2776,7 +2776,7 @@ void MuonGMCheck::testTgcCache_here() {
                 bool isValid{false};
                 const Identifier readout_id = getTgcIdentifier(sname_index, seta_index, sphi_index, isValid);
                 if (!isValid) {
-                    ATH_MSG_WARNING("Failed to retrieve a valid Identifier from " << sname_index << "," << seta_index << "," << sphi_index);
+                    ATH_MSG_DEBUG(__FILE__<<":"<<__LINE__<<" Failed to build a valid Identifier from " << sname_index << "," << seta_index << "," << sphi_index);
                     continue;
                 }
                 TgcReadoutElement* tgc = p_MuonMgr->getTgcReadoutElement(readout_id);
@@ -2813,7 +2813,7 @@ void MuonGMCheck::testCscCache_here() {
                     bool isValid{false};
                     const Identifier readout_id = getCscIdentifier(sname_index, seta_index, sphi_index, ml, isValid);
                     if (!isValid) {
-                        ATH_MSG_WARNING("Failed to build a valid CSC identifier from " << sname_index << "," << seta_index << ","
+                        ATH_MSG_DEBUG(__FILE__<<":"<<__LINE__<<" Failed to build a valid CSC identifier from " << sname_index << "," << seta_index << ","
                                                                                        << sphi_index << "," << ml);
                         continue;
                     }
@@ -2852,7 +2852,7 @@ void MuonGMCheck::testMdtCache_here() {
                     bool isValid = false;
                     const Identifier readout_ident = getMdtIdentifier(sname_index, seta_index, sphi_index, dbr_index, isValid);
                     if (!isValid) {
-                        ATH_MSG_WARNING("Failed to create a valid Mdt identifier from " << sname_index << "," << seta_index << ","
+                        ATH_MSG_DEBUG(__FILE__<<":"<<__LINE__<<" Failed to create a valid Mdt identifier from " << sname_index << "," << seta_index << ","
                                                                                         << sphi_index << "," << dbr_index);
                         continue;
                     }
@@ -3200,10 +3200,15 @@ void MuonGMCheck::getVmemCpu(int& dVmem, int& dUCpu, int& dSCpu) {
 Identifier MuonGMCheck::getMdtIdentifier(const int sname_index, const int seta_index, const int sphi_index, const int dbr_index,
                                          bool& isValid) const {
     const int stName = p_MuonMgr->mdtStationName(sname_index);
+    if (stName <0) {
+        ATH_MSG_DEBUG("Station name index "<<sname_index<<" is not occupied ");
+        isValid = false;
+        return Identifier();
+    }
     const int stEta = seta_index - MuonGM::MuonDetectorManager::NMdtStEtaOffset;
     const int stPhi = sphi_index + 1;
     const int ml = dbr_index + 1;
-    return m_idHelperSvc->mdtIdHelper().channelID(stName, stEta, stPhi, ml, 0, 1, true, &isValid);
+    return m_idHelperSvc->mdtIdHelper().channelID(stName, stEta, stPhi, ml, 1, 1, true, &isValid);
 }
 Identifier MuonGMCheck::getCscIdentifier(const int sname_index, const int seta_index, const int sphi_index, const int ml,
                                          bool& isValid) const {
