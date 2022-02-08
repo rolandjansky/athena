@@ -147,8 +147,8 @@ StatusCode TrigL1JFexSRJetMonitorAlgorithm::fillHistograms( const EventContext& 
   // Retrieve the L1 jet container
   SG::ReadHandle<xAOD::jFexSRJetRoIContainer> jets(m_l1jetContainerkey, ctx);
   if( !jets.isValid() ){
-    ATH_MSG_WARNING("evtStore() does not contain the L1 jet collection with name " << m_l1jetContainerkey);
-    return StatusCode::FAILURE;
+    ATH_MSG_INFO("evtStore() does not contain the L1 jet collection with name " << m_l1jetContainerkey);
+    return StatusCode::SUCCESS;
   }
 
   // Declare the quantities which should be monitored
