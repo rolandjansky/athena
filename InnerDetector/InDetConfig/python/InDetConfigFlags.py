@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
+from AthenaConfiguration.Enums import LHCPeriod
 # TODO: clean up flags, should only contain general settings but no alg config
 # TODO : Add some exta levels?
 
@@ -43,8 +44,8 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.Tracking.doCaloSeededAmbi", lambda prevFlags: prevFlags.Detector.EnableCalo) # Use Calo ROIs to seed specific cuts for the ambi
   icf.addFlag("InDet.Tracking.doPixelClusterSplitting", lambda prevFlags: not prevFlags.InDet.Tracking.doInnerDetectorCommissioning) # Try to split pixel clusters
   icf.addFlag("InDet.Tracking.pixelClusterSplittingType", "NeuralNet") # choose splitter type: NeuralNet or AnalogClus
-  icf.addFlag("InDet.Tracking.pixelClusterSplitProb1", lambda prevFlags: 0.5 if prevFlags.GeoModel.Run == 'RUN1' else 0.55) # Cut value for splitting clusters into two parts
-  icf.addFlag("InDet.Tracking.pixelClusterSplitProb2", lambda prevFlags: 0.5 if prevFlags.GeoModel.Run == 'RUN1' else 0.45) # Cut value for splitting clusters into three parts
+  icf.addFlag("InDet.Tracking.pixelClusterSplitProb1", lambda prevFlags: 0.5 if prevFlags.GeoModel.Run is LHCPeriod.Run1 else 0.55) # Cut value for splitting clusters into two parts
+  icf.addFlag("InDet.Tracking.pixelClusterSplitProb2", lambda prevFlags: 0.5 if prevFlags.GeoModel.Run is LHCPeriod.Run1 else 0.45) # Cut value for splitting clusters into three parts
   icf.addFlag("InDet.Tracking.useBeamSpotInfoNN", True) # use beam spot position in pixel NN
   icf.addFlag("InDet.Tracking.nnCutLargeD0Threshold", -1.0) # Enable check for dead modules and FEs
   icf.addFlag("InDet.Tracking.useBroadPixClusterErrors", False) # Use broad cluster errors for Pixel

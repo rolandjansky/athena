@@ -2,6 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import LHCPeriod
 from AthenaCommon.Logging import logging
 
 
@@ -56,7 +57,7 @@ def GSFTrackSummaryToolCfg(flags,
                 TRT_ElectronPidToolCfg(
                     flags,
                     name="GSFBuildTRT_ElectronPidTool",
-                    CalculateNNPid=(flags.GeoModel.Run == "RUN3"),
+                    CalculateNNPid=(flags.GeoModel.Run is LHCPeriod.Run3),
                     MinimumTrackPtForNNPid=0.))
         else:
             kwargs["TRT_ElectronPidTool"] = None

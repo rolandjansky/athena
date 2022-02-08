@@ -1,10 +1,10 @@
 """Define methods to construct configured Pixel Digitization tools and algorithms
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import ProductionStep
+from AthenaConfiguration.Enums import LHCPeriod, ProductionStep
 from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg, PileUpXingFolderCfg
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
 from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
@@ -109,7 +109,7 @@ def BarrelFEI4SimToolCfg(flags, name="BarrelFEI4SimTool", **kwargs):
     """Return a FEI4SimTool configured for Barrel"""
     acc = PixelReadoutManagerCfg(flags)
     acc.merge(PixelConfigCondAlgCfg(flags))
-    if flags.GeoModel.Run=="RUN3":
+    if flags.GeoModel.Run is LHCPeriod.Run3:
         acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
     else:
         acc.merge(PixelChargeCalibCondAlgCfg(flags))
@@ -126,7 +126,7 @@ def DBMFEI4SimToolCfg(flags, name="DBMFEI4SimTool", **kwargs):
     """Return a FEI4SimTool configured for Endcap"""
     acc = PixelReadoutManagerCfg(flags)
     acc.merge(PixelConfigCondAlgCfg(flags))
-    if flags.GeoModel.Run=="RUN3":
+    if flags.GeoModel.Run is LHCPeriod.Run3:
         acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
     else:
         acc.merge(PixelChargeCalibCondAlgCfg(flags))
@@ -143,7 +143,7 @@ def BarrelFEI3SimToolCfg(flags, name="BarrelFEI3SimTool", **kwargs):
     """Return a FEI3SimTool configured for Barrel"""
     acc = PixelReadoutManagerCfg(flags)
     acc.merge(PixelConfigCondAlgCfg(flags))
-    if flags.GeoModel.Run=="RUN3":
+    if flags.GeoModel.Run is LHCPeriod.Run3:
         acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
     else:
         acc.merge(PixelChargeCalibCondAlgCfg(flags))
@@ -159,7 +159,7 @@ def EndcapFEI3SimToolCfg(flags, name="EndcapFEI3SimTool", **kwargs):
     """Return a FEI3SimTool configured for Endcap"""
     acc = PixelReadoutManagerCfg(flags)
     acc.merge(PixelConfigCondAlgCfg(flags))
-    if flags.GeoModel.Run=="RUN3":
+    if flags.GeoModel.Run is LHCPeriod.Run3:
         acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
     else:
         acc.merge(PixelChargeCalibCondAlgCfg(flags))
