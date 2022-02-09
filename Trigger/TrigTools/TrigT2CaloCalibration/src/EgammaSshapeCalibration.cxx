@@ -33,7 +33,7 @@ StatusCode EgammaSshapeCalibration::finalize(){
 // EgammaSshapeCalibration::makeCorrection
 //====================================================================
 void EgammaSshapeCalibration::makeCorrection(xAOD::TrigEMCluster* clus,
-					     const void *arg){
+					     const void *arg) const{
   
   if(arg!=0){
     const CaloDetDescrElement *caloDDE = (const CaloDetDescrElement*) arg;
@@ -221,7 +221,7 @@ inline void EgammaSshapeCalibration::docalc (int i,
 					     const CaloClusterCorrectionCommon::TableBuilder& builder,
 					     const CaloRec::Array<1>& energies,
 					     CaloRec::WritableArray<2>& corrtab,
-					     int& n_good) {
+					     int& n_good) const {
   corrtab[n_good][0] = energies[i];
   bool good = false;
   corrtab[n_good][1] = builder.calculate (i, good);
