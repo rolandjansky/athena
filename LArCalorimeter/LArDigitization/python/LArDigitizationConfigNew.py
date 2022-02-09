@@ -5,7 +5,7 @@ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 # utilities
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import LHCPeriod, ProductionStep
+from AthenaConfiguration.Enums import BeamType, LHCPeriod, ProductionStep
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 # for PileUpTool
 from LArGeoAlgsNV.LArGMConfig import LArGMCfg
@@ -119,7 +119,7 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
     kwargs.setdefault("Nsamples", flags.LAr.ROD.nSamples)
     kwargs.setdefault("firstSample", flags.LAr.ROD.FirstSample)
     # cosmics digitization
-    if flags.Beam.Type == "cosmics":
+    if flags.Beam.Type is BeamType.Cosmics:
         kwargs.setdefault("UseTriggerTime", True)
         CosmicTriggerTimeTool = CompFactory.CosmicTriggerTimeTool
         kwargs.setdefault("TriggerTimeToolName", CosmicTriggerTimeTool())

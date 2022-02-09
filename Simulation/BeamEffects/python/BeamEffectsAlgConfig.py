@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 """Define methods to configure beam effects with the ComponentAccumulator"""
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import ProductionStep
+from AthenaConfiguration.Enums import BeamType, ProductionStep
 
 # possible components from BeamEffectsConf
 # todo names required to copy function name? what are names used for?
@@ -110,7 +110,7 @@ def BeamEffectsAlgCfg(flags, name="BeamEffectsAlg", **kwargs):
     # Set (todo) the appropriate manipulator tools
     manipulators = []
     manipulators.append(acc.popToolsAndMerge(ValidityCheckerCfg(flags)))
-    if not flags.Beam.Type == "cosmics" and flags.Sim.CavernBG != "Read":
+    if flags.Beam.Type is not BeamType.Cosmics and flags.Sim.CavernBG != "Read":
         manipulators.append(acc.popToolsAndMerge(GenEventVertexPositionerCfg(flags)))
     # manipulators.append(acc.popToolsAndMerge(GenEventBeamEffectBoosterCfg(flags))) # todo segmentation violation
     # manipulators.append(acc.popToolsAndMerge(VertexPositionFromFileCfg(flags))) # todo

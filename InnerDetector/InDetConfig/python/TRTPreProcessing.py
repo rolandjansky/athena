@@ -6,6 +6,7 @@
 # ------------------------------------------------------------
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
 
 
 def InDetPRD_MultiTruthMakerTRTCfg(flags, name = "InDetTRT_PRD_MultiTruthMaker", **kwargs):
@@ -55,7 +56,7 @@ def InDetTRT_DriftFunctionToolCfg(flags, name = "InDetTRT_DriftFunctionTool", **
     acc.addPublicTool(CalDbTool)
 
     # --- overwrite for uncalibrated DC production
-    if flags.Beam.Type=="cosmics" or flags.InDet.noTRTTiming:
+    if flags.Beam.Type is BeamType.Cosmics or flags.InDet.noTRTTiming:
         kwargs.setdefault("DummyMode", True)
         kwargs.setdefault("UniversalError", 1.15)
 
@@ -91,16 +92,16 @@ def InDetTRT_DriftFunctionToolCfg(flags, name = "InDetTRT_DriftFunctionTool", **
     return acc
 
 
-def TRTDriftTimes( isData, isCosmics ):
+def TRTDriftTimes(flags):
     from collections import namedtuple
     from AthenaCommon.SystemOfUnits import ns
     driftTimes = namedtuple("driftTimes", ("LowGate", "HighGate", "LowGateArgon", "HighGateArgon"))
-    if isCosmics:
+    if flags.Beam.Type is BeamType.Cosmics:
         return driftTimes(LowGate         = 19.0*ns,
                           HighGate        = 44.0*ns,
                           LowGateArgon    = 19.0*ns,
                           HighGateArgon   = 44.0*ns)
-    if isData:
+    if not flags.Input.isMC:
         return driftTimes(LowGate         = 17.1875*ns,
                           HighGate        = 45.3125*ns,
                           LowGateArgon    = 18.75*ns,
@@ -125,7 +126,7 @@ def TRT_DriftCircleToolCfg(flags, prefix, name = "InDetTRT_DriftCircleTool", **k
     ## sync with: ConfiguredInDetPreProcessingTRT.py
     MinTrailingEdge = 11.0*ns
     MaxDriftTime    = 60.0*ns
-    gains = TRTDriftTimes(isData= not flags.Input.isMC, isCosmics= flags.Beam.Type == 'cosmics')
+    gains = TRTDriftTimes(flags)
     #
     # --- TRT_DriftFunctionTool
     #
@@ -140,29 +141,29 @@ def TRT_DriftCircleToolCfg(flags, prefix, name = "InDetTRT_DriftCircleTool", **k
     kwargs.setdefault("ConditionsSummaryTool", InDetTRTStrawStatusSummaryTool)
     kwargs.setdefault("UseConditionsStatus", True)
     kwargs.setdefault("UseConditionsHTStatus", True)
-    kwargs.setdefault("SimpleOutOfTimePileupSupression", flags.Beam.Type == 'cosmics') #flags.InDet.doCosmics
+    kwargs.setdefault("SimpleOutOfTimePileupSupression", flags.Beam.Type is BeamType.Cosmics)
     kwargs.setdefault("RejectIfFirstBit", False)
     kwargs.setdefault("MinTrailingEdge", MinTrailingEdge)
     kwargs.setdefault("MaxDriftTime", MaxDriftTime)
-    kwargs.setdefault("ValidityGateSuppression", flags.Beam.Type != 'cosmics') #not flags.InDet.doCosmics
+    kwargs.setdefault("ValidityGateSuppression", flags.Beam.Type is not BeamType.Cosmics)
     kwargs.setdefault("LowGate", gains.LowGate)
     kwargs.setdefault("HighGate", gains.HighGate)
-    kwargs.setdefault("SimpleOutOfTimePileupSupressionArgon" , flags.Beam.Type == 'cosmics') #flags.InDet.doCosmics
+    kwargs.setdefault("SimpleOutOfTimePileupSupressionArgon" , flags.Beam.Type is BeamType.Cosmics)
     kwargs.setdefault("RejectIfFirstBitArgon", False)
     kwargs.setdefault("MinTrailingEdgeArgon", MinTrailingEdge)
     kwargs.setdefault("MaxDriftTimeArgon", MaxDriftTime)
-    kwargs.setdefault("ValidityGateSuppressionArgon" , flags.Beam.Type != 'cosmics') #not flags.InDet.doCosmics
+    kwargs.setdefault("ValidityGateSuppressionArgon" , flags.Beam.Type is not BeamType.Cosmics)
     kwargs.setdefault("LowGateArgon", gains.LowGate)  # see discussion in MR !45402 why these are not Argon specific settings
     kwargs.setdefault("HighGateArgon", gains.HighGate)
     kwargs.setdefault("useDriftTimeHTCorrection", True)
     kwargs.setdefault("useDriftTimeToTCorrection", True)
 
 
-    if flags.Beam.BunchSpacing<=25 and flags.Beam.Type == "collisions":
+    if flags.Beam.BunchSpacing<=25 and flags.Beam.Type is BeamType.Collisions:
         kwargs.setdefault("ValidityGateSuppression", True)
         kwargs.setdefault("SimpleOutOfTimePileupSupression", False)
 
-    if flags.Beam.Type == "cosmics":
+    if flags.Beam.Type is BeamType.Cosmics:
         kwargs.setdefault("SimpleOutOfTimePileupSupression", False)
 
     acc.setPrivateTools(TRT_DriftCircleTool(name, **kwargs))
@@ -231,7 +232,7 @@ def TRTPreProcessingCfg(flags, **kwargs):
     #
     # --- setup naming of tools and algs
     #
-    if flags.Beam.Type=="cosmics":
+    if flags.Beam.Type is BeamType.Cosmics:
         prefix     = "InDetTRT_noTime_"
         collection = 'TRT_DriftCirclesUncalibrated' ##read from InDetKeys.TRT_DriftCirclesUncalibrated
         if flags.InDet.doSplitReco:
@@ -257,7 +258,7 @@ def TRTPreProcessingCfg(flags, **kwargs):
     #
     # --- we need to do truth association if requested (not for uncalibrated hits in cosmics)
     #
-    if flags.InDet.doTruth and not flags.Beam.Type=="cosmics":
+    if flags.InDet.doTruth and flags.Beam.Type is not BeamType.Cosmics:
         acc.merge(InDetPRD_MultiTruthMakerTRTCfg(flags, name = prefix + "PRD_MultiTruthMaker"))
         if flags.InDet.doSplitReco :
             acc.merge(InDetPRD_MultiTruthMakerTRTPUCfg(flags, name = prefix+"PRD_MultiTruthMakerPU"))

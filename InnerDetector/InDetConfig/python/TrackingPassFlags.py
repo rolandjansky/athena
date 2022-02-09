@@ -3,6 +3,8 @@
 from __future__ import print_function
 
 import AthenaCommon.SystemOfUnits as Units
+from AthenaConfiguration.Enums import BeamType
+
 
 def select( selInd, valuesmap ):
     for k,v in valuesmap.items():    
@@ -857,7 +859,7 @@ def createPixelTrackingPassFlags():
     icf.isLowPt          = lambda pcf : pcf.InDet.Tracking.doMinBias
 
     def _minPt( pcf ):
-        if pcf.Beam.Type == "cosmics":
+        if pcf.Beam.Type is BeamType.Cosmics:
             return 0.5 * Units.GeV
         if pcf.Reco.EnableHI:
             return 0.1 * Units.GeV
@@ -875,7 +877,7 @@ def createPixelTrackingPassFlags():
         def _internal( pcf ):
             if pcf.Reco.EnableHI:
                 return hion
-            if pcf.Beam.Type == "cosmics":
+            if pcf.Beam.Type is BeamType.Cosmics:
                 return cosmics
             return default
         return _internal
@@ -892,11 +894,11 @@ def createPixelTrackingPassFlags():
     icf.useSCT           = False
     icf.useTRT           = False
     icf.minSecondaryPt   = 3 * Units.GeV
-    icf.maxPrimaryImpact = lambda pcf: 1000. * Units.mm if pcf.Beam.Type =="cosmics" else 5. * Units.mm 
-    icf.roadWidth        = lambda pcf: 60.0 if pcf.Beam.Type =="cosmics" else 12.0
-    icf.maxZImpact       = lambda pcf: 10000. * Units.mm if pcf.Beam.Type == "cosmics" else maxZImpact_ranges( pcf )
-    icf.Xi2max           = lambda pcf: 60.0  if pcf.Beam.Type =="cosmics" else Xi2max_ranges( pcf )
-    icf.Xi2maxNoAdd      = lambda pcf: 100.0  if pcf.Beam.Type =="cosmics" else Xi2maxNoAdd_ranges( pcf )
+    icf.maxPrimaryImpact = lambda pcf: 1000. * Units.mm if pcf.Beam.Type is BeamType.Cosmics else 5. * Units.mm 
+    icf.roadWidth        = lambda pcf: 60.0 if pcf.Beam.Type is BeamType.Cosmics else 12.0
+    icf.maxZImpact       = lambda pcf: 10000. * Units.mm if pcf.Beam.Type is BeamType.Cosmics else maxZImpact_ranges( pcf )
+    icf.Xi2max           = lambda pcf: 60.0  if pcf.Beam.Type is BeamType.Cosmics else Xi2max_ranges( pcf )
+    icf.Xi2maxNoAdd      = lambda pcf: 100.0  if pcf.Beam.Type is BeamType.Cosmics else Xi2maxNoAdd_ranges( pcf )
     icf.nWeightedClustersMin = 6
 
     return icf
@@ -938,7 +940,7 @@ def createSCTTrackingPassFlags():
 
     def _pick( default, cosmics, minbias, hion):
         def _internal( pcf ):
-            if pcf.Beam.Type == "cosmics":
+            if pcf.Beam.Type is BeamType.Cosmics:
                 return cosmics
             if pcf.InDet.Tracking.doMinBias:
                 if pcf.InDet.Tracking.doHIP300:
@@ -949,22 +951,22 @@ def createSCTTrackingPassFlags():
         return _internal
 
     icf.minPT            = lambda pcf : _pick( default = 0.1 * Units.GeV, minbias=0.1 * Units.GeV, hion=0.3* Units.GeV, cosmics = 0.5* Units.GeV )
-    icf.maxPrimaryImpact = lambda pcf: 1000. * Units.mm if pcf.Beam.Type == "cosmics" else maxPrimaryImpact_ranges( pcf )        
-    icf.maxZImpact       = lambda pcf: 10000. * Units.mm if pcf.Beam.Type == "cosmics" else maxZImpact_ranges( pcf )
+    icf.maxPrimaryImpact = lambda pcf: 1000. * Units.mm if pcf.Beam.Type is BeamType.Cosmics else maxPrimaryImpact_ranges( pcf )        
+    icf.maxZImpact       = lambda pcf: 10000. * Units.mm if pcf.Beam.Type is BeamType.Cosmics else maxZImpact_ranges( pcf )
     maxHolesDefault = 2
-    icf.maxHoles         = lambda pcf: 3 if pcf.Beam.Type == "cosmics" else maxHolesDefault
-    icf.nHolesMax        = lambda pcf: 3 if pcf.Beam.Type == "cosmics" else maxHolesDefault
-    icf.nHolesGapMax     = lambda pcf: 3 if pcf.Beam.Type == "cosmics" else maxHolesDefault
-    icf.maxPixelHoles    = lambda pcf: 0 if pcf.Beam.Type == "cosmics" else 0
-    icf.maxSctHoles      = lambda pcf: 3 if pcf.Beam.Type == "cosmics" else 2
+    icf.maxHoles         = lambda pcf: 3 if pcf.Beam.Type is BeamType.Cosmics else maxHolesDefault
+    icf.nHolesMax        = lambda pcf: 3 if pcf.Beam.Type is BeamType.Cosmics else maxHolesDefault
+    icf.nHolesGapMax     = lambda pcf: 3 if pcf.Beam.Type is BeamType.Cosmics else maxHolesDefault
+    icf.maxPixelHoles    = lambda pcf: 0 if pcf.Beam.Type is BeamType.Cosmics else 0
+    icf.maxSctHoles      = lambda pcf: 3 if pcf.Beam.Type is BeamType.Cosmics else 2
     icf.maxShared        = 0
-    icf.roadWidth        = lambda pcf: 60. if pcf.Beam.Type == "cosmics" else roadWidth_ranges( pcf )
-    icf.seedFilterLevel  = lambda pcf: 3 if pcf.Beam.Type == "cosmics" else 2
-    icf.Xi2max           = lambda pcf: 60.0 if pcf.Beam.Type == "cosmics" else Xi2max_ranges( pcf )
-    icf.Xi2maxNoAdd      = lambda pcf: 100.0 if pcf.Beam.Type == "cosmics" else Xi2maxNoAdd_ranges( pcf )
-    icf.nWeightedClustersMin = lambda pcf: 4 if pcf.InDet.Tracking.doInnerDetectorCommissioning and pcf.Beam.Type == "cosmics" else 6
-    icf.minClusters      = lambda pcf: 4 if pcf.InDet.Tracking.doInnerDetectorCommissioning and pcf.Beam.Type == "cosmics" else minClusters_ranges( pcf )
-    icf.minSiNotShared   = lambda pcf: 4 if pcf.InDet.Tracking.doInnerDetectorCommissioning and pcf.Beam.Type == "cosmics" else 5
+    icf.roadWidth        = lambda pcf: 60. if pcf.Beam.Type is BeamType.Cosmics else roadWidth_ranges( pcf )
+    icf.seedFilterLevel  = lambda pcf: 3 if pcf.Beam.Type is BeamType.Cosmics else 2
+    icf.Xi2max           = lambda pcf: 60.0 if pcf.Beam.Type is BeamType.Cosmics else Xi2max_ranges( pcf )
+    icf.Xi2maxNoAdd      = lambda pcf: 100.0 if pcf.Beam.Type is BeamType.Cosmics else Xi2maxNoAdd_ranges( pcf )
+    icf.nWeightedClustersMin = lambda pcf: 4 if pcf.InDet.Tracking.doInnerDetectorCommissioning and pcf.Beam.Type is BeamType.Cosmics else 6
+    icf.minClusters      = lambda pcf: 4 if pcf.InDet.Tracking.doInnerDetectorCommissioning and pcf.Beam.Type is BeamType.Cosmics else minClusters_ranges( pcf )
+    icf.minSiNotShared   = lambda pcf: 4 if pcf.InDet.Tracking.doInnerDetectorCommissioning and pcf.Beam.Type is BeamType.Cosmics else 5
     
     return icf
 

@@ -31,3 +31,9 @@ class LHCPeriod(FlagEnum):
     Run2 = 'RUN2'
     Run3 = 'RUN3'
     Run4 = 'RUN4'
+
+
+class BeamType(FlagEnum):
+    Collisions = 'collisions'
+    SingleBeam = 'singlebeam'
+    Cosmics = 'cosmics'

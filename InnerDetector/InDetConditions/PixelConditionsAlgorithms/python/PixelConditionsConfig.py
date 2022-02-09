@@ -4,7 +4,7 @@ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import LHCPeriod
+from AthenaConfiguration.Enums import BeamType, LHCPeriod
 from IOVDbSvc.IOVDbSvcConfig import addFolders,addFoldersSplitOnline
 
 def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
@@ -14,7 +14,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
 
     # FIXME commented properties are not currently accepted by PixelConfigCondAlg
     CondArgs = {}
-    if flags.Beam.Type == "cosmics":
+    if flags.Beam.Type is BeamType.Cosmics:
         CondArgs.update(
             BarrelTimeJitter=[25.0,25.0,25.0,25.0],
             EndcapTimeJitter=[25.0,25.0,25.0],

@@ -5,6 +5,7 @@ __doc__ = "Instantiate EMTrackMatchBuilder with default configuration"
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.Enums import BeamType
 from egammaTrackTools.egammaTrackToolsConfig import (
     EMExtrapolationToolsCfg)
 
@@ -30,7 +31,7 @@ def EMTrackMatchBuilderCfg(flags, name='EMTrackMatchBuilder', **kwargs):
     kwargs.setdefault("useScoring",         True)
     kwargs.setdefault("SecondPassRescale",  True)
     kwargs.setdefault("UseRescaleMetric",   True)
-    kwargs.setdefault("isCosmics",          flags.Beam.Type == "cosmics")
+    kwargs.setdefault("isCosmics",          flags.Beam.Type is BeamType.Cosmics)
 
     tool = CompFactory.EMTrackMatchBuilder(name, **kwargs)
 

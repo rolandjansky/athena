@@ -1,7 +1,8 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
 from MuonConfig.MuonCalibrationConfig import MdtCalibrationToolCfg, MdtCalibrationDbToolCfg
 
 ### Simple function holding connecting names to the different calibration window options
@@ -73,7 +74,7 @@ def MdtDriftCircleOnTrackCreatorCfg(flags,name="MdtDriftCircleOnTrackCreator", *
     kwargs.setdefault("DoWireSag", flags.Muon.useWireSagCorrections)
     kwargs.setdefault("DoSlewingCorrection", flags.Muon.Calib.correctMdtRtForTimeSlewing)
 
-    if flags.Beam.Type== 'cosmics' or flags.Beam.Type == 'singlebeam' :
+    if flags.Beam.Type in [BeamType.Cosmics, BeamType.SingleBeam]:
         kwargs.setdefault("DoTofCorrection", False)
         kwargs.setdefault("DoFixedError", True)
         kwargs.setdefault("TimingMode", 1)

@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 def LArCalibPedMonConfig(inputFlags,gain="",doAccDigit=False,doCalibDigit=False,doAccCalibDigit=False):
@@ -63,7 +63,8 @@ if __name__=='__main__':
    ConfigFlags.DQ.enableLumiAccess = False
    ConfigFlags.Input.isMC = False
    ConfigFlags.DQ.useTrigger = False
-   ConfigFlags.Beam.Type = 'collisions'
+   from AthenaConfiguration.Enums import BeamType
+   ConfigFlags.Beam.Type = BeamType.Collisions
    ConfigFlags.DQ.DataType = 'collisions'
    ConfigFlags.GeoModel.AtlasVersion = 'ATLAS-R2-2016-01-00-01'
    ConfigFlags.Detector.GeometryCSC=False

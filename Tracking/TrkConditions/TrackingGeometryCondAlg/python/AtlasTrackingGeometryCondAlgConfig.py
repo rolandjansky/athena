@@ -3,7 +3,7 @@
 from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import LHCPeriod
+from AthenaConfiguration.Enums import BeamType, LHCPeriod
 from GaudiKernel.GaudiHandles import PrivateToolHandleArray
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 from SubDetectorEnvelopes.SubDetectorEnvelopesConfigNew import EnvelopeDefSvcCfg
@@ -574,7 +574,7 @@ def TrackingGeometryCondAlgCfg(flags, name='AtlasTrackingGeometryCondAlg', doMat
             flags=flags,
             result=result,
             envelopeDefinitionSvc=atlas_env_def_service,
-            buildTrtStrawLayers=flags.Beam.Type == 'cosmics',
+            buildTrtStrawLayers=flags.Beam.Type is BeamType.Cosmics,
             namePrefix=namePrefix,
             nameSuffix=nameSuffix)
 

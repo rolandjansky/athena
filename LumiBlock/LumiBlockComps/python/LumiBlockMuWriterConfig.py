@@ -8,12 +8,13 @@
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.Enums import BeamType
 
 
 def LumiBlockMuWriterCfg (configFlags, name = 'LumiBlockMuWriter', seqName="AthAlgSeq"):
     result = ComponentAccumulator(seqName)
 
-    if (configFlags.Beam.Type == 'cosmics' or configFlags.Input.isMC):
+    if configFlags.Beam.Type is BeamType.Cosmics or configFlags.Input.isMC:
         condkey = ''
     else:
         from LumiBlockComps.LuminosityCondAlgConfig import LuminosityCondAlgCfg
@@ -49,7 +50,7 @@ if __name__ == "__main__":
 
     print ('--- cosmics')
     flags2 = ConfigFlags.clone()
-    flags2.Beam.Type = 'cosmics'
+    flags2.Beam.Type = BeamType.Cosmics
     flags2.lock()
     acc2 = LumiBlockMuWriterCfg (flags2)
     acc2.printCondAlgs (summariseProps=True)

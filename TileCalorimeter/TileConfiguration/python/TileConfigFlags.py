@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
-from AthenaConfiguration.Enums import Format
+from AthenaConfiguration.Enums import BeamType, Format
 
 
 def createTileConfigFlags():
@@ -19,14 +19,14 @@ def createTileConfigFlags():
      tcf.addFlag('Tile.doOptATLAS', _doOptATLAS)
      tcf.addFlag('Tile.NoiseFilter', lambda prevFlags : -1 if prevFlags.Input.isMC else 1)
      tcf.addFlag('Tile.RunType', _getRunType)
-     tcf.addFlag('Tile.correctTime', lambda prevFlags : ('collisions' in prevFlags.Beam.Type))
+     tcf.addFlag('Tile.correctTime', lambda prevFlags : prevFlags.Beam.Type is BeamType.Collisions)
      tcf.addFlag('Tile.correctTimeNI', True)
      tcf.addFlag('Tile.correctAmplitude', True)
      tcf.addFlag('Tile.AmpMinForAmpCorrection', 15.0)
      tcf.addFlag('Tile.TimeMinForAmpCorrection', lambda prevFlags : (prevFlags.Beam.BunchSpacing / -2.))
      tcf.addFlag('Tile.TimeMaxForAmpCorrection', lambda prevFlags : (prevFlags.Beam.BunchSpacing / 2.))
      tcf.addFlag('Tile.OfcFromCOOL', True)
-     tcf.addFlag('Tile.BestPhaseFromCOOL', lambda prevFlags : ('collisions' in prevFlags.Beam.Type))
+     tcf.addFlag('Tile.BestPhaseFromCOOL', lambda prevFlags : prevFlags.Beam.Type is BeamType.Collisions)
      tcf.addFlag('Tile.readDigits', lambda prevFlags : not prevFlags.Input.isMC)
      tcf.addFlag('Tile.doOverflowFit', True)
      tcf.addFlag('Tile.zeroAmplitudeWithoutDigits', _zeroAmplitudeWithouDigits)
@@ -43,7 +43,7 @@ def createTileConfigFlags():
 def _doOpt2ByDefault(prevFlags):
       #For online operation don't check run number
      if prevFlags.Common.isOnline:
-          if 'collisions' in prevFlags.Beam.Type:
+          if prevFlags.Beam.Type is BeamType.Collisions:
                return False  # Use OF without iterations for collisions
           else:
                return True
@@ -55,7 +55,7 @@ def _doOpt2ByDefault(prevFlags):
           return True
      # Run Optimal Filter without iterations (OptATLAS)
      # for collisions (data in 2011 and later and MC)
-     elif 'collisions' in prevFlags.Beam.Type:
+     elif prevFlags.Beam.Type is BeamType.Collisions:
           return False  # Use OF without iterations for collisions
      else:
           return True

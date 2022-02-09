@@ -65,9 +65,7 @@ if __name__=='__main__':
    ConfigFlags.Output.HISTFileName = 'LArMonitoringOutput.root'
    ConfigFlags.DQ.enableLumiAccess = True
    ConfigFlags.DQ.useTrigger = True
-   ConfigFlags.Beam.Type = 'collisions'
    ConfigFlags.lock()
-
 
    from CaloRec.CaloRecoConfig import CaloRecoCfg
    cfg=CaloRecoCfg(ConfigFlags)

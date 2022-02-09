@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import LHCPeriod
+from AthenaConfiguration.Enums import BeamType, LHCPeriod
 from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline
 import AthenaCommon.SystemOfUnits as Units
 #######################################################################
@@ -104,7 +104,7 @@ def InDetPixelClusterOnTrackToolBaseCfg(flags, name="PixelClusterOnTrackTool", *
     if not flags.InDet.Tracking.doDBMstandalone:
         acc.merge(PixelDistortionAlgCfg(flags))
 
-    if flags.Beam.Type == "cosmics" or flags.InDet.Tracking.doDBMstandalone:
+    if flags.Beam.Type is BeamType.Cosmics or flags.InDet.Tracking.doDBMstandalone:
         kwargs.setdefault("ErrorStrategy", 0)
         kwargs.setdefault("PositionStrategy", 0)
 
@@ -218,7 +218,7 @@ def RIO_OnTrackErrorScalingCondAlgCfg(flags, name='RIO_OnTrackErrorScalingCondAl
 def LumiCondDataKeyForTRTMuScalingCfg(flags, **kwargs) :
     acc = ComponentAccumulator()
     LuminosityOutputKey = ''
-    if not flags.Beam.Type == 'cosmics' and False: # InDetFlags.useMuForTRTErrorScaling()  "temporary value"
+    if flags.Beam.Type is not BeamType.Cosmics and False: # InDetFlags.useMuForTRTErrorScaling()  "temporary value"
         from LumiBlockComps.LuminosityCondAlgConfig import LuminosityCondAlgCfg
         LuminosityCondAlg = LuminosityCondAlgCfg (flags)
         acc.merge(LuminosityCondAlg)
@@ -678,10 +678,10 @@ def InDetGlobalChi2FitterCfg(flags, name='InDetGlobalChi2Fitter', **kwargs) :
         kwargs.setdefault('OutlierCut', 10.0)
         kwargs.setdefault('TrackChi2PerNDFCut', 20)
 
-    if flags.InDet.Tracking.doRobustReco or flags.Beam.Type == 'cosmics':
+    if flags.InDet.Tracking.doRobustReco or flags.Beam.Type is BeamType.Cosmics:
         kwargs.setdefault('MaxOutliers', 99)
 
-    if flags.Beam.Type == 'cosmics' or flags.InDet.Tracking.doBeamGas:
+    if flags.Beam.Type is BeamType.Cosmics or flags.InDet.Tracking.doBeamGas:
         kwargs.setdefault('Acceleration', False)
 
     if flags.InDet.Tracking.materialInteractions and not flags.BField.solenoidOn:
@@ -788,7 +788,7 @@ def InDetGlobalChi2FitterBaseCfg(flags, name='GlobalChi2FitterBase', **kwargs):
     kwargs.setdefault("TRTTubeHitCut", 1.75)
     kwargs.setdefault("MaxIterations", 40)
     kwargs.setdefault("Acceleration", True)
-    kwargs.setdefault("RecalculateDerivatives", flags.InDet.Tracking.doMinBias or flags.Beam.Type == 'cosmics' or flags.InDet.Tracking.doBeamGas)
+    kwargs.setdefault("RecalculateDerivatives", flags.InDet.Tracking.doMinBias or flags.Beam.Type is BeamType.Cosmics or flags.InDet.Tracking.doBeamGas)
     kwargs.setdefault("TRTExtensionCuts", True)
     kwargs.setdefault("TrackChi2PerNDFCut", 7)
 
@@ -818,7 +818,7 @@ def InDetGlobalChi2FitterTRTCfg(flags, name='InDetGlobalChi2FitterTRT', **kwargs
     kwargs.setdefault("TrackChi2PerNDFCut", 999999)
     kwargs.setdefault("Momentum", 1000.*Units.MeV   if flags.InDet.Tracking.materialInteractions and not flags.BField.solenoidOn else  0)
     kwargs.setdefault("OutlierCut", 5)
-    kwargs.setdefault("MaxOutliers", 99 if flags.InDet.Tracking.doRobustReco or flags.Beam.Type == 'cosmics' else 10)
+    kwargs.setdefault("MaxOutliers", 99 if flags.InDet.Tracking.doRobustReco or flags.Beam.Type is BeamType.Cosmics else 10)
     kwargs.setdefault("ReintegrateOutliers", False)
 
     InDetGlobalChi2FitterBase = acc.popToolsAndMerge(InDetGlobalChi2FitterBaseCfg(flags, name=name, **kwargs))
@@ -1071,7 +1071,7 @@ def TRT_DetElementsRoadCondAlgCfg(flags, name="InDet__TRT_DetElementsRoadCondAlg
 def InDetTRT_ExtensionToolCfg(flags, **kwargs):
     # @TODO set all names to InDetTRT_ExtensionTool ?
     if flags.InDet.Tracking.trtExtensionType == 'xk':
-        if flags.Beam.Type == "cosmics":
+        if flags.Beam.Type is BeamType.Cosmics:
             return InDetTRT_ExtensionToolCosmicsCfg(flags, **kwargs)
         else:
             return InDetTRT_TrackExtensionTool_xkCfg(flags, **kwargs)

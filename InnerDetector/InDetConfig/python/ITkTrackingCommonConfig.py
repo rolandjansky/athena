@@ -1,9 +1,9 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.ComponentFactory     import CompFactory
-from IOVDbSvc.IOVDbSvcConfig                  import addFoldersSplitOnline
-import AthenaCommon.SystemOfUnits               as   Units
-#######################################################################
+from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
+from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
+import AthenaCommon.SystemOfUnits as Units
 
 
 def ITkEtaDependentCutsSvcCfg(flags, name = 'ITkEtaDependentCutsSvc', **kwargs):
@@ -51,7 +51,7 @@ def ITkPixelClusterOnTrackToolBaseCfg(flags, name="ITkPixelClusterOnTrackTool", 
     from PixelConditionsAlgorithms.ITkPixelConditionsConfig import ITkPixelOfflineCalibCondAlgCfg
     acc.merge(ITkPixelOfflineCalibCondAlgCfg(flags))
 
-    if (flags.Beam.Type == "cosmics"):
+    if flags.Beam.Type is BeamType.Cosmics:
         kwargs.setdefault("ErrorStrategy", 0)
         kwargs.setdefault("PositionStrategy", 0)
 
@@ -499,7 +499,7 @@ def ITkGlobalChi2FitterCfg(flags, name='ITkGlobalChi2Fitter', **kwargs) :
         ITkBroadRotCreator = acc.popToolsAndMerge(ITkBroadRotCreatorCfg(flags))
         kwargs.setdefault('BroadRotCreatorTool', ITkBroadRotCreator)
 
-    if flags.Beam.Type == 'cosmics':
+    if flags.Beam.Type is BeamType.Cosmics:
         kwargs.setdefault('MaxOutliers', 99)
         kwargs.setdefault('Acceleration', False)
 
@@ -596,7 +596,7 @@ def ITkGlobalChi2FitterBaseCfg(flags, name='ITkGlobalChi2FitterBase', **kwargs) 
     kwargs.setdefault("RecalibrateSilicon", True)
     kwargs.setdefault("MaxIterations", 40)
     kwargs.setdefault("Acceleration", True)
-    kwargs.setdefault("RecalculateDerivatives", flags.Beam.Type == 'cosmics')
+    kwargs.setdefault("RecalculateDerivatives", flags.Beam.Type is BeamType.Cosmics)
     kwargs.setdefault("TrackChi2PerNDFCut", 7)
 
     GlobalChi2Fitter = CompFactory.Trk.GlobalChi2Fitter(name=name, **kwargs)

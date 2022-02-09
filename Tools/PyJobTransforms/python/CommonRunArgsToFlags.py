@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #Translate the commonly used runArgs into configFlags 
 def commonRunArgsToFlags(runArgs,configFlags):
@@ -16,7 +16,8 @@ def commonRunArgsToFlags(runArgs,configFlags):
         configFlags.GeoModel.AtlasVersion=runArgs.geometryVersion
 
     if hasattr(runArgs,"beamType"):
-        configFlags.Beam.Type=runArgs.beamType
+        from AthenaConfiguration.Enums import BeamType
+        configFlags.Beam.Type=BeamType(runArgs.beamType)
 
     ## Threading arguments
     if hasattr(runArgs,"threads"):
