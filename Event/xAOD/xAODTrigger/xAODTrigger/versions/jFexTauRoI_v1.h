@@ -91,10 +91,10 @@ namespace xAOD {
       static const float s_minEta;
 
       // Data locations within word
-      static const int s_etaBit = 27; 
-      static const int s_phiBit = 23; 
-      static const int s_etBit  = 12; 
-      static const int s_isoBit = 1;
+      static const int s_isoBit = 21;
+      static const int s_etBit  = 10; 
+      static const int s_etaBit = 5; 
+      static const int s_phiBit = 1; 
       static const int s_satBit = 0;
 
       //Data masks
