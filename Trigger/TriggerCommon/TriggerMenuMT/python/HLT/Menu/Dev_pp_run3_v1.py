@@ -101,7 +101,6 @@ def setupMenu():
         ChainProp(name="HLT_mu24_L1MU14FCH", groups=SingleMuonGroup),
 
         #ATR-21003
-        ChainProp(name='HLT_mu4_l2io_L1MU3V', groups=SingleMuonGroup),
         ChainProp(name='HLT_2mu14_l2io_L12MU8F', groups=MultiMuonGroup),
         ChainProp(name='HLT_2mu6_l2io_L12MU5VF',     l1SeedThresholds=['MU5VF'],   groups=MultiMuonGroup),
 
@@ -113,9 +112,6 @@ def setupMenu():
 
         #performance chain for isolation (ATR-21905)
         ChainProp(name='HLT_mu26_ivarperf_L1MU14FCH', groups=SingleMuonGroup),
-
-        #ATR-23614 
-        ChainProp(name='HLT_mu20_mu2noL1_invmJPsiOS_L1MU14FCH', l1SeedThresholds=['MU14FCH','FSNOSEED'], groups=MultiMuonGroup),
 
         # Test T&P dimuon
         ChainProp(name='HLT_mu24_mu6_L1MU14FCH', l1SeedThresholds=['MU14FCH','MU3V'], groups=MultiMuonGroup),
