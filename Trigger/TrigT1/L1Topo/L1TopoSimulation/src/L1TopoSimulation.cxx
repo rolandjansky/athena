@@ -61,15 +61,15 @@ L1TopoSimulation::initialize() {
    ATH_MSG_DEBUG("retrieving " << m_muonInputProvider);
    CHECK( m_muonInputProvider.retrieve(DisableTool{m_isLegacyTopo}) );
 
+   CHECK(m_legacyTopoCTPLocation.initialize(m_isLegacyTopo));
+   CHECK(m_legacyTopoOverflowCTPLocation.initialize(m_isLegacyTopo));
+   CHECK(m_topoCTPLocation.initialize(!m_isLegacyTopo));
+   CHECK(m_topoOverflowCTPLocation.initialize(!m_isLegacyTopo));
    if (m_isLegacyTopo){
-     CHECK(m_legacyTopoCTPLocation.initialize());
-     CHECK(m_legacyTopoOverflowCTPLocation.initialize());
      ATH_MSG_DEBUG("Legacy output trigger key property " << m_legacyTopoCTPLocation);
      ATH_MSG_DEBUG("Legacy output overflow key property " << m_legacyTopoOverflowCTPLocation);
    }
    else {
-     CHECK(m_topoCTPLocation.initialize());
-     CHECK(m_topoOverflowCTPLocation.initialize());
      ATH_MSG_DEBUG("Output trigger key property " << m_topoCTPLocation);
      ATH_MSG_DEBUG("Output overflow key property " << m_topoOverflowCTPLocation);
    }
@@ -108,12 +108,8 @@ L1TopoSimulation::initialize() {
 
    m_topoSteering->setHistSvc(topoHistSvc);
    
-   if (m_isLegacyTopo) {ATH_CHECK(m_legacyL1topoKey.initialize());}
-   else {ATH_CHECK(m_l1topoKey.initialize());}
-   
-   ATH_MSG_DEBUG("retrieving " << m_topoEDM);
-   CHECK( m_topoEDM.retrieve() );
-   
+   ATH_CHECK(m_legacyL1topoKey.initialize(m_isLegacyTopo));
+   ATH_CHECK(m_l1topoKey.initialize(!m_isLegacyTopo));
    
    return StatusCode::SUCCESS;
 }
@@ -253,8 +249,6 @@ L1TopoSimulation::execute() {
      CHECK(SG::makeHandle(m_legacyTopoCTPLocation)        .record(std::move(topoOutput2CTP)));
      CHECK(SG::makeHandle(m_legacyTopoOverflowCTPLocation).record(std::move(topoOverflow2CTP)));
      
-     //Accessing to the L1Topo EDM
-     //CHECK(m_topoEDM->Read(true));
    } else {
      // set electrical connectors 
      std::string conn1 = l1menu->board("Topo2").connectorNames()[0];
@@ -287,9 +281,6 @@ L1TopoSimulation::execute() {
     
      CHECK(SG::makeHandle(m_topoCTPLocation)        .record(std::move(topoOutput2CTP)));
      CHECK(SG::makeHandle(m_topoOverflowCTPLocation).record(std::move(topoOverflow2CTP)));
-
-     //Accessing to the L1Topo EDM
-     //CHECK(m_topoEDM->Read(false));
    }
 
    return StatusCode::SUCCESS;

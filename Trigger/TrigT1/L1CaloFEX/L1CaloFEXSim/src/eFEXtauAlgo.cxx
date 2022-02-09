@@ -29,15 +29,13 @@ LVL1::eFEXtauAlgo::~eFEXtauAlgo()
 
 StatusCode LVL1::eFEXtauAlgo::initialize()
 {
-
+  ATH_CHECK(m_eFEXtauAlgo_eTowerContainerKey.initialize());
   return StatusCode::SUCCESS;
-
 }
 
 StatusCode LVL1::eFEXtauAlgo::safetyTest(){
 
   // This is to test that it will also work in the other functions, as we cal this object from SG in every function but don't want them all to have to return StatusCodes, and i'm not sure how to make this a private member instead
-  ATH_CHECK(m_eFEXtauAlgo_eTowerContainerKey.initialize());
   SG::ReadHandle<eTowerContainer> jk_eFEXtauAlgo_eTowerContainer(m_eFEXtauAlgo_eTowerContainerKey/*,ctx*/);
   if(!jk_eFEXtauAlgo_eTowerContainer.isValid()){
     ATH_MSG_FATAL("LVL1::eFEXtauAlgo::safetyTest() Could not retrieve jk_eFEXtauAlgo_eTowerContainer " << m_eFEXtauAlgo_eTowerContainerKey.key() );

@@ -48,8 +48,6 @@ class eFEXDriver : public AthAlgorithm
 
   SG::WriteHandleKey<eFEXOutputCollection> m_eFEXOutputCollectionSGKey {this, "MyOutputs", "eFEXOutputCollection", "MyOutputs"};
 
-  SG::ReadHandleKey<CaloCellContainer> m_scellsCollectionSGKey {this, "SCell", "SCell", "SCell"};
-
   SG::ReadHandleKey<xAOD::eFexEMRoIContainer> m_eEDMKey {this, "myEDM", "L1_eEMRoI", "Reading container of eFexEMRoIs"};
 
   SG::ReadHandleKey<xAOD::eFexTauRoIContainer> m_eTauEDMKey {this, "myTauEDM", "L1_eTauRoI", "Reading container of eFexTauRoIs"};

@@ -107,7 +107,6 @@ class InDetGlobalTrackMonAlg : public AthMonitorAlgorithm {
   const PixelID *m_pixelID;
   
   
-  SG::ReadHandleKey<InDet::PixelClusterContainer> m_clustersKey{this, "ClusterName", "PixelClusters", "pixel cluster data key" };
   SG::ReadHandleKey<TrackCollection> m_tracksKey         {this,"TrackName", "CombinedInDetTracks", "track data key"};
   SG::ReadHandleKey<TrackCollection> m_CombinedTracksName{this,"TrackName2","CombinedInDetTracks", "track data key"};
   SG::ReadHandleKey<TrackCollection> m_ForwardTracksName {this,"TrackName3","CombinedInDetTracks", "track data key"};

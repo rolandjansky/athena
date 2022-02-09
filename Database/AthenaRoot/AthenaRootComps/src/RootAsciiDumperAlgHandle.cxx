@@ -97,6 +97,12 @@ RootAsciiDumperAlgHandle::~RootAsciiDumperAlgHandle()
 StatusCode RootAsciiDumperAlgHandle::initialize()
 {
   ATH_MSG_INFO ("Initializing " << name() << "...");
+  ATH_CHECK( m_eiKey.initialize() );
+  ATH_CHECK( m_el_jetcone_dr.initialize() );
+  ATH_CHECK( m_el_n.initialize() );
+  ATH_CHECK( m_el_eta.initialize() );
+  ATH_CHECK( m_evtnbr.initialize() );
+  ATH_CHECK( m_runnbr.initialize() );
 
   ATH_MSG_INFO("dumping data into file ["
                << m_ofname << "]...");
@@ -113,8 +119,6 @@ StatusCode RootAsciiDumperAlgHandle::initialize()
                   "write permissions.");
     return StatusCode::FAILURE;
   }
-
-  ATH_CHECK( m_eiKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
