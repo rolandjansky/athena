@@ -198,7 +198,7 @@ void TileDetectorFactoryLite::create(GeoPhysVol *world)
         cursor.next();
     }
 
-    (*m_log) << MSG::INFO << "Tile geometry from SQLite has been created." << endmsg;
+    (*m_log) << MSG::DEBUG << "Tile geometry from SQLite has been created." << endmsg;
 
 }
 

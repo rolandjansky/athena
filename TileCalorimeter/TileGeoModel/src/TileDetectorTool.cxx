@@ -178,7 +178,7 @@ StatusCode TileDetectorTool::create()
             theTileFactory.create(world);
         }
     } // end of building the geometry from the GeometryDB
-   ATH_MSG_INFO( "The Tile raw geometry has been built.");
+   ATH_MSG_DEBUG( "The Tile raw geometry has been built.");
 
     CHECK( createElements() );
 
