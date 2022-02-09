@@ -274,10 +274,10 @@ class TrigTauMonAlgBuilder:
       self.bookbasicVars( monAlg, trigger, '1P', online=True )
       self.bookbasicVars( monAlg, trigger, 'MP', online=True )
       self.bookbasicVars( monAlg, trigger, '1P', online=False )
-      self.bookbasicVars( monAlg, trigger, 'MP', online=False )
+      self.bookbasicVars( monAlg, trigger, '3P', online=False )
 
       self.bookHLTEffHistograms( monAlg, trigger,nProng='1P')
-      self.bookHLTEffHistograms( monAlg, trigger,nProng='MP')
+      self.bookHLTEffHistograms( monAlg, trigger,nProng='3P')
 
       self.bookTruth( monAlg, trigger )
       self.bookTruthEfficiency( monAlg, trigger )
@@ -286,7 +286,7 @@ class TrigTauMonAlgBuilder:
       self.bookRNNInputVars( monAlg, trigger,nProng='1P', online=True )
       self.bookRNNInputVars( monAlg, trigger,nProng='MP', online=True )
       self.bookRNNInputVars( monAlg, trigger,nProng='1P', online=False )
-      self.bookRNNInputVars( monAlg, trigger,nProng='MP', online=False )
+      self.bookRNNInputVars( monAlg, trigger,nProng='3P', online=False )
       self.bookRNNTrack( monAlg, trigger, online=True )
       self.bookRNNCluster( monAlg, trigger, online=True )
       self.bookRNNTrack( monAlg, trigger, online=False )
@@ -303,7 +303,7 @@ class TrigTauMonAlgBuilder:
             continue
         self.bookL1( monAlg, l1seed)
         self.bookL1EffHistograms( monAlg, l1seed, nProng='1P')
-        self.bookL1EffHistograms( monAlg, l1seed, nProng='MP') 
+        self.bookL1EffHistograms( monAlg, l1seed, nProng='3P') 
            
 
   #
@@ -428,7 +428,7 @@ class TrigTauMonAlgBuilder:
     monGroup.defineHistogram('ptRatioEflowApprox', title='ptRatioEflowApprox ('+nProng+'); ptRatioEflowApprox; Events',xbins=50,xmin=0.0,xmax=2.0)
     monGroup.defineHistogram('mEflowApprox', title='mEflowApprox log ('+nProng+'); mEflowApprox_log; Events',xbins=50,xmin=0.,xmax=5.)
     monGroup.defineHistogram('ptDetectorAxis', title='ptDetectorAxis log ('+nProng+'); ptDetectorAxis_log; Events',xbins=50,xmin=0.,xmax=5.)
-    if nProng=='MP':  
+    if nProng=='MP' or nProng=='3P':  
       monGroup.defineHistogram('massTrkSys', title='massTrkSys log ('+nProng+'); massTrkSys_log; Events',xbins=50,xmin=0.,xmax=3.)
 
   def bookRNNTrack( self, monAlg, trigger, online ):

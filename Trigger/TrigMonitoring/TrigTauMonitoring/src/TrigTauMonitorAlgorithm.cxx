@@ -156,7 +156,7 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, const s
 
   std::vector<const xAOD::TauJet*> offline_for_hlt_tau_vec_all; // offline taus used for studying HLT performance
   std::vector<const xAOD::TauJet*> offline_for_hlt_tau_vec_1p; // offline 1p taus used for studying HLT performance
-  std::vector<const xAOD::TauJet*> offline_for_hlt_tau_vec_mp; // offline mp taus used for studying HLT performance
+  std::vector<const xAOD::TauJet*> offline_for_hlt_tau_vec_3p; // offline mp taus used for studying HLT performance
   std::vector<const xAOD::TauJet*> online_tau_vec_0p; // online 0p taus used for studying HLT performance
   std::vector<const xAOD::TauJet*> online_tau_vec_1p; // online 1p taus used for studying HLT performance
   std::vector<const xAOD::TauJet*> online_tau_vec_mp; // online mp taus used for studying HLT performance
@@ -174,13 +174,11 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, const s
     // filling vectors for studying HLT performance
     if(nTracks==1 && ( pairObj.first->pt() > (HLTthr-thresholdOffset)*1.e3)){
        offline_for_hlt_tau_vec_1p.push_back(pairObj.first);
-    }else if(nTracks>1 && ( pairObj.first->pt() > (HLTthr-thresholdOffset)*1.e3)){
-       offline_for_hlt_tau_vec_mp.push_back(pairObj.first);
+       offline_for_hlt_tau_vec_all.push_back(pairObj.first);
+    }else if(nTracks==3 && ( pairObj.first->pt() > (HLTthr-thresholdOffset)*1.e3)){
+       offline_for_hlt_tau_vec_3p.push_back(pairObj.first);
+       offline_for_hlt_tau_vec_all.push_back(pairObj.first);
     }
-     
-    // fill vector with all offline taus for ditau HLT performance studies
-    offline_for_hlt_tau_vec_all.push_back(pairObj.first);
-
   }
   // Offline
   if( !offline_for_hlt_tau_vec_1p.empty()){
@@ -190,11 +188,11 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, const s
     fillbasicVars( trigger, offline_for_hlt_tau_vec_1p, "1P", false);
   }
 
-  if( !offline_for_hlt_tau_vec_mp.empty()){ 
-    fillRNNInputVars( trigger, offline_for_hlt_tau_vec_mp,"MP", false );
-    fillRNNTrack( trigger, offline_for_hlt_tau_vec_mp, false );
-    fillRNNCluster( trigger, offline_for_hlt_tau_vec_mp, false );
-    fillbasicVars( trigger, offline_for_hlt_tau_vec_mp, "MP", false);
+  if( !offline_for_hlt_tau_vec_3p.empty()){ 
+    fillRNNInputVars( trigger, offline_for_hlt_tau_vec_3p,"3P", false );
+    fillRNNTrack( trigger, offline_for_hlt_tau_vec_3p, false );
+    fillRNNCluster( trigger, offline_for_hlt_tau_vec_3p, false );
+    fillbasicVars( trigger, offline_for_hlt_tau_vec_3p, "3P", false);
   }
 
   std::string tauContainerName = "HLT_TrigTauRecMerged_MVA";
@@ -248,7 +246,7 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, const s
   }
 
   fillHLTEfficiencies(ctx, trigger, offline_for_hlt_tau_vec_1p, online_tau_vec_all, "1P");
-  fillHLTEfficiencies(ctx, trigger, offline_for_hlt_tau_vec_mp, online_tau_vec_all, "MP");
+  fillHLTEfficiencies(ctx, trigger, offline_for_hlt_tau_vec_3p, online_tau_vec_all, "3P");
 
   // fill ditau information 
   if(info.isDiTau){
@@ -294,7 +292,7 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, const s
   
   offline_for_hlt_tau_vec_all.clear();
   offline_for_hlt_tau_vec_1p.clear();
-  offline_for_hlt_tau_vec_mp.clear();
+  offline_for_hlt_tau_vec_3p.clear();
   online_tau_vec_0p.clear();
   online_tau_vec_1p.clear();
   online_tau_vec_mp.clear();
@@ -309,9 +307,8 @@ void TrigTauMonitorAlgorithm::fillL1Distributions(const EventContext& ctx, const
 
     const double thresholdOffset{10.0};
     const TrigInfo info = getTrigInfo(trigger);
-    std::vector<const xAOD::TauJet*> tau_vec; //  offline taus
     std::vector<const xAOD::TauJet*> offline_for_l1_tau_vec_1p; // offline 1p taus
-    std::vector<const xAOD::TauJet*> offline_for_l1_tau_vec_mp; // offline mp taus
+    std::vector<const xAOD::TauJet*> offline_for_l1_tau_vec_3p; // offline 3p taus
     std::vector<const xAOD::EmTauRoI*> legacyL1rois; //  used for studying legacy L1 performance
     std::vector<const xAOD::eFexTauRoI*> phase1L1rois; // used for studying phase1 L1 performance 
 
@@ -323,8 +320,8 @@ void TrigTauMonitorAlgorithm::fillL1Distributions(const EventContext& ctx, const
       // filling vectors 1p and mp
       if(nTracks==1 && ( pairObj.first->pt() > (L1thr-thresholdOffset)*1.e3)){
         offline_for_l1_tau_vec_1p.push_back(pairObj.first);
-      }else if(nTracks>1 && ( pairObj.first->pt() > (L1thr-thresholdOffset)*1.e3)){
-        offline_for_l1_tau_vec_mp.push_back(pairObj.first); 
+      }else if(nTracks==3 && ( pairObj.first->pt() > (L1thr-thresholdOffset)*1.e3)){
+        offline_for_l1_tau_vec_3p.push_back(pairObj.first); 
       }
     }
 
@@ -402,12 +399,12 @@ void TrigTauMonitorAlgorithm::fillL1Distributions(const EventContext& ctx, const
     fillL1(trigL1Item, legacyL1rois, phase1L1rois);
 
     fillL1Efficiencies(ctx, offline_for_l1_tau_vec_1p, "1P", trigL1Item, legacyL1rois, phase1L1rois);
-    fillL1Efficiencies(ctx, offline_for_l1_tau_vec_mp, "MP", trigL1Item, legacyL1rois, phase1L1rois);
+    fillL1Efficiencies(ctx, offline_for_l1_tau_vec_3p, "3P", trigL1Item, legacyL1rois, phase1L1rois);
   
    
 
     offline_for_l1_tau_vec_1p.clear();
-    offline_for_l1_tau_vec_mp.clear();
+    offline_for_l1_tau_vec_3p.clear();
     legacyL1rois.clear();
     phase1L1rois.clear();
 }
