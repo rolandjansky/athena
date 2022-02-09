@@ -78,8 +78,8 @@ namespace {
    /// $Revision: 642099 $
    /// $Date: 2015-01-27 17:43:18 +0100 (Tue, 27 Jan 2015) $
    ///
-   class SelectByEntries :
-      public std::unary_function< const xAOD::BranchStats&, bool > {
+   class SelectByEntries
+   {
 
    public:
       /// Constructor specifying the minimum number of entries
@@ -108,7 +108,7 @@ namespace {
       }
 
       /// Operator evaluating if a variable should be selected
-      result_type operator()( argument_type var ) const {
+      bool operator()( const xAOD::BranchStats& var ) const {
 
          return var.readEntries() >= m_entries;
       }
@@ -128,8 +128,8 @@ namespace {
    /// $Revision: 642099 $
    /// $Date: 2015-01-27 17:43:18 +0100 (Tue, 27 Jan 2015) $
    ///
-   class SelectByBytes :
-      public std::unary_function< const xAOD::BranchStats&, bool > {
+   class SelectByBytes
+   {
 
    public:
       /// Constructor specifying the minimum number of bytes read
@@ -159,7 +159,7 @@ namespace {
       }
 
       /// Operator evaluating if a variable should be selected
-      result_type operator()( argument_type var ) const {
+      bool operator()( const xAOD::BranchStats& var ) const {
 
          return var.zippedBytesRead() >= m_bytes;
       }
