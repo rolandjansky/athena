@@ -379,7 +379,8 @@ def createITkTrackingPassFlags():
     icf.addFlag("doZBoundary"               , True)
 
     icf.addFlag("useEtaDepCuts"             , True)
-    icf.addFlag("etaBins"                   , [-1.0, 2.0, 2.6, 4.0])
+    # Maximum bin set to 9999 instead of four to prevent out of bounds lookups
+    icf.addFlag("etaBins"                   , [-1.0, 2.0, 2.6, 9999.0])
     icf.addFlag("maxEta"                    , 4.0)
     icf.addFlag("minPT"                     , [0.9 * Units.GeV, 0.4 * Units.GeV, 0.4 * Units.GeV])
 
