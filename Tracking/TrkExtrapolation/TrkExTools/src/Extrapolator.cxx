@@ -2457,21 +2457,6 @@ Trk::Extrapolator::extrapolateM(const EventContext& ctx,
   return tmpMatStates;
 }
 
-std::vector<const Trk::TrackParameters*>*
-Trk::Extrapolator::extrapolateM(const EventContext& /*ctx*/,
-                                const TrackParameters&,
-                                const Surface&,
-                                PropDirection,
-                                const BoundaryCheck&,
-                                std::vector<MaterialEffectsOnTrack>&,
-                                std::vector<Trk::TransportJacobian*>&,
-                                ParticleHypothesis,
-                                Trk::ExtrapolationCache*) const
-{
-  ATH_MSG_DEBUG("C-[?] extrapolateM(..) with jacobian collection - Not implemented yet.");
-  return nullptr;
-}
-
 // the validation action -> propagated to the SubTools
 void
 Trk::Extrapolator::validationAction() const

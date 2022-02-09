@@ -291,21 +291,6 @@ public:
     ParticleHypothesis particle = pion,
     Trk::ExtrapolationCache* cache = nullptr) const override final;
 
-  /** 10) <b>Configured AlgTool extrapolation method</b>:
-    - Extrapolate to a destination surface, while collecting all the material layers and transport
-    jacobians in between.
-    */
-  virtual std::vector<const TrackParameters*>* extrapolateM(
-    const EventContext& ctx,
-    const TrackParameters& parameters,
-    const Surface& sf,
-    PropDirection dir,
-    const BoundaryCheck& bcheck,
-    std::vector<MaterialEffectsOnTrack>& material,
-    std::vector<Trk::TransportJacobian*>& jacs,
-    ParticleHypothesis particle = pion,
-    Trk::ExtrapolationCache* cache = nullptr) const override final;
-
   virtual std::unique_ptr<Trk::TrackParameters> extrapolateWithPathLimit(
     const EventContext& ctx,
     const Trk::TrackParameters& parm,
