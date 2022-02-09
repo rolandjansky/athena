@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRUTH_CLASSIFICATION__TRUTH_CLASSIFICATION_TOOL_H_
@@ -38,8 +38,9 @@ private:
   StatusCode classify(const xAOD::Muon &muon,
                       Truth::Type &classification) const;
 
-  /// \brief separately store charge-flip electrons
-  bool m_separateChargeFlipElectrons{};
+  /// \brief separately store charge-flip electrons/muons
+  bool m_separateChargeFlipElectrons = false;
+  bool m_separateChargeFlipMuons = false;
 
   // accessors
   const SG::AuxElement::ConstAccessor<int> m_truthType{"truthType"};
@@ -57,8 +58,10 @@ private:
 
   /// \brief a helper to check if an electron is prompt
   bool isPromptElectron(const xAOD::Electron &electron) const;
-  /// \brief a helper to check if an electron has incorrectly reconstructed charge
+  /// \brief a helper to check if an electron has an incorrectly reconstructed charge
   bool isChargeFlipElectron(const xAOD::Electron &electron) const;
+  /// \brief a helper to check if an muon has an incorrectly reconstructed charge
+  bool isChargeFlipMuon(const xAOD::Muon &muon) const;
 
   /// \brief a helper to check if the origin is a b-hadron
   bool hasBHadronOrigin(int origin) const;
