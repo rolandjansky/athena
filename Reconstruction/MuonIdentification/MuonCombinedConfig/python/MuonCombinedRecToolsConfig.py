@@ -936,7 +936,7 @@ def MuonCaloTagToolCfg(flags, name='MuonCaloTagTool', **kwargs ):
     calotrkmuidalgtrackselectortool = acc.popPrivateTools()
     kwargs.setdefault("TrackSelectorTool",   calotrkmuidalgtrackselectortool     )
     result.merge(acc)
-    kwargs.setdefault("doCaloLR", True)
+    kwargs.setdefault("doCaloLR", False)
     tool = CompFactory.MuonCombined.MuonCaloTagTool(name, **kwargs )
     result.setPrivateTools(tool)
     return result

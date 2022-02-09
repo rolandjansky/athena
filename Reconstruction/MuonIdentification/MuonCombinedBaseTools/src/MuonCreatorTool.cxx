@@ -699,13 +699,11 @@ namespace MuonCombined {
 
     void MuonCreatorTool::addCaloTag(xAOD::Muon& mu, const CaloTag* tag) const {
         static const SG::AuxElement::Accessor<float> acc_ElType("CT_EL_Type");  // FIXME - should be uint
-        static const SG::AuxElement::Accessor<float> acc_ElLikelihood("CT_ET_LRLikelihood");
         static const SG::AuxElement::Accessor<float> acc_ElFSREnergy("CT_ET_FSRCandidateEnergy");
 
         if (!tag) {
             // init variables if necessary.
 
-            mu.setParameter(0.f, xAOD::Muon::CaloLRLikelihood);
             mu.setParameter(0.f, xAOD::Muon::CaloMuonScore);
             mu.setParameter(static_cast<int>(0xFF), xAOD::Muon::CaloMuonIDTag);
             if (m_fillExtraELossInfo) {
@@ -713,15 +711,12 @@ namespace MuonCombined {
                 // just always add it since this is then unambigious for debugging
                 acc_ET_Core(mu) = 0.0;
                 acc_ElType(mu) = -999.0;
-                acc_ElLikelihood(mu) = -999.0;
                 acc_ElFSREnergy(mu) = -999.0;
             }
             return;
         }
 
-        ATH_MSG_DEBUG("Adding Calo Muon with author " << tag->author() << ", type " << tag->type() << ", LHR " << tag->caloLRLikelihood()
-                                                      << ", CaloMuonScore " << tag->caloMuonScore());
-        mu.setParameter(static_cast<float>(tag->caloLRLikelihood()), xAOD::Muon::CaloLRLikelihood);
+        ATH_MSG_DEBUG("Adding Calo Muon with author " << tag->author() << ", type " << tag->type() << ", CaloMuonScore " << tag->caloMuonScore());
         mu.setParameter(static_cast<float>(tag->caloMuonScore()), xAOD::Muon::CaloMuonScore);
         mu.setParameter(static_cast<int>(tag->caloMuonIdTag()), xAOD::Muon::CaloMuonIDTag);
 
@@ -730,7 +725,6 @@ namespace MuonCombined {
             // always add it since this is then unambigious for debugging
             acc_ET_Core(mu) = tag->etCore();
             acc_ElType(mu) = tag->energyLossType();
-            acc_ElLikelihood(mu) = tag->caloLRLikelihood();
             acc_ElFSREnergy(mu) = tag->fsrCandidateEnergy();
         }
         // FIXME - calo deposits
