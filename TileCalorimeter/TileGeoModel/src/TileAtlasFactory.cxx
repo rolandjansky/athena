@@ -2971,8 +2971,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
      //
      // creating Descriptiors and CaloDetDescrElements 
      // 
-        (*m_log) << MSG::INFO << "Creating descriptors for " << dbManager->GetNumberOfEnv() << " envelopes..." << endmsg;
-     std::cout << "NEnv: " << dbManager->GetNumberOfEnv() << std::endl;
+     (*m_log) << MSG::DEBUG << "Creating descriptors for " << dbManager->GetNumberOfEnv() << " envelopes..." << endmsg;
 
      int nModulesInSection[6] = {0,0,0,0,0,0};
      double zShiftInSection[6] = {0.0,0.0,0.0,0.0,0.0,0.0,};
