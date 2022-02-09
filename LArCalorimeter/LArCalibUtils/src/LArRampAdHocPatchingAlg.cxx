@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -47,7 +47,7 @@ StatusCode LArRampAdHocPatchingAlg::initialize()
     ATH_MSG_ERROR ( "Wrong size of HIGH gain input vectors!" );
     return StatusCode::FAILURE;
   } else {
-     unsigned count =  std::count_if (m_patchesToBeAppliedHG.begin(), m_patchesToBeAppliedHG.end(), std::bind2nd(std::equal_to<int>(),1) ); // 1 is to apply values
+     unsigned count =  std::count (m_patchesToBeAppliedHG.begin(), m_patchesToBeAppliedHG.end(), 1 ); // 1 is to apply values
      if ( (count > 0) && (m_valuesToBeAppliedHG.size() != count)) {
          ATH_MSG_ERROR ( "Wrong size of HIGH gain values vector ! " << count << " " << m_valuesToBeAppliedHG.size());
          return StatusCode::FAILURE;
@@ -60,7 +60,7 @@ StatusCode LArRampAdHocPatchingAlg::initialize()
     ATH_MSG_ERROR ( "Wrong size of MEDIUM gain input vectors!" );
     return StatusCode::FAILURE;
   } else {
-     unsigned count =  std::count_if (m_patchesToBeAppliedMG.begin(), m_patchesToBeAppliedMG.end(), std::bind2nd(std::equal_to<int>(),1) ); // 1 is to apply values
+     unsigned count =  std::count (m_patchesToBeAppliedMG.begin(), m_patchesToBeAppliedMG.end(), 1 ); // 1 is to apply values
      if ( (count > 0) && (m_valuesToBeAppliedMG.size() != count)) {
          ATH_MSG_ERROR ( "Wrong size of MEDIUM gain values vector !" );
          return StatusCode::FAILURE;
@@ -73,7 +73,7 @@ StatusCode LArRampAdHocPatchingAlg::initialize()
     ATH_MSG_ERROR ( "Wrong size of LOW gain input vectors!" );
     return StatusCode::FAILURE;
   } else {
-     unsigned count =  std::count_if (m_patchesToBeAppliedLG.begin(), m_patchesToBeAppliedLG.end(), std::bind2nd(std::equal_to<int>(),1) ); // 1 is to apply values
+     unsigned count =  std::count (m_patchesToBeAppliedLG.begin(), m_patchesToBeAppliedLG.end(), 1 ); // 1 is to apply values
      if ( (count > 0) && (m_valuesToBeAppliedLG.size() != count)) {
          ATH_MSG_ERROR ( "Wrong size of LOW gain values vector !" );
          return StatusCode::FAILURE;
