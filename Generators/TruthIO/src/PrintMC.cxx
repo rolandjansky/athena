@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // PrintMC - dump details of MC events
@@ -7,9 +7,6 @@
 // Updated 18.06.2020 by <andrii.verbytskyi@mpp.mpg.de>
 #include "TruthIO/PrintMC.h"
 #include "GeneratorObjects/McEventCollection.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 #include "HepPDT/ParticleData.hh"
 #include "HepPDT/ParticleDataTable.hh"
@@ -36,6 +33,8 @@ PrintMC::PrintMC(const std::string& name, ISvcLocator* pSvcLocator)
 
 StatusCode PrintMC::initialize() {
   CHECK(GenBase::initialize());
+  if(!m_trustHepMC) ATH_CHECK(m_evtInfoKey.initialize());
+
   // Check settings
   if (m_printsty != "Barcode" && m_printsty != "Vertex") {
     ATH_MSG_ERROR("Unknown PrintStyle: " << m_printsty << "! Choose Barcode/Vertex");
@@ -65,11 +64,8 @@ StatusCode PrintMC::execute() {
     uint64_t evtnum = std::max(0,evt->event_number());
     // Override with evtnum from Athena if enabled and functional
     if (!m_trustHepMC) {
-      const EventInfo* evtinfo;
-      const StatusCode sc =  evtStore()->retrieve(evtinfo);
-      if (sc.isSuccess()) {
-        evtnum = evtinfo->event_ID()->event_number();
-      }
+      SG::ReadHandle<xAOD::EventInfo> evtInfo(m_evtInfoKey);
+      evtnum = evtInfo->eventNumber();
     }
 
     // Return immediately if event number is outside the print range

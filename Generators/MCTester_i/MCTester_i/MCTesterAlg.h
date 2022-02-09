@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _ATHALGORITHM_MCTESTER_H_
-#define _ATHALGORITHM_MCTESTER_H_
+#ifndef MCTESTER_I_MCTESTERALG_H
+#define MCTESTER_I_MCTESTERALG_H
 
 #include "GaudiKernel/Algorithm.h"
-
+#include "xAODEventInfo/EventInfo.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 //external MC-TESTER headers
@@ -34,19 +34,19 @@ public:
  
    /** Initialization of the MC-Tester tool including setting up the configurable
        quantities set in the jobOption file */
-   StatusCode initialize();
+   virtual StatusCode initialize() override;
 
 
    /** Each event in the McEventCollection is passed to MC-Tester and analyzed.
        Some extra checks are performed for 4-momentum conservation, decaying particle
        lifetime and that it has actually decayed*/
-   StatusCode execute();
+   virtual StatusCode execute() override;
 
 
    /** Finalization of the MC-Tester tool. The tool outputs a root file with
        the histograms and branching modes obtained from the analysis. Some
        summary information is given to stdout */
-   StatusCode finalize();
+   virtual StatusCode finalize() override;
 
   private:
    /** Extra check for decay and particle lifetime. A WARNING is printed if there
@@ -59,7 +59,10 @@ public:
 
    // Some storegate variables
    std::string m_key; 
-   std::string m_infokey;
+   SG::ReadHandleKey<xAOD::EventInfo>  m_infokey{this
+       , "McEventInfoKey"
+       , "McEventInfo"
+       , "ReadHandleKey for xAOD::EventInfo" };
 
    //variables used to configure MC-TESTER
    /** PDG ID of particle to study */
