@@ -6317,24 +6317,24 @@ HLT_g20_loose_LArPEBHLT_L1EM15:
 HLT_g20_loose_ringer_L1EM15VHI:
   eventCount: 7
   stepCounts:
-    0: 12
+    0: 11
     1: 9
     2: 9
     3: 7
   stepFeatures:
-    0: 18
+    0: 17
     1: 12
     2: 12
     3: 7
 HLT_g20_medium_ringer_L1EM15VHI:
   eventCount: 7
   stepCounts:
-    0: 11
+    0: 10
     1: 8
     2: 8
     3: 7
   stepFeatures:
-    0: 14
+    0: 13
     1: 9
     2: 9
     3: 7
