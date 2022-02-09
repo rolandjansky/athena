@@ -19,6 +19,7 @@
 #include "RecoToolInterfaces/IParticleCaloCellAssociationTool.h"
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 #include "xAODTracking/TrackParticle.h"
+#include "CxxUtils/CachedValue.h"
 
 // --- STL ---
 #include <map>
@@ -107,11 +108,6 @@ private:
     StatusCode bookHistos();
 
     /**
-       Marked const because it must be called from some const methods
-       Actually will change mutable member variables
-    */
-    StatusCode initializeDetectorInfo(const CaloDetDescrManager* caloDDM) const;
-    /**
        Retrieve the CaloCell for which its center is closest to the position of the particle.
        @param par TrackParameters of the particle.
        @param descr Calorimeter detector region information. Only cells from this detector region are considered.
@@ -196,11 +192,15 @@ private:
     bool m_doExtr;  //!< Flag to perform extrapolations using m_extrapolator
     bool m_doHist;  //!< Flag to write histograms to track performance
 
-    CaloLayerMap mutable m_barrelLayerMap
-        ATLAS_THREAD_SAFE;  //!< std::map of \f$r\f$ distance versus descriptor for cylindrical calo regions
-    CaloLayerMap mutable m_endCapLayerMap ATLAS_THREAD_SAFE;  //!< std::map of \f$z\f$ distance versus descriptor for disc-like calo regions
+    struct LayerMaps {
+      //!< std::map of \f$r\f$ distance versus descriptor for cylindrical calo regions
+      CaloLayerMap m_barrelLayerMap;
+      //!< std::map of \f$z\f$ distance versus descriptor for disc-like calo regions
+      CaloLayerMap m_endCapLayerMap;
+    };
+    CxxUtils::CachedValue<LayerMaps> m_layerMaps;
 
-    std::once_flag mutable m_initializeOnce ATLAS_THREAD_SAFE;
+    LayerMaps initializeDetectorInfo(const CaloDetDescrManager* caloDDM) const;
 
     // Histograms
     struct Hists {
