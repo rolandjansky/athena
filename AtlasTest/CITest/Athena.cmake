@@ -19,6 +19,9 @@ atlas_add_citest( G4ExHive
    SCRIPT athena.py --threads=4 --evtMax=50 G4AtlasApps/jobOptions.G4AtlasMT.py
    PROPERTIES PROCESSORS 4 )
 
+atlas_add_citest( OverlayTier0
+   SCRIPT RunTier0Tests.py -o -n )
+
 atlas_add_citest( FastChain
    SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/FastChain.sh )
 
@@ -89,17 +92,6 @@ atlas_add_citest( MuonDigiReco_reco
    PROPERTIES REQUIRED_FILES ../MuonDigiReco_digi/OUT_RDO.root
    DEPENDS MuonDigiReco_digi
    POST_EXEC_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/checkMuonDigiReco.sh )
-
-atlas_add_ciTest( Overlay_digi
-   SCRIPT Digi_tf.py --AMI d1609 )
-
-atlas_add_ciTest( Overlay_reco
-   SCRIPT Reco_tf.py --AMI r12276 --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.simul.HITS.e6337_s3126/HITS.12860054._032508.pool.root.1 --inputRDO_BKGFile ../Overlay_digi/MC_premixing_MT.RDO.pool.root --athenaopts='--threads=1'
-   PROPERTIES REQUIRED_FILES ../Overlay_digi/MC_premixing_MT.RDO.pool.root
-   DEPENDS Overlay_digi )
-
-atlas_add_citest( OverlayTier0
-   SCRIPT RunTier0Tests.py -o -n )
 
 #################################################################################
 # Trigger
