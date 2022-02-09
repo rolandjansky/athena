@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 #
 # Author: Margherita Spalla (margherita.spalla@cern.ch)
@@ -10,7 +10,7 @@
 #
 
 
-from ROOT import TMath, TH2F, TH1F, TProfile
+from ROOT import TMath, TH2F, TProfile
 import cppyy
 
 def setMaxMin(inputs,maxVal=0,minVal=0,useMax=True,useMin=True):

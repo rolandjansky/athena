@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCALIBPEDMONALG_H
@@ -28,7 +28,7 @@ class LArCalibPedMonAlg: public AthMonitorAlgorithm
   LArCalibPedMonAlg(const std::string& name,ISvcLocator* pSvcLocator );		      
 
   /** @brief Default destructor */
-  virtual ~LArCalibPedMonAlg();
+  virtual ~LArCalibPedMonAlg() = default;
 
   /** @brief Overwrite dummy method from AlgTool */
   virtual StatusCode initialize() override;
@@ -40,10 +40,8 @@ class LArCalibPedMonAlg: public AthMonitorAlgorithm
  private:
 
   // keys to access info
-  SG::ReadHandleKey<LArCalibDigitContainer> m_calibDigitContainerKey{this,"LArCalibDigitContainerKey","","SG key of LArCalibDigitContainer read from Bytestream"};
   SG::ReadHandleKey<LArAccumulatedDigitContainer> m_accDigitContainerKey{this,"LArAccumulatedDigitContainerKey","","SG key of LArAccumulatedDigitContainer read from Bytestream"};
-  SG::ReadHandleKey<LArAccumulatedCalibDigitContainer> m_accCalibDigitContainerKey{this,"LArAccumulatedCalibDigitContainerKey","","SG key of LArAccumulatedCalibDigitContainer read from Bytestream"};
-  SG::ReadHandleKey<LArFebHeaderContainer> m_hdrContKey{this, "LArFebHeaderKey", "LArFebHeader"};
+    SG::ReadHandleKey<LArFebHeaderContainer> m_hdrContKey{this, "LArFebHeaderKey", "LArFebHeader"};
   SG::ReadHandleKey<LArFebErrorSummary> m_lArFebErrorSummaryKey{this, "LArFebErrorSummaryKey", "LArFebErrorSummary"};
   
   // Properties

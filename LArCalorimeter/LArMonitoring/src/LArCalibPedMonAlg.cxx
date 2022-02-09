@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibPedMonAlg.h"
@@ -12,26 +12,17 @@ LArCalibPedMonAlg::LArCalibPedMonAlg(const std::string& name,ISvcLocator* pSvcLo
 {}
 
 /*---------------------------------------------------------*/
-LArCalibPedMonAlg::~LArCalibPedMonAlg()
-{}
-
-/*---------------------------------------------------------*/
 StatusCode LArCalibPedMonAlg::initialize() {
   ATH_MSG_INFO( "Initialize LArCalibPedMonAlg"  );
 
-  ATH_MSG_INFO( "m_accDigitContainerKey.empty() " << m_accDigitContainerKey.empty()
-        );
-  if(!m_calibDigitContainerKey.empty()) {
-    ATH_CHECK( m_calibDigitContainerKey.initialize() );
-  } else if(!m_accDigitContainerKey.empty()) {
-    ATH_CHECK( m_accDigitContainerKey.initialize() );
-  } else if(!m_accCalibDigitContainerKey.empty()) {
-    ATH_CHECK( m_accCalibDigitContainerKey.initialize() );
-  } else {
-     ATH_MSG_FATAL("Either LArCalibDigitContainerKey or LArAccumulatedDigitContainerKey or LArAccumulatedCalibDigitContainerKey must be set");
+/*For pedestal run ONLY, not delay and ramp*/
+  ATH_MSG_INFO( "m_accDigitContainerKey.empty() " << m_accDigitContainerKey.empty() );
+  ATH_CHECK( m_accDigitContainerKey.initialize(SG::AllowEmpty));
+  if (m_accDigitContainerKey.empty()) {
+     ATH_MSG_FATAL("LArAccumulatedDigitContainerKey must be set"); 
      return StatusCode::FAILURE;
   }
-  
+    
   StatusCode sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
   if (sc.isFailure()) {
     ATH_MSG_ERROR( "Could not get LArOnlineID helper !" );
@@ -57,23 +48,12 @@ StatusCode LArCalibPedMonAlg::fillHistograms( const EventContext& ctx ) const {
 
   ATH_MSG_DEBUG( "in fillHists()"  );
   
-  SG::ReadHandle<LArCalibDigitContainer> pLArCalibDigitContainer;
   SG::ReadHandle<LArAccumulatedDigitContainer> pLArAccDigitContainer;
-  SG::ReadHandle<LArAccumulatedCalibDigitContainer> pLArAccCalibDigitContainer;
   
   bool eventRejected = false;
   std::bitset<13> rejectionBits;
   std::vector<int> febInErrorTree(0);  
   std::unordered_set<unsigned int> chanids;
-
-  if(!m_calibDigitContainerKey.empty()) {
-    pLArCalibDigitContainer= SG::ReadHandle<LArCalibDigitContainer>{m_calibDigitContainerKey,ctx};
-    if(pLArCalibDigitContainer.isValid()){
-       ATH_MSG_DEBUG("Got LArCalibDigitContainer with key "<< m_calibDigitContainerKey.key());
-    } else {
-       ATH_MSG_WARNING("Do not have LArCalibDigitContainer with key "<< m_calibDigitContainerKey.key());
-    }  
-  }
 
   if(!m_accDigitContainerKey.empty()) {
     pLArAccDigitContainer= SG::ReadHandle<LArAccumulatedDigitContainer>{m_accDigitContainerKey,ctx};
@@ -85,46 +65,16 @@ StatusCode LArCalibPedMonAlg::fillHistograms( const EventContext& ctx ) const {
 
     if(pLArAccDigitContainer->empty()) return StatusCode::SUCCESS; // Nothing to fill
 
-    LArAccumulatedDigitContainer::const_iterator itDig = pLArAccDigitContainer->begin();
-    LArAccumulatedDigitContainer::const_iterator itDig_e = pLArAccDigitContainer->end();
-    const LArAccumulatedDigit* pLArDigit;
-    for ( ; itDig!=itDig_e;++itDig) {
-        pLArDigit = *itDig;
-        unsigned int id = (pLArDigit->hardwareID()).get_identifier32().get_compact();
+    for (LArAccumulatedDigitContainer::const_iterator itDig = pLArAccDigitContainer->begin(); itDig!=pLArAccDigitContainer->end();++itDig) {
+        unsigned int id = ((*itDig)->hardwareID()).get_identifier32().get_compact();
         if(chanids.find(id) == chanids.end()) chanids.emplace(id);
     }
 
     ATH_MSG_DEBUG("Filling nbChan: "<<chanids.size());
-
     auto nbchan = Monitored::Scalar<unsigned int>("nbChan",chanids.size());
     fill(m_MonGroupName,nbchan);
-    
   }
 
-  if(!m_accCalibDigitContainerKey.empty()) {
-    pLArAccCalibDigitContainer= SG::ReadHandle<LArAccumulatedCalibDigitContainer>{m_accCalibDigitContainerKey,ctx};
-    if(pLArAccCalibDigitContainer.isValid()){
-       ATH_MSG_DEBUG("Got LArAccumulatedCalibDigitContainer with key "<< m_accCalibDigitContainerKey.key());
-    } else {
-       ATH_MSG_WARNING("Do not have LArAcumulatedCalibDigitContainer with key "<< m_accCalibDigitContainerKey.key());
-    }  
-
-    if(pLArAccCalibDigitContainer->empty()) return StatusCode::SUCCESS; // Nothing to fill
-
-    LArAccumulatedCalibDigitContainer::const_iterator itDig = pLArAccCalibDigitContainer->begin();
-    LArAccumulatedCalibDigitContainer::const_iterator itDig_e = pLArAccCalibDigitContainer->end();
-    const LArAccumulatedCalibDigit* pLArDigit;
-    for ( ; itDig!=itDig_e;++itDig) {
-        pLArDigit = *itDig;
-        unsigned int id = (pLArDigit->hardwareID()).get_identifier32().get_compact();
-        if(chanids.find(id) == chanids.end()) chanids.emplace(id);
-    }
-
-    auto nbchan = Monitored::Scalar<unsigned int>("nbChan",chanids.size());
-    fill(m_MonGroupName,nbchan);
-    
-  }
-    
   SG::ReadHandle<xAOD::EventInfo> thisEvent = GetEventInfo(ctx);
   unsigned lumi_block = thisEvent->lumiBlock();
   bool lar_inerror = (thisEvent->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error) ? true : false;
@@ -151,14 +101,11 @@ StatusCode LArCalibPedMonAlg::fillHistograms( const EventContext& ctx ) const {
   std::vector<unsigned int> nfeb(m_partitions.size());
 
   float larEventSize = 0;
-  
-  LArFebHeaderContainer::const_iterator it = hdrCont->begin(); 
-  LArFebHeaderContainer::const_iterator it_e = hdrCont->end();
-  
+    
   auto slmon = Monitored::Scalar<int>("slotnb",-1);
   auto ftmon = Monitored::Scalar<int>("FTnb",-1);
 
-  for ( ; it!=it_e;++it) {
+  for ( LArFebHeaderContainer::const_iterator it = hdrCont->begin(); it!=hdrCont->end();++it) {
     HWIdentifier febid=(*it)->FEBId();
     if (febid.get_identifier32().get_compact() >= 0x38000000 && febid.get_identifier32().get_compact() <= 0x3bc60000 && !(febid.get_identifier32().get_compact() & 0xFFF)) {
       int barrel_ec = m_onlineHelper->barrel_ec(febid);
@@ -190,7 +137,6 @@ StatusCode LArCalibPedMonAlg::fillHistograms( const EventContext& ctx ) const {
   // Loop over all febs to plot the error from statusword
   // This is mandatory to also monitor the FEBs with missing headers
    
-  bool anyfebIE = false; 
   for (std::vector<HWIdentifier>::const_iterator allFeb = m_onlineHelper->feb_begin(); allFeb != m_onlineHelper->feb_end(); ++allFeb) {
     HWIdentifier febid = HWIdentifier(*allFeb);
     bool currentFebStatus = false;
@@ -212,7 +158,6 @@ StatusCode LArCalibPedMonAlg::fillHistograms( const EventContext& ctx ) const {
 
       if (currentFebStatus && febInErrorTree.size()<33) febInErrorTree.push_back(febid.get_identifier32().get_compact());
     }  
-    if(currentFebStatus) anyfebIE = currentFebStatus;
   }
   
   

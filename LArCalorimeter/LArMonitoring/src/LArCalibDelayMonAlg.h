@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LArCalibDelayMonAlg_H
@@ -38,7 +38,7 @@ class LArCalibDelayMonAlg: public AthMonitorAlgorithm
   LArCalibDelayMonAlg(const std::string& name,ISvcLocator* pSvcLocator );		      
 
   /** @brief Default destructor */
-  virtual ~LArCalibDelayMonAlg();
+  virtual ~LArCalibDelayMonAlg() = default;
 
   /** @brief Overwrite dummy method from AlgTool */
   virtual StatusCode initialize() override;
@@ -50,8 +50,6 @@ class LArCalibDelayMonAlg: public AthMonitorAlgorithm
  private:
 
   // Handle to digits 
-  SG::ReadHandleKey<LArCalibDigitContainer> m_calibDigitContainerKey{this,"LArCalibDigitContainerKey","","SG key of LArCalibDigitContainer read from Bytestream"};
-  SG::ReadHandleKey<LArAccumulatedDigitContainer> m_accDigitContainerKey{this,"LArAccumulatedDigitContainerKey","","SG key of LArAccumulatedDigitContainer read from Bytestream"};
   SG::ReadHandleKey<LArAccumulatedCalibDigitContainer> m_accCalibDigitContainerKey{this,"LArAccumulatedCalibDigitContainerKey","","SG key of LArAccumulatedCalibDigitContainer read from Bytestream"};
   
   SG::ReadHandleKey<LArFebHeaderContainer> m_hdrContKey{this, "LArFebHeaderKey", "LArFebHeader"};
@@ -70,10 +68,6 @@ class LArCalibDelayMonAlg: public AthMonitorAlgorithm
   
     // Id helper
   const LArOnlineID* m_onlineHelper;
-  const LArEM_ID*    m_EMHelper;
-  const LArHEC_ID*   m_HECHelper;
-  const LArFCAL_ID*  m_FCALHelper;
-    
 };
 
 #endif

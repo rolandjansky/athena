@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 def LArCalibPedMonConfig(inputFlags,gain="",doAccDigit=False,doCalibDigit=False,doAccCalibDigit=False):
@@ -173,8 +173,6 @@ if __name__=='__main__':
 
    cfg.merge(LArCalibPedMonConfig(ConfigFlags, gain="HIGH",doAccDigit=True))
    
-# If you want to turn on more detailed messages ...
-# LArCalibPedMonConfig.getEventAlgo('larPedMonAlgTest').OutputLevel = 2 # DEBUG
    cfg.printConfig(withDetails=False) #set True for exhaustive info
 
    ConfigFlags.dump()
@@ -182,5 +180,4 @@ if __name__=='__main__':
    cfg.store(f)
    f.close()
 
-#   cfg.run(500,OutputLevel=DEBUG) #to only run on first 500 events
-   cfg.run(OutputLevel=1)
+   cfg.run(500,OutputLevel=DEBUG) #to only run on first 500 events

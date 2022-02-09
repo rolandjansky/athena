@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 def LArCalibDelayMonConfig(inputFlags,gain="",doAccDigit=False,doCalibDigit=False,doAccCalibDigit=False):
@@ -184,8 +184,6 @@ if __name__=='__main__':
 
    cfg.merge(LArCalibDelayMonConfig(ConfigFlags, gain="HIGH",doAccCalibDigit=True))
    
-# If you want to turn on more detailed messages ...
-# LArCalibDelayMonConfig.getEventAlgo('larDelayMonAlgTest').OutputLevel = 2 # DEBUG
    cfg.printConfig(withDetails=False) #set True for exhaustive info
 
    ConfigFlags.dump()
@@ -194,4 +192,3 @@ if __name__=='__main__':
    f.close()
 
    cfg.run(500,OutputLevel=DEBUG) #to only run on first 500 events
-   #cfg.run(OutputLevel=1)

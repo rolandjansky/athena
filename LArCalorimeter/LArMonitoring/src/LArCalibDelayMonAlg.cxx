@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibDelayMonAlg.h"
@@ -11,23 +11,14 @@ LArCalibDelayMonAlg::LArCalibDelayMonAlg(const std::string& name,ISvcLocator* pS
 {}
 
 /*---------------------------------------------------------*/
-LArCalibDelayMonAlg::~LArCalibDelayMonAlg()
-{}
-
-/*---------------------------------------------------------*/
 StatusCode LArCalibDelayMonAlg::initialize() {
   ATH_MSG_INFO( "Initialize LArCalibDelayMonAlg"  );
 
-  ATH_MSG_INFO( "m_accCalibDigitContainerKey.empty() " << m_accCalibDigitContainerKey.empty()
-        );
-  if(!m_calibDigitContainerKey.empty()) {
-    ATH_CHECK( m_calibDigitContainerKey.initialize() );
-  } else if(!m_accDigitContainerKey.empty()) {
-    ATH_CHECK( m_accDigitContainerKey.initialize() );
-  } else if(!m_accCalibDigitContainerKey.empty()) {
-    ATH_CHECK( m_accCalibDigitContainerKey.initialize() );
-  } else {
-     ATH_MSG_FATAL("Either LArCalibDigitContainerKey or LArAccumulatedDigitContainerKey or LArAccumulatedCalibDigitContainerKey must be set");
+/*For pedestal run ONLY, not delay and ramp*/
+  ATH_MSG_INFO( "m_accCalibDigitContainerKey.empty() " << m_accCalibDigitContainerKey.empty() );
+  ATH_CHECK( m_accCalibDigitContainerKey.initialize(SG::AllowEmpty));
+  if (m_accCalibDigitContainerKey.empty()) {
+     ATH_MSG_FATAL("LArAccumulatedCalibDigitContainerKey must be set"); 
      return StatusCode::FAILURE;
   }
   
@@ -37,20 +28,6 @@ StatusCode LArCalibDelayMonAlg::initialize() {
     return StatusCode::FAILURE;
   }
   
-  // Retrieve ID helpers
-  if ( detStore()->retrieve( m_EMHelper, "LArEM_ID" ).isFailure() ) {
-    ATH_MSG_FATAL( "Could not get LArEM_ID helper" );
-    return StatusCode::FAILURE;
-  }
-  if ( detStore()->retrieve( m_HECHelper, "LArHEC_ID" ).isFailure() ) {
-    ATH_MSG_FATAL( "Could not get LArHEC_IDD helper" );
-    return StatusCode::FAILURE;
-  }
-  if ( detStore()->retrieve( m_FCALHelper, "LArFCAL_ID" ).isFailure() ) {
-    ATH_MSG_FATAL( "Could not get LArFCAL_ID helper" );
-    return StatusCode::FAILURE;
-  }
-
   ATH_CHECK( m_hdrContKey.initialize() );
   
   m_histoGroups.reserve(m_SubDetNames.size());
@@ -71,8 +48,6 @@ StatusCode LArCalibDelayMonAlg::fillHistograms( const EventContext& ctx ) const 
   ATH_MSG_DEBUG( "in fillHists()"  );
   
   //get digit container
-  SG::ReadHandle<LArCalibDigitContainer> pLArCalibDigitContainer;
-  SG::ReadHandle<LArAccumulatedDigitContainer> pLArAccDigitContainer;
   SG::ReadHandle<LArAccumulatedCalibDigitContainer> pLArAccCalibDigitContainer;
   
   std::unordered_set<unsigned int> chanids;
@@ -89,26 +64,6 @@ StatusCode LArCalibDelayMonAlg::fillHistograms( const EventContext& ctx ) const 
   auto ft30 = Monitored::Scalar<int>("FT30",-1);
   auto febchid = Monitored::Scalar<int>("febchid",-1);
   
-  
-  if(!m_calibDigitContainerKey.empty()) {
-    pLArCalibDigitContainer= SG::ReadHandle<LArCalibDigitContainer>{m_calibDigitContainerKey,ctx};
-    if(pLArCalibDigitContainer.isValid()){
-       ATH_MSG_DEBUG("Got LArCalibDigitContainer with key "<< m_calibDigitContainerKey.key());
-    } else {
-       ATH_MSG_WARNING("Do not have LArCalibDigitContainer with key "<< m_calibDigitContainerKey.key());
-    }  
-  }
-
-  if(!m_accDigitContainerKey.empty()) {
-    pLArAccDigitContainer= SG::ReadHandle<LArAccumulatedDigitContainer>{m_accDigitContainerKey,ctx};
-    if(pLArAccDigitContainer.isValid()){
-       ATH_MSG_DEBUG("Got LArAccumulatedDigitContainer with key "<< m_accDigitContainerKey.key());
-    } else {
-       ATH_MSG_WARNING("Do not have LArAccumulatedDigitContainer with key "<< m_accDigitContainerKey.key());
-    }  
-    if(pLArAccDigitContainer->empty()) return StatusCode::SUCCESS; // Nothing to fill
-  }
-
   if(!m_accCalibDigitContainerKey.empty()) {
       
     pLArAccCalibDigitContainer= SG::ReadHandle<LArAccumulatedCalibDigitContainer>{m_accCalibDigitContainerKey,ctx};
@@ -118,32 +73,25 @@ StatusCode LArCalibDelayMonAlg::fillHistograms( const EventContext& ctx ) const 
        ATH_MSG_WARNING("Do not have LArAcumulatedCalibDigitContainer with key "<< m_accCalibDigitContainerKey.key());
     }  
     if(pLArAccCalibDigitContainer->empty()) return StatusCode::SUCCESS; // Nothing to fill
-  }
+      
     /** Define iterators to loop over AccCalibDigits containers*/
-    LArAccumulatedCalibDigitContainer::const_iterator ijDig = pLArAccCalibDigitContainer->begin();
-    LArAccumulatedCalibDigitContainer::const_iterator ijDig_e = pLArAccCalibDigitContainer->end();
-    
-    const LArAccumulatedCalibDigit* pLArAccCalibDigit;
-    for ( ; ijDig!=ijDig_e;++ijDig) {
-        pLArAccCalibDigit = *ijDig;
-        
-        HWIdentifier id = pLArAccCalibDigit->hardwareID();
-        unsigned int ids = (pLArAccCalibDigit->hardwareID()).get_identifier32().get_compact(); //32bit format: unsigned 32bit integer
+    for (LArAccumulatedCalibDigitContainer::const_iterator ijDig = pLArAccCalibDigitContainer->begin(); 
+         ijDig != pLArAccCalibDigitContainer->end(); ++ijDig) {
+        HWIdentifier id = (*ijDig)->hardwareID();
+        unsigned int ids = ((*ijDig)->hardwareID()).get_identifier32().get_compact();
         if(chanids.find(ids) == chanids.end()) chanids.emplace(ids);
-//         HWIdentifier thisfebid=m_onlineHelper->feb_Id(id);
-//         unsigned int  thisfebid=(m_onlineHelper->feb_Id(id)).get_identifier32().get_compact();
         
         int channel = m_onlineHelper->channel(id);
         
-        unsigned ntriggers = pLArAccCalibDigit->nTriggers();
+        unsigned ntriggers = (*ijDig)->nTriggers();
         std::vector <double> sample;
         
         // transform sampleSum vector from uint32_t to double
         std::vector <double> samplesum;     
-        std::vector < uint64_t >::const_iterator samplesum_it=pLArAccCalibDigit->sampleSum().begin();
-        std::vector < uint64_t >::const_iterator samplesum_it_e=pLArAccCalibDigit->sampleSum().end();
-        for (;samplesum_it!=samplesum_it_e; ++samplesum_it) {
-            samplesum.push_back((double)(*samplesum_it)); //double: signed 64bit
+
+        for (std::vector < uint64_t >::const_iterator samplesum_it=(*ijDig)->sampleSum().begin();
+             samplesum_it!=(*ijDig)->sampleSum().end(); ++samplesum_it) {
+            samplesum.push_back((double)(*samplesum_it));
             // Get the vector of sample values
             sample.push_back((double)(*samplesum_it)/ntriggers);
         }
@@ -151,9 +99,9 @@ StatusCode LArCalibDelayMonAlg::fillHistograms( const EventContext& ctx ) const 
         // Get highest and lowest energy samples
         double samplemax = * std::max_element(sample.begin(), sample.end());
         double samplemin = * std::min_element(sample.begin(), sample.end());
-        // make dac and delay
-        dac = pLArAccCalibDigit->DAC();
-        delay = pLArAccCalibDigit->delay();
+        // Get dac and delay
+        dac = (*ijDig)->DAC();
+        delay = (*ijDig)->delay();
         
         // Then fill histo about max/min sample
         chid = ids;
@@ -185,12 +133,13 @@ StatusCode LArCalibDelayMonAlg::fillHistograms( const EventContext& ctx ) const 
   ATH_MSG_DEBUG("Filling nbChan: "<<chanids.size());
   auto nbchan = Monitored::Scalar<unsigned int>("nbChan",chanids.size());
   fill(m_MonGroupName,nbchan);
+  }
         
   return StatusCode::SUCCESS;
 }
 
 unsigned int LArCalibDelayMonAlg::returnPartition(int be,int pn,int ft,int sl) const {
-  // partitionNb_dE = 0 : EMBC / 1 : EMBA / 2 : EMECC / 3 : EMECA / 4 : HECC / 5 : HECA / 6 : FCALC / 7 : FCALA
+  // partitionNb = 0 : EMBC / 1 : EMBA / 2 : EMECC / 3 : EMECA / 4 : HECC / 5 : HECA / 6 : FCALC / 7 : FCALA
   unsigned int part = be*2+pn;
   if (be == 1){
     // This is a HEC FEB - Dirty method as IsHECOnlineFEBId is buggy!
