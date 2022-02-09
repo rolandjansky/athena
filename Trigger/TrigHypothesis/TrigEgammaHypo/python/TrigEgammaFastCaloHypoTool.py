@@ -14,13 +14,11 @@ if not Configurable.configurableRun3Behavior:
 
 def same( val , tool):
   return [val]*( len( tool.EtaBins ) - 1 )
-  
 
 #
-# For electrons only
+# For electrons
 #
-def createTrigEgammaFastCaloHypoAlg(name, sequenceOut):
-  
+def electronRingerFastCaloHypoConfig(name, sequenceOut):
   # make the Hypo
   #from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import createTrigEgammaFastCaloSelectors
   from AthenaConfiguration.ComponentFactory import CompFactory
@@ -48,6 +46,44 @@ def createTrigEgammaFastCaloHypoAlg(name, sequenceOut):
   theFastCaloHypo.MonTool=MonTool
   return theFastCaloHypo
 
+#
+# For photons
+#
+def photonRingerFastCaloHypoConfig(name, sequenceOut):
+    # make the Hypo
+  #from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaDefs import createTrigEgammaFastCaloSelectors
+  from AthenaConfiguration.ComponentFactory import CompFactory
+  theFastCaloHypo = CompFactory.TrigEgammaFastCaloHypoAlg(name)
+  theFastCaloHypo.CaloClusters = sequenceOut
+
+  # Just for electrons
+  theFastCaloHypo.PidNames = ["tight", "medium", "loose"]
+  theFastCaloHypo.UseRun3  = False
+  #theFastCaloHypo.RingerNNSelectorTools = createTrigEgammaFastCaloSelectors()
+
+  # NOTE: This will be remove next
+  pidnames = ["Tight","Medium","Loose"]
+  basepath = 'RingerSelectorTools/TrigL2_20211125_r1' #just for test, it will be changed for photons
+  theFastCaloHypo.ConstantsCalibPaths = [(basepath+'/TrigL2CaloRingerPhoton{WP}Constants.root'.format(WP=pid)) for pid in pidnames  ]
+  theFastCaloHypo.ThresholdsCalibPaths = [(basepath+'/TrigL2CaloRingerPhoton{WP}Thresholds.root'.format(WP=pid)) for pid in pidnames  ]
+
+  from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
+  MonTool = GenericMonitoringTool("MonTool_"+name)
+  MonTool.Histograms = [ 
+        defineHistogram('TIME_exec', type='TH1F', path='EXPERT', title="Fast Calo Hypo Algtime; time [ us ] ; Nruns", xbins=80, xmin=0.0, xmax=8000.0),
+        defineHistogram('TIME_NN_exec', type='TH1F', path='EXPERT', title="Fast Calo Hypo NN Algtime; time [ us ] ; Nruns", xbins=50, xmin=0.0, xmax=50),
+  ]
+  MonTool.HistPath = 'FastCaloL2EgammaHypo/'+name
+  theFastCaloHypo.MonTool=MonTool
+  return theFastCaloHypo
+
+
+
+def createTrigEgammaFastCaloHypoAlg(name, sequenceOut):
+  if 'Electron' in name:
+    return electronRingerFastCaloHypoConfig(name, sequenceOut)
+  elif 'Photon' in name:
+    return photonRingerFastCaloHypoConfig(name, sequenceOut)
 
 def TrigEgammaFastCaloHypoAlgCfg(flags, name, CaloClusters):
   from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -128,7 +164,8 @@ class TrigEgammaFastCaloHypoToolConfig:
     self.__sel        = 'ion' if 'ion' in cpart['extra'] else (cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo'])
     self.__gsfinfo  = cpart['gsfInfo'] if cpart['trigType']=='e' and cpart['gsfInfo'] else ''
     self.__idperfinfo  = cpart['idperfInfo'] if cpart['trigType']=='e' and cpart['idperfInfo'] else ''
-    self.__noringerinfo = cpart['L2IDAlg'] if cpart['trigType']=='e' else ''
+    # self.__noringerinfo = cpart['L2IDAlg'] if cpart['trigType']=='e' else ''
+    self.__noringerinfo = cpart['L2IDAlg']
     self.__monGroups = monGroups
 
     if not tool:
@@ -251,8 +288,10 @@ class TrigEgammaFastCaloHypoToolConfig:
     elif self.pidname() in self.__operation_points and 'noringer' not in self.noringerinfo() and self.isElectron():
       self.nominal()
 
-    elif self.pidname() in self.__operation_points and self.isPhoton():
+    elif self.pidname() in self.__operation_points and self.isPhoton() and  'ringer'!=self.noringerinfo():
       self.etcut()
+    elif self.pidname() in self.__operation_points and self.isPhoton() and  'ringer'==self.noringerinfo():
+      self.nominal()
    
     elif self.etthr()==0:
       self.nocut()

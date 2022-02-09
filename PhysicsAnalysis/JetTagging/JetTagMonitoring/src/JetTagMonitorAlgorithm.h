@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETTAGMONITORALGORITHM_H
@@ -69,7 +69,8 @@ class JetTagMonitorAlgorithm : public AthMonitorAlgorithm {
 
   float m_JetPtCut;
   float m_JetEtaCut;
-  float m_SoftMuonPtCut;
+  float m_SoftMuonPtMin;
+  float m_SoftMuonPtMax;
   float m_MuonPtCut;
   float m_MuonEtaCut;
   float m_ElectronPtCut;
@@ -86,7 +87,6 @@ class JetTagMonitorAlgorithm : public AthMonitorAlgorithm {
  
   std::string m_TaggerName;
   float m_cFraction;
-  float m_bFraction;
   float m_WP60Cut;
   float m_WP70Cut;
   float m_WP77Cut;
@@ -103,9 +103,6 @@ class JetTagMonitorAlgorithm : public AthMonitorAlgorithm {
   bool passJVTCut(const xAOD::Jet *jet) const;
   double getTaggerWeight(const xAOD::Jet *jet) const;
   Jet_t getQualityLabel(const xAOD::Jet *jet, float PV_Z) const; 
-
-  std::string m_ElectronTrigger_201X;
-  std::string m_MuonTrigger_201X;
 
 };
 #endif

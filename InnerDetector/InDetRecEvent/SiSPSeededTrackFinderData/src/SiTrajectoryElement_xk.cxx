@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SiSPSeededTrackFinderData/SiTrajectoryElement_xk.h"
@@ -18,6 +18,7 @@
 #include "StoreGate/ReadCondHandle.h"
 
 #include <cmath>
+#include <memory>
 #include <stdexcept>
 
 ///////////////////////////////////////////////////////////////////
@@ -43,12 +44,12 @@ bool InDet::SiTrajectoryElement_xk::setDead(const Trk::Surface* SU)
   m_ndfForward         = 0                       ;
   m_ndfBackward        = 0                       ;
   m_ntsos              = 0                       ;
-  m_detelement   = 0                       ;
-  m_detlink      = 0                       ;
+  m_detelement   = nullptr                       ;
+  m_detlink      = nullptr                       ;
   m_surface      = SU                      ;
-  m_cluster      = 0                       ;
-  m_clusterOld   = 0                       ;
-  m_clusterNoAdd = 0                       ;
+  m_cluster      = nullptr                       ;
+  m_clusterOld   = nullptr                       ;
+  m_clusterNoAdd = nullptr                       ;
   noiseInitiate()                          ;
   m_radlength    = -1.                     ;
   m_inside       = -1                      ;
@@ -66,7 +67,7 @@ bool InDet::SiTrajectoryElement_xk::setDead(const Trk::Surface* SU)
 void InDet::SiTrajectoryElement_xk::setDeadRadLength(Trk::PatternTrackParameters& Tp)
 {
   if(m_radlength >= 0.) return;
-  double z = fabs(Tp.parameters()[1]);
+  double z = std::abs(Tp.parameters()[1]);
   if     (z <  250.) m_radlength = .004;
   else if(z <  500.) m_radlength = .018+(z- 250.)*.000048;
   else if(z < 1000.) m_radlength = .030+(z- 500.)*.000040;
@@ -262,9 +263,9 @@ bool InDet::SiTrajectoryElement_xk::lastTrajectorElementPrecise()
   m_nlinksBackward     =  0;
   m_nholesBackward     =  0;
   m_dholesBackward     =  0;
-  m_clusterNoAdd       =  0;
+  m_clusterNoAdd       =  nullptr;
   m_nclustersBackward  =  1;
-  m_clusterNoAdd       =  0;
+  m_clusterNoAdd       =  nullptr;
   m_npixelsBackward = m_ndf==2 ? 1 : 0;
   m_ndfBackward        =  m_ndf ;
   m_xi2Backward        =  m_xi2Forward;
@@ -416,7 +417,7 @@ bool InDet::SiTrajectoryElement_xk::ForwardPropagationWithoutSearchPreciseWithCo
   noiseProduction(1,m_parametersUpdatedBackward);
   m_status       = 1;
   m_nlinksForward = 0;
-  m_clusterNoAdd = 0;
+  m_clusterNoAdd = nullptr;
   return true;
 }
 
@@ -911,9 +912,9 @@ InDet::SiTrajectoryElement_xk::trackStateOnSurface (bool change,bool cov,bool mu
   std::unique_ptr<const Trk::MeasurementBase> ro{};
 
   if (m_status == 1) {
-    fq.reset(new Trk::FitQualityOnSurface(m_xi2Forward, m_ndf));
+    fq = std::make_unique<Trk::FitQualityOnSurface>(m_xi2Forward, m_ndf);
   } else {
-    fq.reset(new Trk::FitQualityOnSurface(m_xi2Backward, m_ndf));
+    fq = std::make_unique<Trk::FitQualityOnSurface>(m_xi2Backward, m_ndf);
   }
 
   std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> pat(
@@ -930,7 +931,7 @@ InDet::SiTrajectoryElement_xk::trackStateOnSurface (bool change,bool cov,bool mu
     0., 0., std::sqrt(m_noise.covarianceAzim()), std::sqrt(m_noise.covariancePola()));
 
   auto meTemplate = std::make_unique<const Trk::MaterialEffectsOnTrack>(
-    m_radlengthN, std::move(sa), tp->associatedSurface());
+    m_radlengthN, sa, tp->associatedSurface());
 
   pat.set(Trk::TrackStateOnSurface::Scatterer);
   Trk::TrackStateOnSurface* sos =
@@ -1003,19 +1004,19 @@ InDet::SiTrajectoryElement_xk::trackSimpleStateOnSurface
   Amg::MatrixX cv = cl->localCovariance();
 
   std::unique_ptr<const Trk::FitQualityOnSurface> fq{};
-  if     (m_status == 1) fq.reset(new Trk::FitQualityOnSurface(m_xi2Forward,m_ndf));
-  else                   fq.reset(new Trk::FitQualityOnSurface(m_xi2Backward,m_ndf));
+  if     (m_status == 1) fq = std::make_unique<Trk::FitQualityOnSurface>(m_xi2Forward,m_ndf);
+  else                   fq = std::make_unique<Trk::FitQualityOnSurface>(m_xi2Backward,m_ndf);
 
   if (m_ndf == 1) {
     const InDet::SCT_Cluster* sc = static_cast<const InDet::SCT_Cluster*>(cl);
     if (sc)
-      ro.reset(new InDet::SCT_ClusterOnTrack(sc, locp, cv, iH, sc->globalPosition()));
+      ro = std::make_unique<InDet::SCT_ClusterOnTrack>(sc, locp, cv, iH, sc->globalPosition());
   } else {
 
     const InDet::PixelCluster* pc = static_cast<const InDet::PixelCluster*>(cl);
     if (pc)
-      ro.reset(new InDet::PixelClusterOnTrack(
-        pc, locp, cv, iH, pc->globalPosition(), pc->gangedPixel()));
+      ro = std::make_unique<InDet::PixelClusterOnTrack>(
+        pc, locp, cv, iH, pc->globalPosition(), pc->gangedPixel());
   }
   return new Trk::TrackStateOnSurface(std::move(ro), std::move(tp), std::move(fq), nullptr, pat);
 }
@@ -1637,7 +1638,7 @@ bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
   const double dlt  = .001      ;
 
   /// Minimum momentum check 
-  if(fabs(globalPars[6]) > .05) return false;
+  if(std::abs(globalPars[6]) > .05) return false;
 
 
   int    it    =               0;
@@ -1648,14 +1649,14 @@ bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
   double* sA   =          &globalPars[42];            /// dA/ds
   double  Pi   =  149.89626*globalPars[6];            /// This is a conversion from p to half-curvature (1/2R), when multiplied with the orthogonal field component
                                                       /// Curvature = 2 * Pi x B x sin(angle)
-  double  Pa   = fabs      (globalPars[6]);           /// abs(qoverp)
+  double  Pa   = std::abs      (globalPars[6]);           /// abs(qoverp)
 
   /// projection of global direction onto local Z-axis                 
   double  a    = A[0]*m_localTransform[6]+A[1]*m_localTransform[7]+A[2]*m_localTransform[8]; 
   if(a==0.) return false; 
   /// distance orthogonal to surface in units of direction z-component 
   double  S    = ((m_localTransform[12]-R[0]*m_localTransform[6])-(R[1]*m_localTransform[7]+R[2]*m_localTransform[8]))/a; 
-  double  S0   = fabs(S)                                                ;
+  double  S0   = std::abs(S)                                                ;
 
   /// if we are sufficiently close in Z already, add a 
   /// final straight line step corresponding to the remaining difference 
@@ -1688,7 +1689,7 @@ bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
 
     bool Helix = false; 
     /// if the step is sifficiently small, we are allowed to use a helical model
-    if(fabs(S) < Shel) Helix = true;
+    if(std::abs(S) < Shel) Helix = true;
     double S3=(1./3.)*S;      /// S/3 
     double S4=.25*S;          /// S/4 
     double PS2=Pi*S;          /// 2 S/curvature radius, when multiplied with the appropriate field 
@@ -1770,7 +1771,7 @@ bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
     // Test approximation quality on give step and possible step reduction
     //
     if(!ste) {
-      double EST = fabs((A1+A6)-(A3+A4))+fabs((B1+B6)-(B3+B4))+fabs((C1+C6)-(C3+C4)); 
+      double EST = std::abs((A1+A6)-(A3+A4))+std::abs((B1+B6)-(B3+B4))+std::abs((C1+C6)-(C3+C4)); 
       if(EST>dlt) {
         S*=.6; 
         continue;
@@ -1779,7 +1780,7 @@ bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
 
     /// Parameters calculation
     /// if the step grew too small, or we traveled more than 2 meters, abort, this went badly wrong...   
-    if((!ste && S0 > fabs(S)*100.) || fabs(globalPars[45]+=S) > 2000.) return false;
+    if((!ste && S0 > std::abs(S)*100.) || std::abs(globalPars[45]+=S) > 2000.) return false;
     ste = true;
 	
     double A0arr[3]{A0,B0,C0}; 
@@ -1811,7 +1812,7 @@ bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
     double  a    = A[0]*m_localTransform[6]+A[1]*m_localTransform[7]+A[2]*m_localTransform[8]; 
     if(a==0.) return false;
     double  Sn   = ((m_localTransform[12]-R[0]*m_localTransform[6])-(R[1]*m_localTransform[7]+R[2]*m_localTransform[8]))/a;
-    double aSn = fabs(Sn);
+    double aSn = std::abs(Sn);
 
     /// if the remaining step is below threshold,
     /// we can finish with a small linear step 
@@ -1829,7 +1830,7 @@ bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
       return true;  
     }
 
-    double aS = fabs(S);
+    double aS = std::abs(S);
     
     /// if we ran past the surface and changed signs more than twice, abort 
     if     (  S*Sn < 0. ) {

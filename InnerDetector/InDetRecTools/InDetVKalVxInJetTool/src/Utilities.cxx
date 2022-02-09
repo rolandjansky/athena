@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 // Author: Vadim Kostyukhin (vadim.kostyukhin@cern.ch)
 
@@ -467,7 +467,7 @@ namespace InDet{
        pz +=          theta.cs*api;
        ee += std::sqrt( api*api + m_massPi*m_massPi);
      }
-     return TLorentzVector(px,py,pz,ee); 
+     return {px,py,pz,ee}; 
    }
 
   TLorentzVector InDetVKalVxInJetTool::totalMom(const std::vector<const xAOD::TrackParticle*>& InpTrk) 
@@ -492,7 +492,7 @@ namespace InDet{
      double py = phi.sn * theta.sn*api;
      double pz =          theta.cs*api;
      double ee = std::sqrt( api*api + m_massPi*m_massPi);
-     return TLorentzVector(px,py,pz,ee); 
+     return {px,py,pz,ee}; 
    }
 //
 //-- Perigee in xAOD::TrackParticle

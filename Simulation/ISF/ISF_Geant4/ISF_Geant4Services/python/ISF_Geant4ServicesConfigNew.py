@@ -1,9 +1,10 @@
 """Geant4 services config for ISF with ComponentAccumulator
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import LHCPeriod
 from ISF_Geant4Tools.ISF_Geant4ToolsConfigNew import (
     Geant4ToolCfg, FullGeant4ToolCfg, LongLivedGeant4ToolCfg, PassBackGeant4ToolCfg,
     AFIIGeant4ToolCfg, AFII_QS_Geant4ToolCfg
@@ -15,7 +16,7 @@ def Geant4SimCfg(flags, name="ISFG4SimSvc", **kwargs):
 
     G4_DDDBEnvelopeDefSvc = CompFactory.DetDescrDBEnvelopeSvc("G4EnvelopeDefSvc")
     G4_DDDBEnvelopeDefSvc.DBBeamPipeNode = "BPipeEnvelopeG4"
-    G4_DDDBEnvelopeDefSvc.DBInDetNode = "InDetEnvelopeG4" if flags.GeoModel.Run in ['RUN1', 'RUN2', 'RUN3'] else "ITkEnvelopeG4"
+    G4_DDDBEnvelopeDefSvc.DBInDetNode = "InDetEnvelopeG4" if flags.GeoModel.Run in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3] else "ITkEnvelopeG4"
     G4_DDDBEnvelopeDefSvc.DBCaloNode = "CaloEnvelopeG4"
     G4_DDDBEnvelopeDefSvc.DBMSNode = "MuonEnvelopeG4"
     G4_DDDBEnvelopeDefSvc.DBCavernNode = "CavernEnvelopeG4"

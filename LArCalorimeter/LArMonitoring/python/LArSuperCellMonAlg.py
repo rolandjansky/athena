@@ -1,9 +1,6 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
-
-#from AthenaCommon.Include import include #needed for LArSuperCellBCIDEmAlg
-#from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
 def LArSuperCellMonConfigOld(inputFlags):
     from AthenaMonitoring.AthMonitorCfgHelper import AthMonitorCfgHelperOld
@@ -87,11 +84,13 @@ def LArSuperCellMonConfig(inputFlags):
 
 
     algname='LArSuperCellMonAlg'
-    if inputFlags.Beam.Type == 'cosmics':
+    from AthenaConfiguration.Enums import BeamType
+    if inputFlags.Beam.Type is BeamType.Cosmics:
         algname=algname+'Cosmics'
 
-    isCosmics = ( inputFlags.Beam.Type == 'cosmics' )
-    algo = LArSuperCellMonConfigCore(helper, lArCellMonAlg  ,inputFlags, isCosmics, inputFlags.Input.isMC,  algname)
+    algo = LArSuperCellMonConfigCore(helper, lArCellMonAlg, inputFlags,
+                                     inputFlags.Beam.Type is BeamType.Cosmics,
+                                     inputFlags.Input.isMC, algname)
 
     #if not inputFlags.Input.isMC:
     #   from AthenaMonitoring.BadLBFilterToolConfig import LArBadLBFilterToolCfg

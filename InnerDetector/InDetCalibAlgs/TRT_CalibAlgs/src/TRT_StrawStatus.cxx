@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -46,8 +46,8 @@ InDet::TRT_StrawStatus::TRT_StrawStatus(const std::string& name, ISvcLocator* pS
 :
 AthAlgorithm(name,pSvcLocator),
 m_nEvents(0), m_runNumber(0),
-m_accumulateHits(0),
-m_TRTHelper(0),
+m_accumulateHits(nullptr),
+m_TRTHelper(nullptr),
 m_mapSvc("TRT_HWMappingSvc",name),
 m_DCSSvc("TRT_DCS_ConditionsSvc",name),
 m_TRTStrawNeighbourSvc("TRT_StrawNeighbourSvc", name), // use this service to retrieve barrel and end-cap straw number later on, as well as DTMROC,..
@@ -182,14 +182,14 @@ StatusCode InDet::TRT_StrawStatus::execute(){
         //=== select track
         const Trk::Perigee* perigee = (*trackIt)->perigeeParameters();
         if ( not perigee  ) { ATH_MSG_ERROR( "Trk::Perigee missing" ); continue; }
-        if ( std::fabs(perigee->pT())/CLHEP::GeV < 1. ) continue; // 1 GeV pT cut
+        if ( std::abs(perigee->pT())/CLHEP::GeV < 1. ) continue; // 1 GeV pT cut
 
         const DataVector<const Trk::TrackStateOnSurface>* trackStates = (**trackIt).trackStateOnSurfaces();
         if ( not trackStates  ) { ATH_MSG_ERROR( "Trk::TrackStateOnSurface empty" ); continue; }
 
         int n_pixel_hits(0), n_sct_hits(0), n_trt_hits(0);  // count hits, require minimal number of all hits
         for ( DataVector<const Trk::TrackStateOnSurface>::const_iterator trackStatesIt = trackStates->begin(); trackStatesIt != trackStates->end(); ++trackStatesIt ) {
-            if ( *trackStatesIt == 0 ) { ATH_MSG_ERROR( "*trackStatesIt == 0" ); continue; }
+            if ( *trackStatesIt == nullptr ) { ATH_MSG_ERROR( "*trackStatesIt == 0" ); continue; }
 
             if ( !((*trackStatesIt)->type(Trk::TrackStateOnSurface::Measurement)) ) continue; // this skips outliers
 
@@ -205,7 +205,7 @@ StatusCode InDet::TRT_StrawStatus::execute(){
 
         for ( DataVector<const Trk::TrackStateOnSurface>::const_iterator trackStatesIt = trackStates->begin(); trackStatesIt != trackStates->end(); ++trackStatesIt ) {
 
-            if ( *trackStatesIt == 0 ) { ATH_MSG_ERROR( "*trackStatesIt == 0" ); continue; }
+            if ( *trackStatesIt == nullptr ) { ATH_MSG_ERROR( "*trackStatesIt == 0" ); continue; }
 
             if ( !((*trackStatesIt)->type(Trk::TrackStateOnSurface::Measurement)) ) continue; // this skips outliers
 
@@ -219,10 +219,10 @@ StatusCode InDet::TRT_StrawStatus::execute(){
                                                                                           hit.measurementOnTrack()->localCovariance()).release();
 
 			double unbiased_locR = unbiased_track_parameters->parameters()[Trk::locR];
-			if ( fabs(unbiased_locR) > m_locR_cut ) continue; // same cut as the default hole search cut
+			if ( std::abs(unbiased_locR) > m_locR_cut ) continue; // same cut as the default hole search cut
 
             const InDet::TRT_DriftCircle *driftCircle = driftCircleOnTrack->prepRawData();
-            if ( driftCircle == 0 ) { ATH_MSG_ERROR( "driftCircle == 0" ); continue; }
+            if ( driftCircle == nullptr ) { ATH_MSG_ERROR( "driftCircle == 0" ); continue; }
 
             Identifier id = driftCircle->identify();
             int index[6]; myStrawIndex(id, index); // side, layer, phi, straw_layer, straw_within_layer, straw_index
@@ -234,7 +234,7 @@ StatusCode InDet::TRT_StrawStatus::execute(){
         // add holeIdentifiers - fill vector
 
         std::unique_ptr<const Trk::TrackStates> holes (m_trt_hole_finder->getHolesOnTrack( *track ));
-        if ( holes==0 ) continue; // no holes found
+        if ( holes==nullptr ) continue; // no holes found
         for (const Trk::TrackStateOnSurface* trackStates : *holes) {
 
             if ( !trackStates->type(   Trk::TrackStateOnSurface::Hole  )  ) { ATH_MSG_ERROR( "m_trt_hole_finder returned something that is not a hole" ); continue; }
@@ -246,7 +246,7 @@ StatusCode InDet::TRT_StrawStatus::execute(){
             if ( !(m_TRTHelper->is_trt(id)) ) { ATH_MSG_ERROR( "m_trt_hole_finder returned something that is not a TRT hole" ); continue; }
 
             // add se same 1.4 mm locR selection, in case it is not on by default
-            if ( std::fabs( track_parameters->parameters()[Trk::locR] ) > m_locR_cut ) continue;
+            if ( std::abs( track_parameters->parameters()[Trk::locR] ) > m_locR_cut ) continue;
 
             holeIdentifiers.push_back( id );
         } // end add holeIdentifiers
@@ -259,7 +259,7 @@ StatusCode InDet::TRT_StrawStatus::execute(){
 
     for (TRT_RDO_Container::const_iterator rdoIt = rdoContainer->begin(); rdoIt != rdoContainer->end(); ++rdoIt) {
         const InDetRawDataCollection<TRT_RDORawData>* TRTCollection(*rdoIt);
-        if (TRTCollection==0) continue;
+        if (TRTCollection==nullptr) continue;
         for (DataVector<TRT_RDORawData>::const_iterator trtIt = TRTCollection->begin(); trtIt != TRTCollection->end(); ++trtIt) {
             Identifier id = (*trtIt)->identify();
             int index[6]; myStrawIndex(id, index); // side, layer, phi, straw_layer, straw_within_layer, straw_index

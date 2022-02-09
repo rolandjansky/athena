@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetBeamSpotVertex.h"
@@ -31,7 +31,7 @@ public:
   SortDistToMedian(double median): m_median(median) {}
 
   bool operator()(double a , double b) const {
-    return fabs(a - m_median) < fabs(b -m_median);
+    return std::abs(a - m_median) < std::abs(b -m_median);
   }
 };
 
@@ -594,13 +594,13 @@ bool InDetBeamSpotVertex::applyOutlierRemoval() {
   if (count) {
     meanx /= count;
     meanxSqr /=count;
-    rmsX = std::sqrt( std::fabs(meanxSqr - meanx*meanx));
+    rmsX = std::sqrt( std::abs(meanxSqr - meanx*meanx));
     meany /= count;
     meanySqr /=count;
-    rmsY = std::sqrt( std::fabs(meanySqr - meany*meany));
+    rmsY = std::sqrt( std::abs(meanySqr - meany*meany));
     meanz  /=count;
     meanzSqr /=count;
-    rmsZ = std::sqrt( std::fabs(meanzSqr - meanz*meanz));
+    rmsZ = std::sqrt( std::abs(meanzSqr - meanz*meanz));
   }
 
   if(m_setInitialRMS){
@@ -632,9 +632,9 @@ bool InDetBeamSpotVertex::applyOutlierRemoval() {
     if (!it->valid) continue;
     int fail=0;
     
-    if ( fabs( medianx - it->x ) > m_sigTr *rmsX) fail += 4;
-    if ( fabs( mediany - it->y ) > m_sigTr *rmsY) fail += 8;
-    if ( fabs( medianz - it->z ) > 10*rmsZ) fail += 16;
+    if ( std::abs( medianx - it->x ) > m_sigTr *rmsX) fail += 4;
+    if ( std::abs( mediany - it->y ) > m_sigTr *rmsY) fail += 8;
+    if ( std::abs( medianz - it->z ) > 10*rmsZ) fail += 16;
     
     
     if (  (medianx - it->x)*(medianx-it->x)/rmsX/rmsX + (mediany-it->y)*(mediany-it->y)/rmsY/rmsY > m_sigTr*m_sigTr) {
@@ -742,7 +742,7 @@ bool InDetBeamSpotVertex::applyOutlierRemoval() {
   
   
   
-  if ( llSolve == false || getSigmaX(0.) < m_widthFail || getSigmaY(0.) < m_widthFail || fabs(getRhoXY()) > m_rhoFail ) {
+  if ( llSolve == false || getSigmaX(0.) < m_widthFail || getSigmaY(0.) < m_widthFail || std::abs(getRhoXY()) > m_rhoFail ) {
     // ll solution not used, or not trusted
     // set a wide solution
     m_getLLres = false;
@@ -781,12 +781,12 @@ bool InDetBeamSpotVertex::applyOutlierRemoval() {
     fail = 0; // reset the fail value variable
     
     // selections
-    if ( std::fabs(it->x - (xbar + it->z*ax))  > m_sigTr * rmsX) fail += 1;
-    if ( std::fabs(it->y - (ybar + it->z*ay))  > m_sigTr * rmsY) fail += 2;
+    if ( std::abs(it->x - (xbar + it->z*ax))  > m_sigTr * rmsX) fail += 1;
+    if ( std::abs(it->y - (ybar + it->z*ay))  > m_sigTr * rmsY) fail += 2;
     
     if ( it->vxx >  m_maxVtxErTr*m_maxVtxErTr || it->vyy >  m_maxVtxErTr*m_maxVtxErTr) fail += 4;
 
-    if (  std::fabs(it->z - meanz)  > m_sigTr * rmsZ) fail += 8;
+    if (  std::abs(it->z - meanz)  > m_sigTr * rmsZ) fail += 8;
 
     // add all other selections above here:
     double increaseChi2(0);
@@ -983,23 +983,23 @@ bool InDetBeamSpotVertex::successfulFit( TMinuit * minuit,
   if ( m_doFitSanityCheck) {
     double x(0), ex(0);
     minuit->GetParameter(6,x,ex); // rhoxy
-    if ( std::fabs(x) > m_rhoFail){
+    if ( std::abs(x) > m_rhoFail){
       sanityPassed = false;
       ATH_MSG_DEBUG( "Fit Failed with rhoxy: " << x << " > " << m_rhoFail );
     }
     minuit->GetParameter(4,x,ex); // sigma x
-    if ( std::fabs(x) < m_widthFail ){
+    if ( std::abs(x) < m_widthFail ){
       sanityPassed = false;
       ATH_MSG_DEBUG( "Fit Failed with sigmaX:" << x << " > " << m_widthFail );
     }
     minuit->GetParameter(5,x,ex); // sigma y
-    if ( std::fabs(x) < m_widthFail ){
+    if ( std::abs(x) < m_widthFail ){
       sanityPassed = false;
       ATH_MSG_DEBUG( "Fit Failed with sigmaY: " << x << " > " <<m_widthFail  );
     }
     
     minuit->GetParameter(7,x,ex); // k
-    if ( std::fabs(x) < m_kMinFail || std::fabs(x) > m_kMaxFail ){
+    if ( std::abs(x) < m_kMinFail || std::abs(x) > m_kMaxFail ){
       sanityPassed = false;
       ATH_MSG_DEBUG( "Fit Failed with k: " << x << " > " << m_kMaxFail 
                  << ", or " << x << " < " << m_kMinFail  );
@@ -1029,7 +1029,7 @@ void BeamSpot::myFCN_LLsolver( Int_t &, Double_t *, Double_t &f, Double_t *par, 
   
   f = 0;
   
-  typedef  std::vector<  BeamSpot::VrtHolder >  Vertices;
+  using Vertices = std::vector<BeamSpot::VrtHolder>;
   Vertices::const_iterator vit = BeamSpot::vertexData->begin();
   
   double temp =0;
@@ -1059,7 +1059,7 @@ void BeamSpot::myFCN_LLsolver( Int_t &, Double_t *, Double_t &f, Double_t *par, 
     det = covXX * covYY - covXY*covXY;
     double recDet = 1./det;
 
-    //temp =  TMath::Log(2*Pi * sqrt(fabs(det)));
+    //temp =  TMath::Log(2*Pi * sqrt(std::abs(det)));
     temp  =  2*TMath::Log(2*Pi);
     temp  += TMath::Log(det);
     

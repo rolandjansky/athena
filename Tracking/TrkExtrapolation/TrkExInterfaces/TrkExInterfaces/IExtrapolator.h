@@ -125,7 +125,7 @@ public:
      elements hit in between and the TrackParameters at the destination Surface
      (if final extrapolation suceeds), empty if the extrapolation to the
      destination surface does not suceed*/
-  virtual std::vector<std::unique_ptr<const TrackParameters>>
+  virtual std::vector<std::unique_ptr<TrackParameters>>
   extrapolateStepwise(const EventContext& ctx,
                       const TrackParameters& parm,
                       const Surface& sf,
@@ -177,7 +177,7 @@ public:
     - blind inside the given tracking Volume (boundaryVol),
     if none is given the reference surface for destination is used
    */
-  virtual std::vector<std::unique_ptr<const TrackParameters>>
+  virtual std::vector<std::unique_ptr<TrackParameters>>
   extrapolateBlindly(const EventContext& ctx,
                      const TrackParameters& parm,
                      PropDirection dir = anyDirection,
@@ -253,7 +253,7 @@ public:
     double& pathLim,
     Trk::PropDirection dir,
     Trk::ParticleHypothesis particle,
-    std::vector<const Trk::TrackParameters*>*& parmOnSf,
+    std::vector<Trk::TrackParameters*>*& parmOnSf,
     std::vector<const Trk::TrackStateOnSurface*>*& material,
     const Trk::TrackingVolume* boundaryVol = nullptr,
     MaterialUpdateMode matupmod = Trk::addNoise) const = 0;
@@ -264,7 +264,8 @@ public:
      TrackParameters. Material collection in option. Destination (subdetector
      boundary) : geoID (exit)
   */
-  virtual const std::vector<std::pair<const Trk::TrackParameters*, int>>*
+  virtual std::unique_ptr<
+    std::vector<std::pair<std::unique_ptr<Trk::TrackParameters>, int>>>
   extrapolate(const EventContext& ctx,
               const Trk::TrackParameters& parm,
               Trk::PropDirection dir,

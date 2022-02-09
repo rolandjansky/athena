@@ -40,7 +40,7 @@ class EgammaTransitionRegions  :
 		this interface. In some cases, the tool needs
 		more than the cluster to perform the calibration.
 		This can be passed via the void pointer */
-	virtual void makeCorrection(xAOD::TrigEMCluster*, const void* v=nullptr) override;
+	virtual void makeCorrection(xAOD::TrigEMCluster*, const void* v=nullptr) const override;
 
 	private:
 	MsgStream* m_log;

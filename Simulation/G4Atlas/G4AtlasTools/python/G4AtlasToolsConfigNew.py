@@ -1,8 +1,7 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
-from __future__ import print_function
-
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
 
 
 def FastSimulationToolListCfg(ConfigFlags):
@@ -184,7 +183,7 @@ def MuonSensitiveDetectorListCfg(ConfigFlags):
     result = ComponentAccumulator()
     tools = []
 
-    if ConfigFlags.Beam.Type == 'cosmics':
+    if ConfigFlags.Beam.Type is BeamType.Cosmics:
         if ConfigFlags.Detector.EnableMDT:
             from MuonG4SD.MuonG4SDToolConfig import MDTSensitiveDetectorCosmicsCfg
             tools += [ result.popToolsAndMerge(MDTSensitiveDetectorCosmicsCfg(ConfigFlags)) ]
@@ -225,7 +224,7 @@ def MuonSensitiveDetectorListCfg(ConfigFlags):
 def EnvelopeSensitiveDetectorListCfg(ConfigFlags):
     result = ComponentAccumulator()
     tools = []
-    if ConfigFlags.Beam.Type == 'cosmics' and not ConfigFlags.Sim.ReadTR:
+    if ConfigFlags.Beam.Type is BeamType.Cosmics and not ConfigFlags.Sim.ReadTR:
         from TrackWriteFastSim.TrackWriteFastSimConfigNew import CosmicTRSDCfg
         tools += [ result.popToolsAndMerge(CosmicTRSDCfg(ConfigFlags)) ]
     result.setPrivateTools(tools)

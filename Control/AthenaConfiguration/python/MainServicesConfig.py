@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -106,7 +106,6 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
     if cfgFlags.Concurrency.NumThreads>0:
 
         # Migrated code from AtlasThreadedJob.py
-        AuditorSvc=CompFactory.AuditorSvc
         msgsvc.defaultLimit = 0
         msgsvc.Format = "% F%{:d}W%C%6W%R%e%s%8W%R%T %0W%M".format(cfgFlags.Common.MsgSourceLength)
 
@@ -155,8 +154,7 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
         #
         ## Setup SGCommitAuditor to sweep new DataObjects at end of Alg execute
         #
-        SGCommitAuditor=CompFactory.SGCommitAuditor
-        cfg.addService( AuditorSvc(Auditors=[SGCommitAuditor().getFullJobOptName(),]))
+        cfg.addAuditor( CompFactory.SGCommitAuditor() )
         cfg.setAppProperty("AuditAlgorithms", True)
 
     return cfg

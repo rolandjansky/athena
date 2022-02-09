@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetRawData/TRT_LoLumRawData.h"
@@ -31,7 +31,7 @@ void TRT_LoLumRawDataContainerCnv_p1::transToPers(const TRT_RDO_Container* trans
     // to the container's vector, saving the indexes in the
     // collection. 
 
-    typedef TRT_RDO_Container TRANS;
+    using TRANS = TRT_RDO_Container;
 
     TRT_LoLumRawDataCnv_p1  chanCnv;
     TRANS::const_iterator it_Coll     = transCont->begin();
@@ -89,7 +89,7 @@ void  TRT_LoLumRawDataContainerCnv_p1::persToTrans(const InDetRawDataContainer_p
     // from the vector.
 
 
-    TRT_RDO_Collection* coll = 0;
+    TRT_RDO_Collection* coll = nullptr;
 
     TRT_LoLumRawDataCnv_p1  chanCnv;
     MSG_DEBUG(log," Reading " << persCont->m_collections.size() << "Collections");

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetPrepRawData/TRT_DriftCircle.h"
@@ -44,8 +44,8 @@ void InDet::TRT_DriftCircleContainerCnv_p1::transToPers(const InDet::TRT_DriftCi
     // to the container's vector, saving the indexes in the
     // collection. 
 
-    typedef InDet::TRT_DriftCircleContainer TRANS;
-    typedef ITPConverterFor<Trk::PrepRawData> CONV;
+    using TRANS = InDet::TRT_DriftCircleContainer;
+    using CONV = ITPConverterFor<Trk::PrepRawData>;
 
     TRT_DriftCircleCnv_p1  chanCnv;
     TRANS::const_iterator it_Coll     = transCont->begin();
@@ -97,7 +97,7 @@ void  InDet::TRT_DriftCircleContainerCnv_p1::persToTrans(const InDet::InDetPRD_C
     InDet::TRT_DriftCircleCollection* coll = nullptr;
 
     TRT_DriftCircleCnv_p1  chanCnv;
-    typedef ITPConverterFor<Trk::PrepRawData> CONV;
+    using CONV = ITPConverterFor<Trk::PrepRawData>;
 
 //     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Reading " << persCont->m_collections.size() << "Collections" << endmsg;
     for (unsigned int icoll = 0; icoll < persCont->m_collections.size(); ++icoll) {

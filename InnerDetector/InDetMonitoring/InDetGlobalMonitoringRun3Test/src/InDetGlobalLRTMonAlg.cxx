@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -141,7 +141,7 @@ StatusCode InDetGlobalLRTMonAlg::fillHistograms( const EventContext& ctx ) const
   
   for (const Trk::Track* track: *combined_tracks) {
     
-    if ( !track || track->perigeeParameters() == 0 )
+    if ( !track || track->perigeeParameters() == nullptr )
       {
 	ATH_MSG_DEBUG( "InDetGlobalMonitoringRun3Test: NULL track pointer in collection" );
 	continue;

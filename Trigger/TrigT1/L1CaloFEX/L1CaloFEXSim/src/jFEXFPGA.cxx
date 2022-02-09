@@ -569,8 +569,8 @@ uint32_t jFEXFPGA::formSmallRJetTOB(int &iphi, int &ieta) {
         Sat = 1;
     }
     //create basic tobword with 32 bits
-    tobWord = tobWord + (Res << 21) + (eta << 16) + (phi << 12) + (jFEXSmallRJetTOBEt << 1)  + (Sat);
-    ATH_MSG_DEBUG("tobword smallRJet with et, phi, eta, res and sat : " << std::bitset<32>(tobWord) );
+    tobWord = tobWord + (Res << FEXAlgoSpaceDefs::jJ_resBit) + (jFEXSmallRJetTOBEt << FEXAlgoSpaceDefs::jJ_etBit) + (eta << FEXAlgoSpaceDefs::jJ_etaBit) + (phi << FEXAlgoSpaceDefs::jJ_phiBit)  + (Sat);
+    ATH_MSG_DEBUG("tobword smallRJet with res, et, eta and phi: " << std::bitset<32>(tobWord) );
      //Retrieve the L1 menu configuration
     SG::ReadHandle<TrigConf::L1Menu> l1Menu (m_l1MenuKey/*, ctx*/);
     const TrigConf::L1ThrExtraInfo_jJ & thr_jJ = l1Menu->thrExtraInfo().jJ();
@@ -634,8 +634,8 @@ uint32_t jFEXFPGA::formLargeRJetTOB(int &iphi, int &ieta) {
         Sat = 1;
     }
     //create basic tobword with 32 bits
-    tobWord = tobWord + (Res << 23) + (eta << 18) + (phi << 14) + (jFEXLargeRJetTOBEt << 1) + (Sat);
-    ATH_MSG_DEBUG("tobword largeRJet with et, phi, eta, sub and sat : " << std::bitset<32>(tobWord) );
+    tobWord = tobWord + (Res << FEXAlgoSpaceDefs::jLJ_resBit) + (jFEXLargeRJetTOBEt << FEXAlgoSpaceDefs::jLJ_etBit) + (eta << FEXAlgoSpaceDefs::jLJ_etaBit) + (phi << FEXAlgoSpaceDefs::jLJ_phiBit) + (Sat);
+    ATH_MSG_DEBUG("tobword largeRJet with res, et, eta, phi: " << std::bitset<32>(tobWord) );
 
     // Retrieve the L1 menu configuration
     SG::ReadHandle<TrigConf::L1Menu> l1Menu (m_l1MenuKey/*, ctx*/);
@@ -668,9 +668,9 @@ uint32_t jFEXFPGA::formTauTOB(int & iphi, int &ieta )
     if (iso > 0x7ff) iso = 0x7ff;  //0x7ff is 11 bits
 
     //create basic tobword with 32 bits
-    tobWord = tobWord + (eta << 27) + (phi << 23) + (et << 12) + (iso << 1) + sat ;
+    tobWord = tobWord + (iso << FEXAlgoSpaceDefs::jTau_isoBit) + (et << FEXAlgoSpaceDefs::jTau_etBit) + (eta << FEXAlgoSpaceDefs::jTau_etaBit) + (phi << FEXAlgoSpaceDefs::jTau_phiBit) + sat ;
 
-    ATH_MSG_DEBUG("tobword tau with eta, phi, et, iso and sat : " << std::bitset<32>(tobWord) );
+    ATH_MSG_DEBUG("tobword tau with iso, et, eta and phi: " << std::bitset<32>(tobWord) );
 
     // Retrieve the L1 menu configuration
     SG::ReadHandle<TrigConf::L1Menu> l1Menu (m_l1MenuKey/*, ctx*/);
@@ -732,8 +732,8 @@ uint32_t jFEXFPGA::formSumETTOB(int ETlow, int EThigh )
   }
 
   //create basic tobword with 32 bits
-  tobWord = tobWord + (etlow << 17) + (satlow << 16) + (ethigh << 1) + sathigh ;
-  ATH_MSG_DEBUG("tobword SumET with ETlow, Satlow, EThigh and Sathigh : " << std::bitset<32>(tobWord) );
+  tobWord = tobWord + (sathigh << FEXAlgoSpaceDefs::jTE_Sat_upperBit) + (ethigh << FEXAlgoSpaceDefs::jTE_Et_upperBit) + (etlow << FEXAlgoSpaceDefs::jTE_Et_lowerBit) + (satlow << FEXAlgoSpaceDefs::jTE_Sat_lowerBit) ;
+  ATH_MSG_DEBUG("tobword SumET with Sathigh, EThigh, ETlow and Satlow  : " << std::bitset<32>(tobWord) );
 
   return tobWord;
 
@@ -772,8 +772,8 @@ uint32_t jFEXFPGA::formMetTOB(int METX, int METY ) {
     }
 
     //create basic tobword with 32 bits
-    tobWord = tobWord + (res << 31) +((metX & 0x7fff) << 16) + (sat << 15) + (metY & 0x7fff)  ;
-    ATH_MSG_DEBUG("tobword MET with MET_X, Sat, MET_Y and Res : " << std::bitset<32>(tobWord) );
+    tobWord = tobWord + (res << FEXAlgoSpaceDefs::jXE_ResBit) + ((metY & 0x7fff) << FEXAlgoSpaceDefs::jXE_Ey_Bit) + ((metX & 0x7fff) << FEXAlgoSpaceDefs::jXE_Ex_Bit) + (sat << FEXAlgoSpaceDefs::jXE_SatBit)  ;
+    ATH_MSG_DEBUG("tobword MET with Res, MET_Y, MET_X, Sat: " << std::bitset<32>(tobWord) );
 
     return tobWord;
 

@@ -66,9 +66,19 @@ if ConfigFlags.Trigger.EDMVersion == 3:
       result_notau = r_notau.match(chain_name)
       if result_tau is not None: trigger_names_tau.append(chain_name)
       if result_notau is not None: trigger_names_notau.append(chain_name)
+   trigger_names_all = set.union(set(trigger_names_notau), set(trigger_names_tau))
+   trigger_names_all = list(trigger_names_all)
    trigger_names_notau = set(trigger_names_notau) - set(trigger_names_tau)
    trigger_names_notau = list(trigger_names_notau)
+
+   # Run 3 trigger navigation slimming proposal for in-DAOD trigger matching.
+   from TrigNavSlimmingMT.TrigNavSlimmingMTConfig import TrigNavSlimmingMTDerivationCfg
+   from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+   CAtoGlobalWrapper(TrigNavSlimmingMTDerivationCfg, ConfigFlags, chainsFilter=trigger_names_all)
+
 else:
+   # Note: ['TriggerMenu']['HLTChains'] python access is maintained for compatibility with Run 2 MC 
+   # POOL inputs (containing xAOD::TriggerMenu).
    for chain_name in GetFileMD(ConfigFlags.Input.Files)['TriggerMenu']['HLTChains']:
       if chain_name in trigger_names_full_notau: trigger_names_notau.append(chain_name)
       if chain_name in trigger_names_full_tau:   trigger_names_tau.append(chain_name) 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Possible cases:
 # 1) inputEVNTFile (normal)
@@ -16,7 +16,7 @@
 
 from PyJobTransforms.TransformUtils import executeFromFragment
 from AthenaConfiguration.ComponentFactory import CompFactory
-AthSequencer=CompFactory.AthSequencer
+from AthenaConfiguration.Enums import BeamType
 
 
 def specialConfigPreInclude(ConfigFlags):
@@ -44,7 +44,7 @@ def CommonSimulationCfg(ConfigFlags, log):
         cfg.getService("EventSelector").OverrideRunNumber = True
         from AthenaKernel.EventIdOverrideConfig import EvtIdModifierSvcCfg
         cfg.merge(EvtIdModifierSvcCfg(ConfigFlags))
-        if ConfigFlags.Beam.Type == 'cosmics':
+        if ConfigFlags.Beam.Type is BeamType.Cosmics:
             # Case 3b: Configure the cosmic Generator
             from CosmicGenerator.CosmicGeneratorConfig import CosmicGeneratorCfg
             cfg.merge(CosmicGeneratorCfg(ConfigFlags))
@@ -68,8 +68,8 @@ def CommonSimulationCfg(ConfigFlags, log):
             cfg.merge(EventInfoCnvAlgCfg(ConfigFlags))
             from McEventCollectionFilter.McEventCollectionFilterConfig import TruthResetAlgCfg
             cfg.merge(TruthResetAlgCfg(ConfigFlags))
-            cfg.addSequence(AthSequencer('SimSequence'), parentName='AthAlgSeq')
-            cfg.addSequence(AthSequencer('CopyHitSequence'), parentName='AthAlgSeq')
+            cfg.addSequence(CompFactory.AthSequencer('SimSequence'), parentName='AthAlgSeq')
+            cfg.addSequence(CompFactory.AthSequencer('CopyHitSequence'), parentName='AthAlgSeq')
 
     from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
     cfg.merge(PoolWriteCfg(ConfigFlags))

@@ -69,8 +69,8 @@ class IPropagator;
 class AlignableTrackingVolume;
 class ExtrapolationCache;
 
-typedef std::vector<const Trk::TrackParameters*> TrackParametersVector;
-typedef std::vector<std::unique_ptr<const Trk::TrackParameters>> TrackParametersUVector;
+typedef std::vector<Trk::TrackParameters*> TrackParametersPtrVector;
+typedef std::vector<std::unique_ptr<Trk::TrackParameters>> TrackParametersUVector;
 typedef std::pair<const Surface*, BoundaryCheck> DestSurf;
 
 using TrackParmContainer = ObjContainer<Trk::TrackParameters>;
@@ -312,7 +312,7 @@ public:
     double& pathLim,
     Trk::PropDirection dir,
     Trk::ParticleHypothesis particle,
-    std::vector<const Trk::TrackParameters*>*& parmOnSf,
+    std::vector<Trk::TrackParameters*>*& parmOnSf,
     std::vector<const Trk::TrackStateOnSurface*>*& material,
     const Trk::TrackingVolume* boundaryVol = nullptr,
     MaterialUpdateMode matupmod = Trk::addNoise) const override final;
@@ -323,7 +323,8 @@ public:
     with TrackParameters. Material collection in option. Destination
     (subdetector boundary) : geoID (+ entry, -exit) ( default MS exit )
     */
-  virtual const std::vector<std::pair<const Trk::TrackParameters*, int>>*
+  virtual std::unique_ptr<
+    std::vector<std::pair<std::unique_ptr<Trk::TrackParameters>, int>>>
   extrapolate(const EventContext& ctx,
               const Trk::TrackParameters& parm,
               Trk::PropDirection dir,
@@ -342,7 +343,7 @@ private:
   /**
    * Cache to be passed to and between the private methods
    */
-  typedef std::vector<std::pair<const Trk::TrackParameters*, int>> identifiedParameters_t;
+  typedef std::vector<std::pair<std::unique_ptr<Trk::TrackParameters>, int>> identifiedParameters_t;
   struct Cache
   {
 
@@ -374,7 +375,7 @@ private:
     const Trk::TrackingVolume* m_currentDense = nullptr;
     const Trk::TrackingVolume* m_highestVolume = nullptr;
     //!< return helper for parameters on detector elements
-    TrackParametersVector* m_parametersOnDetElements = nullptr;
+    TrackParametersPtrVector* m_parametersOnDetElements = nullptr;
     //!< cache layer with last material update
     const Layer* m_lastMaterialLayer = nullptr;
     //!< cache for collecting the total X0 ans Eloss

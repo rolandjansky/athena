@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////
@@ -295,7 +295,7 @@ namespace InDetAlignment
 				// Syntax is (ID, Level) where Level is from 1 to 3 (3 is single module level)
 				if (msgLvl(MSG::INFO)) {
           HepGeom::Transform3D InitialAlignment = Amg::EigenTransformToCLHEP(m_IDAlignDBTool->getTrans(SCT_ModuleID,3));
-					msg() << "Initial Alignment of module " << m_idHelper->show_to_string(SCT_ModuleID,0,'/') << endmsg;
+					msg() << "Initial Alignment of module " << m_idHelper->show_to_string(SCT_ModuleID,nullptr,'/') << endmsg;
 					msg() << commonAlignmentOutput(InitialAlignment);
 					msg() << endmsg;
 				}
@@ -344,7 +344,7 @@ namespace InDetAlignment
 					
 					if (msgLvl(MSG::INFO)) {
             HepGeom::Transform3D InitialAlignment = Amg::EigenTransformToCLHEP(m_IDAlignDBTool->getTrans(Pixel_ModuleID,3));
-						msg() << "Initial Alignment of module " << m_idHelper->show_to_string(Pixel_ModuleID,0,'/') << endmsg;
+						msg() << "Initial Alignment of module " << m_idHelper->show_to_string(Pixel_ModuleID,nullptr,'/') << endmsg;
 						msg() << commonAlignmentOutput(InitialAlignment);
 						msg() << endmsg;
 					}
@@ -413,13 +413,13 @@ namespace InDetAlignment
 			if ( p ) {
 				if (msgLvl(MSG::INFO)) {
   				InitialAlignment = Amg::EigenTransformToCLHEP(*p) ;
-					msg() << "Initial Alignment of module " << m_idHelper->show_to_string(TRTID,0,'/') << endmsg;
+					msg() << "Initial Alignment of module " << m_idHelper->show_to_string(TRTID,nullptr,'/') << endmsg;
 					msg() << commonAlignmentOutput(InitialAlignment);
 					msg() << endmsg;
 				}
 			} else {
 				
-					ATH_MSG_INFO("No initial alignment for TRT module " << m_idHelper->show_to_string(TRTID,0,'/') );
+					ATH_MSG_INFO("No initial alignment for TRT module " << m_idHelper->show_to_string(TRTID,nullptr,'/') );
 			}
 			
 			
@@ -496,7 +496,7 @@ namespace InDetAlignment
 			const Identifier& ModuleID = iter->first;
 			
       //const Trk::TrkDetElementBase *module = 0;
-			const InDetDD::SiDetectorElement * SiModule = 0; //dummy to get moduleTransform() for silicon
+			const InDetDD::SiDetectorElement * SiModule = nullptr; //dummy to get moduleTransform() for silicon
 			
 			if (m_idHelper->is_pixel(ModuleID)) {
                                 const IdentifierHash Pixel_ModuleHash = m_pixelIdHelper->wafer_hash(ModuleID);
@@ -580,7 +580,7 @@ namespace InDetAlignment
 
 
 
-			ATH_MSG_INFO(  "ID Module " << i << " with ID " << m_idHelper->show_to_string(ModuleID,0,'/') );
+			ATH_MSG_INFO(  "ID Module " << i << " with ID " << m_idHelper->show_to_string(ModuleID,nullptr,'/') );
 			if (msgLvl(MSG::DEBUG)) {
 				msg() << "radius "  << r / CLHEP::cm << " centimeter" << endmsg;
 				msg() << "phi "  << phi << endmsg;
@@ -717,7 +717,7 @@ namespace InDetAlignment
 					        deltaPhi = r/maxRadius * maxAngle + minRadius/r * maxAngleInner; //linearly + reciprocal term in r
 					} else if (m_MisalignmentMode==22) {
 						//Phi deltaPhi = clamshell
-						//                     deltaPhi = fabs( sin ( phi )) * maxAngle;
+						//                     deltaPhi = std::abs( sin ( phi )) * maxAngle;
 						if (m_idHelper->is_trt(ModuleID) && abs(m_trtIdHelper->barrel_ec(ModuleID))==2) {
 							//clamshell mode cannot handle TRT endcap, sorry
 							deltaPhi = 0.;
@@ -833,27 +833,27 @@ namespace InDetAlignment
 			}
 			
 			// suppress tiny translations that occur due to trafo.inverse*trafo numerics
-			if ( fabs(alignmentTrafo.getTranslation().x()) < 1e-10) {
+			if ( std::abs(alignmentTrafo.getTranslation().x()) < 1e-10) {
 				HepGeom::Vector3D<double>
 				zeroSuppressedTranslation(0,alignmentTrafo.getTranslation().y(),alignmentTrafo.
 										  getTranslation().z());
 				alignmentTrafo =
                 HepGeom::Transform3D(alignmentTrafo.getRotation(),zeroSuppressedTranslation);
 			}
-			if ( fabs(alignmentTrafo.getTranslation().y()) < 1e-10) {
+			if ( std::abs(alignmentTrafo.getTranslation().y()) < 1e-10) {
 				HepGeom::Vector3D<double>
 				zeroSuppressedTranslation(alignmentTrafo.getTranslation().x(),0,alignmentTrafo.
 										  getTranslation().z());
 				alignmentTrafo =
                 HepGeom::Transform3D(alignmentTrafo.getRotation(),zeroSuppressedTranslation);
 			}
-			if ( fabs(alignmentTrafo.getTranslation().z()) < 1e-10) {
+			if ( std::abs(alignmentTrafo.getTranslation().z()) < 1e-10) {
 				HepGeom::Vector3D<double>
 				zeroSuppressedTranslation(alignmentTrafo.getTranslation().x(),alignmentTrafo.getTranslation().y(),0);
 				alignmentTrafo =
                 HepGeom::Transform3D(alignmentTrafo.getRotation(),zeroSuppressedTranslation);
 			}
-			if ( fabs(alignmentTrafo.getRotation().getDelta()) < 1e-10) {
+			if ( std::abs(alignmentTrafo.getRotation().getDelta()) < 1e-10) {
 				CLHEP::HepRotation zeroSuppressedRotation(alignmentTrafo.getRotation());
 				zeroSuppressedRotation.setDelta(0.);
 				alignmentTrafo =
@@ -865,9 +865,9 @@ namespace InDetAlignment
 			
 			if (m_idHelper->is_sct(ModuleID) || m_idHelper->is_pixel(ModuleID)) {
 				if (m_IDAlignDBTool->tweakTrans(ModuleID,3, alignmentTrafoAmg)) {
-					ATH_MSG_INFO( "Update of alignment constants for module " << m_idHelper->show_to_string(ModuleID,0,'/') << " successful" );
+					ATH_MSG_INFO( "Update of alignment constants for module " << m_idHelper->show_to_string(ModuleID,nullptr,'/') << " successful" );
 				} else {
-					ATH_MSG_ERROR( "Update of alignment constants for module " << m_idHelper->show_to_string(ModuleID,0,'/') << " not successful" );
+					ATH_MSG_ERROR( "Update of alignment constants for module " << m_idHelper->show_to_string(ModuleID,nullptr,'/') << " not successful" );
 				}
 			} else if (m_idHelper->is_trt(ModuleID)) {
 				if (!m_trtIdHelper->is_barrel(ModuleID) && m_trtIdHelper->phi_module(ModuleID)!=0) {
@@ -876,9 +876,9 @@ namespace InDetAlignment
 				} else {
 					//if (m_trtaligndbservice->tweakTrans(ModuleID,alignmentTrafo).isFailure()) {
 					if (m_trtaligndbservice->tweakAlignTransform(ModuleID,alignmentTrafoAmg,2).isFailure()) { 
-						ATH_MSG_ERROR( "Update of alignment constants for module " << m_idHelper->show_to_string(ModuleID,0,'/') << " not successful" );
+						ATH_MSG_ERROR( "Update of alignment constants for module " << m_idHelper->show_to_string(ModuleID,nullptr,'/') << " not successful" );
 					} else {
-						ATH_MSG_INFO( "Update of alignment constants for module " << m_idHelper->show_to_string(ModuleID,0,'/') << " successful" );
+						ATH_MSG_INFO( "Update of alignment constants for module " << m_idHelper->show_to_string(ModuleID,nullptr,'/') << " successful" );
 					}
 				}
 			} else {
@@ -981,7 +981,7 @@ namespace InDetAlignment
 	const Identifier CreateMisalignAlg::reduceTRTID(Identifier id)
 	{
 		//     msg(MSG::DEBUG)  << "in CreateMisalignAlg::reduceTRTID" << endmsg;
-		ATH_MSG_DEBUG( "reduceTRTID got Id " << m_idHelper->show_to_string(id,0,'/'));
+		ATH_MSG_DEBUG( "reduceTRTID got Id " << m_idHelper->show_to_string(id,nullptr,'/'));
 		
 		int barrel_ec= m_trtIdHelper->barrel_ec(id);
 		// attention: TRT DB only has one alignment correction per barrel module (+1/-1) pair
@@ -1003,7 +1003,7 @@ namespace InDetAlignment
 		}
 		
 		//     if (msgLvl(MSG::DEBUG)) msg()  << "    and returns Id " << m_idHelper->show_to_string(m_trtIdHelper->module_id(barrel_ec,phi_module,layer_or_wheel),0,'/') << endmsg;
-		ATH_MSG_DEBUG(  "    and returns Id " << m_idHelper->show_to_string(m_trtIdHelper->layer_id(barrel_ec,phi_module,layer_or_wheel,strawlayer),0,'/'));
+		ATH_MSG_DEBUG(  "    and returns Id " << m_idHelper->show_to_string(m_trtIdHelper->layer_id(barrel_ec,phi_module,layer_or_wheel,strawlayer),nullptr,'/'));
 		//     return  m_trtIdHelper->module_id(barrel_ec,phi_module,layer_or_wheel);
 		return  m_trtIdHelper->layer_id(barrel_ec,phi_module,layer_or_wheel,strawlayer);
 	}

@@ -81,25 +81,22 @@ namespace xAOD {
       static const std::vector<int> s_FCAL_EtaPosition; 
 
       // Data locations within word
-       
-      //static const int s_ResBit =21; //reserved bits kept for future
-      static const int s_etaBit = 16;
-      static const int s_phiBit = 12;
-      static const int s_etBit  = 1;
+      static const int s_resBit = 21; 
+      static const int s_etBit  = 10;
+      static const int s_etaBit = 5;
+      static const int s_phiBit = 1;
       static const int s_satBit = 0;
-      
       
       //Data masks
       static const int s_etMask   = 0x7ff;
       static const int s_etaMask  = 0x1f;
       static const int s_phiMask  = 0xf;
-      //static const int s_resMask  = 0x7ff; 
-      static const int s_satMask = 0x1; 
+      static const int s_resMask  = 0x7ff; 
+      static const int s_satMask  = 0x1; 
       
    }; // class jFexSRJetRoI_v1
 
 } // namespace xAOD
-
 // Declare the inheritance of the type:
 #include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::jFexSRJetRoI_v1, SG::AuxElement );

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 ///////////////////////////////////////////////////////////////////
@@ -61,7 +61,7 @@ double InDet::InDetFixedWindowTrackTimeTool::findPhase(Trk::Track const* track) 
   SG::ReadCondHandle<TRTCond::AverageT0> rhl{m_T0ReadKey};
   const TRTCond::AverageT0* avgT0{*rhl};
 
-  TRTCond::RtRelation const* rtr = 0;
+  TRTCond::RtRelation const* rtr = nullptr;
 
   double timeresidualsum = 0;
   size_t ntrthits = 0;
@@ -94,7 +94,7 @@ double InDet::InDetFixedWindowTrackTimeTool::findPhase(Trk::Track const* track) 
     if (!tparp) continue;
 
     double trkdistance = tparp->parameters()[Trk::driftRadius];
-    double trkdrifttime = rtr->drifttime(fabs(trkdistance));
+    double trkdrifttime = rtr->drifttime(std::abs(trkdistance));
     double timeresidual = rawdrifttime - t0 + avgT0->get() - trkdrifttime;
 
     ATH_MSG_DEBUG("trkdistance=" << trkdistance
@@ -102,8 +102,8 @@ double InDet::InDetFixedWindowTrackTimeTool::findPhase(Trk::Track const* track) 
                                  << "  timeresidual=" << timeresidual
                                  << " rawdrifttime=" << rawdrifttime);
 
-    if (fabs(timeresidual - m_windowCenter) < m_windowSize
-        && fabs(trkdistance) < 2.8) {
+    if (std::abs(timeresidual - m_windowCenter) < m_windowSize
+        && std::abs(trkdistance) < 2.8) {
       timeresidualsum += timeresidual;
       ++ntrthits;
     }
@@ -122,7 +122,7 @@ double InDet::InDetFixedWindowTrackTimeTool::findPhase(Trk::Segment const* segme
   double sum_tr = 0.;
   double sum_goodhits = 0.;
 
-  TRTCond::RtRelation const* rtr = 0;
+  TRTCond::RtRelation const* rtr = nullptr;
 
   int nhits = segment->numberOfMeasurementBases();
   for (int i = 0; i < nhits; ++i) {

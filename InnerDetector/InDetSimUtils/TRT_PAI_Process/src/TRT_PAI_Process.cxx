@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_PAI_Process.h"
@@ -89,7 +89,7 @@ StatusCode TRT_PAI_Process::initialize() {
   const double tempK = 289.;  // At 289. degrees, we get same densities as Nevski had
 
   // Define elements
-  typedef std::map<std::string, TRT_PAI_element, std::less<std::string> > element_type;
+  using element_type = std::map<std::string, TRT_PAI_element, std::less<std::string>>;
 
   element_type elements;
   elements["Xe"] = TRT_PAI_element( "Xe", EXe , SXe , NXe , ZXe,  AXe);
@@ -113,7 +113,7 @@ StatusCode TRT_PAI_Process::initialize() {
 
   // Define gas components
 
-  typedef std::map<std::string, TRT_PAI_gasComponent, std::less<std::string> > component_type;
+  using component_type = std::map<std::string, TRT_PAI_gasComponent, std::less<std::string>>;
 
   component_type components;
 

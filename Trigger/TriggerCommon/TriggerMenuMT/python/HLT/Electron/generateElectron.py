@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from TriggerMenuMT.HLT.Electron.ElectronRecoSequences import l2CaloRecoCfg
 from TriggerMenuMT.HLT.Menu.MenuComponents import MenuSequenceCA, \
@@ -7,6 +7,7 @@ from TriggerMenuMT.HLT.Menu.MenuComponents import MenuSequenceCA, \
 from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import TrigEgammaFastCaloHypoToolFromDict
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
 from TriggerMenuMT.HLT.Menu.DictFromChainName import getChainMultFromDict
 
 from AthenaConfiguration.AccumulatorCache import AccumulatorCache
@@ -104,7 +105,7 @@ def _precisonCalo(flags, chainDict):
     return ChainStep(name=selAcc.name, Sequences=[menuSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
 
 @AccumulatorCache
-def _precisionTrackingSeq(flags):
+def _precisionTrackingSeq(flags,chainDict):
     name='ElectronPrecisionTracking'
     selAcc=SelectionCA('ElectronPrecisionTracking')
 
@@ -121,17 +122,17 @@ def _precisionTrackingSeq(flags):
     from TrigInDetConfig.TrigInDetConfig import trigInDetPrecisionTrackingCfg
     idTracking = trigInDetPrecisionTrackingCfg(flags, signatureName='Electron')
     precisionInDetReco.mergeReco(idTracking)
-
     selAcc.mergeReco(precisionInDetReco)
-    from TrigEgammaHypo.TrigEgammaPrecisionTrackingHypoTool import TrigEgammaPrecisionTrackingHypoToolFromDict
-    hypoAlg = CompFactory.TrigEgammaPrecisionTrackingHypoAlg('ElectronprecisionTrackingHypo', CaloClusters='HLT_CaloEMClusters_Electron')
+    hypoAlg = CompFactory.TrigStreamerHypoAlg('ElectronprecisionTrackingHypo')
     selAcc.addHypoAlgo(hypoAlg)
+    def acceptAllHypoToolGen(chainDict):
+        return CompFactory.TrigStreamerHypoTool(chainDict["chainName"], Pass = True)
     menuSequence = MenuSequenceCA(selAcc,
-                                  HypoToolGen=TrigEgammaPrecisionTrackingHypoToolFromDict)
+                                  HypoToolGen=acceptAllHypoToolGen)
     return (selAcc , menuSequence)
 
 def _precisionTracking(flags, chainDict):
-    selAcc , menuSequence = _precisionTrackingSeq(flags)
+    selAcc , menuSequence = _precisionTrackingSeq(flags,chainDict)
     return ChainStep(name=selAcc.name, Sequences=[menuSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
 
 @AccumulatorCache
@@ -163,7 +164,7 @@ def _precisionElectronSeq(flags):
                                                         useScoring         = True,
                                                         SecondPassRescale  = True,
                                                         UseRescaleMetric   = True,
-                                                        isCosmics          = flags.Beam.Type=='cosmics')
+                                                        isCosmics          = flags.Beam.Type is BeamType.Cosmics)
         acc.setPrivateTools(builderTool)
         return acc
 

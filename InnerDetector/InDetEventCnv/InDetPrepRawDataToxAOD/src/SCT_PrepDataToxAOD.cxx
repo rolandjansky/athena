@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -432,7 +432,7 @@ void SCT_PrepDataToxAOD::findAllHitsCompatibleWithCluster(const InDet::SCT_Clust
       continue;
     } else if (ajoiningHits.size()==1) {
       // Copy Si Hit ready to return
-      matchingHits.push_back(SiHit(*ajoiningHits[0]));
+      matchingHits.emplace_back(*ajoiningHits[0]);
       continue;
     } else {
       //  Build new SiHit and merge information together.
@@ -444,7 +444,7 @@ void SCT_PrepDataToxAOD::findAllHitsCompatibleWithCluster(const InDet::SCT_Clust
         time += siHit->meanTime();
       }
       time /= static_cast<float>(ajoiningHits.size());
-      matchingHits.push_back(SiHit{lowestXPos->localStartPosition(), 
+      matchingHits.emplace_back(lowestXPos->localStartPosition(), 
             highestXPos->localEndPosition(),
             energyDep,
             time,
@@ -454,7 +454,7 @@ void SCT_PrepDataToxAOD::findAllHitsCompatibleWithCluster(const InDet::SCT_Clust
             (*siHitIter)->getLayerDisk(),
             (*siHitIter)->getEtaModule(),
             (*siHitIter)->getPhiModule(),
-            (*siHitIter)->getSide()});
+            (*siHitIter)->getSide());
     }
   }
 }

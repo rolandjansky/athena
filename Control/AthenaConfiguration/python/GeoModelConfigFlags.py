@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from AthenaConfiguration.AutoConfigFlags import GetFileMD, DetDescrInfo
-from AthenaConfiguration.Enums import ProductionStep
+from AthenaConfiguration.Enums import LHCPeriod, ProductionStep
 
 def createGeoModelConfigFlags():
     gcf=AthConfigFlags()
@@ -21,7 +21,8 @@ def createGeoModelConfigFlags():
                 # Mainly for G4 which still loads alignment on initialize
 
     gcf.addFlag("GeoModel.Run",
-                lambda prevFlags : DetDescrInfo(prevFlags.GeoModel.AtlasVersion)['Common']['Run'])
+                lambda prevFlags : LHCPeriod(DetDescrInfo(prevFlags.GeoModel.AtlasVersion)['Common']['Run']),
+                enum=LHCPeriod)
                 # Based on CommonGeometryFlags.Run
 
     gcf.addFlag("GeoModel.Type",

@@ -1,6 +1,8 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.ComponentFactory     import CompFactory
+from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
+
 # -------------------------------------------------------------------------
 #
 # ------- fragment to handle track truth association
@@ -21,7 +23,7 @@ def InDetDetailedTrackTruthMakerCfg(flags, Tracks, DetailedTruth, name='Maker',*
     if (not flags.Detector.EnableSCT):
         kwargs.setdefault("TruthNameSCT", "")
     # for cosmics, at the stage of SiPatternRecognition, the TRT truth information is not yet available
-    if ((not flags.Detector.EnableTRT) or (flags.Beam.Type == 'cosmics' and (DetailedTruth == "SiSPSeededTracksDetailedTruth" or DetailedTruth == "ResolvedTracksDetailedTruth"))):
+    if ((not flags.Detector.EnableTRT) or (flags.Beam.Type is BeamType.Cosmics and (DetailedTruth == "SiSPSeededTracksDetailedTruth" or DetailedTruth == "ResolvedTracksDetailedTruth"))):
         kwargs.setdefault("TruthNameTRT", "")
 
     acc.addEventAlgo(CompFactory.InDet.InDetDetailedTrackTruthMaker(name = DetailedTruth+name, **kwargs))

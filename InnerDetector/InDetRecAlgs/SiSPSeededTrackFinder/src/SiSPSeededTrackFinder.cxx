@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SiSPSeededTrackFinder/SiSPSeededTrackFinder.h"
@@ -514,7 +514,7 @@ StatusCode InDet::SiSPSeededTrackFinder::itkConvStrategy(const EventContext& ctx
   std::unique_ptr<RoiDescriptor> roiComp = std::make_unique<RoiDescriptor>(true);
 
   if(calo.isValid()) {
-    RoiDescriptor * roi =0;
+    RoiDescriptor * roi =nullptr;
     SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle{m_beamSpotKey, ctx};
     double beamZ = beamSpotHandle->beamVtx().position().z();
     roiComp->clear();
@@ -1091,6 +1091,6 @@ bool InDet::SiSPSeededTrackFinder::passEtaDepCuts(const Trk::Track* track,
 
   if(par->pT() < m_etaDependentCutsSvc->getMinPtAtEta(eta)) return false;
   if(!(*m)->type(Trk::TrackStateOnSurface::Perigee)) return true ;
-  if(fabs(par->localPosition()[0]) > m_etaDependentCutsSvc->getMaxPrimaryImpactAtEta(eta)) return false;
+  if(std::abs(par->localPosition()[0]) > m_etaDependentCutsSvc->getMaxPrimaryImpactAtEta(eta)) return false;
   return true;
 }

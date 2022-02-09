@@ -25,6 +25,16 @@ echo "| CI log check:       ${logStatus}"
 echo "| CI post-processing: ${postStatus}"
 echo "----------------------------------------------------------"
 
+if [ ${status} -ne 0 ]; then
+    cat <<EOF
+| Test FAILED. To rerun this test locally:
+|  - Checkout and compile the 'AtlasTest/CITest' package
+|  - Run 'ctest -R CITest_${ATLAS_CTEST_TESTNAME} --output-on-failure'
+----------------------------------------------------------
+EOF
+fi
+
+
 # This time stamp is used by NICOS:
 echo "[CITest][${ATLAS_CTEST_TESTNAME}] end time: `date` (`date +%s.%N`)"
 

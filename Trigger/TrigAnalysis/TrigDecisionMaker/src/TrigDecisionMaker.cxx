@@ -209,8 +209,9 @@ StatusCode TrigDecisionMaker::execute(const EventContext& ctx) const
   ATH_MSG_DEBUG ( "Run " << ctx.eventID().run_number()
                   << "; Event " << ctx.eventID().event_number()
                   << "; BC-ID " << ctx.eventID().bunch_crossing_id() ) ;
-
-  const TrigConf::L1BunchGroupSet* l1bgs = SG::get(m_bgKey, ctx);
+  SG::ReadCondHandle<TrigConf::L1BunchGroupSet> bgkey(m_bgKey, ctx);
+  ATH_CHECK(bgkey.isValid());
+  const TrigConf::L1BunchGroupSet* l1bgs = *bgkey;
   if (l1bgs) {
     // We currently only support 8 bits/bunchgroups (ATR-24030)
     trigDec->m_bgCode = static_cast<char>(l1bgs->bgPattern(ctx.eventID().bunch_crossing_id()));

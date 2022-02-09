@@ -2,7 +2,7 @@
 
 from TriggerMenuMT.HLT.Menu.MenuComponents import MenuSequenceCA, ChainStep, Chain, EmptyMenuSequence, SelectionCA, InViewRecoCA
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.Enums import Format
+from AthenaConfiguration.Enums import BeamType, Format
 
 from TrigL2MuonSA.TrigL2MuonSAConfig_newJO import l2MuFastAlgCfg, l2MuFastHypoCfg
 from TrigmuComb.TrigmuCombConfig_newJO import l2MuCombRecoCfg, l2MuCombHypoCfg
@@ -48,7 +48,7 @@ def EFMuonCBViewDataVerifierCfg(flags, name):
                                             ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
     if 'FS' in name:
         EFMuonCBViewDataVerifier.DataObjects += [( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates_FS' )]
-    elif flags.Beam.Type != 'collisions':
+    elif flags.Beam.Type is not BeamType.Collisions:
         EFMuonCBViewDataVerifier.DataObjects +=[( 'Muon::HoughDataPerSectorVec' , 'StoreGateSvc+HoughDataPerSectorVec' )]
 
     else:
@@ -85,7 +85,7 @@ def MuonInsideOutViewDataVerifierCfg(flags):
     MuonViewDataVerifier.DataObjects = [( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
                                         ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements'),
                                         ( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' )]
-    if flags.Beam.Type != 'cosmics':
+    if flags.Beam.Type is not BeamType.Cosmics:
         MuonViewDataVerifier.DataObjects +=[( 'Muon::HoughDataPerSectorVec' , 'StoreGateSvc+HoughDataPerSectorVec' )]
 
 

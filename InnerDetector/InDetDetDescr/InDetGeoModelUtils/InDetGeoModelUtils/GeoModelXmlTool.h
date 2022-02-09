@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOMODELSVC_GEOMODELXMLTOOL_H
@@ -21,10 +21,10 @@ public:
 
 protected:
 
-  std::string getBlob(std::string versionNode, std::string tableNode) const;
+  std::string getBlob(const std::string& versionNode, const std::string& tableNode) const;
   //returns a position in the world volume hierarchy
   // -1 represents the volume named by m_detectorName not being found
-  int createTopVolume(GeoPhysVol * worldVol, GmxInterface & interface,std::string versionNode, std::string tableNode) const; 
+  int createTopVolume(GeoPhysVol * worldVol, GmxInterface & interface,const std::string& versionNode, const std::string& tableNode) const; 
   //method for derived classes to initialize the services needed here
   StatusCode createBaseTool();
 

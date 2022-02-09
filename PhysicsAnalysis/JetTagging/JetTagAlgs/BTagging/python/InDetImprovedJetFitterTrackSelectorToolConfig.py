@@ -1,6 +1,7 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import LHCPeriod
 from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
 # from TrkConfig.AtlasTrackSummaryToolConfig import AtlasTrackSummaryToolCfg
 # import the InDetDetailedTrackSelectorTool configurable
@@ -43,7 +44,7 @@ def InDetImprovedJetFitterTrackSelectorToolCfg(flags, name, useBTagFlagsDefaults
                      'useTrackSummaryInfo'          : True,
                      'nHitBLayer'                   : 0,
                      'nHitPix'                      : 1,
-                     'nHitSct'                      : 4 if flags.GeoModel.Run in ['RUN1', 'RUN2', 'RUN3'] else 0,
+                     'nHitSct'                      : 4 if flags.GeoModel.Run in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3] else 0,
                      'nHitSi'                       : 7,
                      'nHitTrt'                      : 0,
                      'useSharedHitInfo'             : False,

@@ -62,8 +62,6 @@ TrackingVolume::confinedVolumes()
   return m_confinedVolumes;
 }
 
-
-
 inline const std::vector<const DetachedTrackingVolume*>*
 TrackingVolume::confinedDetachedVolumes() const
 {

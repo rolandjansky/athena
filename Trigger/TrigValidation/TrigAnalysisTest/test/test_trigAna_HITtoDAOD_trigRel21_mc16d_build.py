@@ -76,6 +76,7 @@ rdotrig2aod.input = ''
 rdotrig2aod.explicit_input = True
 rdotrig2aod.args = '--inputRDO_TRIGFile=RDO_TRIG.pool.root --outputESDFile=ESD.pool.root --outputAODFile=AOD.pool.root --steering="doRDO_TRIG"'
 rdotrig2aod.args += ' --preExec="all:from AthenaConfiguration.AllConfigFlags import ConfigFlags; ConfigFlags.Trigger.AODEDMSet=\'AODFULL\'"'
+rdotrig2aod.args += '--conditionsTag="all:OFLCOND-MC16-SDR-RUN2-09"'
 
 # AOD -> DAOD
 aod2daod = ExecStep.ExecStep('AODtoDAOD')

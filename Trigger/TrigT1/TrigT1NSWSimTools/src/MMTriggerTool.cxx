@@ -457,9 +457,11 @@ namespace NSWL1 {
             // Phi-id
             uint8_t phi_id = 0;
             if (slope.phiShf*M_PI/180.0 > this->getPhiMax() || slope.phiShf*M_PI/180.0 < this->getPhiMin()) trigRawDataSegment->setPhiIndex(phi_id);
-            unsigned int nPhi = (1<<this->getPhiBits()) -2; // To accomodate the new phi-id encoding prescription around 0
+            uint8_t nPhi = (1<<this->getPhiBits()) -2; // To accomodate the new phi-id encoding prescription around 0
             float phiSteps = (this->getPhiMax()-this->getPhiMin())/nPhi;
-            phi_id = std::abs( (slope.phiShf*M_PI/180.0)/phiSteps );
+            for (uint8_t i=0; i<nPhi; i++) {
+              if ((slope.phiShf*M_PI/180.0) < (this->getPhiMin()+i*phiSteps)) phi_id = i;
+            }
             trigRawDataSegment->setPhiIndex(phi_id);
             if (m_doNtuple) m_trigger_diamond_TP_phi_id->push_back(phi_id);
 
@@ -467,18 +469,22 @@ namespace NSWL1 {
             double extrapolatedR = slope.mx*7824.46; // The Z plane is a fixed value, taken from SL-TP documentation
             uint8_t R_id = 0;
             if (extrapolatedR > this->getRMax() || extrapolatedR < this->getRMin()) trigRawDataSegment->setRIndex(R_id);
-            unsigned int nR = (1<<this->getRBits()) -1;
+            uint8_t nR = (1<<this->getRBits()) -1;
             float Rsteps = (this->getRMax()-this->getRMin())/nR;
-            R_id = std::abs( extrapolatedR/Rsteps );
+            for (uint8_t j=0; j<nR; j++) {
+              if (extrapolatedR < (this->getRMin()+j*Rsteps)) R_id = j;
+            }
             trigRawDataSegment->setRIndex(R_id);
             if (m_doNtuple) m_trigger_diamond_TP_R_id->push_back(R_id);
 
             // DeltaTheta-id
             uint8_t dTheta_id = 0;
             if (slope.dtheta*M_PI/180.0 > this->getdThetaMax() || slope.dtheta*M_PI/180.0 < this->getdThetaMin()) trigRawDataSegment->setDeltaTheta(dTheta_id);
-            unsigned int ndTheta = (1<<this->getdThetaBits()) -1;
+            uint8_t ndTheta = (1<<this->getdThetaBits()) -1;
             float dThetaSteps = (this->getdThetaMax()-this->getdThetaMin())/ndTheta;
-            dTheta_id = std::abs( (slope.dtheta*M_PI/180.0)/dThetaSteps );
+            for (uint8_t k=0; k<ndTheta; k++) {
+              if ((slope.dtheta*M_PI/180.0) < (this->getdThetaMin()+k*dThetaSteps)) dTheta_id = k;
+            }
             trigRawDataSegment->setDeltaTheta(dTheta_id);
             if (m_doNtuple) m_trigger_diamond_TP_dTheta_id->push_back(dTheta_id);
 

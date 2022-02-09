@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "PixelAthClusterMonAlg.h"
@@ -345,8 +345,8 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
 	    
 	    double mytrack_mag = mytrack.mag();
 	    double cosalpha = 0.;
-	    if (mytrack_mag != 0) cosalpha = fabs(trknormcomp / mytrack_mag);
-	    ClusterIDs.push_back(std::make_pair(clus->identify(), cosalpha));
+	    if (mytrack_mag != 0) cosalpha = std::abs(trknormcomp / mytrack_mag);
+	    ClusterIDs.emplace_back(clus->identify(), cosalpha);
 	  }
 	} // end of measurement case
 

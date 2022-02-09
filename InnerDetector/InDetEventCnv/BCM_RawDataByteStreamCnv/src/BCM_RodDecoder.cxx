@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -14,7 +14,7 @@
 
 #include "BCM_RawDataByteStreamCnv/BCM_RodDecoder.h"
 
-#include <inttypes.h>
+#include <cinttypes>
 
 static const InterfaceID IID_IBCM_RodDecoder("BCM_RodDecoder", 1, 0);
 const InterfaceID& BCM_RodDecoder::interfaceID()
@@ -84,7 +84,7 @@ StatusCode BCM_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
 
   StatusCode sc = StatusCode::SUCCESS;
 
-  BCM_RDO_Collection* coll = 0;
+  BCM_RDO_Collection* coll = nullptr;
 
   // set the data pointer type
   OFFLINE_FRAGMENTS_NAMESPACE::PointerType vint;

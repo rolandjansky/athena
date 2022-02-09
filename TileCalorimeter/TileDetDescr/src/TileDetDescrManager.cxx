@@ -1,6 +1,15 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
+
+/*
+ * Updates:
+ * - 2022 Jan, Riccardo Maria BIANCHI <riccardo.maria.bianchi@cern.ch>
+ *   Added checks to catch issues when quantities needed 
+ *   to build the readout geometry are not set correctly.
+ */
+
+
 
 #include "TileDetDescr/TileDetDescrManager.h"
 #include "TileDetDescr/TileDddbManager.h"
@@ -108,27 +117,27 @@ void TileDetDescrManager::print() const
   std::cout << "   Number of Tile regions : " << m_tile_region_vec.size()  << std::endl;
   std::cout << "   Number of Tile descr   : " << m_tile_descr_vec.size()   << std::endl;
 
-  tile_region_const_iterator	first = tile_region_begin();
-  tile_region_const_iterator	last  = tile_region_end();
+  tile_region_const_iterator    first = tile_region_begin();
+  tile_region_const_iterator    last  = tile_region_end();
   
   for (; first != last; ++first) {
     (*first)->print();
   }
 
   std::cout << "   Number of Tile modules : " 
-	    << m_tile_module_vec.size() << std::endl;
+        << m_tile_module_vec.size() << std::endl;
   
-  calo_descr_const_iterator	first1 = tile_module_begin();
-  calo_descr_const_iterator	last1  = tile_module_end();      
+  calo_descr_const_iterator first1 = tile_module_begin();
+  calo_descr_const_iterator last1  = tile_module_end();      
   for (; first1 != last1; ++first1) {
     (*first1)->print();  // too many !
   }
   
   std::cout << "   Number of Tile cells : " 
-	    << m_tile_cell_vec.size() << std::endl;
+        << m_tile_cell_vec.size() << std::endl;
   
-  calo_element_const_iterator	first2 = tile_cell_begin();
-  calo_element_const_iterator	last2  = tile_cell_end();      
+  calo_element_const_iterator   first2 = tile_cell_begin();
+  calo_element_const_iterator   last2  = tile_cell_end();      
   for (; first2 != last2; ++first2) {
     (*first2)->print();  // too many !
   }
@@ -151,14 +160,15 @@ void TileDetDescrManager::create_elements(bool checks)
   IdContext module_context = m_tile_id->module_context();
   IdContext cell_context   = m_tile_id->cell_context();
 
-  tile_descr_const_iterator	first = tile_descriptors_begin();
-  tile_descr_const_iterator	last  = tile_descriptors_end();
+  tile_descr_const_iterator first = tile_descriptors_begin();
+  tile_descr_const_iterator last  = tile_descriptors_end();
       
   int n_regions = 0;
   int n_modules = 0;
   int n_cells = 0;
 
 // For each descriptor :
+  MLOG(DEBUG) << "Looping over descriptors..." << endmsg;
 
   for (; first != last; ++first) {
     
@@ -177,6 +187,10 @@ void TileDetDescrManager::create_elements(bool checks)
                   << "] do not match" << endmsg;
     }
     ++n_regions;
+
+    MLOG(DEBUG) << "descriptor - " << reg_id << ", " << section << ", " << side
+                << ", " << zshift << ", " << doZshift 
+                << ", " << etasign << ", " << n_regions << endmsg;
     
     int nsamp = descr->n_samp();
 
@@ -226,19 +240,19 @@ void TileDetDescrManager::create_elements(bool checks)
         CaloCell_ID::CaloSample sample = (CaloCell_ID::CaloSample)(calo_sample0 + isamp);
 
         caloDescr = new CaloDetDescriptor(reg_id,(AtlasDetectorID *)m_tile_id,m_cell_id,sample,isamp);
-	//        caloDescr->set_cylindric(emin,emax,phi_min,phi_max,rmin,rmax,zmin,zmax,gap);
-	// --
-	caloDescr->setCaloEtaMin(emin);
-	caloDescr->setCaloEtaMax(emax);
-	caloDescr->setCaloPhiMin(phi_min);
-	caloDescr->setCaloPhiMax(phi_max);
-	caloDescr->setCaloRMin(rmin);
-	caloDescr->setCaloRMax(rmax);
-	caloDescr->setCaloZMin(zmin);
-	caloDescr->setCaloZMax(zmax);
-	// --        
+    //        caloDescr->set_cylindric(emin,emax,phi_min,phi_max,rmin,rmax,zmin,zmax,gap);
+    // --
+    caloDescr->setCaloEtaMin(emin);
+    caloDescr->setCaloEtaMax(emax);
+    caloDescr->setCaloPhiMin(phi_min);
+    caloDescr->setCaloPhiMax(phi_max);
+    caloDescr->setCaloRMin(rmin);
+    caloDescr->setCaloRMax(rmax);
+    caloDescr->setCaloZMin(zmin);
+    caloDescr->setCaloZMax(zmax);
+    // --        
 
-	caloDescr->set_eta_phi_granularity(neta,deta,nphi,dphi);
+    caloDescr->set_eta_phi_granularity(neta,deta,nphi,dphi);
         caloDescr->set_n_calo_depth(1);
         caloDescr->set_depth_in(depth_in);
         caloDescr->set_depth_out(depth_out);
@@ -344,21 +358,21 @@ void TileDetDescrManager::create_elements(bool checks)
         IdentifierHash idhash;
         /* int result = */ m_tile_id->get_hash(id,idhash,&module_context);
         modDescr = new CaloDetDescriptor(id,(AtlasDetectorID *)m_tile_id,m_cell_id);
-	//        modDescr->set_cylindric(emin,emax,phi-dphi/2.,phi+dphi/2,rmin,rmax);
-	// --
-	modDescr->setCaloEtaMin(emin);
-	modDescr->setCaloEtaMax(emax);
-	modDescr->setCaloPhiMin(phi-dphi/2.);
-	modDescr->setCaloPhiMax(phi+dphi/2.);
-	modDescr->setCaloRMin(rmin);
-	modDescr->setCaloRMax(rmax);
-	modDescr->setCaloZMin(rmin*sinh(emin));
-	modDescr->setCaloZMax(rmax*sinh(emax));
+    //        modDescr->set_cylindric(emin,emax,phi-dphi/2.,phi+dphi/2,rmin,rmax);
+    // --
+    modDescr->setCaloEtaMin(emin);
+    modDescr->setCaloEtaMax(emax);
+    modDescr->setCaloPhiMin(phi-dphi/2.);
+    modDescr->setCaloPhiMax(phi+dphi/2.);
+    modDescr->setCaloRMin(rmin);
+    modDescr->setCaloRMax(rmax);
+    modDescr->setCaloZMin(rmin*sinh(emin));
+    modDescr->setCaloZMax(rmax*sinh(emax));
 
-	// --
-	//        modDescr->set_depth(delr,nsamp);
-	modDescr->set_n_calo_depth(nsamp);
-	modDescr->set_depth_in(delr);
+    // --
+    //        modDescr->set_depth(delr,nsamp);
+    modDescr->set_n_calo_depth(nsamp);
+    modDescr->set_depth_in(delr);
         add_module(idhash,modDescr);
         ++n_modules;
       } catch ( const TileID_Exception& ) {
@@ -430,9 +444,9 @@ void TileDetDescrManager::create_elements(bool checks)
 // keep ideal deta for the cell (0.1 or 0.2) instead of (eta2-eta1),
 // otherwise algorithms which use "eta_raw" and "deta" might fail
 //                elt->set_cylindric_size(deta,dphi,dr);
-		elt->set_deta(deta);
-		elt->set_dphi(dphi);
-		elt->set_dr(dr);
+        elt->set_deta(deta);
+        elt->set_dphi(dphi);
+        elt->set_dr(dr);
 
               } else {
 
@@ -448,23 +462,23 @@ void TileDetDescrManager::create_elements(bool checks)
                             << std::endl;
 
                 elt->set_cylindric(eta*etasign,phi,rcenter);
-		//                elt->set_cylindric_size(deta,dphi,dr);
-		elt->set_deta(deta);
-		elt->set_dphi(dphi);
-		elt->set_dr(dr);
+        //                elt->set_cylindric_size(deta,dphi,dr);
+        elt->set_deta(deta);
+        elt->set_dphi(dphi);
+        elt->set_dr(dr);
               }
               
-	      // Temporary solution for cell volumes
-	      if(section == TileID::BARREL && side == -1 && ieta == 0 && sample == 2)
+          // Temporary solution for cell volumes
+          if(section == TileID::BARREL && side == -1 && ieta == 0 && sample == 2)
                 ++volumeIndex; // skip D0 in negative side
-	      if(section == TileID::BARREL)
-		elt->set_volume(vBarrelCells[volumeIndex++]);
-	      else if(section == TileID::EXTBAR)
-		elt->set_volume(vExtendedCells[volumeIndex++]);
-	      else if(section == TileID::GAPDET)
-		elt->set_volume(vItcGapCells[volumeIndex++]);
+          if(section == TileID::BARREL)
+        elt->set_volume(vBarrelCells[volumeIndex++]);
+          else if(section == TileID::EXTBAR)
+        elt->set_volume(vExtendedCells[volumeIndex++]);
+          else if(section == TileID::GAPDET)
+        elt->set_volume(vItcGapCells[volumeIndex++]);
 
-	      // ----------------- Final solution for cell volumes
+          // ----------------- Final solution for cell volumes
               if (cell_dim) {
 
                 double oldz = elt->z();
@@ -472,21 +486,29 @@ void TileDetDescrManager::create_elements(bool checks)
                 int ic=cell_dim->getNRows()-1;
                 double z1=0,z2=0;
                 if (side < 0) {
+                  MLOG(DEBUG) << "side < 0 ..." << endmsg;
                   z1 = cell_dim->getZMax(0);
                   for ( ; ic>=0; --ic) {
                     z2 = cell_dim->getZMin(ic);
+                    MLOG(DEBUG) << "z2: " << z2 << ", ZMax: " << cell_dim->getZMax(ic) << ", diff: " << z2-cell_dim->getZMax(ic) << endmsg;
                     if (fabs(z2-cell_dim->getZMax(ic))>0.1) break;
                   }
                 } else {
+                  MLOG(DEBUG) << "side >= 0 ..." << endmsg;
                   z1 = cell_dim->getZMin(0);
                   for ( ; ic>=0; --ic) {
                     z2 = cell_dim->getZMax(ic);
                     if (fabs(z2-cell_dim->getZMin(ic))>0.1) break;
                   }
                 }
+
+                if (ic<0) {
+                    MLOG(WARNING) << "TileDetDescrManager -- ic < 0! Expect crashes or misbehavior! ==> This should be checked, because 'ic' should be related to the numbers of rows!! Note: 'ic' gets < 0 when z2-cell_dim is too small and does not make the above loop break; that can be caused, for example, if 'barrelPeriodThickness' and 'extendedPeriodThickness' are not set (or set to the default 0. value) and, as a result, ZMax is not properly set." << endmsg;
+                }
                 
                 double z = (z1+z2)/2.;
 
+                MLOG(DEBUG) << "D-Layer..." << endmsg;
                 // D-layer has cells that are centered at 0.
                 // For these cells, the above calculation will usually
                 // come out to ~ 1e-14, the exact value varying depending
@@ -506,19 +528,19 @@ void TileDetDescrManager::create_elements(bool checks)
                              << z/oldz*100-100 << " % diff "
                              <<"do not change z/dz for BC cells in barrel"<<std::endl;
                 } else if ( (section == TileID::GAPDET) && (sample == TileID::SAMP_E) ) {
-		  
-		  elt->set_z( descr->zcenter(isamp) );
-		  elt->set_dz( descr->dz(isamp) );
-		  if ( m_verbose && (0 == iphi) )
+          
+          elt->set_z( descr->zcenter(isamp) );
+          elt->set_dz( descr->dz(isamp) );
+          if ( m_verbose && (0 == iphi) )
                     std::cout<<"old z/dz: " << oldz << " " << olddz << std::endl
                              <<"new z/dz: " << elt->z() << " " << elt->dz() << " "
                              << elt->z()/oldz*100-100 << " % diff "
                              <<"do not change z/dz for BC cells in barrel"<<std::endl;
-		  
-		} else {
-		  //                  elt->set_z_pos_and_size(z,dz);
-		  elt->set_z(z);
-		  elt->set_dz(dz);
+          
+        } else {
+          //                  elt->set_z_pos_and_size(z,dz);
+          elt->set_z(z);
+          elt->set_dz(dz);
                   if ( m_verbose && (0 == iphi) ) 
                     std::cout<<"old z/dz: " << oldz << " " << olddz << std::endl
                              <<"new z/dz: " << elt->z() << " " << elt->dz() << " "
@@ -530,318 +552,319 @@ void TileDetDescrManager::create_elements(bool checks)
                 double olddr = elt->dr();
                 double r1 = cell_dim->getRMin(0);
                 double r2 = cell_dim->getRMax(ic);
-		//                elt->set_r_pos_and_size((r1+r2)/2.,fabs(r2-r1));
+        //                elt->set_r_pos_and_size((r1+r2)/2.,fabs(r2-r1));
 
-		elt->set_r((r1+r2)/2.);
-		elt->set_dr(fabs(r2-r1));
+        elt->set_r((r1+r2)/2.);
+        elt->set_dr(fabs(r2-r1));
                 if ( m_verbose && (0 == iphi) ) 
                   std::cout<<"old r/dr: " << oldr << " " << olddr << std::endl
                            <<"new r/dr: " << elt->r() << " " << elt->dr() << " "
                            << elt->r()/(oldr+1.e-10)*100-100 << " % diff" << std::endl;
 
                 double oldv=elt->volume();
-		double newv = cell_dim->getVolume();   // ps  cell volume to correct for special cells
+        double newv = cell_dim->getVolume();   // ps  cell volume to correct for special cells
                 elt->set_volume(newv);
-		//
-		//    ps cutout region in ext. barrel
-		//
-		int ModuleNcp = module + 1;
+        //
+        //    ps cutout region in ext. barrel
+        //
+        int ModuleNcp = module + 1;
 
-		if ( ( section == TileID::EXTBAR ) && ( TileID::SAMP_A == sample ) && ((ModuleNcp>=35 && ModuleNcp<=37) || (ModuleNcp>=60 && ModuleNcp<=62)) && ( (tower == 11) || (tower == 12) || (tower == 15) ) )
-		  {
-		    double oldv=elt->volume();
+        if ( ( section == TileID::EXTBAR ) && ( TileID::SAMP_A == sample ) && ((ModuleNcp>=35 && ModuleNcp<=37) || (ModuleNcp>=60 && ModuleNcp<=62)) && ( (tower == 11) || (tower == 12) || (tower == 15) ) )
+          {
+            double oldv=elt->volume();
 
-		    if ( m_verbose ) {
+            if ( m_verbose ) {
                       std::cout<<"CUTOUT CELL VOLUME UPDATE"<< std::endl
                                <<"old volume: " << oldv << std::endl
-			       << " iphi = " << iphi
-			       << " phi = " << (module + 0.5)*dphi  <<" phi2 = "<<elt->phi()
-			       << std::endl
-			       << " Mod# = " << ModuleNcp <<" module = "<<module<<" tower = "<<tower
-			       << std::endl
-			       <<"sample = "<<sample
-			       <<" A = " << (TileID::SAMP_A  == sample)
-			       <<" BC = "<< (TileID::SAMP_BC == sample)
-			       <<" D = " << (TileID::SAMP_D  == sample)
-			       <<" ---------------------"
-			       << std::endl;
+                   << " iphi = " << iphi
+                   << " phi = " << (module + 0.5)*dphi  <<" phi2 = "<<elt->phi()
+                   << std::endl
+                   << " Mod# = " << ModuleNcp <<" module = "<<module<<" tower = "<<tower
+                   << std::endl
+                   <<"sample = "<<sample
+                   <<" A = " << (TileID::SAMP_A  == sample)
+                   <<" BC = "<< (TileID::SAMP_BC == sample)
+                   <<" D = " << (TileID::SAMP_D  == sample)
+                   <<" ---------------------"
+                   << std::endl;
                       cell_dim->print();
                     }
                     
-		    double  Radius2HL = tan ( M_PI / 64. );
-		    
-		    m_dbManager->SetCurrentSection(TileID::EXTBAR);
-		    double epThickness = 0.0; // only used for tower == 15
-		    double epVolume    = 0.0; // only used for tower == 15
-		    if ( tower == 15 ) epThickness = m_dbManager->TILBdzend2() * Gaudi::Units::cm;
-		    
-		    double volumeInRow[5];  // book large array
-		    for (int iRow = 0; iRow < 5; iRow++) volumeInRow[iRow] = 0.;
-		    
+            double  Radius2HL = tan ( M_PI / 64. );
+            
+            m_dbManager->SetCurrentSection(TileID::EXTBAR);
+            double epThickness = 0.0; // only used for tower == 15
+            double epVolume    = 0.0; // only used for tower == 15
+            if ( tower == 15 ) epThickness = m_dbManager->TILBdzend2() * Gaudi::Units::cm;
+            
+            double volumeInRow[5];  // book large array
+            for (int iRow = 0; iRow < 5; iRow++) volumeInRow[iRow] = 0.;
+            
 
-		    for (unsigned int iRow = 0; iRow < cell_dim->getNRows(); iRow++)
-		      {
-			double rowVolume = cell_dim->computeRowVolume(iRow);
-			double oldrv = rowVolume;
-			
-			if (m_verbose) std::cout <<" *** rowVolume = "<<rowVolume<<" volumeInRow = "<< volumeInRow[iRow] << std::endl; 
-			
-			double radMax =  cell_dim->getRMax(iRow), radMin = cell_dim->getRMin(iRow);
-			double deltaZ =  cell_dim->getZMax(iRow) - cell_dim->getZMin(iRow);
-			
-			if (m_verbose) 
-			  std::cout <<"deltaz = "<<deltaZ<<" rmax = "<<radMax<<" rmin = "<<radMin<<" rowVolume = "<<rowVolume<<" oldrv = "<<oldrv<<" irow = "<<iRow<<" tower = "<<tower<< std::endl;
+            for (unsigned int iRow = 0; iRow < cell_dim->getNRows(); iRow++)
+              {
+            double rowVolume = cell_dim->computeRowVolume(iRow);
+            double oldrv = rowVolume;
+            
+            if (m_verbose) std::cout <<" *** rowVolume = "<<rowVolume<<" volumeInRow = "<< volumeInRow[iRow] << std::endl; 
 
-			if ( 15 == tower ) 
-			  {
-			    if ( m_dbManager->addPlatesToCell() )
-			      {
-				epVolume   = ( rowVolume/deltaZ ) * epThickness;
-				rowVolume -= epVolume;
-				deltaZ -= epThickness;
+            MLOG(DEBUG) << "Computing radMax and deltaZ..." << endmsg;
+            double radMax =  cell_dim->getRMax(iRow), radMin = cell_dim->getRMin(iRow);
+            double deltaZ =  cell_dim->getZMax(iRow) - cell_dim->getZMin(iRow);
+            
+            if (m_verbose) 
+              std::cout <<"deltaz = "<<deltaZ<<" rmax = "<<radMax<<" rmin = "<<radMin<<" rowVolume = "<<rowVolume<<" oldrv = "<<oldrv<<" irow = "<<iRow<<" tower = "<<tower<< std::endl;
 
-				if (m_verbose) std::cout <<" \t\t epV = "<<epVolume<<" epT = "<<epThickness << " diff = "<<(volumeInRow[iRow] - oldrv)/oldrv*100.<<std::endl;
-			      }
-			    
-			    volumeInRow[iRow] += (rowVolume * (32./48) );  // the remaining 32 periods which are not cutted out
-			    deltaZ    *= 16./48.;                        // dz of the cutted part
-			    rowVolume *= 16./48.;                        // volume of the cutted part of the cell, but before cut
-			    if (m_verbose) std::cout <<" *** 15 rowVolume = "<<rowVolume<<" volumeInRow = "<< volumeInRow[iRow] <<"diff = "<<(volumeInRow[iRow] - oldrv)/oldrv*100.<< std::endl; 
-			  }
-			else if ( 12 == tower ) 
-			  {
-			    volumeInRow[iRow] += (rowVolume * (2./25) );   // the remaining 2 periods which are not cutted out
-			    deltaZ    *= 23./25.;                        // dz of the cutted part
-			    rowVolume *= 23./25.;                        // volume of the cutted part of the cell, but before cut
-			    if (m_verbose) std::cout <<" *** 12 rowVolume = "<<rowVolume<<" volumeInRow = "<< volumeInRow[iRow] << " % = "<<(volumeInRow[iRow] - oldrv)/oldrv*100.<< std::endl; 
-			  }
-			
-			if (m_verbose) std::cout <<"deltaz = "<<deltaZ<<" rmax = "<<radMax<<" rmin = "<<radMin<<" changed dz ?"<<(volumeInRow[iRow] - oldrv)/oldrv*100.<< std::endl;
-			
-			if ( (ModuleNcp == 61) || (ModuleNcp == 36) )
-			  {
-			    if ( iRow == 0 ) 
-			      rowVolume = 0.; 
-			    else if ( iRow == 1 ) 
-			      {
-				if (15 != tower) 
-				  {
-				    rowVolume = 2.*radMax + radMin;
-				    rowVolume *= 0.5*(radMax - radMin);
-				    rowVolume *= Radius2HL * deltaZ;
-				  }
-				else
-				  {
-				    rowVolume += epVolume;
-				  }
-			      }
-			    else if (15 == tower) rowVolume += epVolume;
+            if ( 15 == tower ) 
+              {
+                if ( m_dbManager->addPlatesToCell() )
+                  {
+                epVolume   = ( rowVolume/deltaZ ) * epThickness;
+                rowVolume -= epVolume;
+                deltaZ -= epThickness;
 
-			    volumeInRow[iRow] += rowVolume;
-			    
-			    if (m_verbose)
-			      std::cout <<" *** rowVolume = "<<rowVolume<<" volumeInRow = "<< volumeInRow[iRow] << " % = "<<(volumeInRow[iRow] - oldrv)/oldrv*100.<< std::endl; 
-			  } // Module 61  36
-			
-			if ( (ModuleNcp == 62) || (ModuleNcp == 35) )
-			  {
-			    if ( iRow == 0 ) 
-			      {
-				if (15 == tower) 
-				  {
-				    rowVolume = radMax + radMin;
-				    rowVolume *= (radMax - radMin);
-				    rowVolume -= 0.5*radMin*(27*Gaudi::Units::mm);
-				    rowVolume *= Radius2HL *  ( deltaZ + epThickness ); // adding volume of cutted endplate
-				  }
-				else
-				  {
-				    rowVolume = radMax - radMin - 35*Gaudi::Units::mm;
-				    rowVolume *= (radMax + radMin);
-				    rowVolume *= Radius2HL * deltaZ;
-				  }
-			      }
-			    else if (15 == tower) rowVolume += epVolume;
-			    
-			    volumeInRow[iRow] += rowVolume;
-			    if (m_verbose) std::cout <<" *** rowVolume = "<<rowVolume<<" volumeInRow = "<< volumeInRow[iRow] << " % = "<<(volumeInRow[iRow] - oldrv)/oldrv*100.<< std::endl; 
-			  } // Module 62  35
-			
-			if ( (ModuleNcp == 60) || (ModuleNcp == 37) )
-			  {
-			    double deltax = 38.7*std::cos(25.3125*Gaudi::Units::deg); 
-			    double pstan  = std::tan(25.3125*Gaudi::Units::deg);
+                if (m_verbose) std::cout <<" \t\t epV = "<<epVolume<<" epT = "<<epThickness << " diff = "<<(volumeInRow[iRow] - oldrv)/oldrv*100.<<std::endl;
+                  }
+                
+                volumeInRow[iRow] += (rowVolume * (32./48) );  // the remaining 32 periods which are not cutted out
+                deltaZ    *= 16./48.;                        // dz of the cutted part
+                rowVolume *= 16./48.;                        // volume of the cutted part of the cell, but before cut
+                if (m_verbose) std::cout <<" *** 15 rowVolume = "<<rowVolume<<" volumeInRow = "<< volumeInRow[iRow] <<"diff = "<<(volumeInRow[iRow] - oldrv)/oldrv*100.<< std::endl; 
+              }
+            else if ( 12 == tower ) 
+              {
+                volumeInRow[iRow] += (rowVolume * (2./25) );   // the remaining 2 periods which are not cutted out
+                deltaZ    *= 23./25.;                        // dz of the cutted part
+                rowVolume *= 23./25.;                        // volume of the cutted part of the cell, but before cut
+                if (m_verbose) std::cout <<" *** 12 rowVolume = "<<rowVolume<<" volumeInRow = "<< volumeInRow[iRow] << " % = "<<(volumeInRow[iRow] - oldrv)/oldrv*100.<< std::endl; 
+              }
+            
+            if (m_verbose) std::cout <<"deltaz = "<<deltaZ<<" rmax = "<<radMax<<" rmin = "<<radMin<<" changed dz ?"<<(volumeInRow[iRow] - oldrv)/oldrv*100.<< std::endl;
+            
+            if ( (ModuleNcp == 61) || (ModuleNcp == 36) )
+              {
+                if ( iRow == 0 ) 
+                  rowVolume = 0.; 
+                else if ( iRow == 1 ) 
+                  {
+                if (15 != tower) 
+                  {
+                    rowVolume = 2.*radMax + radMin;
+                    rowVolume *= 0.5*(radMax - radMin);
+                    rowVolume *= Radius2HL * deltaZ;
+                  }
+                else
+                  {
+                    rowVolume += epVolume;
+                  }
+                  }
+                else if (15 == tower) rowVolume += epVolume;
+
+                volumeInRow[iRow] += rowVolume;
+                
+                if (m_verbose)
+                  std::cout <<" *** rowVolume = "<<rowVolume<<" volumeInRow = "<< volumeInRow[iRow] << " % = "<<(volumeInRow[iRow] - oldrv)/oldrv*100.<< std::endl; 
+              } // Module 61  36
+            
+            if ( (ModuleNcp == 62) || (ModuleNcp == 35) )
+              {
+                if ( iRow == 0 ) 
+                  {
+                if (15 == tower) 
+                  {
+                    rowVolume = radMax + radMin;
+                    rowVolume *= (radMax - radMin);
+                    rowVolume -= 0.5*radMin*(27*Gaudi::Units::mm);
+                    rowVolume *= Radius2HL *  ( deltaZ + epThickness ); // adding volume of cutted endplate
+                  }
+                else
+                  {
+                    rowVolume = radMax - radMin - 35*Gaudi::Units::mm;
+                    rowVolume *= (radMax + radMin);
+                    rowVolume *= Radius2HL * deltaZ;
+                  }
+                  }
+                else if (15 == tower) rowVolume += epVolume;
+                
+                volumeInRow[iRow] += rowVolume;
+                if (m_verbose) std::cout <<" *** rowVolume = "<<rowVolume<<" volumeInRow = "<< volumeInRow[iRow] << " % = "<<(volumeInRow[iRow] - oldrv)/oldrv*100.<< std::endl; 
+              } // Module 62  35
+            
+            if ( (ModuleNcp == 60) || (ModuleNcp == 37) )
+              {
+                double deltax = 38.7*std::cos(25.3125*Gaudi::Units::deg); 
+                double pstan  = std::tan(25.3125*Gaudi::Units::deg);
                             double inv_pstan = 1. / pstan;
-			    if ( ( 15 == tower ) )
-			      {
-				if ( iRow < 2 ) 
-				  rowVolume = 0;
-				else
-				  rowVolume += epVolume;
-			      }
-			    else if ( iRow == 0 ) 
-			      {
-				rowVolume  = (radMax  + radMin) * Radius2HL ;
-				
-				rowVolume +=  2.*deltax + (radMax - radMin)* pstan ;
-				
-				//	std::cout <<"\t\t\t test = "<<( 2.*deltax + (radMax - radMin)* pstan)/(radMax  + radMin)* Radius2HL<<" dx = "<<deltax<<" rmin = "<<radMin<<" rmax = "<<radMax<<" pstan = "<<pstan<<std::endl; 
+                if ( ( 15 == tower ) )
+                  {
+                if ( iRow < 2 ) 
+                  rowVolume = 0;
+                else
+                  rowVolume += epVolume;
+                  }
+                else if ( iRow == 0 ) 
+                  {
+                rowVolume  = (radMax  + radMin) * Radius2HL ;
+                
+                rowVolume +=  2.*deltax + (radMax - radMin)* pstan ;
+                
+                //  std::cout <<"\t\t\t test = "<<( 2.*deltax + (radMax - radMin)* pstan)/(radMax  + radMin)* Radius2HL<<" dx = "<<deltax<<" rmin = "<<radMin<<" rmax = "<<radMax<<" pstan = "<<pstan<<std::endl; 
 
-				rowVolume *= 0.5 * (radMax - radMin) * deltaZ;
+                rowVolume *= 0.5 * (radMax - radMin) * deltaZ;
 
-				//rowVolume *=  (radMax - radMin) * Radius2HL * deltaZ;
-			      }
-			    else if ( iRow == 1 )
-			      {
-				double radMin0 = cell_dim->getRMin(0);
-				rowVolume  = (radMax  + radMin) * Radius2HL;
-				rowVolume += 2.*deltax + (radMax + radMin - 2.*radMin0 )* pstan ;
-				rowVolume *= 0.5 * (radMax - radMin) ;
-				rowVolume -= 0.5 * std::pow( deltax + (radMax - radMin0) * pstan - radMax * Radius2HL, 2) * inv_pstan;
-				rowVolume *= deltaZ;
-			      }
+                //rowVolume *=  (radMax - radMin) * Radius2HL * deltaZ;
+                  }
+                else if ( iRow == 1 )
+                  {
+                double radMin0 = cell_dim->getRMin(0);
+                rowVolume  = (radMax  + radMin) * Radius2HL;
+                rowVolume += 2.*deltax + (radMax + radMin - 2.*radMin0 )* pstan ;
+                rowVolume *= 0.5 * (radMax - radMin) ;
+                rowVolume -= 0.5 * std::pow( deltax + (radMax - radMin0) * pstan - radMax * Radius2HL, 2) * inv_pstan;
+                rowVolume *= deltaZ;
+                  }
 
-			    volumeInRow[iRow] += rowVolume;
-			    if (m_verbose) std::cout <<" *** rowVolume = "<<rowVolume<<" volumeInRow = "<< volumeInRow[iRow] << " % = "<<(volumeInRow[iRow] - oldrv)/oldrv*100.<< std::endl; 
-			  } // Module 60  37
-			
-			if (m_verbose) std::cout <<" *** rowVolume = "<<rowVolume<<" volumeInRow = "<< volumeInRow[iRow] << " % = "<<(volumeInRow[iRow] - oldrv)/oldrv*100.<< std::endl;
-		      } // for iRow
+                volumeInRow[iRow] += rowVolume;
+                if (m_verbose) std::cout <<" *** rowVolume = "<<rowVolume<<" volumeInRow = "<< volumeInRow[iRow] << " % = "<<(volumeInRow[iRow] - oldrv)/oldrv*100.<< std::endl; 
+              } // Module 60  37
+            
+            if (m_verbose) std::cout <<" *** rowVolume = "<<rowVolume<<" volumeInRow = "<< volumeInRow[iRow] << " % = "<<(volumeInRow[iRow] - oldrv)/oldrv*100.<< std::endl;
+              } // for iRow
 
-		    
-		    double totalVolume = 0;
-		    for (unsigned int iRow = 0; iRow < cell_dim->getNRows(); iRow++) totalVolume += volumeInRow[iRow];
-		    elt->set_volume( totalVolume );
-		    
-		    if (m_verbose)
-		      std::cout << "\n total volume = "
-				<< elt->volume() << " cell_dim xCheck ( "
-				<<  cell_dim->getVolume() <<" ) "
-				<< elt->volume()/oldv*100-100 << " % diff" 
-				<<std::endl;
-		    
-		    
-		    if ( m_verbose ) std::cout <<"-----------------------------------------------"<< std::endl;
-		  }
-		//
-		//    ps special D4  
-		//
- 		if ( (section == TileID::GAPDET) && (sample == TileID::SAMP_D) )
-		  {
-		    if (side == -1) m_dbManager->SetCurrentEnvByType(4);
-		    if (side ==  1) m_dbManager->SetCurrentEnvByType(5);
+            
+            double totalVolume = 0;
+            for (unsigned int iRow = 0; iRow < cell_dim->getNRows(); iRow++) totalVolume += volumeInRow[iRow];
+            elt->set_volume( totalVolume );
+            
+            if (m_verbose)
+              std::cout << "\n total volume = "
+                << elt->volume() << " cell_dim xCheck ( "
+                <<  cell_dim->getVolume() <<" ) "
+                << elt->volume()/oldv*100-100 << " % diff" 
+                <<std::endl;
+            
+            
+            if ( m_verbose ) std::cout <<"-----------------------------------------------"<< std::endl;
+          }
+        //
+        //    ps special D4  
+        //
+        if ( (section == TileID::GAPDET) && (sample == TileID::SAMP_D) )
+          {
+            if (side == -1) m_dbManager->SetCurrentEnvByType(4);
+            if (side ==  1) m_dbManager->SetCurrentEnvByType(5);
 
-		    m_dbManager->SetCurrentModuleByIndex(module);
-		    m_dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG1);
-		    int Id4 = int(fmod(m_dbManager->GetModType(),10));
-		    m_dbManager->SetCurrentSection(Id4);
-		    
-		    double standardD4dz = elt->dz();
-		    double specialD4dz = m_dbManager->TILBdzmodul()*Gaudi::Units::cm;
-		    if ( Id4 == 8 ) specialD4dz = 0.;
+            m_dbManager->SetCurrentModuleByIndex(module);
+            m_dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG1);
+            int Id4 = int(fmod(m_dbManager->GetModType(),10));
+            m_dbManager->SetCurrentSection(Id4);
+            
+            double standardD4dz = elt->dz();
+            double specialD4dz = m_dbManager->TILBdzmodul()*Gaudi::Units::cm;
+            if ( Id4 == 8 ) specialD4dz = 0.;
 
-		    elt->set_dz(specialD4dz);
-		    elt->set_volume(newv * specialD4dz/(standardD4dz));
-		    
-		    if ( m_verbose && (Id4 > 3)) 
-		    std::cout<<"D4 old z/dz: " << oldz << " " << standardD4dz << std::endl
-			     <<"D4 new z/dz: " << elt->z() << " " << elt->dz() << " "
-			     << elt->z()/(oldz+1.e-10)*100-100 << " % diff" <<" ps comm"
-			     << std::endl;
-		    
+            elt->set_dz(specialD4dz);
+            elt->set_volume(newv * specialD4dz/(standardD4dz));
+            
+            if ( m_verbose && (Id4 > 3)) 
+            std::cout<<"D4 old z/dz: " << oldz << " " << standardD4dz << std::endl
+                 <<"D4 new z/dz: " << elt->z() << " " << elt->dz() << " "
+                 << elt->z()/(oldz+1.e-10)*100-100 << " % diff" <<" ps comm"
+                 << std::endl;
+            
 
-		    if ( m_verbose && (Id4 > 3)) 
-		    std::cout<<"old D4 volume: " << oldv << std::endl
-			     <<"new D4 volume: " << elt->volume() << " " 
-			     << elt->volume()/oldv*100-100 << " % diff" 
-			     << " iphi = " << iphi
-			     << " dphi = " << dphi << " phi = " << (module + 0.5)*dphi - M_PI <<" phi2 = "<<elt->phi()
-			     << std::endl;
-		  }
-		//
-		//  ps special C10
-		//
+            if ( m_verbose && (Id4 > 3)) 
+            std::cout<<"old D4 volume: " << oldv << std::endl
+                 <<"new D4 volume: " << elt->volume() << " " 
+                 << elt->volume()/oldv*100-100 << " % diff" 
+                 << " iphi = " << iphi
+                 << " dphi = " << dphi << " phi = " << (module + 0.5)*dphi - M_PI <<" phi2 = "<<elt->phi()
+                 << std::endl;
+          }
+        //
+        //  ps special C10
+        //
 
-		/*
- 		if ( (section == TileID::GAPDET) && (sample == TileID::SAMP_C) )
-		  {
-		    if (side == -1) m_dbManager->SetCurrentEnvByType(4);
-		    if (side ==  1) m_dbManager->SetCurrentEnvByType(5);
+        /*
+        if ( (section == TileID::GAPDET) && (sample == TileID::SAMP_C) )
+          {
+            if (side == -1) m_dbManager->SetCurrentEnvByType(4);
+            if (side ==  1) m_dbManager->SetCurrentEnvByType(5);
 
-		    m_dbManager->SetCurrentModuleByIndex(module);
-		    m_dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG2);
-		    int Ic10 = int(fmod(m_dbManager->GetModType()/100,100));
-		    
-		    double standardC10dz = elt->dz();
-		    double standardC10vol = elt->volume();
+            m_dbManager->SetCurrentModuleByIndex(module);
+            m_dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG2);
+            int Ic10 = int(fmod(m_dbManager->GetModType()/100,100));
+            
+            double standardC10dz = elt->dz();
+            double standardC10vol = elt->volume();
 
-		    if ( Ic10 == 14 ) 
-		      {
-			m_dbManager->SetCurrentSection( Ic10 );
-			m_dbManager->SetCurrentScin( m_dbManager->TILBcurscint() );
-			
-			double specialC10dz = m_dbManager->SCNTdt();
-			elt->set_dz(specialC10dz);
-			elt->set_volume(standardC10vol * specialC10dz/standardC10dz );
-			
-			if ( m_verbose ) 
-			  std::cout<<"C10 old z/dz: " << oldz << " " << standardC10dz << std::endl
-				   <<"C10 new z/dz: " << elt->z() << " " << elt->dz() << " "
-				   << elt->z()/(oldz+1.e-10)*100-100 << " % diff" << std::endl;
-			if ( m_verbose ) 
-			  std::cout<<"old C10 volume: " << newv << std::endl
-				   <<"new C10 volume: " << elt->volume() << " " 
-				   << elt->volume()/oldv*100-100 << " % diff" 
-				   << " iphi = " << iphi
-				   << " dphi = " << dphi 
-				   << std::endl;
-		      }
-		  }
-		*/
+            if ( Ic10 == 14 ) 
+              {
+            m_dbManager->SetCurrentSection( Ic10 );
+            m_dbManager->SetCurrentScin( m_dbManager->TILBcurscint() );
+            
+            double specialC10dz = m_dbManager->SCNTdt();
+            elt->set_dz(specialC10dz);
+            elt->set_volume(standardC10vol * specialC10dz/standardC10dz );
+            
+            if ( m_verbose ) 
+              std::cout<<"C10 old z/dz: " << oldz << " " << standardC10dz << std::endl
+                   <<"C10 new z/dz: " << elt->z() << " " << elt->dz() << " "
+                   << elt->z()/(oldz+1.e-10)*100-100 << " % diff" << std::endl;
+            if ( m_verbose ) 
+              std::cout<<"old C10 volume: " << newv << std::endl
+                   <<"new C10 volume: " << elt->volume() << " " 
+                   << elt->volume()/oldv*100-100 << " % diff" 
+                   << " iphi = " << iphi
+                   << " dphi = " << dphi 
+                   << std::endl;
+              }
+          }
+        */
 
-		//
-		// ps special D5+D4
-		//
-		if ( (section == TileID::EXTBAR) && (sample == TileID::SAMP_D) && (tower == 10) )
-		  {
-		    //this is needed to read special D4 type and its size
-		    if (side == -1) m_dbManager->SetCurrentEnvByType(4);
-		    if (side ==  1) m_dbManager->SetCurrentEnvByType(5);
-		    m_dbManager->SetCurrentModuleByIndex(module);
-		    m_dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG1);
-		    int Id4 = int(fmod(m_dbManager->GetModType(),10));
-		    m_dbManager->SetCurrentSection(Id4);
+        //
+        // ps special D5+D4
+        //
+        if ( (section == TileID::EXTBAR) && (sample == TileID::SAMP_D) && (tower == 10) )
+          {
+            //this is needed to read special D4 type and its size
+            if (side == -1) m_dbManager->SetCurrentEnvByType(4);
+            if (side ==  1) m_dbManager->SetCurrentEnvByType(5);
+            m_dbManager->SetCurrentModuleByIndex(module);
+            m_dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG1);
+            int Id4 = int(fmod(m_dbManager->GetModType(),10));
+            m_dbManager->SetCurrentSection(Id4);
 
-		    if ( Id4 == 8 )
-		      {
-			double standardD5dz = elt->dz();
-			double specialD4dz = m_dbManager->TILBdzmodul()*Gaudi::Units::cm; 
-			elt->set_dz(specialD4dz + standardD5dz);
-			elt->set_volume(elt->volume()* (1. + specialD4dz/standardD5dz));
-			
-			if ( m_verbose ) 
-			  std::cout<<"old D5+D4 volume: " << newv << std::endl
-				   <<"new D5+D4 volume: " << elt->volume() << " " 
-				   << elt->volume()/oldv*100-100 << " % diff" 
-				   << " iphi = " << iphi
-				   << " dphi = " << dphi <<"Id4 = "<< Id4 <<" modType = "<<m_dbManager->GetModType()
-				   << "phi = " << (module + 0.5)*dphi - M_PI<<" phi2 = "<<elt->phi()
-				   << std::endl;
-			if ( m_verbose ) 
-			  std::cout<<"   module =   "<< module 
-				   <<"    sample = " << sample 
-				   << "  section = " << section 
-				   << "  tower = " << tower << std::endl;
-		      }
-		  }
-		
-		if ( m_verbose &&  (0 == iphi) ) 
-		std::cout<<"old volume: " << oldv << std::endl
-			 <<"new volume: " << elt->volume() << " " 
-			 << elt->volume()/oldv*100-100 << " % diff" 
-			 << " iphi = " << iphi
-			 << " dphi = " << dphi
-			 << std::endl;
+            if ( Id4 == 8 )
+              {
+            double standardD5dz = elt->dz();
+            double specialD4dz = m_dbManager->TILBdzmodul()*Gaudi::Units::cm; 
+            elt->set_dz(specialD4dz + standardD5dz);
+            elt->set_volume(elt->volume()* (1. + specialD4dz/standardD5dz));
+            
+            if ( m_verbose ) 
+              std::cout<<"old D5+D4 volume: " << newv << std::endl
+                   <<"new D5+D4 volume: " << elt->volume() << " " 
+                   << elt->volume()/oldv*100-100 << " % diff" 
+                   << " iphi = " << iphi
+                   << " dphi = " << dphi <<"Id4 = "<< Id4 <<" modType = "<<m_dbManager->GetModType()
+                   << "phi = " << (module + 0.5)*dphi - M_PI<<" phi2 = "<<elt->phi()
+                   << std::endl;
+            if ( m_verbose ) 
+              std::cout<<"   module =   "<< module 
+                   <<"    sample = " << sample 
+                   << "  section = " << section 
+                   << "  tower = " << tower << std::endl;
+              }
+          }
+        
+        if ( m_verbose &&  (0 == iphi) ) 
+        std::cout<<"old volume: " << oldv << std::endl
+             <<"new volume: " << elt->volume() << " " 
+             << elt->volume()/oldv*100-100 << " % diff" 
+             << " iphi = " << iphi
+             << " dphi = " << dphi
+             << std::endl;
               }
               
               add_cell(elt);

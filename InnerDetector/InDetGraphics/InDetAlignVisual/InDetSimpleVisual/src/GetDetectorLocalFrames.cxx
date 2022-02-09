@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -28,8 +28,8 @@
 
 #include "StoreGate/ReadCondHandle.h"
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 #include <vector>
 
 
@@ -50,8 +50,8 @@ GetDetectorLocalFrames::GetDetectorLocalFrames(std::string const&  name, ISvcLoc
   m_trt_straw(0),
 
   /** ID Tools */
-  m_TRTHelper(0),
-  m_TRTDetectorManager(0)
+  m_TRTHelper(nullptr),
+  m_TRTDetectorManager(nullptr)
 
 {
   declareProperty("OutputTextFile",m_outputFileName);
@@ -219,7 +219,7 @@ void GetDetectorLocalFrames::writeTRTFrames(){
   return;
 }
 
-void GetDetectorLocalFrames::writeVector(std::string name, const Amg::Vector3D& vector){
+void GetDetectorLocalFrames::writeVector(const std::string& name, const Amg::Vector3D& vector){
   if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writeVector()" << endmsg;
   
   m_outputFile << name << " " << vector.x() << " " << vector.y() << "  " << vector.z() << std::endl;

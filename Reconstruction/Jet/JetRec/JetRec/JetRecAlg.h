@@ -1,6 +1,6 @@
 // this is a -*- C++ -*- file
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////
@@ -39,7 +39,6 @@ public:
   /// Athena algorithm's Hooks
   StatusCode  initialize() override;
   StatusCode  execute(const EventContext& ctx) const override;
-  StatusCode  finalize() override;
 
 private:
 

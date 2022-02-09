@@ -15,7 +15,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 
 # Core
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.Enums import Format
+from AthenaConfiguration.Enums import BeamType, Format
 
 # Muon
 # Csc2dSegmentMaker, Csc4dSegmentMaker=CompFactory.getComps("Csc2dSegmentMaker","Csc4dSegmentMaker",)
@@ -34,7 +34,7 @@ def MuonHoughPatternFinderTool(flags, **kwargs):
     # TODO
     # getPublicTool("MuonCombinePatternTool")
     # getPublicTool("MuonHoughPatternTool")
-    if flags.Beam.Type == 'collisions':
+    if flags.Beam.Type is BeamType.Collisions:
         kwargs.setdefault("MDT_TDC_cut", False)
         kwargs.setdefault("RecordAll",False)
     return Muon__MuonHoughPatternFinderTool("MuonHoughPatternFinderTool",**kwargs)
@@ -44,12 +44,12 @@ def MuonCurvedSegmentCombiner(flags, **kwargs):
     # The original code seems very odd. The default MissedHitsCut is 100 by default, and the rest of it is a bit tortuous.
     # I've tried to clean it up, but might have made mistakes. 
     Muon__MuonCurvedSegmentCombiner=CompFactory.Muon.MuonCurvedSegmentCombiner
-    if flags.Beam.Type!= 'collisions' :
+    if flags.Beam.Type is not BeamType.Collisions:
         kwargs.setdefault( "AddUnassociatedMiddleEndcapSegments", False )
     elif flags.Input.isMC:
         kwargs.setdefault( "MissedHitsCut", 4 )
 
-    kwargs.setdefault("DoCosmics", flags.Beam.Type != 'collisions' )
+    kwargs.setdefault("DoCosmics", flags.Beam.Type is not BeamType.Collisions)
     kwargs.setdefault( "AddAll2DCscs", False )
     kwargs.setdefault( "UseCscSegments", flags.Muon.doCSCs )
     kwargs.setdefault( "AddUnassociatedMiddleEndcapSegments", True )
@@ -67,7 +67,7 @@ def MdtDriftCircleOnTrackCreatorAdjustableT0Cfg(flags,**kwargs):
 
 def AdjustableT0Tool(flags,**kwargs):
     # NB: the following 'ifs' are the same as in the MdtDriftCircleOnTrackCreator, so that the ToF setting is the same
-    if flags.Beam.Type == 'cosmics':
+    if flags.Beam.Type is BeamType.Cosmics:
         kwargs.setdefault("DoTof", 0)
     else: # collisions simulation final precise cuts
         kwargs.setdefault("DoTof", 1)
@@ -87,7 +87,7 @@ def MdtMathSegmentFinderCfg(flags,name="MdtMathSegmentFinder", **kwargs):
         kwargs.setdefault("RecoverMdtOutliers", False)
         kwargs.setdefault("DCFitProvider", result.popToolsAndMerge(MdtSegmentT0FitterCfg(flags) ) )
 
-    if flags.Beam.Type == 'singlebeam' or flags.Beam.Type == 'cosmics' or flags.Input.isMC is False:
+    if flags.Beam.Type in [BeamType.SingleBeam, BeamType.Cosmics] or flags.Input.isMC is False:
         kwargs.setdefault("AssociationRoadWidth", 2.)
         kwargs.setdefault("MDTAssocationPullcut", 4.)
         kwargs.setdefault("RecoverMdtOutliers", True )
@@ -152,14 +152,12 @@ def DCMathSegmentMakerCfg(flags, **kwargs):
     # ToolHandle<IDCSLFitProvider>              m_dcslFitProvider;
 
     result=ComponentAccumulator()
-    
-    beamType       = flags.Beam.Type
-    doSegmentT0Fit = flags.Muon.doSegmentT0Fit
+
     updateSegmentSecondCoordinate = flags.Muon.updateSegmentSecondCoordinate
     enableCurvedSegmentFinding = flags.Muon.enableCurvedSegmentFinding
         
     kwargs.setdefault("RefitSegment", True)
-    kwargs.setdefault("AssumePointingPhi", beamType != 'cosmics')
+    kwargs.setdefault("AssumePointingPhi", flags.Beam.Type is not BeamType.Cosmics)
     kwargs.setdefault("OutputFittedT0", True)
 
     kwargs.setdefault("DCFitProvider", result.popToolsAndMerge(MdtSegmentT0FitterCfg(flags)))
@@ -167,7 +165,7 @@ def DCMathSegmentMakerCfg(flags, **kwargs):
     kwargs.setdefault("UsePreciseError", True)
     kwargs.setdefault("SinAngleCut", 0.4)
 
-    if (beamType == 'singlebeam' or beamType == 'cosmics'): 
+    if flags.Beam.Type in [BeamType.SingleBeam, BeamType.Cosmics]:
         kwargs.setdefault("SinAngleCut", 0.9)
         kwargs.setdefault("AddUnassociatedPhiHits", True)
         kwargs.setdefault("RecoverBadRpcCabling", True)
@@ -176,7 +174,7 @@ def DCMathSegmentMakerCfg(flags, **kwargs):
         kwargs.setdefault("AddUnassociatedPhiHits", True)
         kwargs.setdefault("RecoverBadRpcCabling", True)
 
-    if doSegmentT0Fit:
+    if flags.Muon.doSegmentT0Fit:
         mdt_dcot_CA = MdtDriftCircleOnTrackCreatorCfg(flags, name="MdtDriftCircleOnTrackCreatorAdjustableT0", TimingMode=3, \
                    DoTofCorrection=True, TimeWindowSetting=MdtCalibWindowNumber('Collision_data'))
         kwargs.setdefault("MdtCreatorT0", result.getPrimaryAndMerge(mdt_dcot_CA)) # TODO - is this correct? 
@@ -255,7 +253,7 @@ def MuonPatternSegmentMakerCfg(flags, **kwargs):
     if "MdtCreator" not in kwargs: 
         # on data configure a MdtDriftCircleOnTrackCreator for the segment finding with reduced errors
         # when using the t0 refit enlarge the time window
-        if not flags.Input.isMC and flags.Beam.Type == 'collisions':
+        if not flags.Input.isMC and flags.Beam.Type is BeamType.Collisions:
             if flags.Muon.doSegmentT0Fit:
                 timeWindowSetting = MdtCalibWindowNumber('Collision_t0fit')
             else:
@@ -282,7 +280,7 @@ def MuonPatternSegmentMakerCfg(flags, **kwargs):
     kwargs.setdefault('SegmentMaker', segment_maker)
     result.merge(acc)
 
-    if flags.Beam.Type == 'cosmics':
+    if flags.Beam.Type is BeamType.Cosmics:
         kwargs.setdefault("AngleCutPhi", 1e9)
         kwargs.setdefault("DropDistance", 100000000.)
     result.setPrivateTools(Muon__MuonPatternSegmentMaker("MuonPatternSegmentMaker", **kwargs))
@@ -479,7 +477,7 @@ def MooSegmentFinderCfg(flags, name='MooSegmentFinder', **kwargs):
     # Use the MuonLayerHoughTool for collisions, MuonHoughPatternFinderTool for everything else.
     # This is based on https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonRecTools.py#L428
     muon_pattern_finder_tool = Muon__MuonLayerHoughTool("MuonLayerHoughTool", DoTruth=False if flags.Muon.MuonTrigger else flags.Input.isMC) \
-                              if flags.Beam.Type=="collisions" else MuonHoughPatternFinderTool(flags)
+                              if flags.Beam.Type is BeamType.Collisions else MuonHoughPatternFinderTool(flags)
     result.addPublicTool(muon_pattern_finder_tool)
     
     acc  = MuonPatternSegmentMakerCfg(flags)
@@ -604,7 +602,7 @@ def MooSegmentFinderAlgCfg(flags, name = "MuonSegmentMaker",  **kwargs):
     kwargs.setdefault('TgcPrepDataContainer', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
         
     kwargs.setdefault('MuonSegmentOutputLocation', "ThirdChainSegments" if flags.Muon.segmentOrigin=="TruthTracking" else "TrackMuonSegments")
-    if flags.Beam.Type != 'collisions':
+    if flags.Beam.Type is not BeamType.Collisions:
         kwargs.setdefault("Key_MuonLayerHoughToolHoughDataPerSectorVec", "")
 
     moo_segment_finder_alg = MooSegmentFinderAlg( name=name, **kwargs )

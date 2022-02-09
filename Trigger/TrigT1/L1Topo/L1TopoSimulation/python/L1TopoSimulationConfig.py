@@ -60,13 +60,13 @@ def L1TopoSimulationCfg(flags):
 
     emtauProvider = CompFactory.LVL1.EMTauInputProviderFEX("EMTauInputProviderFEX")
     jetProvider = CompFactory.LVL1.JetInputProviderFEX("JetInputProviderFEX")
-    #energyProvider = CompFactory.LVL1.EnergyInputProviderFEX("EnergyInputProviderFEX")
+    energyProvider = CompFactory.LVL1.EnergyInputProviderFEX("EnergyInputProviderFEX")
 
     topoSimAlg = CompFactory.LVL1.L1TopoSimulation("L1TopoSimulation",
                                                     MuonInputProvider = muProvider,
                                                     EMTAUInputProvider = emtauProvider,
                                                     JetInputProvider = jetProvider,
-                                                    #EnergyInputProvider = energyProvider,
+                                                    EnergyInputProvider = energyProvider,
                                                     IsLegacyTopo = False)
     acc.addEventAlgo(topoSimAlg)
     return acc
@@ -87,7 +87,7 @@ def L1TopoSimulationOldStyleCfg(flags, isLegacy):
         # Need further test from inputs.
         topoSimSeq.JetInputProvider = 'LVL1::JetInputProviderFEX/JetInputProviderFEX'
         # Need further test from inputs. Reverting back to Run 2 MET 
-        #topoSimSeq.EnergyInputProvider = 'LVL1::EnergyInputProviderFEX/EnergyInputProviderFEX'
+        topoSimSeq.EnergyInputProvider = 'LVL1::EnergyInputProviderFEX/EnergyInputProviderFEX'
 
     # Muon inputs only for phase-1 Topo
     if isLegacy:

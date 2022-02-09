@@ -7,8 +7,6 @@
 
 
 #include "IDistanceCalculator.h"
-#include "RDBAccessSvc/IRDBAccessSvc.h"
-#include "GeoModelUtilities/DecodeVersionKey.h"
 
 class LArWheelCalculator;
 
@@ -25,9 +23,7 @@ namespace LArWheelCalculator_Impl
     public:
 
       /// Constructor
-      DistanceCalculatorSaggingOff(LArWheelCalculator* lwc,
-                                   IRDBAccessSvc* rdbAccess,
-                                   const DecodeVersionKey& larVersionKey);
+      DistanceCalculatorSaggingOff(LArWheelCalculator* lwc);
 
       /// @name Geometry methods
       /// @{

@@ -2,7 +2,7 @@
 
 from AtlasGeoModel.GeoModelConfig import GeoModelCfg
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import ProductionStep
+from AthenaConfiguration.Enums import LHCPeriod, ProductionStep
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 
 def LArGMCfg(configFlags):
@@ -50,7 +50,7 @@ def LArGMCfg(configFlags):
                         sCellsInInput = True
 
             AthReadAlg_ExtraInputs.append(('CaloDetDescrManager', 'ConditionStore+CaloDetDescrManager'))            
-            if configFlags.GeoModel.Run == 'RUN3' and configFlags.Detector.GeometryTile or sCellsInInput:
+            if configFlags.GeoModel.Run is LHCPeriod.Run3 and configFlags.Detector.GeometryTile or sCellsInInput:
                 result.addCondAlgo(CompFactory.CaloSuperCellAlignCondAlg())
                 AthReadAlg_ExtraInputs.append(('CaloSuperCellDetDescrManager', 'ConditionStore+CaloSuperCellDetDescrManager'))
 
@@ -67,7 +67,7 @@ def LArGMCfg(configFlags):
         # Build unalinged CaloDetDescrManager instance in the Condition Store
         if activateCondAlgs:
             result.addCondAlgo(CompFactory.CaloAlignCondAlg(LArAlignmentStore="",CaloCellPositionShiftFolder=""))
-            if configFlags.GeoModel.Run == 'RUN3' and configFlags.Detector.GeometryTile:
+            if configFlags.GeoModel.Run is LHCPeriod.Run3 and configFlags.Detector.GeometryTile:
                 result.addCondAlgo(CompFactory.CaloSuperCellAlignCondAlg())
             
     return result

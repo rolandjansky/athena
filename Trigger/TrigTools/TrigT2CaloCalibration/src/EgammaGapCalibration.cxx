@@ -45,7 +45,7 @@ StatusCode EgammaGapCalibration::finalize(){
 }
 
 void EgammaGapCalibration::makeCorrection(xAOD::TrigEMCluster* clus,
-					  const void * /*param*/){
+					  const void * /*param*/) const{
 	
 #ifndef NDEBUG
 	(*m_log) << MSG::DEBUG << "makeCorrection for tool : "
