@@ -1532,6 +1532,9 @@ def setupMenu():
         #ChainProp(name="HLT_2j45_pf_ftf_bdl1r60_xe50_cell_xe85_pfopufit_L12jJ40_jXE110", l1SeedThresholds=['FSNOSEED','FSNOSEED','FSNOSEED'], stream=[PhysicsStream], groups=PrimaryPhIGroup+BjetMETGroup),
         #ChainProp(name="HLT_3j35_pf_ftf_bdl1r60_xe50_cell_xe70_pfopufit_L13jJ40p0ETA25_jXE90", l1SeedThresholds=['FSNOSEED','FSNOSEED','FSNOSEED'], stream=[PhysicsStream], groups=PrimaryPhIGroup+BjetMETGroup),
 
+        # Phase-I tau+X chains with muon L1
+        ChainProp(name='HLT_mu26_ivarmedium_tau20_mediumRNN_tracktwoMVA_L1eTAU12_03dRAB_L1MU14FCH', l1SeedThresholds=['MU14FCH','eTAU12'], stream=[PhysicsStream], groups=TagAndProbePhIGroup+SingleMuonGroup),
+
     ]
 
     chains['MinBias'] = [

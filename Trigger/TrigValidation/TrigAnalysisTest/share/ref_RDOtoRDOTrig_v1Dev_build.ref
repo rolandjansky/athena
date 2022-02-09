@@ -6037,7 +6037,7 @@ HLT_e9_lhtight_noringer_e4_etcut_1invmAB5_L1JPSI-1M5-EM7:
   eventCount: 0
 HLT_e9_lhtight_noringer_e4_etcut_probe_1invmAB5_L1JPSI-1M5-EM7:
   eventCount: 0
-HLT_e9_lhvloose_L1eEM5_mu20_L1MU14FCH_mu8noL1_L1MU14FCH:
+HLT_e9_lhvloose_L1eEM5_mu20_mu8noL1_L1MU14FCH:
   eventCount: 0
   stepCounts:
     0: 3
@@ -13039,6 +13039,30 @@ HLT_mu26_ivarmedium_tau20_mediumRNN_tracktwoMVA_03dRAB_L1MU14FCH:
     7: 15
     8: 15
     9: 3
+HLT_mu26_ivarmedium_tau20_mediumRNN_tracktwoMVA_L1eTAU12_03dRAB_L1MU14FCH:
+  eventCount: 2
+  stepCounts:
+    0: 6
+    1: 4
+    2: 4
+    3: 4
+    4: 4
+    5: 4
+    6: 4
+    7: 4
+    8: 4
+    9: 2
+  stepFeatures:
+    0: 7
+    1: 4
+    2: 4
+    3: 4
+    4: 4
+    5: 55
+    6: 55
+    7: 55
+    8: 55
+    9: 12
 HLT_mu26_ivarmedium_tau25_idperf_tracktwoMVABDT_03dRAB_L1MU14FCH:
   eventCount: 4
   stepCounts:
