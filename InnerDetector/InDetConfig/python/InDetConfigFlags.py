@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
-from AthenaConfiguration.Enums import LHCPeriod
+from AthenaConfiguration.Enums import BeamType, LHCPeriod
 # TODO: clean up flags, should only contain general settings but no alg config
 # TODO : Add some exta levels?
 
@@ -12,7 +12,7 @@ def createInDetConfigFlags():
 
   icf.addFlag("InDet.doSplitReco", False) # Turn running of the truth seeded pseudo tracking only for pileup on and off. Only makes sense to run on RDO file where SplitDigi was used!
   icf.addFlag("InDet.doTruth", lambda prevFlags: prevFlags.Input.isMC) # Turn running of truth matching on and off (by default on for MC off for data)
-  icf.addFlag("InDet.selectSCTIntimeHits", lambda prevFlags: not(prevFlags.Beam.Type=="cosmics" or prevFlags.InDet.Tracking.doVtxBeamSpot) ) # defines if the X1X mode is used for the offline or not
+  icf.addFlag("InDet.selectSCTIntimeHits", lambda prevFlags: not(prevFlags.Beam.Type is BeamType.Cosmics or prevFlags.InDet.Tracking.doVtxBeamSpot) ) # defines if the X1X mode is used for the offline or not
   icf.addFlag("InDet.useDCS", True)
   icf.addFlag("InDet.usePixelDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.EnablePixel))
   icf.addFlag("InDet.useSctDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.EnableSCT))
@@ -21,14 +21,14 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doSCTModuleVeto", False) # Turn on SCT_ModuleVetoSvc, allowing it to be configured later
   icf.addFlag("InDet.checkDeadElementsOnTrack", True) # Enable check for dead modules and FEs
   icf.addFlag("InDet.doTRTGlobalOccupancy", False) # Turn running of Event Info TRT Occupancy Filling Alg on and off (also whether it is used in TRT PID calculation)
-  icf.addFlag("InDet.noTRTTiming", lambda prevFlags: prevFlags.Beam.Type=="singlebeam")
+  icf.addFlag("InDet.noTRTTiming", lambda prevFlags: prevFlags.Beam.Type is BeamType.SingleBeam)
 
 
   ### Tracking parameters
 
   icf.addFlag("InDet.Tracking.doStoreTrackSeeds", False) # Turn on to save the Track Seeds in a xAOD track collecting for development studies
   icf.addFlag("InDet.Tracking.materialInteractions", True)
-  icf.addFlag("InDet.Tracking.materialInteractionsType", lambda prevFlags: 2 if prevFlags.Beam.Type=="cosmics" else 3) # Control which type of particle hypothesis to use for the material interactions 0=non-interacting,1=electron,2=muon,3=pion,4=kaon,5=proton. See ParticleHypothesis.h for full definition.
+  icf.addFlag("InDet.Tracking.materialInteractionsType", lambda prevFlags: 2 if prevFlags.Beam.Type is BeamType.Cosmics else 3) # Control which type of particle hypothesis to use for the material interactions 0=non-interacting,1=electron,2=muon,3=pion,4=kaon,5=proton. See ParticleHypothesis.h for full definition.
   icf.addFlag("InDet.Tracking.doDigitalROTCreation",False) # use PixelClusterOnTrackToolDigital during ROT creation to save CPU
   icf.addFlag("InDet.Tracking.holeSearchInGX2Fit", True)
   icf.addFlag("InDet.Tracking.trackFitterType", "GlobalChi2Fitter") # control which fitter to be used: 'KalmanFitter', 'KalmanDNAFitter', 'DistributedKalmanFilter', 'GlobalChi2Fitter', 'GaussianSumFilter'
@@ -38,7 +38,7 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.Tracking.perigeeExpression", lambda prevFlags: "Vertex" if prevFlags.Reco.EnableHI else "BeamLine") # Express track parameters wrt. to : 'BeamLine','BeamSpot','Vertex' (first primary vertex)
   icf.addFlag("InDet.Tracking.cutLevel", 19) # Control cuts and settings for different lumi to limit CPU and disk space
   icf.addFlag("InDet.Tracking.doTIDE_Ambi", lambda prevFlags: not prevFlags.InDet.Tracking.doInnerDetectorCommissioning) # Switch for running TIDE Ambi
-  icf.addFlag("InDet.Tracking.doBremRecovery", lambda prevFlags: not(prevFlags.InDet.Tracking.doVtxLumi or prevFlags.InDet.Tracking.doVtxBeamSpot or prevFlags.InDet.Tracking.doLowMu or prevFlags.Beam.Type!="collisions" or not prevFlags.BField.solenoidOn) ) # Turn on running of Brem Recover in tracking
+  icf.addFlag("InDet.Tracking.doBremRecovery", lambda prevFlags: not(prevFlags.InDet.Tracking.doVtxLumi or prevFlags.InDet.Tracking.doVtxBeamSpot or prevFlags.InDet.Tracking.doLowMu or prevFlags.Beam.Type is not BeamType.Collisions or not prevFlags.BField.solenoidOn) ) # Turn on running of Brem Recover in tracking
   icf.addFlag("InDet.Tracking.doCaloSeededBrem", True) # Brem Recover in tracking restricted to Calo ROIs
   icf.addFlag("InDet.Tracking.doHadCaloSeededSSS", False) # Use Recover SSS to Calo ROIs
   icf.addFlag("InDet.Tracking.doCaloSeededAmbi", lambda prevFlags: prevFlags.Detector.EnableCalo) # Use Calo ROIs to seed specific cuts for the ambi
@@ -63,17 +63,17 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.Tracking.doHighPileup", False) # Turn running of high pile-up reconstruction on and off
   icf.addFlag("InDet.Tracking.doTRTExtension", True) # turn on / off TRT extensions
   icf.addFlag("InDet.Tracking.doTRTSegments", lambda prevFlags: prevFlags.InDet.Tracking.doBackTracking or prevFlags.InDet.Tracking.doTRTStandalone) # control to run TRT Segment finding (do it always after new tracking!)
-  icf.addFlag("InDet.Tracking.doBackTracking", lambda prevFlags: not(prevFlags.Beam.Type in ["singlebeam", "cosmics"] or prevFlags.Reco.EnableHI or prevFlags.InDet.Tracking.doHighPileup or prevFlags.InDet.Tracking.doVtxLumi or prevFlags.InDet.Tracking.doVtxBeamSpot) ) # Turn running of backtracking on and off
+  icf.addFlag("InDet.Tracking.doBackTracking", lambda prevFlags: not(prevFlags.Beam.Type in [BeamType.SingleBeam, BeamType.Cosmics] or prevFlags.Reco.EnableHI or prevFlags.InDet.Tracking.doHighPileup or prevFlags.InDet.Tracking.doVtxLumi or prevFlags.InDet.Tracking.doVtxBeamSpot) ) # Turn running of backtracking on and off
   icf.addFlag("InDet.Tracking.doLargeD0", False)
-  icf.addFlag("InDet.Tracking.doR3LargeD0", lambda prevFlags: not(prevFlags.Beam.Type in ["singlebeam", "cosmics"] or prevFlags.Reco.EnableHI or prevFlags.InDet.Tracking.doHighPileup or prevFlags.InDet.Tracking.doVtxLumi or prevFlags.InDet.Tracking.doVtxBeamSpot) )
+  icf.addFlag("InDet.Tracking.doR3LargeD0", lambda prevFlags: not(prevFlags.Beam.Type in [BeamType.SingleBeam, BeamType.Cosmics] or prevFlags.Reco.EnableHI or prevFlags.InDet.Tracking.doHighPileup or prevFlags.InDet.Tracking.doVtxLumi or prevFlags.InDet.Tracking.doVtxBeamSpot) )
   icf.addFlag("InDet.Tracking.doLowPtLargeD0", False) # Turn running of doLargeD0 second pass down to 100 MeV on and off Turn running of doLargeD0 second pass on and off
   icf.addFlag("InDet.Tracking.storeSeparateLargeD0Container", True)
   icf.addFlag("InDet.Tracking.doLowPt", lambda prevFlags: prevFlags.InDet.Tracking.doLowMu) # Turn running of doLowPt second pass on and off
   icf.addFlag("InDet.Tracking.doVeryLowPt", False) # Turn running of doVeryLowPt thrid pass on and off
   icf.addFlag("InDet.Tracking.doTRTStandalone", lambda prevFlags: not(prevFlags.Reco.EnableHI or prevFlags.InDet.Tracking.doHighPileup or prevFlags.InDet.Tracking.doVtxLumi or prevFlags.InDet.Tracking.doVtxBeamSpot) ) # control TRT Standalone
-  icf.addFlag("InDet.Tracking.doForwardTracks", lambda prevFlags: not(prevFlags.Beam.Type in ["singlebeam", "cosmics"] or prevFlags.Reco.EnableHI or prevFlags.InDet.Tracking.doHighPileup or prevFlags.InDet.Tracking.doVtxLumi or prevFlags.InDet.Tracking.doVtxBeamSpot or prevFlags.InDet.Tracking.doMinBias or prevFlags.InDet.Tracking.doLowMu)) # Turn running of doForwardTracks pass on and off
+  icf.addFlag("InDet.Tracking.doForwardTracks", lambda prevFlags: not(prevFlags.Beam.Type in [BeamType.SingleBeam, BeamType.Cosmics] or prevFlags.Reco.EnableHI or prevFlags.InDet.Tracking.doHighPileup or prevFlags.InDet.Tracking.doVtxLumi or prevFlags.InDet.Tracking.doVtxBeamSpot or prevFlags.InDet.Tracking.doMinBias or prevFlags.InDet.Tracking.doLowMu)) # Turn running of doForwardTracks pass on and off
   icf.addFlag("InDet.Tracking.doTrackSegmentsDisappearing", lambda prevFlags: not(prevFlags.Reco.EnableHI or prevFlags.Reco.EnableHI or prevFlags.InDet.Tracking.doInnerDetectorCommissioning) )
-  icf.addFlag("InDet.Tracking.doBeamGas", lambda prevFlags: prevFlags.Beam.Type=="singlebeam") # Turn running of BeamGas second pass on and off
+  icf.addFlag("InDet.Tracking.doBeamGas", lambda prevFlags: prevFlags.Beam.Type is BeamType.SingleBeam) # Turn running of BeamGas second pass on and off
   icf.addFlag("InDet.Tracking.doMinBias", False) # Switch for running MinBias settings
   icf.addFlag("InDet.Tracking.doHIP300", False) # Switch for running MinBias settings with a 300 MeV pT cut (for Heavy Ion Proton)
   icf.addFlag("InDet.Tracking.doRobustReco", False) # Switch for running Robust settings

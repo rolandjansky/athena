@@ -2,6 +2,8 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
+
 
 def MuonCaloTagAlgCfg(flags, name="MuonCaloTagAlg",**kwargs):
     from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCaloTagToolCfg    
@@ -138,7 +140,7 @@ def MuonCombinedMuonCandidateAlgCfg(flags, name="MuonCombinedMuonCandidateAlg", 
     result.merge(CaloNoiseCondAlgCfg(flags,"totalNoise"))
 
     tool_kwargs={}
-    if flags.Beam.Type == 'cosmics':
+    if flags.Beam.Type is BeamType.Cosmics:
         tool_kwargs.setdefault("ExtrapolationStrategy", 1 )
 
     acc = MuonCandidateToolCfg(flags, **tool_kwargs)

@@ -7,34 +7,6 @@
 # EgammaLWCalibration
 #############################
 from AthenaConfiguration.ComponentFactory import CompFactory
-from CaloClusterCorrection.CaloSwLongWeights_v5 import *
-
-class EgammaLWCalibrationBarrelConfig(CompFactory.EgammaLWCalibration):
-    __slots__=[]
-    def __init__(self,name="EgammaLWCalibrationBarrel"):
-      super(EgammaLWCalibrationBarrelConfig,self).__init__(name)
-      self.UseInterpolation=True
-      self.correction=str(CaloSwLongWeights_v5_ele37)
-      self.eta_start_crack=1.425
-      self.eta_end_crack=1.55
-      self.etamax = 2.5
-      self.use_raw_eta=True
-      self.preserve_offset=False
-      self.degree=3
-      #self.region = CALOCORR_COMBINED2
-
-class EgammaLWCalibrationEndcapConfig(CompFactory.EgammaLWCalibration):
-    __slots__=[]
-    def __init__(self,name="EgammaLWCalibrationEndcap"):
-      super(EgammaLWCalibrationEndcapConfig,self).__init__(name)
-      self.correction=str(CaloSwLongWeights_v5_ele55)
-      self.eta_start_crack=1.425
-      self.eta_end_crack=1.55
-      self.etamax = 2.5
-      self.use_raw_eta=True
-      self.preserve_offset=False
-      #self.region = CALOCORR_COMBINED2
-
 
 #############################
 # EgammaHitsCalibration

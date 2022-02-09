@@ -174,7 +174,7 @@ def TrigTauRecMergedOnlyMVACfg(flags):
 
             ## add beam type flag
     alg = CompFactory.TrigTauRecMerged("TrigTauRecMergedOnlyMVA",
-                                        BeamType=flags.Beam.Type, 
+                                        BeamType=flags.Beam.Type.value, 
                                         Tools=tools)
 
     alg.Key_trackPartInputContainer = ''

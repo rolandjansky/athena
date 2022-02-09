@@ -962,7 +962,6 @@ Muons
 MuonsAux.
 MuonsAuxDyn.CT_EL_Type
 MuonsAuxDyn.CT_ET_FSRCandidateEnergy
-MuonsAuxDyn.CT_ET_LRLikelihood
 MuonsAuxDyn.ClusterInfo_deltaR
 MuonsAuxDyn.ET_Core
 MuonsAuxDyn.ET_EMCore
@@ -1016,7 +1015,6 @@ MuonsLRT
 MuonsLRTAux.
 MuonsLRTAuxDyn.CT_EL_Type
 MuonsLRTAuxDyn.CT_ET_FSRCandidateEnergy
-MuonsLRTAuxDyn.CT_ET_LRLikelihood
 MuonsLRTAuxDyn.ET_Core
 MuonsLRTAuxDyn.ET_EMCore
 MuonsLRTAuxDyn.ET_HECCore
@@ -1121,7 +1119,6 @@ Staus
 StausAux.
 StausAuxDyn.CT_EL_Type
 StausAuxDyn.CT_ET_FSRCandidateEnergy
-StausAuxDyn.CT_ET_LRLikelihood
 StausAuxDyn.ET_Core
 StausAuxDyn.ET_EMCore
 StausAuxDyn.ET_HECCore

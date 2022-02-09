@@ -323,7 +323,8 @@ public:
     with TrackParameters. Material collection in option. Destination
     (subdetector boundary) : geoID (+ entry, -exit) ( default MS exit )
     */
-  virtual const std::vector<std::pair<const Trk::TrackParameters*, int>>*
+  virtual std::unique_ptr<
+    std::vector<std::pair<std::unique_ptr<Trk::TrackParameters>, int>>>
   extrapolate(const EventContext& ctx,
               const Trk::TrackParameters& parm,
               Trk::PropDirection dir,
@@ -342,7 +343,7 @@ private:
   /**
    * Cache to be passed to and between the private methods
    */
-  typedef std::vector<std::pair<const Trk::TrackParameters*, int>> identifiedParameters_t;
+  typedef std::vector<std::pair<std::unique_ptr<Trk::TrackParameters>, int>> identifiedParameters_t;
   struct Cache
   {
 

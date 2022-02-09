@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ##############################################################
 # Modifiers.py
@@ -422,7 +422,8 @@ class doCosmics(_modifier):
        from AthenaCommon.BeamFlags import jobproperties
        jobproperties.Beam.beamType.set_Value_and_Lock('cosmics')
        from AthenaConfiguration.AllConfigFlags import ConfigFlags
-       ConfigFlags.Beam.Type = 'cosmics'
+       from AthenaConfiguration.Enums import BeamType
+       ConfigFlags.Beam.Type = BeamType.Cosmics
 
 
 class enableALFAMon(_modifier):

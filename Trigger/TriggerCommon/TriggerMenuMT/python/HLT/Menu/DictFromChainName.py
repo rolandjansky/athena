@@ -12,6 +12,7 @@ __doc__="Decoding of chain name into a dictionary"
 
 from TrigConfHLTUtils.HLTUtils import string2hash
 from AthenaCommon.Logging import logging
+import re
 
 import collections
 
@@ -136,6 +137,32 @@ def getChainMultFromDict(chainDict):
         if cpart['multiplicity'] != '':
             allMultis.append( int(cpart['multiplicity']))
     return allMultis
+
+
+# For certain chains, we need to include the L1 seed threshold
+# in the leg name for disambiguation.
+# This checks that the explicit threshold matches the threshold list
+# In this case, the seed thresholds cannot be inferred from the L1 name
+matchL1 = re.compile('L1([a-zA-Z0-9]+)(_.*)?')
+def verifyExplicitL1Thresholds(chainname,chainparts,L1thresholds):
+    assert len(L1thresholds)>0, f'L1 thresholds cannot be inferred from L1 name for chain {chainname} with explicit L1 seed thresholds'
+
+    log.debug('Verifying explicit L1 thresholds for %s, received L1thresholds %s',chainname,L1thresholds)
+
+    counter = 0
+    for part, threshold in zip(chainparts,L1thresholds):
+        if '_L1' in part:
+            matches = matchL1.findall(part)
+            assert len(matches)==1, f"Inappropriate number of L1 thresholds {matches} in chain part '{part}'"
+            thisL1, remainder = matches[0] # list of tuples
+            assert remainder == '', f"Explicit L1 threshold should be last element in chain part {part}"
+            log.verbose('  ChainPart %s has explicit L1 threshold %s',part,thisL1)
+            assert 'PROBE' not in thisL1, f"Omit 'PROBE' from explicit L1 threshold '{thisL1}'"
+            assert thisL1 == threshold.replace('PROBE',''), f"Explicit L1 threshold for chainpart '{thisL1}' does not match threshold '{threshold}' from list"
+            # For now enforce that this is only used for Phase-I thresholds
+            assert thisL1[0] in ['e','j','g','c'], f"Legacy L1 threshold '{thisL1}' specified explicitly" # Could be eFEX, jFEX, gFEX or cTAU
+            counter += 1
+    assert counter>0, f"Did not find explicit L1 seeds in chain parts for {chainname}!"
 
 
 def analyseChainName(chainName, L1thresholds, L1item):
@@ -337,33 +364,14 @@ def analyseChainName(chainName, L1thresholds, L1item):
 
     # check the case when _L1 appears more than once in the name
     if chainName.count("_L1") > 1:
-        # handle muXnoL1
-        _chainName_fsnoseed = chainName.replace('noL1','_FSNOSEED')
-        indices = []
-        for ith,th in enumerate(L1thresholds):
-            if th == 'FSNOSEED': # Does not matter and we can omit
-                indices.append(0 if not indices else indices[ith-1]+1)
-                continue
-            th_noprobe = th.replace('PROBE','')
-            if th_noprobe in _chainName_fsnoseed:
-                indices.append(_chainName_fsnoseed.index( th_noprobe ))
-            else:
-                raise RuntimeError( f'Failed to find explicit leg seeds {th_noprobe} in "{chainName}"')
-
-        # verify if all thresholds are mentioned in chain parts, if they are not then one of the indices will be -1
-        assert all( [i > 0 for i in indices] ), "Some thresholds are not part of the chain name name {}, {}".format(chainName, L1thresholds)
-        # verify that the order of threshold and order of threshold mentioned in the name (there they are prexixed by L1) is identical, else there may be mistake
-        assert sorted(indices)==indices, "The order of L1 thresholds mentioned in chain name {} are not the same as threshold passed {}".format(chainName, L1thresholds)
+        verifyExplicitL1Thresholds(chainName,multichainparts,L1thresholds)
 
     for chainindex, chainparts in enumerate(multichainparts):
         chainProperties = {} #will contain properties for one part of chain if multiple parts
-        chainpartsNoL1 = chainparts
+        chainpartsNoL1 = chainparts.rsplit('_L1',1)[0] if 'L1' in chainparts else chainparts
 
         if len(L1thresholds) != 0:
             chainProperties['L1threshold'] = L1thresholds[chainindex]
-            if '_L1' in chainparts:
-                chainpartsNoL1,thisl1 = chainparts.rsplit('_L1',1)
-                assert thisl1 == chainProperties['L1threshold'].replace('PROBE',''), f"Explicit L1 threshold for chainpart {thisl1} does not match provided list {chainProperties['L1threshold']}"
         else:
             __th = getAllThresholdsFromItem ( L1item )
             assert chainindex < len(__th), "In defintion of the chain {chainName} there is not enough thresholds to be used, index: {chainindex} >= number of thresholds, thresholds are: {__th}"

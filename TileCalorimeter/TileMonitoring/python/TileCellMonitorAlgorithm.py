@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 '''
 @file TileCellMonitorAlgorithm.py
@@ -47,7 +47,8 @@ def TileCellMonitoringConfig(flags, **kwargs):
     kwargs.setdefault('fillTimeAndEnergyDiffHistograms', False)
     kwargs.setdefault('fillGapScintilatorHistograms', False)
 
-    if flags.Beam.Type in ('cosmics', 'singlebeam'):
+    from AthenaConfiguration.Enums import BeamType
+    if flags.Beam.Type in [BeamType.Cosmics, BeamType.SingleBeam]:
         kwargs.setdefault('fillTimeHistograms', True)
         kwargs.setdefault('EnergyThresholdForTime', 150.0 * MeV)
     else:

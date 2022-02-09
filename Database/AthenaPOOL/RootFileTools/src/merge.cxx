@@ -692,7 +692,7 @@ int main(int argc, char** argv) {
       if ( fixup ) m.createFID();
       continue;
     }
-    DbStatus ret = m.exists(output.c_str()) ? m.attach(output) : m.create(output);
+    DbStatus ret = m.exists(output) ? m.attach(output) : m.create(output);
     if ( ret == SUCCESS ) {
       ret = m.merge(in, exclTrees, branchList);
       if ( ret == SUCCESS ) {

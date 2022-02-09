@@ -1,15 +1,16 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.ComponentFactory     import CompFactory
-from AthenaConfiguration.Enums                import LHCPeriod
-import InDetConfig.TrackingCommonConfig         as   TC
+from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType, LHCPeriod
+import InDetConfig.TrackingCommonConfig as TC
+
 
 def SiSpacePointsSeedMakerCfg(flags, name="InDetSpSeedsMaker", InputCollections = None, **kwargs) :
     acc = ComponentAccumulator()
     #
     # --- Space points seeds maker, use different ones for cosmics and collisions
     #
-    if flags.Beam.Type == 'cosmics':
+    if flags.Beam.Type is BeamType.Cosmics:
         SiSpacePointsSeedMaker = CompFactory.InDet.SiSpacePointsSeedMaker_Cosmic
     elif flags.Reco.EnableHI:
         SiSpacePointsSeedMaker = CompFactory.InDet.SiSpacePointsSeedMaker_HeavyIon
@@ -54,7 +55,7 @@ def SiSpacePointsSeedMakerCfg(flags, name="InDetSpSeedsMaker", InputCollections 
         # not all classes have that property !!!
         kwargs.setdefault("PRDtoTrackMap", 'InDetPRDtoTrackMap'+ flags.InDet.Tracking.ActivePass.extension)
 
-    if not flags.Beam.Type == 'cosmics':
+    if flags.Beam.Type is not BeamType.Cosmics:
         kwargs.setdefault("maxRadius1", 0.75*flags.InDet.Tracking.ActivePass.radMax)
         kwargs.setdefault("maxRadius2", flags.InDet.Tracking.ActivePass.radMax)
         kwargs.setdefault("maxRadius3", flags.InDet.Tracking.ActivePass.radMax)
@@ -194,7 +195,7 @@ def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None,
     kwargs.setdefault("Xi2max", flags.InDet.Tracking.ActivePass.Xi2max)
     kwargs.setdefault("Xi2maxNoAdd", flags.InDet.Tracking.ActivePass.Xi2maxNoAdd)
     kwargs.setdefault("nWeightedClustersMin", flags.InDet.Tracking.ActivePass.nWeightedClustersMin)
-    kwargs.setdefault("CosmicTrack", flags.Beam.Type == 'cosmics')
+    kwargs.setdefault("CosmicTrack", flags.Beam.Type is BeamType.Cosmics)
     kwargs.setdefault("Xi2maxMultiTracks", flags.InDet.Tracking.ActivePass.Xi2max)
     kwargs.setdefault("useSSSseedsFilter", True)
     kwargs.setdefault("doMultiTracksProd", True)
@@ -225,7 +226,7 @@ def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None,
         kwargs.setdefault("doCaloSeededBrem", False)
         kwargs.setdefault("doHadCaloSeedSSS", False)
 
-    elif flags.Beam.Type == 'cosmics':
+    elif flags.Beam.Type is BeamType.Cosmics:
         kwargs.setdefault("TrackPatternRecoInfo", 'SiSpacePointsSeedMaker_Cosmic')
 
     elif flags.Reco.EnableHI:
@@ -330,7 +331,7 @@ def InDetAmbiTrackSelectionToolCfg(flags, name="InDetAmbiTrackSelectionTool", **
     kwargs.setdefault("maxShared"       , flags.InDet.Tracking.ActivePass.maxShared)
     kwargs.setdefault("minTRTHits"      , 0) # used for Si only tracking !!!
     kwargs.setdefault("UseParameterization" , False)
-    kwargs.setdefault("Cosmics"             , flags.Beam.Type == 'cosmics' and flags.InDet.Tracking.ActivePass.extension != "DBM")
+    kwargs.setdefault("Cosmics"             , flags.Beam.Type is BeamType.Cosmics and flags.InDet.Tracking.ActivePass.extension != "DBM")
     kwargs.setdefault("doPixelSplitting"    , flags.InDet.Tracking.doPixelClusterSplitting and flags.InDet.Tracking.ActivePass.extension != "DBM")
 
     if flags.InDet.Tracking.ActivePass.useTIDE_Ambi:
@@ -379,7 +380,7 @@ def InDetAmbiTrackSelectionToolCfg(flags, name="InDetAmbiTrackSelectionTool", **
 def DenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags, name="InDetAmbiguityScoreProcessor", ClusterSplitProbContainer="", **kwargs):
     acc = ComponentAccumulator()
     # --- set up different Scoring Tool for collisions and cosmics
-    if flags.Beam.Type == "cosmics" and flags.InDet.Tracking.ActivePass.extension != "DBM":
+    if flags.Beam.Type is BeamType.Cosmics and flags.InDet.Tracking.ActivePass.extension != "DBM":
         InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetCosmicsScoringToolCfg(flags))
     elif flags.InDet.Tracking.ActivePass.extension == "R3LargeD0" and flags.InDet.Tracking.nnCutLargeD0Threshold > 0:
         # Set up NN config
@@ -412,7 +413,7 @@ def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name="InDetAmbiguityProces
     acc = ComponentAccumulator()
     
     # --- set up different Scoring Tool for collisions and cosmics
-    if flags.Beam.Type == "cosmics" and flags.InDet.Tracking.ActivePass.extension != "DBM":
+    if flags.Beam.Type is BeamType.Cosmics and flags.InDet.Tracking.ActivePass.extension != "DBM":
         InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetCosmicsScoringToolCfg(flags))
     elif flags.InDet.Tracking.ActivePass.extension == "R3LargeD0" and flags.InDet.Tracking.nnCutLargeD0Threshold > 0:
         # Set up NN config
@@ -487,7 +488,7 @@ def SimpleAmbiguityProcessorToolCfg(flags, name = "InDetAmbiguityProcessor", Clu
     #
     # --- set up different Scoring Tool for collisions and cosmics
     #
-    if flags.Beam.Type == 'cosmics' and flags.InDet.Tracking.ActivePass.extension != "DBM":
+    if flags.Beam.Type is BeamType.Cosmics and flags.InDet.Tracking.ActivePass.extension != "DBM":
         InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetCosmicsScoringToolCfg(flags))
     elif flags.InDet.Tracking.ActivePass.extension == "R3LargeD0" and flags.InDet.Tracking.nnCutLargeD0Threshold > 0:
         # Set up NN config

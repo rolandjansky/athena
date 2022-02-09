@@ -2,7 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import LHCPeriod
+from AthenaConfiguration.Enums import BeamType, LHCPeriod
 from AthenaCommon.SystemOfUnits import MeV
 from MCTruthBase.MCTruthBaseConfigNew import MCTruthSteppingActionToolCfg
 from G4UserActions.G4UserActionsConfigNew import (
@@ -119,10 +119,10 @@ def getDefaultActions(ConfigFlags):
     actions += [result.popToolsAndMerge(G4TrackCounterToolCfg(ConfigFlags))]
 
     # Cosmic Perigee action
-    if ConfigFlags.Beam.Type == "cosmics" and ConfigFlags.Sim.CavernBG == "Off":
+    if ConfigFlags.Beam.Type is BeamType.Cosmics and ConfigFlags.Sim.CavernBG == "Off":
         actions += [CompFactory.G4UA.CosmicPerigeeActionTool()]
     # Cosmic filter
-    if ConfigFlags.Beam.Type == "cosmics" and not ConfigFlags.Sim.ISFRun:
+    if ConfigFlags.Beam.Type is BeamType.Cosmics and not ConfigFlags.Sim.ISFRun:
         actions += [result.popToolsAndMerge(CosmicFilterToolCfg(ConfigFlags))]
     if ConfigFlags.Sim.StoppedParticleFile:
         actions += [result.popToolsAndMerge(StoppedParticleFilterToolCfg(ConfigFlags)),

@@ -2,7 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import Format
+from AthenaConfiguration.Enums import BeamType, Format
 
 ##------------------------------------------------------------------------------
 def BCM_ZeroSuppressionCfg(flags, name="InDetBCM_ZeroSuppression", **kwargs):
@@ -53,7 +53,7 @@ def SCTClusterizationCfg(flags, name="InDetSCT_Clusterization", **kwargs) :
                                                                     globalPosAlg   = InDetClusterMakerTool,
                                                                     conditionsTool = InDetSCT_ConditionsSummaryToolWithoutFlagged)
     if flags.InDet.selectSCTIntimeHits :
-       if flags.Beam.BunchSpacing<=25 and flags.Beam.Type == "collisions":
+       if flags.Beam.BunchSpacing<=25 and flags.Beam.Type is BeamType.Collisions:
           InDetSCT_ClusteringTool.timeBins = "01X"
        else:
           InDetSCT_ClusteringTool.timeBins = "X1X"
@@ -265,7 +265,7 @@ def CombinedTrackingPassFlagSets(flags):
         flags = flags.cloneAndReplace("InDet.Tracking.ActivePass", "InDet.Tracking.VtxLumiPass")
     elif flags.InDet.Tracking.doVtxBeamSpot:
         flags = flags.cloneAndReplace("InDet.Tracking.ActivePass", "InDet.Tracking.VtxBeamSpotPass")
-    elif flags.Beam.Type == "cosmics":
+    elif flags.Beam.Type is BeamType.Cosmics:
         flags = flags.cloneAndReplace("InDet.Tracking.ActivePass", "InDet.Tracking.CosmicsPass")
     elif flags.Reco.EnableHI:
         flags = flags.cloneAndReplace("InDet.Tracking.ActivePass", "InDet.Tracking.HeavyIonPass")

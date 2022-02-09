@@ -2,6 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
 from BTagging.JetParticleAssociationAlgConfig import JetParticleAssociationAlgCfg
 from BTagging.JetBTaggingAlgConfig import JetBTaggingAlgCfg
 from BTagging.JetSecVertexingAlgConfig import JetSecVertexingAlgCfg
@@ -73,7 +74,7 @@ def BTagRecoSplitCfg(inputFlags, JetCollection = ['AntiKt4EMTopo','AntiKt4EMPFlo
     result=ComponentAccumulator()
 
     # Can only configure b-tagging for collisions; not cosmics, etc.
-    if inputFlags.Beam.Type != 'collisions':
+    if inputFlags.Beam.Type is not BeamType.Collisions:
         return result
 
     taggerList = inputFlags.BTagging.run2TaggersList

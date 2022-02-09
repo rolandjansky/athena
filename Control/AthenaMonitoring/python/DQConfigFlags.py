@@ -65,15 +65,16 @@ def getUseTrigger(flags):
     return hlt_exists and flags.DQ.triggerDataAvailable
 
 def getDataType(flags):
+    from AthenaConfiguration.Enums import BeamType
     if flags.Input.isMC:
         return 'monteCarlo'
     elif (False): # this is the HI test, needs HI flags
         return 'heavyioncollisions'
-    elif flags.Beam.Type == 'cosmics':
+    elif flags.Beam.Type is BeamType.Cosmics:
         return 'cosmics'
-    elif flags.Beam.Type == 'collisions':
+    elif flags.Beam.Type is BeamType.Collisions:
         return 'collisions'
-    elif flags.Beam.Type == 'singlebeam':
+    elif flags.Beam.Type is BeamType.SingleBeam:
         # historically, singlebeam treated as collisions
         return 'collisions'
     else:

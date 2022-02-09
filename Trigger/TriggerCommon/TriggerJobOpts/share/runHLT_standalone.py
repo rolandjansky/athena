@@ -163,7 +163,7 @@ else:   # athenaHLT
     if '_lb_number' in globals():
         del _lb_number  # noqa, set by athenaHLT
 
-from AthenaConfiguration.Enums import Format
+from AthenaConfiguration.Enums import BeamType, Format
 ConfigFlags.Input.Format = Format.BS if globalflags.InputFormat == 'bytestream' else Format.POOL
 
 # Load input collection list from POOL metadata
@@ -182,7 +182,8 @@ globalflags.ConditionsTag = opt.setGlobalTag or ConfigFlags.Trigger.OnlineCondTa
 ConfigFlags.IOVDb.GlobalTag = globalflags.ConditionsTag()
 
 # Other defaults
-ConfigFlags.Beam.Type = jobproperties.Beam.beamType = 'collisions'
+jobproperties.Beam.beamType = 'collisions'
+ConfigFlags.Beam.Type = BeamType(jobproperties.Beam.beamType)
 jobproperties.Beam.bunchSpacing = 25
 if not ConfigFlags.Input.isMC:
     globalflags.DatabaseInstance='CONDBR2' if opt.useCONDBR2 else 'COMP200'
@@ -542,7 +543,6 @@ CAtoGlobalWrapper(HLTConfigSvcCfg,ConfigFlags)
 # ---------------------------------------------------------------
 if hasattr(topSequence,"SGInputLoader"):
     topSequence.SGInputLoader.Load += [
-        ('TrigConf::L1BunchGroupSet','DetectorStore+L1BunchGroup'),
         ('TrigConf::L1Menu','DetectorStore+L1TriggerMenu'),
         ('TrigConf::HLTMenu','DetectorStore+HLTTriggerMenu')]
 

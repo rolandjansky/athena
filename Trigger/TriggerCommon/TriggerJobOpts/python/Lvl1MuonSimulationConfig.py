@@ -40,22 +40,14 @@ def MuonBytestream2RdoConfig(flags):
     acc = ComponentAccumulator()
     if flags.Input.isMC:
         return acc
-    from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheNames
-    MuonCacheCreator=CompFactory.MuonCacheCreator
-    cacheCreator = MuonCacheCreator(MdtCsmCacheKey = MuonCacheNames.MdtCsmCache,
-                                    CscCacheKey    = MuonCacheNames.CscCache if flags.Detector.GeometryCSC else "",
-                                    RpcCacheKey    = MuonCacheNames.RpcCache,
-                                    TgcCacheKey    = MuonCacheNames.TgcCache)
-    acc.addEventAlgo(cacheCreator)
+
     postFix = "_L1MuonSim"
-    # for MDT
-    MDTRodDecoder = CompFactory.MdtROD_Decoder(name = "MdtROD_Decoder" + postFix)
-    MuonMdtRawDataProviderTool = CompFactory.Muon.MDT_RawDataProviderToolMT(name = "MDT_RawDataProviderToolMT" + postFix,
-                                                                             CsmContainerCacheKey = MuonCacheNames.MdtCsmCache,
-                                                                             Decoder = MDTRodDecoder )
-    MdtRawDataProvider = CompFactory.Muon.MdtRawDataProvider(name = "MdtRawDataProvider" + postFix,
-                                                              ProviderTool = MuonMdtRawDataProviderTool)
-    acc.addEventAlgo(MdtRawDataProvider)
+    from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheNames
+    cacheCreator = CompFactory.MuonCacheCreator(RpcCacheKey = MuonCacheNames.RpcCache,
+                                                TgcCacheKey = MuonCacheNames.TgcCache,
+                                                MdtCsmCacheKey = MuonCacheNames.MdtCsmCache,
+                                                CscCacheKey = (MuonCacheNames.CscCache if flags.Detector.GeometryCSC else ""))
+    acc.addEventAlgo(cacheCreator)
     # for RPC
     RPCRodDecoder = CompFactory.Muon.RpcROD_Decoder(name = "RpcROD_Decoder" + postFix)
     MuonRpcRawDataProviderTool = CompFactory.Muon.RPC_RawDataProviderToolMT(name = "RPC_RawDataProviderToolMT" + postFix,
@@ -73,27 +65,34 @@ def MuonBytestream2RdoConfig(flags):
     TgcRawDataProvider = CompFactory.Muon.TgcRawDataProvider(name = "TgcRawDataProvider" + postFix,
                                                               ProviderTool = MuonTgcRawDataProviderTool)
     acc.addEventAlgo(TgcRawDataProvider)
-    # for CSC
-    if flags.Detector.GeometryCSC:
-        CSCRodDecoder = CompFactory.Muon.CscROD_Decoder(name = "CscROD_Decoder" + postFix,
-                                                        IsCosmics = False,
-                                                        IsOldCosmics = False )
-        MuonCscRawDataProviderTool = CompFactory.Muon.CSC_RawDataProviderToolMT(name = "CSC_RawDataProviderToolMT" + postFix,
-                                                                                CscContainerCacheKey = MuonCacheNames.CscCache,
-                                                                                Decoder = CSCRodDecoder )
-        CscRawDataProvider = CompFactory.Muon.CscRawDataProvider(name = "CscRawDataProvider" + postFix,
-                                                                 ProviderTool = MuonCscRawDataProviderTool)
-        acc.addEventAlgo(CscRawDataProvider)
+    if flags.Trigger.L1MuonSim.EmulateNSW and flags.Trigger.L1MuonSim.NSWVetoMode:
+        # for MDT
+        MDTRodDecoder = CompFactory.MdtROD_Decoder(name = "MdtROD_Decoder" + postFix)
+        MuonMdtRawDataProviderTool = CompFactory.Muon.MDT_RawDataProviderToolMT(name = "MDT_RawDataProviderToolMT" + postFix,
+                                                                                CsmContainerCacheKey = MuonCacheNames.MdtCsmCache,
+                                                                                Decoder = MDTRodDecoder )
+        MdtRawDataProvider = CompFactory.Muon.MdtRawDataProvider(name = "MdtRawDataProvider" + postFix,
+                                                                 ProviderTool = MuonMdtRawDataProviderTool)
+        acc.addEventAlgo(MdtRawDataProvider)
+        # for CSC
+        if flags.Detector.GeometryCSC:
+            CSCRodDecoder = CompFactory.Muon.CscROD_Decoder(name = "CscROD_Decoder" + postFix,
+                                                            IsCosmics = False,
+                                                            IsOldCosmics = False )
+            MuonCscRawDataProviderTool = CompFactory.Muon.CSC_RawDataProviderToolMT(name = "CSC_RawDataProviderToolMT" + postFix,
+                                                                                    CscContainerCacheKey = MuonCacheNames.CscCache,
+                                                                                    Decoder = CSCRodDecoder )
+            CscRawDataProvider = CompFactory.Muon.CscRawDataProvider(name = "CscRawDataProvider" + postFix,
+                                                                     ProviderTool = MuonCscRawDataProviderTool)
+            acc.addEventAlgo(CscRawDataProvider)
 
     return acc
 
-
 def MuonRdo2PrdConfig(flags):
     acc = ComponentAccumulator()
-    if not flags.Trigger.L1MuonSim.EmulateNSW:
+    if not flags.Trigger.L1MuonSim.EmulateNSW or not flags.Trigger.L1MuonSim.NSWVetoMode:
         return acc
     postFix = "_L1MuonSim"
-
     ### CSC RDO data ###
     if flags.Detector.GeometryCSC:
         CscRdoToCscPrepDataTool = CompFactory.Muon.CscRdoToCscPrepDataToolMT(name = "CscRdoToCscPrepDataToolMT" + postFix)
@@ -119,12 +118,11 @@ def MuonRdo2PrdConfig(flags):
     TgcRdoToTgcPrepData = CompFactory.TgcRdoToTgcPrepData(name = "TgcRdoToTgcPrepData" + postFix,
                                                           DecodingTool = TgcRdoToTgcPrepDataTool)
     acc.addEventAlgo(TgcRdoToTgcPrepData)
-
     return acc
 
 def RecoMuonSegmentSequence(flags):
     acc = ComponentAccumulator()
-    if not flags.Trigger.L1MuonSim.EmulateNSW:
+    if not flags.Trigger.L1MuonSim.EmulateNSW or not flags.Trigger.L1MuonSim.NSWVetoMode:
         return acc
     postFix = "_L1MuonSim"
     theMuonLayerHough = CompFactory.MuonLayerHoughAlg("MuonLayerHoughAlg" + postFix,

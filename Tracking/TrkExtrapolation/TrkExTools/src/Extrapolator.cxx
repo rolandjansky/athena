@@ -55,8 +55,6 @@
 #include <utility>
 #include <cstdint>
 
-// for debugging could implement these methods to instrument input track
-// parameters with e.g. constructor and destructor monitoring
 inline const Trk::TrackParameters*
 replaceTrkParm(const Trk::TrackParameters* base_parm)
 {
@@ -64,7 +62,7 @@ replaceTrkParm(const Trk::TrackParameters* base_parm)
 }
 
 inline void
-replaceTrkParm(std::vector<std::pair<const Trk::TrackParameters*, int>>* input)
+replaceTrkParm(std::vector<std::pair<std::unique_ptr<Trk::TrackParameters>, int>>* input)
 {
   (void)input;
 }
@@ -1839,7 +1837,7 @@ Trk::Extrapolator::extrapolateInAlignableTV(const EventContext& ctx,
         ManagedTrackParmPtr identified_parm(
           currPar); // first create a copy, to not invalidate currPar on release
         cache.m_identifiedParameters->push_back(
-          std::pair<const Trk::TrackParameters*, int>(identified_parm.release(), binIDMat->second));
+          std::pair<std::unique_ptr<Trk::TrackParameters>, int>(identified_parm.release(), binIDMat->second));
       }
     }
   }
@@ -1991,8 +1989,8 @@ Trk::Extrapolator::extrapolateInAlignableTV(const EventContext& ctx,
                   // first create a copy, to not invalidate nextPar on release
                   ManagedTrackParmPtr identified_parm(nextPar);
                   cache.m_identifiedParameters->push_back(
-                    std::pair<const Trk::TrackParameters*, int>(identified_parm.release(),
-                                                                -binIDMat->second));
+                    std::pair<std::unique_ptr<Trk::TrackParameters>, int>(identified_parm.release(),
+                                                                          -binIDMat->second));
                 }
               }
             }
@@ -4760,7 +4758,7 @@ Trk::Extrapolator::checkCache(Cache& cache, const std::string& txt) const
 
 }
 
-const std::vector<std::pair<const Trk::TrackParameters*, int>>*
+std::unique_ptr<std::vector<std::pair<std::unique_ptr<Trk::TrackParameters>, int>>>
 Trk::Extrapolator::extrapolate(const EventContext& ctx,
                                const Trk::TrackParameters& parm,
                                Trk::PropDirection dir,
@@ -4798,7 +4796,7 @@ Trk::Extrapolator::extrapolate(const EventContext& ctx,
     ATH_MSG_DEBUG("  Identified subdetector boundary crossing saved "
                   << positionOutput(subDetBounds->position()));
     ManagedTrackParmPtr nextPar(subDetBounds);
-    cache.m_identifiedParameters->push_back(std::pair<const Trk::TrackParameters*, int>(
+    cache.m_identifiedParameters->push_back(std::pair<std::unique_ptr<Trk::TrackParameters>, int>(
       subDetBounds.release(),
       cache.m_currentStatic ? cache.m_currentStatic->geometrySignature() : 0));
     if (cache.m_currentStatic && cache.m_currentStatic->geometrySignature() == destination) {
@@ -4811,7 +4809,10 @@ Trk::Extrapolator::extrapolate(const EventContext& ctx,
     subDetBounds = extrapolateToVolumeWithPathLimit(
       ctx, cache, nextPar.index(), -1., dir, particle, boundaryVol);
   }
-  return !cache.m_identifiedParameters->empty() ? cache.m_identifiedParameters.release() : nullptr;
+  if (cache.m_identifiedParameters->empty()) {
+    return nullptr;
+  }
+  return  std::move(cache.m_identifiedParameters);
 }
 
 std::unique_ptr<Trk::TrackParameters>

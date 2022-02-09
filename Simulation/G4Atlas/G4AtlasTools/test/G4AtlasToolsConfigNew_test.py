@@ -29,7 +29,6 @@ if __name__ == '__main__':
   from AthenaConfiguration.Enums import LHCPeriod
   ConfigFlags.GeoModel.Run = LHCPeriod.Run2
 
-  #ConfigFlags.Beam.Type = "cosmics"
   detectors =['BCM', 'Pixel', 'SCT', 'TRT', 'LAr']
   # Setup detector flags
   from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
