@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IdentifierSet_h
@@ -20,5 +20,8 @@ typedef std::set<Identifier> IdentifierSet;
 // Class definition for StoreGate
 #include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( IdentifierSet , 229132278 , 1 )
+
+#include "AthenaKernel/CondCont.h"
+CONDCONT_DEF( IdentifierSet, 194291172 );
 
 #endif // IdentifierSet_h

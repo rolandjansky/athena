@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -14,7 +14,8 @@
 #include "SCT_RODVetoCondAlg.h"
 
 #include "InDetIdentifier/SCT_ID.h"
-#include "StoreGate/WriteHandle.h"
+#include "StoreGate/WriteCondHandle.h"
+#include "AthenaKernel/IOVInfiniteRange.h"
 
 #include <algorithm>
 #include <ios>
@@ -29,6 +30,8 @@ StatusCode SCT_RODVetoCondAlg::initialize() {
   ATH_CHECK(m_cabling.retrieve());
   ATH_CHECK(detStore()->retrieve(m_pHelper, "SCT_ID"));
   ATH_CHECK(m_badIds.initialize());
+  ATH_CHECK(m_condSvc.retrieve());
+  ATH_CHECK(m_condSvc->regHandle(this, m_badIds));
 
   return StatusCode::SUCCESS;
 }
@@ -38,9 +41,13 @@ StatusCode SCT_RODVetoCondAlg::execute(const EventContext& ctx) const {
 
   std::vector<unsigned int> allRods;
   m_cabling->getAllRods(allRods, ctx);
-  
-  SG::WriteHandle<IdentifierSet> badIds{m_badIds, ctx};
-  ATH_CHECK(badIds.record(std::make_unique<IdentifierSet>()));
+
+  SG::WriteCondHandle<IdentifierSet> badIds{m_badIds, ctx};
+  if (badIds.isValid()) {
+    return StatusCode::SUCCESS;
+  }
+
+  std::unique_ptr<IdentifierSet> bad_id_set = std::make_unique<IdentifierSet>();
 
   for (unsigned int thisRod: m_badRODElementsInput.value()) {
     ATH_MSG_DEBUG("This rod is " << std::hex << "0x" << thisRod << std::dec);
@@ -63,12 +70,13 @@ StatusCode SCT_RODVetoCondAlg::execute(const EventContext& ctx) const {
       previousId = modId;
       if (alreadyInserted) continue;
       ATH_MSG_VERBOSE("This module Id is " << modId);
-      const bool thisInsertionOk{badIds->insert(modId).second};
+      const bool thisInsertionOk{bad_id_set->insert(modId).second};
       if (not thisInsertionOk) {
         ATH_MSG_WARNING("Insertion failed for rod " << std::hex << "0x" << thisRod << std::dec << " and module (hash,id): " << thisHash << ", " << modId);
       }
     }
   }
+  ATH_CHECK(badIds.record(IOVInfiniteRange::infiniteRunLB(),std::move(bad_id_set)) );
 
   return StatusCode::SUCCESS;
 }
