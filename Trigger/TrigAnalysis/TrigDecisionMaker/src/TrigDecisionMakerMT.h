@@ -85,7 +85,7 @@ namespace TrigDec {
     ToolHandle<ITriggerBitsMakerTool> m_bitsMakerTool{this, "BitsMakerTool", "", "Tool to create trigger bits for MC"};
 
     // Input keys configuration
-    SG::ReadHandleKey<TrigConf::L1BunchGroupSet> m_bgKey{this, "L1BunchGroup", "DetectorStore+L1BunchGroup", "L1BunchGroupSet key name"};
+    SG::ReadCondHandleKey<TrigConf::L1BunchGroupSet> m_bgKey{this, "L1BunchGroup", "L1BunchGroup", "L1BunchGroupSet key name"};
     SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey{this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu", "HLT Menu key"};
 
     SG::ReadHandleKey<HLT::HLTResultMT> m_hltResultKeyIn {this, "HLTResultMT", "HLTResultMT", "Key of the HLTResultMT object to get bits from online bytestream" };
