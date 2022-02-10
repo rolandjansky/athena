@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AnalysisUtils/ParticleBaseSelector.h"
@@ -29,8 +29,7 @@ StatusCode ParticleBaseSelector::initialize()
 
 bool ParticleBaseSelector::accept(const ParticleBaseLink& link){
   const Contained* cpart=*link;
-  Contained* part=const_cast<Contained*>(cpart);
-  return accept(part);
+  return accept(cpart);
 }
 
 bool ParticleBaseSelector::accept(const Contained* part)
