@@ -12582,6 +12582,73 @@ HLT_mu20_2mu4noL1_L1MU14FCH:
     1: 4
     2: 4
     3: 4
+HLT_mu20_bBmux_BdmuDpX_L1MU14FCH:
+  eventCount: 3
+  stepCounts:
+    0: 6
+    1: 4
+    2: 4
+    3: 4
+    4: 3
+  stepFeatures:
+    0: 7
+    1: 4
+    2: 4
+    3: 4
+    4: 4
+HLT_mu20_bBmux_BdmuDstarX_L1MU14FCH:
+  eventCount: 0
+  stepCounts:
+    0: 6
+    1: 4
+    2: 4
+    3: 4
+  stepFeatures:
+    0: 7
+    1: 4
+    2: 4
+    3: 4
+    4: 4
+HLT_mu20_bBmux_BpmuD0X_L1MU14FCH:
+  eventCount: 2
+  stepCounts:
+    0: 6
+    1: 4
+    2: 4
+    3: 4
+    4: 2
+  stepFeatures:
+    0: 7
+    1: 4
+    2: 4
+    3: 4
+    4: 4
+HLT_mu20_bBmux_BsmuDsX_L1MU14FCH:
+  eventCount: 0
+  stepCounts:
+    0: 6
+    1: 4
+    2: 4
+    3: 4
+  stepFeatures:
+    0: 7
+    1: 4
+    2: 4
+    3: 4
+    4: 4
+HLT_mu20_bBmux_LbmuLcX_L1MU14FCH:
+  eventCount: 0
+  stepCounts:
+    0: 6
+    1: 4
+    2: 4
+    3: 4
+  stepFeatures:
+    0: 7
+    1: 4
+    2: 4
+    3: 4
+    4: 4
 HLT_mu20_bJpsimutrk_MuonTrkPEB_L1MU14FCH:
   eventCount: 0
 HLT_mu20_ivarloose_tau20_mediumRNN_tracktwoMVABDT_03dRAB_L1MU14FCH:
