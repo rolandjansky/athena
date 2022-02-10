@@ -14,9 +14,12 @@ ApplicationMgr                                               0 SUCCESS          
 ApplicationMgr                                               0 SUCCESS                     LVL1::jFEXDriver/jFEXDriver
 ApplicationMgr                                               0 SUCCESS                     LVL1::gFEXDriver/gFEXDriver
 ApplicationMgr                                               0 SUCCESS                AthSequencer/AthCondSeq
+ApplicationMgr                                               0 SUCCESS                     CondInputLoader/CondInputLoader
+ApplicationMgr                                               0 SUCCESS                     LArAlignCondAlg/LArAlignCondAlg
 ApplicationMgr                                               0 SUCCESS                     CaloAlignCondAlg/CaloAlignCondAlg
 ApplicationMgr                                               0 SUCCESS                     CaloSuperCellAlignCondAlg/CaloSuperCellAlignCondAlg
-ApplicationMgr                                               0 SUCCESS                     CondInputLoader/CondInputLoader
+ApplicationMgr                                               0 SUCCESS                     AthReadAlg/AthReadAlg_SCell
+ApplicationMgr                                               0 SUCCESS                     AthReadAlg/AthReadAlg_SCellnoBCID
 ApplicationMgr                                               0 SUCCESS                     LumiBlockMuWriter/LumiBlockMuWriter
 ApplicationMgr                                               0 SUCCESS           AthSequencer/AthEndSeq
 ApplicationMgr                                               0 SUCCESS                AthIncFirerAlg/EndIncFiringAlg
