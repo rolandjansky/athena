@@ -4,7 +4,7 @@ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import Format
+from AthenaConfiguration.Enums import BeamType, Format
 from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg
 
 
@@ -22,7 +22,7 @@ def LArDigitThinnerCfg(flags, **kwargs):
 
     acc.merge(LArOnOffIdMappingCfg(flags))
 
-    if flags.Beam.Type == "cosmics":
+    if flags.Beam.Type is BeamType.Cosmics:
         kwargs.setdefault("EnergyCuts_Barrel", [1000, 500, 1000, 1000])
         kwargs.setdefault("EnergyCuts_Endcap", [1000, 500, 1000, 1000])
         kwargs.setdefault("EnergyCut_HEC", 2000)

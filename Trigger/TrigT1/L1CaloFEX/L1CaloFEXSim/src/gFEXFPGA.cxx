@@ -85,13 +85,13 @@ namespace LVL1 {
       int rows = output_gTower_energies.size();
       int cols = output_gTower_energies[0].size();
 
-      SG::ReadHandle<gTowerContainer> jk_gFEXFPGA_gTowerContainer(m_gFEXFPGA_gTowerContainerKey/*,ctx*/);
+      SG::ReadHandle<gTowerContainer> gFEXFPGA_gTowerContainer(m_gFEXFPGA_gTowerContainerKey/*,ctx*/);
 
       for (int myrow = 0; myrow<rows; myrow++){
          for (int mycol = 0; mycol<cols; mycol++){
             output_gTower_energies[myrow][mycol] = 0;
             if (m_gTowersIDs_central[myrow][mycol] == 0) continue;
-            const LVL1::gTower * tmpTower = jk_gFEXFPGA_gTowerContainer->findTower(m_gTowersIDs_central[myrow][mycol]);
+            const LVL1::gTower * tmpTower = gFEXFPGA_gTowerContainer->findTower(m_gTowersIDs_central[myrow][mycol]);
             if (tmpTower == nullptr) continue;
             output_gTower_energies[myrow][mycol] = tmpTower->getET();
 
@@ -104,13 +104,13 @@ namespace LVL1 {
       int rows = output_gTower_energies.size();
       int cols = output_gTower_energies[0].size();
 
-      SG::ReadHandle<gTowerContainer> jk_gFEXFPGA_gTowerContainer(m_gFEXFPGA_gTowerContainerKey/*,ctx*/);
+      SG::ReadHandle<gTowerContainer> gFEXFPGA_gTowerContainer(m_gFEXFPGA_gTowerContainerKey/*,ctx*/);
 
       for (int myrow = 0; myrow<rows; myrow++){
          for (int mycol = 0; mycol<cols; mycol++){
             output_gTower_energies[myrow][mycol] = 0;
             if (m_gTowersIDs_forward[myrow][mycol] == 0) continue;
-            const LVL1::gTower * tmpTower = jk_gFEXFPGA_gTowerContainer->findTower(m_gTowersIDs_forward[myrow][mycol]);
+            const LVL1::gTower * tmpTower = gFEXFPGA_gTowerContainer->findTower(m_gTowersIDs_forward[myrow][mycol]);
             if (tmpTower == nullptr) continue;
             output_gTower_energies[myrow][mycol] = tmpTower->getET();
 

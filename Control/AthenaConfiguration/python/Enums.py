@@ -24,3 +24,16 @@ class ProductionStep(FlagEnum):
     FastChain = 'FastChain'
     Digitization = 'Digitization'
     Reconstruction = 'Reconstruction'
+
+
+class LHCPeriod(FlagEnum):
+    Run1 = 'RUN1'
+    Run2 = 'RUN2'
+    Run3 = 'RUN3'
+    Run4 = 'RUN4'
+
+
+class BeamType(FlagEnum):
+    Collisions = 'collisions'
+    SingleBeam = 'singlebeam'
+    Cosmics = 'cosmics'

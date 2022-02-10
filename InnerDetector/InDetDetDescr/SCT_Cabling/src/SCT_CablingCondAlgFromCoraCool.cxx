@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**   
@@ -246,7 +246,7 @@ SCT_CablingCondAlgFromCoraCool::execute(const EventContext& ctx) const {
   // build rod-rob map, and store the crate/slot to RobId mapping
   CondAttrListVec::const_iterator rodIt{pRod->begin()};
   CondAttrListVec::const_iterator last_rod{pRod->end()};
-  typedef std::map<int, int> IntMap;
+  using IntMap = std::map<int, int>;
   IntMap slotMap;
   //there are now 16 crate slots, but they may be numbered (in the DB) as some non-monotonic sequence
   //so here we take whatever is in the database and map it onto numbers 0-15

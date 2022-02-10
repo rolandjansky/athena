@@ -1,9 +1,10 @@
 """ComponentAccumulator Geant4 tools config for ISF
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import LHCPeriod
 from ISF_Services.ISF_ServicesCoreConfigNew import GeoIDSvcCfg, AFIIGeoIDSvcCfg
 from ISF_Tools.ISF_ToolsConfigNew import EntryLayerFilterCfg
 
@@ -15,7 +16,7 @@ def EntryLayerToolCfg(flags, name="ISF_EntryLayerTool", **kwargs):
     filt = result.popToolsAndMerge(EntryLayerFilterCfg(flags))
     kwargs.setdefault("ParticleFilters", [filt])
 
-    if flags.GeoModel.Run in ['RUN1', 'RUN2', 'RUN3']:
+    if flags.GeoModel.Run in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3]:
         kwargs.setdefault("CaloEntryVolumeString", "IDET::IDET")
     else:
         kwargs.setdefault("CaloEntryVolumeString", "ITK::ITK")
@@ -36,7 +37,7 @@ def EntryLayerToolMTCfg(flags, name="ISF_EntryLayerToolMT", **kwargs):
     filt = result.popToolsAndMerge(EntryLayerFilterCfg(flags))
     kwargs.setdefault("ParticleFilters", [filt])
 
-    if flags.GeoModel.Run in ['RUN1', 'RUN2', 'RUN3']:
+    if flags.GeoModel.Run in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3]:
         kwargs.setdefault("CaloEntryVolumeString", "IDET::IDET")
     else:
         kwargs.setdefault("CaloEntryVolumeString", "ITK::ITK")
@@ -57,7 +58,7 @@ def AFIIEntryLayerToolCfg(flags, name="ISF_AFIIEntryLayerTool", **kwargs):
     filt = result.popToolsAndMerge(EntryLayerFilterCfg(flags))
     kwargs.setdefault("ParticleFilters", [filt])
 
-    if flags.GeoModel.Run in ['RUN1', 'RUN2', 'RUN3']:
+    if flags.GeoModel.Run in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3]:
         kwargs.setdefault("CaloEntryVolumeString", "IDET::IDET")
     else:
         kwargs.setdefault("CaloEntryVolumeString", "ITK::ITK")
@@ -78,7 +79,7 @@ def AFIIEntryLayerToolMTCfg(flags, name="ISF_AFIIEntryLayerToolMT", **kwargs):
     filt = result.popToolsAndMerge(EntryLayerFilterCfg(flags))
     kwargs.setdefault("ParticleFilters", [filt])
 
-    if flags.GeoModel.Run in ['RUN1', 'RUN2', 'RUN3']:
+    if flags.GeoModel.Run in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3]:
         kwargs.setdefault("CaloEntryVolumeString", "IDET::IDET")
     else:
         kwargs.setdefault("CaloEntryVolumeString", "ITK::ITK")

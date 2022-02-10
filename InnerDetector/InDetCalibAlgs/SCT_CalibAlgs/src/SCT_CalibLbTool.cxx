@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -221,7 +221,7 @@ SCT_CalibLbTool::fillFromData() {
    m_numberOfEventsHisto->Fill(m_lumiBlock);
    bool result{true};
    //--- Retrieve the RDO container
-   typedef SCT_RDORawData SCTRawDataType;
+   using SCTRawDataType = SCT_RDORawData;
    SG::ReadHandle<SCT_RDO_Container> p_rdoContainer{m_rdoContainerKey};
    if (not p_rdoContainer.isValid()) {
       ATH_MSG_ERROR("Failed to retrieve SCT RDO container");

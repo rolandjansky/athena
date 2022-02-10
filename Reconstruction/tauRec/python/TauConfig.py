@@ -1,7 +1,9 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
+
 
 def TauBuildAlgCfg(flags):
 
@@ -33,8 +35,8 @@ def TauBuildAlgCfg(flags):
     tools.append( result.popToolsAndMerge(tauTools.TauClusterFinderCfg(flags)) )
     tools.append( result.popToolsAndMerge(tauTools.TauVertexedClusterDecoratorCfg(flags)) )
 
-    if (flags.Beam.Type != "cosmics"):
-        if (flags.Tau.doRNNTrackClass):
+    if flags.Beam.Type is not BeamType.Cosmics:
+        if flags.Tau.doRNNTrackClass:
             tools.append( result.popToolsAndMerge(tauTools.TauTrackRNNClassifierCfg(flags)) )
         tools.append( result.popToolsAndMerge(tauTools.EnergyCalibrationLCCfg(flags)) )
 
@@ -137,7 +139,7 @@ def TauRunnerAlgCfg(flags):
         # tools.append( result.popToolsAndMerge(tauTools.PanTauCfg(flags)) )
 
     # these tools need pantau info
-    if (flags.Beam.Type != "cosmics"):
+    if flags.Beam.Type is not BeamType.Cosmics:
         tools.append( result.popToolsAndMerge(tauTools.MvaTESVariableDecoratorCfg(flags)) )
         tools.append( result.popToolsAndMerge(tauTools.MvaTESEvaluatorCfg(flags)) )
 

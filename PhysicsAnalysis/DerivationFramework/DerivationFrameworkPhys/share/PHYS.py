@@ -220,8 +220,12 @@ PHYSSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.T
                                       "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht.ex.ey"]
 
 # Add trigger matching
+# Run 2
 PhysCommonTrigger.trigmatching_helper_notau.add_to_slimming(PHYSSlimmingHelper)
 PhysCommonTrigger.trigmatching_helper_tau.add_to_slimming(PHYSSlimmingHelper)
+# Run 3
+from TrigNavSlimmingMT.TrigNavSlimmingMTConfig import AddRun3TrigNavSlimmingCollectionsToEDM
+AddRun3TrigNavSlimmingCollectionsToEDM(PHYSStream)
 
 # Final construction of output stream
 PHYSSlimmingHelper.AppendContentToStream(PHYSStream)

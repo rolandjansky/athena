@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //  StringUtils.h
@@ -74,7 +74,7 @@ namespace TCS {
       return ss.str();
    }
 
-   std::string join(const std::vector<std::string> v, const char c=',');
+   std::string join(const std::vector<std::string>& v, const char c=',');
   
 } // end of namespace TCS
 

@@ -181,17 +181,6 @@ private:
     const BoundaryCheck& boundaryCheck = true,
     ParticleHypothesis particleHypothesis = nonInteracting) const;
 
-  /** Extrapolation to consider material effects assuming all material on active
-   * sensor elements - CTB method */
-  Trk::MultiComponentState extrapolateSurfaceBasedMaterialEffects(
-    const EventContext& ctx,
-    const IPropagator&,
-    const MultiComponentState&,
-    const Surface&,
-    PropDirection direction = anyDirection,
-    const BoundaryCheck& boundaryCheck = true,
-    ParticleHypothesis particleHypothesis = nonInteracting) const;
-
   /** Method to initialise navigation parameters including starting state, layer
    * and volume, and destination volume */
   void initialiseNavigation(

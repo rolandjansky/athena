@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTruthVertexValidation/InDetVertexTruthMatchTool.h"
@@ -113,13 +113,13 @@ size_t indexOfMatchInfo( std::vector<VertexTruthMatchInfo> & matches, ElementLin
       return i;
   }
   // This is the first time we've seen this truth vertex, so make a new entry
-  matches.push_back(  std::make_tuple( link, 0., 0. ) );
+  matches.emplace_back( link, 0., 0. );
   return matches.size() - 1;
 }
 
 
 //for sorting the container -> highest relative match weight first
-bool compareMatchPair(const VertexTruthMatchInfo a, const VertexTruthMatchInfo b ) { return std::get<1>(a) > std::get<1>(b); }
+bool compareMatchPair(const VertexTruthMatchInfo& a, const VertexTruthMatchInfo& b ) { return std::get<1>(a) > std::get<1>(b); }
 
 }
 
@@ -137,7 +137,7 @@ InDetVertexTruthMatchTool::findTrackParticleContainer( const xAOD::VertexContain
       }
     }
   }
-  return 0;
+  return nullptr;
 }
 
 StatusCode InDetVertexTruthMatchTool::matchVertices( const xAOD::VertexContainer & vxContainer ) const {
@@ -239,9 +239,9 @@ StatusCode InDetVertexTruthMatchTool::matchVertices( const xAOD::VertexContainer
     if (!trkAcc.isAvailable(*vxit) || !weightAcc.isAvailable(*vxit) ) {
       ATH_MSG_DEBUG("trackParticles or trackWeights not available, setting fake");
       // Add invalid link for fakes
-      matchinfo.push_back( std::make_tuple( ElementLink<xAOD::TruthEventBaseContainer>(), 1., 0. ) );
+      matchinfo.emplace_back( ElementLink<xAOD::TruthEventBaseContainer>(), 1., 0. );
       matchInfoDecor( *vxit ) = matchinfo;
-      rawMatchinfo.push_back( std::make_tuple( ElementLink<xAOD::TruthEventBaseContainer>(), 1., 0. ) );
+      rawMatchinfo.emplace_back( ElementLink<xAOD::TruthEventBaseContainer>(), 1., 0. );
       rawMatchInfoDecor( *vxit ) = rawMatchinfo;
       nHSTrkDecor( *vxit ) = 0;
       continue;
@@ -255,9 +255,9 @@ StatusCode InDetVertexTruthMatchTool::matchVertices( const xAOD::VertexContainer
     //double check
     if ( trkWeights.size() != ntracks ) {
       ATH_MSG_DEBUG("Vertex without same number of tracks and trackWeights, setting fake");
-      matchinfo.push_back( std::make_tuple( ElementLink<xAOD::TruthEventBaseContainer>(), 1., 0. ) );
+      matchinfo.emplace_back( ElementLink<xAOD::TruthEventBaseContainer>(), 1., 0. );
       matchInfoDecor( *vxit ) = matchinfo;
-      rawMatchinfo.push_back( std::make_tuple( ElementLink<xAOD::TruthEventBaseContainer>(), 1., 0. ) );
+      rawMatchinfo.emplace_back( ElementLink<xAOD::TruthEventBaseContainer>(), 1., 0. );
       rawMatchInfoDecor( *vxit ) = rawMatchinfo;
       nHSTrkDecor( *vxit ) = 0;
       continue;
@@ -328,8 +328,8 @@ StatusCode InDetVertexTruthMatchTool::matchVertices( const xAOD::VertexContainer
     }
     if ( totalFake > 0. )
     {
-      matchinfo.push_back( std::make_tuple( ElementLink<xAOD::TruthEventBaseContainer>(), totalFake, 0. ) );
-      rawMatchinfo.push_back( std::make_tuple( ElementLink<xAOD::TruthEventBaseContainer>(), totalFake, 0. ) );
+      matchinfo.emplace_back( ElementLink<xAOD::TruthEventBaseContainer>(), totalFake, 0. );
+      rawMatchinfo.emplace_back( ElementLink<xAOD::TruthEventBaseContainer>(), totalFake, 0. );
     }
 
     for ( auto & mit : matchinfo ) {
@@ -379,12 +379,12 @@ StatusCode InDetVertexTruthMatchTool::matchVertices( const xAOD::VertexContainer
         if (matchTypeDecor( *vxContainer[j] ) == FAKE || matchTypeDecor( *vxContainer[j] ) == DUMMY) continue;
         if (info2.size() > 0 && std::get<0>(info2[0]).isValid() && std::get<0>(info[0]).key() == std::get<0>(info2[0]).key() && std::get<0>(info[0]).index() == std::get<0>(info2[0]).index() ) {
           //add split links; first between first one found and newest one
-          splitPartnerDecor( *vxContainer[i] ).push_back( ElementLink<xAOD::VertexContainer>( vxContainer, j ) );
-          splitPartnerDecor( *vxContainer[j] ).push_back( ElementLink<xAOD::VertexContainer>( vxContainer, i ) );
+          splitPartnerDecor( *vxContainer[i] ).emplace_back( vxContainer, j );
+          splitPartnerDecor( *vxContainer[j] ).emplace_back( vxContainer, i );
           //then between any others we found along the way
           for ( auto k : foundSplits ) { //k is a size_t in the vector of splits
-            splitPartnerDecor( *vxContainer[k] ).push_back( ElementLink<xAOD::VertexContainer>( vxContainer, j ) );
-            splitPartnerDecor( *vxContainer[j] ).push_back( ElementLink<xAOD::VertexContainer>( vxContainer, k ) );
+            splitPartnerDecor( *vxContainer[k] ).emplace_back( vxContainer, j );
+            splitPartnerDecor( *vxContainer[j] ).emplace_back( vxContainer, k );
           }
           //then keep track that we found this one
           foundSplits.push_back(j);

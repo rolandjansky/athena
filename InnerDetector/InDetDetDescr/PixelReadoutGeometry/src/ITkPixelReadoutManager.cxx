@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ITkPixelReadoutManager.h"
@@ -119,7 +119,7 @@ Identifier PixelReadoutManager::getPixelId(Identifier offlineId,
   const PixelModuleDesign *p_design = static_cast<const PixelModuleDesign *>(&element->design());
   if (p_design->getReadoutTechnology() != PixelReadoutTechnology::RD53) {
     ATH_MSG_ERROR("Non-RD53 readout technologies not supported!");
-    return Identifier();
+    return {};
   }
 
   unsigned int FEs = p_design->numberOfCircuits();
@@ -133,7 +133,7 @@ Identifier PixelReadoutManager::getPixelId(Identifier offlineId,
   if (row >= rowsPerFE || column >= columnsPerFE || FE >= FEs) {
     ATH_MSG_DEBUG("Illegal pixel requested OfflineID: " << std::hex << offlineId << std::dec << " FE: " << FE << " row: " << row << " column: " << column);
     ATH_MSG_DEBUG("Limits are: FE < " << FEs << ", row < " << rowsPerFE << ", column < " << columnsPerFE);
-    return Identifier(); // illegal Identifier, standardized for PixelRodDecoder
+    return {}; // illegal Identifier, standardized for PixelRodDecoder
   }
 
   // ---------------------

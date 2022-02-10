@@ -11,3 +11,7 @@ atlas_add_citest( DuplicateClass
 atlas_add_citest( G4ExHive
    SCRIPT athena.py --threads=4 --evtMax=50 G4AtlasApps/jobOptions.G4AtlasMT.py
    PROPERTIES PROCESSORS 4 )
+
+atlas_add_citest( SimulationRun2FullSim
+   SCRIPT RunWorkflowTests_Run2.py --CI -s -w FullSim -e '--maxEvents 10'
+   LOG_IGNORE_PATTERN "WARNING FPE INVALID" )  # ignore FPEs from Geant4

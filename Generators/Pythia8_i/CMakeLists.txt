@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( Pythia8_i )
@@ -47,6 +47,13 @@ atlas_add_library( Pythia8_iLib
                    src/UserHooks/suep_shower.cxx
                    src/UserHooks/main31.cxx
                    src/UserHooks/EnhanceSplittings.cxx
+                   src/UserHooks/EnhanceTest.cxx
+                   src/UserHooks/SettableColourReconnection.cxx
+                   src/UserHooks/PowhegV_EW.cxx
+                   src/UserHooks/PowhegBB4L.cxx
+                   src/UserHooks/PowhegBB4Ltms.cxx
+                   src/UserHooks/TopRecoilHook.cxx
+
                    src/UserResonances/ResonanceExcitedCI.cxx
                    src/UserResonances/ResonanceLQ.cxx  
                    src/Pythia8Custom/CheckForFinalPartons.cxx

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCTRawContByteStreamTool.h"
@@ -97,7 +97,7 @@ StatusCode SCTRawContByteStreamTool::convert(const SCT_RDO_Container* sctRDOCont
   }  // End loop over collections
 
   // Now encode data for each ROD in turn
-  for (auto rodToRDOs : rdoMap) {
+  for (const auto& rodToRDOs : rdoMap) {
     rod = fullEventAssembler->getRodData(rodToRDOs.first); // Get ROD data address
     m_encoder->fillROD(*rod, rodToRDOs.first, rodToRDOs.second); // Encode ROD data
   }

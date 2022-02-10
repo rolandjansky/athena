@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_DetectorTool.h"
@@ -40,8 +40,8 @@ TRT_DetectorTool::TRT_DetectorTool( const std::string& type, const std::string& 
     m_doArgonMixture(1),
     m_doKryptonMixture(1),
     m_useDynamicAlignFolders(false),
-    m_manager(0),
-    m_athenaComps(0)
+    m_manager(nullptr),
+    m_athenaComps(nullptr)
 {
   declareProperty("UseOldActiveGasMixture", m_useOldActiveGasMixture = false );
   declareProperty("DC2CompatibleBarrelCoordinates",  m_DC2CompatibleBarrelCoordinates = false );
@@ -105,7 +105,7 @@ StatusCode TRT_DetectorTool::create()
   //
   if (sqliteReader) {
 
-    if ( 0 == m_detector ) {
+    if ( nullptr == m_detector ) {
 
       // Retrieve the Geometry DB Interface                                                                                                                                                                                                                                                                      
       ATH_CHECK( m_geometryDBSvc.retrieve() );
@@ -250,7 +250,7 @@ StatusCode TRT_DetectorTool::create()
     m_athenaComps->setGeometryDBSvc(&*m_geometryDBSvc);
     
     
-    if ( 0 == m_detector ) {
+    if ( nullptr == m_detector ) {
       
       ATH_MSG_INFO( " Building TRT geometry from GeoModel factory TRTDetectorFactory_Full" );
       
@@ -385,7 +385,7 @@ StatusCode TRT_DetectorTool::clear()
   SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<InDetDD::TRT_DetectorManager>::ID(),m_manager->getName());
   if(proxy) {
     proxy->reset();
-    m_manager = 0;
+    m_manager = nullptr;
   }
   return StatusCode::SUCCESS;
 }

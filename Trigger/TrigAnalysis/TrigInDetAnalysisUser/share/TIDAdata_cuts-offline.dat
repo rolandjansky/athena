@@ -25,6 +25,9 @@ eta    = 2.5;
 #if defined(COSMIC)
    npix=-1;
    nsct=1; 
+#elif defined(LRT) || defined(FSLRT)
+   npix=-1;
+   nsct= 2;
 #else 
    npix   = 1;
    nsct   = 2;

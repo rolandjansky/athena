@@ -4,6 +4,8 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
+
 
 def MuonEDMPrinterTool(flags, name="MuonEDMPrinterTool", **kwargs):
     kwargs.setdefault('TgcPrdCollection', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
@@ -44,7 +46,7 @@ def MuonSeededSegmentFinderCfg(flags,name="MuonSeededSegmentFinder", **kwargs):
     if "SegmentMaker" not in kwargs or "SegmentMakerNoHoles" not in kwargs:
         seg_maker=""
         acc={}
-        if flags.Beam.Type == 'collisions':
+        if flags.Beam.Type is BeamType.Collisions:
             acc = DCMathSegmentMakerCfg( flags, name = "MCTBDCMathSegmentMaker", MdtSegmentFinder = mdt_segment_finder, SinAngleCut = 0.04, DoGeometry = True)
         else:  # cosmics or singlebeam
             acc = DCMathSegmentMakerCfg( flags, name = "MCTBDCMathSegmentMaker", MdtSegmentFinder = mdt_segment_finder, SinAngleCut = 0.1,  DoGeometry = False, AddUnassociatedPhiHits= True )
@@ -302,7 +304,7 @@ def MuonPhiHitSelector(flags, name="MuonPhiHitSelector",**kwargs):
     MuonPhiHitSelector=CompFactory.MuonPhiHitSelector
     kwargs.setdefault("MakeClusters", True)
     kwargs.setdefault("CompetingRios", True)
-    kwargs.setdefault("DoCosmics", flags.Beam.Type == 'cosmics')
+    kwargs.setdefault("DoCosmics", flags.Beam.Type is BeamType.Cosmics)
 
     return MuonPhiHitSelector(name,**kwargs)
 
@@ -334,7 +336,7 @@ def MuonTrackExtrapolationToolCfg(flags, name="MuonTrackExtrapolationTool", **kw
     geom_cond_key = acc.getPrimary().TrackingGeometryWriteKey
     result.merge(acc)
     kwargs.setdefault("TrackingGeometryReadKey", geom_cond_key)
-    kwargs.setdefault("Cosmics", flags.Beam.Type == 'cosmics')
+    kwargs.setdefault("Cosmics", flags.Beam.Type is BeamType.Cosmics)
 
     kwargs.setdefault("AtlasExtrapolator", result.popToolsAndMerge( AtlasExtrapolatorCfg(flags) ) )
     kwargs.setdefault("MuonExtrapolator",  result.popToolsAndMerge( MuonExtrapolatorCfg(flags) ) )

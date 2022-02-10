@@ -166,7 +166,8 @@ if __name__=='__main__':
    ConfigFlags.Input.isMC = False
    ConfigFlags.DQ.useTrigger = False
    ConfigFlags.LAr.doAlign=False
-   ConfigFlags.Beam.Type = 'collisions'
+   from AthenaConfiguration.Enums import BeamType
+   ConfigFlags.Beam.Type = BeamType.Collisions
    ConfigFlags.DQ.DataType = 'collisions'
    ConfigFlags.GeoModel.AtlasVersion = 'ATLAS-R2-2016-01-00-01'
    ConfigFlags.Detector.GeometryCSC=False

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@ SiChargedDiodeCollection::~SiChargedDiodeCollection()
 
 // Clean up the collection
 void SiChargedDiodeCollection::clear() {
-  m_sielement = 0;
+  m_sielement = nullptr;
   m_chargedDiodes.erase(m_chargedDiodes.begin(), m_chargedDiodes.end() );
   m_orderedChargedDiodes.clear();
 }
@@ -69,7 +69,7 @@ SiChargedDiode * SiChargedDiodeCollection::find(const InDetDD::SiCellId & siId) 
   // get the compact Id to access the map
   SiChargedDiodeIterator theEl = m_chargedDiodes.find(siId);
   // if the diode exists return a pointer to it:
-  if (theEl == m_chargedDiodes.end() ) return NULL;
+  if (theEl == m_chargedDiodes.end() ) return nullptr;
   else return &( (*theEl).second);
 }		      
 

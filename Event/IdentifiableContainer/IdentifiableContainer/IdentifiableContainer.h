@@ -36,11 +36,11 @@ namespace IdCont {
         /// corresponding ranges of objects in the container
         /// @note The map has to be built as soon as the container is complete.
         /// If changes in the container happen the ranges may be invalidated.
-        IdentifiableContainer(const container_t* values,
+        IdentifiableContainer(const container_t& values,
                               std::function<identifier_t(const value_t&)> mapper) {
             std::optional<identifier_t> prev = std::nullopt;
-            Iterator groupStart = values->begin();
-            for (Iterator it = values->begin(); it != values->end(); ++it) {
+            Iterator groupStart = values.begin();
+            for (Iterator it = values.begin(); it != values.end(); ++it) {
                 identifier_t id = mapper(**it);
                 if (prev && (*prev) != id) {
                     m_ranges[*prev].emplace_back(groupStart, it);
@@ -48,7 +48,8 @@ namespace IdCont {
                 }
                 prev = id;
             }
-            m_ranges[*prev].emplace_back(groupStart, values->end());
+            if (prev)
+                m_ranges[*prev].emplace_back(groupStart, values.end());
         }
 
         /// Default destructor
@@ -62,8 +63,9 @@ namespace IdCont {
         /// the list of ranges from the map.
         /// @note the identifier must be contained in the map.
         /// Check if it is present first with isIdentifierPresent.
-        boost::container::small_vector<Range, inline_size> rangesForIdentifierDirect(const identifier_t& identifier) const {
-            return m_ranges.at(identifier);
+        const boost::container::small_vector<Range, inline_size> rangesForIdentifierDirect(const identifier_t& identifier) const {
+            boost::container::small_vector<Range, inline_size> rangesForId = m_ranges.at(identifier);
+            return rangesForId;
         }
 
         /// Function to verify if  a given identifier is present in the map,
@@ -73,11 +75,6 @@ namespace IdCont {
             if (m_ranges.find(identifier) == m_ranges.end())
                 return false;
             return true;
-        }
-
-        /// Function to return the list of ranges for all identifiers in the imput container.
-        std::unordered_map<identifier_t, boost::container::small_vector<Range, inline_size>> allRanges() const {
-            return m_ranges;
         }
 
     private:

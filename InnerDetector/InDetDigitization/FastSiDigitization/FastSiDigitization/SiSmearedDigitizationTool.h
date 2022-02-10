@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -99,7 +99,7 @@ public:
     ClusterInfo calculateNewCluster(CLUSTER * clusterA, CLUSTER * clusterB);
 
   template<typename CLUSTER>
-    StatusCode FillTruthMap(PRD_MultiTruthCollection*, CLUSTER*, TimedHitPtr<SiHit>);
+    StatusCode FillTruthMap(PRD_MultiTruthCollection*, CLUSTER*, const TimedHitPtr<SiHit>&);
 
  private:
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -113,7 +113,7 @@ StatusCode TRTCalibrator::initialize()
 {
   msg(MSG::INFO) << "initialize()" << endmsg;
   
-  m_trtmanager=0; 
+  m_trtmanager=nullptr; 
   
   if ((detStore()->retrieve(m_DetID,"AtlasID")).isFailure()) {
     msg(MSG::FATAL) << "Problem retrieving ATLASDetectorID helper" << endmsg;
@@ -175,20 +175,20 @@ StatusCode TRTCalibrator::initialize()
   m_config["all"].selections["Board"].insert(CALIB_NONE);
   m_config["all"].selections["Chip"].insert(CALIB_NONE);
   m_config["all"].selections["Straw"].insert(CALIB_NONE);
-  m_config["all"].CalibrateRt.push_back("TRT") ; //only calibrate R-t and T0 on TRT level
-  m_config["all"].CalibrateT0.push_back("TRT") ;
-  m_config["all"].PrintLog.push_back("TRT") ;
-  m_config["all"].PrintT0Out.push_back("TRT") ;
-  m_config["all"].PrintRtOut.push_back("TRT") ;
+  m_config["all"].CalibrateRt.emplace_back("TRT") ; //only calibrate R-t and T0 on TRT level
+  m_config["all"].CalibrateT0.emplace_back("TRT") ;
+  m_config["all"].PrintLog.emplace_back("TRT") ;
+  m_config["all"].PrintT0Out.emplace_back("TRT") ;
+  m_config["all"].PrintRtOut.emplace_back("TRT") ;
 
   //common for all barrel/ec
-  m_config["subdet"].CalibrateRt.push_back("TRT") ;  //calibrate R-t and T0 on TRT and barrel/ec level
-  m_config["subdet"].CalibrateRt.push_back("Detector") ;
+  m_config["subdet"].CalibrateRt.emplace_back("TRT") ;  //calibrate R-t and T0 on TRT and barrel/ec level
+  m_config["subdet"].CalibrateRt.emplace_back("Detector") ;
   m_config["subdet"].CalibrateT0=m_config["subdet"].CalibrateRt;
-  m_config["subdet"].NoHistograms.push_back("TRT") ; //don't write root histogram on TRT level
+  m_config["subdet"].NoHistograms.emplace_back("TRT") ; //don't write root histogram on TRT level
   m_config["subdet"].PrintLog=m_config["subdet"].CalibrateRt;
-  m_config["subdet"].PrintT0Out.push_back("Detector") ;
-  m_config["subdet"].PrintRtOut.push_back("Detector") ;
+  m_config["subdet"].PrintT0Out.emplace_back("Detector") ;
+  m_config["subdet"].PrintRtOut.emplace_back("Detector") ;
 
   //individual barrel/ec
   m_config["1"]=m_config["subdet"];
@@ -207,27 +207,27 @@ StatusCode TRTCalibrator::initialize()
   m_config["-1"].selections["Straw"].insert(CALIB_NONE);
 
   //common for all layers
-  m_config["layer"].CalibrateRt.push_back("TRT") ;  //calibrate R-t and T0 on all levels (except Straw level)
-  m_config["layer"].CalibrateRt.push_back("Detector") ;
-  m_config["layer"].CalibrateRt.push_back("Layer") ;
-  m_config["layer"].CalibrateRt.push_back("Module") ;
-  m_config["layer"].CalibrateRt.push_back("Board") ;
-  m_config["layer"].CalibrateRt.push_back("Chip") ;
+  m_config["layer"].CalibrateRt.emplace_back("TRT") ;  //calibrate R-t and T0 on all levels (except Straw level)
+  m_config["layer"].CalibrateRt.emplace_back("Detector") ;
+  m_config["layer"].CalibrateRt.emplace_back("Layer") ;
+  m_config["layer"].CalibrateRt.emplace_back("Module") ;
+  m_config["layer"].CalibrateRt.emplace_back("Board") ;
+  m_config["layer"].CalibrateRt.emplace_back("Chip") ;
   m_config["layer"].CalibrateT0=m_config["layer"].CalibrateRt;
-  m_config["layer"].NoHistograms.push_back("TRT") ; //don't write root histogram on TRT, barrel/ec, straw level
-  m_config["layer"].NoHistograms.push_back("Detector") ;
-  m_config["layer"].NoHistograms.push_back("Straw") ;
+  m_config["layer"].NoHistograms.emplace_back("TRT") ; //don't write root histogram on TRT, barrel/ec, straw level
+  m_config["layer"].NoHistograms.emplace_back("Detector") ;
+  m_config["layer"].NoHistograms.emplace_back("Straw") ;
   m_config["layer"].PrintLog=m_config["layer"].CalibrateRt;
-  m_config["layer"].PrintT0Out.push_back("Layer") ;
-  m_config["layer"].PrintT0Out.push_back("Module") ;
-  m_config["layer"].PrintT0Out.push_back("Board") ;
-  m_config["layer"].PrintT0Out.push_back("Chip") ;
-  m_config["layer"].PrintT0Out.push_back("Straw") ; //print txt output for each straw
-  m_config["layer"].PrintRtOut.push_back("Layer") ;
-  m_config["layer"].PrintRtOut.push_back("Module") ;
-  m_config["layer"].PrintRtOut.push_back("Board") ;
-  m_config["layer"].PrintRtOut.push_back("Chip") ;
-  m_config["layer"].PrintRtOut.push_back("Straw") ; //print txt output for each straw
+  m_config["layer"].PrintT0Out.emplace_back("Layer") ;
+  m_config["layer"].PrintT0Out.emplace_back("Module") ;
+  m_config["layer"].PrintT0Out.emplace_back("Board") ;
+  m_config["layer"].PrintT0Out.emplace_back("Chip") ;
+  m_config["layer"].PrintT0Out.emplace_back("Straw") ; //print txt output for each straw
+  m_config["layer"].PrintRtOut.emplace_back("Layer") ;
+  m_config["layer"].PrintRtOut.emplace_back("Module") ;
+  m_config["layer"].PrintRtOut.emplace_back("Board") ;
+  m_config["layer"].PrintRtOut.emplace_back("Chip") ;
+  m_config["layer"].PrintRtOut.emplace_back("Straw") ; //print txt output for each straw
 
   //individual layers
   m_config["1_0"]=m_config["layer"];
@@ -883,7 +883,7 @@ bool TRTCalibrator::calibrate ATLAS_NOT_THREAD_SAFE () {
           hitdata.res=r-rtrack; 
           //hitdata.t=t-t0+averageT0-20.0; 
           hitdata.t=t-t0; 
-          hitdata.r=fabs(rtrack);
+          hitdata.r=std::abs(rtrack);
           hitdata.t0=m_trtcaldbTool->getT0(ident);
           hitdata.rt0=reft0map[std::string(Form("_%i_%i_%i",hitdata.det,hitdata.brd,hitdata.chp))];
           hitdata.x=(strawelement->center(ident)).x();

@@ -37,8 +37,10 @@ def PFFullCfg(inputFlags,**kwargs):
     result = tempCA
 
     from OutputStreamAthenaPool.OutputStreamConfig import addToAOD, addToESD
-    #PFlow requires electrons, photons, muons and taus in order to have valid links to them. So lets add these objects to the AOD and ESD                                            
-    toESDAndAOD = [f"xAOD::ElectronContainer#Electrons",f"xAOD::ElectronAuxContainer#ElectronsAux."]
+    #PFlow requires tracks, electrons, photons, muons and taus in order to have valid links to them. So lets add these objects to the AOD and ESD                                            
+    #PFlow also requires calo clusters for links to work, but these are added to output streams elsewhere already
+    toESDAndAOD = [f"xAOD::TrackParticleContainer#InDetTrackParticles",f"xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux."]
+    toESDAndAOD += [f"xAOD::ElectronContainer#Electrons",f"xAOD::ElectronAuxContainer#ElectronsAux."]
     toESDAndAOD += [f"xAOD::PhotonContainer#Photons",f"xAOD::PhotonAuxContainer#PhotonsAux."]
     toESDAndAOD += [f"xAOD::MuonContainer#Muons",f"xAOD::MuonAuxContainer#MuonsAux."]
     toESDAndAOD += [f"xAOD::TauJetContainer#TauJets",f"xAOD::TauJetAuxContainer#TauJetsAux."]

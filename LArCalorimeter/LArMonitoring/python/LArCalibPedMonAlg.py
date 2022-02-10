@@ -151,11 +151,13 @@ if __name__=='__main__':
        "/eos/atlas/atlastier0/rucio/data21_calib/calibration_LArElec-Pedestal-32s-High-All/00404637/data21_calib.00404637.calibration_LArElec-Pedestal-32s-High-All.daq.RAW/data21_calib.00404637.calibration_LArElec-Pedestal-32s-High-All.daq.RAW._lb0000._SFO-3._0001.data",
        "/eos/atlas/atlastier0/rucio/data21_calib/calibration_LArElec-Pedestal-32s-High-All/00404637/data21_calib.00404637.calibration_LArElec-Pedestal-32s-High-All.daq.RAW/data21_calib.00404637.calibration_LArElec-Pedestal-32s-High-All.daq.RAW._lb0000._SFO-4._0001.data"]
    ConfigFlags.Output.HISTFileName = 'LArCalibPedMonOutput_'+run+'.root'
+      
    ConfigFlags.DQ.enableLumiAccess = False
    ConfigFlags.Input.isMC = False
    ConfigFlags.DQ.useTrigger = False
    ConfigFlags.LAr.doAlign=False
-   ConfigFlags.Beam.Type = 'collisions'
+   from AthenaConfiguration.Enums import BeamType
+   ConfigFlags.Beam.Type = BeamType.Collisions
    ConfigFlags.DQ.DataType = 'collisions'
    ConfigFlags.GeoModel.AtlasVersion = 'ATLAS-R2-2016-01-00-01'
    ConfigFlags.Detector.GeometryCSC=False

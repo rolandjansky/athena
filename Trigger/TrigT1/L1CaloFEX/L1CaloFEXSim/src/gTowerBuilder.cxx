@@ -47,18 +47,17 @@ void gTowerBuilder::execute(std::unique_ptr<gTowerContainer> & gTowerContainerRa
   BuildAllTowers(gTowerContainerRaw);
 }
 
-  // TOWER IDs FOR CLARITY
+  // TOWER IDs FOR CLARITY (updated Jan 21, 2022)
   // EM Calorimeter
   // EMB region (gFEX Eta [0.0, 1.4])= 100000 + X (left); 200000 + X (right)
   // EMB/EMEC region (gFEX Eta [1.4, 1.6])= 300000 + X (left); 400000 + X (right)
-  // EMEC region (gFEX Eta [1.6, 2.8])= 500000 + X (left); 600000 + X (right)
-  // EMEC/FCAL region (gFEX Eta [2.8-3.2])= 700000 + X (left); 800000 + X (right)
+  // EMEC region (gFEX Eta [1.6, 3.2])= 500000 + X (left); 600000 + X (right) (no overlap with FCAL)
   // FCAL region (gFEX Eta [3.2, 4.9])= 900000 + X (left); 1000000 + X (right)
   // HAD Calorimeter
   // Tile region (gFEX Eta [0.0, 1.4])= 100000 + X (left); 200000 + X (right)
   // Tile/HEC region (gFEX Eta [1.4, 1.6])= 300000 + X (left); 400000 + X (right)
-  // HEC region (gFEX Eta [1.6, 2.8])= 500000 + X (left); 600000 + X (right) (32 phi bins)
-  // HEC region (gFEX Eta [2.8-3.2])= 700000 + X (left); 800000 + X (right)  (16 phi bins)
+  // HEC region (gFEX Eta [1.6, 3.2])= 500000 + X (left); 600000 + X (right) (32 phi bins)
+ 
 
 
  void gTowerBuilder::BuildEMBgTowers(std::unique_ptr<gTowerContainer> & gTowerContainerRaw) const
@@ -93,7 +92,7 @@ void gTowerBuilder::BuildTransEMBgTowers(std::unique_ptr<gTowerContainer> & gTow
 
 void gTowerBuilder::BuildEMEgTowers(std::unique_ptr<gTowerContainer> & gTowerContainerRaw) const
 {
-  // This is pure EMEC region (for gFEX: Eta Range 1.6-2.8)
+  // This is pure EMEC region (for gFEX: Eta Range 1.6-3.3)
   int EME_MODIFIER = 8;
   int tmpVal = EME_MODIFIER;
   int nphi = 32;
@@ -113,7 +112,7 @@ void gTowerBuilder::BuildTRANSFCALgTowers(std::unique_ptr<gTowerContainer> & gTo
   int TRANSFCAL_MODIFIER = 13;
   int tmpVal = TRANSFCAL_MODIFIER;
   int nphi = 16;
-  for (int ieta = tmpVal; ieta < tmpVal + 2; ++ieta){ // loop over eta steps
+  for (int ieta = tmpVal; ieta < tmpVal + 3; ++ieta){ // loop over eta steps
     for (int iphi = 0; iphi < 16; ++iphi){ // loop over 16 phi steps
       BuildSingleTower(gTowerContainerRaw, ieta, iphi, nphi, 700000, -1);
       BuildSingleTower(gTowerContainerRaw, ieta, iphi, nphi, 800000, 1);
@@ -127,7 +126,7 @@ void gTowerBuilder::BuildTRANSFCALgTowers(std::unique_ptr<gTowerContainer> & gTo
 void gTowerBuilder::BuildFCALgTowers(std::unique_ptr<gTowerContainer> & gTowerContainerRaw) const
 {
   // This is pure EMEC region (for gFEX: Eta Range 3.2-4.9)
-  int FCAL_MODIFIER = 15;
+  int FCAL_MODIFIER = 16;
   int tmpVal = FCAL_MODIFIER;
   int nphi = 16;
   for (int ieta = tmpVal; ieta < tmpVal + 4; ++ieta){ // loop over eta steps

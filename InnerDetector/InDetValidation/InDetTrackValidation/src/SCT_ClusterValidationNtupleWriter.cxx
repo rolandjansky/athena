@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -329,7 +329,7 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::execute() {
   }
 
   // RDO container
-  typedef SCT_RDORawData SCTRawDataType;
+  using SCTRawDataType = SCT_RDORawData;
   const SCT_RDO_Container* p_rdocontainer = nullptr;
   std::vector<Identifier> RDOsOnTracks;
   if (m_fillRDO.value()) {

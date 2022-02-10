@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef __LArWheelCalculator_Impl_DistanceCalculatorSaggingOn_H__
 #define __LArWheelCalculator_Impl_DistanceCalculatorSaggingOn_H__
 
 #include "DistanceCalculatorSaggingOff.h"
-
+#include <vector>
 class LArWheelCalculator;
 
 namespace LArWheelCalculator_Impl

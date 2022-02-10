@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -48,7 +48,7 @@ void compare (const BCM_RDO_Container& p1,
 
 void testit (const BCM_RDO_Container& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   BCM_RDO_ContainerCnv_p0 cnv;
   BCM_RDO_Container_p0 pers;
   cnv.transToPers (&trans1, &pers, log);

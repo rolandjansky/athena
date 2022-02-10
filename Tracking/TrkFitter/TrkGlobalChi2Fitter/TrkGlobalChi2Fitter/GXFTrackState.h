@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -113,8 +113,8 @@ namespace Trk {
      */
     bool getStateType(TrackStateOnSurface::TrackStateOnSurfaceType type) const;
 
-    std::optional<std::vector<std::unique_ptr<const TrackParameters>>> & getHoles(void);
-    void setHoles(std::vector<std::unique_ptr<const TrackParameters>> &&);
+    std::optional<std::vector<std::unique_ptr<TrackParameters>>> & getHoles(void);
+    void setHoles(std::vector<std::unique_ptr<TrackParameters>> &&);
 
   private:
     std::unique_ptr<const MeasurementBase> m_measurement;       //!< The measurement defining the track state
@@ -134,7 +134,7 @@ namespace Trk {
     bool m_recalib;             //!< Has this measurement already been recalibrated?
     bool m_measphi;
     Amg::Vector3D m_globpos;
-    std::optional<std::vector<std::unique_ptr<const TrackParameters>>> m_holes;
+    std::optional<std::vector<std::unique_ptr<TrackParameters>>> m_holes;
 
   public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

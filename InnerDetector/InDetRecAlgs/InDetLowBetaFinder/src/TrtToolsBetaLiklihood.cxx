@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -52,7 +52,7 @@ std::vector<float> TrtToolBetaLiklihood::TRT_FEbeta(std::vector<int> TRT_bitpatt
   int binht[3] = {0};
   double radius, arclength, arcrad;
 
-  EtaBin = floor((fabs(RecEta)-ETAMIN)/etadelta);
+  EtaBin = floor((std::abs(RecEta)-ETAMIN)/etadelta);
   if (EtaBin >= TrtToolBetaLiklihood::NETABINS)
     EtaBin = TrtToolBetaLiklihood::NETABINS-1;
 
@@ -72,7 +72,7 @@ std::vector<float> TrtToolBetaLiklihood::TRT_FEbeta(std::vector<int> TRT_bitpatt
     TrtToolBetaLiklihood::TRT_BitPattern(TRT_bitpattern.at(ihit), binlt, binht, hit);
 
     hit.t0 = TRT_t0.at(ihit);
-    hit.estDrift = fabs(TRT_estDrift.at(ihit)); 
+    hit.estDrift = std::abs(TRT_estDrift.at(ihit)); 
     hit.hitR = TRT_R.at(ihit);
     hit.fitR = TRT_R_track.at(ihit);
    
@@ -95,12 +95,12 @@ std::vector<float> TrtToolBetaLiklihood::TRT_FEbeta(std::vector<int> TRT_bitpatt
 
     // Calculate delta distance the direct and reflected signals travel, given their position in z or r along the wire
     if (hit.becIdx == 0) { // Barrel
-      hit.dlD = 71.2 - fabs(TrackZ.at(ihit))/10.;
+      hit.dlD = 71.2 - std::abs(TrackZ.at(ihit))/10.;
       // Inner wires have 80cm dead 
       if ((TRT_strawlayer.at(ihit) < 9) && (TRT_layer.at(ihit) == 0)) {
-        hit.dlR = fabs(TrackZ.at(ihit))/10. - 80.;
+        hit.dlR = std::abs(TrackZ.at(ihit))/10. - 80.;
       } else {
-        hit.dlR = fabs(TrackZ.at(ihit))/10.;
+        hit.dlR = std::abs(TrackZ.at(ihit))/10.;
       }
     } else { // End cap
       hit.dlD = 101. - radius;
@@ -134,14 +134,14 @@ std::vector<float> TrtToolBetaLiklihood::TRT_FEbeta(std::vector<int> TRT_bitpatt
 float TrtToolBetaLiklihood::TRT_CorrectFEbeta(float beta, float eta){
 
   float corrBeta = 0;
-  if(fabs(eta)<1.0) corrBeta = febBAR[0] + febBAR[1]*beta + febBAR[2]*pow(beta,2) + febBAR[3]*pow(beta,3) + febBAR[4]*pow(beta,4);
+  if(std::abs(eta)<1.0) corrBeta = febBAR[0] + febBAR[1]*beta + febBAR[2]*pow(beta,2) + febBAR[3]*pow(beta,3) + febBAR[4]*pow(beta,4);
   else corrBeta = febEC[0] + febEC[1]*beta + febEC[2]*pow(beta,2) + febEC[3]*pow(beta,3) + febEC[4]*pow(beta,4);
 
   return corrBeta;
 }
 
 void TrtToolBetaLiklihood::TRT_SelectFEhits(){
-  if ( !((hit.BoT == 1) || (hit.LBit==23 && hit.LGap>0) || (hit.LBit==22 && hit.LGap>0)) && fabs(hit.fitR)<RFEMAX && hit.nHT==0 && hit.FBit > 3 && hit.cxnFail==0 && hit.isTube==0) {
+  if ( !((hit.BoT == 1) || (hit.LBit==23 && hit.LGap>0) || (hit.LBit==22 && hit.LGap>0)) && std::abs(hit.fitR)<RFEMAX && hit.nHT==0 && hit.FBit > 3 && hit.cxnFail==0 && hit.isTube==0) {
     LBitA.push_back(hit.LBit);
     pathlenA.push_back(hit.pathlen);
     dlReflectA.push_back(hit.dlR);
@@ -292,7 +292,7 @@ void TRT_FEbeta_fcn ATLAS_NOT_THREAD_SAFE // Global variables are used without p
    for (i=0; i<n; i++) {
 
      // radius bin
-     RBin = floor((fabs(TrkRF.at(i))-TrtToolBetaLiklihood::RFEMIN)/TrtToolBetaLiklihood::raddelta);
+     RBin = floor((std::abs(TrkRF.at(i))-TrtToolBetaLiklihood::RFEMIN)/TrtToolBetaLiklihood::raddelta);
      if (RBin >= TrtToolBetaLiklihood::NRFEBINS) RBin = TrtToolBetaLiklihood::NRFEBINS-1;
 
      // Time shift due to beta
@@ -352,7 +352,7 @@ void TRT_FEbeta_fcn ATLAS_NOT_THREAD_SAFE // Global variables are used without p
 }
 
 void TRT_solveCubic(float DCrad, float &estDrift){
-  double a = TrtToolBetaLiklihood::RT3; double b = TrtToolBetaLiklihood::RT2; double c = TrtToolBetaLiklihood::RT1; double d = TrtToolBetaLiklihood::RT0 - fabs(DCrad);
+  double a = TrtToolBetaLiklihood::RT3; double b = TrtToolBetaLiklihood::RT2; double c = TrtToolBetaLiklihood::RT1; double d = TrtToolBetaLiklihood::RT0 - std::abs(DCrad);
   if (a == 0){
     //std::cout << " ERROR! " << std::endl;
   }
@@ -376,10 +376,10 @@ void TRT_solveCubic(float DCrad, float &estDrift){
   }
   else{
     double R = g/(-2.) + sqrt(h);
-    double S = pow(fabs(R),1./3.);
+    double S = pow(std::abs(R),1./3.);
     if(R<0) S = -1.*S;
     double T = g/(-2.) - sqrt(h);
-    double U = pow(fabs(T),1./3.);
+    double U = pow(std::abs(T),1./3.);
     if(T<0) U = -1.*U;
     t1r = S+U-b/3./a;
     t2r = -1.*(S+U)/2. - b/3./a;  //t2i = (S-U)*sqrt(3.)/2.;
@@ -430,7 +430,7 @@ void TrtToolBetaLiklihood::TRT_PropLenCorr(TrtToolBetaLiklihood::HIT hit, int *c
     
 }
 
-void TrtToolBetaLiklihood::TRT_LoadPriors(std::string priorFileName) {
+void TrtToolBetaLiklihood::TRT_LoadPriors(const std::string& priorFileName) {
 
   int i, j, k, l;
   char name[50];
@@ -495,7 +495,7 @@ void TrtToolBetaLiklihood::TRT_FillPriors(std::vector<int> TRT_bitpattern, std::
   int binht[3] = {0};
   double radius, arclength, arcrad;
       
-  EtaBin = floor((fabs(RecEta)-ETAMIN)/etadelta); 
+  EtaBin = floor((std::abs(RecEta)-ETAMIN)/etadelta); 
   if (EtaBin >= TrtToolBetaLiklihood::NETABINS)
     EtaBin = TrtToolBetaLiklihood::NETABINS-1;
         
@@ -526,12 +526,12 @@ void TrtToolBetaLiklihood::TRT_FillPriors(std::vector<int> TRT_bitpattern, std::
 
     // Calculate delta distance the direct and reflected signals travel, given their position in z or r along the wire
     if (hit.becIdx == 0) { // Barrel
-      hit.dlD = 71.2 - fabs(TrackZ.at(ihit))/10.;
+      hit.dlD = 71.2 - std::abs(TrackZ.at(ihit))/10.;
       // Inner wires have 80cm dead
       if ((TRT_strawlayer.at(ihit) < 9) && (TRT_layer.at(ihit) == 0)) {
-        hit.dlR = fabs(TrackZ.at(ihit))/10. - 80.;
+        hit.dlR = std::abs(TrackZ.at(ihit))/10. - 80.;
       } else {
-        hit.dlR = fabs(TrackZ.at(ihit))/10.;
+        hit.dlR = std::abs(TrackZ.at(ihit))/10.;
       }
     } else { // End cap
       hit.dlD = 101. - radius;
@@ -552,12 +552,12 @@ void TrtToolBetaLiklihood::TRT_FillPriors(std::vector<int> TRT_bitpattern, std::
 void TrtToolBetaLiklihood::TRT_SelectFEpriors(TrtToolBetaLiklihood::HIT hit, int *corrLBits, float *corrLBitWeight){
 
   //where is this hit in the r-binning?
-  int Rbin = floor((fabs(hit.fitR)-RFEMIN)/TrtToolBetaLiklihood::raddelta);
+  int Rbin = floor((std::abs(hit.fitR)-RFEMIN)/TrtToolBetaLiklihood::raddelta);
   if (Rbin >= NRFEBINS) Rbin = NRFEBINS - 1;
 
   // Select Hits for Falling edge fit
   if (hit.FBit > 3) {
-    if ( !((hit.BoT == 1) || (hit.LBit==23 && hit.LGap>0) || (hit.LBit==22 && hit.LGap>0)) && fabs(hit.fitR)<RFEMAX && hit.nHT==0) {
+    if ( !((hit.BoT == 1) || (hit.LBit==23 && hit.LGap>0) || (hit.LBit==22 && hit.LGap>0)) && std::abs(hit.fitR)<RFEMAX && hit.nHT==0) {
       //if (nSCTHits>0) {  //this is weird, do track selection cuts outside the hit loop BM
         for (int i=0; i<2; i++) {
           LBitvsEta[Rbin][EtaBin][hit.becIdx]->Fill(corrLBits[i], corrLBitWeight[i]);

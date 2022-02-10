@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 def LArDigitMonConfigOld(inputFlags):
@@ -232,7 +232,6 @@ if __name__=='__main__':
    ConfigFlags.Output.HISTFileName = 'LArDigitsMonOutput.root'
    ConfigFlags.DQ.enableLumiAccess = False
    ConfigFlags.DQ.useTrigger = False
-   ConfigFlags.Beam.Type = 'collisions'
    ConfigFlags.lock()
 
    from CaloRec.CaloRecoConfig import CaloRecoCfg

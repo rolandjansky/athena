@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCTTracksMonAlg.h"
@@ -114,7 +114,7 @@ ATH_MSG_DEBUG("SCTTracksMonAlg::fillHistograms()");
         auto trk_chi2Acc{Monitored::Scalar<float>("trk_chi2", track->fitQuality()->chiSquared() / track->fitQuality()->numberDoF())};
         fill("SCTTracksMonitor", trk_chi2Acc);
     }
-    if (track->perigeeParameters() == 0) {
+    if (track->perigeeParameters() == nullptr) {
       continue;
     }
     double trackPerigeeTheta{track->perigeeParameters()->parameters()[Trk::theta]};

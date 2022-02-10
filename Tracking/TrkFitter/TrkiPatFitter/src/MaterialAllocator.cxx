@@ -48,7 +48,7 @@ namespace Trk
     m_calorimeterVolume(nullptr),
     m_indetVolume(nullptr),
     m_messageHelper(nullptr) {
-    m_messageHelper = std::make_unique< MessageHelper>(*this);
+    m_messageHelper = std::make_unique< MessageHelper>(*this, 6);
     declareInterface<IMaterialAllocator>(this);
 
     declareProperty("AggregateMaterial", m_aggregateMaterial);
@@ -70,7 +70,6 @@ namespace Trk
 
     // fill WARNING messages
     m_messageHelper->setMaxNumberOfMessagesPrinted(m_maxWarnings);
-    m_messageHelper->setNumberOfMessages(6);
     m_messageHelper->setMessage(0,
                                 "leadingSpectrometerTSOS:  missing TrackingGeometrySvc - no leading material will be added");
     m_messageHelper->setMessage(1, "indetMaterial: extrapolateM finds no material on track");

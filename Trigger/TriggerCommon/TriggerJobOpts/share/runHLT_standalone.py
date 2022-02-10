@@ -163,7 +163,7 @@ else:   # athenaHLT
     if '_lb_number' in globals():
         del _lb_number  # noqa, set by athenaHLT
 
-from AthenaConfiguration.Enums import Format
+from AthenaConfiguration.Enums import BeamType, Format
 ConfigFlags.Input.Format = Format.BS if globalflags.InputFormat == 'bytestream' else Format.POOL
 
 # Load input collection list from POOL metadata
@@ -182,7 +182,8 @@ globalflags.ConditionsTag = opt.setGlobalTag or ConfigFlags.Trigger.OnlineCondTa
 ConfigFlags.IOVDb.GlobalTag = globalflags.ConditionsTag()
 
 # Other defaults
-ConfigFlags.Beam.Type = jobproperties.Beam.beamType = 'collisions'
+jobproperties.Beam.beamType = 'collisions'
+ConfigFlags.Beam.Type = BeamType(jobproperties.Beam.beamType)
 jobproperties.Beam.bunchSpacing = 25
 if not ConfigFlags.Input.isMC:
     globalflags.DatabaseInstance='CONDBR2' if opt.useCONDBR2 else 'COMP200'
@@ -351,8 +352,6 @@ if ConfigFlags.Trigger.doCalo:
     DetFlags.detdescr.Calo_setOn()
     from LArConditionsCommon.LArCondFlags import larCondFlags
     larCondFlags.LoadElecCalib.set_Value_and_Lock(False)
-    from TrigT2CaloCommon.CaloDef import setMinimalCaloSetup
-    setMinimalCaloSetup()
 else:
     DetFlags.Calo_setOff()
 
@@ -423,9 +422,12 @@ from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg
 CAtoGlobalWrapper(IOVDbSvcCfg, ConfigFlags)
 
 if ConfigFlags.Trigger.doCalo:
+    from TrigT2CaloCommon.TrigCaloDataAccessConfig import trigCaloDataAccessSvcCfg
+    CAtoGlobalWrapper(trigCaloDataAccessSvcCfg, ConfigFlags)
     if ConfigFlags.Trigger.doTransientByteStream:
         from TriggerJobOpts.TriggerTransBSConfig import triggerTransBSCfg_Calo
         CAtoGlobalWrapper(triggerTransBSCfg_Calo, ConfigFlags, seqName="HLTBeginSeq")
+
 
 if ConfigFlags.Trigger.doMuon:
     import MuonCnvExample.MuonCablingConfig  # noqa: F401
