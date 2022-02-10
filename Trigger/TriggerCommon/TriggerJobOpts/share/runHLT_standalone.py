@@ -530,6 +530,8 @@ if not opt.createHLTMenuExternally:
 
 
     if opt.endJobAfterGenerate:
+        from AthenaCommon.AlgSequence import dumpSequence
+        dumpSequence( topSequence )
         import sys
         sys.exit(0)
 
