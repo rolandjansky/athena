@@ -63,14 +63,8 @@ public:
 
 private:  
   
-  /** Detector pointer to Store Gate service */
-  StoreGateSvc              *m_detectorStore;
-
   /** Detector pointer to TileDetDescrManager */  
   TileDetDescrManager       *m_detectorManager;
-
-  /** Pointer to an instance of the GeoModel I/O class */
-  GeoModelIO::ReadGeoModel* m_sqliteReader;
 
   /** Pointer to an instance of the RDBAccessSvc to get parameters from the SQLite file */
   IRDBAccessSvc* m_paramsSvc;
@@ -83,9 +77,6 @@ private:
 
   /** Flag for activation verbose level for debugging */
   bool                       m_verbose;
-
-  /** Geometry configuration: FULL, RECO */
-  bool                       m_fullGeo;
 };
 
 #endif
