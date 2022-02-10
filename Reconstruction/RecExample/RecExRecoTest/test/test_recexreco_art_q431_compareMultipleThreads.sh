@@ -11,14 +11,14 @@ preExecStringOne="RAWtoESD:from RecExConfig.RecFlags import rec;rec.doTrigger.se
 preExecStringTwo="ESDtoAOD:from RecExConfig.RecFlags import rec;rec.doTrigger.set_Value_and_Lock(False)"
 
 mkdir runOne; cd runOne
-Reco_tf.py --athenaopts="--threads=8" --steering "no" --AMI=q431 --preExec "${preExecStringOne}" "${preExecStringTwo}" --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root | tee athenarunOne.log
+Reco_tf.py --athenaopts="--threads=8" --steering "no" --AMI=q431 --preExec "${preExecStringOne}" "${preExecStringTwo}" --conditionsTag="CONDBR2-BLKPA-RUN2-09" --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root | tee athenarunOne.log
 rc1=${PIPESTATUS[0]}
 xAODDigest.py myAOD.pool.root | tee digestOne.log
 echo "art-result: $rc1 runOne"
 
 cd ../
 mkdir runTwo; cd runTwo
-Reco_tf.py --athenaopts="--threads=8" --steering "no" --AMI=q431 --preExec "${preExecStringOne}" "${preExecStringTwo}" --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root | tee athenarunTwo.log
+Reco_tf.py --athenaopts="--threads=8" --steering "no" --AMI=q431 --preExec "${preExecStringOne}" "${preExecStringTwo}" --conditionsTag="CONDBR2-BLKPA-RUN2-09" --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root | tee athenarunTwo.log
 rc2=${PIPESTATUS[0]}
 xAODDigest.py myAOD.pool.root | tee digestTwo.log
 echo "art-result: $rc2 runTwo"
