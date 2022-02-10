@@ -235,9 +235,7 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::initialize() {
   ATH_CHECK( m_inputTrackCollection.initialize(m_fillRDO.value() and m_doHitsOnTracks.value()) );
 
   // Read Cond Handle Key
-  if (m_fillCluster.value()) {
-    ATH_CHECK( m_SCTDetEleCollKey.initialize() );
-  }
+  ATH_CHECK( m_SCTDetEleCollKey.initialize( m_fillCluster.value() ) );
 
   return sc;
 }

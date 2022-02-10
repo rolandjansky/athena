@@ -274,7 +274,7 @@ StatusCode RpcDigitizationTool::initialize() {
     // fill the taginfo information
     ATH_CHECK(fillTagInfo());
 
-    if (m_RPCInfoFromDb) { ATH_CHECK(m_readKey.initialize()); }
+    ATH_CHECK(m_readKey.initialize(m_RPCInfoFromDb));
 
     if (m_PrintCalibrationVector) { ATH_CHECK(PrintCalibrationVector()); }
 

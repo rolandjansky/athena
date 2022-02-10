@@ -25,11 +25,8 @@ HLTCaloCellMaker::HLTCaloCellMaker(const std::string & name, ISvcLocator* pSvcLo
 StatusCode HLTCaloCellMaker::initialize() {
 
   ATH_CHECK( m_roiCollectionKey.initialize(SG::AllowEmpty) );
-
-  if ( m_roiMode )
-    ATH_CHECK( m_cellContainerKey.initialize() );
-  else
-    ATH_CHECK( m_cellContainerVKey.initialize() );
+  ATH_CHECK( m_cellContainerKey.initialize(m_roiMode) );
+  ATH_CHECK( m_cellContainerVKey.initialize(!m_roiMode) );
   ATH_CHECK( m_tileEMScaleKey.initialize() );
   ATH_CHECK( m_bcidAvgKey.initialize() );
   CHECK( m_dataAccessSvc.retrieve() );

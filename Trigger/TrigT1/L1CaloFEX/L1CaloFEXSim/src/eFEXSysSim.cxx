@@ -54,13 +54,13 @@ namespace LVL1 {
   StatusCode eFEXSysSim::initialize()
   {
     
-    ATH_CHECK(m_eTowerContainerSGKey.initialize());
+    ATH_CHECK( m_eTowerContainerSGKey.initialize() );
 
     ATH_CHECK( m_eFEXSimTool.retrieve() );
 
-    ATH_CHECK(m_eFexOutKey.initialize());
+    ATH_CHECK( m_eFexOutKey.initialize() );
 
-    ATH_CHECK(m_eFexTauOutKey.initialize());
+    ATH_CHECK( m_eFexTauOutKey.initialize() );
 
     ATH_CHECK( m_eFEXFPGATowerIdProviderTool.retrieve() );
 

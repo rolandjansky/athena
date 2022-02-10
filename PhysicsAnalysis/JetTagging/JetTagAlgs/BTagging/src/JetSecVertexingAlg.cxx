@@ -72,8 +72,8 @@ namespace Analysis {
     ATH_CHECK( m_TrackCollectionName.initialize() );
     ATH_CHECK( m_VxSecVertexInfoName.initialize() );
     ATH_CHECK( m_VertexCollectionName.initialize() );
-    if ((m_secVertexFinderBaseName == "SV1") || (m_secVertexFinderBaseName == "MSV")) ATH_CHECK( m_BTagSVCollectionName.initialize() );
-    if ((m_secVertexFinderBaseName == "JetFitter") || (m_secVertexFinderBaseName == "JetFitterFlip")) ATH_CHECK( m_BTagJFVtxCollectionName.initialize() );
+    ATH_CHECK( m_BTagSVCollectionName.initialize( (m_secVertexFinderBaseName == "SV1") || (m_secVertexFinderBaseName == "MSV") ) );
+    ATH_CHECK( m_BTagJFVtxCollectionName.initialize( (m_secVertexFinderBaseName == "JetFitter") || (m_secVertexFinderBaseName == "JetFitterFlip") ) );
     ATH_CHECK( m_jetSVLinkName.initialize() );
 
     /* ----------------------------------------------------------------------------------- */

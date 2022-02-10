@@ -90,25 +90,19 @@ def L1CaloFEXSimCfg(flags):
     # Need also TriggerTowers as input
     acc.merge(TriggerTowersInputCfg(flags))
 
-    # eFEX simulation
-    eFEX = CompFactory.LVL1.eFEXDriver('eFEXDriver',
-        SCell=sCellType )
+    eFEX = CompFactory.LVL1.eFEXDriver('eFEXDriver')
     eFEX.eSuperCellTowerMapperTool = CompFactory.LVL1.eSuperCellTowerMapper('eSuperCellTowerMapper', SCell=sCellType)
-    eFEX.eFEXSysSimTool = CompFactory.LVL1.eFEXSysSim('eFEXSysSimTool', SCell=sCellType)
     acc.addEventAlgo(eFEX)
 
-    # jFEX simulation
-    jFEX = CompFactory.LVL1.jFEXDriver('jFEXDriver',
-        SCell=sCellType )
+    # jFEX part
+    jFEX = CompFactory.LVL1.jFEXDriver('jFEXDriver')
     jFEX.jSuperCellTowerMapperTool = CompFactory.LVL1.jSuperCellTowerMapper('jSuperCellTowerMapper', SCell=sCellType)
-    jFEX.jFEXSysSimTool = CompFactory.LVL1.jFEXSysSim('jFEXSysSimTool', SCell=sCellType)
+    jFEX.jFEXSysSimTool = CompFactory.LVL1.jFEXSysSim('jFEXSysSimTool')
     acc.addEventAlgo(jFEX)
 
-    # gFEX simulation
-    gFEX = CompFactory.LVL1.gFEXDriver('gFEXDriver',
-        SCell=sCellType )
+    gFEX = CompFactory.LVL1.gFEXDriver('gFEXDriver')
     gFEX.gSuperCellTowerMapperTool = CompFactory.LVL1.gSuperCellTowerMapper('gSuperCellTowerMapper', SCell=sCellType)
-    gFEX.gFEXSysSimTool = CompFactory.LVL1.gFEXSysSim('gFEXSysSimTool', SCell=sCellType)
+    gFEX.gFEXSysSimTool = CompFactory.LVL1.gFEXSysSim('gFEXSysSimTool')
     acc.addEventAlgo(gFEX)
 
     return acc

@@ -92,10 +92,10 @@ StatusCode InDetGlobalLRTMonAlg::initialize() {
   
   if (!m_holes_search_tool.empty())  ATH_CHECK( m_holes_search_tool.retrieve());
   
+  ATH_CHECK( m_tracksKey.initialize() );
   ATH_CHECK( m_CombinedTracksName.initialize() );
   ATH_CHECK( m_ForwardTracksName.initialize() );
   ATH_CHECK( m_tracksLarge.initialize() );   
-  ATH_CHECK( m_clustersKey.initialize() );  // maybe not needed
   
   return AthMonitorAlgorithm::initialize();
 }
