@@ -1272,12 +1272,10 @@ HLT_e26_etcut_L1EM22VHI:
     0: 4
     1: 4
     2: 3
-    3: 3
   stepFeatures:
     0: 4
     1: 5
     2: 3
-    3: 3
 HLT_e26_etcut_L1eEM26M:
   eventCount: 0
 HLT_e26_idperf_gsf_tight_L1EM22VHI:
@@ -1582,24 +1580,20 @@ HLT_e5_etcut_L1EM3:
     0: 38
     1: 33
     2: 33
-    3: 33
   stepFeatures:
     0: 132
     1: 199
     2: 121
-    3: 121
 HLT_e5_etcut_L1eEM5:
   eventCount: 41
   stepCounts:
     0: 47
     1: 43
     2: 41
-    3: 41
   stepFeatures:
     0: 479
     1: 393
     2: 229
-    3: 229
 HLT_e5_idperf_gsf_tight_L1EM3:
   eventCount: 13
   stepCounts:
@@ -1770,7 +1764,7 @@ HLT_e5_lhtight_noringer_e9_etcut_1invmAB5_L1JPSI-1M5-EM7:
     0: 7
     1: 18
     2: 5
-    3: 4
+    3: 1
 HLT_e5_lhtight_noringer_e9_etcut_probe_1invmAB5_L1JPSI-1M5-EM7:
   eventCount: 0
   stepCounts:
@@ -1933,7 +1927,7 @@ HLT_e9_lhtight_e4_etcut_L1JPSI-1M5-eEM9:
     0: 191
     1: 54
     2: 20
-    3: 7
+    3: 1
 HLT_e9_lhtight_e4_etcut_idperf_gsf_probe_1invmAB5_L1JPSI-1M5-EM7:
   eventCount: 0
 HLT_e9_lhtight_e4_etcut_idperf_gsf_probe_1invmAB5_L1JPSI-1M5-eEM9:
