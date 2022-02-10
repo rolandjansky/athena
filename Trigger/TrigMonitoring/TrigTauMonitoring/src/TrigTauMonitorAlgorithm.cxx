@@ -529,8 +529,10 @@ void TrigTauMonitorAlgorithm::fillL1(const std::string& trigL1Item, const std::v
        auto L1RoIEt           = Monitored::Collection("L1RoIEt"     , phase1L1rois,  [] (const xAOD::eFexTauRoI* L1roi){ return L1roi->et()/1e3;});
        auto L1RoIEta          = Monitored::Collection("L1RoIEta"    , phase1L1rois,  [] (const xAOD::eFexTauRoI* L1roi){ return L1roi->eta();});
        auto L1RoIPhi          = Monitored::Collection("L1RoIPhi"    , phase1L1rois,  [] (const xAOD::eFexTauRoI* L1roi){ return L1roi->phi();});
+       auto L1RoIRCore        = Monitored::Collection("L1RoIRCore"  , phase1L1rois,  [] (const xAOD::eFexTauRoI* L1roi){ return L1roi->rCore();});
+       auto L1RoIRHad         = Monitored::Collection("L1RoIRHad"   , phase1L1rois,  [] (const xAOD::eFexTauRoI* L1roi){ return L1roi->rHad();});
    
-       fill(monGroup,L1RoIEt,L1RoIEta,L1RoIPhi);
+       fill(monGroup,L1RoIEt,L1RoIEta,L1RoIPhi,L1RoIRCore,L1RoIRHad);
    } else {
 
        auto L1RoIEt           = Monitored::Collection("L1RoIEt"     , legacyL1rois,  [] (const xAOD::EmTauRoI* L1roi){ return L1roi->eT()/1e3;});
