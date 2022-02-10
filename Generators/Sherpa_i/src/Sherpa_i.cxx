@@ -484,6 +484,10 @@ double Atlas_RNG::Get(){
 
 }
 
+void Atlas_RNG::SaveStatus() { p_engine->saveStatus(); }
+
+void Atlas_RNG::RestoreStatus() { p_engine->restoreStatus(); }
+
 // some getter magic to make this random number generator available to sherpa
 DECLARE_GETTER(Atlas_RNG,"Atlas_RNG",External_RNG,RNG_Key);
 
