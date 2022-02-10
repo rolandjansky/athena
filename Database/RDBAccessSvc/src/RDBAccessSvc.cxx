@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -36,10 +36,6 @@
 
 RDBAccessSvc::RDBAccessSvc(const std::string& name, ISvcLocator* svc)
   : AthService(name,svc)
-{
-}
-
-RDBAccessSvc::~RDBAccessSvc()
 {
 }
 
@@ -464,8 +460,6 @@ std::vector<std::string> RDBAccessSvc::getLockedSupportedTags(const std::string&
   else {
     try{
       coral::ISessionProxy* session = m_sessions[connName];
-      // Start new readonly transaction
-      session->transaction().start(true);
 
       coral::ITable& tableTag2Node = session->nominalSchema().tableHandle("HVS_TAG2NODE");
       coral::IQuery* queryTag2Node = tableTag2Node.newQuery();
@@ -482,9 +476,6 @@ std::vector<std::string> RDBAccessSvc::getLockedSupportedTags(const std::string&
       }
       delete queryTag2Node;
 
-      if(session->transaction().isActive()) {
-	session->transaction().commit();
-      }
     } 
     catch(coral::SchemaException& se) {
       ATH_MSG_ERROR("Schema Exception : " << se.what());
