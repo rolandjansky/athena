@@ -48,7 +48,7 @@ namespace Pythia8 {
 	m_vetoPartonLevel("Powheg:bb4l:PartonLevel:veto", 0),
         m_wouldVetoFsr(false), 
         m_topresscale(-1.), m_vetoDecScale(-1.), m_atopresscale(-1.), 
-	m_nISRveto(0), m_nFSRveto(0), m_nFSRvetoBB4l(0),
+	m_nFSRvetoBB4l(0),
 	m_pTmin("Powheg:bb4l:pTminVeto", 0.5),
         m_vetoTopCharge(-1),
 	m_vetoProduction("Powheg:veto", 0),
@@ -71,7 +71,7 @@ namespace Pythia8 {
 
 
     //Initialization
-    bool initAfterBeams() {
+    virtual bool initAfterBeams() override {
       // settings of the parent class
       PowhegHooks::initAfterBeams();
       // settings of this class
@@ -81,8 +81,8 @@ namespace Pythia8 {
 
     //--- PROCESS LEVEL HOOK ---------------------------------------------------
     // called at the LHE level
-    inline bool canVetoProcessLevel() { return true; }
-    inline bool doVetoProcessLevel(Event &e) {
+    inline virtual bool canVetoProcessLevel() override { return true; }
+    inline virtual bool doVetoProcessLevel(Event &e) override {
       /////////////
       // count myself final particles ....
       //int    count = 0;
@@ -131,9 +131,9 @@ namespace Pythia8 {
 
     //--- PARTON LEVEL HOOK ----------------------------------------------------
     // called after shower
-    bool retryPartonLevel() { return m_vetoPartonLevel(settingsPtr) || m_vetoAtPL(settingsPtr); }
-    inline bool canVetoPartonLevel() { return m_vetoPartonLevel(settingsPtr) || m_vetoAtPL(settingsPtr); }
-    inline bool doVetoPartonLevel(const Event &e) {
+    virtual bool retryPartonLevel() override { return m_vetoPartonLevel(settingsPtr) || m_vetoAtPL(settingsPtr); }
+    inline virtual bool canVetoPartonLevel() override { return m_vetoPartonLevel(settingsPtr) || m_vetoAtPL(settingsPtr); }
+    inline virtual bool doVetoPartonLevel(const Event &e) override {
       if(radtype_.radtype==2)
 	return false;
       if(m_debug(settingsPtr)){
@@ -376,12 +376,12 @@ namespace Pythia8 {
 
     //--- SCALE RESONANCE HOOK -------------------------------------------------
     // called before each resonance decay shower
-    inline bool canSetResonanceScale() { return m_scaleResonanceVeto(settingsPtr); }
+    inline virtual bool canSetResonanceScale() override { return m_scaleResonanceVeto(settingsPtr); }
     // if the resonance is the (anti)top set the scale to:
     //  ---> (anti)top virtuality if radtype=2
     //  ---> (a)topresscale otherwise
     // if is not the top, set it to a big number
-    inline double scaleResonance(int iRes, const Event &e) {
+    inline virtual double scaleResonance(int iRes, const Event &e) override {
       if (e[iRes].id() == 6){
 	if(radtype_.radtype == 2)
 	  return std::sqrt(e[iRes].m2Calc());
@@ -407,8 +407,8 @@ namespace Pythia8 {
     //           PowhegHooksBB4L::canVetoFSREmission, so FSR veto in production
     //           must be handled here. ISR and MPI veto are instead still
     //           handled by PowhegHooks.)
-    virtual inline bool canVetoFSREmission() { return m_vetoFSREmission(settingsPtr) || m_vetoProduction(settingsPtr); }
-    virtual inline bool doVetoFSREmission(int sizeOld, const Event &e, int iSys, bool inResonance) {
+    virtual inline bool canVetoFSREmission() override { return m_vetoFSREmission(settingsPtr) || m_vetoProduction(settingsPtr); }
+    virtual inline bool doVetoFSREmission(int sizeOld, const Event &e, int iSys, bool inResonance) override {
       //////////////////////////////
       //VETO INSIDE THE RESONANCE //
       //////////////////////////////
@@ -533,7 +533,6 @@ namespace Pythia8 {
     Pythia8_UserHooks::UserSetting<int> m_vetoPartonLevel;
     bool m_wouldVetoFsr;
     double m_topresscale,  m_vetoDecScale, m_atopresscale;
-    unsigned long int m_nISRveto, m_nFSRveto;
     unsigned long int m_nFSRvetoBB4l;
 
     Pythia8_UserHooks::UserSetting<double> m_pTmin;
