@@ -8,7 +8,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType
 from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
-from MuonConfig.MuonRecToolsConfig import MuonEDMPrinterTool
+from MuonConfig.MuonRecToolsConfig import MuonEDMPrinterToolCfg
 from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasRKPropagatorCfg, MuonCombinedPropagatorCfg, AtlasNavigatorCfg, AtlasEnergyLossUpdatorCfg
 
 #FIXME
@@ -213,7 +213,7 @@ def MuonCreatorToolCfg(flags, name="MuonCreatorTool", **kwargs):
     from TrackToCalo.TrackToCaloConfig import ParticleCaloExtensionToolCfg
     result = ComponentAccumulator()
     # Not explicitly setting up MuonIdHelperSvc, nor MuonEDMHelperSvc
-    kwargs.setdefault("Printer", MuonEDMPrinterTool(flags) )
+    kwargs.setdefault("Printer", result.getPrimaryAndMerge(MuonEDMPrinterToolCfg(flags)) )
     # Not explicitly setting up MuonPrintingTool
     acc = ParticleCaloExtensionToolCfg(flags,StartFromPerigee=True)
     kwargs.setdefault("ParticleCaloExtensionTool", acc.getPrimary() )
@@ -282,11 +282,9 @@ def ExtrapolateMuonToIPToolCfg(flags, name="ExtrapolateMuonToIPTool", **kwargs):
 
 def MuonCandidateToolCfg(flags, name="MuonCandidateTool",**kwargs):
     from MuonConfig.MuonRecToolsConfig import MuonAmbiProcessorCfg
-
-    kwargs.setdefault("Printer", MuonEDMPrinterTool(flags) )
-
-    result = CombinedMuonTrackBuilderCfg(flags, name="CombinedMuonTrackBuilder")
-    kwargs.setdefault("TrackBuilder", result.popPrivateTools() )
+    result = ComponentAccumulator()
+    kwargs.setdefault("Printer", result.getPrimaryAndMerge(MuonEDMPrinterToolCfg(flags) ))
+    kwargs.setdefault("TrackBuilder", result.getPrimaryAndMerge(CombinedMuonTrackBuilderCfg(flags, name="CombinedMuonTrackBuilder")))
     #   Why was this dependent on cosmics? will now always create this 
     #   if flags.Beam.Type is BeamType.Cosmics:
     if flags.Muon.MuonTrigger and flags.Beam.Type is not BeamType.Cosmics:
@@ -378,7 +376,7 @@ def MuonCombinedFitTagToolCfg(flags, name="MuonCombinedFitTagTool",**kwargs):
 def MuonCombinedStacoTagToolCfg(flags, name="MuonCombinedStacoTagTool",**kwargs):
     
     result = ComponentAccumulator()
-    kwargs.setdefault("Printer", MuonEDMPrinterTool(flags) )
+    kwargs.setdefault("Printer", result.getPrimaryAndMerge(MuonEDMPrinterToolCfg(flags)) )
     kwargs.setdefault("TagTool", result.popToolsAndMerge(CombinedMuonTagTestToolCfg(flags)))
     kwargs.setdefault("Extrapolator", result.popToolsAndMerge(AtlasExtrapolatorCfg(flags)) )
 
@@ -1057,12 +1055,12 @@ def MuonCandidateTrackBuilderToolCfg(flags, name="MuonCandidateTrackBuilderTool"
     return result
 
 def MuonSegmentSelectionToolCfg(flags, name="MuonSegmentSelectionTool", **kwargs):
-    # Won't explicitly configure MuonIdHelperTool, MuonEDMPrinterTool, MuonSegmentHitSummaryTool
+    # Won't explicitly configure  MuonSegmentHitSummaryTool
     if flags.Input.isMC is False:
       kwargs.setdefault("GoodADCFractionCut",  0.5 )
       kwargs.setdefault("MinADCPerSegmentCut", 100 )
     result = ComponentAccumulator()
-    # kwargs.setdefault("Printer", MuonEDMPrinterTool(flags) ) # FIXME - needs property added.
+    kwargs.setdefault("Printer", result.getPrimaryAndMerge(MuonEDMPrinterToolCfg(flags)))
 
     result.setPrivateTools(CompFactory.Muon.MuonSegmentSelectionTool(name, **kwargs))
     return result
@@ -1084,7 +1082,7 @@ def MuonLayerAmbiguitySolverToolCfg(flags, name="MuonLayerAmbiguitySolverTool", 
     kwargs.setdefault("MuonSegmentTrackBuilder", muon_segment_track_builder)
     result.merge(acc)
 
-    kwargs.setdefault("MuonEDMPrinterTool", MuonEDMPrinterTool(flags) ) 
+    kwargs.setdefault("MuonEDMPrinterTool", result.getPrimaryAndMerge(MuonEDMPrinterToolCfg(flags))) 
 
     result.setPrivateTools(CompFactory.Muon.MuonLayerAmbiguitySolverTool(name, **kwargs))
     

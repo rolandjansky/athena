@@ -22,7 +22,7 @@ from AthenaConfiguration.Enums import BeamType, Format
 
 #Local
 from MuonConfig.MuonCalibrationConfig import MdtCalibrationDbToolCfg
-from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MCTBSLFitterMaterialFromTrackCfg, MuonAmbiProcessorCfg, MuonStationIntersectSvcCfg, MuonTrackCleanerCfg, MuonTrackSummaryToolCfg, MuonEDMPrinterTool
+from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MCTBSLFitterMaterialFromTrackCfg, MuonAmbiProcessorCfg, MuonStationIntersectSvcCfg, MuonTrackCleanerCfg, MuonTrackSummaryToolCfg, MuonEDMPrinterToolCfg
 from TrkConfig.AtlasExtrapolatorConfig import MuonStraightLineExtrapolatorCfg
 from MuonConfig.MuonRIO_OnTrackCreatorConfig import MdtCalibWindowNumber
 
@@ -219,7 +219,7 @@ def DCMathSegmentMakerCfg(flags, **kwargs):
     segment_fitter=acc.getPrimary()
     result.addPublicTool(segment_fitter)
     
-    kwargs.setdefault("EDMPrinter", MuonEDMPrinterTool(flags) )
+    kwargs.setdefault("EDMPrinter", result.getPrimaryAndMerge(MuonEDMPrinterToolCfg(flags)) )
 
     result.merge(acc)    
     kwargs.setdefault("SegmentFitter", segment_fitter)
@@ -436,7 +436,7 @@ def Csc2dSegmentMakerCfg(flags, name= "Csc2dSegmentMaker", **kwargs):
         kwargs.setdefault('segmentTool', csc_segment_util_tool)
         result.merge(acc)
     
-    kwargs.setdefault("printerTool", MuonEDMPrinterTool(flags) )
+    kwargs.setdefault("printerTool", result.getPrimaryAndMerge(MuonEDMPrinterToolCfg(flags) ))
 
     csc_segment_maker = Csc2dSegmentMaker(name=name, **kwargs)
     result.setPrivateTools(csc_segment_maker)
@@ -522,7 +522,7 @@ def MuonClusterSegmentFinderToolCfg(flags, **kwargs):
     kwargs.setdefault('SegmentAmbiguityTool', result.popToolsAndMerge( MuonAmbiProcessorCfg(flags) ) ) 
     kwargs.setdefault('SLFitter', result.popToolsAndMerge( MCTBSLFitterMaterialFromTrackCfg(flags) ) ) 
     kwargs.setdefault("TrackToSegmentTool", result.popToolsAndMerge( MuonTrackToSegmentToolCfg(flags) ) )
-    kwargs.setdefault("Printer", MuonEDMPrinterTool(flags) )
+    kwargs.setdefault("Printer", result.getPrimaryAndMerge(MuonEDMPrinterToolCfg(flags)) )
     kwargs.setdefault('TrackCleaner', result.popToolsAndMerge( MuonTrackCleanerCfg(flags) ) ) 
     kwargs.setdefault('TrackSummaryTool', result.popToolsAndMerge( MuonTrackSummaryToolCfg(flags) ) ) 
 
@@ -548,7 +548,7 @@ def MuonClusterSegmentFinderCfg(flags, **kwargs):
     result=ComponentAccumulator()
 
     # Won't explicitly configure MuonIdHelperSvc
-    kwargs.setdefault("MuonEDMPrinterTool", MuonEDMPrinterTool(flags) )
+    kwargs.setdefault("MuonEDMPrinterTool", result.getPrimaryAndMerge(MuonEDMPrinterToolCfg(flags) ))
     # Won't explicitly configure MuonLayerHashProviderTool
     kwargs.setdefault("MuonPRDSelectionTool", result.popToolsAndMerge( MuonPRDSelectionToolCfg(flags) ) )
     kwargs.setdefault('MdtSegmentMaker', result.popToolsAndMerge( DCMathSegmentMakerCfg(flags,name="DCMathSegmentMaker") ) ) 
@@ -691,7 +691,7 @@ def MuonPatternCalibrationCfg(flags, name="MuonPatternCalibration", **kwargs):
     result = MdtDriftCircleOnTrackCreatorCfg(flags)
     kwargs.setdefault("MdtCreator", result.popPrivateTools())
     kwargs.setdefault('ClusterCreator', result.popToolsAndMerge(MuonClusterOnTrackCreatorCfg(flags)))
-    kwargs.setdefault("Printer", MuonEDMPrinterTool(flags) )
+    kwargs.setdefault("Printer", result.getPrimaryAndMerge(MuonEDMPrinterToolCfg(flags) ))
     # Won't explicitly configure MuonIdHelperSvc
     result.setPrivateTools( CompFactory.Muon.MuonPatternCalibration(name, **kwargs) )
     return result

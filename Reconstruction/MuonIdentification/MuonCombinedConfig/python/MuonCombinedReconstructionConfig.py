@@ -15,6 +15,7 @@ def MuonCaloTagAlgCfg(flags, name="MuonCaloTagAlg",**kwargs):
     kwargs.setdefault("TagMap","caloTagMap")
     kwargs.setdefault("CombinedTrackCollection","")
     kwargs.setdefault("METrackCollection","") 
+    kwargs.setdefault("usePRDs", False )    
     alg = CompFactory.MuonCombinedInDetExtensionAlg(name,**kwargs)
     result.addEventAlgo( alg, primary=True )
     return result
@@ -101,6 +102,8 @@ def MuonInsideOutRecoAlgCfg(flags, name="MuonInsideOutRecoAlg", **kwargs ):
     kwargs.setdefault("HasMM", flags.Detector.GeometryMM )
     kwargs.setdefault("TagMap","muGirlTagMap")
     kwargs.setdefault("SegmentCollection","MuGirlSegments")
+    kwargs.setdefault("TGCPrepDataLocation",    
+                      'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
     alg = CompFactory.MuonCombinedInDetExtensionAlg(name,**kwargs)
     result.addEventAlgo( alg, primary=True )
     return result
@@ -122,6 +125,8 @@ def MuGirlStauAlgCfg(flags, name="MuGirlStauAlg",**kwargs):
     kwargs.setdefault("HasCSC", flags.Detector.GeometryCSC )
     kwargs.setdefault("HasSTgc", flags.Detector.GeometrysTGC )
     kwargs.setdefault("HasMM", flags.Detector.GeometryMM )
+    kwargs.setdefault("TGCPrepDataLocation",    
+                      'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
     kwargs.setdefault("CombinedTrackCollection","MuGirlStauCombinedTracks")
     kwargs.setdefault("METrackCollection","")
     kwargs.setdefault("SegmentCollection","MuGirlStauSegments")

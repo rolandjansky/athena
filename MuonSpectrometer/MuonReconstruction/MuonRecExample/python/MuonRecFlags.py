@@ -12,7 +12,7 @@ from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
 from RecExConfig.RecFlags import rec
 from MuonRecExample.MuonRecUtils import logMuon,fillJobPropertyContainer,SummaryJobProperty
-
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from MuonRecExample.MuonStandaloneFlags import muonStandaloneFlags  # noqa: F401
 from MuonCnvExample.MuonCalibFlags import mdtCalibFlags   # noqa: F401
 
@@ -418,7 +418,7 @@ class MuonRec(JobPropertyContainer):
         setDefault(self.runCommissioningChain, False)
         setDefault(self.useAlignmentCorrections, DetFlags.detdescr.Muon_on() and rec.doMuon())
         setDefault(self.writeSDOs, rec.doWriteESD() and globalflags.DataSource != 'data')
-        setDefault(self.useTGCPriorNextBC,True)
+        setDefault(self.useTGCPriorNextBC, ConfigFlags.Muon.MuonTrigger)
         setDefault(self.doMuonIso,True)
         setDefault(self.useNewConfig, False)
         if beamFlags.beamType == 'cosmics' or beamFlags.beamType == 'singlebeam':
