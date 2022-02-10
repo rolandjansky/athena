@@ -2,8 +2,8 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MuonTrackCleanerCfg, MuonSegmentMomentumFromFieldCfg, MuonSeededSegmentFinderCfg, MuonEDMPrinterToolCfg
 from AthenaConfiguration.Enums import BeamType
-from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MuonTrackCleanerCfg, MuonSegmentMomentumFromFieldCfg, MuonSeededSegmentFinderCfg, MuonEDMPrinterTool
 from TrkConfig.AtlasExtrapolatorToolsConfig import MuonSTEP_PropagatorCfg
 from MuonConfig.MuonSegmentFindingConfig import MuonSegmentFittingToolCfg 
 
@@ -48,7 +48,7 @@ def MooTrackFitterCfg(flags, name = 'MooTrackFitter', **kwargs):
     result.addPublicTool(momentum_estimator)
     kwargs.setdefault("SegmentMomentum", momentum_estimator )
     
-    kwargs.setdefault("MuonPrinterTool", MuonEDMPrinterTool(flags) )
+    kwargs.setdefault("MuonPrinterTool", result.getPrimaryAndMerge(MuonEDMPrinterToolCfg(flags) ))
 
     acc = MuonTrackToSegmentToolCfg(flags)
     track_to_segment_tool =  acc.getPrimary()
@@ -149,7 +149,7 @@ def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", **kwargs):
     kwargs.setdefault("TrackToSegmentTool", track_to_segment_tool)    
     result.merge(acc)
     
-    kwargs.setdefault("Printer", MuonEDMPrinterTool(flags) )
+    kwargs.setdefault("Printer", result.getPrimaryAndMerge(MuonEDMPrinterToolCfg(flags)))
 
     kwargs.setdefault('Extrapolator', result.popToolsAndMerge( MuonTrackExtrapolationToolCfg(flags) ) )
 
@@ -205,7 +205,7 @@ def MooCandidateMatchingToolCfg(flags, name="MooCandidateMatchingTool", doSegmen
     result = ComponentAccumulator()
 
     # Won't explicitly configure MuonEDMHelperSvc
-    kwargs.setdefault("MuonPrinterTool", MuonEDMPrinterTool(flags) )
+    kwargs.setdefault("MuonPrinterTool", result.getPrimaryAndMerge(MuonEDMPrinterToolCfg(flags) ))
     kwargs.setdefault("Extrapolator", result.popToolsAndMerge(AtlasExtrapolatorCfg(flags)))
 
     acc = MuonSegmentMatchingToolCfg(flags, doPhiMatching = doSegmentPhiMatching)
@@ -340,7 +340,7 @@ def MuPatCandidateToolCfg(flags, name="MuPatCandidateTool", **kwargs):
     else:
         kwargs.setdefault("CscRotCreator", "")
 
-    kwargs.setdefault("MuonPrinterTool", MuonEDMPrinterTool(flags) )
+    kwargs.setdefault("MuonPrinterTool", result.getPrimaryAndMerge(MuonEDMPrinterToolCfg(flags) ))
 
     from MuonConfig.MuonRecToolsConfig import MuPatHitToolCfg
     kwargs.setdefault("HitTool", result.getPrimaryAndMerge(MuPatHitToolCfg(flags)))

@@ -7,9 +7,12 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType
 
 
-def MuonEDMPrinterTool(flags, name="MuonEDMPrinterTool", **kwargs):
+def MuonEDMPrinterToolCfg(flags, name="MuonEDMPrinterTool", **kwargs):
+    result = ComponentAccumulator()    
     kwargs.setdefault('TgcPrdCollection', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
-    return CompFactory.Muon.MuonEDMPrinterTool(name, **kwargs)
+    the_tool = CompFactory.Muon.MuonEDMPrinterTool(name, **kwargs)
+    result.addPublicTool(the_tool, primary = True)
+    return result
 
 def MuonTrackToSegmentToolCfg(flags,name="MuonTrackToSegmentTool", **kwargs):
     Muon__MuonTrackToSegmentTool=CompFactory.Muon.MuonTrackToSegmentTool
@@ -61,7 +64,7 @@ def MuonSeededSegmentFinderCfg(flags,name="MuonSeededSegmentFinder", **kwargs):
     if not flags.Detector.GeometryMM:
         kwargs.setdefault("MMPrepDataContainer","")
     
-    kwargs.setdefault("Printer", MuonEDMPrinterTool(flags) )
+    kwargs.setdefault("Printer", result.getPrimaryAndMerge(MuonEDMPrinterToolCfg(flags)) )
     acc = MdtDriftCircleOnTrackCreatorCfg(flags)
     kwargs.setdefault("MdtRotCreator", acc.getPrimary())
     result.merge(acc)
@@ -124,15 +127,14 @@ def MuonTrackSummaryToolCfg(flags, name="MuonTrackSummaryTool", **kwargs):
 
 def MuonTrackScoringToolCfg(flags, name="MuonTrackScoringTool", **kwargs):
     Muon__MuonTrackScoringTool=CompFactory.Muon.MuonTrackScoringTool
-    
     # m_trkSummaryTool("Trk::TrackSummaryTool"),    
-    # m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     result = ComponentAccumulator()
     acc = MuonTrackSummaryToolCfg(flags)
     track_summary = acc.getPrimary( )
     acc.addPublicTool(track_summary)
     result.merge(acc)
     kwargs.setdefault('SumHelpTool', track_summary)
+    kwargs.setdefault("EDMPrinter", result.getPrimaryAndMerge(MuonEDMPrinterToolCfg(flags)) )
     result.setPrivateTools(Muon__MuonTrackScoringTool(name=name,**kwargs))
     return result
 
@@ -197,8 +199,7 @@ def MuonTrackCleanerCfg(flags, name="MuonTrackCleaner", **kwargs):
     result.merge(acc)
     kwargs.setdefault("Fitter", fitter)
 
-    # kwargs.setdefault("MagFieldSvc", mag_field_svc) Default for moment
-    kwargs.setdefault("Printer", MuonEDMPrinterTool(flags) )
+    kwargs.setdefault("Printer", result.getPrimaryAndMerge(MuonEDMPrinterToolCfg(flags)) )
 
     kwargs.setdefault("MaxAvePullSumPerChamber", 6)
     kwargs.setdefault("Chi2Cut", flags.Muon.Chi2NDofCut)
