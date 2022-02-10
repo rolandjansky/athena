@@ -13,7 +13,7 @@ ATLAS_EXTRA_CMAKE_ARGS=(-DLCG_VERSION_NUMBER=101
                         -DLCG_VERSION_POSTFIX="_ATLAS_10"
                         -DATLAS_GAUDI_TAG="v36r4.000"
                         -DATLAS_COOL_TAG="COOL_3_3_9"
-                        -DATLAS_GEOMODEL_TAG="4.2.5" 
+                        -DATLAS_GEOMODEL_TAG="4.2.5") 
 ATLAS_EXTRA_MAKE_ARGS=()
 
 # Let "the common script" do all the heavy lifting.
