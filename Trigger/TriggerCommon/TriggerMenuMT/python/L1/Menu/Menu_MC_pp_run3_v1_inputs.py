@@ -167,10 +167,10 @@ def defineInputsMenu():
             None,None,
 
             # jLJ thresholds for commissioning
-            'jLJ80', 'jLJ100', 'jLJ140', 'jLJ160', 
+            'jLJ80', 'jLJ120', 'jLJ140', 'jLJ180',
 
             # jLJ thresholds for production
-            'jLJSPARE1', 'jLJSPARE2', 'jLJSPARE3', 'jLJSPARE4',
+            'jLJ60', 'jLJ100', 'jLJ160', 'jLJ200',
 
         ]
     })

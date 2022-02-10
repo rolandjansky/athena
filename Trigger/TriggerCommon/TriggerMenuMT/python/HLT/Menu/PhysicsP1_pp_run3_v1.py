@@ -248,7 +248,7 @@ def addP1Signatures(chains):
                 raise RuntimeError("Move %s chain to Physics menu file",chain.name)            
             if 'PS:Online' not in chain.groups:
                 log.error("chain %s in PhysicsP1 menu needs to the group 'PS:Online'", chain.name)
-                raise RuntimeError("Add the group 'PS:Online' to the chain %s",chain.name)                
+                raise RuntimeError("Add the group 'PS:Online' to the chain %s",chain.name)
 
     for sig in chainsP1:
         chains[sig] += chainsP1[sig]

@@ -156,7 +156,9 @@ def defineMenu():
         'L1_MU3V_jJ30', 'L1_MU3V_jJ40', 'L1_MU5VF_jJ90',  #L1_MU3V_jJ30 added temporarily 
   
         # jLJ
-        'L1_jLJ80', 'L1_jLJ100', 'L1_jLJ140', 'L1_jLJ160', 
+        'L1_jLJ80', 'L1_jLJ120', 'L1_jLJ140', 'L1_jLJ180',
+        # Production thresholds, not used in commissioning
+        'L1_jLJ60', 'L1_jLJ100', 'L1_jLJ160', 'L1_jLJ200',
 
         # jEM
         'L1_jEM20', 'L1_jEM20M',   
