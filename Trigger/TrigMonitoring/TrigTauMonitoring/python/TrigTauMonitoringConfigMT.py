@@ -406,6 +406,8 @@ class TrigTauMonAlgBuilder:
                             xbins=140,xmin=10,xmax=80,
                             ybins=42,ymin=-1,ymax=20)
     monGroup.defineHistogram('L1RoIEt', title='L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI',xbins=30,xmin=0,xmax=150)
+    monGroup.defineHistogram('L1RoIRCore', title='L1 RoI RCore isolation; rCore isolation; N RoI',xbins=20,xmin=0,xmax=2)
+    monGroup.defineHistogram('L1RoIRHad' , title='L1 RoI RHAD isolation; rHad isolation; N RoI'  ,xbins=20,xmin=0,xmax=2)
 
                              
   #
