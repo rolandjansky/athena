@@ -82,10 +82,6 @@ private:
                                   Trk::ParticleHypothesis particleHypothesis,
                                   MaterialUpdateType updateType) const;
 
-  std::pair<const Trk::MaterialProperties*, double> getMaterialProperties(
-    const Trk::TrackParameters* trackParameters,
-    const Trk::Layer& layer) const;
-
   GsfCombinedMaterialEffects m_materialEffects{};
 
   Gaudi::Property<unsigned int> m_maximumNumberOfComponents{

@@ -33,7 +33,60 @@ updateP(double& qOverP, double deltaP)
   qOverP = qOverP > 0. ? 1. / p : -1. / p;
   return true;
 }
+
+std::pair<const Trk::MaterialProperties*, double>
+getMaterialProperties(const Trk::TrackParameters* trackParameters,
+                      const Trk::Layer& layer,
+                      bool useReferenceMaterial)
+{
+
+  const Trk::MaterialProperties* materialProperties(nullptr);
+  double pathCorrection(0.);
+
+  // Incorporate the reference material
+  if (useReferenceMaterial) {
+    // Get the surface associated with the parameters
+    const Trk::Surface* surface = &(trackParameters->associatedSurface());
+    // Only utilise the reference material if an associated detector element
+    // exists
+    if (surface && surface->associatedDetectorElement()) {
+      // Get the layer material properties
+      const Trk::LayerMaterialProperties* layerMaterial =
+        layer.layerMaterialProperties();
+      // Assign the material properties
+      materialProperties =
+        layerMaterial ? layerMaterial->fullMaterial(trackParameters->position())
+                      : nullptr;
+      // Determine the pathCorrection if the material properties exist
+      pathCorrection = materialProperties
+                         ? 1. / std::abs(surface->normal().dot(
+                                  trackParameters->momentum().unit()))
+                         : 0.;
+    }
+  }
+  // Check that the material properties have been defined - if not define them
+  // from the layer information
+  materialProperties = materialProperties
+                         ? materialProperties
+                         : layer.fullUpdateMaterialProperties(*trackParameters);
+  // Bail out if still no material properties can be found
+  if (!materialProperties) {
+    return { nullptr, 0 };
+  }
+  // Define the path correction
+  pathCorrection =
+    pathCorrection > 0.
+      ? pathCorrection
+      : layer.surfaceRepresentation().pathCorrection(
+          trackParameters->position(), trackParameters->momentum());
+
+  // The pathlength ( in mm ) is the path correction * the thickness of the
+  // material
+  double pathLength = pathCorrection * materialProperties->thickness();
+  return { materialProperties, pathLength };
 }
+
+} // end of anonymous namespace
 
 Trk::GsfMaterialMixtureConvolution::GsfMaterialMixtureConvolution(
   const std::string& type,
@@ -232,7 +285,8 @@ Trk::GsfMaterialMixtureConvolution::update(
 
     // Get the material effects and store them in the cache
     std::pair<const Trk::MaterialProperties*, double> matPropPair =
-      getMaterialProperties(inputState[i].first.get(), layer);
+      getMaterialProperties(
+        inputState[i].first.get(), layer, m_useReferenceMaterial);
 
     if (!matPropPair.first) {
       ATH_MSG_DEBUG("No material properties .. dont apply material effects");
@@ -461,64 +515,3 @@ Trk::GsfMaterialMixtureConvolution::update(
   return mergedState;
 }
 
-std::pair<const Trk::MaterialProperties*, double>
-Trk::GsfMaterialMixtureConvolution::getMaterialProperties(
-  const Trk::TrackParameters* trackParameters,
-  const Trk::Layer& layer) const
-{
-
-  const Trk::MaterialProperties* materialProperties(nullptr);
-  double pathCorrection(0.);
-
-  // Incorporate the reference material
-
-  if (m_useReferenceMaterial) {
-
-    // Get the surface associated with the parameters
-    const Trk::Surface* surface = &(trackParameters->associatedSurface());
-
-    // Only utilise the reference material if an associated detector element
-    // exists
-    if (surface && surface->associatedDetectorElement()) {
-
-      // Get the layer material properties
-      const Trk::LayerMaterialProperties* layerMaterial =
-        layer.layerMaterialProperties();
-
-      // Assign the material properties
-      materialProperties =
-        layerMaterial ? layerMaterial->fullMaterial(trackParameters->position())
-                      : nullptr;
-
-      // Determine the pathCorrection if the material properties exist
-      pathCorrection = materialProperties
-                         ? 1. / std::abs(surface->normal().dot(
-                                  trackParameters->momentum().unit()))
-                         : 0.;
-    }
-  }
-
-  // Check that the material properties have been defined - if not define them
-  // from the layer information
-  materialProperties = materialProperties
-                         ? materialProperties
-                         : layer.fullUpdateMaterialProperties(*trackParameters);
-
-  // Bail out if still no material properties can be found
-  if (!materialProperties) {
-    return { nullptr, 0 };
-  }
-
-  // Define the path correction
-  pathCorrection =
-    pathCorrection > 0.
-      ? pathCorrection
-      : layer.surfaceRepresentation().pathCorrection(
-          trackParameters->position(), trackParameters->momentum());
-
-  // The pathlength ( in mm ) is the path correction * the thickness of the
-  // material
-  double pathLength = pathCorrection * materialProperties->thickness();
-
-  return { materialProperties, pathLength };
-}
