@@ -159,10 +159,11 @@ class TopoAlgoDefMultiplicity(object):
             tm.registerTopoAlgo(alg)
 
         jLJThresholds_2bits = [ 
-            'jLJ80', 'jLJ100', 'jLJ140', 'jLJ160', 
+            # jLJ thresholds for commissioning
+            'jLJ80', 'jLJ120', 'jLJ140', 'jLJ180',
 
-            #spares
-            'jLJSPARE1', 'jLJSPARE2', 'jLJSPARE3', 'jLJSPARE4',
+            # jLJ thresholds for production
+            'jLJ60', 'jLJ100', 'jLJ160', 'jLJ200',
         ]
 
         for jLJet in jLJThresholds_2bits:
