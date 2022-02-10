@@ -47,16 +47,11 @@
 
 using std::ostringstream;
 using std::setw;
-using std::bind1st;
-using std::find_if;
-using std::mem_fun;
-using std::not1;
 using std::hex;
 using std::dec;
 using std::endl;
 using std::ends;
 using std::pair;
-using std::setw;
 using std::string;
 using std::vector;
 
