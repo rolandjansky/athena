@@ -397,18 +397,22 @@ MuonChainParts_Default = {
 #==========================================================
 AllowedTopos_Bphysics = [
     'bJpsimumu','bJpsi','bJpsimutrk','bUpsimumu','bUpsi','bBmumu','bDimu','bDimu2700','bDimu6000','bPhi','bTau','b3mu',
-    'bBmumux','b0dRAB12vtx20', 'b0dRAB127invmAB22vtx20', 'b0dRAB207invmAB22vtx20', 'b7invmAB22vtx20', 
+    'bBmumux', 'bBmux', 'b0dRAB12vtx20', 'b0dRAB127invmAB22vtx20', 'b0dRAB207invmAB22vtx20', 'b7invmAB22vtx20', 
     
     ##### TO BE REMOVED ONCE IMPLEMENTED IN SIGNATURE CODE
     # topoVariants
     'BsmumuPhi','BpmumuKp','BcmumuPi','BdmumuKst','LbPqKm','BcmumuDsloose','BcmumuDploose','BcmumuD0Xloose','BcmumuDstarloose',
+    'BpmuD0X','BdmuDpX','BdmuDstarX','BsmuDsX','LbmuLcX',
     # topoExtras
     'Lxy0','noos','nocut'
     #########Remove until here############
 
 ]
-AllowedTopos_Bphysics_topoVariant=['BsmumuPhi','BpmumuKp','BcmumuPi','BdmumuKst','LbPqKm','BcmumuDsloose','BcmumuDploose','BcmumuD0Xloose','BcmumuDstarloose']
-AllowedTopos_Bphysics_topoExtra=['Lxy0','noos','nocut']
+AllowedTopos_Bphysics_topoVariant = [
+    'BsmumuPhi','BpmumuKp','BcmumuPi','BdmumuKst','LbPqKm','BcmumuDsloose','BcmumuDploose','BcmumuD0Xloose','BcmumuDstarloose',
+    'BpmuD0X','BdmuDpX','BdmuDstarX','BsmuDsX','LbmuLcX'
+]
+AllowedTopos_Bphysics_topoExtra = ['Lxy0','noos','nocut']
 AllAllowedTopos_Bphysics = AllowedTopos_Bphysics_topoVariant+AllowedTopos_Bphysics_topoExtra+AllowedTopos_Bphysics
 
 # ---- Bphysics Dictionary of all allowed Values ----
