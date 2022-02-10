@@ -708,7 +708,7 @@ void IDPerfMonWenu::FillHistosPerCluster(const xAOD::CaloCluster* cluster, const
     // match in eta and phi separately and make dEta and dPhi plots
     if (dEta < 1.0e+20) {
       m_Wenu_deta[region]->Fill(dEta);
-      if (std::abs(dEta < 0.05)) { // calculate mean only for those in matching window
+      if (std::abs(dEta) < 0.05) { // calculate mean only for those in matching window
         m_Wenu_deta_vs_eta[region]->Fill(cluster->eta(),dEta);
         m_Wenu_deta_vs_phi[region]->Fill(cluster->phi(),dEta);
         m_Wenu_absdeta_vs_eta[region]->Fill(cluster->eta(),std::abs(dEta));
@@ -717,7 +717,7 @@ void IDPerfMonWenu::FillHistosPerCluster(const xAOD::CaloCluster* cluster, const
     }
     if (dPhi < 1.0e+20) {
       m_Wenu_dphi[region]->Fill(dPhi);
-      if (std::abs(dPhi < 0.1)) { // calculate mean only for those in matching window
+      if (std::abs(dPhi) < 0.1) { // calculate mean only for those in matching window
         m_Wenu_dphi_vs_eta[region]->Fill(cluster->eta(),dPhi);
         m_Wenu_dphi_vs_phi[region]->Fill(cluster->phi(),dPhi);
         m_Wenu_absdphi_vs_eta[region]->Fill(cluster->eta(),std::abs(dPhi));
