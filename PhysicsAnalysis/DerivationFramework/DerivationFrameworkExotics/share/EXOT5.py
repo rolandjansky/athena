@@ -261,6 +261,31 @@ if DerivationFrameworkHasTruth:
     ToolSvc += EXOT5TruthMuonDressingTool
     augmentationTools.append(EXOT5TruthMuonDressingTool)
 
+
+    # Decorate EXOT5TruthPhotons with truth-particle-level etcone20,40
+    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthIsolationTool as dtit
+    EXOT5TruthPhotonEtIsolationTool = dtit(name = "EXOT5TruthPhotonEtIsolationTool",
+                                  isoParticlesKey        = "EXOT5TruthPhotons",
+                                  allParticlesKey        = "TruthParticles",
+                                  particleIDsToCalculate = [-11,11,22],
+                                  IsolationConeSizes     = [0.2,0.4],
+                                  excludeIDsFromCone     = [-16,-14,-13,-12,12,13,14,16],
+                                  IsolationVarNamePrefix = 'etcone',
+                                  ChargedParticlesOnly   = False)
+    ToolSvc += EXOT5TruthPhotonEtIsolationTool
+    augmentationTools.append(EXOT5TruthPhotonEtIsolationTool)
+
+    # Decorate EXOT5TruthPhotons with truth-particle-level ptcone20,40
+    EXOT5TruthPhotonPtIsolationTool = dtit(name = "EXOT5TruthPhotonPtIsolationTool",
+                                  isoParticlesKey        = "EXOT5TruthPhotons",
+                                  allParticlesKey        = "TruthParticles",
+                                  particleIDsToCalculate = [-11,11,22],
+                                  IsolationConeSizes     = [0.2,0.4],
+                                  IsolationVarNamePrefix = 'ptcone',
+                                  ChargedParticlesOnly   = True)
+    ToolSvc += EXOT5TruthPhotonPtIsolationTool
+    augmentationTools.append(EXOT5TruthPhotonPtIsolationTool)
+
     # Truth jets
     #addAntiKt4TruthJets(exot5Seq,"EXOT5")
 
